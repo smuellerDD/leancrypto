@@ -1,0 +1,53 @@
+/*
+ * Copyright (C) 2020, Stephan Mueller <smueller@chronox.de>
+ *
+ * License: see LICENSE file in root directory
+ *
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, ALL OF
+ * WHICH ARE HEREBY DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+ * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ */
+
+#include "binhexbin.h"
+#include "compare.h"
+#include "lc_sha3.h"
+
+static int sha3_384_tester(void)
+{
+	LC_HASH_CTX_ON_STACK(ctx384, lc_sha3_384);
+	static const uint8_t msg_384[] = { 0xE7, 0x3B, 0xAD };
+	static const uint8_t exp_384[] = { 0xc4, 0x02, 0xc8, 0x29, 0x90, 0x68,
+					   0xaa, 0x30, 0x28, 0xa9, 0xa4, 0x1c,
+					   0xff, 0x9a, 0x0b, 0x74, 0x27, 0x31,
+					   0x92, 0x70, 0xf2, 0x42, 0x18, 0xda,
+					   0xe8, 0x68, 0x1a, 0x89, 0x01, 0x51,
+					   0x0c, 0x47, 0x5a, 0x5f, 0xb9, 0x6b,
+					   0x5c, 0xbc, 0x32, 0xdc, 0xa1, 0x5f,
+					   0x28, 0x53, 0xa0, 0xce, 0x55, 0xf6 };
+	uint8_t act[LC_SHA3_384_SIZE_DIGEST];
+	int ret;
+
+	printf("hash ctx len %lu\n", LC_HASH_CTX_SIZE(lc_sha3_384));
+	lc_hash_init(ctx384);
+	lc_hash_update(ctx384, msg_384, 3);
+	lc_hash_final(ctx384, act);
+	ret = compare(act, exp_384, LC_SHA3_384_SIZE_DIGEST, "SHA3-384");
+	lc_hash_zero(ctx384);
+	return ret;
+}
+
+int main(int argc, char *argv[])
+{
+	(void)argc;
+	(void)argv;
+	return sha3_384_tester();
+}

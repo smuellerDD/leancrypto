@@ -1,0 +1,41 @@
+option('sha2-256', type: 'feature', value: 'enabled',
+       description: 'Enable SHA2-256 support')
+option('sha2-512', type: 'feature', value: 'enabled',
+       description: 'Enable SHA2-512 support')
+option('sha3', type: 'feature', value: 'enabled',
+       description: 'Enable SHA3 support')
+
+option('chacha20', type: 'feature', value: 'enabled',
+       description: 'Enable ChaCha20 support')
+option('chacha20_drng', type: 'feature', value: 'enabled',
+       description: 'Enable ChaCha20 DRNG support')
+
+option('drbg_hash', type: 'feature', value: 'enabled',
+       description: 'Enable Hash DRBG')
+option('drbg_hmac', type: 'feature', value: 'enabled',
+       description: 'Enable HMAC DRBG')
+
+option('hash_crypt', type: 'feature', value: 'enabled',
+       description: 'Enable Hash-Crypt support')
+
+option('hmac', type: 'feature', value: 'enabled',
+       description: 'Enable HMAC support')
+
+option('hkdf', type: 'feature', value: 'enabled',
+       description: 'Enable HKDF')
+option('kdf_ctr', type: 'feature', value: 'enabled',
+       description: 'Enable KDF Counter Mode')
+option('kdf_fb', type: 'feature', value: 'enabled',
+       description: 'Enable KDF Feedback Mode')
+option('kdf_dpi', type: 'feature', value: 'enabled',
+       description: 'Enable KDF Double Pipeline Mode')
+option('pbkdf2', type: 'feature', value: 'enabled',
+       description: 'Enable Password-Based Key Derivation version 2')
+
+option('kmac', type: 'feature', value: 'enabled',
+       description: 'Enable KMAC support')
+
+option('hotp', type: 'feature', value: 'enabled',
+       description: 'Enable HOTP support')
+option('totp', type: 'feature', value: 'enabled',
+       description: 'Enable HOTP support')

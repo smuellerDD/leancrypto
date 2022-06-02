@@ -1,0 +1,162 @@
+/*
+ * Copyright (C) 2022, Stephan Mueller <smueller@chronox.de>
+ *
+ * License: see LICENSE file in root directory
+ *
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, ALL OF
+ * WHICH ARE HEREBY DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+ * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ */
+
+#include "bitshift.h"
+#include "memcmp_secure.h"
+
+static inline int
+memcmp_secure_aligned(const uint8_t *ptr, uint32_t alignmask)
+{
+	if ((uintptr_t)ptr & alignmask)
+		return 0;
+	return 1;
+}
+
+static inline int
+memcmp_secure_8(const void *s1, const void *s2, size_t n)
+{
+	const uint8_t *s1p = s1, *s2p = s2;
+	int ret = 0;
+
+	while (n) {
+		ret |= (*s1p != *s2p);
+		n--;
+		s1p++;
+		s2p++;
+	}
+
+	return ret;
+}
+
+static inline int
+memcmp_secure_32_aligned(const void *s1, const void *s2, size_t n)
+{
+	/*
+	 * We can ignore the alignment warning as we checked
+	 * for proper alignment.
+	 */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
+	uint32_t *s1_word = (uint32_t *)s1;
+	uint32_t *s2_word = (uint32_t *)s2;
+#pragma GCC diagnostic pop
+	int ret = 0;
+
+	for (; n >= sizeof(*s1_word); n -= sizeof(*s2_word))
+		ret |= (*s1_word++ != *s2_word++);
+
+	ret |= memcmp_secure_8((uint8_t *)s1_word, (uint8_t *)s2_word, n);
+
+	return ret;
+}
+
+static inline int
+memcmp_secure_32(const void *s1, const void *s2, size_t n)
+{
+	const uint8_t *s1p, *s2p;
+	int ret;
+
+	if (memcmp_secure_aligned(s1, sizeof(uint32_t) - 1) &&
+	    memcmp_secure_aligned(s2, sizeof(uint32_t) - 1))
+		return memcmp_secure_32_aligned(s1, s2, n);
+
+	s1p = s1;
+	s2p = s2;
+	ret = 0;
+
+	if (n > sizeof(uint32_t)) {
+		ret |= (ptr_to_32(s1p) != ptr_to_32(s2p));
+		n -= sizeof(uint32_t);
+		s1p += sizeof(uint32_t);
+		s2p += sizeof(uint32_t);
+	}
+
+	ret |= memcmp_secure_8(s1p, s2p, n);
+
+	return ret;
+}
+
+#ifdef __LP64__
+static inline int
+memcmp_secure_64_aligned(const void *s1, const void *s2, size_t n)
+{
+	/*
+	 * We can ignore the alignment warning as we checked
+	 * for proper alignment.
+	 */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
+	uint64_t *s1_dword = (uint64_t *)s1;
+	uint64_t *s2_dword = (uint64_t *)s2;
+#pragma GCC diagnostic pop
+	int ret = 0;
+
+	for (; n >= sizeof(*s1_dword); n -= sizeof(*s1_dword))
+		ret |= (*s2_dword++ != *s1_dword++);
+
+	ret |= memcmp_secure_32_aligned((uint8_t *)s1_dword,
+					(uint8_t *)s2_dword, n);
+
+	return ret;
+}
+#endif
+
+static inline int
+memcmp_secure_64(const void *s1, const void *s2, size_t n)
+{
+	const uint8_t *s1p, *s2p;
+	int ret;
+
+#ifdef __LP64__
+	if (memcmp_secure_aligned(s1, sizeof(uint64_t) - 1) &&
+	    memcmp_secure_aligned(s2, sizeof(uint64_t) - 1))
+		return memcmp_secure_64_aligned(s1, s2, n);
+	else
+#endif
+	s1p = s1;
+	s2p = s2;
+	ret = 0;
+
+	if (n > sizeof(uint64_t)) {
+		ret |= (ptr_to_64(s1p) != ptr_to_64(s2p));
+		n -= sizeof(uint64_t);
+		s1p += sizeof(uint64_t);
+		s2p += sizeof(uint64_t);
+	}
+
+	ret |= memcmp_secure_32(s1p, s2p, n);
+
+	return ret;
+}
+
+int memcmp_secure(const void *s1, size_t s1n, const void *s2, size_t s2n)
+{
+	size_t n = s1n;
+
+	int ret = 0;
+
+	if (s1n != s2n) {
+		ret = 1;
+		n = (s1n > s2n) ? s2n : s1n;
+	}
+
+	ret |= memcmp_secure_64(s1, s2, n);
+
+	return ret;
+}
