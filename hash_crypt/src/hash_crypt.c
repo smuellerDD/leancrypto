@@ -114,7 +114,7 @@ ssize_t lc_hc_crypt(struct lc_hc_cryptor *hc, const uint8_t *in, uint8_t *out,
 DSO_PUBLIC
 ssize_t lc_hc_encrypt_tag(struct lc_hc_cryptor *hc,
 			  const uint8_t *aad, size_t aadlen,
-		          uint8_t *tag, size_t taglen)
+			  uint8_t *tag, size_t taglen)
 {
 	struct lc_hmac_ctx *auth_ctx = &hc->auth_ctx;
 	size_t digestsize = lc_hc_get_tagsize(hc);
@@ -231,7 +231,7 @@ int lc_hc_alloc(const struct lc_hash *hash, struct lc_hc_cryptor **hc)
 {
 	struct lc_hc_cryptor *tmp;
 	int ret = posix_memalign((void *)&tmp, sizeof(uint64_t),
-				                         LC_HC_CTX_SIZE(hash));
+				 LC_HC_CTX_SIZE(hash));
 
 	if (ret)
 		return -ret;

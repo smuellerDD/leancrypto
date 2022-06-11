@@ -59,7 +59,7 @@ static inline void lc_cc20_drng_zero(struct lc_chacha20_drng_ctx *cc20_ctx)
 }
 
 /**
- * @brief Allocate stack memory for the Hash DRBG context
+ * @brief Allocate stack memory for the ChaCha20 context
  *
  * @param name [in] Name of the stack variable
  */

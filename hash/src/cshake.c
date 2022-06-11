@@ -65,7 +65,7 @@ void lc_cshake_init(struct lc_hash_ctx *ctx,
 	/*
 	 * This value is precomputed from the code above for SHA3-256
 	 */
-	   lc_hash_update(ctx, bytepad_val, sizeof(bytepad_val));
+	lc_hash_update(ctx, bytepad_val, sizeof(bytepad_val));
 
 	/* encode_string n */
 	len = lc_left_encode(buf, nlen << 3);
