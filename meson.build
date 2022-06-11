@@ -83,6 +83,7 @@ include_files = files([
 	'./drbg/api/lc_hmac_drbg.h',
 	'./drbg/api/lc_hmac_drbg_sha512.h',
 	'./drng/api/lc_chacha20_drng.h',
+	'./drng/api/lc_kmac256_drng.h',
 	'./hash/api/lc_cshake.h',
 	'./hash/api/lc_hash.h',
 	'./hash/api/lc_sha256.h',

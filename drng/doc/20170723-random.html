@@ -1,0 +1,1346 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style type="text/css">
+body{font-family:sans-serif}
+p{font-size:0.9em;line-height:1.6em}
+ul{font-size:0.9em;line-height:1.6em}
+ol{font-size:0.9em;line-height:1.6em}
+blockquote{font-size:0.9em;line-height:1.6em}
+pre{font-size:0.9em;line-height:1.6em}
+tt{font-size:1.2em}
+h1{font-size:1.5em}
+h2{font-size:1.3em}
+h3{font-size:1.0em}
+h1 a{text-decoration:none}
+table a{text-decoration:none}
+table tr{font-size:0.9em;line-height:1.6em}
+.nav summary{font-size:0.8em;line-height:1.6em}
+.nav table tr{font-size:0.8em;line-height:1.6em}
+.subtitle{font-weight:normal}
+.invisible{display:none}
+.pic30left {float:left;width:30%;margin:0.2em}
+.pic30 {float:right;width:30%;margin:0.2em}
+.pic50 {float:right;width:50%;margin:0.2em}
+.clear {clear:both}
+</style>
+<title>
+cr.yp.to: 
+2017.07.23: Fast-key-erasure random-number generators
+</title>
+</head>
+<body>
+<h1>The cr.yp.to <a href="index.html" accesskey=i>blog</a></h1>
+<hr>
+<div class="nav">
+<table style="padding:0px;margin:0px" cellspacing=0 cellpadding=0>
+<tr><td>Newer (Access-K): <a href=20171017-collisions.html accesskey=k><b>2017.10.17: Quantum algorithms to find collisions:</b></a> <span class=subtitle>Analysis of several algorithms for the collision problem, and for the related multi-target preimage problem. #collision #preimage #pqcrypto</span></td></tr>
+<tr><td>Older (Access-J): <a href=20170719-pqbench.html accesskey=j><b>2017.07.19: Benchmarking post-quantum cryptography:</b></a> <span class=subtitle>News regarding the SUPERCOP benchmarking system, and more recommendations to NIST. #benchmarking #supercop #nist #pqcrypto</span></td></tr>
+</table>
+<details><summary>Table of contents (Access-I for index page)</summary>
+<table style="padding:0px;margin:0px" cellspacing=0 cellpadding=0>
+<tr><td><a href=20220129-plagiarism.html><b>2022.01.29: Plagiarism as a patent amplifier:</b></a> <span class=subtitle>Understanding the delayed rollout of post-quantum cryptography. #pqcrypto #patents #ntru #lpr #ding #peikert #newhope</span></td></tr>
+<tr><td><a href=20201206-msword.html><b>2020.12.06: Optimizing for the wrong metric, part 1: Microsoft Word:</b></a> <span class=subtitle>Review of "An Efficiency Comparison of Document Preparation Systems Used in Academic Research and Development" by Knauff and Nejasmic. #latex #word #efficiency #metrics</span></td></tr>
+<tr><td><a href=20191024-eddsa.html><b>2019.10.24: Why EdDSA held up better than ECDSA against Minerva:</b></a> <span class=subtitle>Cryptosystem designers successfully predicting, and protecting against, implementation failures. #ecdsa #eddsa #hnp #lwe #bleichenbacher #bkw</span></td></tr>
+<tr><td><a href=20190430-vectorize.html><b>2019.04.30: An introduction to vectorization:</b></a> <span class=subtitle>Understanding one of the most important changes in the high-speed-software ecosystem. #vectorization #sse #avx #avx512 #antivectors</span></td></tr>
+<tr><td><a href=20171105-infineon.html><b>2017.11.05: Reconstructing ROCA:</b></a> <span class=subtitle>A case study of how quickly an attack can be developed from a limited disclosure. #infineon #roca #rsa</span></td></tr>
+<tr><td><a href=20171017-collisions.html><b>2017.10.17: Quantum algorithms to find collisions:</b></a> <span class=subtitle>Analysis of several algorithms for the collision problem, and for the related multi-target preimage problem. #collision #preimage #pqcrypto</span></td></tr>
+<tr><td><b>2017.07.23: Fast-key-erasure random-number generators:</b> An effort to clean up several messes simultaneously. #rng #forwardsecrecy #urandom #cascade #hmac #rekeying #proofs</td></tr>
+<tr><td><a href=20170719-pqbench.html><b>2017.07.19: Benchmarking post-quantum cryptography:</b></a> <span class=subtitle>News regarding the SUPERCOP benchmarking system, and more recommendations to NIST. #benchmarking #supercop #nist #pqcrypto</span></td></tr>
+<tr><td><a href=20161030-pqnist.html><b>2016.10.30: Some challenges in post-quantum standardization:</b></a> <span class=subtitle>My comments to NIST on the first draft of their call for submissions. #standardization #nist #pqcrypto</span></td></tr>
+<tr><td><a href=20160607-dueprocess.html><b>2016.06.07: The death of due process:</b></a> <span class=subtitle>A few notes on technology-fueled normalization of lynch mobs targeting both the accuser and the accused. #ethics #crime #punishment</span></td></tr>
+<tr><td><a href=20160516-quantum.html><b>2016.05.16: Security fraud in Europe's "Quantum Manifesto":</b></a> <span class=subtitle>How quantum cryptographers are stealing a quarter of a billion Euros from the European Commission. #qkd #quantumcrypto #quantummanifesto</span></td></tr>
+<tr><td><a href=20160315-jefferson.html><b>2016.03.15: Thomas Jefferson and Apple versus the FBI:</b></a> <span class=subtitle>Can the government censor how-to books? What if some of the readers are criminals? What if the books can be understood by a computer? An introduction to freedom of speech for software publishers. #censorship #firstamendment #instructions #software #encryption</span></td></tr>
+<tr><td><a href=20151120-batchattacks.html><b>2015.11.20: Break a dozen secret keys, get a million more for free:</b></a> <span class=subtitle>Batch attacks are often much more cost-effective than single-target attacks. #batching #economics #keysizes #aes #ecc #rsa #dh #logjam</span></td></tr>
+<tr><td><a href=20150314-optimizing.html><b>2015.03.14: The death of optimizing compilers:</b></a> <span class=subtitle>Abstract of my tutorial at ETAPS 2015. #etaps #compilers #cpuevolution #hotspots #optimization #domainspecific #returnofthejedi</span></td></tr>
+<tr><td><a href=20150218-printing.html><b>2015.02.18: Follow-You Printing:</b></a> <span class=subtitle>How Equitrac's marketing department misrepresents and interferes with your work. #equitrac #followyouprinting #dilbert #officespaceprinter</span></td></tr>
+<tr><td><a href=20140602-saber.html><b>2014.06.02: The Saber cluster:</b></a> <span class=subtitle>How we built a cluster capable of computing 3000000000000000000000 multiplications per year for just 50000 EUR. #nvidia #linux #howto</span></td></tr>
+<tr><td><a href=20140517-insns.html><b>2014.05.17: Some small suggestions for the Intel instruction set:</b></a> <span class=subtitle>Low-cost changes to CPU architecture would make cryptography much safer and much faster. #constanttimecommitment #vmul53 #vcarry #pipelinedocumentation</span></td></tr>
+<tr><td><a href=20140411-nist.html><b>2014.04.11: NIST's cryptographic standardization process:</b></a> <span class=subtitle>The first step towards improvement is to admit previous failures. #standardization #nist #des #dsa #dualec #nsa</span></td></tr>
+<tr><td><a href=20140323-ecdsa.html><b>2014.03.23: How to design an elliptic-curve signature system:</b></a> <span class=subtitle>There are many choices of elliptic-curve signature systems. The standard choice, ECDSA, is reasonable if you don't care about simplicity, speed, and security. #signatures #ecc #elgamal #schnorr #ecdsa #eddsa #ed25519</span></td></tr>
+<tr><td><a href=20140213-ideal.html><b>2014.02.13: A subfield-logarithm attack against ideal lattices:</b></a> <span class=subtitle>Computational algebraic number theory tackles lattice-based cryptography.</span></td></tr>
+<tr><td><a href=20140205-entropy.html><b>2014.02.05: Entropy Attacks!</b></a> <span class=subtitle>The conventional wisdom says that hash outputs can't be controlled; the conventional wisdom is simply wrong.</span></td></tr>
+</table></details></div><hr>
+<h2>2017.07.23: Fast-key-erasure random-number generators: <span class=subtitle>An effort to clean up several messes simultaneously. #rng #forwardsecrecy #urandom #cascade #hmac #rekeying #proofs</span></h2>
+<p>
+A stream cipher expands a secret key
+into a long stream of random bytes.
+The standard security goal for a stream cipher
+is easy to explain: the attacker can't distinguish
+the output bytes from independent uniform random bytes.
+Saying that a random byte is "uniform"
+means that each of the 2<sup>8</sup> possible bytes appears with probability 1/2<sup>8</sup>;
+"independent" means that the probability of a sequence of bytes
+is the product of the probabilities of the individual bytes.
+</p>
+<p>
+There are many ciphers whose secret keys are too short,
+making it impossible for them to achieve this security goal.
+But for the moment let's focus on the AES-256-CTR stream cipher,
+using a uniform random 256-bit key k
+(probability 1/2<sup>256</sup> of each particular 256-bit string).
+That's a long enough key:
+the attacker has a practically nonexistent chance of ever guessing k,
+even with a future quantum computer running Grover's algorithm.
+Saying "can't distinguish" doesn't mean zero chance;
+it means negligible chance for any reasonable cost.
+</p>
+<p>
+The central question in the AES literature
+is whether there's any feasible attack
+with a noticeable probability of distinguishing the 128-bit output blocks
+AES<sub>k</sub>(0), AES<sub>k</sub>(1), AES<sub>k</sub>(2), ... from
+a uniform random sequence of distinct blocks.
+The research details inspire confidence in the security of AES:
+any successful attack would be a huge breakthrough in cryptanalysis.
+</p>
+<p>
+Wait a minute: "distinct blocks"?
+"Distinct" wasn't part of the security goal!
+Inspecting b independent uniform random 128-bit blocks
+will find a collision with probability close to b(b−1)/2<sup>129</sup>;
+any collision shows immediately that these are not AES output blocks.
+As b grows,
+this becomes an increasingly severe failure of AES-256-CTR to reach the standard security goal.
+</p>
+<p>
+But let's assume for the moment
+that b is small enough that this isn't a problem.
+Then it's safe to rely on AES-256-CTR.
+</p>
+<h3>Key erasure</h3>
+<p>
+The main topic of this blog post is designing a high-security random-number generator (RNG).
+Sounds like this is solved by AES-256-CTR, right?
+Presumably,
+by hashing enough data from
+<a href="20140205-entropy.html">non-malicious</a>
+entropy sources,
+we can produce a 256-bit key
+that's completely unpredictable for the attacker,
+i.e., indistinguishable from a uniform random key.
+Then we run AES-256-CTR using this key
+to generate all the randomness that applications need.
+</p>
+<p>
+But suppose an attacker steals your computer
+and
+<a href="https://citp.princeton.edu/research/memory/">looks at</a>
+what's stored in memory.
+Can the attacker figure out random numbers that were previously generated?
+Yes: the AES-256-CTR key k was never erased,
+so the attacker can compute the whole historical
+sequence of random outputs:
+AES<sub>k</sub>(0), AES<sub>k</sub>(1), AES<sub>k</sub>(2), ...
+</p>
+<p>
+This is actively dangerous
+if you're relying on the "forward secrecy" of short-term-public-key systems.
+You use the RNG to generate, e.g., a one-minute ECC key
+or a single-use New Hope key;
+you receive data encrypted to that key;
+you erase the secret key and the plaintext (after reading the plaintext);
+you then expect that you're safe against an attacker who recorded the ciphertext,
+even if the attacker subsequently steals your computer.
+But this expectation is sabotaged by the RNG.
+In academic terminology,
+this is a failure of "forward security" of the RNG;
+in NIST terminology,
+it is a failure of "backtracking resistance".
+</p>
+<p>
+Fortunately, there's an easy fix:
+</p>
+<ul>
+<li>
+Starting from the 256-bit key k,
+generate (say) 48 blocks
+B<sub>0</sub> = AES<sub>k</sub>(0),
+B<sub>1</sub> = AES<sub>k</sub>(1),
+...,
+B<sub>47</sub> = AES<sub>k</sub>(47).
+This is a total of 768 bytes of AES output.
+</li>
+<li>
+Immediately <b>overwrite the key k</b>
+with the first two blocks B<sub>0</sub>, B<sub>1</sub>.
+</li>
+<li>
+Use the other blocks B<sub>2</sub>, ..., B<sub>47</sub> as 736 bytes of RNG output,
+of course <b>erasing each byte as soon as it is consumed</b>.
+</li>
+<li>
+Start over with the new key.
+</li>
+</ul>
+<p>
+This runs at practically the full speed of AES-CTR.
+An application that asks for short packets of randomness
+has forward security immediately after each packet,
+without having to pay for any extra AES computations.
+</p>
+<p>
+This RNG construction certainly isn't new
+but I don't recall ever hearing a good name for it.
+I'm going to call it a <b>fast-key-erasure RNG</b>,
+recognizing two aspects of the RNG design:
+first, the RNG erases k the moment that it uses k;
+second, keys generated as output from the RNG are immediately erased from the RNG,
+so the RNG is suitable for applications that erase their keys promptly.
+</p>
+<p>
+The rest of this blog post discusses alternatives, implementation, and security analysis.
+</p>
+<h3>NIST's pointlessly slow RNGs</h3>
+<p>
+NIST has stated that its standard "DRBGs"
+do "an extra step at the end of each request for random bytes"
+for backtracking resistance (forward security).
+More broadly,
+NIST has claimed that
+any crypto library's "get random bytes" call is
+"going to do this extra cryptographic work
+to ensure backtracking resistance".
+</p>
+<p>
+As far as I can tell,
+this isn't a political claim
+regarding the future popularity of NIST's current RNGs;
+instead it's a technical claim
+regarding the work that an RNG <i>must</i> do
+for forward security.
+But this technical claim is wrong,
+as illustrated by fast-key-erasure RNGs.
+</p>
+<p>
+Here's what's really weird about this.
+NIST describes its RNGs as "random bit generators".
+NIST emphasizes forward security as an important feature.
+But NIST's RNGs incur massive costs
+if the user actually wants forward secrecy after every random bit.
+Was there never an effort to optimize the RNGs
+to provide both advertised features simultaneously?
+</p>
+<p>
+NIST has an "AES-CTR-DRBG" RNG based on AES-CTR,
+but this RNG doesn't erase the key the instant that the key is used.
+The RNG starts generating blocks of AES output for the caller.
+The RNG continues generating enough blocks for all the randomness that the caller wants.
+<i>Finally</i>, once the caller is satisfied,
+the RNG generates further AES output to overwrite its key.
+If the caller merely wanted, say, 1 byte of random data,
+then there's
+</p>
+<ul>
+<li>an AES call to generate the byte of random data,
+and then
+</li>
+<li>an AES call to generate a new key,
+and
+</li>
+<li>another AES call if the user has sensibly opted for a 256-bit key
+(one 128-bit AES output block isn't enough for a new 256-bit key),
+and
+</li>
+<li>another AES call because NIST also maintains a random AES input block
+whose security benefit never seems to have been analyzed.
+</li>
+</ul>
+<p>
+That's 64 bytes of AES output, if I'm correctly deciphering the NIST standard,
+for 1 byte of useful random data.
+</p>
+<p>
+It's entirely possible that
+submissions to NIST's "Post-Quantum Cryptography Project"
+will be seriously slowed down by NIST's AES-CTR-DRBG.
+In reaction to this possibility,
+NIST seems to be recommending that submissions use an extended AES-CTR-DRBG interface
+that handles a request for b<sub>1</sub> bytes,
+a subsequent request for b<sub>2</sub> bytes,
+a subsequent request for b<sub>3</sub> bytes, etc.
+by implicitly generating a single AES-CTR-DRBG output with more than b<sub>1</sub>+b<sub>2</sub>+b<sub>3</sub>+... bytes
+and returning segments of this output.
+This is compatible with answering each request immediately:
+the extended interface returns the first b<sub>1</sub> bytes of output without knowing b<sub>2</sub> etc.,
+and without knowing the total number of bytes that will be required for this AES-CTR-DRBG output.
+</p>
+<p>
+From a security perspective, this is just like using AES-CTR.
+Unless the caller goes to extra effort to end the AES-CTR-DRBG output,
+the AES-CTR key is retained after each call to the extended interface,
+so the "backtracking resistance" that NIST advertises for AES-CTR-DRBG is destroyed.
+</p>
+<p>
+The extended RNG interface is dangerous
+because the easiest way to use it fails to erase keys.
+NIST's DRBGs are dangerous
+because their poor speed encourages this sort of interface.
+</p>
+<p>
+A better approach would be to use a proper call to AES-CTR-DRBG
+to fill up, say, a 736-byte RNG output buffer;
+when I say "proper call" I mean that AES-CTR-DRBG would then overwrite its old key.
+Random bytes would then be provided and immediately erased from the buffer,
+and AES-CTR-DRBG would be called again after 736 bytes.
+This is almost as small and almost as fast as a fast-key-erasure RNG,
+but it has a significantly more complicated specification and no advantages.
+</p>
+<h3>Fast-key-erasure RNGs in SUPERCOP</h3>
+<p>
+My <a href="20170719-pqbench.html">previous blog post</a>
+reported news regarding the SUPERCOP benchmarking package.
+Part of the news was that SUPERCOP uses a fast-key-erasure RNG,
+but I didn't explain what this was or how it's implemented.
+Internally, the RNG is modularized as follows:
+</p>
+<ul>
+  <li>
+    There was already a
+    <tt>crypto&#95;stream&#95;aes256ctr(out,outlen,n,k)</tt> function
+    producing a stream of AES-256 output AES<sub>k</sub>(0),AES<sub>k</sub>(1),... from a key <tt>k</tt>,
+    stopping at <tt>outlen</tt> bytes.
+    This function has an extra input, a "nonce" <tt>n</tt>,
+    that starts the AES block counter at something other than 0,
+    but the RNG always takes the nonce to be 0.
+    SUPERCOP currently has two C implementations of this function:
+    a self-contained implementation from Romain Dolbeau using AES-NI,
+    and an implementation that simply calls OpenSSL
+    (assuming OpenSSL is available on the system).
+  </li>
+  <li>
+    There's a new <tt>crypto&#95;rng&#95;aes256(r,n,k)</tt>
+    that takes as input a 32-byte key <tt>k</tt>
+    and produces two outputs:
+    a new 32-byte key <tt>n</tt>
+    (blocks B<sub>0</sub> = AES<sub>k</sub>(0) and B<sub>1</sub> = AES<sub>k</sub>(1)),
+    and a 736-byte RNG output <tt>r</tt>
+    (blocks B<sub>2</sub> = AES<sub>k</sub>(2), ..., B<sub>47</sub> = AES<sub>k</sub>(47)).
+    There are also similar new functions
+    <tt>crypto&#95;rng&#95;salsa20</tt>
+    and <tt>crypto&#95;rng&#95;chacha20</tt>,
+    using my Salsa20 and ChaCha20 stream ciphers.
+  </li>
+  <li>
+    <tt>fastrandombytes</tt> is a fast-key-erasure RNG.
+    It maintains a buffer
+    of <tt>crypto&#95;rng</tt> output,
+    providing and erasing bytes from the buffer
+    whenever someone calls <tt>randombytes</tt>.
+    It also maintains a key;
+    it uses this key to generate a new key and refill the buffer
+    whenever the buffer is empty.
+    <tt>fastrandombytes</tt> automatically selects whichever is fastest
+    out of
+    <tt>crypto&#95;rng&#95;aes256</tt>,
+    <tt>crypto&#95;rng&#95;salsa20</tt>,
+    and
+    <tt>crypto&#95;rng&#95;chacha20</tt>.
+  </li>
+  <li>
+    The initial key for <tt>fastrandombytes</tt>
+    comes from another layer, <tt>kernelrandombytes</tt>,
+    which calls <tt>/dev/urandom</tt>
+    to obtain random bytes from the operating-system kernel.
+    There's also some preliminary work to upgrade to <tt>getentropy</tt> and <tt>getrandom</tt>.
+  </li>
+  <li>
+    <tt>knownrandombytes</tt> is a reproducible-output version of <tt>fastrandombytes</tt>,
+    as mentioned in my previous blog post.
+    Specifically,
+    it starts from key 0,
+    and it always uses <tt>crypto&#95;rng&#95;chacha20</tt>.
+    This is what SUPERCOP now uses for automatic known-answer tests.
+  </li>
+</ul>
+<p>
+I generally recommend against AES for production use, for two reasons.
+First, AES provides a significantly worse security/speed tradeoff
+than state-of-the-art ciphers.
+This doesn't matter for most applications,
+but sometimes it does matter.
+RC4 would have been eliminated many years earlier
+if AES had been <i>faster</i> than RC4 on common CPUs
+rather than slower.
+Anecdotal evidence suggests that almost everyone who deploys AES-128 today
+instead of AES-256 is doing it either because "AES-256 is 40% slower"
+or because they're copying the choice from someone else;
+but AES-128, like other 128-bit block ciphers, is at risk from
+<a href="20151120-batchattacks.html">batch attacks</a> and quantum attacks.
+</p>
+<p>
+Second,
+natural AES software implementations are vulnerable to
+<a href="https://cr.yp.to/papers.html#cachetiming">cache-timing attacks</a>.
+Maybe the RNG keys are hard to break because each key is used only a few times,
+but maybe not; why take the risk?
+If the CPU has Intel's AES-NI or similar AES hardware,
+then this problem disappears
+(and <tt>crypto&#95;rng&#95;aes256</tt>
+becomes slightly faster than <tt>crypto&#95;rng&#95;salsa20</tt> and <tt>crypto&#95;rng&#95;chacha20</tt>),
+but it's still dangerous to specify AES in systems
+that will be implemented on multiple platforms;
+it's safer to specify a cipher that doesn't have the problem in the first place.
+</p>
+<p>
+Age is worth something,
+and AES (1998) is older than Salsa20 (2005).
+On the other hand,
+Salsa20 has a bigger block size, a larger security margin against all known attacks,
+extensive review during and after the eSTREAM project,
+and huge implementation advantages.
+I'm not so sure that it's right to choose ChaCha20 (2008) over Salsa20:
+the slight advantages that motivated the ChaCha20 design
+do seem to be holding up after further analysis,
+but they aren't as compelling as the advantages of Salsa20 (and ChaCha20) over AES.
+</p>
+<h3>Fast-key-erasure RNGs in production</h3>
+<p>
+Many cryptographic libraries have RNGs
+that aim for the same security goals
+but that are more complicated and harder to audit
+(and slower).
+I recommend that these libraries switch to a fast-key-erasure RNG.
+</p>
+<p>
+SUPERCOP doesn't make any guarantees of having been audited,
+and in particular <tt>fastrandombytes</tt> will need to be audited
+before deployment.
+Some libraries go to extra effort for thread-safety, fork-safety, etc.,
+which means adding and auditing extra code.
+What I'm recommending here isn't particular software
+but particular mathematical functions:
+random numbers should be generated by a fast-key-erasure RNG as described above.
+</p>
+<p>
+These library RNGs are typically
+seeded from the RNG in the operating-system kernel,
+the same way that SUPERCOP's <tt>fastrandombytes</tt> uses <tt>kernelrandombytes</tt>
+as described above.
+A simpler approach,
+taken in <a href="https://cr.yp.to/papers.html#coolnacl">NaCl</a>,
+is for the cryptographic library to simply use the kernel RNG
+without maintaining another RNG layer.
+Obviously this approach uses less code and is easier to audit;
+I see no security justification for OpenBSD saying
+"<tt>getentropy()</tt> is not intended for regular code"
+and limiting the <tt>getentropy()</tt> output to 256 bytes.
+The syscall <i>might</i> be a speed problem
+in some post-quantum systems,
+but if this turns into a real-world problem
+then I see several ways to deal with it without the current mess of non-kernel RNG code.
+</p>
+<p>
+Anyway, it's certainly important for the kernel RNG to be secure.
+Many kernels have RNGs that are again more complicated and harder to audit
+(and slower) than a fast-key-erasure RNG.
+I recommend that these kernels switch to a fast-key-erasure RNG.
+</p>
+<p>
+Kernels in virtual machines
+face a clone-safety issue analogous to the userspace fork-safety issue.
+There are complicated solutions where cloning triggers an RNG reinitialization,
+but the simplest solution is for the kernel to simply call a hypervisor RNG.
+A hypervisor interface isn't complete without an RNG.
+</p>
+<p>
+The kernel (or hypervisor)
+is responsible for properly seeding its RNG.
+The central problem here is to generate an initial seed during OS installation.
+Certainly this problem needs to be solved
+so that the OS can securely generate (e.g.) <tt>ssh</tt> keys at installation time.
+Once this central problem is solved,
+it's relatively straightforward to seed each subsequent kernel boot:
+on each boot,
+the kernel immediately uses the RNG to generate a new random seed for the next boot,
+and immediately makes sure that the new seed has been safely written to long-term storage,
+overwriting the old seed.
+The seed in long-term storage also needs to be changed whenever the filesystem is backed up.
+</p>
+<p>
+Beware that reliably overwriting data on disk isn't as easy as it sounds,
+and reliably overwriting data on flash storage is really difficult.
+Below I'll come back to one consequence of this.
+</p>
+<p>
+How is a seed generated during OS installation?
+As mentioned above,
+this seed is obtained as a hash of data from various entropy sources.
+Precise CPU cycle counts for DRAM access seem to have considerable entropy on some devices
+but seem completely predictable on others;
+auditing this requires studying how different pieces of hardware are clocked.
+Precise cycle counts for keyboard input, spinning disks, etc. seem
+very hard for the attacker to predict,
+but many small computers
+<a href="https://factorable.net/">don't have keyboards and disks</a>.
+Installing these computers typically means flashing them from a master computer,
+and this master computer should use its RNG to generate a seed for the small computer.
+Similarly, whenever a computer creates an installation USB stick,
+it should use its RNG to generate a seed for the stick;
+and, whenever the stick is booted,
+it should update its seed, just like any other kernel boot.
+Installation from a read-only device should <i>demand</i> keyboard input.
+</p>
+<p>
+Typically a kernel continues using cycle counts of various events
+to inject new entropy into its RNG after boot.
+This is often advertised as providing "backward security"
+(or "prediction resistance" in NIST terminology),
+but I'm skeptical that "backward security" has any real-world value.
+If an attacker has broken security so thoroughly
+as to be able to see the current RNG state stored securely inside the kernel,
+then why is it noticeably harder
+for the attacker to also see any future RNG state of interest?
+Don't we normally envision the attacker's resources as constantly expanding?
+People hope that each software security update reduces the attacker's resources,
+so it makes sense to inject new entropy at that point,
+but this isn't the same as constantly injecting new entropy.
+</p>
+<p>
+Aiming for "backward security" has created all sorts of complications
+whose security isn't clear.
+One can't simply hash a new cycle count into the RNG state:
+an attacker who knows the previous RNG state
+and watches the RNG output can efficiently guess every possibility for the cycle count,
+and then knows the new RNG state.
+One has to instead accumulate many cycle counts into a separate hash
+before injecting that hash into the RNG.
+At this point the auditor asks what "many" means.
+The answer includes a mess of questionable "entropy estimation" mechanisms.
+An alternative, used in FreeBSD, is the relatively pleasant
+<a href="https://www.schneier.com/academic/fortuna/">Fortuna</a> from Ferguson and Schneier.
+(As a side note,
+I highly recommend reading the Ferguson–Schneier–Kohno
+<a href="https://www.schneier.com/books/cryptography&#95;engineering/">"Cryptography engineering"</a> book,
+which has more detailed coverage of some of the issues I'm covering in this blog post,
+and also covers many other important issues in cryptography.)
+</p>
+<p>
+For comparison,
+the argument for "forward security" is much more convincing:
+erasing keys has real value
+against an attacker who was
+<i>already</i> recording your network traffic and
+<i>then</i> decides to steal your computer.
+I think the strongest argument for continuing to inject new entropy
+is that, as mentioned above, it's hard to reliably overwrite
+old seeds stored on disk or (especially) flash.
+A failure to erase the RNG seed
+can compromise every key-erasure mechanism elsewhere in the system.
+</p>
+<p>
+Anyway, whether or not you want "backward security",
+you can and should use a fast-key-erasure RNG.
+All of the seeding/reseeding options I've mentioned are compatible with
+using a deterministic, well-tested fast-key-erasure RNG module.
+The module can simply start with key 0,
+and provide an <tt>inject(e,elen)</tt> function
+that replaces the fast-key-erasure key k
+with SHA-256(k,SHA-256(e,elen)) and clears the RNG output buffer.
+It's up to the caller to accumulate enough entropy for these <tt>inject</tt> calls,
+and in the "backward security" scenario
+to accumulate enough entropy in <i>each</i> <tt>inject</tt> call.
+</p>
+<h3>Security level of fast-key-erasure RNGs</h3>
+<p>
+Assume that a fast-key-erasure RNG is securely seeded.
+What's the fastest attack we can come up with against the resulting random numbers?
+Where are the risks of better attacks?
+</p>
+<p>
+Concretely,
+suppose a user reveals 736 gigabytes of RNG output,
+involving a chain of 2<sup>30</sup> AES keys.
+Suppose 2<sup>30</sup> users all do the same thing starting from independent uniform random seeds,
+and the attacker sees all 736 exabytes of data.
+Can the attacker tell that these are in fact RNG output
+instead of independent uniform random bytes?
+</p>
+<p>
+<b>Attack 1.</b>
+The attacker records a tiny fraction of this data,
+namely the first bit from each 736-byte output block.
+This is only a fraction of an exabyte,
+a few million dollars in hard drives.
+</p>
+<p>
+The attacker guesses a seed,
+and follows this seed for a chain of 2<sup>80</sup> AES keys,
+recording the first bit from each 736-byte output block.
+There's an obstacle here,
+namely that doing so many computations <i>serially</i>
+will be infeasible for the foreseeable future,
+but let's ignore this problem for a moment
+and simply focus on how much information is visible from 2<sup>80</sup> AES computations.
+</p>
+<p>
+If a user's seed u matches any of the attacker's 2<sup>80</sup> AES keys,
+then the user's subsequent outputs will match the subsequent outputs computed by the attacker.
+Checking, say, the next 256 bits
+(assuming the key isn't within 256 bits of the end)
+will see a match that won't happen by chance.
+</p>
+<p>
+If u doesn't match any of the attacker's keys,
+it's still entirely possible that the user's next key v = (AES<sub>u</sub>(0),AES<sub>u</sub>(1))
+will match one of the attacker's keys,
+and then the next 256 bits from the user
+will match the next 256 bits computed by the attacker.
+And so on for subsequent user keys.
+</p>
+<p>
+The attacker can recognize all of these matches
+by looking up each substring of 256 consecutive bits
+in a database of substrings obtained from the users.
+There's another obstacle here,
+namely that this imposes massive communication costs,
+but let's ignore this problem too.
+</p>
+<p>
+The bottom line is that each of the 2<sup>30</sup> users has 2<sup>30</sup> ways
+to bump into each of the 2<sup>80</sup> attacker keys,
+for a total success probability approximately 2<sup>140</sup>/2<sup>256</sup>.
+</p>
+<p>
+This analysis isn't exact.
+For example,
+the attacker could break two keys at once,
+and doesn't get double credit for this;
+also, almost all keys (all keys after the initial seeds)
+are obtained as pairs (B<sub>0</sub>,B<sub>1</sub>) where B<sub>0</sub> and B<sub>1</sub> are distinct,
+so denominator 2<sup>256</sup>−2<sup>128</sup> would make more sense than 2<sup>256</sup>.
+There could be bigger issues that I've missed.
+I haven't experimentally verified scaled-down versions of this attack;
+I would say that there's some risk that the attack is actually much less effective
+(failing for some reason I didn't think of),
+but very little risk that the attack is more effective.
+</p>
+<p>
+<b>Attack 2.</b>
+This is better than Attack 1 because it drastically reduces the communication costs.
+</p>
+<p>
+Instead of recording the first bit from each output block,
+the attacker records the first <b>distinguished</b> output block,
+meaning the first output block that begins with the three bytes (0,0,0).
+This is just 2<sup>36</sup> blocks.
+Even better, the attacker stores just the last 256 bits of each distinguished block,
+just a few terabytes of data.
+</p>
+<p>
+For each of the 2<sup>80</sup> computed keys,
+if the corresponding block is distinguished,
+the attacker looks for the block in the user database.
+This is just 2<sup>56</sup> lookups.
+</p>
+<p>
+If a user seed u matches one of the computed keys,
+then the first distinguished user block
+will match the next distinguished computed block.
+Similarly, if a subsequent user key matches one of the computed keys,
+then the next distinguished user block
+will match the next distinguished computed block.
+</p>
+<p>
+This attack is a few percent less effective than Attack 1,
+because some user keys aren't followed by any distinguished blocks,
+but overall the success probability should again be close to 2<sup>140</sup>/2<sup>256</sup>.
+</p>
+<p>
+<b>Attack 3.</b>
+This is better than Attack 2 because it allows essentially any amount of parallelism.
+Instead of running one seed through a chain of 2<sup>80</sup> keys,
+the attacker tries 2<sup>56</sup> seeds, running each seed until the first distinguished block.
+</p>
+<p>
+This is an example of the parallel rho method from
+<a href="http://people.scs.carleton.ca/~paulv/papers/JoC97.pdf">1997 van Oorschot–Wiener</a>,
+although the application here is slightly different from the usual applications.
+The parallelism and low communication costs
+make Attack 3 feasible for serious attackers,
+and experimental verification by academics can easily go beyond 2<sup>50</sup> keys.
+</p>
+<p>
+Again the success probability is approximately 2<sup>140</sup>/2<sup>256</sup>.
+This is an extremely small chance of success,
+although it is 2<sup>60</sup> times bigger than one might expect
+from an attacker trying 2<sup>80</sup> AES-256 keys.
+</p>
+<p>
+Unless I'm missing something big,
+the same attack would be practically guaranteed to succeed for AES-128.
+Remember, kids: Don't use 128-bit cipher keys!
+</p>
+<p>
+<b>More attacks.</b>
+Are there better attacks than what I've described?
+There are at least four different aspects to this question:
+</p>
+<ul>
+<li>
+Does AES itself have a serious weakness,
+allowing the AES output blocks to be distinguished from truly random distinct output blocks?
+As I mentioned above,
+this would be a huge breakthrough in cryptanalysis.
+</li>
+<li>
+How much damage is done by the distinctness of AES output blocks?
+</li>
+<li>
+Even if AES outputs are indistinguishable from uniform,
+is there some better way to exploit the structure of the fast-key-erasure RNG?
+</li>
+<li>
+Do quantum computers allow faster attacks?
+NIST has claimed specific security levels for AES
+against Grover's algorithm in a realistic parallel setting,
+but these security levels will need to be reassessed:
+Banegas and I have a paper appearing at SAC 2017 on
+"Low-communication parallel quantum multi-target preimage search".
+</li>
+</ul>
+<h3>The PRP-PRF switch</h3>
+<p>
+Let's focus for a moment on the second question stated above,
+namely how much the attacker can benefit
+from knowing that the 128-bit AES output blocks are distinct.
+</p>
+<p>
+There's a standard theorem called the "PRP-PRF switch"
+saying that the attacker's benefit is at most b(b−1)/2<sup>129</sup>,
+where b is the number of AES blocks generated.
+Formally,
+you're supposed to analyze the success probability of an attack
+against an ideal secret-key function F that produces independent uniform random outputs
+for all inputs;
+then the PRP-PRF switch says that the probability increases by at most b(b−1)/2<sup>129</sup>
+if you instead plug in an ideal secret-key permutation P,
+which is just like F except for magically guaranteeing that the outputs are distinct;
+and, finally, we don't know how to distinguish AES<sub>k</sub> from P without seeing k.
+</p>
+<p>
+But wait.
+The users together are generating 48*2<sup>60</sup> AES blocks.
+If b = 48*2<sup>60</sup> then b(b−1)/2<sup>129</sup> is larger than 1,
+so the PRP-PRF switch doesn't say anything.
+</p>
+<p>
+Is it possible to address this with the
+<a href="https://cr.yp.to/papers.html#permutations">slightly-beyond-birthday-bound version</a>
+of the PRP-PRF switch that I proved in 2005?
+Or can we use the fact that there are actually many different AES keys,
+with no guarantee of distinctness across keys?
+What exactly has been proven about the PRP-PRF switch in this multiple-key scenario?
+The fast-key-erasure RNG has a much tighter limit on the lifetime of each key
+than NIST's AES-CTR-DRBG does;
+does this produce quantitatively better security bounds?
+</p>
+<p>
+These are good topics for provable-security papers,
+and for <a href="https://sweet32.info/">real-world attacks</a>
+when people screw up the details badly enough.
+But let me point out a better approach.
+</p>
+<p>
+Salsa20 has a 512-bit block.
+ChaCha20 has a 512-bit block.
+The explicit security goal of Salsa20 and ChaCha20
+is for the outputs to be indistinguishable from uniform.
+There's no funky distinctness qualifier to worry about.
+</p>
+<p>
+Internally, there's a permutation that always produces distinct 512-bit outputs
+from distinct 512-bit inputs.
+Checking for this distinctness is simply one of many failed attack strategies,
+with success probability so low as to barely be worth mentioning,
+whereas for AES-256-CTR the distinctness of 128-bit output blocks is the most powerful attack we know.
+</p>
+<p>
+Of course,
+if we use ciphers with small block sizes,
+then it's easy to motivate papers
+proving something about the damage caused by this weakness.
+Maybe 128-bit blocks are too big for most cryptographers to really appreciate the danger,
+but NSA is currently trying to push standardization and deployment
+of Simon-64-128 and Speck-64-128, two ciphers with tiny 64-bit blocks and 128-bit keys.
+I was one of about 40 people sitting in a meeting where the speaker,
+NSA's Louis Wingers (one of the Simon and Speck authors),
+falsely claimed that counter mode is safe for 64-bit blocks,
+since counter mode doesn't have block collisions.
+NSA's continuing
+<a href="https://eprint.iacr.org/2017/560">promotion</a> of these dangerous ciphers
+includes perfect sentences to quote in the introductions of "provable security" papers
+studying small block sizes.
+</p>
+<p>
+Part of the "provable security" culture
+is to then praise the resulting systems for having proofs.
+But avoiding the weakness in the first place is simpler and more robust.
+The system with more proofs—the system using a cipher with small blocks—is
+more fragile and harder to audit.
+The additional proofs are advertised as a sign of safety
+but are actually a sign of danger.
+</p>
+<h3>Broader problems with "provable security"</h3>
+<p>
+Proofs sometimes play a useful role in cryptography,
+and the rest of my blog post will look at some proofs in detail.
+But there are some important caveats here regarding "provable security":
+</p>
+<ul>
+<li>
+Proofs are almost never carefully checked.
+There's a long history of outright proof errors,
+and sometimes the claimed theorems are unsalvageable.
+As I put it in a
+<a href="https://cr.yp.to/talks.html#2015.01.07">2015 talk</a>:
+"Proofs are increasingly complex, rarely reviewed, rarely automated."
+</li>
+<li>
+There's a long history of proofs that are quantitatively so weak ("loose")
+that they say <i>nothing</i> about the deployed systems,
+but that are nevertheless claimed to provide assurance about those systems.
+</li>
+<li>
+There's a long history of proofs that work in oversimplified attack models
+and that are blind to attacks outside those models.
+</li>
+<li>
+There's a long history of people <i>creating dangerous cryptographic structures</i>
+so as to allow proofs,
+as illustrated by the Blum–Blum–Shub RNG
+and the Chaum–van Heijst–Pfitzmann compression function.
+</li>
+<li>
+There's a long history of
+gullible standardization agencies and implementors hearing about proofs
+and then failing to demand thorough review by cryptanalysts.
+</li>
+</ul>
+<p>
+The canonical starting point to learn more about these problems is the
+<a href="http://anotherlook.ca/">"Another look at provable security"</a> series of papers
+by Koblitz and Menezes.
+Menezes's 
+<a href="https://www.youtube.com/watch?v=l56ORg5xXkk">invited talk at Eurocrypt 2012</a>
+is a great introduction.
+</p>
+<p>
+I expect the first three problems to eventually be fixed
+through computer verification,
+increased attention to "tightness",
+and increased attention to the accuracy of security models.
+But these are huge problems today.
+</p>
+<p>
+I don't expect the fourth problem to go away
+(and I'm not sure about the fifth).
+There's far too much pressure for people to write papers
+aiming at the fundamental goal of "provable security",
+namely to prove that complete systems are as secure as primitives.
+It's straightforward to reach this goal by choosing sufficiently weak primitives,
+whereas it's difficult, perhaps impossible, to reach this goal in any other way.
+</p>
+<h3>The surprisingly complicated literature on proofs of rekeying</h3>
+<p>
+With these caveats in mind,
+I'll now focus on the third question stated above:
+assuming the cipher outputs are indistinguishable from uniform,
+is there some better way to exploit the structure of the fast-key-erasure RNG?
+</p>
+<p>
+Using some cipher output to generate a new key for the cipher
+(and not using that cipher output in any other way)
+is an ancient and very frequently used idea.
+The security intuition is straightforward:
+if the attacker can't distinguish the cipher output from uniform,
+then the attacker can't tell the difference between the actual situation
+and a situation where the new cipher key is generated independently at random.
+</p>
+<p>
+One would think that there would have been a paper many years ago
+formalizing this intuition as an easy-to-use theorem and giving a simple, convincing proof.
+The security of the fast-key-erasure RNG
+would visibly be a special case of the theorem,
+and this would be the end of the story.
+</p>
+<p>
+In fact,
+the literature on this topic
+is surprisingly large and surprisingly messy.
+The same rekeying idea appears under at least three names
+with separate proofs,
+as illustrated by the following papers:
+</p>
+<ul>
+  <li>
+    The <a href="http://cseweb.ucsd.edu/~mihir/papers/cascade.html">"cascade"</a> construction
+    from 1996 Bellare–Canetti–Krawczyk
+    uses a short-nonce stream cipher S
+    to build a longer-nonce stream cipher T.
+    For example, given key k<sub>0</sub> and nonce (N<sub>1</sub>,N<sub>2</sub>),
+    first use S with key k<sub>0</sub> and nonce N<sub>1</sub> to produce a new key k<sub>1</sub> = S(k<sub>0</sub>,N<sub>1</sub>);
+    I'm assuming here that the S output for each nonce has the same length as the key.
+    Then use S with key k<sub>1</sub> and nonce N<sub>2</sub>
+    to produce an output T(k<sub>0</sub>,(N<sub>1</sub>,N<sub>2</sub>)) = S(S(k<sub>0</sub>,N<sub>1</sub>),N<sub>2</sub>).
+    The paper credits a 1986 Goldwasser–Goldreich–Micali paper
+    with the case of a 1-bit nonce for S,
+    meaning that S converts a key k into a double-length output S(k,0),S(k,1).
+    The 1996 paper allows variable-length nonces for T
+    as long as no nonce is a prefix of another nonce
+    (i.e., as long as T doesn't simply output its internal keys):
+    for example, T can output S(k<sub>0</sub>,0), S(S(k<sub>0</sub>,1),0), and S(S(S(k<sub>0</sub>,1),1),0).
+  </li>
+  <li>
+    The <a href="https://cseweb.ucsd.edu/~mihir/papers/hmac.html">"NMAC" and "HMAC"</a> constructions,
+    from a separate 1996 Bellare–Canetti–Krawczyk paper,
+    use a short-input-block compression function S
+    to build a longer-input-message keyed hash function T.
+    For example, given initialization vector k<sub>0</sub> and input message (N<sub>1</sub>,N<sub>2</sub>),
+    first use S with initialization vector k<sub>0</sub>
+    and block N<sub>1</sub> to produce a new initialization vector k<sub>1</sub> = S(k<sub>0</sub>,N<sub>1</sub>),
+    and then use S with initialization vector k<sub>1</sub> and block N<sub>2</sub>
+    to produce an output T(k<sub>0</sub>,(N<sub>1</sub>,N<sub>2</sub>)) = S(S(k<sub>0</sub>,N<sub>1</sub>),N<sub>2</sub>).
+    This construction is identical to the "cascade"
+    (plus an extra element that can be analyzed separately:
+    the output of T, with k<sub>0</sub> chosen as a MAC key, is encrypted to obtain an authenticator),
+    but there's a separate proof in this paper,
+    followed by <i>another</i> separate proof in a
+    <a href="https://cseweb.ucsd.edu/~mihir/papers/hmac-new.html">2006 Bellare paper</a>.
+  </li>
+  <li>
+    The <a href="http://www.math.ias.edu/~boaz/Papers/devrand.html">"architecture for robust pseudo-random generation"</a>
+    from 2005 Barak–Halevi
+    uses a "PRG" S that converts a key k into a double-length output S(k,0),S(k,1).
+    It then builds a random-number generator T that outputs S(k,0), S(S(k,1),0), etc.
+    This construction is a special case of the "cascade"
+    but there's again a separate proof.
+    There seems to be considerable extra work here
+    to handle injection of extra entropy,
+    which is a distraction for readers who don't care about "backward security".
+  </li>
+</ul>
+<p>
+The proofs are surprisingly long, given how simple the intuition is.
+Typically the proofs are buried in appendices;
+often they're only sketched.
+There are more papers with more proofs:
+e.g., my <a href="https://cr.yp.to/papers.html#xsalsa">XSalsa20 paper</a>
+includes a new theorem with a quantitative improvement.
+People trying to check proofs will obviously be overwhelmed,
+and it's not surprising that some errors have slipped through:
+</p>
+<ul>
+  <li>
+    The theorem stated in 1996 Bellare–Canetti–Krawczyk
+    left out an important "q" factor.
+    Anyone checking the proof would have noticed this omission,
+    but it seems that the first public correction was <i>nine years later</i>.
+  </li>
+  <li>
+    The 2006 Bellare paper hypothesizes, in quantitatively applying its NMAC theorem,
+    that "the best attack against" a well-studied compression function
+    "as a PRF is exhaustive key search".
+    But this hypothesis is simply wrong for the (quite standard) definition of PRF
+    used in that paper.
+    This error wasn't pointed out until a paper
+    <a href="https://eprint.iacr.org/2012/074">"Another look at HMAC"</a>
+    by Koblitz and Menezes <i>six years later</i>.
+    The Koblitz–Menezes observation was at first met with
+    <a href="https://jonkatz.wordpress.com/2012/02/28/correcting-errors-guest-post-by-yehuda-lindell/">denials</a>,
+    but my impression is that the denials stopped after my followup paper with Lange,
+    <a href="https://cr.yp.to/papers.html#nonuniform">"Non-uniform cracks in the concrete"</a>.
+  </li>
+  <li>
+    In trying to rescue Bellare's quantitative results,
+    Koblitz and Menezes made a different mistake related to the PRF definition.
+    This error took only a year to catch
+    (Pietrzak pointed out the error in
+    <a href="https://eprint.iacr.org/2013/212">2013</a>;
+    fixes appear in the 2013 Pietrzak paper,
+    in a 2013 update of the Koblitz–Menezes paper,
+    and in <a href="https://eprint.iacr.org/2014/578">2014 Gaži–Pietrzak–Rybár</a>)
+    but obviously the reader isn't left with a feeling of confidence.
+  </li>
+</ul>
+<p>
+This isn't a complete survey of the literature,
+but adding more information will simply make auditors more worried.
+For example, a
+<a href="https://eprint.iacr.org/2006/379.pdf">2006 paper by Campagna</a>
+sounds at first like it's proving security bounds for AES-CTR-DRBG,
+but a closer look shows that the paper is only studying AES-CTR
+and isn't actually proving anything about rekeying.
+</p>
+<p>
+Do we really believe that all the errors have been eliminated at this point
+from theorems proving the security of rekeying?
+One correct application of one correct theorem should be enough,
+but why is the auditor supposed to believe any particular theorem?
+</p>
+<h3>Technical issues creating the mess</h3>
+<p>
+Here are four specific issues that bother me about proofs in this area.
+</p>
+<p>
+<b>Monolithic handling of multiple levels of rekeying.</b>
+An initial key is used to produce outputs,
+some of which are used as derived keys for a followup protocol.
+It seems intuitively clear that any attack
+has to find non-randomness in the outputs,
+or find a weakness in the followup protocol.
+</p>
+<p>
+For example, the initial key k for the fast-key-erasure RNG
+is used to produce outputs (AES<sub>k</sub>(0),...,AES<sub>k</sub>(47)),
+and then (AES<sub>k</sub>(0),AES<sub>k</sub>(1)) are used as a derived key for a followup protocol,
+namely the same RNG applied recursively.
+It seems intuitively clear that any attack
+has to find non-randomness in (AES<sub>k</sub>(0),...,AES<sub>k</sub>(47)),
+or find a weakness in the followup use of (AES<sub>k</sub>(0),AES<sub>k</sub>(1)).
+But the proofs in the literature usually don't work this way:
+they consider the entire chain or tree of derived keys at once.
+</p>
+<p>
+The main reason I wrote a new proof in my XSalsa20 paper
+was to follow the intuition more closely,
+first proving a theorem about one level of derived keys
+and then deducing a multi-level theorem by induction.
+This proof is also considerably shorter than the
+Bellare–Canetti–Krawczyk "cascade" proof,
+and I think this reflects a real simplification.
+But newer papers don't seem to have adopted this strategy.
+</p>
+<p>
+<b>Oversimplified cost metrics.</b>
+The "fast" algorithms constructed in many "security proofs"—including
+the proofs in this area, including the proof in my XSalsa20 paper—are
+serial algorithms that build giant arrays of random numbers, queries, etc.
+This can end up dominating the cost of the attack.
+Maybe these costs can be reduced,
+as in the improvements from Attack 1 to Attack 2 and Attack 3,
+but maybe not.
+</p>
+<p>
+There was a short "Notes on low-memory attacks" subsection
+in my XSalsa20 paper pointing out this issue.
+Regarding two arrays U and V of random numbers,
+I wrote
+"A standard way to eliminate the space for U and V
+is to replace random-number generation by pseudorandom-number generation."
+Apparently this is called "the random oracle technique" in a
+<a href="https://eprint.iacr.org/2017/675">Crypto 2017 paper by Auerbach–Cash–Fersch–Kiltz</a>,
+which highlights (and claims to introduce) the topic of "memory tightness" in reductions.
+I also had some ad-hoc suggestions for eliminating the space for
+an "array of query prefixes" used in my proof (and in previous proofs).
+</p>
+<p>
+<b>Non-constructive definitions.</b>
+The traditional type of security definition
+considers the chance that a cost-limited algorithm A breaks a cryptographic system X.
+The problem with this type of definition
+is that it allows unrealistic attacks A that take a huge amount of time to find:
+i.e., attacks that allow a huge amount of precomputation.
+This is what led to the mistake mentioned above in the 2006 Bellare paper.
+</p>
+<p>
+To exclude such attacks,
+Lange and I proposed instead considering the chance
+that a <i>small</i> cost-limited algorithm P
+prints a cost-limited algorithm A that breaks X.
+(See Appendix B.4 of "Non-uniform cracks in the concrete".)
+Any reduction theorem then has to be stated as a theorem about P,
+not merely a theorem about A.
+This is compatible with most of the proofs I've mentioned
+but excludes the proof in the 2006 Bellare paper.
+<p>
+<p>
+<b>Working with the wrong cipher security metric.</b>
+Serious attack analysis always has to consider
+<a href="20151120-batchattacks.html">attacks against multiple targets</a>:
+often there are multiple-key attacks more effective than attacking one key at a time.
+</p>
+<p>
+From this perspective,
+it's weird to see theorems that make hypotheses about the security of <i>one cipher key</i>
+rather than hypotheses about the security of <i>many independent cipher keys</i>.
+It's similarly weird to see theorems drawing conclusions
+about the security of one RNG/cascade/NMAC/HMAC/... key
+instead of the security of many independent keys.
+</p>
+<p>
+The Bellare–Canetti–Krawczyk "cascade" security proof
+actually does make a hypothesis about the security of many independent cipher keys,
+but it then draws a conclusion about the security of just one cascade key.
+In the
+<a href="https://cr.yp.to/talks.html#2011.02.16">talk</a>
+accompanying my paper,
+I briefly mentioned that a multi-key hypothesis allowed a tight multi-key conclusion.
+But I didn't write down proof details at the time,
+and I didn't realize that focusing on multi-key security
+allowed a considerably <i>simpler</i> proof.
+</p>
+<h3>Decomposing multi-key RNG attacks into multi-key cipher attacks</h3>
+<p>
+Let's define G(k) as the string (AES<sub>k</sub>(0),AES<sub>k</sub>(1)),
+and F(k) as the string (AES<sub>k</sub>(2),AES<sub>k</sub>(3),...,AES<sub>k</sub>(47)).
+Let's focus on the first 1472 bytes of RNG output, F(k) and F(G(k)).
+Actually, let's generalize a bit to F(k) and H(G(k)),
+allowing (but not requiring) a different function H to be used after the first 736 bytes.
+</p>
+<p>
+Say there's an attack A that's given the strings
+F(k<sub>1</sub>),H(G(k<sub>1</sub>)); F(k<sub>2</sub>),H(G(k<sub>2</sub>)); ... F(k<sub>U</sub>),H(G(k<sub>U</sub>))
+where k<sub>1</sub>,k<sub>2</sub>,...,k<sub>U</sub> are independent uniform random keys.
+Can A distinguish these strings from uniform?
+</p>
+<p>
+The A-distance from these strings to uniform is at most the sum of
+</p>
+<ul>
+  <li>the A-distance from
+    (r<sub>1</sub>,H(s<sub>1</sub>); r<sub>2</sub>,H(s<sub>2</sub>); ...; r<sub>U</sub>,H(s<sub>U</sub>))
+    to uniform,
+    where r<sub>1</sub>,s<sub>1</sub>,r<sub>2</sub>,s<sub>2</sub>,...,r<sub>U</sub>,s<sub>U</sub>
+    are independent uniform random keys; and
+  </li>
+  <li>the A-distance from
+    (F(k<sub>1</sub>),H(G(k<sub>1</sub>)); F(k<sub>2</sub>),H(G(k<sub>2</sub>)); ... F(k<sub>U</sub>),H(G(k<sub>U</sub>)))
+    to (r<sub>1</sub>,H(s<sub>1</sub>); r<sub>2</sub>,H(s<sub>2</sub>); ...; r<sub>U</sub>,H(s<sub>U</sub>)).
+  </li>
+</ul>
+<p>
+The first distance is the same as the B-distance from
+(H(s<sub>1</sub>),H(s<sub>2</sub>),...,H(s<sub>U</sub>)) to uniform,
+where B(x<sub>1</sub>,x<sub>2</sub>,...,x<sub>U</sub>) is defined as follows:
+randomly generate r<sub>1</sub>,r<sub>2</sub>,...,r<sub>U</sub>
+and then run A(r<sub>1</sub>,x<sub>1</sub>,r<sub>2</sub>,x<sub>2</sub>,...,r<sub>U</sub>,x<sub>U</sub>).
+This is the success probability of a U-key attack against H,
+with almost the same cost as A.
+</p>
+<p>
+The second distance is the same as the C-distance from
+(F(k<sub>1</sub>),G(k<sub>1</sub>),F(k<sub>2</sub>),G(k<sub>2</sub>),...,F(k<sub>U</sub>),G(k<sub>U</sub>)) to uniform,
+where C(x<sub>1</sub>,y<sub>1</sub>,x<sub>2</sub>,y<sub>2</sub>,...,x<sub>U</sub>,y<sub>U</sub>)
+is defined as A(x<sub>1</sub>,H(y<sub>1</sub>),x<sub>2</sub>,H(y<sub>2</sub>),...,x<sub>U</sub>,H(y<sub>U</sub>)).
+This is the success probability of a U-key attack against the pair (F,G),
+again with almost the same cost as A.
+</p>
+<p>
+Regarding constructivity,
+it's reasonable to assume that there's a small algorithm for H;
+then a small algorithm that quickly prints A
+is easily converted into a small algorithm that quickly prints B and C.
+</p>
+<p>
+To summarize, the success chance of a U-key attack against F-and-then-H-keyed-by-G
+is at most the success chance of a U-key attack against (F,G)
+plus the success chance of a U-key attack against H.
+This makes perfect sense, since U keys for F-and-then-H-keyed-by-G
+involve exactly U keys for (F,G)
+and exactly U keys for H.
+</p>
+<p>
+I said at the beginning that I was considering only 1472 bytes of RNG output;
+but the generalization to H actually allows any number of bytes of RNG output.
+Take, for example, H to be F-and-then-H<sub>2</sub>-keyed-by-G
+(or more generally F<sub>2</sub>-and-then-H<sub>2</sub>-keyed-by-G<sub>2</sub>)
+so that the RNG outputs F(k) and F(G(k)) and H<sub>2</sub>(G(G(k))).
+The success chance of an attack against this RNG
+is (by the theorem)
+at most the sum of success chances of U-key attacks against (F,G) and H;
+this is (by the theorem again)
+at most the sum of success chances of U-key attacks against (F,G), (F,G), and H<sub>2</sub>.
+Repeat for any desired maximum number of blocks.
+The generalization to H also handles the forward-security scenario:
+simply define H(k) as (F(k),G(k)).
+</p>
+<p>
+As a concrete example,
+the success probability of an attack
+against 2<sup>30</sup> users of the fast-key-erasure RNG,
+each generating a chain of 2<sup>30</sup> keys,
+is at most the sum of 2<sup>30</sup> chances
+of similarly efficient 2<sup>30</sup>-key attacks
+distinguishing (AES<sub>k</sub>(0),...,AES<sub>k</sub>(47)) from uniform.
+The best 2<sup>30</sup>-key attack we know
+against (AES<sub>k</sub>(0),...,AES<sub>k</sub>(47))
+is to
+</p>
+<ul>
+<li>
+  guess as many keys as we can, say 2<sup>80</sup> keys
+  (success probability approximately 2<sup>110</sup>/2<sup>256</sup> since we're using AES-256);
+  and, more importantly,
+</li>
+<li>
+  check for collisions
+  (success probability approximately 1/2<sup>87</sup>).
+</li>
+</ul>
+<p>
+Unless we can come up with a better attack against AES,
+we can't beat success probability approximately 1/2<sup>57</sup>
+for an attack against the fast-key-erasure RNG.
+Replacing AES-256 with Salsa20 or ChaCha20 improves 1/2<sup>57</sup> to 2<sup>140</sup>/2<sup>256</sup>.
+</p>
+<p>
+Of course this should be stated as a formal theorem with clear definitions,
+and the proof should go through careful review:
+remember what I said about errors in proofs.
+But this feels like an easy textbook exercise.
+How can there be hundreds of pages of papers on this topic?
+</p>
+<h3>Generalized rekeying</h3>
+<p>
+There's one noticeable way that
+the RNG situation is simpler
+than the more general rekeying situation analyzed in, e.g.,
+the "cascade" paper and the NMAC/HMAC papers.
+But the same proof technique turns out to work in the more general situation too.
+</p>
+<p>
+Let's say F is a function mapping
+a 256-bit key k and a "block" x to a 256-bit output F(k,x).
+For example, the RNG defines F(k,x)
+as (AES<sub>k</sub>(x),AES<sub>k</sub>(x+1)), and the set of blocks is {0,2,4,6,8,...,46}.
+Exactly one of these blocks, namely block 0, is used by the RNG to produce a derived key.
+</p>
+<p>
+For generalized rekeying, the set of blocks can be much larger,
+including any number of blocks used to produce derived keys.
+This is where the RNG situation is simpler.
+</p>
+<p>
+Let's write X for the set of blocks used to produce derived keys.
+For each x in X,
+the cipher output F(k,x)
+is used as a derived key for another function H with inputs in a set Y,
+and the outputs of H are given to the attacker upon request.
+For each block x that isn't in X,
+the cipher output F(k,x) is simply given to the attacker upon request.
+Formally, define T(k,x,y) = H(F(k,x),y) for x in X and y in Y;
+and define T(k,x) = F(k,x) for any block x outside X.
+</p>
+<p>
+U users can have many more than U derived keys,
+since X can have many elements.
+It's convenient here to switch to a more general notation for describing multi-key attacks:
+instead of having a <i>number</i> U of users,
+let's have a <i>set</i> U of strings that label users.
+There are three targets for multi-key attacks:
+</p>
+<ul>
+  <li>
+    Choose an independent uniform random 256-bit key K(u) for each u in U.
+    Define F<sub>K</sub>(u,x) as F(K(u),x) for each u in U and each block x.
+    The goal of a multi-key attack against the cipher F
+    is to distinguish this function F<sub>K</sub> from uniform.
+  </li>
+  <li>
+    Define
+    T<sub>K</sub>(u,x,y) = T(K(u),x,y) for each u in U, each x in X, and each y in Y;
+    and T<sub>K</sub>(u,x) = T(K(u),x) for each u in U and each block x outside X.
+    The goal of a multi-key attack against T
+    is to distinguish this function T<sub>K</sub> from uniform.
+  </li>
+  <li>
+    Choose an independent uniform random 256-bit key J(u,x) for each u in U and each x in X.
+    Define H<sub>J</sub>(u,x,y) = H(J(u,x),y) for each u in U, each x in X, and each y in Y.
+    The goal of a multi-key attack against H
+    is to distinguish this function H<sub>J</sub> from uniform.
+    There's an expanded set of users here, namely all pairs (u,x),
+    but this is still an example of the same multi-key attack concept.
+  </li>
+</ul>
+<p>
+Intuitively, there are exactly two ways to attack T:
+find a pattern in the F outputs,
+or find a pattern in the H outputs.
+The proof will follow exactly this intuition.
+</p>
+<h3>Decomposing multi-key generalized rekeying attacks into multi-key cipher attacks</h3>
+<p>
+Here's the proof.
+</p>
+<p>
+As above,
+choose an independent uniform random 256-bit key K(u) for each u in U,
+and choose an independent uniform random 256-bit key J(u,x) for each u in U and each x in X.
+Also define M as follows:
+choose an independent uniform random 256-bit string M(u,x) for each u in U
+and each block x outside X;
+and define M(u,x,y) = H(J(u,x),y) for each u in U, x in X, and y in Y.
+</p>
+<p>
+Define B(V) as A(W),
+where W is defined as follows:
+W(u,x,y) = V(u,x,y) for each u in U, x in X, and y in Y;
+W(u,x) = M(u,x) for each u in U and each block x outside X. 
+Then the B-distance from H<sub>J</sub> to uniform
+is exactly the A-distance from M to uniform.
+Indeed:
+</p>
+<ul>
+  <li>
+    If V = H<sub>J</sub> then W(u,x,y) = H<sub>J</sub>(u,x,y) = H(J(u,x),y) = M(u,x,y) and W(u,x) = M(u,x).
+    Thus B(H<sub>J</sub>) = B(V) = A(W) = A(M).
+  </li>
+  <li>
+    If V is uniform then W is uniform.
+    Thus B(uniform) = B(V) = A(W) = A(uniform).
+  </li>
+</li>
+</ul>
+<p>
+Define C(V) as A(W),
+where W is defined as follows:
+W(u,x,y) = H(V(u,x),y) where each u in U, x in X, and y in Y;
+W(u,x) = V(u,x) for each u in U and each block x outside X.
+Then the C-distance from F<sub>K</sub> to uniform
+is exactly the A-distance from T<sub>K</sub> to M.
+Indeed:
+<ul>
+  <li>
+    If V = F<sub>K</sub> then W(u,x,y) = H(F<sub>K</sub>(u,x),y) = H(F(K(u),x),y) = T(K(u),x,y) = T<sub>K</sub>(u,x,y)
+    and W(u,x) = F<sub>K</sub>(u,x) = F(K(u),x) = T(K(u),x) = T<sub>K</sub>(u,x).
+    Thus C(F<sub>K</sub>) = C(V) = A(W) = A(T<sub>K</sub>).
+  </li>
+  <li>
+    If V is defined by V(u,x) = J(u,x) for x in X and V(u,x) = M(u,x) for x outside X,
+    then W = M and V is uniform.
+    Thus C(uniform) = C(V) = A(W) = A(M).
+  </li>
+</ul>
+<p>
+[2017.07.26 update:
+Corrected "B" typos in these two bullet items,
+which should have said "C".
+Remember what I said about errors in proofs?]
+</p>
+<p>
+The A-distance from T<sub>K</sub> to uniform
+is at most the A-distance from M to uniform
+plus the A-distance from T<sub>K</sub> to M;
+i.e., the B-distance from H<sub>J</sub> to uniform
+plus the C-distance from F<sub>K</sub> to uniform.
+These are the success probabilities of multi-key attacks against H and F respectively,
+each attack having almost the same cost as A.
+</p>
+<p>
+To avoid the cost of building and accessing an array of M values created on demand inside B,
+replace M with output from a high-security cipher (assuming one exists);
+this has negligible impact on the success probability of the attack.
+As for constructivity,
+again assume that there's a small algorithm for H;
+then a small algorithm that quickly prints A
+is easily converted into a small algorithm that quickly prints B and C.
+</p>
+<p>
+That's it.
+</p>
+<hr><font size=1><b>Version:</b>
+This is version 2017.07.26 of the 20170723-random.html web page.
+</font></body>
+</html>

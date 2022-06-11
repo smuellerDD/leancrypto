@@ -34,6 +34,8 @@ option('pbkdf2', type: 'feature', value: 'enabled',
 
 option('kmac', type: 'feature', value: 'enabled',
        description: 'Enable KMAC support')
+option('kmac_drng', type: 'feature', value: 'enabled',
+       description: 'Enable KMAC DRNG support')
 
 option('hotp', type: 'feature', value: 'enabled',
        description: 'Enable HOTP support')
