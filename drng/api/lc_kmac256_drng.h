@@ -27,27 +27,18 @@ extern "C"
 {
 #endif
 
-/*
- * The memory of both key and random member variable MUST be a linear buffer
- * as both values are filled with one KECCAK operation.
- */
 struct lc_kmac256_drng_state {
-	uint8_t *key;		/* KMAC DRNG key */
-	uint8_t *random;	/* Random bit stream data from first KECCAK */
+	uint8_t *key;
 };
 
 #define LC_KMAC256_DRNG_KEYSIZE		64
 #define LC_KMAC256_DRNG_MAX_CHUNK	(LC_SHA3_256_SIZE_BLOCK * 100)
-#define LC_KMAC256_DRNG_STATE_SIZE	(LC_SHA3_256_SIZE_BLOCK)
-#define LC_KMAC256_DRBG_RND_SIZE	(LC_KMAC256_DRNG_STATE_SIZE -	       \
-					 LC_KMAC256_DRNG_KEYSIZE)
+#define LC_KMAC256_DRNG_STATE_SIZE	(LC_KMAC256_DRNG_KEYSIZE)
 #define LC_KMAC256_DRNG_CTX_SIZE	(sizeof(struct lc_kmac256_drng_state) +\
 					 LC_KMAC256_DRNG_STATE_SIZE)
 
 #define _LC_KMAC256_DRNG_SET_CTX(name, ctx, offset)			       \
-	name->key = (uint8_t *)(uint8_t *)ctx + offset;			       \
-	name->random = (uint8_t *)(uint8_t *)ctx + offset +		       \
-			LC_KMAC256_DRNG_KEYSIZE
+	name->key = (uint8_t *)(uint8_t *)ctx + offset
 
 #define LC_KMAC256_DRNG_SET_CTX(name) _LC_KMAC256_DRNG_SET_CTX(name, name,     \
 					 sizeof(struct lc_kmac256_drng_state))

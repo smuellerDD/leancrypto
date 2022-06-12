@@ -128,9 +128,7 @@ void lc_kmac_final_xof(struct lc_kmac_ctx *kmac_ctx,
  * @brief Get more message digest from the KMAC operation
  *
  * This call is intended to be invoked after the lc_kmac_final_xof. It generates
- * more message digest. Note, the maclen must always be a multiple of
- * LC_SHA3_256_SIZE_BLOCK except for the very last call to be identical to
- * a single lc_kmac_final_xof requesting the total amount of data.
+ * more message digest.
  *
  * E.g. the following calls are equal:
  *
@@ -141,10 +139,10 @@ void lc_kmac_final_xof(struct lc_kmac_ctx *kmac_ctx,
  * and
  *
  * ```
- * lc_kmac_final_xof(ctx, mac, LC_SHA3_256_SIZE_BLOCK);
- * lc_kmac_final_xof_more(ctx, mac + LC_SHA3_256_SIZE_BLOCK,
- *			  2 * LC_SHA3_256_SIZE_BLOCK);
- * lc_kmac_final_xof_more(ctx, mac + 3 * LC_SHA3_256_SIZE_BLOCK, 5);
+ * lc_kmac_final_xof(ctx, mac, LC_SHA3_256_SIZE_BLOCK + 1);
+ * lc_kmac_final_xof_more(ctx, mac + LC_SHA3_256_SIZE_BLOCK + 1,
+ *			  2 * LC_SHA3_256_SIZE_BLOCK _ 1);
+ * lc_kmac_final_xof_more(ctx, mac + 3 * LC_SHA3_256_SIZE_BLOCK + 2, 3);
  * ```
  *
  * @param kmac_ctx [in] Reference to kmac context implementation to be used to

@@ -77,24 +77,32 @@ static int shake_tester(void)
 		0xe0, 0xc5
 	};
 	uint8_t act2[sizeof(exp2)];
-	size_t len = sizeof(exp2);
-	uint8_t *act2_p = act2;
+	size_t i, len = sizeof(exp2);
+	uint8_t *act2_p;
 	int ret;
 
-	lc_hash_init(ctx);
-	lc_hash_update(ctx, msg2, sizeof(msg2));
-	lc_hash_set_digestsize(ctx, LC_SHA3_256_SIZE_BLOCK);
+	for (i = 1; i <= sizeof(exp2); i ++) {
+		act2_p = act2;
+		lc_hash_init(ctx);
+		lc_hash_update(ctx, msg2, sizeof(msg2));
+		lc_hash_set_digestsize(ctx, i);
 
-	for (len = sizeof(exp2); len > 0;
-	     len -= lc_hash_digestsize(ctx),
-	     act2_p += lc_hash_digestsize(ctx)) {
-		if (len < lc_hash_digestsize(ctx))
-			lc_hash_set_digestsize(ctx, len);
+		for (len = sizeof(exp2); len > 0;
+		len -= lc_hash_digestsize(ctx),
+		act2_p += lc_hash_digestsize(ctx)) {
+			if (len < lc_hash_digestsize(ctx))
+				lc_hash_set_digestsize(ctx, len);
 
-		lc_hash_final(ctx, act2_p);
+			lc_hash_final(ctx, act2_p);
+		}
+		ret = compare(act2, exp2, sizeof(act2), "SHAKE256 sqeeze more");
+		lc_hash_zero(ctx);
+
+		if (ret) {
+			printf("round %zu\n", i);
+			return ret;
+		}
 	}
-	ret = compare(act2, exp2, sizeof(act2), "SHAKE256 sqeeze more");
-	lc_hash_zero(ctx);
 
 	return ret;
 }

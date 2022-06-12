@@ -241,12 +241,6 @@
  * When this function completes, initialized KMAC context can now be used
  * to generate random bits.
  *
- * The key is LC_SHA3_256_SIZE_BLOCK in size which implies that exactly one
- * KMAC XOF output block is used for the key. This also implies that the
- * use of lc_kmac_final_xof/lc_kmac_final_xof_more is mathematically identically
- * to one invocation of lc_kmac_final_xof with the total amount of requested
- * bits.
- *
  * This generates T(0) and T(1) of size 1088 - 512 of the KMAC DRNG
  * specification section 2.3.
  */
@@ -255,13 +249,11 @@ kmac256_drng_fke_init_ctx(struct lc_kmac256_drng_state *state,
 			  struct lc_kmac_ctx *kmac_ctx,
 			  const uint8_t *addtl_input, size_t addtl_input_len)
 {
-	BUILD_BUG_ON(LC_KMAC256_DRNG_STATE_SIZE != LC_SHA3_256_SIZE_BLOCK);
-
 	lc_kmac_init(kmac_ctx, state->key, LC_KMAC256_DRNG_KEYSIZE,
 		     (uint8_t *)LC_KMAC_DRNG_CTX_CUSTOMIZATION_STRING,
 		     sizeof(LC_KMAC_DRNG_CTX_CUSTOMIZATION_STRING) - 1);
 	lc_kmac_update(kmac_ctx, addtl_input, addtl_input_len);
-	lc_kmac_final_xof(kmac_ctx, state->key, LC_KMAC256_DRNG_STATE_SIZE);
+	lc_kmac_final_xof(kmac_ctx, state->key, LC_KMAC256_DRNG_KEYSIZE);
 }
 
 /*
@@ -290,26 +282,11 @@ lc_kmac256_drng_generate(struct lc_kmac256_drng_state *state,
 		 * This operation generates R(N) from the KMAC DRNG
 		 * specification section 2.4.
 		 */
-		size_t todo = min_t(size_t, outlen, LC_KMAC256_DRBG_RND_SIZE);
+		size_t todo = min_t(size_t, outlen, LC_KMAC256_DRNG_MAX_CHUNK -
+						    LC_KMAC256_DRNG_KEYSIZE);
 
 		kmac256_drng_fke_init_ctx(state, kmac_ctx,
 					  addtl_input, addtl_input_len);
-
-		/*
-		 * Copy the T(1) data generated with the first KECCAK operation
-		 * to the output buffer
-		 */
-		memcpy(out, state->random, todo);
-		out += todo;
-		outlen -= todo;
-
-		/*
-		 * It is likely that we only produce small amounts of data in
-		 * one invocation. Thus, check right here whether we satisfied
-		 * the entire request.
-		 */
-		if (!outlen)
-			break;
 
 		todo = min_t(size_t, outlen, LC_KMAC256_DRNG_MAX_CHUNK);
 		lc_kmac_final_xof_more(kmac_ctx, out, todo);
@@ -318,7 +295,6 @@ lc_kmac256_drng_generate(struct lc_kmac256_drng_state *state,
 	}
 
 	lc_kmac_zero(kmac_ctx);
-	memset_secure(state->random, 0, LC_KMAC256_DRBG_RND_SIZE);
 }
 
 /*
