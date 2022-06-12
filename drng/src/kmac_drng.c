@@ -251,7 +251,7 @@
  * specification section 2.3.
  */
 static void
-kmac256_drng_kfe_init_ctx(struct lc_kmac256_drng_state *state,
+kmac256_drng_fke_init_ctx(struct lc_kmac256_drng_state *state,
 			  struct lc_kmac_ctx *kmac_ctx,
 			  const uint8_t *addtl_input, size_t addtl_input_len)
 {
@@ -292,7 +292,7 @@ lc_kmac256_drng_generate(struct lc_kmac256_drng_state *state,
 		 */
 		size_t todo = min_t(size_t, outlen, LC_KMAC256_DRBG_RND_SIZE);
 
-		kmac256_drng_kfe_init_ctx(state, kmac_ctx,
+		kmac256_drng_fke_init_ctx(state, kmac_ctx,
 					  addtl_input, addtl_input_len);
 
 		/*
@@ -330,14 +330,14 @@ lc_kmac256_drng_generate(struct lc_kmac256_drng_state *state,
  */
 DSO_PUBLIC
 void lc_kmac256_drng_seed(struct lc_kmac256_drng_state *state,
-			  const uint8_t *key, size_t keylen)
+			  const uint8_t *seed, size_t seedlen)
 {
 	LC_KMAC_CTX_ON_STACK(kmac_ctx, lc_cshake256);
 
 	lc_kmac_init(kmac_ctx, state->key, LC_KMAC256_DRNG_KEYSIZE,
 		     (uint8_t *)LC_KMAC_DRNG_SEED_CUSTOMIZATION_STRING,
 		     sizeof(LC_KMAC_DRNG_SEED_CUSTOMIZATION_STRING) - 1);
-	lc_kmac_update(kmac_ctx, key, keylen);
+	lc_kmac_update(kmac_ctx, seed, seedlen);
 	lc_kmac_final_xof(kmac_ctx, state->key, LC_KMAC256_DRNG_KEYSIZE);
 	lc_kmac_zero(kmac_ctx);
 }
@@ -353,7 +353,7 @@ void lc_kmac256_drng_zero_free(struct lc_kmac256_drng_state *state)
 }
 
 DSO_PUBLIC
-int lc_kmac256_drng_alloc(struct lc_kmac256_drng_state **lc_kmac_drng_state)
+int lc_kmac256_drng_alloc(struct lc_kmac256_drng_state **state)
 {
 	struct lc_kmac256_drng_state *out_state;
 	int ret = posix_memalign((void *)&out_state, sizeof(uint64_t),
@@ -375,7 +375,7 @@ int lc_kmac256_drng_alloc(struct lc_kmac256_drng_state **lc_kmac_drng_state)
 
 	lc_kmac256_drng_zero(out_state);
 
-	*lc_kmac_drng_state = out_state;
+	*state = out_state;
 
 	return 0;
 }

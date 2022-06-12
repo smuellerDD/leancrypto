@@ -53,8 +53,8 @@ struct lc_kmac256_drng_state {
 					 sizeof(struct lc_kmac256_drng_state))
 
 /**
- * @brief Zeroize Hash context allocated with either LC_HASH_CTX_ON_STACK or
- *	  lc_hmac_alloc
+ * @brief Zeroize KMAC DRBG context allocated with either
+ *	  LC_KMAC256_DRNG_CTX_ON_STACK or lc_kmac256_drng_alloc
  *
  * @param hash_state [in] Hash context to be zeroized
  */
@@ -76,17 +76,64 @@ static inline void lc_kmac256_drng_zero(struct lc_kmac256_drng_state *state)
 	LC_KMAC256_DRNG_SET_CTX(name);					       \
 	lc_kmac256_drng_zero(name)
 
+/**
+ * @brief Allocation of a KMAC DRNG context
+ *
+ * @param state [out] KMAC DRNG context allocated by the function
+ *
+ * The cipher handle including its memory is allocated with this function.
+ *
+ * The memory is pinned so that the DRNG state cannot be swapped out to disk.
+ *
+ * You need to seed the DRNG!
+ *
+ * @return 0 upon success; < 0 on error
+ */
+int lc_kmac256_drng_alloc(struct lc_kmac256_drng_state **state);
+
+/**
+ * @brief Zeroize and free KMAC DRNG context
+ *
+ * @param state [in] KMAC DRNG context to be zeroized and freed
+ */
+void lc_kmac256_drng_zero_free(struct lc_kmac256_drng_state *state);
+
+/**
+ * @brief Obtain random numbers
+ *
+ * @param state [in] allocated KMAC DRNG cipher handle
+ * @param addtl_input [in] Additional input to diversify state
+ * @param addtl_input_len [in] Length of additional input buffer
+ * @param outbuf [out] allocated buffer that is to be filled with random numbers
+ * @param outbuflen [in] length of outbuf indicating the size of the random
+ *			 number byte string to be generated
+ *
+ * Generate random numbers and fill the buffer provided by the caller.
+ *
+ * The generation operation updates the KMAC DRNG state at the same time
+ * the random bit stream is generated to achieve backtracking resistance.
+ *
+ * @return 0 upon success; < 0 on error
+ */
 void
 lc_kmac256_drng_generate(struct lc_kmac256_drng_state *state,
 			 const uint8_t *addtl_input, size_t addtl_input_len,
 			 uint8_t *out, size_t outlen);
 
+/**
+ * @brief (Re)Seed the KMAC DRNG
+ *
+ * @param state [in] allocated ChaCha20 cipher handle
+ * @param seed [in] buffer with the seed data
+ * @param seedlen [in] length of seed
+ *
+ * When calling the function, the DRNG is seeded or reseeded. If it is reseeded,
+ * the old state information is mixed into the new state.
+ *
+ * @return 0 upon succes; < 0 on error
+ */
 void lc_kmac256_drng_seed(struct lc_kmac256_drng_state *state,
-		          const uint8_t *key, size_t keylen);
-
-void lc_kmac256_drng_zero_free(struct lc_kmac256_drng_state *state);
-
-int lc_kmac256_drng_alloc(struct lc_kmac256_drng_state **lc_kmac_drng_state);
+		          const uint8_t *seed, size_t seedlen);
 
 #ifdef __cplusplus
 }

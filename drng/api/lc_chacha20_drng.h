@@ -44,8 +44,8 @@ struct lc_chacha20_drng_ctx {
 					sizeof(struct lc_chacha20_drng_ctx))
 
 /**
- * @brief Zeroize Hash context allocated with either LC_HASH_CTX_ON_STACK or
- *	  lc_hmac_alloc
+ * @brief Zeroize ChaCha20 DRNG context allocated with either
+ *	  LC_CC20_DRNG_CTX_ON_STACK or lc_cc20_drng_alloc
  *
  * @param hash_state [in] Hash context to be zeroized
  */
@@ -87,7 +87,7 @@ static inline void lc_cc20_drng_zero(struct lc_chacha20_drng_ctx *cc20_ctx)
 int lc_cc20_drng_alloc(struct lc_chacha20_drng_ctx **cc20_ctx);
 
 /**
- * @brief Zeroize and ChaCha20 DRNG context
+ * @brief Zeroize and free ChaCha20 DRNG context
  *
  * @param cc20_ctx [in] ChaCha20 DRNG context to be zeroized and freed
  */
@@ -99,16 +99,9 @@ void lc_cc20_drng_zero_free(struct lc_chacha20_drng_ctx *cc20_ctx);
  * @param cc20_ctx [in] allocated ChaCha20 cipher handle
  * @param outbuf [out] allocated buffer that is to be filled with random numbers
  * @param outbuflen [in] length of outbuf indicating the size of the random
- *	number byte string to be generated
+ *			 number byte string to be generated
  *
  * Generate random numbers and fill the buffer provided by the caller.
- *
- * Before each request of random numbers, a high-resolution time stamp is
- * mixed into the random number generator state.
- *
- * If the last (re)seeding operation is longer than 600 seconds ago or
- * more than 1GB of random numbers were generated, an automated
- * reseed is performed.
  *
  * After the generation of random numbers, the internal state of the ChaCha20
  * DRNG is completely re-created using ChaCha20 to provide enhanced backtracking
@@ -128,9 +121,8 @@ void lc_cc20_drng_generate(struct lc_chacha20_drng_ctx *cc20_ctx,
  * @param inbuf [in] buffer with the seed data
  * @param inbuflen [in] length of inbuf
  *
- * When calling the function, the DRNG is first seeded from its internal
- * noise sources. This is followed by seeding the DRNG with the caller-provided
- * data.
+ * When calling the function, the DRNG is seeded or reseeded. If it is reseeded,
+ * the old state information is mixed into the new state.
  *
  * @return 0 upon succes; < 0 on error
  */
