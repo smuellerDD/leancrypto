@@ -29,7 +29,7 @@ extern "C"
 #endif
 
 /**
- * @brief Initialize the hash state following the cSHAK specification
+ * @brief Initialize the hash state following the cSHAKE specification
  *
  * NOTE: Currently only cSHAKE256 is defined and supported.
  *
@@ -41,6 +41,14 @@ extern "C"
  * ...
  * lc_hash_update
  * lc_hash_final
+ *
+ * Or use the helper lc_cshake_final:
+ *
+ * lc_cshake_init
+ * lc_hash_update
+ * ...
+ * lc_hash_update
+ * lc_cshake_final
  *
  * @param ctx [in] Initialized hash context
  * @param n [in] N is a function-name bit string, used by NIST to define
@@ -55,6 +63,25 @@ extern "C"
 void lc_cshake_init(struct lc_hash_ctx *ctx,
 		    const uint8_t *n, size_t nlen,
 		    const uint8_t *s, size_t slen);
+
+/**
+ * @brief Generate a cSHAKE message digest from a given state.
+ *
+ * The function can be invoked repeatedly to squeeze more data from the
+ * cSHAKE state.
+ *
+ * @param ctx [in] Initialized hash context
+ * @param out [out] Buffer allocated by caller that is filled with the message
+ *		    digest data.
+ * @param outlen [in] Size of the output buffer to be filled.
+ */
+static inline void
+lc_cshake_final(struct lc_hash_ctx *ctx, uint8_t *out, size_t outlen)
+{
+	lc_hash_set_digestsize(ctx, outlen);
+	lc_hash_final(ctx, out);
+}
+
 
 #ifdef __cplusplus
 }

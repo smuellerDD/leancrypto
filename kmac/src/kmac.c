@@ -127,8 +127,7 @@ void lc_kmac_final_xof(struct lc_kmac_ctx *kmac_ctx,
 	static const uint8_t bytepad_val[] = { 0x00, 0x01 };
 
 	lc_hash_update(hash_ctx, bytepad_val, sizeof(bytepad_val));
-	lc_hash_set_digestsize(hash_ctx, maclen);
-	lc_hash_final(hash_ctx, mac);
+	lc_cshake_final(hash_ctx, mac, maclen);
 }
 
 DSO_PUBLIC
@@ -137,8 +136,7 @@ void lc_kmac_final_xof_more(struct lc_kmac_ctx *kmac_ctx, uint8_t *mac,
 {
 	struct lc_hash_ctx *hash_ctx = &kmac_ctx->hash_ctx;
 
-	lc_hash_set_digestsize(hash_ctx, maclen);
-	lc_hash_final(hash_ctx, mac);
+	lc_cshake_final(hash_ctx, mac, maclen);
 }
 
 DSO_PUBLIC
