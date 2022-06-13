@@ -39,3 +39,27 @@ if get_option('kmac_drng').enabled()
 	test('KMAC DRNG', kmac_drng_tester)
 	test('KMAC DRNG 1GB', kmac_drng_tester_large, timeout: 300)
 endif
+
+if get_option('cshake_drng').enabled()
+	cshake_drng_tester = executable('cshake_drng_tester',
+				   [ 'cshake_drng_tester.c',
+				     internal_src ],
+				   include_directories: [ include_internal_dirs ],
+				   dependencies: leancrypto
+				   )
+	cshake_drng_tester_large = executable('cshake_drng_tester_large',
+				   [ 'cshake_drng_tester_large.c',
+				     internal_src ],
+				   include_directories: [ include_internal_dirs ],
+				   dependencies: leancrypto
+				   )
+	cshake_drng_tester_output = executable('cshake_drng_tester_output',
+				   [ 'cshake_drng_tester_output.c',
+				     internal_src ],
+				   include_directories: [ include_internal_dirs ],
+				   dependencies: leancrypto
+				   )
+
+	test('cSHAKE DRNG', cshake_drng_tester)
+	test('cSHAKE DRNG 1GB', cshake_drng_tester_large, timeout: 300)
+endif
