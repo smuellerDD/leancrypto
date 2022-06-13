@@ -141,7 +141,7 @@ void lc_kmac_final_xof(struct lc_kmac_ctx *kmac_ctx,
  * ```
  * lc_kmac_final_xof(ctx, mac, LC_SHA3_256_SIZE_BLOCK + 1);
  * lc_kmac_final_xof_more(ctx, mac + LC_SHA3_256_SIZE_BLOCK + 1,
- *			  2 * LC_SHA3_256_SIZE_BLOCK _ 1);
+ *			  2 * LC_SHA3_256_SIZE_BLOCK + 1);
  * lc_kmac_final_xof_more(ctx, mac + 3 * LC_SHA3_256_SIZE_BLOCK + 2, 3);
  * ```
  *
