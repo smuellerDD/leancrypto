@@ -64,10 +64,11 @@ static inline void lc_drbg_string_fill(struct lc_drbg_string *string,
 	string->next = NULL;
 }
 
+/* SP800-90A requires the limit 2**19 bits, but we return bytes */
+#define LC_DRBG_MAX_REQUEST_BYTES	(1U << 16)
 static inline size_t lc_drbg_max_request_bytes(void)
 {
-	/* SP800-90A requires the limit 2**19 bits, but we return bytes */
-	return (1 << 16);
+	return LC_DRBG_MAX_REQUEST_BYTES;
 }
 
 static inline size_t lc_drbg_max_addtl(void)
