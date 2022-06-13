@@ -88,33 +88,32 @@
  *
  * 2.2 Seeding
  *
- * KMAC-Seeding(current KMAC-DRNG key, seed) -> new KMAC key
+ * KMAC-Seeding(K(N), seed) -> K(N + 1)
  *
  * Inputs:
- *   KMAC DRNG key: The KMAC key used by the current instance of the KMAC DRNG.
- *                  If the KMAC DRNG is initialized and therefore no current key
- *                  exists, a zero string of 512 bits size is used.
+ *   K(N): The current KMAC DRNG key used by the current instance of the
+ *         KMAC DRNG. If the KMAC DRNG is initialized and therefore no current
+ *         key exists, a zero string of 512 bits size is used.
  *
  *   seed: The caller-provided seed material that contains entropy.
  *
  * Output:
- *   new KMAC DRNG key: A new KMAC DRNG key that is used for instantiating the
- *                      KMAC hash during the generate phase.
+ *   K(N + 1): A new KMAC DRNG key that is used for instantiating the KMAC hash
+ *             during the next generate or seed phase.
  *
  * The seeding of the KMAC DRNG is performed as follows:
  *
- * new KMAC DRNG key = KMAC(K = current KMAC DRNG key,
- *                          X = seed,
- *                          L = 512
- *                          S = "KMAC-DRNG seed")
+ * K(N + 1) = KMAC(K = K(N),
+ *                 X = seed,
+ *                 L = 512
+ *                 S = "KMAC-DRNG seed")
  *
  * 2.3. Generating One Block of Random Bit Stream
  *
- * KMAC-Generate(KMAC DRNG key, additional input, length) ->
- *   new KMAC DRNG key, random bit stream
+ * KMAC-Generate(K(N), additional input, length) -> K(N + 1), random bit stream
  *
  * Inputs:
- *   KMAC DRNG key: The KMAC DRNG key of 512 bits size.
+ *   K(N): The current KMAC DRNG key of 512 bits size.
  *
  *   additional input: The optional additional input may be used to further
  *                     alter the generated random bit stream.
@@ -126,8 +125,8 @@
  *           multiple of full cSHAKE blocks.
  *
  * Outputs:
- *   new KMAC DRNG key: A new KMAC DRNG key that is used for instantiating the
- *                      KMAC hash during the next generate operation.
+ *   K(N + 1): A new KMAC DRNG key that is used for instantiating the KMAC hash
+ *             during the next generate or seed operation.
  *
  *   random bit stream: Random bit stream of the requested length.
  *
@@ -135,11 +134,11 @@
  *
  * T(0) = 512 left-most bits of R
  * T(1) = all right-most bits of R starting with the 512th bit
- * new KMAC DRNG key = T(0)
+ * K(N + 1) = T(0)
  * random bit stream = T(1)
  *
  * where:
- * R = KMAC(K = KMAC DRNG key,
+ * R = KMAC(K = K(N),
  *          X = additional input,
  *          L = 512 + length,
  *          S = "KMAC-DRNG generate")
@@ -147,8 +146,8 @@
  * 2.4. Generating Random Bit Stream of Arbitrary Length
  *
  * Input:
- *   KMAC DRNG key: The KMAC key of 512 bits size generated with the seeding
- *                  step.
+ *   K(N): The KMAC key of 512 bits size generated with the previous generate or
+ *         seed operation.
  *
  *   additional input: The optional additional input may be used to further
  *                     alter the generated random bit stream.
@@ -156,8 +155,8 @@
  *   length: The length of the random bit stream to be generated in bits.
  *
  * Output
- *   new KMAC DRNG key: A new KMAC DRNG key that is used for instantiating the
- *                      KMAC hash during the next generate operation.
+ *   K(N + 1): A new KMAC DRNG key that is used for instantiating the KMAC hash
+ *             during the next generate or seed operation.
  *
  *   random bit stream: Random bit stream of the requested length.
  *
@@ -165,16 +164,16 @@
  *
  * B = 1088 * 100 - 512
  * N = ceil(length / B)
- * K(0) = KMAC DRNG key
+ * TMP_K(0) = K(N)
  * R = R(1) || R(2) || R(3) || ... || R(N)
  * random bit stream = first length bits of R
- * new KMAC DRNG key = K(N)
+ * K(N + 1) = TMP_K(N)
  *
  * where:
- * (K(1), R(1)) = KMAC-Generate(K(0), additional input, B)
- * (K(2), R(2)) = KMAC-Generate(K(1), additional input, B)
+ * (TMP_K(1), R(1)) = KMAC-Generate(TMP_K(0), additional input, B)
+ * (TMP_K(2), R(2)) = KMAC-Generate(TMP_K(1), additional input, B)
  * ...
- * (K(N), R(N)) = KMAC-Generate(K(N - 1), additional input, B)
+ * (TMP_K(N), R(N)) = KMAC-Generate(TMP_K(N - 1), additional input, B)
  *
  * 3. Rationale
  *
@@ -249,10 +248,15 @@ kmac256_drng_fke_init_ctx(struct lc_kmac256_drng_state *state,
 			  struct lc_kmac_ctx *kmac_ctx,
 			  const uint8_t *addtl_input, size_t addtl_input_len)
 {
+	/* Initialize the KMAC with K(N) and the cust. string. */
 	lc_kmac_init(kmac_ctx, state->key, LC_KMAC256_DRNG_KEYSIZE,
 		     (uint8_t *)LC_KMAC_DRNG_CTX_CUSTOMIZATION_STRING,
 		     sizeof(LC_KMAC_DRNG_CTX_CUSTOMIZATION_STRING) - 1);
+
+	/* Insert the additional data into the KMAC state. */
 	lc_kmac_update(kmac_ctx, addtl_input, addtl_input_len);
+
+	/* Generate the K(N + 1) to store in the state and overwrite K(N). */
 	lc_kmac_final_xof(kmac_ctx, state->key, LC_KMAC256_DRNG_KEYSIZE);
 }
 
@@ -277,6 +281,7 @@ lc_kmac256_drng_generate(struct lc_kmac256_drng_state *state,
 
 	BUILD_BUG_ON(LC_KMAC256_DRNG_MAX_CHUNK % LC_SHA3_256_SIZE_BLOCK);
 
+	/* The loop generates R from KMAC DRNG specification section 2.4. */
 	while (outlen) {
 		/*
 		 * This operation generates R(N) from the KMAC DRNG
@@ -285,15 +290,19 @@ lc_kmac256_drng_generate(struct lc_kmac256_drng_state *state,
 		size_t todo = min_t(size_t, outlen, LC_KMAC256_DRNG_MAX_CHUNK -
 						    LC_KMAC256_DRNG_KEYSIZE);
 
+		/* Instantiate KMAC with TMP_K(N) and generate TMP_K(N + 1). */
 		kmac256_drng_fke_init_ctx(state, kmac_ctx,
 					  addtl_input, addtl_input_len);
 
-		todo = min_t(size_t, outlen, LC_KMAC256_DRNG_MAX_CHUNK);
+		/* Generate the requested amount of output bits */
 		lc_kmac_final_xof_more(kmac_ctx, out, todo);
 		out += todo;
 		outlen -= todo;
 	}
 
+	/* K(N + 1) is already in place as TMP(K) is stored in the key state. */
+
+	/* Clear the KMAC state which is not needed any more. */
 	lc_kmac_zero(kmac_ctx);
 }
 
@@ -310,11 +319,21 @@ void lc_kmac256_drng_seed(struct lc_kmac256_drng_state *state,
 {
 	LC_KMAC_CTX_ON_STACK(kmac_ctx, lc_cshake256);
 
+	/*
+	 * Initialize the KMAC with K(N) and the cust. string. During initial
+	 * seeding K(N) is a zero buffer.
+	 */
 	lc_kmac_init(kmac_ctx, state->key, LC_KMAC256_DRNG_KEYSIZE,
 		     (uint8_t *)LC_KMAC_DRNG_SEED_CUSTOMIZATION_STRING,
 		     sizeof(LC_KMAC_DRNG_SEED_CUSTOMIZATION_STRING) - 1);
+
+	/* Insert the seed data into the KMAC state. */
 	lc_kmac_update(kmac_ctx, seed, seedlen);
+
+	/* Generate the K(N + 1) to store in the state and overwrite K(N). */
 	lc_kmac_final_xof(kmac_ctx, state->key, LC_KMAC256_DRNG_KEYSIZE);
+
+	/* Clear the KMAC state which is not needed any more. */
 	lc_kmac_zero(kmac_ctx);
 }
 
