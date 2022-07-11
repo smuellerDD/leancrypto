@@ -62,8 +62,8 @@ int lc_drbg_seed(struct lc_drbg_state *drbg,
 
 DSO_PUBLIC
 ssize_t lc_drbg_generate(struct lc_drbg_state *drbg,
-			 uint8_t *buf, size_t buflen,
-			 const uint8_t *addtlbuf, size_t addtllen)
+			 const uint8_t *addtlbuf, size_t addtllen,
+			 uint8_t *buf, size_t buflen)
 {
 	struct lc_drbg_string addtl_data;
 	struct lc_drbg_string *addtl = NULL;

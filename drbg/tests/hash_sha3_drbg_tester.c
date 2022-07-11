@@ -96,10 +96,10 @@ static int hash_sha3_drbg_tester(void)
 	if (lc_drbg_seed(drbg_stack, ent_nonce, 64, pers, 32))
 		goto out;
 
-	if (lc_drbg_generate(drbg_stack, act, 256, addtl1, 32) < 0)
+	if (lc_drbg_generate(drbg_stack, addtl1, 32, act, 256) < 0)
 		goto out;
 
-	if (lc_drbg_generate(drbg_stack, act, 256, addtl2, 32) < 0)
+	if (lc_drbg_generate(drbg_stack, addtl2, 32, act, 256) < 0)
 		goto out;
 
 	ret += compare(act, exp, 256, "Hash DRBG SHA3-512");
@@ -110,10 +110,10 @@ static int hash_sha3_drbg_tester(void)
 	if (lc_drbg_seed(drbg_stack, ent_nonce, 64, pers, 32))
 		goto out;
 
-	if (lc_drbg_generate(drbg_stack, act, 256, addtl1, 32) < 0)
+	if (lc_drbg_generate(drbg_stack, addtl1, 32, act, 256) < 0)
 		goto out;
 
-	if (lc_drbg_generate(drbg_stack, act, 256, addtl2, 32) < 0)
+	if (lc_drbg_generate(drbg_stack, addtl2, 32, act, 256) < 0)
 		goto out;
 
 	ret += compare(act, exp, 256, "Hash DRBG SHA3-512");

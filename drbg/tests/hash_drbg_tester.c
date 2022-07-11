@@ -98,10 +98,10 @@ static int hash_drbg_tester(void)
 	if (lc_drbg_seed(drbg_stack, ent_nonce, 64, pers, 32))
 		goto out;
 
-	if (lc_drbg_generate(drbg_stack, act, 256, addtl1, 32) < 0)
+	if (lc_drbg_generate(drbg_stack, addtl1, 32, act, 256) < 0)
 		goto out;
 
-	if (lc_drbg_generate(drbg_stack, act, 256, addtl2, 32) < 0)
+	if (lc_drbg_generate(drbg_stack, addtl2, 32, act, 256) < 0)
 		goto out;
 
 	ret += compare(act, exp, 256, "Hash DRBG SHA-512");
@@ -112,10 +112,10 @@ static int hash_drbg_tester(void)
 	if (lc_drbg_seed(drbg_stack, ent_nonce, 64, pers, 32))
 		goto out;
 
-	if (lc_drbg_generate(drbg_stack, act, 256, addtl1, 32) < 0)
+	if (lc_drbg_generate(drbg_stack, addtl1, 32, act, 256) < 0)
 		goto out;
 
-	if (lc_drbg_generate(drbg_stack, act, 256, addtl2, 32) < 0)
+	if (lc_drbg_generate(drbg_stack, addtl2, 32, act, 256) < 0)
 		goto out;
 
 	ret += compare(act, exp, 256, "Hash DRBG SHA-512");
@@ -128,10 +128,10 @@ static int hash_drbg_tester(void)
 	if (lc_drbg_seed(drbg, ent_nonce, 64, pers, 32))
 		goto out;
 
-	if (lc_drbg_generate(drbg, act, 256, addtl1, 32) < 0)
+	if (lc_drbg_generate(drbg, addtl1, 32, act, 256) < 0)
 		goto out;
 
-	if (lc_drbg_generate(drbg, act, 256, addtl2, 32) < 0)
+	if (lc_drbg_generate(drbg, addtl2, 32, act, 256) < 0)
 		goto out;
 #endif
 #if 0
@@ -195,10 +195,10 @@ static int hash_drbg_tester(void)
 	if (lc_drbg_seed(drbg, ent_nonce, 64, pers, 32))
 		goto out;
 
-	if (lc_drbg_generate(drbg, act, 256, NULL, 0) < 0)
+	if (lc_drbg_generate(drbg, NULL, 0, act, 256) < 0)
 		goto out;
 
-	if (lc_drbg_generate(drbg, act, 256, NULL, 0) < 0)
+	if (lc_drbg_generate(drbg, NULL, 0, act, 256) < 0)
 		goto out;
 #endif
 #if 0
@@ -257,10 +257,10 @@ static int hash_drbg_tester(void)
 	if (lc_drbg_seed(drbg, ent_nonce, 64, NULL, 0))
 		goto out;
 
-	if (lc_drbg_generate(drbg, act, 256, NULL, 0) < 0)
+	if (lc_drbg_generate(drbg, NULL, 0, act, 256) < 0)
 		goto out;
 
-	if (lc_drbg_generate(drbg, act, 256, NULL, 0) < 0)
+	if (lc_drbg_generate(drbg, NULL, 0, act, 256) < 0)
 		goto out;
 #endif
 

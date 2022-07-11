@@ -128,18 +128,18 @@ int lc_drbg_seed(struct lc_drbg_state *drbg,
  *	  generates random numbers of a size of at most 2^16 bytes.
  *
  * @param drbg [in] DRBG state handle
+ * @param addtlbuf [in] Additional input that is mixed into state, may be NULL
+ * @param addtllen [in] Additional input buffer length
  * @param buf [out] Buffer where to store the random numbers -- the buffer must
  *		   already be pre-allocated by caller
  * @param buflen [in] Length of output buffer - this value defines the number of
  *		     random bytes pulled from DRBG
- * @param addtlbuf [in] Additional input that is mixed into state, may be NULL
- * @param addtllen [in] Additional input buffer length
  *
  * @return generated number of bytes on success, negative error value otherwise
  */
 ssize_t lc_drbg_generate(struct lc_drbg_state *drbg,
-			 uint8_t *buf, size_t buflen,
-			 const uint8_t *addtlbuf, size_t addtllen);
+			 const uint8_t *addtlbuf, size_t addtllen,
+			 uint8_t *buf, size_t buflen);
 
 /**
  * @brief DRBG uninstantiate function as required by SP800-90A - this function

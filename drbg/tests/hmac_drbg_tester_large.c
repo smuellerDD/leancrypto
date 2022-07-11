@@ -32,7 +32,7 @@ static int hmac_drbg_selftest_large(struct lc_drbg_state *drbg)
 		goto out;
 
 	for (i = 0; i < ((1U<<30) / LC_DRBG_MAX_REQUEST_BYTES); i++)
-		lc_drbg_generate(drbg, out, sizeof(out), NULL, 0);
+		lc_drbg_generate(drbg, NULL, 0, out, sizeof(out));
 
 out:
 	lc_drbg_zero(drbg);
