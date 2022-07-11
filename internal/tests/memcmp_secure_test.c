@@ -31,7 +31,7 @@ static int memcmp_secure_tester(void)
 	time_t now = time(NULL);
 	unsigned int i;
 	int ret = 1;
-	unsigned short rnd, add;
+	unsigned short rnd = 0, add;
 
 	if (lc_drbg_seed(drbg, (uint8_t *)&now, sizeof(now), NULL, 0))
 		return 1;
