@@ -62,8 +62,7 @@ add_project_link_arguments('-Wl,--as-needed', language : 'c')
 # Project-specific defines
 ################################################################################
 
-include_dirs = include_directories([ 'drbg/api',
-				     'drng/api',
+include_dirs = include_directories([ 'drng/api',
 				     'hash/api',
 				     'hash_crypt/api',
 				     'hmac/api',
@@ -75,13 +74,13 @@ include_dirs = include_directories([ 'drbg/api',
 
 #for i in $(find ./ -name api | grep -v internal | sort); do for j in $(find $i -name "*.h"); do echo "'$j',"; done; done
 include_files = files([
-	'./drbg/api/lc_drbg.h',
-	'./drbg/api/lc_hash_drbg.h',
+	'./drng/api/lc_drbg.h',
+	'./drng/api/lc_hash_drbg.h',
 #	Disabled as it is a replacement for SHA2-512
-#	'./drbg/api/lc_hash_drbg_sha3_512.h',
-	'./drbg/api/lc_hash_drbg_sha512.h',
-	'./drbg/api/lc_hmac_drbg.h',
-	'./drbg/api/lc_hmac_drbg_sha512.h',
+#	'./drng/api/lc_hash_drbg_sha3_512.h',
+	'./drng/api/lc_hash_drbg_sha512.h',
+	'./drng/api/lc_hmac_drbg.h',
+	'./drng/api/lc_hmac_drbg_sha512.h',
 	'./drng/api/lc_chacha20_drng.h',
 	'./drng/api/lc_kmac256_drng.h',
 	'./hash/api/lc_cshake.h',
@@ -106,8 +105,7 @@ include_files = files([
 
 include_internal_dirs = include_directories([ 'internal/api' ])
 
-subdirs = [ 'drbg/src',
-	    'drng/src',
+subdirs = [ 'drng/src',
 	    'hash/src',
 	    'internal/src',
 	    'kdf/src',
@@ -115,8 +113,7 @@ subdirs = [ 'drbg/src',
 	    'sym/src'
 	  ]
 
-testdirs = [ 'drbg/tests',
-	     'drng/tests',
+testdirs = [ 'drng/tests',
 	     'hash/tests',
 	     'internal/tests',
 	     'kdf/tests',
