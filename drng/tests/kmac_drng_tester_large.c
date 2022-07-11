@@ -29,7 +29,7 @@ static int kmac_drng_selftest_large(struct lc_kmac256_drng_state *kmac_ctx)
 	uint8_t out[KMAC256_TEST_BLOCKSIZE];
 	unsigned int i;
 
-	lc_kmac256_drng_seed(kmac_ctx, seed, sizeof(seed));
+	lc_kmac256_drng_seed(kmac_ctx, seed, sizeof(seed), NULL, 0);
 
 	for (i = 0; i < ((1U<<30) / KMAC256_TEST_BLOCKSIZE); i++)
 		lc_kmac256_drng_generate(kmac_ctx, NULL, 0, out,

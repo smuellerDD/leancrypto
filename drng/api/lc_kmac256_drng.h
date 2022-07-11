@@ -117,6 +117,9 @@ lc_kmac256_drng_generate(struct lc_kmac256_drng_state *state,
  * @param state [in] allocated ChaCha20 cipher handle
  * @param seed [in] buffer with the seed data
  * @param seedlen [in] length of seed
+ * @param persbuf [in] Personalization / additional information buffer - may be
+ *		      NULL
+ * @param perslen [in] Length of personalization / additional information buffer
  *
  * When calling the function, the DRNG is seeded or reseeded. If it is reseeded,
  * the old state information is mixed into the new state.
@@ -124,7 +127,8 @@ lc_kmac256_drng_generate(struct lc_kmac256_drng_state *state,
  * @return 0 upon succes; < 0 on error
  */
 void lc_kmac256_drng_seed(struct lc_kmac256_drng_state *state,
-		          const uint8_t *seed, size_t seedlen);
+		          const uint8_t *seed, size_t seedlen,
+			  const uint8_t *persbuf, size_t perslen);
 
 #ifdef __cplusplus
 }

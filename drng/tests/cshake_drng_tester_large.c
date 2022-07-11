@@ -30,7 +30,7 @@ static int cshake_drng_selftest_large(struct lc_cshake256_drng_state *cshake_ctx
 	uint8_t out[CSHAKE256_TEST_BLOCKSIZE];
 	unsigned int i;
 
-	lc_cshake256_drng_seed(cshake_ctx, seed, sizeof(seed));
+	lc_cshake256_drng_seed(cshake_ctx, seed, sizeof(seed), NULL, 0);
 
 	for (i = 0; i < ((1U<<30) / CSHAKE256_TEST_BLOCKSIZE); i++)
 		lc_cshake256_drng_generate(cshake_ctx, NULL, 0, out,

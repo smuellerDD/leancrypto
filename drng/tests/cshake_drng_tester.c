@@ -72,14 +72,14 @@ static int cshake_drng_selftest(struct lc_cshake256_drng_state *cshake_ctx)
 	uint8_t compare1[LC_CSHAKE256_DRNG_KEYSIZE + sizeof(exp1)];
 	int ret;
 
-	lc_cshake256_drng_seed(cshake_ctx, seed, sizeof(seed));
+	lc_cshake256_drng_seed(cshake_ctx, seed, sizeof(seed), NULL, 0);
 	lc_cshake256_drng_generate(cshake_ctx, NULL, 0, act1, sizeof(act1));
 	ret = compare(act1, exp1, sizeof(act1), "CSHAKE DRNG");
 	lc_cshake256_drng_zero(cshake_ctx);
 
 	/* Verfy the generation operation with one CSHAKE call */
 	/* Prepare the key */
-	lc_cshake256_drng_seed(cshake_ctx, seed, sizeof(seed));
+	lc_cshake256_drng_seed(cshake_ctx, seed, sizeof(seed), NULL, 0);
 	lc_cshake_init(cshake_compare, cshake_ctx->key, LC_CSHAKE256_DRNG_KEYSIZE,
 		     (uint8_t *)LC_CSHAKE_DRNG_CTX_CUSTOMIZATION_STRING,
 		     sizeof(LC_CSHAKE_DRNG_CTX_CUSTOMIZATION_STRING) - 1);

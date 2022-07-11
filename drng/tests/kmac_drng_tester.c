@@ -72,14 +72,14 @@ static int kmac_drng_selftest(struct lc_kmac256_drng_state *kmac_ctx)
 	uint8_t compare1[LC_KMAC256_DRNG_KEYSIZE + sizeof(exp1)];
 	int ret;
 
-	lc_kmac256_drng_seed(kmac_ctx, seed, sizeof(seed));
+	lc_kmac256_drng_seed(kmac_ctx, seed, sizeof(seed), NULL, 0);
 	lc_kmac256_drng_generate(kmac_ctx, NULL, 0, act1, sizeof(act1));
 	ret = compare(act1, exp1, sizeof(act1), "KMAC DRNG");
 	lc_kmac256_drng_zero(kmac_ctx);
 
 	/* Verfy the generation operation with one KMAC call */
 	/* Prepare the key */
-	lc_kmac256_drng_seed(kmac_ctx, seed, sizeof(seed));
+	lc_kmac256_drng_seed(kmac_ctx, seed, sizeof(seed), NULL, 0);
 	lc_kmac_init(kmac_compare, kmac_ctx->key, LC_KMAC256_DRNG_KEYSIZE,
 		     (uint8_t *)LC_KMAC_DRNG_CTX_CUSTOMIZATION_STRING,
 		     sizeof(LC_KMAC_DRNG_CTX_CUSTOMIZATION_STRING) - 1);

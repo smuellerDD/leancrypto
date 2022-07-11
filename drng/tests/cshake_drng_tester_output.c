@@ -78,7 +78,8 @@ static int cshake_drng(struct opts *opts, FILE *out)
 	}
 	time = (uint64_t)tv.tv_sec * 1000000 + (uint64_t)tv.tv_usec;
 
-	lc_cshake256_drng_seed(cshake_ctx, (uint8_t *)&time, sizeof(time));
+	lc_cshake256_drng_seed(cshake_ctx, (uint8_t *)&time, sizeof(time),
+			       NULL, 0);
 
 	while (bytes) {
 		size_t todo = (bytes > sizeof(outbuf) ? sizeof(outbuf) : bytes);

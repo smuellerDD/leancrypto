@@ -104,7 +104,7 @@
  * The seeding of the KMAC DRNG is performed as follows:
  *
  * K(N + 1) = KMAC(K = K(N),
- *                 X = seed,
+ *                 X = seed || personalization string,
  *                 L = 512
  *                 S = "KMAC-DRNG seed")
  *
@@ -240,8 +240,8 @@
  * When this function completes, initialized KMAC context can now be used
  * to generate random bits.
  *
- * This generates T(0) and T(1) of size 1088 - 512 of the KMAC DRNG
- * specification section 2.3.
+ * This generates T(0) and T(1) of size 1088 of the KMAC DRNG specification
+ * section 2.3.
  */
 static void
 kmac256_drng_fke_init_ctx(struct lc_kmac256_drng_state *state,
@@ -315,7 +315,8 @@ lc_kmac256_drng_generate(struct lc_kmac256_drng_state *state,
  */
 DSO_PUBLIC
 void lc_kmac256_drng_seed(struct lc_kmac256_drng_state *state,
-			  const uint8_t *seed, size_t seedlen)
+			  const uint8_t *seed, size_t seedlen,
+			  const uint8_t *persbuf, size_t perslen)
 {
 	LC_KMAC_CTX_ON_STACK(kmac_ctx, lc_cshake256);
 
@@ -329,6 +330,9 @@ void lc_kmac256_drng_seed(struct lc_kmac256_drng_state *state,
 
 	/* Insert the seed data into the KMAC state. */
 	lc_kmac_update(kmac_ctx, seed, seedlen);
+
+	/* Insert the personalization string into the KMAC state. */
+	lc_kmac_update(kmac_ctx, persbuf, perslen);
 
 	/* Generate the K(N + 1) to store in the state and overwrite K(N). */
 	lc_kmac_final_xof(kmac_ctx, state->key, LC_KMAC256_DRNG_KEYSIZE);
