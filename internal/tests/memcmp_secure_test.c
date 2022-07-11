@@ -37,8 +37,8 @@ static int memcmp_secure_tester(void)
 		return 1;
 
 	for (i = 0; i < 10000; i++) {
-		if (lc_drbg_generate(drbg, (uint8_t *)&rnd, sizeof(rnd), NULL,
-				     0) < 0) {
+		if (lc_drbg_generate(drbg, NULL, 0,
+				     (uint8_t *)&rnd, sizeof(rnd)) < 0) {
 			printf("error in generating random number\n");
 			goto out;
 		}
@@ -54,10 +54,10 @@ static int memcmp_secure_tester(void)
 		ap = a + add;
 		bp = b + add;
 
-		if (lc_drbg_generate(drbg, ap, rnd, NULL, 0) < 0)
+		if (lc_drbg_generate(drbg, NULL, 0, ap, rnd) < 0)
 			goto out;
 
-		if (lc_drbg_generate(drbg, bp, rnd, NULL, 0) < 0)
+		if (lc_drbg_generate(drbg, NULL, 0, bp, rnd) < 0)
 			goto out;
 
 		if (memcmp_secure(ap, rnd, ap, rnd)) {

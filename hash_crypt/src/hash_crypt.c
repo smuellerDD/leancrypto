@@ -51,14 +51,15 @@ int lc_hc_setkey(struct lc_hc_cryptor *hc, const uint8_t *key, size_t keylen)
 	 * Generate key for HMAC authentication - we simply use two different
 	 * keys for the DRBG keystream generator and the HMAC authenticator.
 	 */
-	if (lc_drbg_generate(drbg, hc->keystream,
-			     LC_SHA_MAX_SIZE_DIGEST, NULL, 0) !=
+	if (lc_drbg_generate(drbg, NULL, 0, hc->keystream,
+			     LC_SHA_MAX_SIZE_DIGEST) !=
 	    LC_SHA_MAX_SIZE_DIGEST)
 		return -EFAULT;
 	lc_hmac_init(auth_ctx, hc->keystream, LC_SHA_MAX_SIZE_DIGEST);
 
 	/* Generate first keystream */
-	if (lc_drbg_generate(drbg, hc->keystream, LC_HC_KEYSTREAM_BLOCK, NULL, 0) !=
+	if (lc_drbg_generate(drbg, NULL, 0,
+			     hc->keystream, LC_HC_KEYSTREAM_BLOCK) !=
 	           LC_HC_KEYSTREAM_BLOCK)
 		return -EFAULT;
 
@@ -82,8 +83,8 @@ ssize_t lc_hc_crypt(struct lc_hc_cryptor *hc, const uint8_t *in, uint8_t *out,
 
 		/* Generate a new keystream block */
 		if (hc->keystream_ptr >= LC_HC_KEYSTREAM_BLOCK) {
-			if (lc_drbg_generate(drbg, hc->keystream,
-					     LC_HC_KEYSTREAM_BLOCK, NULL, 0) !=
+			if (lc_drbg_generate(drbg, NULL, 0, hc->keystream,
+					     LC_HC_KEYSTREAM_BLOCK) !=
 			    LC_HC_KEYSTREAM_BLOCK)
 				return -EFAULT;
 
