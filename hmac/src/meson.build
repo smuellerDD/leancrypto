@@ -2,3 +2,5 @@
 src += files([
 	'hmac.c',
 ])
+
+include_files += files([ '../api/lc_hmac.h' ])

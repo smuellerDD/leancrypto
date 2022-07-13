@@ -4,3 +4,5 @@ internal_src = files([
 	'left_encode.c',
 	'memcmp_secure.c',
 ])
+
+include_files += files([ '../api/memset_secure.h' ])

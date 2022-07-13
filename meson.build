@@ -72,37 +72,7 @@ include_dirs = include_directories([ 'drng/api',
 				     'sym/api'
 				   ])
 
-#for i in $(find ./ -name api | grep -v internal | sort); do for j in $(find $i -name "*.h"); do echo "'$j',"; done; done
-include_files = files([
-	'./drng/api/lc_drbg.h',
-	'./drng/api/lc_hash_drbg.h',
-#	Disabled as it is a replacement for SHA2-512
-#	'./drng/api/lc_hash_drbg_sha3_512.h',
-	'./drng/api/lc_hash_drbg_sha512.h',
-	'./drng/api/lc_hmac_drbg.h',
-	'./drng/api/lc_hmac_drbg_sha512.h',
-	'./drng/api/lc_chacha20_drng.h',
-	'./drng/api/lc_kmac256_drng.h',
-	'./drng/api/lc_rng.h',
-	'./hash/api/lc_cshake.h',
-	'./hash/api/lc_hash.h',
-	'./hash/api/lc_sha256.h',
-	'./hash/api/lc_sha3.h',
-	'./hash/api/lc_sha512.h',
-	'./hash_crypt/api/lc_hash_crypt.h',
-	'./hash_crypt/api/lc_kmac_crypt.h',
-	'./hmac/api/lc_hmac.h',
-        './internal/api/memset_secure.h',
-	'./kdf/api/lc_hkdf.h',
-	'./kdf/api/lc_kdf_ctr.h',
-	'./kdf/api/lc_kdf_dpi.h',
-	'./kdf/api/lc_kdf_fb.h',
-	'./kdf/api/lc_pbkdf2.h',
-	'./kmac/api/lc_kmac.h',
-	'./otp/api/lc_hotp.h',
-	'./otp/api/lc_totp.h',
-	'./sym/api/lc_sym.h',
-	])
+include_files = [ ]
 
 include_internal_dirs = include_directories([ 'internal/api' ])
 
