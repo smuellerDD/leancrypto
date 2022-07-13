@@ -24,6 +24,7 @@
 static int sha3_256_tester(void)
 {
 	LC_HASH_CTX_ON_STACK(ctx256, lc_sha3_256);
+	LC_SHA3_256_CTX_ON_STACK(ctx256_stack);
 	static const uint8_t msg_256[] = { 0x5E, 0x5E, 0xD6 };
 	static const uint8_t exp_256[] = { 0xF1, 0x6E, 0x66, 0xC0, 0x43, 0x72,
 					   0xB4, 0xA3, 0xE1, 0xE3, 0x2E, 0x07,
@@ -40,6 +41,13 @@ static int sha3_256_tester(void)
 	lc_hash_final(ctx256, act);
 	ret = compare(act, exp_256, LC_SHA3_256_SIZE_DIGEST, "SHA3-256");
 	lc_hash_zero(ctx256);
+
+	lc_hash_init(ctx256_stack);
+	lc_hash_update(ctx256_stack, msg_256, 3);
+	lc_hash_final(ctx256_stack, act);
+	ret += compare(act, exp_256, LC_SHA3_256_SIZE_DIGEST, "SHA3-256");
+	lc_hash_zero(ctx256_stack);
+
 	return ret;
 }
 

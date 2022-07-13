@@ -47,7 +47,7 @@ struct lc_rng_ctx {
 
 #define LC_RNG_CTX(name, cb)						       \
 	name->rng = cb;							       \
-	name->rng_state = (uint8_t *)name + sizeof(struct lc_rng_ctx)
+	name->rng_state = (uint8_t *)(name) + sizeof(struct lc_rng_ctx)
 
 /**
  * Concept of RNGs in leancrypto

@@ -24,6 +24,7 @@
 static int sha3_512_tester(void)
 {
 	LC_HASH_CTX_ON_STACK(ctx512, lc_sha3_512);
+	LC_SHA3_512_CTX_ON_STACK(ctx512_stack);
 	static const uint8_t msg_512[] = { 0x82, 0xD9, 0x19 };
 	static const uint8_t exp_512[] = { 0x76, 0x75, 0x52, 0x82, 0xA9, 0xC5,
 					   0x0A, 0x67, 0xFE, 0x69, 0xBD, 0x3F,
@@ -45,6 +46,13 @@ static int sha3_512_tester(void)
 	lc_hash_final(ctx512, act);
 	ret = compare(act, exp_512, LC_SHA3_512_SIZE_DIGEST, "SHA3-512");
 	lc_hash_zero(ctx512);
+
+	lc_hash_init(ctx512_stack);
+	lc_hash_update(ctx512_stack, msg_512, 3);
+	lc_hash_final(ctx512_stack, act);
+	ret += compare(act, exp_512, LC_SHA3_512_SIZE_DIGEST, "SHA3-512");
+	lc_hash_zero(ctx512_stack);
+
 	return ret;
 }
 

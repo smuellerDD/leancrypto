@@ -30,7 +30,31 @@ extern "C"
 #define LC_SHA256_SIZE_BLOCK	64
 #define LC_SHA256_SIZE_DIGEST	32
 
+struct lc_sha256_state {
+	uint32_t H[8];
+	size_t msg_len;
+	uint8_t partial[LC_SHA256_SIZE_BLOCK];
+};
+
+#define LC_SHA256_STATE_SIZE		(sizeof(struct lc_sha256_state))
+#define LC_SHA256_CTX_SIZE		(sizeof(struct lc_hash) +	       \
+					 LC_SHA256_STATE_SIZE)
+
 extern const struct lc_hash *lc_sha256;
+
+#define LC_SHA256_CTX(name)						       \
+	LC_HASH_CTX(name, lc_sha256);					       \
+	lc_hash_zero(name)
+
+/**
+ * @brief Allocate stack memory for the SHA256 context without VLA
+ *
+ * @param name [in] Name of the stack variable
+ */
+#define LC_SHA256_CTX_ON_STACK(name)					       \
+	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHA256_CTX_SIZE, uint64_t);     \
+	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name ## _ctx_buf;     \
+	LC_SHA256_CTX(name)
 
 #ifdef __cplusplus
 }

@@ -25,6 +25,7 @@
 static int shake_tester(void)
 {
 	LC_HASH_CTX_ON_STACK(ctx, lc_shake256);
+	LC_SHAKE_256_CTX_ON_STACK(shake256_stack);
 	LC_HASH_CTX_ON_STACK(cctx, lc_cshake256);
 	static const uint8_t msg1[] = {
 		0x6C, 0x9E, 0xC8, 0x5C, 0xBA, 0xBA, 0x62, 0xF5,
@@ -99,6 +100,15 @@ static int shake_tester(void)
 	ret = compare(act1, exp1, sizeof(act1), "SHAKE256 1");
 	lc_hash_zero(ctx);
 
+	if (ret)
+		return ret;
+
+	lc_hash_init(shake256_stack);
+	lc_hash_update(shake256_stack, msg1, sizeof(msg1));
+	lc_hash_set_digestsize(shake256_stack, sizeof(act1));
+	lc_hash_final(shake256_stack, act1);
+	ret = compare(act1, exp1, sizeof(act1), "SHAKE256 1 - separate ctx");
+	lc_hash_zero(shake256_stack);
 	if (ret)
 		return ret;
 

@@ -22,8 +22,7 @@ endif
 
 if get_option('drbg_hash').enabled()
 	src += files([ 'hash_drbg.c' ])
-	include_files += files([ '../api/lc_hash_drbg.h',
-				 '../api/lc_hash_drbg_sha512.h' ])
+	include_files += files([ '../api/lc_hash_drbg.h' ])
 	lc_rng_header = 1
 endif
 

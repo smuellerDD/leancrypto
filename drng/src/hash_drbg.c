@@ -24,7 +24,7 @@
 #include <sys/mman.h>
 
 #include "bitshift_be.h"
-#include "lc_hash_drbg_sha512.h"
+#include "lc_hash_drbg.h"
 #include "visibility.h"
 
 /***************************************************************
@@ -328,19 +328,16 @@ lc_drbg_hash_seed(void *_state,
 static void lc_drbg_hash_zero(void *_state)
 {
 	struct lc_drbg_hash_state *drbg_hash = _state;
-	struct lc_hash_ctx *hash_ctx;
-	const struct lc_hash *hash;
 
 	if (!drbg_hash)
 		return;
 
-	hash_ctx = &drbg_hash->hash_ctx;
-	hash = hash_ctx->hash;
-
 	drbg_hash->reseed_ctr = 0;
 	drbg_hash->seeded = 0;
-	memset_secure((uint8_t *)drbg_hash + sizeof(struct lc_drbg_hash_state),
-				 0, LC_DRBG_HASH_STATE_SIZE(hash));
+	memset_secure(drbg_hash->hash_state, 0, sizeof(drbg_hash->hash_state));
+	memset_secure(drbg_hash->V, 0, sizeof(drbg_hash->V));
+	memset_secure(drbg_hash->C, 0, sizeof(drbg_hash->C));
+	memset_secure(drbg_hash->scratchpad, 0, sizeof(drbg_hash->scratchpad));
 }
 
 DSO_PUBLIC
@@ -348,7 +345,7 @@ int lc_drbg_hash_alloc(struct lc_rng_ctx **drbg)
 {
 	struct lc_rng_ctx *out_state;
 	int ret = posix_memalign((void *)&out_state, sizeof(uint64_t),
-				 LC_DRBG_HASH_CTX_SIZE(LC_DRBG_HASH_CORE));
+				 LC_DRBG_HASH_CTX_SIZE);
 
 	if (ret)
 		return -ret;

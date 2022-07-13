@@ -25,12 +25,6 @@
 #include "memset_secure.h"
 #include "visibility.h"
 
-struct lc_hash_state {
-	uint32_t H[8];
-	size_t msg_len;
-	uint8_t partial[LC_SHA256_SIZE_BLOCK];
-};
-
 static const uint32_t sha256_K[] = {
 	0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1,
 	0x923f82a4, 0xab1c5ed5, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
@@ -45,8 +39,10 @@ static const uint32_t sha256_K[] = {
 	0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 };
 
-static void sha256_init(struct lc_hash_state *ctx)
+static void sha256_init(void *_state)
 {
+	struct lc_sha256_state *ctx = _state;
+
 	ctx->H[0] = 0x6a09e667;
 	ctx->H[1] = 0xbb67ae85;
 	ctx->H[2] = 0x3c6ef372;
@@ -71,7 +67,8 @@ static inline uint32_t ror(uint32_t x, int n)
 #define s0(x)		(ror(x, 7) ^ ror(x, 18) ^ (x >> 3))
 #define s1(x)		(ror(x, 17) ^ ror(x, 19) ^ (x >> 10))
 
-static inline void sha256_transform(struct lc_hash_state *ctx, const uint8_t *in)
+static inline void sha256_transform(struct lc_sha256_state *ctx,
+				    const uint8_t *in)
 {
 	uint32_t W[64], a, b, c, d, e, f, g, h, T1, T2;
 	unsigned int i;
@@ -103,8 +100,9 @@ static inline void sha256_transform(struct lc_hash_state *ctx, const uint8_t *in
 		W[i] = 0;
 }
 
-static void sha256_update(struct lc_hash_state *ctx, const uint8_t *in, size_t inlen)
+static void sha256_update(void *_state, const uint8_t *in, size_t inlen)
 {
+	struct lc_sha256_state *ctx = _state;
 	unsigned int partial = ctx->msg_len % LC_SHA256_SIZE_BLOCK;
 
 	ctx->msg_len += inlen;
@@ -142,8 +140,9 @@ static void sha256_update(struct lc_hash_state *ctx, const uint8_t *in, size_t i
 	memcpy(ctx->partial, in, inlen);
 }
 
-static void sha256_final(struct lc_hash_state *ctx, uint8_t *digest)
+static void sha256_final(void *_state, uint8_t *digest)
 {
+	struct lc_sha256_state *ctx = _state;
 	unsigned int i, partial = ctx->msg_len % LC_SHA256_SIZE_BLOCK;
 
 	/*
@@ -186,9 +185,9 @@ static void sha256_final(struct lc_hash_state *ctx, uint8_t *digest)
 	}
 }
 
-static size_t sha256_get_digestsize(struct lc_hash_state *ctx)
+static size_t sha256_get_digestsize(void *_state)
 {
-	(void)ctx;
+	(void)_state;
 	return LC_SHA256_SIZE_DIGEST;
 }
 
@@ -199,7 +198,7 @@ static const struct lc_hash _sha256 = {
 	.set_digestsize	= NULL,
 	.get_digestsize	= sha256_get_digestsize,
 	.blocksize	= LC_SHA256_SIZE_BLOCK,
-	.statesize	= sizeof(struct lc_hash_state),
+	.statesize	= sizeof(struct lc_sha256_state),
 };
 
 DSO_PUBLIC const struct lc_hash *lc_sha256 = &_sha256;

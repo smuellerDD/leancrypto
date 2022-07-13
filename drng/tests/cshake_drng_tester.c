@@ -86,8 +86,8 @@ static int cshake_drng_selftest(struct lc_rng_ctx *cshake_ctx)
 		     sizeof(LC_CSHAKE_DRNG_CTX_CUSTOMIZATION_STRING) - 1);
 	/* Generate data with one CSHAKE call */
 	lc_cshake_final(cshake_compare, compare1, sizeof(compare1));
-	ret = compare(compare1 + LC_CSHAKE256_DRNG_KEYSIZE, exp1, sizeof(exp1),
-		      "CSHAKE DRNG verification");
+	ret += compare(compare1 + LC_CSHAKE256_DRNG_KEYSIZE, exp1, sizeof(exp1),
+		       "CSHAKE DRNG verification");
 	lc_rng_zero(cshake_ctx);
 	lc_hash_zero(cshake_compare);
 

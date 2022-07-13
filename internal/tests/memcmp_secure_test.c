@@ -21,7 +21,7 @@
 #include <time.h>
 
 #include "binhexbin.h"
-#include "lc_hash_drbg_sha512.h"
+#include "lc_hash_drbg.h"
 #include "memcmp_secure.h"
 
 static int memcmp_secure_tester(void)

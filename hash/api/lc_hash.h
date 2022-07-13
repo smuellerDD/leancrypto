@@ -29,22 +29,24 @@ extern "C"
 {
 #endif
 
-struct lc_hash_state;
 struct lc_hash {
-	void (*init)(struct lc_hash_state *ctx);
-	void (*update)(struct lc_hash_state *ctx, const uint8_t *in,
-		       size_t inlen);
-	void (*final)(struct lc_hash_state *ctx, uint8_t *digest);
-	void (*set_digestsize)(struct lc_hash_state *ctx, size_t digestsize);
-	size_t (*get_digestsize)(struct lc_hash_state *ctx);
+	void (*init)(void *state);
+	void (*update)(void *state, const uint8_t *in, size_t inlen);
+	void (*final)(void *state, uint8_t *digest);
+	void (*set_digestsize)(void *state, size_t digestsize);
+	size_t (*get_digestsize)(void *state);
 	unsigned int blocksize;
 	unsigned int statesize;
 };
 
 struct lc_hash_ctx {
 	const struct lc_hash *hash;
-	struct lc_hash_state *hash_state;
+	void *hash_state;
 };
+
+#define LC_HASH_CTX(name, cb)						       \
+	name->hash = cb;						       \
+	name->hash_state = (uint8_t *)name + sizeof(struct lc_hash_ctx)
 
 #define LC_ALIGNED_BUFFER(name, size, type)				       \
 	type name[(size + sizeof(type)-1) / sizeof(type)]		       \
@@ -56,7 +58,7 @@ struct lc_hash_ctx {
 				 LC_HASH_STATE_SIZE(x))
 
 #define _LC_HASH_SET_CTX(name, hashname, ctx, offset)			       \
-	name->hash_state = (struct lc_hash_state *)((uint8_t *)ctx + offset);  \
+	name->hash_state = (uint8_t *)ctx + offset;			       \
         name->hash = hashname
 
 #define LC_HASH_SET_CTX(name, hashname)					       \

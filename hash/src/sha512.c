@@ -25,12 +25,6 @@
 #include "memset_secure.h"
 #include "visibility.h"
 
-struct lc_hash_state {
-	uint64_t H[8];
-	size_t msg_len;
-	uint8_t partial[LC_SHA512_SIZE_BLOCK];
-};
-
 static const uint64_t sha512_K[] = {
 	0x428a2f98d728ae22ULL, 0x7137449123ef65cdULL, 0xb5c0fbcfec4d3b2fULL,
 	0xe9b5dba58189dbbcULL, 0x3956c25bf348b538ULL, 0x59f111f1b605d019ULL,
@@ -61,8 +55,10 @@ static const uint64_t sha512_K[] = {
 	0x5fcb6fab3ad6faecULL, 0x6c44198c4a475817ULL,
 };
 
-static void sha512_init(struct lc_hash_state *ctx)
+static void sha512_init(void *_state)
 {
+	struct lc_sha512_state *ctx = _state;
+
 	ctx->H[0] = 0x6a09e667f3bcc908ULL;
 	ctx->H[1] = 0xbb67ae8584caa73bULL;
 	ctx->H[2] = 0x3c6ef372fe94f82bULL;
@@ -87,7 +83,8 @@ static inline uint64_t ror(uint64_t x, int n)
 #define s0(x)		(ror(x, 1) ^ ror(x, 8) ^ (x >> 7))
 #define s1(x)		(ror(x, 19) ^ ror(x, 61) ^ (x >> 6))
 
-static inline void sha512_transform(struct lc_hash_state *ctx, const uint8_t *in)
+static inline void sha512_transform(struct lc_sha512_state *ctx,
+				    const uint8_t *in)
 {
 	uint64_t W[80], a, b, c, d, e, f, g, h, T1, T2;
 	unsigned int i;
@@ -119,8 +116,9 @@ static inline void sha512_transform(struct lc_hash_state *ctx, const uint8_t *in
 		W[i] = 0;
 }
 
-static void sha512_update(struct lc_hash_state *ctx, const uint8_t *in, size_t inlen)
+static void sha512_update(void *_state, const uint8_t *in, size_t inlen)
 {
+	struct lc_sha512_state *ctx = _state;
 	unsigned int partial = ctx->msg_len % LC_SHA512_SIZE_BLOCK;
 
 	ctx->msg_len += inlen;
@@ -158,8 +156,9 @@ static void sha512_update(struct lc_hash_state *ctx, const uint8_t *in, size_t i
 	memcpy(ctx->partial, in, inlen);
 }
 
-static void sha512_final(struct lc_hash_state *ctx, uint8_t *digest)
+static void sha512_final(void *_state, uint8_t *digest)
 {
+	struct lc_sha512_state *ctx = _state;
 	unsigned int i, partial = ctx->msg_len % LC_SHA512_SIZE_BLOCK;
 
 	/*
@@ -202,9 +201,9 @@ static void sha512_final(struct lc_hash_state *ctx, uint8_t *digest)
 	}
 }
 
-static size_t sha512_get_digestsize(struct lc_hash_state *ctx)
+static size_t sha512_get_digestsize(void *_state)
 {
-	(void)ctx;
+	(void)_state;
 	return LC_SHA512_SIZE_DIGEST;
 }
 
@@ -215,7 +214,7 @@ static const struct lc_hash _sha512 = {
 	.set_digestsize	= NULL,
 	.get_digestsize = sha512_get_digestsize,
 	.blocksize	= LC_SHA512_SIZE_BLOCK,
-	.statesize	= sizeof(struct lc_hash_state),
+	.statesize	= sizeof(struct lc_sha512_state),
 };
 
 DSO_PUBLIC const struct lc_hash *lc_sha512 = &_sha512;

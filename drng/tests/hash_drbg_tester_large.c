@@ -17,7 +17,7 @@
  * DAMAGE.
  */
 
-#include "lc_hash_drbg_sha512.h"
+#include "lc_hash_drbg.h"
 
 static int hash_drbg_selftest_large(struct lc_rng_ctx *drbg)
 {

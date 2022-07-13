@@ -24,6 +24,7 @@
 static int sha3_224_tester(void)
 {
 	LC_HASH_CTX_ON_STACK(ctx224, lc_sha3_224);
+	LC_SHA3_224_CTX_ON_STACK(ctx224_stack);
 	static const uint8_t msg_224[] = { 0x50, 0xEF, 0x73 };
 	static const uint8_t exp_224[] = { 0x42, 0xF9, 0xE4, 0xEA, 0xE8, 0x55,
 					   0x49, 0x61, 0xD1, 0xD2, 0x7D, 0x47,
@@ -39,6 +40,13 @@ static int sha3_224_tester(void)
 	lc_hash_final(ctx224, act);
 	ret = compare(act, exp_224, LC_SHA3_224_SIZE_DIGEST, "SHA3-224");
 	lc_hash_zero(ctx224);
+
+	lc_hash_init(ctx224_stack);
+	lc_hash_update(ctx224_stack, msg_224, 3);
+	lc_hash_final(ctx224_stack, act);
+	ret += compare(act, exp_224, LC_SHA3_224_SIZE_DIGEST, "SHA3-224");
+	lc_hash_zero(ctx224_stack);
+
 	return ret;
 }
 

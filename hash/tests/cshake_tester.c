@@ -24,6 +24,7 @@
 static int cshake_tester(void)
 {
 	LC_HASH_CTX_ON_STACK(ctx, lc_cshake256);
+	LC_CSHAKE_256_CTX_ON_STACK(cshake256_stack);
 	static const uint8_t msg1[] = {
 		0xAF, 0x98, 0xC2, 0x12, 0x96, 0x1A, 0xAA, 0x55,
 		0xBD, 0x3C, 0x61, 0xF1
@@ -66,6 +67,13 @@ static int cshake_tester(void)
 	lc_hash_final(ctx, act1);
 	ret = compare(act1, exp1, sizeof(act1), "cSHAKE256 1");
 	lc_hash_zero(ctx);
+
+	lc_cshake_init(cshake256_stack, NULL, 0, cust1, sizeof(cust1));
+	lc_hash_update(cshake256_stack, msg1, sizeof(msg1));
+	lc_hash_set_digestsize(cshake256_stack, sizeof(act1));
+	lc_hash_final(cshake256_stack, act1);
+	ret += compare(act1, exp1, sizeof(act1), "cSHAKE256 1");
+	lc_hash_zero(cshake256_stack);
 
 	if (ret)
 		return ret;

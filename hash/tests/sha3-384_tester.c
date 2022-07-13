@@ -24,6 +24,7 @@
 static int sha3_384_tester(void)
 {
 	LC_HASH_CTX_ON_STACK(ctx384, lc_sha3_384);
+	LC_SHA3_384_CTX_ON_STACK(ctx384_stack);
 	static const uint8_t msg_384[] = { 0xE7, 0x3B, 0xAD };
 	static const uint8_t exp_384[] = { 0xc4, 0x02, 0xc8, 0x29, 0x90, 0x68,
 					   0xaa, 0x30, 0x28, 0xa9, 0xa4, 0x1c,
@@ -42,6 +43,13 @@ static int sha3_384_tester(void)
 	lc_hash_final(ctx384, act);
 	ret = compare(act, exp_384, LC_SHA3_384_SIZE_DIGEST, "SHA3-384");
 	lc_hash_zero(ctx384);
+
+	lc_hash_init(ctx384_stack);
+	lc_hash_update(ctx384_stack, msg_384, 3);
+	lc_hash_final(ctx384_stack, act);
+	ret += compare(act, exp_384, LC_SHA3_384_SIZE_DIGEST, "SHA3-384");
+	lc_hash_zero(ctx384_stack);
+
 	return ret;
 }
 

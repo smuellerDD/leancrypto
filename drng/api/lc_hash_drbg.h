@@ -22,46 +22,35 @@
 
 #include "lc_drbg.h"
 #include "lc_rng.h"
+#include "lc_sha512.h"
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-#if !defined(LC_DRBG_HASH_STATELEN) ||					       \
-    !defined(LC_DRBG_HASH_BLOCKLEN) ||					       \
-    !defined(LC_DRBG_HASH_CORE)
-# error "Do not include this header file directly! Use lc_hash_drbg_<hashtype>.h"
-#endif
+#define LC_DRBG_HASH_STATELEN 111
+#define LC_DRBG_HASH_BLOCKLEN 64
 
 struct lc_drbg_hash_state {
-	struct lc_hash_ctx hash_ctx; /* Cipher handle - HASH_MAX_STATE_SIZE */
-	uint8_t *V;	/* internal state 10.1.1.1 1a) - DRBG_STATELEN */
-	uint8_t *C;	/* static value 10.1.1.1 1b) - DRBG_STATELEN */
-	uint8_t *scratchpad;	/* working mem DRBG_STATELEN + DRBG_BLOCKLEN */
+	struct lc_hash_ctx hash_ctx; /* Cipher handle */
+	uint8_t hash_state[LC_SHA512_STATE_SIZE];
+	uint8_t V[LC_DRBG_HASH_STATELEN]; /* internal state 10.1.1.1 1a) */
+	uint8_t C[LC_DRBG_HASH_STATELEN]; /* static value 10.1.1.1 1b) */
+	uint8_t scratchpad [LC_DRBG_HASH_STATELEN + LC_DRBG_HASH_BLOCKLEN];
+						/* working mem */
 
 	/* Number of RNG requests since last reseed -- 10.1.1.1 1c) */
 	size_t reseed_ctr;
 	unsigned int seeded:1;
 };
 
-#define LC_DRBG_HASH_STATE_SIZE(x)	(3 * LC_DRBG_HASH_STATELEN +	       \
-					 LC_DRBG_HASH_BLOCKLEN +	       \
-					 LC_HASH_STATE_SIZE(x))
-#define LC_DRBG_HASH_CTX_SIZE(x)	(LC_DRBG_HASH_STATE_SIZE(x) +	       \
-					 sizeof(struct lc_drbg_hash_state) +   \
+#define LC_DRBG_HASH_STATE_SIZE		(sizeof(struct lc_drbg_hash_state))
+#define LC_DRBG_HASH_CTX_SIZE		(LC_DRBG_HASH_STATE_SIZE +	       \
 					 sizeof(struct lc_rng))
 
 #define _LC_DRBG_HASH_SET_CTX(name, ctx, offset)			       \
-	_LC_HASH_SET_CTX((&(name)->hash_ctx), LC_DRBG_HASH_CORE, ctx, offset); \
-	(name)->V = (uint8_t *)((uint8_t *)ctx + offset +		       \
-			        LC_HASH_STATE_SIZE(LC_DRBG_HASH_CORE));	       \
-        (name)->C = (uint8_t *)((uint8_t *)ctx + offset +		       \
-		    LC_HASH_STATE_SIZE(LC_DRBG_HASH_CORE) +		       \
-		    LC_DRBG_HASH_STATELEN);				       \
-	(name)->scratchpad = (uint8_t *)((uint8_t *)ctx + offset +	       \
-			     LC_HASH_STATE_SIZE(LC_DRBG_HASH_CORE) +	       \
-			     2 * LC_DRBG_HASH_STATELEN);		       \
+	LC_SHA512_CTX((&(name)->hash_ctx));				       \
 	(name)->reseed_ctr = 0;						       \
 	(name)->seeded = 0
 
@@ -71,9 +60,9 @@ struct lc_drbg_hash_state {
 extern const struct lc_rng *lc_hash_drbg;
 
 #define LC_DRBG_HASH_RNG_CTX(name)					       \
-	LC_RNG_CTX(name, lc_hash_drbg);					       \
+	LC_RNG_CTX((name), lc_hash_drbg);					       \
 	LC_DRBG_HASH_SET_CTX((struct lc_drbg_hash_state *)name->rng_state);    \
-	lc_hash_drbg->zero(name->rng_state)
+	lc_rng_zero(name)
 
 /**
  * @brief Allocate stack memory for the Hash DRBG context
@@ -81,8 +70,7 @@ extern const struct lc_rng *lc_hash_drbg;
  * @param name [in] Name of the stack variable
  */
 #define LC_DRBG_HASH_CTX_ON_STACK(name)					       \
-	LC_ALIGNED_BUFFER(name ## _ctx_buf,				       \
-			  LC_DRBG_HASH_CTX_SIZE(LC_DRBG_HASH_CORE), uint64_t); \
+	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_DRBG_HASH_CTX_SIZE, uint64_t);  \
 	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name ## _ctx_buf;       \
 	LC_DRBG_HASH_RNG_CTX(name)
 

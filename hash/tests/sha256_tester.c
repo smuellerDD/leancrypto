@@ -24,6 +24,7 @@
 
 static int sha256_tester(void)
 {
+	LC_SHA256_CTX_ON_STACK(sha256_stack);
 	static const uint8_t msg_256[] = { 0x06, 0x3A, 0x53 };
 	static const uint8_t exp_256[] = { 0x8b, 0x05, 0x65, 0x59, 0x60, 0x71,
 					   0xc7, 0x6e, 0x35, 0xe1, 0xea, 0x54,
@@ -37,6 +38,12 @@ static int sha256_tester(void)
 	printf("hash ctx len %lu\n", LC_HASH_CTX_SIZE(lc_sha256));
 	lc_hash(lc_sha256, msg_256, sizeof(msg_256), act);
 	ret = compare(act, exp_256, LC_SHA256_SIZE_DIGEST, "SHA-256");
+
+	lc_hash_init(sha256_stack);
+	lc_hash_update(sha256_stack, msg_256, sizeof(msg_256));
+	lc_hash_final(sha256_stack, act);
+	lc_hash_zero(sha256_stack);
+	ret += compare(act, exp_256, LC_SHA256_SIZE_DIGEST, "SHA-256 stack");
 
 	return ret;
 }

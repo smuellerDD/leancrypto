@@ -24,7 +24,7 @@
  * This is the hash crypt cipher operation using the Hash DRBG with SHA-512
  * core as input.
  */
-#include "lc_hash_drbg_sha512.h"
+#include "lc_hash_drbg.h"
 #include "lc_hmac.h"
 #include "memset_secure.h"
 
@@ -33,13 +33,6 @@ extern "C"
 {
 #endif
 
-struct lc_hc_cryptor {
-	struct lc_drbg_hash_state drbg;
-	struct lc_hmac_ctx auth_ctx;
-	size_t keystream_ptr;
-	uint8_t *keystream;
-};
-
 /*
  * The block size of the algorithm for generating the key stream. The min DRBG
  * generate size is larger. This implies that there is no DRBG update operation
@@ -47,21 +40,22 @@ struct lc_hc_cryptor {
  */
 #define LC_HC_KEYSTREAM_BLOCK	64
 
-#define LC_HC_STATE_SIZE(x)	(LC_DRBG_HASH_STATE_SIZE(x) +		       \
-				LC_HMAC_STATE_SIZE(x) +			       \
-				LC_HC_KEYSTREAM_BLOCK)
+struct lc_hc_cryptor {
+	struct lc_rng_ctx drbg;
+	uint8_t drbg_state[LC_DRBG_HASH_STATE_SIZE];
+	struct lc_hmac_ctx auth_ctx;
+	size_t keystream_ptr;
+	uint8_t keystream[LC_HC_KEYSTREAM_BLOCK];
+};
+
+
 #define LC_HC_CTX_SIZE(x)	(sizeof(struct lc_hc_cryptor) +		       \
-				LC_HC_STATE_SIZE(x))
+				 LC_HMAC_STATE_SIZE(x))
 
 #define LC_HC_SET_CTX(name, hashname)					       \
-	name->keystream = (uint8_t *)((uint8_t *)name +			       \
-				      (sizeof(struct lc_hc_cryptor)));	       \
-	_LC_DRBG_HASH_SET_CTX((&name->drbg), name,			       \
-			      (sizeof(struct lc_hc_cryptor) +		       \
-			       LC_HC_KEYSTREAM_BLOCK));			       \
+	LC_DRBG_HASH_RNG_CTX((&name->drbg));				       \
 	_LC_HMAC_SET_CTX((&name->auth_ctx), hashname, name,		       \
-			(sizeof(struct lc_hc_cryptor) + LC_HC_KEYSTREAM_BLOCK +\
-			 LC_DRBG_HASH_STATE_SIZE(hashname)))
+			(sizeof(struct lc_hc_cryptor)))
 
 ssize_t lc_hc_crypt(struct lc_hc_cryptor *hc, const uint8_t *in, uint8_t *out,
 		    size_t len);
@@ -266,14 +260,16 @@ void lc_hc_zero_free(struct lc_hc_cryptor *hc);
  */
 static inline void lc_hc_zero(struct lc_hc_cryptor *hc)
 {
-	struct lc_drbg_hash_state *drbg = &hc->drbg;
-	struct lc_hash_ctx *hash_ctx = &drbg->hash_ctx;
+	struct lc_rng_ctx *drbg = &hc->drbg;
+	struct lc_hmac_ctx *hmac_ctx = &hc->auth_ctx;
+	struct lc_hash_ctx *hash_ctx = &hmac_ctx->hash_ctx;
 	const struct lc_hash *hash = hash_ctx->hash;
 
-	drbg->reseed_ctr = 0;
-	drbg->seeded = 0;
+	lc_rng_zero(drbg);
+	hc->keystream_ptr = 0;
+	memset(hc->keystream, 0, sizeof(hc->keystream));
 	memset_secure((uint8_t *)hc + sizeof(struct lc_hc_cryptor), 0,
-		      LC_HC_STATE_SIZE(hash));
+		      LC_HMAC_STATE_SIZE(hash));
 }
 
 /**

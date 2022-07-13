@@ -17,7 +17,7 @@
  * DAMAGE.
  */
 
-#include "lc_hash_drbg_sha512.h"
+#include "lc_hash_drbg.h"
 #include "compare.h"
 
 static int hash_drbg_tester(void)
@@ -90,8 +90,7 @@ static int hash_drbg_tester(void)
 	struct lc_rng_ctx *drbg = NULL;
 	int ret = 0;
 
-	printf("hash DRBG ctx len %lu\n",
-	       LC_DRBG_HASH_CTX_SIZE(LC_DRBG_HASH_CORE));
+	printf("hash DRBG ctx len %lu\n", LC_DRBG_HASH_CTX_SIZE);
 	if (lc_drbg_hash_healthcheck_sanity(drbg_stack))
 		return 1;
 
