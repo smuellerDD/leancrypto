@@ -28,30 +28,22 @@ extern "C"
 {
 #endif
 
+#define LC_CSHAKE256_DRNG_KEYSIZE	64
+
 struct lc_cshake256_drng_state {
-	uint8_t *key;
+	uint8_t key[LC_CSHAKE256_DRNG_KEYSIZE];
 };
 
-#define LC_CSHAKE256_DRNG_KEYSIZE	64
 #define LC_CSHAKE256_DRNG_MAX_CHUNK	(LC_SHA3_256_SIZE_BLOCK * 100)
-#define LC_CSHAKE256_DRNG_STATE_SIZE	(LC_CSHAKE256_DRNG_KEYSIZE)
-#define LC_CSHAKE256_DRNG_CTX_SIZE	(sizeof(struct lc_cshake256_drng_state) +\
-					 sizeof(struct lc_rng) +	       \
+#define LC_CSHAKE256_DRNG_STATE_SIZE	(sizeof(struct lc_cshake256_drng_state))
+#define LC_CSHAKE256_DRNG_CTX_SIZE	(sizeof(struct lc_rng) +	       \
 					 LC_CSHAKE256_DRNG_STATE_SIZE)
-
-#define _LC_CSHAKE256_DRNG_SET_CTX(name, ctx, offset)			       \
-	(name)->key = (uint8_t *)((uint8_t *)(ctx) + offset)
-
-#define LC_CSHAKE256_DRNG_SET_CTX(name) _LC_CSHAKE256_DRNG_SET_CTX(name, name, \
-					 sizeof(struct lc_cshake256_drng_state))
 
 /* CSHAKE256-based DRNG */
 extern const struct lc_rng *lc_cshake256_drng;
 
 #define LC_CSHAKE256_RNG_CTX(name)					       \
 	LC_RNG_CTX(name, lc_cshake256_drng);				       \
-	LC_CSHAKE256_DRNG_SET_CTX(					       \
-		(struct lc_cshake256_drng_state *)name->rng_state);	       \
 	lc_cshake256_drng->zero(name->rng_state)
 
 /**

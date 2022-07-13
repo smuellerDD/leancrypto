@@ -359,8 +359,7 @@ static void lc_kmac256_drng_zero(void *_state)
 	if (!state)
 		return;
 
-	memset_secure((uint8_t *)state + sizeof(struct lc_kmac256_drng_state),
-		      0, LC_KMAC256_DRNG_STATE_SIZE);
+	memset_secure((uint8_t *)state, 0, LC_KMAC256_DRNG_STATE_SIZE);
 }
 
 DSO_PUBLIC

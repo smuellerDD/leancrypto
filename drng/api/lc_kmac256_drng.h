@@ -28,30 +28,22 @@ extern "C"
 {
 #endif
 
+#define LC_KMAC256_DRNG_KEYSIZE		64
+
 struct lc_kmac256_drng_state {
-	uint8_t *key;
+	uint8_t key[LC_KMAC256_DRNG_KEYSIZE];
 };
 
-#define LC_KMAC256_DRNG_KEYSIZE		64
 #define LC_KMAC256_DRNG_MAX_CHUNK	(LC_SHA3_256_SIZE_BLOCK * 100)
-#define LC_KMAC256_DRNG_STATE_SIZE	(LC_KMAC256_DRNG_KEYSIZE)
-#define LC_KMAC256_DRNG_CTX_SIZE	(sizeof(struct lc_kmac256_drng_state) +\
-					 sizeof(struct lc_rng) +	       \
+#define LC_KMAC256_DRNG_STATE_SIZE	(sizeof(struct lc_kmac256_drng_state))
+#define LC_KMAC256_DRNG_CTX_SIZE	(sizeof(struct lc_rng) +	       \
 					 LC_KMAC256_DRNG_STATE_SIZE)
-
-#define _LC_KMAC256_DRNG_SET_CTX(name, ctx, offset)			       \
-	(name)->key = (uint8_t *)((uint8_t *)ctx + offset)
-
-#define LC_KMAC256_DRNG_SET_CTX(name) _LC_KMAC256_DRNG_SET_CTX(name, name,     \
-					 sizeof(struct lc_kmac256_drng_state))
 
 /* KMAC156-based DRNG */
 extern const struct lc_rng *lc_kmac256_drng;
 
 #define LC_KMAC256_RNG_CTX(name)					       \
 	LC_RNG_CTX(name, lc_kmac256_drng);				       \
-	LC_KMAC256_DRNG_SET_CTX(					       \
-		(struct lc_kmac256_drng_state *)name->rng_state);	       \
 	lc_kmac256_drng->zero(name->rng_state)
 
 /**
