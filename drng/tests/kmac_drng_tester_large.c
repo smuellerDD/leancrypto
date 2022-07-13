@@ -21,7 +21,7 @@
 
 #define KMAC256_TEST_BLOCKSIZE	LC_KMAC256_DRNG_MAX_CHUNK
 //#define KMAC256_TEST_BLOCKSIZE	32
-static int kmac_drng_selftest_large(struct lc_kmac256_drng_state *kmac_ctx)
+static int kmac_drng_selftest_large(struct lc_rng_ctx *kmac_ctx)
 {
 	uint8_t seed[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08
@@ -29,12 +29,11 @@ static int kmac_drng_selftest_large(struct lc_kmac256_drng_state *kmac_ctx)
 	uint8_t out[KMAC256_TEST_BLOCKSIZE];
 	unsigned int i;
 
-	lc_kmac256_drng_seed(kmac_ctx, seed, sizeof(seed), NULL, 0);
+	lc_rng_seed(kmac_ctx, seed, sizeof(seed), NULL, 0);
 
 	for (i = 0; i < ((1U<<30) / KMAC256_TEST_BLOCKSIZE); i++)
-		lc_kmac256_drng_generate(kmac_ctx, NULL, 0, out,
-					 KMAC256_TEST_BLOCKSIZE);
-	lc_kmac256_drng_zero(kmac_ctx);
+		lc_rng_generate(kmac_ctx, NULL, 0, out, KMAC256_TEST_BLOCKSIZE);
+	lc_rng_zero(kmac_ctx);
 
 	return 0;
 }

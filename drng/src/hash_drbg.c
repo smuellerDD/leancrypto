@@ -21,6 +21,7 @@
 #include <errno.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <sys/mman.h>
 
 #include "bitshift_be.h"
 #include "lc_hash_drbg_sha512.h"
@@ -128,13 +129,13 @@ static void drbg_hash_df(struct lc_drbg_hash_state *drbg,
 
 /* update function for Hash DRBG as defined in 10.1.1.2 / 10.1.1.3 */
 static void drbg_hash_update(struct lc_drbg_hash_state *drbg,
-			     struct lc_drbg_string *seed, int seeded)
+			     struct lc_drbg_string *seed)
 {
 	struct lc_drbg_string data1, data2;
 	uint8_t *V = drbg->scratchpad;
 	uint8_t prefix = DRBG_PREFIX1;
 
-	if (seeded) {
+	if (drbg->seeded) {
 		/* 10.1.1.3 step 1 */
 		memcpy(V, drbg->V, LC_DRBG_HASH_STATELEN);
 		lc_drbg_string_fill(&data1, &prefix, 1);
@@ -187,8 +188,8 @@ static void drbg_hash_process_addtl(struct lc_drbg_hash_state *drbg,
 }
 
 /* Hashgen defined in 10.1.1.4 */
-static size_t drbg_hash_hashgen(struct lc_drbg_hash_state *drbg,
-				uint8_t *buf, size_t buflen)
+static void drbg_hash_hashgen(struct lc_drbg_hash_state *drbg,
+			      uint8_t *buf, size_t buflen)
 {
 	struct lc_drbg_string data;
 	size_t len = 0;
@@ -218,16 +219,14 @@ static size_t drbg_hash_hashgen(struct lc_drbg_hash_state *drbg,
 
 	memset(drbg->scratchpad, 0,
 	       (LC_DRBG_HASH_STATELEN + LC_DRBG_HASH_BLOCKLEN));
-	return len;
 }
 
 /* generate function for Hash DRBG as defined in  10.1.1.4 */
-static size_t drbg_hash_generate_internal(struct lc_drbg_hash_state *drbg,
-					  uint8_t *buf, size_t buflen,
-					  struct lc_drbg_string *addtl)
+static void drbg_hash_generate_internal(struct lc_drbg_hash_state *drbg,
+					uint8_t *buf, size_t buflen,
+					struct lc_drbg_string *addtl)
 {
 	struct lc_drbg_string data1, data2;
-	size_t len = 0;
 	uint8_t req[8], prefix = DRBG_PREFIX3;
 
 	drbg->reseed_ctr++;
@@ -236,7 +235,7 @@ static size_t drbg_hash_generate_internal(struct lc_drbg_hash_state *drbg,
 	drbg_hash_process_addtl(drbg, addtl);
 
 	/* 10.1.1.4 step 3 */
-	len = drbg_hash_hashgen(drbg, buf, buflen);
+	drbg_hash_hashgen(drbg, buf, buflen);
 
 	/* this is the value H as documented in 10.1.1.4 */
 	/* 10.1.1.4 step 4 */
@@ -254,25 +253,67 @@ static size_t drbg_hash_generate_internal(struct lc_drbg_hash_state *drbg,
 	drbg_add_buf(drbg->V, LC_DRBG_HASH_STATELEN, req, sizeof(req));
 
 	memset(drbg->scratchpad, 0, LC_DRBG_HASH_BLOCKLEN);
-	return len;
 }
 
-DSO_PUBLIC
-size_t lc_drbg_hash_generate(struct lc_drbg_state *drbg,
-			     uint8_t *buf, size_t buflen,
-			     struct lc_drbg_string *addtl)
+static int
+lc_drbg_hash_generate(void *_state,
+		      const uint8_t *addtl_input, size_t addtl_input_len,
+		      uint8_t *out, size_t outlen)
 {
-	struct lc_drbg_hash_state *drbg_hash = (struct lc_drbg_hash_state *)drbg;
+	struct lc_drbg_hash_state *drbg_hash = _state;
+	struct lc_drbg_string addtl_data;
+	struct lc_drbg_string *addtl = NULL;
 
-	return drbg_hash_generate_internal(drbg_hash, buf, buflen, addtl);
+	if (!drbg_hash)
+		return -EINVAL;
+
+	if (outlen > lc_drbg_max_request_bytes())
+		return -EINVAL;
+
+	if (addtl_input_len > lc_drbg_max_addtl())
+		return -EINVAL;
+
+	if (addtl_input_len && addtl_input) {
+		lc_drbg_string_fill(&addtl_data, addtl_input, addtl_input_len);
+		addtl = &addtl_data;
+	}
+	drbg_hash_generate_internal(drbg_hash, out, outlen, addtl);
+
+	return 0;
 }
 
-DSO_PUBLIC
-void lc_drbg_hash_seed(struct lc_drbg_state *drbg, struct lc_drbg_string *seed)
+static int
+lc_drbg_hash_seed(void *_state,
+		  const uint8_t *seedbuf, size_t seedlen,
+		  const uint8_t *persbuf, size_t perslen)
 {
-	struct lc_drbg_hash_state *drbg_hash = (struct lc_drbg_hash_state *)drbg;
+	struct lc_drbg_hash_state *drbg_hash = _state;
+	struct lc_drbg_string seed;
+	struct lc_drbg_string pers;
 
-	drbg_hash_update(drbg_hash, seed, drbg->seeded);
+	if (!drbg_hash)
+		return -EINVAL;
+
+	/* 9.1 / 9.2 / 9.3.1 step 3 */
+	if (persbuf && perslen > (lc_drbg_max_addtl()))
+		return -EINVAL;
+
+	if (!seedbuf || !seedlen)
+		return -EINVAL;
+	lc_drbg_string_fill(&seed, seedbuf, seedlen);
+
+	/*
+	 * concatenation of entropy with personalization str / addtl input)
+	 * the variable pers is directly handed in by the caller, so check its
+	 * contents whether it is appropriate
+	 */
+	if (persbuf && perslen) {
+		lc_drbg_string_fill(&pers, persbuf, perslen);
+		seed.next = &pers;
+	}
+
+	drbg_hash_update(drbg_hash, &seed);
+	drbg_hash->seeded = 1;
 
 	/*
 	 * 10.1.1.2 / 10.1.1.3 step 5 - set reseed counter to 0 instead of 1
@@ -280,34 +321,100 @@ void lc_drbg_hash_seed(struct lc_drbg_state *drbg, struct lc_drbg_string *seed)
 	 * operation.
 	 */
 	drbg_hash->reseed_ctr = 0;
+
+	return 0;
 }
 
-DSO_PUBLIC
-void lc_drbg_hash_zero(struct lc_drbg_state *drbg)
+static void lc_drbg_hash_zero(void *_state)
 {
-	struct lc_drbg_hash_state *drbg_hash = (struct lc_drbg_hash_state *)drbg;
-	struct lc_hash_ctx *hash_ctx = &drbg_hash->hash_ctx;
-	const struct lc_hash *hash = hash_ctx->hash;
+	struct lc_drbg_hash_state *drbg_hash = _state;
+	struct lc_hash_ctx *hash_ctx;
+	const struct lc_hash *hash;
+
+	if (!drbg_hash)
+		return;
+
+	hash_ctx = &drbg_hash->hash_ctx;
+	hash = hash_ctx->hash;
 
 	drbg_hash->reseed_ctr = 0;
+	drbg_hash->seeded = 0;
 	memset_secure((uint8_t *)drbg_hash + sizeof(struct lc_drbg_hash_state),
 				 0, LC_DRBG_HASH_STATE_SIZE(hash));
 }
 
 DSO_PUBLIC
-int lc_drbg_hash_alloc(struct lc_drbg_state **drbg)
+int lc_drbg_hash_alloc(struct lc_rng_ctx **drbg)
 {
-	struct lc_drbg_hash_state *tmp;
-	int ret = posix_memalign((void *)&tmp, sizeof(uint64_t),
+	struct lc_rng_ctx *out_state;
+	int ret = posix_memalign((void *)&out_state, sizeof(uint64_t),
 				 LC_DRBG_HASH_CTX_SIZE(LC_DRBG_HASH_CORE));
 
 	if (ret)
 		return -ret;
-	memset(tmp, 0, LC_DRBG_HASH_CTX_SIZE(LC_DRBG_HASH_CORE));
 
-	LC_DRBG_HASH_SET_CTX(tmp);
+	/* prevent paging out of the memory state to swap space */
+	ret = mlock(out_state, sizeof(*out_state));
+	if (ret && errno != EPERM && errno != EAGAIN) {
+		int errsv = errno;
 
-	*drbg = (struct lc_drbg_state *)tmp;
+		free(out_state);
+		return -errsv;
+	}
+
+	LC_DRBG_HASH_RNG_CTX(out_state);
+
+	lc_drbg_hash_zero(out_state->rng_state);
+
+	*drbg = out_state;
 
 	return 0;
 }
+
+DSO_PUBLIC
+int lc_drbg_hash_healthcheck_sanity(struct lc_rng_ctx *drbg)
+{
+	unsigned char buf[16];
+	size_t max_addtllen, max_request_bytes;
+	ssize_t len = 0;
+	int ret = -EFAULT;
+
+	/*
+	 * if the following tests fail, it is likely that there is a buffer
+	 * overflow as buf is much smaller than the requested or provided
+	 * string lengths -- in case the error handling does not succeed
+	 * we may get an OOPS. And we want to get an OOPS as this is a
+	 * grave bug.
+	 */
+
+	max_addtllen = lc_drbg_max_addtl();
+	max_request_bytes = lc_drbg_max_request_bytes();
+
+	/* overflow addtllen with additonal info string */
+	len = lc_rng_generate(drbg, buf, max_addtllen + 1, buf, sizeof(buf));
+	if (len >= 0)
+		goto out;
+
+	/* overflow max_bits */
+	len = lc_rng_generate(drbg, NULL, 0, buf, (max_request_bytes + 1));
+	if (len >= 0)
+		goto out;
+
+	/* overflow max addtllen with personalization string */
+	len = lc_rng_generate(NULL, NULL, 0, buf, sizeof(buf));
+	if (len >= 0)
+		goto out;
+
+	ret = 0;
+
+out:
+	lc_rng_zero(drbg);
+	return ret;
+}
+
+static const struct lc_rng _lc_hash_drbg = {
+	.generate	= lc_drbg_hash_generate,
+	.seed		= lc_drbg_hash_seed,
+	.zero		= lc_drbg_hash_zero,
+};
+DSO_PUBLIC const struct lc_rng *lc_hash_drbg = &_lc_hash_drbg;

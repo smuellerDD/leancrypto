@@ -22,6 +22,7 @@
 
 #include "lc_drbg.h"
 #include "lc_hmac.h"
+#include "lc_rng.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -29,38 +30,40 @@ extern "C"
 #endif
 
 #if !defined(LC_DRBG_HMAC_STATELEN) || !defined(LC_DRBG_HMAC_BLOCKLEN) || !defined(LC_DRBG_HMAC_CORE)
-# error "Do not include this header file directly! Use hash_drbg_<hashtype>.h"
+# error "Do not include this header file directly! Use lc_hmac_drbg_<hashtype>.h"
 #endif
 
 struct lc_drbg_hmac_state {
-	struct lc_drbg_state drbg;
 	struct lc_hmac_ctx hmac_ctx; /* Cipher handle - HMAC_MAX_STATE_SIZE */
 	uint8_t *V;	/* internal state 10.1.1.1 1a) - DRBG_STATELEN */
 	uint8_t *C;	/* static value 10.1.1.1 1b) - DRBG_STATELEN */
+	unsigned int seeded:1;
 };
 
 #define LC_DRBG_HMAC_STATE_SIZE(x)	(2 * LC_DRBG_HMAC_STATELEN +	       \
 					 LC_HMAC_STATE_SIZE(x))
 #define LC_DRBG_HMAC_CTX_SIZE(x)	(LC_DRBG_HMAC_STATE_SIZE(x) +	       \
-					 sizeof(struct lc_drbg_hmac_state))
-
-void lc_drbg_hmac_seed(struct lc_drbg_state *drbg, struct lc_drbg_string *seed);
-size_t lc_drbg_hmac_generate(struct lc_drbg_state *drbg,
-			     uint8_t *buf, size_t buflen,
-			     struct lc_drbg_string *addtl);
-void lc_drbg_hmac_zero(struct lc_drbg_state *drbg);
+					 sizeof(struct lc_drbg_hmac_state) +   \
+					 sizeof(struct lc_rng))
 
 #define _LC_DRBG_HMAC_SET_CTX(name, ctx, offset)			       \
-	_LC_DRBG_SET_CTX((&name->drbg), lc_drbg_hmac_seed,		       \
-			 lc_drbg_hmac_generate, lc_drbg_hmac_zero);	       \
-	_LC_HMAC_SET_CTX((&name->hmac_ctx), LC_DRBG_HMAC_CORE, ctx, offset);   \
-	name->V = (uint8_t *)((uint8_t *)ctx + offset +			       \
-			      LC_HMAC_STATE_SIZE(LC_DRBG_HMAC_CORE));	       \
-	name->C = (uint8_t *)((uint8_t *)ctx + offset +			       \
-		  LC_HMAC_STATE_SIZE(LC_DRBG_HMAC_CORE) + LC_DRBG_HMAC_STATELEN)
+	_LC_HMAC_SET_CTX((&(name)->hmac_ctx), LC_DRBG_HMAC_CORE, ctx, offset); \
+	(name)->V = (uint8_t *)((uint8_t *)ctx + offset +		       \
+				LC_HMAC_STATE_SIZE(LC_DRBG_HMAC_CORE));	       \
+	(name)->C = (uint8_t *)((uint8_t *)ctx + offset +		       \
+		    LC_HMAC_STATE_SIZE(LC_DRBG_HMAC_CORE) +		       \
+		    LC_DRBG_HMAC_STATELEN);				       \
+	(name)->seeded = 0
 
 #define LC_DRBG_HMAC_SET_CTX(name) _LC_DRBG_HMAC_SET_CTX(name, name,	       \
 					sizeof(struct lc_drbg_hmac_state))
+
+extern const struct lc_rng *lc_hmac_drbg;
+
+#define LC_DRBG_HMAC_RNG_CTX(name)					       \
+	LC_RNG_CTX(name, lc_hmac_drbg);					       \
+	LC_DRBG_HMAC_SET_CTX((struct lc_drbg_hmac_state *)name->rng_state);    \
+	lc_hmac_drbg->zero(name->rng_state)
 
 
 /**
@@ -71,11 +74,8 @@ void lc_drbg_hmac_zero(struct lc_drbg_state *drbg);
 #define LC_DRBG_HMAC_CTX_ON_STACK(name)			      		       \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf,				       \
 			  LC_DRBG_HMAC_CTX_SIZE(LC_DRBG_HMAC_CORE), uint64_t); \
-	struct lc_drbg_hmac_state *name ## _hmac =			       \
-				(struct lc_drbg_hmac_state *) name ## _ctx_buf;\
-	LC_DRBG_HMAC_SET_CTX(name ## _hmac);				       \
-	struct lc_drbg_state *name = (struct lc_drbg_state *)name ## _hmac;    \
-	lc_drbg_hmac_zero(name)
+	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name ## _ctx_buf;       \
+	LC_DRBG_HMAC_RNG_CTX(name)
 
 /**
  * @brief Allocate HMAC DRBG context on heap
@@ -84,7 +84,25 @@ void lc_drbg_hmac_zero(struct lc_drbg_state *drbg);
  *
  * @return: 0 on success, < 0 on error
  */
-int lc_drbg_hmac_alloc(struct lc_drbg_state **drbg);
+int lc_drbg_hmac_alloc(struct lc_rng_ctx **drbg);
+
+/**
+ * @brief Tests as defined in 11.3.2 in addition to the cipher tests: testing
+ *	  of the error handling.
+ *
+ * @param drbg [in] DRBG state handle that is used solely for the testing. It
+ *		    shall not be a production handle unless you call drbg_seed
+ *		    on that handle afterwards.
+ *
+ * Note: testing of failing seed source as defined in 11.3.2 must be handled
+ * by the caller.
+ *
+ * Note 2: There is no sensible way of testing the reseed counter
+ * enforcement, so skip it.
+ *
+ * @return: 0 on success, < 0 on error
+ */
+int lc_drbg_hmac_healthcheck_sanity(struct lc_rng_ctx *drbg);
 
 #ifdef __cplusplus
 }

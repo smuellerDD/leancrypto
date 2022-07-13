@@ -19,7 +19,7 @@
 
 #include "lc_hash_drbg_sha512.h"
 
-static int hash_drbg_selftest_large(struct lc_drbg_state *drbg)
+static int hash_drbg_selftest_large(struct lc_rng_ctx *drbg)
 {
 	uint8_t seed[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08
@@ -28,14 +28,14 @@ static int hash_drbg_selftest_large(struct lc_drbg_state *drbg)
 	unsigned int i;
 	int ret = 0;
 
-	if (lc_drbg_seed(drbg, seed, sizeof(seed), NULL, 0))
+	if (lc_rng_seed(drbg, seed, sizeof(seed), NULL, 0))
 		goto out;
 
 	for (i = 0; i < ((1U<<30) / LC_DRBG_MAX_REQUEST_BYTES); i++)
-		lc_drbg_generate(drbg, NULL, 0, out, sizeof(out));
+		lc_rng_generate(drbg, NULL, 0, out, sizeof(out));
 
 out:
-	lc_drbg_zero(drbg);
+	lc_rng_zero(drbg);
 	return ret;
 }
 

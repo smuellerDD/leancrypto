@@ -11,10 +11,6 @@ if get_option('cshake_drng').enabled()
 	src += files([ 'cshake_drng.c' ])
 endif
 
-if get_option('drbg_hash').enabled() or get_option('drbg_hmac').enabled()
-	src += files([ 'drbg.c' ])
-endif
-
 if get_option('drbg_hash').enabled()
 	src += files([ 'hash_drbg.c' ])
 endif

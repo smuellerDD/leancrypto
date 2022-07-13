@@ -21,6 +21,7 @@
 #define LC_CSHAKE256_DRNG_H
 
 #include "lc_cshake.h"
+#include "lc_rng.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -35,25 +36,23 @@ struct lc_cshake256_drng_state {
 #define LC_CSHAKE256_DRNG_MAX_CHUNK	(LC_SHA3_256_SIZE_BLOCK * 100)
 #define LC_CSHAKE256_DRNG_STATE_SIZE	(LC_CSHAKE256_DRNG_KEYSIZE)
 #define LC_CSHAKE256_DRNG_CTX_SIZE	(sizeof(struct lc_cshake256_drng_state) +\
+					 sizeof(struct lc_rng) +	       \
 					 LC_CSHAKE256_DRNG_STATE_SIZE)
 
 #define _LC_CSHAKE256_DRNG_SET_CTX(name, ctx, offset)			       \
-	name->key = (uint8_t *)(uint8_t *)ctx + offset
+	(name)->key = (uint8_t *)((uint8_t *)(ctx) + offset)
 
 #define LC_CSHAKE256_DRNG_SET_CTX(name) _LC_CSHAKE256_DRNG_SET_CTX(name, name, \
 					 sizeof(struct lc_cshake256_drng_state))
 
-/**
- * @brief Zeroize CSHAKE DRBG context allocated with either
- *	  LC_CSHAKE256_DRNG_CTX_ON_STACK or lc_cshake256_drng_alloc
- *
- * @param hash_state [in] Hash context to be zeroized
- */
-static inline void lc_cshake256_drng_zero(struct lc_cshake256_drng_state *state)
-{
-	memset_secure((uint8_t *)state + sizeof(struct lc_cshake256_drng_state),
-		      0, LC_CSHAKE256_DRNG_STATE_SIZE);
-}
+/* CSHAKE256-based DRNG */
+extern const struct lc_rng *lc_cshake256_drng;
+
+#define LC_CSHAKE256_RNG_CTX(name)					       \
+	LC_RNG_CTX(name, lc_cshake256_drng);				       \
+	LC_CSHAKE256_DRNG_SET_CTX(					       \
+		(struct lc_cshake256_drng_state *)name->rng_state);	       \
+	lc_cshake256_drng->zero(name->rng_state)
 
 /**
  * @brief Allocate stack memory for the CSHAKE256 DRNG context
@@ -62,11 +61,9 @@ static inline void lc_cshake256_drng_zero(struct lc_cshake256_drng_state *state)
  */
 #define LC_CSHAKE256_DRNG_CTX_ON_STACK(name)				       \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf,				       \
-			  LC_CSHAKE256_DRNG_CTX_SIZE,uint64_t);		       \
-	struct lc_cshake256_drng_state *name =				       \
-		(struct lc_cshake256_drng_state *)name ## _ctx_buf;  	       \
-	LC_CSHAKE256_DRNG_SET_CTX(name);				       \
-	lc_cshake256_drng_zero(name)
+			  LC_CSHAKE256_DRNG_CTX_SIZE, uint64_t);	       \
+	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name ## _ctx_buf;       \
+	LC_CSHAKE256_RNG_CTX(name)
 
 /**
  * @brief Allocation of a CSHAKE DRNG context
@@ -81,55 +78,7 @@ static inline void lc_cshake256_drng_zero(struct lc_cshake256_drng_state *state)
  *
  * @return 0 upon success; < 0 on error
  */
-int lc_cshake256_drng_alloc(struct lc_cshake256_drng_state **state);
-
-/**
- * @brief Zeroize and free CSHAKE DRNG context
- *
- * @param state [in] CSHAKE DRNG context to be zeroized and freed
- */
-void lc_cshake256_drng_zero_free(struct lc_cshake256_drng_state *state);
-
-/**
- * @brief Obtain random numbers
- *
- * @param state [in] allocated CSHAKE DRNG cipher handle
- * @param addtl_input [in] Additional input to diversify state
- * @param addtl_input_len [in] Length of additional input buffer
- * @param outbuf [out] allocated buffer that is to be filled with random numbers
- * @param outbuflen [in] length of outbuf indicating the size of the random
- *			 number byte string to be generated
- *
- * Generate random numbers and fill the buffer provided by the caller.
- *
- * The generation operation updates the CSHAKE DRNG state at the same time
- * the random bit stream is generated to achieve backtracking resistance.
- *
- * @return 0 upon success; < 0 on error
- */
-void
-lc_cshake256_drng_generate(struct lc_cshake256_drng_state *state,
-			   const uint8_t *addtl_input, size_t addtl_input_len,
-			   uint8_t *out, size_t outlen);
-
-/**
- * @brief (Re)Seed the CSHAKE DRNG
- *
- * @param state [in] allocated ChaCha20 cipher handle
- * @param seed [in] buffer with the seed data
- * @param seedlen [in] length of seed
- * @param persbuf [in] Personalization / additional information buffer - may be
- *		      NULL
- * @param perslen [in] Length of personalization / additional information buffer
- *
- * When calling the function, the DRNG is seeded or reseeded. If it is reseeded,
- * the old state information is mixed into the new state.
- *
- * @return 0 upon succes; < 0 on error
- */
-void lc_cshake256_drng_seed(struct lc_cshake256_drng_state *state,
-		            const uint8_t *seed, size_t seedlen,
-			    const uint8_t *persbuf, size_t perslen);
+int lc_cshake256_drng_alloc(struct lc_rng_ctx **state);
 
 #ifdef __cplusplus
 }

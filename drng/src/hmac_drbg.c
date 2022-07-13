@@ -21,6 +21,7 @@
 #include <errno.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <sys/mman.h>
 
 #include "lc_hmac_drbg_sha512.h"
 #include "visibility.h"
@@ -49,7 +50,7 @@ static void drbg_hmac_update(struct lc_drbg_hmac_state *drbg,
 	int i = 0;
 	struct lc_drbg_string seed1, seed2, vdata;
 
-	if (!drbg->drbg.seeded)
+	if (!drbg->seeded)
 		/* 10.1.2.3 step 2 -- memset(0) of C is implicit with calloc */
 		memset(drbg->V, 1, LC_DRBG_HMAC_STATELEN);
 
@@ -115,50 +116,160 @@ static size_t drbg_hmac_generate_internal(struct lc_drbg_hmac_state *drbg,
 	return len;
 }
 
-DSO_PUBLIC
-size_t lc_drbg_hmac_generate(struct lc_drbg_state *drbg,
-			     uint8_t *buf, size_t buflen,
-			     struct lc_drbg_string *addtl)
+static int
+lc_drbg_hmac_generate(void *_state,
+		      const uint8_t *addtl_input, size_t addtl_input_len,
+		      uint8_t *out, size_t outlen)
 {
-	struct lc_drbg_hmac_state *drbg_hmac = (struct lc_drbg_hmac_state *)drbg;
+	struct lc_drbg_hmac_state *drbg_hmac = _state;
+	struct lc_drbg_string addtl_data;
+	struct lc_drbg_string *addtl = NULL;
 
-	return drbg_hmac_generate_internal(drbg_hmac, buf, buflen, addtl);
+	if (!drbg_hmac)
+		return -EINVAL;
+
+	if (outlen > lc_drbg_max_request_bytes())
+		return -EINVAL;
+
+	if (addtl_input_len > lc_drbg_max_addtl())
+		return -EINVAL;
+
+	if (addtl_input_len && addtl_input) {
+		lc_drbg_string_fill(&addtl_data, addtl_input, addtl_input_len);
+		addtl = &addtl_data;
+	}
+	drbg_hmac_generate_internal(drbg_hmac, out, outlen, addtl);
+
+	return 0;
 }
 
-DSO_PUBLIC
-void lc_drbg_hmac_seed(struct lc_drbg_state *drbg, struct lc_drbg_string *seed)
+static int
+lc_drbg_hmac_seed(void *_state,
+		  const uint8_t *seedbuf, size_t seedlen,
+		  const uint8_t *persbuf, size_t perslen)
 {
-	struct lc_drbg_hmac_state *drbg_hmac = (struct lc_drbg_hmac_state *)drbg;
+	struct lc_drbg_hmac_state *drbg_hmac = _state;
+	struct lc_drbg_string seed;
+	struct lc_drbg_string pers;
 
-	drbg_hmac_update(drbg_hmac, seed);
+	if (!drbg_hmac)
+		return -EINVAL;
+
+	/* 9.1 / 9.2 / 9.3.1 step 3 */
+	if (persbuf && perslen > (lc_drbg_max_addtl()))
+		return -EINVAL;
+
+	if (!seedbuf || !seedlen)
+		return -EINVAL;
+	lc_drbg_string_fill(&seed, seedbuf, seedlen);
+
+	/*
+	 * concatenation of entropy with personalization str / addtl input)
+	 * the variable pers is directly handed in by the caller, so check its
+	 * contents whether it is appropriate
+	 */
+	if (persbuf && perslen) {
+		lc_drbg_string_fill(&pers, persbuf, perslen);
+		seed.next = &pers;
+	}
+
+	drbg_hmac_update(drbg_hmac, &seed);
+	drbg_hmac->seeded = 1;
+
+	return 0;
 }
 
-DSO_PUBLIC
-void lc_drbg_hmac_zero(struct lc_drbg_state *drbg)
+static void lc_drbg_hmac_zero(void *_state)
 {
-	struct lc_drbg_hmac_state *drbg_hmac = (struct lc_drbg_hmac_state *)drbg;
-	struct lc_hmac_ctx *hmac_ctx = &drbg_hmac->hmac_ctx;
-	struct lc_hash_ctx *hash_ctx = &hmac_ctx->hash_ctx;
-	const struct lc_hash *hash = hash_ctx->hash;
+	struct lc_drbg_hmac_state *drbg_hmac = _state;
+	struct lc_hmac_ctx *hmac_ctx;
+	struct lc_hash_ctx *hash_ctx;
+	const struct lc_hash *hash;
 
+	if (!drbg_hmac)
+		return;
+
+	hmac_ctx = &drbg_hmac->hmac_ctx;
+	hash_ctx = &hmac_ctx->hash_ctx;
+	hash = hash_ctx->hash;
+
+	drbg_hmac->seeded = 0;
 	memset_secure((uint8_t *)drbg_hmac + sizeof(struct lc_drbg_hmac_state),
 				 0, LC_DRBG_HMAC_STATE_SIZE(hash));
 }
 
 DSO_PUBLIC
-int lc_drbg_hmac_alloc(struct lc_drbg_state **drbg)
+int lc_drbg_hmac_alloc(struct lc_rng_ctx **drbg)
 {
-	struct lc_drbg_hmac_state *tmp;
-	int ret = posix_memalign((void *)&tmp, sizeof(uint64_t),
+	struct lc_rng_ctx *out_state;
+	int ret = posix_memalign((void *)&out_state, sizeof(uint64_t),
 				 LC_DRBG_HMAC_CTX_SIZE(LC_DRBG_HMAC_CORE));
 
 	if (ret)
 		return -ret;
-	memset(tmp, 0, LC_DRBG_HMAC_CTX_SIZE(LC_DRBG_HMAC_CORE));
 
-	LC_DRBG_HMAC_SET_CTX(tmp);
+	/* prevent paging out of the memory state to swap space */
+	ret = mlock(out_state, sizeof(*out_state));
+	if (ret && errno != EPERM && errno != EAGAIN) {
+		int errsv = errno;
 
-	*drbg = (struct lc_drbg_state *)tmp;
+		free(out_state);
+		return -errsv;
+	}
+
+	LC_DRBG_HMAC_RNG_CTX(out_state);
+
+	lc_drbg_hmac_zero(out_state->rng_state);
+
+	*drbg = out_state;
 
 	return 0;
 }
+
+DSO_PUBLIC
+int lc_drbg_hmac_healthcheck_sanity(struct lc_rng_ctx *drbg)
+{
+	unsigned char buf[16];
+	size_t max_addtllen, max_request_bytes;
+	ssize_t len = 0;
+	int ret = -EFAULT;
+
+	/*
+	 * if the following tests fail, it is likely that there is a buffer
+	 * overflow as buf is much smaller than the requested or provided
+	 * string lengths -- in case the error handling does not succeed
+	 * we may get an OOPS. And we want to get an OOPS as this is a
+	 * grave bug.
+	 */
+
+	max_addtllen = lc_drbg_max_addtl();
+	max_request_bytes = lc_drbg_max_request_bytes();
+
+	/* overflow addtllen with additonal info string */
+	len = lc_rng_generate(drbg, buf, max_addtllen + 1, buf, sizeof(buf));
+	if (len >= 0)
+		goto out;
+
+	/* overflow max_bits */
+	len = lc_rng_generate(drbg, NULL, 0, buf, (max_request_bytes + 1));
+	if (len >= 0)
+		goto out;
+
+	/* overflow max addtllen with personalization string */
+	len = lc_rng_generate(NULL, NULL, 0, buf, sizeof(buf));
+	if (len >= 0)
+		goto out;
+
+	ret = 0;
+
+out:
+	lc_rng_zero(drbg);
+	return ret;
+}
+
+static const struct lc_rng _lc_hmac_drbg = {
+	.generate	= lc_drbg_hmac_generate,
+	.seed		= lc_drbg_hmac_seed,
+	.zero		= lc_drbg_hmac_zero,
+};
+DSO_PUBLIC const struct lc_rng *lc_hmac_drbg = &_lc_hmac_drbg;

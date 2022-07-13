@@ -33,7 +33,7 @@
 DSO_PUBLIC
 int lc_hc_setkey(struct lc_hc_cryptor *hc, const uint8_t *key, size_t keylen)
 {
-	struct lc_drbg_state *drbg = (struct lc_drbg_state *)&hc->drbg;
+	struct lc_drbg_hash_state *drbg = &hc->drbg;
 	struct lc_hmac_ctx *auth_ctx = &hc->auth_ctx;
 	int ret;
 
@@ -43,7 +43,7 @@ int lc_hc_setkey(struct lc_hc_cryptor *hc, const uint8_t *key, size_t keylen)
 		return -EINVAL;
 
 	// TODO: add some personalization string?
-	ret = lc_drbg_seed(drbg, key, keylen, NULL, 0);
+	ret = lc_hash_drbg->seed(drbg, key, keylen, NULL, 0);
 	if (ret)
 		return ret;
 
@@ -51,17 +51,18 @@ int lc_hc_setkey(struct lc_hc_cryptor *hc, const uint8_t *key, size_t keylen)
 	 * Generate key for HMAC authentication - we simply use two different
 	 * keys for the DRBG keystream generator and the HMAC authenticator.
 	 */
-	if (lc_drbg_generate(drbg, NULL, 0, hc->keystream,
-			     LC_SHA_MAX_SIZE_DIGEST) !=
-	    LC_SHA_MAX_SIZE_DIGEST)
-		return -EFAULT;
+	ret = lc_hash_drbg->generate(drbg, NULL, 0, hc->keystream,
+				     LC_SHA_MAX_SIZE_DIGEST);
+	if (ret)
+		return ret;
+
 	lc_hmac_init(auth_ctx, hc->keystream, LC_SHA_MAX_SIZE_DIGEST);
 
 	/* Generate first keystream */
-	if (lc_drbg_generate(drbg, NULL, 0,
-			     hc->keystream, LC_HC_KEYSTREAM_BLOCK) !=
-	           LC_HC_KEYSTREAM_BLOCK)
-		return -EFAULT;
+	ret = lc_hash_drbg->generate(drbg, NULL, 0,
+				     hc->keystream, LC_HC_KEYSTREAM_BLOCK);
+	if (ret)
+		return ret;
 
 	hc->keystream_ptr = 0;
 
@@ -72,7 +73,7 @@ DSO_PUBLIC
 ssize_t lc_hc_crypt(struct lc_hc_cryptor *hc, const uint8_t *in, uint8_t *out,
 		    size_t len)
 {
-	struct lc_drbg_state *drbg = (struct lc_drbg_state *)&hc->drbg;
+	struct lc_drbg_hash_state *drbg = &hc->drbg;
 	size_t processed = 0;
 
 	if (len > SSIZE_MAX)
@@ -83,10 +84,12 @@ ssize_t lc_hc_crypt(struct lc_hc_cryptor *hc, const uint8_t *in, uint8_t *out,
 
 		/* Generate a new keystream block */
 		if (hc->keystream_ptr >= LC_HC_KEYSTREAM_BLOCK) {
-			if (lc_drbg_generate(drbg, NULL, 0, hc->keystream,
-					     LC_HC_KEYSTREAM_BLOCK) !=
-			    LC_HC_KEYSTREAM_BLOCK)
-				return -EFAULT;
+			int ret = lc_hash_drbg->generate(drbg, NULL, 0,
+							 hc->keystream,
+							 LC_HC_KEYSTREAM_BLOCK);
+
+			if (ret)
+				return ret;
 
 			hc->keystream_ptr = 0;
 		}

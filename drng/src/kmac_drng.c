@@ -271,15 +271,18 @@ kmac256_drng_fke_init_ctx(struct lc_kmac256_drng_state *state,
  *
  * This generates R of the KMAC DRNG specification section 2.4.
  */
-DSO_PUBLIC
-void
-lc_kmac256_drng_generate(struct lc_kmac256_drng_state *state,
+static int
+lc_kmac256_drng_generate(void *_state,
 			 const uint8_t *addtl_input, size_t addtl_input_len,
 			 uint8_t *out, size_t outlen)
 {
 	LC_KMAC_CTX_ON_STACK(kmac_ctx, lc_cshake256);
+	struct lc_kmac256_drng_state *state = _state;
 
 	BUILD_BUG_ON(LC_KMAC256_DRNG_MAX_CHUNK % LC_SHA3_256_SIZE_BLOCK);
+
+	if (!state)
+		return -EINVAL;
 
 	/* The loop generates R from KMAC DRNG specification section 2.4. */
 	while (outlen) {
@@ -304,6 +307,8 @@ lc_kmac256_drng_generate(struct lc_kmac256_drng_state *state,
 
 	/* Clear the KMAC state which is not needed any more. */
 	lc_kmac_zero(kmac_ctx);
+
+	return 0;
 }
 
 /*
@@ -313,12 +318,16 @@ lc_kmac256_drng_generate(struct lc_kmac256_drng_state *state,
  *
  * This applies the KMAC DRNG specification section 2.2.
  */
-DSO_PUBLIC
-void lc_kmac256_drng_seed(struct lc_kmac256_drng_state *state,
-			  const uint8_t *seed, size_t seedlen,
-			  const uint8_t *persbuf, size_t perslen)
+static int
+lc_kmac256_drng_seed(void *_state,
+		     const uint8_t *seed, size_t seedlen,
+		     const uint8_t *persbuf, size_t perslen)
 {
 	LC_KMAC_CTX_ON_STACK(kmac_ctx, lc_cshake256);
+	struct lc_kmac256_drng_state *state = _state;
+
+	if (!state)
+		return -EINVAL;
 
 	/*
 	 * Initialize the KMAC with K(N) and the cust. string. During initial
@@ -339,25 +348,32 @@ void lc_kmac256_drng_seed(struct lc_kmac256_drng_state *state,
 
 	/* Clear the KMAC state which is not needed any more. */
 	lc_kmac_zero(kmac_ctx);
+
+	return 0;
 }
 
-DSO_PUBLIC
-void lc_kmac256_drng_zero_free(struct lc_kmac256_drng_state *state)
+static void lc_kmac256_drng_zero(void *_state)
 {
+	struct lc_kmac256_drng_state *state = _state;
+
 	if (!state)
 		return;
 
-	lc_kmac256_drng_zero(state);
-	free(state);
+	memset_secure((uint8_t *)state + sizeof(struct lc_kmac256_drng_state),
+		      0, LC_KMAC256_DRNG_STATE_SIZE);
 }
 
 DSO_PUBLIC
-int lc_kmac256_drng_alloc(struct lc_kmac256_drng_state **state)
+int lc_kmac256_drng_alloc(struct lc_rng_ctx **state)
 {
-	struct lc_kmac256_drng_state *out_state;
-	int ret = posix_memalign((void *)&out_state, sizeof(uint64_t),
-				 LC_KMAC256_DRNG_CTX_SIZE);
+	struct lc_rng_ctx *out_state;
+	int ret;
 
+	if (!state)
+		return -EINVAL;
+
+	ret = posix_memalign((void *)&out_state, sizeof(uint64_t),
+			     LC_KMAC256_DRNG_CTX_SIZE);
 	if (ret)
 		return -ret;
 
@@ -370,11 +386,18 @@ int lc_kmac256_drng_alloc(struct lc_kmac256_drng_state **state)
 		return -errsv;
 	}
 
-	LC_KMAC256_DRNG_SET_CTX(out_state);
+	LC_KMAC256_RNG_CTX(out_state);
 
-	lc_kmac256_drng_zero(out_state);
+	lc_kmac256_drng_zero(out_state->rng_state);
 
 	*state = out_state;
 
 	return 0;
 }
+
+static const struct lc_rng _lc_kmac256_drng = {
+	.generate	= lc_kmac256_drng_generate,
+	.seed		= lc_kmac256_drng_seed,
+	.zero		= lc_kmac256_drng_zero,
+};
+DSO_PUBLIC const struct lc_rng *lc_kmac256_drng = &_lc_kmac256_drng;

@@ -87,35 +87,35 @@ static int hmac_drbg_tester(void)
 	};
 	uint8_t act[256];
 	LC_DRBG_HMAC_CTX_ON_STACK(drbg_stack);
-	struct lc_drbg_state *drbg = NULL;
+	struct lc_rng_ctx *drbg = NULL;
 	int ret = 1;
 
 	printf("HMAC DRBG ctx len %lu\n",
 	       LC_DRBG_HMAC_CTX_SIZE(LC_DRBG_HMAC_CORE));
-	if (lc_drbg_seed(drbg_stack, ent_nonce, 64, pers, 32))
+	if (lc_rng_seed(drbg_stack, ent_nonce, 64, pers, 32))
 		goto out;
 
-	if (lc_drbg_generate(drbg_stack, addtl1, 32, act, 256) < 0)
+	if (lc_rng_generate(drbg_stack, addtl1, 32, act, 256) < 0)
 		goto out;
 
-	if (lc_drbg_generate(drbg_stack, addtl2, 32, act, 256) < 0)
+	if (lc_rng_generate(drbg_stack, addtl2, 32, act, 256) < 0)
 		goto out;
 
-	lc_drbg_zero(drbg_stack);
+	lc_rng_zero(drbg_stack);
 
-	if (lc_drbg_healthcheck_sanity(drbg_stack))
+	if (lc_drbg_hmac_healthcheck_sanity(drbg_stack))
 		return 1;
 
 	if (lc_drbg_hmac_alloc(&drbg))
 		goto out;
 
-	if (lc_drbg_seed(drbg, ent_nonce, 64, pers, 32))
+	if (lc_rng_seed(drbg, ent_nonce, 64, pers, 32))
 		goto out;
 
-	if (lc_drbg_generate(drbg, addtl1, 32, act, 256) < 0)
+	if (lc_rng_generate(drbg, addtl1, 32, act, 256) < 0)
 		goto out;
 
-	if (lc_drbg_generate(drbg, addtl2, 32, act, 256) < 0)
+	if (lc_rng_generate(drbg, addtl2, 32, act, 256) < 0)
 		goto out;
 #endif
 #if 0
@@ -170,19 +170,19 @@ static int hmac_drbg_tester(void)
 		0xfa, 0xb9, 0x51, 0xeb, 0xeb, 0x15, 0xbb, 0x35
 	};
 	uint8_t act[256];
-	struct lc_drbg_state *drbg;
+	struct lc_rng_ctx *drbg;
 	int ret = 1;
 
-	if (lc_drbg_alloc(&drbg))
+	if (lc_drbg_hmac_alloc(&drbg))
 		goto out;
 
-	if (lc_drbg_seed(drbg, ent_nonce, 64, pers, 32))
+	if (lc_rng_seed(drbg, ent_nonce, 64, pers, 32))
 		goto out;
 
-	if (lc_drbg_generate(drbg, NULL, 0, act, 256) < 0)
+	if (lc_rng_generate(drbg, NULL, 0, act, 256) < 0)
 		goto out;
 
-	if (lc_drbg_generate(drbg, NULL, 0, act, 256) < 0)
+	if (lc_rng_generate(drbg, NULL, 0, act, 256) < 0)
 		goto out;
 #endif
 #if 0
@@ -232,26 +232,26 @@ static int hmac_drbg_tester(void)
 		0xd2, 0xdf, 0x0d, 0x9e, 0x2e, 0x7e, 0xbe, 0x39
 	};
 	uint8_t act[256];
-	struct lc_drbg_state *drbg;
+	struct lc_rng_ctx *drbg;
 	int ret = 1;
 
-	if (lc_drbg_alloc(&drbg))
+	if (lc_drbg_hmac_alloc(&drbg))
 		goto out;
 
-	if (lc_drbg_seed(drbg, ent_nonce, 64, NULL, 0))
+	if (lc_rng_seed(drbg, ent_nonce, 64, NULL, 0))
 		goto out;
 
-	if (lc_drbg_generate(drbg, NULL, 0, act, 256) < 0)
+	if (lc_rng_generate(drbg, NULL, 0, act, 256) < 0)
 		goto out;
 
-	if (lc_drbg_generate(drbg, NULL, 0, act, 256) < 0)
+	if (lc_rng_generate(drbg, NULL, 0, act, 256) < 0)
 		goto out;
 #endif
 
 	ret = compare(act, exp, 256, "Hash DRBG SHA-512");
 
 out:
-	lc_drbg_zero_free(drbg);
+	lc_rng_zero_free(drbg);
 	return ret;
 }
 

@@ -11,7 +11,7 @@
 # Patchlevel Version: API / ABI compatible, no functional changes, no
 #		      enhancements, bug fixes only.
 project('leancrypto', 'c',
-	version: '0.2.0',
+	version: '0.3.0',
 	default_options: [
 		'warning_level=3',
 		'optimization=s',
@@ -83,6 +83,7 @@ include_files = files([
 	'./drng/api/lc_hmac_drbg_sha512.h',
 	'./drng/api/lc_chacha20_drng.h',
 	'./drng/api/lc_kmac256_drng.h',
+	'./drng/api/lc_rng.h',
 	'./hash/api/lc_cshake.h',
 	'./hash/api/lc_hash.h',
 	'./hash/api/lc_sha256.h',

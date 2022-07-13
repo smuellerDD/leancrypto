@@ -64,7 +64,7 @@ int lc_kdf_dpi_generate(struct lc_hmac_ctx *hmac_ctx,
 		lc_hmac_update(hmac_ctx, (uint8_t *)&ibe, sizeof(uint32_t));
 
 		if (label && labellen)
-			         lc_hmac_update(hmac_ctx, label, labellen);
+		         lc_hmac_update(hmac_ctx, label, labellen);
 
 		if (dlen < h) {
 			uint8_t tmp[LC_SHA_MAX_SIZE_DIGEST];

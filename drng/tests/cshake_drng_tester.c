@@ -26,9 +26,10 @@
 #define LC_CSHAKE_DRNG_SEED_CUSTOMIZATION_STRING	"cSHAKE-DRNG seed"
 #define LC_CSHAKE_DRNG_CTX_CUSTOMIZATION_STRING 	"cSHAKE-DRNG generate"
 
-static int cshake_drng_selftest(struct lc_cshake256_drng_state *cshake_ctx)
+static int cshake_drng_selftest(struct lc_rng_ctx *cshake_ctx)
 {
 	LC_HASH_CTX_ON_STACK(cshake_compare, lc_cshake256);
+	struct lc_cshake256_drng_state *state = cshake_ctx->rng_state;
 	uint8_t seed[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
 	};
@@ -72,22 +73,22 @@ static int cshake_drng_selftest(struct lc_cshake256_drng_state *cshake_ctx)
 	uint8_t compare1[LC_CSHAKE256_DRNG_KEYSIZE + sizeof(exp1)];
 	int ret;
 
-	lc_cshake256_drng_seed(cshake_ctx, seed, sizeof(seed), NULL, 0);
-	lc_cshake256_drng_generate(cshake_ctx, NULL, 0, act1, sizeof(act1));
+	lc_rng_seed(cshake_ctx, seed, sizeof(seed), NULL, 0);
+	lc_rng_generate(cshake_ctx, NULL, 0, act1, sizeof(act1));
 	ret = compare(act1, exp1, sizeof(act1), "CSHAKE DRNG");
-	lc_cshake256_drng_zero(cshake_ctx);
+	lc_rng_zero(cshake_ctx);
 
 	/* Verfy the generation operation with one CSHAKE call */
 	/* Prepare the key */
-	lc_cshake256_drng_seed(cshake_ctx, seed, sizeof(seed), NULL, 0);
-	lc_cshake_init(cshake_compare, cshake_ctx->key, LC_CSHAKE256_DRNG_KEYSIZE,
+	lc_rng_seed(cshake_ctx, seed, sizeof(seed), NULL, 0);
+	lc_cshake_init(cshake_compare, state->key, LC_CSHAKE256_DRNG_KEYSIZE,
 		     (uint8_t *)LC_CSHAKE_DRNG_CTX_CUSTOMIZATION_STRING,
 		     sizeof(LC_CSHAKE_DRNG_CTX_CUSTOMIZATION_STRING) - 1);
 	/* Generate data with one CSHAKE call */
 	lc_cshake_final(cshake_compare, compare1, sizeof(compare1));
 	ret = compare(compare1 + LC_CSHAKE256_DRNG_KEYSIZE, exp1, sizeof(exp1),
 		      "CSHAKE DRNG verification");
-	lc_cshake256_drng_zero(cshake_ctx);
+	lc_rng_zero(cshake_ctx);
 	lc_hash_zero(cshake_compare);
 
 	return ret;
@@ -96,7 +97,7 @@ static int cshake_drng_selftest(struct lc_cshake256_drng_state *cshake_ctx)
 int main(int argc, char *argv[])
 {
 	LC_CSHAKE256_DRNG_CTX_ON_STACK(cshake_ctx);
-	struct lc_cshake256_drng_state *cshake_ctx_heap;
+	struct lc_rng_ctx *cshake_ctx_heap;
 	int ret = cshake_drng_selftest(cshake_ctx);
 
 	(void)argc;
@@ -107,6 +108,6 @@ int main(int argc, char *argv[])
 
 	ret += cshake_drng_selftest(cshake_ctx_heap);
 
-	lc_cshake256_drng_zero_free(cshake_ctx_heap);
+	lc_rng_zero_free(cshake_ctx_heap);
 	return ret;
 }

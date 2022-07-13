@@ -78,12 +78,12 @@ static int kmac_drng(struct opts *opts, FILE *out)
 	}
 	time = (uint64_t)tv.tv_sec * 1000000 + (uint64_t)tv.tv_usec;
 
-	lc_kmac256_drng_seed(kmac_ctx, (uint8_t *)&time, sizeof(time), NULL, 0);
+	lc_rng_seed(kmac_ctx, (uint8_t *)&time, sizeof(time), NULL, 0);
 
 	while (bytes) {
 		size_t todo = (bytes > sizeof(outbuf) ? sizeof(outbuf) : bytes);
 
-		lc_kmac256_drng_generate(kmac_ctx, NULL, 0, outbuf, todo);
+		lc_rng_generate(kmac_ctx, NULL, 0, outbuf, todo);
 
 		if (opts->hex) {
 			char outhex[2 * LC_KMAC256_DRNG_MAX_CHUNK];
@@ -96,6 +96,8 @@ static int kmac_drng(struct opts *opts, FILE *out)
 
 		bytes -= todo;
 	}
+
+	lc_rng_zero(kmac_ctx);
 
 	return 0;
 }

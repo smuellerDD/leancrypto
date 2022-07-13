@@ -271,7 +271,7 @@ static inline void lc_hc_zero(struct lc_hc_cryptor *hc)
 	const struct lc_hash *hash = hash_ctx->hash;
 
 	drbg->reseed_ctr = 0;
-	drbg->drbg.seeded = 0;
+	drbg->seeded = 0;
 	memset_secure((uint8_t *)hc + sizeof(struct lc_hc_cryptor), 0,
 		      LC_HC_STATE_SIZE(hash));
 }
