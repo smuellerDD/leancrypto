@@ -69,6 +69,7 @@ include_dirs = include_directories([ 'drng/api',
 				     'kdf/api',
 				     'kmac/api',
 				     'otp/api',
+				     'signature/api',
 				     'sym/api'
 				   ])
 
@@ -81,6 +82,7 @@ subdirs = [ 'drng/src',
 	    'internal/src',
 	    'kdf/src',
 	    'otp/src',
+	    'signature/src',
 	    'sym/src'
 	  ]
 
@@ -89,6 +91,7 @@ testdirs = [ 'drng/tests',
 	     'internal/tests',
 	     'kdf/tests',
 	     'otp/tests',
+	     'signature/tests',
 	     'sym/tests'
 	   ]
 
@@ -146,6 +149,10 @@ if get_option('chacha20_drng').enabled() and get_option('chacha20').disabled()
 	error('ChaCha20 DRNG requires ChaCha20 support')
 endif
 
+if get_option('sha3').disabled() and get_option('dilithium').enabled()
+	error('Dilithium support requires SHA-3')
+endif
+
 ################################################################################
 # Execute compilation
 ################################################################################
@@ -155,6 +162,11 @@ src = [ ]
 foreach n : subdirs
     subdir(n)
 endforeach
+
+leancrypto_static_lib = static_library('leancrypto_static',
+	[ src, internal_src ],
+	include_directories: [ include_dirs, include_internal_dirs ],
+	)
 
 leancrypto_lib = library('leancrypto',
 		     [ src, internal_src ],

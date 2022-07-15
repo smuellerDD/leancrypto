@@ -15,3 +15,11 @@ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
 DAMAGE.
 
+
+The Dilithium signature code is derived in parts from the code distribution
+provided with https://github.com/pq-crystals/dilithium. The license for the
+original code is:
+
+ That code is released under Public Domain
+ (https://creativecommons.org/share-your-work/public-domain/cc0/);
+ or Apache 2.0 License (https://www.apache.org/licenses/LICENSE-2.0.html).

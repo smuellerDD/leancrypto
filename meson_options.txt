@@ -43,3 +43,6 @@ option('hotp', type: 'feature', value: 'enabled',
        description: 'Enable HOTP support')
 option('totp', type: 'feature', value: 'enabled',
        description: 'Enable HOTP support')
+
+option('dilithium', type: 'feature', value: 'enabled',
+       description: 'Enable Dilithium signature support')
