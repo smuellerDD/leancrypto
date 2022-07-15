@@ -183,7 +183,46 @@ struct lc_sha3_512_state {
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name ## _ctx_buf;     \
 	LC_SHA3_512_CTX(name)
 
+/********************************* SHAKE-128 **********************************/
+#define LC_SHAKE_128_SIZE_DIGEST_BITS	128
+#define LC_SHAKE_128_SIZE_BLOCK		LC_SHA3_SIZE_BLOCK(LC_SHAKE_128_SIZE_DIGEST_BITS)
+extern const struct lc_hash *lc_shake128;
+
+struct lc_shake_128_state {
+	uint64_t state[LC_SHA3_STATE_WORDS];
+	size_t msg_len;
+	size_t digestsize;
+	unsigned int r;
+	unsigned int rword;
+	unsigned int offset;
+	uint8_t padding;
+	uint8_t squeeze_more:1;
+
+	/* Variable size */
+	uint8_t partial[LC_SHAKE_128_SIZE_BLOCK];
+};
+
+#define LC_SHAKE_128_STATE_SIZE		(sizeof(struct lc_sha3_256_state))
+#define LC_SHAKE_128_CTX_SIZE		(sizeof(struct lc_hash) +	       \
+					 LC_SHAKE_128_STATE_SIZE)
+
+#define LC_SHAKE_128_CTX(name)						       \
+	LC_HASH_CTX(name, lc_shake128);					       \
+	lc_hash_zero(name)
+
+/**
+ * @brief Allocate stack memory for the SHAKE-128 context without VLA
+ *
+ * @param name [in] Name of the stack variable
+ */
+#define LC_SHAKE_128_CTX_ON_STACK(name)					       \
+	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHAKE_128_CTX_SIZE, uint64_t);  \
+	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name ## _ctx_buf;     \
+	LC_SHAKE_128_CTX(name)
+
 /********************************* SHAKE-256 **********************************/
+#define LC_SHAKE_256_SIZE_DIGEST_BITS	256
+#define LC_SHAKE_256_SIZE_BLOCK		LC_SHA3_SIZE_BLOCK(LC_SHAKE_256_SIZE_DIGEST_BITS)
 extern const struct lc_hash *lc_shake256;
 
 #define LC_SHAKE_256_CTX(name)						       \

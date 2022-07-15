@@ -88,8 +88,8 @@ static int shake_tester(void)
 		lc_hash_set_digestsize(ctx, i);
 
 		for (len = sizeof(exp2); len > 0;
-		len -= lc_hash_digestsize(ctx),
-		act2_p += lc_hash_digestsize(ctx)) {
+		     len -= lc_hash_digestsize(ctx),
+		     act2_p += lc_hash_digestsize(ctx)) {
 			if (len < lc_hash_digestsize(ctx))
 				lc_hash_set_digestsize(ctx, len);
 

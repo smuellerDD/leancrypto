@@ -236,6 +236,17 @@ static size_t sha3_512_digestsize(void *_state)
 	return LC_SHA3_512_SIZE_DIGEST;
 }
 
+static void shake_128_init(void *_state)
+{
+	struct lc_shake_128_state *ctx = _state;
+
+	sha3_init(_state);
+	ctx->r = LC_SHAKE_128_SIZE_BLOCK;
+	ctx->rword = LC_SHAKE_128_SIZE_BLOCK / sizeof(uint64_t);
+	ctx->digestsize = 0;
+	ctx->padding = 0x1f;
+}
+
 static void shake_256_init(void *_state)
 {
 	struct lc_sha3_256_state *ctx = _state;
@@ -524,6 +535,17 @@ static const struct lc_hash _sha3_512 = {
 	.statesize	= sizeof(struct lc_sha3_512_state),
 };
 DSO_PUBLIC const struct lc_hash *lc_sha3_512 = &_sha3_512;
+
+static const struct lc_hash _shake128 = {
+	.init		= shake_128_init,
+	.update		= keccak_absorb,
+	.final		= keccak_squeeze,
+	.set_digestsize	= shake_set_digestsize,
+	.get_digestsize	= shake_get_digestsize,
+	.blocksize	= LC_SHAKE_128_SIZE_BLOCK,
+	.statesize	= sizeof(struct lc_shake_128_state),
+};
+DSO_PUBLIC const struct lc_hash *lc_shake128 = &_shake128;
 
 static const struct lc_hash _shake256 = {
 	.init		= shake_256_init,
