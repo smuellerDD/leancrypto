@@ -66,6 +66,7 @@ include_dirs = include_directories([ 'drng/api',
 				     'hash/api',
 				     'hash_crypt/api',
 				     'hmac/api',
+				     'kem/api',
 				     'kdf/api',
 				     'kmac/api',
 				     'otp/api',
@@ -81,6 +82,7 @@ subdirs = [ 'drng/src',
 	    'hash/src',
 	    'internal/src',
 	    'kdf/src',
+	    'kem/src',
 	    'otp/src',
 	    'signature/src',
 	    'sym/src'
@@ -90,6 +92,7 @@ testdirs = [ 'drng/tests',
 	     'hash/tests',
 	     'internal/tests',
 	     'kdf/tests',
+	     'kem/tests',
 	     'otp/tests',
 	     'signature/tests',
 	     'sym/tests'
@@ -151,6 +154,10 @@ endif
 
 if get_option('sha3').disabled() and get_option('dilithium').enabled()
 	error('Dilithium support requires SHA-3')
+endif
+
+if get_option('sha3').disabled() and get_option('kyber').enabled()
+	error('Kyber support requires SHA-3')
 endif
 
 ################################################################################

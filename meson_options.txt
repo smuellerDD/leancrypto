@@ -46,3 +46,6 @@ option('totp', type: 'feature', value: 'enabled',
 
 option('dilithium', type: 'feature', value: 'enabled',
        description: 'Enable Dilithium signature support')
+
+option('kyber', type: 'feature', value: 'enabled',
+       description: 'Enable Kyber key exchange mechanism (KEM) support')
