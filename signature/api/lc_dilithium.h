@@ -66,7 +66,7 @@ extern "C"
 #define LC_DILITHIUM_TAU 49
 #define LC_DILITHIUM_BETA 196
 #define LC_DILITHIUM_GAMMA1 (1 << 19)
-#define LC_DILITHIUM_GAMMA2 ((LC_DILITHIUM_Q-1)/32)
+#define LC_DILITHIUM_GAMMA2 ((LC_DILITHIUM_Q - 1)/32)
 #define LC_DILITHIUM_OMEGA 55
 
 #elif LC_DILITHIUM_MODE == 5
@@ -76,7 +76,7 @@ extern "C"
 #define LC_DILITHIUM_TAU 60
 #define LC_DILITHIUM_BETA 120
 #define LC_DILITHIUM_GAMMA1 (1 << 19)
-#define LC_DILITHIUM_GAMMA2 ((LC_DILITHIUM_Q-1)/32)
+#define LC_DILITHIUM_GAMMA2 ((LC_DILITHIUM_Q - 1)/32)
 #define LC_DILITHIUM_OMEGA 75
 
 #endif
@@ -145,7 +145,7 @@ struct lc_dilithium_sig {
  * @param sk [out] pointer to allocated output private key
  * @param rng_ctx [in] pointer to seeded random number generator context
  *
- * @return 0 (success)
+ * @return 0 (success) or < 0 on error
  */
 int lc_dilithium_keypair(struct lc_dilithium_pk *pk,
 			 struct lc_dilithium_sk *sk,
@@ -163,7 +163,7 @@ int lc_dilithium_keypair(struct lc_dilithium_pk *pk,
  *		       pointer is non-NULL, perform a randomized signing.
  *		       Otherwise use deterministic signing.
  *
- * Returns 0 (success)
+ * @return 0 (success) or < 0 on error
  */
 int lc_dilithium_sign(struct lc_dilithium_sig *sig,
 		      const uint8_t *m,
