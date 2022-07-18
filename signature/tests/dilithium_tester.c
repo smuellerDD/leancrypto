@@ -34,10 +34,10 @@
 #include "dilithium_polyvec.h"
 #include "lc_dilithium.h"
 #include "lc_hash.h"
-#include "lc_cshake256_drng.h"
+#include "lc_sha3.h"
 
 #define MLEN 32
-#define NVECTORS 1000
+#define NVECTORS 50
 
 #undef DILITHIUM_DEBUG
 
@@ -126,7 +126,7 @@ int main(void)
 	 * - the signature generation is performed with deterministic
 	 *   behavior (i.e. rng_ctx is NULL)
 	 */
-	struct lc_rng_ctx cshake_rng =
+	struct lc_rng_ctx dilithium_rng =
 		{ .rng = &dilithium_drng, .rng_state = NULL };
 	unsigned int nvectors;
 
@@ -151,9 +151,9 @@ int main(void)
 #endif
 
 	for (i = 0; i < nvectors; ++i) {
-		lc_rng_generate(&cshake_rng, NULL, 0, m, MLEN);
-		lc_dilithium_keypair(&pk, &sk, &cshake_rng);
-		lc_dilithium_sign(&sig, m, MLEN, &sk, NULL /*cshake_rng*/);
+		lc_rng_generate(&dilithium_rng, NULL, 0, m, MLEN);
+		lc_dilithium_keypair(&pk, &sk, &dilithium_rng);
+		lc_dilithium_sign(&sig, m, MLEN, &sk, NULL /*dilithium_rng*/);
 
 #ifdef GENERATE_VECTORS
 
@@ -236,7 +236,7 @@ int main(void)
 		if (lc_dilithium_verify(&sig, m, MLEN, &pk))
 			fprintf(stderr,"Signature verification failed!\n");
 
-		lc_rng_generate(&cshake_rng, NULL, 0, seed, sizeof(seed));
+		lc_rng_generate(&dilithium_rng, NULL, 0, seed, sizeof(seed));
 #ifdef SHOW_SHAKEd_KEY
 		printf("seed = ");
 		for (j = 0; j < sizeof(seed); ++j)
