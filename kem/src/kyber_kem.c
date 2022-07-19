@@ -39,12 +39,10 @@ int lc_kyber_keypair(struct lc_kyber_pk *pk,
 		     struct lc_kyber_sk *sk,
 		     struct lc_rng_ctx *rng_ctx)
 {
-	size_t i;
-
 	indcpa_keypair(pk->pk, sk->sk, rng_ctx);
 
-	for (i = 0; i < LC_KYBER_INDCPA_PUBLICKEYBYTES; i++)
-		sk->sk[i + LC_KYBER_INDCPA_SECRETKEYBYTES] = pk->pk[i];
+	memcpy(&sk->sk[LC_KYBER_INDCPA_SECRETKEYBYTES], pk->pk,
+	       LC_KYBER_INDCPA_PUBLICKEYBYTES);
 
 	lc_hash(lc_sha3_256, pk->pk, LC_KYBER_PUBLICKEYBYTES,
 		sk->sk + LC_KYBER_SECRETKEYBYTES - 2 * LC_KYBER_SYMBYTES);
@@ -101,18 +99,17 @@ int lc_kyber_dec(struct lc_kyber_ss *ss,
 	uint8_t kr[2 * LC_KYBER_SYMBYTES];
 	uint8_t cmp[LC_KYBER_CIPHERTEXTBYTES];
 	const uint8_t *pk = sk->sk + LC_KYBER_INDCPA_SECRETKEYBYTES;
-	size_t i;
 	uint8_t fail;
 
 	indcpa_dec(buf, ct->ct, sk->sk);
 
 	/* Multitarget countermeasure for coins + contributory KEM */
-	for (i = 0;i < LC_KYBER_SYMBYTES; i++)
-		buf[LC_KYBER_SYMBYTES + i] =
-			sk->sk[LC_KYBER_SECRETKEYBYTES - 2 * LC_KYBER_SYMBYTES + i];
+	memcpy(&buf[LC_KYBER_SYMBYTES],
+	       &sk->sk[LC_KYBER_SECRETKEYBYTES - 2 * LC_KYBER_SYMBYTES],
+	       LC_KYBER_SYMBYTES);
 	lc_hash(lc_sha3_512, buf, sizeof(buf), kr);
 
-	/* coins are in kr+KYBER_SYMBYTES */
+	/* coins are in kr + KYBER_SYMBYTES */
 	indcpa_enc(cmp, buf, pk, kr + LC_KYBER_SYMBYTES);
 
 	fail = verify(ct->ct, cmp, LC_KYBER_CIPHERTEXTBYTES);
@@ -124,7 +121,6 @@ int lc_kyber_dec(struct lc_kyber_ss *ss,
 	/* Overwrite pre-k with z on re-encryption failure */
 	cmov(kr, sk->sk + LC_KYBER_SECRETKEYBYTES - LC_KYBER_SYMBYTES,
 	     LC_KYBER_SYMBYTES, fail);
-
 
 	/* hash concatenation of pre-k and H(c) to k */
 	kyber_kdf2(kr, LC_KYBER_SYMBYTES,

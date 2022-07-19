@@ -45,12 +45,8 @@ static void pack_pk(uint8_t r[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 		    polyvec *pk,
 		    const uint8_t seed[LC_KYBER_SYMBYTES])
 {
-	size_t i;
-
 	polyvec_tobytes(r, pk);
-
-	for (i = 0; i < LC_KYBER_SYMBYTES; i++)
-		r[i + LC_KYBER_POLYVECBYTES] = seed[i];
+	memcpy(&r[LC_KYBER_POLYVECBYTES], seed, LC_KYBER_SYMBYTES);
 }
 
 /**
@@ -65,12 +61,8 @@ static void unpack_pk(polyvec *pk,
 		      uint8_t seed[LC_KYBER_SYMBYTES],
 		      const uint8_t packedpk[LC_KYBER_INDCPA_PUBLICKEYBYTES])
 {
-	size_t i;
-
 	polyvec_frombytes(pk, packedpk);
-
-	for (i = 0; i < LC_KYBER_SYMBYTES; i++)
-		seed[i] = packedpk[i + LC_KYBER_POLYVECBYTES];
+	memcpy(seed, &packedpk[LC_KYBER_POLYVECBYTES], LC_KYBER_SYMBYTES);
 }
 
 /**
@@ -183,7 +175,7 @@ static void gen_matrix(polyvec *a, const uint8_t seed[LC_KYBER_SYMBYTES],
 		       int transposed)
 {
 	LC_SHAKE_128_CTX_ON_STACK(shake_128);
-	unsigned int ctr, i, j, k;
+	unsigned int ctr, i, j;
 	unsigned int buflen, off;
 	uint8_t buf[GEN_MATRIX_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK + 2];
 
@@ -213,8 +205,7 @@ static void gen_matrix(polyvec *a, const uint8_t seed[LC_KYBER_SYMBYTES],
 			while (ctr < LC_KYBER_N) {
 				off = buflen % 3;
 
-				for (k = 0; k < off; k++)
-					buf[k] = buf[buflen - off + k];
+				memcpy(buf, &buf[buflen - off], off);
 
 				lc_hash_set_digestsize(shake_128,
 						       LC_SHAKE_128_SIZE_BLOCK);
