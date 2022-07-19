@@ -87,6 +87,8 @@ int lc_kyber_enc(struct lc_kyber_ct *ct,
 		   ss->ss, LC_KYBER_SSBYTES);
 
 out:
+	memset_secure(buf, 0, sizeof(buf));
+	memset_secure(kr, 0, sizeof(kr));
 	return ret;
 }
 
@@ -128,5 +130,9 @@ int lc_kyber_dec(struct lc_kyber_ss *ss,
 	kyber_kdf2(kr, LC_KYBER_SYMBYTES,
 		   kr + LC_KYBER_SYMBYTES, LC_KYBER_SYMBYTES,
 		   ss->ss, LC_KYBER_SSBYTES);
+
+	memset_secure(buf, 0, sizeof(buf));
+	memset_secure(kr, 0, sizeof(kr));
+	memset_secure(cmp, 0, sizeof(cmp));
 	return 0;
 }

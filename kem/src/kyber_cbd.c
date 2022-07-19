@@ -105,9 +105,9 @@ static void cbd2(poly *r, const uint8_t buf[2 * LC_KYBER_N / 4])
 #if LC_KYBER_ETA1 == 3
 static void cbd3(poly *r, const uint8_t buf[3 * LC_KYBER_N / 4])
 {
-	unsigned int i,j;
-	uint32_t t,d;
-	int16_t a,b;
+	unsigned int i, j;
+	uint32_t t, d;
+	int16_t a, b;
 
 	for (i = 0; i < LC_KYBER_N / 4;i++) {
 		t  = load24_littleendian(buf + 3 * i);

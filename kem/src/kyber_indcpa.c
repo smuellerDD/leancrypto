@@ -28,6 +28,7 @@
 #include "kyber_poly.h"
 #include "kyber_polyvec.h"
 
+#include "memset_secure.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
 
@@ -227,6 +228,7 @@ static void gen_matrix(polyvec *a, const uint8_t seed[LC_KYBER_SYMBYTES],
 	}
 
 	lc_hash_zero(shake_128);
+	memset_secure(buf, 0, sizeof(buf));
 }
 
 int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
@@ -237,20 +239,18 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 	uint8_t buf[2 * LC_KYBER_SYMBYTES];
 	const uint8_t *publicseed = buf;
 	const uint8_t *noiseseed = buf + LC_KYBER_SYMBYTES;
-	uint8_t nonce = 0;
+	uint8_t nonce = 0, nonce2 = LC_KYBER_K;
 	polyvec a[LC_KYBER_K], e, pkpv, skpv;
 	int ret;
 
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, buf, LC_KYBER_SYMBYTES));
-	//TODO
 	lc_hash(lc_sha3_512, buf, LC_KYBER_SYMBYTES, buf);
 	gen_a(a, publicseed);
 
-	//TODO
-	for (i = 0; i < LC_KYBER_K; i++)
+	for (i = 0; i < LC_KYBER_K; i++) {
 		poly_getnoise_eta1(&skpv.vec[i], noiseseed, nonce++);
-	for (i = 0; i < LC_KYBER_K; i++)
-		poly_getnoise_eta1(&e.vec[i], noiseseed, nonce++);
+		poly_getnoise_eta1(&e.vec[i], noiseseed, nonce2++);
+	}
 
 	polyvec_ntt(&skpv);
 	polyvec_ntt(&e);
@@ -268,6 +268,11 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 	pack_pk(pk, &pkpv, publicseed);
 
 out:
+	memset_secure(buf, 0, sizeof(buf));
+	memset_secure(a, 0, sizeof(a));
+	memset_secure(&e, 0, sizeof(e));
+	memset_secure(&pkpv, 0, sizeof(pkpv));
+	memset_secure(&skpv, 0, sizeof(skpv));
 	return ret;
 }
 
@@ -278,7 +283,7 @@ void indcpa_enc(uint8_t c[LC_KYBER_INDCPA_BYTES],
 {
 	unsigned int i;
 	uint8_t seed[LC_KYBER_SYMBYTES];
-	uint8_t nonce = 0;
+	uint8_t nonce = 0, nonce2 = LC_KYBER_K;
 	polyvec sp, pkpv, ep, at[LC_KYBER_K], b;
 	poly v, k, epp;
 
@@ -286,12 +291,11 @@ void indcpa_enc(uint8_t c[LC_KYBER_INDCPA_BYTES],
 	poly_frommsg(&k, m);
 	gen_at(at, seed);
 
-	//TODO
-	for (i = 0; i < LC_KYBER_K; i++)
+	for (i = 0; i < LC_KYBER_K; i++) {
 		poly_getnoise_eta1(sp.vec+i, coins, nonce++);
-	for (i = 0; i < LC_KYBER_K; i++)
-		poly_getnoise_eta2(ep.vec+i, coins, nonce++);
-	poly_getnoise_eta2(&epp, coins, nonce++);
+		poly_getnoise_eta2(ep.vec+i, coins, nonce2++);
+	}
+	poly_getnoise_eta2(&epp, coins, nonce2++);
 
 	polyvec_ntt(&sp);
 
@@ -311,6 +315,16 @@ void indcpa_enc(uint8_t c[LC_KYBER_INDCPA_BYTES],
 	poly_reduce(&v);
 
 	pack_ciphertext(c, &b, &v);
+
+	memset_secure(seed, 0, sizeof(seed));
+	memset_secure(&sp, 0, sizeof(sp));
+	memset_secure(&pkpv, 0, sizeof(pkpv));
+	memset_secure(&ep, 0, sizeof(ep));
+	memset_secure(at, 0, sizeof(at));
+	memset_secure(&b, 0, sizeof(b));
+	memset_secure(&v, 0, sizeof(v));
+	memset_secure(&k, 0, sizeof(k));
+	memset_secure(&epp, 0, sizeof(epp));
 }
 
 void indcpa_dec(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
@@ -331,4 +345,9 @@ void indcpa_dec(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
 	poly_reduce(&mp);
 
 	poly_tomsg(m, &mp);
+
+	memset_secure(&b, 0, sizeof(b));
+	memset_secure(&skpv, 0, sizeof(skpv));
+	memset_secure(&v, 0, sizeof(v));
+	memset_secure(&mp, 0, sizeof(mp));
 }
