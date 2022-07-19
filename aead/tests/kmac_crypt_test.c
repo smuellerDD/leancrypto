@@ -39,7 +39,7 @@ static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
 	uint8_t tag[exp_tag_len];
 
 	/* One shot encryption with pt ptr != ct ptr */
-	lc_kc_setkey(kc, key, keylen);
+	lc_kc_setkey(kc, key, keylen, NULL, 0);
 
 	lc_kc_encrypt_oneshot(kc, pt, out_enc, ptlen, aad, aadlen,
 			      tag, exp_tag_len);
@@ -58,7 +58,7 @@ static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
 	if (lc_kc_alloc(lc_cshake256, &kc_heap))
 		return 1;
 
-	lc_kc_setkey(kc_heap, key, keylen);
+	lc_kc_setkey(kc_heap, key, keylen, NULL, 0);
 
 	memcpy(out_enc, pt, ptlen);
 	lc_kc_encrypt_oneshot(kc_heap, out_enc, out_enc, ptlen, aad, aadlen,
@@ -71,7 +71,7 @@ static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
 			       "KMAC crypt: Encryption, tag");
 
 	/* Stream encryption with pt ptr != ct ptr */
-	lc_kc_setkey(kc, key, keylen);
+	lc_kc_setkey(kc, key, keylen, NULL, 0);
 
 	if (ptlen < 7)
 		return 1;
@@ -90,7 +90,7 @@ static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
 	lc_kc_zero(kc);
 
 	/* One shot decryption with pt ptr != ct ptr */
-	lc_kc_setkey(kc, key, keylen);
+	lc_kc_setkey(kc, key, keylen, NULL, 0);
 
 	ret = lc_kc_decrypt_oneshot(kc, out_enc, out_dec, ptlen, aad, aadlen,
 				    tag, exp_tag_len);
@@ -107,7 +107,7 @@ static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
 	lc_kc_zero(kc);
 
 	/* Check authentication error */
-	lc_kc_setkey(kc, key, keylen);
+	lc_kc_setkey(kc, key, keylen, NULL, 0);
 
 	out_enc[0] = (out_enc[0] + 1) &0xff;
 	ret = lc_kc_decrypt_oneshot(kc, out_enc, out_dec, ptlen, aad, aadlen,

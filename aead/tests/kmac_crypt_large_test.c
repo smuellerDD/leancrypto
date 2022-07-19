@@ -44,12 +44,12 @@ static int cc_tester_cshake_large(void)
 	if (!pt)
 		return 1;
 
-	lc_cc_setkey(kc, key, sizeof(key));
+	lc_cc_setkey(kc, key, sizeof(key), NULL, 0);
 	lc_cc_encrypt_oneshot(kc, pt, pt, 1UL<<30, aad, sizeof(aad),
 			      tag, sizeof(tag));
 	lc_cc_zero(kc);
 
-	lc_cc_setkey(kc, key, sizeof(key));
+	lc_cc_setkey(kc, key, sizeof(key), NULL, 0);
 	ret = lc_cc_decrypt_oneshot(kc, pt, pt, 1UL<<30, aad, sizeof(aad),
 				    tag, sizeof(tag));
 	lc_cc_zero(kc);

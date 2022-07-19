@@ -31,7 +31,9 @@
 #define min_t(type, a, b)	((type)a < (type)b) ? (type)a : (type)b
 
 DSO_PUBLIC
-void lc_kc_setkey(struct lc_kc_cryptor *kc, const uint8_t *key, size_t keylen)
+void lc_kc_setkey(struct lc_kc_cryptor *kc,
+		  const uint8_t *key, size_t keylen,
+		  const uint8_t *iv, size_t ivlen)
 {
 	struct lc_kmac_ctx *kmac = &kc->kmac;
 	struct lc_kmac_ctx *auth_ctx = &kc->auth_ctx;
@@ -45,7 +47,7 @@ void lc_kc_setkey(struct lc_kc_cryptor *kc, const uint8_t *key, size_t keylen)
 	 */
 	BUILD_BUG_ON(LC_SHA3_256_SIZE_BLOCK % LC_KC_KEYSTREAM_BLOCK);
 
-	lc_kmac_init(kmac, key, keylen, NULL, 0);
+	lc_kmac_init(kmac, key, keylen, iv, ivlen);
 
 	/*
 	 * Generate key for KMAC authentication - we simply use two different

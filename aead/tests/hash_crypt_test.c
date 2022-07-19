@@ -39,7 +39,7 @@ static int hc_tester_sha512_one(const uint8_t *pt, size_t ptlen,
 	uint8_t tag[exp_tag_len];
 
 	/* One shot encryption with pt ptr != ct ptr */
-	if (lc_hc_setkey(hc, key, keylen) < 0)
+	if (lc_hc_setkey(hc, key, keylen, NULL, 0) < 0)
 		return 1;
 
 	ret = lc_hc_encrypt_oneshot(hc, pt, out_enc, ptlen,
@@ -62,7 +62,7 @@ static int hc_tester_sha512_one(const uint8_t *pt, size_t ptlen,
 	if (lc_hc_alloc(lc_sha512, &hc_heap))
 		return 1;
 
-	if (lc_hc_setkey(hc_heap, key, keylen) < 0) {
+	if (lc_hc_setkey(hc_heap, key, keylen, NULL, 0) < 0) {
 		lc_hc_zero_free(hc_heap);
 		return 1;
 	}
@@ -83,7 +83,7 @@ static int hc_tester_sha512_one(const uint8_t *pt, size_t ptlen,
 	lc_hc_zero(hc);
 
 	/* Stream encryption with pt ptr != ct ptr */
-	if (lc_hc_setkey(hc, key, keylen) < 0)
+	if (lc_hc_setkey(hc, key, keylen, NULL, 0) < 0)
 		return 1;
 
 	if (ptlen < 7)
@@ -106,7 +106,7 @@ static int hc_tester_sha512_one(const uint8_t *pt, size_t ptlen,
 	lc_hc_zero(hc);
 
 	/* One shot decryption with pt ptr != ct ptr */
-	if (lc_hc_setkey(hc, key, keylen) < 0)
+	if (lc_hc_setkey(hc, key, keylen, NULL, 0) < 0)
 		return 1;
 
 	ret = lc_hc_decrypt_oneshot(hc, out_enc, out_dec, ptlen,
@@ -125,7 +125,7 @@ static int hc_tester_sha512_one(const uint8_t *pt, size_t ptlen,
 	lc_hc_zero(hc);
 
 	/* Check authentication error */
-	if (lc_hc_setkey(hc, key, keylen) < 0)
+	if (lc_hc_setkey(hc, key, keylen, NULL, 0) < 0)
 		return 1;
 
 	out_enc[0] = (out_enc[0] + 1) &0xff;

@@ -39,7 +39,7 @@ static int cc_tester_cshake_one(const uint8_t *pt, size_t ptlen,
 	uint8_t tag[exp_tag_len];
 
 	/* One shot encryption with pt ptr != ct ptr */
-	lc_cc_setkey(cc, key, keylen);
+	lc_cc_setkey(cc, key, keylen, NULL, 0);
 
 	lc_cc_encrypt_oneshot(cc, pt, out_enc, ptlen, aad, aadlen,
 			      tag, exp_tag_len);
@@ -58,7 +58,7 @@ static int cc_tester_cshake_one(const uint8_t *pt, size_t ptlen,
 	if (lc_cc_alloc(lc_cshake256, &cc_heap))
 		return 1;
 
-	lc_cc_setkey(cc_heap, key, keylen);
+	lc_cc_setkey(cc_heap, key, keylen, NULL, 0);
 
 	memcpy(out_enc, pt, ptlen);
 	lc_cc_encrypt_oneshot(cc_heap, out_enc, out_enc, ptlen, aad, aadlen,
@@ -71,7 +71,7 @@ static int cc_tester_cshake_one(const uint8_t *pt, size_t ptlen,
 			       "cSHAKE crypt: Encryption, tag");
 
 	/* Stream encryption with pt ptr != ct ptr */
-	lc_cc_setkey(cc, key, keylen);
+	lc_cc_setkey(cc, key, keylen, NULL, 0);
 
 	if (ptlen < 7)
 		return 1;
@@ -90,7 +90,7 @@ static int cc_tester_cshake_one(const uint8_t *pt, size_t ptlen,
 	lc_cc_zero(cc);
 
 	/* One shot decryption with pt ptr != ct ptr */
-	lc_cc_setkey(cc, key, keylen);
+	lc_cc_setkey(cc, key, keylen, NULL, 0);
 
 	ret = lc_cc_decrypt_oneshot(cc, out_enc, out_dec, ptlen, aad, aadlen,
 				    tag, exp_tag_len);
@@ -107,7 +107,7 @@ static int cc_tester_cshake_one(const uint8_t *pt, size_t ptlen,
 	lc_cc_zero(cc);
 
 	/* Check authentication error */
-	lc_cc_setkey(cc, key, keylen);
+	lc_cc_setkey(cc, key, keylen, NULL, 0);
 
 	out_enc[0] = (out_enc[0] + 1) &0xff;
 	ret = lc_cc_decrypt_oneshot(cc, out_enc, out_dec, ptlen, aad, aadlen,

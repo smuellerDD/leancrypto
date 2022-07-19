@@ -71,12 +71,15 @@ void lc_kc_crypt(struct lc_kc_cryptor *kc, const uint8_t *in, uint8_t *out,
  * @param kc [in] KMAC crypt cipher handle
  * @param key [in] Buffer with key
  * @param keylen [in] Length of key buffer
+ * @param iv [in] initialization vector to be used
+ * @param ivlen [in] length of initialization vector
  *
  * The algorithm supports a key of arbitrary size. The only requirement is that
  * the same key is used for decryption as for encryption.
  */
 void lc_kc_setkey(struct lc_kc_cryptor *kc,
-		  const uint8_t *key, const size_t keylen);
+		  const uint8_t *key, const size_t keylen,
+		  const uint8_t *iv, size_t ivlen);
 
 /**
  * @brief KMAC-encrypt data

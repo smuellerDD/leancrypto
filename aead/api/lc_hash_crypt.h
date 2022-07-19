@@ -65,6 +65,8 @@ ssize_t lc_hc_crypt(struct lc_hc_cryptor *hc, const uint8_t *in, uint8_t *out,
  *
  * @param key [in] Buffer with key
  * @param keylen [in] Length of key buffer
+ * @param iv [in] initialization vector to be used
+ * @param ivlen [in] length of initialization vector
  *
  * The algorithm supports a key of arbitrary size. The only requirement is that
  * the same key is used for decryption as for encryption.
@@ -72,7 +74,8 @@ ssize_t lc_hc_crypt(struct lc_hc_cryptor *hc, const uint8_t *in, uint8_t *out,
  * @return 0 on success, < 0 on error
  */
 int lc_hc_setkey(struct lc_hc_cryptor *hc,
-		 const uint8_t *key, const size_t keylen);
+		 const uint8_t *key, const size_t keylen,
+		 const uint8_t *iv, size_t ivlen);
 
 /**
  * @brief Hash-encrypt data
@@ -144,7 +147,7 @@ lc_hc_decrypt(struct lc_hc_cryptor *hc,
 	 * Calculate the authentication tag over the ciphertext
 	 * Perform the reverse of an Encrypt-Then-MAC operation.
 	 */
-	   lc_hmac_update(auth_ctx, ciphertext, datalen);
+	lc_hmac_update(auth_ctx, ciphertext, datalen);
 	return lc_hc_crypt(hc, ciphertext, plaintext, datalen);
 }
 

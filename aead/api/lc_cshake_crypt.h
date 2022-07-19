@@ -72,12 +72,15 @@ void lc_cc_crypt(struct lc_cc_cryptor *cc, const uint8_t *in, uint8_t *out,
  * @param cc [in] cSHAKE crypt cipher handle
  * @param key [in] Buffer with key
  * @param keylen [in] Length of key buffer
+ * @param iv [in] initialization vector to be used
+ * @param ivlen [in] length of initialization vector
  *
  * The algorithm supports a key of arbitrary size. The only requirement is that
  * the same key is used for decryption as for encryption.
  */
 void lc_cc_setkey(struct lc_cc_cryptor *cc,
-		  const uint8_t *key, const size_t keylen);
+		  const uint8_t *key, const size_t keylen,
+		  const uint8_t *iv, size_t ivlen);
 
 /**
  * @brief CSHAKE-encrypt data

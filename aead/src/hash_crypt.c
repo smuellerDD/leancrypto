@@ -31,7 +31,9 @@
 #include "xor.h"
 
 DSO_PUBLIC
-int lc_hc_setkey(struct lc_hc_cryptor *hc, const uint8_t *key, size_t keylen)
+int lc_hc_setkey(struct lc_hc_cryptor *hc,
+		 const uint8_t *key, size_t keylen,
+		 const uint8_t *iv, size_t ivlen)
 {
 	struct lc_rng_ctx *drbg = &hc->drbg;
 	struct lc_hmac_ctx *auth_ctx = &hc->auth_ctx;
@@ -42,8 +44,7 @@ int lc_hc_setkey(struct lc_hc_cryptor *hc, const uint8_t *key, size_t keylen)
 	if (!key || !keylen)
 		return -EINVAL;
 
-	// TODO: add some personalization string?
-	ret = lc_rng_seed(drbg, key, keylen, NULL, 0);
+	ret = lc_rng_seed(drbg, key, keylen, iv, ivlen);
 	if (ret)
 		return ret;
 
