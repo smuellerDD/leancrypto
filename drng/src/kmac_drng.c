@@ -88,7 +88,7 @@
  *
  * 2.2 Seeding
  *
- * KMAC-Seeding(K(N), seed) -> K(N + 1)
+ * KMAC-Seeding(K(N), seed, personalization string) -> K(N + 1)
  *
  * Inputs:
  *   K(N): The current KMAC DRNG key used by the current instance of the
