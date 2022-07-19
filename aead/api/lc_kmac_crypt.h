@@ -68,6 +68,7 @@ void lc_kc_crypt(struct lc_kc_cryptor *kc, const uint8_t *in, uint8_t *out,
 /**
  * @brief Set the key for the encyption or decryption operation
  *
+ * @param kc [in] KMAC crypt cipher handle
  * @param key [in] Buffer with key
  * @param keylen [in] Length of key buffer
  *
@@ -80,7 +81,7 @@ void lc_kc_setkey(struct lc_kc_cryptor *kc,
 /**
  * @brief KMAC-encrypt data
  *
- * @param hc [in] KMAC cryptor context handle
+ * @param kc [in] KMAC cryptor context handle
  * @param plaintext [in] Plaintext data to be encrypted
  * @param ciphertext [out] Ciphertext data buffer to be filled
  * @param datalen [in] Length of the plaintext and ciphertext data buffers
@@ -107,7 +108,7 @@ lc_kc_encrypt(struct lc_kc_cryptor *kc,
 /**
  * @brief Obtain the authentication tag from the encryption operation
  *
- * @param hc [in] KMAC cryptor context handle
+ * @param kc [in] KMAC cryptor context handle
  * @param aad [in] Additional authenticate data to be processed - this is data
  *		   which is not encrypted, but considered as part of the
  *		   authentication.
@@ -124,7 +125,7 @@ void lc_kc_encrypt_tag(struct lc_kc_cryptor *kc,
 /**
  * @brief KMAC-decrypt data
  *
- * @param hc [in] KMAC cryptor context handle
+ * @param kc [in] KMAC cryptor context handle
  * @param ciphertext [in] Ciphertext data to be decrypted
  * @param plaintext [out] Plaintext data buffer to be filled
  * @param datalen [in] Length of the plaintext and ciphertext data buffers
@@ -150,7 +151,7 @@ lc_kc_decrypt(struct lc_kc_cryptor *kc,
 /**
  * @brief Authenticate the decryption
  *
- * @param hc [in] KMAC cryptor context handle
+ * @param kc [in] KMAC cryptor context handle
  * @param aad [in] Additional authenticate data to be processed - this is data
  *		   which is not decrypted, but considered as part of the
  *		   authentication.
@@ -166,9 +167,9 @@ int lc_kc_decrypt_authenticate(struct lc_kc_cryptor *kc,
 			       const uint8_t *tag, size_t taglen);
 
 /**
- * @brief Hash-encrypt data in one call.
+ * @brief KMAC-encrypt data in one call.
  *
- * @param hc [in] Hash cryptor context handle
+ * @param kc [in] KMAC cryptor context handle
  * @param plaintext [in] Plaintext data to be encrypted
  * @param ciphertext [out] Ciphertext data buffer to be filled
  * @param datalen [in] Length of the plaintext and ciphertext data buffers
@@ -198,9 +199,9 @@ lc_kc_encrypt_oneshot(struct lc_kc_cryptor *kc,
 }
 
 /**
- * @brief Hash-decrypt data in one call
+ * @brief KMAC-decrypt data in one call
  *
- * @param hc [in] Hash cryptor context handle
+ * @param kc [in] KMAC cryptor context handle
  * @param ciphertext [in] Ciphertext data to be decrypted
  * @param plaintext [out] Plaintext data buffer to be filled
  * @param datalen [in] Length of the plaintext and ciphertext data buffers
@@ -232,31 +233,31 @@ lc_kc_decrypt_oneshot(struct lc_kc_cryptor *kc,
 }
 
 /**
- * @brief Allocate Hash cryptor context on heap
+ * @brief Allocate KMAC cryptor context on heap
  *
  * NOTE: This is defined for lc_cshake256 as of now.
  *
  * @param hash [in] Hash implementation of type struct hash used for the HMAC
  *		    authentication
- * @param hc [out] Allocated hash cryptor context
+ * @param kc [out] Allocated KMAC cryptor context
  *
  * @return 0 on success, < 0 on error
  */
 int lc_kc_alloc(const struct lc_hash *hash, struct lc_kc_cryptor **kc);
 
 /**
- * @brief Hash cryptor deallocation and properly zeroization function to
+ * @brief KMAC cryptor deallocation and properly zeroization function to
  *	  frees all buffers and the cipher handle
  *
- * @param hc [in] Hash cryptor context handle
+ * @param kc [in] KMAC cryptor context handle
  */
-void lc_kc_zero_free(struct lc_kc_cryptor *hc);
+void lc_kc_zero_free(struct lc_kc_cryptor *kc);
 
 /**
- * @brief Zeroize hash cryptor context allocated with either HC_CTX_ON_STACK or
- *	  hc_alloc
+ * @brief Zeroize KMAC cryptor context allocated with either LC_KC_CTX_ON_STACK
+ *	  or lc_kc_alloc
  *
- * @param hc [in] Hash cryptor context to be zeroized
+ * @param kc [in] KMAC cryptor context to be zeroized
  */
 static inline void lc_kc_zero(struct lc_kc_cryptor *kc)
 {
@@ -269,7 +270,7 @@ static inline void lc_kc_zero(struct lc_kc_cryptor *kc)
 }
 
 /**
- * @brief Allocate stack memory for the hash cryptor context
+ * @brief Allocate stack memory for the KMAC cryptor context
  *
  * NOTE: This is defined for lc_cshake256 as of now.
  *

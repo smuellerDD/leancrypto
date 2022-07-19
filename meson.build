@@ -62,9 +62,9 @@ add_project_link_arguments('-Wl,--as-needed', language : 'c')
 # Project-specific defines
 ################################################################################
 
-include_dirs = include_directories([ 'drng/api',
+include_dirs = include_directories([ 'aead/api',
+				     'drng/api',
 				     'hash/api',
-				     'hash_crypt/api',
 				     'hmac/api',
 				     'kem/api',
 				     'kdf/api',
@@ -78,7 +78,8 @@ include_files = [ ]
 
 include_internal_dirs = include_directories([ 'internal/api' ])
 
-subdirs = [ 'drng/src',
+subdirs = [ 'aead/src',
+	    'drng/src',
 	    'hash/src',
 	    'internal/src',
 	    'kdf/src',
@@ -88,7 +89,8 @@ subdirs = [ 'drng/src',
 	    'sym/src'
 	  ]
 
-testdirs = [ 'drng/tests',
+testdirs = [ 'aead/tests',
+	     'drng/tests',
 	     'hash/tests',
 	     'internal/tests',
 	     'kdf/tests',
@@ -122,9 +124,6 @@ if get_option('hash_crypt').enabled()
 	if get_option('hmac').disabled()
 		error('Hash Crypt support requires HMAC support')
 	endif
-
-	subdirs += 'hash_crypt/src'
-	testdirs += 'hash_crypt/tests'
 endif
 
 if get_option('kmac').enabled()

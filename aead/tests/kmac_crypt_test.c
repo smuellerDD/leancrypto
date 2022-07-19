@@ -24,11 +24,11 @@
 #include "lc_kmac_crypt.h"
 #include "lc_cshake.h"
 
-static int kc_tester_cshake512_one(const uint8_t *pt, size_t ptlen,
-				   const uint8_t *aad, size_t aadlen,
-				   const uint8_t *key, size_t keylen,
-				   const uint8_t *exp_ct,
-				   const uint8_t *exp_tag, size_t exp_tag_len)
+static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
+			      const uint8_t *aad, size_t aadlen,
+			      const uint8_t *key, size_t keylen,
+			      const uint8_t *exp_ct,
+			      const uint8_t *exp_tag, size_t exp_tag_len)
 {
 	LC_KC_CTX_ON_STACK(kc, lc_cshake256);
 	struct lc_kc_cryptor *kc_heap = NULL;
@@ -45,12 +45,12 @@ static int kc_tester_cshake512_one(const uint8_t *pt, size_t ptlen,
 			      tag, exp_tag_len);
 
 	ret_checked += compare(out_enc, exp_ct, ptlen,
-			       "Hash crypt: Encryption, ciphertext");
+			       "KMAC crypt: Encryption, ciphertext");
 	ret_checked += compare(tag, exp_tag, exp_tag_len,
-			       "Hash crypt: Encryption, tag");
+			       "KMAC crypt: Encryption, tag");
 
-	bin2print(out_enc, ptlen, stderr, "out_enc");
-	bin2print(tag, exp_tag_len, stderr, "tag");
+	//bin2print(out_enc, ptlen, stderr, "out_enc");
+	//bin2print(tag, exp_tag_len, stderr, "tag");
 
 	lc_kc_zero(kc);
 
@@ -66,9 +66,9 @@ static int kc_tester_cshake512_one(const uint8_t *pt, size_t ptlen,
 	lc_kc_zero_free(kc_heap);
 
 	ret_checked += compare(out_enc, exp_ct, ptlen,
-			       "Hash crypt: Encryption, ciphertext");
+			       "KMAC crypt: Encryption, ciphertext");
 	ret_checked += compare(tag, exp_tag, exp_tag_len,
-			       "Hash crypt: Encryption, tag");
+			       "KMAC crypt: Encryption, tag");
 
 	/* Stream encryption with pt ptr != ct ptr */
 	lc_kc_setkey(kc, key, keylen);
@@ -83,9 +83,9 @@ static int kc_tester_cshake512_one(const uint8_t *pt, size_t ptlen,
 	lc_kc_encrypt_tag(kc, aad, aadlen, tag, exp_tag_len);
 
 	ret_checked += compare(out_enc, exp_ct, ptlen,
-			       "Hash crypt: Encryption, ciphertext");
+			       "KMAC crypt: Encryption, ciphertext");
 	ret_checked += compare(tag, exp_tag, exp_tag_len,
-			       "Hash crypt: Encryption, tag");
+			       "KMAC crypt: Encryption, tag");
 
 	lc_kc_zero(kc);
 
@@ -98,9 +98,11 @@ static int kc_tester_cshake512_one(const uint8_t *pt, size_t ptlen,
 		return 1;
 
 	ret_checked += compare(out_dec, pt, ptlen,
-			       "Hash crypt: Decryption, plaintext");
+			       "KMAC crypt: Decryption, plaintext");
 
-	bin2print(out_dec, sizeof(out_dec), stderr, "out_dec");
+	//bin2print(out_dec, sizeof(out_dec), stderr, "out_dec");
+	ret_checked += compare(out_dec, pt, ptlen,
+			       "KMAC crypt: Decryption, ciphertext");
 
 	lc_kc_zero(kc);
 
@@ -117,7 +119,7 @@ static int kc_tester_cshake512_one(const uint8_t *pt, size_t ptlen,
 	return ret_checked;
 }
 
-static int kc_tester_cshake512(void)
+static int kc_tester_kmac(void)
 {
 	static const uint8_t in[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -150,19 +152,19 @@ static int kc_tester_cshake512(void)
 		0xbb, 0xf9, 0xc1, 0x89, 0x11, 0x4d, 0x3e, 0xbd
 	};
 
-	printf("KMAC crypt ctx len %lu, state len %d\n",
-	       LC_KC_CTX_SIZE(lc_cshake256),
-	       LC_KC_STATE_SIZE(lc_cshake256));
-	return kc_tester_cshake512_one(in, sizeof(in),
-				       in, sizeof(in),
-				       in, sizeof(in),
-				       exp_ct,
-				       exp_tag, sizeof(exp_tag));
+	//printf("KMAC crypt ctx len %lu, state len %d\n",
+	//       LC_KC_CTX_SIZE(lc_cshake256),
+	//       LC_KC_STATE_SIZE(lc_cshake256));
+	return kc_tester_kmac_one(in, sizeof(in),
+				  in, sizeof(in),
+				  in, sizeof(in),
+				  exp_ct,
+				  exp_tag, sizeof(exp_tag));
 }
 
 int main(int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;
-	return kc_tester_cshake512();
+	return kc_tester_kmac();
 }

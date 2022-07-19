@@ -119,6 +119,8 @@ static int hc_tester_sha512_one(const uint8_t *pt, size_t ptlen,
 			       "Hash crypt: Decryption, plaintext");
 
 	bin2print(out_dec, sizeof(out_dec), stderr, "out_dec");
+	ret_checked += compare(out_dec, pt, ptlen,
+			       "Hash crypt: Decryption, ciphertext");
 
 	lc_hc_zero(hc);
 

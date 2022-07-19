@@ -142,14 +142,14 @@ int lc_kc_decrypt_authenticate(struct lc_kc_cryptor *kc,
 }
 
 DSO_PUBLIC
-void lc_kc_zero_free(struct lc_kc_cryptor *hc)
+void lc_kc_zero_free(struct lc_kc_cryptor *cc)
 {
-	if (!hc)
+	if (!cc)
 		return;
 
-	lc_kc_zero(hc);
+	lc_kc_zero(cc);
 
-	free(hc);
+	free(cc);
 }
 
 DSO_PUBLIC

@@ -22,12 +22,12 @@
 
 #include "compare.h"
 #include "binhexbin.h"
-#include "lc_kmac_crypt.h"
+#include "lc_cshake_crypt.h"
 #include "lc_cshake.h"
 
-static int kc_tester_cshake512_large(void)
+static int cc_tester_cshake_large(void)
 {
-	LC_KC_CTX_ON_STACK(kc, lc_cshake256);
+	LC_CC_CTX_ON_STACK(kc, lc_cshake256);
 	uint8_t tag[16];
 	uint8_t *pt;
 	uint8_t aad[] = {
@@ -44,15 +44,15 @@ static int kc_tester_cshake512_large(void)
 	if (!pt)
 		return 1;
 
-	lc_kc_setkey(kc, key, sizeof(key));
-	lc_kc_encrypt_oneshot(kc, pt, pt, 1UL<<30, aad, sizeof(aad),
+	lc_cc_setkey(kc, key, sizeof(key));
+	lc_cc_encrypt_oneshot(kc, pt, pt, 1UL<<30, aad, sizeof(aad),
 			      tag, sizeof(tag));
-	lc_kc_zero(kc);
+	lc_cc_zero(kc);
 
-	lc_kc_setkey(kc, key, sizeof(key));
-	ret = lc_kc_decrypt_oneshot(kc, pt, pt, 1UL<<30, aad, sizeof(aad),
+	lc_cc_setkey(kc, key, sizeof(key));
+	ret = lc_cc_decrypt_oneshot(kc, pt, pt, 1UL<<30, aad, sizeof(aad),
 				    tag, sizeof(tag));
-	lc_kc_zero(kc);
+	lc_cc_zero(kc);
 	free(pt);
 	return ret;
 }
@@ -61,5 +61,5 @@ int main(int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;
-	return kc_tester_cshake512_large();
+	return cc_tester_cshake_large();
 }
