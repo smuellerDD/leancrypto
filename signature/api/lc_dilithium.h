@@ -38,16 +38,22 @@ extern "C"
 {
 #endif
 
+/*
+ * Dilithium Security Levels
+ * 2 -> 192 bits of security strength
+ * 3 -> 225 bits of security strength
+ * 5 -> 257 bits of security strength
+ */
+#ifndef LC_DILITHIUM_MODE
+#define LC_DILITHIUM_MODE 5
+#endif
+
 #define LC_DILITHIUM_SEEDBYTES 32
 #define LC_DILITHIUM_CRHBYTES 64
 #define LC_DILITHIUM_N 256
 #define LC_DILITHIUM_Q 8380417
 #define LC_DILITHIUM_D 13
 #define LC_DILITHIUM_ROOT_OF_UNITY 1753
-
-#ifndef LC_DILITHIUM_MODE
-#define LC_DILITHIUM_MODE 2
-#endif
 
 #if LC_DILITHIUM_MODE == 2
 #define LC_DILITHIUM_K 4

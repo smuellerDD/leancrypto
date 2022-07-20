@@ -47,7 +47,7 @@
  * vector file can be included and will be applied when this option
  * not defined any more.
  *
- * The generated data could be cross-compared with test/test_vectors2
+ * The generated data could be cross-compared with test/test_vectors<level>
  * from https://github.com/pq-crystals/dilithium when printing out the
  * full keys/signatures instead of the SHAKE'd versions.
  */
@@ -55,7 +55,13 @@
 #undef SHOW_SHAKEd_KEY
 
 #ifndef GENERATE_VECTORS
-#include "dilithium_tester_vectors.h"
+#if LC_DILITHIUM_MODE == 2
+#include "dilithium_tester_vectors_level2.h"
+#elif LC_DILITHIUM_MODE == 3
+#include "dilithium_tester_vectors_level3.h"
+#elif LC_DILITHIUM_MODE == 5
+#include "dilithium_tester_vectors_level5.h"
+#endif
 #endif
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
