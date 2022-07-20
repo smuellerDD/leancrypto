@@ -28,9 +28,9 @@
  * which is XORed with either the plaintext (encryption) or ciphertext
  * (decryption) data. The cSHAKE is initialized with the user-provided key
  * and the user-provided IV. In addition, a second cSHAKE instance is
- * initialized which calculates a keyed-message of the ciphertext to create
- * a message authentication tag. This message authentication tag is used during
- * decryption to verify the integrity of the ciphertext.
+ * initialized which calculates a keyed-message digest of the ciphertext to
+ * create a message authentication tag. This message authentication tag is used
+ * during decryption to verify the integrity of the ciphertext.
  *
  * 1. Introduction
  *
@@ -42,11 +42,11 @@
  * which is XORed with the plaintext for the encryption operation, or with
  * the ciphertext for the decryption operation.
  *
- * The algorithm also applies an Encrypt-Then-MAC by calculating a keyed
- * message digest using cSHAKE using the ciphertext. During decryption, this
- * calculated keyed message digest is compared with the message authentication
- * tag obtained during the encryption operation. If both values show a
- * mismatch, the authentication fails and the decryption operation is
+ * The algorithm also applies an Encrypt-Then-MAC by calculating a message
+ * authentication tag using cSHAKE over the ciphertext. During decryption, this
+ * calculated message authentication tag is compared with the message
+ * authentication tag obtained during the encryption operation. If both values
+ * show a mismatch, the authentication fails and the decryption operation is
  * terminated. Only when both message authentication tags are identical
  * the decryption operation completes successfully and returns the decrypted
  * message.
@@ -77,52 +77,15 @@
  * The inputs to the cSHAKE-hash function are specified with references to these
  * parameters.
  *
- * The cSHAKE-hash defines the following operations:
+ * 2.3. Common Processing of Data
  *
- * * Absorb: Perform the Keccak-Absorb phase using the provided data
- *
- * * Squeeze: Perform the Keccak-Squeeze phase generating the amount of data
- *	      specified with the squeeze phase invocation
- *
- * 2.2 Setting the Key
- *
- * cSHAKE-SetKey(key, IV) -> cSHAKE_keystream, cSHAKE_authentication
+ * cSHAKE-Crypt(key, IV, input data) -> output data, auth key
  *
  * Inputs:
  *   key: The caller-provided key of size 256 bits
  *
  *   IV: The caller-provided initialization vector. The IV can have any size
  *	 including an empty bit-string.
- *
- * Output:
- *   cSHAKE_keystream: The cSHAKE algorithm instance to be used for generating
- *		       the key stream.
- *
- *   cSHAKE_authentication: The cSHAKE algorithm instance to be used for
- *			    calculating the message authentication tag.
- *
- * The SetKey operation is implemented as follows
- *
- * cSHAKE_keystream = cSHAKE(N = key,
- *                           X = NULL string,
- *                           L = rate of the cSHAKE algorithm - 1088 bits,
- *                           S = IV)
- *
- * cSHAKE_authentication = cSHAKE(N = auth_key,
- *                                X = NULL string,
- *                                L = 0,
- *                                S = NULL string)
- *
- * where:
- * auth_key = cSHAKE-Squeeze(cSHAKE_keystream, 1088 bits)
- *
- * 2.3. Common Processing of Data
- *
- * cSHAKE-Crypt(cSHAKE_keystream, input data) -> output data
- *
- * Inputs:
- *   cSHAKE_keystream: The cSHAKE algorithm instance to be used for generating
- *		       the key stream.
  *
  *   input data: The caller-provided input data - in case of encryption, the
  *               caller provides the plaintext data, in case of decryption,
@@ -131,19 +94,27 @@
  * Outputs:
  *   output data: The resulting data - in case of encryption, the ciphertext
  *                is produced, in case of decryption, the plaintext is returned.
+ *   auth key: The key that is used for the cSHAKE operation calculating the
+ *             message authentication tag.
  *
  * The common processing of data is performed as follows:
  *
- * KS = cSHAKE-Squeeze(cSHAKE_keystream, size of input data)
- * output data = input data XOR KS
+ * input length = size of input data in bits
+ * KS = cSHAKE(N = key,
+ *             X = "",
+ *             L = 256 bits + input length,
+ *             S = IV)
+ * auth key = 256 left-most bits of KS
+ * KS crypt = all right-most bits of KS starting with the 256th bit
+ * output data = input data XOR KS crypt
  *
  * 2.3 Calculating of Message Authentication Tag
  *
- * cSHAKE-Auth(cSHAKE_authentication, AAD, ciphertext, taglen) -> tag
+ * cSHAKE-Auth(auth key, AAD, ciphertext, taglen) -> tag
  *
  * Inputs:
- *   cSHAKE_authentication: The cSHAKE algorithm instance to be used for
- *			    calculating the message authentication tag.
+ *   auth key: The key that is used for the cSHAKE operation calculating the
+ *             message authentication tag.
  *
  *   AAD: The caller-provided additional authenticated data. The AAD can have
  *	  any size including an empty bit-string.
@@ -155,21 +126,20 @@
  *
  * The calculation of the message authentication tag is performed as follows:
  *
- * cSHAKE_authentication = cSHAKE-Absorb(cSHAKE_authentication, ciphertext || AAD)
- *
- * tag = cSHAKE-Squeeze(cSHAKE_authentication, taglen)
+ * tag = cSHAKE(N = auth key,
+ *              X = ciphertext || AAD,
+ *              L = taglen,
+ *              S = "")
  *
  * 2.4. Encryption Operation
  *
- * cSHAKE-Encrypt(cSHAKE_keystream, cSHAKE_authentication, plaintext, AAD, taglen)
- *	 -> ciphertext, tag
+ * cSHAKE-Encrypt(key, IV, plaintext, AAD, taglen) -> ciphertext, tag
  *
  * Input:
- *   cSHAKE_keystream: The cSHAKE algorithm instance to be used for generating
- *		       the key stream.
+ *   key: The caller-provided key of size 256 bits
  *
- *   cSHAKE_authentication: The cSHAKE algorithm instance to be used for
- *			    calculating the message authentication tag.
+ *   IV: The caller-provided initialization vector. The IV can have any size
+ *	 including an empty bit-string.
  *
  *   plaintext: The caller-provided plaintext data.
  *
@@ -186,21 +156,19 @@
  *
  * The encryption operation is performed as follows:
  *
- * ciphertext = cSHAKE-Crypt(cSHAKE_keystream, plaintext)
+ * ciphertext, auth key = cSHAKE-Crypt(key, IV, plaintext)
  *
- * tag = cSHAKE-Auth(cSHAKE_authentication, AAD, ciphertext, taglen)
+ * tag = cSHAKE-Auth(auth key, AAD, ciphertext, taglen)
  *
  * 2.5 Decryption Operation
  *
- * cSHAKE-Decrypt(cSHAKE_keystream, cSHAKE_authentication, ciphertext, AAD, tag)
- *	 -> plaintext, authentication result
+ * cSHAKE-Decrypt(key, IV, ciphertext, AAD, tag) -> plaintext, authentication result
  *
  * Input:
- *   cSHAKE_keystream: The cSHAKE algorithm instance to be used for generating
- *		       the key stream.
+ *   key: The caller-provided key of size 256 bits
  *
- *   cSHAKE_authentication: The cSHAKE algorithm instance to be used for
- *			    calculating the message authentication tag.
+ *   IV: The caller-provided initialization vector. The IV can have any size
+ *	 including an empty bit-string.
  *
  *   ciphertext: The ciphertext that was received from the send over
  *               insecure channels.
@@ -219,20 +187,23 @@
  *
  * The decryption operation is performed as follows:
  *
+ * plaintext, auth key = cSHAKE-Crypt(key, IV, ciphertext)
  * taglen = size of tag
- * new_tag = cSHAKE-Auth(cSHAKE_authentication, AAD, ciphertext, taglen)
+ * new_tag = cSHAKE-Auth(auth key, AAD, ciphertext, taglen)
  * if (new_tag == tag)
  *   authentication result = success
  * else
  *   authentication result = failure
  *
- * plaintext = cSHAKE-Crypt(cSHAKE_keystream, ciphertext)
+ * If the authentication result indicates a failure, the result of the
+ * decryption operation SHALL be discarded.
  *
  * 3. Comparison with KMAC-based AEAD Cipher Algorithm
  *
- * The cSHAKE DRNG is completely identical with the exception that the cSHAKE
- * DRNG uses cSHAKE256 and the KMAC DRNG uses KMACXOF256 as central functions.
- * The difference of the customization string is irrelevant to the cryptographic
+ * The cSHAKE cipher is completely identical to the KMAC cipher with the
+ * exception that the cSHAKE cipher uses cSHAKE256 and the KMAC cipher uses
+ * KMACXOF256 as central functions. The difference of the cSHAKE customization
+ * string applied by KMAC compared to cSHAKE is irrelevant to the cryptographic
  * strength of both.
  *
  * The handling of the key is also very similar:
@@ -275,16 +246,7 @@
  * Thus, the cSHAKE cipher has a higher performance with a equal entropy
  * management comparing to the KMAC cipher.
  *
- * 5. Normative References
- *
- * [FIPS202] FIPS PUB 202, SHA-3 Standard: Permutation-Based Hash and
- *           Extendable-Output Functions, August 2015
- *
- * [FKE] D. Bernstein, Fast-key-erasure random-number generators, 2017.07.23,
- *       https://blog.cr.yp.to/20170723-random.html
- *
- * [RFC5869] H. Krawczyk, P. Eronen, HMAC-based Extract-and-Expand Key
- *           Derivation Function (HKDF), RFC 5869, May 2010
+ * 4. Normative References
  *
  * [SP800-185] John Kelsey, Shu-jen Chang, Ray Perlne, NIST Special Publication
  *             800-185 SHA-3 Derived Functions: cSHAKE, CSHAKE, TupleHash and
@@ -303,6 +265,8 @@
 
 #define min_t(type, a, b)	((type)a < (type)b) ? (type)a : (type)b
 
+#define LC_CC_AUTHENTICATION_KEY_SIZE	(256 >> 3)
+
 DSO_PUBLIC
 void lc_cc_setkey(struct lc_cc_cryptor *cc,
 		  const uint8_t *key, size_t keylen,
@@ -319,6 +283,7 @@ void lc_cc_setkey(struct lc_cc_cryptor *cc,
 	 * time.
 	 */
 	BUILD_BUG_ON(LC_SHA3_256_SIZE_BLOCK % LC_CC_KEYSTREAM_BLOCK);
+	BUILD_BUG_ON(LC_CC_AUTHENTICATION_KEY_SIZE > LC_CC_KEYSTREAM_BLOCK);
 
 	lc_cshake_init(cshake, key, keylen, iv, ivlen);
 
@@ -331,12 +296,11 @@ void lc_cc_setkey(struct lc_cc_cryptor *cc,
 	 * lc_cshake_final= operation.
 	 */
 	lc_cshake_final(cshake, cc->keystream, LC_CC_KEYSTREAM_BLOCK);
-	lc_cshake_init(auth_ctx, cc->keystream, LC_CC_KEYSTREAM_BLOCK, NULL, 0);
+	lc_cshake_init(auth_ctx, cc->keystream, LC_CC_AUTHENTICATION_KEY_SIZE,
+		       NULL, 0);
 
-	/* Generate first keystream */
-	lc_hash_final(cshake, cc->keystream);
-
-	cc->keystream_ptr = 0;
+	/* Set the pointer to the start of the keystream */
+	cc->keystream_ptr = LC_CC_AUTHENTICATION_KEY_SIZE;
 }
 
 DSO_PUBLIC

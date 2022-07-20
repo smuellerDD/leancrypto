@@ -285,7 +285,7 @@ static inline void lc_kc_zero(struct lc_kc_cryptor *kc)
 	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_KC_CTX_SIZE(hash), uint64_t);   \
 	struct lc_kc_cryptor *name = (struct lc_kc_cryptor *) name ## _ctx_buf;\
 	LC_KC_SET_CTX(name, hash)
-	/* invocation of lc_kc_zero_free(name); not needed */
+	/* invocation of lc_kc_zero(name); not needed */
 
 #ifdef __cplusplus
 }
