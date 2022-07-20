@@ -126,6 +126,7 @@ void poly_uniform(poly *a,
 
 	ctr = rej_uniform(a->coeffs, LC_DILITHIUM_N, buf, buflen);
 
+
 	while (ctr < LC_DILITHIUM_N) {
 		off = buflen % 3;
 		for (i = 0; i < off; ++i)
@@ -218,7 +219,7 @@ void poly_uniform_eta(poly *a,
 	lc_hash_init(hash_ctx);
 	lc_hash_update(hash_ctx, seed, LC_DILITHIUM_CRHBYTES);
 	lc_hash_update(hash_ctx, (uint8_t *)&nonce, sizeof(nonce));
-	lc_hash_set_digestsize(hash_ctx, LC_SHAKE_256_SIZE_BLOCK);
+	lc_hash_set_digestsize(hash_ctx, buflen);
 	lc_hash_final(hash_ctx, buf);
 
 	ctr = rej_eta(a->coeffs, LC_DILITHIUM_N, buf, buflen);
@@ -571,15 +572,15 @@ void polyz_pack(uint8_t *r, const poly *a)
 	}
 #elif LC_DILITHIUM_GAMMA1 == (1 << 19)
 	for (i = 0; i < LC_DILITHIUM_N / 2; ++i) {
-		t[0] = LC_DILITHIUM_GAMMA1 - a->coeffs[2*i+0];
-		t[1] = LC_DILITHIUM_GAMMA1 - a->coeffs[2*i+1];
+		t[0] = (uint32_t)(LC_DILITHIUM_GAMMA1 - a->coeffs[2*i+0]);
+		t[1] = (uint32_t)(LC_DILITHIUM_GAMMA1 - a->coeffs[2*i+1]);
 
-		r[5*i+0]  = t[0];
-		r[5*i+1]  = t[0] >> 8;
-		r[5*i+2]  = t[0] >> 16;
-		r[5*i+2] |= t[1] << 4;
-		r[5*i+3]  = t[1] >> 4;
-		r[5*i+4]  = t[1] >> 12;
+		r[5*i+0]  = (uint8_t)(t[0]);
+		r[5*i+1]  = (uint8_t)(t[0] >> 8);
+		r[5*i+2]  = (uint8_t)(t[0] >> 16);
+		r[5*i+2] |= (uint8_t)(t[1] << 4);
+		r[5*i+3]  = (uint8_t)(t[1] >> 4);
+		r[5*i+4]  = (uint8_t)(t[1] >> 12);
 	}
 #else
 #error "Undefined Gamma"
@@ -666,9 +667,9 @@ void polyw1_pack(uint8_t *r, const poly *a)
 		r[3*i+2]  = (uint8_t)(a->coeffs[4*i+2] >> 4);
 		r[3*i+2] |= (uint8_t)(a->coeffs[4*i+3] << 2);
 	}
-#elif GAMMA2 == (LC_DILITHIUM_Q - 1)/32
+#elif LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q - 1)/32
 	for(i = 0; i < LC_DILITHIUM_N / 2; ++i)
-		r[i] = a->coeffs[2*i+0] | (a->coeffs[2*i+1] << 4);
+		r[i] = (uint8_t)(a->coeffs[2*i+0] | (a->coeffs[2*i+1] << 4));
 #else
 #error "Undefined Gamma"
 #endif
