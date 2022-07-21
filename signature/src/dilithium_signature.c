@@ -85,6 +85,13 @@ int lc_dilithium_keypair(struct lc_dilithium_pk *pk,
 	pack_sk(sk, rho, tr, key, &t0, &s1, &s2);
 
 out:
+	memset_secure(mat, 0, sizeof(mat));
+	memset_secure(&s1, 0, sizeof(s1));
+	memset_secure(&s1hat, 0, sizeof(s1hat));
+	memset_secure(&s2, 0, sizeof(s2));
+	memset_secure(&t1, 0, sizeof(t1));
+	memset_secure(seedbuf, 0, sizeof(seedbuf));
+	memset_secure(tr, 0, sizeof(tr));
 	return ret;
 }
 
@@ -192,9 +199,19 @@ rej:
 	/* Write signature */
 	pack_sig(sig, sig->sig, &z, &h);
 
-	lc_hash_zero(hash_ctx);
-
 out:
+	lc_hash_zero(hash_ctx);
+	memset_secure(mat, 0, sizeof(mat));
+	memset_secure(&s1, 0, sizeof(s1));
+	memset_secure(&y, 0, sizeof(y));
+	memset_secure(&z, 0, sizeof(z));
+	memset_secure(&t0, 0, sizeof(t0));
+	memset_secure(&s2, 0, sizeof(s2));
+	memset_secure(&w1, 0, sizeof(w1));
+	memset_secure(&w0, 0, sizeof(w0));
+	memset_secure(&h, 0, sizeof(h));
+	memset_secure(&cp, 0, sizeof(cp));
+	memset_secure(seedbuf, 0, sizeof(seedbuf));
 	return ret;
 }
 
@@ -266,6 +283,17 @@ int lc_dilithium_verify(const struct lc_dilithium_sig *sig,
 			return -EBADMSG;
 
 	lc_hash_zero(hash_ctx);
+	memset_secure(&cp, 0, sizeof(cp));
+	memset_secure(mat, 0, sizeof(mat));
+	memset_secure(&z, 0, sizeof(z));
+	memset_secure(&t1, 0, sizeof(t1));
+	memset_secure(&w1, 0, sizeof(w1));
+	memset_secure(&h, 0, sizeof(h));
+	memset_secure(&buf, 0, sizeof(buf));
+	memset_secure(&rho, 0, sizeof(rho));
+	memset_secure(&mu, 0, sizeof(mu));
+	memset_secure(&c, 0, sizeof(c));
+	memset_secure(&c2, 0, sizeof(c2));
 
 	return 0;
 }

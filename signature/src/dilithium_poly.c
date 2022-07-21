@@ -139,6 +139,7 @@ void poly_uniform(poly *a,
 	}
 
 	lc_hash_zero(hash_ctx);
+	memset_secure(buf, 0, sizeof(buf));
 }
 
 /**
@@ -231,6 +232,7 @@ void poly_uniform_eta(poly *a,
 	}
 
 	lc_hash_zero(hash_ctx);
+	memset_secure(buf, 0, sizeof(buf));
 }
 
 /**
@@ -261,6 +263,7 @@ void poly_uniform_gamma1(poly *a,
 	lc_hash_zero(hash_ctx);
 
 	polyz_unpack(a, buf);
+	memset_secure(buf, 0, sizeof(buf));
 }
 
 /**
@@ -309,6 +312,7 @@ void poly_challenge(poly *c, const uint8_t seed[LC_DILITHIUM_SEEDBYTES])
 	}
 
 	lc_hash_zero(hash_ctx);
+	memset_secure(buf, 0, sizeof(buf));
 }
 
 /**
@@ -476,6 +480,8 @@ void polyt0_pack(uint8_t *r, const poly *a)
 		r[13*i+11] |=  (uint8_t)(t[7] <<  3);
 		r[13*i+12]  =  (uint8_t)(t[7] >>  5);
 	}
+
+	memset_secure(t, 0, sizeof(t));
 }
 
 /**
@@ -585,6 +591,8 @@ void polyz_pack(uint8_t *r, const poly *a)
 #else
 #error "Undefined Gamma"
 #endif
+
+	memset_secure(t, 0, sizeof(t));
 }
 
 /**
