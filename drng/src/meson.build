@@ -33,6 +33,10 @@ if get_option('drbg_hmac').enabled()
 	lc_rng_header = 1
 endif
 
+if get_option('drbg_hash').enabled() or get_option('drbg_hmac').enabled()
+	include_files += files([ '../api/lc_drbg.h' ])
+endif
+
 if (lc_rng_header == 1)
 	include_files += files([ '../api/lc_rng.h' ])
 endif
