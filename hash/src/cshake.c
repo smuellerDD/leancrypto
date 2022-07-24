@@ -82,6 +82,7 @@ void lc_cshake_init(struct lc_hash_ctx *ctx,
 	added += slen;
 
 	/* bytepad pad */
-	lc_hash_update(ctx, zero, lc_hash_blocksize(ctx) -
-				  (added % lc_hash_blocksize(ctx)));
+	len = (added % lc_hash_blocksize(ctx));
+	if (len)
+		lc_hash_update(ctx, zero, lc_hash_blocksize(ctx) - len);
 }

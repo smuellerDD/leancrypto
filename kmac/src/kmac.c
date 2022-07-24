@@ -34,7 +34,7 @@ static unsigned int right_encode(uint8_t *buf, size_t val)
 	unsigned int n, i;
 
 	/* Determine n */
-	for ( v = val, n = 0; v && (n < sizeof(val)); n++, v >>= 8 )
+	for (v = val, n = 0; v && (n < sizeof(val)); n++, v >>= 8 )
 		;
 	if (n == 0)
 		n = 1;
@@ -87,8 +87,11 @@ void lc_kmac_init(struct lc_kmac_ctx *kmac_ctx,
 	added += klen;
 
 	/* bytepad pad */
-	lc_hash_update(hash_ctx, zero, lc_hash_blocksize(hash_ctx) -
-				       (added % lc_hash_blocksize(hash_ctx)));
+	len = (added % lc_hash_blocksize(hash_ctx));
+	if (len) {
+		lc_hash_update(hash_ctx, zero,
+			       lc_hash_blocksize(hash_ctx) - len);
+	}
 
 	/* Retain key state */
 	if (kmac_ctx->shadow_ctx) {
