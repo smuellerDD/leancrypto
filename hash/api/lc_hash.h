@@ -53,6 +53,24 @@ struct lc_hash_ctx {
 					__attribute__((aligned(sizeof(type))))
 
 #define LC_SHA_MAX_SIZE_DIGEST	64
+
+/*
+ * This is the source of the compiler warning of using Variable-Length-Arrays
+ * (VLA). It is considered to be harmless to have this VLA here. If you do not
+ * want it, you have the following options:
+ *
+ * 1. Define a hard-coded value here, e.g. sizeof(struct lc_sha3_224_state)
+ *    as the SHA3-224 has the largest structure.
+ * 2. Only use the SHA-specific stack allocation functions
+ *    (e.g. LC_SHA3_256_CTX_ON_STACK) instead of the generic
+ *    LC_HASH_CTX_ON_STACK call.
+ * 3. Do not use stack-allocation function.
+ * 4. Ignore the warning by using
+ * #pragma GCC diagnostic ignored "-Wvla"
+ * #pragma GCC diagnostic push
+ * LC_HASH_CTX_ON_STACK()
+ * #pragma pop
+ */
 #define LC_HASH_STATE_SIZE(x)	(x->statesize)
 #define LC_HASH_CTX_SIZE(x)	(sizeof(struct lc_hash_ctx) +		       \
 				 LC_HASH_STATE_SIZE(x))
