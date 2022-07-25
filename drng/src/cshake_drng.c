@@ -106,10 +106,10 @@
  *
  * The seeding of the cSHAKE DRNG is performed as follows:
  *
- * K(N + 1) = cSHAKE(N = K(N),
+ * K(N + 1) = cSHAKE(N = "cSHAKE-DRNG seed",
  *                   X = seed || personalization string,
  *                   L = 512
- *                   S = "cSHAKE-DRNG seed")
+ *                   S = K(N))
  *
  * 2.3. Generating One Block of Random Bit Stream
  *
@@ -141,10 +141,10 @@
  * random bit stream = T(1)
  *
  * where:
- * R = cSHAKE(N = K(N),
+ * R = cSHAKE(N = "cSHAKE-DRNG generate",
  *            X = additional input,
  *            L = 512 + length,
- *            S = "cSHAKE-DRNG generate")
+ *            S = K(N))
  *
  * 2.4. Generating Random Bit Stream of Arbitrary Length
  *
@@ -301,9 +301,10 @@ cshake256_drng_fke_init_ctx(struct lc_cshake256_drng_state *state,
 			    const uint8_t *addtl_input, size_t addtl_input_len)
 {
 	/* Initialize the cSHAKE with K(N) and the cust. string. */
-	lc_cshake_init(cshake_ctx, state->key, LC_CSHAKE256_DRNG_KEYSIZE,
+	lc_cshake_init(cshake_ctx,
 		       (uint8_t *)LC_CSHAKE_DRNG_CTX_CUSTOMIZATION_STRING,
-		       sizeof(LC_CSHAKE_DRNG_CTX_CUSTOMIZATION_STRING) - 1);
+		       sizeof(LC_CSHAKE_DRNG_CTX_CUSTOMIZATION_STRING) - 1,
+		       state->key, LC_CSHAKE256_DRNG_KEYSIZE);
 
 	/* Insert the additional data into the cSHAKE state. */
 	lc_hash_update(cshake_ctx, addtl_input, addtl_input_len);
@@ -386,9 +387,10 @@ lc_cshake256_drng_seed(void *_state,
 	 * Initialize the cSHAKE with K(N) and the cust. string. During initial
 	 * seeding K(N) is a zero buffer.
 	 */
-	lc_cshake_init(cshake_ctx, state->key, LC_CSHAKE256_DRNG_KEYSIZE,
+	lc_cshake_init(cshake_ctx,
 		       (uint8_t *)LC_CSHAKE_DRNG_SEED_CUSTOMIZATION_STRING,
-		       sizeof(LC_CSHAKE_DRNG_SEED_CUSTOMIZATION_STRING) - 1);
+		       sizeof(LC_CSHAKE_DRNG_SEED_CUSTOMIZATION_STRING) - 1,
+		       state->key, LC_CSHAKE256_DRNG_KEYSIZE);
 
 	/* Insert the seed data into the cSHAKE state. */
 	lc_hash_update(cshake_ctx, seed, seedlen);
