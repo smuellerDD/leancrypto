@@ -70,9 +70,8 @@
  * 2.1 Notation
  *
  * The KMAC-hash denotes the KMACXOF256 function [SP800-185]. The KMAC-hash
- * has 4 arguments: the main input bit string X, the requested output length L
- * in bits, a function-name bit string, and an optional customization bit
- * string S.
+ * has 4 arguments: the key K, the main input bit string X, the requested output
+ * length L in bits, and an optional customization bit string S.
  *
  * The inputs to the KMAC-hash function are specified with references to these
  * parameters.
@@ -100,7 +99,7 @@
  * The common processing of data is performed as follows:
  *
  * input length = size of input data in bits
- * KS = KMAC(N = key,
+ * KS = KMAC(K = key,
  *           X = "",
  *           L = 256 bits + input length,
  *           S = IV)
@@ -126,7 +125,7 @@
  *
  * The calculation of the message authentication tag is performed as follows:
  *
- * tag = KMAC(N = auth key,
+ * tag = KMAC(K = auth key,
  *            X = ciphertext || AAD,
  *            L = taglen,
  *            S = "")

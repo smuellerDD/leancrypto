@@ -3,13 +3,15 @@
 This crypto library provides algorithm implementations which have the following
 properties:
 
-* minimal dependencies: only POSIX environment needed
+* minimal dependencies: only POSIX environment needed,
 
 * extractable: the algorithms can be extracted and compiled as part of a
-  separate project
+  separate project,
 
 * stack-only support: all algorithms can be allocated on stack if needed. In
-  addition, allocation functions for a usage on heap is also supported.
+  addition, allocation functions for a usage on heap is also supported, and
+
+* minimizing footprint when statically linking by applying dead-code stripping.
 
 The following subsections outline the different cryptographic algorithm support.
 
@@ -26,66 +28,37 @@ build system:
 
 4. Install: `meson install -C builddir`
 
-## Hash
+# Cryptographic Algorithms
 
-The following header files contain an implementation of `struct hash` which
-can be used to perform the respective hashing operations. You only need to
-include the following header files depending on the selected hash operation.
+Leancrypto offers various cryptographic algorithms.
 
-* `sha256.h` provides the object `sha256` of type `struct hash`
-
-* `sha512.h` provides the object `sha512` of type `struct hash`
-
-* `sha3.h` provides the objects `sha3_256`, `sha3_384`, `sha3_512`, `shake`,
-  and `cshake` of type `struct hash`
-
-The mentioned hash object have to be used with the hash API as documented in
-`hash.h`. It is sufficient to only include the object-specific header files
-as they include `hash.h`.
-
-See `hash.h` for the API documentation.
-
-## HMAC
-
-The HMAC implementation is a wrapper to the hash. Thus include your chosen
-hash header file as outlined in section [Hash] along with `hmac.h`. You must
-provide a reference to the hash object to the allocation functions of HMAC.
-The HMAC API functions ensure that the hash context is allocated appropriately
-and that the hash functions are invoked accordingly.
-
-The HMAC API is documented in `hmac.h`.
-
-## SP800-90A DRBG
-
-The DRBG implementation is a wrapper to the hash. As specific context sizes
-depending on the type of chosen hash need to be defined, the DRBG takes
-care of properly wrapping the hash. Thus you only need to include the
-DRBG-specific header file as follows:
-
-* `hash_drbg_sha512.h`: SP800-90A Hash DRBG with derivation function
-
-* `hmac_drbg_sha512.h`: SP800-90A HMAC DRBG
-
-The DRBG API is documented in `drbg.h`.
-
-Note, if you want to copy the DRBG, copy, the base `drbg.c` and `drbg.h`. For
-any HMAC DRBG, also copy `hmac_drbg.h` and `hmac_drbg.c`. For any hash DRBG,
-also copy `hash_drbg.h` and `hash_drbg.c`. Finally copy the specific header
-file of the desired DRBG. You only need to include this header file into your
-code.
-
-NOTE: The `drbg.c` includes the specific DRBG header file. Update it as needed.
-This is considered appropriate as it is expected to only have one type of DRBG
-in use.
-
-WARNING: The implementation only provides a full deterministic DRBG
-implementation. It does NOT handle proper seeding. You MUST perform the seeding!
-
-## Hash Crypt - AEAD Algorithm
+## Authenticate Encryption with Associated Data
 
 Did you know you can use hash to encrypt data?
 
 The hash crypt implementations provide an authenticating stream cipher.
+
+### KMAC Crypt
+
+Encrypt and decrypt data by using KMAC as defined in SP800-185. The
+authentication of the ciphertext is performed using KMAC as well. The algorithm
+is fully defined in `aead/src/kmac_crypt.c`.
+
+The implementation supports the use in one-shot and in stream mode. The
+stream mode implies that repeatedly new data of arbitrary size can be inserted
+into the state. See the description [SHA-2 Hash Crypt] as the KMAC hash
+crypt follows the same principle.
+
+### cSHAKE Crypt
+
+Encrypt and decrypt data by using cSHAKE as defined in SP800-185. The
+authentication of the ciphertext is performed using KMAC as well. The algorithm
+is fully defined in `aead/src/cshake_crypt.c`.
+
+The implementation supports the use in one-shot and in stream mode. The
+stream mode implies that repeatedly new data of arbitrary size can be inserted
+into the state. See the description [SHA-2 Hash Crypt] as the KMAC hash
+crypt follows the same principle.
 
 ### SHA-2 Hash Crypt
 
@@ -147,52 +120,93 @@ The following properties are implemented with the algorithm:
 		... authentication succeeded ...
 ```
 
-### KMAC Hash Crypt
+## Hash
 
-The following properties are implemented with the algorithm:
+The following header files contain an implementation of `struct hash` which
+can be used to perform the respective hashing operations. You only need to
+include the following header files depending on the selected hash operation.
 
-* Key stream is generated using KMAC-256
+* `lc_sha256.h` provides the object `lc_sha256` of type `struct lc_hash`
 
-* Key stream is generated with 136 byte blocks (cSHAKE 256 block size)
+* `lc_sha512.h` provides the object `lc_sha512` of type `struct lc_hash`
 
-* Key stream is XORed with the plaintext (encryption) or ciphertext
-  (decryption)
+* `lc_sha3.h` provides the objects `lc_sha3_256`, `lc_sha3_384`, `lc_sha3_512`,
+  `lc_shake256`, `lc_shake128`, and `lc_cshake256` of type `struct lc_hash`
 
-* AEAD authentication is provided with KMAC-256 with an Encrypt-Then-MAC
-  approach to integrity-protect the plaintext and ciphertext including guards
-  against malleable attacks.
+The mentioned hash object have to be used with the hash API as documented in
+`lc_hash.h` and the aforementioned header files. It is sufficient to only
+include the object-specific header files as they include `lc_hash.h`.
 
-* The algorithm supports an arbitrary key size. The security strength is equal
-  to the key size, but at most 256 bits (the strength of KMAC-256). The key is
-  used to seed the KMAC instance for generating the key stream. The first step
-  the freshly seeded KMAC does is to generate a 1088 bit random value that
-  becomes the key for the KMAC authenticator. The goal is simply to use two
-  different values for the keystream and the authenticator.
+See `lc_hash.h` for the API documentation.
 
-* The implementation supports the use in one-shot and in stream mode. The
-  stream mode implies that repeatedly new data of arbitrary size can be inserted
-  into the state. See the description [SHA-2 Hash Crypt] as the KMAC hash
-  crypt follows the same principle.
+## HMAC
 
-# KMAC
+The HMAC implementation is a wrapper to the hash. Thus include your chosen
+hash header file as outlined in section [Hash] along with `lc_hmac.h`. You must
+provide a reference to the hash object to the allocation functions of HMAC.
+The HMAC API functions ensure that the hash context is allocated appropriately
+and that the hash functions are invoked accordingly.
 
-The KMAC implementation is a wrapper to the cSHAKE hash. Include `kmac.h`.
-You must provide a reference to the `cshake256` hash object to the allocation
+The HMAC API is documented in `hmac.h`.
+
+## KMAC
+
+The KMAC implementation is a wrapper to the cSHAKE hash. Include `lc_kmac.h`.
+You must provide a reference to the `lc_cshake256` hash object to the allocation
 functions of KMAC. The KMAC API functions ensure that the hash context is
 allocated appropriately and that the hash functions are invoked accordingly.
 
-The KMAC API is documented in `kmac.h`.
+The KMAC API is documented in `lc_kmac.h`.
 
-# KDF
+## KEy Exchange Mechanism
 
-The KDF API is documented in `kdf/api/*.h`.
+The Kyber post-quantum cryptography (PQC) algorithm for key exchange is
+provided. It offers an asymmetric cryptographic algorithm.
 
-# One-Time Pad
+## Random Number Generation
+
+Leancrypto offer different random number generator implementation which all
+are used with the same API documented in `lc_rng.h`. The key is that the
+caller must allocate the intended RNG implementation using the RNG-specific
+allocation functions documented in the different RNG header files. After
+successful allocation, the common API can be used.
+
+The following RNGs are implemented
+
+* Hash SP800-90A DRBG without PR, using SHA-512 core.
+
+* HMAC SP800-90A DRBG without PR, using HMAC SHA-512 core.
+
+* cSHAE-based deterministic random number generator - the specification is
+  provided with `drng/src/cshake_rng.c`. This implementation has an equal
+  security as the SP800-90A DRBGs but it is significantly faster.
+
+* KMAC-based deterministic random number generator - the specification is
+  provided with `drng/src/kmac_rng.c`.  This implementation has an equal
+  security as the SP800-90A DRBGs but it is significantly faster.
+
+* ChaCha20-based deterministic random number generator.
+
+## Key Derivation Funcation
+
+The KDF API is documented in `kdf/api/*.h`. The following algorithms are
+available:
+
+* SP800-108 counter KDF, feedbac KDF, double-pipeline KDF.
+
+* RFC5869 HKDF
+
+## One-Time Pad
 
 The cryptographic algorithms of HOTP and TOTP are available and documented in
 `otp/api/*.h`.
 
-# Symmetric Algorithms
+## Signature
+
+The Dilithium post-quantum cryptography (PQC) algorithm for digital signatures
+is provided. It offers an asymmetric cryptographic algorithm.
+
+## Symmetric Algorithms
 
 The symmetric algorithm API is documented in `sym/api/lc_sym.h`.
 
@@ -201,6 +215,8 @@ The symmetric algorithm API is documented in `sym/api/lc_sym.h`.
 ACVP certificate: A770
 
 https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?product=13214
+
+The test harness is available at https://github.com/smuellerDD/acvpparser
 
 # Author
 
