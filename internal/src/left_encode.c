@@ -25,7 +25,7 @@ unsigned int lc_left_encode(uint8_t *buf, size_t val)
 	unsigned int n, i;
 
 	/* Determine n */
-	for ( v = val, n = 0; v && (n < sizeof(val)); n++, v >>= 8 )
+	for (v = val, n = 0; v && (n < sizeof(val)); n++, v >>= 8 )
 		;
 	if (n == 0)
 		n = 1;
@@ -33,6 +33,5 @@ unsigned int lc_left_encode(uint8_t *buf, size_t val)
 		buf[i] = (uint8_t)(val >> ((n - i) << 3));
 
 	buf[0] = (uint8_t)n;
-
 	return n + 1;
 }
