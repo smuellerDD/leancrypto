@@ -1,51 +1,51 @@
 option('sha2-256', type: 'feature', value: 'enabled',
-       description: 'Enable SHA2-256 support')
+       description: 'SHA2-256 support')
 option('sha2-512', type: 'feature', value: 'enabled',
-       description: 'Enable SHA2-512 support')
+       description: 'SHA2-512 support')
 option('sha3', type: 'feature', value: 'enabled',
-       description: 'Enable SHA3 support')
+       description: 'SHA3 support')
 
 option('chacha20', type: 'feature', value: 'enabled',
-       description: 'Enable ChaCha20 support')
+       description: 'ChaCha20 support')
 option('chacha20_drng', type: 'feature', value: 'enabled',
-       description: 'Enable ChaCha20 DRNG support')
+       description: 'ChaCha20 DRNG support')
 
 option('drbg_hash', type: 'feature', value: 'enabled',
-       description: 'Enable Hash DRBG')
+       description: 'Hash DRBG')
 option('drbg_hmac', type: 'feature', value: 'enabled',
-       description: 'Enable HMAC DRBG')
+       description: 'HMAC DRBG')
 
 option('hash_crypt', type: 'feature', value: 'enabled',
-       description: 'Enable Hash-Crypt support')
+       description: 'Hash-Crypt support')
 
 option('hmac', type: 'feature', value: 'enabled',
-       description: 'Enable HMAC support')
+       description: 'HMAC support')
 
 option('hkdf', type: 'feature', value: 'enabled',
-       description: 'Enable HKDF')
+       description: 'HKDF')
 option('kdf_ctr', type: 'feature', value: 'enabled',
-       description: 'Enable KDF Counter Mode')
+       description: 'KDF Counter Mode')
 option('kdf_fb', type: 'feature', value: 'enabled',
-       description: 'Enable KDF Feedback Mode')
+       description: 'KDF Feedback Mode')
 option('kdf_dpi', type: 'feature', value: 'enabled',
-       description: 'Enable KDF Double Pipeline Mode')
+       description: 'KDF Double Pipeline Mode')
 option('pbkdf2', type: 'feature', value: 'enabled',
-       description: 'Enable Password-Based Key Derivation version 2')
+       description: 'Password-Based Key Derivation version 2')
 
 option('kmac', type: 'feature', value: 'enabled',
-       description: 'Enable KMAC support')
+       description: 'KMAC support')
 option('kmac_drng', type: 'feature', value: 'enabled',
-       description: 'Enable KMAC DRNG support')
+       description: 'KMAC DRNG support')
 option('cshake_drng', type: 'feature', value: 'enabled',
-       description: 'Enable cSHAKE DRNG support')
+       description: 'cSHAKE DRNG support')
 
 option('hotp', type: 'feature', value: 'enabled',
-       description: 'Enable HOTP support')
+       description: 'HOTP support')
 option('totp', type: 'feature', value: 'enabled',
-       description: 'Enable HOTP support')
+       description: 'HOTP support')
 
 option('dilithium', type: 'feature', value: 'enabled',
-       description: 'Enable Dilithium signature support')
+       description: 'Dilithium signature support')
 
 option('kyber', type: 'feature', value: 'enabled',
-       description: 'Enable Kyber key exchange mechanism (KEM) support')
+       description: 'Kyber key exchange mechanism (KEM) support')
