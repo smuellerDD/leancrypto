@@ -100,10 +100,10 @@
  * The common processing of data is performed as follows:
  *
  * input length = size of input data in bits
- * KS = cSHAKE(N = key,
- *             X = "",
+ * KS = cSHAKE(N = "cSHAKE-AEAD crypt",
+ *             X = IV,
  *             L = 256 bits + input length,
- *             S = IV)
+ *             S = key)
  * auth key = 256 left-most bits of KS
  * KS crypt = all right-most bits of KS starting with the 256th bit
  * output data = input data XOR KS crypt
@@ -126,10 +126,10 @@
  *
  * The calculation of the message authentication tag is performed as follows:
  *
- * tag = cSHAKE(N = auth key,
+ * tag = cSHAKE(N = "cSHAKE-AEAD auth",
  *              X = ciphertext || AAD,
  *              L = taglen,
- *              S = "")
+ *              S = auth key)
  *
  * 2.4. Encryption Operation
  *
@@ -157,7 +157,6 @@
  * The encryption operation is performed as follows:
  *
  * ciphertext, auth key = cSHAKE-Crypt(key, IV, plaintext)
- *
  * tag = cSHAKE-Auth(auth key, AAD, ciphertext, taglen)
  *
  * 2.5 Decryption Operation
@@ -266,6 +265,8 @@
 #define min_t(type, a, b)	((type)a < (type)b) ? (type)a : (type)b
 
 #define LC_CC_AUTHENTICATION_KEY_SIZE	(256 >> 3)
+#define LC_CC_CUSTOMIZATION_STRING	"cSHAKE-AEAD crypt"
+#define LC_CC_AUTH_CUSTOMIZATION_STRING	"cSHAKE-AEAD auth"
 
 DSO_PUBLIC
 void lc_cc_setkey(struct lc_cc_cryptor *cc,
@@ -285,7 +286,10 @@ void lc_cc_setkey(struct lc_cc_cryptor *cc,
 	BUILD_BUG_ON(LC_SHA3_256_SIZE_BLOCK % LC_CC_KEYSTREAM_BLOCK);
 	BUILD_BUG_ON(LC_CC_AUTHENTICATION_KEY_SIZE > LC_CC_KEYSTREAM_BLOCK);
 
-	lc_cshake_init(cshake, key, keylen, iv, ivlen);
+	lc_cshake_init(cshake,
+		       (uint8_t *)LC_CC_CUSTOMIZATION_STRING, sizeof(LC_CC_CUSTOMIZATION_STRING) - 1,
+		       key, keylen);
+	lc_hash_update(cshake, iv, ivlen);
 
 	/*
 	 * Generate key for cSHAKE authentication - we simply use two different
@@ -296,8 +300,10 @@ void lc_cc_setkey(struct lc_cc_cryptor *cc,
 	 * lc_cshake_final= operation.
 	 */
 	lc_cshake_final(cshake, cc->keystream, LC_CC_KEYSTREAM_BLOCK);
-	lc_cshake_init(auth_ctx, cc->keystream, LC_CC_AUTHENTICATION_KEY_SIZE,
-		       NULL, 0);
+	lc_cshake_init(auth_ctx,
+		       (uint8_t *)LC_CC_AUTH_CUSTOMIZATION_STRING,
+		       sizeof(LC_CC_AUTH_CUSTOMIZATION_STRING) - 1,
+		       cc->keystream, LC_CC_AUTHENTICATION_KEY_SIZE);
 
 	/* Set the pointer to the start of the keystream */
 	cc->keystream_ptr = LC_CC_AUTHENTICATION_KEY_SIZE;

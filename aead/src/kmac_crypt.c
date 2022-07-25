@@ -101,9 +101,9 @@
  *
  * input length = size of input data in bits
  * KS = KMAC(N = key,
- *             X = "",
- *             L = 256 bits + input length,
- *             S = IV)
+ *           X = "",
+ *           L = 256 bits + input length,
+ *           S = IV)
  * auth key = 256 left-most bits of KS
  * KS crypt = all right-most bits of KS starting with the 256th bit
  * output data = input data XOR KS crypt
@@ -127,9 +127,9 @@
  * The calculation of the message authentication tag is performed as follows:
  *
  * tag = KMAC(N = auth key,
- *              X = ciphertext || AAD,
- *              L = taglen,
- *              S = "")
+ *            X = ciphertext || AAD,
+ *            L = taglen,
+ *            S = "")
  *
  * 2.4. Encryption Operation
  *
@@ -157,7 +157,6 @@
  * The encryption operation is performed as follows:
  *
  * ciphertext, auth key = KMAC-Crypt(key, IV, plaintext)
- *
  * tag = KMAC-Auth(auth key, AAD, ciphertext, taglen)
  *
  * 2.5 Decryption Operation
