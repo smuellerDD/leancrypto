@@ -32,7 +32,7 @@ build system:
 
 Leancrypto offers various cryptographic algorithms.
 
-## Authenticate Encryption with Associated Data
+## Authenticated Encryption with Associated Data
 
 Did you know you can use hash to encrypt data?
 
@@ -158,7 +158,7 @@ allocated appropriately and that the hash functions are invoked accordingly.
 
 The KMAC API is documented in `lc_kmac.h`.
 
-## KEy Exchange Mechanism
+## Key Exchange Mechanism
 
 The Kyber post-quantum cryptography (PQC) algorithm for key exchange is
 provided. It offers an asymmetric cryptographic algorithm.
