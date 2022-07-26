@@ -58,6 +58,10 @@ add_project_link_arguments('-Wl,-z,now', language : 'c')
 # Only link to truly needed libraries
 add_project_link_arguments('-Wl,--as-needed', language : 'c')
 
+# Prepare distribution
+dist_script = find_program('addon/sanity_checks.sh', required: true)
+meson.add_dist_script(dist_script, meson.project_version())
+
 ################################################################################
 # Project-specific defines
 ################################################################################
