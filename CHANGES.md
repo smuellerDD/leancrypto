@@ -1,3 +1,6 @@
+Changes 0.3.1-prerelease:
+* simplify Kyber code
+
 Changes 0.3.0:
 * Introduce lc_rng.h as a common interface to the random number generators
 

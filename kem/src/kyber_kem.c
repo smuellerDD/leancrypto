@@ -25,7 +25,6 @@
  */
 
 #include "kyber_indcpa.h"
-#include "kyber_kdf.h"
 #include "kyber_verify.h"
 
 #include "lc_hash.h"
@@ -80,9 +79,7 @@ int lc_kyber_enc(struct lc_kyber_ct *ct,
 	lc_hash(lc_sha3_256, ct->ct, LC_KYBER_CIPHERTEXTBYTES,
 		kr + LC_KYBER_SYMBYTES);
 	/* hash concatenation of pre-k and H(c) to k */
-	kyber_kdf2(kr, LC_KYBER_SYMBYTES,
-		   kr + LC_KYBER_SYMBYTES, LC_KYBER_SYMBYTES,
-		   ss->ss, LC_KYBER_SSBYTES);
+	lc_shake(lc_shake256, kr, sizeof(kr), ss->ss, LC_KYBER_SSBYTES);
 
 out:
 	memset_secure(buf, 0, sizeof(buf));
@@ -123,9 +120,7 @@ int lc_kyber_dec(struct lc_kyber_ss *ss,
 	     LC_KYBER_SYMBYTES, fail);
 
 	/* hash concatenation of pre-k and H(c) to k */
-	kyber_kdf2(kr, LC_KYBER_SYMBYTES,
-		   kr + LC_KYBER_SYMBYTES, LC_KYBER_SYMBYTES,
-		   ss->ss, LC_KYBER_SSBYTES);
+	lc_shake(lc_shake256, kr, sizeof(kr), ss->ss, LC_KYBER_SSBYTES);
 
 	memset_secure(buf, 0, sizeof(buf));
 	memset_secure(kr, 0, sizeof(kr));

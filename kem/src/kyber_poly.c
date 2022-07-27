@@ -25,6 +25,7 @@
  */
 
 #include "kyber_cbd.h"
+#include "kyber_kdf.h"
 #include "kyber_poly.h"
 
 #include "lc_sha3.h"
@@ -43,13 +44,7 @@ static void
 kyber_shake256_prf(uint8_t *out, size_t outlen,
 		   const uint8_t key[LC_KYBER_SYMBYTES], uint8_t nonce)
 {
-	LC_SHAKE_256_CTX_ON_STACK(shake256);
-
-	lc_hash_init(shake256);
-	lc_hash_update(shake256, key, LC_KYBER_SYMBYTES);
-	lc_hash_update(shake256, &nonce, 1);
-	lc_hash_set_digestsize(shake256, outlen);
-	lc_hash_final(shake256, out);
+	kyber_kdf2(key, LC_KYBER_SYMBYTES, &nonce, 1, out, outlen);
 }
 
 void poly_compress(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES], const poly *a)
