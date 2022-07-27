@@ -83,7 +83,7 @@ static unsigned int rej_uniform(int32_t *a,
 	int32_t t;
 
 	ctr = pos = 0;
-	while(ctr < len && pos + 3 <= buflen) {
+	while (ctr < len && pos + 3 <= buflen) {
 		t  = buf[pos++];
 		t |= (int32_t)buf[pos++] << 8;
 		t |= (int32_t)buf[pos++] << 16;
@@ -667,7 +667,7 @@ void polyw1_pack(uint8_t *r, const poly *a)
 	unsigned int i;
 
 #if LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q - 1)/88
-	for(i = 0; i < LC_DILITHIUM_N / 4; ++i) {
+	for (i = 0; i < LC_DILITHIUM_N / 4; ++i) {
 		r[3*i+0]  = (uint8_t)(a->coeffs[4*i+0]);
 		r[3*i+0] |= (uint8_t)(a->coeffs[4*i+1] << 6);
 		r[3*i+1]  = (uint8_t)(a->coeffs[4*i+1] >> 2);
@@ -676,7 +676,7 @@ void polyw1_pack(uint8_t *r, const poly *a)
 		r[3*i+2] |= (uint8_t)(a->coeffs[4*i+3] << 2);
 	}
 #elif LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q - 1)/32
-	for(i = 0; i < LC_DILITHIUM_N / 2; ++i)
+	for (i = 0; i < LC_DILITHIUM_N / 2; ++i)
 		r[i] = (uint8_t)(a->coeffs[2*i+0] | (a->coeffs[2*i+1] << 4));
 #else
 #error "Undefined Gamma"

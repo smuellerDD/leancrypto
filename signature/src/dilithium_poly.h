@@ -200,7 +200,7 @@ static inline void poly_decompose(poly *a1, poly *a0, const poly *a)
 {
 	unsigned int i;
 
-	for(i = 0; i < LC_DILITHIUM_N; ++i)
+	for (i = 0; i < LC_DILITHIUM_N; ++i)
 		a1->coeffs[i] = decompose(&a0->coeffs[i], a->coeffs[i]);
 }
 

@@ -158,17 +158,17 @@ void unpack_sk(uint8_t rho[LC_DILITHIUM_SEEDBYTES],
 		tr[i] = seckey[i];
 	seckey += LC_DILITHIUM_SEEDBYTES;
 
-	for (i=0; i < LC_DILITHIUM_L; ++i)
+	for (i = 0; i < LC_DILITHIUM_L; ++i)
 		polyeta_unpack(&s1->vec[i],
 			       seckey + i * LC_DILITHIUM_POLYETA_PACKEDBYTES);
 	seckey += LC_DILITHIUM_L * LC_DILITHIUM_POLYETA_PACKEDBYTES;
 
-	for (i=0; i < LC_DILITHIUM_K; ++i)
+	for (i = 0; i < LC_DILITHIUM_K; ++i)
 		polyeta_unpack(&s2->vec[i],
 			       seckey + i * LC_DILITHIUM_POLYETA_PACKEDBYTES);
 	seckey += LC_DILITHIUM_K * LC_DILITHIUM_POLYETA_PACKEDBYTES;
 
-	for (i=0; i < LC_DILITHIUM_K; ++i)
+	for (i = 0; i < LC_DILITHIUM_K; ++i)
 		polyt0_unpack(&t0->vec[i],
 			      seckey + i * LC_DILITHIUM_POLYT0_PACKEDBYTES);
 }
@@ -192,7 +192,7 @@ void pack_sig(struct lc_dilithium_sig *sig,
 	BUILD_BUG_ON((1U << (sizeof(j)<<3)) < LC_DILITHIUM_N);
 	BUILD_BUG_ON((1U << (sizeof(k)<<3)) < LC_DILITHIUM_N);
 
-	for (i=0; i < LC_DILITHIUM_SEEDBYTES; ++i)
+	for (i = 0; i < LC_DILITHIUM_SEEDBYTES; ++i)
 		signature[i] = c[i];
 	signature += LC_DILITHIUM_SEEDBYTES;
 

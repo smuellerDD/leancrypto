@@ -119,6 +119,6 @@ void invntt_tomont(int32_t a[LC_DILITHIUM_N])
 		}
 	}
 
-	for(j = 0; j < LC_DILITHIUM_N; ++j)
+	for (j = 0; j < LC_DILITHIUM_N; ++j)
 		a[j] = montgomery_reduce((int64_t)f * a[j]);
 }
