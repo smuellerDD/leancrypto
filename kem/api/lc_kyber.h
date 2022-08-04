@@ -235,7 +235,7 @@ int lc_kex_uake_responder_init(struct lc_kyber_pk *pk_e_r,
 			       struct lc_rng_ctx *rng_ctx);
 
 /**
- * @brief kex_uake_initiator_ss - Initiator's shared secret generation
+ * @brief lc_kex_uake_initiator_ss - Initiator's shared secret generation
  *
  * @param ct_e_i [out] intiator's ephemeral cipher text to be sent to the
  *		       responder
@@ -248,16 +248,16 @@ int lc_kex_uake_responder_init(struct lc_kyber_pk *pk_e_r,
  *
  * @return 0 (success) or < 0 on error
  */
-int kex_uake_initiator_ss(struct lc_kyber_ct *ct_e_i,
-			  uint8_t *shared_secret,
-			  size_t shared_secret_len,
-			  const struct lc_kyber_pk *pk_e_r,
-			  const struct lc_kyber_ct *ct_e_r,
-			  const struct lc_kyber_sk *sk_i,
-			  struct lc_rng_ctx *rng_ctx);
+int lc_kex_uake_initiator_ss(struct lc_kyber_ct *ct_e_i,
+			     uint8_t *shared_secret,
+			     size_t shared_secret_len,
+			     const struct lc_kyber_pk *pk_e_r,
+			     const struct lc_kyber_ct *ct_e_r,
+			     const struct lc_kyber_sk *sk_i,
+			     struct lc_rng_ctx *rng_ctx);
 
 /**
- * @brief kex_uake_responder_ss - Responder's shared secret generation
+ * @brief lc_kex_uake_responder_ss - Responder's shared secret generation
  *
  * @param shared_secret [out] Shared secret between initiator and responder
  * @param shared_secret_len [in] Requested size of the shared secret
@@ -269,11 +269,11 @@ int kex_uake_initiator_ss(struct lc_kyber_ct *ct_e_i,
  *
  * @return 0 (success) or < 0 on error
  */
-int kex_uake_responder_ss(uint8_t *shared_secret,
-			  size_t shared_secret_len,
-			  const struct lc_kyber_ct *ct_e_i,
-			  const struct lc_kyber_ss *tk,
-			  const struct lc_kyber_sk *sk_e);
+int lc_kex_uake_responder_ss(uint8_t *shared_secret,
+			     size_t shared_secret_len,
+			     const struct lc_kyber_ct *ct_e_i,
+			     const struct lc_kyber_ss *tk,
+			     const struct lc_kyber_sk *sk_e);
 
 
 /**
@@ -336,15 +336,15 @@ int kex_uake_responder_ss(uint8_t *shared_secret,
  *
  * @return 0 (success) or < 0 on error
  */
-int kex_ake_responder_init(struct lc_kyber_pk *pk_e_r,
-			   struct lc_kyber_ct *ct_e_r,
-			   struct lc_kyber_ss *tk,
-			   struct lc_kyber_sk *sk_e,
-			   const struct lc_kyber_pk *pk_i,
-			   struct lc_rng_ctx *rng_ctx);
+int lc_kex_ake_responder_init(struct lc_kyber_pk *pk_e_r,
+			      struct lc_kyber_ct *ct_e_r,
+			      struct lc_kyber_ss *tk,
+			      struct lc_kyber_sk *sk_e,
+			      const struct lc_kyber_pk *pk_i,
+			      struct lc_rng_ctx *rng_ctx);
 
 /**
- * @brief kex_ake_initiator_ss - Initiator's shared secret generation
+ * @brief lc_kex_ake_initiator_ss - Initiator's shared secret generation
  *
  * @param ct_e_i_1 [out] intiator's ephemeral cipher text to be sent to the
  *			 responder
@@ -360,18 +360,18 @@ int kex_ake_responder_init(struct lc_kyber_pk *pk_e_r,
  *
  * @return 0 (success) or < 0 on error
  */
-int kex_ake_initiator_ss(struct lc_kyber_ct *ct_e_i_1,
-			 struct lc_kyber_ct *ct_e_i_2,
-			 uint8_t *shared_secret,
-			 size_t shared_secret_len,
-			 const struct lc_kyber_pk *pk_e_r,
-			 const struct lc_kyber_ct *ct_e_r,
-			 const struct lc_kyber_sk *sk_i,
-			 const struct lc_kyber_pk *pk_r,
-			 struct lc_rng_ctx *rng_ctx);
+int lc_kex_ake_initiator_ss(struct lc_kyber_ct *ct_e_i_1,
+			    struct lc_kyber_ct *ct_e_i_2,
+			    uint8_t *shared_secret,
+			    size_t shared_secret_len,
+			    const struct lc_kyber_pk *pk_e_r,
+			    const struct lc_kyber_ct *ct_e_r,
+			    const struct lc_kyber_sk *sk_i,
+			    const struct lc_kyber_pk *pk_r,
+			    struct lc_rng_ctx *rng_ctx);
 
 /**
- * @brief kex_ake_responder_ss - Responder's shared secret generation
+ * @brief lc_kex_ake_responder_ss - Responder's shared secret generation
  *
  * @param shared_secret [out] Shared secret between initiator and responder
  * @param shared_secret_len [in] Requested size of the shared secret
@@ -383,13 +383,13 @@ int kex_ake_initiator_ss(struct lc_kyber_ct *ct_e_i_1,
  *		    responder's initialization
  * @param sk_r [in] responder's secret key
  */
-int kex_ake_responder_ss(uint8_t *shared_secret,
-			 size_t shared_secret_len,
-			 const struct lc_kyber_ct *ct_e_i_1,
-			 const struct lc_kyber_ct *ct_e_i_2,
-			 const struct lc_kyber_ss *tk,
-			 const struct lc_kyber_sk *sk_e,
-			 const struct lc_kyber_sk *sk_r);
+int lc_kex_ake_responder_ss(uint8_t *shared_secret,
+			    size_t shared_secret_len,
+			    const struct lc_kyber_ct *ct_e_i_1,
+			    const struct lc_kyber_ct *ct_e_i_2,
+			    const struct lc_kyber_ss *tk,
+			    const struct lc_kyber_sk *sk_e,
+			    const struct lc_kyber_sk *sk_r);
 
 #ifdef __cplusplus
 }

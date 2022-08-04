@@ -121,11 +121,12 @@ int main(void)
 					 &cshake_rng));
 
 	// Run by Alice
-	CKINT(kex_uake_initiator_ss(&ct_e_i, ss_i, sizeof(ss_i), &pk_e_r,
-				    &ct_e_r, &sk_i, &cshake_rng));
+	CKINT(lc_kex_uake_initiator_ss(&ct_e_i, ss_i, sizeof(ss_i), &pk_e_r,
+				       &ct_e_r, &sk_i, &cshake_rng));
 
 	// Run by Bob
-	CKINT(kex_uake_responder_ss(ss_r, sizeof(ss_r), &ct_e_i, &tk, &sk_e));
+	CKINT(lc_kex_uake_responder_ss(ss_r, sizeof(ss_r), &ct_e_i, &tk,
+				       &sk_e));
 
 	if (memcmp(ss_i, ss_r, sizeof(ss_r))) {
 		printf("Error in UAKE\n");
@@ -140,17 +141,17 @@ int main(void)
 	// Perform mutually authenticated key exchange
 
 	// Run by Bob
-	CKINT(lc_kex_uake_responder_init(&pk_e_r, &ct_e_r, &tk, &sk_e, &pk_i,
+	CKINT(lc_kex_ake_responder_init(&pk_e_r, &ct_e_r, &tk, &sk_e, &pk_i,
 					 &cshake_rng));
 
 	// Run by Alice
-	CKINT(kex_ake_initiator_ss(&ct_e_i_1, &ct_e_i_2, ss_i, sizeof(ss_i),
-				   &pk_e_r, &ct_e_r, &sk_i, &pk_r,
-				   &cshake_rng));
+	CKINT(lc_kex_ake_initiator_ss(&ct_e_i_1, &ct_e_i_2, ss_i, sizeof(ss_i),
+				      &pk_e_r, &ct_e_r, &sk_i, &pk_r,
+				      &cshake_rng));
 
 	// Run by Bob
-	CKINT(kex_ake_responder_ss(ss_r, sizeof(ss_r), &ct_e_i_1, &ct_e_i_2,
-				   &tk, &sk_e, &sk_r));
+	CKINT(lc_kex_ake_responder_ss(ss_r, sizeof(ss_r), &ct_e_i_1, &ct_e_i_2,
+				      &tk, &sk_e, &sk_r));
 
 	if (memcmp(ss_i, ss_r, sizeof(ss_r))){
 		printf("Error in AKE\n");

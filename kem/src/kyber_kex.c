@@ -46,13 +46,13 @@ out:
 	return ret;
 }
 
-int kex_uake_initiator_ss(struct lc_kyber_ct *ct_e_i,
-			  uint8_t *shared_secret,
-			  size_t shared_secret_len,
-			  const struct lc_kyber_pk *pk_e_r,
-			  const struct lc_kyber_ct *ct_e_r,
-			  const struct lc_kyber_sk *sk_i,
-			  struct lc_rng_ctx *rng_ctx)
+int lc_kex_uake_initiator_ss(struct lc_kyber_ct *ct_e_i,
+			     uint8_t *shared_secret,
+			     size_t shared_secret_len,
+			     const struct lc_kyber_pk *pk_e_r,
+			     const struct lc_kyber_ct *ct_e_r,
+			     const struct lc_kyber_sk *sk_i,
+			     struct lc_rng_ctx *rng_ctx)
 {
 	struct lc_kyber_ss ss[2];
 	int ret;
@@ -68,11 +68,11 @@ out:
 	return ret;
 }
 
-int kex_uake_responder_ss(uint8_t *shared_secret,
-			  size_t shared_secret_len,
-			  const struct lc_kyber_ct *ct_e_i,
-			  const struct lc_kyber_ss *tk,
-			  const struct lc_kyber_sk *sk_e)
+int lc_kex_uake_responder_ss(uint8_t *shared_secret,
+			     size_t shared_secret_len,
+			     const struct lc_kyber_ct *ct_e_i,
+			     const struct lc_kyber_ss *tk,
+			     const struct lc_kyber_sk *sk_e)
 {
 	struct lc_kyber_ss ss;
 	int ret;
@@ -87,12 +87,12 @@ out:
 	return ret;
 }
 
-int kex_ake_responder_init(struct lc_kyber_pk *pk_e_r,
-			   struct lc_kyber_ct *ct_e_r,
-			   struct lc_kyber_ss *tk,
-			   struct lc_kyber_sk *sk_e,
-			   const struct lc_kyber_pk *pk_i,
-			   struct lc_rng_ctx *rng_ctx)
+int lc_kex_ake_responder_init(struct lc_kyber_pk *pk_e_r,
+			      struct lc_kyber_ct *ct_e_r,
+			      struct lc_kyber_ss *tk,
+			      struct lc_kyber_sk *sk_e,
+			      const struct lc_kyber_pk *pk_i,
+			      struct lc_rng_ctx *rng_ctx)
 {
 	int ret;
 
@@ -103,15 +103,15 @@ out:
 	return ret;
 }
 
-int kex_ake_initiator_ss(struct lc_kyber_ct *ct_e_i_1,
-			 struct lc_kyber_ct *ct_e_i_2,
-			 uint8_t *shared_secret,
-			 size_t shared_secret_len,
-			 const struct lc_kyber_pk *pk_e_r,
-			 const struct lc_kyber_ct *ct_e_r,
-			 const struct lc_kyber_sk *sk_i,
-			 const struct lc_kyber_pk *pk_r,
-			 struct lc_rng_ctx *rng_ctx)
+int lc_kex_ake_initiator_ss(struct lc_kyber_ct *ct_e_i_1,
+			    struct lc_kyber_ct *ct_e_i_2,
+			    uint8_t *shared_secret,
+			    size_t shared_secret_len,
+			    const struct lc_kyber_pk *pk_e_r,
+			    const struct lc_kyber_ct *ct_e_r,
+			    const struct lc_kyber_sk *sk_i,
+			    const struct lc_kyber_pk *pk_r,
+			    struct lc_rng_ctx *rng_ctx)
 {
 	struct lc_kyber_ss ss[3];
 	int ret;
@@ -129,13 +129,13 @@ out:
 	return ret;
 }
 
-int kex_ake_responder_ss(uint8_t *shared_secret,
-			 size_t shared_secret_len,
-			 const struct lc_kyber_ct *ct_e_i_1,
-			 const struct lc_kyber_ct *ct_e_i_2,
-			 const struct lc_kyber_ss *tk,
-			 const struct lc_kyber_sk *sk_e,
-			 const struct lc_kyber_sk *sk_r)
+int lc_kex_ake_responder_ss(uint8_t *shared_secret,
+			    size_t shared_secret_len,
+			    const struct lc_kyber_ct *ct_e_i_1,
+			    const struct lc_kyber_ct *ct_e_i_2,
+			    const struct lc_kyber_ss *tk,
+			    const struct lc_kyber_sk *sk_e,
+			    const struct lc_kyber_sk *sk_r)
 {
 	struct lc_kyber_ss ss[2];
 	int ret;
