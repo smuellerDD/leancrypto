@@ -321,8 +321,7 @@ int kex_uake_responder_ss(uint8_t *shared_secret,
  */
 
 /**
- * @brief lc_kex_ake_responder_init - Initialize unilaterally authenticated
- *				       key exchange
+ * @brief lc_kex_ake_responder_init - Initialize authenticated key exchange
  *
  * @param pk_e_r [out] responder's ephemeral public key to be sent to the
  *		       initiator
