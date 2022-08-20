@@ -287,7 +287,8 @@ void lc_cc_setkey(struct lc_cc_cryptor *cc,
 	BUILD_BUG_ON(LC_CC_AUTHENTICATION_KEY_SIZE > LC_CC_KEYSTREAM_BLOCK);
 
 	lc_cshake_init(cshake,
-		       (uint8_t *)LC_CC_CUSTOMIZATION_STRING, sizeof(LC_CC_CUSTOMIZATION_STRING) - 1,
+		       (uint8_t *)LC_CC_CUSTOMIZATION_STRING,
+		       sizeof(LC_CC_CUSTOMIZATION_STRING) - 1,
 		       key, keylen);
 	lc_hash_update(cshake, iv, ivlen);
 

@@ -60,7 +60,7 @@ struct lc_drbg_hash_state {
 extern const struct lc_rng *lc_hash_drbg;
 
 #define LC_DRBG_HASH_RNG_CTX(name)					       \
-	LC_RNG_CTX((name), lc_hash_drbg);					       \
+	LC_RNG_CTX((name), lc_hash_drbg);				       \
 	LC_DRBG_HASH_SET_CTX((struct lc_drbg_hash_state *)name->rng_state);    \
 	lc_rng_zero(name)
 
