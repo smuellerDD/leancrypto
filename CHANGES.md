@@ -1,5 +1,7 @@
-Changes 0.3.1-prerelease:
+Changes 0.4.0-prerelease:
 * simplify Kyber code
+
+* add RNG context to HKDF
 
 Changes 0.3.0:
 * Introduce lc_rng.h as a common interface to the random number generators

@@ -48,19 +48,71 @@ static int hkdf_tester(void)
 		0x58, 0x65
 	};
 	uint8_t act[sizeof(exp)];
-	LC_HMAC_CTX_ON_STACK(hmac, lc_sha256);
+	uint8_t act2[sizeof(exp)];
+	uint8_t act3[sizeof(exp)];
+	LC_HKDF_CTX_ON_STACK(hkdf, lc_sha256);
+	LC_HKDF_DRNG_CTX_ON_STACK(hkdf_rng, lc_sha256);
+	struct lc_hkdf_ctx *hkdf_heap = NULL;
+	int ret;
 
-	if (lc_hkdf_extract(hmac, ikm, sizeof(ikm), salt, sizeof(salt))) {
-		printf("HKDF extract failed\n");
+	if (lc_hkdf_extract(hkdf, ikm, sizeof(ikm), salt, sizeof(salt))) {
+		printf("HKDF extract stack failed\n");
 		return 1;
 	}
 
-	if (lc_hkdf_expand(hmac, info, sizeof(info), act, sizeof(act))) {
+	if (lc_hkdf_expand(hkdf, info, sizeof(info), act, sizeof(act))) {
+		printf("HKDF expand stack failed\n");
+		return 1;
+	}
+
+	if (lc_hkdf_expand(hkdf, info, sizeof(info), act3, sizeof(act3))) {
 		printf("HKDF expand failed\n");
 		return 1;
 	}
 
-	return compare(act, exp, sizeof(exp), "HKDF SHA-256");
+	ret = compare(act, exp, sizeof(exp), "HKDF SHA-256 stack");
+	lc_hkdf_zero(hkdf);
+
+	if (lc_rng_seed(hkdf_rng, ikm, sizeof(ikm), salt, sizeof(salt))) {
+		printf("HKDF extract stack failed\n");
+		return 1;
+	}
+
+	if (lc_rng_generate(hkdf_rng, info, sizeof(info), act, sizeof(act))) {
+		printf("HKDF expand stack failed\n");
+		return 1;
+	}
+	ret += compare(act, exp, sizeof(exp), "HKDF SHA-256 RNG");
+
+	/* Check that the counter state is maintained */
+	if (lc_rng_generate(hkdf_rng, info, sizeof(info), act2, sizeof(act2))) {
+		printf("HKDF expand stack failed\n");
+		return 1;
+	}
+	ret += compare(act2, act3, sizeof(act2), "HKDF SHA-256 regenerate");
+
+	lc_rng_zero(hkdf_rng);
+
+	if (lc_hkdf_alloc(lc_sha256, &hkdf_heap)) {
+		printf("HKDF alloc failed\n");
+		lc_hkdf_zero_free(hkdf_heap);
+		return 1;
+	}
+
+	if (lc_hkdf_extract(hkdf_heap, ikm, sizeof(ikm), salt, sizeof(salt))) {
+		printf("HKDF extract heap failed\n");
+		return 1;
+	}
+
+	if (lc_hkdf_expand(hkdf_heap, info, sizeof(info), act, sizeof(act))) {
+		printf("HKDF expand heap failed\n");
+		return 1;
+	}
+
+	ret = compare(act, exp, sizeof(exp), "HKDF SHA-256 heap");
+	lc_hkdf_zero_free(hkdf_heap);
+
+	return ret;
 }
 
 int main(int argc, char *argv[])
