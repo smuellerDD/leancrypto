@@ -23,3 +23,15 @@ original code is:
  That code is released under Public Domain
  (https://creativecommons.org/share-your-work/public-domain/cc0/);
  or Apache 2.0 License (https://www.apache.org/licenses/LICENSE-2.0.html).
+
+The Kyber KEM code is derived in parts from teh code distribution provided with
+https://github.com/pq-crystals/kyber. The license for the original code is:
+
+ That code is released under Public Domain
+ (https://creativecommons.org/share-your-work/public-domain/cc0/).
+
+The AES block cipher code is derived in parts from the code distribution
+provided with https://github.com/kokke/tiny-AES-c. The license for the original
+code is:
+
+ This is free and unencumbered software released into the public domain.

@@ -49,3 +49,12 @@ option('dilithium', type: 'feature', value: 'enabled',
 
 option('kyber', type: 'feature', value: 'enabled',
        description: 'Kyber key exchange mechanism (KEM) support')
+
+option('aes_block', type: 'feature', value: 'enabled',
+       description: 'AES block cipher support (encryption of one block)')
+option('aes_ecb', type: 'feature', value: 'disabled',
+       description: 'AES ECB cipher support - this is a weak algorithm, do not use!')
+option('aes_cbc', type: 'feature', value: 'enabled',
+       description: 'AES CBC cipher support')
+option('aes_ctr', type: 'feature', value: 'enabled',
+       description: 'AES CTR cipher support')

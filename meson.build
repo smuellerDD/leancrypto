@@ -179,11 +179,11 @@ leancrypto_static_lib = static_library('leancrypto_static',
 	)
 
 leancrypto_lib = library('leancrypto',
-		     [ src, internal_src ],
-		     include_directories: [ include_dirs, include_internal_dirs ],
-		     soversion: version_array[0],
-		     install: true
-		     )
+	[ src, internal_src ],
+	include_directories: [ include_dirs, include_internal_dirs ],
+	soversion: version_array[0],
+	install: true
+	)
 leancrypto = declare_dependency(link_with: leancrypto_lib,
 				include_directories: include_dirs)
 

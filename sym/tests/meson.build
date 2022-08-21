@@ -15,3 +15,68 @@ if get_option('chacha20').enabled()
 	test('ChaCha20 block', chacha20_block_tester)
 	test('ChaCha20 stream', chacha20_stream_tester)
 endif
+
+if get_option('aes_block').enabled()
+	aes_enc_tester = executable('aes_enc_tester',
+					[ 'aes_enc_tester.c',
+					internal_src ],
+					include_directories: [ include_internal_dirs ],
+					dependencies: leancrypto
+					)
+	aes_dec_tester = executable('aes_dec_tester',
+					[ 'aes_dec_tester.c',
+					internal_src ],
+					include_directories: [ include_internal_dirs ],
+					dependencies: leancrypto
+					)
+
+	test('AES block encryption', aes_enc_tester)
+	test('AES block decryption', aes_dec_tester)
+endif
+
+if get_option('aes_ecb').enabled()
+	aes_ecb_enc_tester = executable('aes_ecb_enc_tester',
+					[ 'aes_ecb_enc_tester.c',
+					internal_src ],
+					include_directories: [ include_internal_dirs ],
+					dependencies: leancrypto
+					)
+	aes_ecb_dec_tester = executable('aes_ecb_dec_tester',
+					[ 'aes_ecb_dec_tester.c',
+					internal_src ],
+					include_directories: [ include_internal_dirs ],
+					dependencies: leancrypto
+					)
+
+	test('AES ECB encryption', aes_ecb_enc_tester)
+	test('AES ECB decryption', aes_ecb_dec_tester)
+endif
+
+if get_option('aes_cbc').enabled()
+	aes_cbc_enc_tester = executable('aes_cbc_enc_tester',
+					[ 'aes_cbc_enc_tester.c',
+					internal_src ],
+					include_directories: [ include_internal_dirs ],
+					dependencies: leancrypto
+					)
+	aes_cbc_dec_tester = executable('aes_cbc_dec_tester',
+					[ 'aes_cbc_dec_tester.c',
+					internal_src ],
+					include_directories: [ include_internal_dirs ],
+					dependencies: leancrypto
+					)
+
+	test('AES CBC encryption', aes_cbc_enc_tester)
+	test('AES CBC decryption', aes_cbc_dec_tester)
+endif
+
+if get_option('aes_ctr').enabled()
+	aes_ctr_tester = executable('aes_ctr_tester',
+					[ 'aes_ctr_tester.c',
+					internal_src ],
+					include_directories: [ include_internal_dirs ],
+					dependencies: leancrypto
+					)
+
+	test('AES CTR en/decryption', aes_ctr_tester)
+endif
