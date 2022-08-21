@@ -32,8 +32,9 @@ extern "C"
 struct lc_sym_state;
 struct lc_sym {
 	void (*init)(struct lc_sym_state *ctx);
-	int (*setkey)(struct lc_sym_state *ctx, uint8_t *key, size_t keylen);
-	int (*setiv)(struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen);
+	int (*setkey)(struct lc_sym_state *ctx,
+		      const uint8_t *key, size_t keylen);
+	int (*setiv)(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen);
 	void (*encrypt)(struct lc_sym_state *ctx,
 			const uint8_t *in, uint8_t *out, size_t len);
 	void (*decrypt)(struct lc_sym_state *ctx,
@@ -107,7 +108,7 @@ static inline void lc_sym_init(struct lc_sym_ctx *ctx)
 }
 
 static inline int lc_sym_setkey(struct lc_sym_ctx *ctx,
-				uint8_t *key, size_t keylen)
+				const uint8_t *key, size_t keylen)
 {
 	const struct lc_sym *sym = ctx->sym;
 
@@ -115,7 +116,7 @@ static inline int lc_sym_setkey(struct lc_sym_ctx *ctx,
 }
 
 static inline int lc_sym_setiv(struct lc_sym_ctx *ctx,
-			       uint8_t *iv, size_t ivlen)
+			       const uint8_t *iv, size_t ivlen)
 {
 	const struct lc_sym *sym = ctx->sym;
 
@@ -123,7 +124,7 @@ static inline int lc_sym_setiv(struct lc_sym_ctx *ctx,
 }
 
 static inline void lc_sym_encrypt(struct lc_sym_ctx *ctx,
-			          uint8_t *in, uint8_t *out, size_t len)
+			          const uint8_t *in, uint8_t *out, size_t len)
 {
 	const struct lc_sym *sym = ctx->sym;
 
@@ -132,7 +133,7 @@ static inline void lc_sym_encrypt(struct lc_sym_ctx *ctx,
 
 
 static inline void lc_sym_decrypt(struct lc_sym_ctx *ctx,
-				  uint8_t *in, uint8_t *out, size_t len)
+				  const uint8_t *in, uint8_t *out, size_t len)
 {
 	const struct lc_sym *sym = ctx->sym;
 
@@ -152,6 +153,26 @@ static inline void lc_sym_zero(struct lc_sym_ctx *ctx)
 	memset_secure((uint8_t *)ctx + sizeof(struct lc_sym_ctx), 0,
 		      LC_SYM_STATE_SIZE(sym));
 }
+
+/**
+ * @brief Allocate symmetric algorithm context on heap
+ *
+ * NOTE: This is defined for lc_cshake256 as of now.
+ *
+ * @param sym [in] Symmetric algorithm implementation of type struct lc_sym
+ * @param ctx [out] Allocated symmetrc algorithm context
+ *
+ * @return 0 on success, < 0 on error
+ */
+int lc_sym_alloc(const struct lc_sym *sym, struct lc_sym_ctx **ctx);
+
+/**
+ * @brief Symmetric algorithm deallocation and properly zeroization function to
+ *	  frees all buffers and the cipher handle
+ *
+ * @param ctx [in] Symmtric algorithm context handle
+ */
+void lc_sym_zero_free(struct lc_sym_ctx *ctx);
 
 /**
  * @brief Allocate stack memory for the sym context
