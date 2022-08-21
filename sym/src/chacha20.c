@@ -105,7 +105,8 @@ static void cc20_init(struct lc_sym_state *ctx)
 	ctx->counter 	  = 1;
 }
 
-static int cc20_setkey(struct lc_sym_state *ctx, uint8_t *key, size_t keylen)
+static int cc20_setkey(struct lc_sym_state *ctx,
+		       const uint8_t *key, size_t keylen)
 {
 	if (keylen != 32)
 		return -EINVAL;
@@ -122,7 +123,7 @@ static int cc20_setkey(struct lc_sym_state *ctx, uint8_t *key, size_t keylen)
 	return 0;
 }
 
-static int cc20_setiv(struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen)
+static int cc20_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen)
 {
 	/* IV is counter + nonce */
 	if (ivlen != 12)
@@ -167,6 +168,6 @@ static struct lc_sym _lc_chacha20 = {
 	.encrypt	= cc20_crypt,
 	.decrypt	= cc20_crypt,
 	.statesize	= LC_CC20_BLOCK_SIZE,
-	.blocksize	= LC_CC20_BLOCK_SIZE,
+	.blocksize	= 1,
 };
 DSO_PUBLIC const struct lc_sym *lc_chacha20 = &_lc_chacha20;
