@@ -3,7 +3,7 @@ Changes 0.4.0-prerelease:
 
 * add RNG context to HKDF
 
-* add AES
+* add AES 128/192/256, ECB, CBC, CTR, KW
 
 Changes 0.3.0:
 * Introduce lc_rng.h as a common interface to the random number generators

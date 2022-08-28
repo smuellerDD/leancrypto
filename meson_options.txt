@@ -58,3 +58,5 @@ option('aes_cbc', type: 'feature', value: 'enabled',
        description: 'AES CBC cipher support')
 option('aes_ctr', type: 'feature', value: 'enabled',
        description: 'AES CTR cipher support')
+option('aes_kw', type: 'feature', value: 'enabled',
+       description: 'AES KW cipher support')

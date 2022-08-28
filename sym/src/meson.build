@@ -29,6 +29,11 @@ if get_option('aes_ctr').enabled()
 	lc_aes = 1
 endif
 
+if get_option('aes_kw').enabled()
+	src += files([ 'aes_kw.c' ])
+	lc_aes = 1
+endif
+
 if (lc_aes == 1)
 	src += files([ 'aes.c' ])
 	include_files += files([ '../api/lc_aes.h' ])

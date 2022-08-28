@@ -80,3 +80,14 @@ if get_option('aes_ctr').enabled()
 
 	test('AES CTR en/decryption', aes_ctr_tester)
 endif
+
+if get_option('aes_kw').enabled()
+	aes_kw_tester = executable('aes_kw_tester',
+					[ 'aes_kw_tester.c',
+					internal_src ],
+					include_directories: [ include_internal_dirs ],
+					dependencies: leancrypto
+					)
+
+	test('AES KW en/decryption', aes_kw_tester)
+endif

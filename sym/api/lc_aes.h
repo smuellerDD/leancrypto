@@ -45,6 +45,52 @@ extern const struct lc_sym *lc_aes_cbc;
 /* AES CTR mode */
 extern const struct lc_sym *lc_aes_ctr;
 
+/* AES KW mode */
+extern const struct lc_sym *lc_aes_kw;
+
+/**
+ * @brief lc_aes_kw_encrypt - AES KW encrypt
+ *
+ * @param ctx [in] Reference to sym context implementation to be used to
+ *		   perform sym calculation with.
+ * @param in [in] Plaintext to be encrypted
+ * @param out [out] Ciphertext resulting of the encryption
+ * @param len [in] Size of the input / output buffer
+ *
+ * The plaintext and the ciphertext buffer may be identical to support
+ * in-place cryptographic operations.
+ *
+ * NOTE: The output buffer MUST be 8 bytes larger than the input buffer!
+ *
+ * This function is a helper function. It provides the same operation as
+ * lc_sym_encrypt. The difference is that it also obtains the tag from the
+ * AES KW operation.
+ */
+void lc_aes_kw_encrypt(struct lc_sym_ctx *ctx,
+		       const uint8_t *in, uint8_t *out, size_t len);
+
+/**
+ * @brief lc_aes_kw_decrypt - AES KW decrypt
+ *
+ * @param ctx [in] Reference to sym context implementation to be used to
+ *		   perform sym calculation with.
+ * @param in [in] Ciphertext to be decrypted
+ * @param out [out] Plaintext resulting of the decryption
+ * @param len [in] Size of the input / output buffer
+ *
+ * @return 0 on success, -EBADMSG on authentication error
+ *
+ * The plaintext and the ciphertext buffer may be identical to support
+ * in-place cryptographic operations.
+ *
+ * NOTE: The output buffer MAY be 8 bytes smaller than the input buffer.
+ *
+ * This function is a helper function. It provides the same operation as
+ * lc_sym_decrypt. The difference is that it also performs the authentication.
+ */
+int lc_aes_kw_decrypt(struct lc_sym_ctx *ctx,
+		      const uint8_t *in, uint8_t *out, size_t len);
+
 #ifdef __cplusplus
 }
 #endif
