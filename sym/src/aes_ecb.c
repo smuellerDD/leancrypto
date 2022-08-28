@@ -73,12 +73,16 @@ static void aes_ecb_init(struct lc_sym_state *ctx)
 static int aes_ecb_setkey(struct lc_sym_state *ctx,
 			  const uint8_t *key, size_t keylen)
 {
-	if (!ctx || keylen != AES_KEYLEN)
+	int ret;
+
+	if (!ctx)
 		return -EINVAL;
 
-	KeyExpansion(&ctx->block_ctx, key);
+	ret = set_aes_type(&ctx->block_ctx, keylen);
+	if (!ret)
+		KeyExpansion(&ctx->block_ctx, key);
 
-	return 0;
+	return ret;
 }
 
 static int aes_ecb_setiv(struct lc_sym_state *ctx,

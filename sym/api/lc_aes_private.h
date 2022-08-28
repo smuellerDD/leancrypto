@@ -20,6 +20,7 @@
 #ifndef LC_AES_PRIVATE_H
 #define LC_AES_PRIVATE_H
 
+#include <errno.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -32,26 +33,39 @@ extern "C"
  */
 #define AES_BLOCKLEN 16U
 
-//#define AES128 1
-//#define AES192 1
-#define AES256 1
-
-#if defined(AES256) && (AES256 == 1)
-# define AES_KEYLEN 32
-# define AES_keyExpSize 240
-#elif defined(AES192) && (AES192 == 1)
-# define AES_KEYLEN 24
-# define AES_keyExpSize 208
-#else
-# define AES_KEYLEN 16   // Key length in bytes
-# define AES_keyExpSize 176
-#endif
-
 /* AES block algorithm context */
 struct aes_block_ctx
 {
-	uint8_t RoundKey[AES_keyExpSize];
+	/*
+	 * AES-256: 240
+	 * AES-192: 208
+	 * AES-128: 176
+	 */
+	uint8_t RoundKey[240];
+	uint8_t nk;
+	uint8_t nr;
 };
+
+static inline int set_aes_type(struct aes_block_ctx *ctx, size_t keylen)
+{
+	switch (keylen) {
+	case 16:
+		ctx->nk = 4;
+		ctx->nr = 10;
+		break;
+	case 24:
+		ctx->nk = 6;
+		ctx->nr = 12;
+		break;
+	case 32:
+		ctx->nk = 8;
+		ctx->nr = 14;
+		break;
+	default:
+		return -EINVAL;
+	}
+	return 0;
+}
 
 /* state - array holding the intermediate results during decryption. */
 typedef uint8_t state_t[4][4];

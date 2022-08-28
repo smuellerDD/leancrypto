@@ -40,9 +40,8 @@ struct lc_sym_state {
 
 #define LC_AES_CBC_BLOCK_SIZE sizeof(struct lc_sym_state)
 
-DSO_PUBLIC
-void aes_cbc_encrypt(struct lc_sym_state *ctx,
-		     const uint8_t *in, uint8_t *out, size_t len)
+static void aes_cbc_encrypt(struct lc_sym_state *ctx,
+			    const uint8_t *in, uint8_t *out, size_t len)
 {
 	const struct aes_block_ctx *block_ctx = &ctx->block_ctx;
 	size_t i, rounded_len = len & ~(AES_BLOCKLEN - 1);
@@ -60,9 +59,8 @@ void aes_cbc_encrypt(struct lc_sym_state *ctx,
 	memcpy(ctx->iv, iv, AES_BLOCKLEN);
 }
 
-DSO_PUBLIC
-void aes_cbc_decrypt(struct lc_sym_state *ctx,
-		     const uint8_t *in, uint8_t *out, size_t len)
+static void aes_cbc_decrypt(struct lc_sym_state *ctx,
+			    const uint8_t *in, uint8_t *out, size_t len)
 {
 	const struct aes_block_ctx *block_ctx = &ctx->block_ctx;
 	size_t i, rounded_len = len & ~(AES_BLOCKLEN - 1);
@@ -89,12 +87,16 @@ static void aes_cbc_init(struct lc_sym_state *ctx)
 static int aes_cbc_setkey(struct lc_sym_state *ctx,
 			  const uint8_t *key, size_t keylen)
 {
-	if (!ctx || keylen != AES_KEYLEN)
+	int ret;
+
+	if (!ctx)
 		return -EINVAL;
 
-	KeyExpansion(&ctx->block_ctx, key);
+	ret = set_aes_type(&ctx->block_ctx, keylen);
+	if (!ret)
+		KeyExpansion(&ctx->block_ctx, key);
 
-	return 0;
+	return ret;
 }
 
 static int aes_cbc_setiv(struct lc_sym_state *ctx,

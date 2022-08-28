@@ -38,17 +38,6 @@
  */
 #define Nb 4
 
-#if defined(AES256) && (AES256 == 1)
-# define Nk 8
-# define Nr 14
-#elif defined(AES192) && (AES192 == 1)
-# define Nk 6
-# define Nr 12
-#else
-# define Nk 4        // The number of 32 bit words in a key.
-# define Nr 10       // The number of rounds in AES Cipher.
-#endif
-
 /*****************************************************************************/
 /* Private variables:                                                        */
 /*****************************************************************************/
@@ -120,8 +109,10 @@ static uint8_t getSBoxValue(uint8_t num)
  */
 void KeyExpansion(struct aes_block_ctx *block_ctx, const uint8_t* Key)
 {
+	uint8_t Nk = block_ctx->nk;
+	uint8_t Nr = block_ctx->nr;
 	uint8_t *RoundKey = block_ctx->RoundKey;
-	unsigned i, j, k;
+	unsigned int i, j, k;
 	uint8_t tempa[4]; // Used for the column/row operations
 
 	// The first round key is the key itself.
@@ -133,7 +124,7 @@ void KeyExpansion(struct aes_block_ctx *block_ctx, const uint8_t* Key)
 	}
 
 	// All other round keys are found from the previous round keys.
-	for (i = Nk; i < Nb * (Nr + 1); ++i) {
+	for (i = Nk; i < Nb * (Nr + 1U); ++i) {
 		{
 			k = (i - 1) * 4;
 			tempa[0]=RoundKey[k + 0];
@@ -175,8 +166,7 @@ void KeyExpansion(struct aes_block_ctx *block_ctx, const uint8_t* Key)
 			tempa[0] = tempa[0] ^ Rcon[i/Nk];
 		}
 
-#if defined(AES256) && (AES256 == 1)
-		if (i % Nk == 4) {
+		if (Nk == 8 && (i % Nk == 4)) {
 			// Function Subword()
 			{
 				tempa[0] = getSBoxValue(tempa[0]);
@@ -185,7 +175,6 @@ void KeyExpansion(struct aes_block_ctx *block_ctx, const uint8_t* Key)
 				tempa[3] = getSBoxValue(tempa[3]);
 			}
 		}
-#endif
 
 		j = i * 4; k=(i - Nk) * 4;
 		RoundKey[j + 0] = RoundKey[k + 0] ^ tempa[0];
@@ -370,6 +359,7 @@ static void InvShiftRows(state_t* state)
 void aes_cipher(state_t* state, const struct aes_block_ctx *block_ctx)
 {
 	const uint8_t *RoundKey = block_ctx->RoundKey;
+	uint8_t Nr = block_ctx->nr;
 	uint8_t round = 0;
 
 	// Add the First round key to the state before starting the rounds.
@@ -395,6 +385,7 @@ void aes_cipher(state_t* state, const struct aes_block_ctx *block_ctx)
 void aes_inv_cipher(state_t* state, const struct aes_block_ctx *block_ctx)
 {
 	const uint8_t *RoundKey = block_ctx->RoundKey;
+	uint8_t Nr = block_ctx->nr;
 	uint8_t round = 0;
 
 	// Add the First round key to the state before starting the rounds.
