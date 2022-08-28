@@ -107,6 +107,16 @@ static inline void lc_sym_init(struct lc_sym_ctx *ctx)
 	sym->init(ctx->sym_state);
 }
 
+/**
+ * @brief lc_sym_setkey - Set key
+ *
+ * @param ctx [in] Reference to sym context implementation to be used to
+ *		   set the IV.
+ * @param key [in] Key to be set
+ * @param keylen [in] Key length to be set
+ *
+ * @return 0 on success, < 0 on error
+ */
 static inline int lc_sym_setkey(struct lc_sym_ctx *ctx,
 				const uint8_t *key, size_t keylen)
 {
@@ -115,6 +125,16 @@ static inline int lc_sym_setkey(struct lc_sym_ctx *ctx,
 	return sym->setkey(ctx->sym_state, key, keylen);
 }
 
+/**
+ * @brief lc_sym_setiv - Set IV
+ *
+ * @param ctx [in] Reference to sym context implementation to be used to
+ *		   set the IV.
+ * @param iv [in] IV to be set
+ * @param ivlen [in] IV length to be set
+ *
+ * @return 0 on success, < 0 on error
+ */
 static inline int lc_sym_setiv(struct lc_sym_ctx *ctx,
 			       const uint8_t *iv, size_t ivlen)
 {
@@ -123,6 +143,18 @@ static inline int lc_sym_setiv(struct lc_sym_ctx *ctx,
 	return sym->setiv(ctx->sym_state, iv, ivlen);
 }
 
+/**
+ * @brief lc_sym_encrypt - Symmetric encryption
+ *
+ * @param ctx [in] Reference to sym context implementation to be used to
+ *		   perform sym calculation with.
+ * @param in [in] Plaintext to be encrypted
+ * @param out [out] Ciphertext resulting of the encryption
+ * @param len [in] Size of the input / output buffer
+ *
+ * The plaintext and the ciphertext buffer may be identical to support
+ * in-place cryptographic operations.
+ */
 static inline void lc_sym_encrypt(struct lc_sym_ctx *ctx,
 			          const uint8_t *in, uint8_t *out, size_t len)
 {
@@ -131,7 +163,18 @@ static inline void lc_sym_encrypt(struct lc_sym_ctx *ctx,
 	sym->encrypt(ctx->sym_state, in, out, len);
 }
 
-
+/**
+ * @brief lc_sym_decrypt - AES KW decrypt
+ *
+ * @param ctx [in] Reference to sym context implementation to be used to
+ *		   perform sym calculation with.
+ * @param in [in] Ciphertext to be decrypted
+ * @param out [out] Plaintext resulting of the decryption
+ * @param len [in] Size of the input / output buffer
+ *
+ * The plaintext and the ciphertext buffer may be identical to support
+ * in-place cryptographic operations.
+ */
 static inline void lc_sym_decrypt(struct lc_sym_ctx *ctx,
 				  const uint8_t *in, uint8_t *out, size_t len)
 {
