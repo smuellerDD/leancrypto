@@ -25,6 +25,7 @@
 
 #include "lc_hmac.h"
 #include "lc_rng.h"
+#include "ret_checkers.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -132,6 +133,41 @@ void lc_hkdf_zero_free(struct lc_hkdf_ctx *hkdf_ctx);
 	struct lc_hkdf_ctx *name = (struct lc_hkdf_ctx *)name ## _ctx_buf;     \
 	LC_HKDF_SET_CTX(name, hashname);				       \
 	lc_hkdf_zero(name)
+
+/**
+ * @brief HMAC-based Extract-and-Expand Key Derivation Function (HKDF) - RFC5869
+ *	  Complete implementation
+ *
+ * @param hash [in] Reference to lc_hash implementation
+ * @param ikm [in] Input Keying Material (see RFC5869)
+ * @param ikmlen [in] Length of ikm buffer
+ * @param salt [in] Optional salt value - if caller does not want to use a salt
+ *		    set NULL here.
+ * @param saltlen [in] Length of salt value buffer.
+ * @param info [in] Optional context and application specific information. This
+ *		    may be NULL.
+ * @param infolen [in] Size of info buffer.
+ * @param dst [out] Buffer to store the derived bits in
+ * @param dlen [in] Size of the destination buffer.
+ *
+ * @return 0 on success, < 0 on error
+ */
+static inline int lc_hkdf_oneshot(const struct lc_hash *hash,
+				  const uint8_t *ikm, size_t ikmlen,
+				  const uint8_t *salt, size_t saltlen,
+				  const uint8_t *info, size_t infolen,
+				  uint8_t *dst, size_t dlen)
+{
+	LC_HKDF_CTX_ON_STACK(hkdf, hash);
+	int ret;
+
+	CKINT(lc_hkdf_extract(hkdf, ikm, ikmlen, salt, saltlen));
+	CKINT(lc_hkdf_expand(hkdf, info, infolen, dst, dlen));
+
+out:
+	lc_hkdf_zero(hkdf);
+	return ret;
+}
 
 /******************************** HKDF as RNG *********************************/
 
