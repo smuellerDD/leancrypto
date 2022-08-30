@@ -76,7 +76,7 @@ static void aes_kw_encrypt(struct lc_sym_state *ctx,
 
 		while (nbytes) {
 			/* get the source block */
-			block.R = ptr_to_le64(out_p);
+			block.R = ptr_to_64(out_p);
 
 			/* perform KW operation: encrypt block */
 			aes_cipher((state_t*)&block, block_ctx);
@@ -85,7 +85,7 @@ static void aes_kw_encrypt(struct lc_sym_state *ctx,
 			t++;
 
 			/* Copy block->R into place */
-			le64_to_ptr(out_p, block.R);
+			val64_to_ptr(out_p, block.R);
 
 			nbytes -= AES_KW_SEMIBSIZE;
 			out_p += AES_KW_SEMIBSIZE;
@@ -129,7 +129,7 @@ static void aes_kw_decrypt(struct lc_sym_state *ctx,
 			nbytes -= AES_KW_SEMIBSIZE;
 
 			/* get the source block */
-			block.R = ptr_to_le64(out_p);
+			block.R = ptr_to_64(out_p);
 
 			/* perform KW operation: modify IV with counter */
 			block.A ^= be_bswap64(t);
@@ -138,7 +138,7 @@ static void aes_kw_decrypt(struct lc_sym_state *ctx,
 			aes_inv_cipher((state_t*)&block, block_ctx);
 
 			/* Copy block->R into place */
-			le64_to_ptr(out_p, block.R);
+			val64_to_ptr(out_p, block.R);
 		}
 	}
 
@@ -160,7 +160,7 @@ static int aes_kw_setkey(struct lc_sym_state *ctx,
 	if (!ctx)
 		return -EINVAL;
 
-	ret = set_aes_type(&ctx->block_ctx, keylen);
+	ret = aes_set_type(&ctx->block_ctx, keylen);
 	if (!ret)
 		KeyExpansion(&ctx->block_ctx, key);
 
@@ -173,7 +173,7 @@ static int aes_kw_setiv(struct lc_sym_state *ctx,
 	if (!ctx || ivlen != AES_KW_SEMIBSIZE)
 		return -EINVAL;
 
-	ctx->tag = ptr_to_le64(iv);
+	ctx->tag = ptr_to_64(iv);
 	return 0;
 }
 
@@ -196,7 +196,7 @@ void lc_aes_kw_encrypt(struct lc_sym_ctx *ctx,
 
 	/* Output: Tag || Ciphertext */
 	aes_kw_encrypt(state, in, out + AES_KW_SEMIBSIZE, len);
-	le64_to_ptr(out, state->tag);
+	val64_to_ptr(out, state->tag);
 }
 
 DSO_PUBLIC
@@ -213,7 +213,7 @@ int lc_aes_kw_decrypt(struct lc_sym_ctx *ctx,
 	aes_kw_decrypt(state, in + AES_KW_SEMIBSIZE, out,
 		       len - AES_KW_SEMIBSIZE);
 	/* Perform authentication check */
-	if (state->tag !=  be_bswap64(AES_KW_IV))
+	if (state->tag != be_bswap64(AES_KW_IV))
 		return -EBADMSG;
 	return 0;
 }
