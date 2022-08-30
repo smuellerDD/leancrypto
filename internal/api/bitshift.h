@@ -41,6 +41,16 @@ static inline uint32_t ptr_to_32(const uint8_t *p)
 	return ptr_to_be32(p);
 }
 
+static inline void val64_to_ptr(uint8_t *p, const uint64_t value)
+{
+	be64_to_ptr(p, value);
+}
+
+static inline void val32_to_ptr(uint8_t *p, const uint32_t value)
+{
+	be32_to_ptr(p, value);
+}
+
 #elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 
 static inline uint64_t ptr_to_64(const uint8_t *p)
@@ -51,6 +61,16 @@ static inline uint64_t ptr_to_64(const uint8_t *p)
 static inline uint32_t ptr_to_32(const uint8_t *p)
 {
 	return ptr_to_le32(p);
+}
+
+static inline void val64_to_ptr(uint8_t *p, const uint64_t value)
+{
+	le64_to_ptr(p, value);
+}
+
+static inline void val32_to_ptr(uint8_t *p, const uint32_t value)
+{
+	le32_to_ptr(p, value);
 }
 
 #else

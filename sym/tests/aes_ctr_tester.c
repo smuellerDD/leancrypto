@@ -27,6 +27,7 @@
 
 #include "lc_aes.h"
 #include "lc_aes_private.h"
+#include "lc_ctr_private.h"
 #include "compare.h"
 #include "ret_checkers.h"
 
@@ -122,12 +123,14 @@ static int test_xcrypt_ctr(const char* xcrypt)
 				  in2);
 	lc_sym_zero(aes_ctr);
 
+	memcpy(in2, in192, sizeof(in192));
 	ret += test_xcrypt_ctr_one(xcrypt, aes_ctr, key192, sizeof(key192),
-				   in192);
+				   in2);
 	lc_sym_zero(aes_ctr);
 
+	memcpy(in2, in128, sizeof(in128));
 	ret += test_xcrypt_ctr_one(xcrypt, aes_ctr, key128, sizeof(key128),
-				   in128);
+				   in2);
 	lc_sym_zero(aes_ctr);
 
 	CKINT(lc_sym_alloc(lc_aes_ctr, &aes_ctr_heap));
@@ -142,7 +145,6 @@ out:
 	return ret;
 }
 
-
 static int test_encrypt_ctr(void)
 {
 	return test_xcrypt_ctr("encrypt");
@@ -151,6 +153,66 @@ static int test_encrypt_ctr(void)
 static int test_decrypt_ctr(void)
 {
 	return test_xcrypt_ctr("decrypt");
+}
+
+static void ctr_inc(uint8_t *iv)
+{
+	int bi;
+
+	/* Increment Iv and handle overflow */
+	for (bi = (AES_BLOCKLEN - 1); bi >= 0; --bi) {
+		/* inc will overflow */
+		if (iv[bi] == 255) {
+			iv[bi] = 0;
+			continue;
+		}
+		iv[bi] += 1;
+		break;
+	}
+}
+
+static int ctr_tester_one(uint8_t *iv, uint64_t *iv128)
+{
+	uint8_t buffer64[AES_BLOCKLEN];
+	unsigned int i;
+	int ret = 0;
+
+	for (i = 0; i < 10; i++) {
+		ctr_inc(iv);
+		ctr128_inc(iv128);
+		ctr128_to_ptr(buffer64, iv128);
+		ret = compare(buffer64, iv, sizeof(iv), "CTR 64 maintenance");
+	}
+	return ret;
+}
+
+static int ctr_tester(void)
+{
+	unsigned int i;
+	uint8_t iv[AES_BLOCKLEN];
+	uint64_t iv128[AES_CTR128_64BIT_WORDS];
+	int ret;
+
+	memset(iv, 0, sizeof(iv));
+	memset(iv128, 0, sizeof(iv128));
+	ret = ctr_tester_one(iv, iv128);
+
+	memset(iv, 0, sizeof(iv));
+	memset(iv128, 0, sizeof(iv128));
+	for (i = AES_BLOCKLEN - 1; i >= AES_BLOCKLEN - sizeof(uint64_t); i--)
+		iv[i] = 0xff;
+	iv128[AES_CTR128_64BIT_WORDS - 1] = (uint64_t)-1;
+	ret = ctr_tester_one(iv, iv128);
+
+	memset(iv, 0, sizeof(iv));
+	memset(iv128, 0, sizeof(iv128));
+	for (i = AES_BLOCKLEN; i > 0; i--)
+		iv[i - 1] = 0xff;
+	for (i = AES_CTR128_64BIT_WORDS; i > 0;i--)
+		iv128[i - 1] = (uint64_t)-1;
+	ret = ctr_tester_one(iv, iv128);
+
+	return ret;
 }
 
 int main(int argc, char *argv[])
@@ -162,6 +224,7 @@ int main(int argc, char *argv[])
 
 	ret += test_encrypt_ctr();
 	ret += test_decrypt_ctr();
+	ret += ctr_tester();
 
 	return ret;
 }

@@ -28,6 +28,7 @@
 
 #include "lc_aes.h"
 #include "lc_aes_private.h"
+#include "lc_ctr_private.h"
 #include "lc_sym.h"
 #include "math_helper.h"
 #include "memset_secure.h"
@@ -36,7 +37,7 @@
 
 struct lc_sym_state {
 	struct aes_block_ctx block_ctx;
-	uint8_t iv[AES_BLOCKLEN];
+	uint64_t iv[AES_CTR128_64BIT_WORDS];
 };
 
 #define LC_AES_CTR_BLOCK_SIZE sizeof(struct lc_sym_state)
@@ -51,27 +52,15 @@ static void aes_ctr_crypt(struct lc_sym_state *ctx,
 	const struct aes_block_ctx *block_ctx = &ctx->block_ctx;
 	uint8_t buffer[AES_BLOCKLEN];
 	size_t i, todo = min_t(size_t, len, AES_BLOCKLEN);
-	int bi;
 
 	if (in != out)
 		memcpy(out, in, len);
 
 	for (i = 0; i < len; i += todo) {
 		/* we need to regen xor compliment in buffer */
-		memcpy(buffer, ctx->iv, AES_BLOCKLEN);
+		ctr128_to_ptr(buffer, ctx->iv);
 		aes_cipher((state_t*)buffer, block_ctx);
-
-		/* Increment Iv and handle overflow */
-		for (bi = (AES_BLOCKLEN - 1); bi >= 0; --bi) {
-			/* inc will overflow */
-			if (ctx->iv[bi] == 255) {
-				ctx->iv[bi] = 0;
-				continue;
-			}
-			ctx->iv[bi] += 1;
-			break;
-		}
-
+		ctr128_inc(ctx->iv);
 		xor_64(out + i, buffer, AES_BLOCKLEN);
 		todo = min_t(size_t, len - i, AES_BLOCKLEN);
 	}
@@ -92,7 +81,7 @@ static int aes_ctr_setkey(struct lc_sym_state *ctx,
 	if (!ctx)
 		return -EINVAL;
 
-	ret = set_aes_type(&ctx->block_ctx, keylen);
+	ret = aes_set_type(&ctx->block_ctx, keylen);
 	if (!ret)
 		KeyExpansion(&ctx->block_ctx, key);
 
@@ -105,7 +94,7 @@ static int aes_ctr_setiv(struct lc_sym_state *ctx,
 	if (!ctx || ivlen != AES_BLOCKLEN)
 		return -EINVAL;
 
-	memcpy(ctx->iv, iv, AES_BLOCKLEN);
+	ptr_to_ctr128(ctx->iv, iv);
 	return 0;
 }
 
