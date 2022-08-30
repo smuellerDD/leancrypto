@@ -97,7 +97,6 @@ static const uint8_t Rcon[11] = {
 	0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36
 };
 
-
 static uint8_t getSBoxValue(uint8_t num)
 {
 	return sbox[num];
@@ -372,9 +371,8 @@ void aes_cipher(state_t* state, const struct aes_block_ctx *block_ctx)
 	for (round = 1; ; ++round) {
 		SubBytes(state);
 		ShiftRows(state);
-		if (round == Nr) {
+		if (round == Nr)
 			break;
-		}
 		MixColumns(state);
 		AddRoundKey(round, state, RoundKey);
 	}

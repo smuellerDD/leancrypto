@@ -78,7 +78,7 @@ static int aes_ecb_setkey(struct lc_sym_state *ctx,
 	if (!ctx)
 		return -EINVAL;
 
-	ret = set_aes_type(&ctx->block_ctx, keylen);
+	ret = aes_set_type(&ctx->block_ctx, keylen);
 	if (!ret)
 		KeyExpansion(&ctx->block_ctx, key);
 

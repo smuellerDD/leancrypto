@@ -46,7 +46,7 @@ struct aes_block_ctx
 	uint8_t nr;
 };
 
-static inline int set_aes_type(struct aes_block_ctx *ctx, size_t keylen)
+static inline int aes_set_type(struct aes_block_ctx *ctx, size_t keylen)
 {
 	switch (keylen) {
 	case 16:
