@@ -25,6 +25,7 @@
 #include "bitshift.h"
 #include "build_bug_on.h"
 #include "lc_aes_private.h"
+#include "math_helper.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -37,13 +38,13 @@ static inline void ctr128_inc(uint64_t ctr[AES_CTR128_64BIT_WORDS])
 {
 	BUILD_BUG_ON(AES_CTR128_64BIT_WORDS != 2);
 
-	if (ctr[1] < 0xffffffffffffffff) {
+	if (likely(ctr[1] < 0xffffffffffffffff)) {
 		ctr[1]++;
 		return;
 	}
 	ctr[1] = 0;
 
-	if (ctr[0] < 0xffffffffffffffff)
+	if (likely(ctr[0] < 0xffffffffffffffff))
 		ctr[0]++;
 	else
 		ctr[0] = 0;

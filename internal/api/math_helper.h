@@ -25,6 +25,9 @@ extern "C"
 {
 #endif
 
+#define likely(x)      __builtin_expect(!!(x), 1)
+#define unlikely(x)    __builtin_expect(!!(x), 0)
+
 #define min_t(type, a, b)						       \
 	((type)a < (type)b) ? (type)a : (type)b
 
