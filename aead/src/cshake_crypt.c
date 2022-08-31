@@ -298,7 +298,7 @@ void lc_cc_setkey(struct lc_cc_cryptor *cc,
 	 *
 	 * After the lc_cshake_final we have to call lc_hash_final for
 	 * getting new cSHAKE data. The digest size is already set with the
-	 * lc_cshake_final= operation.
+	 * lc_cshake_final operation.
 	 */
 	lc_cshake_final(cshake, cc->keystream, LC_CC_KEYSTREAM_BLOCK);
 	lc_cshake_init(auth_ctx,

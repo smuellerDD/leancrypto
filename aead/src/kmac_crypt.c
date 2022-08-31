@@ -241,9 +241,8 @@ void lc_kc_setkey(struct lc_kc_cryptor *kc,
 	 * Generate key for KMAC authentication - we simply use two different
 	 * keys for the KMAC keystream generator and the KMAC authenticator.
 	 *
-	 * After the lc_kmac_final_xof we have to call lc_hash_final for
-	 * getting new cSHAKE data. The digest size is already set with the
-	 * lc_kmac_final_xof operation.
+	 * After the lc_kmac_final_xof we have to call lc_kmac_final_xof_more
+	 * for getting new KMAC data.
 	 */
 	lc_kmac_final_xof(kmac, kc->keystream, LC_KC_KEYSTREAM_BLOCK);
 	lc_kmac_init(auth_ctx, kc->keystream, LC_KC_AUTHENTICATION_KEY_SIZE,
