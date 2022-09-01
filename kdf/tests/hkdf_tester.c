@@ -93,8 +93,8 @@ static int hkdf_tester(void)
 
 	lc_rng_zero(hkdf_rng);
 
-	if (lc_hkdf_oneshot(lc_sha256, ikm, sizeof(ikm), salt, sizeof(salt),
-			    info, sizeof(info), act, sizeof(act))) {
+	if (lc_hkdf(lc_sha256, ikm, sizeof(ikm), salt, sizeof(salt),
+		    info, sizeof(info), act, sizeof(act))) {
 		printf("HKDF extract stack failed\n");
 		return 1;
 	}

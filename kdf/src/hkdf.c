@@ -21,9 +21,11 @@
 #include <errno.h>
 #include <sys/mman.h>
 
+#include "build_bug_on.h"
 #include "lc_hkdf.h"
 #include "lc_rng.h"
 #include "memset_secure.h"
+#include "null_buffer.h"
 #include "visibility.h"
 
 DSO_PUBLIC
@@ -33,8 +35,9 @@ int lc_hkdf_extract(struct lc_hkdf_ctx *hkdf_ctx,
 {
 	struct lc_hmac_ctx *hmac_ctx = &hkdf_ctx->hmac_ctx;
 	size_t h = lc_hmac_macsize(hmac_ctx);
-	const uint8_t null_salt[LC_SHA_MAX_SIZE_DIGEST] = { 0 };
 	uint8_t prk_tmp[LC_SHA_MAX_SIZE_DIGEST];
+
+	BUILD_BUG_ON(LC_NULL_BUFFER_SIZE < LC_SHA_MAX_SIZE_DIGEST);
 
 	if (!ikm || !ikmlen)
 		return -EINVAL;
@@ -43,7 +46,7 @@ int lc_hkdf_extract(struct lc_hkdf_ctx *hkdf_ctx,
 	if (salt)
 		lc_hmac_init(hmac_ctx, salt, saltlen);
 	else
-		lc_hmac_init(hmac_ctx, null_salt, h);
+		lc_hmac_init(hmac_ctx, null_buffer, h);
 
 	lc_hmac_update(hmac_ctx, ikm, ikmlen);
 	lc_hmac_final(hmac_ctx, prk_tmp);
@@ -207,4 +210,4 @@ static const struct lc_rng _lc_hkdf = {
 	.seed		= lc_hkdf_rng_seed,
 	.zero		= lc_hkdf_rng_zero,
 };
-DSO_PUBLIC const struct lc_rng *lc_hkdf = &_lc_hkdf;
+DSO_PUBLIC const struct lc_rng *lc_hkdf_rng = &_lc_hkdf;
