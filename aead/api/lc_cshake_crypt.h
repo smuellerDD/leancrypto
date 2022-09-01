@@ -220,7 +220,7 @@ lc_cc_encrypt_oneshot(struct lc_cc_cryptor *cc,
  *
  *
  * @return 0 on successful authentication, < 0 on error
- *	   (EBADMSG means authentication error)
+ *	   (-EBADMSG means authentication error)
  */
 static inline int
 lc_cc_decrypt_oneshot(struct lc_cc_cryptor *cc,
@@ -229,6 +229,14 @@ lc_cc_decrypt_oneshot(struct lc_cc_cryptor *cc,
 		      const uint8_t *aad, size_t aadlen,
 		      const uint8_t *tag, size_t taglen)
 {
+	/*
+	 * To ensure constant time between passing and failing decryption,
+	 * this code first performs the decryption. The decryption results
+	 * will need to be discarded if there is an authentication error. Yet,
+	 * in case of an authentication error, an attacker cannot deduct
+	 * that there is such an error from the timing analysis of this
+	 * function.
+	 */
 	/* Confidentiality protection: Encrypt data */
 	lc_cc_decrypt(cc, ciphertext, plaintext, datalen);
 

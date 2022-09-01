@@ -206,6 +206,15 @@ lc_hc_decrypt_oneshot(struct lc_hc_cryptor *hc,
 {
 	ssize_t ret_dec, ret_tag;
 
+	/*
+	 * To ensure constant time between passing and failing decryption,
+	 * this code first performs the decryption. The decryption results
+	 * will need to be discarded if there is an authentication error. Yet,
+	 * in case of an authentication error, an attacker cannot deduct
+	 * that there is such an error from the timing analysis of this
+	 * function.
+	 */
+
 	/* Confidentiality protection: Encrypt data */
 	ret_dec = lc_hc_decrypt(hc, ciphertext, plaintext, datalen);
 	if (ret_dec < 0)
