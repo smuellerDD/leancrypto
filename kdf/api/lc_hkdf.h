@@ -152,11 +152,11 @@ void lc_hkdf_zero_free(struct lc_hkdf_ctx *hkdf_ctx);
  *
  * @return 0 on success, < 0 on error
  */
-static inline int lc_hkdf_oneshot(const struct lc_hash *hash,
-				  const uint8_t *ikm, size_t ikmlen,
-				  const uint8_t *salt, size_t saltlen,
-				  const uint8_t *info, size_t infolen,
-				  uint8_t *dst, size_t dlen)
+static inline int lc_hkdf(const struct lc_hash *hash,
+			  const uint8_t *ikm, size_t ikmlen,
+			  const uint8_t *salt, size_t saltlen,
+			  const uint8_t *info, size_t infolen,
+			  uint8_t *dst, size_t dlen)
 {
 	LC_HKDF_CTX_ON_STACK(hkdf, hash);
 	int ret;
@@ -179,7 +179,7 @@ out:
  */
 
 /* HKDF DRNG implementation */
-extern const struct lc_rng *lc_hkdf;
+extern const struct lc_rng *lc_hkdf_rng;
 
 #define LC_HKDF_DRNG_CTX_SIZE(hashname)	(sizeof(struct lc_rng_ctx) +	       \
 					 LC_HKDF_CTX_SIZE(hashname))
@@ -187,7 +187,7 @@ extern const struct lc_rng *lc_hkdf;
 #define LC_HKDF_DRNG_SET_CTX(name, hashname)	LC_HKDF_SET_CTX(name, hashname)
 
 #define LC_HKDF_RNG_CTX(name, hashname)					       \
-	LC_RNG_CTX(name, lc_hkdf);					       \
+	LC_RNG_CTX(name, lc_hkdf_rng);					       \
 	LC_HKDF_DRNG_SET_CTX(((struct lc_hkdf_ctx *)(name->rng_state)), hashname);\
 	lc_rng_zero(name)
 

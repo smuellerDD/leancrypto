@@ -3,6 +3,7 @@ internal_src = files([
 	'binhexbin.c',
 	'left_encode.c',
 	'memcmp_secure.c',
+	'null_buffer.c'
 ])
 
 include_files += files([ '../api/memset_secure.h' ])
