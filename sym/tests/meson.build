@@ -65,9 +65,26 @@ if get_option('aes_cbc').enabled()
 					include_directories: [ include_internal_dirs ],
 					dependencies: leancrypto
 					)
+	aes_cbc_large_tester = executable('aes_cbc_large_tester',
+					[ 'aes_cbc_large_tester.c',
+					internal_src ],
+					include_directories: [ include_internal_dirs ],
+					dependencies: leancrypto
+					)
+
+	# This is only present to compare its performance to the leancrypto impl
+	# aes_cbc_openssl_large_tester = executable('aes_cbc_openssl_large_tester',
+	#				[ 'aes_cbc_openssl_large_tester.c',
+	#				internal_src ],
+	#				include_directories: [ include_internal_dirs ],
+	#				dependencies: [ leancrypto,
+	#						dependency('openssl') ]
+	#				)
 
 	test('AES CBC encryption', aes_cbc_enc_tester)
 	test('AES CBC decryption', aes_cbc_dec_tester)
+	#test('AES CBC 1GB', aes_cbc_large_tester, timeout: 300)
+	#test('AES CBC OpenSSL 1GB', aes_cbc_openssl_large_tester, timeout: 300)
 endif
 
 if get_option('aes_ctr').enabled()
@@ -78,7 +95,15 @@ if get_option('aes_ctr').enabled()
 					dependencies: leancrypto
 					)
 
+	aes_ctr_large_tester = executable('aes_ctr_large_tester',
+					[ 'aes_ctr_large_tester.c',
+					internal_src ],
+					include_directories: [ include_internal_dirs ],
+					dependencies: leancrypto
+					)
+
 	test('AES CTR en/decryption', aes_ctr_tester)
+	#test('AES CTR 1GB', aes_ctr_large_tester, timeout: 300)
 endif
 
 if get_option('aes_kw').enabled()
