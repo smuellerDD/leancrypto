@@ -189,7 +189,7 @@ void KeyExpansion(struct aes_block_ctx *block_ctx, const uint8_t* Key)
  */
 static void AddRoundKey(uint8_t round, state_t* state, const uint8_t* RoundKey)
 {
-	uint8_t i,j;
+	uint8_t i, j;
 
 	for (i = 0; i < 4; ++i) {
 		for (j = 0; j < 4; ++j) {
@@ -393,14 +393,12 @@ void aes_inv_cipher(state_t* state, const struct aes_block_ctx *block_ctx)
 	// The first Nr-1 rounds are identical.
 	// These Nr rounds are executed in the loop below.
 	// Last one without InvMixColumn()
-	for (round = (Nr - 1); ; --round)
-	{
+	for (round = (Nr - 1); ; --round) {
 		InvShiftRows(state);
 		InvSubBytes(state);
-		AddRoundKey(round, state, block_ctx->RoundKey);
-		if (round == 0) {
+		AddRoundKey(round, state, RoundKey);
+		if (round == 0)
 			break;
-		}
 		InvMixColumns(state);
 	}
 }
