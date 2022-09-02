@@ -93,8 +93,12 @@ struct lc_hash_ctx {
  */
 static inline void lc_hash_init(struct lc_hash_ctx *hash_ctx)
 {
-	const struct lc_hash *hash = hash_ctx->hash;
+	const struct lc_hash *hash;
 
+	if (!hash_ctx)
+		return;
+
+	hash = hash_ctx->hash;
 	hash->init(hash_ctx->hash_state);
 }
 
@@ -109,8 +113,12 @@ static inline void lc_hash_init(struct lc_hash_ctx *hash_ctx)
 static inline void
 lc_hash_update(struct lc_hash_ctx *hash_ctx, const uint8_t *in, size_t inlen)
 {
-	const struct lc_hash *hash = hash_ctx->hash;
+	const struct lc_hash *hash;
 
+	if (!hash_ctx)
+		return;
+
+	hash = hash_ctx->hash;
 	hash->update(hash_ctx->hash_state, in, inlen);
 }
 
@@ -146,8 +154,12 @@ lc_hash_update(struct lc_hash_ctx *hash_ctx, const uint8_t *in, size_t inlen)
  */
 static inline void lc_hash_final(struct lc_hash_ctx *hash_ctx, uint8_t *digest)
 {
-	const struct lc_hash *hash = hash_ctx->hash;
+	const struct lc_hash *hash;
 
+	if (!hash_ctx || !digest)
+		return;
+
+	hash = hash_ctx->hash;
 	hash->final(hash_ctx->hash_state, digest);
 }
 
@@ -161,30 +173,46 @@ static inline void lc_hash_final(struct lc_hash_ctx *hash_ctx, uint8_t *digest)
 static inline void lc_hash_set_digestsize(struct lc_hash_ctx *hash_ctx,
 				          size_t digestsize)
 {
-	const struct lc_hash *hash = hash_ctx->hash;
+	const struct lc_hash *hash;
 
+	if (!hash_ctx)
+		return;
+
+	hash = hash_ctx->hash;
 	if (hash->set_digestsize)
 		hash->set_digestsize(hash_ctx->hash_state, digestsize);
 }
 
 static inline size_t lc_hash_digestsize(struct lc_hash_ctx *hash_ctx)
 {
-	const struct lc_hash *hash = hash_ctx->hash;
+	const struct lc_hash *hash;
 
+	if (!hash_ctx)
+		return 0;
+
+	hash = hash_ctx->hash;
 	return hash->get_digestsize(hash_ctx->hash_state);
 }
 
 static inline unsigned int lc_hash_blocksize(struct lc_hash_ctx *hash_ctx)
 {
-	const struct lc_hash *hash = hash_ctx->hash;
+	const struct lc_hash *hash;
 
+	if (!hash_ctx)
+		return 0;
+
+	hash = hash_ctx->hash;
 	return hash->blocksize;
 }
 
 static inline unsigned int lc_hash_ctxsize(struct lc_hash_ctx *hash_ctx)
 {
-	const struct lc_hash *hash = hash_ctx->hash;
+	const struct lc_hash *hash;
 
+	if (!hash_ctx)
+		return 0;
+
+	hash = hash_ctx->hash;
 	return hash->statesize;
 }
 
@@ -196,8 +224,12 @@ static inline unsigned int lc_hash_ctxsize(struct lc_hash_ctx *hash_ctx)
  */
 static inline void lc_hash_zero(struct lc_hash_ctx *hash_ctx)
 {
-	const struct lc_hash *hash = hash_ctx->hash;
+	const struct lc_hash *hash;
 
+	if (!hash_ctx)
+		return;
+
+	hash = hash_ctx->hash;
 	memset_secure((uint8_t *)hash_ctx + sizeof(struct lc_hash_ctx), 0,
 		      hash->statesize);
 }

@@ -32,6 +32,9 @@ void lc_hotp(const uint8_t *hmac_key, size_t hmac_key_len, uint64_t counter,
 	uint32_t offset, truncated, modulo = 1;
 	uint8_t md[LC_SHA_MAX_SIZE_DIGEST];
 
+	if (!hotp_val)
+		return;
+
 	/* calculate the modulo value */
 	while (digits > 0) {
 		modulo *= 10;

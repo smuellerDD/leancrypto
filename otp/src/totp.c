@@ -34,6 +34,9 @@ int lc_totp(const uint8_t *hmac_key, size_t hmac_key_len, uint32_t step,
 	time_t now;
 	uint64_t counter;
 
+	if (!totp_val)
+		return -EINVAL;
+
 	/* Get time in seconds since Epoch */
 	now = time(NULL);
 	if (now == (time_t)-1)

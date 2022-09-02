@@ -34,6 +34,9 @@ void lc_cshake_init(struct lc_hash_ctx *ctx,
 	/* 2 bytes for the bytepad_val that gets inserted */
 	size_t added = 2;
 
+	if (!ctx)
+		return;
+
 	/*
 	 * NOTE: This function only covers cSHAKE256!
 	 *

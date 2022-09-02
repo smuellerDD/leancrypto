@@ -172,6 +172,9 @@ static void sha3_224_init(void *_state)
 {
 	struct lc_sha3_224_state *ctx = _state;
 
+	if (!ctx)
+		return;
+
 	sha3_init(_state);
 	ctx->r = LC_SHA3_224_SIZE_BLOCK;
 	ctx->rword = LC_SHA3_224_SIZE_BLOCK / sizeof(uint64_t);
@@ -188,6 +191,9 @@ static size_t sha3_224_digestsize(void *_state)
 static void sha3_256_init(void *_state)
 {
 	struct lc_sha3_256_state *ctx = _state;
+
+	if (!ctx)
+		return;
 
 	sha3_init(_state);
 	ctx->r = LC_SHA3_256_SIZE_BLOCK;
@@ -206,6 +212,9 @@ static void sha3_384_init(void *_state)
 {
 	struct lc_sha3_384_state *ctx = _state;
 
+	if (!ctx)
+		return;
+
 	sha3_init(_state);
 	ctx->r = LC_SHA3_384_SIZE_BLOCK;
 	ctx->rword = LC_SHA3_384_SIZE_BLOCK / sizeof(uint64_t);
@@ -222,6 +231,9 @@ static size_t sha3_384_digestsize(void *_state)
 static void sha3_512_init(void *_state)
 {
 	struct lc_sha3_512_state *ctx = _state;
+
+	if (!ctx)
+		return;
 
 	sha3_init(_state);
 	ctx->r = LC_SHA3_512_SIZE_BLOCK;
@@ -240,6 +252,9 @@ static void shake_128_init(void *_state)
 {
 	struct lc_shake_128_state *ctx = _state;
 
+	if (!ctx)
+		return;
+
 	sha3_init(_state);
 	ctx->r = LC_SHAKE_128_SIZE_BLOCK;
 	ctx->rword = LC_SHAKE_128_SIZE_BLOCK / sizeof(uint64_t);
@@ -251,6 +266,9 @@ static void shake_256_init(void *_state)
 {
 	struct lc_sha3_256_state *ctx = _state;
 
+	if (!ctx)
+		return;
+
 	sha3_init(_state);
 	ctx->r = LC_SHA3_256_SIZE_BLOCK;
 	ctx->rword = LC_SHA3_256_SIZE_BLOCK / sizeof(uint64_t);
@@ -261,6 +279,9 @@ static void shake_256_init(void *_state)
 static void cshake_256_init(void *_state)
 {
 	struct lc_sha3_256_state *ctx = _state;
+
+	if (!ctx)
+		return;
 
 	sha3_init(_state);
 	ctx->r = LC_SHA3_256_SIZE_BLOCK;
@@ -309,8 +330,12 @@ static void keccak_absorb(void *_state, const uint8_t *in, size_t inlen)
 	 * the largest state.
 	 */
 	struct lc_sha3_224_state *ctx = _state;
-	size_t partial = ctx->msg_len % ctx->r;
+	size_t partial;
 
+	if (!ctx)
+		return;
+
+	partial = ctx->msg_len % ctx->r;
 	ctx->squeeze_more = 0;
 	ctx->msg_len += inlen;
 
@@ -372,10 +397,16 @@ static void keccak_squeeze(void *_state, uint8_t *digest)
 	 * the largest state.
 	 */
 	struct lc_sha3_224_state *ctx = _state;
-	size_t partial = ctx->msg_len % ctx->r;
-	size_t i, digest_len = ctx->digestsize;
+	size_t partial;
+	size_t i, digest_len;
 	uint32_t part;
 	volatile uint32_t *part_p;
+
+	if (!ctx || !digest)
+		return;
+
+	partial = ctx->msg_len % ctx->r;
+	digest_len = ctx->digestsize;
 
 	if (!ctx->squeeze_more) {
 		/* Final round in sponge absorbing phase */

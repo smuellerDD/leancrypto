@@ -40,8 +40,12 @@ struct lc_sym_state {
 static void aes_ecb_encrypt(struct lc_sym_state* ctx,
 			    const uint8_t *in, uint8_t *out, size_t len)
 {
-	const struct aes_block_ctx *block_ctx = &ctx->block_ctx;
+	const struct aes_block_ctx *block_ctx;
 	size_t i, rounded_len = len & ~(AES_BLOCKLEN - 1);
+
+	if (!ctx)
+		return;
+	block_ctx = &ctx->block_ctx;
 
 	if (in != out)
 		memcpy(out, in, rounded_len);
@@ -54,8 +58,12 @@ static void aes_ecb_encrypt(struct lc_sym_state* ctx,
 static void aes_ecb_decrypt(struct lc_sym_state* ctx,
 			    const uint8_t *in, uint8_t *out, size_t len)
 {
-	const struct aes_block_ctx *block_ctx = &ctx->block_ctx;
+	const struct aes_block_ctx *block_ctx;
 	size_t i, rounded_len = len & ~(AES_BLOCKLEN - 1);
+
+	if (!ctx)
+		return;
+	block_ctx = &ctx->block_ctx;
 
 	if (in != out)
 		memcpy(out, in, rounded_len);

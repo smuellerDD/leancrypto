@@ -193,8 +193,13 @@ void lc_kmac_zero_free(struct lc_kmac_ctx *kmac_ctx);
  */
 static inline void lc_kmac_zero(struct lc_kmac_ctx *kmac_ctx)
 {
-	struct lc_hash_ctx *hash_ctx = &kmac_ctx->hash_ctx;
-	const struct lc_hash *hash = hash_ctx->hash;
+	struct lc_hash_ctx *hash_ctx;
+	const struct lc_hash *hash;
+
+	if (!kmac_ctx)
+		return;
+	hash_ctx = &kmac_ctx->hash_ctx;
+	hash = hash_ctx->hash;
 
 	memset_secure((uint8_t *)kmac_ctx + sizeof(struct lc_kmac_ctx), 0,
 		      kmac_ctx->shadow_ctx ? LC_KMAC_STATE_SIZE_REINIT(hash) :
@@ -247,8 +252,12 @@ static inline void lc_kmac_zero(struct lc_kmac_ctx *kmac_ctx)
  */
 static inline size_t lc_kmac_macsize(struct lc_kmac_ctx *kmac_ctx)
 {
-	struct lc_hash_ctx *hash_ctx = &kmac_ctx->hash_ctx;
+	struct lc_hash_ctx *hash_ctx;
 
+	if (!kmac_ctx)
+		return 0;
+
+	hash_ctx = &kmac_ctx->hash_ctx;
 	return lc_hash_digestsize(hash_ctx);
 }
 

@@ -49,7 +49,11 @@ static unsigned int right_encode(uint8_t *buf, size_t val)
 DSO_PUBLIC
 void lc_kmac_reinit(struct lc_kmac_ctx *kmac_ctx)
 {
-	struct lc_hash_ctx *hash_ctx = &kmac_ctx->hash_ctx;
+	struct lc_hash_ctx *hash_ctx;
+
+	if (!kmac_ctx)
+		return;
+	hash_ctx = &kmac_ctx->hash_ctx;
 
 	if (!kmac_ctx->shadow_ctx)
 		return;
@@ -66,13 +70,17 @@ void lc_kmac_init(struct lc_kmac_ctx *kmac_ctx,
 		  const uint8_t *key, size_t klen,
 		  const uint8_t *s, size_t slen)
 {
-	struct lc_hash_ctx *hash_ctx = &kmac_ctx->hash_ctx;
+	struct lc_hash_ctx *hash_ctx;
 	static const uint8_t zero[LC_SHA3_256_SIZE_BLOCK] = { 0 };
 	static const uint8_t bytepad_val[2] = { 0x01, 0x88 };
 	uint8_t buf[sizeof(klen) + 1];
 	size_t len;
 	/* 2 bytes for the bytepad_val that gets inserted */
 	size_t added = 2;
+
+	if (!kmac_ctx)
+		return;
+	hash_ctx = &kmac_ctx->hash_ctx;
 
 	lc_hash_init(hash_ctx);
 	lc_cshake_init(hash_ctx, (uint8_t *)"KMAC", 4, s, slen);
@@ -104,7 +112,11 @@ DSO_PUBLIC
 void lc_kmac_update(struct lc_kmac_ctx *kmac_ctx,
 		    const uint8_t *in, size_t inlen)
 {
-	struct lc_hash_ctx *hash_ctx = &kmac_ctx->hash_ctx;
+	struct lc_hash_ctx *hash_ctx;
+
+	if (!kmac_ctx)
+		return;
+	hash_ctx = &kmac_ctx->hash_ctx;
 
 	lc_hash_update(hash_ctx, in, inlen);
 }
@@ -112,9 +124,13 @@ void lc_kmac_update(struct lc_kmac_ctx *kmac_ctx,
 DSO_PUBLIC
 void lc_kmac_final(struct lc_kmac_ctx *kmac_ctx, uint8_t *mac, size_t maclen)
 {
-	struct lc_hash_ctx *hash_ctx = &kmac_ctx->hash_ctx;
+	struct lc_hash_ctx *hash_ctx;
 	uint8_t buf[sizeof(size_t) + 1];
 	size_t len;
+
+	if (!kmac_ctx || !mac)
+		return;
+	hash_ctx = &kmac_ctx->hash_ctx;
 
 	len = right_encode(buf, maclen << 3);
 	lc_hash_update(hash_ctx, buf, len);
@@ -126,8 +142,12 @@ DSO_PUBLIC
 void lc_kmac_final_xof(struct lc_kmac_ctx *kmac_ctx,
 		       uint8_t *mac, size_t maclen)
 {
-	struct lc_hash_ctx *hash_ctx = &kmac_ctx->hash_ctx;
+	struct lc_hash_ctx *hash_ctx;
 	static const uint8_t bytepad_val[] = { 0x00, 0x01 };
+
+	if (!kmac_ctx || !mac)
+		return;
+	hash_ctx = &kmac_ctx->hash_ctx;
 
 	lc_hash_update(hash_ctx, bytepad_val, sizeof(bytepad_val));
 	lc_cshake_final(hash_ctx, mac, maclen);
@@ -147,10 +167,16 @@ int lc_kmac_alloc(const struct lc_hash *hash, struct lc_kmac_ctx **kmac_ctx,
 		  uint32_t flags)
 {
 	struct lc_kmac_ctx *out_ctx;
-	size_t memsize = (flags & LC_KMAC_FLAGS_SUPPORT_REINIT) ?
-			  LC_KMAC_CTX_SIZE_REINIT(hash) :
-			  LC_KMAC_CTX_SIZE(hash);
-	int ret = posix_memalign((void *)&out_ctx, sizeof(uint64_t), memsize);
+	size_t memsize;
+	int ret;
+
+	if (!kmac_ctx)
+		return -EINVAL;
+
+	memsize = (flags & LC_KMAC_FLAGS_SUPPORT_REINIT) ?
+		  LC_KMAC_CTX_SIZE_REINIT(hash) :
+		  LC_KMAC_CTX_SIZE(hash);
+	ret = posix_memalign((void *)&out_ctx, sizeof(uint64_t), memsize);
 
 	if (ret)
 		return -ret;

@@ -98,7 +98,12 @@ static inline void
 lc_cc_encrypt(struct lc_cc_cryptor *cc,
 	      const uint8_t *plaintext, uint8_t *ciphertext, size_t datalen)
 {
-	struct lc_hash_ctx *auth_ctx = &cc->auth_ctx;
+	struct lc_hash_ctx *auth_ctx;
+
+	if (!cc)
+		return;
+
+	auth_ctx = &cc->auth_ctx;
 
 	lc_cc_crypt(cc, plaintext, ciphertext, datalen);
 
@@ -142,7 +147,12 @@ static inline void
 lc_cc_decrypt(struct lc_cc_cryptor *cc,
 	      const uint8_t *ciphertext, uint8_t *plaintext, size_t datalen)
 {
-	struct lc_hash_ctx *auth_ctx = &cc->auth_ctx;
+	struct lc_hash_ctx *auth_ctx;
+
+	if (!cc)
+		return;
+
+	auth_ctx = &cc->auth_ctx;
 
 	/*
 	 * Calculate the authentication tag over the ciphertext
@@ -273,9 +283,14 @@ void lc_cc_zero_free(struct lc_cc_cryptor *hc);
  */
 static inline void lc_cc_zero(struct lc_cc_cryptor *cc)
 {
-	struct lc_hash_ctx *cshake = &cc->cshake;
-	const struct lc_hash *hash = cshake->hash;
+	struct lc_hash_ctx *cshake;
+	const struct lc_hash *hash;
 
+	if (!cc)
+		return;
+
+	cshake = &cc->cshake;
+	hash = cshake->hash;
 	memset_secure((uint8_t *)cc + sizeof(struct lc_cc_cryptor), 0,
 		      LC_CC_STATE_SIZE(hash));
 }

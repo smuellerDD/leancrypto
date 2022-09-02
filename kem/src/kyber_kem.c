@@ -38,6 +38,9 @@ int lc_kyber_keypair(struct lc_kyber_pk *pk,
 		     struct lc_kyber_sk *sk,
 		     struct lc_rng_ctx *rng_ctx)
 {
+	if (!pk || !sk || !rng_ctx)
+		return -EINVAL;
+
 	indcpa_keypair(pk->pk, sk->sk, rng_ctx);
 
 	memcpy(&sk->sk[LC_KYBER_INDCPA_SECRETKEYBYTES], pk->pk,
@@ -53,6 +56,7 @@ int lc_kyber_keypair(struct lc_kyber_pk *pk,
 		LC_KYBER_SYMBYTES);
 }
 
+DSO_PUBLIC
 int lc_kyber_enc(struct lc_kyber_ct *ct,
 		 struct lc_kyber_ss *ss,
 		 const struct lc_kyber_pk *pk,
@@ -62,6 +66,9 @@ int lc_kyber_enc(struct lc_kyber_ct *ct,
 	/* Will contain key, coins */
 	uint8_t kr[2 * LC_KYBER_SYMBYTES];
 	int ret;
+
+	if (!ct || !ss || !pk || !rng_ctx)
+		return -EINVAL;
 
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, buf, LC_KYBER_SYMBYTES));
 	/* Don't release system RNG output */
@@ -87,6 +94,7 @@ out:
 	return ret;
 }
 
+DSO_PUBLIC
 int lc_kyber_dec(struct lc_kyber_ss *ss,
 		 const struct lc_kyber_ct *ct,
 		 const struct lc_kyber_sk *sk)
@@ -97,6 +105,9 @@ int lc_kyber_dec(struct lc_kyber_ss *ss,
 	uint8_t cmp[LC_KYBER_CIPHERTEXTBYTES];
 	const uint8_t *pk = sk->sk + LC_KYBER_INDCPA_SECRETKEYBYTES;
 	uint8_t fail;
+
+	if (!ss || !ct || !sk)
+		return -EINVAL;
 
 	indcpa_dec(buf, ct->ct, sk->sk);
 

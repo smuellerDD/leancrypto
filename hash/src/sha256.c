@@ -43,6 +43,9 @@ static void sha256_init(void *_state)
 {
 	struct lc_sha256_state *ctx = _state;
 
+	if (!ctx)
+		return;
+
 	ctx->H[0] = 0x6a09e667;
 	ctx->H[1] = 0xbb67ae85;
 	ctx->H[2] = 0x3c6ef372;
@@ -103,8 +106,12 @@ static inline void sha256_transform(struct lc_sha256_state *ctx,
 static void sha256_update(void *_state, const uint8_t *in, size_t inlen)
 {
 	struct lc_sha256_state *ctx = _state;
-	unsigned int partial = ctx->msg_len % LC_SHA256_SIZE_BLOCK;
+	unsigned int partial;
 
+	if (!ctx)
+		return;
+
+	partial = ctx->msg_len % LC_SHA256_SIZE_BLOCK;
 	ctx->msg_len += inlen;
 
 	/* Check if we have a partial block stored */
@@ -143,7 +150,12 @@ static void sha256_update(void *_state, const uint8_t *in, size_t inlen)
 static void sha256_final(void *_state, uint8_t *digest)
 {
 	struct lc_sha256_state *ctx = _state;
-	unsigned int i, partial = ctx->msg_len % LC_SHA256_SIZE_BLOCK;
+	unsigned int i, partial;
+
+	if (!ctx || !digest)
+		return;
+
+	partial = ctx->msg_len % LC_SHA256_SIZE_BLOCK;
 
 	/*
 	 * We know a-priori that we have at least one byte free in the partial

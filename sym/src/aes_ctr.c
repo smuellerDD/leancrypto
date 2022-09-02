@@ -49,9 +49,13 @@ struct lc_sym_state {
 static void aes_ctr_crypt(struct lc_sym_state *ctx,
 			  const uint8_t *in, uint8_t *out, size_t len)
 {
-	const struct aes_block_ctx *block_ctx = &ctx->block_ctx;
+	const struct aes_block_ctx *block_ctx;
 	uint8_t buffer[AES_BLOCKLEN];
-	size_t i, todo = min_t(size_t, len, AES_BLOCKLEN);
+	size_t i, todo; = min_t(size_t, len, AES_BLOCKLEN);
+
+	if (!ctx)
+		return;
+	block_ctx = &ctx->block_ctx;
 
 	if (in != out)
 		memcpy(out, in, len);

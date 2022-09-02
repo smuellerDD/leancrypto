@@ -35,6 +35,9 @@ int lc_kdf_ctr_generate(struct lc_hmac_ctx *hmac_ctx,
 	size_t h;
 	uint32_t i = 1;
 
+	if (!hmac_ctx)
+		return -EINVAL;
+
 	if (dlen > INT_MAX)
 		return -EMSGSIZE;
 

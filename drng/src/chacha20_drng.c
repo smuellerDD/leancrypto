@@ -36,9 +36,14 @@
 static inline void lc_cc20_drng_update(struct lc_chacha20_drng_ctx *cc20_ctx,
 				       uint32_t *buf, size_t used_words)
 {
-	struct lc_sym_ctx *sym_ctx = &cc20_ctx->cc20;
-	struct lc_sym_state *chacha20_state = sym_ctx->sym_state;
+	struct lc_sym_ctx *sym_ctx;
+	struct lc_sym_state *chacha20_state;
 	uint32_t i, tmp[LC_CC20_BLOCK_SIZE_WORDS];
+
+	if (!cc20_ctx)
+		return;
+	sym_ctx = &cc20_ctx->cc20;
+	chacha20_state = sym_ctx->sym_state;
 
 	if (used_words > LC_CC20_KEY_SIZE_WORDS) {
 		cc20_block(chacha20_state, tmp);
@@ -79,8 +84,13 @@ DSO_PUBLIC
 void lc_cc20_drng_seed(struct lc_chacha20_drng_ctx *cc20_ctx,
 		       const uint8_t *inbuf, size_t inbuflen)
 {
-	struct lc_sym_ctx *sym_ctx = &cc20_ctx->cc20;
-	struct lc_sym_state *chacha20_state = sym_ctx->sym_state;
+	struct lc_sym_ctx *sym_ctx;
+	struct lc_sym_state *chacha20_state;
+
+	if (!cc20_ctx)
+		return;
+	sym_ctx = &cc20_ctx->cc20;
+	chacha20_state = sym_ctx->sym_state;
 
 	while (inbuflen) {
 		size_t i, todo = min_t(uint32_t, inbuflen, LC_CC20_KEY_SIZE);
@@ -112,11 +122,16 @@ DSO_PUBLIC
 void lc_cc20_drng_generate(struct lc_chacha20_drng_ctx *cc20_ctx,
 			   uint8_t *outbuf, size_t outbuflen)
 {
-	struct lc_sym_ctx *sym_ctx = &cc20_ctx->cc20;
-	struct lc_sym_state *chacha20_state = sym_ctx->sym_state;
+	struct lc_sym_ctx *sym_ctx;
+	struct lc_sym_state *chacha20_state;
 	uint32_t aligned_buf[(LC_CC20_BLOCK_SIZE / sizeof(uint32_t))];
 	size_t used = LC_CC20_BLOCK_SIZE_WORDS;
 	int zeroize_buf = 0;
+
+	if (!cc20_ctx)
+		return;
+	sym_ctx = &cc20_ctx->cc20;
+	chacha20_state = sym_ctx->sym_state;
 
 	while (outbuflen >= LC_CC20_BLOCK_SIZE) {
 		if ((unsigned long)outbuf & (sizeof(aligned_buf[0]) - 1)) {
@@ -162,9 +177,13 @@ DSO_PUBLIC
 int lc_cc20_drng_alloc(struct lc_chacha20_drng_ctx **cc20_ctx)
 {
 	struct lc_chacha20_drng_ctx *out_ctx;
-	int ret = posix_memalign((void *)&out_ctx, sizeof(uint64_t),
-				 LC_CC20_DRNG_CTX_SIZE);
+	int ret;
 
+	if (!cc20_ctx)
+		return -EINVAL;
+
+	ret = posix_memalign((void *)&out_ctx, sizeof(uint64_t),
+			     LC_CC20_DRNG_CTX_SIZE);
 	if (ret)
 		return -ret;
 

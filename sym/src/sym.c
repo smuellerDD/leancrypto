@@ -17,6 +17,7 @@
  * DAMAGE.
  */
 
+#include <errno.h>
 #include <stdlib.h>
 
 #include "lc_sym.h"
@@ -26,8 +27,13 @@ DSO_PUBLIC
 int lc_sym_alloc(const struct lc_sym *sym, struct lc_sym_ctx **ctx)
 {
 	struct lc_sym_ctx *out_ctx;
-	int ret = posix_memalign((void *)&out_ctx, sizeof(uint64_t),
-				 LC_SYM_CTX_SIZE(sym));
+	int ret;
+
+	if (!ctx)
+		return -EINVAL;
+
+	ret = posix_memalign((void *)&out_ctx, sizeof(uint64_t),
+			     LC_SYM_CTX_SIZE(sym));
 
 	if (ret)
 		return -ret;

@@ -47,6 +47,9 @@ int lc_dilithium_keypair(struct lc_dilithium_pk *pk,
 	const uint8_t *rho, *rhoprime, *key;
 	int ret;
 
+	if (!pk || !sk || !rng_ctx)
+		return -EINVAL;
+
 	/* Get randomness for rho, rhoprime and key */
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0,
 			      seedbuf, LC_DILITHIUM_SEEDBYTES));
@@ -111,6 +114,10 @@ int lc_dilithium_sign(struct lc_dilithium_sig *sig,
 	uint8_t *rho, *tr, *key, *mu, *rhoprime;
 	uint16_t nonce = 0;
 	int ret = 0;
+
+	/* rng_ctx is allowed to be NULL as handled below */
+	if (!sig || !m || !sk)
+		return -EINVAL;
 
 	rho = seedbuf;
 	tr = rho + LC_DILITHIUM_SEEDBYTES;
@@ -231,6 +238,9 @@ int lc_dilithium_verify(const struct lc_dilithium_sig *sig,
 	uint8_t mu[LC_DILITHIUM_CRHBYTES];
 	uint8_t c[LC_DILITHIUM_SEEDBYTES];
 	uint8_t c2[LC_DILITHIUM_SEEDBYTES];
+
+	if (!sig || !m || !pk)
+		return -EINVAL;
 
 	unpack_pk(rho, &t1, pk);
 	if (unpack_sig(c, &z, &h, sig))

@@ -68,8 +68,14 @@ struct lc_rng_ctx {
  */
 static inline void lc_rng_zero(struct lc_rng_ctx *ctx)
 {
-	const struct lc_rng *rng = ctx->rng;
-	void *rng_state = ctx->rng_state;
+	const struct lc_rng *rng;
+	void *rng_state;
+
+	if (!ctx)
+		return;
+
+	rng = ctx->rng;
+	rng_state = ctx->rng_state;
 
 	rng->zero(rng_state);
 }
@@ -143,8 +149,14 @@ lc_rng_seed(struct lc_rng_ctx *ctx,
 	    const uint8_t *seed, size_t seedlen,
 	    const uint8_t *persbuf, size_t perslen)
 {
-	const struct lc_rng *rng = ctx->rng;
-	void *rng_state = ctx->rng_state;
+	const struct lc_rng *rng;
+	void *rng_state;
+
+	if (!ctx)
+		return -EINVAL;
+
+	rng = ctx->rng;
+	rng_state = ctx->rng_state;
 
 	return rng->seed(rng_state, seed, seedlen, persbuf, perslen);
 }

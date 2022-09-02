@@ -97,6 +97,9 @@ void cc20_block(struct lc_sym_state *state, uint32_t *stream)
 
 static void cc20_init(struct lc_sym_state *ctx)
 {
+	if (!ctx)
+		return;
+
 	/* String "expand 32-byte k" */
 	ctx->constants[0] = 0x61707865;
 	ctx->constants[1] = 0x3320646e;
@@ -108,7 +111,7 @@ static void cc20_init(struct lc_sym_state *ctx)
 static int cc20_setkey(struct lc_sym_state *ctx,
 		       const uint8_t *key, size_t keylen)
 {
-	if (keylen != 32)
+	if (!ctx || keylen != 32)
 		return -EINVAL;
 
 	ctx->key.u[0] = ptr_to_32(key);
@@ -126,7 +129,7 @@ static int cc20_setkey(struct lc_sym_state *ctx,
 static int cc20_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen)
 {
 	/* IV is counter + nonce */
-	if (ivlen != 12)
+	if (!ctx || ivlen != 12)
 		return -EINVAL;
 
 	ctx->nonce[0] = ptr_to_32(iv);
@@ -142,6 +145,9 @@ static void cc20_crypt(struct lc_sym_state *ctx,
 {
 	uint32_t keystream[LC_CC20_BLOCK_SIZE_WORDS]
 				__attribute__((aligned(sizeof(uint64_t))));
+
+	if (!ctx)
+		return;
 
 	while (len) {
 		size_t todo = min_t(size_t, len, sizeof(keystream));

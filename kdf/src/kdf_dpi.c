@@ -37,6 +37,9 @@ int lc_kdf_dpi_generate(struct lc_hmac_ctx *hmac_ctx,
 	uint8_t Ai[LC_SHA_MAX_SIZE_DIGEST];
 	uint32_t i = 1;
 
+	if (!hmac_ctx)
+		return -EINVAL;
+
 	if (dlen > INT_MAX)
 		return -EMSGSIZE;
 

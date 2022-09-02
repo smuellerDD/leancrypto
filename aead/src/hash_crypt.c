@@ -35,9 +35,14 @@ int lc_hc_setkey(struct lc_hc_cryptor *hc,
 		 const uint8_t *key, size_t keylen,
 		 const uint8_t *iv, size_t ivlen)
 {
-	struct lc_rng_ctx *drbg = &hc->drbg;
-	struct lc_hmac_ctx *auth_ctx = &hc->auth_ctx;
+	struct lc_rng_ctx *drbg;
+	struct lc_hmac_ctx *auth_ctx;
 	int ret;
+
+	if (!hc)
+		return -EINVAL;
+	drbg = &hc->drbg;
+	auth_ctx = &hc->auth_ctx;
 
 	BUILD_BUG_ON(LC_SHA_MAX_SIZE_DIGEST > LC_HC_KEYSTREAM_BLOCK);
 
@@ -74,11 +79,13 @@ DSO_PUBLIC
 ssize_t lc_hc_crypt(struct lc_hc_cryptor *hc, const uint8_t *in, uint8_t *out,
 		    size_t len)
 {
-	struct lc_rng_ctx *drbg = &hc->drbg;
+	struct lc_rng_ctx *drbg;
 	size_t processed = 0;
 
-	if (len > SSIZE_MAX)
+	if (len > SSIZE_MAX || !hc)
 		return -EINVAL;
+
+	drbg = &hc->drbg;
 
 	while (len) {
 		size_t todo = min_t(size_t, len, LC_HC_KEYSTREAM_BLOCK);
@@ -120,8 +127,13 @@ ssize_t lc_hc_encrypt_tag(struct lc_hc_cryptor *hc,
 			  const uint8_t *aad, size_t aadlen,
 			  uint8_t *tag, size_t taglen)
 {
-	struct lc_hmac_ctx *auth_ctx = &hc->auth_ctx;
-	size_t digestsize = lc_hc_get_tagsize(hc);
+	struct lc_hmac_ctx *auth_ctx;
+	size_t digestsize;
+
+	if (!hc)
+		return -EINVAL;
+	auth_ctx = &hc->auth_ctx;
+	digestsize = lc_hc_get_tagsize(hc);
 
 	/* Add the AAD data into the HMAC context */
 	lc_hmac_update(auth_ctx, aad, aadlen);
@@ -155,6 +167,9 @@ ssize_t lc_hc_encrypt_oneshot(struct lc_hc_cryptor *hc,
 {
 	ssize_t ret_enc, ret_tag, res;
 
+	if (!hc)
+		return -EINVAL;
+
 	/* Confidentiality protection: Encrypt data */
 	ret_enc = lc_hc_encrypt(hc, plaintext, ciphertext, datalen);
 	if (ret_enc < 0)
@@ -183,7 +198,7 @@ int lc_hc_decrypt_authenticate(struct lc_hc_cryptor *hc,
 				__attribute__((aligned(sizeof(uint64_t))));
 	int ret;
 
-	if (taglen > sizeof(calctag))
+	if (!hc || taglen > sizeof(calctag))
 		return -EINVAL;
 
 	/*

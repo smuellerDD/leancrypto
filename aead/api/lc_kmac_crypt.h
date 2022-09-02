@@ -97,7 +97,12 @@ static inline void
 lc_kc_encrypt(struct lc_kc_cryptor *kc,
 	      const uint8_t *plaintext, uint8_t *ciphertext, size_t datalen)
 {
-	struct lc_kmac_ctx *auth_ctx = &kc->auth_ctx;
+	struct lc_kmac_ctx *auth_ctx;
+
+	if (!kc)
+		return;
+
+	auth_ctx = &kc->auth_ctx;
 
 	lc_kc_crypt(kc, plaintext, ciphertext, datalen);
 
@@ -141,7 +146,12 @@ static inline void
 lc_kc_decrypt(struct lc_kc_cryptor *kc,
 	      const uint8_t *ciphertext, uint8_t *plaintext, size_t datalen)
 {
-	struct lc_kmac_ctx *auth_ctx = &kc->auth_ctx;
+	struct lc_kmac_ctx *auth_ctx;
+
+	if (!kc)
+		return;
+
+	auth_ctx = &kc->auth_ctx;
 
 	/*
 	 * Calculate the authentication tag over the ciphertext
@@ -276,6 +286,9 @@ static inline void lc_kc_zero(struct lc_kc_cryptor *kc)
 	struct lc_kmac_ctx *kmac = &kc->kmac;
 	struct lc_hash_ctx *hash_ctx = &kmac->hash_ctx;
 	const struct lc_hash *hash = hash_ctx->hash;
+
+	if (!kc)
+		return;
 
 	memset_secure((uint8_t *)kc + sizeof(struct lc_kc_cryptor), 0,
 		      LC_KC_STATE_SIZE(hash));

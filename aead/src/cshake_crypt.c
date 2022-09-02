@@ -273,8 +273,13 @@ void lc_cc_setkey(struct lc_cc_cryptor *cc,
 		  const uint8_t *key, size_t keylen,
 		  const uint8_t *iv, size_t ivlen)
 {
-	struct lc_hash_ctx *cshake = &cc->cshake;
-	struct lc_hash_ctx *auth_ctx = &cc->auth_ctx;
+	struct lc_hash_ctx *cshake;
+	struct lc_hash_ctx *auth_ctx;
+
+	if (!cc)
+		return;
+	cshake = &cc->cshake;
+	auth_ctx = &cc->auth_ctx;
 
 	/*
 	 * The keystream block size must be a multiple of the cSHAKE256 block
@@ -314,7 +319,11 @@ DSO_PUBLIC
 void lc_cc_crypt(struct lc_cc_cryptor *cc, const uint8_t *in, uint8_t *out,
 		 size_t len)
 {
-	struct lc_hash_ctx *cshake = &cc->cshake;
+	struct lc_hash_ctx *cshake;
+
+	if (!cc)
+		return;
+	cshake = &cc->cshake;
 
 	while (len) {
 		size_t todo = min_t(size_t, len, LC_CC_KEYSTREAM_BLOCK);
@@ -347,7 +356,11 @@ void lc_cc_encrypt_tag(struct lc_cc_cryptor *cc,
 		       const uint8_t *aad, size_t aadlen,
 		       uint8_t *tag, size_t taglen)
 {
-	struct lc_hash_ctx *auth_ctx = &cc->auth_ctx;
+	struct lc_hash_ctx *auth_ctx;
+
+	if (!cc)
+		return;
+	auth_ctx = &cc->auth_ctx;
 
 	/* Add the AAD data into the CSHAKE context */
 	lc_hash_update(auth_ctx, aad, aadlen);
@@ -364,6 +377,9 @@ int lc_cc_decrypt_authenticate(struct lc_cc_cryptor *cc,
 	uint8_t calctag[128] __attribute__((aligned(sizeof(uint64_t))));
 	uint8_t *calctag_p = calctag;
 	int ret;
+
+	if (!cc)
+		return -EINVAL;
 
 	if (taglen > sizeof(calctag)) {
 		ret = posix_memalign((void *)&calctag_p, sizeof(uint64_t),
@@ -401,9 +417,13 @@ DSO_PUBLIC
 int lc_cc_alloc(const struct lc_hash *hash, struct lc_cc_cryptor **cc)
 {
 	struct lc_cc_cryptor *tmp;
-	int ret = posix_memalign((void *)&tmp, sizeof(uint64_t),
-				 LC_CC_CTX_SIZE(hash));
+	int ret;
 
+	if (!cc)
+		return -EINVAL;
+
+	ret = posix_memalign((void *)&tmp, sizeof(uint64_t),
+			     LC_CC_CTX_SIZE(hash));
 	if (ret)
 		return -ret;
 

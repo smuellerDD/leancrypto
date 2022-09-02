@@ -46,11 +46,15 @@ struct aes_kw_block {
 static void aes_kw_encrypt(struct lc_sym_state *ctx,
 			   const uint8_t *in, uint8_t *out, size_t len)
 {
-	const struct aes_block_ctx *block_ctx = &ctx->block_ctx;
+	const struct aes_block_ctx *block_ctx;
 	struct aes_kw_block block;
 	uint64_t t = 1;
 	size_t rounded_len = len & ~(AES_KW_SEMIBSIZE - 1);
 	unsigned int i;
+
+	if (!ctx)
+		return;
+	block_ctx = &ctx->block_ctx;
 
 	/*
 	 * Require at least 2 semiblocks (note, the 3rd semiblock that is
@@ -101,11 +105,15 @@ static void aes_kw_encrypt(struct lc_sym_state *ctx,
 static void aes_kw_decrypt(struct lc_sym_state *ctx,
 			   const uint8_t *in, uint8_t *out, size_t len)
 {
-	const struct aes_block_ctx *block_ctx = &ctx->block_ctx;
+	const struct aes_block_ctx *block_ctx;
 	struct aes_kw_block block;
 	uint64_t t = 6 * (len >> 3);
 	size_t rounded_len = len & ~(AES_KW_SEMIBSIZE - 1);
 	unsigned int i;
+
+	if (!ctx)
+		return;
+	block_ctx = &ctx->block_ctx;
 
 	/*
 	 * Require at least 2 semiblocks (note, the 3rd semiblock that is
@@ -192,7 +200,11 @@ DSO_PUBLIC
 void lc_aes_kw_encrypt(struct lc_sym_ctx *ctx,
 		       const uint8_t *in, uint8_t *out, size_t len)
 {
-	struct lc_sym_state *state = ctx->sym_state;
+	struct lc_sym_state *state;
+
+	if (!ctx)
+		return;
+	state = ctx->sym_state;
 
 	/* Output: Tag || Ciphertext */
 	aes_kw_encrypt(state, in, out + AES_KW_SEMIBSIZE, len);
@@ -203,9 +215,14 @@ DSO_PUBLIC
 int lc_aes_kw_decrypt(struct lc_sym_ctx *ctx,
 		      const uint8_t *in, uint8_t *out, size_t len)
 {
-	struct lc_sym_state *state = ctx->sym_state;
-	int ret = aes_kw_setiv(state, in, AES_KW_SEMIBSIZE);
+	struct lc_sym_state *state;
+	int ret;
 
+	if (!ctx)
+		return -EINVAL;
+	state = ctx->sym_state;
+
+	ret = aes_kw_setiv(state, in, AES_KW_SEMIBSIZE);
 	if (ret)
 		return ret;
 

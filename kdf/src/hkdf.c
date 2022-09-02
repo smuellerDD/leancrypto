@@ -33,9 +33,14 @@ int lc_hkdf_extract(struct lc_hkdf_ctx *hkdf_ctx,
 		    const uint8_t *ikm, size_t ikmlen,
 		    const uint8_t *salt, size_t saltlen)
 {
-	struct lc_hmac_ctx *hmac_ctx = &hkdf_ctx->hmac_ctx;
-	size_t h = lc_hmac_macsize(hmac_ctx);
+	struct lc_hmac_ctx *hmac_ctx;
+	size_t h;
 	uint8_t prk_tmp[LC_SHA_MAX_SIZE_DIGEST];
+
+	if (!hkdf_ctx)
+		return -EINVAL;
+	hmac_ctx = &hkdf_ctx->hmac_ctx;
+	h = lc_hmac_macsize(hmac_ctx);
 
 	BUILD_BUG_ON(LC_NULL_BUFFER_SIZE < LC_SHA_MAX_SIZE_DIGEST);
 
@@ -64,9 +69,14 @@ int lc_hkdf_expand(struct lc_hkdf_ctx *hkdf_ctx,
 		   const uint8_t *info, size_t infolen,
 		   uint8_t *dst, size_t dlen)
 {
-	struct lc_hmac_ctx *hmac_ctx = &hkdf_ctx->hmac_ctx;
-	size_t h = lc_hmac_macsize(hmac_ctx);
+	struct lc_hmac_ctx *hmac_ctx;
+	size_t h;
 	uint8_t *prev = NULL;
+
+	if (!hkdf_ctx)
+		return -EINVAL;
+	hmac_ctx = &hkdf_ctx->hmac_ctx;
+	h = lc_hmac_macsize(hmac_ctx);
 
 	if (dlen > h * (255 - (hkdf_ctx->ctr)))
 		return -EINVAL;

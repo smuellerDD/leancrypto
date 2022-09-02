@@ -59,6 +59,9 @@ static void sha512_init(void *_state)
 {
 	struct lc_sha512_state *ctx = _state;
 
+	if (!ctx)
+		return;
+
 	ctx->H[0] = 0x6a09e667f3bcc908ULL;
 	ctx->H[1] = 0xbb67ae8584caa73bULL;
 	ctx->H[2] = 0x3c6ef372fe94f82bULL;
@@ -119,8 +122,12 @@ static inline void sha512_transform(struct lc_sha512_state *ctx,
 static void sha512_update(void *_state, const uint8_t *in, size_t inlen)
 {
 	struct lc_sha512_state *ctx = _state;
-	unsigned int partial = ctx->msg_len % LC_SHA512_SIZE_BLOCK;
+	unsigned int partial;
 
+	if (!ctx)
+		return;
+
+	partial = ctx->msg_len % LC_SHA512_SIZE_BLOCK;
 	ctx->msg_len += inlen;
 
 	/* Check if we have a partial block stored */
@@ -159,7 +166,12 @@ static void sha512_update(void *_state, const uint8_t *in, size_t inlen)
 static void sha512_final(void *_state, uint8_t *digest)
 {
 	struct lc_sha512_state *ctx = _state;
-	unsigned int i, partial = ctx->msg_len % LC_SHA512_SIZE_BLOCK;
+	unsigned int i, partial;
+
+	if (!ctx)
+		return;
+
+	partial = ctx->msg_len % LC_SHA512_SIZE_BLOCK;
 
 	/*
 	 * We know a-priori that we have at least one byte free in the partial

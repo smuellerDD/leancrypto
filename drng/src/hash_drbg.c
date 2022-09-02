@@ -344,9 +344,13 @@ DSO_PUBLIC
 int lc_drbg_hash_alloc(struct lc_rng_ctx **drbg)
 {
 	struct lc_rng_ctx *out_state;
-	int ret = posix_memalign((void *)&out_state, sizeof(uint64_t),
-				 LC_DRBG_HASH_CTX_SIZE);
+	int ret;
 
+	if (!drbg)
+		return -EINVAL;
+
+	ret = posix_memalign((void *)&out_state, sizeof(uint64_t),
+			     LC_DRBG_HASH_CTX_SIZE);
 	if (ret)
 		return -ret;
 
@@ -375,6 +379,9 @@ int lc_drbg_hash_healthcheck_sanity(struct lc_rng_ctx *drbg)
 	size_t max_addtllen, max_request_bytes;
 	ssize_t len = 0;
 	int ret = -EFAULT;
+
+	if (!drbg)
+		return -EINVAL;
 
 	/*
 	 * if the following tests fail, it is likely that there is a buffer

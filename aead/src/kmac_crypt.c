@@ -222,8 +222,13 @@ void lc_kc_setkey(struct lc_kc_cryptor *kc,
 		  const uint8_t *key, size_t keylen,
 		  const uint8_t *iv, size_t ivlen)
 {
-	struct lc_kmac_ctx *kmac = &kc->kmac;
-	struct lc_kmac_ctx *auth_ctx = &kc->auth_ctx;
+	struct lc_kmac_ctx *kmac;
+	struct lc_kmac_ctx *auth_ctx;
+
+	if (!kc)
+		return;
+	kmac = &kc->kmac;
+	auth_ctx = &kc->auth_ctx;
 
 	/*
 	 * The keystream block size must be a multiple of the cSHAKE256 block
@@ -256,7 +261,11 @@ DSO_PUBLIC
 void lc_kc_crypt(struct lc_kc_cryptor *kc, const uint8_t *in, uint8_t *out,
 		 size_t len)
 {
-	struct lc_kmac_ctx *kmac = &kc->kmac;
+	struct lc_kmac_ctx *kmac;
+
+	if (!kc)
+		return;
+	kmac = &kc->kmac;
 
 	while (len) {
 		size_t todo = min_t(size_t, len, LC_KC_KEYSTREAM_BLOCK);
@@ -290,7 +299,11 @@ void lc_kc_encrypt_tag(struct lc_kc_cryptor *kc,
 		       const uint8_t *aad, size_t aadlen,
 		       uint8_t *tag, size_t taglen)
 {
-	struct lc_kmac_ctx *auth_ctx = &kc->auth_ctx;
+	struct lc_kmac_ctx *auth_ctx;
+
+	if (!kc)
+		return;
+	auth_ctx = &kc->auth_ctx;
 
 	/* Add the AAD data into the KMAC context */
 	lc_kmac_update(auth_ctx, aad, aadlen);
@@ -307,6 +320,9 @@ int lc_kc_decrypt_authenticate(struct lc_kc_cryptor *kc,
 	uint8_t calctag[128] __attribute__((aligned(sizeof(uint64_t))));
 	uint8_t *calctag_p = calctag;
 	int ret;
+
+	if (!kc)
+		return -EINVAL;
 
 	if (taglen > sizeof(calctag)) {
 		ret = posix_memalign((void *)&calctag_p, sizeof(uint64_t),
@@ -344,9 +360,13 @@ DSO_PUBLIC
 int lc_kc_alloc(const struct lc_hash *hash, struct lc_kc_cryptor **kc)
 {
 	struct lc_kc_cryptor *tmp;
-	int ret = posix_memalign((void *)&tmp, sizeof(uint64_t),
-				 LC_KC_CTX_SIZE(hash));
+	int ret;
 
+	if (!kc)
+		return -EINVAL;
+
+	ret = posix_memalign((void *)&tmp, sizeof(uint64_t),
+			     LC_KC_CTX_SIZE(hash));
 	if (ret)
 		return -ret;
 
