@@ -121,13 +121,14 @@ static int test_encrypt_cbc(void)
 	ret += test_encrypt_cbc_one(aes_cbc, key128, sizeof(key128), out128);
 	lc_sym_zero(aes_cbc);
 
-	CKINT(lc_sym_alloc(lc_aes_cbc, &aes_cbc_heap));
+	if (lc_sym_alloc(lc_aes_cbc, &aes_cbc_heap))
+		return ret + 1;
+
 	ret += test_encrypt_cbc_one(aes_cbc_heap, key256, sizeof(key256), out256);
 	lc_sym_zero_free(aes_cbc_heap);
 
 	printf("AES CBC ctx size: %lu\n", LC_SYM_CTX_SIZE(lc_aes_cbc));
 
-out:
 	return ret;
 }
 

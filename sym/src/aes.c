@@ -114,6 +114,9 @@ void KeyExpansion(struct aes_block_ctx *block_ctx, const uint8_t* Key)
 	unsigned int i, j, k;
 	uint8_t tempa[4]; // Used for the column/row operations
 
+	if (!Nk)
+		return;
+
 	// The first round key is the key itself.
 	for (i = 0; i < Nk; ++i) {
 		RoundKey[(i * 4) + 0] = Key[(i * 4) + 0];

@@ -51,7 +51,7 @@ static void aes_ctr_crypt(struct lc_sym_state *ctx,
 {
 	const struct aes_block_ctx *block_ctx;
 	uint8_t buffer[AES_BLOCKLEN];
-	size_t i, todo; = min_t(size_t, len, AES_BLOCKLEN);
+	size_t i, todo;
 
 	if (!ctx)
 		return;

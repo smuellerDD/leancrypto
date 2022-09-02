@@ -93,11 +93,11 @@ static int test_decrypt(void)
 	ret += test_decrypt_one(aes, key128, sizeof(key128), in128);
 	lc_sym_zero(aes);
 
-	CKINT(lc_sym_alloc(lc_aes, &aes_heap));
+	if (lc_sym_alloc(lc_aes, &aes_heap))
+		return ret + 1;
 	ret += test_decrypt_one(aes_heap, key256, sizeof(key256), in2);
 	lc_sym_zero_free(aes_heap);
 
-out:
 	return ret;
 }
 

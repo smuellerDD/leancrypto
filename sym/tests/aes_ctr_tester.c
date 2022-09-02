@@ -133,7 +133,8 @@ static int test_xcrypt_ctr(const char* xcrypt)
 				   in2);
 	lc_sym_zero(aes_ctr);
 
-	CKINT(lc_sym_alloc(lc_aes_ctr, &aes_ctr_heap));
+	if (lc_sym_alloc(lc_aes_ctr, &aes_ctr_heap))
+		return ret + 1;
 	memcpy(in2, in256, sizeof(in256));
 	ret += test_xcrypt_ctr_one(xcrypt, aes_ctr_heap, key256, sizeof(key256),
 				   in2);
@@ -141,7 +142,6 @@ static int test_xcrypt_ctr(const char* xcrypt)
 
 	printf("AES CTR ctx size: %lu\n", LC_SYM_CTX_SIZE(lc_aes_ctr));
 
-out:
 	return ret;
 }
 
@@ -202,7 +202,7 @@ static int ctr_tester(void)
 	for (i = AES_BLOCKLEN - 1; i >= AES_BLOCKLEN - sizeof(uint64_t); i--)
 		iv[i] = 0xff;
 	iv128[AES_CTR128_64BIT_WORDS - 1] = (uint64_t)-1;
-	ret = ctr_tester_one(iv, iv128);
+	ret += ctr_tester_one(iv, iv128);
 
 	memset(iv, 0, sizeof(iv));
 	memset(iv128, 0, sizeof(iv128));
@@ -210,7 +210,7 @@ static int ctr_tester(void)
 		iv[i - 1] = 0xff;
 	for (i = AES_CTR128_64BIT_WORDS; i > 0;i--)
 		iv128[i - 1] = (uint64_t)-1;
-	ret = ctr_tester_one(iv, iv128);
+	ret += ctr_tester_one(iv, iv128);
 
 	return ret;
 }

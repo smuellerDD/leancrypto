@@ -114,7 +114,6 @@ static int test_decrypt_cbc(void)
 
 	memcpy(in2, in256, sizeof(in256));
 	ret = test_decrypt_cbc_one(aes_cbc, key256, sizeof(key256), in256);
-
 	lc_sym_zero(aes_cbc);
 
 	ret += test_decrypt_cbc_one(aes_cbc, key192, sizeof(key192), in192);
@@ -123,11 +122,11 @@ static int test_decrypt_cbc(void)
 	ret += test_decrypt_cbc_one(aes_cbc, key128, sizeof(key128), in128);
 	lc_sym_zero(aes_cbc);
 
-	CKINT(lc_sym_alloc(lc_aes_cbc, &aes_cbc_heap));
+	if (lc_sym_alloc(lc_aes_cbc, &aes_cbc_heap))
+		return ret + 1;
 	ret += test_decrypt_cbc_one(aes_cbc_heap, key256, sizeof(key256), in2);
 	lc_sym_zero_free(aes_cbc_heap);
 
-out:
 	return ret;
 }
 
@@ -136,5 +135,5 @@ int main(int argc, char *argv[])
 	(void)argc;
 	(void)argv;
 
-	return  test_decrypt_cbc();
+	return test_decrypt_cbc();
 }

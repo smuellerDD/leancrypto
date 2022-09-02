@@ -98,7 +98,7 @@ static int hkdf_tester(void)
 		printf("HKDF extract stack failed\n");
 		return 1;
 	}
-	ret = compare(act, exp, sizeof(exp), "HKDF SHA-256 oneshot");
+	ret += compare(act, exp, sizeof(exp), "HKDF SHA-256 oneshot");
 
 	if (lc_hkdf_alloc(lc_sha256, &hkdf_heap)) {
 		printf("HKDF alloc failed\n");
@@ -116,7 +116,7 @@ static int hkdf_tester(void)
 		return 1;
 	}
 
-	ret = compare(act, exp, sizeof(exp), "HKDF SHA-256 heap");
+	ret += compare(act, exp, sizeof(exp), "HKDF SHA-256 heap");
 	lc_hkdf_zero_free(hkdf_heap);
 
 	return ret;

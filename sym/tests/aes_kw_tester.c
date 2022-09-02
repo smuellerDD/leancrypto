@@ -108,9 +108,9 @@ int main(int argc, char *argv[])
 				  pt128, sizeof(pt128), ct128, iv128);
 	lc_sym_zero(aes_kw);
 
-	ret = test_encrypt_kw_one(aes_kw,
-				  key256, sizeof(key256),
-				  pt256, sizeof(pt256), ct256, iv256);
+	ret += test_encrypt_kw_one(aes_kw,
+				   key256, sizeof(key256),
+				   pt256, sizeof(pt256), ct256, iv256);
 	lc_sym_zero(aes_kw);
 
 	return ret;;
