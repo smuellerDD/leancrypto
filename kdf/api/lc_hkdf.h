@@ -25,7 +25,6 @@
 
 #include "lc_hmac.h"
 #include "lc_rng.h"
-#include "ret_checkers.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -161,8 +160,10 @@ static inline int lc_hkdf(const struct lc_hash *hash,
 	LC_HKDF_CTX_ON_STACK(hkdf, hash);
 	int ret;
 
-	CKINT(lc_hkdf_extract(hkdf, ikm, ikmlen, salt, saltlen));
-	CKINT(lc_hkdf_expand(hkdf, info, infolen, dst, dlen));
+	ret = lc_hkdf_extract(hkdf, ikm, ikmlen, salt, saltlen);
+	if (ret < 0)
+		goto out;
+	ret = lc_hkdf_expand(hkdf, info, infolen, dst, dlen);
 
 out:
 	lc_hkdf_zero(hkdf);
