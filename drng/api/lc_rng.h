@@ -50,6 +50,19 @@ struct lc_rng_ctx {
 	name->rng_state = (uint8_t *)(name) + sizeof(struct lc_rng_ctx)
 
 /**
+ * Seeded DRNG
+ *
+ * One common instance of a seeded DRNG. The caller does not need to consider
+ * the seeding and reseeding - it is automatically and transparently handled.
+ * Thus, this structure can be directly used for the lc_rng API by a caller
+ * and have a properly seeded DRNG.
+ *
+ * NOTE: The caller must ensure that a lock is applied around the use of this
+ * variable if there is the potential of concurrent use.
+ */
+extern struct lc_rng_ctx *lc_seeded_rng;
+
+/**
  * Concept of RNGs in leancrypto
  *
  * All RNGs can be used with the API calls documented below. However,

@@ -1,28 +1,40 @@
 # for i in $(ls *.c | sort); do echo "'$i',"; done
 
 lc_rng_header = 0
+seeded_rng = 0
+
+conf_data = configuration_data()
 
 if get_option('chacha20_drng').enabled()
 	src += files([ 'chacha20_drng.c' ])
 	include_files += files([ '../api/lc_chacha20_drng.h' ])
+	conf_data.set('LC_DRNG_CC20', 1)
+	# Currently not supported
+	# seeded_rng = 1
 	lc_rng_header = 1
 endif
 
 if get_option('kmac_drng').enabled()
 	src += files([ 'kmac_drng.c' ])
 	include_files += files([ '../api/lc_kmac256_drng.h' ])
+	conf_data.set('LC_DRNG_KMAC', 1)
+	seeded_rng = 1
 	lc_rng_header = 1
 endif
 
 if get_option('cshake_drng').enabled()
 	src += files([ 'cshake_drng.c' ])
 	include_files += files([ '../api/lc_cshake256_drng.h' ])
+	conf_data.set('LC_DRNG_CSHAKE', 1)
+	seeded_rng = 1
 	lc_rng_header = 1
 endif
 
 if get_option('drbg_hash').enabled()
 	src += files([ 'hash_drbg.c' ])
 	include_files += files([ '../api/lc_hash_drbg.h' ])
+	conf_data.set('LC_DRNG_HASH_DRBG', 1)
+	seeded_rng = 1
 	lc_rng_header = 1
 endif
 
@@ -30,6 +42,9 @@ if get_option('drbg_hmac').enabled()
 	src += files([ 'hmac_drbg.c' ])
 	include_files += files([ '../api/lc_hmac_drbg.h',
 				 '../api/lc_hmac_drbg_sha512.h' ])
+	conf_data.set('LC_DRNG_HMAC_DRBG', 1)
+	# Currently not supported
+	# seeded_rng = 1
 	lc_rng_header = 1
 endif
 
@@ -40,3 +55,9 @@ endif
 if (lc_rng_header == 1)
 	include_files += files([ '../api/lc_rng.h' ])
 endif
+
+if (seeded_rng == 1)
+	src += files([ 'seeded_rng.c' ])
+endif
+
+configure_file(output: 'lc_drng_config.h', configuration : conf_data)

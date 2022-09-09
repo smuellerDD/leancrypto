@@ -103,3 +103,11 @@ if get_option('drbg_hmac').enabled()
 	test('HMAC SHA2-512 DRBG', hmac_sha2_drbg_tester)
 	test('HMAC SHA2-512 DRBG 1GB', hmac_sha2_drbg_tester_large, timeout: 300)
 endif
+
+seeded_rng_tester = executable('seeded_rng_tester',
+				   [ 'seeded_rng_tester.c',
+				     internal_src ],
+				   include_directories: [ include_internal_dirs ],
+				   dependencies: leancrypto
+				   )
+test('Seeded RNG', seeded_rng_tester)

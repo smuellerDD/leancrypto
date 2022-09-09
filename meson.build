@@ -68,6 +68,7 @@ meson.add_dist_script(dist_script, meson.project_version())
 
 include_dirs = include_directories([ 'aead/api',
 				     'drng/api',
+				     'drng/src',
 				     'hash/api',
 				     'hmac/api',
 				     'kem/api',
