@@ -353,6 +353,7 @@ lc_cshake256_drng_generate(void *_state,
 
 		/* Generate the requested amount of output bits */
 		lc_cshake_final(cshake_ctx, out, todo);
+
 		out += todo;
 		outlen -= todo;
 	}
@@ -441,8 +442,6 @@ int lc_cshake256_drng_alloc(struct lc_rng_ctx **state)
 	}
 
 	LC_CSHAKE256_RNG_CTX(out_state);
-
-	lc_cshake256_drng_zero(out_state->rng_state);
 
 	*state = out_state;
 
