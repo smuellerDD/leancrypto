@@ -182,7 +182,7 @@ int lc_kc_decrypt_authenticate(struct lc_kc_cryptor *kc,
 /**
  * @brief KMAC-encrypt data in one call.
  *
- * @param kc [in] KMAC cryptor context handle
+ * @param kc [in] KMAC cryptor context handle with key set / IV
  * @param plaintext [in] Plaintext data to be encrypted
  * @param ciphertext [out] Ciphertext data buffer to be filled
  * @param datalen [in] Length of the plaintext and ciphertext data buffers
@@ -214,7 +214,7 @@ lc_kc_encrypt_oneshot(struct lc_kc_cryptor *kc,
 /**
  * @brief KMAC-decrypt data in one call
  *
- * @param kc [in] KMAC cryptor context handle
+ * @param kc [in] KMAC cryptor context handle with key set / IV
  * @param ciphertext [in] Ciphertext data to be decrypted
  * @param plaintext [out] Plaintext data buffer to be filled
  * @param datalen [in] Length of the plaintext and ciphertext data buffers
@@ -247,7 +247,7 @@ lc_kc_decrypt_oneshot(struct lc_kc_cryptor *kc,
 	 * function.
 	 */
 
-	/* Confidentiality protection: Encrypt data */
+	/* Confidentiality protection: decrypt data */
 	lc_kc_decrypt(kc, ciphertext, plaintext, datalen);
 
 	/* Integrity protection: verify MAC of data */

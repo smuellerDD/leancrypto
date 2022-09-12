@@ -185,7 +185,7 @@ static inline size_t lc_hc_get_tagsize(struct lc_hc_cryptor *hc)
 /**
  * @brief Hash-encrypt data in one call.
  *
- * @param hc [in] Hash cryptor context handle
+ * @param hc [in] Hash cryptor context handle with key set / IV
  * @param plaintext [in] Plaintext data to be encrypted
  * @param ciphertext [out] Ciphertext data buffer to be filled
  * @param datalen [in] Length of the plaintext and ciphertext data buffers
@@ -213,7 +213,7 @@ lc_hc_encrypt_oneshot(struct lc_hc_cryptor *hc,
 /**
  * @brief Hash-decrypt data in one call
  *
- * @param hc [in] Hash cryptor context handle
+ * @param hc [in] Hash cryptor context handle with key set / IV
  * @param ciphertext [in] Ciphertext data to be decrypted
  * @param plaintext [out] Plaintext data buffer to be filled
  * @param datalen [in] Length of the plaintext and ciphertext data buffers

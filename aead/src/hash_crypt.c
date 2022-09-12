@@ -230,7 +230,7 @@ lc_hc_decrypt_oneshot(struct lc_hc_cryptor *hc,
 	 * function.
 	 */
 
-	/* Confidentiality protection: Encrypt data */
+	/* Confidentiality protection: decrypt data */
 	ret_dec = lc_hc_decrypt(hc, ciphertext, plaintext, datalen);
 	if (ret_dec < 0)
 		return ret_dec;

@@ -183,7 +183,7 @@ int lc_cc_decrypt_authenticate(struct lc_cc_cryptor *cc,
 /**
  * @brief cSHAKE-encrypt data in one call.
  *
- * @param cc [in] cSHAKE cryptor context handle
+ * @param cc [in] cSHAKE cryptor context handle with key set / IV
  * @param plaintext [in] Plaintext data to be encrypted
  * @param ciphertext [out] Ciphertext data buffer to be filled
  * @param datalen [in] Length of the plaintext and ciphertext data buffers
@@ -215,7 +215,7 @@ lc_cc_encrypt_oneshot(struct lc_cc_cryptor *cc,
 /**
  * @brief cSHAKE-decrypt data in one call
  *
- * @param cc [in] cSHAKE cryptor context handle
+ * @param cc [in] cSHAKE cryptor context handle with key set / IV
  * @param ciphertext [in] Ciphertext data to be decrypted
  * @param plaintext [out] Plaintext data buffer to be filled
  * @param datalen [in] Length of the plaintext and ciphertext data buffers
@@ -247,7 +247,7 @@ lc_cc_decrypt_oneshot(struct lc_cc_cryptor *cc,
 	 * that there is such an error from the timing analysis of this
 	 * function.
 	 */
-	/* Confidentiality protection: Encrypt data */
+	/* Confidentiality protection: decrypt data */
 	lc_cc_decrypt(cc, ciphertext, plaintext, datalen);
 
 	/* Integrity protection: verify MAC of data */
