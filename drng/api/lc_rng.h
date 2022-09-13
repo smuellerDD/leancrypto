@@ -77,7 +77,7 @@ extern struct lc_rng_ctx *lc_seeded_rng;
 /**
  * @brief Zeroize RNG context
  *
- * @param state [in] RNG context to be zeroized
+ * @param ctx [in] RNG context to be zeroized
  */
 static inline void lc_rng_zero(struct lc_rng_ctx *ctx)
 {
@@ -96,7 +96,7 @@ static inline void lc_rng_zero(struct lc_rng_ctx *ctx)
 /**
  * @brief Zeroize and free RNG context
  *
- * @param state [in] RNG context to be zeroized and freed
+ * @param ctx [in] RNG context to be zeroized and freed
  */
 static inline void lc_rng_zero_free(struct lc_rng_ctx *ctx)
 {
