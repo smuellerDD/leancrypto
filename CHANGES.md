@@ -7,6 +7,10 @@ Changes 0.4.0-prerelease:
 
 * add lc_seeded_rng
 
+* add lc_aead API to provide common interface to AEAD algorithms
+
+* add KyberIES
+
 Changes 0.3.0:
 * Introduce lc_rng.h as a common interface to the random number generators
 

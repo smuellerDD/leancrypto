@@ -3,6 +3,7 @@
 if get_option('kyber').enabled()
 	src += files([
 		'kyber_cbd.c',
+		'kyber_ies.c',
 		'kyber_kem.c',
 		'kyber_kex.c',
 		'kyber_indcpa.c',

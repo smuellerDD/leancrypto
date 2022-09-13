@@ -391,6 +391,70 @@ int lc_kex_ake_responder_ss(uint8_t *shared_secret,
 			    const struct lc_kyber_sk *sk_e,
 			    const struct lc_kyber_sk *sk_r);
 
+/************************************* IES ************************************/
+
+/**
+ * @brief lc_kyber_ies_enc - KyberIES encryption
+ *
+ * The implementation supports an in-place data encryption where the
+ * plaintext and ciphertext buffer pointers refer to the same memory location.
+ *
+ * The function entirely operates on stack memory.
+ *
+ * @param pk [in] Kyber public key of data owner
+ * @param ct [out] Kyber ciphertext to be sent to the decryption operation
+ * @param plaintext [in] Plaintext data to be encrypted
+ * @param ciphertext [out] Buffer of equal size as plaintext that will be filled
+ *			   with the encryption result
+ * @param datalen [in] Length of the plaintext buffer
+ * @param aad [in] Additional authenticate data to be processed - this is data
+ *		   which is not encrypted, but considered as part of the
+ *		   authentication.
+ * @param aadlen [in] Length of the AAD buffer
+ * @param tag [out] Buffer that will be filled with the authentication tag
+ * @param taglen [in] Length of the tag buffer
+ * @param rng_ctx [in] Fully seeded random bit generator context.
+ *
+ * @return 0 on success, < 0 on error
+ */
+int lc_kyber_ies_enc(const struct lc_kyber_pk *pk,
+		     struct lc_kyber_ct *ct,
+		     const uint8_t *plaintext, uint8_t *ciphertext,
+		     size_t datalen,
+		     const uint8_t *aad, size_t aadlen,
+		     uint8_t *tag, size_t taglen,
+		     struct lc_rng_ctx *rng_ctx);
+
+/**
+ * @brief lc_kyber_ies_dec - KyberIES decryption
+ *
+ * The implementation supports an in-place data decryption where the
+ * plaintext and ciphertext buffer pointers refer to the same memory location.
+ *
+ * The function entirely operates on stack memory.
+ *
+ * @param sk [in] Kyber secret key of data owner
+ * @param ct [int] Kyber ciphertext received from the encryption operation
+ * @param ciphertext [in] Ciphertext data to be encrypted
+ * @param plaintext [out] Buffer of equal size as ciphertext that will be
+ *			   filled with the decryption result
+ * @param datalen [in] Length of the ciphertext buffer
+ * @param aad [in] Additional authenticate data to be processed - this is data
+ *		   which is not encrypted, but considered as part of the
+ *		   authentication.
+ * @param aadlen [in] Length of the AAD buffer
+ * @param tag [in] Buffer with the authentication tag
+ * @param taglen [in] Length of the tag buffer
+ *
+ * @return 0 on success, < 0 on error
+ */
+int lc_kyber_ies_dec(const struct lc_kyber_sk *sk,
+		     const struct lc_kyber_ct *ct,
+		     const uint8_t *ciphertext, uint8_t *plaintext,
+		     size_t datalen,
+		     const uint8_t *aad, size_t aadlen,
+		     const uint8_t *tag, size_t taglen);
+
 #ifdef __cplusplus
 }
 #endif
