@@ -30,6 +30,6 @@ if get_option('kyber').enabled()
 				)
 
 	test('Kyber KEX', kyber_kex_tester)
-	test('Kyber IES', kyber_kex_tester)
-	test('Kyber KEM', kyber_kex_tester)
+	test('Kyber IES', kyber_ies_tester)
+	test('Kyber KEM', kyber_kem_tester)
 endif
