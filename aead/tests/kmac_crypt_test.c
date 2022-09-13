@@ -32,7 +32,7 @@ static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
 			      const uint8_t *exp_tag, size_t exp_tag_len)
 {
 	LC_KC_CTX_ON_STACK(kc, lc_cshake256);
-	struct lc_kc_cryptor *kc_heap = NULL;
+	struct lc_aead_ctx *kc_heap = NULL;
 	ssize_t ret;
 	int ret_checked = 0;
 	uint8_t out_enc[ptlen];
@@ -40,10 +40,10 @@ static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
 	uint8_t tag[exp_tag_len];
 
 	/* One shot encryption with pt ptr != ct ptr */
-	lc_kc_setkey(kc, key, keylen, NULL, 0);
+	lc_aead_setkey(kc, key, keylen, NULL, 0);
 
-	lc_kc_encrypt_oneshot(kc, pt, out_enc, ptlen, aad, aadlen,
-			      tag, exp_tag_len);
+	lc_aead_encrypt(kc, pt, out_enc, ptlen, aad, aadlen,
+			tag, exp_tag_len);
 
 	ret_checked += compare(out_enc, exp_ct, ptlen,
 			       "KMAC crypt: Encryption, ciphertext");
@@ -53,18 +53,18 @@ static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
 	//bin2print(out_enc, ptlen, stderr, "out_enc");
 	//bin2print(tag, exp_tag_len, stderr, "tag");
 
-	lc_kc_zero(kc);
+	lc_aead_zero(kc);
 
 	/* One shot encryption with pt ptr == ct ptr */
 	if (lc_kc_alloc(lc_cshake256, &kc_heap))
 		return 1;
 
-	lc_kc_setkey(kc_heap, key, keylen, NULL, 0);
+	lc_aead_setkey(kc_heap, key, keylen, NULL, 0);
 
 	memcpy(out_enc, pt, ptlen);
-	lc_kc_encrypt_oneshot(kc_heap, out_enc, out_enc, ptlen, aad, aadlen,
-			      tag, exp_tag_len);
-	lc_kc_zero_free(kc_heap);
+	lc_aead_encrypt(kc_heap, out_enc, out_enc, ptlen, aad, aadlen,
+			tag, exp_tag_len);
+	lc_aead_zero_free(kc_heap);
 
 	ret_checked += compare(out_enc, exp_ct, ptlen,
 			       "KMAC crypt: Encryption, ciphertext");
@@ -72,29 +72,29 @@ static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
 			       "KMAC crypt: Encryption, tag");
 
 	/* Stream encryption with pt ptr != ct ptr */
-	lc_kc_setkey(kc, key, keylen, NULL, 0);
+	lc_aead_setkey(kc, key, keylen, NULL, 0);
 
 	if (ptlen < 7)
 		return 1;
 
-	lc_kc_encrypt(kc, pt, out_enc, 1);
-	lc_kc_encrypt(kc, pt + 1, out_enc + 1, 1);
-	lc_kc_encrypt(kc, pt + 2, out_enc + 2, 5);
-	lc_kc_encrypt(kc, pt + 7, out_enc + 7, (ptlen - 7));
-	lc_kc_encrypt_tag(kc, aad, aadlen, tag, exp_tag_len);
+	lc_aead_enc_update(kc, pt, out_enc, 1);
+	lc_aead_enc_update(kc, pt + 1, out_enc + 1, 1);
+	lc_aead_enc_update(kc, pt + 2, out_enc + 2, 5);
+	lc_aead_enc_update(kc, pt + 7, out_enc + 7, (ptlen - 7));
+	lc_aead_enc_final(kc, aad, aadlen, tag, exp_tag_len);
 
 	ret_checked += compare(out_enc, exp_ct, ptlen,
 			       "KMAC crypt: Encryption, ciphertext");
 	ret_checked += compare(tag, exp_tag, exp_tag_len,
 			       "KMAC crypt: Encryption, tag");
 
-	lc_kc_zero(kc);
+	lc_aead_zero(kc);
 
 	/* One shot decryption with pt ptr != ct ptr */
-	lc_kc_setkey(kc, key, keylen, NULL, 0);
+	lc_aead_setkey(kc, key, keylen, NULL, 0);
 
-	ret = lc_kc_decrypt_oneshot(kc, out_enc, out_dec, ptlen, aad, aadlen,
-				    tag, exp_tag_len);
+	ret = lc_aead_decrypt(kc, out_enc, out_dec, ptlen, aad, aadlen,
+			      tag, exp_tag_len);
 	if (ret < 0)
 		return 1;
 
@@ -105,15 +105,15 @@ static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
 	ret_checked += compare(out_dec, pt, ptlen,
 			       "KMAC crypt: Decryption, ciphertext");
 
-	lc_kc_zero(kc);
+	lc_aead_zero(kc);
 
 	/* Check authentication error */
-	lc_kc_setkey(kc, key, keylen, NULL, 0);
+	lc_aead_setkey(kc, key, keylen, NULL, 0);
 
 	out_enc[0] = (out_enc[0] + 1) &0xff;
-	ret = lc_kc_decrypt_oneshot(kc, out_enc, out_dec, ptlen, aad, aadlen,
-				    tag, exp_tag_len);
-	lc_kc_zero(kc);
+	ret = lc_aead_decrypt(kc, out_enc, out_dec, ptlen, aad, aadlen,
+			      tag, exp_tag_len);
+	lc_aead_zero(kc);
 	if (ret != -EBADMSG)
 		return 1;
 
@@ -134,8 +134,8 @@ static int kc_tester_kmac_validate(void)
 	LC_KC_CTX_ON_STACK(kc, lc_cshake256);
 	LC_KMAC_CTX_ON_STACK(kmac256, lc_cshake256);
 
-	lc_kc_setkey(kc, in, sizeof(in), NULL, 0);
-	lc_kc_encrypt_oneshot(kc, in, out_enc, sizeof(in), NULL, 0, NULL, 0);
+	lc_aead_setkey(kc, in, sizeof(in), NULL, 0);
+	lc_aead_encrypt(kc, in, out_enc, sizeof(in), NULL, 0, NULL, 0);
 
 	lc_kmac_init(kmac256, in, sizeof(in), NULL, 0);
 	lc_kmac_final_xof(kmac256, out_kmac, sizeof(out_kmac));

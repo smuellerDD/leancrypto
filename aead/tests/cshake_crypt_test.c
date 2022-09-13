@@ -31,7 +31,7 @@ static int cc_tester_cshake_one(const uint8_t *pt, size_t ptlen,
 				const uint8_t *exp_tag, size_t exp_tag_len)
 {
 	LC_CC_CTX_ON_STACK(cc, lc_cshake256);
-	struct lc_cc_cryptor *cc_heap = NULL;
+	struct lc_aead_ctx *cc_heap = NULL;
 	ssize_t ret;
 	int ret_checked = 0;
 	uint8_t out_enc[ptlen];
@@ -39,10 +39,10 @@ static int cc_tester_cshake_one(const uint8_t *pt, size_t ptlen,
 	uint8_t tag[exp_tag_len];
 
 	/* One shot encryption with pt ptr != ct ptr */
-	lc_cc_setkey(cc, key, keylen, NULL, 0);
+	lc_aead_setkey(cc, key, keylen, NULL, 0);
 
-	lc_cc_encrypt_oneshot(cc, pt, out_enc, ptlen, aad, aadlen,
-			      tag, exp_tag_len);
+	lc_aead_encrypt(cc, pt, out_enc, ptlen, aad, aadlen,
+			tag, exp_tag_len);
 
 	ret_checked += compare(out_enc, exp_ct, ptlen,
 			       "cSHAKE crypt: Encryption, ciphertext");
@@ -52,18 +52,18 @@ static int cc_tester_cshake_one(const uint8_t *pt, size_t ptlen,
 	//bin2print(out_enc, ptlen, stderr, "out_enc");
 	//bin2print(tag, exp_tag_len, stderr, "tag");
 
-	lc_cc_zero(cc);
+	lc_aead_zero(cc);
 
 	/* One shot encryption with pt ptr == ct ptr */
 	if (lc_cc_alloc(lc_cshake256, &cc_heap))
 		return 1;
 
-	lc_cc_setkey(cc_heap, key, keylen, NULL, 0);
+	lc_aead_setkey(cc_heap, key, keylen, NULL, 0);
 
 	memcpy(out_enc, pt, ptlen);
-	lc_cc_encrypt_oneshot(cc_heap, out_enc, out_enc, ptlen, aad, aadlen,
+	lc_aead_encrypt(cc_heap, out_enc, out_enc, ptlen, aad, aadlen,
 			      tag, exp_tag_len);
-	lc_cc_zero_free(cc_heap);
+	lc_aead_zero_free(cc_heap);
 
 	ret_checked += compare(out_enc, exp_ct, ptlen,
 			       "cSHAKE crypt: Encryption, ciphertext");
@@ -71,48 +71,59 @@ static int cc_tester_cshake_one(const uint8_t *pt, size_t ptlen,
 			       "cSHAKE crypt: Encryption, tag");
 
 	/* Stream encryption with pt ptr != ct ptr */
-	lc_cc_setkey(cc, key, keylen, NULL, 0);
+	lc_aead_setkey(cc, key, keylen, NULL, 0);
 
 	if (ptlen < 7)
 		return 1;
 
-	lc_cc_encrypt(cc, pt, out_enc, 1);
-	lc_cc_encrypt(cc, pt + 1, out_enc + 1, 1);
-	lc_cc_encrypt(cc, pt + 2, out_enc + 2, 5);
-	lc_cc_encrypt(cc, pt + 7, out_enc + 7, (ptlen - 7));
-	lc_cc_encrypt_tag(cc, aad, aadlen, tag, exp_tag_len);
+	lc_aead_enc_update(cc, pt, out_enc, 1);
+	lc_aead_enc_update(cc, pt + 1, out_enc + 1, 1);
+	lc_aead_enc_update(cc, pt + 2, out_enc + 2, 5);
+	lc_aead_enc_update(cc, pt + 7, out_enc + 7, (ptlen - 7));
+	lc_aead_enc_final(cc, aad, aadlen, tag, exp_tag_len);
 
 	ret_checked += compare(out_enc, exp_ct, ptlen,
 			       "cSHAKE crypt: Encryption, ciphertext");
 	ret_checked += compare(tag, exp_tag, exp_tag_len,
 			       "cSHAKE crypt: Encryption, tag");
 
-	lc_cc_zero(cc);
+	lc_aead_zero(cc);
 
 	/* One shot decryption with pt ptr != ct ptr */
-	lc_cc_setkey(cc, key, keylen, NULL, 0);
+	lc_aead_setkey(cc, key, keylen, NULL, 0);
 
-	ret = lc_cc_decrypt_oneshot(cc, out_enc, out_dec, ptlen, aad, aadlen,
-				    tag, exp_tag_len);
+	ret = lc_aead_decrypt(cc, out_enc, out_dec, ptlen, aad, aadlen,
+			      tag, exp_tag_len);
 	if (ret < 0)
 		return 1;
 
 	ret_checked += compare(out_dec, pt, ptlen,
 			       "cSHAKE crypt: Decryption, plaintext");
 
+	/* Stream decryption with pt ptr != ct ptr */
+	lc_aead_zero(cc);
+	lc_aead_setkey(cc, key, keylen, NULL, 0);
+	lc_aead_dec_update(cc, out_enc, out_dec, 1);
+	lc_aead_dec_update(cc, out_enc + 1, out_dec + 1, 1);
+	lc_aead_dec_update(cc, out_enc + 2, out_dec + 2, 5);
+	lc_aead_dec_update(cc, out_enc + 7, out_dec + 7, (ptlen - 7));
+	ret = lc_aead_dec_final(cc, aad, aadlen, tag, exp_tag_len);
+	if (ret < 0)
+		return 1;
+
 	//bin2print(out_dec, sizeof(out_dec), stderr, "out_dec");
 	ret_checked += compare(out_dec, pt, ptlen,
-			       "cSHAKE crypt: Decryption, ciphertext");
+			       "cSHAKE crypt: Decryption, plaintext");
 
-	lc_cc_zero(cc);
+	lc_aead_zero(cc);
 
 	/* Check authentication error */
-	lc_cc_setkey(cc, key, keylen, NULL, 0);
+	lc_aead_setkey(cc, key, keylen, NULL, 0);
 
 	out_enc[0] = (out_enc[0] + 1) &0xff;
-	ret = lc_cc_decrypt_oneshot(cc, out_enc, out_dec, ptlen, aad, aadlen,
-				    tag, exp_tag_len);
-	lc_cc_zero(cc);
+	ret = lc_aead_decrypt(cc, out_enc, out_dec, ptlen, aad, aadlen,
+			      tag, exp_tag_len);
+	lc_aead_zero(cc);
 	if (ret != -EBADMSG)
 		return 1;
 
@@ -134,8 +145,8 @@ static int cc_tester_cshake_validate(void)
 	LC_CC_CTX_ON_STACK(cc, lc_cshake256);
 	LC_CSHAKE_256_CTX_ON_STACK(cshake256);
 
-	lc_cc_setkey(cc, in, sizeof(in), NULL, 0);
-	lc_cc_encrypt_oneshot(cc, in, out_enc, sizeof(in), NULL, 0, NULL, 0);
+	lc_aead_setkey(cc, in, sizeof(in), NULL, 0);
+	lc_aead_encrypt(cc, in, out_enc, sizeof(in), NULL, 0, NULL, 0);
 
 	lc_cshake_init(cshake256,
 		       (uint8_t *)LC_CC_CUSTOMIZATION_STRING, sizeof(LC_CC_CUSTOMIZATION_STRING) - 1,

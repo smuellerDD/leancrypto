@@ -31,7 +31,7 @@ static int hc_tester_sha512_one(const uint8_t *pt, size_t ptlen,
 				const uint8_t *exp_tag, size_t exp_tag_len)
 {
 	LC_HC_CTX_ON_STACK(hc, lc_sha512);
-	struct lc_hc_cryptor *hc_heap = NULL;
+	struct lc_aead_ctx *hc_heap = NULL;
 	ssize_t ret;
 	int ret_checked = 0;
 	uint8_t out_enc[ptlen];
@@ -39,14 +39,10 @@ static int hc_tester_sha512_one(const uint8_t *pt, size_t ptlen,
 	uint8_t tag[exp_tag_len];
 
 	/* One shot encryption with pt ptr != ct ptr */
-	if (lc_hc_setkey(hc, key, keylen, NULL, 0) < 0)
+	if (lc_aead_setkey(hc, key, keylen, NULL, 0) < 0)
 		return 1;
 
-	ret = lc_hc_encrypt_oneshot(hc, pt, out_enc, ptlen,
-				    aad, aadlen,
-				    tag, exp_tag_len);
-	if (ret != (ssize_t)(ptlen + exp_tag_len))
-		return 1;
+	lc_aead_encrypt(hc, pt, out_enc, ptlen, aad, aadlen, tag, exp_tag_len);
 
 	ret_checked += compare(out_enc, exp_ct, ptlen,
 			       "Hash crypt: Encryption, ciphertext");
@@ -56,63 +52,56 @@ static int hc_tester_sha512_one(const uint8_t *pt, size_t ptlen,
 	bin2print(out_enc, ptlen, stderr, "out_enc");
 	bin2print(tag, exp_tag_len, stderr, "tag");
 
-	lc_hc_zero(hc);
+	lc_aead_zero(hc);
 
 	/* One shot encryption with pt ptr == ct ptr */
 	if (lc_hc_alloc(lc_sha512, &hc_heap))
 		return 1;
 
-	if (lc_hc_setkey(hc_heap, key, keylen, NULL, 0) < 0) {
-		lc_hc_zero_free(hc_heap);
+	if (lc_aead_setkey(hc_heap, key, keylen, NULL, 0) < 0) {
+		lc_aead_zero_free(hc_heap);
 		return 1;
 	}
 
 	memcpy(out_enc, pt, ptlen);
-	ret = lc_hc_encrypt_oneshot(hc_heap, out_enc, out_enc, ptlen,
-				    aad, aadlen,
-				    tag, exp_tag_len);
-	lc_hc_zero_free(hc_heap);
-	if (ret != (ssize_t)(ptlen + exp_tag_len))
-		return 1;
+	lc_aead_encrypt(hc_heap, out_enc, out_enc, ptlen, aad, aadlen,
+			tag, exp_tag_len);
+	lc_aead_zero_free(hc_heap);
 
 	ret_checked += compare(out_enc, exp_ct, ptlen,
 			       "Hash crypt: Encryption, ciphertext");
 	ret_checked += compare(tag, exp_tag, exp_tag_len,
 			       "Hash crypt: Encryption, tag");
 
-	lc_hc_zero(hc);
+	lc_aead_zero(hc);
 
 	/* Stream encryption with pt ptr != ct ptr */
-	if (lc_hc_setkey(hc, key, keylen, NULL, 0) < 0)
+	if (lc_aead_setkey(hc, key, keylen, NULL, 0) < 0)
 		return 1;
 
 	if (ptlen < 7)
 		return 1;
 
-	ret =  lc_hc_encrypt(hc, pt, out_enc, 1);
-	ret += lc_hc_encrypt(hc, pt + 1, out_enc + 1, 1);
-	ret += lc_hc_encrypt(hc, pt + 2, out_enc + 2, 5);
-	ret += lc_hc_encrypt(hc, pt + 7, out_enc + 7, (ptlen - 7));
-	ret += lc_hc_encrypt_tag(hc, aad, aadlen, tag, exp_tag_len);
-	if (ret != (ssize_t)(ptlen + exp_tag_len))
-		return 1;
-
+	lc_aead_enc_update(hc, pt, out_enc, 1);
+	lc_aead_enc_update(hc, pt + 1, out_enc + 1, 1);
+	lc_aead_enc_update(hc, pt + 2, out_enc + 2, 5);
+	lc_aead_enc_update(hc, pt + 7, out_enc + 7, (ptlen - 7));
+	lc_aead_enc_final(hc, aad, aadlen, tag, exp_tag_len);
 
 	ret_checked += compare(out_enc, exp_ct, ptlen,
 			       "Hash crypt: Encryption, ciphertext");
 	ret_checked += compare(tag, exp_tag, exp_tag_len,
 			       "Hash crypt: Encryption, tag");
 
-	lc_hc_zero(hc);
+	lc_aead_zero(hc);
 
 	/* One shot decryption with pt ptr != ct ptr */
-	if (lc_hc_setkey(hc, key, keylen, NULL, 0) < 0)
+	if (lc_aead_setkey(hc, key, keylen, NULL, 0) < 0)
 		return 1;
 
-	ret = lc_hc_decrypt_oneshot(hc, out_enc, out_dec, ptlen,
-				 aad, aadlen,
-				 tag, exp_tag_len);
-	if (ret != (ssize_t)ptlen)
+	ret = lc_aead_decrypt(hc, out_enc, out_dec, ptlen, aad, aadlen,
+			      tag, exp_tag_len);
+	if (ret < 0)
 		return 1;
 
 	ret_checked += compare(out_dec, pt, ptlen,
@@ -122,16 +111,15 @@ static int hc_tester_sha512_one(const uint8_t *pt, size_t ptlen,
 	ret_checked += compare(out_dec, pt, ptlen,
 			       "Hash crypt: Decryption, ciphertext");
 
-	lc_hc_zero(hc);
+	lc_aead_zero(hc);
 
 	/* Check authentication error */
-	if (lc_hc_setkey(hc, key, keylen, NULL, 0) < 0)
+	if (lc_aead_setkey(hc, key, keylen, NULL, 0) < 0)
 		return 1;
 
 	out_enc[0] = (out_enc[0] + 1) &0xff;
-	ret = lc_hc_decrypt_oneshot(hc, out_enc, out_dec, ptlen,
-				 aad, aadlen,
-				 tag, exp_tag_len);
+	ret = lc_aead_decrypt(hc, out_enc, out_dec, ptlen, aad, aadlen,
+			      tag, exp_tag_len);
 	if (ret != -EBADMSG)
 		return 1;
 

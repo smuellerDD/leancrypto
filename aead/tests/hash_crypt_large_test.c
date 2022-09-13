@@ -44,15 +44,15 @@ static int hc_tester_sha512_large(void)
 	if (!pt)
 		return 1;
 
-	lc_hc_setkey(hc, key, sizeof(key), NULL, 0);
-	lc_hc_encrypt_oneshot(hc, pt, pt, 1UL<<30, aad, sizeof(aad),
-			      tag, sizeof(tag));
-	lc_hc_zero(hc);
+	lc_aead_setkey(hc, key, sizeof(key), NULL, 0);
+	lc_aead_encrypt(hc, pt, pt, 1UL<<30, aad, sizeof(aad),
+			tag, sizeof(tag));
+	lc_aead_zero(hc);
 
-	lc_hc_setkey(hc, key, sizeof(key), NULL, 0);
-	ret = lc_hc_decrypt_oneshot(hc, pt, pt, 1UL<<30, aad, sizeof(aad),
-				    tag, sizeof(tag));
-	lc_hc_zero(hc);
+	lc_aead_setkey(hc, key, sizeof(key), NULL, 0);
+	ret = lc_aead_decrypt(hc, pt, pt, 1UL<<30, aad, sizeof(aad),
+			      tag, sizeof(tag));
+	lc_aead_zero(hc);
 	free(pt);
 	if (ret < 0) {
 		printf("Error return code %zd\n", ret);

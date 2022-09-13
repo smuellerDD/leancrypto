@@ -30,17 +30,16 @@
 #include "visibility.h"
 #include "xor.h"
 
-DSO_PUBLIC
-int lc_hc_setkey(struct lc_hc_cryptor *hc,
-		 const uint8_t *key, size_t keylen,
-		 const uint8_t *iv, size_t ivlen)
+static int
+lc_hc_setkey(void *state,
+	     const uint8_t *key, size_t keylen,
+	     const uint8_t *iv, size_t ivlen)
 {
+	struct lc_hc_cryptor *hc = state;
 	struct lc_rng_ctx *drbg;
 	struct lc_hmac_ctx *auth_ctx;
 	int ret;
 
-	if (!hc)
-		return -EINVAL;
 	drbg = &hc->drbg;
 	auth_ctx = &hc->auth_ctx;
 
@@ -75,15 +74,14 @@ int lc_hc_setkey(struct lc_hc_cryptor *hc,
 	return 0;
 }
 
-DSO_PUBLIC
-ssize_t lc_hc_crypt(struct lc_hc_cryptor *hc, const uint8_t *in, uint8_t *out,
-		    size_t len)
+static void
+lc_hc_crypt(struct lc_hc_cryptor *hc, const uint8_t *in, uint8_t *out,
+	    size_t len)
 {
 	struct lc_rng_ctx *drbg;
-	size_t processed = 0;
 
-	if (len > SSIZE_MAX || !hc)
-		return -EINVAL;
+	if (len > SSIZE_MAX)
+		return;
 
 	drbg = &hc->drbg;
 
@@ -96,7 +94,7 @@ ssize_t lc_hc_crypt(struct lc_hc_cryptor *hc, const uint8_t *in, uint8_t *out,
 						  LC_HC_KEYSTREAM_BLOCK);
 
 			if (ret)
-				return ret;
+				return;
 
 			hc->keystream_ptr = 0;
 		}
@@ -113,27 +111,26 @@ ssize_t lc_hc_crypt(struct lc_hc_cryptor *hc, const uint8_t *in, uint8_t *out,
 		len -= todo;
 		in += todo;
 		out += todo;
-		processed += todo;
 		hc->keystream_ptr += todo;
 	}
-
-	return (ssize_t)processed;
 }
 
 #define LC_SHA_MAX_SIZE_DIGEST	64
 
-DSO_PUBLIC
-ssize_t lc_hc_encrypt_tag(struct lc_hc_cryptor *hc,
-			  const uint8_t *aad, size_t aadlen,
-			  uint8_t *tag, size_t taglen)
+static void
+lc_hc_encrypt_tag(void *state,
+		  const uint8_t *aad, size_t aadlen,
+		  uint8_t *tag, size_t taglen)
 {
+	struct lc_hc_cryptor *hc = state;
 	struct lc_hmac_ctx *auth_ctx;
 	size_t digestsize;
 
-	if (!hc)
-		return -EINVAL;
 	auth_ctx = &hc->auth_ctx;
 	digestsize = lc_hc_get_tagsize(hc);
+	/* Guard against programming error. */
+	if (LC_SHA_MAX_SIZE_DIGEST < digestsize)
+		return;
 
 	/* Add the AAD data into the HMAC context */
 	lc_hmac_update(auth_ctx, aad, aadlen);
@@ -142,63 +139,72 @@ ssize_t lc_hc_encrypt_tag(struct lc_hc_cryptor *hc,
 	if (taglen < digestsize) {
 		uint8_t tmp[LC_SHA_MAX_SIZE_DIGEST];
 
-		/* Guard against programming error. */
-		if (sizeof(tmp) < digestsize)
-			return -EFAULT;
-
 		lc_hmac_final(auth_ctx, tmp);
 		memcpy(tag, tmp, taglen);
 		memset_secure(tmp, 0, sizeof(tmp));
-
-		return (ssize_t)taglen;
+	} else {
+		lc_hmac_final(auth_ctx, tag);
 	}
-
-	lc_hmac_final(auth_ctx, tag);
-
-	return (ssize_t)digestsize;
 }
 
-DSO_PUBLIC
-ssize_t lc_hc_encrypt_oneshot(struct lc_hc_cryptor *hc,
-			      const uint8_t *plaintext, uint8_t *ciphertext,
-			      size_t datalen,
-			      const uint8_t *aad, size_t aadlen,
-			      uint8_t *tag, size_t taglen)
+static void
+lc_hc_encrypt(void *state,
+	      const uint8_t *plaintext, uint8_t *ciphertext, size_t datalen)
 {
-	ssize_t ret_enc, ret_tag, res;
+	struct lc_hc_cryptor *hc = state;
+	struct lc_hmac_ctx *auth_ctx = &hc->auth_ctx;
 
-	if (!hc)
-		return -EINVAL;
+	lc_hc_crypt(hc, plaintext, ciphertext, datalen);
+
+	/*
+	 * Calculate the authentication MAC over the ciphertext
+	 * Perform an Encrypt-Then-MAC operation.
+	 */
+	lc_hmac_update(auth_ctx, ciphertext, datalen);
+}
+
+static void
+lc_hc_decrypt(void *state,
+	      const uint8_t *ciphertext, uint8_t *plaintext, size_t datalen)
+{
+	struct lc_hc_cryptor *hc = state;
+	struct lc_hmac_ctx *auth_ctx = &hc->auth_ctx;
+
+	/*
+	 * Calculate the authentication tag over the ciphertext
+	 * Perform the reverse of an Encrypt-Then-MAC operation.
+	 */
+	lc_hmac_update(auth_ctx, ciphertext, datalen);
+	lc_hc_crypt(hc, ciphertext, plaintext, datalen);
+}
+
+static void
+lc_hc_encrypt_oneshot(void *state,
+		      const uint8_t *plaintext, uint8_t *ciphertext,
+		      size_t datalen,
+		      const uint8_t *aad, size_t aadlen,
+		      uint8_t *tag, size_t taglen)
+{
+	struct lc_hc_cryptor *hc = state;
 
 	/* Confidentiality protection: Encrypt data */
-	ret_enc = lc_hc_encrypt(hc, plaintext, ciphertext, datalen);
-	if (ret_enc < 0)
-		return ret_enc;
+	lc_hc_encrypt(hc, plaintext, ciphertext, datalen);
 
 	/* Integrity protection: MAC data */
-	ret_tag = lc_hc_encrypt_tag(hc, aad, aadlen, tag, taglen);
-	if (ret_tag < 0)
-		return ret_tag;
-
-	res = ret_enc + ret_tag;
-
-	/* Guard against overflow */
-	if (res < ret_enc || res < ret_enc)
-		return -EINVAL;
-
-	return res;
+	lc_hc_encrypt_tag(hc, aad, aadlen, tag, taglen);
 }
 
-DSO_PUBLIC
-int lc_hc_decrypt_authenticate(struct lc_hc_cryptor *hc,
-			       const uint8_t *aad, size_t aadlen,
-			       const uint8_t *tag, size_t taglen)
+static  int
+lc_hc_decrypt_authenticate(void *state,
+			   const uint8_t *aad, size_t aadlen,
+			   const uint8_t *tag, size_t taglen)
 {
+	struct lc_hc_cryptor *hc = state;
 	uint8_t calctag[LC_SHA_MAX_SIZE_DIGEST]
 				__attribute__((aligned(sizeof(uint64_t))));
 	int ret;
 
-	if (!hc || taglen > sizeof(calctag))
+	if (taglen > sizeof(calctag))
 		return -EINVAL;
 
 	/*
@@ -212,14 +218,14 @@ int lc_hc_decrypt_authenticate(struct lc_hc_cryptor *hc,
 	return ret;
 }
 
-DSO_PUBLIC ssize_t
-lc_hc_decrypt_oneshot(struct lc_hc_cryptor *hc,
+static int
+lc_hc_decrypt_oneshot(void *state,
 		      const uint8_t *ciphertext, uint8_t *plaintext,
 		      size_t datalen,
 		      const uint8_t *aad, size_t aadlen,
 		      const uint8_t *tag, size_t taglen)
 {
-	ssize_t ret_dec, ret_tag;
+	struct lc_hc_cryptor *hc = state;
 
 	/*
 	 * To ensure constant time between passing and failing decryption,
@@ -231,33 +237,31 @@ lc_hc_decrypt_oneshot(struct lc_hc_cryptor *hc,
 	 */
 
 	/* Confidentiality protection: decrypt data */
-	ret_dec = lc_hc_decrypt(hc, ciphertext, plaintext, datalen);
-	if (ret_dec < 0)
-		return ret_dec;
+	lc_hc_decrypt(hc, ciphertext, plaintext, datalen);
 
 	/* Integrity protection: verify MAC of data */
-	ret_tag = lc_hc_decrypt_authenticate(hc, aad, aadlen, tag, taglen);
-	if (ret_tag < 0)
-		return ret_tag;
+	return lc_hc_decrypt_authenticate(hc, aad, aadlen, tag, taglen);
+}
 
-	return ret_dec;
+static void lc_hc_zero(void *state)
+{
+	struct lc_hc_cryptor *hc = state;
+	struct lc_rng_ctx *drbg = &hc->drbg;
+	struct lc_hmac_ctx *hmac_ctx = &hc->auth_ctx;
+	struct lc_hash_ctx *hash_ctx = &hmac_ctx->hash_ctx;
+	const struct lc_hash *hash = hash_ctx->hash;
+
+	lc_rng_zero(drbg);
+	hc->keystream_ptr = 0;
+	memset(hc->keystream, 0, sizeof(hc->keystream));
+	memset_secure((uint8_t *)hc + sizeof(struct lc_hc_cryptor), 0,
+		      LC_HMAC_STATE_SIZE(hash));
 }
 
 DSO_PUBLIC
-void lc_hc_zero_free(struct lc_hc_cryptor *hc)
+int lc_hc_alloc(const struct lc_hash *hash, struct lc_aead_ctx **ctx)
 {
-	if (!hc)
-		return;
-
-	lc_hc_zero(hc);
-
-	free(hc);
-}
-
-DSO_PUBLIC
-int lc_hc_alloc(const struct lc_hash *hash, struct lc_hc_cryptor **hc)
-{
-	struct lc_hc_cryptor *tmp;
+	struct lc_aead_ctx *tmp;
 	int ret = posix_memalign((void *)&tmp, sizeof(uint64_t),
 				 LC_HC_CTX_SIZE(hash));
 
@@ -267,7 +271,20 @@ int lc_hc_alloc(const struct lc_hash *hash, struct lc_hc_cryptor **hc)
 
 	LC_HC_SET_CTX(tmp, hash);
 
-	*hc = tmp;
+	*ctx = tmp;
 
 	return 0;
 }
+
+struct lc_aead _lc_hash_aead = {
+	.setkey		= lc_hc_setkey,
+	.encrypt	= lc_hc_encrypt_oneshot,
+	.enc_update	= lc_hc_encrypt,
+	.enc_final	= lc_hc_encrypt_tag,
+	.decrypt	= lc_hc_decrypt_oneshot,
+	.dec_update	= lc_hc_decrypt,
+	.dec_final	= lc_hc_decrypt_authenticate,
+	.zero		= lc_hc_zero
+};
+DSO_PUBLIC
+const struct lc_aead *lc_hash_aead = &_lc_hash_aead;

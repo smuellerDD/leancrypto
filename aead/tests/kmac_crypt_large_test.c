@@ -44,15 +44,15 @@ static int kc_tester_kmac_large(void)
 	if (!pt)
 		return 1;
 
-	lc_kc_setkey(kc, key, sizeof(key), NULL, 0);
-	lc_kc_encrypt_oneshot(kc, pt, pt, 1UL<<30, aad, sizeof(aad),
-			      tag, sizeof(tag));
-	lc_kc_zero(kc);
+	lc_aead_setkey(kc, key, sizeof(key), NULL, 0);
+	lc_aead_encrypt(kc, pt, pt, 1UL<<30, aad, sizeof(aad),
+			tag, sizeof(tag));
+	lc_aead_zero(kc);
 
-	lc_kc_setkey(kc, key, sizeof(key), NULL, 0);
-	ret = lc_kc_decrypt_oneshot(kc, pt, pt, 1UL<<30, aad, sizeof(aad),
-				    tag, sizeof(tag));
-	lc_kc_zero(kc);
+	lc_aead_setkey(kc, key, sizeof(key), NULL, 0);
+	ret = lc_aead_decrypt(kc, pt, pt, 1UL<<30, aad, sizeof(aad),
+			      tag, sizeof(tag));
+	lc_aead_zero(kc);
 	free(pt);
 	return ret;
 }

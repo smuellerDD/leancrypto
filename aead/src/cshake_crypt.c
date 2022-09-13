@@ -268,16 +268,26 @@
 #define LC_CC_CUSTOMIZATION_STRING	"cSHAKE-AEAD crypt"
 #define LC_CC_AUTH_CUSTOMIZATION_STRING	"cSHAKE-AEAD auth"
 
-DSO_PUBLIC
-void lc_cc_setkey(struct lc_cc_cryptor *cc,
-		  const uint8_t *key, size_t keylen,
-		  const uint8_t *iv, size_t ivlen)
+/**
+ * @brief Set the key for the encyption or decryption operation
+ *
+ * @param cc [in] cSHAKE crypt cipher handle
+ * @param key [in] Buffer with key
+ * @param keylen [in] Length of key buffer
+ * @param iv [in] initialization vector to be used
+ * @param ivlen [in] length of initialization vector
+ *
+ * The algorithm supports a key of arbitrary size. The only requirement is that
+ * the same key is used for decryption as for encryption.
+ */
+static int lc_cc_setkey(void *state,
+			const uint8_t *key, size_t keylen,
+			const uint8_t *iv, size_t ivlen)
 {
+	struct lc_cc_cryptor *cc = state;
 	struct lc_hash_ctx *cshake;
 	struct lc_hash_ctx *auth_ctx;
 
-	if (!cc)
-		return;
 	cshake = &cc->cshake;
 	auth_ctx = &cc->auth_ctx;
 
@@ -313,16 +323,15 @@ void lc_cc_setkey(struct lc_cc_cryptor *cc,
 
 	/* Set the pointer to the start of the keystream */
 	cc->keystream_ptr = LC_CC_AUTHENTICATION_KEY_SIZE;
+
+	return 0;
 }
 
-DSO_PUBLIC
-void lc_cc_crypt(struct lc_cc_cryptor *cc, const uint8_t *in, uint8_t *out,
-		 size_t len)
+static void lc_cc_crypt(struct lc_cc_cryptor *cc,
+			const uint8_t *in, uint8_t *out, size_t len)
 {
 	struct lc_hash_ctx *cshake;
 
-	if (!cc)
-		return;
 	cshake = &cc->cshake;
 
 	while (len) {
@@ -351,15 +360,13 @@ void lc_cc_crypt(struct lc_cc_cryptor *cc, const uint8_t *in, uint8_t *out,
 	}
 }
 
-DSO_PUBLIC
-void lc_cc_encrypt_tag(struct lc_cc_cryptor *cc,
-		       const uint8_t *aad, size_t aadlen,
-		       uint8_t *tag, size_t taglen)
+static void lc_cc_encrypt_tag(void *state,
+			      const uint8_t *aad, size_t aadlen,
+			      uint8_t *tag, size_t taglen)
 {
+	struct lc_cc_cryptor *cc = state;
 	struct lc_hash_ctx *auth_ctx;
 
-	if (!cc)
-		return;
 	auth_ctx = &cc->auth_ctx;
 
 	/* Add the AAD data into the CSHAKE context */
@@ -369,17 +376,14 @@ void lc_cc_encrypt_tag(struct lc_cc_cryptor *cc,
 	lc_cshake_final(auth_ctx, tag, taglen);
 }
 
-DSO_PUBLIC
-int lc_cc_decrypt_authenticate(struct lc_cc_cryptor *cc,
-			       const uint8_t *aad, size_t aadlen,
-			       const uint8_t *tag, size_t taglen)
+static int lc_cc_decrypt_authenticate(void *state,
+				      const uint8_t *aad, size_t aadlen,
+				      const uint8_t *tag, size_t taglen)
 {
+	struct lc_cc_cryptor *cc = state;
 	uint8_t calctag[128] __attribute__((aligned(sizeof(uint64_t))));
 	uint8_t *calctag_p = calctag;
 	int ret;
-
-	if (!cc)
-		return -EINVAL;
 
 	if (taglen > sizeof(calctag)) {
 		ret = posix_memalign((void *)&calctag_p, sizeof(uint64_t),
@@ -402,25 +406,86 @@ int lc_cc_decrypt_authenticate(struct lc_cc_cryptor *cc,
 	return ret;
 }
 
-DSO_PUBLIC
-void lc_cc_zero_free(struct lc_cc_cryptor *cc)
+static void
+lc_cc_encrypt(void *state,
+	      const uint8_t *plaintext, uint8_t *ciphertext, size_t datalen)
 {
-	if (!cc)
-		return;
+	struct lc_cc_cryptor *cc = state;
+	struct lc_hash_ctx *auth_ctx;
 
-	lc_cc_zero(cc);
+	auth_ctx = &cc->auth_ctx;
 
-	free(cc);
+	lc_cc_crypt(cc, plaintext, ciphertext, datalen);
+
+	/*
+	 * Calculate the authentication MAC over the ciphertext
+	 * Perform an Encrypt-Then-MAC operation.
+	 */
+	lc_hash_update(auth_ctx, ciphertext, datalen);
+}
+
+static void
+lc_cc_decrypt(void *state,
+	      const uint8_t *ciphertext, uint8_t *plaintext, size_t datalen)
+{
+	struct lc_cc_cryptor *cc = state;
+	struct lc_hash_ctx *auth_ctx;
+
+	auth_ctx = &cc->auth_ctx;
+
+	/*
+	 * Calculate the authentication tag over the ciphertext
+	 * Perform the reverse of an Encrypt-Then-MAC operation.
+	 */
+	lc_hash_update(auth_ctx, ciphertext, datalen);
+	lc_cc_crypt(cc, ciphertext, plaintext, datalen);
+}
+
+static void
+lc_cc_encrypt_oneshot(void *state,
+		      const uint8_t *plaintext, uint8_t *ciphertext,
+		      size_t datalen,
+		      const uint8_t *aad, size_t aadlen,
+		      uint8_t *tag, size_t taglen)
+{
+	struct lc_cc_cryptor *cc = state;
+
+	/* Confidentiality protection: Encrypt data */
+	lc_cc_encrypt(cc, plaintext, ciphertext, datalen);
+
+	/* Integrity protection: CSHAKE data */
+	lc_cc_encrypt_tag(cc, aad, aadlen, tag, taglen);
+}
+
+static int
+lc_cc_decrypt_oneshot(void *state,
+		      const uint8_t *ciphertext, uint8_t *plaintext,
+		      size_t datalen,
+		      const uint8_t *aad, size_t aadlen,
+		      const uint8_t *tag, size_t taglen)
+{
+	struct lc_cc_cryptor *cc = state;
+
+	/*
+	 * To ensure constant time between passing and failing decryption,
+	 * this code first performs the decryption. The decryption results
+	 * will need to be discarded if there is an authentication error. Yet,
+	 * in case of an authentication error, an attacker cannot deduct
+	 * that there is such an error from the timing analysis of this
+	 * function.
+	 */
+	/* Confidentiality protection: decrypt data */
+	lc_cc_decrypt(cc, ciphertext, plaintext, datalen);
+
+	/* Integrity protection: verify MAC of data */
+	return lc_cc_decrypt_authenticate(cc, aad, aadlen, tag, taglen);
 }
 
 DSO_PUBLIC
-int lc_cc_alloc(const struct lc_hash *hash, struct lc_cc_cryptor **cc)
+int lc_cc_alloc(const struct lc_hash *hash, struct lc_aead_ctx **ctx)
 {
-	struct lc_cc_cryptor *tmp;
+	struct lc_aead_ctx *tmp;
 	int ret;
-
-	if (!cc)
-		return -EINVAL;
 
 	ret = posix_memalign((void *)&tmp, sizeof(uint64_t),
 			     LC_CC_CTX_SIZE(hash));
@@ -429,7 +494,32 @@ int lc_cc_alloc(const struct lc_hash *hash, struct lc_cc_cryptor **cc)
 
 	LC_CC_SET_CTX(tmp, hash);
 
-	*cc = tmp;
+	*ctx = tmp;
 
 	return 0;
 }
+
+static void lc_cc_zero(void *state)
+{
+	struct lc_cc_cryptor *cc = state;
+	struct lc_hash_ctx *cshake;
+	const struct lc_hash *hash;
+
+	cshake = &cc->cshake;
+	hash = cshake->hash;
+	memset_secure((uint8_t *)cc + sizeof(struct lc_cc_cryptor), 0,
+		      LC_CC_STATE_SIZE(hash));
+}
+
+struct lc_aead _lc_cshake_aead = {
+	.setkey		= lc_cc_setkey,
+	.encrypt	= lc_cc_encrypt_oneshot,
+	.enc_update	= lc_cc_encrypt,
+	.enc_final	= lc_cc_encrypt_tag,
+	.decrypt	= lc_cc_decrypt_oneshot,
+	.dec_update	= lc_cc_decrypt,
+	.dec_final	= lc_cc_decrypt_authenticate,
+	.zero		= lc_cc_zero
+};
+DSO_PUBLIC
+const struct lc_aead *lc_cshake_aead = &_lc_cshake_aead;

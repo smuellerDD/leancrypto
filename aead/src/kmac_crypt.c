@@ -217,16 +217,14 @@
 
 #define LC_KC_AUTHENTICATION_KEY_SIZE	(256 >> 3)
 
-DSO_PUBLIC
-void lc_kc_setkey(struct lc_kc_cryptor *kc,
-		  const uint8_t *key, size_t keylen,
-		  const uint8_t *iv, size_t ivlen)
+static int lc_kc_setkey(void *state,
+			const uint8_t *key, size_t keylen,
+			const uint8_t *iv, size_t ivlen)
 {
+	struct lc_kc_cryptor *kc = state;
 	struct lc_kmac_ctx *kmac;
 	struct lc_kmac_ctx *auth_ctx;
 
-	if (!kc)
-		return;
 	kmac = &kc->kmac;
 	auth_ctx = &kc->auth_ctx;
 
@@ -255,16 +253,16 @@ void lc_kc_setkey(struct lc_kc_cryptor *kc,
 
 	/* Set the pointer to the start of the keystream */
 	kc->keystream_ptr = LC_KC_AUTHENTICATION_KEY_SIZE;
+
+	return 0;
 }
 
-DSO_PUBLIC
-void lc_kc_crypt(struct lc_kc_cryptor *kc, const uint8_t *in, uint8_t *out,
-		 size_t len)
+static void
+lc_kc_crypt(void *state, const uint8_t *in, uint8_t *out, size_t len)
 {
+	struct lc_kc_cryptor *kc = state;
 	struct lc_kmac_ctx *kmac;
 
-	if (!kc)
-		return;
 	kmac = &kc->kmac;
 
 	while (len) {
@@ -294,15 +292,13 @@ void lc_kc_crypt(struct lc_kc_cryptor *kc, const uint8_t *in, uint8_t *out,
 	}
 }
 
-DSO_PUBLIC
-void lc_kc_encrypt_tag(struct lc_kc_cryptor *kc,
-		       const uint8_t *aad, size_t aadlen,
-		       uint8_t *tag, size_t taglen)
+static void lc_kc_encrypt_tag(void *state,
+			      const uint8_t *aad, size_t aadlen,
+			      uint8_t *tag, size_t taglen)
 {
+	struct lc_kc_cryptor *kc = state;
 	struct lc_kmac_ctx *auth_ctx;
 
-	if (!kc)
-		return;
 	auth_ctx = &kc->auth_ctx;
 
 	/* Add the AAD data into the KMAC context */
@@ -312,17 +308,15 @@ void lc_kc_encrypt_tag(struct lc_kc_cryptor *kc,
 	lc_kmac_final_xof(auth_ctx, tag, taglen);
 }
 
-DSO_PUBLIC
-int lc_kc_decrypt_authenticate(struct lc_kc_cryptor *kc,
-			       const uint8_t *aad, size_t aadlen,
-			       const uint8_t *tag, size_t taglen)
+static int
+lc_kc_decrypt_authenticate(void *state,
+			   const uint8_t *aad, size_t aadlen,
+			   const uint8_t *tag, size_t taglen)
 {
+	struct lc_kc_cryptor *kc = state;
 	uint8_t calctag[128] __attribute__((aligned(sizeof(uint64_t))));
 	uint8_t *calctag_p = calctag;
 	int ret;
-
-	if (!kc)
-		return -EINVAL;
 
 	if (taglen > sizeof(calctag)) {
 		ret = posix_memalign((void *)&calctag_p, sizeof(uint64_t),
@@ -345,24 +339,102 @@ int lc_kc_decrypt_authenticate(struct lc_kc_cryptor *kc,
 	return ret;
 }
 
-DSO_PUBLIC
-void lc_kc_zero_free(struct lc_kc_cryptor *cc)
+static void
+lc_kc_encrypt(void *state,
+	      const uint8_t *plaintext, uint8_t *ciphertext, size_t datalen)
 {
-	if (!cc)
+	struct lc_kc_cryptor *kc = state;
+	struct lc_kmac_ctx *auth_ctx;
+
+	auth_ctx = &kc->auth_ctx;
+
+	lc_kc_crypt(kc, plaintext, ciphertext, datalen);
+
+	/*
+	 * Calculate the authentication MAC over the ciphertext
+	 * Perform an Encrypt-Then-MAC operation.
+	 */
+	lc_kmac_update(auth_ctx, ciphertext, datalen);
+}
+
+static void
+lc_kc_decrypt(void *state,
+	      const uint8_t *ciphertext, uint8_t *plaintext, size_t datalen)
+{
+	struct lc_kc_cryptor *kc = state;
+	struct lc_kmac_ctx *auth_ctx;
+
+	auth_ctx = &kc->auth_ctx;
+
+	/*
+	 * Calculate the authentication tag over the ciphertext
+	 * Perform the reverse of an Encrypt-Then-MAC operation.
+	 */
+	lc_kmac_update(auth_ctx, ciphertext, datalen);
+	lc_kc_crypt(kc, ciphertext, plaintext, datalen);
+}
+
+static void
+lc_kc_encrypt_oneshot(void *state,
+		      const uint8_t *plaintext, uint8_t *ciphertext,
+		      size_t datalen,
+		      const uint8_t *aad, size_t aadlen,
+		      uint8_t *tag, size_t taglen)
+{
+	struct lc_kc_cryptor *cc = state;
+
+	/* Confidentiality protection: Encrypt data */
+	lc_kc_encrypt(cc, plaintext, ciphertext, datalen);
+
+	/* Integrity protection: CSHAKE data */
+	lc_kc_encrypt_tag(cc, aad, aadlen, tag, taglen);
+}
+
+static int
+lc_kc_decrypt_oneshot(void *state,
+		      const uint8_t *ciphertext, uint8_t *plaintext,
+		      size_t datalen,
+		      const uint8_t *aad, size_t aadlen,
+		      const uint8_t *tag, size_t taglen)
+{
+	struct lc_kc_cryptor *cc = state;
+
+	/*
+	 * To ensure constant time between passing and failing decryption,
+	 * this code first performs the decryption. The decryption results
+	 * will need to be discarded if there is an authentication error. Yet,
+	 * in case of an authentication error, an attacker cannot deduct
+	 * that there is such an error from the timing analysis of this
+	 * function.
+	 */
+	/* Confidentiality protection: decrypt data */
+	lc_kc_decrypt(cc, ciphertext, plaintext, datalen);
+
+	/* Integrity protection: verify MAC of data */
+	return lc_kc_decrypt_authenticate(cc, aad, aadlen, tag, taglen);
+}
+
+static inline void lc_kc_zero(void *state)
+{
+	struct lc_kc_cryptor *kc = state;
+	struct lc_kmac_ctx *kmac = &kc->kmac;
+	struct lc_hash_ctx *hash_ctx = &kmac->hash_ctx;
+	const struct lc_hash *hash = hash_ctx->hash;
+
+	if (!kc)
 		return;
 
-	lc_kc_zero(cc);
-
-	free(cc);
+	memset_secure((uint8_t *)kc + sizeof(struct lc_kc_cryptor), 0,
+		      LC_KC_STATE_SIZE(hash));
 }
 
 DSO_PUBLIC
-int lc_kc_alloc(const struct lc_hash *hash, struct lc_kc_cryptor **kc)
+int lc_kc_alloc(const struct lc_hash *hash, struct lc_aead_ctx **ctx)
 {
-	struct lc_kc_cryptor *tmp;
+	struct lc_aead_ctx *tmp;
 	int ret;
 
-	if (!kc)
+	if (!ctx)
 		return -EINVAL;
 
 	ret = posix_memalign((void *)&tmp, sizeof(uint64_t),
@@ -372,7 +444,20 @@ int lc_kc_alloc(const struct lc_hash *hash, struct lc_kc_cryptor **kc)
 
 	LC_KC_SET_CTX(tmp, hash);
 
-	*kc = tmp;
+	*ctx = tmp;
 
 	return 0;
 }
+
+struct lc_aead _lc_kmac_aead = {
+	.setkey		= lc_kc_setkey,
+	.encrypt	= lc_kc_encrypt_oneshot,
+	.enc_update	= lc_kc_encrypt,
+	.enc_final	= lc_kc_encrypt_tag,
+	.decrypt	= lc_kc_decrypt_oneshot,
+	.dec_update	= lc_kc_decrypt,
+	.dec_final	= lc_kc_decrypt_authenticate,
+	.zero		= lc_kc_zero
+};
+DSO_PUBLIC
+const struct lc_aead *lc_kmac_aead = &_lc_kmac_aead;
