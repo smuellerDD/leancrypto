@@ -27,8 +27,7 @@ project('leancrypto', 'c',
 ################################################################################
 
 # Hardening Compiler flags
-add_global_arguments([ '-D_FORTIFY_SOURCE=2',
-		       '-fstack-protector-strong',
+add_global_arguments([ '-fstack-protector-strong',
 		       '-fwrapv',
 		       '--param', 'ssp-buffer-size=4',
 		       '-fvisibility=hidden',
@@ -38,6 +37,12 @@ add_global_arguments([ '-D_FORTIFY_SOURCE=2',
 		       '-Wshadow',
 		       '-Wswitch-enum' ],
 		       language : 'c')
+
+if get_option('optimization') != '0'
+        add_global_arguments([ '-D_FORTIFY_SOURCE=2' ], language: 'c')
+else
+        add_global_arguments([ '-DDEBUG' ], language: 'c')
+endif
 
 # Versioning information
 version_array = meson.project_version().split('.')
