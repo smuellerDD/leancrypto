@@ -101,9 +101,19 @@ static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
 	ret_checked += compare(out_dec, pt, ptlen,
 			       "KMAC crypt: Decryption, plaintext");
 
+	/* Stream decryption with pt ptr != ct ptr */
+	lc_aead_zero(kc);
+	lc_aead_setkey(kc, key, keylen, NULL, 0);
+	lc_aead_dec_update(kc, out_enc, out_dec, 1);
+	lc_aead_dec_update(kc, out_enc + 1, out_dec + 1, 1);
+	lc_aead_dec_update(kc, out_enc + 2, out_dec + 2, 5);
+	lc_aead_dec_update(kc, out_enc + 7, out_dec + 7, (ptlen - 7));
+	ret = lc_aead_dec_final(kc, aad, aadlen, tag, exp_tag_len);
+	if (ret < 0)
+		return 1;
 	//bin2print(out_dec, sizeof(out_dec), stderr, "out_dec");
 	ret_checked += compare(out_dec, pt, ptlen,
-			       "KMAC crypt: Decryption, ciphertext");
+			       "KMAC crypt: Decryption, plaintext");
 
 	lc_aead_zero(kc);
 
