@@ -56,10 +56,11 @@ int lc_kyber_keypair(struct lc_kyber_pk *pk,
 		LC_KYBER_SYMBYTES);
 }
 
-int kyber_enc(struct lc_kyber_ct *ct,
-	      uint8_t *ss, size_t ss_len,
-	      const struct lc_kyber_pk *pk,
-	      struct lc_rng_ctx *rng_ctx)
+DSO_PUBLIC
+int lc_kyber_enc(struct lc_kyber_ct *ct,
+		 uint8_t *ss, size_t ss_len,
+		 const struct lc_kyber_pk *pk,
+		 struct lc_rng_ctx *rng_ctx)
 {
 	uint8_t buf[2 * LC_KYBER_SYMBYTES];
 	/* Will contain key, coins */
@@ -91,9 +92,11 @@ out:
 	return ret;
 }
 
-int kyber_dec(uint8_t *ss, size_t ss_len,
-	      const struct lc_kyber_ct *ct,
-	      const struct lc_kyber_sk *sk)
+
+DSO_PUBLIC
+int lc_kyber_dec(uint8_t *ss, size_t ss_len,
+		 const struct lc_kyber_ct *ct,
+		 const struct lc_kyber_sk *sk)
 {
 	uint8_t buf[2 * LC_KYBER_SYMBYTES];
 	/* Will contain key, coins */
@@ -133,21 +136,4 @@ int kyber_dec(uint8_t *ss, size_t ss_len,
 	memset_secure(kr, 0, sizeof(kr));
 	memset_secure(cmp, 0, sizeof(cmp));
 	return 0;
-}
-
-DSO_PUBLIC
-int lc_kyber_enc(struct lc_kyber_ct *ct,
-		 struct lc_kyber_ss *ss,
-		 const struct lc_kyber_pk *pk,
-		 struct lc_rng_ctx *rng_ctx)
-{
-	return kyber_enc(ct, ss->ss, LC_KYBER_SSBYTES, pk, rng_ctx);
-}
-
-DSO_PUBLIC
-int lc_kyber_dec(struct lc_kyber_ss *ss,
-		 const struct lc_kyber_ct *ct,
-		 const struct lc_kyber_sk *sk)
-{
-	return kyber_dec(ss->ss, LC_KYBER_SSBYTES, ct, sk);
 }

@@ -141,12 +141,13 @@ int lc_kyber_keypair(struct lc_kyber_pk *pk,
  * @param ct [out] pointer to output cipher text to used for decapsulation
  * @param ss [out] pointer to output shared secret that will be also produced
  *		   during decapsulation
+ * @param ss_len [in] length of shared secret to be generated
  * @param pk [in] pointer to input public key
  *
  * Returns 0 (success) or < 0 on error
  */
 int lc_kyber_enc(struct lc_kyber_ct *ct,
-		 struct lc_kyber_ss *ss,
+		 uint8_t *ss, size_t ss_len,
 		 const struct lc_kyber_pk *pk,
 		 struct lc_rng_ctx *rng_ctx);
 
@@ -157,6 +158,7 @@ int lc_kyber_enc(struct lc_kyber_ct *ct,
  *
  * @param ss [out] pointer to output shared secret that is the same as produced
  *		   during encapsulation
+ * @param ss_len [in] length of shared secret to be generated
  * @param ct [in] pointer to input cipher text generated during encapsulation
  * @param sk [in] pointer to input private key
  *
@@ -164,7 +166,7 @@ int lc_kyber_enc(struct lc_kyber_ct *ct,
  *
  * On failure, ss will contain a pseudo-random value.
  */
-int lc_kyber_dec(struct lc_kyber_ss *ss,
+int lc_kyber_dec(uint8_t *ss, size_t ss_len,
 		 const struct lc_kyber_ct *ct,
 		 const struct lc_kyber_sk *sk);
 

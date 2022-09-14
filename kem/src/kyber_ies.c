@@ -299,9 +299,9 @@
  *
  ******************************************************************************/
 
-#include "kyber_kem.h"
 #include "lc_aead.h"
 #include "lc_cshake_crypt.h"
+#include "lc_kyber.h"
 #include "lc_rng.h"
 #include "memset_secure.h"
 #include "ret_checkers.h"
@@ -325,7 +325,7 @@ int lc_kyber_ies_enc(const struct lc_kyber_pk *pk,
 	uint8_t *ies_iv = ss + LC_KYBER_IES_SYM_KEYSIZE;
 	int ret;
 
-	CKINT(kyber_enc(ct, ss, sizeof(ss), pk, rng_ctx));
+	CKINT(lc_kyber_enc(ct, ss, sizeof(ss), pk, rng_ctx));
 	CKINT(lc_aead_setkey(cc,
 			     ies_key, LC_KYBER_IES_SYM_KEYSIZE,
 			     ies_iv, LC_KYBER_IES_SYM_IVSIZE));
@@ -352,7 +352,7 @@ int lc_kyber_ies_dec(const struct lc_kyber_sk *sk,
 	uint8_t *ies_iv = ss + LC_KYBER_IES_SYM_KEYSIZE;
 	int ret;
 
-	CKINT(kyber_dec(ss, sizeof(ss), ct, sk));
+	CKINT(lc_kyber_dec(ss, sizeof(ss), ct, sk));
 	CKINT(lc_aead_setkey(cc,
 			     ies_key, LC_KYBER_IES_SYM_KEYSIZE,
 			     ies_iv, LC_KYBER_IES_SYM_IVSIZE));

@@ -40,7 +40,7 @@ int lc_kex_uake_responder_init(struct lc_kyber_pk *pk_e_r,
 	int ret;
 
 	CKINT(lc_kyber_keypair(pk_e_r, sk_e, rng_ctx));
-	CKINT(lc_kyber_enc(ct_e_r, tk, pk_i, rng_ctx));
+	CKINT(lc_kyber_enc(ct_e_r, tk->ss, LC_KYBER_SSBYTES, pk_i, rng_ctx));
 
 out:
 	return ret;
@@ -57,8 +57,8 @@ int lc_kex_uake_initiator_ss(struct lc_kyber_ct *ct_e_i,
 	struct lc_kyber_ss ss[2];
 	int ret;
 
-	CKINT(lc_kyber_enc(ct_e_i, &ss[0], pk_e_r, rng_ctx));
-	CKINT(lc_kyber_dec(&ss[1], ct_e_r, sk_i));
+	CKINT(lc_kyber_enc(ct_e_i, ss[0].ss, LC_KYBER_SSBYTES, pk_e_r, rng_ctx));
+	CKINT(lc_kyber_dec(ss[1].ss, LC_KYBER_SSBYTES, ct_e_r, sk_i));
 	kyber_kdf2(ss[0].ss, LC_KYBER_SSBYTES,
 		   ss[1].ss, LC_KYBER_SSBYTES,
 		   shared_secret, shared_secret_len);
@@ -77,7 +77,7 @@ int lc_kex_uake_responder_ss(uint8_t *shared_secret,
 	struct lc_kyber_ss ss;
 	int ret;
 
-	CKINT(lc_kyber_dec(&ss, ct_e_i, sk_e));
+	CKINT(lc_kyber_dec(ss.ss, LC_KYBER_SSBYTES, ct_e_i, sk_e));
 	kyber_kdf2(ss.ss, LC_KYBER_SSBYTES,
 		   tk->ss, LC_KYBER_SSBYTES,
 		   shared_secret, shared_secret_len);
@@ -97,7 +97,7 @@ int lc_kex_ake_responder_init(struct lc_kyber_pk *pk_e_r,
 	int ret;
 
 	CKINT(lc_kyber_keypair(pk_e_r, sk_e, rng_ctx));
-	CKINT(lc_kyber_enc(ct_e_r, tk, pk_i, rng_ctx));
+	CKINT(lc_kyber_enc(ct_e_r, tk->ss, LC_KYBER_SSBYTES, pk_i, rng_ctx));
 
 out:
 	return ret;
@@ -116,9 +116,11 @@ int lc_kex_ake_initiator_ss(struct lc_kyber_ct *ct_e_i_1,
 	struct lc_kyber_ss ss[3];
 	int ret;
 
-	CKINT(lc_kyber_enc(ct_e_i_1, &ss[0], pk_e_r, rng_ctx));
-	CKINT(lc_kyber_enc(ct_e_i_2, &ss[1], pk_r, rng_ctx));
-	CKINT(lc_kyber_dec(&ss[2], ct_e_r, sk_i));
+	CKINT(lc_kyber_enc(ct_e_i_1, ss[0].ss, LC_KYBER_SSBYTES, pk_e_r,
+			   rng_ctx));
+	CKINT(lc_kyber_enc(ct_e_i_2, ss[1].ss, LC_KYBER_SSBYTES, pk_r,
+			   rng_ctx));
+	CKINT(lc_kyber_dec(ss[2].ss, LC_KYBER_SSBYTES, ct_e_r, sk_i));
 	kyber_kdf3(ss[0].ss, LC_KYBER_SSBYTES,
 		   ss[1].ss, LC_KYBER_SSBYTES,
 		   ss[2].ss, LC_KYBER_SSBYTES,
@@ -140,8 +142,8 @@ int lc_kex_ake_responder_ss(uint8_t *shared_secret,
 	struct lc_kyber_ss ss[2];
 	int ret;
 
-	CKINT(lc_kyber_dec(&ss[0], ct_e_i_1, sk_e));
-	CKINT(lc_kyber_dec(&ss[1], ct_e_i_2, sk_r));
+	CKINT(lc_kyber_dec(ss[0].ss, LC_KYBER_SSBYTES, ct_e_i_1, sk_e));
+	CKINT(lc_kyber_dec(ss[1].ss, LC_KYBER_SSBYTES, ct_e_i_2, sk_r));
 	kyber_kdf3(ss[0].ss, LC_KYBER_SSBYTES,
 		   ss[1].ss, LC_KYBER_SSBYTES,
 		   tk->ss, LC_KYBER_SSBYTES,

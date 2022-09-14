@@ -202,10 +202,11 @@ int main(void)
 		CKINT(lc_kyber_keypair(&pk, &sk, &kyber_rng));
 
 		// Encapsulation
-		CKINT(lc_kyber_enc(&ct, &key_b, &pk, &kyber_rng2));
+		CKINT(lc_kyber_enc(&ct, key_b.ss, LC_KYBER_SSBYTES, &pk,
+				   &kyber_rng2));
 
 		// Decapsulation
-		CKINT(lc_kyber_dec(&key_a, &ct, &sk));
+		CKINT(lc_kyber_dec(key_a.ss, LC_KYBER_SSBYTES, &ct, &sk));
 
 #ifdef DEBUG
 		printf("Public Key: ");

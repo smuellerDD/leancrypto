@@ -11,6 +11,8 @@ Changes 0.4.0-prerelease:
 
 * add KyberIES
 
+* change API to Kyber KEM: allow caller to specify size of generated key
+
 Changes 0.3.0:
 * Introduce lc_rng.h as a common interface to the random number generators
 
