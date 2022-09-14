@@ -56,11 +56,10 @@ int lc_kyber_keypair(struct lc_kyber_pk *pk,
 		LC_KYBER_SYMBYTES);
 }
 
-DSO_PUBLIC
-int lc_kyber_enc(struct lc_kyber_ct *ct,
-		 struct lc_kyber_ss *ss,
-		 const struct lc_kyber_pk *pk,
-		 struct lc_rng_ctx *rng_ctx)
+int kyber_enc(struct lc_kyber_ct *ct,
+	      uint8_t *ss, size_t ss_len,
+	      const struct lc_kyber_pk *pk,
+	      struct lc_rng_ctx *rng_ctx)
 {
 	uint8_t buf[2 * LC_KYBER_SYMBYTES];
 	/* Will contain key, coins */
@@ -71,7 +70,7 @@ int lc_kyber_enc(struct lc_kyber_ct *ct,
 		return -EINVAL;
 
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, buf, LC_KYBER_SYMBYTES));
-	/* Don't release system RNG output */
+	/* TODO: remove that - Don't release system RNG output */
 	lc_hash(lc_sha3_256, buf, LC_KYBER_SYMBYTES, buf);
 
 	/* Multitarget countermeasure for coins + contributory KEM */
@@ -86,7 +85,7 @@ int lc_kyber_enc(struct lc_kyber_ct *ct,
 	lc_hash(lc_sha3_256, ct->ct, LC_KYBER_CIPHERTEXTBYTES,
 		kr + LC_KYBER_SYMBYTES);
 	/* hash concatenation of pre-k and H(c) to k */
-	lc_shake(lc_shake256, kr, sizeof(kr), ss->ss, LC_KYBER_SSBYTES);
+	lc_shake(lc_shake256, kr, sizeof(kr), ss, ss_len);
 
 out:
 	memset_secure(buf, 0, sizeof(buf));
@@ -94,10 +93,9 @@ out:
 	return ret;
 }
 
-DSO_PUBLIC
-int lc_kyber_dec(struct lc_kyber_ss *ss,
-		 const struct lc_kyber_ct *ct,
-		 const struct lc_kyber_sk *sk)
+int kyber_dec(uint8_t *ss, size_t ss_len,
+	      const struct lc_kyber_ct *ct,
+	      const struct lc_kyber_sk *sk)
 {
 	uint8_t buf[2 * LC_KYBER_SYMBYTES];
 	/* Will contain key, coins */
@@ -131,10 +129,27 @@ int lc_kyber_dec(struct lc_kyber_ss *ss,
 	     LC_KYBER_SYMBYTES, fail);
 
 	/* hash concatenation of pre-k and H(c) to k */
-	lc_shake(lc_shake256, kr, sizeof(kr), ss->ss, LC_KYBER_SSBYTES);
+	lc_shake(lc_shake256, kr, sizeof(kr), ss, ss_len);
 
 	memset_secure(buf, 0, sizeof(buf));
 	memset_secure(kr, 0, sizeof(kr));
 	memset_secure(cmp, 0, sizeof(cmp));
 	return 0;
+}
+
+DSO_PUBLIC
+int lc_kyber_enc(struct lc_kyber_ct *ct,
+		 struct lc_kyber_ss *ss,
+		 const struct lc_kyber_pk *pk,
+		 struct lc_rng_ctx *rng_ctx)
+{
+	return kyber_enc(ct, ss->ss, LC_KYBER_SSBYTES, pk, rng_ctx);
+}
+
+DSO_PUBLIC
+int lc_kyber_dec(struct lc_kyber_ss *ss,
+		 const struct lc_kyber_ct *ct,
+		 const struct lc_kyber_sk *sk)
+{
+	return kyber_dec(ss->ss, LC_KYBER_SSBYTES, ct, sk);
 }

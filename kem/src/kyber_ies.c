@@ -92,15 +92,21 @@
  *
  * 2.1.1 KyberEnc
  *
- * KyberEnc(pk) denotes the Kyber.CCAKEM.Enc(pk) algorithm specified in [KYBER]
- * section 1.3. It takes the Kyber public key pk as input and generates the
- * ciphertext c and the shared key K.
+ * KyberEnc(pk, ss_len) denotes the Kyber.CCAKEM.Enc(pk) algorithm specified in
+ * [KYBER] section 1.3. It takes the Kyber public key pk as input as well as the
+ * length of the shared key to be generated and generates the ciphertext c and
+ * the shared key K.
+ *
+ * KyberEnc(pk, ss_len) -> c, shared key
  *
  * 2.1.2 KyberDec
  *
- * KyberDec(c, sk) denotes the Kyber.CCAKEM.Dec(c, sk) algorithm specified in
- * [KYBER] section 1.3. It takes the Kyber secret key sk and the ciphertext c
- * as input and generates the shared key K.
+ * KyberDec(c, sk, ss_len) denotes the Kyber.CCAKEM.Dec(c, sk) algorithm
+ * specified in [KYBER] section 1.3. It takes the Kyber secret key sk, the
+ * ciphertext c and the length of the shared secret to be generated as input
+ * and generates the shared key K.
+ *
+ * KyberDec(c, sk, ss_len) -> shared key
  *
  * 2.1.3 RND
  *
@@ -210,47 +216,7 @@
  * * RND defines a random bit generator that has a security strength of 256
  *   bits and is seeded with at least 256 bits of entropy.
  *
- * 2.2 Key Derivation for Encryption
- *
- * KyberIESEncKeyDrv(pk, shared secret length) -> Kyber ciphertext, shared secret
- *
- * Input:
- *   pk: Kyber public key of the data owner
- *
- *   shared secret length: Length of the shared secret to be generated via
- *			   Kyber KEM
- *
- * Output:
- *   Kyber ciphertext: Kyber ciphertext c as defined for KyberEnc
- *
- *   Shared Secret: Generated shared secret of the requested length
- *
- * The key derivation operation for encryption is performed as follows:
- *
- * Kyber ciphertext, shared key = KyberEnc(pk)
- * shared secret = SHAKE(M = shared key,
- *                       d = shared secret length)
- *
- * 2.3 Key Derivation for Decryption
- *
- * KyberIESDecKeyDrv(sk, Kyber ciphertext, shared secret length) -> shared secret
- *
- * Input:
- *   sk: Kyber secret key of the data owner
- *
- *   shared secret length: Length of the shared secret to be generated via
- *			   Kyber KEM
- *
- * Output:
- *   Shared Secret: Generated shared secret of the requested length
- *
- * The key derivation operation for decryption is performed as follows:
- *
- * shared key = KyberDec(sk, Kyber ciphertext)
- * shared secret = SHAKE(M = shared key,
- *                       d = shared secret length)
- *
- * 2.4 Encryption of Data
+ * 2.3 Encryption of Data
  *
  * KyberIESEnc(pk, plaintext, AAD, taglen) -> Kyber ciphertext, ciphertext, tag
  *
@@ -276,13 +242,13 @@
  *
  * The KyberIES encryption operation is performed as follows:
  *
- * Kyber ciphertext, shared secret = KyberIESEncKeyDrv(pk, 256 + AEAD IV length + AEAD MAC key length)
- * AEADkey = shared secret[0:255] - the left-most 256 bits of shared secret
- * AEADIV = shared secret[256:AEAD IV length] - shared secret bits starting with 256th bit of AEAD IV length
- * AEADMACKey = shared secret[256 + AEAD IV length: AEAD MAC key length] - shared secret bits starting with first bit after AEAD IV bits of AEAD MAC key length
+ * Kyber ciphertext, shared key = KyberEnc(pk, 256 + AEAD IV length + AEAD MAC key length)
+ * AEADkey = shared key[0:255] - the left-most 256 bits of shared key
+ * AEADIV = shared key[256:AEAD IV length] - shared key bits starting with 256th bit of AEAD IV length
+ * AEADMACKey = shared key[256 + AEAD IV length: AEAD MAC key length] - shared key bits starting with first bit after AEAD IV bits of AEAD MAC key length
  * ciphertext, tag = AEADEnc(AEADKey, AEADIV, AEADMACKey, AAD, plaintext, taglen)
  *
- * 2.5 Decryption of Data
+ * 2.4 Decryption of Data
  *
  * KyberIESDec(sk, Kyber ciphertext, ciphertext, tag) -> plaintext, authentication result
  *
@@ -309,10 +275,10 @@
  *
  * The KyberIES decryption operation is performed as follows:
  *
- * shared secret = KyberIESDecKeyDrv(sk, Kyber ciphertext, 256 + AEAD IV length + AEAD MAC key length)
- * AEADkey = shared secret[0:255] - the left-most 256 bits of shared secret
- * AEADIV = shared secret[256:AEAD IV length] - shared secret bits starting with 256th bit of AEAD IV length
- * AEADMACKey = shared secret[256 + AEAD IV length: AEAD MAC key length] - shared secret bits starting with first bit after AEAD IV bits of AEAD MAC key length
+ * shared key = KyberDec(sk, Kyber ciphertext, 256 + AEAD IV length + AEAD MAC key length)
+ * AEADkey = shared key[0:255] - the left-most 256 bits of shared key
+ * AEADIV = shared key[256:AEAD IV length] - shared key bits starting with 256th bit of AEAD IV length
+ * AEADMACKey = shared key[256 + AEAD IV length: AEAD MAC key length] - shared key bits starting with first bit after AEAD IV bits of AEAD MAC key length
  * plaintext, authentication result = AEADDec(AEADKey, AEADIV, AEADMACKey, AAD, ciphertext, tag)
  *
  * 3. References
@@ -333,9 +299,9 @@
  *
  ******************************************************************************/
 
+#include "kyber_kem.h"
 #include "lc_aead.h"
 #include "lc_cshake_crypt.h"
-#include "lc_kyber.h"
 #include "lc_rng.h"
 #include "memset_secure.h"
 #include "ret_checkers.h"
@@ -343,81 +309,6 @@
 
 #define LC_KYBER_IES_SYM_KEYSIZE	32
 #define LC_KYBER_IES_SYM_IVSIZE		16
-
-/**
- * @brief lc_kyber_ies_enc_ss - Generate the shared secret from the Kyber public
- *				key
- *
- * The function generates the shared secret using the public key which will
- * also be calculated with the lc_kyber_ies_dec_ss but using the secret key.
- *
- * The shared secret can be directly used as a key for subsequent cryptographic
- * operations.
- *
- * The function generates a ciphertext which must be transported to the
- * decryptor. This value is public based on the following consideration:
- *
- * * The cipher text is the result of the Kyber encryption mechanism and is
- *   therefore meant to be communicated over insecure lines.
- *
- * @param ss [out] Shared secret buffer allocated by the caller that is to be
- *		   filled with the shared secret.
- * @param ss_len [in] Size of the shared secret buffer and requested size of
- *		      the shared secret.
- * @param ct [out] Kyber ciphertext to be sent to the decryption operation
- * @param pk [in] Kyber public key
- *
- * @return 0 on success, < 0 on error
- */
-static int lc_kyber_ies_enc_ss(uint8_t *ss, size_t ss_len,
-			       struct lc_kyber_ct *ct,
-			       const struct lc_kyber_pk *pk,
-			       struct lc_rng_ctx *rng_ctx)
-{
-	struct lc_kyber_ss tmp_ss;
-	int ret;
-
-	CKINT(lc_kyber_enc(ct, &tmp_ss, pk, rng_ctx));
-	lc_shake(lc_shake256, tmp_ss.ss, LC_KYBER_SSBYTES, ss, ss_len);
-
-out:
-	memset_secure(tmp_ss.ss, 0, sizeof(tmp_ss.ss));
-	return ret;
-}
-
-/**
- * @brief lc_kyber_ies_dec_ss - Generate the shared secret from the Kyber secret
- *				key
- *
- * The function generates the shared secret using the secret key which was
- * also be calculated with the lc_kyber_ies_enc_ss but using the public key.
- *
- * The shared secret can be directly used as a key for subsequent cryptographic
- * operations.
- *
- * @param ss [out] Shared secret buffer allocated by the caller that is to be
- *		   filled with the shared secret.
- * @param ss_len [in] Size of the shared secret buffer and requested size of
- *		      the shared secret.
- * @param ct [in] Kyber ciphertext received from the encryption operation
- * @param sk [in] Kyber secret key
- *
- * @return 0 on success, < 0 on error
- */
-static int lc_kyber_ies_dec_ss(uint8_t *ss, size_t ss_len,
-			       const struct lc_kyber_ct *ct,
-			       const struct lc_kyber_sk *sk)
-{
-	struct lc_kyber_ss tmp_ss;
-	int ret;
-
-	CKINT(lc_kyber_dec(&tmp_ss, ct, sk));
-	lc_shake(lc_shake256, tmp_ss.ss, LC_KYBER_SSBYTES, ss, ss_len);
-
-out:
-	memset_secure(tmp_ss.ss, 0, sizeof(tmp_ss.ss));
-	return ret;
-}
 
 DSO_PUBLIC
 int lc_kyber_ies_enc(const struct lc_kyber_pk *pk,
@@ -434,7 +325,7 @@ int lc_kyber_ies_enc(const struct lc_kyber_pk *pk,
 	uint8_t *ies_iv = ss + LC_KYBER_IES_SYM_KEYSIZE;
 	int ret;
 
-	CKINT(lc_kyber_ies_enc_ss(ss, sizeof(ss), ct, pk, rng_ctx));
+	CKINT(kyber_enc(ct, ss, sizeof(ss), pk, rng_ctx));
 	CKINT(lc_aead_setkey(cc,
 			     ies_key, LC_KYBER_IES_SYM_KEYSIZE,
 			     ies_iv, LC_KYBER_IES_SYM_IVSIZE));
@@ -461,7 +352,7 @@ int lc_kyber_ies_dec(const struct lc_kyber_sk *sk,
 	uint8_t *ies_iv = ss + LC_KYBER_IES_SYM_KEYSIZE;
 	int ret;
 
-	CKINT(lc_kyber_ies_dec_ss(ss, sizeof(ss), ct, sk));
+	CKINT(kyber_dec(ss, sizeof(ss), ct, sk));
 	CKINT(lc_aead_setkey(cc,
 			     ies_key, LC_KYBER_IES_SYM_KEYSIZE,
 			     ies_iv, LC_KYBER_IES_SYM_IVSIZE));
