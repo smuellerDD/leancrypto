@@ -30,6 +30,7 @@
 #include <string.h>
 
 #include "lc_kyber.h"
+#include "lc_sha3.h"
 #include "ret_checkers.h"
 
 /*
@@ -118,6 +119,16 @@ randombytes(void *_state,
 }
 
 static int
+randombytes2 (void *_state,
+	     const uint8_t *addtl_input, size_t addtl_input_len,
+	     uint8_t *x, size_t xlen)
+{
+	randombytes(_state, addtl_input, addtl_input_len, x, xlen);
+	lc_hash(lc_sha3_256, x, xlen, x);
+	return 0;
+}
+
+static int
 randombytes_seed(void *_state,
 		 const uint8_t *rng_seed, size_t seedlen,
 		 const uint8_t *persbuf, size_t perslen)
@@ -141,6 +152,12 @@ static const struct lc_rng kyber_drng = {
 	.zero		= randombytes_zero,
 };
 
+static const struct lc_rng kyber_drng2 = {
+	.generate	= randombytes2,
+	.seed		= randombytes_seed,
+	.zero		= randombytes_zero,
+};
+
 int main(void)
 {
 	unsigned int i, j;
@@ -158,6 +175,8 @@ int main(void)
 	 */
 	struct lc_rng_ctx kyber_rng =
 		{ .rng = &kyber_drng, .rng_state = NULL };
+	struct lc_rng_ctx kyber_rng2 =
+		{ .rng = &kyber_drng2, .rng_state = NULL };
 	unsigned int nvectors;
 
 
@@ -183,7 +202,7 @@ int main(void)
 		CKINT(lc_kyber_keypair(&pk, &sk, &kyber_rng));
 
 		// Encapsulation
-		CKINT(lc_kyber_enc(&ct, &key_b, &pk, &kyber_rng));
+		CKINT(lc_kyber_enc(&ct, &key_b, &pk, &kyber_rng2));
 
 		// Decapsulation
 		CKINT(lc_kyber_dec(&key_a, &ct, &sk));

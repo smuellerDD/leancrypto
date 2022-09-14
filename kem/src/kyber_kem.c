@@ -70,8 +70,6 @@ int kyber_enc(struct lc_kyber_ct *ct,
 		return -EINVAL;
 
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, buf, LC_KYBER_SYMBYTES));
-	/* TODO: remove that - Don't release system RNG output */
-	lc_hash(lc_sha3_256, buf, LC_KYBER_SYMBYTES, buf);
 
 	/* Multitarget countermeasure for coins + contributory KEM */
 	lc_hash(lc_sha3_256, pk->pk, LC_KYBER_PUBLICKEYBYTES,
