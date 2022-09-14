@@ -95,7 +95,7 @@
  * KyberEnc(pk, ss_len) denotes the Kyber.CCAKEM.Enc(pk) algorithm specified in
  * [KYBER] section 1.3. It takes the Kyber public key pk as input as well as the
  * length of the shared key to be generated and generates the ciphertext c and
- * the shared key K.
+ * the shared key K. The used KDF is SHAKE as defined in section 2.1.4.
  *
  * KyberEnc(pk, ss_len) -> c, shared key
  *
@@ -104,7 +104,8 @@
  * KyberDec(c, sk, ss_len) denotes the Kyber.CCAKEM.Dec(c, sk) algorithm
  * specified in [KYBER] section 1.3. It takes the Kyber secret key sk, the
  * ciphertext c and the length of the shared secret to be generated as input
- * and generates the shared key K.
+ * and generates the shared key K. The used KDF is SHAKE as defined in section
+ * 2.1.4.
  *
  * KyberDec(c, sk, ss_len) -> shared key
  *
