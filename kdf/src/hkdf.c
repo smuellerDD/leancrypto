@@ -24,6 +24,7 @@
 #include "build_bug_on.h"
 #include "lc_hkdf.h"
 #include "lc_rng.h"
+#include "math_helper.h"
 #include "memset_secure.h"
 #include "null_buffer.h"
 #include "visibility.h"
@@ -64,53 +65,46 @@ int lc_hkdf_extract(struct lc_hkdf_ctx *hkdf_ctx,
 	return 0;
 }
 
-DSO_PUBLIC
-int lc_hkdf_expand(struct lc_hkdf_ctx *hkdf_ctx,
-		   const uint8_t *info, size_t infolen,
-		   uint8_t *dst, size_t dlen)
+static int hkdf_expand_internal(struct lc_hkdf_ctx *hkdf_ctx,
+				const uint8_t *info, size_t infolen,
+				uint8_t *dst, size_t dlen)
 {
-	struct lc_hmac_ctx *hmac_ctx;
+	struct lc_hmac_ctx *hmac_ctx = &hkdf_ctx->hmac_ctx;
 	size_t h;
-	uint8_t *prev = NULL;
 
-	if (!hkdf_ctx)
-		return -EINVAL;
-	hmac_ctx = &hkdf_ctx->hmac_ctx;
 	h = lc_hmac_macsize(hmac_ctx);
 
 	if (dlen > h * (255 - (hkdf_ctx->ctr)))
 		return -EINVAL;
 
-	if (hkdf_ctx->ctr > 1)
-		lc_hmac_reinit(hmac_ctx);
-
 	/* Expand phase - expects a HMAC handle from the extract phase */
 
 	/* T(1) and following */
 	while (dlen) {
-		if (prev)
-			lc_hmac_update(hmac_ctx, prev, h);
-
 		if (info)
 			lc_hmac_update(hmac_ctx, info, infolen);
 
 		lc_hmac_update(hmac_ctx, &hkdf_ctx->ctr, 1);
 
 		if (dlen < h) {
-			uint8_t tmp[LC_SHA_MAX_SIZE_DIGEST];
+			lc_hmac_final(hmac_ctx, hkdf_ctx->partial);
 
-			lc_hmac_final(hmac_ctx, tmp);
-			if (dst)
-				memcpy(dst, tmp, dlen);
-			memset_secure(tmp, 0, h);
+			/* Prepare it for subsequent calls if needed */
+			lc_hmac_reinit(hmac_ctx);
+			lc_hmac_update(hmac_ctx, hkdf_ctx->partial, dlen);
+			memcpy(dst, hkdf_ctx->partial, dlen);
+			hkdf_ctx->partial_ptr = dlen;
 			hkdf_ctx->ctr++;
 
 			goto out;
 		} else {
-			lc_hmac_final(hmac_ctx, dst);
-			lc_hmac_reinit(hmac_ctx);
 
-			prev = dst;
+			lc_hmac_final(hmac_ctx, dst);
+
+			/* Prepare for next round */
+			lc_hmac_reinit(hmac_ctx);
+			lc_hmac_update(hmac_ctx, dst, h);
+
 			dst += h;
 			dlen -= h;
 			hkdf_ctx->ctr++;
@@ -119,6 +113,23 @@ int lc_hkdf_expand(struct lc_hkdf_ctx *hkdf_ctx,
 
 out:
 	return 0;
+}
+
+DSO_PUBLIC
+int lc_hkdf_expand(struct lc_hkdf_ctx *hkdf_ctx,
+		   const uint8_t *info, size_t infolen,
+		   uint8_t *dst, size_t dlen)
+{
+	struct lc_hmac_ctx *hmac_ctx;
+
+	if (!hkdf_ctx)
+		return -EINVAL;
+
+	hmac_ctx = &hkdf_ctx->hmac_ctx;
+	if (hkdf_ctx->ctr > 1)
+		lc_hmac_reinit(hmac_ctx);
+
+	return hkdf_expand_internal(hkdf_ctx, info, infolen, dst, dlen);
 }
 
 DSO_PUBLIC
@@ -168,9 +179,38 @@ lc_hkdf_rng_generate(void *_state,
 		     const uint8_t *addtl_input, size_t addtl_input_len,
 		     uint8_t *out, size_t outlen)
 {
-	struct lc_hkdf_ctx *state = _state;
+	struct lc_hkdf_ctx *hkdf_ctx = _state;
+	struct lc_hmac_ctx *hmac_ctx;
+	size_t h;
+	uint8_t *orig_out = out;
 
-	return lc_hkdf_expand(state, addtl_input, addtl_input_len, out, outlen);
+	if (!hkdf_ctx)
+		return -EINVAL;
+
+	hmac_ctx = &hkdf_ctx->hmac_ctx;
+	h = lc_hmac_macsize(hmac_ctx);
+
+	/* Consume partial data */
+	if (hkdf_ctx->partial_ptr < h) {
+		size_t todo = min_t(size_t, outlen, h - hkdf_ctx->partial_ptr);
+
+		memcpy(out, hkdf_ctx->partial + hkdf_ctx->partial_ptr, todo);
+		out += todo;
+		hkdf_ctx->partial_ptr += todo;
+		outlen -= todo;
+
+		/*
+		 * Add the returned data to the HKDF state as done in
+		 * hkdf_expand_internal.
+		 */
+		lc_hmac_update(hmac_ctx, orig_out, todo);
+	}
+
+	if (!outlen)
+		return 0;
+
+	return hkdf_expand_internal(hkdf_ctx, addtl_input, addtl_input_len,
+				    out, outlen);
 }
 
 static void lc_hkdf_rng_zero(void *_state)

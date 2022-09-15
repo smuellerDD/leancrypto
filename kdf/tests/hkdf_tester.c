@@ -22,6 +22,7 @@
 #include "compare.h"
 #include "lc_hkdf.h"
 #include "lc_sha256.h"
+#include "math_helper.h"
 
 static int hkdf_tester(void)
 {
@@ -48,11 +49,10 @@ static int hkdf_tester(void)
 		0x58, 0x65
 	};
 	uint8_t act[sizeof(exp)];
-	uint8_t act2[sizeof(exp)];
-	uint8_t act3[sizeof(exp)];
 	LC_HKDF_CTX_ON_STACK(hkdf, lc_sha256);
 	LC_HKDF_DRNG_CTX_ON_STACK(hkdf_rng, lc_sha256);
 	struct lc_hkdf_ctx *hkdf_heap = NULL;
+	unsigned int i = 0;
 	int ret;
 
 	if (lc_hkdf_extract(hkdf, ikm, sizeof(ikm), salt, sizeof(salt))) {
@@ -62,11 +62,6 @@ static int hkdf_tester(void)
 
 	if (lc_hkdf_expand(hkdf, info, sizeof(info), act, sizeof(act))) {
 		printf("HKDF expand stack failed\n");
-		return 1;
-	}
-
-	if (lc_hkdf_expand(hkdf, info, sizeof(info), act3, sizeof(act3))) {
-		printf("HKDF expand failed\n");
 		return 1;
 	}
 
@@ -84,18 +79,49 @@ static int hkdf_tester(void)
 	}
 	ret += compare(act, exp, sizeof(exp), "HKDF SHA-256 RNG");
 
-	/* Check that the counter state is maintained */
-	if (lc_rng_generate(hkdf_rng, info, sizeof(info), act2, sizeof(act2))) {
-		printf("HKDF expand stack failed\n");
-		return 1;
+	/*
+	 * Verify that subsequent calls to the "RNG" of HKDF returns the same
+	 * data as one common HKDF call. This shows that the RNG version
+	 * can be inserted into any cipher implementation to generate the
+	 * same data as if one HKDF call would be made to generate the entire
+	 * requested buffer that is handed down to the wrapping cipher.
+	 */
+	/* Iterate through block sizes */
+	for (i = 1; i <= sizeof(exp); i++) {
+		size_t j = 0;
+
+		/* Reinitialize the HKDF context */
+		lc_rng_zero(hkdf_rng);
+		if (lc_rng_seed(hkdf_rng, ikm, sizeof(ikm),
+				salt, sizeof(salt))) {
+			printf("HKDF extract stack failed\n");
+			return 1;
+		}
+
+		/*
+		 * Fill the entire requested buffer size with the given block
+		 * size.
+		 */
+		while (j < sizeof(exp)) {
+			size_t todo = min_t(size_t, i, sizeof(exp) - j);
+
+			if (lc_rng_generate(hkdf_rng, info, sizeof(info),
+					    act + j, todo)) {
+				printf("HKDF expand stack failed\n");
+				return 1;
+			}
+
+			j += todo;
+		}
+		ret += compare(act, exp, sizeof(exp),
+			       "HKDF SHA-256 regenerate");
 	}
-	ret += compare(act2, act3, sizeof(act2), "HKDF SHA-256 regenerate");
 
 	lc_rng_zero(hkdf_rng);
 
 	if (lc_hkdf(lc_sha256, ikm, sizeof(ikm), salt, sizeof(salt),
 		    info, sizeof(info), act, sizeof(act))) {
-		printf("HKDF extract stack failed\n");
+		printf("HKDF oneshot on stack failed\n");
 		return 1;
 	}
 	ret += compare(act, exp, sizeof(exp), "HKDF SHA-256 oneshot");
