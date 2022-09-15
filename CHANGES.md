@@ -3,6 +3,8 @@ Changes 0.4.0-prerelease:
 
 * add RNG context to HKDF
 
+* add RNG context to KMAC
+
 * add AES 128/192/256, ECB, CBC, CTR, KW
 
 * add lc_seeded_rng

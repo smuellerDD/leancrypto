@@ -21,6 +21,7 @@
 #define LC_KMAC_H
 
 #include "lc_hash.h"
+#include "lc_rng.h"
 #include "lc_sha3.h"
 #include "memset_secure.h"
 
@@ -30,6 +31,7 @@ extern "C"
 #endif
 
 struct lc_kmac_ctx {
+	uint8_t final_called:1;
 	uint8_t *shadow_ctx;
 	struct lc_hash_ctx hash_ctx;
 };
@@ -116,19 +118,8 @@ void lc_kmac_final(struct lc_kmac_ctx *kmac_ctx, uint8_t *mac, size_t maclen);
  * If the cipher handle shall be used for a new KMAC operation with the same
  * key after this call, you MUST re-initialize the handle with kmac_reinit.
  *
- * @param kmac_ctx [in] Reference to kmac context implementation to be used to
- *			perform KMAC calculation with.
- * @param mac [out] Buffer to hold the message digest
- * @param maclen [in] Size of the requested MAC
- */
-void lc_kmac_final_xof(struct lc_kmac_ctx *kmac_ctx,
-		       uint8_t *mac, size_t maclen);
-
-/**
- * @brief Get more message digest from the KMAC operation
- *
- * This call is intended to be invoked after the lc_kmac_final_xof. It generates
- * more message digest.
+ * This call is can be to be invoked multiple times It generates more message
+ * digest.
  *
  * E.g. the following calls are equal:
  *
@@ -140,18 +131,17 @@ void lc_kmac_final_xof(struct lc_kmac_ctx *kmac_ctx,
  *
  * ```
  * lc_kmac_final_xof(ctx, mac, LC_SHA3_256_SIZE_BLOCK + 1);
- * lc_kmac_final_xof_more(ctx, mac + LC_SHA3_256_SIZE_BLOCK + 1,
+ * lc_kmac_final_xof(ctx, mac + LC_SHA3_256_SIZE_BLOCK + 1,
  *			  2 * LC_SHA3_256_SIZE_BLOCK + 1);
- * lc_kmac_final_xof_more(ctx, mac + 3 * LC_SHA3_256_SIZE_BLOCK + 2, 3);
- * ```
+ * lc_kmac_final_xof(ctx, mac + 3 * LC_SHA3_256_SIZE_BLOCK + 2, 3);
  *
  * @param kmac_ctx [in] Reference to kmac context implementation to be used to
  *			perform KMAC calculation with.
  * @param mac [out] Buffer to hold the message digest
  * @param maclen [in] Size of the requested MAC
  */
-void lc_kmac_final_xof_more(struct lc_kmac_ctx *kmac_ctx, uint8_t *mac,
-			    size_t maclen);
+void lc_kmac_final_xof(struct lc_kmac_ctx *kmac_ctx,
+		       uint8_t *mac, size_t maclen);
 
 /**
  * @brief Allocate KMAC context on heap
@@ -200,6 +190,8 @@ static inline void lc_kmac_zero(struct lc_kmac_ctx *kmac_ctx)
 		return;
 	hash_ctx = &kmac_ctx->hash_ctx;
 	hash = hash_ctx->hash;
+
+	kmac_ctx->final_called = 0;
 
 	memset_secure((uint8_t *)kmac_ctx + sizeof(struct lc_kmac_ctx), 0,
 		      kmac_ctx->shadow_ctx ? LC_KMAC_STATE_SIZE_REINIT(hash) :
@@ -327,6 +319,54 @@ static inline void lc_kmac_xof(const struct lc_hash *hash,
 	   lc_kmac_zero(kmac_ctx);
 }
 
+/******************************** KMAC as RNG *********************************/
+
+/*
+ * The KMAC can be used as an RNG context for aggregated algorithms like
+ * Kyber or Dilithium. The idea is that the KDF state can be initialized
+ * from an input data to deterministically derive the values required for the
+ * algorithms the RNG context is used with.
+ */
+
+/* KMAC DRNG implementation */
+extern const struct lc_rng *lc_kmac_rng;
+
+#define LC_KMAC_DRNG_CTX_SIZE(hashname)	(sizeof(struct lc_rng_ctx) +	       \
+					 LC_KMAC_CTX_SIZE(hashname))
+
+#define LC_KMAC_DRNG_SET_CTX(name, hashname)	LC_KMAC_SET_CTX(name, hashname)
+
+#define LC_KMAC_RNG_CTX(name, hashname)					       \
+	LC_RNG_CTX(name, lc_kmac_rng);					       \
+	LC_KMAC_DRNG_SET_CTX(((struct lc_kmac_ctx *)(name->rng_state)), hashname);\
+	lc_rng_zero(name)
+
+/**
+ * @brief Allocate stack memory for the KMAC DRNG context
+ *
+ * @param name [in] Name of the stack variable
+ * @param hashname [in] Reference to lc_hash implementation
+ */
+#define LC_KMAC_DRNG_CTX_ON_STACK(name, hashname)			       \
+	LC_ALIGNED_BUFFER(name ## _ctx_buf,				       \
+			  LC_KMAC_DRNG_CTX_SIZE(hashname), uint64_t);	       \
+	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name ## _ctx_buf;       \
+	LC_KMAC_RNG_CTX(name, hashname)
+
+/**
+ * @brief Allocation of a KMAC DRNG context
+ *
+ * @param state [out] KMAC DRNG context allocated by the function
+ *
+ * The cipher handle including its memory is allocated with this function.
+ *
+ * The memory is pinned so that the DRNG state cannot be swapped out to disk.
+ *
+ * You need to seed the DRNG!
+ *
+ * @return 0 upon success; < 0 on error
+ */
+int lc_kmac_rng_alloc(struct lc_rng_ctx **state, const struct lc_hash *hash);
 
 #ifdef __cplusplus
 }

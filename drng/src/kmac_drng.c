@@ -298,7 +298,7 @@ lc_kmac256_drng_generate(void *_state,
 					  addtl_input, addtl_input_len);
 
 		/* Generate the requested amount of output bits */
-		lc_kmac_final_xof_more(kmac_ctx, out, todo);
+		lc_kmac_final_xof(kmac_ctx, out, todo);
 		out += todo;
 		outlen -= todo;
 	}

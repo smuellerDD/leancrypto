@@ -270,8 +270,8 @@ lc_kc_crypt(void *state, const uint8_t *in, uint8_t *out, size_t len)
 
 		/* Generate a new keystream block */
 		if (kc->keystream_ptr >= LC_KC_KEYSTREAM_BLOCK) {
-			lc_kmac_final_xof_more(kmac, kc->keystream,
-					       LC_KC_KEYSTREAM_BLOCK);
+			lc_kmac_final_xof(kmac, kc->keystream,
+					  LC_KC_KEYSTREAM_BLOCK);
 
 			kc->keystream_ptr = 0;
 		}

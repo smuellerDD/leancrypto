@@ -68,10 +68,10 @@ static int kmac_xof_more_tester(void)
 	lc_kmac_reinit(kmac);
 	lc_kmac_update(kmac, msg1, sizeof(msg1));
 	lc_kmac_final_xof(kmac, act2, LC_SHA3_256_SIZE_BLOCK);
-	lc_kmac_final_xof_more(kmac, act2 + LC_SHA3_256_SIZE_BLOCK,
-			       LC_SHA3_256_SIZE_BLOCK);
-	lc_kmac_final_xof_more(kmac, act2 + 2 * LC_SHA3_256_SIZE_BLOCK,
-			       sizeof(act2) - 2 * LC_SHA3_256_SIZE_BLOCK);
+	lc_kmac_final_xof(kmac, act2 + LC_SHA3_256_SIZE_BLOCK,
+			  LC_SHA3_256_SIZE_BLOCK);
+	lc_kmac_final_xof(kmac, act2 + 2 * LC_SHA3_256_SIZE_BLOCK,
+			  sizeof(act2) - 2 * LC_SHA3_256_SIZE_BLOCK);
 
 	ret = compare(act1, act2, sizeof(act1), "KMAC256 XOF More");
 	lc_kmac_zero(kmac);

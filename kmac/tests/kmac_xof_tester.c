@@ -21,6 +21,8 @@
 
 #include "compare.h"
 #include "lc_kmac.h"
+#include "lc_rng.h"
+#include "math_helper.h"
 
 static int kmac_xof_tester(void)
 {
@@ -806,7 +808,9 @@ static int kmac_xof_tester(void)
 	};
 	uint8_t act1[sizeof(exp1)];
 	uint8_t act2[sizeof(exp2)];
+	LC_KMAC_DRNG_CTX_ON_STACK(kmac_rng, lc_cshake256);
 	struct lc_kmac_ctx *ctx;
+	size_t i;
 	int ret;
 
 	printf("kmac ctx len %lu, re-init ctx len %lu\n",
@@ -842,6 +846,53 @@ static int kmac_xof_tester(void)
 		    act2, sizeof(act2));
 	ret = compare(act2, exp2, sizeof(act2), "KMAC256 XOF 2");
 	lc_kmac_zero(ctx);
+
+
+	/*
+	 * Verify that subsequent calls to the "RNG" of KMAC returns the same
+	 * data as one common KMAC call. This shows that the RNG version
+	 * can be inserted into any cipher implementation to generate the
+	 * same data as if one KMAC call would be made to generate the entire
+	 * requested buffer that is handed down to the wrapping cipher.
+	 */
+	/* Iterate through block sizes */
+	for (i = 1; i <= sizeof(exp1); i++) {
+		size_t j = 0;
+
+		/* Reinitialize the KMAC context */
+		lc_rng_zero(kmac_rng);
+		if (lc_rng_seed(kmac_rng, key1, sizeof(key1),
+				cust1, sizeof(cust1))) {
+			printf("KMAC256 RNG stack failed\n");
+			return 1;
+		}
+
+		/* Ensure a KMAC update */
+		if (lc_rng_generate(kmac_rng, msg1, sizeof(msg1), NULL, 0)) {
+			printf("KMAC256 RNG generate stack failed\n");
+			return 1;
+		}
+
+		/*
+		 * Fill the entire requested buffer size with the given block
+		 * size.
+		 */
+		while (j < sizeof(exp1)) {
+			size_t todo = min_t(size_t, i, sizeof(exp1) - j);
+
+			if (lc_rng_generate(kmac_rng, NULL, 0,
+					    act1 + j, todo)) {
+				printf("KMAC256 RNG generate stack failed\n");
+				return 1;
+			}
+
+			j += todo;
+		}
+		ret += compare(act1, exp1, sizeof(exp1),
+			       "KMAC256 RNG generate");
+	}
+
+	lc_rng_zero(kmac_rng);
 
 out:
 	lc_kmac_zero_free(ctx);

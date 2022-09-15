@@ -22,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/mman.h>
 
 #include "lc_cshake.h"
 #include "lc_kmac.h"
@@ -59,6 +60,7 @@ void lc_kmac_reinit(struct lc_kmac_ctx *kmac_ctx)
 		return;
 
 	lc_hash_init(hash_ctx);
+	kmac_ctx->final_called = 0;
 
 	/* Copy retained key state back*/
 	memcpy(kmac_ctx->hash_ctx.hash_state, kmac_ctx->shadow_ctx,
@@ -84,6 +86,7 @@ void lc_kmac_init(struct lc_kmac_ctx *kmac_ctx,
 
 	lc_hash_init(hash_ctx);
 	lc_cshake_init(hash_ctx, (uint8_t *)"KMAC", 4, s, slen);
+	kmac_ctx->final_called = 0;
 
 	/* bytepad */
 	/* This value is precomputed from the code above for SHA3-256 */
@@ -149,16 +152,10 @@ void lc_kmac_final_xof(struct lc_kmac_ctx *kmac_ctx,
 		return;
 	hash_ctx = &kmac_ctx->hash_ctx;
 
-	lc_hash_update(hash_ctx, bytepad_val, sizeof(bytepad_val));
-	lc_cshake_final(hash_ctx, mac, maclen);
-}
-
-DSO_PUBLIC
-void lc_kmac_final_xof_more(struct lc_kmac_ctx *kmac_ctx, uint8_t *mac,
-			    size_t maclen)
-{
-	struct lc_hash_ctx *hash_ctx = &kmac_ctx->hash_ctx;
-
+	if (!kmac_ctx->final_called) {
+		lc_hash_update(hash_ctx, bytepad_val, sizeof(bytepad_val));
+		kmac_ctx->final_called = 1;
+	}
 	lc_cshake_final(hash_ctx, mac, maclen);
 }
 
@@ -201,3 +198,79 @@ void lc_kmac_zero_free(struct lc_kmac_ctx *kmac_ctx)
 	lc_kmac_zero(kmac_ctx);
 	free(kmac_ctx);
 }
+
+static int lc_kmac_rng_seed(void *_state,
+			    const uint8_t *seed, size_t seedlen,
+			    const uint8_t *persbuf, size_t perslen)
+{
+	struct lc_kmac_ctx *state = _state;
+
+	lc_kmac_init(state, seed, seedlen, persbuf, perslen);
+	return 0;
+}
+
+static int
+lc_kmac_rng_generate(void *_state,
+		     const uint8_t *addtl_input, size_t addtl_input_len,
+		     uint8_t *out, size_t outlen)
+{
+	struct lc_kmac_ctx *kmac_ctx = _state;
+
+	if (!kmac_ctx)
+		return -EINVAL;
+
+	if (addtl_input_len)
+		lc_kmac_update(kmac_ctx, addtl_input, addtl_input_len);
+
+	lc_kmac_final_xof(kmac_ctx, out, outlen);
+	return 0;
+}
+
+static void lc_kmac_rng_zero(void *_state)
+{
+	struct lc_kmac_ctx *state = _state;
+
+	if (!state)
+		return;
+
+	lc_kmac_zero(state);
+}
+
+DSO_PUBLIC
+int lc_kmac_rng_alloc(struct lc_rng_ctx **state, const struct lc_hash *hash)
+{
+	struct lc_rng_ctx *out_state;
+	int ret;
+
+	if (!state)
+		return -EINVAL;
+
+	ret = posix_memalign((void *)&out_state, sizeof(uint64_t),
+			     LC_KMAC_DRNG_CTX_SIZE(hash));
+	if (ret)
+		return -ret;
+
+	/* prevent paging out of the memory state to swap space */
+	ret = mlock(out_state, sizeof(*out_state));
+	if (ret && errno != EPERM && errno != EAGAIN) {
+		int errsv = errno;
+
+		free(out_state);
+		return -errsv;
+	}
+
+	LC_KMAC_RNG_CTX(out_state, hash);
+
+	lc_kmac_rng_zero(out_state->rng_state);
+
+	*state = out_state;
+
+	return 0;
+}
+
+static const struct lc_rng _lc_kmac = {
+	.generate	= lc_kmac_rng_generate,
+	.seed		= lc_kmac_rng_seed,
+	.zero		= lc_kmac_rng_zero,
+};
+DSO_PUBLIC const struct lc_rng *lc_kmac_rng = &_lc_kmac;
