@@ -122,6 +122,8 @@
  * generated. The inputs to the SHAKE algorithm are specified with references
  * to these parameters.
  *
+ * SHAKE256 is used to be consistent with [KYBER] section 1.4.
+ *
  * 2.1.5 AEAD Algorithm
  *
  * AEAD denotes an authenticated encryption with additional data algorithm. The
@@ -192,10 +194,12 @@
  * with stream-cipher-based AEAD algorithms. Stream ciphers commonly loose their
  * security strength if the key/IV is reused for protecting different data.
  *
- * The Kyber shared key is used as part of the key derivation mechanism to
- * obtain the key / IV used by the AEAD algorithm to guarantee that the
- * resulting key/IV are always different irrespective whether the same Kyber KEM
- * keypair is used.
+ * The Kyber shared key is used as part of the key derivation mechanism whose
+ * input from the Kyber KEM is based on 256 bits generated from a random bit
+ * generator to obtain the key / IV used by the AEAD algorithm. This use of the
+ * random bit generator guarantees that the resulting key/IV pair is always
+ * different irrespective whether the same Kyber KEM keypair is used. This
+ * implies that even stream-cipher-based AEAD algorithms can be safely used.
  *
  * 2.2.2 Security Strength
  *
