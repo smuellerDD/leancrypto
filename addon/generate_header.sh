@@ -35,6 +35,10 @@ header='/*
 echo "$header" > $OUTFILE
 for i in $@
 do
+	if (echo $i | grep -q "lc_hmac_drbg.h")
+	then
+		continue
+	fi
 	i=$(basename $i)
 	echo "#include <${TARGETDIR}/${i}>" >> $OUTFILE
 done
