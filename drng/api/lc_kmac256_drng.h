@@ -39,7 +39,7 @@ struct lc_kmac256_drng_state {
 #define LC_KMAC256_DRNG_CTX_SIZE	(sizeof(struct lc_rng) +	       \
 					 LC_KMAC256_DRNG_STATE_SIZE)
 
-/* KMAC156-based DRNG */
+/* KMAC256-based DRNG */
 extern const struct lc_rng *lc_kmac256_drng;
 
 #define LC_KMAC256_RNG_CTX(name)					       \

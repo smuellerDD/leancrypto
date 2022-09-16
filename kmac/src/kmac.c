@@ -246,7 +246,7 @@ int lc_kmac_rng_alloc(struct lc_rng_ctx **state, const struct lc_hash *hash)
 		return -EINVAL;
 
 	ret = posix_memalign((void *)&out_state, sizeof(uint64_t),
-			     LC_KMAC_DRNG_CTX_SIZE(hash));
+			     LC_KMAC_KDF_DRNG_CTX_SIZE(hash));
 	if (ret)
 		return -ret;
 
@@ -259,7 +259,7 @@ int lc_kmac_rng_alloc(struct lc_rng_ctx **state, const struct lc_hash *hash)
 		return -errsv;
 	}
 
-	LC_KMAC_RNG_CTX(out_state, hash);
+	LC_KMAC_KDF_RNG_CTX(out_state, hash);
 
 	lc_kmac_rng_zero(out_state->rng_state);
 

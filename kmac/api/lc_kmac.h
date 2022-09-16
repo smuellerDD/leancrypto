@@ -323,22 +323,28 @@ static inline void lc_kmac_xof(const struct lc_hash *hash,
 
 /*
  * The KMAC can be used as an RNG context for aggregated algorithms like
- * Kyber or Dilithium. The idea is that the KDF state can be initialized
- * from an input data to deterministically derive the values required for the
- * algorithms the RNG context is used with.
+ * Kyber or Dilithium. The idea is that KMAC acts as a key derivation function
+ * whose state can be initialized from an input data to deterministically derive
+ * the values required for the algorithms the RNG context is used with.
+ *
+ * This RNG state is NOT intended to serve as a general-purpose deterministic
+ * random number generator. For using KMAC as a such general-purpose DRNG, see
+ * the API provided with lc_kmac256_drng.h.
  */
 
 /* KMAC DRNG implementation */
 extern const struct lc_rng *lc_kmac_rng;
 
-#define LC_KMAC_DRNG_CTX_SIZE(hashname)	(sizeof(struct lc_rng_ctx) +	       \
-					 LC_KMAC_CTX_SIZE(hashname))
+#define LC_KMAC_KDF_DRNG_CTX_SIZE(hashname)	(sizeof(struct lc_rng_ctx) +   \
+						 LC_KMAC_CTX_SIZE(hashname))
 
-#define LC_KMAC_DRNG_SET_CTX(name, hashname)	LC_KMAC_SET_CTX(name, hashname)
+#define LC_KMAC_KDF_DRNG_SET_CTX(name, hashname)			       \
+						LC_KMAC_SET_CTX(name, hashname)
 
-#define LC_KMAC_RNG_CTX(name, hashname)					       \
+#define LC_KMAC_KDF_RNG_CTX(name, hashname)				       \
 	LC_RNG_CTX(name, lc_kmac_rng);					       \
-	LC_KMAC_DRNG_SET_CTX(((struct lc_kmac_ctx *)(name->rng_state)), hashname);\
+	LC_KMAC_KDF_DRNG_SET_CTX(((struct lc_kmac_ctx *)(name->rng_state)),    \
+				 hashname);				       \
 	lc_rng_zero(name)
 
 /**
@@ -347,11 +353,11 @@ extern const struct lc_rng *lc_kmac_rng;
  * @param name [in] Name of the stack variable
  * @param hashname [in] Reference to lc_hash implementation
  */
-#define LC_KMAC_DRNG_CTX_ON_STACK(name, hashname)			       \
+#define LC_KMAC_KDF_DRNG_CTX_ON_STACK(name, hashname)			       \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf,				       \
-			  LC_KMAC_DRNG_CTX_SIZE(hashname), uint64_t);	       \
+			  LC_KMAC_KDF_DRNG_CTX_SIZE(hashname), uint64_t);      \
 	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name ## _ctx_buf;       \
-	LC_KMAC_RNG_CTX(name, hashname)
+	LC_KMAC_KDF_RNG_CTX(name, hashname)
 
 /**
  * @brief Allocation of a KMAC DRNG context

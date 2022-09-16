@@ -808,7 +808,7 @@ static int kmac_xof_tester(void)
 	};
 	uint8_t act1[sizeof(exp1)];
 	uint8_t act2[sizeof(exp2)];
-	LC_KMAC_DRNG_CTX_ON_STACK(kmac_rng, lc_cshake256);
+	LC_KMAC_KDF_DRNG_CTX_ON_STACK(kmac_rng, lc_cshake256);
 	struct lc_kmac_ctx *ctx;
 	size_t i;
 	int ret;
