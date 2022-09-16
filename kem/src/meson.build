@@ -12,4 +12,8 @@ if get_option('kyber').enabled()
 		'kyber_polyvec.c',
 		'kyber_verify.c',
 	])
+
+	include_files += files([
+		'../api/lc_kyber.h'
+	])
 endif

@@ -8,4 +8,8 @@ if get_option('dilithium').enabled()
 		'dilithium_poly.c',
 		'dilithium_rounding.c'
 	])
+
+	include_files += files([
+		'../api/lc_dilithium.h'
+	])
 endif
