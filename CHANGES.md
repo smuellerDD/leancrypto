@@ -15,6 +15,8 @@ Changes 0.4.0-prerelease:
 
 * change API to Kyber KEM: allow caller to specify size of generated key
 
+* add leancrypto.h for ease of use
+
 Changes 0.3.0:
 * Introduce lc_rng.h as a common interface to the random number generators
 

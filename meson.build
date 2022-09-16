@@ -63,6 +63,9 @@ add_project_link_arguments('-Wl,-z,now', language : 'c')
 # Only link to truly needed libraries
 add_project_link_arguments('-Wl,--as-needed', language : 'c')
 
+# Header generation
+header_script = find_program('addon/generate_header.sh', required: true)
+
 # Prepare distribution
 dist_script = find_program('addon/sanity_checks.sh', required: true)
 meson.add_dist_script(dist_script, meson.project_version())
@@ -179,11 +182,16 @@ foreach n : subdirs
     subdir(n)
 endforeach
 
+# Generate leancrypto.h
+autogen_header = meson.build_root() + '/leancrypto.h'
+leancrypto_header_subdir = 'leancrypto'
+run_command(header_script, autogen_header, leancrypto_header_subdir, include_files,
+	    check: true)
+
 leancrypto_static_lib = static_library('leancrypto_static',
 	[ src, internal_src ],
 	include_directories: [ include_dirs, include_internal_dirs ],
 	)
-
 leancrypto_lib = library('leancrypto',
 	[ src, internal_src ],
 	include_directories: [ include_dirs, include_internal_dirs ],
@@ -193,7 +201,8 @@ leancrypto_lib = library('leancrypto',
 leancrypto = declare_dependency(link_with: leancrypto_lib,
 				include_directories: include_dirs)
 
-install_headers(include_files, subdir: 'leancrypto')
+install_headers(include_files, subdir: leancrypto_header_subdir)
+install_headers(autogen_header)
 
 ################################################################################
 # Execute testing
