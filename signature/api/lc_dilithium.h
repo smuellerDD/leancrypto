@@ -159,7 +159,7 @@ int lc_dilithium_keypair(struct lc_dilithium_pk *pk,
 
 
 /**
- * @param crypto_sign_signature - Computes signature.
+ * @param lc_dilithium_sign - Computes signature.
  *
  * @param sig [out] pointer to output signature
  * @param m [in] pointer to message to be signed
@@ -178,7 +178,7 @@ int lc_dilithium_sign(struct lc_dilithium_sig *sig,
 		      struct lc_rng_ctx *rng_ctx);
 
 /**
- * @brief crypto_sign_verify - Verifies signature.
+ * @brief lc_dilithium_verify - Verifies signature.
  *
  * @param sig [in] pointer to input signature
  * @param m [in] pointer to message

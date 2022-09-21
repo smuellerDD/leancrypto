@@ -384,6 +384,8 @@ int lc_kex_ake_initiator_ss(struct lc_kyber_ct *ct_e_i_1,
  * @param sk_e [in] responder's ephemeral secret that was generated during the
  *		    responder's initialization
  * @param sk_r [in] responder's secret key
+ *
+ * @return 0 (success) or < 0 on error
  */
 int lc_kex_ake_responder_ss(uint8_t *shared_secret,
 			    size_t shared_secret_len,

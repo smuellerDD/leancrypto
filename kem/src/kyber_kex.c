@@ -29,7 +29,9 @@
 #include "memset_secure.h"
 #include "lc_kyber.h"
 #include "ret_checkers.h"
+#include "visibility.h"
 
+DSO_PUBLIC
 int lc_kex_uake_responder_init(struct lc_kyber_pk *pk_e_r,
 			       struct lc_kyber_ct *ct_e_r,
 			       struct lc_kyber_ss *tk,
@@ -46,6 +48,7 @@ out:
 	return ret;
 }
 
+DSO_PUBLIC
 int lc_kex_uake_initiator_ss(struct lc_kyber_ct *ct_e_i,
 			     uint8_t *shared_secret,
 			     size_t shared_secret_len,
@@ -68,6 +71,7 @@ out:
 	return ret;
 }
 
+DSO_PUBLIC
 int lc_kex_uake_responder_ss(uint8_t *shared_secret,
 			     size_t shared_secret_len,
 			     const struct lc_kyber_ct *ct_e_i,
@@ -87,6 +91,7 @@ out:
 	return ret;
 }
 
+DSO_PUBLIC
 int lc_kex_ake_responder_init(struct lc_kyber_pk *pk_e_r,
 			      struct lc_kyber_ct *ct_e_r,
 			      struct lc_kyber_ss *tk,
@@ -103,6 +108,7 @@ out:
 	return ret;
 }
 
+DSO_PUBLIC
 int lc_kex_ake_initiator_ss(struct lc_kyber_ct *ct_e_i_1,
 			    struct lc_kyber_ct *ct_e_i_2,
 			    uint8_t *shared_secret,
@@ -131,6 +137,7 @@ out:
 	return ret;
 }
 
+DSO_PUBLIC
 int lc_kex_ake_responder_ss(uint8_t *shared_secret,
 			    size_t shared_secret_len,
 			    const struct lc_kyber_ct *ct_e_i_1,
