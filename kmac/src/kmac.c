@@ -205,7 +205,15 @@ static int lc_kmac_rng_seed(void *_state,
 {
 	struct lc_kmac_ctx *state = _state;
 
+	if (state->rng_initialized) {
+		lc_kmac_update(state, seed, seedlen);
+		lc_kmac_update(state, persbuf, perslen);
+		return 0;
+	}
+
 	lc_kmac_init(state, seed, seedlen, persbuf, perslen);
+	state->rng_initialized = 1;
+
 	return 0;
 }
 

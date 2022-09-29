@@ -36,6 +36,7 @@ struct lc_hkdf_ctx {
 	uint8_t partial[LC_SHA_MAX_SIZE_DIGEST];
 	size_t partial_ptr;
 	uint8_t ctr;
+	uint8_t rng_initialized:1;
 	struct lc_hmac_ctx hmac_ctx;
 };
 
@@ -104,6 +105,7 @@ static inline void lc_hkdf_zero(struct lc_hkdf_ctx *hkdf_ctx)
 	lc_hmac_zero(&hkdf_ctx->hmac_ctx);
 	memset_secure(hkdf_ctx->partial, 0, LC_SHA_MAX_SIZE_DIGEST);
 	hkdf_ctx->ctr = 0x01;
+	hkdf_ctx->rng_initialized = 0;
 	hkdf_ctx->partial_ptr = LC_SHA_MAX_SIZE_DIGEST;
 }
 

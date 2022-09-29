@@ -32,6 +32,7 @@ extern "C"
 
 struct lc_kmac_ctx {
 	uint8_t final_called:1;
+	uint8_t rng_initialized:1;
 	uint8_t *shadow_ctx;
 	struct lc_hash_ctx hash_ctx;
 };
@@ -192,6 +193,7 @@ static inline void lc_kmac_zero(struct lc_kmac_ctx *kmac_ctx)
 	hash = hash_ctx->hash;
 
 	kmac_ctx->final_called = 0;
+	kmac_ctx->rng_initialized = 0;
 
 	memset_secure((uint8_t *)kmac_ctx + sizeof(struct lc_kmac_ctx), 0,
 		      kmac_ctx->shadow_ctx ? LC_KMAC_STATE_SIZE_REINIT(hash) :

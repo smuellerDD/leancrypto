@@ -39,7 +39,7 @@
  * vector file can be included and will be applied when this option
  * not defined any more.
  *
- * The generated data could be cross-compared with test_vectors768
+ * The generated data could be cross-compared with test_vectors*
  * from https://github.com/pq-crystals/kyber.
  */
 #undef GENERATE_VECTORS

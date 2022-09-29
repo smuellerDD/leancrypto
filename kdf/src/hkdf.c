@@ -171,6 +171,10 @@ static int lc_hkdf_rng_seed(void *_state,
 {
 	struct lc_hkdf_ctx *state = _state;
 
+	if (state->rng_initialized)
+		return -EOPNOTSUPP;
+
+	state->rng_initialized = 1;
 	return lc_hkdf_extract(state, seed, seedlen, persbuf, perslen);
 }
 
