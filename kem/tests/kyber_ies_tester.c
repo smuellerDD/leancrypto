@@ -20,6 +20,7 @@
 #include <stdio.h>
 
 #include "binhexbin.h"
+#include "lc_cshake_crypt.h"
 #include "lc_kyber.h"
 #include "lc_rng.h"
 #include "lc_sha3.h"
@@ -73,6 +74,7 @@ static const struct lc_rng kyber_drng = {
 
 static int kyber_ies_determinisitic(void)
 {
+	LC_CC_CTX_ON_STACK(cc, lc_cshake256);
 	static const uint8_t plain[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 		0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
@@ -108,7 +110,7 @@ static int kyber_ies_determinisitic(void)
 	CKINT(lc_kyber_ies_enc(&pk, &ct,
 			       plain, cipher, sizeof(plain), NULL, 0,
 			       tag, sizeof(tag),
-			       &cshake_rng));
+			       cc, &cshake_rng));
 
 // 	bin2print(pk.pk, sizeof(pk.pk), stdout, "PK");
 // 	bin2print(sk.sk, sizeof(sk.sk), stdout, "SK");
@@ -122,20 +124,23 @@ static int kyber_ies_determinisitic(void)
 		return 1;
 	}
 
+	lc_aead_zero(cc);
 	CKINT(lc_kyber_ies_dec(&sk, &ct,
 			       cipher, plain_new, sizeof(cipher), NULL, 0,
-			       tag, sizeof(tag)));
+			       tag, sizeof(tag), cc));
 
 	if (memcmp(plain, plain_new, sizeof(plain))){
 		printf("Error in decryption of IES\n");
 		return 1;
 	}
 
+	lc_aead_zero(cc);
+
 	/* Modify the ciphertext -> integrity error */
 	cipher[0] = (cipher[0] + 0x01) & 0xff;
 	ret = lc_kyber_ies_dec(&sk, &ct,
 			       cipher, plain_new, sizeof(cipher), NULL, 0,
-			       tag, sizeof(tag));
+			       tag, sizeof(tag), cc);
 	if (ret != -EBADMSG) {
 		printf("Error in detecting authentication error\n");
 		return 1;
@@ -144,11 +149,13 @@ static int kyber_ies_determinisitic(void)
 	ret = 0;
 
 out:
+	lc_aead_zero(cc);
 	return ret;
 }
 
 static int kyber_ies_nondeterministic(void)
 {
+	LC_CC_CTX_ON_STACK(cc, lc_cshake256);
 	static const uint8_t plain[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 		0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
@@ -177,25 +184,28 @@ static int kyber_ies_nondeterministic(void)
 	CKINT(lc_kyber_ies_enc(&pk, &ct,
 			       plain, cipher, sizeof(plain), NULL, 0,
 			       tag, sizeof(tag),
-			       lc_seeded_rng));
+			       cc, lc_seeded_rng));
 
+	lc_aead_zero(cc);
 	CKINT(lc_kyber_ies_dec(&sk, &ct,
 			       cipher, plain_new, sizeof(cipher), NULL, 0,
-			       tag, sizeof(tag)));
-	if (memcmp(plain, plain_new, sizeof(plain))){
+			       tag, sizeof(tag), cc));
+	if (memcmp(plain, plain_new, sizeof(plain))) {
 		printf("Error in decryption of IES\n");
 		return 1;
 	}
 
 	/* 2nd enc/dec */
+	lc_aead_zero(cc);
 	CKINT(lc_kyber_ies_enc(&pk, &ct2,
 			       plain, cipher2, sizeof(plain), NULL, 0,
 			       tag, sizeof(tag),
-			       lc_seeded_rng));
+			       cc, lc_seeded_rng));
 
+	lc_aead_zero(cc);
 	CKINT(lc_kyber_ies_dec(&sk, &ct2,
 			       cipher2, plain_new, sizeof(cipher2), NULL, 0,
-			       tag, sizeof(tag)));
+			       tag, sizeof(tag), cc));
 	if (memcmp(plain, plain_new, sizeof(plain))){
 		printf("Error in decryption of IES\n");
 		return 1;
@@ -212,6 +222,7 @@ static int kyber_ies_nondeterministic(void)
 	}
 
 out:
+	lc_aead_zero(cc);
 	return ret;
 }
 

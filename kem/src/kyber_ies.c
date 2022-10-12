@@ -305,7 +305,6 @@
  ******************************************************************************/
 
 #include "lc_aead.h"
-#include "lc_cshake_crypt.h"
 #include "lc_kyber.h"
 #include "lc_rng.h"
 #include "memset_secure.h"
@@ -322,23 +321,22 @@ int lc_kyber_ies_enc(const struct lc_kyber_pk *pk,
 		     size_t datalen,
 		     const uint8_t *aad, size_t aadlen,
 		     uint8_t *tag, size_t taglen,
+		     struct lc_aead_ctx *aead,
 		     struct lc_rng_ctx *rng_ctx)
 {
-	LC_CC_CTX_ON_STACK(cc, lc_cshake256);
 	uint8_t ss[LC_KYBER_IES_SYM_KEYSIZE + LC_KYBER_IES_SYM_IVSIZE];
 	uint8_t *ies_key = ss;
 	uint8_t *ies_iv = ss + LC_KYBER_IES_SYM_KEYSIZE;
 	int ret;
 
 	CKINT(lc_kyber_enc(ct, ss, sizeof(ss), pk, rng_ctx));
-	CKINT(lc_aead_setkey(cc,
+	CKINT(lc_aead_setkey(aead,
 			     ies_key, LC_KYBER_IES_SYM_KEYSIZE,
 			     ies_iv, LC_KYBER_IES_SYM_IVSIZE));
-	lc_aead_encrypt(cc, plaintext, ciphertext, datalen, aad, aadlen,
+	lc_aead_encrypt(aead, plaintext, ciphertext, datalen, aad, aadlen,
 			tag, taglen);
 
 out:
-	lc_aead_zero(cc);
 	memset_secure(ss, 0, sizeof(ss));
 	return ret;
 }
@@ -349,23 +347,22 @@ int lc_kyber_ies_dec(const struct lc_kyber_sk *sk,
 		     const uint8_t *ciphertext, uint8_t *plaintext,
 		     size_t datalen,
 		     const uint8_t *aad, size_t aadlen,
-		     const uint8_t *tag, size_t taglen)
+		     const uint8_t *tag, size_t taglen,
+		     struct lc_aead_ctx *aead)
 {
-	LC_CC_CTX_ON_STACK(cc, lc_cshake256);
 	uint8_t ss[LC_KYBER_IES_SYM_KEYSIZE + LC_KYBER_IES_SYM_IVSIZE];
 	uint8_t *ies_key = ss;
 	uint8_t *ies_iv = ss + LC_KYBER_IES_SYM_KEYSIZE;
 	int ret;
 
 	CKINT(lc_kyber_dec(ss, sizeof(ss), ct, sk));
-	CKINT(lc_aead_setkey(cc,
+	CKINT(lc_aead_setkey(aead,
 			     ies_key, LC_KYBER_IES_SYM_KEYSIZE,
 			     ies_iv, LC_KYBER_IES_SYM_IVSIZE));
-	CKINT(lc_aead_decrypt(cc, ciphertext, plaintext, datalen,
+	CKINT(lc_aead_decrypt(aead, ciphertext, plaintext, datalen,
 			      aad, aadlen, tag, taglen));
 
 out:
-	lc_aead_zero(cc);
 	memset_secure(ss, 0, sizeof(ss));
 	return ret;
 }

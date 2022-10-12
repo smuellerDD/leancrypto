@@ -30,6 +30,7 @@
 #include <stdint.h>
 #include <sys/types.h>
 
+#include "lc_aead.h"
 #include "lc_rng.h"
 
 #ifdef __cplusplus
@@ -417,6 +418,11 @@ int lc_kex_ake_responder_ss(uint8_t *shared_secret,
  * @param aadlen [in] Length of the AAD buffer
  * @param tag [out] Buffer that will be filled with the authentication tag
  * @param taglen [in] Length of the tag buffer
+ * @param aead [in] Allocated AEAD algorithm - the caller only needs to provide
+ *		    an allocated but otherwise unused instance of an AEAD
+ *		    algorithm. This allows the caller to define the AEAD
+ *		    algorithm type. The caller must zeroize and release the
+ *		    context after completion.
  * @param rng_ctx [in] Fully seeded random bit generator context.
  *
  * @return 0 on success, < 0 on error
@@ -427,6 +433,7 @@ int lc_kyber_ies_enc(const struct lc_kyber_pk *pk,
 		     size_t datalen,
 		     const uint8_t *aad, size_t aadlen,
 		     uint8_t *tag, size_t taglen,
+		     struct lc_aead_ctx *aead,
 		     struct lc_rng_ctx *rng_ctx);
 
 /**
@@ -449,7 +456,11 @@ int lc_kyber_ies_enc(const struct lc_kyber_pk *pk,
  * @param aadlen [in] Length of the AAD buffer
  * @param tag [in] Buffer with the authentication tag
  * @param taglen [in] Length of the tag buffer
- *
+ * @param aead [in] Allocated AEAD algorithm - the caller only needs to provide
+ *		    an allocated but otherwise unused instance of an AEAD
+ *		    algorithm. This allows the caller to define the AEAD
+ *		    algorithm type. The caller must zeroize and release the
+ *		    context after completion.
  * @return 0 on success, < 0 on error
  */
 int lc_kyber_ies_dec(const struct lc_kyber_sk *sk,
@@ -457,7 +468,8 @@ int lc_kyber_ies_dec(const struct lc_kyber_sk *sk,
 		     const uint8_t *ciphertext, uint8_t *plaintext,
 		     size_t datalen,
 		     const uint8_t *aad, size_t aadlen,
-		     const uint8_t *tag, size_t taglen);
+		     const uint8_t *tag, size_t taglen,
+		     struct lc_aead_ctx *aead);
 
 #ifdef __cplusplus
 }
