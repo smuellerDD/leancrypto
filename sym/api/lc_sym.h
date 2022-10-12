@@ -184,10 +184,10 @@ static inline void lc_sym_decrypt(struct lc_sym_ctx *ctx,
 }
 
 /**
- * @brief Zeroize Hash context allocated with either LC_HASH_CTX_ON_STACK or
- *	  lc_hmac_alloc
+ * @brief Zeroize symmetric context allocated with either LC_SYM_CTX_ON_STACK
+ *	  or lc_sym_alloc
  *
- * @param ctx [in] Hash context to be zeroized
+ * @param ctx [in] Symmetric context to be zeroized
  */
 static inline void lc_sym_zero(struct lc_sym_ctx *ctx)
 {
