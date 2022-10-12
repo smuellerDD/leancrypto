@@ -10,6 +10,17 @@ if get_option('hash_crypt').enabled()
 		'../api/lc_aead.h',
 		'../api/lc_cshake_crypt.h',
 		'../api/lc_hash_crypt.h',
-		'../api/lc_kmac_crypt.h'
+		'../api/lc_kmac_crypt.h',
+	])
+endif
+
+# We need HMAC and a symmetric algo
+if (get_option('aes_cbc').enabled() or get_option('aes_ctr').enabled())
+	src += files([
+		'symhmac.c',
+	])
+
+	include_files += files([
+		'../api/lc_symhmac.h'
 	])
 endif

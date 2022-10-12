@@ -17,6 +17,8 @@ Changes 0.4.0-prerelease:
 
 * add leancrypto.h for ease of use
 
+* add SymHMAC AEAD algorithm
+
 Changes 0.3.0:
 * Introduce lc_rng.h as a common interface to the random number generators
 

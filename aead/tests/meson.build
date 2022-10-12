@@ -45,3 +45,13 @@ if get_option('cshake_drng').enabled()
 	test('cSHAKE Crypt', cshake_crypt_tester)
 	test('cSHAKE Crypt 1GB', cshake_crypt_large_tester, timeout: 300)
 endif
+
+if get_option('aes_cbc').enabled()
+	symhmac_test = executable('symhmac_test',
+				[ 'symhmac_test.c', internal_src ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto
+				)
+
+	test('Sym HMAC AEAD', symhmac_test)
+endif
