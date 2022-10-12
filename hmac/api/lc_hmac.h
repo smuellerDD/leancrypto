@@ -190,13 +190,13 @@ static inline void lc_hmac(const struct lc_hash *hash,
 			   const uint8_t *in, size_t inlen,
 			   uint8_t *mac)
 {
-	   LC_HMAC_CTX_ON_STACK(hmac_ctx, hash);
+	LC_HMAC_CTX_ON_STACK(hmac_ctx, hash);
 
-	   lc_hmac_init(hmac_ctx, key, keylen);
-	   lc_hmac_update(hmac_ctx, in, inlen);
-	   lc_hmac_final(hmac_ctx, mac);
+	lc_hmac_init(hmac_ctx, key, keylen);
+	lc_hmac_update(hmac_ctx, in, inlen);
+	lc_hmac_final(hmac_ctx, mac);
 
-	   lc_hmac_zero(hmac_ctx);
+	lc_hmac_zero(hmac_ctx);
 }
 
 #ifdef __cplusplus
