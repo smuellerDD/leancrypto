@@ -142,6 +142,38 @@ static int sh_tester_one(const struct lc_sym *sym, const struct lc_hash *hash,
 	return ret_checked;
 }
 
+static int sh_nonaligned(void)
+{
+	LC_SH_CTX_ON_STACK(sh, lc_aes_cbc, lc_sha512);
+	uint8_t pt[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,};
+	uint8_t ct[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,};
+	uint8_t zero[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,};
+	uint8_t tag[16];
+	static const uint8_t in[] = {
+		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+		0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+		0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+		0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
+	};
+	int ret_checked = 0;
+
+	/* One shot encryption with pt ptr != ct ptr */
+	if (lc_aead_setkey(sh, in, 32, in, 16))
+		return 1;
+
+	lc_aead_encrypt(sh, pt, pt, sizeof(pt), NULL, 0, tag, sizeof(tag));
+
+	ret_checked += compare(pt, zero, sizeof(pt),
+			       "SymHMAC: nonaligned Encryption");
+
+	lc_aead_decrypt(sh, ct, ct, sizeof(ct), NULL, 0, tag, sizeof(tag));
+
+	ret_checked += compare(ct, zero, sizeof(ct),
+			       "SymHMAC: nonaligned Decryption");
+
+	return ret_checked;
+}
+
 static int sh_tester(void)
 {
 	int ret = 0;
@@ -243,6 +275,8 @@ static int sh_tester(void)
 			     in, 16,
 			     NULL,
 			     NULL, 64);
+
+	ret += sh_nonaligned();
 
 	return ret;
 }

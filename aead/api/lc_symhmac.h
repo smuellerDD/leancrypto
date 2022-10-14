@@ -46,12 +46,12 @@ struct lc_sh_cryptor {
 /* AES-CBC with HMAC based AEAD-algorithm */
 extern const struct lc_aead *lc_symhmac_aead;
 
-#define _LC_SH_SET_CTX(name, sym, hash)					       \
-	_LC_SYM_SET_CTX((&name->sym), sym, name,			       \
+#define _LC_SH_SET_CTX(name, symalgo, hash)				       \
+	_LC_SYM_SET_CTX((&name->sym), symalgo, name,			       \
 			(sizeof(struct lc_sh_cryptor)));		       \
 	_LC_HMAC_SET_CTX((&name->auth_ctx), hash, name,			       \
 			 (sizeof(struct lc_sh_cryptor) +		       \
-			 LC_SYM_STATE_SIZE(sym)))
+			 LC_SYM_STATE_SIZE(symalgo)))
 
 #define LC_SH_SET_CTX(name, sym, hash)					       \
 	LC_AEAD_CTX(name, lc_symhmac_aead);				       \

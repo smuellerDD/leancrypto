@@ -344,12 +344,15 @@ lc_sh_encrypt(void *state,
 	struct lc_hmac_ctx *auth_ctx = &sh->auth_ctx;
 	struct lc_sym_ctx *sym = &sh->sym;
 	const struct lc_sym *sym_algo = sym->sym;
-
-	//TODO error code?
-	if (datalen % sym_algo->blocksize)
-		return;
+	size_t trailing_bytes = datalen % sym_algo->blocksize;
 
 	lc_sym_encrypt(sym, plaintext, ciphertext, datalen);
+
+	/* Safety-measure to avoid leaking data */
+	if (trailing_bytes) {
+		memset(ciphertext + datalen - trailing_bytes, 0,
+		       trailing_bytes);
+	}
 
 	/*
 	 * Calculate the authentication MAC over the ciphertext
@@ -366,10 +369,7 @@ lc_sh_decrypt(void *state,
 	struct lc_hmac_ctx *auth_ctx = &sh->auth_ctx;
 	struct lc_sym_ctx *sym = &sh->sym;
 	const struct lc_sym *sym_algo = sym->sym;
-
-	//TODO error code?
-	if (datalen % sym_algo->blocksize)
-		return;
+	size_t trailing_bytes = datalen % sym_algo->blocksize;
 
 	/*
 	 * Calculate the authentication tag over the ciphertext
@@ -377,6 +377,13 @@ lc_sh_decrypt(void *state,
 	 */
 	lc_hmac_update(auth_ctx, ciphertext, datalen);
 	lc_sym_decrypt(sym, ciphertext, plaintext, datalen);
+
+	/* Safety-measure to avoid leaking data */
+	if (trailing_bytes) {
+		memset(plaintext + datalen - trailing_bytes, 0,
+		       trailing_bytes);
+	}
+
 }
 
 static void
