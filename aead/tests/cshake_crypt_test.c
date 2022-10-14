@@ -39,7 +39,8 @@ static int cc_tester_cshake_one(const uint8_t *pt, size_t ptlen,
 	uint8_t tag[exp_tag_len];
 
 	/* One shot encryption with pt ptr != ct ptr */
-	lc_aead_setkey(cc, key, keylen, NULL, 0);
+	if (lc_aead_setkey(cc, key, keylen, NULL, 0))
+		return 1;
 
 	lc_aead_encrypt(cc, pt, out_enc, ptlen, aad, aadlen,
 			tag, exp_tag_len);
@@ -58,7 +59,8 @@ static int cc_tester_cshake_one(const uint8_t *pt, size_t ptlen,
 	if (lc_cc_alloc(lc_cshake256, &cc_heap))
 		return 1;
 
-	lc_aead_setkey(cc_heap, key, keylen, NULL, 0);
+	if (lc_aead_setkey(cc_heap, key, keylen, NULL, 0))
+		return 1;
 
 	memcpy(out_enc, pt, ptlen);
 	lc_aead_encrypt(cc_heap, out_enc, out_enc, ptlen, aad, aadlen,
@@ -71,7 +73,8 @@ static int cc_tester_cshake_one(const uint8_t *pt, size_t ptlen,
 			       "cSHAKE crypt: Encryption, tag");
 
 	/* Stream encryption with pt ptr != ct ptr */
-	lc_aead_setkey(cc, key, keylen, NULL, 0);
+	if (lc_aead_setkey(cc, key, keylen, NULL, 0))
+		return 1;
 
 	if (ptlen < 7)
 		return 1;
@@ -90,7 +93,8 @@ static int cc_tester_cshake_one(const uint8_t *pt, size_t ptlen,
 	lc_aead_zero(cc);
 
 	/* One shot decryption with pt ptr != ct ptr */
-	lc_aead_setkey(cc, key, keylen, NULL, 0);
+	if (lc_aead_setkey(cc, key, keylen, NULL, 0))
+		return 1;
 
 	ret = lc_aead_decrypt(cc, out_enc, out_dec, ptlen, aad, aadlen,
 			      tag, exp_tag_len);
@@ -118,7 +122,8 @@ static int cc_tester_cshake_one(const uint8_t *pt, size_t ptlen,
 	lc_aead_zero(cc);
 
 	/* Check authentication error */
-	lc_aead_setkey(cc, key, keylen, NULL, 0);
+	if (lc_aead_setkey(cc, key, keylen, NULL, 0))
+		return 1;
 
 	out_enc[0] = (out_enc[0] + 1) &0xff;
 	ret = lc_aead_decrypt(cc, out_enc, out_dec, ptlen, aad, aadlen,
@@ -145,7 +150,11 @@ static int cc_tester_cshake_validate(void)
 	LC_CC_CTX_ON_STACK(cc, lc_cshake256);
 	LC_CSHAKE_256_CTX_ON_STACK(cshake256);
 
-	lc_aead_setkey(cc, in, sizeof(in), NULL, 0);
+	memset(out_enc, 0, sizeof(out_enc));
+	memset(out_cshake, 0, sizeof(out_cshake));
+
+	if (lc_aead_setkey(cc, in, sizeof(in), NULL, 0))
+		return 1;
 	lc_aead_encrypt(cc, in, out_enc, sizeof(in), NULL, 0, NULL, 0);
 
 	lc_cshake_init(cshake256,
@@ -202,11 +211,11 @@ static int cc_tester_cshake(void)
 
 int main(int argc, char *argv[])
 {
-	int ret;
+	int ret = 0;
 
 	(void)argc;
 	(void)argv;
-	ret = cc_tester_cshake();
+	ret += cc_tester_cshake();
 	ret += cc_tester_cshake_validate();
 
 	return ret;

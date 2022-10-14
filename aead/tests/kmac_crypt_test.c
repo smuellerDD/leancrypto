@@ -144,6 +144,9 @@ static int kc_tester_kmac_validate(void)
 	LC_KC_CTX_ON_STACK(kc, lc_cshake256);
 	LC_KMAC_CTX_ON_STACK(kmac256, lc_cshake256);
 
+	memset(out_enc, 0, sizeof(out_enc));
+	memset(out_kmac, 0, sizeof(out_kmac));
+
 	lc_aead_setkey(kc, in, sizeof(in), NULL, 0);
 	lc_aead_encrypt(kc, in, out_enc, sizeof(in), NULL, 0, NULL, 0);
 
