@@ -10,6 +10,16 @@ if get_option('dilithium').enabled()
 				],
 				link_with: leancrypto_static_lib
 				)
+	dilithium_invalid_tester = executable('dilithium_invalid_tester',
+				[ 'dilithium_invalid_tester.c', internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_dilithium_internal
+				],
+				link_with: leancrypto_static_lib
+				)
 
 	test('Dilithium signature', dilithium_tester, timeout: 300)
+	test('Dilithium invalid signature', dilithium_invalid_tester)
 endif
