@@ -73,8 +73,10 @@ void lc_kmac_init(struct lc_kmac_ctx *kmac_ctx,
 		  const uint8_t *s, size_t slen)
 {
 	struct lc_hash_ctx *hash_ctx;
-	static const uint8_t zero[LC_SHA3_256_SIZE_BLOCK] = { 0 };
-	static const uint8_t bytepad_val[2] = { 0x01, 0x88 };
+	static const uint8_t zero[LC_SHAKE_128_SIZE_BLOCK] = { 0 };
+	static const uint8_t
+		bytepad_val256[] = { 0x01, LC_SHAKE_256_SIZE_BLOCK },
+		bytepad_val128[] = { 0x01, LC_SHAKE_128_SIZE_BLOCK };
 	uint8_t buf[sizeof(klen) + 1];
 	size_t len;
 	/* 2 bytes for the bytepad_val that gets inserted */
@@ -89,8 +91,11 @@ void lc_kmac_init(struct lc_kmac_ctx *kmac_ctx,
 	kmac_ctx->final_called = 0;
 
 	/* bytepad */
-	/* This value is precomputed from the code above for SHA3-256 */
-	lc_hash_update(hash_ctx, bytepad_val, sizeof(bytepad_val));
+	if (lc_hash_blocksize(hash_ctx) == LC_SHAKE_128_SIZE_BLOCK)
+		lc_hash_update(hash_ctx, bytepad_val128, sizeof(bytepad_val128));
+	else
+		lc_hash_update(hash_ctx, bytepad_val256, sizeof(bytepad_val256));
+
 	len = lc_left_encode(buf, klen << 3);
 	added += len;
 	lc_hash_update(hash_ctx, buf, len);

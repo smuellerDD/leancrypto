@@ -290,6 +290,20 @@ static void cshake_256_init(void *_state)
 	ctx->padding = 0x04;
 }
 
+static void cshake_128_init(void *_state)
+{
+	struct lc_shake_128_state *ctx = _state;
+
+	if (!ctx)
+		return;
+
+	sha3_init(_state);
+	ctx->r = LC_SHAKE_128_SIZE_BLOCK;
+	ctx->rword = LC_SHAKE_128_SIZE_BLOCK / sizeof(uint64_t);
+	ctx->digestsize = 0;
+	ctx->padding = 0x04;
+}
+
 /*
  * All lc_sha3_*_state are equal except for the last entry, thus we use
  * the largest state.
@@ -599,3 +613,14 @@ static const struct lc_hash _cshake256 = {
 	.statesize	= sizeof(struct lc_sha3_256_state),
 };
 DSO_PUBLIC const struct lc_hash *lc_cshake256 = &_cshake256;
+
+static const struct lc_hash _cshake128 = {
+	.init		= cshake_128_init,
+	.update		= keccak_absorb,
+	.final		= keccak_squeeze,
+	.set_digestsize	= shake_set_digestsize,
+	.get_digestsize	= shake_get_digestsize,
+	.blocksize	= LC_SHAKE_128_SIZE_BLOCK,
+	.statesize	= sizeof(struct lc_shake_128_state),
+};
+DSO_PUBLIC const struct lc_hash *lc_cshake128 = &_cshake128;

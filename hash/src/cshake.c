@@ -27,26 +27,19 @@ void lc_cshake_init(struct lc_hash_ctx *ctx,
 		    const uint8_t *n, size_t nlen,
 		    const uint8_t *s, size_t slen)
 {
-	static const uint8_t zero[LC_SHA3_256_SIZE_BLOCK] = { 0 };
-	static const uint8_t bytepad_val[] = { 0x01, LC_SHA3_256_SIZE_BLOCK };
+	static const uint8_t zero[LC_SHAKE_128_SIZE_BLOCK] = { 0 };
+	static const uint8_t
+		bytepad_val256[] = { 0x01, LC_SHAKE_256_SIZE_BLOCK },
+		bytepad_val128[] = { 0x01, LC_SHAKE_128_SIZE_BLOCK };
 	uint8_t buf[sizeof(nlen) + 1];
 	size_t len;
 	/* 2 bytes for the bytepad_val that gets inserted */
 	size_t added = 2;
+	int shake128 = (lc_hash_blocksize(ctx) == LC_SHAKE_128_SIZE_BLOCK) ? 1 :
+									     0;
 
 	if (!ctx)
 		return;
-
-	/*
-	 * NOTE: This function only covers cSHAKE256!
-	 *
-	 * To change it for cSHAKE128, do:
-	 *
-	 * * add a cshake128 crypto backend
-	 * * define zero[...] to be 168 bytes in size
-	 * * update bytepad_val to { 0x01, 0xa8 } when used with cSHAKE128
-	 * * initialize shake128 when n and s is NULL
-	 */
 
 	/*
 	 * When invoked without any additional values, it should operate as a
@@ -54,7 +47,7 @@ void lc_cshake_init(struct lc_hash_ctx *ctx,
 	 * algorithm backend accordingly and initialize it.
 	 */
 	if (!nlen && !slen) {
-		LC_HASH_SET_CTX(ctx, lc_shake256);
+		LC_HASH_SET_CTX(ctx, shake128 ? lc_shake128 : lc_shake256);
 		lc_hash_init(ctx);
 		return;
 	}
@@ -65,10 +58,10 @@ void lc_cshake_init(struct lc_hash_ctx *ctx,
 	//len = left_encode(buf, hash_blocksize(ctx));
 	//padlen -= len;
 	//hash_update(ctx, buf, len);
-	/*
-	 * This value is precomputed from the code above for SHA3-256
-	 */
-	lc_hash_update(ctx, bytepad_val, sizeof(bytepad_val));
+	if (shake128)
+		lc_hash_update(ctx, bytepad_val128, sizeof(bytepad_val128));
+	else
+		lc_hash_update(ctx, bytepad_val256, sizeof(bytepad_val256));
 
 	/* encode_string n */
 	len = lc_left_encode(buf, nlen << 3);

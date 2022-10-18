@@ -296,7 +296,10 @@ static void lc_sh_encrypt_tag(void *state,
 	struct lc_sh_cryptor *sh = state;
 	struct lc_hmac_ctx *auth_ctx = &sh->auth_ctx;
 	size_t maxtaglen = lc_hmac_macsize(auth_ctx);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvla"
 	uint8_t tmptag[maxtaglen];
+#pragma GCC diagnostic pop
 
 	/* Add the AAD data into the HMAC context */
 	lc_hmac_update(auth_ctx, aad, aadlen);
@@ -319,7 +322,10 @@ static int lc_sh_decrypt_authenticate(void *state,
 	struct lc_sh_cryptor *sh = state;
 	struct lc_hmac_ctx *auth_ctx = &sh->auth_ctx;
 	size_t maxtaglen = lc_hmac_macsize(auth_ctx);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvla"
 	uint8_t calctag[maxtaglen] __attribute__((aligned(sizeof(uint64_t))));
+#pragma GCC diagnostic pop
 	int ret;
 
 	taglen = min_t(size_t, taglen, maxtaglen);

@@ -19,6 +19,10 @@ Changes 0.4.0-prerelease:
 
 * add SymHMAC AEAD algorithm
 
+* add cSHAKE 128
+
+* add KMAC 128
+
 Changes 0.3.0:
 * Introduce lc_rng.h as a common interface to the random number generators
 

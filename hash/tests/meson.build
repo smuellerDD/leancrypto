@@ -54,8 +54,13 @@ if get_option('sha3').enabled()
 				  include_directories: [ include_internal_dirs ],
 				  dependencies: leancrypto
 				  )
-	cshake_tester = executable('cshake_tester',
-				   [ 'cshake_tester.c', internal_src ],
+	cshake_128_tester = executable('cshake_128_tester',
+				   [ 'cshake_128_tester.c', internal_src ],
+				   include_directories: [ include_internal_dirs ],
+				   dependencies: leancrypto
+				   )
+	cshake_256_tester = executable('cshake_256_tester',
+				   [ 'cshake_256_tester.c', internal_src ],
 				   include_directories: [ include_internal_dirs ],
 				   dependencies: leancrypto
 				   )
@@ -67,5 +72,6 @@ if get_option('sha3').enabled()
 	test('SHAKE128', shake128_tester)
 	test('SHAKE256', shake256_tester)
 	test('SHAKE256 Squeeze More', shake_squeeze_more_tester)
-	test('cSHAKE256', cshake_tester)
+	test('cSHAKE128', cshake_128_tester)
+	test('cSHAKE256', cshake_256_tester)
 endif
