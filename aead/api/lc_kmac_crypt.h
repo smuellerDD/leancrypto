@@ -94,9 +94,12 @@ int lc_kc_alloc(const struct lc_hash *hash, struct lc_aead_ctx **ctx);
  *		    authentication
  */
 #define LC_KC_CTX_ON_STACK(name, hash)			      		       \
+	_Pragma("GCC diagnostic push")					       \
+	_Pragma("GCC diagnostic ignored \"-Wvla\"")	      		       \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_KC_CTX_SIZE(hash), uint64_t);   \
-	struct lc_aead_ctx *name = (struct lc_aead_ctx *) name ## _ctx_buf;\
-	LC_KC_SET_CTX(name, hash)
+	struct lc_aead_ctx *name = (struct lc_aead_ctx *) name ## _ctx_buf;    \
+	LC_KC_SET_CTX(name, hash);					       \
+	_Pragma("GCC diagnostic pop")
 	/* invocation of lc_kc_zero(name); not needed */
 
 #ifdef __cplusplus

@@ -49,6 +49,7 @@ struct lc_sym_ctx {
 };
 
 #define LC_SYM_STATE_SIZE(x)	(x->statesize)
+
 #define LC_SYM_CTX_SIZE(x)	(sizeof(struct lc_sym_ctx) +		       \
 				 LC_SYM_STATE_SIZE(x))
 
@@ -195,6 +196,7 @@ static inline void lc_sym_zero(struct lc_sym_ctx *ctx)
 
 	memset_secure((uint8_t *)ctx + sizeof(struct lc_sym_ctx), 0,
 		      LC_SYM_STATE_SIZE(sym));
+
 }
 
 /**
@@ -225,11 +227,14 @@ void lc_sym_zero_free(struct lc_sym_ctx *ctx);
  *			 implementation to be used
  */
 #define LC_SYM_CTX_ON_STACK(name, symname)				       \
+	_Pragma("GCC diagnostic push")					       \
+	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
 	LC_ALIGNED_SYM_BUFFER(name ## _ctx_buf, symname,		       \
 			      LC_SYM_CTX_SIZE(symname), uint64_t);	       \
 	struct lc_sym_ctx *name = (struct lc_sym_ctx *) name ## _ctx_buf;      \
 	LC_SYM_SET_CTX(name, symname);					       \
-	lc_sym_zero(name)
+	lc_sym_zero(name);						       \
+	_Pragma("GCC diagnostic pop")
 
 #ifdef __cplusplus
 }

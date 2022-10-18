@@ -256,6 +256,23 @@ extern const struct lc_hash *lc_cshake256;
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name ## _ctx_buf;     \
 	LC_CSHAKE_256_CTX(name)
 
+/********************************* cSHAKE-128 *********************************/
+extern const struct lc_hash *lc_cshake128;
+
+#define LC_CSHAKE_128_CTX(name)						       \
+	LC_HASH_CTX(name, lc_cshake128);				       \
+	lc_hash_zero(name)
+
+/**
+ * @brief Allocate stack memory for the cSHAKE-256 context without VLA
+ *
+ * @param name [in] Name of the stack variable
+ */
+#define LC_CSHAKE_128_CTX_ON_STACK(name)				       \
+	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHAKE_128_CTX_SIZE, uint64_t);  \
+	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name ## _ctx_buf;     \
+	LC_CSHAKE_128_CTX(name)
+
 
 /* Largest block size we support */
 #define LC_SHA3_MAX_SIZE_BLOCK		LC_SHA3_224_SIZE_BLOCK

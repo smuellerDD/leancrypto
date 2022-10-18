@@ -133,12 +133,15 @@ void lc_hkdf_zero_free(struct lc_hkdf_ctx *hkdf_ctx);
  * @param name [in] Name of the stack variable
  * @param hashname [in] Reference to lc_hash implementation
  */
-#define LC_HKDF_CTX_ON_STACK(name, hashname)				       \
+#define LC_HKDF_CTX_ON_STACK(name, hashname)			      	       \
+	_Pragma("GCC diagnostic push")					       \
+	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf,				       \
 			  LC_HKDF_CTX_SIZE(hashname), uint64_t);	       \
 	struct lc_hkdf_ctx *name = (struct lc_hkdf_ctx *)name ## _ctx_buf;     \
 	LC_HKDF_SET_CTX(name, hashname);				       \
-	lc_hkdf_zero(name)
+	lc_hkdf_zero(name);						       \
+	_Pragma("GCC diagnostic pop")
 
 /**
  * @brief HMAC-based Extract-and-Expand Key Derivation Function (HKDF) - RFC5869
@@ -206,10 +209,13 @@ extern const struct lc_rng *lc_hkdf_rng;
  * @param hashname [in] Reference to lc_hash implementation
  */
 #define LC_HKDF_DRNG_CTX_ON_STACK(name, hashname)			       \
+	_Pragma("GCC diagnostic push")					       \
+	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf,				       \
 			  LC_HKDF_DRNG_CTX_SIZE(hashname), uint64_t);	       \
 	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name ## _ctx_buf;       \
-	LC_HKDF_RNG_CTX(name, hashname)
+	LC_HKDF_RNG_CTX(name, hashname);				       \
+	_Pragma("GCC diagnostic pop")
 
 /**
  * @brief Allocation of a HKDF DRNG context

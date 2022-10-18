@@ -242,11 +242,15 @@ static inline void lc_hash_zero(struct lc_hash_ctx *hash_ctx)
  *			 implementation to be used
  */
 #define LC_HASH_CTX_ON_STACK(name, hashname)				       \
+	_Pragma("GCC diagnostic push")					       \
+	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_HASH_CTX_SIZE(hashname),        \
 			  uint64_t);					       \
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *) name ## _ctx_buf;    \
 	LC_HASH_SET_CTX(name, hashname);				       \
-	lc_hash_zero(name)
+	lc_hash_zero(name);						       \
+	_Pragma("GCC diagnostic pop")
+
 
 /**
  * @brief Allocate Hash context on heap

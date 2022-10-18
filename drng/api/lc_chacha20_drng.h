@@ -64,12 +64,15 @@ static inline void lc_cc20_drng_zero(struct lc_chacha20_drng_ctx *cc20_ctx)
  * @param name [in] Name of the stack variable
  */
 #define LC_CC20_DRNG_CTX_ON_STACK(name)			      		       \
+	_Pragma("GCC diagnostic push")					       \
+	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
 	LC_ALIGNED_SYM_BUFFER(name ## _ctx_buf, lc_chacha20,		       \
 			      LC_CC20_DRNG_CTX_SIZE, uint64_t);		       \
 	struct lc_chacha20_drng_ctx *name =				       \
 			(struct lc_chacha20_drng_ctx *) name ## _ctx_buf;      \
 	LC_CC20_DRNG_SET_CTX(name);					       \
-	lc_cc20_drng_zero(name)
+	lc_cc20_drng_zero(name);					       \
+	_Pragma("GCC diagnostic pop")
 
 /**
  * @brief Allocation of a ChaCha20 DRNG context

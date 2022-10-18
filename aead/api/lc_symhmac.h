@@ -81,10 +81,13 @@ int lc_sh_alloc(const struct lc_sym *sym, const struct lc_hash *hash,
  *		    authentication
  */
 #define LC_SH_CTX_ON_STACK(name, sym, hash)		      		       \
-	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SH_CTX_SIZE(sym, hash), uint64_t);   \
+	_Pragma("GCC diagnostic push")					       \
+	_Pragma("GCC diagnostic ignored \"-Wvla\"")	      		       \
+	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SH_CTX_SIZE(sym, hash), uint64_t);\
 	struct lc_aead_ctx *name = (struct lc_aead_ctx *) name ## _ctx_buf;    \
 	LC_SH_SET_CTX(name, sym, hash);					       \
-	lc_aead_zero(name)
+	lc_aead_zero(name);						       \
+	_Pragma("GCC diagnostic pop")
 
 #ifdef __cplusplus
 }

@@ -152,11 +152,14 @@ static inline void lc_hmac_zero(struct lc_hmac_ctx *hmac_ctx)
  *			 implementation to be used
  */
 #define LC_HMAC_CTX_ON_STACK(name, hashname)				       \
+	_Pragma("GCC diagnostic push")					       \
+	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_HMAC_CTX_SIZE(hashname),	       \
 			  uint64_t);					       \
 	struct lc_hmac_ctx *name = (struct lc_hmac_ctx *)name ## _ctx_buf;     \
 	LC_HMAC_SET_CTX(name, hashname);				       \
-	lc_hmac_zero(name)
+	lc_hmac_zero(name);						       \
+	_Pragma("GCC diagnostic pop")
 
 /**
  * @brief Return the MAC size

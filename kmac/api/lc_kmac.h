@@ -205,18 +205,20 @@ static inline void lc_kmac_zero(struct lc_kmac_ctx *kmac_ctx)
  *
  * This allocates the memory without re-initialization support
  *
- * NOTE: This is defined for lc_cshake256 as of now.
- *
- * @param name [in] Name of the stack variable - use cshake256!
+ * @param name [in] Name of the stack variable - use lc_cshake256 or
+ *		    lc_cshake128
  * @param hashname [in] Pointer of type struct hash referencing the hash
  *			 implementation to be used
  */
 #define LC_KMAC_CTX_ON_STACK(name, hashname)				       \
+	_Pragma("GCC diagnostic push")					       \
+	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_KMAC_CTX_SIZE(hashname),	       \
 			  uint64_t);					       \
 	struct lc_kmac_ctx *name = (struct lc_kmac_ctx *)name ## _ctx_buf;     \
 	LC_KMAC_SET_CTX(name, hashname);				       \
-	lc_kmac_zero(name)
+	lc_kmac_zero(name);						       \
+	_Pragma("GCC diagnostic pop")
 
 /**
  * @brief Allocate stack memory for the KMAC context
@@ -224,18 +226,20 @@ static inline void lc_kmac_zero(struct lc_kmac_ctx *kmac_ctx)
  * This allocates the memory with re-initialization support.
  * See KMAC_FLAGS_SUPPORT_REINIT for the explanation about re-initialization.
  *
- * NOTE: This is defined for cshake256 as of now.
- *
- * @param name [in] Name of the stack variable - use cshake256!
+ * @param name [in] Name of the stack variable - use lc_cshake256 or
+ *		    lc_cshake128
  * @param hashname [in] Pointer of type struct hash referencing the hash
  *			 implementation to be used
  */
 #define LC_KMAC_CTX_ON_STACK_REINIT(name, hashname)			       \
+	_Pragma("GCC diagnostic push")					       \
+	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_KMAC_CTX_SIZE_REINIT(hashname), \
 			  uint64_t);					       \
 	struct lc_kmac_ctx *name = (struct lc_kmac_ctx *)name ## _ctx_buf;     \
 	LC_KMAC_SET_CTX_REINIT(name, hashname);				       \
-	lc_kmac_zero(name)
+	lc_kmac_zero(name);						       \
+	_Pragma("GCC diagnostic pop")
 
 /**
  * @brief Return the MAC size
@@ -258,10 +262,8 @@ static inline size_t lc_kmac_macsize(struct lc_kmac_ctx *kmac_ctx)
 /**
  * @brief Calculate KMAC - one-shot
  *
- * NOTE: This is defined for cshake256 as of now.
- *
  * @param hash [in] Reference to hash implementation to be used to perform
- *		    KMAC calculation with. Use cshake256!
+ *		    KMAC calculation with. Use lc_cshake256 or lc_cshake128.
  * @param key [in] MAC key of arbitrary size
  * @param keylen [in] Size of the MAC key
  * @param in [in] Buffer holding the data whose MAC shall be calculated
@@ -291,10 +293,8 @@ static inline void lc_kmac(const struct lc_hash *hash,
 /**
  * @brief Calculate KMAC in XOF mode - one-shot
  *
- * NOTE: This is defined for cshake256 as of now.
- *
  * @param hash [in] Reference to hash implementation to be used to perform
- *		    KMAC calculation with. Use cshake256!
+ *		    KMAC calculation with. Use lc_cshake256 or lc_cshake128.
  * @param key [in] MAC key of arbitrary size
  * @param keylen [in] Size of the MAC key
  * @param in [in] Buffer holding the data whose MAC shall be calculated
@@ -353,18 +353,24 @@ extern const struct lc_rng *lc_kmac_rng;
  * @brief Allocate stack memory for the KMAC DRNG context
  *
  * @param name [in] Name of the stack variable
- * @param hashname [in] Reference to lc_hash implementation
+ * @param hashname [in] Reference to lc_hash implementation - use lc_cshake256
+ *			or lc_cshake128.
  */
 #define LC_KMAC_KDF_DRNG_CTX_ON_STACK(name, hashname)			       \
+	_Pragma("GCC diagnostic push")					       \
+	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf,				       \
 			  LC_KMAC_KDF_DRNG_CTX_SIZE(hashname), uint64_t);      \
 	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name ## _ctx_buf;       \
-	LC_KMAC_KDF_RNG_CTX(name, hashname)
+	LC_KMAC_KDF_RNG_CTX(name, hashname);				       \
+	_Pragma("GCC diagnostic pop")
 
 /**
  * @brief Allocation of a KMAC DRNG context
  *
  * @param state [out] KMAC DRNG context allocated by the function
+ * @param hash [in] Reference to hash implementation to be used to perform
+ *		    RNG operation with. Use lc_cshake256 or lc_cshake128.
  *
  * The cipher handle including its memory is allocated with this function.
  *
