@@ -12,8 +12,8 @@ if get_option('chacha20_drng').enabled()
 				   dependencies: leancrypto
 				   )
 
-	test('ChaCha20 DRNG', chacha20_drng_tester)
-	test('ChaCha20 DRNG 1GB', chacha20_drng_tester_large, timeout: 300)
+	test('DRNG ChaCha20', chacha20_drng_tester)
+	test('DRNG ChaCha20 1GB', chacha20_drng_tester_large, timeout: 600)
 endif
 
 if get_option('kmac_drng').enabled()
@@ -36,8 +36,8 @@ if get_option('kmac_drng').enabled()
 				   dependencies: leancrypto
 				   )
 
-	test('KMAC DRNG', kmac_drng_tester)
-	test('KMAC DRNG 1GB', kmac_drng_tester_large, timeout: 300)
+	test('DRNG KMAC', kmac_drng_tester)
+	test('DRNG KMAC 1GB', kmac_drng_tester_large, timeout: 600)
 endif
 
 if get_option('cshake_drng').enabled()
@@ -60,8 +60,8 @@ if get_option('cshake_drng').enabled()
 				   dependencies: leancrypto
 				   )
 
-	test('cSHAKE DRNG', cshake_drng_tester)
-	test('cSHAKE DRNG 1GB', cshake_drng_tester_large, timeout: 300)
+	test('DRNG cSHAKE', cshake_drng_tester)
+	test('DRNG cSHAKE 1GB', cshake_drng_tester_large, timeout: 600)
 endif
 
 if get_option('drbg_hash').enabled()
@@ -75,8 +75,8 @@ if get_option('drbg_hash').enabled()
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto
 				)
-	test('Hash SHA2-512 DRBG', hash_sha2_drbg_tester)
-	test('Hash SHA2-512 DRBG 1GB', hash_sha2_drbg_tester_large, timeout: 300)
+	test('DRNG Hash SHA2-512 DRBG', hash_sha2_drbg_tester)
+	test('DRNG Hash SHA2-512 DRBG 1GB', hash_sha2_drbg_tester_large, timeout: 600)
 
 #	Disabled as SHA3 DRBG is disabled in main meson.build
 # 	if get_option('sha3').enabled()
@@ -100,8 +100,8 @@ if get_option('drbg_hmac').enabled()
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto
 				)
-	test('HMAC SHA2-512 DRBG', hmac_sha2_drbg_tester)
-	test('HMAC SHA2-512 DRBG 1GB', hmac_sha2_drbg_tester_large, timeout: 300)
+	test('DRNG HMAC SHA2-512 DRBG', hmac_sha2_drbg_tester)
+	test('DRNG HMAC SHA2-512 DRBG 1GB', hmac_sha2_drbg_tester_large, timeout: 1500)
 endif
 
 seeded_rng_tester = executable('seeded_rng_tester',
@@ -110,4 +110,4 @@ seeded_rng_tester = executable('seeded_rng_tester',
 				   include_directories: [ include_internal_dirs ],
 				   dependencies: leancrypto
 				   )
-test('Seeded RNG', seeded_rng_tester)
+test('DRNG Seeded RNG', seeded_rng_tester)

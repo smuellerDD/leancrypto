@@ -5,7 +5,7 @@ if get_option('sha2-256').enabled()
 				   dependencies: leancrypto
 				   )
 
-	test('SHA256', sha256_tester)
+	test('Hash SHA256', sha256_tester)
 endif
 
 if get_option('sha2-512').enabled()
@@ -15,7 +15,7 @@ if get_option('sha2-512').enabled()
 				   dependencies: leancrypto
 				   )
 
-	test('SHA512', sha512_tester)
+	test('Hash SHA512', sha512_tester)
 endif
 
 if get_option('sha3').enabled()
@@ -65,13 +65,13 @@ if get_option('sha3').enabled()
 				   dependencies: leancrypto
 				   )
 
-	test('SHA3-224', sha3_224_tester)
-	test('SHA3-256', sha3_256_tester)
-	test('SHA3-384', sha3_384_tester)
-	test('SHA3-512', sha3_512_tester)
-	test('SHAKE128', shake128_tester)
-	test('SHAKE256', shake256_tester)
-	test('SHAKE256 Squeeze More', shake_squeeze_more_tester)
-	test('cSHAKE128', cshake_128_tester)
-	test('cSHAKE256', cshake_256_tester)
+	test('Hash SHA3-224', sha3_224_tester)
+	test('Hash SHA3-256', sha3_256_tester)
+	test('Hash SHA3-384', sha3_384_tester)
+	test('Hash SHA3-512', sha3_512_tester)
+	test('Hash SHAKE128', shake128_tester)
+	test('Hash SHAKE256', shake256_tester)
+	test('Hash SHAKE256 Squeeze More', shake_squeeze_more_tester)
+	test('Hash cSHAKE128', cshake_128_tester)
+	test('Hash cSHAKE256', cshake_256_tester)
 endif

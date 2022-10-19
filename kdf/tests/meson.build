@@ -4,7 +4,7 @@ if get_option('hkdf').enabled()
 				 include_directories: [ include_internal_dirs ],
 				 dependencies: leancrypto
 				)
-	test('HKDF', hkdf_tester)
+	test('KDF HKDF', hkdf_tester)
 endif
 
 if get_option('kdf_ctr').enabled()
@@ -40,5 +40,5 @@ if get_option('pbkdf2').enabled()
 				   include_directories: [ include_internal_dirs ],
 				   dependencies: leancrypto
 				   )
-	test('PBKDF2', pbkdf2_tester)
+	test('KDF PBKDF2', pbkdf2_tester)
 endif

@@ -10,8 +10,8 @@ if get_option('sha2-512').enabled() and get_option('drbg_hash').enabled()
 			       dependencies: leancrypto
 			       )
 
-	test('Hash Crypt', hash_crypt_tester)
-	test('Hash Crypt 1GB', hash_crypt_large_tester, timeout: 300)
+	test('AEAD Hash Crypt', hash_crypt_tester)
+	test('AEAD Hash Crypt 1GB', hash_crypt_large_tester, timeout: 1500)
 endif
 
 if get_option('kmac_drng').enabled()
@@ -26,8 +26,8 @@ if get_option('kmac_drng').enabled()
 				dependencies: leancrypto
 				)
 
-	test('KMAC Crypt', kmac_crypt_tester)
-	test('KMAC Crypt 1GB', kmac_crypt_large_tester, timeout: 300)
+	test('AEAD KMAC Crypt', kmac_crypt_tester)
+	test('AEAD KMAC Crypt 1GB', kmac_crypt_large_tester, timeout: 1000)
 endif
 
 if get_option('cshake_drng').enabled()
@@ -42,8 +42,8 @@ if get_option('cshake_drng').enabled()
 				dependencies: leancrypto
 				)
 
-	test('cSHAKE Crypt', cshake_crypt_tester)
-	test('cSHAKE Crypt 1GB', cshake_crypt_large_tester, timeout: 300)
+	test('AEAD cSHAKE Crypt', cshake_crypt_tester)
+	test('AEAD cSHAKE Crypt 1GB', cshake_crypt_large_tester, timeout: 1000)
 endif
 
 if get_option('aes_cbc').enabled()
@@ -53,5 +53,5 @@ if get_option('aes_cbc').enabled()
 				dependencies: leancrypto
 				)
 
-	test('Sym HMAC AEAD', symhmac_test)
+	test('AEAD Sym HMAC', symhmac_test)
 endif

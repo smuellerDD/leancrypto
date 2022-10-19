@@ -12,8 +12,8 @@ if get_option('chacha20').enabled()
 				   dependencies: leancrypto
 				   )
 
-	test('ChaCha20 block', chacha20_block_tester)
-	test('ChaCha20 stream', chacha20_stream_tester)
+	test('Symmetric ChaCha20 block', chacha20_block_tester)
+	test('Symmetric ChaCha20 stream', chacha20_stream_tester)
 endif
 
 if get_option('aes_block').enabled()
@@ -30,8 +30,8 @@ if get_option('aes_block').enabled()
 					dependencies: leancrypto
 					)
 
-	test('AES block encryption', aes_enc_tester)
-	test('AES block decryption', aes_dec_tester)
+	test('Symmetric AES block encryption', aes_enc_tester)
+	test('Symmetric AES block decryption', aes_dec_tester)
 endif
 
 if get_option('aes_ecb').enabled()
@@ -48,8 +48,8 @@ if get_option('aes_ecb').enabled()
 					dependencies: leancrypto
 					)
 
-	test('AES ECB encryption', aes_ecb_enc_tester)
-	test('AES ECB decryption', aes_ecb_dec_tester)
+	test('Symmetric AES ECB encryption', aes_ecb_enc_tester)
+	test('Symmetric AES ECB decryption', aes_ecb_dec_tester)
 endif
 
 if get_option('aes_cbc').enabled()
@@ -81,8 +81,8 @@ if get_option('aes_cbc').enabled()
 	#						dependency('openssl') ]
 	#				)
 
-	test('AES CBC encryption', aes_cbc_enc_tester)
-	test('AES CBC decryption', aes_cbc_dec_tester)
+	test('Symmetric AES CBC encryption', aes_cbc_enc_tester)
+	test('Symmetric AES CBC decryption', aes_cbc_dec_tester)
 	#test('AES CBC 1GB', aes_cbc_large_tester, timeout: 300)
 	#test('AES CBC OpenSSL 1GB', aes_cbc_openssl_large_tester, timeout: 300)
 endif
@@ -102,7 +102,7 @@ if get_option('aes_ctr').enabled()
 					dependencies: leancrypto
 					)
 
-	test('AES CTR en/decryption', aes_ctr_tester)
+	test('Symmetric AES CTR en/decryption', aes_ctr_tester)
 	#test('AES CTR 1GB', aes_ctr_large_tester, timeout: 300)
 endif
 
@@ -114,5 +114,5 @@ if get_option('aes_kw').enabled()
 					dependencies: leancrypto
 					)
 
-	test('AES KW en/decryption', aes_kw_tester)
+	test('Symmetric AES KW en/decryption', aes_kw_tester)
 endif
