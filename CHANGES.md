@@ -1,4 +1,4 @@
-Changes 0.4.0-prerelease:
+Changes 0.4.0:
 * simplify Kyber code
 
 * add RNG context to HKDF
