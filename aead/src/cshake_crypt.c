@@ -85,7 +85,8 @@
  *   key: The caller-provided key of size 256 bits
  *
  *   IV: The caller-provided initialization vector. The IV can have any size
- *	 including an empty bit-string.
+ *	 including an empty bit-string. See chapter 3 for a discussion of the
+ *	 IV, however.
  *
  *   input data: The caller-provided input data - in case of encryption, the
  *               caller provides the plaintext data, in case of decryption,
@@ -197,7 +198,56 @@
  * If the authentication result indicates a failure, the result of the
  * decryption operation SHALL be discarded.
  *
- * 3. Comparison with KMAC-based AEAD Cipher Algorithm
+ * 3. Cryptographic Aspects
+ *
+ * The cSHAKE AEAD algorithm is a stream cipher which uses the XOR-construction
+ * method to perform encryption and decryption. This method is susceptible to
+ * attacks when the key stream is identical between different encryption
+ * operations. This this case, the key stream can be trivially remove and
+ * thus a decryption of the data is possible as follows:
+ *
+ * ciphertext 1 = plaintext 1 XOR KS
+ *
+ * ciphertext 2 = plaintext 2 XOR KS
+ *
+ * ciphertext 1 XOR ciphertext 2 =
+ *	(plaintext 1 XOR KS) XOR (plaintext 2 XOR KS) =
+ *	plaintext 1 XOR plaintext 2
+ *
+ * Thus, the security of the cSHAKE algorithm is based on the property that
+ * the key stream KS is unique for different encryption operations. The key
+ * stream is derived from the key and the IV using cSHAKE. In common use cases,
+ * the key may not be able to be modified. Yet, the IV can be modified. Common
+ * protocols allow the generation of a new IV during encryption and transmit
+ * the IV to the decryptor. Thus, the IV can be used as a diversifier to for
+ * the different encryption operations to obtain a different key stream.
+ *
+ * As the cSHAKE algorithm's IV size is unspecified in size, the cSHAKE
+ * algorithm can handle any size that may be pre-defined by the use case or
+ * protocol consuming the cSHAKE AEAD algorithm.
+ *
+ * Considering the avalanche effect of the underlying KECCAK algorithm, even
+ * a small IV may result in a completely different key stream rendering the
+ * aforementioned attack impossible.
+ *
+ * The IV is not required to be a confidentially-protected value. It can be
+ * communicated in plaintext to the decryptor. This is due to the fact that
+ * the IV is used together with the key to generate the key stream using cSHAKE.
+ * An attacker is not able to construct either the key or the key stream by
+ * only possessing the IV. Furthermore, the key is defined to possess a
+ * cryptographic meaningful entropy (see section 2.3) which implies that the
+ * IV does not need to deliver additional entropy to ensure the strength of
+ * the cSHAKE AEAD algorithm.
+ *
+ * It is permissible that the IV is generated either by a random number
+ * generator or using a deterministic construction method. The only requirement
+ * is that the probability in generating a key / IV collision is insignificantly
+ * low. This implies that considering the IV is only a diversifier for the
+ * key stream, and the fact that the IV is not required to be private, the
+ * random number generator is not required to possess a cryptographic meaningful
+ * strength.
+ *
+ * 4. Comparison with KMAC-based AEAD Cipher Algorithm
  *
  * The cSHAKE cipher is completely identical to the KMAC cipher with the
  * exception that the cSHAKE cipher uses cSHAKE256 and the KMAC cipher uses
@@ -245,7 +295,7 @@
  * Thus, the cSHAKE cipher has a higher performance with a equal entropy
  * management comparing to the KMAC cipher.
  *
- * 4. Normative References
+ * 5. Normative References
  *
  * [SP800-185] John Kelsey, Shu-jen Chang, Ray Perlne, NIST Special Publication
  *             800-185 SHA-3 Derived Functions: cSHAKE, CSHAKE, TupleHash and

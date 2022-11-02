@@ -54,9 +54,8 @@
  * the symmetric algorithm as well as the HMAC. The caller-provided IV is
  * inserted into the symmetric algorithm.
  *
- * The size of the key is defined to be 256 bits when using cSHAKE-256.
- * The size of the IV can be selected by the caller. The algorithm supports
- * any IV size, including having no IV.
+ * The size of the key is defined to be 256 bits. The size of the IV is
+ * defined by the choise symmetric algorithm.
  *
  * As part of the authentication, the algorithm allows the addition of
  * additional authenticated data (AAD) of arbitrary size. This AAD is inserted
@@ -133,7 +132,7 @@
  *
  * The calculation of the message authentication tag is performed as follows:
  *
- * temporary tag = HKDF(HASH,
+ * temporary tag = HMAC(HASH,
  *                      key = auth key,
  *                      input = ciphertext || AAD)
  *

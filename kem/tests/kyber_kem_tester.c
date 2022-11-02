@@ -119,7 +119,7 @@ randombytes(void *_state,
 }
 
 static int
-randombytes2 (void *_state,
+randombytes2(void *_state,
 	     const uint8_t *addtl_input, size_t addtl_input_len,
 	     uint8_t *x, size_t xlen)
 {

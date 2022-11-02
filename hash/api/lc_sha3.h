@@ -225,6 +225,8 @@ struct lc_shake_128_state {
 #define LC_SHAKE_256_SIZE_BLOCK		LC_SHA3_SIZE_BLOCK(LC_SHAKE_256_SIZE_DIGEST_BITS)
 extern const struct lc_hash *lc_shake256;
 
+#define LC_SHAKE_256_CTX_SIZE		LC_SHA3_256_CTX_SIZE
+
 #define LC_SHAKE_256_CTX(name)						       \
 	LC_HASH_CTX(name, lc_shake256);					       \
 	lc_hash_zero(name)
@@ -235,7 +237,7 @@ extern const struct lc_hash *lc_shake256;
  * @param name [in] Name of the stack variable
  */
 #define LC_SHAKE_256_CTX_ON_STACK(name)					       \
-	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHA3_256_CTX_SIZE, uint64_t);   \
+	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHAKE_256_CTX_SIZE, uint64_t);  \
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name ## _ctx_buf;     \
 	LC_SHAKE_256_CTX(name)
 

@@ -181,10 +181,10 @@ int lc_kyber_dec(uint8_t *ss, size_t ss_len,
  *
  * 		Alice (initiator)		Bob (responder)
  *
- * Step 1	generate keypair		generate keypair
- *		Result:				Result:
- *			public key pk_i			public key pk_r
- *			secret key sk_i			secret key sk_r
+ * Step 1	generate keypair
+ *		Result:
+ *			public key pk_i
+ *			secret key sk_i
  *
  * Step 2	send public key
  * 		pk_i ------------------------->	pk_i
