@@ -17,9 +17,7 @@
  * DAMAGE.
  */
 
-#include <errno.h>
-#include <stdint.h>
-
+#include "ext_headers.h"
 #include "bitshift.h"
 #include "conv_be_le.h"
 #include "lc_aes.h"
@@ -194,11 +192,11 @@ static struct lc_sym _lc_aes_kw = {
 	.statesize	= LC_AES_KW_BLOCK_SIZE,
 	.blocksize	= AES_BLOCKLEN,
 };
-DSO_PUBLIC const struct lc_sym *lc_aes_kw = &_lc_aes_kw;
+LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_kw) = &_lc_aes_kw;
 
-DSO_PUBLIC
-void lc_aes_kw_encrypt(struct lc_sym_ctx *ctx,
-		       const uint8_t *in, uint8_t *out, size_t len)
+LC_INTERFACE_FUNCTION(
+void, lc_aes_kw_encrypt, struct lc_sym_ctx *ctx,
+			 const uint8_t *in, uint8_t *out, size_t len)
 {
 	struct lc_sym_state *state;
 
@@ -211,9 +209,9 @@ void lc_aes_kw_encrypt(struct lc_sym_ctx *ctx,
 	val64_to_ptr(out, state->tag);
 }
 
-DSO_PUBLIC
-int lc_aes_kw_decrypt(struct lc_sym_ctx *ctx,
-		      const uint8_t *in, uint8_t *out, size_t len)
+LC_INTERFACE_FUNCTION(
+int, lc_aes_kw_decrypt, struct lc_sym_ctx *ctx,
+			const uint8_t *in, uint8_t *out, size_t len)
 {
 	struct lc_sym_state *state;
 	int ret;

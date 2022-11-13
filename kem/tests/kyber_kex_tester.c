@@ -24,12 +24,14 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
-#include <stdio.h>
-
+#include "ext_headers.h"
 #include "lc_kyber.h"
 #include "lc_rng.h"
 #include "lc_sha3.h"
+#include "memory_support.h"
 #include "ret_checkers.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
 static int
 randombytes(void *_state,
@@ -77,22 +79,24 @@ static const struct lc_rng kyber_drng = {
 	.zero		= randombytes_zero,
 };
 
-int main(void)
+int kyber_kex_tester(void)
 {
-	struct lc_kyber_pk pk_r;
-	struct lc_kyber_sk sk_r;
+	struct workspace {
+		struct lc_kyber_pk pk_r;
+		struct lc_kyber_sk sk_r;
 
-	struct lc_kyber_pk pk_i;
-	struct lc_kyber_sk sk_i;
+		struct lc_kyber_pk pk_i;
+		struct lc_kyber_sk sk_i;
 
-	struct lc_kyber_pk pk_e_r;
-	struct lc_kyber_ct ct_e_r, ct_e_i, ct_e_i_1, ct_e_i_2;
-	struct lc_kyber_sk sk_e;
+		struct lc_kyber_pk pk_e_r;
+		struct lc_kyber_ct ct_e_r, ct_e_i, ct_e_i_1, ct_e_i_2;
+		struct lc_kyber_sk sk_e;
 
-	struct lc_kyber_ss tk;
+		struct lc_kyber_ss tk;
 
-	uint8_t ss_r[LC_KYBER_SSBYTES], ss_i[LC_KYBER_SSBYTES],
-		zero[LC_KYBER_SSBYTES];
+		uint8_t ss_r[LC_KYBER_SSBYTES], ss_i[LC_KYBER_SSBYTES],
+			zero[LC_KYBER_SSBYTES];
+	};
 
 	/*
 	 * The testing is based on the fact that,
@@ -103,66 +107,85 @@ int main(void)
 
 	unsigned int i;
 	int ret;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	for(i = 0; i < LC_KYBER_SSBYTES; i++)
-		zero[i] = 0;
+		ws->zero[i] = 0;
 
 	// Generate static key for Bob
-	CKINT(lc_kyber_keypair(&pk_r, &sk_r, &cshake_rng));
+	CKINT(lc_kyber_keypair(&ws->pk_r, &ws->sk_r, &cshake_rng));
 
 	// Generate static key for Alice
-	CKINT(lc_kyber_keypair(&pk_i, &sk_i, &cshake_rng));
+	CKINT(lc_kyber_keypair(&ws->pk_i, &ws->sk_i, &cshake_rng));
 
 
 	// Perform unilaterally authenticated key exchange
 
 	// Run by Bob
-	CKINT(lc_kex_uake_responder_init(&pk_e_r, &ct_e_r, &tk, &sk_e, &pk_i,
-					 &cshake_rng));
+	CKINT(lc_kex_uake_responder_init(&ws->pk_e_r, &ws->ct_e_r, &ws->tk,
+					 &ws->sk_e, &ws->pk_i, &cshake_rng));
 
 	// Run by Alice
-	CKINT(lc_kex_uake_initiator_ss(&ct_e_i, ss_i, sizeof(ss_i), &pk_e_r,
-				       &ct_e_r, &sk_i, &cshake_rng));
+	CKINT(lc_kex_uake_initiator_ss(&ws->ct_e_i, ws->ss_i, sizeof(ws->ss_i),
+				       &ws->pk_e_r, &ws->ct_e_r, &ws->sk_i,
+				       &cshake_rng));
 
 	// Run by Bob
-	CKINT(lc_kex_uake_responder_ss(ss_r, sizeof(ss_r), &ct_e_i, &tk,
-				       &sk_e));
+	CKINT(lc_kex_uake_responder_ss(ws->ss_r, sizeof(ws->ss_r), &ws->ct_e_i,
+				       &ws->tk, &ws->sk_e));
 
-	if (memcmp(ss_i, ss_r, sizeof(ss_r))) {
+	if (memcmp(ws->ss_i, ws->ss_r, sizeof(ws->ss_r))) {
 		printf("Error in UAKE\n");
-		return 1;
+		ret = 1;
+		goto out;
 	}
 
-	if (!memcmp(ss_i, zero, sizeof(ss_i))) {
+	if (!memcmp(ws->ss_i, ws->zero, sizeof(ws->ss_i))) {
 		printf("Error: UAKE produces zero key\n");
-		return 1;
+		ret = 1;
+		goto out;
 	}
 
 	// Perform mutually authenticated key exchange
 
 	// Run by Bob
-	CKINT(lc_kex_ake_responder_init(&pk_e_r, &ct_e_r, &tk, &sk_e, &pk_i,
-					 &cshake_rng));
+	CKINT(lc_kex_ake_responder_init(&ws->pk_e_r, &ws->ct_e_r, &ws->tk,
+					&ws->sk_e, &ws->pk_i, &cshake_rng));
 
 	// Run by Alice
-	CKINT(lc_kex_ake_initiator_ss(&ct_e_i_1, &ct_e_i_2, ss_i, sizeof(ss_i),
-				      &pk_e_r, &ct_e_r, &sk_i, &pk_r,
+	CKINT(lc_kex_ake_initiator_ss(&ws->ct_e_i_1, &ws->ct_e_i_2,
+				      ws->ss_i, sizeof(ws->ss_i),
+				      &ws->pk_e_r, &ws->ct_e_r,
+				      &ws->sk_i, &ws->pk_r,
 				      &cshake_rng));
 
 	// Run by Bob
-	CKINT(lc_kex_ake_responder_ss(ss_r, sizeof(ss_r), &ct_e_i_1, &ct_e_i_2,
-				      &tk, &sk_e, &sk_r));
+	CKINT(lc_kex_ake_responder_ss(ws->ss_r, sizeof(ws->ss_r),
+				      &ws->ct_e_i_1, &ws->ct_e_i_2,
+				      &ws->tk, &ws->sk_e, &ws->sk_r));
 
-	if (memcmp(ss_i, ss_r, sizeof(ss_r))){
+	if (memcmp(ws->ss_i, ws->ss_r, sizeof(ws->ss_r))){
 		printf("Error in AKE\n");
-		return 1;
+		ret = 1;
+		goto out;
 	}
 
-	if (!memcmp(ss_i, zero, sizeof(ss_i))) {
+	if (!memcmp(ws->ss_i, ws->zero, sizeof(ws->ss_i))) {
 		printf("Error: AKE produces zero key\n");
-		return 1;
+		ret = 1;
+		goto out;
 	}
+
+	ret = 0;
 
 out:
+	LC_RELEASE_MEM(ws);
 	return ret;
+}
+
+LC_TEST_FUNC(int, main, int argc, char *argv[])
+{
+	(void)argc;
+	(void)argv;
+	return kyber_kex_tester();
 }

@@ -19,8 +19,10 @@
 
 #include "compare.h"
 #include "lc_hmac_drbg_sha512.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
-static int hmac_drbg_tester(void)
+int hmac_drbg_tester(void)
 {
 #if 1
 	static const uint8_t ent_nonce[] = {
@@ -86,9 +88,9 @@ static int hmac_drbg_tester(void)
 		0x94, 0xeb, 0x09, 0x0f, 0x8e, 0x8d, 0x7f, 0x09
 	};
 	uint8_t act[256];
-	LC_DRBG_HMAC_CTX_ON_STACK(drbg_stack);
 	struct lc_rng_ctx *drbg = NULL;
 	int ret = 1;
+	LC_DRBG_HMAC_CTX_ON_STACK(drbg_stack);
 
 	printf("HMAC DRBG ctx len %lu\n",
 	       LC_DRBG_HMAC_CTX_SIZE(LC_DRBG_HMAC_CORE));
@@ -255,7 +257,7 @@ out:
 	return ret;
 }
 
-int main(int argc, char *argv[])
+LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;

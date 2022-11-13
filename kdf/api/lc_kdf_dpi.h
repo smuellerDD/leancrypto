@@ -20,9 +20,7 @@
 #ifndef LC_KDF_DPI_H
 #define LC_KDF_DPI_H
 
-#include <stdint.h>
-#include <sys/types.h>
-
+#include "ext_headers.h"
 #include "lc_hash.h"
 #include "lc_hmac.h"
 

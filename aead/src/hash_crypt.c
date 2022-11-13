@@ -18,12 +18,8 @@
  * DAMAGE.
  */
 
-#define _POSIX_C_SOURCE 200112L
-#include <errno.h>
-#include <limits.h>
-#include <stdlib.h>
-
 #include "build_bug_on.h"
+#include "ext_headers.h"
 #include "lc_hash_crypt.h"
 #include "math_helper.h"
 #include "memcmp_secure.h"
@@ -258,10 +254,10 @@ static void lc_hc_zero(void *state)
 		      LC_HMAC_STATE_SIZE(hash));
 }
 
-DSO_PUBLIC
-int lc_hc_alloc(const struct lc_hash *hash, struct lc_aead_ctx **ctx)
+LC_INTERFACE_FUNCTION(
+int, lc_hc_alloc, const struct lc_hash *hash, struct lc_aead_ctx **ctx)
 {
-	struct lc_aead_ctx *tmp;
+	struct lc_aead_ctx *tmp = NULL;
 	int ret = posix_memalign((void *)&tmp, sizeof(uint64_t),
 				 LC_HC_CTX_SIZE(hash));
 
@@ -286,5 +282,5 @@ struct lc_aead _lc_hash_aead = {
 	.dec_final	= lc_hc_decrypt_authenticate,
 	.zero		= lc_hc_zero
 };
-DSO_PUBLIC
-const struct lc_aead *lc_hash_aead = &_lc_hash_aead;
+
+LC_INTERFACE_SYMBOL(const struct lc_aead *, lc_hash_aead) = &_lc_hash_aead;

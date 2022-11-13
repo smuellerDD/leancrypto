@@ -17,17 +17,17 @@
  * DAMAGE.
  */
 
-#include <stdio.h>
-
 #include "compare.h"
 #include "lc_kdf_ctr.h"
 #include "lc_sha256.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
 /*
  * From
  * http://csrc.nist.gov/groups/STM/cavp/documents/KBKDF800-108/CounterMode.zip
  */
-static int kdf_ctr_tester(void)
+int kdf_ctr_tester(void)
 {
 	int ret;
 	static const uint8_t key[] = {
@@ -139,7 +139,7 @@ static int kdf_ctr_tester(void)
 	return ret;
 }
 
-int main(int argc, char *argv[])
+LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;

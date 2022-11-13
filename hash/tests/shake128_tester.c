@@ -17,15 +17,14 @@
  * DAMAGE.
  */
 
-#include "binhexbin.h"
 #include "compare.h"
 #include "lc_cshake.h"
 #include "lc_sha3.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
-static int shake_tester(void)
+int shake128_tester(void)
 {
-	LC_HASH_CTX_ON_STACK(ctx, lc_shake128);
-	LC_SHAKE_128_CTX_ON_STACK(shake128_stack);
 	static const uint8_t msg1[] = {
 		0xBE, 0x94, 0xD8, 0x3D, 0x37, 0x66, 0xCF, 0x3E,
 		0xD3, 0x0A, 0x11, 0x0C, 0x47, 0xA2
@@ -106,6 +105,8 @@ static int shake_tester(void)
 	};
 	uint8_t act2[sizeof(exp2)];
 	int ret;
+	LC_HASH_CTX_ON_STACK(ctx, lc_shake128);
+	LC_SHAKE_128_CTX_ON_STACK(shake128_stack);
 
 	lc_hash_init(ctx);
 	lc_hash_update(ctx, msg1, sizeof(msg1));
@@ -139,9 +140,9 @@ static int shake_tester(void)
 	return ret;
 }
 
-int main(int argc, char *argv[])
+LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;
-	return shake_tester();
+	return shake128_tester();
 }

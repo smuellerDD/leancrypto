@@ -28,7 +28,7 @@
 #include "kyber_poly.h"
 #include "kyber_polyvec.h"
 
-#include "memset_secure.h"
+#include "memory_support.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
 
@@ -174,10 +174,10 @@ static unsigned int rej_uniform(int16_t *r,
 static void gen_matrix(polyvec *a, const uint8_t seed[LC_KYBER_SYMBYTES],
 		       int transposed)
 {
-	LC_SHAKE_128_CTX_ON_STACK(shake_128);
 	unsigned int ctr, i, j;
 	unsigned int buflen, off;
 	uint8_t buf[GEN_MATRIX_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK + 2];
+	LC_SHAKE_128_CTX_ON_STACK(shake_128);
 
 	for (i = 0; i< LC_KYBER_K; i++) {
 
@@ -226,119 +226,121 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 		   uint8_t sk[LC_KYBER_INDCPA_SECRETKEYBYTES],
 		   struct lc_rng_ctx *rng_ctx)
 {
+	struct workspace {
+		uint8_t buf[2 * LC_KYBER_SYMBYTES];
+		polyvec a[LC_KYBER_K], e, pkpv, skpv;
+	};
 	unsigned int i;
-	uint8_t buf[2 * LC_KYBER_SYMBYTES];
-	const uint8_t *publicseed = buf;
-	const uint8_t *noiseseed = buf + LC_KYBER_SYMBYTES;
+	uint8_t *buf;
+	const uint8_t *publicseed, *noiseseed;
 	uint8_t nonce = 0, nonce2 = LC_KYBER_K;
-	polyvec a[LC_KYBER_K], e, pkpv, skpv;
 	int ret;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+
+	buf = ws->buf;
+	publicseed = ws->buf;
+	noiseseed = ws->buf + LC_KYBER_SYMBYTES;
 
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, buf, LC_KYBER_SYMBYTES));
 	lc_hash(lc_sha3_512, buf, LC_KYBER_SYMBYTES, buf);
-	gen_a(a, publicseed);
+	gen_a(ws->a, publicseed);
 
 	for (i = 0; i < LC_KYBER_K; i++) {
-		poly_getnoise_eta1(&skpv.vec[i], noiseseed, nonce++);
-		poly_getnoise_eta1(&e.vec[i], noiseseed, nonce2++);
+		poly_getnoise_eta1(&ws->skpv.vec[i], noiseseed, nonce++);
+		poly_getnoise_eta1(&ws->e.vec[i], noiseseed, nonce2++);
 	}
 
-	polyvec_ntt(&skpv);
-	polyvec_ntt(&e);
+	polyvec_ntt(&ws->skpv);
+	polyvec_ntt(&ws->e);
 
 	// matrix-vector multiplication
 	for (i = 0; i < LC_KYBER_K; i++) {
-		polyvec_basemul_acc_montgomery(&pkpv.vec[i], &a[i], &skpv);
-		poly_tomont(&pkpv.vec[i]);
+		polyvec_basemul_acc_montgomery(&ws->pkpv.vec[i], &ws->a[i],
+					       &ws->skpv);
+		poly_tomont(&ws->pkpv.vec[i]);
 	}
 
-	polyvec_add(&pkpv, &pkpv, &e);
-	polyvec_reduce(&pkpv);
+	polyvec_add(&ws->pkpv, &ws->pkpv, &ws->e);
+	polyvec_reduce(&ws->pkpv);
 
-	pack_sk(sk, &skpv);
-	pack_pk(pk, &pkpv, publicseed);
+	pack_sk(sk, &ws->skpv);
+	pack_pk(pk, &ws->pkpv, publicseed);
 
 out:
-	memset_secure(buf, 0, sizeof(buf));
-	memset_secure(a, 0, sizeof(a));
-	memset_secure(&e, 0, sizeof(e));
-	memset_secure(&pkpv, 0, sizeof(pkpv));
-	memset_secure(&skpv, 0, sizeof(skpv));
+	LC_RELEASE_MEM(ws);
 	return ret;
 }
 
-void indcpa_enc(uint8_t c[LC_KYBER_INDCPA_BYTES],
-		const uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
-		const uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
-		const uint8_t coins[LC_KYBER_SYMBYTES])
+int indcpa_enc(uint8_t c[LC_KYBER_INDCPA_BYTES],
+	       const uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
+	       const uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
+	       const uint8_t coins[LC_KYBER_SYMBYTES])
 {
+	struct workspace {
+		uint8_t seed[LC_KYBER_SYMBYTES];
+		polyvec sp, pkpv, ep, at[LC_KYBER_K], b;
+		poly v, k, epp;
+	};
 	unsigned int i;
-	uint8_t seed[LC_KYBER_SYMBYTES];
 	uint8_t nonce = 0, nonce2 = LC_KYBER_K;
-	polyvec sp, pkpv, ep, at[LC_KYBER_K], b;
-	poly v, k, epp;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	unpack_pk(&pkpv, seed, pk);
-	poly_frommsg(&k, m);
-	gen_at(at, seed);
+	unpack_pk(&ws->pkpv, ws->seed, pk);
+	poly_frommsg(&ws->k, m);
+	gen_at(ws->at, ws->seed);
 
 	for (i = 0; i < LC_KYBER_K; i++) {
-		poly_getnoise_eta1(sp.vec+i, coins, nonce++);
-		poly_getnoise_eta2(ep.vec+i, coins, nonce2++);
+		poly_getnoise_eta1(ws->sp.vec+i, coins, nonce++);
+		poly_getnoise_eta2(ws->ep.vec+i, coins, nonce2++);
 	}
-	poly_getnoise_eta2(&epp, coins, nonce2++);
+	poly_getnoise_eta2(&ws->epp, coins, nonce2++);
 
-	polyvec_ntt(&sp);
+	polyvec_ntt(&ws->sp);
 
 	// matrix-vector multiplication
 	for (i = 0; i < LC_KYBER_K; i++)
-		polyvec_basemul_acc_montgomery(&b.vec[i], &at[i], &sp);
+		polyvec_basemul_acc_montgomery(&ws->b.vec[i], &ws->at[i],
+					       &ws->sp);
 
-	polyvec_basemul_acc_montgomery(&v, &pkpv, &sp);
+	polyvec_basemul_acc_montgomery(&ws->v, &ws->pkpv, &ws->sp);
 
-	polyvec_invntt_tomont(&b);
-	poly_invntt_tomont(&v);
+	polyvec_invntt_tomont(&ws->b);
+	poly_invntt_tomont(&ws->v);
 
-	polyvec_add(&b, &b, &ep);
-	poly_add(&v, &v, &epp);
-	poly_add(&v, &v, &k);
-	polyvec_reduce(&b);
-	poly_reduce(&v);
+	polyvec_add(&ws->b, &ws->b, &ws->ep);
+	poly_add(&ws->v, &ws->v, &ws->epp);
+	poly_add(&ws->v, &ws->v, &ws->k);
+	polyvec_reduce(&ws->b);
+	poly_reduce(&ws->v);
 
-	pack_ciphertext(c, &b, &v);
+	pack_ciphertext(c, &ws->b, &ws->v);
 
-	memset_secure(seed, 0, sizeof(seed));
-	memset_secure(&sp, 0, sizeof(sp));
-	memset_secure(&pkpv, 0, sizeof(pkpv));
-	memset_secure(&ep, 0, sizeof(ep));
-	memset_secure(at, 0, sizeof(at));
-	memset_secure(&b, 0, sizeof(b));
-	memset_secure(&v, 0, sizeof(v));
-	memset_secure(&k, 0, sizeof(k));
-	memset_secure(&epp, 0, sizeof(epp));
+	LC_RELEASE_MEM(ws);
+	return 0;
 }
 
-void indcpa_dec(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
-		const uint8_t c[LC_KYBER_INDCPA_BYTES],
-		const uint8_t sk[LC_KYBER_INDCPA_SECRETKEYBYTES])
+int indcpa_dec(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
+	       const uint8_t c[LC_KYBER_INDCPA_BYTES],
+	       const uint8_t sk[LC_KYBER_INDCPA_SECRETKEYBYTES])
 {
-	polyvec b, skpv;
-	poly v, mp;
+	struct workspace {
+		polyvec b, skpv;
+		poly v, mp;
+	};
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	unpack_ciphertext(&b, &v, c);
-	unpack_sk(&skpv, sk);
+	unpack_ciphertext(&ws->b, &ws->v, c);
+	unpack_sk(&ws->skpv, sk);
 
-	polyvec_ntt(&b);
-	polyvec_basemul_acc_montgomery(&mp, &skpv, &b);
-	poly_invntt_tomont(&mp);
+	polyvec_ntt(&ws->b);
+	polyvec_basemul_acc_montgomery(&ws->mp, &ws->skpv, &ws->b);
+	poly_invntt_tomont(&ws->mp);
 
-	poly_sub(&mp, &v, &mp);
-	poly_reduce(&mp);
+	poly_sub(&ws->mp, &ws->v, &ws->mp);
+	poly_reduce(&ws->mp);
 
-	poly_tomsg(m, &mp);
+	poly_tomsg(m, &ws->mp);
 
-	memset_secure(&b, 0, sizeof(b));
-	memset_secure(&skpv, 0, sizeof(skpv));
-	memset_secure(&v, 0, sizeof(v));
-	memset_secure(&mp, 0, sizeof(mp));
+	LC_RELEASE_MEM(ws);
+	return 0;
 }

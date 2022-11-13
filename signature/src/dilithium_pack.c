@@ -189,8 +189,8 @@ void pack_sig(struct lc_dilithium_sig *sig,
 	unsigned int i, j, k;
 	uint8_t *signature = sig->sig;
 
-	BUILD_BUG_ON((1U << (sizeof(j)<<3)) < LC_DILITHIUM_N);
-	BUILD_BUG_ON((1U << (sizeof(k)<<3)) < LC_DILITHIUM_N);
+	BUILD_BUG_ON((1UL << (sizeof(j)<<3)) < LC_DILITHIUM_N);
+	BUILD_BUG_ON((1UL << (sizeof(k)<<3)) < LC_DILITHIUM_N);
 
 	for (i = 0; i < LC_DILITHIUM_SEEDBYTES; ++i)
 		signature[i] = c[i];

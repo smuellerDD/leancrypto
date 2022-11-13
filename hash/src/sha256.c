@@ -18,9 +18,8 @@
  * DAMAGE.
  */
 
-#include <string.h>
-
 #include "bitshift_be.h"
+#include "ext_headers.h"
 #include "lc_sha256.h"
 #include "memset_secure.h"
 #include "visibility.h"
@@ -213,4 +212,4 @@ static const struct lc_hash _sha256 = {
 	.statesize	= sizeof(struct lc_sha256_state),
 };
 
-DSO_PUBLIC const struct lc_hash *lc_sha256 = &_sha256;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha256) = &_sha256;

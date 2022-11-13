@@ -28,187 +28,120 @@ build system:
 
 4. Install: `meson install -C builddir`
 
+## Library Build for Linux Kernel
+
+To build the leancrypto Linux kernel module, use the `Makefile` in the
+directory `linux_kernel`:
+
+1. cd `linux_kernel`
+
+2. make
+
+3. the leancrypto library is provided with `leancrypto.ko`
+
+4. set the flag `LC_MEM_ON_HEAP` if your environment only has a limited stack
+   size. When set, functions with laqrge memory requirements use the heap
+   instead of the stack for this memory.
+
+Note, the compiled test kernel module of `leancrypto_test.ko` is only provided
+for regression testing and is not required for production use. Insert the
+kernel module and check `dmesg` for the results. Unload the kernel module
+afterwards.
+
+## Library Build for Other Environments
+
+If you need leancrypto to work in other environments like small embedded
+systems, you need:
+
+1. Adjust the build system as needed to compile and link it
+
+2. Adjust the file `ext_headers.h` to point to the right header files and
+   locations.
+
+An example on the approach is given with the Linux kernel support found
+in the directory `linux_kernel`.
+
 # Cryptographic Algorithms
 
-Leancrypto offers various cryptographic algorithms.
+Leancrypto offers various cryptographic algorithms:
 
-## Authenticated Encryption with Associated Data
+* Authenticated Encryption with Associated Data
 
-Did you know you can use hash to encrypt data?
+  * cSHAKE-based AEAD algorithm - algorithm devised with leancrypto,
+    see `cshake_crypt.c` for full specification
 
-The hash crypt implementations provide an authenticating stream cipher.
+  * hash-based AEAD algorithm -  algorithm devised with leancrypto,
+    see `hash_crypt.c` for full specification
 
-### KMAC Crypt
+  * KMAC-based AEAD algorithm - algorithm devised with leancrypto,
+    see `kmac_crypt.c` for full specification
 
-Encrypt and decrypt data by using KMAC as defined in SP800-185. The
-authentication of the ciphertext is performed using KMAC as well. The algorithm
-is fully defined in `aead/src/kmac_crypt.c`.
+  * AES-based AEAD algorithm - see `symhmac_crypt.c` for full specification
 
-The implementation supports the use in one-shot and in stream mode. The
-stream mode implies that repeatedly new data of arbitrary size can be inserted
-into the state. See the description [SHA-2 Hash Crypt] as the KMAC hash
-crypt follows the same principle.
+* Pseudo Random Number Generators
 
-### cSHAKE Crypt
+  * cSHAKE-based PRNG - see `cshake_drng.c` for full specification
 
-Encrypt and decrypt data by using cSHAKE as defined in SP800-185. The
-authentication of the ciphertext is performed using KMAC as well. The algorithm
-is fully defined in `aead/src/cshake_crypt.c`.
+  * KMAC-based PRNG - see `kmac_drng.c` for full specification
 
-The implementation supports the use in one-shot and in stream mode. The
-stream mode implies that repeatedly new data of arbitrary size can be inserted
-into the state. See the description [SHA-2 Hash Crypt] as the KMAC hash
-crypt follows the same principle.
+  * SP800-90A Hash and HMAC DRBG
 
-### SHA-2 Hash Crypt
+  * ChaCha20-based PRNG - see https://www.chronox.de/lrng.html for specification
 
-The following properties are implemented with the algorithm:
+* Message Digest algorithms
 
-* Key stream is generated using the SP800-90A Hash DRBG with SHA-512 core
+  * SHA2-256, SHA2-512
 
-* Key stream is generated with 64 byte blocks
+  * SHA3-224, SHA3-256, SHA3-384, SHA3-512
 
-* Key stream is XORed with the plaintext (encryption) or ciphertext
-  (decryption)
+  * SHAKE-128, SHAKE-256
 
-* AEAD authentication is provided with HMAC SHA-512 with an Encrypt-Then-MAC
-  approach to integrity-protect the plaintext and ciphertext including guards
-  against malleable attacks.
+  * cSHAKE-128, cSHAKE-256
 
-* The algorithm supports an arbitrary key size. The security strength is equal
-  to the key size, but at most 256 bits (the strength of SHA-512). The key is
-  used to seed the DRBG instance for generating the key stream. The first step
-  the freshly seeded DRBG does is to generate a 512 bit random value that
-  becomes the key for the HMAC authenticator. The goal is simply to use two
-  different values for the keystream and the authenticator.
+* Keyed Message Digest algorithms
 
-* The implementation supports the use in one-shot and in stream mode. The
-  stream mode implies that repeatedly new data of arbitrary size can be inserted
-  into the state. The following calls are equal:
+  * HMAC
 
-	- oneshot call:
-```
-	lc_hc_encrypt_oneshot(Plain_1 || ... || Plain_N, Ciphertext_1 || ... || Ciphertext_N, tag);
-```
+  * KMAC
 
-	- stream operation:
+* Key Derivation Functions
 
-```
-	lc_hc_encrypt(Plain_1, Ciphertext_1);
-	...
-	lc_hc_encrypt(Plain_N, Ciphertext_N);
-	lc_hc_encrypt_tag(tag);
-```
+  * HKDF
 
-  Similarly for decryption, the oneshot and stream modes are supported as
-  follows:
+  * SP800-108 KDF (counter, feedback, double pipelining mode)
 
-	- oneshot call:
-```
-	lc_hc_decrypt_oneshot(Ciphertext_1 || ... || Ciphertext_N, Plain_1 || ... || Plain_N, tag);
-```
+  * PBKDF2
 
-	- stream operation:
+* Key Encapsulation Mechanism
 
-```
-	lc_hc_decrypt(Ciphertext_1, Output_1);
-	...
-	lc_hc_decrypt(Ciphertext_N, Output_N);
-	if (lc_hc_decrypt_authenticate(tag) < 0)
-		... authentication failed ...
-	else
-		... authentication succeeded ...
-```
+  * Kyber Key Encapsulation Mechanism (KEM)
 
-## Hash
+  * Kyber Key Exchange Mechanism (KEX)
 
-The following header files contain an implementation of `struct hash` which
-can be used to perform the respective hashing operations. You only need to
-include the following header files depending on the selected hash operation.
+  * Kyber Integrated Encryption Schema (IES) - algorithm devised with
+    leancrypto, see `kyber_ies.c` for full specification
 
-* `lc_sha256.h` provides the object `lc_sha256` of type `struct lc_hash`
+* One Time Pad algorithms
 
-* `lc_sha512.h` provides the object `lc_sha512` of type `struct lc_hash`
+  * HOTP
 
-* `lc_sha3.h` provides the objects `lc_sha3_256`, `lc_sha3_384`, `lc_sha3_512`,
-  `lc_shake256`, `lc_shake128`, and `lc_cshake256` of type `struct lc_hash`
+  * TOTP
 
-The mentioned hash object have to be used with the hash API as documented in
-`lc_hash.h` and the aforementioned header files. It is sufficient to only
-include the object-specific header files as they include `lc_hash.h`.
+* Signature algorithm
 
-See `lc_hash.h` for the API documentation.
+  * Dilithium
 
-## HMAC
+* Symmetric algorithms
 
-The HMAC implementation is a wrapper to the hash. Thus include your chosen
-hash header file as outlined in section [Hash] along with `lc_hmac.h`. You must
-provide a reference to the hash object to the allocation functions of HMAC.
-The HMAC API functions ensure that the hash context is allocated appropriately
-and that the hash functions are invoked accordingly.
+  * AES: ECB, CBC, CTR, KW
 
-The HMAC API is documented in `hmac.h`.
+  * ChaCha20
 
-## KMAC
 
-The KMAC implementation is a wrapper to the cSHAKE hash. Include `lc_kmac.h`.
-You must provide a reference to the `lc_cshake256` hash object to the allocation
-functions of KMAC. The KMAC API functions ensure that the hash context is
-allocated appropriately and that the hash functions are invoked accordingly.
+# API Documentation
 
-The KMAC API is documented in `lc_kmac.h`.
-
-## Key Exchange Mechanism
-
-The Kyber post-quantum cryptography (PQC) algorithm for key exchange is
-provided. It offers an asymmetric cryptographic algorithm.
-
-## Random Number Generation
-
-Leancrypto offer different random number generator implementation which all
-are used with the same API documented in `lc_rng.h`. The key is that the
-caller must allocate the intended RNG implementation using the RNG-specific
-allocation functions documented in the different RNG header files. After
-successful allocation, the common API can be used.
-
-The following RNGs are implemented
-
-* Hash SP800-90A DRBG without PR, using SHA-512 core.
-
-* HMAC SP800-90A DRBG without PR, using HMAC SHA-512 core.
-
-* cSHAE-based deterministic random number generator - the specification is
-  provided with `drng/src/cshake_rng.c`. This implementation has an equal
-  security as the SP800-90A DRBGs but it is significantly faster.
-
-* KMAC-based deterministic random number generator - the specification is
-  provided with `drng/src/kmac_rng.c`.  This implementation has an equal
-  security as the SP800-90A DRBGs but it is significantly faster.
-
-* ChaCha20-based deterministic random number generator.
-
-## Key Derivation Funcation
-
-The KDF API is documented in `kdf/api/*.h`. The following algorithms are
-available:
-
-* SP800-108 counter KDF, feedbac KDF, double-pipeline KDF.
-
-* RFC5869 HKDF
-
-## One-Time Pad
-
-The cryptographic algorithms of HOTP and TOTP are available and documented in
-`otp/api/*.h`.
-
-## Signature
-
-The Dilithium post-quantum cryptography (PQC) algorithm for digital signatures
-is provided. It offers an asymmetric cryptographic algorithm.
-
-## Symmetric Algorithms
-
-The symmetric algorithm API is documented in `sym/api/lc_sym.h`.
+The complete API documentation is provided in the different header files
+`lc_*.h`.
 
 # ACVP Testing
 

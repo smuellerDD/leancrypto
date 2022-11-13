@@ -57,11 +57,13 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
  * @param pk [in] pointer to input public key
  * @param coins [in] pointer to input random coins used as seed to
  *		     deterministically generate all randomness
+ *
+ * @return 0 (success) or < 0 on error
  */
-void indcpa_enc(uint8_t c[LC_KYBER_INDCPA_BYTES],
-                const uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
-                const uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
-                const uint8_t coins[LC_KYBER_SYMBYTES]);
+int indcpa_enc(uint8_t c[LC_KYBER_INDCPA_BYTES],
+	       const uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
+               const uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
+               const uint8_t coins[LC_KYBER_SYMBYTES]);
 
 /**
  * @brief indcpa_dec - Decryption function of the CPA-secure public-key
@@ -70,10 +72,12 @@ void indcpa_enc(uint8_t c[LC_KYBER_INDCPA_BYTES],
  * @param m [out] pointer to output decrypted message
  * @param c [in] pointer to input ciphertext
  * @param sk [in] pointer to input secret key
+ *
+ * @return 0 (success) or < 0 on error
  */
-void indcpa_dec(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
-                const uint8_t c[LC_KYBER_INDCPA_BYTES],
-                const uint8_t sk[LC_KYBER_INDCPA_SECRETKEYBYTES]);
+int indcpa_dec(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
+               const uint8_t c[LC_KYBER_INDCPA_BYTES],
+               const uint8_t sk[LC_KYBER_INDCPA_SECRETKEYBYTES]);
 
 #ifdef __cplusplus
 }

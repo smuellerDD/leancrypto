@@ -20,8 +20,7 @@
 #ifndef _LC_SYM_H
 #define _LC_SYM_H
 
-#include <stdint.h>
-
+#include "ext_headers.h"
 #include "memset_secure.h"
 
 #ifdef __cplusplus
@@ -229,6 +228,7 @@ void lc_sym_zero_free(struct lc_sym_ctx *ctx);
 #define LC_SYM_CTX_ON_STACK(name, symname)				       \
 	_Pragma("GCC diagnostic push")					       \
 	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
+	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 	LC_ALIGNED_SYM_BUFFER(name ## _ctx_buf, symname,		       \
 			      LC_SYM_CTX_SIZE(symname), uint64_t);	       \
 	struct lc_sym_ctx *name = (struct lc_sym_ctx *) name ## _ctx_buf;      \

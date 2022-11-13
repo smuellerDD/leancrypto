@@ -17,16 +17,14 @@
  * DAMAGE.
  */
 
-#include <errno.h>
-#include <stdlib.h>
-
+#include "ext_headers.h"
 #include "lc_sym.h"
 #include "visibility.h"
 
-DSO_PUBLIC
-int lc_sym_alloc(const struct lc_sym *sym, struct lc_sym_ctx **ctx)
+LC_INTERFACE_FUNCTION(
+int, lc_sym_alloc, const struct lc_sym *sym, struct lc_sym_ctx **ctx)
 {
-	struct lc_sym_ctx *out_ctx;
+	struct lc_sym_ctx *out_ctx = NULL;
 	int ret;
 
 	if (!ctx)
@@ -45,8 +43,8 @@ int lc_sym_alloc(const struct lc_sym *sym, struct lc_sym_ctx **ctx)
 	return 0;
 }
 
-DSO_PUBLIC
-void lc_sym_zero_free(struct lc_sym_ctx *ctx)
+LC_INTERFACE_FUNCTION(
+void, lc_sym_zero_free, struct lc_sym_ctx *ctx)
 {
 	if (!ctx)
 		return;

@@ -17,14 +17,14 @@
  * DAMAGE.
  */
 
-#include <stdio.h>
-
 #include "compare.h"
 #include "lc_hkdf.h"
 #include "lc_sha256.h"
 #include "math_helper.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
-static int hkdf_tester(void)
+int hkdf_tester(void)
 {
 	/* RFC 5869 vector */
 	static const uint8_t ikm[] = {
@@ -49,11 +49,11 @@ static int hkdf_tester(void)
 		0x58, 0x65
 	};
 	uint8_t act[sizeof(exp)];
-	LC_HKDF_CTX_ON_STACK(hkdf, lc_sha256);
-	LC_HKDF_DRNG_CTX_ON_STACK(hkdf_rng, lc_sha256);
 	struct lc_hkdf_ctx *hkdf_heap = NULL;
 	unsigned int i = 0;
 	int ret;
+	LC_HKDF_CTX_ON_STACK(hkdf, lc_sha256);
+	LC_HKDF_DRNG_CTX_ON_STACK(hkdf_rng, lc_sha256);
 
 	if (lc_hkdf_extract(hkdf, ikm, sizeof(ikm), salt, sizeof(salt))) {
 		printf("HKDF extract stack failed\n");
@@ -148,7 +148,7 @@ static int hkdf_tester(void)
 	return ret;
 }
 
-int main(int argc, char *argv[])
+LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;

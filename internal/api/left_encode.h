@@ -20,8 +20,7 @@
 #ifndef LEFT_ENCODE_H
 #define LEFT_ENCODE_H
 
-#include <stdint.h>
-#include <sys/types.h>
+#include "ext_headers.h"
 
 #ifdef __cplusplus
 extern "C"

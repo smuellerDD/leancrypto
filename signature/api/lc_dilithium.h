@@ -28,9 +28,7 @@
 #ifndef LC_DILITHIUM_H
 #define LC_DILITHIUM_H
 
-#include <errno.h>
-#include <stdint.h>
-
+#include "ext_headers.h"
 #include "lc_rng.h"
 
 #ifdef __cplusplus

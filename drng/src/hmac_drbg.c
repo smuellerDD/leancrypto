@@ -18,11 +18,7 @@
  * DAMAGE.
  */
 
-#include <errno.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <sys/mman.h>
-
+#include "ext_headers.h"
 #include "lc_hmac_drbg_sha512.h"
 #include "visibility.h"
 
@@ -198,10 +194,10 @@ static void lc_drbg_hmac_zero(void *_state)
 				 0, LC_DRBG_HMAC_STATE_SIZE(hash));
 }
 
-DSO_PUBLIC
-int lc_drbg_hmac_alloc(struct lc_rng_ctx **drbg)
+LC_INTERFACE_FUNCTION(
+int, lc_drbg_hmac_alloc, struct lc_rng_ctx **drbg)
 {
-	struct lc_rng_ctx *out_state;
+	struct lc_rng_ctx *out_state = NULL;
 	int ret;
 
 	if (!drbg)
@@ -231,8 +227,8 @@ int lc_drbg_hmac_alloc(struct lc_rng_ctx **drbg)
 	return 0;
 }
 
-DSO_PUBLIC
-int lc_drbg_hmac_healthcheck_sanity(struct lc_rng_ctx *drbg)
+LC_INTERFACE_FUNCTION(
+int, lc_drbg_hmac_healthcheck_sanity, struct lc_rng_ctx *drbg)
 {
 	unsigned char buf[16];
 	size_t max_addtllen, max_request_bytes;
@@ -280,4 +276,4 @@ static const struct lc_rng _lc_hmac_drbg = {
 	.seed		= lc_drbg_hmac_seed,
 	.zero		= lc_drbg_hmac_zero,
 };
-DSO_PUBLIC const struct lc_rng *lc_hmac_drbg = &_lc_hmac_drbg;
+LC_INTERFACE_SYMBOL(const struct lc_rng *, lc_hmac_drbg) = &_lc_hmac_drbg;

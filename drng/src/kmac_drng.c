@@ -212,11 +212,8 @@
  *             ParallelHash, December 2016
  ******************************************************************************/
 
-#include <errno.h>
-#include <stdlib.h>
-#include <sys/mman.h>
-
 #include "build_bug_on.h"
+#include "ext_headers.h"
 #include "lc_kmac256_drng.h"
 #include "math_helper.h"
 #include "memcmp_secure.h"
@@ -276,8 +273,8 @@ lc_kmac256_drng_generate(void *_state,
 			 const uint8_t *addtl_input, size_t addtl_input_len,
 			 uint8_t *out, size_t outlen)
 {
-	LC_KMAC_CTX_ON_STACK(kmac_ctx, lc_cshake256);
 	struct lc_kmac256_drng_state *state = _state;
+	LC_KMAC_CTX_ON_STACK(kmac_ctx, lc_cshake256);
 
 	BUILD_BUG_ON(LC_KMAC256_DRNG_MAX_CHUNK % LC_SHA3_256_SIZE_BLOCK);
 
@@ -323,8 +320,8 @@ lc_kmac256_drng_seed(void *_state,
 		     const uint8_t *seed, size_t seedlen,
 		     const uint8_t *persbuf, size_t perslen)
 {
-	LC_KMAC_CTX_ON_STACK(kmac_ctx, lc_cshake256);
 	struct lc_kmac256_drng_state *state = _state;
+	LC_KMAC_CTX_ON_STACK(kmac_ctx, lc_cshake256);
 
 	if (!state)
 		return -EINVAL;
@@ -362,10 +359,10 @@ static void lc_kmac256_drng_zero(void *_state)
 	memset_secure((uint8_t *)state, 0, LC_KMAC256_DRNG_STATE_SIZE);
 }
 
-DSO_PUBLIC
-int lc_kmac256_drng_alloc(struct lc_rng_ctx **state)
+LC_INTERFACE_FUNCTION(
+int, lc_kmac256_drng_alloc, struct lc_rng_ctx **state)
 {
-	struct lc_rng_ctx *out_state;
+	struct lc_rng_ctx *out_state = NULL;
 	int ret;
 
 	if (!state)
@@ -399,4 +396,4 @@ static const struct lc_rng _lc_kmac256_drng = {
 	.seed		= lc_kmac256_drng_seed,
 	.zero		= lc_kmac256_drng_zero,
 };
-DSO_PUBLIC const struct lc_rng *lc_kmac256_drng = &_lc_kmac256_drng;
+LC_INTERFACE_SYMBOL(const struct lc_rng *, lc_kmac256_drng) = &_lc_kmac256_drng;

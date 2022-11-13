@@ -20,9 +20,7 @@
 #ifndef LC_KMAC_CRYPT_H
 #define LC_KMAC_CRYPT_H
 
-#include <stdint.h>
-#include <sys/types.h>
-
+#include "ext_headers.h"
 #include "lc_aead.h"
 /*
  * This is the KMAC crypt cipher operation using the KMAC output as keystream
@@ -96,6 +94,7 @@ int lc_kc_alloc(const struct lc_hash *hash, struct lc_aead_ctx **ctx);
 #define LC_KC_CTX_ON_STACK(name, hash)			      		       \
 	_Pragma("GCC diagnostic push")					       \
 	_Pragma("GCC diagnostic ignored \"-Wvla\"")	      		       \
+	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_KC_CTX_SIZE(hash), uint64_t);   \
 	struct lc_aead_ctx *name = (struct lc_aead_ctx *) name ## _ctx_buf;    \
 	LC_KC_SET_CTX(name, hash);					       \

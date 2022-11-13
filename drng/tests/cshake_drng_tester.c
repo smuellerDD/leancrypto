@@ -17,18 +17,16 @@
  * DAMAGE.
  */
 
-#include <errno.h>
-
-#include "binhexbin.h"
 #include "compare.h"
 #include "lc_cshake256_drng.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
 #define LC_CSHAKE_DRNG_SEED_CUSTOMIZATION_STRING	"cSHAKE-DRNG seed"
 #define LC_CSHAKE_DRNG_CTX_CUSTOMIZATION_STRING 	"cSHAKE-DRNG generate"
 
 static int cshake_drng_selftest(struct lc_rng_ctx *cshake_ctx)
 {
-	LC_HASH_CTX_ON_STACK(cshake_compare, lc_cshake256);
 	struct lc_cshake256_drng_state *state = cshake_ctx->rng_state;
 	uint8_t seed[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
@@ -78,6 +76,7 @@ static int cshake_drng_selftest(struct lc_rng_ctx *cshake_ctx)
 	uint8_t act1[sizeof(exp1)] __attribute__((aligned(sizeof(uint32_t))));
 	uint8_t compare1[LC_CSHAKE256_DRNG_KEYSIZE + sizeof(exp1)];
 	int ret;
+	LC_HASH_CTX_ON_STACK(cshake_compare, lc_cshake256);
 
 	lc_rng_seed(cshake_ctx, seed, sizeof(seed), NULL, 0);
 	lc_rng_generate(cshake_ctx, NULL, 0, act1, sizeof(act1));
@@ -101,14 +100,13 @@ static int cshake_drng_selftest(struct lc_rng_ctx *cshake_ctx)
 	return ret;
 }
 
-int main(int argc, char *argv[])
+int cshake_drng_test(void)
 {
-	LC_CSHAKE256_DRNG_CTX_ON_STACK(cshake_ctx);
 	struct lc_rng_ctx *cshake_ctx_heap;
-	int ret = cshake_drng_selftest(cshake_ctx);
+	int ret;
+	LC_CSHAKE256_DRNG_CTX_ON_STACK(cshake_ctx);
 
-	(void)argc;
-	(void)argv;
+	ret = cshake_drng_selftest(cshake_ctx);
 
 	if (lc_cshake256_drng_alloc(&cshake_ctx_heap))
 		return 1;
@@ -117,4 +115,12 @@ int main(int argc, char *argv[])
 
 	lc_rng_zero_free(cshake_ctx_heap);
 	return ret;
+}
+
+LC_TEST_FUNC(int, main, int argc, char *argv[])
+{
+	(void)argc;
+	(void)argv;
+
+	return cshake_drng_test();
 }

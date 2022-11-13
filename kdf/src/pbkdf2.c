@@ -18,10 +18,8 @@
  * DAMAGE.
  */
 
-#include <errno.h>
-#include <limits.h>
-
 #include "conv_be_le.h"
+#include "ext_headers.h"
 #include "lc_hmac.h"
 #include "lc_pbkdf2.h"
 #include "memset_secure.h"
@@ -90,19 +88,19 @@ uint32_t kcapi_pbkdf_iteration_count(const char *hashname, uint64_t timeshresh)
 }
 #endif
 
-DSO_PUBLIC
-int lc_pbkdf2(const struct lc_hash *hash,
-	      const uint8_t *pw, size_t pwlen,
-	      const uint8_t *salt, size_t saltlen,
-	      const uint32_t count,
-	      uint8_t *key, size_t keylen)
+LC_INTERFACE_FUNCTION(
+int, lc_pbkdf2, const struct lc_hash *hash,
+		const uint8_t *pw, size_t pwlen,
+		const uint8_t *salt, size_t saltlen,
+		const uint32_t count,
+		uint8_t *key, size_t keylen)
 {
-	LC_HMAC_CTX_ON_STACK(hmac_ctx, hash);
 	size_t h;
 	uint32_t i = 1;
 #define MAX_DIGESTSIZE 64
 	uint8_t u[LC_SHA_MAX_SIZE_DIGEST]
 				__attribute__ ((aligned (sizeof(uint64_t))));
+	LC_HMAC_CTX_ON_STACK(hmac_ctx, hash);
 
 	if (keylen > INT_MAX)
 		return -EMSGSIZE;

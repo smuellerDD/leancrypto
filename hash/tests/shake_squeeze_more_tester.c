@@ -18,14 +18,14 @@
  */
 
 #include "build_bug_on.h"
-#include "binhexbin.h"
 #include "compare.h"
 #include "lc_cshake.h"
 #include "lc_sha3.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
-static int shake_tester(void)
+int shake_sqeeze_more_tester(void)
 {
-	LC_HASH_CTX_ON_STACK(ctx, lc_shake256);
 	static const uint8_t msg2[] = {
 		0x69, 0xF9, 0x02, 0x27, 0x27, 0xA7, 0x5B, 0xB9,
 		0xDA, 0xCC, 0xBA, 0x6C, 0x66, 0x9E, 0x52, 0x88,
@@ -80,6 +80,7 @@ static int shake_tester(void)
 	size_t i, len = sizeof(exp2);
 	uint8_t *act2_p;
 	int ret;
+	LC_HASH_CTX_ON_STACK(ctx, lc_shake256);
 
 	for (i = 1; i <= sizeof(exp2); i ++) {
 		act2_p = act2;
@@ -107,9 +108,9 @@ static int shake_tester(void)
 	return ret;
 }
 
-int main(int argc, char *argv[])
+LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;
-	return shake_tester();
+	return shake_sqeeze_more_tester();
 }

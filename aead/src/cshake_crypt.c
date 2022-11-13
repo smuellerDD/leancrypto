@@ -302,17 +302,13 @@
  *             ParallelHash, December 2016
  ******************************************************************************/
 
-#define _POSIX_C_SOURCE 200112L
-#include <errno.h>
-#include <stdlib.h>
-
 #include "build_bug_on.h"
+#include "ext_headers.h"
 #include "lc_cshake_crypt.h"
+#include "math_helper.h"
 #include "memcmp_secure.h"
 #include "visibility.h"
 #include "xor.h"
-
-#define min_t(type, a, b)	((type)a < (type)b) ? (type)a : (type)b
 
 #define LC_CC_AUTHENTICATION_KEY_SIZE	(256 >> 3)
 #define LC_CC_CUSTOMIZATION_STRING	"cSHAKE-AEAD crypt"
@@ -531,10 +527,10 @@ lc_cc_decrypt_oneshot(void *state,
 	return lc_cc_decrypt_authenticate(cc, aad, aadlen, tag, taglen);
 }
 
-DSO_PUBLIC
-int lc_cc_alloc(const struct lc_hash *hash, struct lc_aead_ctx **ctx)
+LC_INTERFACE_FUNCTION(
+int, lc_cc_alloc, const struct lc_hash *hash, struct lc_aead_ctx **ctx)
 {
-	struct lc_aead_ctx *tmp;
+	struct lc_aead_ctx *tmp = NULL;
 	int ret;
 
 	ret = posix_memalign((void *)&tmp, sizeof(uint64_t),
@@ -571,5 +567,4 @@ struct lc_aead _lc_cshake_aead = {
 	.dec_final	= lc_cc_decrypt_authenticate,
 	.zero		= lc_cc_zero
 };
-DSO_PUBLIC
-const struct lc_aead *lc_cshake_aead = &_lc_cshake_aead;
+LC_INTERFACE_SYMBOL(const struct lc_aead *, lc_cshake_aead) = &_lc_cshake_aead;

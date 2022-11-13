@@ -265,5 +265,4 @@ static const struct lc_rng _lc_seeded_rng = {
 
 static struct lc_rng_ctx _lc_seeded_rng_ctx = { &_lc_seeded_rng, NULL };
 
-DSO_PUBLIC
-struct lc_rng_ctx *lc_seeded_rng = &_lc_seeded_rng_ctx;
+LC_INTERFACE_SYMBOL(struct lc_rng_ctx *, lc_seeded_rng) = &_lc_seeded_rng_ctx;

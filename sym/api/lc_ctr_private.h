@@ -20,10 +20,9 @@
 #ifndef LC_CTR_PRIVATE_H
 #define LC_CTR_PRIVATE_H
 
-#include <stdint.h>
-
 #include "bitshift.h"
 #include "build_bug_on.h"
+#include "ext_headers.h"
 #include "lc_aes_private.h"
 #include "math_helper.h"
 

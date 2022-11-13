@@ -5,17 +5,14 @@
  * Copyright (C) 2022, Stephan Mueller <smueller@chronox.de>
  */
 
-#include <errno.h>
-#include <stdint.h>
-#include <stdlib.h>
-
+#include "ext_headers.h"
 #include "lc_hash.h"
 #include "visibility.h"
 
-DSO_PUBLIC
-int lc_hash_alloc(const struct lc_hash *hash, struct lc_hash_ctx **hash_ctx)
+LC_INTERFACE_FUNCTION(
+int, lc_hash_alloc, const struct lc_hash *hash, struct lc_hash_ctx **hash_ctx)
 {
-	struct lc_hash_ctx *out_ctx;
+	struct lc_hash_ctx *out_ctx = NULL;
 	int ret;
 
 	if (!hash_ctx)
@@ -33,8 +30,8 @@ int lc_hash_alloc(const struct lc_hash *hash, struct lc_hash_ctx **hash_ctx)
 	return 0;
 }
 
-DSO_PUBLIC
-void lc_hash_zero_free(struct lc_hash_ctx *hash_ctx)
+LC_INTERFACE_FUNCTION(
+void, lc_hash_zero_free, struct lc_hash_ctx *hash_ctx)
 {
 	if (!hash_ctx)
 		return;

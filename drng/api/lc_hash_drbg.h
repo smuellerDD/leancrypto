@@ -70,9 +70,12 @@ extern const struct lc_rng *lc_hash_drbg;
  * @param name [in] Name of the stack variable
  */
 #define LC_DRBG_HASH_CTX_ON_STACK(name)					       \
+	_Pragma("GCC diagnostic push")					       \
+	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_DRBG_HASH_CTX_SIZE, uint64_t);  \
 	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name ## _ctx_buf;       \
-	LC_DRBG_HASH_RNG_CTX(name)
+	LC_DRBG_HASH_RNG_CTX(name);					       \
+	_Pragma("GCC diagnostic pop")
 
 /**
  * @brief Allocate Hash DRBG context on heap

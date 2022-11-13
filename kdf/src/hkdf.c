@@ -18,10 +18,8 @@
  * DAMAGE.
  */
 
-#include <errno.h>
-#include <sys/mman.h>
-
 #include "build_bug_on.h"
+#include "ext_headers.h"
 #include "lc_hkdf.h"
 #include "lc_rng.h"
 #include "math_helper.h"
@@ -29,10 +27,10 @@
 #include "null_buffer.h"
 #include "visibility.h"
 
-DSO_PUBLIC
-int lc_hkdf_extract(struct lc_hkdf_ctx *hkdf_ctx,
-		    const uint8_t *ikm, size_t ikmlen,
-		    const uint8_t *salt, size_t saltlen)
+LC_INTERFACE_FUNCTION(
+int, lc_hkdf_extract, struct lc_hkdf_ctx *hkdf_ctx,
+		      const uint8_t *ikm, size_t ikmlen,
+		      const uint8_t *salt, size_t saltlen)
 {
 	struct lc_hmac_ctx *hmac_ctx;
 	size_t h;
@@ -115,10 +113,10 @@ out:
 	return 0;
 }
 
-DSO_PUBLIC
-int lc_hkdf_expand(struct lc_hkdf_ctx *hkdf_ctx,
-		   const uint8_t *info, size_t infolen,
-		   uint8_t *dst, size_t dlen)
+LC_INTERFACE_FUNCTION(
+int, lc_hkdf_expand, struct lc_hkdf_ctx *hkdf_ctx,
+		     const uint8_t *info, size_t infolen,
+		     uint8_t *dst, size_t dlen)
 {
 	struct lc_hmac_ctx *hmac_ctx;
 
@@ -132,10 +130,10 @@ int lc_hkdf_expand(struct lc_hkdf_ctx *hkdf_ctx,
 	return hkdf_expand_internal(hkdf_ctx, info, infolen, dst, dlen);
 }
 
-DSO_PUBLIC
-int lc_hkdf_alloc(const struct lc_hash *hash, struct lc_hkdf_ctx **hkdf_ctx)
+LC_INTERFACE_FUNCTION(
+int, lc_hkdf_alloc, const struct lc_hash *hash, struct lc_hkdf_ctx **hkdf_ctx)
 {
-	struct lc_hkdf_ctx *out_state;
+	struct lc_hkdf_ctx *out_state = NULL;
 	int ret;
 
 	if (!hkdf_ctx)
@@ -155,8 +153,8 @@ int lc_hkdf_alloc(const struct lc_hash *hash, struct lc_hkdf_ctx **hkdf_ctx)
 	return 0;
 }
 
-DSO_PUBLIC
-void lc_hkdf_zero_free(struct lc_hkdf_ctx *hkdf_ctx)
+LC_INTERFACE_FUNCTION(
+void, lc_hkdf_zero_free, struct lc_hkdf_ctx *hkdf_ctx)
 {
 	if (!hkdf_ctx)
 		return;
@@ -227,8 +225,8 @@ static void lc_hkdf_rng_zero(void *_state)
 	lc_hkdf_zero(state);
 }
 
-DSO_PUBLIC
-int lc_hkdf_rng_alloc(struct lc_rng_ctx **state, const struct lc_hash *hash)
+LC_INTERFACE_FUNCTION(
+int, lc_hkdf_rng_alloc, struct lc_rng_ctx **state, const struct lc_hash *hash)
 {
 	struct lc_rng_ctx *out_state;
 	int ret;
@@ -264,4 +262,4 @@ static const struct lc_rng _lc_hkdf = {
 	.seed		= lc_hkdf_rng_seed,
 	.zero		= lc_hkdf_rng_zero,
 };
-DSO_PUBLIC const struct lc_rng *lc_hkdf_rng = &_lc_hkdf;
+LC_INTERFACE_SYMBOL(const struct lc_rng *, lc_hkdf_rng) = &_lc_hkdf;

@@ -20,8 +20,7 @@
 #ifndef _LC_CHACHA20_DRNG_H
 #define _LC_CHACHA20_DRNG_H
 
-#include <stdint.h>
-
+#include "ext_headers.h"
 #include "lc_chacha20.h"
 
 #ifdef __cplusplus
@@ -66,6 +65,7 @@ static inline void lc_cc20_drng_zero(struct lc_chacha20_drng_ctx *cc20_ctx)
 #define LC_CC20_DRNG_CTX_ON_STACK(name)			      		       \
 	_Pragma("GCC diagnostic push")					       \
 	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
+	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 	LC_ALIGNED_SYM_BUFFER(name ## _ctx_buf, lc_chacha20,		       \
 			      LC_CC20_DRNG_CTX_SIZE, uint64_t);		       \
 	struct lc_chacha20_drng_ctx *name =				       \

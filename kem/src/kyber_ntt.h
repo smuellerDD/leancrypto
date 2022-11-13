@@ -27,7 +27,7 @@
 #ifndef KYBER_NTT_H
 #define KYBER_NTT_H
 
-#include <stdint.h>
+#include "ext_headers.h"
 
 #ifdef __cplusplus
 extern "C"

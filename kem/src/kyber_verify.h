@@ -28,8 +28,7 @@
 #ifndef KYBER_VERIFY_H
 #define KYBER_VERIFY_H
 
-#include <stdint.h>
-#include <sys/types.h>
+#include "ext_headers.h"
 
 #ifdef __cplusplus
 extern "C"

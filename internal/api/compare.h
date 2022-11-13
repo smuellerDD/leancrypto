@@ -20,9 +20,7 @@
 #ifndef COMPARE_H
 #define COMPARE_H
 
-#include <stdio.h>
-#include <stdint.h>
-#include <string.h>
+#include "ext_headers.h"
 
 #ifdef __cplusplus
 extern "C"

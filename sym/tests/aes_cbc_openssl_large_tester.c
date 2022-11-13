@@ -28,7 +28,7 @@
 static int aes_cbc_large(void)
 {
 	EVP_CIPHER_CTX *ctx = NULL;
-	const EVP_CIPHER *type = EVP_aes_128_cbc();
+	const EVP_CIPHER *type = EVP_aes_256_cbc();
 	uint8_t *pt;
 	int outl;
 	uint8_t key[] = {
@@ -83,6 +83,7 @@ static int aes_cbc_large(void)
 		ret = 1;
 		goto out;
 	}
+	ret = 0;
 
 out:
 	if (ctx)

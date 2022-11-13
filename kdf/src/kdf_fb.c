@@ -18,21 +18,19 @@
  * DAMAGE.
  */
 
-#include <errno.h>
-#include <limits.h>
-
 #include "conv_be_le.h"
+#include "ext_headers.h"
 #include "lc_hmac.h"
 #include "lc_kdf_fb.h"
 #include "memset_secure.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 
-DSO_PUBLIC
-int lc_kdf_fb_generate(struct lc_hmac_ctx *hmac_ctx,
-		       const uint8_t *iv, size_t ivlen,
-		       const uint8_t *label, size_t labellen,
-		       uint8_t *dst, size_t dlen)
+LC_INTERFACE_FUNCTION(
+int, lc_kdf_fb_generate, struct lc_hmac_ctx *hmac_ctx,
+			 const uint8_t *iv, size_t ivlen,
+			 const uint8_t *label, size_t labellen,
+			 uint8_t *dst, size_t dlen)
 {
 	size_t h;
 	uint32_t i = 1;
@@ -88,24 +86,24 @@ out:
 	return 0;
 }
 
-DSO_PUBLIC
-int lc_kdf_fb_init(struct lc_hmac_ctx *hmac_ctx,
-		   const uint8_t *key, size_t keylen)
+LC_INTERFACE_FUNCTION(
+int, lc_kdf_fb_init, struct lc_hmac_ctx *hmac_ctx,
+		     const uint8_t *key, size_t keylen)
 {
 	lc_hmac_init(hmac_ctx, key, keylen);
 	return 0;
 }
 
 
-DSO_PUBLIC
-int lc_kdf_fb(const struct lc_hash *hash,
-	      const uint8_t *key, size_t keylen,
-	      const uint8_t *iv, size_t ivlen,
-	      const uint8_t *label, size_t labellen,
-	      uint8_t *dst, size_t dlen)
+LC_INTERFACE_FUNCTION(
+int, lc_kdf_fb, const struct lc_hash *hash,
+		const uint8_t *key, size_t keylen,
+		const uint8_t *iv, size_t ivlen,
+		const uint8_t *label, size_t labellen,
+		uint8_t *dst, size_t dlen)
 {
-	LC_HMAC_CTX_ON_STACK(hmac_ctx, hash);
 	int ret;
+	LC_HMAC_CTX_ON_STACK(hmac_ctx, hash);
 
 	CKINT(lc_kdf_fb_init(hmac_ctx, key, keylen));
 	CKINT(lc_kdf_fb_generate(hmac_ctx, iv, ivlen, label, labellen,

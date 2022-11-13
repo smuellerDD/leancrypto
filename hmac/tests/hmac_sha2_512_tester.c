@@ -20,10 +20,11 @@
 #include "compare.h"
 #include "lc_hmac.h"
 #include "lc_sha512.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
-static int hmac_sha2_512_tester(void)
+int hmac_sha2_512_tester(void)
 {
-	LC_HMAC_CTX_ON_STACK(hmac, lc_sha512);
 	static const uint8_t msg_512[] = {
 		0x32, 0x9D, 0x57, 0x59, 0xEC, 0x2B, 0x51, 0xB6,
 		0x1F, 0xE2, 0x79, 0x18, 0xE9, 0x8F, 0xA7, 0x2D
@@ -159,6 +160,7 @@ static int hmac_sha2_512_tester(void)
 	};
 	uint8_t act[LC_SHA512_SIZE_DIGEST];
 	int ret;
+	LC_HMAC_CTX_ON_STACK(hmac, lc_sha512);
 
 	lc_hmac_init(hmac, key_512, sizeof(key_512));
 	lc_hmac_update(hmac, msg_512, sizeof(msg_512));
@@ -170,7 +172,7 @@ static int hmac_sha2_512_tester(void)
 	return ret;
 }
 
-int main(int argc, char *argv[])
+LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;

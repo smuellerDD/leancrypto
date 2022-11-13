@@ -17,10 +17,8 @@
  * DAMAGE.
  */
 
-#include <errno.h>
-
 #include "compare.h"
-#include "binhexbin.h"
+#include "ext_headers.h"
 #include "lc_aes.h"
 #include "lc_hkdf.h"
 #include "lc_hmac.h"
@@ -28,6 +26,8 @@
 #include "lc_sha3.h"
 #include "lc_sha512.h"
 #include "lc_symhmac.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
 static int sh_tester_one(const struct lc_sym *sym, const struct lc_hash *hash,
 			 const uint8_t *pt, size_t ptlen,
@@ -37,18 +37,21 @@ static int sh_tester_one(const struct lc_sym *sym, const struct lc_hash *hash,
 			 const uint8_t *exp_ct,
 			 const uint8_t *exp_tag, size_t exp_tag_len)
 {
-	LC_SH_CTX_ON_STACK(sh, sym, hash);
-	LC_HMAC_CTX_ON_STACK(hmac_ctx, hash);
-	LC_SYM_CTX_ON_STACK(aes_cbc, sym);
 	struct lc_aead_ctx *sh_heap = NULL;
 	ssize_t ret;
 	int ret_checked = 0;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvla"
 	uint8_t out_enc[ptlen];
 	uint8_t out_dec[ptlen];
 	uint8_t out_compare[ptlen];
 	uint8_t tag[exp_tag_len];
+#pragma GCC diagnostic pop
 	uint8_t tag_compare[64];
 	uint8_t keystream[(256 / 8) * 2];
+	LC_SH_CTX_ON_STACK(sh, sym, hash);
+	LC_HMAC_CTX_ON_STACK(hmac_ctx, hash);
+	LC_SYM_CTX_ON_STACK(aes_cbc, sym);
 
 	/* One shot encryption with pt ptr != ct ptr */
 	if (lc_aead_setkey(sh, key, keylen, iv, ivlen))
@@ -142,9 +145,8 @@ static int sh_tester_one(const struct lc_sym *sym, const struct lc_hash *hash,
 	return ret_checked;
 }
 
-static int sh_nonaligned(void)
+int sh_nonaligned(void)
 {
-	LC_SH_CTX_ON_STACK(sh, lc_aes_cbc, lc_sha512);
 	uint8_t pt[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,};
 	uint8_t ct[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,};
 	uint8_t zero[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,};
@@ -156,6 +158,7 @@ static int sh_nonaligned(void)
 		0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
 	};
 	int ret_checked = 0;
+	LC_SH_CTX_ON_STACK(sh, lc_aes_cbc, lc_sha512);
 
 	/* One shot encryption with pt ptr != ct ptr */
 	if (lc_aead_setkey(sh, in, 32, in, 16))
@@ -174,7 +177,7 @@ static int sh_nonaligned(void)
 	return ret_checked;
 }
 
-static int sh_tester(void)
+int sh_tester(void)
 {
 	int ret = 0;
 	static const uint8_t in[] = {
@@ -281,7 +284,7 @@ static int sh_tester(void)
 	return ret;
 }
 
-int main(int argc, char *argv[])
+LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	int ret;
 

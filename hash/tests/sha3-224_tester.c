@@ -17,14 +17,13 @@
  * DAMAGE.
  */
 
-#include "binhexbin.h"
 #include "compare.h"
 #include "lc_sha3.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
-static int sha3_224_tester(void)
+int sha3_224_tester(void)
 {
-	LC_HASH_CTX_ON_STACK(ctx224, lc_sha3_224);
-	LC_SHA3_224_CTX_ON_STACK(ctx224_stack);
 	static const uint8_t msg_224[] = { 0x50, 0xEF, 0x73 };
 	static const uint8_t exp_224[] = { 0x42, 0xF9, 0xE4, 0xEA, 0xE8, 0x55,
 					   0x49, 0x61, 0xD1, 0xD2, 0x7D, 0x47,
@@ -33,6 +32,8 @@ static int sha3_224_tester(void)
 					   0xD8, 0x7C, 0x68, 0xC1 };
 	uint8_t act[LC_SHA3_224_SIZE_DIGEST];
 	int ret;
+	LC_HASH_CTX_ON_STACK(ctx224, lc_sha3_224);
+	LC_SHA3_224_CTX_ON_STACK(ctx224_stack);
 
 	printf("hash ctx len %lu\n", LC_HASH_CTX_SIZE(lc_sha3_224));
 	lc_hash_init(ctx224);
@@ -50,7 +51,7 @@ static int sha3_224_tester(void)
 	return ret;
 }
 
-int main(int argc, char *argv[])
+LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;

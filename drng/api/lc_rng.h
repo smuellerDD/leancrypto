@@ -20,10 +20,7 @@
 #ifndef LC_RNG_H
 #define LC_RNG_H
 
-#include <errno.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <sys/types.h>
+#include "ext_headers.h"
 
 #ifdef __cplusplus
 extern "C"

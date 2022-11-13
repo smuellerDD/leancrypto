@@ -20,9 +20,7 @@
 #ifndef LC_HKDF_H
 #define LC_HKDF_H
 
-#include <stdint.h>
-#include <sys/types.h>
-
+#include "ext_headers.h"
 #include "lc_hmac.h"
 #include "lc_rng.h"
 #include "memset_secure.h"
@@ -136,6 +134,7 @@ void lc_hkdf_zero_free(struct lc_hkdf_ctx *hkdf_ctx);
 #define LC_HKDF_CTX_ON_STACK(name, hashname)			      	       \
 	_Pragma("GCC diagnostic push")					       \
 	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
+	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf,				       \
 			  LC_HKDF_CTX_SIZE(hashname), uint64_t);	       \
 	struct lc_hkdf_ctx *name = (struct lc_hkdf_ctx *)name ## _ctx_buf;     \
@@ -167,8 +166,8 @@ static inline int lc_hkdf(const struct lc_hash *hash,
 			  const uint8_t *info, size_t infolen,
 			  uint8_t *dst, size_t dlen)
 {
-	LC_HKDF_CTX_ON_STACK(hkdf, hash);
 	int ret;
+	LC_HKDF_CTX_ON_STACK(hkdf, hash);
 
 	ret = lc_hkdf_extract(hkdf, ikm, ikmlen, salt, saltlen);
 	if (ret < 0)
@@ -211,6 +210,7 @@ extern const struct lc_rng *lc_hkdf_rng;
 #define LC_HKDF_DRNG_CTX_ON_STACK(name, hashname)			       \
 	_Pragma("GCC diagnostic push")					       \
 	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
+	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf,				       \
 			  LC_HKDF_DRNG_CTX_SIZE(hashname), uint64_t);	       \
 	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name ## _ctx_buf;       \

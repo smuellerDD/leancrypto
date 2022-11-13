@@ -35,7 +35,8 @@ add_global_arguments([ '-fstack-protector-strong',
 		       '-Wcast-align',
 		       '-Wmissing-field-initializers',
 		       '-Wshadow',
-		       '-Wswitch-enum' ],
+		       '-Wswitch-enum',
+		       '-Wframe-larger-than=1048576' ],
 		       language : 'c')
 
 if get_option('optimization') != '0'

@@ -20,8 +20,7 @@
 #ifndef LC_AES_PRIVATE_H
 #define LC_AES_PRIVATE_H
 
-#include <errno.h>
-#include <stdint.h>
+#include "ext_headers.h"
 
 #ifdef __cplusplus
 extern "C"

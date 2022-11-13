@@ -27,9 +27,7 @@
 #ifndef LC_KYBER_H
 #define LC_KYBER_H
 
-#include <stdint.h>
-#include <sys/types.h>
-
+#include "ext_headers.h"
 #include "lc_aead.h"
 #include "lc_rng.h"
 

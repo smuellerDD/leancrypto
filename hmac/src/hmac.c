@@ -18,19 +18,15 @@
  * DAMAGE.
  */
 
-#include <errno.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-
+#include "ext_headers.h"
 #include "lc_hmac.h"
 #include "visibility.h"
 
 #define IPAD	0x36
 #define OPAD	0x5c
 
-DSO_PUBLIC
-void lc_hmac_reinit(struct lc_hmac_ctx *hmac_ctx)
+LC_INTERFACE_FUNCTION(
+void, lc_hmac_reinit, struct lc_hmac_ctx *hmac_ctx)
 {
 	struct lc_hash_ctx *hash_ctx = &hmac_ctx->hash_ctx;
 
@@ -38,8 +34,9 @@ void lc_hmac_reinit(struct lc_hmac_ctx *hmac_ctx)
 	lc_hash_update(hash_ctx, hmac_ctx->k_ipad, lc_hash_blocksize(hash_ctx));
 }
 
-DSO_PUBLIC
-void lc_hmac_init(struct lc_hmac_ctx *hmac_ctx, const uint8_t *key, size_t keylen)
+LC_INTERFACE_FUNCTION(
+void, lc_hmac_init, struct lc_hmac_ctx *hmac_ctx,
+		    const uint8_t *key, size_t keylen)
 {
 	struct lc_hash_ctx *hash_ctx = &hmac_ctx->hash_ctx;
 	const struct lc_hash *hash = hash_ctx->hash;
@@ -76,16 +73,17 @@ void lc_hmac_init(struct lc_hmac_ctx *hmac_ctx, const uint8_t *key, size_t keyle
 	lc_hmac_reinit(hmac_ctx);
 }
 
-DSO_PUBLIC
-void lc_hmac_update(struct lc_hmac_ctx *hmac_ctx, const uint8_t *in, size_t inlen)
+LC_INTERFACE_FUNCTION(
+void, lc_hmac_update, struct lc_hmac_ctx *hmac_ctx, const uint8_t *in,
+		      size_t inlen)
 {
 	struct lc_hash_ctx *hash_ctx = &hmac_ctx->hash_ctx;
 
 	lc_hash_update(hash_ctx, in, inlen);
 }
 
-DSO_PUBLIC
-void lc_hmac_final(struct lc_hmac_ctx *hmac_ctx, uint8_t *mac)
+LC_INTERFACE_FUNCTION(
+void, lc_hmac_final, struct lc_hmac_ctx *hmac_ctx, uint8_t *mac)
 {
 	struct lc_hash_ctx *hash_ctx = &hmac_ctx->hash_ctx;
 	uint8_t *k_opad = hmac_ctx->k_opad;
@@ -98,10 +96,10 @@ void lc_hmac_final(struct lc_hmac_ctx *hmac_ctx, uint8_t *mac)
 	lc_hash_final(hash_ctx, mac);
 }
 
-DSO_PUBLIC
-int lc_hmac_alloc(const struct lc_hash *hash, struct lc_hmac_ctx **hmac_ctx)
+LC_INTERFACE_FUNCTION(
+int, lc_hmac_alloc, const struct lc_hash *hash, struct lc_hmac_ctx **hmac_ctx)
 {
-	struct lc_hmac_ctx *out_ctx;
+	struct lc_hmac_ctx *out_ctx = NULL;
 	int ret = posix_memalign((void *)&out_ctx, sizeof(uint64_t),
 				 LC_HMAC_CTX_SIZE(hash));
 
@@ -115,8 +113,8 @@ int lc_hmac_alloc(const struct lc_hash *hash, struct lc_hmac_ctx **hmac_ctx)
 	return 0;
 }
 
-DSO_PUBLIC
-void lc_hmac_zero_free(struct lc_hmac_ctx *hmac_ctx)
+LC_INTERFACE_FUNCTION(
+void, lc_hmac_zero_free, struct lc_hmac_ctx *hmac_ctx)
 {
 	if (!hmac_ctx)
 		return;

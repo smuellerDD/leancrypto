@@ -17,21 +17,20 @@
  * DAMAGE.
  */
 
-#include <errno.h>
-
 #include "bitshift.h"
 #include "conv_be_le.h"
-#include "rotate.h"
+#include "ext_headers.h"
 #include "lc_chacha20.h"
 #include "lc_chacha20_private.h"
 #include "lc_sym.h"
 #include "math_helper.h"
+#include "rotate.h"
 #include "visibility.h"
 #include "xor.h"
 
 /* ChaCha20 block function according to RFC 7539 section 2.3 */
-DSO_PUBLIC
-void cc20_block(struct lc_sym_state *state, uint32_t *stream)
+LC_INTERFACE_FUNCTION(
+void, cc20_block, struct lc_sym_state *state, uint32_t *stream)
 {
 	uint32_t *state_w = &state->constants[0];
 	uint32_t i, ws[LC_CC20_BLOCK_SIZE_WORDS], *out = stream;
@@ -176,4 +175,4 @@ static struct lc_sym _lc_chacha20 = {
 	.statesize	= LC_CC20_BLOCK_SIZE,
 	.blocksize	= 1,
 };
-DSO_PUBLIC const struct lc_sym *lc_chacha20 = &_lc_chacha20;
+LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_chacha20) = &_lc_chacha20;

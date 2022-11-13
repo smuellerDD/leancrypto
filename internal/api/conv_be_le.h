@@ -21,8 +21,7 @@
 #ifndef CONV_BE_LE_H
 #define CONV_BE_LE_H
 
-#include <stdint.h>
-
+#include "ext_headers.h"
 #include "rotate.h"
 
 #ifdef __cplusplus

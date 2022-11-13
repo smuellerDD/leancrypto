@@ -20,6 +20,8 @@
 #ifndef _BUILD_BUG_ON_H
 #define _BUILD_BUG_ON_H
 
+#ifndef LINUX_KERNEL
 #define BUILD_BUG_ON(condition) ((void)sizeof(char[1 - 2 * !!(condition)]))
+#endif
 
 #endif /* _BUILD_BUG_ON_H */

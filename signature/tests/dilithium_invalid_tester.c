@@ -17,61 +17,73 @@
  * DAMAGE.
  */
 
+#include "lc_cshake256_drng.h"
 #include "lc_dilithium.h"
-#include "lc_rng.h"
+#include "memory_support.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
-static int dilithium_invalid(void)
+int dilithium_invalid(void)
 {
-	struct lc_dilithium_sk sk;
-	struct lc_dilithium_pk pk;
-	struct lc_dilithium_sig sig;
+	struct workspace {
+		struct lc_dilithium_sk sk;
+		struct lc_dilithium_pk pk;
+		struct lc_dilithium_sig sig;
+	};
 	uint8_t msg[] = { 0x01, 0x02, 0x03 };
-	int ret = 0;
+	int ret = 1;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+	LC_CSHAKE256_DRNG_CTX_ON_STACK(rng);
 
-	if (lc_dilithium_keypair(&pk, &sk, lc_seeded_rng))
-		return 1;
+	if (lc_rng_seed(rng, msg, sizeof(msg), NULL, 0))
+		goto out;
 
-	if (lc_dilithium_sign(&sig, msg, sizeof(msg), &sk, lc_seeded_rng))
-		return 1;
+	if (lc_dilithium_keypair(&ws->pk, &ws->sk, rng))
+		goto out;
+
+	if (lc_dilithium_sign(&ws->sig, msg, sizeof(msg), &ws->sk, rng))
+		goto out;
 
 	/* modify the pub key */
-	pk.pk[0] = (pk.pk[0] + 0x01) & 0xff;
-	if (lc_dilithium_verify(&sig, msg, sizeof(msg), &pk) != -EBADMSG)
-		return 1;
+	ws->pk.pk[0] = (ws->pk.pk[0] + 0x01) & 0xff;
+	if (lc_dilithium_verify(&ws->sig, msg, sizeof(msg), &ws->pk) != -EBADMSG)
+		goto out;
 
 	/* revert modify the pub key */
-	pk.pk[0] = (pk.pk[0] - 0x01) & 0xff;
+	ws->pk.pk[0] = (ws->pk.pk[0] - 0x01) & 0xff;
 	/* modify the sec key */
-	sk.sk[0] = (sk.sk[0] + 0x01) & 0xff;
+	ws->sk.sk[0] = (ws->sk.sk[0] + 0x01) & 0xff;
 
-	if (lc_dilithium_sign(&sig, msg, sizeof(msg), &sk, lc_seeded_rng))
-		return 1;
+	if (lc_dilithium_sign(&ws->sig, msg, sizeof(msg), &ws->sk, rng))
+		goto out;
 
-	if (lc_dilithium_verify(&sig, msg, sizeof(msg), &pk) != -EBADMSG)
-		return 1;
+	if (lc_dilithium_verify(&ws->sig, msg, sizeof(msg), &ws->pk) !=
+	    -EBADMSG)
+		goto out;
 
 	/* revert modify the sec key */
-	sk.sk[0] = (sk.sk[0] - 0x01) & 0xff;
+	ws->sk.sk[0] = (ws->sk.sk[0] - 0x01) & 0xff;
 
-	if (lc_dilithium_sign(&sig, msg, sizeof(msg), &sk, lc_seeded_rng))
-		return 1;
+	if (lc_dilithium_sign(&ws->sig, msg, sizeof(msg), &ws->sk, rng))
+		goto out;
 
 	/* modify the signature */
-	sig.sig[0] = (sig.sig[0] + 0x01) & 0xff;
-	if (lc_dilithium_verify(&sig, msg, sizeof(msg), &pk) != -EBADMSG)
-		return 1;
+	ws->sig.sig[0] = (ws->sig.sig[0] + 0x01) & 0xff;
+	if (lc_dilithium_verify(&ws->sig, msg, sizeof(msg), &ws->pk) !=
+				-EBADMSG)
+		goto out;
 
+	ret = 0;
+
+out:
+	LC_RELEASE_MEM(ws);
 	return ret;
 }
 
-int main(int argc, char *argv[])
+LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
-	int ret = 0;
-
 	(void)argc;
 	(void)argv;
 
-	ret += dilithium_invalid();
-
-	return ret;
+	return dilithium_invalid();
 }

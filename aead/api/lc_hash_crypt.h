@@ -100,6 +100,7 @@ int lc_hc_alloc(const struct lc_hash *hash, struct lc_aead_ctx **ctx);
 #define LC_HC_CTX_ON_STACK(name, hash)			      		       \
 	_Pragma("GCC diagnostic push")					       \
 	_Pragma("GCC diagnostic ignored \"-Wvla\"")	      		       \
+	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_HC_CTX_SIZE(hash), uint64_t);   \
 	struct lc_aead_ctx *name = (struct lc_aead_ctx *) name ## _ctx_buf;    \
 	LC_HC_SET_CTX(name, hash);					       \

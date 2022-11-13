@@ -213,6 +213,7 @@ static inline void lc_kmac_zero(struct lc_kmac_ctx *kmac_ctx)
 #define LC_KMAC_CTX_ON_STACK(name, hashname)				       \
 	_Pragma("GCC diagnostic push")					       \
 	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
+	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_KMAC_CTX_SIZE(hashname),	       \
 			  uint64_t);					       \
 	struct lc_kmac_ctx *name = (struct lc_kmac_ctx *)name ## _ctx_buf;     \
@@ -234,6 +235,7 @@ static inline void lc_kmac_zero(struct lc_kmac_ctx *kmac_ctx)
 #define LC_KMAC_CTX_ON_STACK_REINIT(name, hashname)			       \
 	_Pragma("GCC diagnostic push")					       \
 	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
+	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_KMAC_CTX_SIZE_REINIT(hashname), \
 			  uint64_t);					       \
 	struct lc_kmac_ctx *name = (struct lc_kmac_ctx *)name ## _ctx_buf;     \
@@ -359,6 +361,7 @@ extern const struct lc_rng *lc_kmac_rng;
 #define LC_KMAC_KDF_DRNG_CTX_ON_STACK(name, hashname)			       \
 	_Pragma("GCC diagnostic push")					       \
 	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
+	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf,				       \
 			  LC_KMAC_KDF_DRNG_CTX_SIZE(hashname), uint64_t);      \
 	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name ## _ctx_buf;       \

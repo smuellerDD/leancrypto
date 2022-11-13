@@ -20,9 +20,7 @@
 #ifndef LC_DRBG_H
 #define LC_DRBG_H
 
-#include <stddef.h>
-#include <stdint.h>
-#include <sys/types.h>
+#include "ext_headers.h"
 
 #ifdef __cplusplus
 extern "C"

@@ -17,17 +17,17 @@
  * DAMAGE.
  */
 
-#include <stdio.h>
-
 #include "compare.h"
 #include "lc_kdf_fb.h"
 #include "lc_sha256.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
 /*
  * From
  * http://csrc.nist.gov/groups/STM/cavp/documents/KBKDF800-108/FeedbackModeNOzeroiv.zip
  */
-static int kdf_fb_tester(void)
+int kdf_fb_tester(void)
 {
 	int ret;
 	static const uint8_t key[] = {
@@ -103,7 +103,7 @@ static int kdf_fb_tester(void)
 	return ret;
 }
 
-int main(int argc, char *argv[])
+LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;

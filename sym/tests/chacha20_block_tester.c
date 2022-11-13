@@ -17,11 +17,11 @@
  * DAMAGE.
  */
 
-#include <string.h>
-
 #include "conv_be_le.h"
 #include "lc_chacha20.h"
 #include "ret_checkers.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
 static inline void chacha20_bswap32(uint32_t *ptr, uint32_t words)
 {
@@ -44,9 +44,8 @@ static inline int chacha20_selftest_one(struct lc_sym_state *state,
 	return !!memcmp(expected, result, sizeof(result));
 }
 
-static int chacha20_block_selftest(void)
+int chacha20_block_selftest(void)
 {
-	LC_SYM_CTX_ON_STACK(chacha20, lc_chacha20);
 	uint32_t expected[64 / sizeof(uint32_t)];
 	int ret;
 	uint32_t key[] = {
@@ -56,6 +55,7 @@ static int chacha20_block_selftest(void)
 	uint32_t iv[] = {
 		0x09000000, 0x4a000000, 0x00000000
 	};
+	LC_SYM_CTX_ON_STACK(chacha20, lc_chacha20);
 
 	chacha20_bswap32(key, sizeof(key));
 	chacha20_bswap32(iv, sizeof(iv));
@@ -83,7 +83,7 @@ out:
 	return ret;
 }
 
-int main(int argc, char *argv[])
+LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;

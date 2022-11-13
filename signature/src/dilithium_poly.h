@@ -28,11 +28,10 @@
 #ifndef DILITHIUM_POLY_H
 #define DILITHIUM_POLY_H
 
-#include <stdint.h>
-
 #include "dilithium_ntt.h"
 #include "dilithium_reduce.h"
 #include "dilithium_rounding.h"
+#include "ext_headers.h"
 
 #include "lc_dilithium.h"
 

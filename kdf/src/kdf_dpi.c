@@ -18,20 +18,18 @@
  * DAMAGE.
  */
 
-#include <errno.h>
-#include <limits.h>
-
 #include "conv_be_le.h"
+#include "ext_headers.h"
 #include "lc_hmac.h"
 #include "lc_kdf_dpi.h"
 #include "memset_secure.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 
-DSO_PUBLIC
-int lc_kdf_dpi_generate(struct lc_hmac_ctx *hmac_ctx,
-			const uint8_t *label, size_t labellen,
-			uint8_t *dst, size_t dlen)
+LC_INTERFACE_FUNCTION(
+int, lc_kdf_dpi_generate, struct lc_hmac_ctx *hmac_ctx,
+			  const uint8_t *label, size_t labellen,
+			  uint8_t *dst, size_t dlen)
 {
 	size_t h;
 	uint8_t Ai[LC_SHA_MAX_SIZE_DIGEST];
@@ -92,22 +90,22 @@ out:
 	return 0;
 }
 
-DSO_PUBLIC
-int lc_kdf_dpi_init(struct lc_hmac_ctx *hmac_ctx,
-		    const uint8_t *key, size_t keylen)
+LC_INTERFACE_FUNCTION(
+int, lc_kdf_dpi_init, struct lc_hmac_ctx *hmac_ctx,
+		      const uint8_t *key, size_t keylen)
 {
 	lc_hmac_init(hmac_ctx, key, keylen);
 	return 0;
 }
 
-DSO_PUBLIC
-int lc_kdf_dpi(const struct lc_hash *hash,
-	       const uint8_t *key, size_t keylen,
-	       const uint8_t *label, size_t labellen,
-	       uint8_t *dst, size_t dlen)
+LC_INTERFACE_FUNCTION(
+int, lc_kdf_dpi, const struct lc_hash *hash,
+		const uint8_t *key, size_t keylen,
+		const uint8_t *label, size_t labellen,
+		uint8_t *dst, size_t dlen)
 {
-	LC_HMAC_CTX_ON_STACK(hmac_ctx, hash);
 	int ret;
+	LC_HMAC_CTX_ON_STACK(hmac_ctx, hash);
 
 	CKINT(lc_kdf_dpi_init(hmac_ctx, key, keylen));
 	CKINT(lc_kdf_dpi_generate(hmac_ctx, label, labellen, dst, dlen));

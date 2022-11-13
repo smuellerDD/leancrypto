@@ -6,4 +6,7 @@ internal_src = files([
 	'null_buffer.c'
 ])
 
-include_files += files([ '../api/memset_secure.h' ])
+include_files += files([
+	'../api/ext_headers.h',
+	'../api/memset_secure.h'
+	])

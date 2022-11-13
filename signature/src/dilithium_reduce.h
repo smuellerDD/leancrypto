@@ -28,7 +28,7 @@
 #ifndef DILITHIUM_REDUCE_H
 #define DILITHIUM_REDUCE_H
 
-#include <stdint.h>
+#include "ext_headers.h"
 
 #include "lc_dilithium.h"
 

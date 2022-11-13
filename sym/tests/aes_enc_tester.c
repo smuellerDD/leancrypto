@@ -23,12 +23,12 @@
  * This is free and unencumbered software released into the public domain.
  */
 
-#include <stdio.h>
-
 #include "lc_aes.h"
 #include "lc_aes_private.h"
 #include "compare.h"
 #include "ret_checkers.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
 static const uint8_t key256[] = {
 	0x60, 0x3d, 0xeb, 0x10, 0x15, 0xca, 0x71, 0xbe,
@@ -64,8 +64,8 @@ static int test_encrypt(const uint8_t *key, size_t keylen, const uint8_t *out)
 		0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96,
 		0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a
 	};
-	LC_SYM_CTX_ON_STACK(aes, lc_aes);
 	int ret;
+	LC_SYM_CTX_ON_STACK(aes, lc_aes);
 
 	printf("AES ECB ctx size: %lu\n", LC_SYM_CTX_SIZE(lc_aes));
 	/* Encrypt */
@@ -79,14 +79,20 @@ out:
 	return ret;
 }
 
-int main(int argc, char *argv[])
+int test_encrypt_all(void)
 {
 	int ret;
-	(void)argc;
-	(void)argv;
 
 	ret = test_encrypt(key256, sizeof(key256), out256);
 	ret += test_encrypt(key192, sizeof(key192), out192);
 	ret += test_encrypt(key128, sizeof(key128), out128);
 	return ret;
+}
+
+LC_TEST_FUNC(int, main, int argc, char *argv[])
+{
+	(void)argc;
+	(void)argv;
+
+	return test_encrypt_all();
 }

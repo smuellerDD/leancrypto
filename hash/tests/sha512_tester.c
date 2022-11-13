@@ -17,14 +17,13 @@
  * DAMAGE.
  */
 
-#include <stdio.h>
-
 #include "compare.h"
 #include "lc_sha512.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
-static int sha512_tester(void)
+int sha512_tester(void)
 {
-	LC_SHA512_CTX_ON_STACK(sha512_stack);
 	struct lc_hash_ctx *ctx512 = NULL;
 	static const uint8_t msg_512[] = { 0x7F, 0xAD, 0x12 };
 	static const uint8_t exp_512[] = { 0x53, 0x35, 0x98, 0xe5, 0x29, 0x49,
@@ -40,6 +39,7 @@ static int sha512_tester(void)
 					   0x9f, 0x60, 0x0c, 0x79 };
 	uint8_t act[LC_SHA512_SIZE_DIGEST];
 	int ret;
+	LC_SHA512_CTX_ON_STACK(sha512_stack);
 
 	printf("hash ctx len %lu\n", LC_HASH_CTX_SIZE(lc_sha512));
 
@@ -60,7 +60,7 @@ static int sha512_tester(void)
 	return ret;
 }
 
-int main(int argc, char *argv[])
+LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;

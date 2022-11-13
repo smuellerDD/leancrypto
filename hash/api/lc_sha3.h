@@ -65,9 +65,13 @@ struct lc_sha3_224_state {
  * @param name [in] Name of the stack variable
  */
 #define LC_SHA3_224_CTX_ON_STACK(name)					       \
+	_Pragma("GCC diagnostic push")					       \
+	_Pragma("GCC diagnostic ignored \"-Wvla\"")	      		       \
+	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHA3_224_CTX_SIZE, uint64_t);   \
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name ## _ctx_buf;     \
-	LC_SHA3_224_CTX(name)
+	LC_SHA3_224_CTX(name);						       \
+	_Pragma("GCC diagnostic pop")
 
 /********************************** SHA3-256 **********************************/
 #define LC_SHA3_256_SIZE_DIGEST_BITS	256
@@ -103,9 +107,13 @@ struct lc_sha3_256_state {
  * @param name [in] Name of the stack variable
  */
 #define LC_SHA3_256_CTX_ON_STACK(name)					       \
+	_Pragma("GCC diagnostic push")					       \
+	_Pragma("GCC diagnostic ignored \"-Wvla\"")	      		       \
+	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHA3_256_CTX_SIZE, uint64_t);   \
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name ## _ctx_buf;     \
-	LC_SHA3_256_CTX(name)
+	LC_SHA3_256_CTX(name);						       \
+	_Pragma("GCC diagnostic pop")
 
 /********************************** SHA3-384 **********************************/
 #define LC_SHA3_384_SIZE_DIGEST_BITS	384
@@ -141,9 +149,13 @@ struct lc_sha3_384_state {
  * @param name [in] Name of the stack variable
  */
 #define LC_SHA3_384_CTX_ON_STACK(name)					       \
+	_Pragma("GCC diagnostic push")					       \
+	_Pragma("GCC diagnostic ignored \"-Wvla\"")	      		       \
+	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHA3_384_CTX_SIZE, uint64_t);   \
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name ## _ctx_buf;     \
-	LC_SHA3_384_CTX(name)
+	LC_SHA3_384_CTX(name);						       \
+	_Pragma("GCC diagnostic pop")
 
 /********************************** SHA3-512 **********************************/
 #define LC_SHA3_512_SIZE_DIGEST_BITS	512
@@ -179,9 +191,13 @@ struct lc_sha3_512_state {
  * @param name [in] Name of the stack variable
  */
 #define LC_SHA3_512_CTX_ON_STACK(name)					       \
+	_Pragma("GCC diagnostic push")					       \
+	_Pragma("GCC diagnostic ignored \"-Wvla\"")	      		       \
+	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHA3_512_CTX_SIZE, uint64_t);   \
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name ## _ctx_buf;     \
-	LC_SHA3_512_CTX(name)
+	LC_SHA3_512_CTX(name);						       \
+	_Pragma("GCC diagnostic pop")
 
 /********************************* SHAKE-128 **********************************/
 #define LC_SHAKE_128_SIZE_DIGEST_BITS	128
@@ -216,9 +232,13 @@ struct lc_shake_128_state {
  * @param name [in] Name of the stack variable
  */
 #define LC_SHAKE_128_CTX_ON_STACK(name)					       \
+	_Pragma("GCC diagnostic push")					       \
+	_Pragma("GCC diagnostic ignored \"-Wvla\"")	      		       \
+	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHAKE_128_CTX_SIZE, uint64_t);  \
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name ## _ctx_buf;     \
-	LC_SHAKE_128_CTX(name)
+	LC_SHAKE_128_CTX(name);						       \
+	_Pragma("GCC diagnostic pop")
 
 /********************************* SHAKE-256 **********************************/
 #define LC_SHAKE_256_SIZE_DIGEST_BITS	256
@@ -237,9 +257,13 @@ extern const struct lc_hash *lc_shake256;
  * @param name [in] Name of the stack variable
  */
 #define LC_SHAKE_256_CTX_ON_STACK(name)					       \
+	_Pragma("GCC diagnostic push")					       \
+	_Pragma("GCC diagnostic ignored \"-Wvla\"")	      		       \
+	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHAKE_256_CTX_SIZE, uint64_t);  \
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name ## _ctx_buf;     \
-	LC_SHAKE_256_CTX(name)
+	LC_SHAKE_256_CTX(name);						       \
+	_Pragma("GCC diagnostic pop")
 
 /********************************* cSHAKE-256 *********************************/
 extern const struct lc_hash *lc_cshake256;
@@ -254,9 +278,13 @@ extern const struct lc_hash *lc_cshake256;
  * @param name [in] Name of the stack variable
  */
 #define LC_CSHAKE_256_CTX_ON_STACK(name)				       \
+	_Pragma("GCC diagnostic push")					       \
+	_Pragma("GCC diagnostic ignored \"-Wvla\"")	      		       \
+	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHA3_256_CTX_SIZE, uint64_t);   \
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name ## _ctx_buf;     \
-	LC_CSHAKE_256_CTX(name)
+	LC_CSHAKE_256_CTX(name);					       \
+	_Pragma("GCC diagnostic pop")
 
 /********************************* cSHAKE-128 *********************************/
 extern const struct lc_hash *lc_cshake128;
@@ -271,9 +299,13 @@ extern const struct lc_hash *lc_cshake128;
  * @param name [in] Name of the stack variable
  */
 #define LC_CSHAKE_128_CTX_ON_STACK(name)				       \
+	_Pragma("GCC diagnostic push")					       \
+	_Pragma("GCC diagnostic ignored \"-Wvla\"")	      		       \
+	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHAKE_128_CTX_SIZE, uint64_t);  \
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name ## _ctx_buf;     \
-	LC_CSHAKE_128_CTX(name)
+	LC_CSHAKE_128_CTX(name);					       \
+	_Pragma("GCC diagnostic pop")
 
 
 /* Largest block size we support */

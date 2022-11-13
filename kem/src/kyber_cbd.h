@@ -27,8 +27,7 @@
 #ifndef KYBER_CBD_H
 #define KYBER_CBD_H
 
-#include <stdint.h>
-
+#include "ext_headers.h"
 #include "kyber_poly.h"
 
 #include "lc_kyber.h"

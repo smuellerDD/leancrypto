@@ -25,6 +25,8 @@ extern "C"
 {
 #endif
 
+#ifndef LINUX_KERNEL
+
 #define likely(x)      __builtin_expect(!!(x), 1)
 #define unlikely(x)    __builtin_expect(!!(x), 0)
 
@@ -33,6 +35,8 @@ extern "C"
 
 #define max_t(type, a, b)						       \
 	((type)a > (type)b) ? (type)a : (type)b
+
+#endif /* LINUX_KERNEL */
 
 #ifdef __cplusplus
 }

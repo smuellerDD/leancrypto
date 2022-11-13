@@ -52,9 +52,13 @@ extern const struct lc_hash *lc_sha256;
  * @param name [in] Name of the stack variable
  */
 #define LC_SHA256_CTX_ON_STACK(name)					       \
+	_Pragma("GCC diagnostic push")					       \
+	_Pragma("GCC diagnostic ignored \"-Wvla\"")	      		       \
+	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHA256_CTX_SIZE, uint64_t);     \
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name ## _ctx_buf;     \
-	LC_SHA256_CTX(name)
+	LC_SHA256_CTX(name);						       \
+	_Pragma("GCC diagnostic pop")
 
 #ifdef __cplusplus
 }

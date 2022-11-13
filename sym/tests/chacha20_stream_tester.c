@@ -17,16 +17,14 @@
  * DAMAGE.
  */
 
-#include <stdio.h>
-#include <string.h>
-
 #include "conv_be_le.h"
 #include "lc_chacha20.h"
 #include "ret_checkers.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
-static int chacha20_enc_selftest(void)
+int chacha20_enc_selftest(void)
 {
-	LC_SYM_CTX_ON_STACK(chacha20, lc_chacha20);
 	/* Test vector according to RFC 7539 section 2.4.2 */
 	static const uint8_t key[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -58,6 +56,7 @@ static int chacha20_enc_selftest(void)
 	};
 	uint8_t res[sizeof(exp)];
 	int ret;
+	LC_SYM_CTX_ON_STACK(chacha20, lc_chacha20);
 
 	printf("ChaCha20 ctx size: %lu\n", LC_SYM_CTX_SIZE(lc_chacha20));
 	/* Encrypt */
@@ -80,7 +79,7 @@ out:
 	return ret;
 }
 
-int main(int argc, char *argv[])
+LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;

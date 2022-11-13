@@ -23,12 +23,12 @@
  * This is free and unencumbered software released into the public domain.
  */
 
-#include <stdio.h>
-
 #include "lc_aes.h"
 #include "lc_aes_private.h"
 #include "compare.h"
 #include "ret_checkers.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
 static const uint8_t key256[] = {
 	0x60, 0x3d, 0xeb, 0x10, 0x15, 0xca, 0x71, 0xbe,
@@ -107,11 +107,13 @@ out:
 	return ret;
 }
 
-static int test_encrypt_cbc(void)
+int test_encrypt_cbc(void)
 {
-	LC_SYM_CTX_ON_STACK(aes_cbc, lc_aes_cbc);
 	struct lc_sym_ctx *aes_cbc_heap;
-	int ret = test_encrypt_cbc_one(aes_cbc, key256, sizeof(key256), out256);
+	int ret;
+	LC_SYM_CTX_ON_STACK(aes_cbc, lc_aes_cbc);
+
+	ret = test_encrypt_cbc_one(aes_cbc, key256, sizeof(key256), out256);
 
 	lc_sym_zero(aes_cbc);
 
@@ -132,7 +134,7 @@ static int test_encrypt_cbc(void)
 	return ret;
 }
 
-int main(int argc, char *argv[])
+LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;

@@ -17,10 +17,9 @@
  * DAMAGE.
  */
 
-#include <string.h>
-
 #include "build_bug_on.h"
 #include "bitshift_le.h"
+#include "ext_headers.h"
 #include "lc_sha3.h"
 #include "memset_secure.h"
 #include "visibility.h"
@@ -546,7 +545,7 @@ static const struct lc_hash _sha3_224 = {
 	.blocksize	= LC_SHA3_224_SIZE_BLOCK,
 	.statesize	= sizeof(struct lc_sha3_224_state),
 };
-DSO_PUBLIC const struct lc_hash *lc_sha3_224 = &_sha3_224;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_224) = &_sha3_224;
 
 static const struct lc_hash _sha3_256 = {
 	.init		= sha3_256_init,
@@ -557,7 +556,7 @@ static const struct lc_hash _sha3_256 = {
 	.blocksize	= LC_SHA3_256_SIZE_BLOCK,
 	.statesize	= sizeof(struct lc_sha3_256_state),
 };
-DSO_PUBLIC const struct lc_hash *lc_sha3_256 = &_sha3_256;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_256) = &_sha3_256;
 
 static const struct lc_hash _sha3_384 = {
 	.init		= sha3_384_init,
@@ -568,7 +567,7 @@ static const struct lc_hash _sha3_384 = {
 	.blocksize	= LC_SHA3_384_SIZE_BLOCK,
 	.statesize	= sizeof(struct lc_sha3_384_state),
 };
-DSO_PUBLIC const struct lc_hash *lc_sha3_384 = &_sha3_384;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_384) = &_sha3_384;
 
 static const struct lc_hash _sha3_512 = {
 	.init		= sha3_512_init,
@@ -579,7 +578,7 @@ static const struct lc_hash _sha3_512 = {
 	.blocksize	= LC_SHA3_512_SIZE_BLOCK,
 	.statesize	= sizeof(struct lc_sha3_512_state),
 };
-DSO_PUBLIC const struct lc_hash *lc_sha3_512 = &_sha3_512;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_512) = &_sha3_512;
 
 static const struct lc_hash _shake128 = {
 	.init		= shake_128_init,
@@ -590,7 +589,7 @@ static const struct lc_hash _shake128 = {
 	.blocksize	= LC_SHAKE_128_SIZE_BLOCK,
 	.statesize	= sizeof(struct lc_shake_128_state),
 };
-DSO_PUBLIC const struct lc_hash *lc_shake128 = &_shake128;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake128) = &_shake128;
 
 static const struct lc_hash _shake256 = {
 	.init		= shake_256_init,
@@ -601,7 +600,7 @@ static const struct lc_hash _shake256 = {
 	.blocksize	= LC_SHA3_256_SIZE_BLOCK,
 	.statesize	= sizeof(struct lc_sha3_256_state),
 };
-DSO_PUBLIC const struct lc_hash *lc_shake256 = &_shake256;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake256) = &_shake256;
 
 static const struct lc_hash _cshake256 = {
 	.init		= cshake_256_init,
@@ -612,7 +611,7 @@ static const struct lc_hash _cshake256 = {
 	.blocksize	= LC_SHA3_256_SIZE_BLOCK,
 	.statesize	= sizeof(struct lc_sha3_256_state),
 };
-DSO_PUBLIC const struct lc_hash *lc_cshake256 = &_cshake256;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_cshake256) = &_cshake256;
 
 static const struct lc_hash _cshake128 = {
 	.init		= cshake_128_init,
@@ -623,4 +622,4 @@ static const struct lc_hash _cshake128 = {
 	.blocksize	= LC_SHAKE_128_SIZE_BLOCK,
 	.statesize	= sizeof(struct lc_shake_128_state),
 };
-DSO_PUBLIC const struct lc_hash *lc_cshake128 = &_cshake128;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_cshake128) = &_cshake128;

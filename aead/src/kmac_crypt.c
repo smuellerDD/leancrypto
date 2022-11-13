@@ -253,17 +253,13 @@
  *             ParallelHash, December 2016
  ******************************************************************************/
 
-#define _POSIX_C_SOURCE 200112L
-#include <errno.h>
-#include <stdlib.h>
-
 #include "build_bug_on.h"
+#include "ext_headers.h"
 #include "lc_kmac_crypt.h"
+#include "math_helper.h"
 #include "memcmp_secure.h"
 #include "visibility.h"
 #include "xor.h"
-
-#define min_t(type, a, b)	((type)a < (type)b) ? (type)a : (type)b
 
 #define LC_KC_AUTHENTICATION_KEY_SIZE	(256 >> 3)
 
@@ -478,10 +474,10 @@ static inline void lc_kc_zero(void *state)
 		      LC_KC_STATE_SIZE(hash));
 }
 
-DSO_PUBLIC
-int lc_kc_alloc(const struct lc_hash *hash, struct lc_aead_ctx **ctx)
+LC_INTERFACE_FUNCTION(
+int, lc_kc_alloc, const struct lc_hash *hash, struct lc_aead_ctx **ctx)
 {
-	struct lc_aead_ctx *tmp;
+	struct lc_aead_ctx *tmp = NULL;
 	int ret;
 
 	if (!ctx)
@@ -509,5 +505,4 @@ struct lc_aead _lc_kmac_aead = {
 	.dec_final	= lc_kc_decrypt_authenticate,
 	.zero		= lc_kc_zero
 };
-DSO_PUBLIC
-const struct lc_aead *lc_kmac_aead = &_lc_kmac_aead;
+LC_INTERFACE_SYMBOL(const struct lc_aead *, lc_kmac_aead) = &_lc_kmac_aead;

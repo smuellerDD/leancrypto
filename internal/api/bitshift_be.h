@@ -20,7 +20,7 @@
 #ifndef BITSHIFT_BE_H
 #define BITSHIFT_BE_H
 
-#include <stdint.h>
+#include "ext_headers.h"
 
 #ifdef __cplusplus
 extern "C"

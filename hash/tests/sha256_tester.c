@@ -17,14 +17,13 @@
  * DAMAGE.
  */
 
-#include <stdio.h>
-
 #include "compare.h"
 #include "lc_sha256.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
-static int sha256_tester(void)
+int sha256_tester(void)
 {
-	LC_SHA256_CTX_ON_STACK(sha256_stack);
 	static const uint8_t msg_256[] = { 0x06, 0x3A, 0x53 };
 	static const uint8_t exp_256[] = { 0x8b, 0x05, 0x65, 0x59, 0x60, 0x71,
 					   0xc7, 0x6e, 0x35, 0xe1, 0xea, 0x54,
@@ -34,6 +33,7 @@ static int sha256_tester(void)
 					   0x6f, 0xf4 };
 	uint8_t act[LC_SHA256_SIZE_DIGEST];
 	int ret;
+	LC_SHA256_CTX_ON_STACK(sha256_stack);
 
 	printf("hash ctx len %lu\n", LC_HASH_CTX_SIZE(lc_sha256));
 	lc_hash(lc_sha256, msg_256, sizeof(msg_256), act);
@@ -48,7 +48,7 @@ static int sha256_tester(void)
 	return ret;
 }
 
-int main(int argc, char *argv[])
+LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;

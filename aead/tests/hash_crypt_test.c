@@ -17,12 +17,12 @@
  * DAMAGE.
  */
 
-#include <errno.h>
-
 #include "compare.h"
-#include "binhexbin.h"
+#include "ext_headers.h"
 #include "lc_hash_crypt.h"
 #include "lc_sha512.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
 static int hc_tester_sha512_one(const uint8_t *pt, size_t ptlen,
 				const uint8_t *aad, size_t aadlen,
@@ -30,13 +30,16 @@ static int hc_tester_sha512_one(const uint8_t *pt, size_t ptlen,
 				const uint8_t *exp_ct,
 				const uint8_t *exp_tag, size_t exp_tag_len)
 {
-	LC_HC_CTX_ON_STACK(hc, lc_sha512);
 	struct lc_aead_ctx *hc_heap = NULL;
 	ssize_t ret;
 	int ret_checked = 0;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvla"
 	uint8_t out_enc[ptlen];
 	uint8_t out_dec[ptlen];
 	uint8_t tag[exp_tag_len];
+#pragma GCC diagnostic pop
+	LC_HC_CTX_ON_STACK(hc, lc_sha512);
 
 	/* One shot encryption with pt ptr != ct ptr */
 	if (lc_aead_setkey(hc, key, keylen, NULL, 0) < 0)
@@ -49,8 +52,8 @@ static int hc_tester_sha512_one(const uint8_t *pt, size_t ptlen,
 	ret_checked += compare(tag, exp_tag, exp_tag_len,
 			       "Hash crypt: Encryption, tag");
 
-	bin2print(out_enc, ptlen, stderr, "out_enc");
-	bin2print(tag, exp_tag_len, stderr, "tag");
+	//bin2print(out_enc, ptlen, stderr, "out_enc");
+	//bin2print(tag, exp_tag_len, stderr, "tag");
 
 	lc_aead_zero(hc);
 
@@ -107,7 +110,7 @@ static int hc_tester_sha512_one(const uint8_t *pt, size_t ptlen,
 	ret_checked += compare(out_dec, pt, ptlen,
 			       "Hash crypt: Decryption, plaintext");
 
-	bin2print(out_dec, sizeof(out_dec), stderr, "out_dec");
+	//bin2print(out_dec, sizeof(out_dec), stderr, "out_dec");
 	ret_checked += compare(out_dec, pt, ptlen,
 			       "Hash crypt: Decryption, ciphertext");
 
@@ -126,7 +129,7 @@ static int hc_tester_sha512_one(const uint8_t *pt, size_t ptlen,
 	return ret_checked;
 }
 
-static int hc_tester_sha512(void)
+int hc_tester_sha512(void)
 {
 	static const uint8_t in[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -167,7 +170,7 @@ static int hc_tester_sha512(void)
 				    exp_tag, sizeof(exp_tag));
 }
 
-int main(int argc, char *argv[])
+LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;

@@ -18,12 +18,7 @@
  * DAMAGE.
  */
 
-#include <errno.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/mman.h>
-
+#include "ext_headers.h"
 #include "lc_cshake.h"
 #include "lc_kmac.h"
 #include "left_encode.h"
@@ -47,8 +42,8 @@ static unsigned int right_encode(uint8_t *buf, size_t val)
 	return n + 1;
 }
 
-DSO_PUBLIC
-void lc_kmac_reinit(struct lc_kmac_ctx *kmac_ctx)
+LC_INTERFACE_FUNCTION(
+void, lc_kmac_reinit, struct lc_kmac_ctx *kmac_ctx)
 {
 	struct lc_hash_ctx *hash_ctx;
 
@@ -67,10 +62,10 @@ void lc_kmac_reinit(struct lc_kmac_ctx *kmac_ctx)
 	       lc_hash_ctxsize(hash_ctx));
 }
 
-DSO_PUBLIC
-void lc_kmac_init(struct lc_kmac_ctx *kmac_ctx,
-		  const uint8_t *key, size_t klen,
-		  const uint8_t *s, size_t slen)
+LC_INTERFACE_FUNCTION(
+void, lc_kmac_init, struct lc_kmac_ctx *kmac_ctx,
+		    const uint8_t *key, size_t klen,
+		    const uint8_t *s, size_t slen)
 {
 	struct lc_hash_ctx *hash_ctx;
 	static const uint8_t zero[LC_SHAKE_128_SIZE_BLOCK] = { 0 };
@@ -116,9 +111,9 @@ void lc_kmac_init(struct lc_kmac_ctx *kmac_ctx,
 	}
 }
 
-DSO_PUBLIC
-void lc_kmac_update(struct lc_kmac_ctx *kmac_ctx,
-		    const uint8_t *in, size_t inlen)
+LC_INTERFACE_FUNCTION(
+void, lc_kmac_update, struct lc_kmac_ctx *kmac_ctx,
+		      const uint8_t *in, size_t inlen)
 {
 	struct lc_hash_ctx *hash_ctx;
 
@@ -129,8 +124,8 @@ void lc_kmac_update(struct lc_kmac_ctx *kmac_ctx,
 	lc_hash_update(hash_ctx, in, inlen);
 }
 
-DSO_PUBLIC
-void lc_kmac_final(struct lc_kmac_ctx *kmac_ctx, uint8_t *mac, size_t maclen)
+LC_INTERFACE_FUNCTION(
+void, lc_kmac_final, struct lc_kmac_ctx *kmac_ctx, uint8_t *mac, size_t maclen)
 {
 	struct lc_hash_ctx *hash_ctx;
 	uint8_t buf[sizeof(size_t) + 1];
@@ -146,9 +141,9 @@ void lc_kmac_final(struct lc_kmac_ctx *kmac_ctx, uint8_t *mac, size_t maclen)
 	lc_hash_final(hash_ctx, mac);
 }
 
-DSO_PUBLIC
-void lc_kmac_final_xof(struct lc_kmac_ctx *kmac_ctx,
-		       uint8_t *mac, size_t maclen)
+LC_INTERFACE_FUNCTION(
+void, lc_kmac_final_xof, struct lc_kmac_ctx *kmac_ctx,
+			 uint8_t *mac, size_t maclen)
 {
 	struct lc_hash_ctx *hash_ctx;
 	static const uint8_t bytepad_val[] = { 0x00, 0x01 };
@@ -164,11 +159,11 @@ void lc_kmac_final_xof(struct lc_kmac_ctx *kmac_ctx,
 	lc_cshake_final(hash_ctx, mac, maclen);
 }
 
-DSO_PUBLIC
-int lc_kmac_alloc(const struct lc_hash *hash, struct lc_kmac_ctx **kmac_ctx,
-		  uint32_t flags)
+LC_INTERFACE_FUNCTION(
+int, lc_kmac_alloc, const struct lc_hash *hash, struct lc_kmac_ctx **kmac_ctx,
+		    uint32_t flags)
 {
-	struct lc_kmac_ctx *out_ctx;
+	struct lc_kmac_ctx *out_ctx = NULL;
 	size_t memsize;
 	int ret;
 
@@ -194,8 +189,8 @@ int lc_kmac_alloc(const struct lc_hash *hash, struct lc_kmac_ctx **kmac_ctx,
 	return 0;
 }
 
-DSO_PUBLIC
-void lc_kmac_zero_free(struct lc_kmac_ctx *kmac_ctx)
+LC_INTERFACE_FUNCTION(
+void, lc_kmac_zero_free, struct lc_kmac_ctx *kmac_ctx)
 {
 	if (!kmac_ctx)
 		return;
@@ -249,8 +244,8 @@ static void lc_kmac_rng_zero(void *_state)
 	lc_kmac_zero(state);
 }
 
-DSO_PUBLIC
-int lc_kmac_rng_alloc(struct lc_rng_ctx **state, const struct lc_hash *hash)
+LC_INTERFACE_FUNCTION(
+int, lc_kmac_rng_alloc, struct lc_rng_ctx **state, const struct lc_hash *hash)
 {
 	struct lc_rng_ctx *out_state;
 	int ret;
@@ -286,4 +281,4 @@ static const struct lc_rng _lc_kmac = {
 	.seed		= lc_kmac_rng_seed,
 	.zero		= lc_kmac_rng_zero,
 };
-DSO_PUBLIC const struct lc_rng *lc_kmac_rng = &_lc_kmac;
+LC_INTERFACE_SYMBOL(const struct lc_rng *, lc_kmac_rng) = &_lc_kmac;

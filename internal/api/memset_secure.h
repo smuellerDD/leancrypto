@@ -20,7 +20,7 @@
 #ifndef MEMSET_SECURE_H
 #define MEMSET_SECURE_H
 
-#include <string.h>
+#include "ext_headers.h"
 
 /*
  * Tested following code:

@@ -17,11 +17,8 @@
  * DAMAGE.
  */
 
-#include <errno.h>
-#include <stdlib.h>
-#include <sys/mman.h>
-
 #include "conv_be_le.h"
+#include "ext_headers.h"
 #include "lc_chacha20_drng.h"
 #include "lc_chacha20_private.h"
 #include "math_helper.h"
@@ -80,9 +77,9 @@ static inline void lc_cc20_drng_update(struct lc_chacha20_drng_ctx *cc20_ctx,
  * the next chunk of the input and then encrypted again. I.e. the
  * ChaCha20 CBC-MAC of the seed data is injected into the DRNG state.
  */
-DSO_PUBLIC
-void lc_cc20_drng_seed(struct lc_chacha20_drng_ctx *cc20_ctx,
-		       const uint8_t *inbuf, size_t inbuflen)
+LC_INTERFACE_FUNCTION(
+void, lc_cc20_drng_seed, struct lc_chacha20_drng_ctx *cc20_ctx,
+		         const uint8_t *inbuf, size_t inbuflen)
 {
 	struct lc_sym_ctx *sym_ctx;
 	struct lc_sym_state *chacha20_state;
@@ -118,9 +115,9 @@ void lc_cc20_drng_seed(struct lc_chacha20_drng_ctx *cc20_ctx,
  * operation is invoked which implies that the 32 bit counter will never be
  * overflown in this implementation.
  */
-DSO_PUBLIC
-void lc_cc20_drng_generate(struct lc_chacha20_drng_ctx *cc20_ctx,
-			   uint8_t *outbuf, size_t outbuflen)
+LC_INTERFACE_FUNCTION(
+void, lc_cc20_drng_generate, struct lc_chacha20_drng_ctx *cc20_ctx,
+			     uint8_t *outbuf, size_t outbuflen)
 {
 	struct lc_sym_ctx *sym_ctx;
 	struct lc_sym_state *chacha20_state;
@@ -163,8 +160,8 @@ void lc_cc20_drng_generate(struct lc_chacha20_drng_ctx *cc20_ctx,
 		memset_secure(aligned_buf, 0, sizeof(aligned_buf));
 }
 
-DSO_PUBLIC
-void lc_cc20_drng_zero_free(struct lc_chacha20_drng_ctx *cc20_ctx)
+LC_INTERFACE_FUNCTION(
+void, lc_cc20_drng_zero_free, struct lc_chacha20_drng_ctx *cc20_ctx)
 {
 	if (!cc20_ctx)
 		return;
@@ -173,10 +170,10 @@ void lc_cc20_drng_zero_free(struct lc_chacha20_drng_ctx *cc20_ctx)
 	free(cc20_ctx);
 }
 
-DSO_PUBLIC
-int lc_cc20_drng_alloc(struct lc_chacha20_drng_ctx **cc20_ctx)
+LC_INTERFACE_FUNCTION(
+int, lc_cc20_drng_alloc, struct lc_chacha20_drng_ctx **cc20_ctx)
 {
-	struct lc_chacha20_drng_ctx *out_ctx;
+	struct lc_chacha20_drng_ctx *out_ctx = NULL;
 	int ret;
 
 	if (!cc20_ctx)

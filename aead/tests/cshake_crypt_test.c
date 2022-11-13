@@ -17,12 +17,12 @@
  * DAMAGE.
  */
 
-#include <errno.h>
-
 #include "compare.h"
-#include "binhexbin.h"
+#include "ext_headers.h"
 #include "lc_cshake_crypt.h"
 #include "lc_cshake.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
 static int cc_tester_cshake_one(const uint8_t *pt, size_t ptlen,
 				const uint8_t *aad, size_t aadlen,
@@ -30,13 +30,16 @@ static int cc_tester_cshake_one(const uint8_t *pt, size_t ptlen,
 				const uint8_t *exp_ct,
 				const uint8_t *exp_tag, size_t exp_tag_len)
 {
-	LC_CC_CTX_ON_STACK(cc, lc_cshake256);
 	struct lc_aead_ctx *cc_heap = NULL;
 	ssize_t ret;
 	int ret_checked = 0;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvla"
 	uint8_t out_enc[ptlen];
 	uint8_t out_dec[ptlen];
 	uint8_t tag[exp_tag_len];
+#pragma GCC diagnostic pop
+	LC_CC_CTX_ON_STACK(cc, lc_cshake256);
 
 	/* One shot encryption with pt ptr != ct ptr */
 	if (lc_aead_setkey(cc, key, keylen, NULL, 0))
@@ -59,8 +62,10 @@ static int cc_tester_cshake_one(const uint8_t *pt, size_t ptlen,
 	if (lc_cc_alloc(lc_cshake256, &cc_heap))
 		return 1;
 
-	if (lc_aead_setkey(cc_heap, key, keylen, NULL, 0))
+	if (lc_aead_setkey(cc_heap, key, keylen, NULL, 0)) {
+		lc_aead_zero_free(cc_heap);
 		return 1;
+	}
 
 	memcpy(out_enc, pt, ptlen);
 	lc_aead_encrypt(cc_heap, out_enc, out_enc, ptlen, aad, aadlen,
@@ -135,7 +140,7 @@ static int cc_tester_cshake_one(const uint8_t *pt, size_t ptlen,
 	return ret_checked;
 }
 
-static int cc_tester_cshake_validate(void)
+int cc_tester_cshake_validate(void)
 {
 #define LC_CC_CUSTOMIZATION_STRING	"cSHAKE-AEAD crypt"
 	static const uint8_t in[] = {
@@ -158,7 +163,8 @@ static int cc_tester_cshake_validate(void)
 	lc_aead_encrypt(cc, in, out_enc, sizeof(in), NULL, 0, NULL, 0);
 
 	lc_cshake_init(cshake256,
-		       (uint8_t *)LC_CC_CUSTOMIZATION_STRING, sizeof(LC_CC_CUSTOMIZATION_STRING) - 1,
+		       (uint8_t *)LC_CC_CUSTOMIZATION_STRING,
+		       sizeof(LC_CC_CUSTOMIZATION_STRING) - 1,
 		       in, sizeof(in));
 	lc_cshake_final(cshake256, out_cshake, sizeof(out_cshake));
 
@@ -166,7 +172,7 @@ static int cc_tester_cshake_validate(void)
 		       "cSHAKE crypt: Validation");
 }
 
-static int cc_tester_cshake(void)
+int cc_tester_cshake(void)
 {
 	static const uint8_t in[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -209,7 +215,7 @@ static int cc_tester_cshake(void)
 				    exp_tag, sizeof(exp_tag));
 }
 
-int main(int argc, char *argv[])
+LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	int ret = 0;
 

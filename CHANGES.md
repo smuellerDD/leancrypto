@@ -1,3 +1,11 @@
+Changes 0.5.0-prerelease:
+* add ability to compile leancrypto for the Linux kernel
+
+* add Linux kenrel test code
+
+* make leancrypto generic such that it can be used in environments other than
+  user space.
+
 Changes 0.4.0:
 * simplify Kyber code
 

@@ -1,0 +1,129 @@
+obj-m		:= leancrypto.o leancrypto_test.o
+
+# Kernel module framework
+ccflags-y	  := -DLINUX_KERNEL -DLC_MEM_ON_HEAP -I$(PWD)
+leancrypto-y	  += posix_support.o					       \
+		     leancrypto_kernel.o
+leancrypto_test-y := leancrypto_tester.o
+
+# Internal helper code
+ccflags-y	  += -I$(PWD)/../internal/api
+leancrypto-y	  += ../internal/src/left_encode.o			       \
+		     ../internal/src/memcmp_secure.o			       \
+		     ../internal/src/null_buffer.o
+
+# Hash implementation
+ccflags-y	  += -I$(PWD)/../hash/api
+leancrypto-y	  += ../hash/src/cshake.o				       \
+		     ../hash/src/hash.o					       \
+		     ../hash/src/sha256.o				       \
+		     ../hash/src/sha512.o				       \
+		     ../hash/src/sha3.o
+leancrypto_test-y += ../hash/tests/cshake_128_tester.o			       \
+		     ../hash/tests/cshake_256_tester.o			       \
+		     ../hash/tests/sha256_tester.o			       \
+		     ../hash/tests/sha3-224_tester.o			       \
+		     ../hash/tests/sha3-256_tester.o			       \
+		     ../hash/tests/sha3-384_tester.o			       \
+		     ../hash/tests/sha3-512_tester.o			       \
+		     ../hash/tests/sha512_tester.o			       \
+		     ../hash/tests/shake128_tester.o			       \
+		     ../hash/tests/shake256_tester.o			       \
+		     ../hash/tests/shake_squeeze_more_tester.o
+
+# AEAD implementation
+ccflags-y	  += -I$(PWD)/../aead/api
+leancrypto-y	  += ../aead/src/cshake_crypt.o				       \
+		     ../aead/src/hash_crypt.o				       \
+		     ../aead/src/kmac_crypt.o				       \
+		     ../aead/src/symhmac.o
+leancrypto_test-y += ../aead/tests/cshake_crypt_test.o			       \
+		     ../aead/tests/hash_crypt_test.o			       \
+		     ../aead/tests/kmac_crypt_test.o			       \
+		     ../aead/tests/symhmac_test.o
+
+# DRNG implementation
+ccflags-y	  += -I$(PWD)/../drng/api
+leancrypto-y	  += ../drng/src/chacha20_drng.o			       \
+		     ../drng/src/cshake_drng.o				       \
+		     ../drng/src/hash_drbg.o				       \
+		     ../drng/src/hmac_drbg.o				       \
+		     ../drng/src/kmac_drng.o
+leancrypto_test-y += ../drng/tests/chacha20_drng_tester.o		       \
+		     ../drng/tests/cshake_drng_tester.o			       \
+		     ../drng/tests/hash_drbg_tester.o			       \
+		     ../drng/tests/hmac_drbg_tester.o			       \
+		     ../drng/tests/kmac_drng_tester.o
+
+# HMAC implementation
+ccflags-y	  += -I$(PWD)/../hmac/api
+leancrypto-y	  += ../hmac/src/hmac.o
+leancrypto_test-y += ../hmac/tests/hmac_sha2_256_tester.o		       \
+		     ../hmac/tests/hmac_sha2_512_tester.o		       \
+		     ../hmac/tests/hmac_sha3_224_tester.o
+
+# KDF implementation
+ccflags-y	  += -I$(PWD)/../kdf/api
+leancrypto-y	  += ../kdf/src/hkdf.o					       \
+		     ../kdf/src/kdf_ctr.o				       \
+		     ../kdf/src/kdf_dpi.o				       \
+		     ../kdf/src/kdf_fb.o				       \
+		     ../kdf/src/pbkdf2.o
+leancrypto_test-y += ../kdf/tests/hkdf_tester.o				       \
+		     ../kdf/tests/kdf_ctr_tester.o			       \
+		     ../kdf/tests/kdf_dpi_tester.o			       \
+		     ../kdf/tests/kdf_fb_tester.o			       \
+		     ../kdf/tests/pbkdf2_tester.o
+
+# KEM implementation
+ccflags-y	  += -I$(PWD)/../kem/api
+leancrypto-y	  += ../kem/src/kyber_cbd.o				       \
+		     ../kem/src/kyber_ies.o				       \
+		     ../kem/src/kyber_indcpa.o				       \
+		     ../kem/src/kyber_kem.o				       \
+		     ../kem/src/kyber_kex.o				       \
+		     ../kem/src/kyber_ntt.o				       \
+		     ../kem/src/kyber_poly.o				       \
+		     ../kem/src/kyber_polyvec.o				       \
+		     ../kem/src/kyber_verify.o
+leancrypto_test-y += ../kem/tests/kyber_kem_tester.o			       \
+		     ../kem/tests/kyber_kex_tester.o			       \
+		     ../kem/tests/kyber_ies_tester.o			       \
+		     ../kem/tests/kyber_invalid_tester.o
+
+# KMAC implementation
+ccflags-y	  += -I$(PWD)/../kmac/api
+leancrypto-y	  += ../kmac/src/kmac.o
+leancrypto_test-y += ../kmac/tests/kmac_128_tester.o			       \
+		     ../kmac/tests/kmac_256_tester.o			       \
+		     ../kmac/tests/kmac_xof_more_tester.o		       \
+		     ../kmac/tests/kmac_xof_tester.o
+
+# Signature implementation
+ccflags-y	  += -I$(PWD)/../signature/api
+leancrypto-y	  += ../signature/src/dilithium_ntt.o			       \
+		     ../signature/src/dilithium_pack.o			       \
+		     ../signature/src/dilithium_poly.o			       \
+		     ../signature/src/dilithium_rounding.o		       \
+		     ../signature/src/dilithium_signature.o
+ccflags-y	  += -I$(PWD)/../signature/src
+leancrypto_test-y += ../signature/tests/dilithium_tester.o		       \
+		     ../signature/tests/dilithium_invalid_tester.o
+
+# Symmetric implementation
+ccflags-y	  += -I$(PWD)/../sym/api
+leancrypto-y	  += ../sym/src/aes.o					       \
+		     ../sym/src/aes_block.o				       \
+		     ../sym/src/aes_cbc.o				       \
+		     ../sym/src/aes_ctr.o				       \
+		     ../sym/src/aes_kw.o				       \
+		     ../sym/src/chacha20.o				       \
+		     ../sym/src/sym.o
+leancrypto_test-y += ../sym/tests/aes_cbc_dec_tester.o			       \
+		     ../sym/tests/aes_cbc_enc_tester.o			       \
+		     ../sym/tests/aes_ctr_tester.o			       \
+		     ../sym/tests/aes_dec_tester.o			       \
+		     ../sym/tests/aes_enc_tester.o			       \
+		     ../sym/tests/aes_kw_tester.o			       \
+		     ../sym/tests/chacha20_block_tester.o		       \
+		     ../sym/tests/chacha20_stream_tester.o

@@ -17,15 +17,13 @@
  * DAMAGE.
  */
 
-#include <stdio.h>
-
 #include "compare.h"
 #include "lc_kmac.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
-static int kmac_128_tester(void)
+int kmac_128_tester(void)
 {
-	LC_KMAC_CTX_ON_STACK_REINIT(ctx_re, lc_cshake128);
-	LC_KMAC_CTX_ON_STACK(ctx, lc_cshake128);
 	static const uint8_t msg1[] = {
 		0x4E, 0xE1, 0xC6, 0xCC, 0xA6, 0x57, 0x66, 0x32,
 		0xE1, 0x10, 0x49, 0xE3, 0x59, 0xB2, 0xF7, 0x57,
@@ -935,6 +933,8 @@ static int kmac_128_tester(void)
 	uint8_t act1[sizeof(exp1)];
 	uint8_t act2[sizeof(exp2)];
 	int ret;
+	LC_KMAC_CTX_ON_STACK_REINIT(ctx_re, lc_cshake128);
+	LC_KMAC_CTX_ON_STACK(ctx, lc_cshake128);
 
 	lc_kmac_init(ctx_re, key1, sizeof(key1), cust1, sizeof(cust1));
 	lc_kmac_update(ctx_re, msg1, sizeof(msg1));
@@ -964,7 +964,7 @@ static int kmac_128_tester(void)
 	return ret;
 }
 
-int main(int argc, char *argv[])
+LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;

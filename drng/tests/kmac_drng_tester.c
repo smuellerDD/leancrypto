@@ -17,18 +17,16 @@
  * DAMAGE.
  */
 
-#include <errno.h>
-
-#include "binhexbin.h"
 #include "compare.h"
 #include "lc_kmac256_drng.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
 #define LC_KMAC_DRNG_SEED_CUSTOMIZATION_STRING	"KMAC-DRNG seed"
 #define LC_KMAC_DRNG_CTX_CUSTOMIZATION_STRING	"KMAC-DRNG generate"
 
 static int kmac_drng_selftest(struct lc_rng_ctx *kmac_ctx)
 {
-	LC_KMAC_CTX_ON_STACK(kmac_compare, lc_cshake256);
 	struct lc_kmac256_drng_state *state = kmac_ctx->rng_state;
 
 	uint8_t seed[] = {
@@ -73,6 +71,7 @@ static int kmac_drng_selftest(struct lc_rng_ctx *kmac_ctx)
 	uint8_t act1[sizeof(exp1)] __attribute__((aligned(sizeof(uint32_t))));
 	uint8_t compare1[LC_KMAC256_DRNG_KEYSIZE + sizeof(exp1)];
 	int ret;
+	LC_KMAC_CTX_ON_STACK(kmac_compare, lc_cshake256);
 
 	lc_rng_seed(kmac_ctx, seed, sizeof(seed), NULL, 0);
 	lc_rng_generate(kmac_ctx, NULL, 0, act1, sizeof(act1));
@@ -95,14 +94,13 @@ static int kmac_drng_selftest(struct lc_rng_ctx *kmac_ctx)
 	return ret;
 }
 
-int main(int argc, char *argv[])
+int kmac_test(void)
 {
-	LC_KMAC256_DRNG_CTX_ON_STACK(kmac_ctx);
 	struct lc_rng_ctx *kmac_ctx_heap;
-	int ret = kmac_drng_selftest(kmac_ctx);
+	int ret;
+	LC_KMAC256_DRNG_CTX_ON_STACK(kmac_ctx);
 
-	(void)argc;
-	(void)argv;
+	ret = kmac_drng_selftest(kmac_ctx);
 
 	if (lc_kmac256_drng_alloc(&kmac_ctx_heap))
 		return 1;
@@ -111,4 +109,12 @@ int main(int argc, char *argv[])
 
 	lc_rng_zero_free(kmac_ctx_heap);
 	return ret;
+}
+
+LC_TEST_FUNC(int, main, int argc, char *argv[])
+{
+	(void)argc;
+	(void)argv;
+
+	return kmac_test();
 }

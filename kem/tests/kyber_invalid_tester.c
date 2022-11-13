@@ -18,51 +18,66 @@
  */
 
 #include "compare.h"
+#include "lc_cshake256_drng.h"
 #include "lc_kyber.h"
 #include "lc_rng.h"
+#include "memory_support.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
-static int kyber_invalid(void)
+int kyber_invalid(void)
 {
-	struct lc_kyber_sk sk;
-	struct lc_kyber_pk pk;
-	struct lc_kyber_ct ct;
-	uint8_t ss[5], ss2[5];
-	int ret = 0;
+	struct workspace {
+		struct lc_kyber_sk sk;
+		struct lc_kyber_pk pk;
+		struct lc_kyber_ct ct;
+		uint8_t ss[5], ss2[5];
+	};
+	int ret = 1;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+	LC_CSHAKE256_DRNG_CTX_ON_STACK(rng);
 
-	if (lc_kyber_keypair(&pk, &sk, lc_seeded_rng))
-		return 1;
+	if (lc_rng_seed(rng, (uint8_t *)"123", 3, NULL, 0))
+		goto out;
+
+	if (lc_kyber_keypair(&ws->pk, &ws->sk, rng))
+		goto out;
 
 	/* modify the pub key */
-	pk.pk[0] = (pk.pk[0] + 0x01) & 0xff;
-	if (lc_kyber_enc(&ct, ss, sizeof(ss), &pk, lc_seeded_rng))
-		return 1;
-	if (lc_kyber_dec(ss2, sizeof(ss2), &ct, &sk))
-		return 1;
-	if (!memcmp(ss, ss2, sizeof(ss)))
-		return 1;
+	ws->pk.pk[0] = (ws->pk.pk[0] + 0x01) & 0xff;
+	if (lc_kyber_enc(&ws->ct, ws->ss, sizeof(ws->ss), &ws->pk, rng))
+		goto out;
+	if (lc_kyber_dec(ws->ss2, sizeof(ws->ss2), &ws->ct, &ws->sk))
+		goto out;
+	if (!memcmp(ws->ss, ws->ss2, sizeof(ws->ss)))
+		goto out;
 
 	/* revert modify the pub key */
-	pk.pk[0] = (pk.pk[0] - 0x01) & 0xff;
+	ws->pk.pk[0] = (ws->pk.pk[0] - 0x01) & 0xff;
 	/* modify the sec key */
-	sk.sk[0] = (sk.sk[0] + 0x01) & 0xff;
-	if (lc_kyber_enc(&ct, ss, sizeof(ss), &pk, lc_seeded_rng))
-		return 1;
-	if (lc_kyber_dec(ss2, sizeof(ss2), &ct, &sk))
-		return 1;
-	if (!memcmp(ss, ss2, sizeof(ss)))
-		return 1;
+	ws->sk.sk[0] = (ws->sk.sk[0] + 0x01) & 0xff;
+	if (lc_kyber_enc(&ws->ct, ws->ss, sizeof(ws->ss), &ws->pk, rng))
+		goto out;
+	if (lc_kyber_dec(ws->ss2, sizeof(ws->ss2), &ws->ct, &ws->sk))
+		goto out;
+	if (!memcmp(ws->ss, ws->ss2, sizeof(ws->ss)))
+		goto out;
 
 	/* revert modify the sec key */
-	sk.sk[0] = (sk.sk[0] - 0x01) & 0xff;
-	if (lc_kyber_enc(&ct, ss, sizeof(ss), &pk, lc_seeded_rng))
-		return 1;
+	ws->sk.sk[0] = (ws->sk.sk[0] - 0x01) & 0xff;
+	if (lc_kyber_enc(&ws->ct, ws->ss, sizeof(ws->ss), &ws->pk, rng))
+		goto out;
 	/* modify the ct */
-	ct.ct[0] = (ct.ct[0] + 0x01) & 0xff;
-	if (lc_kyber_dec(ss2, sizeof(ss2), &ct, &sk))
-		return 1;
-	if (!memcmp(ss, ss2, sizeof(ss)))
-		return 1;
+	ws->ct.ct[0] = (ws->ct.ct[0] + 0x01) & 0xff;
+	if (lc_kyber_dec(ws->ss2, sizeof(ws->ss2), &ws->ct, &ws->sk))
+		goto out;
+	if (!memcmp(ws->ss, ws->ss2, sizeof(ws->ss)))
+		goto out;
 
+	ret = 0;
+
+out:
+	LC_RELEASE_MEM(ws);
 	return ret;
 }
 

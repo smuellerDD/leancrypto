@@ -74,6 +74,7 @@ extern const struct lc_rng *lc_hmac_drbg;
 #define LC_DRBG_HMAC_CTX_ON_STACK(name)			      		       \
 	_Pragma("GCC diagnostic push")					       \
 	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
+	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf,				       \
 			  LC_DRBG_HMAC_CTX_SIZE(LC_DRBG_HMAC_CORE), uint64_t); \
 	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name ## _ctx_buf;       \

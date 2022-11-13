@@ -17,14 +17,14 @@
  * DAMAGE.
  */
 
-#include <stdio.h>
-
 #include "compare.h"
 #include "lc_kmac.h"
 #include "lc_rng.h"
 #include "math_helper.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
-static int kmac_xof_tester(void)
+int kmac_xof_tester(void)
 {
 	static const uint8_t msg1[] = {
 		0x6F, 0x50, 0xA7, 0xC3, 0x48, 0xCE, 0xA5, 0x10,
@@ -808,10 +808,10 @@ static int kmac_xof_tester(void)
 	};
 	uint8_t act1[sizeof(exp1)];
 	uint8_t act2[sizeof(exp2)];
-	LC_KMAC_KDF_DRNG_CTX_ON_STACK(kmac_rng, lc_cshake256);
 	struct lc_kmac_ctx *ctx;
 	size_t i;
 	int ret;
+	LC_KMAC_KDF_DRNG_CTX_ON_STACK(kmac_rng, lc_cshake256);
 
 	printf("kmac ctx len %lu, re-init ctx len %lu\n",
 	       LC_KMAC_CTX_SIZE(lc_cshake256),
@@ -899,7 +899,7 @@ out:
 	return ret;
 }
 
-int main(int argc, char *argv[])
+LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;

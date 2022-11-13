@@ -19,8 +19,10 @@
 
 #include "lc_hash_drbg.h"
 #include "compare.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
-static int hash_drbg_tester(void)
+int hash_drbg_tester(void)
 {
 #if 1
 	static const uint8_t ent_nonce[] = {
@@ -86,9 +88,9 @@ static int hash_drbg_tester(void)
 		0xad, 0x33, 0xcb, 0x1b, 0xbf, 0xd1, 0x1d, 0x2a
 	};
 	uint8_t act[256];
-	LC_DRBG_HASH_CTX_ON_STACK(drbg_stack);
 	struct lc_rng_ctx *drbg = NULL;
 	int ret = 0;
+	LC_DRBG_HASH_CTX_ON_STACK(drbg_stack);
 
 	printf("hash DRBG ctx len %lu\n", LC_DRBG_HASH_CTX_SIZE);
 	if (lc_drbg_hash_healthcheck_sanity(drbg_stack))
@@ -270,7 +272,7 @@ out:
 	return ret;
 }
 
-int main(int argc, char *argv[])
+LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;

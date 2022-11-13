@@ -18,12 +18,8 @@
  * DAMAGE.
  */
 
-#include <errno.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <sys/mman.h>
-
 #include "bitshift_be.h"
+#include "ext_headers.h"
 #include "lc_hash_drbg.h"
 #include "visibility.h"
 
@@ -340,10 +336,10 @@ static void lc_drbg_hash_zero(void *_state)
 	memset_secure(drbg_hash->scratchpad, 0, sizeof(drbg_hash->scratchpad));
 }
 
-DSO_PUBLIC
-int lc_drbg_hash_alloc(struct lc_rng_ctx **drbg)
+LC_INTERFACE_FUNCTION(
+int, lc_drbg_hash_alloc, struct lc_rng_ctx **drbg)
 {
-	struct lc_rng_ctx *out_state;
+	struct lc_rng_ctx *out_state = NULL;
 	int ret;
 
 	if (!drbg)
@@ -372,8 +368,8 @@ int lc_drbg_hash_alloc(struct lc_rng_ctx **drbg)
 	return 0;
 }
 
-DSO_PUBLIC
-int lc_drbg_hash_healthcheck_sanity(struct lc_rng_ctx *drbg)
+LC_INTERFACE_FUNCTION(
+int, lc_drbg_hash_healthcheck_sanity, struct lc_rng_ctx *drbg)
 {
 	unsigned char buf[16];
 	size_t max_addtllen, max_request_bytes;
@@ -421,4 +417,4 @@ static const struct lc_rng _lc_hash_drbg = {
 	.seed		= lc_drbg_hash_seed,
 	.zero		= lc_drbg_hash_zero,
 };
-DSO_PUBLIC const struct lc_rng *lc_hash_drbg = &_lc_hash_drbg;
+LC_INTERFACE_SYMBOL(const struct lc_rng *, lc_hash_drbg) = &_lc_hash_drbg;

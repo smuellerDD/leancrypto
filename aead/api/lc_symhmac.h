@@ -21,7 +21,6 @@
 #define LC_SYMHMAC_H
 
 #include "lc_aead.h"
-
 #include "lc_sym.h"
 #include "lc_hmac.h"
 #include "memset_secure.h"
@@ -83,6 +82,7 @@ int lc_sh_alloc(const struct lc_sym *sym, const struct lc_hash *hash,
 #define LC_SH_CTX_ON_STACK(name, sym, hash)		      		       \
 	_Pragma("GCC diagnostic push")					       \
 	_Pragma("GCC diagnostic ignored \"-Wvla\"")	      		       \
+	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SH_CTX_SIZE(sym, hash), uint64_t);\
 	struct lc_aead_ctx *name = (struct lc_aead_ctx *) name ## _ctx_buf;    \
 	LC_SH_SET_CTX(name, sym, hash);					       \

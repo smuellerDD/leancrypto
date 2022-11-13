@@ -17,14 +17,14 @@
  * DAMAGE.
  */
 
-#include <stdio.h>
-
 #include "compare.h"
 #include "lc_sha256.h"
 #include "lc_sha512.h"
 #include "lc_pbkdf2.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
-static int pbkdf2_tester(void)
+int pbkdf2_tester(void)
 {
 	/* RFC 5869 vector */
 	static const uint8_t pw[] = {
@@ -64,7 +64,7 @@ static int pbkdf2_tester(void)
 	return ret;
 }
 
-int main(int argc, char *argv[])
+LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;

@@ -19,10 +19,11 @@
 
 #include "compare.h"
 #include "lc_kmac.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
-static int kmac_xof_more_tester(void)
+int kmac_xof_more_tester(void)
 {
-	LC_KMAC_CTX_ON_STACK_REINIT(kmac, lc_cshake256);
 	static const uint8_t msg1[] = {
 		0x6F, 0x50, 0xA7, 0xC3, 0x48, 0xCE, 0xA5, 0x10,
 		0x6A, 0xBE, 0x32, 0xE4, 0xF0, 0x9E, 0x7B, 0xC6,
@@ -60,6 +61,7 @@ static int kmac_xof_more_tester(void)
 	uint8_t act1[LC_SHA3_256_SIZE_BLOCK * 3 + 5];
 	uint8_t act2[LC_SHA3_256_SIZE_BLOCK * 3 + 5];
 	int ret;
+	LC_KMAC_CTX_ON_STACK_REINIT(kmac, lc_cshake256);
 
 	lc_kmac_init(kmac, key1, sizeof(key1), cust1, sizeof(cust1));
 	lc_kmac_update(kmac, msg1, sizeof(msg1));
@@ -79,7 +81,7 @@ static int kmac_xof_more_tester(void)
 	return ret;
 }
 
-int main(int argc, char *argv[])
+LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;

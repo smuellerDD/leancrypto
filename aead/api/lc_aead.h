@@ -20,10 +20,7 @@
 #ifndef LC_AEAD_H
 #define LC_AEAD_H
 
-#include <errno.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <sys/types.h>
+#include "ext_headers.h"
 
 #ifdef __cplusplus
 extern "C"

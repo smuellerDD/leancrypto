@@ -21,12 +21,14 @@
 #ifndef ROTATE_H
 #define ROTATE_H
 
-#include <stdint.h>
+#include "ext_headers.h"
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+
+#ifndef LINUX_KERNEL
 
 /*
  * Rotate 16 bit unsigned integer X by N bits left/right
@@ -53,6 +55,8 @@ static inline uint32_t ror32(uint32_t x, uint8_t n)
 {
 	return ( (x >> (n&(32-1))) | (x << ((32-n)&(32-1))) );
 }
+
+#endif /* LINUX_KERNEL */
 
 #ifdef __cplusplus
 }

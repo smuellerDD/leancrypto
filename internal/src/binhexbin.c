@@ -20,9 +20,8 @@
  * DAMAGE.
  */
 
-#include <stdlib.h>
-#include <stdio.h>
 #include <errno.h>
+#include <stdlib.h>
 
 #include "binhexbin.h"
 

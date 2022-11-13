@@ -20,8 +20,7 @@
 #ifndef _BINHEXBIN_H
 #define _BINHEXBIN_H
 
-#include <stdint.h>
-#include <stdio.h>
+#include "ext_headers.h"
 
 #ifdef __cplusplus
 extern "C" {

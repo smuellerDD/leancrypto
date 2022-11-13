@@ -314,15 +314,15 @@
 #define LC_KYBER_IES_SYM_KEYSIZE	32
 #define LC_KYBER_IES_SYM_IVSIZE		16
 
-DSO_PUBLIC
-int lc_kyber_ies_enc(const struct lc_kyber_pk *pk,
-		     struct lc_kyber_ct *ct,
-		     const uint8_t *plaintext, uint8_t *ciphertext,
-		     size_t datalen,
-		     const uint8_t *aad, size_t aadlen,
-		     uint8_t *tag, size_t taglen,
-		     struct lc_aead_ctx *aead,
-		     struct lc_rng_ctx *rng_ctx)
+LC_INTERFACE_FUNCTION(
+int, lc_kyber_ies_enc, const struct lc_kyber_pk *pk,
+		       struct lc_kyber_ct *ct,
+		       const uint8_t *plaintext, uint8_t *ciphertext,
+		       size_t datalen,
+		       const uint8_t *aad, size_t aadlen,
+		       uint8_t *tag, size_t taglen,
+		       struct lc_aead_ctx *aead,
+		       struct lc_rng_ctx *rng_ctx)
 {
 	uint8_t ss[LC_KYBER_IES_SYM_KEYSIZE + LC_KYBER_IES_SYM_IVSIZE];
 	uint8_t *ies_key = ss;
@@ -341,14 +341,14 @@ out:
 	return ret;
 }
 
-DSO_PUBLIC
-int lc_kyber_ies_dec(const struct lc_kyber_sk *sk,
-		     const struct lc_kyber_ct *ct,
-		     const uint8_t *ciphertext, uint8_t *plaintext,
-		     size_t datalen,
-		     const uint8_t *aad, size_t aadlen,
-		     const uint8_t *tag, size_t taglen,
-		     struct lc_aead_ctx *aead)
+LC_INTERFACE_FUNCTION(
+int, lc_kyber_ies_dec, const struct lc_kyber_sk *sk,
+		       const struct lc_kyber_ct *ct,
+		       const uint8_t *ciphertext, uint8_t *plaintext,
+		       size_t datalen,
+		       const uint8_t *aad, size_t aadlen,
+		       const uint8_t *tag, size_t taglen,
+		       struct lc_aead_ctx *aead)
 {
 	uint8_t ss[LC_KYBER_IES_SYM_KEYSIZE + LC_KYBER_IES_SYM_IVSIZE];
 	uint8_t *ies_key = ss;

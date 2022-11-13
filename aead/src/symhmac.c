@@ -62,6 +62,8 @@
  * into the authentication HMAC instance during calculating the message
  * authentication tag.
  *
+ * The algorithm matches the specification of [SP800-38F] section 3.1.
+ *
  * 2. Symmetric/HMAC-based AEAD Cipher Algorithm
  *
  * 2.1 Notation
@@ -230,20 +232,20 @@
  * [SP800-38A] NIST Special Publication 800-38A, Recommendation for Block
  *             Cipher Modes of Operation, 2001 Edition
  *
+ * [SP800-38F] NIST Special Publication 800-38F, Recommendation for Block
+ *	       Cipher Modes of Operation: Methods for Key Wrapping,
+ *	       December 2012
+ *
  ******************************************************************************/
 
-#define _POSIX_C_SOURCE 200112L
-#include <errno.h>
-#include <stdlib.h>
-
+#include "ext_headers.h"
 #include "lc_hkdf.h"
 #include "lc_symhmac.h"
 #include "lc_sha512.h"
+#include "math_helper.h"
 #include "memcmp_secure.h"
 #include "ret_checkers.h"
 #include "visibility.h"
-
-#define min_t(type, a, b)	((type)a < (type)b) ? (type)a : (type)b
 
 /**
  * @brief Set the key for the encryption or decryption operation
@@ -431,11 +433,11 @@ lc_sh_decrypt_oneshot(void *state,
 	return lc_sh_decrypt_authenticate(sh, aad, aadlen, tag, taglen);
 }
 
-DSO_PUBLIC
-int lc_sh_alloc(const struct lc_sym *sym, const struct lc_hash *hash,
-		struct lc_aead_ctx **ctx)
+LC_INTERFACE_FUNCTION(
+int, lc_sh_alloc, const struct lc_sym *sym, const struct lc_hash *hash,
+		  struct lc_aead_ctx **ctx)
 {
-	struct lc_aead_ctx *tmp;
+	struct lc_aead_ctx *tmp = NULL;
 	int ret;
 
 	ret = posix_memalign((void *)&tmp, sizeof(uint64_t),
@@ -473,5 +475,5 @@ struct lc_aead _lc_symhmac_aead = {
 	.dec_final	= lc_sh_decrypt_authenticate,
 	.zero		= lc_sh_zero
 };
-DSO_PUBLIC
-const struct lc_aead *lc_symhmac_aead = &_lc_symhmac_aead;
+LC_INTERFACE_SYMBOL(
+	const struct lc_aead *, lc_symhmac_aead) = &_lc_symhmac_aead;

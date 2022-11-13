@@ -20,12 +20,12 @@
 #ifndef MEMCMP_SECURE_H
 #define MEMCMP_SECURE_H
 
+#include "ext_headers.h"
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-
-#include <sys/types.h>
 
 /**
  * @brief Constant-time memcmp implementation

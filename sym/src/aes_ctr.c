@@ -23,9 +23,7 @@
  * This is free and unencumbered software released into the public domain.
  */
 
-#include <errno.h>
-#include <string.h>
-
+#include "ext_headers.h"
 #include "lc_aes.h"
 #include "lc_aes_private.h"
 #include "lc_ctr_private.h"
@@ -111,4 +109,4 @@ static struct lc_sym _lc_aes_ctr = {
 	.statesize	= LC_AES_CTR_BLOCK_SIZE,
 	.blocksize	= 1,
 };
-DSO_PUBLIC const struct lc_sym *lc_aes_ctr = &_lc_aes_ctr;
+LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_ctr) = &_lc_aes_ctr;

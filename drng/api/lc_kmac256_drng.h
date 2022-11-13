@@ -52,10 +52,13 @@ extern const struct lc_rng *lc_kmac256_drng;
  * @param name [in] Name of the stack variable
  */
 #define LC_KMAC256_DRNG_CTX_ON_STACK(name)				       \
+	_Pragma("GCC diagnostic push")					       \
+	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf,				       \
 			  LC_KMAC256_DRNG_CTX_SIZE, uint64_t);		       \
 	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name ## _ctx_buf;       \
-	LC_KMAC256_RNG_CTX(name)
+	LC_KMAC256_RNG_CTX(name);					       \
+	_Pragma("GCC diagnostic pop")
 
 /**
  * @brief Allocation of a KMAC DRNG context

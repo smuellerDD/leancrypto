@@ -20,8 +20,7 @@
 #ifndef LC_HASH_H
 #define LC_HASH_H
 
-#include <stdint.h>
-
+#include "ext_headers.h"
 #include "memset_secure.h"
 
 #ifdef __cplusplus
@@ -244,6 +243,7 @@ static inline void lc_hash_zero(struct lc_hash_ctx *hash_ctx)
 #define LC_HASH_CTX_ON_STACK(name, hashname)				       \
 	_Pragma("GCC diagnostic push")					       \
 	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
+	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_HASH_CTX_SIZE(hashname),        \
 			  uint64_t);					       \
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *) name ## _ctx_buf;    \

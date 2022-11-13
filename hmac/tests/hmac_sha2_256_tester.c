@@ -20,8 +20,10 @@
 #include "compare.h"
 #include "lc_hmac.h"
 #include "lc_sha256.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
-static int hmac_sha2_256_tester(void)
+int hmac_sha2_256_tester(void)
 {
 	static const uint8_t msg_256[] = {
 		0xF2, 0xAA, 0xAA, 0x3A, 0x63, 0xD6, 0xE8, 0x10,
@@ -59,7 +61,7 @@ static int hmac_sha2_256_tester(void)
 	return ret;
 }
 
-int main(int argc, char *argv[])
+LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;

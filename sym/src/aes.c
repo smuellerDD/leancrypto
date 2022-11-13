@@ -23,8 +23,7 @@
  * This is free and unencumbered software released into the public domain.
  */
 
-#include <string.h>
-
+#include "ext_headers.h"
 #include "lc_aes.h"
 #include "lc_aes_private.h"
 #include "visibility.h"

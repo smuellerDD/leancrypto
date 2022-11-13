@@ -20,7 +20,7 @@
 #ifndef NULL_BUFFER_H
 #define NULL_BUFFER_H
 
-#include <stdint.h>
+#include "ext_headers.h"
 
 #ifdef __cplusplus
 extern "C"

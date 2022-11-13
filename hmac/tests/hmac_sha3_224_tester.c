@@ -17,13 +17,13 @@
  * DAMAGE.
  */
 
-#include <stdio.h>
-
 #include "compare.h"
 #include "lc_hmac.h"
 #include "lc_sha3.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
-static int sha3_hmac_tester(void)
+int sha3_hmac_tester(void)
 {
 	static const uint8_t msg_224[] = { 0x35, 0x8E, 0x06, 0xBA, 0x03, 0x21,
 					   0x83, 0xFC, 0x18, 0x20, 0x58, 0xBD,
@@ -46,7 +46,7 @@ static int sha3_hmac_tester(void)
 	return ret;
 }
 
-int main(int argc, char *argv[])
+LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;

@@ -17,12 +17,12 @@
  * DAMAGE.
  */
 
-#include <stdio.h>
-
 #include "lc_aes.h"
 #include "lc_aes_private.h"
 #include "compare.h"
 #include "ret_checkers.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
 static const uint8_t key128[] = {
 	0x75, 0x75, 0xda, 0x3a, 0x93, 0x60, 0x7c, 0xc2,
@@ -64,7 +64,10 @@ static int test_encrypt_kw_one(struct lc_sym_ctx *ctx,
 			       const uint8_t *pt, size_t ptlen,
 			       const uint8_t *ct, const uint8_t *iv)
 {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvla"
 	uint8_t out[ptlen + 8], out2[ptlen];
+#pragma GCC diagnostic pop
 	uint8_t tag[8];
 	int ret, rc;
 
@@ -95,13 +98,10 @@ out:
 	return ret;
 }
 
-int main(int argc, char *argv[])
+int test_kw(void)
 {
-	LC_SYM_CTX_ON_STACK(aes_kw, lc_aes_kw);
 	int ret;
-
-	(void)argc;
-	(void)argv;
+	LC_SYM_CTX_ON_STACK(aes_kw, lc_aes_kw);
 
 	ret = test_encrypt_kw_one(aes_kw,
 				  key128, sizeof(key128),
@@ -113,5 +113,13 @@ int main(int argc, char *argv[])
 				   pt256, sizeof(pt256), ct256, iv256);
 	lc_sym_zero(aes_kw);
 
-	return ret;;
+	return ret;
+}
+
+LC_TEST_FUNC(int, main, int argc, char *argv[])
+{
+	(void)argc;
+	(void)argv;
+
+	return test_kw();
 }

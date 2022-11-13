@@ -22,10 +22,10 @@
 #include "left_encode.h"
 #include "visibility.h"
 
-DSO_PUBLIC
-void lc_cshake_init(struct lc_hash_ctx *ctx,
-		    const uint8_t *n, size_t nlen,
-		    const uint8_t *s, size_t slen)
+LC_INTERFACE_FUNCTION(
+void, lc_cshake_init, struct lc_hash_ctx *ctx,
+		      const uint8_t *n, size_t nlen,
+		      const uint8_t *s, size_t slen)
 {
 	static const uint8_t zero[LC_SHAKE_128_SIZE_BLOCK] = { 0 };
 	static const uint8_t

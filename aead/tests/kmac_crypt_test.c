@@ -17,13 +17,13 @@
  * DAMAGE.
  */
 
-#include <errno.h>
-
 #include "compare.h"
-#include "binhexbin.h"
+#include "ext_headers.h"
 #include "lc_kmac_crypt.h"
 #include "lc_cshake.h"
 #include "lc_kmac.h"
+#include "testfunctions.h"
+#include "visibility.h"
 
 static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
 			      const uint8_t *aad, size_t aadlen,
@@ -31,13 +31,16 @@ static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
 			      const uint8_t *exp_ct,
 			      const uint8_t *exp_tag, size_t exp_tag_len)
 {
-	LC_KC_CTX_ON_STACK(kc, lc_cshake256);
 	struct lc_aead_ctx *kc_heap = NULL;
 	ssize_t ret;
 	int ret_checked = 0;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvla"
 	uint8_t out_enc[ptlen];
 	uint8_t out_dec[ptlen];
 	uint8_t tag[exp_tag_len];
+#pragma GCC diagnostic pop
+	LC_KC_CTX_ON_STACK(kc, lc_cshake256);
 
 	/* One shot encryption with pt ptr != ct ptr */
 	lc_aead_setkey(kc, key, keylen, NULL, 0);
@@ -130,7 +133,7 @@ static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
 	return ret_checked;
 }
 
-static int kc_tester_kmac_validate(void)
+int kc_tester_kmac_validate(void)
 {
 	static const uint8_t in[] = {
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -157,7 +160,7 @@ static int kc_tester_kmac_validate(void)
 		       "KMAC crypt: Validation");
 }
 
-static int kc_tester_kmac(void)
+int kc_tester_kmac(void)
 {
 	static const uint8_t in[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -200,7 +203,7 @@ static int kc_tester_kmac(void)
 				  exp_tag, sizeof(exp_tag));
 }
 
-int main(int argc, char *argv[])
+LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	int ret;
 	(void)argc;

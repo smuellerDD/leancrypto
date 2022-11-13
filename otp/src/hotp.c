@@ -24,9 +24,9 @@
 #include "memset_secure.h"
 #include "visibility.h"
 
-DSO_PUBLIC
-void lc_hotp(const uint8_t *hmac_key, size_t hmac_key_len, uint64_t counter,
-	  uint32_t digits, uint32_t *hotp_val)
+LC_INTERFACE_FUNCTION(
+void, lc_hotp, const uint8_t *hmac_key, size_t hmac_key_len, uint64_t counter,
+	       uint32_t digits, uint32_t *hotp_val)
 {
 	LC_HMAC_CTX_ON_STACK(ctx256, lc_sha256);
 	uint32_t offset, truncated, modulo = 1;
