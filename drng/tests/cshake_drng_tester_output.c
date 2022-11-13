@@ -25,6 +25,7 @@
 #include <sys/time.h>
 
 #include "lc_cshake256_drng.h"
+#include "memory_support.h"
 
 struct opts {
 	size_t bytecount;
@@ -66,11 +67,22 @@ static void bin2hex(const uint8_t *bin, const size_t binlen, char *hex,
 
 static int cshake_drng(struct opts *opts, FILE *out)
 {
-	LC_CSHAKE256_DRNG_CTX_ON_STACK(cshake_ctx);
+	struct workspace {
+		uint8_t outbuf[LC_CSHAKE256_DRNG_MAX_CHUNK];
+	};
 	struct timeval tv;
 	uint64_t time;
 	size_t bytes = opts->bytecount;
-	uint8_t outbuf[LC_CSHAKE256_DRNG_MAX_CHUNK];
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+
+#ifdef LC_MEM_ON_HEAP
+	struct lc_rng_ctx *cshake_ctx;
+	int ret = lc_cshake256_drng_alloc(&cshake_ctx);
+	if (ret)
+		return ret;
+#else
+	LC_CSHAKE256_DRNG_CTX_ON_STACK(cshake_ctx);
+#endif
 
 	if (gettimeofday(&tv, NULL) < 0) {
 		printf("Cannot obtain timestamp: %s\n", strerror(errno));
@@ -82,24 +94,30 @@ static int cshake_drng(struct opts *opts, FILE *out)
 			       NULL, 0);
 
 	while (bytes) {
-		size_t todo = (bytes > sizeof(outbuf) ? sizeof(outbuf) : bytes);
+		size_t todo = (bytes > sizeof(ws->outbuf) ?
+			      sizeof(ws->outbuf) : bytes);
 
-		lc_rng_generate(cshake_ctx, NULL, 0, outbuf, todo);
+		lc_rng_generate(cshake_ctx, NULL, 0, ws->outbuf, todo);
 
 		if (opts->hex) {
 			char outhex[2 * LC_CSHAKE256_DRNG_MAX_CHUNK];
 
-			bin2hex(outbuf, todo, outhex, sizeof(outhex), 0);
+			bin2hex(ws->outbuf, todo, outhex, sizeof(outhex), 0);
 			fwrite(outhex, todo * 2, 1, out);
 		} else {
-			fwrite(outbuf, todo, 1, out);
+			fwrite(ws->outbuf, todo, 1, out);
 		}
 
 		bytes -= todo;
 	}
 
+#ifdef LC_MEM_ON_HEAP
+	lc_rng_zero_free(cshake_ctx);
+#else
 	lc_rng_zero(cshake_ctx);
+#endif
 
+	LC_RELEASE_MEM(ws);
 	return 0;
 }
 

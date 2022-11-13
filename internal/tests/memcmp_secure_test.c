@@ -23,15 +23,20 @@
 #include "binhexbin.h"
 #include "lc_hash_drbg.h"
 #include "memcmp_secure.h"
+#include "memory_support.h"
 
 static int memcmp_secure_tester(void)
 {
+	struct workspace {
+		uint8_t a[65536], b[65536];
+	};
 	LC_DRBG_HASH_CTX_ON_STACK(drbg);
-	uint8_t a[65536], b[65536], *ap, *bp;
+	uint8_t *ap, *bp;
 	time_t now = time(NULL);
 	unsigned int i;
 	int ret = 1;
 	unsigned short rnd = 0, add;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	if (lc_rng_seed(drbg, (uint8_t *)&now, sizeof(now), NULL, 0))
 		return 1;
@@ -51,8 +56,8 @@ static int memcmp_secure_tester(void)
 		else
 			add = 0;
 
-		ap = a + add;
-		bp = b + add;
+		ap = ws->a + add;
+		bp = ws->b + add;
 
 		if (lc_rng_generate(drbg, NULL, 0, ap, rnd) < 0)
 			goto out;
@@ -77,10 +82,11 @@ static int memcmp_secure_tester(void)
 		}
 	}
 
-	if (!memcmp_secure(a, (rnd == 0) ? (rnd + 1) : (rnd - 1), b, rnd)) {
-		bin2print(a, (unsigned short)(rnd + add), stderr,
+	if (!memcmp_secure(ws->a, (rnd == 0) ? (rnd + 1) : (rnd - 1),
+			   ws->b, rnd)) {
+		bin2print(ws->a, (unsigned short)(rnd + add), stderr,
 			  "Error comparing different values of different sizes");
-		bin2print(b, rnd, stderr,
+		bin2print(ws->b, rnd, stderr,
 			  "Error comparing different values of different sizes");
 		goto out;
 	}
@@ -89,6 +95,7 @@ static int memcmp_secure_tester(void)
 
 out:
 	lc_rng_zero(drbg);
+	LC_RELEASE_MEM(ws);
 	return ret;
 }
 

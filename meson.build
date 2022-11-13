@@ -36,13 +36,21 @@ add_global_arguments([ '-fstack-protector-strong',
 		       '-Wmissing-field-initializers',
 		       '-Wshadow',
 		       '-Wswitch-enum',
-		       '-Wframe-larger-than=1048576' ],
+		        ],
 		       language : 'c')
 
 if get_option('optimization') != '0'
         add_global_arguments([ '-D_FORTIFY_SOURCE=2' ], language: 'c')
 else
         add_global_arguments([ '-DDEBUG' ], language: 'c')
+endif
+
+if get_option('small_stack').enabled()
+        add_global_arguments([ '-Wframe-larger-than=2048',
+			       '-DLC_MEM_ON_HEAP' ],
+			     language: 'c')
+else
+        add_global_arguments([ '-Wframe-larger-than=1048576' ], language: 'c')
 endif
 
 # Versioning information

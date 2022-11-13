@@ -18,25 +18,30 @@
  */
 
 #include "lc_cshake256_drng.h"
+#include "memory_support.h"
 
 #define CSHAKE256_TEST_BLOCKSIZE	LC_CSHAKE256_DRNG_MAX_CHUNK
 //#define CSHAKE256_TEST_BLOCKSIZE	32
 
 static int cshake_drng_selftest_large(struct lc_rng_ctx *cshake_ctx)
 {
+	struct workspace {
+		uint8_t out[CSHAKE256_TEST_BLOCKSIZE];
+	};
 	uint8_t seed[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08
 	};
-	uint8_t out[CSHAKE256_TEST_BLOCKSIZE];
 	unsigned int i;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	lc_rng_seed(cshake_ctx, seed, sizeof(seed), NULL, 0);
 
 	for (i = 0; i < ((1U<<30) / CSHAKE256_TEST_BLOCKSIZE); i++)
-		lc_rng_generate(cshake_ctx, NULL, 0, out,
+		lc_rng_generate(cshake_ctx, NULL, 0, ws->out,
 					   CSHAKE256_TEST_BLOCKSIZE);
 	lc_rng_zero(cshake_ctx);
 
+	LC_RELEASE_MEM(ws);
 	return 0;
 }
 

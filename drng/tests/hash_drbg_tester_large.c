@@ -18,24 +18,29 @@
  */
 
 #include "lc_hash_drbg.h"
+#include "memory_support.h"
 
 static int hash_drbg_selftest_large(struct lc_rng_ctx *drbg)
 {
+	struct workspace {
+		uint8_t out[LC_DRBG_MAX_REQUEST_BYTES];
+	};
 	uint8_t seed[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08
 	};
-	uint8_t out[LC_DRBG_MAX_REQUEST_BYTES];
 	unsigned int i;
 	int ret = 0;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	if (lc_rng_seed(drbg, seed, sizeof(seed), NULL, 0))
 		goto out;
 
 	for (i = 0; i < ((1U<<30) / LC_DRBG_MAX_REQUEST_BYTES); i++)
-		lc_rng_generate(drbg, NULL, 0, out, sizeof(out));
+		lc_rng_generate(drbg, NULL, 0, ws->out, sizeof(ws->out));
 
 out:
 	lc_rng_zero(drbg);
+	LC_RELEASE_MEM(ws);
 	return ret;
 }
 

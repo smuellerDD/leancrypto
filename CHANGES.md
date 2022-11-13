@@ -4,7 +4,11 @@ Changes 0.5.0-prerelease:
 * add Linux kenrel test code
 
 * make leancrypto generic such that it can be used in environments other than
-  user space.
+  user space
+
+* add compile time option small_stack which ensures that leancrypto's stack
+  usage is always less than 2048 (also verified by the compiler waring if it
+  is bigger)
 
 Changes 0.4.0:
 * simplify Kyber code
