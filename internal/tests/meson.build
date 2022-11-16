@@ -15,3 +15,10 @@ if get_option('drbg_hash').enabled()
 
 	test('memcmp secure', memcmp_secure_test, timeout: 300)
 endif
+
+status_tester = executable('status_tester',
+			   [ 'status_tester.c', internal_src ],
+			   include_directories: [ include_internal_dirs ],
+			   dependencies: leancrypto
+			  )
+test('Status', status_tester)

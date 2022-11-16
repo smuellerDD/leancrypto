@@ -3,12 +3,14 @@ internal_src = files([
 	'binhexbin.c',
 	'left_encode.c',
 	'memcmp_secure.c',
-	'null_buffer.c'
+	'null_buffer.c',
+	'status.c'
 ])
 
 include_files += files([
 	'../api/ext_headers.h',
-	'../api/memset_secure.h'
+	'../api/memset_secure.h',
+	'../api/lc_status.h'
 	])
 
 if (build_machine.cpu_family() == 'x86_64')

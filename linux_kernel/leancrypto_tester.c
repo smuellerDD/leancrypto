@@ -91,6 +91,7 @@ static int __init leancrypto_tester_init(void)
 	LC_EXEC_ONE_TEST(kyber_kex_tester);
 	LC_EXEC_ONE_TEST(kyber_ies_tester);
 	LC_EXEC_ONE_TEST(kyber_invalid);
+	LC_EXEC_ONE_TEST(status_tester);
 
 	if (ret) {
 		pr_err("leancrypto tests failed: total of %d tests failed\n",

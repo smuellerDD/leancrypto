@@ -85,6 +85,8 @@ int kyber_kex_tester(void);
 int kyber_ies_tester(void);
 int kyber_invalid(void);
 
+int status_tester(void);
+
 #ifdef __cplusplus
 }
 #endif
