@@ -218,7 +218,7 @@ struct lc_shake_128_state {
 	uint8_t partial[LC_SHAKE_128_SIZE_BLOCK];
 };
 
-#define LC_SHAKE_128_STATE_SIZE		(sizeof(struct lc_sha3_256_state))
+#define LC_SHAKE_128_STATE_SIZE		(sizeof(struct lc_shake_128_state))
 #define LC_SHAKE_128_CTX_SIZE		(sizeof(struct lc_hash) +	       \
 					 LC_SHAKE_128_STATE_SIZE)
 
