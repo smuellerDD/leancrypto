@@ -1,16 +1,25 @@
 Changes 0.5.0-prerelease:
-* add ability to compile leancrypto for the Linux kernel
+* enhancement: add ability to compile leancrypto for the Linux kernel
 
-* add Linux kenrel test code
+* enhancement: add Linux kenrel test code
 
-* make leancrypto generic such that it can be used in environments other than
-  user space
+* enhancement: make leancrypto generic such that it can be used in environments
+  other than user space
 
-* add compile time option small_stack which ensures that leancrypto's stack
-  usage is always less than 2048 (also verified by the compiler waring if it
-  is bigger)
+* enhancement: add compile time option small_stack which ensures that
+  leancrypto's stack usage is always less than 2048 (also verified by the
+  compiler waring if it is bigger)
 
-* Add assembler accelerations for SHA3 (AVX2 and AVX512 are verified with NIST's ACVP service, ARMv8 Neon is yet pending)
+* enhancement: Add assembler accelerations for SHA3 (AVX2 and AVX512 are
+  verified with NIST's ACVP service, ARMv8 Neon is yet pending)
+
+* bug fix: Fix the SHA-3 C implementation on big-endian system (one byte-swap
+  missing)
+
+* bug fix: SHAKE128 state had wrong size causing an overflow with the
+  memset_secure in lc_hash_zero
+
+* fix: remove compile-time warnings on 32 bit systems
 
 Changes 0.4.0:
 * simplify Kyber code
