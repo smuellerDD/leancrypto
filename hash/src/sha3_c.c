@@ -19,6 +19,7 @@
 
 #include "build_bug_on.h"
 #include "bitshift_le.h"
+#include "conv_be_le.h"
 #include "ext_headers.h"
 #include "lc_sha3.h"
 #include "memset_secure.h"
@@ -427,7 +428,7 @@ static inline void sha3_fill_state_aligned(struct lc_sha3_224_state *ctx,
 	unsigned int i;
 
 	for (i = 0; i < ctx->rword; i++) {
-		ctx->state[i]  ^= *in;
+		ctx->state[i]  ^= le_bswap64(*in);
 		in++;
 	}
 }
