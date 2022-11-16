@@ -20,7 +20,7 @@
 #include "lc_kmac256_drng.h"
 #include "memory_support.h"
 
-#include "../../hash/src/sha3_c.h"
+#include "sha3_c.h"
 
 #define KMAC256_TEST_BLOCKSIZE	LC_KMAC256_DRNG_MAX_CHUNK
 //#define KMAC256_TEST_BLOCKSIZE	32

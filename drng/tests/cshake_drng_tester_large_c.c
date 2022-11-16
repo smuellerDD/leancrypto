@@ -20,7 +20,7 @@
 #include "lc_cshake256_drng.h"
 #include "memory_support.h"
 
-#include "../../hash/src/sha3_c.h"
+#include "sha3_c.h"
 
 #define CSHAKE256_TEST_BLOCKSIZE	LC_CSHAKE256_DRNG_MAX_CHUNK
 //#define CSHAKE256_TEST_BLOCKSIZE	32

@@ -22,10 +22,10 @@
 #include "testfunctions.h"
 #include "visibility.h"
 
-#include "../src/sha3_c.h"
-#include "../src/sha3_arm8_neon.h"
-#include "../src/sha3_avx2.h"
-#include "../src/sha3_avx512.h"
+#include "sha3_c.h"
+#include "sha3_arm8_neon.h"
+#include "sha3_avx2.h"
+#include "sha3_avx512.h"
 
 #define LC_EXEC_ONE_TEST(sha3_impl)					       \
 	if (sha3_impl)							       \
