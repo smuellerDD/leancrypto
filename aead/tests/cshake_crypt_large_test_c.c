@@ -25,7 +25,7 @@
 #include "lc_cshake_crypt.h"
 #include "lc_cshake.h"
 
-#include "../../hash/src/sha3_c.h"
+#include "sha3_c.h"
 
 static int kc_tester_cshake_large(void)
 {

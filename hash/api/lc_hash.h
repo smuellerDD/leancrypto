@@ -70,7 +70,7 @@ struct lc_hash_ctx {
  * LC_HASH_CTX_ON_STACK()
  * #pragma pop
  */
-#define LC_HASH_STATE_SIZE(x)	(x->statesize)
+#define LC_HASH_STATE_SIZE(x)	((unsigned long)(x->statesize))
 #define LC_HASH_CTX_SIZE(x)	(sizeof(struct lc_hash_ctx) +		       \
 				 LC_HASH_STATE_SIZE(x))
 

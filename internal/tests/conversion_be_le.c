@@ -17,6 +17,7 @@
  * DAMAGE.
  */
 
+#include <inttypes.h>
 #include <stdio.h>
 
 #define CONVERSION_TEST
@@ -40,7 +41,7 @@ static int compiler_test_le(void)
 	}
 
 	if (_bswap64(u64) != __builtin_bswap64(u64)) {
-		printf("FAIL: compiler swap64 is not consistent with C (compiler %lu, C %lu)\n", __builtin_bswap64(u64), _bswap64(u64));
+		printf("FAIL: compiler swap64 is not consistent with C (compiler %"PRIu64", C %"PRIu64")\n", __builtin_bswap64(u64), _bswap64(u64));
 		return 1;
 	}
 
@@ -68,7 +69,7 @@ static int sw_test_le(void)
 	}
 
 	if (_bswap64(u64) != be_bswap64(u64)) {
-		printf("FAIL: macro swap64 is not consistent with C (macro %lu, C %lu)\n", be_bswap64(u64), _bswap64(u64));
+		printf("FAIL: macro swap64 is not consistent with C (macro %"PRIu64", C %"PRIu64")\n", be_bswap64(u64), _bswap64(u64));
 		return 1;
 	}
 

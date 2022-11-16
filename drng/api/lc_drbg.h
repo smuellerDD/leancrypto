@@ -72,17 +72,7 @@ static inline size_t lc_drbg_max_request_bytes(void)
 
 static inline size_t lc_drbg_max_addtl(void)
 {
-	/* SP800-90A requires 2**35 bytes additional info str / pers str */
-#if (__BITS_PER_LONG == 32)
-	/*
-	 * SP800-90A allows smaller maximum numbers to be returned -- we
-	 * return SIZE_MAX - 1 to allow the verification of the enforcement
-	 * of this value in drbg_healthcheck_sanity.
-	 */
-	return (SIZE_MAX - 1);
-#else
-	return (1UL<<35);
-#endif
+	return (1UL<<31);
 }
 
 #ifdef __cplusplus

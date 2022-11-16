@@ -47,7 +47,7 @@ struct lc_sym_ctx {
 	struct lc_sym_state *sym_state;
 };
 
-#define LC_SYM_STATE_SIZE(x)	(x->statesize)
+#define LC_SYM_STATE_SIZE(x)	((unsigned long)(x->statesize))
 
 #define LC_SYM_CTX_SIZE(x)	(sizeof(struct lc_sym_ctx) +		       \
 				 LC_SYM_STATE_SIZE(x))
