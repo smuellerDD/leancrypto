@@ -142,13 +142,49 @@ Leancrypto offers various cryptographic algorithms:
 The complete API documentation is provided in the different header files
 `lc_*.h`.
 
-# ACVP Testing
+# Testing
+
+## Functional Testing
+
+The command `meson test -C build` performs a full regression testing of all
+algorithms and all code paths.
+
+When using the code coverage analysis support enabled by
+`meson setup build -Db_coverage=true` followed by `meson test -C build` and
+`ninja coverage-html -C build`, it is shown that almost all code paths in the
+library are covered (the test code contains error code paths which are not
+all tested, naturally).
+
+To perform testing of the Linux kernel module of leancrypto, insmod the
+module `leancrypto_test.ko` and review the kernel log via `dmesg`. Once the
+test is complete, the test kernel module can be removed from the kernel.
+
+## Memory Leak Testing
+
+Using valgrind, the memory leak testing can be applied. Valgrind shows now
+leaks possible for any code path.
+
+## ASAN Testing
+
+Using ASAN address testing, some issues were reported which were all assessed
+to not present a security hazard. If you still have ideas how to fix all ASAN
+reports, please file a bug report.
+
+## Clang Static Code Analysis
+
+Using the clan-scan tool with the command `ninja -C build/ scan-build` shows no
+issues.
+
+## ACVP Testing
 
 ACVP certificate: A770
 
 https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?product=13214
 
 The test harness is available at https://github.com/smuellerDD/acvpparser
+
+All algorithms were tested with NIST's ACVP service without obtaining an
+official certificate. Currently not tested: ARMv8 Neon (pending).
 
 # Author
 
