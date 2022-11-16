@@ -135,6 +135,7 @@ void lc_kmac_final(struct lc_kmac_ctx *kmac_ctx, uint8_t *mac, size_t maclen);
  * lc_kmac_final_xof(ctx, mac + LC_SHA3_256_SIZE_BLOCK + 1,
  *			  2 * LC_SHA3_256_SIZE_BLOCK + 1);
  * lc_kmac_final_xof(ctx, mac + 3 * LC_SHA3_256_SIZE_BLOCK + 2, 3);
+ * ```
  *
  * @param kmac_ctx [in] Reference to kmac context implementation to be used to
  *			perform KMAC calculation with.
