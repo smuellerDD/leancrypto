@@ -10,6 +10,8 @@ Changes 0.5.0-prerelease:
   usage is always less than 2048 (also verified by the compiler waring if it
   is bigger)
 
+* Add assembler accelerations for SHA3 (AVX2 and AVX512 are verified with NIST's ACVP service, ARMv8 Neon is yet pending)
+
 Changes 0.4.0:
 * simplify Kyber code
 

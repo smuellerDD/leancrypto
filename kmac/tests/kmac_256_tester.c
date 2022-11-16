@@ -22,7 +22,16 @@
 #include "testfunctions.h"
 #include "visibility.h"
 
-int kmac_tester(void)
+#include "../src/sha3_c.h"
+#include "../src/sha3_arm8_neon.h"
+#include "../src/sha3_avx2.h"
+#include "../src/sha3_avx512.h"
+
+#define LC_EXEC_ONE_TEST(sha3_impl)					       \
+	if (sha3_impl)							       \
+		ret += _kmac_256_tester(sha3_impl, #sha3_impl)
+
+static int _kmac_256_tester(const struct lc_hash *cshake_256, const char *name)
 {
 	static const uint8_t msg1[] = {
 		0x89, 0xBA, 0x9E, 0x35, 0xD8, 0xCA, 0x69, 0xFB,
@@ -1105,8 +1114,11 @@ int kmac_tester(void)
 	uint8_t act1[sizeof(exp1)];
 	uint8_t act2[sizeof(exp2)];
 	int ret;
-	LC_KMAC_CTX_ON_STACK_REINIT(ctx_re, lc_cshake256);
-	LC_KMAC_CTX_ON_STACK(ctx, lc_cshake256);
+	LC_KMAC_CTX_ON_STACK_REINIT(ctx_re, cshake_256);
+	LC_KMAC_CTX_ON_STACK(ctx, cshake_256);
+
+	printf("hash ctx %s (%s implementation) len %lu\n", name,
+	       cshake_256 == lc_cshake256_c ? "C" : "accelerated", LC_KMAC_CTX_SIZE(cshake_256));
 
 	lc_kmac_init(ctx_re, key1, sizeof(key1), cust1, sizeof(cust1));
 	lc_kmac_update(ctx_re, msg1, sizeof(msg1));
@@ -1132,6 +1144,19 @@ int kmac_tester(void)
 	lc_kmac_final(ctx, act2, sizeof(act2));
 	ret = compare(act2, exp2, sizeof(act2), "KMAC256 2");
 	lc_kmac_zero(ctx);
+
+	return ret;
+}
+
+int kmac_tester(void)
+{
+	int ret = 0;
+
+	LC_EXEC_ONE_TEST(lc_cshake256);
+	LC_EXEC_ONE_TEST(lc_cshake256_c);
+	LC_EXEC_ONE_TEST(lc_cshake256_arm8_neon);
+	LC_EXEC_ONE_TEST(lc_cshake256_avx2);
+	LC_EXEC_ONE_TEST(lc_cshake256_avx512);
 
 	return ret;
 }

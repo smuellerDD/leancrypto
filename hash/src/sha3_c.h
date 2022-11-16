@@ -1,6 +1,7 @@
-// SPDX-License-Identifier: GPL-2.0 OR BSD-2-Clause
 /*
  * Copyright (C) 2022, Stephan Mueller <smueller@chronox.de>
+ *
+ * License: see LICENSE file in root directory
  *
  * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -16,26 +17,26 @@
  * DAMAGE.
  */
 
-#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+#ifndef SHA3_C
+#define SHA3_C
 
-#include <linux/module.h>
-
-void sha3_fastest_impl(void);
-static int __init leancrypto_init(void)
+#ifdef __cplusplus
+extern "C"
 {
-	sha3_fastest_impl();
-	return 0;
+#endif
+
+extern const struct lc_hash *lc_sha3_224_c;
+extern const struct lc_hash *lc_sha3_256_c;
+extern const struct lc_hash *lc_sha3_384_c;
+extern const struct lc_hash *lc_sha3_512_c;
+
+extern const struct lc_hash *lc_shake128_c;
+extern const struct lc_hash *lc_shake256_c;
+extern const struct lc_hash *lc_cshake128_c;
+extern const struct lc_hash *lc_cshake256_c;
+
+#ifdef __cplusplus
 }
+#endif
 
-static void __exit leancrypto_exit(void)
-{
-
-}
-
-module_init(leancrypto_init);
-module_exit(leancrypto_exit);
-
-MODULE_LICENSE("Dual BSD/GPL");
-MODULE_AUTHOR("Stephan Mueller <smueller@chronox.de>");
-MODULE_DESCRIPTION("Kernel module leancrypto");
-
+#endif /* SHA3_C */

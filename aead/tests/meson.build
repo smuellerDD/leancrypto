@@ -25,9 +25,15 @@ if get_option('kmac_drng').enabled()
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto
 				)
+	kmac_crypt_large_tester_c = executable('kmac_crypt_large_test_c',
+				[ 'kmac_crypt_large_test_c.c', internal_src ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto
+				)
 
 	test('AEAD KMAC Crypt', kmac_crypt_tester)
-	test('AEAD KMAC Crypt 1GB', kmac_crypt_large_tester, timeout: 1000)
+	test('AEAD KMAC Crypt Accel 1GB', kmac_crypt_large_tester, timeout: 1000)
+	test('AEAD KMAC Crypt C 1GB', kmac_crypt_large_tester_c, timeout: 1000)
 endif
 
 if get_option('cshake_drng').enabled()
@@ -41,9 +47,15 @@ if get_option('cshake_drng').enabled()
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto
 				)
+	cshake_crypt_large_tester_c = executable('cshake_crypt_large_test_c',
+				[ 'cshake_crypt_large_test_c.c', internal_src ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto
+				)
 
 	test('AEAD cSHAKE Crypt', cshake_crypt_tester)
-	test('AEAD cSHAKE Crypt 1GB', cshake_crypt_large_tester, timeout: 1000)
+	test('AEAD cSHAKE Crypt Accel 1GB', cshake_crypt_large_tester, timeout: 1000)
+	test('AEAD cSHAKE Crypt C 1GB', cshake_crypt_large_tester_c, timeout: 1000)
 endif
 
 if get_option('aes_cbc').enabled()

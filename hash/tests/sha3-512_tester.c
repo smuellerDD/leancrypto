@@ -22,7 +22,16 @@
 #include "testfunctions.h"
 #include "visibility.h"
 
-int sha3_512_tester(void)
+#include "../src/sha3_c.h"
+#include "../src/sha3_arm8_neon.h"
+#include "../src/sha3_avx2.h"
+#include "../src/sha3_avx512.h"
+
+#define LC_EXEC_ONE_TEST(sha3_impl)					       \
+	if (sha3_impl)							       \
+		ret += _sha3_512_tester(sha3_impl, #sha3_impl)
+
+static int _sha3_512_tester(const struct lc_hash *sha3_512, const char *name)
 {
 	static const uint8_t msg_512[] = { 0x82, 0xD9, 0x19 };
 	static const uint8_t exp_512[] = { 0x76, 0x75, 0x52, 0x82, 0xA9, 0xC5,
@@ -38,10 +47,11 @@ int sha3_512_tester(void)
 					   0x6E, 0xDE, 0x42, 0x91 };
 	uint8_t act[LC_SHA3_512_SIZE_DIGEST];
 	int ret;
-	LC_HASH_CTX_ON_STACK(ctx512, lc_sha3_512);
+	LC_HASH_CTX_ON_STACK(ctx512, sha3_512);
 	LC_SHA3_512_CTX_ON_STACK(ctx512_stack);
 
-	printf("hash ctx len %lu\n", LC_HASH_CTX_SIZE(lc_sha3_512));
+	printf("hash ctx %s (%s implementation) len %lu\n", name,
+	       sha3_512 == lc_sha3_512_c ? "C" : "accelerated", LC_HASH_CTX_SIZE(sha3_512));
 	lc_hash_init(ctx512);
 	lc_hash_update(ctx512, msg_512, 3);
 	lc_hash_final(ctx512, act);
@@ -53,6 +63,19 @@ int sha3_512_tester(void)
 	lc_hash_final(ctx512_stack, act);
 	ret += compare(act, exp_512, LC_SHA3_512_SIZE_DIGEST, "SHA3-512");
 	lc_hash_zero(ctx512_stack);
+
+	return ret;
+}
+
+int sha3_512_tester(void)
+{
+	int ret = 0;
+
+	LC_EXEC_ONE_TEST(lc_sha3_512);
+	LC_EXEC_ONE_TEST(lc_sha3_512_c);
+	LC_EXEC_ONE_TEST(lc_sha3_512_arm8_neon);
+	LC_EXEC_ONE_TEST(lc_sha3_512_avx2);
+	LC_EXEC_ONE_TEST(lc_sha3_512_avx512);
 
 	return ret;
 }

@@ -29,6 +29,9 @@
 	EXPORT_SYMBOL(symbol);						       \
 	ret symbol
 
+#define LC_CONSTRUCTOR(_func)						       \
+	void __init _func(void)
+
 #else /* LINUX_KERNEL */
 
 #define DSO_PUBLIC __attribute__ ((visibility ("default")))
@@ -47,6 +50,10 @@
 
 #define LC_INTERFACE_SYMBOL(ret, symbol)				       \
 	DSO_PUBLIC ret symbol
+
+#define LC_CONSTRUCTOR(_func)						       \
+	static void __attribute__((constructor)) _func(void);		       \
+	static void _func(void)
 
 #endif /* LINUX_KERNEL */
 

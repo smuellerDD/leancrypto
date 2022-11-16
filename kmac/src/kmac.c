@@ -81,7 +81,6 @@ void, lc_kmac_init, struct lc_kmac_ctx *kmac_ctx,
 		return;
 	hash_ctx = &kmac_ctx->hash_ctx;
 
-	lc_hash_init(hash_ctx);
 	lc_cshake_init(hash_ctx, (uint8_t *)"KMAC", 4, s, slen);
 	kmac_ctx->final_called = 0;
 

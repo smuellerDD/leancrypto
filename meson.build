@@ -11,7 +11,7 @@
 # Patchlevel Version: API / ABI compatible, no functional changes, no
 #		      enhancements, bug fixes only.
 project('leancrypto', 'c',
-	version: '0.4.0',
+	version: '0.5.0',
 	default_options: [
 		'warning_level=3',
 		'optimization=s',
@@ -36,6 +36,9 @@ add_global_arguments([ '-fstack-protector-strong',
 		       '-Wmissing-field-initializers',
 		       '-Wshadow',
 		       '-Wswitch-enum',
+
+		       # Required for ASM compilation
+		       '-Wno-unused-command-line-argument'
 		        ],
 		       language : 'c')
 
@@ -68,6 +71,7 @@ add_project_link_arguments('-Wl,--gc-sections', language : 'c')
 # Link for full RELRO
 add_project_link_arguments('-Wl,-z,relro', language : 'c')
 add_project_link_arguments('-Wl,-z,now', language : 'c')
+add_project_link_arguments('-Wl,-z,noexecstack', language : 'c')
 
 # Only link to truly needed libraries
 add_project_link_arguments('-Wl,--as-needed', language : 'c')
@@ -188,7 +192,7 @@ endif
 src = [ ]
 
 foreach n : subdirs
-    subdir(n)
+	subdir(n)
 endforeach
 
 # Generate leancrypto.h
@@ -218,5 +222,5 @@ install_headers(autogen_header)
 ################################################################################
 
 foreach n : testdirs
-    subdir(n)
+	subdir(n)
 endforeach

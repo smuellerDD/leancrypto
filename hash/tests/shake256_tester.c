@@ -23,7 +23,16 @@
 #include "testfunctions.h"
 #include "visibility.h"
 
-int shake256_tester(void)
+#include "../src/sha3_c.h"
+#include "../src/sha3_arm8_neon.h"
+#include "../src/sha3_avx2.h"
+#include "../src/sha3_avx512.h"
+
+#define LC_EXEC_ONE_TEST(sha3_impl)					       \
+	if (sha3_impl)							       \
+		ret += _shake_256_tester(sha3_impl, #sha3_impl)
+
+static int _shake_256_tester(const struct lc_hash *shake_256, const char *name)
 {
 	static const uint8_t msg1[] = {
 		0x6C, 0x9E, 0xC8, 0x5C, 0xBA, 0xBA, 0x62, 0xF5,
@@ -90,9 +99,12 @@ int shake256_tester(void)
 	};
 	uint8_t act2[sizeof(exp2)];
 	int ret;
-	LC_HASH_CTX_ON_STACK(ctx, lc_shake256);
+	LC_HASH_CTX_ON_STACK(ctx, shake_256);
 	LC_SHAKE_256_CTX_ON_STACK(shake256_stack);
-	LC_HASH_CTX_ON_STACK(cctx, lc_cshake256);
+	LC_HASH_CTX_ON_STACK(cctx, shake_256);
+
+	printf("hash ctx %s (%s implementation) len %lu\n", name,
+	       shake_256 == lc_shake256_c ? "C" : "accelerated", LC_HASH_CTX_SIZE(shake_256));
 
 	lc_hash_init(ctx);
 	lc_hash_update(ctx, msg1, sizeof(msg1));
@@ -130,6 +142,19 @@ int shake256_tester(void)
 	lc_hash_final(cctx, act2);
 	ret = compare(act2, exp2, sizeof(act2), "SHAKE256 3");
 	lc_hash_zero(cctx);
+
+	return ret;
+}
+
+int shake256_tester(void)
+{
+	int ret = 0;
+
+	LC_EXEC_ONE_TEST(lc_shake256);
+	LC_EXEC_ONE_TEST(lc_shake256_c);
+	LC_EXEC_ONE_TEST(lc_shake256_arm8_neon);
+	LC_EXEC_ONE_TEST(lc_shake256_avx2);
+	LC_EXEC_ONE_TEST(lc_shake256_avx512);
 
 	return ret;
 }

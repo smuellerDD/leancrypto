@@ -1,6 +1,7 @@
-// SPDX-License-Identifier: GPL-2.0 OR BSD-2-Clause
 /*
  * Copyright (C) 2022, Stephan Mueller <smueller@chronox.de>
+ *
+ * License: see LICENSE file in root directory
  *
  * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -16,26 +17,38 @@
  * DAMAGE.
  */
 
-#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+#ifndef SHA3_COMMON_H
+#define SHA3_COMMON_H
 
-#include <linux/module.h>
+#include "ext_headers.h"
 
-void sha3_fastest_impl(void);
-static int __init leancrypto_init(void)
+#ifdef __cplusplus
+extern "C"
 {
-	sha3_fastest_impl();
-	return 0;
+#endif
+
+void sha3_224_init_common(void *_state);
+size_t sha3_224_digestsize(void *_state);
+
+void sha3_256_init_common(void *_state);
+size_t sha3_256_digestsize(void *_state);
+
+void sha3_384_init_common(void *_state);
+size_t sha3_384_digestsize(void *_state);
+
+void sha3_512_init_common(void *_state);
+size_t sha3_512_digestsize(void *_state);
+
+void shake_128_init_common(void *_state);
+void shake_256_init_common(void *_state);
+void cshake_256_init_common(void *_state);
+void cshake_128_init_common(void *_state);
+
+size_t shake_get_digestsize(void *_state);
+void shake_set_digestsize(void *_state, size_t digestsize);
+
+#ifdef __cplusplus
 }
+#endif
 
-static void __exit leancrypto_exit(void)
-{
-
-}
-
-module_init(leancrypto_init);
-module_exit(leancrypto_exit);
-
-MODULE_LICENSE("Dual BSD/GPL");
-MODULE_AUTHOR("Stephan Mueller <smueller@chronox.de>");
-MODULE_DESCRIPTION("Kernel module leancrypto");
-
+#endif /* SHA3_COMMON_H */

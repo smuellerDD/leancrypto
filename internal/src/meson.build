@@ -10,3 +10,9 @@ include_files += files([
 	'../api/ext_headers.h',
 	'../api/memset_secure.h'
 	])
+
+if (build_machine.cpu_family() == 'x86_64')
+	src += files([ 'cpufeatures_x86.c' ])
+else
+	src += files([ 'cpufeatures_none.c' ])
+endif

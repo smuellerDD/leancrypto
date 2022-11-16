@@ -22,7 +22,17 @@
 #include "testfunctions.h"
 #include "visibility.h"
 
-int cshake_128_tester(void)
+#include "../src/sha3_c.h"
+#include "../src/sha3_arm8_neon.h"
+#include "../src/sha3_avx2.h"
+#include "../src/sha3_avx512.h"
+
+#define LC_EXEC_ONE_TEST(sha3_impl)					       \
+	if (sha3_impl)							       \
+		ret += _cshake_128_tester(sha3_impl, #sha3_impl)
+
+static int _cshake_128_tester(const struct lc_hash *cshake_128,
+			      const char *name)
 {
 	static const uint8_t msg1[] = {
 		0x0C, 0x77, 0x8C, 0x22, 0x60, 0xCA, 0xE8, 0x28,
@@ -57,8 +67,11 @@ int cshake_128_tester(void)
 	};
 	uint8_t act1[sizeof(exp1)];
 	int ret;
-	LC_HASH_CTX_ON_STACK(ctx, lc_cshake128);
+	LC_HASH_CTX_ON_STACK(ctx, cshake_128);
 	LC_CSHAKE_128_CTX_ON_STACK(cshake128_stack);
+
+	printf("hash ctx %s (%s implementation) len %lu\n", name,
+	       cshake_128 == lc_cshake128_c ? "C" : "accelerated", LC_HASH_CTX_SIZE(cshake_128));
 
 	lc_cshake_init(ctx, NULL, 0, cust1, sizeof(cust1));
 	lc_hash_update(ctx, msg1, sizeof(msg1));
@@ -80,9 +93,22 @@ int cshake_128_tester(void)
 	return ret;
 }
 
+int cshake128_tester(void)
+{
+	int ret = 0;
+
+	LC_EXEC_ONE_TEST(lc_cshake128);
+	LC_EXEC_ONE_TEST(lc_cshake128_c);
+	LC_EXEC_ONE_TEST(lc_cshake128_arm8_neon);
+	LC_EXEC_ONE_TEST(lc_cshake128_avx2);
+	LC_EXEC_ONE_TEST(lc_cshake128_avx512);
+
+	return ret;
+}
+
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;
-	return cshake_128_tester();
+	return cshake128_tester();
 }

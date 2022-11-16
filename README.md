@@ -39,10 +39,6 @@ directory `linux_kernel`:
 
 3. the leancrypto library is provided with `leancrypto.ko`
 
-4. set the flag `LC_MEM_ON_HEAP` if your environment only has a limited stack
-   size. When set, functions with laqrge memory requirements use the heap
-   instead of the stack for this memory.
-
 Note, the compiled test kernel module of `leancrypto_test.ko` is only provided
 for regression testing and is not required for production use. Insert the
 kernel module and check `dmesg` for the results. Unload the kernel module
@@ -57,6 +53,10 @@ systems, you need:
 
 2. Adjust the file `ext_headers.h` to point to the right header files and
    locations.
+
+3. set the flag `LC_MEM_ON_HEAP` if your environment only has a limited stack
+   size. When set, functions with large memory requirements use the heap
+   instead of the stack for this memory.
 
 An example on the approach is given with the Linux kernel support found
 in the directory `linux_kernel`.
@@ -136,7 +136,6 @@ Leancrypto offers various cryptographic algorithms:
   * AES: ECB, CBC, CTR, KW
 
   * ChaCha20
-
 
 # API Documentation
 

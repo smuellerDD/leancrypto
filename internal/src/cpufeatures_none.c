@@ -1,6 +1,7 @@
-// SPDX-License-Identifier: GPL-2.0 OR BSD-2-Clause
 /*
  * Copyright (C) 2022, Stephan Mueller <smueller@chronox.de>
+ *
+ * License: see LICENSE file in root directory
  *
  * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -16,26 +17,9 @@
  * DAMAGE.
  */
 
-#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+#include "cpufeatures.h"
 
-#include <linux/module.h>
-
-void sha3_fastest_impl(void);
-static int __init leancrypto_init(void)
+enum lc_cpu_features cpuid_feature_available(void)
 {
-	sha3_fastest_impl();
-	return 0;
+	return LC_CPU_FEATURE_NONE;
 }
-
-static void __exit leancrypto_exit(void)
-{
-
-}
-
-module_init(leancrypto_init);
-module_exit(leancrypto_exit);
-
-MODULE_LICENSE("Dual BSD/GPL");
-MODULE_AUTHOR("Stephan Mueller <smueller@chronox.de>");
-MODULE_DESCRIPTION("Kernel module leancrypto");
-

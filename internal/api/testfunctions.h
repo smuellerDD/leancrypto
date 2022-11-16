@@ -60,7 +60,8 @@ int hmac_sha2_256_tester(void);
 int hmac_sha2_512_tester(void);
 int sha3_hmac_tester(void);
 
-int cshake_128_tester(void);
+int cshake128_tester(void);
+int cshake256_tester(void);
 int shake128_tester(void);
 int shake256_tester(void);
 int sha512_tester(void);
@@ -68,8 +69,6 @@ int sha3_512_tester(void);
 int sha3_256_tester(void);
 int sha3_224_tester(void);
 int sha256_tester(void);
-int cshake_tester(void);
-int cshake_128_tester(void);
 int shake_sqeeze_more_tester(void);
 
 int chacha20_tester(void);

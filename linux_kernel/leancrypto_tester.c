@@ -70,7 +70,8 @@ static int __init leancrypto_tester_init(void)
 	LC_EXEC_ONE_TEST(hmac_sha2_256_tester);
 	LC_EXEC_ONE_TEST(hmac_sha2_512_tester);
 	LC_EXEC_ONE_TEST(sha3_hmac_tester);
-	LC_EXEC_ONE_TEST(cshake_128_tester);
+	LC_EXEC_ONE_TEST(cshake256_tester);
+	LC_EXEC_ONE_TEST(cshake128_tester);
 	LC_EXEC_ONE_TEST(shake128_tester);
 	LC_EXEC_ONE_TEST(shake256_tester);
 	LC_EXEC_ONE_TEST(sha512_tester);
@@ -78,8 +79,6 @@ static int __init leancrypto_tester_init(void)
 	LC_EXEC_ONE_TEST(sha3_256_tester);
 	LC_EXEC_ONE_TEST(sha3_224_tester);
 	LC_EXEC_ONE_TEST(sha256_tester);
-	LC_EXEC_ONE_TEST(cshake_tester);
-	LC_EXEC_ONE_TEST(cshake_128_tester);
 	LC_EXEC_ONE_TEST(shake_sqeeze_more_tester);
 	LC_EXEC_ONE_TEST(chacha20_tester);
 	LC_EXEC_ONE_TEST(kmac_test);

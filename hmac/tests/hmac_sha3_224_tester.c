@@ -23,7 +23,16 @@
 #include "testfunctions.h"
 #include "visibility.h"
 
-int sha3_hmac_tester(void)
+#include "../src/sha3_c.h"
+#include "../src/sha3_arm8_neon.h"
+#include "../src/sha3_avx2.h"
+#include "../src/sha3_avx512.h"
+
+#define LC_EXEC_ONE_TEST(sha3_impl)					       \
+	if (sha3_impl)							       \
+		ret += _sha3_224_tester(sha3_impl, #sha3_impl)
+
+static int _sha3_224_tester(const struct lc_hash *sha3_224, const char *name)
 {
 	static const uint8_t msg_224[] = { 0x35, 0x8E, 0x06, 0xBA, 0x03, 0x21,
 					   0x83, 0xFC, 0x18, 0x20, 0x58, 0xBD,
@@ -39,9 +48,23 @@ int sha3_hmac_tester(void)
 	uint8_t act[LC_SHA3_512_SIZE_DIGEST];
 	int ret;
 
-	printf("hmac ctx len %lu\n", LC_HMAC_CTX_SIZE(lc_sha3_224));
-	lc_hmac(lc_sha3_224, key_224, 13, msg_224, 16, act);
+	printf("hash ctx %s (%s implementation) len %lu\n", name,
+	       sha3_224 == lc_sha3_224_c ? "C" : "accelerated", LC_HASH_CTX_SIZE(sha3_224));
+	lc_hmac(sha3_224, key_224, 13, msg_224, 16, act);
 	ret = compare(act, exp_224, LC_SHA3_224_SIZE_DIGEST, "HMAC SHA3-224");
+
+	return ret;
+}
+
+int sha3_hmac_tester(void)
+{
+	int ret = 0;
+
+	LC_EXEC_ONE_TEST(lc_sha3_224);
+	LC_EXEC_ONE_TEST(lc_sha3_224_c);
+	LC_EXEC_ONE_TEST(lc_sha3_224_arm8_neon);
+	LC_EXEC_ONE_TEST(lc_sha3_224_avx2);
+	LC_EXEC_ONE_TEST(lc_sha3_224_avx512);
 
 	return ret;
 }
