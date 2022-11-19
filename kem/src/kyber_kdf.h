@@ -93,7 +93,7 @@ static inline void kyber_kdf3(const uint8_t *in, size_t inlen,
  * @param key [in] pointer to the key
  * @param nonce [in] single-byte nonce (public PRF input)
  */
-static void
+static inline void
 kyber_shake256_prf(uint8_t *out, size_t outlen,
 		   const uint8_t key[LC_KYBER_SYMBYTES], uint8_t nonce)
 {

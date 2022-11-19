@@ -27,8 +27,8 @@
 #ifndef KYBER_POLYVEC_H
 #define KYBER_POLYVEC_H
 
-#include "lc_kyber.h"
 #include "kyber_poly_avx2.h"
+#include "lc_kyber.h"
 
 #ifdef __cplusplus
 extern "C"

@@ -46,7 +46,7 @@ int kyber_kem_tester_common(void)
 {
 	int ret = 0;
 
-	printf("Kyber KEM C\n");
+	printf("Kyber KEM common API\n");
 	ret += _kyber_kem_tester_common(0);
 
 	return ret;

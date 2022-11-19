@@ -25,8 +25,8 @@
  */
 
 #include "kyber_align_avx2.h"
-#include "lc_kyber.h"
 #include "kyber_consts_avx2.h"
+#include "lc_kyber.h"
 
 #define Q LC_KYBER_Q
 #define MONT -1044 // 2^16 mod q

@@ -27,8 +27,6 @@
 #ifndef KYBER_CONSTS_AVX2_H
 #define KYBER_CONSTS_AVX2_H
 
-//#include "lc_kyber.h"
-
 #ifdef __cplusplus
 extern "C"
 {
