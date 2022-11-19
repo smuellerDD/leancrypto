@@ -36,7 +36,12 @@
 enum lc_cpu_features cpuid_feature_available(void)
 {
 	unsigned int eax, ebx, ecx, edx;
-	enum lc_cpu_features feat = LC_CPU_FEATURE_NONE;
+	static enum lc_cpu_features feat = LC_CPU_FEATURE_UNSET;
+
+	if (!(feat & LC_CPU_FEATURE_UNSET))
+		return feat;
+
+	feat = LC_CPU_FEATURE_NONE;
 
 	/* Read the maximum leaf */
 	cpuid_eax(0, eax, ebx, ecx, edx);

@@ -29,6 +29,8 @@ enum lc_cpu_features {
 	LC_CPU_FEATURE_NONE		= 0,
 	LC_CPU_FEATURE_INTEL_AVX2	= 1 << 0,
 	LC_CPU_FEATURE_INTEL_AVX512	= 1 << 1,
+
+	LC_CPU_FEATURE_UNSET		= 1 << 31
 };
 
 enum lc_cpu_features cpuid_feature_available(void);
