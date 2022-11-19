@@ -36,9 +36,6 @@ add_global_arguments([ '-fstack-protector-strong',
 		       '-Wmissing-field-initializers',
 		       '-Wshadow',
 		       '-Wswitch-enum',
-
-		       # Required for ASM compilation
-		       '-Wno-unused-command-line-argument'
 		        ],
 		       language : 'c')
 
@@ -190,6 +187,7 @@ endif
 ################################################################################
 
 src = [ ]
+leancrypto_support_libs = [ ]
 
 foreach n : subdirs
 	subdir(n)
@@ -205,10 +203,12 @@ leancrypto_static_lib = static_library('leancrypto_static',
 	[ src, internal_src ],
 	include_directories: [ include_dirs, include_internal_dirs ],
 	)
+
 leancrypto_lib = library('leancrypto',
 	[ src, internal_src ],
 	include_directories: [ include_dirs, include_internal_dirs ],
 	soversion: version_array[0],
+	link_with: leancrypto_support_libs,
 	install: true
 	)
 leancrypto = declare_dependency(link_with: leancrypto_lib,

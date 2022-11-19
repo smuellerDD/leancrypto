@@ -25,6 +25,7 @@
  */
 
 #include "ext_headers.h"
+#include "kyber_kem_tester.h"
 #include "lc_kyber.h"
 #include "lc_sha3.h"
 #include "memory_support.h"
@@ -56,9 +57,10 @@
 
 #define NTESTS 50
 
-static uint32_t seed[32] = {
+#define ORIGSEED							\
 	3,1,4,1,5,9,2,6,5,3,5,8,9,7,9,3,2,3,8,4,6,2,6,4,3,3,8,3,2,7,9,5
-};
+
+static uint32_t seed[32] = { ORIGSEED };
 static uint32_t in[12];
 static uint32_t out[8];
 static int outleft = 0;
@@ -159,7 +161,18 @@ static const struct lc_rng kyber_drng2 = {
 	.zero		= randombytes_zero,
 };
 
-int kyber_kem_tester(void)
+int _kyber_kem_tester(
+	unsigned int rounds,
+	int (*_lc_kyber_keypair)(struct lc_kyber_pk *pk,
+				 struct lc_kyber_sk *sk,
+				 struct lc_rng_ctx *rng_ctx),
+	int (*_lc_kyber_enc)(struct lc_kyber_ct *ct,
+			     uint8_t *ss, size_t ss_len,
+			     const struct lc_kyber_pk *pk,
+			     struct lc_rng_ctx *rng_ctx),
+	int (*_lc_kyber_dec)(uint8_t *ss, size_t ss_len,
+			     const struct lc_kyber_ct *ct,
+			     const struct lc_kyber_sk *sk))
 {
 	struct workspace {
 		struct lc_kyber_pk pk;
@@ -200,17 +213,20 @@ int kyber_kem_tester(void)
 	nvectors = ARRAY_SIZE(kyber_testvectors);
 #endif
 
-	for (i = 0; i < nvectors; i++) {
+	if (!rounds)
+		rounds = nvectors;
+
+	for (i = 0; i < rounds; i++) {
 		// Key-pair generation
-		CKINT(lc_kyber_keypair(&ws->pk, &ws->sk, &kyber_rng));
+		CKINT(_lc_kyber_keypair(&ws->pk, &ws->sk, &kyber_rng));
 
 		// Encapsulation
-		CKINT(lc_kyber_enc(&ws->ct, ws->key_b.ss, LC_KYBER_SSBYTES,
-				   &ws->pk, &kyber_rng2));
+		CKINT(_lc_kyber_enc(&ws->ct, ws->key_b.ss, LC_KYBER_SSBYTES,
+				    &ws->pk, &kyber_rng2));
 
 		// Decapsulation
-		CKINT(lc_kyber_dec(ws->key_a.ss, LC_KYBER_SSBYTES, &ws->ct,
-				   &ws->sk));
+		CKINT(_lc_kyber_dec(ws->key_a.ss, LC_KYBER_SSBYTES, &ws->ct,
+				    &ws->sk));
 
 #ifdef DEBUG
 		printf("Public Key: ");
@@ -268,32 +284,35 @@ int kyber_kem_tester(void)
 		}
 		printf("},\n\t}, ");
 #else
-		if (memcmp(ws->pk.pk, kyber_testvectors[i].pk,
+		if (i < nvectors &&
+		    memcmp(ws->pk.pk, kyber_testvectors[i].pk,
 			   LC_CRYPTO_PUBLICKEYBYTES)) {
 			printf("Public key mismatch at test vector %u\n", i);
 			ret = 1;
 			goto out;
 		}
-		if (memcmp(ws->sk.sk, kyber_testvectors[i].sk,
+		if (i < nvectors &&
+		    memcmp(ws->sk.sk, kyber_testvectors[i].sk,
 			   LC_CRYPTO_SECRETKEYBYTES)) {
 			printf("Secret key mismatch at test vector %u\n", i);
 			ret = 1;
 			goto out;
 		}
-		if (memcmp(ws->ct.ct, kyber_testvectors[i].ct,
+		if (i < nvectors &&
+		    memcmp(ws->ct.ct, kyber_testvectors[i].ct,
 			   LC_CRYPTO_CIPHERTEXTBYTES)) {
 			printf("Ciphertext mismatch at test vector %u\n", i);
 			ret = 1;
 			goto out;
 		}
-		if (memcmp(ws->key_b.ss, kyber_testvectors[i].ss,
+		if (i < nvectors && memcmp(ws->key_b.ss, kyber_testvectors[i].ss,
 			   LC_KYBER_SSBYTES)) {
 			printf("Shared secret mismatch at test vector %u\n", i);
 			ret = 1;
 			goto out;
 		}
 
-		printf("Sucessful validation of test vector %u\n", i);
+		//printf("Sucessful validation of test vector %u\n", i);
 #endif
 
 		for (j = 0; j < LC_KYBER_SSBYTES; j++) {
@@ -313,11 +332,4 @@ int kyber_kem_tester(void)
 out:
 	LC_RELEASE_MEM(ws);
 	return ret;
-}
-
-LC_TEST_FUNC(int, main, int argc, char *argv[])
-{
-	(void)argc;
-	(void)argv;
-	return kyber_kem_tester();
 }

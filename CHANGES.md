@@ -21,6 +21,10 @@ Changes 0.5.0-prerelease:
 
 * fix: remove compile-time warnings on 32 bit systems
 
+* enhancement: SHAKE AVX2 4x implementation used by Kyber AVX2 implementation
+
+* enhancement: Kyber AVX2 support
+
 Changes 0.4.0:
 * simplify Kyber code
 

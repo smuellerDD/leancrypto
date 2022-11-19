@@ -4,7 +4,7 @@ if get_option('kyber').enabled()
 	src += files([
 		'kyber_cbd.c',
 		'kyber_ies.c',
-		'kyber_kem.c',
+		'kyber_kem_c.c',
 		'kyber_kex.c',
 		'kyber_indcpa.c',
 		'kyber_ntt.c',
@@ -13,7 +13,14 @@ if get_option('kyber').enabled()
 		'kyber_verify.c',
 	])
 
+	if (build_machine.cpu_family() == 'x86_64')
+		subdir('avx2')
+	else
+		src += files([ 'kyber_kem_api_c.c' ])
+	endif
+
 	include_files += files([
 		'../api/lc_kyber.h'
 	])
 endif
+
