@@ -30,6 +30,7 @@
 #include <string.h>
 
 #include "lc_sha3.h"
+#include "memcmp_secure.h"
 #include "shake_4x_avx2.h"
 #include "visibility.h"
 
@@ -97,9 +98,9 @@ static void keccakx4_squeezeblocks(uint8_t *out0,
 	unsigned int i;
 	__m128d t;
 
-	while(nblocks > 0) {
+	while (nblocks > 0) {
 		KeccakF1600_StatePermute4x(s);
-		for(i=0; i < r/8; ++i) {
+		for (i = 0; i < r / 8; ++i) {
 			/*
 			 * We can ignore the alignment warning as we checked
 			 * for proper alignment.
@@ -202,6 +203,8 @@ void, shake128x4, uint8_t *out0,
 			out3[i] = t[3][i];
 		}
 	}
+
+	memset_secure(&state, 0, sizeof(state));
 }
 
 LC_INTERFACE_FUNCTION(
@@ -239,4 +242,6 @@ void, shake256x4, uint8_t *out0,
 			out3[i] = t[3][i];
 		}
 	}
+
+	memset_secure(&state, 0, sizeof(state));
 }
