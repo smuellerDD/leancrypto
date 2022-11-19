@@ -24,6 +24,21 @@ if get_option('sha3').enabled()
 			       'asm/AVX2/KeccakP-1600-AVX2.S' ])
 		src += files([ 'sha3_avx512.c',
 			       'asm/AVX512/KeccakP-1600-AVX512.S' ])
+
+		leancrypto_keccak_avx2_4x_lib = static_library(
+			'leancrypto_keccak_avx2_4x_lib',
+			[ 'shake_4x_avx2.c',
+			  'asm/AVX2_4x/KeccakP-1600-times4-SIMD256.c' ],
+			c_args: [
+				'-mavx2',
+				'-mbmi2',
+				'-mpopcnt',
+			],
+			include_directories: [ include_dirs,
+					       include_internal_dirs ],
+		)
+		leancrypto_support_libs += leancrypto_keccak_avx2_4x_lib
+
 	else
 		src += files([ 'sha3_avx2_null.c' ])
 		src += files([ 'sha3_avx512_null.c' ])
