@@ -28,6 +28,10 @@
 #define KYBER_POLY_AVX2_H
 
 #include "kyber_align_avx2.h"
+#include "kyber_consts_avx2.h"
+#include "kyber_kdf.h"
+#include "kyber_ntt_avx2.h"
+#include "kyber_reduce_avx2.h"
 #include "lc_kyber.h"
 
 #ifdef __cplusplus
@@ -40,18 +44,114 @@ typedef ALIGNED_INT16(LC_KYBER_N) poly;
 void poly_compress_avx(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES], const poly *a);
 void poly_decompress_avx(poly *r,
 			 const uint8_t a[LC_KYBER_POLYCOMPRESSEDBYTES]);
+void poly_frommsg_avx(poly * restrict r,
+		      const uint8_t msg[LC_KYBER_INDCPA_MSGBYTES]);
+void poly_tomsg_avx(uint8_t msg[LC_KYBER_INDCPA_MSGBYTES],
+		    const poly * restrict a);
 
-void poly_tobytes_avx(uint8_t r[LC_KYBER_POLYBYTES], const poly *a);
-void poly_frombytes_avx(poly *r, const uint8_t a[LC_KYBER_POLYBYTES]);
+void poly_add_avx(poly *r, const poly *a, const poly *b);
+void poly_sub_avx(poly *r, const poly *a, const poly *b);
 
-void poly_frommsg_avx(poly *r, const uint8_t msg[LC_KYBER_INDCPA_MSGBYTES]);
-void poly_tomsg_avx(uint8_t msg[LC_KYBER_INDCPA_MSGBYTES], const poly *r);
+void cbd2(poly * restrict r, const __m256i buf[2 * LC_KYBER_N / 128]);
 
-void poly_getnoise_eta1_avx(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
-			    uint8_t nonce);
+/* buf 32 bytes longer for cbd3 */
+static inline void
+poly_cbd_eta1_avx(poly *r,
+		  const __m256i buf[LC_KYBER_ETA1 * LC_KYBER_N / 128 + 1])
+{
+#if LC_KYBER_ETA1 == 2
+	cbd2(r, buf);
+#else
+#error "This implementation requires eta1 in {2}"
+#endif
+}
 
-void poly_getnoise_eta2_avx(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
-			    uint8_t nonce);
+static inline void
+poly_cbd_eta2_avx(poly *r,
+		  const __m256i buf[LC_KYBER_ETA2 * LC_KYBER_N / 128])
+{
+#if LC_KYBER_ETA2 == 2
+	cbd2(r, buf);
+#else
+#error "This implementation requires eta2 = 2"
+#endif
+}
+
+/**
+ * @brief poly_tobytes
+ *
+ * Serialization of a polynomial in NTT representation.  The coefficients of the
+ * input polynomial are assumed to lie in the invertal [0,q], i.e. the
+ * polynomial must be reduced by poly_reduce(). The coefficients are orderd as
+ * output by poly_ntt(); the serialized output coefficients are in bitreversed
+ * order.
+ *
+ * @param r pointer to output byte array (needs space for LC_KYBER_POLYBYTES
+ *	    bytes)
+ * @param a: pointer to input polynomial
+ */
+static inline void
+poly_tobytes_avx(uint8_t r[LC_KYBER_POLYBYTES], const poly *a)
+{
+	ntttobytes_avx(r, a->vec, qdata.vec);
+}
+
+/**
+ * @brief poly_frombytes
+ *
+ * De-serialization of a polynomial; inverse of poly_tobytes
+ *
+ * @param r pointer to output polynomial
+ * @parar a pointer to input byte array (of LC_KYBER_POLYBYTES bytes)
+ */
+static inline void
+poly_frombytes_avx(poly *r, const uint8_t a[LC_KYBER_POLYBYTES])
+{
+	nttfrombytes_avx(r->vec, a, qdata.vec);
+}
+
+/**
+ * @brief poly_getnoise_eta1
+ *
+ * Sample a polynomial deterministically from a seed and a nonce, with output
+ * polynomial close to centered binomial distribution with parameter KYBER_ETA1
+ *
+ * @param r pointer to output polynomial
+ * @param seed: pointer to input seed (of length LC_KYBER_SYMBYTES bytes)
+ * @param nonce one-byte input nonce
+ */
+static inline void
+poly_getnoise_eta1_avx(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
+		       uint8_t nonce)
+{
+	// +32 bytes as required by poly_cbd_eta1
+	ALIGNED_UINT8(LC_KYBER_ETA1 * LC_KYBER_N / 4 + 32) buf;
+
+	kyber_shake256_prf(buf.coeffs, LC_KYBER_ETA1 * LC_KYBER_N / 4,
+			   seed, nonce);
+	poly_cbd_eta1_avx(r, buf.vec);
+}
+
+/**
+ * @brief poly_getnoise_eta2
+ *
+ * Sample a polynomial deterministically from a seed and a nonce, with output
+ * polynomial close to centered binomial distribution with parameter KYBER_ETA2
+ *
+ * @param r pointer to output polynomial
+ * @param seed pointer to input seed (of length LC_KYBER_SYMBYTES bytes)
+ * @parm nonce one-byte input nonce
+ */
+static inline void
+poly_getnoise_eta2_avx(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
+		       uint8_t nonce)
+{
+	ALIGNED_UINT8(LC_KYBER_ETA2 * LC_KYBER_N / 4) buf;
+
+	kyber_shake256_prf(buf.coeffs, LC_KYBER_ETA2 * LC_KYBER_N / 4,
+			   seed, nonce);
+	poly_cbd_eta2_avx(r, buf.vec);
+}
 
 void poly_getnoise_eta1_4x(poly *r0,
 			   poly *r1,
@@ -63,16 +163,85 @@ void poly_getnoise_eta1_4x(poly *r0,
 			   uint8_t nonce2,
 			   uint8_t nonce3);
 
-void poly_ntt_avx(poly *r);
-void poly_invntt_tomont_avx(poly *r);
-void poly_nttunpack_avx(poly *r);
-void poly_basemul_montgomery_avx(poly *r, const poly *a, const poly *b);
-void poly_tomont_avx(poly *r);
 
-void poly_reduce_avx(poly *r);
+/**
+ * @brief poly_ntt
+ *
+ * Computes negacyclic number-theoretic transform (NTT) of a polynomial in
+ * place. Input coefficients assumed to be in normal order, output coefficients
+ * are in special order that is natural for the vectorization. Input
+ * coefficients are assumed to be bounded by q in absolute value, output
+ * coefficients are bounded by 16118 in absolute value.
+ *
+ * @param r pointer to in/output polynomial
+ */
+static inline void poly_ntt_avx(poly *r)
+{
+	ntt_avx(r->vec, qdata.vec);
+}
 
-void poly_add_avx(poly *r, const poly *a, const poly *b);
-void poly_sub_avx(poly *r, const poly *a, const poly *b);
+/**
+ * poly_invntt_tomont
+ *
+ * Computes inverse of negacyclic number-theoretic transform (NTT) of a
+ * polynomial in place;
+ * Input coefficients assumed to be in special order from vectorized forward
+ * ntt, output in normal order. Input coefficients can be arbitrary 16-bit
+ * integers, output coefficients are bounded by 14870 in absolute value.
+ *
+ * @param a pointer to in/output polynomial
+ */
+static inline void poly_invntt_tomont_avx(poly *r)
+{
+	invntt_avx(r->vec, qdata.vec);
+}
+
+static inline void poly_nttunpack_avx(poly *r)
+{
+	nttunpack_avx(r->vec, qdata.vec);
+}
+
+/**
+ * @brief poly_basemul_montgomery
+ *
+ * Multiplication of two polynomials in NTT domain. One of the input polynomials
+ * needs to have coefficients bounded by q, the other polynomial can have
+ * arbitrary coefficients. Output coefficients are bounded by 6656.
+ *
+ * @param r pointer to output polynomial
+ * @param a pointer to first input polynomial
+ * @param b pointer to second input polynomial
+ */
+static inline void poly_basemul_montgomery_avx(poly *r, const poly *a, const poly *b)
+{
+	basemul_avx(r->vec, a->vec, b->vec, qdata.vec);
+}
+
+/**
+ * @brief poly_tomont
+ *
+ * Inplace conversion of all coefficients of a polynomial from normal domain to
+ * Montgomery domain
+ *
+ * @param r pointer to input/output polynomial
+ */
+static inline void poly_tomont_avx(poly *r)
+{
+	tomont_avx(r->vec, qdata.vec);
+}
+
+/**
+ * @brief poly_reduce
+ *
+ * Applies Barrett reduction to all coefficients of a polynomial for details of
+ * the Barrett reduction see comments in reduce.c
+ *
+ * @param r pointer to input/output polynomial
+ */
+static inline void poly_reduce_avx(poly *r)
+{
+	reduce_avx(r->vec, qdata.vec);
+}
 
 #ifdef __cplusplus
 }

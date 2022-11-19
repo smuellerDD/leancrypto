@@ -83,6 +83,22 @@ static inline void kyber_kdf3(const uint8_t *in, size_t inlen,
 	lc_hash_zero(shake256);
 }
 
+/**
+ * kyber_shake256_prf - Usage of SHAKE256 as a PRF, concatenates secret and
+ *			public input and then generates outlen bytes of SHAKE256
+ *			output
+ *
+ * @param out [out] pointer to output
+ * @param outlen [in] number of requested output bytes
+ * @param key [in] pointer to the key
+ * @param nonce [in] single-byte nonce (public PRF input)
+ */
+static void
+kyber_shake256_prf(uint8_t *out, size_t outlen,
+		   const uint8_t key[LC_KYBER_SYMBYTES], uint8_t nonce)
+{
+	kyber_kdf2(key, LC_KYBER_SYMBYTES, &nonce, 1, out, outlen);
+}
 
 #ifdef __cplusplus
 }

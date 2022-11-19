@@ -26,8 +26,9 @@
 
 #include <stdint.h>
 #include <immintrin.h>
+
+#include "kyber_poly_avx2.h"
 #include "lc_kyber.h"
-#include "kyber_cbd_avx2.h"
 
 /**
  * cbd2
@@ -39,7 +40,7 @@
  * @param r pointer to output polynomial
  * @param buf pointer to aligned input byte array
  */
-static void cbd2(poly * restrict r, const __m256i buf[2 * LC_KYBER_N / 128])
+void cbd2(poly * restrict r, const __m256i buf[2 * LC_KYBER_N / 128])
 {
 	unsigned int i;
 	__m256i f0, f1, f2, f3;
@@ -81,27 +82,4 @@ static void cbd2(poly * restrict r, const __m256i buf[2 * LC_KYBER_N / 128])
 		_mm256_store_si256(&r->vec[4*i+2], f1);
 		_mm256_store_si256(&r->vec[4*i+3], f3);
 	}
-}
-
-/* buf 32 bytes longer for cbd3 */
-void
-poly_cbd_eta1_avx(poly *r,
-		  const __m256i buf[LC_KYBER_ETA1 * LC_KYBER_N / 128 + 1])
-{
-#if LC_KYBER_ETA1 == 2
-	cbd2(r, buf);
-#else
-#error "This implementation requires eta1 in {2}"
-#endif
-}
-
-void
-poly_cbd_eta2_avx(poly *r,
-		  const __m256i buf[LC_KYBER_ETA2 * LC_KYBER_N / 128])
-{
-#if LC_KYBER_ETA2 == 2
-	cbd2(r, buf);
-#else
-#error "This implementation requires eta2 = 2"
-#endif
 }

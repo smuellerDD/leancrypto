@@ -24,8 +24,8 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
-#include "kyber_poly_avx2.h"
 #include "kyber_indcpa_avx2.h"
+#include "kyber_poly_avx2.h"
 #include "kyber_polyvec_avx2.h"
 #include "kyber_align_avx2.h"
 #include "kyber_rejsample_avx2.h"
