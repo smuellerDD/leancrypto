@@ -17,41 +17,34 @@
  * DAMAGE.
  */
 
-#include "ext_headers.h"
-#include "kyber_kem_tester.h"
-#include "lc_kyber.h"
-#include "lc_sha3.h"
-#include "memory_support.h"
-#include "ret_checkers.h"
-#include "testfunctions.h"
-#include "visibility.h"
+#ifndef DILITHIUM_TESTER_H
+#define DILITHIUM_TESTER_H
 
-#include "kyber_kem_c.h"
+#include "lc_dilithium.h"
 
-static int _kyber_kem_tester_common(unsigned int rounds)
+#ifdef __cplusplus
+extern "C"
 {
-	return _kyber_kem_tester(rounds,
-				 lc_kyber_keypair, lc_kyber_enc,
-				 lc_kyber_dec);
+#endif
+
+int _dilithium_tester(
+	unsigned int rounds,
+	int verify_calculation,
+	int (*_lc_dilithium_keypair)(struct lc_dilithium_pk *pk,
+				     struct lc_dilithium_sk *sk,
+				     struct lc_rng_ctx *rng_ctx),
+	int (*_lc_dilithium_sign)(struct lc_dilithium_sig *sig,
+				  const uint8_t *m,
+				  size_t mlen,
+				  const struct lc_dilithium_sk *sk,
+				  struct lc_rng_ctx *rng_ctx),
+	int (*_lc_dilithium_verify)(const struct lc_dilithium_sig *sig,
+				    const uint8_t *m,
+				    size_t mlen,
+				    const struct lc_dilithium_pk *pk));
+
+#ifdef __cplusplus
 }
+#endif
 
-int kyber_kem_tester_common(void)
-{
-	int ret = 0;
-
-	printf("Kyber KEM common API\n");
-	ret += _kyber_kem_tester_common(0);
-
-	return ret;
-}
-
-LC_TEST_FUNC(int, main, int argc, char *argv[])
-{
-	(void)argc;
-	(void)argv;
-
-	if (argc != 2)
-		return kyber_kem_tester_common();
-
-	return _kyber_kem_tester_common(50000);
-}
+#endif /* DILITHIUM_TESTER_H */

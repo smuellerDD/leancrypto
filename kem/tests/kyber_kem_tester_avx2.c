@@ -16,13 +16,6 @@
  * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-/*
- * This code is derived in parts from the code distribution provided with
- * https://github.com/pq-crystals/kyber
- *
- * That code is released under Public Domain
- * (https://creativecommons.org/share-your-work/public-domain/cc0/).
- */
 
 #include "ext_headers.h"
 #include "kyber_kem_tester.h"

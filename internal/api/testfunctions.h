@@ -77,7 +77,9 @@ int hmac_drbg_tester(void);
 int hash_drbg_tester(void);
 int cshake_drng_test(void);
 
-int dilitium_tester(void);
+int dilitium_tester_c(void);
+int dilithium_tester_common(void);
+int dilithium_tester_avx2(void);
 int dilithium_invalid(void);
 
 int kyber_kem_tester_c(void);

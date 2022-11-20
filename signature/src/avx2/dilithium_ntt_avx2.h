@@ -16,42 +16,37 @@
  * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
+/*
+ * This code is derived in parts from the code distribution provided with
+ * https://github.com/pq-crystals/dilithium
+ *
+ * That code is released under Public Domain
+ * (https://creativecommons.org/share-your-work/public-domain/cc0/);
+ * or Apache 2.0 License (https://www.apache.org/licenses/LICENSE-2.0.html).
+ */
 
-#include "ext_headers.h"
-#include "kyber_kem_tester.h"
-#include "lc_kyber.h"
-#include "lc_sha3.h"
-#include "memory_support.h"
-#include "ret_checkers.h"
-#include "testfunctions.h"
-#include "visibility.h"
+#ifndef DILITHIUM_NTT_AVX2_H
+#define DILITHIUM_NTT_AVX2_H
 
-#include "kyber_kem_c.h"
+#include <immintrin.h>
 
-static int _kyber_kem_tester_common(unsigned int rounds)
+#ifdef __cplusplus
+extern "C"
 {
-	return _kyber_kem_tester(rounds,
-				 lc_kyber_keypair, lc_kyber_enc,
-				 lc_kyber_dec);
+#endif
+
+void ntt_avx(__m256i *a, const __m256i *qdata);
+void invntt_avx(__m256i *a, const __m256i *qdata);
+
+void nttunpack_avx(__m256i *a);
+
+void pointwise_avx(__m256i *c, const __m256i *a, const __m256i *b,
+		   const __m256i *qdata);
+void pointwise_acc_avx(__m256i *c, const __m256i *a, const __m256i *b,
+		       const __m256i *qdata);
+
+#ifdef __cplusplus
 }
+#endif
 
-int kyber_kem_tester_common(void)
-{
-	int ret = 0;
-
-	printf("Kyber KEM common API\n");
-	ret += _kyber_kem_tester_common(0);
-
-	return ret;
-}
-
-LC_TEST_FUNC(int, main, int argc, char *argv[])
-{
-	(void)argc;
-	(void)argv;
-
-	if (argc != 2)
-		return kyber_kem_tester_common();
-
-	return _kyber_kem_tester_common(50000);
-}
+#endif /* DILITHIUM_NTT_AVX2_H */

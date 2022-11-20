@@ -18,29 +18,29 @@
  */
 
 #include "ext_headers.h"
-#include "kyber_kem_tester.h"
-#include "lc_kyber.h"
+#include "dilithium_tester.h"
+#include "lc_dilithium.h"
 #include "lc_sha3.h"
 #include "memory_support.h"
 #include "ret_checkers.h"
 #include "testfunctions.h"
 #include "visibility.h"
 
-#include "kyber_kem_c.h"
+#include "dilithium_signature_c.h"
 
-static int _kyber_kem_tester_common(unsigned int rounds)
+static int _dilithium_tester_c(unsigned int rounds)
 {
-	return _kyber_kem_tester(rounds,
-				 lc_kyber_keypair, lc_kyber_enc,
-				 lc_kyber_dec);
+	return _dilithium_tester(rounds, 1,
+				 lc_dilithium_keypair_c, lc_dilithium_sign_c,
+				 lc_dilithium_verify_c);
 }
 
-int kyber_kem_tester_common(void)
+int dilithium_tester_c(void)
 {
 	int ret = 0;
 
-	printf("Kyber KEM common API\n");
-	ret += _kyber_kem_tester_common(0);
+	printf("Dilithium C\n");
+	ret += _dilithium_tester_c(0);
 
 	return ret;
 }
@@ -51,7 +51,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	(void)argv;
 
 	if (argc != 2)
-		return kyber_kem_tester_common();
+		return dilithium_tester_c();
 
-	return _kyber_kem_tester_common(50000);
+	return _dilithium_tester_c(10000);
 }

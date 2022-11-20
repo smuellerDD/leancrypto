@@ -28,6 +28,7 @@
 #include "dilithium_pack.h"
 #include "dilithium_poly.h"
 #include "dilithium_polyvec.h"
+#include "dilithium_tester.h"
 #include "ext_headers.h"
 #include "lc_dilithium.h"
 #include "lc_hash.h"
@@ -114,7 +115,21 @@ static const struct lc_rng dilithium_drng = {
 	.zero		= randombytes_zero,
 };
 
-int dilitium_tester(void)
+int _dilithium_tester(
+	unsigned int rounds,
+	int verify_calculation,
+	int (*_lc_dilithium_keypair)(struct lc_dilithium_pk *pk,
+				     struct lc_dilithium_sk *sk,
+				     struct lc_rng_ctx *rng_ctx),
+	int (*_lc_dilithium_sign)(struct lc_dilithium_sig *sig,
+				  const uint8_t *m,
+				  size_t mlen,
+				  const struct lc_dilithium_sk *sk,
+				  struct lc_rng_ctx *rng_ctx),
+	int (*_lc_dilithium_verify)(const struct lc_dilithium_sig *sig,
+				    const uint8_t *m,
+				    size_t mlen,
+				    const struct lc_dilithium_pk *pk))
 {
 	struct workspace {
 		struct lc_dilithium_pk pk;
@@ -163,11 +178,23 @@ int dilitium_tester(void)
 	nvectors = ARRAY_SIZE(dilithium_testvectors);
 #endif
 
-	for (i = 0; i < nvectors; ++i) {
+	if (!rounds)
+		rounds = nvectors;
+
+	for (i = 0; i < rounds; ++i) {
 		lc_rng_generate(&dilithium_rng, NULL, 0, ws->m, MLEN);
-		lc_dilithium_keypair(&ws->pk, &ws->sk, &dilithium_rng);
-		lc_dilithium_sign(&ws->sig, ws->m, MLEN, &ws->sk,
-				  NULL /*dilithium_rng*/);
+		_lc_dilithium_keypair(&ws->pk, &ws->sk, &dilithium_rng);
+		_lc_dilithium_sign(&ws->sig, ws->m, MLEN, &ws->sk,
+				   NULL /*dilithium_rng*/);
+
+		if (_lc_dilithium_verify(&ws->sig, ws->m, MLEN, &ws->pk))
+			printf("Signature verification failed!\n");
+
+		lc_rng_generate(&dilithium_rng, NULL, 0,
+				ws->seed, sizeof(ws->seed));
+
+		if (rounds > nvectors)
+			continue;
 
 #ifdef GENERATE_VECTORS
 
@@ -251,11 +278,8 @@ int dilitium_tester(void)
 #endif
 #endif
 
-		if (lc_dilithium_verify(&ws->sig, ws->m, MLEN, &ws->pk))
-			printf("Signature verification failed!\n");
-
-		lc_rng_generate(&dilithium_rng, NULL, 0,
-				ws->seed, sizeof(ws->seed));
+		if (!verify_calculation)
+			continue;
 
 #ifndef LINUX_KERNEL
 
@@ -484,11 +508,4 @@ int dilitium_tester(void)
 out:
 	LC_RELEASE_MEM(ws);
 	return ret;
-}
-
-LC_TEST_FUNC(int, main, int argc, char *argv[])
-{
-	(void)argc;
-	(void)argv;
-	return dilitium_tester();
 }

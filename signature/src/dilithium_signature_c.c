@@ -27,6 +27,7 @@
 
 #include "dilithium_polyvec.h"
 #include "dilithium_pack.h"
+#include "dilithium_signature_c.h"
 #include "lc_dilithium.h"
 #include "lc_hash.h"
 #include "lc_sha3.h"
@@ -35,9 +36,9 @@
 #include "visibility.h"
 
 LC_INTERFACE_FUNCTION(
-int, lc_dilithium_keypair, struct lc_dilithium_pk *pk,
-			   struct lc_dilithium_sk *sk,
-			   struct lc_rng_ctx *rng_ctx)
+int, lc_dilithium_keypair_c, struct lc_dilithium_pk *pk,
+			     struct lc_dilithium_sk *sk,
+			     struct lc_rng_ctx *rng_ctx)
 {
 	struct workspace {
 		polyvecl mat[LC_DILITHIUM_K];
@@ -97,11 +98,11 @@ out:
 }
 
 LC_INTERFACE_FUNCTION(
-int, lc_dilithium_sign, struct lc_dilithium_sig *sig,
-		        const uint8_t *m,
-		        size_t mlen,
-		        const struct lc_dilithium_sk *sk,
-		        struct lc_rng_ctx *rng_ctx)
+int, lc_dilithium_sign_c, struct lc_dilithium_sig *sig,
+			  const uint8_t *m,
+			  size_t mlen,
+			  const struct lc_dilithium_sk *sk,
+			  struct lc_rng_ctx *rng_ctx)
 {
 	struct workspace {
 		polyvecl mat[LC_DILITHIUM_K], s1, y, z;
@@ -215,10 +216,10 @@ out:
 }
 
 LC_INTERFACE_FUNCTION(
-int, lc_dilithium_verify, const struct lc_dilithium_sig *sig,
-			  const uint8_t *m,
-			  size_t mlen,
-			  const struct lc_dilithium_pk *pk)
+int, lc_dilithium_verify_c, const struct lc_dilithium_sig *sig,
+			    const uint8_t *m,
+			    size_t mlen,
+			    const struct lc_dilithium_pk *pk)
 {
 	struct workspace {
 		poly cp;
@@ -231,6 +232,7 @@ int, lc_dilithium_verify, const struct lc_dilithium_sig *sig,
 		uint8_t c2[LC_DILITHIUM_SEEDBYTES];
 	};
 	unsigned int i;
+	int ret = 0;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
 
@@ -284,11 +286,11 @@ int, lc_dilithium_verify, const struct lc_dilithium_sig *sig,
 	lc_hash_final(hash_ctx, ws->c2);
 
 	for (i = 0; i < LC_DILITHIUM_SEEDBYTES; ++i)
-		if(ws->c[i] != ws->c2[i])
-			return -EBADMSG;
+		if (ws->c[i] != ws->c2[i])
+			ret = -EBADMSG;
 
 	lc_hash_zero(hash_ctx);
 	LC_RELEASE_MEM(ws);
 
-	return 0;
+	return ret;
 }

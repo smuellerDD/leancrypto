@@ -85,7 +85,9 @@ static int __init leancrypto_tester_init(void)
 	LC_EXEC_ONE_TEST(hmac_drbg_tester);
 	LC_EXEC_ONE_TEST(hash_drbg_tester);
 	LC_EXEC_ONE_TEST(cshake_drng_test);
-	LC_EXEC_ONE_TEST(dilitium_tester);
+	/* We do not compile AVX as of now */
+	LC_EXEC_ONE_TEST(dilitium_tester_c);
+	LC_EXEC_ONE_TEST(dilitium_tester_common);
 	LC_EXEC_ONE_TEST(dilithium_invalid);
 	/* We do not compile AVX as of now */
 	LC_EXEC_ONE_TEST(kyber_kem_tester_c);

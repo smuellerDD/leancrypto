@@ -25,6 +25,8 @@ Changes 0.5.0-prerelease:
 
 * enhancement: Kyber AVX2 support
 
+* enhancement: Dilithium AVX2 support
+
 Changes 0.4.0:
 * simplify Kyber code
 

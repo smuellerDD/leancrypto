@@ -17,41 +17,39 @@
  * DAMAGE.
  */
 
-#include "ext_headers.h"
-#include "kyber_kem_tester.h"
-#include "lc_kyber.h"
+#ifndef DILITHIUM_REJSAMPLE_AVX2_H
+#define DILITHIUM_REJSAMPLE_AVX2_H
+
+#include <stdint.h>
+
+#include "lc_dilithium.h"
 #include "lc_sha3.h"
-#include "memory_support.h"
-#include "ret_checkers.h"
-#include "testfunctions.h"
-#include "visibility.h"
 
-#include "kyber_kem_c.h"
-
-static int _kyber_kem_tester_common(unsigned int rounds)
+#ifdef __cplusplus
+extern "C"
 {
-	return _kyber_kem_tester(rounds,
-				 lc_kyber_keypair, lc_kyber_enc,
-				 lc_kyber_dec);
+#endif
+
+#define REJ_UNIFORM_NBLOCKS						       \
+	((768 + LC_SHAKE_128_SIZE_BLOCK-1) /LC_SHAKE_128_SIZE_BLOCK)
+#define REJ_UNIFORM_BUFLEN (REJ_UNIFORM_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK)
+
+#define REJ_UNIFORM_ETA_NBLOCKS						       \
+	((136 + LC_SHAKE_256_SIZE_BLOCK - 1) / LC_SHAKE_256_SIZE_BLOCK)
+#define REJ_UNIFORM_ETA_BUFLEN						       \
+	(REJ_UNIFORM_ETA_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK)
+
+extern const uint8_t idxlut[256][8];
+
+unsigned int rej_uniform_avx(int32_t *r,
+			     const uint8_t buf[REJ_UNIFORM_BUFLEN + 8]);
+
+unsigned int rej_eta_avx(int32_t *r,
+			 const uint8_t buf[REJ_UNIFORM_ETA_BUFLEN]);
+
+#ifdef __cplusplus
 }
+#endif
 
-int kyber_kem_tester_common(void)
-{
-	int ret = 0;
+#endif /* DILITHIUM_REJSAMPLE_AVX2_H */
 
-	printf("Kyber KEM common API\n");
-	ret += _kyber_kem_tester_common(0);
-
-	return ret;
-}
-
-LC_TEST_FUNC(int, main, int argc, char *argv[])
-{
-	(void)argc;
-	(void)argv;
-
-	if (argc != 2)
-		return kyber_kem_tester_common();
-
-	return _kyber_kem_tester_common(50000);
-}

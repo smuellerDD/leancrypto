@@ -16,42 +16,40 @@
  * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
+/*
+ * This code is derived in parts from the code distribution provided with
+ * https://github.com/pq-crystals/dilithium
+ *
+ * That code is released under Public Domain
+ * (https://creativecommons.org/share-your-work/public-domain/cc0/);
+ * or Apache 2.0 License (https://www.apache.org/licenses/LICENSE-2.0.html).
+ */
 
-#include "ext_headers.h"
-#include "kyber_kem_tester.h"
-#include "lc_kyber.h"
-#include "lc_sha3.h"
-#include "memory_support.h"
-#include "ret_checkers.h"
-#include "testfunctions.h"
-#include "visibility.h"
+#ifndef DILITHIUM_ALIGN_H
+#define DILITHIUM_ALIGN_H
 
-#include "kyber_kem_c.h"
+#include <stdint.h>
+#include <immintrin.h>
 
-static int _kyber_kem_tester_common(unsigned int rounds)
+#ifdef __cplusplus
+extern "C"
 {
-	return _kyber_kem_tester(rounds,
-				 lc_kyber_keypair, lc_kyber_enc,
-				 lc_kyber_dec);
+#endif
+
+#define ALIGNED_UINT8(N) 						       \
+	union {								       \
+		uint8_t coeffs[N];					       \
+		__m256i vec[(N + 31) / 32];				       \
+	}
+
+#define ALIGNED_INT32(N)						       \
+	union {								       \
+		int32_t coeffs[N];					       \
+		__m256i vec[(N + 7) / 8];				       \
+	}
+
+#ifdef __cplusplus
 }
+#endif
 
-int kyber_kem_tester_common(void)
-{
-	int ret = 0;
-
-	printf("Kyber KEM common API\n");
-	ret += _kyber_kem_tester_common(0);
-
-	return ret;
-}
-
-LC_TEST_FUNC(int, main, int argc, char *argv[])
-{
-	(void)argc;
-	(void)argv;
-
-	if (argc != 2)
-		return kyber_kem_tester_common();
-
-	return _kyber_kem_tester_common(50000);
-}
+#endif /* DILITHIUM_ALIGN_H */

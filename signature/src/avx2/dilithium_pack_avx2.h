@@ -16,42 +16,38 @@
  * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
+/*
+ * This code is derived in parts from the code distribution provided with
+ * https://github.com/pq-crystals/dilithium
+ *
+ * That code is released under Public Domain
+ * (https://creativecommons.org/share-your-work/public-domain/cc0/);
+ * or Apache 2.0 License (https://www.apache.org/licenses/LICENSE-2.0.html).
+ */
 
-#include "ext_headers.h"
-#include "kyber_kem_tester.h"
-#include "lc_kyber.h"
-#include "lc_sha3.h"
-#include "memory_support.h"
-#include "ret_checkers.h"
-#include "testfunctions.h"
-#include "visibility.h"
+#ifndef DILITHIUM_PACK_AVX2_H
+#define DILITHIUM_PACK_AVX2_H
 
-#include "kyber_kem_c.h"
+#include <stdint.h>
 
-static int _kyber_kem_tester_common(unsigned int rounds)
+#include "dilithium_polyvec_avx2.h"
+#include "lc_dilithium.h"
+
+#ifdef __cplusplus
+extern "C"
 {
-	return _kyber_kem_tester(rounds,
-				 lc_kyber_keypair, lc_kyber_enc,
-				 lc_kyber_dec);
+#endif
+
+void unpack_sk_avx2(uint8_t rho[LC_DILITHIUM_SEEDBYTES],
+		    uint8_t tr[LC_DILITHIUM_SEEDBYTES],
+		    uint8_t key[LC_DILITHIUM_SEEDBYTES],
+		    polyveck *t0,
+		    polyvecl *s1,
+		    polyveck *s2,
+		    const uint8_t sk[LC_DILITHIUM_SECRETKEYBYTES]);
+
+#ifdef __cplusplus
 }
+#endif
 
-int kyber_kem_tester_common(void)
-{
-	int ret = 0;
-
-	printf("Kyber KEM common API\n");
-	ret += _kyber_kem_tester_common(0);
-
-	return ret;
-}
-
-LC_TEST_FUNC(int, main, int argc, char *argv[])
-{
-	(void)argc;
-	(void)argv;
-
-	if (argc != 2)
-		return kyber_kem_tester_common();
-
-	return _kyber_kem_tester_common(50000);
-}
+#endif /* DILITHIUM_PACK_AVX2_H */
