@@ -483,7 +483,7 @@ void poly_challenge_avx(poly * restrict c,
 		} while(b > i);
 
 		c->coeffs[i] = c->coeffs[b];
-		c->coeffs[b] = 1 - 2*(signs & 1);
+		c->coeffs[b] = (int32_t)(1 - 2*(signs & 1));
 		signs >>= 1;
 	}
 }
@@ -660,39 +660,39 @@ void polyt0_unpack_avx(poly * restrict r,
 
 	for (i = 0; i < LC_DILITHIUM_N / 8; ++i) {
 		r->coeffs[8*i+0]  = a[13*i+0];
-		r->coeffs[8*i+0] |= (uint32_t)a[13*i+1] << 8;
+		r->coeffs[8*i+0] |= (int32_t)a[13*i+1] << 8;
 		r->coeffs[8*i+0] &= 0x1FFF;
 
 		r->coeffs[8*i+1]  = a[13*i+1] >> 5;
-		r->coeffs[8*i+1] |= (uint32_t)a[13*i+2] << 3;
-		r->coeffs[8*i+1] |= (uint32_t)a[13*i+3] << 11;
+		r->coeffs[8*i+1] |= (int32_t)a[13*i+2] << 3;
+		r->coeffs[8*i+1] |= (int32_t)a[13*i+3] << 11;
 		r->coeffs[8*i+1] &= 0x1FFF;
 
 		r->coeffs[8*i+2]  = a[13*i+3] >> 2;
-		r->coeffs[8*i+2] |= (uint32_t)a[13*i+4] << 6;
+		r->coeffs[8*i+2] |= (int32_t)a[13*i+4] << 6;
 		r->coeffs[8*i+2] &= 0x1FFF;
 
 		r->coeffs[8*i+3]  = a[13*i+4] >> 7;
-		r->coeffs[8*i+3] |= (uint32_t)a[13*i+5] << 1;
-		r->coeffs[8*i+3] |= (uint32_t)a[13*i+6] << 9;
+		r->coeffs[8*i+3] |= (int32_t)a[13*i+5] << 1;
+		r->coeffs[8*i+3] |= (int32_t)a[13*i+6] << 9;
 		r->coeffs[8*i+3] &= 0x1FFF;
 
 		r->coeffs[8*i+4]  = a[13*i+6] >> 4;
-		r->coeffs[8*i+4] |= (uint32_t)a[13*i+7] << 4;
-		r->coeffs[8*i+4] |= (uint32_t)a[13*i+8] << 12;
+		r->coeffs[8*i+4] |= (int32_t)a[13*i+7] << 4;
+		r->coeffs[8*i+4] |= (int32_t)a[13*i+8] << 12;
 		r->coeffs[8*i+4] &= 0x1FFF;
 
 		r->coeffs[8*i+5]  = a[13*i+8] >> 1;
-		r->coeffs[8*i+5] |= (uint32_t)a[13*i+9] << 7;
+		r->coeffs[8*i+5] |= (int32_t)a[13*i+9] << 7;
 		r->coeffs[8*i+5] &= 0x1FFF;
 
 		r->coeffs[8*i+6]  = a[13*i+9] >> 6;
-		r->coeffs[8*i+6] |= (uint32_t)a[13*i+10] << 2;
-		r->coeffs[8*i+6] |= (uint32_t)a[13*i+11] << 10;
+		r->coeffs[8*i+6] |= (int32_t)a[13*i+10] << 2;
+		r->coeffs[8*i+6] |= (int32_t)a[13*i+11] << 10;
 		r->coeffs[8*i+6] &= 0x1FFF;
 
 		r->coeffs[8*i+7]  = a[13*i+11] >> 3;
-		r->coeffs[8*i+7] |= (uint32_t)a[13*i+12] << 5;
+		r->coeffs[8*i+7] |= (int32_t)a[13*i+12] << 5;
 		r->coeffs[8*i+7] &= 0x1FFF;
 
 		r->coeffs[8*i+0] = (1 << (LC_DILITHIUM_D-1)) - r->coeffs[8*i+0];
