@@ -69,6 +69,7 @@ static int kmac_drng(struct opts *opts, FILE *out)
 {
 	struct workspace {
 		uint8_t outbuf[LC_KMAC256_DRNG_MAX_CHUNK];
+		char outhex[2 * LC_KMAC256_DRNG_MAX_CHUNK];
 	};
 	struct timeval tv;
 	uint64_t time;
@@ -99,10 +100,9 @@ static int kmac_drng(struct opts *opts, FILE *out)
 		lc_rng_generate(kmac_ctx, NULL, 0, ws->outbuf, todo);
 
 		if (opts->hex) {
-			char outhex[2 * LC_KMAC256_DRNG_MAX_CHUNK];
-
-			bin2hex(ws->outbuf, todo, outhex, sizeof(outhex), 0);
-			fwrite(outhex, todo * 2, 1, out);
+			bin2hex(ws->outbuf, todo,
+				ws->outhex, sizeof(ws->outhex), 0);
+			fwrite(ws->outhex, todo * 2, 1, out);
 		} else {
 			fwrite(ws->outbuf, todo, 1, out);
 		}

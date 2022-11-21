@@ -47,11 +47,25 @@ out:
 
 int main(int argc, char *argv[])
 {
+#ifdef LC_MEM_ON_HEAP
+	struct lc_rng_ctx *drbg;
+	int ret = lc_drbg_hash_alloc(&drbg);
+	if (ret)
+		return ret;
+#else
 	LC_DRBG_HASH_CTX_ON_STACK(drbg);
-	int ret = hash_drbg_selftest_large(drbg);
+	int ret;
+#endif
+
+	ret = hash_drbg_selftest_large(drbg);
 
 	(void)argc;
 	(void)argv;
 
+#ifdef LC_MEM_ON_HEAP
+	lc_rng_zero_free(drbg);
+#else
+	lc_rng_zero(drbg);
+#endif
 	return ret;
 }
