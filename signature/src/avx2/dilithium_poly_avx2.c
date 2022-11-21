@@ -230,53 +230,66 @@ void poly_uniform_4x_avx(poly *a0,
 			 uint16_t nonce0,
 			 uint16_t nonce1,
 			 uint16_t nonce2,
-			 uint16_t nonce3)
+			 uint16_t nonce3,
+			 void *ws_buf)
 {
 	unsigned int ctr0, ctr1, ctr2, ctr3;
-	ALIGNED_UINT8(REJ_UNIFORM_BUFLEN + 8) buf[4];
+#define BUFSIZE (REJ_UNIFORM_BUFLEN + 8)
+	__m256i *vec0 = (__m256i *)ws_buf;
+	__m256i *vec1 = (__m256i *)(ws_buf) + ALIGNED_UINT8_M256I(BUFSIZE);
+	__m256i *vec2 = (__m256i *)(ws_buf) + ALIGNED_UINT8_M256I(BUFSIZE) * 2;
+	__m256i *vec3 = (__m256i *)(ws_buf) + ALIGNED_UINT8_M256I(BUFSIZE) * 3;
+	uint8_t *coeffs0 = (uint8_t *)vec0;
+	uint8_t *coeffs1 = (uint8_t *)vec1;
+	uint8_t *coeffs2 = (uint8_t *)vec2;
+	uint8_t *coeffs3 = (uint8_t *)vec3;
+#undef BUFSIZE
 	keccakx4_state state;
 	__m256i f;
 
 	f = _mm256_loadu_si256((__m256i_u *)seed);
-	_mm256_store_si256(buf[0].vec,f);
-	_mm256_store_si256(buf[1].vec,f);
-	_mm256_store_si256(buf[2].vec,f);
-	_mm256_store_si256(buf[3].vec,f);
+	_mm256_store_si256(vec0, f);
+	_mm256_store_si256(vec1, f);
+	_mm256_store_si256(vec2, f);
+	_mm256_store_si256(vec3, f);
 
-	buf[0].coeffs[LC_DILITHIUM_SEEDBYTES+0] = (uint8_t)(nonce0);
-	buf[0].coeffs[LC_DILITHIUM_SEEDBYTES+1] = (uint8_t)(nonce0 >> 8);
-	buf[1].coeffs[LC_DILITHIUM_SEEDBYTES+0] = (uint8_t)(nonce1);
-	buf[1].coeffs[LC_DILITHIUM_SEEDBYTES+1] = (uint8_t)(nonce1 >> 8);
-	buf[2].coeffs[LC_DILITHIUM_SEEDBYTES+0] = (uint8_t)(nonce2);
-	buf[2].coeffs[LC_DILITHIUM_SEEDBYTES+1] = (uint8_t)(nonce2 >> 8);
-	buf[3].coeffs[LC_DILITHIUM_SEEDBYTES+0] = (uint8_t)(nonce3);
-	buf[3].coeffs[LC_DILITHIUM_SEEDBYTES+1] = (uint8_t)(nonce3 >> 8);
+	coeffs0[LC_DILITHIUM_SEEDBYTES+0] = (uint8_t)(nonce0);
+	coeffs0[LC_DILITHIUM_SEEDBYTES+1] = (uint8_t)(nonce0 >> 8);
+	coeffs1[LC_DILITHIUM_SEEDBYTES+0] = (uint8_t)(nonce1);
+	coeffs1[LC_DILITHIUM_SEEDBYTES+1] = (uint8_t)(nonce1 >> 8);
+	coeffs2[LC_DILITHIUM_SEEDBYTES+0] = (uint8_t)(nonce2);
+	coeffs2[LC_DILITHIUM_SEEDBYTES+1] = (uint8_t)(nonce2 >> 8);
+	coeffs3[LC_DILITHIUM_SEEDBYTES+0] = (uint8_t)(nonce3);
+	coeffs3[LC_DILITHIUM_SEEDBYTES+1] = (uint8_t)(nonce3 >> 8);
 
-	shake128x4_absorb_once(&state, buf[0].coeffs, buf[1].coeffs, buf[2].coeffs, buf[3].coeffs, LC_DILITHIUM_SEEDBYTES + 2);
-	shake128x4_squeezeblocks(buf[0].coeffs, buf[1].coeffs, buf[2].coeffs, buf[3].coeffs, REJ_UNIFORM_NBLOCKS, &state);
+	shake128x4_absorb_once(&state, coeffs0, coeffs1, coeffs2, coeffs3,
+			       LC_DILITHIUM_SEEDBYTES + 2);
+	shake128x4_squeezeblocks(coeffs0, coeffs1, coeffs2, coeffs3,
+				 REJ_UNIFORM_NBLOCKS, &state);
 
-	ctr0 = rej_uniform_avx(a0->coeffs, buf[0].coeffs);
-	ctr1 = rej_uniform_avx(a1->coeffs, buf[1].coeffs);
-	ctr2 = rej_uniform_avx(a2->coeffs, buf[2].coeffs);
-	ctr3 = rej_uniform_avx(a3->coeffs, buf[3].coeffs);
+	ctr0 = rej_uniform_avx(a0->coeffs, coeffs0);
+	ctr1 = rej_uniform_avx(a1->coeffs, coeffs1);
+	ctr2 = rej_uniform_avx(a2->coeffs, coeffs2);
+	ctr3 = rej_uniform_avx(a3->coeffs, coeffs3);
 
 	while (ctr0 < LC_DILITHIUM_N ||
 	       ctr1 < LC_DILITHIUM_N ||
 	       ctr2 < LC_DILITHIUM_N ||
 	       ctr3 < LC_DILITHIUM_N) {
-		shake128x4_squeezeblocks(buf[0].coeffs, buf[1].coeffs, buf[2].coeffs, buf[3].coeffs, 1, &state);
+		shake128x4_squeezeblocks(coeffs0, coeffs1, coeffs2, coeffs3,
+					 1, &state);
 
 		ctr0 += rej_uniform(a0->coeffs + ctr0,
-				    LC_DILITHIUM_N - ctr0, buf[0].coeffs,
+				    LC_DILITHIUM_N - ctr0, coeffs0,
 				    LC_SHAKE_128_SIZE_BLOCK);
 		ctr1 += rej_uniform(a1->coeffs + ctr1,
-				    LC_DILITHIUM_N - ctr1, buf[1].coeffs,
+				    LC_DILITHIUM_N - ctr1, coeffs1,
 				    LC_SHAKE_128_SIZE_BLOCK);
 		ctr2 += rej_uniform(a2->coeffs + ctr2,
-				    LC_DILITHIUM_N - ctr2, buf[2].coeffs,
+				    LC_DILITHIUM_N - ctr2, coeffs2,
 				    LC_SHAKE_128_SIZE_BLOCK);
 		ctr3 += rej_uniform(a3->coeffs + ctr3,
-				    LC_DILITHIUM_N - ctr3, buf[3].coeffs,
+				    LC_DILITHIUM_N - ctr3, coeffs3,
 				    LC_SHAKE_128_SIZE_BLOCK);
 	}
 }
@@ -397,9 +410,6 @@ void poly_uniform_eta_4x_avx(poly *a0,
  * @param seed[] byte array with seed of length CRHBYTES
  * @param nonce 16-bit nonce
  */
-#define POLY_UNIFORM_GAMMA1_NBLOCKS					       \
-	((LC_DILITHIUM_POLYZ_PACKEDBYTES + LC_SHAKE_256_SIZE_BLOCK - 1) /      \
-	 LC_SHAKE_256_SIZE_BLOCK)
 void poly_uniform_gamma1_4x_avx(poly *a0,
 				poly *a1,
 				poly *a2,
@@ -408,42 +418,50 @@ void poly_uniform_gamma1_4x_avx(poly *a0,
 				uint16_t nonce0,
 				uint16_t nonce1,
 				uint16_t nonce2,
-				uint16_t nonce3)
+				uint16_t nonce3,
+				void *ws_buf)
 {
-	ALIGNED_UINT8(POLY_UNIFORM_GAMMA1_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK + 14) buf[4];
+#define BUFSIZE (POLY_UNIFORM_GAMMA1_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK + 14)
+	__m256i *vec0 = (__m256i *)ws_buf;
+	__m256i *vec1 = (__m256i *)(ws_buf) + ALIGNED_UINT8_M256I(BUFSIZE);
+	__m256i *vec2 = (__m256i *)(ws_buf) + ALIGNED_UINT8_M256I(BUFSIZE) * 2;
+	__m256i *vec3 = (__m256i *)(ws_buf) + ALIGNED_UINT8_M256I(BUFSIZE) * 3;
+	uint8_t *coeffs0 = (uint8_t *)vec0;
+	uint8_t *coeffs1 = (uint8_t *)vec1;
+	uint8_t *coeffs2 = (uint8_t *)vec2;
+	uint8_t *coeffs3 = (uint8_t *)vec3;
+#undef BUFSIZE
 	keccakx4_state state;
 	__m256i f;
 
 	f = _mm256_loadu_si256((__m256i_u *)&seed[0]);
-	_mm256_store_si256(&buf[0].vec[0],f);
-	_mm256_store_si256(&buf[1].vec[0],f);
-	_mm256_store_si256(&buf[2].vec[0],f);
-	_mm256_store_si256(&buf[3].vec[0],f);
+	_mm256_store_si256(&vec0[0], f);
+	_mm256_store_si256(&vec1[0], f);
+	_mm256_store_si256(&vec2[0], f);
+	_mm256_store_si256(&vec3[0], f);
 	f = _mm256_loadu_si256((__m256i_u *)&seed[32]);
-	_mm256_store_si256(&buf[0].vec[1],f);
-	_mm256_store_si256(&buf[1].vec[1],f);
-	_mm256_store_si256(&buf[2].vec[1],f);
-	_mm256_store_si256(&buf[3].vec[1],f);
+	_mm256_store_si256(&vec0[1], f);
+	_mm256_store_si256(&vec1[1], f);
+	_mm256_store_si256(&vec2[1], f);
+	_mm256_store_si256(&vec3[1], f);
 
-	buf[0].coeffs[64] = (uint8_t)(nonce0);
-	buf[0].coeffs[65] = (uint8_t)(nonce0 >> 8);
-	buf[1].coeffs[64] = (uint8_t)(nonce1);
-	buf[1].coeffs[65] = (uint8_t)(nonce1 >> 8);
-	buf[2].coeffs[64] = (uint8_t)(nonce2);
-	buf[2].coeffs[65] = (uint8_t)(nonce2 >> 8);
-	buf[3].coeffs[64] = (uint8_t)(nonce3);
-	buf[3].coeffs[65] = (uint8_t)(nonce3 >> 8);
+	coeffs0[64] = (uint8_t)(nonce0);
+	coeffs0[65] = (uint8_t)(nonce0 >> 8);
+	coeffs1[64] = (uint8_t)(nonce1);
+	coeffs1[65] = (uint8_t)(nonce1 >> 8);
+	coeffs2[64] = (uint8_t)(nonce2);
+	coeffs2[65] = (uint8_t)(nonce2 >> 8);
+	coeffs3[64] = (uint8_t)(nonce3);
+	coeffs3[65] = (uint8_t)(nonce3 >> 8);
 
-	shake256x4_absorb_once(&state, buf[0].coeffs, buf[1].coeffs,
-			       buf[2].coeffs, buf[3].coeffs, 66);
-	shake256x4_squeezeblocks(buf[0].coeffs, buf[1].coeffs, buf[2].coeffs,
-				 buf[3].coeffs, POLY_UNIFORM_GAMMA1_NBLOCKS,
-				 &state);
+	shake256x4_absorb_once(&state, coeffs0, coeffs1, coeffs2, coeffs3, 66);
+	shake256x4_squeezeblocks(coeffs0, coeffs1, coeffs2, coeffs3,
+				 POLY_UNIFORM_GAMMA1_NBLOCKS, &state);
 
-	polyz_unpack_avx(a0, buf[0].coeffs);
-	polyz_unpack_avx(a1, buf[1].coeffs);
-	polyz_unpack_avx(a2, buf[2].coeffs);
-	polyz_unpack_avx(a3, buf[3].coeffs);
+	polyz_unpack_avx(a0, coeffs0);
+	polyz_unpack_avx(a1, coeffs1);
+	polyz_unpack_avx(a2, coeffs2);
+	polyz_unpack_avx(a3, coeffs3);
 }
 
 /**

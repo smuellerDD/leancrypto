@@ -44,6 +44,10 @@ extern "C"
 
 typedef ALIGNED_INT32(LC_DILITHIUM_N) poly;
 
+#define POLY_UNIFORM_GAMMA1_NBLOCKS					       \
+	((LC_DILITHIUM_POLYZ_PACKEDBYTES + LC_SHAKE_256_SIZE_BLOCK - 1) /      \
+	 LC_SHAKE_256_SIZE_BLOCK)
+
 /**
  * @brief poly_ntt_avx
  *
@@ -179,7 +183,8 @@ void poly_uniform_4x_avx(poly *a0,
 			 uint16_t nonce0,
 			 uint16_t nonce1,
 			 uint16_t nonce2,
-			 uint16_t nonce3);
+			 uint16_t nonce3,
+			 void *ws_buf);
 void poly_uniform_eta_4x_avx(poly *a0,
 			     poly *a1,
 			     poly *a2,
@@ -197,7 +202,8 @@ void poly_uniform_gamma1_4x_avx(poly *a0,
 				uint16_t nonce0,
 				uint16_t nonce1,
 				uint16_t nonce2,
-				uint16_t nonce3);
+				uint16_t nonce3,
+				void *ws_buf);
 
 void polyeta_pack_avx(uint8_t r[LC_DILITHIUM_POLYETA_PACKEDBYTES],
 		      const poly *a);

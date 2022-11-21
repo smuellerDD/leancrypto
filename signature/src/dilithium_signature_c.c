@@ -52,8 +52,10 @@ int, lc_dilithium_keypair_c, struct lc_dilithium_pk *pk,
 	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	if (!pk || !sk || !rng_ctx)
-		return -EINVAL;
+	if (!pk || !sk || !rng_ctx) {
+		ret = -EINVAL;
+		goto out;
+	}
 
 	/* Get randomness for rho, rhoprime and key */
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0,
@@ -119,8 +121,10 @@ int, lc_dilithium_sign_c, struct lc_dilithium_sig *sig,
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
 
 	/* rng_ctx is allowed to be NULL as handled below */
-	if (!sig || !m || !sk)
-		return -EINVAL;
+	if (!sig || !m || !sk) {
+		ret = -EINVAL;
+		goto out;
+	}
 
 	rho = ws->seedbuf;
 	tr = rho + LC_DILITHIUM_SEEDBYTES;
@@ -236,8 +240,10 @@ int, lc_dilithium_verify_c, const struct lc_dilithium_sig *sig,
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
 
-	if (!sig || !m || !pk)
-		return -EINVAL;
+	if (!sig || !m || !pk) {
+		ret = -EINVAL;
+		goto out;
+	}
 
 	unpack_pk(ws->rho, &ws->t1, pk);
 	if (unpack_sig(ws->c, &ws->z, &ws->h, sig))
@@ -289,8 +295,8 @@ int, lc_dilithium_verify_c, const struct lc_dilithium_sig *sig,
 		if (ws->c[i] != ws->c2[i])
 			ret = -EBADMSG;
 
+out:
 	lc_hash_zero(hash_ctx);
 	LC_RELEASE_MEM(ws);
-
 	return ret;
 }

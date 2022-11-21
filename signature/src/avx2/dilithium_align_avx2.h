@@ -36,10 +36,13 @@ extern "C"
 {
 #endif
 
+#define ALIGNED_UINT8_COEFFS(N) N
+#define ALIGNED_UINT8_M256I(N) ((N + 31) / 32)
+
 #define ALIGNED_UINT8(N) 						       \
 	union {								       \
-		uint8_t coeffs[N];					       \
-		__m256i vec[(N + 31) / 32];				       \
+		uint8_t coeffs[ALIGNED_UINT8_COEFFS(N)];		       \
+		__m256i vec[ALIGNED_UINT8_M256I(N)];			       \
 	}
 
 #define ALIGNED_INT32(N)						       \

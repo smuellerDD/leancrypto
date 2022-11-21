@@ -402,24 +402,33 @@ polyvec_matrix_pointwise_montgomery_avx(polyveck *t,
 }
 
 void polyvec_matrix_expand(polyvecl mat[LC_DILITHIUM_K],
-			   const uint8_t rho[LC_DILITHIUM_SEEDBYTES]);
+			   const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
+			   void *ws_buf);
 
 void polyvec_matrix_expand_row0(polyvecl *rowa, polyvecl *rowb,
-				const uint8_t rho[LC_DILITHIUM_SEEDBYTES]);
+				const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
+				void *ws_buf);
 void polyvec_matrix_expand_row1(polyvecl *rowa, polyvecl *rowb,
-				const uint8_t rho[LC_DILITHIUM_SEEDBYTES]);
+				const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
+				void *ws_buf);
 void polyvec_matrix_expand_row2(polyvecl *rowa, polyvecl *rowb,
-				const uint8_t rho[LC_DILITHIUM_SEEDBYTES]);
+				const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
+				void *ws_buf);
 void polyvec_matrix_expand_row3(polyvecl *rowa, polyvecl *rowb,
-				const uint8_t rho[LC_DILITHIUM_SEEDBYTES]);
+				const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
+				void *ws_buf);
 void polyvec_matrix_expand_row4(polyvecl *rowa, polyvecl *rowb,
-				const uint8_t rho[LC_DILITHIUM_SEEDBYTES]);
+				const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
+				void *ws_buf);
 void polyvec_matrix_expand_row5(polyvecl *rowa, polyvecl *rowb,
-				const uint8_t rho[LC_DILITHIUM_SEEDBYTES]);
+				const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
+				void *ws_buf);
 void polyvec_matrix_expand_row6(polyvecl *rowa, polyvecl *rowb,
-				const uint8_t rho[LC_DILITHIUM_SEEDBYTES]);
+				const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
+				void *ws_buf);
 void polyvec_matrix_expand_row7(polyvecl *rowa, polyvecl *rowb,
-				const uint8_t rho[LC_DILITHIUM_SEEDBYTES]);
+				const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
+				void *ws_buf);
 
 #ifdef __cplusplus
 }
