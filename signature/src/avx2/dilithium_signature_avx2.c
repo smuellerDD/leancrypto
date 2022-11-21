@@ -88,6 +88,8 @@ int, lc_dilithium_keypair_avx2, struct lc_dilithium_pk *pk,
 {
 	struct workspace {
 		ALIGNED_UINT8(REJ_UNIFORM_BUFLEN + 8) poly_uniform_4x_buf[4];
+		/* See comment below - currently not needed */
+		//ALIGNED_UINT8(REJ_UNIFORM_ETA_BUFLEN) poly_uniform_eta_4x_buf[4];
 		uint8_t seedbuf[2 * LC_DILITHIUM_SEEDBYTES +
 				LC_DILITHIUM_CRHBYTES];
 		polyvecl rowbuf[2], s1;
@@ -122,19 +124,30 @@ int, lc_dilithium_keypair_avx2, struct lc_dilithium_pk *pk,
 	memcpy(sk->sk, rho, LC_DILITHIUM_SEEDBYTES);
 	memcpy(sk->sk + LC_DILITHIUM_SEEDBYTES, key, LC_DILITHIUM_SEEDBYTES);
 
-	/* Sample short vectors s1 and s2 */
+	/*
+	 * Sample short vectors s1 and s2
+	 *
+	 * Use the poly_uniform_4x_buf for this operation as
+	 * poly_uniform_eta_4x_buf is smaller than poly_uniform_4x_buf and
+	 * has the same alignment
+	 */
+	BUILD_BUG_ON(REJ_UNIFORM_BUFLEN + 8 < REJ_UNIFORM_ETA_BUFLEN);
 	poly_uniform_eta_4x_avx(&ws->s1.vec[0], &ws->s1.vec[1],
 				&ws->s1.vec[2], &ws->s1.vec[3],
-				rhoprime, 0, 1, 2, 3);
+				rhoprime, 0, 1, 2, 3,
+				ws->poly_uniform_4x_buf);
 	poly_uniform_eta_4x_avx(&ws->s1.vec[4], &ws->s1.vec[5],
 				&ws->s1.vec[6], &ws->s2.vec[0],
-				rhoprime, 4, 5, 6, 7);
+				rhoprime, 4, 5, 6, 7,
+				ws->poly_uniform_4x_buf);
 	poly_uniform_eta_4x_avx(&ws->s2.vec[1], &ws->s2.vec[2],
 				&ws->s2.vec[3], &ws->s2.vec[4],
-				rhoprime, 8, 9, 10, 11);
+				rhoprime, 8, 9, 10, 11,
+				ws->poly_uniform_4x_buf);
 	poly_uniform_eta_4x_avx(&ws->s2.vec[5], &ws->s2.vec[6],
 				&ws->s2.vec[7], &ws->t0,
-				rhoprime, 12, 13, 14, 15);
+				rhoprime, 12, 13, 14, 15,
+				ws->poly_uniform_4x_buf);
 
 	/* Pack secret vectors */
 	for (i = 0; i < LC_DILITHIUM_L; i++)
@@ -167,9 +180,8 @@ int, lc_dilithium_keypair_avx2, struct lc_dilithium_pk *pk,
 		poly_caddq_avx(&ws->t1);
 		poly_power2round_avx(&ws->t1, &ws->t0, &ws->t1);
 
-		polyt1_pack_avx(pk->pk + LC_DILITHIUM_SEEDBYTES + i * LC_DILITHIUM_POLYT1_PACKEDBYTES, &ws->t1);
-
-
+		polyt1_pack_avx(pk->pk + LC_DILITHIUM_SEEDBYTES +
+				i * LC_DILITHIUM_POLYT1_PACKEDBYTES, &ws->t1);
 		polyt0_pack_avx(sk->sk +
 				3 * LC_DILITHIUM_SEEDBYTES +
 				(LC_DILITHIUM_L + LC_DILITHIUM_K) *
@@ -198,8 +210,9 @@ int, lc_dilithium_sign_avx2, struct lc_dilithium_sig *sig,
 {
 	struct workspace {
 		ALIGNED_UINT8(REJ_UNIFORM_BUFLEN + 8) poly_uniform_4x_buf[4];
-		ALIGNED_UINT8(POLY_UNIFORM_GAMMA1_NBLOCKS *
-			      LC_SHAKE_256_SIZE_BLOCK + 14) poly_uniform_gamma1[4];
+		/* See comment below - currently not needed */
+		//ALIGNED_UINT8(POLY_UNIFORM_GAMMA1_NBLOCKS *
+		//	      LC_SHAKE_256_SIZE_BLOCK + 14) poly_uniform_gamma1[4];
 		uint8_t seedbuf[3 * LC_DILITHIUM_SEEDBYTES +
 				2 * LC_DILITHIUM_CRHBYTES];
 		uint8_t hintbuf[LC_DILITHIUM_N];
@@ -256,19 +269,28 @@ int, lc_dilithium_sign_avx2, struct lc_dilithium_sig *sig,
 	polyveck_ntt_avx(&ws->t0);
 
 rej:
-	/* Sample intermediate vector y */
+	/*
+	 * Sample intermediate vector y
+	 *
+	 * Use the poly_uniform_4x_buf for this operation as
+	 * poly_uniform_gamma1 is smaller than poly_uniform_4x_buf and
+	 * has the same alignment.
+	 */
+	BUILD_BUG_ON(REJ_UNIFORM_BUFLEN + 8 <
+		     POLY_UNIFORM_GAMMA1_NBLOCKS *
+		     LC_SHAKE_256_SIZE_BLOCK + 14);
 	poly_uniform_gamma1_4x_avx(&ws->z.vec[0], &ws->z.vec[1],
 				   &ws->z.vec[2], &ws->z.vec[3],
 				   rhoprime,
 				   (uint16_t)nonce, (uint16_t)(nonce + 1),
 				   (uint16_t)(nonce + 2), (uint16_t)(nonce + 3),
-				   ws->poly_uniform_gamma1);
+				   ws->poly_uniform_4x_buf);
 	poly_uniform_gamma1_4x_avx(&ws->z.vec[4], &ws->z.vec[5],
 				   &ws->z.vec[6], &ws->tmp,
 				   rhoprime,
 				   (uint16_t)(nonce + 4),(uint16_t)(nonce + 5),
 				   (uint16_t)(nonce + 6), 0,
-				   ws->poly_uniform_gamma1);
+				   ws->poly_uniform_4x_buf);
 	nonce += 7;
 
 	/* Matrix-vector product */
@@ -343,7 +365,9 @@ rej:
 
 	/* Pack z into signature */
 	for (i = 0; i < LC_DILITHIUM_L; i++)
-		polyz_pack_avx(sig->sig + LC_DILITHIUM_SEEDBYTES + i * LC_DILITHIUM_POLYZ_PACKEDBYTES, &ws->z.vec[i]);
+		polyz_pack_avx(sig->sig + LC_DILITHIUM_SEEDBYTES +
+			       i * LC_DILITHIUM_POLYZ_PACKEDBYTES,
+			       &ws->z.vec[i]);
 
 out:
 	lc_hash_zero(hash_ctx);
@@ -360,7 +384,7 @@ int, lc_dilithium_verify_avx2, const struct lc_dilithium_sig *sig,
 	struct workspace {
 		/* polyw1_pack writes additional 14 bytes */
 		ALIGNED_UINT8(LC_DILITHIUM_K *
-			      LC_DILITHIUM_POLYW1_PACKEDBYTES+14) buf;
+			      LC_DILITHIUM_POLYW1_PACKEDBYTES + 14) buf;
 		ALIGNED_UINT8(REJ_UNIFORM_BUFLEN + 8) poly_uniform_4x_buf[4];
 		uint8_t mu[LC_DILITHIUM_CRHBYTES];
 		polyvecl rowbuf[2];

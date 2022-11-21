@@ -26,6 +26,7 @@
  */
 
 #include "dilithium_poly.h"
+#include "dilithium_service_helpers.h"
 #include "lc_sha3.h"
 
 /**
@@ -60,40 +61,6 @@ int poly_chknorm(const poly *a, int32_t B)
 	}
 
 	return 0;
-}
-
-/**
- * @brief rej_uniform - Sample uniformly random coefficients in [0, Q-1] by
- *			performing rejection sampling on array of random bytes.
- *
- * @param a [out] pointer to output array (allocated)
- * @param len [in] number of coefficients to be sampled
- * @param buf [in] array of random bytes
- * @param buflen [in] length of array of random bytes
- *
- * @return number of sampled coefficients. Can be smaller than len if not enough
- * random bytes were given.
- */
-static unsigned int rej_uniform(int32_t *a,
-				unsigned int len,
-				const uint8_t *buf,
-				unsigned int buflen)
-{
-	unsigned int ctr, pos;
-	int32_t t;
-
-	ctr = pos = 0;
-	while (ctr < len && pos + 3 <= buflen) {
-		t  = buf[pos++];
-		t |= (int32_t)buf[pos++] << 8;
-		t |= (int32_t)buf[pos++] << 16;
-		t &= 0x7FFFFF;
-
-		if(t < LC_DILITHIUM_Q)
-			a[ctr++] = t;
-	}
-
-	return ctr;
 }
 
 /**
@@ -140,53 +107,6 @@ void poly_uniform(poly *a,
 
 	lc_hash_zero(hash_ctx);
 	memset_secure(buf, 0, sizeof(buf));
-}
-
-/**
- * @brief rej_eta - Sample uniformly random coefficients in [-ETA, ETA] by
- *		    performing rejection sampling on array of random bytes.
- *
- * @param a [out] pointer to output array (allocated)
- * @param len [in] number of coefficients to be sampled
- * @param buf [in] array of random bytes
- * @param buflen [in] length of array of random bytes
- *
- * @return number of sampled coefficients. Can be smaller than len if not enough
- * random bytes were given.
- */
-static unsigned int rej_eta(int32_t *a,
-			    unsigned int len,
-			    const uint8_t *buf,
-			    unsigned int buflen)
-{
-	unsigned int ctr, pos;
-	int32_t t0, t1;
-
-	ctr = pos = 0;
-	while (ctr < len && pos < buflen) {
-		t0 = buf[pos] & 0x0F;
-		t1 = buf[pos++] >> 4;
-
-#if LC_DILITHIUM_ETA == 2
-		if (t0 < 15) {
-			t0 = t0 - (205*t0 >> 10)*5;
-			a[ctr++] = 2 - t0;
-		}
-		if (t1 < 15 && ctr < len) {
-			t1 = t1 - (205*t1 >> 10)*5;
-			a[ctr++] = 2 - t1;
-		}
-#elif LC_DILITHIUM_ETA == 4
-		if (t0 < 9)
-			a[ctr++] = 4 - t0;
-		if (t1 < 9 && ctr < len)
-			a[ctr++] = 4 - t1;
-#else
-#error "Undefined LC_DILITHIUM_ETA"
-#endif
-	}
-
-	return ctr;
 }
 
 /**

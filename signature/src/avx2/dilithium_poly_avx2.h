@@ -193,7 +193,8 @@ void poly_uniform_eta_4x_avx(poly *a0,
 			     uint16_t nonce0,
 			     uint16_t nonce1,
 			     uint16_t nonce2,
-			     uint16_t nonce3);
+			     uint16_t nonce3,
+			     void *ws_buf);
 void poly_uniform_gamma1_4x_avx(poly *a0,
 				poly *a1,
 				poly *a2,

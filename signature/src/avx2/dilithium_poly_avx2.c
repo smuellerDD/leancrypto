@@ -31,14 +31,15 @@
 
 #include "dilithium_align_avx2.h"
 #include "dilithium_poly_avx2.h"
+#include "dilithium_service_helpers.h"
 #include "lc_dilithium.h"
 #include "lc_sha3.h"
 #include "shake_4x_avx2.h"
 
-#define _mm256_blendv_epi32(a,b,mask) \
-_mm256_castps_si256(_mm256_blendv_ps(_mm256_castsi256_ps(a), \
-_mm256_castsi256_ps(b), \
-_mm256_castsi256_ps(mask)))
+#define _mm256_blendv_epi32(a,b,mask)					       \
+	_mm256_castps_si256(_mm256_blendv_ps(_mm256_castsi256_ps(a),	       \
+	_mm256_castsi256_ps(b),						       \
+	_mm256_castsi256_ps(mask)))
 
 /**
  * @brief poly_reduce_avx
@@ -52,7 +53,7 @@ _mm256_castsi256_ps(mask)))
 void poly_reduce_avx(poly *a)
 {
 	unsigned int i;
-	__m256i f,g;
+	__m256i f, g;
 	const __m256i q = _mm256_load_si256(&qdata.vec[_8XQ/8]);
 	const __m256i off = _mm256_set1_epi32(1<<22);
 
@@ -76,7 +77,7 @@ void poly_reduce_avx(poly *a)
 void poly_caddq_avx(poly *a)
 {
 	unsigned int i;
-	__m256i f,g;
+	__m256i f, g;
 	const __m256i q = _mm256_load_si256(&qdata.vec[_8XQ/8]);
 	const __m256i zero = _mm256_setzero_si256();
 
@@ -100,7 +101,7 @@ void poly_caddq_avx(poly *a)
 void poly_add_avx(poly *c, const poly *a, const poly *b)
 {
 	unsigned int i;
-	__m256i f,g;
+	__m256i f, g;
 
 	for (i = 0; i < LC_DILITHIUM_N / 8; i++) {
 		f = _mm256_load_si256(&a->vec[i]);
@@ -124,7 +125,7 @@ void poly_add_avx(poly *c, const poly *a, const poly *b)
 void poly_sub_avx(poly *c, const poly *a, const poly *b)
 {
 	unsigned int i;
-	__m256i f,g;
+	__m256i f, g;
 
 	for (i = 0; i < LC_DILITHIUM_N / 8; i++) {
 		f = _mm256_load_si256(&a->vec[i]);
@@ -169,7 +170,7 @@ int poly_chknorm_avx(const poly *a, int32_t B)
 {
 	unsigned int i;
 	int r;
-	__m256i f,t;
+	__m256i f, t;
 	const __m256i bound = _mm256_set1_epi32(B - 1);
 
 	if (B > (LC_DILITHIUM_Q - 1) / 8)
@@ -187,41 +188,6 @@ int poly_chknorm_avx(const poly *a, int32_t B)
 	return r;
 }
 
-/**
- * @brief rej_uniform - Sample uniformly random coefficients in [0, Q-1] by
- *			performing rejection sampling on array of random bytes.
- *
- * @param a [out] pointer to output array (allocated)
- * @param len [in] number of coefficients to be sampled
- * @param buf [in] array of random bytes
- * @param buflen [in] length of array of random bytes
- *
- * @return number of sampled coefficients. Can be smaller than len if not enough
- * random bytes were given.
- */
-//TODO
-static unsigned int rej_uniform(int32_t *a,
-				unsigned int len,
-				const uint8_t *buf,
-				unsigned int buflen)
-{
-	unsigned int ctr, pos;
-	uint32_t t;
-
-	ctr = pos = 0;
-	while (ctr < len && pos + 3 <= buflen) {
-		t  = buf[pos++];
-		t |= (uint32_t)buf[pos++] << 8;
-		t |= (uint32_t)buf[pos++] << 16;
-		t &= 0x7FFFFF;
-
-		if (t < LC_DILITHIUM_Q)
-			a[ctr++] = (int32_t)t;
-	}
-
-	return ctr;
-}
-
 void poly_uniform_4x_avx(poly *a0,
 			 poly *a1,
 			 poly *a2,
@@ -233,6 +199,8 @@ void poly_uniform_4x_avx(poly *a0,
 			 uint16_t nonce3,
 			 void *ws_buf)
 {
+	keccakx4_state state;
+	__m256i f;
 	unsigned int ctr0, ctr1, ctr2, ctr3;
 #define BUFSIZE (REJ_UNIFORM_BUFLEN + 8)
 	__m256i *vec0 = (__m256i *)ws_buf;
@@ -244,8 +212,6 @@ void poly_uniform_4x_avx(poly *a0,
 	uint8_t *coeffs2 = (uint8_t *)vec2;
 	uint8_t *coeffs3 = (uint8_t *)vec3;
 #undef BUFSIZE
-	keccakx4_state state;
-	__m256i f;
 
 	f = _mm256_loadu_si256((__m256i_u *)seed);
 	_mm256_store_si256(vec0, f);
@@ -294,45 +260,6 @@ void poly_uniform_4x_avx(poly *a0,
 	}
 }
 
-/**
- * @brief rej_eta - Sample uniformly random coefficients in [-ETA, ETA] by
- *		    performing rejection sampling on array of random bytes.
- *
- * @param a [out] pointer to output array (allocated)
- * @param len [in] number of coefficients to be sampled
- * @param buf [in] array of random bytes
- * @param buflen [in] length of array of random bytes
- *
- * @return number of sampled coefficients. Can be smaller than len if not enough
- * random bytes were given.
- */
-//TODO
-static unsigned int rej_eta(int32_t *a,
-			    unsigned int len,
-			    const uint8_t *buf,
-			    unsigned int buflen)
-{
-	unsigned int ctr, pos;
-	uint32_t t0, t1;
-
-	ctr = pos = 0;
-	while (ctr < len && pos < buflen) {
-		t0 = buf[pos] & 0x0F;
-		t1 = buf[pos++] >> 4;
-
-		if (t0 < 15) {
-			t0 = t0 - (205*t0 >> 10)*5;
-			a[ctr++] = (int32_t)(2 - t0);
-		}
-		if (t1 < 15 && ctr < len) {
-			t1 = t1 - (205*t1 >> 10)*5;
-			a[ctr++] = (int32_t)(2 - t1);
-		}
-	}
-
-	return ctr;
-}
-
 void poly_uniform_eta_4x_avx(poly *a0,
 			     poly *a1,
 			     poly *a2,
@@ -341,63 +268,68 @@ void poly_uniform_eta_4x_avx(poly *a0,
 			     uint16_t nonce0,
 			     uint16_t nonce1,
 			     uint16_t nonce2,
-			     uint16_t nonce3)
+			     uint16_t nonce3,
+			     void *ws_buf)
 {
 	unsigned int ctr0, ctr1, ctr2, ctr3;
-	ALIGNED_UINT8(REJ_UNIFORM_ETA_BUFLEN) buf[4];
 	__m256i f;
 	keccakx4_state state;
+#define BUFSIZE (REJ_UNIFORM_ETA_BUFLEN)
+	__m256i *vec0 = (__m256i *)ws_buf;
+	__m256i *vec1 = (__m256i *)(ws_buf) + ALIGNED_UINT8_M256I(BUFSIZE);
+	__m256i *vec2 = (__m256i *)(ws_buf) + ALIGNED_UINT8_M256I(BUFSIZE) * 2;
+	__m256i *vec3 = (__m256i *)(ws_buf) + ALIGNED_UINT8_M256I(BUFSIZE) * 3;
+	uint8_t *coeffs0 = (uint8_t *)vec0;
+	uint8_t *coeffs1 = (uint8_t *)vec1;
+	uint8_t *coeffs2 = (uint8_t *)vec2;
+	uint8_t *coeffs3 = (uint8_t *)vec3;
+#undef BUFSIZE
 
 	f = _mm256_loadu_si256((__m256i_u *)&seed[0]);
-	_mm256_store_si256(&buf[0].vec[0],f);
-	_mm256_store_si256(&buf[1].vec[0],f);
-	_mm256_store_si256(&buf[2].vec[0],f);
-	_mm256_store_si256(&buf[3].vec[0],f);
+	_mm256_store_si256(&vec0[0],f);
+	_mm256_store_si256(&vec1[0],f);
+	_mm256_store_si256(&vec2[0],f);
+	_mm256_store_si256(&vec3[0],f);
 	f = _mm256_loadu_si256((__m256i_u *)&seed[32]);
-	_mm256_store_si256(&buf[0].vec[1],f);
-	_mm256_store_si256(&buf[1].vec[1],f);
-	_mm256_store_si256(&buf[2].vec[1],f);
-	_mm256_store_si256(&buf[3].vec[1],f);
+	_mm256_store_si256(&vec0[1],f);
+	_mm256_store_si256(&vec1[1],f);
+	_mm256_store_si256(&vec2[1],f);
+	_mm256_store_si256(&vec3[1],f);
 
-	buf[0].coeffs[64] = (uint8_t)(nonce0);
-	buf[0].coeffs[65] = (uint8_t)(nonce0 >> 8);
-	buf[1].coeffs[64] = (uint8_t)(nonce1);
-	buf[1].coeffs[65] = (uint8_t)(nonce1 >> 8);
-	buf[2].coeffs[64] = (uint8_t)(nonce2);
-	buf[2].coeffs[65] = (uint8_t)(nonce2 >> 8);
-	buf[3].coeffs[64] = (uint8_t)(nonce3);
-	buf[3].coeffs[65] = (uint8_t)(nonce3 >> 8);
+	coeffs0[64] = (uint8_t)(nonce0);
+	coeffs0[65] = (uint8_t)(nonce0 >> 8);
+	coeffs1[64] = (uint8_t)(nonce1);
+	coeffs1[65] = (uint8_t)(nonce1 >> 8);
+	coeffs2[64] = (uint8_t)(nonce2);
+	coeffs2[65] = (uint8_t)(nonce2 >> 8);
+	coeffs3[64] = (uint8_t)(nonce3);
+	coeffs3[65] = (uint8_t)(nonce3 >> 8);
 
-	shake256x4_absorb_once(&state, buf[0].coeffs, buf[1].coeffs,
-			       buf[2].coeffs, buf[3].coeffs, 66);
-	shake256x4_squeezeblocks(buf[0].coeffs, buf[1].coeffs, buf[2].coeffs,
-				 buf[3].coeffs, REJ_UNIFORM_ETA_NBLOCKS,
-				 &state);
+	shake256x4_absorb_once(&state, coeffs0, coeffs1, coeffs2, coeffs3, 66);
+	shake256x4_squeezeblocks(coeffs0, coeffs1, coeffs2, coeffs3,
+				 REJ_UNIFORM_ETA_NBLOCKS, &state);
 
-	ctr0 = rej_eta_avx(a0->coeffs, buf[0].coeffs);
-	ctr1 = rej_eta_avx(a1->coeffs, buf[1].coeffs);
-	ctr2 = rej_eta_avx(a2->coeffs, buf[2].coeffs);
-	ctr3 = rej_eta_avx(a3->coeffs, buf[3].coeffs);
+	ctr0 = rej_eta_avx(a0->coeffs, coeffs0);
+	ctr1 = rej_eta_avx(a1->coeffs, coeffs1);
+	ctr2 = rej_eta_avx(a2->coeffs, coeffs2);
+	ctr3 = rej_eta_avx(a3->coeffs, coeffs3);
 
 	while (ctr0 < LC_DILITHIUM_N ||
 	       ctr1 < LC_DILITHIUM_N ||
 	       ctr2 < LC_DILITHIUM_N ||
 	       ctr3 < LC_DILITHIUM_N) {
-		shake256x4_squeezeblocks(buf[0].coeffs, buf[1].coeffs,
-					 buf[2].coeffs, buf[3].coeffs, 1,
+		shake256x4_squeezeblocks(coeffs0, coeffs1, coeffs2, coeffs3, 1,
 					 &state);
 
 		ctr0 += rej_eta(a0->coeffs + ctr0, LC_DILITHIUM_N - ctr0,
-				buf[0].coeffs, LC_SHAKE_256_SIZE_BLOCK);
+				coeffs0, LC_SHAKE_256_SIZE_BLOCK);
 		ctr1 += rej_eta(a1->coeffs + ctr1, LC_DILITHIUM_N - ctr1,
-				buf[1].coeffs, LC_SHAKE_256_SIZE_BLOCK);
+				coeffs1, LC_SHAKE_256_SIZE_BLOCK);
 		ctr2 += rej_eta(a2->coeffs + ctr2, LC_DILITHIUM_N - ctr2,
-				buf[2].coeffs, LC_SHAKE_256_SIZE_BLOCK);
+				coeffs2, LC_SHAKE_256_SIZE_BLOCK);
 		ctr3 += rej_eta(a3->coeffs + ctr3, LC_DILITHIUM_N - ctr3,
-				buf[3].coeffs, LC_SHAKE_256_SIZE_BLOCK);
+				coeffs3, LC_SHAKE_256_SIZE_BLOCK);
 	}
-
-	//TODO memset
 }
 
 /**
@@ -421,6 +353,8 @@ void poly_uniform_gamma1_4x_avx(poly *a0,
 				uint16_t nonce3,
 				void *ws_buf)
 {
+	keccakx4_state state;
+	__m256i f;
 #define BUFSIZE (POLY_UNIFORM_GAMMA1_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK + 14)
 	__m256i *vec0 = (__m256i *)ws_buf;
 	__m256i *vec1 = (__m256i *)(ws_buf) + ALIGNED_UINT8_M256I(BUFSIZE);
@@ -431,8 +365,6 @@ void poly_uniform_gamma1_4x_avx(poly *a0,
 	uint8_t *coeffs2 = (uint8_t *)vec2;
 	uint8_t *coeffs3 = (uint8_t *)vec3;
 #undef BUFSIZE
-	keccakx4_state state;
-	__m256i f;
 
 	f = _mm256_loadu_si256((__m256i_u *)&seed[0]);
 	_mm256_store_si256(&vec0[0], f);
