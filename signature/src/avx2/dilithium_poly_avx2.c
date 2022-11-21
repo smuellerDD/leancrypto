@@ -436,6 +436,9 @@ void poly_challenge_avx(poly * restrict c,
 		c->coeffs[b] = (int32_t)(1 - 2*(signs & 1));
 		signs >>= 1;
 	}
+
+	lc_hash_zero(hash_ctx);
+	memset_secure(buf.coeffs, 0, sizeof(buf));
 }
 
 /**
