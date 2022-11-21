@@ -56,7 +56,8 @@ systems, you need:
 
 3. set the flag `LC_MEM_ON_HEAP` if your environment only has a limited stack
    size. When set, functions with large memory requirements use the heap
-   instead of the stack for this memory.
+   instead of the stack for this memory. The maximum stack size used by a
+   function is 2048 bytes and is verified by a compiler check.
 
 An example on the approach is given with the Linux kernel support found
 in the directory `linux_kernel`.
