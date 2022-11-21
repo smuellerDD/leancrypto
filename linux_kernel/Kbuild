@@ -1,7 +1,7 @@
 obj-m		:= leancrypto.o leancrypto_test.o
 
 # Kernel module framework
-ccflags-y	  := -DLINUX_KERNEL -DLC_MEM_ON_HEAP -I$(PWD)
+ccflags-y	  := -DLINUX_KERNEL -DLC_MEM_ON_HEAP -DMAJVERSION=0 -DMINVERSION=5 -DPATCHLEVEL=0 -I$(PWD)
 leancrypto-y	  += posix_support.o					       \
 		     leancrypto_kernel.o
 leancrypto_test-y := leancrypto_tester.o
@@ -106,17 +106,20 @@ leancrypto_test-y += ../kdf/tests/hkdf_tester.o				       \
 		     ../kdf/tests/pbkdf2_tester.o
 
 # KEM implementation
-ccflags-y	  += -I$(PWD)/../kem/api
+ccflags-y	  += -I$(PWD)/../kem/api -I$(PWD)/../kem/src
 leancrypto-y	  += ../kem/src/kyber_cbd.o				       \
 		     ../kem/src/kyber_ies.o				       \
 		     ../kem/src/kyber_indcpa.o				       \
-		     ../kem/src/kyber_kem.o				       \
+		     ../kem/src/kyber_kem_c.o				       \
+		     ../kem/src/kyber_kem_api_c.o			       \
 		     ../kem/src/kyber_kex.o				       \
 		     ../kem/src/kyber_ntt.o				       \
 		     ../kem/src/kyber_poly.o				       \
 		     ../kem/src/kyber_polyvec.o				       \
 		     ../kem/src/kyber_verify.o
 leancrypto_test-y += ../kem/tests/kyber_kem_tester.o			       \
+		     ../kem/tests/kyber_kem_tester_c.o			       \
+		     ../kem/tests/kyber_kem_tester_common.o		       \
 		     ../kem/tests/kyber_kex_tester.o			       \
 		     ../kem/tests/kyber_ies_tester.o			       \
 		     ../kem/tests/kyber_invalid_tester.o
@@ -135,9 +138,12 @@ leancrypto-y	  += ../signature/src/dilithium_ntt.o			       \
 		     ../signature/src/dilithium_pack.o			       \
 		     ../signature/src/dilithium_poly.o			       \
 		     ../signature/src/dilithium_rounding.o		       \
-		     ../signature/src/dilithium_signature.o
+		     ../signature/src/dilithium_signature_c.o		       \
+		     ../signature/src/dilithium_signature_api_c.o
 ccflags-y	  += -I$(PWD)/../signature/src
 leancrypto_test-y += ../signature/tests/dilithium_tester.o		       \
+		     ../signature/tests/dilithium_tester_c.o		       \
+		     ../signature/tests/dilithium_tester_common.o	       \
 		     ../signature/tests/dilithium_invalid_tester.o
 
 # Symmetric implementation
