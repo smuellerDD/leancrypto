@@ -110,24 +110,25 @@ polyvec_matrix_pointwise_montgomery(polyveck *t,
 static inline void
 polyvecl_uniform_eta(polyvecl *v,
 		     const uint8_t seed[LC_DILITHIUM_CRHBYTES],
-		     uint16_t nonce)
+		     uint16_t nonce, void *ws_buf)
 {
 	unsigned int i;
 
 	for (i = 0; i < LC_DILITHIUM_L; ++i)
-		poly_uniform_eta(&v->vec[i], seed, nonce++);
+		poly_uniform_eta(&v->vec[i], seed, nonce++, ws_buf);
 }
 
 static inline void
 polyvecl_uniform_gamma1(polyvecl *v,
 			const uint8_t seed[LC_DILITHIUM_CRHBYTES],
-			uint16_t nonce)
+			uint16_t nonce, void *ws_buf)
 {
 	unsigned int i;
 
 	for (i = 0; i < LC_DILITHIUM_L; ++i)
 		poly_uniform_gamma1(&v->vec[i], seed,
-				    (uint16_t)(LC_DILITHIUM_L * nonce + i));
+				    (uint16_t)(LC_DILITHIUM_L * nonce + i),
+				    ws_buf);
 }
 
 static inline void
@@ -218,12 +219,12 @@ static inline int polyvecl_chknorm(const polyvecl *v, int32_t bound)
 static inline void
 polyveck_uniform_eta(polyveck *v,
 		     const uint8_t seed[LC_DILITHIUM_CRHBYTES],
-		     uint16_t nonce)
+		     uint16_t nonce, void *ws_buf)
 {
 	unsigned int i;
 
 	for (i = 0; i < LC_DILITHIUM_K; ++i)
-		poly_uniform_eta(&v->vec[i], seed, nonce++);
+		poly_uniform_eta(&v->vec[i], seed, nonce++, ws_buf);
 }
 
 /**

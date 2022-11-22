@@ -60,10 +60,10 @@ if get_option('dilithium').enabled()
 	test('Dilithium signature Common', dilithium_tester_common)
 	test('Dilithium signature AVX2', dilithium_tester_avx2)
 	test('Dilithium signature C 10000', dilithium_tester_c, args : [ 'c' ],
-	     timeout: 300)
+	     timeout: 1000)
 	test('Dilithium signature Common 10000', dilithium_tester_common,
-	     args : [ 'c' ], timeout: 300)
+	     args : [ 'c' ], timeout: 1000)
 	test('Dilithium signature AVX2 10000', dilithium_tester_avx2,
-	     args : [ 'c' ], timeout: 300)
+	     args : [ 'c' ], timeout: 1000)
 	test('Dilithium invalid signature', dilithium_invalid_tester)
 endif

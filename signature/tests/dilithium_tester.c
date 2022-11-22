@@ -139,6 +139,9 @@ int _dilithium_tester(
 		uint8_t m[MLEN];
 		uint8_t seed[LC_DILITHIUM_CRHBYTES];
 		uint8_t buf[LC_DILITHIUM_SECRETKEYBYTES];
+		uint8_t poly_uniform_gamma1_buf[POLY_UNIFORM_GAMMA1_BYTES];
+		uint8_t poly_uniform_eta_buf[POLY_UNIFORM_ETA_BYTES];
+		uint8_t poly_challenge_buf[POLY_CHALLENGE_BYTES];
 		poly c, tmp;
 		polyvecl s, y, mat[LC_DILITHIUM_K];
 		polyveck w, w1, w0, t1, t0, h;
@@ -310,7 +313,8 @@ int _dilithium_tester(
 		}
 #endif
 
-		polyvecl_uniform_eta(&ws->s, ws->seed, 0);
+		polyvecl_uniform_eta(&ws->s, ws->seed, 0,
+				     ws->poly_uniform_eta_buf);
 
 		polyeta_pack(ws->buf, &ws->s.vec[0]);
 		polyeta_unpack(&ws->tmp, ws->buf);
@@ -336,7 +340,8 @@ int _dilithium_tester(
 		}
 #endif
 
-		polyvecl_uniform_gamma1(&ws->y, ws->seed, 0);
+		polyvecl_uniform_gamma1(&ws->y, ws->seed, 0,
+					ws->poly_uniform_gamma1_buf);
 
 		polyz_pack(ws->buf, &ws->y.vec[0]);
 		polyz_unpack(&ws->tmp, ws->buf);
@@ -479,7 +484,7 @@ int _dilithium_tester(
 		}
 #endif
 
-		poly_challenge(&ws->c, ws->seed);
+		poly_challenge(&ws->c, ws->seed, ws->poly_challenge_buf);
 #ifdef DILITHIUM_DEBUG
 		printf("c = [");
 		for (j = 0; j < LC_DILITHIUM_N; ++j) {

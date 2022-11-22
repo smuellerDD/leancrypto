@@ -550,10 +550,14 @@ void polyt1_unpack_avx(poly * restrict r,
 	unsigned int i;
 
 	for (i = 0; i < LC_DILITHIUM_N/4; ++i) {
-		r->coeffs[4*i+0] = ((a[5*i+0] >> 0) | ((uint32_t)a[5*i+1] << 8)) & 0x3FF;
-		r->coeffs[4*i+1] = ((a[5*i+1] >> 2) | ((uint32_t)a[5*i+2] << 6)) & 0x3FF;
-		r->coeffs[4*i+2] = ((a[5*i+2] >> 4) | ((uint32_t)a[5*i+3] << 4)) & 0x3FF;
-		r->coeffs[4*i+3] = ((a[5*i+3] >> 6) | ((uint32_t)a[5*i+4] << 2)) & 0x3FF;
+		r->coeffs[4*i+0] = ((a[5*i+0] >> 0) |
+				    ((uint32_t)a[5*i+1] << 8)) & 0x3FF;
+		r->coeffs[4*i+1] = ((a[5*i+1] >> 2) |
+				    ((uint32_t)a[5*i+2] << 6)) & 0x3FF;
+		r->coeffs[4*i+2] = ((a[5*i+2] >> 4) |
+				    ((uint32_t)a[5*i+3] << 4)) & 0x3FF;
+		r->coeffs[4*i+3] = ((a[5*i+3] >> 6) |
+				    ((uint32_t)a[5*i+4] << 2)) & 0x3FF;
 	}
 }
 

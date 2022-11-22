@@ -119,31 +119,21 @@ void poly_uniform(poly *a,
  * @param seed [in] byte array with seed of length LC_DILITHIUM_CRHBYTES
  * @param nonce [in] 2-byte nonce
  */
-#if LC_DILITHIUM_ETA == 2
-#define POLY_UNIFORM_ETA_NBLOCKS					       \
-	((136 + LC_SHAKE_256_SIZE_BLOCK - 1) / LC_SHAKE_256_SIZE_BLOCK)
-#elif LC_DILITHIUM_ETA == 4
-#define POLY_UNIFORM_ETA_NBLOCKS					       \
-	((227 + LC_SHAKE_256_SIZE_BLOCK - 1) / LC_SHAKE_256_SIZE_BLOCK)
-#else
-#error "Undefined LC_DILITHIUM_ETA"
-#endif
 void poly_uniform_eta(poly *a,
 		      const uint8_t seed[LC_DILITHIUM_CRHBYTES],
-		      uint16_t nonce)
+		      uint16_t nonce, void *ws_buf)
 {
 	unsigned int ctr;
-	unsigned int buflen = POLY_UNIFORM_ETA_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK;
-	uint8_t buf[POLY_UNIFORM_ETA_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK];
+	uint8_t *buf = ws_buf;
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
 
 	lc_hash_init(hash_ctx);
 	lc_hash_update(hash_ctx, seed, LC_DILITHIUM_CRHBYTES);
 	lc_hash_update(hash_ctx, (uint8_t *)&nonce, sizeof(nonce));
-	lc_hash_set_digestsize(hash_ctx, buflen);
+	lc_hash_set_digestsize(hash_ctx, POLY_UNIFORM_ETA_BYTES);
 	lc_hash_final(hash_ctx, buf);
 
-	ctr = rej_eta(a->coeffs, LC_DILITHIUM_N, buf, buflen);
+	ctr = rej_eta(a->coeffs, LC_DILITHIUM_N, buf, POLY_UNIFORM_ETA_BYTES);
 
 	while (ctr < LC_DILITHIUM_N) {
 		lc_hash_final(hash_ctx, buf);
@@ -152,7 +142,6 @@ void poly_uniform_eta(poly *a,
 	}
 
 	lc_hash_zero(hash_ctx);
-	memset_secure(buf, 0, sizeof(buf));
 }
 
 /**
@@ -165,25 +154,20 @@ void poly_uniform_eta(poly *a,
  * @param seed [in]: byte array with seed of length LC_DILITHIUM_CRHBYTES
  * @param nonce 16-bit nonce
  */
-#define POLY_UNIFORM_GAMMA1_NBLOCKS					       \
-	((LC_DILITHIUM_POLYZ_PACKEDBYTES + LC_SHAKE_256_SIZE_BLOCK - 1) /      \
-	 LC_SHAKE_256_SIZE_BLOCK)
 void poly_uniform_gamma1(poly *a,
 			 const uint8_t seed[LC_DILITHIUM_CRHBYTES],
-			 uint16_t nonce)
+			 uint16_t nonce, void *ws_buf)
 {
-	uint8_t buf[POLY_UNIFORM_GAMMA1_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK];
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
 
 	lc_hash_init(hash_ctx);
 	lc_hash_update(hash_ctx, seed, LC_DILITHIUM_CRHBYTES);
 	lc_hash_update(hash_ctx, (uint8_t *)&nonce, sizeof(nonce));
-	lc_hash_set_digestsize(hash_ctx, sizeof(buf));
-	lc_hash_final(hash_ctx, buf);
+	lc_hash_set_digestsize(hash_ctx, POLY_UNIFORM_GAMMA1_BYTES);
+	lc_hash_final(hash_ctx, ws_buf);
 	lc_hash_zero(hash_ctx);
 
-	polyz_unpack(a, buf);
-	memset_secure(buf, 0, sizeof(buf));
+	polyz_unpack(a, ws_buf);
 }
 
 /**
@@ -194,19 +178,21 @@ void poly_uniform_gamma1(poly *a,
  * @param c [out] pointer to output polynomial
  * @param mu [in] byte array containing seed of length LC_DILITHIUM_SEEDBYTES
  */
-void poly_challenge(poly *c, const uint8_t seed[LC_DILITHIUM_SEEDBYTES])
+void poly_challenge(poly *c, const uint8_t seed[LC_DILITHIUM_SEEDBYTES],
+		    void *ws_buf)
 {
 	unsigned int i, b, pos;
 	uint64_t signs;
-	uint8_t buf[LC_SHAKE_256_SIZE_BLOCK];
+	uint8_t *buf = ws_buf;
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
 
 	lc_hash_init(hash_ctx);
 	lc_hash_update(hash_ctx, seed, LC_DILITHIUM_SEEDBYTES);
-	lc_hash_set_digestsize(hash_ctx, sizeof(buf));
+	lc_hash_set_digestsize(hash_ctx, POLY_CHALLENGE_BYTES);
 	lc_hash_final(hash_ctx, buf);
 
-	lc_shake(lc_shake256, seed, LC_DILITHIUM_SEEDBYTES, buf, sizeof(buf));
+	lc_shake(lc_shake256, seed, LC_DILITHIUM_SEEDBYTES, buf,
+		 POLY_CHALLENGE_BYTES);
 
 	signs = 0;
 	for (i = 0; i < 8; ++i)
@@ -219,7 +205,7 @@ void poly_challenge(poly *c, const uint8_t seed[LC_DILITHIUM_SEEDBYTES])
 	for (i = LC_DILITHIUM_N - LC_DILITHIUM_TAU; i < LC_DILITHIUM_N; ++i) {
 		do {
 			if(pos >= LC_SHAKE_256_SIZE_BLOCK) {
-				lc_hash_final(hash_ctx, buf);
+				lc_hash_final(hash_ctx, ws_buf);
 				pos = 0;
 			}
 
@@ -232,7 +218,6 @@ void poly_challenge(poly *c, const uint8_t seed[LC_DILITHIUM_SEEDBYTES])
 	}
 
 	lc_hash_zero(hash_ctx);
-	memset_secure(buf, 0, sizeof(buf));
 }
 
 /**

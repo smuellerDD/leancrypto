@@ -47,6 +47,7 @@ int, lc_dilithium_keypair_c, struct lc_dilithium_pk *pk,
 		uint8_t seedbuf[2 * LC_DILITHIUM_SEEDBYTES +
 				LC_DILITHIUM_CRHBYTES];
 		uint8_t tr[LC_DILITHIUM_SEEDBYTES];
+		uint8_t poly_uniform_eta_buf[POLY_UNIFORM_ETA_BYTES];
 	};
 	const uint8_t *rho, *rhoprime, *key;
 	int ret;
@@ -71,8 +72,9 @@ int, lc_dilithium_keypair_c, struct lc_dilithium_pk *pk,
 	polyvec_matrix_expand(ws->mat, rho);
 
 	/* Sample short vectors s1 and s2 */
-	polyvecl_uniform_eta(&ws->s1, rhoprime, 0);
-	polyveck_uniform_eta(&ws->s2, rhoprime, LC_DILITHIUM_L);
+	polyvecl_uniform_eta(&ws->s1, rhoprime, 0, ws->poly_uniform_eta_buf);
+	polyveck_uniform_eta(&ws->s2, rhoprime, LC_DILITHIUM_L,
+			     ws->poly_uniform_eta_buf);
 
 	/* Matrix-vector multiplication */
 	ws->s1hat = ws->s1;
@@ -110,6 +112,9 @@ int, lc_dilithium_sign_c, struct lc_dilithium_sig *sig,
 		polyvecl mat[LC_DILITHIUM_K], s1, y, z;
 		polyveck t0, s2, w1, w0, h;
 		poly cp;
+		uint8_t poly_uniform_gamma1_buf[POLY_UNIFORM_GAMMA1_BYTES];
+		/* See comment below - currently not needed */
+		//uint8_t poly_challenge_buf[POLY_CHALLENGE_BYTES];
 		uint8_t seedbuf[3 * LC_DILITHIUM_SEEDBYTES +
 				2 * LC_DILITHIUM_CRHBYTES];
 	};
@@ -157,7 +162,8 @@ int, lc_dilithium_sign_c, struct lc_dilithium_sig *sig,
 
 rej:
 	/* Sample intermediate vector y */
-	polyvecl_uniform_gamma1(&ws->y, rhoprime, nonce++);
+	polyvecl_uniform_gamma1(&ws->y, rhoprime, nonce++,
+				ws->poly_uniform_gamma1_buf);
 
 	/* Matrix-vector multiplication */
 	ws->z = ws->y;
@@ -178,7 +184,12 @@ rej:
 	lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_SEEDBYTES);
 	lc_hash_final(hash_ctx, sig->sig);
 
-	poly_challenge(&ws->cp, sig->sig);
+	/*
+	 * Use the poly_uniform_gamma1_buf for this operation as
+	 * poly_challenge_buf is smaller than buf and has the same alignment
+	 */
+	BUILD_BUG_ON(POLY_UNIFORM_GAMMA1_BYTES < POLY_CHALLENGE_BYTES);
+	poly_challenge(&ws->cp, sig->sig, ws->poly_uniform_gamma1_buf);
 	poly_ntt(&ws->cp);
 
 	/* Compute z, reject if it reveals secret */
@@ -230,6 +241,8 @@ int, lc_dilithium_verify_c, const struct lc_dilithium_sig *sig,
 		polyvecl mat[LC_DILITHIUM_K], z;
 		polyveck t1, w1, h;
 		uint8_t buf[LC_DILITHIUM_K * LC_DILITHIUM_POLYW1_PACKEDBYTES];
+		/* See comment below - currently not needed */
+		//uint8_t poly_challenge_buf[POLY_CHALLENGE_BYTES];
 		uint8_t rho[LC_DILITHIUM_SEEDBYTES];
 		uint8_t mu[LC_DILITHIUM_CRHBYTES];
 		uint8_t c[LC_DILITHIUM_SEEDBYTES];
@@ -263,7 +276,13 @@ int, lc_dilithium_verify_c, const struct lc_dilithium_sig *sig,
 	lc_hash_final(hash_ctx, ws->mu);
 
 	/* Matrix-vector multiplication; compute Az - c2^dt1 */
-	poly_challenge(&ws->cp, ws->c);
+
+	/*
+	 * Use the buf for this operation as poly_challenge_buf is smaller than
+	 * buf and has the same alignment
+	 */
+	BUILD_BUG_ON(sizeof(ws->buf) < POLY_CHALLENGE_BYTES);
+	poly_challenge(&ws->cp, ws->c, ws->buf);
 	polyvec_matrix_expand(ws->mat, ws->rho);
 
 	polyvecl_ntt(&ws->z);
