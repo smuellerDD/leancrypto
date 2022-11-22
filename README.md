@@ -1,32 +1,36 @@
 # Lean Crypto Library
 
-This crypto library provides algorithm implementations which have the following
-properties:
+The leancrypto library provides algorithm implementations which have the
+following properties:
 
 * minimal dependencies: only POSIX environment needed,
 
 * extractable: the algorithms can be extracted and compiled as part of a
   separate project,
 
+* flexible: you can disable algorithms on an as-needed basis using
+  `meson configure`,
+
+* fully thread-safe when using different cipher contexts for an invocation:
+  there is no global state maintained for the algorithms,
+
 * stack-only support: all algorithms can be allocated on stack if needed. In
   addition, allocation functions for a usage on heap is also supported, and
 
 * minimizing footprint when statically linking by applying dead-code stripping.
-
-The following subsections outline the different cryptographic algorithm support.
 
 ## Library Build
 
 If you want to build the leancrypto shared library, use the provided `Meson`
 build system:
 
-1. Setup: `meson setup builddir`
+1. Setup: `meson setup build`
 
-2. Compile: `meson compile -C builddir`
+2. Compile: `meson compile -C build`
 
-3. Test: `meson test -C builddir`
+3. Test: `meson test -C build`
 
-4. Install: `meson install -C builddir`
+4. Install: `meson install -C build`
 
 ## Library Build for Linux Kernel
 
@@ -183,6 +187,7 @@ ACVP certificate: A770
 https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?product=13214
 
 The test harness is available at https://github.com/smuellerDD/acvpparser
+covering all algorithm implementations of algorithms that are testable.
 
 All algorithms were tested with NIST's ACVP service without obtaining an
 official certificate. Currently not tested: ARMv8 Neon (pending).
