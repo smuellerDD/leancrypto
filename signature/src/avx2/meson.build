@@ -26,8 +26,6 @@ leancrypto_dilithium_avx2_lib = static_library(
 		c_args: [
 			'-mavx2',
 			'-mpopcnt',
-			'-march=native',
-			'-mtune=native',
 			'-Wno-unused-command-line-argument'
 		]
 	)
