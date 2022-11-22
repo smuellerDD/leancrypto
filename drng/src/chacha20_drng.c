@@ -19,6 +19,7 @@
 
 #include "conv_be_le.h"
 #include "ext_headers.h"
+#include "lc_chacha20.h"
 #include "lc_chacha20_drng.h"
 #include "lc_chacha20_private.h"
 #include "math_helper.h"
@@ -179,7 +180,7 @@ int, lc_cc20_drng_alloc, struct lc_chacha20_drng_ctx **cc20_ctx)
 	if (!cc20_ctx)
 		return -EINVAL;
 
-	ret = posix_memalign((void *)&out_ctx, sizeof(uint64_t),
+	ret = posix_memalign((void *)&out_ctx, LC_SYM_ALIGNMENT(lc_chacha20),
 			     LC_CC20_DRNG_CTX_SIZE);
 	if (ret)
 		return -ret;

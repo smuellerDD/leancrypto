@@ -80,7 +80,8 @@ struct lc_seeded_rng_ctx {
 };
 
 /* DRNG state */
-static LC_ALIGNED_BUFFER(rng_ctx_buf, LC_SEEDED_RNG_CTX_SIZE, uint64_t);
+static LC_ALIGNED_BUFFER(rng_ctx_buf, LC_SEEDED_RNG_CTX_SIZE,
+			 LC_HASH_COMMON_ALIGNMENT);
 static struct lc_seeded_rng_ctx seeded_rng = {
 	.rng_ctx = (struct lc_rng_ctx *)rng_ctx_buf,
 

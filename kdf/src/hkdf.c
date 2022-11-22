@@ -139,7 +139,7 @@ int, lc_hkdf_alloc, const struct lc_hash *hash, struct lc_hkdf_ctx **hkdf_ctx)
 	if (!hkdf_ctx)
 		return -EINVAL;
 
-	ret = posix_memalign((void *)&out_state, sizeof(uint64_t),
+	ret = posix_memalign((void *)&out_state, LC_HASH_COMMON_ALIGNMENT,
 			     LC_HKDF_CTX_SIZE(hash));
 	if (ret)
 		return -ret;
@@ -234,7 +234,7 @@ int, lc_hkdf_rng_alloc, struct lc_rng_ctx **state, const struct lc_hash *hash)
 	if (!state)
 		return -EINVAL;
 
-	ret = posix_memalign((void *)&out_state, sizeof(uint64_t),
+	ret = posix_memalign((void *)&out_state, LC_HASH_COMMON_ALIGNMENT,
 			     LC_HKDF_DRNG_CTX_SIZE(hash));
 	if (ret)
 		return -ret;

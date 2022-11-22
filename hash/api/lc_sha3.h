@@ -68,7 +68,8 @@ struct lc_sha3_224_state {
 	_Pragma("GCC diagnostic push")					       \
 	_Pragma("GCC diagnostic ignored \"-Wvla\"")	      		       \
 	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHA3_224_CTX_SIZE, uint64_t);   \
+	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHA3_224_CTX_SIZE,	       \
+			  LC_HASH_COMMON_ALIGNMENT);			       \
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name ## _ctx_buf;     \
 	LC_SHA3_224_CTX(name);						       \
 	_Pragma("GCC diagnostic pop")
@@ -110,7 +111,8 @@ struct lc_sha3_256_state {
 	_Pragma("GCC diagnostic push")					       \
 	_Pragma("GCC diagnostic ignored \"-Wvla\"")	      		       \
 	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHA3_256_CTX_SIZE, uint64_t);   \
+	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHA3_256_CTX_SIZE,	       \
+			  LC_HASH_COMMON_ALIGNMENT);			       \
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name ## _ctx_buf;     \
 	LC_SHA3_256_CTX(name);						       \
 	_Pragma("GCC diagnostic pop")
@@ -152,7 +154,8 @@ struct lc_sha3_384_state {
 	_Pragma("GCC diagnostic push")					       \
 	_Pragma("GCC diagnostic ignored \"-Wvla\"")	      		       \
 	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHA3_384_CTX_SIZE, uint64_t);   \
+	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHA3_384_CTX_SIZE,	       \
+			  LC_HASH_COMMON_ALIGNMENT);			       \
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name ## _ctx_buf;     \
 	LC_SHA3_384_CTX(name);						       \
 	_Pragma("GCC diagnostic pop")
@@ -194,7 +197,8 @@ struct lc_sha3_512_state {
 	_Pragma("GCC diagnostic push")					       \
 	_Pragma("GCC diagnostic ignored \"-Wvla\"")	      		       \
 	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHA3_512_CTX_SIZE, uint64_t);   \
+	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHA3_512_CTX_SIZE,	       \
+			  LC_HASH_COMMON_ALIGNMENT);			       \
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name ## _ctx_buf;     \
 	LC_SHA3_512_CTX(name);						       \
 	_Pragma("GCC diagnostic pop")
@@ -235,7 +239,8 @@ struct lc_shake_128_state {
 	_Pragma("GCC diagnostic push")					       \
 	_Pragma("GCC diagnostic ignored \"-Wvla\"")	      		       \
 	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHAKE_128_CTX_SIZE, uint64_t);  \
+	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHAKE_128_CTX_SIZE,	       \
+			  LC_HASH_COMMON_ALIGNMENT);			       \
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name ## _ctx_buf;     \
 	LC_SHAKE_128_CTX(name);						       \
 	_Pragma("GCC diagnostic pop")
@@ -260,7 +265,8 @@ extern const struct lc_hash *lc_shake256;
 	_Pragma("GCC diagnostic push")					       \
 	_Pragma("GCC diagnostic ignored \"-Wvla\"")	      		       \
 	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHAKE_256_CTX_SIZE, uint64_t);  \
+	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHAKE_256_CTX_SIZE,	       \
+			  LC_HASH_COMMON_ALIGNMENT);			       \
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name ## _ctx_buf;     \
 	LC_SHAKE_256_CTX(name);						       \
 	_Pragma("GCC diagnostic pop")
@@ -281,7 +287,8 @@ extern const struct lc_hash *lc_cshake256;
 	_Pragma("GCC diagnostic push")					       \
 	_Pragma("GCC diagnostic ignored \"-Wvla\"")	      		       \
 	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHA3_256_CTX_SIZE, uint64_t);   \
+	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHA3_256_CTX_SIZE,	       \
+			  LC_HASH_COMMON_ALIGNMENT);			       \
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name ## _ctx_buf;     \
 	LC_CSHAKE_256_CTX(name);					       \
 	_Pragma("GCC diagnostic pop")
@@ -302,7 +309,8 @@ extern const struct lc_hash *lc_cshake128;
 	_Pragma("GCC diagnostic push")					       \
 	_Pragma("GCC diagnostic ignored \"-Wvla\"")	      		       \
 	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHAKE_128_CTX_SIZE, uint64_t);  \
+	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHAKE_128_CTX_SIZE,	       \
+			  LC_HASH_COMMON_ALIGNMENT);			       \
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name ## _ctx_buf;     \
 	LC_CSHAKE_128_CTX(name);					       \
 	_Pragma("GCC diagnostic pop")

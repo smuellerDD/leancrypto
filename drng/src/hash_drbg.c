@@ -345,7 +345,7 @@ int, lc_drbg_hash_alloc, struct lc_rng_ctx **drbg)
 	if (!drbg)
 		return -EINVAL;
 
-	ret = posix_memalign((void *)&out_state, sizeof(uint64_t),
+	ret = posix_memalign((void *)&out_state, LC_HASH_COMMON_ALIGNMENT,
 			     LC_DRBG_HASH_CTX_SIZE);
 	if (ret)
 		return -ret;

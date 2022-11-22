@@ -136,7 +136,8 @@ void lc_hkdf_zero_free(struct lc_hkdf_ctx *hkdf_ctx);
 	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
 	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf,				       \
-			  LC_HKDF_CTX_SIZE(hashname), uint64_t);	       \
+			  LC_HKDF_CTX_SIZE(hashname),			       \
+			  LC_HASH_COMMON_ALIGNMENT);			       \
 	struct lc_hkdf_ctx *name = (struct lc_hkdf_ctx *)name ## _ctx_buf;     \
 	LC_HKDF_SET_CTX(name, hashname);				       \
 	lc_hkdf_zero(name);						       \
@@ -212,7 +213,8 @@ extern const struct lc_rng *lc_hkdf_rng;
 	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
 	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf,				       \
-			  LC_HKDF_DRNG_CTX_SIZE(hashname), uint64_t);	       \
+			  LC_HKDF_DRNG_CTX_SIZE(hashname),		       \
+			  LC_HASH_COMMON_ALIGNMENT);			       \
 	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name ## _ctx_buf;       \
 	LC_HKDF_RNG_CTX(name, hashname);				       \
 	_Pragma("GCC diagnostic pop")

@@ -440,7 +440,7 @@ int, lc_sh_alloc, const struct lc_sym *sym, const struct lc_hash *hash,
 	struct lc_aead_ctx *tmp = NULL;
 	int ret;
 
-	ret = posix_memalign((void *)&tmp, sizeof(uint64_t),
+	ret = posix_memalign((void *)&tmp, LC_HASH_COMMON_ALIGNMENT,
 			     LC_SH_CTX_SIZE(sym, hash));
 	if (ret)
 		return -ret;

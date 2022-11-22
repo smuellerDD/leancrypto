@@ -424,7 +424,7 @@ int, lc_cshake256_drng_alloc, struct lc_rng_ctx **state)
 	if (!state)
 		return -EINVAL;
 
-	ret = posix_memalign((void *)&out_state, sizeof(uint64_t),
+	ret = posix_memalign((void *)&out_state, LC_HASH_COMMON_ALIGNMENT,
 			     LC_CSHAKE256_DRNG_CTX_SIZE);
 	if (ret)
 		return -ret;

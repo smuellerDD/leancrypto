@@ -18,7 +18,7 @@ int, lc_hash_alloc, const struct lc_hash *hash, struct lc_hash_ctx **hash_ctx)
 	if (!hash_ctx)
 		return -EINVAL;
 
-	ret = posix_memalign((void *)&out_ctx, sizeof(uint64_t),
+	ret = posix_memalign((void *)&out_ctx, LC_HASH_COMMON_ALIGNMENT,
 			     LC_HASH_CTX_SIZE(hash));
 	if (ret)
 		return -ret;

@@ -258,7 +258,7 @@ LC_INTERFACE_FUNCTION(
 int, lc_hc_alloc, const struct lc_hash *hash, struct lc_aead_ctx **ctx)
 {
 	struct lc_aead_ctx *tmp = NULL;
-	int ret = posix_memalign((void *)&tmp, sizeof(uint64_t),
+	int ret = posix_memalign((void *)&tmp, LC_HASH_COMMON_ALIGNMENT,
 				 LC_HC_CTX_SIZE(hash));
 
 	if (ret)

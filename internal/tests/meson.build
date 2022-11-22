@@ -13,7 +13,7 @@ if get_option('drbg_hash').enabled()
 					dependencies: leancrypto
 					)
 
-	test('memcmp secure', memcmp_secure_test, timeout: 300)
+	test('memcmp secure', memcmp_secure_test, timeout: 600)
 endif
 
 status_tester = executable('status_tester',

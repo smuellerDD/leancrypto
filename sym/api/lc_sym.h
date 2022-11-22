@@ -62,7 +62,8 @@ struct lc_sym_ctx {
  * question is which pre-processor macro to use to select the proper
  * LC_ALIGN_PTR_XX macro depending on lc_sym->alignment during compile time.
  */
-#define LC_SYM_ALIGNMENT(symname)	(8)
+#define LC_SYM_ALIGNMENT_COMMON		(8)
+#define LC_SYM_ALIGNMENT(symname)	LC_SYM_ALIGNMENT_COMMON
 #define LC_SYM_ALIGNMASK(symname)	(LC_SYM_ALIGNMENT(symname) - 1)
 
 #define LC_ALIGN_APPLY(x, mask)	(((x) + (mask)) & ~(mask))
@@ -78,9 +79,8 @@ struct lc_sym_ctx {
  * ensure that the underlying symmetric algorithm implementation buffer is
  * aligned to proper size.
  */
-#define LC_ALIGNED_SYM_BUFFER(name, symname, size, type)		       \
-	type name[(size + LC_SYM_ALIGNMASK(symname) + sizeof(type) - 1) /      \
-		   sizeof(type)] __attribute__((aligned(sizeof(type))))
+#define LC_ALIGNED_SYM_BUFFER(name, symname, size)		       \
+	uint8_t name[size] __attribute__((aligned(LC_SYM_ALIGNMENT(symname))))
 
 #define _LC_SYM_SET_CTX(name, symname, ctx, offset)			       \
 	name->sym_state = (struct lc_sym_state *)			       \
@@ -230,7 +230,7 @@ void lc_sym_zero_free(struct lc_sym_ctx *ctx);
 	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
 	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 	LC_ALIGNED_SYM_BUFFER(name ## _ctx_buf, symname,		       \
-			      LC_SYM_CTX_SIZE(symname), uint64_t);	       \
+			      LC_SYM_CTX_SIZE(symname));		       \
 	struct lc_sym_ctx *name = (struct lc_sym_ctx *) name ## _ctx_buf;      \
 	LC_SYM_SET_CTX(name, symname);					       \
 	lc_sym_zero(name);						       \

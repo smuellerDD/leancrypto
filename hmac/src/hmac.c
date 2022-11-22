@@ -100,7 +100,7 @@ LC_INTERFACE_FUNCTION(
 int, lc_hmac_alloc, const struct lc_hash *hash, struct lc_hmac_ctx **hmac_ctx)
 {
 	struct lc_hmac_ctx *out_ctx = NULL;
-	int ret = posix_memalign((void *)&out_ctx, sizeof(uint64_t),
+	int ret = posix_memalign((void *)&out_ctx, LC_HASH_COMMON_ALIGNMENT,
 				 LC_HMAC_CTX_SIZE(hash));
 
 	if (ret)

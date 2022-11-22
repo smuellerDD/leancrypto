@@ -432,8 +432,8 @@ static int lc_cc_decrypt_authenticate(void *state,
 	int ret;
 
 	if (taglen > sizeof(calctag)) {
-		ret = posix_memalign((void *)&calctag_p, sizeof(uint64_t),
-				     taglen);
+		ret = posix_memalign((void *)&calctag_p,
+				     LC_HASH_COMMON_ALIGNMENT, taglen);
 		if (ret)
 			return -ret;
 	}
@@ -533,7 +533,7 @@ int, lc_cc_alloc, const struct lc_hash *hash, struct lc_aead_ctx **ctx)
 	struct lc_aead_ctx *tmp = NULL;
 	int ret;
 
-	ret = posix_memalign((void *)&tmp, sizeof(uint64_t),
+	ret = posix_memalign((void *)&tmp, LC_HASH_COMMON_ALIGNMENT,
 			     LC_CC_CTX_SIZE(hash));
 	if (ret)
 		return -ret;

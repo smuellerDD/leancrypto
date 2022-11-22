@@ -88,7 +88,8 @@ static const struct lc_hash _sha3_224_arm8_neon = {
 	.blocksize	= LC_SHA3_224_SIZE_BLOCK,
 	.statesize	= sizeof(struct lc_sha3_224_state),
 };
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_224_arm8_neon) = &_sha3_224_arm8_neon;
+LC_INTERFACE_SYMBOL(
+const struct lc_hash *, lc_sha3_224_arm8_neon) = &_sha3_224_arm8_neon;
 
 static const struct lc_hash _sha3_256_arm8_neon = {
 	.init		= sha3_256_arm8_neon_init,
@@ -99,7 +100,8 @@ static const struct lc_hash _sha3_256_arm8_neon = {
 	.blocksize	= LC_SHA3_256_SIZE_BLOCK,
 	.statesize	= sizeof(struct lc_sha3_256_state),
 };
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_256_arm8_neon) = &_sha3_256_arm8_neon;
+LC_INTERFACE_SYMBOL(
+const struct lc_hash *, lc_sha3_256_arm8_neon) = &_sha3_256_arm8_neon;
 
 static const struct lc_hash _sha3_384_arm8_neon = {
 	.init		= sha3_384_arm8_neon_init,
@@ -110,7 +112,8 @@ static const struct lc_hash _sha3_384_arm8_neon = {
 	.blocksize	= LC_SHA3_384_SIZE_BLOCK,
 	.statesize	= sizeof(struct lc_sha3_384_state),
 };
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_384_arm8_neon) = &_sha3_384_arm8_neon;
+LC_INTERFACE_SYMBOL(
+const struct lc_hash *, lc_sha3_384_arm8_neon) = &_sha3_384_arm8_neon;
 
 static const struct lc_hash _sha3_512_arm8_neon = {
 	.init		= sha3_512_arm8_neon_init,
@@ -121,7 +124,8 @@ static const struct lc_hash _sha3_512_arm8_neon = {
 	.blocksize	= LC_SHA3_512_SIZE_BLOCK,
 	.statesize	= sizeof(struct lc_sha3_512_state),
 };
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_512_arm8_neon) = &_sha3_512_arm8_neon;
+LC_INTERFACE_SYMBOL(
+const struct lc_hash *, lc_sha3_512_arm8_neon) = &_sha3_512_arm8_neon;
 
 static const struct lc_hash _shake128_arm8_neon = {
 	.init		= shake_128_arm8_neon_init,
@@ -132,7 +136,8 @@ static const struct lc_hash _shake128_arm8_neon = {
 	.blocksize	= LC_SHAKE_128_SIZE_BLOCK,
 	.statesize	= sizeof(struct lc_shake_128_state),
 };
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake128_arm8_neon) = &_shake128_arm8_neon;
+LC_INTERFACE_SYMBOL(
+const struct lc_hash *, lc_shake128_arm8_neon) = &_shake128_arm8_neon;
 
 static const struct lc_hash _shake256_arm8_neon = {
 	.init		= shake_256_arm8_neon_init,
@@ -143,7 +148,8 @@ static const struct lc_hash _shake256_arm8_neon = {
 	.blocksize	= LC_SHA3_256_SIZE_BLOCK,
 	.statesize	= sizeof(struct lc_sha3_256_state),
 };
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake256_arm8_neon) = &_shake256_arm8_neon;
+LC_INTERFACE_SYMBOL(
+const struct lc_hash *, lc_shake256_arm8_neon) = &_shake256_arm8_neon;
 
 static const struct lc_hash _cshake128_arm8_neon = {
 	.init		= cshake_128_arm8_neon_init,
@@ -154,7 +160,8 @@ static const struct lc_hash _cshake128_arm8_neon = {
 	.blocksize	= LC_SHAKE_128_SIZE_BLOCK,
 	.statesize	= sizeof(struct lc_shake_128_state),
 };
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_cshake128_arm8_neon) = &_cshake128_arm8_neon;
+LC_INTERFACE_SYMBOL(
+const struct lc_hash *, lc_cshake128_arm8_neon) = &_cshake128_arm8_neon;
 
 static const struct lc_hash _cshake256_arm8_neon = {
 	.init		= cshake_256_arm8_neon_init,
@@ -165,4 +172,5 @@ static const struct lc_hash _cshake256_arm8_neon = {
 	.blocksize	= LC_SHA3_256_SIZE_BLOCK,
 	.statesize	= sizeof(struct lc_sha3_256_state),
 };
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_cshake256_arm8_neon) = &_cshake256_arm8_neon;
+LC_INTERFACE_SYMBOL(
+const struct lc_hash *, lc_cshake256_arm8_neon) = &_cshake256_arm8_neon;

@@ -90,7 +90,7 @@ if get_option('drbg_hash').enabled()
 				dependencies: leancrypto
 				)
 	test('DRNG Hash SHA2-512 DRBG', hash_sha2_drbg_tester)
-	test('DRNG Hash SHA2-512 DRBG 1GB', hash_sha2_drbg_tester_large, timeout: 600)
+	test('DRNG Hash SHA2-512 DRBG 1GB', hash_sha2_drbg_tester_large, timeout: 1500)
 
 #	Disabled as SHA3 DRBG is disabled in main meson.build
 # 	if get_option('sha3').enabled()

@@ -30,7 +30,7 @@ int, lc_sym_alloc, const struct lc_sym *sym, struct lc_sym_ctx **ctx)
 	if (!ctx)
 		return -EINVAL;
 
-	ret = posix_memalign((void *)&out_ctx, sizeof(uint64_t),
+	ret = posix_memalign((void *)&out_ctx, LC_SYM_ALIGNMENT_COMMON,
 			     LC_SYM_CTX_SIZE(sym));
 
 	if (ret)

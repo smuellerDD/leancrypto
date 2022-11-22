@@ -172,7 +172,8 @@ int, lc_kmac_alloc, const struct lc_hash *hash, struct lc_kmac_ctx **kmac_ctx,
 	memsize = (flags & LC_KMAC_FLAGS_SUPPORT_REINIT) ?
 		  LC_KMAC_CTX_SIZE_REINIT(hash) :
 		  LC_KMAC_CTX_SIZE(hash);
-	ret = posix_memalign((void *)&out_ctx, sizeof(uint64_t), memsize);
+	ret = posix_memalign((void *)&out_ctx, LC_HASH_COMMON_ALIGNMENT,
+			     memsize);
 
 	if (ret)
 		return -ret;
@@ -252,7 +253,7 @@ int, lc_kmac_rng_alloc, struct lc_rng_ctx **state, const struct lc_hash *hash)
 	if (!state)
 		return -EINVAL;
 
-	ret = posix_memalign((void *)&out_state, sizeof(uint64_t),
+	ret = posix_memalign((void *)&out_state, LC_HASH_COMMON_ALIGNMENT,
 			     LC_KMAC_KDF_DRNG_CTX_SIZE(hash));
 	if (ret)
 		return -ret;

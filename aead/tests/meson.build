@@ -11,7 +11,7 @@ if get_option('sha2-512').enabled() and get_option('drbg_hash').enabled()
 			       )
 
 	test('AEAD Hash Crypt', hash_crypt_tester)
-	test('AEAD Hash Crypt 1GB', hash_crypt_large_tester, timeout: 1500)
+	test('AEAD Hash Crypt 1GB', hash_crypt_large_tester, timeout: 2500)
 endif
 
 if get_option('kmac_drng').enabled()
@@ -32,8 +32,8 @@ if get_option('kmac_drng').enabled()
 				)
 
 	test('AEAD KMAC Crypt', kmac_crypt_tester)
-	test('AEAD KMAC Crypt Accel 1GB', kmac_crypt_large_tester, timeout: 1000)
-	test('AEAD KMAC Crypt C 1GB', kmac_crypt_large_tester_c, timeout: 1000)
+	test('AEAD KMAC Crypt Accel 1GB', kmac_crypt_large_tester, timeout: 2500)
+	test('AEAD KMAC Crypt C 1GB', kmac_crypt_large_tester_c, timeout: 2500)
 endif
 
 if get_option('cshake_drng').enabled()
@@ -54,8 +54,8 @@ if get_option('cshake_drng').enabled()
 				)
 
 	test('AEAD cSHAKE Crypt', cshake_crypt_tester)
-	test('AEAD cSHAKE Crypt Accel 1GB', cshake_crypt_large_tester, timeout: 1000)
-	test('AEAD cSHAKE Crypt C 1GB', cshake_crypt_large_tester_c, timeout: 1000)
+	test('AEAD cSHAKE Crypt Accel 1GB', cshake_crypt_large_tester, timeout: 2500)
+	test('AEAD cSHAKE Crypt C 1GB', cshake_crypt_large_tester_c, timeout: 2500)
 endif
 
 if get_option('aes_cbc').enabled()

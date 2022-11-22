@@ -55,7 +55,8 @@ extern const struct lc_rng *lc_cshake256_drng;
 	_Pragma("GCC diagnostic push")					       \
 	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf,				       \
-			  LC_CSHAKE256_DRNG_CTX_SIZE, uint64_t);	       \
+			  LC_CSHAKE256_DRNG_CTX_SIZE,			       \
+			  LC_HASH_COMMON_ALIGNMENT);			       \
 	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name ## _ctx_buf;       \
 	LC_CSHAKE256_RNG_CTX(name);					       \
 	_Pragma("GCC diagnostic pop")
