@@ -177,7 +177,7 @@ int poly_chknorm_avx(const poly *a, int32_t B)
 		return 1;
 
 	t = _mm256_setzero_si256();
-	for (i = 0; i < LC_DILITHIUM_N/8; i++) {
+	for (i = 0; i < LC_DILITHIUM_N / 8; i++) {
 		f = _mm256_load_si256(&a->vec[i]);
 		f = _mm256_abs_epi32(f);
 		f = _mm256_cmpgt_epi32(f,bound);
@@ -258,6 +258,8 @@ void poly_uniform_4x_avx(poly *a0,
 				    LC_DILITHIUM_N - ctr3, coeffs3,
 				    LC_SHAKE_128_SIZE_BLOCK);
 	}
+
+	memset_secure(&state, 0, sizeof(state));
 }
 
 void poly_uniform_eta_4x_avx(poly *a0,
@@ -330,6 +332,8 @@ void poly_uniform_eta_4x_avx(poly *a0,
 		ctr3 += rej_eta(a3->coeffs + ctr3, LC_DILITHIUM_N - ctr3,
 				coeffs3, LC_SHAKE_256_SIZE_BLOCK);
 	}
+
+	memset_secure(&state, 0, sizeof(state));
 }
 
 /**
@@ -394,6 +398,8 @@ void poly_uniform_gamma1_4x_avx(poly *a0,
 	polyz_unpack_avx(a1, coeffs1);
 	polyz_unpack_avx(a2, coeffs2);
 	polyz_unpack_avx(a3, coeffs3);
+
+	memset_secure(&state, 0, sizeof(state));
 }
 
 /**

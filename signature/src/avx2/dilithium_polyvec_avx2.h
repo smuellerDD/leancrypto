@@ -38,6 +38,10 @@ extern "C"
 {
 #endif
 
+/**************************************************************/
+/************ Vectors of polynomials of length L **************/
+/**************************************************************/
+
 /* Vectors of polynomials of length L */
 typedef struct {
 	poly vec[LC_DILITHIUM_L];
@@ -138,14 +142,14 @@ static inline int polyvecl_chknorm_avx(const polyvecl *v, int32_t bound)
 	return 0;
 }
 
+/**************************************************************/
+/************ Vectors of polynomials of length K **************/
+/**************************************************************/
+
 /* Vectors of polynomials of length K */
 typedef struct {
 	poly vec[LC_DILITHIUM_K];
 } polyveck;
-
-/**************************************************************/
-/************ Vectors of polynomials of length K **************/
-/**************************************************************/
 
 /**
  * @brief polyveck_reduce_avx
