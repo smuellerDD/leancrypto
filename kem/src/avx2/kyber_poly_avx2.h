@@ -153,6 +153,9 @@ poly_getnoise_eta2_avx(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
 	poly_cbd_eta2_avx(r, buf.vec);
 }
 
+#define NOISE_NBLOCKS 							       \
+	((LC_KYBER_ETA1 * LC_KYBER_N / 4 + LC_SHAKE_256_SIZE_BLOCK - 1) /      \
+	 LC_SHAKE_256_SIZE_BLOCK)
 void poly_getnoise_eta1_4x(poly *r0,
 			   poly *r1,
 			   poly *r2,
@@ -161,7 +164,8 @@ void poly_getnoise_eta1_4x(poly *r0,
 			   uint8_t nonce0,
 			   uint8_t nonce1,
 			   uint8_t nonce2,
-			   uint8_t nonce3);
+			   uint8_t nonce3,
+			   void *ws_buf);
 
 
 /**

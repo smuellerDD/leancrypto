@@ -36,7 +36,6 @@
 #error "AVX2 support for Kyber mode 4 only"
 #endif
 
-
 /**
  * @brief poly_compress
  *
@@ -46,7 +45,7 @@
  *
  * @param r pointer to output byte array (of length
  *	    LC_KYBER_POLYCOMPRESSEDBYTES)
- * @param a: pointer to input polynomial
+ * @param a pointer to input polynomial
  */
 void poly_compress_avx(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES],
 			const poly * restrict a)
@@ -60,8 +59,10 @@ void poly_compress_avx(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES],
 	const __m256i shift2 = _mm256_set1_epi16((32 << 8) + 1);
 	const __m256i shift3 = _mm256_set1_epi32((1024 << 16) + 1);
 	const __m256i sllvdidx = _mm256_set1_epi64x(12);
-	const __m256i shufbidx = _mm256_set_epi8( 8,-1,-1,-1,-1,-1, 4, 3, 2, 1, 0,-1,12,11,10, 9,
-						-1,12,11,10, 9, 8,-1,-1,-1,-1,-1 ,4, 3, 2, 1, 0);
+	const __m256i shufbidx = _mm256_set_epi8( 8,-1,-1,-1,-1,-1, 4, 3,
+						  2, 1, 0,-1,12,11,10, 9,
+						 -1,12,11,10, 9, 8,-1,-1,
+						 -1,-1,-1 ,4, 3, 2, 1, 0);
 
 	for (i = 0; i < LC_KYBER_N / 32; i++) {
 		f0 = _mm256_load_si256(&a->vec[2 * i + 0]);
@@ -140,7 +141,8 @@ void poly_frommsg_avx(poly * restrict r,
 #endif
 	__m256i f, g0, g1, g2, g3, h0, h1, h2, h3;
 	const __m256i shift = _mm256_broadcastsi128_si256(_mm_set_epi32(0,1,2,3));
-	const __m256i idx = _mm256_broadcastsi128_si256(_mm_set_epi8(15,14,11,10,7,6,3,2,13,12,9,8,5,4,1,0));
+	const __m256i idx = _mm256_broadcastsi128_si256(_mm_set_epi8(15,14,11,10,7,6,3,2,
+						 13,12, 9, 8,5,4,1,0));
 	const __m256i hqs = _mm256_set1_epi16((LC_KYBER_Q+1)/2);
 
 #define FROMMSG64(i)							\
@@ -194,8 +196,8 @@ void poly_tomsg_avx(uint8_t msg[LC_KYBER_INDCPA_MSGBYTES],
 	unsigned int i;
 	int small;
 	__m256i f0, f1, g0, g1;
-	const __m256i hq = _mm256_set1_epi16((LC_KYBER_Q - 1)/2);
-	const __m256i hhq = _mm256_set1_epi16((LC_KYBER_Q - 1)/4);
+	const __m256i hq = _mm256_set1_epi16((LC_KYBER_Q - 1) / 2);
+	const __m256i hhq = _mm256_set1_epi16((LC_KYBER_Q - 1) / 4);
 
 	for (i = 0; i < LC_KYBER_N / 32; i++) {
 		f0 = _mm256_load_si256(&a->vec[2 *i + 0]);
@@ -215,9 +217,6 @@ void poly_tomsg_avx(uint8_t msg[LC_KYBER_INDCPA_MSGBYTES],
 	}
 }
 
-#define NOISE_NBLOCKS 							       \
-	((LC_KYBER_ETA1 * LC_KYBER_N / 4 + LC_SHAKE_256_SIZE_BLOCK - 1) /      \
-	 LC_SHAKE_256_SIZE_BLOCK)
 void poly_getnoise_eta1_4x(poly *r0,
 			   poly *r1,
 			   poly *r2,
@@ -226,34 +225,41 @@ void poly_getnoise_eta1_4x(poly *r0,
 			   uint8_t nonce0,
 			   uint8_t nonce1,
 			   uint8_t nonce2,
-			   uint8_t nonce3)
+			   uint8_t nonce3,
+			   void *ws_buf)
 {
-	ALIGNED_UINT8(NOISE_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK) buf[4];
-	__m256i f;
 	keccakx4_state state;
+	__m256i f;
+#define BUFSIZE (NOISE_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK)
+	__m256i *vec0 = (__m256i *)ws_buf;
+	__m256i *vec1 = (__m256i *)(ws_buf) + ALIGNED_UINT8_M256I(BUFSIZE);
+	__m256i *vec2 = (__m256i *)(ws_buf) + ALIGNED_UINT8_M256I(BUFSIZE) * 2;
+	__m256i *vec3 = (__m256i *)(ws_buf) + ALIGNED_UINT8_M256I(BUFSIZE) * 3;
+	uint8_t *coeffs0 = (uint8_t *)vec0;
+	uint8_t *coeffs1 = (uint8_t *)vec1;
+	uint8_t *coeffs2 = (uint8_t *)vec2;
+	uint8_t *coeffs3 = (uint8_t *)vec3;
+#undef BUFSIZE
 
 	f = _mm256_loadu_si256((__m256i_u *)seed);
-	_mm256_store_si256(buf[0].vec, f);
-	_mm256_store_si256(buf[1].vec, f);
-	_mm256_store_si256(buf[2].vec, f);
-	_mm256_store_si256(buf[3].vec, f);
+	_mm256_store_si256(vec0, f);
+	_mm256_store_si256(vec1, f);
+	_mm256_store_si256(vec2, f);
+	_mm256_store_si256(vec3, f);
 
-	buf[0].coeffs[32] = nonce0;
-	buf[1].coeffs[32] = nonce1;
-	buf[2].coeffs[32] = nonce2;
-	buf[3].coeffs[32] = nonce3;
+	coeffs0[32] = nonce0;
+	coeffs1[32] = nonce1;
+	coeffs2[32] = nonce2;
+	coeffs3[32] = nonce3;
 
-	shake256x4_absorb_once(&state,
-			       buf[0].coeffs, buf[1].coeffs,
-			       buf[2].coeffs, buf[3].coeffs, 33);
-	shake256x4_squeezeblocks(buf[0].coeffs, buf[1].coeffs,
-				 buf[2].coeffs, buf[3].coeffs,
+	shake256x4_absorb_once(&state, coeffs0, coeffs1, coeffs2, coeffs3, 33);
+	shake256x4_squeezeblocks(coeffs0, coeffs1, coeffs2, coeffs3,
 				 NOISE_NBLOCKS, &state);
 
-	poly_cbd_eta1_avx(r0, buf[0].vec);
-	poly_cbd_eta1_avx(r1, buf[1].vec);
-	poly_cbd_eta1_avx(r2, buf[2].vec);
-	poly_cbd_eta1_avx(r3, buf[3].vec);
+	poly_cbd_eta1_avx(r0, vec0);
+	poly_cbd_eta1_avx(r1, vec1);
+	poly_cbd_eta1_avx(r2, vec2);
+	poly_cbd_eta1_avx(r3, vec3);
 
 	memset_secure(&state, 0, sizeof(state));
 }

@@ -161,8 +161,8 @@ static unsigned int rej_uniform(int16_t *r,
 	return ctr;
 }
 
-#define gen_a(A, B)  gen_matrix(A, B, 0)
-#define gen_at(A, B) gen_matrix(A, B, 1)
+#define gen_a(A, B, ws_buf)  gen_matrix(A, B, ws_buf, 0)
+#define gen_at(A, B, ws_buf) gen_matrix(A, B, ws_buf, 1)
 
 /**
  * @brief gen_matrix - Deterministically generate matrix A (or the transpose of
@@ -175,81 +175,76 @@ static unsigned int rej_uniform(int16_t *r,
  * @param transposed [in] boolean deciding whether A or A^T is generated
  */
 static int gen_matrix(polyvec *a, const uint8_t seed[LC_KYBER_SYMBYTES],
-		       int transposed)
+		      void *ws_buf, int transposed)
 {
-	struct workspace {
-		ALIGNED_UINT8(REJ_UNIFORM_AVX_NBLOCKS *
-			      LC_SHAKE_128_SIZE_BLOCK) buf[4];
-		keccakx4_state state;
-	};
+	keccakx4_state state;
 	unsigned int ctr0, ctr1, ctr2, ctr3;
 	uint8_t i;
 	__m256i f;
-	LC_DECLARE_MEM(ws, struct workspace, 32);
+#define BUFSIZE (REJ_UNIFORM_AVX_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK)
+	__m256i *vec0 = (__m256i *)ws_buf;
+	__m256i *vec1 = (__m256i *)(ws_buf) + ALIGNED_UINT8_M256I(BUFSIZE);
+	__m256i *vec2 = (__m256i *)(ws_buf) + ALIGNED_UINT8_M256I(BUFSIZE) * 2;
+	__m256i *vec3 = (__m256i *)(ws_buf) + ALIGNED_UINT8_M256I(BUFSIZE) * 3;
+	uint8_t *coeffs0 = (uint8_t *)vec0;
+	uint8_t *coeffs1 = (uint8_t *)vec1;
+	uint8_t *coeffs2 = (uint8_t *)vec2;
+	uint8_t *coeffs3 = (uint8_t *)vec3;
+#undef BUFSIZE
 
 	for (i = 0; i < 4; i++) {
 		f = _mm256_loadu_si256((__m256i_u *)seed);
-		_mm256_store_si256(ws->buf[0].vec, f);
-		_mm256_store_si256(ws->buf[1].vec, f);
-		_mm256_store_si256(ws->buf[2].vec, f);
-		_mm256_store_si256(ws->buf[3].vec, f);
+		_mm256_store_si256(vec0, f);
+		_mm256_store_si256(vec1, f);
+		_mm256_store_si256(vec2, f);
+		_mm256_store_si256(vec3, f);
 
 		if (transposed) {
-			ws->buf[0].coeffs[32] = i;
-			ws->buf[0].coeffs[33] = 0;
-			ws->buf[1].coeffs[32] = i;
-			ws->buf[1].coeffs[33] = 1;
-			ws->buf[2].coeffs[32] = i;
-			ws->buf[2].coeffs[33] = 2;
-			ws->buf[3].coeffs[32] = i;
-			ws->buf[3].coeffs[33] = 3;
+			coeffs0[32] = i;
+			coeffs0[33] = 0;
+			coeffs1[32] = i;
+			coeffs1[33] = 1;
+			coeffs2[32] = i;
+			coeffs2[33] = 2;
+			coeffs3[32] = i;
+			coeffs3[33] = 3;
 		} else {
-			ws->buf[0].coeffs[32] = 0;
-			ws->buf[0].coeffs[33] = i;
-			ws->buf[1].coeffs[32] = 1;
-			ws->buf[1].coeffs[33] = i;
-			ws->buf[2].coeffs[32] = 2;
-			ws->buf[2].coeffs[33] = i;
-			ws->buf[3].coeffs[32] = 3;
-			ws->buf[3].coeffs[33] = i;
+			coeffs0[32] = 0;
+			coeffs0[33] = i;
+			coeffs1[32] = 1;
+			coeffs1[33] = i;
+			coeffs2[32] = 2;
+			coeffs2[33] = i;
+			coeffs3[32] = 3;
+			coeffs3[33] = i;
 		}
 
-		shake128x4_absorb_once(&ws->state,
-				       ws->buf[0].coeffs, ws->buf[1].coeffs,
-				       ws->buf[2].coeffs, ws->buf[3].coeffs,
-				       34);
-		shake128x4_squeezeblocks(ws->buf[0].coeffs, ws->buf[1].coeffs,
-					 ws->buf[2].coeffs, ws->buf[3].coeffs,
-					 REJ_UNIFORM_AVX_NBLOCKS, &ws->state);
+		shake128x4_absorb_once(&state, coeffs0, coeffs1, coeffs2,
+				       coeffs3, 34);
+		shake128x4_squeezeblocks(coeffs0, coeffs1, coeffs2, coeffs3,
+					 REJ_UNIFORM_AVX_NBLOCKS, &state);
 
-		ctr0 = rej_uniform_avx(a[i].vec[0].coeffs, ws->buf[0].coeffs);
-		ctr1 = rej_uniform_avx(a[i].vec[1].coeffs, ws->buf[1].coeffs);
-		ctr2 = rej_uniform_avx(a[i].vec[2].coeffs, ws->buf[2].coeffs);
-		ctr3 = rej_uniform_avx(a[i].vec[3].coeffs, ws->buf[3].coeffs);
+		ctr0 = rej_uniform_avx(a[i].vec[0].coeffs, coeffs0);
+		ctr1 = rej_uniform_avx(a[i].vec[1].coeffs, coeffs1);
+		ctr2 = rej_uniform_avx(a[i].vec[2].coeffs, coeffs2);
+		ctr3 = rej_uniform_avx(a[i].vec[3].coeffs, coeffs3);
 
 		while (ctr0 < LC_KYBER_N || ctr1 < LC_KYBER_N ||
 		ctr2 < LC_KYBER_N || ctr3 < LC_KYBER_N) {
-			shake128x4_squeezeblocks(ws->buf[0].coeffs,
-						 ws->buf[1].coeffs,
-						 ws->buf[2].coeffs,
-						 ws->buf[3].coeffs,
-						 1, &ws->state);
+			shake128x4_squeezeblocks(coeffs0, coeffs1, coeffs2,
+						 coeffs3, 1, &state);
 
 			ctr0 += rej_uniform(a[i].vec[0].coeffs + ctr0,
-					    LC_KYBER_N - ctr0,
-					    ws->buf[0].coeffs,
+					    LC_KYBER_N - ctr0, coeffs0,
 					    LC_SHAKE_128_SIZE_BLOCK);
 			ctr1 += rej_uniform(a[i].vec[1].coeffs + ctr1,
-					    LC_KYBER_N - ctr1,
-					    ws->buf[1].coeffs,
+					    LC_KYBER_N - ctr1, coeffs1,
 					    LC_SHAKE_128_SIZE_BLOCK);
 			ctr2 += rej_uniform(a[i].vec[2].coeffs + ctr2,
-					    LC_KYBER_N - ctr2,
-					    ws->buf[2].coeffs,
+					    LC_KYBER_N - ctr2, coeffs2,
 					    LC_SHAKE_128_SIZE_BLOCK);
 			ctr3 += rej_uniform(a[i].vec[3].coeffs + ctr3,
-					    LC_KYBER_N - ctr3,
-					    ws->buf[3].coeffs,
+					    LC_KYBER_N - ctr3, coeffs3,
 					    LC_SHAKE_128_SIZE_BLOCK);
 		}
 
@@ -259,7 +254,7 @@ static int gen_matrix(polyvec *a, const uint8_t seed[LC_KYBER_SYMBYTES],
 		poly_nttunpack_avx(&a[i].vec[3]);
 	}
 
-	LC_RELEASE_MEM(ws);
+	memset_secure(&state, 0, sizeof(state));
 	return 0;
 }
 
@@ -268,6 +263,11 @@ int indcpa_keypair_avx(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 		       struct lc_rng_ctx *rng_ctx)
 {
 	struct workspace {
+		/* See comment below - currently not needed */
+		//ALIGNED_UINT8(NOISE_NBLOCKS *
+		//	      LC_SHAKE_256_SIZE_BLOCK) poly_getnoise_eta1_buf[4];
+		ALIGNED_UINT8(REJ_UNIFORM_AVX_NBLOCKS *
+			      LC_SHAKE_128_SIZE_BLOCK) gen_a_buf[4];
 		uint8_t buf[2 * LC_KYBER_SYMBYTES];
 		polyvec a[LC_KYBER_K], e, pkpv, skpv;
 	};
@@ -284,14 +284,22 @@ int indcpa_keypair_avx(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, buf, LC_KYBER_SYMBYTES));
 	lc_hash(lc_sha3_512, buf, LC_KYBER_SYMBYTES, buf);
 
-	CKINT(gen_a(ws->a, publicseed));
+	CKINT(gen_a(ws->a, publicseed, ws->gen_a_buf));
 
+	/*
+	 * Use the gen_a_buf for this operation as poly_getnoise_eta1_buf is
+	 * smaller than gen_a_buf and has the same alignment.
+	 */
+	BUILD_BUG_ON(REJ_UNIFORM_AVX_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK <
+		     NOISE_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK);
 	poly_getnoise_eta1_4x(ws->skpv.vec + 0, ws->skpv.vec + 1,
 			      ws->skpv.vec + 2, ws->skpv.vec + 3,
-			      noiseseed,  0, 1, 2, 3);
+			      noiseseed,  0, 1, 2, 3,
+			      ws->gen_a_buf);
 	poly_getnoise_eta1_4x(ws->e.vec + 0, ws->e.vec + 1,
 			      ws->e.vec + 2, ws->e.vec + 3,
-			      noiseseed, 4, 5, 6, 7);
+			      noiseseed, 4, 5, 6, 7,
+			      ws->gen_a_buf);
 	polyvec_ntt(&ws->skpv);
 	polyvec_reduce(&ws->skpv);
 	polyvec_ntt(&ws->e);
@@ -320,6 +328,11 @@ int indcpa_enc_avx(uint8_t c[LC_KYBER_INDCPA_BYTES],
 	           const uint8_t coins[LC_KYBER_SYMBYTES])
 {
 	struct workspace {
+		/* See comment below - currently not needed */
+		//ALIGNED_UINT8(NOISE_NBLOCKS *
+		//	      LC_SHAKE_256_SIZE_BLOCK) poly_getnoise_eta1_buf[4];
+		ALIGNED_UINT8(REJ_UNIFORM_AVX_NBLOCKS *
+			      LC_SHAKE_128_SIZE_BLOCK) gen_at_buf[4];
 		uint8_t seed[LC_KYBER_SYMBYTES];
 		polyvec sp, pkpv, ep, at[LC_KYBER_K], b;
 		poly v, k, epp;
@@ -330,14 +343,20 @@ int indcpa_enc_avx(uint8_t c[LC_KYBER_INDCPA_BYTES],
 
 	unpack_pk(&ws->pkpv, ws->seed, pk);
 	poly_frommsg_avx(&ws->k, m);
-	CKINT(gen_at(ws->at, ws->seed));
+	CKINT(gen_at(ws->at, ws->seed, ws->gen_at_buf));
 
+	/*
+	 * Use the gen_a_buf for this operation as poly_getnoise_eta1_buf is
+	 * smaller than gen_a_buf and has the same alignment.
+	 */
+	BUILD_BUG_ON(REJ_UNIFORM_AVX_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK <
+		     NOISE_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK);
 	poly_getnoise_eta1_4x(ws->sp.vec + 0, ws->sp.vec + 1,
 			      ws->sp.vec + 2, ws->sp.vec + 3,
-			      coins, 0, 1, 2, 3);
+			      coins, 0, 1, 2, 3, ws->gen_at_buf);
 	poly_getnoise_eta1_4x(ws->ep.vec + 0, ws->ep.vec + 1,
 			      ws->ep.vec + 2, ws->ep.vec + 3,
-			      coins, 4, 5, 6, 7);
+			      coins, 4, 5, 6, 7, ws->gen_at_buf);
 	poly_getnoise_eta2_avx(&ws->epp, coins, 8);
 	polyvec_ntt(&ws->sp);
 
