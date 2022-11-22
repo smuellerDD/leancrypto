@@ -128,6 +128,8 @@ void poly_getnoise_eta1(poly *r,
 
 	kyber_shake256_prf(buf, sizeof(buf), seed, nonce);
 	poly_cbd_eta1(r, buf);
+
+	memset_secure(buf, 0, sizeof(buf));
 }
 
 void poly_getnoise_eta2(poly *r,
@@ -137,4 +139,6 @@ void poly_getnoise_eta2(poly *r,
 
 	kyber_shake256_prf(buf, sizeof(buf), seed, nonce);
 	poly_cbd_eta2(r, buf);
+
+	memset_secure(buf, 0, sizeof(buf));
 }

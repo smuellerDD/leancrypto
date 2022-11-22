@@ -78,6 +78,6 @@ if get_option('kyber').enabled()
 	test('Kyber KEM C 50000', kyber_kem_tester_c, args : [ 'c' ],
 	     timeout: 1000)
 	test('Kyber KEM AVX2 50000', kyber_kem_tester_avx2, args : [ 'avx2' ],
-	     timeout: 300)
+	     timeout: 1000)
 	test('Kyber invalid KEM', kyber_invalid_tester)
 endif
