@@ -58,6 +58,20 @@ endif
 
 if (seeded_rng == 1)
 	src += files([ 'seeded_rng.c' ])
+
+	if (build_machine.system() == 'linux')
+		src += files([ 'seeded_rng_linux.c' ])
+	endif
+
+	if ((build_machine.system() == 'dragonfly') or
+	    (build_machine.system() == 'freebsd') or
+	    (build_machine.system() == 'openbsd'))
+		src += files([ 'seeded_rng_bsd.c' ])
+	endif
+
+	if (build_machine.system() == 'darwin')
+		src += files([ 'seeded_rng_darwin.c' ])
+	endif
 endif
 
 configure_file(output: 'lc_drng_config.h', configuration : conf_data)

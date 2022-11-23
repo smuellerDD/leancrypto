@@ -17,19 +17,6 @@
  * DAMAGE.
  */
 
-/*
- * Shall the GLIBC getrandom stub be used (requires GLIBC >= 2.25)
- */
-#define USE_GLIBC_GETRANDOM
-
-#ifdef USE_GLIBC_GETRANDOM
-#include <sys/random.h>
-#else
-#define _GNU_SOURCE
-#include <unistd.h>
-#include <sys/syscall.h>
-#endif
-
 #include <limits.h>
 #include <time.h>
 
@@ -41,6 +28,7 @@
 #include "lc_hmac_drbg_sha512.h"
 #include "lc_rng.h"
 #include "ret_checkers.h"
+#include "seeded_rng.h"
 #include "visibility.h"
 
 /* Select the type of DRNG */
@@ -90,35 +78,6 @@ static struct lc_seeded_rng_ctx seeded_rng = {
 	.last_seeded = 0
 };
 
-static inline ssize_t __getrandom(uint8_t *buffer, size_t bufferlen,
-				  unsigned int flags)
-{
-	ssize_t ret, totallen = 0;
-
-	if (bufferlen > INT_MAX)
-		return -EINVAL;
-
-	do {
-#ifdef USE_GLIBC_GETRANDOM
-		ret = getrandom(buffer, bufferlen, flags);
-#else
-		ret = syscall(__NR_getrandom, buffer, bufferlen, flags);
-#endif
-		if (ret > 0) {
-			bufferlen -= (size_t)ret;
-			buffer += ret;
-			totallen += ret;
-		}
-	} while ((ret > 0 || errno == EINTR) && bufferlen);
-
-	return ((ret < 0) ? -errno : totallen);
-}
-
-static inline ssize_t getrandom_random(uint8_t *buffer, size_t bufferlen)
-{
-	return __getrandom(buffer, bufferlen, GRND_RANDOM);
-}
-
 static int lc_seed_seeded_rng(struct lc_seeded_rng_ctx *rng, int init)
 {
 	uint8_t seed[256 / 8];
@@ -128,7 +87,7 @@ static int lc_seed_seeded_rng(struct lc_seeded_rng_ctx *rng, int init)
 		return -EINVAL;
 
 	/* Seed it with 256 bits of entropy */
-	if (getrandom_random(seed, sizeof(seed)) != sizeof(seed))
+	if (get_full_entropy(seed, sizeof(seed)) != sizeof(seed))
 		return -EFAULT;
 
 	CKINT(lc_rng_seed(rng->rng_ctx, seed, sizeof(seed),
@@ -137,7 +96,7 @@ static int lc_seed_seeded_rng(struct lc_seeded_rng_ctx *rng, int init)
 
 	/* Insert 128 additional bits of entropy to the DRNG */
 	if (init) {
-		if (getrandom_random(seed, sizeof(seed) / 2) !=
+		if (get_full_entropy(seed, sizeof(seed) / 2) !=
 		    sizeof(seed) / 2)
 			return -EFAULT;
 
