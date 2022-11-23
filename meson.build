@@ -63,15 +63,23 @@ add_global_arguments(['-DMAJVERSION=' + version_array[0],
 
 # Dead-code-stripping support
 add_global_arguments(['-ffunction-sections', '-fdata-sections'], language : 'c')
-add_project_link_arguments('-Wl,--gc-sections', language : 'c')
+if (build_machine.system() == 'darwin')
+	add_project_link_arguments('-Wl,-dead_strip', language : 'c')
+else
+	add_project_link_arguments('-Wl,--gc-sections', language : 'c')
+endif
 
 # Link for full RELRO
-add_project_link_arguments('-Wl,-z,relro', language : 'c')
-add_project_link_arguments('-Wl,-z,now', language : 'c')
-add_project_link_arguments('-Wl,-z,noexecstack', language : 'c')
+if (build_machine.system() == 'linux')
+	add_project_link_arguments('-Wl,-z,relro', language : 'c')
+	add_project_link_arguments('-Wl,-z,now', language : 'c')
+	add_project_link_arguments('-Wl,-z,noexecstack', language : 'c')
+endif
 
 # Only link to truly needed libraries
-add_project_link_arguments('-Wl,--as-needed', language : 'c')
+if (build_machine.system() != 'darwin')
+	add_project_link_arguments('-Wl,--as-needed', language : 'c')
+endif
 
 # Header generation
 header_script = find_program('addon/generate_header.sh', required: true)

@@ -29,20 +29,6 @@ if get_option('dilithium').enabled()
 					leancrypto_support_libs
 					]
 				)
-	dilithium_tester_avx2 = executable('dilithium_tester_avx2',
-				[ 'dilithium_tester_avx2.c',
-				  'dilithium_tester.c',
-				  internal_src ],
-				include_directories: [
-					include_dirs,
-					include_internal_dirs,
-					include_dilithium_internal
-				],
-				link_with: [
-					leancrypto_static_lib,
-					leancrypto_support_libs
-					]
-				)
 	dilithium_invalid_tester = executable('dilithium_invalid_tester',
 				[ 'dilithium_invalid_tester.c', internal_src ],
 				include_directories: [
@@ -58,12 +44,31 @@ if get_option('dilithium').enabled()
 
 	test('Dilithium signature C', dilithium_tester_c)
 	test('Dilithium signature Common', dilithium_tester_common)
-	test('Dilithium signature AVX2', dilithium_tester_avx2)
+
 	test('Dilithium signature C 10000', dilithium_tester_c, args : [ 'c' ],
 	     timeout: 1000)
 	test('Dilithium signature Common 10000', dilithium_tester_common,
 	     args : [ 'c' ], timeout: 1000)
-	test('Dilithium signature AVX2 10000', dilithium_tester_avx2,
-	     args : [ 'c' ], timeout: 1000)
 	test('Dilithium invalid signature', dilithium_invalid_tester)
+
+	if (build_machine.cpu_family() == 'x86_64')
+		dilithium_tester_avx2 = executable('dilithium_tester_avx2',
+				[ 'dilithium_tester_avx2.c',
+				  'dilithium_tester.c',
+				  internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_dilithium_internal
+				],
+				link_with: [
+					leancrypto_static_lib,
+					leancrypto_support_libs
+					]
+				)
+
+		test('Dilithium signature AVX2', dilithium_tester_avx2)
+		test('Dilithium signature AVX2 10000', dilithium_tester_avx2,
+		     args : [ 'c' ], timeout: 1000)
+	endif
 endif

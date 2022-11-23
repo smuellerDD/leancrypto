@@ -44,7 +44,7 @@ if get_option('sha3').enabled()
 		src += files([ 'sha3_avx512_null.c' ])
 	endif
 
-	if (build_machine.cpu_family() == 'aarch64')
+	if (build_machine.cpu_family() == 'notcompiled_aarch64')
 		src += files([ 'sha3_arm8_neon.c',
 			       'asm/ARMv8A/KeccakP-1600-armv8a-neon.S' ])
 	else

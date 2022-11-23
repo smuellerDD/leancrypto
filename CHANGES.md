@@ -27,6 +27,8 @@ Changes 0.5.0-prerelease:
 
 * enhancement: Dilithium AVX2 support
 
+* leancrypto tested on macOS with an M2 system
+
 Changes 0.4.0:
 * simplify Kyber code
 
