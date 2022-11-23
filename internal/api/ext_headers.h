@@ -40,6 +40,9 @@
 #include <sys/mman.h>
 #include <sys/types.h>
 
+#include <immintrin.h>
+#define LC_M256I_AVAILABLE
+
 #endif /* LINUX_KERNEL */
 
 #endif /* EXT_HEADERS_H */

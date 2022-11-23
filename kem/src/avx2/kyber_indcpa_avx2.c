@@ -24,7 +24,7 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
-#include "kyber_align_avx2.h"
+#include "alignment.h"
 #include "kyber_indcpa_avx2.h"
 #include "kyber_poly_avx2.h"
 #include "kyber_polyvec_avx2.h"
@@ -264,10 +264,10 @@ int indcpa_keypair_avx(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 {
 	struct workspace {
 		/* See comment below - currently not needed */
-		//ALIGNED_UINT8(NOISE_NBLOCKS *
-		//	      LC_SHAKE_256_SIZE_BLOCK) poly_getnoise_eta1_buf[4];
-		ALIGNED_UINT8(REJ_UNIFORM_AVX_NBLOCKS *
-			      LC_SHAKE_128_SIZE_BLOCK) gen_a_buf[4];
+		//BUF_ALIGNED_UINT8_M256I(NOISE_NBLOCKS *
+		//	LC_SHAKE_256_SIZE_BLOCK) poly_getnoise_eta1_buf[4];
+		BUF_ALIGNED_UINT8_M256I(REJ_UNIFORM_AVX_NBLOCKS *
+					LC_SHAKE_128_SIZE_BLOCK) gen_a_buf[4];
 		uint8_t buf[2 * LC_KYBER_SYMBYTES];
 		polyvec a[LC_KYBER_K], e, pkpv, skpv;
 	};
@@ -329,10 +329,10 @@ int indcpa_enc_avx(uint8_t c[LC_KYBER_INDCPA_BYTES],
 {
 	struct workspace {
 		/* See comment below - currently not needed */
-		//ALIGNED_UINT8(NOISE_NBLOCKS *
-		//	      LC_SHAKE_256_SIZE_BLOCK) poly_getnoise_eta1_buf[4];
-		ALIGNED_UINT8(REJ_UNIFORM_AVX_NBLOCKS *
-			      LC_SHAKE_128_SIZE_BLOCK) gen_at_buf[4];
+		//BUF_ALIGNED_UINT8_M256I(NOISE_NBLOCKS *
+		//	LC_SHAKE_256_SIZE_BLOCK) poly_getnoise_eta1_buf[4];
+		BUF_ALIGNED_UINT8_M256I(REJ_UNIFORM_AVX_NBLOCKS *
+					LC_SHAKE_128_SIZE_BLOCK) gen_at_buf[4];
 		uint8_t seed[LC_KYBER_SYMBYTES];
 		polyvec sp, pkpv, ep, at[LC_KYBER_K], b;
 		poly v, k, epp;

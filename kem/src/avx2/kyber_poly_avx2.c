@@ -28,7 +28,6 @@
 #include <immintrin.h>
 #include <string.h>
 
-#include "kyber_align_avx2.h"
 #include "kyber_poly_avx2.h"
 #include "shake_4x_avx2.h"
 

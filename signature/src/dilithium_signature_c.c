@@ -25,6 +25,7 @@
  * or Apache 2.0 License (https://www.apache.org/licenses/LICENSE-2.0.html).
  */
 
+#include "alignment.h"
 #include "dilithium_polyvec.h"
 #include "dilithium_pack.h"
 #include "dilithium_signature_c.h"
@@ -245,10 +246,9 @@ int, lc_dilithium_verify_c, const struct lc_dilithium_sig *sig,
 		//uint8_t poly_challenge_buf[POLY_CHALLENGE_BYTES];
 		uint8_t rho[LC_DILITHIUM_SEEDBYTES];
 		uint8_t mu[LC_DILITHIUM_CRHBYTES];
-		uint8_t c[LC_DILITHIUM_SEEDBYTES];
-		uint8_t c2[LC_DILITHIUM_SEEDBYTES];
+		BUF_ALIGNED_UINT8_UINT64(LC_DILITHIUM_SEEDBYTES) c;
+		BUF_ALIGNED_UINT8_UINT64(LC_DILITHIUM_SEEDBYTES) c2;
 	};
-	unsigned int i;
 	int ret = 0;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
@@ -259,7 +259,7 @@ int, lc_dilithium_verify_c, const struct lc_dilithium_sig *sig,
 	}
 
 	unpack_pk(ws->rho, &ws->t1, pk);
-	if (unpack_sig(ws->c, &ws->z, &ws->h, sig))
+	if (unpack_sig(ws->c.coeffs, &ws->z, &ws->h, sig))
 		return -EINVAL;
 	if (polyvecl_chknorm(&ws->z, LC_DILITHIUM_GAMMA1 - LC_DILITHIUM_BETA))
 		return -EINVAL;
@@ -282,7 +282,7 @@ int, lc_dilithium_verify_c, const struct lc_dilithium_sig *sig,
 	 * buf and has the same alignment
 	 */
 	BUILD_BUG_ON(sizeof(ws->buf) < POLY_CHALLENGE_BYTES);
-	poly_challenge(&ws->cp, ws->c, ws->buf);
+	poly_challenge(&ws->cp, ws->c.coeffs, ws->buf);
 	polyvec_matrix_expand(ws->mat, ws->rho);
 
 	polyvecl_ntt(&ws->z);
@@ -308,11 +308,12 @@ int, lc_dilithium_verify_c, const struct lc_dilithium_sig *sig,
 	lc_hash_update(hash_ctx, ws->buf,
 		       LC_DILITHIUM_K * LC_DILITHIUM_POLYW1_PACKEDBYTES);
 	lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_SEEDBYTES);
-	lc_hash_final(hash_ctx, ws->c2);
+	lc_hash_final(hash_ctx, ws->c2.coeffs);
 
-	for (i = 0; i < LC_DILITHIUM_SEEDBYTES; ++i)
-		if (ws->c[i] != ws->c2[i])
-			ret = -EBADMSG;
+	/* Signature verification operation */
+	if (memcmp_secure(ws->c.coeffs, LC_DILITHIUM_SEEDBYTES,
+			  ws->c2.coeffs, LC_DILITHIUM_SEEDBYTES))
+		ret = -EBADMSG;
 
 out:
 	lc_hash_zero(hash_ctx);

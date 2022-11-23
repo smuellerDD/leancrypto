@@ -63,8 +63,8 @@ extern "C"
 #endif
 
 #ifndef __ASSEMBLER__
-#include "kyber_align_avx2.h"
-typedef ALIGNED_INT16(640) qdata_t;
+#include "alignment.h"
+typedef BUF_ALIGNED_INT16_M256I(640) qdata_t;
 extern const qdata_t qdata;
 #endif
 

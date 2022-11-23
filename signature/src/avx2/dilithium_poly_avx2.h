@@ -30,7 +30,7 @@
 
 #include <stdint.h>
 
-#include "dilithium_align_avx2.h"
+#include "alignment.h"
 #include "dilithium_consts_avx2.h"
 #include "dilithium_ntt_avx2.h"
 #include "dilithium_rejsample_avx2.h"
@@ -42,7 +42,7 @@ extern "C"
 {
 #endif
 
-typedef ALIGNED_INT32(LC_DILITHIUM_N) poly;
+typedef BUF_ALIGNED_INT32_M256I(LC_DILITHIUM_N) poly;
 
 #define POLY_UNIFORM_GAMMA1_NBLOCKS					       \
 	((LC_DILITHIUM_POLYZ_PACKEDBYTES + LC_SHAKE_256_SIZE_BLOCK - 1) /      \

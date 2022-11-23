@@ -24,7 +24,6 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
-#include "kyber_align_avx2.h"
 #include "kyber_consts_avx2.h"
 #include "lc_kyber.h"
 

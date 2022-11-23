@@ -25,11 +25,10 @@
  * or Apache 2.0 License (https://www.apache.org/licenses/LICENSE-2.0.html).
  */
 
-#ifndef DILITHIUM_ALIGN_H
-#define DILITHIUM_ALIGN_H
+#ifndef ALIGNMENT_H
+#define ALIGNMENT_H
 
-#include <stdint.h>
-#include <immintrin.h>
+#include "ext_headers.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -37,22 +36,40 @@ extern "C"
 #endif
 
 #define ALIGNED_UINT8_COEFFS(N) N
+#define ALIGNED_UINT8_UINT64(N) ((N + 7) / 8)
+
+#define BUF_ALIGNED_UINT8_UINT64(N) 					       \
+	union {								       \
+		uint8_t coeffs[ALIGNED_UINT8_COEFFS(N)];		       \
+		uint64_t vec[ALIGNED_UINT8_UINT64(N)];			       \
+	}
+
+#ifdef LC_M256I_AVAILABLE
+
 #define ALIGNED_UINT8_M256I(N) ((N + 31) / 32)
 
-#define ALIGNED_UINT8(N) 						       \
+#define BUF_ALIGNED_UINT8_M256I(N) 					       \
 	union {								       \
 		uint8_t coeffs[ALIGNED_UINT8_COEFFS(N)];		       \
 		__m256i vec[ALIGNED_UINT8_M256I(N)];			       \
 	}
 
-#define ALIGNED_INT32(N)						       \
+#define BUF_ALIGNED_INT16_M256I(N)					       \
+	union {								       \
+		int16_t coeffs[N];					       \
+		__m256i vec[(N + 15) / 16];				       \
+	}
+
+#define BUF_ALIGNED_INT32_M256I(N)					       \
 	union {								       \
 		int32_t coeffs[N];					       \
 		__m256i vec[(N + 7) / 8];				       \
 	}
 
+#endif /* LC_M256I_AVAILABLE */
+
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* DILITHIUM_ALIGN_H */
+#endif /* ALIGNMENT_H */

@@ -49,9 +49,9 @@ extern "C"
 
 #ifndef __ASSEMBLER__
 
-#include "dilithium_align_avx2.h"
+#include "alignment.h"
 
-typedef ALIGNED_INT32(624) qdata_t;
+typedef BUF_ALIGNED_INT32_M256I(624) qdata_t;
 
 extern const qdata_t qdata;
 

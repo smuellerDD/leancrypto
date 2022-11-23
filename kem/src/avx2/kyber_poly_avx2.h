@@ -27,7 +27,7 @@
 #ifndef KYBER_POLY_AVX2_H
 #define KYBER_POLY_AVX2_H
 
-#include "kyber_align_avx2.h"
+#include "alignment.h"
 #include "kyber_consts_avx2.h"
 #include "kyber_kdf.h"
 #include "kyber_ntt_avx2.h"
@@ -39,7 +39,7 @@ extern "C"
 {
 #endif
 
-typedef ALIGNED_INT16(LC_KYBER_N) poly;
+typedef BUF_ALIGNED_INT16_M256I(LC_KYBER_N) poly;
 
 void poly_compress_avx(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES], const poly *a);
 void poly_decompress_avx(poly *r,
@@ -125,7 +125,7 @@ poly_getnoise_eta1_avx(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
 		       uint8_t nonce)
 {
 	// +32 bytes as required by poly_cbd_eta1
-	ALIGNED_UINT8(LC_KYBER_ETA1 * LC_KYBER_N / 4 + 32) buf;
+	BUF_ALIGNED_UINT8_M256I(LC_KYBER_ETA1 * LC_KYBER_N / 4 + 32) buf;
 
 	kyber_shake256_prf(buf.coeffs, LC_KYBER_ETA1 * LC_KYBER_N / 4,
 			   seed, nonce);
@@ -146,7 +146,7 @@ static inline void
 poly_getnoise_eta2_avx(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
 		       uint8_t nonce)
 {
-	ALIGNED_UINT8(LC_KYBER_ETA2 * LC_KYBER_N / 4) buf;
+	BUF_ALIGNED_UINT8_M256I(LC_KYBER_ETA2 * LC_KYBER_N / 4) buf;
 
 	kyber_shake256_prf(buf.coeffs, LC_KYBER_ETA2 * LC_KYBER_N / 4,
 			   seed, nonce);

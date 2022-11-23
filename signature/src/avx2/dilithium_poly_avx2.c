@@ -29,7 +29,7 @@
 #include <immintrin.h>
 #include <string.h>
 
-#include "dilithium_align_avx2.h"
+#include "alignment.h"
 #include "dilithium_poly_avx2.h"
 #include "dilithium_service_helpers.h"
 #include "lc_dilithium.h"
@@ -416,7 +416,7 @@ void poly_challenge_avx(poly * restrict c,
 {
 	unsigned int i, b, pos;
 	uint64_t signs;
-	ALIGNED_UINT8(LC_SHAKE_256_SIZE_BLOCK) buf;
+	BUF_ALIGNED_UINT8_M256I(LC_SHAKE_256_SIZE_BLOCK) buf;
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
 
 	lc_hash_init(hash_ctx);

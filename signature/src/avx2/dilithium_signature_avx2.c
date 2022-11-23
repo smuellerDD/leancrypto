@@ -28,7 +28,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "dilithium_align_avx2.h"
+#include "alignment.h"
 #include "dilithium_pack_avx2.h"
 #include "dilithium_poly_avx2.h"
 #include "dilithium_polyvec_avx2.h"
@@ -36,6 +36,7 @@
 #include "lc_dilithium.h"
 #include "lc_sha3.h"
 #include "memory_support.h"
+#include "memcmp_secure.h"
 #include "ret_checkers.h"
 #include "lc_rng.h"
 #include "visibility.h"
@@ -87,9 +88,11 @@ int, lc_dilithium_keypair_avx2, struct lc_dilithium_pk *pk,
 				struct lc_rng_ctx *rng_ctx)
 {
 	struct workspace {
-		ALIGNED_UINT8(REJ_UNIFORM_BUFLEN + 8) poly_uniform_4x_buf[4];
+		BUF_ALIGNED_UINT8_M256I(REJ_UNIFORM_BUFLEN + 8)
+							poly_uniform_4x_buf[4];
 		/* See comment below - currently not needed */
-		//ALIGNED_UINT8(REJ_UNIFORM_ETA_BUFLEN) poly_uniform_eta_4x_buf[4];
+		//BUF_ALIGNED_UINT8_M256I(REJ_UNIFORM_ETA_BUFLEN)
+		//				poly_uniform_eta_4x_buf[4];
 		uint8_t seedbuf[2 * LC_DILITHIUM_SEEDBYTES +
 				LC_DILITHIUM_CRHBYTES];
 		polyvecl rowbuf[2], s1;
@@ -209,9 +212,10 @@ int, lc_dilithium_sign_avx2, struct lc_dilithium_sig *sig,
 			     struct lc_rng_ctx *rng_ctx)
 {
 	struct workspace {
-		ALIGNED_UINT8(REJ_UNIFORM_BUFLEN + 8) poly_uniform_4x_buf[4];
+		BUF_ALIGNED_UINT8_M256I(REJ_UNIFORM_BUFLEN + 8)
+							poly_uniform_4x_buf[4];
 		/* See comment below - currently not needed */
-		//ALIGNED_UINT8(POLY_UNIFORM_GAMMA1_NBLOCKS *
+		//BUF_ALIGNED_UINT8_M256I(POLY_UNIFORM_GAMMA1_NBLOCKS *
 		//	      LC_SHAKE_256_SIZE_BLOCK + 14) poly_uniform_gamma1[4];
 		uint8_t seedbuf[3 * LC_DILITHIUM_SEEDBYTES +
 				2 * LC_DILITHIUM_CRHBYTES];
@@ -383,9 +387,10 @@ int, lc_dilithium_verify_avx2, const struct lc_dilithium_sig *sig,
 {
 	struct workspace {
 		/* polyw1_pack writes additional 14 bytes */
-		ALIGNED_UINT8(LC_DILITHIUM_K *
-			      LC_DILITHIUM_POLYW1_PACKEDBYTES + 14) buf;
-		ALIGNED_UINT8(REJ_UNIFORM_BUFLEN + 8) poly_uniform_4x_buf[4];
+		BUF_ALIGNED_UINT8_M256I(LC_DILITHIUM_K *
+			LC_DILITHIUM_POLYW1_PACKEDBYTES + 14) buf;
+		BUF_ALIGNED_UINT8_M256I(REJ_UNIFORM_BUFLEN + 8)
+			poly_uniform_4x_buf[4];
 		uint8_t mu[LC_DILITHIUM_CRHBYTES];
 		polyvecl rowbuf[2];
 		polyvecl z;
@@ -482,9 +487,10 @@ int, lc_dilithium_verify_avx2, const struct lc_dilithium_sig *sig,
         lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_SEEDBYTES);
         lc_hash_final(hash_ctx, ws->buf.coeffs);
 
-	for (i = 0; i < LC_DILITHIUM_SEEDBYTES; ++i)
-		if (ws->buf.coeffs[i] != sig->sig[i])
-			ret = -EBADMSG;
+	/* Signature verification operation */
+	if (memcmp_secure(ws->buf.coeffs, LC_DILITHIUM_SEEDBYTES,
+			  sig->sig, LC_DILITHIUM_SEEDBYTES))
+		ret = -EBADMSG;
 
 out:
 	lc_hash_zero(hash_ctx);
