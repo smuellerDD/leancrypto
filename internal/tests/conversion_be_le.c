@@ -30,18 +30,18 @@ static int compiler_test_le(void)
 	uint32_t u32 = 1234567890;
 	uint64_t u64 = 1234567890123456789;
 
-	if (_bswap16(u16) != __builtin_bswap16(u16)) {
-		printf("FAIL: compiler swap16 is not consistent with C (compiler %d, C %d)\n", __builtin_bswap16(u16), _bswap16(u16));
+	if (_lc_bswap16(u16) != __builtin_bswap16(u16)) {
+		printf("FAIL: compiler swap16 is not consistent with C (compiler %d, C %d)\n", __builtin_bswap16(u16), _lc_bswap16(u16));
 		return 1;
 	}
 
-	if (_bswap32(u32) != __builtin_bswap32(u32)) {
-		printf("FAIL: compiler swap32 is not consistent with C (compiler %u, C %u)\n", __builtin_bswap32(u32), _bswap32(u32));
+	if (_lc_bswap32(u32) != __builtin_bswap32(u32)) {
+		printf("FAIL: compiler swap32 is not consistent with C (compiler %u, C %u)\n", __builtin_bswap32(u32), _lc_bswap32(u32));
 		return 1;
 	}
 
-	if (_bswap64(u64) != __builtin_bswap64(u64)) {
-		printf("FAIL: compiler swap64 is not consistent with C (compiler %"PRIu64", C %"PRIu64")\n", __builtin_bswap64(u64), _bswap64(u64));
+	if (_lc_bswap64(u64) != __builtin_bswap64(u64)) {
+		printf("FAIL: compiler swap64 is not consistent with C (compiler %"PRIu64", C %"PRIu64")\n", __builtin_bswap64(u64), _lc_bswap64(u64));
 		return 1;
 	}
 
@@ -59,17 +59,17 @@ static int sw_test_le(void)
 	uint32_t u32 = 1234567890;
 	uint64_t u64 = 1234567890123456789;
 
-	if (_bswap16(u16) != be_bswap16(u16)) {
-		printf("FAIL: macro swap16 is not consistent with C (macro %d, C %d)\n", be_bswap16(u16), _bswap16(u16));
+	if (_lc_swap16(u16) != be_bswap16(u16)) {
+		printf("FAIL: macro swap16 is not consistent with C (macro %d, C %d)\n", be_bswap16(u16), _lc_bswap16(u16));
 	}
 
-	if (_bswap32(u32) != be_bswap32(u32)) {
-		printf("FAIL: macro swap32 is not consistent with C (macro %u, C %u)\n", be_bswap32(u32), _bswap32(u32));
+	if (_lc_bswap32(u32) != be_bswap32(u32)) {
+		printf("FAIL: macro swap32 is not consistent with C (macro %u, C %u)\n", be_bswap32(u32), _lc_bswap32(u32));
 		return 1;
 	}
 
-	if (_bswap64(u64) != be_bswap64(u64)) {
-		printf("FAIL: macro swap64 is not consistent with C (macro %"PRIu64", C %"PRIu64")\n", be_bswap64(u64), _bswap64(u64));
+	if (_lc_bswap64(u64) != be_bswap64(u64)) {
+		printf("FAIL: macro swap64 is not consistent with C (macro %"PRIu64", C %"PRIu64")\n", be_bswap64(u64), _lc_bswap64(u64));
 		return 1;
 	}
 
