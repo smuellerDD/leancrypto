@@ -35,6 +35,8 @@ extern "C"
 {
 #endif
 
+#define __align(x)	__attribute__((aligned(x)))
+
 #define ALIGNED_UINT8_COEFFS(N) N
 #define ALIGNED_UINT8_UINT64(N) ((N + 7) / 8)
 

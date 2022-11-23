@@ -238,6 +238,7 @@
  *
  ******************************************************************************/
 
+#include "alignment.h"
 #include "ext_headers.h"
 #include "lc_hkdf.h"
 #include "lc_symhmac.h"
@@ -325,7 +326,7 @@ static int lc_sh_decrypt_authenticate(void *state,
 	size_t maxtaglen = lc_hmac_macsize(auth_ctx);
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wvla"
-	uint8_t calctag[maxtaglen] __attribute__((aligned(sizeof(uint64_t))));
+	uint8_t calctag[maxtaglen] __align(sizeof(uint64_t));
 #pragma GCC diagnostic pop
 	int ret;
 

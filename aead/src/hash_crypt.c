@@ -18,6 +18,7 @@
  * DAMAGE.
  */
 
+#include "alignment.h"
 #include "build_bug_on.h"
 #include "ext_headers.h"
 #include "lc_hash_crypt.h"
@@ -196,8 +197,7 @@ lc_hc_decrypt_authenticate(void *state,
 			   const uint8_t *tag, size_t taglen)
 {
 	struct lc_hc_cryptor *hc = state;
-	uint8_t calctag[LC_SHA_MAX_SIZE_DIGEST]
-				__attribute__((aligned(sizeof(uint64_t))));
+	uint8_t calctag[LC_SHA_MAX_SIZE_DIGEST] __align(sizeof(uint64_t));
 	int ret;
 
 	if (taglen > sizeof(calctag))

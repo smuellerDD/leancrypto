@@ -29,6 +29,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "alignment.h"
 #include "binhexbin.h"
 #include "lc_sha256.h"
 #include "lc_sha512.h"
@@ -135,7 +136,7 @@ static int lc_hasher(const char *filename, struct lc_hash_ctx *hash_ctx)
 			offset = offset + (off_t)mapped;
 		} while (offset ^ size);
 	} else {
-		uint8_t tmpbuf[4096] __attribute__(( aligned(32) ));
+		uint8_t tmpbuf[4096] __align(32);
 		uint32_t bufsize;
 
 		while ((bufsize =

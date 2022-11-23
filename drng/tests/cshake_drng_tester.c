@@ -17,6 +17,7 @@
  * DAMAGE.
  */
 
+#include "alignment.h"
 #include "compare.h"
 #include "lc_cshake256_drng.h"
 #include "testfunctions.h"
@@ -73,7 +74,7 @@ static int cshake_drng_selftest(struct lc_rng_ctx *cshake_ctx)
 		0x2d, 0x81
 
 	};
-	uint8_t act1[sizeof(exp1)] __attribute__((aligned(sizeof(uint32_t))));
+	uint8_t act1[sizeof(exp1)] __align(sizeof(uint32_t));
 	uint8_t compare1[LC_CSHAKE256_DRNG_KEYSIZE + sizeof(exp1)];
 	int ret;
 	LC_HASH_CTX_ON_STACK(cshake_compare, lc_cshake256);

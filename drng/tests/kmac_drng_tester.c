@@ -17,6 +17,7 @@
  * DAMAGE.
  */
 
+#include "alignment.h"
 #include "compare.h"
 #include "lc_kmac256_drng.h"
 #include "testfunctions.h"
@@ -68,7 +69,7 @@ static int kmac_drng_selftest(struct lc_rng_ctx *kmac_ctx)
 		0x78, 0x0f, 0x74, 0xe4, 0x21, 0xc4, 0x07, 0x20, 0xa1,
 		0x65, 0x91, 0x9e, 0x84, 0xe8, 0x72, 0x85, 0x08, 0x1d
 	};
-	uint8_t act1[sizeof(exp1)] __attribute__((aligned(sizeof(uint32_t))));
+	uint8_t act1[sizeof(exp1)] __align(sizeof(uint32_t));
 	uint8_t compare1[LC_KMAC256_DRNG_KEYSIZE + sizeof(exp1)];
 	int ret;
 	LC_KMAC_CTX_ON_STACK(kmac_compare, lc_cshake256);

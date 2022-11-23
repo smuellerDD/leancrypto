@@ -18,6 +18,7 @@
  * DAMAGE.
  */
 
+#include "alignment.h"
 #include "conv_be_le.h"
 #include "ext_headers.h"
 #include "lc_hmac.h"
@@ -98,8 +99,7 @@ int, lc_pbkdf2, const struct lc_hash *hash,
 	size_t h;
 	uint32_t i = 1;
 #define MAX_DIGESTSIZE 64
-	uint8_t u[LC_SHA_MAX_SIZE_DIGEST]
-				__attribute__ ((aligned (sizeof(uint64_t))));
+	uint8_t u[LC_SHA_MAX_SIZE_DIGEST] __align(sizeof(uint64_t));
 	LC_HMAC_CTX_ON_STACK(hmac_ctx, hash);
 
 	if (keylen > INT_MAX)

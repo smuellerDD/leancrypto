@@ -302,6 +302,7 @@
  *             ParallelHash, December 2016
  ******************************************************************************/
 
+#include "alignment.h"
 #include "build_bug_on.h"
 #include "ext_headers.h"
 #include "lc_cshake_crypt.h"
@@ -427,7 +428,7 @@ static int lc_cc_decrypt_authenticate(void *state,
 				      const uint8_t *tag, size_t taglen)
 {
 	struct lc_cc_cryptor *cc = state;
-	uint8_t calctag[128] __attribute__((aligned(sizeof(uint64_t))));
+	uint8_t calctag[128] __align(sizeof(uint64_t));
 	uint8_t *calctag_p = calctag;
 	int ret;
 

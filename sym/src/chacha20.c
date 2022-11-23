@@ -17,6 +17,7 @@
  * DAMAGE.
  */
 
+#include "alignment.h"
 #include "bitshift.h"
 #include "conv_be_le.h"
 #include "ext_headers.h"
@@ -142,8 +143,7 @@ static int cc20_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen)
 static void cc20_crypt(struct lc_sym_state *ctx,
 		       const uint8_t *in, uint8_t *out, size_t len)
 {
-	uint32_t keystream[LC_CC20_BLOCK_SIZE_WORDS]
-				__attribute__((aligned(sizeof(uint64_t))));
+	uint32_t keystream[LC_CC20_BLOCK_SIZE_WORDS] __align(sizeof(uint64_t));
 
 	if (!ctx)
 		return;
