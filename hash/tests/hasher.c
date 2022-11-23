@@ -216,6 +216,7 @@ int main(int argc, char *argv[])
 			case 1:
 				/* file */
 				file = optarg;
+				break;
 
 			default:
 				usage();
