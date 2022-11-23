@@ -40,7 +40,8 @@ static int chacha20_drng_selftest(struct lc_chacha20_drng_ctx *cc20_ctx)
 	struct lc_sym_state *chacha20_state = sym_ctx->sym_state;
 	uint8_t outbuf[LC_CC20_KEY_SIZE * 2]
 				__attribute__((aligned(sizeof(uint32_t))));
-	uint8_t seed[LC_CC20_KEY_SIZE * 2] = {
+	uint8_t seed[LC_CC20_KEY_SIZE * 2]
+		__attribute__((aligned(sizeof(uint32_t)))) = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 		0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
 		0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
