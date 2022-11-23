@@ -1,3 +1,5 @@
+hasher = 0
+
 if get_option('sha2-256').enabled()
 	sha256_tester = executable('sha256_tester',
 				   [ 'sha256_tester.c', internal_src ],
@@ -6,6 +8,7 @@ if get_option('sha2-256').enabled()
 				   )
 
 	test('Hash SHA256', sha256_tester)
+	hasher = 1
 endif
 
 if get_option('sha2-512').enabled()
@@ -16,6 +19,7 @@ if get_option('sha2-512').enabled()
 				   )
 
 	test('Hash SHA512', sha512_tester)
+	hasher = 1
 endif
 
 if get_option('sha3').enabled()
@@ -74,4 +78,13 @@ if get_option('sha3').enabled()
 	test('Hash SHAKE256 Squeeze More', shake_squeeze_more_tester)
 	test('Hash cSHAKE128', cshake_128_tester)
 	test('Hash cSHAKE256', cshake_256_tester)
+	hasher = 1
+endif
+
+if (hasher == 1)
+	hasher = executable('hasher',
+				     [ 'hasher.c', internal_src ],
+				     include_directories: [ include_internal_dirs ],
+				     dependencies: leancrypto
+				     )
 endif
