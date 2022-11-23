@@ -28,7 +28,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "alignment.h"
+#include "alignment_x86.h"
 #include "dilithium_pack_avx2.h"
 #include "dilithium_poly_avx2.h"
 #include "dilithium_polyvec_avx2.h"

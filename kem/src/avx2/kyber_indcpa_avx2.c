@@ -24,7 +24,7 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
-#include "alignment.h"
+#include "alignment_x86.h"
 #include "kyber_indcpa_avx2.h"
 #include "kyber_poly_avx2.h"
 #include "kyber_polyvec_avx2.h"

@@ -30,7 +30,7 @@
 
 #include <stdint.h>
 
-#include "alignment.h"
+#include "alignment_x86.h"
 #include "dilithium_consts_avx2.h"
 #include "dilithium_ntt_avx2.h"
 #include "dilithium_rejsample_avx2.h"

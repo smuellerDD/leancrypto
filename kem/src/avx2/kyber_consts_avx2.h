@@ -63,7 +63,7 @@ extern "C"
 #endif
 
 #ifndef __ASSEMBLER__
-#include "alignment.h"
+#include "alignment_x86.h"
 typedef BUF_ALIGNED_INT16_M256I(640) qdata_t;
 extern const qdata_t qdata;
 #endif

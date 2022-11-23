@@ -49,7 +49,7 @@ extern "C"
 
 #ifndef __ASSEMBLER__
 
-#include "alignment.h"
+#include "alignment_x86.h"
 
 typedef BUF_ALIGNED_INT32_M256I(624) qdata_t;
 

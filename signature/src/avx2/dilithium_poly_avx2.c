@@ -29,7 +29,7 @@
 #include <immintrin.h>
 #include <string.h>
 
-#include "alignment.h"
+#include "alignment_x86.h"
 #include "dilithium_poly_avx2.h"
 #include "dilithium_service_helpers.h"
 #include "lc_dilithium.h"
