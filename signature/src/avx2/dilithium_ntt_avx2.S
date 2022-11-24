@@ -179,8 +179,8 @@ vmovdqa		%ymm11,256*\off+224(%rdi)
 .endm
 
 .text
-.global ntt_avx
-ntt_avx:
+.global dilithium_ntt_avx
+dilithium_ntt_avx:
 vmovdqa		_8XQ*4(%rsi),%ymm0
 
 levels0t1	0

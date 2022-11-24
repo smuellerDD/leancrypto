@@ -35,15 +35,15 @@ extern "C"
 {
 #endif
 
-void ntt_avx(__m256i *a, const __m256i *qdata);
-void invntt_avx(__m256i *a, const __m256i *qdata);
+void dilithium_ntt_avx(__m256i *a, const __m256i *qdata);
+void dilithium_invntt_avx(__m256i *a, const __m256i *qdata);
 
-void nttunpack_avx(__m256i *a);
+void dilithium_nttunpack_avx(__m256i *a);
 
-void pointwise_avx(__m256i *c, const __m256i *a, const __m256i *b,
-		   const __m256i *qdata);
-void pointwise_acc_avx(__m256i *c, const __m256i *a, const __m256i *b,
-		       const __m256i *qdata);
+void dilithium_pointwise_avx(__m256i *c, const __m256i *a, const __m256i *b,
+			     const __m256i *qdata);
+void dilithium_pointwise_acc_avx(__m256i *c, const __m256i *a, const __m256i *b,
+				 const __m256i *qdata);
 
 #ifdef __cplusplus
 }

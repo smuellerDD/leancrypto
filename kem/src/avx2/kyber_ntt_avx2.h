@@ -34,19 +34,19 @@ extern "C"
 {
 #endif
 
-void ntt_avx(__m256i *r, const __m256i *qdata);
-void invntt_avx(__m256i *r, const __m256i *qdata);
+void kyber_ntt_avx(__m256i *r, const __m256i *qdata);
+void kyber_invntt_avx(__m256i *r, const __m256i *qdata);
 
-void nttpack_avx(__m256i *r, const __m256i *qdata);
-void nttunpack_avx(__m256i *r, const __m256i *qdata);
+void kyber_nttpack_avx(__m256i *r, const __m256i *qdata);
+void kyber_nttunpack_avx(__m256i *r, const __m256i *qdata);
 
-void basemul_avx(__m256i *r,
-		 const __m256i *a,
-		 const __m256i *b,
-		 const __m256i *qdata);
+void kyber_basemul_avx(__m256i *r,
+		       const __m256i *a,
+		       const __m256i *b,
+		       const __m256i *qdata);
 
-void ntttobytes_avx(uint8_t *r, const __m256i *a, const __m256i *qdata);
-void nttfrombytes_avx(__m256i *r, const uint8_t *a, const __m256i *qdata);
+void kyber_ntttobytes_avx(uint8_t *r, const __m256i *a, const __m256i *qdata);
+void kyber_nttfrombytes_avx(__m256i *r, const uint8_t *a, const __m256i *qdata);
 
 #ifdef __cplusplus
 }

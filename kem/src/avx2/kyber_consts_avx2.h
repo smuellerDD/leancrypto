@@ -64,8 +64,8 @@ extern "C"
 
 #ifndef __ASSEMBLER__
 #include "alignment_x86.h"
-typedef BUF_ALIGNED_INT16_M256I(640) qdata_t;
-extern const qdata_t qdata;
+typedef BUF_ALIGNED_INT16_M256I(640) kyber_qdata_t;
+extern const kyber_qdata_t kyber_qdata;
 #endif
 
 #ifdef __cplusplus

@@ -31,7 +31,7 @@
 
 #include "alignment_x86.h"
 #include "dilithium_poly_avx2.h"
-#include "dilithium_service_helpers.h"
+#include "../dilithium_service_helpers.h"
 #include "lc_dilithium.h"
 #include "lc_sha3.h"
 #include "shake_4x_avx2.h"
@@ -54,7 +54,7 @@ void poly_reduce_avx(poly *a)
 {
 	unsigned int i;
 	__m256i f, g;
-	const __m256i q = _mm256_load_si256(&qdata.vec[_8XQ/8]);
+	const __m256i q = _mm256_load_si256(&dilithium_qdata.vec[_8XQ/8]);
 	const __m256i off = _mm256_set1_epi32(1<<22);
 
 	for (i = 0; i < LC_DILITHIUM_N / 8; i++) {
@@ -78,7 +78,7 @@ void poly_caddq_avx(poly *a)
 {
 	unsigned int i;
 	__m256i f, g;
-	const __m256i q = _mm256_load_si256(&qdata.vec[_8XQ/8]);
+	const __m256i q = _mm256_load_si256(&dilithium_qdata.vec[_8XQ/8]);
 	const __m256i zero = _mm256_setzero_si256();
 
 	for (i = 0; i < LC_DILITHIUM_N / 8; i++) {

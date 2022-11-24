@@ -83,8 +83,8 @@ vmovdqa		%ymm11,(64*\off+48)*2(%rdi)
 .endm
 
 .text
-.global basemul_avx
-basemul_avx:
+.global kyber_basemul_avx
+kyber_basemul_avx:
 mov		%rsp,%r8
 and		$-32,%rsp
 sub		$32,%rsp

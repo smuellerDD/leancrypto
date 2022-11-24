@@ -364,7 +364,7 @@ static inline int polyveck_chknorm(const polyveck *v, int32_t bound)
 	unsigned int i;
 
 	for (i = 0; i < LC_DILITHIUM_K; ++i)
-		if(poly_chknorm(&v->vec[i], bound))
+		if (poly_chknorm(&v->vec[i], bound))
 			return 1;
 
 	return 0;

@@ -1,8 +1,8 @@
 #include "dilithium_consts_avx2.h"
 
 .text
-.global pointwise_avx
-pointwise_avx:
+.global dilithium_pointwise_avx
+dilithium_pointwise_avx:
 #consts
 vmovdqa		_8XQINV*4(%rcx),%ymm0
 vmovdqa		_8XQ*4(%rcx),%ymm1
@@ -133,8 +133,8 @@ vpaddq		%ymm8,%ymm4,%ymm4
 vpaddq		%ymm9,%ymm5,%ymm5
 .endm
 
-.global pointwise_acc_avx
-pointwise_acc_avx:
+.global dilithium_pointwise_acc_avx
+dilithium_pointwise_acc_avx:
 #consts
 vmovdqa		_8XQINV*4(%rcx),%ymm0
 vmovdqa		_8XQ*4(%rcx),%ymm1

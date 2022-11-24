@@ -7,9 +7,7 @@ if get_option('kyber').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_kyber_internal
-				],
-				link_with: [ leancrypto_static_lib,
-					     leancrypto_support_libs ]
+				], dependencies: leancrypto
 				)
 	kyber_ies_tester = executable('kyber_ies_tester',
 				[ 'kyber_ies_tester.c', internal_src ],
@@ -17,8 +15,7 @@ if get_option('kyber').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_kyber_internal
-				],
-				link_with: [ leancrypto_static_lib, leancrypto_support_libs ]
+				], dependencies: leancrypto
 				)
 	kyber_kem_tester_common = executable('kyber_kem_tester_common',
 				[ 'kyber_kem_tester_common.c',
@@ -26,11 +23,8 @@ if get_option('kyber').enabled()
 				  internal_src ],
 				include_directories: [
 					include_dirs,
-					include_internal_dirs,
-					include_kyber_internal
-				],
-				link_with: [ leancrypto_static_lib,
-					     leancrypto_support_libs ]
+					include_internal_dirs
+				], dependencies: leancrypto
 				)
 	kyber_kem_tester_c = executable('kyber_kem_tester_c',
 				[ 'kyber_kem_tester_c.c',
@@ -40,9 +34,7 @@ if get_option('kyber').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_kyber_internal
-				],
-				link_with: [ leancrypto_static_lib,
-					     leancrypto_support_libs ]
+				], dependencies: leancrypto
 				)
 	kyber_invalid_tester = executable('kyber_invalid_tester',
 				[ 'kyber_invalid_tester.c', internal_src ],
@@ -50,9 +42,7 @@ if get_option('kyber').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_kyber_internal
-				],
-				link_with: [ leancrypto_static_lib,
-					     leancrypto_support_libs ]
+				], dependencies: leancrypto
 				)
 
 	test('Kyber KEX', kyber_kex_tester)
@@ -74,9 +64,7 @@ if get_option('kyber').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_kyber_internal
-					],
-					link_with: [ leancrypto_static_lib,
-						leancrypto_support_libs ]
+					], dependencies: leancrypto
 					)
 
 		test('Kyber KEM AVX2', kyber_kem_tester_avx2)

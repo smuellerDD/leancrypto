@@ -221,8 +221,8 @@ vmovdqa         %ymm7,384+32*\off(%rdi)
 .endm
 
 .text
-.global invntt_avx
-invntt_avx:
+.global dilithium_invntt_avx
+dilithium_invntt_avx:
 vmovdqa		_8XQ*4(%rsi),%ymm0
 
 levels0t5	0

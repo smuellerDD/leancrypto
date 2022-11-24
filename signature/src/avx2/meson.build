@@ -29,4 +29,7 @@ leancrypto_dilithium_avx2_lib = static_library(
 			'-Wno-unused-command-line-argument'
 		]
 	)
+
+#-Wl,--whole-archive kem/src/avx2/libleancrypto_kyber_avx2_lib.a -Wl,--no-whole-archive
+
 leancrypto_support_libs += leancrypto_dilithium_avx2_lib

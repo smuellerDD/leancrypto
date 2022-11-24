@@ -25,9 +25,9 @@
  * or Apache 2.0 License (https://www.apache.org/licenses/LICENSE-2.0.html).
  */
 
-#include "dilithium_pack.h"
-#include "dilithium_poly.h"
-#include "dilithium_polyvec.h"
+//#include "dilithium_pack.h"
+//#include "dilithium_poly.h"
+//#include "dilithium_polyvec.h"
 #include "dilithium_tester.h"
 #include "ext_headers.h"
 #include "lc_dilithium.h"
@@ -139,12 +139,12 @@ int _dilithium_tester(
 		uint8_t m[MLEN];
 		uint8_t seed[LC_DILITHIUM_CRHBYTES];
 		uint8_t buf[LC_DILITHIUM_SECRETKEYBYTES];
-		uint8_t poly_uniform_gamma1_buf[POLY_UNIFORM_GAMMA1_BYTES];
-		uint8_t poly_uniform_eta_buf[POLY_UNIFORM_ETA_BYTES];
-		uint8_t poly_challenge_buf[POLY_CHALLENGE_BYTES];
-		poly c, tmp;
-		polyvecl s, y, mat[LC_DILITHIUM_K];
-		polyveck w, w1, w0, t1, t0, h;
+		//uint8_t poly_uniform_gamma1_buf[POLY_UNIFORM_GAMMA1_BYTES];
+		//uint8_t poly_uniform_eta_buf[POLY_UNIFORM_ETA_BYTES];
+		//uint8_t poly_challenge_buf[POLY_CHALLENGE_BYTES];
+		//poly c, tmp;
+		//polyvecl s, y, mat[LC_DILITHIUM_K];
+		//polyveck w, w1, w0, t1, t0, h;
 	};
 	unsigned int i, j, k, l;
 	int ret = 0;
@@ -284,7 +284,7 @@ int _dilithium_tester(
 		if (!verify_calculation)
 			continue;
 
-#ifndef LINUX_KERNEL
+#if 0
 
 #ifdef SHOW_SHAKEd_KEY
 		printf("seed = ");
@@ -502,7 +502,7 @@ int _dilithium_tester(
 		if (memcmp(&ws->h, &ws->w, sizeof(ws->h)))
 			printf("ERROR in (un)pack_sig!\n");
 
-#endif /* LINUX_KERNEL */
+#endif
 	}
 
 #ifdef GENERATE_VECTORS

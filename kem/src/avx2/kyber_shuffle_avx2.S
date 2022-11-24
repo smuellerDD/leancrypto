@@ -48,7 +48,7 @@ ret
 */
 
 .text
-nttunpack128_avx:
+kyber_nttunpack128_avx:
 #load
 vmovdqa		(%rdi),%ymm4
 vmovdqa		32(%rdi),%ymm5
@@ -91,14 +91,14 @@ vmovdqa		%ymm11,224(%rdi)
 
 ret
 
-.global nttunpack_avx
-nttunpack_avx:
-call		nttunpack128_avx
+.global kyber_nttunpack_avx
+kyber_nttunpack_avx:
+call		kyber_nttunpack128_avx
 add		$256,%rdi
-call		nttunpack128_avx
+call		kyber_nttunpack128_avx
 ret
 
-ntttobytes128_avx:
+kyber_ntttobytes128_avx:
 #load
 vmovdqa		(%rsi),%ymm5
 vmovdqa		32(%rsi),%ymm6
@@ -168,17 +168,17 @@ vmovdqu		%ymm9,160(%rdi)
 
 ret
 
-.global ntttobytes_avx
-ntttobytes_avx:
+.global kyber_ntttobytes_avx
+kyber_ntttobytes_avx:
 #consts
 vmovdqa		_16XQ*2(%rdx),%ymm0
-call		ntttobytes128_avx
+call		kyber_ntttobytes128_avx
 add		$256,%rsi
 add		$192,%rdi
-call		ntttobytes128_avx
+call		kyber_ntttobytes128_avx
 ret
 
-nttfrombytes128_avx:
+kyber_nttfrombytes128_avx:
 #load
 vmovdqu		(%rsi),%ymm4
 vmovdqu		32(%rsi),%ymm5
@@ -244,12 +244,12 @@ vmovdqa		%ymm1,224(%rdi)
 
 ret
 
-.global nttfrombytes_avx
-nttfrombytes_avx:
+.global kyber_nttfrombytes_avx
+kyber_nttfrombytes_avx:
 #consts
 vmovdqa		_16XMASK*2(%rdx),%ymm0
-call		nttfrombytes128_avx
+call		kyber_nttfrombytes128_avx
 add		$256,%rdi
 add		$192,%rsi
-call		nttfrombytes128_avx
+call		kyber_nttfrombytes128_avx
 ret

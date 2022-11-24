@@ -224,10 +224,10 @@ static int gen_matrix(polyvec *a, const uint8_t seed[LC_KYBER_SYMBYTES],
 		shake128x4_squeezeblocks(coeffs0, coeffs1, coeffs2, coeffs3,
 					 REJ_UNIFORM_AVX_NBLOCKS, &state);
 
-		ctr0 = rej_uniform_avx(a[i].vec[0].coeffs, coeffs0);
-		ctr1 = rej_uniform_avx(a[i].vec[1].coeffs, coeffs1);
-		ctr2 = rej_uniform_avx(a[i].vec[2].coeffs, coeffs2);
-		ctr3 = rej_uniform_avx(a[i].vec[3].coeffs, coeffs3);
+		ctr0 = kyber_rej_uniform_avx(a[i].vec[0].coeffs, coeffs0);
+		ctr1 = kyber_rej_uniform_avx(a[i].vec[1].coeffs, coeffs1);
+		ctr2 = kyber_rej_uniform_avx(a[i].vec[2].coeffs, coeffs2);
+		ctr3 = kyber_rej_uniform_avx(a[i].vec[3].coeffs, coeffs3);
 
 		while (ctr0 < LC_KYBER_N || ctr1 < LC_KYBER_N ||
 		ctr2 < LC_KYBER_N || ctr3 < LC_KYBER_N) {
@@ -371,8 +371,8 @@ int indcpa_enc_avx(uint8_t c[LC_KYBER_INDCPA_BYTES],
 	poly_invntt_tomont_avx(&ws->v);
 
 	polyvec_add(&ws->b, &ws->b, &ws->ep);
-	poly_add_avx(&ws->v, &ws->v, &ws->epp);
-	poly_add_avx(&ws->v, &ws->v, &ws->k);
+	kyber_poly_add_avx(&ws->v, &ws->v, &ws->epp);
+	kyber_poly_add_avx(&ws->v, &ws->v, &ws->k);
 	polyvec_reduce(&ws->b);
 	poly_reduce_avx(&ws->v);
 
@@ -400,7 +400,7 @@ int indcpa_dec_avx(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
 	polyvec_basemul_acc_montgomery(&ws->mp, &ws->skpv, &ws->b);
 	poly_invntt_tomont_avx(&ws->mp);
 
-	poly_sub_avx(&ws->mp, &ws->v, &ws->mp);
+	kyber_poly_sub_avx(&ws->mp, &ws->v, &ws->mp);
 	poly_reduce_avx(&ws->mp);
 
 	poly_tomsg_avx(m, &ws->mp);

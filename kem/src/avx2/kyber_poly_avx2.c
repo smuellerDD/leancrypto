@@ -52,7 +52,7 @@ void poly_compress_avx(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES],
 	unsigned int i;
 	__m256i f0, f1;
 	__m128i t0, t1;
-	const __m256i v = _mm256_load_si256(&qdata.vec[_16XV / 16]);
+	const __m256i v = _mm256_load_si256(&kyber_qdata.vec[_16XV / 16]);
 	const __m256i shift1 = _mm256_set1_epi16(1 << 10);
 	const __m256i mask = _mm256_set1_epi16(31);
 	const __m256i shift2 = _mm256_set1_epi16((32 << 8) + 1);
@@ -103,7 +103,7 @@ void poly_decompress_avx(poly * restrict r,
 	__m128i t;
 	__m256i f;
 	int16_t ti;
-	const __m256i q = _mm256_load_si256(&qdata.vec[_16XQ/16]);
+	const __m256i q = _mm256_load_si256(&kyber_qdata.vec[_16XQ/16]);
 	const __m256i shufbidx = _mm256_set_epi8(9,9,9,8,8,8,8,7,7,6,6,6,6,5,5,5,
 						4,4,4,3,3,3,3,2,2,1,1,1,1,0,0,0);
 	const __m256i mask = _mm256_set_epi16(248,1984,62,496,3968,124,992,31,
@@ -264,7 +264,7 @@ void poly_getnoise_eta1_4x(poly *r0,
 }
 
 /**
- * @brief poly_add
+ * @brief kyber_poly_add
  *
  * Add two polynomials. No modular reduction is performed.
  *
@@ -272,7 +272,7 @@ void poly_getnoise_eta1_4x(poly *r0,
  * @param a pointer to first input polynomial
  * @param b pointer to second input polynomial
  */
-void poly_add_avx(poly *r, const poly *a, const poly *b)
+void kyber_poly_add_avx(poly *r, const poly *a, const poly *b)
 {
 	unsigned int i;
 	__m256i f0, f1;
@@ -286,7 +286,7 @@ void poly_add_avx(poly *r, const poly *a, const poly *b)
 }
 
 /**
- * @brief poly_sub
+ * @brief kyber_poly_sub
  *
  * Subtract two polynomials. No modular reduction is performed.
  *
@@ -294,7 +294,7 @@ void poly_add_avx(poly *r, const poly *a, const poly *b)
  * @param a pointer to first input polynomial
  * @param b pointer to second input polynomial
  */
-void poly_sub_avx(poly *r, const poly *a, const poly *b)
+void kyber_poly_sub_avx(poly *r, const poly *a, const poly *b)
 {
 	unsigned int i;
 	__m256i f0, f1;

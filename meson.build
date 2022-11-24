@@ -40,7 +40,7 @@ add_global_arguments([ '-fstack-protector-strong',
 		       language : 'c')
 
 if get_option('optimization') != '0'
-        add_global_arguments([ '-D_FORTIFY_SOURCE=2' ], language: 'c')
+        add_global_arguments([ '-D_FORTIFY_SOURCE=3' ], language: 'c')
 else
         add_global_arguments([ '-DDEBUG' ], language: 'c')
 endif
@@ -210,13 +210,14 @@ run_command(header_script, autogen_header, leancrypto_header_subdir, include_fil
 leancrypto_static_lib = static_library('leancrypto_static',
 	[ src, internal_src ],
 	include_directories: [ include_dirs, include_internal_dirs ],
+	link_with: [ leancrypto_support_libs ],
 	)
 
 leancrypto_lib = library('leancrypto',
 	[ src, internal_src ],
 	include_directories: [ include_dirs, include_internal_dirs ],
 	soversion: version_array[0],
-	link_with: leancrypto_support_libs,
+	link_whole: [ leancrypto_support_libs ],
 	install: true
 	)
 leancrypto = declare_dependency(link_with: leancrypto_lib,

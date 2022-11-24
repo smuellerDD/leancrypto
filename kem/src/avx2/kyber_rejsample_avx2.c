@@ -297,7 +297,7 @@ static const uint8_t idx[256][8] = {
 #define _mm256_cmpge_epu16(a, b) _mm256_cmpeq_epi16(_mm256_max_epu16(a, b), a)
 #define _mm_cmpge_epu16(a, b) _mm_cmpeq_epi16(_mm_max_epu16(a, b), a)
 
-unsigned int rej_uniform_avx(int16_t * restrict r, const uint8_t *buf)
+unsigned int kyber_rej_uniform_avx(int16_t * restrict r, const uint8_t *buf)
 {
 	unsigned int ctr, pos;
 	uint16_t val0, val1;
@@ -305,7 +305,7 @@ unsigned int rej_uniform_avx(int16_t * restrict r, const uint8_t *buf)
 #ifdef BMI
 	uint64_t idx0, idx1, idx2, idx3;
 #endif
-	const __m256i bound  = _mm256_load_si256(&qdata.vec[_16XQ/16]);
+	const __m256i bound  = _mm256_load_si256(&kyber_qdata.vec[_16XQ/16]);
 	const __m256i ones   = _mm256_set1_epi8(1);
 	const __m256i mask  = _mm256_set1_epi16(0xFFF);
 	const __m256i idx8  = _mm256_set_epi8(15,14,14,13,12,11,11,10,

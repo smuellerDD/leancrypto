@@ -57,7 +57,7 @@ typedef BUF_ALIGNED_INT32_M256I(LC_DILITHIUM_N) poly;
  */
 static inline void poly_ntt_avx(poly *a)
 {
-	ntt_avx(a->vec, qdata.vec);
+	dilithium_ntt_avx(a->vec, dilithium_qdata.vec);
 }
 
 /**
@@ -71,12 +71,12 @@ static inline void poly_ntt_avx(poly *a)
  */
 static inline void poly_invntt_tomont_avx(poly *a)
 {
-	invntt_avx(a->vec, qdata.vec);
+	dilithium_invntt_avx(a->vec, dilithium_qdata.vec);
 }
 
 static inline void poly_nttunpack_avx(poly *a)
 {
-	nttunpack_avx(a->vec);
+	dilithium_nttunpack_avx(a->vec);
 }
 
 /**
@@ -92,7 +92,7 @@ static inline void poly_nttunpack_avx(poly *a)
 static inline void
 poly_pointwise_montgomery_avx(poly *c, const poly *a, const poly *b)
 {
-	pointwise_avx(c->vec, a->vec, b->vec, qdata.vec);
+	dilithium_pointwise_avx(c->vec, a->vec, b->vec, dilithium_qdata.vec);
 }
 
 

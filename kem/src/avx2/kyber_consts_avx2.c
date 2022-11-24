@@ -38,7 +38,7 @@
 #define MASK 4095
 #define SHIFT 32
 
-const qdata_t qdata = {{
+const kyber_qdata_t kyber_qdata = {{
 #define _16XQ 0
   Q, Q, Q, Q, Q, Q, Q, Q, Q, Q, Q, Q, Q, Q, Q, Q,
 

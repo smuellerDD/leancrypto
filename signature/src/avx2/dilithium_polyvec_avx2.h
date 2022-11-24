@@ -116,7 +116,8 @@ static inline void
 polyvecl_pointwise_acc_montgomery_avx(poly *w, const polyvecl *u,
 				      const polyvecl *v)
 {
-	pointwise_acc_avx(w->vec, u->vec->vec, v->vec->vec, qdata.vec);
+	dilithium_pointwise_acc_avx(w->vec, u->vec->vec, v->vec->vec,
+				    dilithium_qdata.vec);
 }
 
 /**

@@ -49,8 +49,8 @@ void poly_frommsg_avx(poly * restrict r,
 void poly_tomsg_avx(uint8_t msg[LC_KYBER_INDCPA_MSGBYTES],
 		    const poly * restrict a);
 
-void poly_add_avx(poly *r, const poly *a, const poly *b);
-void poly_sub_avx(poly *r, const poly *a, const poly *b);
+void kyber_poly_add_avx(poly *r, const poly *a, const poly *b);
+void kyber_poly_sub_avx(poly *r, const poly *a, const poly *b);
 
 void cbd2(poly * restrict r, const __m256i buf[2 * LC_KYBER_N / 128]);
 
@@ -93,7 +93,7 @@ poly_cbd_eta2_avx(poly *r,
 static inline void
 poly_tobytes_avx(uint8_t r[LC_KYBER_POLYBYTES], const poly *a)
 {
-	ntttobytes_avx(r, a->vec, qdata.vec);
+	kyber_ntttobytes_avx(r, a->vec, kyber_qdata.vec);
 }
 
 /**
@@ -107,7 +107,7 @@ poly_tobytes_avx(uint8_t r[LC_KYBER_POLYBYTES], const poly *a)
 static inline void
 poly_frombytes_avx(poly *r, const uint8_t a[LC_KYBER_POLYBYTES])
 {
-	nttfrombytes_avx(r->vec, a, qdata.vec);
+	kyber_nttfrombytes_avx(r->vec, a, kyber_qdata.vec);
 }
 
 /**
@@ -181,7 +181,7 @@ void poly_getnoise_eta1_4x(poly *r0,
  */
 static inline void poly_ntt_avx(poly *r)
 {
-	ntt_avx(r->vec, qdata.vec);
+	kyber_ntt_avx(r->vec, kyber_qdata.vec);
 }
 
 /**
@@ -197,12 +197,12 @@ static inline void poly_ntt_avx(poly *r)
  */
 static inline void poly_invntt_tomont_avx(poly *r)
 {
-	invntt_avx(r->vec, qdata.vec);
+	kyber_invntt_avx(r->vec, kyber_qdata.vec);
 }
 
 static inline void poly_nttunpack_avx(poly *r)
 {
-	nttunpack_avx(r->vec, qdata.vec);
+	kyber_nttunpack_avx(r->vec, kyber_qdata.vec);
 }
 
 /**
@@ -218,7 +218,7 @@ static inline void poly_nttunpack_avx(poly *r)
  */
 static inline void poly_basemul_montgomery_avx(poly *r, const poly *a, const poly *b)
 {
-	basemul_avx(r->vec, a->vec, b->vec, qdata.vec);
+	kyber_basemul_avx(r->vec, a->vec, b->vec, kyber_qdata.vec);
 }
 
 /**
@@ -231,7 +231,7 @@ static inline void poly_basemul_montgomery_avx(poly *r, const poly *a, const pol
  */
 static inline void poly_tomont_avx(poly *r)
 {
-	tomont_avx(r->vec, qdata.vec);
+	tomont_avx(r->vec, kyber_qdata.vec);
 }
 
 /**
@@ -244,7 +244,7 @@ static inline void poly_tomont_avx(poly *r)
  */
 static inline void poly_reduce_avx(poly *r)
 {
-	reduce_avx(r->vec, qdata.vec);
+	reduce_avx(r->vec, kyber_qdata.vec);
 }
 
 #ifdef __cplusplus

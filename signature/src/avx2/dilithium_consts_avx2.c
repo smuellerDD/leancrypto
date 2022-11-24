@@ -35,7 +35,7 @@
 #define DIV 41978 // mont^2/256
 #define DIV_QINV -8395782
 
-const qdata_t qdata = {{
+const dilithium_qdata_t dilithium_qdata = {{
 #define _8XQ 0
   LC_DILITHIUM_Q, LC_DILITHIUM_Q, LC_DILITHIUM_Q, LC_DILITHIUM_Q,
   LC_DILITHIUM_Q, LC_DILITHIUM_Q, LC_DILITHIUM_Q, LC_DILITHIUM_Q,

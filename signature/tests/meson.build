@@ -10,10 +10,7 @@ if get_option('dilithium').enabled()
 					include_internal_dirs,
 					include_dilithium_internal
 				],
-				link_with: [
-					leancrypto_static_lib,
-					leancrypto_support_libs
-					]
+				dependencies: leancrypto
 				)
 	dilithium_tester_common = executable('dilithium_tester_common',
 				[ 'dilithium_tester_common.c',
@@ -21,13 +18,9 @@ if get_option('dilithium').enabled()
 				  internal_src ],
 				include_directories: [
 					include_dirs,
-					include_internal_dirs,
-					include_dilithium_internal
+					include_internal_dirs
 				],
-				link_with: [
-					leancrypto_static_lib,
-					leancrypto_support_libs
-					]
+				dependencies: leancrypto
 				)
 	dilithium_invalid_tester = executable('dilithium_invalid_tester',
 				[ 'dilithium_invalid_tester.c', internal_src ],
@@ -36,10 +29,7 @@ if get_option('dilithium').enabled()
 					include_internal_dirs,
 					include_dilithium_internal
 				],
-				link_with: [
-					leancrypto_static_lib,
-					leancrypto_support_libs
-					]
+				dependencies: leancrypto
 				)
 
 	test('Dilithium signature C', dilithium_tester_c)
@@ -61,10 +51,7 @@ if get_option('dilithium').enabled()
 					include_internal_dirs,
 					include_dilithium_internal
 				],
-				link_with: [
-					leancrypto_static_lib,
-					leancrypto_support_libs
-					]
+				dependencies: leancrypto
 				)
 
 		test('Dilithium signature AVX2', dilithium_tester_avx2)

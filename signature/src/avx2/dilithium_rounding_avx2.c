@@ -84,7 +84,7 @@ void decompose_avx(__m256i *a1, __m256i *a0, const __m256i *a)
 {
 	unsigned int i;
 	__m256i f,f0,f1;
-	const __m256i q = _mm256_load_si256(&qdata.vec[_8XQ/8]);
+	const __m256i q = _mm256_load_si256(&dilithium_qdata.vec[_8XQ/8]);
 	const __m256i hq = _mm256_srli_epi32(q,1);
 	const __m256i v = _mm256_set1_epi32(1025);
 	const __m256i alpha = _mm256_set1_epi32(2 * LC_DILITHIUM_GAMMA2);

@@ -26,8 +26,6 @@
 #include "testfunctions.h"
 #include "visibility.h"
 
-#include "kyber_kem_c.h"
-
 static int _kyber_kem_tester_common(unsigned int rounds)
 {
 	return _kyber_kem_tester(rounds,

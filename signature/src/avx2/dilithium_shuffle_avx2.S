@@ -39,8 +39,8 @@ vmovdqa		%ymm11,224(%rdi)
 
 ret
 
-.global nttunpack_avx
-nttunpack_avx:
+.global dilithium_nttunpack_avx
+dilithium_nttunpack_avx:
 call		nttunpack128_avx
 add		$256,%rdi
 call		nttunpack128_avx
