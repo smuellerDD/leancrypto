@@ -60,9 +60,9 @@ if get_option('kyber').enabled()
 	test('Kyber KEM common', kyber_kem_tester_common)
 	test('Kyber KEM C', kyber_kem_tester_c)
 	test('Kyber KEM common 50000', kyber_kem_tester_common, args : [ 'c' ],
-	     timeout: 1000)
+	     timeout: 1000, is_parallel: false)
 	test('Kyber KEM C 50000', kyber_kem_tester_c, args : [ 'c' ],
-	     timeout: 1000)
+	     timeout: 1000, is_parallel: false)
 	test('Kyber invalid KEM', kyber_invalid_tester)
 
 	if (build_machine.cpu_family() == 'x86_64')
@@ -81,6 +81,6 @@ if get_option('kyber').enabled()
 
 		test('Kyber KEM AVX2', kyber_kem_tester_avx2)
 		test('Kyber KEM AVX2 50000', kyber_kem_tester_avx2,
-		     args : [ 'avx2' ], timeout: 1000)
+		     args : [ 'avx2' ], timeout: 1000, is_parallel: false)
 	endif
 endif
