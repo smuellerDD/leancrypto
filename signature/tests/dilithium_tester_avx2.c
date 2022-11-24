@@ -31,7 +31,7 @@
 
 static int _dilithium_tester_avx2(unsigned int rounds)
 {
-	if (!(cpuid_feature_available() & LC_CPU_FEATURE_INTEL_AVX2))
+	if (!(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2))
 		return 77;
 	return _dilithium_tester(rounds, 0,
 				 lc_dilithium_keypair_avx2,

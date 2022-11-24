@@ -19,7 +19,7 @@
 
 #include "cpufeatures.h"
 #include "dilithium_signature_avx2.h"
-#include "dilithium_signature_c.h"
+#include "../dilithium_signature_c.h"
 #include "lc_dilithium.h"
 #include "visibility.h"
 
@@ -28,7 +28,7 @@ int, lc_dilithium_keypair, struct lc_dilithium_pk *pk,
 			   struct lc_dilithium_sk *sk,
 			   struct lc_rng_ctx *rng_ctx)
 {
-	if (cpuid_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
+	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
 		return lc_dilithium_keypair_avx2(pk, sk, rng_ctx);
 	return lc_dilithium_keypair_c(pk, sk, rng_ctx);
 }
@@ -40,7 +40,7 @@ int, lc_dilithium_sign, struct lc_dilithium_sig *sig,
 			const struct lc_dilithium_sk *sk,
 			struct lc_rng_ctx *rng_ctx)
 {
-	if (cpuid_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
+	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
 		return lc_dilithium_sign_avx2(sig, m, mlen, sk, rng_ctx);
 	return lc_dilithium_sign_c(sig, m, mlen, sk, rng_ctx);
 }
@@ -51,7 +51,7 @@ int, lc_dilithium_verify, const struct lc_dilithium_sig *sig,
 			  size_t mlen,
 			  const struct lc_dilithium_pk *pk)
 {
-	if (cpuid_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
+	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
 		return lc_dilithium_verify_avx2(sig, m, mlen, pk);
 	return lc_dilithium_verify_c(sig, m, mlen, pk);
 }

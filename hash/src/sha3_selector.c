@@ -29,7 +29,7 @@
 
 LC_CONSTRUCTOR(sha3_fastest_impl)
 {
-	enum lc_cpu_features feat = cpuid_feature_available();
+	enum lc_cpu_features feat = lc_cpu_feature_available();
 
 	/*
 	 * Set accelerated modes: The fastest implementations are at the top

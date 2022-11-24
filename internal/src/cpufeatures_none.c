@@ -18,8 +18,10 @@
  */
 
 #include "cpufeatures.h"
+#include "visibility.h"
 
-enum lc_cpu_features cpuid_feature_available(void)
+LC_INTERFACE_FUNCTION(
+enum lc_cpu_features, lc_cpu_feature_available, void)
 {
 	return LC_CPU_FEATURE_NONE;
 }

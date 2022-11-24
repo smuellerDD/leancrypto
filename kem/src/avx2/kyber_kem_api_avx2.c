@@ -28,7 +28,7 @@ int, lc_kyber_keypair, struct lc_kyber_pk *pk,
 		       struct lc_kyber_sk *sk,
 		       struct lc_rng_ctx *rng_ctx)
 {
-	if (cpuid_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
+	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
 		return lc_kyber_keypair_avx(pk, sk, rng_ctx);
 
 	return lc_kyber_keypair_c(pk, sk, rng_ctx);
@@ -40,7 +40,7 @@ int, lc_kyber_enc, struct lc_kyber_ct *ct,
 		   const struct lc_kyber_pk *pk,
 		   struct lc_rng_ctx *rng_ctx)
 {
-	if (cpuid_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
+	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
 		return lc_kyber_enc_avx(ct, ss, ss_len, pk, rng_ctx);
 
 	return lc_kyber_enc_c(ct, ss, ss_len, pk, rng_ctx);
@@ -52,7 +52,7 @@ int, lc_kyber_dec, uint8_t *ss, size_t ss_len,
 		   const struct lc_kyber_ct *ct,
 		   const struct lc_kyber_sk *sk)
 {
-	if (cpuid_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
+	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
 		return lc_kyber_dec_avx(ss, ss_len, ct, sk);
 
 	return lc_kyber_dec_c(ss, ss_len, ct, sk);

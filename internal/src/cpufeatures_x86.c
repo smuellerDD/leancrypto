@@ -18,6 +18,7 @@
  */
 
 #include "cpufeatures.h"
+#include "visibility.h"
 
 #define cpuid_eax(level, a, b, c, d)					\
 	__asm__ __volatile__ ("cpuid\n\t"				\
@@ -33,7 +34,8 @@
 #define LC_INTEL_AVX2_EBX			(1 << 5)
 #define LC_INTEL_AVX512F_EBX			(1 << 16)
 
-enum lc_cpu_features cpuid_feature_available(void)
+LC_INTERFACE_FUNCTION(
+enum lc_cpu_features, lc_cpu_feature_available, void)
 {
 	unsigned int eax, ebx, ecx, edx;
 	static enum lc_cpu_features feat = LC_CPU_FEATURE_UNSET;

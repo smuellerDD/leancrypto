@@ -33,7 +33,7 @@ enum lc_cpu_features {
 	LC_CPU_FEATURE_UNSET		= 1 << 31
 };
 
-enum lc_cpu_features cpuid_feature_available(void);
+enum lc_cpu_features lc_cpu_feature_available(void);
 
 #ifdef __cplusplus
 }
