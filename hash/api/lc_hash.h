@@ -50,7 +50,8 @@ struct lc_hash_ctx {
 /* All algorithm implementations will be able to manage this alignment */
 #define LC_HASH_COMMON_ALIGNMENT	32
 #define LC_ALIGNED_BUFFER(name, size, alignment)			       \
-	uint8_t name[size] __attribute__(( aligned(alignment) ))
+	uint64_t name[(size + sizeof(uint64_t) - 1) / sizeof(uint64_t)]	       \
+					__attribute__(( aligned(alignment) ))
 
 #define LC_SHA_MAX_SIZE_DIGEST	64
 

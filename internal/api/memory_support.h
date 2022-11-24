@@ -51,7 +51,8 @@ static inline void lc_free_clear(void *ptr, size_t size)
 }
 
 #define LC_ALIGNED_BUFFER_ALIGNMENTSIZE(name, size, alignment) 		       \
-	uint8_t name[size] __attribute__((aligned(alignment)))
+	uint64_t name[(size + sizeof(uint64_t) - 1) / sizeof(uint64_t)]	       \
+					__attribute__((aligned(alignment)))
 
 /* Allocate memory on stack */
 #define __LC_DECLARE_MEM_STACK(name, type, alignment)			       \

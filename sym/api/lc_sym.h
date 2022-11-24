@@ -72,7 +72,8 @@ struct lc_sym_ctx {
 #define LC_ALIGN_PTR_32(p, a)	((uint32_t *)LC_ALIGN((unsigned long)(p), (a)))
 #define LC_ALIGN_PTR_16(p, a)	((uint16_t *)LC_ALIGN((unsigned long)(p), (a)))
 #define LC_ALIGN_PTR_8(p, a)	((uint8_t *)LC_ALIGN((unsigned long)(p), (a)))
-#define LC_ALIGN_SYM_MASK(p, symname)	LC_ALIGN_PTR_64(p, LC_SYM_ALIGNMASK(symname))
+#define LC_ALIGN_SYM_MASK(p, symname)					       \
+	LC_ALIGN_PTR_64(p, LC_SYM_ALIGNMASK(symname))
 
 /**
  * Get aligned buffer with additional spare size of LC_SYM_ALIGNMASK to
@@ -80,7 +81,8 @@ struct lc_sym_ctx {
  * aligned to proper size.
  */
 #define LC_ALIGNED_SYM_BUFFER(name, symname, size)		       \
-	uint8_t name[size] __attribute__((aligned(LC_SYM_ALIGNMENT(symname))))
+	uint64_t name[(size + sizeof(uint64_t) - 1) / sizeof(uint64_t)]	       \
+			__attribute__((aligned(LC_SYM_ALIGNMENT(symname))))
 
 #define _LC_SYM_SET_CTX(name, symname, ctx, offset)			       \
 	name->sym_state = (struct lc_sym_state *)			       \
