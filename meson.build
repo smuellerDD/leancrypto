@@ -204,13 +204,16 @@ endforeach
 # Generate leancrypto.h
 autogen_header = meson.build_root() + '/leancrypto.h'
 leancrypto_header_subdir = 'leancrypto'
-run_command(header_script, autogen_header, leancrypto_header_subdir, include_files,
+run_command(header_script,
+	    autogen_header,
+	    leancrypto_header_subdir,
+	    include_files,
 	    check: true)
 
 leancrypto_static_lib = static_library('leancrypto_static',
 	[ src, internal_src ],
 	include_directories: [ include_dirs, include_internal_dirs ],
-	link_with: [ leancrypto_support_libs ],
+	link_whole: [ leancrypto_support_libs ],
 	)
 
 leancrypto_lib = library('leancrypto',
