@@ -54,7 +54,7 @@ else
 leancrypto-y	  += ../hash/src/sha3_avx512_null.o
 endif
 
-ifdef CONFIG_ARM
+ifdef CONFIG_ARM_NOTCOMPILED
 leancrypto-y	  += ../hash/src/sha3_arm8_neon.o			       \
 		     ../hash/src/asm/ARMv8A/KeccakP-1600-armv8a-neon.o
 else
