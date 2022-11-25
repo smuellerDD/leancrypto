@@ -59,15 +59,16 @@ typedef struct {
 static inline void
 polyvecl_pointwise_acc_montgomery(poly *w,
 				  const polyvecl *u,
-				  const polyvecl *v)
+				  const polyvecl *v,
+				  void *ws_buf)
 {
 	unsigned int i;
-	poly t;
+	poly *t = ws_buf;
 
 	poly_pointwise_montgomery(w, &u->vec[0], &v->vec[0]);
 	for (i = 1; i < LC_DILITHIUM_L; ++i) {
-		poly_pointwise_montgomery(&t, &u->vec[i], &v->vec[i]);
-		poly_add(w, w, &t);
+		poly_pointwise_montgomery(t, &u->vec[i], &v->vec[i]);
+		poly_add(w, w, t);
 	}
 }
 
@@ -95,12 +96,14 @@ polyvec_matrix_expand(polyvecl mat[LC_DILITHIUM_K],
 static inline void
 polyvec_matrix_pointwise_montgomery(polyveck *t,
 				    const polyvecl mat[LC_DILITHIUM_K],
-				    const polyvecl *v)
+				    const polyvecl *v,
+				    void *ws_buf)
 {
 	unsigned int i;
 
 	for (i = 0; i < LC_DILITHIUM_K; ++i)
-		polyvecl_pointwise_acc_montgomery(&t->vec[i], &mat[i], v);
+		polyvecl_pointwise_acc_montgomery(&t->vec[i], &mat[i], v,
+						  ws_buf);
 }
 
 /**************************************************************/

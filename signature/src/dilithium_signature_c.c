@@ -45,6 +45,7 @@ int, lc_dilithium_keypair_c, struct lc_dilithium_pk *pk,
 		polyvecl mat[LC_DILITHIUM_K];
 		polyvecl s1, s1hat;
 		polyveck s2, t1, t0;
+		poly polyvecl_pointwise_acc_montgomery_buf;
 		uint8_t seedbuf[2 * LC_DILITHIUM_SEEDBYTES +
 				LC_DILITHIUM_CRHBYTES];
 		uint8_t tr[LC_DILITHIUM_SEEDBYTES];
@@ -81,7 +82,8 @@ int, lc_dilithium_keypair_c, struct lc_dilithium_pk *pk,
 	ws->s1hat = ws->s1;
 	polyvecl_ntt(&ws->s1hat);
 
-	polyvec_matrix_pointwise_montgomery(&ws->t1, ws->mat, &ws->s1hat);
+	polyvec_matrix_pointwise_montgomery(&ws->t1, ws->mat, &ws->s1hat,
+		&ws->polyvecl_pointwise_acc_montgomery_buf);
 	polyveck_reduce(&ws->t1);
 	polyveck_invntt_tomont(&ws->t1);
 
@@ -113,6 +115,8 @@ int, lc_dilithium_sign_c, struct lc_dilithium_sig *sig,
 		polyvecl mat[LC_DILITHIUM_K], s1, y, z;
 		polyveck t0, s2, w1, w0, h;
 		poly cp;
+		/* See comment below - currently not needed */
+		//poly polyvecl_pointwise_acc_montgomery_buf;
 		uint8_t poly_uniform_gamma1_buf[POLY_UNIFORM_GAMMA1_BYTES];
 		/* See comment below - currently not needed */
 		//uint8_t poly_challenge_buf[POLY_CHALLENGE_BYTES];
@@ -169,7 +173,9 @@ rej:
 	/* Matrix-vector multiplication */
 	ws->z = ws->y;
 	polyvecl_ntt(&ws->z);
-	polyvec_matrix_pointwise_montgomery(&ws->w1, ws->mat, &ws->z);
+
+	/* Use the cp for this operation as it is not used here so far. */
+	polyvec_matrix_pointwise_montgomery(&ws->w1, ws->mat, &ws->z, &ws->cp);
 	polyveck_reduce(&ws->w1);
 	polyveck_invntt_tomont(&ws->w1);
 
@@ -239,6 +245,7 @@ int, lc_dilithium_verify_c, const struct lc_dilithium_sig *sig,
 {
 	struct workspace {
 		poly cp;
+		poly polyvecl_pointwise_acc_montgomery_buf;
 		polyvecl mat[LC_DILITHIUM_K], z;
 		polyveck t1, w1, h;
 		uint8_t buf[LC_DILITHIUM_K * LC_DILITHIUM_POLYW1_PACKEDBYTES];
@@ -286,7 +293,8 @@ int, lc_dilithium_verify_c, const struct lc_dilithium_sig *sig,
 	polyvec_matrix_expand(ws->mat, ws->rho);
 
 	polyvecl_ntt(&ws->z);
-	polyvec_matrix_pointwise_montgomery(&ws->w1, ws->mat, &ws->z);
+	polyvec_matrix_pointwise_montgomery(&ws->w1, ws->mat, &ws->z,
+		&ws->polyvecl_pointwise_acc_montgomery_buf);
 
 	poly_ntt(&ws->cp);
 	polyveck_shiftl(&ws->t1);

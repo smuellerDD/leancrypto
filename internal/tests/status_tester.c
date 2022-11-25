@@ -24,7 +24,7 @@
 
 int status_tester(void)
 {
-	char status[1024];
+	char status[512];
 	int ret = 0;
 
 	memset(status, 0, sizeof(status));
