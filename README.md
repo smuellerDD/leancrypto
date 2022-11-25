@@ -166,14 +166,12 @@ test is complete, the test kernel module can be removed from the kernel.
 
 ## Memory Leak Testing
 
-Using valgrind, the memory leak testing can be applied. Valgrind shows now
+Using valgrind, the memory leak testing can be applied. Valgrind shows no
 leaks possible for any code path.
 
 ## ASAN Testing
 
-Using ASAN address testing, some issues were reported which were all assessed
-to not present a security hazard. If you still have ideas how to fix all ASAN
-reports, please file a bug report.
+Using ASAN address testing with the help of meson, no issues were identified.
 
 ## Clang Static Code Analysis
 
