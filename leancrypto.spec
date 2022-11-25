@@ -72,7 +72,9 @@ algorithms. Further it only has POSIX dependencies, and allows all algorithms
 to be used on stack as well as on heap. Accelerated algorithms are transparently
 enabled if possible.
 
-This package contains the Linux kernel module version.
+This package contains the Linux kernel module version of leancrypto. This
+kernel module offers the same APIs and functions in kernel space that are
+available in user space.
 
 
 %prep

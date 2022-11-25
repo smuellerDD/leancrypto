@@ -34,6 +34,16 @@ build system:
 
 ## Library Build for Linux Kernel
 
+The leancrypto library can also be built as an independent Linux kernel module.
+This kernel module offers the same APIs and functions as the user space version
+of the library. This implies that a developer wanting to develop kernel and
+user space users of cryptographic mechanisms do not need to adjust to a new
+API.
+
+Note: The user space and kernel space versions of leancrypto are fully
+independent of each other. Neither requires the presence of the other for full
+operation.
+
 To build the leancrypto Linux kernel module, use the `Makefile` in the
 directory `linux_kernel`:
 
