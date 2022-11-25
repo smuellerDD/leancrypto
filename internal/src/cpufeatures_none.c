@@ -18,6 +18,7 @@
  */
 
 #include "cpufeatures.h"
+#include "ext_headers.h"
 #include "visibility.h"
 
 LC_INTERFACE_FUNCTION(

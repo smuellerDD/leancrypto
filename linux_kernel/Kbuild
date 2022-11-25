@@ -40,14 +40,14 @@ leancrypto_test-y += ../hash/tests/cshake_128_tester.o			       \
 		     ../hash/tests/shake256_tester.o			       \
 		     ../hash/tests/shake_squeeze_more_tester.o
 
-ifdef CONFIG_X86
+ifdef CONFIG_X86_64
 leancrypto-y	  += ../hash/src/sha3_avx2.o				       \
 		     ../hash/src/asm/AVX2/KeccakP-1600-AVX2.o
 else
 leancrypto-y	  += ../hash/src/sha3_avx2_null.o
 endif
 
-ifdef CONFIG_X86
+ifdef CONFIG_X86_64
 leancrypto-y	  += ../hash/src/sha3_avx512.o				       \
 		     ../hash/src/asm/AVX512/KeccakP-1600-AVX512.o
 else
