@@ -210,10 +210,11 @@ run_command(header_script,
 	    include_files,
 	    check: true)
 
-leancrypto_static_lib = static_library('leancrypto_static',
+leancrypto_static_lib = static_library('leancrypto',
 	[ src, internal_src ],
 	include_directories: [ include_dirs, include_internal_dirs ],
 	link_whole: [ leancrypto_support_libs ],
+	install: true
 	)
 
 leancrypto_lib = library('leancrypto',
