@@ -197,9 +197,10 @@ void poly_uniform_4x_avx(poly *a0,
 			 uint16_t nonce1,
 			 uint16_t nonce2,
 			 uint16_t nonce3,
-			 void *ws_buf)
+			 void *ws_buf,
+			 void *ws_keccak)
 {
-	keccakx4_state state;
+	keccakx4_state *state = ws_keccak;
 	__m256i f;
 	unsigned int ctr0, ctr1, ctr2, ctr3;
 #define BUFSIZE (REJ_UNIFORM_BUFLEN + 8)
@@ -228,10 +229,10 @@ void poly_uniform_4x_avx(poly *a0,
 	coeffs3[LC_DILITHIUM_SEEDBYTES+0] = (uint8_t)(nonce3);
 	coeffs3[LC_DILITHIUM_SEEDBYTES+1] = (uint8_t)(nonce3 >> 8);
 
-	shake128x4_absorb_once(&state, coeffs0, coeffs1, coeffs2, coeffs3,
+	shake128x4_absorb_once(state, coeffs0, coeffs1, coeffs2, coeffs3,
 			       LC_DILITHIUM_SEEDBYTES + 2);
 	shake128x4_squeezeblocks(coeffs0, coeffs1, coeffs2, coeffs3,
-				 REJ_UNIFORM_NBLOCKS, &state);
+				 REJ_UNIFORM_NBLOCKS, state);
 
 	ctr0 = rej_uniform_avx(a0->coeffs, coeffs0);
 	ctr1 = rej_uniform_avx(a1->coeffs, coeffs1);
@@ -243,7 +244,7 @@ void poly_uniform_4x_avx(poly *a0,
 	       ctr2 < LC_DILITHIUM_N ||
 	       ctr3 < LC_DILITHIUM_N) {
 		shake128x4_squeezeblocks(coeffs0, coeffs1, coeffs2, coeffs3,
-					 1, &state);
+					 1, state);
 
 		ctr0 += rej_uniform(a0->coeffs + ctr0,
 				    LC_DILITHIUM_N - ctr0, coeffs0,
@@ -258,8 +259,6 @@ void poly_uniform_4x_avx(poly *a0,
 				    LC_DILITHIUM_N - ctr3, coeffs3,
 				    LC_SHAKE_128_SIZE_BLOCK);
 	}
-
-	memset_secure(&state, 0, sizeof(state));
 }
 
 void poly_uniform_eta_4x_avx(poly *a0,
@@ -271,11 +270,12 @@ void poly_uniform_eta_4x_avx(poly *a0,
 			     uint16_t nonce1,
 			     uint16_t nonce2,
 			     uint16_t nonce3,
-			     void *ws_buf)
+			     void *ws_buf,
+			     void *ws_keccak)
 {
 	unsigned int ctr0, ctr1, ctr2, ctr3;
 	__m256i f;
-	keccakx4_state state;
+	keccakx4_state *state = ws_keccak;
 #define BUFSIZE (REJ_UNIFORM_ETA_BUFLEN)
 	__m256i *vec0 = (__m256i *)ws_buf;
 	__m256i *vec1 = (__m256i *)(ws_buf) + ALIGNED_UINT8_M256I(BUFSIZE);
@@ -307,9 +307,9 @@ void poly_uniform_eta_4x_avx(poly *a0,
 	coeffs3[64] = (uint8_t)(nonce3);
 	coeffs3[65] = (uint8_t)(nonce3 >> 8);
 
-	shake256x4_absorb_once(&state, coeffs0, coeffs1, coeffs2, coeffs3, 66);
+	shake256x4_absorb_once(state, coeffs0, coeffs1, coeffs2, coeffs3, 66);
 	shake256x4_squeezeblocks(coeffs0, coeffs1, coeffs2, coeffs3,
-				 REJ_UNIFORM_ETA_NBLOCKS, &state);
+				 REJ_UNIFORM_ETA_NBLOCKS, state);
 
 	ctr0 = rej_eta_avx(a0->coeffs, coeffs0);
 	ctr1 = rej_eta_avx(a1->coeffs, coeffs1);
@@ -321,7 +321,7 @@ void poly_uniform_eta_4x_avx(poly *a0,
 	       ctr2 < LC_DILITHIUM_N ||
 	       ctr3 < LC_DILITHIUM_N) {
 		shake256x4_squeezeblocks(coeffs0, coeffs1, coeffs2, coeffs3, 1,
-					 &state);
+					 state);
 
 		ctr0 += rej_eta(a0->coeffs + ctr0, LC_DILITHIUM_N - ctr0,
 				coeffs0, LC_SHAKE_256_SIZE_BLOCK);
@@ -332,8 +332,6 @@ void poly_uniform_eta_4x_avx(poly *a0,
 		ctr3 += rej_eta(a3->coeffs + ctr3, LC_DILITHIUM_N - ctr3,
 				coeffs3, LC_SHAKE_256_SIZE_BLOCK);
 	}
-
-	memset_secure(&state, 0, sizeof(state));
 }
 
 /**
@@ -355,9 +353,10 @@ void poly_uniform_gamma1_4x_avx(poly *a0,
 				uint16_t nonce1,
 				uint16_t nonce2,
 				uint16_t nonce3,
-				void *ws_buf)
+				void *ws_buf,
+				void *ws_keccak)
 {
-	keccakx4_state state;
+	keccakx4_state *state = ws_keccak;
 	__m256i f;
 #define BUFSIZE (POLY_UNIFORM_GAMMA1_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK + 14)
 	__m256i *vec0 = (__m256i *)ws_buf;
@@ -390,16 +389,14 @@ void poly_uniform_gamma1_4x_avx(poly *a0,
 	coeffs3[64] = (uint8_t)(nonce3);
 	coeffs3[65] = (uint8_t)(nonce3 >> 8);
 
-	shake256x4_absorb_once(&state, coeffs0, coeffs1, coeffs2, coeffs3, 66);
+	shake256x4_absorb_once(state, coeffs0, coeffs1, coeffs2, coeffs3, 66);
 	shake256x4_squeezeblocks(coeffs0, coeffs1, coeffs2, coeffs3,
-				 POLY_UNIFORM_GAMMA1_NBLOCKS, &state);
+				 POLY_UNIFORM_GAMMA1_NBLOCKS, state);
 
 	polyz_unpack_avx(a0, coeffs0);
 	polyz_unpack_avx(a1, coeffs1);
 	polyz_unpack_avx(a2, coeffs2);
 	polyz_unpack_avx(a3, coeffs3);
-
-	memset_secure(&state, 0, sizeof(state));
 }
 
 /**

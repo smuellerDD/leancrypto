@@ -49,7 +49,10 @@ int, lc_dilithium_keypair_c, struct lc_dilithium_pk *pk,
 		uint8_t seedbuf[2 * LC_DILITHIUM_SEEDBYTES +
 				LC_DILITHIUM_CRHBYTES];
 		uint8_t tr[LC_DILITHIUM_SEEDBYTES];
-		uint8_t poly_uniform_eta_buf[POLY_UNIFORM_ETA_BYTES];
+		/* See comment below - currently not needed */
+		//uint8_t poly_uniform_eta_buf[POLY_UNIFORM_ETA_BYTES];
+		uint8_t poly_uniform_buf[POLY_UNIFORM_NBLOCKS *
+					 LC_SHAKE_128_SIZE_BLOCK + 2];
 	};
 	const uint8_t *rho, *rhoprime, *key;
 	int ret;
@@ -71,12 +74,20 @@ int, lc_dilithium_keypair_c, struct lc_dilithium_pk *pk,
 	key = rhoprime + LC_DILITHIUM_CRHBYTES;
 
 	/* Expand matrix */
-	polyvec_matrix_expand(ws->mat, rho);
+	polyvec_matrix_expand(ws->mat, rho, ws->poly_uniform_buf);
 
 	/* Sample short vectors s1 and s2 */
-	polyvecl_uniform_eta(&ws->s1, rhoprime, 0, ws->poly_uniform_eta_buf);
+
+	/*
+	 * Use the poly_uniform_buf for this operation as
+	 * poly_uniform_eta_buf is smaller than poly_uniform_buf and has the
+	 * same alignment
+	 */
+	BUILD_BUG_ON((POLY_UNIFORM_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK + 2) <
+		     POLY_UNIFORM_ETA_BYTES);
+	polyvecl_uniform_eta(&ws->s1, rhoprime, 0, ws->poly_uniform_buf);
 	polyveck_uniform_eta(&ws->s2, rhoprime, LC_DILITHIUM_L,
-			     ws->poly_uniform_eta_buf);
+			     ws->poly_uniform_buf);
 
 	/* Matrix-vector multiplication */
 	ws->s1hat = ws->s1;
@@ -117,11 +128,14 @@ int, lc_dilithium_sign_c, struct lc_dilithium_sig *sig,
 		poly cp;
 		/* See comment below - currently not needed */
 		//poly polyvecl_pointwise_acc_montgomery_buf;
-		uint8_t poly_uniform_gamma1_buf[POLY_UNIFORM_GAMMA1_BYTES];
+		/* See comment below - currently not needed */
+		//uint8_t poly_uniform_gamma1_buf[POLY_UNIFORM_GAMMA1_BYTES];
 		/* See comment below - currently not needed */
 		//uint8_t poly_challenge_buf[POLY_CHALLENGE_BYTES];
 		uint8_t seedbuf[3 * LC_DILITHIUM_SEEDBYTES +
 				2 * LC_DILITHIUM_CRHBYTES];
+		uint8_t poly_uniform_buf[POLY_UNIFORM_NBLOCKS *
+					 LC_SHAKE_128_SIZE_BLOCK + 2];
 	};
 	unsigned int n;
 	uint8_t *rho, *tr, *key, *mu, *rhoprime;
@@ -160,15 +174,21 @@ int, lc_dilithium_sign_c, struct lc_dilithium_sig *sig,
 	}
 
 	/* Expand matrix and transform vectors */
-	polyvec_matrix_expand(ws->mat, rho);
+	polyvec_matrix_expand(ws->mat, rho, ws->poly_uniform_buf);
 	polyvecl_ntt(&ws->s1);
 	polyveck_ntt(&ws->s2);
 	polyveck_ntt(&ws->t0);
 
 rej:
 	/* Sample intermediate vector y */
+	/*
+	 * Use the poly_uniform_gamma1_buf for this operation as
+	 * poly_challenge_buf is smaller than buf and has the same alignment
+	 */
+	BUILD_BUG_ON((POLY_UNIFORM_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK + 2) <
+		     POLY_UNIFORM_GAMMA1_BYTES);
 	polyvecl_uniform_gamma1(&ws->y, rhoprime, nonce++,
-				ws->poly_uniform_gamma1_buf);
+				ws->poly_uniform_buf);
 
 	/* Matrix-vector multiplication */
 	ws->z = ws->y;
@@ -196,7 +216,7 @@ rej:
 	 * poly_challenge_buf is smaller than buf and has the same alignment
 	 */
 	BUILD_BUG_ON(POLY_UNIFORM_GAMMA1_BYTES < POLY_CHALLENGE_BYTES);
-	poly_challenge(&ws->cp, sig->sig, ws->poly_uniform_gamma1_buf);
+	poly_challenge(&ws->cp, sig->sig, ws->poly_uniform_buf);
 	poly_ntt(&ws->cp);
 
 	/* Compute z, reject if it reveals secret */
@@ -253,6 +273,9 @@ int, lc_dilithium_verify_c, const struct lc_dilithium_sig *sig,
 		//uint8_t poly_challenge_buf[POLY_CHALLENGE_BYTES];
 		uint8_t rho[LC_DILITHIUM_SEEDBYTES];
 		uint8_t mu[LC_DILITHIUM_CRHBYTES];
+		/* See comment below - currently not needed */
+		//uint8_t poly_uniform_buf[POLY_UNIFORM_NBLOCKS *
+		//			 LC_SHAKE_128_SIZE_BLOCK + 2];
 		BUF_ALIGNED_UINT8_UINT64(LC_DILITHIUM_SEEDBYTES) c;
 		BUF_ALIGNED_UINT8_UINT64(LC_DILITHIUM_SEEDBYTES) c2;
 	};
@@ -290,7 +313,14 @@ int, lc_dilithium_verify_c, const struct lc_dilithium_sig *sig,
 	 */
 	BUILD_BUG_ON(sizeof(ws->buf) < POLY_CHALLENGE_BYTES);
 	poly_challenge(&ws->cp, ws->c.coeffs, ws->buf);
-	polyvec_matrix_expand(ws->mat, ws->rho);
+
+	/*
+	 * Use the buf for this operation as poly_uniform_buf is smaller than
+	 * buf and has the same alignment
+	 */
+	BUILD_BUG_ON(sizeof(ws->buf) <
+		     (POLY_UNIFORM_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK + 2));
+	polyvec_matrix_expand(ws->mat, ws->rho, ws->buf);
 
 	polyvecl_ntt(&ws->z);
 	polyvec_matrix_pointwise_montgomery(&ws->w1, ws->mat, &ws->z,

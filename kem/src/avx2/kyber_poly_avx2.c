@@ -225,9 +225,10 @@ void poly_getnoise_eta1_4x(poly *r0,
 			   uint8_t nonce1,
 			   uint8_t nonce2,
 			   uint8_t nonce3,
-			   void *ws_buf)
+			   void *ws_buf,
+			   void *ws_keccak)
 {
-	keccakx4_state state;
+	keccakx4_state *state = ws_keccak;
 	__m256i f;
 #define BUFSIZE (NOISE_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK)
 	__m256i *vec0 = (__m256i *)ws_buf;
@@ -251,16 +252,14 @@ void poly_getnoise_eta1_4x(poly *r0,
 	coeffs2[32] = nonce2;
 	coeffs3[32] = nonce3;
 
-	shake256x4_absorb_once(&state, coeffs0, coeffs1, coeffs2, coeffs3, 33);
+	shake256x4_absorb_once(state, coeffs0, coeffs1, coeffs2, coeffs3, 33);
 	shake256x4_squeezeblocks(coeffs0, coeffs1, coeffs2, coeffs3,
-				 NOISE_NBLOCKS, &state);
+				 NOISE_NBLOCKS, state);
 
 	poly_cbd_eta1_avx(r0, vec0);
 	poly_cbd_eta1_avx(r1, vec1);
 	poly_cbd_eta1_avx(r2, vec2);
 	poly_cbd_eta1_avx(r3, vec3);
-
-	memset_secure(&state, 0, sizeof(state));
 }
 
 /**

@@ -165,7 +165,8 @@ void poly_getnoise_eta1_4x(poly *r0,
 			   uint8_t nonce1,
 			   uint8_t nonce2,
 			   uint8_t nonce3,
-			   void *ws_buf);
+			   void *ws_buf,
+			   void *ws_keccak);
 
 
 /**

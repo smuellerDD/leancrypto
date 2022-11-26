@@ -184,7 +184,8 @@ void poly_uniform_4x_avx(poly *a0,
 			 uint16_t nonce1,
 			 uint16_t nonce2,
 			 uint16_t nonce3,
-			 void *ws_buf);
+			 void *ws_buf,
+			 void *ws_keccak);
 void poly_uniform_eta_4x_avx(poly *a0,
 			     poly *a1,
 			     poly *a2,
@@ -194,7 +195,8 @@ void poly_uniform_eta_4x_avx(poly *a0,
 			     uint16_t nonce1,
 			     uint16_t nonce2,
 			     uint16_t nonce3,
-			     void *ws_buf);
+			     void *ws_buf,
+			     void *ws_keccak);
 void poly_uniform_gamma1_4x_avx(poly *a0,
 				poly *a1,
 				poly *a2,
@@ -204,7 +206,8 @@ void poly_uniform_gamma1_4x_avx(poly *a0,
 				uint16_t nonce1,
 				uint16_t nonce2,
 				uint16_t nonce3,
-				void *ws_buf);
+				void *ws_buf,
+				void *ws_keccak);
 
 void polyeta_pack_avx(uint8_t r[LC_DILITHIUM_POLYETA_PACKEDBYTES],
 		      const poly *a);

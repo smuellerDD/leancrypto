@@ -34,49 +34,58 @@
 #include "dilithium_polyvec_avx2.h"
 #include "dilithium_signature_avx2.h"
 #include "lc_dilithium.h"
+#include "lc_rng.h"
 #include "lc_sha3.h"
 #include "memory_support.h"
 #include "memcmp_secure.h"
 #include "ret_checkers.h"
-#include "lc_rng.h"
+#include "shake_4x_avx2.h"
 #include "visibility.h"
 
 static inline void
 polyvec_matrix_expand_row(polyvecl **row, polyvecl buf[2],
 			  const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
-			  unsigned int i, void *ws_buf)
+			  unsigned int i, void *ws_buf, void *ws_keccak)
 {
 	switch (i) {
 		case 0:
-			polyvec_matrix_expand_row0(buf, buf + 1, rho, ws_buf);
+			polyvec_matrix_expand_row0(buf, buf + 1, rho, ws_buf,
+						   ws_keccak);
 			*row = buf;
 			break;
 		case 1:
-			polyvec_matrix_expand_row1(buf + 1, buf, rho, ws_buf);
+			polyvec_matrix_expand_row1(buf + 1, buf, rho, ws_buf,
+						   ws_keccak);
 			*row = buf + 1;
 			break;
 		case 2:
-			polyvec_matrix_expand_row2(buf, buf + 1, rho, ws_buf);
+			polyvec_matrix_expand_row2(buf, buf + 1, rho, ws_buf,
+						   ws_keccak);
 			*row = buf;
 			break;
 		case 3:
-			polyvec_matrix_expand_row3(buf + 1, buf, rho, ws_buf);
+			polyvec_matrix_expand_row3(buf + 1, buf, rho, ws_buf,
+						   ws_keccak);
 			*row = buf + 1;
 			break;
 		case 4:
-			polyvec_matrix_expand_row4(buf, buf + 1, rho, ws_buf);
+			polyvec_matrix_expand_row4(buf, buf + 1, rho, ws_buf,
+						   ws_keccak);
 			*row = buf;
 			break;
 		case 5:
-			polyvec_matrix_expand_row5(buf + 1, buf, rho, ws_buf);
+			polyvec_matrix_expand_row5(buf + 1, buf, rho, ws_buf,
+						   ws_keccak);
 			*row = buf + 1;
 			break;
 		case 6:
-			polyvec_matrix_expand_row6(buf, buf + 1, rho, ws_buf);
+			polyvec_matrix_expand_row6(buf, buf + 1, rho, ws_buf,
+						   ws_keccak);
 			*row = buf;
 			break;
 		case 7:
-			polyvec_matrix_expand_row7(buf + 1, buf, rho, ws_buf);
+			polyvec_matrix_expand_row7(buf + 1, buf, rho, ws_buf,
+						   ws_keccak);
 			*row = buf + 1;
 			break;
 	}
@@ -98,6 +107,7 @@ int, lc_dilithium_keypair_avx2, struct lc_dilithium_pk *pk,
 		polyvecl rowbuf[2], s1;
 		polyveck s2;
 		poly t1, t0;
+		keccakx4_state keccak_state;
 	};
 	unsigned int i;
 	const uint8_t *rho, *rhoprime, *key;
@@ -138,19 +148,19 @@ int, lc_dilithium_keypair_avx2, struct lc_dilithium_pk *pk,
 	poly_uniform_eta_4x_avx(&ws->s1.vec[0], &ws->s1.vec[1],
 				&ws->s1.vec[2], &ws->s1.vec[3],
 				rhoprime, 0, 1, 2, 3,
-				ws->poly_uniform_4x_buf);
+				ws->poly_uniform_4x_buf, &ws->keccak_state);
 	poly_uniform_eta_4x_avx(&ws->s1.vec[4], &ws->s1.vec[5],
 				&ws->s1.vec[6], &ws->s2.vec[0],
 				rhoprime, 4, 5, 6, 7,
-				ws->poly_uniform_4x_buf);
+				ws->poly_uniform_4x_buf, &ws->keccak_state);
 	poly_uniform_eta_4x_avx(&ws->s2.vec[1], &ws->s2.vec[2],
 				&ws->s2.vec[3], &ws->s2.vec[4],
 				rhoprime, 8, 9, 10, 11,
-				ws->poly_uniform_4x_buf);
+				ws->poly_uniform_4x_buf, &ws->keccak_state);
 	poly_uniform_eta_4x_avx(&ws->s2.vec[5], &ws->s2.vec[6],
 				&ws->s2.vec[7], &ws->t0,
 				rhoprime, 12, 13, 14, 15,
-				ws->poly_uniform_4x_buf);
+				ws->poly_uniform_4x_buf, &ws->keccak_state);
 
 	/* Pack secret vectors */
 	for (i = 0; i < LC_DILITHIUM_L; i++)
@@ -170,7 +180,8 @@ int, lc_dilithium_keypair_avx2, struct lc_dilithium_pk *pk,
 
 	for (i = 0; i < LC_DILITHIUM_K; i++) {
 		polyvec_matrix_expand_row(&row, ws->rowbuf, rho, i,
-					  ws->poly_uniform_4x_buf);
+					  ws->poly_uniform_4x_buf,
+					  &ws->keccak_state);
 
 		/* Compute inner-product */
 		polyvecl_pointwise_acc_montgomery_avx(&ws->t1, row, &ws->s1);
@@ -227,6 +238,7 @@ int, lc_dilithium_sign_avx2, struct lc_dilithium_sig *sig,
 			polyvecl y;
 			polyveck w0;
 		} tmpv;
+		keccakx4_state keccak_state;
 	};
 	unsigned int i, n, pos;
 	uint8_t *rho, *tr, *key, *mu, *rhoprime;
@@ -267,7 +279,8 @@ int, lc_dilithium_sign_avx2, struct lc_dilithium_sig *sig,
 	}
 
 	/* Expand matrix and transform vectors */
-	polyvec_matrix_expand(ws->mat, rho, ws->poly_uniform_4x_buf);
+	polyvec_matrix_expand(ws->mat, rho, ws->poly_uniform_4x_buf,
+			      &ws->keccak_state);
 	polyvecl_ntt_avx(&ws->s1);
 	polyveck_ntt_avx(&ws->s2);
 	polyveck_ntt_avx(&ws->t0);
@@ -288,13 +301,13 @@ rej:
 				   rhoprime,
 				   (uint16_t)nonce, (uint16_t)(nonce + 1),
 				   (uint16_t)(nonce + 2), (uint16_t)(nonce + 3),
-				   ws->poly_uniform_4x_buf);
+				   ws->poly_uniform_4x_buf, &ws->keccak_state);
 	poly_uniform_gamma1_4x_avx(&ws->z.vec[4], &ws->z.vec[5],
 				   &ws->z.vec[6], &ws->tmp,
 				   rhoprime,
 				   (uint16_t)(nonce + 4),(uint16_t)(nonce + 5),
 				   (uint16_t)(nonce + 6), 0,
-				   ws->poly_uniform_4x_buf);
+				   ws->poly_uniform_4x_buf, &ws->keccak_state);
 	nonce += 7;
 
 	/* Matrix-vector product */
@@ -395,6 +408,7 @@ int, lc_dilithium_verify_avx2, const struct lc_dilithium_sig *sig,
 		polyvecl rowbuf[2];
 		polyvecl z;
 		poly c, w1, h;
+		keccakx4_state keccak_state;
 	};
 	unsigned int i, j, pos = 0;
 	const uint8_t *hint = sig->sig + LC_DILITHIUM_SEEDBYTES +
@@ -436,7 +450,8 @@ int, lc_dilithium_verify_avx2, const struct lc_dilithium_sig *sig,
 
 	for (i = 0; i < LC_DILITHIUM_K; i++) {
 		polyvec_matrix_expand_row(&row, ws->rowbuf, pk->pk, i,
-					  ws->poly_uniform_4x_buf);
+					  ws->poly_uniform_4x_buf,
+					  &ws->keccak_state);
 
 		/* Compute i-th row of Az - c2^Dt1 */
 		polyvecl_pointwise_acc_montgomery_avx(&ws->w1, row, &ws->z);

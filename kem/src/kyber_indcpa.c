@@ -227,6 +227,7 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 {
 	struct workspace {
 		uint8_t buf[2 * LC_KYBER_SYMBYTES];
+		uint8_t poly_getnoise_eta1_buf[POLY_GETNOISE_ETA1_BUFSIZE];
 		polyvec a[LC_KYBER_K], e, pkpv, skpv;
 	};
 	unsigned int i;
@@ -245,8 +246,10 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 	gen_a(ws->a, publicseed);
 
 	for (i = 0; i < LC_KYBER_K; i++) {
-		poly_getnoise_eta1(&ws->skpv.vec[i], noiseseed, nonce++);
-		poly_getnoise_eta1(&ws->e.vec[i], noiseseed, nonce2++);
+		poly_getnoise_eta1(&ws->skpv.vec[i], noiseseed, nonce++,
+				   ws->poly_getnoise_eta1_buf);
+		poly_getnoise_eta1(&ws->e.vec[i], noiseseed, nonce2++,
+				   ws->poly_getnoise_eta1_buf);
 	}
 
 	polyvec_ntt(&ws->skpv);
@@ -276,7 +279,11 @@ int indcpa_enc(uint8_t c[LC_KYBER_INDCPA_BYTES],
 	       const uint8_t coins[LC_KYBER_SYMBYTES])
 {
 	struct workspace {
-		uint8_t seed[LC_KYBER_SYMBYTES];
+		/* See comment below - currently not needed */
+		//uint8_t seed[LC_KYBER_SYMBYTES];
+		uint8_t poly_getnoise_eta1_buf[POLY_GETNOISE_ETA1_BUFSIZE];
+		/* See comment below - currently not needed */
+		//uint8_t poly_getnoise_eta2_buf[POLY_GETNOISE_ETA2_BUFSIZE];
 		polyvec sp, pkpv, ep, at[LC_KYBER_K], b;
 		poly v, k, epp;
 	};
@@ -284,15 +291,28 @@ int indcpa_enc(uint8_t c[LC_KYBER_INDCPA_BYTES],
 	uint8_t nonce = 0, nonce2 = LC_KYBER_K;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	unpack_pk(&ws->pkpv, ws->seed, pk);
+	/*
+	 * Use the poly_getnoise_eta1_buf for this operation as seed is smaller
+	 * than poly_getnoise_eta1_buf and has the same alignment.
+	 */
+	BUILD_BUG_ON(POLY_GETNOISE_ETA1_BUFSIZE < LC_KYBER_SYMBYTES);
+	unpack_pk(&ws->pkpv, ws->poly_getnoise_eta1_buf /* ws->seed */, pk);
 	poly_frommsg(&ws->k, m);
-	gen_at(ws->at, ws->seed);
+	gen_at(ws->at, ws->poly_getnoise_eta1_buf /* ws->seed */);
 
+	/*
+	 * Use the poly_getnoise_eta1_buf for this operation as
+	 * poly_getnoise_eta2_buf is smaller than poly_getnoise_eta1_buf and has
+	 * the same alignment.
+	 */
+	BUILD_BUG_ON(POLY_GETNOISE_ETA1_BUFSIZE < POLY_GETNOISE_ETA2_BUFSIZE);
 	for (i = 0; i < LC_KYBER_K; i++) {
-		poly_getnoise_eta1(ws->sp.vec + i, coins, nonce++);
-		poly_getnoise_eta2(ws->ep.vec + i, coins, nonce2++);
+		poly_getnoise_eta1(ws->sp.vec + i, coins, nonce++,
+				   ws->poly_getnoise_eta1_buf);
+		poly_getnoise_eta2(ws->ep.vec + i, coins, nonce2++,
+				   ws->poly_getnoise_eta1_buf);
 	}
-	poly_getnoise_eta2(&ws->epp, coins, nonce2);
+	poly_getnoise_eta2(&ws->epp, coins, nonce2, ws->poly_getnoise_eta1_buf);
 
 	polyvec_ntt(&ws->sp);
 

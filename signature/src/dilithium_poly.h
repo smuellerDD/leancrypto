@@ -245,9 +245,12 @@ static inline void poly_use_hint(poly *b, const poly *a, const poly *h)
 }
 
 int poly_chknorm(const poly *a, int32_t B);
+
+#define POLY_UNIFORM_NBLOCKS						       \
+	((768 + LC_SHAKE_128_SIZE_BLOCK - 1) / LC_SHAKE_128_SIZE_BLOCK)
 void poly_uniform(poly *a,
                   const uint8_t seed[LC_DILITHIUM_SEEDBYTES],
-                  uint16_t nonce);
+                  uint16_t nonce, void *ws_buf);
 
 #if LC_DILITHIUM_ETA == 2
 #define POLY_UNIFORM_ETA_NBLOCKS					       \

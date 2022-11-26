@@ -122,23 +122,21 @@ void poly_tobytes(uint8_t r[LC_KYBER_POLYBYTES], const poly *a)
 }
 
 void poly_getnoise_eta1(poly *r,
-			const uint8_t seed[LC_KYBER_SYMBYTES], uint8_t nonce)
+			const uint8_t seed[LC_KYBER_SYMBYTES], uint8_t nonce,
+			void *ws_buf)
 {
-	uint8_t buf[LC_KYBER_ETA1 * LC_KYBER_N / 4];
+	uint8_t *buf = ws_buf;
 
-	kyber_shake256_prf(buf, sizeof(buf), seed, nonce);
+	kyber_shake256_prf(buf, POLY_GETNOISE_ETA1_BUFSIZE, seed, nonce);
 	poly_cbd_eta1(r, buf);
-
-	memset_secure(buf, 0, sizeof(buf));
 }
 
 void poly_getnoise_eta2(poly *r,
-			const uint8_t seed[LC_KYBER_SYMBYTES], uint8_t nonce)
+			const uint8_t seed[LC_KYBER_SYMBYTES], uint8_t nonce,
+			void *ws_buf)
 {
-	uint8_t buf[LC_KYBER_ETA2 * LC_KYBER_N / 4];
+	uint8_t *buf = ws_buf;
 
-	kyber_shake256_prf(buf, sizeof(buf), seed, nonce);
+	kyber_shake256_prf(buf, POLY_GETNOISE_ETA2_BUFSIZE, seed, nonce);
 	poly_cbd_eta2(r, buf);
-
-	memset_secure(buf, 0, sizeof(buf));
 }

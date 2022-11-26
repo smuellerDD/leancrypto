@@ -270,6 +270,7 @@ int indcpa_keypair_avx(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 					LC_SHAKE_128_SIZE_BLOCK) gen_a_buf[4];
 		uint8_t buf[2 * LC_KYBER_SYMBYTES];
 		polyvec a[LC_KYBER_K], e, pkpv, skpv;
+		keccakx4_state keccak_state;
 	};
 	unsigned int i;
 	uint8_t *buf;
@@ -295,11 +296,11 @@ int indcpa_keypair_avx(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 	poly_getnoise_eta1_4x(ws->skpv.vec + 0, ws->skpv.vec + 1,
 			      ws->skpv.vec + 2, ws->skpv.vec + 3,
 			      noiseseed,  0, 1, 2, 3,
-			      ws->gen_a_buf);
+			      ws->gen_a_buf, &ws->keccak_state);
 	poly_getnoise_eta1_4x(ws->e.vec + 0, ws->e.vec + 1,
 			      ws->e.vec + 2, ws->e.vec + 3,
 			      noiseseed, 4, 5, 6, 7,
-			      ws->gen_a_buf);
+			      ws->gen_a_buf, &ws->keccak_state);
 	polyvec_ntt(&ws->skpv);
 	polyvec_reduce(&ws->skpv);
 	polyvec_ntt(&ws->e);
@@ -336,6 +337,7 @@ int indcpa_enc_avx(uint8_t c[LC_KYBER_INDCPA_BYTES],
 		uint8_t seed[LC_KYBER_SYMBYTES];
 		polyvec sp, pkpv, ep, at[LC_KYBER_K], b;
 		poly v, k, epp;
+		keccakx4_state keccak_state;
 	};
 	unsigned int i;
 	int ret;
@@ -353,10 +355,12 @@ int indcpa_enc_avx(uint8_t c[LC_KYBER_INDCPA_BYTES],
 		     NOISE_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK);
 	poly_getnoise_eta1_4x(ws->sp.vec + 0, ws->sp.vec + 1,
 			      ws->sp.vec + 2, ws->sp.vec + 3,
-			      coins, 0, 1, 2, 3, ws->gen_at_buf);
+			      coins, 0, 1, 2, 3, ws->gen_at_buf,
+			      &ws->keccak_state);
 	poly_getnoise_eta1_4x(ws->ep.vec + 0, ws->ep.vec + 1,
 			      ws->ep.vec + 2, ws->ep.vec + 3,
-			      coins, 4, 5, 6, 7, ws->gen_at_buf);
+			      coins, 4, 5, 6, 7, ws->gen_at_buf,
+			      &ws->keccak_state);
 	poly_getnoise_eta2_avx(&ws->epp, coins, 8);
 	polyvec_ntt(&ws->sp);
 

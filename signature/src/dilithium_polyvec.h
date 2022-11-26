@@ -83,14 +83,14 @@ polyvecl_pointwise_acc_montgomery(poly *w,
  */
 static inline void
 polyvec_matrix_expand(polyvecl mat[LC_DILITHIUM_K],
-		      const uint8_t rho[LC_DILITHIUM_SEEDBYTES])
+		      const uint8_t rho[LC_DILITHIUM_SEEDBYTES], void *ws_buf)
 {
 	unsigned int i, j;
 
 	for (i = 0; i < LC_DILITHIUM_K; ++i)
 		for(j = 0; j < LC_DILITHIUM_L; ++j)
 			poly_uniform(&mat[i].vec[j], rho,
-				     (uint16_t)((i << 8) + j));
+				     (uint16_t)((i << 8) + j), ws_buf);
 }
 
 static inline void

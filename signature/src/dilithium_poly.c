@@ -72,15 +72,13 @@ int poly_chknorm(const poly *a, int32_t B)
  * @param seed [in] byte array with seed of length LC_DILITHIUM_SEEDBYTES
  * @param nonce [in] 2-byte nonce
  */
-#define POLY_UNIFORM_NBLOCKS						       \
-	((768 + LC_SHAKE_128_SIZE_BLOCK - 1) / LC_SHAKE_128_SIZE_BLOCK)
 void poly_uniform(poly *a,
 		  const uint8_t seed[LC_DILITHIUM_SEEDBYTES],
-		  uint16_t nonce)
+		  uint16_t nonce, void *ws_buf)
 {
 	unsigned int i, ctr, off;
 	unsigned int buflen = POLY_UNIFORM_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK;
-	uint8_t buf[POLY_UNIFORM_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK + 2];
+	uint8_t *buf = ws_buf;
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake128);
 
 	lc_hash_init(hash_ctx);
@@ -92,7 +90,6 @@ void poly_uniform(poly *a,
 	lc_hash_set_digestsize(hash_ctx, LC_SHAKE_128_SIZE_BLOCK);
 
 	ctr = rej_uniform(a->coeffs, LC_DILITHIUM_N, buf, buflen);
-
 
 	while (ctr < LC_DILITHIUM_N) {
 		off = buflen % 3;
@@ -106,7 +103,6 @@ void poly_uniform(poly *a,
 	}
 
 	lc_hash_zero(hash_ctx);
-	memset_secure(buf, 0, sizeof(buf));
 }
 
 /**
