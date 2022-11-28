@@ -88,9 +88,10 @@ mkdir obj
 %meson
 %meson_build
 for flavor in %flavors_to_build; do
-       rm -rf obj/$flavor
-       cp -r source obj/$flavor
-       make -C obj/$flavor/linux_kernel modules M=$PWD/obj/$flavor
+	KERNELRELEASE=`make -s -C /%{_prefix}/src/linux-obj/%{_target_cpu}/$flavor kernelrelease`
+	rm -rf obj/$flavor
+	cp -r source obj/$flavor
+	make -C obj/$flavor/linux_kernel modules M=$PWD/obj/$flavor KERNELRELEASE=$KERNELRELEASE
 done
 
 %check
@@ -101,7 +102,8 @@ done
 export INSTALL_MOD_PATH=$RPM_BUILD_ROOT
 export INSTALL_MOD_DIR=updates
 for flavor in %flavors_to_build; do
-       make -C obj/$flavor/linux_kernel modules_install M=$PWD/obj/$flavor
+	KERNELRELEASE=`make -s -C /%{_prefix}/src/linux-obj/%{_target_cpu}/$flavor kernelrelease`
+	make -C obj/$flavor/linux_kernel modules_install M=$PWD/obj/$flavor KERNELRELEASE=$KERNELRELEASE
 done
 
 %post -n lib%{name}0 -p /sbin/ldconfig
