@@ -201,7 +201,7 @@ static inline void lc_sym_zero(struct lc_sym_ctx *ctx)
 	const struct lc_sym *sym = ctx->sym;
 
 	memset_secure((uint8_t *)ctx + sizeof(struct lc_sym_ctx), 0,
-		      LC_SYM_STATE_SIZE(sym));
+		      LC_SYM_STATE_SIZE_NONALIGNED(sym));
 
 }
 
