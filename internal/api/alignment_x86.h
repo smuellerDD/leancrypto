@@ -28,9 +28,8 @@
 #ifndef ALIGNMENT_X86_H
 #define ALIGNMENT_X86_H
 
-#include <immintrin.h>
-
 #include "alignment.h"
+#include "ext_headers_x86.h"
 
 #ifdef __cplusplus
 extern "C"

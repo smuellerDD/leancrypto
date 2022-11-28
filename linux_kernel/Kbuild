@@ -1,7 +1,7 @@
 obj-m		:= leancrypto.o leancrypto_test.o
 
 # Kernel module framework
-ccflags-y	  := -DLINUX_KERNEL -DLC_MEM_ON_HEAP -DMAJVERSION=0 -DMINVERSION=5 -DPATCHLEVEL=0 -I$(PWD)
+ccflags-y	  := -DLINUX_KERNEL -DLC_MEM_ON_HEAP -DMAJVERSION=0 -DMINVERSION=5 -DPATCHLEVEL=0 -I$(PWD) -I/usr/lib/gcc/x86_64-redhat-linux/12/include/
 leancrypto-y	  += posix_support.o					       \
 		     leancrypto_kernel.o
 leancrypto_test-y := leancrypto_tester.o
@@ -52,6 +52,11 @@ leancrypto-y	  += ../hash/src/sha3_avx512.o				       \
 		     ../hash/src/asm/AVX512/KeccakP-1600-AVX512.o
 else
 leancrypto-y	  += ../hash/src/sha3_avx512_null.o
+endif
+
+ifdef CONFIG_X86_64
+leancrypto-y	  += ../hash/src/shake_4x_avx2.o			       \
+		     ../hash/src/asm/AVX2_4x/KeccakP-1600-times4-SIMD256.o
 endif
 
 ifdef CONFIG_ARM_NOTCOMPILED
@@ -111,18 +116,40 @@ leancrypto-y	  += ../kem/src/kyber_cbd.o				       \
 		     ../kem/src/kyber_ies.o				       \
 		     ../kem/src/kyber_indcpa.o				       \
 		     ../kem/src/kyber_kem_c.o				       \
-		     ../kem/src/kyber_kem_api_c.o			       \
 		     ../kem/src/kyber_kex.o				       \
 		     ../kem/src/kyber_ntt.o				       \
 		     ../kem/src/kyber_poly.o				       \
 		     ../kem/src/kyber_polyvec.o				       \
 		     ../kem/src/kyber_verify.o
+
+ifdef CONFIG_X86_64
+asflags-y	  += -I$(PWD)/../internal/api -DLINUX_KERNEL
+leancrypto-y	  += ../kem/src/avx2/kyber_basemul_avx2.o		       \
+		     ../kem/src/avx2/kyber_cbd_avx2.o			       \
+		     ../kem/src/avx2/kyber_consts_avx2.o		       \
+		     ../kem/src/avx2/kyber_fq_avx2.o			       \
+		     ../kem/src/avx2/kyber_indcpa_avx2.o		       \
+		     ../kem/src/avx2/kyber_invntt_avx2.o		       \
+		     ../kem/src/avx2/kyber_kem_api_avx2.o		       \
+		     ../kem/src/avx2/kyber_kem_avx2.o			       \
+		     ../kem/src/avx2/kyber_ntt_avx2.o			       \
+		     ../kem/src/avx2/kyber_poly_avx2.o			       \
+		     ../kem/src/avx2/kyber_rejsample_avx2.o		       \
+		     ../kem/src/avx2/kyber_shuffle_avx2.o
+else
+leancrypto-y	  += ../kem/src/kyber_kem_api_c.o
+endif
+
 leancrypto_test-y += ../kem/tests/kyber_kem_tester.o			       \
 		     ../kem/tests/kyber_kem_tester_c.o			       \
 		     ../kem/tests/kyber_kem_tester_common.o		       \
 		     ../kem/tests/kyber_kex_tester.o			       \
 		     ../kem/tests/kyber_ies_tester.o			       \
 		     ../kem/tests/kyber_invalid_tester.o
+
+ifdef CONFIG_X86_64
+leancrypto_test-y += ../kem/tests/kyber_kem_tester_avx2.o
+endif
 
 # KMAC implementation
 ccflags-y	  += -I$(PWD)/../kmac/api
@@ -138,13 +165,35 @@ leancrypto-y	  += ../signature/src/dilithium_ntt.o			       \
 		     ../signature/src/dilithium_pack.o			       \
 		     ../signature/src/dilithium_poly.o			       \
 		     ../signature/src/dilithium_rounding.o		       \
-		     ../signature/src/dilithium_signature_c.o		       \
-		     ../signature/src/dilithium_signature_api_c.o
+		     ../signature/src/dilithium_signature_c.o
+
+ifdef CONFIG_X86_64
+leancrypto-y	  += ../signature/src/avx2/dilithium_consts_avx2.o	       \
+		     ../signature/src/avx2/dilithium_invntt_avx2.o	       \
+		     ../signature/src/avx2/dilithium_ntt_avx2.o		       \
+		     ../signature/src/avx2/dilithium_pointwise_avx2.o	       \
+		     ../signature/src/avx2/dilithium_pack_avx2.o	       \
+		     ../signature/src/avx2/dilithium_poly_avx2.o	       \
+		     ../signature/src/avx2/dilithium_polyvec_avx2.o	       \
+		     ../signature/src/avx2/dilithium_rejsample_avx2.o	       \
+		     ../signature/src/avx2/dilithium_rounding_avx2.o	       \
+		     ../signature/src/avx2/dilithium_signature_api_avx2.o      \
+		     ../signature/src/avx2/dilithium_signature_avx2.o	       \
+		     ../signature/src/avx2/dilithium_shuffle_avx2.o
+else
+leancrypto-y	  += ../signature/src/dilithium_signature_api_c.o
+endif
+
+
 ccflags-y	  += -I$(PWD)/../signature/src
 leancrypto_test-y += ../signature/tests/dilithium_tester.o		       \
 		     ../signature/tests/dilithium_tester_c.o		       \
 		     ../signature/tests/dilithium_tester_common.o	       \
 		     ../signature/tests/dilithium_invalid_tester.o
+
+ifdef CONFIG_X86_64
+leancrypto_test-y += ../signature/tests/dilithium_tester_avx2.o
+endif
 
 # Symmetric implementation
 ccflags-y	  += -I$(PWD)/../sym/api

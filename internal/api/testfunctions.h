@@ -83,7 +83,7 @@ int dilithium_tester_avx2(void);
 int dilithium_invalid(void);
 
 int kyber_kem_tester_c(void);
-int kyber_kem_tester_avx(void);
+int kyber_kem_tester_avx2(void);
 int kyber_kem_tester_common(void);
 int kyber_kex_tester(void);
 int kyber_ies_tester(void);

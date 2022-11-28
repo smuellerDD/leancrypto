@@ -97,3 +97,12 @@ of the licenses of the different source files used is respected. Most of the
 source and header files in the XKCP are released to the public domain and
 associated to the CC0 (http://creativecommons.org/publicdomain/zero/1.0/) deed,
 but there are exceptions.
+
+================================================================================
+
+The x86intrin code in internal/api/ext_x86_*.h are derived from GCC and Clang.
+The only reason why this code is duplicated is the fact that the compiler code
+cannot be included into kernel code code as is. Thus, the functions used by
+leancrypto are extracted - I wished this would not have been necessary.
+
+Anyhow, the GCC code is: GPL 3. The LLVM code is: Apache License v2.0.
