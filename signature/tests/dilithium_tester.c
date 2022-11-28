@@ -69,6 +69,8 @@
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #endif
 
+static uint64_t ctr = 0;
+
 static int
 randombytes(void *_state,
 	    const uint8_t *addtl_input, size_t addtl_input_len,
@@ -76,13 +78,12 @@ randombytes(void *_state,
 {
 	unsigned int i;
 	uint8_t buf[8];
-	static uint64_t ctr = 0;
 
 	(void)_state;
 	(void)addtl_input;
 	(void)addtl_input_len;
 
-	for(i = 0; i < 8; ++i)
+	for (i = 0; i < 8; ++i)
 		buf[i] = (uint8_t)(ctr >> 8*i);
 
 	ctr++;
@@ -163,6 +164,8 @@ int _dilithium_tester(
 	(void)j;
 	(void)k;
 	(void)l;
+
+	ctr = 0;
 
 #ifdef GENERATE_VECTORS
 	printf ("#ifndef DILITHIUM_TESTVECTORS_H\n"
