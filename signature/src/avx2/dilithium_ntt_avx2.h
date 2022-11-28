@@ -28,7 +28,7 @@
 #ifndef DILITHIUM_NTT_AVX2_H
 #define DILITHIUM_NTT_AVX2_H
 
-#include <immintrin.h>
+#include "ext_headers_x86.h"
 
 #ifdef __cplusplus
 extern "C"

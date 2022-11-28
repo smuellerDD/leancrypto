@@ -25,13 +25,10 @@
  * or Apache 2.0 License (https://www.apache.org/licenses/LICENSE-2.0.html).
  */
 
-#include <stdint.h>
-#include <immintrin.h>
-#include <string.h>
-
 #include "alignment_x86.h"
 #include "dilithium_poly_avx2.h"
 #include "../dilithium_service_helpers.h"
+#include "ext_headers_x86.h"
 #include "lc_dilithium.h"
 #include "lc_sha3.h"
 #include "shake_4x_avx2.h"
@@ -54,8 +51,14 @@ void poly_reduce_avx(poly *a)
 {
 	unsigned int i;
 	__m256i f, g;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
+	/* Due to const, the variables cannot be defined before */
+	LC_FPU_ENABLE;
 	const __m256i q = _mm256_load_si256(&dilithium_qdata.vec[_8XQ/8]);
 	const __m256i off = _mm256_set1_epi32(1<<22);
+#pragma GCC diagnostic pop
 
 	for (i = 0; i < LC_DILITHIUM_N / 8; i++) {
 		f = _mm256_load_si256(&a->vec[i]);
@@ -65,6 +68,7 @@ void poly_reduce_avx(poly *a)
 		f = _mm256_sub_epi32(f,g);
 		_mm256_store_si256(&a->vec[i],f);
 	}
+	LC_FPU_DISABLE;
 }
 
 /**
@@ -78,8 +82,14 @@ void poly_caddq_avx(poly *a)
 {
 	unsigned int i;
 	__m256i f, g;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
+	/* Due to const, the variables cannot be defined before */
+	LC_FPU_ENABLE;
 	const __m256i q = _mm256_load_si256(&dilithium_qdata.vec[_8XQ/8]);
 	const __m256i zero = _mm256_setzero_si256();
+#pragma GCC diagnostic pop
 
 	for (i = 0; i < LC_DILITHIUM_N / 8; i++) {
 		f = _mm256_load_si256(&a->vec[i]);
@@ -87,6 +97,7 @@ void poly_caddq_avx(poly *a)
 		f = _mm256_add_epi32(f,g);
 		_mm256_store_si256(&a->vec[i],f);
 	}
+	LC_FPU_DISABLE;
 }
 
 /**
@@ -103,12 +114,14 @@ void poly_add_avx(poly *c, const poly *a, const poly *b)
 	unsigned int i;
 	__m256i f, g;
 
+	LC_FPU_ENABLE;
 	for (i = 0; i < LC_DILITHIUM_N / 8; i++) {
 		f = _mm256_load_si256(&a->vec[i]);
 		g = _mm256_load_si256(&b->vec[i]);
 		f = _mm256_add_epi32(f,g);
 		_mm256_store_si256(&c->vec[i],f);
 	}
+	LC_FPU_DISABLE;
 }
 
 /**
@@ -127,12 +140,14 @@ void poly_sub_avx(poly *c, const poly *a, const poly *b)
 	unsigned int i;
 	__m256i f, g;
 
+	LC_FPU_ENABLE;
 	for (i = 0; i < LC_DILITHIUM_N / 8; i++) {
 		f = _mm256_load_si256(&a->vec[i]);
 		g = _mm256_load_si256(&b->vec[i]);
 		f = _mm256_sub_epi32(f,g);
 		_mm256_store_si256(&c->vec[i],f);
 	}
+	LC_FPU_DISABLE;
 }
 
 /**
@@ -148,11 +163,13 @@ void poly_shiftl_avx(poly *a)
 	unsigned int i;
 	__m256i f;
 
+	LC_FPU_ENABLE;
 	for (i = 0; i < LC_DILITHIUM_N / 8; i++) {
 		f = _mm256_load_si256(&a->vec[i]);
 		f = _mm256_slli_epi32(f, LC_DILITHIUM_D);
 		_mm256_store_si256(&a->vec[i],f);
 	}
+	LC_FPU_DISABLE;
 }
 
 /**
@@ -171,7 +188,13 @@ int poly_chknorm_avx(const poly *a, int32_t B)
 	unsigned int i;
 	int r;
 	__m256i f, t;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
+	/* Due to const, the variables cannot be defined before */
+	LC_FPU_ENABLE;
 	const __m256i bound = _mm256_set1_epi32(B - 1);
+#pragma GCC diagnostic pop
 
 	if (B > (LC_DILITHIUM_Q - 1) / 8)
 		return 1;
@@ -185,6 +208,8 @@ int poly_chknorm_avx(const poly *a, int32_t B)
 	}
 
 	r = 1 - _mm256_testz_si256(t, t);
+	LC_FPU_DISABLE;
+
 	return r;
 }
 
@@ -214,11 +239,13 @@ void poly_uniform_4x_avx(poly *a0,
 	uint8_t *coeffs3 = (uint8_t *)vec3;
 #undef BUFSIZE
 
+	LC_FPU_ENABLE;
 	f = _mm256_loadu_si256((__m256i_u *)seed);
 	_mm256_store_si256(vec0, f);
 	_mm256_store_si256(vec1, f);
 	_mm256_store_si256(vec2, f);
 	_mm256_store_si256(vec3, f);
+	LC_FPU_DISABLE;
 
 	coeffs0[LC_DILITHIUM_SEEDBYTES+0] = (uint8_t)(nonce0);
 	coeffs0[LC_DILITHIUM_SEEDBYTES+1] = (uint8_t)(nonce0 >> 8);
@@ -287,6 +314,7 @@ void poly_uniform_eta_4x_avx(poly *a0,
 	uint8_t *coeffs3 = (uint8_t *)vec3;
 #undef BUFSIZE
 
+	LC_FPU_ENABLE;
 	f = _mm256_loadu_si256((__m256i_u *)&seed[0]);
 	_mm256_store_si256(&vec0[0],f);
 	_mm256_store_si256(&vec1[0],f);
@@ -297,6 +325,7 @@ void poly_uniform_eta_4x_avx(poly *a0,
 	_mm256_store_si256(&vec1[1],f);
 	_mm256_store_si256(&vec2[1],f);
 	_mm256_store_si256(&vec3[1],f);
+	LC_FPU_DISABLE;
 
 	coeffs0[64] = (uint8_t)(nonce0);
 	coeffs0[65] = (uint8_t)(nonce0 >> 8);
@@ -369,6 +398,7 @@ void poly_uniform_gamma1_4x_avx(poly *a0,
 	uint8_t *coeffs3 = (uint8_t *)vec3;
 #undef BUFSIZE
 
+	LC_FPU_ENABLE;
 	f = _mm256_loadu_si256((__m256i_u *)&seed[0]);
 	_mm256_store_si256(&vec0[0], f);
 	_mm256_store_si256(&vec1[0], f);
@@ -379,6 +409,7 @@ void poly_uniform_gamma1_4x_avx(poly *a0,
 	_mm256_store_si256(&vec1[1], f);
 	_mm256_store_si256(&vec2[1], f);
 	_mm256_store_si256(&vec3[1], f);
+	LC_FPU_DISABLE;
 
 	coeffs0[64] = (uint8_t)(nonce0);
 	coeffs0[65] = (uint8_t)(nonce0 >> 8);
@@ -393,10 +424,12 @@ void poly_uniform_gamma1_4x_avx(poly *a0,
 	shake256x4_squeezeblocks(coeffs0, coeffs1, coeffs2, coeffs3,
 				 POLY_UNIFORM_GAMMA1_NBLOCKS, state);
 
+	LC_FPU_ENABLE;
 	polyz_unpack_avx(a0, coeffs0);
 	polyz_unpack_avx(a1, coeffs1);
 	polyz_unpack_avx(a2, coeffs2);
 	polyz_unpack_avx(a3, coeffs3);
+	LC_FPU_DISABLE;
 }
 
 /**
@@ -705,12 +738,18 @@ void polyz_unpack_avx(poly * restrict r, const uint8_t *a)
 {
 	unsigned int i;
 	__m256i f;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
+	/* Due to const, the variables cannot be defined before */
+	LC_FPU_ENABLE;
 	const __m256i shufbidx =
 		_mm256_set_epi8(-1,11,10, 9,-1, 9, 8, 7,-1, 6, 5, 4,-1, 4, 3, 2,
 				-1, 9, 8, 7,-1, 7, 6, 5,-1, 4, 3, 2,-1, 2, 1, 0);
 	const __m256i srlvdidx = _mm256_set1_epi64x((uint64_t)4 << 32);
 	const __m256i mask = _mm256_set1_epi32(0xFFFFF);
 	const __m256i gamma1 = _mm256_set1_epi32(LC_DILITHIUM_GAMMA1);
+#pragma GCC diagnostic pop
 
 	for(i = 0; i < LC_DILITHIUM_N / 8; i++) {
 		f = _mm256_loadu_si256((__m256i_u *)&a[20*i]);
@@ -721,6 +760,7 @@ void polyz_unpack_avx(poly * restrict r, const uint8_t *a)
 		f = _mm256_sub_epi32(gamma1,f);
 		_mm256_store_si256(&r->vec[i],f);
 	}
+	LC_FPU_DISABLE;
 }
 
 /**
@@ -736,10 +776,16 @@ void polyw1_pack_avx(uint8_t *r, const poly * restrict a)
 {
 	unsigned int i;
 	__m256i f0, f1, f2, f3, f4, f5, f6, f7;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
+	/* Due to const, the variables cannot be defined before */
+	LC_FPU_ENABLE;
 	const __m256i shift = _mm256_set1_epi16((16 << 8) + 1);
 	const __m256i shufbidx =
 		_mm256_set_epi8(15,14, 7, 6,13,12, 5, 4,11,10, 3, 2, 9, 8, 1, 0,
 				15,14, 7, 6,13,12, 5, 4,11,10, 3, 2, 9, 8, 1, 0);
+#pragma GCC diagnostic pop
 
 	for( i = 0; i < LC_DILITHIUM_N / 64; ++i) {
 		f0 = _mm256_load_si256(&a->vec[8*i+0]);
@@ -763,4 +809,5 @@ void polyw1_pack_avx(uint8_t *r, const poly * restrict a)
 		f0 = _mm256_shuffle_epi8(f0,shufbidx);
 		_mm256_storeu_si256((__m256i_u *)&r[32*i], f0);
 	}
+	LC_FPU_DISABLE;
 }

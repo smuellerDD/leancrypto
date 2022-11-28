@@ -28,8 +28,6 @@
 #ifndef DILITHIUM_POLYVEC_AVX2_H
 #define DILITHIUM_POLYVEC_AVX2_H
 
-#include <stdint.h>
-
 #include "dilithium_poly_avx2.h"
 #include "lc_dilithium.h"
 
@@ -116,8 +114,10 @@ static inline void
 polyvecl_pointwise_acc_montgomery_avx(poly *w, const polyvecl *u,
 				      const polyvecl *v)
 {
+	LC_FPU_ENABLE;
 	dilithium_pointwise_acc_avx(w->vec, u->vec->vec, v->vec->vec,
 				    dilithium_qdata.vec);
+	LC_FPU_DISABLE;
 }
 
 /**

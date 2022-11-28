@@ -25,9 +25,6 @@
  * or Apache 2.0 License (https://www.apache.org/licenses/LICENSE-2.0.html).
  */
 
-#include <stdint.h>
-#include <string.h>
-
 #include "alignment_x86.h"
 #include "dilithium_pack_avx2.h"
 #include "dilithium_poly_avx2.h"
@@ -246,8 +243,8 @@ int, lc_dilithium_sign_avx2, struct lc_dilithium_sig *sig,
 			LC_DILITHIUM_L * LC_DILITHIUM_POLYZ_PACKEDBYTES;
 	uint64_t nonce = 0;
 	int ret = 0;
-	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
 	LC_DECLARE_MEM(ws, struct workspace, 32);
+	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
 
 	/* rng_ctx is allowed to be NULL as handled below */
 	if (!sig || !m || !sk) {
@@ -415,8 +412,8 @@ int, lc_dilithium_verify_avx2, const struct lc_dilithium_sig *sig,
 			      LC_DILITHIUM_L * LC_DILITHIUM_POLYZ_PACKEDBYTES;
 	polyvecl *row;
 	int ret = 0;
-	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
 	LC_DECLARE_MEM(ws, struct workspace, 32);
+	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
 
 	if (!sig || !m || !pk) {
 		ret = -EINVAL;

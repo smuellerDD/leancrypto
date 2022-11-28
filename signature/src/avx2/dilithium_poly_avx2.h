@@ -28,8 +28,6 @@
 #ifndef DILITHIUM_POLY_AVX2_H
 #define DILITHIUM_POLY_AVX2_H
 
-#include <stdint.h>
-
 #include "alignment_x86.h"
 #include "dilithium_consts_avx2.h"
 #include "dilithium_ntt_avx2.h"
@@ -57,7 +55,9 @@ typedef BUF_ALIGNED_INT32_M256I(LC_DILITHIUM_N) poly;
  */
 static inline void poly_ntt_avx(poly *a)
 {
+	LC_FPU_ENABLE;
 	dilithium_ntt_avx(a->vec, dilithium_qdata.vec);
+	LC_FPU_DISABLE;
 }
 
 /**
@@ -71,12 +71,16 @@ static inline void poly_ntt_avx(poly *a)
  */
 static inline void poly_invntt_tomont_avx(poly *a)
 {
+	LC_FPU_ENABLE;
 	dilithium_invntt_avx(a->vec, dilithium_qdata.vec);
+	LC_FPU_DISABLE;
 }
 
 static inline void poly_nttunpack_avx(poly *a)
 {
+	LC_FPU_ENABLE;
 	dilithium_nttunpack_avx(a->vec);
+	LC_FPU_DISABLE;
 }
 
 /**
@@ -92,7 +96,9 @@ static inline void poly_nttunpack_avx(poly *a)
 static inline void
 poly_pointwise_montgomery_avx(poly *c, const poly *a, const poly *b)
 {
+	LC_FPU_ENABLE;
 	dilithium_pointwise_avx(c->vec, a->vec, b->vec, dilithium_qdata.vec);
+	LC_FPU_DISABLE;
 }
 
 

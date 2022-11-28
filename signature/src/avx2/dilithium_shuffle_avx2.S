@@ -1,7 +1,7 @@
+#include "assembler_support.h"
 #include "dilithium_shuffle_avx2.inc"
 
-.text
-nttunpack128_avx:
+.macro nttunpack128_avx
 #load
 vmovdqa		(%rdi),%ymm4
 vmovdqa		32(%rdi),%ymm5
@@ -36,16 +36,16 @@ vmovdqa		%ymm5,128(%rdi)
 vmovdqa		%ymm4,160(%rdi)
 vmovdqa		%ymm3,192(%rdi)
 vmovdqa		%ymm11,224(%rdi)
+.endm
 
-ret
-
-.global dilithium_nttunpack_avx
-dilithium_nttunpack_avx:
-call		nttunpack128_avx
+.text
+SYM_FUNC_START(dilithium_nttunpack_avx)
+nttunpack128_avx
 add		$256,%rdi
-call		nttunpack128_avx
+nttunpack128_avx
 add		$256,%rdi
-call		nttunpack128_avx
+nttunpack128_avx
 add		$256,%rdi
-call		nttunpack128_avx
-ret
+nttunpack128_avx
+RET
+SYM_FUNC_END(dilithium_nttunpack_avx)

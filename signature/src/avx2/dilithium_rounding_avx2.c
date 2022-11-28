@@ -25,13 +25,10 @@
  * or Apache 2.0 License (https://www.apache.org/licenses/LICENSE-2.0.html).
  */
 
-#include <stdint.h>
-#include <immintrin.h>
-#include <string.h>
-
 #include "dilithium_consts_avx2.h"
 #include "dilithium_rejsample_avx2.h"
 #include "dilithium_rounding_avx2.h"
+#include "ext_headers_x86.h"
 #include "lc_dilithium.h"
 
 #define _mm256_blendv_epi32(a,b,mask) \
@@ -54,8 +51,14 @@ void power2round_avx(__m256i *a1, __m256i *a0, const __m256i *a)
 {
 	unsigned int i;
 	__m256i f,f0,f1;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
+	/* Due to const, the variables cannot be defined before */
+	LC_FPU_ENABLE;
 	const __m256i mask = _mm256_set1_epi32(-(1 << LC_DILITHIUM_D));
 	const __m256i half = _mm256_set1_epi32((1 << (LC_DILITHIUM_D-1)) - 1);
+#pragma GCC diagnostic pop
 
 	for (i = 0; i < LC_DILITHIUM_N / 8; ++i) {
 		f = _mm256_load_si256(&a[i]);
@@ -66,6 +69,7 @@ void power2round_avx(__m256i *a1, __m256i *a0, const __m256i *a)
 		_mm256_store_si256(&a1[i],f1);
 		_mm256_store_si256(&a0[i],f0);
 	}
+	LC_FPU_DISABLE;
 }
 
 /**
@@ -84,6 +88,11 @@ void decompose_avx(__m256i *a1, __m256i *a0, const __m256i *a)
 {
 	unsigned int i;
 	__m256i f,f0,f1;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
+	/* Due to const, the variables cannot be defined before */
+	LC_FPU_ENABLE;
 	const __m256i q = _mm256_load_si256(&dilithium_qdata.vec[_8XQ/8]);
 	const __m256i hq = _mm256_srli_epi32(q,1);
 	const __m256i v = _mm256_set1_epi32(1025);
@@ -91,6 +100,7 @@ void decompose_avx(__m256i *a1, __m256i *a0, const __m256i *a)
 	const __m256i off = _mm256_set1_epi32(127);
 	const __m256i shift = _mm256_set1_epi32(512);
 	const __m256i mask = _mm256_set1_epi32(15);
+#pragma GCC diagnostic pop
 
 	for (i = 0; i < LC_DILITHIUM_N / 8; i++) {
 		f = _mm256_load_si256(&a[i]);
@@ -107,6 +117,7 @@ void decompose_avx(__m256i *a1, __m256i *a0, const __m256i *a)
 		_mm256_store_si256(&a1[i],f1);
 		_mm256_store_si256(&a0[i],f0);
 	}
+	LC_FPU_DISABLE;
 }
 
 /**
@@ -129,8 +140,14 @@ unsigned int make_hint_avx(uint8_t hint[LC_DILITHIUM_N],
 	__m256i f0, f1, g0, g1;
 	uint32_t bad;
 	uint64_t idx;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
+	/* Due to const, the variables cannot be defined before */
+	LC_FPU_ENABLE;
 	const __m256i low = _mm256_set1_epi32(-LC_DILITHIUM_GAMMA2);
 	const __m256i high = _mm256_set1_epi32(LC_DILITHIUM_GAMMA2);
+#pragma GCC diagnostic pop
 
 	for (i = 0; i < LC_DILITHIUM_N / 8; ++i) {
 		f0 = _mm256_load_si256(&a0[i]);
@@ -147,6 +164,7 @@ unsigned int make_hint_avx(uint8_t hint[LC_DILITHIUM_N],
 		memcpy(&hint[n],&idx,8);
 		n += (unsigned int)_mm_popcnt_u32(bad);
 	}
+	LC_FPU_DISABLE;
 
 	return n;
 }
@@ -165,8 +183,14 @@ void use_hint_avx(__m256i *b, const __m256i *a, const __m256i * restrict hint)
 	unsigned int i;
 	__m256i a0[LC_DILITHIUM_N / 8];
 	__m256i f,g,h,t;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
+	/* Due to const, the variables cannot be defined before */
+	LC_FPU_ENABLE;
 	const __m256i zero = _mm256_setzero_si256();
 	const __m256i mask = _mm256_set1_epi32(15);
+#pragma GCC diagnostic pop
 
 	decompose_avx(b, a0, a);
 	for (i = 0; i < LC_DILITHIUM_N / 8; i++) {
@@ -180,4 +204,5 @@ void use_hint_avx(__m256i *b, const __m256i *a, const __m256i * restrict hint)
 		g = _mm256_and_si256(g,mask);
 		_mm256_store_si256(&b[i],g);
 	}
+	LC_FPU_DISABLE;
 }

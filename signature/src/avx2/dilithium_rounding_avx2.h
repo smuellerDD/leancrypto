@@ -28,9 +28,7 @@
 #ifndef DILITHIUM_ROUNDING_AVX2_H
 #define DILITHIUM_ROUNDING_AVX2_H
 
-#include <stdint.h>
-#include <immintrin.h>
-
+#include "ext_headers_x86.h"
 #include "lc_dilithium.h"
 
 #ifdef __cplusplus

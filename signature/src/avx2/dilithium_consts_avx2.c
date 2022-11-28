@@ -25,8 +25,6 @@
  * or Apache 2.0 License (https://www.apache.org/licenses/LICENSE-2.0.html).
  */
 
-#include <stdint.h>
-
 #include "dilithium_consts_avx2.h"
 #include "lc_dilithium.h"
 

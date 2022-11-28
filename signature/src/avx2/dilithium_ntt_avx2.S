@@ -1,3 +1,4 @@
+#include "assembler_support.h"
 #include "dilithium_consts_avx2.h"
 #include "dilithium_shuffle_avx2.inc"
 
@@ -179,8 +180,7 @@ vmovdqa		%ymm11,256*\off+224(%rdi)
 .endm
 
 .text
-.global dilithium_ntt_avx
-dilithium_ntt_avx:
+SYM_FUNC_START(dilithium_ntt_avx)
 vmovdqa		_8XQ*4(%rsi),%ymm0
 
 levels0t1	0
@@ -193,5 +193,5 @@ levels2t7	1
 levels2t7	2
 levels2t7	3
 
-ret
-
+RET
+SYM_FUNC_END(dilithium_ntt_avx)

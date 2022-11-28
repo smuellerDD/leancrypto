@@ -25,10 +25,8 @@
  * or Apache 2.0 License (https://www.apache.org/licenses/LICENSE-2.0.html).
  */
 
-#include <stdint.h>
-#include <immintrin.h>
-
 #include "dilithium_rejsample_avx2.h"
+#include "ext_headers_x86.h"
 #include "lc_dilithium.h"
 
 const uint8_t idxlut[256][8] = {
@@ -296,12 +294,18 @@ unsigned int rej_uniform_avx(int32_t * restrict r,
 	unsigned int ctr, pos;
 	uint32_t good;
 	__m256i d, tmp;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
+	/* Due to const, the variables cannot be defined before */
+	LC_FPU_ENABLE;
 	const __m256i bound = _mm256_set1_epi32(LC_DILITHIUM_Q);
 	const __m256i mask  = _mm256_set1_epi32(0x7FFFFF);
 	const __m256i idx8  = _mm256_set_epi8(-1,15,14,13,-1,12,11,10,
 					      -1, 9, 8, 7,-1, 6, 5, 4,
 					      -1,11,10, 9,-1, 8, 7, 6,
 					      -1, 5, 4, 3,-1, 2, 1, 0);
+#pragma GCC diagnostic pop
 	uint32_t t;
 
 	ctr = pos = 0;
@@ -323,6 +327,7 @@ unsigned int rej_uniform_avx(int32_t * restrict r,
 		if(ctr > LC_DILITHIUM_N - 8)
 			break;
 	}
+	LC_FPU_DISABLE;
 
 	while (ctr < LC_DILITHIUM_N && pos <= REJ_UNIFORM_BUFLEN - 3) {
 		t  = buf[pos++];
@@ -343,11 +348,17 @@ unsigned int rej_eta_avx(int32_t * restrict r,
 	uint32_t good;
 	__m256i f0, f1, f2;
 	__m128i g0, g1;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
+	/* Due to const, the variables cannot be defined before */
+	LC_FPU_ENABLE;
 	const __m256i mask = _mm256_set1_epi8(15);
 	const __m256i eta = _mm256_set1_epi8(LC_DILITHIUM_ETA);
 	const __m256i bound = mask;
 	const __m256i v = _mm256_set1_epi32(-6560);
 	const __m256i p = _mm256_set1_epi32(5);
+#pragma GCC diagnostic pop
 	uint32_t t0, t1;
 
 	ctr = pos = 0;
@@ -412,6 +423,7 @@ unsigned int rej_eta_avx(int32_t * restrict r,
 		ctr += (uint32_t)_mm_popcnt_u32(good);
 		pos += 4;
 	}
+	LC_FPU_DISABLE;
 
 	while (ctr < LC_DILITHIUM_N && pos < REJ_UNIFORM_ETA_BUFLEN) {
 		t0 = buf[pos] & 0x0F;
