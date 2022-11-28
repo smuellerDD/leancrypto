@@ -230,7 +230,7 @@ int, lc_drbg_hmac_alloc, struct lc_rng_ctx **drbg)
 LC_INTERFACE_FUNCTION(
 int, lc_drbg_hmac_healthcheck_sanity, struct lc_rng_ctx *drbg)
 {
-	unsigned char buf[16];
+	unsigned char buf[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	size_t max_addtllen, max_request_bytes;
 	ssize_t len = 0;
 	int ret = -EFAULT;
