@@ -31,6 +31,40 @@ LC_CONSTRUCTOR(sha3_fastest_impl)
 {
 	enum lc_cpu_features feat = lc_cpu_feature_available();
 
+	/* Check if NULL pointers are present */
+	if (!lc_sha3_224_arm8_neon) {
+		lc_sha3_224_arm8_neon = lc_sha3_224_c;
+		lc_sha3_256_arm8_neon = lc_sha3_256_c;
+		lc_sha3_384_arm8_neon = lc_sha3_384_c;
+		lc_sha3_512_arm8_neon = lc_sha3_512_c;
+		lc_shake128_arm8_neon = lc_shake128_c;
+		lc_shake256_arm8_neon = lc_shake256_c;
+		lc_cshake128_arm8_neon = lc_cshake128_c;
+		lc_cshake256_arm8_neon = lc_cshake256_c;
+	}
+
+	if (!lc_sha3_224_avx512) {
+		lc_sha3_224_avx512 = lc_sha3_224_c;
+		lc_sha3_256_avx512 = lc_sha3_256_c;
+		lc_sha3_384_avx512 = lc_sha3_384_c;
+		lc_sha3_512_avx512 = lc_sha3_512_c;
+		lc_shake128_avx512 = lc_shake128_c;
+		lc_shake256_avx512 = lc_shake256_c;
+		lc_cshake128_avx512 = lc_cshake128_c;
+		lc_cshake256_avx512 = lc_cshake256_c;
+	}
+
+	if (!lc_sha3_224_avx2) {
+		lc_sha3_224_avx2 = lc_sha3_224_c;
+		lc_sha3_256_avx2 = lc_sha3_256_c;
+		lc_sha3_384_avx2 = lc_sha3_384_c;
+		lc_sha3_512_avx2 = lc_sha3_512_c;
+		lc_shake128_avx2 = lc_shake128_c;
+		lc_shake256_avx2 = lc_shake256_c;
+		lc_cshake128_avx2 = lc_cshake128_c;
+		lc_cshake256_avx2 = lc_cshake256_c;
+	}
+
 	/*
 	 * Set accelerated modes: The fastest implementations are at the top
 	 */
@@ -76,16 +110,5 @@ LC_CONSTRUCTOR(sha3_fastest_impl)
 		lc_shake256_avx2 = lc_shake256_c;
 		lc_cshake128_avx2 = lc_cshake128_c;
 		lc_cshake256_avx2 = lc_cshake256_c;
-	}
-
-	if (!lc_sha3_224_arm8_neon) {
-		lc_sha3_224_arm8_neon = lc_sha3_224_c;
-		lc_sha3_256_arm8_neon = lc_sha3_256_c;
-		lc_sha3_384_arm8_neon = lc_sha3_384_c;
-		lc_sha3_512_arm8_neon = lc_sha3_512_c;
-		lc_shake128_arm8_neon = lc_shake128_c;
-		lc_shake256_arm8_neon = lc_shake256_c;
-		lc_cshake128_arm8_neon = lc_cshake128_c;
-		lc_cshake256_arm8_neon = lc_cshake256_c;
 	}
 }
