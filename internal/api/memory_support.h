@@ -30,25 +30,10 @@ extern "C"
 {
 #endif
 
-static inline int
-lc_alloc_aligned_clear(void **memptr, size_t alignment, size_t size)
-{
-	int ret = posix_memalign(memptr, alignment, size);
-
-	if (ret)
-		return ret;
-	memset_secure(*memptr, 0, size);
-
-	return 0;
-}
-
-static inline void lc_free_clear(void *ptr, size_t size)
-{
-	if (!ptr)
-		return;
-	memset_secure(ptr, 0, size);
-	free(ptr);
-}
+int lc_alloc_aligned(void **memptr, size_t alignment, size_t size);
+int lc_alloc_high_aligned(void **memptr, size_t alignment, size_t size);
+void lc_free(void *ptr);
+void lc_free_high_aligned(void *ptr, size_t size);
 
 #define LC_ALIGNED_BUFFER_ALIGNMENTSIZE(name, size, alignment) 		       \
 	uint64_t name[(size + sizeof(uint64_t) - 1) / sizeof(uint64_t)]	       \
@@ -64,14 +49,14 @@ static inline void lc_free_clear(void *ptr, size_t size)
 /* Allocate memory on heap */
 #define __LC_DECLARE_MEM_HEAP(name, type, alignment)			       \
 	type *name;							       \
-	int __ret = lc_alloc_aligned_clear((void *)&name, alignment,	       \
-					   sizeof(type));		       \
+	int __ret = lc_alloc_high_aligned((void *)&name, alignment,	       \
+					  sizeof(type));		       \
 	if (__ret)							       \
 			return __ret
 
 #define __LC_RELEASE_MEM_HEAP(name)					       \
 	memset_secure(name, 0, sizeof(name));				       \
-	free(name)
+	lc_free_high_aligned(name, sizeof(name))
 
 /* Define macro LC_MEM_ON_HEAP if stack is less than 256KiB in size */
 #ifdef LC_MEM_ON_HEAP
