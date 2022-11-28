@@ -28,8 +28,6 @@ http://creativecommons.org/publicdomain/zero/1.0/
 #define KeccakF1600times4_FastLoop_supported
 #define KeccakP1600times4_12rounds_FastLoop_supported
 
-#include <stddef.h>
-
 #define KeccakP1600times4_StaticInitialize()
 void KeccakP1600times4_InitializeAll(void *states);
 #define KeccakP1600times4_AddByte(states, instanceIndex, byte, offset) \

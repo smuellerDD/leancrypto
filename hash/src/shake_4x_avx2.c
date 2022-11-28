@@ -24,11 +24,8 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
-#include <stddef.h>
-#include <stdint.h>
-#include <immintrin.h>
-#include <string.h>
-
+#include "ext_headers.h"
+#include "ext_headers_x86.h"
 #include "lc_sha3.h"
 #include "memcmp_secure.h"
 #include "shake_4x_avx2.h"
@@ -131,8 +128,10 @@ void shake128x4_absorb_once(keccakx4_state *state,
 			    const uint8_t *in3,
 			    size_t inlen)
 {
+	LC_FPU_ENABLE;
 	keccakx4_absorb_once(state->s, LC_SHAKE_128_SIZE_BLOCK,
 			     in0, in1, in2, in3, inlen, 0x1F);
+	LC_FPU_DISABLE;
 }
 
 void shake128x4_squeezeblocks(uint8_t *out0,
@@ -142,8 +141,10 @@ void shake128x4_squeezeblocks(uint8_t *out0,
 			      size_t nblocks,
 			      keccakx4_state *state)
 {
+	LC_FPU_ENABLE;
 	keccakx4_squeezeblocks(out0, out1, out2, out3, nblocks,
 			       LC_SHAKE_128_SIZE_BLOCK, state->s);
+	LC_FPU_DISABLE;
 }
 
 void shake256x4_absorb_once(keccakx4_state *state,
@@ -153,8 +154,10 @@ void shake256x4_absorb_once(keccakx4_state *state,
 			    const uint8_t *in3,
 			    size_t inlen)
 {
+	LC_FPU_ENABLE;
 	keccakx4_absorb_once(state->s, LC_SHAKE_256_SIZE_BLOCK,
 			     in0, in1, in2, in3, inlen, 0x1F);
+	LC_FPU_DISABLE;
 }
 
 void shake256x4_squeezeblocks(uint8_t *out0,
@@ -164,8 +167,10 @@ void shake256x4_squeezeblocks(uint8_t *out0,
 			      size_t nblocks,
 			      keccakx4_state *state)
 {
+	LC_FPU_ENABLE;
 	keccakx4_squeezeblocks(out0, out1, out2, out3, nblocks,
 			       LC_SHAKE_256_SIZE_BLOCK, state->s);
+	LC_FPU_DISABLE;
 }
 
 LC_INTERFACE_FUNCTION(

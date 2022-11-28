@@ -19,6 +19,7 @@
 
 #include "asm/AVX512/KeccakP-1600-SnP.h"
 
+#include "ext_headers_x86.h"
 #include "keccack_asm_glue.h"
 #include "sha3_avx512.h"
 #include "visibility.h"
@@ -65,18 +66,22 @@ static void cshake_256_avx512_init(void *_state)
 
 static void keccak_avx512_absorb(void *_state, const uint8_t *in, size_t inlen)
 {
+	LC_FPU_ENABLE;
 	keccak_asm_absorb(_state, in, inlen,
 			  KeccakP1600_AVX512_AddBytes,
 			  KeccakP1600_AVX512_Permute_24rounds,
 			  KeccakF1600_AVX512_FastLoop_Absorb);
+	LC_FPU_DISABLE;
 }
 
 static void keccak_avx512_squeeze(void *_state, uint8_t *digest)
 {
+	LC_FPU_ENABLE;
 	keccak_asm_squeeze(_state, digest,
 			   KeccakP1600_AVX512_AddByte,
 			   KeccakP1600_AVX512_Permute_24rounds,
 			   KeccakP1600_AVX512_ExtractBytes);
+	LC_FPU_DISABLE;
 }
 
 static const struct lc_hash _sha3_224_avx512 = {

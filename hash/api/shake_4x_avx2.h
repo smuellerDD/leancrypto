@@ -27,9 +27,8 @@
 #ifndef SHAKE_4X_AVX2_H
 #define SHAKE_4X_AVX2_H
 
-#include <stddef.h>
-#include <stdint.h>
-#include <immintrin.h>
+#include "ext_headers.h"
+#include "ext_headers_x86.h"
 
 #ifdef __cplusplus
 extern "C"
