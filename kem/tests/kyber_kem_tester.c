@@ -60,6 +60,7 @@
 #define ORIGSEED							\
 	3,1,4,1,5,9,2,6,5,3,5,8,9,7,9,3,2,3,8,4,6,2,6,4,3,3,8,3,2,7,9,5
 
+static uint32_t origseed[32] = { ORIGSEED };
 static uint32_t seed[32] = { ORIGSEED };
 static uint32_t in[12];
 static uint32_t out[8];
@@ -195,6 +196,12 @@ int _kyber_kem_tester(
 		{ .rng = &kyber_drng2, .rng_state = NULL };
 	unsigned int nvectors;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+
+	/* Zeroize RNG state */
+	memcpy(seed, origseed, sizeof(origseed));
+	memset(in, 0, sizeof(in));
+	memset(out, 0, sizeof(out));
+	outleft = 0;
 
 #ifdef GENERATE_VECTORS
 	printf ("#ifndef KYBER_TESTVECTORS_H\n"

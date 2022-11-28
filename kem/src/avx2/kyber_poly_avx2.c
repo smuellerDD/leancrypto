@@ -24,9 +24,8 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
-#include <stdint.h>
-#include <immintrin.h>
-#include <string.h>
+#include "ext_headers.h"
+#include "ext_headers_x86.h"
 
 #include "kyber_poly_avx2.h"
 #include "shake_4x_avx2.h"
@@ -52,6 +51,11 @@ void poly_compress_avx(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES],
 	unsigned int i;
 	__m256i f0, f1;
 	__m128i t0, t1;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
+	/* Due to const, the variables cannot be defined before */
+	LC_FPU_ENABLE;
 	const __m256i v = _mm256_load_si256(&kyber_qdata.vec[_16XV / 16]);
 	const __m256i shift1 = _mm256_set1_epi16(1 << 10);
 	const __m256i mask = _mm256_set1_epi16(31);
@@ -62,6 +66,7 @@ void poly_compress_avx(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES],
 						  2, 1, 0,-1,12,11,10, 9,
 						 -1,12,11,10, 9, 8,-1,-1,
 						 -1,-1,-1 ,4, 3, 2, 1, 0);
+#pragma GCC diagnostic pop
 
 	for (i = 0; i < LC_KYBER_N / 32; i++) {
 		f0 = _mm256_load_si256(&a->vec[2 * i + 0]);
@@ -84,6 +89,7 @@ void poly_compress_avx(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES],
 		_mm_storeu_si128((__m128i_u *)&r[20 * i + 0], t0);
 		memcpy(&r[20 * i + 16], &t1, 4);
 	}
+	LC_FPU_DISABLE;
 }
 
 /**
@@ -103,6 +109,11 @@ void poly_decompress_avx(poly * restrict r,
 	__m128i t;
 	__m256i f;
 	int16_t ti;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
+	/* Due to const, the variables cannot be defined before */
+	LC_FPU_ENABLE;
 	const __m256i q = _mm256_load_si256(&kyber_qdata.vec[_16XQ/16]);
 	const __m256i shufbidx = _mm256_set_epi8(9,9,9,8,8,8,8,7,7,6,6,6,6,5,5,5,
 						4,4,4,3,3,3,3,2,2,1,1,1,1,0,0,0);
@@ -110,6 +121,7 @@ void poly_decompress_avx(poly * restrict r,
 						248,1984,62,496,3968,124,992,31);
 	const __m256i shift = _mm256_set_epi16(128,16,512,64,8,256,32,1024,
 						128,16,512,64,8,256,32,1024);
+#pragma GCC diagnostic pop
 
 	for (i = 0; i < LC_KYBER_N / 16; i++) {
 		t = _mm_loadl_epi64((__m128i_u *)&a[10*i+0]);
@@ -122,6 +134,7 @@ void poly_decompress_avx(poly * restrict r,
 		f = _mm256_mulhrs_epi16(f,q);
 		_mm256_store_si256(&r->vec[i], f);
 	}
+	LC_FPU_DISABLE;
 }
 
 /**
@@ -139,10 +152,16 @@ void poly_frommsg_avx(poly * restrict r,
 #error "LC_KYBER_INDCPA_MSGBYTES must be equal to 32!"
 #endif
 	__m256i f, g0, g1, g2, g3, h0, h1, h2, h3;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
+	/* Due to const, the variables cannot be defined before */
+	LC_FPU_ENABLE;
 	const __m256i shift = _mm256_broadcastsi128_si256(_mm_set_epi32(0,1,2,3));
 	const __m256i idx = _mm256_broadcastsi128_si256(_mm_set_epi8(15,14,11,10,7,6,3,2,
 						 13,12, 9, 8,5,4,1,0));
 	const __m256i hqs = _mm256_set1_epi16((LC_KYBER_Q+1)/2);
+#pragma GCC diagnostic pop
 
 #define FROMMSG64(i)							\
 	g3 = _mm256_shuffle_epi32(f,0x55*i);				\
@@ -177,6 +196,7 @@ void poly_frommsg_avx(poly * restrict r,
 	FROMMSG64(1);
 	FROMMSG64(2);
 	FROMMSG64(3);
+	LC_FPU_DISABLE;
 }
 
 /**
@@ -195,8 +215,14 @@ void poly_tomsg_avx(uint8_t msg[LC_KYBER_INDCPA_MSGBYTES],
 	unsigned int i;
 	int small;
 	__m256i f0, f1, g0, g1;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
+	/* Due to const, the variables cannot be defined before */
+	LC_FPU_ENABLE;
 	const __m256i hq = _mm256_set1_epi16((LC_KYBER_Q - 1) / 2);
 	const __m256i hhq = _mm256_set1_epi16((LC_KYBER_Q - 1) / 4);
+#pragma GCC diagnostic pop
 
 	for (i = 0; i < LC_KYBER_N / 32; i++) {
 		f0 = _mm256_load_si256(&a->vec[2 *i + 0]);
@@ -214,6 +240,7 @@ void poly_tomsg_avx(uint8_t msg[LC_KYBER_INDCPA_MSGBYTES],
 		small = _mm256_movemask_epi8(f0);
 		memcpy(&msg[4*i], &small, 4);
 	}
+	LC_FPU_DISABLE;
 }
 
 void poly_getnoise_eta1_4x(poly *r0,
@@ -241,11 +268,13 @@ void poly_getnoise_eta1_4x(poly *r0,
 	uint8_t *coeffs3 = (uint8_t *)vec3;
 #undef BUFSIZE
 
+	LC_FPU_ENABLE;
 	f = _mm256_loadu_si256((__m256i_u *)seed);
 	_mm256_store_si256(vec0, f);
 	_mm256_store_si256(vec1, f);
 	_mm256_store_si256(vec2, f);
 	_mm256_store_si256(vec3, f);
+	LC_FPU_DISABLE;
 
 	coeffs0[32] = nonce0;
 	coeffs1[32] = nonce1;
@@ -256,10 +285,12 @@ void poly_getnoise_eta1_4x(poly *r0,
 	shake256x4_squeezeblocks(coeffs0, coeffs1, coeffs2, coeffs3,
 				 NOISE_NBLOCKS, state);
 
+	LC_FPU_ENABLE;
 	poly_cbd_eta1_avx(r0, vec0);
 	poly_cbd_eta1_avx(r1, vec1);
 	poly_cbd_eta1_avx(r2, vec2);
 	poly_cbd_eta1_avx(r3, vec3);
+	LC_FPU_DISABLE;
 }
 
 /**
@@ -276,12 +307,14 @@ void kyber_poly_add_avx(poly *r, const poly *a, const poly *b)
 	unsigned int i;
 	__m256i f0, f1;
 
+	LC_FPU_ENABLE;
 	for (i = 0; i < LC_KYBER_N / 16; i++) {
 		f0 = _mm256_load_si256(&a->vec[i]);
 		f1 = _mm256_load_si256(&b->vec[i]);
 		f0 = _mm256_add_epi16(f0, f1);
 		_mm256_store_si256(&r->vec[i], f0);
 	}
+	LC_FPU_DISABLE;
 }
 
 /**
@@ -298,10 +331,12 @@ void kyber_poly_sub_avx(poly *r, const poly *a, const poly *b)
 	unsigned int i;
 	__m256i f0, f1;
 
+	LC_FPU_ENABLE;
 	for (i = 0; i < LC_KYBER_N / 16; i++) {
 		f0 = _mm256_load_si256(&a->vec[i]);
 		f1 = _mm256_load_si256(&b->vec[i]);
 		f0 = _mm256_sub_epi16(f0, f1);
 		_mm256_store_si256(&r->vec[i], f0);
 	}
+	LC_FPU_DISABLE;
 }

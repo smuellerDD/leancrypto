@@ -117,46 +117,50 @@ static inline int _lc_kyber_dec(
 			    const uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 			    const uint8_t coins[LC_KYBER_SYMBYTES]))
 {
-	uint8_t buf[2 * LC_KYBER_SYMBYTES];
-	/* Will contain key, coins */
-	uint8_t kr[2 * LC_KYBER_SYMBYTES];
-	uint8_t cmp[LC_KYBER_CIPHERTEXTBYTES];
-	const uint8_t *pk = sk->sk + LC_KYBER_INDCPA_SECRETKEYBYTES;
+	struct workspace {
+		uint8_t buf[2 * LC_KYBER_SYMBYTES];
+		/* Will contain key, coins */
+		uint8_t kr[2 * LC_KYBER_SYMBYTES];
+		uint8_t cmp[LC_KYBER_CIPHERTEXTBYTES];
+	};
+	const uint8_t *pk;
 	uint8_t fail;
 	int ret;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	if (!ss || !ct || !sk)
-		return -EINVAL;
+	if (!ss || !ct || !sk) {
+		ret = -EINVAL;
+		goto out;
+	}
 
-	CKINT(indcpa_dec_f(buf, ct->ct, sk->sk));
+	pk = sk->sk + LC_KYBER_INDCPA_SECRETKEYBYTES;
+
+	CKINT(indcpa_dec_f(ws->buf, ct->ct, sk->sk));
 
 	/* Multitarget countermeasure for coins + contributory KEM */
-	memcpy(&buf[LC_KYBER_SYMBYTES],
+	memcpy(&ws->buf[LC_KYBER_SYMBYTES],
 	       &sk->sk[LC_KYBER_SECRETKEYBYTES - 2 * LC_KYBER_SYMBYTES],
 	       LC_KYBER_SYMBYTES);
-	lc_hash(lc_sha3_512, buf, sizeof(buf), kr);
+	lc_hash(lc_sha3_512, ws->buf, sizeof(ws->buf), ws->kr);
 
 	/* coins are in kr + KYBER_SYMBYTES */
-	CKINT(indcpa_enc_f(cmp, buf, pk, kr + LC_KYBER_SYMBYTES));
+	CKINT(indcpa_enc_f(ws->cmp, ws->buf, pk, ws->kr + LC_KYBER_SYMBYTES));
 
-	fail = verify(ct->ct, cmp, LC_KYBER_CIPHERTEXTBYTES);
+	fail = verify(ct->ct, ws->cmp, LC_KYBER_CIPHERTEXTBYTES);
 
 	/* overwrite coins in kr with H(c) */
 	lc_hash(lc_sha3_256, ct->ct, LC_KYBER_CIPHERTEXTBYTES,
-		kr + LC_KYBER_SYMBYTES);
+		ws->kr + LC_KYBER_SYMBYTES);
 
 	/* Overwrite pre-k with z on re-encryption failure */
-	cmov(kr, sk->sk + LC_KYBER_SECRETKEYBYTES - LC_KYBER_SYMBYTES,
+	cmov(ws->kr, sk->sk + LC_KYBER_SECRETKEYBYTES - LC_KYBER_SYMBYTES,
 	     LC_KYBER_SYMBYTES, fail);
 
 	/* hash concatenation of pre-k and H(c) to k */
-	lc_shake(lc_shake256, kr, sizeof(kr), ss, ss_len);
-
-	memset_secure(buf, 0, sizeof(buf));
-	memset_secure(kr, 0, sizeof(kr));
-	memset_secure(cmp, 0, sizeof(cmp));
+	lc_shake(lc_shake256, ws->kr, sizeof(ws->kr), ss, ss_len);
 
 out:
+	LC_RELEASE_MEM(ws);
 	return ret;
 }
 

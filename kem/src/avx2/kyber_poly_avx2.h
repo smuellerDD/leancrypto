@@ -93,7 +93,9 @@ poly_cbd_eta2_avx(poly *r,
 static inline void
 poly_tobytes_avx(uint8_t r[LC_KYBER_POLYBYTES], const poly *a)
 {
+	LC_FPU_ENABLE;
 	kyber_ntttobytes_avx(r, a->vec, kyber_qdata.vec);
+	LC_FPU_DISABLE;
 }
 
 /**
@@ -107,7 +109,9 @@ poly_tobytes_avx(uint8_t r[LC_KYBER_POLYBYTES], const poly *a)
 static inline void
 poly_frombytes_avx(poly *r, const uint8_t a[LC_KYBER_POLYBYTES])
 {
+	LC_FPU_ENABLE;
 	kyber_nttfrombytes_avx(r->vec, a, kyber_qdata.vec);
+	LC_FPU_DISABLE;
 }
 
 /**
@@ -182,7 +186,9 @@ void poly_getnoise_eta1_4x(poly *r0,
  */
 static inline void poly_ntt_avx(poly *r)
 {
+	LC_FPU_ENABLE;
 	kyber_ntt_avx(r->vec, kyber_qdata.vec);
+	LC_FPU_DISABLE;
 }
 
 /**
@@ -198,12 +204,16 @@ static inline void poly_ntt_avx(poly *r)
  */
 static inline void poly_invntt_tomont_avx(poly *r)
 {
+	LC_FPU_ENABLE;
 	kyber_invntt_avx(r->vec, kyber_qdata.vec);
+	LC_FPU_DISABLE;
 }
 
 static inline void poly_nttunpack_avx(poly *r)
 {
+	LC_FPU_ENABLE;
 	kyber_nttunpack_avx(r->vec, kyber_qdata.vec);
+	LC_FPU_DISABLE;
 }
 
 /**
@@ -219,7 +229,9 @@ static inline void poly_nttunpack_avx(poly *r)
  */
 static inline void poly_basemul_montgomery_avx(poly *r, const poly *a, const poly *b)
 {
+	LC_FPU_ENABLE;
 	kyber_basemul_avx(r->vec, a->vec, b->vec, kyber_qdata.vec);
+	LC_FPU_DISABLE;
 }
 
 /**
@@ -232,7 +244,9 @@ static inline void poly_basemul_montgomery_avx(poly *r, const poly *a, const pol
  */
 static inline void poly_tomont_avx(poly *r)
 {
+	LC_FPU_ENABLE;
 	tomont_avx(r->vec, kyber_qdata.vec);
+	LC_FPU_DISABLE;
 }
 
 /**
@@ -245,7 +259,9 @@ static inline void poly_tomont_avx(poly *r)
  */
 static inline void poly_reduce_avx(poly *r)
 {
+	LC_FPU_ENABLE;
 	reduce_avx(r->vec, kyber_qdata.vec);
+	LC_FPU_DISABLE;
 }
 
 #ifdef __cplusplus

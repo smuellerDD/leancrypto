@@ -26,8 +26,8 @@
 #ifndef KYBER_NTT_AVX2_H
 #define KYBER_NTT_AVX2_H
 
-#include <stdint.h>
-#include <immintrin.h>
+#include "ext_headers.h"
+#include "ext_headers_x86.h"
 
 #ifdef __cplusplus
 extern "C"

@@ -24,9 +24,8 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
-#include <stdint.h>
-#include <immintrin.h>
-#include <string.h>
+#include "ext_headers.h"
+#include "ext_headers_x86.h"
 #include "lc_kyber.h"
 #include "kyber_consts_avx2.h"
 #include "kyber_rejsample_avx2.h"
@@ -305,6 +304,11 @@ unsigned int kyber_rej_uniform_avx(int16_t * restrict r, const uint8_t *buf)
 #ifdef BMI
 	uint64_t idx0, idx1, idx2, idx3;
 #endif
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
+	/* Due to const, the variables cannot be defined before */
+	LC_FPU_ENABLE;
 	const __m256i bound  = _mm256_load_si256(&kyber_qdata.vec[_16XQ/16]);
 	const __m256i ones   = _mm256_set1_epi8(1);
 	const __m256i mask  = _mm256_set1_epi16(0xFFF);
@@ -314,9 +318,10 @@ unsigned int kyber_rej_uniform_avx(int16_t * restrict r, const uint8_t *buf)
 						5, 4, 4, 3, 2, 1, 1, 0);
 	__m256i f0, f1, g0, g1, g2, g3;
 	__m128i f, t, pilo, pihi;
+#pragma GCC diagnostic pop
 
 	ctr = pos = 0;
-	while(ctr <= LC_KYBER_N - 32 && pos <= REJ_UNIFORM_AVX_BUFLEN - 48) {
+	while (ctr <= LC_KYBER_N - 32 && pos <= REJ_UNIFORM_AVX_BUFLEN - 48) {
 		f0 = _mm256_loadu_si256((__m256i_u *)&buf[pos]);
 		f1 = _mm256_loadu_si256((__m256i_u *)&buf[pos+24]);
 		f0 = _mm256_permute4x64_epi64(f0, 0x94);
@@ -380,7 +385,7 @@ unsigned int kyber_rej_uniform_avx(int16_t * restrict r, const uint8_t *buf)
 		ctr += (uint32_t)_mm_popcnt_u32((good >> 24) & 0xFF);
 	}
 
-	while(ctr <= LC_KYBER_N - 8 && pos <= REJ_UNIFORM_AVX_BUFLEN - 12) {
+	while (ctr <= LC_KYBER_N - 8 && pos <= REJ_UNIFORM_AVX_BUFLEN - 12) {
 		f = _mm_loadu_si128((__m128i_u *)&buf[pos]);
 		f = _mm_shuffle_epi8(f, _mm256_castsi256_si128(idx8));
 		t = _mm_srli_epi16(f, 4);
@@ -409,7 +414,7 @@ unsigned int kyber_rej_uniform_avx(int16_t * restrict r, const uint8_t *buf)
 		ctr += (uint32_t)_mm_popcnt_u32(good);
 	}
 
-	while(ctr < LC_KYBER_N && pos <= REJ_UNIFORM_AVX_BUFLEN - 3) {
+	while (ctr < LC_KYBER_N && pos <= REJ_UNIFORM_AVX_BUFLEN - 3) {
 		val0 = (uint16_t)((buf[pos+0] >> 0) | ((uint16_t)buf[pos+1] << 8)) & 0xFFF;
 		val1 = (uint16_t)((buf[pos+1] >> 4) | ((uint16_t)buf[pos+2] << 4));
 		pos += 3;
@@ -419,6 +424,8 @@ unsigned int kyber_rej_uniform_avx(int16_t * restrict r, const uint8_t *buf)
 		if(val1 < LC_KYBER_Q && ctr < LC_KYBER_N)
 			r[ctr++] = (int16_t)val1;
 	}
+
+	LC_FPU_DISABLE;
 
 	return ctr;
 }

@@ -1,3 +1,4 @@
+#include "assembler_support.h"
 #include "kyber_consts_avx2.h"
 
 .macro schoolbook off
@@ -83,8 +84,7 @@ vmovdqa		%ymm11,(64*\off+48)*2(%rdi)
 .endm
 
 .text
-.global kyber_basemul_avx
-kyber_basemul_avx:
+SYM_FUNC_START(kyber_basemul_avx)
 mov		%rsp,%r8
 and		$-32,%rsp
 sub		$32,%rsp
@@ -102,4 +102,6 @@ add		$32*2,%r9
 schoolbook	3
 
 mov		%r8,%rsp
-ret
+RET
+SYM_FUNC_END(kyber_basemul_avx)
+STACK_FRAME_NON_STANDARD kyber_basemul_avx

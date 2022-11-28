@@ -1,3 +1,4 @@
+#include "assembler_support.h"
 #include "kyber_consts_avx2.h"
 #include "kyber_fq_avx2.inc"
 #include "kyber_shuffle_avx2.inc"
@@ -47,8 +48,7 @@ vmovdqa		%ymm11,224(%rdi)
 ret
 */
 
-.text
-kyber_nttunpack128_avx:
+.macro kyber_nttunpack128_avx
 #load
 vmovdqa		(%rdi),%ymm4
 vmovdqa		32(%rdi),%ymm5
@@ -88,17 +88,9 @@ vmovdqa		%ymm8,128(%rdi)
 vmovdqa		%ymm3,160(%rdi)
 vmovdqa		%ymm7,192(%rdi)
 vmovdqa		%ymm11,224(%rdi)
+.endm
 
-ret
-
-.global kyber_nttunpack_avx
-kyber_nttunpack_avx:
-call		kyber_nttunpack128_avx
-add		$256,%rdi
-call		kyber_nttunpack128_avx
-ret
-
-kyber_ntttobytes128_avx:
+.macro kyber_ntttobytes128_avx
 #load
 vmovdqa		(%rsi),%ymm5
 vmovdqa		32(%rsi),%ymm6
@@ -165,20 +157,9 @@ vmovdqu		%ymm6,64(%rdi)
 vmovdqu		%ymm8,96(%rdi)
 vmovdqu		%ymm3,128(%rdi)
 vmovdqu		%ymm9,160(%rdi)
+.endm
 
-ret
-
-.global kyber_ntttobytes_avx
-kyber_ntttobytes_avx:
-#consts
-vmovdqa		_16XQ*2(%rdx),%ymm0
-call		kyber_ntttobytes128_avx
-add		$256,%rsi
-add		$192,%rdi
-call		kyber_ntttobytes128_avx
-ret
-
-kyber_nttfrombytes128_avx:
+.macro kyber_nttfrombytes128_avx
 #load
 vmovdqu		(%rsi),%ymm4
 vmovdqu		32(%rsi),%ymm5
@@ -241,15 +222,32 @@ vmovdqa		%ymm8,128(%rdi)
 vmovdqa		%ymm14,160(%rdi)
 vmovdqa		%ymm15,192(%rdi)
 vmovdqa		%ymm1,224(%rdi)
+.endm
 
-ret
+.text
+SYM_FUNC_START(kyber_nttunpack_avx)
+kyber_nttunpack128_avx
+add		$256,%rdi
+kyber_nttunpack128_avx
+RET
+SYM_FUNC_END(kyber_nttunpack_avx)
 
-.global kyber_nttfrombytes_avx
-kyber_nttfrombytes_avx:
+SYM_FUNC_START(kyber_ntttobytes_avx)
+#consts
+vmovdqa		_16XQ*2(%rdx),%ymm0
+kyber_ntttobytes128_avx
+add		$256,%rsi
+add		$192,%rdi
+kyber_ntttobytes128_avx
+RET
+SYM_FUNC_END(kyber_ntttobytes_avx)
+
+SYM_FUNC_START(kyber_nttfrombytes_avx)
 #consts
 vmovdqa		_16XMASK*2(%rdx),%ymm0
-call		kyber_nttfrombytes128_avx
+kyber_nttfrombytes128_avx
 add		$256,%rdi
 add		$192,%rsi
-call		kyber_nttfrombytes128_avx
-ret
+kyber_nttfrombytes128_avx
+RET
+SYM_FUNC_END(kyber_nttfrombytes_avx)

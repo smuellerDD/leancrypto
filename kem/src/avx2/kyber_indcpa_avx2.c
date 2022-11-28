@@ -193,11 +193,13 @@ static int gen_matrix(polyvec *a, const uint8_t seed[LC_KYBER_SYMBYTES],
 #undef BUFSIZE
 
 	for (i = 0; i < 4; i++) {
+		LC_FPU_ENABLE;
 		f = _mm256_loadu_si256((__m256i_u *)seed);
 		_mm256_store_si256(vec0, f);
 		_mm256_store_si256(vec1, f);
 		_mm256_store_si256(vec2, f);
 		_mm256_store_si256(vec3, f);
+		LC_FPU_DISABLE;
 
 		if (transposed) {
 			coeffs0[32] = i;

@@ -1,3 +1,4 @@
+#include "assembler_support.h"
 #include "kyber_consts_avx2.h"
 #include "kyber_shuffle_avx2.inc"
 #include "kyber_fq_avx2.inc"
@@ -181,8 +182,7 @@ vmovdqa		%ymm11,(64*\off+176)*2(%rdi)
 .endm
 
 .text
-.global kyber_invntt_avx
-kyber_invntt_avx:
+SYM_FUNC_START(kyber_invntt_avx)
 vmovdqa         _16XQ*2(%rsi),%ymm0
 
 intt_levels0t5	0
@@ -190,4 +190,5 @@ intt_levels0t5	1
 
 intt_level6	0
 intt_level6	1
-ret
+RET
+SYM_FUNC_END(kyber_invntt_avx)

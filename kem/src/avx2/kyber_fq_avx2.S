@@ -1,8 +1,8 @@
+#include "assembler_support.h"
 #include "kyber_consts_avx2.h"
 #include "kyber_fq_avx2.inc"
 
-.text
-reduce128_avx:
+.macro reduce128_avx
 #load
 vmovdqa		(%rdi),%ymm2
 vmovdqa		32(%rdi),%ymm3
@@ -31,20 +31,9 @@ vmovdqa		%ymm6,128(%rdi)
 vmovdqa		%ymm7,160(%rdi)
 vmovdqa		%ymm8,192(%rdi)
 vmovdqa		%ymm9,224(%rdi)
+.endm
 
-ret
-
-.global reduce_avx
-reduce_avx:
-#consts
-vmovdqa		_16XQ*2(%rsi),%ymm0
-vmovdqa		_16XV*2(%rsi),%ymm1
-call		reduce128_avx
-add		$256,%rdi
-call		reduce128_avx
-ret
-
-tomont128_avx:
+.macro tomont128_avx
 #load
 vmovdqa		(%rdi),%ymm3
 vmovdqa		32(%rdi),%ymm4
@@ -73,16 +62,26 @@ vmovdqa		%ymm7,128(%rdi)
 vmovdqa		%ymm8,160(%rdi)
 vmovdqa		%ymm9,192(%rdi)
 vmovdqa		%ymm10,224(%rdi)
+.endm
 
-ret
+.text
+SYM_FUNC_START(reduce_avx)
+#consts
+vmovdqa		_16XQ*2(%rsi),%ymm0
+vmovdqa		_16XV*2(%rsi),%ymm1
+reduce128_avx
+add		$256,%rdi
+reduce128_avx
+RET
+SYM_FUNC_END(reduce_avx)
 
-.global tomont_avx
-tomont_avx:
+SYM_FUNC_START(tomont_avx)
 #consts
 vmovdqa		_16XQ*2(%rsi),%ymm0
 vmovdqa		_16XMONTSQLO*2(%rsi),%ymm1
 vmovdqa		_16XMONTSQHI*2(%rsi),%ymm2
-call		tomont128_avx
+tomont128_avx
 add		$256,%rdi
-call		tomont128_avx
-ret
+tomont128_avx
+RET
+SYM_FUNC_END(tomont_avx)

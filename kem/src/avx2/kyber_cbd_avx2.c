@@ -24,8 +24,8 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
-#include <stdint.h>
-#include <immintrin.h>
+#include "ext_headers.h"
+#include "ext_headers_x86.h"
 
 #include "kyber_poly_avx2.h"
 #include "lc_kyber.h"
@@ -44,10 +44,16 @@ void cbd2(poly * restrict r, const __m256i buf[2 * LC_KYBER_N / 128])
 {
 	unsigned int i;
 	__m256i f0, f1, f2, f3;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
+	/* Due to const, the variables cannot be defined before */
+	LC_FPU_ENABLE;
 	const __m256i mask55 = _mm256_set1_epi32(0x55555555);
 	const __m256i mask33 = _mm256_set1_epi32(0x33333333);
 	const __m256i mask03 = _mm256_set1_epi32(0x03030303);
 	const __m256i mask0F = _mm256_set1_epi32(0x0F0F0F0F);
+#pragma GCC diagnostic pop
 
 	for (i = 0; i < LC_KYBER_N / 64; i++) {
 		f0 = _mm256_load_si256(&buf[i]);
@@ -82,4 +88,6 @@ void cbd2(poly * restrict r, const __m256i buf[2 * LC_KYBER_N / 128])
 		_mm256_store_si256(&r->vec[4*i+2], f1);
 		_mm256_store_si256(&r->vec[4*i+3], f3);
 	}
+
+	LC_FPU_DISABLE;
 }

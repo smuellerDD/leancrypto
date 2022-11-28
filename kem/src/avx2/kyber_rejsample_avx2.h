@@ -27,8 +27,6 @@
 #ifndef KYBER_REJSAMPLE_AVX2_H
 #define KYBER_REJSAMPLE_AVX2_H
 
-#include <stdint.h>
-
 #include "lc_kyber.h"
 #include "lc_sha3.h"
 

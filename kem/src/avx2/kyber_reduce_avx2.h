@@ -27,8 +27,8 @@
 #ifndef KYBER_REDUCE_AVX2_H
 #define KYBER_REDUCE_AVX2_H
 
+#include "ext_headers_x86.h"
 #include "lc_kyber.h"
-#include <immintrin.h>
 
 #ifdef __cplusplus
 extern "C"
