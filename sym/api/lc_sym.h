@@ -47,11 +47,6 @@ struct lc_sym_ctx {
 	struct lc_sym_state *sym_state;
 };
 
-#define LC_SYM_STATE_SIZE(x)	((unsigned long)(x->statesize))
-
-#define LC_SYM_CTX_SIZE(x)	(sizeof(struct lc_sym_ctx) +		       \
-				 LC_SYM_STATE_SIZE(x))
-
 /*
  * Align the lc_sym_state structure to 8 bytes boundary irrespective where
  * it is embedded into. This is achieved by adding 7 more bytes than necessary
@@ -74,6 +69,16 @@ struct lc_sym_ctx {
 #define LC_ALIGN_PTR_8(p, a)	((uint8_t *)LC_ALIGN((unsigned long)(p), (a)))
 #define LC_ALIGN_SYM_MASK(p, symname)					       \
 	LC_ALIGN_PTR_64(p, LC_SYM_ALIGNMASK(symname))
+
+#define LC_SYM_STATE_SIZE_NONALIGNED(x)					       \
+				((unsigned long)(x->statesize))
+#define LC_SYM_STATE_SIZE(x)	(LC_SYM_STATE_SIZE_NONALIGNED(x) +	       \
+				 LC_SYM_ALIGNMENT_COMMON)
+#define LC_SYM_CTX_SIZE_NONALIGNED(x)					       \
+				(sizeof(struct lc_sym_ctx) +		       \
+				 LC_SYM_STATE_SIZE_NONALIGNED(x))
+#define LC_SYM_CTX_SIZE(x)	(sizeof(struct lc_sym_ctx) +		       \
+				 LC_SYM_STATE_SIZE(x))
 
 /**
  * Get aligned buffer with additional spare size of LC_SYM_ALIGNMASK to
@@ -232,7 +237,7 @@ void lc_sym_zero_free(struct lc_sym_ctx *ctx);
 	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
 	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 	LC_ALIGNED_SYM_BUFFER(name ## _ctx_buf, symname,		       \
-			      LC_SYM_CTX_SIZE(symname));		       \
+			      LC_SYM_CTX_SIZE_NONALIGNED(symname));	       \
 	struct lc_sym_ctx *name = (struct lc_sym_ctx *) name ## _ctx_buf;      \
 	LC_SYM_SET_CTX(name, symname);					       \
 	lc_sym_zero(name);						       \

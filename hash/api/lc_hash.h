@@ -43,15 +43,24 @@ struct lc_hash_ctx {
 	void *hash_state;
 };
 
-#define LC_HASH_CTX(name, cb)						       \
-	name->hash = cb;						       \
-	name->hash_state = (uint8_t *)name + sizeof(struct lc_hash_ctx)
-
 /* All algorithm implementations will be able to manage this alignment */
 #define LC_HASH_COMMON_ALIGNMENT	(sizeof(uint64_t))
 #define LC_ALIGNED_BUFFER(name, size, alignment)			       \
 	uint64_t name[(size + sizeof(uint64_t) - 1) / sizeof(uint64_t)]	       \
 					__attribute__(( aligned(alignment) ))
+
+//TODO: code duplication with lc_sym.h which should be merged
+#define LC_ALIGNMENT_MASK(alignment)	(alignment - 1)
+#define LC_ALIGN_APPLY(x, mask)	(((x) + (mask)) & ~(mask))
+#define LC_ALIGN(x, a)		LC_ALIGN_APPLY((x), (unsigned long)(a))
+#define LC_ALIGN_PTR_64(p, a)	((uint64_t *)LC_ALIGN((unsigned long)(p), (a)))
+#define LC_ALIGN_HASH_MASK(p)						       \
+	LC_ALIGN_PTR_64(p, LC_ALIGNMENT_MASK(LC_HASH_COMMON_ALIGNMENT))
+
+#define LC_HASH_CTX(name, cb)						       \
+	name->hash = cb;						       \
+	name->hash_state = LC_ALIGN_HASH_MASK(((uint8_t *)(name)) +	       \
+					      (sizeof(struct lc_hash_ctx)))
 
 #define LC_SHA_MAX_SIZE_DIGEST	64
 
@@ -72,12 +81,18 @@ struct lc_hash_ctx {
  * LC_HASH_CTX_ON_STACK()
  * #pragma pop
  */
-#define LC_HASH_STATE_SIZE(x)	((unsigned long)(x->statesize))
+#define LC_HASH_STATE_SIZE_NONALIGNED(x)				       \
+				((unsigned long)(x->statesize))
+#define LC_HASH_STATE_SIZE(x)	(LC_HASH_STATE_SIZE_NONALIGNED(x) +	       \
+				 LC_HASH_COMMON_ALIGNMENT)
+#define LC_HASH_CTX_SIZE_NONALIGNED(x)					       \
+				(sizeof(struct lc_hash_ctx) +		       \
+				 LC_HASH_STATE_SIZE_NONALIGNED(x))
 #define LC_HASH_CTX_SIZE(x)	(sizeof(struct lc_hash_ctx) +		       \
 				 LC_HASH_STATE_SIZE(x))
 
 #define _LC_HASH_SET_CTX(name, hashname, ctx, offset)			       \
-	name->hash_state = (uint8_t *)ctx + offset;			       \
+	name->hash_state = LC_ALIGN_HASH_MASK(((uint8_t *)(ctx)) + (offset));  \
         name->hash = hashname
 
 #define LC_HASH_SET_CTX(name, hashname)					       \
@@ -246,7 +261,8 @@ static inline void lc_hash_zero(struct lc_hash_ctx *hash_ctx)
 	_Pragma("GCC diagnostic push")					       \
 	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
 	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_HASH_CTX_SIZE(hashname),        \
+	LC_ALIGNED_BUFFER(name ## _ctx_buf,				       \
+			  LC_HASH_CTX_SIZE_NONALIGNED(hashname),	       \
 			  LC_HASH_COMMON_ALIGNMENT);			       \
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *) name ## _ctx_buf;    \
 	LC_HASH_SET_CTX(name, hashname);				       \
