@@ -446,26 +446,26 @@ void poly_challenge_avx(poly * restrict c,
 {
 	unsigned int i, b, pos;
 	uint64_t signs;
-	BUF_ALIGNED_UINT8_M256I(LC_SHAKE_256_SIZE_BLOCK) buf;
+	uint8_t buf[LC_SHAKE_256_SIZE_BLOCK] __align(LC_HASH_COMMON_ALIGNMENT);
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
 
 	lc_hash_init(hash_ctx);
 	lc_hash_update(hash_ctx, seed, LC_DILITHIUM_SEEDBYTES);
 	lc_hash_set_digestsize(hash_ctx, sizeof(buf));
-	lc_hash_final(hash_ctx, buf.coeffs);
+	lc_hash_final(hash_ctx, buf);
 
-	memcpy(&signs, buf.coeffs, 8);
+	memcpy(&signs, buf, 8);
 	pos = 8;
 
 	memset(c->vec, 0, sizeof(poly));
 	for (i = LC_DILITHIUM_N - LC_DILITHIUM_TAU; i < LC_DILITHIUM_N; ++i) {
 		do {
 			if (pos >= LC_SHAKE_256_SIZE_BLOCK) {
-				lc_hash_final(hash_ctx, buf.coeffs);
+				lc_hash_final(hash_ctx, buf);
 				pos = 0;
 			}
 
-			b = buf.coeffs[pos++];
+			b = buf[pos++];
 		} while(b > i);
 
 		c->coeffs[i] = c->coeffs[b];
@@ -474,7 +474,7 @@ void poly_challenge_avx(poly * restrict c,
 	}
 
 	lc_hash_zero(hash_ctx);
-	memset_secure(buf.coeffs, 0, sizeof(buf));
+	memset_secure(buf, 0, sizeof(buf));
 }
 
 /**

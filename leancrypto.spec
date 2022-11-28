@@ -64,7 +64,7 @@ used for development.
 %kernel_module_package
 
 %package -n lib%{name}0-kernel
-Summary:	Cryptographic library with stack-only support and PQC-safe algorithms Kernel Module Package
+Summary:	Cryptographic library with PQC-safe algorithms Kernel Module Package
 
 %description -n lib%{name}0-kernel
 Leancrypto provides a general-purpose cryptographic library with PQC-safe

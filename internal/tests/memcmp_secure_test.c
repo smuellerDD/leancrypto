@@ -35,7 +35,7 @@ static int memcmp_secure_tester(void)
 	time_t now = time(NULL);
 	unsigned int i;
 	int ret = 1;
-	unsigned short rnd = 0, add;
+	unsigned short rnd = 0, add = 0;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	if (lc_rng_seed(drbg, (uint8_t *)&now, sizeof(now), NULL, 0))
