@@ -259,7 +259,7 @@ int _dilithium_tester(
 			goto out;
 		}
 
-		printf("Sucessful validation of test vector %u\n", i);
+		//printf("Sucessful validation of test vector %u\n", i);
 
 #ifdef SHOW_SHAKEd_KEY
 		printf("count = %u\n", i);

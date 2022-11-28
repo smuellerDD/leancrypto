@@ -37,7 +37,6 @@ int dilithium_tester_common(void)
 {
 	int ret = 0;
 
-	printf("Dilithium Common\n");
 	ret += _dilithium_tester_common(0);
 
 	return ret;

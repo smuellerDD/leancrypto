@@ -43,7 +43,6 @@ int dilithium_tester_avx2(void)
 {
 	int ret = 0;
 
-	printf("Dilithium AVX2\n");
 	ret += _dilithium_tester_avx2(0);
 
 	return ret;

@@ -42,7 +42,6 @@ int kyber_kem_tester_avx2(void)
 {
 	int ret = 0;
 
-	printf("Kyber KEM AVX2\n");
 	ret += _kyber_kem_tester_avx2(0);
 
 	return ret;

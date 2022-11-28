@@ -39,7 +39,6 @@ int kyber_kem_tester_c(void)
 {
 	int ret = 0;
 
-	printf("Kyber KEM C\n");
 	ret += _kyber_kem_tester_c(0);
 
 	return ret;

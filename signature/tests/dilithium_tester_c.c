@@ -39,7 +39,6 @@ int dilithium_tester_c(void)
 {
 	int ret = 0;
 
-	printf("Dilithium C\n");
 	ret += _dilithium_tester_c(0);
 
 	return ret;
