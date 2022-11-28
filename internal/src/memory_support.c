@@ -17,27 +17,32 @@
  * DAMAGE.
  */
 
-#ifndef POSIX_SUPPORT_H
-#define POSIX_SUPPORT_H
+#include "memory_support.h"
 
-#ifdef __cplusplus
-extern "C"
+int lc_alloc_aligned(void **memptr, size_t alignment, size_t size)
 {
-#endif
+	int ret = posix_memalign(memptr, alignment, size);
 
-static inline int mlock(const void *ptr, size_t len)
-{
-	(void)ptr;
-	(void)len;
+	if (ret)
+		return ret;
+
 	return 0;
 }
 
-extern const int errno;
-
-#define printf printk
-
-#ifdef __cplusplus
+int lc_alloc_high_aligned(void **memptr, size_t alignment, size_t size)
+{
+	return lc_alloc_aligned(memptr, alignment, size);
 }
-#endif
 
-#endif /* POSIX_SUPPORT_H */
+void lc_free(void *ptr)
+{
+	if (!ptr)
+		return;
+	free(ptr);
+}
+
+void lc_free_high_aligned(void *ptr, size_t size)
+{
+	(void)size;
+	lc_free(ptr);
+}

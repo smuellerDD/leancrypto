@@ -3,6 +3,7 @@ internal_src = files([
 	'binhexbin.c',
 	'left_encode.c',
 	'memcmp_secure.c',
+	'memory_support.c',
 	'null_buffer.c',
 	'status.c'
 ])

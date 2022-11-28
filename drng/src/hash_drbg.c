@@ -19,8 +19,8 @@
  */
 
 #include "bitshift_be.h"
-#include "ext_headers.h"
 #include "lc_hash_drbg.h"
+#include "memory_support.h"
 #include "visibility.h"
 
 /***************************************************************
@@ -345,8 +345,8 @@ int, lc_drbg_hash_alloc, struct lc_rng_ctx **drbg)
 	if (!drbg)
 		return -EINVAL;
 
-	ret = posix_memalign((void *)&out_state, LC_HASH_COMMON_ALIGNMENT,
-			     LC_DRBG_HASH_CTX_SIZE);
+	ret = lc_alloc_aligned((void *)&out_state, LC_HASH_COMMON_ALIGNMENT,
+			       LC_DRBG_HASH_CTX_SIZE);
 	if (ret)
 		return -ret;
 
@@ -355,7 +355,7 @@ int, lc_drbg_hash_alloc, struct lc_rng_ctx **drbg)
 	if (ret && errno != EPERM && errno != EAGAIN) {
 		int errsv = errno;
 
-		free(out_state);
+		lc_free(out_state);
 		return -errsv;
 	}
 

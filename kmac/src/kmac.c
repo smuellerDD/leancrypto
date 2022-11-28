@@ -18,10 +18,10 @@
  * DAMAGE.
  */
 
-#include "ext_headers.h"
 #include "lc_cshake.h"
 #include "lc_kmac.h"
 #include "left_encode.h"
+#include "memory_support.h"
 #include "visibility.h"
 
 static unsigned int right_encode(uint8_t *buf, size_t val)
@@ -172,8 +172,8 @@ int, lc_kmac_alloc, const struct lc_hash *hash, struct lc_kmac_ctx **kmac_ctx,
 	memsize = (flags & LC_KMAC_FLAGS_SUPPORT_REINIT) ?
 		  LC_KMAC_CTX_SIZE_REINIT(hash) :
 		  LC_KMAC_CTX_SIZE(hash);
-	ret = posix_memalign((void *)&out_ctx, LC_HASH_COMMON_ALIGNMENT,
-			     memsize);
+	ret = lc_alloc_aligned((void *)&out_ctx, LC_HASH_COMMON_ALIGNMENT,
+			       memsize);
 
 	if (ret)
 		return -ret;
@@ -196,7 +196,7 @@ void, lc_kmac_zero_free, struct lc_kmac_ctx *kmac_ctx)
 		return;
 
 	lc_kmac_zero(kmac_ctx);
-	free(kmac_ctx);
+	lc_free(kmac_ctx);
 }
 
 static int lc_kmac_rng_seed(void *_state,
@@ -253,8 +253,8 @@ int, lc_kmac_rng_alloc, struct lc_rng_ctx **state, const struct lc_hash *hash)
 	if (!state)
 		return -EINVAL;
 
-	ret = posix_memalign((void *)&out_state, LC_HASH_COMMON_ALIGNMENT,
-			     LC_KMAC_KDF_DRNG_CTX_SIZE(hash));
+	ret = lc_alloc_aligned((void *)&out_state, LC_HASH_COMMON_ALIGNMENT,
+			       LC_KMAC_KDF_DRNG_CTX_SIZE(hash));
 	if (ret)
 		return -ret;
 
@@ -263,7 +263,7 @@ int, lc_kmac_rng_alloc, struct lc_rng_ctx **state, const struct lc_hash *hash)
 	if (ret && errno != EPERM && errno != EAGAIN) {
 		int errsv = errno;
 
-		free(out_state);
+		lc_free(out_state);
 		return -errsv;
 	}
 

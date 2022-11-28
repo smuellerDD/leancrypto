@@ -5,8 +5,8 @@
  * Copyright (C) 2022, Stephan Mueller <smueller@chronox.de>
  */
 
-#include "ext_headers.h"
 #include "lc_hash.h"
+#include "memory_support.h"
 #include "visibility.h"
 
 LC_INTERFACE_FUNCTION(
@@ -18,8 +18,8 @@ int, lc_hash_alloc, const struct lc_hash *hash, struct lc_hash_ctx **hash_ctx)
 	if (!hash_ctx)
 		return -EINVAL;
 
-	ret = posix_memalign((void *)&out_ctx, LC_HASH_COMMON_ALIGNMENT,
-			     LC_HASH_CTX_SIZE(hash));
+	ret = lc_alloc_aligned((void *)&out_ctx, LC_HASH_COMMON_ALIGNMENT,
+			       LC_HASH_CTX_SIZE(hash));
 	if (ret)
 		return -ret;
 
@@ -37,5 +37,5 @@ void, lc_hash_zero_free, struct lc_hash_ctx *hash_ctx)
 		return;
 
 	lc_hash_zero(hash_ctx);
-	free(hash_ctx);
+	lc_free(hash_ctx);
 }

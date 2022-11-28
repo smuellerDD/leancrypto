@@ -48,7 +48,7 @@ struct lc_hash_ctx {
 	name->hash_state = (uint8_t *)name + sizeof(struct lc_hash_ctx)
 
 /* All algorithm implementations will be able to manage this alignment */
-#define LC_HASH_COMMON_ALIGNMENT	32
+#define LC_HASH_COMMON_ALIGNMENT	(sizeof(uint64_t))
 #define LC_ALIGNED_BUFFER(name, size, alignment)			       \
 	uint64_t name[(size + sizeof(uint64_t) - 1) / sizeof(uint64_t)]	       \
 					__attribute__(( aligned(alignment) ))

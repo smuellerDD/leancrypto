@@ -18,11 +18,11 @@
  */
 
 #include "conv_be_le.h"
-#include "ext_headers.h"
 #include "lc_chacha20.h"
 #include "lc_chacha20_drng.h"
 #include "lc_chacha20_private.h"
 #include "math_helper.h"
+#include "memory_support.h"
 #include "visibility.h"
 
 /**
@@ -168,7 +168,7 @@ void, lc_cc20_drng_zero_free, struct lc_chacha20_drng_ctx *cc20_ctx)
 		return;
 
 	lc_cc20_drng_zero(cc20_ctx);
-	free(cc20_ctx);
+	lc_free(cc20_ctx);
 }
 
 LC_INTERFACE_FUNCTION(
@@ -180,8 +180,8 @@ int, lc_cc20_drng_alloc, struct lc_chacha20_drng_ctx **cc20_ctx)
 	if (!cc20_ctx)
 		return -EINVAL;
 
-	ret = posix_memalign((void *)&out_ctx, LC_SYM_ALIGNMENT(lc_chacha20),
-			     LC_CC20_DRNG_CTX_SIZE);
+	ret = lc_alloc_aligned((void *)&out_ctx, LC_SYM_ALIGNMENT(lc_chacha20),
+			       LC_CC20_DRNG_CTX_SIZE);
 	if (ret)
 		return -ret;
 
@@ -190,7 +190,7 @@ int, lc_cc20_drng_alloc, struct lc_chacha20_drng_ctx **cc20_ctx)
 	if (ret && errno != EPERM && errno != EAGAIN) {
 		int errsv = errno;
 
-		free(out_ctx);
+		lc_free(out_ctx);
 		return -errsv;
 	}
 

@@ -19,11 +19,11 @@
  */
 
 #include "build_bug_on.h"
-#include "ext_headers.h"
 #include "lc_hkdf.h"
 #include "lc_rng.h"
 #include "math_helper.h"
 #include "memset_secure.h"
+#include "memory_support.h"
 #include "null_buffer.h"
 #include "visibility.h"
 
@@ -139,8 +139,8 @@ int, lc_hkdf_alloc, const struct lc_hash *hash, struct lc_hkdf_ctx **hkdf_ctx)
 	if (!hkdf_ctx)
 		return -EINVAL;
 
-	ret = posix_memalign((void *)&out_state, LC_HASH_COMMON_ALIGNMENT,
-			     LC_HKDF_CTX_SIZE(hash));
+	ret = lc_alloc_aligned((void *)&out_state, LC_HASH_COMMON_ALIGNMENT,
+			       LC_HKDF_CTX_SIZE(hash));
 	if (ret)
 		return -ret;
 
@@ -160,7 +160,7 @@ void, lc_hkdf_zero_free, struct lc_hkdf_ctx *hkdf_ctx)
 		return;
 
 	lc_hkdf_zero(hkdf_ctx);
-	free(hkdf_ctx);
+	lc_free(hkdf_ctx);
 }
 
 static int lc_hkdf_rng_seed(void *_state,
@@ -234,8 +234,8 @@ int, lc_hkdf_rng_alloc, struct lc_rng_ctx **state, const struct lc_hash *hash)
 	if (!state)
 		return -EINVAL;
 
-	ret = posix_memalign((void *)&out_state, LC_HASH_COMMON_ALIGNMENT,
-			     LC_HKDF_DRNG_CTX_SIZE(hash));
+	ret = lc_alloc_aligned((void *)&out_state, LC_HASH_COMMON_ALIGNMENT,
+			       LC_HKDF_DRNG_CTX_SIZE(hash));
 	if (ret)
 		return -ret;
 
@@ -244,7 +244,7 @@ int, lc_hkdf_rng_alloc, struct lc_rng_ctx **state, const struct lc_hash *hash)
 	if (ret && errno != EPERM && errno != EAGAIN) {
 		int errsv = errno;
 
-		free(out_state);
+		lc_free(out_state);
 		return -errsv;
 	}
 

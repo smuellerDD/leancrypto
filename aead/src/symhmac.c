@@ -239,12 +239,12 @@
  ******************************************************************************/
 
 #include "alignment.h"
-#include "ext_headers.h"
 #include "lc_hkdf.h"
 #include "lc_symhmac.h"
 #include "lc_sha512.h"
 #include "math_helper.h"
 #include "memcmp_secure.h"
+#include "memory_support.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 
@@ -441,8 +441,8 @@ int, lc_sh_alloc, const struct lc_sym *sym, const struct lc_hash *hash,
 	struct lc_aead_ctx *tmp = NULL;
 	int ret;
 
-	ret = posix_memalign((void *)&tmp, LC_HASH_COMMON_ALIGNMENT,
-			     LC_SH_CTX_SIZE(sym, hash));
+	ret = lc_alloc_aligned((void *)&tmp, LC_HASH_COMMON_ALIGNMENT,
+			       LC_SH_CTX_SIZE(sym, hash));
 	if (ret)
 		return -ret;
 

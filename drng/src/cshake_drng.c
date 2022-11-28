@@ -265,10 +265,10 @@
  ******************************************************************************/
 
 #include "build_bug_on.h"
-#include "ext_headers.h"
 #include "lc_cshake256_drng.h"
 #include "math_helper.h"
 #include "memcmp_secure.h"
+#include "memory_support.h"
 #include "visibility.h"
 
 #define LC_CSHAKE_DRNG_SEED_CUSTOMIZATION_STRING	"cSHAKE-DRNG seed"
@@ -424,8 +424,8 @@ int, lc_cshake256_drng_alloc, struct lc_rng_ctx **state)
 	if (!state)
 		return -EINVAL;
 
-	ret = posix_memalign((void *)&out_state, LC_HASH_COMMON_ALIGNMENT,
-			     LC_CSHAKE256_DRNG_CTX_SIZE);
+	ret = lc_alloc_aligned((void *)&out_state, LC_HASH_COMMON_ALIGNMENT,
+			       LC_CSHAKE256_DRNG_CTX_SIZE);
 	if (ret)
 		return -ret;
 
@@ -434,7 +434,7 @@ int, lc_cshake256_drng_alloc, struct lc_rng_ctx **state)
 	if (ret && errno != EPERM && errno != EAGAIN) {
 		int errsv = errno;
 
-		free(out_state);
+		lc_free(out_state);
 		return -errsv;
 	}
 

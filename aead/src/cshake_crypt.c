@@ -304,10 +304,10 @@
 
 #include "alignment.h"
 #include "build_bug_on.h"
-#include "ext_headers.h"
 #include "lc_cshake_crypt.h"
 #include "math_helper.h"
 #include "memcmp_secure.h"
+#include "memory_support.h"
 #include "visibility.h"
 #include "xor.h"
 
@@ -433,8 +433,8 @@ static int lc_cc_decrypt_authenticate(void *state,
 	int ret;
 
 	if (taglen > sizeof(calctag)) {
-		ret = posix_memalign((void *)&calctag_p,
-				     LC_HASH_COMMON_ALIGNMENT, taglen);
+		ret = lc_alloc_aligned((void *)&calctag_p,
+				       LC_HASH_COMMON_ALIGNMENT, taglen);
 		if (ret)
 			return -ret;
 	}
@@ -448,7 +448,7 @@ static int lc_cc_decrypt_authenticate(void *state,
 	ret = (memcmp_secure(calctag_p, taglen, tag, taglen) ? -EBADMSG : 0);
 	memset_secure(calctag_p, 0, taglen);
 	if (taglen > sizeof(calctag))
-		free(calctag_p);
+		lc_free(calctag_p);
 
 	return ret;
 }
@@ -534,8 +534,8 @@ int, lc_cc_alloc, const struct lc_hash *hash, struct lc_aead_ctx **ctx)
 	struct lc_aead_ctx *tmp = NULL;
 	int ret;
 
-	ret = posix_memalign((void *)&tmp, LC_HASH_COMMON_ALIGNMENT,
-			     LC_CC_CTX_SIZE(hash));
+	ret = lc_alloc_aligned((void *)&tmp, LC_HASH_COMMON_ALIGNMENT,
+			        LC_CC_CTX_SIZE(hash));
 	if (ret)
 		return -ret;
 

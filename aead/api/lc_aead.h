@@ -20,7 +20,7 @@
 #ifndef LC_AEAD_H
 #define LC_AEAD_H
 
-#include "ext_headers.h"
+#include "memory_support.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -111,7 +111,7 @@ static inline void lc_aead_zero_free(struct lc_aead_ctx *ctx)
 		return;
 
 	lc_aead_zero(ctx);
-	free(ctx);
+	lc_free(ctx);
 }
 
 /**

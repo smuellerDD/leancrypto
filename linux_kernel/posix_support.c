@@ -17,11 +17,16 @@
  * DAMAGE.
  */
 
+#include <linux/slab.h>
+#include <linux/mm.h>
+
+#include "memory_support.h"
+#include "memset_secure.h"
 #include "posix_support.h"
 
 const int errno = 0;
 
-int posix_memalign(void **memptr, size_t alignment, size_t size)
+int lc_alloc_aligned(void **memptr, size_t alignment, size_t size)
 {
 	void *mem = kmalloc(size, GFP_KERNEL);
 
@@ -30,18 +35,31 @@ int posix_memalign(void **memptr, size_t alignment, size_t size)
 		return -ENOMEM;
 
 	*memptr = mem;
-	return 0;
-#if 0
-	void *aligned, *nonaligned = kmalloc(size + alignment, GFP_KERNEL);
-
-	if (!nonaligned)
-		return -ENOMEM;
-
-	aligned = PTR_ALIGN(nonaligned, alignment + 1);
-
-	*memptr = aligned;
-
-	return 0;
-#endif
+	return -0;
 }
-EXPORT_SYMBOL(posix_memalign);
+EXPORT_SYMBOL(lc_alloc_aligned);
+
+void lc_free(void *ptr)
+{
+	kfree(ptr);
+}
+EXPORT_SYMBOL(lc_free);
+
+int lc_alloc_high_aligned(void **memptr, size_t alignment, size_t size)
+{
+	struct page *pages = alloc_pages(GFP_KERNEL,
+					 get_order((unsigned long)size));
+
+	if (!pages)
+                return -ENOMEM;
+
+	*memptr = page_address(pages);
+	return 0;
+}
+EXPORT_SYMBOL(lc_alloc_high_aligned);
+
+void lc_free_high_aligned(void *ptr, size_t size)
+{
+	__free_pages(virt_to_page(ptr), get_order((unsigned long)size));
+}
+EXPORT_SYMBOL(lc_free_high_aligned);

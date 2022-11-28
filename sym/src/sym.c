@@ -17,7 +17,7 @@
  * DAMAGE.
  */
 
-#include "ext_headers.h"
+#include "memory_support.h"
 #include "lc_sym.h"
 #include "visibility.h"
 
@@ -30,8 +30,8 @@ int, lc_sym_alloc, const struct lc_sym *sym, struct lc_sym_ctx **ctx)
 	if (!ctx)
 		return -EINVAL;
 
-	ret = posix_memalign((void *)&out_ctx, LC_SYM_ALIGNMENT_COMMON,
-			     LC_SYM_CTX_SIZE(sym));
+	ret = lc_alloc_aligned((void *)&out_ctx, LC_SYM_ALIGNMENT_COMMON,
+			       LC_SYM_CTX_SIZE(sym));
 
 	if (ret)
 		return -ret;
@@ -50,5 +50,5 @@ void, lc_sym_zero_free, struct lc_sym_ctx *ctx)
 		return;
 
 	lc_sym_zero(ctx);
-	free(ctx);
+	lc_free(ctx);
 }

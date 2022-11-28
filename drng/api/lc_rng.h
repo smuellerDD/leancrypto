@@ -20,7 +20,7 @@
 #ifndef LC_RNG_H
 #define LC_RNG_H
 
-#include "ext_headers.h"
+#include "memory_support.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -101,7 +101,7 @@ static inline void lc_rng_zero_free(struct lc_rng_ctx *ctx)
 		return;
 
 	lc_rng_zero(ctx);
-	free(ctx);
+	lc_free(ctx);
 }
 
 /**

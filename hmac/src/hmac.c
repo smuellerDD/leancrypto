@@ -18,8 +18,8 @@
  * DAMAGE.
  */
 
-#include "ext_headers.h"
 #include "lc_hmac.h"
+#include "memory_support.h"
 #include "visibility.h"
 
 #define IPAD	0x36
@@ -100,8 +100,8 @@ LC_INTERFACE_FUNCTION(
 int, lc_hmac_alloc, const struct lc_hash *hash, struct lc_hmac_ctx **hmac_ctx)
 {
 	struct lc_hmac_ctx *out_ctx = NULL;
-	int ret = posix_memalign((void *)&out_ctx, LC_HASH_COMMON_ALIGNMENT,
-				 LC_HMAC_CTX_SIZE(hash));
+	int ret = lc_alloc_aligned((void *)&out_ctx, LC_HASH_COMMON_ALIGNMENT,
+				   LC_HMAC_CTX_SIZE(hash));
 
 	if (ret)
 		return -ret;
@@ -120,5 +120,5 @@ void, lc_hmac_zero_free, struct lc_hmac_ctx *hmac_ctx)
 		return;
 
 	lc_hmac_zero(hmac_ctx);
-	free(hmac_ctx);
+	lc_free(hmac_ctx);
 }

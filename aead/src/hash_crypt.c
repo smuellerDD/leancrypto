@@ -20,10 +20,10 @@
 
 #include "alignment.h"
 #include "build_bug_on.h"
-#include "ext_headers.h"
 #include "lc_hash_crypt.h"
 #include "math_helper.h"
 #include "memcmp_secure.h"
+#include "memory_support.h"
 #include "visibility.h"
 #include "xor.h"
 
@@ -258,8 +258,8 @@ LC_INTERFACE_FUNCTION(
 int, lc_hc_alloc, const struct lc_hash *hash, struct lc_aead_ctx **ctx)
 {
 	struct lc_aead_ctx *tmp = NULL;
-	int ret = posix_memalign((void *)&tmp, LC_HASH_COMMON_ALIGNMENT,
-				 LC_HC_CTX_SIZE(hash));
+	int ret = lc_alloc_aligned((void *)&tmp, LC_HASH_COMMON_ALIGNMENT,
+				   LC_HC_CTX_SIZE(hash));
 
 	if (ret)
 		return -ret;
