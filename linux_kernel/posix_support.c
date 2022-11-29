@@ -21,7 +21,6 @@
 #include <linux/mm.h>
 
 #include "memory_support.h"
-#include "memset_secure.h"
 #include "posix_support.h"
 
 const int errno = 0;
