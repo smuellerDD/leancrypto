@@ -23,12 +23,12 @@
 #include "testfunctions.h"
 #include "visibility.h"
 
-static inline void chacha20_bswap32(uint32_t *ptr, uint32_t words)
+static inline void chacha20_bswap32(uint32_t *ptr, uint32_t bytes)
 {
 	uint32_t i;
 
 	/* Byte-swap data which is an LE representation */
-	for (i = 0; i < words; i++) {
+	for (i = 0; i < (bytes / sizeof(uint32_t)); i++) {
 		*ptr = le_bswap32(*ptr);
 		ptr++;
         }
