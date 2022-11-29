@@ -28,8 +28,8 @@
 #ifndef DILITHIUM_POLYVEC_H
 #define DILITHIUM_POLYVEC_H
 
+#include "conv_be_le.h"
 #include "dilithium_poly.h"
-
 #include "lc_dilithium.h"
 
 #ifdef __cplusplus
@@ -81,7 +81,6 @@ polyvecl_pointwise_acc_montgomery(poly *w,
  * @param mat [out] output matrix
  * @param rho [in] byte array containing seed rho
  */
-#include "conv_be_le.h"
 static inline void
 polyvec_matrix_expand(polyvecl mat[LC_DILITHIUM_K],
 		      const uint8_t rho[LC_DILITHIUM_SEEDBYTES], void *ws_buf)
