@@ -55,7 +55,7 @@ void lc_free_high_aligned(void *ptr, size_t size);
 			return __ret
 
 #define __LC_RELEASE_MEM_HEAP(name)					       \
-	memset_secure(name, 0, sizeof(name));				       \
+	lc_memset_secure(name, 0, sizeof(name));			       \
 	lc_free_high_aligned(name, sizeof(name))
 
 /* Define macro LC_MEM_ON_HEAP if stack is less than 256KiB in size */
