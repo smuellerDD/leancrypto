@@ -56,7 +56,7 @@ int poly_chknorm(const poly *a, int32_t B)
 		t = a->coeffs[i] >> 31;
 		t = a->coeffs[i] - (t & 2*a->coeffs[i]);
 
-		if(t >= B)
+		if (t >= B)
 			return 1;
 	}
 

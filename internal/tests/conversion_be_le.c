@@ -55,11 +55,11 @@ static int compiler_test_le(void)
 
 static int sw_test_le(void)
 {
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 	uint16_t u16 = 1234;
 	uint32_t u32 = 1234567890;
 	uint64_t u64 = 1234567890123456789;
 
-#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 	if (_lc_swap16(u16) != be_bswap16(u16)) {
 		printf("FAIL: macro swap16 is not consistent with C (macro %d, C %d)\n", be_bswap16(u16), _lc_bswap16(u16));
 	}

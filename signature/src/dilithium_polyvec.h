@@ -81,6 +81,7 @@ polyvecl_pointwise_acc_montgomery(poly *w,
  * @param mat [out] output matrix
  * @param rho [in] byte array containing seed rho
  */
+#include "conv_be_le.h"
 static inline void
 polyvec_matrix_expand(polyvecl mat[LC_DILITHIUM_K],
 		      const uint8_t rho[LC_DILITHIUM_SEEDBYTES], void *ws_buf)
@@ -88,9 +89,9 @@ polyvec_matrix_expand(polyvecl mat[LC_DILITHIUM_K],
 	unsigned int i, j;
 
 	for (i = 0; i < LC_DILITHIUM_K; ++i)
-		for(j = 0; j < LC_DILITHIUM_L; ++j)
+		for (j = 0; j < LC_DILITHIUM_L; ++j)
 			poly_uniform(&mat[i].vec[j], rho,
-				     (uint16_t)((i << 8) + j), ws_buf);
+				     le_bswap16((i << 8) + j), ws_buf);
 }
 
 static inline void
@@ -118,7 +119,7 @@ polyvecl_uniform_eta(polyvecl *v,
 	unsigned int i;
 
 	for (i = 0; i < LC_DILITHIUM_L; ++i)
-		poly_uniform_eta(&v->vec[i], seed, nonce++, ws_buf);
+		poly_uniform_eta(&v->vec[i], seed, le_bswap16(nonce++), ws_buf);
 }
 
 static inline void
@@ -130,7 +131,7 @@ polyvecl_uniform_gamma1(polyvecl *v,
 
 	for (i = 0; i < LC_DILITHIUM_L; ++i)
 		poly_uniform_gamma1(&v->vec[i], seed,
-				    (uint16_t)(LC_DILITHIUM_L * nonce + i),
+				    le_bswap16(LC_DILITHIUM_L * nonce + i),
 				    ws_buf);
 }
 
@@ -209,7 +210,7 @@ static inline int polyvecl_chknorm(const polyvecl *v, int32_t bound)
 	unsigned int i;
 
 	for (i = 0; i < LC_DILITHIUM_L; ++i)
-		if(poly_chknorm(&v->vec[i], bound))
+		if (poly_chknorm(&v->vec[i], bound))
 			return 1;
 
 	return 0;
@@ -227,7 +228,7 @@ polyveck_uniform_eta(polyveck *v,
 	unsigned int i;
 
 	for (i = 0; i < LC_DILITHIUM_K; ++i)
-		poly_uniform_eta(&v->vec[i], seed, nonce++, ws_buf);
+		poly_uniform_eta(&v->vec[i], seed, le_bswap16(nonce++), ws_buf);
 }
 
 /**
