@@ -28,7 +28,7 @@ static inline void chacha20_bswap32(uint32_t *ptr, uint32_t bytes)
 	uint32_t i;
 
 	/* Byte-swap data which is an LE representation */
-	for (i = 0; i < (bytes / sizeof(uint32_t)); i++) {
+	for (i = 0; i < bytes; i++) {
 		*ptr = le_bswap32(*ptr);
 		ptr++;
         }
@@ -57,9 +57,6 @@ int chacha20_block_selftest(void)
 	};
 	LC_SYM_CTX_ON_STACK(chacha20, lc_chacha20);
 
-	chacha20_bswap32(key, sizeof(key));
-	chacha20_bswap32(iv, sizeof(iv));
-
 	/* Test vector according to RFC 7539 section 2.3.2 */
 	lc_sym_init(chacha20);
 	CKINT(lc_sym_setkey(chacha20, (uint8_t *)key, sizeof(key)));
@@ -74,7 +71,7 @@ int chacha20_block_selftest(void)
 	expected[12] = 0xd19c12b5; expected[13] = 0xb94e16de;
 	expected[14] = 0xe883d0cb; expected[15] = 0x4e3c50a2;
 
-	chacha20_bswap32(expected, sizeof(expected));
+	chacha20_bswap32(expected, sizeof(expected) / sizeof(uint32_t));
 
 	ret = chacha20_selftest_one(chacha20->sym_state, &expected[0]);
 

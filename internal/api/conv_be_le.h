@@ -29,10 +29,7 @@ extern "C"
 {
 #endif
 
-#define GCC_VERSION (__GNUC__ * 10000		\
-		     + __GNUC_MINOR__ * 100	\
-		     + __GNUC_PATCHLEVEL__)
-#if !defined(CONVERSION_TEST) && (GCC_VERSION >= 40400 || defined(__clang__))
+#if !defined(CONVERSION_TEST) && (defined(__gcc__) || defined(__clang__))
 # define __HAVE_BUILTIN_BSWAP16__
 # define __HAVE_BUILTIN_BSWAP32__
 # define __HAVE_BUILTIN_BSWAP64__
@@ -44,7 +41,7 @@ static inline uint16_t _lc_bswap16(uint16_t x)
 {
 	return ((rol16(x, 8) & 0x00ff) | (ror16(x, 8) & 0xff00));
 }
-# define _lc_swap16(x) _lc_bswap16(x)
+# define _lc_swap16(x) _lc_bswap16((uint16_t)(x))
 #else
 # define _lc_swap16(x) (uint16_t)__builtin_bswap16((uint16_t)(x))
 #endif
@@ -54,7 +51,7 @@ static inline uint32_t _lc_bswap32(uint32_t x)
 {
 	return ((rol32(x, 8) & 0x00ff00ffL) | (ror32(x, 8) & 0xff00ff00L));
 }
-# define _lc_swap32(x) _lc_bswap32(x)
+# define _lc_swap32(x) _lc_bswap32((uint32_t)(x))
 #else
 # define _lc_swap32(x) (uint32_t)__builtin_bswap32((uint32_t)(x))
 #endif
@@ -65,7 +62,7 @@ static inline uint64_t _lc_bswap64(uint64_t x)
 	return ((uint64_t)_lc_bswap32((uint32_t)x) << 32) |
 		(_lc_bswap32((uint32_t)(x >> 32)));
 }
-# define _lc_swap64(x) _lc_bswap64(x)
+# define _lc_swap64(x) _lc_bswap64((uint64_t)(x))
 #else
 # define _lc_swap64(x) (uint64_t)__builtin_bswap64((uint64_t)(x))
 #endif
