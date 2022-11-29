@@ -256,7 +256,7 @@ static int gen_matrix(polyvec *a, const uint8_t seed[LC_KYBER_SYMBYTES],
 		poly_nttunpack_avx(&a[i].vec[3]);
 	}
 
-	memset_secure(&state, 0, sizeof(state));
+	lc_memset_secure(&state, 0, sizeof(state));
 	return 0;
 }
 

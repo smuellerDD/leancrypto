@@ -29,6 +29,8 @@ Changes 0.5.0-prerelease:
 
 * leancrypto tested on macOS with an M2 system
 
+* enhancement: add RPM SPEC file - successful build on OpenSUSE build service on x86_64, i586, aarch64, armv7l, armv6l, s390x, ppc64, ppc64le, riscv64
+
 Changes 0.4.0:
 * simplify Kyber code
 

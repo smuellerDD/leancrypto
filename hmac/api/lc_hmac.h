@@ -22,7 +22,7 @@
 
 #include "lc_hash.h"
 #include "lc_sha3.h"
-#include "memset_secure.h"
+#include "lc_memset_secure.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -140,8 +140,8 @@ static inline void lc_hmac_zero(struct lc_hmac_ctx *hmac_ctx)
 	struct lc_hash_ctx *hash_ctx = &hmac_ctx->hash_ctx;
 	const struct lc_hash *hash = hash_ctx->hash;
 
-	memset_secure((uint8_t *)hmac_ctx + sizeof(struct lc_hmac_ctx), 0,
-		      LC_HMAC_STATE_SIZE(hash));
+	lc_memset_secure((uint8_t *)hmac_ctx + sizeof(struct lc_hmac_ctx), 0,
+			 LC_HMAC_STATE_SIZE(hash));
 }
 
 /**

@@ -22,7 +22,7 @@
 #include "ext_headers.h"
 #include "lc_hmac.h"
 #include "lc_kdf_dpi.h"
-#include "memset_secure.h"
+#include "lc_memset_secure.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 
@@ -72,7 +72,7 @@ int, lc_kdf_dpi_generate, struct lc_hmac_ctx *hmac_ctx,
 
 			lc_hmac_final(hmac_ctx, tmp);
 			memcpy(dst, tmp, dlen);
-			memset_secure(tmp, 0, sizeof(tmp));
+			lc_memset_secure(tmp, 0, sizeof(tmp));
 
 			goto out;
 		} else {
@@ -86,7 +86,7 @@ int, lc_kdf_dpi_generate, struct lc_hmac_ctx *hmac_ctx,
 	}
 
 out:
-	memset_secure(Ai, 0, h);
+	lc_memset_secure(Ai, 0, h);
 	return 0;
 }
 

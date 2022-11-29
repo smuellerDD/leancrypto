@@ -108,7 +108,7 @@ static int lc_seed_seeded_rng(struct lc_seeded_rng_ctx *rng, int init)
 	rng->last_seeded = time(NULL);
 
 out:
-	memset_secure(seed, 0, sizeof(seed));
+	lc_memset_secure(seed, 0, sizeof(seed));
 	return ret;
 }
 

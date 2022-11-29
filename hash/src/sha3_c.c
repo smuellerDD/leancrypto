@@ -22,7 +22,7 @@
 #include "conv_be_le.h"
 #include "ext_headers.h"
 #include "lc_sha3.h"
-#include "memset_secure.h"
+#include "lc_memset_secure.h"
 #include "sha3_c.h"
 #include "sha3_common.h"
 #include "visibility.h"

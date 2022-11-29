@@ -21,7 +21,7 @@
 #include "bitshift_be.h"
 #include "ext_headers.h"
 #include "lc_sha256.h"
-#include "memset_secure.h"
+#include "lc_memset_secure.h"
 #include "visibility.h"
 
 static const uint32_t sha256_K[] = {
@@ -185,7 +185,7 @@ static void sha256_final(void *_state, uint8_t *digest)
 	/* Final transformation */
 	sha256_transform(ctx, ctx->partial);
 
-	memset_secure(ctx->partial, 0, LC_SHA256_SIZE_BLOCK);
+	lc_memset_secure(ctx->partial, 0, LC_SHA256_SIZE_BLOCK);
 
 	/* Output digest */
 	for (i = 0; i < 8; i++, digest += 4) {

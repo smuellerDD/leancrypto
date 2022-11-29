@@ -23,7 +23,7 @@
 #include "ext_headers.h"
 #include "lc_hmac.h"
 #include "lc_rng.h"
-#include "memset_secure.h"
+#include "lc_memset_secure.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -101,7 +101,7 @@ static inline void lc_hkdf_zero(struct lc_hkdf_ctx *hkdf_ctx)
 	 * immediately by the state buffer!
 	 */
 	lc_hmac_zero(&hkdf_ctx->hmac_ctx);
-	memset_secure(hkdf_ctx->partial, 0, LC_SHA_MAX_SIZE_DIGEST);
+	lc_memset_secure(hkdf_ctx->partial, 0, LC_SHA_MAX_SIZE_DIGEST);
 	hkdf_ctx->ctr = 0x01;
 	hkdf_ctx->rng_initialized = 0;
 	hkdf_ctx->partial_ptr = LC_SHA_MAX_SIZE_DIGEST;

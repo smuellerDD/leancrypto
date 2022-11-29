@@ -35,7 +35,7 @@
 #include "lc_sha512.h"
 #include "lc_sha3.h"
 #include "lc_status.h"
-#include "memset_secure.h"
+#include "lc_memset_secure.h"
 #include "ret_checkers.h"
 
 int check_filetype(int fd, struct stat *sb, const char *filename)
@@ -145,7 +145,7 @@ static int lc_hasher(const char *filename, struct lc_hash_ctx *hash_ctx)
 
 			lc_hash_update(hash_ctx, tmpbuf, bufsize);
 		}
-		memset_secure(tmpbuf, 0, sizeof(tmpbuf));
+		lc_memset_secure(tmpbuf, 0, sizeof(tmpbuf));
 	}
 
 	lc_hash_final(hash_ctx, md);

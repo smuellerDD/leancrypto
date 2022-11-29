@@ -21,7 +21,7 @@
 #include "bitshift_be.h"
 #include "ext_headers.h"
 #include "lc_sha512.h"
-#include "memset_secure.h"
+#include "lc_memset_secure.h"
 #include "visibility.h"
 
 static const uint64_t sha512_K[] = {
@@ -201,7 +201,7 @@ static void sha512_final(void *_state, uint8_t *digest)
 	/* Final transformation */
 	sha512_transform(ctx, ctx->partial);
 
-	memset_secure(ctx->partial, 0, LC_SHA512_SIZE_BLOCK);
+	lc_memset_secure(ctx->partial, 0, LC_SHA512_SIZE_BLOCK);
 
 	/* Output digest */
 	for (i = 0; i < 8; i++, digest += 8) {

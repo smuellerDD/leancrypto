@@ -382,7 +382,7 @@ void polyt0_pack(uint8_t *r, const poly *a)
 		r[13*i+12]  =  (uint8_t)(t[7] >>  5);
 	}
 
-	memset_secure(t, 0, sizeof(t));
+	lc_memset_secure(t, 0, sizeof(t));
 }
 
 /**
@@ -493,7 +493,7 @@ void polyz_pack(uint8_t *r, const poly *a)
 #error "Undefined Gamma"
 #endif
 
-	memset_secure(t, 0, sizeof(t));
+	lc_memset_secure(t, 0, sizeof(t));
 }
 
 /**

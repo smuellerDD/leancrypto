@@ -356,7 +356,7 @@ static void lc_kmac256_drng_zero(void *_state)
 	if (!state)
 		return;
 
-	memset_secure((uint8_t *)state, 0, LC_KMAC256_DRNG_STATE_SIZE);
+	lc_memset_secure((uint8_t *)state, 0, LC_KMAC256_DRNG_STATE_SIZE);
 }
 
 LC_INTERFACE_FUNCTION(

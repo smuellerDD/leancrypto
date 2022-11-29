@@ -44,7 +44,7 @@ void lc_free_high_aligned(void *ptr, size_t size);
 	LC_ALIGNED_BUFFER_ALIGNMENTSIZE(name ## _buf, sizeof(type), alignment);\
 	type *name = (type *) name ## _buf
 #define __LC_RELEASE_MEM_STACK(name)	\
-	memset_secure(name, 0, sizeof(name))
+	lc_memset_secure(name, 0, sizeof(name))
 
 /* Allocate memory on heap */
 #define __LC_DECLARE_MEM_HEAP(name, type, alignment)			       \

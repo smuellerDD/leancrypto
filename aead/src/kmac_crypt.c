@@ -379,7 +379,7 @@ lc_kc_decrypt_authenticate(void *state,
 	lc_kc_encrypt_tag(kc, aad, aadlen, calctag_p, taglen);
 
 	ret = (memcmp_secure(calctag_p, taglen, tag, taglen) ? -EBADMSG : 0);
-	memset_secure(calctag_p, 0, taglen);
+	lc_memset_secure(calctag_p, 0, taglen);
 	if (taglen > sizeof(calctag))
 		lc_free(calctag_p);
 
@@ -471,8 +471,8 @@ static inline void lc_kc_zero(void *state)
 	if (!kc)
 		return;
 
-	memset_secure((uint8_t *)kc + sizeof(struct lc_kc_cryptor), 0,
-		      LC_KC_STATE_SIZE(hash));
+	lc_memset_secure((uint8_t *)kc + sizeof(struct lc_kc_cryptor), 0,
+			 LC_KC_STATE_SIZE(hash));
 }
 
 LC_INTERFACE_FUNCTION(

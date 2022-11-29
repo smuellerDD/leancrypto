@@ -23,7 +23,7 @@
 #include "lc_hash.h"
 #include "lc_rng.h"
 #include "lc_sha3.h"
-#include "memset_secure.h"
+#include "lc_memset_secure.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -196,9 +196,9 @@ static inline void lc_kmac_zero(struct lc_kmac_ctx *kmac_ctx)
 	kmac_ctx->final_called = 0;
 	kmac_ctx->rng_initialized = 0;
 
-	memset_secure((uint8_t *)kmac_ctx + sizeof(struct lc_kmac_ctx), 0,
-		      kmac_ctx->shadow_ctx ? LC_KMAC_STATE_SIZE_REINIT(hash) :
-					     LC_KMAC_STATE_SIZE(hash));
+	lc_memset_secure((uint8_t *)kmac_ctx + sizeof(struct lc_kmac_ctx), 0,
+			 kmac_ctx->shadow_ctx ? LC_KMAC_STATE_SIZE_REINIT(hash):
+						LC_KMAC_STATE_SIZE(hash));
 }
 
 /**

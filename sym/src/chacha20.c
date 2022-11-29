@@ -163,7 +163,7 @@ static void cc20_crypt(struct lc_sym_state *ctx,
 		out += todo;
 	}
 
-	memset_secure(keystream, 0, sizeof(keystream));
+	lc_memset_secure(keystream, 0, sizeof(keystream));
 }
 
 static struct lc_sym _lc_chacha20 = {

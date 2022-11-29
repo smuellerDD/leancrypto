@@ -52,8 +52,9 @@ static inline void lc_cc20_drng_zero(struct lc_chacha20_drng_ctx *cc20_ctx)
 {
 	struct lc_sym_ctx *sym_ctx = &cc20_ctx->cc20;
 
-	memset_secure((uint8_t *)cc20_ctx + sizeof(struct lc_chacha20_drng_ctx),
-		      0, LC_CC20_DRNG_STATE_SIZE);
+	lc_memset_secure((uint8_t *)cc20_ctx +
+				    sizeof(struct lc_chacha20_drng_ctx),
+			 0, LC_CC20_DRNG_STATE_SIZE);
 	lc_sym_init(sym_ctx);
 }
 

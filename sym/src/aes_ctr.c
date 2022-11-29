@@ -29,7 +29,7 @@
 #include "lc_ctr_private.h"
 #include "lc_sym.h"
 #include "math_helper.h"
-#include "memset_secure.h"
+#include "lc_memset_secure.h"
 #include "visibility.h"
 #include "xor.h"
 
@@ -67,7 +67,7 @@ static void aes_ctr_crypt(struct lc_sym_state *ctx,
 		todo = min_t(size_t, len - i, AES_BLOCKLEN);
 	}
 
-	memset_secure(buffer, 0, sizeof(buffer));
+	lc_memset_secure(buffer, 0, sizeof(buffer));
 }
 
 static void aes_ctr_init(struct lc_sym_state *ctx)

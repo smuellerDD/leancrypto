@@ -412,7 +412,7 @@ static void lc_cshake256_drng_zero(void *_state)
 	if (!state)
 		return;
 
-	memset_secure((uint8_t *)state, 0, LC_CSHAKE256_DRNG_STATE_SIZE);
+	lc_memset_secure((uint8_t *)state, 0, LC_CSHAKE256_DRNG_STATE_SIZE);
 }
 
 LC_INTERFACE_FUNCTION(

@@ -209,7 +209,7 @@ void, shake128x4, uint8_t *out0,
 		}
 	}
 
-	memset_secure(&state, 0, sizeof(state));
+	lc_memset_secure(&state, 0, sizeof(state));
 }
 
 LC_INTERFACE_FUNCTION(
@@ -248,5 +248,5 @@ void, shake256x4, uint8_t *out0,
 		}
 	}
 
-	memset_secure(&state, 0, sizeof(state));
+	lc_memset_secure(&state, 0, sizeof(state));
 }

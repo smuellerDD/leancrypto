@@ -17,8 +17,8 @@
  * DAMAGE.
  */
 
-#ifndef MEMSET_SECURE_H
-#define MEMSET_SECURE_H
+#ifndef LC_MEMSET_SECURE_H
+#define LC_MEMSET_SECURE_H
 
 #include "ext_headers.h"
 
@@ -76,7 +76,7 @@
  * clang -03           |  -  |  -  |  X  |  X
  */
 
-static inline void memset_secure(void *s, int c, size_t n)
+static inline void lc_memset_secure(void *s, int c, size_t n)
 {
 	memset(s, c, n);
 	__asm__ __volatile__("" : : "r" (s) : "memory");
@@ -97,4 +97,4 @@ int main(int argc, char *argv[])
 }
 #endif
 
-#endif /* MEMSET_SECURE_H */
+#endif /* LC_MEMSET_SECURE_H */

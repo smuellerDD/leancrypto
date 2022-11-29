@@ -27,7 +27,7 @@
 #include "lc_aes.h"
 #include "lc_aes_private.h"
 #include "lc_sym.h"
-#include "memset_secure.h"
+#include "lc_memset_secure.h"
 #include "visibility.h"
 #include "xor.h"
 
@@ -82,7 +82,7 @@ static void aes_cbc_decrypt(struct lc_sym_state *ctx,
 		memcpy(ctx->iv, storeNextIv, AES_BLOCKLEN);
 	}
 
-	memset_secure(storeNextIv, 0, sizeof(storeNextIv));
+	lc_memset_secure(storeNextIv, 0, sizeof(storeNextIv));
 }
 
 static void aes_cbc_init(struct lc_sym_state *ctx)

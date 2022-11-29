@@ -101,8 +101,8 @@ static inline int _lc_kyber_enc(
 	lc_shake(lc_shake256, kr, sizeof(kr), ss, ss_len);
 
 out:
-	memset_secure(buf, 0, sizeof(buf));
-	memset_secure(kr, 0, sizeof(kr));
+	lc_memset_secure(buf, 0, sizeof(buf));
+	lc_memset_secure(kr, 0, sizeof(kr));
 	return ret;
 }
 

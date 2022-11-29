@@ -27,7 +27,7 @@
  * keystream
  */
 #include "lc_cshake.h"
-#include "memset_secure.h"
+#include "lc_memset_secure.h"
 
 #ifdef __cplusplus
 extern "C"

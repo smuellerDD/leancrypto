@@ -23,7 +23,7 @@
 #include "lc_aead.h"
 #include "lc_sym.h"
 #include "lc_hmac.h"
-#include "memset_secure.h"
+#include "lc_memset_secure.h"
 
 #ifdef __cplusplus
 extern "C"

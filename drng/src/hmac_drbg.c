@@ -190,8 +190,9 @@ static void lc_drbg_hmac_zero(void *_state)
 	hash = hash_ctx->hash;
 
 	drbg_hmac->seeded = 0;
-	memset_secure((uint8_t *)drbg_hmac + sizeof(struct lc_drbg_hmac_state),
-				 0, LC_DRBG_HMAC_STATE_SIZE(hash));
+	lc_memset_secure((uint8_t *)drbg_hmac +
+				    sizeof(struct lc_drbg_hmac_state),
+			 0, LC_DRBG_HMAC_STATE_SIZE(hash));
 }
 
 LC_INTERFACE_FUNCTION(

@@ -22,7 +22,7 @@
 #include "lc_hkdf.h"
 #include "lc_rng.h"
 #include "math_helper.h"
-#include "memset_secure.h"
+#include "lc_memset_secure.h"
 #include "memory_support.h"
 #include "null_buffer.h"
 #include "visibility.h"
@@ -58,7 +58,7 @@ int, lc_hkdf_extract, struct lc_hkdf_ctx *hkdf_ctx,
 	/* Prepare for expand phase */
 	lc_hmac_init(hmac_ctx, prk_tmp, h);
 
-	memset_secure(prk_tmp, 0, h);
+	lc_memset_secure(prk_tmp, 0, h);
 
 	return 0;
 }

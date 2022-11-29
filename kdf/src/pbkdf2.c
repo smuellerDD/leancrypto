@@ -23,7 +23,7 @@
 #include "ext_headers.h"
 #include "lc_hmac.h"
 #include "lc_pbkdf2.h"
-#include "memset_secure.h"
+#include "lc_memset_secure.h"
 #include "visibility.h"
 #include "xor.h"
 
@@ -140,7 +140,7 @@ int, lc_pbkdf2, const struct lc_hash *hash,
 	}
 
 out:
-	memset_secure(u, 0, h);
+	lc_memset_secure(u, 0, h);
 	lc_hmac_zero(hmac_ctx);
 
 	return 0;

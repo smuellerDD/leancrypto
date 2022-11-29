@@ -26,7 +26,7 @@
 
 #include "kyber_kdf.h"
 
-#include "memset_secure.h"
+#include "lc_memset_secure.h"
 #include "lc_kyber.h"
 #include "ret_checkers.h"
 #include "visibility.h"
@@ -67,7 +67,7 @@ int, lc_kex_uake_initiator_ss, struct lc_kyber_ct *ct_e_i,
 		   shared_secret, shared_secret_len);
 
 out:
-	memset_secure(ss, 0, sizeof(ss));
+	lc_memset_secure(ss, 0, sizeof(ss));
 	return ret;
 }
 
@@ -87,7 +87,7 @@ int, lc_kex_uake_responder_ss, uint8_t *shared_secret,
 		   shared_secret, shared_secret_len);
 
 out:
-	memset_secure(&ss, 0, sizeof(ss));
+	lc_memset_secure(&ss, 0, sizeof(ss));
 	return ret;
 }
 
@@ -133,7 +133,7 @@ int, lc_kex_ake_initiator_ss, struct lc_kyber_ct *ct_e_i_1,
 		   shared_secret, shared_secret_len);
 
 out:
-	memset_secure(ss, 0, sizeof(ss));
+	lc_memset_secure(ss, 0, sizeof(ss));
 	return ret;
 }
 
@@ -157,6 +157,6 @@ int, lc_kex_ake_responder_ss, uint8_t *shared_secret,
 		   shared_secret, shared_secret_len);
 
 out:
-	memset_secure(ss, 0, sizeof(ss));
+	lc_memset_secure(ss, 0, sizeof(ss));
 	return ret;
 }

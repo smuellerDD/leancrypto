@@ -138,7 +138,7 @@ lc_hc_encrypt_tag(void *state,
 
 		lc_hmac_final(auth_ctx, tmp);
 		memcpy(tag, tmp, taglen);
-		memset_secure(tmp, 0, sizeof(tmp));
+		lc_memset_secure(tmp, 0, sizeof(tmp));
 	} else {
 		lc_hmac_final(auth_ctx, tag);
 	}
@@ -209,7 +209,7 @@ lc_hc_decrypt_authenticate(void *state,
 	 */
 	lc_hc_encrypt_tag(hc, aad, aadlen, calctag, taglen);
 	ret = (memcmp_secure(calctag, taglen, tag, taglen) ? -EBADMSG : 0);
-	memset_secure(calctag, 0, taglen);
+	lc_memset_secure(calctag, 0, taglen);
 
 	return ret;
 }
@@ -250,8 +250,8 @@ static void lc_hc_zero(void *state)
 	lc_rng_zero(drbg);
 	hc->keystream_ptr = 0;
 	memset(hc->keystream, 0, sizeof(hc->keystream));
-	memset_secure((uint8_t *)hc + sizeof(struct lc_hc_cryptor), 0,
-		      LC_HMAC_STATE_SIZE(hash));
+	lc_memset_secure((uint8_t *)hc + sizeof(struct lc_hc_cryptor), 0,
+			 LC_HMAC_STATE_SIZE(hash));
 }
 
 LC_INTERFACE_FUNCTION(

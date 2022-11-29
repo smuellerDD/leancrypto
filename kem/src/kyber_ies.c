@@ -307,7 +307,7 @@
 #include "lc_aead.h"
 #include "lc_kyber.h"
 #include "lc_rng.h"
-#include "memset_secure.h"
+#include "lc_memset_secure.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 
@@ -337,7 +337,7 @@ int, lc_kyber_ies_enc, const struct lc_kyber_pk *pk,
 			tag, taglen);
 
 out:
-	memset_secure(ss, 0, sizeof(ss));
+	lc_memset_secure(ss, 0, sizeof(ss));
 	return ret;
 }
 
@@ -363,6 +363,6 @@ int, lc_kyber_ies_dec, const struct lc_kyber_sk *sk,
 			      aad, aadlen, tag, taglen));
 
 out:
-	memset_secure(ss, 0, sizeof(ss));
+	lc_memset_secure(ss, 0, sizeof(ss));
 	return ret;
 }

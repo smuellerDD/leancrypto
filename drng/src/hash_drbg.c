@@ -330,10 +330,12 @@ static void lc_drbg_hash_zero(void *_state)
 
 	drbg_hash->reseed_ctr = 0;
 	drbg_hash->seeded = 0;
-	memset_secure(drbg_hash->hash_state, 0, sizeof(drbg_hash->hash_state));
-	memset_secure(drbg_hash->V, 0, sizeof(drbg_hash->V));
-	memset_secure(drbg_hash->C, 0, sizeof(drbg_hash->C));
-	memset_secure(drbg_hash->scratchpad, 0, sizeof(drbg_hash->scratchpad));
+	lc_memset_secure(drbg_hash->hash_state, 0,
+			 sizeof(drbg_hash->hash_state));
+	lc_memset_secure(drbg_hash->V, 0, sizeof(drbg_hash->V));
+	lc_memset_secure(drbg_hash->C, 0, sizeof(drbg_hash->C));
+	lc_memset_secure(drbg_hash->scratchpad, 0,
+			 sizeof(drbg_hash->scratchpad));
 }
 
 LC_INTERFACE_FUNCTION(

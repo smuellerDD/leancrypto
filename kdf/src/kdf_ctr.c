@@ -54,7 +54,7 @@ int, lc_kdf_ctr_generate, struct lc_hmac_ctx *hmac_ctx,
 
 			lc_hmac_final(hmac_ctx, tmp);
 			memcpy(dst, tmp, dlen);
-			memset_secure(tmp, 0, sizeof(tmp));
+			lc_memset_secure(tmp, 0, sizeof(tmp));
 
 			goto out;
 		} else {

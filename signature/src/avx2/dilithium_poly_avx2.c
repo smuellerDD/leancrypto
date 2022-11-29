@@ -474,7 +474,7 @@ void poly_challenge_avx(poly * restrict c,
 	}
 
 	lc_hash_zero(hash_ctx);
-	memset_secure(buf, 0, sizeof(buf));
+	lc_memset_secure(buf, 0, sizeof(buf));
 }
 
 /**

@@ -287,7 +287,7 @@ static int lc_sh_setkey(void *state,
 		     sizeof(keystream) / 2);
 
 out:
-	memset_secure(keystream, 0, sizeof(keystream));
+	lc_memset_secure(keystream, 0, sizeof(keystream));
 	return ret;
 }
 
@@ -314,7 +314,7 @@ static void lc_sh_encrypt_tag(void *state,
 	else
 		memcpy(tag, tmptag, maxtaglen);
 
-	memset_secure(tmptag, 0, sizeof(tmptag));
+	lc_memset_secure(tmptag, 0, sizeof(tmptag));
 }
 
 static int lc_sh_decrypt_authenticate(void *state,
@@ -339,7 +339,7 @@ static int lc_sh_decrypt_authenticate(void *state,
 	lc_sh_encrypt_tag(sh, aad, aadlen, calctag, taglen);
 
 	ret = (memcmp_secure(calctag, taglen, tag, taglen) ? -EBADMSG : 0);
-	memset_secure(calctag, 0, taglen);
+	lc_memset_secure(calctag, 0, taglen);
 
 	return ret;
 }
@@ -462,8 +462,8 @@ static void lc_sh_zero(void *state)
 	const struct lc_sym *sym_algo = sym->sym;
 	const struct lc_hash *hash_algo = hash_ctx->hash;
 
-	memset_secure((uint8_t *)state + sizeof(struct lc_sh_cryptor),
-		      0, LC_SH_STATE_SIZE(sym_algo, hash_algo));
+	lc_memset_secure((uint8_t *)state + sizeof(struct lc_sh_cryptor),
+			 0, LC_SH_STATE_SIZE(sym_algo, hash_algo));
 }
 
 struct lc_aead _lc_symhmac_aead = {

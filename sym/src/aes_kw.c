@@ -23,7 +23,7 @@
 #include "lc_aes.h"
 #include "lc_aes_private.h"
 #include "lc_sym.h"
-#include "memset_secure.h"
+#include "lc_memset_secure.h"
 #include "visibility.h"
 
 #define AES_KW_SEMIBSIZE	8U
@@ -97,7 +97,7 @@ static void aes_kw_encrypt(struct lc_sym_state *ctx,
 	/* establish the IV for the caller to pick up */
 	ctx->tag = block.A;
 
-	memset_secure(&block, 0, sizeof(block));
+	lc_memset_secure(&block, 0, sizeof(block));
 }
 
 static void aes_kw_decrypt(struct lc_sym_state *ctx,
@@ -150,7 +150,7 @@ static void aes_kw_decrypt(struct lc_sym_state *ctx,
 
 	ctx->tag = block.A;
 
-	memset_secure(&block, 0, sizeof(block));
+	lc_memset_secure(&block, 0, sizeof(block));
 }
 
 static void aes_kw_init(struct lc_sym_state *ctx)

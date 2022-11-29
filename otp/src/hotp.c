@@ -21,7 +21,7 @@
 #include "lc_hmac.h"
 #include "lc_hotp.h"
 #include "lc_sha256.h"
-#include "memset_secure.h"
+#include "lc_memset_secure.h"
 #include "visibility.h"
 
 LC_INTERFACE_FUNCTION(
@@ -59,5 +59,5 @@ void, lc_hotp, const uint8_t *hmac_key, size_t hmac_key_len, uint64_t counter,
 
 	*hotp_val = truncated % modulo;
 
-	memset_secure(md, 0, sizeof(md));
+	lc_memset_secure(md, 0, sizeof(md));
 }

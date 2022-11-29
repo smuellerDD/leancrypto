@@ -446,7 +446,7 @@ static int lc_cc_decrypt_authenticate(void *state,
 	lc_cc_encrypt_tag(cc, aad, aadlen, calctag_p, taglen);
 
 	ret = (memcmp_secure(calctag_p, taglen, tag, taglen) ? -EBADMSG : 0);
-	memset_secure(calctag_p, 0, taglen);
+	lc_memset_secure(calctag_p, 0, taglen);
 	if (taglen > sizeof(calctag))
 		lc_free(calctag_p);
 
@@ -554,8 +554,8 @@ static void lc_cc_zero(void *state)
 
 	cshake = &cc->cshake;
 	hash = cshake->hash;
-	memset_secure((uint8_t *)cc + sizeof(struct lc_cc_cryptor), 0,
-		      LC_CC_STATE_SIZE(hash));
+	lc_memset_secure((uint8_t *)cc + sizeof(struct lc_cc_cryptor), 0,
+			 LC_CC_STATE_SIZE(hash));
 }
 
 struct lc_aead _lc_cshake_aead = {

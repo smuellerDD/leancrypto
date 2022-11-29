@@ -21,7 +21,8 @@
 #define LC_HASH_H
 
 #include "ext_headers.h"
-#include "memset_secure.h"
+#include "lc_memset_secure.h"
+#include "lc_memory_support.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -43,17 +44,14 @@ struct lc_hash_ctx {
 	void *hash_state;
 };
 
-/* All algorithm implementations will be able to manage this alignment */
+/*
+ * Align the hash_state pointer to 8 bytes boundary irrespective where
+ * it is embedded into. This is achieved by adding 7 more bytes than necessary
+ * to LC_ALIGNED_SYM_BUFFER and then adjusting the pointer offset in that range
+ * accordingly.
+ */
 #define LC_HASH_COMMON_ALIGNMENT	(sizeof(uint64_t))
-#define LC_ALIGNED_BUFFER(name, size, alignment)			       \
-	uint64_t name[(size + sizeof(uint64_t) - 1) / sizeof(uint64_t)]	       \
-					__attribute__(( aligned(alignment) ))
 
-//TODO: code duplication with lc_sym.h which should be merged
-#define LC_ALIGNMENT_MASK(alignment)	(alignment - 1)
-#define LC_ALIGN_APPLY(x, mask)	(((x) + (mask)) & ~(mask))
-#define LC_ALIGN(x, a)		LC_ALIGN_APPLY((x), (unsigned long)(a))
-#define LC_ALIGN_PTR_64(p, a)	((uint64_t *)LC_ALIGN((unsigned long)(p), (a)))
 #define LC_ALIGN_HASH_MASK(p)						       \
 	LC_ALIGN_PTR_64(p, LC_ALIGNMENT_MASK(LC_HASH_COMMON_ALIGNMENT))
 
@@ -246,8 +244,8 @@ static inline void lc_hash_zero(struct lc_hash_ctx *hash_ctx)
 		return;
 
 	hash = hash_ctx->hash;
-	memset_secure((uint8_t *)hash_ctx + sizeof(struct lc_hash_ctx), 0,
-		      hash->statesize);
+	lc_memset_secure((uint8_t *)hash_ctx + sizeof(struct lc_hash_ctx), 0,
+			 hash->statesize);
 }
 
 /**

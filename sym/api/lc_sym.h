@@ -21,7 +21,8 @@
 #define _LC_SYM_H
 
 #include "ext_headers.h"
-#include "memset_secure.h"
+#include "lc_memset_secure.h"
+#include "lc_memory_support.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -61,12 +62,6 @@ struct lc_sym_ctx {
 #define LC_SYM_ALIGNMENT(symname)	LC_SYM_ALIGNMENT_COMMON
 #define LC_SYM_ALIGNMASK(symname)	(LC_SYM_ALIGNMENT(symname) - 1)
 
-#define LC_ALIGN_APPLY(x, mask)	(((x) + (mask)) & ~(mask))
-#define LC_ALIGN(x, a)		LC_ALIGN_APPLY((x), (unsigned long)(a))
-#define LC_ALIGN_PTR_64(p, a)	((uint64_t *)LC_ALIGN((unsigned long)(p), (a)))
-#define LC_ALIGN_PTR_32(p, a)	((uint32_t *)LC_ALIGN((unsigned long)(p), (a)))
-#define LC_ALIGN_PTR_16(p, a)	((uint16_t *)LC_ALIGN((unsigned long)(p), (a)))
-#define LC_ALIGN_PTR_8(p, a)	((uint8_t *)LC_ALIGN((unsigned long)(p), (a)))
 #define LC_ALIGN_SYM_MASK(p, symname)					       \
 	LC_ALIGN_PTR_64(p, LC_SYM_ALIGNMASK(symname))
 
@@ -200,8 +195,8 @@ static inline void lc_sym_zero(struct lc_sym_ctx *ctx)
 {
 	const struct lc_sym *sym = ctx->sym;
 
-	memset_secure((uint8_t *)ctx + sizeof(struct lc_sym_ctx), 0,
-		      LC_SYM_STATE_SIZE_NONALIGNED(sym));
+	lc_memset_secure((uint8_t *)ctx + sizeof(struct lc_sym_ctx), 0,
+			 LC_SYM_STATE_SIZE_NONALIGNED(sym));
 
 }
 

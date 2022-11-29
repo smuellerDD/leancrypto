@@ -218,7 +218,7 @@ static void gen_matrix(polyvec *a, const uint8_t seed[LC_KYBER_SYMBYTES],
 	}
 
 	lc_hash_zero(shake_128);
-	memset_secure(buf, 0, sizeof(buf));
+	lc_memset_secure(buf, 0, sizeof(buf));
 }
 
 int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],

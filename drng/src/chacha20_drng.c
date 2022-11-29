@@ -47,7 +47,7 @@ static inline void lc_cc20_drng_update(struct lc_chacha20_drng_ctx *cc20_ctx,
 		cc20_block(chacha20_state, tmp);
 		for (i = 0; i < LC_CC20_KEY_SIZE_WORDS; i++)
 			chacha20_state->key.u[i] ^= le_bswap32(tmp[i]);
-		memset_secure(tmp, 0, sizeof(tmp));
+		lc_memset_secure(tmp, 0, sizeof(tmp));
 	} else {
 		for (i = 0; i < LC_CC20_KEY_SIZE_WORDS; i++) {
 			chacha20_state->key.u[i] ^=
@@ -158,7 +158,7 @@ void, lc_cc20_drng_generate, struct lc_chacha20_drng_ctx *cc20_ctx,
 	lc_cc20_drng_update(cc20_ctx, aligned_buf, used);
 
 	if (zeroize_buf)
-		memset_secure(aligned_buf, 0, sizeof(aligned_buf));
+		lc_memset_secure(aligned_buf, 0, sizeof(aligned_buf));
 }
 
 LC_INTERFACE_FUNCTION(

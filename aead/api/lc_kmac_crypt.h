@@ -26,7 +26,7 @@
  * This is the KMAC crypt cipher operation using the KMAC output as keystream
  */
 #include "lc_kmac.h"
-#include "memset_secure.h"
+#include "lc_memset_secure.h"
 
 #ifdef __cplusplus
 extern "C"
