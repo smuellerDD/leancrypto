@@ -31,84 +31,52 @@ LC_CONSTRUCTOR(sha3_fastest_impl)
 {
 	enum lc_cpu_features feat = lc_cpu_feature_available();
 
+#define LC_FILL_ACCEL_WITH_C(accel)					       \
+	lc_sha3_224_ ##accel = lc_sha3_224_c;				       \
+	lc_sha3_256_ ##accel = lc_sha3_256_c;				       \
+	lc_sha3_384_ ##accel = lc_sha3_384_c;				       \
+	lc_sha3_512_ ##accel = lc_sha3_512_c;				       \
+	lc_shake128_ ##accel = lc_shake128_c;				       \
+	lc_shake256_ ##accel = lc_shake256_c;				       \
+	lc_cshake128_ ##accel = lc_cshake128_c;				       \
+	lc_cshake256_ ##accel = lc_cshake256_c;
+
+#define LC_FILL_ACCEL_NULL(accel)					       \
+	if (!lc_sha3_224_ ##accel) {					       \
+		LC_FILL_ACCEL_WITH_C(accel)				       \
+	}
+
 	/* Check if NULL pointers are present */
-	if (!lc_sha3_224_arm8_neon) {
-		lc_sha3_224_arm8_neon = lc_sha3_224_c;
-		lc_sha3_256_arm8_neon = lc_sha3_256_c;
-		lc_sha3_384_arm8_neon = lc_sha3_384_c;
-		lc_sha3_512_arm8_neon = lc_sha3_512_c;
-		lc_shake128_arm8_neon = lc_shake128_c;
-		lc_shake256_arm8_neon = lc_shake256_c;
-		lc_cshake128_arm8_neon = lc_cshake128_c;
-		lc_cshake256_arm8_neon = lc_cshake256_c;
-	}
+	LC_FILL_ACCEL_NULL(arm8_neon)
+	LC_FILL_ACCEL_NULL(avx512)
+	LC_FILL_ACCEL_NULL(avx2)
 
-	if (!lc_sha3_224_avx512) {
-		lc_sha3_224_avx512 = lc_sha3_224_c;
-		lc_sha3_256_avx512 = lc_sha3_256_c;
-		lc_sha3_384_avx512 = lc_sha3_384_c;
-		lc_sha3_512_avx512 = lc_sha3_512_c;
-		lc_shake128_avx512 = lc_shake128_c;
-		lc_shake256_avx512 = lc_shake256_c;
-		lc_cshake128_avx512 = lc_cshake128_c;
-		lc_cshake256_avx512 = lc_cshake256_c;
-	}
-
-	if (!lc_sha3_224_avx2) {
-		lc_sha3_224_avx2 = lc_sha3_224_c;
-		lc_sha3_256_avx2 = lc_sha3_256_c;
-		lc_sha3_384_avx2 = lc_sha3_384_c;
-		lc_sha3_512_avx2 = lc_sha3_512_c;
-		lc_shake128_avx2 = lc_shake128_c;
-		lc_shake256_avx2 = lc_shake256_c;
-		lc_cshake128_avx2 = lc_cshake128_c;
-		lc_cshake256_avx2 = lc_cshake256_c;
-	}
+#define LC_FILL_DFLT_IMPL(accel)					       \
+	lc_sha3_224 = lc_sha3_224_ ##accel;				       \
+	lc_sha3_256 = lc_sha3_256_ ##accel;				       \
+	lc_sha3_384 = lc_sha3_384_ ##accel;				       \
+	lc_sha3_512 = lc_sha3_512_ ##accel;				       \
+	lc_shake128 = lc_shake128_ ##accel;				       \
+	lc_shake256 = lc_shake256_ ##accel;				       \
+	lc_cshake128 = lc_cshake128_ ##accel;				       \
+	lc_cshake256 = lc_cshake256_ ##accel;
 
 	/*
 	 * Set accelerated modes: The fastest implementations are at the top
 	 */
 	if (feat & LC_CPU_FEATURE_INTEL_AVX512) {
-		lc_sha3_224 = lc_sha3_224_avx512;
-		lc_sha3_256 = lc_sha3_256_avx512;
-		lc_sha3_384 = lc_sha3_384_avx512;
-		lc_sha3_512 = lc_sha3_512_avx512;
-		lc_shake128 = lc_shake128_avx512;
-		lc_shake256 = lc_shake256_avx512;
-		lc_cshake128 = lc_cshake128_avx512;
-		lc_cshake256 = lc_cshake256_avx512;
+		LC_FILL_DFLT_IMPL(avx512)
 	} else if (feat & LC_CPU_FEATURE_INTEL_AVX2) {
-		lc_sha3_224 = lc_sha3_224_avx2;
-		lc_sha3_256 = lc_sha3_256_avx2;
-		lc_sha3_384 = lc_sha3_384_avx2;
-		lc_sha3_512 = lc_sha3_512_avx2;
-		lc_shake128 = lc_shake128_avx2;
-		lc_shake256 = lc_shake256_avx2;
-		lc_cshake128 = lc_cshake128_avx2;
-		lc_cshake256 = lc_cshake256_avx2;
+		LC_FILL_DFLT_IMPL(avx2)
 	} else {
 		/* do nothing as the C definitions are used automatically */
 	}
 
 	/* Unset accelerated modes to C if CPU does not provide support */
 	if (!(feat & LC_CPU_FEATURE_INTEL_AVX512)) {
-		lc_sha3_224_avx512 = lc_sha3_224_c;
-		lc_sha3_256_avx512 = lc_sha3_256_c;
-		lc_sha3_384_avx512 = lc_sha3_384_c;
-		lc_sha3_512_avx512 = lc_sha3_512_c;
-		lc_shake128_avx512 = lc_shake128_c;
-		lc_shake256_avx512 = lc_shake256_c;
-		lc_cshake128_avx512 = lc_cshake128_c;
-		lc_cshake256_avx512 = lc_cshake256_c;
+		LC_FILL_ACCEL_WITH_C(avx512)
 	}
 	if (!(feat & LC_CPU_FEATURE_INTEL_AVX2)) {
-		lc_sha3_224_avx2 = lc_sha3_224_c;
-		lc_sha3_256_avx2 = lc_sha3_256_c;
-		lc_sha3_384_avx2 = lc_sha3_384_c;
-		lc_sha3_512_avx2 = lc_sha3_512_c;
-		lc_shake128_avx2 = lc_shake128_c;
-		lc_shake256_avx2 = lc_shake256_c;
-		lc_cshake128_avx2 = lc_cshake128_c;
-		lc_cshake256_avx2 = lc_cshake256_c;
+		LC_FILL_ACCEL_WITH_C(avx2)
 	}
 }
