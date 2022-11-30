@@ -3,7 +3,7 @@
 The leancrypto library provides algorithm implementations which have the
 following properties:
 
-* minimal dependencies: only POSIX environment needed,
+* minimal dependencies: only POSIX environment needed - function calls are abstracted into helper code that may need to be replaced for other environments (see the Linux kernel support in `linux_kernel` for replacing the POSIX calls)
 
 * extractable: the algorithms can be extracted and compiled as part of a
   separate project,
@@ -57,6 +57,11 @@ Note, the compiled test kernel module of `leancrypto_test.ko` is only provided
 for regression testing and is not required for production use. Insert the
 kernel module and check `dmesg` for the results. Unload the kernel module
 afterwards.
+
+The API specified by the header files installed as part of the
+`meson install -C build` command for the user space library is applicable to
+the kernel module as well. When compiling kernel code, the flag `-DLINUX_KERNEL`
+needs to be set.
 
 ## Library Build for Other Environments
 
@@ -198,7 +203,7 @@ The test harness is available at https://github.com/smuellerDD/acvpparser
 covering all algorithm implementations of algorithms that are testable.
 
 All algorithms were tested with NIST's ACVP service without obtaining an
-official certificate. Currently not tested: ARMv8 Neon (pending).
+official certificate.
 
 # Author
 

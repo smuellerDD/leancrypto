@@ -1,17 +1,15 @@
 Changes 0.5.0-prerelease:
-* enhancement: add ability to compile leancrypto for the Linux kernel
-
-* enhancement: add Linux kenrel test code
+* enhancement: add ability to compile leancrypto for the Linux kernel including all tests
 
 * enhancement: make leancrypto generic such that it can be used in environments
   other than user space
 
 * enhancement: add compile time option small_stack which ensures that
   leancrypto's stack usage is always less than 2048 (also verified by the
-  compiler waring if it is bigger)
+  compiler warning if it is bigger)
 
 * enhancement: Add assembler accelerations for SHA3 (AVX2 and AVX512 are
-  verified with NIST's ACVP service, ARMv8 Neon is yet pending)
+  verified with NIST's ACVP service)
 
 * bug fix: Fix the SHA-3 C implementation on big-endian system (one byte-swap
   missing)
@@ -29,7 +27,9 @@ Changes 0.5.0-prerelease:
 
 * leancrypto tested on macOS with an M2 system
 
-* enhancement: add RPM SPEC file - successful build on OpenSUSE build service on x86_64, i586, aarch64, armv7l, armv6l, s390x, ppc64, ppc64le, riscv64
+* enhancement: add RPM SPEC file - successful build on OpenSUSE build service on x86_64, i586, aarch64, armv7l, armv6l, ppc64, ppc64le, riscv64
+
+* rename memset_secure to lc_memset_secure preventing any possible name space clash
 
 Changes 0.4.0:
 * simplify Kyber code
