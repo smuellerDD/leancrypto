@@ -19,7 +19,7 @@ if get_option('sha3').enabled()
 	include_files += files([ '../api/lc_cshake.h', '../api/lc_sha3.h' ])
 	lc_hash = 1
 
-	if (build_machine.cpu_family() == 'x86_64')
+	if (x86_64_asm)
 		src += files([ 'sha3_avx2.c',
 			       'asm/AVX2/KeccakP-1600-AVX2.S' ])
 		src += files([ 'sha3_avx512.c',

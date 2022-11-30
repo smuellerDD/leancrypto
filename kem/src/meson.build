@@ -13,7 +13,7 @@ if get_option('kyber').enabled()
 		'kyber_verify.c',
 	])
 
-	if (build_machine.cpu_family() == 'x86_64')
+	if (x86_64_asm)
 		subdir('avx2')
 	else
 		src += files([ 'kyber_kem_api_c.c' ])

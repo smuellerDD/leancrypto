@@ -9,7 +9,7 @@ if get_option('dilithium').enabled()
 		'dilithium_rounding.c'
 	])
 
-	if (build_machine.cpu_family() == 'x86_64')
+	if (x86_64_asm)
 		subdir('avx2')
 	else
 		src += files([ 'dilithium_signature_api_c.c' ])

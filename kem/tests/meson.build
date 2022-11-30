@@ -55,7 +55,7 @@ if get_option('kyber').enabled()
 	     timeout: 1000, is_parallel: false)
 	test('Kyber invalid KEM', kyber_invalid_tester)
 
-	if (build_machine.cpu_family() == 'x86_64')
+	if (x86_64_asm)
 		kyber_kem_tester_avx2 = executable('kyber_kem_tester_avx2',
 					[ 'kyber_kem_tester_avx2.c',
 					'kyber_kem_tester.c',

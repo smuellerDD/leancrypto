@@ -194,6 +194,15 @@ if get_option('sha3').disabled() and get_option('kyber').enabled()
 	error('Kyber support requires SHA-3')
 endif
 
+# Enable x86_64 assembler code only on x86 (naturally) and with the presence of
+# the GNU assembler - the LLVM assembler on MacOS does not work!
+if (build_machine.cpu_family() == 'x86_64' and
+    build_machine.system() != 'darwin')
+	x86_64_asm = true
+else
+	x86_64_asm = false
+endif
+
 ################################################################################
 # Execute compilation
 ################################################################################

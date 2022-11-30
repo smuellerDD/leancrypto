@@ -41,7 +41,7 @@ if get_option('dilithium').enabled()
 	     args : [ 'c' ], timeout: 1000, is_parallel: false)
 	test('Dilithium invalid signature', dilithium_invalid_tester)
 
-	if (build_machine.cpu_family() == 'x86_64')
+	if (x86_64_asm)
 		dilithium_tester_avx2 = executable('dilithium_tester_avx2',
 				[ 'dilithium_tester_avx2.c',
 				  'dilithium_tester.c',
