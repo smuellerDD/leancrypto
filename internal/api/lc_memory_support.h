@@ -20,6 +20,8 @@
 #ifndef LC_MEMORY_SUPPORT_H
 #define LC_MEMORY_SUPPORT_H
 
+#include "ext_headers.h"
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -74,6 +76,43 @@ extern "C"
  * @param a alignment
  */
 #define LC_ALIGN_PTR_8(p, a)	((uint8_t *)LC_ALIGN((unsigned long)(p), (a)))
+
+/**
+ * @brief allocate aligned memory up to 8 bytes alignment
+ *
+ * @param memptr [out] pointer to the newly allocated memory
+ * @param alignment [in] alignment of the memory
+ * @param size [in] size of the memory buffer
+ */
+int lc_alloc_aligned(void **memptr, size_t alignment, size_t size);
+
+/**
+ * @brief allocate aligned memory with arbitrary alignment
+ *
+ * @param memptr [out] pointer to the newly allocated memory
+ * @param alignment [in] alignment of the memory
+ * @param size [in] size of the memory buffer
+ */
+int lc_alloc_high_aligned(void **memptr, size_t alignment, size_t size);
+
+/**
+ * @brief free the memory allocated with lc_alloc_aligned
+ *
+ * The memory is NOT zeroized.
+ *
+ * @param ptr [in] memory pointer to free
+ */
+void lc_free(void *ptr);
+
+/**
+ * @brief free the memory allocated with lc_alloc_high_aligned
+ *
+ * The memory is NOT zeroized.
+ *
+ * @param ptr [in] memory pointer to free
+ * @param size [in] size of the memory to free
+ */
+void lc_free_high_aligned(void *ptr, size_t size);
 
 #ifdef __cplusplus
 }

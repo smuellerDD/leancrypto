@@ -20,7 +20,7 @@
 #ifndef LC_RNG_H
 #define LC_RNG_H
 
-#include "memory_support.h"
+#include "lc_memory_support.h"
 
 #ifdef __cplusplus
 extern "C"

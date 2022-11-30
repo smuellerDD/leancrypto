@@ -21,7 +21,6 @@
 #include "lc_cshake.h"
 #include "lc_kmac.h"
 #include "left_encode.h"
-#include "memory_support.h"
 #include "visibility.h"
 
 static unsigned int right_encode(uint8_t *buf, size_t val)

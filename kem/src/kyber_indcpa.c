@@ -24,11 +24,11 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
+#include "build_bug_on.h"
 #include "kyber_indcpa.h"
 #include "kyber_poly.h"
 #include "kyber_polyvec.h"
-
-#include "memory_support.h"
+#include "small_stack_support.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
 

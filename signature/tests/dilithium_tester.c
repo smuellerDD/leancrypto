@@ -33,7 +33,7 @@
 #include "lc_dilithium.h"
 #include "lc_hash.h"
 #include "lc_sha3.h"
-#include "memory_support.h"
+#include "small_stack_support.h"
 #include "testfunctions.h"
 #include "visibility.h"
 

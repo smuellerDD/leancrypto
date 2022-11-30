@@ -18,7 +18,7 @@
  */
 
 #include "lc_hash_drbg.h"
-#include "memory_support.h"
+#include "small_stack_support.h"
 
 static int hash_drbg_selftest_large(struct lc_rng_ctx *drbg)
 {

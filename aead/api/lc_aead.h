@@ -20,7 +20,7 @@
 #ifndef LC_AEAD_H
 #define LC_AEAD_H
 
-#include "memory_support.h"
+#include "small_stack_support.h"
 
 #ifdef __cplusplus
 extern "C"

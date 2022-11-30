@@ -19,7 +19,6 @@
  */
 
 #include "lc_hmac.h"
-#include "memory_support.h"
 #include "visibility.h"
 
 #define IPAD	0x36

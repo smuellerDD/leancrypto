@@ -258,7 +258,6 @@
 #include "lc_kmac_crypt.h"
 #include "math_helper.h"
 #include "memcmp_secure.h"
-#include "memory_support.h"
 #include "visibility.h"
 #include "xor.h"
 

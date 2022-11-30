@@ -244,7 +244,6 @@
 #include "lc_sha512.h"
 #include "math_helper.h"
 #include "memcmp_secure.h"
-#include "memory_support.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 

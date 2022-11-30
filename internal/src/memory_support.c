@@ -17,9 +17,11 @@
  * DAMAGE.
  */
 
-#include "memory_support.h"
+#include "lc_memory_support.h"
+#include "visibility.h"
 
-int lc_alloc_aligned(void **memptr, size_t alignment, size_t size)
+LC_INTERFACE_FUNCTION(
+int, lc_alloc_aligned, void **memptr, size_t alignment, size_t size)
 {
 	int ret = posix_memalign(memptr, alignment, size);
 
@@ -29,19 +31,22 @@ int lc_alloc_aligned(void **memptr, size_t alignment, size_t size)
 	return 0;
 }
 
-int lc_alloc_high_aligned(void **memptr, size_t alignment, size_t size)
+LC_INTERFACE_FUNCTION(
+int, lc_alloc_high_aligned, void **memptr, size_t alignment, size_t size)
 {
 	return lc_alloc_aligned(memptr, alignment, size);
 }
 
-void lc_free(void *ptr)
+LC_INTERFACE_FUNCTION(
+void, lc_free, void *ptr)
 {
 	if (!ptr)
 		return;
 	free(ptr);
 }
 
-void lc_free_high_aligned(void *ptr, size_t size)
+LC_INTERFACE_FUNCTION(
+void, lc_free_high_aligned, void *ptr, size_t size)
 {
 	(void)size;
 	lc_free(ptr);

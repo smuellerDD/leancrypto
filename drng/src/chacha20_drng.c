@@ -22,7 +22,6 @@
 #include "lc_chacha20_drng.h"
 #include "lc_chacha20_private.h"
 #include "math_helper.h"
-#include "memory_support.h"
 #include "visibility.h"
 
 /**

@@ -17,23 +17,16 @@
  * DAMAGE.
  */
 
-#ifndef MEMORY_SUPPORT_H
-#define MEMORY_SUPPORT_H
+#ifndef SMALL_STACK_SUPPORT_H
+#define SMALL_STACK_SUPPORT_H
 
-#include "build_bug_on.h"
-#include "ext_headers.h"
-#include "lc_hash.h"
+#include "lc_memory_support.h"
 #include "memcmp_secure.h"
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-
-int lc_alloc_aligned(void **memptr, size_t alignment, size_t size);
-int lc_alloc_high_aligned(void **memptr, size_t alignment, size_t size);
-void lc_free(void *ptr);
-void lc_free_high_aligned(void *ptr, size_t size);
 
 #define LC_ALIGNED_BUFFER_ALIGNMENTSIZE(name, size, alignment) 		       \
 	uint64_t name[(size + sizeof(uint64_t) - 1) / sizeof(uint64_t)]	       \
@@ -77,4 +70,4 @@ void lc_free_high_aligned(void *ptr, size_t size);
 }
 #endif
 
-#endif /* MEMORY_SUPPORT_H */
+#endif /* SMALL_STACK_SUPPORT_H */

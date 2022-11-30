@@ -19,7 +19,6 @@
  */
 
 #include "lc_hmac_drbg_sha512.h"
-#include "memory_support.h"
 #include "visibility.h"
 
 /***************************************************************

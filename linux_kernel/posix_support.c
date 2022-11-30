@@ -20,7 +20,7 @@
 #include <linux/slab.h>
 #include <linux/mm.h>
 
-#include "memory_support.h"
+#include "lc_memory_support.h"
 #include "posix_support.h"
 
 const int errno = 0;

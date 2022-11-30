@@ -216,7 +216,6 @@
 #include "lc_kmac256_drng.h"
 #include "math_helper.h"
 #include "memcmp_secure.h"
-#include "memory_support.h"
 #include "visibility.h"
 
 #define LC_KMAC_DRNG_SEED_CUSTOMIZATION_STRING	"KMAC-DRNG seed"

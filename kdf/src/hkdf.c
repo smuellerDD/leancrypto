@@ -23,7 +23,6 @@
 #include "lc_rng.h"
 #include "math_helper.h"
 #include "lc_memset_secure.h"
-#include "memory_support.h"
 #include "null_buffer.h"
 #include "visibility.h"
 

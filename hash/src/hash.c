@@ -6,7 +6,6 @@
  */
 
 #include "lc_hash.h"
-#include "memory_support.h"
 #include "visibility.h"
 
 LC_INTERFACE_FUNCTION(

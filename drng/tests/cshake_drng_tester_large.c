@@ -18,7 +18,7 @@
  */
 
 #include "lc_cshake256_drng.h"
-#include "memory_support.h"
+#include "small_stack_support.h"
 
 #define CSHAKE256_TEST_BLOCKSIZE	LC_CSHAKE256_DRNG_MAX_CHUNK
 //#define CSHAKE256_TEST_BLOCKSIZE	32

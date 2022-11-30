@@ -26,6 +26,7 @@
  */
 
 #include "alignment_x86.h"
+#include "build_bug_on.h"
 #include "dilithium_pack_avx2.h"
 #include "dilithium_poly_avx2.h"
 #include "dilithium_polyvec_avx2.h"
@@ -33,10 +34,10 @@
 #include "lc_dilithium.h"
 #include "lc_rng.h"
 #include "lc_sha3.h"
-#include "memory_support.h"
 #include "memcmp_secure.h"
 #include "ret_checkers.h"
 #include "shake_4x_avx2.h"
+#include "small_stack_support.h"
 #include "visibility.h"
 
 static inline void

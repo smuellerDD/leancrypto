@@ -20,7 +20,6 @@
 
 #include "bitshift_be.h"
 #include "lc_hash_drbg.h"
-#include "memory_support.h"
 #include "visibility.h"
 
 /***************************************************************

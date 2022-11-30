@@ -17,7 +17,6 @@
  * DAMAGE.
  */
 
-#include "memory_support.h"
 #include "lc_sym.h"
 #include "visibility.h"
 

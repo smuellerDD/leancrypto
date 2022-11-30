@@ -21,7 +21,6 @@
 #include "lc_cshake256_drng.h"
 #include "lc_kyber.h"
 #include "lc_rng.h"
-#include "memory_support.h"
 #include "testfunctions.h"
 #include "visibility.h"
 

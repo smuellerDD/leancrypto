@@ -25,7 +25,7 @@
 #include <sys/time.h>
 
 #include "lc_cshake256_drng.h"
-#include "memory_support.h"
+#include "small_stack_support.h"
 
 struct opts {
 	size_t bytecount;

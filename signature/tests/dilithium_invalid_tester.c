@@ -19,7 +19,7 @@
 
 #include "lc_cshake256_drng.h"
 #include "lc_dilithium.h"
-#include "memory_support.h"
+#include "small_stack_support.h"
 #include "testfunctions.h"
 #include "visibility.h"
 

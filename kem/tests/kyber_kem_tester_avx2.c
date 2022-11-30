@@ -22,7 +22,6 @@
 #include "kyber_kem_tester.h"
 #include "lc_kyber.h"
 #include "lc_sha3.h"
-#include "memory_support.h"
 #include "ret_checkers.h"
 #include "testfunctions.h"
 #include "visibility.h"

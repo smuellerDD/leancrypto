@@ -18,7 +18,7 @@
  */
 
 #include "lc_kmac256_drng.h"
-#include "memory_support.h"
+#include "small_stack_support.h"
 
 #define KMAC256_TEST_BLOCKSIZE	LC_KMAC256_DRNG_MAX_CHUNK
 //#define KMAC256_TEST_BLOCKSIZE	32

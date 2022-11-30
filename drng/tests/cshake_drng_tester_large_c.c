@@ -18,7 +18,7 @@
  */
 
 #include "lc_cshake256_drng.h"
-#include "memory_support.h"
+#include "small_stack_support.h"
 
 #include "sha3_c.h"
 

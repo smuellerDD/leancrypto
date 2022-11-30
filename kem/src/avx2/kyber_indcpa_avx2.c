@@ -25,14 +25,14 @@
  */
 
 #include "alignment_x86.h"
+#include "build_bug_on.h"
 #include "kyber_indcpa_avx2.h"
 #include "kyber_poly_avx2.h"
 #include "kyber_polyvec_avx2.h"
 #include "kyber_rejsample_avx2.h"
-
-#include "memory_support.h"
 #include "lc_sha3.h"
 #include "shake_4x_avx2.h"
+#include "small_stack_support.h"
 #include "ret_checkers.h"
 
 #if LC_KYBER_K != 4

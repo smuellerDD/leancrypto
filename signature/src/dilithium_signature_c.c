@@ -26,14 +26,15 @@
  */
 
 #include "alignment.h"
+#include "build_bug_on.h"
 #include "dilithium_polyvec.h"
 #include "dilithium_pack.h"
 #include "dilithium_signature_c.h"
 #include "lc_dilithium.h"
 #include "lc_hash.h"
 #include "lc_sha3.h"
-#include "memory_support.h"
 #include "ret_checkers.h"
+#include "small_stack_support.h"
 #include "visibility.h"
 
 LC_INTERFACE_FUNCTION(
