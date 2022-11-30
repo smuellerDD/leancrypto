@@ -85,8 +85,7 @@ static int mmap_file(const char *filename, uint8_t **memory, off_t *size,
 		}
 	}
 
-	*memory = mmap(NULL, *mapped, PROT_READ, MAP_PRIVATE | MAP_POPULATE, fd,
-		       offset);
+	*memory = mmap(NULL, *mapped, PROT_READ, MAP_PRIVATE, fd, offset);
 	if (*memory == MAP_FAILED) {
 		*memory = NULL;
 		ret = -errno;
@@ -136,7 +135,7 @@ static int lc_hasher(const char *filename, struct lc_hash_ctx *hash_ctx)
 			offset = offset + (off_t)mapped;
 		} while (offset ^ size);
 	} else {
-		uint8_t tmpbuf[4096] __align(32);
+		uint8_t tmpbuf[1024] __align(32);
 		uint32_t bufsize;
 
 		while ((bufsize =

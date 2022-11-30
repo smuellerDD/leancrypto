@@ -18,23 +18,28 @@
  */
 
 #include "lc_hmac_drbg_sha512.h"
+#include "small_stack_support.h"
 
 static int hmac_drbg_selftest_large(struct lc_rng_ctx *drbg)
 {
 	uint8_t seed[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08
 	};
-	uint8_t out[LC_DRBG_MAX_REQUEST_BYTES];
+	struct workspace {
+		uint8_t out[LC_DRBG_MAX_REQUEST_BYTES];
+	};
 	unsigned int i;
 	int ret = 0;
+	LC_DECLARE_MEM(ws, struct workspace, 8);
 
 	if (lc_rng_seed(drbg, seed, sizeof(seed), NULL, 0))
 		goto out;
 
 	for (i = 0; i < ((1U<<30) / LC_DRBG_MAX_REQUEST_BYTES); i++)
-		lc_rng_generate(drbg, NULL, 0, out, sizeof(out));
+		lc_rng_generate(drbg, NULL, 0, ws->out, sizeof(ws->out));
 
 out:
+	LC_RELEASE_MEM(ws);
 	lc_rng_zero(drbg);
 	return ret;
 }
