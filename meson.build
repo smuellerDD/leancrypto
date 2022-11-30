@@ -31,7 +31,6 @@ add_global_arguments([ '-fstack-protector-strong',
 		       '-fwrapv',
 		       '--param', 'ssp-buffer-size=4',
 		       '-fvisibility=hidden',
-		       '-ffat-lto-objects',
 		       '-Wconversion',
 		       '-Wcast-align',
 		       '-Wmissing-field-initializers',
@@ -39,6 +38,10 @@ add_global_arguments([ '-fstack-protector-strong',
 		       '-Wswitch-enum',
 		        ],
 		       language : 'c')
+
+if meson.get_compiler('c').get_id() == 'gcc'
+	add_global_arguments([ '-ffat-lto-objects' ], language: 'c')
+endif
 
 if get_option('optimization') != '0'
         add_global_arguments([ '-D_FORTIFY_SOURCE=3' ], language: 'c')
