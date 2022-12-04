@@ -19,12 +19,51 @@
  */
 
 #include "build_bug_on.h"
+#include "compare.h"
 #include "lc_hkdf.h"
-#include "lc_rng.h"
-#include "math_helper.h"
 #include "lc_memset_secure.h"
+#include "lc_rng.h"
+#include "lc_sha256.h"
+#include "math_helper.h"
 #include "null_buffer.h"
 #include "visibility.h"
+
+static void hkdf_selftest(int *tested, const char *impl)
+{
+	/* RFC 5869 vector */
+	static const uint8_t ikm[] = {
+		0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b,
+		0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b,
+		0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b
+	};
+	static const uint8_t salt[] = {
+		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+		0x08, 0x09, 0x0a, 0x0b, 0x0c
+	};
+	static const uint8_t info[] = {
+		0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7,
+		0xf8, 0xf9
+	};
+	static const uint8_t exp[] = {
+		0x3c, 0xb2, 0x5f, 0x25, 0xfa, 0xac, 0xd5, 0x7a,
+		0x90, 0x43, 0x4f, 0x64, 0xd0, 0x36, 0x2f, 0x2a,
+		0x2d, 0x2d, 0x0a, 0x90, 0xcf, 0x1a, 0x5a, 0x4c,
+		0x5d, 0xb0, 0x2d, 0x56, 0xec, 0xc4, 0xc5, 0xbf,
+		0x34, 0x00, 0x72, 0x08, 0xd5, 0xb8, 0x87, 0x18,
+		0x58, 0x65
+	};
+	uint8_t act[sizeof(exp)];
+
+	LC_SELFTEST_RUN(tested);
+
+	LC_HKDF_CTX_ON_STACK(hkdf, lc_sha256);
+
+	lc_hkdf_extract(hkdf, ikm, sizeof(ikm), salt, sizeof(salt));
+	lc_hkdf_expand(hkdf, info, sizeof(info), act, sizeof(act));
+	compare_selftest(act, exp, sizeof(exp), impl);
+	lc_hkdf_zero(hkdf);
+}
+
 
 LC_INTERFACE_FUNCTION(
 int, lc_hkdf_extract, struct lc_hkdf_ctx *hkdf_ctx,
@@ -34,11 +73,14 @@ int, lc_hkdf_extract, struct lc_hkdf_ctx *hkdf_ctx,
 	struct lc_hmac_ctx *hmac_ctx;
 	size_t h;
 	uint8_t prk_tmp[LC_SHA_MAX_SIZE_DIGEST];
+	static int tested = 0;
 
 	if (!hkdf_ctx)
 		return -EINVAL;
 	hmac_ctx = &hkdf_ctx->hmac_ctx;
 	h = lc_hmac_macsize(hmac_ctx);
+
+	hkdf_selftest(&tested, "HKDF");
 
 	BUILD_BUG_ON(LC_NULL_BUFFER_SIZE < LC_SHA_MAX_SIZE_DIGEST);
 

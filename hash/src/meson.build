@@ -15,7 +15,8 @@ if get_option('sha2-512').enabled()
 endif
 
 if get_option('sha3').enabled()
-	src += files([ 'cshake.c', 'sha3_selector.c', 'sha3_c.c' ])
+	src += files([ 'cshake.c', 'sha3_selector.c', 'sha3_c.c',
+		       'sha3_selftest.c' ])
 	include_files += files([ '../api/lc_cshake.h', '../api/lc_sha3.h' ])
 	lc_hash = 1
 

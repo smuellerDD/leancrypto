@@ -19,13 +19,37 @@
  */
 
 #include "alignment.h"
+#include "compare.h"
 #include "conv_be_le.h"
 #include "ext_headers.h"
 #include "lc_hmac.h"
 #include "lc_pbkdf2.h"
 #include "lc_memset_secure.h"
+#include "lc_sha256.h"
 #include "visibility.h"
 #include "xor.h"
+
+static void lc_pbkdf2_selftest(int *tested, const char *impl)
+{
+	static const uint8_t pw[] = {
+		0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64
+	};
+	static const uint8_t salt[] = {
+		0x73, 0x61, 0x6c, 0x74
+	};
+	static const uint8_t exp_256[] = {
+		0x12, 0x0f, 0xb6, 0xcf, 0xfc, 0xf8, 0xb3, 0x2c,
+		0x43, 0xe7, 0x22, 0x52, 0x56, 0xc4, 0xf8, 0x37,
+		0xa8, 0x65, 0x48, 0xc9
+	};
+	uint8_t act[sizeof(exp_256)];
+
+	LC_SELFTEST_RUN(tested);
+
+	lc_pbkdf2(lc_sha256, pw, sizeof(pw), salt, sizeof(salt), 1,
+		  act, sizeof(act));
+	compare_selftest(act, exp_256, sizeof(exp_256), impl);
+}
 
 #if 0
 static inline uint64_t kcapi_get_time(void)
@@ -100,6 +124,7 @@ int, lc_pbkdf2, const struct lc_hash *hash,
 	uint32_t i = 1;
 #define MAX_DIGESTSIZE 64
 	uint8_t u[LC_SHA_MAX_SIZE_DIGEST] __align(sizeof(uint64_t));
+	static int tested = 0;
 	LC_HMAC_CTX_ON_STACK(hmac_ctx, hash);
 
 	if (keylen > INT_MAX)
@@ -107,6 +132,8 @@ int, lc_pbkdf2, const struct lc_hash *hash,
 
 	if (count == 0)
 		return -EINVAL;
+
+	lc_pbkdf2_selftest(&tested, "PBKDF2");
 
 	lc_hmac_init(hmac_ctx, pw, pwlen);
 	h = lc_hmac_macsize(hmac_ctx);

@@ -17,28 +17,20 @@
  * DAMAGE.
  */
 
-#ifndef POSIX_SUPPORT_H
-#define POSIX_SUPPORT_H
+#ifndef HMAC_SELFTEST_H
+#define HMAC_SELFTEST_H
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-static inline int mlock(const void *ptr, size_t len)
-{
-	(void)ptr;
-	(void)len;
-	return 0;
-}
-
-extern const int errno;
-
-#define printf printk
-#define assert WARN_ON
+void hmac_sha256_selftest(const char *impl);
+void hmac_sha512_selftest(const char *impl);
+void hmac_sha3_selftest(const char *impl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* POSIX_SUPPORT_H */
+#endif /* HMAC_SELFTEST_H */

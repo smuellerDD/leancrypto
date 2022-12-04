@@ -17,12 +17,50 @@
  * DAMAGE.
  */
 
+#include "alignment.h"
+#include "compare.h"
 #include "conv_be_le.h"
 #include "lc_chacha20.h"
 #include "lc_chacha20_drng.h"
 #include "lc_chacha20_private.h"
 #include "math_helper.h"
 #include "visibility.h"
+
+static void cc20_drng_selftest_impl(const char *impl)
+{
+	uint8_t outbuf[LC_CC20_KEY_SIZE] __align(sizeof(uint32_t));
+	struct lc_sym_ctx *sym_ctx;
+	struct lc_sym_state *chacha20_state;
+
+	/*
+	 * Expected result when ChaCha20 DRNG state is zero:
+	 *	* constants are set to "expand 32-byte k"
+	 *	* remaining state is 0
+	 * and pulling one ChaCha20 DRNG block.
+	 */
+	static const uint8_t expected_block[LC_CC20_KEY_SIZE] = {
+		0x76, 0xb8, 0xe0, 0xad, 0xa0, 0xf1, 0x3d, 0x90,
+		0x40, 0x5d, 0x6a, 0xe5, 0x53, 0x86, 0xbd, 0x28,
+		0xbd, 0xd2, 0x19, 0xb8, 0xa0, 0x8d, 0xed, 0x1a,
+		0xa8, 0x36, 0xef, 0xcc, 0x8b, 0x77, 0x0d, 0xc7 };
+	LC_CC20_DRNG_CTX_ON_STACK(cc20_ctx);
+
+	sym_ctx = &cc20_ctx->cc20;
+	chacha20_state = sym_ctx->sym_state;
+
+	/* Generate with zero state */
+	chacha20_state->counter = 0;
+
+	lc_cc20_drng_generate(cc20_ctx, outbuf, sizeof(expected_block));
+	compare_selftest(outbuf, expected_block, sizeof(expected_block), impl);
+	lc_cc20_drng_zero(cc20_ctx);
+}
+
+static void cc20_drng_selftest(int *tested, const char *impl)
+{
+	LC_SELFTEST_RUN(tested);
+	cc20_drng_selftest_impl(impl);
+}
 
 /**
  * Update of the ChaCha20 state by generating one ChaCha20 block which is
@@ -83,11 +121,14 @@ void, lc_cc20_drng_seed, struct lc_chacha20_drng_ctx *cc20_ctx,
 {
 	struct lc_sym_ctx *sym_ctx;
 	struct lc_sym_state *chacha20_state;
+	static int tested = 0;
 
 	if (!cc20_ctx)
 		return;
 	sym_ctx = &cc20_ctx->cc20;
 	chacha20_state = sym_ctx->sym_state;
+
+	cc20_drng_selftest(&tested, "ChaCha20 DRNG");
 
 	while (inbuflen) {
 		size_t i, todo = min_t(uint32_t, inbuflen, LC_CC20_KEY_SIZE);

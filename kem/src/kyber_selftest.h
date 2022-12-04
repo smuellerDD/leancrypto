@@ -17,28 +17,34 @@
  * DAMAGE.
  */
 
-#ifndef POSIX_SUPPORT_H
-#define POSIX_SUPPORT_H
+#ifndef KYBER_SELFTEST_H
+#define KYBER_SELFTEST_H
+
+#include "lc_kyber.h"
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-static inline int mlock(const void *ptr, size_t len)
-{
-	(void)ptr;
-	(void)len;
-	return 0;
-}
+void kyber_kem_keygen_selftest(int *tested, const char *impl,
+	int (*_lc_kyber_keypair)(struct lc_kyber_pk *pk,
+				 struct lc_kyber_sk *sk,
+				 struct lc_rng_ctx *rng_ctx));
 
-extern const int errno;
+void kyber_kem_enc_selftest(int *tested, const char *impl,
+	int (*_lc_kyber_enc)(struct lc_kyber_ct *ct,
+			     uint8_t *ss, size_t ss_len,
+			     const struct lc_kyber_pk *pk,
+			     struct lc_rng_ctx *rng_ctx));
 
-#define printf printk
-#define assert WARN_ON
+void kyber_kem_dec_selftest(int *tested, const char *impl,
+	int (*_lc_kyber_dec)(uint8_t *ss, size_t ss_len,
+			     const struct lc_kyber_ct *ct,
+			     const struct lc_kyber_sk *sk));
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* POSIX_SUPPORT_H */
+#endif /* KYBER_SELFTEST_H */

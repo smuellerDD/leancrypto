@@ -64,7 +64,11 @@ int chacha20_enc_selftest(void)
 	CKINT(lc_sym_setkey(chacha20, (uint8_t *)key, sizeof(key)));
 	CKINT(lc_sym_setiv(chacha20, (uint8_t *)iv, sizeof(iv)));
 	lc_sym_encrypt(chacha20, (uint8_t *)string, res, strlen(string));
-	CKINT(!!memcmp(res, exp, sizeof(exp)));
+	ret = memcmp(res, exp, sizeof(exp));
+	if (ret) {
+		ret = -EINVAL;
+		goto out;
+	}
 	lc_sym_zero(chacha20);
 
 	/* Decrypt */
@@ -72,7 +76,11 @@ int chacha20_enc_selftest(void)
 	CKINT(lc_sym_setkey(chacha20, (uint8_t *)key, sizeof(key)));
 	CKINT(lc_sym_setiv(chacha20, (uint8_t *)iv, sizeof(iv)));
 	lc_sym_decrypt(chacha20, res, res, sizeof(res));
-	CKINT(!!memcmp(res, string, sizeof(res)));
+	ret = memcmp(res, string, sizeof(res));
+	if (ret) {
+		ret = -EINVAL;
+		goto out;
+	}
 
 out:
 	lc_sym_zero(chacha20);

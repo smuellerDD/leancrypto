@@ -10,6 +10,7 @@ if get_option('kyber').enabled()
 		'kyber_ntt.c',
 		'kyber_poly.c',
 		'kyber_polyvec.c',
+		'kyber_selftest.c',
 		'kyber_verify.c',
 	])
 

@@ -22,45 +22,70 @@
 #include "ext_headers_x86.h"
 #include "keccack_asm_glue.h"
 #include "sha3_avx2.h"
+#include "sha3_selftest.h"
 #include "visibility.h"
 
 static void sha3_224_avx2_init(void *_state)
 {
+	static int tested = 0;
+
+	sha3_224_selftest_common(lc_sha3_224_avx2, &tested, "SHA3-224 AVX2");
 	sha3_224_asm_init(_state, NULL, KeccakP1600_AVX2_Initialize);
 }
 
 static void sha3_256_avx2_init(void *_state)
 {
+	static int tested = 0;
+
+	sha3_256_selftest_common(lc_sha3_256_avx2, &tested, "SHA3-256 AVX2");
 	sha3_256_asm_init(_state, NULL, KeccakP1600_AVX2_Initialize);
 }
 
 static void sha3_384_avx2_init(void *_state)
 {
+	static int tested = 0;
+
+	sha3_384_selftest_common(lc_sha3_384_avx2, &tested, "SHA3-384 AVX2");
 	sha3_384_asm_init(_state, NULL, KeccakP1600_AVX2_Initialize);
 }
 
 static void sha3_512_avx2_init(void *_state)
 {
+	static int tested = 0;
+
+	sha3_512_selftest_common(lc_sha3_512_avx2, &tested, "SHA3-512 AVX2");
 	sha3_512_asm_init(_state, NULL, KeccakP1600_AVX2_Initialize);
 }
 
 static void shake_128_avx2_init(void *_state)
 {
+	static int tested = 0;
+
+	shake128_selftest_common(lc_shake128_avx2, &tested, "SHAKE128 AVX2");
 	shake_128_asm_init(_state, NULL, KeccakP1600_AVX2_Initialize);
 }
 
 static void shake_256_avx2_init(void *_state)
 {
+	static int tested = 0;
+
+	shake256_selftest_common(lc_shake256_avx2, &tested, "SHAKE256 AVX2");
 	shake_256_asm_init(_state, NULL, KeccakP1600_AVX2_Initialize);
 }
 
 static void cshake_128_avx2_init(void *_state)
 {
+	static int tested = 0;
+
+	cshake128_selftest_common(lc_cshake128_avx2, &tested, "cSHAKE128 AVX2");
 	cshake_128_asm_init(_state, NULL, KeccakP1600_AVX2_Initialize);
 }
 
 static void cshake_256_avx2_init(void *_state)
 {
+	static int tested = 0;
+
+	cshake256_selftest_common(lc_cshake256_avx2, &tested, "cSHAKE256 AVX2");
 	cshake_256_asm_init(_state, NULL, KeccakP1600_AVX2_Initialize);
 }
 

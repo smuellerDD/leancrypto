@@ -63,3 +63,6 @@ option('aes_kw', type: 'feature', value: 'enabled',
 
 option('small_stack', type: 'feature', value: 'disabled',
        description: 'Compile leancrypto with stack use <= 2048 bytes')
+
+option('enable_selftests', type: 'feature', value: 'enabled',
+       description: 'Compile and enable the self tests for all algorithms invoked before first use')

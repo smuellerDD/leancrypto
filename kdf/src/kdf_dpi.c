@@ -18,13 +18,45 @@
  * DAMAGE.
  */
 
+#include "compare.h"
 #include "conv_be_le.h"
 #include "ext_headers.h"
 #include "lc_hmac.h"
 #include "lc_kdf_dpi.h"
 #include "lc_memset_secure.h"
+#include "lc_sha256.h"
 #include "ret_checkers.h"
 #include "visibility.h"
+
+/*
+ * From
+ * http://csrc.nist.gov/groups/STM/cavp/documents/KBKDF800-108/PipelineModewithCounter.zip
+ */
+static void lc_kdf_dpi_selftest(int *tested, const char *impl)
+{
+	static const uint8_t key[] = {
+		0x3D, 0x36, 0x1A, 0x9F, 0x28, 0xAA, 0xD7, 0x22,
+		0xF6, 0x8E, 0xBD, 0xC2, 0x98, 0x43, 0x9D, 0xA1
+	};
+	static const uint8_t label[] = {
+		0x40, 0x53, 0x44, 0xb2, 0xa4, 0xb8, 0x31, 0x64,
+		0xb0, 0x6e, 0xba, 0xc5, 0x42, 0x1b, 0xf1, 0x01,
+		0x83, 0xdc, 0x4e, 0x0f, 0x8c, 0x2e, 0x58, 0x72,
+		0x84, 0x72, 0xdd, 0xd5, 0xcc, 0xb1, 0x0b, 0xdf
+	};
+	static const uint8_t exp[] = {
+		0x34, 0x22, 0x68, 0x3b, 0x2d, 0x4b, 0xed, 0x1a,
+		0x05
+	};
+	uint8_t act[sizeof(exp)];
+
+	LC_SELFTEST_RUN(tested);
+
+	lc_kdf_dpi(lc_sha256, key, sizeof(key), label, sizeof(label),
+		   act, sizeof(act));
+	compare_selftest(act, exp, sizeof(exp), impl);
+}
+
 
 LC_INTERFACE_FUNCTION(
 int, lc_kdf_dpi_generate, struct lc_hmac_ctx *hmac_ctx,
@@ -94,6 +126,9 @@ LC_INTERFACE_FUNCTION(
 int, lc_kdf_dpi_init, struct lc_hmac_ctx *hmac_ctx,
 		      const uint8_t *key, size_t keylen)
 {
+	static int tested = 0;
+
+	lc_kdf_dpi_selftest(&tested, "SP800-108 DPI KDF");
 	lc_hmac_init(hmac_ctx, key, keylen);
 	return 0;
 }

@@ -1,5 +1,6 @@
 Changes 0.5.0-prerelease:
-* enhancement: add ability to compile leancrypto for the Linux kernel including all tests
+* enhancement: add ability to compile leancrypto for the Linux kernel including
+  all tests
 
 * enhancement: make leancrypto generic such that it can be used in environments
   other than user space
@@ -27,9 +28,17 @@ Changes 0.5.0-prerelease:
 
 * leancrypto tested on macOS with an M2 system
 
-* enhancement: add RPM SPEC file - successful build on OpenSUSE build service on x86_64, i586, aarch64, armv7l, armv6l, ppc64, ppc64le, riscv64
+* bug fix: Dilithium C on Big Endian had implicit type casts leading to
+  endianess issues
+
+* enhancement: add RPM SPEC file - successful build on OpenSUSE build service
+  on x86_64, i586, aarch64, armv7l, armv6l, ppc64, ppc64le, riscv64
 
 * rename memset_secure to lc_memset_secure preventing any possible name space clash
+
+* enhancement: add self tests to all algorithms
+
+* bug fix: ChaCha20 on BigEndian systems
 
 Changes 0.4.0:
 * simplify Kyber code

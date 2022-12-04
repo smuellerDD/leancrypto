@@ -1,9 +1,13 @@
 # Lean Crypto Library
 
-The leancrypto library provides algorithm implementations which have the
-following properties:
+The leancrypto library is a cryptographic library that exclusively contains
+only PQC-resistant cryptographic algorithms. The algorithm implementations
+have the following properties:
 
-* minimal dependencies: only POSIX environment needed - function calls are abstracted into helper code that may need to be replaced for other environments (see the Linux kernel support in `linux_kernel` for replacing the POSIX calls)
+* minimal dependencies: only minimal POSIX environment needed - function calls
+  are abstracted into helper code that may need to be replaced for other
+  environments (see the Linux kernel support in `linux_kernel` for replacing the
+  POSIX calls)
 
 * extractable: the algorithms can be extracted and compiled as part of a
   separate project,
@@ -17,7 +21,8 @@ following properties:
 * stack-only support: all algorithms can be allocated on stack if needed. In
   addition, allocation functions for a usage on heap is also supported, and
 
-* minimizing footprint when statically linking by applying dead-code stripping.
+* minimizing footprint when statically linking by supporting dead-code
+  stripping.
 
 ## Library Build
 

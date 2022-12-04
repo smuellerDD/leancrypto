@@ -6,7 +6,8 @@ if get_option('dilithium').enabled()
 		'dilithium_ntt.c',
 		'dilithium_pack.c',
 		'dilithium_poly.c',
-		'dilithium_rounding.c'
+		'dilithium_rounding.c',
+		'dilithium_selftest.c'
 	])
 
 	if (x86_64_asm)

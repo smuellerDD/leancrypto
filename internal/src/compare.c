@@ -17,28 +17,39 @@
  * DAMAGE.
  */
 
-#ifndef POSIX_SUPPORT_H
-#define POSIX_SUPPORT_H
+#include "compare.h"
+#include "ext_headers.h"
+#include "visibility.h"
 
-#ifdef __cplusplus
-extern "C"
+LC_INTERFACE_FUNCTION(
+int, compare, const uint8_t *act, const uint8_t *exp, const size_t len,
+	    const char *info)
 {
-#endif
+	if (memcmp(act, exp, len)) {
+		unsigned int i;
 
-static inline int mlock(const void *ptr, size_t len)
-{
-	(void)ptr;
-	(void)len;
+		printf("Expected %s ", info);
+		for (i = 0; i < len; i++)
+			printf("0x%.2x ", *(exp + i));
+
+		printf("\n");
+
+		printf("Actual %s ", info);
+		for (i = 0; i < len; i++)
+			printf("0x%.2x ", *(act + i));
+
+		printf("\n");
+
+		return 1;
+	}
+
 	return 0;
 }
 
-extern const int errno;
-
-#define printf printk
-#define assert WARN_ON
-
-#ifdef __cplusplus
+void compare_selftest(const uint8_t *act, const uint8_t *exp, const size_t len,
+		      const char *info)
+{
+	assert(!compare(act, exp, len, info));
+	printf("Selftest %s - %s\n", info,
+	       compare(act, exp, len, info) ? "failed" : "passed");
 }
-#endif
-
-#endif /* POSIX_SUPPORT_H */

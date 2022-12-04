@@ -17,28 +17,35 @@
  * DAMAGE.
  */
 
-#ifndef POSIX_SUPPORT_H
-#define POSIX_SUPPORT_H
+#ifndef SHA3_SELFTEST_H
+#define SHA3_SELFTEST_H
+
+#include "lc_hash.h"
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-static inline int mlock(const void *ptr, size_t len)
-{
-	(void)ptr;
-	(void)len;
-	return 0;
-}
-
-extern const int errno;
-
-#define printf printk
-#define assert WARN_ON
+void sha3_224_selftest_common(const struct lc_hash *sha3_224,
+			      int *tested, const char *impl);
+void sha3_256_selftest_common(const struct lc_hash *sha3_256,
+			      int *tested, const char *impl);
+void sha3_384_selftest_common(const struct lc_hash *sha3_384,
+			      int *tested, const char *impl);
+void sha3_512_selftest_common(const struct lc_hash *sha3_512,
+			      int *tested, const char *impl);
+void shake128_selftest_common(const struct lc_hash *shake128,
+			      int *tested, const char *impl);
+void shake256_selftest_common(const struct lc_hash *shake256,
+			      int *tested, const char *impl);
+void cshake128_selftest_common(const struct lc_hash *cshake128,
+			       int *tested, const char *impl);
+void cshake256_selftest_common(const struct lc_hash *cshake256,
+			       int *tested, const char *impl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* POSIX_SUPPORT_H */
+#endif /* SHA3_SELFTEST_H */

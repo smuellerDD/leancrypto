@@ -17,28 +17,9 @@
  * DAMAGE.
  */
 
-#ifndef POSIX_SUPPORT_H
-#define POSIX_SUPPORT_H
+#include "hmac_selftest.h"
 
-#ifdef __cplusplus
-extern "C"
+void hmac_sha3_selftest(const char *impl)
 {
-#endif
-
-static inline int mlock(const void *ptr, size_t len)
-{
-	(void)ptr;
-	(void)len;
-	return 0;
+	(void)impl;
 }
-
-extern const int errno;
-
-#define printf printk
-#define assert WARN_ON
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* POSIX_SUPPORT_H */

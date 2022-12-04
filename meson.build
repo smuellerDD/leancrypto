@@ -49,6 +49,10 @@ else
         add_global_arguments([ '-DDEBUG' ], language: 'c')
 endif
 
+if get_option('enable_selftests').enabled()
+	add_global_arguments([ '-DLC_SELFTEST_ENABLED' ], language: 'c')
+endif
+
 if get_option('small_stack').enabled()
         add_global_arguments([ '-Wframe-larger-than=2048',
 			       '-DLC_MEM_ON_HEAP' ],
@@ -168,6 +172,13 @@ if get_option('kmac').enabled()
 
 	subdirs += 'kmac/src'
 	testdirs += 'kmac/tests'
+endif
+
+if get_option('sha2-256').disabled() and
+   (get_option('hkdf').enabled() or get_option('kdf_ctr').enabled() or
+    get_option('kdf_fb').enabled() or get_option('kdf_dpi').enabled() or
+    get_option('pbkdf2').enabled())
+	error('KDF support requires SHA2-256')
 endif
 
 if get_option('sha2-256').disabled() and get_option('hotp').enabled()

@@ -25,6 +25,7 @@
 #include "lc_memset_secure.h"
 #include "sha3_c.h"
 #include "sha3_common.h"
+#include "sha3_selftest.h"
 #include "visibility.h"
 
 static inline uint64_t rol(uint64_t x, int n)
@@ -193,10 +194,13 @@ void sha3_224_init_common(void *_state)
 static void sha3_224_init(void *_state)
 {
 	struct lc_sha3_224_state *ctx = _state;
+	static int tested = 0;
+
 
 	if (!ctx)
 		return;
 
+	sha3_224_selftest_common(lc_sha3_224_c, &tested, "SHA3-224 C");
 	sha3_224_init_common(_state);
 	sha3_c_state_init(ctx->state);
 }
@@ -224,10 +228,13 @@ void sha3_256_init_common(void *_state)
 static void sha3_256_init(void *_state)
 {
 	struct lc_sha3_256_state *ctx = _state;
+	static int tested = 0;
+
 
 	if (!ctx)
 		return;
 
+	sha3_256_selftest_common(lc_sha3_256_c, &tested, "SHA3-256 C");
 	sha3_256_init_common(_state);
 	sha3_c_state_init(ctx->state);
 }
@@ -255,10 +262,12 @@ void sha3_384_init_common(void *_state)
 static void sha3_384_init(void *_state)
 {
 	struct lc_sha3_384_state *ctx = _state;
+	static int tested = 0;
 
 	if (!ctx)
 		return;
 
+	sha3_384_selftest_common(lc_sha3_384_c, &tested, "SHA3-384 C");
 	sha3_384_init_common(_state);
 	sha3_c_state_init(ctx->state);
 }
@@ -286,11 +295,12 @@ void sha3_512_init_common(void *_state)
 static void sha3_512_init(void *_state)
 {
 	struct lc_sha3_512_state *ctx = _state;
+	static int tested = 0;
 
 	if (!ctx)
 		return;
 
-	sha3_512_init_common(_state);
+	sha3_512_selftest_common(lc_sha3_512_c, &tested, "SHA3-512 C");	sha3_512_init_common(_state);
 	sha3_c_state_init(ctx->state);
 }
 
@@ -317,10 +327,12 @@ void shake_128_init_common(void *_state)
 static void shake_128_init(void *_state)
 {
 	struct lc_shake_128_state *ctx = _state;
+	static int tested = 0;
 
 	if (!ctx)
 		return;
 
+	shake128_selftest_common(lc_shake128_c, &tested, "SHAKE128 C");
 	shake_128_init_common(_state);
 	sha3_c_state_init(ctx->state);
 }
@@ -342,10 +354,12 @@ void shake_256_init_common(void *_state)
 static void shake_256_init(void *_state)
 {
 	struct lc_sha3_256_state *ctx = _state;
+	static int tested = 0;
 
 	if (!ctx)
 		return;
 
+	shake256_selftest_common(lc_shake256_c, &tested, "SHAKE256 C");
 	shake_256_init_common(_state);
 	sha3_c_state_init(ctx->state);
 }
@@ -367,10 +381,12 @@ void cshake_256_init_common(void *_state)
 static void cshake_256_init(void *_state)
 {
 	struct lc_sha3_256_state *ctx = _state;
+	static int tested = 0;
 
 	if (!ctx)
 		return;
 
+	cshake256_selftest_common(lc_cshake256_c, &tested, "cSHAKE256 C");
 	cshake_256_init_common(_state);
 	sha3_c_state_init(ctx->state);
 }
@@ -392,10 +408,12 @@ void cshake_128_init_common(void *_state)
 static void cshake_128_init(void *_state)
 {
 	struct lc_shake_128_state *ctx = _state;
+	static int tested = 0;
 
 	if (!ctx)
 		return;
 
+	cshake128_selftest_common(lc_cshake128_c, &tested, "cSHAKE128 C");
 	cshake_128_init_common(_state);
 	sha3_c_state_init(ctx->state);
 }

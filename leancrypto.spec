@@ -34,7 +34,7 @@ to be used on stack as well as on heap. Accelerated algorithms are transparently
 enabled if possible.
 
 %package devel
-Summary:        Development files for leancrypto, a PQC-safe cryptographic library with stack-only support
+Summary:        Development files for leancrypto, a cryptographic library
 Requires:       glibc-devel
 Requires:       %{name} = %{version}
 #BuildArchitectures: noarch

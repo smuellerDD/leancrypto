@@ -17,28 +17,27 @@
  * DAMAGE.
  */
 
-#ifndef POSIX_SUPPORT_H
-#define POSIX_SUPPORT_H
+#include "compare.h"
+#include "hmac_selftest.h"
+#include "lc_hmac.h"
+#include "lc_sha3.h"
 
-#ifdef __cplusplus
-extern "C"
+void hmac_sha3_selftest(const char *impl)
 {
-#endif
+	static const uint8_t msg_224[] = { 0x35, 0x8E, 0x06, 0xBA, 0x03, 0x21,
+					   0x83, 0xFC, 0x18, 0x20, 0x58, 0xBD,
+					   0xB7, 0xBB, 0x13, 0x40 };
+	static const uint8_t key_224[] = { 0xBB, 0x00, 0x95, 0xC4, 0xA4, 0xA6,
+					   0x67, 0xD2, 0xE7, 0x43, 0x30, 0xE5,
+					   0xD6 };
+	static const uint8_t exp_224[] = { 0x16, 0xf7, 0xb2, 0x7e, 0x25, 0x37,
+					   0x6c, 0x38, 0xcf, 0xaa, 0x6f, 0xcc,
+					   0xe2, 0x85, 0xc5, 0x14, 0x28, 0xdb,
+					   0x33, 0xa0, 0xfe, 0x7a, 0xf0, 0xaf,
+					   0x53, 0x95, 0xde, 0xa2 };
+	uint8_t act[LC_SHA3_224_SIZE_DIGEST];
 
-static inline int mlock(const void *ptr, size_t len)
-{
-	(void)ptr;
-	(void)len;
-	return 0;
+	lc_hmac(lc_sha3_224, key_224, sizeof(key_224), msg_224, sizeof(msg_224),
+		act);
+	compare_selftest(act, exp_224, sizeof(exp_224), impl);
 }
-
-extern const int errno;
-
-#define printf printk
-#define assert WARN_ON
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* POSIX_SUPPORT_H */

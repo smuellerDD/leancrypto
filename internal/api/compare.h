@@ -27,30 +27,22 @@ extern "C"
 {
 #endif
 
-static inline int compare(const uint8_t *act, const uint8_t *exp,
-			  const size_t len, const char *info)
-{
-	if (memcmp(act, exp, len)) {
-		unsigned int i;
+#ifdef LC_SELFTEST_ENABLED
+#define LC_SELFTEST_RUN(x)						       \
+	if (*x)								       \
+		return;							       \
+	*x = 1;
+#else /* LC_SELFTEST_ENABLED */
+#define LC_SELFTEST_RUN(x)						       \
+	(void)x;							       \
+	if (1)								       \
+		return;
+#endif /* LC_SELFTEST_ENABLED */
 
-		printf("Expected %s ", info);
-		for (i = 0; i < len; i++)
-			printf("0x%.2x ", *(exp + i));
-
-		printf("\n");
-
-		printf("Actual %s ", info);
-		for (i = 0; i < len; i++)
-			printf("0x%.2x ", *(act + i));
-
-		printf("\n");
-
-		return 1;
-	}
-
-	return 0;
-}
-
+int compare(const uint8_t *act, const uint8_t *exp, const size_t len,
+	    const char *info);
+void compare_selftest(const uint8_t *act, const uint8_t *exp, const size_t len,
+		      const char *info);
 
 #ifdef __cplusplus
 }

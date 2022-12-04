@@ -21,45 +21,78 @@
 
 #include "keccack_asm_glue.h"
 #include "sha3_arm8_neon.h"
+#include "sha3_selftest.h"
 #include "visibility.h"
 
 static void sha3_224_arm8_neon_init(void *_state)
 {
+	static int tested = 0;
+
+	sha3_224_selftest_common(lc_sha3_224_arm8_neon, &tested,
+				 "SHA3-224 ARMv8 Neon");
 	sha3_224_asm_init(_state, NULL, KeccakP1600_Initialize);
 }
 
 static void sha3_256_arm8_neon_init(void *_state)
 {
+	static int tested = 0;
+
+	sha3_256_selftest_common(lc_sha3_256_arm8_neon, &tested,
+				 "SHA3-256 ARMv8 Neon");
 	sha3_256_asm_init(_state, NULL, KeccakP1600_Initialize);
 }
 
 static void sha3_384_arm8_neon_init(void *_state)
 {
+	static int tested = 0;
+
+	sha3_384_selftest_common(lc_sha3_384_arm8_neon, &tested,
+				 "SHA3-384 ARMv8 Neon");
 	sha3_384_asm_init(_state, NULL, KeccakP1600_Initialize);
 }
 
 static void sha3_512_arm8_neon_init(void *_state)
 {
+	static int tested = 0;
+
+	sha3_512_selftest_common(lc_sha3_512_arm8_neon, &tested,
+				 "SHA3-512 ARMv8 Neon");
 	sha3_512_asm_init(_state, NULL, KeccakP1600_Initialize);
 }
 
 static void shake_128_arm8_neon_init(void *_state)
 {
+	static int tested = 0;
+
+	shake128_selftest_common(lc_shake128_arm8_neon, &tested,
+				 "SHAKE128 ARMv8 Neon");
 	shake_128_asm_init(_state, NULL, KeccakP1600_Initialize);
 }
 
 static void shake_256_arm8_neon_init(void *_state)
 {
+	static int tested = 0;
+
+	shake256_selftest_common(lc_shake256_arm8_neon, &tested,
+				 "SHAKE256 ARMv8 Neon");
 	shake_256_asm_init(_state, NULL, KeccakP1600_Initialize);
 }
 
 static void cshake_128_arm8_neon_init(void *_state)
 {
+	static int tested = 0;
+
+	cshake128_selftest_common(lc_cshake128_arm8_neon, &tested,
+				  "cSHAKE128 ARMv8 Neon");
 	cshake_128_asm_init(_state, NULL, KeccakP1600_Initialize);
 }
 
 static void cshake_256_arm8_neon_init(void *_state)
 {
+	static int tested = 0;
+
+	cshake256_selftest_common(lc_cshake256_arm8_neon, &tested,
+				  "cSHAKE256 ARMv8 Neon");
 	cshake_256_asm_init(_state, NULL, KeccakP1600_Initialize);
 }
 

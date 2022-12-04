@@ -30,6 +30,7 @@
 #include "dilithium_pack_avx2.h"
 #include "dilithium_poly_avx2.h"
 #include "dilithium_polyvec_avx2.h"
+#include "dilithium_selftest.h"
 #include "dilithium_signature_avx2.h"
 #include "lc_dilithium.h"
 #include "lc_rng.h"
@@ -111,12 +112,16 @@ int, lc_dilithium_keypair_avx2, struct lc_dilithium_pk *pk,
 	const uint8_t *rho, *rhoprime, *key;
 	polyvecl *row;
 	int ret;
+	static int tested = 0;
 	LC_DECLARE_MEM(ws, struct workspace, 32);
 
 	if (!pk || !sk || !rng_ctx) {
 		ret = -EINVAL;
 		goto out;
 	}
+
+	dilithium_keypair_tester(&tested, "Dilithium Keygen AVX2",
+				 lc_dilithium_keypair_avx2);
 
 	row = ws->rowbuf;
 
@@ -244,6 +249,7 @@ int, lc_dilithium_sign_avx2, struct lc_dilithium_sig *sig,
 			LC_DILITHIUM_L * LC_DILITHIUM_POLYZ_PACKEDBYTES;
 	uint64_t nonce = 0;
 	int ret = 0;
+	static int tested = 0;
 	LC_DECLARE_MEM(ws, struct workspace, 32);
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
 
@@ -252,6 +258,9 @@ int, lc_dilithium_sign_avx2, struct lc_dilithium_sig *sig,
 		ret = -EINVAL;
 		goto out;
 	}
+
+	dilithium_siggen_tester(&tested, "Dilithium Siggen AVX2",
+				 lc_dilithium_sign_avx2);
 
 	rho = ws->seedbuf;
 	tr = rho + LC_DILITHIUM_SEEDBYTES;
@@ -413,6 +422,7 @@ int, lc_dilithium_verify_avx2, const struct lc_dilithium_sig *sig,
 			      LC_DILITHIUM_L * LC_DILITHIUM_POLYZ_PACKEDBYTES;
 	polyvecl *row;
 	int ret = 0;
+	static int tested = 0;
 	LC_DECLARE_MEM(ws, struct workspace, 32);
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
 
@@ -420,6 +430,9 @@ int, lc_dilithium_verify_avx2, const struct lc_dilithium_sig *sig,
 		ret = -EINVAL;
 		goto out;
 	}
+
+	dilithium_sigver_tester(&tested, "Dilithium Sigver AVX2",
+				 lc_dilithium_verify_avx2);
 
 	row = ws->rowbuf;
 

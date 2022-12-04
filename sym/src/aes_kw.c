@@ -17,6 +17,7 @@
  * DAMAGE.
  */
 
+#include "compare.h"
 #include "ext_headers.h"
 #include "bitshift.h"
 #include "conv_be_le.h"
@@ -40,6 +41,50 @@ struct aes_kw_block {
 };
 
 #define LC_AES_KW_BLOCK_SIZE sizeof(struct lc_sym_state)
+
+static void aes_kw_selftest(int *tested, const char *impl)
+{
+	static const uint8_t key256[] = {
+		0x80, 0xaa, 0x99, 0x73, 0x27, 0xa4, 0x80, 0x6b,
+		0x6a, 0x7a, 0x41, 0xa5, 0x2b, 0x86, 0xc3, 0x71,
+		0x03, 0x86, 0xf9, 0x32, 0x78, 0x6e, 0xf7, 0x96,
+		0x76, 0xfa, 0xfb, 0x90, 0xb8, 0x26, 0x3c, 0x5f
+	};
+	static const uint8_t in[] = {
+		0x0a, 0x25, 0x6b, 0xa7, 0x5c, 0xfa, 0x03, 0xaa,
+		0xa0, 0x2b, 0xa9, 0x42, 0x03, 0xf1, 0x5b, 0xaa
+	};
+	static const uint8_t out256[] = {
+		0xd3, 0x3d, 0x3d, 0x97, 0x7b, 0xf0, 0xa9, 0x15,
+		0x59, 0xf9, 0x9c, 0x8a, 0xcd, 0x29, 0x3d, 0x43
+	};
+	static const uint8_t iv[] = {
+		0x42, 0x3c, 0x96, 0x0d, 0x8a, 0x2a, 0xc4, 0xc1
+	};
+
+	uint8_t out[sizeof(in)];
+	char status[25];
+
+	LC_SELFTEST_RUN(tested);
+
+	LC_SYM_CTX_ON_STACK(ctx, lc_aes_kw);
+
+	lc_sym_init(ctx);
+	lc_sym_setkey(ctx, key256, sizeof(key256));
+	lc_sym_setiv(ctx, iv, sizeof(iv));
+	lc_sym_encrypt(ctx, in, out, sizeof(in));
+	snprintf(status, sizeof(status), "%s encrypt", impl);
+	compare_selftest(out256, out, sizeof(out256), status);
+	lc_sym_zero(ctx);
+
+	lc_sym_init(ctx);
+	lc_sym_setkey(ctx, key256, sizeof(key256));
+	lc_sym_setiv(ctx, iv, sizeof(iv));
+	lc_sym_decrypt(ctx, out, out, sizeof(out));
+	snprintf(status, sizeof(status), "%s decrypt", impl);
+	compare_selftest(in, out, sizeof(in), status);
+	lc_sym_zero(ctx);
+}
 
 static void aes_kw_encrypt(struct lc_sym_state *ctx,
 			   const uint8_t *in, uint8_t *out, size_t len)
@@ -155,7 +200,11 @@ static void aes_kw_decrypt(struct lc_sym_state *ctx,
 
 static void aes_kw_init(struct lc_sym_state *ctx)
 {
+	static int tested = 0;
+
 	(void)ctx;
+
+	aes_kw_selftest(&tested, "AES-KW");
 }
 
 static int aes_kw_setkey(struct lc_sym_state *ctx,

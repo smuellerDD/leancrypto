@@ -18,11 +18,22 @@
  * DAMAGE.
  */
 
+#include "compare.h"
+#include "hmac_selftest.h"
 #include "lc_hmac.h"
 #include "visibility.h"
 
 #define IPAD	0x36
 #define OPAD	0x5c
+
+static void hmac_selftest(int *tested, const char *impl)
+{
+	LC_SELFTEST_RUN(tested);
+
+	hmac_sha256_selftest(impl);
+	hmac_sha512_selftest(impl);
+	hmac_sha3_selftest(impl);
+}
 
 LC_INTERFACE_FUNCTION(
 void, lc_hmac_reinit, struct lc_hmac_ctx *hmac_ctx)
@@ -41,11 +52,14 @@ void, lc_hmac_init, struct lc_hmac_ctx *hmac_ctx,
 	const struct lc_hash *hash = hash_ctx->hash;
 	uint8_t *k_opad, *k_ipad;
 	unsigned int i;
+	static int tested = 0;
 
 	if (lc_hash_ctxsize(hash_ctx) > LC_HASH_STATE_SIZE(hash) ||
 	    lc_hash_blocksize(hash_ctx) > LC_SHA_MAX_SIZE_BLOCK ||
 	    lc_hash_digestsize(hash_ctx) > LC_SHA_MAX_SIZE_DIGEST)
 		return;
+
+	hmac_selftest(&tested, "HMAC");
 
 	k_opad = hmac_ctx->k_opad;
 	k_ipad = hmac_ctx->k_ipad;

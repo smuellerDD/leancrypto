@@ -9,6 +9,7 @@ leancrypto_test-y := leancrypto_tester.o
 # Internal helper code
 ccflags-y	  += -I$(PWD)/../internal/api
 leancrypto-y	  += ../internal/src/left_encode.o			       \
+		     ../internal/src/compare.o				       \
 		     ../internal/src/memcmp_secure.o			       \
 		     ../internal/src/null_buffer.o			       \
 		     ../internal/src/status.o
@@ -27,6 +28,7 @@ leancrypto-y	  += ../hash/src/cshake.o				       \
 		     ../hash/src/sha256.o				       \
 		     ../hash/src/sha512.o				       \
 		     ../hash/src/sha3_selector.o			       \
+		     ../hash/src/sha3_selftest.o			       \
 		     ../hash/src/sha3_c.o
 leancrypto_test-y += ../hash/tests/cshake_128_tester.o			       \
 		     ../hash/tests/cshake_256_tester.o			       \
@@ -92,7 +94,8 @@ leancrypto_test-y += ../drng/tests/chacha20_drng_tester.o		       \
 
 # HMAC implementation
 ccflags-y	  += -I$(PWD)/../hmac/api
-leancrypto-y	  += ../hmac/src/hmac.o
+leancrypto-y	  += ../hmac/src/hmac.o					       \
+		     ../hmac/src/hmac_sha256_selftest.o
 leancrypto_test-y += ../hmac/tests/hmac_sha2_256_tester.o		       \
 		     ../hmac/tests/hmac_sha2_512_tester.o		       \
 		     ../hmac/tests/hmac_sha3_224_tester.o
@@ -120,6 +123,7 @@ leancrypto-y	  += ../kem/src/kyber_cbd.o				       \
 		     ../kem/src/kyber_ntt.o				       \
 		     ../kem/src/kyber_poly.o				       \
 		     ../kem/src/kyber_polyvec.o				       \
+		     ../kem/src/kyber_selftest.o			       \
 		     ../kem/src/kyber_verify.o
 
 ifdef CONFIG_X86_64
@@ -165,6 +169,7 @@ leancrypto-y	  += ../signature/src/dilithium_ntt.o			       \
 		     ../signature/src/dilithium_pack.o			       \
 		     ../signature/src/dilithium_poly.o			       \
 		     ../signature/src/dilithium_rounding.o		       \
+		     ../signature/src/dilithium_selftest.o		       \
 		     ../signature/src/dilithium_signature_c.o
 
 ifdef CONFIG_X86_64

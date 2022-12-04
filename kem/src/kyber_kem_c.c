@@ -19,6 +19,7 @@
 
 #include "kyber_indcpa.h"
 #include "kyber_kem.h"
+#include "kyber_selftest.h"
 #include "kyber_verify.h"
 #include "lc_hash.h"
 #include "lc_kyber.h"
@@ -31,6 +32,10 @@ int, lc_kyber_keypair_c, struct lc_kyber_pk *pk,
 			 struct lc_kyber_sk *sk,
 			 struct lc_rng_ctx *rng_ctx)
 {
+	static int tester = 0;
+
+	kyber_kem_keygen_selftest(&tester, "Kyber KEM keypair C",
+				  lc_kyber_keypair_c);
 	return _lc_kyber_keypair(pk, sk, rng_ctx, indcpa_keypair);
 }
 
@@ -40,6 +45,9 @@ int, lc_kyber_enc_c, struct lc_kyber_ct *ct,
 		     const struct lc_kyber_pk *pk,
 		     struct lc_rng_ctx *rng_ctx)
 {
+	static int tester = 0;
+
+	kyber_kem_enc_selftest(&tester, "Kyber KEM enc C", lc_kyber_enc_c);
 	return _lc_kyber_enc(ct, ss, ss_len, pk, rng_ctx, indcpa_enc);
 }
 
@@ -49,5 +57,8 @@ int, lc_kyber_dec_c, uint8_t *ss, size_t ss_len,
 		     const struct lc_kyber_ct *ct,
 		     const struct lc_kyber_sk *sk)
 {
+	static int tester = 0;
+
+	kyber_kem_dec_selftest(&tester, "Kyber KEM dec C", lc_kyber_dec_c);
 	return _lc_kyber_dec(ss, ss_len, ct, sk, indcpa_dec, indcpa_enc);
 }
