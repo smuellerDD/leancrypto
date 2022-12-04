@@ -1,4 +1,4 @@
-Changes 0.5.0-prerelease:
+Changes 0.5.0:
 * enhancement: add ability to compile leancrypto for the Linux kernel including
   all tests
 
