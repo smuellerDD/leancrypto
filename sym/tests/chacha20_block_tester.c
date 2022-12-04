@@ -17,6 +17,7 @@
  * DAMAGE.
  */
 
+#include "compare.h"
 #include "conv_be_le.h"
 #include "lc_chacha20.h"
 #include "ret_checkers.h"
@@ -41,7 +42,8 @@ static inline int chacha20_selftest_one(struct lc_sym_state *state,
 
 	cc20_block(state, result);
 
-	return !!memcmp(expected, result, sizeof(result));
+	return compare((uint8_t *)result, (uint8_t *)expected,
+		       sizeof(result), "ChaCha20 block");
 }
 
 int chacha20_block_selftest(void)
@@ -58,6 +60,8 @@ int chacha20_block_selftest(void)
 	LC_SYM_CTX_ON_STACK(chacha20, lc_chacha20);
 
 	/* Test vector according to RFC 7539 section 2.3.2 */
+	chacha20_bswap32(key, sizeof(key) / sizeof(uint32_t));
+	chacha20_bswap32(iv, sizeof(iv) / sizeof(uint32_t));
 	lc_sym_init(chacha20);
 	CKINT(lc_sym_setkey(chacha20, (uint8_t *)key, sizeof(key)));
 	CKINT(lc_sym_setiv(chacha20, (uint8_t *)iv, sizeof(iv)));
