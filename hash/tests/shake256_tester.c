@@ -20,7 +20,6 @@
 #include "compare.h"
 #include "lc_cshake.h"
 #include "lc_sha3.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
 #include "sha3_c.h"
@@ -146,7 +145,7 @@ static int _shake_256_tester(const struct lc_hash *shake_256, const char *name)
 	return ret;
 }
 
-int shake256_tester(void)
+static int shake256_tester(void)
 {
 	int ret = 0;
 

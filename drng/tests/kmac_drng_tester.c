@@ -20,7 +20,6 @@
 #include "alignment.h"
 #include "compare.h"
 #include "lc_kmac256_drng.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
 #define LC_KMAC_DRNG_SEED_CUSTOMIZATION_STRING	"KMAC-DRNG seed"
@@ -95,7 +94,7 @@ static int kmac_drng_selftest(struct lc_rng_ctx *kmac_ctx)
 	return ret;
 }
 
-int kmac_test(void)
+static int kmac_test(void)
 {
 	struct lc_rng_ctx *kmac_ctx_heap;
 	int ret;

@@ -19,7 +19,6 @@
 
 #include "compare.h"
 #include "lc_kmac.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
 #include "sha3_c.h"
@@ -976,7 +975,7 @@ static int _kmac_128_tester(const struct lc_hash *cshake_128, const char *name)
 	return ret;
 }
 
-int kmac_128_tester(void)
+static int kmac_128_tester(void)
 {
 	int ret = 0;
 

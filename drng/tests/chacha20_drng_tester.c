@@ -21,7 +21,6 @@
 #include "conv_be_le.h"
 #include "lc_chacha20_drng.h"
 #include "lc_chacha20_private.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
 static inline void chacha20_bswap32(uint32_t *ptr, uint32_t words)
@@ -157,7 +156,7 @@ static int chacha20_drng_selftest(struct lc_chacha20_drng_ctx *cc20_ctx)
 	return 0;
 }
 
-int chacha20_tester(void)
+static int chacha20_tester(void)
 {
 	struct lc_chacha20_drng_ctx *cc20_ctx_heap;
 	int ret;

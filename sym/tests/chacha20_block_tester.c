@@ -21,7 +21,6 @@
 #include "conv_be_le.h"
 #include "lc_chacha20.h"
 #include "ret_checkers.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
 static inline void chacha20_bswap32(uint32_t *ptr, uint32_t bytes)
@@ -46,7 +45,7 @@ static inline int chacha20_selftest_one(struct lc_sym_state *state,
 		       sizeof(result), "ChaCha20 block");
 }
 
-int chacha20_block_selftest(void)
+static int chacha20_block_selftest(void)
 {
 	uint32_t expected[64 / sizeof(uint32_t)];
 	int ret;

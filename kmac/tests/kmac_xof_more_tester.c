@@ -19,7 +19,6 @@
 
 #include "compare.h"
 #include "lc_kmac.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
 #include "sha3_c.h"
@@ -94,7 +93,7 @@ static int _kmac_256_xof_more_tester(const struct lc_hash *cshake_256,
 	return ret;
 }
 
-int kmac_xof_more_tester(void)
+static int kmac_xof_more_tester(void)
 {
 	int ret = 0;
 

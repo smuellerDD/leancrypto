@@ -21,7 +21,6 @@
 #include "lc_aes_private.h"
 #include "compare.h"
 #include "ret_checkers.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
 static const uint8_t key128[] = {
@@ -98,7 +97,7 @@ out:
 	return ret;
 }
 
-int test_kw(void)
+static int test_kw(void)
 {
 	int ret;
 	LC_SYM_CTX_ON_STACK(aes_kw, lc_aes_kw);

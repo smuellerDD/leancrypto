@@ -20,10 +20,9 @@
 #include "compare.h"
 #include "lc_hmac.h"
 #include "lc_sha512.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
-int hmac_sha2_512_tester(void)
+static int hmac_sha2_512_tester(void)
 {
 	static const uint8_t msg_512[] = {
 		0x32, 0x9D, 0x57, 0x59, 0xEC, 0x2B, 0x51, 0xB6,

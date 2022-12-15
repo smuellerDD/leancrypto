@@ -34,7 +34,6 @@
 #include "lc_hash.h"
 #include "lc_sha3.h"
 #include "small_stack_support.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
 #define MLEN 32

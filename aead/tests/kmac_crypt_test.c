@@ -22,7 +22,6 @@
 #include "lc_kmac_crypt.h"
 #include "lc_cshake.h"
 #include "lc_kmac.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
 static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
@@ -133,7 +132,7 @@ static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
 	return ret_checked;
 }
 
-int kc_tester_kmac_validate(void)
+static int kc_tester_kmac_validate(void)
 {
 	static const uint8_t in[] = {
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -160,7 +159,7 @@ int kc_tester_kmac_validate(void)
 		       "KMAC crypt: Validation");
 }
 
-int kc_tester_kmac(void)
+static int kc_tester_kmac(void)
 {
 	static const uint8_t in[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,

@@ -21,10 +21,9 @@
 #include "lc_cshake256_drng.h"
 #include "lc_kyber.h"
 #include "lc_rng.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
-int kyber_invalid(void)
+static int kyber_invalid(void)
 {
 	struct workspace {
 		struct lc_kyber_sk sk;
@@ -80,7 +79,7 @@ out:
 	return ret;
 }
 
-int main(int argc, char *argv[])
+LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	int ret = 0;
 

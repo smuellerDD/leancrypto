@@ -19,10 +19,9 @@
 
 #include "compare.h"
 #include "lc_sha256.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
-int sha256_tester(void)
+static int sha256_tester(void)
 {
 	static const uint8_t msg_256[] = { 0x06, 0x3A, 0x53 };
 	static const uint8_t exp_256[] = { 0x8b, 0x05, 0x65, 0x59, 0x60, 0x71,

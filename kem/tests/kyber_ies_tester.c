@@ -24,7 +24,6 @@
 #include "lc_rng.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
 static int
@@ -248,7 +247,7 @@ out:
 	return ret;
 }
 
-int kyber_ies_tester(void)
+static int kyber_ies_tester(void)
 {
 	int ret;
 

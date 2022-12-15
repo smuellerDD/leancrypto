@@ -19,7 +19,6 @@
 
 #include "compare.h"
 #include "lc_cshake.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
 #include "sha3_c.h"
@@ -93,7 +92,7 @@ static int _cshake_128_tester(const struct lc_hash *cshake_128,
 	return ret;
 }
 
-int cshake128_tester(void)
+static int cshake128_tester(void)
 {
 	int ret = 0;
 

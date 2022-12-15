@@ -27,7 +27,6 @@
 #include "lc_aes_private.h"
 #include "compare.h"
 #include "ret_checkers.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
 static const uint8_t key256[] = {
@@ -76,7 +75,7 @@ out:
 	return ret;
 }
 
-int test_decrypt(void)
+static int test_decrypt(void)
 {
 	struct lc_sym_ctx *aes_heap;
 	uint8_t in2[sizeof(in256)];

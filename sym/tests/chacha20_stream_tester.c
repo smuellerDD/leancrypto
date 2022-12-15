@@ -20,10 +20,9 @@
 #include "conv_be_le.h"
 #include "lc_chacha20.h"
 #include "ret_checkers.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
-int chacha20_enc_selftest(void)
+static int chacha20_enc_selftest(void)
 {
 	/* Test vector according to RFC 7539 section 2.4.2 */
 	static const uint8_t key[] = {

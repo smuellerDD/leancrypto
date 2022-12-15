@@ -19,10 +19,9 @@
 
 #include "compare.h"
 #include "lc_hmac_drbg_sha512.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
-int hmac_drbg_tester(void)
+static int hmac_drbg_tester(void)
 {
 #if 1
 	static const uint8_t ent_nonce[] = {

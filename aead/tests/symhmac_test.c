@@ -26,7 +26,6 @@
 #include "lc_sha3.h"
 #include "lc_sha512.h"
 #include "lc_symhmac.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
 static int sh_tester_one(const struct lc_sym *sym, const struct lc_hash *hash,
@@ -145,7 +144,7 @@ static int sh_tester_one(const struct lc_sym *sym, const struct lc_hash *hash,
 	return ret_checked;
 }
 
-int sh_nonaligned(void)
+static int sh_nonaligned(void)
 {
 	uint8_t pt[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,};
 	uint8_t ct[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,};
@@ -177,7 +176,7 @@ int sh_nonaligned(void)
 	return ret_checked;
 }
 
-int sh_tester(void)
+static int sh_tester(void)
 {
 	int ret = 0;
 	static const uint8_t in[] = {

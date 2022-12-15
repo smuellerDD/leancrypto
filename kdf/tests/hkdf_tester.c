@@ -21,10 +21,9 @@
 #include "lc_hkdf.h"
 #include "lc_sha256.h"
 #include "math_helper.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
-int hkdf_tester(void)
+static int hkdf_tester(void)
 {
 	/* RFC 5869 vector */
 	static const uint8_t ikm[] = {

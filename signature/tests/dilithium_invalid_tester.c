@@ -20,10 +20,9 @@
 #include "lc_cshake256_drng.h"
 #include "lc_dilithium.h"
 #include "small_stack_support.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
-int dilithium_invalid(void)
+static int dilithium_invalid(void)
 {
 	struct workspace {
 		struct lc_dilithium_sk sk;

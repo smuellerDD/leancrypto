@@ -1,219 +1,610 @@
-obj-m		:= leancrypto.o leancrypto_test.o
+#
+# leancrypto Kernel module configuration options
+#
+# Usage: Comment out the respective configuration lines below if you do not
+#	 require the respective option. Please mind the dependencies as
+#	 mentioned for each option as there is (currently) no automated
+#	 dependency resolution
+#
+
+########################### Message Digest Algorithms ##########################
+
+#
+# Enable SHA2-256 support
+# Dependencies: N/A
+#
+CONFIG_LEANCRYPTO_SHA2_256=y
+
+#
+# Enable SHA2-512 support
+# Dependencies: N/A
+#
+CONFIG_LEANCRYPTO_SHA2_512=y
+
+#
+# Enable SHA-3 support including all its variants (SHAKE, cSHAKE)
+# Dependencies: N/A
+#
+CONFIG_LEANCRYPTO_SHA3=y
+
+####################### Keyed Message Digest Algorithms ########################
+
+#
+# Enable FIPS 198 HMAC support
+# Dependencies: CONFIG_LEANCRYPTO_SHA2_256 or CONFIG_LEANCRYPTO_SHA2_512 or
+#		CONFIG_LEANCRYPTO_SHA3
+#
+CONFIG_LEANCRYPTO_HMAC=y
+
+#
+# Enable SP800-185 KMAC support
+# Dependencies: CONFIG_LEANCRYPTO_SHA3
+#
+CONFIG_LEANCRYPTO_KMAC=y
+
+####################### Symmetric Encryption Algorithms ########################
+
+#
+# Enable ChaCha20 stream cipher algorithm
+# Dependencies: N/A
+#
+CONFIG_LEANCRYPTO_CHACHA20=y
+
+#
+# Enable AES block algorithm
+# Dependencies: N/A
+#
+CONFIG_LEANCRYPTO_AES=y
+
+#
+# Enable AES CBC algorithm
+# Dependencies: CONFIG_LEANCRYPTO_AES
+#
+CONFIG_LEANCRYPTO_AES_CBC=y
+
+#
+# Enable AES CTR algorithm
+# Dependencies: CONFIG_LEANCRYPTO_AES
+#
+CONFIG_LEANCRYPTO_AES_CTR=y
+
+#
+# Enable AES KW algorithm
+# Dependencies: CONFIG_LEANCRYPTO_AES
+#
+CONFIG_LEANCRYPTO_AES_KW=y
+
+####### Authenticated Encryption with Additional Data (AEAD) Algorithms ########
+
+#
+# Enable AEAD stream cipher algorithm based on SHA2-512
+# Dependencies: CONFIG_LEANCRYPTO_SHA2_512 and CONFIG_LEANCRYPTO_HASH_DRBG
+#
+CONFIG_LEANCRYPTO_HASH_CRYPT=y
+
+#
+# Enable AEAD stream cipher algorithm based on cSHAKE
+# Dependencies: CONFIG_LEANCRYPTO_SHA3
+#
+CONFIG_LEANCRYPTO_CSHAKE_CRYPT=y
+
+#
+# Enable AEAD stream cipher algorithm based on KMAC
+# Dependencies: CONFIG_LEANCRYPTO_KMAC
+#
+CONFIG_LEANCRYPTO_KMAC_CRYPT=y
+
+#
+# Enable AEAD stream cipher algorithm based on symmetric algorithm and HMAC
+# Dependencies: CONFIG_LEANCRYPTO_HMAC and at least one of
+#		CONFIG_LEANCRYPTO_AES_*
+#
+CONFIG_LEANCRYPTO_SYMHMAC_CRYPT=y
+
+#################### Deterministic Random Number Generator #####################
+
+#
+# Enable ChaCha20-based deterministic random number generator
+# Dependencies: CONFIG_LEANCRYPTO_CHACHA20
+#
+CONFIG_LEANCRYPTO_CHACHA20_DRNG=y
+
+#
+# Enable SP800-90A Hash DRBG
+# Dependencies: CONFIG_LEANCRYPTO_SHA2_512
+#
+CONFIG_LEANCRYPTO_HASH_DRBG=y
+
+#
+# Enable SP800-90A HMAC DRBG
+# Dependencies: CONFIG_LEANCRYPTO_SHA2_512 and CONFIG_LEANCRYPTO_HMAC
+#
+CONFIG_LEANCRYPTO_HMAC_DRBG=y
+
+#
+# Enable KMAC-based DRNG
+# Dependencies: CONFIG_LEANCRYPTO_KMAC
+#
+CONFIG_LEANCRYPTO_KMAC_DRNG=y
+
+#
+# Enable cSHAKE-based DRNG
+# Dependencies: CONFIG_LEANCRYPTO_SHA3
+#
+CONFIG_LEANCRYPTO_CSHAKE_DRNG=y
+
+########################### Key Derivation Functions ###########################
+
+#
+# Enable HKDF (RFC5869)
+# Dependencies: CONFIG_LEANCRYPTO_SHA2_256
+#
+CONFIG_LEANCRYPTO_HKDF=y
+
+#
+# Enable SP800-108 counter KDF
+# Dependencies: CONFIG_LEANCRYPTO_SHA2_256
+#
+CONFIG_LEANCRYPTO_KDF_CTR=y
+
+#
+# Enable SP800-108 double pipeline KDF
+# Dependencies: CONFIG_LEANCRYPTO_SHA2_256
+#
+CONFIG_LEANCRYPTO_KDF_DPI=y
+
+#
+# Enable SP800-108 feedback KDF
+# Dependencies: CONFIG_LEANCRYPTO_SHA2_256
+#
+CONFIG_LEANCRYPTO_KDF_FB=y
+
+#
+# Enable SP800-132 Password-Based Key Derivation Function (PBKDF2)
+# Dependencies: CONFIG_LEANCRYPTO_SHA2_256
+#
+CONFIG_LEANCRYPTO_PBKDF2=y
+
+########################### Key Encapsulation Method ###########################
+
+#
+# Enable Key Exchange Mechanism provided by Kyber
+# Dependencies: CONFIG_LEANCRYPTO_SHA3
+#
+CONFIG_LEANCRYPTO_KEM=y
+
+############################## Digital Signatures ##############################
+
+#
+# Enable Dilithium Digital Signature Mechanism
+# Dependencies: CONFIG_LEANCRYPTO_SHA3
+#
+CONFIG_LEANCRYPTO_DILITHIUM=y
+
+########################## No Changes Below This Line ##########################
+
+obj-m		 		:= leancrypto.o
 
 # Kernel module framework
-ccflags-y	  := -DLINUX_KERNEL -DLC_MEM_ON_HEAP -DMAJVERSION=0 -DMINVERSION=5 -DPATCHLEVEL=0 -I$(PWD) -I/usr/lib/gcc/x86_64-redhat-linux/12/include/
-leancrypto-y	  += posix_support.o					       \
-		     leancrypto_kernel.o
-leancrypto_test-y := leancrypto_tester.o
+ccflags-y			:= -I$(PWD) -DLINUX_KERNEL -DLC_MEM_ON_HEAP    \
+				   -DMAJVERSION=0 -DMINVERSION=5 -DPATCHLEVEL=1
+leancrypto-y			+= posix_support.o			       \
+				   leancrypto_kernel.o
 
 # Internal helper code
-ccflags-y	  += -I$(PWD)/../internal/api
-leancrypto-y	  += ../internal/src/left_encode.o			       \
-		     ../internal/src/compare.o				       \
-		     ../internal/src/memcmp_secure.o			       \
-		     ../internal/src/null_buffer.o			       \
-		     ../internal/src/status.o
-leancrypto_test-y += ../internal/tests/status_tester.o
+ccflags-y			+= -I$(PWD)/../internal/api
+leancrypto-y			+= ../internal/src/left_encode.o	       \
+				   ../internal/src/compare.o		       \
+				   ../internal/src/memcmp_secure.o	       \
+				   ../internal/src/null_buffer.o	       \
+				   ../internal/src/status.o
+obj-m				+= ../internal/tests/status_tester.o
 
 ifdef CONFIG_X86
-leancrypto-y	  += ../internal/src/cpufeatures_x86.o
+leancrypto-y	  		+= ../internal/src/cpufeatures_x86.o
 else
-leancrypto-y	  += ../internal/src/cpufeatures_none.o
+leancrypto-y	 		 += ../internal/src/cpufeatures_none.o
 endif
 
 # Hash implementation
-ccflags-y	  += -I$(PWD)/../hash/api
-leancrypto-y	  += ../hash/src/cshake.o				       \
-		     ../hash/src/hash.o					       \
-		     ../hash/src/sha256.o				       \
-		     ../hash/src/sha512.o				       \
-		     ../hash/src/sha3_selector.o			       \
-		     ../hash/src/sha3_selftest.o			       \
-		     ../hash/src/sha3_c.o
-leancrypto_test-y += ../hash/tests/cshake_128_tester.o			       \
-		     ../hash/tests/cshake_256_tester.o			       \
-		     ../hash/tests/sha256_tester.o			       \
-		     ../hash/tests/sha3-224_tester.o			       \
-		     ../hash/tests/sha3-256_tester.o			       \
-		     ../hash/tests/sha3-384_tester.o			       \
-		     ../hash/tests/sha3-512_tester.o			       \
-		     ../hash/tests/sha512_tester.o			       \
-		     ../hash/tests/shake128_tester.o			       \
-		     ../hash/tests/shake256_tester.o			       \
-		     ../hash/tests/shake_squeeze_more_tester.o
+ccflags-y	 		+= -I$(PWD)/../hash/api
+leancrypto-y	  		+= ../hash/src/hash.o
 
-ifdef CONFIG_X86_64
-leancrypto-y	  += ../hash/src/sha3_avx2.o				       \
-		     ../hash/src/asm/AVX2/KeccakP-1600-AVX2.o
-else
-leancrypto-y	  += ../hash/src/sha3_avx2_null.o
+leancrypto-$(CONFIG_LEANCRYPTO_SHA2_256)				       \
+		  += ../hash/src/sha256.o
+ifdef CONFIG_LEANCRYPTO_SHA2_256
+obj-m				+= sha256_tester.o
+sha256_tester-y			+= ../hash/tests/sha256_tester.o
+endif
+
+leancrypto-$(CONFIG_LEANCRYPTO_SHA2_512)				       \
+				+= ../hash/src/sha512.o
+ifdef CONFIG_LEANCRYPTO_SHA2_512
+obj-m				+= sha512_tester.o
+sha512_tester-y			+= ../hash/tests/sha512_tester.o
+endif
+
+leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
+				+= ../hash/src/cshake.o			       \
+				   ../hash/src/sha3_selector.o		       \
+				   ../hash/src/sha3_selftest.o		       \
+				   ../hash/src/sha3_c.o
+ifdef CONFIG_LEANCRYPTO_SHA3
+obj-m				+= cshake_128_tester.o
+obj-m				+= cshake_256_tester.o
+obj-m				+= sha3-224_tester.o
+obj-m				+= sha3-256_tester.o
+obj-m				+= sha3-384_tester.o
+obj-m				+= sha3-512_tester.o
+obj-m				+= shake128_tester.o
+obj-m				+= shake256_tester.o
+obj-m				+= shake_squeeze_more_tester.o
+
+cshake_128_tester-y		+= ../hash/tests/cshake_128_tester.o
+cshake_256_tester-y		+= ../hash/tests/cshake_256_tester.o
+sha3-224_tester-y		+= ../hash/tests/sha3-224_tester.o
+sha3-256_tester-y		+= ../hash/tests/sha3-256_tester.o
+sha3-384_tester-y		+= ../hash/tests/sha3-384_tester.o
+sha3-512_tester-y		+= ../hash/tests/sha3-512_tester.o
+shake128_tester-y		+= ../hash/tests/shake128_tester.o
+shake256_tester-y		+= ../hash/tests/shake256_tester.o
+shake_squeeze_more_tester-y	+= ../hash/tests/shake_squeeze_more_tester.o
 endif
 
 ifdef CONFIG_X86_64
-leancrypto-y	  += ../hash/src/sha3_avx512.o				       \
-		     ../hash/src/asm/AVX512/KeccakP-1600-AVX512.o
+leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
+				+= ../hash/src/sha3_avx2.o		       \
+				   ../hash/src/asm/AVX2/KeccakP-1600-AVX2.o
 else
-leancrypto-y	  += ../hash/src/sha3_avx512_null.o
+leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
+				+= ../hash/src/sha3_avx2_null.o
 endif
 
 ifdef CONFIG_X86_64
-leancrypto-y	  += ../hash/src/shake_4x_avx2.o			       \
-		     ../hash/src/asm/AVX2_4x/KeccakP-1600-times4-SIMD256.o
+leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
+				+= ../hash/src/sha3_avx512.o		       \
+				   ../hash/src/asm/AVX512/KeccakP-1600-AVX512.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
+				+= ../hash/src/sha3_avx512_null.o
+endif
+
+ifdef CONFIG_X86_64
+leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
+				+= ../hash/src/shake_4x_avx2.o		       \
+				   ../hash/src/asm/AVX2_4x/KeccakP-1600-times4-SIMD256.o
 endif
 
 ifdef CONFIG_ARM_NOTCOMPILED
-leancrypto-y	  += ../hash/src/sha3_arm8_neon.o			       \
-		     ../hash/src/asm/ARMv8A/KeccakP-1600-armv8a-neon.o
+leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
+				+= ../hash/src/sha3_arm8_neon.o		       \
+				   ../hash/src/asm/ARMv8A/KeccakP-1600-armv8a-neon.o
 else
-leancrypto-y	  += ../hash/src/sha3_arm8_neon_null.o
+leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
+				+= ../hash/src/sha3_arm8_neon_null.o
 endif
 
 # AEAD implementation
-ccflags-y	  += -I$(PWD)/../aead/api
-leancrypto-y	  += ../aead/src/cshake_crypt.o				       \
-		     ../aead/src/hash_crypt.o				       \
-		     ../aead/src/kmac_crypt.o				       \
-		     ../aead/src/symhmac.o
-leancrypto_test-y += ../aead/tests/cshake_crypt_test.o			       \
-		     ../aead/tests/hash_crypt_test.o			       \
-		     ../aead/tests/kmac_crypt_test.o			       \
-		     ../aead/tests/symhmac_test.o
-
-# DRNG implementation
-ccflags-y	  += -I$(PWD)/../drng/api
-leancrypto-y	  += ../drng/src/chacha20_drng.o			       \
-		     ../drng/src/cshake_drng.o				       \
-		     ../drng/src/hash_drbg.o				       \
-		     ../drng/src/hmac_drbg.o				       \
-		     ../drng/src/kmac_drng.o
-leancrypto_test-y += ../drng/tests/chacha20_drng_tester.o		       \
-		     ../drng/tests/cshake_drng_tester.o			       \
-		     ../drng/tests/hash_drbg_tester.o			       \
-		     ../drng/tests/hmac_drbg_tester.o			       \
-		     ../drng/tests/kmac_drng_tester.o
-
-# HMAC implementation
-ccflags-y	  += -I$(PWD)/../hmac/api
-leancrypto-y	  += ../hmac/src/hmac.o					       \
-		     ../hmac/src/hmac_sha256_selftest.o
-leancrypto_test-y += ../hmac/tests/hmac_sha2_256_tester.o		       \
-		     ../hmac/tests/hmac_sha2_512_tester.o		       \
-		     ../hmac/tests/hmac_sha3_224_tester.o
-
-# KDF implementation
-ccflags-y	  += -I$(PWD)/../kdf/api
-leancrypto-y	  += ../kdf/src/hkdf.o					       \
-		     ../kdf/src/kdf_ctr.o				       \
-		     ../kdf/src/kdf_dpi.o				       \
-		     ../kdf/src/kdf_fb.o				       \
-		     ../kdf/src/pbkdf2.o
-leancrypto_test-y += ../kdf/tests/hkdf_tester.o				       \
-		     ../kdf/tests/kdf_ctr_tester.o			       \
-		     ../kdf/tests/kdf_dpi_tester.o			       \
-		     ../kdf/tests/kdf_fb_tester.o			       \
-		     ../kdf/tests/pbkdf2_tester.o
-
-# KEM implementation
-ccflags-y	  += -I$(PWD)/../kem/api -I$(PWD)/../kem/src
-leancrypto-y	  += ../kem/src/kyber_cbd.o				       \
-		     ../kem/src/kyber_ies.o				       \
-		     ../kem/src/kyber_indcpa.o				       \
-		     ../kem/src/kyber_kem_c.o				       \
-		     ../kem/src/kyber_kex.o				       \
-		     ../kem/src/kyber_ntt.o				       \
-		     ../kem/src/kyber_poly.o				       \
-		     ../kem/src/kyber_polyvec.o				       \
-		     ../kem/src/kyber_selftest.o			       \
-		     ../kem/src/kyber_verify.o
-
-ifdef CONFIG_X86_64
-asflags-y	  += -I$(PWD)/../internal/api -DLINUX_KERNEL
-leancrypto-y	  += ../kem/src/avx2/kyber_basemul_avx2.o		       \
-		     ../kem/src/avx2/kyber_cbd_avx2.o			       \
-		     ../kem/src/avx2/kyber_consts_avx2.o		       \
-		     ../kem/src/avx2/kyber_fq_avx2.o			       \
-		     ../kem/src/avx2/kyber_indcpa_avx2.o		       \
-		     ../kem/src/avx2/kyber_invntt_avx2.o		       \
-		     ../kem/src/avx2/kyber_kem_api_avx2.o		       \
-		     ../kem/src/avx2/kyber_kem_avx2.o			       \
-		     ../kem/src/avx2/kyber_ntt_avx2.o			       \
-		     ../kem/src/avx2/kyber_poly_avx2.o			       \
-		     ../kem/src/avx2/kyber_rejsample_avx2.o		       \
-		     ../kem/src/avx2/kyber_shuffle_avx2.o
-else
-leancrypto-y	  += ../kem/src/kyber_kem_api_c.o
+ccflags-y	  		+= -I$(PWD)/../aead/api
+leancrypto-$(CONFIG_LEANCRYPTO_SYMHMAC_CRYPT)				       \
+				+= ../aead/src/symhmac.o
+ifdef CONFIG_LEANCRYPTO_SYMHMAC_CRYPT
+obj-m		  		+= symhmac_test.o
+symhmac_test-y	  		+= ../aead/tests/symhmac_test.o
 endif
 
-leancrypto_test-y += ../kem/tests/kyber_kem_tester.o			       \
-		     ../kem/tests/kyber_kem_tester_c.o			       \
-		     ../kem/tests/kyber_kem_tester_common.o		       \
-		     ../kem/tests/kyber_kex_tester.o			       \
-		     ../kem/tests/kyber_ies_tester.o			       \
-		     ../kem/tests/kyber_invalid_tester.o
+leancrypto-$(CONFIG_LEANCRYPTO_HASH_CRYPT)				       \
+				+= ../aead/src/hash_crypt.o
+ifdef CONFIG_LEANCRYPTO_HASH_CRYPT
+obj-m		  		+= hash_crypt_test.o
+hash_crypt_test-y 		+= ../aead/tests/hash_crypt_test.o
+endif
+
+leancrypto-$(CONFIG_LEANCRYPTO_CSHAKE_CRYPT)				       \
+				+= ../aead/src/cshake_crypt.o
+ifdef CONFIG_LEANCRYPTO_CSHAKE_CRYPT
+obj-m		  		+= cshake_crypt_test.o
+cshake_crypt_test-y		+= ../aead/tests/cshake_crypt_test.o
+endif
+
+leancrypto-$(CONFIG_LEANCRYPTO_KMAC_CRYPT)				       \
+				+= ../aead/src/kmac_crypt.o
+ifdef CONFIG_LEANCRYPTO_KMAC_CRYPT
+obj-m		  		+= kmac_crypt_test.o
+kmac_crypt_test-y 		+= ../aead/tests/kmac_crypt_test.o
+endif
+
+# DRNG implementation
+ccflags-y	  		+= -I$(PWD)/../drng/api
+
+leancrypto-$(CONFIG_LEANCRYPTO_CHACHA20_DRNG)				       \
+				+= ../drng/src/chacha20_drng.o
+ifdef CONFIG_LEANCRYPTO_CHACHA20_DRNG
+obj-m		  		+= chacha20_drng_tester.o
+chacha20_drng_tester-y		+= ../drng/tests/chacha20_drng_tester.o
+endif
+
+leancrypto-$(CONFIG_LEANCRYPTO_HASH_DRBG)				       \
+				+= ../drng/src/hash_drbg.o
+ifdef CONFIG_LEANCRYPTO_HASH_DRBG
+obj-m		  		+= hash_drbg_tester.o
+hash_drbg_tester-y		+= ../drng/tests/hash_drbg_tester.o
+endif
+
+leancrypto-$(CONFIG_LEANCRYPTO_HMAC_DRBG)				       \
+				+= ../drng/src/hmac_drbg.o
+ifdef CONFIG_LEANCRYPTO_HMAC_DRBG
+obj-m		  		+= hmac_drbg_tester.o
+hmac_drbg_tester-y		+= ../drng/tests/hmac_drbg_tester.o
+endif
+
+leancrypto-$(CONFIG_LEANCRYPTO_KMAC_DRNG)				       \
+				+= ../drng/src/kmac_drng.o
+ifdef CONFIG_LEANCRYPTO_KMAC_DRNG
+obj-m		 		+= kmac_drng_tester.o
+kmac_drng_tester-y		+= ../drng/tests/kmac_drng_tester.o
+endif
+
+leancrypto-$(CONFIG_LEANCRYPTO_CSHAKE_DRNG)				       \
+				+= ../drng/src/cshake_drng.o
+ifdef CONFIG_LEANCRYPTO_CSHAKE_DRNG
+obj-m				+= cshake_drng_tester.o
+cshake_drng_tester-y		+= ../drng/tests/cshake_drng_tester.o
+endif
+
+# HMAC implementation
+ccflags-$(CONFIG_LEANCRYPTO_HMAC)					       \
+				+= -I$(PWD)/../hmac/api
+leancrypto-$(CONFIG_LEANCRYPTO_HMAC)					       \
+				+= ../hmac/src/hmac.o
+
+ifdef CONFIG_LEANCRYPTO_SHA2_256
+leancrypto-$(CONFIG_LEANCRYPTO_HMAC)					       \
+				+= ../hmac/src/hmac_sha256_selftest.o	       \
+				   ../hmac/src/hmac_sha512_selftest_null.o     \
+				   ../hmac/src/hmac_sha3_selftest_null.o
+ifdef CONFIG_LEANCRYPTO_HMAC
+obj-m				+= hmac_sha2_256_tester.o
+hmac_sha2_256_tester-y		+= ../hmac/tests/hmac_sha2_256_tester.o
+endif
+
+else ifdef CONFIG_LEANCRYPTO_SHA2_512
+
+leancrypto-$(CONFIG_LEANCRYPTO_HMAC)					       \
+				+= ../hmac/src/hmac_sha256_selftest_null.o     \
+				   ../hmac/src/hmac_sha512_selftest.o	       \
+				   ../hmac/src/hmac_sha3_selftest_null.o
+ifdef CONFIG_LEANCRYPTO_HMAC
+obj-m		  		+= hmac_sha2_512_tester.o
+hmac_sha2_512_tester-y		+= ../hmac/tests/hmac_sha2_512_tester.o
+endif
+
+else
+
+leancrypto-$(CONFIG_LEANCRYPTO_HMAC)					       \
+				+= ../hmac/src/hmac_sha256_selftest_null.o     \
+				   ../hmac/src/hmac_sha512_selftest_null.o     \
+				   ../hmac/src/hmac_sha3_selftest.o
+ifdef CONFIG_LEANCRYPTO_HMAC
+obj-m		 		+= hmac_sha3_224_tester.o
+hmac_sha3_224_tester-y		+= ../hmac/tests/hmac_sha3_224_tester.o
+endif
+
+endif
+
+# KDF implementation
+ccflags-y	 		+= -I$(PWD)/../kdf/api
+leancrypto-$(CONFIG_LEANCRYPTO_HKDF)					       \
+				+= ../kdf/src/hkdf.o
+ifdef CONFIG_LEANCRYPTO_HKDF
+obj-m				+= hkdf_tester.o
+hkdf_tester-y			+= ../kdf/tests/hkdf_tester.o
+endif
+
+leancrypto-$(CONFIG_LEANCRYPTO_KDF_CTR)					       \
+				+= ../kdf/src/kdf_ctr.o
+ifdef CONFIG_LEANCRYPTO_KDF_CTR
+obj-m				+= kdf_ctr_tester.o
+kdf_ctr_tester-y		+= ../kdf/tests/kdf_ctr_tester.o
+endif
+
+leancrypto-$(CONFIG_LEANCRYPTO_KDF_DPI)					       \
+				+= ../kdf/src/kdf_dpi.o
+ifdef CONFIG_LEANCRYPTO_KDF_DPI
+obj-m				+= kdf_dpi_tester.o
+kdf_dpi_tester-y		+= ../kdf/tests/kdf_dpi_tester.o
+endif
+
+leancrypto-$(CONFIG_LEANCRYPTO_KDF_FB)					       \
+				+= ../kdf/src/kdf_fb.o
+ifdef CONFIG_LEANCRYPTO_KDF_FB
+obj-m				+= kdf_fb_tester.o
+kdf_fb_tester-y			+= ../kdf/tests/kdf_fb_tester.o
+endif
+
+leancrypto-$(CONFIG_LEANCRYPTO_PBKDF2)					       \
+				+= ../kdf/src/pbkdf2.o
+ifdef CONFIG_LEANCRYPTO_PBKDF2
+obj-m				+= pbkdf2_tester.o
+pbkdf2_tester-y			+= ../kdf/tests/pbkdf2_tester.o
+endif
+
+# KEM implementation
+ccflags-$(CONFIG_LEANCRYPTO_KEM)					       \
+				+= -I$(PWD)/../kem/api -I$(PWD)/../kem/src
+leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
+				+= ../kem/src/kyber_cbd.o		       \
+				   ../kem/src/kyber_ies.o		       \
+				   ../kem/src/kyber_indcpa.o		       \
+				   ../kem/src/kyber_kem_c.o		       \
+				   ../kem/src/kyber_kex.o		       \
+				   ../kem/src/kyber_ntt.o		       \
+				   ../kem/src/kyber_poly.o		       \
+				   ../kem/src/kyber_polyvec.o		       \
+				   ../kem/src/kyber_selftest.o		       \
+				   ../kem/src/kyber_verify.o
 
 ifdef CONFIG_X86_64
-leancrypto_test-y += ../kem/tests/kyber_kem_tester_avx2.o
+asflags-$(CONFIG_LEANCRYPTO_KEM)					       \
+				+= -I$(PWD)/../internal/api -DLINUX_KERNEL
+leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
+				+= ../kem/src/avx2/kyber_basemul_avx2.o	       \
+				   ../kem/src/avx2/kyber_cbd_avx2.o	       \
+				   ../kem/src/avx2/kyber_consts_avx2.o	       \
+				   ../kem/src/avx2/kyber_fq_avx2.o	       \
+				   ../kem/src/avx2/kyber_indcpa_avx2.o	       \
+				   ../kem/src/avx2/kyber_invntt_avx2.o	       \
+				   ../kem/src/avx2/kyber_kem_api_avx2.o	       \
+				   ../kem/src/avx2/kyber_kem_avx2.o	       \
+				   ../kem/src/avx2/kyber_ntt_avx2.o	       \
+				   ../kem/src/avx2/kyber_poly_avx2.o	       \
+				   ../kem/src/avx2/kyber_rejsample_avx2.o      \
+				   ../kem/src/avx2/kyber_shuffle_avx2.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
+				+= ../kem/src/kyber_kem_api_c.o
+endif
+
+ifdef CONFIG_LEANCRYPTO_KEM
+obj-m		 		+= kyber_kem_tester_c.o
+obj-m		 		+= kyber_kem_tester_common.o
+obj-m		 		+= kyber_kex_tester.o
+obj-m		 		+= kyber_ies_tester.o
+obj-m		 		+= kyber_invalid_tester.o
+
+kyber_kem_tester_c-y		+= ../kem/tests/kyber_kem_tester.o	       \
+				   ../kem/tests/kyber_kem_tester_c.o
+kyber_kem_tester_common-y	+= ../kem/tests/kyber_kem_tester.o	       \
+				   ../kem/tests/kyber_kem_tester_common.o
+kyber_kex_tester-y  		+= ../kem/tests/kyber_kex_tester.o
+kyber_ies_tester-y  		+= ../kem/tests/kyber_ies_tester.o
+kyber_invalid_tester-y  	+= ../kem/tests/kyber_invalid_tester.o
+endif
+
+ifdef CONFIG_X86_64
+ifdef CONFIG_LEANCRYPTO_KEM
+obj-m		  		+= kyber_kem_tester_avx2.o
+
+kyber_kem_tester_avx2-y		+= ../kem/tests/kyber_kem_tester.o	       \
+				   ../kem/tests/kyber_kem_tester_avx2.o
+endif
 endif
 
 # KMAC implementation
-ccflags-y	  += -I$(PWD)/../kmac/api
-leancrypto-y	  += ../kmac/src/kmac.o
-leancrypto_test-y += ../kmac/tests/kmac_128_tester.o			       \
-		     ../kmac/tests/kmac_256_tester.o			       \
-		     ../kmac/tests/kmac_xof_more_tester.o		       \
-		     ../kmac/tests/kmac_xof_tester.o
+ccflags-$(CONFIG_LEANCRYPTO_KMAC)					       \
+				+= -I$(PWD)/../kmac/api
+leancrypto-$(CONFIG_LEANCRYPTO_KMAC)					       \
+				+= ../kmac/src/kmac.o
+ifdef CONFIG_LEANCRYPTO_KMAC
+obj-m		  		+= kmac_128_tester.o
+obj-m		  		+= kmac_256_tester.o
+obj-m		  		+= kmac_xof_more_tester.o
+obj-m		  		+= kmac_xof_tester.o
+
+kmac_128_tester-y		+= ../kmac/tests/kmac_128_tester.o
+kmac_256_tester-y		+= ../kmac/tests/kmac_256_tester.o
+kmac_xof_more_tester-y		+= ../kmac/tests/kmac_xof_more_tester.o
+kmac_xof_tester-y		+= ../kmac/tests/kmac_xof_tester.o
+endif
 
 # Signature implementation
-ccflags-y	  += -I$(PWD)/../signature/api
-leancrypto-y	  += ../signature/src/dilithium_ntt.o			       \
-		     ../signature/src/dilithium_pack.o			       \
-		     ../signature/src/dilithium_poly.o			       \
-		     ../signature/src/dilithium_rounding.o		       \
-		     ../signature/src/dilithium_selftest.o		       \
-		     ../signature/src/dilithium_signature_c.o
+ccflags-$(CONFIG_LEANCRYPTO_DILITHIUM)					       \
+				+= -I$(PWD)/../signature/api
+leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
+				+= ../signature/src/dilithium_ntt.o	       \
+				   ../signature/src/dilithium_pack.o	       \
+				   ../signature/src/dilithium_poly.o	       \
+				   ../signature/src/dilithium_rounding.o       \
+				   ../signature/src/dilithium_selftest.o       \
+				   ../signature/src/dilithium_signature_c.o
 
 ifdef CONFIG_X86_64
-leancrypto-y	  += ../signature/src/avx2/dilithium_consts_avx2.o	       \
-		     ../signature/src/avx2/dilithium_invntt_avx2.o	       \
-		     ../signature/src/avx2/dilithium_ntt_avx2.o		       \
-		     ../signature/src/avx2/dilithium_pointwise_avx2.o	       \
-		     ../signature/src/avx2/dilithium_pack_avx2.o	       \
-		     ../signature/src/avx2/dilithium_poly_avx2.o	       \
-		     ../signature/src/avx2/dilithium_polyvec_avx2.o	       \
-		     ../signature/src/avx2/dilithium_rejsample_avx2.o	       \
-		     ../signature/src/avx2/dilithium_rounding_avx2.o	       \
-		     ../signature/src/avx2/dilithium_signature_api_avx2.o      \
-		     ../signature/src/avx2/dilithium_signature_avx2.o	       \
-		     ../signature/src/avx2/dilithium_shuffle_avx2.o
+leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
+			+= ../signature/src/avx2/dilithium_consts_avx2.o       \
+			   ../signature/src/avx2/dilithium_invntt_avx2.o       \
+			   ../signature/src/avx2/dilithium_ntt_avx2.o	       \
+			   ../signature/src/avx2/dilithium_pointwise_avx2.o    \
+			   ../signature/src/avx2/dilithium_pack_avx2.o	       \
+			   ../signature/src/avx2/dilithium_poly_avx2.o	       \
+			   ../signature/src/avx2/dilithium_polyvec_avx2.o      \
+			   ../signature/src/avx2/dilithium_rejsample_avx2.o    \
+			   ../signature/src/avx2/dilithium_rounding_avx2.o     \
+			   ../signature/src/avx2/dilithium_signature_api_avx2.o\
+			   ../signature/src/avx2/dilithium_signature_avx2.o    \
+			   ../signature/src/avx2/dilithium_shuffle_avx2.o
 else
-leancrypto-y	  += ../signature/src/dilithium_signature_api_c.o
+leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
+			+= ../signature/src/dilithium_signature_api_c.o
 endif
 
 
-ccflags-y	  += -I$(PWD)/../signature/src
-leancrypto_test-y += ../signature/tests/dilithium_tester.o		       \
-		     ../signature/tests/dilithium_tester_c.o		       \
-		     ../signature/tests/dilithium_tester_common.o	       \
-		     ../signature/tests/dilithium_invalid_tester.o
+ccflags-$(CONFIG_LEANCRYPTO_DILITHIUM)					       \
+				+= -I$(PWD)/../signature/src
+ifdef CONFIG_LEANCRYPTO_DILITHIUM
+obj-m		  		+= dilithium_tester_c.o
+obj-m		  		+= dilithium_tester_common.o
+obj-m		  		+= dilithium_invalid_tester.o
+
+dilithium_tester_c-y		+= ../signature/tests/dilithium_tester.o       \
+				   ../signature/tests/dilithium_tester_c.o
+
+dilithium_tester_common-y	+= ../signature/tests/dilithium_tester.o       \
+				   ../signature/tests/dilithium_tester_common.o
+
+dilithium_invalid_tester-y	+= ../signature/tests/dilithium_invalid_tester.o
+endif
 
 ifdef CONFIG_X86_64
-leancrypto_test-y += ../signature/tests/dilithium_tester_avx2.o
+ifdef CONFIG_LEANCRYPTO_DILITHIUM
+obj-m				+= dilithium_tester_avx2.o
+
+dilithium_tester_avx2-y		+= ../signature/tests/dilithium_tester.o       \
+				   ../signature/tests/dilithium_tester_avx2.o
+endif
 endif
 
 # Symmetric implementation
-ccflags-y	  += -I$(PWD)/../sym/api
-leancrypto-y	  += ../sym/src/aes.o					       \
-		     ../sym/src/aes_block.o				       \
-		     ../sym/src/aes_cbc.o				       \
-		     ../sym/src/aes_ctr.o				       \
-		     ../sym/src/aes_kw.o				       \
-		     ../sym/src/chacha20.o				       \
-		     ../sym/src/sym.o
-leancrypto_test-y += ../sym/tests/aes_cbc_dec_tester.o			       \
-		     ../sym/tests/aes_cbc_enc_tester.o			       \
-		     ../sym/tests/aes_ctr_tester.o			       \
-		     ../sym/tests/aes_dec_tester.o			       \
-		     ../sym/tests/aes_enc_tester.o			       \
-		     ../sym/tests/aes_kw_tester.o			       \
-		     ../sym/tests/chacha20_block_tester.o		       \
-		     ../sym/tests/chacha20_stream_tester.o
+ccflags-y	 		+= -I$(PWD)/../sym/api
+leancrypto-y	 		+= ../sym/src/sym.o
+
+leancrypto-$(CONFIG_LEANCRYPTO_AES)					       \
+				+= ../sym/src/aes.o			       \
+				   ../sym/src/aes_block.o
+ifdef CONFIG_LEANCRYPTO_AES
+obj-m				+= aes_dec_tester.o
+obj-m				+= aes_enc_tester.o
+aes_dec_tester-y		+= ../sym/tests/aes_dec_tester.o
+aes_enc_tester-y		+= ../sym/tests/aes_enc_tester.o
+endif
+
+leancrypto-$(CONFIG_LEANCRYPTO_AES_CBC)					       \
+				+= ../sym/src/aes_cbc.o
+ifdef CONFIG_LEANCRYPTO_AES_CBC
+obj-m				+= aes_cbc_dec_tester.o
+obj-m				+= aes_cbc_enc_tester.o
+aes_cbc_dec_tester-y		+= ../sym/tests/aes_cbc_dec_tester.o
+aes_cbc_enc_tester-y		+= ../sym/tests/aes_cbc_enc_tester.o
+endif
+
+leancrypto-$(CONFIG_LEANCRYPTO_AES_CTR)					       \
+				+= ../sym/src/aes_ctr.o
+ifdef CONFIG_LEANCRYPTO_AES_CTR
+obj-m		  		+= aes_ctr_tester.o
+aes_ctr_tester-y		+= ../sym/tests/aes_ctr_tester.o
+endif
+
+leancrypto-$(CONFIG_LEANCRYPTO_AES_KW)					       \
+				+= ../sym/src/aes_kw.o
+ifdef CONFIG_LEANCRYPTO_AES_KW
+obj-m				+= aes_kw_tester.o
+aes_kw_tester-y			+= ../sym/tests/aes_kw_tester.o
+endif
+
+leancrypto-$(CONFIG_LEANCRYPTO_CHACHA20)				       \
+				+= ../sym/src/chacha20.o
+ifdef CONFIG_LEANCRYPTO_CHACHA20
+obj-m				+= chacha20_block_tester.o
+obj-m				+= chacha20_stream_tester.o
+chacha20_block_tester-y		+= ../sym/tests/chacha20_block_tester.o
+chacha20_stream_tester-y	+= ../sym/tests/chacha20_stream_tester.o
+endif

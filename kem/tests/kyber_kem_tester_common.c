@@ -22,7 +22,6 @@
 #include "lc_kyber.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
 static int _kyber_kem_tester_common(unsigned int rounds)
@@ -32,7 +31,7 @@ static int _kyber_kem_tester_common(unsigned int rounds)
 				 lc_kyber_dec);
 }
 
-int kyber_kem_tester_common(void)
+static int kyber_kem_tester_common(void)
 {
 	int ret = 0;
 

@@ -19,10 +19,9 @@
 
 #include "compare.h"
 #include "lc_sha512.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
-int sha512_tester(void)
+static int sha512_tester(void)
 {
 	struct lc_hash_ctx *ctx512 = NULL;
 	static const uint8_t msg_512[] = { 0x7F, 0xAD, 0x12 };

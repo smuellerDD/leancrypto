@@ -20,14 +20,13 @@
 #include "compare.h"
 #include "lc_kdf_dpi.h"
 #include "lc_sha256.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
 /*
  * From
  * http://csrc.nist.gov/groups/STM/cavp/documents/KBKDF800-108/PipelineModewithCounter.zip
  */
-int kdf_dpi_tester(void)
+static int kdf_dpi_tester(void)
 {
 	int ret;
 

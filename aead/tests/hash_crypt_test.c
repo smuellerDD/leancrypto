@@ -21,7 +21,6 @@
 #include "ext_headers.h"
 #include "lc_hash_crypt.h"
 #include "lc_sha512.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
 static int hc_tester_sha512_one(const uint8_t *pt, size_t ptlen,
@@ -129,7 +128,7 @@ static int hc_tester_sha512_one(const uint8_t *pt, size_t ptlen,
 	return ret_checked;
 }
 
-int hc_tester_sha512(void)
+static int hc_tester_sha512(void)
 {
 	static const uint8_t in[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,

@@ -19,7 +19,6 @@
 
 #include "compare.h"
 #include "lc_sha3.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
 #include "sha3_c.h"
@@ -64,7 +63,7 @@ static int s_ha3_384_tester(const struct lc_hash *sha3_384, const char *name)
 	return ret;
 }
 
-int sha3_384_tester(void)
+static int sha3_384_tester(void)
 {
 	int ret = 0;
 

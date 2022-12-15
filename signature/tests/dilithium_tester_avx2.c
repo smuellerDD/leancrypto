@@ -23,7 +23,6 @@
 #include "lc_dilithium.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
 #include "avx2/dilithium_signature_avx2.h"
@@ -38,7 +37,7 @@ static int _dilithium_tester_avx2(unsigned int rounds)
 				 lc_dilithium_verify_avx2);
 }
 
-int dilithium_tester_avx2(void)
+static int dilithium_tester_avx2(void)
 {
 	int ret = 0;
 

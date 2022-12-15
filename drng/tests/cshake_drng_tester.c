@@ -20,7 +20,6 @@
 #include "alignment.h"
 #include "compare.h"
 #include "lc_cshake256_drng.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
 #define LC_CSHAKE_DRNG_SEED_CUSTOMIZATION_STRING	"cSHAKE-DRNG seed"
@@ -101,7 +100,7 @@ static int cshake_drng_selftest(struct lc_rng_ctx *cshake_ctx)
 	return ret;
 }
 
-int cshake_drng_test(void)
+static int cshake_drng_test(void)
 {
 	struct lc_rng_ctx *cshake_ctx_heap;
 	int ret;

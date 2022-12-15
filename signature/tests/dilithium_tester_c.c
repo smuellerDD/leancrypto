@@ -22,7 +22,6 @@
 #include "lc_dilithium.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
 #include "dilithium_signature_c.h"
@@ -34,7 +33,7 @@ static int _dilithium_tester_c(unsigned int rounds)
 				 lc_dilithium_verify_c);
 }
 
-int dilithium_tester_c(void)
+static int dilithium_tester_c(void)
 {
 	int ret = 0;
 

@@ -21,7 +21,6 @@
 #include "lc_kmac.h"
 #include "lc_rng.h"
 #include "math_helper.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
 #include "sha3_c.h"
@@ -911,7 +910,7 @@ out:
 	return ret;
 }
 
-int kmac_xof_tester(void)
+static int kmac_xof_tester(void)
 {
 	int ret = 0;
 

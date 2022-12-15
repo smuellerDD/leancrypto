@@ -19,10 +19,9 @@
 
 #include "lc_hash_drbg.h"
 #include "compare.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
-int hash_drbg_tester(void)
+static int hash_drbg_tester(void)
 {
 #if 1
 	static const uint8_t ent_nonce[] = {

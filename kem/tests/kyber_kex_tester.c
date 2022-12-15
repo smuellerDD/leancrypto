@@ -29,7 +29,6 @@
 #include "lc_rng.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
 static int
@@ -78,7 +77,7 @@ static const struct lc_rng kyber_drng = {
 	.zero		= randombytes_zero,
 };
 
-int kyber_kex_tester(void)
+static int kyber_kex_tester(void)
 {
 	struct workspace {
 		struct lc_kyber_pk pk_r;

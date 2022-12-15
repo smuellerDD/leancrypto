@@ -20,7 +20,6 @@
 #include "compare.h"
 #include "lc_hmac.h"
 #include "lc_sha3.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
 #include "sha3_c.h"
@@ -56,7 +55,7 @@ static int _sha3_224_tester(const struct lc_hash *sha3_224, const char *name)
 	return ret;
 }
 
-int sha3_hmac_tester(void)
+static int sha3_hmac_tester(void)
 {
 	int ret = 0;
 

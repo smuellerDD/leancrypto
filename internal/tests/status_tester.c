@@ -19,10 +19,9 @@
 
 #include "ext_headers.h"
 #include "lc_status.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
-int status_tester(void)
+static int status_tester(void)
 {
 	char status[512];
 	int ret = 0;

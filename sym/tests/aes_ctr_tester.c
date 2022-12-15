@@ -28,7 +28,6 @@
 #include "lc_ctr_private.h"
 #include "compare.h"
 #include "ret_checkers.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
 static const uint8_t key256[] = {
@@ -215,7 +214,7 @@ static int ctr_tester(void)
 	return ret;
 }
 
-int test_ctr(void)
+static int test_ctr(void)
 {
 	int ret = 0;
 

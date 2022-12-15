@@ -30,7 +30,6 @@
 #include "lc_sha3.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
 /*

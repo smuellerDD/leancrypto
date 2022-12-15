@@ -21,7 +21,6 @@
 #include "ext_headers.h"
 #include "lc_cshake_crypt.h"
 #include "lc_cshake.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
 static int cc_tester_cshake_one(const uint8_t *pt, size_t ptlen,
@@ -140,7 +139,7 @@ static int cc_tester_cshake_one(const uint8_t *pt, size_t ptlen,
 	return ret_checked;
 }
 
-int cc_tester_cshake_validate(void)
+static int cc_tester_cshake_validate(void)
 {
 #define LC_CC_CUSTOMIZATION_STRING	"cSHAKE-AEAD crypt"
 	static const uint8_t in[] = {
@@ -172,7 +171,7 @@ int cc_tester_cshake_validate(void)
 		       "cSHAKE crypt: Validation");
 }
 
-int cc_tester_cshake(void)
+static int cc_tester_cshake(void)
 {
 	static const uint8_t in[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,

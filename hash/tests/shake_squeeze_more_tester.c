@@ -21,7 +21,6 @@
 #include "compare.h"
 #include "lc_cshake.h"
 #include "lc_sha3.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
 #include "sha3_c.h"
@@ -121,7 +120,7 @@ static int _shake_sqeeze_more_tester(const struct lc_hash *shake_256,
 	return ret;
 }
 
-int shake_sqeeze_more_tester(void)
+static int shake_sqeeze_more_tester(void)
 {
 	int ret = 0;
 

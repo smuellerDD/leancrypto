@@ -50,6 +50,4 @@ void compare_selftest(const uint8_t *act, const uint8_t *exp, const size_t len,
 		      const char *info)
 {
 	assert(!compare(act, exp, len, info));
-	printf("Selftest %s - %s\n", info,
-	       compare(act, exp, len, info) ? "failed" : "passed");
 }

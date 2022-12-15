@@ -20,7 +20,24 @@
 	ret symbol(param)
 
 #define LC_TEST_FUNC(ret, symbol, param...)				       \
-	static __maybe_unused ret symbol(param)
+	static ret symbol(param);					       \
+	static int __init symbol ##_init(void)				       \
+	{								       \
+		int __ret;						       \
+									       \
+		pr_info("%s: Starting test case\n", KBUILD_MODNAME);	       \
+		__ret = symbol(0, NULL);				       \
+		pr_info("%s: Test case completed with return code %d\n",       \
+			KBUILD_MODNAME, __ret);				       \
+		return __ret;						       \
+	}								       \
+	static void __exit symbol ##_exit(void) { }			       \
+	module_init(symbol ##_init);					       \
+	module_exit(symbol ##_exit);					       \
+	MODULE_LICENSE("Dual BSD/GPL");					       \
+	MODULE_AUTHOR("Stephan Mueller <smueller@chronox.de>");		       \
+	MODULE_DESCRIPTION("leancrypto test case");			       \
+	static ret symbol(param)
 
 #pragma GCC diagnostic pop
 

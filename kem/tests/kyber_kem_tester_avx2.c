@@ -23,7 +23,6 @@
 #include "lc_kyber.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
 #include "avx2/kyber_kem_avx2.h"
@@ -37,7 +36,7 @@ static int _kyber_kem_tester_avx2(unsigned int rounds)
 				 lc_kyber_dec_avx);
 }
 
-int kyber_kem_tester_avx2(void)
+static int kyber_kem_tester_avx2(void)
 {
 	int ret = 0;
 

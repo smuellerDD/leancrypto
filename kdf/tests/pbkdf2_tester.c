@@ -21,10 +21,9 @@
 #include "lc_sha256.h"
 #include "lc_sha512.h"
 #include "lc_pbkdf2.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
-int pbkdf2_tester(void)
+static int pbkdf2_tester(void)
 {
 	/* RFC 5869 vector */
 	static const uint8_t pw[] = {

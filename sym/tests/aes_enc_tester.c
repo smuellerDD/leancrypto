@@ -27,7 +27,6 @@
 #include "lc_aes_private.h"
 #include "compare.h"
 #include "ret_checkers.h"
-#include "testfunctions.h"
 #include "visibility.h"
 
 static const uint8_t key256[] = {
@@ -79,7 +78,7 @@ out:
 	return ret;
 }
 
-int test_encrypt_all(void)
+static int test_encrypt_all(void)
 {
 	int ret;
 

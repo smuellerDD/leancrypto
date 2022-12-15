@@ -11,7 +11,7 @@
 # Patchlevel Version: API / ABI compatible, no functional changes, no
 #		      enhancements, bug fixes only.
 project('leancrypto', 'c',
-	version: '0.5.0',
+	version: '0.5.1',
 	default_options: [
 		'warning_level=3',
 		'optimization=s',
@@ -139,8 +139,9 @@ testdirs = [ 'aead/tests',
 	     'sym/tests'
 	   ]
 
-if get_option('drbg_hmac').enabled() and get_option('sha2-512').disabled()
-	error('HMAC DRBG requires SHA2-512')
+if (get_option('drbg_hmac').enabled() and
+    (get_option('sha2-512').disabled() or get_option('hmac').disabled()))
+	error('HMAC DRBG requires SHA2-512 and HMAC')
 endif
 
 if get_option('drbg_hash').enabled() and get_option('sha2-512').disabled()
