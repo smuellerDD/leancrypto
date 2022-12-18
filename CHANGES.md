@@ -1,5 +1,7 @@
 Changes 0.5.1-prerelease:
-* Add Linux kernel configuration options
+* enhancement: add Linux kernel configuration options
+
+* enhancement: add lc_rerun_selftests API
 
 Changes 0.5.0:
 * enhancement: add ability to compile leancrypto for the Linux kernel including

@@ -26,6 +26,14 @@ extern "C"
 #endif
 
 /**
+ * @brief (Re-)run the self tests
+ *
+ * If the self tests were already executed for a given algorithm, they are
+ * triggered again.
+ */
+void lc_rerun_selftests(void);
+
+/**
  * @brief Status information about leancrypto
  *
  * @outbuf [in] Buffer to be filled with status information, allocated by caller

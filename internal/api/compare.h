@@ -27,11 +27,13 @@ extern "C"
 {
 #endif
 
+int get_current_selftest_level(void);
+
 #ifdef LC_SELFTEST_ENABLED
 #define LC_SELFTEST_RUN(x)						       \
-	if (*x)								       \
+	if (*x == get_current_selftest_level())				       \
 		return;							       \
-	*x = 1;
+	*x = get_current_selftest_level();
 #else /* LC_SELFTEST_ENABLED */
 #define LC_SELFTEST_RUN(x)						       \
 	(void)x;							       \

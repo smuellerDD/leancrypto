@@ -19,7 +19,34 @@
 
 #include "compare.h"
 #include "ext_headers.h"
+#include "lc_status.h"
 #include "visibility.h"
+
+/*
+ * This variable controls whether a self test should be (re-)executed. A self
+ * test is executed, if the self-test state variable is less than this level
+ * variable. Once the self test is executed, it is set to the level. An API
+ * is provided allowing a caller to trigger the re-execution of self tests
+ * by simply incrementing this variable by one.
+ */
+static int lc_selftest_level = 1;
+
+/*
+ * This is no interface function, but to access the global variable, the
+ * visibility is required to get the same scope, seemingly.
+ */
+LC_INTERFACE_FUNCTION(
+int, get_current_selftest_level, void)
+{
+	return lc_selftest_level;
+}
+
+LC_INTERFACE_FUNCTION(
+void, lc_rerun_selftests, void)
+{
+	if (lc_selftest_level < INT_MAX)
+		__sync_add_and_fetch(&lc_selftest_level, 1);
+}
 
 LC_INTERFACE_FUNCTION(
 int, compare, const uint8_t *act, const uint8_t *exp, const size_t len,
