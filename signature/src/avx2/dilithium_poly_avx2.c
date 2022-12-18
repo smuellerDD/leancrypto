@@ -521,7 +521,7 @@ void polyeta_unpack_avx(poly * restrict r,
 {
 	unsigned int i;
 
-	for(i = 0; i < LC_DILITHIUM_N/8; ++i) {
+	for (i = 0; i < LC_DILITHIUM_N/8; ++i) {
 		r->coeffs[8*i+0] =  (a[3*i+0] >> 0) & 7;
 		r->coeffs[8*i+1] =  (a[3*i+0] >> 3) & 7;
 		r->coeffs[8*i+2] = ((a[3*i+0] >> 6) | (a[3*i+1] << 2)) & 7;
@@ -556,7 +556,7 @@ void polyt1_pack_avx(uint8_t r[LC_DILITHIUM_POLYT1_PACKEDBYTES],
 {
 	unsigned int i;
 
-	for(i = 0; i < LC_DILITHIUM_N / 4; ++i) {
+	for (i = 0; i < LC_DILITHIUM_N / 4; ++i) {
 		r[5*i+0] = (uint8_t)((a->coeffs[4*i+0] >> 0));
 		r[5*i+1] = (uint8_t)((a->coeffs[4*i+0] >> 8) | (a->coeffs[4*i+1] << 2));
 		r[5*i+2] = (uint8_t)((a->coeffs[4*i+1] >> 6) | (a->coeffs[4*i+2] << 4));
@@ -751,7 +751,7 @@ void polyz_unpack_avx(poly * restrict r, const uint8_t *a)
 	const __m256i gamma1 = _mm256_set1_epi32(LC_DILITHIUM_GAMMA1);
 #pragma GCC diagnostic pop
 
-	for(i = 0; i < LC_DILITHIUM_N / 8; i++) {
+	for (i = 0; i < LC_DILITHIUM_N / 8; i++) {
 		f = _mm256_loadu_si256((__m256i_u *)&a[20*i]);
 		f = _mm256_permute4x64_epi64(f,0x94);
 		f = _mm256_shuffle_epi8(f,shufbidx);
@@ -787,7 +787,7 @@ void polyw1_pack_avx(uint8_t *r, const poly * restrict a)
 				15,14, 7, 6,13,12, 5, 4,11,10, 3, 2, 9, 8, 1, 0);
 #pragma GCC diagnostic pop
 
-	for( i = 0; i < LC_DILITHIUM_N / 64; ++i) {
+	for ( i = 0; i < LC_DILITHIUM_N / 64; ++i) {
 		f0 = _mm256_load_si256(&a->vec[8*i+0]);
 		f1 = _mm256_load_si256(&a->vec[8*i+1]);
 		f2 = _mm256_load_si256(&a->vec[8*i+2]);

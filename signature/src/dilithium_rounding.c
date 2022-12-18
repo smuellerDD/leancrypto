@@ -92,7 +92,7 @@ int32_t decompose(int32_t *a0, int32_t a)
  */
 int32_t make_hint(int32_t a0, int32_t a1)
 {
-	if(a0 > LC_DILITHIUM_GAMMA2 ||
+	if (a0 > LC_DILITHIUM_GAMMA2 ||
 	   a0 < -LC_DILITHIUM_GAMMA2 ||
 	   (a0 == -LC_DILITHIUM_GAMMA2 && a1 != 0))
 		return 1;
@@ -113,16 +113,16 @@ int32_t use_hint(int32_t a, int32_t hint)
 	int32_t a0, a1;
 
 	a1 = decompose(&a0, a);
-	if(hint == 0)
+	if (hint == 0)
 		return a1;
 
 #if LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q - 1)/32
-	if(a0 > 0)
+	if (a0 > 0)
 		return (a1 + 1) & 15;
 	else
 		return (a1 - 1) & 15;
 #elif LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q - 1)/88
-	if(a0 > 0)
+	if (a0 > 0)
 		return (a1 == 43) ?  0 : a1 + 1;
 	else
 		return (a1 ==  0) ? 43 : a1 - 1;

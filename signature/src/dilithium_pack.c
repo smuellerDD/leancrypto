@@ -248,7 +248,7 @@ int unpack_sig(uint8_t c[LC_DILITHIUM_SEEDBYTES],
 		for (j = 0; j < LC_DILITHIUM_N; ++j)
 			h->vec[i].coeffs[j] = 0;
 
-		if(signature[LC_DILITHIUM_OMEGA + i] < k ||
+		if (signature[LC_DILITHIUM_OMEGA + i] < k ||
 		   signature[LC_DILITHIUM_OMEGA + i] > LC_DILITHIUM_OMEGA)
 			return 1;
 

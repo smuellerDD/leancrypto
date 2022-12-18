@@ -145,9 +145,9 @@ static unsigned int rej_uniform(int16_t *r,
 		val1 = ((buf[pos+1] >> 4) | ((uint16_t)buf[pos+2] << 4)) & 0xFFF;
 		pos += 3;
 
-		if(val0 < LC_KYBER_Q)
+		if (val0 < LC_KYBER_Q)
 			r[ctr++] = val0;
-		if(ctr < len && val1 < LC_KYBER_Q)
+		if (ctr < len && val1 < LC_KYBER_Q)
 			r[ctr++] = val1;
 	}
 

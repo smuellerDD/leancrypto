@@ -324,7 +324,7 @@ unsigned int rej_uniform_avx(int32_t * restrict r,
 		_mm256_storeu_si256((__m256i_u *)&r[ctr], d);
 		ctr += (uint32_t)_mm_popcnt_u32(good);
 
-		if(ctr > LC_DILITHIUM_N - 8)
+		if (ctr > LC_DILITHIUM_N - 8)
 			break;
 	}
 	LC_FPU_DISABLE;
@@ -335,7 +335,7 @@ unsigned int rej_uniform_avx(int32_t * restrict r,
 		t |= (uint32_t)buf[pos++] << 16;
 		t &= 0x7FFFFF;
 
-		if(t < LC_DILITHIUM_Q)
+		if (t < LC_DILITHIUM_Q)
 			r[ctr++] = (int32_t)t;
 	}
 
@@ -385,7 +385,7 @@ unsigned int rej_eta_avx(int32_t * restrict r,
 		good >>= 8;
 		pos += 4;
 
-		if(ctr > LC_DILITHIUM_N - 8) break;
+		if (ctr > LC_DILITHIUM_N - 8) break;
 		g0 = _mm_bsrli_si128(g0,8);
 		g1 = _mm_loadl_epi64((__m128i_u *)&idxlut[good & 0xFF]);
 		g1 = _mm_shuffle_epi8(g0,g1);
@@ -398,7 +398,7 @@ unsigned int rej_eta_avx(int32_t * restrict r,
 		good >>= 8;
 		pos += 4;
 
-		if(ctr > LC_DILITHIUM_N - 8) break;
+		if (ctr > LC_DILITHIUM_N - 8) break;
 		g0 = _mm256_extracti128_si256(f0,1);
 		g1 = _mm_loadl_epi64((__m128i_u *)&idxlut[good & 0xFF]);
 		g1 = _mm_shuffle_epi8(g0,g1);
@@ -411,7 +411,7 @@ unsigned int rej_eta_avx(int32_t * restrict r,
 		good >>= 8;
 		pos += 4;
 
-		if(ctr > LC_DILITHIUM_N - 8) break;
+		if (ctr > LC_DILITHIUM_N - 8) break;
 		g0 = _mm_bsrli_si128(g0,8);
 		g1 = _mm_loadl_epi64((__m128i_u *)&idxlut[good]);
 		g1 = _mm_shuffle_epi8(g0,g1);

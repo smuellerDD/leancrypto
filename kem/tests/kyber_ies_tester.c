@@ -39,7 +39,7 @@ randombytes(void *_state,
 	(void)addtl_input;
 	(void)addtl_input_len;
 
-	for(i = 0; i < 8; ++i)
+	for (i = 0; i < 8; ++i)
 		buf[i] = (uint8_t)(ctr >> 8*i);
 
 	ctr++;

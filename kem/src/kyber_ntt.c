@@ -48,14 +48,14 @@ void init_ntt()
 	int16_t tmp[128];
 
 	tmp[0] = MONT;
-	for(i=1;i<128;i++)
+	for (i = 1; i < 128; i++)
 		tmp[i] = fqmul(tmp[i-1],MONT*LC_KYBER_ROOT_OF_UNITY % LC_KYBER_Q);
 
-	for(i=0;i<128;i++) {
+	for (i = 0; i < 128; i++) {
 	zetas[i] = tmp[tree[i]];
-	if(zetas[i] > KYBER_Q/2)
+	if (zetas[i] > KYBER_Q/2)
 		zetas[i] -= KYBER_Q;
-	if(zetas[i] < -KYBER_Q/2)
+	if (zetas[i] < -KYBER_Q/2)
 		zetas[i] += KYBER_Q;
 	}
 	}

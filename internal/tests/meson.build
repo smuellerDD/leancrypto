@@ -21,4 +21,10 @@ status_tester = executable('status_tester',
 			   include_directories: [ include_internal_dirs ],
 			   dependencies: leancrypto
 			  )
+rerun_selftests_tester = executable('rerun_selftests_tester',
+			   [ 'rerun_selftests_tester.c', internal_src ],
+			   include_directories: [ include_internal_dirs ],
+			   dependencies: leancrypto
+			  )
 test('Status', status_tester)
+test('Rerun selftests', rerun_selftests_tester)

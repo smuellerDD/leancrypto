@@ -44,7 +44,7 @@ randombytes(void *_state,
 	(void)addtl_input;
 	(void)addtl_input_len;
 
-	for(i = 0; i < 8; ++i)
+	for (i = 0; i < 8; ++i)
 		buf[i] = (uint8_t)(ctr >> 8*i);
 
 	ctr++;
@@ -107,7 +107,7 @@ static int kyber_kex_tester(void)
 	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	for(i = 0; i < LC_KYBER_SSBYTES; i++)
+	for (i = 0; i < LC_KYBER_SSBYTES; i++)
 		ws->zero[i] = 0;
 
 	// Generate static key for Bob

@@ -270,10 +270,10 @@ void KeccakP1600times4_OverwriteLanesAll(void *states,
 		OverWr4( 12 );
 		if ( laneCount >= 20 )  {
 			OverWr4( 16 );
-			for(i=20; i<laneCount; i++)
+			for (i=20; i<laneCount; i++)
 				OverWr( i );
 		} else {
-			for(i=16; i<laneCount; i++)
+			for (i=16; i<laneCount; i++)
 				OverWr( i );
 		}
 	} else {

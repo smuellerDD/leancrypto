@@ -351,7 +351,7 @@ int _dilithium_tester(
 			if (ws->tmp.coeffs[j] != ws->y.vec[0].coeffs[j])
 				printf("ERROR in polyz_(un)pack!\n");
 
-		if(polyvecl_chknorm(&ws->y, LC_DILITHIUM_GAMMA1+1))
+		if (polyvecl_chknorm(&ws->y, LC_DILITHIUM_GAMMA1+1))
 			printf("ERROR in polyvecl_chknorm(&y, GAMMA1)!\n");
 
 #ifdef DILITHIUM_DEBUG
@@ -413,7 +413,7 @@ int _dilithium_tester(
 				printf("%2d", ws->w1.vec[j].coeffs[k]);
 				if (k < LC_DILITHIUM_N-1)
 					printf(", ");
-				else if(j < LC_DILITHIUM_K-1)
+				else if (j < LC_DILITHIUM_K-1)
 					printf("],\n      [");
 				else
 					printf("])\n");
@@ -421,7 +421,7 @@ int _dilithium_tester(
 		}
 		printf("w0 = ([");
 		for (j = 0; j < LC_DILITHIUM_K; ++j) {
-			for(k = 0; k < LC_DILITHIUM_N; ++k) {
+			for (k = 0; k < LC_DILITHIUM_N; ++k) {
 				printf("%8d", ws->w0.vec[j].coeffs[k]);
 				if (k < LC_DILITHIUM_N-1)
 					printf(", ");
@@ -474,7 +474,7 @@ int _dilithium_tester(
 		}
 		printf("t0 = ([");
 		for (j = 0; j < LC_DILITHIUM_K; ++j) {
-			for(k = 0; k < LC_DILITHIUM_N; ++k) {
+			for (k = 0; k < LC_DILITHIUM_N; ++k) {
 				printf("%5d", ws->t0.vec[j].coeffs[k]);
 				if (k < LC_DILITHIUM_N-1)
 					printf(", ");

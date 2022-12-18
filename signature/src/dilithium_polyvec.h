@@ -336,7 +336,7 @@ static inline void polyveck_invntt_tomont(polyveck *v)
 {
 	unsigned int i;
 
-	for(i = 0; i < LC_DILITHIUM_K; ++i)
+	for (i = 0; i < LC_DILITHIUM_K; ++i)
 		poly_invntt_tomont(&v->vec[i]);
 }
 

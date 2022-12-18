@@ -200,7 +200,7 @@ void poly_challenge(poly *c, const uint8_t seed[LC_DILITHIUM_SEEDBYTES],
 
 	for (i = LC_DILITHIUM_N - LC_DILITHIUM_TAU; i < LC_DILITHIUM_N; ++i) {
 		do {
-			if(pos >= LC_SHAKE_256_SIZE_BLOCK) {
+			if (pos >= LC_SHAKE_256_SIZE_BLOCK) {
 				lc_hash_final(hash_ctx, ws_buf);
 				pos = 0;
 			}

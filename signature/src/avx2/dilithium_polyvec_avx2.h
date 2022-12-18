@@ -391,7 +391,7 @@ polyveck_pack_w1_avx(uint8_t r[LC_DILITHIUM_K * LC_DILITHIUM_POLYW1_PACKEDBYTES]
 {
 	unsigned int i;
 
-	for(i = 0; i < LC_DILITHIUM_K; ++i)
+	for (i = 0; i < LC_DILITHIUM_K; ++i)
 		polyw1_pack_avx(&r[i * LC_DILITHIUM_POLYW1_PACKEDBYTES],
 				 &w1->vec[i]);
 }

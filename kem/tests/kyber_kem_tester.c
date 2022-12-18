@@ -322,7 +322,7 @@ int _kyber_kem_tester(
 #endif
 
 		for (j = 0; j < LC_KYBER_SSBYTES; j++) {
-			if(ws->key_a.ss[j] != ws->key_b.ss[j]) {
+			if (ws->key_a.ss[j] != ws->key_b.ss[j]) {
 				printf("ERROR\n");
 				ret = 1;
 				goto out;

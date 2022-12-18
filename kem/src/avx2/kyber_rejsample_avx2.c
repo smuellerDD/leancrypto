@@ -419,9 +419,9 @@ unsigned int kyber_rej_uniform_avx(int16_t * restrict r, const uint8_t *buf)
 		val1 = (uint16_t)((buf[pos+1] >> 4) | ((uint16_t)buf[pos+2] << 4));
 		pos += 3;
 
-		if(val0 < LC_KYBER_Q)
+		if (val0 < LC_KYBER_Q)
 			r[ctr++] = (int16_t)val0;
-		if(val1 < LC_KYBER_Q && ctr < LC_KYBER_N)
+		if (val1 < LC_KYBER_Q && ctr < LC_KYBER_N)
 			r[ctr++] = (int16_t)val1;
 	}
 

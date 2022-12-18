@@ -484,7 +484,7 @@ int, lc_dilithium_verify_avx2, const struct lc_dilithium_sig *sig,
 		    hint[LC_DILITHIUM_OMEGA + i] > LC_DILITHIUM_OMEGA)
 			return -1;
 
-		for(j = pos; j < hint[LC_DILITHIUM_OMEGA + i]; ++j) {
+		for (j = pos; j < hint[LC_DILITHIUM_OMEGA + i]; ++j) {
 			/* Coefficients are ordered for strong unforgeability */
 			if (j > pos && hint[j] <= hint[j - 1])
 				return -1;
