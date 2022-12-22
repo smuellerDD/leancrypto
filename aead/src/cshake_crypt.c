@@ -501,7 +501,7 @@ static int lc_cc_decrypt_authenticate(void *state,
 	 */
 	lc_cc_encrypt_tag(cc, aad, aadlen, calctag_p, taglen);
 
-	ret = (memcmp_secure(calctag_p, taglen, tag, taglen) ? -EBADMSG : 0);
+	ret = (lc_memcmp_secure(calctag_p, taglen, tag, taglen) ? -EBADMSG : 0);
 	lc_memset_secure(calctag_p, 0, taglen);
 	if (taglen > sizeof(calctag))
 		lc_free(calctag_p);

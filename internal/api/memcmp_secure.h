@@ -37,7 +37,7 @@ extern "C"
  *
  * @return 0 on string match, != 0 when strings do not match
  */
-int memcmp_secure(const void *s1, size_t s1n, const void *s2, size_t s2n);
+int lc_memcmp_secure(const void *s1, size_t s1n, const void *s2, size_t s2n);
 
 #ifdef __cplusplus
 }

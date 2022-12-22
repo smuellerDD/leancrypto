@@ -394,7 +394,7 @@ static int lc_sh_decrypt_authenticate(void *state,
 	 */
 	lc_sh_encrypt_tag(sh, aad, aadlen, calctag, taglen);
 
-	ret = (memcmp_secure(calctag, taglen, tag, taglen) ? -EBADMSG : 0);
+	ret = (lc_memcmp_secure(calctag, taglen, tag, taglen) ? -EBADMSG : 0);
 	lc_memset_secure(calctag, 0, taglen);
 
 	return ret;

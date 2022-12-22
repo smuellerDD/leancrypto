@@ -36,7 +36,7 @@ static int memcmp_secure_tester(void)
 	unsigned int i;
 	int ret = 1;
 	unsigned short rnd = 0, add = 0;
-	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+	LC_DECLARE_MEM(ws, struct workspace, 32);
 
 	if (lc_rng_seed(drbg, (uint8_t *)&now, sizeof(now), NULL, 0))
 		return 1;
@@ -65,14 +65,14 @@ static int memcmp_secure_tester(void)
 		if (lc_rng_generate(drbg, NULL, 0, bp, rnd) < 0)
 			goto out;
 
-		if (memcmp_secure(ap, rnd, ap, rnd)) {
+		if (lc_memcmp_secure(ap, rnd, ap, rnd)) {
 			bin2print(ap, rnd, stderr,
 				  "Error comparing identical values");
 			printf("Offset %u\n", add);
 			goto out;
 		}
 
-		if (!memcmp_secure(ap, rnd, bp, rnd)) {
+		if (!lc_memcmp_secure(ap, rnd, bp, rnd)) {
 			bin2print(ap, rnd, stderr,
 				  "Error comparing different values");
 			bin2print(bp, rnd, stderr,
@@ -82,7 +82,7 @@ static int memcmp_secure_tester(void)
 		}
 	}
 
-	if (!memcmp_secure(ws->a, (rnd == 0) ? (rnd + 1) : (rnd - 1),
+	if (!lc_memcmp_secure(ws->a, (rnd == 0) ? (rnd + 1) : (rnd - 1),
 			   ws->b, rnd)) {
 		bin2print(ws->a, (unsigned short)(rnd + add), stderr,
 			  "Error comparing different values of different sizes");

@@ -17,35 +17,22 @@
  * DAMAGE.
  */
 
-#include <errno.h>
-#include <stdio.h>
-#include <string.h>
+#include "memcmp_secure_internal.h"
+#include "visibility.h"
 
-#include "lc_rng.h"
-#include "memcmp_secure.h"
-#include "ret_checkers.h"
-
-static int seeded_rng_selftest(void)
+LC_INTERFACE_FUNCTION(
+int, lc_memcmp_secure, const void *s1, size_t s1n, const void *s2, size_t s2n)
 {
-	uint8_t act1[64], act2[sizeof(act1)];
-	int ret;
+	size_t n = s1n;
 
-	memset(act1, 0, sizeof(act1));
-	memset(act2, 0, sizeof(act2));
-	CKINT(lc_rng_generate(lc_seeded_rng, NULL, 0, act1, sizeof(act1)));
-	CKINT(lc_rng_generate(lc_seeded_rng, NULL, 0, act2, sizeof(act2)));
-	if (!lc_memcmp_secure(act1, sizeof(act1), act2, sizeof(act2))) {
-		printf("Seeded RNG produced identical data\n");
-		return 1;
+	int ret = 0;
+
+	if (s1n != s2n) {
+		ret = 1;
+		n = (s1n > s2n) ? s2n : s1n;
 	}
 
-out:
-	return ret ? 1 : 0;
-}
+	ret |= memcmp_secure_64(s1, s2, n);
 
-int main(int argc, char *argv[])
-{
-	(void)argc;
-	(void)argv;
-	return seeded_rng_selftest();
+	return ret;
 }

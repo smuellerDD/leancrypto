@@ -433,7 +433,7 @@ lc_kc_decrypt_authenticate(void *state,
 	 */
 	lc_kc_encrypt_tag(kc, aad, aadlen, calctag_p, taglen);
 
-	ret = (memcmp_secure(calctag_p, taglen, tag, taglen) ? -EBADMSG : 0);
+	ret = (lc_memcmp_secure(calctag_p, taglen, tag, taglen) ? -EBADMSG : 0);
 	lc_memset_secure(calctag_p, 0, taglen);
 	if (taglen > sizeof(calctag))
 		lc_free(calctag_p);

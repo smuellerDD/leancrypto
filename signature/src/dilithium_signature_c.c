@@ -363,8 +363,8 @@ int, lc_dilithium_verify_c, const struct lc_dilithium_sig *sig,
 	lc_hash_final(hash_ctx, ws->c2.coeffs);
 
 	/* Signature verification operation */
-	if (memcmp_secure(ws->c.coeffs, LC_DILITHIUM_SEEDBYTES,
-			  ws->c2.coeffs, LC_DILITHIUM_SEEDBYTES))
+	if (lc_memcmp_secure(ws->c.coeffs, LC_DILITHIUM_SEEDBYTES,
+			     ws->c2.coeffs, LC_DILITHIUM_SEEDBYTES))
 		ret = -EBADMSG;
 
 out:

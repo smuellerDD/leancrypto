@@ -17,7 +17,16 @@
  * DAMAGE.
  */
 
+#ifndef MEMCMP_SECURE_INTERNAL_H
+#define MEMCMP_SECURE_INTERNAL_H
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include "bitshift.h"
+#include "cpufeatures.h"
 #include "memcmp_secure.h"
 
 static inline int
@@ -145,18 +154,8 @@ memcmp_secure_64(const void *s1, const void *s2, size_t n)
 	return ret;
 }
 
-int memcmp_secure(const void *s1, size_t s1n, const void *s2, size_t s2n)
-{
-	size_t n = s1n;
-
-	int ret = 0;
-
-	if (s1n != s2n) {
-		ret = 1;
-		n = (s1n > s2n) ? s2n : s1n;
-	}
-
-	ret |= memcmp_secure_64(s1, s2, n);
-
-	return ret;
+#ifdef __cplusplus
 }
+#endif
+
+#endif /* MEMCMP_SECURE_INTERNAL_H */

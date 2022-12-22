@@ -3,6 +3,8 @@ Changes 0.5.1-prerelease:
 
 * enhancement: add lc_rerun_selftests API
 
+* enhancement: add AVX2 support for memcmp_secure
+
 Changes 0.5.0:
 * enhancement: add ability to compile leancrypto for the Linux kernel including
   all tests
