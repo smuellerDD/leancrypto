@@ -21,6 +21,7 @@
 #include "lc_cshake256_drng.h"
 #include "lc_kyber.h"
 #include "lc_rng.h"
+#include "small_stack_support.h"
 #include "visibility.h"
 
 static int kyber_invalid(void)

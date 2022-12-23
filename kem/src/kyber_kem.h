@@ -32,6 +32,7 @@
 #include "lc_kyber.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
+#include "small_stack_support.h"
 #include "visibility.h"
 
 #ifdef __cplusplus

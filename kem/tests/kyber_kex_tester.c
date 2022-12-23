@@ -29,6 +29,7 @@
 #include "lc_rng.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
+#include "small_stack_support.h"
 #include "visibility.h"
 
 static int

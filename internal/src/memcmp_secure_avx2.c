@@ -21,7 +21,9 @@
 #include "memcmp_secure_internal.h"
 #include "visibility.h"
 
+#ifndef ARRAY_SIZE
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+#endif
 
 static inline int
 memcmp_secure_256_avx2_aligned(const void *s1, const void *s2, size_t n)
