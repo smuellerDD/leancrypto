@@ -195,15 +195,16 @@ leancrypto-y			+= posix_support.o			       \
 ccflags-y			+= -I$(PWD)/../internal/api
 leancrypto-y			+= ../internal/src/left_encode.o	       \
 				   ../internal/src/compare.o		       \
-				   ../internal/src/memcmp_secure.o	       \
 				   ../internal/src/null_buffer.o	       \
 				   ../internal/src/status.o
 obj-m				+= ../internal/tests/status_tester.o
 
 ifdef CONFIG_X86
-leancrypto-y	  		+= ../internal/src/cpufeatures_x86.o
+leancrypto-y	  		+= ../internal/src/cpufeatures_x86.o	       \
+				   ../internal/src/memcmp_secure_avx2.o
 else
-leancrypto-y	 		 += ../internal/src/cpufeatures_none.o
+leancrypto-y	 		 += ../internal/src/cpufeatures_none.o	       \
+				    ../internal/src/memcmp_secure_c.o
 endif
 
 # Hash implementation
