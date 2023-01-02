@@ -197,15 +197,20 @@ leancrypto-y			+= ../internal/src/left_encode.o	       \
 				   ../internal/src/compare.o		       \
 				   ../internal/src/null_buffer.o	       \
 				   ../internal/src/status.o
-obj-m				+= ../internal/tests/status_tester.o
 
 ifdef CONFIG_X86
 leancrypto-y	  		+= ../internal/src/cpufeatures_x86.o	       \
 				   ../internal/src/memcmp_secure_avx2.o
 else
-leancrypto-y	 		 += ../internal/src/cpufeatures_none.o	       \
-				    ../internal/src/memcmp_secure_c.o
+leancrypto-y	 		+= ../internal/src/cpufeatures_none.o	       \
+				   ../internal/src/memcmp_secure_c.o
 endif
+
+obj-m				+= status_tester.o
+obj-m				+= rerun_selftests_tester.o
+
+status_tester-y			+= ../internal/tests/status_tester.o
+rerun_selftests_tester-y	+= ../internal/tests/rerun_selftests_tester.o
 
 # Hash implementation
 ccflags-y	 		+= -I$(PWD)/../hash/api
