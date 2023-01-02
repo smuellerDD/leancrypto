@@ -69,6 +69,13 @@ if get_option('aes_cbc').enabled()
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto
 				)
+	symhmac_large_test = executable('symhmac_large_test',
+				[ 'symhmac_large_test.c', internal_src ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto
+				)
 
 	test('AEAD Sym HMAC', symhmac_test)
+	#test('AEAD Sym HMAC 1GB', symhmac_large_test,
+	#     timeout: 2500, is_parallel: false)
 endif
