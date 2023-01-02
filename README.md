@@ -58,10 +58,9 @@ directory `linux_kernel`:
 
 3. the leancrypto library is provided with `leancrypto.ko`
 
-Note, the compiled test kernel module of `leancrypto_test.ko` is only provided
-for regression testing and is not required for production use. Insert the
-kernel module and check `dmesg` for the results. Unload the kernel module
-afterwards.
+Note, the compiled test kernel modules are only provided for regression testing
+and are not required for production use. Insert the kernel modules and check
+`dmesg` for the results. Unload the kernel modules afterwards.
 
 The API specified by the header files installed as part of the
 `meson install -C build` command for the user space library is applicable to
