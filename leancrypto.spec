@@ -36,7 +36,7 @@ enabled if possible.
 %package devel
 Summary:        Development files for leancrypto, a cryptographic library
 Requires:       glibc-devel
-Requires:       %{name} = %{version}
+Requires:       lib%{name}0 = %{version}
 #BuildArchitectures: noarch
 
 %description devel

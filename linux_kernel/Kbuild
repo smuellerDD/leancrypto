@@ -188,6 +188,9 @@ obj-m		 		:= leancrypto.o
 # Kernel module framework
 ccflags-y			:= -I$(PWD) -DLINUX_KERNEL -DLC_MEM_ON_HEAP    \
 				   -DMAJVERSION=0 -DMINVERSION=5 -DPATCHLEVEL=1
+ifdef CONFIG_ARM
+ccflags-y			+= -mno-outline-atomics
+endif
 leancrypto-y			+= posix_support.o			       \
 				   leancrypto_kernel.o
 
