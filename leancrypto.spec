@@ -1,7 +1,7 @@
 #
 # spec file for package leancrypto
 #
-# Copyright (c) 2022 Stephan Mueller <smueller@chronox.de
+# Copyright (c) 2022 - 2023 Stephan Mueller <smueller@chronox.de
 #
 
 Name:           leancrypto

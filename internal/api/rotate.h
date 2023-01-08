@@ -1,6 +1,6 @@
 /* Rotate left / right functions
  *
- * Copyright (C) 2015 - 2022, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2015 - 2023, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file
  *

@@ -1,6 +1,6 @@
 /* Double-Pipeline KDF - SP800-108
  *
- * Copyright (C) 2016 - 2022, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2016 - 2023, Stephan Mueller <smueller@chronox.de>
  *
  * License: see COPYING file in root directory
  *

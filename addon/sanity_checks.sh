@@ -105,6 +105,39 @@ check_copyright_date() {
 	sed -i "/Copyright/s/$searchyear/$newyear/" $file
 }
 
+# Cleanup code base
+# $1 repository destination
+code_cleanup() {
+	local targetdir=$1
+	shift
+
+	for i in $(find $targetdir -type f)
+	do
+
+		if [ "$(basename $0)" -eq "$(basename $i)" ]
+		then
+			continue
+		fi
+
+		skip=0
+
+		for j in $@
+		do
+			if [ x"${i##$j}" != x"$i" ]
+			then
+				skip=1
+				break
+			fi
+		done
+
+		if [ $skip -eq 0 ]
+		then
+			check_copyright_date $i
+		fi
+	done
+}
+
+
 # Check for a clean code using cppcheck
 # $@ files to check
 check_codesanity() {
@@ -201,7 +234,7 @@ prepare_gitrepo() {
 		cd $target
 	fi
 
-	check_copyright_date
+	code_cleanup .
 	[ $? -ne 0 ] && exit 1
 
 	check_reposanity $version

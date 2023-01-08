@@ -1,6 +1,6 @@
 /* PBKDF2 - SP800-132
  *
- * Copyright (C) 2016 - 2022, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2016 - 2023, Stephan Mueller <smueller@chronox.de>
  *
  * License: see COPYING file in root directory
  *

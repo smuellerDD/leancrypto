@@ -2,7 +2,7 @@
  *
  * Convert hex string into binary representation and vice versa
  *
- * Copyright (C) 2018 - 2021, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2018 - 2023, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file
  *
