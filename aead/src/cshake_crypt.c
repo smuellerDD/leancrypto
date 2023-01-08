@@ -395,11 +395,8 @@ static int lc_cc_setkey(void *state,
 	lc_cc_selftest(&tested, "cSHAKE AEAD");
 
 	/*
-	 * The keystream block size must be a multiple of the cSHAKE256 block
-	 * size, as otherwise the multiple lc_cshake_final calls will not return
-	 * the same data as one lc_cshake_final call, because the Keccak
-	 * operation to generate a new internal state is invoked at a different
-	 * time.
+	 * The keystream block size should be a multiple of the cSHAKE256 block
+	 * size, as otherwise the filling of it is inefficient.
 	 */
 	BUILD_BUG_ON(LC_SHA3_256_SIZE_BLOCK % LC_CC_KEYSTREAM_BLOCK);
 	BUILD_BUG_ON(LC_CC_AUTHENTICATION_KEY_SIZE > LC_CC_KEYSTREAM_BLOCK);

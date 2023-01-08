@@ -331,11 +331,8 @@ static int lc_kc_setkey(void *state,
 	lc_kc_selftest(&tested, "KMAC AEAD");
 
 	/*
-	 * The keystream block size must be a multiple of the cSHAKE256 block
-	 * size, as otherwise the multiple lc_kmac_final calls will not return
-	 * the same data as one lc_kmac_final call, because the Keccack
-	 * operation to generate a new internal state is invoked at a different
-	 * time.
+	 * The keystream block size should be a multiple of the KMAC block
+	 * size, as otherwise the filling of it is inefficient.
 	 */
 	BUILD_BUG_ON(LC_SHA3_256_SIZE_BLOCK % LC_KC_KEYSTREAM_BLOCK);
 	BUILD_BUG_ON(LC_KC_AUTHENTICATION_KEY_SIZE > LC_KC_KEYSTREAM_BLOCK);
@@ -345,9 +342,6 @@ static int lc_kc_setkey(void *state,
 	/*
 	 * Generate key for KMAC authentication - we simply use two different
 	 * keys for the KMAC keystream generator and the KMAC authenticator.
-	 *
-	 * After the lc_kmac_final_xof we have to call lc_kmac_final_xof_more
-	 * for getting new KMAC data.
 	 */
 	lc_kmac_final_xof(kmac, kc->keystream, LC_KC_KEYSTREAM_BLOCK);
 	lc_kmac_init(auth_ctx, kc->keystream, LC_KC_AUTHENTICATION_KEY_SIZE,
