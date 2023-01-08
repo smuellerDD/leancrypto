@@ -1,4 +1,4 @@
-Changes 0.5.1-prerelease:
+Changes 0.5.1:
 * enhancement: add Linux kernel configuration options
 
 * enhancement: add lc_rerun_selftests API
