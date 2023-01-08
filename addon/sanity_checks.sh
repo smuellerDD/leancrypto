@@ -114,7 +114,7 @@ code_cleanup() {
 	for i in $(find $targetdir -type f)
 	do
 
-		if [ "$(basename $0)" -eq "$(basename $i)" ]
+		if [ x"$(basename $0)" = x"$(basename $i)" ]
 		then
 			continue
 		fi
