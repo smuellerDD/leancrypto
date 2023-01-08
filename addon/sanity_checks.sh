@@ -201,6 +201,9 @@ prepare_gitrepo() {
 		cd $target
 	fi
 
+	check_copyright_date
+	[ $? -ne 0 ] && exit 1
+
 	check_reposanity $version
 	[ $? -ne 0 ] && exit 1
 
