@@ -124,6 +124,14 @@ memcmp_secure_64_aligned(const void *s1, const void *s2, size_t n)
 
 	return ret;
 }
+
+#else
+
+static inline int
+memcmp_secure_64_aligned(const void *s1, const void *s2, size_t n)
+{
+	return memcmp_secure_32_aligned(s1, s2, n);
+}
 #endif
 
 static inline int
