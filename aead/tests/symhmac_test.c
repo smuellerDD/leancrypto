@@ -134,7 +134,7 @@ static int sh_tester_one(const struct lc_sym *sym, const struct lc_hash *hash,
 	if (lc_aead_setkey(sh, key, keylen, iv, ivlen))
 		return 1;
 
-	out_enc[0] = (out_enc[0] + 1) &0xff;
+	out_enc[0] = (uint8_t)((out_enc[0] + 1) &0xff);
 	ret = lc_aead_decrypt(sh, out_enc, out_dec, ptlen, aad, aadlen,
 			      tag, exp_tag_len);
 	lc_aead_zero(sh);

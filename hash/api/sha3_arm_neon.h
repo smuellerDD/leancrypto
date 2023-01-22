@@ -17,16 +17,26 @@
  * DAMAGE.
  */
 
-#include "ext_headers.h"
-#include "sha3_c.h"
-#include "sha3_arm8_neon.h"
-#include "visibility.h"
+#ifndef SHA3_ARM_NEON
+#define SHA3_ARM_NEON
 
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_224_arm8_neon) = NULL;
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_256_arm8_neon) = NULL;
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_384_arm8_neon) = NULL;
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_512_arm8_neon) = NULL;
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake128_arm8_neon) = NULL;
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake256_arm8_neon) = NULL;
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_cshake128_arm8_neon) = NULL;
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_cshake256_arm8_neon) = NULL;
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+extern const struct lc_hash *lc_sha3_224_arm_neon;
+extern const struct lc_hash *lc_sha3_256_arm_neon;
+extern const struct lc_hash *lc_sha3_384_arm_neon;
+extern const struct lc_hash *lc_sha3_512_arm_neon;
+
+extern const struct lc_hash *lc_shake128_arm_neon;
+extern const struct lc_hash *lc_shake256_arm_neon;
+extern const struct lc_hash *lc_cshake128_arm_neon;
+extern const struct lc_hash *lc_cshake256_arm_neon;
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* SHA3_ARM_NEON */

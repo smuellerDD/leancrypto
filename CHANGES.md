@@ -1,3 +1,10 @@
+Changes 0.5.2-prerelease
+* fix: SPEC file - mark devel RPM as noarch
+
+* enhancement: add ARMv7 Neon assembler support for Keccack
+
+* enhancement: enable ARMv8 Neon assembler support for Keccack
+
 Changes 0.5.1:
 * enhancement: add Linux kernel configuration options
 

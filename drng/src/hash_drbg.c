@@ -136,14 +136,14 @@ static void drbg_add_buf(uint8_t *dst, size_t dstlen,
 	dstptr = dst + (dstlen-1);
 	addptr = add + (addlen-1);
 	while (len) {
-		remainder += *dstptr + *addptr;
+		remainder += (unsigned int)(*dstptr + *addptr);
 		*dstptr = remainder & 0xff;
 		remainder >>= 8;
 		len--; dstptr--; addptr--;
 	}
 	len = dstlen - addlen;
 	while (len && remainder > 0) {
-		remainder = *dstptr + 1;
+		remainder = (unsigned int)(*dstptr + 1);
 		*dstptr = remainder & 0xff;
 		remainder >>= 8;
 		len--; dstptr--;

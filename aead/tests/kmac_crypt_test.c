@@ -122,7 +122,7 @@ static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
 	/* Check authentication error */
 	lc_aead_setkey(kc, key, keylen, NULL, 0);
 
-	out_enc[0] = (out_enc[0] + 1) &0xff;
+	out_enc[0] = (uint8_t)((out_enc[0] + 1) &0xff);
 	ret = lc_aead_decrypt(kc, out_enc, out_dec, ptlen, aad, aadlen,
 			      tag, exp_tag_len);
 	lc_aead_zero(kc);

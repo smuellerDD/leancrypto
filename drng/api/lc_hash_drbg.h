@@ -34,7 +34,7 @@ extern "C"
 
 struct lc_drbg_hash_state {
 	struct lc_hash_ctx hash_ctx; /* Cipher handle */
-	uint8_t hash_state[LC_SHA512_STATE_SIZE];
+	uint8_t hash_state[LC_SHA512_STATE_SIZE + LC_HASH_COMMON_ALIGNMENT];
 	uint8_t V[LC_DRBG_HASH_STATELEN]; /* internal state 10.1.1.1 1a) */
 	uint8_t C[LC_DRBG_HASH_STATELEN]; /* static value 10.1.1.1 1b) */
 	uint8_t scratchpad [LC_DRBG_HASH_STATELEN + LC_DRBG_HASH_BLOCKLEN];

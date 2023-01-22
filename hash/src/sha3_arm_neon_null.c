@@ -17,27 +17,16 @@
  * DAMAGE.
  */
 
-#ifndef CPUFEATURES_H
-#define CPUFEATURES_H
+#include "ext_headers.h"
+#include "sha3_c.h"
+#include "sha3_arm_neon.h"
+#include "visibility.h"
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
-enum lc_cpu_features {
-	LC_CPU_FEATURE_NONE		= 0,
-	LC_CPU_FEATURE_INTEL_AVX2	= 1 << 0,
-	LC_CPU_FEATURE_INTEL_AVX512	= 1 << 1,
-	LC_CPU_FEATURE_ARM_NEON		= 1 << 2,
-
-	LC_CPU_FEATURE_UNSET		= (1U) << 30
-};
-
-enum lc_cpu_features lc_cpu_feature_available(void);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* CPUFEATURES_H */
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_224_arm_neon) = NULL;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_256_arm_neon) = NULL;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_384_arm_neon) = NULL;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_512_arm_neon) = NULL;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake128_arm_neon) = NULL;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake256_arm_neon) = NULL;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_cshake128_arm_neon) = NULL;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_cshake256_arm_neon) = NULL;

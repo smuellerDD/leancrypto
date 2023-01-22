@@ -34,8 +34,12 @@ include_files += files([
 	'../api/lc_status.h'
 	])
 
+c_compiler = meson.get_compiler('c')
 if (build_machine.cpu_family() == 'x86_64')
 	src += files([ 'cpufeatures_x86.c' ])
+elif ((arm64_neon_gcc_asm or arm32_neon_gcc_asm) and
+      c_compiler.check_header('sys/auxv.h'))
+	src += files([ 'cpufeatures_arm.c' ])
 else
 	src += files([ 'cpufeatures_none.c' ])
 endif

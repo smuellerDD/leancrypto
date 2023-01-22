@@ -17,26 +17,37 @@
  * DAMAGE.
  */
 
-#ifndef SHA3_ARM8_NEON
-#define SHA3_ARM8_NEON
+#include <sys/auxv.h>
 
-#ifdef __cplusplus
-extern "C"
+#include "cpufeatures.h"
+#include "ext_headers.h"
+#include "visibility.h"
+
+#define HWCAP_ASIMD  (1 << 1)
+#define HWCAP_AES    (1 << 3)
+#define HWCAP_PMULL  (1 << 4)
+#define HWCAP_SHA1   (1 << 5)
+#define HWCAP_SHA2   (1 << 6)
+#define HWCAP_SHA3   (1 << 17)
+#define HWCAP_SHA512 (1 << 21)
+
+LC_INTERFACE_FUNCTION(
+enum lc_cpu_features, lc_cpu_feature_available, void)
 {
-#endif
+	unsigned long c;
 
-extern const struct lc_hash *lc_sha3_224_arm8_neon;
-extern const struct lc_hash *lc_sha3_256_arm8_neon;
-extern const struct lc_hash *lc_sha3_384_arm8_neon;
-extern const struct lc_hash *lc_sha3_512_arm8_neon;
-
-extern const struct lc_hash *lc_shake128_arm8_neon;
-extern const struct lc_hash *lc_shake256_arm8_neon;
-extern const struct lc_hash *lc_cshake128_arm8_neon;
-extern const struct lc_hash *lc_cshake256_arm8_neon;
-
-#ifdef __cplusplus
+	c = getauxval(AT_HWCAP);
+	if (c & HWCAP_ASIMD)
+		return LC_CPU_FEATURE_ARM_NEON;
+	if (c & HWCAP_AES)
+		return LC_CPU_FEATURE_NONE;
+	if (c & HWCAP_PMULL)
+		return LC_CPU_FEATURE_NONE;
+	if (c & HWCAP_SHA1)
+		return LC_CPU_FEATURE_NONE;
+	if (c & HWCAP_SHA2)
+		return LC_CPU_FEATURE_NONE;
+	if (c & HWCAP_SHA512)
+		return LC_CPU_FEATURE_NONE;
+	return LC_CPU_FEATURE_NONE;
 }
-#endif
-
-#endif /* SHA3_ARM8_NEON */

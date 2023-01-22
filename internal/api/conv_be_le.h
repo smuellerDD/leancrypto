@@ -39,7 +39,7 @@ extern "C"
 #ifndef __HAVE_BUILTIN_BSWAP16__
 static inline uint16_t _lc_bswap16(uint16_t x)
 {
-	return ((rol16(x, 8) & 0x00ff) | (ror16(x, 8) & 0xff00));
+	return (uint16_t)((rol16(x, 8) & 0x00ff) | (ror16(x, 8) & 0xff00));
 }
 # define _lc_swap16(x) _lc_bswap16((uint16_t)(x))
 #else

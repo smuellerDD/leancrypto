@@ -21,7 +21,7 @@
 #include "ext_headers.h"
 #include "lc_sha3.h"
 #include "sha3_c.h"
-#include "sha3_arm8_neon.h"
+#include "sha3_arm_neon.h"
 #include "sha3_avx2.h"
 #include "sha3_avx512.h"
 #include "sha3_common.h"
@@ -47,7 +47,7 @@ LC_CONSTRUCTOR(sha3_fastest_impl)
 	}
 
 	/* Check if NULL pointers are present */
-	LC_FILL_ACCEL_NULL(arm8_neon)
+	LC_FILL_ACCEL_NULL(arm_neon)
 	LC_FILL_ACCEL_NULL(avx512)
 	LC_FILL_ACCEL_NULL(avx2)
 
@@ -68,6 +68,8 @@ LC_CONSTRUCTOR(sha3_fastest_impl)
 		LC_FILL_DFLT_IMPL(avx512)
 	} else if (feat & LC_CPU_FEATURE_INTEL_AVX2) {
 		LC_FILL_DFLT_IMPL(avx2)
+	} else if (feat & LC_CPU_FEATURE_ARM_NEON) {
+		LC_FILL_DFLT_IMPL(arm_neon)
 	} else {
 		/* do nothing as the C definitions are used automatically */
 	}
@@ -78,5 +80,8 @@ LC_CONSTRUCTOR(sha3_fastest_impl)
 	}
 	if (!(feat & LC_CPU_FEATURE_INTEL_AVX2)) {
 		LC_FILL_ACCEL_WITH_C(avx2)
+	}
+	if (!(feat & LC_CPU_FEATURE_ARM_NEON)) {
+		LC_FILL_ACCEL_WITH_C(arm_neon)
 	}
 }

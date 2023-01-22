@@ -86,7 +86,8 @@ hash/src/asm/AVX512/KeccakP-1600-AVX512.s:
 ================================================================================
 
 The SHA3 / SHAKE assembler implementations and the associated glue code in
-hash/src/keccack_asm_glue.h are derived in parts from the code distribution
+hash/src/keccack_asm_glue.h, code in hash/src/asm/ARMv8A/ and
+hash/src/asm/ARMv7A-NEON/ are derived in parts from the code distribution
 provided with https://github.com/XKCP/XKCP.
 
 This code is licensed with:

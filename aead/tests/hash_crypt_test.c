@@ -119,7 +119,7 @@ static int hc_tester_sha512_one(const uint8_t *pt, size_t ptlen,
 	if (lc_aead_setkey(hc, key, keylen, NULL, 0) < 0)
 		return 1;
 
-	out_enc[0] = (out_enc[0] + 1) &0xff;
+	out_enc[0] = (uint8_t)((out_enc[0] + 1) &0xff);
 	ret = lc_aead_decrypt(hc, out_enc, out_dec, ptlen, aad, aadlen,
 			      tag, exp_tag_len);
 	if (ret != -EBADMSG)

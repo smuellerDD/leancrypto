@@ -49,8 +49,13 @@ struct lc_hash_ctx {
  * it is embedded into. This is achieved by adding 7 more bytes than necessary
  * to LC_ALIGNED_SYM_BUFFER and then adjusting the pointer offset in that range
  * accordingly.
+ *
+ * It is permissible to set the alignment requirement with compile-time
+ * arguments.
  */
+#ifndef LC_HASH_COMMON_ALIGNMENT
 #define LC_HASH_COMMON_ALIGNMENT	(sizeof(uint64_t))
+#endif
 
 #define LC_ALIGN_HASH_MASK(p)						       \
 	LC_ALIGN_PTR_64(p, LC_ALIGNMENT_MASK(LC_HASH_COMMON_ALIGNMENT))
@@ -83,9 +88,6 @@ struct lc_hash_ctx {
 				((unsigned long)(x->statesize))
 #define LC_HASH_STATE_SIZE(x)	(LC_HASH_STATE_SIZE_NONALIGNED(x) +	       \
 				 LC_HASH_COMMON_ALIGNMENT)
-#define LC_HASH_CTX_SIZE_NONALIGNED(x)					       \
-				(sizeof(struct lc_hash_ctx) +		       \
-				 LC_HASH_STATE_SIZE_NONALIGNED(x))
 #define LC_HASH_CTX_SIZE(x)	(sizeof(struct lc_hash_ctx) +		       \
 				 LC_HASH_STATE_SIZE(x))
 
@@ -260,7 +262,7 @@ static inline void lc_hash_zero(struct lc_hash_ctx *hash_ctx)
 	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
 	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 	LC_ALIGNED_BUFFER(name ## _ctx_buf,				       \
-			  LC_HASH_CTX_SIZE_NONALIGNED(hashname),	       \
+			  LC_HASH_CTX_SIZE(hashname),			       \
 			  LC_HASH_COMMON_ALIGNMENT);			       \
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *) name ## _ctx_buf;    \
 	LC_HASH_SET_CTX(name, hashname);				       \

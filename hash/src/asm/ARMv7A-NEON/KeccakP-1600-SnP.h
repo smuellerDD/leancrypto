@@ -27,8 +27,11 @@ Please refer to SnP-documentation.h for more details.
 /* void KeccakP1600_StaticInitialize( void ); */
 #define KeccakP1600_StaticInitialize()
 void KeccakP1600_Initialize(void *state);
-#define KeccakP1600_AddByte(argS, argData, argOffset)			       \
-	((unsigned char*)argS)[argOffset] ^= (argData)
+static inline void
+KeccakP1600_AddByte(void *state, unsigned char byte, unsigned int offset)
+{
+	((unsigned char*)state)[offset] ^= (byte);
+}
 void KeccakP1600_AddBytes(void *state, const unsigned char *data,
 			  unsigned int offset, unsigned int length);
 void KeccakP1600_OverwriteBytes(void *state, const unsigned char *data,

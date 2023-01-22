@@ -22,7 +22,7 @@
 #include "visibility.h"
 
 #include "sha3_c.h"
-#include "sha3_arm8_neon.h"
+#include "sha3_arm_neon.h"
 #include "sha3_avx2.h"
 #include "sha3_avx512.h"
 
@@ -69,7 +69,7 @@ static int sha3_384_tester(void)
 
 	LC_EXEC_ONE_TEST(lc_sha3_384);
 	LC_EXEC_ONE_TEST(lc_sha3_384_c);
-	LC_EXEC_ONE_TEST(lc_sha3_384_arm8_neon);
+	LC_EXEC_ONE_TEST(lc_sha3_384_arm_neon);
 	LC_EXEC_ONE_TEST(lc_sha3_384_avx2);
 	LC_EXEC_ONE_TEST(lc_sha3_384_avx512);
 
