@@ -246,7 +246,19 @@
  * random number generator is not required to possess a cryptographic meaningful
  * strength.
  *
+ * The selection of KMAC for generating the keystream is based on the
+ * statement in [SP800-185] declaring Keccack is usable as a pseudorandom
+ * function.
+ *
+ * The approach of Encrypt-Then-MAC is selected based on the analysis of
+ * [AUTHENC] table 3 based on the finding that the MAC algorithm of KMAC is
+ * strongly unforgeable.
+ *
  * 4. Normative References
+ *
+ * [AUTHENC] Mihir Bellare and Chanathip Namprempre, Authenticated Encryption:
+ *	     Relations among Notions and Analysis of the Generic Composition
+ *	     Paradigm
  *
  * [SP800-185] John Kelsey, Shu-jen Chang, Ray Perlne, NIST Special Publication
  *             800-185 SHA-3 Derived Functions: KMAC, CSHAKE, TupleHash and

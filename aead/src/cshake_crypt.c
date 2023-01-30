@@ -247,6 +247,14 @@
  * random number generator is not required to possess a cryptographic meaningful
  * strength.
  *
+ * The selection of cSHAKE for generating the keystream is based on the
+ * statement in [SP800-185] declaring Keccack is usable as a pseudorandom
+ * function.
+ *
+ * The approach of Encrypt-Then-MAC is selected based on the analysis of
+ * [AUTHENC] table 3 based on the finding that the MAC algorithm of cSHAKE is
+ * strongly unforgeable.
+ *
  * 4. Comparison with KMAC-based AEAD Cipher Algorithm
  *
  * The cSHAKE cipher is completely identical to the KMAC cipher with the

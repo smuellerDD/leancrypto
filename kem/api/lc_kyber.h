@@ -119,8 +119,8 @@ struct lc_kyber_ss {
 };
 
 /**
- * @brief crypto_kem_keypair - Generates public and private key for CCA-secure
- *			       Kyber key encapsulation mechanism
+ * @brief crypto_kem_keypair - Generates public and private key for
+ *			       IND-CCA2-secure Kyber key encapsulation mechanism
  *
  * @param pk [out] pointer to already allocated output public key
  * @param sk [out] pointer to already allocated output private key
@@ -142,6 +142,7 @@ int lc_kyber_keypair(struct lc_kyber_pk *pk,
  *		   during decapsulation
  * @param ss_len [in] length of shared secret to be generated
  * @param pk [in] pointer to input public key
+ * @param rng_ctx [in] pointer to seeded random number generator context
  *
  * Returns 0 (success) or < 0 on error
  */
