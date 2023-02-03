@@ -29,6 +29,7 @@
 #define LC_DILITHIUM_H
 
 #include "ext_headers.h"
+#include "lc_hash.h"
 #include "lc_rng.h"
 
 #ifdef __cplusplus
@@ -157,7 +158,7 @@ int lc_dilithium_keypair(struct lc_dilithium_pk *pk,
 
 
 /**
- * @param lc_dilithium_sign - Computes signature.
+ * @param lc_dilithium_sign - Computes signature in one shot
  *
  * @param sig [out] pointer to output signature
  * @param m [in] pointer to message to be signed
@@ -176,7 +177,64 @@ int lc_dilithium_sign(struct lc_dilithium_sig *sig,
 		      struct lc_rng_ctx *rng_ctx);
 
 /**
- * @brief lc_dilithium_verify - Verifies signature.
+ * @param lc_dilithium_sign_init - Initializes a signature operation
+ *
+ * This call is intended to support messages that are located in non-contiguous
+ * places and even becomes available at different times. This call is to be
+ * used together with the lc_dilithium_sign_update and lc_dilithium_sign_final.
+ *
+ * @param hash_ctx [in/out] pointer to an allocated (but not yet initialized)
+ *			    hash context - this hash context MUST use
+ *			    lc_shake256 as otherwise the function will return
+ *			    an error.
+ * @param sk [in] pointer to bit-packed secret key
+ *
+ * @return 0 (success) or < 0 on error; -EOPNOTSUPP is returned if a different
+ *	   hash than lc_shake256 is used.
+ */
+int lc_dilithium_sign_init(struct lc_hash_ctx *hash_ctx,
+			   const struct lc_dilithium_sk *sk);
+
+/**
+ * @param lc_dilithium_sign_update - Add more data to an already initialized
+ *				     signature state
+ *
+ * This call is intended to support messages that are located in non-contiguous
+ * places and even becomes available at different times. This call is to be
+ * used together with the lc_dilithium_sign_init and lc_dilithium_sign_final.
+ *
+ * @param hash_ctx [in/out] pointer to hash context that was initialized with
+ *			    lc_dilithium_sign_init
+ * @param m [in] pointer to message to be signed
+ * @param mlen [in] length of message
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int lc_dilithium_sign_update(struct lc_hash_ctx *hash_ctx,
+			     const uint8_t *m,
+			     size_t mlen);
+
+/**
+ * @param lc_dilithium_sign_final - Computes signature
+ *
+ * @param sig [out] pointer to output signature
+ * @param hash_ctx [in] pointer to hash context that was initialized with
+ *			lc_dilithium_sign_init and filled with
+ *			lc_dilithium_sign_update
+ * @param sk [in] pointer to bit-packed secret key
+ * @param rng_ctx [in] pointer to seeded random number generator context - when
+ *		       pointer is non-NULL, perform a randomized signing.
+ *		       Otherwise use deterministic signing.
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int lc_dilithium_sign_final(struct lc_dilithium_sig *sig,
+			    struct lc_hash_ctx  *hash_ctx,
+			    const struct lc_dilithium_sk *sk,
+			    struct lc_rng_ctx *rng_ctx);
+
+/**
+ * @brief lc_dilithium_verify - Verifies signature in one shot
  *
  * @param sig [in] pointer to input signature
  * @param m [in] pointer to message
@@ -190,6 +248,63 @@ int lc_dilithium_verify(const struct lc_dilithium_sig *sig,
 			const uint8_t *m,
 			size_t mlen,
 			const struct lc_dilithium_pk *pk);
+
+/**
+ * @param lc_dilithium_verify_init - Initializes a signature verification
+ * 				     operation
+ *
+ * This call is intended to support messages that are located in non-contiguous
+ * places and even becomes available at different times. This call is to be
+ * used together with the lc_dilithium_verify_update and
+ * lc_dilithium_verify_final.
+ *
+ * @param hash_ctx [in/out] pointer to an allocated (but not yet initialized)
+ *			    hash context - this hash context MUST use
+ *			    lc_shake256 as otherwise the function will return
+ *			    an error.
+ * @param pk [in] pointer to bit-packed public key
+ *
+ * @return 0 (success) or < 0 on error; -EOPNOTSUPP is returned if a different
+ *	   hash than lc_shake256 is used.
+ */
+int lc_dilithium_verify_init(struct lc_hash_ctx *hash_ctx,
+			     const struct lc_dilithium_pk *pk);
+
+/**
+ * @param lc_dilithium_verify_update - Add more data to an already initialized
+ *				       signature state
+ *
+ * This call is intended to support messages that are located in non-contiguous
+ * places and even becomes available at different times. This call is to be
+ * used together with the lc_dilithium_verify_init and
+ * lc_dilithium_verify_final.
+ *
+ * @param hash_ctx [in/out] pointer to hash context that was initialized with
+ *			    lc_dilithium_sign_init
+ * @param m [in] pointer to message to be signed
+ * @param mlen [in] length of message
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int lc_dilithium_verify_update(struct lc_hash_ctx *hash_ctx,
+			       const uint8_t *m,
+			       size_t mlen);
+
+/**
+ * @param lc_dilithium_verify_final - Verifies signature
+ *
+ * @param sig [in] pointer to output signature
+ * @param hash_ctx [in] pointer to hash context that was initialized with
+ *			lc_dilithium_sign_init and filled with
+ *			lc_dilithium_sign_update
+ * @param pk [in] pointer to bit-packed public key
+ *
+ * @return 0 if signature could be verified correctly and -EBADMSG when
+ * signature cannot be verified, < 0 on other errors
+ */
+int lc_dilithium_verify_final(struct lc_dilithium_sig *sig,
+			      struct lc_hash_ctx  *hash_ctx,
+			      const struct lc_dilithium_pk *pk);
 
 #ifdef __cplusplus
 }

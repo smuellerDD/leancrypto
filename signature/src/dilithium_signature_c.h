@@ -34,11 +34,28 @@ int lc_dilithium_sign_c(struct lc_dilithium_sig *sig,
 			size_t mlen,
 			const struct lc_dilithium_sk *sk,
 			struct lc_rng_ctx *rng_ctx);
+int lc_dilithium_sign_init_c(struct lc_hash_ctx *hash_ctx,
+			     const struct lc_dilithium_sk *sk);
+int lc_dilithium_sign_update_c(struct lc_hash_ctx *hash_ctx,
+			       const uint8_t *m,
+			       size_t mlen);
+int lc_dilithium_sign_final_c(struct lc_dilithium_sig *sig,
+			      struct lc_hash_ctx  *hash_ctx,
+			      const struct lc_dilithium_sk *sk,
+			      struct lc_rng_ctx *rng_ctx);
 
 int lc_dilithium_verify_c(const struct lc_dilithium_sig *sig,
 			  const uint8_t *m,
 			  size_t mlen,
 			  const struct lc_dilithium_pk *pk);
+int lc_dilithium_verify_init_c(struct lc_hash_ctx *hash_ctx,
+			       const struct lc_dilithium_pk *pk);
+int lc_dilithium_verify_update_c(struct lc_hash_ctx *hash_ctx,
+				 const uint8_t *m,
+				 size_t mlen);
+int lc_dilithium_verify_final_c(struct lc_dilithium_sig *sig,
+				struct lc_hash_ctx  *hash_ctx,
+				const struct lc_dilithium_pk *pk);
 
 #ifdef __cplusplus
 }

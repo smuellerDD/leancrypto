@@ -76,3 +76,49 @@ void unpack_sk_avx2(uint8_t rho[LC_DILITHIUM_SEEDBYTES],
 		polyt0_unpack_avx(&t0->vec[i],
 				  sk + i * LC_DILITHIUM_POLYT0_PACKEDBYTES);
 }
+
+void unpack_sk_avx2_tr(uint8_t tr[LC_DILITHIUM_SEEDBYTES],
+		       const struct lc_dilithium_sk *sk)
+{
+	unsigned int i;
+	const uint8_t *seckey = sk->sk + 2 * LC_DILITHIUM_SEEDBYTES;
+
+	for (i = 0; i < LC_DILITHIUM_SEEDBYTES; ++i)
+		tr[i] = seckey[i];
+}
+
+
+void unpack_sk_avx2_ex_tr(uint8_t rho[LC_DILITHIUM_SEEDBYTES],
+			  uint8_t key[LC_DILITHIUM_SEEDBYTES],
+			  polyveck *t0,
+			  polyvecl *s1,
+			  polyveck *s2,
+			  const uint8_t sk[LC_DILITHIUM_SECRETKEYBYTES])
+{
+	unsigned int i;
+
+	for (i = 0; i < LC_DILITHIUM_SEEDBYTES; ++i)
+		rho[i] = sk[i];
+	sk += LC_DILITHIUM_SEEDBYTES;
+
+	for (i = 0; i < LC_DILITHIUM_SEEDBYTES; ++i)
+		key[i] = sk[i];
+	sk += LC_DILITHIUM_SEEDBYTES;
+
+	/* Skip tr */
+	sk += LC_DILITHIUM_SEEDBYTES;
+
+	for (i=0; i < LC_DILITHIUM_L; ++i)
+		polyeta_unpack_avx(&s1->vec[i],
+				   sk + i * LC_DILITHIUM_POLYETA_PACKEDBYTES);
+	sk += LC_DILITHIUM_L * LC_DILITHIUM_POLYETA_PACKEDBYTES;
+
+	for (i=0; i < LC_DILITHIUM_K; ++i)
+		polyeta_unpack_avx(&s2->vec[i],
+				   sk + i * LC_DILITHIUM_POLYETA_PACKEDBYTES);
+	sk += LC_DILITHIUM_K * LC_DILITHIUM_POLYETA_PACKEDBYTES;
+
+	for (i=0; i < LC_DILITHIUM_K; ++i)
+		polyt0_unpack_avx(&t0->vec[i],
+				  sk + i * LC_DILITHIUM_POLYT0_PACKEDBYTES);
+}

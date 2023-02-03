@@ -516,3 +516,118 @@ out:
 	LC_RELEASE_MEM(ws);
 	return ret;
 }
+
+int _dilithium_init_update_final_tester(
+	unsigned int rounds,
+	int (*_lc_dilithium_keypair)(struct lc_dilithium_pk *pk,
+				     struct lc_dilithium_sk *sk,
+				     struct lc_rng_ctx *rng_ctx),
+
+	int (*_lc_dilithium_sign_init)(struct lc_hash_ctx *hash_ctx,
+				       const struct lc_dilithium_sk *sk),
+	int (*_lc_dilithium_sign_update)(struct lc_hash_ctx *hash_ctx,
+					 const uint8_t *m,
+					 size_t mlen),
+	int (*_lc_dilithium_sign_final)(struct lc_dilithium_sig *sig,
+					struct lc_hash_ctx  *hash_ctx,
+					const struct lc_dilithium_sk *sk,
+					struct lc_rng_ctx *rng_ctx),
+
+	int (*_lc_dilithium_verify_init)(struct lc_hash_ctx *hash_ctx,
+					 const struct lc_dilithium_pk *pk),
+	int (*_lc_dilithium_verify_update)(struct lc_hash_ctx *hash_ctx,
+					   const uint8_t *m,
+					   size_t mlen),
+	int (*_lc_dilithium_verify_final)(struct lc_dilithium_sig *sig,
+					  struct lc_hash_ctx  *hash_ctx,
+					  const struct lc_dilithium_pk *pk))
+{
+	struct workspace {
+		struct lc_dilithium_pk pk;
+		struct lc_dilithium_sk sk;
+		struct lc_dilithium_sig sig;
+		struct lc_dilithium_sig sig_tmp;
+		uint8_t m[MLEN];
+		uint8_t seed[LC_DILITHIUM_CRHBYTES];
+		uint8_t buf[LC_DILITHIUM_SECRETKEYBYTES];
+		//uint8_t poly_uniform_gamma1_buf[POLY_UNIFORM_GAMMA1_BYTES];
+		//uint8_t poly_uniform_eta_buf[POLY_UNIFORM_ETA_BYTES];
+		//uint8_t poly_challenge_buf[POLY_CHALLENGE_BYTES];
+		//poly c, tmp;
+		//polyvecl s, y, mat[LC_DILITHIUM_K];
+		//polyveck w, w1, w0, t1, t0, h;
+	};
+	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
+	unsigned int i;
+	int ret = 0;
+
+	/*
+	 * The testing is based on the fact that,
+	 * - this "RNG" produces identical output
+	 * - the signature generation is performed with deterministic
+	 *   behavior (i.e. rng_ctx is NULL)
+	 */
+	struct lc_rng_ctx dilithium_rng =
+		{ .rng = &dilithium_drng, .rng_state = NULL };
+	unsigned int nvectors;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+
+	ctr = 0;
+
+	nvectors = ARRAY_SIZE(dilithium_testvectors);
+
+	if (!rounds)
+		rounds = nvectors;
+
+	for (i = 0; i < rounds; ++i) {
+		lc_rng_generate(&dilithium_rng, NULL, 0, ws->m, MLEN);
+		_lc_dilithium_keypair(&ws->pk, &ws->sk, &dilithium_rng);
+		_lc_dilithium_sign_init(hash_ctx, &ws->sk);
+		_lc_dilithium_sign_update(hash_ctx, ws->m, 1);
+		_lc_dilithium_sign_update(hash_ctx, ws->m + 1, MLEN - 1);
+		_lc_dilithium_sign_final(&ws->sig, hash_ctx, &ws->sk,
+					 NULL /*dilithium_rng*/);
+
+		_lc_dilithium_verify_init(hash_ctx, &ws->pk);
+		_lc_dilithium_verify_update(hash_ctx, ws->m, 3);
+		_lc_dilithium_verify_update(hash_ctx, ws->m + 3, MLEN - 3);
+		if (_lc_dilithium_verify_final(&ws->sig, hash_ctx, &ws->pk))
+			printf("Signature verification failed!\n");
+
+		lc_rng_generate(&dilithium_rng, NULL, 0,
+				ws->seed, sizeof(ws->seed));
+
+		if (rounds > nvectors)
+			continue;
+
+		if (memcmp(ws->m, dilithium_testvectors[i].m, MLEN)) {
+			printf("Message mismatch at test vector %u\n", i);
+			ret = 1;
+			goto out;
+		}
+
+		if (memcmp(ws->pk.pk, dilithium_testvectors[i].pk,
+			   LC_DILITHIUM_PUBLICKEYBYTES)) {
+			printf("Public key mismatch at test vector %u\n", i);
+			ret = 1;
+			goto out;
+		}
+		if (memcmp(ws->sk.sk, dilithium_testvectors[i].sk,
+			   LC_DILITHIUM_SECRETKEYBYTES)) {
+			printf("Secret key mismatch at test vector %u\n", i);
+			ret = 1;
+			goto out;
+		}
+		if (memcmp(ws->sig.sig, dilithium_testvectors[i].sig,
+			   LC_DILITHIUM_CRYPTO_BYTES)) {
+			printf("Signature mismatch at test vector %u\n", i);
+			ret = 1;
+			goto out;
+		}
+	}
+
+out:
+	lc_hash_zero(hash_ctx);
+	LC_RELEASE_MEM(ws);
+	return ret;
+}

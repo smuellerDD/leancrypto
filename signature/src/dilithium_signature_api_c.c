@@ -40,10 +40,57 @@ int, lc_dilithium_sign, struct lc_dilithium_sig *sig,
 }
 
 LC_INTERFACE_FUNCTION(
+int, lc_dilithium_sign_init, struct lc_hash_ctx *hash_ctx,
+			     const struct lc_dilithium_sk *sk)
+{
+	return lc_dilithium_sign_init_c(hash_ctx, sk);
+}
+
+LC_INTERFACE_FUNCTION(
+int, lc_dilithium_sign_update, struct lc_hash_ctx *hash_ctx,
+			       const uint8_t *m,
+			       size_t mlen)
+{
+	return lc_dilithium_sign_update_c(hash_ctx, m, mlen);
+}
+
+LC_INTERFACE_FUNCTION(
+int, lc_dilithium_sign_final, struct lc_dilithium_sig *sig,
+			      struct lc_hash_ctx  *hash_ctx,
+			      const struct lc_dilithium_sk *sk,
+			      struct lc_rng_ctx *rng_ctx)
+{
+	return lc_dilithium_sign_final_c(sig, hash_ctx, sk, rng_ctx);
+}
+
+LC_INTERFACE_FUNCTION(
 int, lc_dilithium_verify, const struct lc_dilithium_sig *sig,
 			  const uint8_t *m,
 			  size_t mlen,
 			  const struct lc_dilithium_pk *pk)
 {
 	return lc_dilithium_verify_c(sig, m, mlen, pk);
+}
+
+LC_INTERFACE_FUNCTION(
+int, lc_dilithium_verify_init, struct lc_hash_ctx *hash_ctx,
+			       const struct lc_dilithium_pk *pk)
+{
+	return lc_dilithium_verify_init_c(hash_ctx, pk);
+}
+
+LC_INTERFACE_FUNCTION(
+int, lc_dilithium_verify_update, struct lc_hash_ctx *hash_ctx,
+				 const uint8_t *m,
+				 size_t mlen)
+{
+	return lc_dilithium_verify_update_c(hash_ctx, m, mlen);
+}
+
+LC_INTERFACE_FUNCTION(
+int, lc_dilithium_verify_final, struct lc_dilithium_sig *sig,
+				struct lc_hash_ctx  *hash_ctx,
+				const struct lc_dilithium_pk *pk)
+{
+	return lc_dilithium_verify_final_c(sig, hash_ctx, pk);
 }

@@ -174,6 +174,69 @@ void unpack_sk(uint8_t rho[LC_DILITHIUM_SEEDBYTES],
 }
 
 /**
+ * @brief unpack_sk_tr - Unpack tr only from secret key sk
+ *
+ * @param t0 [out] pointer to output vector t0
+ * @param sk [in] byte array containing bit-packed sk
+ */
+void unpack_sk_tr(uint8_t tr[LC_DILITHIUM_SEEDBYTES],
+		  const struct lc_dilithium_sk *sk)
+{
+	unsigned int i;
+	const uint8_t *seckey = sk->sk + 2 * LC_DILITHIUM_SEEDBYTES;
+
+	for (i = 0; i < LC_DILITHIUM_SEEDBYTES; ++i)
+		tr[i] = seckey[i];
+}
+
+/**
+ * @brief unpack_sk - Unpack secret key sk without tr = (rho, key, t0, s1, s2).
+ *
+ * @param rho [out] output byte array for rho
+ * @param key [out] output byte array for key
+ * @param t0 [out] pointer to output vector t0
+ * @param s1 [out] pointer to output vector s1
+ * @param s2 [out] pointer to output vector s2
+ * @param sk [in] byte array containing bit-packed sk
+ */
+void unpack_sk_ex_tr(uint8_t rho[LC_DILITHIUM_SEEDBYTES],
+		     uint8_t key[LC_DILITHIUM_SEEDBYTES],
+		     polyveck *t0,
+		     polyvecl *s1,
+		     polyveck *s2,
+		     const struct lc_dilithium_sk *sk)
+{
+	unsigned int i;
+	const uint8_t *seckey = sk->sk;
+
+	for (i = 0; i < LC_DILITHIUM_SEEDBYTES; ++i)
+		rho[i] = seckey[i];
+	seckey += LC_DILITHIUM_SEEDBYTES;
+
+	for (i = 0; i < LC_DILITHIUM_SEEDBYTES; ++i)
+		key[i] = seckey[i];
+	seckey += LC_DILITHIUM_SEEDBYTES;
+
+	/* Skip tr */
+	seckey += LC_DILITHIUM_SEEDBYTES;
+
+	for (i = 0; i < LC_DILITHIUM_L; ++i)
+		polyeta_unpack(&s1->vec[i],
+			       seckey + i * LC_DILITHIUM_POLYETA_PACKEDBYTES);
+	seckey += LC_DILITHIUM_L * LC_DILITHIUM_POLYETA_PACKEDBYTES;
+
+	for (i = 0; i < LC_DILITHIUM_K; ++i)
+		polyeta_unpack(&s2->vec[i],
+			       seckey + i * LC_DILITHIUM_POLYETA_PACKEDBYTES);
+	seckey += LC_DILITHIUM_K * LC_DILITHIUM_POLYETA_PACKEDBYTES;
+
+	for (i = 0; i < LC_DILITHIUM_K; ++i)
+		polyt0_unpack(&t0->vec[i],
+			      seckey + i * LC_DILITHIUM_POLYT0_PACKEDBYTES);
+}
+
+
+/**
  * @brief pack_sig - Bit-pack signature sig = (c, z, h).
  *
  * @param sig [out] signature
