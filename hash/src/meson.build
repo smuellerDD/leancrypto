@@ -89,7 +89,18 @@ if get_option('sha3').enabled()
 	endif
 
 	if (riscv_gcc_asm)
-		src += files([ 'sha3_riscv_asm.c', 'asm/riscv/keccakf1600_asm.S' ])
+		leancrypto_keccak_riscv_asm_lib = static_library(
+			'leancrypto_keccak_riscv_asm_lib',
+			[ 'sha3_riscv_asm.c', 'asm/riscv/keccakf1600_asm.S' ],
+			c_args: [
+				'-march=rv32im',
+				'-mabi=ilp32'
+			],
+			include_directories: [
+				include_dirs,
+				include_internal_dirs ],
+		)
+		leancrypto_support_libs += leancrypto_keccak_riscv_asm_lib
 	else
 		src += files([ 'sha3_riscv_asm_null.c' ])
 	endif
