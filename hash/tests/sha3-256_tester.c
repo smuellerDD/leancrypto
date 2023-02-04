@@ -25,6 +25,7 @@
 #include "sha3_arm_neon.h"
 #include "sha3_avx2.h"
 #include "sha3_avx512.h"
+#include "sha3_riscv_asm.h"
 
 #define LC_EXEC_ONE_TEST(sha3_impl)					       \
 	if (sha3_impl)							       \
@@ -70,6 +71,7 @@ static int sha3_256_tester(void)
 	LC_EXEC_ONE_TEST(lc_sha3_256_arm_neon);
 	LC_EXEC_ONE_TEST(lc_sha3_256_avx2);
 	LC_EXEC_ONE_TEST(lc_sha3_256_avx512);
+	LC_EXEC_ONE_TEST(lc_sha3_256_riscv_asm);
 
 	return ret;
 }

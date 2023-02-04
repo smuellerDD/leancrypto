@@ -5,6 +5,10 @@ Changes 0.5.2-prerelease
 
 * enhancement: enable ARMv8 Neon assembler support for Keccack
 
+* enhancement: add sign/update/final Dilithium APIs
+
+* enhancement: add RISC-V assembler support for Keccack (yet disabled)
+
 Changes 0.5.1:
 * enhancement: add Linux kernel configuration options
 

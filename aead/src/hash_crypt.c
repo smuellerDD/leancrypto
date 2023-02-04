@@ -132,9 +132,6 @@ lc_hc_crypt(struct lc_hc_cryptor *hc, const uint8_t *in, uint8_t *out,
 {
 	struct lc_rng_ctx *drbg;
 
-	if (len > SSIZE_MAX)
-		return;
-
 	drbg = &hc->drbg;
 
 	while (len) {

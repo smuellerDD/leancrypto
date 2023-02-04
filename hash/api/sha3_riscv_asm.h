@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2023, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *
@@ -17,31 +17,26 @@
  * DAMAGE.
  */
 
-#ifndef EXT_HEADERS_H
-#define EXT_HEADERS_H
+#ifndef SHA3_RISCV_ASM
+#define SHA3_RISCV_ASM
 
-#ifdef LINUX_KERNEL
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
-#include <linux/errno.h>
-#include <linux/module.h>
-#include <linux/string.h>
-#include <linux/types.h>
-#include "posix_support.h"
+extern const struct lc_hash *lc_sha3_224_riscv_asm;
+extern const struct lc_hash *lc_sha3_256_riscv_asm;
+extern const struct lc_hash *lc_sha3_384_riscv_asm;
+extern const struct lc_hash *lc_sha3_512_riscv_asm;
 
-#else /* LINUX_KERNEL */
+extern const struct lc_hash *lc_shake128_riscv_asm;
+extern const struct lc_hash *lc_shake256_riscv_asm;
+extern const struct lc_hash *lc_cshake128_riscv_asm;
+extern const struct lc_hash *lc_cshake256_riscv_asm;
 
-#define MB_LEN_MAX 16
-#include <assert.h>
-#include <errno.h>
-#include <limits.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/mman.h>
-#include <sys/types.h>
+#ifdef __cplusplus
+}
+#endif
 
-#endif /* LINUX_KERNEL */
-
-#endif /* EXT_HEADERS_H */
+#endif /* SHA3_RISCV_ASM */

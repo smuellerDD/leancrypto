@@ -44,8 +44,8 @@ extern "C"
 	type *name;							       \
 	int __ret = lc_alloc_high_aligned((void *)&name, alignment,	       \
 					  sizeof(type));		       \
-	if (__ret)							       \
-			return __ret
+	if (__ret || !name)						       \
+		return __ret
 
 #define __LC_RELEASE_MEM_HEAP(name)					       \
 	lc_memset_secure(name, 0, sizeof(name));			       \

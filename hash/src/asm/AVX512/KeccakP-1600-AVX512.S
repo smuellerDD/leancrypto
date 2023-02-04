@@ -80,7 +80,7 @@ _KeccakP1600_AVX512_AddBytes:
 .balign 32
     cmp         $0, %rcx
     jz          KeccakP1600_AVX512_AddBytes_Exit
-    add            %rdx, %rdi                                # state += offset
+    add         %rdx, %rdi                              # state += offset
     and         $7, %rdx
     jz          KeccakP1600_AVX512_AddBytes_LaneAlignedCheck
     mov         $8, %r9                                 # r9 is (max) length of incomplete lane

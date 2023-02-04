@@ -25,6 +25,7 @@
 #include "sha3_avx2.h"
 #include "sha3_avx512.h"
 #include "sha3_common.h"
+#include "sha3_riscv_asm.h"
 #include "visibility.h"
 
 LC_CONSTRUCTOR(sha3_fastest_impl)
@@ -50,6 +51,7 @@ LC_CONSTRUCTOR(sha3_fastest_impl)
 	LC_FILL_ACCEL_NULL(arm_neon)
 	LC_FILL_ACCEL_NULL(avx512)
 	LC_FILL_ACCEL_NULL(avx2)
+	LC_FILL_ACCEL_NULL(riscv_asm)
 
 #define LC_FILL_DFLT_IMPL(accel)					       \
 	lc_sha3_224 = lc_sha3_224_ ##accel;				       \
@@ -70,6 +72,8 @@ LC_CONSTRUCTOR(sha3_fastest_impl)
 		LC_FILL_DFLT_IMPL(avx2)
 	} else if (feat & LC_CPU_FEATURE_ARM_NEON) {
 		LC_FILL_DFLT_IMPL(arm_neon)
+	} else if (feat ^ LC_CPU_FEATURE_RISCV_ASM) {
+		LC_FILL_DFLT_IMPL(riscv_asm)
 	} else {
 		/* do nothing as the C definitions are used automatically */
 	}
@@ -83,5 +87,8 @@ LC_CONSTRUCTOR(sha3_fastest_impl)
 	}
 	if (!(feat & LC_CPU_FEATURE_ARM_NEON)) {
 		LC_FILL_ACCEL_WITH_C(arm_neon)
+	}
+	if (!(feat & LC_CPU_FEATURE_RISCV_ASM)) {
+		LC_FILL_ACCEL_WITH_C(riscv_asm)
 	}
 }

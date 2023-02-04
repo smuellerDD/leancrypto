@@ -17,31 +17,11 @@
  * DAMAGE.
  */
 
-#ifndef EXT_HEADERS_H
-#define EXT_HEADERS_H
+#include "cpufeatures.h"
+#include "visibility.h"
 
-#ifdef LINUX_KERNEL
-
-#include <linux/errno.h>
-#include <linux/module.h>
-#include <linux/string.h>
-#include <linux/types.h>
-#include "posix_support.h"
-
-#else /* LINUX_KERNEL */
-
-#define MB_LEN_MAX 16
-#include <assert.h>
-#include <errno.h>
-#include <limits.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/mman.h>
-#include <sys/types.h>
-
-#endif /* LINUX_KERNEL */
-
-#endif /* EXT_HEADERS_H */
+LC_INTERFACE_FUNCTION(
+enum lc_cpu_features, lc_cpu_feature_available, void)
+{
+	return LC_CPU_FEATURE_RISCV_ASM;
+}

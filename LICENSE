@@ -101,6 +101,14 @@ but there are exceptions.
 
 ================================================================================
 
+The Keccack assembler implementation in hash/src/asm/riscv is derived in parts
+from the code distribution provided with
+https://github.com/AsmOptC-RiscV/Assembly-Optimized-C-RiscV
+
+This code is MIT licensed.
+
+================================================================================
+
 The x86intrin code in internal/api/ext_x86_*.h are derived from GCC and Clang.
 The only reason why this code is duplicated is the fact that the compiler code
 cannot be included into kernel code code as is. Thus, the functions used by

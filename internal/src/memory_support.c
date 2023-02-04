@@ -17,6 +17,7 @@
  * DAMAGE.
  */
 
+#include "ext_headers.h"
 #include "lc_memory_support.h"
 #include "visibility.h"
 

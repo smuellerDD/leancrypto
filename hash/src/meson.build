@@ -87,6 +87,12 @@ if get_option('sha3').enabled()
 	else
 		src += files([ 'sha3_arm_neon_null.c' ])
 	endif
+
+	if (riscv_gcc_asm)
+		src += files([ 'sha3_riscv_asm.c', 'asm/riscv/keccakf1600_asm.S' ])
+	else
+		src += files([ 'sha3_riscv_asm_null.c' ])
+	endif
 endif
 
 if (lc_hash == 1)

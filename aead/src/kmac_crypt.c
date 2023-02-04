@@ -251,8 +251,8 @@
  * function.
  *
  * The approach of Encrypt-Then-MAC is selected based on the analysis of
- * [AUTHENC] table 3 based on the finding that the MAC algorithm of KMAC is
- * strongly unforgeable.
+ * [AUTHENC] table 3 considering on the finding that the MAC algorithm of KMAC
+ * is strongly unforgeable.
  *
  * 4. Normative References
  *

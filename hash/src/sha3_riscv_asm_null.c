@@ -17,31 +17,15 @@
  * DAMAGE.
  */
 
-#ifndef EXT_HEADERS_H
-#define EXT_HEADERS_H
+#include "ext_headers.h"
+#include "sha3_riscv_asm.h"
+#include "visibility.h"
 
-#ifdef LINUX_KERNEL
-
-#include <linux/errno.h>
-#include <linux/module.h>
-#include <linux/string.h>
-#include <linux/types.h>
-#include "posix_support.h"
-
-#else /* LINUX_KERNEL */
-
-#define MB_LEN_MAX 16
-#include <assert.h>
-#include <errno.h>
-#include <limits.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/mman.h>
-#include <sys/types.h>
-
-#endif /* LINUX_KERNEL */
-
-#endif /* EXT_HEADERS_H */
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_224_riscv_asm) = NULL;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_256_riscv_asm) = NULL;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_384_riscv_asm) = NULL;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_512_riscv_asm) = NULL;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake128_riscv_asm) = NULL;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake256_riscv_asm) = NULL;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_cshake128_riscv_asm) = NULL;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_cshake256_riscv_asm) = NULL;

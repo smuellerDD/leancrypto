@@ -252,8 +252,8 @@
  * function.
  *
  * The approach of Encrypt-Then-MAC is selected based on the analysis of
- * [AUTHENC] table 3 based on the finding that the MAC algorithm of cSHAKE is
- * strongly unforgeable.
+ * [AUTHENC] table 3 considering on the finding that the MAC algorithm of cSHAKE
+ * is strongly unforgeable.
  *
  * 4. Comparison with KMAC-based AEAD Cipher Algorithm
  *
@@ -304,6 +304,10 @@
  * management comparing to the KMAC cipher.
  *
  * 5. Normative References
+ *
+ * [AUTHENC] Mihir Bellare and Chanathip Namprempre, Authenticated Encryption:
+ *	     Relations among Notions and Analysis of the Generic Composition
+ *	     Paradigm
  *
  * [SP800-185] John Kelsey, Shu-jen Chang, Ray Perlne, NIST Special Publication
  *             800-185 SHA-3 Derived Functions: cSHAKE, CSHAKE, TupleHash and

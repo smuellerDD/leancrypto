@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2023, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *
@@ -16,32 +16,48 @@
  * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
+/*
+ * This code is derived in parts from the code distribution provided with
+ * https://github.com/AsmOptC-RiscV/Assembly-Optimized-C-RiscV
+ *
+ * That code is released under MIT license.
+ */
 
-#ifndef EXT_HEADERS_H
-#define EXT_HEADERS_H
+#ifndef KECCAKF1600_H
+#define KECCAKF1600_H
 
-#ifdef LINUX_KERNEL
+#include "ext_headers.h"
 
-#include <linux/errno.h>
-#include <linux/module.h>
-#include <linux/string.h>
-#include <linux/types.h>
-#include "posix_support.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
-#else /* LINUX_KERNEL */
+typedef struct reg {
+	uint32_t a2;
+	uint32_t a3;
+	uint32_t a4;
+	uint32_t a5;
+	uint32_t a6;
+	uint32_t a7;
+	uint32_t t0;
+	uint32_t t1;
+	uint32_t t2;
+	uint32_t t3;
+	uint32_t t4;
+	uint32_t t5;
+	uint32_t t6;
+	uint32_t s0;
+	uint32_t s1;
+	uint32_t s2;
+	uint32_t s3;
+	uint32_t s4;
+} reg;
 
-#define MB_LEN_MAX 16
-#include <assert.h>
-#include <errno.h>
-#include <limits.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/mman.h>
-#include <sys/types.h>
+extern void keccakf1600(uint32_t *lanes);
 
-#endif /* LINUX_KERNEL */
+#ifdef __cplusplus
+}
+#endif
 
-#endif /* EXT_HEADERS_H */
+#endif /* KECCAKF1600_H */

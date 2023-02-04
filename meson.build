@@ -44,6 +44,7 @@ if c_compiler.get_id() == 'gcc'
 endif
 
 if get_option('optimization') != '0'
+        add_global_arguments([ '-U_FORTIFY_SOURCE' ], language: 'c')
         add_global_arguments([ '-D_FORTIFY_SOURCE=3' ], language: 'c')
 else
         add_global_arguments([ '-DDEBUG' ], language: 'c')
@@ -214,11 +215,12 @@ endif
 x86_64_asm = false
 arm32_neon_gcc_asm = false
 arm64_neon_gcc_asm = false
+riscv_gcc_asm = false
 
 # Enable x86_64 assembler code only on x86 (naturally) and with the presence of
 # the GNU assembler - the LLVM assembler on MacOS does not work!
-if (build_machine.cpu_family() == 'x86_64' and
-    build_machine.system() != 'darwin')
+if (host_machine.cpu_family() == 'x86_64' and
+    host_machine.system() != 'darwin')
 
 	# 64 bit AVX2 / AVX512 support
 	x86_64_asm = true
@@ -227,7 +229,7 @@ if (build_machine.cpu_family() == 'x86_64' and
 	add_global_arguments([ '-DLC_HASH_COMMON_ALIGNMENT=8' ], language: 'c')
 endif
 
-if (build_machine.cpu_family() == 'arm' and
+if (host_machine.cpu_family() == 'arm' and
     c_compiler.get_id() == 'gcc')
 
 	# 32 bit ARM processor and GCC
@@ -235,14 +237,22 @@ if (build_machine.cpu_family() == 'arm' and
 
 	# Alignment ARM 32 bits: 32 bytes as required by NEON on ARMv7
 	add_global_arguments([ '-DLC_HASH_COMMONp_ALIGNMENT=32' ], language: 'c')
-elif (build_machine.cpu_family() == 'aarch64' and
+elif (host_machine.cpu_family() == 'aarch64' and
       c_compiler.get_id() == 'gcc')
 
-      # 32 bit ARM processor and GCC
+      # 64 bit ARM processor and GCC
       arm64_neon_gcc_asm = true
 
       # Alignment ARM 64 bits: 64 bytes as required by NEON on ARMv8
       add_global_arguments([ '-DLC_HASH_COMMON_ALIGNMENT=64' ], language: 'c')
+
+elif (host_machine.cpu_family() == 'riscv64' and
+      c_compiler.get_id() == 'gcc')
+
+      # RISC-V and GCC
+      # riscv_gcc_asm = true
+      # Disable implementation as it currently has a bug
+      riscv_gcc_asm = false
 endif
 
 ################################################################################
