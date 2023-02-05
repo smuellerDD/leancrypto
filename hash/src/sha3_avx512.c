@@ -20,7 +20,7 @@
 #include "asm/AVX512/KeccakP-1600-SnP.h"
 
 #include "ext_headers_x86.h"
-#include "keccack_asm_glue.h"
+#include "keccak_asm_glue.h"
 #include "sha3_avx512.h"
 #include "sha3_selftest.h"
 #include "visibility.h"

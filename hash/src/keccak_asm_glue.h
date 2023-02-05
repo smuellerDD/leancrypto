@@ -35,8 +35,8 @@ and related or neighboring rights to the source code in this file.
 http://creativecommons.org/publicdomain/zero/1.0/
 */
 
-#ifndef KECCACK_ASM_GLUE_H
-#define KECCACK_ASM_GLUE_H
+#ifndef KECCAK_ASM_GLUE_H
+#define KECCAK_ASM_GLUE_H
 
 #include "lc_sha3.h"
 #include "sha3_common.h"
@@ -409,4 +409,4 @@ static inline void keccak_asm_squeeze(void *_state, uint8_t *digest,
 }
 #endif
 
-#endif /* KECCACK_ASM_GLUE_H */
+#endif /* KECCAK_ASM_GLUE_H */

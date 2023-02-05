@@ -19,7 +19,7 @@
 
 #include "asm/riscv/keccakf1600.h"
 
-#include "keccack_asm_glue.h"
+#include "keccak_asm_glue.h"
 #include "sha3_riscv_asm.h"
 #include "sha3_common.h"
 #include "sha3_selftest.h"
@@ -115,7 +115,7 @@ keccakf1600_add_bytes(void *state, const unsigned char *data,
 }
 
 static inline void
-keccackf1600_permute(void *state)
+keccakf1600_permute(void *state)
 {
 	uint32_t *lanes = state;
 
@@ -123,8 +123,8 @@ keccackf1600_permute(void *state)
 }
 
 static inline void
-keccackf1600_extract_bytes(const void *state, unsigned char *digest,
-			   unsigned int offset, unsigned int length)
+keccakf1600_extract_bytes(const void *state, unsigned char *digest,
+			  unsigned int offset, unsigned int length)
 {
 	size_t i, word, byte;
 	const uint32_t *lanes = state;
@@ -142,7 +142,7 @@ static void keccak_riscv_asm_absorb(void *_state,
 {
 	//LC_FPU_ENABLE;
 	keccak_asm_absorb(_state, in, inlen,
-			  keccakf1600_add_bytes, keccackf1600_permute, NULL);
+			  keccakf1600_add_bytes, keccakf1600_permute, NULL);
 	//LC_FPU_DISABLE;
 }
 
@@ -150,8 +150,8 @@ static void keccak_riscv_asm_squeeze(void *_state, uint8_t *digest)
 {
 	//LC_FPU_ENABLE;
 	keccak_asm_squeeze(_state, digest,
-			   keccakf1600_add_byte, keccackf1600_permute,
-			   keccackf1600_extract_bytes);
+			   keccakf1600_add_byte, keccakf1600_permute,
+			   keccakf1600_extract_bytes);
 	//LC_FPU_DISABLE;
 }
 

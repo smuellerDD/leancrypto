@@ -19,7 +19,7 @@
 
 #include "KeccakP-1600-SnP.h"
 
-#include "keccack_asm_glue.h"
+#include "keccak_asm_glue.h"
 #include "sha3_arm_neon.h"
 #include "sha3_selftest.h"
 #include "visibility.h"

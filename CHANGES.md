@@ -1,13 +1,13 @@
 Changes 0.5.2-prerelease
 * fix: SPEC file - mark devel RPM as noarch
 
-* enhancement: add ARMv7 Neon assembler support for Keccack
+* enhancement: add ARMv7 Neon assembler support for Keccak
 
-* enhancement: enable ARMv8 Neon assembler support for Keccack
+* enhancement: enable ARMv8 Neon assembler support for Keccak
 
 * enhancement: add sign/update/final Dilithium APIs
 
-* enhancement: add RISC-V assembler support for Keccack (yet disabled)
+* enhancement: add RISC-V assembler support for Keccak (yet disabled)
 
 * enhancement: add ARMv8 assembler implementation of Kyber
 

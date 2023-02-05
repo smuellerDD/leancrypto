@@ -22,7 +22,7 @@ if get_option('sha3').enabled()
 	include_files += files([ '../api/lc_cshake.h', '../api/lc_sha3.h' ])
 	lc_hash = 1
 
-	# Keccack: Intel AVX2, AVX512 and 4-way SIMD implementation
+	# Keccak: Intel AVX2, AVX512 and 4-way SIMD implementation
 	if (x86_64_asm)
 		src += files([ 'sha3_avx2.c',
 			       'asm/AVX2/KeccakP-1600-AVX2.S' ])

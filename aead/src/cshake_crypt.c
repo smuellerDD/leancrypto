@@ -248,7 +248,7 @@
  * strength.
  *
  * The selection of cSHAKE for generating the keystream is based on the
- * statement in [SP800-185] declaring Keccack is usable as a pseudorandom
+ * statement in [SP800-185] declaring Keccak is usable as a pseudorandom
  * function.
  *
  * The approach of Encrypt-Then-MAC is selected based on the analysis of
