@@ -286,12 +286,15 @@ endif
 
 ifdef CONFIG_ARM_NOTCOMPILED
 leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
-				+= ../hash/src/sha3_arm8_neon.o		       \
+				+= ../hash/src/sha3_arm_neon.o		       \
 				   ../hash/src/asm/ARMv8A/KeccakP-1600-armv8a-neon.o
 else
 leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
-				+= ../hash/src/sha3_arm8_neon_null.o
+				+= ../hash/src/sha3_arm_neon_null.o
 endif
+
+leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
+				+= ../hash/src/sha3_riscv_asm_null.o
 
 # AEAD implementation
 ccflags-y	  		+= -I$(PWD)/../aead/api

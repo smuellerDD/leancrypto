@@ -557,7 +557,6 @@ int _dilithium_init_update_final_tester(
 		//polyvecl s, y, mat[LC_DILITHIUM_K];
 		//polyveck w, w1, w0, t1, t0, h;
 	};
-	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
 	unsigned int i;
 	int ret = 0;
 
@@ -570,7 +569,11 @@ int _dilithium_init_update_final_tester(
 	struct lc_rng_ctx dilithium_rng =
 		{ .rng = &dilithium_drng, .rng_state = NULL };
 	unsigned int nvectors;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
+#pragma GCC diagnostic pop
 
 	ctr = 0;
 
