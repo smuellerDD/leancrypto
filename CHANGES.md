@@ -9,6 +9,8 @@ Changes 0.5.2-prerelease
 
 * enhancement: add RISC-V assembler support for Keccack (yet disabled)
 
+* enhancement: add ARMv8 assembler implementation of Kyber
+
 Changes 0.5.1:
 * enhancement: add Linux kernel configuration options
 

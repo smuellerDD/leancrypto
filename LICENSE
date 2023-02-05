@@ -35,6 +35,17 @@ https://github.com/pq-crystals/kyber. The license for the original code is:
 
 ================================================================================
 
+The Kyber KEM ARMv8 code is derived in parts from the code distribution
+provided with https://github.com/psanal2018/kyber-arm64. The license for the
+original code is:
+
+ MIT License
+
+ Copyright (c) 2021 Pakize Sanal, Emrah Karagoz, Hwajeong Seo,
+ Reza Azarderakhsh, Mehran Mozaffari-Kermani
+
+================================================================================
+
 The AES block cipher code is derived in parts from the code distribution
 provided with https://github.com/kokke/tiny-AES-c. The license for the original
 code is:

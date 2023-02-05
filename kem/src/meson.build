@@ -16,6 +16,8 @@ if get_option('kyber').enabled()
 
 	if (x86_64_asm)
 		subdir('avx2')
+	elif (arm64_neon_gcc_asm)
+		subdir('armv8')
 	else
 		src += files([ 'kyber_kem_api_c.c' ])
 	endif

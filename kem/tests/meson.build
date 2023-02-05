@@ -70,5 +70,21 @@ if get_option('kyber').enabled()
 		test('Kyber KEM AVX2', kyber_kem_tester_avx2)
 		test('Kyber KEM AVX2 50000', kyber_kem_tester_avx2,
 		     args : [ 'avx2' ], timeout: 1000, is_parallel: false)
+	elif (arm64_neon_gcc_asm)
+		kyber_kem_tester_armv8 = executable('kyber_kem_tester_armv8',
+					[ 'kyber_kem_tester_armv8.c',
+					'kyber_kem_tester.c',
+					internal_src ],
+					include_directories: [
+						include_dirs,
+						include_internal_dirs,
+						include_kyber_internal
+					], dependencies: leancrypto
+					)
+
+		test('Kyber KEM ARMv8', kyber_kem_tester_armv8)
+		test('Kyber KEM ARMv8 50000', kyber_kem_tester_armv8,
+		     args : [ 'armv8' ], timeout: 1000, is_parallel: false)
 	endif
+
 endif
