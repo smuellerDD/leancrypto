@@ -1,0 +1,11 @@
+[binaries]
+c = 'aarch64-suse-linux-gcc'
+cpp = 'aarch64-suse-linux-g++'
+ar = 'aarch64-suse-linux-gcc-ar'
+strip = 'aarch64-suse-linux-strip'
+
+[host_machine]
+system = 'linux'
+cpu_family = 'aarch64'
+cpu = 'aarch64'
+endian = 'little'
