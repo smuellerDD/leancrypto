@@ -187,7 +187,7 @@ obj-m		 		:= leancrypto.o
 
 # Kernel module framework
 ccflags-y			:= -I$(PWD) -DLINUX_KERNEL -DLC_MEM_ON_HEAP    \
-				   -DMAJVERSION=0 -DMINVERSION=5 -DPATCHLEVEL=1
+				   -DMAJVERSION=0 -DMINVERSION=5 -DPATCHLEVEL=2
 ifdef CONFIG_ARM64
 ccflags-y			+= -mno-outline-atomics
 endif
@@ -220,7 +220,7 @@ ccflags-y	 		+= -I$(PWD)/../hash/api
 leancrypto-y	  		+= ../hash/src/hash.o
 
 leancrypto-$(CONFIG_LEANCRYPTO_SHA2_256)				       \
-		  += ../hash/src/sha256.o
+				+= ../hash/src/sha256.o
 ifdef CONFIG_LEANCRYPTO_SHA2_256
 obj-m				+= sha256_tester.o
 sha256_tester-y			+= ../hash/tests/sha256_tester.o
@@ -284,10 +284,22 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 				   ../hash/src/asm/AVX2_4x/KeccakP-1600-times4-SIMD256.o
 endif
 
-ifdef CONFIG_ARM_NOTCOMPILED
+ifdef CONFIG_ARM64
+asflags-$(CONFIG_LEANCRYPTO_SHA3)					       \
+				+= -march=armv8-a+simd			       \
+				   -funsafe-math-optimizations
 leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
 				+= ../hash/src/sha3_arm_neon.o		       \
 				   ../hash/src/asm/ARMv8A/KeccakP-1600-armv8a-neon.o
+else ifdef CONFIG_ARM
+asflags-$(CONFIG_LEANCRYPTO_SHA3)					       \
+				+= -mfpu=neon-vfpv4			       \
+				   -mthumb				       \
+				   -march=armv7-a+vfpv4			       \
+				   -funsafe-math-optimizations
+leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
+				+= ../hash/src/sha3_arm_neon.o		       \
+				   ../hash/src/asm/ARMv7A-NEON/KeccakP-1600-armv7a-le-neon-gcc.o
 else
 leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
 				+= ../hash/src/sha3_arm_neon_null.o
@@ -472,6 +484,21 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 				   ../kem/src/avx2/kyber_poly_avx2.o	       \
 				   ../kem/src/avx2/kyber_rejsample_avx2.o      \
 				   ../kem/src/avx2/kyber_shuffle_avx2.o
+else ifdef CONFIG_ARM64
+leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
+				+= ../kem/src/armv8/kyber_add_armv8.o	       \
+				   ../kem/src/armv8/kyber_basemul_armv8.o      \
+				   ../kem/src/armv8/kyber_cbd_armv8.o	       \
+				   ../kem/src/armv8/kyber_indcpa_armv8.o       \
+				   ../kem/src/armv8/kyber_inv_ntt_armv8.o      \
+				   ../kem/src/armv8/kyber_kem_api_armv8.o      \
+				   ../kem/src/armv8/kyber_kem_armv8.o	       \
+				   ../kem/src/armv8/kyber_ntt_armv8.o	       \
+				   ../kem/src/armv8/kyber_ntt_armv8.o	       \
+				   ../kem/src/armv8/kyber_poly_armv8.o	       \
+				   ../kem/src/armv8/kyber_poly_armv8.o	       \
+				   ../kem/src/armv8/kyber_reduce_armv8.o
+
 else
 leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 				+= ../kem/src/kyber_kem_api_c.o
@@ -499,6 +526,12 @@ obj-m		  		+= kyber_kem_tester_avx2.o
 
 kyber_kem_tester_avx2-y		+= ../kem/tests/kyber_kem_tester.o	       \
 				   ../kem/tests/kyber_kem_tester_avx2.o
+
+else ifdef CONFIG_ARM64
+obj-m				+= kyber_kem_tester_armv8.o
+
+kyber_kem_tester_armv8-y	+= ../kem/tests/kyber_kem_tester.o	       \
+				   ../kem/tests/kyber_kem_tester_armv8.o
 endif
 endif
 
