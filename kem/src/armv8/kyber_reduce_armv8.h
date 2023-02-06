@@ -33,8 +33,8 @@ extern "C"
 {
 #endif
 
-#define MONT 2285 // 2^16 mod q
-#define QINV 62209 // q^-1 mod 2^16
+//#define MONT 2285 // 2^16 mod q
+//#define QINV 62209 // q^-1 mod 2^16
 
 void kyber_tomont_armv8(int16_t* a);
 
