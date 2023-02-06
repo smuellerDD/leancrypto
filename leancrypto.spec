@@ -37,7 +37,8 @@ enabled if possible.
 Summary:        Development files for leancrypto, a cryptographic library
 Requires:       glibc-devel
 Requires:       lib%{name}0 = %{version}
-BuildArch:      noarch
+# Cannot be noarch due to leancrypto.so symlink
+#BuildArch:      noarch
 #BuildArchitectures: noarch
 
 %description devel

@@ -285,6 +285,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 endif
 
 ifdef CONFIG_ARM64
+ccflags-y	  		+= -I$(PWD)/../hash/src/asm/ARMv8A/
 asflags-$(CONFIG_LEANCRYPTO_SHA3)					       \
 				+= -march=armv8-a+simd			       \
 				   -funsafe-math-optimizations
@@ -292,6 +293,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
 				+= ../hash/src/sha3_arm_neon.o		       \
 				   ../hash/src/asm/ARMv8A/KeccakP-1600-armv8a-neon.o
 else ifdef CONFIG_ARM
+ccflags-y	  		+= -I$(PWD)/../hash/src/asm/ARMv7A-NEON
 asflags-$(CONFIG_LEANCRYPTO_SHA3)					       \
 				+= -mfpu=neon-vfpv4			       \
 				   -mthumb				       \
@@ -485,6 +487,8 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 				   ../kem/src/avx2/kyber_rejsample_avx2.o      \
 				   ../kem/src/avx2/kyber_shuffle_avx2.o
 else ifdef CONFIG_ARM64
+asflags-$(CONFIG_LEANCRYPTO_KEM)					       \
+				+= -I$(PWD)/../kem/src/armv8
 leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 				+= ../kem/src/armv8/kyber_add_armv8.o	       \
 				   ../kem/src/armv8/kyber_basemul_armv8.o      \
@@ -494,9 +498,9 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 				   ../kem/src/armv8/kyber_kem_api_armv8.o      \
 				   ../kem/src/armv8/kyber_kem_armv8.o	       \
 				   ../kem/src/armv8/kyber_ntt_armv8.o	       \
-				   ../kem/src/armv8/kyber_ntt_armv8.o	       \
+				   ../kem/src/armv8/kyber_ntt_armv8_asm.o      \
 				   ../kem/src/armv8/kyber_poly_armv8.o	       \
-				   ../kem/src/armv8/kyber_poly_armv8.o	       \
+				   ../kem/src/armv8/kyber_poly_armv8_asm.o     \
 				   ../kem/src/armv8/kyber_reduce_armv8.o
 
 else
