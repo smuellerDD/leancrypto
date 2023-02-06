@@ -48,6 +48,18 @@ typedef struct{
 
 void kyber_add_armv8(int16_t *r, const int16_t *a, const int16_t *b);
 
+/*
+ * TODO: remove this code once poly_reduce has been fixed
+ */
+#include "kyber_reduce.h"
+static inline void poly_reduce_c_bugfix(poly *r)
+{
+	unsigned int i;
+
+	for (i = 0; i < LC_KYBER_N; i++)
+		r->coeffs[i] = barrett_reduce(r->coeffs[i]);
+}
+
 /**
  * @brief poly_reduce - Applies Barrett reduction to all coefficients of a
  *			polynomial for details of the Barrett reduction see
@@ -302,8 +314,6 @@ poly_getnoise_eta2_armv8(poly *r,
 	kyber_poly_cbd_eta2_armv8(r, buf);
 }
 
-
-
 /**
  * @brief poly_ntt - Computes negacyclic number-theoretic transform (NTT) of
  *		     a polynomial in place; inputs assumed to be in normal
@@ -314,7 +324,23 @@ poly_getnoise_eta2_armv8(poly *r,
 static inline void poly_ntt(poly *r)
 {
 	kyber_ntt_armv8(r->coeffs, kyber_zetas_armv8);
-	poly_reduce(r);
+
+	/*
+	 * TODO: the poly_reduce() here somehow calculates a different
+	 * result compared to the poly_reduce() from kyber_poly.h (i.e. the
+	 * C implementation). This leads sometimes to a different SK (e.g.
+	 * test vector 21 in tests/kyber_kem_tester_armv8.c shows that the
+	 * 1087th and 1088th byte is different compared to the expected result).
+	 * Yet, the calculated ciphertext or shared secret are identical to
+	 * the expected values, even with the different SK. Strange.
+	 *
+	 * Yet, we cannot use the ARMv8 poly_reduce() until this has been
+	 * corrected. Instead we simply use the C implementation from
+	 * kyber_poly.h for the time being.
+	 */
+	//poly_reduce(r);
+	poly_reduce_c_bugfix(r);
+
 }
 
 /**
