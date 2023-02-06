@@ -33,7 +33,7 @@ extern "C"
 {
 #endif
 
-extern const int16_t zetas_armv8[128];
+//extern const int16_t zetas_armv8[128];
 //extern const int16_t zetas_inv[128];
 
 // zetas for ntt_arm

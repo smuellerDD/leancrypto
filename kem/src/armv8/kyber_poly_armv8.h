@@ -28,6 +28,7 @@
 
 #include "kyber_cbd_armv8.h"
 #include "kyber_kdf.h"
+#include "kyber_ntt.h"
 #include "kyber_ntt_armv8.h"
 #include "kyber_reduce_armv8.h"
 
@@ -367,7 +368,7 @@ static inline void poly_invntt_tomont(poly *r)
 static inline void poly_basemul_montgomery(poly *r, const poly *a,
 					   const poly *b)
 {
-	kyber_basemul_armv8(r->coeffs, a->coeffs, b->coeffs, zetas_armv8);
+	kyber_basemul_armv8(r->coeffs, a->coeffs, b->coeffs, zetas);
 }
 
 /**
