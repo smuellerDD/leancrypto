@@ -236,7 +236,7 @@ if (host_machine.cpu_family() == 'arm' and
 	arm32_neon_gcc_asm = true
 
 	# Alignment ARM 32 bits: 32 bytes as required by NEON on ARMv7
-	add_global_arguments([ '-DLC_HASH_COMMONp_ALIGNMENT=32' ], language: 'c')
+	add_global_arguments([ '-DLC_HASH_COMMON_ALIGNMENT=64' ], language: 'c')
 elif (host_machine.cpu_family() == 'aarch64' and
       c_compiler.get_id() == 'gcc')
 
