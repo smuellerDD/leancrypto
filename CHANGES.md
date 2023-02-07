@@ -3,7 +3,8 @@ Changes 0.5.2-prerelease
 
 * enhancement: add ARMv7 Neon assembler support for Keccak
 
-* enhancement: enable ARMv8 Neon assembler support for Keccak
+* enhancement: add but disable ARMv8 Neon assembler support for Keccak (it is
+  slower than optimized C)
 
 * enhancement: add sign/update/final Dilithium APIs
 
