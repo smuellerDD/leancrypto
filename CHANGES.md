@@ -12,6 +12,8 @@ Changes 0.5.2-prerelease
 
 * enhancement: add ARMv8 assembler implementation of Kyber
 
+* enhancement: add counter KDF RNG interface
+
 Changes 0.5.1:
 * enhancement: add Linux kernel configuration options
 

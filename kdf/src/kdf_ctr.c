@@ -62,14 +62,14 @@ static void lc_kdf_ctr_selftest(int *tested, const char *impl)
 	compare_selftest(act, exp, sizeof(exp), impl);
 }
 
-
-LC_INTERFACE_FUNCTION(
-int, lc_kdf_ctr_generate, struct lc_hmac_ctx *hmac_ctx,
-			  const uint8_t *label, size_t labellen,
-			  uint8_t *dst, size_t dlen)
+static int
+lc_kdf_ctr_generate_internal(struct lc_hmac_ctx *hmac_ctx,
+			     const uint8_t *label, size_t labellen,
+			     uint8_t *dst, size_t dlen,
+			     uint32_t *counter)
 {
 	size_t h;
-	uint32_t i = 1;
+	uint32_t i = *counter;
 
 	if (!hmac_ctx)
 		return -EINVAL;
@@ -94,6 +94,13 @@ int, lc_kdf_ctr_generate, struct lc_hmac_ctx *hmac_ctx,
 			memcpy(dst, tmp, dlen);
 			lc_memset_secure(tmp, 0, sizeof(tmp));
 
+			/*
+			 * Increment counter in case the generate function is
+			 * called again with the same context to ensure
+			 * it continues from an updated counter.
+			 */
+			i++
+
 			goto out;
 		} else {
 			lc_hmac_final(hmac_ctx, dst);
@@ -106,7 +113,21 @@ int, lc_kdf_ctr_generate, struct lc_hmac_ctx *hmac_ctx,
 	}
 
 out:
+	*counter = i;
 	return 0;
+}
+
+LC_INTERFACE_FUNCTION(
+int, lc_kdf_ctr_generate, struct lc_hmac_ctx *hmac_ctx,
+			  const uint8_t *label, size_t labellen,
+			  uint8_t *dst, size_t dlen)
+{
+	uint32_t counter = 1;
+
+	return lc_kdf_ctr_generate_internal(hmac_ctx,
+					    label, labellen,
+					    dst, dlen,
+					    &counter);
 }
 
 LC_INTERFACE_FUNCTION(
@@ -136,3 +157,97 @@ out:
 	lc_hmac_zero(hmac_ctx);
 	return ret;
 }
+
+static int lc_kdf_ctr_rng_seed(void *_state,
+			       const uint8_t *seed, size_t seedlen,
+			       const uint8_t *persbuf, size_t perslen)
+{
+	struct lc_kdf_ctr_ctx *state = _state;
+
+	if (state->rng_initialized)
+		return -EOPNOTSUPP;
+	state->rng_initialized = 1;
+	state->counter = 1;
+
+	/*
+	 * We could concatenate the personalization string with seed, but
+	 * do we really want to?
+	 */
+	(void)persbuf;
+	if (perslen)
+		return -EOPNOTSUPP;
+
+	return lc_kdf_ctr_init(&state->hmac_ctx, seed, seedlen);
+}
+
+static int
+lc_kdf_ctr_rng_generate(void *_state,
+		     const uint8_t *addtl_input, size_t addtl_input_len,
+		     uint8_t *out, size_t outlen)
+{
+	struct lc_kdf_ctr_ctx *kdf_ctr_ctx = _state;
+
+	if (!kdf_ctr_ctx)
+		return -EINVAL;
+	if (!kdf_ctr_ctx->rng_initialized)
+		return -EOPNOTSUPP;
+
+	if (!outlen)
+		return 0;
+
+	return lc_kdf_ctr_generate_internal(&kdf_ctr_ctx->hmac_ctx,
+					    addtl_input, addtl_input_len,
+					    out, outlen,
+					    &kdf_ctr_ctx->counter);
+}
+
+static void lc_kdf_ctr_rng_zero(void *_state)
+{
+	struct lc_kdf_ctr_ctx *kdf_ctr_ctx = _state;
+
+	if (!kdf_ctr_ctx)
+		return;
+
+	lc_hmac_zero(&kdf_ctr_ctx->hmac_ctx);
+	kdf_ctr_ctx->rng_initialized = 0;
+	kdf_ctr_ctx->counter = 1;
+}
+
+LC_INTERFACE_FUNCTION(
+int, lc_kdf_ctr_rng_alloc, struct lc_rng_ctx **state, const struct lc_hash *hash)
+{
+	struct lc_rng_ctx *out_state;
+	int ret;
+
+	if (!state)
+		return -EINVAL;
+
+	ret = lc_alloc_aligned((void *)&out_state, LC_HASH_COMMON_ALIGNMENT,
+			       LC_CTR_KDF_DRNG_CTX_SIZE(hash));
+	if (ret)
+		return -ret;
+
+	/* prevent paging out of the memory state to swap space */
+	ret = mlock(out_state, sizeof(*out_state));
+	if (ret && errno != EPERM && errno != EAGAIN) {
+		int errsv = errno;
+
+		lc_free(out_state);
+		return -errsv;
+	}
+
+	LC_CTR_KDF_RNG_CTX(out_state, hash);
+
+	lc_kdf_ctr_rng_zero(out_state->rng_state);
+
+	*state = out_state;
+
+	return 0;
+}
+
+static const struct lc_rng _lc_kdf_ctr = {
+	.generate	= lc_kdf_ctr_rng_generate,
+	.seed		= lc_kdf_ctr_rng_seed,
+	.zero		= lc_kdf_ctr_rng_zero,
+};
+LC_INTERFACE_SYMBOL(const struct lc_rng *, lc_kdf_ctr_rng) = &_lc_kdf_ctr;
