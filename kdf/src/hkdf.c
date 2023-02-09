@@ -229,6 +229,8 @@ lc_hkdf_rng_generate(void *_state,
 
 	if (!hkdf_ctx)
 		return -EINVAL;
+	if (!hkdf_ctx->rng_initialized)
+		return -EOPNOTSUPP;
 
 	hmac_ctx = &hkdf_ctx->hmac_ctx;
 	h = lc_hmac_macsize(hmac_ctx);
