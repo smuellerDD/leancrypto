@@ -99,7 +99,7 @@ lc_kdf_ctr_generate_internal(struct lc_hmac_ctx *hmac_ctx,
 			 * called again with the same context to ensure
 			 * it continues from an updated counter.
 			 */
-			i++
+			i++;
 
 			goto out;
 		} else {
