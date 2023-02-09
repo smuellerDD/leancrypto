@@ -196,6 +196,9 @@
  *   callers to insert more entropy than the security strength of KMAC256
  *   for offsetting this loss of entropy, the key size is set to 512 bits.
  *
+ * The selection of KMAC as a DRNG is based on the statement in [SP800-185]
+ * declaring Keccak is usable as a pseudorandom function.
+ *
  * 4. Normative References
  *
  * [FIPS202] FIPS PUB 202, SHA-3 Standard: Permutation-Based Hash and

@@ -198,6 +198,9 @@
  *   callers to insert more entropy than the security strength of cSHAKE256
  *   for offsetting this loss of entropy, the key size is set to 512 bits.
  *
+ * The selection of cSHAKE as a DRNG is based on the statement in [SP800-185]
+ * declaring Keccak is usable as a pseudorandom function.
+ *
  * 4. Comparison with KMAC DRNG
  *
  * The cSHAKE DRNG is completely identical with the exception that the cSHAKE
