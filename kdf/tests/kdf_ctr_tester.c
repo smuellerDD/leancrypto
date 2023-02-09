@@ -149,8 +149,7 @@ static int kdf_ctr_tester(void)
 
 	ret += compare(act2, exp2, sizeof(exp2), "CTR KDF SHA-256");
 
-	ret = lc_kdf_ctr_rng_alloc(&ctr_kdf_rng_heap, lc_sha256);
-	if (ret) {
+	if (lc_kdf_ctr_rng_alloc(&ctr_kdf_rng_heap, lc_sha256)) {
 		printf("Allocation of heap CTR KDF RNG context failed: %d\n",
 		       ret);
 		return 1;
@@ -171,7 +170,7 @@ static int kdf_ctr_tester(void)
 
 out:
 	lc_rng_zero_free(ctr_kdf_rng_heap);
-	return 0;
+	return ret;
 }
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
