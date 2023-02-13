@@ -14,6 +14,8 @@ Changes 0.5.2-prerelease
 
 * enhancement: add counter KDF RNG interface
 
+* enhancement: add ARMv8 assembler and ARMv8 CE Keccak support
+
 Changes 0.5.1:
 * enhancement: add Linux kernel configuration options
 

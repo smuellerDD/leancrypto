@@ -49,7 +49,7 @@ FORCE_SYSV void KeccakP1600_AVX512_OverwriteWithZeroes(void *state, unsigned int
 FORCE_SYSV void KeccakP1600_AVX512_Permute_Nrounds(void *state, unsigned int nrounds);
 FORCE_SYSV void KeccakP1600_AVX512_Permute_12rounds(void *state);
 FORCE_SYSV void KeccakP1600_AVX512_Permute_24rounds(void *state);
-FORCE_SYSV void KeccakP1600_AVX512_ExtractBytes(const void *state, unsigned char *data, unsigned int offset, unsigned int length);
+FORCE_SYSV void KeccakP1600_AVX512_ExtractBytes(const void *state, unsigned char *data, size_t offset, size_t length);
 FORCE_SYSV void KeccakP1600_AVX512_ExtractAndAddBytes(const void *state, const unsigned char *input, unsigned char *output, unsigned int offset, unsigned int length);
 FORCE_SYSV size_t KeccakF1600_AVX512_FastLoop_Absorb(void *state, unsigned int laneCount, const unsigned char *data, size_t dataByteLen);
 FORCE_SYSV size_t KeccakP1600_AVX512_12rounds_FastLoop_Absorb(void *state, unsigned int laneCount, const unsigned char *data, size_t dataByteLen);

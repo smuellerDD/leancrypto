@@ -155,15 +155,6 @@ static inline void keccakp_1600(uint64_t s[25])
 
 /*********************************** SHA-3 ************************************/
 
-static inline void sha3_c_state_init(uint64_t state[LC_SHA3_STATE_WORDS])
-{
-	unsigned int i;
-
-	for (i = 0; i < LC_SHA3_STATE_WORDS; i++)
-		state[i] = 0;
-
-}
-
 static inline void sha3_ctx_init(void *_state)
 {
 	/*
@@ -202,7 +193,7 @@ static void sha3_224_init(void *_state)
 
 	sha3_224_selftest_common(lc_sha3_224_c, &tested, "SHA3-224 C");
 	sha3_224_init_common(_state);
-	sha3_c_state_init(ctx->state);
+	sha3_state_init(ctx->state);
 }
 
 size_t sha3_224_digestsize(void *_state)
@@ -236,7 +227,7 @@ static void sha3_256_init(void *_state)
 
 	sha3_256_selftest_common(lc_sha3_256_c, &tested, "SHA3-256 C");
 	sha3_256_init_common(_state);
-	sha3_c_state_init(ctx->state);
+	sha3_state_init(ctx->state);
 }
 
 size_t sha3_256_digestsize(void *_state)
@@ -269,7 +260,7 @@ static void sha3_384_init(void *_state)
 
 	sha3_384_selftest_common(lc_sha3_384_c, &tested, "SHA3-384 C");
 	sha3_384_init_common(_state);
-	sha3_c_state_init(ctx->state);
+	sha3_state_init(ctx->state);
 }
 
 size_t sha3_384_digestsize(void *_state)
@@ -301,7 +292,7 @@ static void sha3_512_init(void *_state)
 		return;
 
 	sha3_512_selftest_common(lc_sha3_512_c, &tested, "SHA3-512 C");	sha3_512_init_common(_state);
-	sha3_c_state_init(ctx->state);
+	sha3_state_init(ctx->state);
 }
 
 size_t sha3_512_digestsize(void *_state)
@@ -334,7 +325,7 @@ static void shake_128_init(void *_state)
 
 	shake128_selftest_common(lc_shake128_c, &tested, "SHAKE128 C");
 	shake_128_init_common(_state);
-	sha3_c_state_init(ctx->state);
+	sha3_state_init(ctx->state);
 }
 
 void shake_256_init_common(void *_state)
@@ -361,7 +352,7 @@ static void shake_256_init(void *_state)
 
 	shake256_selftest_common(lc_shake256_c, &tested, "SHAKE256 C");
 	shake_256_init_common(_state);
-	sha3_c_state_init(ctx->state);
+	sha3_state_init(ctx->state);
 }
 
 void cshake_256_init_common(void *_state)
@@ -388,7 +379,7 @@ static void cshake_256_init(void *_state)
 
 	cshake256_selftest_common(lc_cshake256_c, &tested, "cSHAKE256 C");
 	cshake_256_init_common(_state);
-	sha3_c_state_init(ctx->state);
+	sha3_state_init(ctx->state);
 }
 
 void cshake_128_init_common(void *_state)
@@ -415,7 +406,7 @@ static void cshake_128_init(void *_state)
 
 	cshake128_selftest_common(lc_cshake128_c, &tested, "cSHAKE128 C");
 	cshake_128_init_common(_state);
-	sha3_c_state_init(ctx->state);
+	sha3_state_init(ctx->state);
 }
 
 /*
@@ -584,7 +575,7 @@ static void keccak_squeeze(void *_state, uint8_t *digest)
 			}
 
 			/* Advance the offset */
-			ctx->offset += (unsigned int)todo;
+			ctx->offset += todo;
 			/* Wrap the offset at block size */
 			ctx->offset %= ctx->r;
 			continue;
@@ -599,7 +590,7 @@ static void keccak_squeeze(void *_state, uint8_t *digest)
 		keccakp_1600(ctx->state);
 
 		/* Advance the offset */
-		ctx->offset += (unsigned int)todo;
+		ctx->offset += todo;
 		/* Wrap the offset at block size */
 		ctx->offset %= ctx->r;
 

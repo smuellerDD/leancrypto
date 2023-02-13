@@ -24,6 +24,8 @@
 #include "visibility.h"
 
 #include "sha3_c.h"
+#include "sha3_arm_asm.h"
+#include "sha3_arm_ce.h"
 #include "sha3_arm_neon.h"
 #include "sha3_avx2.h"
 #include "sha3_avx512.h"
@@ -93,7 +95,8 @@ static int _shake_sqeeze_more_tester(const struct lc_hash *shake_256,
 	LC_HASH_CTX_ON_STACK(ctx, shake_256);
 
 	printf("hash ctx %s (%s implementation) len %lu\n", name,
-	       shake_256 == lc_shake256_c ? "C" : "accelerated", LC_HASH_CTX_SIZE(shake_256));
+	       shake_256 == lc_shake256_c ? "C" : "accelerated",
+	       LC_HASH_CTX_SIZE(shake_256));
 
 	for (i = 1; i <= sizeof(exp2); i ++) {
 		act2_p = act2;
@@ -127,6 +130,8 @@ static int shake_sqeeze_more_tester(void)
 
 	LC_EXEC_ONE_TEST(lc_shake256);
 	LC_EXEC_ONE_TEST(lc_shake256_c);
+	LC_EXEC_ONE_TEST(lc_shake256_arm_asm);
+	LC_EXEC_ONE_TEST(lc_shake256_arm_ce);
 	LC_EXEC_ONE_TEST(lc_shake256_arm_neon);
 	LC_EXEC_ONE_TEST(lc_shake256_avx2);
 	LC_EXEC_ONE_TEST(lc_shake256_avx512);

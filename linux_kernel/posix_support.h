@@ -25,6 +25,8 @@ extern "C"
 {
 #endif
 
+unsigned long getauxval(unsigned long type);
+
 static inline int mlock(const void *ptr, size_t len)
 {
 	(void)ptr;

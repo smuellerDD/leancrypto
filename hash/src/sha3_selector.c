@@ -21,6 +21,8 @@
 #include "ext_headers.h"
 #include "lc_sha3.h"
 #include "sha3_c.h"
+#include "sha3_arm_asm.h"
+#include "sha3_arm_ce.h"
 #include "sha3_arm_neon.h"
 #include "sha3_avx2.h"
 #include "sha3_avx512.h"
@@ -32,15 +34,18 @@ LC_CONSTRUCTOR(sha3_fastest_impl)
 {
 	enum lc_cpu_features feat = lc_cpu_feature_available();
 
+#define LC_FILL_ACCEL_WITH_DEFAULT(accel, dflt)				       \
+	lc_sha3_224_ ##accel = lc_sha3_224_ ##dflt;			       \
+	lc_sha3_256_ ##accel = lc_sha3_256_ ##dflt;			       \
+	lc_sha3_384_ ##accel = lc_sha3_384_ ##dflt;			       \
+	lc_sha3_512_ ##accel = lc_sha3_512_ ##dflt;			       \
+	lc_shake128_ ##accel = lc_shake128_ ##dflt;			       \
+	lc_shake256_ ##accel = lc_shake256_ ##dflt;			       \
+	lc_cshake128_ ##accel = lc_cshake128_ ##dflt;			       \
+	lc_cshake256_ ##accel = lc_cshake256_ ##dflt;
+
 #define LC_FILL_ACCEL_WITH_C(accel)					       \
-	lc_sha3_224_ ##accel = lc_sha3_224_c;				       \
-	lc_sha3_256_ ##accel = lc_sha3_256_c;				       \
-	lc_sha3_384_ ##accel = lc_sha3_384_c;				       \
-	lc_sha3_512_ ##accel = lc_sha3_512_c;				       \
-	lc_shake128_ ##accel = lc_shake128_c;				       \
-	lc_shake256_ ##accel = lc_shake256_c;				       \
-	lc_cshake128_ ##accel = lc_cshake128_c;				       \
-	lc_cshake256_ ##accel = lc_cshake256_c;
+	LC_FILL_ACCEL_WITH_DEFAULT(accel, c)
 
 #define LC_FILL_ACCEL_NULL(accel)					       \
 	if (!lc_sha3_224_ ##accel) {					       \
@@ -48,6 +53,8 @@ LC_CONSTRUCTOR(sha3_fastest_impl)
 	}
 
 	/* Check if NULL pointers are present */
+	LC_FILL_ACCEL_NULL(arm_asm)
+	LC_FILL_ACCEL_NULL(arm_ce)
 	LC_FILL_ACCEL_NULL(arm_neon)
 	LC_FILL_ACCEL_NULL(avx512)
 	LC_FILL_ACCEL_NULL(avx2)
@@ -70,8 +77,14 @@ LC_CONSTRUCTOR(sha3_fastest_impl)
 		LC_FILL_DFLT_IMPL(avx512)
 	} else if (feat & LC_CPU_FEATURE_INTEL_AVX2) {
 		LC_FILL_DFLT_IMPL(avx2)
+	} else if (feat & LC_CPU_FEATURE_ARM_SHA3) {
+		LC_FILL_DFLT_IMPL(arm_ce)
 	} else if (feat & LC_CPU_FEATURE_ARM_NEON) {
-		LC_FILL_DFLT_IMPL(arm_neon)
+		// ARM Neon is current disabled - see meson.build
+		//LC_FILL_DFLT_IMPL(arm_neon)
+		LC_FILL_DFLT_IMPL(arm_asm)
+	} else if (feat & LC_CPU_FEATURE_ARM) {
+		LC_FILL_DFLT_IMPL(arm_asm)
 	} else if (feat ^ LC_CPU_FEATURE_RISCV_ASM) {
 		LC_FILL_DFLT_IMPL(riscv_asm)
 	} else {
@@ -85,8 +98,14 @@ LC_CONSTRUCTOR(sha3_fastest_impl)
 	if (!(feat & LC_CPU_FEATURE_INTEL_AVX2)) {
 		LC_FILL_ACCEL_WITH_C(avx2)
 	}
+	if (!(feat & LC_CPU_FEATURE_ARM_SHA3)) {
+		LC_FILL_ACCEL_WITH_C(arm_ce)
+	}
 	if (!(feat & LC_CPU_FEATURE_ARM_NEON)) {
 		LC_FILL_ACCEL_WITH_C(arm_neon)
+	}
+	if (!(feat & LC_CPU_FEATURE_ARM)) {
+		LC_FILL_ACCEL_WITH_C(arm_asm)
 	}
 	if (!(feat & LC_CPU_FEATURE_RISCV_ASM)) {
 		LC_FILL_ACCEL_WITH_C(riscv_asm)

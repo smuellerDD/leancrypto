@@ -215,7 +215,8 @@ endif
 x86_64_asm = false
 arm32_neon_gcc_asm = false
 arm64_neon_gcc_asm = false
-riscv_gcc_asm = false
+arm64_asm = false
+riscv32_gcc_asm = false
 
 # Enable x86_64 assembler code only on x86 (naturally) and with the presence of
 # the GNU assembler - the LLVM assembler on MacOS does not work!
@@ -238,25 +239,29 @@ if (host_machine.cpu_family() == 'arm' and
 	# Alignment ARM 32 bits: 32 bytes as required by NEON on ARMv7
 	add_global_arguments([ '-DLC_HASH_COMMON_ALIGNMENT=64' ], language: 'c')
 
-elif (host_machine.cpu_family() == 'aarch64' and
-      c_compiler.get_id() == 'gcc')
+elif (host_machine.cpu_family() == 'aarch64')
 
-      # 64 bit ARM processor and GCC
-      # Disable assembler code as it is slower compared to C
-      # see also issue https://github.com/XKCP/XKCP/issue/74
-      arm64_neon_gcc_asm = false
-      #arm64_neon_gcc_asm = true
+	arm64_asm = true
 
-      # Alignment ARM 64 bits: 64 bytes as required by NEON on ARMv8
-      #add_global_arguments([ '-DLC_HASH_COMMON_ALIGNMENT=64' ], language: 'c')
+	if (c_compiler.get_id() == 'gcc')
 
-elif (host_machine.cpu_family() == 'riscv64' and
+		# 64 bit ARM processor and GCC
+		# Disable assembler code as it is slower compared to C
+		# see also issue https://github.com/XKCP/XKCP/issue/74
+		arm64_neon_gcc_asm = false
+		#arm64_neon_gcc_asm = true
+
+		# Alignment ARM 64 bits: 64 bytes as required by NEON on ARMv8
+		#add_global_arguments([ '-DLC_HASH_COMMON_ALIGNMENT=64' ], language: 'c')
+	endif
+
+elif (host_machine.cpu_family() == 'riscv' and
       c_compiler.get_id() == 'gcc')
 
       # RISC-V and GCC
-      # riscv_gcc_asm = true
-      # Disable implementation as it currently has a bug
-      riscv_gcc_asm = false
+      # riscv32_gcc_asm = true
+      # Disable implementation as it currently is not tested
+      riscv32_gcc_asm = false
 endif
 
 ################################################################################

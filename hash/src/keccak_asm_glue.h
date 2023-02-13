@@ -354,15 +354,14 @@ static inline void keccak_asm_squeeze(void *_state, uint8_t *digest,
 	void (*AddByte)(void *state, unsigned char data, unsigned int offset),
 	void (*Permute)(void *state),
 	void (*ExtractBytes)(const void *state, unsigned char *data,
-			     unsigned int offset, unsigned int length))
+			     size_t offset, size_t length))
 {
 	/*
 	 * All lc_sha3_*_state are equal except for the last entry, thus we use
 	 * the largest state.
 	 */
 	struct lc_sha3_224_state *ctx = _state;
-	size_t i = 0, j, digest_len;
-	unsigned int partialBlock;
+	size_t i = 0, j, digest_len, partialBlock;
 	unsigned int rateInBytes = ctx->r;
 
 	if (!ctx || !digest)
@@ -394,7 +393,7 @@ static inline void keccak_asm_squeeze(void *_state, uint8_t *digest,
 			if (digest_len - i > rateInBytes - ctx->offset)
 				partialBlock = rateInBytes - ctx->offset;
 			else
-				partialBlock = (unsigned int)(digest_len - i);
+				partialBlock = digest_len - i;
 			i += partialBlock;
 
 			ExtractBytes(ctx->state, digest, ctx->offset,

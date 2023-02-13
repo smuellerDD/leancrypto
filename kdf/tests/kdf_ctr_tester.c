@@ -29,7 +29,6 @@
 static int kdf_ctr_tester(void)
 {
 	struct lc_rng_ctx *ctr_kdf_rng_heap = NULL;
-	LC_CTR_KDF_DRNG_CTX_ON_STACK(ctr_kdf_rng, lc_sha256);
 	int ret;
 	static const uint8_t key[] = {
 		0xdd, 0x1d, 0x91, 0xb7, 0xd9, 0x0b, 0x2b, 0xd3,
@@ -120,6 +119,7 @@ static int kdf_ctr_tester(void)
 		0x65, 0xa8, 0xa8, 0x2f, 0x79, 0x60, 0x51, 0xe2
 	};
 	uint8_t act2[sizeof(exp2)];
+	LC_CTR_KDF_DRNG_CTX_ON_STACK(ctr_kdf_rng, lc_sha256);
 
 	if (lc_kdf_ctr(lc_sha256, key, sizeof(key), label, sizeof(label),
 		       act, sizeof(act))) {

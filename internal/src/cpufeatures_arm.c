@@ -38,16 +38,18 @@ enum lc_cpu_features, lc_cpu_feature_available, void)
 
 	c = getauxval(AT_HWCAP);
 	if (c & HWCAP_ASIMD)
-		return LC_CPU_FEATURE_ARM_NEON;
+		return LC_CPU_FEATURE_ARM_NEON | LC_CPU_FEATURE_ARM;
 	if (c & HWCAP_AES)
-		return LC_CPU_FEATURE_NONE;
+		return LC_CPU_FEATURE_ARM;
 	if (c & HWCAP_PMULL)
-		return LC_CPU_FEATURE_NONE;
+		return LC_CPU_FEATURE_ARM;
 	if (c & HWCAP_SHA1)
-		return LC_CPU_FEATURE_NONE;
+		return LC_CPU_FEATURE_ARM;
 	if (c & HWCAP_SHA2)
-		return LC_CPU_FEATURE_NONE;
+		return LC_CPU_FEATURE_ARM;
 	if (c & HWCAP_SHA512)
-		return LC_CPU_FEATURE_NONE;
-	return LC_CPU_FEATURE_NONE;
+		return LC_CPU_FEATURE_ARM;
+	if (c & HWCAP_SHA3)
+		return LC_CPU_FEATURE_ARM_SHA3 | LC_CPU_FEATURE_ARM;
+	return LC_CPU_FEATURE_ARM;
 }

@@ -8,3 +8,7 @@
 - how to detect ARMv6 (in contrast to ARMv7) such that ARMv7 Neon code is only
   compiled for target host ARMv7 - at the moment compiling on ARMv6 fails
   because the Neon code is compiled (which should not be compiled)
+
+- should compiler options of -ftrivial-auto-var-init=zero and
+  -fzero-call-used-regs=used-gpr be set? If yes, what is the performance impact?
+  What about older compilers?

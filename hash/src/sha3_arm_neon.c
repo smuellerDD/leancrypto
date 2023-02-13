@@ -19,6 +19,7 @@
 
 #include "KeccakP-1600-SnP.h"
 
+#include "ext_headers_arm.h"
 #include "keccak_asm_glue.h"
 #include "sha3_arm_neon.h"
 #include "sha3_selftest.h"
@@ -99,18 +100,22 @@ static void cshake_256_arm_neon_init(void *_state)
 static void keccak_arm_neon_absorb(void *_state, const uint8_t *in,
 				   size_t inlen)
 {
+	LC_NEON_ENABLE;
 	keccak_asm_absorb(_state, in, inlen,
 			  KeccakP1600_AddBytes,
 			  KeccakP1600_Permute_24rounds,
 			  NULL);
+	LC_NEON_DISABLE;
 }
 
 static void keccak_arm_neon_squeeze(void *_state, uint8_t *digest)
 {
+	LC_NEON_ENABLE;
 	keccak_asm_squeeze(_state, digest,
 			   KeccakP1600_AddByte,
 			   KeccakP1600_Permute_24rounds,
 			   KeccakP1600_ExtractBytes);
+	LC_NEON_DISABLE;
 }
 
 static const struct lc_hash _sha3_224_arm_neon = {

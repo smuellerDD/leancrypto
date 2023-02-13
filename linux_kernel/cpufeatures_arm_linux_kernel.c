@@ -17,36 +17,19 @@
  * DAMAGE.
  */
 
-#ifndef CPUFEATURES_H
-#define CPUFEATURES_H
+#include <asm/simd.h>
 
-#ifdef __cplusplus
-extern "C"
+#include "cpufeatures.h"
+#include "ext_headers.h"
+
+enum lc_cpu_features lc_cpu_feature_available(void)
 {
-#endif
+	if (may_use_simd())
+		return LC_CPU_FEATURE_ARM_NEON | LC_CPU_FEATURE_ARM;
 
-enum lc_cpu_features {
-	LC_CPU_FEATURE_NONE		= 0,
+	// TODO: when to enable the ARMv8 SHA3 CE implementation?
+	//return LC_CPU_FEATURE_ARM_SHA3 | LC_CPU_FEATURE_ARM;
 
-	/* Intel-specific */
-	LC_CPU_FEATURE_INTEL_AVX2	= 1 << 0,
-	LC_CPU_FEATURE_INTEL_AVX512	= 1 << 1,
-
-	/* ARM-specific */
-	LC_CPU_FEATURE_ARM_NEON		= 1 << 2,
-	LC_CPU_FEATURE_ARM_SHA3		= 1 << 3,
-	LC_CPU_FEATURE_ARM		= 1 << 4,
-
-	/* RISC-V-specific */
-	LC_CPU_FEATURE_RISCV_ASM	= 1 << 5,
-
-	LC_CPU_FEATURE_UNSET		= (1U) << 30
-};
-
-enum lc_cpu_features lc_cpu_feature_available(void);
-
-#ifdef __cplusplus
+	return LC_CPU_FEATURE_ARM;
 }
-#endif
-
-#endif /* CPUFEATURES_H */
+EXPORT_SYMBOL(lc_cpu_feature_available);

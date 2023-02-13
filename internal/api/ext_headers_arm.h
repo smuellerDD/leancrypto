@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2023, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *
@@ -17,36 +17,21 @@
  * DAMAGE.
  */
 
-#ifndef CPUFEATURES_H
-#define CPUFEATURES_H
+#ifndef EXT_HEADERS_ARM_H
+#define EXT_HEADERS_ARM_H
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+#ifdef LINUX_KERNEL
 
-enum lc_cpu_features {
-	LC_CPU_FEATURE_NONE		= 0,
+# include <asm/neon.h>
 
-	/* Intel-specific */
-	LC_CPU_FEATURE_INTEL_AVX2	= 1 << 0,
-	LC_CPU_FEATURE_INTEL_AVX512	= 1 << 1,
+# define LC_NEON_ENABLE	kernel_neon_begin()
+# define LC_NEON_DISABLE	kernel_neon_end()
 
-	/* ARM-specific */
-	LC_CPU_FEATURE_ARM_NEON		= 1 << 2,
-	LC_CPU_FEATURE_ARM_SHA3		= 1 << 3,
-	LC_CPU_FEATURE_ARM		= 1 << 4,
+#else /* LINUX_KERNEL */
 
-	/* RISC-V-specific */
-	LC_CPU_FEATURE_RISCV_ASM	= 1 << 5,
+# define LC_NEON_ENABLE
+# define LC_NEON_DISABLE
 
-	LC_CPU_FEATURE_UNSET		= (1U) << 30
-};
+#endif /* LINUX_KERNEL */
 
-enum lc_cpu_features lc_cpu_feature_available(void);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* CPUFEATURES_H */
+#endif /* EXT_HEADERS_ARM_H */

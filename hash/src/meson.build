@@ -83,15 +83,22 @@ if get_option('sha3').enabled()
 				include_internal_dirs ],
 		)
 		leancrypto_support_libs += leancrypto_keccak_arm8a_neon_lib
-
 	else
 		src += files([ 'sha3_arm_neon_null.c' ])
 	endif
 
-	if (riscv_gcc_asm)
+	if (arm64_asm)
+		src += files([ 'sha3_arm_asm.c',
+			       'sha3_arm_ce.c',
+			       'asm/ARMv8A/KeccakP-1600-armv8a-ce.S' ])
+	else
+		src += files([ 'sha3_arm_asm_null.c', 'sha3_arm_ce_null.c' ])
+	endif
+
+	if (riscv32_gcc_asm)
 		leancrypto_keccak_riscv_asm_lib = static_library(
 			'leancrypto_keccak_riscv_asm_lib',
-			[ 'sha3_riscv_asm.c', 'asm/riscv/keccakf1600_asm.S' ],
+			[ 'sha3_riscv_asm.c', 'asm/riscv32/keccakf1600_asm.S' ],
 			c_args: [
 				'-march=rv32im',
 				'-mabi=ilp32'

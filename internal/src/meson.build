@@ -37,10 +37,10 @@ include_files += files([
 c_compiler = meson.get_compiler('c')
 if (host_machine.cpu_family() == 'x86_64')
 	src += files([ 'cpufeatures_x86.c' ])
-elif ((arm64_neon_gcc_asm or arm32_neon_gcc_asm) and
+elif ((arm64_neon_gcc_asm or arm32_neon_gcc_asm or arm64_asm) and
       c_compiler.check_header('sys/auxv.h'))
 	src += files([ 'cpufeatures_arm.c' ])
-elif (riscv_gcc_asm)
+elif (riscv32_gcc_asm)
 	src += files([ 'cpufeatures_riscv.c' ])
 else
 	src += files([ 'cpufeatures_none.c' ])
