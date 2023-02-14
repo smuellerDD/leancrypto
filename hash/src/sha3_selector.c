@@ -80,9 +80,7 @@ LC_CONSTRUCTOR(sha3_fastest_impl)
 	} else if (feat & LC_CPU_FEATURE_ARM_SHA3) {
 		LC_FILL_DFLT_IMPL(arm_ce)
 	} else if (feat & LC_CPU_FEATURE_ARM_NEON) {
-		// ARM Neon is current disabled - see meson.build
-		//LC_FILL_DFLT_IMPL(arm_neon)
-		LC_FILL_DFLT_IMPL(arm_asm)
+		LC_FILL_DFLT_IMPL(arm_neon)
 	} else if (feat & LC_CPU_FEATURE_ARM) {
 		LC_FILL_DFLT_IMPL(arm_asm)
 	} else if (feat ^ LC_CPU_FEATURE_RISCV_ASM) {

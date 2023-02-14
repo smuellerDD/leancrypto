@@ -38,7 +38,7 @@ enum lc_cpu_features, lc_cpu_feature_available, void)
 
 	c = getauxval(AT_HWCAP);
 	if (c & HWCAP_ASIMD)
-		return LC_CPU_FEATURE_ARM_NEON | LC_CPU_FEATURE_ARM;
+		return LC_CPU_FEATURE_ARM_NEON;
 	if (c & HWCAP_AES)
 		return LC_CPU_FEATURE_ARM;
 	if (c & HWCAP_PMULL)
