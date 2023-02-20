@@ -10,8 +10,8 @@ Release:        1.1
 Summary:        Cryptographic library with stack-only support and PQC-safe algorithms
 License:        GPL-2.0 OR BSD-2-Clause
 URL:            https://www.chronox.de/leancrypto.html
-Source0:        https://www.chronox.de/%{name}-%{version}.tar.xz
-#Source1:        https://www.chronox.de/leancrypto-%%{version}.tar.xz.asc
+Source0:        https://www.chronox.de/leancrypto/%{name}-%{version}.tar.xz
+#Source1:        https://www.chronox.de/leancrypto/%{name}-%{version}.tar.xz.asc
 BuildRequires:  meson
 BuildRequires:  gcc
 BuildRequires:	%kernel_module_package_buildreqs
