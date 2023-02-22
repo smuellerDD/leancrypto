@@ -131,7 +131,7 @@ void, lc_cc20_drng_seed, struct lc_chacha20_drng_ctx *cc20_ctx,
 	cc20_drng_selftest(&tested, "ChaCha20 DRNG");
 
 	while (inbuflen) {
-		size_t i, todo = min_t(uint32_t, inbuflen, LC_CC20_KEY_SIZE);
+		size_t i, todo = min_size(inbuflen, LC_CC20_KEY_SIZE);
 
 		for (i = 0; i < todo; i++)
 			chacha20_state->key.b[i] ^= inbuf[i];

@@ -891,7 +891,7 @@ static int _kmac_256_xof_tester(const struct lc_hash *cshake_256,
 		 * size.
 		 */
 		while (j < sizeof(exp1)) {
-			size_t todo = min_t(size_t, i, sizeof(exp1) - j);
+			size_t todo = min_size(i, sizeof(exp1) - j);
 
 			if (lc_rng_generate(kmac_rng, NULL, 0,
 					    act1 + j, todo)) {

@@ -210,7 +210,7 @@ static void cc20_crypt(struct lc_sym_state *ctx,
 		return;
 
 	while (len) {
-		size_t todo = min_t(size_t, len, sizeof(keystream));
+		size_t todo = min_size(len, sizeof(keystream));
 
 		cc20_block(ctx, keystream);
 

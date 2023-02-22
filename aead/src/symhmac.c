@@ -386,7 +386,7 @@ static int lc_sh_decrypt_authenticate(void *state,
 #pragma GCC diagnostic pop
 	int ret;
 
-	taglen = min_t(size_t, taglen, maxtaglen);
+	taglen = min_size(taglen, maxtaglen);
 
 	/*
 	 * Calculate the authentication tag for the processed. We do not need

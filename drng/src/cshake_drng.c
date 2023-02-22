@@ -403,9 +403,9 @@ lc_cshake256_drng_generate(void *_state,
 		 * This operation generates R(N) from the cSHAKE DRNG
 		 * specification section 2.4.
 		 */
-		size_t todo = min_t(size_t, outlen,
-				    LC_CSHAKE256_DRNG_MAX_CHUNK -
-				    LC_CSHAKE256_DRNG_KEYSIZE);
+		size_t todo = min_size(outlen,
+				       LC_CSHAKE256_DRNG_MAX_CHUNK -
+				       LC_CSHAKE256_DRNG_KEYSIZE);
 
 		/* Instantiate cSHAKE with TMP_K(N), generate TMP_K(N + 1). */
 		cshake256_drng_fke_init_ctx(state, cshake_ctx,

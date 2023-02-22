@@ -374,7 +374,7 @@ lc_kc_crypt(void *state, const uint8_t *in, uint8_t *out, size_t len)
 	kmac = &kc->kmac;
 
 	while (len) {
-		size_t todo = min_t(size_t, len, LC_KC_KEYSTREAM_BLOCK);
+		size_t todo = min_size(len, LC_KC_KEYSTREAM_BLOCK);
 
 		/* Generate a new keystream block */
 		if (kc->keystream_ptr >= LC_KC_KEYSTREAM_BLOCK) {
@@ -384,8 +384,8 @@ lc_kc_crypt(void *state, const uint8_t *in, uint8_t *out, size_t len)
 			kc->keystream_ptr = 0;
 		}
 
-		todo = min_t(size_t, todo,
-			     LC_KC_KEYSTREAM_BLOCK - kc->keystream_ptr);
+		todo = min_size(todo,
+				LC_KC_KEYSTREAM_BLOCK - kc->keystream_ptr);
 
 		if (in != out)
 			memcpy(out, in, todo);

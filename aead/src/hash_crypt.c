@@ -135,7 +135,7 @@ lc_hc_crypt(struct lc_hc_cryptor *hc, const uint8_t *in, uint8_t *out,
 	drbg = &hc->drbg;
 
 	while (len) {
-		size_t todo = min_t(size_t, len, LC_HC_KEYSTREAM_BLOCK);
+		size_t todo = min_size(len, LC_HC_KEYSTREAM_BLOCK);
 
 		/* Generate a new keystream block */
 		if (hc->keystream_ptr >= LC_HC_KEYSTREAM_BLOCK) {
@@ -148,8 +148,8 @@ lc_hc_crypt(struct lc_hc_cryptor *hc, const uint8_t *in, uint8_t *out,
 			hc->keystream_ptr = 0;
 		}
 
-		todo = min_t(size_t, todo,
-			     LC_HC_KEYSTREAM_BLOCK - hc->keystream_ptr);
+		todo = min_size(todo,
+				LC_HC_KEYSTREAM_BLOCK - hc->keystream_ptr);
 
 		if (in != out)
 			memcpy(out, in, todo);

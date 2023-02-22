@@ -121,7 +121,7 @@ static void aes_ctr_crypt(struct lc_sym_state *ctx,
 		aes_cipher((state_t*)buffer, block_ctx);
 		ctr128_inc(ctx->iv);
 		xor_64(out + i, buffer, AES_BLOCKLEN);
-		todo = min_t(size_t, len - i, AES_BLOCKLEN);
+		todo = min_size(len - i, AES_BLOCKLEN);
 	}
 
 	lc_memset_secure(buffer, 0, sizeof(buffer));

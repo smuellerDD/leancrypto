@@ -237,7 +237,7 @@ lc_hkdf_rng_generate(void *_state,
 
 	/* Consume partial data */
 	if (hkdf_ctx->partial_ptr < h) {
-		size_t todo = min_t(size_t, outlen, h - hkdf_ctx->partial_ptr);
+		size_t todo = min_size(outlen, h - hkdf_ctx->partial_ptr);
 
 		memcpy(out, hkdf_ctx->partial + hkdf_ctx->partial_ptr, todo);
 		out += todo;

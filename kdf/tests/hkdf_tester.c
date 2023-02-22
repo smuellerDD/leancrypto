@@ -102,7 +102,7 @@ static int hkdf_tester(void)
 		 * size.
 		 */
 		while (j < sizeof(exp)) {
-			size_t todo = min_t(size_t, i, sizeof(exp) - j);
+			size_t todo = min_size(i, sizeof(exp) - j);
 
 			if (lc_rng_generate(hkdf_rng, info, sizeof(info),
 					    act + j, todo)) {

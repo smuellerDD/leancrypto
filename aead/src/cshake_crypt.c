@@ -447,7 +447,7 @@ static void lc_cc_crypt(struct lc_cc_cryptor *cc,
 	cshake = &cc->cshake;
 
 	while (len) {
-		size_t todo = min_t(size_t, len, LC_CC_KEYSTREAM_BLOCK);
+		size_t todo = min_size(len, LC_CC_KEYSTREAM_BLOCK);
 
 		/* Generate a new keystream block */
 		if (cc->keystream_ptr >= LC_CC_KEYSTREAM_BLOCK) {
@@ -456,8 +456,8 @@ static void lc_cc_crypt(struct lc_cc_cryptor *cc,
 			cc->keystream_ptr = 0;
 		}
 
-		todo = min_t(size_t, todo,
-			     LC_CC_KEYSTREAM_BLOCK - cc->keystream_ptr);
+		todo = min_size(todo,
+				LC_CC_KEYSTREAM_BLOCK - cc->keystream_ptr);
 
 		if (in != out)
 			memcpy(out, in, todo);

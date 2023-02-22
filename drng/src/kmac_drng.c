@@ -344,8 +344,8 @@ lc_kmac256_drng_generate(void *_state,
 		 * This operation generates R(N) from the KMAC DRNG
 		 * specification section 2.4.
 		 */
-		size_t todo = min_t(size_t, outlen, LC_KMAC256_DRNG_MAX_CHUNK -
-						    LC_KMAC256_DRNG_KEYSIZE);
+		size_t todo = min_size(outlen, LC_KMAC256_DRNG_MAX_CHUNK -
+					       LC_KMAC256_DRNG_KEYSIZE);
 
 		/* Instantiate KMAC with TMP_K(N) and generate TMP_K(N + 1). */
 		kmac256_drng_fke_init_ctx(state, kmac_ctx,

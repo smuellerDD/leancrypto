@@ -30,11 +30,20 @@ extern "C"
 #define likely(x)      __builtin_expect(!!(x), 1)
 #define unlikely(x)    __builtin_expect(!!(x), 0)
 
-#define min_t(type, a, b)						       \
-	((type)a < (type)b) ? (type)a : (type)b
+static inline uint32_t min_uint32(uint32_t a, uint32_t b)
+{
+	return a < b ? a : b;
+}
 
-#define max_t(type, a, b)						       \
-	((type)a > (type)b) ? (type)a : (type)b
+static inline uint64_t min_uint64(uint64_t a, uint64_t b)
+{
+	return a < b ? a : b;
+}
+
+static inline size_t min_size(size_t a, size_t b)
+{
+	return a < b ? a : b;
+}
 
 #endif /* LINUX_KERNEL */
 
