@@ -26,7 +26,21 @@
 #include <linux/module.h>
 #include <linux/string.h>
 #include <linux/types.h>
-#include "posix_support.h"
+
+/* POSIX Support */
+unsigned long getauxval(unsigned long type);
+
+static inline int mlock(const void *ptr, size_t len)
+{
+	(void)ptr;
+	(void)len;
+	return 0;
+}
+
+extern const int errno;
+
+#define printf printk
+#define assert WARN_ON
 
 #else /* LINUX_KERNEL */
 

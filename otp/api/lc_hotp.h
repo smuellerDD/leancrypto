@@ -20,8 +20,7 @@
 #ifndef LC_HOTP_H
 #define LC_HOTP_H
 
-#include <stdint.h>
-#include <sys/types.h>
+#include "ext_headers.h"
 
 #ifdef __cplusplus
 extern "C"
