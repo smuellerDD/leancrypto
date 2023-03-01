@@ -30,6 +30,8 @@ extern "C"
 #define likely(x)      __builtin_expect(!!(x), 1)
 #define unlikely(x)    __builtin_expect(!!(x), 0)
 
+#endif /* LINUX_KERNEL */
+
 static inline uint32_t min_uint32(uint32_t a, uint32_t b)
 {
 	return a < b ? a : b;
@@ -44,8 +46,6 @@ static inline size_t min_size(size_t a, size_t b)
 {
 	return a < b ? a : b;
 }
-
-#endif /* LINUX_KERNEL */
 
 #ifdef __cplusplus
 }
