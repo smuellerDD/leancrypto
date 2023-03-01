@@ -93,14 +93,14 @@ static int16_t fqmul(int16_t a, int16_t b)
 	return montgomery_reduce((int32_t)a * b);
 }
 
-void kyber_ntt(int16_t r[256])
+void kyber_ntt(int16_t r[LC_KYBER_N])
 {
 	unsigned int len, start, j, k;
 	int16_t t, zeta;
 
 	k = 1;
 	for (len = 128; len >= 2; len >>= 1) {
-		for (start = 0; start < 256; start = j + len) {
+		for (start = 0; start < LC_KYBER_N; start = j + len) {
 			zeta = zetas[k++];
 			for (j = start; j < start + len; j++) {
 				t = fqmul(zeta, r[j + len]);
@@ -111,7 +111,7 @@ void kyber_ntt(int16_t r[256])
 	}
 }
 
-void kyber_invntt(int16_t r[256])
+void kyber_invntt(int16_t r[LC_KYBER_N])
 {
 	unsigned int start, len, j, k;
 	int16_t t, zeta;
@@ -119,7 +119,7 @@ void kyber_invntt(int16_t r[256])
 
 	k = 127;
 	for (len = 2; len <= 128; len <<= 1) {
-		for (start = 0; start < 256; start = j + len) {
+		for (start = 0; start < LC_KYBER_N; start = j + len) {
 			zeta = zetas[k--];
 			for (j = start; j < start + len; j++) {
 				t = r[j];
@@ -130,7 +130,7 @@ void kyber_invntt(int16_t r[256])
 		}
 	}
 
-	for (j = 0; j < 256; j++)
+	for (j = 0; j < LC_KYBER_N; j++)
 		r[j] = fqmul(r[j], f);
 }
 
