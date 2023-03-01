@@ -20,6 +20,8 @@
 #include "ext_headers.h"
 #include "lc_status.h"
 #include "sha3_c.h"
+#include "sha3_arm_asm.h"
+#include "sha3_arm_ce.h"
 #include "sha3_arm_neon.h"
 #include "sha3_avx2.h"
 #include "sha3_avx512.h"
@@ -34,9 +36,12 @@ void, lc_status, char *outbuf, size_t outlen)
 		 MAJVERSION, MINVERSION, PATCHLEVEL);
 
 	len = strlen(outbuf);
-	snprintf(outbuf + len, outlen - len, "Acceleration support: %s%s%s\n",
+	snprintf(outbuf + len, outlen - len,
+		 "SHA Acceleration support: %s%s%s%s%s\n",
 		 (lc_sha3_512_avx512 != lc_sha3_512_c) ? "AVX512 " : "",
 		 (lc_sha3_512_avx2 != lc_sha3_512_c) ? "AVX2 " : "",
-		 (lc_sha3_512_arm_neon != lc_sha3_512_c) ? "ARM Neon " : "");
+		 (lc_sha3_512_arm_neon != lc_sha3_512_c) ? "ARMv7 Neon " : "",
+		 (lc_sha3_512_arm_asm != lc_sha3_512_c) ? "ARMv8 ASM " : "",
+		 (lc_sha3_512_arm_ce != lc_sha3_512_c) ? "ARMv8 CE " : "");
 
 }
