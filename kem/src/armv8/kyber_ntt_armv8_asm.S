@@ -2,6 +2,8 @@
 /* Called in NTT.H */
 /* New version (v2) */
 
+#include "assembler_support.h"
+
 // Requires fqmul, shuffle4, shuffle2
 .include "macros.inc"
 
@@ -199,16 +201,18 @@
 *					- q = 3329 and qinv = 62209 are stored in the vector v15
 *					- It uses x3 and x4 as counters
 **************************************************/
-.global kyber_ntt_armv8
-kyber_ntt_armv8:
+SYM_FUNC_START(kyber_ntt_armv8)
+SYM_FUNC_ENTER(kyber_ntt_armv8)
+.align	4
 	// pre-operations
 	mov		w4, 3329
   	mov		v15.h[0], w4		// v15.s[0] = q = 3329 = 0D01
   	mov		w4, 62209
-    mov		v15.h[1], w4 		// v15.s[1] = qinv = 62209
+	mov		v15.h[1], w4 		// v15.s[1] = qinv = 62209
 
-    level7
-    levels6to1
-    levels6to1
+	level7
+	levels6to1
+	levels6to1
 
-	ret
+	RET
+SYM_FUNC_END(kyber_ntt_armv8)

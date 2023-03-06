@@ -25,19 +25,51 @@
 #include <linux/linkage.h>
 #include <linux/objtool.h>
 
-#else
+#else /* LINUX_KERNEL */
 
-#define ANNOTATE_INTRA_FUNCTION_CALL
+# define ANNOTATE_INTRA_FUNCTION_CALL
 
-#define SYM_FUNC_START(x)						       \
-	.global x ;							       \
-	x:
+# ifdef __APPLE__
+#  define SYM_FUNC(name)	_##name
+#  define SYM_TYPE_OBJ(name)
+#  define SYM_TYPE_FUNC(name)
+#  define SYM_SIZE(name)
 
-#define SYM_FUNC_END(x)
-#define RET	ret
+/* The Apple assembler does not support command separation with ";" */
+#  define SYM_FUNC_START(name)						       \
+	.global SYM_FUNC(name)
 
-#define STACK_FRAME_NON_STANDARD # ignored
+#  define SYM_FUNC_ENTER(name)						       \
+	SYM_FUNC(name):
 
-#endif
+# else /* __APPLE__ */
+#  define SYM_FUNC(name)	name
+
+#  define SYM_TYPE_OBJ(name)						       \
+	.type SYM_FUNC(name),%object
+
+#  define SYM_TYPE_FUNC(name)						       \
+	.type SYM_FUNC(name),%function
+
+#  define SYM_SIZE(name)						       \
+	.size SYM_FUNC(name),.-SYM_FUNC(name)
+
+#  define SYM_FUNC_START(name)						       \
+	.global SYM_FUNC(name) ;					       \
+	SYM_FUNC(name):
+
+#  define SYM_FUNC_ENTER(name)
+
+# endif
+
+# define SYM_FUNC_END(name)						       \
+	SYM_TYPE_FUNC(name) ;						       \
+	SYM_SIZE(name)
+
+# define RET	ret
+
+# define STACK_FRAME_NON_STANDARD # ignored
+
+# endif /* LINUX_KERNEL */
 
 #endif /* ASSEMBLER_SUPPORT_H */

@@ -17,48 +17,12 @@
  * DAMAGE.
  */
 
-#ifndef EXT_HEADERS_H
-#define EXT_HEADERS_H
+#include "cpufeatures.h"
+#include "ext_headers.h"
+#include "visibility.h"
 
-#ifdef LINUX_KERNEL
-
-#include <linux/errno.h>
-#include <linux/module.h>
-#include <linux/string.h>
-#include <linux/types.h>
-
-/* POSIX Support */
-unsigned long getauxval(unsigned long type);
-
-static inline int mlock(const void *ptr, size_t len)
+LC_INTERFACE_FUNCTION(
+enum lc_cpu_features, lc_cpu_feature_available, void)
 {
-	(void)ptr;
-	(void)len;
-	return 0;
+	return LC_CPU_FEATURE_ARM;
 }
-
-extern const int errno;
-
-#define printf printk
-#define assert WARN_ON
-
-#else /* LINUX_KERNEL */
-
-#ifndef MB_LEN_MAX
-#define MB_LEN_MAX 16
-#endif
-
-#include <assert.h>
-#include <errno.h>
-#include <limits.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/mman.h>
-#include <sys/types.h>
-
-#endif /* LINUX_KERNEL */
-
-#endif /* EXT_HEADERS_H */

@@ -1,5 +1,7 @@
 /* ARMv8 implementation of CBD functions */
 
+#include "assembler_support.h"
+
 /*************************************************	
 *	Macro Name:		MCBD2
 *	Description:	Vectorized noise sampling for eta = 2
@@ -62,9 +64,9 @@
 *					- The vectors v4-v6 are registered for the intermediate values in the macro "mcbd2"
 *					- The function is completed in two parts (because of the limited number of vectors)
 **************************************************/
-.global kyber_cbd2_armv8
-kyber_cbd2_armv8:
-
+SYM_FUNC_START(kyber_cbd2_armv8)
+SYM_FUNC_ENTER(kyber_cbd2_armv8)
+.align	4
 	// Load the masking values to v0 - v3
 	movi	v0.16b, #0x55
 	movi	v1.16b, #0x33
@@ -98,7 +100,8 @@ kyber_cbd2_armv8:
 	st1 {v28.8h-v31.8h}, [x0], #64
 	
 	//
-	ret
+	RET
+SYM_FUNC_END(kyber_cbd2_armv8)
 
 /*************************************************
 *	Macro Name:		MCBD3
@@ -177,9 +180,9 @@ kyber_cbd2_armv8:
 .word	0x00070000		// mask 70
 .word	0x00030003		// mask 3
 
-
-.global kyber_cbd3_armv8
-kyber_cbd3_armv8:
+SYM_FUNC_START(kyber_cbd3_armv8)
+SYM_FUNC_ENTER(kyber_cbd3_armv8)
+.align	4
 
 	// Load the masking values
 	adr   	x2, .cbd3Consts
@@ -257,4 +260,5 @@ kyber_cbd3_armv8:
 	st1		{v28.4s-v31.4s}, [x0], #64
 
 	//
-	ret
+	RET
+SYM_FUNC_END(kyber_cbd3_armv8)

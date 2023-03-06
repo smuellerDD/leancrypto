@@ -1,5 +1,6 @@
 /* ARMv8 implementation of ADD function */
 
+#include "assembler_support.h"
 
 /*************************************************
 *	Function Name:	kyber_add_armv8
@@ -7,8 +8,9 @@
 *	Called in:		void poly_add(poly *r, const poly *a, const poly *b)
 *	Description:	r <- a + b
 **************************************************/
-.global kyber_add_armv8
-kyber_add_armv8:
+SYM_FUNC_START(kyber_add_armv8)
+SYM_FUNC_ENTER(kyber_add_armv8)
+.align	4
 	ld4   {v0.8h-v3.8h}, [x1], #64
 	ld4   {v4.8h-v7.8h}, [x1], #64
 	ld4   {v8.8h-v11.8h}, [x1], #64
@@ -73,4 +75,6 @@ kyber_add_armv8:
 	st4   {v24.8h-v27.8h}, [x0], #64
 	st4   {v28.8h-v31.8h}, [x0]
 	
-	ret
+	RET
+SYM_FUNC_END(kyber_add_armv8)
+

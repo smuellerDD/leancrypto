@@ -1,29 +1,31 @@
-#
-# Copyright (C) 2023, Stephan Mueller <smueller@chronox.de>
-#
-# License: see LICENSE file in root directory
-#
-# THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
-# WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-# OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, ALL OF
-# WHICH ARE HEREBY DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE
-# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
-# OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
-# BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-# LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-# USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
-# DAMAGE.
-#
-# This code is derived from the OpenSSL file of
-# crypto/sha/asm/keccak1600-armv8.pl which is subject to the following license:
-#
-# Copyright (c) 2006-2017, CRYPTOGAMS by <appro@openssl.org>
-# All rights reserved.
-#
-# The source code in this file is licensed under the CRYPTOGAMS license.
-# For further details see http://www.openssl.org/~appro/cryptogams/.
+//
+// Copyright (C) 2023, Stephan Mueller <smueller@chronox.de>
+//
+// License: see LICENSE file in root directory
+//
+// THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
+// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+// OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, ALL OF
+// WHICH ARE HEREBY DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+// OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+// BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+// LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+// USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
+// DAMAGE.
+//
+// This code is derived from the OpenSSL file of
+// crypto/sha/asm/keccak1600-armv8.pl which is subject to the following license:
+//
+// Copyright (c) 2006-2017, CRYPTOGAMS by <appro@openssl.org>
+// All rights reserved.
+//
+// The source code in this file is licensed under the CRYPTOGAMS license.
+// For further details see http://www.openssl.org/~appro/cryptogams/.
+
+#include "assembler_support.h"
 
 #define AARCH64_SIGN_LINK_REGISTER
 #define AARCH64_VALIDATE_LINK_REGISTER
@@ -33,7 +35,8 @@
 .align	8	// strategic alignment and padding that allows to use
 		// address value as loop termination condition...
 .quad	0,0,0,0,0,0,0,0
-.type	iotas,%object
+
+SYM_TYPE_OBJ(iotas)
 iotas:
 .quad	0x0000000000000001
 .quad	0x0000000000008082
@@ -59,8 +62,8 @@ iotas:
 .quad	0x8000000000008080
 .quad	0x0000000080000001
 .quad	0x8000000080008008
-.size	iotas,.-iotas
-.type	KeccakF1600_int,%function
+SYM_SIZE(iotas)
+
 .align	5
 KeccakF1600_int:
 	AARCH64_SIGN_LINK_REGISTER
@@ -229,13 +232,12 @@ KeccakF1600_int:
 
 	ldr	x30,[sp,#24]
 	AARCH64_VALIDATE_LINK_REGISTER
-	ret
-.size	KeccakF1600_int,.-KeccakF1600_int
+	RET
+SYM_FUNC_END(KeccakF1600_int)
 
-.globl  lc_keccakf1600_arm_asm
-.type	lc_keccakf1600_arm_asm,%function
-.align	5
-lc_keccakf1600_arm_asm:
+SYM_FUNC_START(lc_keccakf1600_arm_asm)
+SYM_FUNC_ENTER(lc_keccakf1600_arm_asm)
+.align 5
 	AARCH64_SIGN_LINK_REGISTER
 	stp	x29,x30,[sp,#-128]!
 	add	x29,sp,#0
@@ -287,13 +289,12 @@ lc_keccakf1600_arm_asm:
 	ldp	x27,x28,[x29,#80]
 	ldp	x29,x30,[sp],#128
 	AARCH64_VALIDATE_LINK_REGISTER
-	ret
-.size	lc_keccakf1600_arm_asm,.-lc_keccakf1600_arm_asm
+	RET
+SYM_FUNC_END(lc_keccakf1600_arm_asm)
 
-.globl	lc_keccak_absorb_arm_asm
-.type	lc_keccak_absorb_arm_asm,%function
-.align	5
-lc_keccak_absorb_arm_asm:
+SYM_FUNC_START(lc_keccak_absorb_arm_asm)
+SYM_FUNC_ENTER(lc_keccak_absorb_arm_asm)
+.align 5
 	AARCH64_SIGN_LINK_REGISTER
 	stp	x29,x30,[sp,#-128]!
 	add	x29,sp,#0
@@ -529,12 +530,12 @@ lc_keccak_absorb_arm_asm:
 	ldp	x27,x28,[x29,#80]
 	ldp	x29,x30,[sp],#128
 	AARCH64_VALIDATE_LINK_REGISTER
-	ret
-.size	lc_keccak_absorb_arm_asm,.-lc_keccak_absorb_arm_asm
-.globl	lc_keccak_squeeze_arm_asm
-.type	lc_keccak_squeeze_arm_asm,%function
-.align	5
-lc_keccak_squeeze_arm_asm:
+	RET
+SYM_FUNC_END(lc_keccak_absorb_arm_asm)
+
+SYM_FUNC_START(lc_keccak_squeeze_arm_asm)
+SYM_FUNC_ENTER(lc_keccak_squeeze_arm_asm)
+.align 5
 	AARCH64_SIGN_LINK_REGISTER
 	stp	x29,x30,[sp,#-48]!
 	add	x29,sp,#0
@@ -561,7 +562,7 @@ lc_keccak_squeeze_arm_asm:
 	bhi	.Loop_squeeze
 
 	mov	x0,x19
-	bl	lc_keccakf1600_arm_asm
+	bl	SYM_FUNC(lc_keccakf1600_arm_asm)
 	mov	x0,x19
 	mov	x3,x22
 	b	.Loop_squeeze
@@ -599,9 +600,9 @@ lc_keccak_squeeze_arm_asm:
 	ldp	x21,x22,[sp,#32]
 	ldp	x29,x30,[sp],#48
 	AARCH64_VALIDATE_LINK_REGISTER
-	ret
-.size	lc_keccak_squeeze_arm_asm,.-lc_keccak_squeeze_arm_asm
-.type	KeccakF1600_ce,%function
+	RET
+SYM_FUNC_END(lc_keccak_squeeze_arm_asm)
+
 .align	5
 KeccakF1600_ce:
 	mov	x9,#24
@@ -700,13 +701,12 @@ KeccakF1600_ce:
 	subs	x9,x9,#1
 	bne	.Loop_ce
 
-	ret
-.size	KeccakF1600_ce,.-KeccakF1600_ce
+	RET
+SYM_FUNC_END(KeccakF1600_ce)
 
-.globl  lc_keccakf1600_arm_ce
-.type	lc_keccakf1600_arm_ce,%function
-.align	5
-lc_keccakf1600_arm_ce:
+SYM_FUNC_START(lc_keccakf1600_arm_ce)
+SYM_FUNC_ENTER(lc_keccakf1600_arm_ce)
+.align 5
 	AARCH64_SIGN_LINK_REGISTER
 	stp	x29,x30,[sp,#-80]!
 	add	x29,sp,#0
@@ -749,13 +749,12 @@ lc_keccakf1600_arm_ce:
 	ldp	d14,d15,[sp,#64]
 	ldr	x29,[sp],#80
 	AARCH64_VALIDATE_LINK_REGISTER
-	ret
-.size	lc_keccakf1600_arm_ce,.-lc_keccakf1600_arm_ce
+	RET
+SYM_FUNC_END(lc_keccakf1600_arm_ce)
 
-.globl	lc_keccak_absorb_arm_ce
-.type	lc_keccak_absorb_arm_ce,%function
-.align	5
-lc_keccak_absorb_arm_ce:
+SYM_FUNC_START(lc_keccak_absorb_arm_ce)
+SYM_FUNC_ENTER(lc_keccak_absorb_arm_ce)
+.align 5
 	AARCH64_SIGN_LINK_REGISTER
 	stp	x29,x30,[sp,#-80]!
 	add	x29,sp,#0
@@ -973,12 +972,12 @@ lc_keccak_absorb_arm_ce:
 	ldp	d14,d15,[sp,#64]
 	ldp	x29,x30,[sp],#80
 	AARCH64_VALIDATE_LINK_REGISTER
-	ret
-.size	lc_keccak_absorb_arm_ce,.-lc_keccak_absorb_arm_ce
-.globl	lc_keccak_squeeze_arm_ce
-.type	lc_keccak_squeeze_arm_ce,%function
-.align	5
-lc_keccak_squeeze_arm_ce:
+	RET
+SYM_FUNC_END(lc_keccak_absorb_arm_ce)
+
+SYM_FUNC_START(lc_keccak_squeeze_arm_ce)
+SYM_FUNC_ENTER(lc_keccak_squeeze_arm_ce)
+.align 5
 	AARCH64_SIGN_LINK_REGISTER
 	stp	x29,x30,[sp,#-16]!
 	add	x29,sp,#0
@@ -999,7 +998,7 @@ lc_keccak_squeeze_arm_ce:
 	subs	x10,x10,#8
 	bhi	.Loop_squeeze_ce
 
-	bl	lc_keccakf1600_arm_ce
+	bl	SYM_FUNC(lc_keccakf1600_arm_ce)
 	ldr	x30,[sp,#8]
 	mov	x9,x0
 	mov	x10,x3
@@ -1036,7 +1035,7 @@ lc_keccak_squeeze_arm_ce:
 .Lsqueeze_done_ce:
 	ldr	x29,[sp],#16
 	AARCH64_VALIDATE_LINK_REGISTER
-	ret
-.size	lc_keccak_absorb_arm_ce,.-lc_keccak_absorb_arm_ce
+	RET
+SYM_FUNC_END(lc_keccak_squeeze_arm_ce)
 .byte	75,101,99,99,97,107,45,49,54,48,48,32,97,98,115,111,114,98,32,97,110,100,32,115,113,117,101,101,122,101,32,102,111,114,32,65,82,77,118,56,44,32,67,82,89,80,84,79,71,65,77,83,32,98,121,32,60,97,112,112,114,111,64,111,112,101,110,115,115,108,46,111,114,103,62,0
 .align	2

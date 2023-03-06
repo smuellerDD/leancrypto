@@ -2,6 +2,8 @@
 /* Called in NTT.H */
 /* v2 */
 
+#include "assembler_support.h"
+
 // Requires fqmul, shuffle4, shuffle2
 .include "macros.inc"
 
@@ -218,19 +220,21 @@
 *	Notes:			- It is implemented in 8 levels: From Level 1 to Level 7
 *					- q = 3329 and qinv = 62209 are stored in the vector v15
 **************************************************/
-.global kyber_inv_ntt_armv8
-kyber_inv_ntt_armv8:
+SYM_FUNC_START(kyber_inv_ntt_armv8)
+SYM_FUNC_ENTER(kyber_inv_ntt_armv8)
+.align	4
 	// pre-operations
 	mov		w4, 3329
   	mov		v15.h[0], w4		// v15.s[0] = q = 3329 = 0D01
   	mov		w4, 62209
-    mov		v15.h[1], w4 		// v15.s[1] = qinv = 62209
-    mov 	w4, 20159
-    mov 	v15.h[2], w4 		// v15.s[2] = v = 20159 used in Barrets reduction
+	mov		v15.h[1], w4 		// v15.s[1] = qinv = 62209
+	mov 	w4, 20159
+	mov 	v15.h[2], w4 		// v15.s[2] = v = 20159 used in Barrets reduction
 
 	levels1to6
-    levels1to6
-    sub		x0, x0, #512		// after: x0 at r0
-    level7
+	levels1to6
+	sub		x0, x0, #512		// after: x0 at r0
+	level7
 
-	ret
+	RET
+SYM_FUNC_END(kyber_inv_ntt_armv8)

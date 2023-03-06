@@ -2,6 +2,8 @@
 /* Called in POLY.C (See void poly_basemul_montgomery(poly *r, const poly *a, const poly *b)) */
 /* New version (v2) */
 
+#include "assembler_support.h"
+
 .include "macros.inc"
 
 /*************************************************
@@ -80,8 +82,9 @@
 *					  The result vector C is also stored as 4 vectors in each iteration.
 *					- basemul macro is called twice in each iteration.
 **************************************************/
-.global kyber_basemul_armv8
-kyber_basemul_armv8:
+SYM_FUNC_START(kyber_basemul_armv8)
+SYM_FUNC_ENTER(kyber_basemul_armv8)
+.align	4
 	mov w4, 3329
   	mov v15.h[0], w4				// v15.s[0] = q = 3329 = 0D01
   	mov w4, 62209
@@ -93,4 +96,5 @@ kyber_basemul_armv8:
 	basemul4
 	basemul4
 
-	ret
+	RET
+SYM_FUNC_END(kyber_basemul_armv8)

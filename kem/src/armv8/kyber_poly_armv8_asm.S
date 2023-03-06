@@ -1,5 +1,7 @@
 /* ARMv8 implementation of Polynomial Functions */
 
+#include "assembler_support.h"
+
 // poly_tobytes
 // read a, b, c, d -> write e, f, g
 .macro mtobytes a, b, c, d, e, f, g
@@ -44,11 +46,12 @@
 	and	  v\g\().16b, v\g\().16b, v0.16b
 .endm
 
-.global kyber_poly_tobytes_armv8
-kyber_poly_tobytes_armv8:
+SYM_FUNC_START(kyber_poly_tobytes_armv8)
+SYM_FUNC_ENTER(kyber_poly_tobytes_armv8)
+.align	4
 	mov w4, #3329
-  mov v0.h[0], w4
-  dup v0.8h, v0.h[0]
+	mov v0.h[0], w4
+	dup v0.8h, v0.h[0]
 
 	ld2 	{v16.8h, v17.8h}, [x1], #32
 	ld2 	{v18.8h, v19.8h}, [x1], #32
@@ -88,10 +91,12 @@ kyber_poly_tobytes_armv8:
 	st3		{v11.16b, v12.16b, v13.16b}, [x0], #48
 	st3		{v14.16b, v15.16b, v16.16b}, [x0], #48
 
-    ret
-    
-.global kyber_poly_frombytes_armv8
-kyber_poly_frombytes_armv8:
+	RET
+SYM_FUNC_END(kyber_poly_tobytes_armv8)
+
+SYM_FUNC_START(kyber_poly_frombytes_armv8)
+SYM_FUNC_ENTER(kyber_poly_frombytes_armv8)
+.align	4
 	mov w4, 0xFFF
   	mov v0.h[0], w4
   	dup v0.8h, v0.h[0]
@@ -134,4 +139,5 @@ kyber_poly_frombytes_armv8:
 	st2	{v13.8h, v14.8h}, [x0], #32
 	st2	{v15.8h, v16.8h}, [x0], #32
 
-	ret
+	RET
+SYM_FUNC_END(kyber_poly_frombytes_armv8)

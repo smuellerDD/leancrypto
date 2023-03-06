@@ -1,3 +1,11 @@
+Changes 0.5.3:
+
+* convert to safe min/max implementations
+
+* enhancement: allow kernel modules to be compiled directly from installed user space headers
+
+* enhancement: make ASMv8 code compile on macOS
+
 Changes 0.5.2
 * enhancement: add ARMv7 Neon assembler support for Keccak
 
