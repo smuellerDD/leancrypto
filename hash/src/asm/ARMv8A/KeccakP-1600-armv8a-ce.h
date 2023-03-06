@@ -159,7 +159,7 @@ keccak_arm_asm_squeeze_internal(void *_state, uint8_t *digest,
 		size_t todo = blocksize - ctx->offset;
 
 		/* Limit the data to be squeezed by the requested amount. */
-		todo = min_t(size_t, digest_len, todo);
+		todo = min_size(digest_len, todo);
 
 		digest_len -= todo;
 
