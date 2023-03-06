@@ -29,7 +29,7 @@ static inline ssize_t __getentropy(uint8_t *buffer, size_t bufferlen)
 		return -EINVAL;
 
 	while (bufferlen) {
-		size_t todo = min_t(size_t, bufferlen, 256);
+		size_t todo = min_size(bufferlen, 256);
 
 		ret = getentropy(buffer, todo);
 		if (ret < 0)
