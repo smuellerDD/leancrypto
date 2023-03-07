@@ -322,6 +322,8 @@ endif
 
 # Generic ARM assembler and ARM CE support
 ifdef CONFIG_ARM64
+asflags-$(CONFIG_LEANCRYPTO_SHA3)					       \
+				+= -I$(PWD)/../internal/api -DLINUX_KERNEL
 leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
 				+= ../hash/src/sha3_arm_asm.o		       \
 				   ../hash/src/sha3_arm_ce.o		       \
