@@ -45,7 +45,7 @@ elif (arm64_neon_gcc_asm or arm64_asm)
 	endif
 elif (arm32_neon_gcc_asm and c_compiler.check_header('sys/auxv.h'))
 	src += files([ 'cpufeatures_arm32.c' ])
-elif (riscv32_gcc_asm or riscv64_gcc_asm)
+elif (riscv or riscv32_gcc_asm or riscv64_gcc_asm)
 	src += files([ 'cpufeatures_riscv.c' ])
 else
 	src += files([ 'cpufeatures_none.c' ])

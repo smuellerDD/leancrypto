@@ -216,6 +216,7 @@ x86_64_asm = false
 arm32_neon_gcc_asm = false
 arm64_neon_gcc_asm = false
 arm64_asm = false
+riscv = false
 riscv32_gcc_asm = false
 riscv64_gcc_asm = false
 
@@ -256,20 +257,25 @@ elif (host_machine.cpu_family() == 'aarch64')
 		#add_global_arguments([ '-DLC_HASH_COMMON_ALIGNMENT=64' ], language: 'c')
 	endif
 
-elif (host_machine.cpu_family() == 'riscv' and
-      c_compiler.get_id() == 'gcc')
-
-	# RISC-V and GCC
-	# riscv32_gcc_asm = true
-	# Disable implementation as it currently is not tested
-	riscv32_gcc_asm = false
-
-elif (host_machine.cpu_family() == 'riscv64' and
-      c_compiler.get_id() == 'gcc')
-
-	# RISC-V and GCC
-	# Current code is not 64-bit ready
-	riscv64_gcc_asm = true
+# The specific C code for RISCV is slower by a factor of more than 2
+# elif (host_machine.cpu_family() == 'riscv')
+# 	riscv = true
+# elif (host_machine.cpu_family() == 'riscv64')
+# 	riscv = true
+# elif (host_machine.cpu_family() == 'riscv' and
+#       c_compiler.get_id() == 'gcc')
+#
+# 	# RISC-V and GCC
+# 	# riscv32_gcc_asm = true
+# 	# Disable implementation as it currently is not tested
+# 	riscv32_gcc_asm = false
+#
+# elif (host_machine.cpu_family() == 'riscv64' and
+#       c_compiler.get_id() == 'gcc')
+#
+# 	# RISC-V and GCC
+# 	# Current code is not 64-bit ready
+# 	riscv64_gcc_asm = true
 endif
 
 ################################################################################
