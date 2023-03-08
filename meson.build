@@ -217,6 +217,7 @@ arm32_neon_gcc_asm = false
 arm64_neon_gcc_asm = false
 arm64_asm = false
 riscv32_gcc_asm = false
+riscv64_gcc_asm = false
 
 # Enable x86_64 assembler code only on x86 (naturally) and with the presence of
 # the GNU assembler - the LLVM assembler on MacOS does not work!
@@ -237,7 +238,7 @@ if (host_machine.cpu_family() == 'arm' and
 	arm32_neon_gcc_asm = true
 
 	# Alignment ARM 32 bits: 32 bytes as required by NEON on ARMv7
-	add_global_arguments([ '-DLC_HASH_COMMON_ALIGNMENT=64' ], language: 'c')
+	add_global_arguments([ '-DLC_HASH_COMMON_ALIGNMENT=32' ], language: 'c')
 
 elif (host_machine.cpu_family() == 'aarch64')
 
@@ -258,10 +259,17 @@ elif (host_machine.cpu_family() == 'aarch64')
 elif (host_machine.cpu_family() == 'riscv' and
       c_compiler.get_id() == 'gcc')
 
-      # RISC-V and GCC
-      # riscv32_gcc_asm = true
-      # Disable implementation as it currently is not tested
-      riscv32_gcc_asm = false
+	# RISC-V and GCC
+	# riscv32_gcc_asm = true
+	# Disable implementation as it currently is not tested
+	riscv32_gcc_asm = false
+
+elif (host_machine.cpu_family() == 'riscv64' and
+      c_compiler.get_id() == 'gcc')
+
+	# RISC-V and GCC
+	# Current code is not 64-bit ready
+	riscv64_gcc_asm = true
 endif
 
 ################################################################################
