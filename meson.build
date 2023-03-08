@@ -14,7 +14,7 @@ project('leancrypto', 'c',
 	version: '0.5.3',
 	default_options: [
 		'warning_level=3',
-		'optimization=s',
+		'optimization=3',
 		'strip=true',
 		'b_lto=true',
 		'b_staticpic=true',

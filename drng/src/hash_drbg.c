@@ -22,6 +22,7 @@
 #include "bitshift_be.h"
 #include "compare.h"
 #include "lc_hash_drbg.h"
+#include "math_helper.h"
 #include "visibility.h"
 
 static void drbg_hash_selftest(int *tested, const char *impl)
@@ -175,6 +176,9 @@ static void drbg_hash_df(struct lc_drbg_hash_state *drbg,
 	unsigned char *tmp = drbg->scratchpad + LC_DRBG_HASH_STATELEN;
 	struct lc_drbg_string data;
 
+	if (!outval || !tmp)
+		return;
+
 	/* 10.3.1 step 3 */
 	input[0] = 1;
 	/* Cast is appropriate as outlen is never larger than 2^16. */
@@ -186,14 +190,13 @@ static void drbg_hash_df(struct lc_drbg_hash_state *drbg,
 
 	/* 10.4.1 step 4 */
 	while (len < outlen) {
-		size_t blocklen = 0;
+		size_t blocklen = min_size(LC_DRBG_HASH_BLOCKLEN,
+					   (outlen - len));
 
 		/* 10.3.1 step 4.1 */
 		drbg_hash(drbg, tmp, &data);
 		/* 10.3.1 step 4.2 */
 		input[0]++;
-		blocklen = (LC_DRBG_HASH_BLOCKLEN < (outlen - len)) ?
-			    LC_DRBG_HASH_BLOCKLEN : (outlen - len);
 		memcpy(outval + len, tmp, blocklen);
 		len += blocklen;
 	}
