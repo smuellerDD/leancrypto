@@ -83,7 +83,7 @@ LC_CONSTRUCTOR(sha3_fastest_impl)
 		LC_FILL_DFLT_IMPL(arm_neon)
 	} else if (feat & LC_CPU_FEATURE_ARM) {
 		LC_FILL_DFLT_IMPL(arm_asm)
-	} else if (feat ^ LC_CPU_FEATURE_RISCV_ASM) {
+	} else if (feat & LC_CPU_FEATURE_RISCV_ASM) {
 		LC_FILL_DFLT_IMPL(riscv_asm)
 	} else {
 		/* do nothing as the C definitions are used automatically */

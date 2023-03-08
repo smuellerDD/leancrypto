@@ -17,7 +17,7 @@
  * DAMAGE.
  */
 
-#include "asm/riscv/keccakf1600.h"
+#include "asm/riscv32/keccakf1600.h"
 
 #include "keccak_asm_glue.h"
 #include "sha3_riscv_asm.h"
@@ -119,12 +119,12 @@ keccakf1600_permute(void *state)
 {
 	uint32_t *lanes = state;
 
-	keccakf1600(lanes);
+	lc_keccakf1600_riscv(lanes);
 }
 
 static inline void
 keccakf1600_extract_bytes(const void *state, unsigned char *digest,
-			  unsigned int offset, unsigned int length)
+			  size_t offset, size_t length)
 {
 	size_t i, word, byte;
 	const uint32_t *lanes = state;
