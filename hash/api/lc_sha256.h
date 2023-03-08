@@ -43,7 +43,7 @@ struct lc_sha256_state {
 extern const struct lc_hash *lc_sha256;
 
 #define LC_SHA256_CTX(name)						       \
-	LC_HASH_CTX(name, lc_sha256);					       \
+	LC_HASH_SET_CTX(name, lc_sha256);				       \
 	lc_hash_zero(name)
 
 /**

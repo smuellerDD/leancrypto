@@ -95,7 +95,9 @@ keccak_arm_asm_absorb_internal(void *_state, const uint8_t *in, size_t inlen,
 	if (inlen >= blocksize) {
 		size_t inlen2 = inlen;
 
+		LC_NEON_ENABLE;
 		inlen = absorb(ctx->state, in, inlen, blocksize);
+		LC_NEON_DISABLE;
 		in += inlen2 - inlen;
 
 	}

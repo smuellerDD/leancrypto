@@ -43,7 +43,7 @@ struct lc_sha512_state {
 extern const struct lc_hash *lc_sha512;
 
 #define LC_SHA512_CTX(name)						       \
-	LC_HASH_CTX(name, lc_sha512);					       \
+	LC_HASH_SET_CTX(name, lc_sha512);				       \
 	lc_hash_zero(name)
 
 /**

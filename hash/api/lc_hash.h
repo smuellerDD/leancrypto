@@ -60,11 +60,6 @@ struct lc_hash_ctx {
 #define LC_ALIGN_HASH_MASK(p)						       \
 	LC_ALIGN_PTR_64(p, LC_ALIGNMENT_MASK(LC_HASH_COMMON_ALIGNMENT))
 
-#define LC_HASH_CTX(name, cb)						       \
-	name->hash = cb;						       \
-	name->hash_state = LC_ALIGN_HASH_MASK(((uint8_t *)(name)) +	       \
-					      (sizeof(struct lc_hash_ctx)))
-
 #define LC_SHA_MAX_SIZE_DIGEST	64
 
 /*

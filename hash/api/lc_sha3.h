@@ -29,7 +29,7 @@ extern "C"
 
 #define LC_SHA3_SIZE_BLOCK(bits)	((1600 - 2 * bits) >> 3)
 #define LC_SHA3_STATE_WORDS		25
-#define LC_SHA3_STATE_SIZE		(SHA3_STATE_WORDS * sizeof(uint64_t))
+#define LC_SHA3_STATE_SIZE		(LC_SHA3_STATE_WORDS * sizeof(uint64_t))
 
 /********************************** SHA3-224 **********************************/
 #define LC_SHA3_224_SIZE_DIGEST_BITS	224
@@ -52,11 +52,11 @@ struct lc_sha3_224_state {
 };
 
 #define LC_SHA3_224_STATE_SIZE		(sizeof(struct lc_sha3_224_state))
-#define LC_SHA3_224_CTX_SIZE		(sizeof(struct lc_hash) +	       \
+#define LC_SHA3_224_CTX_SIZE		(sizeof(struct lc_hash_ctx) +	       \
 					 LC_SHA3_224_STATE_SIZE)
 
 #define LC_SHA3_224_CTX(name)						       \
-	LC_HASH_CTX(name, lc_sha3_224);					       \
+	LC_HASH_SET_CTX(name, lc_sha3_224);				       \
 	lc_hash_zero(name)
 
 /**
@@ -99,7 +99,7 @@ struct lc_sha3_256_state {
 					 LC_SHA3_256_STATE_SIZE)
 
 #define LC_SHA3_256_CTX(name)						       \
-	LC_HASH_CTX(name, lc_sha3_256);					       \
+	LC_HASH_SET_CTX(name, lc_sha3_256);				       \
 	lc_hash_zero(name)
 
 /**
@@ -142,7 +142,7 @@ struct lc_sha3_384_state {
 					 LC_SHA3_384_STATE_SIZE)
 
 #define LC_SHA3_384_CTX(name)						       \
-	LC_HASH_CTX(name, lc_sha3_384);					       \
+	LC_HASH_SET_CTX(name, lc_sha3_384);				       \
 	lc_hash_zero(name)
 
 /**
@@ -185,7 +185,7 @@ struct lc_sha3_512_state {
 					 LC_SHA3_512_STATE_SIZE)
 
 #define LC_SHA3_512_CTX(name)						       \
-	LC_HASH_CTX(name, lc_sha3_512);					       \
+	LC_HASH_SET_CTX(name, lc_sha3_512);				       \
 	lc_hash_zero(name)
 
 /**
@@ -227,7 +227,7 @@ struct lc_shake_128_state {
 					 LC_SHAKE_128_STATE_SIZE)
 
 #define LC_SHAKE_128_CTX(name)						       \
-	LC_HASH_CTX(name, lc_shake128);					       \
+	LC_HASH_SET_CTX(name, lc_shake128);				       \
 	lc_hash_zero(name)
 
 /**
@@ -253,7 +253,7 @@ extern const struct lc_hash *lc_shake256;
 #define LC_SHAKE_256_CTX_SIZE		LC_SHA3_256_CTX_SIZE
 
 #define LC_SHAKE_256_CTX(name)						       \
-	LC_HASH_CTX(name, lc_shake256);					       \
+	LC_HASH_SET_CTX(name, lc_shake256);				       \
 	lc_hash_zero(name)
 
 /**
@@ -275,7 +275,7 @@ extern const struct lc_hash *lc_shake256;
 extern const struct lc_hash *lc_cshake256;
 
 #define LC_CSHAKE_256_CTX(name)						       \
-	LC_HASH_CTX(name, lc_cshake256);				       \
+	LC_HASH_SET_CTX(name, lc_cshake256);				       \
 	lc_hash_zero(name)
 
 /**
@@ -297,7 +297,7 @@ extern const struct lc_hash *lc_cshake256;
 extern const struct lc_hash *lc_cshake128;
 
 #define LC_CSHAKE_128_CTX(name)						       \
-	LC_HASH_CTX(name, lc_cshake128);				       \
+	LC_HASH_SET_CTX(name, lc_cshake128);				       \
 	lc_hash_zero(name)
 
 /**
