@@ -4,7 +4,9 @@ Changes 0.5.3:
 
 * enhancement: allow kernel modules to be compiled directly from installed user space headers
 
-* enhancement: make ASMv8 code compile on macOS
+* enhancement: make ARMv8 code compile on macOS
+
+- use O3 compiler optimization instead of Os - O3 is significantly faster especially for Kyber C implementation, yet both options work fine
 
 Changes 0.5.2
 * enhancement: add ARMv7 Neon assembler support for Keccak
