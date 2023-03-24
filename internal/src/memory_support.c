@@ -33,6 +33,26 @@ int, lc_alloc_aligned, void **memptr, size_t alignment, size_t size)
 }
 
 LC_INTERFACE_FUNCTION(
+int, lc_alloc_aligned_secure, void **memptr, size_t alignment, size_t size)
+{
+	int ret = lc_alloc_aligned(memptr, alignment, size);
+
+	if (ret)
+		return ret;
+
+	/* prevent paging out of the memory state to swap space */
+	ret = mlock(out_ctx, sizeof(*out_ctx));
+	if (ret && errno != EPERM && errno != EAGAIN) {
+		int errsv = errno;
+
+		lc_free(out_ctx);
+		return -errsv;
+	}
+
+	return 0;
+}
+
+LC_INTERFACE_FUNCTION(
 int, lc_alloc_high_aligned, void **memptr, size_t alignment, size_t size)
 {
 	return lc_alloc_aligned(memptr, alignment, size);

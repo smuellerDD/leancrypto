@@ -277,19 +277,11 @@ int, lc_hkdf_rng_alloc, struct lc_rng_ctx **state, const struct lc_hash *hash)
 	if (!state)
 		return -EINVAL;
 
-	ret = lc_alloc_aligned((void *)&out_state, LC_HASH_COMMON_ALIGNMENT,
-			       LC_HKDF_DRNG_CTX_SIZE(hash));
+	ret = lc_alloc_aligned_secure((void *)&out_state,
+				      LC_HASH_COMMON_ALIGNMENT,
+				      LC_HKDF_DRNG_CTX_SIZE(hash));
 	if (ret)
 		return -ret;
-
-	/* prevent paging out of the memory state to swap space */
-	ret = mlock(out_state, sizeof(*out_state));
-	if (ret && errno != EPERM && errno != EAGAIN) {
-		int errsv = errno;
-
-		lc_free(out_state);
-		return -errsv;
-	}
 
 	LC_HKDF_RNG_CTX(out_state, hash);
 

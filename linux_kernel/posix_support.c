@@ -62,3 +62,9 @@ void lc_free_high_aligned(void *ptr, size_t size)
 	__free_pages(virt_to_page(ptr), get_order((unsigned long)size));
 }
 EXPORT_SYMBOL(lc_free_high_aligned);
+
+int lc_alloc_aligned_secure(void **memptr, size_t alignment, size_t size)
+{
+	return lc_alloc_aligned(memptr, alignment, size);
+}
+EXPORT_SYMBOL(lc_alloc_aligned_secure);

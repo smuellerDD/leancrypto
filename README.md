@@ -197,6 +197,17 @@ Using ASAN address testing with the help of meson, no issues were identified.
 Using the clan-scan tool with the command `ninja -C build/ scan-build` shows no
 issues.
 
+## Linux Hints
+
+Linux offers the `memfd_secret(2)` system call which would be used by
+`leancrypto` for secure memory allocation, if it is available. This system call,
+however, is only available when the kernel is booted with `securemem.enable=1`.
+With this option enabled, according to the kernel documentation suspend is
+disabled as long as one or more memory with `memfd_secret` is in use.
+
+If the `memfd_secret` is not available, `leancrypto` will use `mlock` to
+protect memory with sensitive data.
+
 ## ACVP Testing
 
 ACVP certificate: A770

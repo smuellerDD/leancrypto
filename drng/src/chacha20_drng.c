@@ -220,19 +220,11 @@ int, lc_cc20_drng_alloc, struct lc_chacha20_drng_ctx **cc20_ctx)
 	if (!cc20_ctx)
 		return -EINVAL;
 
-	ret = lc_alloc_aligned((void *)&out_ctx, LC_SYM_ALIGNMENT(lc_chacha20),
-			       LC_CC20_DRNG_CTX_SIZE);
+	ret = lc_alloc_aligned_secure((void *)&out_ctx,
+				      LC_SYM_ALIGNMENT(lc_chacha20),
+				      LC_CC20_DRNG_CTX_SIZE);
 	if (ret)
 		return -ret;
-
-	/* prevent paging out of the memory state to swap space */
-	ret = mlock(out_ctx, sizeof(*out_ctx));
-	if (ret && errno != EPERM && errno != EAGAIN) {
-		int errsv = errno;
-
-		lc_free(out_ctx);
-		return -errsv;
-	}
 
 	LC_CC20_DRNG_SET_CTX(out_ctx);
 	lc_cc20_drng_zero(out_ctx);

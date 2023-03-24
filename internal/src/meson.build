@@ -3,10 +3,15 @@ internal_src = files([
 	'binhexbin.c',
 	'compare.c',
 	'left_encode.c',
-	'memory_support.c',
 	'null_buffer.c',
 	'status.c'
 ])
+
+if (host_machine.system() == 'linux')
+	internal_src += files([ 'memory_support_linux.c' ])
+else
+	internal_src += files([ 'memory_support.c' ])
+endif
 
 if (x86_64_asm)
 	memcmp_secure_avx2 = files([ 'memcmp_secure_avx2.c' ])

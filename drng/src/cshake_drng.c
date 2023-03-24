@@ -490,19 +490,11 @@ int, lc_cshake256_drng_alloc, struct lc_rng_ctx **state)
 	if (!state)
 		return -EINVAL;
 
-	ret = lc_alloc_aligned((void *)&out_state, LC_HASH_COMMON_ALIGNMENT,
-			       LC_CSHAKE256_DRNG_CTX_SIZE);
+	ret = lc_alloc_aligned_secure((void *)&out_state,
+				      LC_HASH_COMMON_ALIGNMENT,
+				      LC_CSHAKE256_DRNG_CTX_SIZE);
 	if (ret)
 		return -ret;
-
-	/* prevent paging out of the memory state to swap space */
-	ret = mlock(out_state, sizeof(*out_state));
-	if (ret && errno != EPERM && errno != EAGAIN) {
-		int errsv = errno;
-
-		lc_free(out_state);
-		return -errsv;
-	}
 
 	LC_CSHAKE256_RNG_CTX(out_state);
 

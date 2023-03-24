@@ -50,6 +50,7 @@ extern const int errno;
 
 #include <assert.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <limits.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -57,7 +58,9 @@ extern const int errno;
 #include <stdio.h>
 #include <string.h>
 #include <sys/mman.h>
+#include <sys/syscall.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #endif /* LINUX_KERNEL */
 

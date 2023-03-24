@@ -87,6 +87,16 @@ extern "C"
 int lc_alloc_aligned(void **memptr, size_t alignment, size_t size);
 
 /**
+ * @brief allocate aligned memory up to 8 bytes alignment with additional
+ *	  security precautions
+ *
+ * @param memptr [out] pointer to the newly allocated memory
+ * @param alignment [in] alignment of the memory
+ * @param size [in] size of the memory buffer
+ */
+int lc_alloc_aligned_secure(void **memptr, size_t alignment, size_t size);
+
+/**
  * @brief allocate aligned memory with arbitrary alignment
  *
  * @param memptr [out] pointer to the newly allocated memory
