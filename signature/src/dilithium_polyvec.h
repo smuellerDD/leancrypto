@@ -52,9 +52,9 @@ typedef struct {
  *	  resulting vector by 2^{-32} and add (accumulate) polynomials
  *	  in it. Input/output vectors are in NTT domain representation.
  *
- * @param w [out] output polynomial
- * @param u [in] pointer to first input vector
- * @param v [in] pointer to second input vector
+ * @param [out] w output polynomial
+ * @param [in] u pointer to first input vector
+ * @param [in] v pointer to second input vector
  */
 static inline void
 polyvecl_pointwise_acc_montgomery(poly *w,
@@ -78,8 +78,8 @@ polyvecl_pointwise_acc_montgomery(poly *w,
  *		       rejection sampling on the output stream of
  *		       SHAKE128(rho|j|i).
  *
- * @param mat [out] output matrix
- * @param rho [in] byte array containing seed rho
+ * @param [out] mat output matrix
+ * @param [in] rho byte array containing seed rho
  */
 static inline void
 polyvec_matrix_expand(polyvecl mat[LC_DILITHIUM_K],
@@ -148,9 +148,9 @@ polyvecl_reduce(polyvecl *v)
  * @brief polyvecl_add - Add vectors of polynomials of length L.
  *			 No modular reduction is performed.
  *
- * @param w [out] pointer to output vector
- * @param u [in] pointer to first summand
- * @param v [in] pointer to second summand
+ * @param [out] w pointer to output vector
+ * @param [in] u pointer to first summand
+ * @param [in] v pointer to second summand
  */
 static inline void
 polyvecl_add(polyvecl *w, const polyvecl *u, const polyvecl *v)
@@ -199,7 +199,7 @@ polyvecl_pointwise_poly_montgomery(polyvecl *r,
  *			     length L. Assumes input polyvecl to be reduced by
  *			     polyvecl_reduce().
  *
- * @param v [in] pointer to vector
+ * @param [in] v pointer to vector
  * @param B [int] norm bound
  *
  * @return 0 if norm of all polynomials is strictly smaller than B <= (Q-1)/8
@@ -265,9 +265,9 @@ static inline void polyveck_caddq(polyveck *v)
  * @brief polyveck_add - Add vectors of polynomials of length LC_DILITHIUM_K.
  *			 No modular reduction is performed.
  *
- * @param w [out] pointer to output vector
- * @param u [in] pointer to first summand
- * @param v [in] pointer to second summand
+ * @param [out] w pointer to output vector
+ * @param [in] u pointer to first summand
+ * @param [in] v pointer to second summand
  */
 static inline void
 polyveck_add(polyveck *w, const polyveck *u, const polyveck *v)
@@ -282,9 +282,9 @@ polyveck_add(polyveck *w, const polyveck *u, const polyveck *v)
  * @brief olyveck_sub - Subtract vectors of polynomials of length
  *			LC_DILITHIUM_K. No modular reduction is performed.
  *
- * @param w [out] pointer to output vector
- * @param u [in] pointer to first input vector
- * @param v [in] pointer to second input vector to be subtracted from first
+ * @param [out] w pointer to output vector
+ * @param [in] u pointer to first input vector
+ * @param [in] v pointer to second input vector to be subtracted from first
  *		 input vector
  */
 static inline void
@@ -357,8 +357,8 @@ polyveck_pointwise_poly_montgomery(polyveck *r,
  *			     length K. Assumes input polyveck to be reduced by
  *			     polyveck_reduce().
  *
- * @param v [in] pointer to vector
- * @param B [in] norm bound
+ * @param [in] v pointer to vector
+ * @param [in] B norm bound
  *
  * @return 0 if norm of all polynomials are strictly smaller than B <= (Q-1)/8
  * and 1 otherwise.
@@ -381,9 +381,9 @@ static inline int polyveck_chknorm(const polyveck *v, int32_t bound)
  *				 -2^{D-1} < a0 <= 2^{D-1}. Assumes coefficients
  *				 to be standard representatives.
  *
- * @param v1 [out] pointer to output vector of polynomials with coefficients a1
- * @param v0 [in] pointer to output vector of polynomials with coefficients a0
- * @param v [in] pointer to input vector
+ * @param [out] v1 pointer to output vector of polynomials with coefficients a1
+ * @param [in] v0 pointer to output vector of polynomials with coefficients a0
+ * @param [in] v pointer to input vector
  */
 static inline void
 polyveck_power2round(polyveck *v1, polyveck *v0, const polyveck *v)
@@ -403,9 +403,9 @@ polyveck_power2round(polyveck *v1, polyveck *v0, const polyveck *v)
  *			       -ALPHA/2 <= a0 = a mod Q - Q < 0. Assumes
  *			       coefficients to be standard representatives.
  *
- * @param v1 [out] pointer to output vector of polynomials with coefficients a1
- * @param v0 [in] pointer to output vector of polynomials with coefficients a0
- * @param v [in] pointer to input vector
+ * @param [out] v1 pointer to output vector of polynomials with coefficients a1
+ * @param [in] v0 pointer to output vector of polynomials with coefficients a0
+ * @param [in] v pointer to input vector
  */
 static inline void
 polyveck_decompose(polyveck *v1, polyveck *v0, const polyveck *v)
@@ -419,9 +419,9 @@ polyveck_decompose(polyveck *v1, polyveck *v0, const polyveck *v)
 /**
  * @brief polyveck_make_hint - Compute hint vector.
  *
- * @param h [out] pointer to output vector
- * @param v0 [in] pointer to low part of input vector
- * @param v1 [in] pointer to high part of input vector
+ * @param [out] h pointer to output vector
+ * @param [in] v0 pointer to low part of input vector
+ * @param [in] v1 pointer to high part of input vector
  *
  * @return number of 1 bits.
  */
@@ -440,10 +440,10 @@ polyveck_make_hint(polyveck *h, const polyveck *v0, const polyveck *v1)
  * @brief polyveck_use_hint - Use hint vector to correct the high bits of input
  *			      vector.
  *
- * @param w [out] pointer to output vector of polynomials with corrected high
+ * @param [out] w pointer to output vector of polynomials with corrected high
  *		  bits
- * @param u [in] pointer to input vector
- * @param h [in] pointer to input hint vector
+ * @param [in] u pointer to input vector
+ * @param [in] h pointer to input hint vector
  */
 static inline void
 polyveck_use_hint(polyveck *w, const polyveck *u, const polyveck *h)

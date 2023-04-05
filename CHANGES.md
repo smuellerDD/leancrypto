@@ -1,3 +1,9 @@
+Changes 0.5.4-prerelease:
+
+* enhancement: Linux - add memfd_secret(2) support for secure memory allocation
+
+* fix: documentation of lc_kyber_keypair
+
 Changes 0.5.3:
 
 * convert to safe min/max implementations

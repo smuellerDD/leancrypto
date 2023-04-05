@@ -34,8 +34,8 @@ extern const struct lc_sym *lc_chacha20;
  *
  * Block operation from the ChaCah20 state
  *
- * @param state [in] ChaCha20 state from which to derive the block output
- * @param stream [out] ChaCha20 key stream output
+ * @param [in] state ChaCha20 state from which to derive the block output
+ * @param [out] stream ChaCha20 key stream output
  */
 void cc20_block(struct lc_sym_state *state, uint32_t *stream);
 

@@ -75,9 +75,9 @@ extern const struct lc_aead *lc_cshake_aead;
  *
  * NOTE: This is defined for lc_cshake256 as of now.
  *
- * @param hash [in] Hash implementation of type struct hash used for the HMAC
+ * @param [in] hash Hash implementation of type struct hash used for the HMAC
  *		    authentication
- * @param ctx [out] Allocated cSHAKE cryptor context
+ * @param [out] ctx Allocated cSHAKE cryptor context
  *
  * @return 0 on success, < 0 on error
  */
@@ -88,8 +88,8 @@ int lc_cc_alloc(const struct lc_hash *hash, struct lc_aead_ctx **ctx);
  *
  * NOTE: This is defined for lc_cshake256 as of now.
  *
- * @param name [in] Name of the stack variable
- * @param hash [in] Hash implementation of type struct hash used for the cSHAKE
+ * @param [in] name Name of the stack variable
+ * @param [in] hash Hash implementation of type struct hash used for the cSHAKE
  *		    authentication
  */
 #define LC_CC_CTX_ON_STACK(name, hash)					       \

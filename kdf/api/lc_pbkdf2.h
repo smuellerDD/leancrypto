@@ -31,17 +31,17 @@ extern "C"
 /**
  * @brief Password-based Key Derivation Function - SP800-132
  *
- * @param hash [in] Hash implementation to use for the PBKDF2 operation - this
+ * @param [in] hash Hash implementation to use for the PBKDF2 operation - this
  *		    hash implementation is used for the HMAC calls.
- * @param pw [in] Password from which to derive the key
- * @param pwlen [in] Length of the password buffer
- * @param salt [in] Optional salt value, may be NULL
- * @param saltlen [in] Length of the salt value
- * @param count [in] Number of iterations that shall be performed to derive the
+ * @param [in] pw Password from which to derive the key
+ * @param [in] pwlen Length of the password buffer
+ * @param [in] salt Optional salt value, may be NULL
+ * @param [in] saltlen Length of the salt value
+ * @param [in] count Number of iterations that shall be performed to derive the
  *		     key.
- * @param key [out] Buffer that is filled with the derived key. This buffer
+ * @param [out] key Buffer that is filled with the derived key. This buffer
  *		    with the size of keylen must be allocated by the caller.
- * @param keylen [in] Length of the key that shall be derived.
+ * @param [in] keylen Length of the key that shall be derived.
  *
  * @return 0 on success, < 0 on error
  */

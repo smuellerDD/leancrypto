@@ -29,10 +29,10 @@ extern "C"
  * @brief rej_uniform - Sample uniformly random coefficients in [0, Q-1] by
  *			performing rejection sampling on array of random bytes.
  *
- * @param a [out] pointer to output array (allocated)
- * @param len [in] number of coefficients to be sampled
- * @param buf [in] array of random bytes
- * @param buflen [in] length of array of random bytes
+ * @param [out] a pointer to output array (allocated)
+ * @param [in] len number of coefficients to be sampled
+ * @param [in] buf array of random bytes
+ * @param [in] buflen length of array of random bytes
  *
  * @return number of sampled coefficients. Can be smaller than len if not enough
  * random bytes were given.
@@ -63,10 +63,10 @@ static inline unsigned int rej_uniform(int32_t *a,
  * @brief rej_eta - Sample uniformly random coefficients in [-ETA, ETA] by
  *		    performing rejection sampling on array of random bytes.
  *
- * @param a [out] pointer to output array (allocated)
- * @param len [in] number of coefficients to be sampled
- * @param buf [in] array of random bytes
- * @param buflen [in] length of array of random bytes
+ * @param [out] a pointer to output array (allocated)
+ * @param [in] len number of coefficients to be sampled
+ * @param [in] buf array of random bytes
+ * @param [in] buflen length of array of random bytes
  *
  * @return number of sampled coefficients. Can be smaller than len if not enough
  * random bytes were given.

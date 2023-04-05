@@ -81,7 +81,7 @@ struct lc_aead_ctx {
 /**
  * @brief Zeroize AEAD context
  *
- * @param ctx [in] AEAD context to be zeroized
+ * @param [in] ctx AEAD context to be zeroized
  */
 static inline void lc_aead_zero(struct lc_aead_ctx *ctx)
 {
@@ -103,7 +103,7 @@ static inline void lc_aead_zero(struct lc_aead_ctx *ctx)
 /**
  * @brief Zeroize and free AEAD context
  *
- * @param ctx [in] AEAD context to be zeroized and freed
+ * @param [in] ctx AEAD context to be zeroized and freed
  */
 static inline void lc_aead_zero_free(struct lc_aead_ctx *ctx)
 {
@@ -117,11 +117,11 @@ static inline void lc_aead_zero_free(struct lc_aead_ctx *ctx)
 /**
  * @brief Set the key for the AEAD encyption or decryption operation
  *
- * @param ctx [in] AEAD context handle
- * @param key [in] Buffer with key
- * @param keylen [in] Length of key buffer
- * @param iv [in] initialization vector to be used
- * @param ivlen [in] length of initialization vector
+ * @param [in] ctx AEAD context handle
+ * @param [in] key Buffer with key
+ * @param [in] keylen Length of key buffer
+ * @param [in] iv initialization vector to be used
+ * @param [in] ivlen length of initialization vector
  *
  * The algorithm supports a key of arbitrary size. The only requirement is that
  * the same key is used for decryption as for encryption.
@@ -151,18 +151,18 @@ lc_aead_setkey(struct lc_aead_ctx *ctx,
 /**
  * @brief AEAD-encrypt data
  *
- * @param ctx [in] AEAD context handle with key set / IV
- * @param plaintext [in] Plaintext data to be encrypted
- * @param ciphertext [out] Ciphertext data buffer to be filled
- * @param datalen [in] Length of the plaintext and ciphertext data buffers
+ * @param [in] ctx AEAD context handle with key set / IV
+ * @param [in] plaintext Plaintext data to be encrypted
+ * @param [out] ciphertext Ciphertext data buffer to be filled
+ * @param [in] datalen Length of the plaintext and ciphertext data buffers
  *		       NOTE: the encryption operation is symmetric and
  *			     generates as much output as input.
- * @param aad [in] Additional authenticate data to be processed - this is data
+ * @param [in] aad Additional authenticate data to be processed - this is data
  *		   which is not encrypted, but considered as part of the
  *		   authentication.
- * @param aadlen [in] Length of the AAD buffer
- * @param tag [out] Buffer to be filled with tag
- * @param taglen [in] Length of tag buffer. The full tag size hc_get_tagsize().
+ * @param [in] aadlen Length of the AAD buffer
+ * @param [out] tag Buffer to be filled with tag
+ * @param [in] taglen Length of tag buffer. The full tag size hc_get_tagsize().
  *		      If the buffer is smaller, a truncated tag value is
  *		      returned.
  */
@@ -195,10 +195,10 @@ lc_aead_encrypt(struct lc_aead_ctx *ctx,
  * NOTE: This operation can be invoked multiple times and must be completed
  * with a call to lc_aead_enc_final.
  *
- * @param ctx [in] AEAD context handle with key set / IV
- * @param plaintext [in] Plaintext data to be encrypted
- * @param ciphertext [out] Ciphertext data buffer to be filled
- * @param datalen [in] Length of the plaintext and ciphertext data buffers
+ * @param [in] ctx AEAD context handle with key set / IV
+ * @param [in] plaintext Plaintext data to be encrypted
+ * @param [out] ciphertext Ciphertext data buffer to be filled
+ * @param [in] datalen Length of the plaintext and ciphertext data buffers
  *		       NOTE: the encryption operation is symmetric and
  *			     generates as much output as input.
  *
@@ -228,13 +228,13 @@ lc_aead_enc_update(struct lc_aead_ctx *ctx,
  * @brief Complete AEAD encryption - Obtain the authentication tag from the
  *	  encryption operation
  *
- * @param ctx [in] AEAD context handle with key set / IV
- * @param aad [in] Additional authenticate data to be processed - this is data
+ * @param [in] ctx AEAD context handle with key set / IV
+ * @param [in] aad Additional authenticate data to be processed - this is data
  *		   which is not encrypted, but considered as part of the
  *		   authentication.
- * @param aadlen [in] Length of the AAD buffer
- * @param tag [out] Buffer to be filled with tag
- * @param taglen [in] Length of tag buffer. The full tag size hc_get_tagsize().
+ * @param [in] aadlen Length of the AAD buffer
+ * @param [out] tag Buffer to be filled with tag
+ * @param [in] taglen Length of tag buffer. The full tag size hc_get_tagsize().
  *		      If the buffer is smaller, a truncated tag value is
  *		      returned.
  */
@@ -261,18 +261,18 @@ lc_aead_enc_final(struct lc_aead_ctx *ctx,
 /**
  * @brief AEAD-decrypt data in one call
  *
- * @param ctx [in] AEAD context handle with key set / IV
- * @param ciphertext [in] Ciphertext data to be decrypted
- * @param plaintext [out] Plaintext data buffer to be filled
- * @param datalen [in] Length of the plaintext and ciphertext data buffers
+ * @param [in] ctx AEAD context handle with key set / IV
+ * @param [in] ciphertext Ciphertext data to be decrypted
+ * @param [out] plaintext Plaintext data buffer to be filled
+ * @param [in] datalen Length of the plaintext and ciphertext data buffers
  *		       NOTE: the encryption operation is symmetric and
  *			     generates as much output as input.
- * @param aad [in] Additional authenticate data to be processed - this is data
+ * @param [in] aad Additional authenticate data to be processed - this is data
  *		   which is not decrypted, but considered as part of the
  *		   authentication.
- * @param aadlen [in] Length of the AAD buffer
- * @param tag [in] Authentication tag generated by encryption operation
- * @param taglen [in] Length of tag buffer.
+ * @param [in] aadlen Length of the AAD buffer
+ * @param [in] tag Authentication tag generated by encryption operation
+ * @param [in] taglen Length of tag buffer.
  *
  *
  * @return 0 on successful authentication, < 0 on error
@@ -307,10 +307,10 @@ lc_aead_decrypt(struct lc_aead_ctx *ctx,
  * NOTE: This operation can be invoked multiple times and must be completed
  * with a call to lc_aead_dec_final.
  *
- * @param ctx [in] AEAD context handle with key set / IV
- * @param ciphertext [in] Ciphertext data to be decrypted
- * @param plaintext [out] Plaintext data buffer to be filled
- * @param datalen [in] Length of the plaintext and ciphertext data buffers
+ * @param [in] ctx AEAD context handle with key set / IV
+ * @param [in] ciphertext Ciphertext data to be decrypted
+ * @param [out] plaintext Plaintext data buffer to be filled
+ * @param [in] datalen Length of the plaintext and ciphertext data buffers
  *		       NOTE: the encryption operation is symmetric and
  *			     generates as much output as input.
  */
@@ -337,13 +337,13 @@ lc_aead_dec_update(struct lc_aead_ctx *ctx,
 /**
  * @brief AEAD-decrypt data - Perform authentication
  *
- * @param ctx [in] AEAD context handle with key set / IV
- * @param aad [in] Additional authenticate data to be processed - this is data
+ * @param [in] ctx AEAD context handle with key set / IV
+ * @param [in] aad Additional authenticate data to be processed - this is data
  *		   which is not decrypted, but considered as part of the
  *		   authentication.
- * @param aadlen [in] Length of the AAD buffer
- * @param tag [in] Authentication tag generated by encryption operation
- * @param taglen [in] Length of tag buffer.
+ * @param [in] aadlen Length of the AAD buffer
+ * @param [in] tag Authentication tag generated by encryption operation
+ * @param [in] taglen Length of tag buffer.
  *
  *
  * @return 0 on successful authentication, < 0 on error

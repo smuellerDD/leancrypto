@@ -32,14 +32,14 @@ extern "C" {
  *
  * The TOTP algorithm uses HMAC SHA-256
  *
- * @param hmac_key [in] Seed key / HMAC key K - shared secret between client
+ * @param [in] hmac_key Seed key / HMAC key K - shared secret between client
  *			and server; each HOTP generator has a different and
  *			unique secret K.
- * @param hmac_key_len [in] Seed key / HMAC key length
- * @param step [in] Time step in seconds - to use the default value of 30
+ * @param [in] hmac_key_len Seed key / HMAC key length
+ * @param [in] step Time step in seconds - to use the default value of 30
  *		    seconds, use 30
- * @param digits [in] number of digits in a TOTP value; system parameter.
- * @param hotp_val [out] TOTP output value
+ * @param [in] digits number of digits in a TOTP value; system parameter.
+ * @param [out] hotp_val TOTP output value
  */
 int lc_totp(const uint8_t *hmac_key, size_t hmac_key_len, uint32_t step,
 	    uint32_t digits, uint32_t *totp_val);

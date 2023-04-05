@@ -63,12 +63,12 @@ struct lc_kmac_ctx {
 /**
  * @brief Initialize KMAC context
  *
- * @param kmac_ctx [in] Reference to kmac context implementation to be used to
+ * @param [in] kmac_ctx Reference to kmac context implementation to be used to
  *			perform KMAC calculation with.
- * @param key [in] MAC key of arbitrary size
- * @param klen [in] Size of the MAC key
- * @param s [in] Optional customization string - if not needed, use NULL
- * @param slen [in] Size of s
+ * @param [in] key MAC key of arbitrary size
+ * @param [in] klen Size of the MAC key
+ * @param [in] s Optional customization string - if not needed, use NULL
+ * @param [in] slen Size of s
  *
  * The caller must provide an allocated kmac_ctx. This can be achieved by
  * using KMAC_CTX_ON_STACK or by using kmac_alloc.
@@ -83,7 +83,7 @@ void lc_kmac_init(struct lc_kmac_ctx *kmac_ctx,
  * This operation allows the KMAC context to be used again with the same key
  * set during kmac_init.
  *
- * @param kmac_ctx [in] Reference to kmac context implementation to be used to
+ * @param [in] kmac_ctx Reference to kmac context implementation to be used to
  *			perform KMAC calculation with.
  */
 void lc_kmac_reinit(struct lc_kmac_ctx *kmac_ctx);
@@ -91,10 +91,10 @@ void lc_kmac_reinit(struct lc_kmac_ctx *kmac_ctx);
 /**
  * @brief Update KMAC
  *
- * @param kmac_ctx [in] Reference to kmac context implementation to be used to
+ * @param [in] kmac_ctx Reference to kmac context implementation to be used to
  *			perform KMAC calculation with.
- * @param in [in] Buffer holding the data whose MAC shall be calculated
- * @param inlen [in] Length of the input buffer
+ * @param [in] in Buffer holding the data whose MAC shall be calculated
+ * @param [in] inlen Length of the input buffer
  */
 void lc_kmac_update(struct lc_kmac_ctx *kmac_ctx,
 		    const uint8_t *in, size_t inlen);
@@ -105,11 +105,11 @@ void lc_kmac_update(struct lc_kmac_ctx *kmac_ctx,
  * If the cipher handle shall be used for a new KMAC operation with the same
  * key after this call, you MUST re-initialize the handle with kmac_reinit.
  *
- * @param kmac_ctx [in] Reference to kmac context implementation to be used to
+ * @param [in] kmac_ctx Reference to kmac context implementation to be used to
  *			perform KMAC calculation with.
- * @param mac [out] Buffer with at least the size of the message digest that
+ * @param [out] mac Buffer with at least the size of the message digest that
  *		    is returned by kmac_macsize.
- * @param maclen [in] Size of the requested MAC
+ * @param [in] maclen Size of the requested MAC
  */
 void lc_kmac_final(struct lc_kmac_ctx *kmac_ctx, uint8_t *mac, size_t maclen);
 
@@ -137,10 +137,10 @@ void lc_kmac_final(struct lc_kmac_ctx *kmac_ctx, uint8_t *mac, size_t maclen);
  * lc_kmac_final_xof(ctx, mac + 3 * LC_SHA3_256_SIZE_BLOCK + 2, 3);
  * ```
  *
- * @param kmac_ctx [in] Reference to kmac context implementation to be used to
+ * @param [in] kmac_ctx Reference to kmac context implementation to be used to
  *			perform KMAC calculation with.
- * @param mac [out] Buffer to hold the message digest
- * @param maclen [in] Size of the requested MAC
+ * @param [out] mac Buffer to hold the message digest
+ * @param [in] maclen Size of the requested MAC
  */
 void lc_kmac_final_xof(struct lc_kmac_ctx *kmac_ctx,
 		       uint8_t *mac, size_t maclen);
@@ -150,10 +150,10 @@ void lc_kmac_final_xof(struct lc_kmac_ctx *kmac_ctx,
  *
  * NOTE: This is defined for cshake256 as of now.
  *
- * @param hash [in] Reference to hash implementation to be used to perform
+ * @param [in] hash Reference to hash implementation to be used to perform
  *		    KMAC calculation with. Use cshake256!
- * @param kmac_ctx [out] Allocated KMAC context
- * @param flags [in] Zero or more of the flags defined below
+ * @param [out] kmac_ctx Allocated KMAC context
+ * @param [in] flags Zero or more of the flags defined below
  *
  * @return 0 on success, < 0 on error
  */
@@ -173,7 +173,7 @@ int lc_kmac_alloc(const struct lc_hash *hash, struct lc_kmac_ctx **kmac_ctx,
 /**
  * @brief Zeroize and free KMAC context
  *
- * @param kmac_ctx [in] KMAC context to be zeroized and freed
+ * @param [in] kmac_ctx KMAC context to be zeroized and freed
  */
 void lc_kmac_zero_free(struct lc_kmac_ctx *kmac_ctx);
 
@@ -181,7 +181,7 @@ void lc_kmac_zero_free(struct lc_kmac_ctx *kmac_ctx);
  * @brief Zeroize KMAC context allocated with either LC_KMAC_CTX_ON_STACK or
  *	  lc_kmac_alloc
  *
- * @param kmac_ctx [in] KMAC context to be zeroized
+ * @param [in] kmac_ctx KMAC context to be zeroized
  */
 static inline void lc_kmac_zero(struct lc_kmac_ctx *kmac_ctx)
 {
@@ -206,9 +206,9 @@ static inline void lc_kmac_zero(struct lc_kmac_ctx *kmac_ctx)
  *
  * This allocates the memory without re-initialization support
  *
- * @param name [in] Name of the stack variable - use lc_cshake256 or
+ * @param [in] name Name of the stack variable - use lc_cshake256 or
  *		    lc_cshake128
- * @param hashname [in] Pointer of type struct hash referencing the hash
+ * @param [in] hashname Pointer of type struct hash referencing the hash
  *			 implementation to be used
  */
 #define LC_KMAC_CTX_ON_STACK(name, hashname)				       \
@@ -228,9 +228,9 @@ static inline void lc_kmac_zero(struct lc_kmac_ctx *kmac_ctx)
  * This allocates the memory with re-initialization support.
  * See KMAC_FLAGS_SUPPORT_REINIT for the explanation about re-initialization.
  *
- * @param name [in] Name of the stack variable - use lc_cshake256 or
+ * @param [in] name Name of the stack variable - use lc_cshake256 or
  *		    lc_cshake128
- * @param hashname [in] Pointer of type struct hash referencing the hash
+ * @param [in] hashname Pointer of type struct hash referencing the hash
  *			 implementation to be used
  */
 #define LC_KMAC_CTX_ON_STACK_REINIT(name, hashname)			       \
@@ -247,7 +247,7 @@ static inline void lc_kmac_zero(struct lc_kmac_ctx *kmac_ctx)
 /**
  * @brief Return the MAC size
  *
- * @param kmac_ctx [in] KMAC context to be zeroized
+ * @param [in] kmac_ctx KMAC context to be zeroized
  *
  * @return MAC size
  */
@@ -265,16 +265,16 @@ static inline size_t lc_kmac_macsize(struct lc_kmac_ctx *kmac_ctx)
 /**
  * @brief Calculate KMAC - one-shot
  *
- * @param hash [in] Reference to hash implementation to be used to perform
+ * @param [in] hash Reference to hash implementation to be used to perform
  *		    KMAC calculation with. Use lc_cshake256 or lc_cshake128.
- * @param key [in] MAC key of arbitrary size
- * @param keylen [in] Size of the MAC key
- * @param in [in] Buffer holding the data whose MAC shall be calculated
- * @param inlen [in] Length of the input buffer
- * @param s [in] Optional customization string - if not needed, use NULL
- * @param slen [in] Size of s
- * @param mac [out] Buffer with at least the size of the message digest.
- * @param maclen [in] Size of the requested MAC
+ * @param [in] key MAC key of arbitrary size
+ * @param [in] keylen Size of the MAC key
+ * @param [in] in Buffer holding the data whose MAC shall be calculated
+ * @param [in] inlen Length of the input buffer
+ * @param [in] s Optional customization string - if not needed, use NULL
+ * @param [in] slen Size of s
+ * @param [out] mac Buffer with at least the size of the message digest.
+ * @param [in] maclen Size of the requested MAC
  *
  * The KMAC calculation operates entirely on the stack.
  */
@@ -296,16 +296,16 @@ static inline void lc_kmac(const struct lc_hash *hash,
 /**
  * @brief Calculate KMAC in XOF mode - one-shot
  *
- * @param hash [in] Reference to hash implementation to be used to perform
+ * @param [in] hash Reference to hash implementation to be used to perform
  *		    KMAC calculation with. Use lc_cshake256 or lc_cshake128.
- * @param key [in] MAC key of arbitrary size
- * @param keylen [in] Size of the MAC key
- * @param in [in] Buffer holding the data whose MAC shall be calculated
- * @param inlen [in] Length of the input buffer
- * @param s [in] Optional customization string - if not needed, use NULL
- * @param slen [in] Size of s
- * @param mac [out] Buffer with at least the size of the message digest.
- * @param maclen [in] Size of the requested MAC
+ * @param [in] key MAC key of arbitrary size
+ * @param [in] keylen Size of the MAC key
+ * @param [in] in Buffer holding the data whose MAC shall be calculated
+ * @param [in] inlen Length of the input buffer
+ * @param [in] s Optional customization string - if not needed, use NULL
+ * @param [in] slen Size of s
+ * @param [out] mac Buffer with at least the size of the message digest.
+ * @param [in] maclen Size of the requested MAC
  *
  * The KMAC calculation operates entirely on the stack.
  */
@@ -355,8 +355,8 @@ extern const struct lc_rng *lc_kmac_rng;
 /**
  * @brief Allocate stack memory for the KMAC DRNG context
  *
- * @param name [in] Name of the stack variable
- * @param hashname [in] Reference to lc_hash implementation - use lc_cshake256
+ * @param [in] name Name of the stack variable
+ * @param [in] hashname Reference to lc_hash implementation - use lc_cshake256
  *			or lc_cshake128.
  */
 #define LC_KMAC_KDF_DRNG_CTX_ON_STACK(name, hashname)			       \
@@ -373,8 +373,8 @@ extern const struct lc_rng *lc_kmac_rng;
 /**
  * @brief Allocation of a KMAC DRNG context
  *
- * @param state [out] KMAC DRNG context allocated by the function
- * @param hash [in] Reference to hash implementation to be used to perform
+ * @param [out] state KMAC DRNG context allocated by the function
+ * @param [in] hash Reference to hash implementation to be used to perform
  *		    RNG operation with. Use lc_cshake256 or lc_cshake128.
  *
  * The cipher handle including its memory is allocated with this function.

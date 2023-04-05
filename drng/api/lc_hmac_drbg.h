@@ -69,7 +69,7 @@ extern const struct lc_rng *lc_hmac_drbg;
 /**
  * @brief Allocate stack memory for the Hash DRBG context
  *
- * @param name [in] Name of the stack variable
+ * @param [in] name Name of the stack variable
  */
 #define LC_DRBG_HMAC_CTX_ON_STACK(name)			      		       \
 	_Pragma("GCC diagnostic push")					       \
@@ -85,7 +85,7 @@ extern const struct lc_rng *lc_hmac_drbg;
 /**
  * @brief Allocate HMAC DRBG context on heap
  *
- * @param drbg [out] Allocated HMAC DRBG context
+ * @param [out] drbg Allocated HMAC DRBG context
  *
  * @return: 0 on success, < 0 on error
  */
@@ -95,7 +95,7 @@ int lc_drbg_hmac_alloc(struct lc_rng_ctx **drbg);
  * @brief Tests as defined in 11.3.2 in addition to the cipher tests: testing
  *	  of the error handling.
  *
- * @param drbg [in] DRBG state handle that is used solely for the testing. It
+ * @param [in] drbg DRBG state handle that is used solely for the testing. It
  *		    shall not be a production handle unless you call drbg_seed
  *		    on that handle afterwards.
  *

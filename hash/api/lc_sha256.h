@@ -49,7 +49,7 @@ extern const struct lc_hash *lc_sha256;
 /**
  * @brief Allocate stack memory for the SHA256 context without VLA
  *
- * @param name [in] Name of the stack variable
+ * @param [in] name Name of the stack variable
  */
 #define LC_SHA256_CTX_ON_STACK(name)					       \
 	_Pragma("GCC diagnostic push")					       \

@@ -43,7 +43,7 @@ extern "C"
  *			     computes 16-bit integer congruent to
  *			     a * R^-1 mod q, where R=2^16
  *
- * @param a [in] input integer to be reduced;
+ * @param [in] a input integer to be reduced;
  *		has to be in {-q2^15,...,q2^15-1}
  *
  * @return in {-q+1,...,q-1} congruent to a * R^-1 modulo q.
@@ -62,7 +62,7 @@ static inline int16_t montgomery_reduce(int32_t a)
  *			   centered representative congruent to
  *			   a mod q in {-(q-1)/2,...,(q-1)/2}
  *
- * @param a [in] input integer to be reduced
+ * @param [in] a input integer to be reduced
  *
  * @return in {-(q-1)/2,...,(q-1)/2} congruent to a modulo q.
  */

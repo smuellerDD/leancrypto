@@ -40,8 +40,8 @@ typedef struct{
 /**
  * @brief polyvec_compress - Compress and serialize vector of polynomials
  *
- * @param r [out] pointer to output byte array
- * @param a [in] pointer to input vector of polynomials
+ * @param [out] r pointer to output byte array
+ * @param [in] a pointer to input vector of polynomials
  */
 void polyvec_compress(uint8_t r[LC_KYBER_POLYVECCOMPRESSEDBYTES],
 		      const polyvec *a);
@@ -51,8 +51,8 @@ void polyvec_compress(uint8_t r[LC_KYBER_POLYVECCOMPRESSEDBYTES],
  *			       polynomials; approximate inverse of
  *			       polyvec_compress
  *
- * @param r [out] pointer to output vector of polynomials
- * @param a [in] pointer to input byte array
+ * @param [out] r pointer to output vector of polynomials
+ * @param [in] a pointer to input byte array
  */
 void polyvec_decompress(polyvec *r,
 			const uint8_t a[LC_KYBER_POLYVECCOMPRESSEDBYTES]);
@@ -61,8 +61,8 @@ void polyvec_decompress(polyvec *r,
 /**
  * @brief polyvec_tobytes - Serialize vector of polynomials
  *
- * @param r [out] pointer to output byte array
- * @param a [in] pointer to input vector of polynomials
+ * @param [out] r pointer to output byte array
+ * @param [in] a pointer to input vector of polynomials
  */
 static inline void polyvec_tobytes(uint8_t r[LC_KYBER_POLYVECBYTES],
 				   const polyvec *a)
@@ -77,8 +77,8 @@ static inline void polyvec_tobytes(uint8_t r[LC_KYBER_POLYVECBYTES],
  * @brief polyvec_frombytes - De-serialize vector of polynomials;
  *			      inverse of polyvec_tobytes
  *
- * @param r [out] pointer to output byte array
- * @param a [in] pointer to input vector of polynomials
+ * @param [out] r pointer to output byte array
+ * @param [in] a pointer to input vector of polynomials
  */
 static inline void polyvec_frombytes(polyvec *r,
 				     const uint8_t a[LC_KYBER_POLYVECBYTES])
@@ -123,9 +123,9 @@ static inline void polyvec_invntt_tomont(polyvec *r)
  *					   domain, accumulate into r,
  *					   and multiply by 2^-16.
  *
- * @param r [out] pointer to output polynomial
- * @param a [in] pointer to first input vector of polynomials
- * @param b [in] pointer to second input vector of polynomials
+ * @param [out] r pointer to output polynomial
+ * @param [in] a pointer to first input vector of polynomials
+ * @param [in] b pointer to second input vector of polynomials
  */
 static inline void polyvec_basemul_acc_montgomery(poly *r, const polyvec *a,
 						  const polyvec *b)
@@ -161,9 +161,9 @@ static inline void polyvec_reduce(polyvec *r)
 /**
  * @brief polyvec_add - Add vectors of polynomials
  *
- * @param r [out] pointer to output vector of polynomials
- * @param a [in] pointer to first input vector of polynomials
- * @param b [in] pointer to second input vector of polynomials
+ * @param [out] r pointer to output vector of polynomials
+ * @param [in] a pointer to first input vector of polynomials
+ * @param [in] b pointer to second input vector of polynomials
  */
 static inline void polyvec_add(polyvec *r, const polyvec *a, const polyvec *b)
 {
@@ -178,9 +178,9 @@ static inline void polyvec_add(polyvec *r, const polyvec *a, const polyvec *b)
  *				polyvec_add(r, a, b);
  *				polyvec_reduce(r);
  *
- * @param r [out] pointer to output vector of polynomials
- * @param a [in] pointer to first input vector of polynomials
- * @param b [in] pointer to second input vector of polynomials
+ * @param [out] r pointer to output vector of polynomials
+ * @param [in] a pointer to first input vector of polynomials
+ * @param [in] b pointer to second input vector of polynomials
  */
 static inline void
 polyvec_add_reduce(polyvec *r, const polyvec *a, const polyvec *b)

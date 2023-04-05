@@ -65,10 +65,10 @@ struct lc_hmac_ctx {
 /**
  * @brief Initialize HMAC context
  *
- * @param hmac_ctx [in] Reference to hmac context implementation to be used to
+ * @param [in] hmac_ctx Reference to hmac context implementation to be used to
  *			perform HMAC calculation with.
- * @param key [in] MAC key of arbitrary size
- * @param keylen [in] Size of the MAC key
+ * @param [in] key MAC key of arbitrary size
+ * @param [in] keylen Size of the MAC key
  *
  * The caller must provide an allocated hmac_ctx. This can be achieved by
  * using HMAC_CTX_ON_STACK or by using hmac_alloc.
@@ -82,7 +82,7 @@ void lc_hmac_init(struct lc_hmac_ctx *hmac_ctx,
  * This operation allows the HMAC context to be used again with the same key
  * set during hmac_init.
  *
- * @param hmac_ctx [in] Reference to hmac context implementation to be used to
+ * @param [in] hmac_ctx Reference to hmac context implementation to be used to
  *			perform HMAC calculation with.
  */
 void lc_hmac_reinit(struct lc_hmac_ctx *hmac_ctx);
@@ -90,10 +90,10 @@ void lc_hmac_reinit(struct lc_hmac_ctx *hmac_ctx);
 /**
  * @brief Update HMAC
  *
- * @param hmac_ctx [in] Reference to hmac context implementation to be used to
+ * @param [in] hmac_ctx Reference to hmac context implementation to be used to
  *			perform HMAC calculation with.
- * @param in [in] Buffer holding the data whose MAC shall be calculated
- * @param inlen [in] Length of the input buffer
+ * @param [in] in Buffer holding the data whose MAC shall be calculated
+ * @param [in] inlen Length of the input buffer
  */
 void lc_hmac_update(struct lc_hmac_ctx *hmac_ctx,
 		    const uint8_t *in, size_t inlen);
@@ -104,9 +104,9 @@ void lc_hmac_update(struct lc_hmac_ctx *hmac_ctx,
  * If the cipher handle shall be used for a new HMAC operation with the same
  * key after this call, you MUST re-initialize the handle with hmac_reinit.
  *
- * @param hmac_ctx [in] Reference to hmac context implementation to be used to
+ * @param [in] hmac_ctx Reference to hmac context implementation to be used to
  *			perform HMAC calculation with.
- * @param mac [out] Buffer with at least the size of the message digest that
+ * @param [out] mac Buffer with at least the size of the message digest that
  *		    is returned by hmac_macsize.
  */
 void lc_hmac_final(struct lc_hmac_ctx *hmac_ctx, uint8_t *mac);
@@ -114,9 +114,9 @@ void lc_hmac_final(struct lc_hmac_ctx *hmac_ctx, uint8_t *mac);
 /**
  * @brief Allocate HMAC context on heap
  *
- * @param hash [in] Reference to hash implementation to be used to perform
+ * @param [in] hash Reference to hash implementation to be used to perform
  *		    HMAC calculation with.
- * @param hmac_ctx [out] Allocated HMAC context
+ * @param [out] hmac_ctx Allocated HMAC context
  *
  * @return 0 on success, < 0 on error
  */
@@ -125,7 +125,7 @@ int lc_hmac_alloc(const struct lc_hash *hash, struct lc_hmac_ctx **hmac_ctx);
 /**
  * @brief Zeroize and free HMAC context
  *
- * @param hmac_ctx [in] HMAC context to be zeroized and freed
+ * @param [in] hmac_ctx HMAC context to be zeroized and freed
  */
 void lc_hmac_zero_free(struct lc_hmac_ctx *hmac_ctx);
 
@@ -133,7 +133,7 @@ void lc_hmac_zero_free(struct lc_hmac_ctx *hmac_ctx);
  * @brief Zeroize HMAC context allocated with either HMAC_CTX_ON_STACK or
  *	  hmac_alloc
  *
- * @param hmac_ctx [in] HMAC context to be zeroized
+ * @param [in] hmac_ctx HMAC context to be zeroized
  */
 static inline void lc_hmac_zero(struct lc_hmac_ctx *hmac_ctx)
 {
@@ -147,8 +147,8 @@ static inline void lc_hmac_zero(struct lc_hmac_ctx *hmac_ctx)
 /**
  * @brief Allocate stack memory for the HMAC context
  *
- * @param name [in] Name of the stack variable
- * @param hashname [in] Pointer of type struct hash referencing the hash
+ * @param [in] name Name of the stack variable
+ * @param [in] hashname Pointer of type struct hash referencing the hash
  *			 implementation to be used
  */
 #define LC_HMAC_CTX_ON_STACK(name, hashname)				       \
@@ -165,7 +165,7 @@ static inline void lc_hmac_zero(struct lc_hmac_ctx *hmac_ctx)
 /**
  * @brief Return the MAC size
  *
- * @param hmac_ctx [in] HMAC context to be zeroized
+ * @param [in] hmac_ctx HMAC context to be zeroized
  *
  * @return MAC size
  */
@@ -179,13 +179,13 @@ static inline size_t lc_hmac_macsize(struct lc_hmac_ctx *hmac_ctx)
 /**
  * @brief Calculate HMAC - one-shot
  *
- * @param hash [in] Reference to hash implementation to be used to perform
+ * @param [in] hash Reference to hash implementation to be used to perform
  *		    HMAC calculation with.
- * @param key [in] MAC key of arbitrary size
- * @param keylen [in] Size of the MAC key
- * @param in [in] Buffer holding the data whose MAC shall be calculated
- * @param inlen [in] Length of the input buffer
- * @param mac [out] Buffer with at least the size of the message digest.
+ * @param [in] key MAC key of arbitrary size
+ * @param [in] keylen Size of the MAC key
+ * @param [in] in Buffer holding the data whose MAC shall be calculated
+ * @param [in] inlen Length of the input buffer
+ * @param [out] mac Buffer with at least the size of the message digest.
  *
  * The HMAC calculation operates entirely on the stack.
  */

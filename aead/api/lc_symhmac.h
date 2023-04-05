@@ -59,11 +59,11 @@ extern const struct lc_aead *lc_symhmac_aead;
 /**
  * @brief Allocate symmetric algorithm with HMAC cryptor context on heap
  *
- * @param sym [in] Symmetric algorithm implementation of type struct lc_sym
+ * @param [in] sym Symmetric algorithm implementation of type struct lc_sym
  *		   used for the encryption / decryption operation
- * @param hash [in] HMAC implementation of type struct lc_hmac used for the HMAC
+ * @param [in] hash HMAC implementation of type struct lc_hmac used for the HMAC
  *		    authentication
- * @param ctx [out] Allocated symmetric/HMAC cryptor context
+ * @param [out] ctx Allocated symmetric/HMAC cryptor context
  *
  * @return 0 on success, < 0 on error
  */
@@ -73,10 +73,10 @@ int lc_sh_alloc(const struct lc_sym *sym, const struct lc_hash *hash,
 /**
  * @brief Allocate stack memory for the symmetric/HMAC cryptor context
  *
- * @param name [in] Name of the stack variable
- * @param sym [in] Symmetric algorithm implementation of type struct lc_sym
+ * @param [in] name Name of the stack variable
+ * @param [in] sym Symmetric algorithm implementation of type struct lc_sym
  *		   used for the encryption / decryption operation
- * @param hash [in] HMAC implementation of type struct lc_hmac used for the HMAC
+ * @param [in] hash HMAC implementation of type struct lc_hmac used for the HMAC
  *		    authentication
  */
 #define LC_SH_CTX_ON_STACK(name, sym, hash)		      		       \

@@ -38,9 +38,9 @@ extern "C"
  * @brief indcpa_keypair - Generates public and private key for the CPA-secure
  *			   public-key encryption scheme underlying Kyber
  *
- * @param pk [out] pointer to output public key
- * @param sk [out] pointer to output private key
- * @param rng_ctx [in] pointer to seeded random number generator context
+ * @param [out] pk pointer to output public key
+ * @param [out] sk pointer to output private key
+ * @param [in] rng_ctx pointer to seeded random number generator context
  *
  * @return 0 (success) or < 0 on error
  */
@@ -52,10 +52,10 @@ int indcpa_keypair_avx(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
  * @brief indcpa_enc - Encryption function of the CPA-secure
  *		       public-key encryption scheme underlying Kyber.
  *
- * @param c [out] pointer to output ciphertext
- * @param m [in] pointer to input message
- * @param pk [in] pointer to input public key
- * @param coins [in] pointer to input random coins used as seed to
+ * @param [out] c pointer to output ciphertext
+ * @param [in] m pointer to input message
+ * @param [in] pk pointer to input public key
+ * @param [in] coins pointer to input random coins used as seed to
  *		     deterministically generate all randomness
  *
  * @return 0 (success) or < 0 on error
@@ -69,9 +69,9 @@ int indcpa_enc_avx(uint8_t c[LC_KYBER_INDCPA_BYTES],
  * @brief indcpa_dec - Decryption function of the CPA-secure public-key
  *		       encryption scheme underlying Kyber.
  *
- * @param m [out] pointer to output decrypted message
- * @param c [in] pointer to input ciphertext
- * @param sk [in] pointer to input secret key
+ * @param [out] m pointer to output decrypted message
+ * @param [in] c pointer to input ciphertext
+ * @param [in] sk pointer to input secret key
  *
  * @return 0 (success) or < 0 on error
  */

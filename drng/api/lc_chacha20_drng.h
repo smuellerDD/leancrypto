@@ -46,7 +46,7 @@ struct lc_chacha20_drng_ctx {
  * @brief Zeroize ChaCha20 DRNG context allocated with either
  *	  LC_CC20_DRNG_CTX_ON_STACK or lc_cc20_drng_alloc
  *
- * @param hash_state [in] Hash context to be zeroized
+ * @param [in] hash_state Hash context to be zeroized
  */
 static inline void lc_cc20_drng_zero(struct lc_chacha20_drng_ctx *cc20_ctx)
 {
@@ -61,7 +61,7 @@ static inline void lc_cc20_drng_zero(struct lc_chacha20_drng_ctx *cc20_ctx)
 /**
  * @brief Allocate stack memory for the ChaCha20 context
  *
- * @param name [in] Name of the stack variable
+ * @param [in] name Name of the stack variable
  */
 #define LC_CC20_DRNG_CTX_ON_STACK(name)			      		       \
 	_Pragma("GCC diagnostic push")					       \
@@ -78,7 +78,7 @@ static inline void lc_cc20_drng_zero(struct lc_chacha20_drng_ctx *cc20_ctx)
 /**
  * @brief Allocation of a ChaCha20 DRNG context
  *
- * @param cc20_ctx [out] ChaCha20 DRNG context allocated by the function
+ * @param [out] cc20_ctx ChaCha20 DRNG context allocated by the function
  *
  * The cipher handle including its memory is allocated with this function.
  *
@@ -93,16 +93,16 @@ int lc_cc20_drng_alloc(struct lc_chacha20_drng_ctx **cc20_ctx);
 /**
  * @brief Zeroize and free ChaCha20 DRNG context
  *
- * @param cc20_ctx [in] ChaCha20 DRNG context to be zeroized and freed
+ * @param [in] cc20_ctx ChaCha20 DRNG context to be zeroized and freed
  */
 void lc_cc20_drng_zero_free(struct lc_chacha20_drng_ctx *cc20_ctx);
 
 /**
  * @brief Obtain random numbers
  *
- * @param cc20_ctx [in] allocated ChaCha20 cipher handle
- * @param outbuf [out] allocated buffer that is to be filled with random numbers
- * @param outbuflen [in] length of outbuf indicating the size of the random
+ * @param [in] cc20_ctx allocated ChaCha20 cipher handle
+ * @param [out] outbuf allocated buffer that is to be filled with random numbers
+ * @param [in] outbuflen length of outbuf indicating the size of the random
  *			 number byte string to be generated
  *
  * Generate random numbers and fill the buffer provided by the caller.
@@ -121,9 +121,9 @@ void lc_cc20_drng_generate(struct lc_chacha20_drng_ctx *cc20_ctx,
 /**
  * @brief Reseed the ChaCha20 DRNG
  *
- * @param cc20_ctx [in] allocated ChaCha20 cipher handle
- * @param inbuf [in] buffer with the seed data
- * @param inbuflen [in] length of inbuf
+ * @param [in] cc20_ctx allocated ChaCha20 cipher handle
+ * @param [in] inbuf buffer with the seed data
+ * @param [in] inbuflen length of inbuf
  *
  * When calling the function, the DRNG is seeded or reseeded. If it is reseeded,
  * the old state information is mixed into the new state.

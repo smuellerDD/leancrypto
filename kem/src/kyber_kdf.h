@@ -32,12 +32,12 @@ extern "C"
 /**
  * @brief Kyber KDF
  *
- * @param in [in] input buffer
- * @param inlen [in] length of input buffer
- * @param in2 [in] input buffer 2
- * @param inlen2 [in] length of input buffer 2
- * @param out [out] output buffer of size
- * @param outlen [out] output buffer length
+ * @param [in] in input buffer
+ * @param [in] inlen length of input buffer
+ * @param [in] in2 input buffer 2
+ * @param [in] inlen2 length of input buffer 2
+ * @param [out] out output buffer of size
+ * @param [out] outlen output buffer length
  */
 static inline void kyber_kdf2(const uint8_t *in, size_t inlen,
 			      const uint8_t *in2, size_t inlen2,
@@ -57,14 +57,14 @@ static inline void kyber_kdf2(const uint8_t *in, size_t inlen,
 /**
  * @brief Kyber KDF
  *
- * @param in [in] input buffer
- * @param inlen [in] length of input buffer
- * @param in2 [in] input buffer 2
- * @param inlen2 [in] length of input buffer 2
- * @param in2 [in] input buffer 3
- * @param inlen2 [in] length of input buffer 3
- * @param out [out] output buffer of size
- * @param outlen [out] output buffer length
+ * @param [in] in input buffer
+ * @param [in] inlen length of input buffer
+ * @param [in] in2 input buffer 2
+ * @param [in] inlen2 length of input buffer 2
+ * @param [in] in2 input buffer 3
+ * @param [in] inlen2 length of input buffer 3
+ * @param [out] out output buffer of size
+ * @param [out] outlen output buffer length
  */
 static inline void kyber_kdf3(const uint8_t *in, size_t inlen,
 			      const uint8_t *in2, size_t inlen2,
@@ -88,10 +88,10 @@ static inline void kyber_kdf3(const uint8_t *in, size_t inlen,
  *			public input and then generates outlen bytes of SHAKE256
  *			output
  *
- * @param out [out] pointer to output
- * @param outlen [in] number of requested output bytes
- * @param key [in] pointer to the key
- * @param nonce [in] single-byte nonce (public PRF input)
+ * @param [out] out pointer to output
+ * @param [in] outlen number of requested output bytes
+ * @param [in] key pointer to the key
+ * @param [in] nonce single-byte nonce (public PRF input)
  */
 static inline void
 kyber_shake256_prf(uint8_t *out, size_t outlen,

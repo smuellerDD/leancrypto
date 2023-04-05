@@ -49,7 +49,7 @@ extern const struct lc_rng *lc_cshake256_drng;
 /**
  * @brief Allocate stack memory for the CSHAKE256 DRNG context
  *
- * @param name [in] Name of the stack variable
+ * @param [in] name Name of the stack variable
  */
 #define LC_CSHAKE256_DRNG_CTX_ON_STACK(name)				       \
 	_Pragma("GCC diagnostic push")					       \
@@ -64,7 +64,7 @@ extern const struct lc_rng *lc_cshake256_drng;
 /**
  * @brief Allocation of a CSHAKE DRNG context
  *
- * @param state [out] CSHAKE DRNG context allocated by the function
+ * @param [out] state CSHAKE DRNG context allocated by the function
  *
  * The cipher handle including its memory is allocated with this function.
  *

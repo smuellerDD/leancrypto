@@ -96,7 +96,7 @@ struct lc_sym_ctx {
 /**
  * @brief Initialize symmetric context
  *
- * @param sym_ctx [in] Reference to sym context implementation to be used to
+ * @param [in] sym_ctx Reference to sym context implementation to be used to
  *		       perform sym calculation with.
  *
  * The caller must provide an allocated sym_ctx. This can be achieved by
@@ -112,10 +112,10 @@ static inline void lc_sym_init(struct lc_sym_ctx *ctx)
 /**
  * @brief lc_sym_setkey - Set key
  *
- * @param ctx [in] Reference to sym context implementation to be used to
+ * @param [in] ctx Reference to sym context implementation to be used to
  *		   set the IV.
- * @param key [in] Key to be set
- * @param keylen [in] Key length to be set
+ * @param [in] key Key to be set
+ * @param [in] keylen Key length to be set
  *
  * @return 0 on success, < 0 on error
  */
@@ -130,10 +130,10 @@ static inline int lc_sym_setkey(struct lc_sym_ctx *ctx,
 /**
  * @brief lc_sym_setiv - Set IV
  *
- * @param ctx [in] Reference to sym context implementation to be used to
+ * @param [in] ctx Reference to sym context implementation to be used to
  *		   set the IV.
- * @param iv [in] IV to be set
- * @param ivlen [in] IV length to be set
+ * @param [in] iv IV to be set
+ * @param [in] ivlen IV length to be set
  *
  * @return 0 on success, < 0 on error
  */
@@ -148,11 +148,11 @@ static inline int lc_sym_setiv(struct lc_sym_ctx *ctx,
 /**
  * @brief lc_sym_encrypt - Symmetric encryption
  *
- * @param ctx [in] Reference to sym context implementation to be used to
+ * @param [in] ctx Reference to sym context implementation to be used to
  *		   perform sym calculation with.
- * @param in [in] Plaintext to be encrypted
- * @param out [out] Ciphertext resulting of the encryption
- * @param len [in] Size of the input / output buffer
+ * @param [in] in Plaintext to be encrypted
+ * @param [out] out Ciphertext resulting of the encryption
+ * @param [in] len Size of the input / output buffer
  *
  * The plaintext and the ciphertext buffer may be identical to support
  * in-place cryptographic operations.
@@ -168,11 +168,11 @@ static inline void lc_sym_encrypt(struct lc_sym_ctx *ctx,
 /**
  * @brief lc_sym_decrypt - AES KW decrypt
  *
- * @param ctx [in] Reference to sym context implementation to be used to
+ * @param [in] ctx Reference to sym context implementation to be used to
  *		   perform sym calculation with.
- * @param in [in] Ciphertext to be decrypted
- * @param out [out] Plaintext resulting of the decryption
- * @param len [in] Size of the input / output buffer
+ * @param [in] in Ciphertext to be decrypted
+ * @param [out] out Plaintext resulting of the decryption
+ * @param [in] len Size of the input / output buffer
  *
  * The plaintext and the ciphertext buffer may be identical to support
  * in-place cryptographic operations.
@@ -189,7 +189,7 @@ static inline void lc_sym_decrypt(struct lc_sym_ctx *ctx,
  * @brief Zeroize symmetric context allocated with either LC_SYM_CTX_ON_STACK
  *	  or lc_sym_alloc
  *
- * @param ctx [in] Symmetric context to be zeroized
+ * @param [in] ctx Symmetric context to be zeroized
  */
 static inline void lc_sym_zero(struct lc_sym_ctx *ctx)
 {
@@ -205,8 +205,8 @@ static inline void lc_sym_zero(struct lc_sym_ctx *ctx)
  *
  * NOTE: This is defined for lc_cshake256 as of now.
  *
- * @param sym [in] Symmetric algorithm implementation of type struct lc_sym
- * @param ctx [out] Allocated symmetrc algorithm context
+ * @param [in] sym Symmetric algorithm implementation of type struct lc_sym
+ * @param [out] ctx Allocated symmetrc algorithm context
  *
  * @return 0 on success, < 0 on error
  */
@@ -216,15 +216,15 @@ int lc_sym_alloc(const struct lc_sym *sym, struct lc_sym_ctx **ctx);
  * @brief Symmetric algorithm deallocation and properly zeroization function to
  *	  frees all buffers and the cipher handle
  *
- * @param ctx [in] Symmtric algorithm context handle
+ * @param [in] ctx Symmtric algorithm context handle
  */
 void lc_sym_zero_free(struct lc_sym_ctx *ctx);
 
 /**
  * @brief Allocate stack memory for the sym context
  *
- * @param name [in] Name of the stack variable
- * @param symname [in] Pointer of type struct sym referencing the sym
+ * @param [in] name Name of the stack variable
+ * @param [in] symname Pointer of type struct sym referencing the sym
  *			 implementation to be used
  */
 #define LC_SYM_CTX_ON_STACK(name, symname)				       \

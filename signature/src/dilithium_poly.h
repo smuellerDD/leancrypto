@@ -76,9 +76,9 @@ static inline void poly_caddq(poly *a)
 /**
  * @brief poly_add - Add polynomials. No modular reduction is performed.
  *
- * @param c [out] pointer to output polynomial
- * @param a [in] pointer to first summand
- * @param b [in] pointer to second summand
+ * @param [out] c pointer to output polynomial
+ * @param [in] a pointer to first summand
+ * @param [in] b pointer to second summand
  */
 static inline void poly_add(poly *c, const poly *a, const poly *b)
 {
@@ -92,9 +92,9 @@ static inline void poly_add(poly *c, const poly *a, const poly *b)
  * @brief poly_sub - Subtract polynomials. No modular reduction is
  *		     performed.
  *
- * @param c [out] pointer to output polynomial
- * @param a [in] pointer to first input polynomial
- * @param b [in] pointer to second input polynomial to be subtraced from first
+ * @param [out] c pointer to output polynomial
+ * @param [in] a pointer to first input polynomial
+ * @param [in] b pointer to second input polynomial to be subtraced from first
  *		 input polynomial
  */
 static inline void poly_sub(poly *c, const poly *a, const poly *b)
@@ -150,9 +150,9 @@ static inline void poly_invntt_tomont(poly *a)
  *				      multiplication of resulting polynomial
  *				      by 2^{-32}.
  *
- * @param c [out] pointer to output polynomial
- * @param a [in] pointer to first input polynomial
- * @param b [in] pointer to second input polynomial
+ * @param [out] c pointer to output polynomial
+ * @param [in] a pointer to first input polynomial
+ * @param [in] b pointer to second input polynomial
  */
 static inline void
 poly_pointwise_montgomery(poly *c, const poly *a, const poly *b)
@@ -170,9 +170,9 @@ poly_pointwise_montgomery(poly *c, const poly *a, const poly *b)
  *			     with -2^{D-1} < c0 <= 2^{D-1}. Assumes coefficients
  *			     to be standard representatives.
  *
- * @param a1 [out] pointer to output polynomial with coefficients c1
- * @param a0 [out] pointer to output polynomial with coefficients c0
- * @param a [in] pointer to input polynomial
+ * @param [out] a1 pointer to output polynomial with coefficients c1
+ * @param [out] a0 pointer to output polynomial with coefficients c0
+ * @param [in] a pointer to input polynomial
  */
 static inline void poly_power2round(poly *a1, poly *a0, const poly *a)
 {
@@ -191,9 +191,9 @@ static inline void poly_power2round(poly *a1, poly *a0, const poly *a)
  *			   -ALPHA/2 <= c0 = c mod Q - Q < 0.
  *			   Assumes coefficients to be standard representatives.
  *
- * @param a1 [out] pointer to output polynomial with coefficients c1
- * @param a0 [out] pointer to output polynomial with coefficients c0
- * @param a [in] pointer to input polynomial
+ * @param [out] a1 pointer to output polynomial with coefficients c1
+ * @param [out] a0 pointer to output polynomial with coefficients c0
+ * @param [in] a pointer to input polynomial
  */
 static inline void poly_decompose(poly *a1, poly *a0, const poly *a)
 {
@@ -209,9 +209,9 @@ static inline void poly_decompose(poly *a1, poly *a0, const poly *a)
  *			   coefficient of the input polynomial overflow into the
  *			   high bits.
  *
- * @param h [out] pointer to output hint polynomial
- * @param a0 [in] pointer to low part of input polynomial
- * @param a1 [in] pointer to high part of input polynomial
+ * @param [out] h pointer to output hint polynomial
+ * @param [in] a0 pointer to low part of input polynomial
+ * @param [in] a1 pointer to high part of input polynomial
  *
  * @return number of 1 bits.
  */
@@ -232,9 +232,9 @@ poly_make_hint(poly *h, const poly *a0, const poly *a1)
  * @brief poly_use_hint - Use hint polynomial to correct the high bits of a
  *			  polynomial.
  *
- * @param b [out] pointer to output polynomial with corrected high bits
- * @param a [in] pointer to input polynomial
- * @param h [in] pointer to input hint polynomial
+ * @param [out] b pointer to output polynomial with corrected high bits
+ * @param [in] a pointer to input polynomial
+ * @param [in] h pointer to input hint polynomial
  */
 static inline void poly_use_hint(poly *b, const poly *a, const poly *h)
 {

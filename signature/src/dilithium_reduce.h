@@ -46,7 +46,7 @@ extern "C"
  *			     compute r \equiv a*2^{-32} (mod Q) such that
  *			     -Q < r < Q.
  *
- * @param a [in] finite field element
+ * @param [in] a finite field element
  *
  * @return r
  */
@@ -65,7 +65,7 @@ static inline int32_t montgomery_reduce(int64_t a)
  *		     compute r \equiv a (mod Q) such that
  *		     -6283009 <= r <= 6283007.
  *
- * @param a [in] finite field element
+ * @param [in] a finite field element
  *
  * @return r
  */
@@ -81,7 +81,7 @@ static inline int32_t reduce32(int32_t a)
 /**
  * @brief caddq - Add Q if input coefficient is negative.
  *
- * @param a [in] finite field element
+ * @param [in] a finite field element
  *
  * @return r
  */
@@ -95,7 +95,7 @@ static inline int32_t caddq(int32_t a)
  * @brief freeze - For finite field element a, compute standard representative
  *		   r = a mod^+ Q.
  *
- * @param a [in] finite field element a
+ * @param [in] a finite field element a
  *
  * @return r
  */

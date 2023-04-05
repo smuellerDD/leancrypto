@@ -63,9 +63,9 @@ static inline void poly_reduce(poly *r)
 /**
  * @brief poly_add - Add two polynomials; no modular reduction is performed
  *
- * @param r [out] pointer to output polynomial
- * @param a [in] pointer to first input polynomial
- * @param b [in] pointer to second input polynomial
+ * @param [out] r pointer to output polynomial
+ * @param [in] a pointer to first input polynomial
+ * @param [in] b pointer to second input polynomial
  */
 static inline void poly_add(poly *r, const poly *a, const poly *b)
 {
@@ -78,9 +78,9 @@ static inline void poly_add(poly *r, const poly *a, const poly *b)
 /**
  * @brief poly_sub - Subtract two polynomials; no modular reduction is performed
  *
- * @param r [out] pointer to output polynomial
- * @param a [in] pointer to first input polynomial
- * @param b [in] pointer to second input polynomial
+ * @param [out] r pointer to output polynomial
+ * @param [in] a pointer to first input polynomial
+ * @param [in] b pointer to second input polynomial
  */
 static inline void poly_sub(poly *r, const poly *a, const poly *b)
 {
@@ -94,8 +94,8 @@ static inline void poly_sub(poly *r, const poly *a, const poly *b)
  * @brief poly_compress - Compression and subsequent serialization of a
  *			  polynomial
  *
- * @param r [out] pointer to output byte array
- * @param a [in] pointer to input polynomial
+ * @param [out] r pointer to output byte array
+ * @param [in] a pointer to input polynomial
  */
 void poly_compress(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES], const poly *a);
 
@@ -104,16 +104,16 @@ void poly_compress(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES], const poly *a);
  *			    polynomial;
  *			    approximate inverse of poly_compress
  *
- * @param r [out] pointer to output polynomial
- * @param a [in] pointer to input byte array
+ * @param [out] r pointer to output polynomial
+ * @param [in] a pointer to input byte array
  */
 void poly_decompress(poly *r, const uint8_t a[LC_KYBER_POLYCOMPRESSEDBYTES]);
 
 /**
  * @brief poly_tobytes - Serialization of a polynomial
  *
- * @param r [out] pointer to output byte array
- * @param a [in] pointer to input polynomial
+ * @param [out] r pointer to output byte array
+ * @param [in] a pointer to input polynomial
  */
 void poly_tobytes(uint8_t r[LC_KYBER_POLYBYTES], const poly *a);
 
@@ -121,8 +121,8 @@ void poly_tobytes(uint8_t r[LC_KYBER_POLYBYTES], const poly *a);
  * @brief poly_frombytes - De-serialization of a polynomial;
  *			   inverse of poly_tobytes
  *
- * @param r [out] pointer to output polynomial
- * @param a [in] pointer to input byte array
+ * @param [out] r pointer to output polynomial
+ * @param [in] a pointer to input byte array
  */
 static inline void poly_frombytes(poly *r, const uint8_t a[LC_KYBER_POLYBYTES])
 {
@@ -137,8 +137,8 @@ static inline void poly_frombytes(poly *r, const uint8_t a[LC_KYBER_POLYBYTES])
 /**
  * @brief poly_frommsg - Convert 32-byte message to polynomial
  *
- * @param r [out] pointer to output polynomial
- * @param msg [in] pointer to input message
+ * @param [out] r pointer to output polynomial
+ * @param [in] msg pointer to input message
  */
 static inline void poly_frommsg(poly *r,
 				const uint8_t msg[LC_KYBER_INDCPA_MSGBYTES])
@@ -161,8 +161,8 @@ static inline void poly_frommsg(poly *r,
 /**
  * @brief poly_tomsg - Convert polynomial to 32-byte message
  *
- * @param msg [out] pointer to output message
- * @param a [in] pointer to input polynomial
+ * @param [out] msg pointer to output message
+ * @param [in] a pointer to input polynomial
  */
 static inline void poly_tomsg(uint8_t msg[LC_KYBER_INDCPA_MSGBYTES],
 			      const poly *a)
@@ -187,9 +187,9 @@ static inline void poly_tomsg(uint8_t msg[LC_KYBER_INDCPA_MSGBYTES],
  *			       centered binomial distribution with parameter
  *			       LC_KYBER_ETA1
  *
- * @param r [out] pointer to output polynomial
- * @param seed [in] pointer to input seed
- * @param nonce [in] one-byte input nonce
+ * @param [out] r pointer to output polynomial
+ * @param [in] seed pointer to input seed
+ * @param [in] nonce one-byte input nonce
  */
 #define POLY_GETNOISE_ETA1_BUFSIZE	(LC_KYBER_ETA1 * LC_KYBER_N / 4)
 void poly_getnoise_eta1(poly *r,
@@ -202,9 +202,9 @@ void poly_getnoise_eta1(poly *r,
  *			       centered binomial distribution with parameter
  *			       LC_KYBER_ETA2
  *
- * @param r [out] pointer to output polynomial
- * @param seed [in] pointer to input seed
- * @param nonce [in] one-byte input nonce
+ * @param [out] r pointer to output polynomial
+ * @param [in] seed pointer to input seed
+ * @param [in] nonce one-byte input nonce
  */
 #define POLY_GETNOISE_ETA2_BUFSIZE	(LC_KYBER_ETA2 * LC_KYBER_N / 4)
 void poly_getnoise_eta2(poly *r,
@@ -241,9 +241,9 @@ static inline void poly_invntt_tomont(poly *r)
  * @brief poly_basemul_montgomery - Multiplication of two polynomials in NTT
  *				    domain
  *
- * @param r [out] pointer to output polynomial
- * @param a [in] pointer to first input polynomial
- * @param b [in] pointer to second input polynomial
+ * @param [out] r pointer to output polynomial
+ * @param [in] a pointer to first input polynomial
+ * @param [in] b pointer to second input polynomial
  */
 static inline void poly_basemul_montgomery(poly *r, const poly *a,
 					   const poly *b)

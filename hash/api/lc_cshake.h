@@ -50,15 +50,15 @@ extern "C"
  * lc_hash_update
  * lc_cshake_final
  *
- * @param ctx [in] Initialized hash context
- * @param n [in] N is a function-name bit string, used by NIST to define
+ * @param [in] ctx Initialized hash context
+ * @param [in] n N is a function-name bit string, used by NIST to define
  *		 functions based on cSHAKE. When no function other than cSHAKE
  *		 is desired, N is set to the empty string.
- * @param nlen [in] Length of n
- * @param s [in] S is a customization bit string. The user selects this string
+ * @param [in] nlen Length of n
+ * @param [in] s S is a customization bit string. The user selects this string
  *		 to define a variant of the function. When no customization is
  *		 desired, S is set to the empty string.
- * @param slen [in] Length of s
+ * @param [in] slen Length of s
  */
 void lc_cshake_init(struct lc_hash_ctx *ctx,
 		    const uint8_t *n, size_t nlen,
@@ -70,10 +70,10 @@ void lc_cshake_init(struct lc_hash_ctx *ctx,
  * The function can be invoked repeatedly to squeeze more data from the
  * cSHAKE state.
  *
- * @param ctx [in] Initialized hash context
- * @param out [out] Buffer allocated by caller that is filled with the message
+ * @param [in] ctx Initialized hash context
+ * @param [out] out Buffer allocated by caller that is filled with the message
  *		    digest data.
- * @param outlen [in] Size of the output buffer to be filled.
+ * @param [in] outlen Size of the output buffer to be filled.
  */
 static inline void
 lc_cshake_final(struct lc_hash_ctx *ctx, uint8_t *out, size_t outlen)

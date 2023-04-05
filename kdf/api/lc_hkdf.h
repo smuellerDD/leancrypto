@@ -57,11 +57,11 @@ struct lc_hkdf_ctx {
  *			    perform any operations on the handle. The extract
  *			    phase adjusts the HMAC cipher handle so that it is
  *			    ready for the expand phase.
- * @param ikm [in] Input Keying Material (see RFC5869)
- * @param ikmlen [in] Length of ikm buffer
- * @param salt [in] Optional salt value - if caller does not want to use a salt
+ * @param [in] ikm Input Keying Material (see RFC5869)
+ * @param [in] ikmlen Length of ikm buffer
+ * @param [in] salt Optional salt value - if caller does not want to use a salt
  *		    set NULL here.
- * @param saltlen [in] Length of salt value buffer.
+ * @param [in] saltlen Length of salt value buffer.
  *
  * @return 0 on success, < 0 on error
  */
@@ -73,14 +73,14 @@ int lc_hkdf_extract(struct lc_hkdf_ctx *hkdf_ctx,
  * @brief HMAC-based Extract-and-Expand Key Derivation Function (HKDF) - RFC5869
  *	  Expand phase
  *
- * @param hkdf_ctx [in] Cipher handle for the operation. This call expects
+ * @param [in] hkdf_ctx Cipher handle for the operation. This call expects
  *			the caller to hand in a HMAC cipher handle that has
  *			been initialized with hkdf_extract.
- * @param info [in] Optional context and application specific information. This
+ * @param [in] info Optional context and application specific information. This
  *		    may be NULL.
- * @param infolen [in] Size of info buffer.
- * @param dst [out] Buffer to store the derived bits in
- * @param dlen [in] Size of the destination buffer.
+ * @param [in] infolen Size of info buffer.
+ * @param [out] dst Buffer to store the derived bits in
+ * @param [in] dlen Size of the destination buffer.
  *
  * @return 0 on success, < 0 on error
  */
@@ -92,7 +92,7 @@ int lc_hkdf_expand(struct lc_hkdf_ctx *hkdf_ctx,
  * @brief Zeroize HKDF context allocated with either LC_HKDF_CTX_ON_STACK or
  *	  hkdf_alloc
  *
- * @param hmac_ctx [in] HMAC context to be zeroized
+ * @param [in] hmac_ctx HMAC context to be zeroized
  */
 static inline void lc_hkdf_zero(struct lc_hkdf_ctx *hkdf_ctx)
 {
@@ -110,9 +110,9 @@ static inline void lc_hkdf_zero(struct lc_hkdf_ctx *hkdf_ctx)
 /**
  * @brief Allocate HKDF context on heap
  *
- * @param hash [in] Reference to hash implementation to be used to perform
+ * @param [in] hash Reference to hash implementation to be used to perform
  *		    HMAC calculation with.
- * @param hkdf_ctx [out] Allocated HKDF context
+ * @param [out] hkdf_ctx Allocated HKDF context
  *
  * @return 0 on success, < 0 on error
  */
@@ -121,15 +121,15 @@ int lc_hkdf_alloc(const struct lc_hash *hash, struct lc_hkdf_ctx **hkdf_ctx);
 /**
  * @brief Zeroize and free HKDF context
  *
- * @param hmac_ctx [in] HKDF context to be zeroized and freed
+ * @param [in] hmac_ctx HKDF context to be zeroized and freed
  */
 void lc_hkdf_zero_free(struct lc_hkdf_ctx *hkdf_ctx);
 
 /**
  * @brief Allocate stack memory for the HKDF context
  *
- * @param name [in] Name of the stack variable
- * @param hashname [in] Reference to lc_hash implementation
+ * @param [in] name Name of the stack variable
+ * @param [in] hashname Reference to lc_hash implementation
  */
 #define LC_HKDF_CTX_ON_STACK(name, hashname)			      	       \
 	_Pragma("GCC diagnostic push")					       \
@@ -147,17 +147,17 @@ void lc_hkdf_zero_free(struct lc_hkdf_ctx *hkdf_ctx);
  * @brief HMAC-based Extract-and-Expand Key Derivation Function (HKDF) - RFC5869
  *	  Complete implementation
  *
- * @param hash [in] Reference to lc_hash implementation
- * @param ikm [in] Input Keying Material (see RFC5869)
- * @param ikmlen [in] Length of ikm buffer
- * @param salt [in] Optional salt value - if caller does not want to use a salt
+ * @param [in] hash Reference to lc_hash implementation
+ * @param [in] ikm Input Keying Material (see RFC5869)
+ * @param [in] ikmlen Length of ikm buffer
+ * @param [in] salt Optional salt value - if caller does not want to use a salt
  *		    set NULL here.
- * @param saltlen [in] Length of salt value buffer.
- * @param info [in] Optional context and application specific information. This
+ * @param [in] saltlen Length of salt value buffer.
+ * @param [in] info Optional context and application specific information. This
  *		    may be NULL.
- * @param infolen [in] Size of info buffer.
- * @param dst [out] Buffer to store the derived bits in
- * @param dlen [in] Size of the destination buffer.
+ * @param [in] infolen Size of info buffer.
+ * @param [out] dst Buffer to store the derived bits in
+ * @param [in] dlen Size of the destination buffer.
  *
  * @return 0 on success, < 0 on error
  */
@@ -205,8 +205,8 @@ extern const struct lc_rng *lc_hkdf_rng;
 /**
  * @brief Allocate stack memory for the HKDF DRNG context
  *
- * @param name [in] Name of the stack variable
- * @param hashname [in] Reference to lc_hash implementation
+ * @param [in] name Name of the stack variable
+ * @param [in] hashname Reference to lc_hash implementation
  */
 #define LC_HKDF_DRNG_CTX_ON_STACK(name, hashname)			       \
 	_Pragma("GCC diagnostic push")					       \
@@ -222,7 +222,7 @@ extern const struct lc_rng *lc_hkdf_rng;
 /**
  * @brief Allocation of a HKDF DRNG context
  *
- * @param state [out] HKDF DRNG context allocated by the function
+ * @param [out] state HKDF DRNG context allocated by the function
  *
  * The cipher handle including its memory is allocated with this function.
  *

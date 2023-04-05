@@ -68,7 +68,7 @@ extern const struct lc_aead *lc_hash_aead;
 /**
  * @brief Return maximum size of authentication tag
  *
- * @param hc [in] Hash cryptor context handle
+ * @param [in] hc Hash cryptor context handle
  *
  * @return size of tag
  */
@@ -82,9 +82,9 @@ static inline size_t lc_hc_get_tagsize(struct lc_hc_cryptor *hc)
 /**
  * @brief Allocate Hash cryptor context on heap
  *
- * @param hash [in] Hash implementation of type struct hash used for the HMAC
+ * @param [in] hash Hash implementation of type struct hash used for the HMAC
  *		    authentication
- * @param ctx [out] Allocated hash cryptor context
+ * @param [out] ctx Allocated hash cryptor context
  *
  * @return 0 on success, < 0 on error
  */
@@ -93,8 +93,8 @@ int lc_hc_alloc(const struct lc_hash *hash, struct lc_aead_ctx **ctx);
 /**
  * @brief Allocate stack memory for the hash cryptor context
  *
- * @param name [in] Name of the stack variable
- * @param hash [in] Hash implementation of type struct hash used for the HMAC
+ * @param [in] name Name of the stack variable
+ * @param [in] hash Hash implementation of type struct hash used for the HMAC
  *		    authentication
  */
 #define LC_HC_CTX_ON_STACK(name, hash)			      		       \

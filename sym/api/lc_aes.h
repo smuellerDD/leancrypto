@@ -51,11 +51,11 @@ extern const struct lc_sym *lc_aes_kw;
 /**
  * @brief lc_aes_kw_encrypt - AES KW encrypt
  *
- * @param ctx [in] Reference to sym context implementation to be used to
+ * @param [in] ctx Reference to sym context implementation to be used to
  *		   perform sym calculation with.
- * @param in [in] Plaintext to be encrypted
- * @param out [out] Ciphertext resulting of the encryption
- * @param len [in] Size of the input / output buffer
+ * @param [in] in Plaintext to be encrypted
+ * @param [out] out Ciphertext resulting of the encryption
+ * @param [in] len Size of the input / output buffer
  *
  * The plaintext and the ciphertext buffer may be identical to support
  * in-place cryptographic operations.
@@ -72,11 +72,11 @@ void lc_aes_kw_encrypt(struct lc_sym_ctx *ctx,
 /**
  * @brief lc_aes_kw_decrypt - AES KW decrypt
  *
- * @param ctx [in] Reference to sym context implementation to be used to
+ * @param [in] ctx Reference to sym context implementation to be used to
  *		   perform sym calculation with.
- * @param in [in] Ciphertext to be decrypted
- * @param out [out] Plaintext resulting of the decryption
- * @param len [in] Size of the input / output buffer
+ * @param [in] in Ciphertext to be decrypted
+ * @param [out] out Plaintext resulting of the decryption
+ * @param [in] len Size of the input / output buffer
  *
  * @return 0 on success, -EBADMSG on authentication error
  *

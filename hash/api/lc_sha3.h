@@ -62,7 +62,7 @@ struct lc_sha3_224_state {
 /**
  * @brief Allocate stack memory for the SHA3_224 context without VLA
  *
- * @param name [in] Name of the stack variable
+ * @param [in] name Name of the stack variable
  */
 #define LC_SHA3_224_CTX_ON_STACK(name)					       \
 	_Pragma("GCC diagnostic push")					       \
@@ -105,7 +105,7 @@ struct lc_sha3_256_state {
 /**
  * @brief Allocate stack memory for the SHA3_256 context without VLA
  *
- * @param name [in] Name of the stack variable
+ * @param [in] name Name of the stack variable
  */
 #define LC_SHA3_256_CTX_ON_STACK(name)					       \
 	_Pragma("GCC diagnostic push")					       \
@@ -148,7 +148,7 @@ struct lc_sha3_384_state {
 /**
  * @brief Allocate stack memory for the SHA3_384 context without VLA
  *
- * @param name [in] Name of the stack variable
+ * @param [in] name Name of the stack variable
  */
 #define LC_SHA3_384_CTX_ON_STACK(name)					       \
 	_Pragma("GCC diagnostic push")					       \
@@ -191,7 +191,7 @@ struct lc_sha3_512_state {
 /**
  * @brief Allocate stack memory for the SHA3_512 context without VLA
  *
- * @param name [in] Name of the stack variable
+ * @param [in] name Name of the stack variable
  */
 #define LC_SHA3_512_CTX_ON_STACK(name)					       \
 	_Pragma("GCC diagnostic push")					       \
@@ -233,7 +233,7 @@ struct lc_shake_128_state {
 /**
  * @brief Allocate stack memory for the SHAKE-128 context without VLA
  *
- * @param name [in] Name of the stack variable
+ * @param [in] name Name of the stack variable
  */
 #define LC_SHAKE_128_CTX_ON_STACK(name)					       \
 	_Pragma("GCC diagnostic push")					       \
@@ -259,7 +259,7 @@ extern const struct lc_hash *lc_shake256;
 /**
  * @brief Allocate stack memory for the SHAKE-256 context without VLA
  *
- * @param name [in] Name of the stack variable
+ * @param [in] name Name of the stack variable
  */
 #define LC_SHAKE_256_CTX_ON_STACK(name)					       \
 	_Pragma("GCC diagnostic push")					       \
@@ -281,7 +281,7 @@ extern const struct lc_hash *lc_cshake256;
 /**
  * @brief Allocate stack memory for the cSHAKE-256 context without VLA
  *
- * @param name [in] Name of the stack variable
+ * @param [in] name Name of the stack variable
  */
 #define LC_CSHAKE_256_CTX_ON_STACK(name)				       \
 	_Pragma("GCC diagnostic push")					       \
@@ -303,7 +303,7 @@ extern const struct lc_hash *lc_cshake128;
 /**
  * @brief Allocate stack memory for the cSHAKE-256 context without VLA
  *
- * @param name [in] Name of the stack variable
+ * @param [in] name Name of the stack variable
  */
 #define LC_CSHAKE_128_CTX_ON_STACK(name)				       \
 	_Pragma("GCC diagnostic push")					       \

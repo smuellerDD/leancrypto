@@ -74,7 +74,7 @@ extern struct lc_rng_ctx *lc_seeded_rng;
 /**
  * @brief Zeroize RNG context
  *
- * @param ctx [in] RNG context to be zeroized
+ * @param [in] ctx RNG context to be zeroized
  */
 static inline void lc_rng_zero(struct lc_rng_ctx *ctx)
 {
@@ -93,7 +93,7 @@ static inline void lc_rng_zero(struct lc_rng_ctx *ctx)
 /**
  * @brief Zeroize and free RNG context
  *
- * @param ctx [in] RNG context to be zeroized and freed
+ * @param [in] ctx RNG context to be zeroized and freed
  */
 static inline void lc_rng_zero_free(struct lc_rng_ctx *ctx)
 {
@@ -107,11 +107,11 @@ static inline void lc_rng_zero_free(struct lc_rng_ctx *ctx)
 /**
  * @brief Obtain random numbers
  *
- * @param ctx [in] allocated RNG cipher handle
- * @param addtl_input [in] Additional input to diversify state
- * @param addtl_input_len [in] Length of additional input buffer
- * @param outbuf [out] allocated buffer that is to be filled with random numbers
- * @param outbuflen [in] length of outbuf indicating the size of the random
+ * @param [in] ctx allocated RNG cipher handle
+ * @param [in] addtl_input Additional input to diversify state
+ * @param [in] addtl_input_len Length of additional input buffer
+ * @param [out] outbuf allocated buffer that is to be filled with random numbers
+ * @param [in] outbuflen length of outbuf indicating the size of the random
  *			 number byte string to be generated
  *
  * Generate random numbers and fill the buffer provided by the caller.
@@ -142,12 +142,12 @@ lc_rng_generate(struct lc_rng_ctx *ctx,
 /**
  * @brief (Re)Seed the RNG
  *
- * @param ctx [in] allocated RNG cipher handle
- * @param seed [in] buffer with the seed data
- * @param seedlen [in] length of seed
- * @param persbuf [in] Personalization / additional information buffer - may be
+ * @param [in] ctx allocated RNG cipher handle
+ * @param [in] seed buffer with the seed data
+ * @param [in] seedlen length of seed
+ * @param [in] persbuf Personalization / additional information buffer - may be
  *		       NULL
- * @param perslen [in] Length of personalization / additional information buffer
+ * @param [in] perslen Length of personalization / additional information buffer
  *
  * When calling the function, the DRNG is seeded or reseeded. If it is reseeded,
  * the old state information is mixed into the new state.

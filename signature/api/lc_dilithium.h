@@ -146,9 +146,9 @@ struct lc_dilithium_sig {
 /**
  * @brief lc_dilithium_keypair - Generates Dilithium public and private key.
  *
- * @param pk [out] pointer to allocated output public key
- * @param sk [out] pointer to allocated output private key
- * @param rng_ctx [in] pointer to seeded random number generator context
+ * @param [out] pk pointer to allocated output public key
+ * @param [out] sk pointer to allocated output private key
+ * @param [in] rng_ctx pointer to seeded random number generator context
  *
  * @return 0 (success) or < 0 on error
  */
@@ -160,11 +160,11 @@ int lc_dilithium_keypair(struct lc_dilithium_pk *pk,
 /**
  * @param lc_dilithium_sign - Computes signature in one shot
  *
- * @param sig [out] pointer to output signature
- * @param m [in] pointer to message to be signed
- * @param mlen [in] length of message
- * @param sk [in] pointer to bit-packed secret key
- * @param rng_ctx [in] pointer to seeded random number generator context - when
+ * @param [out] sig pointer to output signature
+ * @param [in] m pointer to message to be signed
+ * @param [in] mlen length of message
+ * @param [in] sk pointer to bit-packed secret key
+ * @param [in] rng_ctx pointer to seeded random number generator context - when
  *		       pointer is non-NULL, perform a randomized signing.
  *		       Otherwise use deterministic signing.
  *
@@ -187,7 +187,7 @@ int lc_dilithium_sign(struct lc_dilithium_sig *sig,
  *			    hash context - this hash context MUST use
  *			    lc_shake256 as otherwise the function will return
  *			    an error.
- * @param sk [in] pointer to bit-packed secret key
+ * @param [in] sk pointer to bit-packed secret key
  *
  * @return 0 (success) or < 0 on error; -EOPNOTSUPP is returned if a different
  *	   hash than lc_shake256 is used.
@@ -205,8 +205,8 @@ int lc_dilithium_sign_init(struct lc_hash_ctx *hash_ctx,
  *
  * @param hash_ctx [in/out] pointer to hash context that was initialized with
  *			    lc_dilithium_sign_init
- * @param m [in] pointer to message to be signed
- * @param mlen [in] length of message
+ * @param [in] m pointer to message to be signed
+ * @param [in] mlen length of message
  *
  * @return 0 (success) or < 0 on error
  */
@@ -217,12 +217,12 @@ int lc_dilithium_sign_update(struct lc_hash_ctx *hash_ctx,
 /**
  * @param lc_dilithium_sign_final - Computes signature
  *
- * @param sig [out] pointer to output signature
- * @param hash_ctx [in] pointer to hash context that was initialized with
+ * @param [out] sig pointer to output signature
+ * @param [in] hash_ctx pointer to hash context that was initialized with
  *			lc_dilithium_sign_init and filled with
  *			lc_dilithium_sign_update
- * @param sk [in] pointer to bit-packed secret key
- * @param rng_ctx [in] pointer to seeded random number generator context - when
+ * @param [in] sk pointer to bit-packed secret key
+ * @param [in] rng_ctx pointer to seeded random number generator context - when
  *		       pointer is non-NULL, perform a randomized signing.
  *		       Otherwise use deterministic signing.
  *
@@ -236,10 +236,10 @@ int lc_dilithium_sign_final(struct lc_dilithium_sig *sig,
 /**
  * @brief lc_dilithium_verify - Verifies signature in one shot
  *
- * @param sig [in] pointer to input signature
- * @param m [in] pointer to message
- * @param mlen [in] length of message
- * @param pk [in] pointer to bit-packed public key
+ * @param [in] sig pointer to input signature
+ * @param [in] m pointer to message
+ * @param [in] mlen length of message
+ * @param [in] pk pointer to bit-packed public key
  *
  * @return 0 if signature could be verified correctly and -EBADMSG when
  * signature cannot be verified, < 0 on other errors
@@ -262,7 +262,7 @@ int lc_dilithium_verify(const struct lc_dilithium_sig *sig,
  *			    hash context - this hash context MUST use
  *			    lc_shake256 as otherwise the function will return
  *			    an error.
- * @param pk [in] pointer to bit-packed public key
+ * @param [in] pk pointer to bit-packed public key
  *
  * @return 0 (success) or < 0 on error; -EOPNOTSUPP is returned if a different
  *	   hash than lc_shake256 is used.
@@ -281,8 +281,8 @@ int lc_dilithium_verify_init(struct lc_hash_ctx *hash_ctx,
  *
  * @param hash_ctx [in/out] pointer to hash context that was initialized with
  *			    lc_dilithium_sign_init
- * @param m [in] pointer to message to be signed
- * @param mlen [in] length of message
+ * @param [in] m pointer to message to be signed
+ * @param [in] mlen length of message
  *
  * @return 0 (success) or < 0 on error
  */
@@ -293,11 +293,11 @@ int lc_dilithium_verify_update(struct lc_hash_ctx *hash_ctx,
 /**
  * @param lc_dilithium_verify_final - Verifies signature
  *
- * @param sig [in] pointer to output signature
- * @param hash_ctx [in] pointer to hash context that was initialized with
+ * @param [in] sig pointer to output signature
+ * @param [in] hash_ctx pointer to hash context that was initialized with
  *			lc_dilithium_sign_init and filled with
  *			lc_dilithium_sign_update
- * @param pk [in] pointer to bit-packed public key
+ * @param [in] pk pointer to bit-packed public key
  *
  * @return 0 if signature could be verified correctly and -EBADMSG when
  * signature cannot be verified, < 0 on other errors
