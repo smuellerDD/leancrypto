@@ -27,6 +27,8 @@
 #include "small_stack_support.h"
 #include "visibility.h"
 
+static uint64_t ctr = 0;
+
 static int
 randombytes(void *_state,
 	    const uint8_t *addtl_input, size_t addtl_input_len,
@@ -34,7 +36,6 @@ randombytes(void *_state,
 {
 	unsigned int i;
 	uint8_t buf[8];
-	static uint64_t ctr = 0;
 
 	(void)_state;
 	(void)addtl_input;
@@ -101,6 +102,7 @@ static int kyber_ies_determinisitic(void)
 		uint8_t plain_new[sizeof(plain)];
 		uint8_t tag[16];
 	};
+	uint64_t remember_ctr;
 	int ret;
 	struct lc_rng_ctx cshake_rng =
 		{ .rng = &kyber_drng, .rng_state = NULL };
@@ -108,6 +110,8 @@ static int kyber_ies_determinisitic(void)
 	LC_CC_CTX_ON_STACK(cc, lc_cshake256);
 
 	CKINT(lc_kyber_keypair(&ws->pk, &ws->sk, &cshake_rng));
+
+	remember_ctr = ctr;
 
 	CKINT(lc_kyber_ies_enc(&ws->pk, &ws->ct,
 			       plain, ws->cipher, sizeof(plain), NULL, 0,
@@ -122,7 +126,20 @@ static int kyber_ies_determinisitic(void)
 // 	bin2print(tag, sizeof(tag), stdout, "Tag");
 
 	if (memcmp(ws->cipher, exp_cipher, sizeof(exp_cipher))){
-		printf("Error in encryption of IES\n");
+		printf("Error in encryption of oneshot IES\n");
+		ret = 1;
+		goto out;
+	}
+
+	lc_aead_zero(cc);
+
+	/* Reset RNG */
+	ctr = remember_ctr;
+	CKINT(lc_kyber_ies_enc_init(cc, &ws->pk, &ws->ct, &cshake_rng));
+	lc_kyber_ies_enc_update(cc, plain, ws->cipher, sizeof(plain));
+	lc_kyber_ies_enc_final(cc, NULL, 0, ws->tag, sizeof(ws->tag));
+	if (memcmp(ws->cipher, exp_cipher, sizeof(exp_cipher))){
+		printf("Error in encryption of stream IES\n");
 		ret = 1;
 		goto out;
 	}
@@ -134,7 +151,18 @@ static int kyber_ies_determinisitic(void)
 			       ws->tag, sizeof(ws->tag), cc));
 
 	if (memcmp(plain, ws->plain_new, sizeof(plain))){
-		printf("Error in decryption of IES\n");
+		printf("Error in decryption of oneshot IES\n");
+		ret = 1;
+		goto out;
+	}
+
+	lc_aead_zero(cc);
+	CKINT(lc_kyber_ies_dec_init(cc, &ws->sk, &ws->ct));
+	lc_kyber_ies_dec_update(cc,
+				ws->cipher, ws->plain_new, sizeof(ws->cipher));
+	CKINT(lc_kyber_ies_dec_final(cc, NULL, 0, ws->tag, sizeof(ws->tag)));
+	if (memcmp(plain, ws->plain_new, sizeof(plain))){
+		printf("Error in decryption of stream IES\n");
 		ret = 1;
 		goto out;
 	}

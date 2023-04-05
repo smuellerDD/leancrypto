@@ -119,12 +119,12 @@ struct lc_kyber_ss {
 };
 
 /**
- * @brief crypto_kem_keypair - Generates public and private key for
- *			       IND-CCA2-secure Kyber key encapsulation mechanism
+ * @brief lc_kyber_keypair - Generates public and private key for
+ *			     IND-CCA2-secure Kyber key encapsulation mechanism
  *
- * @param pk [out] pointer to already allocated output public key
- * @param sk [out] pointer to already allocated output private key
- * @param rng_ctx [in] pointer to seeded random number generator context
+ * @param [out] pk pointer to already allocated output public key
+ * @param [out] sk pointer to already allocated output private key
+ * @param [in] rng_ctx pointer to seeded random number generator context
  *
  * @return 0 (success) or < 0 on error
  */
@@ -137,12 +137,12 @@ int lc_kyber_keypair(struct lc_kyber_pk *pk,
  *
  * Generates cipher text and shared secret for given public key.
  *
- * @param ct [out] pointer to output cipher text to used for decapsulation
- * @param ss [out] pointer to output shared secret that will be also produced
+ * @param [out] ct pointer to output cipher text to used for decapsulation
+ * @param [out] ss pointer to output shared secret that will be also produced
  *		   during decapsulation
- * @param ss_len [in] length of shared secret to be generated
- * @param pk [in] pointer to input public key
- * @param rng_ctx [in] pointer to seeded random number generator context
+ * @param [in] ss_len length of shared secret to be generated
+ * @param [in] pk pointer to input public key
+ * @param [in] rng_ctx pointer to seeded random number generator context
  *
  * Returns 0 (success) or < 0 on error
  */
@@ -156,11 +156,11 @@ int lc_kyber_enc(struct lc_kyber_ct *ct,
  *
  * Generates shared secret for given cipher text and private key
  *
- * @param ss [out] pointer to output shared secret that is the same as produced
+ * @param [out] ss pointer to output shared secret that is the same as produced
  *		   during encapsulation
- * @param ss_len [in] length of shared secret to be generated
- * @param ct [in] pointer to input cipher text generated during encapsulation
- * @param sk [in] pointer to input private key
+ * @param [in] ss_len length of shared secret to be generated
+ * @param [in] ct pointer to input cipher text generated during encapsulation
+ * @param [in] sk pointer to input private key
  *
  * @return 0
  *
@@ -216,16 +216,16 @@ int lc_kyber_dec(uint8_t *ss, size_t ss_len,
  * @brief lc_kex_uake_responder_init - Initialize unilaterally authenticated
  *				       key exchange
  *
- * @param pk_e_r [out] responder's ephemeral public key to be sent to the
+ * @param [out] pk_e_r responder's ephemeral public key to be sent to the
  *		       initiator
- * @param ct_e_r [out] responder's ephemeral cipher text to be sent to the
+ * @param [out] ct_e_r responder's ephemeral cipher text to be sent to the
  *		       initator
- * @param tk [out] KEM shared secret data to be used for the responder's shared
+ * @param [out] tk KEM shared secret data to be used for the responder's shared
  *		   secret generation
- * @param sk_e [out] responder's ephemeral secret key to be used for the
+ * @param [out] sk_e responder's ephemeral secret key to be used for the
  *		     responder's shared secret generation
- * @param pk_i [in] initiator's public key
- * @param rng_ctx [in] pointer to seeded random number generator context
+ * @param [in] pk_i initiator's public key
+ * @param [in] rng_ctx pointer to seeded random number generator context
  *
  * @return 0 (success) or < 0 on error
  */
@@ -239,14 +239,14 @@ int lc_kex_uake_responder_init(struct lc_kyber_pk *pk_e_r,
 /**
  * @brief lc_kex_uake_initiator_ss - Initiator's shared secret generation
  *
- * @param ct_e_i [out] intiator's ephemeral cipher text to be sent to the
+ * @param [out] ct_e_i intiator's ephemeral cipher text to be sent to the
  *		       responder
- * @param shared_secret [out] Shared secret between initiator and responder
- * @param shared_secret_len [in] Requested size of the shared secret
- * @param pk_e_r [in] responder's ephemeral public key
- * @param ct_e_r [in] responder's ephemeral cipher text
- * @param sk_i [in] initator's secret key
- * @param rng_ctx [in] pointer to seeded random number generator context
+ * @param [out] shared_secret Shared secret between initiator and responder
+ * @param [in] shared_secret_len Requested size of the shared secret
+ * @param [in] pk_e_r responder's ephemeral public key
+ * @param [in] ct_e_r responder's ephemeral cipher text
+ * @param [in] sk_i initator's secret key
+ * @param [in] rng_ctx pointer to seeded random number generator context
  *
  * @return 0 (success) or < 0 on error
  */
@@ -261,12 +261,12 @@ int lc_kex_uake_initiator_ss(struct lc_kyber_ct *ct_e_i,
 /**
  * @brief lc_kex_uake_responder_ss - Responder's shared secret generation
  *
- * @param shared_secret [out] Shared secret between initiator and responder
- * @param shared_secret_len [in] Requested size of the shared secret
- * @param ct_e_i [in] intiator's ephemeral cipher text
- * @param tk [in] KEM shared secret data that was generated during the
+ * @param [out] shared_secret Shared secret between initiator and responder
+ * @param [in] shared_secret_len Requested size of the shared secret
+ * @param [in] ct_e_i intiator's ephemeral cipher text
+ * @param [in] tk KEM shared secret data that was generated during the
  *		  responder's initialization
- * @param sk_e [in] responder's ephemeral secret that was generated during the
+ * @param [in] sk_e responder's ephemeral secret that was generated during the
  *		    responder's initialization
  *
  * @return 0 (success) or < 0 on error
@@ -325,16 +325,16 @@ int lc_kex_uake_responder_ss(uint8_t *shared_secret,
 /**
  * @brief lc_kex_ake_responder_init - Initialize authenticated key exchange
  *
- * @param pk_e_r [out] responder's ephemeral public key to be sent to the
+ * @param [out] pk_e_r responder's ephemeral public key to be sent to the
  *		       initiator
- * @param ct_e_r [out] responder's ephemeral cipher text to be sent to the
+ * @param [out] ct_e_r responder's ephemeral cipher text to be sent to the
  *		       initator
- * @param tk [out] KEM shared secret data to be used for the responder's shared
+ * @param [out] tk KEM shared secret data to be used for the responder's shared
  *		   secret generation
- * @param sk_e [out] responder's ephemeral secret key to be used for the
+ * @param [out] sk_e responder's ephemeral secret key to be used for the
  *		     responder's shared secret generation
- * @param pk_i [in] initiator's public key
- * @param rng_ctx [in] pointer to seeded random number generator context
+ * @param [in] pk_i initiator's public key
+ * @param [in] rng_ctx pointer to seeded random number generator context
  *
  * @return 0 (success) or < 0 on error
  */
@@ -348,17 +348,17 @@ int lc_kex_ake_responder_init(struct lc_kyber_pk *pk_e_r,
 /**
  * @brief lc_kex_ake_initiator_ss - Initiator's shared secret generation
  *
- * @param ct_e_i_1 [out] intiator's ephemeral cipher text to be sent to the
+ * @param [out] ct_e_i_1 intiator's ephemeral cipher text to be sent to the
  *			 responder
- * @param ct_e_i_2 [out] intiator's ephemeral cipher text to be sent to the
+ * @param [out] ct_e_i_2 intiator's ephemeral cipher text to be sent to the
  *			 responder
- * @param shared_secret [out] Shared secret between initiator and responder
- * @param shared_secret_len [in] Requested size of the shared secret
- * @param pk_e_r [in] responder's ephemeral public key
- * @param ct_e_r [in] responder's ephemeral cipher text
- * @param sk_i [in] initator's secret key
- * @param pk_r [in] responder's public key
- * @param rng_ctx [in] pointer to seeded random number generator context
+ * @param [out] shared_secret Shared secret between initiator and responder
+ * @param [in] shared_secret_len Requested size of the shared secret
+ * @param [in] pk_e_r responder's ephemeral public key
+ * @param [in] ct_e_r responder's ephemeral cipher text
+ * @param [in] sk_i initator's secret key
+ * @param [in] pk_r responder's public key
+ * @param [in] rng_ctx pointer to seeded random number generator context
  *
  * @return 0 (success) or < 0 on error
  */
@@ -375,15 +375,15 @@ int lc_kex_ake_initiator_ss(struct lc_kyber_ct *ct_e_i_1,
 /**
  * @brief lc_kex_ake_responder_ss - Responder's shared secret generation
  *
- * @param shared_secret [out] Shared secret between initiator and responder
- * @param shared_secret_len [in] Requested size of the shared secret
- * @param ct_e_i_1 [in] intiator's ephemeral cipher text
- * @param ct_e_i_2 [in] intiator's ephemeral cipher text
- * @param tk [in] KEM shared secret data that was generated during the
+ * @param [out] shared_secret Shared secret between initiator and responder
+ * @param [in] shared_secret_len Requested size of the shared secret
+ * @param [in] ct_e_i_1 intiator's ephemeral cipher text
+ * @param [in] ct_e_i_2 intiator's ephemeral cipher text
+ * @param [in] tk KEM shared secret data that was generated during the
  *		  responder's initialization
- * @param sk_e [in] responder's ephemeral secret that was generated during the
+ * @param [in] sk_e responder's ephemeral secret that was generated during the
  *		    responder's initialization
- * @param sk_r [in] responder's secret key
+ * @param [in] sk_r responder's secret key
  *
  * @return 0 (success) or < 0 on error
  */
@@ -398,31 +398,31 @@ int lc_kex_ake_responder_ss(uint8_t *shared_secret,
 /************************************* IES ************************************/
 
 /**
- * @brief lc_kyber_ies_enc - KyberIES encryption
+ * @brief lc_kyber_ies_enc - KyberIES encryption oneshot
  *
  * The implementation supports an in-place data encryption where the
  * plaintext and ciphertext buffer pointers refer to the same memory location.
  *
  * The function entirely operates on stack memory.
  *
- * @param pk [in] Kyber public key of data owner
- * @param ct [out] Kyber ciphertext to be sent to the decryption operation
- * @param plaintext [in] Plaintext data to be encrypted
- * @param ciphertext [out] Buffer of equal size as plaintext that will be filled
+ * @param [in] pk Kyber public key of data owner
+ * @param [out] ct Kyber ciphertext to be sent to the decryption operation
+ * @param [in] plaintext Plaintext data to be encrypted
+ * @param [out] ciphertext Buffer of equal size as plaintext that will be filled
  *			   with the encryption result
- * @param datalen [in] Length of the plaintext buffer
- * @param aad [in] Additional authenticate data to be processed - this is data
+ * @param [in] datalen Length of the plaintext buffer
+ * @param [in] aad Additional authenticate data to be processed - this is data
  *		   which is not encrypted, but considered as part of the
  *		   authentication.
- * @param aadlen [in] Length of the AAD buffer
- * @param tag [out] Buffer that will be filled with the authentication tag
- * @param taglen [in] Length of the tag buffer
- * @param aead [in] Allocated AEAD algorithm - the caller only needs to provide
+ * @param [in] aadlen Length of the AAD buffer
+ * @param [out] tag Buffer that will be filled with the authentication tag
+ * @param [in] taglen Length of the tag buffer
+ * @param [in] aead Allocated AEAD algorithm - the caller only needs to provide
  *		    an allocated but otherwise unused instance of an AEAD
  *		    algorithm. This allows the caller to define the AEAD
  *		    algorithm type. The caller must zeroize and release the
  *		    context after completion.
- * @param rng_ctx [in] Fully seeded random bit generator context.
+ * @param [in] rng_ctx Fully seeded random bit generator context.
  *
  * @return 0 on success, < 0 on error
  */
@@ -436,31 +436,114 @@ int lc_kyber_ies_enc(const struct lc_kyber_pk *pk,
 		     struct lc_rng_ctx *rng_ctx);
 
 /**
- * @brief lc_kyber_ies_dec - KyberIES decryption
+ * @brief lc_kyber_ies_enc_init - KyberIES encryption stream operation
+ *				  initialization
+ *
+ * The implementation supports an in-place data encryption where the
+ * plaintext and ciphertext buffer pointers refer to the same memory location.
+ *
+ * The function entirely operates on stack memory.
+ *
+ * The aead context is initialized such that it can be used with
+ * lc_kyber_ies_enc_[update|final].
+ *
+ * @param [out] aead Allocated AEAD algorithm - the caller only needs to provide
+ *		     an allocated but otherwise unused instance of an AEAD
+ *		     algorithm. This allows the caller to define the AEAD
+ *		     algorithm type. The caller must zeroize and release the
+ *		     context after completion.
+ * @param [in] pk Kyber public key of data owner
+ * @param [out] ct Kyber ciphertext to be sent to the decryption operation
+ * @param [in] rng_ctx Fully seeded random bit generator context.
+ *
+ * @return 0 on success, < 0 on error
+ */
+int lc_kyber_ies_enc_init(struct lc_aead_ctx *aead,
+			  const struct lc_kyber_pk *pk, struct lc_kyber_ct *ct,
+			  struct lc_rng_ctx *rng_ctx);
+
+/**
+ * @brief lc_kyber_ies_enc_update - KyberIES encryption stream operation
+ *				    add more data
+ *
+ * The implementation supports an in-place data encryption where the
+ * plaintext and ciphertext buffer pointers refer to the same memory location.
+ *
+ * The function entirely operates on stack memory.
+ *
+ * @param [in] aead Allocated AEAD algorithm - the caller only needs to provide
+ *		    an allocated but otherwise unused instance of an AEAD
+ *		    algorithm. This allows the caller to define the AEAD
+ *		    algorithm type. The caller must zeroize and release the
+ *		    context after completion.
+ * @param [in] plaintext Plaintext data to be encrypted
+ * @param [out] ciphertext Buffer of equal size as plaintext that will be filled
+ *			   with the encryption result
+ * @param [in] datalen Length of the plaintext buffer
+ */
+static inline void
+lc_kyber_ies_enc_update(struct lc_aead_ctx *aead,
+			const uint8_t *plaintext, uint8_t *ciphertext,
+			size_t datalen)
+{
+	lc_aead_enc_update(aead, plaintext, ciphertext, datalen);
+}
+
+/**
+ * @brief lc_kyber_ies_enc_final - KyberIES encryption stream operation
+ *				   finalization / integrity test
+ *
+ * The implementation supports an in-place data encryption where the
+ * plaintext and ciphertext buffer pointers refer to the same memory location.
+ *
+ * The function entirely operates on stack memory.
+ *
+ * @param [in] aead Allocated AEAD algorithm - the caller only needs to provide
+ *		    an allocated but otherwise unused instance of an AEAD
+ *		    algorithm. This allows the caller to define the AEAD
+ *		    algorithm type. The caller must zeroize and release the
+ *		    context after completion.
+ * @param [in] aad Additional authenticate data to be processed - this is data
+ *		   which is not encrypted, but considered as part of the
+ *		   authentication.
+ * @param [in] aadlen Length of the AAD buffer
+ * @param [out] tag Buffer that will be filled with the authentication tag
+ * @param [in] taglen Length of the tag buffer
+ */
+static inline void
+lc_kyber_ies_enc_final(struct lc_aead_ctx *aead,
+		       const uint8_t *aad, size_t aadlen,
+		       uint8_t *tag, size_t taglen)
+{
+	lc_aead_enc_final(aead, aad, aadlen, tag, taglen);
+}
+
+/**
+ * @brief lc_kyber_ies_dec - KyberIES decryption oneshot
  *
  * The implementation supports an in-place data decryption where the
  * plaintext and ciphertext buffer pointers refer to the same memory location.
  *
  * The function entirely operates on stack memory.
  *
- * @param sk [in] Kyber secret key of data owner
- * @param ct [int] Kyber ciphertext received from the encryption operation
- * @param ciphertext [in] Ciphertext data to be encrypted
- * @param plaintext [out] Buffer of equal size as ciphertext that will be
+ * @param [in] sk Kyber secret key of data owner
+ * @param [in] ct Kyber ciphertext received from the encryption operation
+ * @param [in] ciphertext Ciphertext data to be encrypted
+ * @param [out] plaintext Buffer of equal size as ciphertext that will be
  *			   filled with the decryption result
- * @param datalen [in] Length of the ciphertext buffer
- * @param aad [in] Additional authenticate data to be processed - this is data
+ * @param [in] datalen Length of the ciphertext buffer
+ * @param [in] aad Additional authenticate data to be processed - this is data
  *		   which is not encrypted, but considered as part of the
  *		   authentication.
- * @param aadlen [in] Length of the AAD buffer
- * @param tag [in] Buffer with the authentication tag
- * @param taglen [in] Length of the tag buffer
- * @param aead [in] Allocated AEAD algorithm - the caller only needs to provide
+ * @param [in] aadlen Length of the AAD buffer
+ * @param [in] tag Buffer with the authentication tag
+ * @param [in] taglen Length of the tag buffer
+ * @param [in] aead Allocated AEAD algorithm - the caller only needs to provide
  *		    an allocated but otherwise unused instance of an AEAD
  *		    algorithm. This allows the caller to define the AEAD
  *		    algorithm type. The caller must zeroize and release the
  *		    context after completion.
- * @return 0 on success, < 0 on error
+ * @return 0 on success, < 0 on error (-EBADMSG on integrity error)
  */
 int lc_kyber_ies_dec(const struct lc_kyber_sk *sk,
 		     const struct lc_kyber_ct *ct,
@@ -469,6 +552,88 @@ int lc_kyber_ies_dec(const struct lc_kyber_sk *sk,
 		     const uint8_t *aad, size_t aadlen,
 		     const uint8_t *tag, size_t taglen,
 		     struct lc_aead_ctx *aead);
+
+/**
+ * @brief lc_kyber_ies_dec_init - KyberIES decryption stream operation
+ *				  initialization
+ *
+ * The implementation supports an in-place data decryption where the
+ * plaintext and ciphertext buffer pointers refer to the same memory location.
+ *
+ * The function entirely operates on stack memory.
+ *
+ * The aead context is initialized such that it can be used with
+ * lc_kyber_ies_dec_[update|final].
+ *
+ * @param [out] aead Allocated AEAD algorithm - the caller only needs to provide
+ *		     an allocated but otherwise unused instance of an AEAD
+ *		     algorithm. This allows the caller to define the AEAD
+ *		     algorithm type. The caller must zeroize and release the
+ *		     context after completion.
+ * @param [in] sk Kyber secret key of data owner
+ * @param [in] ct Kyber ciphertext received from the encryption operation
+ * @return 0 on success, < 0 on error
+ */
+int lc_kyber_ies_dec_init(struct lc_aead_ctx *aead,
+			  const struct lc_kyber_sk *sk,
+			  const struct lc_kyber_ct *ct);
+
+/**
+ * @brief lc_kyber_ies_dec_update - KyberIES decryption stream operation
+ *				    add more data
+ *
+ * The implementation supports an in-place data decryption where the
+ * plaintext and ciphertext buffer pointers refer to the same memory location.
+ *
+ * The function entirely operates on stack memory.
+ *
+ * @param [in] aead Allocated AEAD algorithm - the caller only needs to provide
+ *		    an allocated but otherwise unused instance of an AEAD
+ *		    algorithm. This allows the caller to define the AEAD
+ *		    algorithm type. The caller must zeroize and release the
+ *		    context after completion.
+ * @param [in] ciphertext Ciphertext data to be encrypted
+ * @param [out] plaintext Buffer of equal size as ciphertext that will be
+ *			   filled with the decryption result
+ * @param [in] datalen Length of the ciphertext buffer
+ */
+static inline void
+lc_kyber_ies_dec_update(struct lc_aead_ctx *aead,
+			const uint8_t *ciphertext, uint8_t *plaintext,
+			size_t datalen)
+{
+	lc_aead_dec_update(aead, ciphertext, plaintext, datalen);
+}
+
+/**
+ * @brief lc_kyber_ies_dec_final - KyberIES decryption stream operation
+ *				   finalization / integrity test
+ *
+ * The implementation supports an in-place data decryption where the
+ * plaintext and ciphertext buffer pointers refer to the same memory location.
+ *
+ * The function entirely operates on stack memory.
+ *
+ * @param [in] aead Allocated AEAD algorithm - the caller only needs to provide
+ *		    an allocated but otherwise unused instance of an AEAD
+ *		    algorithm. This allows the caller to define the AEAD
+ *		    algorithm type. The caller must zeroize and release the
+ *		    context after completion.
+ * @param [in] aad Additional authenticate data to be processed - this is data
+ *		   which is not encrypted, but considered as part of the
+ *		   authentication.
+ * @param [in] aadlen Length of the AAD buffer
+ * @param [in] tag Buffer with the authentication tag
+ * @param [in] taglen Length of the tag buffer
+ * @return 0 on success, < 0 on error (-EBADMSG on integrity error)
+ */
+static inline int
+lc_kyber_ies_dec_final(struct lc_aead_ctx *aead,
+		       const uint8_t *aad, size_t aadlen,
+		       const uint8_t *tag, size_t taglen)
+{
+	return lc_aead_dec_final(aead, aad, aadlen, tag, taglen);
+}
 
 #ifdef __cplusplus
 }

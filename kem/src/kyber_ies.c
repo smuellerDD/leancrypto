@@ -342,6 +342,27 @@ out:
 }
 
 LC_INTERFACE_FUNCTION(
+int, lc_kyber_ies_enc_init, struct lc_aead_ctx *aead,
+		            const struct lc_kyber_pk *pk,
+			    struct lc_kyber_ct *ct,
+			    struct lc_rng_ctx *rng_ctx)
+{
+	uint8_t ss[LC_KYBER_IES_SYM_KEYSIZE + LC_KYBER_IES_SYM_IVSIZE];
+	uint8_t *ies_key = ss;
+	uint8_t *ies_iv = ss + LC_KYBER_IES_SYM_KEYSIZE;
+	int ret;
+
+	CKINT(lc_kyber_enc(ct, ss, sizeof(ss), pk, rng_ctx));
+	CKINT(lc_aead_setkey(aead,
+			     ies_key, LC_KYBER_IES_SYM_KEYSIZE,
+			     ies_iv, LC_KYBER_IES_SYM_IVSIZE));
+
+out:
+	lc_memset_secure(ss, 0, sizeof(ss));
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(
 int, lc_kyber_ies_dec, const struct lc_kyber_sk *sk,
 		       const struct lc_kyber_ct *ct,
 		       const uint8_t *ciphertext, uint8_t *plaintext,
@@ -361,6 +382,27 @@ int, lc_kyber_ies_dec, const struct lc_kyber_sk *sk,
 			     ies_iv, LC_KYBER_IES_SYM_IVSIZE));
 	CKINT(lc_aead_decrypt(aead, ciphertext, plaintext, datalen,
 			      aad, aadlen, tag, taglen));
+
+out:
+	lc_memset_secure(ss, 0, sizeof(ss));
+	return ret;
+}
+
+
+LC_INTERFACE_FUNCTION(
+int, lc_kyber_ies_dec_init, struct lc_aead_ctx *aead,
+			    const struct lc_kyber_sk *sk,
+			    const struct lc_kyber_ct *ct)
+{
+	uint8_t ss[LC_KYBER_IES_SYM_KEYSIZE + LC_KYBER_IES_SYM_IVSIZE];
+	uint8_t *ies_key = ss;
+	uint8_t *ies_iv = ss + LC_KYBER_IES_SYM_KEYSIZE;
+	int ret;
+
+	CKINT(lc_kyber_dec(ss, sizeof(ss), ct, sk));
+	CKINT(lc_aead_setkey(aead,
+			     ies_key, LC_KYBER_IES_SYM_KEYSIZE,
+			     ies_iv, LC_KYBER_IES_SYM_IVSIZE));
 
 out:
 	lc_memset_secure(ss, 0, sizeof(ss));
