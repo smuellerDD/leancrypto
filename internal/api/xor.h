@@ -92,8 +92,8 @@ static inline void xor_64_aligned(uint8_t *dst, const uint8_t *src, size_t size)
  * @brief Perform XOR operation efficiently
  *
  * @param dst [in/out] Data in which the source data is XORed into
- * @param src [in] Source data which is XORed into the destination
- * @param size [in] Buffer lengths of both, dst and src
+ * @param [in] src Source data which is XORed into the destination
+ * @param [in] size Buffer lengths of both, dst and src
  */
 static inline void xor_64(uint8_t *dst, const uint8_t *src, size_t size)
 {

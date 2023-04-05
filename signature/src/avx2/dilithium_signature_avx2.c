@@ -35,7 +35,7 @@
 #include "lc_dilithium.h"
 #include "lc_rng.h"
 #include "lc_sha3.h"
-#include "memcmp_secure.h"
+#include "lc_memcmp_secure.h"
 #include "ret_checkers.h"
 #include "shake_4x_avx2.h"
 #include "small_stack_support.h"

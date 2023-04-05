@@ -27,7 +27,7 @@ extern "C"
 
 #include "bitshift.h"
 #include "cpufeatures.h"
-#include "memcmp_secure.h"
+#include "lc_memcmp_secure.h"
 
 static inline int
 memcmp_secure_aligned(const uint8_t *ptr, uint32_t alignmask)

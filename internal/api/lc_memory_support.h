@@ -80,9 +80,9 @@ extern "C"
 /**
  * @brief allocate aligned memory up to 8 bytes alignment
  *
- * @param memptr [out] pointer to the newly allocated memory
- * @param alignment [in] alignment of the memory
- * @param size [in] size of the memory buffer
+ * @param [out] memptr pointer to the newly allocated memory
+ * @param [in] alignment alignment of the memory
+ * @param [in] size size of the memory buffer
  */
 int lc_alloc_aligned(void **memptr, size_t alignment, size_t size);
 
@@ -90,18 +90,18 @@ int lc_alloc_aligned(void **memptr, size_t alignment, size_t size);
  * @brief allocate aligned memory up to 8 bytes alignment with additional
  *	  security precautions
  *
- * @param memptr [out] pointer to the newly allocated memory
- * @param alignment [in] alignment of the memory
- * @param size [in] size of the memory buffer
+ * @param [out] memptr pointer to the newly allocated memory
+ * @param [in] alignment alignment of the memory
+ * @param [in] size size of the memory buffer
  */
 int lc_alloc_aligned_secure(void **memptr, size_t alignment, size_t size);
 
 /**
  * @brief allocate aligned memory with arbitrary alignment
  *
- * @param memptr [out] pointer to the newly allocated memory
- * @param alignment [in] alignment of the memory
- * @param size [in] size of the memory buffer
+ * @param [out] memptr pointer to the newly allocated memory
+ * @param [in] alignment alignment of the memory
+ * @param [in] size size of the memory buffer
  */
 int lc_alloc_high_aligned(void **memptr, size_t alignment, size_t size);
 
@@ -110,7 +110,7 @@ int lc_alloc_high_aligned(void **memptr, size_t alignment, size_t size);
  *
  * The memory is NOT zeroized.
  *
- * @param ptr [in] memory pointer to free
+ * @param [in] ptr memory pointer to free
  */
 void lc_free(void *ptr);
 
@@ -119,8 +119,8 @@ void lc_free(void *ptr);
  *
  * The memory is NOT zeroized.
  *
- * @param ptr [in] memory pointer to free
- * @param size [in] size of the memory to free
+ * @param [in] ptr memory pointer to free
+ * @param [in] size size of the memory to free
  */
 void lc_free_high_aligned(void *ptr, size_t size);
 

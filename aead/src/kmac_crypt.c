@@ -269,8 +269,8 @@
 #include "build_bug_on.h"
 #include "compare.h"
 #include "lc_kmac_crypt.h"
+#include "lc_memcmp_secure.h"
 #include "math_helper.h"
-#include "memcmp_secure.h"
 #include "visibility.h"
 #include "xor.h"
 

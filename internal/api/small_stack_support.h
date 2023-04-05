@@ -21,7 +21,7 @@
 #define SMALL_STACK_SUPPORT_H
 
 #include "lc_memory_support.h"
-#include "memcmp_secure.h"
+#include "lc_memcmp_secure.h"
 
 #ifdef __cplusplus
 extern "C"

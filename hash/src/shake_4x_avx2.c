@@ -27,7 +27,7 @@
 #include "ext_headers.h"
 #include "ext_headers_x86.h"
 #include "lc_sha3.h"
-#include "memcmp_secure.h"
+#include "lc_memcmp_secure.h"
 #include "shake_4x_avx2.h"
 #include "visibility.h"
 

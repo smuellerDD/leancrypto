@@ -21,8 +21,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "lc_memcmp_secure.h"
 #include "lc_rng.h"
-#include "memcmp_secure.h"
 #include "ret_checkers.h"
 
 static int seeded_rng_selftest(void)

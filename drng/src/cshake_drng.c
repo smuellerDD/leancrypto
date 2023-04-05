@@ -271,8 +271,8 @@
 #include "build_bug_on.h"
 #include "compare.h"
 #include "lc_cshake256_drng.h"
+#include "lc_memcmp_secure.h"
 #include "math_helper.h"
-#include "memcmp_secure.h"
 #include "visibility.h"
 
 #define LC_CSHAKE_DRNG_SEED_CUSTOMIZATION_STRING	"cSHAKE-DRNG seed"

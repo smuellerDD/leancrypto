@@ -34,6 +34,7 @@ endif
 
 include_files += files([
 	'../api/ext_headers.h',
+	'../api/lc_memcmp_secure.h',
 	'../api/lc_memset_secure.h',
 	'../api/lc_memory_support.h',
 	'../api/lc_status.h'

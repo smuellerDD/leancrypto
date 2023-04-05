@@ -242,10 +242,10 @@
 #include "compare.h"
 #include "lc_aes.h"
 #include "lc_hkdf.h"
+#include "lc_memcmp_secure.h"
 #include "lc_symhmac.h"
 #include "lc_sha512.h"
 #include "math_helper.h"
-#include "memcmp_secure.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 

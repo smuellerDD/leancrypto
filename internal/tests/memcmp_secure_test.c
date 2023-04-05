@@ -22,7 +22,7 @@
 
 #include "binhexbin.h"
 #include "lc_hash_drbg.h"
-#include "memcmp_secure.h"
+#include "lc_memcmp_secure.h"
 #include "small_stack_support.h"
 
 static int memcmp_secure_tester(void)
