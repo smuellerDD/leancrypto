@@ -321,7 +321,7 @@ int, lc_dilithium_sign_init_c, struct lc_hash_ctx *hash_ctx,
 		return -EOPNOTSUPP;
 
 	dilithium_siggen_tester(&tested, "Dilithium Siggen C",
-				 lc_dilithium_sign_c);
+				lc_dilithium_sign_c);
 
 	unpack_sk_tr(tr, sk);
 
