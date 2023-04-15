@@ -427,7 +427,7 @@ lc_kc_decrypt_authenticate(void *state,
 	int ret;
 
 	if (taglen > sizeof(calctag)) {
-		ret = lc_alloc_aligned((void *)&calctag_p, sizeof(uint64_t),
+		ret = lc_alloc_aligned((void **)&calctag_p, sizeof(uint64_t),
 				       taglen);
 		if (ret)
 			return -ret;
@@ -545,7 +545,7 @@ int, lc_kc_alloc, const struct lc_hash *hash, struct lc_aead_ctx **ctx)
 	if (!ctx)
 		return -EINVAL;
 
-	ret = lc_alloc_aligned((void *)&tmp, LC_HASH_COMMON_ALIGNMENT,
+	ret = lc_alloc_aligned((void **)&tmp, LC_HASH_COMMON_ALIGNMENT,
 			       LC_KC_CTX_SIZE(hash));
 	if (ret)
 		return -ret;

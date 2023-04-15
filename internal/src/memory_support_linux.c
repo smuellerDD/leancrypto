@@ -155,7 +155,7 @@ static void lc_free_internal(void *ptr, int secure)
 	if (secure)
 		lc_memset_secure(mem, 0, size);
 
-	if (lc_alloc_have_memfd_secret) {
+	if (lc_alloc_have_memfd_secret && fd >= 0) {
 		munmap(mem, size);
 		if (fd != -1)
 			close(fd);

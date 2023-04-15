@@ -180,7 +180,7 @@ int, lc_hkdf_alloc, const struct lc_hash *hash, struct lc_hkdf_ctx **hkdf_ctx)
 	if (!hkdf_ctx)
 		return -EINVAL;
 
-	ret = lc_alloc_aligned((void *)&out_state, LC_HASH_COMMON_ALIGNMENT,
+	ret = lc_alloc_aligned((void **)&out_state, LC_HASH_COMMON_ALIGNMENT,
 			       LC_HKDF_CTX_SIZE(hash));
 	if (ret)
 		return -ret;

@@ -497,7 +497,7 @@ int, lc_sh_alloc, const struct lc_sym *sym, const struct lc_hash *hash,
 	struct lc_aead_ctx *tmp = NULL;
 	int ret;
 
-	ret = lc_alloc_aligned((void *)&tmp, LC_HASH_COMMON_ALIGNMENT,
+	ret = lc_alloc_aligned((void **)&tmp, LC_HASH_COMMON_ALIGNMENT,
 			       LC_SH_CTX_SIZE(sym, hash));
 	if (ret)
 		return -ret;

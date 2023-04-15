@@ -113,7 +113,7 @@ LC_INTERFACE_FUNCTION(
 int, lc_hmac_alloc, const struct lc_hash *hash, struct lc_hmac_ctx **hmac_ctx)
 {
 	struct lc_hmac_ctx *out_ctx = NULL;
-	int ret = lc_alloc_aligned((void *)&out_ctx, LC_HASH_COMMON_ALIGNMENT,
+	int ret = lc_alloc_aligned((void **)&out_ctx, LC_HASH_COMMON_ALIGNMENT,
 				   LC_HMAC_CTX_SIZE(hash));
 
 	if (ret)
