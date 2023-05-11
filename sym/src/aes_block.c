@@ -73,13 +73,13 @@ static void aes_decrypt(struct lc_sym_state* ctx,
 	aes_inv_cipher((state_t*)out, block_ctx);
 }
 
-static void aes_ecb_init(struct lc_sym_state *ctx)
+static void aes_init(struct lc_sym_state *ctx)
 {
 	(void)ctx;
 }
 
-static int aes_ecb_setkey(struct lc_sym_state *ctx,
-			  const uint8_t *key, size_t keylen)
+static int aes_setkey(struct lc_sym_state *ctx,
+		      const uint8_t *key, size_t keylen)
 {
 	int ret;
 
@@ -93,8 +93,7 @@ static int aes_ecb_setkey(struct lc_sym_state *ctx,
 	return 0;
 }
 
-static int aes_ecb_setiv(struct lc_sym_state *ctx,
-			 const uint8_t *iv, size_t ivlen)
+static int aes_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen)
 {
 	(void)ctx;
 	(void)iv;
@@ -103,9 +102,9 @@ static int aes_ecb_setiv(struct lc_sym_state *ctx,
 }
 
 static struct lc_sym _lc_aes = {
-	.init		= aes_ecb_init,
-	.setkey		= aes_ecb_setkey,
-	.setiv		= aes_ecb_setiv,
+	.init		= aes_init,
+	.setkey		= aes_setkey,
+	.setiv		= aes_setiv,
 	.encrypt	= aes_encrypt,
 	.decrypt	= aes_decrypt,
 	.statesize	= LC_AES_BLOCK_SIZE,
