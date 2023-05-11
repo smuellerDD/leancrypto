@@ -141,9 +141,9 @@
  *   IV: Initialization vector - KyberIES supports an arbitrary IV size, which
  *	 must be defined with the used AEAD algorithm
  *
- *   MAC key: The optional MAC key - KyberIES supports an arbitrary IV size,
- *	      which must be defined with the used AEAD algorithm (if the AEAD
- *	      algorithm does not require a MAC key, the MAC key is an empty
+ *   MAC key: The optional MAC key - KyberIES supports an arbitrary MAC key
+ *   	      size, which must be defined with the used AEAD algorithm (if the
+ *	      AEAD algorithm does not require a MAC key, the MAC key is an empty
  *	      string with zero bits in size)
  *
  *   plaintext: The caller-provided plaintext data.

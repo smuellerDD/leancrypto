@@ -126,12 +126,13 @@ static int kyber_kex_tester(void)
 
 	// Run by Alice
 	CKINT(lc_kex_uake_initiator_ss(&ws->ct_e_i, ws->ss_i, sizeof(ws->ss_i),
+				       NULL, 0,
 				       &ws->pk_e_r, &ws->ct_e_r, &ws->sk_i,
 				       &cshake_rng));
 
 	// Run by Bob
-	CKINT(lc_kex_uake_responder_ss(ws->ss_r, sizeof(ws->ss_r), &ws->ct_e_i,
-				       &ws->tk, &ws->sk_e));
+	CKINT(lc_kex_uake_responder_ss(ws->ss_r, sizeof(ws->ss_r), NULL, 0,
+				       &ws->ct_e_i, &ws->tk, &ws->sk_e));
 
 	if (memcmp(ws->ss_i, ws->ss_r, sizeof(ws->ss_r))) {
 		printf("Error in UAKE\n");
@@ -154,12 +155,14 @@ static int kyber_kex_tester(void)
 	// Run by Alice
 	CKINT(lc_kex_ake_initiator_ss(&ws->ct_e_i_1, &ws->ct_e_i_2,
 				      ws->ss_i, sizeof(ws->ss_i),
+				      NULL, 0,
 				      &ws->pk_e_r, &ws->ct_e_r,
 				      &ws->sk_i, &ws->pk_r,
 				      &cshake_rng));
 
 	// Run by Bob
 	CKINT(lc_kex_ake_responder_ss(ws->ss_r, sizeof(ws->ss_r),
+				      NULL, 0,
 				      &ws->ct_e_i_1, &ws->ct_e_i_2,
 				      &ws->tk, &ws->sk_e, &ws->sk_r));
 

@@ -52,6 +52,8 @@ LC_INTERFACE_FUNCTION(
 int, lc_kex_uake_initiator_ss, struct lc_kyber_ct *ct_e_i,
 			       uint8_t *shared_secret,
 			       size_t shared_secret_len,
+			       const uint8_t *kdf_nonce,
+			       size_t kdf_nonce_len,
 			       const struct lc_kyber_pk *pk_e_r,
 			       const struct lc_kyber_ct *ct_e_r,
 			       const struct lc_kyber_sk *sk_i,
@@ -62,8 +64,9 @@ int, lc_kex_uake_initiator_ss, struct lc_kyber_ct *ct_e_i,
 
 	CKINT(lc_kyber_enc(ct_e_i, ss[0].ss, LC_KYBER_SSBYTES, pk_e_r, rng_ctx));
 	CKINT(lc_kyber_dec(ss[1].ss, LC_KYBER_SSBYTES, ct_e_r, sk_i));
-	kyber_kdf2(ss[0].ss, LC_KYBER_SSBYTES,
+	kyber_kdf3(ss[0].ss, LC_KYBER_SSBYTES,
 		   ss[1].ss, LC_KYBER_SSBYTES,
+		   kdf_nonce, kdf_nonce_len,
 		   shared_secret, shared_secret_len);
 
 out:
@@ -74,6 +77,8 @@ out:
 LC_INTERFACE_FUNCTION(
 int, lc_kex_uake_responder_ss, uint8_t *shared_secret,
 			       size_t shared_secret_len,
+			       const uint8_t *kdf_nonce,
+			       size_t kdf_nonce_len,
 			       const struct lc_kyber_ct *ct_e_i,
 			       const struct lc_kyber_ss *tk,
 			       const struct lc_kyber_sk *sk_e)
@@ -82,8 +87,9 @@ int, lc_kex_uake_responder_ss, uint8_t *shared_secret,
 	int ret;
 
 	CKINT(lc_kyber_dec(ss.ss, LC_KYBER_SSBYTES, ct_e_i, sk_e));
-	kyber_kdf2(ss.ss, LC_KYBER_SSBYTES,
+	kyber_kdf3(ss.ss, LC_KYBER_SSBYTES,
 		   tk->ss, LC_KYBER_SSBYTES,
+		   kdf_nonce, kdf_nonce_len,
 		   shared_secret, shared_secret_len);
 
 out:
@@ -113,6 +119,8 @@ int, lc_kex_ake_initiator_ss, struct lc_kyber_ct *ct_e_i_1,
 			      struct lc_kyber_ct *ct_e_i_2,
 			      uint8_t *shared_secret,
 			      size_t shared_secret_len,
+			      const uint8_t *kdf_nonce,
+			      size_t kdf_nonce_len,
 			      const struct lc_kyber_pk *pk_e_r,
 			      const struct lc_kyber_ct *ct_e_r,
 			      const struct lc_kyber_sk *sk_i,
@@ -127,9 +135,10 @@ int, lc_kex_ake_initiator_ss, struct lc_kyber_ct *ct_e_i_1,
 	CKINT(lc_kyber_enc(ct_e_i_2, ss[1].ss, LC_KYBER_SSBYTES, pk_r,
 			   rng_ctx));
 	CKINT(lc_kyber_dec(ss[2].ss, LC_KYBER_SSBYTES, ct_e_r, sk_i));
-	kyber_kdf3(ss[0].ss, LC_KYBER_SSBYTES,
+	kyber_kdf4(ss[0].ss, LC_KYBER_SSBYTES,
 		   ss[1].ss, LC_KYBER_SSBYTES,
 		   ss[2].ss, LC_KYBER_SSBYTES,
+		   kdf_nonce, kdf_nonce_len,
 		   shared_secret, shared_secret_len);
 
 out:
@@ -140,6 +149,8 @@ out:
 LC_INTERFACE_FUNCTION(
 int, lc_kex_ake_responder_ss, uint8_t *shared_secret,
 			      size_t shared_secret_len,
+			      const uint8_t *kdf_nonce,
+			      size_t kdf_nonce_len,
 			      const struct lc_kyber_ct *ct_e_i_1,
 			      const struct lc_kyber_ct *ct_e_i_2,
 			      const struct lc_kyber_ss *tk,
@@ -151,9 +162,10 @@ int, lc_kex_ake_responder_ss, uint8_t *shared_secret,
 
 	CKINT(lc_kyber_dec(ss[0].ss, LC_KYBER_SSBYTES, ct_e_i_1, sk_e));
 	CKINT(lc_kyber_dec(ss[1].ss, LC_KYBER_SSBYTES, ct_e_i_2, sk_r));
-	kyber_kdf3(ss[0].ss, LC_KYBER_SSBYTES,
+	kyber_kdf4(ss[0].ss, LC_KYBER_SSBYTES,
 		   ss[1].ss, LC_KYBER_SSBYTES,
 		   tk->ss, LC_KYBER_SSBYTES,
+		   kdf_nonce, kdf_nonce_len,
 		   shared_secret, shared_secret_len);
 
 out:

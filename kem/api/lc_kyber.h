@@ -243,6 +243,10 @@ int lc_kex_uake_responder_init(struct lc_kyber_pk *pk_e_r,
  *		       responder
  * @param [out] shared_secret Shared secret between initiator and responder
  * @param [in] shared_secret_len Requested size of the shared secret
+ * @param [in] kdf_nonce An optional nonce that is concatenated at the end of
+ *			 the Kyber KEX-generated data to be inserted into
+ *			 the KDF. If not required, use NULL.
+ * @param [in] kdf_nonce_len Length of the kdf_nonce.
  * @param [in] pk_e_r responder's ephemeral public key
  * @param [in] ct_e_r responder's ephemeral cipher text
  * @param [in] sk_i initator's secret key
@@ -253,6 +257,8 @@ int lc_kex_uake_responder_init(struct lc_kyber_pk *pk_e_r,
 int lc_kex_uake_initiator_ss(struct lc_kyber_ct *ct_e_i,
 			     uint8_t *shared_secret,
 			     size_t shared_secret_len,
+			     const uint8_t *kdf_nonce,
+			     size_t kdf_nonce_len,
 			     const struct lc_kyber_pk *pk_e_r,
 			     const struct lc_kyber_ct *ct_e_r,
 			     const struct lc_kyber_sk *sk_i,
@@ -263,6 +269,10 @@ int lc_kex_uake_initiator_ss(struct lc_kyber_ct *ct_e_i,
  *
  * @param [out] shared_secret Shared secret between initiator and responder
  * @param [in] shared_secret_len Requested size of the shared secret
+ * @param [in] kdf_nonce An optional nonce that is concatenated at the end of
+ *			 the Kyber KEX-generated data to be inserted into
+ *			 the KDF. If not required, use NULL.
+ * @param [in] kdf_nonce_len Length of the kdf_nonce.
  * @param [in] ct_e_i intiator's ephemeral cipher text
  * @param [in] tk KEM shared secret data that was generated during the
  *		  responder's initialization
@@ -273,6 +283,8 @@ int lc_kex_uake_initiator_ss(struct lc_kyber_ct *ct_e_i,
  */
 int lc_kex_uake_responder_ss(uint8_t *shared_secret,
 			     size_t shared_secret_len,
+			     const uint8_t *kdf_nonce,
+			     size_t kdf_nonce_len,
 			     const struct lc_kyber_ct *ct_e_i,
 			     const struct lc_kyber_ss *tk,
 			     const struct lc_kyber_sk *sk_e);
@@ -354,6 +366,10 @@ int lc_kex_ake_responder_init(struct lc_kyber_pk *pk_e_r,
  *			 responder
  * @param [out] shared_secret Shared secret between initiator and responder
  * @param [in] shared_secret_len Requested size of the shared secret
+ * @param [in] kdf_nonce An optional nonce that is concatenated at the end of
+ *			 the Kyber KEX-generated data to be inserted into
+ *			 the KDF. If not required, use NULL.
+ * @param [in] kdf_nonce_len Length of the kdf_nonce.
  * @param [in] pk_e_r responder's ephemeral public key
  * @param [in] ct_e_r responder's ephemeral cipher text
  * @param [in] sk_i initator's secret key
@@ -366,6 +382,8 @@ int lc_kex_ake_initiator_ss(struct lc_kyber_ct *ct_e_i_1,
 			    struct lc_kyber_ct *ct_e_i_2,
 			    uint8_t *shared_secret,
 			    size_t shared_secret_len,
+			    const uint8_t *kdf_nonce,
+			    size_t kdf_nonce_len,
 			    const struct lc_kyber_pk *pk_e_r,
 			    const struct lc_kyber_ct *ct_e_r,
 			    const struct lc_kyber_sk *sk_i,
@@ -377,6 +395,10 @@ int lc_kex_ake_initiator_ss(struct lc_kyber_ct *ct_e_i_1,
  *
  * @param [out] shared_secret Shared secret between initiator and responder
  * @param [in] shared_secret_len Requested size of the shared secret
+ * @param [in] kdf_nonce An optional nonce that is concatenated at the end of
+ *			 the Kyber KEX-generated data to be inserted into
+ *			 the KDF. If not required, use NULL.
+ * @param [in] kdf_nonce_len Length of the kdf_nonce.
  * @param [in] ct_e_i_1 intiator's ephemeral cipher text
  * @param [in] ct_e_i_2 intiator's ephemeral cipher text
  * @param [in] tk KEM shared secret data that was generated during the
@@ -389,6 +411,8 @@ int lc_kex_ake_initiator_ss(struct lc_kyber_ct *ct_e_i_1,
  */
 int lc_kex_ake_responder_ss(uint8_t *shared_secret,
 			    size_t shared_secret_len,
+			    const uint8_t *kdf_nonce,
+			    size_t kdf_nonce_len,
 			    const struct lc_kyber_ct *ct_e_i_1,
 			    const struct lc_kyber_ct *ct_e_i_2,
 			    const struct lc_kyber_ss *tk,

@@ -61,8 +61,8 @@ static inline void kyber_kdf2(const uint8_t *in, size_t inlen,
  * @param [in] inlen length of input buffer
  * @param [in] in2 input buffer 2
  * @param [in] inlen2 length of input buffer 2
- * @param [in] in2 input buffer 3
- * @param [in] inlen2 length of input buffer 3
+ * @param [in] in3 input buffer 3
+ * @param [in] inlen3 length of input buffer 3
  * @param [out] out output buffer of size
  * @param [out] outlen output buffer length
  */
@@ -77,6 +77,38 @@ static inline void kyber_kdf3(const uint8_t *in, size_t inlen,
 	lc_hash_update(shake256, in, inlen);
 	lc_hash_update(shake256, in2, inlen2);
 	lc_hash_update(shake256, in3, inlen3);
+	lc_hash_set_digestsize(shake256, outlen);
+	lc_hash_final(shake256, out);
+
+	lc_hash_zero(shake256);
+}
+/**
+ * @brief Kyber KDF
+ *
+ * @param [in] in input buffer
+ * @param [in] inlen length of input buffer
+ * @param [in] in2 input buffer 2
+ * @param [in] inlen2 length of input buffer 2
+ * @param [in] in3 input buffer 3
+ * @param [in] inlen3 length of input buffer 3
+ * @param [in] in4 input buffer 4
+ * @param [in] inlen4 length of input buffer 4
+ * @param [out] out output buffer of size
+ * @param [out] outlen output buffer length
+ */
+static inline void kyber_kdf4(const uint8_t *in, size_t inlen,
+			      const uint8_t *in2, size_t inlen2,
+			      const uint8_t *in3, size_t inlen3,
+			      const uint8_t *in4, size_t inlen4,
+			      uint8_t *out, size_t outlen)
+{
+	LC_HASH_CTX_ON_STACK(shake256, lc_shake256);
+
+	lc_hash_init(shake256);
+	lc_hash_update(shake256, in, inlen);
+	lc_hash_update(shake256, in2, inlen2);
+	lc_hash_update(shake256, in3, inlen3);
+	lc_hash_update(shake256, in4, inlen4);
 	lc_hash_set_digestsize(shake256, outlen);
 	lc_hash_final(shake256, out);
 
