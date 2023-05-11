@@ -125,26 +125,26 @@ static void lc_seeded_rng_zero_state(void)
 
 static int time_after(time_t curr, time_t base)
 {
-        if (curr == (time_t)-1)
-                return 0;
-        if (base == (time_t)-1)
-                return 1;
-        return (curr > base) ? 1 : 0;
+	if (curr == (time_t)-1)
+		return 0;
+	if (base == (time_t)-1)
+		return 1;
+	return (curr > base) ? 1 : 0;
 }
 
 static time_t time_after_now(time_t base)
 {
-        time_t curr = time(NULL);
+	time_t curr = time(NULL);
 
-        if (curr == (time_t)-1)
-                return 0;
-        return time_after(curr, base) ? (curr - base) : 0;
+	if (curr == (time_t)-1)
+		return 0;
+	return time_after(curr, base) ? (curr - base) : 0;
 }
 
 static int lc_seeded_rng_must_reseed(struct lc_seeded_rng_ctx *rng)
 {
-        return (rng->bytes > LC_SEEDED_RNG_MAX_BYTES ||
-                time_after_now(rng->last_seeded + LC_SEEDED_RNG_MAX_TIME));
+	return (rng->bytes > LC_SEEDED_RNG_MAX_BYTES ||
+		time_after_now(rng->last_seeded + LC_SEEDED_RNG_MAX_TIME));
 }
 
 static int lc_get_seeded_rng(struct lc_seeded_rng_ctx **rng_ret)
