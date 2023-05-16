@@ -25,6 +25,7 @@
  */
 
 #include "ext_headers.h"
+#include "kyber_internal.h"
 #include "lc_kyber.h"
 #include "lc_rng.h"
 #include "lc_sha3.h"
@@ -121,14 +122,16 @@ static int kyber_kex_tester(void)
 	// Perform unilaterally authenticated key exchange
 
 	// Run by Bob
-	CKINT(lc_kex_uake_responder_init(&ws->pk_e_r, &ws->ct_e_r, &ws->tk,
-					 &ws->sk_e, &ws->pk_i, &cshake_rng));
+	CKINT(lc_kex_uake_responder_init_internal(&ws->pk_e_r, &ws->ct_e_r, &ws->tk,
+						  &ws->sk_e, &ws->pk_i,
+						  &cshake_rng));
 
 	// Run by Alice
-	CKINT(lc_kex_uake_initiator_ss(&ws->ct_e_i, ws->ss_i, sizeof(ws->ss_i),
-				       NULL, 0,
-				       &ws->pk_e_r, &ws->ct_e_r, &ws->sk_i,
-				       &cshake_rng));
+	CKINT(lc_kex_uake_initiator_ss_internal(&ws->ct_e_i, ws->ss_i,
+						sizeof(ws->ss_i),
+					        NULL, 0,
+					        &ws->pk_e_r, &ws->ct_e_r,
+						&ws->sk_i, &cshake_rng));
 
 	// Run by Bob
 	CKINT(lc_kex_uake_responder_ss(ws->ss_r, sizeof(ws->ss_r), NULL, 0,
@@ -149,16 +152,17 @@ static int kyber_kex_tester(void)
 	// Perform mutually authenticated key exchange
 
 	// Run by Bob
-	CKINT(lc_kex_ake_responder_init(&ws->pk_e_r, &ws->ct_e_r, &ws->tk,
-					&ws->sk_e, &ws->pk_i, &cshake_rng));
+	CKINT(lc_kex_ake_responder_init_internal(&ws->pk_e_r, &ws->ct_e_r,
+						 &ws->tk, &ws->sk_e, &ws->pk_i,
+						 &cshake_rng));
 
 	// Run by Alice
-	CKINT(lc_kex_ake_initiator_ss(&ws->ct_e_i_1, &ws->ct_e_i_2,
-				      ws->ss_i, sizeof(ws->ss_i),
-				      NULL, 0,
-				      &ws->pk_e_r, &ws->ct_e_r,
-				      &ws->sk_i, &ws->pk_r,
-				      &cshake_rng));
+	CKINT(lc_kex_ake_initiator_ss_internal(&ws->ct_e_i_1, &ws->ct_e_i_2,
+					       ws->ss_i, sizeof(ws->ss_i),
+					       NULL, 0,
+					       &ws->pk_e_r, &ws->ct_e_r,
+					       &ws->sk_i, &ws->pk_r,
+					       &cshake_rng));
 
 	// Run by Bob
 	CKINT(lc_kex_ake_responder_ss(ws->ss_r, sizeof(ws->ss_r),

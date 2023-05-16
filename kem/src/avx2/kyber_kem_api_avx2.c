@@ -18,6 +18,7 @@
  */
 
 #include "cpufeatures.h"
+#include "kyber_internal.h"
 #include "kyber_kem_avx2.h"
 #include "kyber_kem_c.h"
 #include "lc_kyber.h"
@@ -34,11 +35,10 @@ int, lc_kyber_keypair, struct lc_kyber_pk *pk,
 	return lc_kyber_keypair_c(pk, sk, rng_ctx);
 }
 
-LC_INTERFACE_FUNCTION(
-int, lc_kyber_enc, struct lc_kyber_ct *ct,
-		   uint8_t *ss, size_t ss_len,
-		   const struct lc_kyber_pk *pk,
-		   struct lc_rng_ctx *rng_ctx)
+int lc_kyber_enc_internal(struct lc_kyber_ct *ct,
+			  uint8_t *ss, size_t ss_len,
+			  const struct lc_kyber_pk *pk,
+			  struct lc_rng_ctx *rng_ctx)
 {
 	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
 		return lc_kyber_enc_avx(ct, ss, ss_len, pk, rng_ctx);
@@ -46,6 +46,13 @@ int, lc_kyber_enc, struct lc_kyber_ct *ct,
 	return lc_kyber_enc_c(ct, ss, ss_len, pk, rng_ctx);
 }
 
+LC_INTERFACE_FUNCTION(
+int, lc_kyber_enc, struct lc_kyber_ct *ct,
+		   uint8_t *ss, size_t ss_len,
+		   const struct lc_kyber_pk *pk)
+{
+	return lc_kyber_enc_internal(ct, ss, ss_len, pk, lc_seeded_rng);
+}
 
 LC_INTERFACE_FUNCTION(
 int, lc_kyber_dec, uint8_t *ss, size_t ss_len,

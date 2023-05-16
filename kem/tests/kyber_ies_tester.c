@@ -18,6 +18,7 @@
  */
 
 #include "ext_headers.h"
+#include "kyber_internal.h"
 #include "lc_cshake256_drng.h"
 #include "lc_cshake_crypt.h"
 #include "lc_kyber.h"
@@ -113,10 +114,11 @@ static int kyber_ies_determinisitic(void)
 
 	remember_ctr = ctr;
 
-	CKINT(lc_kyber_ies_enc(&ws->pk, &ws->ct,
-			       plain, ws->cipher, sizeof(plain), NULL, 0,
-			       ws->tag, sizeof(ws->tag),
-			       cc, &cshake_rng));
+	CKINT(lc_kyber_ies_enc_internal(&ws->pk, &ws->ct,
+					plain, ws->cipher, sizeof(plain),
+					NULL, 0,
+					ws->tag, sizeof(ws->tag),
+					cc, &cshake_rng));
 
 // 	bin2print(pk.pk, sizeof(pk.pk), stdout, "PK");
 // 	bin2print(sk.sk, sizeof(sk.sk), stdout, "SK");
@@ -135,7 +137,8 @@ static int kyber_ies_determinisitic(void)
 
 	/* Reset RNG */
 	ctr = remember_ctr;
-	CKINT(lc_kyber_ies_enc_init(cc, &ws->pk, &ws->ct, &cshake_rng));
+	CKINT(lc_kyber_ies_enc_init_internal(cc, &ws->pk, &ws->ct,
+					     &cshake_rng));
 	lc_kyber_ies_enc_update(cc, plain, ws->cipher, sizeof(plain));
 	lc_kyber_ies_enc_final(cc, NULL, 0, ws->tag, sizeof(ws->tag));
 	if (memcmp(ws->cipher, exp_cipher, sizeof(exp_cipher))){
@@ -223,8 +226,8 @@ static int kyber_ies_nondeterministic(void)
 	CKINT(lc_kyber_keypair(&ws->pk, &ws->sk, rng));
 
 	/* First enc/dec */
-	CKINT(lc_kyber_ies_enc(&ws->pk, &ws->ct,
-			       plain, ws->cipher, sizeof(plain),
+	CKINT(lc_kyber_ies_enc_internal(&ws->pk, &ws->ct,
+					plain, ws->cipher, sizeof(plain),
 			       NULL, 0,
 			       ws->tag, sizeof(ws->tag),
 			       cc, rng));
@@ -242,10 +245,11 @@ static int kyber_ies_nondeterministic(void)
 
 	/* 2nd enc/dec */
 	lc_aead_zero(cc);
-	CKINT(lc_kyber_ies_enc(&ws->pk, &ws->ct2,
-			       plain, ws->cipher2, sizeof(plain), NULL, 0,
-			       ws->tag, sizeof(ws->tag),
-			       cc, rng));
+	CKINT(lc_kyber_ies_enc_internal(&ws->pk, &ws->ct2,
+					plain, ws->cipher2, sizeof(plain),
+					NULL, 0,
+					ws->tag, sizeof(ws->tag),
+					cc, rng));
 
 	lc_aead_zero(cc);
 	CKINT(lc_kyber_ies_dec(&ws->sk, &ws->ct2,

@@ -18,6 +18,7 @@
  */
 
 #include "ext_headers.h"
+#include "kyber_internal.h"
 #include "kyber_kem_tester.h"
 #include "lc_kyber.h"
 #include "lc_sha3.h"
@@ -27,7 +28,7 @@
 static int _kyber_kem_tester_common(unsigned int rounds)
 {
 	return _kyber_kem_tester(rounds,
-				 lc_kyber_keypair, lc_kyber_enc,
+				 lc_kyber_keypair, lc_kyber_enc_internal,
 				 lc_kyber_dec);
 }
 

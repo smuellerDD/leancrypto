@@ -18,6 +18,7 @@
  */
 
 #include "compare.h"
+#include "kyber_internal.h"
 #include "lc_cshake256_drng.h"
 #include "lc_kyber.h"
 #include "lc_rng.h"
@@ -44,7 +45,8 @@ static int kyber_invalid(void)
 
 	/* modify the pub key */
 	ws->pk.pk[0] = (ws->pk.pk[0] + 0x01) & 0xff;
-	if (lc_kyber_enc(&ws->ct, ws->ss, sizeof(ws->ss), &ws->pk, rng))
+	if (lc_kyber_enc_internal(&ws->ct, ws->ss, sizeof(ws->ss), &ws->pk,
+				  rng))
 		goto out;
 	if (lc_kyber_dec(ws->ss2, sizeof(ws->ss2), &ws->ct, &ws->sk))
 		goto out;
@@ -55,7 +57,8 @@ static int kyber_invalid(void)
 	ws->pk.pk[0] = (ws->pk.pk[0] - 0x01) & 0xff;
 	/* modify the sec key */
 	ws->sk.sk[0] = (ws->sk.sk[0] + 0x01) & 0xff;
-	if (lc_kyber_enc(&ws->ct, ws->ss, sizeof(ws->ss), &ws->pk, rng))
+	if (lc_kyber_enc_internal(&ws->ct, ws->ss, sizeof(ws->ss), &ws->pk,
+				  rng))
 		goto out;
 	if (lc_kyber_dec(ws->ss2, sizeof(ws->ss2), &ws->ct, &ws->sk))
 		goto out;
@@ -64,7 +67,8 @@ static int kyber_invalid(void)
 
 	/* revert modify the sec key */
 	ws->sk.sk[0] = (ws->sk.sk[0] - 0x01) & 0xff;
-	if (lc_kyber_enc(&ws->ct, ws->ss, sizeof(ws->ss), &ws->pk, rng))
+	if (lc_kyber_enc_internal(&ws->ct, ws->ss, sizeof(ws->ss), &ws->pk,
+				  rng))
 		goto out;
 	/* modify the ct */
 	ws->ct.ct[0] = (ws->ct.ct[0] + 0x01) & 0xff;

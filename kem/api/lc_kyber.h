@@ -142,14 +142,12 @@ int lc_kyber_keypair(struct lc_kyber_pk *pk,
  *		   during decapsulation
  * @param [in] ss_len length of shared secret to be generated
  * @param [in] pk pointer to input public key
- * @param [in] rng_ctx pointer to seeded random number generator context
  *
  * Returns 0 (success) or < 0 on error
  */
 int lc_kyber_enc(struct lc_kyber_ct *ct,
 		 uint8_t *ss, size_t ss_len,
-		 const struct lc_kyber_pk *pk,
-		 struct lc_rng_ctx *rng_ctx);
+		 const struct lc_kyber_pk *pk);
 
 /**
  * @brief lc_kyber_dec - Key decapsulation
@@ -225,7 +223,6 @@ int lc_kyber_dec(uint8_t *ss, size_t ss_len,
  * @param [out] sk_e responder's ephemeral secret key to be used for the
  *		     responder's shared secret generation
  * @param [in] pk_i initiator's public key
- * @param [in] rng_ctx pointer to seeded random number generator context
  *
  * @return 0 (success) or < 0 on error
  */
@@ -233,8 +230,7 @@ int lc_kex_uake_responder_init(struct lc_kyber_pk *pk_e_r,
 			       struct lc_kyber_ct *ct_e_r,
 			       struct lc_kyber_ss *tk,
 			       struct lc_kyber_sk *sk_e,
-			       const struct lc_kyber_pk *pk_i,
-			       struct lc_rng_ctx *rng_ctx);
+			       const struct lc_kyber_pk *pk_i);
 
 /**
  * @brief lc_kex_uake_initiator_ss - Initiator's shared secret generation
@@ -250,7 +246,6 @@ int lc_kex_uake_responder_init(struct lc_kyber_pk *pk_e_r,
  * @param [in] pk_e_r responder's ephemeral public key
  * @param [in] ct_e_r responder's ephemeral cipher text
  * @param [in] sk_i initator's secret key
- * @param [in] rng_ctx pointer to seeded random number generator context
  *
  * @return 0 (success) or < 0 on error
  */
@@ -261,8 +256,7 @@ int lc_kex_uake_initiator_ss(struct lc_kyber_ct *ct_e_i,
 			     size_t kdf_nonce_len,
 			     const struct lc_kyber_pk *pk_e_r,
 			     const struct lc_kyber_ct *ct_e_r,
-			     const struct lc_kyber_sk *sk_i,
-			     struct lc_rng_ctx *rng_ctx);
+			     const struct lc_kyber_sk *sk_i);
 
 /**
  * @brief lc_kex_uake_responder_ss - Responder's shared secret generation
@@ -346,7 +340,6 @@ int lc_kex_uake_responder_ss(uint8_t *shared_secret,
  * @param [out] sk_e responder's ephemeral secret key to be used for the
  *		     responder's shared secret generation
  * @param [in] pk_i initiator's public key
- * @param [in] rng_ctx pointer to seeded random number generator context
  *
  * @return 0 (success) or < 0 on error
  */
@@ -354,8 +347,7 @@ int lc_kex_ake_responder_init(struct lc_kyber_pk *pk_e_r,
 			      struct lc_kyber_ct *ct_e_r,
 			      struct lc_kyber_ss *tk,
 			      struct lc_kyber_sk *sk_e,
-			      const struct lc_kyber_pk *pk_i,
-			      struct lc_rng_ctx *rng_ctx);
+			      const struct lc_kyber_pk *pk_i);
 
 /**
  * @brief lc_kex_ake_initiator_ss - Initiator's shared secret generation
@@ -374,7 +366,6 @@ int lc_kex_ake_responder_init(struct lc_kyber_pk *pk_e_r,
  * @param [in] ct_e_r responder's ephemeral cipher text
  * @param [in] sk_i initator's secret key
  * @param [in] pk_r responder's public key
- * @param [in] rng_ctx pointer to seeded random number generator context
  *
  * @return 0 (success) or < 0 on error
  */
@@ -387,8 +378,7 @@ int lc_kex_ake_initiator_ss(struct lc_kyber_ct *ct_e_i_1,
 			    const struct lc_kyber_pk *pk_e_r,
 			    const struct lc_kyber_ct *ct_e_r,
 			    const struct lc_kyber_sk *sk_i,
-			    const struct lc_kyber_pk *pk_r,
-			    struct lc_rng_ctx *rng_ctx);
+			    const struct lc_kyber_pk *pk_r);
 
 /**
  * @brief lc_kex_ake_responder_ss - Responder's shared secret generation
@@ -446,7 +436,6 @@ int lc_kex_ake_responder_ss(uint8_t *shared_secret,
  *		    algorithm. This allows the caller to define the AEAD
  *		    algorithm type. The caller must zeroize and release the
  *		    context after completion.
- * @param [in] rng_ctx Fully seeded random bit generator context.
  *
  * @return 0 on success, < 0 on error
  */
@@ -456,8 +445,7 @@ int lc_kyber_ies_enc(const struct lc_kyber_pk *pk,
 		     size_t datalen,
 		     const uint8_t *aad, size_t aadlen,
 		     uint8_t *tag, size_t taglen,
-		     struct lc_aead_ctx *aead,
-		     struct lc_rng_ctx *rng_ctx);
+		     struct lc_aead_ctx *aead);
 
 /**
  * @brief lc_kyber_ies_enc_init - KyberIES encryption stream operation
@@ -478,13 +466,11 @@ int lc_kyber_ies_enc(const struct lc_kyber_pk *pk,
  *		     context after completion.
  * @param [in] pk Kyber public key of data owner
  * @param [out] ct Kyber ciphertext to be sent to the decryption operation
- * @param [in] rng_ctx Fully seeded random bit generator context.
  *
  * @return 0 on success, < 0 on error
  */
 int lc_kyber_ies_enc_init(struct lc_aead_ctx *aead,
-			  const struct lc_kyber_pk *pk, struct lc_kyber_ct *ct,
-			  struct lc_rng_ctx *rng_ctx);
+			  const struct lc_kyber_pk *pk, struct lc_kyber_ct *ct);
 
 /**
  * @brief lc_kyber_ies_enc_update - KyberIES encryption stream operation
