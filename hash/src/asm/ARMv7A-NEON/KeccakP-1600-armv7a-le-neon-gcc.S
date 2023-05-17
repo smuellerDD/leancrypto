@@ -26,7 +26,7 @@
 @ WARNING: State must be 256 bit (32 bytes) aligned, best is 64-byte (cache alignment).
 @ INFO: Tested on Cortex-A8 (BeagleBone Black), using gcc.
 
-#ifdef __ARM_ARCH_7__
+#ifndef __ARM_ARCH_6__
 
 .text
 
@@ -830,4 +830,4 @@ KeccakF1600_FastLoop_Absorb_LoopLessThan16Lanes:
 
  .endif
 
-#endif /* __ARM_ARCH_7__ */
+#endif /* __ARM_ARCH_6__ */

@@ -25,7 +25,8 @@
 #include "sha3_selftest.h"
 #include "visibility.h"
 
-#ifdef __ARM_ARCH_7__
+/* ARMv6 and ARMv7 are not detectable by meson, thus apply ifdef here */
+#ifndef __ARM_ARCH_6__
 
 static void sha3_224_arm_asm_init(void *_state)
 {
@@ -225,7 +226,7 @@ static const struct lc_hash _cshake256_arm_asm = {
 LC_INTERFACE_SYMBOL(
 const struct lc_hash *, lc_cshake256_arm_asm) = &_cshake256_arm_asm;
 
-#else /* __ARM_ARCH_7__ */
+#else /* __ARM_ARCH_6__ */
 
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_224_arm_asm) = NULL;
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_256_arm_asm) = NULL;
@@ -236,4 +237,4 @@ LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake256_arm_asm) = NULL;
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_cshake128_arm_asm) = NULL;
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_cshake256_arm_asm) = NULL;
 
-#endif /* __ARM_ARCH_7__ */
+#endif /* __ARM_ARCH_6__ */
