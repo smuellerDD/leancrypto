@@ -23,6 +23,17 @@ if get_option('dilithium').enabled()
 				],
 				dependencies: leancrypto
 				)
+	dilithium_tester_iuf_common = executable('dilithium_tester_iuf_common',
+				[ 'dilithium_tester_iuf_common.c',
+				  'dilithium_tester.c',
+				  internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_dilithium_internal
+				],
+				dependencies: leancrypto
+				)
 	dilithium_tester_common = executable('dilithium_tester_common',
 				[ 'dilithium_tester_common.c',
 				  'dilithium_tester.c',
@@ -46,6 +57,7 @@ if get_option('dilithium').enabled()
 	test('Dilithium signature C', dilithium_tester_c)
 	test('Dilithium init update final C', dilithium_tester_iuf_c)
 	test('Dilithium signature Common', dilithium_tester_common)
+	test('Dilithium init update final C', dilithium_tester_iuf_common)
 
 	test('Dilithium signature C 10000', dilithium_tester_c, args : [ 'c' ],
 	     timeout: 1000, is_parallel: false)
