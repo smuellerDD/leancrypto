@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2023, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *
@@ -17,22 +17,13 @@
  * DAMAGE.
  */
 
-#ifndef SEEDED_RNG_H
-#define SEEDED_RNG_H
+#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
-#include "ext_headers.h"
+#include <linux/module.h>
+#include <linux/random.h>
 
-#ifdef __cplusplus
-extern "C"
+ssize_t get_full_entropy(uint8_t *buffer, size_t bufferlen)
 {
-#endif
-
-ssize_t get_full_entropy(uint8_t *buffer, size_t bufferlen);
-
-void lc_seeded_rng_zero_state(void);
-
-#ifdef __cplusplus
+	get_random_bytes(buffer, bufferlen);
+	return (ssize_t)bufferlen;
 }
-#endif
-
-#endif /* SEEDED_RNG_H */

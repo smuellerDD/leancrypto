@@ -368,7 +368,9 @@ kmac_crypt_test-y 		+= ../aead/tests/kmac_crypt_test.o
 endif
 
 # DRNG implementation
-ccflags-y	  		+= -I$(PWD)/../drng/api
+ccflags-y	  		+= -I$(PWD)/../drng/api -I$(PWD)/../drng/src
+leancrypto-y			+= ../drng/src/seeded_rng.o		       \
+				   ../drng/src/seeded_rng_linux_kernel.o
 
 leancrypto-$(CONFIG_LEANCRYPTO_CHACHA20_DRNG)				       \
 				+= ../drng/src/chacha20_drng.o

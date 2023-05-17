@@ -20,6 +20,18 @@
 
 #include <linux/module.h>
 
+#include "kyber_internal.h"
+#include "seeded_rng.h"
+
+/* Export these symbols for testing */
+EXPORT_SYMBOL(lc_kyber_enc_internal);
+EXPORT_SYMBOL(lc_kex_ake_initiator_ss_internal);
+EXPORT_SYMBOL(lc_kex_uake_responder_init_internal);
+EXPORT_SYMBOL(lc_kex_ake_responder_init_internal);
+EXPORT_SYMBOL(lc_kex_uake_initiator_ss_internal);
+EXPORT_SYMBOL(lc_kyber_ies_enc_internal);
+EXPORT_SYMBOL(lc_kyber_ies_enc_init_internal);
+
 void sha3_fastest_impl(void);
 static int __init leancrypto_init(void)
 {
@@ -29,7 +41,7 @@ static int __init leancrypto_init(void)
 
 static void __exit leancrypto_exit(void)
 {
-
+	lc_seeded_rng_zero_state();
 }
 
 module_init(leancrypto_init);

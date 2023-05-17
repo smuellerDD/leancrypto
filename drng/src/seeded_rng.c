@@ -17,12 +17,9 @@
  * DAMAGE.
  */
 
-#include <limits.h>
-#include <time.h>
-
+#include "ext_headers.h"
 #include "lc_chacha20_drng.h"
 #include "lc_cshake256_drng.h"
-#include "lc_drng_config.h"
 #include "lc_kmac256_drng.h"
 #include "lc_hash_drbg.h"
 #include "lc_hmac_drbg_sha512.h"
@@ -32,6 +29,25 @@
 #include "visibility.h"
 
 /* Select the type of DRNG */
+
+#ifdef LINUX_KERNEL
+  //TODO make this selectible based on KBUILD
+# define CONFIG_LEANCRYPTO_CSHAKE_DRNG
+# ifdef CONFIG_LEANCRYPTO_KMAC_DRNG
+#  define LC_DRNG_KMAC
+# endif
+# ifdef CONFIG_LEANCRYPTO_CSHAKE_DRNG
+#  define LC_DRNG_CSHAKE
+# endif
+# ifdef CONFIG_LEANCRYPTO_HASH_DRBG
+#  define LC_DRNG_HASH_DRBG
+# endif
+# ifdef CONFIG_LEANCRYPTO_HMAC_DRBG
+#  define LC_DRNG_HMAC_DRBG
+# endif
+#else
+# include "lc_drng_config.h"
+#endif
 
 #ifdef LC_DRNG_CSHAKE
 /* Use cSHAKE 256 */
@@ -64,7 +80,7 @@ struct lc_seeded_rng_ctx {
 #define LC_SEEDED_RNG_MAX_BYTES		(1<<10) /* Max bytes without reseed */
 	size_t bytes;
 #define LC_SEEDED_RNG_MAX_TIME		60 /* Max seconds without reseed */
-	time_t last_seeded;
+	unsigned long last_seeded;
 };
 
 /* DRNG state */
@@ -77,6 +93,35 @@ static struct lc_seeded_rng_ctx seeded_rng = {
 	.bytes = LC_SEEDED_RNG_MAX_BYTES + 1,
 	.last_seeded = 0
 };
+
+#ifdef LINUX_KERNEL
+
+static unsigned long get_time(void)
+{
+	return jiffies / HZ;
+}
+
+#else /* LINUX_KERNEL */
+
+static int time_after(unsigned long curr, unsigned long base)
+{
+	if (curr == (unsigned long)-1)
+		return 0;
+	if (base == (unsigned long)-1)
+		return 1;
+	return (curr > base) ? 1 : 0;
+}
+
+static unsigned long get_time(void)
+{
+	time_t t = time(NULL);
+
+	if (t == (time_t)-1)
+		return 0;
+	return (unsigned long)t;
+}
+
+#endif /* LINUX_KERNEL */
 
 static int lc_seed_seeded_rng(struct lc_seeded_rng_ctx *rng, int init)
 {
@@ -105,14 +150,14 @@ static int lc_seed_seeded_rng(struct lc_seeded_rng_ctx *rng, int init)
 	}
 
 	rng->bytes = 0;
-	rng->last_seeded = time(NULL);
+	rng->last_seeded = get_time();
 
 out:
 	lc_memset_secure(seed, 0, sizeof(seed));
 	return ret;
 }
 
-static void lc_seeded_rng_zero_state(void)
+void lc_seeded_rng_zero_state(void)
 {
 	struct lc_rng_ctx *rng;
 
@@ -123,21 +168,10 @@ static void lc_seeded_rng_zero_state(void)
 	lc_rng_zero(rng);
 }
 
-static int time_after(time_t curr, time_t base)
+static unsigned long time_after_now(unsigned long base)
 {
-	if (curr == (time_t)-1)
-		return 0;
-	if (base == (time_t)-1)
-		return 1;
-	return (curr > base) ? 1 : 0;
-}
+	unsigned long curr = get_time();
 
-static time_t time_after_now(time_t base)
-{
-	time_t curr = time(NULL);
-
-	if (curr == (time_t)-1)
-		return 0;
 	return time_after(curr, base) ? (curr - base) : 0;
 }
 
@@ -154,7 +188,12 @@ static int lc_get_seeded_rng(struct lc_seeded_rng_ctx **rng_ret)
 	/* Initialize the DRNG state at the beginning */
 	if (!seeded_rng.last_seeded) {
 		LC_SEEDED_RNG_CTX(seeded_rng.rng_ctx);
+
+#ifndef LINUX_KERNEL
+		/* The kernel calls this in the exit handler */
 		atexit(lc_seeded_rng_zero_state);
+#endif
+
 		init = 1;
 	}
 
