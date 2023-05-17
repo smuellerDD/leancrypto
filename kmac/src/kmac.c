@@ -24,7 +24,7 @@
 #include "left_encode.h"
 #include "visibility.h"
 
-void lc_kmac_selftest(int *tested, const char *impl)
+static void lc_kmac_selftest(int *tested, const char *impl)
 {
 	static const uint8_t msg[] = {
 		0x0E, 0x8B, 0x97, 0x33, 0x23, 0x85, 0x6E, 0x39,

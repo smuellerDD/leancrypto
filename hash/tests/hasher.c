@@ -38,7 +38,7 @@
 #include "lc_memset_secure.h"
 #include "ret_checkers.h"
 
-int check_filetype(int fd, struct stat *sb, const char *filename)
+static int check_filetype(int fd, struct stat *sb, const char *filename)
 {
 	int ret = fstat(fd, sb);
 	if (ret) {

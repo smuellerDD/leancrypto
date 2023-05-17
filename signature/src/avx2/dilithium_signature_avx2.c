@@ -250,10 +250,10 @@ out:
 	return ret;
 }
 
-int lc_dilithium_sign_avx2_internal(struct lc_dilithium_sig *sig,
-				    struct workspace_sign *ws,
-				    struct lc_hash_ctx  *hash_ctx,
-				    struct lc_rng_ctx *rng_ctx)
+static int lc_dilithium_sign_avx2_internal(struct lc_dilithium_sig *sig,
+					   struct workspace_sign *ws,
+					   struct lc_hash_ctx  *hash_ctx,
+					   struct lc_rng_ctx *rng_ctx)
 {
 	unsigned int i, n, pos;
 	uint8_t *rho, *key, *mu, *rhoprime;
@@ -506,10 +506,10 @@ out:
 	return ret;
 }
 
-int lc_dilithium_verify_avx2_internal(const struct lc_dilithium_sig *sig,
-				      const struct lc_dilithium_pk *pk,
-				      struct workspace_verify *ws,
-				      struct lc_hash_ctx  *hash_ctx)
+static int lc_dilithium_verify_avx2_internal(const struct lc_dilithium_sig *sig,
+					     const struct lc_dilithium_pk *pk,
+					     struct workspace_verify *ws,
+					     struct lc_hash_ctx  *hash_ctx)
 {
 
 	unsigned int i, j, pos = 0;

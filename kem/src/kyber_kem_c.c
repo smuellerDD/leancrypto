@@ -19,6 +19,7 @@
 
 #include "kyber_indcpa.h"
 #include "kyber_kem.h"
+#include "kyber_kem_c.h"
 #include "kyber_selftest.h"
 #include "kyber_verify.h"
 #include "lc_hash.h"

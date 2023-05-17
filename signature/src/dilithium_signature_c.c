@@ -376,10 +376,10 @@ out:
 	return ret;
 }
 
-int lc_dilithium_verify_c_internal(const struct lc_dilithium_sig *sig,
-				   const struct lc_dilithium_pk *pk,
-				   struct workspace_verify *ws,
-				   struct lc_hash_ctx  *hash_ctx)
+static int lc_dilithium_verify_c_internal(const struct lc_dilithium_sig *sig,
+					  const struct lc_dilithium_pk *pk,
+					  struct workspace_verify *ws,
+					  struct lc_hash_ctx  *hash_ctx)
 {
 	int ret = 0;
 	static int tested = 0;

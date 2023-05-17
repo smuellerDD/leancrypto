@@ -7,6 +7,8 @@ Changes 0.5.4-prerelease:
 * enhancement: remove the rng_ctx parameter in all Kyber APIs except the key
   generation - internally lc_seeded_rng is used instead
 
+* enhancement: use -Wmissing-prototypes and fix reported issues
+
 Changes 0.5.3:
 
 * convert to safe min/max implementations

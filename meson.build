@@ -35,6 +35,7 @@ add_global_arguments([ '-fstack-protector-strong',
 		       '-Wmissing-field-initializers',
 		       '-Wshadow',
 		       '-Wswitch-enum',
+		       '-Wmissing-prototypes',
 		        ],
 		       language : 'c')
 
