@@ -162,6 +162,14 @@ static inline void sha3_ctx_init(void *_state)
 	 * the largest state.
 	 */
 	struct lc_sha3_224_state *ctx = _state;
+	unsigned int i;
+
+	/*
+	 * Zeroize the actual state which is required by some implementations
+	 * like ARM-CE.
+	 */
+	for (i = 0; i < LC_SHA3_STATE_WORDS; i++)
+		ctx->state[i] = 0;
 
 	ctx->msg_len = 0;
 	ctx->squeeze_more = 0;

@@ -112,7 +112,8 @@ static int _shake_sqeeze_more_tester(const struct lc_hash *shake_256,
 
 			lc_hash_final(ctx, act2_p);
 		}
-		ret = compare(act2, exp2, sizeof(act2), "SHAKE256 sqeeze more");
+		ret = lc_compare(act2, exp2, sizeof(act2),
+				 "SHAKE256 sqeeze more");
 		lc_hash_zero(ctx);
 
 		if (ret) {

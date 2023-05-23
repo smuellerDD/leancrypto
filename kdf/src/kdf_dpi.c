@@ -54,7 +54,7 @@ static void lc_kdf_dpi_selftest(int *tested, const char *impl)
 
 	lc_kdf_dpi(lc_sha256, key, sizeof(key), label, sizeof(label),
 		   act, sizeof(act));
-	compare_selftest(act, exp, sizeof(exp), impl);
+	lc_compare_selftest(act, exp, sizeof(exp), impl);
 }
 
 

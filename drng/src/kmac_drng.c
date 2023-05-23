@@ -275,7 +275,7 @@ static void kmac256_drng_selftest(int *tested, const char *impl)
 
 	lc_rng_seed(kmac_ctx, seed, sizeof(seed), NULL, 0);
 	lc_rng_generate(kmac_ctx, NULL, 0, act, sizeof(act));
-	compare_selftest(act, exp, sizeof(exp), impl);
+	lc_compare_selftest(act, exp, sizeof(exp), impl);
 	lc_rng_zero(kmac_ctx);
 }
 

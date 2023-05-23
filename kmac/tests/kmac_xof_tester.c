@@ -836,7 +836,7 @@ static int _kmac_256_xof_tester(const struct lc_hash *cshake_256,
 	lc_kmac_init(ctx, key1, sizeof(key1), cust1, sizeof(cust1));
 	lc_kmac_update(ctx, msg1, sizeof(msg1));
 	lc_kmac_final_xof(ctx, act1, sizeof(act1));
-	ret = compare(act1, exp1, sizeof(act1), "KMAC256 XOF 1");
+	ret = lc_compare(act1, exp1, sizeof(act1), "KMAC256 XOF 1");
 
 	/* no zeroization to test reinit */
 
@@ -846,7 +846,7 @@ static int _kmac_256_xof_tester(const struct lc_hash *cshake_256,
 	lc_kmac_reinit(ctx);
 	lc_kmac_update(ctx, msg1, sizeof(msg1));
 	lc_kmac_final_xof(ctx, act1, sizeof(act1));
-	ret = compare(act1, exp1, sizeof(act1), "KMAC256 XOF 1 reinit");
+	ret = lc_compare(act1, exp1, sizeof(act1), "KMAC256 XOF 1 reinit");
 	lc_kmac_zero(ctx);
 
 	if (ret)
@@ -857,7 +857,7 @@ static int _kmac_256_xof_tester(const struct lc_hash *cshake_256,
 		    NULL, 0,
 		    msg2, sizeof(msg2),
 		    act2, sizeof(act2));
-	ret = compare(act2, exp2, sizeof(act2), "KMAC256 XOF 2");
+	ret = lc_compare(act2, exp2, sizeof(act2), "KMAC256 XOF 2");
 	lc_kmac_zero(ctx);
 
 
@@ -901,8 +901,8 @@ static int _kmac_256_xof_tester(const struct lc_hash *cshake_256,
 
 			j += todo;
 		}
-		ret += compare(act1, exp1, sizeof(exp1),
-			       "KMAC256 RNG generate");
+		ret += lc_compare(act1, exp1, sizeof(exp1),
+				  "KMAC256 RNG generate");
 	}
 
 	lc_rng_zero(kmac_rng);

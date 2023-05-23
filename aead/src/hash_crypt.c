@@ -71,14 +71,14 @@ static void lc_hc_selftest(int *tested, const char *impl)
 	lc_aead_encrypt(hc, in, act_ct, sizeof(in), in, sizeof(in),
 			act_tag, sizeof(act_tag));
 	snprintf(status, sizeof(status), "%s encrypt", impl);
-	compare_selftest(act_ct, exp_ct, sizeof(exp_ct), status);
+	lc_compare_selftest(act_ct, exp_ct, sizeof(exp_ct), status);
 	lc_aead_zero(hc);
 
 	lc_aead_setkey(hc, in, sizeof(in), NULL, 0);
 	lc_aead_decrypt(hc, act_ct, act_ct, sizeof(act_ct), in, sizeof(in),
 			act_tag, sizeof(act_tag));
 	snprintf(status, sizeof(status), "%s decrypt", impl);
-	compare_selftest(act_ct, in, sizeof(in), status);
+	lc_compare_selftest(act_ct, in, sizeof(in), status);
 	lc_aead_zero(hc);
 }
 

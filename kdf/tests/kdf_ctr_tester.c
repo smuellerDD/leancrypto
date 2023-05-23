@@ -127,7 +127,7 @@ static int kdf_ctr_tester(void)
 		return 1;
 	}
 
-	ret = compare(act, exp, sizeof(exp), "CTR KDF SHA-256");
+	ret = lc_compare(act, exp, sizeof(exp), "CTR KDF SHA-256");
 
 	if (lc_rng_seed(ctr_kdf_rng, key, sizeof(key), NULL, 0)) {
 		printf("Counter KDF extract stack failed\n");
@@ -139,7 +139,7 @@ static int kdf_ctr_tester(void)
 		printf("Counter KDF expand stack failed\n");
 		return 1;
 	}
-	ret += compare(act, exp, sizeof(exp), "CTR KDF SHA-256 RNG");
+	ret += lc_compare(act, exp, sizeof(exp), "CTR KDF SHA-256 RNG");
 
 	if (lc_kdf_ctr(lc_sha256, key2, sizeof(key2), label2, sizeof(label2),
 		       act2, sizeof(act2))) {
@@ -147,7 +147,7 @@ static int kdf_ctr_tester(void)
 		return 1;
 	}
 
-	ret += compare(act2, exp2, sizeof(exp2), "CTR KDF SHA-256");
+	ret += lc_compare(act2, exp2, sizeof(exp2), "CTR KDF SHA-256");
 
 	if (lc_kdf_ctr_rng_alloc(&ctr_kdf_rng_heap, lc_sha256)) {
 		printf("Allocation of heap CTR KDF RNG context failed: %d\n",
@@ -166,7 +166,7 @@ static int kdf_ctr_tester(void)
 		printf("Counter KDF expand stack failed\n");
 		goto out;
 	}
-	ret += compare(act2, exp2, sizeof(exp2), "CTR KDF SHA-256 RNG");
+	ret += lc_compare(act2, exp2, sizeof(exp2), "CTR KDF SHA-256 RNG");
 
 out:
 	lc_rng_zero_free(ctr_kdf_rng_heap);

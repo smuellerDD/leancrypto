@@ -333,7 +333,7 @@ static void cshake256_drng_selftest(int *tested, const char *impl)
 
 	lc_rng_seed(cshake_ctx, seed, sizeof(seed), NULL, 0);
 	lc_rng_generate(cshake_ctx, NULL, 0, act, sizeof(act));
-	compare_selftest(act, exp, sizeof(exp), impl);
+	lc_compare_selftest(act, exp, sizeof(exp), impl);
 	lc_rng_zero(cshake_ctx);
 }
 

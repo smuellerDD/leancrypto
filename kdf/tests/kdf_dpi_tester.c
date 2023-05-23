@@ -79,7 +79,7 @@ static int kdf_dpi_tester(void)
 		return 1;
 	}
 
-	ret = compare(act, exp, sizeof(exp), "DPI KDF SHA-256");
+	ret = lc_compare(act, exp, sizeof(exp), "DPI KDF SHA-256");
 
 
 	if (lc_kdf_dpi(lc_sha256, key2, sizeof(key2), label2, sizeof(label2),
@@ -88,7 +88,7 @@ static int kdf_dpi_tester(void)
 		return 1;
 	}
 
-	ret += compare(act2, exp2, sizeof(exp2), "DPI KDF SHA-256");
+	ret += lc_compare(act2, exp2, sizeof(exp2), "DPI KDF SHA-256");
 
 	return ret;
 }

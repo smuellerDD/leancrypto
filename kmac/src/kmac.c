@@ -56,7 +56,7 @@ static void lc_kmac_selftest(int *tested, const char *impl)
 	lc_kmac_init(ctx, key, sizeof(key), cust, sizeof(cust));
 	lc_kmac_update(ctx, msg, sizeof(msg));
 	lc_kmac_final(ctx, act, sizeof(act));
-	compare_selftest(act, exp, sizeof(exp), impl);
+	lc_compare_selftest(act, exp, sizeof(exp), impl);
 	lc_kmac_zero(ctx);
 }
 

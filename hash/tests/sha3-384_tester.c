@@ -54,13 +54,13 @@ static int s_ha3_384_tester(const struct lc_hash *sha3_384, const char *name)
 	lc_hash_init(ctx384);
 	lc_hash_update(ctx384, msg_384, 3);
 	lc_hash_final(ctx384, act);
-	ret = compare(act, exp_384, LC_SHA3_384_SIZE_DIGEST, "SHA3-384");
+	ret = lc_compare(act, exp_384, LC_SHA3_384_SIZE_DIGEST, "SHA3-384");
 	lc_hash_zero(ctx384);
 
 	lc_hash_init(ctx384_stack);
 	lc_hash_update(ctx384_stack, msg_384, 3);
 	lc_hash_final(ctx384_stack, act);
-	ret += compare(act, exp_384, LC_SHA3_384_SIZE_DIGEST, "SHA3-384");
+	ret += lc_compare(act, exp_384, LC_SHA3_384_SIZE_DIGEST, "SHA3-384");
 	lc_hash_zero(ctx384_stack);
 
 	return ret;

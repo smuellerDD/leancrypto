@@ -293,14 +293,14 @@ static void lc_sh_selftest(int *tested, const char *impl)
 	lc_aead_encrypt(sh, in, act_ct, sizeof(in), in, sizeof(in),
 			act_tag, sizeof(act_tag));
 	snprintf(status, sizeof(status), "%s encrypt", impl);
-	compare_selftest(act_ct, exp_ct, sizeof(exp_ct), status);
+	lc_compare_selftest(act_ct, exp_ct, sizeof(exp_ct), status);
 	lc_aead_zero(sh);
 
 	lc_aead_setkey(sh, in, sizeof(in), in, 16);
 	lc_aead_decrypt(sh, act_ct, act_ct, sizeof(act_ct), in, sizeof(in),
 			act_tag, sizeof(act_tag));
 	snprintf(status, sizeof(status), "%s decrypt", impl);
-	compare_selftest(act_ct, in, sizeof(in), status);
+	lc_compare_selftest(act_ct, in, sizeof(in), status);
 	lc_aead_zero(sh);
 }
 

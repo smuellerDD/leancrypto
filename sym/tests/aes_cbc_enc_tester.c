@@ -100,7 +100,7 @@ static int test_encrypt_cbc_one(struct lc_sym_ctx *ctx,
 	CKINT(lc_sym_setkey(ctx, key, keylen));
 	CKINT(lc_sym_setiv(ctx, iv, sizeof(iv)));
 	lc_sym_encrypt(ctx, in, in, sizeof(in));
-	ret = compare(in, exp, sizeof(in), "AES-CBC encrypt");
+	ret = lc_compare(in, exp, sizeof(in), "AES-CBC encrypt");
 
 out:
 	return ret;

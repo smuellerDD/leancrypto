@@ -974,11 +974,11 @@ static int _kyber_kem_keygen_selftest(const char *impl,
 
 	_lc_kyber_keypair(&ws->pk, &ws->sk, &kyber_rng);
 	snprintf(str, sizeof(str), "%s PK", impl);
-	compare_selftest(ws->pk.pk, vector.pk.pk, LC_CRYPTO_PUBLICKEYBYTES,
-			 str);
+	lc_compare_selftest(ws->pk.pk, vector.pk.pk, LC_CRYPTO_PUBLICKEYBYTES,
+			    str);
 	snprintf(str, sizeof(str), "%s SK", impl);
-	compare_selftest(ws->sk.sk, vector.sk.sk, LC_CRYPTO_SECRETKEYBYTES,
-			 str);
+	lc_compare_selftest(ws->sk.sk, vector.sk.sk, LC_CRYPTO_SECRETKEYBYTES,
+			    str);
 
 	LC_RELEASE_MEM(ws);
 	return 0;
@@ -992,7 +992,8 @@ void kyber_kem_keygen_selftest(int *tested, const char *impl,
 	LC_SELFTEST_RUN(tested);
 
 	if (_kyber_kem_keygen_selftest(impl, _lc_kyber_keypair))
-		compare_selftest((uint8_t *)"test", (uint8_t *)"fail", 4, impl);
+		lc_compare_selftest((uint8_t *)"test", (uint8_t *)"fail", 4,
+				    impl);
 }
 
 static int _kyber_kem_enc_selftest(const char *impl,
@@ -1032,10 +1033,10 @@ static int _kyber_kem_enc_selftest(const char *impl,
 	_lc_kyber_enc(&ws->ct, ws->key_b.ss, LC_KYBER_SSBYTES, &vector.pk,
 		      &kyber_rng2);
 	snprintf(str, sizeof(str), "%s CT", impl);
-	compare_selftest(ws->ct.ct, vector.ct.ct, LC_CRYPTO_CIPHERTEXTBYTES,
-			 str);
+	lc_compare_selftest(ws->ct.ct, vector.ct.ct, LC_CRYPTO_CIPHERTEXTBYTES,
+			    str);
 	snprintf(str, sizeof(str), "%s SS", impl);
-	compare_selftest(ws->key_b.ss, vector.ss.ss, LC_KYBER_SSBYTES, str);
+	lc_compare_selftest(ws->key_b.ss, vector.ss.ss, LC_KYBER_SSBYTES, str);
 
 	LC_RELEASE_MEM(ws);
 	return 0;
@@ -1050,7 +1051,8 @@ void kyber_kem_enc_selftest(int *tested, const char *impl,
 	LC_SELFTEST_RUN(tested);
 
 	if (_kyber_kem_enc_selftest(impl, _lc_kyber_enc))
-		compare_selftest((uint8_t *)"test", (uint8_t *)"fail", 4, impl);
+		lc_compare_selftest((uint8_t *)"test", (uint8_t *)"fail", 4,
+				    impl);
 }
 
 static int _kyber_kem_dec_selftest(const char *impl,
@@ -1068,7 +1070,7 @@ static int _kyber_kem_dec_selftest(const char *impl,
 	// Decapsulation
 	_lc_kyber_dec(ws->key_a.ss, LC_KYBER_SSBYTES, &vector.ct, &vector.sk);
 	snprintf(str, sizeof(str), "%s SS", impl);
-	compare_selftest(ws->key_a.ss, vector.ss.ss, LC_KYBER_SSBYTES, str);
+	lc_compare_selftest(ws->key_a.ss, vector.ss.ss, LC_KYBER_SSBYTES, str);
 
 	LC_RELEASE_MEM(ws);
 	return 0;
@@ -1082,6 +1084,7 @@ void kyber_kem_dec_selftest(int *tested, const char *impl,
 	LC_SELFTEST_RUN(tested);
 
 	if (_kyber_kem_dec_selftest(impl, _lc_kyber_dec))
-		compare_selftest((uint8_t *)"test", (uint8_t *)"fail", 4, impl);
+		lc_compare_selftest((uint8_t *)"test", (uint8_t *)"fail", 4,
+				    impl);
 
 }

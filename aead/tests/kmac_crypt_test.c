@@ -47,10 +47,10 @@ static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
 	lc_aead_encrypt(kc, pt, out_enc, ptlen, aad, aadlen,
 			tag, exp_tag_len);
 
-	ret_checked += compare(out_enc, exp_ct, ptlen,
-			       "KMAC crypt: Encryption, ciphertext");
-	ret_checked += compare(tag, exp_tag, exp_tag_len,
-			       "KMAC crypt: Encryption, tag");
+	ret_checked += lc_compare(out_enc, exp_ct, ptlen,
+				  "KMAC crypt: Encryption, ciphertext");
+	ret_checked += lc_compare(tag, exp_tag, exp_tag_len,
+				  "KMAC crypt: Encryption, tag");
 
 	//bin2print(out_enc, ptlen, stderr, "out_enc");
 	//bin2print(tag, exp_tag_len, stderr, "tag");
@@ -68,10 +68,10 @@ static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
 			tag, exp_tag_len);
 	lc_aead_zero_free(kc_heap);
 
-	ret_checked += compare(out_enc, exp_ct, ptlen,
-			       "KMAC crypt: Encryption, ciphertext");
-	ret_checked += compare(tag, exp_tag, exp_tag_len,
-			       "KMAC crypt: Encryption, tag");
+	ret_checked += lc_compare(out_enc, exp_ct, ptlen,
+				  "KMAC crypt: Encryption, ciphertext");
+	ret_checked += lc_compare(tag, exp_tag, exp_tag_len,
+				  "KMAC crypt: Encryption, tag");
 
 	/* Stream encryption with pt ptr != ct ptr */
 	lc_aead_setkey(kc, key, keylen, NULL, 0);
@@ -85,10 +85,10 @@ static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
 	lc_aead_enc_update(kc, pt + 7, out_enc + 7, (ptlen - 7));
 	lc_aead_enc_final(kc, aad, aadlen, tag, exp_tag_len);
 
-	ret_checked += compare(out_enc, exp_ct, ptlen,
-			       "KMAC crypt: Encryption, ciphertext");
-	ret_checked += compare(tag, exp_tag, exp_tag_len,
-			       "KMAC crypt: Encryption, tag");
+	ret_checked += lc_compare(out_enc, exp_ct, ptlen,
+				  "KMAC crypt: Encryption, ciphertext");
+	ret_checked += lc_compare(tag, exp_tag, exp_tag_len,
+				  "KMAC crypt: Encryption, tag");
 
 	lc_aead_zero(kc);
 
@@ -100,8 +100,8 @@ static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
 	if (ret < 0)
 		return 1;
 
-	ret_checked += compare(out_dec, pt, ptlen,
-			       "KMAC crypt: Decryption, plaintext");
+	ret_checked += lc_compare(out_dec, pt, ptlen,
+				  "KMAC crypt: Decryption, plaintext");
 
 	/* Stream decryption with pt ptr != ct ptr */
 	lc_aead_zero(kc);
@@ -114,8 +114,8 @@ static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
 	if (ret < 0)
 		return 1;
 	//bin2print(out_dec, sizeof(out_dec), stderr, "out_dec");
-	ret_checked += compare(out_dec, pt, ptlen,
-			       "KMAC crypt: Decryption, plaintext");
+	ret_checked += lc_compare(out_dec, pt, ptlen,
+				  "KMAC crypt: Decryption, plaintext");
 
 	lc_aead_zero(kc);
 
@@ -155,8 +155,8 @@ static int kc_tester_kmac_validate(void)
 	lc_kmac_init(kmac256, in, sizeof(in), NULL, 0);
 	lc_kmac_final_xof(kmac256, out_kmac, sizeof(out_kmac));
 
-	return compare(out_kmac + 32, out_enc, sizeof(out_enc),
-		       "KMAC crypt: Validation");
+	return lc_compare(out_kmac + 32, out_enc, sizeof(out_enc),
+			  "KMAC crypt: Validation");
 }
 
 static int kc_tester_kmac(void)

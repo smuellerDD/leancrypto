@@ -75,7 +75,7 @@ static void sha512_selftest(const struct lc_hash *sha512, int *tested,
 	LC_SELFTEST_RUN(tested);
 
 	lc_hash(sha512, msg_512, sizeof(msg_512), act);
-	compare_selftest(act, exp_512, LC_SHA512_SIZE_DIGEST, impl);
+	lc_compare_selftest(act, exp_512, LC_SHA512_SIZE_DIGEST, impl);
 }
 
 static void sha512_init(void *_state)

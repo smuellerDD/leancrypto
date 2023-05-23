@@ -60,7 +60,7 @@ static void hkdf_selftest(int *tested, const char *impl)
 
 	lc_hkdf_extract(hkdf, ikm, sizeof(ikm), salt, sizeof(salt));
 	lc_hkdf_expand(hkdf, info, sizeof(info), act, sizeof(act));
-	compare_selftest(act, exp, sizeof(exp), impl);
+	lc_compare_selftest(act, exp, sizeof(exp), impl);
 	lc_hkdf_zero(hkdf);
 }
 

@@ -104,7 +104,7 @@ static int test_xcrypt_ctr_one(const char* xcrypt, struct lc_sym_ctx *ctx,
 	CKINT(lc_sym_setkey(ctx, key, keylen));
 	CKINT(lc_sym_setiv(ctx, iv, sizeof(iv)));
 	lc_sym_encrypt(ctx, in, in, sizeof(out));
-	ret = compare(in, out, sizeof(out), status);
+	ret = lc_compare(in, out, sizeof(out), status);
 
 out:
 	return ret;
@@ -180,7 +180,8 @@ static int ctr_tester_one(uint8_t *iv, uint64_t *iv128)
 		ctr_inc(iv);
 		ctr128_inc(iv128);
 		ctr128_to_ptr(buffer64, iv128);
-		ret = compare(buffer64, iv, sizeof(iv), "CTR 64 maintenance");
+		ret = lc_compare(buffer64, iv, sizeof(iv),
+				 "CTR 64 maintenance");
 	}
 	return ret;
 }

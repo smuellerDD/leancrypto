@@ -79,14 +79,14 @@ static int _cshake_128_tester(const struct lc_hash *cshake_128,
 	lc_hash_update(ctx, msg1, sizeof(msg1));
 	lc_hash_set_digestsize(ctx, sizeof(act1));
 	lc_hash_final(ctx, act1);
-	ret = compare(act1, exp1, sizeof(act1), "cSHAKE128 1");
+	ret = lc_compare(act1, exp1, sizeof(act1), "cSHAKE128 1");
 	lc_hash_zero(ctx);
 
 	lc_cshake_init(cshake128_stack, NULL, 0, cust1, sizeof(cust1));
 	lc_hash_update(cshake128_stack, msg1, sizeof(msg1));
 	lc_hash_set_digestsize(cshake128_stack, sizeof(act1));
 	lc_hash_final(cshake128_stack, act1);
-	ret += compare(act1, exp1, sizeof(act1), "cSHAKE128 2");
+	ret += lc_compare(act1, exp1, sizeof(act1), "cSHAKE128 2");
 	lc_hash_zero(cshake128_stack);
 
 	if (ret)

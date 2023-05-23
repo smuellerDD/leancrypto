@@ -69,7 +69,7 @@ static int test_decrypt_one(struct lc_sym_ctx *ctx,
 	lc_sym_init(ctx);
 	CKINT(lc_sym_setkey(ctx, key, keylen));
 	lc_sym_decrypt(ctx, in, in, sizeof(out));
-	ret = compare(in, out, sizeof(out), "AES block decrypt");
+	ret = lc_compare(in, out, sizeof(out), "AES block decrypt");
 
 out:
 	return ret;

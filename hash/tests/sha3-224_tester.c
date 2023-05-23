@@ -51,13 +51,13 @@ static int _sha3_224_tester(const struct lc_hash *sha3_224, const char *name)
 	lc_hash_init(ctx224);
 	lc_hash_update(ctx224, msg_224, 3);
 	lc_hash_final(ctx224, act);
-	ret = compare(act, exp_224, LC_SHA3_224_SIZE_DIGEST, "SHA3-224");
+	ret = lc_compare(act, exp_224, LC_SHA3_224_SIZE_DIGEST, "SHA3-224");
 	lc_hash_zero(ctx224);
 
 	lc_hash_init(ctx224_stack);
 	lc_hash_update(ctx224_stack, msg_224, 3);
 	lc_hash_final(ctx224_stack, act);
-	ret += compare(act, exp_224, LC_SHA3_224_SIZE_DIGEST, "SHA3-224");
+	ret += lc_compare(act, exp_224, LC_SHA3_224_SIZE_DIGEST, "SHA3-224");
 	lc_hash_zero(ctx224_stack);
 
 	return ret;

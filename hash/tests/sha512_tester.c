@@ -47,14 +47,14 @@ static int sha512_tester(void)
 	lc_hash_init(ctx512);
 	lc_hash_update(ctx512, msg_512, 3);
 	lc_hash_final(ctx512, act);
-	ret = compare(act, exp_512, LC_SHA512_SIZE_DIGEST, "SHA-512");
+	ret = lc_compare(act, exp_512, LC_SHA512_SIZE_DIGEST, "SHA-512");
 	lc_hash_zero_free(ctx512);
 
 	lc_hash_init(sha512_stack);
 	lc_hash_update(sha512_stack, msg_512, sizeof(msg_512));
 	lc_hash_final(sha512_stack, act);
 	lc_hash_zero(sha512_stack);
-	ret += compare(act, exp_512, LC_SHA512_SIZE_DIGEST, "SHA-512 stack");
+	ret += lc_compare(act, exp_512, LC_SHA512_SIZE_DIGEST, "SHA-512 stack");
 
 	return ret;
 }

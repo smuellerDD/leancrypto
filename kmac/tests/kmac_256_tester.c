@@ -1124,7 +1124,7 @@ static int _kmac_256_tester(const struct lc_hash *cshake_256, const char *name)
 	lc_kmac_init(ctx_re, key1, sizeof(key1), cust1, sizeof(cust1));
 	lc_kmac_update(ctx_re, msg1, sizeof(msg1));
 	lc_kmac_final(ctx_re, act1, sizeof(act1));
-	ret = compare(act1, exp1, sizeof(act1), "KMAC256 1");
+	ret = lc_compare(act1, exp1, sizeof(act1), "KMAC256 1");
 
 	/* no zeroization to test reinit */
 
@@ -1134,7 +1134,7 @@ static int _kmac_256_tester(const struct lc_hash *cshake_256, const char *name)
 	lc_kmac_reinit(ctx_re);
 	lc_kmac_update(ctx_re, msg1, sizeof(msg1));
 	lc_kmac_final(ctx_re, act1, sizeof(act1));
-	ret = compare(act1, exp1, sizeof(act1), "KMAC256 1 reinit");
+	ret = lc_compare(act1, exp1, sizeof(act1), "KMAC256 1 reinit");
 	lc_kmac_zero(ctx_re);
 
 	if (ret)
@@ -1143,7 +1143,7 @@ static int _kmac_256_tester(const struct lc_hash *cshake_256, const char *name)
 	lc_kmac_init(ctx, key2, sizeof(key2), cust2, sizeof(cust2));
 	lc_kmac_update(ctx, msg2, sizeof(msg2));
 	lc_kmac_final(ctx, act2, sizeof(act2));
-	ret = compare(act2, exp2, sizeof(act2), "KMAC256 2");
+	ret = lc_compare(act2, exp2, sizeof(act2), "KMAC256 2");
 	lc_kmac_zero(ctx);
 
 	return ret;

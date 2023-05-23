@@ -52,7 +52,8 @@ static void cc20_drng_selftest_impl(const char *impl)
 	chacha20_state->counter = 0;
 
 	lc_cc20_drng_generate(cc20_ctx, outbuf, sizeof(expected_block));
-	compare_selftest(outbuf, expected_block, sizeof(expected_block), impl);
+	lc_compare_selftest(outbuf, expected_block, sizeof(expected_block),
+			    impl);
 	lc_cc20_drng_zero(cc20_ctx);
 }
 

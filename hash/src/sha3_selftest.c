@@ -36,7 +36,7 @@ void sha3_224_selftest_common(const struct lc_hash *sha3_224,
 	LC_SELFTEST_RUN(tested);
 
 	lc_hash(sha3_224, msg_224, sizeof(msg_224), act);
-	compare_selftest(act, exp_224, sizeof(exp_224), impl);
+	lc_compare_selftest(act, exp_224, sizeof(exp_224), impl);
 }
 
 void sha3_256_selftest_common(const struct lc_hash *sha3_256,
@@ -54,7 +54,7 @@ void sha3_256_selftest_common(const struct lc_hash *sha3_256,
 	LC_SELFTEST_RUN(tested);
 
 	lc_hash(sha3_256, msg_256, sizeof(msg_256), act);
-	compare_selftest(act, exp_256, sizeof(exp_256), impl);
+	lc_compare_selftest(act, exp_256, sizeof(exp_256), impl);
 }
 
 void sha3_384_selftest_common(const struct lc_hash *sha3_384,
@@ -74,7 +74,7 @@ void sha3_384_selftest_common(const struct lc_hash *sha3_384,
 	LC_SELFTEST_RUN(tested);
 
 	lc_hash(sha3_384, msg_384, sizeof(msg_384), act);
-	compare_selftest(act, exp_384, sizeof(exp_384), impl);
+	lc_compare_selftest(act, exp_384, sizeof(exp_384), impl);
 }
 
 void sha3_512_selftest_common(const struct lc_hash *sha3_512,
@@ -97,7 +97,7 @@ void sha3_512_selftest_common(const struct lc_hash *sha3_512,
 	LC_SELFTEST_RUN(tested);
 
 	lc_hash(sha3_512, msg_512, sizeof(msg_512), act);
-	compare_selftest(act, exp_512, sizeof(exp_512), impl);
+	lc_compare_selftest(act, exp_512, sizeof(exp_512), impl);
 }
 
 void shake128_selftest_common(const struct lc_hash *shake128,
@@ -116,7 +116,7 @@ void shake128_selftest_common(const struct lc_hash *shake128,
 	LC_SELFTEST_RUN(tested);
 
 	lc_shake(shake128, msg, sizeof(msg), act, sizeof(act));
-	compare_selftest(act, exp, sizeof(exp), impl);
+	lc_compare_selftest(act, exp, sizeof(exp), impl);
 }
 
 void shake256_selftest_common(const struct lc_hash *shake256,
@@ -139,7 +139,7 @@ void shake256_selftest_common(const struct lc_hash *shake256,
 	LC_SELFTEST_RUN(tested);
 
 	lc_shake(shake256, msg, sizeof(msg), act, sizeof(act));
-	compare_selftest(act, exp, sizeof(exp), impl);
+	lc_compare_selftest(act, exp, sizeof(exp), impl);
 }
 
 void cshake128_selftest_common(const struct lc_hash *cshake128,
@@ -186,7 +186,7 @@ void cshake128_selftest_common(const struct lc_hash *cshake128,
 	lc_hash_update(ctx, msg, sizeof(msg));
 	lc_hash_set_digestsize(ctx, sizeof(act));
 	lc_hash_final(ctx, act);
-	compare_selftest(act, exp, sizeof(exp), impl);
+	lc_compare_selftest(act, exp, sizeof(exp), impl);
 	lc_hash_zero(ctx);
 }
 
@@ -236,6 +236,6 @@ void cshake256_selftest_common(const struct lc_hash *cshake256,
 	lc_hash_update(ctx, msg, sizeof(msg));
 	lc_hash_set_digestsize(ctx, sizeof(act));
 	lc_hash_final(ctx, act);
-	compare_selftest(act, exp, sizeof(exp), impl);
+	lc_compare_selftest(act, exp, sizeof(exp), impl);
 	lc_hash_zero(ctx);
 }

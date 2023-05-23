@@ -52,7 +52,7 @@ static int _sha3_224_tester(const struct lc_hash *sha3_224, const char *name)
 	printf("hash ctx %s (%s implementation) len %lu\n", name,
 	       sha3_224 == lc_sha3_224_c ? "C" : "accelerated", LC_HASH_CTX_SIZE(sha3_224));
 	lc_hmac(sha3_224, key_224, 13, msg_224, 16, act);
-	ret = compare(act, exp_224, LC_SHA3_224_SIZE_DIGEST, "HMAC SHA3-224");
+	ret = lc_compare(act, exp_224, LC_SHA3_224_SIZE_DIGEST, "HMAC SHA3-224");
 
 	return ret;
 }

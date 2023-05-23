@@ -98,7 +98,7 @@ static int test_decrypt_cbc_one(struct lc_sym_ctx *ctx,
 	CKINT(lc_sym_setkey(ctx, key, keylen));
 	CKINT(lc_sym_setiv(ctx, iv, sizeof(iv)));
 	lc_sym_decrypt(ctx, in, in, sizeof(out));
-	ret = compare(in, out, sizeof(out), "AES-CBC decrypt");
+	ret = lc_compare(in, out, sizeof(out), "AES-CBC decrypt");
 
 out:
 	return ret;

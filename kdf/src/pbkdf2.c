@@ -48,7 +48,7 @@ static void lc_pbkdf2_selftest(int *tested, const char *impl)
 
 	lc_pbkdf2(lc_sha256, pw, sizeof(pw), salt, sizeof(salt), 1,
 		  act, sizeof(act));
-	compare_selftest(act, exp_256, sizeof(exp_256), impl);
+	lc_compare_selftest(act, exp_256, sizeof(exp_256), impl);
 }
 
 #if 0

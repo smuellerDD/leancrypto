@@ -194,7 +194,7 @@ Using ASAN address testing with the help of meson, no issues were identified.
 
 ## Clang Static Code Analysis
 
-Using the clan-scan tool with the command `ninja -C build/ scan-build` shows no
+Using the clang-scan tool with the command `ninja -C build/ scan-build` shows no
 issues.
 
 ## Linux Hints

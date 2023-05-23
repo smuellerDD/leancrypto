@@ -71,7 +71,7 @@ static int test_encrypt(const uint8_t *key, size_t keylen, const uint8_t *out)
 	lc_sym_init(aes);
 	CKINT(lc_sym_setkey(aes, key, keylen));
 	lc_sym_encrypt(aes, in, in, sizeof(in));
-	ret = compare(in, out, sizeof(in), "AES block encrypt");
+	ret = lc_compare(in, out, sizeof(in), "AES block encrypt");
 
 out:
 	lc_sym_zero(aes);

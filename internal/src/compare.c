@@ -49,8 +49,8 @@ void, lc_rerun_selftests, void)
 }
 
 LC_INTERFACE_FUNCTION(
-int, compare, const uint8_t *act, const uint8_t *exp, const size_t len,
-	    const char *info)
+int, lc_compare, const uint8_t *act, const uint8_t *exp, const size_t len,
+		 const char *info)
 {
 	if (memcmp(act, exp, len)) {
 		unsigned int i;
@@ -73,8 +73,8 @@ int, compare, const uint8_t *act, const uint8_t *exp, const size_t len,
 	return 0;
 }
 
-void compare_selftest(const uint8_t *act, const uint8_t *exp, const size_t len,
-		      const char *info)
+void lc_compare_selftest(const uint8_t *act, const uint8_t *exp,
+			 const size_t len, const char *info)
 {
-	assert(!compare(act, exp, len, info));
+	assert(!lc_compare(act, exp, len, info));
 }

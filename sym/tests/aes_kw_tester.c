@@ -74,8 +74,8 @@ static int test_encrypt_kw_one(struct lc_sym_ctx *ctx,
 	lc_sym_init(ctx);
 	CKINT(lc_sym_setkey(ctx, key, keylen));
 	lc_aes_kw_encrypt(ctx, pt, out, ptlen);
-	ret = compare(out + 8, ct, ptlen, "AES-KW encrypt ciphertext");
-	ret += compare(out, iv, sizeof(tag), "AES-KW encrypt tag");
+	ret = lc_compare(out + 8, ct, ptlen, "AES-KW encrypt ciphertext");
+	ret += lc_compare(out, iv, sizeof(tag), "AES-KW encrypt tag");
 
 	/* Decrypt */
 	rc = lc_aes_kw_decrypt(ctx, out, out2, sizeof(out));
@@ -83,7 +83,7 @@ static int test_encrypt_kw_one(struct lc_sym_ctx *ctx,
 		ret++;
 		printf("AES-KW Decryption error\n");
 	}
-	ret += compare(out2, pt, ptlen, "AES-KW decrypt plaintext");
+	ret += lc_compare(out2, pt, ptlen, "AES-KW decrypt plaintext");
 
 	/* Decrypt with error */
 	out[0] = (out[0] + 1) & 0xff;

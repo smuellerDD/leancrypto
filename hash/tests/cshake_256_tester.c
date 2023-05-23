@@ -81,14 +81,14 @@ static int _cshake_256_tester(const struct lc_hash *cshake_256,
 	lc_hash_update(ctx, msg1, sizeof(msg1));
 	lc_hash_set_digestsize(ctx, sizeof(act1));
 	lc_hash_final(ctx, act1);
-	ret = compare(act1, exp1, sizeof(act1), "cSHAKE256 1");
+	ret = lc_compare(act1, exp1, sizeof(act1), "cSHAKE256 1");
 	lc_hash_zero(ctx);
 
 	lc_cshake_init(cshake256_stack, NULL, 0, cust1, sizeof(cust1));
 	lc_hash_update(cshake256_stack, msg1, sizeof(msg1));
 	lc_hash_set_digestsize(cshake256_stack, sizeof(act1));
 	lc_hash_final(cshake256_stack, act1);
-	ret += compare(act1, exp1, sizeof(act1), "cSHAKE256 1");
+	ret += lc_compare(act1, exp1, sizeof(act1), "cSHAKE256 1");
 	lc_hash_zero(cshake256_stack);
 
 	if (ret)

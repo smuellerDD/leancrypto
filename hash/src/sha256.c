@@ -54,7 +54,7 @@ static void sha256_selftest(const struct lc_hash *sha256, int *tested,
 	LC_SELFTEST_RUN(tested);
 
 	lc_hash(sha256, msg_256, sizeof(msg_256), act);
-	compare_selftest(act, exp_256, LC_SHA256_SIZE_DIGEST, impl);
+	lc_compare_selftest(act, exp_256, LC_SHA256_SIZE_DIGEST, impl);
 }
 
 static void sha256_init(void *_state)

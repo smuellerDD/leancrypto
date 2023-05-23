@@ -48,5 +48,5 @@ void hmac_sha256_selftest(const char *impl)
 
 	lc_hmac(lc_sha256, key_256, sizeof(key_256), msg_256, sizeof(msg_256),
 		act);
-	compare_selftest(act, exp_256, sizeof(exp_256), impl);
+	lc_compare_selftest(act, exp_256, sizeof(exp_256), impl);
 }

@@ -166,7 +166,7 @@ static int hmac_sha2_512_tester(void)
 	lc_hmac_final(hmac, act);
 	lc_hmac_zero(hmac);
 
-	ret = compare(act, exp_512, LC_SHA512_SIZE_DIGEST, "HMAC SHA2-512");
+	ret = lc_compare(act, exp_512, LC_SHA512_SIZE_DIGEST, "HMAC SHA2-512");
 
 	return ret;
 }

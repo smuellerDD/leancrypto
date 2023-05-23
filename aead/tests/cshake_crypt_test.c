@@ -47,10 +47,10 @@ static int cc_tester_cshake_one(const uint8_t *pt, size_t ptlen,
 	lc_aead_encrypt(cc, pt, out_enc, ptlen, aad, aadlen,
 			tag, exp_tag_len);
 
-	ret_checked += compare(out_enc, exp_ct, ptlen,
-			       "cSHAKE crypt: Encryption, ciphertext");
-	ret_checked += compare(tag, exp_tag, exp_tag_len,
-			       "cSHAKE crypt: Encryption, tag");
+	ret_checked += lc_compare(out_enc, exp_ct, ptlen,
+				  "cSHAKE crypt: Encryption, ciphertext");
+	ret_checked += lc_compare(tag, exp_tag, exp_tag_len,
+				  "cSHAKE crypt: Encryption, tag");
 
 	//bin2print(out_enc, ptlen, stderr, "out_enc");
 	//bin2print(tag, exp_tag_len, stderr, "tag");
@@ -71,10 +71,10 @@ static int cc_tester_cshake_one(const uint8_t *pt, size_t ptlen,
 			      tag, exp_tag_len);
 	lc_aead_zero_free(cc_heap);
 
-	ret_checked += compare(out_enc, exp_ct, ptlen,
-			       "cSHAKE crypt: Encryption, ciphertext");
-	ret_checked += compare(tag, exp_tag, exp_tag_len,
-			       "cSHAKE crypt: Encryption, tag");
+	ret_checked += lc_compare(out_enc, exp_ct, ptlen,
+				  "cSHAKE crypt: Encryption, ciphertext");
+	ret_checked += lc_compare(tag, exp_tag, exp_tag_len,
+				  "cSHAKE crypt: Encryption, tag");
 
 	/* Stream encryption with pt ptr != ct ptr */
 	if (lc_aead_setkey(cc, key, keylen, NULL, 0))
@@ -89,10 +89,10 @@ static int cc_tester_cshake_one(const uint8_t *pt, size_t ptlen,
 	lc_aead_enc_update(cc, pt + 7, out_enc + 7, (ptlen - 7));
 	lc_aead_enc_final(cc, aad, aadlen, tag, exp_tag_len);
 
-	ret_checked += compare(out_enc, exp_ct, ptlen,
-			       "cSHAKE crypt: Encryption, ciphertext");
-	ret_checked += compare(tag, exp_tag, exp_tag_len,
-			       "cSHAKE crypt: Encryption, tag");
+	ret_checked += lc_compare(out_enc, exp_ct, ptlen,
+				  "cSHAKE crypt: Encryption, ciphertext");
+	ret_checked += lc_compare(tag, exp_tag, exp_tag_len,
+				  "cSHAKE crypt: Encryption, tag");
 
 	lc_aead_zero(cc);
 
@@ -105,8 +105,8 @@ static int cc_tester_cshake_one(const uint8_t *pt, size_t ptlen,
 	if (ret < 0)
 		return 1;
 
-	ret_checked += compare(out_dec, pt, ptlen,
-			       "cSHAKE crypt: Decryption, plaintext");
+	ret_checked += lc_compare(out_dec, pt, ptlen,
+				  "cSHAKE crypt: Decryption, plaintext");
 
 	/* Stream decryption with pt ptr != ct ptr */
 	lc_aead_zero(cc);
@@ -120,8 +120,8 @@ static int cc_tester_cshake_one(const uint8_t *pt, size_t ptlen,
 		return 1;
 
 	//bin2print(out_dec, sizeof(out_dec), stderr, "out_dec");
-	ret_checked += compare(out_dec, pt, ptlen,
-			       "cSHAKE crypt: Decryption, plaintext");
+	ret_checked += lc_compare(out_dec, pt, ptlen,
+				  "cSHAKE crypt: Decryption, plaintext");
 
 	lc_aead_zero(cc);
 
@@ -167,8 +167,8 @@ static int cc_tester_cshake_validate(void)
 		       in, sizeof(in));
 	lc_cshake_final(cshake256, out_cshake, sizeof(out_cshake));
 
-	return compare(out_cshake + 32, out_enc, sizeof(out_enc),
-		       "cSHAKE crypt: Validation");
+	return lc_compare(out_cshake + 32, out_enc, sizeof(out_enc),
+			  "cSHAKE crypt: Validation");
 }
 
 static int cc_tester_cshake(void)

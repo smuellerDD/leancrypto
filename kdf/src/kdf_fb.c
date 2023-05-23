@@ -59,7 +59,7 @@ static void lc_kdf_fb_selftest(int *tested, const char *impl)
 
 	lc_kdf_fb(lc_sha256, key, sizeof(key), iv, sizeof(iv),
 		  label, sizeof(label), act, sizeof(act));
-	compare_selftest(act, exp, sizeof(exp), impl);
+	lc_compare_selftest(act, exp, sizeof(exp), impl);
 }
 
 LC_INTERFACE_FUNCTION(

@@ -41,11 +41,11 @@ int, lc_alloc_aligned_secure, void **memptr, size_t alignment, size_t size)
 		return ret;
 
 	/* prevent paging out of the memory state to swap space */
-	ret = mlock(out_ctx, sizeof(*out_ctx));
+	ret = mlock(memptr, size);
 	if (ret && errno != EPERM && errno != EAGAIN) {
 		int errsv = errno;
 
-		lc_free(out_ctx);
+		lc_free(memptr);
 		return -errsv;
 	}
 

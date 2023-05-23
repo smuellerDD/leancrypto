@@ -96,7 +96,7 @@ static void drbg_hmac_selftest(int *tested, const char *impl)
 	lc_rng_seed(drbg_ctx, ent_nonce, sizeof(ent_nonce), pers, sizeof(pers));
 	lc_rng_generate(drbg_ctx, addtl1, sizeof(addtl1), act, sizeof(act));
 	lc_rng_generate(drbg_ctx, addtl2, sizeof(addtl2), act, sizeof(act));
-	compare_selftest(act, exp, sizeof(exp), impl);
+	lc_compare_selftest(act, exp, sizeof(exp), impl);
 	lc_rng_zero(drbg_ctx);
 }
 

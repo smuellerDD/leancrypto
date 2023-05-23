@@ -60,13 +60,13 @@ static int sh_tester_one(const struct lc_sym *sym, const struct lc_hash *hash,
 			tag, exp_tag_len);
 
 	if (exp_ct) {
-		ret_checked += compare(out_enc, exp_ct, ptlen,
-				       "SymHMAC: Encryption, ciphertext");
+		ret_checked += lc_compare(out_enc, exp_ct, ptlen,
+					  "SymHMAC: Encryption, ciphertext");
 	}
 
 	if (exp_tag) {
-		ret_checked += compare(tag, exp_tag, exp_tag_len,
-				       "SymHMAC: Encryption, tag");
+		ret_checked += lc_compare(tag, exp_tag, exp_tag_len,
+					  "SymHMAC: Encryption, tag");
 	}
 
 	//bin2print(out_enc, ptlen, stderr, "out_enc");
@@ -85,8 +85,8 @@ static int sh_tester_one(const struct lc_sym *sym, const struct lc_hash *hash,
 		return 1;
 	lc_sym_encrypt(aes_cbc, pt, out_compare, ptlen);
 
-	ret_checked += compare(out_enc, out_compare, ptlen,
-			       "SymHMAC: Encryption, compare with CBC");
+	ret_checked += lc_compare(out_enc, out_compare, ptlen,
+				  "SymHMAC: Encryption, compare with CBC");
 
 	/* Compare with HMAC */
 	lc_hmac_init(hmac_ctx, keystream + sizeof(keystream)/2,
@@ -94,8 +94,8 @@ static int sh_tester_one(const struct lc_sym *sym, const struct lc_hash *hash,
 	lc_hmac_update(hmac_ctx, out_compare, ptlen);
 	lc_hmac_update(hmac_ctx, aad, aadlen);
 	lc_hmac_final(hmac_ctx, tag_compare);
-	ret_checked += compare(tag, tag_compare, exp_tag_len,
-			       "SymHMAC: Encryption, compare with HMAC");
+	ret_checked += lc_compare(tag, tag_compare, exp_tag_len,
+				  "SymHMAC: Encryption, compare with HMAC");
 
 	/* One shot encryption with pt ptr == ct ptr */
 	if (lc_sh_alloc(sym, hash, &sh_heap))
@@ -111,10 +111,10 @@ static int sh_tester_one(const struct lc_sym *sym, const struct lc_hash *hash,
 
 	lc_aead_zero_free(sh_heap);
 
-	ret_checked += compare(out_enc, out_compare, ptlen,
-			       "SymHMAC crypt: Encryption, ciphertext");
-	ret_checked += compare(tag, tag_compare, exp_tag_len,
-			       "SymHMAC crypt: Encryption, tag");
+	ret_checked += lc_compare(out_enc, out_compare, ptlen,
+				  "SymHMAC crypt: Encryption, ciphertext");
+	ret_checked += lc_compare(tag, tag_compare, exp_tag_len,
+				  "SymHMAC crypt: Encryption, tag");
 
 	/* One shot decryption with pt ptr != ct ptr */
 	if (lc_aead_setkey(sh, key, keylen, iv, ivlen))
@@ -125,8 +125,8 @@ static int sh_tester_one(const struct lc_sym *sym, const struct lc_hash *hash,
 	if (ret < 0)
 		return 1;
 
-	ret_checked += compare(out_dec, pt, ptlen,
-			       "SymHMAC crypt: Decryption, plaintext");
+	ret_checked += lc_compare(out_dec, pt, ptlen,
+				  "SymHMAC crypt: Decryption, plaintext");
 
 	lc_aead_zero(sh);
 
@@ -165,13 +165,13 @@ static int sh_nonaligned(void)
 
 	lc_aead_encrypt(sh, pt, pt, sizeof(pt), NULL, 0, tag, sizeof(tag));
 
-	ret_checked += compare(pt, zero, sizeof(pt),
-			       "SymHMAC: nonaligned Encryption");
+	ret_checked += lc_compare(pt, zero, sizeof(pt),
+				  "SymHMAC: nonaligned Encryption");
 
 	lc_aead_decrypt(sh, ct, ct, sizeof(ct), NULL, 0, tag, sizeof(tag));
 
-	ret_checked += compare(ct, zero, sizeof(ct),
-			       "SymHMAC: nonaligned Decryption");
+	ret_checked += lc_compare(ct, zero, sizeof(ct),
+				  "SymHMAC: nonaligned Decryption");
 
 	return ret_checked;
 }

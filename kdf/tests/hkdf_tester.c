@@ -64,7 +64,7 @@ static int hkdf_tester(void)
 		return 1;
 	}
 
-	ret = compare(act, exp, sizeof(exp), "HKDF SHA-256 stack");
+	ret = lc_compare(act, exp, sizeof(exp), "HKDF SHA-256 stack");
 	lc_hkdf_zero(hkdf);
 
 	if (lc_rng_seed(hkdf_rng, ikm, sizeof(ikm), salt, sizeof(salt))) {
@@ -76,7 +76,7 @@ static int hkdf_tester(void)
 		printf("HKDF expand stack failed\n");
 		return 1;
 	}
-	ret += compare(act, exp, sizeof(exp), "HKDF SHA-256 RNG");
+	ret += lc_compare(act, exp, sizeof(exp), "HKDF SHA-256 RNG");
 
 	/*
 	 * Verify that subsequent calls to the "RNG" of HKDF returns the same
@@ -112,8 +112,8 @@ static int hkdf_tester(void)
 
 			j += todo;
 		}
-		ret += compare(act, exp, sizeof(exp),
-			       "HKDF SHA-256 regenerate");
+		ret += lc_compare(act, exp, sizeof(exp),
+				  "HKDF SHA-256 regenerate");
 	}
 
 	lc_rng_zero(hkdf_rng);
@@ -123,7 +123,7 @@ static int hkdf_tester(void)
 		printf("HKDF oneshot on stack failed\n");
 		return 1;
 	}
-	ret += compare(act, exp, sizeof(exp), "HKDF SHA-256 oneshot");
+	ret += lc_compare(act, exp, sizeof(exp), "HKDF SHA-256 oneshot");
 
 	if (lc_hkdf_alloc(lc_sha256, &hkdf_heap)) {
 		printf("HKDF alloc failed\n");
@@ -141,7 +141,7 @@ static int hkdf_tester(void)
 		return 1;
 	}
 
-	ret += compare(act, exp, sizeof(exp), "HKDF SHA-256 heap");
+	ret += lc_compare(act, exp, sizeof(exp), "HKDF SHA-256 heap");
 	lc_hkdf_zero_free(hkdf_heap);
 
 	return ret;

@@ -41,10 +41,10 @@ int get_current_selftest_level(void);
 		return;
 #endif /* LC_SELFTEST_ENABLED */
 
-int compare(const uint8_t *act, const uint8_t *exp, const size_t len,
-	    const char *info);
-void compare_selftest(const uint8_t *act, const uint8_t *exp, const size_t len,
-		      const char *info);
+int lc_compare(const uint8_t *act, const uint8_t *exp, const size_t len,
+	       const char *info);
+void lc_compare_selftest(const uint8_t *act, const uint8_t *exp,
+			 const size_t len, const char *info);
 
 #ifdef __cplusplus
 }

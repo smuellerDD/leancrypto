@@ -83,7 +83,7 @@ static void aes_cbc_selftest(int *tested, const char *impl)
 	lc_sym_setiv(ctx, iv, sizeof(iv));
 	lc_sym_encrypt(ctx, in, out, sizeof(in));
 	snprintf(status, sizeof(status), "%s encrypt", impl);
-	compare_selftest(out256, out, sizeof(out256), status);
+	lc_compare_selftest(out256, out, sizeof(out256), status);
 	lc_sym_zero(ctx);
 
 	lc_sym_init(ctx);
@@ -91,7 +91,7 @@ static void aes_cbc_selftest(int *tested, const char *impl)
 	lc_sym_setiv(ctx, iv, sizeof(iv));
 	lc_sym_decrypt(ctx, out, out, sizeof(out));
 	snprintf(status, sizeof(status), "%s decrypt", impl);
-	compare_selftest(in, out, sizeof(in), status);
+	lc_compare_selftest(in, out, sizeof(in), status);
 	lc_sym_zero(ctx);
 }
 

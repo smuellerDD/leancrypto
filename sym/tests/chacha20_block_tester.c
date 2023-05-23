@@ -41,8 +41,8 @@ static inline int chacha20_selftest_one(struct lc_sym_state *state,
 
 	cc20_block(state, result);
 
-	return compare((uint8_t *)result, (uint8_t *)expected,
-		       sizeof(result), "ChaCha20 block");
+	return lc_compare((uint8_t *)result, (uint8_t *)expected,
+			  sizeof(result), "ChaCha20 block");
 }
 
 static int chacha20_block_selftest(void)

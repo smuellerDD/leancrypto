@@ -249,7 +249,7 @@ static int hmac_drbg_tester(void)
 		goto out;
 #endif
 
-	ret = compare(act, exp, 256, "Hash DRBG SHA-512");
+	ret = lc_compare(act, exp, 256, "Hash DRBG SHA-512");
 
 out:
 	lc_rng_zero_free(drbg);

@@ -1631,11 +1631,11 @@ static int _dilithium_keypair_tester(const char *impl,
 
 	_lc_dilithium_keypair(&ws->pk, &ws->sk, &dilithium_rng);
 	snprintf(str, sizeof(str), "%s PK", impl);
-	compare_selftest(ws->pk.pk, vector.pk.pk, LC_DILITHIUM_PUBLICKEYBYTES,
-			 str);
+	lc_compare_selftest(ws->pk.pk, vector.pk.pk,
+			    LC_DILITHIUM_PUBLICKEYBYTES, str);
 	snprintf(str, sizeof(str), "%s SK", impl);
-	compare_selftest(ws->sk.sk, vector.sk.sk, LC_DILITHIUM_PUBLICKEYBYTES,
-			 str);
+	lc_compare_selftest(ws->sk.sk, vector.sk.sk,
+			    LC_DILITHIUM_PUBLICKEYBYTES, str);
 
 	LC_RELEASE_MEM(ws);
 	return 0;
@@ -1649,7 +1649,8 @@ void dilithium_keypair_tester(int *tested, const char *impl,
 	LC_SELFTEST_RUN(tested);
 
 	if (_dilithium_keypair_tester(impl, _lc_dilithium_keypair))
-		compare_selftest((uint8_t *)"test", (uint8_t *)"fail", 4, impl);
+		lc_compare_selftest((uint8_t *)"test", (uint8_t *)"fail", 4,
+				    impl);
 }
 
 static int _dilithium_siggen_tester(const char *impl,
@@ -1666,8 +1667,8 @@ static int _dilithium_siggen_tester(const char *impl,
 
 	_lc_dilithium_sign(&ws->sig, vector.m, sizeof(vector.m), &vector.sk,
 			   NULL);
-	compare_selftest(ws->sig.sig, vector.sig.sig, LC_DILITHIUM_CRYPTO_BYTES,
-			 impl);
+	lc_compare_selftest(ws->sig.sig, vector.sig.sig,
+			    LC_DILITHIUM_CRYPTO_BYTES, impl);
 
 	LC_RELEASE_MEM(ws);
 	return 0;
@@ -1683,7 +1684,8 @@ void dilithium_siggen_tester(int *tested, const char *impl,
 	LC_SELFTEST_RUN(tested);
 
 	if (_dilithium_siggen_tester(impl, _lc_dilithium_sign))
-		compare_selftest((uint8_t *)"test", (uint8_t *)"fail", 4, impl);
+		lc_compare_selftest((uint8_t *)"test", (uint8_t *)"fail", 4,
+				    impl);
 }
 
 void dilithium_sigver_tester(int *tested, const char *impl,
@@ -1700,5 +1702,6 @@ void dilithium_sigver_tester(int *tested, const char *impl,
 	ret = _lc_dilithium_verify(&vector.sig, vector.m, sizeof(vector.m),
 				   &vector.pk);
 
-	compare_selftest((uint8_t *)&ret, (uint8_t *)&exp, sizeof(ret), impl);
+	lc_compare_selftest((uint8_t *)&ret, (uint8_t *)&exp, sizeof(ret),
+			    impl);
 }

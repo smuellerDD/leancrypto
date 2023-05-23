@@ -104,7 +104,7 @@ static int hash_drbg_tester(void)
 	if (lc_rng_generate(drbg_stack, addtl2, 32, act, 256) < 0)
 		goto out;
 
-	ret += compare(act, exp, 256, "Hash DRBG SHA-512");
+	ret += lc_compare(act, exp, 256, "Hash DRBG SHA-512");
 
 	lc_rng_zero(drbg_stack);
 
@@ -118,7 +118,7 @@ static int hash_drbg_tester(void)
 	if (lc_rng_generate(drbg_stack, addtl2, 32, act, 256) < 0)
 		goto out;
 
-	ret += compare(act, exp, 256, "Hash DRBG SHA-512");
+	ret += lc_compare(act, exp, 256, "Hash DRBG SHA-512");
 
 	lc_rng_zero(drbg_stack);
 
@@ -264,7 +264,7 @@ static int hash_drbg_tester(void)
 		goto out;
 #endif
 
-	ret += compare(act, exp, 256, "Hash DRBG SHA-512");
+	ret += lc_compare(act, exp, 256, "Hash DRBG SHA-512");
 
 out:
 	lc_rng_zero_free(drbg);

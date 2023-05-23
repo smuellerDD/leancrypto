@@ -55,7 +55,7 @@ static int hmac_sha2_256_tester(void)
 	lc_hmac_final(hmac_ctx, act);
 	lc_hmac_zero_free(hmac_ctx);
 
-	ret = compare(act, exp_256, LC_SHA256_SIZE_DIGEST, "HMAC SHA2-256");
+	ret = lc_compare(act, exp_256, LC_SHA256_SIZE_DIGEST, "HMAC SHA2-256");
 
 	return ret;
 }

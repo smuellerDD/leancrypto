@@ -89,7 +89,7 @@ static int kdf_fb_tester(void)
 		return 1;
 	}
 
-	ret = compare(act, exp, sizeof(exp), "FB KDF SHA-256");
+	ret = lc_compare(act, exp, sizeof(exp), "FB KDF SHA-256");
 
 	if (lc_kdf_fb(lc_sha256, key2, sizeof(key2), iv2, sizeof(iv2),
 		      label2, sizeof(label2), act2, sizeof(act2))) {
@@ -97,7 +97,7 @@ static int kdf_fb_tester(void)
 		return 1;
 	}
 
-	ret += compare(act2, exp2, sizeof(exp2), "FB KDF SHA-256");
+	ret += lc_compare(act2, exp2, sizeof(exp2), "FB KDF SHA-256");
 
 	return ret;
 }

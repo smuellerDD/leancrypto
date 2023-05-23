@@ -112,7 +112,7 @@ static int _shake_256_tester(const struct lc_hash *shake_256, const char *name)
 	lc_hash_update(ctx, msg1, sizeof(msg1));
 	lc_hash_set_digestsize(ctx, sizeof(act1));
 	lc_hash_final(ctx, act1);
-	ret = compare(act1, exp1, sizeof(act1), "SHAKE256 1");
+	ret = lc_compare(act1, exp1, sizeof(act1), "SHAKE256 1");
 	lc_hash_zero(ctx);
 
 	if (ret)
@@ -122,7 +122,7 @@ static int _shake_256_tester(const struct lc_hash *shake_256, const char *name)
 	lc_hash_update(shake256_stack, msg1, sizeof(msg1));
 	lc_hash_set_digestsize(shake256_stack, sizeof(act1));
 	lc_hash_final(shake256_stack, act1);
-	ret = compare(act1, exp1, sizeof(act1), "SHAKE256 1 - separate ctx");
+	ret = lc_compare(act1, exp1, sizeof(act1), "SHAKE256 1 - separate ctx");
 	lc_hash_zero(shake256_stack);
 	if (ret)
 		return ret;
@@ -131,7 +131,7 @@ static int _shake_256_tester(const struct lc_hash *shake_256, const char *name)
 	lc_hash_update(ctx, msg2, sizeof(msg2));
 	lc_hash_set_digestsize(ctx, sizeof(act2));
 	lc_hash_final(ctx, act2);
-	ret = compare(act2, exp2, sizeof(act2), "SHAKE256 2");
+	ret = lc_compare(act2, exp2, sizeof(act2), "SHAKE256 2");
 	lc_hash_zero(ctx);
 
 	if (ret)
@@ -142,7 +142,7 @@ static int _shake_256_tester(const struct lc_hash *shake_256, const char *name)
 	lc_hash_update(cctx, msg2, sizeof(msg2));
 	lc_hash_set_digestsize(cctx, sizeof(act2));
 	lc_hash_final(cctx, act2);
-	ret = compare(act2, exp2, sizeof(act2), "SHAKE256 3");
+	ret = lc_compare(act2, exp2, sizeof(act2), "SHAKE256 3");
 	lc_hash_zero(cctx);
 
 	return ret;

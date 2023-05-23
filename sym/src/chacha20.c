@@ -73,7 +73,7 @@ static void cc20_selftest(int *tested, const char *impl)
 	lc_sym_setiv(chacha20, (uint8_t *)iv, sizeof(iv));
 	lc_sym_encrypt(chacha20, (uint8_t *)string, res, sizeof(res));
 	snprintf(str, sizeof(str), "%s enc", impl);
-	compare_selftest(res, exp, sizeof(exp), str);
+	lc_compare_selftest(res, exp, sizeof(exp), str);
 	lc_sym_zero(chacha20);
 
 	/* Decrypt */
@@ -82,7 +82,7 @@ static void cc20_selftest(int *tested, const char *impl)
 	lc_sym_setiv(chacha20, (uint8_t *)iv, sizeof(iv));
 	lc_sym_decrypt(chacha20, res, res, sizeof(res));
 	snprintf(str, sizeof(str), "%s dec", impl);
-	compare_selftest(res, (uint8_t *)string, sizeof(res), str);
+	lc_compare_selftest(res, (uint8_t *)string, sizeof(res), str);
 	lc_sym_zero(chacha20);
 }
 

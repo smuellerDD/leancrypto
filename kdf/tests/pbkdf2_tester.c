@@ -51,14 +51,14 @@ static int pbkdf2_tester(void)
 		printf("PKBDF2 failed\n");
 		return 1;
 	}
-	ret += compare(act, exp_256, sizeof(exp_256), "PBKDF SHA-256");
+	ret += lc_compare(act, exp_256, sizeof(exp_256), "PBKDF SHA-256");
 
 	if (lc_pbkdf2(lc_sha512, pw, sizeof(pw), salt, sizeof(salt), count,
 		      act, sizeof(act))) {
 		printf("PKBDF2 failed\n");
 		return 1;
 	}
-	ret += compare(act, exp_512, sizeof(exp_512), "PBKDF SHA-512");
+	ret += lc_compare(act, exp_512, sizeof(exp_512), "PBKDF SHA-512");
 
 	return ret;
 }

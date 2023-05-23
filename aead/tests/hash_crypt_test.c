@@ -46,10 +46,10 @@ static int hc_tester_sha512_one(const uint8_t *pt, size_t ptlen,
 
 	lc_aead_encrypt(hc, pt, out_enc, ptlen, aad, aadlen, tag, exp_tag_len);
 
-	ret_checked += compare(out_enc, exp_ct, ptlen,
-			       "Hash crypt: Encryption, ciphertext");
-	ret_checked += compare(tag, exp_tag, exp_tag_len,
-			       "Hash crypt: Encryption, tag");
+	ret_checked += lc_compare(out_enc, exp_ct, ptlen,
+				  "Hash crypt: Encryption, ciphertext");
+	ret_checked += lc_compare(tag, exp_tag, exp_tag_len,
+				  "Hash crypt: Encryption, tag");
 
 	//bin2print(out_enc, ptlen, stderr, "out_enc");
 	//bin2print(tag, exp_tag_len, stderr, "tag");
@@ -70,10 +70,10 @@ static int hc_tester_sha512_one(const uint8_t *pt, size_t ptlen,
 			tag, exp_tag_len);
 	lc_aead_zero_free(hc_heap);
 
-	ret_checked += compare(out_enc, exp_ct, ptlen,
-			       "Hash crypt: Encryption, ciphertext");
-	ret_checked += compare(tag, exp_tag, exp_tag_len,
-			       "Hash crypt: Encryption, tag");
+	ret_checked += lc_compare(out_enc, exp_ct, ptlen,
+				  "Hash crypt: Encryption, ciphertext");
+	ret_checked += lc_compare(tag, exp_tag, exp_tag_len,
+				  "Hash crypt: Encryption, tag");
 
 	lc_aead_zero(hc);
 
@@ -90,10 +90,10 @@ static int hc_tester_sha512_one(const uint8_t *pt, size_t ptlen,
 	lc_aead_enc_update(hc, pt + 7, out_enc + 7, (ptlen - 7));
 	lc_aead_enc_final(hc, aad, aadlen, tag, exp_tag_len);
 
-	ret_checked += compare(out_enc, exp_ct, ptlen,
-			       "Hash crypt: Encryption, ciphertext");
-	ret_checked += compare(tag, exp_tag, exp_tag_len,
-			       "Hash crypt: Encryption, tag");
+	ret_checked += lc_compare(out_enc, exp_ct, ptlen,
+				  "Hash crypt: Encryption, ciphertext");
+	ret_checked += lc_compare(tag, exp_tag, exp_tag_len,
+				  "Hash crypt: Encryption, tag");
 
 	lc_aead_zero(hc);
 
@@ -106,12 +106,12 @@ static int hc_tester_sha512_one(const uint8_t *pt, size_t ptlen,
 	if (ret < 0)
 		return 1;
 
-	ret_checked += compare(out_dec, pt, ptlen,
-			       "Hash crypt: Decryption, plaintext");
+	ret_checked += lc_compare(out_dec, pt, ptlen,
+				  "Hash crypt: Decryption, plaintext");
 
 	//bin2print(out_dec, sizeof(out_dec), stderr, "out_dec");
-	ret_checked += compare(out_dec, pt, ptlen,
-			       "Hash crypt: Decryption, ciphertext");
+	ret_checked += lc_compare(out_dec, pt, ptlen,
+				  "Hash crypt: Decryption, ciphertext");
 
 	lc_aead_zero(hc);
 
