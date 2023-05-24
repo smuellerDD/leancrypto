@@ -32,6 +32,11 @@
 # define LC_NEON_ENABLE
 # define LC_NEON_DISABLE
 
+#if (defined(__APPLE__))
+# include <sys/types.h>
+# include <sys/sysctl.h>
+#endif
+
 #endif /* LINUX_KERNEL */
 
 #endif /* EXT_HEADERS_ARM_H */

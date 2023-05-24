@@ -19,6 +19,7 @@
 
 #include "cpufeatures.h"
 #include "ext_headers.h"
+#include "ext_headers_arm.h"
 #include "visibility.h"
 
 /*
@@ -41,17 +42,62 @@
 #define ARM8_PMULL_FEATURE	(UINT64_C(0x1)<<5)
 #define ARM8_AES_FEATURE	(UINT64_C(0x1)<<4)
 
-/* Apple M1/M2 returns an illegal instruction */
-#if (!defined(__APPLE__))
 static inline int arm_id_aa64isar0_el1_feature(unsigned long feature)
 {
 	static unsigned long id_aa64isar0_el1_val = 0xffffffffffffffff;
 
 	if (id_aa64isar0_el1_val == 0xffffffffffffffff) {
+#if (defined(__APPLE__))
+		int64_t ret;
+		size_t size = sizeof(ret);
+
+		/* Kernel-only support */
+		//id_aa64isar0_el1_val = __builtin_arm_rsr64("ID_AA64ISAR0_EL1");
+
+		id_aa64isar0_el1_val = 0;
+
+		/*
+		 * See https://developer.apple.com/documentation/kernel/1387446-sysctlbyname/determining_instruction_set_characteristics
+		 */
+
+		/*
+		 * There is no corresponding code in leancrypto to warrant those
+		 * queries.
+		 */
+#if 0
+		ret = 0;
+		if (!sysctlbyname("hw.optional.arm.FEAT_AES", &ret, &size,
+				  NULL, 0)) {
+			if (ret)
+				id_aa64isar0_el1_val |= ARM8_AES_FEATURE;
+		}
+
+		ret = 0;
+		if (!sysctlbyname("hw.optional.arm.FEAT_SHA256", &ret, &size,
+				  NULL, 0)) {
+			if (ret)
+				id_aa64isar0_el1_val |= ARM8_SHA256_FEATURE;
+		}
+
+		ret = 0;
+		if (!sysctlbyname("hw.optional.arm.FEAT_SHA512", &ret, &size,
+				  NULL, 0)) {
+			if (ret)
+				id_aa64isar0_el1_val |= ARM8_SHA256512_FEATURE;
+		}
+#endif
+		ret = 0;
+		if (!sysctlbyname("hw.optional.arm.FEAT_SHA3", &ret, &size,
+				  NULL, 0)) {
+			if (ret)
+				id_aa64isar0_el1_val |= ARM8_SHA3_FEATURE;
+		}
+#else
 		__asm__ __volatile__(
 			"mrs %0, id_aa64isar0_el1 \n"
 			: "=r" (id_aa64isar0_el1_val)
 		);
+#endif
 
 		if (id_aa64isar0_el1_val == 0xffffffffffffffff)
 			return 0;
@@ -59,13 +105,6 @@ static inline int arm_id_aa64isar0_el1_feature(unsigned long feature)
 
         return (id_aa64isar0_el1_val & feature) ? 1 : 0;
 }
-#else
-static inline int arm_id_aa64isar0_el1_feature(unsigned long feature)
-{
-	(void)feature;
-	return 0;
-}
-#endif
 
 LC_INTERFACE_FUNCTION(
 enum lc_cpu_features, lc_cpu_feature_available, void)
