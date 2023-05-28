@@ -54,7 +54,7 @@ struct lc_hash_ctx {
  * arguments.
  */
 #ifndef LC_HASH_COMMON_ALIGNMENT
-#define LC_HASH_COMMON_ALIGNMENT	(sizeof(uint64_t))
+#define LC_HASH_COMMON_ALIGNMENT	(32)
 #endif
 
 #define LC_ALIGN_HASH_MASK(p)						       \

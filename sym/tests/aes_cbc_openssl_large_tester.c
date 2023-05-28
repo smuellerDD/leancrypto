@@ -25,6 +25,7 @@
 
 #include "ret_checkers.h"
 
+#define LC_OPENSSL_SIZE	(1UL<<30)
 static int aes_cbc_large(void)
 {
 	EVP_CIPHER_CTX *ctx = NULL;
@@ -41,7 +42,7 @@ static int aes_cbc_large(void)
 	};
 	int ret;
 
-	pt = calloc(1, 1UL<<30);
+	pt = calloc(1, LC_OPENSSL_SIZE);
 	if (!pt)
 		return 1;
 
@@ -53,7 +54,7 @@ static int aes_cbc_large(void)
 		ret = 1;
 		goto out;
 	}
-	ret = EVP_CipherUpdate(ctx, pt, &outl, pt, 1UL<<30);
+	ret = EVP_CipherUpdate(ctx, pt, &outl, pt, LC_OPENSSL_SIZE);
 	if (!ret) {
 		ret = 1;
 		goto out;
@@ -73,7 +74,7 @@ static int aes_cbc_large(void)
 		ret = 1;
 		goto out;
 	}
-	ret = EVP_CipherUpdate(ctx, pt, &outl, pt, 1UL<<30);
+	ret = EVP_CipherUpdate(ctx, pt, &outl, pt, LC_OPENSSL_SIZE);
 	if (!ret) {
 		ret = 1;
 		goto out;

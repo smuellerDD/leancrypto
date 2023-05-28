@@ -17,11 +17,17 @@
  * DAMAGE.
  */
 
+#include "aes_aesni.h"
+#include "aes_c.h"
+#include "aes_internal.h"
 #include "lc_aes.h"
-#include "lc_aes_private.h"
 #include "compare.h"
 #include "ret_checkers.h"
 #include "visibility.h"
+
+#define LC_EXEC_ONE_TEST(aes_impl)					       \
+	if (aes_impl)							       \
+		ret += test_kw(aes_impl, #aes_impl)
 
 static const uint8_t key128[] = {
 	0x75, 0x75, 0xda, 0x3a, 0x93, 0x60, 0x7c, 0xc2,
@@ -97,10 +103,13 @@ out:
 	return ret;
 }
 
-static int test_kw(void)
+static int test_kw(const struct lc_sym *aes, const char *name)
 {
 	int ret;
-	LC_SYM_CTX_ON_STACK(aes_kw, lc_aes_kw);
+	LC_SYM_CTX_ON_STACK(aes_kw, aes);
+
+	printf("AES KW ctx %s (%s implementation) len %lu\n", name,
+	       aes == lc_aes_kw_c ? "C" : "accelerated", LC_SYM_CTX_SIZE(aes));
 
 	ret = test_encrypt_kw_one(aes_kw,
 				  key128, sizeof(key128),
@@ -117,8 +126,14 @@ static int test_kw(void)
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	int ret = 0;
+
 	(void)argc;
 	(void)argv;
 
-	return test_kw();
+	LC_EXEC_ONE_TEST(lc_aes_kw);
+	LC_EXEC_ONE_TEST(lc_aes_kw_aesni);
+	LC_EXEC_ONE_TEST(lc_aes_kw_c);
+
+	return ret;
 }

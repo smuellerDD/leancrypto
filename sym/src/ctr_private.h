@@ -17,13 +17,13 @@
  * DAMAGE.
  */
 
-#ifndef LC_CTR_PRIVATE_H
-#define LC_CTR_PRIVATE_H
+#ifndef CTR_PRIVATE_H
+#define CTR_PRIVATE_H
 
+#include "aes_internal.h"
 #include "bitshift.h"
 #include "build_bug_on.h"
 #include "ext_headers.h"
-#include "lc_aes_private.h"
 #include "math_helper.h"
 
 #ifdef __cplusplus
@@ -69,4 +69,4 @@ static inline void ctr128_to_ptr(uint8_t *p,
 }
 #endif
 
-#endif /* LC_CTR_PRIVATE_H */
+#endif /* CTR_PRIVATE_H */

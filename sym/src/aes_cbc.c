@@ -23,10 +23,11 @@
  * This is free and unencumbered software released into the public domain.
  */
 
+#include "aes_c.h"
+#include "aes_internal.h"
 #include "compare.h"
 #include "ext_headers.h"
 #include "lc_aes.h"
-#include "lc_aes_private.h"
 #include "lc_sym.h"
 #include "lc_memset_secure.h"
 #include "visibility.h"
@@ -39,7 +40,7 @@ struct lc_sym_state {
 
 #define LC_AES_CBC_BLOCK_SIZE sizeof(struct lc_sym_state)
 
-static void aes_cbc_selftest(int *tested, const char *impl)
+void aes_cbc_selftest(const struct lc_sym *aes, int *tested, const char *impl)
 {
 	static const uint8_t iv[]  = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -76,7 +77,7 @@ static void aes_cbc_selftest(int *tested, const char *impl)
 
 	LC_SELFTEST_RUN(tested);
 
-	LC_SYM_CTX_ON_STACK(ctx, lc_aes_cbc);
+	LC_SYM_CTX_ON_STACK(ctx, aes);
 
 	lc_sym_init(ctx);
 	lc_sym_setkey(ctx, key256, sizeof(key256));
@@ -148,7 +149,7 @@ static void aes_cbc_init(struct lc_sym_state *ctx)
 
 	(void)ctx;
 
-	aes_cbc_selftest(&tested, "AES-CBC");
+	aes_cbc_selftest(lc_aes_cbc_c, &tested, "AES-CBC");
 }
 
 static int aes_cbc_setkey(struct lc_sym_state *ctx,
@@ -176,7 +177,7 @@ static int aes_cbc_setiv(struct lc_sym_state *ctx,
 	return 0;
 }
 
-static struct lc_sym _lc_aes_cbc = {
+static struct lc_sym _lc_aes_cbc_c = {
 	.init		= aes_cbc_init,
 	.setkey		= aes_cbc_setkey,
 	.setiv		= aes_cbc_setiv,
@@ -185,4 +186,6 @@ static struct lc_sym _lc_aes_cbc = {
 	.statesize	= LC_AES_CBC_BLOCK_SIZE,
 	.blocksize	= AES_BLOCKLEN,
 };
-LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_cbc) = &_lc_aes_cbc;
+LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_cbc_c) = &_lc_aes_cbc_c;
+
+LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_cbc) = &_lc_aes_cbc_c;

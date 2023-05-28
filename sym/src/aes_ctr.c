@@ -23,11 +23,12 @@
  * This is free and unencumbered software released into the public domain.
  */
 
+#include "aes_c.h"
+#include "aes_internal.h"
 #include "compare.h"
+#include "ctr_private.h"
 #include "ext_headers.h"
 #include "lc_aes.h"
-#include "lc_aes_private.h"
-#include "lc_ctr_private.h"
 #include "lc_sym.h"
 #include "math_helper.h"
 #include "lc_memset_secure.h"
@@ -41,7 +42,7 @@ struct lc_sym_state {
 
 #define LC_AES_CTR_BLOCK_SIZE sizeof(struct lc_sym_state)
 
-static void aes_ctr_selftest(int *tested, const char *impl)
+void aes_ctr_selftest(const struct lc_sym *aes, int *tested, const char *impl)
 {
 	static const uint8_t key256[] = {
 		0x60, 0x3d, 0xeb, 0x10, 0x15, 0xca, 0x71, 0xbe,
@@ -78,7 +79,7 @@ static void aes_ctr_selftest(int *tested, const char *impl)
 
 	LC_SELFTEST_RUN(tested);
 
-	LC_SYM_CTX_ON_STACK(ctx, lc_aes_ctr);
+	LC_SYM_CTX_ON_STACK(ctx, aes);
 
 	lc_sym_init(ctx);
 	lc_sym_setkey(ctx, key256, sizeof(key256));
@@ -120,8 +121,8 @@ static void aes_ctr_crypt(struct lc_sym_state *ctx,
 		ctr128_to_ptr(buffer, ctx->iv);
 		aes_cipher((state_t*)buffer, block_ctx);
 		ctr128_inc(ctx->iv);
-		xor_64(out + i, buffer, AES_BLOCKLEN);
 		todo = min_size(len - i, AES_BLOCKLEN);
+		xor_64(out + i, buffer, todo);
 	}
 
 	lc_memset_secure(buffer, 0, sizeof(buffer));
@@ -133,7 +134,7 @@ static void aes_ctr_init(struct lc_sym_state *ctx)
 
 	(void)ctx;
 
-	aes_ctr_selftest(&tested, "AES-CTR");
+	aes_ctr_selftest(lc_aes_ctr_c, &tested, "AES-CTR");
 }
 
 static int aes_ctr_setkey(struct lc_sym_state *ctx,
@@ -161,7 +162,7 @@ static int aes_ctr_setiv(struct lc_sym_state *ctx,
 	return 0;
 }
 
-static struct lc_sym _lc_aes_ctr = {
+static struct lc_sym _lc_aes_ctr_c = {
 	.init		= aes_ctr_init,
 	.setkey		= aes_ctr_setkey,
 	.setiv		= aes_ctr_setiv,
@@ -170,4 +171,6 @@ static struct lc_sym _lc_aes_ctr = {
 	.statesize	= LC_AES_CTR_BLOCK_SIZE,
 	.blocksize	= 1,
 };
-LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_ctr) = &_lc_aes_ctr;
+LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_ctr_c) = &_lc_aes_ctr_c;
+
+LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_ctr) = &_lc_aes_ctr_c;

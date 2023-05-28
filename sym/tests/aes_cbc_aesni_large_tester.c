@@ -17,16 +17,16 @@
  * DAMAGE.
  */
 
-#include <errno.h>
-#include <stdlib.h>
-
+#include "aes_aesni.h"
+#include "aes_internal.h"
+#include "ext_headers.h"
 #include "lc_aes.h"
-#include "lc_aes_private.h"
 #include "ret_checkers.h"
 
-static int aes_cbc_large(void)
+#define LC_AESNI_SIZE	(1UL<<30)
+static int aes_cbc_large_aesni(void)
 {
-	LC_SYM_CTX_ON_STACK(aes_cbc, lc_aes_cbc);
+	LC_SYM_CTX_ON_STACK(aes_cbc, lc_aes_cbc_aesni);
 	uint8_t *pt;
 	uint8_t key[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -38,19 +38,19 @@ static int aes_cbc_large(void)
 	};
 	int ret;
 
-	pt = calloc(1, 1UL<<30);
+	pt = calloc(1, LC_AESNI_SIZE);
 	if (!pt)
 		return 1;
 
 	lc_sym_init(aes_cbc);
 	CKINT(lc_sym_setkey(aes_cbc, key, sizeof(key)));
 	CKINT(lc_sym_setiv(aes_cbc, iv, sizeof(iv)));
-	lc_sym_encrypt(aes_cbc, pt, pt, 1UL<<30);
+	lc_sym_encrypt(aes_cbc, pt, pt, LC_AESNI_SIZE);
 	lc_sym_zero(aes_cbc);
 
 	CKINT(lc_sym_setkey(aes_cbc, key, sizeof(key)));
 	CKINT(lc_sym_setiv(aes_cbc, iv, sizeof(iv)));
-	lc_sym_decrypt(aes_cbc, pt, pt, 1UL<<30);
+	lc_sym_decrypt(aes_cbc, pt, pt, LC_AESNI_SIZE);
 	lc_sym_zero(aes_cbc);
 
 out:
@@ -62,5 +62,5 @@ int main(int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;
-	return aes_cbc_large();
+	return aes_cbc_large_aesni();
 }

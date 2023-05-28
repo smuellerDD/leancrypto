@@ -54,9 +54,10 @@ code is:
 
 ================================================================================
 
-For hash/src/asm/AVX2/KeccakP-1600-AVX2.s,
-hash/src/asm/AVX512/KeccakP-1600-AVX512.s,
-hash/src/asm/ARMv8A/KeccakP-1600-armv8a-ce.S:
+For hash/src/asm/AVX2/KeccakP-1600-AVX2.S,
+hash/src/asm/AVX512/KeccakP-1600-AVX512.S,
+hash/src/asm/ARMv8A/KeccakP-1600-armv8a-ce.S,
+sym/src/asm/AESNI_x86_64/aes_aesni_x86_64.S:
 
     Copyright (c) 2006-2017, CRYPTOGAMS by <appro@openssl.org>
     All rights reserved.

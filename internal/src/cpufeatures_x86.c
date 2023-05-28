@@ -31,9 +31,13 @@
 			      : "=a" (a), "=b" (b), "=c" (c), "=d" (d)  \
 			      : "0" (level), "2" (count))
 
+/* Leaf 1 */
+#define LC_INTEL_AESNI_ECX			(1 << 25)
 /* Leaf 7, subleaf 0 of CPUID */
 #define LC_INTEL_AVX2_EBX			(1 << 5)
 #define LC_INTEL_AVX512F_EBX			(1 << 16)
+
+unsigned int lc_x86_64_cpuid[4];
 
 LC_INTERFACE_FUNCTION(
 enum lc_cpu_features, lc_cpu_feature_available, void)
@@ -45,6 +49,12 @@ enum lc_cpu_features, lc_cpu_feature_available, void)
 		return feat;
 
 	feat = LC_CPU_FEATURE_NONE;
+
+	cpuid_eax(1, lc_x86_64_cpuid[0], lc_x86_64_cpuid[1], lc_x86_64_cpuid[2],
+		  lc_x86_64_cpuid[3]);
+
+	if (lc_x86_64_cpuid[2] & LC_INTEL_AESNI_ECX)
+		feat |= LC_CPU_FEATURE_INTEL_AESNI;
 
 	/* Read the maximum leaf */
 	cpuid_eax(0, eax, ebx, ecx, edx);

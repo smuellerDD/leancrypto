@@ -33,9 +33,6 @@ extern "C"
 {
 #endif
 
-/* AES operation on one block only */
-extern const struct lc_sym *lc_aes;
-
 /* AES ECB mode */
 extern const struct lc_sym *lc_aes_ecb;
 

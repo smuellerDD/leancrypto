@@ -23,11 +23,17 @@
  * This is free and unencumbered software released into the public domain.
  */
 
+#include "aes_aesni.h"
+#include "aes_c.h"
+#include "aes_internal.h"
 #include "lc_aes.h"
-#include "lc_aes_private.h"
 #include "compare.h"
 #include "ret_checkers.h"
 #include "visibility.h"
+
+#define LC_EXEC_ONE_TEST(aes_impl)					       \
+	if (aes_impl)							       \
+		ret += test_encrypt_cbc(aes_impl, #aes_impl)
 
 static const uint8_t key256[] = {
 	0x60, 0x3d, 0xeb, 0x10, 0x15, 0xca, 0x71, 0xbe,
@@ -106,11 +112,14 @@ out:
 	return ret;
 }
 
-static int test_encrypt_cbc(void)
+static int test_encrypt_cbc(const struct lc_sym *aes, const char *name)
 {
 	struct lc_sym_ctx *aes_cbc_heap;
 	int ret;
-	LC_SYM_CTX_ON_STACK(aes_cbc, lc_aes_cbc);
+	LC_SYM_CTX_ON_STACK(aes_cbc, aes);
+
+	printf("AES CBC ctx %s (%s implementation) len %lu\n", name,
+	       aes == lc_aes_cbc_c ? "C" : "accelerated", LC_SYM_CTX_SIZE(aes));
 
 	ret = test_encrypt_cbc_one(aes_cbc, key256, sizeof(key256), out256);
 
@@ -122,21 +131,24 @@ static int test_encrypt_cbc(void)
 	ret += test_encrypt_cbc_one(aes_cbc, key128, sizeof(key128), out128);
 	lc_sym_zero(aes_cbc);
 
-	if (lc_sym_alloc(lc_aes_cbc, &aes_cbc_heap))
+	if (lc_sym_alloc(aes, &aes_cbc_heap))
 		return ret + 1;
 
 	ret += test_encrypt_cbc_one(aes_cbc_heap, key256, sizeof(key256), out256);
 	lc_sym_zero_free(aes_cbc_heap);
-
-	printf("AES CBC ctx size: %lu\n", LC_SYM_CTX_SIZE(lc_aes_cbc));
 
 	return ret;
 }
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	int ret = 0;
 	(void)argc;
 	(void)argv;
 
-	return test_encrypt_cbc();
+	LC_EXEC_ONE_TEST(lc_aes_cbc);
+	LC_EXEC_ONE_TEST(lc_aes_cbc_aesni);
+	LC_EXEC_ONE_TEST(lc_aes_cbc_c);
+
+	return ret;
 }

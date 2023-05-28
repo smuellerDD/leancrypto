@@ -58,7 +58,9 @@ struct lc_sym_ctx {
  * question is which pre-processor macro to use to select the proper
  * LC_ALIGN_PTR_XX macro depending on lc_sym->alignment during compile time.
  */
-#define LC_SYM_ALIGNMENT_COMMON		(8)
+#ifndef LC_SYM_ALIGNMENT_COMMON
+#define LC_SYM_ALIGNMENT_COMMON		(16)
+#endif
 #define LC_SYM_ALIGNMENT(symname)	LC_SYM_ALIGNMENT_COMMON
 #define LC_SYM_ALIGNMASK(symname)	(LC_SYM_ALIGNMENT(symname) - 1)
 

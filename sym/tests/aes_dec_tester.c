@@ -23,8 +23,9 @@
  * This is free and unencumbered software released into the public domain.
  */
 
+#include "aes_c.h"
+#include "aes_internal.h"
 #include "lc_aes.h"
-#include "lc_aes_private.h"
 #include "compare.h"
 #include "ret_checkers.h"
 #include "visibility.h"
@@ -80,7 +81,7 @@ static int test_decrypt(void)
 	struct lc_sym_ctx *aes_heap;
 	uint8_t in2[sizeof(in256)];
 	int ret;
-	LC_SYM_CTX_ON_STACK(aes, lc_aes);
+	LC_SYM_CTX_ON_STACK(aes, lc_aes_c);
 
 	memcpy(in2, in256, sizeof(in256));
 	ret = test_decrypt_one(aes, key256, sizeof(key256), in256);
@@ -92,7 +93,7 @@ static int test_decrypt(void)
 	ret += test_decrypt_one(aes, key128, sizeof(key128), in128);
 	lc_sym_zero(aes);
 
-	if (lc_sym_alloc(lc_aes, &aes_heap))
+	if (lc_sym_alloc(lc_aes_c, &aes_heap))
 		return ret + 1;
 	ret += test_decrypt_one(aes_heap, key256, sizeof(key256), in2);
 	lc_sym_zero_free(aes_heap);

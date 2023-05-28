@@ -23,12 +23,20 @@
  * This is free and unencumbered software released into the public domain.
  */
 
+#include "aes_aesni.h"
+#include "aes_c.h"
+#include "aes_internal.h"
+#include "ctr_private.h"
 #include "lc_aes.h"
-#include "lc_aes_private.h"
-#include "lc_ctr_private.h"
 #include "compare.h"
 #include "ret_checkers.h"
 #include "visibility.h"
+
+#define LC_EXEC_ONE_TEST(aes_impl)					       \
+	if (aes_impl) {							       \
+		ret += test_encrypt_ctr(aes_impl, #aes_impl);		       \
+		ret += test_decrypt_ctr(aes_impl, #aes_impl);		       \
+	}
 
 static const uint8_t key256[] = {
 	0x60, 0x3d, 0xeb, 0x10, 0x15, 0xca, 0x71, 0xbe,
@@ -36,7 +44,7 @@ static const uint8_t key256[] = {
 	0x1f, 0x35, 0x2c, 0x07, 0x3b, 0x61, 0x08, 0xd7,
 	0x2d, 0x98, 0x10, 0xa3, 0x09, 0x14, 0xdf, 0xf4
 };
-static uint8_t in256[]  = {
+static const uint8_t in256[]  = {
 	0x60, 0x1e, 0xc3, 0x13, 0x77, 0x57, 0x89, 0xa5,
 	0xb7, 0xa7, 0xf5, 0x04, 0xbb, 0xf3, 0xd2, 0x28,
 	0xf4, 0x43, 0xe3, 0xca, 0x4d, 0x62, 0xb5, 0x9a,
@@ -51,7 +59,7 @@ static const uint8_t key192[] = {
 	0xc8, 0x10, 0xf3, 0x2b, 0x80, 0x90, 0x79, 0xe5,
 	0x62, 0xf8, 0xea, 0xd2, 0x52, 0x2c, 0x6b, 0x7b
 };
-static uint8_t in192[]  = {
+static const uint8_t in192[]  = {
 	0x1a, 0xbc, 0x93, 0x24, 0x17, 0x52, 0x1c, 0xa2,
 	0x4f, 0x2b, 0x04, 0x59, 0xfe, 0x7e, 0x6e, 0x0b,
 	0x09, 0x03, 0x39, 0xec, 0x0a, 0xa6, 0xfa, 0xef,
@@ -65,7 +73,7 @@ static const uint8_t key128[] = {
 	0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6,
 	0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c
 };
-static uint8_t in128[]  = {
+static const uint8_t in128[]  = {
 	0x87, 0x4d, 0x61, 0x91, 0xb6, 0x20, 0xe3, 0x26,
 	0x1b, 0xef, 0x68, 0x64, 0x99, 0x0d, 0xb6, 0xce,
 	0x98, 0x06, 0xf6, 0x6b, 0x79, 0x70, 0xfd, 0xff,
@@ -103,19 +111,23 @@ static int test_xcrypt_ctr_one(const char* xcrypt, struct lc_sym_ctx *ctx,
 	lc_sym_init(ctx);
 	CKINT(lc_sym_setkey(ctx, key, keylen));
 	CKINT(lc_sym_setiv(ctx, iv, sizeof(iv)));
-	lc_sym_encrypt(ctx, in, in, sizeof(out));
-	ret = lc_compare(in, out, sizeof(out), status);
+	lc_sym_encrypt(ctx, in, in, sizeof(out) - 1);
+	ret = lc_compare(in, out, sizeof(out) - 1, status);
 
 out:
 	return ret;
 }
 
-static int test_xcrypt_ctr(const char* xcrypt)
+static int test_xcrypt_ctr(const struct lc_sym *aes, const char *name,
+			   const char *xcrypt)
 {
 	struct lc_sym_ctx *aes_ctr_heap;
 	uint8_t in2[sizeof(in256)];
 	int ret;
-	LC_SYM_CTX_ON_STACK(aes_ctr, lc_aes_ctr);
+	LC_SYM_CTX_ON_STACK(aes_ctr, aes);
+
+	printf("AES CTR ctx %s (%s implementation) len %lu\n", name,
+	       aes == lc_aes_ctr_c ? "C" : "accelerated", LC_SYM_CTX_SIZE(aes));
 
 	memcpy(in2, in256, sizeof(in256));
 	ret = test_xcrypt_ctr_one(xcrypt, aes_ctr, key256, sizeof(key256),
@@ -132,26 +144,24 @@ static int test_xcrypt_ctr(const char* xcrypt)
 				   in2);
 	lc_sym_zero(aes_ctr);
 
-	if (lc_sym_alloc(lc_aes_ctr, &aes_ctr_heap))
+	if (lc_sym_alloc(aes, &aes_ctr_heap))
 		return ret + 1;
 	memcpy(in2, in256, sizeof(in256));
 	ret += test_xcrypt_ctr_one(xcrypt, aes_ctr_heap, key256, sizeof(key256),
 				   in2);
 	lc_sym_zero_free(aes_ctr_heap);
 
-	printf("AES CTR ctx size: %lu\n", LC_SYM_CTX_SIZE(lc_aes_ctr));
-
 	return ret;
 }
 
-static int test_encrypt_ctr(void)
+static int test_encrypt_ctr(const struct lc_sym *aes, const char *name)
 {
-	return test_xcrypt_ctr("encrypt");
+	return test_xcrypt_ctr(aes, name, "encrypt");
 }
 
-static int test_decrypt_ctr(void)
+static int test_decrypt_ctr(const struct lc_sym *aes, const char *name)
 {
-	return test_xcrypt_ctr("decrypt");
+	return test_xcrypt_ctr(aes, name, "decrypt");
 }
 
 static void ctr_inc(uint8_t *iv)
@@ -219,9 +229,11 @@ static int test_ctr(void)
 {
 	int ret = 0;
 
-	ret += test_encrypt_ctr();
-	ret += test_decrypt_ctr();
 	ret += ctr_tester();
+
+	LC_EXEC_ONE_TEST(lc_aes_ctr);
+	LC_EXEC_ONE_TEST(lc_aes_ctr_aesni);
+	LC_EXEC_ONE_TEST(lc_aes_ctr_c);
 
 	return ret;
 }

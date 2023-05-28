@@ -9,6 +9,10 @@ Changes 0.5.4-prerelease:
 
 * enhancement: use -Wmissing-prototypes and fix reported issues
 
+* enhancement: provde standalone KW implementation
+
+* enhancement: provide AESNI implementation
+
 Changes 0.5.3:
 
 * convert to safe min/max implementations

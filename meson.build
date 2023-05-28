@@ -230,7 +230,8 @@ if (host_machine.cpu_family() == 'x86_64' and
 	x86_64_asm = true
 
 	# Alignment x86_64: 8 bytes as required by AVX2 / AVX512
-	add_global_arguments([ '-DLC_HASH_COMMON_ALIGNMENT=8' ], language: 'c')
+	add_global_arguments([ '-DLC_HASH_COMMON_ALIGNMENT=8',
+			       '-DLC_SYM_ALIGNMENT_COMMON=16'], language: 'c')
 endif
 
 if (host_machine.cpu_family() == 'arm' and

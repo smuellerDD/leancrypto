@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2023, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *
@@ -17,10 +17,11 @@
  * DAMAGE.
  */
 
-#ifndef LC_AES_PRIVATE_H
-#define LC_AES_PRIVATE_H
+#ifndef AES_INTERNAL_H
+#define AES_INTERNAL_H
 
 #include "ext_headers.h"
+#include "lc_sym.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -31,6 +32,25 @@ extern "C"
  * Block length in bytes
  */
 #define AES_BLOCKLEN 16U
+
+struct lc_wrapping_state;
+struct lc_sym_wrapping {
+	void (*init)(struct lc_wrapping_state *ctx,
+		     const struct lc_sym *wrapped_cipher,
+		     void *wrapped_cipher_ctx);
+	int (*setkey)(struct lc_wrapping_state *ctx,
+		      const uint8_t *key, size_t keylen);
+	int (*setiv)(struct lc_wrapping_state *ctx, const uint8_t *iv,
+		     size_t ivlen);
+	void (*encrypt)(struct lc_wrapping_state *ctx,
+			const uint8_t *in, uint8_t *out, size_t len);
+	void (*decrypt)(struct lc_wrapping_state *ctx,
+			const uint8_t *in, uint8_t *out, size_t len);
+	unsigned int statesize;
+	unsigned int blocksize;
+};
+
+
 
 /* AES block algorithm context */
 struct aes_block_ctx
@@ -78,8 +98,11 @@ void aes_cipher(state_t* state, const struct aes_block_ctx *block_ctx);
 /* AES inverse block cipher operation */
 void aes_inv_cipher(state_t* state, const struct aes_block_ctx *block_ctx);
 
+void aes_cbc_selftest(const struct lc_sym *aes, int *tested, const char *impl);
+void aes_ctr_selftest(const struct lc_sym *aes, int *tested, const char *impl);
+
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* LC_AES_PRIVATE_H */
+#endif /* AES_INTERNAL_H */

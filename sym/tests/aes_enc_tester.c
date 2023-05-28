@@ -23,8 +23,9 @@
  * This is free and unencumbered software released into the public domain.
  */
 
+#include "aes_c.h"
+#include "aes_internal.h"
 #include "lc_aes.h"
-#include "lc_aes_private.h"
 #include "compare.h"
 #include "ret_checkers.h"
 #include "visibility.h"
@@ -64,9 +65,9 @@ static int test_encrypt(const uint8_t *key, size_t keylen, const uint8_t *out)
 		0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a
 	};
 	int ret;
-	LC_SYM_CTX_ON_STACK(aes, lc_aes);
+	LC_SYM_CTX_ON_STACK(aes, lc_aes_c);
 
-	printf("AES ECB ctx size: %lu\n", LC_SYM_CTX_SIZE(lc_aes));
+	printf("AES ECB ctx size: %lu\n", LC_SYM_CTX_SIZE(lc_aes_c));
 	/* Encrypt */
 	lc_sym_init(aes);
 	CKINT(lc_sym_setkey(aes, key, keylen));

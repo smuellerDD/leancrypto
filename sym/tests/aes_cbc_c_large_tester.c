@@ -22,9 +22,9 @@
 #include "lc_aes.h"
 #include "ret_checkers.h"
 
-static int aes_ctr_large(void)
+static int aes_cbc_large_c(void)
 {
-	LC_SYM_CTX_ON_STACK(aes_ctr, lc_aes_ctr);
+	LC_SYM_CTX_ON_STACK(aes_cbc, lc_aes_cbc);
 	uint8_t *pt;
 	uint8_t key[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -40,16 +40,16 @@ static int aes_ctr_large(void)
 	if (!pt)
 		return 1;
 
-	lc_sym_init(aes_ctr);
-	CKINT(lc_sym_setkey(aes_ctr, key, sizeof(key)));
-	CKINT(lc_sym_setiv(aes_ctr, iv, sizeof(iv)));
-	lc_sym_encrypt(aes_ctr, pt, pt, 1UL<<30);
-	lc_sym_zero(aes_ctr);
+	lc_sym_init(aes_cbc);
+	CKINT(lc_sym_setkey(aes_cbc, key, sizeof(key)));
+	CKINT(lc_sym_setiv(aes_cbc, iv, sizeof(iv)));
+	lc_sym_encrypt(aes_cbc, pt, pt, 1UL<<30);
+	lc_sym_zero(aes_cbc);
 
-	CKINT(lc_sym_setkey(aes_ctr, key, sizeof(key)));
-	CKINT(lc_sym_setiv(aes_ctr, iv, sizeof(iv)));
-	lc_sym_decrypt(aes_ctr, pt, pt, 1UL<<30);
-	lc_sym_zero(aes_ctr);
+	CKINT(lc_sym_setkey(aes_cbc, key, sizeof(key)));
+	CKINT(lc_sym_setiv(aes_cbc, iv, sizeof(iv)));
+	lc_sym_decrypt(aes_cbc, pt, pt, 1UL<<30);
+	lc_sym_zero(aes_cbc);
 
 out:
 	free(pt);
@@ -60,5 +60,5 @@ int main(int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;
-	return aes_ctr_large();
+	return aes_cbc_large_c();
 }

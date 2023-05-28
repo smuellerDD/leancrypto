@@ -648,6 +648,12 @@ leancrypto-y	 		+= ../sym/src/sym.o
 leancrypto-$(CONFIG_LEANCRYPTO_AES)					       \
 				+= ../sym/src/aes.o			       \
 				   ../sym/src/aes_block.o
+
+ifdef CONFIG_X86_64
+leancrypto-$(CONFIG_LEANCRYPTO_AES)					       \
+				+= ../sym/src/asm/AESNI_x86_64/aes_aesni_x86_64.S.o
+endif
+
 ifdef CONFIG_LEANCRYPTO_AES
 obj-m				+= aes_dec_tester.o
 obj-m				+= aes_enc_tester.o
@@ -657,6 +663,15 @@ endif
 
 leancrypto-$(CONFIG_LEANCRYPTO_AES_CBC)					       \
 				+= ../sym/src/aes_cbc.o
+
+ifdef CONFIG_X86_64
+leancrypto-$(CONFIG_LEANCRYPTO_AES_CBC)					       \
+				+= ../sym/src/aes_cbc_aesni.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_AES_CBC)					       \
+				+= ../sym/src/aes_cbc_aesni_null.o
+endif
+
 ifdef CONFIG_LEANCRYPTO_AES_CBC
 obj-m				+= aes_cbc_dec_tester.o
 obj-m				+= aes_cbc_enc_tester.o
@@ -666,6 +681,15 @@ endif
 
 leancrypto-$(CONFIG_LEANCRYPTO_AES_CTR)					       \
 				+= ../sym/src/aes_ctr.o
+
+ifdef CONFIG_X86_64
+leancrypto-$(CONFIG_LEANCRYPTO_AES_CTR)					       \
+				+= ../sym/src/aes_ctr_aesni.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_AES_CTR)					       \
+				+= ../sym/src/aes_ctr_aesni_null.o
+endif
+
 ifdef CONFIG_LEANCRYPTO_AES_CTR
 obj-m		  		+= aes_ctr_tester.o
 aes_ctr_tester-y		+= ../sym/tests/aes_ctr_tester.o
