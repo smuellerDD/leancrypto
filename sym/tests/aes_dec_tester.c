@@ -23,12 +23,18 @@
  * This is free and unencumbered software released into the public domain.
  */
 
+#include "aes_aesni.h"
+#include "aes_armce.h"
 #include "aes_c.h"
 #include "aes_internal.h"
 #include "lc_aes.h"
 #include "compare.h"
 #include "ret_checkers.h"
 #include "visibility.h"
+
+#define LC_EXEC_ONE_TEST(aes_impl)					       \
+	if (aes_impl)							       \
+		ret += test_decrypt(aes_impl, #aes_impl);
 
 static const uint8_t key256[] = {
 	0x60, 0x3d, 0xeb, 0x10, 0x15, 0xca, 0x71, 0xbe,
@@ -76,12 +82,16 @@ out:
 	return ret;
 }
 
-static int test_decrypt(void)
+static int test_decrypt(const struct lc_sym *aes_impl, const char *name)
 {
 	struct lc_sym_ctx *aes_heap;
 	uint8_t in2[sizeof(in256)];
 	int ret;
-	LC_SYM_CTX_ON_STACK(aes, lc_aes_c);
+	LC_SYM_CTX_ON_STACK(aes, aes_impl);
+
+	printf("AES block ctx %s (%s implementation) len %lu\n", name,
+	       aes_impl == lc_aes_c ? "C" : "accelerated",
+	       LC_SYM_CTX_SIZE(aes_impl));
 
 	memcpy(in2, in256, sizeof(in256));
 	ret = test_decrypt_one(aes, key256, sizeof(key256), in256);
@@ -103,8 +113,14 @@ static int test_decrypt(void)
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	int ret = 0;
+
 	(void)argc;
 	(void)argv;
 
-	return test_decrypt();
+	LC_EXEC_ONE_TEST(lc_aes_aesni);
+	LC_EXEC_ONE_TEST(lc_aes_armce);
+	LC_EXEC_ONE_TEST(lc_aes_c);
+
+	return ret;
 }

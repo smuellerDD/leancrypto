@@ -29,7 +29,7 @@
 #include "lc_memset_secure.h"
 #include "visibility.h"
 
-#define LC_MEM_DEF_ALIGNED_OFFSET	16
+#define LC_MEM_DEF_ALIGNED_OFFSET	32
 struct lc_mem_def {
 	int fd;
 	size_t size;

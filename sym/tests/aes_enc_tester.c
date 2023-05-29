@@ -23,12 +23,18 @@
  * This is free and unencumbered software released into the public domain.
  */
 
+#include "aes_aesni.h"
+#include "aes_armce.h"
 #include "aes_c.h"
 #include "aes_internal.h"
 #include "lc_aes.h"
 #include "compare.h"
 #include "ret_checkers.h"
 #include "visibility.h"
+
+#define LC_EXEC_ONE_TEST(aes_impl)					       \
+	if (aes_impl)							       \
+		ret += test_encrypt_all(aes_impl, #aes_impl);
 
 static const uint8_t key256[] = {
 	0x60, 0x3d, 0xeb, 0x10, 0x15, 0xca, 0x71, 0xbe,
@@ -58,16 +64,16 @@ static const uint8_t out128[] = {
 	0xa8, 0x9e, 0xca, 0xf3, 0x24, 0x66, 0xef, 0x97
 };
 
-static int test_encrypt(const uint8_t *key, size_t keylen, const uint8_t *out)
+static int test_encrypt(const struct lc_sym *aes_impl,
+			const uint8_t *key, size_t keylen, const uint8_t *out)
 {
 	uint8_t in[]  = {
 		0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96,
 		0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a
 	};
 	int ret;
-	LC_SYM_CTX_ON_STACK(aes, lc_aes_c);
+	LC_SYM_CTX_ON_STACK(aes, aes_impl);
 
-	printf("AES ECB ctx size: %lu\n", LC_SYM_CTX_SIZE(lc_aes_c));
 	/* Encrypt */
 	lc_sym_init(aes);
 	CKINT(lc_sym_setkey(aes, key, keylen));
@@ -79,20 +85,30 @@ out:
 	return ret;
 }
 
-static int test_encrypt_all(void)
+static int test_encrypt_all(const struct lc_sym *aes_impl, const char *name)
 {
 	int ret;
 
-	ret = test_encrypt(key256, sizeof(key256), out256);
-	ret += test_encrypt(key192, sizeof(key192), out192);
-	ret += test_encrypt(key128, sizeof(key128), out128);
+	printf("AES block ctx %s (%s implementation) len %lu\n", name,
+	       aes_impl == lc_aes_c ? "C" : "accelerated",
+	       LC_SYM_CTX_SIZE(aes_impl));
+
+	ret = test_encrypt(aes_impl, key256, sizeof(key256), out256);
+	ret += test_encrypt(aes_impl, key192, sizeof(key192), out192);
+	ret += test_encrypt(aes_impl, key128, sizeof(key128), out128);
 	return ret;
 }
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	int ret = 0;
+
 	(void)argc;
 	(void)argv;
 
-	return test_encrypt_all();
+	LC_EXEC_ONE_TEST(lc_aes_aesni);
+	LC_EXEC_ONE_TEST(lc_aes_armce);
+	LC_EXEC_ONE_TEST(lc_aes_c);
+
+	return ret;
 }

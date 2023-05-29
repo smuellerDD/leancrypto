@@ -23,50 +23,50 @@
  * This is free and unencumbered software released into the public domain.
  */
 
-#include "aes_aesni.h"
+#include "aes_armce.h"
 #include "aes_internal.h"
-#include "asm/AESNI_x86_64/aes_aesni_x86_64.h"
-#include "ext_headers_x86.h"
+#include "asm/ARMv8/aes_armv8_ce.h"
+#include "ext_headers_arm.h"
 #include "lc_aes.h"
 #include "lc_sym.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 
 struct lc_sym_state {
-	struct aes_aesni_block_ctx enc_block_ctx;
-	struct aes_aesni_block_ctx dec_block_ctx;
+	struct aes_aes_v8_block_ctx enc_block_ctx;
+	struct aes_aes_v8_block_ctx dec_block_ctx;
 };
 
 #define LC_AES_BLOCK_SIZE sizeof(struct lc_sym_state)
 
-static void aes_aesni_encrypt(struct lc_sym_state* ctx,
+static void aes_armce_encrypt(struct lc_sym_state* ctx,
 			      const uint8_t *in, uint8_t *out, size_t len)
 {
 	if (!ctx || len != AES_BLOCKLEN)
 		return;
 
-	LC_FPU_ENABLE;
-	aesni_encrypt(in, out, &ctx->enc_block_ctx);
-	LC_FPU_DISABLE;
+	LC_NEON_ENABLE;
+	aes_v8_encrypt(in, out, &ctx->enc_block_ctx);
+	LC_NEON_DISABLE;
 }
 
-static void aes_aesni_decrypt(struct lc_sym_state* ctx,
+static void aes_armce_decrypt(struct lc_sym_state* ctx,
 			      const uint8_t *in, uint8_t *out, size_t len)
 {
 	if (!ctx || len != AES_BLOCKLEN)
 		return;
 
-	LC_FPU_ENABLE;
-	aesni_decrypt(in, out, &ctx->dec_block_ctx);
-	LC_FPU_DISABLE;
+	LC_NEON_ENABLE;
+	aes_v8_decrypt(in, out, &ctx->dec_block_ctx);
+	LC_NEON_DISABLE;
 }
 
-static void aes_aesni_init(struct lc_sym_state *ctx)
+static void aes_armce_init(struct lc_sym_state *ctx)
 {
 	(void)ctx;
 }
 
-static int aes_aesni_setkey(struct lc_sym_state *ctx,
+static int aes_armce_setkey(struct lc_sym_state *ctx,
 			    const uint8_t *key, size_t keylen)
 {
 	int ret;
@@ -74,19 +74,18 @@ static int aes_aesni_setkey(struct lc_sym_state *ctx,
 	if (!ctx)
 		return -EINVAL;
 
-	LC_FPU_ENABLE;
-	CKINT(aesni_set_encrypt_key(key, (unsigned int)(keylen << 3),
-				    &ctx->enc_block_ctx));
-	CKINT(aesni_set_decrypt_key(key, (unsigned int)(keylen << 3),
-				    &ctx->dec_block_ctx));
+	LC_NEON_ENABLE;
+	CKINT(aes_v8_set_encrypt_key(key, (unsigned int)(keylen << 3),
+				     &ctx->enc_block_ctx));
+	CKINT(aes_v8_set_decrypt_key(key, (unsigned int)(keylen << 3),
+				     &ctx->dec_block_ctx));
 
 out:
-	LC_FPU_DISABLE;
+	LC_NEON_DISABLE;
 	return ret;
 }
 
-static int aes_aesni_setiv(struct lc_sym_state *ctx,
-			   const uint8_t *iv, size_t ivlen)
+static int aes_armce_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen)
 {
 	(void)ctx;
 	(void)iv;
@@ -94,13 +93,13 @@ static int aes_aesni_setiv(struct lc_sym_state *ctx,
 	return -EOPNOTSUPP;
 }
 
-static struct lc_sym _lc_aes_aesni = {
-	.init		= aes_aesni_init,
-	.setkey		= aes_aesni_setkey,
-	.setiv		= aes_aesni_setiv,
-	.encrypt	= aes_aesni_encrypt,
-	.decrypt	= aes_aesni_decrypt,
+static struct lc_sym _lc_aes_armce = {
+	.init		= aes_armce_init,
+	.setkey		= aes_armce_setkey,
+	.setiv		= aes_armce_setiv,
+	.encrypt	= aes_armce_encrypt,
+	.decrypt	= aes_armce_decrypt,
 	.statesize	= LC_AES_BLOCK_SIZE,
 	.blocksize	= AES_BLOCKLEN,
 };
-LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_aesni) = &_lc_aes_aesni;
+LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_armce) = &_lc_aes_armce;

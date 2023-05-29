@@ -40,9 +40,9 @@ void aesni_encrypt(const uint8_t *pt, uint8_t *ct,
 void aesni_decrypt(const uint8_t *ct, uint8_t *pt,
 		   const struct aes_aesni_block_ctx *aes_ctx);
 
-int aesni_set_encrypt_key(const uint8_t *Key, unsigned int bits,
+int aesni_set_encrypt_key(const uint8_t *key, const unsigned int bits,
 			  struct aes_aesni_block_ctx *aes_ctx);
-int aesni_set_decrypt_key(const uint8_t *Key, unsigned int bits,
+int aesni_set_decrypt_key(const uint8_t *key, const unsigned int bits,
 			  struct aes_aesni_block_ctx *aes_ctx);
 
 void aesni_ctr32_encrypt_blocks(const uint8_t *in, uint8_t *out, size_t blocks,

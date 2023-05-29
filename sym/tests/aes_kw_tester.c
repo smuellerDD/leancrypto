@@ -18,6 +18,7 @@
  */
 
 #include "aes_aesni.h"
+#include "aes_armce.h"
 #include "aes_c.h"
 #include "aes_internal.h"
 #include "lc_aes.h"
@@ -133,6 +134,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	LC_EXEC_ONE_TEST(lc_aes_kw);
 	LC_EXEC_ONE_TEST(lc_aes_kw_aesni);
+	LC_EXEC_ONE_TEST(lc_aes_kw_armce);
 	LC_EXEC_ONE_TEST(lc_aes_kw_c);
 
 	return ret;

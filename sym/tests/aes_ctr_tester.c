@@ -24,6 +24,7 @@
  */
 
 #include "aes_aesni.h"
+#include "aes_armce.h"
 #include "aes_c.h"
 #include "aes_internal.h"
 #include "lc_aes.h"
@@ -233,6 +234,7 @@ static int test_ctr(void)
 
 	LC_EXEC_ONE_TEST(lc_aes_ctr);
 	LC_EXEC_ONE_TEST(lc_aes_ctr_aesni);
+	LC_EXEC_ONE_TEST(lc_aes_ctr_armce);
 	LC_EXEC_ONE_TEST(lc_aes_ctr_c);
 
 	return ret;
