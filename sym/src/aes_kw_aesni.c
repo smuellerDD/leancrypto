@@ -21,14 +21,13 @@
 #include "aes_internal.h"
 #include "asm/AESNI_x86_64/aes_aesni_x86_64.h"
 #include "ext_headers.h"
-#include "kw.h"
 #include "lc_aes.h"
 #include "lc_sym.h"
-#include "lc_memset_secure.h"
+#include "mode_kw.h"
 #include "visibility.h"
 
 struct lc_sym_state {
-	struct lc_wrapping_state kw_state;
+	struct lc_mode_state kw_state;
 	struct aes_aesni_block_ctx enc_block_ctx;
 	struct aes_aesni_block_ctx dec_block_ctx;
 };
@@ -38,13 +37,13 @@ struct lc_sym_state {
 static void aes_aesni_kw_encrypt(struct lc_sym_state *ctx,
 			   const uint8_t *in, uint8_t *out, size_t len)
 {
-	lc_kw_c->encrypt(&ctx->kw_state, in, out, len);
+	lc_mode_kw_c->encrypt(&ctx->kw_state, in, out, len);
 }
 
 static void aes_aesni_kw_decrypt(struct lc_sym_state *ctx,
 			   const uint8_t *in, uint8_t *out, size_t len)
 {
-	lc_kw_c->decrypt(&ctx->kw_state, in, out, len);
+	lc_mode_kw_c->decrypt(&ctx->kw_state, in, out, len);
 }
 
 static void aes_aesni_kw_init(struct lc_sym_state *ctx)
@@ -53,8 +52,8 @@ static void aes_aesni_kw_init(struct lc_sym_state *ctx)
 
 	(void)ctx;
 
-	kw_selftest(lc_aes_kw_aesni, &tested, "AES-KW");
-	lc_kw_c->init(&ctx->kw_state, lc_aes_aesni, &ctx->enc_block_ctx);
+	mode_kw_selftest(lc_aes_kw_aesni, &tested, "AES-KW");
+	lc_mode_kw_c->init(&ctx->kw_state, lc_aes_aesni, &ctx->enc_block_ctx);
 }
 
 static int aes_aesni_kw_setkey(struct lc_sym_state *ctx,
@@ -62,13 +61,13 @@ static int aes_aesni_kw_setkey(struct lc_sym_state *ctx,
 {
 	if (!ctx)
 		return -EINVAL;
-	return lc_kw_c->setkey(&ctx->kw_state, key, keylen);
+	return lc_mode_kw_c->setkey(&ctx->kw_state, key, keylen);
 }
 
 static int aes_aesni_kw_setiv(struct lc_sym_state *ctx,
 			const uint8_t *iv, size_t ivlen)
 {
-	return lc_kw_c->setiv(&ctx->kw_state, iv, ivlen);
+	return lc_mode_kw_c->setiv(&ctx->kw_state, iv, ivlen);
 }
 
 static struct lc_sym _lc_aes_kw_aesni = {

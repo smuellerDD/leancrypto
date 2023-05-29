@@ -20,20 +20,22 @@
 #ifndef KW_H
 #define KW_H
 
+#include "lc_sym.h"
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-struct lc_wrapping_state {
+struct lc_mode_state {
 	const struct lc_sym *wrappeded_cipher;
 	void *wrapped_cipher_ctx;
-	uint64_t tag;
+	uint8_t iv[AES_BLOCKLEN];
 };
 
-void kw_selftest(const struct lc_sym *aes, int *tested, const char *impl);
+void mode_cbc_selftest(const struct lc_sym *aes, int *tested, const char *impl);
 
-extern const struct lc_sym_wrapping *lc_kw_c;
+extern const struct lc_sym_mode *lc_mode_cbc_c;
 
 #ifdef __cplusplus
 }

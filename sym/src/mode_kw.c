@@ -23,10 +23,10 @@
 #include "compare.h"
 #include "conv_be_le.h"
 #include "ext_headers.h"
-#include "kw.h"
 #include "lc_aes.h"
 #include "lc_sym.h"
 #include "lc_memset_secure.h"
+#include "mode_kw.h"
 #include "visibility.h"
 
 #define AES_KW_SEMIBSIZE	8U
@@ -37,9 +37,9 @@ struct aes_kw_block {
 	uint64_t R;
 };
 
-#define LC_AES_KW_BLOCK_SIZE sizeof(struct lc_wrapping_state)
+#define LC_AES_KW_BLOCK_SIZE sizeof(struct lc_mode_state)
 
-void kw_selftest(const struct lc_sym *aes, int *tested, const char *impl)
+void mode_kw_selftest(const struct lc_sym *aes, int *tested, const char *impl)
 {
 	static const uint8_t key256[] = {
 		0x80, 0xaa, 0x99, 0x73, 0x27, 0xa4, 0x80, 0x6b,
@@ -83,8 +83,8 @@ void kw_selftest(const struct lc_sym *aes, int *tested, const char *impl)
 	lc_sym_zero(ctx);
 }
 
-static void aes_kw_encrypt(struct lc_wrapping_state *ctx,
-			   const uint8_t *in, uint8_t *out, size_t len)
+static void mode_kw_encrypt(struct lc_mode_state *ctx,
+			    const uint8_t *in, uint8_t *out, size_t len)
 {
 	const struct lc_sym *wrappeded_cipher;
 	struct aes_kw_block block;
@@ -126,7 +126,8 @@ static void aes_kw_encrypt(struct lc_wrapping_state *ctx,
 			/* perform KW operation: encrypt block */
 			wrappeded_cipher->encrypt(ctx->wrapped_cipher_ctx,
 						  (uint8_t *)&block,
-						  (uint8_t *)&block, sizeof(block));
+						  (uint8_t *)&block,
+						  sizeof(block));
 			/* perform KW operation: modify IV with counter */
 			block.A ^= be_bswap64(t);
 			t++;
@@ -145,8 +146,8 @@ static void aes_kw_encrypt(struct lc_wrapping_state *ctx,
 	lc_memset_secure(&block, 0, sizeof(block));
 }
 
-static void aes_kw_decrypt(struct lc_wrapping_state *ctx,
-			   const uint8_t *in, uint8_t *out, size_t len)
+static void mode_kw_decrypt(struct lc_mode_state *ctx,
+			    const uint8_t *in, uint8_t *out, size_t len)
 {
 	const struct lc_sym *wrappeded_cipher;
 	struct aes_kw_block block;
@@ -190,7 +191,8 @@ static void aes_kw_decrypt(struct lc_wrapping_state *ctx,
 			/* perform KW operation: decrypt block */
 			wrappeded_cipher->decrypt(ctx->wrapped_cipher_ctx,
 						  (uint8_t *)&block,
-						  (uint8_t *)&block, sizeof(block));
+						  (uint8_t *)&block,
+						  sizeof(block));
 
 			/* Copy block->R into place */
 			val64_to_ptr(out_p, block.R);
@@ -202,9 +204,9 @@ static void aes_kw_decrypt(struct lc_wrapping_state *ctx,
 	lc_memset_secure(&block, 0, sizeof(block));
 }
 
-static void aes_kw_init(struct lc_wrapping_state *ctx,
-			const struct lc_sym *wrapped_cipher,
-			void *wrapped_cipher_ctx)
+static void mode_kw_init(struct lc_mode_state *ctx,
+			 const struct lc_sym *wrapped_cipher,
+			 void *wrapped_cipher_ctx)
 {
 	if (!ctx || !wrapped_cipher || !wrapped_cipher_ctx ||
 	    wrapped_cipher->blocksize != AES_BLOCKLEN)
@@ -214,8 +216,8 @@ static void aes_kw_init(struct lc_wrapping_state *ctx,
 	ctx->wrapped_cipher_ctx = wrapped_cipher_ctx;
 }
 
-static int aes_kw_setkey(struct lc_wrapping_state *ctx,
-			 const uint8_t *key, size_t keylen)
+static int mode_kw_setkey(struct lc_mode_state *ctx,
+			  const uint8_t *key, size_t keylen)
 {
 	const struct lc_sym *wrappeded_cipher;
 
@@ -226,8 +228,8 @@ static int aes_kw_setkey(struct lc_wrapping_state *ctx,
 	return wrappeded_cipher->setkey(ctx->wrapped_cipher_ctx, key, keylen);
 }
 
-static int aes_kw_setiv(struct lc_wrapping_state *ctx,
-			const uint8_t *iv, size_t ivlen)
+static int mode_kw_setiv(struct lc_mode_state *ctx,
+			 const uint8_t *iv, size_t ivlen)
 {
 	if (!ctx || ivlen != AES_KW_SEMIBSIZE)
 		return -EINVAL;
@@ -236,26 +238,26 @@ static int aes_kw_setiv(struct lc_wrapping_state *ctx,
 	return 0;
 }
 
-static struct lc_sym_wrapping _lc_kw_c = {
-	.init		= aes_kw_init,
-	.setkey		= aes_kw_setkey,
-	.setiv		= aes_kw_setiv,
-	.encrypt	= aes_kw_encrypt,
-	.decrypt	= aes_kw_decrypt,
+static struct lc_sym_mode _lc_mode_kw_c = {
+	.init		= mode_kw_init,
+	.setkey		= mode_kw_setkey,
+	.setiv		= mode_kw_setiv,
+	.encrypt	= mode_kw_encrypt,
+	.decrypt	= mode_kw_decrypt,
 	.statesize	= LC_AES_KW_BLOCK_SIZE,
 	.blocksize	= AES_BLOCKLEN,
 };
-const struct lc_sym_wrapping *lc_kw_c = &_lc_kw_c;
+const struct lc_sym_mode *lc_mode_kw_c = &_lc_mode_kw_c;
 
 LC_INTERFACE_FUNCTION(
 void, lc_aes_kw_encrypt, struct lc_sym_ctx *ctx,
 			 const uint8_t *in, uint8_t *out, size_t len)
 {
-	struct lc_wrapping_state *state;
+	struct lc_mode_state *state;
 
 	if (!ctx)
 		return;
-	state = (struct lc_wrapping_state *)ctx->sym_state;
+	state = (struct lc_mode_state *)ctx->sym_state;
 
 	/* Output: Tag || Ciphertext */
 	lc_sym_encrypt(ctx, in, out + AES_KW_SEMIBSIZE, len);
@@ -266,20 +268,20 @@ LC_INTERFACE_FUNCTION(
 int, lc_aes_kw_decrypt, struct lc_sym_ctx *ctx,
 			const uint8_t *in, uint8_t *out, size_t len)
 {
-	struct lc_wrapping_state *state;
+	struct lc_mode_state *state;
 	int ret;
 
 	if (!ctx)
 		return -EINVAL;
-	state = (struct lc_wrapping_state *)ctx->sym_state;
+	state = (struct lc_mode_state *)ctx->sym_state;
 
-	ret = aes_kw_setiv(state, in, AES_KW_SEMIBSIZE);
+	ret = mode_kw_setiv(state, in, AES_KW_SEMIBSIZE);
 	if (ret)
 		return ret;
 
 	/* Input: Tag || Ciphertext */
-	aes_kw_decrypt(state, in + AES_KW_SEMIBSIZE, out,
-		       len - AES_KW_SEMIBSIZE);
+	mode_kw_decrypt(state, in + AES_KW_SEMIBSIZE, out,
+			len - AES_KW_SEMIBSIZE);
 	/* Perform authentication check */
 	if (state->tag != be_bswap64(AES_KW_IV))
 		return -EBADMSG;

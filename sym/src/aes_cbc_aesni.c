@@ -22,6 +22,7 @@
 #include "asm/AESNI_x86_64/aes_aesni_x86_64.h"
 #include "ext_headers_x86.h"
 #include "lc_sym.h"
+#include "mode_cbc.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 #include "xor.h"
@@ -80,7 +81,7 @@ static void aes_aesni_cbc_init(struct lc_sym_state *ctx)
 
 	(void)ctx;
 
-	aes_cbc_selftest(lc_aes_cbc_aesni, &tested, "AES-CBC");
+	mode_cbc_selftest(lc_aes_cbc_aesni, &tested, "AES-CBC");
 }
 
 static int aes_aesni_cbc_setkey(struct lc_sym_state *ctx,

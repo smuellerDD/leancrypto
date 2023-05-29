@@ -33,18 +33,18 @@ extern "C"
  */
 #define AES_BLOCKLEN 16U
 
-struct lc_wrapping_state;
-struct lc_sym_wrapping {
-	void (*init)(struct lc_wrapping_state *ctx,
+struct lc_mode_state;
+struct lc_sym_mode {
+	void (*init)(struct lc_mode_state *ctx,
 		     const struct lc_sym *wrapped_cipher,
 		     void *wrapped_cipher_ctx);
-	int (*setkey)(struct lc_wrapping_state *ctx,
+	int (*setkey)(struct lc_mode_state *ctx,
 		      const uint8_t *key, size_t keylen);
-	int (*setiv)(struct lc_wrapping_state *ctx, const uint8_t *iv,
+	int (*setiv)(struct lc_mode_state *ctx, const uint8_t *iv,
 		     size_t ivlen);
-	void (*encrypt)(struct lc_wrapping_state *ctx,
+	void (*encrypt)(struct lc_mode_state *ctx,
 			const uint8_t *in, uint8_t *out, size_t len);
-	void (*decrypt)(struct lc_wrapping_state *ctx,
+	void (*decrypt)(struct lc_mode_state *ctx,
 			const uint8_t *in, uint8_t *out, size_t len);
 	unsigned int statesize;
 	unsigned int blocksize;
@@ -98,7 +98,6 @@ void aes_cipher(state_t* state, const struct aes_block_ctx *block_ctx);
 /* AES inverse block cipher operation */
 void aes_inv_cipher(state_t* state, const struct aes_block_ctx *block_ctx);
 
-void aes_cbc_selftest(const struct lc_sym *aes, int *tested, const char *impl);
 void aes_ctr_selftest(const struct lc_sym *aes, int *tested, const char *impl);
 
 #ifdef __cplusplus

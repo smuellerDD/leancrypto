@@ -17,7 +17,7 @@ if get_option('aes_ecb').enabled()
 endif
 
 if get_option('aes_cbc').enabled()
-	src += files([ 'aes_cbc.c' ])
+	src += files([ 'aes_cbc.c', 'mode_cbc.c' ])
 	lc_aes = 1
 
 	# AES-NI
@@ -43,7 +43,7 @@ if get_option('aes_ctr').enabled()
 endif
 
 if get_option('aes_kw').enabled()
-	src += files([ 'aes_kw.c', 'kw.c'])
+	src += files([ 'aes_kw.c', 'mode_kw.c'])
 	lc_aes = 1
 	lc_block = 1
 
