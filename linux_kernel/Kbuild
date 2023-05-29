@@ -700,6 +700,15 @@ endif
 leancrypto-$(CONFIG_LEANCRYPTO_AES_KW)					       \
 				+= ../sym/src/aes_kw.o			       \
 				   ../sym/src/mode_kw.o
+
+ifdef CONFIG_X86_64
+leancrypto-$(CONFIG_LEANCRYPTO_AES_KW)					       \
+				+= ../sym/src/aes_kw_aesni.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_AES_KW)					       \
+				+= ../sym/src/aes_kw_aesni_null.o
+endif
+
 ifdef CONFIG_LEANCRYPTO_AES_KW
 obj-m				+= aes_kw_tester.o
 aes_kw_tester-y			+= ../sym/tests/aes_kw_tester.o

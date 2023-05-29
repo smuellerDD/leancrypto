@@ -23,7 +23,7 @@ if get_option('aes_cbc').enabled()
 	# AES-NI
 	if (x86_64_asm)
 		lc_aesni_asm = 1
-		src += files([ 'aes_cbc_aesni.c' ])
+		src += files([ 'aes_cbc_aesni.c', ])
 	else
 		src += files([ 'aes_cbc_aesni_null.c' ])
 	endif
