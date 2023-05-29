@@ -20,8 +20,6 @@
 #ifndef AES_AESNI_H
 #define AES_AESNI_H
 
-#include "lc_sym.h"
-
 #ifdef __cplusplus
 extern "C"
 {

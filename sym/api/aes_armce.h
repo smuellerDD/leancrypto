@@ -20,8 +20,6 @@
 #ifndef AES_ARMCE_V8_H
 #define AES_ARMCE_V8_H
 
-#include "lc_sym.h"
-
 #ifdef __cplusplus
 extern "C"
 {
