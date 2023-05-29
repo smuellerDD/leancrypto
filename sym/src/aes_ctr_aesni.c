@@ -23,6 +23,7 @@
 #include "bitshift.h"
 #include "ext_headers_x86.h"
 #include "lc_sym.h"
+#include "mode_ctr.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 #include "xor.h"
@@ -120,7 +121,7 @@ static void aes_aesni_ctr_init(struct lc_sym_state *ctx)
 
 	(void)ctx;
 
-	aes_ctr_selftest(lc_aes_ctr_aesni, &tested, "AES-CTR");
+	mode_ctr_selftest(lc_aes_ctr_aesni, &tested, "AES-CTR");
 }
 
 static int aes_aesni_ctr_setkey(struct lc_sym_state *ctx,

@@ -17,8 +17,8 @@
  * DAMAGE.
  */
 
-#ifndef KW_H
-#define KW_H
+#ifndef MODE_KW_H
+#define MODE_KW_H
 
 #ifdef __cplusplus
 extern "C"
@@ -39,4 +39,4 @@ extern const struct lc_sym_mode *lc_mode_kw_c;
 }
 #endif
 
-#endif /* KW_H */
+#endif /* MODE_KW_H */

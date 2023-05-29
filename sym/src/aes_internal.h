@@ -98,8 +98,6 @@ void aes_cipher(state_t* state, const struct aes_block_ctx *block_ctx);
 /* AES inverse block cipher operation */
 void aes_inv_cipher(state_t* state, const struct aes_block_ctx *block_ctx);
 
-void aes_ctr_selftest(const struct lc_sym *aes, int *tested, const char *impl);
-
 #ifdef __cplusplus
 }
 #endif

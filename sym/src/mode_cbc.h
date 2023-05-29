@@ -17,8 +17,8 @@
  * DAMAGE.
  */
 
-#ifndef KW_H
-#define KW_H
+#ifndef MODE_CBC_H
+#define MODE_CBC_H
 
 #include "lc_sym.h"
 
@@ -41,4 +41,4 @@ extern const struct lc_sym_mode *lc_mode_cbc_c;
 }
 #endif
 
-#endif /* KW_H */
+#endif /* MODE_CBC_H */

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2023, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *
@@ -17,8 +17,8 @@
  * DAMAGE.
  */
 
-#ifndef CTR_PRIVATE_H
-#define CTR_PRIVATE_H
+#ifndef MODE_CTR_H
+#define MODE_CTR_H
 
 #include "aes_internal.h"
 #include "bitshift.h"
@@ -32,6 +32,16 @@ extern "C"
 #endif
 
 #define AES_CTR128_64BIT_WORDS	(AES_BLOCKLEN / sizeof(uint64_t))
+
+struct lc_mode_state {
+	const struct lc_sym *wrappeded_cipher;
+	void *wrapped_cipher_ctx;
+	uint64_t iv[AES_CTR128_64BIT_WORDS];
+};
+
+void mode_ctr_selftest(const struct lc_sym *aes, int *tested, const char *impl);
+
+extern const struct lc_sym_mode *lc_mode_ctr_c;
 
 static inline void ctr128_inc(uint64_t ctr[AES_CTR128_64BIT_WORDS])
 {
@@ -65,8 +75,9 @@ static inline void ctr128_to_ptr(uint8_t *p,
 	be64_to_ptr(p + sizeof(uint64_t), ctr[1]);
 }
 
+
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* CTR_PRIVATE_H */
+#endif /* MODE_CTR_H */

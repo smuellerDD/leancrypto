@@ -30,7 +30,7 @@ if get_option('aes_cbc').enabled()
 endif
 
 if get_option('aes_ctr').enabled()
-	src += files([ 'aes_ctr.c' ])
+	src += files([ 'aes_ctr.c', 'mode_ctr.c' ])
 	lc_aes = 1
 
 	# AES-NI

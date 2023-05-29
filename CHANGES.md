@@ -9,7 +9,7 @@ Changes 0.5.4-prerelease:
 
 * enhancement: use -Wmissing-prototypes and fix reported issues
 
-* enhancement: provde standalone KW implementation
+* enhancement: provde standalone CBC, CTR, KW implementation
 
 * enhancement: provide AESNI implementation
 
