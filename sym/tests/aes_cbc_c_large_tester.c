@@ -17,6 +17,7 @@
  * DAMAGE.
  */
 
+#include "aes_c.h"
 #include "aes_internal.h"
 #include "ext_headers.h"
 #include "lc_aes.h"
@@ -24,7 +25,7 @@
 
 static int aes_cbc_large_c(void)
 {
-	LC_SYM_CTX_ON_STACK(aes_cbc, lc_aes_cbc);
+	LC_SYM_CTX_ON_STACK(aes_cbc, lc_aes_cbc_c);
 	uint8_t *pt;
 	uint8_t key[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,

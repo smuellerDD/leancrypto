@@ -65,8 +65,8 @@ static void aes_aesni_ctr_crypt(struct lc_sym_state *ctx,
 	LC_FPU_ENABLE;
 
 	while (blocks) {
-		ctr32 = ptr_to_be32(&ctx->iv[12]);
 		size_t todo;
+		ctr32 = ptr_to_be32(&ctx->iv[12]);
 
 		/* Cipher operation is limited to 32LSB of the counter */
 		ctr32 += (uint32_t)blocks;

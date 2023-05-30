@@ -95,39 +95,39 @@ if get_option('sha3').enabled()
 		src += files([ 'sha3_arm_asm_null.c', 'sha3_arm_ce_null.c' ])
 	endif
 
-	if (riscv)
-		src += files([ 'sha3_riscv_asm.c',
-			       'asm/riscv32/keccakf1600.c' ])
-	elif (riscv32_gcc_asm)
-		leancrypto_keccak_riscv_asm_lib = static_library(
-			'leancrypto_keccak_riscv_asm_lib',
-			[ 'sha3_riscv_asm.c', 'asm/riscv32/keccakf1600_asm.S' ],
-			c_args: [
-				'-march=rv32im',
-				'-mabi=ilp32'
-			],
-			include_directories: [
-				include_dirs,
-				include_internal_dirs ],
-		)
-		leancrypto_support_libs += leancrypto_keccak_riscv_asm_lib
-	elif (riscv64_gcc_asm)
-		leancrypto_keccak_riscv_asm_lib = static_library(
-			'leancrypto_keccak_riscv_asm_lib',
-			[ 'sha3_riscv_asm.c', 'asm/riscv32/keccakf1600_asm.S' ],
-			c_args: [
-				'-march=rv64gc',
-				'-mabi=lp64d',
-				'-mcmodel=medany'
-			],
-			include_directories: [
-				include_dirs,
-				include_internal_dirs ],
-		)
-		leancrypto_support_libs += leancrypto_keccak_riscv_asm_lib
-	else
+# 	if (riscv)
+# 		src += files([ 'sha3_riscv_asm.c',
+# 			       'asm/riscv32/keccakf1600.c' ])
+# 	elif (riscv32_gcc_asm)
+# 		leancrypto_keccak_riscv_asm_lib = static_library(
+# 			'leancrypto_keccak_riscv_asm_lib',
+# 			[ 'sha3_riscv_asm.c', 'asm/riscv32/keccakf1600_asm.S' ],
+# 			c_args: [
+# 				'-march=rv32im',
+# 				'-mabi=ilp32'
+# 			],
+# 			include_directories: [
+# 				include_dirs,
+# 				include_internal_dirs ],
+# 		)
+# 		leancrypto_support_libs += leancrypto_keccak_riscv_asm_lib
+# 	elif (riscv64_gcc_asm)
+# 		leancrypto_keccak_riscv_asm_lib = static_library(
+# 			'leancrypto_keccak_riscv_asm_lib',
+# 			[ 'sha3_riscv_asm.c', 'asm/riscv32/keccakf1600_asm.S' ],
+# 			c_args: [
+# 				'-march=rv64gc',
+# 				'-mabi=lp64d',
+# 				'-mcmodel=medany'
+# 			],
+# 			include_directories: [
+# 				include_dirs,
+# 				include_internal_dirs ],
+# 		)
+# 		leancrypto_support_libs += leancrypto_keccak_riscv_asm_lib
+# 	else
 		src += files([ 'sha3_riscv_asm_null.c' ])
-	endif
+#	endif
 endif
 
 if (lc_hash == 1)

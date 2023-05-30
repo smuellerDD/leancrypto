@@ -1,4 +1,4 @@
-Changes 0.5.4-prerelease:
+Changes 0.6.0-prerelease:
 
 * enhancement: Linux - add memfd_secret(2) support for secure memory allocation
 
@@ -12,6 +12,10 @@ Changes 0.5.4-prerelease:
 * enhancement: provde standalone CBC, CTR, KW implementation
 
 * enhancement: provide AESNI implementation
+
+* enhancement: provide AES ARM CE implementation
+
+* enhancement: provide AES RISC-V 64 assembler implementation
 
 Changes 0.5.3:
 

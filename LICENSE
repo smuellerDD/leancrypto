@@ -129,3 +129,12 @@ cannot be included into kernel code code as is. Thus, the functions used by
 leancrypto are extracted - I wished this would not have been necessary.
 
 Anyhow, the GCC code is: GPL 3. The LLVM code is: Apache License v2.0.
+
+================================================================================
+
+The following files are licensed under the Apache License 2.0, copyright:
+Copyright 2022 The OpenSSL Project Authors. All Rights Reserved.
+
+sym/src/asm/riscv64/riscv64_aes_asm.S
+sym/src/asm/riscv64/riscv64_aes_zkn_asm.S
+

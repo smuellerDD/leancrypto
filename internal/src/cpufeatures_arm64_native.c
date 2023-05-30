@@ -66,13 +66,6 @@ static inline int arm_id_aa64isar0_el1_feature(unsigned long feature)
 		 */
 #if 0
 		ret = 0;
-		if (!sysctlbyname("hw.optional.arm.FEAT_AES", &ret, &size,
-				  NULL, 0)) {
-			if (ret)
-				id_aa64isar0_el1_val |= ARM8_AES_FEATURE;
-		}
-
-		ret = 0;
 		if (!sysctlbyname("hw.optional.arm.FEAT_SHA256", &ret, &size,
 				  NULL, 0)) {
 			if (ret)
@@ -86,6 +79,14 @@ static inline int arm_id_aa64isar0_el1_feature(unsigned long feature)
 				id_aa64isar0_el1_val |= ARM8_SHA256512_FEATURE;
 		}
 #endif
+
+		ret = 0;
+		if (!sysctlbyname("hw.optional.arm.FEAT_AES", &ret, &size,
+				  NULL, 0)) {
+			if (ret)
+				id_aa64isar0_el1_val |= ARM8_AES_FEATURE;
+		}
+
 		ret = 0;
 		if (!sysctlbyname("hw.optional.arm.FEAT_SHA3", &ret, &size,
 				  NULL, 0)) {

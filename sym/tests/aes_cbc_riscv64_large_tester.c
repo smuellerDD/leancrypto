@@ -17,16 +17,16 @@
  * DAMAGE.
  */
 
-#include "aes_armce.h"
 #include "aes_internal.h"
+#include "aes_riscv64.h"
 #include "ext_headers.h"
 #include "lc_aes.h"
 #include "ret_checkers.h"
 
-#define LC_ARMCE_SIZE	(1UL<<30)
-static int aes_cbc_large_armce(void)
+#define LC_RISCV64_SIZE	(1UL<<30)
+static int aes_cbc_large_riscv64(void)
 {
-	LC_SYM_CTX_ON_STACK(aes_cbc, lc_aes_cbc_armce);
+	LC_SYM_CTX_ON_STACK(aes_cbc, lc_aes_cbc_riscv64);
 	uint8_t *pt;
 	uint8_t key[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -38,19 +38,19 @@ static int aes_cbc_large_armce(void)
 	};
 	int ret;
 
-	pt = calloc(1, LC_ARMCE_SIZE);
+	pt = calloc(1, LC_RISCV64_SIZE);
 	if (!pt)
 		return 1;
 
 	lc_sym_init(aes_cbc);
 	CKINT(lc_sym_setkey(aes_cbc, key, sizeof(key)));
 	CKINT(lc_sym_setiv(aes_cbc, iv, sizeof(iv)));
-	lc_sym_encrypt(aes_cbc, pt, pt, LC_ARMCE_SIZE);
+	lc_sym_encrypt(aes_cbc, pt, pt, LC_RISCV64_SIZE);
 	lc_sym_zero(aes_cbc);
 
 	CKINT(lc_sym_setkey(aes_cbc, key, sizeof(key)));
 	CKINT(lc_sym_setiv(aes_cbc, iv, sizeof(iv)));
-	lc_sym_decrypt(aes_cbc, pt, pt, LC_ARMCE_SIZE);
+	lc_sym_decrypt(aes_cbc, pt, pt, LC_RISCV64_SIZE);
 	lc_sym_zero(aes_cbc);
 
 out:
@@ -62,5 +62,5 @@ int main(int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;
-	return aes_cbc_large_armce();
+	return aes_cbc_large_riscv64();
 }

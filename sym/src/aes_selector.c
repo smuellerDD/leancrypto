@@ -18,7 +18,9 @@
  */
 
 #include "aes_aesni.h"
+#include "aes_armce.h"
 #include "aes_c.h"
+#include "aes_riscv64.h"
 #include "cpufeatures.h"
 #include "lc_aes.h"
 #include "visibility.h"
@@ -54,6 +56,10 @@ LC_CONSTRUCTOR(aes_fastest_impl)
 	 */
 	if (feat & LC_CPU_FEATURE_INTEL_AESNI) {
 		LC_FILL_DFLT_IMPL(aesni)
+	} else if (feat & LC_CPU_FEATURE_ARM_AES) {
+		LC_FILL_DFLT_IMPL(armce)
+	} else if (feat & LC_CPU_FEATURE_RISCV_ASM) {
+		LC_FILL_DFLT_IMPL(riscv64)
 	} else {
 		/* do nothing as the C definitions are used automatically */
 	}
@@ -61,5 +67,11 @@ LC_CONSTRUCTOR(aes_fastest_impl)
 	/* Unset accelerated modes to C if CPU does not provide support */
 	if (!(feat & LC_CPU_FEATURE_INTEL_AESNI)) {
 		LC_FILL_ACCEL_WITH_C(aesni)
+	}
+	if (!(feat & LC_CPU_FEATURE_ARM_AES)) {
+		LC_FILL_ACCEL_WITH_C(armce)
+	}
+	if (!(feat & LC_CPU_FEATURE_RISCV_ASM)) {
+		LC_FILL_ACCEL_WITH_C(riscv64)
 	}
 }

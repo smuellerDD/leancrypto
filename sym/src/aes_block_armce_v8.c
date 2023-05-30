@@ -33,8 +33,8 @@
 #include "visibility.h"
 
 struct lc_sym_state {
-	struct aes_aes_v8_block_ctx enc_block_ctx;
-	struct aes_aes_v8_block_ctx dec_block_ctx;
+	struct aes_v8_block_ctx enc_block_ctx;
+	struct aes_v8_block_ctx dec_block_ctx;
 };
 
 #define LC_AES_BLOCK_SIZE sizeof(struct lc_sym_state)

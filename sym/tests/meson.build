@@ -95,6 +95,13 @@ if get_option('aes_cbc').enabled()
 							  '../src' ],
 					dependencies: leancrypto
 					)
+	aes_cbc_riscv64_large_tester = executable('aes_cbc_riscv64_large_tester',
+					[ 'aes_cbc_riscv64_large_tester.c',
+					internal_src ],
+					include_directories: [ include_internal_dirs,
+							  '../src' ],
+					dependencies: leancrypto
+					)
 
 #	This is only present to compare its performance to the leancrypto impl
 # 	aes_cbc_openssl_large_tester = executable('aes_cbc_openssl_large_tester',

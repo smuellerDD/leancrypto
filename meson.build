@@ -11,7 +11,7 @@
 # Patchlevel Version: API / ABI compatible, no functional changes, no
 #		      enhancements, bug fixes only.
 project('leancrypto', 'c',
-	version: '0.5.4',
+	version: '0.6.0',
 	default_options: [
 		'warning_level=3',
 		'optimization=3',
@@ -217,7 +217,8 @@ x86_64_asm = false
 arm32_neon_gcc_asm = false
 arm64_neon_gcc_asm = false
 arm64_asm = false
-riscv = false
+riscv32_asm = false
+riscv64_asm = false
 riscv32_gcc_asm = false
 riscv64_gcc_asm = false
 
@@ -261,9 +262,9 @@ elif (host_machine.cpu_family() == 'aarch64')
 
 # The specific C code for RISCV is slower by a factor of more than 2
 # elif (host_machine.cpu_family() == 'riscv')
-# 	riscv = true
-# elif (host_machine.cpu_family() == 'riscv64')
-# 	riscv = true
+# 	riscv32_asm = true
+elif (host_machine.cpu_family() == 'riscv64')
+	riscv64_asm = true
 # elif (host_machine.cpu_family() == 'riscv' and
 #       c_compiler.get_id() == 'gcc')
 #

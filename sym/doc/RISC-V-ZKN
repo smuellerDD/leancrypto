@@ -1,0 +1,16 @@
+From https://riscv.org/blog/2021/09/risc-v-cryptography-extensions-task-group-announces-public-review-of-the-scalar-cryptography-extensions/
+
+Zknd – NIST Suite: AES Decryption
+Zkne – NIST Suite: AES Encryption
+Zknh – NIST Suite: Hash Function Instructions
+Zksed – ShangMi Suite: SM4 Block Cipher Instructions
+Zksh – ShangMi Suite: SM3 Hash Function Instructions
+Zkr – Entropy Source Extension
+Zkn – NIST Algorithm Suite (shorthand for Zknd_Zkne_Zknh_Zbkb_Zbkc_Zbkx)
+Zks – ShangMi Algorithm Suite  (shorthand for Zksed_Zksh_Zbkb_Zbkc_Zbkx)
+Zk – Standard scalar cryptography extension (shorthand for Zkn_Zkt_Zkr)
+Zkt – Data Independent Execution Latency
+Zbkb – Bitmanip instructions for Cryptography
+Zbkc – Carry-less multiply instructions
+Zbkx – Crossbar permutation instructions
+

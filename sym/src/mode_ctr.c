@@ -81,7 +81,7 @@ void mode_ctr_selftest(const struct lc_sym *aes, int *tested, const char *impl)
 	lc_sym_setiv(ctx, iv, sizeof(iv));
 	lc_sym_encrypt(ctx, in, out, sizeof(in));
 	snprintf(status, sizeof(status), "%s encrypt", impl);
-	lc_compare_selftest(out256, out, sizeof(out256), status);
+	lc_compare_selftest(out, out256, sizeof(out256), status);
 	lc_sym_zero(ctx);
 
 	lc_sym_init(ctx);
@@ -89,7 +89,7 @@ void mode_ctr_selftest(const struct lc_sym *aes, int *tested, const char *impl)
 	lc_sym_setiv(ctx, iv, sizeof(iv));
 	lc_sym_decrypt(ctx, out, out, sizeof(out));
 	snprintf(status, sizeof(status), "%s decrypt", impl);
-	lc_compare_selftest(in, out, sizeof(in), status);
+	lc_compare_selftest(out, in, sizeof(in), status);
 	lc_sym_zero(ctx);
 }
 

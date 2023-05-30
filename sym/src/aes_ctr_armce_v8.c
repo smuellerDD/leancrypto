@@ -29,7 +29,7 @@
 #include "xor.h"
 
 struct lc_sym_state {
-	struct aes_aes_v8_block_ctx enc_block_ctx;
+	struct aes_v8_block_ctx enc_block_ctx;
 	uint8_t iv[AES_BLOCKLEN];
 };
 
