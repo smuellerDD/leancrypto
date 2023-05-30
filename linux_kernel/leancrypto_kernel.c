@@ -21,9 +21,13 @@
 #include <linux/module.h>
 
 #include "kyber_internal.h"
+#include "kyber_kem.h"
 #include "seeded_rng.h"
 
 /* Export these symbols for testing */
+EXPORT_SYMBOL(_lc_kyber_keypair);
+EXPORT_SYMBOL(_lc_kyber_enc);
+EXPORT_SYMBOL(_lc_kyber_dec);
 EXPORT_SYMBOL(lc_kyber_enc_internal);
 EXPORT_SYMBOL(lc_kex_ake_initiator_ss_internal);
 EXPORT_SYMBOL(lc_kex_uake_responder_init_internal);

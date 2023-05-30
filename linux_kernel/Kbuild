@@ -491,6 +491,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 				+= ../kem/src/kyber_cbd.o		       \
 				   ../kem/src/kyber_ies.o		       \
 				   ../kem/src/kyber_indcpa.o		       \
+				   ../kem/src/kyber_kem.o		       \
 				   ../kem/src/kyber_kem_c.o		       \
 				   ../kem/src/kyber_kex.o		       \
 				   ../kem/src/kyber_ntt.o		       \
@@ -642,7 +643,7 @@ endif
 endif
 
 # Symmetric implementation
-ccflags-y	 		+= -I$(PWD)/../sym/api
+ccflags-y	 		+= -I$(PWD)/../sym/api -I$(PWD)/../sym/src
 leancrypto-y	 		+= ../sym/src/sym.o
 
 leancrypto-$(CONFIG_LEANCRYPTO_AES)					       \
@@ -651,7 +652,29 @@ leancrypto-$(CONFIG_LEANCRYPTO_AES)					       \
 
 ifdef CONFIG_X86_64
 leancrypto-$(CONFIG_LEANCRYPTO_AES)					       \
-				+= ../sym/src/asm/AESNI_x86_64/aes_aesni_x86_64.S.o
+				+= ../sym/src/asm/AESNI_x86_64/aes_aesni_x86_64.o\
+				   ../sym/src/aes_block_aesni.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_AES)					       \
+				+= ../sym/src/aes_block_aesni_null.o
+endif
+
+ifdef CONFIG_ARM64
+leancrypto-$(CONFIG_LEANCRYPTO_AES)					       \
+				+= ../sym/src/asm/ARMv8/aes_armv8_ce.o\
+				   ../sym/src/aes_block_armce_v8.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_AES)					       \
+				+= ../sym/src/aes_block_armce_v8_null.o
+endif
+
+ifneq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
+leancrypto-$(CONFIG_LEANCRYPTO_AES_CBC)					       \
+				+= ../sym/src/asm/riscv64/riscv64_aes_asm.o\
+				   ../sym/src/aes_block_riscv64.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_AES)					       \
+				+= ../sym/src/aes_block_riscv64_null.o
 endif
 
 ifdef CONFIG_LEANCRYPTO_AES
@@ -673,6 +696,22 @@ leancrypto-$(CONFIG_LEANCRYPTO_AES_CBC)					       \
 				+= ../sym/src/aes_cbc_aesni_null.o
 endif
 
+ifdef CONFIG_ARM64
+leancrypto-$(CONFIG_LEANCRYPTO_AES_CBC)					       \
+				+= ../sym/src/aes_cbc_armce_v8.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_AES_CBC)					       \
+				+= ../sym/src/aes_cbc_armce_v8_null.o
+endif
+
+ifneq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
+leancrypto-$(CONFIG_LEANCRYPTO_AES_CBC)					       \
+				+= ../sym/src/aes_cbc_riscv64.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_AES_CBC)					       \
+				+= ../sym/src/aes_cbc_riscv64_null.o
+endif
+
 ifdef CONFIG_LEANCRYPTO_AES_CBC
 obj-m				+= aes_cbc_dec_tester.o
 obj-m				+= aes_cbc_enc_tester.o
@@ -692,6 +731,22 @@ leancrypto-$(CONFIG_LEANCRYPTO_AES_CTR)					       \
 				+= ../sym/src/aes_ctr_aesni_null.o
 endif
 
+ifdef CONFIG_ARM64
+leancrypto-$(CONFIG_LEANCRYPTO_AES_CTR)					       \
+				+= ../sym/src/aes_ctr_armce_v8.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_AES_CTR)					       \
+				+= ../sym/src/aes_ctr_armce_v8_null.o
+endif
+
+ifneq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
+leancrypto-$(CONFIG_LEANCRYPTO_AES_CTR)					       \
+				+= ../sym/src/aes_ctr_riscv64.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_AES_CTR)					       \
+				+= ../sym/src/aes_ctr_riscv64_null.o
+endif
+
 ifdef CONFIG_LEANCRYPTO_AES_CTR
 obj-m		  		+= aes_ctr_tester.o
 aes_ctr_tester-y		+= ../sym/tests/aes_ctr_tester.o
@@ -707,6 +762,22 @@ leancrypto-$(CONFIG_LEANCRYPTO_AES_KW)					       \
 else
 leancrypto-$(CONFIG_LEANCRYPTO_AES_KW)					       \
 				+= ../sym/src/aes_kw_aesni_null.o
+endif
+
+ifdef CONFIG_ARM64
+leancrypto-$(CONFIG_LEANCRYPTO_AES_KW)					       \
+				+= ../sym/src/aes_kw_armce_v8.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_AES_KW)					       \
+				+= ../sym/src/aes_kw_armce_v8_null.o
+endif
+
+ifneq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
+leancrypto-$(CONFIG_LEANCRYPTO_AES_KW)					       \
+				+= ../sym/src/aes_kw_riscv64.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_AES_KW)					       \
+				+= ../sym/src/aes_kw_riscv64_null.o
 endif
 
 ifdef CONFIG_LEANCRYPTO_AES_KW
