@@ -600,7 +600,7 @@ int, lc_cc_alloc, const struct lc_hash *hash, struct lc_aead_ctx **ctx)
 	int ret;
 
 	ret = lc_alloc_aligned((void **)&tmp, LC_HASH_COMMON_ALIGNMENT,
-			        LC_CC_CTX_SIZE(hash));
+			       LC_CC_CTX_SIZE(hash));
 	if (ret)
 		return -ret;
 
