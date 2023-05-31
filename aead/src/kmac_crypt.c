@@ -545,7 +545,7 @@ int, lc_kc_alloc, const struct lc_hash *hash, struct lc_aead_ctx **ctx)
 	if (!ctx)
 		return -EINVAL;
 
-	ret = lc_alloc_aligned((void **)&tmp, LC_HASH_COMMON_ALIGNMENT,
+	ret = lc_alloc_aligned((void **)&tmp, LC_MEM_COMMON_ALIGNMENT,
 			       LC_KC_CTX_SIZE(hash));
 	if (ret)
 		return -ret;

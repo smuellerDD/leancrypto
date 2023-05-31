@@ -54,7 +54,12 @@ struct lc_hash_ctx {
  * arguments.
  */
 #ifndef LC_HASH_COMMON_ALIGNMENT
-#define LC_HASH_COMMON_ALIGNMENT	(32)
+# ifdef __arm__
+/* Required by NEON 32-bit implementation */
+#  define LC_HASH_COMMON_ALIGNMENT	(32)
+# else
+#  define LC_HASH_COMMON_ALIGNMENT	(8)
+# endif
 #endif
 
 #define LC_ALIGN_HASH_MASK(p)						       \

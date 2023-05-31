@@ -212,7 +212,7 @@ int, lc_kmac_alloc, const struct lc_hash *hash, struct lc_kmac_ctx **kmac_ctx,
 	memsize = (flags & LC_KMAC_FLAGS_SUPPORT_REINIT) ?
 		  LC_KMAC_CTX_SIZE_REINIT(hash) :
 		  LC_KMAC_CTX_SIZE(hash);
-	ret = lc_alloc_aligned((void **)&out_ctx, LC_HASH_COMMON_ALIGNMENT,
+	ret = lc_alloc_aligned((void **)&out_ctx, LC_MEM_COMMON_ALIGNMENT,
 			       memsize);
 
 	if (ret)

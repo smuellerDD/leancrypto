@@ -47,6 +47,7 @@ static int _sha3_512_tester(const struct lc_hash *sha3_512, const char *name)
 					   0xC8, 0xFD, 0x07, 0xA9, 0x4C, 0x29,
 					   0xD7, 0x46, 0xCC, 0xEF, 0xB1, 0x09,
 					   0x6E, 0xDE, 0x42, 0x91 };
+	struct lc_hash_ctx *sha3_heap = NULL;
 	uint8_t act[LC_SHA3_512_SIZE_DIGEST];
 	int ret;
 	LC_HASH_CTX_ON_STACK(ctx512, sha3_512);
@@ -66,6 +67,17 @@ static int _sha3_512_tester(const struct lc_hash *sha3_512, const char *name)
 	ret += lc_compare(act, exp_512, LC_SHA3_512_SIZE_DIGEST, "SHA3-512");
 	lc_hash_zero(ctx512_stack);
 
+	if (lc_hash_alloc(sha3_512, &sha3_heap)) {
+		ret = 1;
+		goto out;
+	}
+	lc_hash_init(sha3_heap);
+	lc_hash_update(sha3_heap, msg_512, 3);
+	lc_hash_final(sha3_heap, act);
+	ret += lc_compare(act, exp_512, LC_SHA3_512_SIZE_DIGEST, "SHA3-512");
+
+out:
+	lc_hash_zero_free(sha3_heap);
 	return ret;
 }
 

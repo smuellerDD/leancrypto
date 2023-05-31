@@ -42,6 +42,7 @@ static int _sha3_256_tester(const struct lc_hash *sha3_256, const char *name)
 					   0x43, 0x86, 0x8C, 0xC4, 0x0E, 0xC5,
 					   0x5E, 0x00, 0xBB, 0xBB, 0xBD, 0xF5,
 					   0x91, 0x1E };
+	struct lc_hash_ctx *sha3_heap = NULL;
 	uint8_t act[LC_SHA3_256_SIZE_DIGEST];
 	int ret;
 	LC_HASH_CTX_ON_STACK(ctx256, sha3_256);
@@ -61,6 +62,17 @@ static int _sha3_256_tester(const struct lc_hash *sha3_256, const char *name)
 	ret += lc_compare(act, exp_256, LC_SHA3_256_SIZE_DIGEST, "SHA3-256");
 	lc_hash_zero(ctx256_stack);
 
+	if (lc_hash_alloc(sha3_256, &sha3_heap)) {
+		ret = 1;
+		goto out;
+	}
+	lc_hash_init(sha3_heap);
+	lc_hash_update(sha3_heap, msg_256, 3);
+	lc_hash_final(sha3_heap, act);
+	ret += lc_compare(act, exp_256, LC_SHA3_256_SIZE_DIGEST, "SHA3-256");
+
+out:
+	lc_hash_zero_free(sha3_heap);
 	return ret;
 }
 

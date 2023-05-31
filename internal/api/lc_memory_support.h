@@ -27,6 +27,9 @@ extern "C"
 {
 #endif
 
+/* Default memory alignment */
+#define LC_MEM_COMMON_ALIGNMENT		(8)
+
 /**
  * @brief Allocate aligned stack memory
  *

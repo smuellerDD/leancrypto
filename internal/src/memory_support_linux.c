@@ -35,7 +35,18 @@ struct lc_mem_def {
 	size_t size;
 };
 
+/* Syscall may not be known on some system - disable support for it */
+#if (SYS_memfd_secret)
+# define LC_USE_MEMFD_SECURE
+#else
+# undef LC_USE_MEMFD_SECURE
+#endif
+
+#ifdef LC_USE_MEMFD_SECURE
 static int lc_alloc_have_memfd_secret = 1;
+#else
+static int lc_alloc_have_memfd_secret = 0;
+#endif
 
 static int alloc_aligned_secure_internal(void **memptr, size_t alignment,
 					 size_t size, int secure)
@@ -45,7 +56,7 @@ static int alloc_aligned_secure_internal(void **memptr, size_t alignment,
 	void *ptr;
 	int ret = posix_memalign(&ptr, alignment, full_size);
 
-	BUILD_BUG_ON(LC_HASH_COMMON_ALIGNMENT > LC_MEM_DEF_ALIGNED_OFFSET);
+	BUILD_BUG_ON(LC_MEM_COMMON_ALIGNMENT > LC_MEM_DEF_ALIGNED_OFFSET);
 	BUILD_BUG_ON(LC_MEM_DEF_ALIGNED_OFFSET < sizeof(struct lc_mem_def));
 
 	if (ret)
@@ -76,6 +87,7 @@ int, lc_alloc_aligned, void **memptr, size_t alignment, size_t size)
 	return alloc_aligned_secure_internal(memptr, alignment, size, 0);
 }
 
+#ifdef LC_USE_MEMFD_SECURE
 LC_INTERFACE_FUNCTION(
 int, lc_alloc_aligned_secure, void **memptr, size_t alignment, size_t size)
 {
@@ -125,7 +137,18 @@ err:
 		close(fd);
 
 	return ret;
+
 }
+
+#else /* LC_USE_MEMFD_SECURE */
+
+LC_INTERFACE_FUNCTION(
+int, lc_alloc_aligned_secure, void **memptr, size_t alignment, size_t size)
+{
+	return alloc_aligned_secure_internal(memptr, alignment, size, 1);
+}
+
+#endif /* LC_USE_MEMFD_SECURE */
 
 LC_INTERFACE_FUNCTION(
 int, lc_alloc_high_aligned, void **memptr, size_t alignment, size_t size)

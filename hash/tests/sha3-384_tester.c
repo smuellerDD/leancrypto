@@ -44,6 +44,7 @@ static int s_ha3_384_tester(const struct lc_hash *sha3_384, const char *name)
 					   0x0c, 0x47, 0x5a, 0x5f, 0xb9, 0x6b,
 					   0x5c, 0xbc, 0x32, 0xdc, 0xa1, 0x5f,
 					   0x28, 0x53, 0xa0, 0xce, 0x55, 0xf6 };
+	struct lc_hash_ctx *sha3_heap = NULL;
 	uint8_t act[LC_SHA3_384_SIZE_DIGEST];
 	int ret;
 	LC_HASH_CTX_ON_STACK(ctx384, sha3_384);
@@ -63,6 +64,17 @@ static int s_ha3_384_tester(const struct lc_hash *sha3_384, const char *name)
 	ret += lc_compare(act, exp_384, LC_SHA3_384_SIZE_DIGEST, "SHA3-384");
 	lc_hash_zero(ctx384_stack);
 
+	if (lc_hash_alloc(sha3_384, &sha3_heap)) {
+		ret = 1;
+		goto out;
+	}
+	lc_hash_init(sha3_heap);
+	lc_hash_update(sha3_heap, msg_384, 3);
+	lc_hash_final(sha3_heap, act);
+	ret += lc_compare(act, exp_384, LC_SHA3_384_SIZE_DIGEST, "SHA3-384");
+
+out:
+	lc_hash_zero_free(sha3_heap);
 	return ret;
 }
 

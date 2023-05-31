@@ -29,7 +29,7 @@ int, lc_sym_alloc, const struct lc_sym *sym, struct lc_sym_ctx **ctx)
 	if (!ctx)
 		return -EINVAL;
 
-	ret = lc_alloc_aligned((void **)&out_ctx, LC_SYM_ALIGNMENT_COMMON,
+	ret = lc_alloc_aligned((void **)&out_ctx, LC_MEM_COMMON_ALIGNMENT,
 			       LC_SYM_CTX_SIZE(sym));
 
 	if (ret)

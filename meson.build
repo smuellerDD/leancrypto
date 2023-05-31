@@ -229,10 +229,6 @@ if (host_machine.cpu_family() == 'x86_64' and
 
 	# 64 bit AVX2 / AVX512 support
 	x86_64_asm = true
-
-	# Alignment x86_64: 8 bytes as required by AVX2 / AVX512
-	add_global_arguments([ '-DLC_HASH_COMMON_ALIGNMENT=8',
-			       '-DLC_SYM_ALIGNMENT_COMMON=16'], language: 'c')
 endif
 
 if (host_machine.cpu_family() == 'arm' and
@@ -240,9 +236,6 @@ if (host_machine.cpu_family() == 'arm' and
 
 	# 32 bit ARM processor and GCC
 	arm32_neon_gcc_asm = true
-
-	# Alignment ARM 32 bits: 32 bytes as required by NEON on ARMv7
-	add_global_arguments([ '-DLC_HASH_COMMON_ALIGNMENT=32' ], language: 'c')
 
 elif (host_machine.cpu_family() == 'aarch64')
 
@@ -255,9 +248,6 @@ elif (host_machine.cpu_family() == 'aarch64')
 		# see also issue https://github.com/XKCP/XKCP/issue/74
 		arm64_neon_gcc_asm = false
 		#arm64_neon_gcc_asm = true
-
-		# Alignment ARM 64 bits: 64 bytes as required by NEON on ARMv8
-		#add_global_arguments([ '-DLC_HASH_COMMON_ALIGNMENT=64' ], language: 'c')
 	endif
 
 # The specific C code for RISCV is slower by a factor of more than 2

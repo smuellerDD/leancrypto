@@ -59,7 +59,7 @@ struct lc_sym_ctx {
  * LC_ALIGN_PTR_XX macro depending on lc_sym->alignment during compile time.
  */
 #ifndef LC_SYM_ALIGNMENT_COMMON
-#define LC_SYM_ALIGNMENT_COMMON		(16)
+#define LC_SYM_ALIGNMENT_COMMON		(8)
 #endif
 #define LC_SYM_ALIGNMENT(symname)	LC_SYM_ALIGNMENT_COMMON
 #define LC_SYM_ALIGNMASK(symname)	(LC_SYM_ALIGNMENT(symname) - 1)
