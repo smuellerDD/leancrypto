@@ -1060,19 +1060,14 @@ static int _kyber_kem_dec_selftest(const char *impl,
 			     const struct lc_kyber_ct *ct,
 			     const struct lc_kyber_sk *sk))
 {
-	struct workspace {
-		struct lc_kyber_ss key_a;
-	};
+	struct lc_kyber_ss key_a;
 	char str[25];
 
-	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
-
 	// Decapsulation
-	_lc_kyber_dec(ws->key_a.ss, LC_KYBER_SSBYTES, &vector.ct, &vector.sk);
+	_lc_kyber_dec(key_a.ss, LC_KYBER_SSBYTES, &vector.ct, &vector.sk);
 	snprintf(str, sizeof(str), "%s SS", impl);
-	lc_compare_selftest(ws->key_a.ss, vector.ss.ss, LC_KYBER_SSBYTES, str);
+	lc_compare_selftest(key_a.ss, vector.ss.ss, LC_KYBER_SSBYTES, str);
 
-	LC_RELEASE_MEM(ws);
 	return 0;
 }
 
