@@ -18,6 +18,7 @@
  */
 
 #include "cpufeatures.h"
+#include "ext_headers_x86.h"
 #include "kyber_internal.h"
 #include "kyber_kem_avx2.h"
 #include "kyber_kem_c.h"
@@ -29,8 +30,14 @@ int, lc_kyber_keypair, struct lc_kyber_pk *pk,
 		       struct lc_kyber_sk *sk,
 		       struct lc_rng_ctx *rng_ctx)
 {
-	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
-		return lc_kyber_keypair_avx(pk, sk, rng_ctx);
+	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) {
+		int ret;
+
+		LC_FPU_ENABLE;
+		ret = lc_kyber_keypair_avx(pk, sk, rng_ctx);
+		LC_FPU_DISABLE;
+		return ret;
+	}
 
 	return lc_kyber_keypair_c(pk, sk, rng_ctx);
 }
@@ -40,8 +47,14 @@ int lc_kyber_enc_internal(struct lc_kyber_ct *ct,
 			  const struct lc_kyber_pk *pk,
 			  struct lc_rng_ctx *rng_ctx)
 {
-	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
-		return lc_kyber_enc_avx(ct, ss, ss_len, pk, rng_ctx);
+	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) {
+		int ret;
+
+		LC_FPU_ENABLE;
+		ret = lc_kyber_enc_avx(ct, ss, ss_len, pk, rng_ctx);
+		LC_FPU_DISABLE;
+		return ret;
+	}
 
 	return lc_kyber_enc_c(ct, ss, ss_len, pk, rng_ctx);
 }
@@ -59,8 +72,14 @@ int, lc_kyber_dec, uint8_t *ss, size_t ss_len,
 		   const struct lc_kyber_ct *ct,
 		   const struct lc_kyber_sk *sk)
 {
-	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
-		return lc_kyber_dec_avx(ss, ss_len, ct, sk);
+	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) {
+		int ret;
+
+		LC_FPU_ENABLE;
+		ret = lc_kyber_dec_avx(ss, ss_len, ct, sk);
+		LC_FPU_DISABLE;
+		return ret;
+	}
 
 	return lc_kyber_dec_c(ss, ss_len, ct, sk);
 }
