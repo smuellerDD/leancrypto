@@ -46,7 +46,7 @@ void aes_v8_decrypt(const uint8_t *ct, uint8_t *pt,
 		    const struct aes_v8_block_ctx *aes_ctx);
 
 void aes_v8_ctr32_encrypt_blocks(const uint8_t *in, uint8_t *out, size_t blocks,
-				 const struct aes_aes_v8_block_ctx *aes_ctx,
+				 const struct aes_v8_block_ctx *aes_ctx,
 				 const uint8_t *iv);
 
 void aes_v8_ecb_encrypt(const uint8_t *in, uint8_t *out, size_t length,
