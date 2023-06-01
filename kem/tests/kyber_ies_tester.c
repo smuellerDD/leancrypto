@@ -120,12 +120,12 @@ static int kyber_ies_determinisitic(void)
 					ws->tag, sizeof(ws->tag),
 					cc, &cshake_rng));
 
-// 	bin2print(pk.pk, sizeof(pk.pk), stdout, "PK");
-// 	bin2print(sk.sk, sizeof(sk.sk), stdout, "SK");
-// 	bin2print(ct.ct, sizeof(ct.ct), stdout, "CT");
+//	bin2print(ws->pk.pk, sizeof(ws->pk.pk), stdout, "PK");
+//	bin2print(ws->sk.sk, sizeof(ws->sk.sk), stdout, "SK");
+//	bin2print(ws->ct.ct, sizeof(ws->ct.ct), stdout, "CT");
 //
-// 	bin2print(cipher, sizeof(cipher), stdout, "Ciphertext");
-// 	bin2print(tag, sizeof(tag), stdout, "Tag");
+//	bin2print(cipher, sizeof(cipher), stdout, "Ciphertext");
+//	bin2print(tag, sizeof(tag), stdout, "Tag");
 
 	if (memcmp(ws->cipher, exp_cipher, sizeof(exp_cipher))){
 		printf("Error in encryption of oneshot IES\n");
@@ -149,7 +149,7 @@ static int kyber_ies_determinisitic(void)
 
 	lc_aead_zero(cc);
 	CKINT(lc_kyber_ies_dec(&ws->sk, &ws->ct,
-			       ws->cipher, ws->plain_new, sizeof(ws->cipher),
+			       ws->cipher, ws->plain_new, sizeof(plain),
 			       NULL, 0,
 			       ws->tag, sizeof(ws->tag), cc));
 
@@ -161,8 +161,9 @@ static int kyber_ies_determinisitic(void)
 
 	lc_aead_zero(cc);
 	CKINT(lc_kyber_ies_dec_init(cc, &ws->sk, &ws->ct));
+
 	lc_kyber_ies_dec_update(cc,
-				ws->cipher, ws->plain_new, sizeof(ws->cipher));
+				ws->cipher, ws->plain_new, sizeof(plain));
 	CKINT(lc_kyber_ies_dec_final(cc, NULL, 0, ws->tag, sizeof(ws->tag)));
 	if (memcmp(plain, ws->plain_new, sizeof(plain))){
 		printf("Error in decryption of stream IES\n");
@@ -285,8 +286,12 @@ static int kyber_ies_tester(void)
 	int ret;
 
 	ret = kyber_ies_determinisitic();
-	ret += kyber_ies_nondeterministic();
+	if (ret)
+		goto out;
 
+	CKINT(kyber_ies_nondeterministic());
+
+out:
 	return ret;
 }
 
