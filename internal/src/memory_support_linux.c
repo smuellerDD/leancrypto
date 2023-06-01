@@ -95,8 +95,6 @@ int, lc_alloc_aligned_secure, void **memptr, size_t alignment, size_t size)
 	size_t full_size = LC_MEM_DEF_ALIGNED_OFFSET + size;
 	int ret, fd;
 
-	(void)alignment;
-
 	if (!lc_alloc_have_memfd_secret)
 		return alloc_aligned_secure_internal(memptr, alignment, size,
 						     1);
