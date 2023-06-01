@@ -299,18 +299,9 @@ void lc_hash_zero_free(struct lc_hash_ctx *hash_ctx);
  *
  * The hash calculation operates entirely on the stack.
  */
-static inline void lc_hash(const struct lc_hash *hash,
-			   const uint8_t *in, size_t inlen,
-			   uint8_t *digest)
-{
-	LC_HASH_CTX_ON_STACK(hash_ctx, hash);
-
-	lc_hash_init(hash_ctx);
-	lc_hash_update(hash_ctx, in, inlen);
-	lc_hash_final(hash_ctx, digest);
-
-	lc_hash_zero(hash_ctx);
-}
+void lc_hash(const struct lc_hash *hash,
+	     const uint8_t *in, size_t inlen,
+	     uint8_t *digest);
 
 /**
  * @brief Calculate message digest for SHAKE - one-shot
@@ -324,19 +315,9 @@ static inline void lc_hash(const struct lc_hash *hash,
  *
  * The hash calculation operates entirely on the stack.
  */
-static inline void lc_shake(const struct lc_hash *shake,
-			    const uint8_t *in, size_t inlen,
-			    uint8_t *digest, size_t digestlen)
-{
-	LC_HASH_CTX_ON_STACK(hash_ctx, shake);
-
-	lc_hash_init(hash_ctx);
-	lc_hash_update(hash_ctx, in, inlen);
-	lc_hash_set_digestsize(hash_ctx, digestlen);
-	lc_hash_final(hash_ctx, digest);
-
-	lc_hash_zero(hash_ctx);
-}
+void lc_shake(const struct lc_hash *shake,
+	      const uint8_t *in, size_t inlen,
+	      uint8_t *digest, size_t digestlen);
 
 #ifdef __cplusplus
 }
