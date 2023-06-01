@@ -165,7 +165,9 @@ void lc_seeded_rng_zero_state(void)
 	if (!rng)
 		return;
 	seeded_rng.rng_ctx = NULL;
-	lc_rng_zero(rng);
+
+	if (seeded_rng.last_seeded)
+		lc_rng_zero(rng);
 }
 
 static unsigned long time_after_now(unsigned long base)
