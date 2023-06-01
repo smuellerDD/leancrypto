@@ -82,7 +82,7 @@ struct lc_sym_ctx {
  * ensure that the underlying symmetric algorithm implementation buffer is
  * aligned to proper size.
  */
-#define LC_ALIGNED_SYM_BUFFER(name, symname, size)		       \
+#define LC_ALIGNED_SYM_BUFFER(name, symname, size)			       \
 	uint64_t name[(size + sizeof(uint64_t) - 1) / sizeof(uint64_t)]	       \
 			__attribute__((aligned(LC_SYM_ALIGNMENT(symname))))
 
