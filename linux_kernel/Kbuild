@@ -181,6 +181,14 @@ CONFIG_LEANCRYPTO_KEM=y
 #
 CONFIG_LEANCRYPTO_DILITHIUM=y
 
+############################ Power-Up Health Tests #############################
+
+#
+# Enable Power-Up health test for all algorithms
+# Dependencies: none
+#
+CONFIG_LEANCRYPTO_HEALTH_TEST=y
+
 ########################## No Changes Below This Line ##########################
 
 obj-m		 		:= leancrypto.o
@@ -188,6 +196,11 @@ obj-m		 		:= leancrypto.o
 # Kernel module framework
 ccflags-y			:= -I$(PWD) -DLINUX_KERNEL -DLC_MEM_ON_HEAP    \
 				   -DMAJVERSION=0 -DMINVERSION=5 -DPATCHLEVEL=3
+
+ifdef CONFIG_LEANCRYPTO_HEALTH_TEST
+ccflags-y			+= -DLC_SELFTEST_ENABLED
+endif
+
 ifdef CONFIG_ARM64
 ccflags-y			+= -mno-outline-atomics
 endif
