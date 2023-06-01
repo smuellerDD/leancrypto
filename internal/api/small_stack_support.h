@@ -36,20 +36,20 @@ extern "C"
 #define __LC_DECLARE_MEM_STACK(name, type, alignment)			       \
 	LC_ALIGNED_BUFFER_ALIGNMENTSIZE(name ## _buf, sizeof(type), alignment);\
 	type *name = (type *) name ## _buf
-#define __LC_RELEASE_MEM_STACK(name)	\
-	lc_memset_secure(name, 0, sizeof(name))
+#define __LC_RELEASE_MEM_STACK(name)					       \
+	lc_memset_secure(name, 0, sizeof(*name))
 
 /* Allocate memory on heap */
 #define __LC_DECLARE_MEM_HEAP(name, type, alignment)			       \
-	type *name;							       \
+	type *name = NULL;						       \
 	int __ret = lc_alloc_high_aligned((void *)&name, alignment,	       \
 					  sizeof(type));		       \
 	if (__ret || !name)						       \
 		return __ret
 
 #define __LC_RELEASE_MEM_HEAP(name)					       \
-	lc_memset_secure(name, 0, sizeof(name));			       \
-	lc_free_high_aligned(name, sizeof(name))
+	lc_memset_secure(name, 0, sizeof(*name));			       \
+	lc_free_high_aligned(name, sizeof(*name))
 
 /* Define macro LC_MEM_ON_HEAP if stack is less than 256KiB in size */
 #ifdef LC_MEM_ON_HEAP
