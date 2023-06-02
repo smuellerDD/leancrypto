@@ -24,7 +24,7 @@
 
 # include <asm/neon.h>
 
-# define LC_NEON_ENABLE	kernel_neon_begin()
+# define LC_NEON_ENABLE		kernel_neon_begin()
 # define LC_NEON_DISABLE	kernel_neon_end()
 
 #else /* LINUX_KERNEL */
