@@ -27,6 +27,8 @@
 # define LC_NEON_ENABLE		kernel_neon_begin()
 # define LC_NEON_DISABLE	kernel_neon_end()
 
+#define UINT64_C		U64_C
+
 #else /* LINUX_KERNEL */
 
 # define LC_NEON_ENABLE
