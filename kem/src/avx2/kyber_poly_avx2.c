@@ -77,18 +77,18 @@ void poly_compress_avx(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES],
 	for (i = 0; i < LC_KYBER_N / 32; i++) {
 		f0 = _mm256_load_si256(&a->vec[2 * i + 0]);
 		f1 = _mm256_load_si256(&a->vec[2 * i + 1]);
-		f0 = _mm256_mulhi_epi16(f0,v);
-		f1 = _mm256_mulhi_epi16(f1,v);
-		f0 = _mm256_mulhrs_epi16(f0,shift1);
-		f1 = _mm256_mulhrs_epi16(f1,shift1);
-		f0 = _mm256_and_si256(f0,mask);
-		f1 = _mm256_and_si256(f1,mask);
-		f0 = _mm256_packus_epi16(f0,f1);
-		f0 = _mm256_maddubs_epi16(f0,shift2);	// a0 a1 a2 a3 b0 b1 b2 b3 a4 a5 a6 a7 b4 b5 b6 b7
-		f0 = _mm256_madd_epi16(f0,shift3);		// a0 a1 b0 b1 a2 a3 b2 b3
-		f0 = _mm256_sllv_epi32(f0,sllvdidx);
-		f0 = _mm256_srlv_epi64(f0,sllvdidx);
-		f0 = _mm256_shuffle_epi8(f0,shufbidx);
+		f0 = _mm256_mulhi_epi16(f0, v);
+		f1 = _mm256_mulhi_epi16(f1, v);
+		f0 = _mm256_mulhrs_epi16(f0, shift1);
+		f1 = _mm256_mulhrs_epi16(f1, shift1);
+		f0 = _mm256_and_si256(f0, mask);
+		f1 = _mm256_and_si256(f1, mask);
+		f0 = _mm256_packus_epi16(f0, f1);
+		f0 = _mm256_maddubs_epi16(f0, shift2);	// a0 a1 a2 a3 b0 b1 b2 b3 a4 a5 a6 a7 b4 b5 b6 b7
+		f0 = _mm256_madd_epi16(f0, shift3);	// a0 a1 b0 b1 a2 a3 b2 b3
+		f0 = _mm256_sllv_epi32(f0, sllvdidx);
+		f0 = _mm256_srlv_epi64(f0, sllvdidx);
+		f0 = _mm256_shuffle_epi8(f0, shufbidx);
 		t0 = _mm256_castsi256_si128(f0);
 		t1 = _mm256_extracti128_si256(f0,1);
 		t0 = _mm_blendv_epi8(t0,t1,_mm256_castsi256_si128(shufbidx));
@@ -122,12 +122,18 @@ void poly_decompress_avx(poly * restrict r,
 	/* Due to const, the variables cannot be defined before */
 	LC_FPU_ENABLE;
 	const __m256i q = _mm256_load_si256(&kyber_qdata.vec[_16XQ/16]);
-	const __m256i shufbidx = _mm256_set_epi8(9,9,9,8,8,8,8,7,7,6,6,6,6,5,5,5,
-						4,4,4,3,3,3,3,2,2,1,1,1,1,0,0,0);
-	const __m256i mask = _mm256_set_epi16(248,1984,62,496,3968,124,992,31,
-						248,1984,62,496,3968,124,992,31);
-	const __m256i shift = _mm256_set_epi16(128,16,512,64,8,256,32,1024,
-						128,16,512,64,8,256,32,1024);
+	const __m256i shufbidx = _mm256_set_epi8(9, 9, 9, 8, 8, 8, 8, 7,
+						 7, 6, 6, 6, 6, 5, 5, 5,
+						 4, 4, 4, 3, 3, 3, 3, 2,
+						 2, 1, 1, 1, 1, 0, 0, 0);
+	const __m256i mask = _mm256_set_epi16( 248, 1984,  62, 496,
+					      3968,  124, 992,  31,
+					       248, 1984,  62, 496,
+					      3968,  124, 992,  31);
+	const __m256i shift = _mm256_set_epi16(128,  16, 512,   64,
+					         8, 256,  32, 1024,
+					       128,  16, 512,   64,
+					         8, 256,  32, 1024);
 #pragma GCC diagnostic pop
 
 	for (i = 0; i < LC_KYBER_N / 16; i++) {
@@ -135,10 +141,10 @@ void poly_decompress_avx(poly * restrict r,
 		memcpy(&ti, &a[10 * i + 8],2);
 		t = _mm_insert_epi16(t, ti, 4);
 		f = _mm256_broadcastsi128_si256(t);
-		f = _mm256_shuffle_epi8(f,shufbidx);
-		f = _mm256_and_si256(f,mask);
-		f = _mm256_mullo_epi16(f,shift);
-		f = _mm256_mulhrs_epi16(f,q);
+		f = _mm256_shuffle_epi8(f, shufbidx);
+		f = _mm256_and_si256(f, mask);
+		f = _mm256_mullo_epi16(f, shift);
+		f = _mm256_mulhrs_epi16(f, q);
 		_mm256_store_si256(&r->vec[i], f);
 	}
 	LC_FPU_DISABLE;
