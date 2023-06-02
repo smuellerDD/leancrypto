@@ -34,6 +34,9 @@
 #error "AVX2 support for Kyber mode 4 only"
 #endif
 
+//TODO remove from kernel code
+void poly_compress(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES],
+		   const poly * restrict a);
 /**
  * @brief poly_compress
  *
@@ -46,8 +49,11 @@
  * @param a pointer to input polynomial
  */
 void poly_compress_avx(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES],
-			const poly * restrict a)
+		       const poly * restrict a)
 {
+#ifdef LINUX_KERNEL
+	poly_compress(r, a);
+#else /* LINUX_KERNEL */
 	unsigned int i;
 	__m256i f0, f1;
 	__m128i t0, t1;
@@ -90,6 +96,7 @@ void poly_compress_avx(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES],
 		memcpy(&r[20 * i + 16], &t1, 4);
 	}
 	LC_FPU_DISABLE;
+#endif /* LINUX_KERNEL */
 }
 
 /**
@@ -103,7 +110,7 @@ void poly_compress_avx(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES],
  *	    LC_KYBER_POLYCOMPRESSEDBYTES bytes)
  */
 void poly_decompress_avx(poly * restrict r,
-			  const uint8_t a[LC_KYBER_POLYCOMPRESSEDBYTES])
+			 const uint8_t a[LC_KYBER_POLYCOMPRESSEDBYTES])
 {
 	unsigned int i;
 	__m128i t;
