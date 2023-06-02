@@ -33,7 +33,7 @@ struct lc_sym_state {
 	uint8_t iv[AES_BLOCKLEN];
 };
 
-#define LC_AES_AESNI_CTR_BLOCK_SIZE sizeof(struct lc_sym_state)
+#define LC_AES_ARMV8_CTR_BLOCK_SIZE sizeof(struct lc_sym_state)
 
 static void aes_armce_ctr96_inc(struct lc_sym_state *ctx)
 {
@@ -65,8 +65,8 @@ static void aes_armce_ctr_crypt(struct lc_sym_state *ctx,
 	LC_NEON_ENABLE;
 
 	while (blocks) {
-		ctr32 = ptr_to_be32(&ctx->iv[12]);
 		size_t todo;
+		ctr32 = ptr_to_be32(&ctx->iv[12]);
 
 		/* Cipher operation is limited to 32LSB of the counter */
 		ctr32 += (uint32_t)blocks;
@@ -157,7 +157,7 @@ static struct lc_sym _lc_aes_ctr_armce = {
 	.setiv		= aes_armce_ctr_setiv,
 	.encrypt	= aes_armce_ctr_crypt,
 	.decrypt	= aes_armce_ctr_crypt,
-	.statesize	= LC_AES_AESNI_CTR_BLOCK_SIZE,
+	.statesize	= LC_AES_ARMV8_CTR_BLOCK_SIZE,
 	.blocksize	= 1,
 };
 LC_INTERFACE_SYMBOL(
