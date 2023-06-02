@@ -17,6 +17,13 @@ Changes 0.6.0-prerelease:
 
 * enhancement: provide AES RISC-V 64 assembler implementation
 
+* enhancement: provide Linux kernel configuration option to enable startup
+  health tests
+
+* fix: apply fixes such that all self tests and regression tests pass when compiled for Linux kernel
+
+* fix: properly zeroize memory when using the workspace memory
+
 Changes 0.5.3:
 
 * convert to safe min/max implementations

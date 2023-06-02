@@ -19,10 +19,13 @@ have the following properties:
   there is no global state maintained for the algorithms,
 
 * stack-only support: all algorithms can be allocated on stack if needed. In
-  addition, allocation functions for a usage on heap is also supported, and
+  addition, allocation functions for a usage on heap is also supported,
 
-* minimizing footprint when statically linking by supporting dead-code
-  stripping.
+* size: minimizing footprint when statically linking by supporting dead-code
+  stripping, and
+
+* performance: provide optimized code invoked with minimal overhead, thus
+  significantly faster than other libraries like OpenSSL.
 
 ## Library Build
 
