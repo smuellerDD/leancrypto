@@ -302,8 +302,6 @@ leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
 endif
 
 ifdef CONFIG_X86_64
-ccflags-$(CONFIG_LEANCRYPTO_KEM)					       \
-				+= -mavx2 -mbmi2 -mpopcnt
 leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 				+= ../hash/src/shake_4x_avx2.o		       \
 				   ../hash/src/asm/AVX2_4x/KeccakP-1600-times4-SIMD256.o
