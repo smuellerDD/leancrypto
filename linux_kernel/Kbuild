@@ -195,7 +195,7 @@ obj-m		 		:= leancrypto.o
 
 # Kernel module framework
 ccflags-y			:= -I$(PWD) -DLINUX_KERNEL -DLC_MEM_ON_HEAP    \
-				   -DMAJVERSION=0 -DMINVERSION=5 -DPATCHLEVEL=3
+				   -DMAJVERSION=0 -DMINVERSION=6 -DPATCHLEVEL=0
 
 ifdef CONFIG_LEANCRYPTO_HEALTH_TEST
 ccflags-y			+= -DLC_SELFTEST_ENABLED
@@ -661,7 +661,8 @@ leancrypto-y	 		+= ../sym/src/sym.o
 
 leancrypto-$(CONFIG_LEANCRYPTO_AES)					       \
 				+= ../sym/src/aes.o			       \
-				   ../sym/src/aes_block.o
+				   ../sym/src/aes_block.o		       \
+				   ../sym/src/aes_selector.o
 
 ifdef CONFIG_X86_64
 leancrypto-$(CONFIG_LEANCRYPTO_AES)					       \
@@ -673,6 +674,8 @@ leancrypto-$(CONFIG_LEANCRYPTO_AES)					       \
 endif
 
 ifdef CONFIG_ARM64
+asflags-$(CONFIG_LEANCRYPTO_AES)					       \
+				+= -march=armv8-a+crypto
 leancrypto-$(CONFIG_LEANCRYPTO_AES)					       \
 				+= ../sym/src/asm/ARMv8/aes_armv8_ce.o\
 				   ../sym/src/aes_block_armce_v8.o

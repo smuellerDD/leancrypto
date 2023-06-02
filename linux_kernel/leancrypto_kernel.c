@@ -37,9 +37,11 @@ EXPORT_SYMBOL(lc_kyber_ies_enc_internal);
 EXPORT_SYMBOL(lc_kyber_ies_enc_init_internal);
 
 void sha3_fastest_impl(void);
+void aes_fastest_impl(void);
 static int __init leancrypto_init(void)
 {
 	sha3_fastest_impl();
+	aes_fastest_impl();
 	return 0;
 }
 
