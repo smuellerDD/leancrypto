@@ -40,7 +40,7 @@ static inline int mlock(const void *ptr, size_t len)
 extern const int errno;
 
 #define printf printk
-#define assert WARN_ON
+#define assert(x) WARN_ON(!x)
 
 #else /* LINUX_KERNEL */
 
