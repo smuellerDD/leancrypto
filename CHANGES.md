@@ -1,4 +1,4 @@
-Changes 0.6.0-prerelease:
+Changes 0.6.0:
 
 * enhancement: Linux - add memfd_secret(2) support for secure memory allocation
 
