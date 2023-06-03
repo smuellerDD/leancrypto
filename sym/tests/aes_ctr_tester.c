@@ -182,19 +182,63 @@ static void ctr_inc(uint8_t *iv)
 	}
 }
 
+#include "../src/asm/AESNI_x86_64/aes_aesni_x86_64.h"
+struct lc_sym_state_aesni {
+	struct aes_aesni_block_ctx enc_block_ctx;
+	uint8_t iv[AES_BLOCKLEN];
+};
+
+#include "../src/asm/ARMv8/aes_armv8_ce.h"
+struct lc_sym_state_armce {
+	struct aes_aesni_block_ctx enc_block_ctx;
+	uint8_t iv[AES_BLOCKLEN];
+};
+
 static int ctr_tester_one(uint8_t *iv, uint64_t *iv128)
 {
+	LC_SYM_CTX_ON_STACK(aesni, lc_aes_ctr_aesni);
+	LC_SYM_CTX_ON_STACK(aes_armce, lc_aes_ctr_armce);
 	uint8_t buffer64[AES_BLOCKLEN];
+	uint8_t data[AES_BLOCKLEN];
+	uint8_t key[2 * AES_BLOCKLEN];
 	unsigned int i;
 	int ret = 0;
+
+	lc_sym_init(aesni);
+	CKINT(lc_sym_setkey(aesni, key, sizeof(key)));
+	CKINT(lc_sym_setiv(aesni, iv, AES_BLOCKLEN));
+
+	lc_sym_init(aes_armce);
+	CKINT(lc_sym_setkey(aes_armce, key, sizeof(key)));
+	CKINT(lc_sym_setiv(aes_armce, iv, AES_BLOCKLEN));
 
 	for (i = 0; i < 10; i++) {
 		ctr_inc(iv);
 		ctr128_inc(iv128);
 		ctr128_to_ptr(buffer64, iv128);
-		ret = lc_compare(buffer64, iv, sizeof(iv),
-				 "CTR 64 maintenance");
+		CKINT(lc_compare(buffer64, iv, AES_BLOCKLEN,
+				 "CTR 64 maintenance"));
+
+		/* Test counter management for AESNI implementation */
+		if (lc_aes_ctr_aesni != lc_aes_ctr_c) {
+			lc_sym_encrypt(aesni, data, data, sizeof(data));
+			CKINT(lc_compare(buffer64,
+					 ((struct lc_sym_state_aesni *)(aesni->sym_state))->iv,
+					 AES_BLOCKLEN,
+					 "CTR AESNI maintenance"));
+		}
+
+		/* Test counter management for ARM-CE implementation */
+		if (lc_aes_ctr_armce != lc_aes_ctr_c) {
+			lc_sym_encrypt(aes_armce, data, data, sizeof(data));
+			CKINT(lc_compare(buffer64,
+					 ((struct lc_sym_state_armce *)(aes_armce->sym_state))->iv,
+					 AES_BLOCKLEN,
+					 "CTR ARM-CE maintenance"));
+		}
 	}
+
+out:
 	return ret;
 }
 
