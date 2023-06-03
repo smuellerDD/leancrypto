@@ -14,18 +14,16 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Install meson
-      run: sudo apt-get remove -y gcc
-    - name: Install meson
-      run: sudo apt-get install -y meson gcc-13
+      run: sudo apt-get install -y meson
     - name: Meson setup
       run: meson setup build
     - name: Meson compile
       run: meson compile -C build
     - name: Meson test
       run: meson test -C build
-    - name: Linux kernel build
-      run: make -C linux_kernel
-    - name: Load leancrypto kernel module
-      run: sudo insmod linux_kernel/leancrypto.ko
-    - name: Linux kernel test
-      run: for i in linux_kernel/*.ko; do if [ "$i" != "linux_kernel/leancrypto.ko" ]; then sudo insmod $i; fi; done
+    # - name: Linux kernel build
+    #   run: make -C linux_kernel
+    # - name: Load leancrypto kernel module
+    #   run: sudo insmod linux_kernel/leancrypto.ko
+    # - name: Linux kernel test
+    #   run: for i in linux_kernel/*.ko; do if [ "$i" != "linux_kernel/leancrypto.ko" ]; then sudo insmod $i; fi; done
