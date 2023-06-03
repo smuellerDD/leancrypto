@@ -14,7 +14,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Install meson
-      run: sudo apt-get install -y
+      run: sudo apt-get install -y meson #gcc-12
     - name: Meson setup
       run: meson setup build
     - name: Meson compile
@@ -22,7 +22,7 @@ jobs:
     - name: Meson test
       run: meson test -C build
     # - name: Linux kernel build
-    #   run: make -C linux_kernel
+    #   run: make -C linux_kernel CC=gcc-12
     # - name: Load leancrypto kernel module
     #   run: sudo insmod linux_kernel/leancrypto.ko
     # - name: Linux kernel test
