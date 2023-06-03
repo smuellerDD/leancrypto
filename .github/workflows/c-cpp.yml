@@ -14,6 +14,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Install meson
+      run: sudo apt-get remove -y gcc
+    - name: Install meson
       run: sudo apt-get install -y meson gcc-13
     - name: Meson setup
       run: meson setup build
