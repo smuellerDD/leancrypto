@@ -61,9 +61,14 @@ memcmp_secure_256(const void *s1, const void *s2, size_t n)
 {
 	if ((lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) &&
 	    memcmp_secure_aligned(s1, sizeof(__m256i) - 1) &&
-	    memcmp_secure_aligned(s2, sizeof(__m256i) - 1))
-		return memcmp_secure_256_avx2_aligned(s1, s2, n);
-	else
+	    memcmp_secure_aligned(s2, sizeof(__m256i) - 1)) {
+		int ret;
+
+		LC_FPU_ENABLE;
+		ret = memcmp_secure_256_avx2_aligned(s1, s2, n);
+		LC_FPU_DISABLE;
+		return ret;
+	}
 
 	return memcmp_secure_64(s1, s2, n);
 }
