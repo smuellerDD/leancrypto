@@ -76,6 +76,6 @@ if get_option('aes_cbc').enabled()
 				)
 
 	test('AEAD Sym HMAC', symhmac_test)
-	#test('AEAD Sym HMAC 1GB', symhmac_large_test,
-	#     timeout: 2500, is_parallel: false)
+	test('AEAD Sym HMAC 1GB', symhmac_large_test,
+	     timeout: 2500, is_parallel: false)
 endif

@@ -30,7 +30,7 @@
 
 static int symhmac_tester_large(void)
 {
-	LC_SH_CTX_ON_STACK(sh, lc_aes_ctr, lc_sha3_512_c);
+	LC_SH_CTX_ON_STACK(sh, lc_aes_cbc, lc_sha3_512);
 	uint8_t tag[64];
 	uint8_t *pt;
 	uint8_t aad[] = {
