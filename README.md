@@ -225,7 +225,7 @@ ACVP certificates covering all ciphers and their implementations testable by NIS
 
 - [A3774 AES-NI accelerated cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=36384)
 
-- [A3775 RISC-V assembler cipher implementations](AVX2 accelerated cipher implementations)
+- [A3775 RISC-V assembler cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=36385)
 
 - [A3776 ARMv8 assembler cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=36386)
 
