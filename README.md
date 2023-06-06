@@ -213,15 +213,38 @@ protect memory with sensitive data.
 
 ## ACVP Testing
 
-ACVP certificate: A770
+ACVP certificates covering all ciphers and their implementations testable by NIST:
 
-https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?product=13214
+- [A3770 non-accelerated C cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=36380)
+
+- [A3771 AVX2 accelerated cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=36381)
+
+- [A3772 4-way SIMD accelerated cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=36382)
+
+- [A3773 AVX512 accelerated cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=36383)
+
+- [A3774 AES-NI accelerated cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=36384)
+
+- [A3775 RISC-V assembler cipher implementations](AVX2 accelerated cipher implementations)
+
+- [A3776 ARMv8 assembler cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=36386)
+
+- [A3777 ARMv8 Crypto Extensions cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=36387)
+
+- [A3778 ARMv7 NEON cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=36388)
+
+The testing covered the following platforms:
+
+- x86_64 systems: Intel Tiger Lake i7, Intel Alder Lake i7, AMD Ryzen 9 5950X
+
+- RISC-V system: SiFive Unmatched board with U74 SiFive Freedom U740 SoC
+
+- ARMv7: NXP Cortex-A7 i.MX6ULZ
+
+- ARMv8: Apple M2, Broadcom BCM2711
 
 The test harness is available at https://github.com/smuellerDD/acvpparser
 covering all algorithm implementations of algorithms that are testable.
-
-All algorithms were tested with NIST's ACVP service without obtaining an
-official certificate.
 
 # Author
 

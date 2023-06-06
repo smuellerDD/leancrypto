@@ -9,7 +9,7 @@ Changes 0.6.0:
 
 * enhancement: use -Wmissing-prototypes and fix reported issues
 
-* enhancement: provde standalone CBC, CTR, KW implementation
+* enhancement: provide standalone CBC, CTR, KW implementation
 
 * enhancement: provide AESNI implementation
 
