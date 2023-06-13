@@ -34,7 +34,7 @@ extern "C"
 #define CKINT_LOG(x, ...) {						\
 	ret = x;							\
 	if (ret < 0) {							\
-		logger(LOGGER_ERR, LOGGER_C_ANY, __VA_ARGS__);		\
+		printf(__VA_ARGS__);					\
 		goto out;						\
 	}								\
 }
@@ -48,7 +48,7 @@ extern "C"
 
 #define CKNULL_LOG(v, r, ...) {						\
 	if (!v) {							\
-		logger(LOGGER_ERR, LOGGER_C_ANY, __VA_ARGS__);		\
+		printf(__VA_ARGS__);					\
 		ret = r;						\
 		goto out;						\
 	}								\
