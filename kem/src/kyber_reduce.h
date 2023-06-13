@@ -69,7 +69,7 @@ static inline int16_t montgomery_reduce(int32_t a)
 static inline int16_t barrett_reduce(int16_t a)
 {
 	int16_t t;
-	const int16_t v = ((1<<26) + LC_KYBER_Q / 2)/ LC_KYBER_Q;
+	static const int16_t v = ((1<<26) + LC_KYBER_Q / 2)/ LC_KYBER_Q;
 
 	t  = (int16_t)(((int32_t)v * a + (1<<25)) >> 26);
 	t *= LC_KYBER_Q;
