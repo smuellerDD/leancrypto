@@ -22,10 +22,13 @@ have the following properties:
   addition, allocation functions for a usage on heap is also supported,
 
 * size: minimizing footprint when statically linking by supporting dead-code
-  stripping, and
+  stripping,
 
 * performance: provide optimized code invoked with minimal overhead, thus
-  significantly faster than other libraries like OpenSSL.
+  significantly faster than other libraries like OpenSSL, and
+
+* testable: all algorithm implementations are directly accessible via their
+  data structures at runtime.
 
 ## Library Build
 
