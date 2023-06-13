@@ -247,7 +247,7 @@ static inline void lc_kmac_zero(struct lc_kmac_ctx *kmac_ctx)
 /**
  * @brief Return the MAC size
  *
- * @param [in] kmac_ctx KMAC context to be zeroized
+ * @param [in] kmac_ctx KMAC context
  *
  * @return MAC size
  */
