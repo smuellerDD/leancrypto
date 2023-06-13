@@ -64,18 +64,37 @@ if get_option('cshake_drng').enabled()
 endif
 
 if get_option('aes_cbc').enabled()
-	symhmac_test = executable('symhmac_test',
+	if get_option('sha2-512').enabled()
+		symhmac_test = executable('symhmac_test',
 				[ 'symhmac_test.c', internal_src ],
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto
 				)
-	symhmac_large_test = executable('symhmac_large_test',
+		symhmac_large_test = executable('symhmac_large_test',
 				[ 'symhmac_large_test.c', internal_src ],
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto
 				)
 
-	test('AEAD Sym HMAC', symhmac_test)
-	test('AEAD Sym HMAC 1GB', symhmac_large_test,
-	     timeout: 2500, is_parallel: false)
+		test('AEAD Sym HMAC', symhmac_test)
+		test('AEAD Sym HMAC 1GB', symhmac_large_test,
+		     timeout: 2500, is_parallel: false)
+	endif
+
+	if get_option('kmac').enabled()
+		symkmac_test = executable('symkmac_test',
+				[ 'symkmac_test.c', internal_src ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto
+				)
+		symkmac_large_test = executable('symkmac_large_test',
+				[ 'symkmac_large_test.c', internal_src ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto
+				)
+
+		test('AEAD Sym KMAC', symkmac_test)
+		test('AEAD Sym KMAC 1GB', symkmac_large_test,
+		     timeout: 2500, is_parallel: false)
+	endif
 endif
