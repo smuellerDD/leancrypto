@@ -55,7 +55,7 @@
  * inserted into the symmetric algorithm.
  *
  * The size of the key is defined to be 256 bits. The size of the IV is
- * defined by the choise symmetric algorithm.
+ * defined by the choice symmetric algorithm.
  *
  * As part of the authentication, the algorithm allows the addition of
  * additional authenticated data (AAD) of arbitrary size. This AAD is inserted
@@ -294,6 +294,7 @@ static void lc_sh_selftest(int *tested, const char *impl)
 			act_tag, sizeof(act_tag));
 	snprintf(status, sizeof(status), "%s encrypt", impl);
 	lc_compare_selftest(act_ct, exp_ct, sizeof(exp_ct), status);
+	lc_compare_selftest(act_tag, exp_tag, sizeof(exp_tag), status);
 	lc_aead_zero(sh);
 
 	lc_aead_setkey(sh, in, sizeof(in), in, 16);
