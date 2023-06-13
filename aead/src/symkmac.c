@@ -315,13 +315,15 @@ static int lc_kh_setkey(void *state,
 	struct lc_kh_cryptor *kh = state;
 	struct lc_sym_ctx *sym = &kh->sym;
 	struct lc_kmac_ctx *auth_ctx = &kh->auth_ctx;
+	struct lc_hash_ctx *hash_ctx = &auth_ctx->hash_ctx;
+	const struct lc_hash *hash_algo = hash_ctx->hash;
 	uint8_t keystream[(256 / 8) * 2];
 	static int tested = 0;
 	int ret;
 
 	lc_kh_selftest(&tested, "Sym/KMAC AEAD");
 
-	lc_kmac(kh->cshake, key, keylen, NULL, 0, NULL, 0,
+	lc_kmac(hash_algo, key, keylen, NULL, 0, NULL, 0,
 		keystream, sizeof(keystream));
 
 	/* Initialize the symmetric algorithm */

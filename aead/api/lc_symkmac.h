@@ -33,7 +33,6 @@ extern "C"
 struct lc_kh_cryptor {
 	struct lc_sym_ctx sym;
 	struct lc_kmac_ctx auth_ctx;
-	const struct lc_hash *cshake;
 };
 
 #define LC_KH_STATE_SIZE(sym, hash)					       \
@@ -51,8 +50,7 @@ extern const struct lc_aead *lc_symkmac_aead;
 			(sizeof(struct lc_kh_cryptor)));		       \
 	_LC_KMAC_SET_CTX((&name->auth_ctx), hash, name,			       \
 			 (sizeof(struct lc_kh_cryptor) +		       \
-			 LC_SYM_STATE_SIZE(symalgo)));			       \
-	name->cshake = hash
+			 LC_SYM_STATE_SIZE(symalgo)))
 
 #define LC_KH_SET_CTX(name, sym, hash)					       \
 	LC_AEAD_CTX(name, lc_symkmac_aead);				       \
