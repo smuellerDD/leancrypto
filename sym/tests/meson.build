@@ -73,6 +73,13 @@ if get_option('aes_cbc').enabled()
 							  '../src' ],
 					dependencies: leancrypto
 					)
+	aes_cbc_large_tester = executable('aes_cbc_large_tester',
+					[ 'aes_cbc_large_tester.c',
+					internal_src ],
+					include_directories: [ include_internal_dirs,
+							  '../src' ],
+					dependencies: leancrypto
+					)
 	aes_cbc_c_large_tester = executable('aes_cbc_c_large_tester',
 					[ 'aes_cbc_c_large_tester.c',
 					internal_src ],
@@ -115,8 +122,8 @@ if get_option('aes_cbc').enabled()
 
 	test('Symmetric AES CBC encryption', aes_cbc_enc_tester)
 	test('Symmetric AES CBC decryption', aes_cbc_dec_tester)
-#	test('AES CBC C 1GB', aes_cbc_c_large_tester, timeout: 300)
-#	test('AES CBC AESNI 1GB', aes_cbc_aesni_large_tester, timeout: 300)
+	test('AES CBC C 1GB', aes_cbc_c_large_tester, timeout: 300)
+	test('AES CBC Accel 1GB', aes_cbc_large_tester, timeout: 300)
 #	test('AES CBC OpenSSL 1GB', aes_cbc_openssl_large_tester, timeout: 300)
 endif
 
