@@ -1,0 +1,23 @@
+name: User space CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install meson
+      run: sudo apt-get install -y meson
+    - name: Meson setup
+      run: meson setup build
+    - name: Meson compile
+      run: meson compile -C build
+    - name: Meson test
+      run: meson test -C build
