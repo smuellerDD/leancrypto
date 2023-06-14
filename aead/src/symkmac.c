@@ -77,15 +77,11 @@
  * The caller must ensure that the input bit string is a multiple of the block
  * size.
  *
- * The "HASH" algorithm denotes an arbitrary hash algorithm such as [FIPS180-4].
- * The "HASH" algorithm is used to instantiate the following algorithms. The
- * following algorithms are required to use the same "HASH" algorithm. The
- * type of the hash algorithm must be selected by the caller.
- *
  * The KMAC-hash denotes the KMACXOF256 function [SP800-185]
- * instantiated with cSHAKE 256 [FIPS202]. The KMAC-hash has 4 arguments:
- * the key K, the main input bit string X, the requested output length L in
- * bits, and an optional customization bit string S.
+ * instantiated with either cSHAKE 256 or cSHAKE 128 [FIPS202] depending on the
+ * use case. The KMAC-hash has 4 arguments: the key K, the main input bit string
+ * X, the requested output length L in bits, and an optional customization bit
+ * string S.
  *
  * The inputs to the KMAC-hash function are specified with references to these
  * parameters.

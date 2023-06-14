@@ -82,19 +82,33 @@ if get_option('aes_cbc').enabled()
 	endif
 
 	if get_option('kmac').enabled()
-		symkmac_test = executable('symkmac_test',
-				[ 'symkmac_test.c', internal_src ],
+		symkmac256_test = executable('symkmac256_test',
+				[ 'symkmac256_test.c', internal_src ],
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto
 				)
-		symkmac_large_test = executable('symkmac_large_test',
-				[ 'symkmac_large_test.c', internal_src ],
+		symkmac256_large_test = executable('symkmac256_large_test',
+				[ 'symkmac256_large_test.c', internal_src ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto
+				)
+		symkmac128_test = executable('symkmac128_test',
+				[ 'symkmac128_test.c', internal_src ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto
+				)
+		symkmac128_large_test = executable('symkmac128_large_test',
+				[ 'symkmac128_large_test.c', internal_src ],
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto
 				)
 
-		test('AEAD Sym KMAC', symkmac_test)
-		test('AEAD Sym KMAC 1GB', symkmac_large_test,
+		test('AEAD Sym KMAC256', symkmac256_test)
+		test('AEAD Sym KMAC256 1GB', symkmac256_large_test,
+		     timeout: 2500, is_parallel: false)
+
+		test('AEAD Sym KMAC128', symkmac128_test)
+		test('AEAD Sym KMAC128 1GB', symkmac128_large_test,
 		     timeout: 2500, is_parallel: false)
 	endif
 endif
