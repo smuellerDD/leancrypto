@@ -83,6 +83,39 @@ if get_option('cshake_drng').enabled()
 	     is_parallel: false)
 endif
 
+if get_option('xdrbg256').enabled()
+	xdrbg256_tester = executable('xdrbg256_tester',
+				   [ 'xdrbg256_tester.c',
+				     internal_src ],
+				   include_directories: [ include_internal_dirs ],
+				   dependencies: leancrypto
+				   )
+	xdrbg256_tester_large = executable('xdrbg256_tester_large',
+				   [ 'xdrbg256_tester_large.c',
+				     internal_src ],
+				   include_directories: [ include_internal_dirs ],
+				   dependencies: leancrypto
+				   )
+	xdrbg256_tester_large_c = executable('xdrbg256_tester_large_c',
+				   [ 'xdrbg256_tester_large_c.c',
+				     internal_src ],
+				   include_directories: [ include_internal_dirs ],
+				   dependencies: leancrypto
+				   )
+	xdrbg256_tester_output = executable('xdrbg256_tester_output',
+				   [ 'xdrbg256_tester_output.c',
+				     internal_src ],
+				   include_directories: [ include_internal_dirs ],
+				   dependencies: leancrypto
+				   )
+
+	test('DRNG XDRBG 256', xdrbg256_tester)
+	test('DRNG XDRBG 256 Accel 1GB', xdrbg256_tester_large, timeout: 600,
+	     is_parallel: false)
+	test('DRNG XDRBG 256 C 1GB', xdrbg256_tester_large_c, timeout: 600,
+	     is_parallel: false)
+endif
+
 if get_option('drbg_hash').enabled()
 	hash_sha2_drbg_tester = executable('hash_sha2_drbg_tester',
 				[ 'hash_drbg_tester.c', internal_src ],

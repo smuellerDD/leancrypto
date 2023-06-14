@@ -116,9 +116,6 @@ static inline void lc_rng_zero_free(struct lc_rng_ctx *ctx)
  *
  * Generate random numbers and fill the buffer provided by the caller.
  *
- * The generation operation updates the KMAC DRNG state at the same time
- * the random bit stream is generated to achieve backtracking resistance.
- *
  * @return 0 upon success; < 0 on error
  */
 static inline int

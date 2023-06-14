@@ -30,6 +30,14 @@ if get_option('cshake_drng').enabled()
 	lc_rng_header = 1
 endif
 
+if get_option('xdrbg256').enabled()
+	src += files([ 'xdrbg256.c' ])
+	include_files += files([ '../api/lc_xdrbg256.h' ])
+	conf_data.set('LC_DRNG_XDRBG_256', 1)
+	seeded_rng = 1
+	lc_rng_header = 1
+endif
+
 if get_option('drbg_hash').enabled()
 	src += files([ 'hash_drbg.c' ])
 	include_files += files([ '../api/lc_hash_drbg.h' ])

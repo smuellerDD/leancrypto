@@ -83,7 +83,7 @@
  *
  * The cSHAKE-hash denotes the cSHAKE256 function [SP800-185]. The cSHAKE-hash
  * has 4 arguments: the main input bit string X, the requested output length L
- * in bits, a function-name bit string, and an optional customization bit
+ * in bits, a function-name bit string N, and an optional customization bit
  * string S.
  *
  * The inputs to the cSHAKE-hash function are specified with references to these
@@ -95,14 +95,14 @@
  *
  * Inputs:
  *   K(N): The current cSHAKE DRNG key used by the current instance of the
- *         cSHAKE DRNG. If the cSHAKE DRNG is initialized and therefore no current
- *         key exists, a zero string of 512 bits size is used.
+ *         cSHAKE DRNG. If the cSHAKE DRNG is initialized and therefore no
+ *         current key exists, a zero string of 512 bits size is used.
  *
  *   seed: The caller-provided seed material that contains entropy.
  *
  * Output:
- *   K(N + 1): A new cSHAKE DRNG key that is used for instantiating the cSHAKE hash
- *             during the next generate or seed phase.
+ *   K(N + 1): A new cSHAKE DRNG key that is used for instantiating the cSHAKE
+ *             hash during the next generate or seed phase.
  *
  * The seeding of the cSHAKE DRNG is performed as follows:
  *
@@ -113,7 +113,8 @@
  *
  * 2.3. Generating One Block of Random Bit Stream
  *
- * cSHAKE-Generate(K(N), additional input, length) -> K(N + 1), random bit stream
+ * cSHAKE-Generate(K(N), additional input, length) ->
+ *						 K(N + 1), random bit stream
  *
  * Inputs:
  *   K(N): The current cSHAKE DRNG key of 512 bits size.

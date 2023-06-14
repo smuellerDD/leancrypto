@@ -14,3 +14,5 @@
   What about older compilers?
 
 - poly_compress_avx does not work when compiled for Linux kernel
+
+- add XDRBG256 to kernel support
