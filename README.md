@@ -118,6 +118,8 @@ Leancrypto offers various cryptographic algorithms:
 
   * KMAC-based PRNG - see `kmac_drng.c` for full specification
 
+  * SHAKE-based PRNG
+
   * SP800-90A Hash and HMAC DRBG
 
   * ChaCha20-based PRNG - see https://www.chronox.de/lrng.html for specification
