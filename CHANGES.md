@@ -1,10 +1,10 @@
 Changes 0.7.0-prerelease:
 
-* add XDRBG256 - the SHAKE256-based DRNG discussed for SP800-90A inclusion
-  (almost idential to cSHAKE/KMAC DRNG specified with leancrypto)
+* enhancement: add XDRBG256 - the SHAKE256-based DRNG discussed for SP800-90A
+  inclusion (almost idential to cSHAKE/KMAC DRNG specified with leancrypto)
 
-* add SymKMAC AEAD algorithm - it uses 100 bytes less context than SymHMAC (it
-  is less than 1024 bytes now), uses accelerated Keccak for KDF and
+* enhancement: add SymKMAC AEAD algorithm - it uses 100 bytes less context than
+  SymHMAC (it is less than 1024 bytes now), uses accelerated Keccak for KDF and
   authentication but is otherwise identical to SymHMAC
 
 Changes 0.6.0:

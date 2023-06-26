@@ -35,7 +35,7 @@ static inline void xdrbg256_shake_final(struct lc_hash_ctx *shake_ctx,
 
 static void xdrbg256_drng_selftest(int *tested, const char *impl)
 {
-	uint8_t seed[] = {
+	static const uint8_t seed[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
 	};
 	static const uint8_t exp[] = {
@@ -137,7 +137,6 @@ lc_xdrbg256_drng_generate(void *_state,
 		return -EINVAL;
 
 	while (outlen) {
-		// TODO: is maxout l + |V| or just l?
 		size_t todo = min_size(outlen, LC_XDRBG256_DRNG_MAX_CHUNK);
 
 		/* Instantiate SHAKE with V', generate V */

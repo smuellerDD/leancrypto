@@ -167,7 +167,8 @@
  *
  * 2.5 Decryption Operation
  *
- * SymKMAC-Decrypt(key, IV, ciphertext, AAD, tag) -> plaintext, authentication result
+ * SymKMAC-Decrypt(key, IV, ciphertext, AAD, tag) ->
+ *						plaintext, authentication result
  *
  * Input:
  *   key: The caller-provided key of size 256 bits
@@ -415,10 +416,8 @@ lc_kh_decrypt(void *state,
 	lc_sym_decrypt(sym, ciphertext, plaintext, datalen);
 
 	/* Safety-measure to avoid leaking data */
-	if (trailing_bytes) {
-		memset(plaintext + datalen - trailing_bytes, 0,
-		       trailing_bytes);
-	}
+	if (trailing_bytes)
+		memset(plaintext + datalen - trailing_bytes, 0, trailing_bytes);
 
 }
 
@@ -451,9 +450,8 @@ lc_kh_decrypt_oneshot(void *state,
 	 * To ensure constant time between passing and failing decryption,
 	 * this code first performs the decryption. The decryption results
 	 * will need to be discarded if there is an authentication error. Yet,
-	 * in case of an authentication error, an attacker cannot deduct
-	 * that there is such an error from the timing analysis of this
-	 * function.
+	 * in case of an authentication error, an attacker cannot deduct that
+	 * there is such an error from the timing analysis of this function.
 	 */
 	/* Confidentiality protection: decrypt data */
 	lc_kh_decrypt(kh, ciphertext, plaintext, datalen);

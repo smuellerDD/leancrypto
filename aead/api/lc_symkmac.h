@@ -78,8 +78,8 @@ int lc_kh_alloc(const struct lc_sym *sym, const struct lc_hash *hash,
  *		   used for the encryption / decryption operation
  * @param [in] hash KMAC implementation KMAC authentication - use lc_cshake256
  *		    or lc_cshake128 (though, note: the lc_cshake256 has a lower
- *		    memory footprint, is faster and has a higher security
- *		    strength which implies that it would be the natural choice)
+ *		    memory footprint, and has a higher security strength, yet
+ *		    cSHAKE128 may be a bit faster)
  */
 #define LC_KH_CTX_ON_STACK(name, sym, hash)		      		       \
 	_Pragma("GCC diagnostic push")					       \

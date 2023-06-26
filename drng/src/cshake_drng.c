@@ -100,6 +100,10 @@
  *
  *   seed: The caller-provided seed material that contains entropy.
  *
+ *   personalization string: An arbitrary string that may be used to achieve
+ *                           domain separation. This string has an arbitrary
+ *                           length and is allowed to be NULL.
+ *
  * Output:
  *   K(N + 1): A new cSHAKE DRNG key that is used for instantiating the cSHAKE
  *             hash during the next generate or seed phase.
@@ -123,10 +127,10 @@
  *                     alter the generated random bit stream.
  *
  *   length: The length of the random bit stream to be generated in bits. The
- *           length must be smaller or equal to 100 times the cSHAKE block
+ *           length must be smaller or equal to 100 times the cSHAKE rate
  *           size minus 512 (equals to 108,288 bits). This ensures that the
  *           entire maximum of data to be squeezed from KECCAK equals to a
- *           multiple of full cSHAKE blocks.
+ *           multiple of full cSHAKE rate blocks.
  *
  * Outputs:
  *   K(N + 1): A new cSHAKE DRNG key that is used for instantiating the cSHAKE
@@ -281,7 +285,7 @@
 
 static void cshake256_drng_selftest(int *tested, const char *impl)
 {
-	uint8_t seed[] = {
+	static const uint8_t seed[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
 	};
 	static const uint8_t exp[] = {

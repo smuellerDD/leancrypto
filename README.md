@@ -106,7 +106,11 @@ Leancrypto offers various cryptographic algorithms:
   * KMAC-based AEAD algorithm - algorithm devised with leancrypto,
     see `kmac_crypt.c` for full specification
 
-  * AES-based AEAD algorithm - see `symhmac_crypt.c` for full specification
+  * AES-based AEAD algorithm using SHA2 - see `symhmac_crypt.c` for full
+    specification
+
+  * AES-based AEAD algorithm using Keccak-based KMAC - see `symkmac_crypt.c` for
+    full specification
 
 * Pseudo Random Number Generators
 
