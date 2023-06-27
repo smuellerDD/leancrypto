@@ -107,6 +107,7 @@ check_copyright_date() {
 
 # Cleanup code base
 # $1 repository destination
+# $@ skipped destinations
 code_cleanup() {
 	local targetdir=$1
 	shift
@@ -114,16 +115,11 @@ code_cleanup() {
 	for i in $(find $targetdir -type f)
 	do
 
-		if [ x"$(basename $0)" = x"$(basename $i)" ]
-		then
-			continue
-		fi
-
 		skip=0
 
 		for j in $@
 		do
-			if [ x"${i##$j}" != x"$i" ]
+			if (echo $i | grep -q $j)
 			then
 				skip=1
 				break
@@ -136,7 +132,6 @@ code_cleanup() {
 		fi
 	done
 }
-
 
 # Check for a clean code using cppcheck
 # $@ files to check
@@ -234,10 +229,10 @@ prepare_gitrepo() {
 		cd $target
 	fi
 
-	code_cleanup .
+	check_reposanity $version
 	[ $? -ne 0 ] && exit 1
 
-	check_reposanity $version
+	code_cleanup $(pwd) ".git" build $0
 	[ $? -ne 0 ] && exit 1
 
 	check_only_signed_commits
