@@ -140,6 +140,12 @@ CONFIG_LEANCRYPTO_KMAC_DRNG=y
 #
 CONFIG_LEANCRYPTO_CSHAKE_DRNG=y
 
+#
+# Enable SHAKE-based DRNG
+# Dependencies: CONFIG_LEANCRYPTO_SHA3
+#
+CONFIG_LEANCRYPTO_XDRBG256_DRNG=y
+
 ########################### Key Derivation Functions ###########################
 
 #
@@ -369,8 +375,9 @@ endif
 leancrypto-$(CONFIG_LEANCRYPTO_SYMKMAC_CRYPT)				       \
 				+= ../aead/src/symkmac.o
 ifdef CONFIG_LEANCRYPTO_SYMKMAC_CRYPT
-obj-m		  		+= symkmac_test.o
-symkmac_test-y	  		+= ../aead/tests/symkmac_test.o
+obj-m		  		+= symkmac256_test.o symkmac128_test.o
+symkmac256_test-y	  	+= ../aead/tests/symkmac256_test.o
+symkmac128_test-y	  	+= ../aead/tests/symkmac128_test.o
 endif
 
 leancrypto-$(CONFIG_LEANCRYPTO_HASH_CRYPT)				       \
@@ -432,6 +439,13 @@ leancrypto-$(CONFIG_LEANCRYPTO_CSHAKE_DRNG)				       \
 ifdef CONFIG_LEANCRYPTO_CSHAKE_DRNG
 obj-m				+= cshake_drng_tester.o
 cshake_drng_tester-y		+= ../drng/tests/cshake_drng_tester.o
+endif
+
+leancrypto-$(CONFIG_LEANCRYPTO_XDRBG256_DRNG)				       \
+				+= ../drng/src/xdrbg256.o
+ifdef CONFIG_LEANCRYPTO_XDRBG256_DRNG
+obj-m				+= xdrbg256_tester.o
+xdrbg256_tester-y		+= ../drng/tests/xdrbg256_tester.o
 endif
 
 # HMAC implementation
