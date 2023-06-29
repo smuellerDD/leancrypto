@@ -88,8 +88,8 @@ static int kyber_kex_tester(void)
 		struct lc_kyber_pk pk_i;
 		struct lc_kyber_sk sk_i;
 
-		struct lc_kyber_pk pk_e_r;
-		struct lc_kyber_ct ct_e_r, ct_e_i, ct_e_i_1, ct_e_i_2;
+		struct lc_kyber_pk pk_e_i;
+		struct lc_kyber_ct ct_e_r, ct_e_i, ct_e_r_1, ct_e_r_2;
 		struct lc_kyber_sk sk_e;
 
 		struct lc_kyber_ss tk;
@@ -122,20 +122,21 @@ static int kyber_kex_tester(void)
 	// Perform unilaterally authenticated key exchange
 
 	// Run by Bob
-	CKINT(lc_kex_uake_responder_init_internal(&ws->pk_e_r, &ws->ct_e_r, &ws->tk,
-						  &ws->sk_e, &ws->pk_i,
+	CKINT(lc_kex_uake_initiator_init_internal(&ws->pk_e_i, &ws->ct_e_i,
+						  &ws->tk,
+						  &ws->sk_e, &ws->pk_r,
 						  &cshake_rng));
 
 	// Run by Alice
-	CKINT(lc_kex_uake_initiator_ss_internal(&ws->ct_e_i, ws->ss_i,
-						sizeof(ws->ss_i),
+	CKINT(lc_kex_uake_responder_ss_internal(&ws->ct_e_r, ws->ss_r,
+						sizeof(ws->ss_r),
 					        NULL, 0,
-					        &ws->pk_e_r, &ws->ct_e_r,
-						&ws->sk_i, &cshake_rng));
+					        &ws->pk_e_i, &ws->ct_e_i,
+						&ws->sk_r, &cshake_rng));
 
 	// Run by Bob
-	CKINT(lc_kex_uake_responder_ss(ws->ss_r, sizeof(ws->ss_r), NULL, 0,
-				       &ws->ct_e_i, &ws->tk, &ws->sk_e));
+	CKINT(lc_kex_uake_initiator_ss(ws->ss_i, sizeof(ws->ss_i), NULL, 0,
+				       &ws->ct_e_r, &ws->tk, &ws->sk_e));
 
 	if (memcmp(ws->ss_i, ws->ss_r, sizeof(ws->ss_r))) {
 		printf("Error in UAKE\n");
@@ -152,23 +153,23 @@ static int kyber_kex_tester(void)
 	// Perform mutually authenticated key exchange
 
 	// Run by Bob
-	CKINT(lc_kex_ake_responder_init_internal(&ws->pk_e_r, &ws->ct_e_r,
-						 &ws->tk, &ws->sk_e, &ws->pk_i,
+	CKINT(lc_kex_ake_initiator_init_internal(&ws->pk_e_i, &ws->ct_e_i,
+						 &ws->tk, &ws->sk_e, &ws->pk_r,
 						 &cshake_rng));
 
 	// Run by Alice
-	CKINT(lc_kex_ake_initiator_ss_internal(&ws->ct_e_i_1, &ws->ct_e_i_2,
-					       ws->ss_i, sizeof(ws->ss_i),
+	CKINT(lc_kex_ake_responder_ss_internal(&ws->ct_e_r_1, &ws->ct_e_r_2,
+					       ws->ss_r, sizeof(ws->ss_r),
 					       NULL, 0,
-					       &ws->pk_e_r, &ws->ct_e_r,
-					       &ws->sk_i, &ws->pk_r,
+					       &ws->pk_e_i, &ws->ct_e_i,
+					       &ws->sk_r, &ws->pk_i,
 					       &cshake_rng));
 
 	// Run by Bob
-	CKINT(lc_kex_ake_responder_ss(ws->ss_r, sizeof(ws->ss_r),
+	CKINT(lc_kex_ake_initiator_ss(ws->ss_i, sizeof(ws->ss_i),
 				      NULL, 0,
-				      &ws->ct_e_i_1, &ws->ct_e_i_2,
-				      &ws->tk, &ws->sk_e, &ws->sk_r));
+				      &ws->ct_e_r_1, &ws->ct_e_r_2,
+				      &ws->tk, &ws->sk_e, &ws->sk_i));
 
 	if (memcmp(ws->ss_i, ws->ss_r, sizeof(ws->ss_r))){
 		printf("Error in AKE\n");

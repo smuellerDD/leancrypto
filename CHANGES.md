@@ -7,6 +7,8 @@ Changes 0.7.0-prerelease:
   SymHMAC (it is less than 1024 bytes now), uses accelerated Keccak for KDF and
   authentication but is otherwise identical to SymHMAC
 
+* Kyber: switch responder and initiator definitions
+
 Changes 0.6.0:
 
 * enhancement: Linux - add memfd_secret(2) support for secure memory allocation

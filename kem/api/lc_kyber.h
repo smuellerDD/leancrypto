@@ -176,34 +176,39 @@ int lc_kyber_dec(uint8_t *ss, size_t ss_len,
  * The key exchange provides a shared secret between two communication parties.
  * Only the initiator authenticates the key exchange with his private key.
  *
- * 		Alice (initiator)		Bob (responder)
+ * The idea is that the pk_i/sk_i key pair is a static key pair that is
+ * generated and exchanged before the KEX handshake. For the unilaterally
+ * authenticated key exchange, only Bob uses Alice's public key which implies
+ * that Bob authenticates Alice.
+ *
+ * 		Alice (responder)		Bob (initiator)
  *
  * Step 1	generate keypair
  *		Result:
- *			public key pk_i
- *			secret key sk_i
+ *			public key pk_r
+ *			secret key sk_r
  *
  * Step 2	send public key
- * 		pk_i ------------------------->	pk_i
+ * 		pk_r ------------------------->	pk_r
  *
  * Step 3					initiate key exchange
  *						Result:
- *							Public key pk_e_r
- *							Cipher text ct_e_r
+ *							Public key pk_e_i
+ *							Cipher text ct_e_i
  *							KEM shared secret tk
  *							Secret key sk_e
  *
  * Step 4					send kex data
- *		Public key pk_e_r <------------	Public key pk_e_r
- *		Cipher text ct_e_r <-----------	Cipher text ct_e_r
+ *		Public key pk_e_i <------------	Public key pk_e_i
+ *		Cipher text ct_e_i <-----------	Cipher text ct_e_i
  *
  * Step 5	calculate shared secret
  *		Result:
- *			Cipher text ct_e_i
+ *			Cipher text ct_e_r
  *			Shared secret SS
  *
  * Step 6	send kex data
- *		Cipher text ct_e_i ----------->	Cipher text ct_e_i
+ *		Cipher text ct_e_r ----------->	Cipher text ct_e_r
  *
  * Step 7					calculate shared secret
  *						Result:
@@ -211,55 +216,55 @@ int lc_kyber_dec(uint8_t *ss, size_t ss_len,
  */
 
 /**
- * @brief lc_kex_uake_responder_init - Initialize unilaterally authenticated
+ * @brief lc_kex_uake_initiator_init - Initialize unilaterally authenticated
  *				       key exchange
  *
- * @param [out] pk_e_r responder's ephemeral public key to be sent to the
- *		       initiator
- * @param [out] ct_e_r responder's ephemeral cipher text to be sent to the
- *		       initator
- * @param [out] tk KEM shared secret data to be used for the responder's shared
+ * @param [out] pk_e_i initiator's ephemeral public key to be sent to the
+ *		       responder
+ * @param [out] ct_e_i initiator's ephemeral cipher text to be sent to the
+ *		       responder
+ * @param [out] tk KEM shared secret data to be used for the initiator's shared
  *		   secret generation
- * @param [out] sk_e responder's ephemeral secret key to be used for the
- *		     responder's shared secret generation
- * @param [in] pk_i initiator's public key
+ * @param [out] sk_e initiator's ephemeral secret key to be used for the
+ *		     initiator's shared secret generation
+ * @param [in] pk_r responder's public key
  *
  * @return 0 (success) or < 0 on error
  */
-int lc_kex_uake_responder_init(struct lc_kyber_pk *pk_e_r,
-			       struct lc_kyber_ct *ct_e_r,
+int lc_kex_uake_initiator_init(struct lc_kyber_pk *pk_e_i,
+			       struct lc_kyber_ct *ct_e_i,
 			       struct lc_kyber_ss *tk,
 			       struct lc_kyber_sk *sk_e,
-			       const struct lc_kyber_pk *pk_i);
+			       const struct lc_kyber_pk *pk_r);
 
 /**
- * @brief lc_kex_uake_initiator_ss - Initiator's shared secret generation
+ * @brief lc_kex_uake_responder_ss - Initiator's shared secret generation
  *
- * @param [out] ct_e_i intiator's ephemeral cipher text to be sent to the
- *		       responder
+ * @param [out] ct_e_r responder's ephemeral cipher text to be sent to the
+ *		       initiator
  * @param [out] shared_secret Shared secret between initiator and responder
  * @param [in] shared_secret_len Requested size of the shared secret
  * @param [in] kdf_nonce An optional nonce that is concatenated at the end of
  *			 the Kyber KEX-generated data to be inserted into
  *			 the KDF. If not required, use NULL.
  * @param [in] kdf_nonce_len Length of the kdf_nonce.
- * @param [in] pk_e_r responder's ephemeral public key
- * @param [in] ct_e_r responder's ephemeral cipher text
- * @param [in] sk_i initator's secret key
+ * @param [in] pk_e_i initiator's ephemeral public key
+ * @param [in] ct_e_i initiator's ephemeral cipher text
+ * @param [in] sk_r responder's secret key
  *
  * @return 0 (success) or < 0 on error
  */
-int lc_kex_uake_initiator_ss(struct lc_kyber_ct *ct_e_i,
+int lc_kex_uake_responder_ss(struct lc_kyber_ct *ct_e_r,
 			     uint8_t *shared_secret,
 			     size_t shared_secret_len,
 			     const uint8_t *kdf_nonce,
 			     size_t kdf_nonce_len,
-			     const struct lc_kyber_pk *pk_e_r,
-			     const struct lc_kyber_ct *ct_e_r,
-			     const struct lc_kyber_sk *sk_i);
+			     const struct lc_kyber_pk *pk_e_i,
+			     const struct lc_kyber_ct *ct_e_i,
+			     const struct lc_kyber_sk *sk_r);
 
 /**
- * @brief lc_kex_uake_responder_ss - Responder's shared secret generation
+ * @brief lc_kex_uake_initiator_ss - Responder's shared secret generation
  *
  * @param [out] shared_secret Shared secret between initiator and responder
  * @param [in] shared_secret_len Requested size of the shared secret
@@ -267,19 +272,19 @@ int lc_kex_uake_initiator_ss(struct lc_kyber_ct *ct_e_i,
  *			 the Kyber KEX-generated data to be inserted into
  *			 the KDF. If not required, use NULL.
  * @param [in] kdf_nonce_len Length of the kdf_nonce.
- * @param [in] ct_e_i intiator's ephemeral cipher text
+ * @param [in] ct_e_r responder's ephemeral cipher text
  * @param [in] tk KEM shared secret data that was generated during the
- *		  responder's initialization
- * @param [in] sk_e responder's ephemeral secret that was generated during the
- *		    responder's initialization
+ *		  initiator's initialization
+ * @param [in] sk_e initiator's ephemeral secret that was generated during the
+ *		    initiator's initialization
  *
  * @return 0 (success) or < 0 on error
  */
-int lc_kex_uake_responder_ss(uint8_t *shared_secret,
+int lc_kex_uake_initiator_ss(uint8_t *shared_secret,
 			     size_t shared_secret_len,
 			     const uint8_t *kdf_nonce,
 			     size_t kdf_nonce_len,
-			     const struct lc_kyber_ct *ct_e_i,
+			     const struct lc_kyber_ct *ct_e_r,
 			     const struct lc_kyber_ss *tk,
 			     const struct lc_kyber_sk *sk_e);
 
@@ -291,37 +296,42 @@ int lc_kex_uake_responder_ss(uint8_t *shared_secret,
  * The initiator and responder authenticates the key exchange with their private
  * keys.
  *
- * 		Alice (initiator)		Bob (responder)
+ * The idea is that the pk_i/sk_i and pk_r/sk_r key pairs are static key pairs
+ * that are generated and exchanged before the KEX handshake. For the
+ * authenticated key exchange, both sides use the respective peer's public key
+ * which implies either side authenticates the other end.
+ *
+ * 		Alice (responder)		Bob (initiator)
  *
  * Step 1	generate keypair		generate keypair
  *		Result:				Result:
- *			public key pk_i			public key pk_r
- *			secret key sk_i			secret key sk_r
+ *			public key pk_r			public key pk_i
+ *			secret key sk_r			secret key sk_i
  *
  * Step 2	send public key			send public key
- * 		pk_i ------------------------->	pk_i
- *		pk_r <------------------------- pk_r
+ * 		pk_r ------------------------->	pk_r
+ *		pk_i <------------------------- pk_i
  *
  * Step 3					initiate key exchange
  *						Result:
- *							Public key pk_e_r
- *							Cipher text ct_e_r
+ *							Public key pk_e_i
+ *							Cipher text ct_e_i
  *							KEM shared secret tk
  *							Secret key sk_e
  *
  * Step 4					send kex data
- *		Public key pk_e_r <------------	Public key pk_e_r
- *		Cipher text ct_e_r <-----------	Cipher text ct_e_r
+ *		Public key pk_e_i <------------	Public key pk_e_i
+ *		Cipher text ct_e_i <-----------	Cipher text ct_e_i
  *
  * Step 5	calculate shared secret
  *		Result:
- *			Cipher text ct_e_i_1
- *			Cipher text ct_e_i_2
+ *			Cipher text ct_e_r_1
+ *			Cipher text ct_e_r_2
  *			Shared secret SS
  *
  * Step 6	send kex data
- *		Cipher text ct_e_i_1 --------->	Cipher text ct_e_i_1
- *		Cipher text ct_e_i_2 --------->	Cipher text ct_e_i_2
+ *		Cipher text ct_e_r_1 --------->	Cipher text ct_e_r_1
+ *		Cipher text ct_e_r_2 --------->	Cipher text ct_e_r_2
  *
  * Step 7					calculate shared secret
  *						Result:
@@ -329,59 +339,59 @@ int lc_kex_uake_responder_ss(uint8_t *shared_secret,
  */
 
 /**
- * @brief lc_kex_ake_responder_init - Initialize authenticated key exchange
+ * @brief lc_kex_ake_initiator_init - Initialize authenticated key exchange
  *
- * @param [out] pk_e_r responder's ephemeral public key to be sent to the
- *		       initiator
- * @param [out] ct_e_r responder's ephemeral cipher text to be sent to the
- *		       initator
- * @param [out] tk KEM shared secret data to be used for the responder's shared
+ * @param [out] pk_e_i initiator's ephemeral public key to be sent to the
+ *		       responder
+ * @param [out] ct_e_i initiator's ephemeral cipher text to be sent to the
+ *		       responder
+ * @param [out] tk KEM shared secret data to be used for the initiator's shared
  *		   secret generation
- * @param [out] sk_e responder's ephemeral secret key to be used for the
- *		     responder's shared secret generation
- * @param [in] pk_i initiator's public key
- *
- * @return 0 (success) or < 0 on error
- */
-int lc_kex_ake_responder_init(struct lc_kyber_pk *pk_e_r,
-			      struct lc_kyber_ct *ct_e_r,
-			      struct lc_kyber_ss *tk,
-			      struct lc_kyber_sk *sk_e,
-			      const struct lc_kyber_pk *pk_i);
-
-/**
- * @brief lc_kex_ake_initiator_ss - Initiator's shared secret generation
- *
- * @param [out] ct_e_i_1 intiator's ephemeral cipher text to be sent to the
- *			 responder
- * @param [out] ct_e_i_2 intiator's ephemeral cipher text to be sent to the
- *			 responder
- * @param [out] shared_secret Shared secret between initiator and responder
- * @param [in] shared_secret_len Requested size of the shared secret
- * @param [in] kdf_nonce An optional nonce that is concatenated at the end of
- *			 the Kyber KEX-generated data to be inserted into
- *			 the KDF. If not required, use NULL.
- * @param [in] kdf_nonce_len Length of the kdf_nonce.
- * @param [in] pk_e_r responder's ephemeral public key
- * @param [in] ct_e_r responder's ephemeral cipher text
- * @param [in] sk_i initator's secret key
+ * @param [out] sk_e initiator's ephemeral secret key to be used for the
+ *		     initiator's shared secret generation
  * @param [in] pk_r responder's public key
  *
  * @return 0 (success) or < 0 on error
  */
-int lc_kex_ake_initiator_ss(struct lc_kyber_ct *ct_e_i_1,
-			    struct lc_kyber_ct *ct_e_i_2,
+int lc_kex_ake_initiator_init(struct lc_kyber_pk *pk_e_i,
+			      struct lc_kyber_ct *ct_e_i,
+			      struct lc_kyber_ss *tk,
+			      struct lc_kyber_sk *sk_e,
+			      const struct lc_kyber_pk *pk_r);
+
+/**
+ * @brief lc_kex_ake_responder_ss - Initiator's shared secret generation
+ *
+ * @param [out] ct_e_r_1 responder's ephemeral cipher text to be sent to the
+ *			 initator
+ * @param [out] ct_e_r_2 responder's ephemeral cipher text to be sent to the
+ *			 initator
+ * @param [out] shared_secret Shared secret between initiator and responder
+ * @param [in] shared_secret_len Requested size of the shared secret
+ * @param [in] kdf_nonce An optional nonce that is concatenated at the end of
+ *			 the Kyber KEX-generated data to be inserted into
+ *			 the KDF. If not required, use NULL.
+ * @param [in] kdf_nonce_len Length of the kdf_nonce.
+ * @param [in] pk_e_i initator's ephemeral public key
+ * @param [in] ct_e_i initator's ephemeral cipher text
+ * @param [in] sk_r responder's secret key
+ * @param [in] pk_i initator's public key
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int lc_kex_ake_responder_ss(struct lc_kyber_ct *ct_e_r_1,
+			    struct lc_kyber_ct *ct_e_r_2,
 			    uint8_t *shared_secret,
 			    size_t shared_secret_len,
 			    const uint8_t *kdf_nonce,
 			    size_t kdf_nonce_len,
-			    const struct lc_kyber_pk *pk_e_r,
-			    const struct lc_kyber_ct *ct_e_r,
-			    const struct lc_kyber_sk *sk_i,
-			    const struct lc_kyber_pk *pk_r);
+			    const struct lc_kyber_pk *pk_e_i,
+			    const struct lc_kyber_ct *ct_e_i,
+			    const struct lc_kyber_sk *sk_r,
+			    const struct lc_kyber_pk *pk_i);
 
 /**
- * @brief lc_kex_ake_responder_ss - Responder's shared secret generation
+ * @brief lc_kex_ake_initiator_ss - Responder's shared secret generation
  *
  * @param [out] shared_secret Shared secret between initiator and responder
  * @param [in] shared_secret_len Requested size of the shared secret
@@ -389,25 +399,25 @@ int lc_kex_ake_initiator_ss(struct lc_kyber_ct *ct_e_i_1,
  *			 the Kyber KEX-generated data to be inserted into
  *			 the KDF. If not required, use NULL.
  * @param [in] kdf_nonce_len Length of the kdf_nonce.
- * @param [in] ct_e_i_1 intiator's ephemeral cipher text
- * @param [in] ct_e_i_2 intiator's ephemeral cipher text
+ * @param [in] ct_e_r_1 responder's ephemeral cipher text
+ * @param [in] ct_e_r_2 responder's ephemeral cipher text
  * @param [in] tk KEM shared secret data that was generated during the
- *		  responder's initialization
- * @param [in] sk_e responder's ephemeral secret that was generated during the
- *		    responder's initialization
- * @param [in] sk_r responder's secret key
+ *		  initator's initialization
+ * @param [in] sk_e initator's ephemeral secret that was generated during the
+ *		    initator's initialization
+ * @param [in] sk_i initator's secret key
  *
  * @return 0 (success) or < 0 on error
  */
-int lc_kex_ake_responder_ss(uint8_t *shared_secret,
+int lc_kex_ake_initiator_ss(uint8_t *shared_secret,
 			    size_t shared_secret_len,
 			    const uint8_t *kdf_nonce,
 			    size_t kdf_nonce_len,
-			    const struct lc_kyber_ct *ct_e_i_1,
-			    const struct lc_kyber_ct *ct_e_i_2,
+			    const struct lc_kyber_ct *ct_e_r_1,
+			    const struct lc_kyber_ct *ct_e_r_2,
 			    const struct lc_kyber_ss *tk,
 			    const struct lc_kyber_sk *sk_e,
-			    const struct lc_kyber_sk *sk_r);
+			    const struct lc_kyber_sk *sk_i);
 
 /************************************* IES ************************************/
 
