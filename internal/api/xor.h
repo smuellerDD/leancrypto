@@ -91,7 +91,7 @@ static inline void xor_64_aligned(uint8_t *dst, const uint8_t *src, size_t size)
 /**
  * @brief Perform XOR operation efficiently
  *
- * @param dst [in/out] Data in which the source data is XORed into
+ * @param [in,out] dst Data in which the source data is XORed into
  * @param [in] src Source data which is XORed into the destination
  * @param [in] size Buffer lengths of both, dst and src
  */
@@ -104,6 +104,97 @@ static inline void xor_64(uint8_t *dst, const uint8_t *src, size_t size)
 	else
 #endif
 		xor_32(dst, src, size);
+}
+
+static inline void xor_8_3(uint8_t *dst,
+			   const uint8_t *src1, const uint8_t *src2,
+			   size_t size)
+{
+	for (; size; size--)
+		*dst++ = *src1++ ^ *src2++;
+}
+
+static inline void xor_32_3_aligned(uint8_t *dst,
+				    const uint8_t *src1, const uint8_t *src2,
+				    size_t size)
+{
+	/*
+	 * We can ignore the alignment warning as we checked
+	 * for proper alignment.
+	 */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
+	uint32_t *dst_word = (uint32_t *)dst;
+	uint32_t *src1_word = (uint32_t *)src1;
+	uint32_t *src2_word = (uint32_t *)src2;
+#pragma GCC diagnostic pop
+
+	for (; size >= sizeof(*src1_word); size -= sizeof(*src1_word))
+		*dst_word++ = *src1_word++ ^ *src2_word++;
+
+	xor_8_3((uint8_t *)dst_word, (uint8_t *)src1_word, (uint8_t *)src2_word,
+		size);
+}
+
+static inline void xor_32_3(uint8_t *dst,
+			    const uint8_t *src1, const uint8_t *src2,
+			    size_t size)
+{
+	if (aligned(src1, sizeof(uint32_t) - 1) &&
+	    aligned(src2, sizeof(uint32_t) - 1) &&
+	    aligned(dst, sizeof(uint32_t) - 1))
+		xor_32_3_aligned(dst, src1, src2, size);
+	else
+		xor_8_3(dst, src1, src2, size);
+}
+
+#ifdef __LP64__
+static inline void xor_64_3_aligned(uint8_t *dst,
+				    const uint8_t *src1, const uint8_t *src2,
+				    size_t size)
+{
+	/*
+	 * We can ignore the alignment warning as we checked
+	 * for proper alignment.
+	 */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
+	uint64_t *dst_dword = (uint64_t *)dst;
+	uint64_t *src1_dword = (uint64_t *)src1;
+	uint64_t *src2_dword = (uint64_t *)src2;
+#pragma GCC diagnostic pop
+
+	for (; size >= sizeof(*src1_dword); size -= sizeof(*src1_dword))
+		*dst_dword++ = *src1_dword++ ^ *src2_dword++;
+
+	xor_32_3_aligned((uint8_t *)dst_dword,
+			 (uint8_t *)src1_dword, (uint8_t *)src2_dword, size);
+}
+#endif
+
+
+
+
+/**
+ * @brief Perform XOR operation efficiently
+ *
+ * @param [out] dst Data in which the source data is XORed into
+ * @param [in] src1 1st source data which is XORed into the destination
+ * @param [in] src2 2nd source data which is XORed into the destination
+ * @param [in] size Buffer lengths all buffers dst, src1, and src2
+ */
+static inline void xor_64_3(uint8_t *dst,
+			    const uint8_t *src1, const uint8_t *src2,
+			    size_t size)
+{
+#ifdef __LP64__
+	if (aligned(src1, sizeof(uint64_t) - 1) &&
+	    aligned(src2, sizeof(uint64_t) - 1) &&
+	    aligned(dst, sizeof(uint64_t) - 1))
+		xor_64_3_aligned(dst, src1, src2, size);
+	else
+#endif
+		xor_32_3(dst, src1, src2, size);
 }
 
 #ifdef __cplusplus
