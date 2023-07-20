@@ -176,43 +176,43 @@ int lc_kyber_dec(uint8_t *ss, size_t ss_len,
  * The key exchange provides a shared secret between two communication parties.
  * Only the initiator authenticates the key exchange with his private key.
  *
- * The idea is that the pk_i/sk_i key pair is a static key pair that is
+ * The idea is that the pk_r/sk_r key pair is a static key pair that is
  * generated and exchanged before the KEX handshake. For the unilaterally
- * authenticated key exchange, only Bob uses Alice's public key which implies
- * that Bob authenticates Alice.
+ * authenticated key exchange, only the initiator uses the responder's public
+ * key which implies that the initiator authenticates the responder.
  *
- * 		Alice (responder)		Bob (initiator)
+ * 		Alice (initiator)		Bob (responder)
  *
- * Step 1	generate keypair
- *		Result:
- *			public key pk_r
- *			secret key sk_r
- *
- * Step 2	send public key
- * 		pk_r ------------------------->	pk_r
- *
- * Step 3					initiate key exchange
+ * Step 1					generate static keypair
  *						Result:
- *							Public key pk_e_i
- *							Cipher text ct_e_i
- *							KEM shared secret tk
- *							Secret key sk_e
+ *							public key pk_r
+ *							secret key sk_r
  *
- * Step 4					send kex data
- *		Public key pk_e_i <------------	Public key pk_e_i
- *		Cipher text ct_e_i <-----------	Cipher text ct_e_i
+ * Step 2					send public key
+ * 		pk_r <-------------------------	pk_r
  *
- * Step 5	calculate shared secret
+ * Step 3	initiate key exchange
  *		Result:
- *			Cipher text ct_e_r
- *			Shared secret SS
+ *			Public key pk_e_i
+ *			Cipher text ct_e_i
+ *			KEM shared secret tk
+ *			Secret key sk_e
  *
- * Step 6	send kex data
- *		Cipher text ct_e_r ----------->	Cipher text ct_e_r
+ * Step 4	send kex data
+ *		Public key pk_e_i ------------>	Public key pk_e_i
+ *		Cipher text ct_e_i ----------->	Cipher text ct_e_i
  *
- * Step 7					calculate shared secret
+ * Step 5					calculate shared secret
  *						Result:
- * 							Shared secret SS
+ *							Cipher text ct_e_r
+ *							Shared secret SS
+ *
+ * Step 6					send kex data
+ *		Cipher text ct_e_r <-----------	Cipher text ct_e_r
+ *
+ * Step 7	calculate shared secret
+ *		Result:
+ * 			Shared secret SS
  */
 
 /**
@@ -301,41 +301,41 @@ int lc_kex_uake_initiator_ss(uint8_t *shared_secret,
  * authenticated key exchange, both sides use the respective peer's public key
  * which implies either side authenticates the other end.
  *
- * 		Alice (responder)		Bob (initiator)
+ * 		Alice (initiator)		Bob (responder)
  *
- * Step 1	generate keypair		generate keypair
+ * Step 1	generate static keypair		generate static keypair
  *		Result:				Result:
- *			public key pk_r			public key pk_i
- *			secret key sk_r			secret key sk_i
+ *			public key pk_i			public key pk_r
+ *			secret key sk_i			secret key sk_r
  *
  * Step 2	send public key			send public key
- * 		pk_r ------------------------->	pk_r
- *		pk_i <------------------------- pk_i
+ * 		pk_r <-------------------------	pk_r
+ *		pk_i -------------------------> pk_i
  *
- * Step 3					initiate key exchange
- *						Result:
- *							Public key pk_e_i
- *							Cipher text ct_e_i
- *							KEM shared secret tk
- *							Secret key sk_e
- *
- * Step 4					send kex data
- *		Public key pk_e_i <------------	Public key pk_e_i
- *		Cipher text ct_e_i <-----------	Cipher text ct_e_i
- *
- * Step 5	calculate shared secret
+ * Step 3	initiate key exchange
  *		Result:
- *			Cipher text ct_e_r_1
- *			Cipher text ct_e_r_2
- *			Shared secret SS
+ *			Public key pk_e_i
+ *			Cipher text ct_e_i
+ *			KEM shared secret tk
+ *			Secret key sk_e
  *
- * Step 6	send kex data
- *		Cipher text ct_e_r_1 --------->	Cipher text ct_e_r_1
- *		Cipher text ct_e_r_2 --------->	Cipher text ct_e_r_2
+ * Step 4	send kex data
+ *		Public key pk_e_i ------------>	Public key pk_e_i
+ *		Cipher text ct_e_i ----------->	Cipher text ct_e_i
  *
- * Step 7					calculate shared secret
+ * Step 5					calculate shared secret
  *						Result:
- * 							Shared secret SS
+ *							Cipher text ct_e_r_1
+ *							Cipher text ct_e_r_2
+ *							Shared secret SS
+ *
+ * Step 6					send kex data
+ *		Cipher text ct_e_r_1 <---------	Cipher text ct_e_r_1
+ *		Cipher text ct_e_r_2 <---------	Cipher text ct_e_r_2
+ *
+ * Step 7	calculate shared secret
+ *		Result:
+ * 			Shared secret SS
  */
 
 /**
