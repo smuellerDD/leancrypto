@@ -196,9 +196,9 @@ struct lc_sym_state_armce {
 
 static int ctr_tester_one(uint8_t *iv, uint64_t *iv128)
 {
-	uint8_t buffer64[AES_BLOCKLEN];
-	uint8_t data[AES_BLOCKLEN];
-	uint8_t key[2 * AES_BLOCKLEN];
+	uint8_t buffer64[AES_BLOCKLEN] = { 0 };
+	uint8_t data[AES_BLOCKLEN] = { 0 };
+	uint8_t key[2 * AES_BLOCKLEN] = { 0 };
 	unsigned int i;
 	int ret = 0;
 	LC_SYM_CTX_ON_STACK(aesni, lc_aes_ctr_aesni);
