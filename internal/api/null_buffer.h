@@ -23,11 +23,10 @@
 #include "ext_headers.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-#define LC_NULL_BUFFER_SIZE	64
+#define LC_NULL_BUFFER_SIZE 64
 extern const uint8_t null_buffer[];
 
 #ifdef __cplusplus

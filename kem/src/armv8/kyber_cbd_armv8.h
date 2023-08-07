@@ -30,8 +30,7 @@
 #include "lc_kyber.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 void kyber_cbd2_armv8(int16_t *r, const uint8_t *buf);

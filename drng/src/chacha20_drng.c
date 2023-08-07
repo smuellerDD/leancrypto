@@ -42,7 +42,8 @@ static void cc20_drng_selftest_impl(const char *impl)
 		0x76, 0xb8, 0xe0, 0xad, 0xa0, 0xf1, 0x3d, 0x90,
 		0x40, 0x5d, 0x6a, 0xe5, 0x53, 0x86, 0xbd, 0x28,
 		0xbd, 0xd2, 0x19, 0xb8, 0xa0, 0x8d, 0xed, 0x1a,
-		0xa8, 0x36, 0xef, 0xcc, 0x8b, 0x77, 0x0d, 0xc7 };
+		0xa8, 0x36, 0xef, 0xcc, 0x8b, 0x77, 0x0d, 0xc7
+	};
 	LC_CC20_DRNG_CTX_ON_STACK(cc20_ctx);
 
 	sym_ctx = &cc20_ctx->cc20;
@@ -89,7 +90,7 @@ static inline void lc_cc20_drng_update(struct lc_chacha20_drng_ctx *cc20_ctx,
 	} else {
 		for (i = 0; i < LC_CC20_KEY_SIZE_WORDS; i++) {
 			chacha20_state->key.u[i] ^=
-						le_bswap32(buf[i + used_words]);
+				le_bswap32(buf[i + used_words]);
 		}
 	}
 
@@ -116,9 +117,9 @@ static inline void lc_cc20_drng_update(struct lc_chacha20_drng_ctx *cc20_ctx,
  * the next chunk of the input and then encrypted again. I.e. the
  * ChaCha20 CBC-MAC of the seed data is injected into the DRNG state.
  */
-LC_INTERFACE_FUNCTION(
-void, lc_cc20_drng_seed, struct lc_chacha20_drng_ctx *cc20_ctx,
-		         const uint8_t *inbuf, size_t inbuflen)
+LC_INTERFACE_FUNCTION(void, lc_cc20_drng_seed,
+		      struct lc_chacha20_drng_ctx *cc20_ctx,
+		      const uint8_t *inbuf, size_t inbuflen)
 {
 	struct lc_sym_ctx *sym_ctx;
 	struct lc_sym_state *chacha20_state;
@@ -157,9 +158,9 @@ void, lc_cc20_drng_seed, struct lc_chacha20_drng_ctx *cc20_ctx,
  * operation is invoked which implies that the 32 bit counter will never be
  * overflown in this implementation.
  */
-LC_INTERFACE_FUNCTION(
-void, lc_cc20_drng_generate, struct lc_chacha20_drng_ctx *cc20_ctx,
-			     uint8_t *outbuf, size_t outbuflen)
+LC_INTERFACE_FUNCTION(void, lc_cc20_drng_generate,
+		      struct lc_chacha20_drng_ctx *cc20_ctx, uint8_t *outbuf,
+		      size_t outbuflen)
 {
 	struct lc_sym_ctx *sym_ctx;
 	struct lc_sym_state *chacha20_state;
@@ -202,8 +203,8 @@ void, lc_cc20_drng_generate, struct lc_chacha20_drng_ctx *cc20_ctx,
 		lc_memset_secure(aligned_buf, 0, sizeof(aligned_buf));
 }
 
-LC_INTERFACE_FUNCTION(
-void, lc_cc20_drng_zero_free, struct lc_chacha20_drng_ctx *cc20_ctx)
+LC_INTERFACE_FUNCTION(void, lc_cc20_drng_zero_free,
+		      struct lc_chacha20_drng_ctx *cc20_ctx)
 {
 	if (!cc20_ctx)
 		return;
@@ -212,8 +213,8 @@ void, lc_cc20_drng_zero_free, struct lc_chacha20_drng_ctx *cc20_ctx)
 	lc_free(cc20_ctx);
 }
 
-LC_INTERFACE_FUNCTION(
-int, lc_cc20_drng_alloc, struct lc_chacha20_drng_ctx **cc20_ctx)
+LC_INTERFACE_FUNCTION(int, lc_cc20_drng_alloc,
+		      struct lc_chacha20_drng_ctx **cc20_ctx)
 {
 	struct lc_chacha20_drng_ctx *out_ctx = NULL;
 	int ret;

@@ -32,15 +32,12 @@ static int _dilithium_tester_suf_avx2(unsigned int rounds)
 	if (!(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2))
 		return 77;
 	return _dilithium_init_update_final_tester(
-		rounds,
-		lc_dilithium_keypair_avx2,
+		rounds, lc_dilithium_keypair_avx2,
 
-		lc_dilithium_sign_init_avx2,
-		lc_dilithium_sign_update_avx2,
+		lc_dilithium_sign_init_avx2, lc_dilithium_sign_update_avx2,
 		lc_dilithium_sign_final_avx2,
 
-		lc_dilithium_verify_init_avx2,
-		lc_dilithium_verify_update_avx2,
+		lc_dilithium_verify_init_avx2, lc_dilithium_verify_update_avx2,
 		lc_dilithium_verify_final_avx2);
 }
 

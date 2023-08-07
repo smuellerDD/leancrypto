@@ -23,36 +23,26 @@
 #include "lc_memory_support.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 struct lc_aead {
-	int (*setkey)(void *state,
-		      const uint8_t *key, const size_t keylen,
+	int (*setkey)(void *state, const uint8_t *key, const size_t keylen,
 		      const uint8_t *iv, size_t ivlen);
-	void (*encrypt)(void *state,
-		        const uint8_t *plaintext, uint8_t *ciphertext,
-		        size_t datalen,
-		        const uint8_t *aad, size_t aadlen,
-		        uint8_t *tag, size_t taglen);
-	void (*enc_update)(void *state,
-			   const uint8_t *plaintext, uint8_t *ciphertext,
-			   size_t datalen);
-	void (*enc_final)(void *state,
-			  const uint8_t *aad, size_t aadlen,
+	void (*encrypt)(void *state, const uint8_t *plaintext,
+			uint8_t *ciphertext, size_t datalen, const uint8_t *aad,
+			size_t aadlen, uint8_t *tag, size_t taglen);
+	void (*enc_update)(void *state, const uint8_t *plaintext,
+			   uint8_t *ciphertext, size_t datalen);
+	void (*enc_final)(void *state, const uint8_t *aad, size_t aadlen,
 			  uint8_t *tag, size_t taglen);
-	int (*decrypt)(void *state,
-		       const uint8_t *ciphertext, uint8_t *plaintext,
-		       size_t datalen,
-		       const uint8_t *aad, size_t aadlen,
-		       const uint8_t *tag, size_t taglen);
-	void(*dec_update)(void *state,
-			 const uint8_t *ciphertext, uint8_t *plaintext,
-			 size_t datalen);
-	int(*dec_final)(void *state,
-			const uint8_t *aad, size_t aadlen,
-			const uint8_t *tag, size_t taglen);
+	int (*decrypt)(void *state, const uint8_t *ciphertext,
+		       uint8_t *plaintext, size_t datalen, const uint8_t *aad,
+		       size_t aadlen, const uint8_t *tag, size_t taglen);
+	void (*dec_update)(void *state, const uint8_t *ciphertext,
+			   uint8_t *plaintext, size_t datalen);
+	int (*dec_final)(void *state, const uint8_t *aad, size_t aadlen,
+			 const uint8_t *tag, size_t taglen);
 	void (*zero)(void *state);
 };
 
@@ -61,8 +51,8 @@ struct lc_aead_ctx {
 	void *aead_state;
 };
 
-#define LC_AEAD_CTX(name, cb)						       \
-	name->aead = cb;						       \
+#define LC_AEAD_CTX(name, cb)                                                  \
+	name->aead = cb;                                                       \
 	name->aead_state = (uint8_t *)(name) + sizeof(struct lc_aead_ctx)
 
 /**
@@ -128,10 +118,9 @@ static inline void lc_aead_zero_free(struct lc_aead_ctx *ctx)
  *
  * @return 0 upon success; < 0 on error
  */
-static inline int
-lc_aead_setkey(struct lc_aead_ctx *ctx,
-	       const uint8_t *key, const size_t keylen,
-	       const uint8_t *iv, size_t ivlen)
+static inline int lc_aead_setkey(struct lc_aead_ctx *ctx, const uint8_t *key,
+				 const size_t keylen, const uint8_t *iv,
+				 size_t ivlen)
 {
 	const struct lc_aead *aead;
 	void *aead_state;
@@ -166,12 +155,11 @@ lc_aead_setkey(struct lc_aead_ctx *ctx,
  *		      If the buffer is smaller, a truncated tag value is
  *		      returned.
  */
-static inline void
-lc_aead_encrypt(struct lc_aead_ctx *ctx,
-		const uint8_t *plaintext, uint8_t *ciphertext,
-		size_t datalen,
-		const uint8_t *aad, size_t aadlen,
-		uint8_t *tag, size_t taglen)
+static inline void lc_aead_encrypt(struct lc_aead_ctx *ctx,
+				   const uint8_t *plaintext,
+				   uint8_t *ciphertext, size_t datalen,
+				   const uint8_t *aad, size_t aadlen,
+				   uint8_t *tag, size_t taglen)
 {
 	const struct lc_aead *aead;
 	void *aead_state;
@@ -185,8 +173,8 @@ lc_aead_encrypt(struct lc_aead_ctx *ctx,
 	if (!aead || !aead_state)
 		return;
 
-	aead->encrypt(aead_state, plaintext, ciphertext, datalen,
-		      aad, aadlen, tag, taglen);
+	aead->encrypt(aead_state, plaintext, ciphertext, datalen, aad, aadlen,
+		      tag, taglen);
 }
 
 /**
@@ -204,10 +192,9 @@ lc_aead_encrypt(struct lc_aead_ctx *ctx,
  *
  * @return amount of processed bytes on success, < 0 on error
  */
-static inline void
-lc_aead_enc_update(struct lc_aead_ctx *ctx,
-		   const uint8_t *plaintext, uint8_t *ciphertext,
-		   size_t datalen)
+static inline void lc_aead_enc_update(struct lc_aead_ctx *ctx,
+				      const uint8_t *plaintext,
+				      uint8_t *ciphertext, size_t datalen)
 {
 	const struct lc_aead *aead;
 	void *aead_state;
@@ -238,10 +225,9 @@ lc_aead_enc_update(struct lc_aead_ctx *ctx,
  *		      If the buffer is smaller, a truncated tag value is
  *		      returned.
  */
-static inline void
-lc_aead_enc_final(struct lc_aead_ctx *ctx,
-		  const uint8_t *aad, size_t aadlen,
-		  uint8_t *tag, size_t taglen)
+static inline void lc_aead_enc_final(struct lc_aead_ctx *ctx,
+				     const uint8_t *aad, size_t aadlen,
+				     uint8_t *tag, size_t taglen)
 {
 	const struct lc_aead *aead;
 	void *aead_state;
@@ -278,12 +264,11 @@ lc_aead_enc_final(struct lc_aead_ctx *ctx,
  * @return 0 on successful authentication, < 0 on error
  *	   (-EBADMSG means authentication error)
  */
-static inline int
-lc_aead_decrypt(struct lc_aead_ctx *ctx,
-		const uint8_t *ciphertext, uint8_t *plaintext,
-		size_t datalen,
-		const uint8_t *aad, size_t aadlen,
-		const uint8_t *tag, size_t taglen)
+static inline int lc_aead_decrypt(struct lc_aead_ctx *ctx,
+				  const uint8_t *ciphertext, uint8_t *plaintext,
+				  size_t datalen, const uint8_t *aad,
+				  size_t aadlen, const uint8_t *tag,
+				  size_t taglen)
 {
 	const struct lc_aead *aead;
 	void *aead_state;
@@ -297,8 +282,8 @@ lc_aead_decrypt(struct lc_aead_ctx *ctx,
 	if (!aead || !aead_state)
 		return -EINVAL;
 
-	return aead->decrypt(aead_state, ciphertext, plaintext, datalen,
-			     aad, aadlen, tag, taglen);
+	return aead->decrypt(aead_state, ciphertext, plaintext, datalen, aad,
+			     aadlen, tag, taglen);
 }
 
 /**
@@ -314,10 +299,9 @@ lc_aead_decrypt(struct lc_aead_ctx *ctx,
  *		       NOTE: the encryption operation is symmetric and
  *			     generates as much output as input.
  */
-static inline void
-lc_aead_dec_update(struct lc_aead_ctx *ctx,
-		   const uint8_t *ciphertext, uint8_t *plaintext,
-		   size_t datalen)
+static inline void lc_aead_dec_update(struct lc_aead_ctx *ctx,
+				      const uint8_t *ciphertext,
+				      uint8_t *plaintext, size_t datalen)
 {
 	const struct lc_aead *aead;
 	void *aead_state;
@@ -349,10 +333,9 @@ lc_aead_dec_update(struct lc_aead_ctx *ctx,
  * @return 0 on successful authentication, < 0 on error
  *	   (-EBADMSG means authentication error)
  */
-static inline int
-lc_aead_dec_final(struct lc_aead_ctx *ctx,
-		  const uint8_t *aad, size_t aadlen,
-		  const uint8_t *tag, size_t taglen)
+static inline int lc_aead_dec_final(struct lc_aead_ctx *ctx, const uint8_t *aad,
+				    size_t aadlen, const uint8_t *tag,
+				    size_t taglen)
 {
 	const struct lc_aead *aead;
 	void *aead_state;

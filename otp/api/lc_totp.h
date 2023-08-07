@@ -26,7 +26,6 @@
 extern "C" {
 #endif
 
-
 /**
  * @brief Time-Based One-Time Password Algorithm - RFC 6238
  *

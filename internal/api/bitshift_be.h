@@ -23,8 +23,7 @@
 #include "ext_headers.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /*
@@ -34,7 +33,7 @@ extern "C"
 static inline uint32_t ptr_to_be32(const uint8_t *p)
 {
 	return (uint32_t)p[0] << 24 | (uint32_t)p[1] << 16 |
-	       (uint32_t)p[2] << 8  | (uint32_t)p[3];
+	       (uint32_t)p[2] << 8 | (uint32_t)p[3];
 }
 
 static inline uint64_t ptr_to_be64(const uint8_t *p)
@@ -52,7 +51,7 @@ static inline void be32_to_ptr(uint8_t *p, const uint32_t value)
 
 static inline void be64_to_ptr(uint8_t *p, const uint64_t value)
 {
-	be32_to_ptr(p,     (uint32_t)(value >> 32));
+	be32_to_ptr(p, (uint32_t)(value >> 32));
 	be32_to_ptr(p + 4, (uint32_t)(value));
 }
 

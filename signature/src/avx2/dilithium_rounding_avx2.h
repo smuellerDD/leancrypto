@@ -32,8 +32,7 @@
 #include "lc_dilithium.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 void power2round_avx(__m256i *a1, __m256i *a0, const __m256i *a);

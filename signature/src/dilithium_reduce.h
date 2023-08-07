@@ -33,8 +33,7 @@
 #include "lc_dilithium.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #define MONT -4186625 // 2^32 % Q
@@ -58,7 +57,6 @@ static inline int32_t montgomery_reduce(int64_t a)
 	t = (int32_t)((a - (int64_t)t * LC_DILITHIUM_Q) >> 32);
 	return t;
 }
-
 
 /**
  * @brief reduce32 - For finite field element a with a <= 2^{31} - 2^{22} - 1,

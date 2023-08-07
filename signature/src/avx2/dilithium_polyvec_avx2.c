@@ -65,8 +65,7 @@ void polyvec_matrix_expand_row0(polyvecl *rowa, polyvecl *rowb,
 				void *ws_buf, void *ws_keccak)
 {
 	poly_uniform_4x_avx(&rowa->vec[0], &rowa->vec[1], &rowa->vec[2],
-			     &rowa->vec[3], rho, 0, 1, 2, 3, ws_buf,
-			    ws_keccak);
+			    &rowa->vec[3], rho, 0, 1, 2, 3, ws_buf, ws_keccak);
 	poly_uniform_4x_avx(&rowa->vec[4], &rowa->vec[5], &rowa->vec[6],
 			    &rowb->vec[0], rho, 4, 5, 6, 256, ws_buf,
 			    ws_keccak);

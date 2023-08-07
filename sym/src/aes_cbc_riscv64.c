@@ -34,14 +34,14 @@ struct lc_sym_state {
 
 #define LC_AES_CBC_BLOCK_SIZE sizeof(struct lc_sym_state)
 
-static void aes_riscv64_cbc_encrypt(struct lc_sym_state *ctx,
-				   const uint8_t *in, uint8_t *out, size_t len)
+static void aes_riscv64_cbc_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
+				    uint8_t *out, size_t len)
 {
 	lc_mode_cbc_c->encrypt(&ctx->cbc_state, in, out, len);
 }
 
-static void aes_riscv64_cbc_decrypt(struct lc_sym_state *ctx,
-				   const uint8_t *in, uint8_t *out, size_t len)
+static void aes_riscv64_cbc_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
+				    uint8_t *out, size_t len)
 {
 	lc_mode_cbc_c->decrypt(&ctx->cbc_state, in, out, len);
 }
@@ -57,28 +57,28 @@ static void aes_riscv64_cbc_init(struct lc_sym_state *ctx)
 			    &ctx->enc_block_ctx);
 }
 
-static int aes_riscv64_cbc_setkey(struct lc_sym_state *ctx,
-				  const uint8_t *key, size_t keylen)
+static int aes_riscv64_cbc_setkey(struct lc_sym_state *ctx, const uint8_t *key,
+				  size_t keylen)
 {
 	if (!ctx)
 		return -EINVAL;
 	return lc_mode_cbc_c->setkey(&ctx->cbc_state, key, keylen);
 }
 
-static int aes_riscv64_cbc_setiv(struct lc_sym_state *ctx,
-				 const uint8_t *iv, size_t ivlen)
+static int aes_riscv64_cbc_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
+				 size_t ivlen)
 {
 	return lc_mode_cbc_c->setiv(&ctx->cbc_state, iv, ivlen);
 }
 
 static struct lc_sym _lc_aes_cbc_riscv64 = {
-	.init		= aes_riscv64_cbc_init,
-	.setkey		= aes_riscv64_cbc_setkey,
-	.setiv		= aes_riscv64_cbc_setiv,
-	.encrypt	= aes_riscv64_cbc_encrypt,
-	.decrypt	= aes_riscv64_cbc_decrypt,
-	.statesize	= LC_AES_CBC_BLOCK_SIZE,
-	.blocksize	= AES_BLOCKLEN,
+	.init = aes_riscv64_cbc_init,
+	.setkey = aes_riscv64_cbc_setkey,
+	.setiv = aes_riscv64_cbc_setiv,
+	.encrypt = aes_riscv64_cbc_encrypt,
+	.decrypt = aes_riscv64_cbc_decrypt,
+	.statesize = LC_AES_CBC_BLOCK_SIZE,
+	.blocksize = AES_BLOCKLEN,
 };
-LC_INTERFACE_SYMBOL(
-const struct lc_sym *, lc_aes_cbc_riscv64) = &_lc_aes_cbc_riscv64;
+LC_INTERFACE_SYMBOL(const struct lc_sym *,
+		    lc_aes_cbc_riscv64) = &_lc_aes_cbc_riscv64;

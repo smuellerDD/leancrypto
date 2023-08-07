@@ -23,12 +23,11 @@
 #include "ext_headers.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /* Default memory alignment */
-#define LC_MEM_COMMON_ALIGNMENT		(8)
+#define LC_MEM_COMMON_ALIGNMENT (8)
 
 /**
  * @brief Allocate aligned stack memory
@@ -39,14 +38,14 @@ extern "C"
  * @param size size of the buffer
  * @param alignment alignment of the buffer
  */
-#define LC_ALIGNED_BUFFER(name, size, alignment)			       \
-	uint64_t name[(size + sizeof(uint64_t) - 1) / sizeof(uint64_t)]	       \
-					__attribute__(( aligned(alignment) ))
+#define LC_ALIGNED_BUFFER(name, size, alignment)                               \
+	uint64_t name[(size + sizeof(uint64_t) - 1) / sizeof(uint64_t)]        \
+		__attribute__((aligned(alignment)))
 
 /* Helpers to align a pointer */
-#define LC_ALIGNMENT_MASK(alignment)	(alignment - 1)
-#define LC_ALIGN_APPLY(x, mask)	(((x) + (mask)) & ~(mask))
-#define LC_ALIGN(x, a)		LC_ALIGN_APPLY((x), (unsigned long)(a))
+#define LC_ALIGNMENT_MASK(alignment) (alignment - 1)
+#define LC_ALIGN_APPLY(x, mask) (((x) + (mask)) & ~(mask))
+#define LC_ALIGN(x, a) LC_ALIGN_APPLY((x), (unsigned long)(a))
 
 /**
  * @brief Align pointer interpreted as 64 bit variable
@@ -54,7 +53,7 @@ extern "C"
  * @param p pointer
  * @param a alignment
  */
-#define LC_ALIGN_PTR_64(p, a)	((uint64_t *)LC_ALIGN((unsigned long)(p), (a)))
+#define LC_ALIGN_PTR_64(p, a) ((uint64_t *)LC_ALIGN((unsigned long)(p), (a)))
 
 /**
  * @brief Align pointer interpreted as 32 bit variable
@@ -62,7 +61,7 @@ extern "C"
  * @param p pointer
  * @param a alignment
  */
-#define LC_ALIGN_PTR_32(p, a)	((uint32_t *)LC_ALIGN((unsigned long)(p), (a)))
+#define LC_ALIGN_PTR_32(p, a) ((uint32_t *)LC_ALIGN((unsigned long)(p), (a)))
 
 /**
  * @brief Align pointer interpreted as 16 bit variable
@@ -70,7 +69,7 @@ extern "C"
  * @param p pointer
  * @param a alignment
  */
-#define LC_ALIGN_PTR_16(p, a)	((uint16_t *)LC_ALIGN((unsigned long)(p), (a)))
+#define LC_ALIGN_PTR_16(p, a) ((uint16_t *)LC_ALIGN((unsigned long)(p), (a)))
 
 /**
  * @brief Align pointer interpreted as 8 bit variable
@@ -78,7 +77,7 @@ extern "C"
  * @param p pointer
  * @param a alignment
  */
-#define LC_ALIGN_PTR_8(p, a)	((uint8_t *)LC_ALIGN((unsigned long)(p), (a)))
+#define LC_ALIGN_PTR_8(p, a) ((uint8_t *)LC_ALIGN((unsigned long)(p), (a)))
 
 /**
  * @brief allocate aligned memory up to 8 bytes alignment

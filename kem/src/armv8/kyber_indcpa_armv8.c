@@ -44,8 +44,7 @@
  * @param pk [in] pointer to the input public-key polyvec
  * @param seed [in] pointer to the input public seed
  */
-static void pack_pk(uint8_t r[LC_KYBER_INDCPA_PUBLICKEYBYTES],
-		    polyvec *pk,
+static void pack_pk(uint8_t r[LC_KYBER_INDCPA_PUBLICKEYBYTES], polyvec *pk,
 		    const uint8_t seed[LC_KYBER_SYMBYTES])
 {
 	polyvec_tobytes(r, pk);
@@ -60,8 +59,7 @@ static void pack_pk(uint8_t r[LC_KYBER_INDCPA_PUBLICKEYBYTES],
  * @param seed [out] pointer to output seed to generate matrix A
  * @param packedpk [out] pointer to input serialized public key
  */
-static void unpack_pk(polyvec *pk,
-		      uint8_t seed[LC_KYBER_SYMBYTES],
+static void unpack_pk(polyvec *pk, uint8_t seed[LC_KYBER_SYMBYTES],
 		      const uint8_t packedpk[LC_KYBER_INDCPA_PUBLICKEYBYTES])
 {
 	polyvec_frombytes(pk, packedpk);
@@ -134,18 +132,18 @@ static void unpack_ciphertext(polyvec *b, poly *v,
  *
  * @returns number of sampled 16-bit integers (at most len)
  */
-static unsigned int rej_uniform(int16_t *r,
-				unsigned int len,
-				const uint8_t *buf,
-				unsigned int buflen)
+static unsigned int rej_uniform(int16_t *r, unsigned int len,
+				const uint8_t *buf, unsigned int buflen)
 {
 	unsigned int ctr, pos;
 	uint16_t val0, val1;
 
 	ctr = pos = 0;
 	while (ctr < len && pos + 3 <= buflen) {
-		val0 = ((buf[pos+0] >> 0) | ((uint16_t)buf[pos+1] << 8)) & 0xFFF;
-		val1 = ((buf[pos+1] >> 4) | ((uint16_t)buf[pos+2] << 4)) & 0xFFF;
+		val0 = ((buf[pos + 0] >> 0) | ((uint16_t)buf[pos + 1] << 8)) &
+		       0xFFF;
+		val1 = ((buf[pos + 1] >> 4) | ((uint16_t)buf[pos + 2] << 4)) &
+		       0xFFF;
 		pos += 3;
 
 		if (val0 < LC_KYBER_Q)
@@ -157,8 +155,8 @@ static unsigned int rej_uniform(int16_t *r,
 	return ctr;
 }
 
-#define gen_a(A,B)  gen_matrix(A,B,0)
-#define gen_at(A,B) gen_matrix(A,B,1)
+#define gen_a(A, B) gen_matrix(A, B, 0)
+#define gen_at(A, B) gen_matrix(A, B, 1)
 
 /**
  * @brief gen_matrix - Deterministically generate matrix A (or the transpose of
@@ -170,9 +168,10 @@ static unsigned int rej_uniform(int16_t *r,
  * @param seed [in] pointer to input seed
  * @param transposed [in] boolean deciding whether A or A^T is generated
  */
-#define GEN_MATRIX_NBLOCKS						       \
-	((12 * LC_KYBER_N / 8*(1 << 12) / LC_KYBER_Q +			       \
-	 LC_SHAKE_128_SIZE_BLOCK)/LC_SHAKE_128_SIZE_BLOCK)
+#define GEN_MATRIX_NBLOCKS                                                     \
+	((12 * LC_KYBER_N / 8 * (1 << 12) / LC_KYBER_Q +                       \
+	  LC_SHAKE_128_SIZE_BLOCK) /                                           \
+	 LC_SHAKE_128_SIZE_BLOCK)
 static void gen_matrix(polyvec *a, const uint8_t seed[LC_KYBER_SYMBYTES],
 		       int transposed)
 {
@@ -181,8 +180,7 @@ static void gen_matrix(polyvec *a, const uint8_t seed[LC_KYBER_SYMBYTES],
 	uint8_t buf[GEN_MATRIX_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK + 2];
 	LC_SHAKE_128_CTX_ON_STACK(shake_128);
 
-	for (i = 0; i< LC_KYBER_K; i++) {
-
+	for (i = 0; i < LC_KYBER_K; i++) {
 		for (j = 0; j < LC_KYBER_K; j++) {
 			uint8_t i_tmp = (uint8_t)i, j_tmp = (uint8_t)j;
 
@@ -201,8 +199,8 @@ static void gen_matrix(polyvec *a, const uint8_t seed[LC_KYBER_SYMBYTES],
 			lc_hash_set_digestsize(shake_128, buflen);
 			lc_hash_final(shake_128, buf);
 
-			ctr = rej_uniform(a[i].vec[j].coeffs, LC_KYBER_N,
-					  buf, buflen);
+			ctr = rej_uniform(a[i].vec[j].coeffs, LC_KYBER_N, buf,
+					  buflen);
 
 			while (ctr < LC_KYBER_N) {
 				off = buflen % 3;
@@ -214,8 +212,8 @@ static void gen_matrix(polyvec *a, const uint8_t seed[LC_KYBER_SYMBYTES],
 				lc_hash_final(shake_128, buf + off);
 				buflen = off + LC_SHAKE_128_SIZE_BLOCK;
 				ctr += rej_uniform(a[i].vec[j].coeffs + ctr,
-						   LC_KYBER_N - ctr,
-						   buf, buflen);
+						   LC_KYBER_N - ctr, buf,
+						   buflen);
 			}
 		}
 	}
@@ -314,7 +312,8 @@ int indcpa_enc_armv8(uint8_t c[LC_KYBER_INDCPA_BYTES],
 		poly_getnoise_eta2_armv8(ws->ep.vec + i, coins, nonce2++,
 					 ws->poly_getnoise_eta1_buf);
 	}
-	poly_getnoise_eta2_armv8(&ws->epp, coins, nonce2, ws->poly_getnoise_eta1_buf);
+	poly_getnoise_eta2_armv8(&ws->epp, coins, nonce2,
+				 ws->poly_getnoise_eta1_buf);
 
 	polyvec_ntt(&ws->sp);
 

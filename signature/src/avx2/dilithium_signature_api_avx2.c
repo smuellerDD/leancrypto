@@ -23,92 +23,83 @@
 #include "lc_dilithium.h"
 #include "visibility.h"
 
-LC_INTERFACE_FUNCTION(
-int, lc_dilithium_keypair, struct lc_dilithium_pk *pk,
-			   struct lc_dilithium_sk *sk,
-			   struct lc_rng_ctx *rng_ctx)
+LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair, struct lc_dilithium_pk *pk,
+		      struct lc_dilithium_sk *sk, struct lc_rng_ctx *rng_ctx)
 {
 	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
 		return lc_dilithium_keypair_avx2(pk, sk, rng_ctx);
 	return lc_dilithium_keypair_c(pk, sk, rng_ctx);
 }
 
-LC_INTERFACE_FUNCTION(
-int, lc_dilithium_sign, struct lc_dilithium_sig *sig,
-			const uint8_t *m,
-			size_t mlen,
-			const struct lc_dilithium_sk *sk,
-			struct lc_rng_ctx *rng_ctx)
+LC_INTERFACE_FUNCTION(int, lc_dilithium_sign, struct lc_dilithium_sig *sig,
+		      const uint8_t *m, size_t mlen,
+		      const struct lc_dilithium_sk *sk,
+		      struct lc_rng_ctx *rng_ctx)
 {
 	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
 		return lc_dilithium_sign_avx2(sig, m, mlen, sk, rng_ctx);
 	return lc_dilithium_sign_c(sig, m, mlen, sk, rng_ctx);
 }
 
-LC_INTERFACE_FUNCTION(
-int, lc_dilithium_sign_init, struct lc_hash_ctx *hash_ctx,
-			     const struct lc_dilithium_sk *sk)
+LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_init, struct lc_hash_ctx *hash_ctx,
+		      const struct lc_dilithium_sk *sk)
 {
 	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
 		return lc_dilithium_sign_init_avx2(hash_ctx, sk);
 	return lc_dilithium_sign_init_c(hash_ctx, sk);
 }
 
-LC_INTERFACE_FUNCTION(
-int, lc_dilithium_sign_update, struct lc_hash_ctx *hash_ctx,
-			       const uint8_t *m,
-			       size_t mlen)
+LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_update,
+		      struct lc_hash_ctx *hash_ctx, const uint8_t *m,
+		      size_t mlen)
 {
 	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
 		return lc_dilithium_sign_update_avx2(hash_ctx, m, mlen);
 	return lc_dilithium_sign_update_c(hash_ctx, m, mlen);
 }
 
-LC_INTERFACE_FUNCTION(
-int, lc_dilithium_sign_final, struct lc_dilithium_sig *sig,
-			      struct lc_hash_ctx  *hash_ctx,
-			      const struct lc_dilithium_sk *sk,
-			      struct lc_rng_ctx *rng_ctx)
+LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_final,
+		      struct lc_dilithium_sig *sig,
+		      struct lc_hash_ctx *hash_ctx,
+		      const struct lc_dilithium_sk *sk,
+		      struct lc_rng_ctx *rng_ctx)
 {
 	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
 		return lc_dilithium_sign_final_avx2(sig, hash_ctx, sk, rng_ctx);
 	return lc_dilithium_sign_final_c(sig, hash_ctx, sk, rng_ctx);
 }
 
-LC_INTERFACE_FUNCTION(
-int, lc_dilithium_verify, const struct lc_dilithium_sig *sig,
-			  const uint8_t *m,
-			  size_t mlen,
-			  const struct lc_dilithium_pk *pk)
+LC_INTERFACE_FUNCTION(int, lc_dilithium_verify,
+		      const struct lc_dilithium_sig *sig, const uint8_t *m,
+		      size_t mlen, const struct lc_dilithium_pk *pk)
 {
 	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
 		return lc_dilithium_verify_avx2(sig, m, mlen, pk);
 	return lc_dilithium_verify_c(sig, m, mlen, pk);
 }
 
-LC_INTERFACE_FUNCTION(
-int, lc_dilithium_verify_init, struct lc_hash_ctx *hash_ctx,
-			       const struct lc_dilithium_pk *pk)
+LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_init,
+		      struct lc_hash_ctx *hash_ctx,
+		      const struct lc_dilithium_pk *pk)
 {
 	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
 		return lc_dilithium_verify_init_avx2(hash_ctx, pk);
 	return lc_dilithium_verify_init_c(hash_ctx, pk);
 }
 
-LC_INTERFACE_FUNCTION(
-int, lc_dilithium_verify_update, struct lc_hash_ctx *hash_ctx,
-				 const uint8_t *m,
-				 size_t mlen)
+LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_update,
+		      struct lc_hash_ctx *hash_ctx, const uint8_t *m,
+		      size_t mlen)
 {
 	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
 		return lc_dilithium_verify_update_avx2(hash_ctx, m, mlen);
 	return lc_dilithium_verify_update_c(hash_ctx, m, mlen);
 }
 
-LC_INTERFACE_FUNCTION(
-int, lc_dilithium_verify_final, struct lc_dilithium_sig *sig,
-				struct lc_hash_ctx  *hash_ctx,
-				const struct lc_dilithium_pk *pk)
+LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_final,
+		      struct lc_dilithium_sig *sig,
+		      struct lc_hash_ctx *hash_ctx,
+		      const struct lc_dilithium_pk *pk)
 {
 	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
 		return lc_dilithium_verify_final_avx2(sig, hash_ctx, pk);

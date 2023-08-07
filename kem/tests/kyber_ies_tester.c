@@ -30,10 +30,8 @@
 
 static uint64_t ctr = 0;
 
-static int
-randombytes(void *_state,
-	    const uint8_t *addtl_input, size_t addtl_input_len,
-	    uint8_t *out, size_t outlen)
+static int randombytes(void *_state, const uint8_t *addtl_input,
+		       size_t addtl_input_len, uint8_t *out, size_t outlen)
 {
 	unsigned int i;
 	uint8_t buf[8];
@@ -43,7 +41,7 @@ randombytes(void *_state,
 	(void)addtl_input_len;
 
 	for (i = 0; i < 8; ++i)
-		buf[i] = (uint8_t)(ctr >> 8*i);
+		buf[i] = (uint8_t)(ctr >> 8 * i);
 
 	ctr++;
 	lc_shake(lc_shake128, buf, 8, out, outlen);
@@ -51,10 +49,8 @@ randombytes(void *_state,
 	return 0;
 }
 
-static int
-randombytes_seed(void *_state,
-		 const uint8_t *seed, size_t seedlen,
-		 const uint8_t *persbuf, size_t perslen)
+static int randombytes_seed(void *_state, const uint8_t *seed, size_t seedlen,
+			    const uint8_t *persbuf, size_t perslen)
 {
 	(void)_state;
 	(void)seed;
@@ -70,27 +66,25 @@ static void randombytes_zero(void *_state)
 }
 
 static const struct lc_rng kyber_drng = {
-	.generate	= randombytes,
-	.seed		= randombytes_seed,
-	.zero		= randombytes_zero,
+	.generate = randombytes,
+	.seed = randombytes_seed,
+	.zero = randombytes_zero,
 };
 
 static int kyber_ies_determinisitic(void)
 {
 	static const uint8_t plain[] = {
-		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-		0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
-		0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
-		0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
-		0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
+		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
+		0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13,
+		0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d,
+		0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
 		0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f
 	};
 	static const uint8_t exp_cipher[] = {
-		0x83, 0x45, 0x79, 0x46, 0x57, 0x15, 0x0d, 0x76,
-		0x89, 0x73, 0x21, 0x6a, 0x80, 0xd4, 0x66, 0x3a,
-		0x72, 0x0d, 0x04, 0x1f, 0xbc, 0xea, 0x11, 0x51,
-		0x48, 0x8a, 0x77, 0x1e, 0xe8, 0x81, 0x01, 0x01,
-		0xb4, 0xe6, 0xfb, 0xbf, 0x56, 0xf8, 0x99, 0x9a,
+		0x83, 0x45, 0x79, 0x46, 0x57, 0x15, 0x0d, 0x76, 0x89, 0x73,
+		0x21, 0x6a, 0x80, 0xd4, 0x66, 0x3a, 0x72, 0x0d, 0x04, 0x1f,
+		0xbc, 0xea, 0x11, 0x51, 0x48, 0x8a, 0x77, 0x1e, 0xe8, 0x81,
+		0x01, 0x01, 0xb4, 0xe6, 0xfb, 0xbf, 0x56, 0xf8, 0x99, 0x9a,
 		0x2d, 0xee, 0x9e, 0xa9, 0xb1, 0xbd, 0x7c, 0x08
 	};
 	struct workspace {
@@ -105,8 +99,8 @@ static int kyber_ies_determinisitic(void)
 	};
 	uint64_t remember_ctr;
 	int ret;
-	struct lc_rng_ctx cshake_rng =
-		{ .rng = &kyber_drng, .rng_state = NULL };
+	struct lc_rng_ctx cshake_rng = { .rng = &kyber_drng,
+					 .rng_state = NULL };
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	LC_CC_CTX_ON_STACK(cc, lc_cshake256);
 
@@ -114,20 +108,18 @@ static int kyber_ies_determinisitic(void)
 
 	remember_ctr = ctr;
 
-	CKINT(lc_kyber_ies_enc_internal(&ws->pk, &ws->ct,
-					plain, ws->cipher, sizeof(plain),
-					NULL, 0,
-					ws->tag, sizeof(ws->tag),
-					cc, &cshake_rng));
+	CKINT(lc_kyber_ies_enc_internal(&ws->pk, &ws->ct, plain, ws->cipher,
+					sizeof(plain), NULL, 0, ws->tag,
+					sizeof(ws->tag), cc, &cshake_rng));
 
-//	bin2print(ws->pk.pk, sizeof(ws->pk.pk), stdout, "PK");
-//	bin2print(ws->sk.sk, sizeof(ws->sk.sk), stdout, "SK");
-//	bin2print(ws->ct.ct, sizeof(ws->ct.ct), stdout, "CT");
-//
-//	bin2print(cipher, sizeof(cipher), stdout, "Ciphertext");
-//	bin2print(tag, sizeof(tag), stdout, "Tag");
+	//	bin2print(ws->pk.pk, sizeof(ws->pk.pk), stdout, "PK");
+	//	bin2print(ws->sk.sk, sizeof(ws->sk.sk), stdout, "SK");
+	//	bin2print(ws->ct.ct, sizeof(ws->ct.ct), stdout, "CT");
+	//
+	//	bin2print(cipher, sizeof(cipher), stdout, "Ciphertext");
+	//	bin2print(tag, sizeof(tag), stdout, "Tag");
 
-	if (memcmp(ws->cipher, exp_cipher, sizeof(exp_cipher))){
+	if (memcmp(ws->cipher, exp_cipher, sizeof(exp_cipher))) {
 		printf("Error in encryption of oneshot IES\n");
 		ret = 1;
 		goto out;
@@ -141,19 +133,18 @@ static int kyber_ies_determinisitic(void)
 					     &cshake_rng));
 	lc_kyber_ies_enc_update(cc, plain, ws->cipher, sizeof(plain));
 	lc_kyber_ies_enc_final(cc, NULL, 0, ws->tag, sizeof(ws->tag));
-	if (memcmp(ws->cipher, exp_cipher, sizeof(exp_cipher))){
+	if (memcmp(ws->cipher, exp_cipher, sizeof(exp_cipher))) {
 		printf("Error in encryption of stream IES\n");
 		ret = 1;
 		goto out;
 	}
 
 	lc_aead_zero(cc);
-	CKINT(lc_kyber_ies_dec(&ws->sk, &ws->ct,
-			       ws->cipher, ws->plain_new, sizeof(plain),
-			       NULL, 0,
-			       ws->tag, sizeof(ws->tag), cc));
+	CKINT(lc_kyber_ies_dec(&ws->sk, &ws->ct, ws->cipher, ws->plain_new,
+			       sizeof(plain), NULL, 0, ws->tag, sizeof(ws->tag),
+			       cc));
 
-	if (memcmp(plain, ws->plain_new, sizeof(plain))){
+	if (memcmp(plain, ws->plain_new, sizeof(plain))) {
 		printf("Error in decryption of oneshot IES\n");
 		ret = 1;
 		goto out;
@@ -162,10 +153,9 @@ static int kyber_ies_determinisitic(void)
 	lc_aead_zero(cc);
 	CKINT(lc_kyber_ies_dec_init(cc, &ws->sk, &ws->ct));
 
-	lc_kyber_ies_dec_update(cc,
-				ws->cipher, ws->plain_new, sizeof(plain));
+	lc_kyber_ies_dec_update(cc, ws->cipher, ws->plain_new, sizeof(plain));
 	CKINT(lc_kyber_ies_dec_final(cc, NULL, 0, ws->tag, sizeof(ws->tag)));
-	if (memcmp(plain, ws->plain_new, sizeof(plain))){
+	if (memcmp(plain, ws->plain_new, sizeof(plain))) {
 		printf("Error in decryption of stream IES\n");
 		ret = 1;
 		goto out;
@@ -175,10 +165,9 @@ static int kyber_ies_determinisitic(void)
 
 	/* Modify the ciphertext -> integrity error */
 	ws->cipher[0] = (ws->cipher[0] + 0x01) & 0xff;
-	ret = lc_kyber_ies_dec(&ws->sk, &ws->ct,
-			       ws->cipher, ws->plain_new, sizeof(ws->cipher),
-			       NULL, 0,
-			       ws->tag, sizeof(ws->tag), cc);
+	ret = lc_kyber_ies_dec(&ws->sk, &ws->ct, ws->cipher, ws->plain_new,
+			       sizeof(ws->cipher), NULL, 0, ws->tag,
+			       sizeof(ws->tag), cc);
 	if (ret != -EBADMSG) {
 		printf("Error in detecting authentication error\n");
 		ret = 1;
@@ -196,11 +185,10 @@ out:
 static int kyber_ies_nondeterministic(void)
 {
 	static const uint8_t plain[] = {
-		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-		0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
-		0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
-		0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
-		0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
+		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
+		0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13,
+		0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d,
+		0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
 		0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f
 	};
 	struct workspace {
@@ -227,17 +215,14 @@ static int kyber_ies_nondeterministic(void)
 	CKINT(lc_kyber_keypair(&ws->pk, &ws->sk, rng));
 
 	/* First enc/dec */
-	CKINT(lc_kyber_ies_enc_internal(&ws->pk, &ws->ct,
-					plain, ws->cipher, sizeof(plain),
-			       NULL, 0,
-			       ws->tag, sizeof(ws->tag),
-			       cc, rng));
+	CKINT(lc_kyber_ies_enc_internal(&ws->pk, &ws->ct, plain, ws->cipher,
+					sizeof(plain), NULL, 0, ws->tag,
+					sizeof(ws->tag), cc, rng));
 
 	lc_aead_zero(cc);
-	CKINT(lc_kyber_ies_dec(&ws->sk, &ws->ct,
-			       ws->cipher, ws->plain_new, sizeof(ws->cipher),
-			       NULL, 0,
-			       ws->tag, sizeof(ws->tag), cc));
+	CKINT(lc_kyber_ies_dec(&ws->sk, &ws->ct, ws->cipher, ws->plain_new,
+			       sizeof(ws->cipher), NULL, 0, ws->tag,
+			       sizeof(ws->tag), cc));
 	if (memcmp(plain, ws->plain_new, sizeof(plain))) {
 		printf("Error in decryption of IES\n");
 		ret = 1;
@@ -246,30 +231,27 @@ static int kyber_ies_nondeterministic(void)
 
 	/* 2nd enc/dec */
 	lc_aead_zero(cc);
-	CKINT(lc_kyber_ies_enc_internal(&ws->pk, &ws->ct2,
-					plain, ws->cipher2, sizeof(plain),
-					NULL, 0,
-					ws->tag, sizeof(ws->tag),
-					cc, rng));
+	CKINT(lc_kyber_ies_enc_internal(&ws->pk, &ws->ct2, plain, ws->cipher2,
+					sizeof(plain), NULL, 0, ws->tag,
+					sizeof(ws->tag), cc, rng));
 
 	lc_aead_zero(cc);
-	CKINT(lc_kyber_ies_dec(&ws->sk, &ws->ct2,
-			       ws->cipher2, ws->plain_new, sizeof(ws->cipher2),
-			       NULL, 0,
-			       ws->tag, sizeof(ws->tag), cc));
-	if (memcmp(plain, ws->plain_new, sizeof(plain))){
+	CKINT(lc_kyber_ies_dec(&ws->sk, &ws->ct2, ws->cipher2, ws->plain_new,
+			       sizeof(ws->cipher2), NULL, 0, ws->tag,
+			       sizeof(ws->tag), cc));
+	if (memcmp(plain, ws->plain_new, sizeof(plain))) {
 		printf("Error in decryption of IES\n");
 		ret = 1;
 		goto out;
 	}
 
 	/* Check that produced data from 2nd enc is different to 1st enc */
-	if (!memcmp(ws->ct.ct, ws->ct2.ct, sizeof(ws->ct.ct))){
+	if (!memcmp(ws->ct.ct, ws->ct2.ct, sizeof(ws->ct.ct))) {
 		printf("Error: identical kyber ciphertexts\n");
 		ret = 1;
 		goto out;
 	}
-	if (!memcmp(ws->cipher, ws->cipher2, sizeof(ws->cipher))){
+	if (!memcmp(ws->cipher, ws->cipher2, sizeof(ws->cipher))) {
 		printf("Error: identical ciphertexts\n");
 		ret = 1;
 		goto out;
@@ -294,7 +276,6 @@ static int kyber_ies_tester(void)
 out:
 	return ret;
 }
-
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {

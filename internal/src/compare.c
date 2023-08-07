@@ -35,22 +35,19 @@ static int lc_selftest_level = 1;
  * This is no interface function, but to access the global variable, the
  * visibility is required to get the same scope, seemingly.
  */
-LC_INTERFACE_FUNCTION(
-int, get_current_selftest_level, void)
+LC_INTERFACE_FUNCTION(int, get_current_selftest_level, void)
 {
 	return lc_selftest_level;
 }
 
-LC_INTERFACE_FUNCTION(
-void, lc_rerun_selftests, void)
+LC_INTERFACE_FUNCTION(void, lc_rerun_selftests, void)
 {
 	if (lc_selftest_level < INT_MAX)
 		__sync_add_and_fetch(&lc_selftest_level, 1);
 }
 
-LC_INTERFACE_FUNCTION(
-int, lc_compare, const uint8_t *act, const uint8_t *exp, const size_t len,
-		 const char *info)
+LC_INTERFACE_FUNCTION(int, lc_compare, const uint8_t *act, const uint8_t *exp,
+		      const size_t len, const char *info)
 {
 	if (memcmp(act, exp, len)) {
 		unsigned int i;

@@ -23,8 +23,7 @@
 #include "lc_sym.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 struct lc_mode_state {

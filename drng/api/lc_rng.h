@@ -23,16 +23,13 @@
 #include "lc_memory_support.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 struct lc_rng {
-	int (*generate)(void *state,
-			const uint8_t *addtl_input, size_t addtl_input_len,
-			uint8_t *out, size_t outlen);
-	int (*seed)(void *state,
-		    const uint8_t *seed, size_t seedlen,
+	int (*generate)(void *state, const uint8_t *addtl_input,
+			size_t addtl_input_len, uint8_t *out, size_t outlen);
+	int (*seed)(void *state, const uint8_t *seed, size_t seedlen,
 		    const uint8_t *persbuf, size_t perslen);
 	void (*zero)(void *state);
 };
@@ -42,8 +39,8 @@ struct lc_rng_ctx {
 	void *rng_state;
 };
 
-#define LC_RNG_CTX(name, cb)						       \
-	name->rng = cb;							       \
+#define LC_RNG_CTX(name, cb)                                                   \
+	name->rng = cb;                                                        \
 	name->rng_state = (uint8_t *)(name) + sizeof(struct lc_rng_ctx)
 
 /**
@@ -118,10 +115,10 @@ static inline void lc_rng_zero_free(struct lc_rng_ctx *ctx)
  *
  * @return 0 upon success; < 0 on error
  */
-static inline int
-lc_rng_generate(struct lc_rng_ctx *ctx,
-		const uint8_t *addtl_input, size_t addtl_input_len,
-		uint8_t *out, size_t outlen)
+static inline int lc_rng_generate(struct lc_rng_ctx *ctx,
+				  const uint8_t *addtl_input,
+				  size_t addtl_input_len, uint8_t *out,
+				  size_t outlen)
 {
 	const struct lc_rng *rng;
 	void *rng_state;
@@ -132,8 +129,8 @@ lc_rng_generate(struct lc_rng_ctx *ctx,
 	rng = ctx->rng;
 	rng_state = ctx->rng_state;
 
-	return rng->generate(rng_state, addtl_input, addtl_input_len,
-			     out, outlen);
+	return rng->generate(rng_state, addtl_input, addtl_input_len, out,
+			     outlen);
 }
 
 /**
@@ -151,10 +148,9 @@ lc_rng_generate(struct lc_rng_ctx *ctx,
  *
  * @return 0 upon success; < 0 on error
  */
-static inline int
-lc_rng_seed(struct lc_rng_ctx *ctx,
-	    const uint8_t *seed, size_t seedlen,
-	    const uint8_t *persbuf, size_t perslen)
+static inline int lc_rng_seed(struct lc_rng_ctx *ctx, const uint8_t *seed,
+			      size_t seedlen, const uint8_t *persbuf,
+			      size_t perslen)
 {
 	const struct lc_rng *rng;
 	void *rng_state;

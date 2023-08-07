@@ -33,15 +33,14 @@
 #include "lc_kyber.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /*
  * Elements of R_q = Z_q[X]/(X^n + 1). Represents polynomial
  * coeffs[0] + X*coeffs[1] + X^2*coeffs[2] + ... + X^{n-1}*coeffs[n-1]
  */
-typedef struct{
+typedef struct {
 	int16_t coeffs[LC_KYBER_N];
 } poly;
 
@@ -129,8 +128,12 @@ static inline void poly_frombytes(poly *r, const uint8_t a[LC_KYBER_POLYBYTES])
 	unsigned int i;
 
 	for (i = 0; i < LC_KYBER_N / 2; i++) {
-		r->coeffs[2*i]   = ((a[3*i+0] >> 0) | ((uint16_t)a[3*i+1] << 8)) & 0xFFF;
-		r->coeffs[2*i+1] = ((a[3*i+1] >> 4) | ((uint16_t)a[3*i+2] << 4)) & 0xFFF;
+		r->coeffs[2 * i] =
+			((a[3 * i + 0] >> 0) | ((uint16_t)a[3 * i + 1] << 8)) &
+			0xFFF;
+		r->coeffs[2 * i + 1] =
+			((a[3 * i + 1] >> 4) | ((uint16_t)a[3 * i + 2] << 4)) &
+			0xFFF;
 	}
 }
 
@@ -143,7 +146,7 @@ static inline void poly_frombytes(poly *r, const uint8_t a[LC_KYBER_POLYBYTES])
 static inline void poly_frommsg(poly *r,
 				const uint8_t msg[LC_KYBER_INDCPA_MSGBYTES])
 {
-	unsigned int i,j;
+	unsigned int i, j;
 	int16_t mask;
 
 #if (LC_KYBER_INDCPA_MSGBYTES != LC_KYBER_N / 8)
@@ -153,7 +156,7 @@ static inline void poly_frommsg(poly *r,
 	for (i = 0; i < LC_KYBER_N / 8; i++) {
 		for (j = 0; j < 8; j++) {
 			mask = -(int16_t)((msg[i] >> j) & 1);
-			r->coeffs[8*i+j] = mask & ((LC_KYBER_Q + 1) / 2);
+			r->coeffs[8 * i + j] = mask & ((LC_KYBER_Q + 1) / 2);
 		}
 	}
 }
@@ -167,15 +170,15 @@ static inline void poly_frommsg(poly *r,
 static inline void poly_tomsg(uint8_t msg[LC_KYBER_INDCPA_MSGBYTES],
 			      const poly *a)
 {
-	unsigned int i,j;
+	unsigned int i, j;
 	uint16_t t;
 
 	for (i = 0; i < LC_KYBER_N / 8; i++) {
 		msg[i] = 0;
-		for (j = 0;j < 8; j++) {
-			t  = (uint16_t)a->coeffs[8*i+j];
+		for (j = 0; j < 8; j++) {
+			t = (uint16_t)a->coeffs[8 * i + j];
 			t += ((int16_t)t >> 15) & LC_KYBER_Q;
-			t  = (((t << 1) + LC_KYBER_Q / 2) / LC_KYBER_Q) & 1;
+			t = (((t << 1) + LC_KYBER_Q / 2) / LC_KYBER_Q) & 1;
 			msg[i] |= (uint8_t)(t << j);
 		}
 	}
@@ -191,10 +194,9 @@ static inline void poly_tomsg(uint8_t msg[LC_KYBER_INDCPA_MSGBYTES],
  * @param [in] seed pointer to input seed
  * @param [in] nonce one-byte input nonce
  */
-#define POLY_GETNOISE_ETA1_BUFSIZE	(LC_KYBER_ETA1 * LC_KYBER_N / 4)
-void poly_getnoise_eta1(poly *r,
-			const uint8_t seed[LC_KYBER_SYMBYTES], uint8_t nonce,
-			void *ws_buf);
+#define POLY_GETNOISE_ETA1_BUFSIZE (LC_KYBER_ETA1 * LC_KYBER_N / 4)
+void poly_getnoise_eta1(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
+			uint8_t nonce, void *ws_buf);
 
 /**
  * @brief poly_getnoise_eta2 - Sample a polynomial deterministically from a seed
@@ -206,10 +208,9 @@ void poly_getnoise_eta1(poly *r,
  * @param [in] seed pointer to input seed
  * @param [in] nonce one-byte input nonce
  */
-#define POLY_GETNOISE_ETA2_BUFSIZE	(LC_KYBER_ETA2 * LC_KYBER_N / 4)
-void poly_getnoise_eta2(poly *r,
-			const uint8_t seed[LC_KYBER_SYMBYTES], uint8_t nonce,
-			void *ws_buf);
+#define POLY_GETNOISE_ETA2_BUFSIZE (LC_KYBER_ETA2 * LC_KYBER_N / 4)
+void poly_getnoise_eta2(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
+			uint8_t nonce, void *ws_buf);
 
 /**
  * @brief poly_ntt - Computes negacyclic number-theoretic transform (NTT) of
@@ -251,10 +252,10 @@ static inline void poly_basemul_montgomery(poly *r, const poly *a,
 	unsigned int i;
 
 	for (i = 0; i < LC_KYBER_N / 4; i++) {
-		basemul(&r->coeffs[4*i], &a->coeffs[4*i], &b->coeffs[4*i],
-			zetas[64+i]);
-		basemul(&r->coeffs[4*i+2], &a->coeffs[4*i+2], &b->coeffs[4*i+2],
-			-zetas[64+i]);
+		basemul(&r->coeffs[4 * i], &a->coeffs[4 * i], &b->coeffs[4 * i],
+			zetas[64 + i]);
+		basemul(&r->coeffs[4 * i + 2], &a->coeffs[4 * i + 2],
+			&b->coeffs[4 * i + 2], -zetas[64 + i]);
 	}
 }
 
@@ -270,7 +271,7 @@ static inline void poly_tomont(poly *r)
 	const int16_t f = (1ULL << 32) % LC_KYBER_Q;
 
 	for (i = 0; i < LC_KYBER_N; i++)
-		r->coeffs[i] = montgomery_reduce((int32_t)r->coeffs[i]*f);
+		r->coeffs[i] = montgomery_reduce((int32_t)r->coeffs[i] * f);
 }
 
 #ifdef __cplusplus

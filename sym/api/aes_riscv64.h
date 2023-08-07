@@ -21,8 +21,7 @@
 #define AES_RISCV64_V8_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 extern const struct lc_sym *lc_aes_cbc_riscv64;

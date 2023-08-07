@@ -48,8 +48,7 @@
  * @param pk [in] pointer to the input public-key polyvec
  * @param seed [in] pointer to the input public seed
  */
-static void pack_pk(uint8_t r[LC_KYBER_INDCPA_PUBLICKEYBYTES],
-		    polyvec *pk,
+static void pack_pk(uint8_t r[LC_KYBER_INDCPA_PUBLICKEYBYTES], polyvec *pk,
 		    const uint8_t seed[LC_KYBER_SYMBYTES])
 {
 	polyvec_tobytes(r, pk);
@@ -64,8 +63,7 @@ static void pack_pk(uint8_t r[LC_KYBER_INDCPA_PUBLICKEYBYTES],
  * @param seed [out] pointer to output seed to generate matrix A
  * @param packedpk [out] pointer to input serialized public key
  */
-static void unpack_pk(polyvec *pk,
-		      uint8_t seed[LC_KYBER_SYMBYTES],
+static void unpack_pk(polyvec *pk, uint8_t seed[LC_KYBER_SYMBYTES],
 		      const uint8_t packedpk[LC_KYBER_INDCPA_PUBLICKEYBYTES])
 {
 	polyvec_frombytes(pk, packedpk);
@@ -138,18 +136,18 @@ static void unpack_ciphertext(polyvec *b, poly *v,
  *
  * @returns number of sampled 16-bit integers (at most len)
  */
-static unsigned int rej_uniform(int16_t *r,
-				unsigned int len,
-				const uint8_t *buf,
-				unsigned int buflen)
+static unsigned int rej_uniform(int16_t *r, unsigned int len,
+				const uint8_t *buf, unsigned int buflen)
 {
 	unsigned int ctr, pos;
 	uint16_t val0, val1;
 
 	ctr = pos = 0;
 	while (ctr < len && pos + 3 <= buflen) {
-		val0 = ((buf[pos+0] >> 0) | ((uint16_t)buf[pos+1] << 8)) & 0xFFF;
-		val1 = ((buf[pos+1] >> 4) | ((uint16_t)buf[pos+2] << 4)) & 0xFFF;
+		val0 = ((buf[pos + 0] >> 0) | ((uint16_t)buf[pos + 1] << 8)) &
+		       0xFFF;
+		val1 = ((buf[pos + 1] >> 4) | ((uint16_t)buf[pos + 2] << 4)) &
+		       0xFFF;
 		pos += 3;
 
 		if (val0 < LC_KYBER_Q)
@@ -161,7 +159,7 @@ static unsigned int rej_uniform(int16_t *r,
 	return ctr;
 }
 
-#define gen_a(A, B, ws_buf)  gen_matrix(A, B, ws_buf, 0)
+#define gen_a(A, B, ws_buf) gen_matrix(A, B, ws_buf, 0)
 #define gen_at(A, B, ws_buf) gen_matrix(A, B, ws_buf, 1)
 
 /**
@@ -232,7 +230,7 @@ static int gen_matrix(polyvec *a, const uint8_t seed[LC_KYBER_SYMBYTES],
 		ctr3 = kyber_rej_uniform_avx(a[i].vec[3].coeffs, coeffs3);
 
 		while (ctr0 < LC_KYBER_N || ctr1 < LC_KYBER_N ||
-		ctr2 < LC_KYBER_N || ctr3 < LC_KYBER_N) {
+		       ctr2 < LC_KYBER_N || ctr3 < LC_KYBER_N) {
 			shake128x4_squeezeblocks(coeffs0, coeffs1, coeffs2,
 						 coeffs3, 1, &state);
 
@@ -268,8 +266,9 @@ int indcpa_keypair_avx(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 		/* See comment below - currently not needed */
 		//BUF_ALIGNED_UINT8_M256I(NOISE_NBLOCKS *
 		//	LC_SHAKE_256_SIZE_BLOCK) poly_getnoise_eta1_buf[4];
-		BUF_ALIGNED_UINT8_M256I(REJ_UNIFORM_AVX_NBLOCKS *
-					LC_SHAKE_128_SIZE_BLOCK) gen_a_buf[4];
+		BUF_ALIGNED_UINT8_M256I(
+			REJ_UNIFORM_AVX_NBLOCKS *LC_SHAKE_128_SIZE_BLOCK)
+		gen_a_buf[4];
 		uint8_t buf[2 * LC_KYBER_SYMBYTES];
 		polyvec a[LC_KYBER_K], e, pkpv, skpv;
 		keccakx4_state keccak_state;
@@ -296,12 +295,10 @@ int indcpa_keypair_avx(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 	BUILD_BUG_ON(REJ_UNIFORM_AVX_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK <
 		     NOISE_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK);
 	poly_getnoise_eta1_4x(ws->skpv.vec + 0, ws->skpv.vec + 1,
-			      ws->skpv.vec + 2, ws->skpv.vec + 3,
-			      noiseseed,  0, 1, 2, 3,
-			      ws->gen_a_buf, &ws->keccak_state);
-	poly_getnoise_eta1_4x(ws->e.vec + 0, ws->e.vec + 1,
-			      ws->e.vec + 2, ws->e.vec + 3,
-			      noiseseed, 4, 5, 6, 7,
+			      ws->skpv.vec + 2, ws->skpv.vec + 3, noiseseed, 0,
+			      1, 2, 3, ws->gen_a_buf, &ws->keccak_state);
+	poly_getnoise_eta1_4x(ws->e.vec + 0, ws->e.vec + 1, ws->e.vec + 2,
+			      ws->e.vec + 3, noiseseed, 4, 5, 6, 7,
 			      ws->gen_a_buf, &ws->keccak_state);
 	polyvec_ntt(&ws->skpv);
 	polyvec_reduce(&ws->skpv);
@@ -327,15 +324,16 @@ out:
 
 int indcpa_enc_avx(uint8_t c[LC_KYBER_INDCPA_BYTES],
 		   const uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
-	           const uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
-	           const uint8_t coins[LC_KYBER_SYMBYTES])
+		   const uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
+		   const uint8_t coins[LC_KYBER_SYMBYTES])
 {
 	struct workspace {
 		/* See comment below - currently not needed */
 		//BUF_ALIGNED_UINT8_M256I(NOISE_NBLOCKS *
 		//	LC_SHAKE_256_SIZE_BLOCK) poly_getnoise_eta1_buf[4];
-		BUF_ALIGNED_UINT8_M256I(REJ_UNIFORM_AVX_NBLOCKS *
-					LC_SHAKE_128_SIZE_BLOCK) gen_at_buf[4];
+		BUF_ALIGNED_UINT8_M256I(
+			REJ_UNIFORM_AVX_NBLOCKS *LC_SHAKE_128_SIZE_BLOCK)
+		gen_at_buf[4];
 		uint8_t seed[LC_KYBER_SYMBYTES];
 		polyvec sp, pkpv, ep, at[LC_KYBER_K], b;
 		poly v, k, epp;
@@ -355,13 +353,11 @@ int indcpa_enc_avx(uint8_t c[LC_KYBER_INDCPA_BYTES],
 	 */
 	BUILD_BUG_ON(REJ_UNIFORM_AVX_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK <
 		     NOISE_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK);
-	poly_getnoise_eta1_4x(ws->sp.vec + 0, ws->sp.vec + 1,
-			      ws->sp.vec + 2, ws->sp.vec + 3,
-			      coins, 0, 1, 2, 3, ws->gen_at_buf,
+	poly_getnoise_eta1_4x(ws->sp.vec + 0, ws->sp.vec + 1, ws->sp.vec + 2,
+			      ws->sp.vec + 3, coins, 0, 1, 2, 3, ws->gen_at_buf,
 			      &ws->keccak_state);
-	poly_getnoise_eta1_4x(ws->ep.vec + 0, ws->ep.vec + 1,
-			      ws->ep.vec + 2, ws->ep.vec + 3,
-			      coins, 4, 5, 6, 7, ws->gen_at_buf,
+	poly_getnoise_eta1_4x(ws->ep.vec + 0, ws->ep.vec + 1, ws->ep.vec + 2,
+			      ws->ep.vec + 3, coins, 4, 5, 6, 7, ws->gen_at_buf,
 			      &ws->keccak_state);
 	poly_getnoise_eta2_avx(&ws->epp, coins, 8);
 	polyvec_ntt(&ws->sp);

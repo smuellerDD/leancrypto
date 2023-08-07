@@ -32,24 +32,19 @@
 #include "lc_dilithium.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 void unpack_sk_avx2(uint8_t rho[LC_DILITHIUM_SEEDBYTES],
 		    uint8_t tr[LC_DILITHIUM_SEEDBYTES],
-		    uint8_t key[LC_DILITHIUM_SEEDBYTES],
-		    polyveck *t0,
-		    polyvecl *s1,
-		    polyveck *s2,
+		    uint8_t key[LC_DILITHIUM_SEEDBYTES], polyveck *t0,
+		    polyvecl *s1, polyveck *s2,
 		    const uint8_t sk[LC_DILITHIUM_SECRETKEYBYTES]);
 void unpack_sk_avx2_tr(uint8_t tr[LC_DILITHIUM_SEEDBYTES],
 		       const struct lc_dilithium_sk *sk);
 void unpack_sk_avx2_ex_tr(uint8_t rho[LC_DILITHIUM_SEEDBYTES],
-			  uint8_t key[LC_DILITHIUM_SEEDBYTES],
-			  polyveck *t0,
-			  polyvecl *s1,
-			  polyveck *s2,
+			  uint8_t key[LC_DILITHIUM_SEEDBYTES], polyveck *t0,
+			  polyvecl *s1, polyveck *s2,
 			  const uint8_t sk[LC_DILITHIUM_SECRETKEYBYTES]);
 
 #ifdef __cplusplus

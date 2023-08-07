@@ -37,8 +37,7 @@
  * @param t1 [in] pointer to vector t1
  */
 void pack_pk(struct lc_dilithium_pk *pk,
-	     const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
-	     const polyveck *t1)
+	     const uint8_t rho[LC_DILITHIUM_SEEDBYTES], const polyveck *t1)
 {
 	unsigned int i;
 	uint8_t *pubkey = pk->pk;
@@ -59,8 +58,7 @@ void pack_pk(struct lc_dilithium_pk *pk,
  * @param t1 [out] pointer to output vector t1
  * @param pk [in] byte array containing bit-packed pk
  */
-void unpack_pk(uint8_t rho[LC_DILITHIUM_SEEDBYTES],
-	       polyveck *t1,
+void unpack_pk(uint8_t rho[LC_DILITHIUM_SEEDBYTES], polyveck *t1,
 	       const struct lc_dilithium_pk *pk)
 {
 	unsigned int i;
@@ -89,10 +87,8 @@ void unpack_pk(uint8_t rho[LC_DILITHIUM_SEEDBYTES],
 void pack_sk(struct lc_dilithium_sk *sk,
 	     const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
 	     const uint8_t tr[LC_DILITHIUM_SEEDBYTES],
-	     const uint8_t key[LC_DILITHIUM_SEEDBYTES],
-	     const polyveck *t0,
-	     const polyvecl *s1,
-	     const polyveck *s2)
+	     const uint8_t key[LC_DILITHIUM_SEEDBYTES], const polyveck *t0,
+	     const polyvecl *s1, const polyveck *s2)
 {
 	unsigned int i;
 	uint8_t *seckey = sk->sk;
@@ -137,11 +133,8 @@ void pack_sk(struct lc_dilithium_sk *sk,
  */
 void unpack_sk(uint8_t rho[LC_DILITHIUM_SEEDBYTES],
 	       uint8_t tr[LC_DILITHIUM_SEEDBYTES],
-	       uint8_t key[LC_DILITHIUM_SEEDBYTES],
-	       polyveck *t0,
-	       polyvecl *s1,
-	       polyveck *s2,
-	       const struct lc_dilithium_sk *sk)
+	       uint8_t key[LC_DILITHIUM_SEEDBYTES], polyveck *t0, polyvecl *s1,
+	       polyveck *s2, const struct lc_dilithium_sk *sk)
 {
 	unsigned int i;
 	const uint8_t *seckey = sk->sk;
@@ -200,10 +193,8 @@ void unpack_sk_tr(uint8_t tr[LC_DILITHIUM_SEEDBYTES],
  * @param sk [in] byte array containing bit-packed sk
  */
 void unpack_sk_ex_tr(uint8_t rho[LC_DILITHIUM_SEEDBYTES],
-		     uint8_t key[LC_DILITHIUM_SEEDBYTES],
-		     polyveck *t0,
-		     polyvecl *s1,
-		     polyveck *s2,
+		     uint8_t key[LC_DILITHIUM_SEEDBYTES], polyveck *t0,
+		     polyvecl *s1, polyveck *s2,
 		     const struct lc_dilithium_sk *sk)
 {
 	unsigned int i;
@@ -235,7 +226,6 @@ void unpack_sk_ex_tr(uint8_t rho[LC_DILITHIUM_SEEDBYTES],
 			      seckey + i * LC_DILITHIUM_POLYT0_PACKEDBYTES);
 }
 
-
 /**
  * @brief pack_sig - Bit-pack signature sig = (c, z, h).
  *
@@ -245,15 +235,14 @@ void unpack_sk_ex_tr(uint8_t rho[LC_DILITHIUM_SEEDBYTES],
  * @param h [in] pointer to hint vector h
  */
 void pack_sig(struct lc_dilithium_sig *sig,
-	      const uint8_t c[LC_DILITHIUM_SEEDBYTES],
-	      const polyvecl *z,
+	      const uint8_t c[LC_DILITHIUM_SEEDBYTES], const polyvecl *z,
 	      const polyveck *h)
 {
 	unsigned int i, j, k;
 	uint8_t *signature = sig->sig;
 
-	BUILD_BUG_ON((1ULL << (sizeof(j)<<3)) < LC_DILITHIUM_N);
-	BUILD_BUG_ON((1ULL << (sizeof(k)<<3)) < LC_DILITHIUM_N);
+	BUILD_BUG_ON((1ULL << (sizeof(j) << 3)) < LC_DILITHIUM_N);
+	BUILD_BUG_ON((1ULL << (sizeof(k) << 3)) < LC_DILITHIUM_N);
 
 	for (i = 0; i < LC_DILITHIUM_SEEDBYTES; ++i)
 		signature[i] = c[i];
@@ -288,9 +277,7 @@ void pack_sig(struct lc_dilithium_sig *sig,
  *
  * @return 1 in case of malformed signature; otherwise 0.
  */
-int unpack_sig(uint8_t c[LC_DILITHIUM_SEEDBYTES],
-	       polyvecl *z,
-	       polyveck *h,
+int unpack_sig(uint8_t c[LC_DILITHIUM_SEEDBYTES], polyvecl *z, polyveck *h,
 	       const struct lc_dilithium_sig *sig)
 {
 	unsigned int i, j, k;
@@ -312,12 +299,12 @@ int unpack_sig(uint8_t c[LC_DILITHIUM_SEEDBYTES],
 			h->vec[i].coeffs[j] = 0;
 
 		if (signature[LC_DILITHIUM_OMEGA + i] < k ||
-		   signature[LC_DILITHIUM_OMEGA + i] > LC_DILITHIUM_OMEGA)
+		    signature[LC_DILITHIUM_OMEGA + i] > LC_DILITHIUM_OMEGA)
 			return 1;
 
 		for (j = k; j < signature[LC_DILITHIUM_OMEGA + i]; ++j) {
 			/* Coefficients are ordered for strong unforgeability */
-			if (j > k && signature[j] <= signature[j-1])
+			if (j > k && signature[j] <= signature[j - 1])
 				return 1;
 			h->vec[i].coeffs[signature[j]] = 1;
 		}

@@ -23,12 +23,11 @@
 #include "lc_hash.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-#define LC_SHA256_SIZE_BLOCK	64
-#define LC_SHA256_SIZE_DIGEST	32
+#define LC_SHA256_SIZE_BLOCK 64
+#define LC_SHA256_SIZE_DIGEST 32
 
 struct lc_sha256_state {
 	uint32_t H[8];
@@ -36,14 +35,13 @@ struct lc_sha256_state {
 	uint8_t partial[LC_SHA256_SIZE_BLOCK];
 };
 
-#define LC_SHA256_STATE_SIZE		(sizeof(struct lc_sha256_state))
-#define LC_SHA256_CTX_SIZE		(sizeof(struct lc_hash) +	       \
-					 LC_SHA256_STATE_SIZE)
+#define LC_SHA256_STATE_SIZE (sizeof(struct lc_sha256_state))
+#define LC_SHA256_CTX_SIZE (sizeof(struct lc_hash) + LC_SHA256_STATE_SIZE)
 
 extern const struct lc_hash *lc_sha256;
 
-#define LC_SHA256_CTX(name)						       \
-	LC_HASH_SET_CTX(name, lc_sha256);				       \
+#define LC_SHA256_CTX(name)                                                    \
+	LC_HASH_SET_CTX(name, lc_sha256);                                      \
 	lc_hash_zero(name)
 
 /**
@@ -51,14 +49,14 @@ extern const struct lc_hash *lc_sha256;
  *
  * @param [in] name Name of the stack variable
  */
-#define LC_SHA256_CTX_ON_STACK(name)					       \
-	_Pragma("GCC diagnostic push")					       \
-	_Pragma("GCC diagnostic ignored \"-Wvla\"")	      		       \
-	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_SHA256_CTX_SIZE,		       \
-			  LC_HASH_COMMON_ALIGNMENT);			       \
-	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name ## _ctx_buf;     \
-	LC_SHA256_CTX(name);						       \
+#define LC_SHA256_CTX_ON_STACK(name)                                                \
+	_Pragma("GCC diagnostic push")                                              \
+		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
+			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
+			LC_ALIGNED_BUFFER(name##_ctx_buf, LC_SHA256_CTX_SIZE,       \
+					  LC_HASH_COMMON_ALIGNMENT);                \
+	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name##_ctx_buf;            \
+	LC_SHA256_CTX(name);                                                        \
 	_Pragma("GCC diagnostic pop")
 
 #ifdef __cplusplus

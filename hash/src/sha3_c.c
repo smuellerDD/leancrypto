@@ -30,13 +30,13 @@
 
 static inline uint64_t rol(uint64_t x, int n)
 {
-	return ( (x << (n&(64-1))) | (x >> ((64-n)&(64-1))) );
+	return ((x << (n & (64 - 1))) | (x >> ((64 - n) & (64 - 1))));
 }
 
 /*********************************** Keccak ***********************************/
 /* state[x + y*5] */
-#define A(x, y) 	(x + 5 * y)
-#define RHO_ROL(t)	(((t + 1) * (t + 2) / 2) % 64)
+#define A(x, y) (x + 5 * y)
+#define RHO_ROL(t) (((t + 1) * (t + 2) / 2) % 64)
 
 static inline void keccakp_theta_rho_pi(uint64_t s[25])
 {
@@ -195,7 +195,6 @@ static void sha3_224_init(void *_state)
 	struct lc_sha3_224_state *ctx = _state;
 	static int tested = 0;
 
-
 	if (!ctx)
 		return;
 
@@ -228,7 +227,6 @@ static void sha3_256_init(void *_state)
 {
 	struct lc_sha3_256_state *ctx = _state;
 	static int tested = 0;
-
 
 	if (!ctx)
 		return;
@@ -299,7 +297,8 @@ static void sha3_512_init(void *_state)
 	if (!ctx)
 		return;
 
-	sha3_512_selftest_common(lc_sha3_512_c, &tested, "SHA3-512 C");	sha3_512_init_common(_state);
+	sha3_512_selftest_common(lc_sha3_512_c, &tested, "SHA3-512 C");
+	sha3_512_init_common(_state);
 	sha3_state_init(ctx->state);
 }
 
@@ -427,16 +426,16 @@ static inline void sha3_fill_state(struct lc_sha3_224_state *ctx,
 	unsigned int i;
 
 	for (i = 0; i < ctx->rword; i++) {
-		ctx->state[i]  ^= ptr_to_le64(in);
+		ctx->state[i] ^= ptr_to_le64(in);
 		in += 8;
 	}
 }
 
 static inline int sha3_aligned(const uint8_t *ptr, uint32_t alignmask)
 {
-        if ((uintptr_t)ptr & alignmask)
-                return 0;
-        return 1;
+	if ((uintptr_t)ptr & alignmask)
+		return 0;
+	return 1;
 }
 
 static inline void sha3_fill_state_aligned(struct lc_sha3_224_state *ctx,
@@ -445,7 +444,7 @@ static inline void sha3_fill_state_aligned(struct lc_sha3_224_state *ctx,
 	unsigned int i;
 
 	for (i = 0; i < ctx->rword; i++) {
-		ctx->state[i]  ^= le_bswap64(*in);
+		ctx->state[i] ^= le_bswap64(*in);
 		in++;
 	}
 }
@@ -551,7 +550,6 @@ static void keccak_squeeze(void *_state, uint8_t *digest)
 #pragma GCC diagnostic ignored "-Wcast-align"
 		sha3_fill_state_aligned(ctx, (uint64_t *)ctx->partial);
 #pragma GCC diagnostic pop
-
 	}
 
 	while (digest_len) {
@@ -573,8 +571,7 @@ static void keccak_squeeze(void *_state, uint8_t *digest)
 			 */
 			size_t word, byte;
 
-			for (i = ctx->offset;
-			     i < todo + ctx->offset;
+			for (i = ctx->offset; i < todo + ctx->offset;
 			     i++, digest++) {
 				word = i / sizeof(ctx->state[0]);
 				byte = (i % sizeof(ctx->state[0])) << 3;
@@ -651,90 +648,90 @@ size_t shake_get_digestsize(void *_state)
 }
 
 static const struct lc_hash _sha3_224_c = {
-	.init		= sha3_224_init,
-	.update		= keccak_absorb,
-	.final		= keccak_squeeze,
-	.set_digestsize	= NULL,
-	.get_digestsize	= sha3_224_digestsize,
-	.blocksize	= LC_SHA3_224_SIZE_BLOCK,
-	.statesize	= sizeof(struct lc_sha3_224_state),
+	.init = sha3_224_init,
+	.update = keccak_absorb,
+	.final = keccak_squeeze,
+	.set_digestsize = NULL,
+	.get_digestsize = sha3_224_digestsize,
+	.blocksize = LC_SHA3_224_SIZE_BLOCK,
+	.statesize = sizeof(struct lc_sha3_224_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_224_c) = &_sha3_224_c;
 
 static const struct lc_hash _sha3_256_c = {
-	.init		= sha3_256_init,
-	.update		= keccak_absorb,
-	.final		= keccak_squeeze,
-	.set_digestsize	= NULL,
-	.get_digestsize	= sha3_256_digestsize,
-	.blocksize	= LC_SHA3_256_SIZE_BLOCK,
-	.statesize	= sizeof(struct lc_sha3_256_state),
+	.init = sha3_256_init,
+	.update = keccak_absorb,
+	.final = keccak_squeeze,
+	.set_digestsize = NULL,
+	.get_digestsize = sha3_256_digestsize,
+	.blocksize = LC_SHA3_256_SIZE_BLOCK,
+	.statesize = sizeof(struct lc_sha3_256_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_256_c) = &_sha3_256_c;
 
 static const struct lc_hash _sha3_384_c = {
-	.init		= sha3_384_init,
-	.update		= keccak_absorb,
-	.final		= keccak_squeeze,
-	.set_digestsize	= NULL,
-	.get_digestsize	= sha3_384_digestsize,
-	.blocksize	= LC_SHA3_384_SIZE_BLOCK,
-	.statesize	= sizeof(struct lc_sha3_384_state),
+	.init = sha3_384_init,
+	.update = keccak_absorb,
+	.final = keccak_squeeze,
+	.set_digestsize = NULL,
+	.get_digestsize = sha3_384_digestsize,
+	.blocksize = LC_SHA3_384_SIZE_BLOCK,
+	.statesize = sizeof(struct lc_sha3_384_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_384_c) = &_sha3_384_c;
 
 static const struct lc_hash _sha3_512_c = {
-	.init		= sha3_512_init,
-	.update		= keccak_absorb,
-	.final		= keccak_squeeze,
-	.set_digestsize	= NULL,
-	.get_digestsize	= sha3_512_digestsize,
-	.blocksize	= LC_SHA3_512_SIZE_BLOCK,
-	.statesize	= sizeof(struct lc_sha3_512_state),
+	.init = sha3_512_init,
+	.update = keccak_absorb,
+	.final = keccak_squeeze,
+	.set_digestsize = NULL,
+	.get_digestsize = sha3_512_digestsize,
+	.blocksize = LC_SHA3_512_SIZE_BLOCK,
+	.statesize = sizeof(struct lc_sha3_512_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_512_c) = &_sha3_512_c;
 
 static const struct lc_hash _shake128_c = {
-	.init		= shake_128_init,
-	.update		= keccak_absorb,
-	.final		= keccak_squeeze,
-	.set_digestsize	= shake_set_digestsize,
-	.get_digestsize	= shake_get_digestsize,
-	.blocksize	= LC_SHAKE_128_SIZE_BLOCK,
-	.statesize	= sizeof(struct lc_shake_128_state),
+	.init = shake_128_init,
+	.update = keccak_absorb,
+	.final = keccak_squeeze,
+	.set_digestsize = shake_set_digestsize,
+	.get_digestsize = shake_get_digestsize,
+	.blocksize = LC_SHAKE_128_SIZE_BLOCK,
+	.statesize = sizeof(struct lc_shake_128_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake128_c) = &_shake128_c;
 
 static const struct lc_hash _shake256_c = {
-	.init		= shake_256_init,
-	.update		= keccak_absorb,
-	.final		= keccak_squeeze,
-	.set_digestsize	= shake_set_digestsize,
-	.get_digestsize	= shake_get_digestsize,
-	.blocksize	= LC_SHA3_256_SIZE_BLOCK,
-	.statesize	= sizeof(struct lc_sha3_256_state),
+	.init = shake_256_init,
+	.update = keccak_absorb,
+	.final = keccak_squeeze,
+	.set_digestsize = shake_set_digestsize,
+	.get_digestsize = shake_get_digestsize,
+	.blocksize = LC_SHA3_256_SIZE_BLOCK,
+	.statesize = sizeof(struct lc_sha3_256_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake256_c) = &_shake256_c;
 
 static const struct lc_hash _cshake256_c = {
-	.init		= cshake_256_init,
-	.update		= keccak_absorb,
-	.final		= keccak_squeeze,
-	.set_digestsize	= shake_set_digestsize,
-	.get_digestsize	= shake_get_digestsize,
-	.blocksize	= LC_SHA3_256_SIZE_BLOCK,
-	.statesize	= sizeof(struct lc_sha3_256_state),
+	.init = cshake_256_init,
+	.update = keccak_absorb,
+	.final = keccak_squeeze,
+	.set_digestsize = shake_set_digestsize,
+	.get_digestsize = shake_get_digestsize,
+	.blocksize = LC_SHA3_256_SIZE_BLOCK,
+	.statesize = sizeof(struct lc_sha3_256_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_cshake256_c) = &_cshake256_c;
 
 static const struct lc_hash _cshake128_c = {
-	.init		= cshake_128_init,
-	.update		= keccak_absorb,
-	.final		= keccak_squeeze,
-	.set_digestsize	= shake_set_digestsize,
-	.get_digestsize	= shake_get_digestsize,
-	.blocksize	= LC_SHAKE_128_SIZE_BLOCK,
-	.statesize	= sizeof(struct lc_shake_128_state),
+	.init = cshake_128_init,
+	.update = keccak_absorb,
+	.final = keccak_squeeze,
+	.set_digestsize = shake_set_digestsize,
+	.get_digestsize = shake_get_digestsize,
+	.blocksize = LC_SHAKE_128_SIZE_BLOCK,
+	.statesize = sizeof(struct lc_shake_128_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_cshake128_c) = &_cshake128_c;
 

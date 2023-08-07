@@ -24,8 +24,7 @@
 #include "lc_sym.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /*
@@ -38,23 +37,20 @@ struct lc_sym_mode {
 	void (*init)(struct lc_mode_state *ctx,
 		     const struct lc_sym *wrapped_cipher,
 		     void *wrapped_cipher_ctx);
-	int (*setkey)(struct lc_mode_state *ctx,
-		      const uint8_t *key, size_t keylen);
+	int (*setkey)(struct lc_mode_state *ctx, const uint8_t *key,
+		      size_t keylen);
 	int (*setiv)(struct lc_mode_state *ctx, const uint8_t *iv,
 		     size_t ivlen);
-	void (*encrypt)(struct lc_mode_state *ctx,
-			const uint8_t *in, uint8_t *out, size_t len);
-	void (*decrypt)(struct lc_mode_state *ctx,
-			const uint8_t *in, uint8_t *out, size_t len);
+	void (*encrypt)(struct lc_mode_state *ctx, const uint8_t *in,
+			uint8_t *out, size_t len);
+	void (*decrypt)(struct lc_mode_state *ctx, const uint8_t *in,
+			uint8_t *out, size_t len);
 	unsigned int statesize;
 	unsigned int blocksize;
 };
 
-
-
 /* AES block algorithm context */
-struct aes_block_ctx
-{
+struct aes_block_ctx {
 	/*
 	 * AES-256: 240
 	 * AES-192: 208
@@ -90,13 +86,13 @@ static inline int aes_set_type(struct aes_block_ctx *ctx, size_t keylen)
 typedef uint8_t state_t[4][4];
 
 /* Key expansion operation */
-void KeyExpansion(struct aes_block_ctx *block_ctx, const uint8_t* Key);
+void KeyExpansion(struct aes_block_ctx *block_ctx, const uint8_t *Key);
 
 /* AES block cipher operation */
-void aes_cipher(state_t* state, const struct aes_block_ctx *block_ctx);
+void aes_cipher(state_t *state, const struct aes_block_ctx *block_ctx);
 
 /* AES inverse block cipher operation */
-void aes_inv_cipher(state_t* state, const struct aes_block_ctx *block_ctx);
+void aes_inv_cipher(state_t *state, const struct aes_block_ctx *block_ctx);
 
 #ifdef __cplusplus
 }

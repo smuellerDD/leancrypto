@@ -8,8 +8,8 @@
 #include "lc_hash.h"
 #include "visibility.h"
 
-LC_INTERFACE_FUNCTION(
-int, lc_hash_alloc, const struct lc_hash *hash, struct lc_hash_ctx **hash_ctx)
+LC_INTERFACE_FUNCTION(int, lc_hash_alloc, const struct lc_hash *hash,
+		      struct lc_hash_ctx **hash_ctx)
 {
 	struct lc_hash_ctx *out_ctx = NULL;
 	int ret;
@@ -29,8 +29,7 @@ int, lc_hash_alloc, const struct lc_hash *hash, struct lc_hash_ctx **hash_ctx)
 	return 0;
 }
 
-LC_INTERFACE_FUNCTION(
-void, lc_hash_zero_free, struct lc_hash_ctx *hash_ctx)
+LC_INTERFACE_FUNCTION(void, lc_hash_zero_free, struct lc_hash_ctx *hash_ctx)
 {
 	if (!hash_ctx)
 		return;
@@ -39,10 +38,8 @@ void, lc_hash_zero_free, struct lc_hash_ctx *hash_ctx)
 	lc_free(hash_ctx);
 }
 
-LC_INTERFACE_FUNCTION(
-void, lc_hash, const struct lc_hash *hash,
-	       const uint8_t *in, size_t inlen,
-	       uint8_t *digest)
+LC_INTERFACE_FUNCTION(void, lc_hash, const struct lc_hash *hash,
+		      const uint8_t *in, size_t inlen, uint8_t *digest)
 {
 	LC_HASH_CTX_ON_STACK(hash_ctx, hash);
 
@@ -53,10 +50,9 @@ void, lc_hash, const struct lc_hash *hash,
 	lc_hash_zero(hash_ctx);
 }
 
-LC_INTERFACE_FUNCTION(
-void, lc_shake, const struct lc_hash *shake,
-		const uint8_t *in, size_t inlen,
-		uint8_t *digest, size_t digestlen)
+LC_INTERFACE_FUNCTION(void, lc_shake, const struct lc_hash *shake,
+		      const uint8_t *in, size_t inlen, uint8_t *digest,
+		      size_t digestlen)
 {
 	LC_HASH_CTX_ON_STACK(hash_ctx, shake);
 

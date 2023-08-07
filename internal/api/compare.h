@@ -23,21 +23,20 @@
 #include "ext_headers.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 int get_current_selftest_level(void);
 
 #ifdef LC_SELFTEST_ENABLED
-#define LC_SELFTEST_RUN(x)						       \
-	if (*x == get_current_selftest_level())				       \
-		return;							       \
+#define LC_SELFTEST_RUN(x)                                                     \
+	if (*x == get_current_selftest_level())                                \
+		return;                                                        \
 	*x = get_current_selftest_level();
 #else /* LC_SELFTEST_ENABLED */
-#define LC_SELFTEST_RUN(x)						       \
-	(void)x;							       \
-	if (1)								       \
+#define LC_SELFTEST_RUN(x)                                                     \
+	(void)x;                                                               \
+	if (1)                                                                 \
 		return;
 #endif /* LC_SELFTEST_ENABLED */
 

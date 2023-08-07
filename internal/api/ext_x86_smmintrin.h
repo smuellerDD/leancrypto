@@ -34,8 +34,8 @@
 #ifdef __clang__
 
 #define __DEFAULT_FN_ATTRS                                                     \
-  __attribute__((__always_inline__, __nodebug__, __target__("sse4.1"),         \
-                 __min_vector_width__(128)))
+	__attribute__((__always_inline__, __nodebug__, __target__("sse4.1"),   \
+		       __min_vector_width__(128)))
 
 #else
 
@@ -45,21 +45,22 @@
 #define __DISABLE_SSE4_1__
 #endif /* __SSE4_1__ */
 
-#define __DEFAULT_FN_ATTRS						       \
+#define __DEFAULT_FN_ATTRS                                                     \
 	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
 
 #endif
 
 static __inline__ __m128i __DEFAULT_FN_ATTRS _mm_blendv_epi8(__m128i __V1,
-                                                             __m128i __V2,
-                                                             __m128i __M) {
-  return (__m128i)__builtin_ia32_pblendvb128((__v16qi)__V1, (__v16qi)__V2,
-                                             (__v16qi)__M);
+							     __m128i __V2,
+							     __m128i __M)
+{
+	return (__m128i)__builtin_ia32_pblendvb128((__v16qi)__V1, (__v16qi)__V2,
+						   (__v16qi)__M);
 }
 
 #define _mm_blend_epi16(V1, V2, M)                                             \
-  ((__m128i)__builtin_ia32_pblendw128((__v8hi)(__m128i)(V1),                   \
-                                      (__v8hi)(__m128i)(V2), (int)(M)))
+	((__m128i)__builtin_ia32_pblendw128((__v8hi)(__m128i)(V1),             \
+					    (__v8hi)(__m128i)(V2), (int)(M)))
 
 #undef __DEFAULT_FN_ATTRS
 

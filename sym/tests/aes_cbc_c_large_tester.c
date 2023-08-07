@@ -27,17 +27,13 @@ static int aes_cbc_large_c(void)
 {
 	LC_SYM_CTX_ON_STACK(aes_cbc, lc_aes_cbc_c);
 	uint8_t *pt;
-	uint8_t key[] = {
-		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-		0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f
-	};
-	uint8_t iv[] = {
-		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-		0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f
-	};
+	uint8_t key[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+			  0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
+	uint8_t iv[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+			 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
 	int ret;
 
-	pt = calloc(1, 1UL<<30);
+	pt = calloc(1, 1UL << 30);
 	if (!pt)
 		return 1;
 
@@ -45,14 +41,14 @@ static int aes_cbc_large_c(void)
 	CKINT_LOG(lc_sym_setkey(aes_cbc, key, sizeof(key)),
 		  "Encrypt set key\n");
 	CKINT_LOG(lc_sym_setiv(aes_cbc, iv, sizeof(iv)), "Encrypt set IV\n");
-	lc_sym_encrypt(aes_cbc, pt, pt, 1UL<<30);
+	lc_sym_encrypt(aes_cbc, pt, pt, 1UL << 30);
 	lc_sym_zero(aes_cbc);
 
 	lc_sym_init(aes_cbc);
 	CKINT_LOG(lc_sym_setkey(aes_cbc, key, sizeof(key)),
 		  "Decrypt set key\n");
 	CKINT_LOG(lc_sym_setiv(aes_cbc, iv, sizeof(iv)), "Decrypt set IV\n");
-	lc_sym_decrypt(aes_cbc, pt, pt, 1UL<<30);
+	lc_sym_decrypt(aes_cbc, pt, pt, 1UL << 30);
 	lc_sym_zero(aes_cbc);
 
 out:

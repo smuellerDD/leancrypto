@@ -25,11 +25,10 @@
 #include "bitshift_be.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-#if __BYTE_ORDER__ ==  __ORDER_BIG_ENDIAN__
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 
 static inline uint64_t ptr_to_64(const uint8_t *p)
 {
@@ -74,7 +73,7 @@ static inline void val32_to_ptr(uint8_t *p, const uint32_t value)
 }
 
 #else
-# error "Endianess not defined"
+#error "Endianess not defined"
 #endif
 
 #ifdef __cplusplus

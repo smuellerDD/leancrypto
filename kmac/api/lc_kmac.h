@@ -26,38 +26,36 @@
 #include "lc_memset_secure.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 struct lc_kmac_ctx {
-	uint8_t final_called:1;
-	uint8_t rng_initialized:1;
+	uint8_t final_called : 1;
+	uint8_t rng_initialized : 1;
 	uint8_t *shadow_ctx;
 	struct lc_hash_ctx hash_ctx;
 };
 
-#define LC_KMAC_STATE_SIZE(x)		(LC_HASH_STATE_SIZE(x))
-#define LC_KMAC_STATE_SIZE_REINIT(x)	(2 * LC_HASH_STATE_SIZE(x))
-#define LC_KMAC_CTX_SIZE(x)		(LC_KMAC_STATE_SIZE(x) + 	       \
-					 sizeof(struct lc_kmac_ctx))
-#define LC_KMAC_CTX_SIZE_REINIT(x)	(LC_KMAC_STATE_SIZE_REINIT(x) +	       \
-					 sizeof(struct lc_kmac_ctx))
+#define LC_KMAC_STATE_SIZE(x) (LC_HASH_STATE_SIZE(x))
+#define LC_KMAC_STATE_SIZE_REINIT(x) (2 * LC_HASH_STATE_SIZE(x))
+#define LC_KMAC_CTX_SIZE(x) (LC_KMAC_STATE_SIZE(x) + sizeof(struct lc_kmac_ctx))
+#define LC_KMAC_CTX_SIZE_REINIT(x)                                             \
+	(LC_KMAC_STATE_SIZE_REINIT(x) + sizeof(struct lc_kmac_ctx))
 
-#define _LC_KMAC_SET_CTX(name, hashname, ctx, offset)			       \
-	_LC_HASH_SET_CTX((&name->hash_ctx), hashname, ctx, offset);	       \
-        name->shadow_ctx = NULL
+#define _LC_KMAC_SET_CTX(name, hashname, ctx, offset)                          \
+	_LC_HASH_SET_CTX((&name->hash_ctx), hashname, ctx, offset);            \
+	name->shadow_ctx = NULL
 
-#define LC_KMAC_SET_CTX(name, hashname)					       \
+#define LC_KMAC_SET_CTX(name, hashname)                                        \
 	_LC_KMAC_SET_CTX(name, hashname, name, sizeof(struct lc_kmac_ctx))
 
-#define _LC_KMAC_SET_CTX_REINIT(name, hashname, ctx, offset)		       \
-	_LC_HASH_SET_CTX((&name->hash_ctx), hashname, name, offset);	       \
-        name->shadow_ctx = (uint8_t *)((uint8_t *)ctx + offset +	       \
+#define _LC_KMAC_SET_CTX_REINIT(name, hashname, ctx, offset)                   \
+	_LC_HASH_SET_CTX((&name->hash_ctx), hashname, name, offset);           \
+	name->shadow_ctx = (uint8_t *)((uint8_t *)ctx + offset +               \
 				       LC_HASH_STATE_SIZE(hashname))
 
-#define LC_KMAC_SET_CTX_REINIT(name, hashname)				       \
-	_LC_KMAC_SET_CTX_REINIT(name, hashname, name,			       \
+#define LC_KMAC_SET_CTX_REINIT(name, hashname)                                 \
+	_LC_KMAC_SET_CTX_REINIT(name, hashname, name,                          \
 				sizeof(struct lc_kmac_ctx))
 
 /**
@@ -73,8 +71,7 @@ struct lc_kmac_ctx {
  * The caller must provide an allocated kmac_ctx. This can be achieved by
  * using KMAC_CTX_ON_STACK or by using kmac_alloc.
  */
-void lc_kmac_init(struct lc_kmac_ctx *kmac_ctx,
-		  const uint8_t *key, size_t klen,
+void lc_kmac_init(struct lc_kmac_ctx *kmac_ctx, const uint8_t *key, size_t klen,
 		  const uint8_t *s, size_t slen);
 
 /**
@@ -96,8 +93,8 @@ void lc_kmac_reinit(struct lc_kmac_ctx *kmac_ctx);
  * @param [in] in Buffer holding the data whose MAC shall be calculated
  * @param [in] inlen Length of the input buffer
  */
-void lc_kmac_update(struct lc_kmac_ctx *kmac_ctx,
-		    const uint8_t *in, size_t inlen);
+void lc_kmac_update(struct lc_kmac_ctx *kmac_ctx, const uint8_t *in,
+		    size_t inlen);
 
 /**
  * @brief Calculate KMAC MAC
@@ -142,8 +139,8 @@ void lc_kmac_final(struct lc_kmac_ctx *kmac_ctx, uint8_t *mac, size_t maclen);
  * @param [out] mac Buffer to hold the message digest
  * @param [in] maclen Size of the requested MAC
  */
-void lc_kmac_final_xof(struct lc_kmac_ctx *kmac_ctx,
-		       uint8_t *mac, size_t maclen);
+void lc_kmac_final_xof(struct lc_kmac_ctx *kmac_ctx, uint8_t *mac,
+		       size_t maclen);
 
 /**
  * @brief Allocate KMAC context on heap
@@ -168,7 +165,7 @@ int lc_kmac_alloc(const struct lc_hash *hash, struct lc_kmac_ctx **kmac_ctx,
  * the context with re-init support. The difference is that more memory is
  * allocated to retain the initialized state.
  */
-#define LC_KMAC_FLAGS_SUPPORT_REINIT	(1 << 0)
+#define LC_KMAC_FLAGS_SUPPORT_REINIT (1 << 0)
 
 /**
  * @brief Zeroize and free KMAC context
@@ -197,8 +194,9 @@ static inline void lc_kmac_zero(struct lc_kmac_ctx *kmac_ctx)
 	kmac_ctx->rng_initialized = 0;
 
 	lc_memset_secure((uint8_t *)kmac_ctx + sizeof(struct lc_kmac_ctx), 0,
-			 kmac_ctx->shadow_ctx ? LC_KMAC_STATE_SIZE_REINIT(hash):
-						LC_KMAC_STATE_SIZE(hash));
+			 kmac_ctx->shadow_ctx ?
+				 LC_KMAC_STATE_SIZE_REINIT(hash) :
+				 LC_KMAC_STATE_SIZE(hash));
 }
 
 /**
@@ -211,15 +209,16 @@ static inline void lc_kmac_zero(struct lc_kmac_ctx *kmac_ctx)
  * @param [in] hashname Pointer of type struct hash referencing the hash
  *			 implementation to be used
  */
-#define LC_KMAC_CTX_ON_STACK(name, hashname)				       \
-	_Pragma("GCC diagnostic push")					       \
-	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
-	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_KMAC_CTX_SIZE(hashname),	       \
-			  LC_HASH_COMMON_ALIGNMENT);			       \
-	struct lc_kmac_ctx *name = (struct lc_kmac_ctx *)name ## _ctx_buf;     \
-	LC_KMAC_SET_CTX(name, hashname);				       \
-	lc_kmac_zero(name);						       \
+#define LC_KMAC_CTX_ON_STACK(name, hashname)                                        \
+	_Pragma("GCC diagnostic push")                                              \
+		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
+			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
+			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
+					  LC_KMAC_CTX_SIZE(hashname),               \
+					  LC_HASH_COMMON_ALIGNMENT);                \
+	struct lc_kmac_ctx *name = (struct lc_kmac_ctx *)name##_ctx_buf;            \
+	LC_KMAC_SET_CTX(name, hashname);                                            \
+	lc_kmac_zero(name);                                                         \
 	_Pragma("GCC diagnostic pop")
 
 /**
@@ -233,15 +232,16 @@ static inline void lc_kmac_zero(struct lc_kmac_ctx *kmac_ctx)
  * @param [in] hashname Pointer of type struct hash referencing the hash
  *			 implementation to be used
  */
-#define LC_KMAC_CTX_ON_STACK_REINIT(name, hashname)			       \
-	_Pragma("GCC diagnostic push")					       \
-	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
-	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_KMAC_CTX_SIZE_REINIT(hashname), \
-			  LC_HASH_COMMON_ALIGNMENT);			       \
-	struct lc_kmac_ctx *name = (struct lc_kmac_ctx *)name ## _ctx_buf;     \
-	LC_KMAC_SET_CTX_REINIT(name, hashname);				       \
-	lc_kmac_zero(name);						       \
+#define LC_KMAC_CTX_ON_STACK_REINIT(name, hashname)                                 \
+	_Pragma("GCC diagnostic push")                                              \
+		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
+			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
+			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
+					  LC_KMAC_CTX_SIZE_REINIT(hashname),        \
+					  LC_HASH_COMMON_ALIGNMENT);                \
+	struct lc_kmac_ctx *name = (struct lc_kmac_ctx *)name##_ctx_buf;            \
+	LC_KMAC_SET_CTX_REINIT(name, hashname);                                     \
+	lc_kmac_zero(name);                                                         \
 	_Pragma("GCC diagnostic pop")
 
 /**
@@ -278,19 +278,18 @@ static inline size_t lc_kmac_macsize(struct lc_kmac_ctx *kmac_ctx)
  *
  * The KMAC calculation operates entirely on the stack.
  */
-static inline void lc_kmac(const struct lc_hash *hash,
-			   const uint8_t *key, size_t keylen,
-			   const uint8_t *s, size_t slen,
-			   const uint8_t *in, size_t inlen,
-			   uint8_t *mac, size_t maclen)
+static inline void lc_kmac(const struct lc_hash *hash, const uint8_t *key,
+			   size_t keylen, const uint8_t *s, size_t slen,
+			   const uint8_t *in, size_t inlen, uint8_t *mac,
+			   size_t maclen)
 {
-	   LC_KMAC_CTX_ON_STACK(kmac_ctx, hash);
+	LC_KMAC_CTX_ON_STACK(kmac_ctx, hash);
 
-	   lc_kmac_init(kmac_ctx, key, keylen, s, slen);
-	   lc_kmac_update(kmac_ctx, in, inlen);
-	   lc_kmac_final(kmac_ctx, mac, maclen);
+	lc_kmac_init(kmac_ctx, key, keylen, s, slen);
+	lc_kmac_update(kmac_ctx, in, inlen);
+	lc_kmac_final(kmac_ctx, mac, maclen);
 
-	   lc_kmac_zero(kmac_ctx);
+	lc_kmac_zero(kmac_ctx);
 }
 
 /**
@@ -309,19 +308,18 @@ static inline void lc_kmac(const struct lc_hash *hash,
  *
  * The KMAC calculation operates entirely on the stack.
  */
-static inline void lc_kmac_xof(const struct lc_hash *hash,
-			       const uint8_t *key, size_t keylen,
-			       const uint8_t *s, size_t slen,
-			       const uint8_t *in, size_t inlen,
-			       uint8_t *mac, size_t maclen)
+static inline void lc_kmac_xof(const struct lc_hash *hash, const uint8_t *key,
+			       size_t keylen, const uint8_t *s, size_t slen,
+			       const uint8_t *in, size_t inlen, uint8_t *mac,
+			       size_t maclen)
 {
-	   LC_KMAC_CTX_ON_STACK(kmac_ctx, hash);
+	LC_KMAC_CTX_ON_STACK(kmac_ctx, hash);
 
-	   lc_kmac_init(kmac_ctx, key, keylen, s, slen);
-	   lc_kmac_update(kmac_ctx, in, inlen);
-	   lc_kmac_final_xof(kmac_ctx, mac, maclen);
+	lc_kmac_init(kmac_ctx, key, keylen, s, slen);
+	lc_kmac_update(kmac_ctx, in, inlen);
+	lc_kmac_final_xof(kmac_ctx, mac, maclen);
 
-	   lc_kmac_zero(kmac_ctx);
+	lc_kmac_zero(kmac_ctx);
 }
 
 /******************************** KMAC as RNG *********************************/
@@ -340,16 +338,15 @@ static inline void lc_kmac_xof(const struct lc_hash *hash,
 /* KMAC DRNG implementation */
 extern const struct lc_rng *lc_kmac_rng;
 
-#define LC_KMAC_KDF_DRNG_CTX_SIZE(hashname)	(sizeof(struct lc_rng_ctx) +   \
-						 LC_KMAC_CTX_SIZE(hashname))
+#define LC_KMAC_KDF_DRNG_CTX_SIZE(hashname)                                    \
+	(sizeof(struct lc_rng_ctx) + LC_KMAC_CTX_SIZE(hashname))
 
-#define LC_KMAC_KDF_DRNG_SET_CTX(name, hashname)			       \
-						LC_KMAC_SET_CTX(name, hashname)
+#define LC_KMAC_KDF_DRNG_SET_CTX(name, hashname) LC_KMAC_SET_CTX(name, hashname)
 
-#define LC_KMAC_KDF_RNG_CTX(name, hashname)				       \
-	LC_RNG_CTX(name, lc_kmac_rng);					       \
+#define LC_KMAC_KDF_RNG_CTX(name, hashname)                                    \
+	LC_RNG_CTX(name, lc_kmac_rng);                                         \
 	LC_KMAC_KDF_DRNG_SET_CTX(((struct lc_kmac_ctx *)(name->rng_state)),    \
-				 hashname);				       \
+				 hashname);                                    \
 	lc_rng_zero(name)
 
 /**
@@ -359,15 +356,15 @@ extern const struct lc_rng *lc_kmac_rng;
  * @param [in] hashname Reference to lc_hash implementation - use lc_cshake256
  *			or lc_cshake128.
  */
-#define LC_KMAC_KDF_DRNG_CTX_ON_STACK(name, hashname)			       \
-	_Pragma("GCC diagnostic push")					       \
-	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
-	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-	LC_ALIGNED_BUFFER(name ## _ctx_buf,				       \
-			  LC_KMAC_KDF_DRNG_CTX_SIZE(hashname),		       \
-			  LC_HASH_COMMON_ALIGNMENT);			       \
-	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name ## _ctx_buf;       \
-	LC_KMAC_KDF_RNG_CTX(name, hashname);				       \
+#define LC_KMAC_KDF_DRNG_CTX_ON_STACK(name, hashname)                               \
+	_Pragma("GCC diagnostic push")                                              \
+		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
+			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
+			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
+					  LC_KMAC_KDF_DRNG_CTX_SIZE(hashname),      \
+					  LC_HASH_COMMON_ALIGNMENT);                \
+	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name##_ctx_buf;              \
+	LC_KMAC_KDF_RNG_CTX(name, hashname);                                        \
 	_Pragma("GCC diagnostic pop")
 
 /**

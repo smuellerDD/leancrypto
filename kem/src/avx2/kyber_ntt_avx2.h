@@ -30,8 +30,7 @@
 #include "ext_headers_x86.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 void kyber_ntt_avx(__m256i *r, const __m256i *qdata);
@@ -40,9 +39,7 @@ void kyber_invntt_avx(__m256i *r, const __m256i *qdata);
 void kyber_nttpack_avx(__m256i *r, const __m256i *qdata);
 void kyber_nttunpack_avx(__m256i *r, const __m256i *qdata);
 
-void kyber_basemul_avx(__m256i *r,
-		       const __m256i *a,
-		       const __m256i *b,
+void kyber_basemul_avx(__m256i *r, const __m256i *a, const __m256i *b,
 		       const __m256i *qdata);
 
 void kyber_ntttobytes_avx(uint8_t *r, const __m256i *a, const __m256i *qdata);

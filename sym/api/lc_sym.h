@@ -25,20 +25,19 @@
 #include "lc_memory_support.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 struct lc_sym_state;
 struct lc_sym {
 	void (*init)(struct lc_sym_state *ctx);
-	int (*setkey)(struct lc_sym_state *ctx,
-		      const uint8_t *key, size_t keylen);
+	int (*setkey)(struct lc_sym_state *ctx, const uint8_t *key,
+		      size_t keylen);
 	int (*setiv)(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen);
-	void (*encrypt)(struct lc_sym_state *ctx,
-			const uint8_t *in, uint8_t *out, size_t len);
-	void (*decrypt)(struct lc_sym_state *ctx,
-			const uint8_t *in, uint8_t *out, size_t len);
+	void (*encrypt)(struct lc_sym_state *ctx, const uint8_t *in,
+			uint8_t *out, size_t len);
+	void (*decrypt)(struct lc_sym_state *ctx, const uint8_t *in,
+			uint8_t *out, size_t len);
 	unsigned int statesize;
 	unsigned int blocksize;
 };
@@ -59,40 +58,36 @@ struct lc_sym_ctx {
  * LC_ALIGN_PTR_XX macro depending on lc_sym->alignment during compile time.
  */
 #ifndef LC_SYM_ALIGNMENT_COMMON
-#define LC_SYM_ALIGNMENT_COMMON		(8)
+#define LC_SYM_ALIGNMENT_COMMON (8)
 #endif
-#define LC_SYM_ALIGNMENT(symname)	LC_SYM_ALIGNMENT_COMMON
-#define LC_SYM_ALIGNMASK(symname)	(LC_SYM_ALIGNMENT(symname) - 1)
+#define LC_SYM_ALIGNMENT(symname) LC_SYM_ALIGNMENT_COMMON
+#define LC_SYM_ALIGNMASK(symname) (LC_SYM_ALIGNMENT(symname) - 1)
 
-#define LC_ALIGN_SYM_MASK(p, symname)					       \
+#define LC_ALIGN_SYM_MASK(p, symname)                                          \
 	LC_ALIGN_PTR_64(p, LC_SYM_ALIGNMASK(symname))
 
-#define LC_SYM_STATE_SIZE_NONALIGNED(x)					       \
-				((unsigned long)(x->statesize))
-#define LC_SYM_STATE_SIZE(x)	(LC_SYM_STATE_SIZE_NONALIGNED(x) +	       \
-				 LC_SYM_ALIGNMENT_COMMON)
-#define LC_SYM_CTX_SIZE_NONALIGNED(x)					       \
-				(sizeof(struct lc_sym_ctx) +		       \
-				 LC_SYM_STATE_SIZE_NONALIGNED(x))
-#define LC_SYM_CTX_SIZE(x)	(sizeof(struct lc_sym_ctx) +		       \
-				 LC_SYM_STATE_SIZE(x))
+#define LC_SYM_STATE_SIZE_NONALIGNED(x) ((unsigned long)(x->statesize))
+#define LC_SYM_STATE_SIZE(x)                                                   \
+	(LC_SYM_STATE_SIZE_NONALIGNED(x) + LC_SYM_ALIGNMENT_COMMON)
+#define LC_SYM_CTX_SIZE_NONALIGNED(x)                                          \
+	(sizeof(struct lc_sym_ctx) + LC_SYM_STATE_SIZE_NONALIGNED(x))
+#define LC_SYM_CTX_SIZE(x) (sizeof(struct lc_sym_ctx) + LC_SYM_STATE_SIZE(x))
 
 /**
  * Get aligned buffer with additional spare size of LC_SYM_ALIGNMASK to
  * ensure that the underlying symmetric algorithm implementation buffer is
  * aligned to proper size.
  */
-#define LC_ALIGNED_SYM_BUFFER(name, symname, size)			       \
-	uint64_t name[(size + sizeof(uint64_t) - 1) / sizeof(uint64_t)]	       \
-			__attribute__((aligned(LC_SYM_ALIGNMENT(symname))))
+#define LC_ALIGNED_SYM_BUFFER(name, symname, size)                             \
+	uint64_t name[(size + sizeof(uint64_t) - 1) / sizeof(uint64_t)]        \
+		__attribute__((aligned(LC_SYM_ALIGNMENT(symname))))
 
-#define _LC_SYM_SET_CTX(name, symname, ctx, offset)			       \
-	name->sym_state = (struct lc_sym_state *)			       \
-			   LC_ALIGN_SYM_MASK(((uint8_t *)(ctx)) + (offset),    \
-			   symname);					       \
-        name->sym = symname
+#define _LC_SYM_SET_CTX(name, symname, ctx, offset)                            \
+	name->sym_state = (struct lc_sym_state *)LC_ALIGN_SYM_MASK(            \
+		((uint8_t *)(ctx)) + (offset), symname);                       \
+	name->sym = symname
 
-#define LC_SYM_SET_CTX(name, symname)					       \
+#define LC_SYM_SET_CTX(name, symname)                                          \
 	_LC_SYM_SET_CTX(name, symname, name, sizeof(struct lc_sym_ctx))
 
 /**
@@ -121,8 +116,8 @@ static inline void lc_sym_init(struct lc_sym_ctx *ctx)
  *
  * @return 0 on success, < 0 on error
  */
-static inline int lc_sym_setkey(struct lc_sym_ctx *ctx,
-				const uint8_t *key, size_t keylen)
+static inline int lc_sym_setkey(struct lc_sym_ctx *ctx, const uint8_t *key,
+				size_t keylen)
 {
 	const struct lc_sym *sym = ctx->sym;
 
@@ -139,8 +134,8 @@ static inline int lc_sym_setkey(struct lc_sym_ctx *ctx,
  *
  * @return 0 on success, < 0 on error
  */
-static inline int lc_sym_setiv(struct lc_sym_ctx *ctx,
-			       const uint8_t *iv, size_t ivlen)
+static inline int lc_sym_setiv(struct lc_sym_ctx *ctx, const uint8_t *iv,
+			       size_t ivlen)
 {
 	const struct lc_sym *sym = ctx->sym;
 
@@ -159,8 +154,8 @@ static inline int lc_sym_setiv(struct lc_sym_ctx *ctx,
  * The plaintext and the ciphertext buffer may be identical to support
  * in-place cryptographic operations.
  */
-static inline void lc_sym_encrypt(struct lc_sym_ctx *ctx,
-			          const uint8_t *in, uint8_t *out, size_t len)
+static inline void lc_sym_encrypt(struct lc_sym_ctx *ctx, const uint8_t *in,
+				  uint8_t *out, size_t len)
 {
 	const struct lc_sym *sym = ctx->sym;
 
@@ -179,8 +174,8 @@ static inline void lc_sym_encrypt(struct lc_sym_ctx *ctx,
  * The plaintext and the ciphertext buffer may be identical to support
  * in-place cryptographic operations.
  */
-static inline void lc_sym_decrypt(struct lc_sym_ctx *ctx,
-				  const uint8_t *in, uint8_t *out, size_t len)
+static inline void lc_sym_decrypt(struct lc_sym_ctx *ctx, const uint8_t *in,
+				  uint8_t *out, size_t len)
 {
 	const struct lc_sym *sym = ctx->sym;
 
@@ -199,7 +194,6 @@ static inline void lc_sym_zero(struct lc_sym_ctx *ctx)
 
 	lc_memset_secure((uint8_t *)ctx + sizeof(struct lc_sym_ctx), 0,
 			 LC_SYM_STATE_SIZE_NONALIGNED(sym));
-
 }
 
 /**
@@ -229,15 +223,16 @@ void lc_sym_zero_free(struct lc_sym_ctx *ctx);
  * @param [in] symname Pointer of type struct sym referencing the sym
  *			 implementation to be used
  */
-#define LC_SYM_CTX_ON_STACK(name, symname)				       \
-	_Pragma("GCC diagnostic push")					       \
-	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
-	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-	LC_ALIGNED_SYM_BUFFER(name ## _ctx_buf, symname,		       \
-			      LC_SYM_CTX_SIZE_NONALIGNED(symname));	       \
-	struct lc_sym_ctx *name = (struct lc_sym_ctx *) name ## _ctx_buf;      \
-	LC_SYM_SET_CTX(name, symname);					       \
-	lc_sym_zero(name);						       \
+#define LC_SYM_CTX_ON_STACK(name, symname)                                          \
+	_Pragma("GCC diagnostic push")                                              \
+		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
+			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
+			LC_ALIGNED_SYM_BUFFER(                                      \
+				name##_ctx_buf, symname,                            \
+				LC_SYM_CTX_SIZE_NONALIGNED(symname));               \
+	struct lc_sym_ctx *name = (struct lc_sym_ctx *)name##_ctx_buf;              \
+	LC_SYM_SET_CTX(name, symname);                                              \
+	lc_sym_zero(name);                                                          \
 	_Pragma("GCC diagnostic pop")
 
 #ifdef __cplusplus

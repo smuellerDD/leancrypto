@@ -48,10 +48,9 @@ struct workspace_sign {
 	//uint8_t poly_uniform_gamma1_buf[POLY_UNIFORM_GAMMA1_BYTES];
 	/* See comment below - currently not needed */
 	//uint8_t poly_challenge_buf[POLY_CHALLENGE_BYTES];
-	uint8_t seedbuf[3 * LC_DILITHIUM_SEEDBYTES +
-			2 * LC_DILITHIUM_CRHBYTES];
-	uint8_t poly_uniform_buf[POLY_UNIFORM_NBLOCKS *
-					LC_SHAKE_128_SIZE_BLOCK + 2];
+	uint8_t seedbuf[3 * LC_DILITHIUM_SEEDBYTES + 2 * LC_DILITHIUM_CRHBYTES];
+	uint8_t poly_uniform_buf[POLY_UNIFORM_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK +
+				 2];
 };
 
 struct workspace_verify {
@@ -71,10 +70,8 @@ struct workspace_verify {
 	BUF_ALIGNED_UINT8_UINT64(LC_DILITHIUM_SEEDBYTES) c2;
 };
 
-LC_INTERFACE_FUNCTION(
-int, lc_dilithium_keypair_c, struct lc_dilithium_pk *pk,
-			     struct lc_dilithium_sk *sk,
-			     struct lc_rng_ctx *rng_ctx)
+LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_c, struct lc_dilithium_pk *pk,
+		      struct lc_dilithium_sk *sk, struct lc_rng_ctx *rng_ctx)
 {
 	struct workspace {
 		polyvecl mat[LC_DILITHIUM_K];
@@ -87,7 +84,8 @@ int, lc_dilithium_keypair_c, struct lc_dilithium_pk *pk,
 		/* See comment below - currently not needed */
 		//uint8_t poly_uniform_eta_buf[POLY_UNIFORM_ETA_BYTES];
 		uint8_t poly_uniform_buf[POLY_UNIFORM_NBLOCKS *
-					 LC_SHAKE_128_SIZE_BLOCK + 2];
+						 LC_SHAKE_128_SIZE_BLOCK +
+					 2];
 	};
 	const uint8_t *rho, *rhoprime, *key;
 	int ret;
@@ -103,10 +101,10 @@ int, lc_dilithium_keypair_c, struct lc_dilithium_pk *pk,
 				 lc_dilithium_keypair_c);
 
 	/* Get randomness for rho, rhoprime and key */
-	CKINT(lc_rng_generate(rng_ctx, NULL, 0,
-			      ws->seedbuf, LC_DILITHIUM_SEEDBYTES));
-	lc_shake(lc_shake256, ws->seedbuf, LC_DILITHIUM_SEEDBYTES,
-		 ws->seedbuf, sizeof(ws->seedbuf));
+	CKINT(lc_rng_generate(rng_ctx, NULL, 0, ws->seedbuf,
+			      LC_DILITHIUM_SEEDBYTES));
+	lc_shake(lc_shake256, ws->seedbuf, LC_DILITHIUM_SEEDBYTES, ws->seedbuf,
+		 sizeof(ws->seedbuf));
 
 	rho = ws->seedbuf;
 	rhoprime = rho + LC_DILITHIUM_SEEDBYTES;
@@ -132,7 +130,8 @@ int, lc_dilithium_keypair_c, struct lc_dilithium_pk *pk,
 	ws->s1hat = ws->s1;
 	polyvecl_ntt(&ws->s1hat);
 
-	polyvec_matrix_pointwise_montgomery(&ws->t1, ws->mat, &ws->s1hat,
+	polyvec_matrix_pointwise_montgomery(
+		&ws->t1, ws->mat, &ws->s1hat,
 		&ws->polyvecl_pointwise_acc_montgomery_buf);
 	polyveck_reduce(&ws->t1);
 	polyveck_invntt_tomont(&ws->t1);
@@ -154,11 +153,10 @@ out:
 	return ret;
 }
 
-static int
-lc_dilithium_sign_c_internal(struct lc_dilithium_sig *sig,
-			     struct workspace_sign *ws,
-			     struct lc_hash_ctx  *hash_ctx,
-			     struct lc_rng_ctx *rng_ctx)
+static int lc_dilithium_sign_c_internal(struct lc_dilithium_sig *sig,
+					struct workspace_sign *ws,
+					struct lc_hash_ctx *hash_ctx,
+					struct lc_rng_ctx *rng_ctx)
 {
 	unsigned int n;
 	uint8_t *rho, *key, *mu, *rhoprime;
@@ -178,8 +176,8 @@ lc_dilithium_sign_c_internal(struct lc_dilithium_sig *sig,
 		CKINT(lc_rng_generate(rng_ctx, NULL, 0, rhoprime,
 				      LC_DILITHIUM_CRHBYTES));
 	} else {
-		lc_shake(lc_shake256,
-			 key, LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_CRHBYTES,
+		lc_shake(lc_shake256, key,
+			 LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_CRHBYTES,
 			 rhoprime, LC_DILITHIUM_CRHBYTES);
 	}
 
@@ -265,12 +263,10 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(
-int, lc_dilithium_sign_c, struct lc_dilithium_sig *sig,
-			  const uint8_t *m,
-			  size_t mlen,
-			  const struct lc_dilithium_sk *sk,
-			  struct lc_rng_ctx *rng_ctx)
+LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_c, struct lc_dilithium_sig *sig,
+		      const uint8_t *m, size_t mlen,
+		      const struct lc_dilithium_sk *sk,
+		      struct lc_rng_ctx *rng_ctx)
 {
 	uint8_t *rho, *tr, *key;
 	int ret = 0;
@@ -285,7 +281,7 @@ int, lc_dilithium_sign_c, struct lc_dilithium_sig *sig,
 	}
 
 	dilithium_siggen_tester(&tested, "Dilithium Siggen C",
-				 lc_dilithium_sign_c);
+				lc_dilithium_sign_c);
 
 	rho = ws->seedbuf;
 	tr = rho + LC_DILITHIUM_SEEDBYTES;
@@ -305,9 +301,9 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(
-int, lc_dilithium_sign_init_c, struct lc_hash_ctx *hash_ctx,
-			       const struct lc_dilithium_sk *sk)
+LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_init_c,
+		      struct lc_hash_ctx *hash_ctx,
+		      const struct lc_dilithium_sk *sk)
 {
 	uint8_t tr[LC_DILITHIUM_SEEDBYTES];
 	static int tested = 0;
@@ -333,10 +329,9 @@ int, lc_dilithium_sign_init_c, struct lc_hash_ctx *hash_ctx,
 	return 0;
 }
 
-LC_INTERFACE_FUNCTION(
-int, lc_dilithium_sign_update_c, struct lc_hash_ctx *hash_ctx,
-			         const uint8_t *m,
-			         size_t mlen)
+LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_update_c,
+		      struct lc_hash_ctx *hash_ctx, const uint8_t *m,
+		      size_t mlen)
 {
 	if (!hash_ctx || !m)
 		return -EINVAL;
@@ -347,11 +342,11 @@ int, lc_dilithium_sign_update_c, struct lc_hash_ctx *hash_ctx,
 	return 0;
 }
 
-LC_INTERFACE_FUNCTION(
-int, lc_dilithium_sign_final_c, struct lc_dilithium_sig *sig,
-				struct lc_hash_ctx  *hash_ctx,
-				const struct lc_dilithium_sk *sk,
-				struct lc_rng_ctx *rng_ctx)
+LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_final_c,
+		      struct lc_dilithium_sig *sig,
+		      struct lc_hash_ctx *hash_ctx,
+		      const struct lc_dilithium_sk *sk,
+		      struct lc_rng_ctx *rng_ctx)
 {
 	uint8_t *rho, *key;
 	int ret = 0;
@@ -379,13 +374,13 @@ out:
 static int lc_dilithium_verify_c_internal(const struct lc_dilithium_sig *sig,
 					  const struct lc_dilithium_pk *pk,
 					  struct workspace_verify *ws,
-					  struct lc_hash_ctx  *hash_ctx)
+					  struct lc_hash_ctx *hash_ctx)
 {
 	int ret = 0;
 	static int tested = 0;
 
 	dilithium_sigver_tester(&tested, "Dilithium Sigver C",
-				 lc_dilithium_verify_c);
+				lc_dilithium_verify_c);
 
 	unpack_pk(ws->rho, &ws->t1, pk);
 	if (unpack_sig(ws->c.coeffs, &ws->z, &ws->h, sig))
@@ -414,7 +409,8 @@ static int lc_dilithium_verify_c_internal(const struct lc_dilithium_sig *sig,
 	polyvec_matrix_expand(ws->mat, ws->rho, ws->buf);
 
 	polyvecl_ntt(&ws->z);
-	polyvec_matrix_pointwise_montgomery(&ws->w1, ws->mat, &ws->z,
+	polyvec_matrix_pointwise_montgomery(
+		&ws->w1, ws->mat, &ws->z,
 		&ws->polyvecl_pointwise_acc_montgomery_buf);
 
 	poly_ntt(&ws->cp);
@@ -447,11 +443,9 @@ static int lc_dilithium_verify_c_internal(const struct lc_dilithium_sig *sig,
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(
-int, lc_dilithium_verify_c, const struct lc_dilithium_sig *sig,
-			    const uint8_t *m,
-			    size_t mlen,
-			    const struct lc_dilithium_pk *pk)
+LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_c,
+		      const struct lc_dilithium_sig *sig, const uint8_t *m,
+		      size_t mlen, const struct lc_dilithium_pk *pk)
 {
 	int ret = 0;
 	static int tested = 0;
@@ -467,9 +461,8 @@ int, lc_dilithium_verify_c, const struct lc_dilithium_sig *sig,
 				lc_dilithium_verify_c);
 
 	/* Compute CRH(H(rho, t1), msg) */
-	lc_shake(lc_shake256,
-		 pk->pk, LC_DILITHIUM_PUBLICKEYBYTES,
-		 ws->mu, LC_DILITHIUM_SEEDBYTES);
+	lc_shake(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES, ws->mu,
+		 LC_DILITHIUM_SEEDBYTES);
 
 	lc_hash_init(hash_ctx);
 	lc_hash_update(hash_ctx, ws->mu, LC_DILITHIUM_SEEDBYTES);
@@ -483,9 +476,9 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(
-int, lc_dilithium_verify_init_c, struct lc_hash_ctx *hash_ctx,
-				 const struct lc_dilithium_pk *pk)
+LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_init_c,
+		      struct lc_hash_ctx *hash_ctx,
+		      const struct lc_dilithium_pk *pk)
 {
 	uint8_t mu[LC_DILITHIUM_SEEDBYTES];
 	static int tested = 0;
@@ -502,9 +495,8 @@ int, lc_dilithium_verify_init_c, struct lc_hash_ctx *hash_ctx,
 				lc_dilithium_verify_c);
 
 	/* Compute CRH(H(rho, t1), msg) */
-	lc_shake(lc_shake256,
-		 pk->pk, LC_DILITHIUM_PUBLICKEYBYTES,
-		 mu, LC_DILITHIUM_SEEDBYTES);
+	lc_shake(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES, mu,
+		 LC_DILITHIUM_SEEDBYTES);
 
 	lc_hash_init(hash_ctx);
 	lc_hash_update(hash_ctx, mu, LC_DILITHIUM_SEEDBYTES);
@@ -513,10 +505,9 @@ int, lc_dilithium_verify_init_c, struct lc_hash_ctx *hash_ctx,
 	return 0;
 }
 
-LC_INTERFACE_FUNCTION(
-int, lc_dilithium_verify_update_c, struct lc_hash_ctx *hash_ctx,
-				   const uint8_t *m,
-				   size_t mlen)
+LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_update_c,
+		      struct lc_hash_ctx *hash_ctx, const uint8_t *m,
+		      size_t mlen)
 {
 	if (!hash_ctx || !m)
 		return -EINVAL;
@@ -527,15 +518,15 @@ int, lc_dilithium_verify_update_c, struct lc_hash_ctx *hash_ctx,
 	return 0;
 }
 
-LC_INTERFACE_FUNCTION(
-int, lc_dilithium_verify_final_c, struct lc_dilithium_sig *sig,
-				  struct lc_hash_ctx  *hash_ctx,
-				  const struct lc_dilithium_pk *pk)
+LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_final_c,
+		      struct lc_dilithium_sig *sig,
+		      struct lc_hash_ctx *hash_ctx,
+		      const struct lc_dilithium_pk *pk)
 {
 	int ret = 0;
 	LC_DECLARE_MEM(ws, struct workspace_verify, sizeof(uint64_t));
 
-	if (!sig || !hash_ctx|| !pk) {
+	if (!sig || !hash_ctx || !pk) {
 		ret = -EINVAL;
 		goto out;
 	}

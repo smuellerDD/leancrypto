@@ -20,8 +20,8 @@
 #include "lc_sym.h"
 #include "visibility.h"
 
-LC_INTERFACE_FUNCTION(
-int, lc_sym_alloc, const struct lc_sym *sym, struct lc_sym_ctx **ctx)
+LC_INTERFACE_FUNCTION(int, lc_sym_alloc, const struct lc_sym *sym,
+		      struct lc_sym_ctx **ctx)
 {
 	struct lc_sym_ctx *out_ctx = NULL;
 	int ret;
@@ -42,8 +42,7 @@ int, lc_sym_alloc, const struct lc_sym *sym, struct lc_sym_ctx **ctx)
 	return 0;
 }
 
-LC_INTERFACE_FUNCTION(
-void, lc_sym_zero_free, struct lc_sym_ctx *ctx)
+LC_INTERFACE_FUNCTION(void, lc_sym_zero_free, struct lc_sym_ctx *ctx)
 {
 	if (!ctx)
 		return;

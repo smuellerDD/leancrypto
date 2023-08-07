@@ -27,9 +27,9 @@
 /****************************************************************************
  * RFC 6238
  ****************************************************************************/
-LC_INTERFACE_FUNCTION(
-int, lc_totp, const uint8_t *hmac_key, size_t hmac_key_len, uint32_t step,
-	      uint32_t digits, uint32_t *totp_val)
+LC_INTERFACE_FUNCTION(int, lc_totp, const uint8_t *hmac_key,
+		      size_t hmac_key_len, uint32_t step, uint32_t digits,
+		      uint32_t *totp_val)
 {
 	time_t now;
 	uint64_t counter;

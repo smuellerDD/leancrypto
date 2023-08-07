@@ -43,7 +43,7 @@ int32_t power2round(int32_t *a0, int32_t a)
 {
 	int32_t a1;
 
-	a1 = (a + (1 << (LC_DILITHIUM_D-1)) - 1) >> LC_DILITHIUM_D;
+	a1 = (a + (1 << (LC_DILITHIUM_D - 1)) - 1) >> LC_DILITHIUM_D;
 	*a0 = a - (a1 << LC_DILITHIUM_D);
 	return a1;
 }
@@ -64,19 +64,19 @@ int32_t decompose(int32_t *a0, int32_t a)
 {
 	int32_t a1;
 
-	a1  = (a + 127) >> 7;
-#if LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q - 1)/32
-	a1  = (a1 * 1025 + (1 << 21)) >> 22;
+	a1 = (a + 127) >> 7;
+#if LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q - 1) / 32
+	a1 = (a1 * 1025 + (1 << 21)) >> 22;
 	a1 &= 15;
-#elif LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q - 1)/88
-	a1  = (a1 * 11275 + (1 << 23)) >> 24;
+#elif LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q - 1) / 88
+	a1 = (a1 * 11275 + (1 << 23)) >> 24;
 	a1 ^= ((43 - a1) >> 31) & a1;
 #else
 #error "Uknown GAMMA2"
 #endif
 
-	*a0  = a - a1 * 2 * LC_DILITHIUM_GAMMA2;
-	*a0 -= (((LC_DILITHIUM_Q-1)/2 - *a0) >> 31) & LC_DILITHIUM_Q;
+	*a0 = a - a1 * 2 * LC_DILITHIUM_GAMMA2;
+	*a0 -= (((LC_DILITHIUM_Q - 1) / 2 - *a0) >> 31) & LC_DILITHIUM_Q;
 
 	return a1;
 }
@@ -92,9 +92,8 @@ int32_t decompose(int32_t *a0, int32_t a)
  */
 int32_t make_hint(int32_t a0, int32_t a1)
 {
-	if (a0 > LC_DILITHIUM_GAMMA2 ||
-	   a0 < -LC_DILITHIUM_GAMMA2 ||
-	   (a0 == -LC_DILITHIUM_GAMMA2 && a1 != 0))
+	if (a0 > LC_DILITHIUM_GAMMA2 || a0 < -LC_DILITHIUM_GAMMA2 ||
+	    (a0 == -LC_DILITHIUM_GAMMA2 && a1 != 0))
 		return 1;
 
 	return 0;
@@ -116,16 +115,16 @@ int32_t use_hint(int32_t a, int32_t hint)
 	if (hint == 0)
 		return a1;
 
-#if LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q - 1)/32
+#if LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q - 1) / 32
 	if (a0 > 0)
 		return (a1 + 1) & 15;
 	else
 		return (a1 - 1) & 15;
-#elif LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q - 1)/88
+#elif LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q - 1) / 88
 	if (a0 > 0)
-		return (a1 == 43) ?  0 : a1 + 1;
+		return (a1 == 43) ? 0 : a1 + 1;
 	else
-		return (a1 ==  0) ? 43 : a1 - 1;
+		return (a1 == 0) ? 43 : a1 - 1;
 #else
 #error "Uknown GAMMA2"
 #endif

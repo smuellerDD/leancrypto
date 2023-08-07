@@ -25,8 +25,7 @@
 #include "lc_sha512.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #define LC_DRBG_HASH_STATELEN 111
@@ -37,31 +36,30 @@ struct lc_drbg_hash_state {
 	uint8_t hash_state[LC_SHA512_STATE_SIZE + LC_HASH_COMMON_ALIGNMENT];
 	uint8_t V[LC_DRBG_HASH_STATELEN]; /* internal state 10.1.1.1 1a) */
 	uint8_t C[LC_DRBG_HASH_STATELEN]; /* static value 10.1.1.1 1b) */
-	uint8_t scratchpad [LC_DRBG_HASH_STATELEN + LC_DRBG_HASH_BLOCKLEN];
-						/* working mem */
+	uint8_t scratchpad[LC_DRBG_HASH_STATELEN + LC_DRBG_HASH_BLOCKLEN];
+	/* working mem */
 
 	/* Number of RNG requests since last reseed -- 10.1.1.1 1c) */
 	size_t reseed_ctr;
-	unsigned int seeded:1;
+	unsigned int seeded : 1;
 };
 
-#define LC_DRBG_HASH_STATE_SIZE		(sizeof(struct lc_drbg_hash_state))
-#define LC_DRBG_HASH_CTX_SIZE		((unsigned long)		       \
-					 (LC_DRBG_HASH_STATE_SIZE +	       \
-					  sizeof(struct lc_rng)))
+#define LC_DRBG_HASH_STATE_SIZE (sizeof(struct lc_drbg_hash_state))
+#define LC_DRBG_HASH_CTX_SIZE                                                  \
+	((unsigned long)(LC_DRBG_HASH_STATE_SIZE + sizeof(struct lc_rng)))
 
-#define _LC_DRBG_HASH_SET_CTX(name, ctx, offset)			       \
-	LC_SHA512_CTX((&(name)->hash_ctx));				       \
-	(name)->reseed_ctr = 0;						       \
+#define _LC_DRBG_HASH_SET_CTX(name, ctx, offset)                               \
+	LC_SHA512_CTX((&(name)->hash_ctx));                                    \
+	(name)->reseed_ctr = 0;                                                \
 	(name)->seeded = 0
 
-#define LC_DRBG_HASH_SET_CTX(name) _LC_DRBG_HASH_SET_CTX(name, name,	       \
-					 sizeof(struct lc_drbg_hash_state))
+#define LC_DRBG_HASH_SET_CTX(name)                                             \
+	_LC_DRBG_HASH_SET_CTX(name, name, sizeof(struct lc_drbg_hash_state))
 
 extern const struct lc_rng *lc_hash_drbg;
 
-#define LC_DRBG_HASH_RNG_CTX(name)					       \
-	LC_RNG_CTX((name), lc_hash_drbg);				       \
+#define LC_DRBG_HASH_RNG_CTX(name)                                             \
+	LC_RNG_CTX((name), lc_hash_drbg);                                      \
 	LC_DRBG_HASH_SET_CTX((struct lc_drbg_hash_state *)name->rng_state);    \
 	lc_rng_zero(name)
 
@@ -70,13 +68,13 @@ extern const struct lc_rng *lc_hash_drbg;
  *
  * @param [in] name Name of the stack variable
  */
-#define LC_DRBG_HASH_CTX_ON_STACK(name)					       \
-	_Pragma("GCC diagnostic push")					       \
-	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_DRBG_HASH_CTX_SIZE,	       \
-			  LC_HASH_COMMON_ALIGNMENT);			       \
-	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name ## _ctx_buf;       \
-	LC_DRBG_HASH_RNG_CTX(name);					       \
+#define LC_DRBG_HASH_CTX_ON_STACK(name)                                        \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_DRBG_HASH_CTX_SIZE,       \
+				  LC_HASH_COMMON_ALIGNMENT);                   \
+	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name##_ctx_buf;         \
+	LC_DRBG_HASH_RNG_CTX(name);                                            \
 	_Pragma("GCC diagnostic pop")
 
 /**
@@ -105,7 +103,6 @@ int lc_drbg_hash_alloc(struct lc_rng_ctx **drbg);
  * @return: 0 on success, < 0 on error
  */
 int lc_drbg_hash_healthcheck_sanity(struct lc_rng_ctx *drbg);
-
 
 #ifdef __cplusplus
 }

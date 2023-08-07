@@ -23,25 +23,24 @@
 #include "lc_kyber.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-void kyber_kem_keygen_selftest(int *tested, const char *impl,
-	int (*_lc_kyber_keypair)(struct lc_kyber_pk *pk,
-				 struct lc_kyber_sk *sk,
+void kyber_kem_keygen_selftest(
+	int *tested, const char *impl,
+	int (*_lc_kyber_keypair)(struct lc_kyber_pk *pk, struct lc_kyber_sk *sk,
 				 struct lc_rng_ctx *rng_ctx));
 
 void kyber_kem_enc_selftest(int *tested, const char *impl,
-	int (*_lc_kyber_enc)(struct lc_kyber_ct *ct,
-			     uint8_t *ss, size_t ss_len,
-			     const struct lc_kyber_pk *pk,
-			     struct lc_rng_ctx *rng_ctx));
+			    int (*_lc_kyber_enc)(struct lc_kyber_ct *ct,
+						 uint8_t *ss, size_t ss_len,
+						 const struct lc_kyber_pk *pk,
+						 struct lc_rng_ctx *rng_ctx));
 
 void kyber_kem_dec_selftest(int *tested, const char *impl,
-	int (*_lc_kyber_dec)(uint8_t *ss, size_t ss_len,
-			     const struct lc_kyber_ct *ct,
-			     const struct lc_kyber_sk *sk));
+			    int (*_lc_kyber_dec)(uint8_t *ss, size_t ss_len,
+						 const struct lc_kyber_ct *ct,
+						 const struct lc_kyber_sk *sk));
 
 #ifdef __cplusplus
 }

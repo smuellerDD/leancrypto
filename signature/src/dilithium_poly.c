@@ -54,7 +54,7 @@ int poly_chknorm(const poly *a, int32_t B)
 	for (i = 0; i < LC_DILITHIUM_N; ++i) {
 		/* Absolute value */
 		t = a->coeffs[i] >> 31;
-		t = a->coeffs[i] - (t & 2*a->coeffs[i]);
+		t = a->coeffs[i] - (t & 2 * a->coeffs[i]);
 
 		if (t >= B)
 			return 1;
@@ -72,8 +72,7 @@ int poly_chknorm(const poly *a, int32_t B)
  * @param seed [in] byte array with seed of length LC_DILITHIUM_SEEDBYTES
  * @param nonce [in] 2-byte nonce
  */
-void poly_uniform(poly *a,
-		  const uint8_t seed[LC_DILITHIUM_SEEDBYTES],
+void poly_uniform(poly *a, const uint8_t seed[LC_DILITHIUM_SEEDBYTES],
 		  uint16_t nonce, void *ws_buf)
 {
 	unsigned int i, ctr, off;
@@ -98,8 +97,8 @@ void poly_uniform(poly *a,
 
 		lc_hash_final(hash_ctx, buf + off);
 		buflen = LC_DILITHIUM_SEEDBYTES + off;
-		ctr += rej_uniform(a->coeffs + ctr,
-				   LC_DILITHIUM_N - ctr, buf, buflen);
+		ctr += rej_uniform(a->coeffs + ctr, LC_DILITHIUM_N - ctr, buf,
+				   buflen);
 	}
 
 	lc_hash_zero(hash_ctx);
@@ -115,8 +114,7 @@ void poly_uniform(poly *a,
  * @param seed [in] byte array with seed of length LC_DILITHIUM_CRHBYTES
  * @param nonce [in] 2-byte nonce
  */
-void poly_uniform_eta(poly *a,
-		      const uint8_t seed[LC_DILITHIUM_CRHBYTES],
+void poly_uniform_eta(poly *a, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
 		      uint16_t nonce, void *ws_buf)
 {
 	unsigned int ctr;
@@ -141,17 +139,16 @@ void poly_uniform_eta(poly *a,
 }
 
 /**
- * @brief poly_uniform_gamma1m1 - Sample polynomial with uniformly random
- *				  coefficients in [-(GAMMA1 - 1), GAMMA1] by
- *				  unpacking output stream of
- *				  SHAKE256(seed|nonce).
+ * @brief poly_uniform_gamma1 - Sample polynomial with uniformly random
+ *				coefficients in [-(GAMMA1 - 1), GAMMA1] by
+ *				unpacking output stream of
+ *				SHAKE256(seed|nonce).
  *
  * @param a [out] pointer to output polynomial
  * @param seed [in]: byte array with seed of length LC_DILITHIUM_CRHBYTES
  * @param nonce 16-bit nonce
  */
-void poly_uniform_gamma1(poly *a,
-			 const uint8_t seed[LC_DILITHIUM_CRHBYTES],
+void poly_uniform_gamma1(poly *a, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
 			 uint16_t nonce, void *ws_buf)
 {
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
@@ -209,7 +206,7 @@ void poly_challenge(poly *c, const uint8_t seed[LC_DILITHIUM_SEEDBYTES],
 		} while (b > i);
 
 		c->coeffs[i] = c->coeffs[b];
-		c->coeffs[b] = 1 -(int32_t)(2*(signs & 1));
+		c->coeffs[b] = 1 - (int32_t)(2 * (signs & 1));
 		signs >>= 1;
 	}
 
@@ -230,23 +227,26 @@ void polyeta_pack(uint8_t *r, const poly *a)
 
 #if LC_DILITHIUM_ETA == 2
 	for (i = 0; i < LC_DILITHIUM_N / 8; ++i) {
-		t[0] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[8*i+0]);
-		t[1] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[8*i+1]);
-		t[2] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[8*i+2]);
-		t[3] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[8*i+3]);
-		t[4] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[8*i+4]);
-		t[5] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[8*i+5]);
-		t[6] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[8*i+6]);
-		t[7] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[8*i+7]);
+		t[0] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[8 * i + 0]);
+		t[1] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[8 * i + 1]);
+		t[2] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[8 * i + 2]);
+		t[3] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[8 * i + 3]);
+		t[4] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[8 * i + 4]);
+		t[5] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[8 * i + 5]);
+		t[6] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[8 * i + 6]);
+		t[7] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[8 * i + 7]);
 
-		r[3*i+0]  = (uint8_t)((t[0] >> 0) | (t[1] << 3) | (t[2] << 6));
-		r[3*i+1]  = (uint8_t)((t[2] >> 2) | (t[3] << 1) | (t[4] << 4) | (t[5] << 7));
-		r[3*i+2]  = (uint8_t)((t[5] >> 1) | (t[6] << 2) | (t[7] << 5));
+		r[3 * i + 0] =
+			(uint8_t)((t[0] >> 0) | (t[1] << 3) | (t[2] << 6));
+		r[3 * i + 1] = (uint8_t)((t[2] >> 2) | (t[3] << 1) |
+					 (t[4] << 4) | (t[5] << 7));
+		r[3 * i + 2] =
+			(uint8_t)((t[5] >> 1) | (t[6] << 2) | (t[7] << 5));
 	}
 #elif LC_DILITHIUM_ETA == 4
 	for (i = 0; i < LC_DILITHIUM_N / 2; ++i) {
-		t[0] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[2*i+0]);
-		t[1] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[2*i+1]);
+		t[0] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[2 * i + 0]);
+		t[1] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[2 * i + 1]);
 		r[i] = (uint8_t)(t[0] | (t[1] << 4));
 	}
 #else
@@ -266,14 +266,16 @@ void polyeta_unpack(poly *r, const uint8_t *a)
 
 #if LC_DILITHIUM_ETA == 2
 	for (i = 0; i < LC_DILITHIUM_N / 8; ++i) {
-		r->coeffs[8 * i + 0] =  (a[3*i+0] >> 0) & 7;
-		r->coeffs[8 * i + 1] =  (a[3*i+0] >> 3) & 7;
-		r->coeffs[8 * i + 2] = ((a[3*i+0] >> 6) | (a[3*i+1] << 2)) & 7;
-		r->coeffs[8 * i + 3] =  (a[3*i+1] >> 1) & 7;
-		r->coeffs[8 * i + 4] =  (a[3*i+1] >> 4) & 7;
-		r->coeffs[8 * i + 5] = ((a[3*i+1] >> 7) | (a[3*i+2] << 1)) & 7;
-		r->coeffs[8 * i + 6] =  (a[3*i+2] >> 2) & 7;
-		r->coeffs[8 * i + 7] =  (a[3*i+2] >> 5) & 7;
+		r->coeffs[8 * i + 0] = (a[3 * i + 0] >> 0) & 7;
+		r->coeffs[8 * i + 1] = (a[3 * i + 0] >> 3) & 7;
+		r->coeffs[8 * i + 2] =
+			((a[3 * i + 0] >> 6) | (a[3 * i + 1] << 2)) & 7;
+		r->coeffs[8 * i + 3] = (a[3 * i + 1] >> 1) & 7;
+		r->coeffs[8 * i + 4] = (a[3 * i + 1] >> 4) & 7;
+		r->coeffs[8 * i + 5] =
+			((a[3 * i + 1] >> 7) | (a[3 * i + 2] << 1)) & 7;
+		r->coeffs[8 * i + 6] = (a[3 * i + 2] >> 2) & 7;
+		r->coeffs[8 * i + 7] = (a[3 * i + 2] >> 5) & 7;
 
 		r->coeffs[8 * i + 0] = LC_DILITHIUM_ETA - r->coeffs[8 * i + 0];
 		r->coeffs[8 * i + 1] = LC_DILITHIUM_ETA - r->coeffs[8 * i + 1];
@@ -288,8 +290,8 @@ void polyeta_unpack(poly *r, const uint8_t *a)
 	for (i = 0; i < LC_DILITHIUM_N / 2; ++i) {
 		r->coeffs[2 * i + 0] = a[i] & 0x0F;
 		r->coeffs[2 * i + 1] = a[i] >> 4;
-		r->coeffs[2 * i + 0] = LC_DILITHIUM_ETA - r->coeffs[2*i+0];
-		r->coeffs[2 * i + 1] = LC_DILITHIUM_ETA - r->coeffs[2*i+1];
+		r->coeffs[2 * i + 0] = LC_DILITHIUM_ETA - r->coeffs[2 * i + 0];
+		r->coeffs[2 * i + 1] = LC_DILITHIUM_ETA - r->coeffs[2 * i + 1];
 	}
 #else
 #error "Undefined LC_DILITHIUM_ETA"
@@ -310,11 +312,14 @@ void polyt1_pack(uint8_t *r, const poly *a)
 	unsigned int i;
 
 	for (i = 0; i < LC_DILITHIUM_N / 4; ++i) {
-		r[5*i+0] = (uint8_t)((a->coeffs[4*i+0] >> 0));
-		r[5*i+1] = (uint8_t)((a->coeffs[4*i+0] >> 8) | (a->coeffs[4*i+1] << 2));
-		r[5*i+2] = (uint8_t)((a->coeffs[4*i+1] >> 6) | (a->coeffs[4*i+2] << 4));
-		r[5*i+3] = (uint8_t)((a->coeffs[4*i+2] >> 4) | (a->coeffs[4*i+3] << 6));
-		r[5*i+4] = (uint8_t)((a->coeffs[4*i+3] >> 2));
+		r[5 * i + 0] = (uint8_t)((a->coeffs[4 * i + 0] >> 0));
+		r[5 * i + 1] = (uint8_t)((a->coeffs[4 * i + 0] >> 8) |
+					 (a->coeffs[4 * i + 1] << 2));
+		r[5 * i + 2] = (uint8_t)((a->coeffs[4 * i + 1] >> 6) |
+					 (a->coeffs[4 * i + 2] << 4));
+		r[5 * i + 3] = (uint8_t)((a->coeffs[4 * i + 2] >> 4) |
+					 (a->coeffs[4 * i + 3] << 6));
+		r[5 * i + 4] = (uint8_t)((a->coeffs[4 * i + 3] >> 2));
 	}
 }
 
@@ -330,10 +335,18 @@ void polyt1_unpack(poly *r, const uint8_t *a)
 	unsigned int i;
 
 	for (i = 0; i < LC_DILITHIUM_N / 4; ++i) {
-		r->coeffs[4*i+0] = ((a[5*i+0] >> 0) | ((uint32_t)a[5*i+1] << 8)) & 0x3FF;
-		r->coeffs[4*i+1] = ((a[5*i+1] >> 2) | ((uint32_t)a[5*i+2] << 6)) & 0x3FF;
-		r->coeffs[4*i+2] = ((a[5*i+2] >> 4) | ((uint32_t)a[5*i+3] << 4)) & 0x3FF;
-		r->coeffs[4*i+3] = ((a[5*i+3] >> 6) | ((uint32_t)a[5*i+4] << 2)) & 0x3FF;
+		r->coeffs[4 * i + 0] =
+			((a[5 * i + 0] >> 0) | ((uint32_t)a[5 * i + 1] << 8)) &
+			0x3FF;
+		r->coeffs[4 * i + 1] =
+			((a[5 * i + 1] >> 2) | ((uint32_t)a[5 * i + 2] << 6)) &
+			0x3FF;
+		r->coeffs[4 * i + 2] =
+			((a[5 * i + 2] >> 4) | ((uint32_t)a[5 * i + 3] << 4)) &
+			0x3FF;
+		r->coeffs[4 * i + 3] =
+			((a[5 * i + 3] >> 6) | ((uint32_t)a[5 * i + 4] << 2)) &
+			0x3FF;
 	}
 }
 
@@ -351,35 +364,43 @@ void polyt0_pack(uint8_t *r, const poly *a)
 	uint32_t t[8];
 
 	for (i = 0; i < LC_DILITHIUM_N / 8; ++i) {
-		t[0] = (uint32_t)((1 << (LC_DILITHIUM_D-1)) - a->coeffs[8*i+0]);
-		t[1] = (uint32_t)((1 << (LC_DILITHIUM_D-1)) - a->coeffs[8*i+1]);
-		t[2] = (uint32_t)((1 << (LC_DILITHIUM_D-1)) - a->coeffs[8*i+2]);
-		t[3] = (uint32_t)((1 << (LC_DILITHIUM_D-1)) - a->coeffs[8*i+3]);
-		t[4] = (uint32_t)((1 << (LC_DILITHIUM_D-1)) - a->coeffs[8*i+4]);
-		t[5] = (uint32_t)((1 << (LC_DILITHIUM_D-1)) - a->coeffs[8*i+5]);
-		t[6] = (uint32_t)((1 << (LC_DILITHIUM_D-1)) - a->coeffs[8*i+6]);
-		t[7] = (uint32_t)((1 << (LC_DILITHIUM_D-1)) - a->coeffs[8*i+7]);
+		t[0] = (uint32_t)((1 << (LC_DILITHIUM_D - 1)) -
+				  a->coeffs[8 * i + 0]);
+		t[1] = (uint32_t)((1 << (LC_DILITHIUM_D - 1)) -
+				  a->coeffs[8 * i + 1]);
+		t[2] = (uint32_t)((1 << (LC_DILITHIUM_D - 1)) -
+				  a->coeffs[8 * i + 2]);
+		t[3] = (uint32_t)((1 << (LC_DILITHIUM_D - 1)) -
+				  a->coeffs[8 * i + 3]);
+		t[4] = (uint32_t)((1 << (LC_DILITHIUM_D - 1)) -
+				  a->coeffs[8 * i + 4]);
+		t[5] = (uint32_t)((1 << (LC_DILITHIUM_D - 1)) -
+				  a->coeffs[8 * i + 5]);
+		t[6] = (uint32_t)((1 << (LC_DILITHIUM_D - 1)) -
+				  a->coeffs[8 * i + 6]);
+		t[7] = (uint32_t)((1 << (LC_DILITHIUM_D - 1)) -
+				  a->coeffs[8 * i + 7]);
 
-		r[13*i+ 0]  =  (uint8_t)(t[0]);
-		r[13*i+ 1]  =  (uint8_t)(t[0] >>  8);
-		r[13*i+ 1] |=  (uint8_t)(t[1] <<  5);
-		r[13*i+ 2]  =  (uint8_t)(t[1] >>  3);
-		r[13*i+ 3]  =  (uint8_t)(t[1] >> 11);
-		r[13*i+ 3] |=  (uint8_t)(t[2] <<  2);
-		r[13*i+ 4]  =  (uint8_t)(t[2] >>  6);
-		r[13*i+ 4] |=  (uint8_t)(t[3] <<  7);
-		r[13*i+ 5]  =  (uint8_t)(t[3] >>  1);
-		r[13*i+ 6]  =  (uint8_t)(t[3] >>  9);
-		r[13*i+ 6] |=  (uint8_t)(t[4] <<  4);
-		r[13*i+ 7]  =  (uint8_t)(t[4] >>  4);
-		r[13*i+ 8]  =  (uint8_t)(t[4] >> 12);
-		r[13*i+ 8] |=  (uint8_t)(t[5] <<  1);
-		r[13*i+ 9]  =  (uint8_t)(t[5] >>  7);
-		r[13*i+ 9] |=  (uint8_t)(t[6] <<  6);
-		r[13*i+10]  =  (uint8_t)(t[6] >>  2);
-		r[13*i+11]  =  (uint8_t)(t[6] >> 10);
-		r[13*i+11] |=  (uint8_t)(t[7] <<  3);
-		r[13*i+12]  =  (uint8_t)(t[7] >>  5);
+		r[13 * i + 0] = (uint8_t)(t[0]);
+		r[13 * i + 1] = (uint8_t)(t[0] >> 8);
+		r[13 * i + 1] |= (uint8_t)(t[1] << 5);
+		r[13 * i + 2] = (uint8_t)(t[1] >> 3);
+		r[13 * i + 3] = (uint8_t)(t[1] >> 11);
+		r[13 * i + 3] |= (uint8_t)(t[2] << 2);
+		r[13 * i + 4] = (uint8_t)(t[2] >> 6);
+		r[13 * i + 4] |= (uint8_t)(t[3] << 7);
+		r[13 * i + 5] = (uint8_t)(t[3] >> 1);
+		r[13 * i + 6] = (uint8_t)(t[3] >> 9);
+		r[13 * i + 6] |= (uint8_t)(t[4] << 4);
+		r[13 * i + 7] = (uint8_t)(t[4] >> 4);
+		r[13 * i + 8] = (uint8_t)(t[4] >> 12);
+		r[13 * i + 8] |= (uint8_t)(t[5] << 1);
+		r[13 * i + 9] = (uint8_t)(t[5] >> 7);
+		r[13 * i + 9] |= (uint8_t)(t[6] << 6);
+		r[13 * i + 10] = (uint8_t)(t[6] >> 2);
+		r[13 * i + 11] = (uint8_t)(t[6] >> 10);
+		r[13 * i + 11] |= (uint8_t)(t[7] << 3);
+		r[13 * i + 12] = (uint8_t)(t[7] >> 5);
 	}
 
 	lc_memset_secure(t, 0, sizeof(t));
@@ -397,50 +418,58 @@ void polyt0_unpack(poly *r, const uint8_t *a)
 	unsigned int i;
 
 	for (i = 0; i < LC_DILITHIUM_N / 8; ++i) {
-		r->coeffs[8*i+0]  = a[13*i+0];
-		r->coeffs[8*i+0] |= (int32_t)a[13*i+1] << 8;
-		r->coeffs[8*i+0] &= 0x1FFF;
+		r->coeffs[8 * i + 0] = a[13 * i + 0];
+		r->coeffs[8 * i + 0] |= (int32_t)a[13 * i + 1] << 8;
+		r->coeffs[8 * i + 0] &= 0x1FFF;
 
-		r->coeffs[8*i+1]  = a[13*i+1] >> 5;
-		r->coeffs[8*i+1] |= (int32_t)a[13*i+2] << 3;
-		r->coeffs[8*i+1] |= (int32_t)a[13*i+3] << 11;
-		r->coeffs[8*i+1] &= 0x1FFF;
+		r->coeffs[8 * i + 1] = a[13 * i + 1] >> 5;
+		r->coeffs[8 * i + 1] |= (int32_t)a[13 * i + 2] << 3;
+		r->coeffs[8 * i + 1] |= (int32_t)a[13 * i + 3] << 11;
+		r->coeffs[8 * i + 1] &= 0x1FFF;
 
-		r->coeffs[8*i+2]  = a[13*i+3] >> 2;
-		r->coeffs[8*i+2] |= (int32_t)a[13*i+4] << 6;
-		r->coeffs[8*i+2] &= 0x1FFF;
+		r->coeffs[8 * i + 2] = a[13 * i + 3] >> 2;
+		r->coeffs[8 * i + 2] |= (int32_t)a[13 * i + 4] << 6;
+		r->coeffs[8 * i + 2] &= 0x1FFF;
 
-		r->coeffs[8*i+3]  = a[13*i+4] >> 7;
-		r->coeffs[8*i+3] |= (int32_t)a[13*i+5] << 1;
-		r->coeffs[8*i+3] |= (int32_t)a[13*i+6] << 9;
-		r->coeffs[8*i+3] &= 0x1FFF;
+		r->coeffs[8 * i + 3] = a[13 * i + 4] >> 7;
+		r->coeffs[8 * i + 3] |= (int32_t)a[13 * i + 5] << 1;
+		r->coeffs[8 * i + 3] |= (int32_t)a[13 * i + 6] << 9;
+		r->coeffs[8 * i + 3] &= 0x1FFF;
 
-		r->coeffs[8*i+4]  = a[13*i+6] >> 4;
-		r->coeffs[8*i+4] |= (int32_t)a[13*i+7] << 4;
-		r->coeffs[8*i+4] |= (int32_t)a[13*i+8] << 12;
-		r->coeffs[8*i+4] &= 0x1FFF;
+		r->coeffs[8 * i + 4] = a[13 * i + 6] >> 4;
+		r->coeffs[8 * i + 4] |= (int32_t)a[13 * i + 7] << 4;
+		r->coeffs[8 * i + 4] |= (int32_t)a[13 * i + 8] << 12;
+		r->coeffs[8 * i + 4] &= 0x1FFF;
 
-		r->coeffs[8*i+5]  = a[13*i+8] >> 1;
-		r->coeffs[8*i+5] |= (int32_t)a[13*i+9] << 7;
-		r->coeffs[8*i+5] &= 0x1FFF;
+		r->coeffs[8 * i + 5] = a[13 * i + 8] >> 1;
+		r->coeffs[8 * i + 5] |= (int32_t)a[13 * i + 9] << 7;
+		r->coeffs[8 * i + 5] &= 0x1FFF;
 
-		r->coeffs[8*i+6]  = a[13*i+9] >> 6;
-		r->coeffs[8*i+6] |= (int32_t)a[13*i+10] << 2;
-		r->coeffs[8*i+6] |= (int32_t)a[13*i+11] << 10;
-		r->coeffs[8*i+6] &= 0x1FFF;
+		r->coeffs[8 * i + 6] = a[13 * i + 9] >> 6;
+		r->coeffs[8 * i + 6] |= (int32_t)a[13 * i + 10] << 2;
+		r->coeffs[8 * i + 6] |= (int32_t)a[13 * i + 11] << 10;
+		r->coeffs[8 * i + 6] &= 0x1FFF;
 
-		r->coeffs[8*i+7]  = a[13*i+11] >> 3;
-		r->coeffs[8*i+7] |= (int32_t)a[13*i+12] << 5;
-		r->coeffs[8*i+7] &= 0x1FFF;
+		r->coeffs[8 * i + 7] = a[13 * i + 11] >> 3;
+		r->coeffs[8 * i + 7] |= (int32_t)a[13 * i + 12] << 5;
+		r->coeffs[8 * i + 7] &= 0x1FFF;
 
-		r->coeffs[8*i+0] = (1 << (LC_DILITHIUM_D-1)) - r->coeffs[8*i+0];
-		r->coeffs[8*i+1] = (1 << (LC_DILITHIUM_D-1)) - r->coeffs[8*i+1];
-		r->coeffs[8*i+2] = (1 << (LC_DILITHIUM_D-1)) - r->coeffs[8*i+2];
-		r->coeffs[8*i+3] = (1 << (LC_DILITHIUM_D-1)) - r->coeffs[8*i+3];
-		r->coeffs[8*i+4] = (1 << (LC_DILITHIUM_D-1)) - r->coeffs[8*i+4];
-		r->coeffs[8*i+5] = (1 << (LC_DILITHIUM_D-1)) - r->coeffs[8*i+5];
-		r->coeffs[8*i+6] = (1 << (LC_DILITHIUM_D-1)) - r->coeffs[8*i+6];
-		r->coeffs[8*i+7] = (1 << (LC_DILITHIUM_D-1)) - r->coeffs[8*i+7];
+		r->coeffs[8 * i + 0] =
+			(1 << (LC_DILITHIUM_D - 1)) - r->coeffs[8 * i + 0];
+		r->coeffs[8 * i + 1] =
+			(1 << (LC_DILITHIUM_D - 1)) - r->coeffs[8 * i + 1];
+		r->coeffs[8 * i + 2] =
+			(1 << (LC_DILITHIUM_D - 1)) - r->coeffs[8 * i + 2];
+		r->coeffs[8 * i + 3] =
+			(1 << (LC_DILITHIUM_D - 1)) - r->coeffs[8 * i + 3];
+		r->coeffs[8 * i + 4] =
+			(1 << (LC_DILITHIUM_D - 1)) - r->coeffs[8 * i + 4];
+		r->coeffs[8 * i + 5] =
+			(1 << (LC_DILITHIUM_D - 1)) - r->coeffs[8 * i + 5];
+		r->coeffs[8 * i + 6] =
+			(1 << (LC_DILITHIUM_D - 1)) - r->coeffs[8 * i + 6];
+		r->coeffs[8 * i + 7] =
+			(1 << (LC_DILITHIUM_D - 1)) - r->coeffs[8 * i + 7];
 	}
 }
 
@@ -459,35 +488,35 @@ void polyz_pack(uint8_t *r, const poly *a)
 
 #if LC_DILITHIUM_GAMMA1 == (1 << 17)
 	for (i = 0; i < LC_DILITHIUM_N / 4; ++i) {
-		t[0] = (uint32_t)(LC_DILITHIUM_GAMMA1 - a->coeffs[4*i+0]);
-		t[1] = (uint32_t)(LC_DILITHIUM_GAMMA1 - a->coeffs[4*i+1]);
-		t[2] = (uint32_t)(LC_DILITHIUM_GAMMA1 - a->coeffs[4*i+2]);
-		t[3] = (uint32_t)(LC_DILITHIUM_GAMMA1 - a->coeffs[4*i+3]);
+		t[0] = (uint32_t)(LC_DILITHIUM_GAMMA1 - a->coeffs[4 * i + 0]);
+		t[1] = (uint32_t)(LC_DILITHIUM_GAMMA1 - a->coeffs[4 * i + 1]);
+		t[2] = (uint32_t)(LC_DILITHIUM_GAMMA1 - a->coeffs[4 * i + 2]);
+		t[3] = (uint32_t)(LC_DILITHIUM_GAMMA1 - a->coeffs[4 * i + 3]);
 
-		r[9*i+0]  = (uint8_t)(t[0]);
-		r[9*i+1]  = (uint8_t)(t[0] >> 8);
-		r[9*i+2]  = (uint8_t)(t[0] >> 16);
-		r[9*i+2] |= (uint8_t)(t[1] << 2);
-		r[9*i+3]  = (uint8_t)(t[1] >> 6);
-		r[9*i+4]  = (uint8_t)(t[1] >> 14);
-		r[9*i+4] |= (uint8_t)(t[2] << 4);
-		r[9*i+5]  = (uint8_t)(t[2] >> 4);
-		r[9*i+6]  = (uint8_t)(t[2] >> 12);
-		r[9*i+6] |= (uint8_t)(t[3] << 6);
-		r[9*i+7]  = (uint8_t)(t[3] >> 2);
-		r[9*i+8]  = (uint8_t)(t[3] >> 10);
+		r[9 * i + 0] = (uint8_t)(t[0]);
+		r[9 * i + 1] = (uint8_t)(t[0] >> 8);
+		r[9 * i + 2] = (uint8_t)(t[0] >> 16);
+		r[9 * i + 2] |= (uint8_t)(t[1] << 2);
+		r[9 * i + 3] = (uint8_t)(t[1] >> 6);
+		r[9 * i + 4] = (uint8_t)(t[1] >> 14);
+		r[9 * i + 4] |= (uint8_t)(t[2] << 4);
+		r[9 * i + 5] = (uint8_t)(t[2] >> 4);
+		r[9 * i + 6] = (uint8_t)(t[2] >> 12);
+		r[9 * i + 6] |= (uint8_t)(t[3] << 6);
+		r[9 * i + 7] = (uint8_t)(t[3] >> 2);
+		r[9 * i + 8] = (uint8_t)(t[3] >> 10);
 	}
 #elif LC_DILITHIUM_GAMMA1 == (1 << 19)
 	for (i = 0; i < LC_DILITHIUM_N / 2; ++i) {
-		t[0] = (uint32_t)(LC_DILITHIUM_GAMMA1 - a->coeffs[2*i+0]);
-		t[1] = (uint32_t)(LC_DILITHIUM_GAMMA1 - a->coeffs[2*i+1]);
+		t[0] = (uint32_t)(LC_DILITHIUM_GAMMA1 - a->coeffs[2 * i + 0]);
+		t[1] = (uint32_t)(LC_DILITHIUM_GAMMA1 - a->coeffs[2 * i + 1]);
 
-		r[5*i+0]  = (uint8_t)(t[0]);
-		r[5*i+1]  = (uint8_t)(t[0] >> 8);
-		r[5*i+2]  = (uint8_t)(t[0] >> 16);
-		r[5*i+2] |= (uint8_t)(t[1] << 4);
-		r[5*i+3]  = (uint8_t)(t[1] >> 4);
-		r[5*i+4]  = (uint8_t)(t[1] >> 12);
+		r[5 * i + 0] = (uint8_t)(t[0]);
+		r[5 * i + 1] = (uint8_t)(t[0] >> 8);
+		r[5 * i + 2] = (uint8_t)(t[0] >> 16);
+		r[5 * i + 2] |= (uint8_t)(t[1] << 4);
+		r[5 * i + 3] = (uint8_t)(t[1] >> 4);
+		r[5 * i + 4] = (uint8_t)(t[1] >> 12);
 	}
 #else
 #error "Undefined Gamma"
@@ -509,45 +538,51 @@ void polyz_unpack(poly *r, const uint8_t *a)
 
 #if LC_DILITHIUM_GAMMA1 == (1 << 17)
 	for (i = 0; i < LC_DILITHIUM_N / 4; ++i) {
-		r->coeffs[4*i+0]  = a[9*i+0];
-		r->coeffs[4*i+0] |= (int32_t)a[9*i+1] << 8;
-		r->coeffs[4*i+0] |= (int32_t)a[9*i+2] << 16;
-		r->coeffs[4*i+0] &= 0x3FFFF;
+		r->coeffs[4 * i + 0] = a[9 * i + 0];
+		r->coeffs[4 * i + 0] |= (int32_t)a[9 * i + 1] << 8;
+		r->coeffs[4 * i + 0] |= (int32_t)a[9 * i + 2] << 16;
+		r->coeffs[4 * i + 0] &= 0x3FFFF;
 
-		r->coeffs[4*i+1]  = a[9*i+2] >> 2;
-		r->coeffs[4*i+1] |= (int32_t)a[9*i+3] << 6;
-		r->coeffs[4*i+1] |= (int32_t)a[9*i+4] << 14;
-		r->coeffs[4*i+1] &= 0x3FFFF;
+		r->coeffs[4 * i + 1] = a[9 * i + 2] >> 2;
+		r->coeffs[4 * i + 1] |= (int32_t)a[9 * i + 3] << 6;
+		r->coeffs[4 * i + 1] |= (int32_t)a[9 * i + 4] << 14;
+		r->coeffs[4 * i + 1] &= 0x3FFFF;
 
-		r->coeffs[4*i+2]  = a[9*i+4] >> 4;
-		r->coeffs[4*i+2] |= (int32_t)a[9*i+5] << 4;
-		r->coeffs[4*i+2] |= (int32_t)a[9*i+6] << 12;
-		r->coeffs[4*i+2] &= 0x3FFFF;
+		r->coeffs[4 * i + 2] = a[9 * i + 4] >> 4;
+		r->coeffs[4 * i + 2] |= (int32_t)a[9 * i + 5] << 4;
+		r->coeffs[4 * i + 2] |= (int32_t)a[9 * i + 6] << 12;
+		r->coeffs[4 * i + 2] &= 0x3FFFF;
 
-		r->coeffs[4*i+3]  = a[9*i+6] >> 6;
-		r->coeffs[4*i+3] |= (int32_t)a[9*i+7] << 2;
-		r->coeffs[4*i+3] |= (int32_t)a[9*i+8] << 10;
-		r->coeffs[4*i+3] &= 0x3FFFF;
+		r->coeffs[4 * i + 3] = a[9 * i + 6] >> 6;
+		r->coeffs[4 * i + 3] |= (int32_t)a[9 * i + 7] << 2;
+		r->coeffs[4 * i + 3] |= (int32_t)a[9 * i + 8] << 10;
+		r->coeffs[4 * i + 3] &= 0x3FFFF;
 
-		r->coeffs[4*i+0] = LC_DILITHIUM_GAMMA1 - r->coeffs[4*i+0];
-		r->coeffs[4*i+1] = LC_DILITHIUM_GAMMA1 - r->coeffs[4*i+1];
-		r->coeffs[4*i+2] = LC_DILITHIUM_GAMMA1 - r->coeffs[4*i+2];
-		r->coeffs[4*i+3] = LC_DILITHIUM_GAMMA1 - r->coeffs[4*i+3];
+		r->coeffs[4 * i + 0] =
+			LC_DILITHIUM_GAMMA1 - r->coeffs[4 * i + 0];
+		r->coeffs[4 * i + 1] =
+			LC_DILITHIUM_GAMMA1 - r->coeffs[4 * i + 1];
+		r->coeffs[4 * i + 2] =
+			LC_DILITHIUM_GAMMA1 - r->coeffs[4 * i + 2];
+		r->coeffs[4 * i + 3] =
+			LC_DILITHIUM_GAMMA1 - r->coeffs[4 * i + 3];
 	}
 #elif LC_DILITHIUM_GAMMA1 == (1 << 19)
 	for (i = 0; i < LC_DILITHIUM_N / 2; ++i) {
-		r->coeffs[2*i+0]  = a[5*i+0];
-		r->coeffs[2*i+0] |= (int32_t)a[5*i+1] << 8;
-		r->coeffs[2*i+0] |= (int32_t)a[5*i+2] << 16;
-		r->coeffs[2*i+0] &= 0xFFFFF;
+		r->coeffs[2 * i + 0] = a[5 * i + 0];
+		r->coeffs[2 * i + 0] |= (int32_t)a[5 * i + 1] << 8;
+		r->coeffs[2 * i + 0] |= (int32_t)a[5 * i + 2] << 16;
+		r->coeffs[2 * i + 0] &= 0xFFFFF;
 
-		r->coeffs[2*i+1]  = a[5*i+2] >> 4;
-		r->coeffs[2*i+1] |= (int32_t)a[5*i+3] << 4;
-		r->coeffs[2*i+1] |= (int32_t)a[5*i+4] << 12;
-		r->coeffs[2*i+0] &= 0xFFFFF;
+		r->coeffs[2 * i + 1] = a[5 * i + 2] >> 4;
+		r->coeffs[2 * i + 1] |= (int32_t)a[5 * i + 3] << 4;
+		r->coeffs[2 * i + 1] |= (int32_t)a[5 * i + 4] << 12;
+		r->coeffs[2 * i + 0] &= 0xFFFFF;
 
-		r->coeffs[2*i+0] = LC_DILITHIUM_GAMMA1 - r->coeffs[2*i+0];
-		r->coeffs[2*i+1] = LC_DILITHIUM_GAMMA1 - r->coeffs[2*i+1];
+		r->coeffs[2 * i + 0] =
+			LC_DILITHIUM_GAMMA1 - r->coeffs[2 * i + 0];
+		r->coeffs[2 * i + 1] =
+			LC_DILITHIUM_GAMMA1 - r->coeffs[2 * i + 1];
 	}
 #else
 #error "Undefined Gamma"
@@ -567,18 +602,19 @@ void polyw1_pack(uint8_t *r, const poly *a)
 {
 	unsigned int i;
 
-#if LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q - 1)/88
+#if LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q - 1) / 88
 	for (i = 0; i < LC_DILITHIUM_N / 4; ++i) {
-		r[3*i+0]  = (uint8_t)(a->coeffs[4*i+0]);
-		r[3*i+0] |= (uint8_t)(a->coeffs[4*i+1] << 6);
-		r[3*i+1]  = (uint8_t)(a->coeffs[4*i+1] >> 2);
-		r[3*i+1] |= (uint8_t)(a->coeffs[4*i+2] << 4);
-		r[3*i+2]  = (uint8_t)(a->coeffs[4*i+2] >> 4);
-		r[3*i+2] |= (uint8_t)(a->coeffs[4*i+3] << 2);
+		r[3 * i + 0] = (uint8_t)(a->coeffs[4 * i + 0]);
+		r[3 * i + 0] |= (uint8_t)(a->coeffs[4 * i + 1] << 6);
+		r[3 * i + 1] = (uint8_t)(a->coeffs[4 * i + 1] >> 2);
+		r[3 * i + 1] |= (uint8_t)(a->coeffs[4 * i + 2] << 4);
+		r[3 * i + 2] = (uint8_t)(a->coeffs[4 * i + 2] >> 4);
+		r[3 * i + 2] |= (uint8_t)(a->coeffs[4 * i + 3] << 2);
 	}
-#elif LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q - 1)/32
+#elif LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q - 1) / 32
 	for (i = 0; i < LC_DILITHIUM_N / 2; ++i)
-		r[i] = (uint8_t)(a->coeffs[2*i+0] | (a->coeffs[2*i+1] << 4));
+		r[i] = (uint8_t)(a->coeffs[2 * i + 0] |
+				 (a->coeffs[2 * i + 1] << 4));
 #else
 #error "Undefined Gamma"
 #endif

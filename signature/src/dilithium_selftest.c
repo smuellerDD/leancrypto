@@ -1560,10 +1560,8 @@ struct rand_state {
 	uint64_t ctr;
 };
 
-static int
-randombytes(void *_state,
-	    const uint8_t *addtl_input, size_t addtl_input_len,
-	    uint8_t *out, size_t outlen)
+static int randombytes(void *_state, const uint8_t *addtl_input,
+		       size_t addtl_input_len, uint8_t *out, size_t outlen)
 {
 	struct rand_state *state = _state;
 	unsigned int i;
@@ -1573,7 +1571,7 @@ randombytes(void *_state,
 	(void)addtl_input_len;
 
 	for (i = 0; i < 8; ++i)
-		buf[i] = (uint8_t)(state->ctr >> 8*i);
+		buf[i] = (uint8_t)(state->ctr >> 8 * i);
 
 	state->ctr++;
 	lc_shake(lc_shake128, buf, 8, out, outlen);
@@ -1581,10 +1579,8 @@ randombytes(void *_state,
 	return 0;
 }
 
-static int
-randombytes_seed(void *_state,
-		 const uint8_t *seed, size_t seedlen,
-		 const uint8_t *persbuf, size_t perslen)
+static int randombytes_seed(void *_state, const uint8_t *seed, size_t seedlen,
+			    const uint8_t *persbuf, size_t perslen)
 {
 	(void)_state;
 	(void)seed;
@@ -1600,12 +1596,13 @@ static void randombytes_zero(void *_state)
 }
 
 static const struct lc_rng dilithium_drng = {
-	.generate	= randombytes,
-	.seed		= randombytes_seed,
-	.zero		= randombytes_zero,
+	.generate = randombytes,
+	.seed = randombytes_seed,
+	.zero = randombytes_zero,
 };
 
-static int _dilithium_keypair_tester(const char *impl,
+static int _dilithium_keypair_tester(
+	const char *impl,
 	int (*_lc_dilithium_keypair)(struct lc_dilithium_pk *pk,
 				     struct lc_dilithium_sk *sk,
 				     struct lc_rng_ctx *rng_ctx))
@@ -1624,8 +1621,8 @@ static int _dilithium_keypair_tester(const char *impl,
 	 * - the signature generation is performed with deterministic
 	 *   behavior (i.e. rng_ctx is NULL)
 	 */
-	struct lc_rng_ctx dilithium_rng =
-		{ .rng = &dilithium_drng, .rng_state = &rand_state };
+	struct lc_rng_ctx dilithium_rng = { .rng = &dilithium_drng,
+					    .rng_state = &rand_state };
 	char str[25];
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
@@ -1641,7 +1638,8 @@ static int _dilithium_keypair_tester(const char *impl,
 	return 0;
 }
 
-void dilithium_keypair_tester(int *tested, const char *impl,
+void dilithium_keypair_tester(
+	int *tested, const char *impl,
 	int (*_lc_dilithium_keypair)(struct lc_dilithium_pk *pk,
 				     struct lc_dilithium_sk *sk,
 				     struct lc_rng_ctx *rng_ctx))
@@ -1653,10 +1651,10 @@ void dilithium_keypair_tester(int *tested, const char *impl,
 				    impl);
 }
 
-static int _dilithium_siggen_tester(const char *impl,
+static int _dilithium_siggen_tester(
+	const char *impl,
 	int (*_lc_dilithium_sign)(struct lc_dilithium_sig *sig,
-				  const uint8_t *m,
-				  size_t mlen,
+				  const uint8_t *m, size_t mlen,
 				  const struct lc_dilithium_sk *sk,
 				  struct lc_rng_ctx *rng_ctx))
 {
@@ -1674,10 +1672,10 @@ static int _dilithium_siggen_tester(const char *impl,
 	return 0;
 }
 
-void dilithium_siggen_tester(int *tested, const char *impl,
+void dilithium_siggen_tester(
+	int *tested, const char *impl,
 	int (*_lc_dilithium_sign)(struct lc_dilithium_sig *sig,
-				  const uint8_t *m,
-				  size_t mlen,
+				  const uint8_t *m, size_t mlen,
 				  const struct lc_dilithium_sk *sk,
 				  struct lc_rng_ctx *rng_ctx))
 {
@@ -1688,10 +1686,10 @@ void dilithium_siggen_tester(int *tested, const char *impl,
 				    impl);
 }
 
-void dilithium_sigver_tester(int *tested, const char *impl,
+void dilithium_sigver_tester(
+	int *tested, const char *impl,
 	int (*_lc_dilithium_verify)(const struct lc_dilithium_sig *sig,
-				    const uint8_t *m,
-				    size_t mlen,
+				    const uint8_t *m, size_t mlen,
 				    const struct lc_dilithium_pk *pk))
 {
 	int ret, exp;

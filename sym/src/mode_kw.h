@@ -21,8 +21,7 @@
 #define MODE_KW_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 struct lc_mode_state {

@@ -20,7 +20,7 @@
 #include "lc_xdrbg256.h"
 #include "small_stack_support.h"
 
-#define XDRBG256_TEST_BLOCKSIZE	LC_XDRBG256_DRNG_MAX_CHUNK
+#define XDRBG256_TEST_BLOCKSIZE LC_XDRBG256_DRNG_MAX_CHUNK
 //#define XDRBG256_TEST_BLOCKSIZE	32
 
 static int xdrbg256_drng_selftest_large(struct lc_rng_ctx *xdrbg256_ctx)
@@ -36,15 +36,14 @@ static int xdrbg256_drng_selftest_large(struct lc_rng_ctx *xdrbg256_ctx)
 
 	lc_rng_seed(xdrbg256_ctx, seed, sizeof(seed), NULL, 0);
 
-	for (i = 0; i < ((1U<<30) / XDRBG256_TEST_BLOCKSIZE); i++)
+	for (i = 0; i < ((1U << 30) / XDRBG256_TEST_BLOCKSIZE); i++)
 		lc_rng_generate(xdrbg256_ctx, NULL, 0, ws->out,
-					   XDRBG256_TEST_BLOCKSIZE);
+				XDRBG256_TEST_BLOCKSIZE);
 	lc_rng_zero(xdrbg256_ctx);
 
 	LC_RELEASE_MEM(ws);
 	return 0;
 }
-
 
 int main(int argc, char *argv[])
 {

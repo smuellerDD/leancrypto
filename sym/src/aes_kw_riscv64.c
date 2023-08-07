@@ -34,14 +34,14 @@ struct lc_sym_state {
 
 #define LC_AES_KW_BLOCK_SIZE sizeof(struct lc_sym_state)
 
-static void aes_riscv64_kw_encrypt(struct lc_sym_state *ctx,
-				   const uint8_t *in, uint8_t *out, size_t len)
+static void aes_riscv64_kw_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
+				   uint8_t *out, size_t len)
 {
 	lc_mode_kw_c->encrypt(&ctx->kw_state, in, out, len);
 }
 
-static void aes_riscv64_kw_decrypt(struct lc_sym_state *ctx,
-				   const uint8_t *in, uint8_t *out, size_t len)
+static void aes_riscv64_kw_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
+				   uint8_t *out, size_t len)
 {
 	lc_mode_kw_c->decrypt(&ctx->kw_state, in, out, len);
 }
@@ -56,28 +56,28 @@ static void aes_riscv64_kw_init(struct lc_sym_state *ctx)
 	lc_mode_kw_c->init(&ctx->kw_state, lc_aes_riscv64, &ctx->enc_block_ctx);
 }
 
-static int aes_riscv64_kw_setkey(struct lc_sym_state *ctx,
-			         const uint8_t *key, size_t keylen)
+static int aes_riscv64_kw_setkey(struct lc_sym_state *ctx, const uint8_t *key,
+				 size_t keylen)
 {
 	if (!ctx)
 		return -EINVAL;
 	return lc_mode_kw_c->setkey(&ctx->kw_state, key, keylen);
 }
 
-static int aes_riscv64_kw_setiv(struct lc_sym_state *ctx,
-			        const uint8_t *iv, size_t ivlen)
+static int aes_riscv64_kw_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
+				size_t ivlen)
 {
 	return lc_mode_kw_c->setiv(&ctx->kw_state, iv, ivlen);
 }
 
 static struct lc_sym _lc_aes_kw_riscv64 = {
-	.init		= aes_riscv64_kw_init,
-	.setkey		= aes_riscv64_kw_setkey,
-	.setiv		= aes_riscv64_kw_setiv,
-	.encrypt	= aes_riscv64_kw_encrypt,
-	.decrypt	= aes_riscv64_kw_decrypt,
-	.statesize	= LC_AES_KW_BLOCK_SIZE,
-	.blocksize	= AES_BLOCKLEN,
+	.init = aes_riscv64_kw_init,
+	.setkey = aes_riscv64_kw_setkey,
+	.setiv = aes_riscv64_kw_setiv,
+	.encrypt = aes_riscv64_kw_encrypt,
+	.decrypt = aes_riscv64_kw_decrypt,
+	.statesize = LC_AES_KW_BLOCK_SIZE,
+	.blocksize = AES_BLOCKLEN,
 };
-LC_INTERFACE_SYMBOL(
-const struct lc_sym *, lc_aes_kw_riscv64) = &_lc_aes_kw_riscv64;
+LC_INTERFACE_SYMBOL(const struct lc_sym *,
+		    lc_aes_kw_riscv64) = &_lc_aes_kw_riscv64;

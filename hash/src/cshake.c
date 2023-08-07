@@ -22,21 +22,21 @@
 #include "left_encode.h"
 #include "visibility.h"
 
-LC_INTERFACE_FUNCTION(
-void, lc_cshake_init, struct lc_hash_ctx *ctx,
-		      const uint8_t *n, size_t nlen,
-		      const uint8_t *s, size_t slen)
+LC_INTERFACE_FUNCTION(void, lc_cshake_init, struct lc_hash_ctx *ctx,
+		      const uint8_t *n, size_t nlen, const uint8_t *s,
+		      size_t slen)
 {
 	static const uint8_t zero[LC_SHAKE_128_SIZE_BLOCK] = { 0 };
-	static const uint8_t
-		bytepad_val256[] = { 0x01, LC_SHAKE_256_SIZE_BLOCK },
-		bytepad_val128[] = { 0x01, LC_SHAKE_128_SIZE_BLOCK };
+	static const uint8_t bytepad_val256[] = { 0x01,
+						  LC_SHAKE_256_SIZE_BLOCK },
+			     bytepad_val128[] = { 0x01,
+						  LC_SHAKE_128_SIZE_BLOCK };
 	uint8_t buf[sizeof(nlen) + 1];
 	size_t len;
 	/* 2 bytes for the bytepad_val that gets inserted */
 	size_t added = 2;
-	int shake128 = (lc_hash_blocksize(ctx) == LC_SHAKE_128_SIZE_BLOCK) ? 1 :
-									     0;
+	int shake128 =
+		(lc_hash_blocksize(ctx) == LC_SHAKE_128_SIZE_BLOCK) ? 1 : 0;
 
 	if (!ctx)
 		return;

@@ -35,7 +35,7 @@ static int hash_drbg_selftest_large(struct lc_rng_ctx *drbg)
 	if (lc_rng_seed(drbg, seed, sizeof(seed), NULL, 0))
 		goto out;
 
-	for (i = 0; i < ((1U<<30) / LC_DRBG_MAX_REQUEST_BYTES); i++)
+	for (i = 0; i < ((1U << 30) / LC_DRBG_MAX_REQUEST_BYTES); i++)
 		lc_rng_generate(drbg, NULL, 0, ws->out, sizeof(ws->out));
 
 out:
@@ -43,7 +43,6 @@ out:
 	LC_RELEASE_MEM(ws);
 	return ret;
 }
-
 
 int main(int argc, char *argv[])
 {

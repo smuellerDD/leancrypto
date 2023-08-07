@@ -21,13 +21,11 @@
 #define RISCV64_AES_ASM_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /* AES block algorithm context */
-struct aes_riscv64_block_ctx
-{
+struct aes_riscv64_block_ctx {
 	uint8_t RoundKey[240];
 	uint32_t rounds;
 };

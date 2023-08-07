@@ -35,8 +35,8 @@ struct lc_sym_state {
 
 #define LC_AES_ECB_BLOCK_SIZE sizeof(struct lc_sym_state)
 
-static void aes_ecb_encrypt(struct lc_sym_state* ctx,
-			    const uint8_t *in, uint8_t *out, size_t len)
+static void aes_ecb_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
+			    uint8_t *out, size_t len)
 {
 	const struct aes_block_ctx *block_ctx;
 	size_t i, rounded_len = len & ~(AES_BLOCKLEN - 1);
@@ -50,11 +50,11 @@ static void aes_ecb_encrypt(struct lc_sym_state* ctx,
 
 	/* In-place encryption operation of plaintext. */
 	for (i = 0; i < rounded_len; i += AES_BLOCKLEN, out += AES_BLOCKLEN)
-		aes_cipher((state_t*)out, block_ctx);
+		aes_cipher((state_t *)out, block_ctx);
 }
 
-static void aes_ecb_decrypt(struct lc_sym_state* ctx,
-			    const uint8_t *in, uint8_t *out, size_t len)
+static void aes_ecb_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
+			    uint8_t *out, size_t len)
 {
 	const struct aes_block_ctx *block_ctx;
 	size_t i, rounded_len = len & ~(AES_BLOCKLEN - 1);
@@ -68,7 +68,7 @@ static void aes_ecb_decrypt(struct lc_sym_state* ctx,
 
 	/* In-place decryption operation of plaintext. */
 	for (i = 0; i < rounded_len; i += AES_BLOCKLEN, out += AES_BLOCKLEN)
-		aes_inv_cipher((state_t*)out, block_ctx);
+		aes_inv_cipher((state_t *)out, block_ctx);
 }
 
 static void aes_ecb_init(struct lc_sym_state *ctx)
@@ -76,8 +76,8 @@ static void aes_ecb_init(struct lc_sym_state *ctx)
 	(void)ctx;
 }
 
-static int aes_ecb_setkey(struct lc_sym_state *ctx,
-			  const uint8_t *key, size_t keylen)
+static int aes_ecb_setkey(struct lc_sym_state *ctx, const uint8_t *key,
+			  size_t keylen)
 {
 	int ret;
 
@@ -91,8 +91,8 @@ static int aes_ecb_setkey(struct lc_sym_state *ctx,
 	return ret;
 }
 
-static int aes_ecb_setiv(struct lc_sym_state *ctx,
-			 const uint8_t *iv, size_t ivlen)
+static int aes_ecb_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
+			 size_t ivlen)
 {
 	(void)ctx;
 	(void)iv;
@@ -101,12 +101,12 @@ static int aes_ecb_setiv(struct lc_sym_state *ctx,
 }
 
 static struct lc_sym _lc_aes_ecb = {
-	.init		= aes_ecb_init,
-	.setkey		= aes_ecb_setkey,
-	.setiv		= aes_ecb_setiv,
-	.encrypt	= aes_ecb_encrypt,
-	.decrypt	= aes_ecb_decrypt,
-	.statesize	= LC_AES_ECB_BLOCK_SIZE,
-	.blocksize	= AES_BLOCKLEN,
+	.init = aes_ecb_init,
+	.setkey = aes_ecb_setkey,
+	.setiv = aes_ecb_setiv,
+	.encrypt = aes_ecb_encrypt,
+	.decrypt = aes_ecb_decrypt,
+	.statesize = LC_AES_ECB_BLOCK_SIZE,
+	.blocksize = AES_BLOCKLEN,
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_ecb) = &_lc_aes_ecb;

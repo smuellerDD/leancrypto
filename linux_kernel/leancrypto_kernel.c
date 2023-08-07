@@ -56,4 +56,3 @@ module_exit(leancrypto_exit);
 MODULE_LICENSE("Dual BSD/GPL");
 MODULE_AUTHOR("Stephan Mueller <smueller@chronox.de>");
 MODULE_DESCRIPTION("Kernel module leancrypto");
-

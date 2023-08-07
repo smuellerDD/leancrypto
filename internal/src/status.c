@@ -27,13 +27,12 @@
 #include "sha3_avx512.h"
 #include "visibility.h"
 
-LC_INTERFACE_FUNCTION(
-void, lc_status, char *outbuf, size_t outlen)
+LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 {
 	size_t len;
 
-	snprintf(outbuf, outlen, "leancrypto %u.%u.%u\n",
-		 MAJVERSION, MINVERSION, PATCHLEVEL);
+	snprintf(outbuf, outlen, "leancrypto %u.%u.%u\n", MAJVERSION,
+		 MINVERSION, PATCHLEVEL);
 
 	len = strlen(outbuf);
 	snprintf(outbuf + len, outlen - len,
@@ -43,5 +42,4 @@ void, lc_status, char *outbuf, size_t outlen)
 		 (lc_sha3_512_arm_neon != lc_sha3_512_c) ? "ARMv7 Neon " : "",
 		 (lc_sha3_512_arm_asm != lc_sha3_512_c) ? "ARMv8 ASM " : "",
 		 (lc_sha3_512_arm_ce != lc_sha3_512_c) ? "ARMv8 CE " : "");
-
 }

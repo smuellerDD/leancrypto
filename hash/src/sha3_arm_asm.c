@@ -116,8 +116,7 @@ static void cshake_256_arm_asm_init(void *_state)
 	sha3_state_init(ctx->state);
 }
 
-static void keccak_arm_asm_absorb(void *_state, const uint8_t *in,
-				   size_t inlen)
+static void keccak_arm_asm_absorb(void *_state, const uint8_t *in, size_t inlen)
 {
 	keccak_arm_asm_absorb_internal(_state, in, inlen,
 				       lc_keccak_absorb_arm_asm);
@@ -131,100 +130,100 @@ static void keccak_arm_asm_squeeze(void *_state, uint8_t *digest)
 }
 
 static const struct lc_hash _sha3_224_arm_asm = {
-	.init		= sha3_224_arm_asm_init,
-	.update		= keccak_arm_asm_absorb,
-	.final		= keccak_arm_asm_squeeze,
-	.set_digestsize	= NULL,
-	.get_digestsize	= sha3_224_digestsize,
-	.blocksize	= LC_SHA3_224_SIZE_BLOCK,
-	.statesize	= sizeof(struct lc_sha3_224_state),
+	.init = sha3_224_arm_asm_init,
+	.update = keccak_arm_asm_absorb,
+	.final = keccak_arm_asm_squeeze,
+	.set_digestsize = NULL,
+	.get_digestsize = sha3_224_digestsize,
+	.blocksize = LC_SHA3_224_SIZE_BLOCK,
+	.statesize = sizeof(struct lc_sha3_224_state),
 };
-LC_INTERFACE_SYMBOL(
-const struct lc_hash *, lc_sha3_224_arm_asm) = &_sha3_224_arm_asm;
+LC_INTERFACE_SYMBOL(const struct lc_hash *,
+		    lc_sha3_224_arm_asm) = &_sha3_224_arm_asm;
 
 static const struct lc_hash _sha3_256_arm_asm = {
-	.init		= sha3_256_arm_asm_init,
-	.update		= keccak_arm_asm_absorb,
-	.final		= keccak_arm_asm_squeeze,
-	.set_digestsize	= NULL,
-	.get_digestsize	= sha3_256_digestsize,
-	.blocksize	= LC_SHA3_256_SIZE_BLOCK,
-	.statesize	= sizeof(struct lc_sha3_256_state),
+	.init = sha3_256_arm_asm_init,
+	.update = keccak_arm_asm_absorb,
+	.final = keccak_arm_asm_squeeze,
+	.set_digestsize = NULL,
+	.get_digestsize = sha3_256_digestsize,
+	.blocksize = LC_SHA3_256_SIZE_BLOCK,
+	.statesize = sizeof(struct lc_sha3_256_state),
 };
-LC_INTERFACE_SYMBOL(
-const struct lc_hash *, lc_sha3_256_arm_asm) = &_sha3_256_arm_asm;
+LC_INTERFACE_SYMBOL(const struct lc_hash *,
+		    lc_sha3_256_arm_asm) = &_sha3_256_arm_asm;
 
 static const struct lc_hash _sha3_384_arm_asm = {
-	.init		= sha3_384_arm_asm_init,
-	.update		= keccak_arm_asm_absorb,
-	.final		= keccak_arm_asm_squeeze,
-	.set_digestsize	= NULL,
-	.get_digestsize	= sha3_384_digestsize,
-	.blocksize	= LC_SHA3_384_SIZE_BLOCK,
-	.statesize	= sizeof(struct lc_sha3_384_state),
+	.init = sha3_384_arm_asm_init,
+	.update = keccak_arm_asm_absorb,
+	.final = keccak_arm_asm_squeeze,
+	.set_digestsize = NULL,
+	.get_digestsize = sha3_384_digestsize,
+	.blocksize = LC_SHA3_384_SIZE_BLOCK,
+	.statesize = sizeof(struct lc_sha3_384_state),
 };
-LC_INTERFACE_SYMBOL(
-const struct lc_hash *, lc_sha3_384_arm_asm) = &_sha3_384_arm_asm;
+LC_INTERFACE_SYMBOL(const struct lc_hash *,
+		    lc_sha3_384_arm_asm) = &_sha3_384_arm_asm;
 
 static const struct lc_hash _sha3_512_arm_asm = {
-	.init		= sha3_512_arm_asm_init,
-	.update		= keccak_arm_asm_absorb,
-	.final		= keccak_arm_asm_squeeze,
-	.set_digestsize	= NULL,
-	.get_digestsize	= sha3_512_digestsize,
-	.blocksize	= LC_SHA3_512_SIZE_BLOCK,
-	.statesize	= sizeof(struct lc_sha3_512_state),
+	.init = sha3_512_arm_asm_init,
+	.update = keccak_arm_asm_absorb,
+	.final = keccak_arm_asm_squeeze,
+	.set_digestsize = NULL,
+	.get_digestsize = sha3_512_digestsize,
+	.blocksize = LC_SHA3_512_SIZE_BLOCK,
+	.statesize = sizeof(struct lc_sha3_512_state),
 };
-LC_INTERFACE_SYMBOL(
-const struct lc_hash *, lc_sha3_512_arm_asm) = &_sha3_512_arm_asm;
+LC_INTERFACE_SYMBOL(const struct lc_hash *,
+		    lc_sha3_512_arm_asm) = &_sha3_512_arm_asm;
 
 static const struct lc_hash _shake128_arm_asm = {
-	.init		= shake_128_arm_asm_init,
-	.update		= keccak_arm_asm_absorb,
-	.final		= keccak_arm_asm_squeeze,
-	.set_digestsize	= shake_set_digestsize,
-	.get_digestsize	= shake_get_digestsize,
-	.blocksize	= LC_SHAKE_128_SIZE_BLOCK,
-	.statesize	= sizeof(struct lc_shake_128_state),
+	.init = shake_128_arm_asm_init,
+	.update = keccak_arm_asm_absorb,
+	.final = keccak_arm_asm_squeeze,
+	.set_digestsize = shake_set_digestsize,
+	.get_digestsize = shake_get_digestsize,
+	.blocksize = LC_SHAKE_128_SIZE_BLOCK,
+	.statesize = sizeof(struct lc_shake_128_state),
 };
-LC_INTERFACE_SYMBOL(
-const struct lc_hash *, lc_shake128_arm_asm) = &_shake128_arm_asm;
+LC_INTERFACE_SYMBOL(const struct lc_hash *,
+		    lc_shake128_arm_asm) = &_shake128_arm_asm;
 
 static const struct lc_hash _shake256_arm_asm = {
-	.init		= shake_256_arm_asm_init,
-	.update		= keccak_arm_asm_absorb,
-	.final		= keccak_arm_asm_squeeze,
-	.set_digestsize	= shake_set_digestsize,
-	.get_digestsize	= shake_get_digestsize,
-	.blocksize	= LC_SHA3_256_SIZE_BLOCK,
-	.statesize	= sizeof(struct lc_sha3_256_state),
+	.init = shake_256_arm_asm_init,
+	.update = keccak_arm_asm_absorb,
+	.final = keccak_arm_asm_squeeze,
+	.set_digestsize = shake_set_digestsize,
+	.get_digestsize = shake_get_digestsize,
+	.blocksize = LC_SHA3_256_SIZE_BLOCK,
+	.statesize = sizeof(struct lc_sha3_256_state),
 };
-LC_INTERFACE_SYMBOL(
-const struct lc_hash *, lc_shake256_arm_asm) = &_shake256_arm_asm;
+LC_INTERFACE_SYMBOL(const struct lc_hash *,
+		    lc_shake256_arm_asm) = &_shake256_arm_asm;
 
 static const struct lc_hash _cshake128_arm_asm = {
-	.init		= cshake_128_arm_asm_init,
-	.update		= keccak_arm_asm_absorb,
-	.final		= keccak_arm_asm_squeeze,
-	.set_digestsize	= shake_set_digestsize,
-	.get_digestsize	= shake_get_digestsize,
-	.blocksize	= LC_SHAKE_128_SIZE_BLOCK,
-	.statesize	= sizeof(struct lc_shake_128_state),
+	.init = cshake_128_arm_asm_init,
+	.update = keccak_arm_asm_absorb,
+	.final = keccak_arm_asm_squeeze,
+	.set_digestsize = shake_set_digestsize,
+	.get_digestsize = shake_get_digestsize,
+	.blocksize = LC_SHAKE_128_SIZE_BLOCK,
+	.statesize = sizeof(struct lc_shake_128_state),
 };
-LC_INTERFACE_SYMBOL(
-const struct lc_hash *, lc_cshake128_arm_asm) = &_cshake128_arm_asm;
+LC_INTERFACE_SYMBOL(const struct lc_hash *,
+		    lc_cshake128_arm_asm) = &_cshake128_arm_asm;
 
 static const struct lc_hash _cshake256_arm_asm = {
-	.init		= cshake_256_arm_asm_init,
-	.update		= keccak_arm_asm_absorb,
-	.final		= keccak_arm_asm_squeeze,
-	.set_digestsize	= shake_set_digestsize,
-	.get_digestsize	= shake_get_digestsize,
-	.blocksize	= LC_SHA3_256_SIZE_BLOCK,
-	.statesize	= sizeof(struct lc_sha3_256_state),
+	.init = cshake_256_arm_asm_init,
+	.update = keccak_arm_asm_absorb,
+	.final = keccak_arm_asm_squeeze,
+	.set_digestsize = shake_set_digestsize,
+	.get_digestsize = shake_get_digestsize,
+	.blocksize = LC_SHA3_256_SIZE_BLOCK,
+	.statesize = sizeof(struct lc_sha3_256_state),
 };
-LC_INTERFACE_SYMBOL(
-const struct lc_hash *, lc_cshake256_arm_asm) = &_cshake256_arm_asm;
+LC_INTERFACE_SYMBOL(const struct lc_hash *,
+		    lc_cshake256_arm_asm) = &_cshake256_arm_asm;
 
 #else /* __ARM_ARCH_6__ */
 

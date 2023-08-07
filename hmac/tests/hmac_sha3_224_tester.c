@@ -29,18 +29,18 @@
 #include "sha3_avx2.h"
 #include "sha3_avx512.h"
 
-#define LC_EXEC_ONE_TEST(sha3_impl)					       \
-	if (sha3_impl)							       \
-		ret += _sha3_224_tester(sha3_impl, #sha3_impl)
+#define LC_EXEC_ONE_TEST(sha3_impl)                                            \
+	if (sha3_impl)                                                         \
+	ret += _sha3_224_tester(sha3_impl, #sha3_impl)
 
 static int _sha3_224_tester(const struct lc_hash *sha3_224, const char *name)
 {
 	static const uint8_t msg_224[] = { 0x35, 0x8E, 0x06, 0xBA, 0x03, 0x21,
 					   0x83, 0xFC, 0x18, 0x20, 0x58, 0xBD,
 					   0xB7, 0xBB, 0x13, 0x40 };
-	static const uint8_t key_224[] = { 0xBB, 0x00, 0x95, 0xC4, 0xA4, 0xA6,
-					   0x67, 0xD2, 0xE7, 0x43, 0x30, 0xE5,
-					   0xD6 };
+	static const uint8_t key_224[] = { 0xBB, 0x00, 0x95, 0xC4, 0xA4,
+					   0xA6, 0x67, 0xD2, 0xE7, 0x43,
+					   0x30, 0xE5, 0xD6 };
 	static const uint8_t exp_224[] = { 0x16, 0xf7, 0xb2, 0x7e, 0x25, 0x37,
 					   0x6c, 0x38, 0xcf, 0xaa, 0x6f, 0xcc,
 					   0xe2, 0x85, 0xc5, 0x14, 0x28, 0xdb,
@@ -50,9 +50,11 @@ static int _sha3_224_tester(const struct lc_hash *sha3_224, const char *name)
 	int ret;
 
 	printf("hash ctx %s (%s implementation) len %lu\n", name,
-	       sha3_224 == lc_sha3_224_c ? "C" : "accelerated", LC_HASH_CTX_SIZE(sha3_224));
+	       sha3_224 == lc_sha3_224_c ? "C" : "accelerated",
+	       LC_HASH_CTX_SIZE(sha3_224));
 	lc_hmac(sha3_224, key_224, 13, msg_224, 16, act);
-	ret = lc_compare(act, exp_224, LC_SHA3_224_SIZE_DIGEST, "HMAC SHA3-224");
+	ret = lc_compare(act, exp_224, LC_SHA3_224_SIZE_DIGEST,
+			 "HMAC SHA3-224");
 
 	return ret;
 }

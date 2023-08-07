@@ -33,8 +33,7 @@
 #include "lc_kyber.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 void poly_cbd_eta1(poly *r, const uint8_t buf[LC_KYBER_ETA1 * LC_KYBER_N / 4]);

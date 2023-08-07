@@ -41,7 +41,8 @@
 #include "ext_x86_tmmintrin.h"
 #endif
 
-#if !(defined(_MSC_VER) || defined(__SCE__)) || (defined(__SSE4_2__) || defined(__SSE4_1__))
+#if !(defined(_MSC_VER) || defined(__SCE__)) ||                                \
+	(defined(__SSE4_2__) || defined(__SSE4_1__))
 #include "ext_x86_smmintrin.h"
 #endif
 
@@ -60,6 +61,5 @@
 #if !(defined(_MSC_VER) || defined(__SCE__)) || defined(__POPCNT__)
 #include "ext_x86_popcntintrin.h"
 #endif
-
 
 #endif /* EXT_X86_IMMINTRIN_H */

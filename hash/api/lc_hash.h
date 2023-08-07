@@ -25,8 +25,7 @@
 #include "lc_memory_support.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 struct lc_hash {
@@ -54,18 +53,18 @@ struct lc_hash_ctx {
  * arguments.
  */
 #ifndef LC_HASH_COMMON_ALIGNMENT
-# ifdef __arm__
+#ifdef __arm__
 /* Required by NEON 32-bit implementation */
-#  define LC_HASH_COMMON_ALIGNMENT	(32)
-# else
-#  define LC_HASH_COMMON_ALIGNMENT	(8)
-# endif
+#define LC_HASH_COMMON_ALIGNMENT (32)
+#else
+#define LC_HASH_COMMON_ALIGNMENT (8)
+#endif
 #endif
 
-#define LC_ALIGN_HASH_MASK(p)						       \
+#define LC_ALIGN_HASH_MASK(p)                                                  \
 	LC_ALIGN_PTR_64(p, LC_ALIGNMENT_MASK(LC_HASH_COMMON_ALIGNMENT))
 
-#define LC_SHA_MAX_SIZE_DIGEST	64
+#define LC_SHA_MAX_SIZE_DIGEST 64
 
 /*
  * This is the source of the compiler warning of using Variable-Length-Arrays
@@ -84,18 +83,16 @@ struct lc_hash_ctx {
  * LC_HASH_CTX_ON_STACK()
  * #pragma pop
  */
-#define LC_HASH_STATE_SIZE_NONALIGNED(x)				       \
-				((unsigned long)(x->statesize))
-#define LC_HASH_STATE_SIZE(x)	(LC_HASH_STATE_SIZE_NONALIGNED(x) +	       \
-				 LC_HASH_COMMON_ALIGNMENT)
-#define LC_HASH_CTX_SIZE(x)	(sizeof(struct lc_hash_ctx) +		       \
-				 LC_HASH_STATE_SIZE(x))
+#define LC_HASH_STATE_SIZE_NONALIGNED(x) ((unsigned long)(x->statesize))
+#define LC_HASH_STATE_SIZE(x)                                                  \
+	(LC_HASH_STATE_SIZE_NONALIGNED(x) + LC_HASH_COMMON_ALIGNMENT)
+#define LC_HASH_CTX_SIZE(x) (sizeof(struct lc_hash_ctx) + LC_HASH_STATE_SIZE(x))
 
-#define _LC_HASH_SET_CTX(name, hashname, ctx, offset)			       \
+#define _LC_HASH_SET_CTX(name, hashname, ctx, offset)                          \
 	name->hash_state = LC_ALIGN_HASH_MASK(((uint8_t *)(ctx)) + (offset));  \
-        name->hash = hashname
+	name->hash = hashname
 
-#define LC_HASH_SET_CTX(name, hashname)					       \
+#define LC_HASH_SET_CTX(name, hashname)                                        \
 	_LC_HASH_SET_CTX(name, hashname, name, sizeof(struct lc_hash_ctx))
 
 /**
@@ -126,8 +123,8 @@ static inline void lc_hash_init(struct lc_hash_ctx *hash_ctx)
  * @param [in] in Buffer holding the data whose MAC shall be calculated
  * @param [in] inlen Length of the input buffer
  */
-static inline void
-lc_hash_update(struct lc_hash_ctx *hash_ctx, const uint8_t *in, size_t inlen)
+static inline void lc_hash_update(struct lc_hash_ctx *hash_ctx,
+				  const uint8_t *in, size_t inlen)
 {
 	const struct lc_hash *hash;
 
@@ -187,7 +184,7 @@ static inline void lc_hash_final(struct lc_hash_ctx *hash_ctx, uint8_t *digest)
  * @param [in] digestsize Size of the requested digest.
  */
 static inline void lc_hash_set_digestsize(struct lc_hash_ctx *hash_ctx,
-				          size_t digestsize)
+					  size_t digestsize)
 {
 	const struct lc_hash *hash;
 
@@ -257,18 +254,17 @@ static inline void lc_hash_zero(struct lc_hash_ctx *hash_ctx)
  * @param [in] hashname Pointer of type struct hash referencing the hash
  *			 implementation to be used
  */
-#define LC_HASH_CTX_ON_STACK(name, hashname)				       \
-	_Pragma("GCC diagnostic push")					       \
-	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
-	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-	LC_ALIGNED_BUFFER(name ## _ctx_buf,				       \
-			  LC_HASH_CTX_SIZE(hashname),			       \
-			  LC_HASH_COMMON_ALIGNMENT);			       \
-	struct lc_hash_ctx *name = (struct lc_hash_ctx *) name ## _ctx_buf;    \
-	LC_HASH_SET_CTX(name, hashname);				       \
-	lc_hash_zero(name);						       \
+#define LC_HASH_CTX_ON_STACK(name, hashname)                                        \
+	_Pragma("GCC diagnostic push")                                              \
+		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
+			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
+			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
+					  LC_HASH_CTX_SIZE(hashname),               \
+					  LC_HASH_COMMON_ALIGNMENT);                \
+	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name##_ctx_buf;            \
+	LC_HASH_SET_CTX(name, hashname);                                            \
+	lc_hash_zero(name);                                                         \
 	_Pragma("GCC diagnostic pop")
-
 
 /**
  * @brief Allocate Hash context on heap
@@ -299,8 +295,7 @@ void lc_hash_zero_free(struct lc_hash_ctx *hash_ctx);
  *
  * The hash calculation operates entirely on the stack.
  */
-void lc_hash(const struct lc_hash *hash,
-	     const uint8_t *in, size_t inlen,
+void lc_hash(const struct lc_hash *hash, const uint8_t *in, size_t inlen,
 	     uint8_t *digest);
 
 /**
@@ -315,8 +310,7 @@ void lc_hash(const struct lc_hash *hash,
  *
  * The hash calculation operates entirely on the stack.
  */
-void lc_shake(const struct lc_hash *shake,
-	      const uint8_t *in, size_t inlen,
+void lc_shake(const struct lc_hash *shake, const uint8_t *in, size_t inlen,
 	      uint8_t *digest, size_t digestlen);
 
 #ifdef __cplusplus

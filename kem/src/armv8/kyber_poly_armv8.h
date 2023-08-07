@@ -35,15 +35,14 @@
 #include "lc_kyber.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /*
  * Elements of R_q = Z_q[X]/(X^n + 1). Represents polynomial
  * coeffs[0] + X*coeffs[1] + X^2*coeffs[2] + ... + X^{n-1}*coeffs[n-1]
  */
-typedef struct{
+typedef struct {
 	int16_t coeffs[LC_KYBER_N];
 } poly;
 
@@ -117,7 +116,6 @@ static inline void poly_sub_reduce(poly *r, const poly *a, const poly *b)
 			       b->coeffs + 128);
 }
 
-
 /**
  * @brief poly_add_reduce - Combination of
  *				poly_add(r, a, b);
@@ -145,8 +143,8 @@ static inline void poly_add_reduce(poly *r, const poly *a, const poly *b)
  * @param [in] b pointer to second input polynomial
  * @param [in] c pointer to third input polynomial
  */
-static inline void
-poly_add_add_reduce(poly *r, const poly *a, const poly *b, const poly *c)
+static inline void poly_add_add_reduce(poly *r, const poly *a, const poly *b,
+				       const poly *c)
 {
 	kyber_add_add_reduce_armv8(r->coeffs, a->coeffs, b->coeffs, c->coeffs);
 	kyber_add_add_reduce_armv8(r->coeffs + 128, a->coeffs + 128,
@@ -209,7 +207,7 @@ static inline void poly_frombytes(poly *r, const uint8_t a[LC_KYBER_POLYBYTES])
 static inline void poly_frommsg(poly *r,
 				const uint8_t msg[LC_KYBER_INDCPA_MSGBYTES])
 {
-	unsigned int i,j;
+	unsigned int i, j;
 	int16_t mask;
 
 #if (LC_KYBER_INDCPA_MSGBYTES != LC_KYBER_N / 8)
@@ -219,7 +217,7 @@ static inline void poly_frommsg(poly *r,
 	for (i = 0; i < LC_KYBER_N / 8; i++) {
 		for (j = 0; j < 8; j++) {
 			mask = -(int16_t)((msg[i] >> j) & 1);
-			r->coeffs[8*i+j] = mask & ((LC_KYBER_Q + 1) / 2);
+			r->coeffs[8 * i + j] = mask & ((LC_KYBER_Q + 1) / 2);
 		}
 	}
 }
@@ -233,21 +231,21 @@ static inline void poly_frommsg(poly *r,
 static inline void poly_tomsg(uint8_t msg[LC_KYBER_INDCPA_MSGBYTES],
 			      const poly *a)
 {
-	unsigned int i,j;
+	unsigned int i, j;
 	uint16_t t;
 
 	for (i = 0; i < LC_KYBER_N / 8; i++) {
 		msg[i] = 0;
-		for (j = 0;j < 8; j++) {
-			t  = (uint16_t)a->coeffs[8*i+j];
+		for (j = 0; j < 8; j++) {
+			t = (uint16_t)a->coeffs[8 * i + j];
 			t += ((int16_t)t >> 15) & LC_KYBER_Q;
-			t  = (((t << 1) + LC_KYBER_Q / 2) / LC_KYBER_Q) & 1;
+			t = (((t << 1) + LC_KYBER_Q / 2) / LC_KYBER_Q) & 1;
 			msg[i] |= (uint8_t)(t << j);
 		}
 	}
 }
 
-#define POLY_GETNOISE_ETA1_BUFSIZE	(LC_KYBER_ETA1 * LC_KYBER_N / 4)
+#define POLY_GETNOISE_ETA1_BUFSIZE (LC_KYBER_ETA1 * LC_KYBER_N / 4)
 static inline void
 kyber_poly_cbd_eta1_armv8(poly *r,
 			  const uint8_t buf[POLY_GETNOISE_ETA1_BUFSIZE])
@@ -272,9 +270,8 @@ kyber_poly_cbd_eta1_armv8(poly *r,
  * @param [in] nonce one-byte input nonce
  */
 static inline void
-poly_getnoise_eta1_armv8(poly *r,
-			 const uint8_t seed[LC_KYBER_SYMBYTES], uint8_t nonce,
-			 void *ws_buf)
+poly_getnoise_eta1_armv8(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
+			 uint8_t nonce, void *ws_buf)
 {
 	uint8_t *buf = ws_buf;
 
@@ -303,11 +300,10 @@ kyber_poly_cbd_eta2_armv8(poly *r,
  * @param [in] seed pointer to input seed
  * @param [in] nonce one-byte input nonce
  */
-#define POLY_GETNOISE_ETA2_BUFSIZE	(LC_KYBER_ETA2 * LC_KYBER_N / 4)
+#define POLY_GETNOISE_ETA2_BUFSIZE (LC_KYBER_ETA2 * LC_KYBER_N / 4)
 static inline void
-poly_getnoise_eta2_armv8(poly *r,
-			 const uint8_t seed[LC_KYBER_SYMBYTES], uint8_t nonce,
-			 void *ws_buf)
+poly_getnoise_eta2_armv8(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
+			 uint8_t nonce, void *ws_buf)
 {
 	uint8_t *buf = ws_buf;
 
@@ -341,7 +337,6 @@ static inline void poly_ntt(poly *r)
 	 */
 	//poly_reduce(r);
 	poly_reduce_c_bugfix(r);
-
 }
 
 /**

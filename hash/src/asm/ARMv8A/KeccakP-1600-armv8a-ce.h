@@ -26,8 +26,7 @@
 #include "math_helper.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 size_t lc_keccak_absorb_arm_ce(uint64_t A[25], const unsigned char *inp,
@@ -42,11 +41,10 @@ void lc_keccak_squeeze_arm_asm(uint64_t A[25], unsigned char *out, size_t len,
 			       size_t r);
 void lc_keccakf1600_arm_asm(uint64_t A[25]);
 
-static inline void
-keccak_arm_asm_absorb_internal(void *_state, const uint8_t *in, size_t inlen,
-			       size_t (*absorb)(uint64_t A[25],
-						const unsigned char *inp,
-						size_t len, size_t r))
+static inline void keccak_arm_asm_absorb_internal(
+	void *_state, const uint8_t *in, size_t inlen,
+	size_t (*absorb)(uint64_t A[25], const unsigned char *inp, size_t len,
+			 size_t r))
 {
 	/*
 	 * All lc_sha3_*_state are equal except for the last entry, thus we use
@@ -99,22 +97,19 @@ keccak_arm_asm_absorb_internal(void *_state, const uint8_t *in, size_t inlen,
 		inlen = absorb(ctx->state, in, inlen, blocksize);
 		LC_NEON_DISABLE;
 		in += inlen2 - inlen;
-
 	}
 
 	/* If we have data left, copy it into the partial block buffer */
 	memcpy(ctx->partial, in, inlen);
 }
 
-static inline void
-keccak_arm_asm_squeeze_internal(void *_state, uint8_t *digest,
-				size_t (*absorb)(uint64_t A[25],
-						 const unsigned char *inp,
-						 size_t len, size_t r),
-				void (*squeeze)(uint64_t A[25],
-						unsigned char *out,
-						size_t len, size_t r),
-				void (*keccakf1600)(uint64_t A[25]))
+static inline void keccak_arm_asm_squeeze_internal(
+	void *_state, uint8_t *digest,
+	size_t (*absorb)(uint64_t A[25], const unsigned char *inp, size_t len,
+			 size_t r),
+	void (*squeeze)(uint64_t A[25], unsigned char *out, size_t len,
+			size_t r),
+	void (*keccakf1600)(uint64_t A[25]))
 {
 	/*
 	 * All lc_sha3_*_state are equal except for the last entry, thus we use
@@ -165,9 +160,7 @@ keccak_arm_asm_squeeze_internal(void *_state, uint8_t *digest,
 
 		digest_len -= todo;
 
-		for (i = ctx->offset;
-		     i < todo + ctx->offset;
-		     i++, digest++) {
+		for (i = ctx->offset; i < todo + ctx->offset; i++, digest++) {
 			word = i / sizeof(ctx->state[0]);
 			byte = (i % sizeof(ctx->state[0])) << 3;
 
@@ -216,7 +209,6 @@ keccak_arm_asm_squeeze_internal(void *_state, uint8_t *digest,
 	/* Wrap the offset at block size */
 	ctx->offset %= blocksize;
 }
-
 
 #ifdef __cplusplus
 }

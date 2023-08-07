@@ -25,8 +25,7 @@
 #include "lc_sha3.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /**
@@ -40,8 +39,8 @@ extern "C"
  * @param [out] outlen output buffer length
  */
 static inline void kyber_kdf2(const uint8_t *in, size_t inlen,
-			      const uint8_t *in2, size_t inlen2,
-			      uint8_t *out, size_t outlen)
+			      const uint8_t *in2, size_t inlen2, uint8_t *out,
+			      size_t outlen)
 {
 	LC_HASH_CTX_ON_STACK(shake256, lc_shake256);
 
@@ -68,8 +67,8 @@ static inline void kyber_kdf2(const uint8_t *in, size_t inlen,
  */
 static inline void kyber_kdf3(const uint8_t *in, size_t inlen,
 			      const uint8_t *in2, size_t inlen2,
-			      const uint8_t *in3, size_t inlen3,
-			      uint8_t *out, size_t outlen)
+			      const uint8_t *in3, size_t inlen3, uint8_t *out,
+			      size_t outlen)
 {
 	LC_HASH_CTX_ON_STACK(shake256, lc_shake256);
 
@@ -99,8 +98,8 @@ static inline void kyber_kdf3(const uint8_t *in, size_t inlen,
 static inline void kyber_kdf4(const uint8_t *in, size_t inlen,
 			      const uint8_t *in2, size_t inlen2,
 			      const uint8_t *in3, size_t inlen3,
-			      const uint8_t *in4, size_t inlen4,
-			      uint8_t *out, size_t outlen)
+			      const uint8_t *in4, size_t inlen4, uint8_t *out,
+			      size_t outlen)
 {
 	LC_HASH_CTX_ON_STACK(shake256, lc_shake256);
 
@@ -125,9 +124,9 @@ static inline void kyber_kdf4(const uint8_t *in, size_t inlen,
  * @param [in] key pointer to the key
  * @param [in] nonce single-byte nonce (public PRF input)
  */
-static inline void
-kyber_shake256_prf(uint8_t *out, size_t outlen,
-		   const uint8_t key[LC_KYBER_SYMBYTES], uint8_t nonce)
+static inline void kyber_shake256_prf(uint8_t *out, size_t outlen,
+				      const uint8_t key[LC_KYBER_SYMBYTES],
+				      uint8_t nonce)
 {
 	kyber_kdf2(key, LC_KYBER_SYMBYTES, &nonce, 1, out, outlen);
 }

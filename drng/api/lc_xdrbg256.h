@@ -24,26 +24,25 @@
 #include "lc_rng.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-#define LC_XDRBG256_DRNG_KEYSIZE	64
+#define LC_XDRBG256_DRNG_KEYSIZE 64
 
 struct lc_xdrbg256_drng_state {
 	uint8_t v[LC_XDRBG256_DRNG_KEYSIZE];
 };
 
-#define LC_XDRBG256_DRNG_MAX_CHUNK	(2048 >> 3)
-#define LC_XDRBG256_DRNG_STATE_SIZE	(sizeof(struct lc_xdrbg256_drng_state))
-#define LC_XDRBG256_DRNG_CTX_SIZE	(sizeof(struct lc_rng) +	       \
-					 LC_XDRBG256_DRNG_STATE_SIZE)
+#define LC_XDRBG256_DRNG_MAX_CHUNK (2048 >> 3)
+#define LC_XDRBG256_DRNG_STATE_SIZE (sizeof(struct lc_xdrbg256_drng_state))
+#define LC_XDRBG256_DRNG_CTX_SIZE                                              \
+	(sizeof(struct lc_rng) + LC_XDRBG256_DRNG_STATE_SIZE)
 
 /* XDRBG256-based DRNG */
 extern const struct lc_rng *lc_xdrbg256_drng;
 
-#define LC_XDRBG256_RNG_CTX(name)					       \
-	LC_RNG_CTX(name, lc_xdrbg256_drng);				       \
+#define LC_XDRBG256_RNG_CTX(name)                                              \
+	LC_RNG_CTX(name, lc_xdrbg256_drng);                                    \
 	lc_xdrbg256_drng->zero(name->rng_state)
 
 /**
@@ -51,14 +50,13 @@ extern const struct lc_rng *lc_xdrbg256_drng;
  *
  * @param [in] name Name of the stack variable
  */
-#define LC_XDRBG256_DRNG_CTX_ON_STACK(name)				       \
-	_Pragma("GCC diagnostic push")					       \
-	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-	LC_ALIGNED_BUFFER(name ## _ctx_buf,				       \
-			  LC_XDRBG256_DRNG_CTX_SIZE,			       \
-			  LC_HASH_COMMON_ALIGNMENT);			       \
-	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name ## _ctx_buf;       \
-	LC_XDRBG256_RNG_CTX(name);					       \
+#define LC_XDRBG256_DRNG_CTX_ON_STACK(name)                                    \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_XDRBG256_DRNG_CTX_SIZE,   \
+				  LC_HASH_COMMON_ALIGNMENT);                   \
+	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name##_ctx_buf;         \
+	LC_XDRBG256_RNG_CTX(name);                                             \
 	_Pragma("GCC diagnostic pop")
 
 /**

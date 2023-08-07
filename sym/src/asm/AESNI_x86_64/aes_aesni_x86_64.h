@@ -24,13 +24,11 @@
 #include "ext_headers.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /* AES block algorithm context */
-struct aes_aesni_block_ctx
-{
+struct aes_aesni_block_ctx {
 	uint8_t RoundKey[240];
 	uint32_t rounds;
 };

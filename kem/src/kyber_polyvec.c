@@ -37,22 +37,25 @@ void polyvec_compress(uint8_t r[LC_KYBER_POLYVECCOMPRESSEDBYTES],
 	for (i = 0; i < LC_KYBER_K; i++) {
 		for (j = 0; j < LC_KYBER_N / 8; j++) {
 			for (k = 0; k < 8; k++) {
-				t[k]  = (uint16_t)a->vec[i].coeffs[8*j+k];
+				t[k] = (uint16_t)a->vec[i].coeffs[8 * j + k];
 				t[k] += ((int16_t)t[k] >> 15) & LC_KYBER_Q;
-				t[k]  = ((((uint32_t)t[k] << 11) + LC_KYBER_Q / 2) / LC_KYBER_Q) & 0x7ff;
+				t[k] = ((((uint32_t)t[k] << 11) +
+					 LC_KYBER_Q / 2) /
+					LC_KYBER_Q) &
+				       0x7ff;
 			}
 
-			r[ 0] = (uint8_t)(t[0] >>  0);
-			r[ 1] = (uint8_t)((t[0] >>  8) | (t[1] << 3));
-			r[ 2] = (uint8_t)((t[1] >>  5) | (t[2] << 6));
-			r[ 3] = (uint8_t)(t[2] >>  2);
-			r[ 4] = (uint8_t)((t[2] >> 10) | (t[3] << 1));
-			r[ 5] = (uint8_t)((t[3] >>  7) | (t[4] << 4));
-			r[ 6] = (uint8_t)((t[4] >>  4) | (t[5] << 7));
-			r[ 7] = (uint8_t)(t[5] >>  1);
-			r[ 8] = (uint8_t)((t[5] >>  9) | (t[6] << 2));
-			r[ 9] = (uint8_t)((t[6] >>  6) | (t[7] << 5));
-			r[10] = (uint8_t)(t[7] >>  3);
+			r[0] = (uint8_t)(t[0] >> 0);
+			r[1] = (uint8_t)((t[0] >> 8) | (t[1] << 3));
+			r[2] = (uint8_t)((t[1] >> 5) | (t[2] << 6));
+			r[3] = (uint8_t)(t[2] >> 2);
+			r[4] = (uint8_t)((t[2] >> 10) | (t[3] << 1));
+			r[5] = (uint8_t)((t[3] >> 7) | (t[4] << 4));
+			r[6] = (uint8_t)((t[4] >> 4) | (t[5] << 7));
+			r[7] = (uint8_t)(t[5] >> 1);
+			r[8] = (uint8_t)((t[5] >> 9) | (t[6] << 2));
+			r[9] = (uint8_t)((t[6] >> 6) | (t[7] << 5));
+			r[10] = (uint8_t)(t[7] >> 3);
 			r += 11;
 		}
 	}
@@ -61,9 +64,12 @@ void polyvec_compress(uint8_t r[LC_KYBER_POLYVECCOMPRESSEDBYTES],
 	for (i = 0; i < LC_KYBER_K; i++) {
 		for (j = 0; j < LC_KYBER_N / 4; j++) {
 			for (k = 0; k < 4; k++) {
-				t[k]  = (uint16_t)a->vec[i].coeffs[4*j+k];
+				t[k] = (uint16_t)a->vec[i].coeffs[4 * j + k];
 				t[k] += ((int16_t)t[k] >> 15) & LC_KYBER_Q;
-				t[k]  = ((((uint32_t)t[k] << 10) + LC_KYBER_Q / 2) / LC_KYBER_Q) & 0x3ff;
+				t[k] = ((((uint32_t)t[k] << 10) +
+					 LC_KYBER_Q / 2) /
+					LC_KYBER_Q) &
+				       0x3ff;
 			}
 
 			r[0] = (uint8_t)(t[0] >> 0);
@@ -88,18 +94,24 @@ void polyvec_decompress(polyvec *r,
 	uint16_t t[8];
 	for (i = 0; i < LC_KYBER_K; i++) {
 		for (j = 0; j < LC_KYBER_N / 8; j++) {
-			t[0] = (uint16_t)((a[0] >> 0) | ((uint16_t)a[ 1] << 8));
-			t[1] = (uint16_t)((a[1] >> 3) | ((uint16_t)a[ 2] << 5));
-			t[2] = (uint16_t)((a[2] >> 6) | ((uint16_t)a[ 3] << 2) | ((uint16_t)a[4] << 10));
-			t[3] = (uint16_t)((a[4] >> 1) | ((uint16_t)a[ 5] << 7));
-			t[4] = (uint16_t)((a[5] >> 4) | ((uint16_t)a[ 6] << 4));
-			t[5] = (uint16_t)((a[6] >> 7) | ((uint16_t)a[ 7] << 1) | ((uint16_t)a[8] << 9));
-			t[6] = (uint16_t)((a[8] >> 2) | ((uint16_t)a[ 9] << 6));
+			t[0] = (uint16_t)((a[0] >> 0) | ((uint16_t)a[1] << 8));
+			t[1] = (uint16_t)((a[1] >> 3) | ((uint16_t)a[2] << 5));
+			t[2] = (uint16_t)((a[2] >> 6) | ((uint16_t)a[3] << 2) |
+					  ((uint16_t)a[4] << 10));
+			t[3] = (uint16_t)((a[4] >> 1) | ((uint16_t)a[5] << 7));
+			t[4] = (uint16_t)((a[5] >> 4) | ((uint16_t)a[6] << 4));
+			t[5] = (uint16_t)((a[6] >> 7) | ((uint16_t)a[7] << 1) |
+					  ((uint16_t)a[8] << 9));
+			t[6] = (uint16_t)((a[8] >> 2) | ((uint16_t)a[9] << 6));
 			t[7] = (uint16_t)((a[9] >> 5) | ((uint16_t)a[10] << 3));
 			a += 11;
 
 			for (k = 0; k < 8; k++)
-				r->vec[i].coeffs[8*j+k] = (int16_t)(((uint32_t)(t[k] & 0x7FF) * LC_KYBER_Q + 1024) >> 11);
+				r->vec[i].coeffs[8 * j + k] =
+					(int16_t)(((uint32_t)(t[k] & 0x7FF) *
+							   LC_KYBER_Q +
+						   1024) >>
+						  11);
 		}
 	}
 #elif (LC_KYBER_POLYVECCOMPRESSEDBYTES == (LC_KYBER_K * 320))
@@ -113,7 +125,11 @@ void polyvec_decompress(polyvec *r,
 			a += 5;
 
 			for (k = 0; k < 4; k++)
-				r->vec[i].coeffs[4*j+k] = (int16_t)(((uint32_t)(t[k] & 0x3FF) * LC_KYBER_Q + 512) >> 10);
+				r->vec[i].coeffs[4 * j + k] =
+					(int16_t)(((uint32_t)(t[k] & 0x3FF) *
+							   LC_KYBER_Q +
+						   512) >>
+						  10);
 		}
 	}
 #else

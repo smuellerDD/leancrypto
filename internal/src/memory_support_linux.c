@@ -29,7 +29,7 @@
 #include "lc_memset_secure.h"
 #include "visibility.h"
 
-#define LC_MEM_DEF_ALIGNED_OFFSET	32
+#define LC_MEM_DEF_ALIGNED_OFFSET 32
 struct lc_mem_def {
 	int fd;
 	size_t size;
@@ -37,9 +37,9 @@ struct lc_mem_def {
 
 /* Syscall may not be known on some system - disable support for it */
 #if (SYS_memfd_secret)
-# define LC_USE_MEMFD_SECURE
+#define LC_USE_MEMFD_SECURE
 #else
-# undef LC_USE_MEMFD_SECURE
+#undef LC_USE_MEMFD_SECURE
 #endif
 
 #ifdef LC_USE_MEMFD_SECURE
@@ -81,15 +81,15 @@ static int alloc_aligned_secure_internal(void **memptr, size_t alignment,
 	return 0;
 }
 
-LC_INTERFACE_FUNCTION(
-int, lc_alloc_aligned, void **memptr, size_t alignment, size_t size)
+LC_INTERFACE_FUNCTION(int, lc_alloc_aligned, void **memptr, size_t alignment,
+		      size_t size)
 {
 	return alloc_aligned_secure_internal(memptr, alignment, size, 0);
 }
 
 #ifdef LC_USE_MEMFD_SECURE
-LC_INTERFACE_FUNCTION(
-int, lc_alloc_aligned_secure, void **memptr, size_t alignment, size_t size)
+LC_INTERFACE_FUNCTION(int, lc_alloc_aligned_secure, void **memptr,
+		      size_t alignment, size_t size)
 {
 	struct lc_mem_def *mem = NULL;
 	size_t full_size = LC_MEM_DEF_ALIGNED_OFFSET + size;
@@ -135,21 +135,20 @@ err:
 		close(fd);
 
 	return ret;
-
 }
 
 #else /* LC_USE_MEMFD_SECURE */
 
-LC_INTERFACE_FUNCTION(
-int, lc_alloc_aligned_secure, void **memptr, size_t alignment, size_t size)
+LC_INTERFACE_FUNCTION(int, lc_alloc_aligned_secure, void **memptr,
+		      size_t alignment, size_t size)
 {
 	return alloc_aligned_secure_internal(memptr, alignment, size, 1);
 }
 
 #endif /* LC_USE_MEMFD_SECURE */
 
-LC_INTERFACE_FUNCTION(
-int, lc_alloc_high_aligned, void **memptr, size_t alignment, size_t size)
+LC_INTERFACE_FUNCTION(int, lc_alloc_high_aligned, void **memptr,
+		      size_t alignment, size_t size)
 {
 	return lc_alloc_aligned(memptr, alignment, size);
 }
@@ -163,11 +162,11 @@ static void lc_free_internal(void *ptr, int secure)
 	if (!ptr)
 		return;
 
-	/* Alignment is guaranteed due to mmap */
+		/* Alignment is guaranteed due to mmap */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
-	mem = (struct lc_mem_def *)
-	       (((uint8_t *)ptr) - LC_MEM_DEF_ALIGNED_OFFSET);
+	mem = (struct lc_mem_def *)(((uint8_t *)ptr) -
+				    LC_MEM_DEF_ALIGNED_OFFSET);
 #pragma GCC diagnostic pop
 
 	size = mem->size;
@@ -185,14 +184,12 @@ static void lc_free_internal(void *ptr, int secure)
 	}
 }
 
-LC_INTERFACE_FUNCTION(
-void, lc_free, void *ptr)
+LC_INTERFACE_FUNCTION(void, lc_free, void *ptr)
 {
 	lc_free_internal(ptr, 0);
 }
 
-LC_INTERFACE_FUNCTION(
-void, lc_free_high_aligned, void *ptr, size_t size)
+LC_INTERFACE_FUNCTION(void, lc_free_high_aligned, void *ptr, size_t size)
 {
 	(void)size;
 	lc_free(ptr);

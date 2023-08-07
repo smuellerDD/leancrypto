@@ -29,8 +29,7 @@
 #include "lc_memset_secure.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 struct lc_kc_cryptor {
@@ -44,29 +43,28 @@ struct lc_kc_cryptor {
  * The block size of the algorithm for generating the key stream. It must be
  * a multiple of the cSHAKE block size.
  */
-#define LC_KC_KEYSTREAM_BLOCK	LC_SHA3_256_SIZE_BLOCK
+#define LC_KC_KEYSTREAM_BLOCK LC_SHA3_256_SIZE_BLOCK
 
-#define LC_KC_STATE_SIZE(x)	(2 * LC_KMAC_STATE_SIZE(x) +		       \
-				 LC_KC_KEYSTREAM_BLOCK)
-#define LC_KC_CTX_SIZE(x)	(sizeof(struct lc_aead) +		       \
-				 sizeof(struct lc_kc_cryptor) +		       \
-				 LC_KC_STATE_SIZE(x))
+#define LC_KC_STATE_SIZE(x) (2 * LC_KMAC_STATE_SIZE(x) + LC_KC_KEYSTREAM_BLOCK)
+#define LC_KC_CTX_SIZE(x)                                                      \
+	(sizeof(struct lc_aead) + sizeof(struct lc_kc_cryptor) +               \
+	 LC_KC_STATE_SIZE(x))
 
 /* KMAC-based AEAD-algorithm */
 extern const struct lc_aead *lc_kmac_aead;
 
-#define _LC_KC_SET_CTX(name, hashname)					       \
-	_LC_KMAC_SET_CTX((&name->kmac), hashname, name,			       \
-			 (sizeof(struct lc_kc_cryptor)));		       \
-	_LC_KMAC_SET_CTX((&name->auth_ctx), hashname, name,		       \
-			 (sizeof(struct lc_kc_cryptor) +		       \
-			 LC_KMAC_STATE_SIZE(hashname)));		       \
-	name->keystream = (uint8_t *)((uint8_t *)name +			       \
-				      (sizeof(struct lc_kc_cryptor) +	       \
-				      2 * LC_KMAC_STATE_SIZE(hashname)))
+#define _LC_KC_SET_CTX(name, hashname)                                         \
+	_LC_KMAC_SET_CTX((&name->kmac), hashname, name,                        \
+			 (sizeof(struct lc_kc_cryptor)));                      \
+	_LC_KMAC_SET_CTX((&name->auth_ctx), hashname, name,                    \
+			 (sizeof(struct lc_kc_cryptor) +                       \
+			  LC_KMAC_STATE_SIZE(hashname)));                      \
+	name->keystream = (uint8_t *)((uint8_t *)name +                        \
+				      (sizeof(struct lc_kc_cryptor) +          \
+				       2 * LC_KMAC_STATE_SIZE(hashname)))
 
-#define LC_KC_SET_CTX(name, hashname)					       \
-	LC_AEAD_CTX(name, lc_kmac_aead);				       \
+#define LC_KC_SET_CTX(name, hashname)                                          \
+	LC_AEAD_CTX(name, lc_kmac_aead);                                       \
 	_LC_KC_SET_CTX(((struct lc_kc_cryptor *)name->aead_state), hashname)
 
 /**
@@ -91,16 +89,17 @@ int lc_kc_alloc(const struct lc_hash *hash, struct lc_aead_ctx **ctx);
  * @param [in] hash Hash implementation of type struct hash used for the HMAC
  *		    authentication
  */
-#define LC_KC_CTX_ON_STACK(name, hash)			      		       \
-	_Pragma("GCC diagnostic push")					       \
-	_Pragma("GCC diagnostic ignored \"-Wvla\"")	      		       \
-	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_KC_CTX_SIZE(hash),	       \
-			  LC_HASH_COMMON_ALIGNMENT);			       \
-	struct lc_aead_ctx *name = (struct lc_aead_ctx *) name ## _ctx_buf;    \
-	LC_KC_SET_CTX(name, hash);					       \
+#define LC_KC_CTX_ON_STACK(name, hash)                                              \
+	_Pragma("GCC diagnostic push")                                              \
+		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
+			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
+			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
+					  LC_KC_CTX_SIZE(hash),                     \
+					  LC_HASH_COMMON_ALIGNMENT);                \
+	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;            \
+	LC_KC_SET_CTX(name, hash);                                                  \
 	_Pragma("GCC diagnostic pop")
-	/* invocation of lc_kc_zero(name); not needed */
+/* invocation of lc_kc_zero(name); not needed */
 
 #ifdef __cplusplus
 }

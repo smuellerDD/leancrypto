@@ -21,24 +21,21 @@
 #define MEMCMP_SECURE_INTERNAL_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include "bitshift.h"
 #include "cpufeatures.h"
 #include "lc_memcmp_secure.h"
 
-static inline int
-memcmp_secure_aligned(const uint8_t *ptr, uint32_t alignmask)
+static inline int memcmp_secure_aligned(const uint8_t *ptr, uint32_t alignmask)
 {
 	if ((uintptr_t)ptr & alignmask)
 		return 0;
 	return 1;
 }
 
-static inline int
-memcmp_secure_8(const void *s1, const void *s2, size_t n)
+static inline int memcmp_secure_8(const void *s1, const void *s2, size_t n)
 {
 	const uint8_t *s1p = s1, *s2p = s2;
 	int ret = 0;
@@ -53,8 +50,8 @@ memcmp_secure_8(const void *s1, const void *s2, size_t n)
 	return ret;
 }
 
-static inline int
-memcmp_secure_32_aligned(const void *s1, const void *s2, size_t n)
+static inline int memcmp_secure_32_aligned(const void *s1, const void *s2,
+					   size_t n)
 {
 	/*
 	 * We can ignore the alignment warning as we checked
@@ -75,8 +72,7 @@ memcmp_secure_32_aligned(const void *s1, const void *s2, size_t n)
 	return ret;
 }
 
-static inline int
-memcmp_secure_32(const void *s1, const void *s2, size_t n)
+static inline int memcmp_secure_32(const void *s1, const void *s2, size_t n)
 {
 	const uint8_t *s1p, *s2p;
 	int ret;
@@ -102,8 +98,8 @@ memcmp_secure_32(const void *s1, const void *s2, size_t n)
 }
 
 #ifdef __LP64__
-static inline int
-memcmp_secure_64_aligned(const void *s1, const void *s2, size_t n)
+static inline int memcmp_secure_64_aligned(const void *s1, const void *s2,
+					   size_t n)
 {
 	/*
 	 * We can ignore the alignment warning as we checked
@@ -127,15 +123,14 @@ memcmp_secure_64_aligned(const void *s1, const void *s2, size_t n)
 
 #else
 
-static inline int
-memcmp_secure_64_aligned(const void *s1, const void *s2, size_t n)
+static inline int memcmp_secure_64_aligned(const void *s1, const void *s2,
+					   size_t n)
 {
 	return memcmp_secure_32_aligned(s1, s2, n);
 }
 #endif
 
-static inline int
-memcmp_secure_64(const void *s1, const void *s2, size_t n)
+static inline int memcmp_secure_64(const void *s1, const void *s2, size_t n)
 {
 	const uint8_t *s1p, *s2p;
 	int ret;
@@ -146,7 +141,7 @@ memcmp_secure_64(const void *s1, const void *s2, size_t n)
 		return memcmp_secure_64_aligned(s1, s2, n);
 	else
 #endif
-	s1p = s1;
+		s1p = s1;
 	s2p = s2;
 	ret = 0;
 

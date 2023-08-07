@@ -31,8 +31,7 @@
 #include "ext_headers.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 int32_t power2round(int32_t *a0, int32_t a);

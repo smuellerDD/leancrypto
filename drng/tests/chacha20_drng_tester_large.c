@@ -20,7 +20,7 @@
 #include "lc_chacha20_drng.h"
 #include "lc_chacha20_private.h"
 
-#define CC20_TEST_BLOCKSIZE	LC_CC20_BLOCK_SIZE
+#define CC20_TEST_BLOCKSIZE LC_CC20_BLOCK_SIZE
 //#define CC20_TEST_BLOCKSIZE	32
 
 static int kmac_drng_selftest_large(struct lc_chacha20_drng_ctx *cc20_ctx)
@@ -33,7 +33,7 @@ static int kmac_drng_selftest_large(struct lc_chacha20_drng_ctx *cc20_ctx)
 
 	lc_cc20_drng_seed(cc20_ctx, seed, sizeof(seed));
 
-	for (i = 0; i < ((1U<<30) / CC20_TEST_BLOCKSIZE); i++)
+	for (i = 0; i < ((1U << 30) / CC20_TEST_BLOCKSIZE); i++)
 		lc_cc20_drng_generate(cc20_ctx, out, CC20_TEST_BLOCKSIZE);
 	lc_cc20_drng_zero(cc20_ctx);
 

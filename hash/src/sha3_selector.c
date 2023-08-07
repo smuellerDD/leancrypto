@@ -34,22 +34,21 @@ LC_CONSTRUCTOR(sha3_fastest_impl)
 {
 	enum lc_cpu_features feat = lc_cpu_feature_available();
 
-#define LC_FILL_ACCEL_WITH_DEFAULT(accel, dflt)				       \
-	lc_sha3_224_ ##accel = lc_sha3_224_ ##dflt;			       \
-	lc_sha3_256_ ##accel = lc_sha3_256_ ##dflt;			       \
-	lc_sha3_384_ ##accel = lc_sha3_384_ ##dflt;			       \
-	lc_sha3_512_ ##accel = lc_sha3_512_ ##dflt;			       \
-	lc_shake128_ ##accel = lc_shake128_ ##dflt;			       \
-	lc_shake256_ ##accel = lc_shake256_ ##dflt;			       \
-	lc_cshake128_ ##accel = lc_cshake128_ ##dflt;			       \
-	lc_cshake256_ ##accel = lc_cshake256_ ##dflt;
+#define LC_FILL_ACCEL_WITH_DEFAULT(accel, dflt)                                \
+	lc_sha3_224_##accel = lc_sha3_224_##dflt;                              \
+	lc_sha3_256_##accel = lc_sha3_256_##dflt;                              \
+	lc_sha3_384_##accel = lc_sha3_384_##dflt;                              \
+	lc_sha3_512_##accel = lc_sha3_512_##dflt;                              \
+	lc_shake128_##accel = lc_shake128_##dflt;                              \
+	lc_shake256_##accel = lc_shake256_##dflt;                              \
+	lc_cshake128_##accel = lc_cshake128_##dflt;                            \
+	lc_cshake256_##accel = lc_cshake256_##dflt;
 
-#define LC_FILL_ACCEL_WITH_C(accel)					       \
-	LC_FILL_ACCEL_WITH_DEFAULT(accel, c)
+#define LC_FILL_ACCEL_WITH_C(accel) LC_FILL_ACCEL_WITH_DEFAULT(accel, c)
 
-#define LC_FILL_ACCEL_NULL(accel)					       \
-	if (!lc_sha3_224_ ##accel) {					       \
-		LC_FILL_ACCEL_WITH_C(accel)				       \
+#define LC_FILL_ACCEL_NULL(accel)                                              \
+	if (!lc_sha3_224_##accel) {                                            \
+		LC_FILL_ACCEL_WITH_C(accel)                                    \
 	}
 
 	/* Check if NULL pointers are present */
@@ -60,15 +59,15 @@ LC_CONSTRUCTOR(sha3_fastest_impl)
 	LC_FILL_ACCEL_NULL(avx2)
 	LC_FILL_ACCEL_NULL(riscv_asm)
 
-#define LC_FILL_DFLT_IMPL(accel)					       \
-	lc_sha3_224 = lc_sha3_224_ ##accel;				       \
-	lc_sha3_256 = lc_sha3_256_ ##accel;				       \
-	lc_sha3_384 = lc_sha3_384_ ##accel;				       \
-	lc_sha3_512 = lc_sha3_512_ ##accel;				       \
-	lc_shake128 = lc_shake128_ ##accel;				       \
-	lc_shake256 = lc_shake256_ ##accel;				       \
-	lc_cshake128 = lc_cshake128_ ##accel;				       \
-	lc_cshake256 = lc_cshake256_ ##accel;
+#define LC_FILL_DFLT_IMPL(accel)                                               \
+	lc_sha3_224 = lc_sha3_224_##accel;                                     \
+	lc_sha3_256 = lc_sha3_256_##accel;                                     \
+	lc_sha3_384 = lc_sha3_384_##accel;                                     \
+	lc_sha3_512 = lc_sha3_512_##accel;                                     \
+	lc_shake128 = lc_shake128_##accel;                                     \
+	lc_shake256 = lc_shake256_##accel;                                     \
+	lc_cshake128 = lc_cshake128_##accel;                                   \
+	lc_cshake256 = lc_cshake256_##accel;
 
 	/*
 	 * Set accelerated modes: The fastest implementations are at the top

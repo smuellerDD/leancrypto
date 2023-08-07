@@ -24,15 +24,13 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
-
 #ifndef KYBER_VERIFY_H
 #define KYBER_VERIFY_H
 
 #include "ext_headers.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 uint8_t verify(const uint8_t *a, const uint8_t *b, size_t len);

@@ -31,12 +31,13 @@
 
 /* Define the default attributes for the functions in this file. */
 #ifdef __clang__
-#define __DEFAULT_FN_ATTRS __attribute__((__always_inline__, __nodebug__, __target__("bmi2")))
+#define __DEFAULT_FN_ATTRS                                                     \
+	__attribute__((__always_inline__, __nodebug__, __target__("bmi2")))
 
-static __inline__ unsigned int __DEFAULT_FN_ATTRS
-_pext_u32(unsigned int __X, unsigned int __Y)
+static __inline__ unsigned int __DEFAULT_FN_ATTRS _pext_u32(unsigned int __X,
+							    unsigned int __Y)
 {
-  return __builtin_ia32_pext_si(__X, __Y);
+	return __builtin_ia32_pext_si(__X, __Y);
 }
 
 #else
@@ -48,10 +49,10 @@ _pext_u32(unsigned int __X, unsigned int __Y)
 #endif /* __BMI2__ */
 
 extern __inline unsigned int
-__attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_pext_u32 (unsigned int __X, unsigned int __Y)
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_pext_u32(unsigned int __X, unsigned int __Y)
 {
-  return __builtin_ia32_pext_si (__X, __Y);
+	return __builtin_ia32_pext_si(__X, __Y);
 }
 #endif
 

@@ -21,8 +21,7 @@
 #define SHA3_ARM_NEON
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 extern const struct lc_hash *lc_sha3_224_arm_neon;

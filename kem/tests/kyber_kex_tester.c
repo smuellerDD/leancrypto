@@ -33,10 +33,8 @@
 #include "small_stack_support.h"
 #include "visibility.h"
 
-static int
-randombytes(void *_state,
-	    const uint8_t *addtl_input, size_t addtl_input_len,
-	    uint8_t *out, size_t outlen)
+static int randombytes(void *_state, const uint8_t *addtl_input,
+		       size_t addtl_input_len, uint8_t *out, size_t outlen)
 {
 	unsigned int i;
 	uint8_t buf[8];
@@ -47,7 +45,7 @@ randombytes(void *_state,
 	(void)addtl_input_len;
 
 	for (i = 0; i < 8; ++i)
-		buf[i] = (uint8_t)(ctr >> 8*i);
+		buf[i] = (uint8_t)(ctr >> 8 * i);
 
 	ctr++;
 	lc_shake(lc_shake128, buf, 8, out, outlen);
@@ -55,10 +53,8 @@ randombytes(void *_state,
 	return 0;
 }
 
-static int
-randombytes_seed(void *_state,
-		 const uint8_t *seed, size_t seedlen,
-		 const uint8_t *persbuf, size_t perslen)
+static int randombytes_seed(void *_state, const uint8_t *seed, size_t seedlen,
+			    const uint8_t *persbuf, size_t perslen)
 {
 	(void)_state;
 	(void)seed;
@@ -74,9 +70,9 @@ static void randombytes_zero(void *_state)
 }
 
 static const struct lc_rng kyber_drng = {
-	.generate	= randombytes,
-	.seed		= randombytes_seed,
-	.zero		= randombytes_zero,
+	.generate = randombytes,
+	.seed = randombytes_seed,
+	.zero = randombytes_zero,
 };
 
 static int kyber_kex_tester(void)
@@ -102,8 +98,8 @@ static int kyber_kex_tester(void)
 	 * The testing is based on the fact that,
 	 * - this "RNG" produces identical output
 	 */
-	struct lc_rng_ctx cshake_rng =
-		{ .rng = &kyber_drng, .rng_state = NULL };
+	struct lc_rng_ctx cshake_rng = { .rng = &kyber_drng,
+					 .rng_state = NULL };
 
 	unsigned int i;
 	int ret;
@@ -118,21 +114,17 @@ static int kyber_kex_tester(void)
 	// Generate static key for Alice
 	CKINT(lc_kyber_keypair(&ws->pk_i, &ws->sk_i, &cshake_rng));
 
-
 	// Perform unilaterally authenticated key exchange
 
 	// Run by Bob
 	CKINT(lc_kex_uake_initiator_init_internal(&ws->pk_e_i, &ws->ct_e_i,
-						  &ws->tk,
-						  &ws->sk_e, &ws->pk_r,
+						  &ws->tk, &ws->sk_e, &ws->pk_r,
 						  &cshake_rng));
 
 	// Run by Alice
-	CKINT(lc_kex_uake_responder_ss_internal(&ws->ct_e_r, ws->ss_r,
-						sizeof(ws->ss_r),
-					        NULL, 0,
-					        &ws->pk_e_i, &ws->ct_e_i,
-						&ws->sk_r, &cshake_rng));
+	CKINT(lc_kex_uake_responder_ss_internal(
+		&ws->ct_e_r, ws->ss_r, sizeof(ws->ss_r), NULL, 0, &ws->pk_e_i,
+		&ws->ct_e_i, &ws->sk_r, &cshake_rng));
 
 	// Run by Bob
 	CKINT(lc_kex_uake_initiator_ss(ws->ss_i, sizeof(ws->ss_i), NULL, 0,
@@ -158,20 +150,17 @@ static int kyber_kex_tester(void)
 						 &cshake_rng));
 
 	// Run by Alice
-	CKINT(lc_kex_ake_responder_ss_internal(&ws->ct_e_r_1, &ws->ct_e_r_2,
-					       ws->ss_r, sizeof(ws->ss_r),
-					       NULL, 0,
-					       &ws->pk_e_i, &ws->ct_e_i,
-					       &ws->sk_r, &ws->pk_i,
-					       &cshake_rng));
+	CKINT(lc_kex_ake_responder_ss_internal(
+		&ws->ct_e_r_1, &ws->ct_e_r_2, ws->ss_r, sizeof(ws->ss_r), NULL,
+		0, &ws->pk_e_i, &ws->ct_e_i, &ws->sk_r, &ws->pk_i,
+		&cshake_rng));
 
 	// Run by Bob
-	CKINT(lc_kex_ake_initiator_ss(ws->ss_i, sizeof(ws->ss_i),
-				      NULL, 0,
-				      &ws->ct_e_r_1, &ws->ct_e_r_2,
-				      &ws->tk, &ws->sk_e, &ws->sk_i));
+	CKINT(lc_kex_ake_initiator_ss(ws->ss_i, sizeof(ws->ss_i), NULL, 0,
+				      &ws->ct_e_r_1, &ws->ct_e_r_2, &ws->tk,
+				      &ws->sk_e, &ws->sk_i));
 
-	if (memcmp(ws->ss_i, ws->ss_r, sizeof(ws->ss_r))){
+	if (memcmp(ws->ss_i, ws->ss_r, sizeof(ws->ss_r))) {
 		printf("Error in AKE\n");
 		ret = 1;
 		goto out;

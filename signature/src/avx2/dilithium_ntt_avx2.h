@@ -31,8 +31,7 @@
 #include "ext_headers_x86.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 void dilithium_ntt_avx(__m256i *a, const __m256i *qdata);

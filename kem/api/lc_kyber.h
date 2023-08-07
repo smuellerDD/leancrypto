@@ -32,8 +32,7 @@
 #include "lc_rng.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /*
@@ -42,52 +41,52 @@ extern "C"
  * Kyber 1024: K == 4
  */
 #ifndef LC_KYBER_K
-#define LC_KYBER_K 4	/* Change this for different security strengths */
+#define LC_KYBER_K 4 /* Change this for different security strengths */
 #endif
 
 #define LC_KYBER_N 256
 #define LC_KYBER_Q 3329
 
-#define LC_KYBER_SYMBYTES 32   /* size in bytes of hashes, and seeds */
-#define LC_KYBER_SSBYTES  32   /* size in bytes of shared key */
+#define LC_KYBER_SYMBYTES 32 /* size in bytes of hashes, and seeds */
+#define LC_KYBER_SSBYTES 32 /* size in bytes of shared key */
 
-#define LC_KYBER_POLYBYTES		384
-#define LC_KYBER_POLYVECBYTES	(LC_KYBER_K * LC_KYBER_POLYBYTES)
+#define LC_KYBER_POLYBYTES 384
+#define LC_KYBER_POLYVECBYTES (LC_KYBER_K * LC_KYBER_POLYBYTES)
 
 #if LC_KYBER_K == 2
 #define LC_KYBER_ETA1 3
-#define LC_KYBER_POLYCOMPRESSEDBYTES    128
+#define LC_KYBER_POLYCOMPRESSEDBYTES 128
 #define LC_KYBER_POLYVECCOMPRESSEDBYTES (LC_KYBER_K * 320)
 #elif LC_KYBER_K == 3
 #define LC_KYBER_ETA1 2
-#define LC_KYBER_POLYCOMPRESSEDBYTES    128
+#define LC_KYBER_POLYCOMPRESSEDBYTES 128
 #define LC_KYBER_POLYVECCOMPRESSEDBYTES (LC_KYBER_K * 320)
 #elif LC_KYBER_K == 4
 #define LC_KYBER_ETA1 2
-#define LC_KYBER_POLYCOMPRESSEDBYTES    160
+#define LC_KYBER_POLYCOMPRESSEDBYTES 160
 #define LC_KYBER_POLYVECCOMPRESSEDBYTES (LC_KYBER_K * 352)
 #endif
 
 #define LC_KYBER_ETA2 2
 
-#define LC_KYBER_INDCPA_MSGBYTES       (LC_KYBER_SYMBYTES)
-#define LC_KYBER_INDCPA_PUBLICKEYBYTES					       \
+#define LC_KYBER_INDCPA_MSGBYTES (LC_KYBER_SYMBYTES)
+#define LC_KYBER_INDCPA_PUBLICKEYBYTES                                         \
 	(LC_KYBER_POLYVECBYTES + LC_KYBER_SYMBYTES)
 #define LC_KYBER_INDCPA_SECRETKEYBYTES (LC_KYBER_POLYVECBYTES)
-#define LC_KYBER_INDCPA_BYTES						       \
+#define LC_KYBER_INDCPA_BYTES                                                  \
 	(LC_KYBER_POLYVECCOMPRESSEDBYTES + LC_KYBER_POLYCOMPRESSEDBYTES)
 
-#define LC_KYBER_PUBLICKEYBYTES  (LC_KYBER_INDCPA_PUBLICKEYBYTES)
+#define LC_KYBER_PUBLICKEYBYTES (LC_KYBER_INDCPA_PUBLICKEYBYTES)
 /* 32 bytes of additional space to save H(pk) */
-#define LC_KYBER_SECRETKEYBYTES						       \
+#define LC_KYBER_SECRETKEYBYTES                                                \
 	(LC_KYBER_INDCPA_SECRETKEYBYTES + LC_KYBER_INDCPA_PUBLICKEYBYTES +     \
 	 2 * LC_KYBER_SYMBYTES)
 #define LC_KYBER_CIPHERTEXTBYTES (LC_KYBER_INDCPA_BYTES)
 
-#define LC_CRYPTO_SECRETKEYBYTES  LC_KYBER_SECRETKEYBYTES
-#define LC_CRYPTO_PUBLICKEYBYTES  LC_KYBER_PUBLICKEYBYTES
+#define LC_CRYPTO_SECRETKEYBYTES LC_KYBER_SECRETKEYBYTES
+#define LC_CRYPTO_PUBLICKEYBYTES LC_KYBER_PUBLICKEYBYTES
 #define LC_CRYPTO_CIPHERTEXTBYTES LC_KYBER_CIPHERTEXTBYTES
-#define LC_CRYPTO_BYTES           LC_KYBER_SSBYTES
+#define LC_CRYPTO_BYTES LC_KYBER_SSBYTES
 
 /************************************* KEM ************************************/
 /**
@@ -128,8 +127,7 @@ struct lc_kyber_ss {
  *
  * @return 0 (success) or < 0 on error
  */
-int lc_kyber_keypair(struct lc_kyber_pk *pk,
-		     struct lc_kyber_sk *sk,
+int lc_kyber_keypair(struct lc_kyber_pk *pk, struct lc_kyber_sk *sk,
 		     struct lc_rng_ctx *rng_ctx);
 
 /**
@@ -145,8 +143,7 @@ int lc_kyber_keypair(struct lc_kyber_pk *pk,
  *
  * Returns 0 (success) or < 0 on error
  */
-int lc_kyber_enc(struct lc_kyber_ct *ct,
-		 uint8_t *ss, size_t ss_len,
+int lc_kyber_enc(struct lc_kyber_ct *ct, uint8_t *ss, size_t ss_len,
 		 const struct lc_kyber_pk *pk);
 
 /**
@@ -164,8 +161,7 @@ int lc_kyber_enc(struct lc_kyber_ct *ct,
  *
  * On failure, ss will contain a pseudo-random value.
  */
-int lc_kyber_dec(uint8_t *ss, size_t ss_len,
-		 const struct lc_kyber_ct *ct,
+int lc_kyber_dec(uint8_t *ss, size_t ss_len, const struct lc_kyber_ct *ct,
 		 const struct lc_kyber_sk *sk);
 
 /************************************* KEX ************************************/
@@ -233,8 +229,7 @@ int lc_kyber_dec(uint8_t *ss, size_t ss_len,
  */
 int lc_kex_uake_initiator_init(struct lc_kyber_pk *pk_e_i,
 			       struct lc_kyber_ct *ct_e_i,
-			       struct lc_kyber_ss *tk,
-			       struct lc_kyber_sk *sk_e,
+			       struct lc_kyber_ss *tk, struct lc_kyber_sk *sk_e,
 			       const struct lc_kyber_pk *pk_r);
 
 /**
@@ -254,10 +249,8 @@ int lc_kex_uake_initiator_init(struct lc_kyber_pk *pk_e_i,
  *
  * @return 0 (success) or < 0 on error
  */
-int lc_kex_uake_responder_ss(struct lc_kyber_ct *ct_e_r,
-			     uint8_t *shared_secret,
-			     size_t shared_secret_len,
-			     const uint8_t *kdf_nonce,
+int lc_kex_uake_responder_ss(struct lc_kyber_ct *ct_e_r, uint8_t *shared_secret,
+			     size_t shared_secret_len, const uint8_t *kdf_nonce,
 			     size_t kdf_nonce_len,
 			     const struct lc_kyber_pk *pk_e_i,
 			     const struct lc_kyber_ct *ct_e_i,
@@ -280,14 +273,11 @@ int lc_kex_uake_responder_ss(struct lc_kyber_ct *ct_e_r,
  *
  * @return 0 (success) or < 0 on error
  */
-int lc_kex_uake_initiator_ss(uint8_t *shared_secret,
-			     size_t shared_secret_len,
-			     const uint8_t *kdf_nonce,
-			     size_t kdf_nonce_len,
+int lc_kex_uake_initiator_ss(uint8_t *shared_secret, size_t shared_secret_len,
+			     const uint8_t *kdf_nonce, size_t kdf_nonce_len,
 			     const struct lc_kyber_ct *ct_e_r,
 			     const struct lc_kyber_ss *tk,
 			     const struct lc_kyber_sk *sk_e);
-
 
 /**
  * Authenticated key exchange
@@ -355,8 +345,7 @@ int lc_kex_uake_initiator_ss(uint8_t *shared_secret,
  */
 int lc_kex_ake_initiator_init(struct lc_kyber_pk *pk_e_i,
 			      struct lc_kyber_ct *ct_e_i,
-			      struct lc_kyber_ss *tk,
-			      struct lc_kyber_sk *sk_e,
+			      struct lc_kyber_ss *tk, struct lc_kyber_sk *sk_e,
 			      const struct lc_kyber_pk *pk_r);
 
 /**
@@ -381,10 +370,8 @@ int lc_kex_ake_initiator_init(struct lc_kyber_pk *pk_e_i,
  */
 int lc_kex_ake_responder_ss(struct lc_kyber_ct *ct_e_r_1,
 			    struct lc_kyber_ct *ct_e_r_2,
-			    uint8_t *shared_secret,
-			    size_t shared_secret_len,
-			    const uint8_t *kdf_nonce,
-			    size_t kdf_nonce_len,
+			    uint8_t *shared_secret, size_t shared_secret_len,
+			    const uint8_t *kdf_nonce, size_t kdf_nonce_len,
 			    const struct lc_kyber_pk *pk_e_i,
 			    const struct lc_kyber_ct *ct_e_i,
 			    const struct lc_kyber_sk *sk_r,
@@ -409,10 +396,8 @@ int lc_kex_ake_responder_ss(struct lc_kyber_ct *ct_e_r_1,
  *
  * @return 0 (success) or < 0 on error
  */
-int lc_kex_ake_initiator_ss(uint8_t *shared_secret,
-			    size_t shared_secret_len,
-			    const uint8_t *kdf_nonce,
-			    size_t kdf_nonce_len,
+int lc_kex_ake_initiator_ss(uint8_t *shared_secret, size_t shared_secret_len,
+			    const uint8_t *kdf_nonce, size_t kdf_nonce_len,
 			    const struct lc_kyber_ct *ct_e_r_1,
 			    const struct lc_kyber_ct *ct_e_r_2,
 			    const struct lc_kyber_ss *tk,
@@ -449,13 +434,10 @@ int lc_kex_ake_initiator_ss(uint8_t *shared_secret,
  *
  * @return 0 on success, < 0 on error
  */
-int lc_kyber_ies_enc(const struct lc_kyber_pk *pk,
-		     struct lc_kyber_ct *ct,
+int lc_kyber_ies_enc(const struct lc_kyber_pk *pk, struct lc_kyber_ct *ct,
 		     const uint8_t *plaintext, uint8_t *ciphertext,
-		     size_t datalen,
-		     const uint8_t *aad, size_t aadlen,
-		     uint8_t *tag, size_t taglen,
-		     struct lc_aead_ctx *aead);
+		     size_t datalen, const uint8_t *aad, size_t aadlen,
+		     uint8_t *tag, size_t taglen, struct lc_aead_ctx *aead);
 
 /**
  * @brief lc_kyber_ies_enc_init - KyberIES encryption stream operation
@@ -501,10 +483,9 @@ int lc_kyber_ies_enc_init(struct lc_aead_ctx *aead,
  *			   with the encryption result
  * @param [in] datalen Length of the plaintext buffer
  */
-static inline void
-lc_kyber_ies_enc_update(struct lc_aead_ctx *aead,
-			const uint8_t *plaintext, uint8_t *ciphertext,
-			size_t datalen)
+static inline void lc_kyber_ies_enc_update(struct lc_aead_ctx *aead,
+					   const uint8_t *plaintext,
+					   uint8_t *ciphertext, size_t datalen)
 {
 	lc_aead_enc_update(aead, plaintext, ciphertext, datalen);
 }
@@ -530,10 +511,9 @@ lc_kyber_ies_enc_update(struct lc_aead_ctx *aead,
  * @param [out] tag Buffer that will be filled with the authentication tag
  * @param [in] taglen Length of the tag buffer
  */
-static inline void
-lc_kyber_ies_enc_final(struct lc_aead_ctx *aead,
-		       const uint8_t *aad, size_t aadlen,
-		       uint8_t *tag, size_t taglen)
+static inline void lc_kyber_ies_enc_final(struct lc_aead_ctx *aead,
+					  const uint8_t *aad, size_t aadlen,
+					  uint8_t *tag, size_t taglen)
 {
 	lc_aead_enc_final(aead, aad, aadlen, tag, taglen);
 }
@@ -565,11 +545,9 @@ lc_kyber_ies_enc_final(struct lc_aead_ctx *aead,
  *		    context after completion.
  * @return 0 on success, < 0 on error (-EBADMSG on integrity error)
  */
-int lc_kyber_ies_dec(const struct lc_kyber_sk *sk,
-		     const struct lc_kyber_ct *ct,
+int lc_kyber_ies_dec(const struct lc_kyber_sk *sk, const struct lc_kyber_ct *ct,
 		     const uint8_t *ciphertext, uint8_t *plaintext,
-		     size_t datalen,
-		     const uint8_t *aad, size_t aadlen,
+		     size_t datalen, const uint8_t *aad, size_t aadlen,
 		     const uint8_t *tag, size_t taglen,
 		     struct lc_aead_ctx *aead);
 
@@ -617,10 +595,9 @@ int lc_kyber_ies_dec_init(struct lc_aead_ctx *aead,
  *			   filled with the decryption result
  * @param [in] datalen Length of the ciphertext buffer
  */
-static inline void
-lc_kyber_ies_dec_update(struct lc_aead_ctx *aead,
-			const uint8_t *ciphertext, uint8_t *plaintext,
-			size_t datalen)
+static inline void lc_kyber_ies_dec_update(struct lc_aead_ctx *aead,
+					   const uint8_t *ciphertext,
+					   uint8_t *plaintext, size_t datalen)
 {
 	lc_aead_dec_update(aead, ciphertext, plaintext, datalen);
 }
@@ -647,10 +624,9 @@ lc_kyber_ies_dec_update(struct lc_aead_ctx *aead,
  * @param [in] taglen Length of the tag buffer
  * @return 0 on success, < 0 on error (-EBADMSG on integrity error)
  */
-static inline int
-lc_kyber_ies_dec_final(struct lc_aead_ctx *aead,
-		       const uint8_t *aad, size_t aadlen,
-		       const uint8_t *tag, size_t taglen)
+static inline int lc_kyber_ies_dec_final(struct lc_aead_ctx *aead,
+					 const uint8_t *aad, size_t aadlen,
+					 const uint8_t *tag, size_t taglen)
 {
 	return lc_aead_dec_final(aead, aad, aadlen, tag, taglen);
 }

@@ -40,14 +40,14 @@ struct lc_sym_state {
 
 #define LC_AES_CBC_BLOCK_SIZE sizeof(struct lc_sym_state)
 
-static void aes_cbc_encrypt(struct lc_sym_state *ctx,
-			    const uint8_t *in, uint8_t *out, size_t len)
+static void aes_cbc_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
+			    uint8_t *out, size_t len)
 {
 	lc_mode_cbc_c->encrypt(&ctx->cbc_state, in, out, len);
 }
 
-static void aes_cbc_decrypt(struct lc_sym_state *ctx,
-			    const uint8_t *in, uint8_t *out, size_t len)
+static void aes_cbc_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
+			    uint8_t *out, size_t len)
 {
 	lc_mode_cbc_c->decrypt(&ctx->cbc_state, in, out, len);
 }
@@ -60,28 +60,28 @@ static void aes_cbc_init(struct lc_sym_state *ctx)
 	lc_mode_cbc_c->init(&ctx->cbc_state, lc_aes_c, &ctx->block_ctx);
 }
 
-static int aes_cbc_setkey(struct lc_sym_state *ctx,
-			  const uint8_t *key, size_t keylen)
+static int aes_cbc_setkey(struct lc_sym_state *ctx, const uint8_t *key,
+			  size_t keylen)
 {
 	if (!ctx)
 		return -EINVAL;
 	return lc_mode_cbc_c->setkey(&ctx->cbc_state, key, keylen);
 }
 
-static int aes_cbc_setiv(struct lc_sym_state *ctx,
-			 const uint8_t *iv, size_t ivlen)
+static int aes_cbc_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
+			 size_t ivlen)
 {
 	return lc_mode_cbc_c->setiv(&ctx->cbc_state, iv, ivlen);
 }
 
 static struct lc_sym _lc_aes_cbc_c = {
-	.init		= aes_cbc_init,
-	.setkey		= aes_cbc_setkey,
-	.setiv		= aes_cbc_setiv,
-	.encrypt	= aes_cbc_encrypt,
-	.decrypt	= aes_cbc_decrypt,
-	.statesize	= LC_AES_CBC_BLOCK_SIZE,
-	.blocksize	= AES_BLOCKLEN,
+	.init = aes_cbc_init,
+	.setkey = aes_cbc_setkey,
+	.setiv = aes_cbc_setiv,
+	.encrypt = aes_cbc_encrypt,
+	.decrypt = aes_cbc_decrypt,
+	.statesize = LC_AES_CBC_BLOCK_SIZE,
+	.blocksize = AES_BLOCKLEN,
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_cbc_c) = &_lc_aes_cbc_c;
 

@@ -32,28 +32,27 @@
 #include "ext_headers_x86.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #define ALIGNED_UINT8_M256I(N) ((N + 31) / 32)
 
-#define BUF_ALIGNED_UINT8_M256I(N) 					       \
-	union {								       \
-		uint8_t coeffs[ALIGNED_UINT8_COEFFS(N)];		       \
-		__m256i vec[ALIGNED_UINT8_M256I(N)];			       \
+#define BUF_ALIGNED_UINT8_M256I(N)                                             \
+	union {                                                                \
+		uint8_t coeffs[ALIGNED_UINT8_COEFFS(N)];                       \
+		__m256i vec[ALIGNED_UINT8_M256I(N)];                           \
 	}
 
-#define BUF_ALIGNED_INT16_M256I(N)					       \
-	union {								       \
-		int16_t coeffs[N];					       \
-		__m256i vec[(N + 15) / 16];				       \
+#define BUF_ALIGNED_INT16_M256I(N)                                             \
+	union {                                                                \
+		int16_t coeffs[N];                                             \
+		__m256i vec[(N + 15) / 16];                                    \
 	}
 
-#define BUF_ALIGNED_INT32_M256I(N)					       \
-	union {								       \
-		int32_t coeffs[N];					       \
-		__m256i vec[(N + 7) / 8];				       \
+#define BUF_ALIGNED_INT32_M256I(N)                                             \
+	union {                                                                \
+		int32_t coeffs[N];                                             \
+		__m256i vec[(N + 7) / 8];                                      \
 	}
 
 #ifdef __cplusplus

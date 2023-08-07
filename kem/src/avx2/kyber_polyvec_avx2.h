@@ -31,11 +31,10 @@
 #include "lc_kyber.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-typedef struct{
+typedef struct {
 	poly vec[LC_KYBER_K];
 } polyvec;
 
@@ -58,7 +57,6 @@ void polyvec_compress(uint8_t r[LC_KYBER_POLYVECCOMPRESSEDBYTES],
  */
 void polyvec_decompress(polyvec *r,
 			const uint8_t a[LC_KYBER_POLYVECCOMPRESSEDBYTES]);
-
 
 /**
  * @brief polyvec_tobytes - Serialize vector of polynomials

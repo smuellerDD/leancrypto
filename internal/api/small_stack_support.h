@@ -24,45 +24,43 @@
 #include "lc_memcmp_secure.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-#define LC_ALIGNED_BUFFER_ALIGNMENTSIZE(name, size, alignment) 		       \
-	uint64_t name[(size + sizeof(uint64_t) - 1) / sizeof(uint64_t)]	       \
-					__attribute__((aligned(alignment)))
+#define LC_ALIGNED_BUFFER_ALIGNMENTSIZE(name, size, alignment)                 \
+	uint64_t name[(size + sizeof(uint64_t) - 1) / sizeof(uint64_t)]        \
+		__attribute__((aligned(alignment)))
 
 /* Allocate memory on stack */
-#define __LC_DECLARE_MEM_STACK(name, type, alignment)			       \
-	LC_ALIGNED_BUFFER_ALIGNMENTSIZE(name ## _buf, sizeof(type), alignment);\
-	type *name = (type *) name ## _buf
-#define __LC_RELEASE_MEM_STACK(name)					       \
-	lc_memset_secure(name, 0, sizeof(*name))
+#define __LC_DECLARE_MEM_STACK(name, type, alignment)                          \
+	LC_ALIGNED_BUFFER_ALIGNMENTSIZE(name##_buf, sizeof(type), alignment);  \
+	type *name = (type *)name##_buf
+#define __LC_RELEASE_MEM_STACK(name) lc_memset_secure(name, 0, sizeof(*name))
 
 /* Allocate memory on heap */
-#define __LC_DECLARE_MEM_HEAP(name, type, alignment)			       \
-	type *name = NULL;						       \
-	int __ret = lc_alloc_high_aligned((void *)&name, alignment,	       \
-					  sizeof(type));		       \
-	if (__ret || !name)						       \
-		return __ret
+#define __LC_DECLARE_MEM_HEAP(name, type, alignment)                           \
+	type *name = NULL;                                                     \
+	int __ret =                                                            \
+		lc_alloc_high_aligned((void *)&name, alignment, sizeof(type)); \
+	if (__ret || !name)                                                    \
+	return __ret
 
-#define __LC_RELEASE_MEM_HEAP(name)					       \
-	lc_memset_secure(name, 0, sizeof(*name));			       \
+#define __LC_RELEASE_MEM_HEAP(name)                                            \
+	lc_memset_secure(name, 0, sizeof(*name));                              \
 	lc_free_high_aligned(name, sizeof(*name))
 
 /* Define macro LC_MEM_ON_HEAP if stack is less than 256KiB in size */
 #ifdef LC_MEM_ON_HEAP
 
-#define LC_DECLARE_MEM(name, type, alignment)				       \
+#define LC_DECLARE_MEM(name, type, alignment)                                  \
 	__LC_DECLARE_MEM_HEAP(name, type, alignment)
-#define LC_RELEASE_MEM(name)	__LC_RELEASE_MEM_HEAP(name)
+#define LC_RELEASE_MEM(name) __LC_RELEASE_MEM_HEAP(name)
 
 #else
 
-#define  LC_DECLARE_MEM(name, type, alignment)				       \
-	 __LC_DECLARE_MEM_STACK(name, type, alignment)
-#define LC_RELEASE_MEM(name)	__LC_RELEASE_MEM_STACK(name)
+#define LC_DECLARE_MEM(name, type, alignment)                                  \
+	__LC_DECLARE_MEM_STACK(name, type, alignment)
+#define LC_RELEASE_MEM(name) __LC_RELEASE_MEM_STACK(name)
 
 #endif
 

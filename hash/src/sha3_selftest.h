@@ -23,26 +23,25 @@
 #include "lc_hash.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-void sha3_224_selftest_common(const struct lc_hash *sha3_224,
-			      int *tested, const char *impl);
-void sha3_256_selftest_common(const struct lc_hash *sha3_256,
-			      int *tested, const char *impl);
-void sha3_384_selftest_common(const struct lc_hash *sha3_384,
-			      int *tested, const char *impl);
-void sha3_512_selftest_common(const struct lc_hash *sha3_512,
-			      int *tested, const char *impl);
-void shake128_selftest_common(const struct lc_hash *shake128,
-			      int *tested, const char *impl);
-void shake256_selftest_common(const struct lc_hash *shake256,
-			      int *tested, const char *impl);
-void cshake128_selftest_common(const struct lc_hash *cshake128,
-			       int *tested, const char *impl);
-void cshake256_selftest_common(const struct lc_hash *cshake256,
-			       int *tested, const char *impl);
+void sha3_224_selftest_common(const struct lc_hash *sha3_224, int *tested,
+			      const char *impl);
+void sha3_256_selftest_common(const struct lc_hash *sha3_256, int *tested,
+			      const char *impl);
+void sha3_384_selftest_common(const struct lc_hash *sha3_384, int *tested,
+			      const char *impl);
+void sha3_512_selftest_common(const struct lc_hash *sha3_512, int *tested,
+			      const char *impl);
+void shake128_selftest_common(const struct lc_hash *shake128, int *tested,
+			      const char *impl);
+void shake256_selftest_common(const struct lc_hash *shake256, int *tested,
+			      const char *impl);
+void cshake128_selftest_common(const struct lc_hash *cshake128, int *tested,
+			       const char *impl);
+void cshake256_selftest_common(const struct lc_hash *cshake256, int *tested,
+			       const char *impl);
 
 #ifdef __cplusplus
 }

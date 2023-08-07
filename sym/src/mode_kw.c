@@ -29,8 +29,8 @@
 #include "mode_kw.h"
 #include "visibility.h"
 
-#define AES_KW_SEMIBSIZE	8U
-#define AES_KW_IV		0xa6a6a6a6a6a6a6a6ULL
+#define AES_KW_SEMIBSIZE 8U
+#define AES_KW_IV 0xa6a6a6a6a6a6a6a6ULL
 
 struct aes_kw_block {
 	uint64_t A;
@@ -41,23 +41,20 @@ struct aes_kw_block {
 
 void mode_kw_selftest(const struct lc_sym *aes, int *tested, const char *impl)
 {
-	static const uint8_t key256[] = {
-		0x80, 0xaa, 0x99, 0x73, 0x27, 0xa4, 0x80, 0x6b,
-		0x6a, 0x7a, 0x41, 0xa5, 0x2b, 0x86, 0xc3, 0x71,
-		0x03, 0x86, 0xf9, 0x32, 0x78, 0x6e, 0xf7, 0x96,
-		0x76, 0xfa, 0xfb, 0x90, 0xb8, 0x26, 0x3c, 0x5f
-	};
-	static const uint8_t in[] = {
-		0x0a, 0x25, 0x6b, 0xa7, 0x5c, 0xfa, 0x03, 0xaa,
-		0xa0, 0x2b, 0xa9, 0x42, 0x03, 0xf1, 0x5b, 0xaa
-	};
-	static const uint8_t out256[] = {
-		0xd3, 0x3d, 0x3d, 0x97, 0x7b, 0xf0, 0xa9, 0x15,
-		0x59, 0xf9, 0x9c, 0x8a, 0xcd, 0x29, 0x3d, 0x43
-	};
-	static const uint8_t iv[] = {
-		0x42, 0x3c, 0x96, 0x0d, 0x8a, 0x2a, 0xc4, 0xc1
-	};
+	static const uint8_t key256[] = { 0x80, 0xaa, 0x99, 0x73, 0x27, 0xa4,
+					  0x80, 0x6b, 0x6a, 0x7a, 0x41, 0xa5,
+					  0x2b, 0x86, 0xc3, 0x71, 0x03, 0x86,
+					  0xf9, 0x32, 0x78, 0x6e, 0xf7, 0x96,
+					  0x76, 0xfa, 0xfb, 0x90, 0xb8, 0x26,
+					  0x3c, 0x5f };
+	static const uint8_t in[] = { 0x0a, 0x25, 0x6b, 0xa7, 0x5c, 0xfa,
+				      0x03, 0xaa, 0xa0, 0x2b, 0xa9, 0x42,
+				      0x03, 0xf1, 0x5b, 0xaa };
+	static const uint8_t out256[] = { 0xd3, 0x3d, 0x3d, 0x97, 0x7b, 0xf0,
+					  0xa9, 0x15, 0x59, 0xf9, 0x9c, 0x8a,
+					  0xcd, 0x29, 0x3d, 0x43 };
+	static const uint8_t iv[] = { 0x42, 0x3c, 0x96, 0x0d,
+				      0x8a, 0x2a, 0xc4, 0xc1 };
 
 	uint8_t out[sizeof(in)];
 	char status[25];
@@ -83,8 +80,8 @@ void mode_kw_selftest(const struct lc_sym *aes, int *tested, const char *impl)
 	lc_sym_zero(ctx);
 }
 
-static void mode_kw_encrypt(struct lc_mode_state *ctx,
-			    const uint8_t *in, uint8_t *out, size_t len)
+static void mode_kw_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
+			    uint8_t *out, size_t len)
 {
 	const struct lc_sym *wrappeded_cipher;
 	struct aes_kw_block block;
@@ -146,8 +143,8 @@ static void mode_kw_encrypt(struct lc_mode_state *ctx,
 	lc_memset_secure(&block, 0, sizeof(block));
 }
 
-static void mode_kw_decrypt(struct lc_mode_state *ctx,
-			    const uint8_t *in, uint8_t *out, size_t len)
+static void mode_kw_decrypt(struct lc_mode_state *ctx, const uint8_t *in,
+			    uint8_t *out, size_t len)
 {
 	const struct lc_sym *wrappeded_cipher;
 	struct aes_kw_block block;
@@ -216,8 +213,8 @@ static void mode_kw_init(struct lc_mode_state *ctx,
 	ctx->wrapped_cipher_ctx = wrapped_cipher_ctx;
 }
 
-static int mode_kw_setkey(struct lc_mode_state *ctx,
-			  const uint8_t *key, size_t keylen)
+static int mode_kw_setkey(struct lc_mode_state *ctx, const uint8_t *key,
+			  size_t keylen)
 {
 	const struct lc_sym *wrappeded_cipher;
 
@@ -228,8 +225,8 @@ static int mode_kw_setkey(struct lc_mode_state *ctx,
 	return wrappeded_cipher->setkey(ctx->wrapped_cipher_ctx, key, keylen);
 }
 
-static int mode_kw_setiv(struct lc_mode_state *ctx,
-			 const uint8_t *iv, size_t ivlen)
+static int mode_kw_setiv(struct lc_mode_state *ctx, const uint8_t *iv,
+			 size_t ivlen)
 {
 	if (!ctx || ivlen != AES_KW_SEMIBSIZE)
 		return -EINVAL;
@@ -239,19 +236,18 @@ static int mode_kw_setiv(struct lc_mode_state *ctx,
 }
 
 static struct lc_sym_mode _lc_mode_kw_c = {
-	.init		= mode_kw_init,
-	.setkey		= mode_kw_setkey,
-	.setiv		= mode_kw_setiv,
-	.encrypt	= mode_kw_encrypt,
-	.decrypt	= mode_kw_decrypt,
-	.statesize	= LC_AES_KW_BLOCK_SIZE,
-	.blocksize	= AES_BLOCKLEN,
+	.init = mode_kw_init,
+	.setkey = mode_kw_setkey,
+	.setiv = mode_kw_setiv,
+	.encrypt = mode_kw_encrypt,
+	.decrypt = mode_kw_decrypt,
+	.statesize = LC_AES_KW_BLOCK_SIZE,
+	.blocksize = AES_BLOCKLEN,
 };
 const struct lc_sym_mode *lc_mode_kw_c = &_lc_mode_kw_c;
 
-LC_INTERFACE_FUNCTION(
-void, lc_aes_kw_encrypt, struct lc_sym_ctx *ctx,
-			 const uint8_t *in, uint8_t *out, size_t len)
+LC_INTERFACE_FUNCTION(void, lc_aes_kw_encrypt, struct lc_sym_ctx *ctx,
+		      const uint8_t *in, uint8_t *out, size_t len)
 {
 	struct lc_mode_state *state;
 
@@ -264,9 +260,8 @@ void, lc_aes_kw_encrypt, struct lc_sym_ctx *ctx,
 	val64_to_ptr(out, state->tag);
 }
 
-LC_INTERFACE_FUNCTION(
-int, lc_aes_kw_decrypt, struct lc_sym_ctx *ctx,
-			const uint8_t *in, uint8_t *out, size_t len)
+LC_INTERFACE_FUNCTION(int, lc_aes_kw_decrypt, struct lc_sym_ctx *ctx,
+		      const uint8_t *in, uint8_t *out, size_t len)
 {
 	struct lc_mode_state *state;
 	int ret;

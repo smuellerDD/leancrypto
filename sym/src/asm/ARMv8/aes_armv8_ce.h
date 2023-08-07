@@ -24,21 +24,19 @@
 #include "ext_headers.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /* AES block algorithm context */
-struct aes_v8_block_ctx
-{
+struct aes_v8_block_ctx {
 	uint8_t RoundKey[240];
 	uint32_t rounds;
 };
 
 int aes_v8_set_encrypt_key(const uint8_t *key, const unsigned int bits,
-                          struct aes_v8_block_ctx *aes_ctx);
+			   struct aes_v8_block_ctx *aes_ctx);
 int aes_v8_set_decrypt_key(const uint8_t *userKey, const unsigned int bits,
-                          struct aes_v8_block_ctx *aes_ctx);
+			   struct aes_v8_block_ctx *aes_ctx);
 
 void aes_v8_encrypt(const uint8_t *pt, uint8_t *ct,
 		    const struct aes_v8_block_ctx *aes_ctx);
@@ -50,10 +48,10 @@ void aes_v8_ctr32_encrypt_blocks(const uint8_t *in, uint8_t *out, size_t blocks,
 				 const uint8_t *iv);
 
 void aes_v8_ecb_encrypt(const uint8_t *in, uint8_t *out, size_t length,
-		        const struct aes_v8_block_ctx *aes_ctx, int enc);
+			const struct aes_v8_block_ctx *aes_ctx, int enc);
 void aes_v8_cbc_encrypt(const uint8_t *in, uint8_t *out, size_t length,
-		        const struct aes_v8_block_ctx *aes_ctx, uint8_t *iv,
-		        int enc);
+			const struct aes_v8_block_ctx *aes_ctx, uint8_t *iv,
+			int enc);
 
 #if 0
 void aes_v8_xts_encrypt(const uint8_t *pt, uint8_t *ct, size_t length,

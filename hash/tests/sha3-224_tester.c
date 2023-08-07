@@ -29,9 +29,9 @@
 #include "sha3_avx512.h"
 #include "sha3_riscv_asm.h"
 
-#define LC_EXEC_ONE_TEST(sha3_impl)					       \
-	if (sha3_impl)							       \
-		ret += _sha3_224_tester(sha3_impl, #sha3_impl)
+#define LC_EXEC_ONE_TEST(sha3_impl)                                            \
+	if (sha3_impl)                                                         \
+	ret += _sha3_224_tester(sha3_impl, #sha3_impl)
 
 static int _sha3_224_tester(const struct lc_hash *sha3_224, const char *name)
 {
@@ -48,7 +48,8 @@ static int _sha3_224_tester(const struct lc_hash *sha3_224, const char *name)
 	LC_SHA3_224_CTX_ON_STACK(ctx224_stack);
 
 	printf("hash ctx %s (%s implementation) len %lu\n", name,
-	       sha3_224 == lc_sha3_224_c ? "C" : "accelerated", LC_HASH_CTX_SIZE(sha3_224));
+	       sha3_224 == lc_sha3_224_c ? "C" : "accelerated",
+	       LC_HASH_CTX_SIZE(sha3_224));
 	lc_hash_init(ctx224);
 	lc_hash_update(ctx224, msg_224, 3);
 	lc_hash_final(ctx224, act);

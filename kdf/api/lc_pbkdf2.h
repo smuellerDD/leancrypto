@@ -24,8 +24,7 @@
 #include "lc_hash.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /**
@@ -45,10 +44,8 @@ extern "C"
  *
  * @return 0 on success, < 0 on error
  */
-int lc_pbkdf2(const struct lc_hash *hash,
-	      const uint8_t *pw, size_t pwlen,
-	      const uint8_t *salt, size_t saltlen,
-	      const uint32_t count,
+int lc_pbkdf2(const struct lc_hash *hash, const uint8_t *pw, size_t pwlen,
+	      const uint8_t *salt, size_t saltlen, const uint32_t count,
 	      uint8_t *key, size_t keylen);
 
 #ifdef __cplusplus

@@ -46,11 +46,11 @@ EXPORT_SYMBOL(lc_free);
 
 int lc_alloc_high_aligned(void **memptr, size_t alignment, size_t size)
 {
-	struct page *pages = alloc_pages(GFP_KERNEL,
-					 get_order((unsigned long)size));
+	struct page *pages =
+		alloc_pages(GFP_KERNEL, get_order((unsigned long)size));
 
 	if (!pages)
-                return -ENOMEM;
+		return -ENOMEM;
 
 	*memptr = page_address(pages);
 	return 0;

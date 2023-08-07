@@ -24,8 +24,7 @@
 #include "ext_headers.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 static inline int aligned(const uint8_t *ptr, uint32_t alignmask)
@@ -106,17 +105,15 @@ static inline void xor_64(uint8_t *dst, const uint8_t *src, size_t size)
 		xor_32(dst, src, size);
 }
 
-static inline void xor_8_3(uint8_t *dst,
-			   const uint8_t *src1, const uint8_t *src2,
-			   size_t size)
+static inline void xor_8_3(uint8_t *dst, const uint8_t *src1,
+			   const uint8_t *src2, size_t size)
 {
 	for (; size; size--)
 		*dst++ = *src1++ ^ *src2++;
 }
 
-static inline void xor_32_3_aligned(uint8_t *dst,
-				    const uint8_t *src1, const uint8_t *src2,
-				    size_t size)
+static inline void xor_32_3_aligned(uint8_t *dst, const uint8_t *src1,
+				    const uint8_t *src2, size_t size)
 {
 	/*
 	 * We can ignore the alignment warning as we checked
@@ -136,9 +133,8 @@ static inline void xor_32_3_aligned(uint8_t *dst,
 		size);
 }
 
-static inline void xor_32_3(uint8_t *dst,
-			    const uint8_t *src1, const uint8_t *src2,
-			    size_t size)
+static inline void xor_32_3(uint8_t *dst, const uint8_t *src1,
+			    const uint8_t *src2, size_t size)
 {
 	if (aligned(src1, sizeof(uint32_t) - 1) &&
 	    aligned(src2, sizeof(uint32_t) - 1) &&
@@ -149,9 +145,8 @@ static inline void xor_32_3(uint8_t *dst,
 }
 
 #ifdef __LP64__
-static inline void xor_64_3_aligned(uint8_t *dst,
-				    const uint8_t *src1, const uint8_t *src2,
-				    size_t size)
+static inline void xor_64_3_aligned(uint8_t *dst, const uint8_t *src1,
+				    const uint8_t *src2, size_t size)
 {
 	/*
 	 * We can ignore the alignment warning as we checked
@@ -167,13 +162,10 @@ static inline void xor_64_3_aligned(uint8_t *dst,
 	for (; size >= sizeof(*src1_dword); size -= sizeof(*src1_dword))
 		*dst_dword++ = *src1_dword++ ^ *src2_dword++;
 
-	xor_32_3_aligned((uint8_t *)dst_dword,
-			 (uint8_t *)src1_dword, (uint8_t *)src2_dword, size);
+	xor_32_3_aligned((uint8_t *)dst_dword, (uint8_t *)src1_dword,
+			 (uint8_t *)src2_dword, size);
 }
 #endif
-
-
-
 
 /**
  * @brief Perform XOR operation efficiently
@@ -183,9 +175,8 @@ static inline void xor_64_3_aligned(uint8_t *dst,
  * @param [in] src2 2nd source data which is XORed into the destination
  * @param [in] size Buffer lengths all buffers dst, src1, and src2
  */
-static inline void xor_64_3(uint8_t *dst,
-			    const uint8_t *src1, const uint8_t *src2,
-			    size_t size)
+static inline void xor_64_3(uint8_t *dst, const uint8_t *src1,
+			    const uint8_t *src2, size_t size)
 {
 #ifdef __LP64__
 	if (aligned(src1, sizeof(uint64_t) - 1) &&

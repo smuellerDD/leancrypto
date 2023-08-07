@@ -29,8 +29,7 @@
 #include "lc_kyber.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 //extern const int16_t zetas_armv8[128];
@@ -40,16 +39,15 @@ extern "C"
 extern const int16_t kyber_zetas_armv8[287];
 extern const int16_t kyber_zetas_inv_armv8[287];
 
-void kyber_ntt_armv8(int16_t *poly, const int16_t* zetas);
+void kyber_ntt_armv8(int16_t *poly, const int16_t *zetas);
 
-void kyber_inv_ntt_armv8(int16_t *poly, const int16_t* zetas_inv);
+void kyber_inv_ntt_armv8(int16_t *poly, const int16_t *zetas_inv);
 
 void kyber_basemul_armv8(int16_t *poly, const int16_t *a, const int16_t *b,
-			 const int16_t* zetas);
+			 const int16_t *zetas);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* KYBER_NTT_ARMV8_H */
-

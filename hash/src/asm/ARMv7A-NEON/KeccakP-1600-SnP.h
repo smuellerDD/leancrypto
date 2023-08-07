@@ -23,16 +23,16 @@ Please refer to SnP-documentation.h for more details.
 
 #include "ext_headers.h"
 
-#define KeccakP1600_stateSizeInBytes    200
-#define KeccakP1600_stateAlignment      32
+#define KeccakP1600_stateSizeInBytes 200
+#define KeccakP1600_stateAlignment 32
 
 /* void KeccakP1600_StaticInitialize( void ); */
 #define KeccakP1600_StaticInitialize()
 void KeccakP1600_Initialize(void *state);
-static inline void
-KeccakP1600_AddByte(void *state, unsigned char byte, unsigned int offset)
+static inline void KeccakP1600_AddByte(void *state, unsigned char byte,
+				       unsigned int offset)
 {
-	((unsigned char*)state)[offset] ^= (byte);
+	((unsigned char *)state)[offset] ^= (byte);
 }
 void KeccakP1600_AddBytes(void *state, const unsigned char *data,
 			  unsigned int offset, unsigned int length);
@@ -46,6 +46,7 @@ void KeccakP1600_ExtractBytes(const void *state, unsigned char *data,
 			      size_t offset, size_t length);
 void KeccakP1600_ExtractAndAddBytes(const void *state,
 				    const unsigned char *input,
-				    unsigned char *output, unsigned int offset, unsigned int length);
+				    unsigned char *output, unsigned int offset,
+				    unsigned int length);
 
 #endif /* _KeccakP_1600_SnP_h_ */

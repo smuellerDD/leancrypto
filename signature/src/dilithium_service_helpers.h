@@ -21,8 +21,7 @@
 #define DILITHIUM_SERVICE_HELPERS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /**
@@ -37,17 +36,15 @@ extern "C"
  * @return number of sampled coefficients. Can be smaller than len if not enough
  * random bytes were given.
  */
-static inline unsigned int rej_uniform(int32_t *a,
-				       unsigned int len,
-				       const uint8_t *buf,
-				       unsigned int buflen)
+static inline unsigned int rej_uniform(int32_t *a, unsigned int len,
+				       const uint8_t *buf, unsigned int buflen)
 {
 	unsigned int ctr, pos;
 	uint32_t t;
 
 	ctr = pos = 0;
 	while (ctr < len && pos + 3 <= buflen) {
-		t  = buf[pos++];
+		t = buf[pos++];
 		t |= (uint32_t)buf[pos++] << 8;
 		t |= (uint32_t)buf[pos++] << 16;
 		t &= 0x7FFFFF;
@@ -71,10 +68,8 @@ static inline unsigned int rej_uniform(int32_t *a,
  * @return number of sampled coefficients. Can be smaller than len if not enough
  * random bytes were given.
  */
-static inline unsigned int rej_eta(int32_t *a,
-				   unsigned int len,
-				   const uint8_t *buf,
-				   unsigned int buflen)
+static inline unsigned int rej_eta(int32_t *a, unsigned int len,
+				   const uint8_t *buf, unsigned int buflen)
 {
 	unsigned int ctr, pos;
 	int32_t t0, t1;
@@ -86,11 +81,11 @@ static inline unsigned int rej_eta(int32_t *a,
 
 #if LC_DILITHIUM_ETA == 2
 		if (t0 < 15) {
-			t0 = t0 - (205*t0 >> 10)*5;
+			t0 = t0 - (205 * t0 >> 10) * 5;
 			a[ctr++] = 2 - t0;
 		}
 		if (t1 < 15 && ctr < len) {
-			t1 = t1 - (205*t1 >> 10)*5;
+			t1 = t1 - (205 * t1 >> 10) * 5;
 			a[ctr++] = 2 - t1;
 		}
 #elif LC_DILITHIUM_ETA == 4

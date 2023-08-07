@@ -33,7 +33,9 @@
 
 #ifdef __clang__
 
-#define __DEFAULT_FN_ATTRS __attribute__((__always_inline__, __nodebug__, __target__("ssse3"), __min_vector_width__(64)))
+#define __DEFAULT_FN_ATTRS                                                     \
+	__attribute__((__always_inline__, __nodebug__, __target__("ssse3"),    \
+		       __min_vector_width__(64)))
 
 #else
 
@@ -43,14 +45,15 @@
 #define __DISABLE_SSSE3__
 #endif /* __SSSE3__ */
 
-#define __DEFAULT_FN_ATTRS __attribute__((__gnu_inline__, __always_inline__, __artificial__))
+#define __DEFAULT_FN_ATTRS                                                     \
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
 
 #endif
 
-static __inline__ __m128i __DEFAULT_FN_ATTRS
-_mm_shuffle_epi8(__m128i __a, __m128i __b)
+static __inline__ __m128i __DEFAULT_FN_ATTRS _mm_shuffle_epi8(__m128i __a,
+							      __m128i __b)
 {
-    return (__m128i)__builtin_ia32_pshufb128((__v16qi)__a, (__v16qi)__b);
+	return (__m128i)__builtin_ia32_pshufb128((__v16qi)__a, (__v16qi)__b);
 }
 
 #undef __DEFAULT_FN_ATTRS

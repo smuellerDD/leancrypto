@@ -24,26 +24,25 @@
 #include "lc_rng.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-#define LC_CSHAKE256_DRNG_KEYSIZE	64
+#define LC_CSHAKE256_DRNG_KEYSIZE 64
 
 struct lc_cshake256_drng_state {
 	uint8_t key[LC_CSHAKE256_DRNG_KEYSIZE];
 };
 
-#define LC_CSHAKE256_DRNG_MAX_CHUNK	(LC_SHA3_256_SIZE_BLOCK * 100)
-#define LC_CSHAKE256_DRNG_STATE_SIZE	(sizeof(struct lc_cshake256_drng_state))
-#define LC_CSHAKE256_DRNG_CTX_SIZE	(sizeof(struct lc_rng) +	       \
-					 LC_CSHAKE256_DRNG_STATE_SIZE)
+#define LC_CSHAKE256_DRNG_MAX_CHUNK (LC_SHA3_256_SIZE_BLOCK * 100)
+#define LC_CSHAKE256_DRNG_STATE_SIZE (sizeof(struct lc_cshake256_drng_state))
+#define LC_CSHAKE256_DRNG_CTX_SIZE                                             \
+	(sizeof(struct lc_rng) + LC_CSHAKE256_DRNG_STATE_SIZE)
 
 /* CSHAKE256-based DRNG */
 extern const struct lc_rng *lc_cshake256_drng;
 
-#define LC_CSHAKE256_RNG_CTX(name)					       \
-	LC_RNG_CTX(name, lc_cshake256_drng);				       \
+#define LC_CSHAKE256_RNG_CTX(name)                                             \
+	LC_RNG_CTX(name, lc_cshake256_drng);                                   \
 	lc_cshake256_drng->zero(name->rng_state)
 
 /**
@@ -51,14 +50,13 @@ extern const struct lc_rng *lc_cshake256_drng;
  *
  * @param [in] name Name of the stack variable
  */
-#define LC_CSHAKE256_DRNG_CTX_ON_STACK(name)				       \
-	_Pragma("GCC diagnostic push")					       \
-	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-	LC_ALIGNED_BUFFER(name ## _ctx_buf,				       \
-			  LC_CSHAKE256_DRNG_CTX_SIZE,			       \
-			  LC_HASH_COMMON_ALIGNMENT);			       \
-	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name ## _ctx_buf;       \
-	LC_CSHAKE256_RNG_CTX(name);					       \
+#define LC_CSHAKE256_DRNG_CTX_ON_STACK(name)                                   \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_CSHAKE256_DRNG_CTX_SIZE,  \
+				  LC_HASH_COMMON_ALIGNMENT);                   \
+	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name##_ctx_buf;         \
+	LC_CSHAKE256_RNG_CTX(name);                                            \
 	_Pragma("GCC diagnostic pop")
 
 /**

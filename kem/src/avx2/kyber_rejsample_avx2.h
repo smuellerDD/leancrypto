@@ -31,23 +31,20 @@
 #include "lc_sha3.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-#define REJ_UNIFORM_AVX_NBLOCKS						\
-	((12 * LC_KYBER_N / 8 * (1 << 12) / LC_KYBER_Q +		\
-	 LC_SHAKE_128_SIZE_BLOCK) / LC_SHAKE_128_SIZE_BLOCK)
-#define REJ_UNIFORM_AVX_BUFLEN						\
+#define REJ_UNIFORM_AVX_NBLOCKS                                                \
+	((12 * LC_KYBER_N / 8 * (1 << 12) / LC_KYBER_Q +                       \
+	  LC_SHAKE_128_SIZE_BLOCK) /                                           \
+	 LC_SHAKE_128_SIZE_BLOCK)
+#define REJ_UNIFORM_AVX_BUFLEN                                                 \
 	(REJ_UNIFORM_AVX_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK)
 
 unsigned int kyber_rej_uniform_avx(int16_t *r, const uint8_t *buf);
-
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* KYBER_REJSAMPLE_AVX2_H */
-
-

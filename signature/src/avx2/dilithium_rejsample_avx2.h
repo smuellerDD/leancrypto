@@ -24,17 +24,16 @@
 #include "lc_sha3.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-#define REJ_UNIFORM_NBLOCKS						       \
-	((768 + LC_SHAKE_128_SIZE_BLOCK-1) /LC_SHAKE_128_SIZE_BLOCK)
+#define REJ_UNIFORM_NBLOCKS                                                    \
+	((768 + LC_SHAKE_128_SIZE_BLOCK - 1) / LC_SHAKE_128_SIZE_BLOCK)
 #define REJ_UNIFORM_BUFLEN (REJ_UNIFORM_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK)
 
-#define REJ_UNIFORM_ETA_NBLOCKS						       \
+#define REJ_UNIFORM_ETA_NBLOCKS                                                \
 	((136 + LC_SHAKE_256_SIZE_BLOCK - 1) / LC_SHAKE_256_SIZE_BLOCK)
-#define REJ_UNIFORM_ETA_BUFLEN						       \
+#define REJ_UNIFORM_ETA_BUFLEN                                                 \
 	(REJ_UNIFORM_ETA_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK)
 
 extern const uint8_t idxlut[256][8];
@@ -42,12 +41,10 @@ extern const uint8_t idxlut[256][8];
 unsigned int rej_uniform_avx(int32_t *r,
 			     const uint8_t buf[REJ_UNIFORM_BUFLEN + 8]);
 
-unsigned int rej_eta_avx(int32_t *r,
-			 const uint8_t buf[REJ_UNIFORM_ETA_BUFLEN]);
+unsigned int rej_eta_avx(int32_t *r, const uint8_t buf[REJ_UNIFORM_ETA_BUFLEN]);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* DILITHIUM_REJSAMPLE_AVX2_H */
-

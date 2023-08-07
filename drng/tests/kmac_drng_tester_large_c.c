@@ -22,7 +22,7 @@
 
 #include "sha3_c.h"
 
-#define KMAC256_TEST_BLOCKSIZE	LC_KMAC256_DRNG_MAX_CHUNK
+#define KMAC256_TEST_BLOCKSIZE LC_KMAC256_DRNG_MAX_CHUNK
 //#define KMAC256_TEST_BLOCKSIZE	32
 static int kmac_drng_selftest_large(struct lc_rng_ctx *kmac_ctx)
 {
@@ -40,7 +40,7 @@ static int kmac_drng_selftest_large(struct lc_rng_ctx *kmac_ctx)
 
 	lc_rng_seed(kmac_ctx, seed, sizeof(seed), NULL, 0);
 
-	for (i = 0; i < ((1U<<30) / KMAC256_TEST_BLOCKSIZE); i++)
+	for (i = 0; i < ((1U << 30) / KMAC256_TEST_BLOCKSIZE); i++)
 		lc_rng_generate(kmac_ctx, NULL, 0, ws->out,
 				KMAC256_TEST_BLOCKSIZE);
 	lc_rng_zero(kmac_ctx);
@@ -48,7 +48,6 @@ static int kmac_drng_selftest_large(struct lc_rng_ctx *kmac_ctx)
 	LC_RELEASE_MEM(ws);
 	return 0;
 }
-
 
 int main(int argc, char *argv[])
 {

@@ -33,8 +33,7 @@
 #include "lc_dilithium.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 typedef struct {
@@ -56,11 +55,9 @@ typedef struct {
  * @param [in] u pointer to first input vector
  * @param [in] v pointer to second input vector
  */
-static inline void
-polyvecl_pointwise_acc_montgomery(poly *w,
-				  const polyvecl *u,
-				  const polyvecl *v,
-				  void *ws_buf)
+static inline void polyvecl_pointwise_acc_montgomery(poly *w, const polyvecl *u,
+						     const polyvecl *v,
+						     void *ws_buf)
 {
 	unsigned int i;
 	poly *t = ws_buf;
@@ -96,8 +93,7 @@ polyvec_matrix_expand(polyvecl mat[LC_DILITHIUM_K],
 static inline void
 polyvec_matrix_pointwise_montgomery(polyveck *t,
 				    const polyvecl mat[LC_DILITHIUM_K],
-				    const polyvecl *v,
-				    void *ws_buf)
+				    const polyvecl *v, void *ws_buf)
 {
 	unsigned int i;
 
@@ -111,8 +107,7 @@ polyvec_matrix_pointwise_montgomery(polyveck *t,
 /**************************************************************/
 
 static inline void
-polyvecl_uniform_eta(polyvecl *v,
-		     const uint8_t seed[LC_DILITHIUM_CRHBYTES],
+polyvecl_uniform_eta(polyvecl *v, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
 		     uint16_t nonce, void *ws_buf)
 {
 	unsigned int i;
@@ -122,21 +117,19 @@ polyvecl_uniform_eta(polyvecl *v,
 }
 
 static inline void
-polyvecl_uniform_gamma1(polyvecl *v,
-			const uint8_t seed[LC_DILITHIUM_CRHBYTES],
+polyvecl_uniform_gamma1(polyvecl *v, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
 			uint16_t nonce, void *ws_buf)
 {
 	unsigned int i;
 
 	for (i = 0; i < LC_DILITHIUM_L; ++i)
-		poly_uniform_gamma1(&v->vec[i], seed,
-				    le_bswap16(LC_DILITHIUM_L * nonce +
-					       (uint16_t)i),
-				    ws_buf);
+		poly_uniform_gamma1(
+			&v->vec[i], seed,
+			le_bswap16(LC_DILITHIUM_L * nonce + (uint16_t)i),
+			ws_buf);
 }
 
-static inline void
-polyvecl_reduce(polyvecl *v)
+static inline void polyvecl_reduce(polyvecl *v)
 {
 	unsigned int i;
 
@@ -152,8 +145,8 @@ polyvecl_reduce(polyvecl *v)
  * @param [in] u pointer to first summand
  * @param [in] v pointer to second summand
  */
-static inline void
-polyvecl_add(polyvecl *w, const polyvecl *u, const polyvecl *v)
+static inline void polyvecl_add(polyvecl *w, const polyvecl *u,
+				const polyvecl *v)
 {
 	unsigned int i;
 
@@ -184,9 +177,9 @@ static inline void polyvecl_invntt_tomont(polyvecl *v)
 		poly_invntt_tomont(&v->vec[i]);
 }
 
-static inline void
-polyvecl_pointwise_poly_montgomery(polyvecl *r,
-				   const poly *a, const polyvecl *v)
+static inline void polyvecl_pointwise_poly_montgomery(polyvecl *r,
+						      const poly *a,
+						      const polyvecl *v)
 {
 	unsigned int i;
 
@@ -221,8 +214,7 @@ static inline int polyvecl_chknorm(const polyvecl *v, int32_t bound)
 /**************************************************************/
 
 static inline void
-polyveck_uniform_eta(polyveck *v,
-		     const uint8_t seed[LC_DILITHIUM_CRHBYTES],
+polyveck_uniform_eta(polyveck *v, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
 		     uint16_t nonce, void *ws_buf)
 {
 	unsigned int i;
@@ -269,8 +261,8 @@ static inline void polyveck_caddq(polyveck *v)
  * @param [in] u pointer to first summand
  * @param [in] v pointer to second summand
  */
-static inline void
-polyveck_add(polyveck *w, const polyveck *u, const polyveck *v)
+static inline void polyveck_add(polyveck *w, const polyveck *u,
+				const polyveck *v)
 {
 	unsigned int i;
 
@@ -287,8 +279,8 @@ polyveck_add(polyveck *w, const polyveck *u, const polyveck *v)
  * @param [in] v pointer to second input vector to be subtracted from first
  *		 input vector
  */
-static inline void
-polyveck_sub(polyveck *w, const polyveck *u, const polyveck *v)
+static inline void polyveck_sub(polyveck *w, const polyveck *u,
+				const polyveck *v)
 {
 	unsigned int i;
 
@@ -341,16 +333,15 @@ static inline void polyveck_invntt_tomont(polyveck *v)
 		poly_invntt_tomont(&v->vec[i]);
 }
 
-static inline void
-polyveck_pointwise_poly_montgomery(polyveck *r,
-				   const poly *a, const polyveck *v)
+static inline void polyveck_pointwise_poly_montgomery(polyveck *r,
+						      const poly *a,
+						      const polyveck *v)
 {
 	unsigned int i;
 
 	for (i = 0; i < LC_DILITHIUM_K; ++i)
 		poly_pointwise_montgomery(&r->vec[i], a, &v->vec[i]);
 }
-
 
 /**
  * @brief polyveck_chknorm - Check infinity norm of polynomials in vector of
@@ -385,8 +376,8 @@ static inline int polyveck_chknorm(const polyveck *v, int32_t bound)
  * @param [in] v0 pointer to output vector of polynomials with coefficients a0
  * @param [in] v pointer to input vector
  */
-static inline void
-polyveck_power2round(polyveck *v1, polyveck *v0, const polyveck *v)
+static inline void polyveck_power2round(polyveck *v1, polyveck *v0,
+					const polyveck *v)
 {
 	unsigned int i;
 
@@ -407,8 +398,8 @@ polyveck_power2round(polyveck *v1, polyveck *v0, const polyveck *v)
  * @param [in] v0 pointer to output vector of polynomials with coefficients a0
  * @param [in] v pointer to input vector
  */
-static inline void
-polyveck_decompose(polyveck *v1, polyveck *v0, const polyveck *v)
+static inline void polyveck_decompose(polyveck *v1, polyveck *v0,
+				      const polyveck *v)
 {
 	unsigned int i;
 
@@ -425,8 +416,8 @@ polyveck_decompose(polyveck *v1, polyveck *v0, const polyveck *v)
  *
  * @return number of 1 bits.
  */
-static inline unsigned int
-polyveck_make_hint(polyveck *h, const polyveck *v0, const polyveck *v1)
+static inline unsigned int polyveck_make_hint(polyveck *h, const polyveck *v0,
+					      const polyveck *v1)
 {
 	unsigned int i, s = 0;
 
@@ -445,8 +436,8 @@ polyveck_make_hint(polyveck *h, const polyveck *v0, const polyveck *v1)
  * @param [in] u pointer to input vector
  * @param [in] h pointer to input hint vector
  */
-static inline void
-polyveck_use_hint(polyveck *w, const polyveck *u, const polyveck *h)
+static inline void polyveck_use_hint(polyveck *w, const polyveck *u,
+				     const polyveck *h)
 {
 	unsigned int i;
 
@@ -461,7 +452,8 @@ polyveck_pack_w1(uint8_t r[LC_DILITHIUM_K * LC_DILITHIUM_POLYW1_PACKEDBYTES],
 	unsigned int i;
 
 	for (i = 0; i < LC_DILITHIUM_K; ++i)
-		polyw1_pack(&r[i*LC_DILITHIUM_POLYW1_PACKEDBYTES], &w1->vec[i]);
+		polyw1_pack(&r[i * LC_DILITHIUM_POLYW1_PACKEDBYTES],
+			    &w1->vec[i]);
 }
 
 #ifdef __cplusplus

@@ -81,15 +81,15 @@ static void sha256_init(void *_state)
 
 static inline uint32_t ror(uint32_t x, int n)
 {
-	return ( (x >> (n&(32-1))) | (x << ((32-n)&(32-1))) );
+	return ((x >> (n & (32 - 1))) | (x << ((32 - n) & (32 - 1))));
 }
 
-#define CH(x, y, z)	((x & y) ^ (~x & z))
-#define MAJ(x, y, z)	((x & y) ^ (x & z) ^ (y & z))
-#define S0(x)		(ror(x, 2) ^ ror(x, 13) ^ ror(x, 22))
-#define S1(x)		(ror(x, 6) ^ ror(x, 11) ^ ror(x, 25))
-#define s0(x)		(ror(x, 7) ^ ror(x, 18) ^ (x >> 3))
-#define s1(x)		(ror(x, 17) ^ ror(x, 19) ^ (x >> 10))
+#define CH(x, y, z) ((x & y) ^ (~x & z))
+#define MAJ(x, y, z) ((x & y) ^ (x & z) ^ (y & z))
+#define S0(x) (ror(x, 2) ^ ror(x, 13) ^ ror(x, 22))
+#define S1(x) (ror(x, 6) ^ ror(x, 11) ^ ror(x, 25))
+#define s0(x) (ror(x, 7) ^ ror(x, 18) ^ (x >> 3))
+#define s1(x) (ror(x, 17) ^ ror(x, 19) ^ (x >> 10))
 
 static inline void sha256_transform(struct lc_sha256_state *ctx,
 				    const uint8_t *in)
@@ -97,27 +97,46 @@ static inline void sha256_transform(struct lc_sha256_state *ctx,
 	uint32_t W[64], a, b, c, d, e, f, g, h, T1, T2;
 	unsigned int i;
 
-	a = ctx->H[0]; b = ctx->H[1]; c = ctx->H[2]; d = ctx->H[3];
-	e = ctx->H[4]; f = ctx->H[5]; g = ctx->H[6]; h = ctx->H[7];
+	a = ctx->H[0];
+	b = ctx->H[1];
+	c = ctx->H[2];
+	d = ctx->H[3];
+	e = ctx->H[4];
+	f = ctx->H[5];
+	g = ctx->H[6];
+	h = ctx->H[7];
 
 	for (i = 0; i < 64; i++) {
 		if (i < 16) {
 			W[i] = ptr_to_be32(in);
 			in += 4;
 		} else {
-			W[i] = s1(W[i-2]) + W[i-7] + s0(W[i-15]) + W[i-16];
+			W[i] = s1(W[i - 2]) + W[i - 7] + s0(W[i - 15]) +
+			       W[i - 16];
 
 			/* Zeroization */
 			W[i - 16] = 0;
 		}
- 		T1 = h + S1(e) + CH(e, f, g) + sha256_K[i] + W[i];
- 		T2 = S0(a) + MAJ(a, b, c);
- 		h = g; g = f; f = e; e = d + T1;
- 		d = c; c = b; b = a; a = T1 + T2;
+		T1 = h + S1(e) + CH(e, f, g) + sha256_K[i] + W[i];
+		T2 = S0(a) + MAJ(a, b, c);
+		h = g;
+		g = f;
+		f = e;
+		e = d + T1;
+		d = c;
+		c = b;
+		b = a;
+		a = T1 + T2;
 	}
 
-	ctx->H[0] += a; ctx->H[1] += b; ctx->H[2] += c; ctx->H[3] += d;
-	ctx->H[4] += e; ctx->H[5] += f; ctx->H[6] += g; ctx->H[7] += h;
+	ctx->H[0] += a;
+	ctx->H[1] += b;
+	ctx->H[2] += c;
+	ctx->H[3] += d;
+	ctx->H[4] += e;
+	ctx->H[5] += f;
+	ctx->H[6] += g;
+	ctx->H[7] += h;
 
 	/* Zeroize intermediate values - register are not zeroized */
 	for (i = 48; i < 64; i++)
@@ -225,13 +244,13 @@ static size_t sha256_get_digestsize(void *_state)
 }
 
 static const struct lc_hash _sha256 = {
-	.init		= sha256_init,
-	.update		= sha256_update,
-	.final		= sha256_final,
-	.set_digestsize	= NULL,
-	.get_digestsize	= sha256_get_digestsize,
-	.blocksize	= LC_SHA256_SIZE_BLOCK,
-	.statesize	= sizeof(struct lc_sha256_state),
+	.init = sha256_init,
+	.update = sha256_update,
+	.final = sha256_final,
+	.set_digestsize = NULL,
+	.get_digestsize = sha256_get_digestsize,
+	.blocksize = LC_SHA256_SIZE_BLOCK,
+	.statesize = sizeof(struct lc_sha256_state),
 };
 
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha256) = &_sha256;

@@ -181,8 +181,8 @@ void bin2print(const unsigned char *bin, const size_t binlen, FILE *out,
 }
 
 static int _bin2hex_html(const unsigned char *str, size_t strlen, char *html,
-			 size_t htmllen, size_t *reqlen,
-			 const char *unreserved, size_t unreservedlen)
+			 size_t htmllen, size_t *reqlen, const char *unreserved,
+			 size_t unreservedlen)
 {
 	while (strlen) {
 		unsigned int charbytes;

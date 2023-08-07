@@ -23,8 +23,7 @@
 #include "lc_sha512.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #define LC_DRBG_HMAC_STATELEN 64

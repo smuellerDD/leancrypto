@@ -30,8 +30,7 @@
 #include "lc_memset_secure.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 struct lc_cc_cryptor {
@@ -45,29 +44,28 @@ struct lc_cc_cryptor {
  * The block size of the algorithm for generating the key stream. It must be
  * a multiple of the cSHAKE block size.
  */
-#define LC_CC_KEYSTREAM_BLOCK	LC_SHA3_256_SIZE_BLOCK
+#define LC_CC_KEYSTREAM_BLOCK LC_SHA3_256_SIZE_BLOCK
 
-#define LC_CC_STATE_SIZE(x)	(2 * LC_HASH_STATE_SIZE(x) +		       \
-				 LC_CC_KEYSTREAM_BLOCK)
-#define LC_CC_CTX_SIZE(x)	(sizeof(struct lc_aead) +		       \
-				 sizeof(struct lc_cc_cryptor) +		       \
-				 LC_CC_STATE_SIZE(x))
+#define LC_CC_STATE_SIZE(x) (2 * LC_HASH_STATE_SIZE(x) + LC_CC_KEYSTREAM_BLOCK)
+#define LC_CC_CTX_SIZE(x)                                                      \
+	(sizeof(struct lc_aead) + sizeof(struct lc_cc_cryptor) +               \
+	 LC_CC_STATE_SIZE(x))
 
 /* CSHAKE-based AEAD-algorithm */
 extern const struct lc_aead *lc_cshake_aead;
 
-#define _LC_CC_SET_CTX(name, hashname)					       \
-	_LC_HASH_SET_CTX((&name->cshake), hashname, name,		       \
-			 (sizeof(struct lc_cc_cryptor)));		       \
-	_LC_HASH_SET_CTX((&name->auth_ctx), hashname, name,		       \
-			 (sizeof(struct lc_cc_cryptor) +		       \
-			 LC_HASH_STATE_SIZE(hashname)));		       \
-	name->keystream = (uint8_t *)((uint8_t *)name +	   		       \
-				      (sizeof(struct lc_cc_cryptor) +	       \
-				      2 * LC_HASH_STATE_SIZE(hashname)))
+#define _LC_CC_SET_CTX(name, hashname)                                         \
+	_LC_HASH_SET_CTX((&name->cshake), hashname, name,                      \
+			 (sizeof(struct lc_cc_cryptor)));                      \
+	_LC_HASH_SET_CTX((&name->auth_ctx), hashname, name,                    \
+			 (sizeof(struct lc_cc_cryptor) +                       \
+			  LC_HASH_STATE_SIZE(hashname)));                      \
+	name->keystream = (uint8_t *)((uint8_t *)name +                        \
+				      (sizeof(struct lc_cc_cryptor) +          \
+				       2 * LC_HASH_STATE_SIZE(hashname)))
 
-#define LC_CC_SET_CTX(name, hashname)					       \
-	LC_AEAD_CTX(name, lc_cshake_aead);				       \
+#define LC_CC_SET_CTX(name, hashname)                                          \
+	LC_AEAD_CTX(name, lc_cshake_aead);                                     \
 	_LC_CC_SET_CTX(((struct lc_cc_cryptor *)name->aead_state), hashname)
 
 /**
@@ -92,16 +90,17 @@ int lc_cc_alloc(const struct lc_hash *hash, struct lc_aead_ctx **ctx);
  * @param [in] hash Hash implementation of type struct hash used for the cSHAKE
  *		    authentication
  */
-#define LC_CC_CTX_ON_STACK(name, hash)					       \
-	_Pragma("GCC diagnostic push")					       \
-	_Pragma("GCC diagnostic ignored \"-Wvla\"")	      		       \
-	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_CC_CTX_SIZE(hash),	       \
-			  LC_HASH_COMMON_ALIGNMENT);			       \
-	struct lc_aead_ctx *name = (struct lc_aead_ctx *) name ## _ctx_buf;    \
-	LC_CC_SET_CTX(name, hash);					       \
+#define LC_CC_CTX_ON_STACK(name, hash)                                              \
+	_Pragma("GCC diagnostic push")                                              \
+		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
+			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
+			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
+					  LC_CC_CTX_SIZE(hash),                     \
+					  LC_HASH_COMMON_ALIGNMENT);                \
+	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;            \
+	LC_CC_SET_CTX(name, hash);                                                  \
 	_Pragma("GCC diagnostic pop")
-	/* invocation of lc_cc_zero_free(name); not needed */
+/* invocation of lc_cc_zero_free(name); not needed */
 
 #ifdef __cplusplus
 }

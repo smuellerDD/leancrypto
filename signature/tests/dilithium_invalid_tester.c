@@ -45,7 +45,8 @@ static int dilithium_invalid(void)
 
 	/* modify the pub key */
 	ws->pk.pk[0] = (ws->pk.pk[0] + 0x01) & 0xff;
-	if (lc_dilithium_verify(&ws->sig, msg, sizeof(msg), &ws->pk) != -EBADMSG)
+	if (lc_dilithium_verify(&ws->sig, msg, sizeof(msg), &ws->pk) !=
+	    -EBADMSG)
 		goto out;
 
 	/* revert modify the pub key */
@@ -69,7 +70,7 @@ static int dilithium_invalid(void)
 	/* modify the signature */
 	ws->sig.sig[0] = (ws->sig.sig[0] + 0x01) & 0xff;
 	if (lc_dilithium_verify(&ws->sig, msg, sizeof(msg), &ws->pk) !=
-				-EBADMSG)
+	    -EBADMSG)
 		goto out;
 
 	ret = 0;

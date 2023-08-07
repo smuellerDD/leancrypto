@@ -54,7 +54,7 @@ static char hex_char(unsigned int bin, int u)
  * @u case of hex characters (0=>lower case, 1=>upper case)
  */
 static void bin2hex(const uint8_t *bin, const size_t binlen, char *hex,
-		   const size_t hexlen, const int u)
+		    const size_t hexlen, const int u)
 {
 	size_t i = 0;
 	size_t chars = (binlen > (hexlen / 2)) ? (hexlen / 2) : binlen;
@@ -91,18 +91,17 @@ static int xdrbg256_drng(struct opts *opts, FILE *out)
 	}
 	time = (uint64_t)tv.tv_sec * 1000000 + (uint64_t)tv.tv_usec;
 
-	lc_rng_seed(xdrbg256_ctx, (uint8_t *)&time, sizeof(time),
-			       NULL, 0);
+	lc_rng_seed(xdrbg256_ctx, (uint8_t *)&time, sizeof(time), NULL, 0);
 
 	while (bytes) {
-		size_t todo = (bytes > sizeof(ws->outbuf) ?
-			      sizeof(ws->outbuf) : bytes);
+		size_t todo = (bytes > sizeof(ws->outbuf) ? sizeof(ws->outbuf) :
+							    bytes);
 
 		lc_rng_generate(xdrbg256_ctx, NULL, 0, ws->outbuf, todo);
 
 		if (opts->hex) {
-			bin2hex(ws->outbuf, todo,
-				ws->outhex, sizeof(ws->outhex), 0);
+			bin2hex(ws->outbuf, todo, ws->outhex,
+				sizeof(ws->outhex), 0);
 			fwrite(ws->outhex, todo * 2, 1, out);
 		} else {
 			fwrite(ws->outbuf, todo, 1, out);
@@ -123,25 +122,21 @@ static int xdrbg256_drng(struct opts *opts, FILE *out)
 
 int main(int argc, char *argv[])
 {
-
 	struct opts opts;
 	FILE *out = stdout;
 	int c = 0;
-
 
 	opts.bytecount = 1000;
 	opts.outfile = NULL;
 	opts.hex = 0;
 
-	while (1)
-	{
+	while (1) {
 		int opt_index = 0;
-		static struct option options[] =
-		{
-			{"bytecount", 		required_argument,	0, 'b'},
-			{"file", 		required_argument,	0, 'f'},
-			{"hex", 		no_argument,		0, 'h'},
-			{0, 0, 0, 0}
+		static struct option options[] = {
+			{ "bytecount", required_argument, 0, 'b' },
+			{ "file", required_argument, 0, 'f' },
+			{ "hex", no_argument, 0, 'h' },
+			{ 0, 0, 0, 0 }
 		};
 		c = getopt_long(argc, argv, "b:f:h", options, &opt_index);
 		if (c == -1)
@@ -182,7 +177,8 @@ int main(int argc, char *argv[])
 	if (opts.outfile) {
 		out = fopen(opts.outfile, "w");
 		if (!out) {
-			printf("Cannot open file %s: %s\n", opts.outfile, strerror(errno));
+			printf("Cannot open file %s: %s\n", opts.outfile,
+			       strerror(errno));
 			return 1;
 		}
 	}

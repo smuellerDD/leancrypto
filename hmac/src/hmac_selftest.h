@@ -21,8 +21,7 @@
 #define HMAC_SELFTEST_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 void hmac_sha256_selftest(const char *impl);

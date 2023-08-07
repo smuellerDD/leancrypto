@@ -29,15 +29,12 @@
 static int _dilithium_tester_iuf_c(unsigned int rounds)
 {
 	return _dilithium_init_update_final_tester(
-		rounds,
-		lc_dilithium_keypair_c,
+		rounds, lc_dilithium_keypair_c,
 
-		lc_dilithium_sign_init_c,
-		lc_dilithium_sign_update_c,
+		lc_dilithium_sign_init_c, lc_dilithium_sign_update_c,
 		lc_dilithium_sign_final_c,
 
-		lc_dilithium_verify_init_c,
-		lc_dilithium_verify_update_c,
+		lc_dilithium_verify_init_c, lc_dilithium_verify_update_c,
 		lc_dilithium_verify_final_c);
 }
 

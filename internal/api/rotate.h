@@ -24,8 +24,7 @@
 #include "ext_headers.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #ifndef LINUX_KERNEL
@@ -35,12 +34,12 @@ extern "C"
  */
 static inline uint16_t rol16(uint16_t x, uint8_t n)
 {
-	return (uint16_t)( (x << (n&(16-1))) | (x >> ((16-n)&(16-1))) );
+	return (uint16_t)((x << (n & (16 - 1))) | (x >> ((16 - n) & (16 - 1))));
 }
 
 static inline uint16_t ror16(uint16_t x, uint8_t n)
 {
-	return (uint16_t)( (x >> (n&(16-1))) | (x << ((16-n)&(16-1))) );
+	return (uint16_t)((x >> (n & (16 - 1))) | (x << ((16 - n) & (16 - 1))));
 }
 
 /*
@@ -48,12 +47,12 @@ static inline uint16_t ror16(uint16_t x, uint8_t n)
  */
 static inline uint32_t rol32(uint32_t x, uint8_t n)
 {
-	return ( (x << (n&(32-1))) | (x >> ((32-n)&(32-1))) );
+	return ((x << (n & (32 - 1))) | (x >> ((32 - n) & (32 - 1))));
 }
 
 static inline uint32_t ror32(uint32_t x, uint8_t n)
 {
-	return ( (x >> (n&(32-1))) | (x << ((32-n)&(32-1))) );
+	return ((x >> (n & (32 - 1))) | (x << ((32 - n) & (32 - 1))));
 }
 
 #endif /* LINUX_KERNEL */

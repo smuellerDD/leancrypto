@@ -29,27 +29,26 @@ LC_CONSTRUCTOR(aes_fastest_impl)
 {
 	enum lc_cpu_features feat = lc_cpu_feature_available();
 
-#define LC_FILL_ACCEL_WITH_DEFAULT(accel, dflt)				       \
-	lc_aes_cbc_ ##accel = lc_aes_cbc_ ##dflt;			       \
-	lc_aes_ctr_ ##accel = lc_aes_ctr_ ##dflt;			       \
-	lc_aes_kw_ ##accel = lc_aes_kw_ ##dflt;				       \
-	lc_aes_ ##accel = lc_aes_ ##dflt;
+#define LC_FILL_ACCEL_WITH_DEFAULT(accel, dflt)                                \
+	lc_aes_cbc_##accel = lc_aes_cbc_##dflt;                                \
+	lc_aes_ctr_##accel = lc_aes_ctr_##dflt;                                \
+	lc_aes_kw_##accel = lc_aes_kw_##dflt;                                  \
+	lc_aes_##accel = lc_aes_##dflt;
 
-#define LC_FILL_ACCEL_WITH_C(accel)					       \
-	LC_FILL_ACCEL_WITH_DEFAULT(accel, c)
+#define LC_FILL_ACCEL_WITH_C(accel) LC_FILL_ACCEL_WITH_DEFAULT(accel, c)
 
-#define LC_FILL_ACCEL_NULL(accel)					       \
-	if (!lc_aes_cbc_ ##accel) {					       \
-		LC_FILL_ACCEL_WITH_C(accel)				       \
+#define LC_FILL_ACCEL_NULL(accel)                                              \
+	if (!lc_aes_cbc_##accel) {                                             \
+		LC_FILL_ACCEL_WITH_C(accel)                                    \
 	}
 
 	/* Check if NULL pointers are present */
 	LC_FILL_ACCEL_NULL(aesni)
 
-#define LC_FILL_DFLT_IMPL(accel)					       \
-	lc_aes_cbc = lc_aes_cbc_ ##accel;				       \
-	lc_aes_ctr = lc_aes_ctr_ ##accel;				       \
-	lc_aes_kw = lc_aes_kw_ ##accel;
+#define LC_FILL_DFLT_IMPL(accel)                                               \
+	lc_aes_cbc = lc_aes_cbc_##accel;                                       \
+	lc_aes_ctr = lc_aes_ctr_##accel;                                       \
+	lc_aes_kw = lc_aes_kw_##accel;
 
 	/*
 	 * Set accelerated modes: The fastest implementations are at the top

@@ -29,8 +29,7 @@
 #include "lc_sym.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /* AES ECB mode */
@@ -63,8 +62,8 @@ extern const struct lc_sym *lc_aes_kw;
  * lc_sym_encrypt. The difference is that it also obtains the tag from the
  * AES KW operation.
  */
-void lc_aes_kw_encrypt(struct lc_sym_ctx *ctx,
-		       const uint8_t *in, uint8_t *out, size_t len);
+void lc_aes_kw_encrypt(struct lc_sym_ctx *ctx, const uint8_t *in, uint8_t *out,
+		       size_t len);
 
 /**
  * @brief lc_aes_kw_decrypt - AES KW decrypt
@@ -85,8 +84,8 @@ void lc_aes_kw_encrypt(struct lc_sym_ctx *ctx,
  * This function is a helper function. It provides the same operation as
  * lc_sym_decrypt. The difference is that it also performs the authentication.
  */
-int lc_aes_kw_decrypt(struct lc_sym_ctx *ctx,
-		      const uint8_t *in, uint8_t *out, size_t len);
+int lc_aes_kw_decrypt(struct lc_sym_ctx *ctx, const uint8_t *in, uint8_t *out,
+		      size_t len);
 
 #ifdef __cplusplus
 }

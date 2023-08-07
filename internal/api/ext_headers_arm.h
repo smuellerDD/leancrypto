@@ -22,21 +22,21 @@
 
 #ifdef LINUX_KERNEL
 
-# include <asm/neon.h>
+#include <asm/neon.h>
 
-# define LC_NEON_ENABLE		kernel_neon_begin()
-# define LC_NEON_DISABLE	kernel_neon_end()
+#define LC_NEON_ENABLE kernel_neon_begin()
+#define LC_NEON_DISABLE kernel_neon_end()
 
-#define UINT64_C		U64_C
+#define UINT64_C U64_C
 
 #else /* LINUX_KERNEL */
 
-# define LC_NEON_ENABLE
-# define LC_NEON_DISABLE
+#define LC_NEON_ENABLE
+#define LC_NEON_DISABLE
 
 #if (defined(__APPLE__))
-# include <sys/types.h>
-# include <sys/sysctl.h>
+#include <sys/types.h>
+#include <sys/sysctl.h>
 #endif
 
 #endif /* LINUX_KERNEL */

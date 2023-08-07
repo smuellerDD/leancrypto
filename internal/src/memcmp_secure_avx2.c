@@ -25,8 +25,8 @@
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #endif
 
-static inline int
-memcmp_secure_256_avx2_aligned(const void *s1, const void *s2, size_t n)
+static inline int memcmp_secure_256_avx2_aligned(const void *s1, const void *s2,
+						 size_t n)
 {
 	/*
 	 * We can ignore the alignment warning as we checked
@@ -43,10 +43,10 @@ memcmp_secure_256_avx2_aligned(const void *s1, const void *s2, size_t n)
 	int ret = 0;
 
 	for (; n >= sizeof(*s1_qword); n -= sizeof(*s1_qword))
-		reti = _mm256_or_si256(
-			reti, _mm256_xor_si256(*s2_qword++, *s1_qword++));
+		reti = _mm256_or_si256(reti, _mm256_xor_si256(*s2_qword++,
+							      *s1_qword++));
 
-	_mm256_store_si256((__m256i*) result, reti);
+	_mm256_store_si256((__m256i *)result, reti);
 	for (i = 0; i < ARRAY_SIZE(result); i++)
 		ret |= !!result[i];
 
@@ -56,8 +56,7 @@ memcmp_secure_256_avx2_aligned(const void *s1, const void *s2, size_t n)
 	return ret;
 }
 
-static inline int
-memcmp_secure_256(const void *s1, const void *s2, size_t n)
+static inline int memcmp_secure_256(const void *s1, const void *s2, size_t n)
 {
 	if ((lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) &&
 	    memcmp_secure_aligned(s1, sizeof(__m256i) - 1) &&
@@ -73,8 +72,8 @@ memcmp_secure_256(const void *s1, const void *s2, size_t n)
 	return memcmp_secure_64(s1, s2, n);
 }
 
-LC_INTERFACE_FUNCTION(
-int, lc_memcmp_secure, const void *s1, size_t s1n, const void *s2, size_t s2n)
+LC_INTERFACE_FUNCTION(int, lc_memcmp_secure, const void *s1, size_t s1n,
+		      const void *s2, size_t s2n)
 {
 	size_t n = s1n;
 

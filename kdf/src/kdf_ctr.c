@@ -33,26 +33,22 @@
  */
 static void lc_kdf_ctr_selftest(int *tested, const char *impl)
 {
-	static const uint8_t key[] = {
-		0xdd, 0x1d, 0x91, 0xb7, 0xd9, 0x0b, 0x2b, 0xd3,
-		0x13, 0x85, 0x33, 0xce, 0x92, 0xb2, 0x72, 0xfb,
-		0xf8, 0xa3, 0x69, 0x31, 0x6a, 0xef, 0xe2, 0x42,
-		0xe6, 0x59, 0xcc, 0x0a, 0xe2, 0x38, 0xaf, 0xe0
-	};
+	static const uint8_t key[] = { 0xdd, 0x1d, 0x91, 0xb7, 0xd9, 0x0b, 0x2b,
+				       0xd3, 0x13, 0x85, 0x33, 0xce, 0x92, 0xb2,
+				       0x72, 0xfb, 0xf8, 0xa3, 0x69, 0x31, 0x6a,
+				       0xef, 0xe2, 0x42, 0xe6, 0x59, 0xcc, 0x0a,
+				       0xe2, 0x38, 0xaf, 0xe0 };
 	static const uint8_t label[] = {
-		0x01, 0x32, 0x2b, 0x96, 0xb3, 0x0a, 0xcd, 0x19,
-		0x79, 0x79, 0x44, 0x4e, 0x46, 0x8e, 0x1c, 0x5c,
-		0x68, 0x59, 0xbf, 0x1b, 0x1c, 0xf9, 0x51, 0xb7,
-		0xe7, 0x25, 0x30, 0x3e, 0x23, 0x7e, 0x46, 0xb8,
-		0x64, 0xa1, 0x45, 0xfa, 0xb2, 0x5e, 0x51, 0x7b,
-		0x08, 0xf8, 0x68, 0x3d, 0x03, 0x15, 0xbb, 0x29,
-		0x11, 0xd8, 0x0a, 0x0e, 0x8a, 0xba, 0x17, 0xf3,
-		0xb4, 0x13, 0xfa, 0xac
+		0x01, 0x32, 0x2b, 0x96, 0xb3, 0x0a, 0xcd, 0x19, 0x79, 0x79,
+		0x44, 0x4e, 0x46, 0x8e, 0x1c, 0x5c, 0x68, 0x59, 0xbf, 0x1b,
+		0x1c, 0xf9, 0x51, 0xb7, 0xe7, 0x25, 0x30, 0x3e, 0x23, 0x7e,
+		0x46, 0xb8, 0x64, 0xa1, 0x45, 0xfa, 0xb2, 0x5e, 0x51, 0x7b,
+		0x08, 0xf8, 0x68, 0x3d, 0x03, 0x15, 0xbb, 0x29, 0x11, 0xd8,
+		0x0a, 0x0e, 0x8a, 0xba, 0x17, 0xf3, 0xb4, 0x13, 0xfa, 0xac
 	};
-	static const uint8_t exp[] = {
-		0x10, 0x62, 0x13, 0x42, 0xbf, 0xb0, 0xfd, 0x40,
-		0x04, 0x6c, 0x0e, 0x29, 0xf2, 0xcf, 0xdb, 0xf0
-	};
+	static const uint8_t exp[] = { 0x10, 0x62, 0x13, 0x42, 0xbf, 0xb0,
+				       0xfd, 0x40, 0x04, 0x6c, 0x0e, 0x29,
+				       0xf2, 0xcf, 0xdb, 0xf0 };
 	uint8_t act[sizeof(exp)];
 
 	LC_SELFTEST_RUN(tested);
@@ -62,11 +58,10 @@ static void lc_kdf_ctr_selftest(int *tested, const char *impl)
 	lc_compare_selftest(act, exp, sizeof(exp), impl);
 }
 
-static int
-lc_kdf_ctr_generate_internal(struct lc_hmac_ctx *hmac_ctx,
-			     const uint8_t *label, size_t labellen,
-			     uint8_t *dst, size_t dlen,
-			     uint32_t *counter)
+static int lc_kdf_ctr_generate_internal(struct lc_hmac_ctx *hmac_ctx,
+					const uint8_t *label, size_t labellen,
+					uint8_t *dst, size_t dlen,
+					uint32_t *counter)
 {
 	size_t h;
 	uint32_t i = *counter;
@@ -85,7 +80,7 @@ lc_kdf_ctr_generate_internal(struct lc_hmac_ctx *hmac_ctx,
 		lc_hmac_update(hmac_ctx, (uint8_t *)&ibe, sizeof(uint32_t));
 
 		if (label && labellen)
-		         lc_hmac_update(hmac_ctx, label, labellen);
+			lc_hmac_update(hmac_ctx, label, labellen);
 
 		if (dlen < h) {
 			uint8_t tmp[LC_SHA_MAX_SIZE_DIGEST];
@@ -117,21 +112,17 @@ out:
 	return 0;
 }
 
-LC_INTERFACE_FUNCTION(
-int, lc_kdf_ctr_generate, struct lc_hmac_ctx *hmac_ctx,
-			  const uint8_t *label, size_t labellen,
-			  uint8_t *dst, size_t dlen)
+LC_INTERFACE_FUNCTION(int, lc_kdf_ctr_generate, struct lc_hmac_ctx *hmac_ctx,
+		      const uint8_t *label, size_t labellen, uint8_t *dst,
+		      size_t dlen)
 {
 	uint32_t counter = 1;
 
-	return lc_kdf_ctr_generate_internal(hmac_ctx,
-					    label, labellen,
-					    dst, dlen,
-					    &counter);
+	return lc_kdf_ctr_generate_internal(hmac_ctx, label, labellen, dst,
+					    dlen, &counter);
 }
 
-LC_INTERFACE_FUNCTION(
-int, lc_kdf_ctr_init, struct lc_hmac_ctx *hmac_ctx,
+LC_INTERFACE_FUNCTION(int, lc_kdf_ctr_init, struct lc_hmac_ctx *hmac_ctx,
 		      const uint8_t *key, size_t keylen)
 {
 	static int tested = 0;
@@ -141,11 +132,9 @@ int, lc_kdf_ctr_init, struct lc_hmac_ctx *hmac_ctx,
 	return 0;
 }
 
-LC_INTERFACE_FUNCTION(
-int, lc_kdf_ctr, const struct lc_hash *hash,
-	         const uint8_t *key, size_t keylen,
-	         const uint8_t *label, size_t labellen,
-	         uint8_t *dst, size_t dlen)
+LC_INTERFACE_FUNCTION(int, lc_kdf_ctr, const struct lc_hash *hash,
+		      const uint8_t *key, size_t keylen, const uint8_t *label,
+		      size_t labellen, uint8_t *dst, size_t dlen)
 {
 	int ret;
 	LC_HMAC_CTX_ON_STACK(hmac_ctx, hash);
@@ -158,9 +147,9 @@ out:
 	return ret;
 }
 
-static int lc_kdf_ctr_rng_seed(void *_state,
-			       const uint8_t *seed, size_t seedlen,
-			       const uint8_t *persbuf, size_t perslen)
+static int lc_kdf_ctr_rng_seed(void *_state, const uint8_t *seed,
+			       size_t seedlen, const uint8_t *persbuf,
+			       size_t perslen)
 {
 	struct lc_kdf_ctr_ctx *state = _state;
 
@@ -180,10 +169,9 @@ static int lc_kdf_ctr_rng_seed(void *_state,
 	return lc_kdf_ctr_init(&state->hmac_ctx, seed, seedlen);
 }
 
-static int
-lc_kdf_ctr_rng_generate(void *_state,
-		     const uint8_t *addtl_input, size_t addtl_input_len,
-		     uint8_t *out, size_t outlen)
+static int lc_kdf_ctr_rng_generate(void *_state, const uint8_t *addtl_input,
+				   size_t addtl_input_len, uint8_t *out,
+				   size_t outlen)
 {
 	struct lc_kdf_ctr_ctx *kdf_ctr_ctx = _state;
 
@@ -195,9 +183,8 @@ lc_kdf_ctr_rng_generate(void *_state,
 	if (!outlen)
 		return 0;
 
-	return lc_kdf_ctr_generate_internal(&kdf_ctr_ctx->hmac_ctx,
-					    addtl_input, addtl_input_len,
-					    out, outlen,
+	return lc_kdf_ctr_generate_internal(&kdf_ctr_ctx->hmac_ctx, addtl_input,
+					    addtl_input_len, out, outlen,
 					    &kdf_ctr_ctx->counter);
 }
 
@@ -213,8 +200,8 @@ static void lc_kdf_ctr_rng_zero(void *_state)
 	kdf_ctr_ctx->counter = 1;
 }
 
-LC_INTERFACE_FUNCTION(
-int, lc_kdf_ctr_rng_alloc, struct lc_rng_ctx **state, const struct lc_hash *hash)
+LC_INTERFACE_FUNCTION(int, lc_kdf_ctr_rng_alloc, struct lc_rng_ctx **state,
+		      const struct lc_hash *hash)
 {
 	struct lc_rng_ctx *out_state;
 	int ret;
@@ -238,8 +225,8 @@ int, lc_kdf_ctr_rng_alloc, struct lc_rng_ctx **state, const struct lc_hash *hash
 }
 
 static const struct lc_rng _lc_kdf_ctr = {
-	.generate	= lc_kdf_ctr_rng_generate,
-	.seed		= lc_kdf_ctr_rng_seed,
-	.zero		= lc_kdf_ctr_rng_zero,
+	.generate = lc_kdf_ctr_rng_generate,
+	.seed = lc_kdf_ctr_rng_seed,
+	.zero = lc_kdf_ctr_rng_zero,
 };
 LC_INTERFACE_SYMBOL(const struct lc_rng *, lc_kdf_ctr_rng) = &_lc_kdf_ctr;

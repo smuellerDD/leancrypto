@@ -25,8 +25,7 @@
 #include "lc_hmac.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /**
@@ -43,8 +42,8 @@ extern "C"
  *
  * @return 0 on success, < 0 on error
  */
-int lc_kdf_fb_init(struct lc_hmac_ctx *hmac_ctx,
-		   const uint8_t *key, size_t keylen);
+int lc_kdf_fb_init(struct lc_hmac_ctx *hmac_ctx, const uint8_t *key,
+		   size_t keylen);
 
 /**
  * @brief Key-based Key Derivation in Feedback Mode - SP800-108 -
@@ -64,9 +63,8 @@ int lc_kdf_fb_init(struct lc_hmac_ctx *hmac_ctx,
  *
  * @return 0 on success, < 0 on error
  */
-int lc_kdf_fb_generate(struct lc_hmac_ctx *hmac_ctx,
-		       const uint8_t *iv, size_t ivlen,
-		       const uint8_t *label, size_t labellen,
+int lc_kdf_fb_generate(struct lc_hmac_ctx *hmac_ctx, const uint8_t *iv,
+		       size_t ivlen, const uint8_t *label, size_t labellen,
 		       uint8_t *dst, size_t dlen);
 
 /**
@@ -87,11 +85,9 @@ int lc_kdf_fb_generate(struct lc_hmac_ctx *hmac_ctx,
  *
  * @return 0 on success, < 0 on error
  */
-int lc_kdf_fb(const struct lc_hash *hash,
-	      const uint8_t *key, size_t keylen,
-	      const uint8_t *iv, size_t ivlen,
-	      const uint8_t *label, size_t labellen,
-	      uint8_t *dst, size_t dlen);
+int lc_kdf_fb(const struct lc_hash *hash, const uint8_t *key, size_t keylen,
+	      const uint8_t *iv, size_t ivlen, const uint8_t *label,
+	      size_t labellen, uint8_t *dst, size_t dlen);
 
 #ifdef __cplusplus
 }

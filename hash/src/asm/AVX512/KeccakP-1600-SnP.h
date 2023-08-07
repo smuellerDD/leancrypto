@@ -29,15 +29,16 @@ Please refer to SnP-documentation.h for more details.
 #define KeccakP1600_AVX512_StaticInitialize()
 void KeccakP1600_AVX512_Initialize(void *state);
 //void KeccakP1600_AVX512_AddByte(void *state, unsigned char data, unsigned int offset);
-static inline void
-KeccakP1600_AVX512_AddByte(void *state, unsigned char byte, unsigned int offset)
+static inline void KeccakP1600_AVX512_AddByte(void *state, unsigned char byte,
+					      unsigned int offset)
 {
-	((unsigned char*)(state))[(offset)] ^= (byte);
+	((unsigned char *)(state))[(offset)] ^= (byte);
 }
 void KeccakP1600_AVX512_AddBytes(void *state, const unsigned char *data,
 				 unsigned int offset, unsigned int length);
 void KeccakP1600_AVX512_OverwriteBytes(void *state, const unsigned char *data,
-				       unsigned int offset, unsigned int length);
+				       unsigned int offset,
+				       unsigned int length);
 void KeccakP1600_AVX512_OverwriteWithZeroes(void *state,
 					    unsigned int byteCount);
 void KeccakP1600_AVX512_Permute_Nrounds(void *state, unsigned int nrounds);

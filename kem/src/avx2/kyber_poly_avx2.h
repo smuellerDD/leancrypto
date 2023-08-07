@@ -35,8 +35,7 @@
 #include "lc_kyber.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 typedef BUF_ALIGNED_INT16_M256I(LC_KYBER_N) poly;
@@ -44,15 +43,15 @@ typedef BUF_ALIGNED_INT16_M256I(LC_KYBER_N) poly;
 void poly_compress_avx(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES], const poly *a);
 void poly_decompress_avx(poly *r,
 			 const uint8_t a[LC_KYBER_POLYCOMPRESSEDBYTES]);
-void poly_frommsg_avx(poly * restrict r,
+void poly_frommsg_avx(poly *restrict r,
 		      const uint8_t msg[LC_KYBER_INDCPA_MSGBYTES]);
 void poly_tomsg_avx(uint8_t msg[LC_KYBER_INDCPA_MSGBYTES],
-		    const poly * restrict a);
+		    const poly *restrict a);
 
 void kyber_poly_add_avx(poly *r, const poly *a, const poly *b);
 void kyber_poly_sub_avx(poly *r, const poly *a, const poly *b);
 
-void cbd2(poly * restrict r, const __m256i buf[2 * LC_KYBER_N / 128]);
+void cbd2(poly *restrict r, const __m256i buf[2 * LC_KYBER_N / 128]);
 
 /* buf 32 bytes longer for cbd3 */
 static inline void
@@ -67,8 +66,7 @@ poly_cbd_eta1_avx(poly *r,
 }
 
 static inline void
-poly_cbd_eta2_avx(poly *r,
-		  const __m256i buf[LC_KYBER_ETA2 * LC_KYBER_N / 128])
+poly_cbd_eta2_avx(poly *r, const __m256i buf[LC_KYBER_ETA2 * LC_KYBER_N / 128])
 {
 #if LC_KYBER_ETA2 == 2
 	cbd2(r, buf);
@@ -90,8 +88,8 @@ poly_cbd_eta2_avx(poly *r,
  *	    bytes)
  * @param a: pointer to input polynomial
  */
-static inline void
-poly_tobytes_avx(uint8_t r[LC_KYBER_POLYBYTES], const poly *a)
+static inline void poly_tobytes_avx(uint8_t r[LC_KYBER_POLYBYTES],
+				    const poly *a)
 {
 	LC_FPU_ENABLE;
 	kyber_ntttobytes_avx(r, a->vec, kyber_qdata.vec);
@@ -106,8 +104,8 @@ poly_tobytes_avx(uint8_t r[LC_KYBER_POLYBYTES], const poly *a)
  * @param r pointer to output polynomial
  * @parar a pointer to input byte array (of LC_KYBER_POLYBYTES bytes)
  */
-static inline void
-poly_frombytes_avx(poly *r, const uint8_t a[LC_KYBER_POLYBYTES])
+static inline void poly_frombytes_avx(poly *r,
+				      const uint8_t a[LC_KYBER_POLYBYTES])
 {
 	LC_FPU_ENABLE;
 	kyber_nttfrombytes_avx(r->vec, a, kyber_qdata.vec);
@@ -124,15 +122,15 @@ poly_frombytes_avx(poly *r, const uint8_t a[LC_KYBER_POLYBYTES])
  * @param seed: pointer to input seed (of length LC_KYBER_SYMBYTES bytes)
  * @param nonce one-byte input nonce
  */
-static inline void
-poly_getnoise_eta1_avx(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
-		       uint8_t nonce)
+static inline void poly_getnoise_eta1_avx(poly *r,
+					  const uint8_t seed[LC_KYBER_SYMBYTES],
+					  uint8_t nonce)
 {
 	// +32 bytes as required by poly_cbd_eta1
 	BUF_ALIGNED_UINT8_M256I(LC_KYBER_ETA1 * LC_KYBER_N / 4 + 32) buf;
 
-	kyber_shake256_prf(buf.coeffs, LC_KYBER_ETA1 * LC_KYBER_N / 4,
-			   seed, nonce);
+	kyber_shake256_prf(buf.coeffs, LC_KYBER_ETA1 * LC_KYBER_N / 4, seed,
+			   nonce);
 	poly_cbd_eta1_avx(r, buf.vec);
 }
 
@@ -146,32 +144,24 @@ poly_getnoise_eta1_avx(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
  * @param seed pointer to input seed (of length LC_KYBER_SYMBYTES bytes)
  * @parm nonce one-byte input nonce
  */
-static inline void
-poly_getnoise_eta2_avx(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
-		       uint8_t nonce)
+static inline void poly_getnoise_eta2_avx(poly *r,
+					  const uint8_t seed[LC_KYBER_SYMBYTES],
+					  uint8_t nonce)
 {
 	BUF_ALIGNED_UINT8_M256I(LC_KYBER_ETA2 * LC_KYBER_N / 4) buf;
 
-	kyber_shake256_prf(buf.coeffs, LC_KYBER_ETA2 * LC_KYBER_N / 4,
-			   seed, nonce);
+	kyber_shake256_prf(buf.coeffs, LC_KYBER_ETA2 * LC_KYBER_N / 4, seed,
+			   nonce);
 	poly_cbd_eta2_avx(r, buf.vec);
 }
 
-#define NOISE_NBLOCKS 							       \
+#define NOISE_NBLOCKS                                                          \
 	((LC_KYBER_ETA1 * LC_KYBER_N / 4 + LC_SHAKE_256_SIZE_BLOCK - 1) /      \
 	 LC_SHAKE_256_SIZE_BLOCK)
-void poly_getnoise_eta1_4x(poly *r0,
-			   poly *r1,
-			   poly *r2,
-			   poly *r3,
-			   const uint8_t seed[32],
-			   uint8_t nonce0,
-			   uint8_t nonce1,
-			   uint8_t nonce2,
-			   uint8_t nonce3,
-			   void *ws_buf,
-			   void *ws_keccak);
-
+void poly_getnoise_eta1_4x(poly *r0, poly *r1, poly *r2, poly *r3,
+			   const uint8_t seed[32], uint8_t nonce0,
+			   uint8_t nonce1, uint8_t nonce2, uint8_t nonce3,
+			   void *ws_buf, void *ws_keccak);
 
 /**
  * @brief poly_ntt
@@ -227,7 +217,8 @@ static inline void poly_nttunpack_avx(poly *r)
  * @param a pointer to first input polynomial
  * @param b pointer to second input polynomial
  */
-static inline void poly_basemul_montgomery_avx(poly *r, const poly *a, const poly *b)
+static inline void poly_basemul_montgomery_avx(poly *r, const poly *a,
+					       const poly *b)
 {
 	LC_FPU_ENABLE;
 	kyber_basemul_avx(r->vec, a->vec, b->vec, kyber_qdata.vec);

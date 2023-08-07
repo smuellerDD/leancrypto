@@ -28,9 +28,8 @@
 
 static int _kyber_kem_tester_armv8(unsigned int rounds)
 {
-	return _kyber_kem_tester(rounds,
-				 lc_kyber_keypair_armv8, lc_kyber_enc_armv8,
-				 lc_kyber_dec_armv8);
+	return _kyber_kem_tester(rounds, lc_kyber_keypair_armv8,
+				 lc_kyber_enc_armv8, lc_kyber_dec_armv8);
 }
 
 static int kyber_kem_tester_armv8(void)

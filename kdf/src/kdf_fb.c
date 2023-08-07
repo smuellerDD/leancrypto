@@ -34,39 +34,33 @@
  */
 static void lc_kdf_fb_selftest(int *tested, const char *impl)
 {
-	static const uint8_t key[] = {
-		0x51, 0x5D, 0x42, 0x18, 0x50, 0x32, 0xD6, 0x3D,
-		0x41, 0x89, 0x23, 0x71, 0xB6, 0x66, 0xC0, 0xA3
-	};
-	static const uint8_t iv[] = {
-		0x83, 0xAE, 0xC4, 0x0E, 0xC6, 0x5F, 0xE2, 0x0B,
-		0x49, 0x4A, 0x88, 0x56, 0x1B, 0xDA, 0x5C, 0x69,
-		0x22, 0xF7, 0xBF, 0x6A, 0x4F, 0xD9, 0x4F, 0x19,
-		0x9D, 0x87, 0x84, 0xC0, 0xC0, 0x63, 0x6C, 0xCB
-	};
-	static const uint8_t label[] = {
-		0x5e, 0xdb, 0xe4, 0x27, 0xd9, 0x31, 0x90, 0xdf,
-		0xac, 0x0e, 0x4b, 0x79, 0x0c, 0x5d, 0x77, 0xab,
-		0x66, 0xd6, 0xe9, 0xee, 0x81, 0x92, 0x7c, 0x85,
-		0x6b, 0x92, 0xbb, 0x99, 0xc2, 0x62, 0x35, 0xb0
-	};
-	static const uint8_t exp[] = {
-		0xaa
-	};
+	static const uint8_t key[] = { 0x51, 0x5D, 0x42, 0x18, 0x50, 0x32,
+				       0xD6, 0x3D, 0x41, 0x89, 0x23, 0x71,
+				       0xB6, 0x66, 0xC0, 0xA3 };
+	static const uint8_t iv[] = { 0x83, 0xAE, 0xC4, 0x0E, 0xC6, 0x5F, 0xE2,
+				      0x0B, 0x49, 0x4A, 0x88, 0x56, 0x1B, 0xDA,
+				      0x5C, 0x69, 0x22, 0xF7, 0xBF, 0x6A, 0x4F,
+				      0xD9, 0x4F, 0x19, 0x9D, 0x87, 0x84, 0xC0,
+				      0xC0, 0x63, 0x6C, 0xCB };
+	static const uint8_t label[] = { 0x5e, 0xdb, 0xe4, 0x27, 0xd9, 0x31,
+					 0x90, 0xdf, 0xac, 0x0e, 0x4b, 0x79,
+					 0x0c, 0x5d, 0x77, 0xab, 0x66, 0xd6,
+					 0xe9, 0xee, 0x81, 0x92, 0x7c, 0x85,
+					 0x6b, 0x92, 0xbb, 0x99, 0xc2, 0x62,
+					 0x35, 0xb0 };
+	static const uint8_t exp[] = { 0xaa };
 	uint8_t act[sizeof(exp)];
 
 	LC_SELFTEST_RUN(tested);
 
-	lc_kdf_fb(lc_sha256, key, sizeof(key), iv, sizeof(iv),
-		  label, sizeof(label), act, sizeof(act));
+	lc_kdf_fb(lc_sha256, key, sizeof(key), iv, sizeof(iv), label,
+		  sizeof(label), act, sizeof(act));
 	lc_compare_selftest(act, exp, sizeof(exp), impl);
 }
 
-LC_INTERFACE_FUNCTION(
-int, lc_kdf_fb_generate, struct lc_hmac_ctx *hmac_ctx,
-			 const uint8_t *iv, size_t ivlen,
-			 const uint8_t *label, size_t labellen,
-			 uint8_t *dst, size_t dlen)
+LC_INTERFACE_FUNCTION(int, lc_kdf_fb_generate, struct lc_hmac_ctx *hmac_ctx,
+		      const uint8_t *iv, size_t ivlen, const uint8_t *label,
+		      size_t labellen, uint8_t *dst, size_t dlen)
 {
 	size_t h;
 	uint32_t i = 1;
@@ -122,9 +116,8 @@ out:
 	return 0;
 }
 
-LC_INTERFACE_FUNCTION(
-int, lc_kdf_fb_init, struct lc_hmac_ctx *hmac_ctx,
-		     const uint8_t *key, size_t keylen)
+LC_INTERFACE_FUNCTION(int, lc_kdf_fb_init, struct lc_hmac_ctx *hmac_ctx,
+		      const uint8_t *key, size_t keylen)
 {
 	static int tested = 0;
 
@@ -133,20 +126,17 @@ int, lc_kdf_fb_init, struct lc_hmac_ctx *hmac_ctx,
 	return 0;
 }
 
-
-LC_INTERFACE_FUNCTION(
-int, lc_kdf_fb, const struct lc_hash *hash,
-		const uint8_t *key, size_t keylen,
-		const uint8_t *iv, size_t ivlen,
-		const uint8_t *label, size_t labellen,
-		uint8_t *dst, size_t dlen)
+LC_INTERFACE_FUNCTION(int, lc_kdf_fb, const struct lc_hash *hash,
+		      const uint8_t *key, size_t keylen, const uint8_t *iv,
+		      size_t ivlen, const uint8_t *label, size_t labellen,
+		      uint8_t *dst, size_t dlen)
 {
 	int ret;
 	LC_HMAC_CTX_ON_STACK(hmac_ctx, hash);
 
 	CKINT(lc_kdf_fb_init(hmac_ctx, key, keylen));
-	CKINT(lc_kdf_fb_generate(hmac_ctx, iv, ivlen, label, labellen,
-				 dst, dlen));
+	CKINT(lc_kdf_fb_generate(hmac_ctx, iv, ivlen, label, labellen, dst,
+				 dlen));
 
 out:
 	lc_hmac_zero(hmac_ctx);

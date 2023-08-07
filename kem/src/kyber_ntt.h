@@ -30,8 +30,7 @@
 #include "ext_headers.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 extern const int16_t zetas[128];
@@ -65,7 +64,6 @@ void kyber_invntt(int16_t poly[256]);
  */
 void basemul(int16_t r[2], const int16_t a[2], const int16_t b[2],
 	     int16_t zeta);
-
 
 #ifdef __cplusplus
 }

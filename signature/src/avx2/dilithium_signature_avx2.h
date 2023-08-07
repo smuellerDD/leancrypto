@@ -23,40 +23,34 @@
 #include "lc_dilithium.h"
 
 #ifdef _avx2plusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 int lc_dilithium_keypair_avx2(struct lc_dilithium_pk *pk,
 			      struct lc_dilithium_sk *sk,
 			      struct lc_rng_ctx *rng_ctx);
 
-int lc_dilithium_sign_avx2(struct lc_dilithium_sig *sig,
-			   const uint8_t *m,
-			   size_t mlen,
-			   const struct lc_dilithium_sk *sk,
+int lc_dilithium_sign_avx2(struct lc_dilithium_sig *sig, const uint8_t *m,
+			   size_t mlen, const struct lc_dilithium_sk *sk,
 			   struct lc_rng_ctx *rng_ctx);
 int lc_dilithium_sign_init_avx2(struct lc_hash_ctx *hash_ctx,
-			     const struct lc_dilithium_sk *sk);
+				const struct lc_dilithium_sk *sk);
 int lc_dilithium_sign_update_avx2(struct lc_hash_ctx *hash_ctx,
-				  const uint8_t *m,
-				  size_t mlen);
+				  const uint8_t *m, size_t mlen);
 int lc_dilithium_sign_final_avx2(struct lc_dilithium_sig *sig,
-				 struct lc_hash_ctx  *hash_ctx,
+				 struct lc_hash_ctx *hash_ctx,
 				 const struct lc_dilithium_sk *sk,
 				 struct lc_rng_ctx *rng_ctx);
 
 int lc_dilithium_verify_avx2(const struct lc_dilithium_sig *sig,
-			     const uint8_t *m,
-			     size_t mlen,
+			     const uint8_t *m, size_t mlen,
 			     const struct lc_dilithium_pk *pk);
 int lc_dilithium_verify_init_avx2(struct lc_hash_ctx *hash_ctx,
 				  const struct lc_dilithium_pk *pk);
 int lc_dilithium_verify_update_avx2(struct lc_hash_ctx *hash_ctx,
-				    const uint8_t *m,
-				    size_t mlen);
+				    const uint8_t *m, size_t mlen);
 int lc_dilithium_verify_final_avx2(struct lc_dilithium_sig *sig,
-				   struct lc_hash_ctx  *hash_ctx,
+				   struct lc_hash_ctx *hash_ctx,
 				   const struct lc_dilithium_pk *pk);
 
 #ifdef _avx2plusplus

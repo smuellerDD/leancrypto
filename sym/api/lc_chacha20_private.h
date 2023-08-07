@@ -23,8 +23,7 @@
 #include "ext_headers.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #define LC_CC20_KEY_SIZE 32
@@ -35,7 +34,7 @@ struct lc_sym_state {
 	uint32_t constants[4];
 	union {
 		uint32_t u[LC_CC20_KEY_SIZE_WORDS];
-		uint8_t  b[LC_CC20_KEY_SIZE];
+		uint8_t b[LC_CC20_KEY_SIZE];
 	} key;
 	uint32_t counter;
 	uint32_t nonce[3];

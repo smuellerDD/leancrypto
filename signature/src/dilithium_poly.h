@@ -36,14 +36,12 @@
 #include "lc_dilithium.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 typedef struct {
 	int32_t coeffs[LC_DILITHIUM_N];
 } poly;
-
 
 /**
  * @brief poly_reduce - Inplace reduction of all coefficients of polynomial to
@@ -154,8 +152,8 @@ static inline void poly_invntt_tomont(poly *a)
  * @param [in] a pointer to first input polynomial
  * @param [in] b pointer to second input polynomial
  */
-static inline void
-poly_pointwise_montgomery(poly *c, const poly *a, const poly *b)
+static inline void poly_pointwise_montgomery(poly *c, const poly *a,
+					     const poly *b)
 {
 	unsigned int i;
 
@@ -215,8 +213,8 @@ static inline void poly_decompose(poly *a1, poly *a0, const poly *a)
  *
  * @return number of 1 bits.
  */
-static inline unsigned int
-poly_make_hint(poly *h, const poly *a0, const poly *a1)
+static inline unsigned int poly_make_hint(poly *h, const poly *a0,
+					  const poly *a1)
 {
 	unsigned int i, s = 0;
 
@@ -246,37 +244,33 @@ static inline void poly_use_hint(poly *b, const poly *a, const poly *h)
 
 int poly_chknorm(const poly *a, int32_t B);
 
-#define POLY_UNIFORM_NBLOCKS						       \
+#define POLY_UNIFORM_NBLOCKS                                                   \
 	((768 + LC_SHAKE_128_SIZE_BLOCK - 1) / LC_SHAKE_128_SIZE_BLOCK)
-void poly_uniform(poly *a,
-                  const uint8_t seed[LC_DILITHIUM_SEEDBYTES],
-                  uint16_t nonce, void *ws_buf);
+void poly_uniform(poly *a, const uint8_t seed[LC_DILITHIUM_SEEDBYTES],
+		  uint16_t nonce, void *ws_buf);
 
 #if LC_DILITHIUM_ETA == 2
-#define POLY_UNIFORM_ETA_NBLOCKS					       \
+#define POLY_UNIFORM_ETA_NBLOCKS                                               \
 	((136 + LC_SHAKE_256_SIZE_BLOCK - 1) / LC_SHAKE_256_SIZE_BLOCK)
 #elif LC_DILITHIUM_ETA == 4
-#define POLY_UNIFORM_ETA_NBLOCKS					       \
+#define POLY_UNIFORM_ETA_NBLOCKS                                               \
 	((227 + LC_SHAKE_256_SIZE_BLOCK - 1) / LC_SHAKE_256_SIZE_BLOCK)
 #else
 #error "Undefined LC_DILITHIUM_ETA"
 #endif
-#define POLY_UNIFORM_ETA_BYTES						       \
-	POLY_UNIFORM_ETA_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK
-void poly_uniform_eta(poly *a,
-                      const uint8_t seed[LC_DILITHIUM_CRHBYTES],
-                      uint16_t nonce, void *ws_buf);
+#define POLY_UNIFORM_ETA_BYTES POLY_UNIFORM_ETA_NBLOCKS *LC_SHAKE_256_SIZE_BLOCK
+void poly_uniform_eta(poly *a, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
+		      uint16_t nonce, void *ws_buf);
 
-#define POLY_UNIFORM_GAMMA1_NBLOCKS					       \
+#define POLY_UNIFORM_GAMMA1_NBLOCKS                                            \
 	((LC_DILITHIUM_POLYZ_PACKEDBYTES + LC_SHAKE_256_SIZE_BLOCK - 1) /      \
 	 LC_SHAKE_256_SIZE_BLOCK)
-#define POLY_UNIFORM_GAMMA1_BYTES					       \
-	POLY_UNIFORM_GAMMA1_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK
-void poly_uniform_gamma1(poly *a,
-                         const uint8_t seed[LC_DILITHIUM_CRHBYTES],
-                         uint16_t nonce, void *ws_buf);
+#define POLY_UNIFORM_GAMMA1_BYTES                                              \
+	POLY_UNIFORM_GAMMA1_NBLOCKS *LC_SHAKE_256_SIZE_BLOCK
+void poly_uniform_gamma1(poly *a, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
+			 uint16_t nonce, void *ws_buf);
 
-#define POLY_CHALLENGE_BYTES	LC_SHAKE_256_SIZE_BLOCK
+#define POLY_CHALLENGE_BYTES LC_SHAKE_256_SIZE_BLOCK
 void poly_challenge(poly *c, const uint8_t seed[LC_DILITHIUM_SEEDBYTES],
 		    void *ws_buf);
 

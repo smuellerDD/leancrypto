@@ -26,27 +26,21 @@
 
 static void lc_kmac_selftest(int *tested, const char *impl)
 {
-	static const uint8_t msg[] = {
-		0x0E, 0x8B, 0x97, 0x33, 0x23, 0x85, 0x6E, 0x39,
-		0x03, 0xFF, 0xD5
-	};
-	static const uint8_t key[] = {
-		0x88, 0x4C, 0xFB, 0x2D, 0xBD, 0xBB, 0xD7, 0x22,
-		0xBA, 0x3E, 0x0A, 0x63, 0xF1, 0xC9, 0xED, 0x02
-	};
-	static const uint8_t cust[] = {
-		0x28, 0x60, 0x7A, 0xF1, 0xD2, 0x68, 0x0E, 0x36,
-		0x1F, 0xB8, 0x81
-	};
-	static const uint8_t exp[] = {
-		0x41, 0x27, 0x58, 0x53, 0x5c, 0x45, 0x39, 0x79,
-		0x66, 0x20, 0xc6, 0xb2, 0xac, 0xac, 0x53, 0x48,
-		0x9e, 0x08, 0x34, 0x69, 0x0a, 0x2f, 0xdb, 0x21,
-		0xa4, 0xe5, 0x0c, 0x7c, 0x31, 0x09, 0x78, 0xec,
-		0xff, 0x65, 0x34, 0xb6, 0x18, 0xe2, 0x69, 0x2f,
-		0x53, 0x9c, 0xed, 0xd5, 0x61, 0x25, 0xac, 0x18,
-		0x96, 0x8f, 0xc3
-	};
+	static const uint8_t msg[] = { 0x0E, 0x8B, 0x97, 0x33, 0x23, 0x85,
+				       0x6E, 0x39, 0x03, 0xFF, 0xD5 };
+	static const uint8_t key[] = { 0x88, 0x4C, 0xFB, 0x2D, 0xBD, 0xBB,
+				       0xD7, 0x22, 0xBA, 0x3E, 0x0A, 0x63,
+				       0xF1, 0xC9, 0xED, 0x02 };
+	static const uint8_t cust[] = { 0x28, 0x60, 0x7A, 0xF1, 0xD2, 0x68,
+					0x0E, 0x36, 0x1F, 0xB8, 0x81 };
+	static const uint8_t exp[] = { 0x41, 0x27, 0x58, 0x53, 0x5c, 0x45, 0x39,
+				       0x79, 0x66, 0x20, 0xc6, 0xb2, 0xac, 0xac,
+				       0x53, 0x48, 0x9e, 0x08, 0x34, 0x69, 0x0a,
+				       0x2f, 0xdb, 0x21, 0xa4, 0xe5, 0x0c, 0x7c,
+				       0x31, 0x09, 0x78, 0xec, 0xff, 0x65, 0x34,
+				       0xb6, 0x18, 0xe2, 0x69, 0x2f, 0x53, 0x9c,
+				       0xed, 0xd5, 0x61, 0x25, 0xac, 0x18, 0x96,
+				       0x8f, 0xc3 };
 	uint8_t act[sizeof(exp)];
 
 	LC_SELFTEST_RUN(tested);
@@ -60,14 +54,13 @@ static void lc_kmac_selftest(int *tested, const char *impl)
 	lc_kmac_zero(ctx);
 }
 
-
 static unsigned int right_encode(uint8_t *buf, size_t val)
 {
 	size_t v;
 	unsigned int n, i;
 
 	/* Determine n */
-	for (v = val, n = 0; v && (n < sizeof(val)); n++, v >>= 8 )
+	for (v = val, n = 0; v && (n < sizeof(val)); n++, v >>= 8)
 		;
 	if (n == 0)
 		n = 1;
@@ -79,8 +72,7 @@ static unsigned int right_encode(uint8_t *buf, size_t val)
 	return n + 1;
 }
 
-LC_INTERFACE_FUNCTION(
-void, lc_kmac_reinit, struct lc_kmac_ctx *kmac_ctx)
+LC_INTERFACE_FUNCTION(void, lc_kmac_reinit, struct lc_kmac_ctx *kmac_ctx)
 {
 	struct lc_hash_ctx *hash_ctx;
 
@@ -99,16 +91,16 @@ void, lc_kmac_reinit, struct lc_kmac_ctx *kmac_ctx)
 	       lc_hash_ctxsize(hash_ctx));
 }
 
-LC_INTERFACE_FUNCTION(
-void, lc_kmac_init, struct lc_kmac_ctx *kmac_ctx,
-		    const uint8_t *key, size_t klen,
-		    const uint8_t *s, size_t slen)
+LC_INTERFACE_FUNCTION(void, lc_kmac_init, struct lc_kmac_ctx *kmac_ctx,
+		      const uint8_t *key, size_t klen, const uint8_t *s,
+		      size_t slen)
 {
 	struct lc_hash_ctx *hash_ctx;
 	static const uint8_t zero[LC_SHAKE_128_SIZE_BLOCK] = { 0 };
-	static const uint8_t
-		bytepad_val256[] = { 0x01, LC_SHAKE_256_SIZE_BLOCK },
-		bytepad_val128[] = { 0x01, LC_SHAKE_128_SIZE_BLOCK };
+	static const uint8_t bytepad_val256[] = { 0x01,
+						  LC_SHAKE_256_SIZE_BLOCK },
+			     bytepad_val128[] = { 0x01,
+						  LC_SHAKE_128_SIZE_BLOCK };
 	uint8_t buf[sizeof(klen) + 1];
 	size_t len;
 	/* 2 bytes for the bytepad_val that gets inserted */
@@ -126,9 +118,11 @@ void, lc_kmac_init, struct lc_kmac_ctx *kmac_ctx,
 
 	/* bytepad */
 	if (lc_hash_blocksize(hash_ctx) == LC_SHAKE_128_SIZE_BLOCK)
-		lc_hash_update(hash_ctx, bytepad_val128, sizeof(bytepad_val128));
+		lc_hash_update(hash_ctx, bytepad_val128,
+			       sizeof(bytepad_val128));
 	else
-		lc_hash_update(hash_ctx, bytepad_val256, sizeof(bytepad_val256));
+		lc_hash_update(hash_ctx, bytepad_val256,
+			       sizeof(bytepad_val256));
 
 	len = lc_left_encode(buf, klen << 3);
 	added += len;
@@ -150,8 +144,7 @@ void, lc_kmac_init, struct lc_kmac_ctx *kmac_ctx,
 	}
 }
 
-LC_INTERFACE_FUNCTION(
-void, lc_kmac_update, struct lc_kmac_ctx *kmac_ctx,
+LC_INTERFACE_FUNCTION(void, lc_kmac_update, struct lc_kmac_ctx *kmac_ctx,
 		      const uint8_t *in, size_t inlen)
 {
 	struct lc_hash_ctx *hash_ctx;
@@ -163,8 +156,8 @@ void, lc_kmac_update, struct lc_kmac_ctx *kmac_ctx,
 	lc_hash_update(hash_ctx, in, inlen);
 }
 
-LC_INTERFACE_FUNCTION(
-void, lc_kmac_final, struct lc_kmac_ctx *kmac_ctx, uint8_t *mac, size_t maclen)
+LC_INTERFACE_FUNCTION(void, lc_kmac_final, struct lc_kmac_ctx *kmac_ctx,
+		      uint8_t *mac, size_t maclen)
 {
 	struct lc_hash_ctx *hash_ctx;
 	uint8_t buf[sizeof(size_t) + 1];
@@ -180,9 +173,8 @@ void, lc_kmac_final, struct lc_kmac_ctx *kmac_ctx, uint8_t *mac, size_t maclen)
 	lc_hash_final(hash_ctx, mac);
 }
 
-LC_INTERFACE_FUNCTION(
-void, lc_kmac_final_xof, struct lc_kmac_ctx *kmac_ctx,
-			 uint8_t *mac, size_t maclen)
+LC_INTERFACE_FUNCTION(void, lc_kmac_final_xof, struct lc_kmac_ctx *kmac_ctx,
+		      uint8_t *mac, size_t maclen)
 {
 	struct lc_hash_ctx *hash_ctx;
 	static const uint8_t bytepad_val[] = { 0x00, 0x01 };
@@ -198,9 +190,8 @@ void, lc_kmac_final_xof, struct lc_kmac_ctx *kmac_ctx,
 	lc_cshake_final(hash_ctx, mac, maclen);
 }
 
-LC_INTERFACE_FUNCTION(
-int, lc_kmac_alloc, const struct lc_hash *hash, struct lc_kmac_ctx **kmac_ctx,
-		    uint32_t flags)
+LC_INTERFACE_FUNCTION(int, lc_kmac_alloc, const struct lc_hash *hash,
+		      struct lc_kmac_ctx **kmac_ctx, uint32_t flags)
 {
 	struct lc_kmac_ctx *out_ctx = NULL;
 	size_t memsize;
@@ -210,8 +201,8 @@ int, lc_kmac_alloc, const struct lc_hash *hash, struct lc_kmac_ctx **kmac_ctx,
 		return -EINVAL;
 
 	memsize = (flags & LC_KMAC_FLAGS_SUPPORT_REINIT) ?
-		  LC_KMAC_CTX_SIZE_REINIT(hash) :
-		  LC_KMAC_CTX_SIZE(hash);
+			  LC_KMAC_CTX_SIZE_REINIT(hash) :
+			  LC_KMAC_CTX_SIZE(hash);
 	ret = lc_alloc_aligned((void **)&out_ctx, LC_MEM_COMMON_ALIGNMENT,
 			       memsize);
 
@@ -229,8 +220,7 @@ int, lc_kmac_alloc, const struct lc_hash *hash, struct lc_kmac_ctx **kmac_ctx,
 	return 0;
 }
 
-LC_INTERFACE_FUNCTION(
-void, lc_kmac_zero_free, struct lc_kmac_ctx *kmac_ctx)
+LC_INTERFACE_FUNCTION(void, lc_kmac_zero_free, struct lc_kmac_ctx *kmac_ctx)
 {
 	if (!kmac_ctx)
 		return;
@@ -239,8 +229,7 @@ void, lc_kmac_zero_free, struct lc_kmac_ctx *kmac_ctx)
 	lc_free(kmac_ctx);
 }
 
-static int lc_kmac_rng_seed(void *_state,
-			    const uint8_t *seed, size_t seedlen,
+static int lc_kmac_rng_seed(void *_state, const uint8_t *seed, size_t seedlen,
 			    const uint8_t *persbuf, size_t perslen)
 {
 	struct lc_kmac_ctx *state = _state;
@@ -257,10 +246,9 @@ static int lc_kmac_rng_seed(void *_state,
 	return 0;
 }
 
-static int
-lc_kmac_rng_generate(void *_state,
-		     const uint8_t *addtl_input, size_t addtl_input_len,
-		     uint8_t *out, size_t outlen)
+static int lc_kmac_rng_generate(void *_state, const uint8_t *addtl_input,
+				size_t addtl_input_len, uint8_t *out,
+				size_t outlen)
 {
 	struct lc_kmac_ctx *kmac_ctx = _state;
 
@@ -284,8 +272,8 @@ static void lc_kmac_rng_zero(void *_state)
 	lc_kmac_zero(state);
 }
 
-LC_INTERFACE_FUNCTION(
-int, lc_kmac_rng_alloc, struct lc_rng_ctx **state, const struct lc_hash *hash)
+LC_INTERFACE_FUNCTION(int, lc_kmac_rng_alloc, struct lc_rng_ctx **state,
+		      const struct lc_hash *hash)
 {
 	struct lc_rng_ctx *out_state;
 	int ret;
@@ -309,8 +297,8 @@ int, lc_kmac_rng_alloc, struct lc_rng_ctx **state, const struct lc_hash *hash)
 }
 
 static const struct lc_rng _lc_kmac = {
-	.generate	= lc_kmac_rng_generate,
-	.seed		= lc_kmac_rng_seed,
-	.zero		= lc_kmac_rng_zero,
+	.generate = lc_kmac_rng_generate,
+	.seed = lc_kmac_rng_seed,
+	.zero = lc_kmac_rng_zero,
 };
 LC_INTERFACE_SYMBOL(const struct lc_rng *, lc_kmac_rng) = &_lc_kmac;

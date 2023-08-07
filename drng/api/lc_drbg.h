@@ -23,8 +23,7 @@
 #include "ext_headers.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /******************************************************************
@@ -47,8 +46,7 @@ struct lc_drbg_string {
 	struct lc_drbg_string *next;
 };
 
-enum lc_drbg_prefixes
-{
+enum lc_drbg_prefixes {
 	DRBG_PREFIX0 = 0x00,
 	DRBG_PREFIX1,
 	DRBG_PREFIX2,
@@ -64,7 +62,7 @@ static inline void lc_drbg_string_fill(struct lc_drbg_string *string,
 }
 
 /* SP800-90A requires the limit 2**19 bits, but we return bytes */
-#define LC_DRBG_MAX_REQUEST_BYTES	(1U << 16)
+#define LC_DRBG_MAX_REQUEST_BYTES (1U << 16)
 static inline size_t lc_drbg_max_request_bytes(void)
 {
 	return LC_DRBG_MAX_REQUEST_BYTES;
@@ -72,7 +70,7 @@ static inline size_t lc_drbg_max_request_bytes(void)
 
 static inline size_t lc_drbg_max_addtl(void)
 {
-	return (1UL<<31);
+	return (1UL << 31);
 }
 
 #ifdef __cplusplus

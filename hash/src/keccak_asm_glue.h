@@ -41,11 +41,10 @@ http://creativecommons.org/publicdomain/zero/1.0/
 #include "lc_sha3.h"
 #include "sha3_common.h"
 
-#define SnP_width		1600
+#define SnP_width 1600
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /**
@@ -152,7 +151,6 @@ static inline void shake_256_asm_init(void *_state,
 	shake_256_init_common(_state);
 }
 
-
 static inline void cshake_128_asm_init(void *_state,
 				       void (*StaticInitialize)(void),
 				       void (*Initialize)(void *state))
@@ -222,12 +220,12 @@ static inline void cshake_256_asm_init(void *_state,
  */
 static inline void
 keccak_asm_absorb(void *_state, const uint8_t *in, size_t inlen,
-	void (*AddBytes)(void *state, const unsigned char *data,
-			 unsigned int offset, unsigned int length),
-	void (*Permute)(void *state),
-	size_t (*FastLoop_Absorb)(void *state, unsigned int laneCount,
-				  const unsigned char *data,
-				  size_t dataByteLen))
+		  void (*AddBytes)(void *state, const unsigned char *data,
+				   unsigned int offset, unsigned int length),
+		  void (*Permute)(void *state),
+		  size_t (*FastLoop_Absorb)(void *state, unsigned int laneCount,
+					    const unsigned char *data,
+					    size_t dataByteLen))
 {
 	/*
 	 * All lc_sha3_*_state are equal except for the last entry, thus we use
@@ -271,8 +269,7 @@ keccak_asm_absorb(void *_state, const uint8_t *in, size_t inlen,
 
 	while (inlen >= ctx->r) {
 		/* processing full blocks first */
-		if (FastLoop_Absorb &&
-		    (ctx->r % (SnP_width / 200)) == 0) {
+		if (FastLoop_Absorb && (ctx->r % (SnP_width / 200)) == 0) {
 			/* fast lane: whole lane rate */
 			size_t j = FastLoop_Absorb(ctx->state,
 						   ctx->r / (SnP_width / 200),
@@ -291,7 +288,8 @@ keccak_asm_absorb(void *_state, const uint8_t *in, size_t inlen,
 	AddBytes(ctx->state, in, 0, (unsigned int)inlen);
 }
 
-static inline void keccak_asm_absorb_last_bits(void *_state,
+static inline void keccak_asm_absorb_last_bits(
+	void *_state,
 	void (*AddByte)(void *state, unsigned char data, unsigned int offset),
 	void (*Permute)(void *state))
 {
@@ -350,7 +348,8 @@ static inline void keccak_asm_absorb_last_bits(void *_state,
  * @pre    0 ≤ @a offset < (width in bytes)
  * @pre    0 ≤ @a offset + @a length ≤ (width in bytes)
  */
-static inline void keccak_asm_squeeze(void *_state, uint8_t *digest,
+static inline void keccak_asm_squeeze(
+	void *_state, uint8_t *digest,
 	void (*AddByte)(void *state, unsigned char data, unsigned int offset),
 	void (*Permute)(void *state),
 	void (*ExtractBytes)(const void *state, unsigned char *data,
@@ -375,8 +374,7 @@ static inline void keccak_asm_squeeze(void *_state, uint8_t *digest,
 	while (i < digest_len) {
 		if ((ctx->offset == ctx->r) &&
 		    (digest_len - i >= rateInBytes)) {
-			for (j = digest_len - i;
-			     j >= rateInBytes;
+			for (j = digest_len - i; j >= rateInBytes;
 			     j -= rateInBytes) {
 				Permute(ctx->state);
 				ExtractBytes(ctx->state, digest, 0,

@@ -30,8 +30,7 @@
 #include "lc_kyber.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /**
@@ -62,8 +61,8 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
  */
 int indcpa_enc(uint8_t c[LC_KYBER_INDCPA_BYTES],
 	       const uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
-               const uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
-               const uint8_t coins[LC_KYBER_SYMBYTES]);
+	       const uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
+	       const uint8_t coins[LC_KYBER_SYMBYTES]);
 
 /**
  * @brief indcpa_dec - Decryption function of the CPA-secure public-key
@@ -76,8 +75,8 @@ int indcpa_enc(uint8_t c[LC_KYBER_INDCPA_BYTES],
  * @return 0 (success) or < 0 on error
  */
 int indcpa_dec(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
-               const uint8_t c[LC_KYBER_INDCPA_BYTES],
-               const uint8_t sk[LC_KYBER_INDCPA_SECRETKEYBYTES]);
+	       const uint8_t c[LC_KYBER_INDCPA_BYTES],
+	       const uint8_t sk[LC_KYBER_INDCPA_SECRETKEYBYTES]);
 
 #ifdef __cplusplus
 }

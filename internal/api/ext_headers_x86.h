@@ -28,25 +28,25 @@
 
 #if (defined(LINUX_KERNEL) || defined(FORCE_LOCAL_X86_INTRINSICS))
 
-# ifdef LINUX_KERNEL
+#ifdef LINUX_KERNEL
 
-#  include <asm/fpu/api.h>
+#include <asm/fpu/api.h>
 
-#  define LC_FPU_ENABLE		kernel_fpu_begin()
-#  define LC_FPU_DISABLE	kernel_fpu_end()
-# else
-#  define LC_FPU_ENABLE
-#  define LC_FPU_DISABLE
-# endif /* LINUX_KERNEL */
+#define LC_FPU_ENABLE kernel_fpu_begin()
+#define LC_FPU_DISABLE kernel_fpu_end()
+#else
+#define LC_FPU_ENABLE
+#define LC_FPU_DISABLE
+#endif /* LINUX_KERNEL */
 
-# include "ext_x86_immintrin.h"
+#include "ext_x86_immintrin.h"
 
 #else /* LINUX_KERNEL */
 
-# include <immintrin.h>
+#include <immintrin.h>
 
-# define LC_FPU_ENABLE
-# define LC_FPU_DISABLE
+#define LC_FPU_ENABLE
+#define LC_FPU_DISABLE
 
 #endif /* LINUX_KERNEL */
 

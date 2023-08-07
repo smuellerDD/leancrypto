@@ -32,8 +32,7 @@
 #include "lc_dilithium.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /**************************************************************/
@@ -45,7 +44,6 @@ typedef struct {
 	poly vec[LC_DILITHIUM_L];
 } polyvecl;
 
-
 /**
  * @brief polyvecl_add_avx
  *
@@ -55,8 +53,8 @@ typedef struct {
  * @param u pointer to first summand
  * @param v pointer to second summand
  */
-static inline void
-polyvecl_add_avx(polyvecl *w, const polyvecl *u, const polyvecl *v)
+static inline void polyvecl_add_avx(polyvecl *w, const polyvecl *u,
+				    const polyvecl *v)
 {
 	unsigned int i;
 
@@ -72,8 +70,7 @@ polyvecl_add_avx(polyvecl *w, const polyvecl *u, const polyvecl *v)
  *
  * @param v pointer to input/output vector
  */
-static inline void
-polyvecl_ntt_avx(polyvecl *v)
+static inline void polyvecl_ntt_avx(polyvecl *v)
 {
 	unsigned int i;
 
@@ -81,8 +78,7 @@ polyvecl_ntt_avx(polyvecl *v)
 		poly_ntt_avx(&v->vec[i]);
 }
 
-static inline void
-polyvecl_invntt_tomont_avx(polyvecl *v)
+static inline void polyvecl_invntt_tomont_avx(polyvecl *v)
 {
 	unsigned int i;
 
@@ -90,9 +86,10 @@ polyvecl_invntt_tomont_avx(polyvecl *v)
 		poly_invntt_tomont_avx(&v->vec[i]);
 }
 
-static inline void
-polyvecl_pointwise_poly_montgomery_avx(polyvecl *r, const poly *a,
-				       const polyvecl *v) {
+static inline void polyvecl_pointwise_poly_montgomery_avx(polyvecl *r,
+							  const poly *a,
+							  const polyvecl *v)
+{
 	unsigned int i;
 
 	for (i = 0; i < LC_DILITHIUM_L; ++i)
@@ -110,9 +107,9 @@ polyvecl_pointwise_poly_montgomery_avx(polyvecl *r, const poly *a,
  * @param u pointer to first input vector
  * @param v pointer to second input vector
  */
-static inline void
-polyvecl_pointwise_acc_montgomery_avx(poly *w, const polyvecl *u,
-				      const polyvecl *v)
+static inline void polyvecl_pointwise_acc_montgomery_avx(poly *w,
+							 const polyvecl *u,
+							 const polyvecl *v)
 {
 	LC_FPU_ENABLE;
 	dilithium_pointwise_acc_avx(w->vec, u->vec->vec, v->vec->vec,
@@ -193,8 +190,8 @@ static inline void polyveck_caddq_avx(polyveck *v)
  * @param u pointer to first summand
  * @param v pointer to second summand
  */
-static inline void
-polyveck_add_avx(polyveck *w, const polyveck *u, const polyveck *v)
+static inline void polyveck_add_avx(polyveck *w, const polyveck *u,
+				    const polyveck *v)
 {
 	unsigned int i;
 
@@ -213,8 +210,8 @@ polyveck_add_avx(polyveck *w, const polyveck *u, const polyveck *v)
  * @param v: pointer to second input vector to be subtracted from first input
  * vector
  */
-static inline void
-polyveck_sub_avx(polyveck *w, const polyveck *u, const polyveck *v)
+static inline void polyveck_sub_avx(polyveck *w, const polyveck *u,
+				    const polyveck *v)
 {
 	unsigned int i;
 
@@ -270,9 +267,9 @@ static inline void polyveck_invntt_tomont_avx(polyveck *v)
 		poly_invntt_tomont_avx(&v->vec[i]);
 }
 
-static inline void
-polyveck_pointwise_poly_montgomery_avx(polyveck *r, const poly *a,
-				       const polyveck *v)
+static inline void polyveck_pointwise_poly_montgomery_avx(polyveck *r,
+							  const poly *a,
+							  const polyveck *v)
 {
 	unsigned int i;
 
@@ -314,8 +311,8 @@ static inline int polyveck_chknorm_avx(const polyveck *v, int32_t bound)
  * @param v0 pointer to output vector of polynomials with coefficients a0
  * @param v pointer to input vector
  */
-static inline void
-polyveck_power2round_avx(polyveck *v1, polyveck *v0, const polyveck *v)
+static inline void polyveck_power2round_avx(polyveck *v1, polyveck *v0,
+					    const polyveck *v)
 {
 	unsigned int i;
 
@@ -336,8 +333,8 @@ polyveck_power2round_avx(polyveck *v1, polyveck *v0, const polyveck *v)
  * @param v0 pointer to output vector of polynomials with coefficients a0
  * @param v pointer to input vector
  */
-static inline void
-polyveck_decompose_avx(polyveck *v1, polyveck *v0, const polyveck *v)
+static inline void polyveck_decompose_avx(polyveck *v1, polyveck *v0,
+					  const polyveck *v)
 {
 	unsigned int i;
 
@@ -376,8 +373,8 @@ polyveck_make_hint_avx(uint8_t *hint, const polyveck *v0, const polyveck *v1)
  * @param u pointer to input vector
  * @param h pointer to input hint vector
  */
-static inline void
-polyveck_use_hint_avx(polyveck *w, const polyveck *u, const polyveck *h)
+static inline void polyveck_use_hint_avx(polyveck *w, const polyveck *u,
+					 const polyveck *h)
 {
 	unsigned int i;
 
@@ -385,21 +382,20 @@ polyveck_use_hint_avx(polyveck *w, const polyveck *u, const polyveck *h)
 		poly_use_hint_avx(&w->vec[i], &u->vec[i], &h->vec[i]);
 }
 
-static inline void
-polyveck_pack_w1_avx(uint8_t r[LC_DILITHIUM_K * LC_DILITHIUM_POLYW1_PACKEDBYTES],
-		     const polyveck *w1)
+static inline void polyveck_pack_w1_avx(
+	uint8_t r[LC_DILITHIUM_K * LC_DILITHIUM_POLYW1_PACKEDBYTES],
+	const polyveck *w1)
 {
 	unsigned int i;
 
 	for (i = 0; i < LC_DILITHIUM_K; ++i)
 		polyw1_pack_avx(&r[i * LC_DILITHIUM_POLYW1_PACKEDBYTES],
-				 &w1->vec[i]);
+				&w1->vec[i]);
 }
 
-static inline void
-polyvec_matrix_pointwise_montgomery_avx(polyveck *t,
-					const polyvecl mat[LC_DILITHIUM_K],
-					const polyvecl *v) {
+static inline void polyvec_matrix_pointwise_montgomery_avx(
+	polyveck *t, const polyvecl mat[LC_DILITHIUM_K], const polyvecl *v)
+{
 	unsigned int i;
 
 	for (i = 0; i < LC_DILITHIUM_K; ++i)

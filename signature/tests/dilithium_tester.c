@@ -70,10 +70,8 @@
 
 static uint64_t ctr = 0;
 
-static int
-randombytes(void *_state,
-	    const uint8_t *addtl_input, size_t addtl_input_len,
-	    uint8_t *out, size_t outlen)
+static int randombytes(void *_state, const uint8_t *addtl_input,
+		       size_t addtl_input_len, uint8_t *out, size_t outlen)
 {
 	unsigned int i;
 	uint8_t buf[8];
@@ -83,7 +81,7 @@ randombytes(void *_state,
 	(void)addtl_input_len;
 
 	for (i = 0; i < 8; ++i)
-		buf[i] = (uint8_t)(ctr >> 8*i);
+		buf[i] = (uint8_t)(ctr >> 8 * i);
 
 	ctr++;
 	lc_shake(lc_shake128, buf, 8, out, outlen);
@@ -91,10 +89,8 @@ randombytes(void *_state,
 	return 0;
 }
 
-static int
-randombytes_seed(void *_state,
-		 const uint8_t *seed, size_t seedlen,
-		 const uint8_t *persbuf, size_t perslen)
+static int randombytes_seed(void *_state, const uint8_t *seed, size_t seedlen,
+			    const uint8_t *persbuf, size_t perslen)
 {
 	(void)_state;
 	(void)seed;
@@ -110,25 +106,22 @@ static void randombytes_zero(void *_state)
 }
 
 static const struct lc_rng dilithium_drng = {
-	.generate	= randombytes,
-	.seed		= randombytes_seed,
-	.zero		= randombytes_zero,
+	.generate = randombytes,
+	.seed = randombytes_seed,
+	.zero = randombytes_zero,
 };
 
 int _dilithium_tester(
-	unsigned int rounds,
-	int verify_calculation,
+	unsigned int rounds, int verify_calculation,
 	int (*_lc_dilithium_keypair)(struct lc_dilithium_pk *pk,
 				     struct lc_dilithium_sk *sk,
 				     struct lc_rng_ctx *rng_ctx),
 	int (*_lc_dilithium_sign)(struct lc_dilithium_sig *sig,
-				  const uint8_t *m,
-				  size_t mlen,
+				  const uint8_t *m, size_t mlen,
 				  const struct lc_dilithium_sk *sk,
 				  struct lc_rng_ctx *rng_ctx),
 	int (*_lc_dilithium_verify)(const struct lc_dilithium_sig *sig,
-				    const uint8_t *m,
-				    size_t mlen,
+				    const uint8_t *m, size_t mlen,
 				    const struct lc_dilithium_pk *pk))
 {
 	struct workspace {
@@ -155,8 +148,8 @@ int _dilithium_tester(
 	 * - the signature generation is performed with deterministic
 	 *   behavior (i.e. rng_ctx is NULL)
 	 */
-	struct lc_rng_ctx dilithium_rng =
-		{ .rng = &dilithium_drng, .rng_state = NULL };
+	struct lc_rng_ctx dilithium_rng = { .rng = &dilithium_drng,
+					    .rng_state = NULL };
 	unsigned int nvectors;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
@@ -167,17 +160,17 @@ int _dilithium_tester(
 	ctr = 0;
 
 #ifdef GENERATE_VECTORS
-	printf ("#ifndef DILITHIUM_TESTVECTORS_H\n"
-		"#define DILITHIUM_TESTVECTORS_H\n"
-		"#include \"lc_dilithium.h\"\n"
-		"struct dilithium_testvector {\n"
-		"\tuint8_t m[32];\n"
-		"\tuint8_t pk[LC_DILITHIUM_PUBLICKEYBYTES];\n"
-		"\tuint8_t sk[LC_DILITHIUM_SECRETKEYBYTES];\n"
-		"\tuint8_t sig[LC_DILITHIUM_CRYPTO_BYTES];\n"
-		"};\n\n"
-		"static const struct dilithium_testvector dilithium_testvectors[] =\n"
-		"{\n");
+	printf("#ifndef DILITHIUM_TESTVECTORS_H\n"
+	       "#define DILITHIUM_TESTVECTORS_H\n"
+	       "#include \"lc_dilithium.h\"\n"
+	       "struct dilithium_testvector {\n"
+	       "\tuint8_t m[32];\n"
+	       "\tuint8_t pk[LC_DILITHIUM_PUBLICKEYBYTES];\n"
+	       "\tuint8_t sk[LC_DILITHIUM_SECRETKEYBYTES];\n"
+	       "\tuint8_t sig[LC_DILITHIUM_CRYPTO_BYTES];\n"
+	       "};\n\n"
+	       "static const struct dilithium_testvector dilithium_testvectors[] =\n"
+	       "{\n");
 	nvectors = NVECTORS;
 #else
 	nvectors = ARRAY_SIZE(dilithium_testvectors);
@@ -195,8 +188,8 @@ int _dilithium_tester(
 		if (_lc_dilithium_verify(&ws->sig, ws->m, MLEN, &ws->pk))
 			printf("Signature verification failed!\n");
 
-		lc_rng_generate(&dilithium_rng, NULL, 0,
-				ws->seed, sizeof(ws->seed));
+		lc_rng_generate(&dilithium_rng, NULL, 0, ws->seed,
+				sizeof(ws->seed));
 
 		if (rounds > nvectors)
 			continue;
@@ -206,7 +199,7 @@ int _dilithium_tester(
 		printf("\t{\n\t\t.m = {\n\t\t\t");
 		for (j = 0; j < MLEN; ++j) {
 			printf("0x%02x, ", ws->m[j]);
-			if (j && !((j+1) % 8))
+			if (j && !((j + 1) % 8))
 				printf("\n\t\t\t");
 		}
 		printf("},\n");
@@ -214,21 +207,21 @@ int _dilithium_tester(
 		printf("\t\t.pk = {\n\t\t\t");
 		for (j = 0; j < LC_DILITHIUM_PUBLICKEYBYTES; ++j) {
 			printf("0x%02x, ", ws->pk.pk[j]);
-			if (j && !((j+1) % 8))
+			if (j && !((j + 1) % 8))
 				printf("\n\t\t\t");
 		}
 		printf("},\n");
 		printf("\t\t.sk = {\n\t\t\t");
 		for (j = 0; j < LC_DILITHIUM_SECRETKEYBYTES; ++j) {
 			printf("0x%02x, ", ws->sk.sk[j]);
-			if (j && !((j+1) % 8))
+			if (j && !((j + 1) % 8))
 				printf("\n\t\t\t");
 		}
 		printf("},\n");
 		printf("\t\t.sig = {\n\t\t\t");
 		for (j = 0; j < LC_DILITHIUM_CRYPTO_BYTES; ++j) {
 			printf("0x%02x, ", ws->sig.sig[j]);
-			if (j && !((j+1) % 8))
+			if (j && !((j + 1) % 8))
 				printf("\n\t\t\t");
 		}
 		printf("},\n\t}, ");
@@ -262,20 +255,20 @@ int _dilithium_tester(
 
 #ifdef SHOW_SHAKEd_KEY
 		printf("count = %u\n", i);
-		lc_shake(lc_shake256, pk.pk, LC_DILITHIUM_PUBLICKEYBYTES,
-			 buf, 32);
+		lc_shake(lc_shake256, pk.pk, LC_DILITHIUM_PUBLICKEYBYTES, buf,
+			 32);
 		printf("pk = ");
 		for (j = 0; j < 32; ++j)
 			printf("%02x", buf[j]);
 		printf("\n");
-		lc_shake(lc_shake256, sk.sk, LC_DILITHIUM_SECRETKEYBYTES,
-			 buf, 32);
+		lc_shake(lc_shake256, sk.sk, LC_DILITHIUM_SECRETKEYBYTES, buf,
+			 32);
 		printf("sk = ");
 		for (j = 0; j < 32; ++j)
 			printf("%02x", buf[j]);
 		printf("\n");
-		lc_shake(lc_shake256, sig.sig, LC_DILITHIUM_CRYPTO_BYTES,
-			 buf, 32);
+		lc_shake(lc_shake256, sig.sig, LC_DILITHIUM_CRYPTO_BYTES, buf,
+			 32);
 		printf("sig = ");
 		for (j = 0; j < 32; ++j)
 			printf("%02x", buf[j]);
@@ -386,7 +379,7 @@ int _dilithium_tester(
 		}
 
 		polyw1_pack(ws->buf, &ws->w1.vec[0]);
-#if LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q-1)/32
+#if LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q - 1) / 32
 		for (j = 0; j < LC_DILITHIUM_N/2; ++j) {
 			ws->tmp.coeffs[2*j+0] = ws->buf[j] & 0xF;
 			ws->tmp.coeffs[2*j+1] = ws->buf[j] >> 4;
@@ -396,10 +389,10 @@ int _dilithium_tester(
 		}
 #endif
 
-#if LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q-1)/32
+#if LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q - 1) / 32
 		if (polyveck_chknorm(&ws->w1, 16))
 			printf("ERROR in polyveck_chknorm(&w1, 16)!\n");
-#elif LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q-1)/88
+#elif LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q - 1) / 88
 		if (polyveck_chknorm(&ws->w1, 44))
 			printf("ERROR in polyveck_chknorm(&w1, 4)!\n");
 #endif
@@ -526,20 +519,18 @@ int _dilithium_init_update_final_tester(
 	int (*_lc_dilithium_sign_init)(struct lc_hash_ctx *hash_ctx,
 				       const struct lc_dilithium_sk *sk),
 	int (*_lc_dilithium_sign_update)(struct lc_hash_ctx *hash_ctx,
-					 const uint8_t *m,
-					 size_t mlen),
+					 const uint8_t *m, size_t mlen),
 	int (*_lc_dilithium_sign_final)(struct lc_dilithium_sig *sig,
-					struct lc_hash_ctx  *hash_ctx,
+					struct lc_hash_ctx *hash_ctx,
 					const struct lc_dilithium_sk *sk,
 					struct lc_rng_ctx *rng_ctx),
 
 	int (*_lc_dilithium_verify_init)(struct lc_hash_ctx *hash_ctx,
 					 const struct lc_dilithium_pk *pk),
 	int (*_lc_dilithium_verify_update)(struct lc_hash_ctx *hash_ctx,
-					   const uint8_t *m,
-					   size_t mlen),
+					   const uint8_t *m, size_t mlen),
 	int (*_lc_dilithium_verify_final)(struct lc_dilithium_sig *sig,
-					  struct lc_hash_ctx  *hash_ctx,
+					  struct lc_hash_ctx *hash_ctx,
 					  const struct lc_dilithium_pk *pk))
 {
 	struct workspace {
@@ -566,8 +557,8 @@ int _dilithium_init_update_final_tester(
 	 * - the signature generation is performed with deterministic
 	 *   behavior (i.e. rng_ctx is NULL)
 	 */
-	struct lc_rng_ctx dilithium_rng =
-		{ .rng = &dilithium_drng, .rng_state = NULL };
+	struct lc_rng_ctx dilithium_rng = { .rng = &dilithium_drng,
+					    .rng_state = NULL };
 	unsigned int nvectors;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
@@ -597,8 +588,8 @@ int _dilithium_init_update_final_tester(
 		if (_lc_dilithium_verify_final(&ws->sig, hash_ctx, &ws->pk))
 			printf("Signature verification failed!\n");
 
-		lc_rng_generate(&dilithium_rng, NULL, 0,
-				ws->seed, sizeof(ws->seed));
+		lc_rng_generate(&dilithium_rng, NULL, 0, ws->seed,
+				sizeof(ws->seed));
 
 		if (rounds > nvectors)
 			continue;

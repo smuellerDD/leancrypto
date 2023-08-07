@@ -67,12 +67,12 @@ static int mmap_file(const char *filename, uint8_t **memory, off_t *size,
 	fd = open(filename, O_RDONLY | O_CLOEXEC);
 	if (fd < 0) {
 		fprintf(stderr, "Cannot open file %s: %s\n", filename,
-		        strerror(errno));
+			strerror(errno));
 		return -EIO;
 	}
 
 	if (*size) {
-		if ((*size - offset) < (off_t)*mapped )
+		if ((*size - offset) < (off_t)*mapped)
 			*mapped = (size_t)(*size - offset);
 	} else {
 		ret = check_filetype(fd, &sb, filename);
@@ -81,8 +81,8 @@ static int mmap_file(const char *filename, uint8_t **memory, off_t *size,
 		*size = sb.st_size;
 		if (*size <= (off_t)*mapped) {
 			*mapped = (size_t)*size;
-		if (*size == 0)
-			goto out;
+			if (*size == 0)
+				goto out;
 		}
 	}
 
@@ -103,7 +103,7 @@ static int lc_hasher(const char *filename, size_t digestsize,
 		     struct lc_hash_ctx *hash_ctx)
 {
 	/* Mapping file in 16M segments */
-	size_t mapped = 16<<20;
+	size_t mapped = 16 << 20;
 	off_t offset = 0, size = 0;
 	ssize_t ret = 0;
 	uint8_t *memblock = NULL;
@@ -117,7 +117,8 @@ static int lc_hasher(const char *filename, size_t digestsize,
 					offset);
 			if (ret) {
 				fprintf(stderr,
-					"Use of mmap failed mapping %zu bytes at offset %" PRId64 " of file %s (%zd)\n",
+					"Use of mmap failed mapping %zu bytes at offset %" PRId64
+					" of file %s (%zd)\n",
 					mapped, (int64_t)offset, filename, ret);
 				return (int)ret;
 			}
@@ -126,7 +127,8 @@ static int lc_hasher(const char *filename, size_t digestsize,
 			size_t left = mapped;
 			do {
 				uint32_t todo = (left > INT_MAX) ?
-						 INT_MAX : (uint32_t)left;
+							INT_MAX :
+							(uint32_t)left;
 
 				lc_hash_update(hash_ctx, memblock_p, todo);
 				left -= todo;
@@ -139,10 +141,8 @@ static int lc_hasher(const char *filename, size_t digestsize,
 		uint8_t tmpbuf[1024] __align(32);
 		uint32_t bufsize;
 
-		while ((bufsize =
-			(uint32_t)fread(tmpbuf, sizeof(uint8_t), sizeof(tmpbuf),
-					stdin))) {
-
+		while ((bufsize = (uint32_t)fread(tmpbuf, sizeof(uint8_t),
+						  sizeof(tmpbuf), stdin))) {
 			lc_hash_update(hash_ctx, tmpbuf, bufsize);
 		}
 		lc_memset_secure(tmpbuf, 0, sizeof(tmpbuf));
@@ -173,12 +173,16 @@ static void usage(void)
 	fprintf(stderr, "\nleancrypto library version: %s\n\n", version);
 	fprintf(stderr, "Usage:\n");
 	fprintf(stderr, "\t-h --hash <NAME>\tHash algorithm - supported:\n");
-	fprintf(stderr, "\t\t\t\t[SHA2-256|SHA2-512|SHA3-256|SHA3-384|SHA3-512|\n");
+	fprintf(stderr,
+		"\t\t\t\t[SHA2-256|SHA2-512|SHA3-256|SHA3-384|SHA3-512|\n");
 	fprintf(stderr, "\t\t\t\tSHAKE128|SHAKE256|CSHAKE128|CSHAKE256]\n");
 	fprintf(stderr, "\t-f --file <file>\tFile to be hashed\n");
-	fprintf(stderr, "\t-n --cshaken <data>\tN value for cSHAKE (optional)\n");
-	fprintf(stderr, "\t-s --cshakes <data>\tS value for cSHAKE (optional)\n");
-	fprintf(stderr, "\t-d --digestsize <size>\tDigestsize (only for SHAKE)\n");
+	fprintf(stderr,
+		"\t-n --cshaken <data>\tN value for cSHAKE (optional)\n");
+	fprintf(stderr,
+		"\t-s --cshakes <data>\tS value for cSHAKE (optional)\n");
+	fprintf(stderr,
+		"\t-d --digestsize <size>\tDigestsize (only for SHAKE)\n");
 }
 
 int main(int argc, char *argv[])
@@ -209,8 +213,7 @@ int main(int argc, char *argv[])
 
 			{ 0, 0, 0, 0 }
 		};
-		c = getopt_long(argc, argv, "h:f:d:n:s:",
-				options, &opt_index);
+		c = getopt_long(argc, argv, "h:f:d:n:s:", options, &opt_index);
 		if (-1 == c)
 			break;
 		switch (c) {
@@ -294,8 +297,7 @@ int main(int argc, char *argv[])
 			else if (!strncmp(optarg, "CSHAKE256", 9))
 				hash_ctx = hash_ctx_cshake256;
 			else {
-				fprintf(stderr,
-					"Unknown hash algorith\n");
+				fprintf(stderr, "Unknown hash algorith\n");
 				ret = -EFAULT;
 				goto out;
 			}
@@ -334,8 +336,7 @@ int main(int argc, char *argv[])
 	if (hash_ctx != hash_ctx_cshake128 && hash_ctx != hash_ctx_cshake256) {
 		lc_hash_init(hash_ctx);
 	} else {
-		lc_cshake_init(hash_ctx,
-			       (uint8_t *)n, n ? strlen(n) : 0,
+		lc_cshake_init(hash_ctx, (uint8_t *)n, n ? strlen(n) : 0,
 			       (uint8_t *)s, s ? strlen(s) : 0);
 	}
 

@@ -24,8 +24,7 @@
 #include "lc_sha3.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 static inline void sha3_state_init(uint64_t state[LC_SHA3_STATE_WORDS])
@@ -34,7 +33,6 @@ static inline void sha3_state_init(uint64_t state[LC_SHA3_STATE_WORDS])
 
 	for (i = 0; i < LC_SHA3_STATE_WORDS; i++)
 		state[i] = 0;
-
 }
 
 void sha3_224_init_common(void *_state);

@@ -23,8 +23,7 @@
 #include "ext_headers.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 ssize_t get_full_entropy(uint8_t *buffer, size_t bufferlen);

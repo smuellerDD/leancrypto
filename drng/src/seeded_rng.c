@@ -31,55 +31,55 @@
 /* Select the type of DRNG */
 
 #ifdef LINUX_KERNEL
-  //TODO make this selectible based on KBUILD
-# define CONFIG_LEANCRYPTO_CSHAKE_DRNG
-# ifdef CONFIG_LEANCRYPTO_KMAC_DRNG
-#  define LC_DRNG_KMAC
-# endif
-# ifdef CONFIG_LEANCRYPTO_CSHAKE_DRNG
-#  define LC_DRNG_CSHAKE
-# endif
-# ifdef CONFIG_LEANCRYPTO_HASH_DRBG
-#  define LC_DRNG_HASH_DRBG
-# endif
-# ifdef CONFIG_LEANCRYPTO_HMAC_DRBG
-#  define LC_DRNG_HMAC_DRBG
-# endif
+//TODO make this selectible based on KBUILD
+#define CONFIG_LEANCRYPTO_CSHAKE_DRNG
+#ifdef CONFIG_LEANCRYPTO_KMAC_DRNG
+#define LC_DRNG_KMAC
+#endif
+#ifdef CONFIG_LEANCRYPTO_CSHAKE_DRNG
+#define LC_DRNG_CSHAKE
+#endif
+#ifdef CONFIG_LEANCRYPTO_HASH_DRBG
+#define LC_DRNG_HASH_DRBG
+#endif
+#ifdef CONFIG_LEANCRYPTO_HMAC_DRBG
+#define LC_DRNG_HMAC_DRBG
+#endif
 #else
-# include "lc_drng_config.h"
+#include "lc_drng_config.h"
 #endif
 
 #ifdef LC_DRNG_CSHAKE
 /* Use cSHAKE 256 */
-# define LC_SEEDED_RNG_CTX_SIZE		LC_CSHAKE256_DRNG_CTX_SIZE
-# define LC_SEEDED_RNG_CTX(name)	LC_CSHAKE256_RNG_CTX(name)
+#define LC_SEEDED_RNG_CTX_SIZE LC_CSHAKE256_DRNG_CTX_SIZE
+#define LC_SEEDED_RNG_CTX(name) LC_CSHAKE256_RNG_CTX(name)
 
 #elif defined(LC_DRNG_KMAC)
 /* Use KMAC 256 */
-# define LC_SEEDED_RNG_CTX_SIZE		LC_KMAC256_DRNG_CTX_SIZE
-# define LC_SEEDED_RNG_CTX(name)	LC_KMAC256_RNG_CTX(name)
+#define LC_SEEDED_RNG_CTX_SIZE LC_KMAC256_DRNG_CTX_SIZE
+#define LC_SEEDED_RNG_CTX(name) LC_KMAC256_RNG_CTX(name)
 
 #elif defined(LC_DRNG_HASH_DRBG)
 /* Use Hash DRBG SHA512 */
-# define LC_SEEDED_RNG_CTX_SIZE		LC_DRBG_HASH_CTX_SIZE
-# define LC_SEEDED_RNG_CTX(name)	LC_DRBG_HASH_RNG_CTX(name)
+#define LC_SEEDED_RNG_CTX_SIZE LC_DRBG_HASH_CTX_SIZE
+#define LC_SEEDED_RNG_CTX(name) LC_DRBG_HASH_RNG_CTX(name)
 
 #elif defined(LC_DRNG_HMAC_DRBG)
 /* Use HMAC DRBG SHA512 */
-# define LC_SEEDED_RNG_CTX_SIZE		LC_DRBG_HMAC_CTX_SIZE(LC_DRBG_HMAC_CORE)
-# define LC_SEEDED_RNG_CTX(name)	LC_DRBG_HMAC_RNG_CTX(name)
+#define LC_SEEDED_RNG_CTX_SIZE LC_DRBG_HMAC_CTX_SIZE(LC_DRBG_HMAC_CORE)
+#define LC_SEEDED_RNG_CTX(name) LC_DRBG_HMAC_RNG_CTX(name)
 
 #else
-# error "Undefined DRNG"
+#error "Undefined DRNG"
 #endif
 
-#define LC_SEEDED_RNG_PERS		"Seeded RNG"
+#define LC_SEEDED_RNG_PERS "Seeded RNG"
 
 struct lc_seeded_rng_ctx {
 	struct lc_rng_ctx *rng_ctx;
-#define LC_SEEDED_RNG_MAX_BYTES		(1<<10) /* Max bytes without reseed */
+#define LC_SEEDED_RNG_MAX_BYTES (1 << 10) /* Max bytes without reseed */
 	size_t bytes;
-#define LC_SEEDED_RNG_MAX_TIME		60 /* Max seconds without reseed */
+#define LC_SEEDED_RNG_MAX_TIME 60 /* Max seconds without reseed */
 	unsigned long last_seeded;
 };
 
@@ -145,8 +145,8 @@ static int lc_seed_seeded_rng(struct lc_seeded_rng_ctx *rng, int init)
 		    sizeof(seed) / 2)
 			return -EFAULT;
 
-		CKINT(lc_rng_seed(rng->rng_ctx, seed, sizeof(seed) / 2,
-				  NULL, 0));
+		CKINT(lc_rng_seed(rng->rng_ctx, seed, sizeof(seed) / 2, NULL,
+				  0));
 	}
 
 	rng->bytes = 0;
@@ -210,10 +210,9 @@ out:
 }
 
 /****************************** lc_rng Interface ******************************/
-static int
-lc_seeded_rng_generate(void *_state,
-		       const uint8_t *addtl_input, size_t addtl_input_len,
-		       uint8_t *out, size_t outlen)
+static int lc_seeded_rng_generate(void *_state, const uint8_t *addtl_input,
+				  size_t addtl_input_len, uint8_t *out,
+				  size_t outlen)
 {
 	struct lc_seeded_rng_ctx *rng = NULL;
 	int ret;
@@ -224,18 +223,16 @@ lc_seeded_rng_generate(void *_state,
 	/* Get the DRNG state that is fully seeded */
 	CKINT(lc_get_seeded_rng(&rng));
 	/* Generate random numbers */
-	CKINT(lc_rng_generate(rng->rng_ctx, addtl_input, addtl_input_len,
-			      out, outlen));
+	CKINT(lc_rng_generate(rng->rng_ctx, addtl_input, addtl_input_len, out,
+			      outlen));
 	rng->bytes += outlen;
 
 out:
 	return ret;
 }
 
-static int
-lc_seeded_rng_seed(void *_state,
-		   const uint8_t *seed, size_t seedlen,
-		   const uint8_t *persbuf, size_t perslen)
+static int lc_seeded_rng_seed(void *_state, const uint8_t *seed, size_t seedlen,
+			      const uint8_t *persbuf, size_t perslen)
 {
 	struct lc_seeded_rng_ctx *rng;
 	int ret;
@@ -259,9 +256,9 @@ static void lc_seeded_rng_zero(void *_state)
 }
 
 static const struct lc_rng _lc_seeded_rng = {
-	.generate	= lc_seeded_rng_generate,
-	.seed		= lc_seeded_rng_seed,
-	.zero		= lc_seeded_rng_zero,
+	.generate = lc_seeded_rng_generate,
+	.seed = lc_seeded_rng_seed,
+	.zero = lc_seeded_rng_zero,
 };
 
 static struct lc_rng_ctx _lc_seeded_rng_ctx = { &_lc_seeded_rng, NULL };

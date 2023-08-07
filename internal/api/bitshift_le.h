@@ -23,8 +23,7 @@
 #include "ext_headers.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /*
@@ -33,8 +32,8 @@ extern "C"
  */
 static inline uint32_t ptr_to_le32(const uint8_t *p)
 {
-	return (uint32_t)p[0]       | (uint32_t)p[1] << 8 |
-	       (uint32_t)p[2] << 16 | (uint32_t)p[3] << 24;
+	return (uint32_t)p[0] | (uint32_t)p[1] << 8 | (uint32_t)p[2] << 16 |
+	       (uint32_t)p[3] << 24;
 }
 
 static inline uint64_t ptr_to_le64(const uint8_t *p)
@@ -53,7 +52,7 @@ static inline void le32_to_ptr(uint8_t *p, const uint32_t value)
 static inline void le64_to_ptr(uint8_t *p, const uint64_t value)
 {
 	le32_to_ptr(p + 4, (uint32_t)(value >> 32));
-	le32_to_ptr(p,     (uint32_t)(value));
+	le32_to_ptr(p, (uint32_t)(value));
 }
 
 #ifdef __cplusplus

@@ -92,8 +92,7 @@ static void cshake_256_avx2_init(void *_state)
 static void keccak_avx2_absorb(void *_state, const uint8_t *in, size_t inlen)
 {
 	LC_FPU_ENABLE;
-	keccak_asm_absorb(_state, in, inlen,
-			  KeccakP1600_AVX2_AddBytes,
+	keccak_asm_absorb(_state, in, inlen, KeccakP1600_AVX2_AddBytes,
 			  KeccakP1600_AVX2_Permute_24rounds,
 			  KeccakF1600_AVX2_FastLoop_Absorb);
 	LC_FPU_DISABLE;
@@ -102,97 +101,98 @@ static void keccak_avx2_absorb(void *_state, const uint8_t *in, size_t inlen)
 static void keccak_avx2_squeeze(void *_state, uint8_t *digest)
 {
 	LC_FPU_ENABLE;
-	keccak_asm_squeeze(_state, digest,
-			   KeccakP1600_AVX2_AddByte,
+	keccak_asm_squeeze(_state, digest, KeccakP1600_AVX2_AddByte,
 			   KeccakP1600_AVX2_Permute_24rounds,
 			   KeccakP1600_AVX2_ExtractBytes);
 	LC_FPU_DISABLE;
 }
 
 static const struct lc_hash _sha3_224_avx2 = {
-	.init		= sha3_224_avx2_init,
-	.update		= keccak_avx2_absorb,
-	.final		= keccak_avx2_squeeze,
-	.set_digestsize	= NULL,
-	.get_digestsize	= sha3_224_digestsize,
-	.blocksize	= LC_SHA3_224_SIZE_BLOCK,
-	.statesize	= sizeof(struct lc_sha3_224_state),
+	.init = sha3_224_avx2_init,
+	.update = keccak_avx2_absorb,
+	.final = keccak_avx2_squeeze,
+	.set_digestsize = NULL,
+	.get_digestsize = sha3_224_digestsize,
+	.blocksize = LC_SHA3_224_SIZE_BLOCK,
+	.statesize = sizeof(struct lc_sha3_224_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_224_avx2) = &_sha3_224_avx2;
 
 static const struct lc_hash _sha3_256_avx2 = {
-	.init		= sha3_256_avx2_init,
-	.update		= keccak_avx2_absorb,
-	.final		= keccak_avx2_squeeze,
-	.set_digestsize	= NULL,
-	.get_digestsize	= sha3_256_digestsize,
-	.blocksize	= LC_SHA3_256_SIZE_BLOCK,
-	.statesize	= sizeof(struct lc_sha3_256_state),
+	.init = sha3_256_avx2_init,
+	.update = keccak_avx2_absorb,
+	.final = keccak_avx2_squeeze,
+	.set_digestsize = NULL,
+	.get_digestsize = sha3_256_digestsize,
+	.blocksize = LC_SHA3_256_SIZE_BLOCK,
+	.statesize = sizeof(struct lc_sha3_256_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_256_avx2) = &_sha3_256_avx2;
 
 static const struct lc_hash _sha3_384_avx2 = {
-	.init		= sha3_384_avx2_init,
-	.update		= keccak_avx2_absorb,
-	.final		= keccak_avx2_squeeze,
-	.set_digestsize	= NULL,
-	.get_digestsize	= sha3_384_digestsize,
-	.blocksize	= LC_SHA3_384_SIZE_BLOCK,
-	.statesize	= sizeof(struct lc_sha3_384_state),
+	.init = sha3_384_avx2_init,
+	.update = keccak_avx2_absorb,
+	.final = keccak_avx2_squeeze,
+	.set_digestsize = NULL,
+	.get_digestsize = sha3_384_digestsize,
+	.blocksize = LC_SHA3_384_SIZE_BLOCK,
+	.statesize = sizeof(struct lc_sha3_384_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_384_avx2) = &_sha3_384_avx2;
 
 static const struct lc_hash _sha3_512_avx2 = {
-	.init		= sha3_512_avx2_init,
-	.update		= keccak_avx2_absorb,
-	.final		= keccak_avx2_squeeze,
-	.set_digestsize	= NULL,
-	.get_digestsize	= sha3_512_digestsize,
-	.blocksize	= LC_SHA3_512_SIZE_BLOCK,
-	.statesize	= sizeof(struct lc_sha3_512_state),
+	.init = sha3_512_avx2_init,
+	.update = keccak_avx2_absorb,
+	.final = keccak_avx2_squeeze,
+	.set_digestsize = NULL,
+	.get_digestsize = sha3_512_digestsize,
+	.blocksize = LC_SHA3_512_SIZE_BLOCK,
+	.statesize = sizeof(struct lc_sha3_512_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_512_avx2) = &_sha3_512_avx2;
 
 static const struct lc_hash _shake128_avx2 = {
-	.init		= shake_128_avx2_init,
-	.update		= keccak_avx2_absorb,
-	.final		= keccak_avx2_squeeze,
-	.set_digestsize	= shake_set_digestsize,
-	.get_digestsize	= shake_get_digestsize,
-	.blocksize	= LC_SHAKE_128_SIZE_BLOCK,
-	.statesize	= sizeof(struct lc_shake_128_state),
+	.init = shake_128_avx2_init,
+	.update = keccak_avx2_absorb,
+	.final = keccak_avx2_squeeze,
+	.set_digestsize = shake_set_digestsize,
+	.get_digestsize = shake_get_digestsize,
+	.blocksize = LC_SHAKE_128_SIZE_BLOCK,
+	.statesize = sizeof(struct lc_shake_128_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake128_avx2) = &_shake128_avx2;
 
 static const struct lc_hash _shake256_avx2 = {
-	.init		= shake_256_avx2_init,
-	.update		= keccak_avx2_absorb,
-	.final		= keccak_avx2_squeeze,
-	.set_digestsize	= shake_set_digestsize,
-	.get_digestsize	= shake_get_digestsize,
-	.blocksize	= LC_SHA3_256_SIZE_BLOCK,
-	.statesize	= sizeof(struct lc_sha3_256_state),
+	.init = shake_256_avx2_init,
+	.update = keccak_avx2_absorb,
+	.final = keccak_avx2_squeeze,
+	.set_digestsize = shake_set_digestsize,
+	.get_digestsize = shake_get_digestsize,
+	.blocksize = LC_SHA3_256_SIZE_BLOCK,
+	.statesize = sizeof(struct lc_sha3_256_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake256_avx2) = &_shake256_avx2;
 
 static const struct lc_hash _cshake128_avx2 = {
-	.init		= cshake_128_avx2_init,
-	.update		= keccak_avx2_absorb,
-	.final		= keccak_avx2_squeeze,
-	.set_digestsize	= shake_set_digestsize,
-	.get_digestsize	= shake_get_digestsize,
-	.blocksize	= LC_SHAKE_128_SIZE_BLOCK,
-	.statesize	= sizeof(struct lc_shake_128_state),
+	.init = cshake_128_avx2_init,
+	.update = keccak_avx2_absorb,
+	.final = keccak_avx2_squeeze,
+	.set_digestsize = shake_set_digestsize,
+	.get_digestsize = shake_get_digestsize,
+	.blocksize = LC_SHAKE_128_SIZE_BLOCK,
+	.statesize = sizeof(struct lc_shake_128_state),
 };
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_cshake128_avx2) = &_cshake128_avx2;
+LC_INTERFACE_SYMBOL(const struct lc_hash *,
+		    lc_cshake128_avx2) = &_cshake128_avx2;
 
 static const struct lc_hash _cshake256_avx2 = {
-	.init		= cshake_256_avx2_init,
-	.update		= keccak_avx2_absorb,
-	.final		= keccak_avx2_squeeze,
-	.set_digestsize	= shake_set_digestsize,
-	.get_digestsize	= shake_get_digestsize,
-	.blocksize	= LC_SHA3_256_SIZE_BLOCK,
-	.statesize	= sizeof(struct lc_sha3_256_state),
+	.init = cshake_256_avx2_init,
+	.update = keccak_avx2_absorb,
+	.final = keccak_avx2_squeeze,
+	.set_digestsize = shake_set_digestsize,
+	.get_digestsize = shake_get_digestsize,
+	.blocksize = LC_SHA3_256_SIZE_BLOCK,
+	.statesize = sizeof(struct lc_sha3_256_state),
 };
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_cshake256_avx2) = &_cshake256_avx2;
+LC_INTERFACE_SYMBOL(const struct lc_hash *,
+		    lc_cshake256_avx2) = &_cshake256_avx2;

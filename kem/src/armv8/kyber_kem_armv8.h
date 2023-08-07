@@ -23,19 +23,15 @@
 #include "lc_kyber.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-int lc_kyber_keypair_armv8(struct lc_kyber_pk *pk,
-			   struct lc_kyber_sk *sk,
+int lc_kyber_keypair_armv8(struct lc_kyber_pk *pk, struct lc_kyber_sk *sk,
 			   struct lc_rng_ctx *rng_ctx);
-int lc_kyber_enc_armv8(struct lc_kyber_ct *ct,
-		       uint8_t *ss, size_t ss_len,
+int lc_kyber_enc_armv8(struct lc_kyber_ct *ct, uint8_t *ss, size_t ss_len,
 		       const struct lc_kyber_pk *pk,
 		       struct lc_rng_ctx *rng_ctx);
-int lc_kyber_dec_armv8(uint8_t *ss, size_t ss_len,
-		       const struct lc_kyber_ct *ct,
+int lc_kyber_dec_armv8(uint8_t *ss, size_t ss_len, const struct lc_kyber_ct *ct,
 		       const struct lc_kyber_sk *sk);
 
 #ifdef __cplusplus

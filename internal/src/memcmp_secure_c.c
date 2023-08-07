@@ -20,8 +20,8 @@
 #include "memcmp_secure_internal.h"
 #include "visibility.h"
 
-LC_INTERFACE_FUNCTION(
-int, lc_memcmp_secure, const void *s1, size_t s1n, const void *s2, size_t s2n)
+LC_INTERFACE_FUNCTION(int, lc_memcmp_secure, const void *s1, size_t s1n,
+		      const void *s2, size_t s2n)
 {
 	size_t n = s1n;
 

@@ -56,10 +56,10 @@ int _lc_kyber_keypair(
 		sk->sk + LC_KYBER_SECRETKEYBYTES - 2 * LC_KYBER_SYMBYTES);
 
 	/* Value z for pseudo-random output on reject */
-	return lc_rng_generate(
-		rng_ctx, NULL, 0,
-		sk->sk + LC_KYBER_SECRETKEYBYTES - LC_KYBER_SYMBYTES,
-		LC_KYBER_SYMBYTES);
+	return lc_rng_generate(rng_ctx, NULL, 0,
+			       sk->sk + LC_KYBER_SECRETKEYBYTES -
+				       LC_KYBER_SYMBYTES,
+			       LC_KYBER_SYMBYTES);
 }
 
 int _lc_kyber_enc(

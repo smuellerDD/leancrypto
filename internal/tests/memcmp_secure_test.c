@@ -42,8 +42,8 @@ static int memcmp_secure_tester(void)
 		return 1;
 
 	for (i = 0; i < 10000; i++) {
-		if (lc_rng_generate(drbg, NULL, 0,
-				     (uint8_t *)&rnd, sizeof(rnd)) < 0) {
+		if (lc_rng_generate(drbg, NULL, 0, (uint8_t *)&rnd,
+				    sizeof(rnd)) < 0) {
 			printf("error in generating random number\n");
 			goto out;
 		}
@@ -51,7 +51,7 @@ static int memcmp_secure_tester(void)
 		if (rnd == 0)
 			continue;
 
-		if (rnd < (1<<(sizeof(rnd) << 3)) - 4)
+		if (rnd < (1 << (sizeof(rnd) << 3)) - 4)
 			add = i % 4;
 		else
 			add = 0;
@@ -82,12 +82,14 @@ static int memcmp_secure_tester(void)
 		}
 	}
 
-	if (!lc_memcmp_secure(ws->a, (rnd == 0) ? (rnd + 1) : (rnd - 1),
-			   ws->b, rnd)) {
-		bin2print(ws->a, (unsigned short)(rnd + add), stderr,
-			  "Error comparing different values of different sizes");
-		bin2print(ws->b, rnd, stderr,
-			  "Error comparing different values of different sizes");
+	if (!lc_memcmp_secure(ws->a, (rnd == 0) ? (rnd + 1) : (rnd - 1), ws->b,
+			      rnd)) {
+		bin2print(
+			ws->a, (unsigned short)(rnd + add), stderr,
+			"Error comparing different values of different sizes");
+		bin2print(
+			ws->b, rnd, stderr,
+			"Error comparing different values of different sizes");
 		goto out;
 	}
 

@@ -35,8 +35,8 @@ struct surf_state {
 	int outleft;
 };
 
-#define ROTATE(x,b) (((x) << (b)) | ((x) >> (32 - (b))))
-#define MUSH(i,b) x = t[i] += (((x ^ state->seed[i]) + sum) ^ ROTATE(x,b));
+#define ROTATE(x, b) (((x) << (b)) | ((x) >> (32 - (b))))
+#define MUSH(i, b) x = t[i] += (((x ^ state->seed[i]) + sum) ^ ROTATE(x, b));
 
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
@@ -44,32 +44,36 @@ struct surf_state {
 
 static void surf(struct surf_state *state)
 {
-	uint32_t t[12]; uint32_t x; uint32_t sum = 0;
-	int r; int i; int loop;
+	uint32_t t[12];
+	uint32_t x;
+	uint32_t sum = 0;
+	int r;
+	int i;
+	int loop;
 
 	for (i = 0; i < 12; ++i)
 		t[i] = state->in[i] ^ state->seed[12 + i];
 
-	for (i = 0;i < 8; ++i)
+	for (i = 0; i < 8; ++i)
 		state->out[i] = state->seed[24 + i];
 
 	x = t[11];
-	for (loop = 0;loop < 2; ++loop) {
-		for (r = 0;r < 16;++r) {
+	for (loop = 0; loop < 2; ++loop) {
+		for (r = 0; r < 16; ++r) {
 			sum += 0x9e3779b9;
-			MUSH(0,5) MUSH(1,7) MUSH(2,9) MUSH(3,13)
-			MUSH(4,5) MUSH(5,7) MUSH(6,9) MUSH(7,13)
-			MUSH(8,5) MUSH(9,7) MUSH(10,9) MUSH(11,13)
+			MUSH(0, 5)
+			MUSH(1, 7)
+			MUSH(2, 9)
+			MUSH(3, 13) MUSH(4, 5) MUSH(5, 7) MUSH(6, 9) MUSH(7, 13)
+				MUSH(8, 5) MUSH(9, 7) MUSH(10, 9) MUSH(11, 13)
 		}
-		for (i = 0;i < 8;++i)
+		for (i = 0; i < 8; ++i)
 			state->out[i] ^= t[i + 4];
 	}
 }
 
-static int
-randombytes(void *_state,
-	    const uint8_t *addtl_input, size_t addtl_input_len,
-	    uint8_t *x, size_t xlen)
+static int randombytes(void *_state, const uint8_t *addtl_input,
+		       size_t addtl_input_len, uint8_t *x, size_t xlen)
 {
 	struct surf_state *state = _state;
 	(void)addtl_input;
@@ -94,20 +98,17 @@ randombytes(void *_state,
 	return 0;
 }
 
-static int
-randombytes2(void *_state,
-	     const uint8_t *addtl_input, size_t addtl_input_len,
-	     uint8_t *x, size_t xlen)
+static int randombytes2(void *_state, const uint8_t *addtl_input,
+			size_t addtl_input_len, uint8_t *x, size_t xlen)
 {
 	randombytes(_state, addtl_input, addtl_input_len, x, xlen);
 	lc_hash(lc_sha3_256, x, xlen, x);
 	return 0;
 }
 
-static int
-randombytes_seed(void *_state,
-		 const uint8_t *rng_seed, size_t seedlen,
-		 const uint8_t *persbuf, size_t perslen)
+static int randombytes_seed(void *_state, const uint8_t *rng_seed,
+			    size_t seedlen, const uint8_t *persbuf,
+			    size_t perslen)
 {
 	(void)_state;
 	(void)rng_seed;
@@ -123,15 +124,15 @@ static void randombytes_zero(void *_state)
 }
 
 static const struct lc_rng kyber_drng = {
-	.generate	= randombytes,
-	.seed		= randombytes_seed,
-	.zero		= randombytes_zero,
+	.generate = randombytes,
+	.seed = randombytes_seed,
+	.zero = randombytes_zero,
 };
 
 static const struct lc_rng kyber_drng2 = {
-	.generate	= randombytes2,
-	.seed		= randombytes_seed,
-	.zero		= randombytes_zero,
+	.generate = randombytes2,
+	.seed = randombytes_seed,
+	.zero = randombytes_zero,
 };
 
 struct kyber_testvector {
@@ -944,9 +945,9 @@ struct kyber_testvector vector = {
 		}
 };
 
-static int _kyber_kem_keygen_selftest(const char *impl,
-	int (*_lc_kyber_keypair)(struct lc_kyber_pk *pk,
-				 struct lc_kyber_sk *sk,
+static int _kyber_kem_keygen_selftest(
+	const char *impl,
+	int (*_lc_kyber_keypair)(struct lc_kyber_pk *pk, struct lc_kyber_sk *sk,
 				 struct lc_rng_ctx *rng_ctx))
 {
 	struct workspace {
@@ -954,9 +955,9 @@ static int _kyber_kem_keygen_selftest(const char *impl,
 		struct lc_kyber_sk sk;
 	};
 	struct surf_state surf_state = {
-		.seed = { 3,1,4,1,5,9,2,6,5,3,5,8,9,7,9,3,
-			  2,3,8,4,6,2,6,4,3,3,8,3,2,7,9,5 },
-		.in = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		.seed = { 3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5, 8, 9, 7, 9, 3,
+			  2, 3, 8, 4, 6, 2, 6, 4, 3, 3, 8, 3, 2, 7, 9, 5 },
+		.in = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 		.out = { 0, 0, 0, 0, 0, 0, 0, 0 },
 		.outleft = 0,
 	};
@@ -966,8 +967,8 @@ static int _kyber_kem_keygen_selftest(const char *impl,
 	 * - this "RNG" produces identical output
 	 * - encapsulation was invoked with this RNG
 	 */
-	struct lc_rng_ctx kyber_rng =
-		{ .rng = &kyber_drng, .rng_state = &surf_state };
+	struct lc_rng_ctx kyber_rng = { .rng = &kyber_drng,
+					.rng_state = &surf_state };
 	char str[25];
 
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
@@ -984,9 +985,9 @@ static int _kyber_kem_keygen_selftest(const char *impl,
 	return 0;
 }
 
-void kyber_kem_keygen_selftest(int *tested, const char *impl,
-	int (*_lc_kyber_keypair)(struct lc_kyber_pk *pk,
-				 struct lc_kyber_sk *sk,
+void kyber_kem_keygen_selftest(
+	int *tested, const char *impl,
+	int (*_lc_kyber_keypair)(struct lc_kyber_pk *pk, struct lc_kyber_sk *sk,
 				 struct lc_rng_ctx *rng_ctx))
 {
 	LC_SELFTEST_RUN(tested);
@@ -996,9 +997,9 @@ void kyber_kem_keygen_selftest(int *tested, const char *impl,
 				    impl);
 }
 
-static int _kyber_kem_enc_selftest(const char *impl,
-	int (*_lc_kyber_enc)(struct lc_kyber_ct *ct,
-			     uint8_t *ss, size_t ss_len,
+static int _kyber_kem_enc_selftest(
+	const char *impl,
+	int (*_lc_kyber_enc)(struct lc_kyber_ct *ct, uint8_t *ss, size_t ss_len,
 			     const struct lc_kyber_pk *pk,
 			     struct lc_rng_ctx *rng_ctx))
 {
@@ -1011,9 +1012,9 @@ static int _kyber_kem_enc_selftest(const char *impl,
 	 * _kyber_kem_keygen_selftest completes.
 	 */
 	struct surf_state surf_state = {
-		.seed = { 3,1,4,1,5,9,2,6,5,3,5,8,9,7,9,3,
-			  2,3,8,4,6,2,6,4,3,3,8,3,2,7,9,5 },
-		.in = { 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		.seed = { 3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5, 8, 9, 7, 9, 3,
+			  2, 3, 8, 4, 6, 2, 6, 4, 3, 3, 8, 3, 2, 7, 9, 5 },
+		.in = { 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 		.out = { 3101382608, 3166623139, 3605125532, 1265113939,
 			 4265797082, 2417721673, 4078298102, 4196085816 },
 		.outleft = 0,
@@ -1023,8 +1024,8 @@ static int _kyber_kem_enc_selftest(const char *impl,
 	 * - this "RNG" produces identical output
 	 * - encapsulation was invoked with this RNG
 	 */
-	struct lc_rng_ctx kyber_rng2 =
-		{ .rng = &kyber_drng2, .rng_state = &surf_state };
+	struct lc_rng_ctx kyber_rng2 = { .rng = &kyber_drng2,
+					 .rng_state = &surf_state };
 	char str[25];
 
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
@@ -1043,10 +1044,10 @@ static int _kyber_kem_enc_selftest(const char *impl,
 }
 
 void kyber_kem_enc_selftest(int *tested, const char *impl,
-	int (*_lc_kyber_enc)(struct lc_kyber_ct *ct,
-			     uint8_t *ss, size_t ss_len,
-			     const struct lc_kyber_pk *pk,
-			     struct lc_rng_ctx *rng_ctx))
+			    int (*_lc_kyber_enc)(struct lc_kyber_ct *ct,
+						 uint8_t *ss, size_t ss_len,
+						 const struct lc_kyber_pk *pk,
+						 struct lc_rng_ctx *rng_ctx))
 {
 	LC_SELFTEST_RUN(tested);
 
@@ -1055,10 +1056,11 @@ void kyber_kem_enc_selftest(int *tested, const char *impl,
 				    impl);
 }
 
-static int _kyber_kem_dec_selftest(const char *impl,
-	int (*_lc_kyber_dec)(uint8_t *ss, size_t ss_len,
-			     const struct lc_kyber_ct *ct,
-			     const struct lc_kyber_sk *sk))
+static int
+_kyber_kem_dec_selftest(const char *impl,
+			int (*_lc_kyber_dec)(uint8_t *ss, size_t ss_len,
+					     const struct lc_kyber_ct *ct,
+					     const struct lc_kyber_sk *sk))
 {
 	struct lc_kyber_ss key_a;
 	char str[25];
@@ -1072,14 +1074,13 @@ static int _kyber_kem_dec_selftest(const char *impl,
 }
 
 void kyber_kem_dec_selftest(int *tested, const char *impl,
-	int (*_lc_kyber_dec)(uint8_t *ss, size_t ss_len,
-			     const struct lc_kyber_ct *ct,
-			     const struct lc_kyber_sk *sk))
+			    int (*_lc_kyber_dec)(uint8_t *ss, size_t ss_len,
+						 const struct lc_kyber_ct *ct,
+						 const struct lc_kyber_sk *sk))
 {
 	LC_SELFTEST_RUN(tested);
 
 	if (_kyber_kem_dec_selftest(impl, _lc_kyber_dec))
 		lc_compare_selftest((uint8_t *)"test", (uint8_t *)"fail", 4,
 				    impl);
-
 }

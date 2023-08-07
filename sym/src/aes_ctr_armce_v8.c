@@ -53,8 +53,8 @@ static void aes_armce_ctr96_inc(struct lc_sym_state *ctx)
 	}
 }
 
-static void aes_armce_ctr_crypt(struct lc_sym_state *ctx,
-				const uint8_t *in, uint8_t *out, size_t len)
+static void aes_armce_ctr_crypt(struct lc_sym_state *ctx, const uint8_t *in,
+				uint8_t *out, size_t len)
 {
 	size_t blocks = len >> 4, block_bytes = blocks << 4;
 	uint32_t ctr32;
@@ -124,8 +124,8 @@ static void aes_armce_ctr_init(struct lc_sym_state *ctx)
 	mode_ctr_selftest(lc_aes_ctr_armce, &tested, "AES-CTR");
 }
 
-static int aes_armce_ctr_setkey(struct lc_sym_state *ctx,
-				const uint8_t *key, size_t keylen)
+static int aes_armce_ctr_setkey(struct lc_sym_state *ctx, const uint8_t *key,
+				size_t keylen)
 {
 	int ret;
 
@@ -141,8 +141,8 @@ out:
 	return ret;
 }
 
-static int aes_armce_ctr_setiv(struct lc_sym_state *ctx,
-			       const uint8_t *iv, size_t ivlen)
+static int aes_armce_ctr_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
+			       size_t ivlen)
 {
 	if (!ctx || ivlen != AES_BLOCKLEN)
 		return -EINVAL;
@@ -152,13 +152,13 @@ static int aes_armce_ctr_setiv(struct lc_sym_state *ctx,
 }
 
 static struct lc_sym _lc_aes_ctr_armce = {
-	.init		= aes_armce_ctr_init,
-	.setkey		= aes_armce_ctr_setkey,
-	.setiv		= aes_armce_ctr_setiv,
-	.encrypt	= aes_armce_ctr_crypt,
-	.decrypt	= aes_armce_ctr_crypt,
-	.statesize	= LC_AES_ARMV8_CTR_BLOCK_SIZE,
-	.blocksize	= 1,
+	.init = aes_armce_ctr_init,
+	.setkey = aes_armce_ctr_setkey,
+	.setiv = aes_armce_ctr_setiv,
+	.encrypt = aes_armce_ctr_crypt,
+	.decrypt = aes_armce_ctr_crypt,
+	.statesize = LC_AES_ARMV8_CTR_BLOCK_SIZE,
+	.blocksize = 1,
 };
-LC_INTERFACE_SYMBOL(
-const struct lc_sym *, lc_aes_ctr_armce) = &_lc_aes_ctr_armce;
+LC_INTERFACE_SYMBOL(const struct lc_sym *,
+		    lc_aes_ctr_armce) = &_lc_aes_ctr_armce;

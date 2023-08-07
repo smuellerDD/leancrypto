@@ -35,8 +35,8 @@ struct lc_sym_state {
 
 #define LC_AES_AESNI_CBC_BLOCK_SIZE sizeof(struct lc_sym_state)
 
-static void aes_aesni_cbc_encrypt(struct lc_sym_state *ctx,
-				  const uint8_t *in, uint8_t *out, size_t len)
+static void aes_aesni_cbc_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
+				  uint8_t *out, size_t len)
 {
 	size_t round_len = len & ~(AES_BLOCKLEN - 1);
 
@@ -55,8 +55,8 @@ static void aes_aesni_cbc_encrypt(struct lc_sym_state *ctx,
 		memset(out + round_len, 0, len - round_len);
 }
 
-static void aes_aesni_cbc_decrypt(struct lc_sym_state *ctx,
-				  const uint8_t *in, uint8_t *out, size_t len)
+static void aes_aesni_cbc_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
+				  uint8_t *out, size_t len)
 {
 	size_t round_len = len & ~(AES_BLOCKLEN - 1);
 
@@ -84,8 +84,8 @@ static void aes_aesni_cbc_init(struct lc_sym_state *ctx)
 	mode_cbc_selftest(lc_aes_cbc_aesni, &tested, "AES-CBC");
 }
 
-static int aes_aesni_cbc_setkey(struct lc_sym_state *ctx,
-				const uint8_t *key, size_t keylen)
+static int aes_aesni_cbc_setkey(struct lc_sym_state *ctx, const uint8_t *key,
+				size_t keylen)
 {
 	int ret;
 
@@ -103,8 +103,8 @@ out:
 	return ret;
 }
 
-static int aes_aesni_cbc_setiv(struct lc_sym_state *ctx,
-			       const uint8_t *iv, size_t ivlen)
+static int aes_aesni_cbc_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
+			       size_t ivlen)
 {
 	if (!ctx || ivlen != AES_BLOCKLEN)
 		return -EINVAL;
@@ -114,13 +114,13 @@ static int aes_aesni_cbc_setiv(struct lc_sym_state *ctx,
 }
 
 static struct lc_sym _lc_aes_cbc_aesni = {
-	.init		= aes_aesni_cbc_init,
-	.setkey		= aes_aesni_cbc_setkey,
-	.setiv		= aes_aesni_cbc_setiv,
-	.encrypt	= aes_aesni_cbc_encrypt,
-	.decrypt	= aes_aesni_cbc_decrypt,
-	.statesize	= LC_AES_AESNI_CBC_BLOCK_SIZE,
-	.blocksize	= AES_BLOCKLEN,
+	.init = aes_aesni_cbc_init,
+	.setkey = aes_aesni_cbc_setkey,
+	.setiv = aes_aesni_cbc_setiv,
+	.encrypt = aes_aesni_cbc_encrypt,
+	.decrypt = aes_aesni_cbc_decrypt,
+	.statesize = LC_AES_AESNI_CBC_BLOCK_SIZE,
+	.blocksize = AES_BLOCKLEN,
 };
-LC_INTERFACE_SYMBOL(
-const struct lc_sym *, lc_aes_cbc_aesni) = &_lc_aes_cbc_aesni;
+LC_INTERFACE_SYMBOL(const struct lc_sym *,
+		    lc_aes_cbc_aesni) = &_lc_aes_cbc_aesni;

@@ -31,19 +31,18 @@
 #include "ext_headers.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-#define __align(x)	__attribute__((aligned(x)))
+#define __align(x) __attribute__((aligned(x)))
 
 #define ALIGNED_UINT8_COEFFS(N) N
 #define ALIGNED_UINT8_UINT64(N) ((N + 7) / 8)
 
-#define BUF_ALIGNED_UINT8_UINT64(N) 					       \
-	union {								       \
-		uint8_t coeffs[ALIGNED_UINT8_COEFFS(N)];		       \
-		uint64_t vec[ALIGNED_UINT8_UINT64(N)];			       \
+#define BUF_ALIGNED_UINT8_UINT64(N)                                            \
+	union {                                                                \
+		uint8_t coeffs[ALIGNED_UINT8_COEFFS(N)];                       \
+		uint64_t vec[ALIGNED_UINT8_UINT64(N)];                         \
 	}
 
 #ifdef __cplusplus

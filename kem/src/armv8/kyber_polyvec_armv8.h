@@ -29,11 +29,10 @@
 #include "lc_kyber.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-typedef struct{
+typedef struct {
 	poly vec[LC_KYBER_K];
 } polyvec;
 
@@ -56,7 +55,6 @@ void polyvec_compress(uint8_t r[LC_KYBER_POLYVECCOMPRESSEDBYTES],
  */
 void polyvec_decompress(polyvec *r,
 			const uint8_t a[LC_KYBER_POLYVECCOMPRESSEDBYTES]);
-
 
 /**
  * @brief polyvec_tobytes - Serialize vector of polynomials
@@ -182,11 +180,11 @@ static inline void polyvec_add(polyvec *r, const polyvec *a, const polyvec *b)
  * @param [in] a pointer to first input vector of polynomials
  * @param [in] b pointer to second input vector of polynomials
  */
-static inline void
-polyvec_add_reduce(polyvec *r, const polyvec *a, const polyvec *b)
+static inline void polyvec_add_reduce(polyvec *r, const polyvec *a,
+				      const polyvec *b)
 {
 	unsigned int i;
-	for ( i = 0; i < LC_KYBER_K; i++)
+	for (i = 0; i < LC_KYBER_K; i++)
 		poly_add_reduce(&r->vec[i], &a->vec[i], &b->vec[i]);
 }
 

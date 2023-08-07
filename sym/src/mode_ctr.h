@@ -27,11 +27,10 @@
 #include "math_helper.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-#define AES_CTR128_64BIT_WORDS	(AES_BLOCKLEN / sizeof(uint64_t))
+#define AES_CTR128_64BIT_WORDS (AES_BLOCKLEN / sizeof(uint64_t))
 
 struct lc_mode_state {
 	const struct lc_sym *wrappeded_cipher;
@@ -74,7 +73,6 @@ static inline void ctr128_to_ptr(uint8_t *p,
 	be64_to_ptr(p, ctr[0]);
 	be64_to_ptr(p + sizeof(uint64_t), ctr[1]);
 }
-
 
 #ifdef __cplusplus
 }

@@ -31,8 +31,7 @@
 #include "lc_kyber.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 void reduce_avx(__m256i *r, const __m256i *qdata);

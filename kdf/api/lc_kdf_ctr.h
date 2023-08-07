@@ -26,8 +26,7 @@
 #include "lc_hmac.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /**
@@ -43,8 +42,8 @@ extern "C"
  *
  * @return 0 on success, < 0 on error
  */
-int lc_kdf_ctr_init(struct lc_hmac_ctx *hmac_ctx,
-		    const uint8_t *key, size_t keylen);
+int lc_kdf_ctr_init(struct lc_hmac_ctx *hmac_ctx, const uint8_t *key,
+		    size_t keylen);
 
 /**
  * @brief Key-based Key Derivation in Counter Mode - SP800-108 - data generation
@@ -60,9 +59,8 @@ int lc_kdf_ctr_init(struct lc_hmac_ctx *hmac_ctx,
  *
  * @return 0 on success, < 0 on error
  */
-int lc_kdf_ctr_generate(struct lc_hmac_ctx *hmac_ctx,
-			const uint8_t *label, size_t labellen,
-			uint8_t *dst, size_t dlen);
+int lc_kdf_ctr_generate(struct lc_hmac_ctx *hmac_ctx, const uint8_t *label,
+			size_t labellen, uint8_t *dst, size_t dlen);
 
 /**
  * @brief One-shot Key-based Key Derivation in Counter Mode - SP800-108
@@ -79,44 +77,41 @@ int lc_kdf_ctr_generate(struct lc_hmac_ctx *hmac_ctx,
  *
  * @return 0 on success, < 0 on error
  */
-int lc_kdf_ctr(const struct lc_hash *hash,
-	       const uint8_t *key, size_t keylen,
-	       const uint8_t *label, size_t labellen,
-	       uint8_t *dst, size_t dlen);
+int lc_kdf_ctr(const struct lc_hash *hash, const uint8_t *key, size_t keylen,
+	       const uint8_t *label, size_t labellen, uint8_t *dst,
+	       size_t dlen);
 
 /***************************** Counter KDF as RNG *****************************/
 
 struct lc_kdf_ctr_ctx {
 	uint32_t counter;
-	uint8_t rng_initialized:1;
+	uint8_t rng_initialized : 1;
 	struct lc_hmac_ctx hmac_ctx;
 };
 
-#define LC_CTR_KDF_STATE_SIZE(hashname)	(LC_HMAC_CTX_SIZE(hashname))
-#define LC_CTR_KDF_CTX_SIZE(hashname)	(sizeof(struct lc_kdf_ctr_ctx) +       \
-					 LC_CTR_KDF_STATE_SIZE(hashname))
+#define LC_CTR_KDF_STATE_SIZE(hashname) (LC_HMAC_CTX_SIZE(hashname))
+#define LC_CTR_KDF_CTX_SIZE(hashname)                                          \
+	(sizeof(struct lc_kdf_ctr_ctx) + LC_CTR_KDF_STATE_SIZE(hashname))
 
-#define _LC_CTR_KDF_SET_CTX(name, hashname, ctx, offset)		       \
+#define _LC_CTR_KDF_SET_CTX(name, hashname, ctx, offset)                       \
 	_LC_HMAC_SET_CTX((&(name)->hmac_ctx), hashname, ctx, offset)
 
-#define LC_CTR_KDF_SET_CTX(name, hashname)				       \
-	_LC_CTR_KDF_SET_CTX(name, hashname, name,			       \
-			    sizeof(struct lc_kdf_ctr_ctx))
+#define LC_CTR_KDF_SET_CTX(name, hashname)                                     \
+	_LC_CTR_KDF_SET_CTX(name, hashname, name, sizeof(struct lc_kdf_ctr_ctx))
 
 /* CTR_KDF DRNG implementation */
 extern const struct lc_rng *lc_kdf_ctr_rng;
 
-#define LC_CTR_KDF_DRNG_CTX_SIZE(hashname)				       \
-					(sizeof(struct lc_rng_ctx) +	       \
-					 LC_CTR_KDF_CTX_SIZE(hashname))
+#define LC_CTR_KDF_DRNG_CTX_SIZE(hashname)                                     \
+	(sizeof(struct lc_rng_ctx) + LC_CTR_KDF_CTX_SIZE(hashname))
 
-#define LC_CTR_KDF_DRNG_SET_CTX(name, hashname)				       \
-					LC_CTR_KDF_SET_CTX(name, hashname)
+#define LC_CTR_KDF_DRNG_SET_CTX(name, hashname)                                \
+	LC_CTR_KDF_SET_CTX(name, hashname)
 
-#define LC_CTR_KDF_RNG_CTX(name, hashname)				       \
-	LC_RNG_CTX(name, lc_kdf_ctr_rng);				       \
-	LC_CTR_KDF_DRNG_SET_CTX(					       \
-		((struct lc_kdf_ctr_ctx *)(name->rng_state)), hashname);       \
+#define LC_CTR_KDF_RNG_CTX(name, hashname)                                     \
+	LC_RNG_CTX(name, lc_kdf_ctr_rng);                                      \
+	LC_CTR_KDF_DRNG_SET_CTX(((struct lc_kdf_ctr_ctx *)(name->rng_state)),  \
+				hashname);                                     \
 	lc_rng_zero(name)
 
 /**
@@ -125,15 +120,15 @@ extern const struct lc_rng *lc_kdf_ctr_rng;
  * @param [in] name Name of the stack variable
  * @param [in] hashname Reference to lc_hash implementation
  */
-#define LC_CTR_KDF_DRNG_CTX_ON_STACK(name, hashname)			       \
-	_Pragma("GCC diagnostic push")					       \
-	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
-	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-	LC_ALIGNED_BUFFER(name ## _ctx_buf,				       \
-			  LC_CTR_KDF_DRNG_CTX_SIZE(hashname),		       \
-			  LC_HASH_COMMON_ALIGNMENT);			       \
-	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name ## _ctx_buf;       \
-	LC_CTR_KDF_RNG_CTX(name, hashname);				       \
+#define LC_CTR_KDF_DRNG_CTX_ON_STACK(name, hashname)                                \
+	_Pragma("GCC diagnostic push")                                              \
+		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
+			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
+			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
+					  LC_CTR_KDF_DRNG_CTX_SIZE(hashname),       \
+					  LC_HASH_COMMON_ALIGNMENT);                \
+	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name##_ctx_buf;              \
+	LC_CTR_KDF_RNG_CTX(name, hashname);                                         \
 	_Pragma("GCC diagnostic pop")
 
 /**

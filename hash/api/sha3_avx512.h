@@ -21,8 +21,7 @@
 #define SHA3_AVX512
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 extern const struct lc_hash *lc_sha3_224_avx512;

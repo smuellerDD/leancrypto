@@ -39,8 +39,8 @@ struct lc_sym_state {
 
 #define LC_AES_BLOCK_SIZE sizeof(struct lc_sym_state)
 
-static void aes_aesni_encrypt(struct lc_sym_state* ctx,
-			      const uint8_t *in, uint8_t *out, size_t len)
+static void aes_aesni_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
+			      uint8_t *out, size_t len)
 {
 	if (!ctx || len != AES_BLOCKLEN)
 		return;
@@ -50,8 +50,8 @@ static void aes_aesni_encrypt(struct lc_sym_state* ctx,
 	LC_FPU_DISABLE;
 }
 
-static void aes_aesni_decrypt(struct lc_sym_state* ctx,
-			      const uint8_t *in, uint8_t *out, size_t len)
+static void aes_aesni_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
+			      uint8_t *out, size_t len)
 {
 	if (!ctx || len != AES_BLOCKLEN)
 		return;
@@ -66,8 +66,8 @@ static void aes_aesni_init(struct lc_sym_state *ctx)
 	(void)ctx;
 }
 
-static int aes_aesni_setkey(struct lc_sym_state *ctx,
-			    const uint8_t *key, size_t keylen)
+static int aes_aesni_setkey(struct lc_sym_state *ctx, const uint8_t *key,
+			    size_t keylen)
 {
 	int ret;
 
@@ -85,8 +85,8 @@ out:
 	return ret;
 }
 
-static int aes_aesni_setiv(struct lc_sym_state *ctx,
-			   const uint8_t *iv, size_t ivlen)
+static int aes_aesni_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
+			   size_t ivlen)
 {
 	(void)ctx;
 	(void)iv;
@@ -95,12 +95,12 @@ static int aes_aesni_setiv(struct lc_sym_state *ctx,
 }
 
 static struct lc_sym _lc_aes_aesni = {
-	.init		= aes_aesni_init,
-	.setkey		= aes_aesni_setkey,
-	.setiv		= aes_aesni_setiv,
-	.encrypt	= aes_aesni_encrypt,
-	.decrypt	= aes_aesni_decrypt,
-	.statesize	= LC_AES_BLOCK_SIZE,
-	.blocksize	= AES_BLOCKLEN,
+	.init = aes_aesni_init,
+	.setkey = aes_aesni_setkey,
+	.setiv = aes_aesni_setiv,
+	.encrypt = aes_aesni_encrypt,
+	.decrypt = aes_aesni_decrypt,
+	.statesize = LC_AES_BLOCK_SIZE,
+	.blocksize = AES_BLOCKLEN,
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_aesni) = &_lc_aes_aesni;

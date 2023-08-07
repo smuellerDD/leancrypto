@@ -27,7 +27,7 @@
 
 void poly_compress_armv8(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES], const poly *a)
 {
-	unsigned int i,j;
+	unsigned int i, j;
 	int16_t u;
 	uint8_t t[8];
 
@@ -35,9 +35,11 @@ void poly_compress_armv8(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES], const poly *a)
 	for (i = 0; i < LC_KYBER_N / 8; i++) {
 		for (j = 0; j < 8; j++) {
 			// map to positive standard representatives
-			u  = a->coeffs[8*i+j];
+			u = a->coeffs[8 * i + j];
 			u += (u >> 15) & LC_KYBER_Q;
-			t[j] = ((((uint16_t)u << 4) + LC_KYBER_Q / 2) / LC_KYBER_Q) & 15;
+			t[j] = ((((uint16_t)u << 4) + LC_KYBER_Q / 2) /
+				LC_KYBER_Q) &
+			       15;
 		}
 
 		r[0] = (uint8_t)(t[0] | (t[1] << 4));
@@ -47,12 +49,14 @@ void poly_compress_armv8(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES], const poly *a)
 		r += 4;
 	}
 #elif (LC_KYBER_POLYCOMPRESSEDBYTES == 160)
-	for (i = 0; i < LC_KYBER_N / 8;i++) {
+	for (i = 0; i < LC_KYBER_N / 8; i++) {
 		for (j = 0; j < 8; j++) {
 			// map to positive standard representatives
-			u  = a->coeffs[8*i+j];
+			u = a->coeffs[8 * i + j];
 			u += (u >> 15) & LC_KYBER_Q;
-			t[j] = ((((uint32_t)u << 5) + LC_KYBER_Q / 2) / LC_KYBER_Q) & 31;
+			t[j] = ((((uint32_t)u << 5) + LC_KYBER_Q / 2) /
+				LC_KYBER_Q) &
+			       31;
 		}
 
 		r[0] = (uint8_t)((t[0] >> 0) | (t[1] << 5));
@@ -73,9 +77,13 @@ void poly_decompress_armv8(poly *r,
 	unsigned int i;
 
 #if (LC_KYBER_POLYCOMPRESSEDBYTES == 128)
-	for (i = 0; i < LC_KYBER_N / 2;i++) {
-		r->coeffs[2*i+0] = (int16_t)((((uint16_t)(a[0] & 15)*LC_KYBER_Q) + 8) >> 4);
-		r->coeffs[2*i+1] = (int16_t)((((uint16_t)(a[0] >> 4)*LC_KYBER_Q) + 8) >> 4);
+	for (i = 0; i < LC_KYBER_N / 2; i++) {
+		r->coeffs[2 * i + 0] =
+			(int16_t)((((uint16_t)(a[0] & 15) * LC_KYBER_Q) + 8) >>
+				  4);
+		r->coeffs[2 * i + 1] =
+			(int16_t)((((uint16_t)(a[0] >> 4) * LC_KYBER_Q) + 8) >>
+				  4);
 		a += 1;
 	}
 #elif (LC_KYBER_POLYCOMPRESSEDBYTES == 160)
@@ -93,7 +101,10 @@ void poly_decompress_armv8(poly *r,
 		a += 5;
 
 		for (j = 0; j < 8; j++)
-			r->coeffs[8*i+j] = (int16_t)(((uint32_t)(t[j] & 31)*LC_KYBER_Q + 16) >> 5);
+			r->coeffs[8 * i + j] =
+				(int16_t)(((uint32_t)(t[j] & 31) * LC_KYBER_Q +
+					   16) >>
+					  5);
 	}
 #else
 #error "LC_KYBER_POLYCOMPRESSEDBYTES needs to be in {128, 160}"

@@ -23,26 +23,26 @@
 #include "lc_dilithium.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-void dilithium_keypair_tester(int *tested, const char *impl,
+void dilithium_keypair_tester(
+	int *tested, const char *impl,
 	int (*_lc_dilithium_keypair)(struct lc_dilithium_pk *pk,
 				     struct lc_dilithium_sk *sk,
 				     struct lc_rng_ctx *rng_ctx));
 
-void dilithium_siggen_tester(int *tested, const char *impl,
+void dilithium_siggen_tester(
+	int *tested, const char *impl,
 	int (*_lc_dilithium_sign)(struct lc_dilithium_sig *sig,
-				  const uint8_t *m,
-				  size_t mlen,
+				  const uint8_t *m, size_t mlen,
 				  const struct lc_dilithium_sk *sk,
 				  struct lc_rng_ctx *rng_ctx));
 
-void dilithium_sigver_tester(int *tested, const char *impl,
+void dilithium_sigver_tester(
+	int *tested, const char *impl,
 	int (*_lc_dilithium_verify)(const struct lc_dilithium_sig *sig,
-				    const uint8_t *m,
-				    size_t mlen,
+				    const uint8_t *m, size_t mlen,
 				    const struct lc_dilithium_pk *pk));
 
 #ifdef __cplusplus

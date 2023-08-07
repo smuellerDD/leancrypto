@@ -24,23 +24,22 @@
 #include "lc_chacha20.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 struct lc_chacha20_drng_ctx {
 	struct lc_sym_ctx cc20;
 };
 
-#define LC_CC20_DRNG_STATE_SIZE		(LC_SYM_STATE_SIZE(lc_chacha20))
-#define LC_CC20_DRNG_CTX_SIZE		(LC_CC20_DRNG_STATE_SIZE +	       \
-					 sizeof(struct lc_chacha20_drng_ctx))
+#define LC_CC20_DRNG_STATE_SIZE (LC_SYM_STATE_SIZE(lc_chacha20))
+#define LC_CC20_DRNG_CTX_SIZE                                                  \
+	(LC_CC20_DRNG_STATE_SIZE + sizeof(struct lc_chacha20_drng_ctx))
 
-#define _LC_CC20_DRNG_SET_CTX(name, ctx, offset)			       \
+#define _LC_CC20_DRNG_SET_CTX(name, ctx, offset)                               \
 	_LC_SYM_SET_CTX((&name->cc20), lc_chacha20, ctx, offset)
 
-#define LC_CC20_DRNG_SET_CTX(name)	_LC_CC20_DRNG_SET_CTX(name, name,      \
-					sizeof(struct lc_chacha20_drng_ctx))
+#define LC_CC20_DRNG_SET_CTX(name)                                             \
+	_LC_CC20_DRNG_SET_CTX(name, name, sizeof(struct lc_chacha20_drng_ctx))
 
 /**
  * @brief Zeroize ChaCha20 DRNG context allocated with either
@@ -53,7 +52,7 @@ static inline void lc_cc20_drng_zero(struct lc_chacha20_drng_ctx *cc20_ctx)
 	struct lc_sym_ctx *sym_ctx = &cc20_ctx->cc20;
 
 	lc_memset_secure((uint8_t *)cc20_ctx +
-				    sizeof(struct lc_chacha20_drng_ctx),
+				 sizeof(struct lc_chacha20_drng_ctx),
 			 0, LC_CC20_DRNG_STATE_SIZE);
 	lc_sym_init(sym_ctx);
 }
@@ -63,16 +62,16 @@ static inline void lc_cc20_drng_zero(struct lc_chacha20_drng_ctx *cc20_ctx)
  *
  * @param [in] name Name of the stack variable
  */
-#define LC_CC20_DRNG_CTX_ON_STACK(name)			      		       \
-	_Pragma("GCC diagnostic push")					       \
-	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
-	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-	LC_ALIGNED_SYM_BUFFER(name ## _ctx_buf, lc_chacha20,		       \
-			      LC_CC20_DRNG_CTX_SIZE);			       \
-	struct lc_chacha20_drng_ctx *name =				       \
-			(struct lc_chacha20_drng_ctx *) name ## _ctx_buf;      \
-	LC_CC20_DRNG_SET_CTX(name);					       \
-	lc_cc20_drng_zero(name);					       \
+#define LC_CC20_DRNG_CTX_ON_STACK(name)                                             \
+	_Pragma("GCC diagnostic push")                                              \
+		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
+			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
+			LC_ALIGNED_SYM_BUFFER(name##_ctx_buf, lc_chacha20,          \
+					      LC_CC20_DRNG_CTX_SIZE);               \
+	struct lc_chacha20_drng_ctx *name =                                         \
+		(struct lc_chacha20_drng_ctx *)name##_ctx_buf;                      \
+	LC_CC20_DRNG_SET_CTX(name);                                                 \
+	lc_cc20_drng_zero(name);                                                    \
 	_Pragma("GCC diagnostic pop")
 
 /**

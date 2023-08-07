@@ -33,8 +33,7 @@
 #include "lc_rng.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /*
@@ -61,7 +60,7 @@ extern "C"
 #define LC_DILITHIUM_TAU 39
 #define LC_DILITHIUM_BETA 78
 #define LC_DILITHIUM_GAMMA1 (1 << 17)
-#define LC_DILITHIUM_GAMMA2 ((LC_DILITHIUM_Q - 1)/88)
+#define LC_DILITHIUM_GAMMA2 ((LC_DILITHIUM_Q - 1) / 88)
 #define LC_DILITHIUM_OMEGA 80
 
 #elif LC_DILITHIUM_MODE == 3
@@ -71,7 +70,7 @@ extern "C"
 #define LC_DILITHIUM_TAU 49
 #define LC_DILITHIUM_BETA 196
 #define LC_DILITHIUM_GAMMA1 (1 << 19)
-#define LC_DILITHIUM_GAMMA2 ((LC_DILITHIUM_Q - 1)/32)
+#define LC_DILITHIUM_GAMMA2 ((LC_DILITHIUM_Q - 1) / 32)
 #define LC_DILITHIUM_OMEGA 55
 
 #elif LC_DILITHIUM_MODE == 5
@@ -81,45 +80,45 @@ extern "C"
 #define LC_DILITHIUM_TAU 60
 #define LC_DILITHIUM_BETA 120
 #define LC_DILITHIUM_GAMMA1 (1 << 19)
-#define LC_DILITHIUM_GAMMA2 ((LC_DILITHIUM_Q - 1)/32)
+#define LC_DILITHIUM_GAMMA2 ((LC_DILITHIUM_Q - 1) / 32)
 #define LC_DILITHIUM_OMEGA 75
 
 #endif
 
-#define LC_DILITHIUM_POLYT1_PACKEDBYTES  320
-#define LC_DILITHIUM_POLYT0_PACKEDBYTES  416
+#define LC_DILITHIUM_POLYT1_PACKEDBYTES 320
+#define LC_DILITHIUM_POLYT0_PACKEDBYTES 416
 #define LC_DILITHIUM_POLYVECH_PACKEDBYTES (LC_DILITHIUM_OMEGA + LC_DILITHIUM_K)
 
 #if LC_DILITHIUM_GAMMA1 == (1 << 17)
-#define LC_DILITHIUM_POLYZ_PACKEDBYTES   576
+#define LC_DILITHIUM_POLYZ_PACKEDBYTES 576
 #elif LC_DILITHIUM_GAMMA1 == (1 << 19)
-#define LC_DILITHIUM_POLYZ_PACKEDBYTES   640
+#define LC_DILITHIUM_POLYZ_PACKEDBYTES 640
 #endif
 
-#if LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q - 1)/88
-#define LC_DILITHIUM_POLYW1_PACKEDBYTES  192
-#elif LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q - 1)/32
-#define LC_DILITHIUM_POLYW1_PACKEDBYTES  128
+#if LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q - 1) / 88
+#define LC_DILITHIUM_POLYW1_PACKEDBYTES 192
+#elif LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q - 1) / 32
+#define LC_DILITHIUM_POLYW1_PACKEDBYTES 128
 #endif
 
 #if LC_DILITHIUM_ETA == 2
-#define LC_DILITHIUM_POLYETA_PACKEDBYTES  96
+#define LC_DILITHIUM_POLYETA_PACKEDBYTES 96
 #elif LC_DILITHIUM_ETA == 4
 #define LC_DILITHIUM_POLYETA_PACKEDBYTES 128
 #endif
 
-#define LC_DILITHIUM_PUBLICKEYBYTES					       \
-	(LC_DILITHIUM_SEEDBYTES +					       \
+#define LC_DILITHIUM_PUBLICKEYBYTES                                            \
+	(LC_DILITHIUM_SEEDBYTES +                                              \
 	 LC_DILITHIUM_K * LC_DILITHIUM_POLYT1_PACKEDBYTES)
-#define LC_DILITHIUM_SECRETKEYBYTES					       \
-	(3 * LC_DILITHIUM_SEEDBYTES					       \
-	 + LC_DILITHIUM_L * LC_DILITHIUM_POLYETA_PACKEDBYTES		       \
-	 + LC_DILITHIUM_K * LC_DILITHIUM_POLYETA_PACKEDBYTES		       \
-	 + LC_DILITHIUM_K * LC_DILITHIUM_POLYT0_PACKEDBYTES)
+#define LC_DILITHIUM_SECRETKEYBYTES                                            \
+	(3 * LC_DILITHIUM_SEEDBYTES +                                          \
+	 LC_DILITHIUM_L * LC_DILITHIUM_POLYETA_PACKEDBYTES +                   \
+	 LC_DILITHIUM_K * LC_DILITHIUM_POLYETA_PACKEDBYTES +                   \
+	 LC_DILITHIUM_K * LC_DILITHIUM_POLYT0_PACKEDBYTES)
 
-#define LC_DILITHIUM_CRYPTO_BYTES 					       \
-	(LC_DILITHIUM_SEEDBYTES +					       \
-	 LC_DILITHIUM_L * LC_DILITHIUM_POLYZ_PACKEDBYTES +		       \
+#define LC_DILITHIUM_CRYPTO_BYTES                                              \
+	(LC_DILITHIUM_SEEDBYTES +                                              \
+	 LC_DILITHIUM_L * LC_DILITHIUM_POLYZ_PACKEDBYTES +                     \
 	 LC_DILITHIUM_POLYVECH_PACKEDBYTES)
 
 /**
@@ -152,10 +151,8 @@ struct lc_dilithium_sig {
  *
  * @return 0 (success) or < 0 on error
  */
-int lc_dilithium_keypair(struct lc_dilithium_pk *pk,
-			 struct lc_dilithium_sk *sk,
+int lc_dilithium_keypair(struct lc_dilithium_pk *pk, struct lc_dilithium_sk *sk,
 			 struct lc_rng_ctx *rng_ctx);
-
 
 /**
  * @param lc_dilithium_sign - Computes signature in one shot
@@ -170,10 +167,8 @@ int lc_dilithium_keypair(struct lc_dilithium_pk *pk,
  *
  * @return 0 (success) or < 0 on error
  */
-int lc_dilithium_sign(struct lc_dilithium_sig *sig,
-		      const uint8_t *m,
-		      size_t mlen,
-		      const struct lc_dilithium_sk *sk,
+int lc_dilithium_sign(struct lc_dilithium_sig *sig, const uint8_t *m,
+		      size_t mlen, const struct lc_dilithium_sk *sk,
 		      struct lc_rng_ctx *rng_ctx);
 
 /**
@@ -210,8 +205,7 @@ int lc_dilithium_sign_init(struct lc_hash_ctx *hash_ctx,
  *
  * @return 0 (success) or < 0 on error
  */
-int lc_dilithium_sign_update(struct lc_hash_ctx *hash_ctx,
-			     const uint8_t *m,
+int lc_dilithium_sign_update(struct lc_hash_ctx *hash_ctx, const uint8_t *m,
 			     size_t mlen);
 
 /**
@@ -229,7 +223,7 @@ int lc_dilithium_sign_update(struct lc_hash_ctx *hash_ctx,
  * @return 0 (success) or < 0 on error
  */
 int lc_dilithium_sign_final(struct lc_dilithium_sig *sig,
-			    struct lc_hash_ctx  *hash_ctx,
+			    struct lc_hash_ctx *hash_ctx,
 			    const struct lc_dilithium_sk *sk,
 			    struct lc_rng_ctx *rng_ctx);
 
@@ -244,10 +238,8 @@ int lc_dilithium_sign_final(struct lc_dilithium_sig *sig,
  * @return 0 if signature could be verified correctly and -EBADMSG when
  * signature cannot be verified, < 0 on other errors
  */
-int lc_dilithium_verify(const struct lc_dilithium_sig *sig,
-			const uint8_t *m,
-			size_t mlen,
-			const struct lc_dilithium_pk *pk);
+int lc_dilithium_verify(const struct lc_dilithium_sig *sig, const uint8_t *m,
+			size_t mlen, const struct lc_dilithium_pk *pk);
 
 /**
  * @param lc_dilithium_verify_init - Initializes a signature verification
@@ -286,8 +278,7 @@ int lc_dilithium_verify_init(struct lc_hash_ctx *hash_ctx,
  *
  * @return 0 (success) or < 0 on error
  */
-int lc_dilithium_verify_update(struct lc_hash_ctx *hash_ctx,
-			       const uint8_t *m,
+int lc_dilithium_verify_update(struct lc_hash_ctx *hash_ctx, const uint8_t *m,
 			       size_t mlen);
 
 /**
@@ -303,7 +294,7 @@ int lc_dilithium_verify_update(struct lc_hash_ctx *hash_ctx,
  * signature cannot be verified, < 0 on other errors
  */
 int lc_dilithium_verify_final(struct lc_dilithium_sig *sig,
-			      struct lc_hash_ctx  *hash_ctx,
+			      struct lc_hash_ctx *hash_ctx,
 			      const struct lc_dilithium_pk *pk);
 
 #ifdef __cplusplus

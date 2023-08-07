@@ -36,13 +36,12 @@
 #include "lc_dilithium.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 typedef BUF_ALIGNED_INT32_M256I(LC_DILITHIUM_N) poly;
 
-#define POLY_UNIFORM_GAMMA1_NBLOCKS					       \
+#define POLY_UNIFORM_GAMMA1_NBLOCKS                                            \
 	((LC_DILITHIUM_POLYZ_PACKEDBYTES + LC_SHAKE_256_SIZE_BLOCK - 1) /      \
 	 LC_SHAKE_256_SIZE_BLOCK)
 
@@ -93,14 +92,13 @@ static inline void poly_nttunpack_avx(poly *a)
  * @param a pointer to first input polynomial
  * @param b pointer to second input polynomial
  */
-static inline void
-poly_pointwise_montgomery_avx(poly *c, const poly *a, const poly *b)
+static inline void poly_pointwise_montgomery_avx(poly *c, const poly *a,
+						 const poly *b)
 {
 	LC_FPU_ENABLE;
 	dilithium_pointwise_avx(c->vec, a->vec, b->vec, dilithium_qdata.vec);
 	LC_FPU_DISABLE;
 }
-
 
 /**
  * @brief poly_power2round_avx
@@ -113,8 +111,7 @@ poly_pointwise_montgomery_avx(poly *c, const poly *a, const poly *b)
  * @param a0 pointer to output polynomial with coefficients c0
  * @param a pointer to input polynomial
  */
-static inline void
-poly_power2round_avx(poly *a1, poly *a0, const poly *a)
+static inline void poly_power2round_avx(poly *a1, poly *a0, const poly *a)
 {
 	power2round_avx(a1->vec, a0->vec, a->vec);
 }
@@ -131,8 +128,7 @@ poly_power2round_avx(poly *a1, poly *a0, const poly *a)
  * @param a0 pointer to output polynomial with coefficients c0
  * @param a pointer to input polynomial
  */
-static inline void
-poly_decompose_avx(poly *a1, poly *a0, const poly *a)
+static inline void poly_decompose_avx(poly *a1, poly *a0, const poly *a)
 {
 	decompose_avx(a1->vec, a0->vec, a->vec);
 }
@@ -150,8 +146,8 @@ poly_decompose_avx(poly *a1, poly *a0, const poly *a)
  *
  * @return number of hints, i.e. length of hint array.
  **************************************************/
-static inline unsigned int
-poly_make_hint_avx(uint8_t hint[LC_DILITHIUM_N], const poly *a0, const poly *a1)
+static inline unsigned int poly_make_hint_avx(uint8_t hint[LC_DILITHIUM_N],
+					      const poly *a0, const poly *a1)
 {
 	return make_hint_avx(hint, a0->vec, a1->vec);
 }
@@ -170,7 +166,6 @@ static inline void poly_use_hint_avx(poly *b, const poly *a, const poly *h)
 	use_hint_avx(b->vec, a->vec, h->vec);
 }
 
-
 void poly_reduce_avx(poly *a);
 void poly_caddq_avx(poly *a);
 
@@ -181,47 +176,25 @@ void poly_shiftl_avx(poly *a);
 int poly_chknorm_avx(const poly *a, int32_t B);
 void poly_challenge_avx(poly *c, const uint8_t seed[LC_DILITHIUM_SEEDBYTES]);
 
-void poly_uniform_4x_avx(poly *a0,
-			 poly *a1,
-			 poly *a2,
-			 poly *a3,
-			 const uint8_t seed[32],
-			 uint16_t nonce0,
-			 uint16_t nonce1,
-			 uint16_t nonce2,
-			 uint16_t nonce3,
-			 void *ws_buf,
-			 void *ws_keccak);
-void poly_uniform_eta_4x_avx(poly *a0,
-			     poly *a1,
-			     poly *a2,
-			     poly *a3,
-			     const uint8_t seed[64],
-			     uint16_t nonce0,
-			     uint16_t nonce1,
-			     uint16_t nonce2,
-			     uint16_t nonce3,
-			     void *ws_buf,
-			     void *ws_keccak);
-void poly_uniform_gamma1_4x_avx(poly *a0,
-				poly *a1,
-				poly *a2,
-				poly *a3,
-				const uint8_t seed[64],
-				uint16_t nonce0,
-				uint16_t nonce1,
-				uint16_t nonce2,
-				uint16_t nonce3,
-				void *ws_buf,
-				void *ws_keccak);
+void poly_uniform_4x_avx(poly *a0, poly *a1, poly *a2, poly *a3,
+			 const uint8_t seed[32], uint16_t nonce0,
+			 uint16_t nonce1, uint16_t nonce2, uint16_t nonce3,
+			 void *ws_buf, void *ws_keccak);
+void poly_uniform_eta_4x_avx(poly *a0, poly *a1, poly *a2, poly *a3,
+			     const uint8_t seed[64], uint16_t nonce0,
+			     uint16_t nonce1, uint16_t nonce2, uint16_t nonce3,
+			     void *ws_buf, void *ws_keccak);
+void poly_uniform_gamma1_4x_avx(poly *a0, poly *a1, poly *a2, poly *a3,
+				const uint8_t seed[64], uint16_t nonce0,
+				uint16_t nonce1, uint16_t nonce2,
+				uint16_t nonce3, void *ws_buf, void *ws_keccak);
 
 void polyeta_pack_avx(uint8_t r[LC_DILITHIUM_POLYETA_PACKEDBYTES],
 		      const poly *a);
 void polyeta_unpack_avx(poly *r,
 			const uint8_t a[LC_DILITHIUM_POLYETA_PACKEDBYTES]);
 
-void polyt1_pack_avx(uint8_t r[LC_DILITHIUM_POLYT1_PACKEDBYTES],
-		     const poly *a);
+void polyt1_pack_avx(uint8_t r[LC_DILITHIUM_POLYT1_PACKEDBYTES], const poly *a);
 
 void polyt1_unpack_avx(poly *r,
 		       const uint8_t a[LC_DILITHIUM_POLYT1_PACKEDBYTES]);
@@ -234,7 +207,6 @@ void polyz_pack_avx(uint8_t r[LC_DILITHIUM_POLYZ_PACKEDBYTES], const poly *a);
 void polyz_unpack_avx(poly *r, const uint8_t *a);
 
 void polyw1_pack_avx(uint8_t *r, const poly *a);
-
 
 #ifdef __cplusplus
 }

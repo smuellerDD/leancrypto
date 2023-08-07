@@ -21,16 +21,15 @@
 #define DILITHIUM_CONSTS_AVX2_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-#define _8XQ          0
-#define _8XQINV       8
-#define _8XDIV_QINV  16
-#define _8XDIV       24
-#define _ZETAS_QINV  32
-#define _ZETAS      328
+#define _8XQ 0
+#define _8XQINV 8
+#define _8XDIV_QINV 16
+#define _8XDIV 24
+#define _ZETAS_QINV 32
+#define _ZETAS 328
 
 /* The C ABI on MacOS exports all symbols with a leading
  * underscore. This means that any symbols we refer to from

@@ -25,18 +25,17 @@
 #include "lc_memset_secure.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #if LC_SHA3_MAX_SIZE_BLOCK
-# define LC_SHA_MAX_SIZE_BLOCK	LC_SHA3_MAX_SIZE_BLOCK
+#define LC_SHA_MAX_SIZE_BLOCK LC_SHA3_MAX_SIZE_BLOCK
 #elif LC_SHA512_SIZE_BLOCK
-# define LC_SHA_MAX_SIZE_BLOCK	LC_SHA512_SIZE_BLOCK
+#define LC_SHA_MAX_SIZE_BLOCK LC_SHA512_SIZE_BLOCK
 #elif LC_SHA256_SIZE_BLOCK
-# define LC_SHA_MAX_SIZE_BLOCK	LC_SHA256_SIZE_BLOCK
+#define LC_SHA_MAX_SIZE_BLOCK LC_SHA256_SIZE_BLOCK
 #else
-# error "No known maximum block size defined - include sha3.h, sha512.h or sha256.h before hmac.h"
+#error "No known maximum block size defined - include sha3.h, sha512.h or sha256.h before hmac.h"
 #endif
 
 struct lc_hmac_ctx {
@@ -45,21 +44,19 @@ struct lc_hmac_ctx {
 	struct lc_hash_ctx hash_ctx;
 };
 
-#define LC_HMAC_STATE_SIZE(x)		(LC_HASH_STATE_SIZE(x) +	       \
-					 2 * LC_SHA_MAX_SIZE_BLOCK)
-#define LC_HMAC_CTX_SIZE(x)		(LC_HMAC_STATE_SIZE(x) +	       \
-					 sizeof(struct lc_hmac_ctx))
+#define LC_HMAC_STATE_SIZE(x)                                                  \
+	(LC_HASH_STATE_SIZE(x) + 2 * LC_SHA_MAX_SIZE_BLOCK)
+#define LC_HMAC_CTX_SIZE(x) (LC_HMAC_STATE_SIZE(x) + sizeof(struct lc_hmac_ctx))
 
-#define _LC_HMAC_SET_CTX(name, hashname, ctx, offset)			       \
-	_LC_HASH_SET_CTX((&name->hash_ctx), hashname, ctx, offset);	       \
-        name->k_opad = (uint8_t *)((uint8_t *)ctx + offset +		       \
-				   LC_HASH_STATE_SIZE(hashname));	       \
-	name->k_ipad = (uint8_t *)((uint8_t *)ctx + offset +		       \
-				   LC_HASH_STATE_SIZE(hashname) +	       \
+#define _LC_HMAC_SET_CTX(name, hashname, ctx, offset)                          \
+	_LC_HASH_SET_CTX((&name->hash_ctx), hashname, ctx, offset);            \
+	name->k_opad = (uint8_t *)((uint8_t *)ctx + offset +                   \
+				   LC_HASH_STATE_SIZE(hashname));              \
+	name->k_ipad = (uint8_t *)((uint8_t *)ctx + offset +                   \
+				   LC_HASH_STATE_SIZE(hashname) +              \
 				   LC_SHA_MAX_SIZE_BLOCK)
 
-
-#define LC_HMAC_SET_CTX(name, hashname)					       \
+#define LC_HMAC_SET_CTX(name, hashname)                                        \
 	_LC_HMAC_SET_CTX(name, hashname, name, sizeof(struct lc_hmac_ctx))
 
 /**
@@ -73,8 +70,8 @@ struct lc_hmac_ctx {
  * The caller must provide an allocated hmac_ctx. This can be achieved by
  * using HMAC_CTX_ON_STACK or by using hmac_alloc.
  */
-void lc_hmac_init(struct lc_hmac_ctx *hmac_ctx,
-		  const uint8_t *key, size_t keylen);
+void lc_hmac_init(struct lc_hmac_ctx *hmac_ctx, const uint8_t *key,
+		  size_t keylen);
 
 /**
  * @brief Re-initialize HMAC context after a hmac_final operation
@@ -95,8 +92,8 @@ void lc_hmac_reinit(struct lc_hmac_ctx *hmac_ctx);
  * @param [in] in Buffer holding the data whose MAC shall be calculated
  * @param [in] inlen Length of the input buffer
  */
-void lc_hmac_update(struct lc_hmac_ctx *hmac_ctx,
-		    const uint8_t *in, size_t inlen);
+void lc_hmac_update(struct lc_hmac_ctx *hmac_ctx, const uint8_t *in,
+		    size_t inlen);
 
 /**
  * @brief Calculate HMAC mac
@@ -151,15 +148,16 @@ static inline void lc_hmac_zero(struct lc_hmac_ctx *hmac_ctx)
  * @param [in] hashname Pointer of type struct hash referencing the hash
  *			 implementation to be used
  */
-#define LC_HMAC_CTX_ON_STACK(name, hashname)				       \
-	_Pragma("GCC diagnostic push")					       \
-	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
-	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-	LC_ALIGNED_BUFFER(name ## _ctx_buf, LC_HMAC_CTX_SIZE(hashname),	       \
-			  LC_HASH_COMMON_ALIGNMENT);			       \
-	struct lc_hmac_ctx *name = (struct lc_hmac_ctx *)name ## _ctx_buf;     \
-	LC_HMAC_SET_CTX(name, hashname);				       \
-	lc_hmac_zero(name);						       \
+#define LC_HMAC_CTX_ON_STACK(name, hashname)                                        \
+	_Pragma("GCC diagnostic push")                                              \
+		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
+			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
+			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
+					  LC_HMAC_CTX_SIZE(hashname),               \
+					  LC_HASH_COMMON_ALIGNMENT);                \
+	struct lc_hmac_ctx *name = (struct lc_hmac_ctx *)name##_ctx_buf;            \
+	LC_HMAC_SET_CTX(name, hashname);                                            \
+	lc_hmac_zero(name);                                                         \
 	_Pragma("GCC diagnostic pop")
 
 /**
@@ -189,9 +187,8 @@ static inline size_t lc_hmac_macsize(struct lc_hmac_ctx *hmac_ctx)
  *
  * The HMAC calculation operates entirely on the stack.
  */
-static inline void lc_hmac(const struct lc_hash *hash,
-			   const uint8_t *key, size_t keylen,
-			   const uint8_t *in, size_t inlen,
+static inline void lc_hmac(const struct lc_hash *hash, const uint8_t *key,
+			   size_t keylen, const uint8_t *in, size_t inlen,
 			   uint8_t *mac)
 {
 	LC_HMAC_CTX_ON_STACK(hmac_ctx, hash);

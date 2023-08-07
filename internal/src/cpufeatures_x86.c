@@ -21,26 +21,25 @@
 #include "ext_headers.h"
 #include "visibility.h"
 
-#define cpuid_eax(level, a, b, c, d)					\
-	__asm__ __volatile__ ("cpuid\n\t"				\
-			      : "=a" (a), "=b" (b), "=c" (c), "=d" (d)	\
-			      : "0" (level))
+#define cpuid_eax(level, a, b, c, d)                                           \
+	__asm__ __volatile__("cpuid\n\t"                                       \
+			     : "=a"(a), "=b"(b), "=c"(c), "=d"(d)              \
+			     : "0"(level))
 
-#define cpuid_eax_ecx(level, count, a, b, c, d)				\
-	__asm__ __volatile__ ("cpuid\n\t"				\
-			      : "=a" (a), "=b" (b), "=c" (c), "=d" (d)  \
-			      : "0" (level), "2" (count))
+#define cpuid_eax_ecx(level, count, a, b, c, d)                                \
+	__asm__ __volatile__("cpuid\n\t"                                       \
+			     : "=a"(a), "=b"(b), "=c"(c), "=d"(d)              \
+			     : "0"(level), "2"(count))
 
 /* Leaf 1 */
-#define LC_INTEL_AESNI_ECX			(1 << 25)
+#define LC_INTEL_AESNI_ECX (1 << 25)
 /* Leaf 7, subleaf 0 of CPUID */
-#define LC_INTEL_AVX2_EBX			(1 << 5)
-#define LC_INTEL_AVX512F_EBX			(1 << 16)
+#define LC_INTEL_AVX2_EBX (1 << 5)
+#define LC_INTEL_AVX512F_EBX (1 << 16)
 
 unsigned int lc_x86_64_cpuid[4];
 
-LC_INTERFACE_FUNCTION(
-enum lc_cpu_features, lc_cpu_feature_available, void)
+LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 {
 	unsigned int eax, ebx, ecx, edx;
 	static enum lc_cpu_features feat = LC_CPU_FEATURE_UNSET;

@@ -21,8 +21,7 @@
 #include "ext_headers.h"
 #include "visibility.h"
 
-LC_INTERFACE_FUNCTION(
-enum lc_cpu_features, lc_cpu_feature_available, void)
+LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 {
 	return LC_CPU_FEATURE_NONE;
 }

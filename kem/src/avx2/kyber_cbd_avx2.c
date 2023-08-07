@@ -40,7 +40,7 @@
  * @param r pointer to output polynomial
  * @param buf pointer to aligned input byte array
  */
-void cbd2(poly * restrict r, const __m256i buf[2 * LC_KYBER_N / 128])
+void cbd2(poly *restrict r, const __m256i buf[2 * LC_KYBER_N / 128])
 {
 	unsigned int i;
 	__m256i f0, f1, f2, f3;
@@ -79,14 +79,14 @@ void cbd2(poly * restrict r, const __m256i buf[2 * LC_KYBER_N / 128])
 		f3 = _mm256_unpackhi_epi8(f0, f1);
 
 		f0 = _mm256_cvtepi8_epi16(_mm256_castsi256_si128(f2));
-		f1 = _mm256_cvtepi8_epi16(_mm256_extracti128_si256(f2,1));
+		f1 = _mm256_cvtepi8_epi16(_mm256_extracti128_si256(f2, 1));
 		f2 = _mm256_cvtepi8_epi16(_mm256_castsi256_si128(f3));
-		f3 = _mm256_cvtepi8_epi16(_mm256_extracti128_si256(f3,1));
+		f3 = _mm256_cvtepi8_epi16(_mm256_extracti128_si256(f3, 1));
 
-		_mm256_store_si256(&r->vec[4*i+0], f0);
-		_mm256_store_si256(&r->vec[4*i+1], f2);
-		_mm256_store_si256(&r->vec[4*i+2], f1);
-		_mm256_store_si256(&r->vec[4*i+3], f3);
+		_mm256_store_si256(&r->vec[4 * i + 0], f0);
+		_mm256_store_si256(&r->vec[4 * i + 1], f2);
+		_mm256_store_si256(&r->vec[4 * i + 2], f1);
+		_mm256_store_si256(&r->vec[4 * i + 3], f3);
 	}
 
 	LC_FPU_DISABLE;

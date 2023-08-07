@@ -32,25 +32,20 @@
 #include "dilithium_polyvec.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 void pack_pk(struct lc_dilithium_pk *pk,
-	     const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
-	     const polyveck *t1);
+	     const uint8_t rho[LC_DILITHIUM_SEEDBYTES], const polyveck *t1);
 
 void pack_sk(struct lc_dilithium_sk *sk,
-             const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
-             const uint8_t tr[LC_DILITHIUM_SEEDBYTES],
-             const uint8_t key[LC_DILITHIUM_SEEDBYTES],
-             const polyveck *t0,
-             const polyvecl *s1,
-             const polyveck *s2);
+	     const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
+	     const uint8_t tr[LC_DILITHIUM_SEEDBYTES],
+	     const uint8_t key[LC_DILITHIUM_SEEDBYTES], const polyveck *t0,
+	     const polyvecl *s1, const polyveck *s2);
 
 void pack_sig(struct lc_dilithium_sig *sig,
-	      const uint8_t c[LC_DILITHIUM_SEEDBYTES],
-	      const polyvecl *z,
+	      const uint8_t c[LC_DILITHIUM_SEEDBYTES], const polyvecl *z,
 	      const polyveck *h);
 
 void unpack_pk(uint8_t rho[LC_DILITHIUM_SEEDBYTES], polyveck *t1,
@@ -58,23 +53,16 @@ void unpack_pk(uint8_t rho[LC_DILITHIUM_SEEDBYTES], polyveck *t1,
 
 void unpack_sk(uint8_t rho[LC_DILITHIUM_SEEDBYTES],
 	       uint8_t tr[LC_DILITHIUM_SEEDBYTES],
-	       uint8_t key[LC_DILITHIUM_SEEDBYTES],
-	       polyveck *t0,
-	       polyvecl *s1,
-	       polyveck *s2,
-	       const struct lc_dilithium_sk *sk);
+	       uint8_t key[LC_DILITHIUM_SEEDBYTES], polyveck *t0, polyvecl *s1,
+	       polyveck *s2, const struct lc_dilithium_sk *sk);
 void unpack_sk_tr(uint8_t tr[LC_DILITHIUM_SEEDBYTES],
 		  const struct lc_dilithium_sk *sk);
 void unpack_sk_ex_tr(uint8_t rho[LC_DILITHIUM_SEEDBYTES],
-		     uint8_t key[LC_DILITHIUM_SEEDBYTES],
-		     polyveck *t0,
-		     polyvecl *s1,
-		     polyveck *s2,
+		     uint8_t key[LC_DILITHIUM_SEEDBYTES], polyveck *t0,
+		     polyvecl *s1, polyveck *s2,
 		     const struct lc_dilithium_sk *sk);
 
-int unpack_sig(uint8_t c[LC_DILITHIUM_SEEDBYTES],
-	       polyvecl *z,
-	       polyveck *h,
+int unpack_sig(uint8_t c[LC_DILITHIUM_SEEDBYTES], polyvecl *z, polyveck *h,
 	       const struct lc_dilithium_sig *sig);
 
 #ifdef __cplusplus

@@ -26,26 +26,25 @@
 #include "lc_memset_secure.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 struct lc_hkdf_ctx {
 	uint8_t partial[LC_SHA_MAX_SIZE_DIGEST];
 	size_t partial_ptr;
 	uint8_t ctr;
-	uint8_t rng_initialized:1;
+	uint8_t rng_initialized : 1;
 	struct lc_hmac_ctx hmac_ctx;
 };
 
-#define LC_HKDF_STATE_SIZE(hashname)	(LC_HMAC_CTX_SIZE(hashname))
-#define LC_HKDF_CTX_SIZE(hashname)	(sizeof(struct lc_hkdf_ctx) +	       \
-					 LC_HKDF_STATE_SIZE(hashname))
+#define LC_HKDF_STATE_SIZE(hashname) (LC_HMAC_CTX_SIZE(hashname))
+#define LC_HKDF_CTX_SIZE(hashname)                                             \
+	(sizeof(struct lc_hkdf_ctx) + LC_HKDF_STATE_SIZE(hashname))
 
-#define _LC_HKDF_SET_CTX(name, hashname, ctx, offset)			       \
+#define _LC_HKDF_SET_CTX(name, hashname, ctx, offset)                          \
 	_LC_HMAC_SET_CTX((&(name)->hmac_ctx), hashname, ctx, offset)
 
-#define LC_HKDF_SET_CTX(name, hashname)					       \
+#define LC_HKDF_SET_CTX(name, hashname)                                        \
 	_LC_HKDF_SET_CTX(name, hashname, name, sizeof(struct lc_hkdf_ctx))
 
 /**
@@ -65,9 +64,8 @@ struct lc_hkdf_ctx {
  *
  * @return 0 on success, < 0 on error
  */
-int lc_hkdf_extract(struct lc_hkdf_ctx *hkdf_ctx,
-		    const uint8_t *ikm, size_t ikmlen,
-		    const uint8_t *salt, size_t saltlen);
+int lc_hkdf_extract(struct lc_hkdf_ctx *hkdf_ctx, const uint8_t *ikm,
+		    size_t ikmlen, const uint8_t *salt, size_t saltlen);
 
 /**
  * @brief HMAC-based Extract-and-Expand Key Derivation Function (HKDF) - RFC5869
@@ -84,9 +82,8 @@ int lc_hkdf_extract(struct lc_hkdf_ctx *hkdf_ctx,
  *
  * @return 0 on success, < 0 on error
  */
-int lc_hkdf_expand(struct lc_hkdf_ctx *hkdf_ctx,
-		   const uint8_t *info, size_t infolen,
-		   uint8_t *dst, size_t dlen);
+int lc_hkdf_expand(struct lc_hkdf_ctx *hkdf_ctx, const uint8_t *info,
+		   size_t infolen, uint8_t *dst, size_t dlen);
 
 /**
  * @brief Zeroize HKDF context allocated with either LC_HKDF_CTX_ON_STACK or
@@ -131,16 +128,16 @@ void lc_hkdf_zero_free(struct lc_hkdf_ctx *hkdf_ctx);
  * @param [in] name Name of the stack variable
  * @param [in] hashname Reference to lc_hash implementation
  */
-#define LC_HKDF_CTX_ON_STACK(name, hashname)			      	       \
-	_Pragma("GCC diagnostic push")					       \
-	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
-	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-	LC_ALIGNED_BUFFER(name ## _ctx_buf,				       \
-			  LC_HKDF_CTX_SIZE(hashname),			       \
-			  LC_HASH_COMMON_ALIGNMENT);			       \
-	struct lc_hkdf_ctx *name = (struct lc_hkdf_ctx *)name ## _ctx_buf;     \
-	LC_HKDF_SET_CTX(name, hashname);				       \
-	lc_hkdf_zero(name);						       \
+#define LC_HKDF_CTX_ON_STACK(name, hashname)                                        \
+	_Pragma("GCC diagnostic push")                                              \
+		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
+			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
+			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
+					  LC_HKDF_CTX_SIZE(hashname),               \
+					  LC_HASH_COMMON_ALIGNMENT);                \
+	struct lc_hkdf_ctx *name = (struct lc_hkdf_ctx *)name##_ctx_buf;            \
+	LC_HKDF_SET_CTX(name, hashname);                                            \
+	lc_hkdf_zero(name);                                                         \
 	_Pragma("GCC diagnostic pop")
 
 /**
@@ -161,11 +158,10 @@ void lc_hkdf_zero_free(struct lc_hkdf_ctx *hkdf_ctx);
  *
  * @return 0 on success, < 0 on error
  */
-static inline int lc_hkdf(const struct lc_hash *hash,
-			  const uint8_t *ikm, size_t ikmlen,
-			  const uint8_t *salt, size_t saltlen,
-			  const uint8_t *info, size_t infolen,
-			  uint8_t *dst, size_t dlen)
+static inline int lc_hkdf(const struct lc_hash *hash, const uint8_t *ikm,
+			  size_t ikmlen, const uint8_t *salt, size_t saltlen,
+			  const uint8_t *info, size_t infolen, uint8_t *dst,
+			  size_t dlen)
 {
 	int ret;
 	LC_HKDF_CTX_ON_STACK(hkdf, hash);
@@ -192,14 +188,15 @@ out:
 /* HKDF DRNG implementation */
 extern const struct lc_rng *lc_hkdf_rng;
 
-#define LC_HKDF_DRNG_CTX_SIZE(hashname)	(sizeof(struct lc_rng_ctx) +	       \
-					 LC_HKDF_CTX_SIZE(hashname))
+#define LC_HKDF_DRNG_CTX_SIZE(hashname)                                        \
+	(sizeof(struct lc_rng_ctx) + LC_HKDF_CTX_SIZE(hashname))
 
-#define LC_HKDF_DRNG_SET_CTX(name, hashname)	LC_HKDF_SET_CTX(name, hashname)
+#define LC_HKDF_DRNG_SET_CTX(name, hashname) LC_HKDF_SET_CTX(name, hashname)
 
-#define LC_HKDF_RNG_CTX(name, hashname)					       \
-	LC_RNG_CTX(name, lc_hkdf_rng);					       \
-	LC_HKDF_DRNG_SET_CTX(((struct lc_hkdf_ctx *)(name->rng_state)), hashname);\
+#define LC_HKDF_RNG_CTX(name, hashname)                                        \
+	LC_RNG_CTX(name, lc_hkdf_rng);                                         \
+	LC_HKDF_DRNG_SET_CTX(((struct lc_hkdf_ctx *)(name->rng_state)),        \
+			     hashname);                                        \
 	lc_rng_zero(name)
 
 /**
@@ -208,15 +205,15 @@ extern const struct lc_rng *lc_hkdf_rng;
  * @param [in] name Name of the stack variable
  * @param [in] hashname Reference to lc_hash implementation
  */
-#define LC_HKDF_DRNG_CTX_ON_STACK(name, hashname)			       \
-	_Pragma("GCC diagnostic push")					       \
-	_Pragma("GCC diagnostic ignored \"-Wvla\"")			       \
-	_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-	LC_ALIGNED_BUFFER(name ## _ctx_buf,				       \
-			  LC_HKDF_DRNG_CTX_SIZE(hashname),		       \
-			  LC_HASH_COMMON_ALIGNMENT);			       \
-	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name ## _ctx_buf;       \
-	LC_HKDF_RNG_CTX(name, hashname);				       \
+#define LC_HKDF_DRNG_CTX_ON_STACK(name, hashname)                                   \
+	_Pragma("GCC diagnostic push")                                              \
+		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
+			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
+			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
+					  LC_HKDF_DRNG_CTX_SIZE(hashname),          \
+					  LC_HASH_COMMON_ALIGNMENT);                \
+	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name##_ctx_buf;              \
+	LC_HKDF_RNG_CTX(name, hashname);                                            \
 	_Pragma("GCC diagnostic pop")
 
 /**

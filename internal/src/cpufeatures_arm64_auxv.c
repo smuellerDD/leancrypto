@@ -23,16 +23,15 @@
 #include "ext_headers.h"
 #include "visibility.h"
 
-#define HWCAP_ASIMD  (1 << 1)
-#define HWCAP_AES    (1 << 3)
-#define HWCAP_PMULL  (1 << 4)
-#define HWCAP_SHA1   (1 << 5)
-#define HWCAP_SHA2   (1 << 6)
-#define HWCAP_SHA3   (1 << 17)
+#define HWCAP_ASIMD (1 << 1)
+#define HWCAP_AES (1 << 3)
+#define HWCAP_PMULL (1 << 4)
+#define HWCAP_SHA1 (1 << 5)
+#define HWCAP_SHA2 (1 << 6)
+#define HWCAP_SHA3 (1 << 17)
 #define HWCAP_SHA512 (1 << 21)
 
-LC_INTERFACE_FUNCTION(
-enum lc_cpu_features, lc_cpu_feature_available, void)
+LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 {
 	unsigned long c;
 

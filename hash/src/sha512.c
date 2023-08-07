@@ -59,17 +59,15 @@ static void sha512_selftest(const struct lc_hash *sha512, int *tested,
 			    const char *impl)
 {
 	static const uint8_t msg_512[] = { 0x7F, 0xAD, 0x12 };
-	static const uint8_t exp_512[] = { 0x53, 0x35, 0x98, 0xe5, 0x29, 0x49,
-					   0x18, 0xa0, 0xaf, 0x4b, 0x3a, 0x62,
-					   0x31, 0xcb, 0xd7, 0x19, 0x21, 0xdb,
-					   0x80, 0xe1, 0x00, 0xa0, 0x74, 0x95,
-					   0xb4, 0x44, 0xc4, 0x7a, 0xdb, 0xbc,
-					   0x9a, 0x64, 0x76, 0xbb, 0xc8, 0xdb,
-					   0x8e, 0xe3, 0x0c, 0x87, 0x2f, 0x11,
-					   0x35, 0xf1, 0x64, 0x65, 0x9c, 0x52,
-					   0xce, 0xc7, 0x7c, 0xcf, 0xb8, 0xc7,
-					   0xd8, 0x57, 0x63, 0xda, 0xee, 0x07,
-					   0x9f, 0x60, 0x0c, 0x79 };
+	static const uint8_t exp_512[] = {
+		0x53, 0x35, 0x98, 0xe5, 0x29, 0x49, 0x18, 0xa0, 0xaf, 0x4b,
+		0x3a, 0x62, 0x31, 0xcb, 0xd7, 0x19, 0x21, 0xdb, 0x80, 0xe1,
+		0x00, 0xa0, 0x74, 0x95, 0xb4, 0x44, 0xc4, 0x7a, 0xdb, 0xbc,
+		0x9a, 0x64, 0x76, 0xbb, 0xc8, 0xdb, 0x8e, 0xe3, 0x0c, 0x87,
+		0x2f, 0x11, 0x35, 0xf1, 0x64, 0x65, 0x9c, 0x52, 0xce, 0xc7,
+		0x7c, 0xcf, 0xb8, 0xc7, 0xd8, 0x57, 0x63, 0xda, 0xee, 0x07,
+		0x9f, 0x60, 0x0c, 0x79
+	};
 	uint8_t act[LC_SHA512_SIZE_DIGEST];
 
 	LC_SELFTEST_RUN(tested);
@@ -102,15 +100,15 @@ static void sha512_init(void *_state)
 
 static inline uint64_t ror(uint64_t x, int n)
 {
-	return ( (x >> (n&(64-1))) | (x << ((64-n)&(64-1))) );
+	return ((x >> (n & (64 - 1))) | (x << ((64 - n) & (64 - 1))));
 }
 
-#define CH(x, y, z)	((x & y) ^ (~x & z))
-#define MAJ(x, y, z)	((x & y) ^ (x & z) ^ (y & z))
-#define S0(x)		(ror(x, 28) ^ ror(x, 34) ^ ror(x, 39))
-#define S1(x)		(ror(x, 14) ^ ror(x, 18) ^ ror(x, 41))
-#define s0(x)		(ror(x, 1) ^ ror(x, 8) ^ (x >> 7))
-#define s1(x)		(ror(x, 19) ^ ror(x, 61) ^ (x >> 6))
+#define CH(x, y, z) ((x & y) ^ (~x & z))
+#define MAJ(x, y, z) ((x & y) ^ (x & z) ^ (y & z))
+#define S0(x) (ror(x, 28) ^ ror(x, 34) ^ ror(x, 39))
+#define S1(x) (ror(x, 14) ^ ror(x, 18) ^ ror(x, 41))
+#define s0(x) (ror(x, 1) ^ ror(x, 8) ^ (x >> 7))
+#define s1(x) (ror(x, 19) ^ ror(x, 61) ^ (x >> 6))
 
 static inline void sha512_transform(struct lc_sha512_state *ctx,
 				    const uint8_t *in)
@@ -118,27 +116,46 @@ static inline void sha512_transform(struct lc_sha512_state *ctx,
 	uint64_t W[80], a, b, c, d, e, f, g, h, T1, T2;
 	unsigned int i;
 
-	a = ctx->H[0]; b = ctx->H[1]; c = ctx->H[2]; d = ctx->H[3];
-	e = ctx->H[4]; f = ctx->H[5]; g = ctx->H[6]; h = ctx->H[7];
+	a = ctx->H[0];
+	b = ctx->H[1];
+	c = ctx->H[2];
+	d = ctx->H[3];
+	e = ctx->H[4];
+	f = ctx->H[5];
+	g = ctx->H[6];
+	h = ctx->H[7];
 
 	for (i = 0; i < 80; i++) {
 		if (i < 16) {
 			W[i] = ptr_to_be64(in);
 			in += 8;
 		} else {
-			W[i] = s1(W[i - 2]) + W[i - 7] + s0(W[i - 15]) + W[i - 16];
+			W[i] = s1(W[i - 2]) + W[i - 7] + s0(W[i - 15]) +
+			       W[i - 16];
 
 			/* Zeroization */
 			W[i - 16] = 0;
 		}
 		T1 = h + S1(e) + CH(e, f, g) + sha512_K[i] + W[i];
 		T2 = S0(a) + MAJ(a, b, c);
-		h = g; g = f; f = e; e = d + T1;
-		d = c; c = b; b = a; a = T1 + T2;
+		h = g;
+		g = f;
+		f = e;
+		e = d + T1;
+		d = c;
+		c = b;
+		b = a;
+		a = T1 + T2;
 	}
 
-	ctx->H[0] += a; ctx->H[1] += b; ctx->H[2] += c; ctx->H[3] += d;
-	ctx->H[4] += e; ctx->H[5] += f; ctx->H[6] += g; ctx->H[7] += h;
+	ctx->H[0] += a;
+	ctx->H[1] += b;
+	ctx->H[2] += c;
+	ctx->H[3] += d;
+	ctx->H[4] += e;
+	ctx->H[5] += f;
+	ctx->H[6] += g;
+	ctx->H[7] += h;
 
 	/* Zeroize intermediate values - register are not zeroized */
 	for (i = 64; i < 80; i++)
@@ -246,13 +263,13 @@ static size_t sha512_get_digestsize(void *_state)
 }
 
 static const struct lc_hash _sha512 = {
-	.init		= sha512_init,
-	.update		= sha512_update,
-	.final		= sha512_final,
-	.set_digestsize	= NULL,
+	.init = sha512_init,
+	.update = sha512_update,
+	.final = sha512_final,
+	.set_digestsize = NULL,
 	.get_digestsize = sha512_get_digestsize,
-	.blocksize	= LC_SHA512_SIZE_BLOCK,
-	.statesize	= sizeof(struct lc_sha512_state),
+	.blocksize = LC_SHA512_SIZE_BLOCK,
+	.statesize = sizeof(struct lc_sha512_state),
 };
 
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha512) = &_sha512;
