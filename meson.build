@@ -102,6 +102,8 @@ meson.add_dist_script(dist_script, meson.project_version())
 # Project-specific defines
 ################################################################################
 
+cc = meson.get_compiler('c')
+
 include_dirs = include_directories([ 'aead/api',
 				     'drng/api',
 				     'drng/src',
@@ -276,7 +278,12 @@ endif
 ################################################################################
 
 src = [ ]
+
+# Internal support libs that need to be linked in as a whole
 leancrypto_support_libs = [ ]
+
+# External libraries leancrypto should link to
+leancrypto_link = [ ]
 
 foreach n : subdirs
 	subdir(n)
@@ -294,6 +301,7 @@ run_command(header_script,
 leancrypto_static_lib = static_library('leancrypto',
 	[ src, internal_src ],
 	include_directories: [ include_dirs, include_internal_dirs ],
+	dependencies: [ leancrypto_link ],
 	link_whole: [ leancrypto_support_libs ],
 	install: true
 	)
@@ -302,6 +310,7 @@ leancrypto_lib = library('leancrypto',
 	[ src, internal_src ],
 	include_directories: [ include_dirs, include_internal_dirs ],
 	soversion: version_array[0],
+	dependencies: [ leancrypto_link ],
 	link_whole: [ leancrypto_support_libs ],
 	install: true
 	)

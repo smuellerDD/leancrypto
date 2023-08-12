@@ -68,3 +68,14 @@ option('small_stack', type: 'feature', value: 'disabled',
 
 option('enable_selftests', type: 'feature', value: 'enabled',
        description: 'Compile and enable the self tests for all algorithms invoked before first use')
+
+option('seedsource', type: 'combo', value: 'builtin',
+	choices: ['builtin',
+		  'esdm',
+		 ],
+	description: '''Select the seed source for leancrypto
+
+The seed source for the lc_seeded_rng is determined at compile time. The builtin
+source uses the standard operating system seed source like getrandom or
+getentropy system calls. But other seed sources are allowed to be specified.
+''')

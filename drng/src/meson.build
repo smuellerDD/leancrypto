@@ -67,18 +67,24 @@ endif
 if (seeded_rng == 1)
 	src += files([ 'seeded_rng.c' ])
 
-	if (build_machine.system() == 'linux')
-		src += files([ 'seeded_rng_linux.c' ])
-	endif
+	if get_option('seedsource') == 'esdm'
+		src += files([ 'seeded_rng_esdm.c' ])
+		leancrypto_link += cc.find_library( 'esdm_rpc_client',
+						    required: true)
+	else
+		if (build_machine.system() == 'linux')
+			src += files([ 'seeded_rng_linux.c' ])
+		endif
 
-	if ((build_machine.system() == 'dragonfly') or
-	    (build_machine.system() == 'freebsd') or
-	    (build_machine.system() == 'openbsd'))
-		src += files([ 'seeded_rng_bsd.c' ])
-	endif
+		if ((build_machine.system() == 'dragonfly') or
+		    (build_machine.system() == 'freebsd') or
+		    (build_machine.system() == 'openbsd'))
+			src += files([ 'seeded_rng_bsd.c' ])
+		endif
 
-	if (build_machine.system() == 'darwin')
-		src += files([ 'seeded_rng_darwin.c' ])
+		if (build_machine.system() == 'darwin')
+			src += files([ 'seeded_rng_darwin.c' ])
+		endif
 	endif
 endif
 
