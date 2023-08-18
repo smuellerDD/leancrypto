@@ -32,8 +32,12 @@ static int seeded_rng_selftest(void)
 
 	memset(act1, 0, sizeof(act1));
 	memset(act2, 0, sizeof(act2));
-	CKINT(lc_rng_generate(lc_seeded_rng, NULL, 0, act1, sizeof(act1)));
-	CKINT(lc_rng_generate(lc_seeded_rng, NULL, 0, act2, sizeof(act2)));
+	CKINT_LOG(lc_rng_generate(lc_seeded_rng, NULL, 0, act1, sizeof(act1)),
+		  "Cannot generate random numbers using seeded DRNG: %d\n",
+		  ret);
+	CKINT_LOG(lc_rng_generate(lc_seeded_rng, NULL, 0, act2, sizeof(act2)),
+		  "Cannot generate random numbers using seeded DRNG: %d\n",
+		  ret);
 	if (!lc_memcmp_secure(act1, sizeof(act1), act2, sizeof(act2))) {
 		printf("Seeded RNG produced identical data\n");
 		return 1;

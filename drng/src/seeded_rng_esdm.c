@@ -23,12 +23,36 @@
 #include <errno.h>
 
 #include "seeded_rng.h"
+#include "ret_checkers.h"
+#include "visibility.h"
+
+static bool initialized = false;
+
+static int seeded_rng_esdm_lib_init(void)
+{
+	esdm_rpcc_set_max_online_nodes(1);
+	return esdm_rpcc_init_unpriv_service(NULL);
+}
+
+void seeded_rng_noise_fini(void)
+{
+	if (initialized) {
+		esdm_rpcc_fini_unpriv_service();
+		initialized = false;
+	}
+}
 
 ssize_t get_full_entropy(uint8_t *buffer, size_t bufferlen)
 {
 	ssize_t ret;
 
+	if (!initialized) {
+		CKINT(seeded_rng_esdm_lib_init());
+		initialized = true;
+	}
+
 	esdm_invoke(esdm_rpcc_get_random_bytes_full(buffer, bufferlen));
 
+out:
 	return ret ? ret : (ssize_t)bufferlen;
 }

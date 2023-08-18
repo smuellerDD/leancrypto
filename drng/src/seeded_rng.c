@@ -168,6 +168,8 @@ void lc_seeded_rng_zero_state(void)
 
 	if (seeded_rng.last_seeded)
 		lc_rng_zero(rng);
+
+	seeded_rng_noise_fini();
 }
 
 static unsigned long time_after_now(unsigned long base)
