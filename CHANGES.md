@@ -9,6 +9,10 @@ Changes 0.7.0-prerelease:
 
 * Kyber: switch responder and initiator definitions
 
+* enhancement: add ESDM seed source to seed lc_seeded_rng
+
+* editorial: reformat code using clang-format and provided configuration file
+
 Changes 0.6.0:
 
 * enhancement: Linux - add memfd_secret(2) support for secure memory allocation
