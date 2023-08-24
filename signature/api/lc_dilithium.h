@@ -48,6 +48,8 @@ extern "C" {
 
 #define LC_DILITHIUM_SEEDBYTES 32
 #define LC_DILITHIUM_CRHBYTES 64
+#define LC_DILITHIUM_TRBYTES 64
+#define LC_DILITHIUM_RNDBYTES 32
 #define LC_DILITHIUM_N 256
 #define LC_DILITHIUM_Q 8380417
 #define LC_DILITHIUM_D 13
@@ -111,7 +113,8 @@ extern "C" {
 	(LC_DILITHIUM_SEEDBYTES +                                              \
 	 LC_DILITHIUM_K * LC_DILITHIUM_POLYT1_PACKEDBYTES)
 #define LC_DILITHIUM_SECRETKEYBYTES                                            \
-	(3 * LC_DILITHIUM_SEEDBYTES +                                          \
+	(2 * LC_DILITHIUM_SEEDBYTES +                                          \
+	 LC_DILITHIUM_TRBYTES +                                                \
 	 LC_DILITHIUM_L * LC_DILITHIUM_POLYETA_PACKEDBYTES +                   \
 	 LC_DILITHIUM_K * LC_DILITHIUM_POLYETA_PACKEDBYTES +                   \
 	 LC_DILITHIUM_K * LC_DILITHIUM_POLYT0_PACKEDBYTES)

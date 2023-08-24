@@ -86,7 +86,7 @@ void unpack_pk(uint8_t rho[LC_DILITHIUM_SEEDBYTES], polyveck *t1,
  */
 void pack_sk(struct lc_dilithium_sk *sk,
 	     const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
-	     const uint8_t tr[LC_DILITHIUM_SEEDBYTES],
+	     const uint8_t tr[LC_DILITHIUM_TRBYTES],
 	     const uint8_t key[LC_DILITHIUM_SEEDBYTES], const polyveck *t0,
 	     const polyvecl *s1, const polyveck *s2)
 {
@@ -101,9 +101,9 @@ void pack_sk(struct lc_dilithium_sk *sk,
 		seckey[i] = key[i];
 	seckey += LC_DILITHIUM_SEEDBYTES;
 
-	for (i = 0; i < LC_DILITHIUM_SEEDBYTES; ++i)
+	for (i = 0; i < LC_DILITHIUM_TRBYTES; ++i)
 		seckey[i] = tr[i];
-	seckey += LC_DILITHIUM_SEEDBYTES;
+	seckey += LC_DILITHIUM_TRBYTES;
 
 	for (i = 0; i < LC_DILITHIUM_L; ++i)
 		polyeta_pack(seckey + i * LC_DILITHIUM_POLYETA_PACKEDBYTES,
@@ -132,7 +132,7 @@ void pack_sk(struct lc_dilithium_sk *sk,
  * @param sk [in] byte array containing bit-packed sk
  */
 void unpack_sk(uint8_t rho[LC_DILITHIUM_SEEDBYTES],
-	       uint8_t tr[LC_DILITHIUM_SEEDBYTES],
+	       uint8_t tr[LC_DILITHIUM_TRBYTES],
 	       uint8_t key[LC_DILITHIUM_SEEDBYTES], polyveck *t0, polyvecl *s1,
 	       polyveck *s2, const struct lc_dilithium_sk *sk)
 {
@@ -147,9 +147,9 @@ void unpack_sk(uint8_t rho[LC_DILITHIUM_SEEDBYTES],
 		key[i] = seckey[i];
 	seckey += LC_DILITHIUM_SEEDBYTES;
 
-	for (i = 0; i < LC_DILITHIUM_SEEDBYTES; ++i)
+	for (i = 0; i < LC_DILITHIUM_TRBYTES; ++i)
 		tr[i] = seckey[i];
-	seckey += LC_DILITHIUM_SEEDBYTES;
+	seckey += LC_DILITHIUM_TRBYTES;
 
 	for (i = 0; i < LC_DILITHIUM_L; ++i)
 		polyeta_unpack(&s1->vec[i],
@@ -172,13 +172,13 @@ void unpack_sk(uint8_t rho[LC_DILITHIUM_SEEDBYTES],
  * @param t0 [out] pointer to output vector t0
  * @param sk [in] byte array containing bit-packed sk
  */
-void unpack_sk_tr(uint8_t tr[LC_DILITHIUM_SEEDBYTES],
+void unpack_sk_tr(uint8_t tr[LC_DILITHIUM_TRBYTES],
 		  const struct lc_dilithium_sk *sk)
 {
 	unsigned int i;
 	const uint8_t *seckey = sk->sk + 2 * LC_DILITHIUM_SEEDBYTES;
 
-	for (i = 0; i < LC_DILITHIUM_SEEDBYTES; ++i)
+	for (i = 0; i < LC_DILITHIUM_TRBYTES; ++i)
 		tr[i] = seckey[i];
 }
 
@@ -209,7 +209,7 @@ void unpack_sk_ex_tr(uint8_t rho[LC_DILITHIUM_SEEDBYTES],
 	seckey += LC_DILITHIUM_SEEDBYTES;
 
 	/* Skip tr */
-	seckey += LC_DILITHIUM_SEEDBYTES;
+	seckey += LC_DILITHIUM_TRBYTES;
 
 	for (i = 0; i < LC_DILITHIUM_L; ++i)
 		polyeta_unpack(&s1->vec[i],

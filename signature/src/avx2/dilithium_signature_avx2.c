@@ -47,7 +47,8 @@ struct workspace_sign {
 	/* See comment below - currently not needed */
 	//BUF_ALIGNED_UINT8_M256I(POLY_UNIFORM_GAMMA1_NBLOCKS *
 	//	      LC_SHAKE_256_SIZE_BLOCK + 14) poly_uniform_gamma1[4];
-	uint8_t seedbuf[3 * LC_DILITHIUM_SEEDBYTES + 2 * LC_DILITHIUM_CRHBYTES];
+	uint8_t seedbuf[2 * LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_TRBYTES +
+			LC_DILITHIUM_RNDBYTES + 2 * LC_DILITHIUM_CRHBYTES];
 	uint8_t hintbuf[LC_DILITHIUM_N];
 	polyvecl mat[LC_DILITHIUM_K], s1, z;
 	polyveck t0, s2, w1;
@@ -194,11 +195,13 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_avx2,
 
 	/* Pack secret vectors */
 	for (i = 0; i < LC_DILITHIUM_L; i++)
-		polyeta_pack_avx(sk->sk + 3 * LC_DILITHIUM_SEEDBYTES +
+		polyeta_pack_avx(sk->sk + 2 * LC_DILITHIUM_SEEDBYTES +
+					 LC_DILITHIUM_TRBYTES +
 					 i * LC_DILITHIUM_POLYETA_PACKEDBYTES,
 				 &ws->s1.vec[i]);
 	for (i = 0; i < LC_DILITHIUM_K; i++)
-		polyeta_pack_avx(sk->sk + 3 * LC_DILITHIUM_SEEDBYTES +
+		polyeta_pack_avx(sk->sk + 2 * LC_DILITHIUM_SEEDBYTES +
+					 LC_DILITHIUM_TRBYTES +
 					 (LC_DILITHIUM_L +
 					  i) * LC_DILITHIUM_POLYETA_PACKEDBYTES,
 				 &ws->s2.vec[i]);
@@ -226,7 +229,8 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_avx2,
 					i * LC_DILITHIUM_POLYT1_PACKEDBYTES,
 				&ws->t1);
 		polyt0_pack_avx(
-			sk->sk + 3 * LC_DILITHIUM_SEEDBYTES +
+			sk->sk + 2 * LC_DILITHIUM_SEEDBYTES +
+				LC_DILITHIUM_TRBYTES +
 				(LC_DILITHIUM_L + LC_DILITHIUM_K) *
 					LC_DILITHIUM_POLYETA_PACKEDBYTES +
 				i * LC_DILITHIUM_POLYT0_PACKEDBYTES,
@@ -235,7 +239,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_avx2,
 
 	/* Compute H(rho, t1) and store in secret key */
 	lc_shake(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES,
-		 sk->sk + 2 * LC_DILITHIUM_SEEDBYTES, LC_DILITHIUM_SEEDBYTES);
+		 sk->sk + 2 * LC_DILITHIUM_SEEDBYTES, LC_DILITHIUM_TRBYTES);
 
 out:
 	LC_RELEASE_MEM(ws);
@@ -248,7 +252,7 @@ static int lc_dilithium_sign_avx2_internal(struct lc_dilithium_sig *sig,
 					   struct lc_rng_ctx *rng_ctx)
 {
 	unsigned int i, n, pos;
-	uint8_t *rho, *key, *mu, *rhoprime;
+	uint8_t *rho, *key, *mu, *rhoprime, *rnd;
 	uint8_t *hint = sig->sig + LC_DILITHIUM_SEEDBYTES +
 			LC_DILITHIUM_L * LC_DILITHIUM_POLYZ_PACKEDBYTES;
 	uint64_t nonce = 0;
@@ -256,8 +260,9 @@ static int lc_dilithium_sign_avx2_internal(struct lc_dilithium_sig *sig,
 
 	rho = ws->seedbuf;
 	/* Skip tr which is in rho + LC_DILITHIUM_SEEDBYTES; */
-	key = rho + 2 * LC_DILITHIUM_SEEDBYTES;
-	mu = key + LC_DILITHIUM_SEEDBYTES;
+	key = rho + LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_TRBYTES;
+	rnd = key + LC_DILITHIUM_SEEDBYTES;
+	mu = rnd + LC_DILITHIUM_RNDBYTES;
 	rhoprime = mu + LC_DILITHIUM_CRHBYTES;
 
 	/* Compute CRH(tr, msg) */
@@ -265,13 +270,15 @@ static int lc_dilithium_sign_avx2_internal(struct lc_dilithium_sig *sig,
 	lc_hash_final(hash_ctx, mu);
 
 	if (rng_ctx) {
-		CKINT(lc_rng_generate(rng_ctx, NULL, 0, rhoprime,
-				      LC_DILITHIUM_CRHBYTES));
+		CKINT(lc_rng_generate(rng_ctx, NULL, 0, rnd,
+				      LC_DILITHIUM_RNDBYTES));
 	} else {
-		lc_shake(lc_shake256, key,
-			 LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_CRHBYTES,
-			 rhoprime, LC_DILITHIUM_CRHBYTES);
+		memset(rnd, 0, LC_DILITHIUM_RNDBYTES);
 	}
+	lc_shake(lc_shake256, key,
+		 LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_RNDBYTES +
+		 LC_DILITHIUM_CRHBYTES,
+		 rhoprime, LC_DILITHIUM_CRHBYTES);
 
 	/* Expand matrix and transform vectors */
 	polyvec_matrix_expand(ws->mat, rho, ws->poly_uniform_4x_buf,
@@ -405,12 +412,12 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_avx2, struct lc_dilithium_sig *sig,
 
 	rho = ws->seedbuf;
 	tr = rho + LC_DILITHIUM_SEEDBYTES;
-	key = tr + LC_DILITHIUM_SEEDBYTES;
+	key = tr + LC_DILITHIUM_TRBYTES;
 	unpack_sk_avx2(rho, tr, key, &ws->t0, &ws->s1, &ws->s2, sk->sk);
 
-	/* Compute CRH(tr, msg) */
+	/* Compute mu = CRH(tr, msg) */
 	lc_hash_init(hash_ctx);
-	lc_hash_update(hash_ctx, tr, LC_DILITHIUM_SEEDBYTES);
+	lc_hash_update(hash_ctx, tr, LC_DILITHIUM_TRBYTES);
 	lc_hash_update(hash_ctx, m, mlen);
 
 	ret = lc_dilithium_sign_avx2_internal(sig, ws, hash_ctx, rng_ctx);
@@ -425,7 +432,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_init_avx2,
 		      struct lc_hash_ctx *hash_ctx,
 		      const struct lc_dilithium_sk *sk)
 {
-	uint8_t tr[LC_DILITHIUM_SEEDBYTES];
+	uint8_t tr[LC_DILITHIUM_TRBYTES];
 	static int tested = 0;
 
 	/* rng_ctx is allowed to be NULL as handled below */
@@ -441,9 +448,9 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_init_avx2,
 
 	unpack_sk_avx2_tr(tr, sk);
 
-	/* Compute CRH(tr, msg) */
+	/* Compute mu = CRH(tr, msg) */
 	lc_hash_init(hash_ctx);
-	lc_hash_update(hash_ctx, tr, LC_DILITHIUM_SEEDBYTES);
+	lc_hash_update(hash_ctx, tr, LC_DILITHIUM_TRBYTES);
 	lc_memset_secure(tr, 0, sizeof(tr));
 
 	return 0;
@@ -480,7 +487,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_final_avx2,
 
 	rho = ws->seedbuf;
 	/* Skip tr which is in rho + LC_DILITHIUM_SEEDBYTES; */
-	key = rho + 2 * LC_DILITHIUM_SEEDBYTES;
+	key = rho + LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_TRBYTES;
 	unpack_sk_avx2_ex_tr(rho, key, &ws->t0, &ws->s1, &ws->s2, sk->sk);
 
 	ret = lc_dilithium_sign_avx2_internal(sig, ws, hash_ctx, rng_ctx);
@@ -598,12 +605,15 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_avx2,
 	dilithium_sigver_tester(&tested, "Dilithium Sigver AVX2",
 				lc_dilithium_verify_avx2);
 
+	/* Make sure that ->mu is large enough for ->tr */
+	BUILD_BUG_ON(LC_DILITHIUM_TRBYTES > LC_DILITHIUM_CRHBYTES);
+
 	/* Compute CRH(H(rho, t1), msg) */
 	lc_shake(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES, ws->mu,
-		 LC_DILITHIUM_SEEDBYTES);
+		 LC_DILITHIUM_TRBYTES);
 
 	lc_hash_init(hash_ctx);
-	lc_hash_update(hash_ctx, ws->mu, LC_DILITHIUM_SEEDBYTES);
+	lc_hash_update(hash_ctx, ws->mu, LC_DILITHIUM_TRBYTES);
 	lc_hash_update(hash_ctx, m, mlen);
 
 	ret = lc_dilithium_verify_avx2_internal(sig, pk, ws, hash_ctx);
@@ -618,7 +628,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_init_avx2,
 		      struct lc_hash_ctx *hash_ctx,
 		      const struct lc_dilithium_pk *pk)
 {
-	uint8_t mu[LC_DILITHIUM_SEEDBYTES];
+	uint8_t mu[LC_DILITHIUM_TRBYTES];
 	static int tested = 0;
 
 	/* rng_ctx is allowed to be NULL as handled below */
@@ -634,10 +644,10 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_init_avx2,
 
 	/* Compute CRH(H(rho, t1), msg) */
 	lc_shake(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES, mu,
-		 LC_DILITHIUM_SEEDBYTES);
+		 LC_DILITHIUM_TRBYTES);
 
 	lc_hash_init(hash_ctx);
-	lc_hash_update(hash_ctx, mu, LC_DILITHIUM_SEEDBYTES);
+	lc_hash_update(hash_ctx, mu, LC_DILITHIUM_TRBYTES);
 	lc_memset_secure(mu, 0, sizeof(mu));
 
 	return 0;

@@ -68,23 +68,26 @@
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #endif
 
-static uint64_t ctr = 0;
+struct lc_hash_ctx *rng_hash_ctx = NULL;
 
 static int randombytes(void *_state, const uint8_t *addtl_input,
 		       size_t addtl_input_len, uint8_t *out, size_t outlen)
 {
-	unsigned int i;
-	uint8_t buf[8];
-
-	(void)_state;
 	(void)addtl_input;
 	(void)addtl_input_len;
+	(void)_state;
 
-	for (i = 0; i < 8; ++i)
-		buf[i] = (uint8_t)(ctr >> 8 * i);
+	if (!rng_hash_ctx) {
+		int ret = lc_hash_alloc(lc_shake128, &rng_hash_ctx);
 
-	ctr++;
-	lc_shake(lc_shake128, buf, 8, out, outlen);
+		if (ret)
+			return ret;
+
+		lc_hash_init(rng_hash_ctx);
+	}
+
+	lc_hash_set_digestsize(rng_hash_ctx, outlen);
+	lc_hash_final(rng_hash_ctx, out);
 
 	return 0;
 }
@@ -151,13 +154,16 @@ int _dilithium_tester(
 	struct lc_rng_ctx dilithium_rng = { .rng = &dilithium_drng,
 					    .rng_state = NULL };
 	unsigned int nvectors;
+#if (defined(SHOW_SHAKEd_KEY) && !defined(GENERATE_VECTORS))
+	uint8_t buf[32];
+#endif
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	(void)j;
 	(void)k;
 	(void)l;
 
-	ctr = 0;
+	lc_hash_init(rng_hash_ctx);
 
 #ifdef GENERATE_VECTORS
 	printf("#ifndef DILITHIUM_TESTVECTORS_H\n"
@@ -255,20 +261,20 @@ int _dilithium_tester(
 
 #ifdef SHOW_SHAKEd_KEY
 		printf("count = %u\n", i);
-		lc_shake(lc_shake256, pk.pk, LC_DILITHIUM_PUBLICKEYBYTES, buf,
-			 32);
+		lc_shake(lc_shake256, ws->pk.pk, LC_DILITHIUM_PUBLICKEYBYTES,
+			 buf, 32);
 		printf("pk = ");
 		for (j = 0; j < 32; ++j)
 			printf("%02x", buf[j]);
 		printf("\n");
-		lc_shake(lc_shake256, sk.sk, LC_DILITHIUM_SECRETKEYBYTES, buf,
-			 32);
+		lc_shake(lc_shake256, ws->sk.sk, LC_DILITHIUM_SECRETKEYBYTES,
+			 buf, 32);
 		printf("sk = ");
 		for (j = 0; j < 32; ++j)
 			printf("%02x", buf[j]);
 		printf("\n");
-		lc_shake(lc_shake256, sig.sig, LC_DILITHIUM_CRYPTO_BYTES, buf,
-			 32);
+		lc_shake(lc_shake256, ws->sig.sig, LC_DILITHIUM_CRYPTO_BYTES,
+			 buf, 32);
 		printf("sig = ");
 		for (j = 0; j < 32; ++j)
 			printf("%02x", buf[j]);
@@ -503,9 +509,11 @@ int _dilithium_tester(
 #ifdef GENERATE_VECTORS
 	printf("\n};\n");
 	printf("#endif\n");
+#else
+out:
 #endif
 
-out:
+	lc_hash_zero_free(rng_hash_ctx);
 	LC_RELEASE_MEM(ws);
 	return ret;
 }
@@ -533,6 +541,18 @@ int _dilithium_init_update_final_tester(
 					  struct lc_hash_ctx *hash_ctx,
 					  const struct lc_dilithium_pk *pk))
 {
+#ifdef GENERATE_VECTORS
+	(void)rounds;
+	(void)_lc_dilithium_keypair;
+	(void)_lc_dilithium_sign_init;
+	(void)_lc_dilithium_sign_update;
+	(void)_lc_dilithium_sign_final;
+	(void)_lc_dilithium_verify_init;
+	(void)_lc_dilithium_verify_update;
+	(void)_lc_dilithium_verify_final;
+
+	return 0;
+#else /* GENERATE_VECTORS */
 	struct workspace {
 		struct lc_dilithium_pk pk;
 		struct lc_dilithium_sk sk;
@@ -566,7 +586,7 @@ int _dilithium_init_update_final_tester(
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
 #pragma GCC diagnostic pop
 
-	ctr = 0;
+	lc_hash_init(rng_hash_ctx);
 
 	nvectors = ARRAY_SIZE(dilithium_testvectors);
 
@@ -622,6 +642,8 @@ int _dilithium_init_update_final_tester(
 
 out:
 	lc_hash_zero(hash_ctx);
+	lc_hash_zero_free(rng_hash_ctx);
 	LC_RELEASE_MEM(ws);
 	return ret;
+#endif
 }
