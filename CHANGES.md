@@ -13,6 +13,12 @@ Changes 0.7.0-prerelease:
 
 * editorial: reformat code using clang-format and provided configuration file
 
+* Dilithium: Update implementation to match FIPS 204 (draft from Aug 24, 2023)
+
+* Kyber: Update implementation to match FIPS 203 (draft from Aug 24, 2023)
+
+* enhancement: Dilithium and Kyber security strengths are selectable via Meson options
+
 Changes 0.6.0:
 
 * enhancement: Linux - add memfd_secret(2) support for secure memory allocation

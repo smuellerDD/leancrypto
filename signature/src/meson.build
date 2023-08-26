@@ -2,6 +2,7 @@
 
 if get_option('dilithium').enabled()
 	src += files([
+		'dilithium_debug.c',
 		'dilithium_signature_c.c',
 		'dilithium_ntt.c',
 		'dilithium_pack.c',
@@ -10,13 +11,9 @@ if get_option('dilithium').enabled()
 		'dilithium_selftest.c'
 	])
 
-	if (x86_64_asm)
+	if (x86_64_asm and get_option('dilithium_strength') == '5')
 		subdir('avx2')
 	else
 		src += files([ 'dilithium_signature_api_c.c' ])
 	endif
-
-	include_files += files([
-		'../api/lc_dilithium.h'
-	])
 endif

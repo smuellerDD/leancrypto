@@ -67,7 +67,7 @@ if get_option('dilithium').enabled()
 	     args : [ 'c' ], timeout: 1000, is_parallel: false)
 	test('Dilithium invalid signature', dilithium_invalid_tester)
 
-	if (x86_64_asm)
+	if (x86_64_asm and get_option('dilithium_strength') == '5')
 		dilithium_tester_avx2 = executable('dilithium_tester_avx2',
 				[ 'dilithium_tester_avx2.c',
 				  'dilithium_tester.c',

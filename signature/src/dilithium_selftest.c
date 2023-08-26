@@ -3606,6 +3606,7 @@ static int _dilithium_keypair_tester(
 
 	/* Make sure to have the same rng state as the test case */
 	lc_hash_init(hash_ctx);
+	/* The test vector RNG state served a message gen before keygen */
 	lc_rng_generate(&dilithium_rng, NULL, 0, discard, sizeof(discard));
 
 	_lc_dilithium_keypair(&ws->pk, &ws->sk, &dilithium_rng);
@@ -3617,6 +3618,7 @@ static int _dilithium_keypair_tester(
 			    LC_DILITHIUM_PUBLICKEYBYTES, str);
 
 	LC_RELEASE_MEM(ws);
+	lc_hash_zero(hash_ctx);
 	return 0;
 }
 

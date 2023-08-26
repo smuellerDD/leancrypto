@@ -42,9 +42,7 @@ extern "C" {
  * 3 -> 225 bits of security strength
  * 5 -> 257 bits of security strength
  */
-#ifndef LC_DILITHIUM_MODE
-#define LC_DILITHIUM_MODE 5
-#endif
+#define LC_DILITHIUM_MODE @dilithium_strength@
 
 #define LC_DILITHIUM_SEEDBYTES 32
 #define LC_DILITHIUM_CRHBYTES 64
@@ -113,8 +111,7 @@ extern "C" {
 	(LC_DILITHIUM_SEEDBYTES +                                              \
 	 LC_DILITHIUM_K * LC_DILITHIUM_POLYT1_PACKEDBYTES)
 #define LC_DILITHIUM_SECRETKEYBYTES                                            \
-	(2 * LC_DILITHIUM_SEEDBYTES +                                          \
-	 LC_DILITHIUM_TRBYTES +                                                \
+	(2 * LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_TRBYTES +                   \
 	 LC_DILITHIUM_L * LC_DILITHIUM_POLYETA_PACKEDBYTES +                   \
 	 LC_DILITHIUM_K * LC_DILITHIUM_POLYETA_PACKEDBYTES +                   \
 	 LC_DILITHIUM_K * LC_DILITHIUM_POLYT0_PACKEDBYTES)

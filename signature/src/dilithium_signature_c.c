@@ -27,6 +27,7 @@
 
 #include "alignment.h"
 #include "build_bug_on.h"
+#include "dilithium_debug.h"
 #include "dilithium_polyvec.h"
 #include "dilithium_pack.h"
 #include "dilithium_selftest.h"
@@ -59,14 +60,22 @@ struct workspace_verify {
 	poly polyvecl_pointwise_acc_montgomery_buf;
 	polyvecl mat[LC_DILITHIUM_K], z;
 	polyveck t1, w1, h;
-	uint8_t buf[LC_DILITHIUM_K * LC_DILITHIUM_POLYW1_PACKEDBYTES];
+
+#define WS_VERIFY_BUF_SIZE (LC_DILITHIUM_K * LC_DILITHIUM_POLYW1_PACKEDBYTES)
+	uint8_t buf[WS_VERIFY_BUF_SIZE];
+
 	/* See comment below - currently not needed */
 	//uint8_t poly_challenge_buf[POLY_CHALLENGE_BYTES];
 	uint8_t rho[LC_DILITHIUM_SEEDBYTES];
 	uint8_t mu[LC_DILITHIUM_CRHBYTES];
-	/* See comment below - currently not needed */
-	//uint8_t poly_uniform_buf[POLY_UNIFORM_NBLOCKS *
-	//			 LC_SHAKE_128_SIZE_BLOCK + 2];
+
+#define WS_POLY_UNIFORM_BUF_SIZE                                               \
+	(POLY_UNIFORM_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK + 2)
+#if (WS_VERIFY_BUF_SIZE < WS_POLY_UNIFORM_BUF_SIZE)
+	/* See comment below - only needed if buf is too small */
+	uint8_t poly_uniform_buf[WS_POLY_UNIFORM_BUF_SIZE];
+#endif
+
 	BUF_ALIGNED_UINT8_UINT64(LC_DILITHIUM_SEEDBYTES) c;
 	BUF_ALIGNED_UINT8_UINT64(LC_DILITHIUM_SEEDBYTES) c2;
 };
@@ -104,15 +113,26 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_c, struct lc_dilithium_pk *pk,
 	/* Get randomness for rho, rhoprime and key */
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, ws->seedbuf,
 			      LC_DILITHIUM_SEEDBYTES));
+
 	lc_shake(lc_shake256, ws->seedbuf, LC_DILITHIUM_SEEDBYTES, ws->seedbuf,
 		 sizeof(ws->seedbuf));
 
 	rho = ws->seedbuf;
+	//dilithium_print_buffer(ws->seedbuf, LC_DILITHIUM_SEEDBYTES,
+	//			 "Keygen - RHO");
+
 	rhoprime = rho + LC_DILITHIUM_SEEDBYTES;
+	//dilithium_print_buffer(rhoprime, LC_DILITHIUM_CRHBYTES,
+	//			 "Keygen - RHOPrime");
+
 	key = rhoprime + LC_DILITHIUM_CRHBYTES;
+	//dilithium_print_buffer(key, LC_DILITHIUM_SEEDBYTES,
+	//			 "Keygen - Key");
 
 	/* Expand matrix */
 	polyvec_matrix_expand(ws->mat, rho, ws->poly_uniform_buf);
+	//dilitium_print_polyvecl_k(ws->mat,
+	//	"Keygen - MAT K x L x N matrix after ExpandA:");
 
 	/* Sample short vectors s1 and s2 */
 
@@ -126,28 +146,59 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_c, struct lc_dilithium_pk *pk,
 	polyvecl_uniform_eta(&ws->s1, rhoprime, 0, ws->poly_uniform_buf);
 	polyveck_uniform_eta(&ws->s2, rhoprime, LC_DILITHIUM_L,
 			     ws->poly_uniform_buf);
+	//dilitium_print_polyvecl(&ws->s1,
+	//			  "Keygen - S1 L x N matrix after ExpandS:");
+	//dilitium_print_polyveck(&ws->ss,
+	//			  "Keygen - S2 K x N matrix after ExpandS:");
 
 	/* Matrix-vector multiplication */
 	ws->s1hat = ws->s1;
+
 	polyvecl_ntt(&ws->s1hat);
+	//dilitium_print_polyvecl(&ws->s1,
+	//			  "Keygen - S1 L x N matrix after NTT:");
 
 	polyvec_matrix_pointwise_montgomery(
 		&ws->t1, ws->mat, &ws->s1hat,
 		&ws->polyvecl_pointwise_acc_montgomery_buf);
+	//dilitium_print_polyveck(&ws->t1,
+	//			  "Keygen - T1 K x N matrix after A*NTT(s1):");
+
 	polyveck_reduce(&ws->t1);
+	//dilitium_print_polyveck(&ws->t1,
+	//	"Keygen - T1 K x N matrix reduce after A*NTT(s1):");
+
 	polyveck_invntt_tomont(&ws->t1);
+	//dilitium_print_polyveck(&ws->t1,
+	//			  "Keygen - T1 K x N matrix after NTT-1:");
 
 	/* Add error vector s2 */
 	polyveck_add(&ws->t1, &ws->t1, &ws->s2);
+	//dilitium_print_polyveck(&ws->t1,
+	//			  "Keygen - T1 K x N matrix after add S2:");
 
 	/* Extract t1 and write public key */
 	polyveck_caddq(&ws->t1);
+	//dilitium_print_polyveck(&ws->t1,
+	//			  "Keygen - T1 K x N matrix caddq:");
+
 	polyveck_power2round(&ws->t1, &ws->t0, &ws->t1);
+	//dilitium_print_polyveck(&ws->t0,
+	//	"Keygen - T0 K x N matrix after power2round:");
+	//dilitium_print_polyveck(&ws->t1,
+	//	"Keygen - T1 K x N matrix after power2round:");
+
 	pack_pk(pk, rho, &ws->t1);
+	//dilithium_print_buffer(pk->pk, LC_DILITHIUM_PUBLICKEYBYTES,
+	//			 "Keygen - PK after pkEncode:");
 
 	/* Compute H(rho, t1) and write secret key */
 	lc_shake(lc_shake256, pk->pk, sizeof(pk->pk), ws->tr, sizeof(ws->tr));
+	//dilithium_print_buffer(ws->tr, sizeof(ws->tr), "Keygen - TR:");
+
 	pack_sk(sk, rho, ws->tr, key, &ws->t0, &ws->s1, &ws->s2);
+	//dilithium_print_buffer(sk->sk, LC_DILITHIUM_SECRETKEYBYTES,
+	//			 "Keygen - SK:");
 
 out:
 	LC_RELEASE_MEM(ws);
@@ -173,6 +224,7 @@ static int lc_dilithium_sign_c_internal(struct lc_dilithium_sig *sig,
 
 	lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_CRHBYTES);
 	lc_hash_final(hash_ctx, mu);
+	//dilithium_print_buffer(mu, LC_DILITHIUM_CRHBYTES, "Siggen - MU:");
 
 	if (rng_ctx) {
 		CKINT(lc_rng_generate(rng_ctx, NULL, 0, rnd,
@@ -182,7 +234,7 @@ static int lc_dilithium_sign_c_internal(struct lc_dilithium_sig *sig,
 	}
 	lc_shake(lc_shake256, key,
 		 LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_RNDBYTES +
-		 LC_DILITHIUM_CRHBYTES,
+			 LC_DILITHIUM_CRHBYTES,
 		 rhoprime, LC_DILITHIUM_CRHBYTES);
 
 	/* Expand matrix and transform vectors */
@@ -408,9 +460,11 @@ static int lc_dilithium_verify_c_internal(const struct lc_dilithium_sig *sig,
 	 * Use the buf for this operation as poly_uniform_buf is smaller than
 	 * buf and has the same alignment
 	 */
-	BUILD_BUG_ON(sizeof(ws->buf) <
-		     (POLY_UNIFORM_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK + 2));
+#if (WS_VERIFY_BUF_SIZE < WS_POLY_UNIFORM_BUF_SIZE)
+	polyvec_matrix_expand(ws->mat, ws->rho, ws->poly_uniform_buf);
+#else
 	polyvec_matrix_expand(ws->mat, ws->rho, ws->buf);
+#endif
 
 	polyvecl_ntt(&ws->z);
 	polyvec_matrix_pointwise_montgomery(
