@@ -126,8 +126,10 @@ subdirs = [ 'aead/src',
 	    'hash/src',
 	    'internal/src',
 	    'kdf/src',
+	    'kem/api',
 	    'kem/src',
 	    'otp/src',
+	    'signature/api',
 	    'signature/src',
 	    'sym/src'
 	  ]
@@ -209,7 +211,6 @@ endif
 if get_option('sha3').disabled() and get_option('kyber').enabled()
 	error('Kyber support requires SHA-3')
 endif
-
 
 ################################################################################
 # Enable assembler support

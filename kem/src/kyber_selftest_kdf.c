@@ -25,71 +25,18 @@
 #include "small_stack_support.h"
 
 #if LC_KYBER_K == 2
-#include "kyber_selftest_vector_512.h"
+#include "kyber_selftest_kdf_vector_512.h"
 #elif LC_KYBER_K == 3
-#include "kyber_selftest_vector_768.h"
+#include "kyber_selftest_kdf_vector_768.h"
 #elif LC_KYBER_K == 4
-#include "kyber_selftest_vector_1024.h"
+#include "kyber_selftest_kdf_vector_1024.h"
 #endif
 
-static int _kyber_kem_keygen_selftest(
+static int _kyber_kem_enc_kdf_selftest(
 	const char *impl,
-	int (*_lc_kyber_keypair)(struct lc_kyber_pk *pk, struct lc_kyber_sk *sk,
+	int (*_lc_kyber_enc_kdf)(struct lc_kyber_ct *ct, uint8_t *ss,
+				 size_t ss_len, const struct lc_kyber_pk *pk,
 				 struct lc_rng_ctx *rng_ctx))
-{
-	struct workspace {
-		struct lc_kyber_pk pk;
-		struct lc_kyber_sk sk;
-	};
-	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake128);
-	struct rand_state rand_state = {
-		.rng_hash_ctx = hash_ctx,
-	};
-
-	/*
-	 * The testing is based on the fact that,
-	 * - this "RNG" produces identical output
-	 * - the signature generation is performed with deterministic
-	 *   behavior (i.e. rng_ctx is NULL)
-	 */
-	struct lc_rng_ctx kyber_rng = { .rng = &kyber_drng,
-					.rng_state = &rand_state };
-	char str[25];
-	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
-
-	/* Make sure to have the same rng state as the test case */
-	lc_hash_init(hash_ctx);
-
-	_lc_kyber_keypair(&ws->pk, &ws->sk, &kyber_rng);
-	snprintf(str, sizeof(str), "%s PK", impl);
-	lc_compare_selftest(ws->pk.pk, kyber_testvectors[0].pk.pk,
-			    LC_CRYPTO_PUBLICKEYBYTES, str);
-	snprintf(str, sizeof(str), "%s SK", impl);
-	lc_compare_selftest(ws->sk.sk, kyber_testvectors[0].sk.sk,
-			    LC_CRYPTO_SECRETKEYBYTES, str);
-
-	LC_RELEASE_MEM(ws);
-	lc_hash_zero(hash_ctx);
-	return 0;
-}
-
-void kyber_kem_keygen_selftest(
-	int *tested, const char *impl,
-	int (*_lc_kyber_keypair)(struct lc_kyber_pk *pk, struct lc_kyber_sk *sk,
-				 struct lc_rng_ctx *rng_ctx))
-{
-	LC_SELFTEST_RUN(tested);
-
-	if (_kyber_kem_keygen_selftest(impl, _lc_kyber_keypair))
-		lc_compare_selftest((uint8_t *)"test", (uint8_t *)"fail", 4,
-				    impl);
-}
-
-static int _kyber_kem_enc_selftest(
-	const char *impl,
-	int (*_lc_kyber_enc)(struct lc_kyber_ct *ct, struct lc_kyber_ss *ss,
-			     const struct lc_kyber_pk *pk,
-			     struct lc_rng_ctx *rng_ctx))
 {
 	struct workspace {
 		struct lc_kyber_ct ct;
@@ -118,8 +65,8 @@ static int _kyber_kem_enc_selftest(
 	lc_rng_generate(&kyber_rng, NULL, 0, discard, sizeof(discard));
 
 	// Encapsulation
-	_lc_kyber_enc(&ws->ct, &ws->key_b, &kyber_testvectors[0].pk,
-		      &kyber_rng);
+	_lc_kyber_enc_kdf(&ws->ct, ws->key_b.ss, LC_KYBER_SSBYTES,
+			  &kyber_testvectors[0].pk, &kyber_rng);
 	snprintf(str, sizeof(str), "%s CT", impl);
 	lc_compare_selftest(ws->ct.ct, kyber_testvectors[0].ct.ct,
 			    LC_CRYPTO_CIPHERTEXTBYTES, str);
@@ -132,31 +79,31 @@ static int _kyber_kem_enc_selftest(
 	return 0;
 }
 
-void kyber_kem_enc_selftest(int *tested, const char *impl,
-			    int (*_lc_kyber_enc)(struct lc_kyber_ct *ct,
-						 struct lc_kyber_ss *ss,
-						 const struct lc_kyber_pk *pk,
-						 struct lc_rng_ctx *rng_ctx))
+void kyber_kem_enc_kdf_selftest(
+	int *tested, const char *impl,
+	int (*_lc_kyber_kdf_enc)(struct lc_kyber_ct *ct, uint8_t *ss,
+				 size_t ss_len, const struct lc_kyber_pk *pk,
+				 struct lc_rng_ctx *rng_ctx))
 {
 	LC_SELFTEST_RUN(tested);
 
-	if (_kyber_kem_enc_selftest(impl, _lc_kyber_enc))
+	if (_kyber_kem_enc_kdf_selftest(impl, _lc_kyber_kdf_enc))
 		lc_compare_selftest((uint8_t *)"test", (uint8_t *)"fail", 4,
 				    impl);
 }
 
-static int
-_kyber_kem_dec_selftest(const char *impl,
-			int (*_lc_kyber_dec)(struct lc_kyber_ss *ss,
-					     const struct lc_kyber_ct *ct,
-					     const struct lc_kyber_sk *sk))
+static int _kyber_kem_dec_kdf_selftest(
+	const char *impl,
+	int (*_lc_kyber_dec_kdf)(uint8_t *ss, size_t ss_len,
+				 const struct lc_kyber_ct *ct,
+				 const struct lc_kyber_sk *sk))
 {
 	struct lc_kyber_ss key_a;
 	char str[25];
 
 	// Decapsulation
-	_lc_kyber_dec(&key_a, &kyber_testvectors[0].ct,
-		      &kyber_testvectors[0].sk);
+	_lc_kyber_dec_kdf(key_a.ss, LC_KYBER_SSBYTES, &kyber_testvectors[0].ct,
+			  &kyber_testvectors[0].sk);
 	snprintf(str, sizeof(str), "%s SS", impl);
 	lc_compare_selftest(key_a.ss, kyber_testvectors[0].ss.ss,
 			    LC_KYBER_SSBYTES, str);
@@ -164,14 +111,15 @@ _kyber_kem_dec_selftest(const char *impl,
 	return 0;
 }
 
-void kyber_kem_dec_selftest(int *tested, const char *impl,
-			    int (*_lc_kyber_dec)(struct lc_kyber_ss *ss,
-						 const struct lc_kyber_ct *ct,
-						 const struct lc_kyber_sk *sk))
+void kyber_kem_dec_kdf_selftest(
+	int *tested, const char *impl,
+	int (*_lc_kyber_kdf_dec)(uint8_t *ss, size_t ss_len,
+				 const struct lc_kyber_ct *ct,
+				 const struct lc_kyber_sk *sk))
 {
 	LC_SELFTEST_RUN(tested);
 
-	if (_kyber_kem_dec_selftest(impl, _lc_kyber_dec))
+	if (_kyber_kem_dec_kdf_selftest(impl, _lc_kyber_kdf_dec))
 		lc_compare_selftest((uint8_t *)"test", (uint8_t *)"fail", 4,
 				    impl);
 }

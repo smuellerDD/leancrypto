@@ -38,7 +38,9 @@
  * vector file can be included and will be applied when this option
  * not defined any more.
  *
- * The generated data could be cross-compared with test_vectors*
+ * The generated non-KDF data could be cross-compared with test_vectors* when
+ * commenting out the final block "Decapsulation of invalid (random)
+ * ciphertexts" in ref/test/test_vectors.c
  * from https://github.com/pq-crystals/kyber.
  */
 #undef GENERATE_VECTORS
@@ -47,100 +49,43 @@
 #ifndef GENERATE_VECTORS
 #if LC_KYBER_K == 2
 #include "kyber_kem_tester_vectors_512.h"
+#include "kyber_kem_kdf_tester_vectors_512.h"
 #elif LC_KYBER_K == 3
 #include "kyber_kem_tester_vectors_768.h"
+#include "kyber_kem_kdf_tester_vectors_768.h"
 #elif LC_KYBER_K == 4
 #include "kyber_kem_tester_vectors_1024.h"
+#include "kyber_kem_kdf_tester_vectors_1024.h"
 #endif
 #endif
 
 #define NTESTS 50
 
-#define ORIGSEED                                                               \
-	3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5, 8, 9, 7, 9, 3, 2, 3, 8, 4, 6, 2, 6,   \
-		4, 3, 3, 8, 3, 2, 7, 9, 5
-
-static uint32_t origseed[32] = { ORIGSEED };
-static uint32_t seed[32] = { ORIGSEED };
-static uint32_t in[12];
-static uint32_t out[8];
-static int outleft = 0;
-
-#define ROTATE(x, b) (((x) << (b)) | ((x) >> (32 - (b))))
-#define MUSH(i, b) x = t[i] += (((x ^ seed[i]) + sum) ^ ROTATE(x, b));
-
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #endif
 
-static void surf(void)
-{
-	uint32_t t[12];
-	uint32_t x;
-	uint32_t sum = 0;
-	int r;
-	int i;
-	int loop;
-
-	for (i = 0; i < 12; ++i)
-		t[i] = in[i] ^ seed[12 + i];
-
-	for (i = 0; i < 8; ++i)
-		out[i] = seed[24 + i];
-
-	x = t[11];
-	for (loop = 0; loop < 2; ++loop) {
-		for (r = 0; r < 16; ++r) {
-			sum += 0x9e3779b9;
-			MUSH(0, 5)
-			MUSH(1, 7)
-			MUSH(2, 9)
-			MUSH(3, 13)
-			MUSH(4, 5)
-			MUSH(5, 7)
-			MUSH(6, 9)
-			MUSH(7, 13)
-			MUSH(8, 5)
-			MUSH(9, 7)
-			MUSH(10, 9)
-			MUSH(11, 13)
-		}
-		for (i = 0; i < 8; ++i)
-			out[i] ^= t[i + 4];
-	}
-}
+struct lc_hash_ctx *rng_hash_ctx = NULL;
 
 static int randombytes(void *_state, const uint8_t *addtl_input,
-		       size_t addtl_input_len, uint8_t *x, size_t xlen)
+		       size_t addtl_input_len, uint8_t *out, size_t outlen)
 {
-	(void)_state;
 	(void)addtl_input;
 	(void)addtl_input_len;
+	(void)_state;
 
-	while (xlen > 0) {
-		if (!outleft) {
-			if (!++in[0])
-				if (!++in[1])
-					if (!++in[2])
-						++in[3];
-			surf();
-			outleft = 8;
-		}
-		*x = (uint8_t)out[--outleft];
-		//printf("%02x", *x);
-		++x;
-		--xlen;
+	if (!rng_hash_ctx) {
+		int ret = lc_hash_alloc(lc_shake128, &rng_hash_ctx);
+
+		if (ret)
+			return ret;
+
+		lc_hash_init(rng_hash_ctx);
 	}
-	//printf("\n");
 
-	return 0;
-}
+	lc_hash_set_digestsize(rng_hash_ctx, outlen);
+	lc_hash_final(rng_hash_ctx, out);
 
-static int randombytes2(void *_state, const uint8_t *addtl_input,
-			size_t addtl_input_len, uint8_t *x, size_t xlen)
-{
-	randombytes(_state, addtl_input, addtl_input_len, x, xlen);
-	lc_hash(lc_sha3_256, x, xlen, x);
 	return 0;
 }
 
@@ -167,21 +112,15 @@ static const struct lc_rng kyber_drng = {
 	.zero = randombytes_zero,
 };
 
-static const struct lc_rng kyber_drng2 = {
-	.generate = randombytes2,
-	.seed = randombytes_seed,
-	.zero = randombytes_zero,
-};
-
 int _kyber_kem_tester(unsigned int rounds,
 		      int (*_lc_kyber_keypair)(struct lc_kyber_pk *pk,
 					       struct lc_kyber_sk *sk,
 					       struct lc_rng_ctx *rng_ctx),
-		      int (*_lc_kyber_enc)(struct lc_kyber_ct *ct, uint8_t *ss,
-					   size_t ss_len,
+		      int (*_lc_kyber_enc)(struct lc_kyber_ct *ct,
+					   struct lc_kyber_ss *ss,
 					   const struct lc_kyber_pk *pk,
 					   struct lc_rng_ctx *rng_ctx),
-		      int (*_lc_kyber_dec)(uint8_t *ss, size_t ss_len,
+		      int (*_lc_kyber_dec)(struct lc_kyber_ss *ss,
 					   const struct lc_kyber_ct *ct,
 					   const struct lc_kyber_sk *sk))
 {
@@ -201,16 +140,11 @@ int _kyber_kem_tester(unsigned int rounds,
 	 * - encapsulation was invoked with this RNG
 	 */
 	struct lc_rng_ctx kyber_rng = { .rng = &kyber_drng, .rng_state = NULL };
-	struct lc_rng_ctx kyber_rng2 = { .rng = &kyber_drng2,
-					 .rng_state = NULL };
 	unsigned int nvectors;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	/* Zeroize RNG state */
-	memcpy(seed, origseed, sizeof(origseed));
-	memset(in, 0, sizeof(in));
-	memset(out, 0, sizeof(out));
-	outleft = 0;
+	lc_hash_init(rng_hash_ctx);
 
 #ifdef GENERATE_VECTORS
 	printf("#ifndef KYBER_TESTVECTORS_H\n"
@@ -237,12 +171,10 @@ int _kyber_kem_tester(unsigned int rounds,
 		CKINT(_lc_kyber_keypair(&ws->pk, &ws->sk, &kyber_rng));
 
 		// Encapsulation
-		CKINT(_lc_kyber_enc(&ws->ct, ws->key_b.ss, LC_KYBER_SSBYTES,
-				    &ws->pk, &kyber_rng2));
+		CKINT(_lc_kyber_enc(&ws->ct, &ws->key_b, &ws->pk, &kyber_rng));
 
 		// Decapsulation
-		CKINT(_lc_kyber_dec(ws->key_a.ss, LC_KYBER_SSBYTES, &ws->ct,
-				    &ws->sk));
+		CKINT(_lc_kyber_dec(&ws->key_a, &ws->ct, &ws->sk));
 
 #ifdef DEBUG
 		printf("Public Key: ");
@@ -327,7 +259,6 @@ int _kyber_kem_tester(unsigned int rounds,
 		}
 
 		//printf("Sucessful validation of test vector %u\n", i);
-#endif
 
 		for (j = 0; j < LC_KYBER_SSBYTES; j++) {
 			if (ws->key_a.ss[j] != ws->key_b.ss[j]) {
@@ -336,6 +267,7 @@ int _kyber_kem_tester(unsigned int rounds,
 				goto out;
 			}
 		}
+#endif
 	}
 
 #ifdef GENERATE_VECTORS
@@ -344,6 +276,186 @@ int _kyber_kem_tester(unsigned int rounds,
 #endif
 
 out:
+	lc_hash_zero_free(rng_hash_ctx);
+	rng_hash_ctx = NULL;
+	LC_RELEASE_MEM(ws);
+	return ret;
+}
+
+int _kyber_kem_kdf_tester(
+	unsigned int rounds,
+	int (*_lc_kyber_keypair)(struct lc_kyber_pk *pk, struct lc_kyber_sk *sk,
+				 struct lc_rng_ctx *rng_ctx),
+	int (*_lc_kyber_kdf_enc)(struct lc_kyber_ct *ct, uint8_t *ss,
+				 size_t ss_len, const struct lc_kyber_pk *pk,
+				 struct lc_rng_ctx *rng_ctx),
+	int (*_lc_kyber_kdf_dec)(uint8_t *ss, size_t ss_len,
+				 const struct lc_kyber_ct *ct,
+				 const struct lc_kyber_sk *sk))
+{
+	struct workspace {
+		struct lc_kyber_pk pk;
+		struct lc_kyber_sk sk;
+		struct lc_kyber_ct ct;
+		struct lc_kyber_ss key_a;
+		struct lc_kyber_ss key_b;
+	};
+	int ret = 0;
+	unsigned int i, j;
+
+	/*
+	 * The testing is based on the fact that,
+	 * - this "RNG" produces identical output
+	 * - encapsulation was invoked with this RNG
+	 */
+	struct lc_rng_ctx kyber_rng = { .rng = &kyber_drng, .rng_state = NULL };
+	unsigned int nvectors;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+
+	/* Zeroize RNG state */
+	lc_hash_init(rng_hash_ctx);
+
+#ifdef GENERATE_VECTORS
+	printf("#ifndef KYBER_KDF_TESTVECTORS_H\n"
+	       "#define KYBER_KDF_TESTVECTORS_H\n"
+	       "#include \"lc_kyber.h\"\n"
+	       "struct kyber_kdf_testvector {\n"
+	       "\tuint8_t pk[LC_CRYPTO_PUBLICKEYBYTES];\n"
+	       "\tuint8_t sk[LC_CRYPTO_SECRETKEYBYTES];\n"
+	       "\tuint8_t ct[LC_CRYPTO_CIPHERTEXTBYTES];\n"
+	       "\tuint8_t ss[LC_CRYPTO_BYTES];\n"
+	       "};\n\n"
+	       "static const struct kyber_kdf_testvector kyber_kdf_testvectors[] =\n"
+	       "{\n");
+	nvectors = NTESTS;
+#else
+	nvectors = ARRAY_SIZE(kyber_testvectors);
+#endif
+
+	if (!rounds)
+		rounds = nvectors;
+
+	for (i = 0; i < rounds; i++) {
+		// Key-pair generation
+		CKINT(_lc_kyber_keypair(&ws->pk, &ws->sk, &kyber_rng));
+
+		// Encapsulation
+		CKINT(_lc_kyber_kdf_enc(&ws->ct, ws->key_b.ss, LC_KYBER_SSBYTES,
+					&ws->pk, &kyber_rng));
+
+		// Decapsulation
+		CKINT(_lc_kyber_kdf_dec(ws->key_a.ss, LC_KYBER_SSBYTES, &ws->ct,
+					&ws->sk));
+
+#ifdef DEBUG
+		printf("Public Key: ");
+		for (j = 0; j < LC_CRYPTO_PUBLICKEYBYTES; j++)
+			printf("%02x", ws->pk.pk[j]);
+		printf("\n");
+		printf("Secret Key: ");
+		for (j = 0; j < LC_CRYPTO_SECRETKEYBYTES; j++)
+			printf("%02x", ws->sk.sk[j]);
+		printf("\n");
+
+		printf("Ciphertext: ");
+		for (j = 0; j < LC_CRYPTO_CIPHERTEXTBYTES; j++)
+			printf("%02x", ws->ct.ct[j]);
+		printf("\n");
+		printf("Shared Secret B: ");
+		for (j = 0; j < LC_CRYPTO_BYTES; j++)
+			printf("%02x", ws->key_b.ss[j]);
+		printf("\n");
+
+		printf("Shared Secret A: ");
+		for (j = 0; j < LC_CRYPTO_BYTES; j++)
+			printf("%02x", ws->key_a.ss[j]);
+		printf("\n");
+#endif
+
+#ifdef GENERATE_VECTORS
+
+		printf("\t{\n\t\t.pk = {\n\t\t\t");
+		for (j = 0; j < LC_CRYPTO_PUBLICKEYBYTES; j++) {
+			printf("0x%02x, ", ws->pk.pk[j]);
+			if (j && !((j + 1) % 8))
+				printf("\n\t\t\t");
+		}
+		printf("},\n");
+		printf("\t\t.sk = {\n\t\t\t");
+		for (j = 0; j < LC_CRYPTO_SECRETKEYBYTES; ++j) {
+			printf("0x%02x, ", ws->sk.sk[j]);
+			if (j && !((j + 1) % 8))
+				printf("\n\t\t\t");
+		}
+		printf("},\n");
+		printf("\t\t.ct = {\n\t\t\t");
+		for (j = 0; j < LC_CRYPTO_CIPHERTEXTBYTES; ++j) {
+			printf("0x%02x, ", ws->ct.ct[j]);
+			if (j && !((j + 1) % 8))
+				printf("\n\t\t\t");
+		}
+		printf("},\n");
+		printf("\t\t.ss = {\n\t\t\t");
+		for (j = 0; j < LC_KYBER_SSBYTES; ++j) {
+			printf("0x%02x, ", ws->key_a.ss[j]);
+			if (j && !((j + 1) % 8))
+				printf("\n\t\t\t");
+		}
+		printf("},\n\t}, ");
+#else
+		if (i < nvectors &&
+		    memcmp(ws->pk.pk, kyber_kdf_testvectors[i].pk,
+			   LC_CRYPTO_PUBLICKEYBYTES)) {
+			printf("KDF Public key mismatch at test vector %u\n",
+			       i);
+			ret = 1;
+			goto out;
+		}
+		if (i < nvectors &&
+		    memcmp(ws->sk.sk, kyber_kdf_testvectors[i].sk,
+			   LC_CRYPTO_SECRETKEYBYTES)) {
+			printf("KDF Secret key mismatch at test vector %u\n",
+			       i);
+			ret = 1;
+			goto out;
+		}
+		if (i < nvectors &&
+		    memcmp(ws->ct.ct, kyber_kdf_testvectors[i].ct,
+			   LC_CRYPTO_CIPHERTEXTBYTES)) {
+			printf("KDF Ciphertext mismatch at test vector %u\n",
+			       i);
+			ret = 1;
+			goto out;
+		}
+		if (i < nvectors &&
+		    memcmp(ws->key_b.ss, kyber_kdf_testvectors[i].ss,
+			   LC_KYBER_SSBYTES)) {
+			printf("KDF Shared secret mismatch at test vector %u\n",
+			       i);
+			ret = 1;
+			goto out;
+		}
+
+		//printf("Sucessful validation of test vector %u\n", i);
+
+		for (j = 0; j < LC_KYBER_SSBYTES; j++) {
+			if (ws->key_a.ss[j] != ws->key_b.ss[j]) {
+				printf("ERROR\n");
+				ret = 1;
+				goto out;
+			}
+		}
+#endif
+	}
+
+#ifdef GENERATE_VECTORS
+	printf("\n};\n");
+	printf("#endif\n");
+#endif
+
+out:
+	lc_hash_zero_free(rng_hash_ctx);
+	rng_hash_ctx = NULL;
 	LC_RELEASE_MEM(ws);
 	return ret;
 }

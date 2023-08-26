@@ -24,6 +24,7 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
+#include "kyber_kdf.h"
 #include "kyber_kem.h"
 #include "kyber_verify.h"
 #include "lc_hash.h"
@@ -63,7 +64,7 @@ int _lc_kyber_keypair(
 }
 
 int _lc_kyber_enc(
-	struct lc_kyber_ct *ct, uint8_t *ss, size_t ss_len,
+	struct lc_kyber_ct *ct, uint8_t ss[LC_KYBER_SSBYTES],
 	const struct lc_kyber_pk *pk, struct lc_rng_ctx *rng_ctx,
 	int (*indcpa_enc_f)(uint8_t c[LC_KYBER_INDCPA_BYTES],
 			    const uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
@@ -88,11 +89,7 @@ int _lc_kyber_enc(
 	/* coins are in kr+KYBER_SYMBYTES */
 	CKINT(indcpa_enc_f(ct->ct, buf, pk->pk, kr + LC_KYBER_SYMBYTES));
 
-	/* overwrite coins in kr with H(c) */
-	lc_hash(lc_sha3_256, ct->ct, LC_KYBER_CIPHERTEXTBYTES,
-		kr + LC_KYBER_SYMBYTES);
-	/* hash concatenation of pre-k and H(c) to k */
-	lc_shake(lc_shake256, kr, sizeof(kr), ss, ss_len);
+	memcpy(ss, kr, LC_KYBER_SSBYTES);
 
 out:
 	lc_memset_secure(buf, 0, sizeof(buf));
@@ -100,8 +97,32 @@ out:
 	return ret;
 }
 
+int _lc_kyber_enc_kdf(
+	struct lc_kyber_ct *ct, uint8_t *ss, size_t ss_len,
+	const struct lc_kyber_pk *pk, struct lc_rng_ctx *rng_ctx,
+	int (*indcpa_enc_f)(uint8_t c[LC_KYBER_INDCPA_BYTES],
+			    const uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
+			    const uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
+			    const uint8_t coins[LC_KYBER_SYMBYTES]))
+{
+	uint8_t ss_internal[2 * LC_KYBER_SYMBYTES];
+	int ret;
+
+	CKINT(_lc_kyber_enc(ct, ss_internal, pk, rng_ctx, indcpa_enc_f));
+
+	/* calculate KDF from CT */
+	lc_hash(lc_sha3_256, ct->ct, LC_KYBER_CIPHERTEXTBYTES,
+		ss_internal + LC_KYBER_SYMBYTES);
+	/* hash concatenation of pre-k and H(c) to k */
+	lc_shake(lc_shake256, ss_internal, sizeof(ss_internal), ss, ss_len);
+
+out:
+	lc_memset_secure(ss_internal, 0, sizeof(ss_internal));
+	return ret;
+}
+
 int _lc_kyber_dec(
-	uint8_t *ss, size_t ss_len, const struct lc_kyber_ct *ct,
+	uint8_t ss[LC_KYBER_SSBYTES], const struct lc_kyber_ct *ct,
 	const struct lc_kyber_sk *sk,
 	int (*indcpa_dec_f)(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
 			    const uint8_t c[LC_KYBER_INDCPA_BYTES],
@@ -142,18 +163,43 @@ int _lc_kyber_dec(
 
 	fail = verify(ct->ct, ws->cmp, LC_KYBER_CIPHERTEXTBYTES);
 
-	/* overwrite coins in kr with H(c) */
-	lc_hash(lc_sha3_256, ct->ct, LC_KYBER_CIPHERTEXTBYTES,
-		ws->kr + LC_KYBER_SYMBYTES);
+	/* Compute rejection key */
+	kyber_shake256_rkprf(
+		ss, sk->sk + LC_KYBER_SECRETKEYBYTES - LC_KYBER_SYMBYTES,
+		ct->ct);
 
-	/* Overwrite pre-k with z on re-encryption failure */
-	cmov(ws->kr, sk->sk + LC_KYBER_SECRETKEYBYTES - LC_KYBER_SYMBYTES,
-	     LC_KYBER_SYMBYTES, fail);
-
-	/* hash concatenation of pre-k and H(c) to k */
-	lc_shake(lc_shake256, ws->kr, sizeof(ws->kr), ss, ss_len);
+	/* Copy true key to return buffer if fail is false */
+	cmov(ss, ws->kr, LC_KYBER_SSBYTES, !fail);
 
 out:
 	LC_RELEASE_MEM(ws);
+	return ret;
+}
+
+int _lc_kyber_dec_kdf(
+	uint8_t *ss, size_t ss_len, const struct lc_kyber_ct *ct,
+	const struct lc_kyber_sk *sk,
+	int (*indcpa_dec_f)(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
+			    const uint8_t c[LC_KYBER_INDCPA_BYTES],
+			    const uint8_t sk[LC_KYBER_INDCPA_SECRETKEYBYTES]),
+	int (*indcpa_enc_f)(uint8_t c[LC_KYBER_INDCPA_BYTES],
+			    const uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
+			    const uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
+			    const uint8_t coins[LC_KYBER_SYMBYTES]))
+{
+	uint8_t ss_internal[2 * LC_KYBER_SYMBYTES];
+	int ret;
+
+	CKINT(_lc_kyber_dec(ss_internal, ct, sk, indcpa_dec_f, indcpa_enc_f));
+
+	/* calculate KDF from CT */
+	lc_hash(lc_sha3_256, ct->ct, LC_KYBER_CIPHERTEXTBYTES,
+		ss_internal + LC_KYBER_SYMBYTES);
+
+	/* hash concatenation of pre-k and H(c) to k */
+	lc_shake(lc_shake256, ss_internal, sizeof(ss_internal), ss, ss_len);
+
+out:
+	lc_memset_secure(ss_internal, 0, sizeof(ss_internal));
 	return ret;
 }

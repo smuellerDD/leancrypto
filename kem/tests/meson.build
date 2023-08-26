@@ -56,7 +56,7 @@ if get_option('kyber').enabled()
 	     timeout: 1000, is_parallel: false)
 	test('Kyber invalid KEM', kyber_invalid_tester)
 
-	if (x86_64_asm)
+	if (x86_64_asm and get_option('kyber_strength') == '4')
 		kyber_kem_tester_avx2 = executable('kyber_kem_tester_avx2',
 					[ 'kyber_kem_tester_avx2.c',
 					'kyber_kem_tester.c',
@@ -71,7 +71,7 @@ if get_option('kyber').enabled()
 		test('Kyber KEM AVX2', kyber_kem_tester_avx2)
 		test('Kyber KEM AVX2 50000', kyber_kem_tester_avx2,
 		     args : [ 'avx2' ], timeout: 1000, is_parallel: false)
-	elif (arm64_asm)
+	elif (arm64_asm and get_option('kyber_strength') == '4')
 		kyber_kem_tester_armv8 = executable('kyber_kem_tester_armv8',
 					[ 'kyber_kem_tester_armv8.c',
 					'kyber_kem_tester.c',

@@ -17,31 +17,44 @@
  * DAMAGE.
  */
 
-#ifndef KYBER_KEM_ARMV8_H
-#define KYBER_KEM_ARMV8_H
-
+#include "kyber_selftest.h"
 #include "lc_kyber.h"
+#include "lc_sha3.h"
+#include "ret_checkers.h"
+#include "small_stack_support.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+static int randombytes(void *_state, const uint8_t *addtl_input,
+		       size_t addtl_input_len, uint8_t *out, size_t outlen)
+{
+	struct rand_state *state = _state;
 
-int lc_kyber_keypair_armv8(struct lc_kyber_pk *pk, struct lc_kyber_sk *sk,
-			   struct lc_rng_ctx *rng_ctx);
-int lc_kyber_enc_armv8(struct lc_kyber_ct *ct, struct lc_kyber_ss *ss,
-		       const struct lc_kyber_pk *pk,
-		       struct lc_rng_ctx *rng_ctx);
-int lc_kyber_enc_kdf_armv8(struct lc_kyber_ct *ct, uint8_t *ss, size_t ss_len,
-			   const struct lc_kyber_pk *pk,
-			   struct lc_rng_ctx *rng_ctx);
-int lc_kyber_dec_armv8(struct lc_kyber_ss *ss, const struct lc_kyber_ct *ct,
-		       const struct lc_kyber_sk *sk);
-int lc_kyber_dec_kdf_armv8(uint8_t *ss, size_t ss_len,
-			   const struct lc_kyber_ct *ct,
-			   const struct lc_kyber_sk *sk);
+	(void)addtl_input;
+	(void)addtl_input_len;
 
-#ifdef __cplusplus
+	lc_hash_set_digestsize(state->rng_hash_ctx, outlen);
+	lc_hash_final(state->rng_hash_ctx, out);
+
+	return 0;
 }
-#endif
 
-#endif /* KYBER_KEM_ARMV8_H */
+static int randombytes_seed(void *_state, const uint8_t *seed, size_t seedlen,
+			    const uint8_t *persbuf, size_t perslen)
+{
+	(void)_state;
+	(void)seed;
+	(void)seedlen;
+	(void)persbuf;
+	(void)perslen;
+	return 0;
+}
+
+static void randombytes_zero(void *_state)
+{
+	(void)_state;
+}
+
+const struct lc_rng kyber_drng = {
+	.generate = randombytes,
+	.seed = randombytes_seed,
+	.zero = randombytes_zero,
+};

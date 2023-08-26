@@ -29,10 +29,18 @@
 
 static int _kyber_kem_tester_avx2(unsigned int rounds)
 {
+	int ret;
+
 	if (!(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2))
 		return 77;
-	return _kyber_kem_tester(rounds, lc_kyber_keypair_avx, lc_kyber_enc_avx,
-				 lc_kyber_dec_avx);
+	ret = _kyber_kem_tester(rounds, lc_kyber_keypair_avx, lc_kyber_enc_avx,
+				lc_kyber_dec_avx);
+	if (ret)
+		return ret;
+
+	return _kyber_kem_kdf_tester(rounds, lc_kyber_keypair_avx,
+				     lc_kyber_enc_kdf_avx,
+				     lc_kyber_dec_kdf_avx);
 }
 
 static int kyber_kem_tester_avx2(void)

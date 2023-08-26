@@ -34,6 +34,13 @@ int _lc_kyber_keypair(
 				struct lc_rng_ctx *rng_ctx));
 
 int _lc_kyber_enc(
+	struct lc_kyber_ct *ct, uint8_t ss[LC_KYBER_SSBYTES],
+	const struct lc_kyber_pk *pk, struct lc_rng_ctx *rng_ctx,
+	int (*indcpa_enc_f)(uint8_t c[LC_KYBER_INDCPA_BYTES],
+			    const uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
+			    const uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
+			    const uint8_t coins[LC_KYBER_SYMBYTES]));
+int _lc_kyber_enc_kdf(
 	struct lc_kyber_ct *ct, uint8_t *ss, size_t ss_len,
 	const struct lc_kyber_pk *pk, struct lc_rng_ctx *rng_ctx,
 	int (*indcpa_enc_f)(uint8_t c[LC_KYBER_INDCPA_BYTES],
@@ -42,6 +49,16 @@ int _lc_kyber_enc(
 			    const uint8_t coins[LC_KYBER_SYMBYTES]));
 
 int _lc_kyber_dec(
+	uint8_t ss[LC_KYBER_SSBYTES], const struct lc_kyber_ct *ct,
+	const struct lc_kyber_sk *sk,
+	int (*indcpa_dec_f)(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
+			    const uint8_t c[LC_KYBER_INDCPA_BYTES],
+			    const uint8_t sk[LC_KYBER_INDCPA_SECRETKEYBYTES]),
+	int (*indcpa_enc_f)(uint8_t c[LC_KYBER_INDCPA_BYTES],
+			    const uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
+			    const uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
+			    const uint8_t coins[LC_KYBER_SYMBYTES]));
+int _lc_kyber_dec_kdf(
 	uint8_t *ss, size_t ss_len, const struct lc_kyber_ct *ct,
 	const struct lc_kyber_sk *sk,
 	int (*indcpa_dec_f)(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],

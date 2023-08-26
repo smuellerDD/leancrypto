@@ -27,8 +27,15 @@
 
 static int _kyber_kem_tester_common(unsigned int rounds)
 {
-	return _kyber_kem_tester(rounds, lc_kyber_keypair,
-				 lc_kyber_enc_internal, lc_kyber_dec);
+	int ret = _kyber_kem_tester(rounds, lc_kyber_keypair,
+				    lc_kyber_enc_internal, lc_kyber_dec);
+
+	if (ret)
+		return ret;
+
+	return _kyber_kem_kdf_tester(rounds, lc_kyber_keypair,
+				     lc_kyber_enc_kdf_internal,
+				     lc_kyber_dec_kdf);
 }
 
 static int kyber_kem_tester_common(void)
