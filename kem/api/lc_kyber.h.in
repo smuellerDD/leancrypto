@@ -144,9 +144,13 @@ int lc_kyber_enc(struct lc_kyber_ct *ct, struct lc_kyber_ss *ss,
 		 const struct lc_kyber_pk *pk);
 
 /**
- * @brief lc_kyber_enc - Key encapsulation with KDF applied to shared secret
+ * @brief lc_kyber_enc_kdf - Key encapsulation with KDF applied to shared secret
  *
- * Generates cipher text and shared secret for given public key.
+ * Generates cipher text and shared secret for given public key. The shared
+ * secret is derived from the Kyber SS using the KDF defined in the round 3
+ * definition of Kyber:
+ *
+ *	SS <- SHAKE256(Kyber-SS || SHA3-256(Kyber-CT), requested SS length)
  *
  * @param [out] ct pointer to output cipher text to used for decapsulation
  * @param [out] ss pointer to output shared secret that will be also produced
@@ -176,9 +180,13 @@ int lc_kyber_enc_kdf(struct lc_kyber_ct *ct, uint8_t *ss, size_t ss_len,
 int lc_kyber_dec(struct lc_kyber_ss *ss, const struct lc_kyber_ct *ct,
 		 const struct lc_kyber_sk *sk);
 /**
- * @brief lc_kyber_dec - Key decapsulation with KDF applied to shared secret
+ * @brief lc_kyber_dec_kdf - Key decapsulation with KDF applied to shared secret
  *
- * Generates shared secret for given cipher text and private key
+ * Generates cipher text and shared secret for given private key. The shared
+ * secret is derived from the Kyber SS using the KDF defined in the round 3
+ * definition of Kyber:
+ *
+ *	SS <- SHAKE256(Kyber-SS || SHA3-256(Kyber-CT), requested SS length)
  *
  * @param [out] ss pointer to output shared secret that is the same as produced
  *		   during encapsulation

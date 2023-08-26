@@ -150,6 +150,22 @@ kyber_shake256_rkprf(uint8_t out[LC_KYBER_SSBYTES],
 		   LC_KYBER_SSBYTES);
 }
 
+static inline void kyber_ss_kdf(uint8_t *ss, size_t ss_len,
+				const struct lc_kyber_ct *ct,
+				const uint8_t kyber_ss[LC_KYBER_SSBYTES])
+{
+	uint8_t ct_hash[LC_KYBER_SYMBYTES];
+
+	/* calculate KDF from CT */
+	lc_hash(lc_sha3_256, ct->ct, LC_KYBER_CIPHERTEXTBYTES, ct_hash);
+
+	/* hash concatenation of pre-k and H(c) to k */
+	kyber_kdf2(kyber_ss, LC_KYBER_SSBYTES, ct_hash, LC_KYBER_SYMBYTES, ss,
+		   ss_len);
+
+	lc_memset_secure(ct_hash, 0, sizeof(ct_hash));
+}
+
 #ifdef __cplusplus
 }
 #endif

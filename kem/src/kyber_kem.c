@@ -105,19 +105,15 @@ int _lc_kyber_enc_kdf(
 			    const uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 			    const uint8_t coins[LC_KYBER_SYMBYTES]))
 {
-	uint8_t ss_internal[2 * LC_KYBER_SYMBYTES];
+	uint8_t kyber_ss[LC_KYBER_SSBYTES];
 	int ret;
 
-	CKINT(_lc_kyber_enc(ct, ss_internal, pk, rng_ctx, indcpa_enc_f));
+	CKINT(_lc_kyber_enc(ct, kyber_ss, pk, rng_ctx, indcpa_enc_f));
 
-	/* calculate KDF from CT */
-	lc_hash(lc_sha3_256, ct->ct, LC_KYBER_CIPHERTEXTBYTES,
-		ss_internal + LC_KYBER_SYMBYTES);
-	/* hash concatenation of pre-k and H(c) to k */
-	lc_shake(lc_shake256, ss_internal, sizeof(ss_internal), ss, ss_len);
+	kyber_ss_kdf(ss, ss_len, ct, kyber_ss);
 
 out:
-	lc_memset_secure(ss_internal, 0, sizeof(ss_internal));
+	lc_memset_secure(kyber_ss, 0, sizeof(kyber_ss));
 	return ret;
 }
 
@@ -187,19 +183,14 @@ int _lc_kyber_dec_kdf(
 			    const uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 			    const uint8_t coins[LC_KYBER_SYMBYTES]))
 {
-	uint8_t ss_internal[2 * LC_KYBER_SYMBYTES];
+	uint8_t kyber_ss[LC_KYBER_SSBYTES];
 	int ret;
 
-	CKINT(_lc_kyber_dec(ss_internal, ct, sk, indcpa_dec_f, indcpa_enc_f));
+	CKINT(_lc_kyber_dec(kyber_ss, ct, sk, indcpa_dec_f, indcpa_enc_f));
 
-	/* calculate KDF from CT */
-	lc_hash(lc_sha3_256, ct->ct, LC_KYBER_CIPHERTEXTBYTES,
-		ss_internal + LC_KYBER_SYMBYTES);
-
-	/* hash concatenation of pre-k and H(c) to k */
-	lc_shake(lc_shake256, ss_internal, sizeof(ss_internal), ss, ss_len);
+	kyber_ss_kdf(ss, ss_len, ct, kyber_ss);
 
 out:
-	lc_memset_secure(ss_internal, 0, sizeof(ss_internal));
+	lc_memset_secure(kyber_ss, 0, sizeof(kyber_ss));
 	return ret;
 }
