@@ -17,29 +17,26 @@
  * DAMAGE.
  */
 
-#include "cpufeatures.h"
 #include "ext_headers.h"
+#include "kyber_internal.h"
 #include "kyber_kem_tester.h"
 #include "lc_kyber.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 
-#include "avx2/kyber_kem_avx2.h"
-
-static int _kyber_kem_tester_avx2(unsigned int rounds)
+static int _kyber_kem_tester_common(unsigned int rounds)
 {
-	if (!(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2))
-		return 77;
-	return _kyber_kem_tester(rounds, lc_kyber_keypair_avx, lc_kyber_enc_avx,
-				 lc_kyber_dec_avx);
+	return _kyber_kem_kdf_tester(rounds, lc_kyber_keypair,
+				     lc_kyber_enc_kdf_internal,
+				     lc_kyber_dec_kdf);
 }
 
-static int kyber_kem_tester_avx2(void)
+static int kyber_kem_tester_common(void)
 {
 	int ret = 0;
 
-	ret += _kyber_kem_tester_avx2(0);
+	ret += _kyber_kem_tester_common(0);
 
 	return ret;
 }
@@ -50,7 +47,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	(void)argv;
 
 	if (argc != 2)
-		return kyber_kem_tester_avx2();
+		return kyber_kem_tester_common();
 
-	return _kyber_kem_tester_avx2(50000);
+	return _kyber_kem_tester_common(50000);
 }
