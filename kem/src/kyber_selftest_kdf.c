@@ -42,10 +42,7 @@ static int _kyber_kem_enc_kdf_selftest(
 		struct lc_kyber_ct ct;
 		struct lc_kyber_ss key_b;
 	};
-	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake128);
-	struct rand_state rand_state = {
-		.rng_hash_ctx = hash_ctx,
-	};
+	struct rand_state rand_state;
 
 	/*
 	 * The testing is based on the fact that,
@@ -57,7 +54,13 @@ static int _kyber_kem_enc_kdf_selftest(
 					.rng_state = &rand_state };
 	char str[25];
 	uint8_t discard[2 * LC_KYBER_SYMBYTES];
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake128);
+#pragma GCC diagnostic pop
+
+	rand_state.rng_hash_ctx = hash_ctx;
 
 	/* Make sure to have the same rng state as the test case */
 	lc_hash_init(hash_ctx);

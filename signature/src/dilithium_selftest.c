@@ -3587,10 +3587,7 @@ static int _dilithium_keypair_tester(
 		struct lc_dilithium_pk pk;
 		struct lc_dilithium_sk sk;
 	};
-	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake128);
-	struct rand_state rand_state = {
-		.rng_hash_ctx = hash_ctx,
-	};
+	struct rand_state rand_state;
 
 	/*
 	 * The testing is based on the fact that,
@@ -3602,7 +3599,13 @@ static int _dilithium_keypair_tester(
 					    .rng_state = &rand_state };
 	char str[25];
 	uint8_t discard[32];
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
+	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake128);
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+#pragma GCC diagnostic pop
+
+	rand_state.rng_hash_ctx = hash_ctx;
 
 	/* Make sure to have the same rng state as the test case */
 	lc_hash_init(hash_ctx);

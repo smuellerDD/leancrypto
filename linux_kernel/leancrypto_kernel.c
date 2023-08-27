@@ -29,6 +29,7 @@ EXPORT_SYMBOL(_lc_kyber_keypair);
 EXPORT_SYMBOL(_lc_kyber_enc);
 EXPORT_SYMBOL(_lc_kyber_dec);
 EXPORT_SYMBOL(lc_kyber_enc_internal);
+EXPORT_SYMBOL(lc_kyber_enc_kdf_internal);
 EXPORT_SYMBOL(lc_kex_ake_responder_ss_internal);
 EXPORT_SYMBOL(lc_kex_uake_initiator_init_internal);
 EXPORT_SYMBOL(lc_kex_ake_initiator_init_internal);

@@ -539,6 +539,8 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 				   ../kem/src/kyber_poly.o		       \
 				   ../kem/src/kyber_polyvec.o		       \
 				   ../kem/src/kyber_selftest.o		       \
+				   ../kem/src/kyber_selftest_kdf.o	       \
+				   ../kem/src/kyber_selftest_rnd.o	       \
 				   ../kem/src/kyber_verify.o
 
 ifdef CONFIG_X86_64
@@ -590,8 +592,12 @@ obj-m		 		+= kyber_invalid_tester.o
 
 kyber_kem_tester_c-y		+= ../kem/tests/kyber_kem_tester.o	       \
 				   ../kem/tests/kyber_kem_tester_c.o
+kyber_kem_kdf_tester_c-y	+= ../kem/tests/kyber_kem_tester.o	       \
+				   ../kem/tests/kyber_kem_kdf_tester_c.o
 kyber_kem_tester_common-y	+= ../kem/tests/kyber_kem_tester.o	       \
 				   ../kem/tests/kyber_kem_tester_common.o
+kyber_kem_kdf_tester_common-y	+= ../kem/tests/kyber_kem_tester.o	       \
+				   ../kem/tests/kyber_kem_kdf_tester_common.o
 kyber_kex_tester-y  		+= ../kem/tests/kyber_kex_tester.o
 kyber_ies_tester-y  		+= ../kem/tests/kyber_ies_tester.o
 kyber_invalid_tester-y  	+= ../kem/tests/kyber_invalid_tester.o
@@ -604,6 +610,8 @@ obj-m		  		+= kyber_kem_kdf_tester_avx2.o
 
 kyber_kem_tester_avx2-y		+= ../kem/tests/kyber_kem_tester.o	       \
 				   ../kem/tests/kyber_kem_tester_avx2.o
+kyber_kem_kdf_tester_avx2-y	+= ../kem/tests/kyber_kem_tester.o	       \
+				   ../kem/tests/kyber_kem_kdf_tester_avx2.o
 
 else ifdef CONFIG_ARM64
 obj-m				+= kyber_kem_tester_armv8.o
@@ -611,6 +619,8 @@ obj-m				+= kyber_kem_kdf_tester_armv8.o
 
 kyber_kem_tester_armv8-y	+= ../kem/tests/kyber_kem_tester.o	       \
 				   ../kem/tests/kyber_kem_tester_armv8.o
+kyber_kem_kdf_tester_armv8-y	+= ../kem/tests/kyber_kem_tester.o	       \
+				   ../kem/tests/kyber_kem_kdf_tester_armv8.o
 endif
 endif
 
