@@ -582,6 +582,8 @@ endif
 ifdef CONFIG_LEANCRYPTO_KEM
 obj-m		 		+= kyber_kem_tester_c.o
 obj-m		 		+= kyber_kem_tester_common.o
+obj-m		 		+= kyber_kem_kdf_tester_c.o
+obj-m		 		+= kyber_kem_kdf_tester_common.o
 obj-m		 		+= kyber_kex_tester.o
 obj-m		 		+= kyber_ies_tester.o
 obj-m		 		+= kyber_invalid_tester.o
@@ -598,12 +600,14 @@ endif
 ifdef CONFIG_X86_64
 ifdef CONFIG_LEANCRYPTO_KEM
 obj-m		  		+= kyber_kem_tester_avx2.o
+obj-m		  		+= kyber_kem_kdf_tester_avx2.o
 
 kyber_kem_tester_avx2-y		+= ../kem/tests/kyber_kem_tester.o	       \
 				   ../kem/tests/kyber_kem_tester_avx2.o
 
 else ifdef CONFIG_ARM64
 obj-m				+= kyber_kem_tester_armv8.o
+obj-m				+= kyber_kem_kdf_tester_armv8.o
 
 kyber_kem_tester_armv8-y	+= ../kem/tests/kyber_kem_tester.o	       \
 				   ../kem/tests/kyber_kem_tester_armv8.o
