@@ -164,14 +164,10 @@ static inline void kyber_ss_kdf(uint8_t *ss, size_t ss_len,
 				const uint8_t kyber_ss[LC_KYBER_SSBYTES])
 {
 	static const uint8_t kyber_ss_label[] = "Kyber KEM SS";
-	LC_KMAC_CTX_ON_STACK(kmac, lc_cshake256);
 
-	/* hash concatenation of pre-k and H(c) to k */
-	lc_kmac_init(kmac, kyber_ss, LC_KYBER_SSBYTES, kyber_ss_label,
-		     sizeof(kyber_ss_label) - 1);
-	lc_kmac_update(kmac, ct->ct, LC_KYBER_CIPHERTEXTBYTES);
-	lc_kmac_final(kmac, ss, ss_len);
-	lc_kmac_zero(kmac);
+	lc_kmac(lc_cshake256, kyber_ss, LC_KYBER_SSBYTES, kyber_ss_label,
+		sizeof(kyber_ss_label) - 1, ct->ct, LC_KYBER_CIPHERTEXTBYTES,
+		ss, ss_len);
 }
 
 #ifdef __cplusplus
