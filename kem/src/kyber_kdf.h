@@ -57,6 +57,12 @@ static inline void kyber_kdf2(const uint8_t *in, size_t inlen,
 /**
  * @brief Kyber KDF
  *
+ * SS <- KMAC256(K = Kyber-SS from ephemeral key 1,
+ *		 X = Kyber-SS from static key ||
+ * 		     Nonce,
+ *		 L = requested SS length,
+ *		 S = "Kyber KEM 3-way SS")
+ *
  * @param [in] in input buffer
  * @param [in] inlen length of input buffer
  * @param [in] in2 input buffer 2
@@ -71,19 +77,26 @@ static inline void kyber_kdf3(const uint8_t *in, size_t inlen,
 			      const uint8_t *in3, size_t inlen3, uint8_t *out,
 			      size_t outlen)
 {
-	LC_HASH_CTX_ON_STACK(shake256, lc_shake256);
+	static const uint8_t kyber_ss_label[] = "Kyber KEM 3-way SS";
+	LC_KMAC_CTX_ON_STACK(kmac_ctx, lc_cshake256);
 
-	lc_hash_init(shake256);
-	lc_hash_update(shake256, in, inlen);
-	lc_hash_update(shake256, in2, inlen2);
-	lc_hash_update(shake256, in3, inlen3);
-	lc_hash_set_digestsize(shake256, outlen);
-	lc_hash_final(shake256, out);
+	lc_kmac_init(kmac_ctx, in, inlen, kyber_ss_label,
+		     sizeof(kyber_ss_label) - 1);
+	lc_kmac_update(kmac_ctx, in2, inlen2);
+	lc_kmac_update(kmac_ctx, in3, inlen3);
+	lc_kmac_final(kmac_ctx, out, outlen);
 
-	lc_hash_zero(shake256);
+	lc_kmac_zero(kmac_ctx);
 }
 /**
  * @brief Kyber KDF
+ *
+ * SS <- KMAC256(K = Kyber-SS from ephemeral key 1,
+ *		 X = Kyber-SS from ephemeral key 2 ||
+ *		     Kyber-SS from static key ||
+ * 		     Nonce,
+ *		 L = requested SS length,
+ *		 S = "Kyber KEM 4-way SS")
  *
  * @param [in] in input buffer
  * @param [in] inlen length of input buffer
@@ -102,17 +115,17 @@ static inline void kyber_kdf4(const uint8_t *in, size_t inlen,
 			      const uint8_t *in4, size_t inlen4, uint8_t *out,
 			      size_t outlen)
 {
-	LC_HASH_CTX_ON_STACK(shake256, lc_shake256);
+	static const uint8_t kyber_ss_label[] = "Kyber KEM 4-way SS";
+	LC_KMAC_CTX_ON_STACK(kmac_ctx, lc_cshake256);
 
-	lc_hash_init(shake256);
-	lc_hash_update(shake256, in, inlen);
-	lc_hash_update(shake256, in2, inlen2);
-	lc_hash_update(shake256, in3, inlen3);
-	lc_hash_update(shake256, in4, inlen4);
-	lc_hash_set_digestsize(shake256, outlen);
-	lc_hash_final(shake256, out);
+	lc_kmac_init(kmac_ctx, in, inlen, kyber_ss_label,
+		     sizeof(kyber_ss_label) - 1);
+	lc_kmac_update(kmac_ctx, in2, inlen2);
+	lc_kmac_update(kmac_ctx, in3, inlen3);
+	lc_kmac_update(kmac_ctx, in4, inlen4);
+	lc_kmac_final(kmac_ctx, out, outlen);
 
-	lc_hash_zero(shake256);
+	lc_kmac_zero(kmac_ctx);
 }
 
 /**
