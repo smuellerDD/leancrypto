@@ -19,6 +19,9 @@ Changes 0.7.0-prerelease:
 
 * enhancement: Dilithium and Kyber security strengths are selectable via Meson options
 
+* Kyber: Update shared secret KDF (as the KDF is now removed from FIP S203, it
+  can be adjusted to be more performant and consistent with SP800-108)
+
 Changes 0.6.0:
 
 * enhancement: Linux - add memfd_secret(2) support for secure memory allocation

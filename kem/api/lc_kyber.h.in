@@ -36,9 +36,9 @@ extern "C" {
 #endif
 
 /*
- * Kyber 512:  K == 2
- * Kyber 768:  K == 3
- * Kyber 1024: K == 4
+ * Kyber 512:  K == 2 - NIST security category 1
+ * Kyber 768:  K == 3 - NIST security category 3
+ * Kyber 1024: K == 4 - NIST security category 5
  */
 #define LC_KYBER_K @kyber_strength@
 
@@ -150,7 +150,8 @@ int lc_kyber_enc(struct lc_kyber_ct *ct, struct lc_kyber_ss *ss,
  * secret is derived from the Kyber SS using the KDF derived from the round 3
  * definition of Kyber:
  *
- *	SS <- SHAKE256(Kyber-SS || Kyber-CT, requested SS length)
+ *	SS <- KMAC256(K = Kyber-SS, X = Kyber-CT, L = requested SS length,
+ *		      S = "Kyber KEM SS")
  *
  * @param [out] ct pointer to output cipher text to used for decapsulation
  * @param [out] ss pointer to output shared secret that will be also produced
@@ -186,7 +187,8 @@ int lc_kyber_dec(struct lc_kyber_ss *ss, const struct lc_kyber_ct *ct,
  * secret is derived from the Kyber SS using the KDF derived from the round 3
  * definition of Kyber:
  *
- *	SS <- SHAKE256(Kyber-SS || Kyber-CT, requested SS length)
+ *	SS <- KMAC256(K = Kyber-SS, X = Kyber-CT, L = requested SS length,
+ *		      S = "Kyber KEM SS")
  *
  * @param [out] ss pointer to output shared secret that is the same as produced
  *		   during encapsulation

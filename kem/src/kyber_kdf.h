@@ -22,6 +22,7 @@
 
 #include "lc_kyber.h"
 #include "lc_hash.h"
+#include "lc_kmac.h"
 #include "lc_sha3.h"
 
 #ifdef __cplusplus
@@ -150,13 +151,27 @@ kyber_shake256_rkprf(uint8_t out[LC_KYBER_SSBYTES],
 		   LC_KYBER_SSBYTES);
 }
 
+/**
+ * @brief kyber_ss_kdf - KDF to derive arbitrary sized SS from Kyber SS
+ *
+ *	SS <- KMAC256(K = Kyber-SS, X = Kyber-CT, L = requested SS length,
+ *		      S = "Kyber KEM SS")
+ *
+ * This KDF is is consistent with SP800-108 rev 1.
+ */
 static inline void kyber_ss_kdf(uint8_t *ss, size_t ss_len,
 				const struct lc_kyber_ct *ct,
 				const uint8_t kyber_ss[LC_KYBER_SSBYTES])
 {
+	static const uint8_t kyber_ss_label[] = "Kyber KEM SS";
+	LC_KMAC_CTX_ON_STACK(kmac, lc_cshake256);
+
 	/* hash concatenation of pre-k and H(c) to k */
-	kyber_kdf2(kyber_ss, LC_KYBER_SSBYTES, ct->ct, LC_KYBER_CIPHERTEXTBYTES,
-		   ss, ss_len);
+	lc_kmac_init(kmac, kyber_ss, LC_KYBER_SSBYTES, kyber_ss_label,
+		     sizeof(kyber_ss_label) - 1);
+	lc_kmac_update(kmac, ct->ct, LC_KYBER_CIPHERTEXTBYTES);
+	lc_kmac_final(kmac, ss, ss_len);
+	lc_kmac_zero(kmac);
 }
 
 #ifdef __cplusplus
