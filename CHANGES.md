@@ -22,6 +22,8 @@ Changes 0.7.0-prerelease:
 * Kyber: Update shared secret KDF (as the KDF is now removed from FIP S203, it
   can be adjusted to be more performant and consistent with SP800-108)
 
+* enhancement: Add input parameter validatino to Kyber as specified in FIPS 203
+
 Changes 0.6.0:
 
 * enhancement: Linux - add memfd_secret(2) support for secure memory allocation

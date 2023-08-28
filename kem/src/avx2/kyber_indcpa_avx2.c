@@ -29,6 +29,7 @@
 #include "kyber_indcpa_avx2.h"
 #include "kyber_poly_avx2.h"
 #include "kyber_polyvec_avx2.h"
+#include "kyber_kem_input_validation.h"
 #include "kyber_rejsample_avx2.h"
 #include "lc_sha3.h"
 #include "shake_4x_avx2.h"
@@ -48,8 +49,8 @@
  * @param pk [in] pointer to the input public-key polyvec
  * @param seed [in] pointer to the input public seed
  */
-static void pack_pk(uint8_t r[LC_KYBER_INDCPA_PUBLICKEYBYTES], polyvec *pk,
-		    const uint8_t seed[LC_KYBER_SYMBYTES])
+static void pack_pk(uint8_t r[LC_KYBER_INDCPA_PUBLICKEYBYTES],
+		    const polyvec *pk, const uint8_t seed[LC_KYBER_SYMBYTES])
 {
 	polyvec_tobytes(r, pk);
 	memcpy(&r[LC_KYBER_POLYVECBYTES], seed, LC_KYBER_SYMBYTES);
@@ -76,7 +77,8 @@ static void unpack_pk(polyvec *pk, uint8_t seed[LC_KYBER_SYMBYTES],
  * @param r [out] pointer to output serialized secret key
  * @param sk [in] pointer to input vector of polynomials (secret key)
  */
-static void pack_sk(uint8_t r[LC_KYBER_INDCPA_SECRETKEYBYTES], polyvec *sk)
+static void pack_sk(uint8_t r[LC_KYBER_INDCPA_SECRETKEYBYTES],
+		    const polyvec *sk)
 {
 	polyvec_tobytes(r, sk);
 }
@@ -344,6 +346,10 @@ int indcpa_enc_avx(uint8_t c[LC_KYBER_INDCPA_BYTES],
 	LC_DECLARE_MEM(ws, struct workspace, 32);
 
 	unpack_pk(&ws->pkpv, ws->seed, pk);
+
+	/* Validate input */
+	CKINT(kyber_kem_iv_pk_modulus(pk, &ws->pkpv, ws->seed, pack_pk));
+
 	poly_frommsg_avx(&ws->k, m);
 	CKINT(gen_at(ws->at, ws->seed, ws->gen_at_buf));
 
@@ -382,7 +388,7 @@ int indcpa_enc_avx(uint8_t c[LC_KYBER_INDCPA_BYTES],
 
 out:
 	LC_RELEASE_MEM(ws);
-	return 0;
+	return ret;
 }
 
 int indcpa_dec_avx(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
@@ -393,10 +399,14 @@ int indcpa_dec_avx(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
 		polyvec b, skpv;
 		poly v, mp;
 	};
+	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, 32);
 
 	unpack_ciphertext(&ws->b, &ws->v, c);
 	unpack_sk(&ws->skpv, sk);
+
+	/* Validate input */
+	CKINT(kyber_kem_iv_sk_modulus(sk, &ws->skpv, pack_sk));
 
 	polyvec_ntt(&ws->b);
 	polyvec_basemul_acc_montgomery(&ws->mp, &ws->skpv, &ws->b);
@@ -407,6 +417,7 @@ int indcpa_dec_avx(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
 
 	poly_tomsg_avx(m, &ws->mp);
 
+out:
 	LC_RELEASE_MEM(ws);
-	return 0;
+	return ret;
 }

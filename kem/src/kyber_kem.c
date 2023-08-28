@@ -79,6 +79,11 @@ int _lc_kyber_enc(
 	if (!ct || !ss || !pk || !rng_ctx)
 		return -EINVAL;
 
+	/*
+	 * FIPS 203 input validation: pk type check not needed, because
+	 * struct lc_kyber_pk ensures that the input is of required length.
+	 */
+
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, buf, LC_KYBER_SYMBYTES));
 
 	/* Multitarget countermeasure for coins + contributory KEM */
@@ -143,6 +148,14 @@ int _lc_kyber_dec(
 		ret = -EINVAL;
 		goto out;
 	}
+
+	/*
+	 * FIPS 203 input validation: ct type check not needed, because
+	 * struct lc_kyber_ct ensures that the input is of required length.
+	 *
+	 * FIPS 203 input validation: sk type check not needed, because
+	 * struct lc_kyber_sk ensures that the input is of required length.
+	 */
 
 	pk = sk->sk + LC_KYBER_INDCPA_SECRETKEYBYTES;
 
