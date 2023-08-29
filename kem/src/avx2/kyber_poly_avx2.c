@@ -291,12 +291,10 @@ void poly_getnoise_eta1_4x(poly *r0, poly *r1, poly *r2, poly *r3,
 	shake256x4_squeezeblocks(coeffs0, coeffs1, coeffs2, coeffs3,
 				 NOISE_NBLOCKS, state);
 
-	LC_FPU_ENABLE;
 	poly_cbd_eta1_avx(r0, vec0);
 	poly_cbd_eta1_avx(r1, vec1);
 	poly_cbd_eta1_avx(r2, vec2);
 	poly_cbd_eta1_avx(r3, vec3);
-	LC_FPU_DISABLE;
 }
 
 /**

@@ -190,9 +190,12 @@ void use_hint_avx(__m256i *b, const __m256i *a, const __m256i *restrict hint)
 	LC_FPU_ENABLE;
 	const __m256i zero = _mm256_setzero_si256();
 	const __m256i mask = _mm256_set1_epi32(15);
+	LC_FPU_DISABLE;
 #pragma GCC diagnostic pop
 
 	decompose_avx(b, a0, a);
+
+	LC_FPU_ENABLE;
 	for (i = 0; i < LC_DILITHIUM_N / 8; i++) {
 		f = _mm256_load_si256(&a0[i]);
 		g = _mm256_load_si256(&b[i]);

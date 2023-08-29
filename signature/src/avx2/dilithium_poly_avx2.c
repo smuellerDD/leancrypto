@@ -196,8 +196,10 @@ int poly_chknorm_avx(const poly *a, int32_t B)
 	const __m256i bound = _mm256_set1_epi32(B - 1);
 #pragma GCC diagnostic pop
 
-	if (B > (LC_DILITHIUM_Q - 1) / 8)
+	if (B > (LC_DILITHIUM_Q - 1) / 8) {
+		LC_FPU_DISABLE;
 		return 1;
+	}
 
 	t = _mm256_setzero_si256();
 	for (i = 0; i < LC_DILITHIUM_N / 8; i++) {
@@ -395,12 +397,10 @@ void poly_uniform_gamma1_4x_avx(poly *a0, poly *a1, poly *a2, poly *a3,
 	shake256x4_squeezeblocks(coeffs0, coeffs1, coeffs2, coeffs3,
 				 POLY_UNIFORM_GAMMA1_NBLOCKS, state);
 
-	LC_FPU_ENABLE;
 	polyz_unpack_avx(a0, coeffs0);
 	polyz_unpack_avx(a1, coeffs1);
 	polyz_unpack_avx(a2, coeffs2);
 	polyz_unpack_avx(a3, coeffs3);
-	LC_FPU_DISABLE;
 }
 
 /**
