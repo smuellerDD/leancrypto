@@ -192,17 +192,24 @@ library are covered (the test code contains error code paths which are not
 all tested, naturally).
 
 To perform testing of the Linux kernel module of leancrypto, insmod the
-module `leancrypto_test.ko` and review the kernel log via `dmesg`. Once the
-test is complete, the test kernel module can be removed from the kernel.
+module `leancrypto.ko` followed by insmoding all remaining kernel modules found
+in the `linux_kernel` directory and review the kernel log via `dmesg`. After
+completion of testing, these modules can be removed.
 
 ## Memory Leak Testing
 
 Using valgrind, the memory leak testing can be applied. Valgrind shows no
 leaks possible for any code path.
 
+For the Linux kernel, kmemleak can be applied showing no leaks during test
+execution.
+
 ## ASAN Testing
 
 Using ASAN address testing with the help of meson, no issues were identified.
+
+Similarly, KASAN can be used for the same type of testing inside the Linux
+kernel where no issues were identified.
 
 ## Clang Static Code Analysis
 
@@ -224,6 +231,21 @@ protect memory with sensitive data.
 
 ACVP certificates covering all ciphers and their implementations testable by NIST:
 
+The testing covered the following platforms:
+
+- x86_64 systems: Intel Tiger Lake i7, Intel Alder Lake i7, AMD Ryzen 9 5950X
+
+- RISC-V system: SiFive Unmatched board with U74 SiFive Freedom U740 SoC
+
+- ARMv7: NXP Cortex-A7 i.MX6ULZ
+
+- ARMv8: Apple M2, Broadcom BCM2711
+
+The test harness is available at https://github.com/smuellerDD/acvpparser
+covering all algorithm implementations of algorithms that are testable.
+
+## Version 0.6.0
+
 - [A3770 non-accelerated C cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=36380)
 
 - [A3771 AVX2 accelerated cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=36381)
@@ -241,19 +263,6 @@ ACVP certificates covering all ciphers and their implementations testable by NIS
 - [A3777 ARMv8 Crypto Extensions cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=36387)
 
 - [A3778 ARMv7 NEON cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=36388)
-
-The testing covered the following platforms:
-
-- x86_64 systems: Intel Tiger Lake i7, Intel Alder Lake i7, AMD Ryzen 9 5950X
-
-- RISC-V system: SiFive Unmatched board with U74 SiFive Freedom U740 SoC
-
-- ARMv7: NXP Cortex-A7 i.MX6ULZ
-
-- ARMv8: Apple M2, Broadcom BCM2711
-
-The test harness is available at https://github.com/smuellerDD/acvpparser
-covering all algorithm implementations of algorithms that are testable.
 
 # Author
 

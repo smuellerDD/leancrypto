@@ -184,6 +184,12 @@ int lc_dilithium_sign(struct lc_dilithium_sig *sig, const uint8_t *m,
  *			    an error.
  * @param [in] sk pointer to bit-packed secret key
  *
+ * NOTE: This API call is NOT yet stable and thus will not cause a the
+ *	 libraries major version to change. An update request is filed with
+ *	 the FIPS 204 authors to change the cause for providing the sk parameter
+ *	 in the init call. Once that change is applied, the sk parameter is
+ *	 removed for good.
+ *
  * @return 0 (success) or < 0 on error; -EOPNOTSUPP is returned if a different
  *	   hash than lc_shake256 is used.
  */
@@ -255,6 +261,12 @@ int lc_dilithium_verify(const struct lc_dilithium_sig *sig, const uint8_t *m,
  *			    lc_shake256 as otherwise the function will return
  *			    an error.
  * @param [in] pk pointer to bit-packed public key
+ *
+ * NOTE: This API call is NOT yet stable and thus will not cause a the
+ *	 libraries major version to change. An update request is filed with
+ *	 the FIPS 204 authors to change the cause for providing the pk parameter
+ *	 in the init call. Once that change is applied, the pk parameter is
+ *	 removed for good.
  *
  * @return 0 (success) or < 0 on error; -EOPNOTSUPP is returned if a different
  *	   hash than lc_shake256 is used.
