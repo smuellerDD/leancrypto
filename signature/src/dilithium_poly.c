@@ -164,9 +164,9 @@ void poly_uniform_gamma1(poly *a, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
 }
 
 /**
- * @brief poly_hallenge - Implementation of H. Samples polynomial with TAU
- *			  nonzero coefficients in {-1,1} using the output stream
- *			  of SHAKE256(seed).
+ * @brief poly_challenge - Implementation of H. Samples polynomial with TAU
+ *			   nonzero coefficients in {-1,1} using the output
+ *			   stream of SHAKE256(seed).
  *
  * @param c [out] pointer to output polynomial
  * @param mu [in] byte array containing seed of length LC_DILITHIUM_SEEDBYTES
@@ -184,9 +184,6 @@ void poly_challenge(poly *c, const uint8_t seed[LC_DILITHIUM_SEEDBYTES],
 	lc_hash_set_digestsize(hash_ctx, POLY_CHALLENGE_BYTES);
 	lc_hash_final(hash_ctx, buf);
 
-	lc_shake(lc_shake256, seed, LC_DILITHIUM_SEEDBYTES, buf,
-		 POLY_CHALLENGE_BYTES);
-
 	signs = 0;
 	for (i = 0; i < 8; ++i)
 		signs |= (uint64_t)buf[i] << 8 * i;
@@ -198,7 +195,7 @@ void poly_challenge(poly *c, const uint8_t seed[LC_DILITHIUM_SEEDBYTES],
 	for (i = LC_DILITHIUM_N - LC_DILITHIUM_TAU; i < LC_DILITHIUM_N; ++i) {
 		do {
 			if (pos >= LC_SHAKE_256_SIZE_BLOCK) {
-				lc_hash_final(hash_ctx, ws_buf);
+				lc_hash_final(hash_ctx, buf);
 				pos = 0;
 			}
 
