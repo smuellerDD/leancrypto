@@ -27,12 +27,61 @@
 extern "C" {
 #endif
 
+#ifdef LC_DILITHIUM_DEBUG
+
+/* Disable selftests */
+#define LC_DILITHIUM_TEST_INIT	1
+
 void dilithium_print_buffer(const uint8_t *buffer, const size_t bufferlen,
 			    const char *explanation);
-void dilitium_print_polyvecl_k(polyvecl mat[LC_DILITHIUM_K],
+void dilithium_print_polyvecl_k(polyvecl mat[LC_DILITHIUM_K],
 			       const char *explanation);
-void dilitium_print_polyvecl(polyvecl *poly, const char *explanation);
-void dilitium_print_polyveck(polyveck *poly, const char *explanation);
+void dilithium_print_polyvecl(polyvecl *poly, const char *explanation);
+void dilithium_print_polyveck(polyveck *poly, const char *explanation);
+void dilithium_print_poly(poly *poly, const char *explanation);
+
+#else /* LC_DILITHIUM_DEBUG */
+
+/* Enable selftests */
+#define LC_DILITHIUM_TEST_INIT	0
+
+static inline void dilithium_print_buffer(const uint8_t *buffer,
+					  const size_t bufferlen,
+					  const char *explanation)
+{
+	(void)buffer;
+	(void)bufferlen;
+	(void)explanation;
+}
+
+static inline void dilithium_print_polyvecl_k(polyvecl mat[LC_DILITHIUM_K],
+					      const char *explanation)
+{
+	(void)mat;
+	(void)explanation;
+}
+
+static inline void dilithium_print_polyvecl(polyvecl *poly,
+					    const char *explanation)
+{
+	(void)poly;
+	(void)explanation;
+}
+
+static inline void dilithium_print_polyveck(polyveck *poly,
+					    const char *explanation)
+{
+	(void)poly;
+	(void)explanation;
+}
+
+static inline void dilithium_print_poly(poly *poly, const char *explanation)
+{
+	(void)poly;
+	(void)explanation;
+}
+
+#endif /* LC_DILITHIUM_DEBUG */
 
 #ifdef __cplusplus
 }

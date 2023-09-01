@@ -26,8 +26,8 @@ void dilithium_print_buffer(const uint8_t *buffer, const size_t bufferlen,
 	bin2print(buffer, bufferlen, stdout, explanation);
 }
 
-void dilitium_print_polyvecl_k(polyvecl mat[LC_DILITHIUM_K],
-			       const char *explanation)
+void dilithium_print_polyvecl_k(polyvecl mat[LC_DILITHIUM_K],
+			        const char *explanation)
 {
 	unsigned int i, j, k;
 
@@ -42,7 +42,7 @@ void dilitium_print_polyvecl_k(polyvecl mat[LC_DILITHIUM_K],
 	printf("\n");
 }
 
-void dilitium_print_polyvecl(polyvecl *polyvec, const char *explanation)
+void dilithium_print_polyvecl(polyvecl *polyvec, const char *explanation)
 {
 	unsigned int i, j;
 
@@ -56,16 +56,27 @@ void dilitium_print_polyvecl(polyvecl *polyvec, const char *explanation)
 	printf("\n");
 }
 
-void dilitium_print_polyveck(polyveck *polyvec, const char *explanation)
+void dilithium_print_polyveck(polyveck *polyvec, const char *explanation)
 {
 	unsigned int i, j;
 
 	printf("%s", explanation);
 	for (i = 0; i < LC_DILITHIUM_K; i++) {
-		printf("\nL(%u) x N: ", i);
+		printf("\nK(%u) x N: ", i);
 		for (j = 0; j < LC_DILITHIUM_N; j++) {
 			printf("%d ", polyvec->vec[i].coeffs[j]);
 		}
+	}
+	printf("\n");
+}
+
+void dilithium_print_poly(poly *vec, const char *explanation)
+{
+	unsigned int i;
+
+	printf("%s", explanation);
+	for (i = 0; i < LC_DILITHIUM_N; i++) {
+		printf("%d ", vec->coeffs[i]);
 	}
 	printf("\n");
 }

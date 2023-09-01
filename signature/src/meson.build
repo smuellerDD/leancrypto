@@ -2,7 +2,6 @@
 
 if get_option('dilithium').enabled()
 	src += files([
-		'dilithium_debug.c',
 		'dilithium_signature_c.c',
 		'dilithium_ntt.c',
 		'dilithium_pack.c',
@@ -10,6 +9,10 @@ if get_option('dilithium').enabled()
 		'dilithium_rounding.c',
 		'dilithium_selftest.c'
 	])
+
+	if get_option('dilithium_debug').enabled()
+		src += files ([ 'dilithium_debug.c', ])
+	endif
 
 	if (x86_64_asm and get_option('dilithium_strength') == '5')
 		subdir('avx2')
