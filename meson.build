@@ -63,6 +63,10 @@ else
         add_global_arguments([ '-Wframe-larger-than=1048576' ], language: 'c')
 endif
 
+if get_option('dilithium_debug').enabled()
+	add_global_arguments([ '-DLC_DILITHIUM_DEBUG' ], language: 'c')
+endif
+
 # Versioning information
 version_array = meson.project_version().split('.')
 add_global_arguments(['-DMAJVERSION=' + version_array[0],
@@ -208,6 +212,10 @@ if get_option('sha3').disabled() and get_option('dilithium').enabled()
 	error('Dilithium support requires SHA-3')
 endif
 
+if get_option('kmac').disabled() and get_option('dilithium').enabled()
+	error('Dilithium support requires KMAC due to SP800-108 KDF')
+endif
+
 if get_option('sha3').disabled() and get_option('kyber').enabled()
 	error('Kyber support requires SHA-3')
 endif
@@ -279,6 +287,7 @@ endif
 ################################################################################
 
 src = [ ]
+internal_src = [ ]
 
 # Internal support libs that need to be linked in as a whole
 leancrypto_support_libs = [ ]

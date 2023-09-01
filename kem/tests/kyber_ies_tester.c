@@ -25,52 +25,11 @@
 #include "lc_rng.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
+#include "selftest_rng.h"
 #include "small_stack_support.h"
 #include "visibility.h"
 
-static uint64_t ctr = 0;
-
-static int randombytes(void *_state, const uint8_t *addtl_input,
-		       size_t addtl_input_len, uint8_t *out, size_t outlen)
-{
-	unsigned int i;
-	uint8_t buf[8];
-
-	(void)_state;
-	(void)addtl_input;
-	(void)addtl_input_len;
-
-	for (i = 0; i < 8; ++i)
-		buf[i] = (uint8_t)(ctr >> 8 * i);
-
-	ctr++;
-	lc_shake(lc_shake128, buf, 8, out, outlen);
-
-	return 0;
-}
-
-static int randombytes_seed(void *_state, const uint8_t *seed, size_t seedlen,
-			    const uint8_t *persbuf, size_t perslen)
-{
-	(void)_state;
-	(void)seed;
-	(void)seedlen;
-	(void)persbuf;
-	(void)perslen;
-	return 0;
-}
-
-static void randombytes_zero(void *_state)
-{
-	(void)_state;
-}
-
-static const struct lc_rng kyber_drng = {
-	.generate = randombytes,
-	.seed = randombytes_seed,
-	.zero = randombytes_zero,
-};
-
+#include "binhexbin.h"
 static int kyber_ies_determinisitic(void)
 {
 	static const uint8_t plain[] = {
@@ -81,15 +40,15 @@ static int kyber_ies_determinisitic(void)
 		0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f
 	};
 	static const uint8_t exp_cipher[] = {
-		0x44, 0x9f, 0x79, 0x66, 0x66, 0x4f, 0x48, 0x73, 0x70, 0xdf,
-		0xb9, 0x59, 0x10, 0x2e, 0x0b, 0xfc, 0x42, 0x0c, 0x1e, 0xa4,
-		0x49, 0x71, 0xc9, 0xda, 0x7b, 0x6c, 0x07, 0x69, 0xa1, 0xa0,
-		0xd5, 0x68, 0x3b, 0xa6, 0x02, 0xd6, 0xe7, 0x21, 0xc0, 0xa7,
-		0x90, 0x84, 0x98, 0x36, 0xb0, 0x44, 0x43, 0x4a
+		0x2a, 0xe4, 0xf2, 0xc4, 0x15, 0x3a, 0x8e, 0x36, 0xeb, 0x5d,
+		0xb8, 0xa5, 0x5e, 0x8a, 0xd6, 0x0b, 0x9c, 0x23, 0x4e, 0xbc,
+		0x01, 0xc6, 0x41, 0x40, 0x52, 0x97, 0xcf, 0x72, 0xf6, 0x8f,
+		0x99, 0x5d, 0x3d, 0xd8, 0x63, 0x5e, 0x40, 0xe4, 0x66, 0x53,
+		0xe8, 0x82, 0x1d, 0x92, 0x1a, 0x21, 0xba, 0xf2
 	};
-	static const uint8_t exp_tag[] = { 0x15, 0x93, 0x5e, 0xb3, 0xed, 0xf4,
-					   0x07, 0x22, 0xf9, 0x7d, 0x35, 0x6c,
-					   0x7d, 0x6b, 0xb9, 0x32 };
+	static const uint8_t exp_tag[] = { 0x90, 0x58, 0x88, 0xc2, 0x7d, 0x0b,
+					   0xac, 0xff, 0x4a, 0xf8, 0x99, 0x8a,
+					   0xff, 0xa2, 0x2f, 0xc3 };
 	struct workspace {
 		struct lc_kyber_pk pk;
 		struct lc_kyber_sk sk;
@@ -100,20 +59,17 @@ static int kyber_ies_determinisitic(void)
 		uint8_t plain_new[sizeof(plain)];
 		uint8_t tag[16];
 	};
-	uint64_t remember_ctr;
 	int ret;
-	struct lc_rng_ctx cshake_rng = { .rng = &kyber_drng,
-					 .rng_state = NULL };
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	LC_CC_CTX_ON_STACK(cc, lc_cshake256);
+	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 
-	CKINT(lc_kyber_keypair(&ws->pk, &ws->sk, &cshake_rng));
+	CKINT(lc_kyber_keypair(&ws->pk, &ws->sk, selftest_rng));
 
-	remember_ctr = ctr;
-
+	lc_rng_zero(selftest_rng);
 	CKINT(lc_kyber_ies_enc_internal(&ws->pk, &ws->ct, plain, ws->cipher,
 					sizeof(plain), NULL, 0, ws->tag,
-					sizeof(ws->tag), cc, &cshake_rng));
+					sizeof(ws->tag), cc, selftest_rng));
 
 	//	bin2print(ws->pk.pk, sizeof(ws->pk.pk), stdout, "PK");
 	//	bin2print(ws->sk.sk, sizeof(ws->sk.sk), stdout, "SK");
@@ -135,10 +91,9 @@ static int kyber_ies_determinisitic(void)
 
 	lc_aead_zero(cc);
 
-	/* Reset RNG */
-	ctr = remember_ctr;
+	lc_rng_zero(selftest_rng);
 	CKINT(lc_kyber_ies_enc_init_internal(cc, &ws->pk, &ws->ct,
-					     &cshake_rng));
+					     selftest_rng));
 	lc_kyber_ies_enc_update(cc, plain, ws->cipher, sizeof(plain));
 	lc_kyber_ies_enc_final(cc, NULL, 0, ws->tag, sizeof(ws->tag));
 	if (memcmp(ws->cipher, exp_cipher, sizeof(exp_cipher))) {

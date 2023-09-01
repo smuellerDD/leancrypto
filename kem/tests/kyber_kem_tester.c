@@ -30,6 +30,7 @@
 #include "lc_sha3.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
+#include "selftest_rng.h"
 #include "visibility.h"
 
 /*
@@ -65,53 +66,6 @@
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #endif
 
-struct lc_hash_ctx *rng_hash_ctx = NULL;
-
-static int randombytes(void *_state, const uint8_t *addtl_input,
-		       size_t addtl_input_len, uint8_t *out, size_t outlen)
-{
-	(void)addtl_input;
-	(void)addtl_input_len;
-	(void)_state;
-
-	if (!rng_hash_ctx) {
-		int ret = lc_hash_alloc(lc_shake128, &rng_hash_ctx);
-
-		if (ret)
-			return ret;
-
-		lc_hash_init(rng_hash_ctx);
-	}
-
-	lc_hash_set_digestsize(rng_hash_ctx, outlen);
-	lc_hash_final(rng_hash_ctx, out);
-
-	return 0;
-}
-
-static int randombytes_seed(void *_state, const uint8_t *rng_seed,
-			    size_t seedlen, const uint8_t *persbuf,
-			    size_t perslen)
-{
-	(void)_state;
-	(void)rng_seed;
-	(void)seedlen;
-	(void)persbuf;
-	(void)perslen;
-	return 0;
-}
-
-static void randombytes_zero(void *_state)
-{
-	(void)_state;
-}
-
-static const struct lc_rng kyber_drng = {
-	.generate = randombytes,
-	.seed = randombytes_seed,
-	.zero = randombytes_zero,
-};
-
 int _kyber_kem_tester(unsigned int rounds,
 		      int (*_lc_kyber_keypair)(struct lc_kyber_pk *pk,
 					       struct lc_kyber_sk *sk,
@@ -132,19 +86,9 @@ int _kyber_kem_tester(unsigned int rounds,
 		struct lc_kyber_ss key_b;
 	};
 	int ret = 0;
-	unsigned int i, j;
-
-	/*
-	 * The testing is based on the fact that,
-	 * - this "RNG" produces identical output
-	 * - encapsulation was invoked with this RNG
-	 */
-	struct lc_rng_ctx kyber_rng = { .rng = &kyber_drng, .rng_state = NULL };
-	unsigned int nvectors;
+	unsigned int i, j, nvectors;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
-
-	/* Zeroize RNG state */
-	lc_hash_init(rng_hash_ctx);
+	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 
 #ifdef GENERATE_VECTORS
 	printf("#ifndef KYBER_TESTVECTORS_H\n"
@@ -168,10 +112,11 @@ int _kyber_kem_tester(unsigned int rounds,
 
 	for (i = 0; i < rounds; i++) {
 		// Key-pair generation
-		CKINT(_lc_kyber_keypair(&ws->pk, &ws->sk, &kyber_rng));
+		CKINT(_lc_kyber_keypair(&ws->pk, &ws->sk, selftest_rng));
 
 		// Encapsulation
-		CKINT(_lc_kyber_enc(&ws->ct, &ws->key_b, &ws->pk, &kyber_rng));
+		CKINT(_lc_kyber_enc(&ws->ct, &ws->key_b, &ws->pk,
+				    selftest_rng));
 
 		// Decapsulation
 		CKINT(_lc_kyber_dec(&ws->key_a, &ws->ct, &ws->sk));
@@ -276,8 +221,6 @@ int _kyber_kem_tester(unsigned int rounds,
 #endif
 
 out:
-	lc_hash_zero_free(rng_hash_ctx);
-	rng_hash_ctx = NULL;
 	LC_RELEASE_MEM(ws);
 	return ret;
 }
@@ -301,19 +244,9 @@ int _kyber_kem_kdf_tester(
 		struct lc_kyber_ss key_b;
 	};
 	int ret = 0;
-	unsigned int i, j;
-
-	/*
-	 * The testing is based on the fact that,
-	 * - this "RNG" produces identical output
-	 * - encapsulation was invoked with this RNG
-	 */
-	struct lc_rng_ctx kyber_rng = { .rng = &kyber_drng, .rng_state = NULL };
-	unsigned int nvectors;
+	unsigned int i, j, nvectors;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
-
-	/* Zeroize RNG state */
-	lc_hash_init(rng_hash_ctx);
+	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 
 #ifdef GENERATE_VECTORS
 	printf("#ifndef KYBER_KDF_TESTVECTORS_H\n"
@@ -337,11 +270,11 @@ int _kyber_kem_kdf_tester(
 
 	for (i = 0; i < rounds; i++) {
 		// Key-pair generation
-		CKINT(_lc_kyber_keypair(&ws->pk, &ws->sk, &kyber_rng));
+		CKINT(_lc_kyber_keypair(&ws->pk, &ws->sk, selftest_rng));
 
 		// Encapsulation
 		CKINT(_lc_kyber_kdf_enc(&ws->ct, ws->key_b.ss, LC_KYBER_SSBYTES,
-					&ws->pk, &kyber_rng));
+					&ws->pk, selftest_rng));
 
 		// Decapsulation
 		CKINT(_lc_kyber_kdf_dec(ws->key_a.ss, LC_KYBER_SSBYTES, &ws->ct,
@@ -454,8 +387,6 @@ int _kyber_kem_kdf_tester(
 #endif
 
 out:
-	lc_hash_zero_free(rng_hash_ctx);
-	rng_hash_ctx = NULL;
 	LC_RELEASE_MEM(ws);
 	return ret;
 }

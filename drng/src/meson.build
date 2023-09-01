@@ -1,5 +1,9 @@
 # for i in $(ls *.c | sort); do echo "'$i',"; done
 
+# The selftest_rng is internal code to be used for testing only - it shall not
+# export any APIs and thus must be compiled along with internal support files
+internal_src += files([ 'selftest_rng.c' ])
+
 lc_rng_header = 0
 seeded_rng = 0
 

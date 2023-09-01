@@ -26,12 +26,6 @@
 extern "C" {
 #endif
 
-struct rand_state {
-	struct lc_hash_ctx *rng_hash_ctx;
-};
-
-extern const struct lc_rng kyber_drng;
-
 void kyber_kem_keygen_selftest(
 	int *tested, const char *impl,
 	int (*_lc_kyber_keypair)(struct lc_kyber_pk *pk, struct lc_kyber_sk *sk,

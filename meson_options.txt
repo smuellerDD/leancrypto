@@ -48,6 +48,8 @@ option('totp', type: 'feature', value: 'enabled',
 
 option('dilithium', type: 'feature', value: 'enabled',
        description: 'Dilithium signature support - FIPS 204')
+option('dilithium_debug', type: 'feature', value: 'disabled',
+       description: 'Dilithium debug printout - DO NOT ENABLE IN PRODUCTION SYSTEMS!')
 option('dilithium_strength', type: 'combo', choices: ['2', '3', '5' ],
        value: '5', description: '''Dilithium Security Strength
 
@@ -60,7 +62,7 @@ the value 5 implies 256 bits of security strength,
 option('kyber', type: 'feature', value: 'enabled',
        description: 'Kyber key exchange mechanism (KEM) support - FIPS 203')
 option('kyber_strength', type: 'combo', choices: ['2', '3', '4' ],
-       value: '4', description: '''Dilithium Security Strength
+       value: '4', description: '''Kyber Security Strength
 
 The allowed choices represent the Kzber specification security levels as follows:
 the value 2 implies 128 bits of security strength,

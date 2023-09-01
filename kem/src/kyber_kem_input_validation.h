@@ -58,8 +58,8 @@ static inline int kyber_kem_iv_type(const struct lc_kyber_pk *pk)
  * @return 0 on success, < 0 on error
  */
 static inline int kyber_kem_iv_pk_modulus(
-	const uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
-	const polyvec *pkpv, uint8_t seed[LC_KYBER_SYMBYTES],
+	const uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES], const polyvec *pkpv,
+	uint8_t seed[LC_KYBER_SYMBYTES],
 	void (*pack_pk)(uint8_t r[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 			const polyvec *pk,
 			const uint8_t seed[LC_KYBER_SYMBYTES]))
@@ -72,8 +72,8 @@ static inline int kyber_kem_iv_pk_modulus(
 
 	pack_pk(ws->pknew, pkpv, seed);
 
-	if (lc_memcmp_secure(pk, LC_KYBER_INDCPA_PUBLICKEYBYTES,
-			     ws->pknew, LC_KYBER_INDCPA_PUBLICKEYBYTES))
+	if (lc_memcmp_secure(pk, LC_KYBER_INDCPA_PUBLICKEYBYTES, ws->pknew,
+			     LC_KYBER_INDCPA_PUBLICKEYBYTES))
 		ret = -EINVAL;
 
 	LC_RELEASE_MEM(ws);
@@ -98,8 +98,7 @@ static inline int kyber_kem_iv_pk_modulus(
  * @return 0 on success, < 0 on error
  */
 static inline int kyber_kem_iv_sk_modulus(
-	const uint8_t sk[LC_KYBER_INDCPA_SECRETKEYBYTES],
-	const polyvec *skpv,
+	const uint8_t sk[LC_KYBER_INDCPA_SECRETKEYBYTES], const polyvec *skpv,
 	void (*pack_sk)(uint8_t r[LC_KYBER_INDCPA_SECRETKEYBYTES],
 			const polyvec *sk))
 {
@@ -111,8 +110,8 @@ static inline int kyber_kem_iv_sk_modulus(
 
 	pack_sk(ws->sknew, skpv);
 
-	if (lc_memcmp_secure(sk, LC_KYBER_INDCPA_SECRETKEYBYTES,
-			     ws->sknew, LC_KYBER_INDCPA_SECRETKEYBYTES))
+	if (lc_memcmp_secure(sk, LC_KYBER_INDCPA_SECRETKEYBYTES, ws->sknew,
+			     LC_KYBER_INDCPA_SECRETKEYBYTES))
 		ret = -EINVAL;
 
 	LC_RELEASE_MEM(ws);

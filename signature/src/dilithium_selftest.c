@@ -19,8 +19,7 @@
 
 #include "compare.h"
 #include "dilithium_selftest.h"
-#include "lc_hash.h"
-#include "lc_sha3.h"
+#include "selftest_rng.h"
 #include "small_stack_support.h"
 
 struct dilithium_testvector {
@@ -3537,46 +3536,6 @@ static const struct dilithium_testvector vector =
 };
 #endif
 
-struct rand_state {
-	struct lc_hash_ctx *rng_hash_ctx;
-};
-
-static int randombytes(void *_state, const uint8_t *addtl_input,
-		       size_t addtl_input_len, uint8_t *out, size_t outlen)
-{
-	struct rand_state *state = _state;
-
-	(void)addtl_input;
-	(void)addtl_input_len;
-
-	lc_hash_set_digestsize(state->rng_hash_ctx, outlen);
-	lc_hash_final(state->rng_hash_ctx, out);
-
-	return 0;
-}
-
-static int randombytes_seed(void *_state, const uint8_t *seed, size_t seedlen,
-			    const uint8_t *persbuf, size_t perslen)
-{
-	(void)_state;
-	(void)seed;
-	(void)seedlen;
-	(void)persbuf;
-	(void)perslen;
-	return 0;
-}
-
-static void randombytes_zero(void *_state)
-{
-	(void)_state;
-}
-
-static const struct lc_rng dilithium_drng = {
-	.generate = randombytes,
-	.seed = randombytes_seed,
-	.zero = randombytes_zero,
-};
-
 static int _dilithium_keypair_tester(
 	const char *impl,
 	int (*_lc_dilithium_keypair)(struct lc_dilithium_pk *pk,
@@ -3587,32 +3546,15 @@ static int _dilithium_keypair_tester(
 		struct lc_dilithium_pk pk;
 		struct lc_dilithium_sk sk;
 	};
-	struct rand_state rand_state;
-
-	/*
-	 * The testing is based on the fact that,
-	 * - this "RNG" produces identical output
-	 * - the signature generation is performed with deterministic
-	 *   behavior (i.e. rng_ctx is NULL)
-	 */
-	struct lc_rng_ctx dilithium_rng = { .rng = &dilithium_drng,
-					    .rng_state = &rand_state };
 	char str[25];
 	uint8_t discard[32];
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
-	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake128);
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
-#pragma GCC diagnostic pop
+	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 
-	rand_state.rng_hash_ctx = hash_ctx;
-
-	/* Make sure to have the same rng state as the test case */
-	lc_hash_init(hash_ctx);
 	/* The test vector RNG state served a message gen before keygen */
-	lc_rng_generate(&dilithium_rng, NULL, 0, discard, sizeof(discard));
+	lc_rng_generate(selftest_rng, NULL, 0, discard, sizeof(discard));
 
-	_lc_dilithium_keypair(&ws->pk, &ws->sk, &dilithium_rng);
+	_lc_dilithium_keypair(&ws->pk, &ws->sk, selftest_rng);
 	snprintf(str, sizeof(str), "%s PK", impl);
 	lc_compare_selftest(ws->pk.pk, vector.pk.pk,
 			    LC_DILITHIUM_PUBLICKEYBYTES, str);
@@ -3621,7 +3563,7 @@ static int _dilithium_keypair_tester(
 			    LC_DILITHIUM_PUBLICKEYBYTES, str);
 
 	LC_RELEASE_MEM(ws);
-	lc_hash_zero(hash_ctx);
+	lc_rng_zero(selftest_rng);
 	return 0;
 }
 

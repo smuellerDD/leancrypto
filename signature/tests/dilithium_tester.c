@@ -33,13 +33,12 @@
 #include "lc_dilithium.h"
 #include "lc_hash.h"
 #include "lc_sha3.h"
+#include "selftest_rng.h"
 #include "small_stack_support.h"
 #include "visibility.h"
 
 #define MLEN 32
 #define NVECTORS 50
-
-#undef DILITHIUM_DEBUG
 
 /*
  * Enable to generate vectors. When enabling this, invoke the application
@@ -67,52 +66,6 @@
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #endif
-
-struct lc_hash_ctx *rng_hash_ctx = NULL;
-
-static int randombytes(void *_state, const uint8_t *addtl_input,
-		       size_t addtl_input_len, uint8_t *out, size_t outlen)
-{
-	(void)addtl_input;
-	(void)addtl_input_len;
-	(void)_state;
-
-	if (!rng_hash_ctx) {
-		int ret = lc_hash_alloc(lc_shake128, &rng_hash_ctx);
-
-		if (ret)
-			return ret;
-
-		lc_hash_init(rng_hash_ctx);
-	}
-
-	lc_hash_set_digestsize(rng_hash_ctx, outlen);
-	lc_hash_final(rng_hash_ctx, out);
-
-	return 0;
-}
-
-static int randombytes_seed(void *_state, const uint8_t *seed, size_t seedlen,
-			    const uint8_t *persbuf, size_t perslen)
-{
-	(void)_state;
-	(void)seed;
-	(void)seedlen;
-	(void)persbuf;
-	(void)perslen;
-	return 0;
-}
-
-static void randombytes_zero(void *_state)
-{
-	(void)_state;
-}
-
-static const struct lc_rng dilithium_drng = {
-	.generate = randombytes,
-	.seed = randombytes_seed,
-	.zero = randombytes_zero,
-};
 
 int _dilithium_tester(
 	unsigned int rounds, int verify_calculation,
@@ -142,28 +95,18 @@ int _dilithium_tester(
 		//polyvecl s, y, mat[LC_DILITHIUM_K];
 		//polyveck w, w1, w0, t1, t0, h;
 	};
-	unsigned int i, j, k, l;
+	unsigned int i, j, k, l, nvectors;
 	int ret = 0;
-
-	/*
-	 * The testing is based on the fact that,
-	 * - this "RNG" produces identical output
-	 * - the signature generation is performed with deterministic
-	 *   behavior (i.e. rng_ctx is NULL)
-	 */
-	struct lc_rng_ctx dilithium_rng = { .rng = &dilithium_drng,
-					    .rng_state = NULL };
-	unsigned int nvectors;
 #if (defined(SHOW_SHAKEd_KEY) && !defined(GENERATE_VECTORS))
 	uint8_t buf[32];
 #endif
+
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 
 	(void)j;
 	(void)k;
 	(void)l;
-
-	lc_hash_init(rng_hash_ctx);
 
 #ifdef GENERATE_VECTORS
 	printf("#ifndef DILITHIUM_TESTVECTORS_H\n"
@@ -185,18 +128,22 @@ int _dilithium_tester(
 	if (!rounds)
 		rounds = nvectors;
 
+#ifdef LC_DILITHIUM_DEBUG
+	rounds = 1;
+#endif
+
 	for (i = 0; i < rounds; ++i) {
-		lc_rng_generate(&dilithium_rng, NULL, 0, ws->m, MLEN);
-		_lc_dilithium_keypair(&ws->pk, &ws->sk, &dilithium_rng);
+		lc_rng_generate(selftest_rng, NULL, 0, ws->m, MLEN);
+		_lc_dilithium_keypair(&ws->pk, &ws->sk, selftest_rng);
 		_lc_dilithium_sign(&ws->sig, ws->m, MLEN, &ws->sk,
-				   NULL /*dilithium_rng*/);
+				   NULL /*selftest_rng*/);
 
 		if (_lc_dilithium_verify(&ws->sig, ws->m, MLEN, &ws->pk))
 			printf("Signature verification failed!\n");
 
-		lc_rng_generate(&dilithium_rng, NULL, 0, ws->seed,
+		/* One more generation to match up with the CRYSTALS impl */
+		lc_rng_generate(selftest_rng, NULL, 0, ws->seed,
 				sizeof(ws->seed));
-
 		if (rounds > nvectors)
 			continue;
 
@@ -284,226 +231,6 @@ int _dilithium_tester(
 
 		if (!verify_calculation)
 			continue;
-
-#if 0
-
-#ifdef SHOW_SHAKEd_KEY
-		printf("seed = ");
-		for (j = 0; j < sizeof(seed); ++j)
-			printf("%02x", seed[j]);
-		printf("\n");
-#endif
-
-		polyvec_matrix_expand(ws->mat, ws->seed);
-#ifdef DILITHIUM_DEBUG
-		printf("A = ([");
-		for (j = 0; j < LC_DILITHIUM_K; ++j) {
-			for (k = 0; k < LC_DILITHIUM_L; ++k) {
-				for (l = 0; l < LC_DILITHIUM_N; ++l) {
-					printf("%8d", ws->mat[j].vec[k].coeffs[l]);
-					if (l < LC_DILITHIUM_N-1)
-						printf(", ");
-					else if (k < LC_DILITHIUM_L-1)
-						printf("], [");
-					else if (j < LC_DILITHIUM_K-1)
-						printf("];\n     [");
-					else
-						printf("])\n");
-				}
-			}
-		}
-#endif
-
-		polyvecl_uniform_eta(&ws->s, ws->seed, 0,
-				     ws->poly_uniform_eta_buf);
-
-		polyeta_pack(ws->buf, &ws->s.vec[0]);
-		polyeta_unpack(&ws->tmp, ws->buf);
-		for (j = 0; j < LC_DILITHIUM_N; ++j)
-			if (ws->tmp.coeffs[j] != ws->s.vec[0].coeffs[j])
-				printf("ERROR in polyeta_(un)pack!\n");
-
-		if (polyvecl_chknorm(&ws->s, LC_DILITHIUM_ETA+1))
-			printf("ERROR in polyvecl_chknorm(&s ,ETA+1)!\n");
-
-#ifdef DILITHIUM_DEBUG
-		printf("s = ([");
-		for (j = 0; j < LC_DILITHIUM_L; ++j) {
-			for (k = 0; k < LC_DILITHIUM_N; ++k) {
-				printf("%3d", ws->s.vec[j].coeffs[k]);
-				if (k < LC_DILITHIUM_N-1)
-					printf(", ");
-				else if (j < LC_DILITHIUM_L-1)
-					printf("],\n     [");
-				else
-					printf("])\n");
-			}
-		}
-#endif
-
-		polyvecl_uniform_gamma1(&ws->y, ws->seed, 0,
-					ws->poly_uniform_gamma1_buf);
-
-		polyz_pack(ws->buf, &ws->y.vec[0]);
-		polyz_unpack(&ws->tmp, ws->buf);
-		for (j = 0; j < LC_DILITHIUM_N; ++j)
-			if (ws->tmp.coeffs[j] != ws->y.vec[0].coeffs[j])
-				printf("ERROR in polyz_(un)pack!\n");
-
-		if (polyvecl_chknorm(&ws->y, LC_DILITHIUM_GAMMA1+1))
-			printf("ERROR in polyvecl_chknorm(&y, GAMMA1)!\n");
-
-#ifdef DILITHIUM_DEBUG
-		printf("y = ([");
-		for (j = 0; j < LC_DILITHIUM_L; ++j) {
-			for (k = 0; k < LC_DILITHIUM_N; ++k) {
-				printf("%8d", ws->y.vec[j].coeffs[k]);
-				if (k < LC_DILITHIUM_N-1)
-					printf(", ");
-				else if (j < LC_DILITHIUM_L-1)
-					printf("],\n     [");
-				else
-					printf("])\n");
-			}
-		}
-#endif
-
-		polyvecl_ntt(&ws->y);
-		polyvec_matrix_pointwise_montgomery(&ws->w, ws->mat, &ws->y);
-		polyveck_reduce(&ws->w);
-		polyveck_invntt_tomont(&ws->w);
-		polyveck_caddq(&ws->w);
-		polyveck_decompose(&ws->w1, &ws->w0, &ws->w);
-
-		for (j = 0; j < LC_DILITHIUM_N; ++j) {
-			ws->tmp.coeffs[j] = ws->w1.vec[0].coeffs[j]*2*LC_DILITHIUM_GAMMA2 +
-					    ws->w0.vec[0].coeffs[j];
-			if (ws->tmp.coeffs[j] < 0)
-				ws->tmp.coeffs[j] += LC_DILITHIUM_Q;
-			if (ws->tmp.coeffs[j] != ws->w.vec[0].coeffs[j])
-				printf("ERROR in poly_decompose!\n");
-		}
-
-		polyw1_pack(ws->buf, &ws->w1.vec[0]);
-#if LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q - 1) / 32
-		for (j = 0; j < LC_DILITHIUM_N/2; ++j) {
-			ws->tmp.coeffs[2*j+0] = ws->buf[j] & 0xF;
-			ws->tmp.coeffs[2*j+1] = ws->buf[j] >> 4;
-			if (ws->tmp.coeffs[2*j+0] != ws->w1.vec[0].coeffs[2*j+0]
-			    || ws->tmp.coeffs[2*j+1] != ws->w1.vec[0].coeffs[2*j+1])
-				printf("ERROR in polyw1_pack!\n");
-		}
-#endif
-
-#if LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q - 1) / 32
-		if (polyveck_chknorm(&ws->w1, 16))
-			printf("ERROR in polyveck_chknorm(&w1, 16)!\n");
-#elif LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q - 1) / 88
-		if (polyveck_chknorm(&ws->w1, 44))
-			printf("ERROR in polyveck_chknorm(&w1, 4)!\n");
-#endif
-		if (polyveck_chknorm(&ws->w0, LC_DILITHIUM_GAMMA2 + 1))
-			printf("ERROR in polyveck_chknorm(&w0, GAMMA2+1)!\n");
-
-#ifdef DILITHIUM_DEBUG
-		printf("w1 = ([");
-		for (j = 0; j < LC_DILITHIUM_K; ++j) {
-			for (k = 0; k < LC_DILITHIUM_N; ++k) {
-				printf("%2d", ws->w1.vec[j].coeffs[k]);
-				if (k < LC_DILITHIUM_N-1)
-					printf(", ");
-				else if (j < LC_DILITHIUM_K-1)
-					printf("],\n      [");
-				else
-					printf("])\n");
-			}
-		}
-		printf("w0 = ([");
-		for (j = 0; j < LC_DILITHIUM_K; ++j) {
-			for (k = 0; k < LC_DILITHIUM_N; ++k) {
-				printf("%8d", ws->w0.vec[j].coeffs[k]);
-				if (k < LC_DILITHIUM_N-1)
-					printf(", ");
-				else if (j < LC_DILITHIUM_K-1)
-					printf("],\n      [");
-				else
-					printf("])\n");
-			}
-		}
-#endif
-
-		polyveck_power2round(&ws->t1, &ws->t0, &ws->w);
-
-		for (j = 0; j < LC_DILITHIUM_N; ++j) {
-			ws->tmp.coeffs[j] = (ws->t1.vec[0].coeffs[j] << LC_DILITHIUM_D) + ws->t0.vec[0].coeffs[j];
-			if (ws->tmp.coeffs[j] != ws->w.vec[0].coeffs[j])
-				printf("ERROR in poly_power2round!\n");
-		}
-
-		polyt1_pack(ws->buf, &ws->t1.vec[0]);
-		polyt1_unpack(&ws->tmp, ws->buf);
-		for (j = 0; j < LC_DILITHIUM_N; ++j) {
-			if (ws->tmp.coeffs[j] != ws->t1.vec[0].coeffs[j])
-				printf("ERROR in polyt1_(un)pack!\n");
-		}
-		polyt0_pack(ws->buf, &ws->t0.vec[0]);
-		polyt0_unpack(&ws->tmp, ws->buf);
-		for (j = 0; j < LC_DILITHIUM_N; ++j) {
-			if (ws->tmp.coeffs[j] != ws->t0.vec[0].coeffs[j])
-				printf("ERROR in polyt0_(un)pack!\n");
-		}
-
-		if (polyveck_chknorm(&ws->t1, 1024))
-			printf("ERROR in polyveck_chknorm(&t1, 1024)!\n");
-		if (polyveck_chknorm(&ws->t0, (1U << (LC_DILITHIUM_D-1)) + 1))
-			printf("ERROR in polyveck_chknorm(&t0, (1 << (D-1)) + 1)!\n");
-
-#ifdef DILITHIUM_DEBUG
-		printf("t1 = ([");
-		for (j = 0; j < LC_DILITHIUM_K; ++j) {
-			for (k = 0; k < LC_DILITHIUM_N; ++k) {
-				printf("%3d", ws->t1.vec[j].coeffs[k]);
-				if (k < LC_DILITHIUM_N-1)
-					printf(", ");
-				else if (j < LC_DILITHIUM_K-1)
-					printf("],\n      [");
-				else
-					printf("])\n");
-			}
-		}
-		printf("t0 = ([");
-		for (j = 0; j < LC_DILITHIUM_K; ++j) {
-			for (k = 0; k < LC_DILITHIUM_N; ++k) {
-				printf("%5d", ws->t0.vec[j].coeffs[k]);
-				if (k < LC_DILITHIUM_N-1)
-					printf(", ");
-				else if (j < LC_DILITHIUM_K-1)
-					printf("],\n      [");
-				else
-					printf("])\n");
-			}
-		}
-#endif
-
-		poly_challenge(&ws->c, ws->seed, ws->poly_challenge_buf);
-#ifdef DILITHIUM_DEBUG
-		printf("c = [");
-		for (j = 0; j < LC_DILITHIUM_N; ++j) {
-			printf("%2d", ws->c.coeffs[j]);
-			if (j < LC_DILITHIUM_N-1)
-				printf(", ");
-			else
-				printf("]\n");
-		}
-#endif
-
-		polyveck_make_hint(&ws->h, &ws->w0, &ws->w1);
-		pack_sig(&ws->sig_tmp, ws->seed, &ws->y, &ws->h);
-		unpack_sig(ws->seed, &ws->y, &ws->w, &ws->sig_tmp);
-		if (memcmp(&ws->h, &ws->w, sizeof(ws->h)))
-			printf("ERROR in (un)pack_sig!\n");
-
-#endif
 	}
 
 #ifdef GENERATE_VECTORS
@@ -512,8 +239,6 @@ int _dilithium_tester(
 #else
 out:
 #endif
-
-	lc_hash_zero_free(rng_hash_ctx);
 	LC_RELEASE_MEM(ws);
 	return ret;
 }
@@ -568,25 +293,11 @@ int _dilithium_init_update_final_tester(
 		//polyvecl s, y, mat[LC_DILITHIUM_K];
 		//polyveck w, w1, w0, t1, t0, h;
 	};
-	unsigned int i;
+	unsigned int i, nvectors;
 	int ret = 0;
-
-	/*
-	 * The testing is based on the fact that,
-	 * - this "RNG" produces identical output
-	 * - the signature generation is performed with deterministic
-	 *   behavior (i.e. rng_ctx is NULL)
-	 */
-	struct lc_rng_ctx dilithium_rng = { .rng = &dilithium_drng,
-					    .rng_state = NULL };
-	unsigned int nvectors;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
-#pragma GCC diagnostic pop
-
-	lc_hash_init(rng_hash_ctx);
+	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 
 	nvectors = ARRAY_SIZE(dilithium_testvectors);
 
@@ -594,13 +305,13 @@ int _dilithium_init_update_final_tester(
 		rounds = nvectors;
 
 	for (i = 0; i < rounds; ++i) {
-		lc_rng_generate(&dilithium_rng, NULL, 0, ws->m, MLEN);
-		_lc_dilithium_keypair(&ws->pk, &ws->sk, &dilithium_rng);
+		lc_rng_generate(selftest_rng, NULL, 0, ws->m, MLEN);
+		_lc_dilithium_keypair(&ws->pk, &ws->sk, selftest_rng);
 		_lc_dilithium_sign_init(hash_ctx, &ws->sk);
 		_lc_dilithium_sign_update(hash_ctx, ws->m, 1);
 		_lc_dilithium_sign_update(hash_ctx, ws->m + 1, MLEN - 1);
 		_lc_dilithium_sign_final(&ws->sig, hash_ctx, &ws->sk,
-					 NULL /*dilithium_rng*/);
+					 NULL /*selftest_rng*/);
 
 		_lc_dilithium_verify_init(hash_ctx, &ws->pk);
 		_lc_dilithium_verify_update(hash_ctx, ws->m, 3);
@@ -608,7 +319,7 @@ int _dilithium_init_update_final_tester(
 		if (_lc_dilithium_verify_final(&ws->sig, hash_ctx, &ws->pk))
 			printf("Signature verification failed!\n");
 
-		lc_rng_generate(&dilithium_rng, NULL, 0, ws->seed,
+		lc_rng_generate(selftest_rng, NULL, 0, ws->seed,
 				sizeof(ws->seed));
 
 		if (rounds > nvectors)
@@ -642,7 +353,6 @@ int _dilithium_init_update_final_tester(
 
 out:
 	lc_hash_zero(hash_ctx);
-	lc_hash_zero_free(rng_hash_ctx);
 	LC_RELEASE_MEM(ws);
 	return ret;
 #endif

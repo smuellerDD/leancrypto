@@ -1,5 +1,5 @@
 # for i in $(ls *.c | sort); do echo "'$i',"; done
-internal_src = files([
+internal_src += files([
 	'binhexbin.c',
 	'compare.c',
 	'left_encode.c',

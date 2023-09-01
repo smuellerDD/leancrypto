@@ -13,7 +13,6 @@ if get_option('kyber').enabled()
 		'kyber_polyvec.c',
 		'kyber_selftest.c',
 		'kyber_selftest_kdf.c',
-		'kyber_selftest_rnd.c',
 		'kyber_verify.c',
 	])
 

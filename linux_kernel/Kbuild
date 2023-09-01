@@ -190,7 +190,7 @@ CONFIG_LEANCRYPTO_KEM=y
 
 #
 # Enable Dilithium Digital Signature Mechanism
-# Dependencies: CONFIG_LEANCRYPTO_SHA3
+# Dependencies: CONFIG_LEANCRYPTO_SHA3 and CONFIG_LEANCRYPTO_KMAC
 #
 CONFIG_LEANCRYPTO_DILITHIUM=y
 
@@ -525,6 +525,9 @@ obj-m				+= pbkdf2_tester.o
 pbkdf2_tester-y			+= ../kdf/tests/pbkdf2_tester.o
 endif
 
+# Required for Kyber and Dilithium self tests
+leancrypto-y			+= ../drng/src/selftest_rng.o
+
 # KEM implementation
 ccflags-$(CONFIG_LEANCRYPTO_KEM)					       \
 				+= -I$(PWD)/../kem/api -I$(PWD)/../kem/src
@@ -591,15 +594,20 @@ obj-m		 		+= kyber_ies_tester.o
 obj-m		 		+= kyber_invalid_tester.o
 
 kyber_kem_tester_c-y		+= ../kem/tests/kyber_kem_tester.o	       \
-				   ../kem/tests/kyber_kem_tester_c.o
+				   ../kem/tests/kyber_kem_tester_c.o	       \
+				   ../drng/src/selftest_rng.o
 kyber_kem_kdf_tester_c-y	+= ../kem/tests/kyber_kem_tester.o	       \
-				   ../kem/tests/kyber_kem_kdf_tester_c.o
+				   ../kem/tests/kyber_kem_kdf_tester_c.o       \
+				   ../drng/src/selftest_rng.o
 kyber_kem_tester_common-y	+= ../kem/tests/kyber_kem_tester.o	       \
-				   ../kem/tests/kyber_kem_tester_common.o
+				   ../kem/tests/kyber_kem_tester_common.o       \
+				   ../drng/src/selftest_rng.o
 kyber_kem_kdf_tester_common-y	+= ../kem/tests/kyber_kem_tester.o	       \
-				   ../kem/tests/kyber_kem_kdf_tester_common.o
+				   ../kem/tests/kyber_kem_kdf_tester_common.o  \
+				   ../drng/src/selftest_rng.o
 kyber_kex_tester-y  		+= ../kem/tests/kyber_kex_tester.o
-kyber_ies_tester-y  		+= ../kem/tests/kyber_ies_tester.o
+kyber_ies_tester-y  		+= ../kem/tests/kyber_ies_tester.o	       \
+				   ../drng/src/selftest_rng.o
 kyber_invalid_tester-y  	+= ../kem/tests/kyber_invalid_tester.o
 endif
 
@@ -609,18 +617,22 @@ obj-m		  		+= kyber_kem_tester_avx2.o
 obj-m		  		+= kyber_kem_kdf_tester_avx2.o
 
 kyber_kem_tester_avx2-y		+= ../kem/tests/kyber_kem_tester.o	       \
-				   ../kem/tests/kyber_kem_tester_avx2.o
+				   ../kem/tests/kyber_kem_tester_avx2.o	       \
+				   ../drng/src/selftest_rng.o
 kyber_kem_kdf_tester_avx2-y	+= ../kem/tests/kyber_kem_tester.o	       \
-				   ../kem/tests/kyber_kem_kdf_tester_avx2.o
+				   ../kem/tests/kyber_kem_kdf_tester_avx2.o    \
+				   ../drng/src/selftest_rng.o
 
 else ifdef CONFIG_ARM64
 obj-m				+= kyber_kem_tester_armv8.o
 obj-m				+= kyber_kem_kdf_tester_armv8.o
 
 kyber_kem_tester_armv8-y	+= ../kem/tests/kyber_kem_tester.o	       \
-				   ../kem/tests/kyber_kem_tester_armv8.o
+				   ../kem/tests/kyber_kem_tester_armv8.o       \
+				   ../drng/src/selftest_rng.o
 kyber_kem_kdf_tester_armv8-y	+= ../kem/tests/kyber_kem_tester.o	       \
-				   ../kem/tests/kyber_kem_kdf_tester_armv8.o
+				   ../kem/tests/kyber_kem_kdf_tester_armv8.o   \
+				   ../drng/src/selftest_rng.o
 endif
 endif
 
@@ -680,10 +692,12 @@ obj-m		  		+= dilithium_tester_common.o
 obj-m		  		+= dilithium_invalid_tester.o
 
 dilithium_tester_c-y		+= ../signature/tests/dilithium_tester.o       \
-				   ../signature/tests/dilithium_tester_c.o
+				   ../signature/tests/dilithium_tester_c.o     \
+				   ../drng/src/selftest_rng.o
 
 dilithium_tester_common-y	+= ../signature/tests/dilithium_tester.o       \
-				   ../signature/tests/dilithium_tester_common.o
+				   ../signature/tests/dilithium_tester_common.o\
+				   ../drng/src/selftest_rng.o
 
 dilithium_invalid_tester-y	+= ../signature/tests/dilithium_invalid_tester.o
 endif
@@ -693,7 +707,8 @@ ifdef CONFIG_LEANCRYPTO_DILITHIUM
 obj-m				+= dilithium_tester_avx2.o
 
 dilithium_tester_avx2-y		+= ../signature/tests/dilithium_tester.o       \
-				   ../signature/tests/dilithium_tester_avx2.o
+				   ../signature/tests/dilithium_tester_avx2.o  \
+				   ../drng/src/selftest_rng.o
 endif
 endif
 
