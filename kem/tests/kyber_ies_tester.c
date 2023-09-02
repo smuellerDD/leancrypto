@@ -29,7 +29,6 @@
 #include "small_stack_support.h"
 #include "visibility.h"
 
-#include "binhexbin.h"
 static int kyber_ies_determinisitic(void)
 {
 	static const uint8_t plain[] = {

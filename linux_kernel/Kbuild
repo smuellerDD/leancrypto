@@ -543,7 +543,6 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 				   ../kem/src/kyber_polyvec.o		       \
 				   ../kem/src/kyber_selftest.o		       \
 				   ../kem/src/kyber_selftest_kdf.o	       \
-				   ../kem/src/kyber_selftest_rnd.o	       \
 				   ../kem/src/kyber_verify.o
 
 ifdef CONFIG_X86_64
