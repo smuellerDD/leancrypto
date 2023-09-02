@@ -30,6 +30,11 @@
 
 #ifdef LINUX_KERNEL
 
+/* Disable the restrict keyword */
+#if __GNUC__ < 13
+#define restrict
+#endif
+
 #include <asm/fpu/api.h>
 
 #define LC_FPU_ENABLE kernel_fpu_begin()
