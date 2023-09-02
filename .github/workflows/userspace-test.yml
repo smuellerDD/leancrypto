@@ -1,4 +1,4 @@
-name: User space CI
+name: Linux user space CI
 
 on:
   push:

@@ -1,4 +1,4 @@
-name: User space CI
+name: macOS user space CI
 
 on:
   push:
