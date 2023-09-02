@@ -14,9 +14,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Install meson
-      run: |
-        brew update
-        brew install meson
+      run: brew install meson
     - name: Meson setup
       run: meson setup build
     - name: Meson compile
