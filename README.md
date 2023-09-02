@@ -1,5 +1,7 @@
 # Lean Crypto Library
 
+![Build Status](https://github.com/smuellerDD/leancrypto/actions/workflows/userspace-test.yml/badge.svg?branch=master)
+
 The leancrypto library is a cryptographic library that exclusively contains
 only PQC-resistant cryptographic algorithms. The algorithm implementations
 have the following properties:
