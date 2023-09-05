@@ -31,6 +31,7 @@
 
 static int kyber_ies_determinisitic(void)
 {
+#if LC_KYBER_K == 4
 	static const uint8_t plain[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
 		0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13,
@@ -147,6 +148,9 @@ out:
 	LC_RELEASE_MEM(ws);
 	lc_aead_zero(cc);
 	return ret;
+#else
+	return 0;
+#endif
 }
 
 static int kyber_ies_nondeterministic(void)
