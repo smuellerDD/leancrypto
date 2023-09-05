@@ -484,7 +484,7 @@ static void lc_kc_encrypt_oneshot(void *state, const uint8_t *plaintext,
 	/* Confidentiality protection: Encrypt data */
 	lc_kc_encrypt(cc, plaintext, ciphertext, datalen);
 
-	/* Integrity protection: CSHAKE data */
+	/* Integrity protection: KMAC data */
 	lc_kc_encrypt_tag(cc, aad, aadlen, tag, taglen);
 }
 
