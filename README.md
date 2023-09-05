@@ -1,6 +1,6 @@
 # Lean Crypto Library
 
-![Build Status Linux User Space](https://github.com/smuellerDD/leancrypto/actions/workflows/userspace-test.yml/badge.svg?branch=master) ![Build Status Linux Kernel Space](https://github.com/smuellerDD/leancrypto/actions/workflows/linux-kernelspace-test.yml/badge.svg?branch=master) ![Build Status macOS User Space](https://github.com/smuellerDD/leancrypto/actions/workflows/macos-test.yml/badge.svg?branch=master)
+![Build Status Linux User Space](https://github.com/smuellerDD/leancrypto/actions/workflows/userspace-test.yml/badge.svg?branch=master) ![Build Status Linux Kernel Space](https://github.com/smuellerDD/leancrypto/actions/workflows/linux-kernelspace-test.yml/badge.svg?branch=master) ![Build Status macOS User Space](https://github.com/smuellerDD/leancrypto/actions/workflows/macos-test.yml/badge.svg?branch=master) ![Build Status Small Stack](https://github.com/smuellerDD/leancrypto/actions/workflows/small-stack-test.yml/badge.svg?branch=master) ![Build Status Asym 128](https://github.com/smuellerDD/leancrypto/actions/workflows/asym_128-test.yml/badge.svg?branch=master) ![Build Status Asym 192](https://github.com/smuellerDD/leancrypto/actions/workflows/asym_192-test.yml/badge.svg?branch=master)
 
 The leancrypto library is a cryptographic library that exclusively contains
 only PQC-resistant cryptographic algorithms. The algorithm implementations

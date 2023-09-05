@@ -1,4 +1,4 @@
-name: Linux user space CI
+name: Small Stack CI
 
 on:
   push:
@@ -18,7 +18,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y meson
     - name: Meson setup
-      run: meson setup build -Dxdrbg256=enabled
+      run: meson setup build -Dsmall_stack=enabled
     - name: Meson compile
       run: meson compile -C build
     - name: Meson test

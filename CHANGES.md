@@ -19,12 +19,14 @@ Changes 0.7.0-prerelease:
 
 * enhancement: Dilithium and Kyber security strengths are selectable via Meson options
 
-* Kyber KEM: Update shared secret KDF (as the KDF is now removed from FIP S203,
+* Kyber KEM: Update shared secret KDF (as the KDF is now removed from FIPS 203,
   it can be adjusted to be more performant and consistent with SP800-108)
 
 * Kyber KEX: Updated shared secret KDF to use SP800-108 compliant KMAC KDF
 
 * enhancement: Add input parameter validatino to Kyber as specified in FIPS 203
+
+* enhancement: consolidate all testing requiring an RNG to use selftest_rng
 
 Changes 0.6.0:
 
