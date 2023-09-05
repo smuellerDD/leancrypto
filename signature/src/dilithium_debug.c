@@ -27,7 +27,7 @@ void dilithium_print_buffer(const uint8_t *buffer, const size_t bufferlen,
 }
 
 void dilithium_print_polyvecl_k(polyvecl mat[LC_DILITHIUM_K],
-			        const char *explanation)
+				const char *explanation)
 {
 	unsigned int i, j, k;
 
