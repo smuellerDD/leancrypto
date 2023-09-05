@@ -26,6 +26,13 @@
 extern "C" {
 #endif
 
+struct dilithium_testvector {
+	uint8_t m[32];
+	struct lc_dilithium_pk pk;
+	struct lc_dilithium_sk sk;
+	struct lc_dilithium_sig sig;
+};
+
 void dilithium_keypair_tester(
 	int *tested, const char *impl,
 	int (*_lc_dilithium_keypair)(struct lc_dilithium_pk *pk,
