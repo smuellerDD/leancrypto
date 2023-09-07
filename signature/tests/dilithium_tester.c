@@ -59,11 +59,11 @@
 
 #ifndef GENERATE_VECTORS
 #if LC_DILITHIUM_MODE == 2
-#include "dilithium_tester_vectors_level2.h"
+#include "dilithium_tester_vectors_44.h"
 #elif LC_DILITHIUM_MODE == 3
-#include "dilithium_tester_vectors_level3.h"
+#include "dilithium_tester_vectors_65.h"
 #elif LC_DILITHIUM_MODE == 5
-#include "dilithium_tester_vectors_level5.h"
+#include "dilithium_tester_vectors_87.h"
 #endif
 #endif
 
