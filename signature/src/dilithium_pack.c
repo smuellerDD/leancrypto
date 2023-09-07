@@ -235,7 +235,7 @@ void unpack_sk_ex_tr(uint8_t rho[LC_DILITHIUM_SEEDBYTES],
  * @param h [in] pointer to hint vector h
  */
 void pack_sig(struct lc_dilithium_sig *sig,
-	      const uint8_t c[LC_DILITHIUM_SEEDBYTES], const polyvecl *z,
+	      const uint8_t c[LC_DILITHIUM_CTILDE_BYTES], const polyvecl *z,
 	      const polyveck *h)
 {
 	unsigned int i, j, k;
@@ -244,9 +244,9 @@ void pack_sig(struct lc_dilithium_sig *sig,
 	BUILD_BUG_ON((1ULL << (sizeof(j) << 3)) < LC_DILITHIUM_N);
 	BUILD_BUG_ON((1ULL << (sizeof(k) << 3)) < LC_DILITHIUM_N);
 
-	for (i = 0; i < LC_DILITHIUM_SEEDBYTES; ++i)
+	for (i = 0; i < LC_DILITHIUM_CTILDE_BYTES; ++i)
 		signature[i] = c[i];
-	signature += LC_DILITHIUM_SEEDBYTES;
+	signature += LC_DILITHIUM_CTILDE_BYTES;
 
 	for (i = 0; i < LC_DILITHIUM_L; ++i)
 		polyz_pack(signature + i * LC_DILITHIUM_POLYZ_PACKEDBYTES,
@@ -254,8 +254,7 @@ void pack_sig(struct lc_dilithium_sig *sig,
 	signature += LC_DILITHIUM_L * LC_DILITHIUM_POLYZ_PACKEDBYTES;
 
 	/* Encode h */
-	for (i = 0; i < LC_DILITHIUM_OMEGA + LC_DILITHIUM_K; ++i)
-		signature[i] = 0;
+	memset(signature, 0, LC_DILITHIUM_OMEGA + LC_DILITHIUM_K);
 
 	k = 0;
 	for (i = 0; i < LC_DILITHIUM_K; ++i) {
@@ -277,15 +276,15 @@ void pack_sig(struct lc_dilithium_sig *sig,
  *
  * @return 1 in case of malformed signature; otherwise 0.
  */
-int unpack_sig(uint8_t c[LC_DILITHIUM_SEEDBYTES], polyvecl *z, polyveck *h,
+int unpack_sig(uint8_t c[LC_DILITHIUM_CTILDE_BYTES], polyvecl *z, polyveck *h,
 	       const struct lc_dilithium_sig *sig)
 {
 	unsigned int i, j, k;
 	const uint8_t *signature = sig->sig;
 
-	for (i = 0; i < LC_DILITHIUM_SEEDBYTES; ++i)
+	for (i = 0; i < LC_DILITHIUM_CTILDE_BYTES; ++i)
 		c[i] = signature[i];
-	signature += LC_DILITHIUM_SEEDBYTES;
+	signature += LC_DILITHIUM_CTILDE_BYTES;
 
 	for (i = 0; i < LC_DILITHIUM_L; ++i)
 		polyz_unpack(&z->vec[i],

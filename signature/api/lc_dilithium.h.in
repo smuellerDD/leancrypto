@@ -54,6 +54,7 @@ extern "C" {
 #define LC_DILITHIUM_ROOT_OF_UNITY 1753
 
 #if LC_DILITHIUM_MODE == 2
+#define LC_DILITHIUM_LAMBDA 128
 #define LC_DILITHIUM_K 4
 #define LC_DILITHIUM_L 4
 #define LC_DILITHIUM_ETA 2
@@ -64,6 +65,7 @@ extern "C" {
 #define LC_DILITHIUM_OMEGA 80
 
 #elif LC_DILITHIUM_MODE == 3
+#define LC_DILITHIUM_LAMBDA 192
 #define LC_DILITHIUM_K 6
 #define LC_DILITHIUM_L 5
 #define LC_DILITHIUM_ETA 4
@@ -74,6 +76,7 @@ extern "C" {
 #define LC_DILITHIUM_OMEGA 55
 
 #elif LC_DILITHIUM_MODE == 5
+#define LC_DILITHIUM_LAMBDA 256
 #define LC_DILITHIUM_K 8
 #define LC_DILITHIUM_L 7
 #define LC_DILITHIUM_ETA 2
@@ -85,6 +88,7 @@ extern "C" {
 
 #endif
 
+#define LC_DILITHIUM_CTILDE_BYTES (LC_DILITHIUM_LAMBDA * 2 / 8)
 #define LC_DILITHIUM_POLYT1_PACKEDBYTES 320
 #define LC_DILITHIUM_POLYT0_PACKEDBYTES 416
 #define LC_DILITHIUM_POLYVECH_PACKEDBYTES (LC_DILITHIUM_OMEGA + LC_DILITHIUM_K)
@@ -117,7 +121,7 @@ extern "C" {
 	 LC_DILITHIUM_K * LC_DILITHIUM_POLYT0_PACKEDBYTES)
 
 #define LC_DILITHIUM_CRYPTO_BYTES                                              \
-	(LC_DILITHIUM_SEEDBYTES +                                              \
+	(LC_DILITHIUM_CTILDE_BYTES +                                           \
 	 LC_DILITHIUM_L * LC_DILITHIUM_POLYZ_PACKEDBYTES +                     \
 	 LC_DILITHIUM_POLYVECH_PACKEDBYTES)
 

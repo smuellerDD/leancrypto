@@ -45,7 +45,7 @@ void pack_sk(struct lc_dilithium_sk *sk,
 	     const polyvecl *s1, const polyveck *s2);
 
 void pack_sig(struct lc_dilithium_sig *sig,
-	      const uint8_t c[LC_DILITHIUM_SEEDBYTES], const polyvecl *z,
+	      const uint8_t c[LC_DILITHIUM_CTILDE_BYTES], const polyvecl *z,
 	      const polyveck *h);
 
 void unpack_pk(uint8_t rho[LC_DILITHIUM_SEEDBYTES], polyveck *t1,
@@ -62,7 +62,7 @@ void unpack_sk_ex_tr(uint8_t rho[LC_DILITHIUM_SEEDBYTES],
 		     polyvecl *s1, polyveck *s2,
 		     const struct lc_dilithium_sk *sk);
 
-int unpack_sig(uint8_t c[LC_DILITHIUM_SEEDBYTES], polyvecl *z, polyveck *h,
+int unpack_sig(uint8_t c[LC_DILITHIUM_CTILDE_BYTES], polyvecl *z, polyveck *h,
 	       const struct lc_dilithium_sig *sig);
 
 #ifdef __cplusplus

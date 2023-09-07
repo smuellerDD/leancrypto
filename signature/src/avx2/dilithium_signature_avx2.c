@@ -253,7 +253,7 @@ static int lc_dilithium_sign_avx2_internal(struct lc_dilithium_sig *sig,
 {
 	unsigned int i, n, pos;
 	uint8_t *rho, *key, *mu, *rhoprime, *rnd;
-	uint8_t *hint = sig->sig + LC_DILITHIUM_SEEDBYTES +
+	uint8_t *hint = sig->sig + LC_DILITHIUM_CTILDE_BYTES +
 			LC_DILITHIUM_L * LC_DILITHIUM_POLYZ_PACKEDBYTES;
 	uint64_t nonce = 0;
 	int ret = 0;
@@ -325,7 +325,7 @@ rej:
 	lc_hash_update(hash_ctx, mu, LC_DILITHIUM_CRHBYTES);
 	lc_hash_update(hash_ctx, sig->sig,
 		       LC_DILITHIUM_K * LC_DILITHIUM_POLYW1_PACKEDBYTES);
-	lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_SEEDBYTES);
+	lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_CTILDE_BYTES);
 	lc_hash_final(hash_ctx, sig->sig);
 
 	poly_challenge_avx(&ws->c, sig->sig);
@@ -382,7 +382,7 @@ rej:
 
 	/* Pack z into signature */
 	for (i = 0; i < LC_DILITHIUM_L; i++)
-		polyz_pack_avx(sig->sig + LC_DILITHIUM_SEEDBYTES +
+		polyz_pack_avx(sig->sig + LC_DILITHIUM_CTILDE_BYTES +
 				       i * LC_DILITHIUM_POLYZ_PACKEDBYTES,
 			       &ws->z.vec[i]);
 
@@ -504,7 +504,7 @@ static int lc_dilithium_verify_avx2_internal(const struct lc_dilithium_sig *sig,
 					     struct lc_hash_ctx *hash_ctx)
 {
 	unsigned int i, j, pos = 0;
-	const uint8_t *hint = sig->sig + LC_DILITHIUM_SEEDBYTES +
+	const uint8_t *hint = sig->sig + LC_DILITHIUM_CTILDE_BYTES +
 			      LC_DILITHIUM_L * LC_DILITHIUM_POLYZ_PACKEDBYTES;
 	polyvecl *row;
 	int ret = 0;
@@ -521,7 +521,7 @@ static int lc_dilithium_verify_avx2_internal(const struct lc_dilithium_sig *sig,
 	/* Unpack z; shortness follows from unpacking */
 	for (i = 0; i < LC_DILITHIUM_L; i++) {
 		polyz_unpack_avx(&ws->z.vec[i],
-				 sig->sig + LC_DILITHIUM_SEEDBYTES +
+				 sig->sig + LC_DILITHIUM_CTILDE_BYTES +
 					 i * LC_DILITHIUM_POLYZ_PACKEDBYTES);
 		poly_ntt_avx(&ws->z.vec[i]);
 	}
@@ -577,12 +577,12 @@ static int lc_dilithium_verify_avx2_internal(const struct lc_dilithium_sig *sig,
 	lc_hash_update(hash_ctx, ws->mu, LC_DILITHIUM_CRHBYTES);
 	lc_hash_update(hash_ctx, ws->buf.coeffs,
 		       LC_DILITHIUM_K * LC_DILITHIUM_POLYW1_PACKEDBYTES);
-	lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_SEEDBYTES);
+	lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_CTILDE_BYTES);
 	lc_hash_final(hash_ctx, ws->buf.coeffs);
 
 	/* Signature verification operation */
-	if (lc_memcmp_secure(ws->buf.coeffs, LC_DILITHIUM_SEEDBYTES, sig->sig,
-			     LC_DILITHIUM_SEEDBYTES))
+	if (lc_memcmp_secure(ws->buf.coeffs, LC_DILITHIUM_CTILDE_BYTES,
+			     sig->sig, LC_DILITHIUM_CTILDE_BYTES))
 		ret = -EBADMSG;
 
 	return ret;

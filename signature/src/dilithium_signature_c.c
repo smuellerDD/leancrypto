@@ -77,8 +77,8 @@ struct workspace_verify {
 	uint8_t poly_uniform_buf[WS_POLY_UNIFORM_BUF_SIZE];
 #endif
 
-	BUF_ALIGNED_UINT8_UINT64(LC_DILITHIUM_SEEDBYTES) c;
-	BUF_ALIGNED_UINT8_UINT64(LC_DILITHIUM_SEEDBYTES) c2;
+	BUF_ALIGNED_UINT8_UINT64(LC_DILITHIUM_CTILDE_BYTES) c;
+	BUF_ALIGNED_UINT8_UINT64(LC_DILITHIUM_CTILDE_BYTES) c2;
 };
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_c, struct lc_dilithium_pk *pk,
@@ -113,7 +113,10 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_c, struct lc_dilithium_pk *pk,
 
 	/* Get randomness for rho, rhoprime and key */
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, ws->seedbuf,
-				      LC_DILITHIUM_SEEDBYTES));
+			      LC_DILITHIUM_SEEDBYTES));
+
+	dilithium_print_buffer(ws->seedbuf, LC_DILITHIUM_SEEDBYTES,
+			       "Keygen - Seed");
 
 	lc_shake(lc_shake256, ws->seedbuf, LC_DILITHIUM_SEEDBYTES, ws->seedbuf,
 		 sizeof(ws->seedbuf));
@@ -127,8 +130,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_c, struct lc_dilithium_pk *pk,
 			       "Keygen - RHOPrime");
 
 	key = rhoprime + LC_DILITHIUM_CRHBYTES;
-	dilithium_print_buffer(key, LC_DILITHIUM_SEEDBYTES,
-			       "Keygen - Key");
+	dilithium_print_buffer(key, LC_DILITHIUM_SEEDBYTES, "Keygen - Key");
 
 	/* Expand matrix */
 	polyvec_matrix_expand(ws->mat, rho, ws->poly_uniform_buf);
@@ -268,7 +270,8 @@ rej:
 		     POLY_UNIFORM_GAMMA1_BYTES);
 	polyvecl_uniform_gamma1(&ws->y, rhoprime, nonce++,
 				ws->poly_uniform_buf);
-	dilithium_print_polyvecl(&ws->y,
+	dilithium_print_polyvecl(
+		&ws->y,
 		"Siggen - Y L x N matrix after ExpandMask - start of loop");
 
 	/* Matrix-vector multiplication */
@@ -294,9 +297,9 @@ rej:
 	lc_hash_update(hash_ctx, mu, LC_DILITHIUM_CRHBYTES);
 	lc_hash_update(hash_ctx, sig->sig,
 		       LC_DILITHIUM_K * LC_DILITHIUM_POLYW1_PACKEDBYTES);
-	lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_SEEDBYTES);
+	lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_CTILDE_BYTES);
 	lc_hash_final(hash_ctx, sig->sig);
-	dilithium_print_buffer(sig->sig, LC_DILITHIUM_SEEDBYTES,
+	dilithium_print_buffer(sig->sig, LC_DILITHIUM_CTILDE_BYTES,
 			       "Siggen - ctilde");
 
 	/*
@@ -347,7 +350,8 @@ rej:
 		goto rej;
 
 	/* Write signature */
-	dilithium_print_buffer(sig->sig, LC_DILITHIUM_SEEDBYTES, "Siggen - C:");
+	dilithium_print_buffer(sig->sig, LC_DILITHIUM_CTILDE_BYTES,
+			       "Siggen - Ctilde:");
 	dilithium_print_polyvecl(&ws->z, "Siggen - Z L x N matrix:");
 	dilithium_print_polyveck(&ws->h, "Siggen - H K x N matrix:");
 
@@ -476,10 +480,6 @@ static int lc_dilithium_verify_c_internal(const struct lc_dilithium_sig *sig,
 					  struct lc_hash_ctx *hash_ctx)
 {
 	int ret = 0;
-	static int tested = LC_DILITHIUM_TEST_INIT;
-
-	dilithium_sigver_tester(&tested, "Dilithium Sigver C",
-				lc_dilithium_verify_c);
 
 	unpack_pk(ws->rho, &ws->t1, pk);
 	if (unpack_sig(ws->c.coeffs, &ws->z, &ws->h, sig))
@@ -541,12 +541,12 @@ static int lc_dilithium_verify_c_internal(const struct lc_dilithium_sig *sig,
 	lc_hash_update(hash_ctx, ws->mu, LC_DILITHIUM_CRHBYTES);
 	lc_hash_update(hash_ctx, ws->buf,
 		       LC_DILITHIUM_K * LC_DILITHIUM_POLYW1_PACKEDBYTES);
-	lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_SEEDBYTES);
+	lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_CTILDE_BYTES);
 	lc_hash_final(hash_ctx, ws->c2.coeffs);
 
 	/* Signature verification operation */
-	if (lc_memcmp_secure(ws->c.coeffs, LC_DILITHIUM_SEEDBYTES,
-			     ws->c2.coeffs, LC_DILITHIUM_SEEDBYTES))
+	if (lc_memcmp_secure(ws->c.coeffs, LC_DILITHIUM_CTILDE_BYTES,
+			     ws->c2.coeffs, LC_DILITHIUM_CTILDE_BYTES))
 		ret = -EBADMSG;
 
 	return ret;

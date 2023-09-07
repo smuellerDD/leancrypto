@@ -48,7 +48,11 @@
  *
  * The generated data could be cross-compared with test/test_vectors<level>
  * from https://github.com/pq-crystals/dilithium when printing out the
- * full keys/signatures instead of the SHAKE'd versions.
+ * full keys/signatures instead of the SHAKE'd versions. NOTE: at the time of
+ * writing, the CRYSTALS code does not yet have the change that enlarges their
+ * ctilde to lambda * 2 (from 32 bytes). This means that the signature created
+ * here is larger by (lambda * 2 - 32) starting at the 32th byte in the
+ * signature. All other bits are identical.
  */
 #undef GENERATE_VECTORS
 #undef SHOW_SHAKEd_KEY
