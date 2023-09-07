@@ -77,7 +77,6 @@ struct workspace_verify {
 	uint8_t poly_uniform_buf[WS_POLY_UNIFORM_BUF_SIZE];
 #endif
 
-	BUF_ALIGNED_UINT8_UINT64(LC_DILITHIUM_CTILDE_BYTES) c;
 	BUF_ALIGNED_UINT8_UINT64(LC_DILITHIUM_CTILDE_BYTES) c2;
 };
 
@@ -355,7 +354,7 @@ rej:
 	dilithium_print_polyvecl(&ws->z, "Siggen - Z L x N matrix:");
 	dilithium_print_polyveck(&ws->h, "Siggen - H K x N matrix:");
 
-	pack_sig(sig, sig->sig, &ws->z, &ws->h);
+	pack_sig(sig, &ws->z, &ws->h);
 
 	dilithium_print_buffer(sig->sig, LC_DILITHIUM_CRYPTO_BYTES,
 			       "Siggen - Signature:");
@@ -479,10 +478,12 @@ static int lc_dilithium_verify_c_internal(const struct lc_dilithium_sig *sig,
 					  struct workspace_verify *ws,
 					  struct lc_hash_ctx *hash_ctx)
 {
+	/* The first bytes of the signature is c~ and thus contains c1. */
+	const uint8_t *c1 = sig->sig;
 	int ret = 0;
 
 	unpack_pk(ws->rho, &ws->t1, pk);
-	if (unpack_sig(ws->c.coeffs, &ws->z, &ws->h, sig))
+	if (unpack_sig(&ws->z, &ws->h, sig))
 		return -EINVAL;
 	if (polyvecl_chknorm(&ws->z, LC_DILITHIUM_GAMMA1 - LC_DILITHIUM_BETA))
 		return -EINVAL;
@@ -497,7 +498,7 @@ static int lc_dilithium_verify_c_internal(const struct lc_dilithium_sig *sig,
 	 * buf and has the same alignment
 	 */
 	BUILD_BUG_ON(sizeof(ws->buf) < POLY_CHALLENGE_BYTES);
-	poly_challenge(&ws->cp, ws->c.coeffs, ws->buf);
+	poly_challenge(&ws->cp, c1, ws->buf);
 
 	/*
 	 * Use the buf for this operation as poly_uniform_buf is smaller than
@@ -545,7 +546,7 @@ static int lc_dilithium_verify_c_internal(const struct lc_dilithium_sig *sig,
 	lc_hash_final(hash_ctx, ws->c2.coeffs);
 
 	/* Signature verification operation */
-	if (lc_memcmp_secure(ws->c.coeffs, LC_DILITHIUM_CTILDE_BYTES,
+	if (lc_memcmp_secure(c1, LC_DILITHIUM_CTILDE_BYTES,
 			     ws->c2.coeffs, LC_DILITHIUM_CTILDE_BYTES))
 		ret = -EBADMSG;
 

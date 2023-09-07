@@ -229,24 +229,24 @@ void unpack_sk_ex_tr(uint8_t rho[LC_DILITHIUM_SEEDBYTES],
 /**
  * @brief pack_sig - Bit-pack signature sig = (c, z, h).
  *
+ * NOTE: A signature is the concatenation of sig = (c || packed z || packed h).
+ *	 As c is already present in the first bytes of sig, this function does
+ *	 not need to copy it yet again to the right location. This implies that
+ *	 this function does not process c.
+ *
  * @param sig [out] signature
- * @param c [in] pointer to challenge hash length LC_DILITHIUM_SEEDBYTES
  * @param z [in] pointer to vector z
  * @param h [in] pointer to hint vector h
  */
-void pack_sig(struct lc_dilithium_sig *sig,
-	      const uint8_t c[LC_DILITHIUM_CTILDE_BYTES], const polyvecl *z,
+void pack_sig(struct lc_dilithium_sig *sig, const polyvecl *z,
 	      const polyveck *h)
 {
 	unsigned int i, j, k;
-	uint8_t *signature = sig->sig;
+	/* Skip c */
+	uint8_t *signature = sig->sig + LC_DILITHIUM_CTILDE_BYTES;
 
 	BUILD_BUG_ON((1ULL << (sizeof(j) << 3)) < LC_DILITHIUM_N);
 	BUILD_BUG_ON((1ULL << (sizeof(k) << 3)) < LC_DILITHIUM_N);
-
-	for (i = 0; i < LC_DILITHIUM_CTILDE_BYTES; ++i)
-		signature[i] = c[i];
-	signature += LC_DILITHIUM_CTILDE_BYTES;
 
 	for (i = 0; i < LC_DILITHIUM_L; ++i)
 		polyz_pack(signature + i * LC_DILITHIUM_POLYZ_PACKEDBYTES,
@@ -269,22 +269,21 @@ void pack_sig(struct lc_dilithium_sig *sig,
 /**
  * @brief unpack_sig - Unpack signature sig = (c, z, h).
  *
- * @param c [out] pointer to output challenge hash
+ * NOTE: The c value is not unpacked as it can be used right from the signature.
+ *	 To access it, a caller simply needs to use the first
+ *	 LC_DILITHIUM_CTILDE_BYTES of the signature.
+ *
  * @param z [out] pointer to output vector z
  * @param h [out] pointer to output hint vector h
  * @param sig [in] signature
  *
  * @return 1 in case of malformed signature; otherwise 0.
  */
-int unpack_sig(uint8_t c[LC_DILITHIUM_CTILDE_BYTES], polyvecl *z, polyveck *h,
-	       const struct lc_dilithium_sig *sig)
+int unpack_sig(polyvecl *z, polyveck *h, const struct lc_dilithium_sig *sig)
 {
 	unsigned int i, j, k;
-	const uint8_t *signature = sig->sig;
-
-	for (i = 0; i < LC_DILITHIUM_CTILDE_BYTES; ++i)
-		c[i] = signature[i];
-	signature += LC_DILITHIUM_CTILDE_BYTES;
+	/* Skip c */
+	const uint8_t *signature = sig->sig + LC_DILITHIUM_CTILDE_BYTES;
 
 	for (i = 0; i < LC_DILITHIUM_L; ++i)
 		polyz_unpack(&z->vec[i],
