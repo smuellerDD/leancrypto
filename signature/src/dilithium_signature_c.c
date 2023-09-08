@@ -546,8 +546,8 @@ static int lc_dilithium_verify_c_internal(const struct lc_dilithium_sig *sig,
 	lc_hash_final(hash_ctx, ws->c2.coeffs);
 
 	/* Signature verification operation */
-	if (lc_memcmp_secure(c1, LC_DILITHIUM_CTILDE_BYTES,
-			     ws->c2.coeffs, LC_DILITHIUM_CTILDE_BYTES))
+	if (lc_memcmp_secure(c1, LC_DILITHIUM_CTILDE_BYTES, ws->c2.coeffs,
+			     LC_DILITHIUM_CTILDE_BYTES))
 		ret = -EBADMSG;
 
 	return ret;

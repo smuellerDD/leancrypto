@@ -45,7 +45,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_enc_avx, struct lc_kyber_ct *ct,
 	static int tester = 0;
 
 	kyber_kem_enc_selftest(&tester, "Kyber KEM enc AVX", lc_kyber_enc_avx);
-	return _lc_kyber_enc(ct, ss->ss, pk, rng_ctx, indcpa_enc_avx);
+	return _lc_kyber_enc(ct, ss, pk, rng_ctx, indcpa_enc_avx);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_kyber_enc_kdf_avx, struct lc_kyber_ct *ct,
@@ -66,7 +66,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_dec_avx, struct lc_kyber_ss *ss,
 	static int tester = 0;
 
 	kyber_kem_dec_selftest(&tester, "Kyber KEM dec AVX", lc_kyber_dec_avx);
-	return _lc_kyber_dec(ss->ss, ct, sk, indcpa_dec_avx, indcpa_enc_avx);
+	return _lc_kyber_dec(ss, ct, sk, indcpa_dec_avx, indcpa_enc_avx);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_kyber_dec_kdf_avx, uint8_t *ss, size_t ss_len,

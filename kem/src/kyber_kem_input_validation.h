@@ -85,7 +85,7 @@ static inline int kyber_kem_iv_pk_modulus(
  *				    encryption key.
  *
  * FIPS 203: (Modulus check.) Perform the computation
- *	     ek_n = ByteEncode(ByteDecode(dk)). If ek ̸= ek_n , the input is
+ *	     dk_n = ByteEncode(ByteDecode(dk)). If dk ̸= dk_n , the input is
  *	     invalid.
  *
  * @param  [in] sk Secret key (dk)

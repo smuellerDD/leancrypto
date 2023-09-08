@@ -46,7 +46,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_enc_armv8, struct lc_kyber_ct *ct,
 
 	kyber_kem_enc_selftest(&tester, "Kyber KEM enc ARMv8",
 			       lc_kyber_enc_armv8);
-	return _lc_kyber_enc(ct, ss->ss, pk, rng_ctx, indcpa_enc_armv8);
+	return _lc_kyber_enc(ct, ss, pk, rng_ctx, indcpa_enc_armv8);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_kyber_enc_kdf_armv8, struct lc_kyber_ct *ct,
@@ -68,8 +68,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_dec_armv8, struct lc_kyber_ss *ss,
 
 	kyber_kem_dec_selftest(&tester, "Kyber KEM dec ARMv8",
 			       lc_kyber_dec_armv8);
-	return _lc_kyber_dec(ss->ss, ct, sk, indcpa_dec_armv8,
-			     indcpa_enc_armv8);
+	return _lc_kyber_dec(ss, ct, sk, indcpa_dec_armv8, indcpa_enc_armv8);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_kyber_dec_kdf_armv8, uint8_t *ss, size_t ss_len,

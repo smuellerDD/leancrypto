@@ -29,6 +29,7 @@
 #include "kyber_verify.h"
 #include "lc_hash.h"
 #include "lc_kyber.h"
+#include "lc_memcmp_secure.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
@@ -64,7 +65,7 @@ int _lc_kyber_keypair(
 }
 
 int _lc_kyber_enc(
-	struct lc_kyber_ct *ct, uint8_t ss[LC_KYBER_SSBYTES],
+	struct lc_kyber_ct *ct, struct lc_kyber_ss *ss,
 	const struct lc_kyber_pk *pk, struct lc_rng_ctx *rng_ctx,
 	int (*indcpa_enc_f)(uint8_t c[LC_KYBER_INDCPA_BYTES],
 			    const uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
@@ -94,7 +95,7 @@ int _lc_kyber_enc(
 	/* coins are in kr+KYBER_SYMBYTES */
 	CKINT(indcpa_enc_f(ct->ct, buf, pk->pk, kr + LC_KYBER_SYMBYTES));
 
-	memcpy(ss, kr, LC_KYBER_SSBYTES);
+	memcpy(ss->ss, kr, LC_KYBER_SSBYTES);
 
 out:
 	lc_memset_secure(buf, 0, sizeof(buf));
@@ -110,20 +111,52 @@ int _lc_kyber_enc_kdf(
 			    const uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 			    const uint8_t coins[LC_KYBER_SYMBYTES]))
 {
-	uint8_t kyber_ss[LC_KYBER_SSBYTES];
+	struct lc_kyber_ss kyber_ss;
 	int ret;
 
-	CKINT(_lc_kyber_enc(ct, kyber_ss, pk, rng_ctx, indcpa_enc_f));
+	CKINT(_lc_kyber_enc(ct, &kyber_ss, pk, rng_ctx, indcpa_enc_f));
 
-	kyber_ss_kdf(ss, ss_len, ct, kyber_ss);
+	kyber_ss_kdf(ss, ss_len, ct, kyber_ss.ss);
 
 out:
-	lc_memset_secure(kyber_ss, 0, sizeof(kyber_ss));
+	lc_memset_secure(&kyber_ss, 0, sizeof(kyber_ss));
+	return ret;
+}
+
+/**
+ * @brief kyber_kem_iv_sk - Check consistency of Kyber secret key
+ *
+ * FIPS 203: Optional check
+ *
+ * @param  [in] sk Secret key (dk)
+ *
+ * @return 0 on success, < 0 on error
+ */
+static int kyber_kem_iv_sk(const struct lc_kyber_sk *sk)
+{
+	uint8_t kr[LC_KYBER_SYMBYTES];
+	int ret = 0;
+
+	/*
+	 * The sk is defined as sk <- (dkpke || pk || H(pk) || z)
+	 *
+	 * The check verifies that the pk and H(pk) correspond by hashing the
+	 * pk and comparing it to H(pk).
+	 */
+	lc_hash(lc_sha3_256, &sk->sk[LC_KYBER_INDCPA_SECRETKEYBYTES],
+		LC_KYBER_PUBLICKEYBYTES, kr);
+
+	if (lc_memcmp_secure(sk->sk + LC_KYBER_SECRETKEYBYTES -
+				     2 * LC_KYBER_SYMBYTES,
+			     LC_KYBER_SYMBYTES, kr, sizeof(kr)))
+		ret = -EINVAL;
+
+	lc_memset_secure(kr, 0, sizeof(kr));
 	return ret;
 }
 
 int _lc_kyber_dec(
-	uint8_t ss[LC_KYBER_SSBYTES], const struct lc_kyber_ct *ct,
+	struct lc_kyber_ss *ss, const struct lc_kyber_ct *ct,
 	const struct lc_kyber_sk *sk,
 	int (*indcpa_dec_f)(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
 			    const uint8_t c[LC_KYBER_INDCPA_BYTES],
@@ -157,6 +190,15 @@ int _lc_kyber_dec(
 	 * struct lc_kyber_sk ensures that the input is of required length.
 	 */
 
+	/*
+	 * Additional input validation - it may be disabled as it is may be
+	 * viewed as not useful, because the public key and the SHA3-512 hash of
+	 * (m || H(pk)) is processed with the indcpa_enc function. But for
+	 * high-security use cases, it may be useful to counter any potential
+	 * flaws present in indcpa_enc.
+	 */
+	CKINT(kyber_kem_iv_sk(sk));
+
 	pk = sk->sk + LC_KYBER_INDCPA_SECRETKEYBYTES;
 
 	CKINT(indcpa_dec_f(ws->buf, ct->ct, sk->sk));
@@ -174,11 +216,11 @@ int _lc_kyber_dec(
 
 	/* Compute rejection key */
 	kyber_shake256_rkprf(
-		ss, sk->sk + LC_KYBER_SECRETKEYBYTES - LC_KYBER_SYMBYTES,
+		ss->ss, sk->sk + LC_KYBER_SECRETKEYBYTES - LC_KYBER_SYMBYTES,
 		ct->ct);
 
 	/* Copy true key to return buffer if fail is false */
-	cmov(ss, ws->kr, LC_KYBER_SSBYTES, !fail);
+	cmov(ss->ss, ws->kr, LC_KYBER_SSBYTES, !fail);
 
 out:
 	LC_RELEASE_MEM(ws);
@@ -196,14 +238,14 @@ int _lc_kyber_dec_kdf(
 			    const uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 			    const uint8_t coins[LC_KYBER_SYMBYTES]))
 {
-	uint8_t kyber_ss[LC_KYBER_SSBYTES];
+	struct lc_kyber_ss kyber_ss;
 	int ret;
 
-	CKINT(_lc_kyber_dec(kyber_ss, ct, sk, indcpa_dec_f, indcpa_enc_f));
+	CKINT(_lc_kyber_dec(&kyber_ss, ct, sk, indcpa_dec_f, indcpa_enc_f));
 
-	kyber_ss_kdf(ss, ss_len, ct, kyber_ss);
+	kyber_ss_kdf(ss, ss_len, ct, kyber_ss.ss);
 
 out:
-	lc_memset_secure(kyber_ss, 0, sizeof(kyber_ss));
+	lc_memset_secure(&kyber_ss, 0, sizeof(kyber_ss));
 	return ret;
 }
