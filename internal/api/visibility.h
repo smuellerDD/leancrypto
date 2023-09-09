@@ -29,7 +29,7 @@
 		__ret = symbol(0, NULL);                                       \
 		pr_info("%s: Test case completed with return code %d\n",       \
 			KBUILD_MODNAME, __ret);                                \
-		return __ret;                                                  \
+		return __ret ? -EFAULT : 0;                                    \
 	}                                                                      \
 	static void __exit symbol##_exit(void)                                 \
 	{                                                                      \
