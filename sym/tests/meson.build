@@ -13,9 +13,17 @@ if get_option('chacha20').enabled()
 							  '../src' ],
 				   dependencies: leancrypto
 				   )
+	chacha20_stream_large_tester = executable('chacha20_stream_large_tester',
+				   [ 'chacha20_stream_large_tester.c',
+				     internal_src ],
+				   include_directories: [ include_internal_dirs,
+							  '../src' ],
+				   dependencies: leancrypto
+				   )
 
 	test('Symmetric ChaCha20 block', chacha20_block_tester)
 	test('Symmetric ChaCha20 stream', chacha20_stream_tester)
+	test('Symmetric ChaCha20 1GB', chacha20_stream_large_tester)
 endif
 
 if get_option('aes_block').enabled()
