@@ -1,3 +1,12 @@
+# aes_gcm_openssl_large_tester = executable('aes_gcm_openssl_large_tester',
+# 					[ 'aes_gcm_openssl_large_tester.c',
+# 					internal_src ],
+# 					include_directories: [ include_internal_dirs,
+# 							  '../src' ],
+# 					dependencies: [ leancrypto,
+# 							dependency('openssl') ]
+# 					)
+
 if get_option('sha2-512').enabled() and get_option('drbg_hash').enabled()
 	hash_crypt_tester = executable('hash_crypt_test',
 				[ 'hash_crypt_test.c', internal_src ],
