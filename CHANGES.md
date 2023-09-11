@@ -1,4 +1,4 @@
-Changes 0.7.0-prerelease:
+Changes 0.7.0:
 
 * enhancement: add XDRBG256 - the SHAKE256-based DRNG discussed for SP800-90A
   inclusion (almost idential to cSHAKE/KMAC DRNG specified with leancrypto)
