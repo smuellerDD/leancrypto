@@ -90,39 +90,66 @@
  *
  * 2.1 Notation
  *
- * 2.1.1 KyberEnc
+ * 2.1.1 Key Derivation Function
  *
- * KyberEnc(pk, ss_len) denotes the Kyber.CCAKEM.Enc(pk) algorithm specified in
- * [KYBER] section 1.3. It takes the Kyber public key pk as input as well as the
- * length of the shared key to be generated and generates the ciphertext c and
- * the shared key K. The used KDF is SHAKE as defined in section 2.1.4.
+ * `KyberKDF(Kyber ss, Kyber ct, ss_len)` denotes the key derivation function
+ * (KDF) specified in [FIPS203] section 3.3 which references the use of
+ * [SP800-108]. KyberIES uses the KMAC-based KDF as specified in [SP800-108]
+ * section 4.4.
  *
- * KyberEnc(pk, ss_len) -> c, shared key
+ * This KDF takes the Kyber shared secret `K`, the Kyber ciphertext `c` and the
+ * requested shared secret length as input and generates the shared secret `K'`
+ * of requested length:
  *
- * 2.1.2 KyberDec
+ *	KyberKDF(K, c, ss_len) -> K'
  *
- * KyberDec(c, sk, ss_len) denotes the Kyber.CCAKEM.Dec(c, sk) algorithm
- * specified in [KYBER] section 1.3. It takes the Kyber secret key sk, the
- * ciphertext c and the length of the shared secret to be generated as input
- * and generates the shared key K. The used KDF is SHAKE as defined in section
- * 2.1.4.
+ * The KMAC-based KDF is used for this operation in the following way:
  *
- * KyberDec(c, sk, ss_len) -> shared key
+ *	KMAC256(K = K,
+ *	        X = c,
+ *	        L = requested SS length,
+ *	        S = "Kyber KEM SS") -> K'
  *
- * 2.1.3 RND
+ * 2.1.2 KyberEnc
+ *
+ * `KyberEnc(ek, ss_len)` denotes the `ML-KEM.Encaps(ek)` algorithm specified in
+ * [FIPS203] section 6.2 enhanced by a KDF. It takes the Kyber public
+ * encapsulation key `ek` as input as well as the length of the shared key to be
+ * generated and generates the Kyber ciphertext `c` and the shared key `K'` of
+ * the requested length.
+ *
+ *	KyberEnc(ek, ss_len) -> K', c
+ *
+ * The algorithm implements the following steps:
+ *
+ *	ML-KEM.Encaps(ek) -> K, c
+ *	KyberKDF(K, c, ss_len) -> K'
+ *
+ * The intermediate value of the Kyber shared secret `K` is securely discarded
+ * after the conclusion of the operation.
+ *
+ * 2.1.3 KyberDec
+ *
+ * `KyberDec(c, dk, ss_len)` denotes the `ML-KEM.Decaps(c, dk)` algorithm
+ * specified in [FIPS203] section 6.3. It takes the Kyber secret decapsulation
+ * key `dk`, the Kyber ciphertext `c` and the length of the shared secret to be
+ * generated as input and generates the shared key `K'`.
+ *
+ *	KyberDec(c, dk, ss_len) -> K'
+ *
+ * The algorithm implements the following steps:
+ *
+ *	ML-KEM.Encaps(dk) -> K, c
+ *	KyberKDF(K, c, ss_len) -> K'
+ *
+ * The intermediate value of the Kyber shared secret `K` is securely discarded
+ * after the conclusion of the operation.
+ *
+ * 2.1.4 RND
  *
  * RND denotes the random bit generator to generate a random bit strings of any
  * size. It takes the numbers of bits to be generated as input to generate the
  * requested amount of random bits.
- *
- * 2.1.4 SHAKE
- *
- * SHAKE denotes the SHAKE256 algorithm as specified in [FIPS202]. It takes the
- * message M as input as well as the bit size d of the message digest to be
- * generated. The inputs to the SHAKE algorithm are specified with references
- * to these parameters.
- *
- * SHAKE256 is used to be consistent with [KYBER] section 1.4.
  *
  * 2.1.5 AEAD Algorithm
  *
@@ -215,7 +242,7 @@
  *   the KyberIES algorithm defines the use of a 256 bit key size to mandate a
  *   security strength of 256 bits.
  *
- * * KyberIES defines the use of SHAKE256 which implies a security strength of
+ * * KyberIES defines the use of KMAC256 which implies a security strength of
  *   256 bits.
  *
  * * RND defines a random bit generator that has a security strength of 256
@@ -223,10 +250,10 @@
  *
  * 2.3 Encryption of Data
  *
- * KyberIESEnc(pk, plaintext, AAD, taglen) -> Kyber ciphertext, ciphertext, tag
+ * KyberIESEnc(ek, plaintext, AAD, taglen) -> Kyber ciphertext, ciphertext, tag
  *
  * Input:
- *   pk: Kyber public key of the data owner
+ *   ek: Kyber public encapsulation key of the data owner
  *
  *   plaintext: The caller-provided plaintext data.
  *
@@ -247,7 +274,7 @@
  *
  * The KyberIES encryption operation is performed as follows:
  *
- * Kyber ciphertext, shared key = KyberEnc(pk, 256 + AEAD IV length + AEAD MAC key length)
+ * Kyber ciphertext, shared key = KyberEnc(ek, 256 + AEAD IV length + AEAD MAC key length)
  * AEADkey = shared key[0:255] - the left-most 256 bits of shared key
  * AEADIV = shared key[256:AEAD IV length] - shared key bits starting with 256th bit of AEAD IV length
  * AEADMACKey = shared key[256 + AEAD IV length: AEAD MAC key length] - shared key bits starting with first bit after AEAD IV bits of AEAD MAC key length
@@ -255,10 +282,10 @@
  *
  * 2.4 Decryption of Data
  *
- * KyberIESDec(sk, Kyber ciphertext, ciphertext, tag) -> plaintext, authentication result
+ * KyberIESDec(dk, Kyber ciphertext, ciphertext, tag) -> plaintext, authentication result
  *
  * * Input:
- *   sk: Kyber secret key of the data owner
+ *   dk: Kyber secret decapsulation key of the data owner
  *
  *   Kyber ciphertext: Kyber ciphertext c as defined for KyberEnc
  *
@@ -280,7 +307,7 @@
  *
  * The KyberIES decryption operation is performed as follows:
  *
- * shared key = KyberDec(sk, Kyber ciphertext, 256 + AEAD IV length + AEAD MAC key length)
+ * shared key = KyberDec(dk, Kyber ciphertext, 256 + AEAD IV length + AEAD MAC key length)
  * AEADkey = shared key[0:255] - the left-most 256 bits of shared key
  * AEADIV = shared key[256:AEAD IV length] - shared key bits starting with 256th bit of AEAD IV length
  * AEADMACKey = shared key[256 + AEAD IV length: AEAD MAC key length] - shared key bits starting with first bit after AEAD IV bits of AEAD MAC key length
@@ -291,16 +318,17 @@
  * [FIPS202] FIPS PUB 202 SHA-3 Standard: Permutation-Based Hash and
  *	      Extendable-Output Functions, August 2015
  *
- * [KYBER] CRYSTALS-Kyber Algorithm Specifications And Supporting Documentation,
- *	   Roberto Avanzi, Joppe Bos, Léo Ducas, Eike Kiltz, Tancrède Lepoint,
- *	   Vadim Lyubashevsky, John M. Schanck, Peter Schwabe, Gregor Seiler,
- *	   Damien Stehlé, Version 3.02, August 4, 2021
+ * [FIPS203] FIPS 203 (Draft): Module-Lattice-based Key-Encapsulation Mechanism
+ *	     Standard, August 24, 2023
  *
  * [SEC1] SEC 1: Elliptic Curve Cryptography, Daniel R. L. Brown, Version 2.0,
  *	  May 21, 2009
  *
  * [SHOUP] A Proposal for an ISO Standard for Public Key Encryption,
  *	   Victor Shoup, Version 2.1, December 20, 2001
+ *
+ * [SP800-108] NIST SP 800-108r1, Recommendation for Key Derivation Using
+ *	       Pseudorandom Functions, Lily Chen, August 2022
  *
  ******************************************************************************/
 
