@@ -266,6 +266,26 @@ covering all algorithm implementations of algorithms that are testable.
 
 - [A3778 ARMv7 NEON cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=36388)
 
+## Version 0.7.0
+
+- [A4405 non-accelerated C cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37015)
+
+- [A4409 AVX2 accelerated cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37019)
+
+- [A4410 4-way SIMD accelerated cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37020)
+
+- [A4413 AVX512 accelerated cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37023)
+
+- [A4411 AES-NI accelerated cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37021)
+
+- [A4408 RISC-V assembler cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37018)
+
+- [A4407 ARMv8 assembler cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37017)
+
+- [A4412 ARMv8 Crypto Extensions cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37022)
+
+- [A4406 ARMv7 NEON cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37016)
+
 # Author
 
 Stephan Müller <smueller@chronox.de>
