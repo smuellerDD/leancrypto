@@ -107,7 +107,7 @@ meson.add_dist_script(dist_script, meson.project_version())
 ################################################################################
 
 cc = meson.get_compiler('c')
-meson.build:pkgconfig = import('pkgconfig')
+pkgconfig = import('pkgconfig')
 
 include_dirs = include_directories([ 'aead/api',
 				     'drng/api',
