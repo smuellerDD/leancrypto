@@ -107,6 +107,7 @@ meson.add_dist_script(dist_script, meson.project_version())
 ################################################################################
 
 cc = meson.get_compiler('c')
+meson.build:pkgconfig = import('pkgconfig')
 
 include_dirs = include_directories([ 'aead/api',
 				     'drng/api',
@@ -326,6 +327,8 @@ leancrypto_lib = library('leancrypto',
 	)
 leancrypto = declare_dependency(link_with: leancrypto_lib,
 				include_directories: include_dirs)
+
+pkgconfig.generate(leancrypto_lib)
 
 install_headers(include_files, subdir: leancrypto_header_subdir)
 install_headers(autogen_header)
