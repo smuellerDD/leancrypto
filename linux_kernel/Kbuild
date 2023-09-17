@@ -208,7 +208,7 @@ obj-m		 		:= leancrypto.o
 
 # Kernel module framework
 ccflags-y			:= -I$(PWD) -DLINUX_KERNEL -DLC_MEM_ON_HEAP    \
-				   -DMAJVERSION=0 -DMINVERSION=7 -DPATCHLEVEL=0
+				   -DMAJVERSION=0 -DMINVERSION=8 -DPATCHLEVEL=0
 
 ifdef CONFIG_LEANCRYPTO_HEALTH_TEST
 ccflags-y			+= -DLC_SELFTEST_ENABLED
