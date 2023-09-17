@@ -11,7 +11,8 @@ if get_option('apps').enabled()
 				[ sha512sum_files ],
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto,
-				install: true
+				install: true,
+				install_dir: get_option('libexecdir') / meson.project_name()
 				)
 	endif
 
@@ -23,7 +24,8 @@ if get_option('apps').enabled()
 				[ sha256sum_files ],
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto,
-				install: true
+				install: true,
+				install_dir: get_option('libexecdir') / meson.project_name()
 				)
 	endif
 
@@ -35,7 +37,8 @@ if get_option('apps').enabled()
 				[ sha3_256sum_files ],
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto,
-				install: true
+				install: true,
+				install_dir: get_option('libexecdir') / meson.project_name()
 				)
 
 		sha3_384sum_files = shasum_files_common
@@ -45,7 +48,8 @@ if get_option('apps').enabled()
 				[ sha3_384sum_files ],
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto,
-				install: true
+				install: true,
+				install_dir: get_option('libexecdir') / meson.project_name()
 				)
 
 		sha3_512sum_files = shasum_files_common
@@ -55,7 +59,8 @@ if get_option('apps').enabled()
 				[ sha3_512sum_files ],
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto,
-				install: true
+				install: true,
+				install_dir: get_option('libexecdir') / meson.project_name()
 				)
 	endif
 endif

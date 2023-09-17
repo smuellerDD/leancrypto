@@ -5,7 +5,7 @@
 #
 
 Name:           leancrypto
-Version:        0.7.0
+Version:        0.8.0
 Release:        1.1
 Summary:        Cryptographic library with stack-only support and PQC-safe algorithms
 License:        GPL-2.0 OR BSD-2-Clause
@@ -62,6 +62,19 @@ enabled if possible.
 
 This subpackage contains the static version of the library
 used for development.
+
+%package -n %{name}-tools
+Summary:        Applications provided by leancrypto
+Requires:       glibc-devel
+Requires:       lib%{name}0 = %{version}
+
+%description %{name}-tools
+Leancrypto provides a general-purpose cryptographic library with PQC-safe
+algorithms. Further it only has POSIX dependencies, and allows all algorithms
+to be used on stack as well as on heap. Accelerated algorithms are transparently
+enabled if possible.
+
+This subpackage holds the tools provided by the library, such as sha*sum.
 
 %kernel_module_package
 
@@ -123,3 +136,10 @@ done
 
 %files devel-static
 %{_libdir}/lib%{name}.a
+
+%files -n %{name}-tools
+%{_libexecdir}/%{name}/sha256sum
+%{_libexecdir}/%{name}/sha512sum
+%{_libexecdir}/%{name}/sha3-256sum
+%{_libexecdir}/%{name}/sha3-384sum
+%{_libexecdir}/%{name}/sha3-512sum
