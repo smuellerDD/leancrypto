@@ -176,7 +176,10 @@ void bin2print(const unsigned char *bin, const size_t binlen, FILE *out,
 			return;
 		bin2hex(bin, binlen, hex, hexlen - 1, 0);
 	}
-	fprintf(out, "%s = %s\n", explanation, (hex) ? hex : "");
+	if (explanation)
+		fprintf(out, "%s = ", explanation);
+
+	fprintf(out, "%s\n", (hex) ? hex : "");
 	free(hex);
 }
 

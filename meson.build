@@ -137,9 +137,11 @@ subdirs = [ 'aead/src',
 	    'signature/api',
 	    'signature/src',
 	    'sym/src'
+
 	  ]
 
-testdirs = [ 'aead/tests',
+testdirs = [ 'apps/tests',
+	     'aead/tests',
 	     'drng/tests',
 	     'hash/tests',
 	     'internal/tests',
@@ -149,6 +151,8 @@ testdirs = [ 'aead/tests',
 	     'signature/tests',
 	     'sym/tests'
 	   ]
+
+appdirs = [ 'apps/src' ]
 
 if (get_option('drbg_hmac').enabled() and
     (get_option('sha2-512').disabled() or get_option('hmac').disabled()))
@@ -328,10 +332,18 @@ leancrypto_lib = library('leancrypto',
 leancrypto = declare_dependency(link_with: leancrypto_lib,
 				include_directories: include_dirs)
 
-pkgconfig.generate(leancrypto_lib)
+pkgconfig.generate(leancrypto_lib,
+		   description: 'PQC-resistant cryptographic library')
 
 install_headers(include_files, subdir: leancrypto_header_subdir)
 install_headers(autogen_header)
+
+################################################################################
+# Create apps
+################################################################################
+foreach n : appdirs
+	subdir(n)
+endforeach
 
 ################################################################################
 # Execute testing

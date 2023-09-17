@@ -97,3 +97,12 @@ The seed source for the lc_seeded_rng is determined at compile time. The builtin
 source uses the standard operating system seed source like getrandom or
 getentropy system calls. But other seed sources are allowed to be specified.
 ''')
+
+option('apps', type: 'feature', value: 'enabled',
+       description: '''Build helper apps
+
+The leancrypto library offers a set of applications that work as
+drop-in-replacement for the corresponding apps offered by other environments.
+These include the known sha*sum applications.
+''')
+
