@@ -657,7 +657,6 @@ ccflags-$(CONFIG_LEANCRYPTO_DILITHIUM)					       \
 				+= -I$(PWD)/../signature/api
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
 				+= ../signature/src/dilithium_ntt.o	       \
-				   ../signature/src/dilithium_pack.o	       \
 				   ../signature/src/dilithium_poly.o	       \
 				   ../signature/src/dilithium_rounding.o       \
 				   ../signature/src/dilithium_selftest.o       \
