@@ -190,7 +190,6 @@ static void drbg_hash_df(struct lc_drbg_hash_state *drbg, uint8_t *outval,
 
 		/* shut up -Wstringop-overread */
 		if (len + blocklen > outlen)
-
 			break;
 
 		/* shut up -Wstringop-overread */
