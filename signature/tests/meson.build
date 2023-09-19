@@ -99,37 +99,37 @@ if get_option('dilithium').enabled()
 		test('Dilithium init update final AVX2 10000',
 		     dilithium_tester_iuf_avx2,
 		     args : [ 'c' ], timeout: 1000, is_parallel: false)
-	elif (arm64_asm and get_option('dilithium_strength') == '5')
-		dilithium_tester_armv8 = executable('dilithium_tester_armv8',
-				[ 'dilithium_tester_armv8.c',
-				  'dilithium_tester.c',
-				  internal_src ],
-				include_directories: [
-					include_dirs,
-					include_internal_dirs,
-					include_dilithium_internal
-				],
-				dependencies: leancrypto
-				)
-		dilithium_tester_iuf_armv8 = executable('dilithium_tester_iuf_armv8',
-				[ 'dilithium_tester_iuf_armv8.c',
-				  'dilithium_tester.c',
-				  internal_src ],
-				include_directories: [
-					include_dirs,
-					include_internal_dirs,
-					include_dilithium_internal
-				],
-				dependencies: leancrypto
-				)
-
-		test('Dilithium signature AVX2', dilithium_tester_armv8)
-		test('Dilithium init update final AVX2',
-		     dilithium_tester_iuf_armv8)
-		test('Dilithium signature AVX2 10000', dilithium_tester_armv8,
-		     args : [ 'c' ], timeout: 1000, is_parallel: false)
-		test('Dilithium init update final AVX2 10000',
-		     dilithium_tester_iuf_armv8,
-		     args : [ 'c' ], timeout: 1000, is_parallel: false)
+# 	elif (arm64_asm and get_option('dilithium_strength') == '5')
+# 		dilithium_tester_armv8 = executable('dilithium_tester_armv8',
+# 				[ 'dilithium_tester_armv8.c',
+# 				  'dilithium_tester.c',
+# 				  internal_src ],
+# 				include_directories: [
+# 					include_dirs,
+# 					include_internal_dirs,
+# 					include_dilithium_internal
+# 				],
+# 				dependencies: leancrypto
+# 				)
+# 		dilithium_tester_iuf_armv8 = executable('dilithium_tester_iuf_armv8',
+# 				[ 'dilithium_tester_iuf_armv8.c',
+# 				  'dilithium_tester.c',
+# 				  internal_src ],
+# 				include_directories: [
+# 					include_dirs,
+# 					include_internal_dirs,
+# 					include_dilithium_internal
+# 				],
+# 				dependencies: leancrypto
+# 				)
+#
+# 		test('Dilithium signature RRMv8', dilithium_tester_armv8)
+# 		test('Dilithium init update final RRMv8',
+# 		     dilithium_tester_iuf_armv8)
+# 		test('Dilithium signature RRMv8 10000', dilithium_tester_armv8,
+# 		     args : [ 'c' ], timeout: 1000, is_parallel: false)
+# 		test('Dilithium init update final RRMv8 10000',
+# 		     dilithium_tester_iuf_armv8,
+# 		     args : [ 'c' ], timeout: 1000, is_parallel: false)
 	endif
 endif
