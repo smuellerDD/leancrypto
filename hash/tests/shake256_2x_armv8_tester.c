@@ -41,9 +41,9 @@ static int shake256_2x_tester(void)
 	uint8_t act1[sizeof(exp1)];
 	uint8_t act2[sizeof(exp1)];
 	uint8_t *out0 = act1;
-        uint8_t *out1 = act2;
+	uint8_t *out1 = act2;
 	const uint8_t *in0 = msg1;
-        const uint8_t *in1 = msg1;
+	const uint8_t *in1 = msg1;
 	int ret;
 
 	shake256x2_armv8(out0, out1, sizeof(exp1), in0, in1, sizeof(msg1));

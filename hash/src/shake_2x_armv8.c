@@ -535,7 +535,7 @@ static void keccakx2_squeezeblocks(uint8_t *out0, uint8_t *out1, size_t nblocks,
 			vst1q_u64_x2((uint64_t *)out0, a2);
 			vst1q_u64_x2((uint64_t *)out1, b2);
 #pragma GCC diagnostic pop
-			
+
 			out0 += 32;
 			out1 += 32;
 		}
@@ -549,7 +549,7 @@ static void keccakx2_squeezeblocks(uint8_t *out0, uint8_t *out1, size_t nblocks,
 		vst1_u64((uint64_t *)out0, a);
 		vst1_u64((uint64_t *)out1, b);
 #pragma GCC diagnostic pop
-		
+
 		out0 += 8;
 		out1 += 8;
 

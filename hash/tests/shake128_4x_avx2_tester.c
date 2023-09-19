@@ -37,18 +37,18 @@ static int shake128_4x_tester(void)
 	uint8_t act3[sizeof(exp1)];
 	uint8_t act4[sizeof(exp1)];
 	uint8_t *out0 = act1;
-        uint8_t *out1 = act2;
-        uint8_t *out2 = act3;
-        uint8_t *out3 = act4;
+	uint8_t *out1 = act2;
+	uint8_t *out2 = act3;
+	uint8_t *out3 = act4;
 
 	const uint8_t *in0 = msg1;
-        const uint8_t *in1 = msg1;
-        const uint8_t *in2 = msg1;
-        const uint8_t *in3 = msg1;
+	const uint8_t *in1 = msg1;
+	const uint8_t *in2 = msg1;
+	const uint8_t *in3 = msg1;
 	int ret;
 
-	shake128x4(out0, out1, out2, out3, sizeof(exp1),
-		   in0, in1, in2, in3, sizeof(msg1));
+	shake128x4(out0, out1, out2, out3, sizeof(exp1), in0, in1, in2, in3,
+		   sizeof(msg1));
 
 	ret = lc_compare(act1, exp1, sizeof(act1), "SHAKE128 4x AVX2 lane 1");
 	if (ret)
