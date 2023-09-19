@@ -91,6 +91,19 @@ if get_option('sha3').enabled()
 		src += files([ 'sha3_arm_asm.c',
 			       'sha3_arm_ce.c',
 			       'asm/ARMv8A/KeccakP-1600-armv8a-ce.S' ])
+
+		# Enable once Dilithium ARMv8 support is enabled
+		#leancrypto_keccak_armv8_2x_lib = static_library(
+		#	'leancrypto_keccak_armv8_2x_lib',
+		#	[ 'shake_2x_armv8.c',
+		#	  'asm/ARMv8_2x/keccakx2_armce.S' ],
+		#	c_args: [
+		#		'-Wno-unused-result',
+		#	],
+		#	include_directories: [ include_dirs,
+		#			       include_internal_dirs ],
+		#)
+		#leancrypto_support_libs += leancrypto_keccak_armv8_2x_lib
 	else
 		src += files([ 'sha3_arm_asm_null.c', 'sha3_arm_ce_null.c' ])
 	endif

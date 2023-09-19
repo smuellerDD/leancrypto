@@ -28,7 +28,6 @@
 #ifndef DILITHIUM_POLY_H
 #define DILITHIUM_POLY_H
 
-#include "dilithium_ntt.h"
 #include "dilithium_reduce.h"
 #include "dilithium_rounding.h"
 #include "ext_headers.h"
@@ -42,34 +41,6 @@ extern "C" {
 typedef struct {
 	int32_t coeffs[LC_DILITHIUM_N];
 } poly;
-
-/**
- * @brief poly_reduce - Inplace reduction of all coefficients of polynomial to
- *			representative in [-6283009,6283007].
- *
- * @param a [in/out] pointer to input/output polynomial
- */
-static inline void poly_reduce(poly *a)
-{
-	unsigned int i;
-
-	for (i = 0; i < LC_DILITHIUM_N; ++i)
-		a->coeffs[i] = reduce32(a->coeffs[i]);
-}
-
-/**
- * @brief poly_caddq - For all coefficients of in/out polynomial add Q if
- *		       coefficient is negative.
- *
- * @param a [in/out] pointer to input/output polynomial
- */
-static inline void poly_caddq(poly *a)
-{
-	unsigned int i;
-
-	for (i = 0; i < LC_DILITHIUM_N; ++i)
-		a->coeffs[i] = caddq(a->coeffs[i]);
-}
 
 /**
  * @brief poly_add - Add polynomials. No modular reduction is performed.
@@ -116,68 +87,6 @@ static inline void poly_shiftl(poly *a)
 
 	for (i = 0; i < LC_DILITHIUM_N; ++i)
 		a->coeffs[i] <<= LC_DILITHIUM_D;
-}
-
-/**
- * @brief poly_ntt - Inplace forward NTT. Coefficients can grow by
- *		     8*Q in absolute value.
- *
- * @param a [in/out] pointer to input/output polynomial
- */
-static inline void poly_ntt(poly *a)
-{
-	ntt(a->coeffs);
-}
-
-/**
- * @brief poly_invntt_tomont - Inplace inverse NTT and multiplication by 2^{32}.
- *			       Input coefficients need to be less than Q in
- *			       absolute value and output coefficients are again
- *			       bounded by Q.
- *
- * @param a [in/out] pointer to input/output polynomial
- */
-static inline void poly_invntt_tomont(poly *a)
-{
-	invntt_tomont(a->coeffs);
-}
-
-/**
- * @brief poly_pointwise_montgomery - Pointwise multiplication of polynomials in
- *				      NTT domain representation and
- *				      multiplication of resulting polynomial
- *				      by 2^{-32}.
- *
- * @param [out] c pointer to output polynomial
- * @param [in] a pointer to first input polynomial
- * @param [in] b pointer to second input polynomial
- */
-static inline void poly_pointwise_montgomery(poly *c, const poly *a,
-					     const poly *b)
-{
-	unsigned int i;
-
-	for (i = 0; i < LC_DILITHIUM_N; ++i)
-		c->coeffs[i] =
-			montgomery_reduce((int64_t)a->coeffs[i] * b->coeffs[i]);
-}
-
-/**
- * @brief poly_power2round - For all coefficients c of the input polynomial,
- *			     compute c0, c1 such that c mod Q = c1*2^D + c0
- *			     with -2^{D-1} < c0 <= 2^{D-1}. Assumes coefficients
- *			     to be standard representatives.
- *
- * @param [out] a1 pointer to output polynomial with coefficients c1
- * @param [out] a0 pointer to output polynomial with coefficients c0
- * @param [in] a pointer to input polynomial
- */
-static inline void poly_power2round(poly *a1, poly *a0, const poly *a)
-{
-	unsigned int i;
-
-	for (i = 0; i < LC_DILITHIUM_N; ++i)
-		a1->coeffs[i] = power2round(&a0->coeffs[i], a->coeffs[i]);
 }
 
 /**
@@ -278,7 +187,6 @@ void polyeta_pack(uint8_t *r, const poly *a);
 void polyeta_unpack(poly *r, const uint8_t *a);
 
 void polyt1_pack(uint8_t *r, const poly *a);
-void polyt1_unpack(poly *r, const uint8_t *a);
 
 void polyt0_pack(uint8_t *r, const poly *a);
 void polyt0_unpack(poly *r, const uint8_t *a);

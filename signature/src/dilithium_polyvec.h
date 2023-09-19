@@ -45,63 +45,6 @@ typedef struct {
 	poly vec[LC_DILITHIUM_K];
 } polyveck;
 
-/**
- * @brief polyvecl_pointwise_acc_montgomery -
- *	  Pointwise multiply vectors of polynomials of length L, multiply
- *	  resulting vector by 2^{-32} and add (accumulate) polynomials
- *	  in it. Input/output vectors are in NTT domain representation.
- *
- * @param [out] w output polynomial
- * @param [in] u pointer to first input vector
- * @param [in] v pointer to second input vector
- */
-static inline void polyvecl_pointwise_acc_montgomery(poly *w, const polyvecl *u,
-						     const polyvecl *v,
-						     void *ws_buf)
-{
-	unsigned int i;
-	poly *t = ws_buf;
-
-	poly_pointwise_montgomery(w, &u->vec[0], &v->vec[0]);
-	for (i = 1; i < LC_DILITHIUM_L; ++i) {
-		poly_pointwise_montgomery(t, &u->vec[i], &v->vec[i]);
-		poly_add(w, w, t);
-	}
-}
-
-/**
- * @brief expand_mat - Implementation of ExpandA. Generates matrix A with
- *		       uniformly random coefficients a_{i,j} by performing
- *		       rejection sampling on the output stream of
- *		       SHAKE128(rho|j|i).
- *
- * @param [out] mat output matrix
- * @param [in] rho byte array containing seed rho
- */
-static inline void
-polyvec_matrix_expand(polyvecl mat[LC_DILITHIUM_K],
-		      const uint8_t rho[LC_DILITHIUM_SEEDBYTES], void *ws_buf)
-{
-	unsigned int i, j;
-
-	for (i = 0; i < LC_DILITHIUM_K; ++i)
-		for (j = 0; j < LC_DILITHIUM_L; ++j)
-			poly_uniform(&mat[i].vec[j], rho,
-				     le_bswap16((i << 8) + j), ws_buf);
-}
-
-static inline void
-polyvec_matrix_pointwise_montgomery(polyveck *t,
-				    const polyvecl mat[LC_DILITHIUM_K],
-				    const polyvecl *v, void *ws_buf)
-{
-	unsigned int i;
-
-	for (i = 0; i < LC_DILITHIUM_K; ++i)
-		polyvecl_pointwise_acc_montgomery(&t->vec[i], &mat[i], v,
-						  ws_buf);
-}
-
 /**************************************************************/
 /************ Vectors of polynomials of length L **************/
 /**************************************************************/
@@ -114,19 +57,6 @@ polyvecl_uniform_eta(polyvecl *v, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
 
 	for (i = 0; i < LC_DILITHIUM_L; ++i)
 		poly_uniform_eta(&v->vec[i], seed, le_bswap16(nonce++), ws_buf);
-}
-
-static inline void
-polyvecl_uniform_gamma1(polyvecl *v, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
-			uint16_t nonce, void *ws_buf)
-{
-	unsigned int i;
-
-	for (i = 0; i < LC_DILITHIUM_L; ++i)
-		poly_uniform_gamma1(
-			&v->vec[i], seed,
-			le_bswap16(LC_DILITHIUM_L * nonce + (uint16_t)i),
-			ws_buf);
 }
 
 static inline void polyvecl_reduce(polyvecl *v)

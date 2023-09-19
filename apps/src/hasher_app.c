@@ -197,12 +197,13 @@ static int mmap_file(const char *filename, uint8_t **memory, off_t *size,
 		}
 	}
 
-	*memory = mmap(NULL, *mapped, PROT_READ, MAP_PRIVATE
+	*memory = mmap(NULL, *mapped, PROT_READ,
+		       MAP_PRIVATE
 #ifdef __linux__
-		       | MAP_POPULATE
+			       | MAP_POPULATE
 #endif
-		       , fd,
-		       offset);
+		       ,
+		       fd, offset);
 	if (*memory == MAP_FAILED) {
 		*memory = NULL;
 		ret = -errno;

@@ -321,33 +321,6 @@ void polyt1_pack(uint8_t *r, const poly *a)
 }
 
 /**
- * @brief polyt1_unpack - Unpack polynomial t1 with 10-bit coefficients.
- *			  Output coefficients are standard representatives.
- *
- * @param r [out] pointer to output polynomial
- * @param a [in] byte array with bit-packed polynomial
- */
-void polyt1_unpack(poly *r, const uint8_t *a)
-{
-	unsigned int i;
-
-	for (i = 0; i < LC_DILITHIUM_N / 4; ++i) {
-		r->coeffs[4 * i + 0] =
-			((a[5 * i + 0] >> 0) | ((uint32_t)a[5 * i + 1] << 8)) &
-			0x3FF;
-		r->coeffs[4 * i + 1] =
-			((a[5 * i + 1] >> 2) | ((uint32_t)a[5 * i + 2] << 6)) &
-			0x3FF;
-		r->coeffs[4 * i + 2] =
-			((a[5 * i + 2] >> 4) | ((uint32_t)a[5 * i + 3] << 4)) &
-			0x3FF;
-		r->coeffs[4 * i + 3] =
-			((a[5 * i + 3] >> 6) | ((uint32_t)a[5 * i + 4] << 2)) &
-			0x3FF;
-	}
-}
-
-/**
  * @brief polyt0_pack - Bit-pack polynomial t0 with coefficients in
  *			]-2^{D-1}, 2^{D-1}].
  *

@@ -28,40 +28,304 @@
 #ifndef DILITHIUM_PACK_H
 #define DILITHIUM_PACK_H
 
-#include "lc_dilithium.h"
-#include "dilithium_polyvec.h"
+#include "build_bug_on.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void pack_pk(struct lc_dilithium_pk *pk,
-	     const uint8_t rho[LC_DILITHIUM_SEEDBYTES], const polyveck *t1);
+/**
+ * @brief pack_pk - Bit-pack public key pk = (rho, t1).
+ *
+ * @param pk [out] public key
+ * @param rho [in] byte array containing rho
+ * @param t1 [in] pointer to vector t1
+ */
+static inline void pack_pk(struct lc_dilithium_pk *pk,
+			   const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
+			   const polyveck *t1)
+{
+	unsigned int i;
+	uint8_t *pubkey = pk->pk;
 
-void pack_sk(struct lc_dilithium_sk *sk,
-	     const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
-	     const uint8_t tr[LC_DILITHIUM_TRBYTES],
-	     const uint8_t key[LC_DILITHIUM_SEEDBYTES], const polyveck *t0,
-	     const polyvecl *s1, const polyveck *s2);
+	for (i = 0; i < LC_DILITHIUM_SEEDBYTES; ++i)
+		pubkey[i] = rho[i];
+	pubkey += LC_DILITHIUM_SEEDBYTES;
 
-void pack_sig(struct lc_dilithium_sig *sig, const polyvecl *z,
-	      const polyveck *h);
+	for (i = 0; i < LC_DILITHIUM_K; ++i)
+		polyt1_pack(pubkey + i * LC_DILITHIUM_POLYT1_PACKEDBYTES,
+			    &t1->vec[i]);
+}
 
-void unpack_pk(uint8_t rho[LC_DILITHIUM_SEEDBYTES], polyveck *t1,
-	       const struct lc_dilithium_pk *pk);
+/**
+ * @brief unpack_pk - Unpack public key pk = (rho, t1).
+ *
+ * @param rho [out] output byte array for rho
+ * @param t1 [out] pointer to output vector t1
+ * @param pk [in] byte array containing bit-packed pk
+ */
+static inline void unpack_pk(uint8_t rho[LC_DILITHIUM_SEEDBYTES], polyveck *t1,
+			     const struct lc_dilithium_pk *pk)
+{
+	unsigned int i;
+	const uint8_t *pubkey = pk->pk;
 
-void unpack_sk(uint8_t rho[LC_DILITHIUM_SEEDBYTES],
-	       uint8_t tr[LC_DILITHIUM_TRBYTES],
-	       uint8_t key[LC_DILITHIUM_SEEDBYTES], polyveck *t0, polyvecl *s1,
-	       polyveck *s2, const struct lc_dilithium_sk *sk);
-void unpack_sk_tr(uint8_t tr[LC_DILITHIUM_TRBYTES],
-		  const struct lc_dilithium_sk *sk);
-void unpack_sk_ex_tr(uint8_t rho[LC_DILITHIUM_SEEDBYTES],
-		     uint8_t key[LC_DILITHIUM_SEEDBYTES], polyveck *t0,
-		     polyvecl *s1, polyveck *s2,
-		     const struct lc_dilithium_sk *sk);
+	for (i = 0; i < LC_DILITHIUM_SEEDBYTES; ++i)
+		rho[i] = pubkey[i];
+	pubkey += LC_DILITHIUM_SEEDBYTES;
 
-int unpack_sig(polyvecl *z, polyveck *h, const struct lc_dilithium_sig *sig);
+	for (i = 0; i < LC_DILITHIUM_K; ++i)
+		polyt1_unpack(&t1->vec[i],
+			      pubkey + i * LC_DILITHIUM_POLYT1_PACKEDBYTES);
+}
+
+/**
+ * @brief pack_sk - Bit-pack secret key sk = (rho, tr, key, t0, s1, s2).
+ *
+ * @param sk [out] secret key
+ * @param rho [in] byte array containing rho
+ * @param tr [in] byte array containing tr
+ * @param key [in] byte array containing key
+ * @param t0 [in] pointer to vector t0
+ * @param s1 [in] pointer to vector s1
+ * @param s2 [in] pointer to vector s2
+ */
+static inline void pack_sk(struct lc_dilithium_sk *sk,
+			   const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
+			   const uint8_t tr[LC_DILITHIUM_TRBYTES],
+			   const uint8_t key[LC_DILITHIUM_SEEDBYTES],
+			   const polyveck *t0, const polyvecl *s1,
+			   const polyveck *s2)
+{
+	unsigned int i;
+	uint8_t *seckey = sk->sk;
+
+	for (i = 0; i < LC_DILITHIUM_SEEDBYTES; ++i)
+		seckey[i] = rho[i];
+	seckey += LC_DILITHIUM_SEEDBYTES;
+
+	for (i = 0; i < LC_DILITHIUM_SEEDBYTES; ++i)
+		seckey[i] = key[i];
+	seckey += LC_DILITHIUM_SEEDBYTES;
+
+	for (i = 0; i < LC_DILITHIUM_TRBYTES; ++i)
+		seckey[i] = tr[i];
+	seckey += LC_DILITHIUM_TRBYTES;
+
+	for (i = 0; i < LC_DILITHIUM_L; ++i)
+		polyeta_pack(seckey + i * LC_DILITHIUM_POLYETA_PACKEDBYTES,
+			     &s1->vec[i]);
+	seckey += LC_DILITHIUM_L * LC_DILITHIUM_POLYETA_PACKEDBYTES;
+
+	for (i = 0; i < LC_DILITHIUM_K; ++i)
+		polyeta_pack(seckey + i * LC_DILITHIUM_POLYETA_PACKEDBYTES,
+			     &s2->vec[i]);
+	seckey += LC_DILITHIUM_K * LC_DILITHIUM_POLYETA_PACKEDBYTES;
+
+	for (i = 0; i < LC_DILITHIUM_K; ++i)
+		polyt0_pack(seckey + i * LC_DILITHIUM_POLYT0_PACKEDBYTES,
+			    &t0->vec[i]);
+}
+
+/**
+ * @brief unpack_sk - Unpack secret key sk = (rho, tr, key, t0, s1, s2).
+ *
+ * @param rho [out] output byte array for rho
+ * @param tr [out] output byte array for tr
+ * @param key [out] output byte array for key
+ * @param t0 [out] pointer to output vector t0
+ * @param s1 [out] pointer to output vector s1
+ * @param s2 [out] pointer to output vector s2
+ * @param sk [in] byte array containing bit-packed sk
+ */
+static inline void unpack_sk(uint8_t rho[LC_DILITHIUM_SEEDBYTES],
+			     uint8_t tr[LC_DILITHIUM_TRBYTES],
+			     uint8_t key[LC_DILITHIUM_SEEDBYTES], polyveck *t0,
+			     polyvecl *s1, polyveck *s2,
+			     const struct lc_dilithium_sk *sk)
+{
+	unsigned int i;
+	const uint8_t *seckey = sk->sk;
+
+	for (i = 0; i < LC_DILITHIUM_SEEDBYTES; ++i)
+		rho[i] = seckey[i];
+	seckey += LC_DILITHIUM_SEEDBYTES;
+
+	for (i = 0; i < LC_DILITHIUM_SEEDBYTES; ++i)
+		key[i] = seckey[i];
+	seckey += LC_DILITHIUM_SEEDBYTES;
+
+	for (i = 0; i < LC_DILITHIUM_TRBYTES; ++i)
+		tr[i] = seckey[i];
+	seckey += LC_DILITHIUM_TRBYTES;
+
+	for (i = 0; i < LC_DILITHIUM_L; ++i)
+		polyeta_unpack(&s1->vec[i],
+			       seckey + i * LC_DILITHIUM_POLYETA_PACKEDBYTES);
+	seckey += LC_DILITHIUM_L * LC_DILITHIUM_POLYETA_PACKEDBYTES;
+
+	for (i = 0; i < LC_DILITHIUM_K; ++i)
+		polyeta_unpack(&s2->vec[i],
+			       seckey + i * LC_DILITHIUM_POLYETA_PACKEDBYTES);
+	seckey += LC_DILITHIUM_K * LC_DILITHIUM_POLYETA_PACKEDBYTES;
+
+	for (i = 0; i < LC_DILITHIUM_K; ++i)
+		polyt0_unpack(&t0->vec[i],
+			      seckey + i * LC_DILITHIUM_POLYT0_PACKEDBYTES);
+}
+
+/**
+ * @brief unpack_sk_tr - Unpack tr only from secret key sk
+ *
+ * @param t0 [out] pointer to output vector t0
+ * @param sk [in] byte array containing bit-packed sk
+ */
+static inline void unpack_sk_tr(uint8_t tr[LC_DILITHIUM_TRBYTES],
+				const struct lc_dilithium_sk *sk)
+{
+	unsigned int i;
+	const uint8_t *seckey = sk->sk + 2 * LC_DILITHIUM_SEEDBYTES;
+
+	for (i = 0; i < LC_DILITHIUM_TRBYTES; ++i)
+		tr[i] = seckey[i];
+}
+
+/**
+ * @brief unpack_sk - Unpack secret key sk without tr = (rho, key, t0, s1, s2).
+ *
+ * @param rho [out] output byte array for rho
+ * @param key [out] output byte array for key
+ * @param t0 [out] pointer to output vector t0
+ * @param s1 [out] pointer to output vector s1
+ * @param s2 [out] pointer to output vector s2
+ * @param sk [in] byte array containing bit-packed sk
+ */
+static inline void unpack_sk_ex_tr(uint8_t rho[LC_DILITHIUM_SEEDBYTES],
+				   uint8_t key[LC_DILITHIUM_SEEDBYTES],
+				   polyveck *t0, polyvecl *s1, polyveck *s2,
+				   const struct lc_dilithium_sk *sk)
+{
+	unsigned int i;
+	const uint8_t *seckey = sk->sk;
+
+	for (i = 0; i < LC_DILITHIUM_SEEDBYTES; ++i)
+		rho[i] = seckey[i];
+	seckey += LC_DILITHIUM_SEEDBYTES;
+
+	for (i = 0; i < LC_DILITHIUM_SEEDBYTES; ++i)
+		key[i] = seckey[i];
+	seckey += LC_DILITHIUM_SEEDBYTES;
+
+	/* Skip tr */
+	seckey += LC_DILITHIUM_TRBYTES;
+
+	for (i = 0; i < LC_DILITHIUM_L; ++i)
+		polyeta_unpack(&s1->vec[i],
+			       seckey + i * LC_DILITHIUM_POLYETA_PACKEDBYTES);
+	seckey += LC_DILITHIUM_L * LC_DILITHIUM_POLYETA_PACKEDBYTES;
+
+	for (i = 0; i < LC_DILITHIUM_K; ++i)
+		polyeta_unpack(&s2->vec[i],
+			       seckey + i * LC_DILITHIUM_POLYETA_PACKEDBYTES);
+	seckey += LC_DILITHIUM_K * LC_DILITHIUM_POLYETA_PACKEDBYTES;
+
+	for (i = 0; i < LC_DILITHIUM_K; ++i)
+		polyt0_unpack(&t0->vec[i],
+			      seckey + i * LC_DILITHIUM_POLYT0_PACKEDBYTES);
+}
+
+/**
+ * @brief pack_sig - Bit-pack signature sig = (c, z, h).
+ *
+ * NOTE: A signature is the concatenation of sig = (c || packed z || packed h).
+ *	 As c is already present in the first bytes of sig, this function does
+ *	 not need to copy it yet again to the right location. This implies that
+ *	 this function does not process c.
+ *
+ * @param sig [out] signature
+ * @param z [in] pointer to vector z
+ * @param h [in] pointer to hint vector h
+ */
+static inline void pack_sig(struct lc_dilithium_sig *sig, const polyvecl *z,
+			    const polyveck *h)
+{
+	unsigned int i, j, k;
+	/* Skip c */
+	uint8_t *signature = sig->sig + LC_DILITHIUM_CTILDE_BYTES;
+
+	BUILD_BUG_ON((1ULL << (sizeof(j) << 3)) < LC_DILITHIUM_N);
+	BUILD_BUG_ON((1ULL << (sizeof(k) << 3)) < LC_DILITHIUM_N);
+
+	for (i = 0; i < LC_DILITHIUM_L; ++i)
+		polyz_pack(signature + i * LC_DILITHIUM_POLYZ_PACKEDBYTES,
+			   &z->vec[i]);
+	signature += LC_DILITHIUM_L * LC_DILITHIUM_POLYZ_PACKEDBYTES;
+
+	/* Encode h */
+	memset(signature, 0, LC_DILITHIUM_OMEGA + LC_DILITHIUM_K);
+
+	k = 0;
+	for (i = 0; i < LC_DILITHIUM_K; ++i) {
+		for (j = 0; j < LC_DILITHIUM_N; ++j)
+			if (h->vec[i].coeffs[j] != 0)
+				signature[k++] = (uint8_t)j;
+
+		signature[LC_DILITHIUM_OMEGA + i] = (uint8_t)k;
+	}
+}
+
+/**
+ * @brief unpack_sig - Unpack signature sig = (c, z, h).
+ *
+ * NOTE: The c value is not unpacked as it can be used right from the signature.
+ *	 To access it, a caller simply needs to use the first
+ *	 LC_DILITHIUM_CTILDE_BYTES of the signature.
+ *
+ * @param z [out] pointer to output vector z
+ * @param h [out] pointer to output hint vector h
+ * @param sig [in] signature
+ *
+ * @return 1 in case of malformed signature; otherwise 0.
+ */
+static inline int unpack_sig(polyvecl *z, polyveck *h,
+			     const struct lc_dilithium_sig *sig)
+{
+	unsigned int i, j, k;
+	/* Skip c */
+	const uint8_t *signature = sig->sig + LC_DILITHIUM_CTILDE_BYTES;
+
+	for (i = 0; i < LC_DILITHIUM_L; ++i)
+		polyz_unpack(&z->vec[i],
+			     signature + i * LC_DILITHIUM_POLYZ_PACKEDBYTES);
+	signature += LC_DILITHIUM_L * LC_DILITHIUM_POLYZ_PACKEDBYTES;
+
+	/* Decode h */
+	k = 0;
+	for (i = 0; i < LC_DILITHIUM_K; ++i) {
+		for (j = 0; j < LC_DILITHIUM_N; ++j)
+			h->vec[i].coeffs[j] = 0;
+
+		if (signature[LC_DILITHIUM_OMEGA + i] < k ||
+		    signature[LC_DILITHIUM_OMEGA + i] > LC_DILITHIUM_OMEGA)
+			return 1;
+
+		for (j = k; j < signature[LC_DILITHIUM_OMEGA + i]; ++j) {
+			/* Coefficients are ordered for strong unforgeability */
+			if (j > k && signature[j] <= signature[j - 1])
+				return 1;
+			h->vec[i].coeffs[signature[j]] = 1;
+		}
+
+		k = signature[LC_DILITHIUM_OMEGA + i];
+	}
+
+	/* Extra indices are zero for strong unforgeability */
+	for (j = k; j < LC_DILITHIUM_OMEGA; ++j)
+		if (signature[j])
+			return 1;
+
+	return 0;
+}
 
 #ifdef __cplusplus
 }

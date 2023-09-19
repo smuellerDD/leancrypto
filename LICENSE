@@ -138,3 +138,17 @@ Copyright 2022 The OpenSSL Project Authors. All Rights Reserved.
 sym/src/asm/riscv64/riscv64_aes_asm.S
 sym/src/asm/riscv64/riscv64_aes_zkn_asm.S
 
+================================================================================
+
+The following files are licensed under the Creative Commons Legal Code CC0 1.0
+Universal license. The original files are obtained from
+https://github.com/PQClean/PQClean
+
+hash/src/asm/ARMv8_2x/keccakx2_armce.S
+hash/src/shake_2x_armv8.c
+signature/src/armv8/NTT_params.h
+signature/src/armv8/dilithium_intt_armv8.S
+signature/src/armv8/dilithium_ntt_armv8.S
+signature/src/armv8/dilithium_poly_armv8.S
+signature/src/armv8/macros.inc
+signature/src/armv8/macros_common.inc

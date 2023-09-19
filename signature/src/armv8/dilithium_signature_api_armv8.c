@@ -16,87 +16,73 @@
  * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-/*
- * This code is derived in parts from the code distribution provided with
- * https://github.com/pq-crystals/dilithium
- *
- * That code is released under Public Domain
- * (https://creativecommons.org/share-your-work/public-domain/cc0/);
- * or Apache 2.0 License (https://www.apache.org/licenses/LICENSE-2.0.html).
- */
 
-#include "dilithium_signature_c.h"
+#include "dilithium_signature_armv8.h"
+#include "../dilithium_signature_c.h"
+#include "lc_dilithium.h"
 #include "visibility.h"
 
-#include "dilithium_poly.h"
-#include "dilithium_poly_c.h"
-#include "dilithium_polyvec.h"
-#include "dilithium_polyvec_c.h"
-#include "dilithium_pack.h"
-#include "dilithium_signature_impl.h"
-
-LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_c, struct lc_dilithium_pk *pk,
+LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair, struct lc_dilithium_pk *pk,
 		      struct lc_dilithium_sk *sk, struct lc_rng_ctx *rng_ctx)
 {
-	return lc_dilithium_keypair_impl(pk, sk, rng_ctx);
+	return lc_dilithium_keypair_armv8(pk, sk, rng_ctx);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_c, struct lc_dilithium_sig *sig,
+LC_INTERFACE_FUNCTION(int, lc_dilithium_sign, struct lc_dilithium_sig *sig,
 		      const uint8_t *m, size_t mlen,
 		      const struct lc_dilithium_sk *sk,
 		      struct lc_rng_ctx *rng_ctx)
 {
-	return lc_dilithium_sign_impl(sig, m, mlen, sk, rng_ctx);
+	return lc_dilithium_sign_armv8(sig, m, mlen, sk, rng_ctx);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_init_c,
-		      struct lc_hash_ctx *hash_ctx,
+LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_init, struct lc_hash_ctx *hash_ctx,
 		      const struct lc_dilithium_sk *sk)
 {
-	return lc_dilithium_sign_init_impl(hash_ctx, sk);
+	return lc_dilithium_sign_init_armv8(hash_ctx, sk);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_update_c,
+LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_update,
 		      struct lc_hash_ctx *hash_ctx, const uint8_t *m,
 		      size_t mlen)
 {
-	return lc_dilithium_sign_update_impl(hash_ctx, m, mlen);
+	return lc_dilithium_sign_update_armv8(hash_ctx, m, mlen);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_final_c,
+LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_final,
 		      struct lc_dilithium_sig *sig,
 		      struct lc_hash_ctx *hash_ctx,
 		      const struct lc_dilithium_sk *sk,
 		      struct lc_rng_ctx *rng_ctx)
 {
-	return lc_dilithium_sign_final_impl(sig, hash_ctx, sk, rng_ctx);
+	return lc_dilithium_sign_final_armv8(sig, hash_ctx, sk, rng_ctx);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_c,
+LC_INTERFACE_FUNCTION(int, lc_dilithium_verify,
 		      const struct lc_dilithium_sig *sig, const uint8_t *m,
 		      size_t mlen, const struct lc_dilithium_pk *pk)
 {
-	return lc_dilithium_verify_impl(sig, m, mlen, pk);
+	return lc_dilithium_verify_armv8(sig, m, mlen, pk);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_init_c,
+LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_init,
 		      struct lc_hash_ctx *hash_ctx,
 		      const struct lc_dilithium_pk *pk)
 {
-	return lc_dilithium_verify_init_impl(hash_ctx, pk);
+	return lc_dilithium_verify_init_armv8(hash_ctx, pk);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_update_c,
+LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_update,
 		      struct lc_hash_ctx *hash_ctx, const uint8_t *m,
 		      size_t mlen)
 {
-	return lc_dilithium_verify_update_impl(hash_ctx, m, mlen);
+	return lc_dilithium_verify_update_armv8(hash_ctx, m, mlen);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_final_c,
+LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_final,
 		      struct lc_dilithium_sig *sig,
 		      struct lc_hash_ctx *hash_ctx,
 		      const struct lc_dilithium_pk *pk)
 {
-	return lc_dilithium_verify_final_impl(sig, hash_ctx, pk);
+	return lc_dilithium_verify_final_armv8(sig, hash_ctx, pk);
 }
