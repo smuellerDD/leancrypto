@@ -416,8 +416,11 @@ static void keccakx2_absorb(v128 s[25], unsigned int r, const uint8_t *in0,
 	// Load in0[i] to register, then in1[i] to register, exchange them
 	while (inlen >= r) {
 		for (i = 0; i < r / 8 - 1; i += 4) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
 			a2 = vld1q_u64_x2((uint64_t *)&in0[pos]);
 			b2 = vld1q_u64_x2((uint64_t *)&in1[pos]);
+#pragma GCC diagnostic pop
 			// BD = zip1(AB and CD)
 			atmp2.val[0] = vzip1q_u64(a2.val[0], b2.val[0]);
 			atmp2.val[1] = vzip1q_u64(a2.val[1], b2.val[1]);
@@ -434,8 +437,11 @@ static void keccakx2_absorb(v128 s[25], unsigned int r, const uint8_t *in0,
 		}
 		// Last iteration
 		i = r / 8 - 1;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
 		a = vld1_u64((uint64_t *)&in0[pos]);
 		b = vld1_u64((uint64_t *)&in1[pos]);
+#pragma GCC diagnostic pop
 		tmp = vcombine_u64(a, b);
 		vxor(s[i], s[i], tmp);
 		pos += 8;
@@ -446,8 +452,11 @@ static void keccakx2_absorb(v128 s[25], unsigned int r, const uint8_t *in0,
 
 	i = 0;
 	while (inlen >= 16) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
 		a1 = vld1q_u64((uint64_t *)&in0[pos]);
 		b1 = vld1q_u64((uint64_t *)&in1[pos]);
+#pragma GCC diagnostic pop
 		// BD = zip1(AB and CD)
 		atmp1 = vzip1q_u64(a1, b1);
 		// AC = zip2(AB and CD)
@@ -462,8 +471,11 @@ static void keccakx2_absorb(v128 s[25], unsigned int r, const uint8_t *in0,
 	}
 
 	if (inlen >= 8) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
 		a = vld1_u64((uint64_t *)&in0[pos]);
 		b = vld1_u64((uint64_t *)&in1[pos]);
+#pragma GCC diagnostic pop
 		tmp = vcombine_u64(a, b);
 		vxor(s[i], s[i], tmp);
 
@@ -473,8 +485,11 @@ static void keccakx2_absorb(v128 s[25], unsigned int r, const uint8_t *in0,
 	}
 
 	if (inlen) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
 		a = vld1_u64((uint64_t *)&in0[pos]);
 		b = vld1_u64((uint64_t *)&in1[pos]);
+#pragma GCC diagnostic pop
 		tmp = vcombine_u64(a, b);
 		mask = vdupq_n_u64((1ULL << (8 * inlen)) - 1);
 		tmp = vandq_u64(tmp, mask);
@@ -515,9 +530,12 @@ static void keccakx2_squeezeblocks(uint8_t *out0, uint8_t *out1, size_t nblocks,
 			b2.val[0] = vuzp2q_u64(s[i], s[i + 1]);
 			a2.val[1] = vuzp1q_u64(s[i + 2], s[i + 3]);
 			b2.val[1] = vuzp2q_u64(s[i + 2], s[i + 3]);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
 			vst1q_u64_x2((uint64_t *)out0, a2);
 			vst1q_u64_x2((uint64_t *)out1, b2);
-
+#pragma GCC diagnostic pop
+			
 			out0 += 32;
 			out1 += 32;
 		}
@@ -526,9 +544,12 @@ static void keccakx2_squeezeblocks(uint8_t *out0, uint8_t *out1, size_t nblocks,
 		// Last iteration
 		a = vget_low_u64(s[i]);
 		b = vget_high_u64(s[i]);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
 		vst1_u64((uint64_t *)out0, a);
 		vst1_u64((uint64_t *)out1, b);
-
+#pragma GCC diagnostic pop
+		
 		out0 += 8;
 		out1 += 8;
 
