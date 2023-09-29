@@ -50,7 +50,7 @@ extern void poly_reduce_armv8(int32_t *, const int32_t *);
  * @brief poly_reduce - Inplace reduction of all coefficients of polynomial to
  *			representative in [-6283009,6283007].
  *
- * @param a [in/out] pointer to input/output polynomial
+ * @param [in,out] a pointer to input/output polynomial
  */
 static inline void poly_reduce(poly *a)
 {
@@ -62,7 +62,7 @@ extern void poly_caddq_armv8(int32_t *, const int32_t *);
  * @brief poly_caddq - For all coefficients of in/out polynomial add Q if
  *		       coefficient is negative.
  *
- * @param a [in/out] pointer to input/output polynomial
+ * @param [in,out] a pointer to input/output polynomial
  */
 static inline void poly_caddq(poly *a)
 {
@@ -110,8 +110,8 @@ extern void armv8_10_to_32(int32_t *, const uint8_t *);
  * @brief polyt1_unpack - Unpack polynomial t1 with 10-bit coefficients.
  *			  Output coefficients are standard representatives.
  *
- * @param r [out] pointer to output polynomial
- * @param a [in] byte array with bit-packed polynomial
+ * @param [out] r pointer to output polynomial
+ * @param [in] a byte array with bit-packed polynomial
  */
 static inline void polyt1_unpack(poly *r, const uint8_t *a)
 {
@@ -126,7 +126,7 @@ extern void ntt_SIMD_bot_armv8(int *des, const int *table,
  * @brief poly_ntt - Inplace forward NTT. Coefficients can grow by
  *		     8*Q in absolute value.
  *
- * @param a [in/out] pointer to input/output polynomial
+ * @param [in,out] a pointer to input/output polynomial
  */
 static inline void poly_ntt(poly *a)
 {
@@ -148,20 +148,14 @@ extern void intt_SIMD_bot_armv8(int *des, const int *table,
  *			       absolute value and output coefficients are again
  *			       bounded by Q.
  *
- * @param a [in/out] pointer to input/output polynomial
+ * @param [in,out] a pointer to input/output polynomial
  */
-#include "dilithium_ntt.h"
 static inline void poly_invntt_tomont(poly *a)
 {
-	//TODO
-#if 0
-	intt_SIMD_top_armv8(a->coeffs, streamlined_inv_CT_table_Q1_extended,
-			    constants);
 	intt_SIMD_bot_armv8(a->coeffs, streamlined_inv_CT_table_Q1_extended,
 			    constants);
-#else
-	invntt_tomont(a->coeffs);
-#endif
+	intt_SIMD_top_armv8(a->coeffs, streamlined_inv_CT_table_Q1_extended,
+			    constants);
 }
 
 #ifdef __cplusplus
