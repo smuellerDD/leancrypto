@@ -287,13 +287,13 @@ static const int streamlined_inv_CT_table_Q1_extended[(NTT_N + (1 << 0) +
 	495951789,  1935420,  -449207,	   -1753,    0,		  0
 };
 
-static const int constants[16] = { Q1,
-				   -Q1prime,
-				   RmodQ1_prime_half,
-				   RmodQ1_doubleprime,
-				   invNQ1R2modQ1_prime_half,
-				   invNQ1R2modQ1_doubleprime,
-				   invNQ1_final_R2modQ1_prime_half,
-				   invNQ1_final_R2modQ1_doubleprime };
+static const int constants[8] = { Q1,
+				  -Q1prime,
+				  RmodQ1_prime_half,
+				  RmodQ1_doubleprime,
+				  invNQ1R2modQ1_prime_half,
+				  invNQ1R2modQ1_doubleprime,
+				  invNQ1_final_R2modQ1_prime_half,
+				  invNQ1_final_R2modQ1_doubleprime };
 
 #endif

@@ -32,7 +32,7 @@ extern "C" {
 #define LC_DILITHIUM_QINV 58728449 // q^(-1) mod 2^32
 #endif
 
-static const int32_t montgomery_const[4] = { LC_DILITHIUM_Q,
+static const int32_t montgomery_const[2] = { LC_DILITHIUM_Q,
 					     LC_DILITHIUM_QINV };
 
 void poly_uniformx2(poly *a0, poly *a1,
