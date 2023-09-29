@@ -74,8 +74,7 @@ polyvecl_uniform_gamma1(polyvecl *v, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
 	if (LC_DILITHIUM_L & 1) {
 		poly_uniform_gamma1(
 			&v->vec[i], seed,
-			le_bswap16((uint16_t)(LC_DILITHIUM_L * nonce +
-					      LC_DILITHIUM_L - 1)),
+			(uint16_t)(LC_DILITHIUM_L * nonce + LC_DILITHIUM_L - 1),
 			ws_buf);
 	}
 }
@@ -97,11 +96,23 @@ static inline void polyvecl_pointwise_acc_montgomery(poly *w, const polyvecl *u,
 						     const polyvecl *v,
 						     void *ws_buf)
 {
+	//TODO
+#if 0
 	(void)ws_buf;
 
 	polyvecl_pointwise_acc_montgomery_armv8(w->coeffs, u->vec[0].coeffs,
 						v->vec[0].coeffs,
 						l_montgomery_const);
+#else
+	unsigned int i;
+	poly *t = ws_buf;
+
+	poly_pointwise_montgomery(w, &u->vec[0], &v->vec[0]);
+	for (i = 1; i < LC_DILITHIUM_L; ++i) {
+		poly_pointwise_montgomery(t, &u->vec[i], &v->vec[i]);
+		poly_add(w, w, t);
+	}
+#endif
 }
 
 static inline void

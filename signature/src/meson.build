@@ -15,8 +15,8 @@ if get_option('dilithium').enabled()
 
 	if (x86_64_asm and get_option('dilithium_strength') == '5')
 		subdir('avx2')
-#	elif (arm64_asm and get_option('dilithium_strength') == '5')
-#		subdir('armv8')
+	elif (arm64_asm and get_option('dilithium_strength') == '5')
+		subdir('armv8')
 	else
 		src += files([ 'dilithium_signature_api_c.c' ])
 	endif

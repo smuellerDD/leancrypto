@@ -150,12 +150,18 @@ extern void intt_SIMD_bot_armv8(int *des, const int *table,
  *
  * @param a [in/out] pointer to input/output polynomial
  */
+#include "dilithium_ntt.h"
 static inline void poly_invntt_tomont(poly *a)
 {
+	//TODO
+#if 0
 	intt_SIMD_top_armv8(a->coeffs, streamlined_inv_CT_table_Q1_extended,
 			    constants);
 	intt_SIMD_bot_armv8(a->coeffs, streamlined_inv_CT_table_Q1_extended,
 			    constants);
+#else
+	invntt_tomont(a->coeffs);
+#endif
 }
 
 #ifdef __cplusplus

@@ -120,7 +120,6 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 	/* Get randomness for rho, rhoprime and key */
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, ws->seedbuf,
 			      LC_DILITHIUM_SEEDBYTES));
-
 	dilithium_print_buffer(ws->seedbuf, LC_DILITHIUM_SEEDBYTES,
 			       "Keygen - Seed");
 
