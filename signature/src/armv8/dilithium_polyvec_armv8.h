@@ -30,7 +30,7 @@ extern "C" {
 #define LC_DILITHIUM_QINV 58728449 // q^(-1) mod 2^32
 #endif
 
-static const int32_t l_montgomery_const[4] = { LC_DILITHIUM_Q,
+static const int32_t l_montgomery_const[2] = { LC_DILITHIUM_Q,
 					       LC_DILITHIUM_QINV };
 
 /**
@@ -96,23 +96,11 @@ static inline void polyvecl_pointwise_acc_montgomery(poly *w, const polyvecl *u,
 						     const polyvecl *v,
 						     void *ws_buf)
 {
-	//TODO
-#if 0
 	(void)ws_buf;
 
 	polyvecl_pointwise_acc_montgomery_armv8(w->coeffs, u->vec[0].coeffs,
 						v->vec[0].coeffs,
 						l_montgomery_const);
-#else
-	unsigned int i;
-	poly *t = ws_buf;
-
-	poly_pointwise_montgomery(w, &u->vec[0], &v->vec[0]);
-	for (i = 1; i < LC_DILITHIUM_L; ++i) {
-		poly_pointwise_montgomery(t, &u->vec[i], &v->vec[i]);
-		poly_add(w, w, t);
-	}
-#endif
 }
 
 static inline void
