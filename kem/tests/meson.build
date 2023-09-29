@@ -135,8 +135,8 @@ if get_option('kyber').enabled()
 		test('Kyber KEM ARMv8', kyber_kem_tester_armv8)
 		test('Kyber KEM ARMv8 50000', kyber_kem_tester_armv8,
 		     args : [ 'armv8' ], timeout: 1000, is_parallel: false)
-		test('Kyber KEM ARMv8', kyber_kem_kdf_tester_armv8)
-		test('Kyber KEM ARMv8 50000', kyber_kem_kdf_tester_armv8,
+		test('Kyber KEM KDF ARMv8', kyber_kem_kdf_tester_armv8)
+		test('Kyber KEM KDF ARMv8 50000', kyber_kem_kdf_tester_armv8,
 		     args : [ 'armv8' ], timeout: 1000, is_parallel: false)
 	endif
 
