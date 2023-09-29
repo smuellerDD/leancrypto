@@ -110,11 +110,12 @@ opensslcmd=$(type -p openssl)
 
 if [ -x "$opensslcmd" ]
 then
-	a=$($opensslcmd dgst -$hash $0 | cut -f 2 -d" ")
+	a=$($opensslcmd dgst -$hash $0)
 	if [ $? -ne 0 ]
 	then
 		echo_deact "Hash type $hash is not supported by OpenSSL"
 	else
+		a=$(echo $a | cut -f 2 -d" ")
 		b=$(run_hasher $LC_HASHER $0 | cut -f 1 -d" ")
 		if [ x"$a" != x"$b" ]
 		then
