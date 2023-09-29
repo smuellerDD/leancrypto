@@ -26,7 +26,7 @@
 #include "ret_checkers.h"
 #include "visibility.h"
 
-static bool initialized = false;
+static int initialized = 0;
 
 static int seeded_rng_esdm_lib_init(void)
 {
@@ -38,7 +38,7 @@ void seeded_rng_noise_fini(void)
 {
 	if (initialized) {
 		esdm_rpcc_fini_unpriv_service();
-		initialized = false;
+		initialized = 0;
 	}
 }
 
@@ -48,7 +48,7 @@ ssize_t get_full_entropy(uint8_t *buffer, size_t bufferlen)
 
 	if (!initialized) {
 		CKINT(seeded_rng_esdm_lib_init());
-		initialized = true;
+		initialized = 1;
 	}
 
 	esdm_invoke(esdm_rpcc_get_random_bytes_full(buffer, bufferlen));
