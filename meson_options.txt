@@ -61,6 +61,8 @@ the value 5 implies 256 bits of security strength,
 
 option('kyber', type: 'feature', value: 'enabled',
        description: 'Kyber key exchange mechanism (KEM) support - FIPS 203')
+option('kyber_debug', type: 'feature', value: 'disabled',
+       description: 'Kyber debug printout - DO NOT ENABLE IN PRODUCTION SYSTEMS!')
 option('kyber_strength', type: 'combo', choices: ['2', '3', '4' ],
        value: '4', description: '''Kyber Security Strength
 

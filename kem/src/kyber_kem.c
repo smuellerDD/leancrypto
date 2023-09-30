@@ -24,6 +24,7 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
+#include "kyber_debug.h"
 #include "kyber_kdf.h"
 #include "kyber_kem.h"
 #include "kyber_verify.h"
@@ -58,10 +59,17 @@ int _lc_kyber_keypair(
 		sk->sk + LC_KYBER_SECRETKEYBYTES - 2 * LC_KYBER_SYMBYTES);
 
 	/* Value z for pseudo-random output on reject */
-	return lc_rng_generate(rng_ctx, NULL, 0,
-			       sk->sk + LC_KYBER_SECRETKEYBYTES -
+	ret = lc_rng_generate(rng_ctx, NULL, 0,
+			      sk->sk + LC_KYBER_SECRETKEYBYTES -
 				       LC_KYBER_SYMBYTES,
-			       LC_KYBER_SYMBYTES);
+			      LC_KYBER_SYMBYTES);
+
+	kyber_print_buffer(pk->pk, LC_KYBER_PUBLICKEYBYTES,
+			   "======Keygen output: pk");
+	kyber_print_buffer(sk->sk, LC_KYBER_SECRETKEYBYTES,
+			   "======Keygen output: sk");
+	return ret;
+
 }
 
 int _lc_kyber_enc(
@@ -80,6 +88,9 @@ int _lc_kyber_enc(
 	if (!ct || !ss || !pk || !rng_ctx)
 		return -EINVAL;
 
+	kyber_print_buffer(pk->pk, LC_KYBER_PUBLICKEYBYTES,
+			   "======Encapsulation input: pk");
+
 	/*
 	 * FIPS 203 input validation: pk type check not needed, because
 	 * struct lc_kyber_pk ensures that the input is of required length.
@@ -91,11 +102,21 @@ int _lc_kyber_enc(
 	lc_hash(lc_sha3_256, pk->pk, LC_KYBER_PUBLICKEYBYTES,
 		buf + LC_KYBER_SYMBYTES);
 	lc_hash(lc_sha3_512, buf, sizeof(buf), kr);
+	kyber_print_buffer(buf + LC_KYBER_SYMBYTES, LC_KYBER_SYMBYTES,
+			   "Encapsulation: H(ek)");
+	kyber_print_buffer(kr, LC_KYBER_SYMBYTES,
+			   "Encapsulation: shared secret key K");
+	kyber_print_buffer(kr + LC_KYBER_SYMBYTES, LC_KYBER_SYMBYTES,
+			   "Encapsulation: randomness r");
 
 	/* coins are in kr+KYBER_SYMBYTES */
 	CKINT(indcpa_enc_f(ct->ct, buf, pk->pk, kr + LC_KYBER_SYMBYTES));
 
 	memcpy(ss->ss, kr, LC_KYBER_SSBYTES);
+	kyber_print_buffer(ss->ss, LC_KYBER_SSBYTES,
+			   "======Encapsulation output: ss");
+	kyber_print_buffer(ct->ct, LC_CRYPTO_CIPHERTEXTBYTES,
+			   "======Encapsulation output: ct");
 
 out:
 	lc_memset_secure(buf, 0, sizeof(buf));
@@ -177,10 +198,16 @@ int _lc_kyber_dec(
 	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
+
 	if (!ss || !ct || !sk) {
 		ret = -EINVAL;
 		goto out;
 	}
+
+	kyber_print_buffer(ct->ct, LC_CRYPTO_CIPHERTEXTBYTES,
+			   "======Decapsulation input: ct");
+	kyber_print_buffer(sk->sk, LC_KYBER_SECRETKEYBYTES,
+			   "======Decapsulation input: sk");
 
 	/*
 	 * FIPS 203 input validation: ct type check not needed, because
@@ -208,9 +235,14 @@ int _lc_kyber_dec(
 	       &sk->sk[LC_KYBER_SECRETKEYBYTES - 2 * LC_KYBER_SYMBYTES],
 	       LC_KYBER_SYMBYTES);
 	lc_hash(lc_sha3_512, ws->buf, sizeof(ws->buf), ws->kr);
+	kyber_print_buffer(ws->kr, LC_KYBER_SYMBYTES, "Decapsulation: K'");
+	kyber_print_buffer(ws->kr + LC_KYBER_SYMBYTES, LC_KYBER_SYMBYTES,
+			   "Decapsulation: r'");
 
 	/* coins are in kr + KYBER_SYMBYTES */
 	CKINT(indcpa_enc_f(ws->cmp, ws->buf, pk, ws->kr + LC_KYBER_SYMBYTES));
+	kyber_print_buffer(ws->cmp, LC_KYBER_CIPHERTEXTBYTES,
+			   "Decapsulation: c'");
 
 	fail = verify(ct->ct, ws->cmp, LC_KYBER_CIPHERTEXTBYTES);
 
@@ -218,9 +250,12 @@ int _lc_kyber_dec(
 	kyber_shake256_rkprf(
 		ss->ss, sk->sk + LC_KYBER_SECRETKEYBYTES - LC_KYBER_SYMBYTES,
 		ct->ct);
+	kyber_print_buffer(ss->ss, LC_KYBER_SYMBYTES, "Decapsulation: Kdash");
 
 	/* Copy true key to return buffer if fail is false */
 	cmov(ss->ss, ws->kr, LC_KYBER_SSBYTES, !fail);
+	kyber_print_buffer(ss->ss, LC_KYBER_SSBYTES,
+			   "======Decapsulation output: ss");
 
 out:
 	LC_RELEASE_MEM(ws);

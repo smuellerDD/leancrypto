@@ -66,6 +66,9 @@ endif
 if get_option('dilithium_debug').enabled()
 	add_global_arguments([ '-DLC_DILITHIUM_DEBUG' ], language: 'c')
 endif
+if get_option('kyber_debug').enabled()
+	add_global_arguments([ '-DLC_KYBER_DEBUG' ], language: 'c')
+endif
 
 # Versioning information
 version_array = meson.project_version().split('.')

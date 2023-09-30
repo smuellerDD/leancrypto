@@ -15,6 +15,9 @@ if get_option('kyber').enabled()
 		'kyber_selftest_kdf.c',
 		'kyber_verify.c',
 	])
+	if get_option('kyber_debug').enabled()
+		src += files ([ 'kyber_debug.c', ])
+	endif
 
 	if (x86_64_asm and get_option('kyber_strength') == '4')
 		subdir('avx2')

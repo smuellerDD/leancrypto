@@ -17,6 +17,7 @@
  * DAMAGE.
  */
 
+#include "kyber_debug.h"
 #include "kyber_indcpa_armv8.h"
 #include "kyber_kem.h"
 #include "kyber_kem_armv8.h"
@@ -31,7 +32,7 @@
 LC_INTERFACE_FUNCTION(int, lc_kyber_keypair_armv8, struct lc_kyber_pk *pk,
 		      struct lc_kyber_sk *sk, struct lc_rng_ctx *rng_ctx)
 {
-	static int tester = 0;
+	static int tester = LC_KYBER_TEST_INIT;
 
 	kyber_kem_keygen_selftest(&tester, "Kyber KEM keypair ARMv8",
 				  lc_kyber_keypair_armv8);
@@ -42,7 +43,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_enc_armv8, struct lc_kyber_ct *ct,
 		      struct lc_kyber_ss *ss, const struct lc_kyber_pk *pk,
 		      struct lc_rng_ctx *rng_ctx)
 {
-	static int tester = 0;
+	static int tester = LC_KYBER_TEST_INIT;
 
 	kyber_kem_enc_selftest(&tester, "Kyber KEM enc ARMv8",
 			       lc_kyber_enc_armv8);
@@ -53,7 +54,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_enc_kdf_armv8, struct lc_kyber_ct *ct,
 		      uint8_t *ss, size_t ss_len, const struct lc_kyber_pk *pk,
 		      struct lc_rng_ctx *rng_ctx)
 {
-	static int tester = 0;
+	static int tester = LC_KYBER_TEST_INIT;
 
 	kyber_kem_enc_kdf_selftest(&tester, "Kyber KEM enc KDF ARMv8",
 				   lc_kyber_enc_kdf_armv8);
@@ -64,7 +65,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_dec_armv8, struct lc_kyber_ss *ss,
 		      const struct lc_kyber_ct *ct,
 		      const struct lc_kyber_sk *sk)
 {
-	static int tester = 0;
+	static int tester = LC_KYBER_TEST_INIT;
 
 	kyber_kem_dec_selftest(&tester, "Kyber KEM dec ARMv8",
 			       lc_kyber_dec_armv8);
@@ -75,7 +76,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_dec_kdf_armv8, uint8_t *ss, size_t ss_len,
 		      const struct lc_kyber_ct *ct,
 		      const struct lc_kyber_sk *sk)
 {
-	static int tester = 0;
+	static int tester = LC_KYBER_TEST_INIT;
 
 	kyber_kem_dec_kdf_selftest(&tester, "Kyber KEM dec KDF ARMv8",
 				   lc_kyber_dec_kdf_armv8);
