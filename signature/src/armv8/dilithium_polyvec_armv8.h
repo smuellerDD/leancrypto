@@ -62,40 +62,43 @@ static inline void
 polyvecl_uniform_eta(polyvecl *v, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
 		     uint16_t nonce, void *ws_buf)
 {
-	unsigned int i;
-
 	/* This implementation only works with odd L */
 	BUILD_BUG_ON(!(LC_DILITHIUM_L & 1));
 
-	for (i = 0; i < LC_DILITHIUM_L - 1; i += 2) {
-		poly_uniform_etax2(
-			&v->vec[i + 0], &v->vec[i + 1], seed,
-			(uint16_t)(nonce + i + 0),
-			(uint16_t)(nonce + i + 1), ws_buf);
-	}
-	if (LC_DILITHIUM_L & 1) {
-		poly_uniform_eta(
-			&v->vec[i], seed,
-			(uint16_t)(nonce + LC_DILITHIUM_L - 1),
-			ws_buf);
-	}
+	poly_uniform_etax2(&v->vec[0], &v->vec[1], seed, (uint16_t)(nonce),
+			   (uint16_t)(nonce + 1), ws_buf);
+	poly_uniform_etax2(&v->vec[2], &v->vec[3], seed, (uint16_t)(nonce + 2),
+			   (uint16_t)(nonce + 3), ws_buf);
+#if (LC_DILITHIUM_L == 5)
+	poly_uniform_eta(&v->vec[4], seed, (uint16_t)(nonce + 4), ws_buf);
+#elif (LC_DILITHIUM_L == 7)
+	poly_uniform_etax2(&v->vec[4], &v->vec[5], seed, (uint16_t)(nonce + 4),
+			   (uint16_t)(nonce + 5), ws_buf);
+	poly_uniform_eta(&v->vec[6], seed, (uint16_t)(nonce + 6), ws_buf);
+#else
+#error "Undefined LC_DILITHIUM_L"
+#endif
 }
 
 static inline void
 polyveck_uniform_eta(polyveck *v, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
 		     uint16_t nonce, void *ws_buf)
 {
-	unsigned int i;
-
 	/* This implementation only works with even K */
 	BUILD_BUG_ON(LC_DILITHIUM_K & 1);
 
-	for (i = 0; i < LC_DILITHIUM_K - 1; i += 2) {
-		poly_uniform_etax2(
-			&v->vec[i + 0], &v->vec[i + 1], seed,
-			(uint16_t)(nonce + i + 0),
-			(uint16_t)(nonce + i + 1), ws_buf);
-	}
+	poly_uniform_etax2(&v->vec[0], &v->vec[1], seed, (uint16_t)(nonce),
+			   (uint16_t)(nonce + 1), ws_buf);
+	poly_uniform_etax2(&v->vec[2], &v->vec[3], seed, (uint16_t)(nonce + 2),
+			   (uint16_t)(nonce + 3), ws_buf);
+#if (LC_DILITHIUM_K >= 6)
+	poly_uniform_etax2(&v->vec[4], &v->vec[5], seed, (uint16_t)(nonce + 4),
+			   (uint16_t)(nonce + 5), ws_buf);
+#endif
+#if (LC_DILITHIUM_K == 8)
+	poly_uniform_etax2(&v->vec[6], &v->vec[7], seed, (uint16_t)(nonce + 6),
+			   (uint16_t)(nonce + 7), ws_buf);
+#endif
 }
 
 static inline void
