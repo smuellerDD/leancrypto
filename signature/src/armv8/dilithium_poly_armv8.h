@@ -34,16 +34,43 @@ extern "C" {
 
 static const int32_t montgomery_const[2] = { LC_DILITHIUM_Q,
 					     LC_DILITHIUM_QINV };
+#ifdef LINUX_KERNEL
+static inline void poly_uniformx2(poly *a0, poly *a1,
+				  const uint8_t seed[LC_DILITHIUM_SEEDBYTES],
+				  uint16_t nonce0, uint16_t nonce1,
+				  void *ws_buf)
+{
+	poly_uniform(a0, seed, nonce0, ws_buf);
+	poly_uniform(a1, seed, nonce1, ws_buf);
+}
 
-void poly_uniformx2(poly *a0, poly *a1,
-		    const uint8_t seed[LC_DILITHIUM_SEEDBYTES], uint16_t nonce0,
-		    uint16_t nonce1);
 void poly_uniform_etax2(poly *a0, poly *a1,
 			const uint8_t seed[LC_DILITHIUM_CRHBYTES],
-			uint16_t nonce0, uint16_t nonce1);
+			uint16_t nonce0, uint16_t nonce1, void *ws_buf)
+{
+	poly_uniform_eta(a0, seed, nonce0, ws_buf);
+	poly_uniform_eta(a1, seed, nonce1, ws_buf);
+}
+
 void poly_uniform_gamma1x2(poly *a0, poly *a1,
 			   const uint8_t seed[LC_DILITHIUM_CRHBYTES],
-			   uint16_t nonce0, uint16_t nonce1);
+			   uint16_t nonce0, uint16_t nonce1, void *ws_buf)
+{
+	poly_uniform_gamma1(a0, seed, nonce0, ws_buf);
+	poly_uniform_gamma1(a1, seed, nonce1, ws_buf);
+}
+
+#else
+void poly_uniformx2(poly *a0, poly *a1,
+		    const uint8_t seed[LC_DILITHIUM_SEEDBYTES], uint16_t nonce0,
+		    uint16_t nonce1, void *ws_buf);
+void poly_uniform_etax2(poly *a0, poly *a1,
+			const uint8_t seed[LC_DILITHIUM_CRHBYTES],
+			uint16_t nonce0, uint16_t nonce1, void *ws_buf);
+void poly_uniform_gamma1x2(poly *a0, poly *a1,
+			   const uint8_t seed[LC_DILITHIUM_CRHBYTES],
+			   uint16_t nonce0, uint16_t nonce1, void *ws_buf);
+#endif
 
 extern void poly_reduce_armv8(int32_t *, const int32_t *);
 /**

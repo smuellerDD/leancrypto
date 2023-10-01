@@ -105,13 +105,15 @@ dilithium_shake256x2_stream_init(keccakx2_state *state,
 
 void poly_uniformx2(poly *a0, poly *a1,
 		    const uint8_t seed[LC_DILITHIUM_SEEDBYTES], uint16_t nonce0,
-		    uint16_t nonce1)
+		    uint16_t nonce1, void *ws_buf)
 {
 	unsigned int ctr0, ctr1;
 	unsigned int buflen = POLY_UNIFORM_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK;
 	uint8_t buf0[POLY_UNIFORM_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK + 2];
 	uint8_t buf1[POLY_UNIFORM_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK + 2];
 	keccakx2_state statex2;
+
+	(void)ws_buf;
 
 	dilithium_shake128x2_stream_init(&statex2, seed, nonce0, nonce1);
 	shake128x2_armv8_squeezeblocks(buf0, buf1, POLY_UNIFORM_NBLOCKS,
@@ -131,7 +133,7 @@ void poly_uniformx2(poly *a0, poly *a1,
 
 void poly_uniform_etax2(poly *a0, poly *a1,
 			const uint8_t seed[LC_DILITHIUM_CRHBYTES],
-			uint16_t nonce0, uint16_t nonce1)
+			uint16_t nonce0, uint16_t nonce1, void *ws_buf)
 {
 	unsigned int ctr0, ctr1;
 	unsigned int buflen =
@@ -140,6 +142,8 @@ void poly_uniform_etax2(poly *a0, poly *a1,
 	uint8_t buf0[POLY_UNIFORM_ETA_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK];
 	uint8_t buf1[POLY_UNIFORM_ETA_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK];
 	keccakx2_state statex2;
+
+	(void)ws_buf;
 
 	dilithium_shake256x2_stream_init(&statex2, seed, nonce0, nonce1);
 	shake256x2_armv8_squeezeblocks(buf0, buf1, POLY_UNIFORM_ETA_NBLOCKS,
@@ -159,11 +163,13 @@ void poly_uniform_etax2(poly *a0, poly *a1,
 
 void poly_uniform_gamma1x2(poly *a0, poly *a1,
 			   const uint8_t seed[LC_DILITHIUM_CRHBYTES],
-			   uint16_t nonce0, uint16_t nonce1)
+			   uint16_t nonce0, uint16_t nonce1, void *ws_buf)
 {
 	uint8_t buf0[POLY_UNIFORM_GAMMA1_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK];
 	uint8_t buf1[POLY_UNIFORM_GAMMA1_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK];
 	keccakx2_state statex2;
+
+	(void)ws_buf;
 
 	dilithium_shake256x2_stream_init(&statex2, seed, nonce0, nonce1);
 	shake256x2_armv8_squeezeblocks(buf0, buf1, POLY_UNIFORM_GAMMA1_NBLOCKS,
