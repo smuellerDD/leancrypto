@@ -405,8 +405,7 @@ int indcpa_dec(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
 	CKINT(kyber_kem_iv_sk_modulus(sk, &ws->skpv, pack_sk));
 
 	polyvec_ntt(&ws->b);
-	kyber_print_polyvec(&ws->b,
-			    "K-PKE Decrypt: NTT(u)");
+	kyber_print_polyvec(&ws->b, "K-PKE Decrypt: NTT(u)");
 	polyvec_basemul_acc_montgomery(&ws->mp, &ws->skpv, &ws->b);
 	kyber_print_poly(&ws->mp, "K-PKE Decrypt: s * NTT(u)");
 	poly_invntt_tomont(&ws->mp);

@@ -34,7 +34,7 @@ extern "C" {
 #define LC_KYBER_TEST_INIT 1
 
 void kyber_print_buffer(const uint8_t *buffer, const size_t bufferlen,
-			    const char *explanation);
+			const char *explanation);
 void kyber_print_polyvec(polyvec *polyvec_val, const char *explanation);
 void kyber_print_poly(poly *vec, const char *explanation);
 
@@ -44,8 +44,8 @@ void kyber_print_poly(poly *vec, const char *explanation);
 #define LC_KYBER_TEST_INIT 0
 
 static inline void kyber_print_buffer(const uint8_t *buffer,
-					  const size_t bufferlen,
-					  const char *explanation)
+				      const size_t bufferlen,
+				      const char *explanation)
 {
 	(void)buffer;
 	(void)bufferlen;

@@ -61,7 +61,7 @@ int _lc_kyber_keypair(
 	/* Value z for pseudo-random output on reject */
 	ret = lc_rng_generate(rng_ctx, NULL, 0,
 			      sk->sk + LC_KYBER_SECRETKEYBYTES -
-				       LC_KYBER_SYMBYTES,
+				      LC_KYBER_SYMBYTES,
 			      LC_KYBER_SYMBYTES);
 
 	kyber_print_buffer(pk->pk, LC_KYBER_PUBLICKEYBYTES,
@@ -69,7 +69,6 @@ int _lc_kyber_keypair(
 	kyber_print_buffer(sk->sk, LC_KYBER_SECRETKEYBYTES,
 			   "======Keygen output: sk");
 	return ret;
-
 }
 
 int _lc_kyber_enc(
@@ -197,7 +196,6 @@ int _lc_kyber_dec(
 	uint8_t fail;
 	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
-
 
 	if (!ss || !ct || !sk) {
 		ret = -EINVAL;
