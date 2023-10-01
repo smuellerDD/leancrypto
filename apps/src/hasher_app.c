@@ -33,6 +33,7 @@
 #include "lc_sha3.h"
 #include "lc_sha512.h"
 #include "ret_checkers.h"
+#include "small_stack_support.h"
 
 struct hasher_options {
 	unsigned int quiet : 1;
@@ -241,14 +242,18 @@ static int hasher(struct lc_hash_ctx *hash_ctx,
 
 		} while (offset ^ size);
 	} else {
-		uint8_t tmpbuf[4096];
+		struct workspace {
+			uint8_t tmpbuf[4096];
+		};
 		uint32_t bufsize;
+		LC_DECLARE_MEM(ws, struct workspace, sizeof(uint8_t));
 
-		while ((bufsize = (uint32_t)fread(tmpbuf, sizeof(uint8_t),
-						  sizeof(tmpbuf), stdin))) {
-			lc_hash_update(hash_ctx, tmpbuf, bufsize);
+		while ((bufsize = (uint32_t)fread(ws->tmpbuf, sizeof(uint8_t),
+						  sizeof(ws->tmpbuf), stdin))) {
+			lc_hash_update(hash_ctx, ws->tmpbuf, bufsize);
 		}
-		lc_memset_secure(tmpbuf, 0, sizeof(tmpbuf));
+		lc_memset_secure(ws->tmpbuf, 0, sizeof(ws->tmpbuf));
+		LC_RELEASE_MEM(ws);
 	}
 
 	lc_hash_final(hash_ctx, md);
@@ -320,7 +325,10 @@ static int hasher_checkfile(const struct hasher_options *parsed_opts,
 	 * 4096 bytes (file name) + 128 bytes (SHA512 hex value) + 2 spaces +
 	 * one byte for the CR.
 	 */
-	char buf[(4096 + 128 + 2 + 1)];
+	struct workspace {
+		char buf[(4096 + 128 + 2 + 1)];
+	};
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint8_t));
 
 	lc_hash_init(hash_ctx);
 
@@ -334,11 +342,11 @@ static int hasher_checkfile(const struct hasher_options *parsed_opts,
 		goto out;
 	}
 
-	while (fgets(buf, sizeof(buf), file)) {
+	while (fgets(ws->buf, sizeof(ws->buf), file)) {
 		char *filename = NULL; // parsed file name
 		char *hexhash = NULL; // parsed hex value of hash
 		uint32_t hexhashlen = 0; // length of hash hex value
-		uint32_t linelen = (uint32_t)strlen(buf);
+		uint32_t linelen = (uint32_t)strlen(ws->buf);
 		uint32_t i;
 		uint32_t bsd_style = 0; // >0 if --tag formatted style
 
@@ -347,8 +355,8 @@ static int hasher_checkfile(const struct hasher_options *parsed_opts,
 
 		/* remove trailing CR and reduce buffer length */
 		for (i = linelen - 1; i > 0; i--) {
-			if (!isprint(buf[i])) {
-				buf[i] = '\0';
+			if (!isprint(ws->buf[i])) {
+				ws->buf[i] = '\0';
 				linelen--;
 			} else
 				break;
@@ -359,19 +367,19 @@ static int hasher_checkfile(const struct hasher_options *parsed_opts,
 			 * Check for BSD-style separator between file name and
 			 * hash value.
 			 */
-			if (((linelen - i) >= 3) && isblank(buf[i]) &&
-			    buf[i + 1] == '=' && isblank(buf[i + 2])) {
+			if (((linelen - i) >= 3) && isblank(ws->buf[i]) &&
+			    ws->buf[i + 1] == '=' && isblank(ws->buf[i + 2])) {
 				/* Start of hash value */
 				bsd_style = i + 3;
-				hexhash = buf + bsd_style;
+				hexhash = ws->buf + bsd_style;
 				break;
 			}
 		}
 
 		for (i = 0; i < linelen; i++) {
 			/* file name / hash separator for regular case */
-			if (!bsd_style && isblank(buf[i])) {
-				filename = buf + i;
+			if (!bsd_style && isblank(ws->buf[i])) {
+				filename = ws->buf + i;
 				break;
 			}
 
@@ -381,23 +389,23 @@ static int hasher_checkfile(const struct hasher_options *parsed_opts,
 
 			/* Find file name start value of BSD-style. */
 			if (bsd_style && (linelen - i) >= 2 &&
-			    isblank(buf[i]) && buf[i + 1] == '(') {
-				filename = buf + i + 2;
+			    isblank(ws->buf[i]) && ws->buf[i + 1] == '(') {
+				filename = ws->buf + i + 2;
 				break;
 			}
 		}
 
 		/* In regular case, hash starts at the beginning of buffer. */
 		if (!bsd_style)
-			hexhash = buf;
+			hexhash = ws->buf;
 
 		if (bsd_style) {
 			/* Hash starts after separator */
 			hexhashlen = linelen - bsd_style + 1;
 
 			/* remove closing parenthesis behind filename */
-			if (buf[(bsd_style - 4)] == ')')
-				buf[(bsd_style - 4)] = '\0';
+			if (ws->buf[(bsd_style - 4)] == ')')
+				ws->buf[(bsd_style - 4)] = '\0';
 		}
 
 		if (!hexhash || !hexhashlen) {
@@ -437,6 +445,7 @@ static int hasher_checkfile(const struct hasher_options *parsed_opts,
 	}
 
 out:
+	LC_RELEASE_MEM(ws);
 	if (file)
 		fclose(file);
 
