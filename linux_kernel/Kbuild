@@ -676,6 +676,13 @@ leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
 			   ../signature/src/avx2/dilithium_signature_api_avx2.o\
 			   ../signature/src/avx2/dilithium_signature_avx2.o    \
 			   ../signature/src/avx2/dilithium_shuffle_avx2.o
+else ifdef CONFIG_ARM64
+leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
+			+= ../signature/src/armv8/dilithium_intt_armv8.o       \
+			   ../signature/src/armv8/dilithium_ntt_armv8.o	       \
+			   ../signature/src/armv8/dilithium_poly_armv8.o       \
+			   ../signature/src/armv8/dilithium_signature_api_armv8.o\
+			   ../signature/src/armv8/dilithium_signature_armv8.o
 else
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
 			+= ../signature/src/dilithium_signature_api_c.o
@@ -703,9 +710,27 @@ endif
 ifdef CONFIG_X86_64
 ifdef CONFIG_LEANCRYPTO_DILITHIUM
 obj-m				+= dilithium_tester_avx2.o
+obj-m				+= dilithium_tester_iuf_avx2.o
 
 dilithium_tester_avx2-y		+= ../signature/tests/dilithium_tester.o       \
 				   ../signature/tests/dilithium_tester_avx2.o  \
+				   ../drng/src/selftest_rng.o
+dilithium_tester_iuf_avx2-y	+= ../signature/tests/dilithium_tester.o       \
+				   ../signature/tests/dilithium_tester_iuf_avx2.o\
+				   ../drng/src/selftest_rng.o
+endif
+endif
+
+ifdef CONFIG_ARM64
+ifdef CONFIG_LEANCRYPTO_DILITHIUM
+obj-m				+= dilithium_tester_armv8.o
+obj-m				+= dilithium_tester_iuf_armv8.o
+
+dilithium_tester_armv8-y	+= ../signature/tests/dilithium_tester.o       \
+				   ../signature/tests/dilithium_tester_armv8.o \
+				   ../drng/src/selftest_rng.o
+dilithium_tester_iuf_armv8-y	+= ../signature/tests/dilithium_tester.o       \
+				   ../signature/tests/dilithium_tester_iuf_armv8.o\
 				   ../drng/src/selftest_rng.o
 endif
 endif
