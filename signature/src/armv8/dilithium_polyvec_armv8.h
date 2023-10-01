@@ -20,6 +20,7 @@
 #ifndef DILITHIUM_POLYVEC_ARMV8_H
 #define DILITHIUM_POLYVEC_ARMV8_H
 
+#include "build_bug_on.h"
 #include "lc_dilithium.h"
 
 #ifdef __cplusplus
@@ -48,14 +49,52 @@ polyvec_matrix_expand(polyvecl mat[LC_DILITHIUM_K],
 {
 	unsigned int i, j;
 
-	(void)ws_buf;
-
 	for (j = 0; j < LC_DILITHIUM_L; ++j) {
 		for (i = 0; i < LC_DILITHIUM_K; i += 2) {
 			poly_uniformx2(&mat[i + 0].vec[j], &mat[i + 1].vec[j],
 				       rho, (uint16_t)((i << 8) + j),
-				       (uint16_t)(((i + 1) << 8) + j));
+				       (uint16_t)(((i + 1) << 8) + j), ws_buf);
 		}
+	}
+}
+
+static inline void
+polyvecl_uniform_eta(polyvecl *v, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
+		     uint16_t nonce, void *ws_buf)
+{
+	unsigned int i;
+
+	/* This implementation only works with odd L */
+	BUILD_BUG_ON(!(LC_DILITHIUM_L & 1));
+
+	for (i = 0; i < LC_DILITHIUM_L - 1; i += 2) {
+		poly_uniform_etax2(
+			&v->vec[i + 0], &v->vec[i + 1], seed,
+			(uint16_t)(nonce + i + 0),
+			(uint16_t)(nonce + i + 1), ws_buf);
+	}
+	if (LC_DILITHIUM_L & 1) {
+		poly_uniform_eta(
+			&v->vec[i], seed,
+			(uint16_t)(nonce + LC_DILITHIUM_L - 1),
+			ws_buf);
+	}
+}
+
+static inline void
+polyveck_uniform_eta(polyveck *v, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
+		     uint16_t nonce, void *ws_buf)
+{
+	unsigned int i;
+
+	/* This implementation only works with even K */
+	BUILD_BUG_ON(LC_DILITHIUM_K & 1);
+
+	for (i = 0; i < LC_DILITHIUM_K - 1; i += 2) {
+		poly_uniform_etax2(
+			&v->vec[i + 0], &v->vec[i + 1], seed,
+			(uint16_t)(nonce + i + 0),
+			(uint16_t)(nonce + i + 1), ws_buf);
 	}
 }
 
@@ -69,7 +108,7 @@ polyvecl_uniform_gamma1(polyvecl *v, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
 		poly_uniform_gamma1x2(
 			&v->vec[i + 0], &v->vec[i + 1], seed,
 			(uint16_t)(LC_DILITHIUM_L * nonce + i + 0),
-			(uint16_t)(LC_DILITHIUM_L * nonce + i + 1));
+			(uint16_t)(LC_DILITHIUM_L * nonce + i + 1), ws_buf);
 	}
 	if (LC_DILITHIUM_L & 1) {
 		poly_uniform_gamma1(

@@ -49,16 +49,6 @@ typedef struct {
 /************ Vectors of polynomials of length L **************/
 /**************************************************************/
 
-static inline void
-polyvecl_uniform_eta(polyvecl *v, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
-		     uint16_t nonce, void *ws_buf)
-{
-	unsigned int i;
-
-	for (i = 0; i < LC_DILITHIUM_L; ++i)
-		poly_uniform_eta(&v->vec[i], seed, le_bswap16(nonce++), ws_buf);
-}
-
 static inline void polyvecl_reduce(polyvecl *v)
 {
 	unsigned int i;
@@ -142,16 +132,6 @@ static inline int polyvecl_chknorm(const polyvecl *v, int32_t bound)
 /**************************************************************/
 /************ Vectors of polynomials of length K **************/
 /**************************************************************/
-
-static inline void
-polyveck_uniform_eta(polyveck *v, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
-		     uint16_t nonce, void *ws_buf)
-{
-	unsigned int i;
-
-	for (i = 0; i < LC_DILITHIUM_K; ++i)
-		poly_uniform_eta(&v->vec[i], seed, le_bswap16(nonce++), ws_buf);
-}
 
 /**
  * @brief polyveck_reduce - Reduce coefficients of polynomials in vector of
