@@ -246,7 +246,7 @@ static int hasher(struct lc_hash_ctx *hash_ctx,
 			uint8_t tmpbuf[4096];
 		};
 		uint32_t bufsize;
-		LC_DECLARE_MEM(ws, struct workspace, sizeof(uint8_t));
+		LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 		while ((bufsize = (uint32_t)fread(ws->tmpbuf, sizeof(uint8_t),
 						  sizeof(ws->tmpbuf), stdin))) {
@@ -328,7 +328,7 @@ static int hasher_checkfile(const struct hasher_options *parsed_opts,
 	struct workspace {
 		char buf[(4096 + 128 + 2 + 1)];
 	};
-	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint8_t));
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	lc_hash_init(hash_ctx);
 
