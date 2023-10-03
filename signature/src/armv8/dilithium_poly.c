@@ -50,6 +50,7 @@
  * SOFTWARE.
  */
 
+#include "build_bug_on.h"
 #include "dilithium_poly.h"
 #include "dilithium_poly_armv8.h"
 #include "dilithium_service_helpers.h"
@@ -60,16 +61,22 @@
 static void
 dilithium_shake128x2_stream_init(keccakx2_state *state,
 				 const uint8_t seed[LC_DILITHIUM_SEEDBYTES],
-				 uint16_t nonce1, uint16_t nonce2)
+				 uint16_t nonce1, uint16_t nonce2, void *ws_buf)
 {
-	unsigned int i;
-	uint8_t extseed1[LC_DILITHIUM_SEEDBYTES + 2 + 14];
-	uint8_t extseed2[LC_DILITHIUM_SEEDBYTES + 2 + 14];
+#define LC_DILITHIUM_SHAKE128X2_BUF (LC_DILITHIUM_SEEDBYTES + 2 + 14)
+	uint8_t *extseed1 = ws_buf,
+		*extseed2 = extseed1 + LC_DILITHIUM_SHAKE128X2_BUF;
 
-	for (i = 0; i < LC_DILITHIUM_SEEDBYTES; i++) {
-		extseed1[i] = seed[i];
-		extseed2[i] = seed[i];
-	}
+	/*
+	 * We require 2 LC_DILITHIUM_SHAKE128X2_BUF, and ws_buf has twice
+	 * (POLY_UNIFORM_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK + 2).
+	 */
+	BUILD_BUG_ON(LC_DILITHIUM_SHAKE128X2_BUF >
+		     (POLY_UNIFORM_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK + 2));
+
+	memcpy(extseed1, seed, LC_DILITHIUM_SEEDBYTES);
+	memcpy(extseed2, seed, LC_DILITHIUM_SEEDBYTES);
+
 	extseed1[LC_DILITHIUM_SEEDBYTES] = (uint8_t)nonce1;
 	extseed1[LC_DILITHIUM_SEEDBYTES + 1] = (uint8_t)(nonce1 >> 8);
 
@@ -78,21 +85,29 @@ dilithium_shake128x2_stream_init(keccakx2_state *state,
 
 	shake128x2_armv8_absorb(state, extseed1, extseed2,
 				LC_DILITHIUM_SEEDBYTES + 2);
+
+#undef LC_DILITHIUM_SHAKE128X2_BUF
 }
 
 static void
 dilithium_shake256x2_stream_init(keccakx2_state *state,
 				 const uint8_t seed[LC_DILITHIUM_CRHBYTES],
-				 uint16_t nonce1, uint16_t nonce2)
+				 uint16_t nonce1, uint16_t nonce2, void *ws_buf)
 {
-	unsigned int i;
-	uint8_t extseed1[LC_DILITHIUM_CRHBYTES + 2 + 14];
-	uint8_t extseed2[LC_DILITHIUM_CRHBYTES + 2 + 14];
+#define LC_DILITHIUM_SHAKE256X2_BUF (LC_DILITHIUM_CRHBYTES + 2 + 14)
+	uint8_t *extseed1 = ws_buf,
+		*extseed2 = extseed1 + LC_DILITHIUM_SHAKE256X2_BUF;
 
-	for (i = 0; i < LC_DILITHIUM_CRHBYTES; i++) {
-		extseed1[i] = seed[i];
-		extseed2[i] = seed[i];
-	}
+	/*
+	 * We require 2 LC_DILITHIUM_SHAKE128X2_BUF, and ws_buf has twice
+	 * (POLY_UNIFORM_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK + 2).
+	 */
+	BUILD_BUG_ON(LC_DILITHIUM_SHAKE256X2_BUF >
+		     (POLY_UNIFORM_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK + 2));
+
+	memcpy(extseed1, seed, LC_DILITHIUM_CRHBYTES);
+	memcpy(extseed2, seed, LC_DILITHIUM_CRHBYTES);
+
 	extseed1[LC_DILITHIUM_CRHBYTES] = (uint8_t)nonce1;
 	extseed1[LC_DILITHIUM_CRHBYTES + 1] = (uint8_t)(nonce1 >> 8);
 
@@ -101,56 +116,61 @@ dilithium_shake256x2_stream_init(keccakx2_state *state,
 
 	shake256x2_armv8_absorb(state, extseed1, extseed2,
 				LC_DILITHIUM_CRHBYTES + 2);
+
+#undef LC_DILITHIUM_SHAKE256X2_BUF
 }
 
 void poly_uniformx2(poly *a0, poly *a1,
 		    const uint8_t seed[LC_DILITHIUM_SEEDBYTES], uint16_t nonce0,
 		    uint16_t nonce1, void *ws_buf)
 {
+#define LC_POLY_UNIFORMX2_BUF (POLY_UNIFORM_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK)
 	unsigned int ctr0, ctr1;
-	unsigned int buflen = POLY_UNIFORM_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK;
-	uint8_t buf0[POLY_UNIFORM_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK + 2];
-	uint8_t buf1[POLY_UNIFORM_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK + 2];
+	uint8_t *buf0 = ws_buf, *buf1 = buf0 + (LC_POLY_UNIFORMX2_BUF + 2);
 	keccakx2_state statex2;
 
-	(void)ws_buf;
-
-	dilithium_shake128x2_stream_init(&statex2, seed, nonce0, nonce1);
+	dilithium_shake128x2_stream_init(&statex2, seed, nonce0, nonce1,
+					 ws_buf);
 	shake128x2_armv8_squeezeblocks(buf0, buf1, POLY_UNIFORM_NBLOCKS,
 				       &statex2);
 
-	ctr0 = rej_uniform(a0->coeffs, LC_DILITHIUM_N, buf0, buflen);
-	ctr1 = rej_uniform(a1->coeffs, LC_DILITHIUM_N, buf1, buflen);
+	ctr0 = rej_uniform(a0->coeffs, LC_DILITHIUM_N, buf0,
+			   LC_POLY_UNIFORMX2_BUF);
+	ctr1 = rej_uniform(a1->coeffs, LC_DILITHIUM_N, buf1,
+			   LC_POLY_UNIFORMX2_BUF);
 
 	while (ctr0 < LC_DILITHIUM_N || ctr1 < LC_DILITHIUM_N) {
 		shake128x2_armv8_squeezeblocks(buf0, buf1, 1, &statex2);
 		ctr0 += rej_uniform(a0->coeffs + ctr0, LC_DILITHIUM_N - ctr0,
-				    buf0, buflen);
+				    buf0, LC_POLY_UNIFORMX2_BUF);
 		ctr1 += rej_uniform(a1->coeffs + ctr1, LC_DILITHIUM_N - ctr1,
-				    buf1, buflen);
+				    buf1, LC_POLY_UNIFORMX2_BUF);
 	}
+
+	lc_memset_secure(&statex2, 0, sizeof(statex2));
+
+#undef LC_POLY_UNIFORMX2_BUF
 }
 
 void poly_uniform_etax2(poly *a0, poly *a1,
 			const uint8_t seed[LC_DILITHIUM_CRHBYTES],
 			uint16_t nonce0, uint16_t nonce1, void *ws_buf)
 {
+#define LC_POLY_UNIFORM_ETAX2_BUF                                              \
+	(POLY_UNIFORM_ETA_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK)
 	unsigned int ctr0, ctr1;
-	unsigned int buflen =
-		POLY_UNIFORM_ETA_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK;
-
-	uint8_t buf0[POLY_UNIFORM_ETA_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK];
-	uint8_t buf1[POLY_UNIFORM_ETA_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK];
+	uint8_t *buf0 = ws_buf, *buf1 = buf0 + LC_POLY_UNIFORM_ETAX2_BUF;
 	keccakx2_state statex2;
 
-	(void)ws_buf;
-
-	dilithium_shake256x2_stream_init(&statex2, seed, nonce0, nonce1);
+	dilithium_shake256x2_stream_init(&statex2, seed, nonce0, nonce1,
+					 ws_buf);
 	shake256x2_armv8_squeezeblocks(buf0, buf1, POLY_UNIFORM_ETA_NBLOCKS,
 				       &statex2);
 
-	ctr0 = rej_eta(a0->coeffs, LC_DILITHIUM_N, buf0, buflen);
-	ctr1 = rej_eta(a1->coeffs, LC_DILITHIUM_N, buf1, buflen);
+	ctr0 = rej_eta(a0->coeffs, LC_DILITHIUM_N, buf0,
+		       LC_POLY_UNIFORM_ETAX2_BUF);
+	ctr1 = rej_eta(a1->coeffs, LC_DILITHIUM_N, buf1,
+		       LC_POLY_UNIFORM_ETAX2_BUF);
 
 	while (ctr0 < LC_DILITHIUM_N || ctr1 < LC_DILITHIUM_N) {
 		shake256x2_armv8_squeezeblocks(buf0, buf1, 1, &statex2);
@@ -159,22 +179,28 @@ void poly_uniform_etax2(poly *a0, poly *a1,
 		ctr1 += rej_eta(a1->coeffs + ctr1, LC_DILITHIUM_N - ctr1, buf1,
 				LC_SHAKE_256_SIZE_BLOCK);
 	}
+
+	lc_memset_secure(&statex2, 0, sizeof(statex2));
+
+#undef LC_POLY_UNIFORM_ETAX2_BUF
 }
 
 void poly_uniform_gamma1x2(poly *a0, poly *a1,
 			   const uint8_t seed[LC_DILITHIUM_CRHBYTES],
 			   uint16_t nonce0, uint16_t nonce1, void *ws_buf)
 {
-	uint8_t buf0[POLY_UNIFORM_GAMMA1_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK];
-	uint8_t buf1[POLY_UNIFORM_GAMMA1_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK];
+	uint8_t *buf0 = ws_buf,
+		*buf1 = buf0 +
+			(POLY_UNIFORM_GAMMA1_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK);
 	keccakx2_state statex2;
 
-	(void)ws_buf;
-
-	dilithium_shake256x2_stream_init(&statex2, seed, nonce0, nonce1);
+	dilithium_shake256x2_stream_init(&statex2, seed, nonce0, nonce1,
+					 ws_buf);
 	shake256x2_armv8_squeezeblocks(buf0, buf1, POLY_UNIFORM_GAMMA1_NBLOCKS,
 				       &statex2);
 
 	polyz_unpack(a0, buf0);
 	polyz_unpack(a1, buf1);
+
+	lc_memset_secure(&statex2, 0, sizeof(statex2));
 }

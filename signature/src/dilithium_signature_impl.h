@@ -46,6 +46,16 @@
 extern "C" {
 #endif
 
+#define _WS_POLY_UNIFORM_BUF_SIZE                                               \
+	(POLY_UNIFORM_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK + 2)
+
+#ifndef LC_POLY_UNIFOR_BUF_SIZE_MULTIPLIER
+#error "LC_POLY_UNIFOR_BUF_SIZE_MULTIPLIER is not defined"
+#endif
+
+#define WS_POLY_UNIFORM_BUF_SIZE (_WS_POLY_UNIFORM_BUF_SIZE *                  \
+	LC_POLY_UNIFOR_BUF_SIZE_MULTIPLIER)
+
 struct workspace_sign {
 	polyvecl mat[LC_DILITHIUM_K], s1, y, z;
 	polyveck t0, s2, w1, w0, h;
@@ -58,8 +68,7 @@ struct workspace_sign {
 	//uint8_t poly_challenge_buf[POLY_CHALLENGE_BYTES];
 	uint8_t seedbuf[2 * LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_TRBYTES +
 			LC_DILITHIUM_RNDBYTES + 2 * LC_DILITHIUM_CRHBYTES];
-	uint8_t poly_uniform_buf[POLY_UNIFORM_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK +
-				 2];
+	uint8_t poly_uniform_buf[WS_POLY_UNIFORM_BUF_SIZE];
 };
 
 struct workspace_verify {
@@ -76,8 +85,6 @@ struct workspace_verify {
 	uint8_t rho[LC_DILITHIUM_SEEDBYTES];
 	uint8_t mu[LC_DILITHIUM_CRHBYTES];
 
-#define WS_POLY_UNIFORM_BUF_SIZE                                               \
-	(POLY_UNIFORM_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK + 2)
 #if (WS_VERIFY_BUF_SIZE < WS_POLY_UNIFORM_BUF_SIZE)
 	/* See comment below - only needed if buf is too small */
 	uint8_t poly_uniform_buf[WS_POLY_UNIFORM_BUF_SIZE];
@@ -100,9 +107,7 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 		uint8_t tr[LC_DILITHIUM_TRBYTES];
 		/* See comment below - currently not needed */
 		//uint8_t poly_uniform_eta_buf[POLY_UNIFORM_ETA_BYTES];
-		uint8_t poly_uniform_buf[POLY_UNIFORM_NBLOCKS *
-						 LC_SHAKE_128_SIZE_BLOCK +
-					 2];
+		uint8_t poly_uniform_buf[WS_POLY_UNIFORM_BUF_SIZE];
 	};
 	const uint8_t *rho, *rhoprime, *key;
 	int ret;

@@ -28,6 +28,9 @@
 #include "dilithium_signature_c.h"
 #include "visibility.h"
 
+/* We need once the buffer size to handle the hashing */
+#define LC_POLY_UNIFOR_BUF_SIZE_MULTIPLIER 1
+
 #include "dilithium_poly.h"
 #include "dilithium_poly_c.h"
 #include "dilithium_polyvec.h"

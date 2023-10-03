@@ -20,6 +20,9 @@
 #include "dilithium_signature_armv8.h"
 #include "visibility.h"
 
+/* We need twice the buffer size as we have a 2 lane SHAKE SIMD implemenation */
+#define LC_POLY_UNIFOR_BUF_SIZE_MULTIPLIER 2
+
 #include "dilithium_poly.h"
 #include "dilithium_poly_armv8.h"
 #include "dilithium_polyvec.h"
