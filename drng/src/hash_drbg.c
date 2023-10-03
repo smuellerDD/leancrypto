@@ -188,13 +188,6 @@ static void drbg_hash_df(struct lc_drbg_hash_state *drbg, uint8_t *outval,
 		size_t blocklen =
 			min_size(LC_DRBG_HASH_BLOCKLEN, (outlen - len));
 
-		/* shut up -Wstringop-overread */
-		if (len + blocklen > outlen)
-			break;
-
-		/* shut up -Wstringop-overread */
-		//memset(tmp, 0, LC_DRBG_HASH_BLOCKLEN);
-
 		/* 10.3.1 step 4.1 */
 		drbg_hash(drbg, tmp, &data);
 		/* 10.3.1 step 4.2 */
