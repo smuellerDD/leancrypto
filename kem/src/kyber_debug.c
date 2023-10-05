@@ -40,6 +40,23 @@ void kyber_print_polyvec(polyvec *polyvec_val, const char *explanation)
 	printf("\n");
 }
 
+void kyber_print_polyveck(polyvec polyvec_val[LC_KYBER_K],
+			  const char *explanation)
+{
+	unsigned int i, j, k;
+
+	printf("%s", explanation);
+	for (i = 0; i < LC_KYBER_K; i++) {
+		for (j = 0; j < LC_KYBER_K; j++) {
+			printf("\nK(%u) x K(%u) x N: ", i, j);
+			for (k = 0; k < LC_KYBER_N; k++) {
+				printf("%d ", polyvec_val[i].vec[j].coeffs[k]);
+			}
+		}
+	}
+	printf("\n");
+}
+
 void kyber_print_poly(poly *vec, const char *explanation)
 {
 	unsigned int i;

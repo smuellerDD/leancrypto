@@ -243,6 +243,7 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 	noiseseed = ws->buf + LC_KYBER_SYMBYTES;
 
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, buf, LC_KYBER_SYMBYTES));
+	kyber_print_buffer(buf, LC_KYBER_SYMBYTES, "Keygen: d");
 
 	lc_hash(lc_sha3_512, buf, LC_KYBER_SYMBYTES, buf);
 	kyber_print_buffer(buf, LC_KYBER_SYMBYTES, "Keygen: RHO");
@@ -250,7 +251,7 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 			   "Keygen: Sigma");
 
 	gen_a(ws->a, publicseed);
-	kyber_print_polyvec(ws->a, "Keygen: Generated matrix A");
+	kyber_print_polyveck(ws->a, "Keygen: Generated matrix A");
 
 	for (i = 0; i < LC_KYBER_K; i++) {
 		poly_getnoise_eta1(&ws->skpv.vec[i], noiseseed, nonce++,
@@ -258,13 +259,13 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 		poly_getnoise_eta1(&ws->e.vec[i], noiseseed, nonce2++,
 				   ws->poly_getnoise_eta1_buf);
 	}
-	kyber_print_polyvec(ws->a, "Keygen: Generated matrix s");
-	kyber_print_polyvec(ws->a, "Keygen: Generated matrix e");
+	kyber_print_polyvec(&ws->skpv, "Keygen: Generated matrix s");
+	kyber_print_polyvec(&ws->e, "Keygen: Generated matrix e");
 
 	polyvec_ntt(&ws->skpv);
 	polyvec_ntt(&ws->e);
-	kyber_print_polyvec(ws->a, "Keygen: Matrix s after NTT");
-	kyber_print_polyvec(ws->a, "Keygen: Matrix e after NTT");
+	kyber_print_polyveck(&ws->skpv, "Keygen: Matrix s after NTT");
+	kyber_print_polyveck(&ws->e, "Keygen: Matrix e after NTT");
 
 	// matrix-vector multiplication
 	for (i = 0; i < LC_KYBER_K; i++) {
@@ -321,7 +322,7 @@ int indcpa_enc(uint8_t c[LC_KYBER_INDCPA_BYTES],
 	poly_frommsg(&ws->k, m);
 	kyber_print_poly(&ws->k, "K-PKE Encrypt: Vector mu");
 	gen_at(ws->at, ws->poly_getnoise_eta1_buf /* ws->seed */);
-	kyber_print_polyvec(ws->at, "K-PKE Encrypt: Generated matrix A");
+	kyber_print_polyveck(ws->at, "K-PKE Encrypt: Generated matrix A");
 
 	/*
 	 * Use the poly_getnoise_eta1_buf for this operation as

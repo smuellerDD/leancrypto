@@ -63,7 +63,8 @@ int _lc_kyber_keypair(
 			      sk->sk + LC_KYBER_SECRETKEYBYTES -
 				      LC_KYBER_SYMBYTES,
 			      LC_KYBER_SYMBYTES);
-
+	kyber_print_buffer(sk->sk + LC_KYBER_SECRETKEYBYTES - LC_KYBER_SYMBYTES,
+			   LC_KYBER_SYMBYTES, "Keygen: z");
 	kyber_print_buffer(pk->pk, LC_KYBER_PUBLICKEYBYTES,
 			   "======Keygen output: pk");
 	kyber_print_buffer(sk->sk, LC_KYBER_SECRETKEYBYTES,
@@ -96,6 +97,7 @@ int _lc_kyber_enc(
 	 */
 
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, buf, LC_KYBER_SYMBYTES));
+	kyber_print_buffer(buf, LC_KYBER_SYMBYTES, "Encapsulation: m");
 
 	/* Multitarget countermeasure for coins + contributory KEM */
 	lc_hash(lc_sha3_256, pk->pk, LC_KYBER_PUBLICKEYBYTES,
