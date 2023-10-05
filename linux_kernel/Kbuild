@@ -678,11 +678,19 @@ leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
 			   ../signature/src/avx2/dilithium_shuffle_avx2.o
 else ifdef CONFIG_ARM64
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
-			+= ../signature/src/armv8/dilithium_intt_armv8.o       \
-			   ../signature/src/armv8/dilithium_ntt_armv8.o	       \
-			   ../signature/src/armv8/dilithium_poly_armv8.o       \
-			   ../signature/src/armv8/dilithium_signature_api_armv8.o\
-			   ../signature/src/armv8/dilithium_signature_armv8.o
+			+= ../signature/src/armv8/dilithium_ntt_armv7.o	       \
+			   ../signature/src/armv8/dilithium_pointwise_smull_armv7.o\
+			   ../signature/src/armv8/dilithium_poly_armv7.o       \
+			   ../signature/src/armv8/dilithium_poly.o	       \
+			   ../signature/src/armv8/dilithium_signature_api_armv7.o\
+			   ../signature/src/armv8/dilithium_signature_armv7.o
+else ifdef CONFIG_ARM64
+leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
+			+= ../signature/src/armv7/dilithium_intt_armv8.o       \
+			   ../signature/src/armv7/dilithium_ntt_armv8.o	       \
+			   ../signature/src/armv7/dilithium_poly_armv8.o       \
+			   ../signature/src/armv7/dilithium_signature_api_armv8.o\
+			   ../signature/src/armv7/dilithium_signature_armv8.o
 else
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
 			+= ../signature/src/dilithium_signature_api_c.o
@@ -731,6 +739,20 @@ dilithium_tester_armv8-y	+= ../signature/tests/dilithium_tester.o       \
 				   ../drng/src/selftest_rng.o
 dilithium_tester_iuf_armv8-y	+= ../signature/tests/dilithium_tester.o       \
 				   ../signature/tests/dilithium_tester_iuf_armv8.o\
+				   ../drng/src/selftest_rng.o
+endif
+endif
+
+ifdef CONFIG_ARM
+ifdef CONFIG_LEANCRYPTO_DILITHIUM
+obj-m				+= dilithium_tester_armv7.o
+obj-m				+= dilithium_tester_iuf_armv7.o
+
+dilithium_tester_armv7-y	+= ../signature/tests/dilithium_tester.o       \
+				   ../signature/tests/dilithium_tester_armv7.o \
+				   ../drng/src/selftest_rng.o
+dilithium_tester_iuf_armv7-y	+= ../signature/tests/dilithium_tester.o       \
+				   ../signature/tests/dilithium_tester_iuf_armv7.o\
 				   ../drng/src/selftest_rng.o
 endif
 endif
