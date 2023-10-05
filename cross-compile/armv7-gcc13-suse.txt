@@ -1,0 +1,11 @@
+[binaries]
+c = 'arm-suse-linux-gnueabi-gcc'
+cpp = 'arm-suse-linux-gnueabi-g++'
+ar = 'arm-suse-linux-gnueabi-ar'
+strip = 'arm-suse-linux-gnueabi-strip'
+
+[host_machine]
+system = 'linux'
+cpu_family = 'armv7l'
+cpu = 'armv7l'
+endian = 'little'
