@@ -46,15 +46,15 @@
 extern "C" {
 #endif
 
-#define _WS_POLY_UNIFORM_BUF_SIZE                                               \
+#define _WS_POLY_UNIFORM_BUF_SIZE                                              \
 	(POLY_UNIFORM_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK + 2)
 
 #ifndef LC_POLY_UNIFOR_BUF_SIZE_MULTIPLIER
 #error "LC_POLY_UNIFOR_BUF_SIZE_MULTIPLIER is not defined"
 #endif
 
-#define WS_POLY_UNIFORM_BUF_SIZE (_WS_POLY_UNIFORM_BUF_SIZE *                  \
-	LC_POLY_UNIFOR_BUF_SIZE_MULTIPLIER)
+#define WS_POLY_UNIFORM_BUF_SIZE                                               \
+	(_WS_POLY_UNIFORM_BUF_SIZE * LC_POLY_UNIFOR_BUF_SIZE_MULTIPLIER)
 
 struct workspace_sign {
 	polyvecl mat[LC_DILITHIUM_K], s1, y, z;

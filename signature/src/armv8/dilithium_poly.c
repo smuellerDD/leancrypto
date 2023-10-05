@@ -189,9 +189,8 @@ void poly_uniform_gamma1x2(poly *a0, poly *a1,
 			   const uint8_t seed[LC_DILITHIUM_CRHBYTES],
 			   uint16_t nonce0, uint16_t nonce1, void *ws_buf)
 {
-	uint8_t *buf0 = ws_buf,
-		*buf1 = buf0 +
-			(POLY_UNIFORM_GAMMA1_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK);
+	uint8_t *buf0 = ws_buf, *buf1 = buf0 + (POLY_UNIFORM_GAMMA1_NBLOCKS *
+						LC_SHAKE_256_SIZE_BLOCK);
 	keccakx2_state statex2;
 
 	dilithium_shake256x2_stream_init(&statex2, seed, nonce0, nonce1,

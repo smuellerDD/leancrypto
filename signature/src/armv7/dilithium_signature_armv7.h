@@ -17,8 +17,8 @@
  * DAMAGE.
  */
 
-#ifndef DILITHIUM_SIGNATURE_ARMV8_H
-#define DILITHIUM_SIGNATURE_ARMV8_H
+#ifndef DILITHIUM_SIGNATURE_ARMV7_H
+#define DILITHIUM_SIGNATURE_ARMV7_H
 
 #include "lc_dilithium.h"
 #include "lc_rng.h"
@@ -27,30 +27,30 @@
 extern "C" {
 #endif
 
-int lc_dilithium_keypair_armv8(struct lc_dilithium_pk *pk,
+int lc_dilithium_keypair_armv7(struct lc_dilithium_pk *pk,
 			       struct lc_dilithium_sk *sk,
 			       struct lc_rng_ctx *rng_ctx);
 
-int lc_dilithium_sign_armv8(struct lc_dilithium_sig *sig, const uint8_t *m,
+int lc_dilithium_sign_armv7(struct lc_dilithium_sig *sig, const uint8_t *m,
 			    size_t mlen, const struct lc_dilithium_sk *sk,
 			    struct lc_rng_ctx *rng_ctx);
-int lc_dilithium_sign_init_armv8(struct lc_hash_ctx *hash_ctx,
+int lc_dilithium_sign_init_armv7(struct lc_hash_ctx *hash_ctx,
 				 const struct lc_dilithium_sk *sk);
-int lc_dilithium_sign_update_armv8(struct lc_hash_ctx *hash_ctx,
+int lc_dilithium_sign_update_armv7(struct lc_hash_ctx *hash_ctx,
 				   const uint8_t *m, size_t mlen);
-int lc_dilithium_sign_final_armv8(struct lc_dilithium_sig *sig,
+int lc_dilithium_sign_final_armv7(struct lc_dilithium_sig *sig,
 				  struct lc_hash_ctx *hash_ctx,
 				  const struct lc_dilithium_sk *sk,
 				  struct lc_rng_ctx *rng_ctx);
 
-int lc_dilithium_verify_armv8(const struct lc_dilithium_sig *sig,
+int lc_dilithium_verify_armv7(const struct lc_dilithium_sig *sig,
 			      const uint8_t *m, size_t mlen,
 			      const struct lc_dilithium_pk *pk);
-int lc_dilithium_verify_init_armv8(struct lc_hash_ctx *hash_ctx,
+int lc_dilithium_verify_init_armv7(struct lc_hash_ctx *hash_ctx,
 				   const struct lc_dilithium_pk *pk);
-int lc_dilithium_verify_update_armv8(struct lc_hash_ctx *hash_ctx,
+int lc_dilithium_verify_update_armv7(struct lc_hash_ctx *hash_ctx,
 				     const uint8_t *m, size_t mlen);
-int lc_dilithium_verify_final_armv8(struct lc_dilithium_sig *sig,
+int lc_dilithium_verify_final_armv7(struct lc_dilithium_sig *sig,
 				    struct lc_hash_ctx *hash_ctx,
 				    const struct lc_dilithium_pk *pk);
 
@@ -58,4 +58,4 @@ int lc_dilithium_verify_final_armv8(struct lc_dilithium_sig *sig,
 }
 #endif
 
-#endif /* DILITHIUM_SIGNATURE_ARMV8_H */
+#endif /* DILITHIUM_SIGNATURE_ARMV7_H */

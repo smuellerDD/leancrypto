@@ -4,6 +4,8 @@ Changes 0.8.0-prerelease:
 
 * enhancement: add Dilithium ARMv8 support (including SHAKE 2x ARMv8 support)
 
+* enhancement: add Dilithium ARMv7 support
+
 Changes 0.7.0:
 
 * enhancement: add XDRBG256 - the SHAKE256-based DRNG discussed for SP800-90A
