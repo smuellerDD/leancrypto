@@ -149,3 +149,12 @@ void poly_getnoise_eta2(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
 	kyber_shake256_prf(buf, POLY_GETNOISE_ETA2_BUFSIZE, seed, nonce);
 	poly_cbd_eta2(r, buf);
 }
+
+void basemul(int16_t r[2], const int16_t a[2], const int16_t b[2], int16_t zeta)
+{
+	r[0] = fqmul(a[1], b[1]);
+	r[0] = fqmul(r[0], zeta);
+	r[0] += fqmul(a[0], b[0]);
+	r[1] = fqmul(a[0], b[1]);
+	r[1] += fqmul(a[1], b[0]);
+}

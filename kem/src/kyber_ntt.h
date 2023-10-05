@@ -53,18 +53,6 @@ void kyber_ntt(int16_t poly[256]);
  */
 void kyber_invntt(int16_t poly[256]);
 
-/**
- * @brief basemul - Multiplication of polynomials in Zq[X]/(X^2-zeta)
- *		    used for multiplication of elements in Rq in NTT domain
- *
- * @param [out] r pointer to the output polynomial
- * @parma a [in] pointer to the first factor
- * @param b  pointer to the second factor
- * @param [in] zeta integer defining the reduction polynomial
- */
-void basemul(int16_t r[2], const int16_t a[2], const int16_t b[2],
-	     int16_t zeta);
-
 #ifdef __cplusplus
 }
 #endif

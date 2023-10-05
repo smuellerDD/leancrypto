@@ -75,6 +75,19 @@ static inline int16_t barrett_reduce(int16_t a)
 	return a - t;
 }
 
+/**
+ * @brief fqmul - Multiplication followed by Montgomery reduction
+ *
+ * @param a [in] first factor
+ * @param b [in] second factor
+ *
+ * @return 16-bit integer congruent to a*b*R^{-1} mod q
+ */
+static inline int16_t fqmul(int16_t a, int16_t b)
+{
+	return montgomery_reduce((int32_t)a * b);
+}
+
 #ifdef __cplusplus
 }
 #endif

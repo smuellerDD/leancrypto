@@ -45,49 +45,22 @@ typedef struct {
 } poly;
 
 /**
- * @brief poly_reduce - Applies Barrett reduction to all coefficients of a
- *			polynomial for details of the Barrett reduction see
- *			comments in kyber_reduce.c
+ * @brief basemul - Multiplication of polynomials in Zq[X]/(X^2-zeta)
+ *		    used for multiplication of elements in Rq in NTT domain
  *
- * @param r [in/out] pointer to input/output polynomial
+ * @param [out] r pointer to the output polynomial
+ * @parma a [in] pointer to the first factor
+ * @param b  pointer to the second factor
+ * @param [in] zeta integer defining the reduction polynomial
  */
-static inline void poly_reduce(poly *r)
-{
-	unsigned int i;
+void basemul(int16_t r[2], const int16_t a[2], const int16_t b[2],
+	     int16_t zeta);
 
-	for (i = 0; i < LC_KYBER_N; i++)
-		r->coeffs[i] = barrett_reduce(r->coeffs[i]);
-}
-
-/**
- * @brief poly_add - Add two polynomials; no modular reduction is performed
- *
- * @param [out] r pointer to output polynomial
- * @param [in] a pointer to first input polynomial
- * @param [in] b pointer to second input polynomial
- */
-static inline void poly_add(poly *r, const poly *a, const poly *b)
-{
-	unsigned int i;
-
-	for (i = 0; i < LC_KYBER_N; i++)
-		r->coeffs[i] = a->coeffs[i] + b->coeffs[i];
-}
-
-/**
- * @brief poly_sub - Subtract two polynomials; no modular reduction is performed
- *
- * @param [out] r pointer to output polynomial
- * @param [in] a pointer to first input polynomial
- * @param [in] b pointer to second input polynomial
- */
-static inline void poly_sub(poly *r, const poly *a, const poly *b)
-{
-	unsigned int i;
-
-	for (i = 0; i < LC_KYBER_N; i++)
-		r->coeffs[i] = a->coeffs[i] - b->coeffs[i];
-}
+#ifdef __arm__
+#include "armv7/kyber_poly_armv7.h"
+#else
+#include "kyber_poly_c.h"
+#endif
 
 /**
  * @brief poly_compress - Compression and subsequent serialization of a
@@ -236,27 +209,6 @@ static inline void poly_ntt(poly *r)
 static inline void poly_invntt_tomont(poly *r)
 {
 	kyber_invntt(r->coeffs);
-}
-
-/**
- * @brief poly_basemul_montgomery - Multiplication of two polynomials in NTT
- *				    domain
- *
- * @param [out] r pointer to output polynomial
- * @param [in] a pointer to first input polynomial
- * @param [in] b pointer to second input polynomial
- */
-static inline void poly_basemul_montgomery(poly *r, const poly *a,
-					   const poly *b)
-{
-	unsigned int i;
-
-	for (i = 0; i < LC_KYBER_N / 4; i++) {
-		basemul(&r->coeffs[4 * i], &a->coeffs[4 * i], &b->coeffs[4 * i],
-			zetas[64 + i]);
-		basemul(&r->coeffs[4 * i + 2], &a->coeffs[4 * i + 2],
-			&b->coeffs[4 * i + 2], -zetas[64 + i]);
-	}
 }
 
 /**
