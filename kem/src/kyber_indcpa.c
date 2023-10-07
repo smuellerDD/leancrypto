@@ -251,7 +251,7 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 			   "Keygen: Sigma");
 
 	gen_a(ws->a, publicseed);
-	kyber_print_polyveck(ws->a, "Keygen: Generated matrix A");
+	kyber_print_polyveck(ws->a, "Keygen: Generated matrix aHat");
 
 	for (i = 0; i < LC_KYBER_K; i++) {
 		poly_getnoise_eta1(&ws->skpv.vec[i], noiseseed, nonce++,
@@ -264,8 +264,8 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 
 	polyvec_ntt(&ws->skpv);
 	polyvec_ntt(&ws->e);
-	kyber_print_polyveck(&ws->skpv, "Keygen: Matrix s after NTT");
-	kyber_print_polyveck(&ws->e, "Keygen: Matrix e after NTT");
+	kyber_print_polyveck(&ws->skpv, "Keygen: Matrix sHat = NTT(s)");
+	kyber_print_polyveck(&ws->e, "Keygen: Matrix eHat = NTT(e)");
 
 	// matrix-vector multiplication
 	for (i = 0; i < LC_KYBER_K; i++) {
@@ -273,10 +273,15 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 					       &ws->skpv);
 		poly_tomont(&ws->pkpv.vec[i]);
 	}
+	kyber_print_polyvec(&ws->pkpv,
+			    "Keygen: Matrix tHat = (aHat * sHat)");
 
 	polyvec_add(&ws->pkpv, &ws->pkpv, &ws->e);
+	kyber_print_polyvec(&ws->pkpv,
+			    "Keygen: Matrix tHat = (aHat * sHat) + eHat before reduction");
 	polyvec_reduce(&ws->pkpv);
-	kyber_print_polyvec(&ws->pkpv, "Keygen: Matrix t");
+	kyber_print_polyvec(&ws->pkpv,
+			    "Keygen: Matrix tHat = (aHat * sHat) + eHat");
 
 	pack_sk(sk, &ws->skpv);
 	pack_pk(pk, &ws->pkpv, publicseed);
