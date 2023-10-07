@@ -562,6 +562,15 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 				   ../kem/src/avx2/kyber_poly_avx2.o	       \
 				   ../kem/src/avx2/kyber_rejsample_avx2.o      \
 				   ../kem/src/avx2/kyber_shuffle_avx2.o
+lse ifdef CONFIG_ARM
+asflags-$(CONFIG_LEANCRYPTO_KEM)					       \
+				+= -I$(PWD)/../kem/src/armv7
+leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
+				+= ../kem/src/kyber_kem_api_c.o		       \
+				   ../kem/src/armv7/kyber_fastinvntt_armv7.o   \
+				   ../kem/src/armv7/kyber_fastntt_armv7.o      \
+				   ../kem/src/armv7/kyber_ntt_armv7.o	       \
+				   ../kem/src/armv7/kyber_poly_armv7.o
 else ifdef CONFIG_ARM64
 asflags-$(CONFIG_LEANCRYPTO_KEM)					       \
 				+= -I$(PWD)/../kem/src/armv8
@@ -578,10 +587,10 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 				   ../kem/src/armv8/kyber_poly_armv8.o	       \
 				   ../kem/src/armv8/kyber_poly_armv8_asm.o     \
 				   ../kem/src/armv8/kyber_reduce_armv8.o
-
 else
 leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
-				+= ../kem/src/kyber_kem_api_c.o
+				+= ../kem/src/kyber_kem_api_c.o		       \
+				   ../kem/src/kyber_ntt.o
 endif
 
 ifdef CONFIG_LEANCRYPTO_KEM
