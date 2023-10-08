@@ -38,7 +38,7 @@ extern "C" {
  *			polynomial for details of the Barrett reduction see
  *			comments in kyber_reduce.c
  *
- * @param r [in/out] pointer to input/output polynomial
+ * @param [in,out] r pointer to input/output polynomial
  */
 static inline void poly_reduce(poly *r)
 {

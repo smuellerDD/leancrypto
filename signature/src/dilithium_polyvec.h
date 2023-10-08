@@ -79,7 +79,7 @@ static inline void polyvecl_add(polyvecl *w, const polyvecl *u,
  *			 Output coefficients can be up to 16*Q larger than input
  *			 coefficients.
  *
- * @param v [in/out] pointer to input/output vector
+ * @param [in,out] v pointer to input/output vector
  */
 static inline void polyvecl_ntt(polyvecl *v)
 {
@@ -113,7 +113,7 @@ static inline void polyvecl_pointwise_poly_montgomery(polyvecl *r,
  *			     polyvecl_reduce().
  *
  * @param [in] v pointer to vector
- * @param B [int] norm bound
+ * @param [in] B norm bound
  *
  * @return 0 if norm of all polynomials is strictly smaller than B <= (Q-1)/8
  * and 1 otherwise.
@@ -138,7 +138,7 @@ static inline int polyvecl_chknorm(const polyvecl *v, int32_t bound)
  *			    length LC_DILITHIUM_K to representatives in
  *			    [-6283009,6283007].
  *
- * @param v [in/out] pointer to input/output vector
+ * @param [in,out] v pointer to input/output vector
  */
 static inline void polyveck_reduce(polyveck *v)
 {
@@ -153,7 +153,7 @@ static inline void polyveck_reduce(polyveck *v)
  * 			   length LC_DILITHIUM_K add LC_DILITHIUM_Q if
  *			   coefficient is negative.
  *
- * @param v [in/out] pointer to input/output vector
+ * @param [in,out] v pointer to input/output vector
  */
 static inline void polyveck_caddq(polyveck *v)
 {
@@ -203,7 +203,7 @@ static inline void polyveck_sub(polyveck *w, const polyveck *u,
  *			    2^D without modular reduction. Assumes input
  *			    coefficients to be less than 2^{31-D}.
  *
- * @param v [in/out] pointer to input/output vector
+ * @param [in,out] v pointer to input/output vector
  */
 static inline void polyveck_shiftl(polyveck *v)
 {
@@ -218,7 +218,7 @@ static inline void polyveck_shiftl(polyveck *v)
  *			 Output coefficients can be up to 16*Q larger than input
  *			 coefficients.
  *
- * @param v [in/out] pointer to input/output vector
+ * @param [in,out] v pointer to input/output vector
  */
 static inline void polyveck_ntt(polyveck *v)
 {
@@ -233,7 +233,7 @@ static inline void polyveck_ntt(polyveck *v)
  *				   polynomials in vector of length K. Input
  *				   coefficients need to be less than 2*Q.
  *
- * @param v [in/out] pointer to input/output vector
+ * @param [in,out] v pointer to input/output vector
  */
 static inline void polyveck_invntt_tomont(polyveck *v)
 {

@@ -32,7 +32,7 @@ extern "C" {
  * @brief Key-based Key Derivation in Double-Pipeline Mode - SP800-108 -
  *	  initialization
  *
- * @param hmac_ctx [in/out] The caller is expected to provide an allocated HMAC
+ * @param [in,out] hmac_ctx The caller is expected to provide an allocated HMAC
  *			    cipher handle in. Yet, the caller does not need to
  *			    perform any operations on the handle. The extract
  *			    phase adjusts the HMAC cipher handle so that it is

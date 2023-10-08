@@ -120,6 +120,7 @@ int _kyber_kem_tester(unsigned int rounds,
 
 		// Decapsulation
 		CKINT(_lc_kyber_dec(&ws->key_a, &ws->ct, &ws->sk));
+		goto out;
 
 #ifdef DEBUG
 		printf("Public Key: ");

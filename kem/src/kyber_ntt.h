@@ -39,7 +39,7 @@ extern const int16_t zetas[128];
  * @brief ntt - Inplace number-theoretic transform (NTT) in Rq.
  *		input is in standard order, output is in bitreversed order
  *
- * @param r [in/out] pointer to input/output vector of elements of Zq
+ * @param [in,out] r pointer to input/output vector of elements of Zq
  */
 void kyber_ntt(int16_t poly[256]);
 

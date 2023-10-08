@@ -182,7 +182,7 @@ int lc_dilithium_sign(struct lc_dilithium_sig *sig, const uint8_t *m,
  * places and even becomes available at different times. This call is to be
  * used together with the lc_dilithium_sign_update and lc_dilithium_sign_final.
  *
- * @param hash_ctx [in/out] pointer to an allocated (but not yet initialized)
+ * @param  [in,out] hash_ctx pointer to an allocated (but not yet initialized)
  *			    hash context - this hash context MUST use
  *			    lc_shake256 as otherwise the function will return
  *			    an error.
@@ -208,7 +208,7 @@ int lc_dilithium_sign_init(struct lc_hash_ctx *hash_ctx,
  * places and even becomes available at different times. This call is to be
  * used together with the lc_dilithium_sign_init and lc_dilithium_sign_final.
  *
- * @param hash_ctx [in/out] pointer to hash context that was initialized with
+ * @param [in,out] hash_ctx pointer to hash context that was initialized with
  *			    lc_dilithium_sign_init
  * @param [in] m pointer to message to be signed
  * @param [in] mlen length of message
@@ -260,7 +260,7 @@ int lc_dilithium_verify(const struct lc_dilithium_sig *sig, const uint8_t *m,
  * used together with the lc_dilithium_verify_update and
  * lc_dilithium_verify_final.
  *
- * @param hash_ctx [in/out] pointer to an allocated (but not yet initialized)
+ * @param [in,out] hash_ctx pointer to an allocated (but not yet initialized)
  *			    hash context - this hash context MUST use
  *			    lc_shake256 as otherwise the function will return
  *			    an error.
@@ -287,7 +287,7 @@ int lc_dilithium_verify_init(struct lc_hash_ctx *hash_ctx,
  * used together with the lc_dilithium_verify_init and
  * lc_dilithium_verify_final.
  *
- * @param hash_ctx [in/out] pointer to hash context that was initialized with
+ * @param [in,out] hash_ctx pointer to hash context that was initialized with
  *			    lc_dilithium_sign_init
  * @param [in] m pointer to message to be signed
  * @param [in] mlen length of message

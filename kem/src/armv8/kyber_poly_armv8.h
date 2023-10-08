@@ -65,7 +65,7 @@ static inline void poly_reduce_c_bugfix(poly *r)
  *			polynomial for details of the Barrett reduction see
  *			comments in kyber_reduce.c
  *
- * @param r [in/out] pointer to input/output polynomial
+ * @param [in,out] r pointer to input/output polynomial
  */
 static inline void poly_reduce(poly *r)
 {
@@ -316,7 +316,7 @@ poly_getnoise_eta2_armv8(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
  *		     a polynomial in place; inputs assumed to be in normal
  *		     order, output in bitreversed order
  *
- * @param r [in/out] pointer to in/output polynomial
+ * @param [in,out] r pointer to in/output polynomial
  */
 static inline void poly_ntt(poly *r)
 {
@@ -345,7 +345,7 @@ static inline void poly_ntt(poly *r)
  *			       inputs assumed to be in bitreversed order, output
  *			       in normal order
  *
- * @param r [in/out] pointer to in/output polynomial
+ * @param [in,out] r pointer to in/output polynomial
  */
 static inline void poly_invntt_tomont(poly *r)
 {
@@ -370,7 +370,7 @@ static inline void poly_basemul_montgomery(poly *r, const poly *a,
  * @brief poly_tomont - Inplace conversion of all coefficients of a polynomial
  *			from normal domain to Montgomery domain
  *
- * @param r [in/out] pointer to input/output polynomial
+ * @param [in,out] r pointer to input/output polynomial
  */
 static inline void poly_tomont(poly *r)
 {

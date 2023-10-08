@@ -92,7 +92,7 @@ static inline void polyvec_frombytes(polyvec *r,
  * @brief polyvec_ntt - Apply forward NTT to all elements of a vector of
  *			polynomials
  *
- * @param r [in/out] pointer to in/output vector of polynomials
+ * @param [in,out] r pointer to in/output vector of polynomials
  */
 static inline void polyvec_ntt(polyvec *r)
 {
@@ -107,7 +107,7 @@ static inline void polyvec_ntt(polyvec *r)
  *				  of polynomials and multiply by Montgomery
  *				  factor 2^16
  *
- * @param r [in/out] pointer to in/output vector of polynomials
+ * @param [in,out] r pointer to in/output vector of polynomials
  */
 static inline void polyvec_invntt_tomont(polyvec *r)
 {
@@ -147,7 +147,7 @@ static inline void polyvec_basemul_acc_montgomery(poly *r, const polyvec *a,
  *			   for details of the Barrett reduction see comments in
  *			   kyber_reduce.c
  *
- * @param r [in/out] pointer to input/output polynomial
+ * @param [in,out] r pointer to input/output polynomial
  */
 static inline void polyvec_reduce(polyvec *r)
 {

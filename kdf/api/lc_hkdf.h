@@ -51,7 +51,7 @@ struct lc_hkdf_ctx {
  * @brief HMAC-based Extract-and-Expand Key Derivation Function (HKDF) - RFC5869
  *	  Extract phase
  *
- * @param hkdf_ctx [in/out] The caller is expected to provide an allocated HMAC
+ * @param [in,out] hkdf_ctx The caller is expected to provide an allocated HMAC
  *			    cipher handle in. Yet, the caller does not need to
  *			    perform any operations on the handle. The extract
  *			    phase adjusts the HMAC cipher handle so that it is

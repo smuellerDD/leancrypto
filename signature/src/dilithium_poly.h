@@ -79,7 +79,7 @@ static inline void poly_sub(poly *c, const poly *a, const poly *b)
  *			Assumes input coefficients to be less than 2^{31-D} in
  *			absolute value.
  *
- * @param a [in/out] pointer to input/output polynomial
+ * @param [in,out] a pointer to input/output polynomial
  */
 static inline void poly_shiftl(poly *a)
 {

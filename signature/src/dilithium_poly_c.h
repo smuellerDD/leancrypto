@@ -30,7 +30,7 @@ extern "C" {
  * @brief poly_reduce - Inplace reduction of all coefficients of polynomial to
  *			representative in [-6283009,6283007].
  *
- * @param a [in/out] pointer to input/output polynomial
+ * @param [in,out] a pointer to input/output polynomial
  */
 static inline void poly_reduce(poly *a)
 {
@@ -44,7 +44,7 @@ static inline void poly_reduce(poly *a)
  * @brief poly_caddq - For all coefficients of in/out polynomial add Q if
  *		       coefficient is negative.
  *
- * @param a [in/out] pointer to input/output polynomial
+ * @param [in,out] a pointer to input/output polynomial
  */
 static inline void poly_caddq(poly *a)
 {
@@ -123,7 +123,7 @@ static inline void polyt1_unpack(poly *r, const uint8_t *a)
  * @brief poly_ntt - Inplace forward NTT. Coefficients can grow by
  *		     8*Q in absolute value.
  *
- * @param a [in/out] pointer to input/output polynomial
+ * @param [in,out] a pointer to input/output polynomial
  */
 static inline void poly_ntt(poly *a)
 {
@@ -136,7 +136,7 @@ static inline void poly_ntt(poly *a)
  *			       absolute value and output coefficients are again
  *			       bounded by Q.
  *
- * @param a [in/out] pointer to input/output polynomial
+ * @param [in,out] a pointer to input/output polynomial
  */
 static inline void poly_invntt_tomont(poly *a)
 {
