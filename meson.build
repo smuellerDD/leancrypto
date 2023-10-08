@@ -248,6 +248,7 @@ if (host_machine.cpu_family() == 'x86_64' and
 
 	# 64 bit AVX2 / AVX512 support
 	x86_64_asm = true
+	add_global_arguments([ '-DLC_HOST_X86_64' ], language: 'c')
 endif
 
 if (host_machine.cpu_family() == 'arm' and
@@ -256,9 +257,12 @@ if (host_machine.cpu_family() == 'arm' and
 	# 32 bit ARM processor and GCC
 	arm32_neon_gcc_asm = true
 
+	add_global_arguments([ '-DLC_HOST_ARM32_NEON' ], language: 'c')
+
 elif (host_machine.cpu_family() == 'aarch64')
 
 	arm64_asm = true
+	add_global_arguments([ '-DLC_HOST_AARCH64' ], language: 'c')
 
 	if (c_compiler.get_id() == 'gcc')
 
@@ -274,6 +278,7 @@ elif (host_machine.cpu_family() == 'aarch64')
 # 	riscv32_asm = true
 elif (host_machine.cpu_family() == 'riscv64')
 	riscv64_asm = true
+	add_global_arguments([ '-DLC_HOST_RISCV64' ], language: 'c')
 # elif (host_machine.cpu_family() == 'riscv' and
 #       c_compiler.get_id() == 'gcc')
 #

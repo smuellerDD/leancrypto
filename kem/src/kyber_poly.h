@@ -49,14 +49,14 @@ typedef struct {
  *		    used for multiplication of elements in Rq in NTT domain
  *
  * @param [out] r pointer to the output polynomial
- * @parma a [in] pointer to the first factor
- * @param b  pointer to the second factor
+ * @param [in] a pointer to the first factor
+ * @param [in] b  pointer to the second factor
  * @param [in] zeta integer defining the reduction polynomial
  */
 void basemul(int16_t r[2], const int16_t a[2], const int16_t b[2],
 	     int16_t zeta);
 
-#ifdef __arm__
+#ifdef LC_HOST_ARM32_NEON
 #include "armv7/kyber_poly_armv7.h"
 #else
 #include "kyber_poly_c.h"
@@ -190,7 +190,7 @@ void poly_getnoise_eta2(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
  *		     a polynomial in place; inputs assumed to be in normal
  *		     order, output in bitreversed order
  *
- * @param r [in/out] pointer to in/output polynomial
+ * @param [in,out] r pointer to in/output polynomial
  */
 static inline void poly_ntt(poly *r)
 {
@@ -204,7 +204,7 @@ static inline void poly_ntt(poly *r)
  *			       inputs assumed to be in bitreversed order, output
  *			       in normal order
  *
- * @param r [in/out] pointer to in/output polynomial
+ * @param [in,out] r pointer to in/output polynomial
  */
 static inline void poly_invntt_tomont(poly *r)
 {
@@ -215,7 +215,7 @@ static inline void poly_invntt_tomont(poly *r)
  * @brief poly_tomont - Inplace conversion of all coefficients of a polynomial
  *			from normal domain to Montgomery domain
  *
- * @param r [in/out] pointer to input/output polynomial
+ * @param [in,out] r pointer to input/output polynomial
  */
 static inline void poly_tomont(poly *r)
 {
