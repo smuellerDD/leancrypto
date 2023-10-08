@@ -23,6 +23,7 @@
 #include <errno.h>
 
 #include "seeded_rng.h"
+#include "seeded_rng_linux.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 
@@ -52,6 +53,14 @@ ssize_t get_full_entropy(uint8_t *buffer, size_t bufferlen)
 	}
 
 	esdm_invoke(esdm_rpcc_get_random_bytes_full(buffer, bufferlen));
+
+	/*
+	 * When ESDM was unsuccessful, revert to system native call. As the ESDM
+	 * is intended for the Linux platform only, we can directly use the
+	 * Linux entropy source as fallback.
+	 */
+	if (ret != 0)
+		return getrandom_random(buffer, bufferlen);
 
 out:
 	return ret ? ret : (ssize_t)bufferlen;

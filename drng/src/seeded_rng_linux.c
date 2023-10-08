@@ -17,49 +17,8 @@
  * DAMAGE.
  */
 
-/*
- * Shall the GLIBC getrandom stub be used (requires GLIBC >= 2.25)
- */
-#define USE_GLIBC_GETRANDOM
-
-#ifdef USE_GLIBC_GETRANDOM
-#include <sys/random.h>
-#else
-#define _GNU_SOURCE
-#include <unistd.h>
-#include <sys/syscall.h>
-#endif
-
 #include "seeded_rng.h"
-
-static inline ssize_t __getrandom(uint8_t *buffer, size_t bufferlen,
-				  unsigned int flags)
-{
-	ssize_t ret, totallen = 0;
-
-	if (bufferlen > INT_MAX)
-		return -EINVAL;
-
-	do {
-#ifdef USE_GLIBC_GETRANDOM
-		ret = getrandom(buffer, bufferlen, flags);
-#else
-		ret = syscall(__NR_getrandom, buffer, bufferlen, flags);
-#endif
-		if (ret > 0) {
-			bufferlen -= (size_t)ret;
-			buffer += ret;
-			totallen += ret;
-		}
-	} while ((ret > 0 || errno == EINTR) && bufferlen);
-
-	return ((ret < 0) ? -errno : totallen);
-}
-
-static inline ssize_t getrandom_random(uint8_t *buffer, size_t bufferlen)
-{
-	return __getrandom(buffer, bufferlen, GRND_RANDOM);
-}
+#include "seeded_rng_linux.h"
 
 ssize_t get_full_entropy(uint8_t *buffer, size_t bufferlen)
 {

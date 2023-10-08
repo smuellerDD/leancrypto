@@ -32,8 +32,10 @@ static int selftest_rng_gen(void *_state, const uint8_t *addtl_input,
 	(void)addtl_input;
 	(void)addtl_input_len;
 
-	lc_hash_set_digestsize(&state->hash_ctx, outlen);
-	lc_hash_final(&state->hash_ctx, out);
+	memset(out, 0, outlen);
+	(void)state;
+	//	lc_hash_set_digestsize(&state->hash_ctx, outlen);
+	//	lc_hash_final(&state->hash_ctx, out);
 
 	return 0;
 }
