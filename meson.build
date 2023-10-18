@@ -354,7 +354,10 @@ pkgconfig.generate(leancrypto_lib,
 		   description: 'PQC-resistant cryptographic library')
 
 install_headers(include_files, subdir: leancrypto_header_subdir)
-install_headers(autogen_header)
+if (build_machine.system() != 'windows')
+	# TODO: reenable
+	install_headers(autogen_header)
+endif
 
 ################################################################################
 # Create apps
