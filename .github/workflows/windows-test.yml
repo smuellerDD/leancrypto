@@ -9,17 +9,64 @@ on:
 jobs:
   build:
 
-    runs-on: windows-latest
+    name: ${{ matrix.NAME }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - NAME: gccx86ninja
+            MSYSTEM: MINGW32
+            MSYS2_ARCH: i686
+            MSYS2_CURSES: ncurses
+            COMPILER: gcc
+            TOOLCHAIN: toolchain
+          - NAME: gccx64ninja
+            MSYSTEM: MINGW64
+            MSYS2_ARCH: x86_64
+            MSYS2_CURSES: pdcurses
+            COMPILER: gcc
+            TOOLCHAIN: toolchain
+          - NAME: clangx64ninja
+            MSYSTEM: MINGW64
+            MSYS2_ARCH: x86_64
+            MSYS2_CURSES:
+            COMPILER: clang
+            TOOLCHAIN: clang
+    env:
+      MESON_CI_JOBNAME: msys2-${{ matrix.NAME }}
 
     defaults:
       run:
         shell: msys2 {0}
 
     steps:
-    - uses: actions/checkout@v4
-    - uses: msys2/setup-msys2@v2
-    - name: Install meson
-      run: pip3 install --user meson
+      - uses: actions/checkout@v3
+
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{ matrix.MSYSTEM }}
+          update: true
+          install: >-
+            base-devel
+            git
+            mercurial
+            lcov
+            wget
+            unzip
+            meson
+            mingw-w64-${{ matrix.MSYS2_ARCH }}-cmake
+            mingw-w64-${{ matrix.MSYS2_ARCH }}-glib2
+            mingw-w64-${{ matrix.MSYS2_ARCH }}-libxml2
+            mingw-w64-${{ matrix.MSYS2_ARCH }}-ninja
+            mingw-w64-${{ matrix.MSYS2_ARCH }}-pkg-config
+            mingw-w64-${{ matrix.MSYS2_ARCH }}-python2
+            mingw-w64-${{ matrix.MSYS2_ARCH }}-python
+            mingw-w64-${{ matrix.MSYS2_ARCH }}-python-lxml
+            mingw-w64-${{ matrix.MSYS2_ARCH }}-python-setuptools
+            mingw-w64-${{ matrix.MSYS2_ARCH }}-python-pip
+            mingw-w64-${{ matrix.MSYS2_ARCH }}-python-jsonschema
+            mingw-w64-${{ matrix.MSYS2_ARCH }}-${{ matrix.TOOLCHAIN }}
+
     - name: Meson setup
       run: meson setup build
     - name: Meson compile
