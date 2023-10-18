@@ -8,7 +8,8 @@ on:
 
 jobs:
   build:
-    runs-on: windows-2019
+
+    runs-on: windows-latest
     name: ${{ matrix.NAME }}
     strategy:
       fail-fast: false
@@ -53,7 +54,6 @@ jobs:
             lcov
             wget
             unzip
-            meson
             mingw-w64-${{ matrix.MSYS2_ARCH }}-cmake
             mingw-w64-${{ matrix.MSYS2_ARCH }}-glib2
             mingw-w64-${{ matrix.MSYS2_ARCH }}-libxml2
