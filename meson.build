@@ -316,12 +316,13 @@ endforeach
 autogen_header = meson.build_root() + '/leancrypto.h'
 leancrypto_header_subdir = 'leancrypto'
 if (build_machine.system() == 'windows')
-	run_command('C:\Windows\System32\\bash.exe',
-		    header_script,
-		    autogen_header,
-		    leancrypto_header_subdir,
-		    include_files,
-		    check: true)
+# Disable - use Windows for testing only
+# 	run_command('C:\Windows\System32\\bash.exe',
+# 		    header_script,
+# 		    autogen_header,
+# 		    leancrypto_header_subdir,
+# 		    include_files,
+# 		    check: true)
 else
 	run_command(header_script,
 		    autogen_header,
