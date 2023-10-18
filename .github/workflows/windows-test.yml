@@ -17,6 +17,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - uses: msys2/setup-msys2@v2
     - name: Install meson
       run: pip3 install --user meson
     - name: Meson setup
