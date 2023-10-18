@@ -316,7 +316,7 @@ endforeach
 autogen_header = meson.build_root() + '/leancrypto.h'
 leancrypto_header_subdir = 'leancrypto'
 if (build_machine.system() == 'windows')
-	run_command('C:\Windows\System32\bash.exe',
+	run_command('wslbash.exe',
 		    header_script,
 		    autogen_header,
 		    leancrypto_header_subdir,
