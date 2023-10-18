@@ -50,3 +50,8 @@ ssize_t get_full_entropy(uint8_t *buffer, size_t bufferlen)
 void seeded_rng_noise_fini(void)
 {
 }
+
+int seeded_rng_noise_init(void)
+{
+	return 0;
+}

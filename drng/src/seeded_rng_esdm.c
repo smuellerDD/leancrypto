@@ -17,8 +17,6 @@
  * DAMAGE.
  */
 
-#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-
 #include <esdm/esdm_rpc_client.h>
 #include <errno.h>
 
@@ -27,9 +25,7 @@
 #include "ret_checkers.h"
 #include "visibility.h"
 
-static int initialized = 0;
-
-static int seeded_rng_esdm_lib_init(void)
+int seeded_rng_noise_init(void)
 {
 	esdm_rpcc_set_max_online_nodes(1);
 	return esdm_rpcc_init_unpriv_service(NULL);
@@ -37,20 +33,12 @@ static int seeded_rng_esdm_lib_init(void)
 
 void seeded_rng_noise_fini(void)
 {
-	if (initialized) {
-		esdm_rpcc_fini_unpriv_service();
-		initialized = 0;
-	}
+	esdm_rpcc_fini_unpriv_service();
 }
 
 ssize_t get_full_entropy(uint8_t *buffer, size_t bufferlen)
 {
 	ssize_t ret;
-
-	if (!initialized) {
-		CKINT(seeded_rng_esdm_lib_init());
-		initialized = 1;
-	}
 
 	esdm_invoke(esdm_rpcc_get_random_bytes_full(buffer, bufferlen));
 
@@ -62,6 +50,5 @@ ssize_t get_full_entropy(uint8_t *buffer, size_t bufferlen)
 	if (ret != 0)
 		return getrandom_random(buffer, bufferlen);
 
-out:
 	return ret ? ret : (ssize_t)bufferlen;
 }

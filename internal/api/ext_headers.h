@@ -42,10 +42,28 @@ extern const int errno;
 #define printf printk
 #define assert(x) WARN_ON(!x)
 
+#define LC_DEFINE_CONSTRUCTOR(_func)                                           \
+	static void _func(void)
+#define LC_DEFINE_DESTRUCTOR(_func)                                            \
+	static void _func(void)
+
 #else /* LINUX_KERNEL */
 
 #ifndef MB_LEN_MAX
 #define MB_LEN_MAX 16
+#endif
+
+#if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7)
+
+#define LC_DEFINE_CONSTRUCTOR(_func)                                           \
+	static void __attribute__((constructor)) _func(void)
+#define LC_DEFINE_DESTRUCTOR(_func)                                            \
+	static void __attribute__((destructor)) _func(void)
+
+#else
+
+#error "Constructor / destructor not defined for compiler"
+
 #endif
 
 #include <assert.h>

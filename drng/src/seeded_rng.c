@@ -157,7 +157,15 @@ out:
 	return ret;
 }
 
-void lc_seeded_rng_zero_state(void)
+static int lc_seeded_rng_init_state(void)
+{
+	LC_SEEDED_RNG_CTX(seeded_rng.rng_ctx);
+
+	return seeded_rng_noise_init();
+}
+
+LC_DEFINE_DESTRUCTOR(lc_seeded_rng_zero_state);
+static void lc_seeded_rng_zero_state(void)
 {
 	struct lc_rng_ctx *rng;
 
@@ -191,13 +199,7 @@ static int lc_get_seeded_rng(struct lc_seeded_rng_ctx **rng_ret)
 
 	/* Initialize the DRNG state at the beginning */
 	if (!seeded_rng.last_seeded) {
-		LC_SEEDED_RNG_CTX(seeded_rng.rng_ctx);
-
-#ifndef LINUX_KERNEL
-		/* The kernel calls this in the exit handler */
-		atexit(lc_seeded_rng_zero_state);
-#endif
-
+		CKINT(lc_seeded_rng_init_state());
 		init = 1;
 	}
 

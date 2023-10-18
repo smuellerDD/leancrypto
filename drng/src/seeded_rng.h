@@ -27,9 +27,8 @@ extern "C" {
 #endif
 
 ssize_t get_full_entropy(uint8_t *buffer, size_t bufferlen);
+int seeded_rng_noise_init(void);
 void seeded_rng_noise_fini(void);
-
-void lc_seeded_rng_zero_state(void);
 
 #ifdef __cplusplus
 }
