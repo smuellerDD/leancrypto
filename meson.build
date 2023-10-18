@@ -315,11 +315,20 @@ endforeach
 # Generate leancrypto.h
 autogen_header = meson.build_root() + '/leancrypto.h'
 leancrypto_header_subdir = 'leancrypto'
-run_command(header_script,
-	    autogen_header,
-	    leancrypto_header_subdir,
-	    include_files,
-	    check: true)
+if (build_machine.system() == 'windows')
+	run_command('C:\Windows\System32\bash.exe',
+		    header_script,
+		    autogen_header,
+		    leancrypto_header_subdir,
+		    include_files,
+		    check: true)
+else
+	run_command(header_script,
+		    autogen_header,
+		    leancrypto_header_subdir,
+		    include_files,
+		    check: true)
+endif
 
 leancrypto_static_lib = static_library('leancrypto',
 	[ src, internal_src ],
