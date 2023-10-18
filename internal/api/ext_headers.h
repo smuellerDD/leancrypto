@@ -43,9 +43,9 @@ extern const int errno;
 #define assert(x) WARN_ON(!x)
 
 #define LC_DEFINE_CONSTRUCTOR(_func)                                           \
-	static void _func(void)
+	void _func(void)
 #define LC_DEFINE_DESTRUCTOR(_func)                                            \
-	static void _func(void)
+	void _func(void)
 
 #else /* LINUX_KERNEL */
 
@@ -56,9 +56,9 @@ extern const int errno;
 #if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7)
 
 #define LC_DEFINE_CONSTRUCTOR(_func)                                           \
-	static void __attribute__((constructor)) _func(void)
+	void __attribute__((constructor)) _func(void)
 #define LC_DEFINE_DESTRUCTOR(_func)                                            \
-	static void __attribute__((destructor)) _func(void)
+	void __attribute__((destructor)) _func(void)
 
 #else
 

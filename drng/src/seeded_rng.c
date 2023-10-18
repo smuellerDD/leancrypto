@@ -165,7 +165,7 @@ static int lc_seeded_rng_init_state(void)
 }
 
 LC_DEFINE_DESTRUCTOR(lc_seeded_rng_zero_state);
-static void lc_seeded_rng_zero_state(void)
+void lc_seeded_rng_zero_state(void)
 {
 	struct lc_rng_ctx *rng;
 
