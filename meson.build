@@ -129,15 +129,17 @@ include_files = [ ]
 
 include_internal_dirs = include_directories([ 'internal/api' ])
 
+setupdirs = [ 'kem/api',
+	      'signature/api',
+	    ]
+
 subdirs = [ 'aead/src',
 	    'drng/src',
 	    'hash/src',
 	    'internal/src',
 	    'kdf/src',
-	    'kem/api',
 	    'kem/src',
 	    'otp/src',
-	    'signature/api',
 	    'signature/src',
 	    'sym/src'
 
@@ -308,6 +310,12 @@ leancrypto_support_libs = [ ]
 # External libraries leancrypto should link to
 leancrypto_link = [ ]
 
+# First the setup
+foreach n : setupdirs
+	subdir(n)
+endforeach
+
+# Then the actual compilation
 foreach n : subdirs
 	subdir(n)
 endforeach
