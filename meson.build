@@ -36,6 +36,7 @@ add_global_arguments([ '-fstack-protector-strong',
 		       '-Wshadow',
 		       '-Wswitch-enum',
 		       '-Wmissing-prototypes',
+		       '-funroll-loops',
 		        ],
 		       language : 'c')
 
