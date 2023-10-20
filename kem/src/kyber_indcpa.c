@@ -253,6 +253,7 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 	gen_a(ws->a, publicseed);
 	kyber_print_polyveck(ws->a, "Keygen: Generated matrix aHat");
 
+#pragma GCC unroll LC_KYBER_K
 	for (i = 0; i < LC_KYBER_K; i++) {
 		poly_getnoise_eta1(&ws->skpv.vec[i], noiseseed, nonce++,
 				   ws->poly_getnoise_eta1_buf);
@@ -268,6 +269,7 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 	kyber_print_polyveck(&ws->e, "Keygen: Matrix eHat = NTT(e)");
 
 	// matrix-vector multiplication
+#pragma GCC unroll LC_KYBER_K
 	for (i = 0; i < LC_KYBER_K; i++) {
 		polyvec_basemul_acc_montgomery(&ws->pkpv.vec[i], &ws->a[i],
 					       &ws->skpv);
@@ -335,6 +337,7 @@ int indcpa_enc(uint8_t c[LC_KYBER_INDCPA_BYTES],
 	 * the same alignment.
 	 */
 	BUILD_BUG_ON(POLY_GETNOISE_ETA1_BUFSIZE < POLY_GETNOISE_ETA2_BUFSIZE);
+#pragma GCC unroll LC_KYBER_K
 	for (i = 0; i < LC_KYBER_K; i++) {
 		poly_getnoise_eta1(ws->sp.vec + i, coins, nonce++,
 				   ws->poly_getnoise_eta1_buf);
@@ -351,6 +354,7 @@ int indcpa_enc(uint8_t c[LC_KYBER_INDCPA_BYTES],
 	kyber_print_polyvec(&ws->sp, "K-PKE Encrypt: Matrix r after NTT");
 
 	// matrix-vector multiplication
+#pragma GCC unroll LC_KYBER_K
 	for (i = 0; i < LC_KYBER_K; i++)
 		polyvec_basemul_acc_montgomery(&ws->b.vec[i], &ws->at[i],
 					       &ws->sp);

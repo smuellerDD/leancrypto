@@ -58,6 +58,7 @@ static inline void polyvecl_add_avx(polyvecl *w, const polyvecl *u,
 {
 	unsigned int i;
 
+#pragma GCC unroll LC_DILITHIUM_L
 	for (i = 0; i < LC_DILITHIUM_L; ++i)
 		poly_add_avx(&w->vec[i], &u->vec[i], &v->vec[i]);
 }
@@ -74,6 +75,7 @@ static inline void polyvecl_ntt_avx(polyvecl *v)
 {
 	unsigned int i;
 
+#pragma GCC unroll LC_DILITHIUM_L
 	for (i = 0; i < LC_DILITHIUM_L; ++i)
 		poly_ntt_avx(&v->vec[i]);
 }
@@ -82,6 +84,7 @@ static inline void polyvecl_invntt_tomont_avx(polyvecl *v)
 {
 	unsigned int i;
 
+#pragma GCC unroll LC_DILITHIUM_L
 	for (i = 0; i < LC_DILITHIUM_L; ++i)
 		poly_invntt_tomont_avx(&v->vec[i]);
 }
@@ -92,6 +95,7 @@ static inline void polyvecl_pointwise_poly_montgomery_avx(polyvecl *r,
 {
 	unsigned int i;
 
+#pragma GCC unroll LC_DILITHIUM_L
 	for (i = 0; i < LC_DILITHIUM_L; ++i)
 		poly_pointwise_montgomery_avx(&r->vec[i], a, &v->vec[i]);
 }
@@ -133,6 +137,7 @@ static inline int polyvecl_chknorm_avx(const polyvecl *v, int32_t bound)
 {
 	unsigned int i;
 
+#pragma GCC unroll LC_DILITHIUM_L
 	for (i = 0; i < LC_DILITHIUM_L; ++i)
 		if (poly_chknorm_avx(&v->vec[i], bound))
 			return 1;
@@ -161,6 +166,7 @@ static inline void polyveck_reduce_avx(polyveck *v)
 {
 	unsigned int i;
 
+#pragma GCC unroll LC_DILITHIUM_K
 	for (i = 0; i < LC_DILITHIUM_K; ++i)
 		poly_reduce_avx(&v->vec[i]);
 }
@@ -177,6 +183,7 @@ static inline void polyveck_caddq_avx(polyveck *v)
 {
 	unsigned int i;
 
+#pragma GCC unroll LC_DILITHIUM_K
 	for (i = 0; i < LC_DILITHIUM_K; ++i)
 		poly_caddq_avx(&v->vec[i]);
 }
@@ -195,6 +202,7 @@ static inline void polyveck_add_avx(polyveck *w, const polyveck *u,
 {
 	unsigned int i;
 
+#pragma GCC unroll LC_DILITHIUM_K
 	for (i = 0; i < LC_DILITHIUM_K; ++i)
 		poly_add_avx(&w->vec[i], &u->vec[i], &v->vec[i]);
 }
@@ -215,6 +223,7 @@ static inline void polyveck_sub_avx(polyveck *w, const polyveck *u,
 {
 	unsigned int i;
 
+#pragma GCC unroll LC_DILITHIUM_K
 	for (i = 0; i < LC_DILITHIUM_K; ++i)
 		poly_sub_avx(&w->vec[i], &u->vec[i], &v->vec[i]);
 }
@@ -231,6 +240,7 @@ static inline void polyveck_shiftl_avx(polyveck *v)
 {
 	unsigned int i;
 
+#pragma GCC unroll LC_DILITHIUM_K
 	for (i = 0; i < LC_DILITHIUM_K; ++i)
 		poly_shiftl_avx(&v->vec[i]);
 }
@@ -247,6 +257,7 @@ static inline void polyveck_ntt_avx(polyveck *v)
 {
 	unsigned int i;
 
+#pragma GCC unroll LC_DILITHIUM_K
 	for (i = 0; i < LC_DILITHIUM_K; ++i)
 		poly_ntt_avx(&v->vec[i]);
 }
@@ -263,6 +274,7 @@ static inline void polyveck_invntt_tomont_avx(polyveck *v)
 {
 	unsigned int i;
 
+#pragma GCC unroll LC_DILITHIUM_K
 	for (i = 0; i < LC_DILITHIUM_K; ++i)
 		poly_invntt_tomont_avx(&v->vec[i]);
 }
@@ -273,6 +285,7 @@ static inline void polyveck_pointwise_poly_montgomery_avx(polyveck *r,
 {
 	unsigned int i;
 
+#pragma GCC unroll LC_DILITHIUM_K
 	for (i = 0; i < LC_DILITHIUM_K; ++i)
 		poly_pointwise_montgomery_avx(&r->vec[i], a, &v->vec[i]);
 }
@@ -293,6 +306,7 @@ static inline int polyveck_chknorm_avx(const polyveck *v, int32_t bound)
 {
 	unsigned int i;
 
+#pragma GCC unroll LC_DILITHIUM_K
 	for (i = 0; i < LC_DILITHIUM_K; ++i)
 		if (poly_chknorm_avx(&v->vec[i], bound))
 			return 1;
@@ -316,6 +330,7 @@ static inline void polyveck_power2round_avx(polyveck *v1, polyveck *v0,
 {
 	unsigned int i;
 
+#pragma GCC unroll LC_DILITHIUM_K
 	for (i = 0; i < LC_DILITHIUM_K; ++i)
 		poly_power2round_avx(&v1->vec[i], &v0->vec[i], &v->vec[i]);
 }
@@ -338,6 +353,7 @@ static inline void polyveck_decompose_avx(polyveck *v1, polyveck *v0,
 {
 	unsigned int i;
 
+#pragma GCC unroll LC_DILITHIUM_K
 	for (i = 0; i < LC_DILITHIUM_K; ++i)
 		poly_decompose_avx(&v1->vec[i], &v0->vec[i], &v->vec[i]);
 }
@@ -358,6 +374,7 @@ polyveck_make_hint_avx(uint8_t *hint, const polyveck *v0, const polyveck *v1)
 {
 	unsigned int i, n = 0;
 
+#pragma GCC unroll LC_DILITHIUM_K
 	for (i = 0; i < LC_DILITHIUM_K; ++i)
 		n += poly_make_hint_avx(&hint[n], &v0->vec[i], &v1->vec[i]);
 
@@ -378,6 +395,7 @@ static inline void polyveck_use_hint_avx(polyveck *w, const polyveck *u,
 {
 	unsigned int i;
 
+#pragma GCC unroll LC_DILITHIUM_K
 	for (i = 0; i < LC_DILITHIUM_K; ++i)
 		poly_use_hint_avx(&w->vec[i], &u->vec[i], &h->vec[i]);
 }
@@ -388,6 +406,7 @@ static inline void polyveck_pack_w1_avx(
 {
 	unsigned int i;
 
+#pragma GCC unroll LC_DILITHIUM_K
 	for (i = 0; i < LC_DILITHIUM_K; ++i)
 		polyw1_pack_avx(&r[i * LC_DILITHIUM_POLYW1_PACKEDBYTES],
 				&w1->vec[i]);
@@ -398,6 +417,7 @@ static inline void polyvec_matrix_pointwise_montgomery_avx(
 {
 	unsigned int i;
 
+#pragma GCC unroll LC_DILITHIUM_K
 	for (i = 0; i < LC_DILITHIUM_K; ++i)
 		polyvecl_pointwise_acc_montgomery_avx(&t->vec[i], &mat[i], v);
 }
