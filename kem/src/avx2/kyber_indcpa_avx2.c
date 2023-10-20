@@ -307,7 +307,6 @@ int indcpa_keypair_avx(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 	polyvec_ntt(&ws->e);
 
 	// matrix-vector multiplication
-#pragma GCC unroll LC_KYBER_K
 	for (i = 0; i < LC_KYBER_K; i++) {
 		polyvec_basemul_acc_montgomery(&ws->pkpv.vec[i], &ws->a[i],
 					       &ws->skpv);
@@ -370,7 +369,6 @@ int indcpa_enc_avx(uint8_t c[LC_KYBER_INDCPA_BYTES],
 	polyvec_ntt(&ws->sp);
 
 	// matrix-vector multiplication
-#pragma GCC unroll LC_KYBER_K
 	for (i = 0; i < LC_KYBER_K; i++)
 		polyvec_basemul_acc_montgomery(&ws->b.vec[i], &ws->at[i],
 					       &ws->sp);

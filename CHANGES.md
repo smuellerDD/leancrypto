@@ -8,8 +8,6 @@ Changes 0.8.0-prerelease:
 
 * enhancement: add Kyber ARMv7 support
 
-* Kyber/Dilithium: Force the compiler to unroll all loops <= 10 iterations
-
 Changes 0.7.0:
 
 * enhancement: add XDRBG256 - the SHAKE256-based DRNG discussed for SP800-90A

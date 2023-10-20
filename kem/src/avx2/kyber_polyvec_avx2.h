@@ -69,7 +69,6 @@ static inline void polyvec_tobytes(uint8_t r[LC_KYBER_POLYVECBYTES],
 {
 	unsigned int i;
 
-#pragma GCC unroll LC_KYBER_K
 	for (i = 0; i < LC_KYBER_K; i++)
 		poly_tobytes_avx(r + i * LC_KYBER_POLYBYTES, &a->vec[i]);
 }
@@ -86,7 +85,6 @@ static inline void polyvec_frombytes(polyvec *r,
 {
 	unsigned int i;
 
-#pragma GCC unroll LC_KYBER_K
 	for (i = 0; i < LC_KYBER_K; i++)
 		poly_frombytes_avx(&r->vec[i], a + i * LC_KYBER_POLYBYTES);
 }
@@ -101,7 +99,6 @@ static inline void polyvec_ntt(polyvec *r)
 {
 	unsigned int i;
 
-#pragma GCC unroll LC_KYBER_K
 	for (i = 0; i < LC_KYBER_K; i++)
 		poly_ntt_avx(&r->vec[i]);
 }
@@ -117,7 +114,6 @@ static inline void polyvec_invntt_tomont(polyvec *r)
 {
 	unsigned int i;
 
-#pragma GCC unroll LC_KYBER_K
 	for (i = 0; i < LC_KYBER_K; i++)
 		poly_invntt_tomont_avx(&r->vec[i]);
 }
@@ -138,7 +134,6 @@ static inline void polyvec_basemul_acc_montgomery(poly *r, const polyvec *a,
 	poly t;
 
 	poly_basemul_montgomery_avx(r, &a->vec[0], &b->vec[0]);
-#pragma GCC unroll LC_KYBER_K
 	for (i = 1; i < LC_KYBER_K; i++) {
 		poly_basemul_montgomery_avx(&t, &a->vec[i], &b->vec[i]);
 		kyber_poly_add_avx(r, r, &t);
@@ -159,7 +154,6 @@ static inline void polyvec_reduce(polyvec *r)
 {
 	unsigned int i;
 
-#pragma GCC unroll LC_KYBER_K
 	for (i = 0; i < LC_KYBER_K; i++)
 		poly_reduce_avx(&r->vec[i]);
 }
@@ -175,7 +169,6 @@ static inline void polyvec_add(polyvec *r, const polyvec *a, const polyvec *b)
 {
 	unsigned int i;
 
-#pragma GCC unroll LC_KYBER_K
 	for (i = 0; i < LC_KYBER_K; i++)
 		kyber_poly_add_avx(&r->vec[i], &a->vec[i], &b->vec[i]);
 }

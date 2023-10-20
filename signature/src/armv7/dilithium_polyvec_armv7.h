@@ -42,9 +42,7 @@ polyvec_matrix_expand(polyvecl mat[LC_DILITHIUM_K],
 {
 	unsigned int i, j;
 
-#pragma GCC unroll LC_DILITHIUM_K
 	for (i = 0; i < LC_DILITHIUM_K; ++i)
-#pragma GCC unroll LC_DILITHIUM_L
 		for (j = 0; j < LC_DILITHIUM_L; ++j)
 			poly_uniform_armv7(&mat[i].vec[j], rho,
 					   le_bswap16((i << 8) + j), ws_buf);
@@ -56,7 +54,6 @@ polyvecl_uniform_eta(polyvecl *v, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
 {
 	unsigned int i;
 
-#pragma GCC unroll LC_DILITHIUM_L
 	for (i = 0; i < LC_DILITHIUM_L; ++i)
 		poly_uniform_eta(&v->vec[i], seed, le_bswap16(nonce++), ws_buf);
 }
@@ -67,7 +64,6 @@ polyvecl_uniform_gamma1(polyvecl *v, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
 {
 	unsigned int i;
 
-#pragma GCC unroll LC_DILITHIUM_L
 	for (i = 0; i < LC_DILITHIUM_L; ++i)
 		poly_uniform_gamma1(
 			&v->vec[i], seed,
@@ -81,7 +77,6 @@ polyveck_uniform_eta(polyveck *v, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
 {
 	unsigned int i;
 
-#pragma GCC unroll LC_DILITHIUM_K
 	for (i = 0; i < LC_DILITHIUM_K; ++i)
 		poly_uniform_eta(&v->vec[i], seed, le_bswap16(nonce++), ws_buf);
 }
@@ -105,7 +100,6 @@ static inline void polyvecl_pointwise_acc_montgomery(poly *w, const polyvecl *u,
 	(void)ws_buf;
 
 	poly_pointwise_montgomery(w, &u->vec[0], &v->vec[0]);
-#pragma GCC unroll LC_DILITHIUM_L
 	for (i = 1; i < LC_DILITHIUM_L; ++i)
 		poly_pointwise_acc_montgomery(w, &u->vec[i], &v->vec[i]);
 }
@@ -117,7 +111,6 @@ polyvec_matrix_pointwise_montgomery(polyveck *t,
 {
 	unsigned int i;
 
-#pragma GCC unroll LC_DILITHIUM_K
 	for (i = 0; i < LC_DILITHIUM_K; ++i)
 		polyvecl_pointwise_acc_montgomery(&t->vec[i], &mat[i], v,
 						  ws_buf);
