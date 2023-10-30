@@ -8,6 +8,8 @@ Changes 0.8.0-prerelease:
 
 * enhancement: add Kyber ARMv7 support
 
+* reduce memory footprint of Dilithium and Kyber
+
 Changes 0.7.0:
 
 * enhancement: add XDRBG256 - the SHAKE256-based DRNG discussed for SP800-90A

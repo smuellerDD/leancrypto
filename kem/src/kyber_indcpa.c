@@ -251,7 +251,7 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 			   "Keygen: Sigma");
 
 	gen_a(ws->a, publicseed);
-	kyber_print_polyveck(ws->a, "Keygen: Generated matrix aHat");
+	kyber_print_polyveck(ws->a, "Keygen: AHat");
 
 	for (i = 0; i < LC_KYBER_K; i++) {
 		poly_getnoise_eta1(&ws->skpv.vec[i], noiseseed, nonce++,
@@ -259,13 +259,13 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 		poly_getnoise_eta1(&ws->e.vec[i], noiseseed, nonce2++,
 				   ws->poly_getnoise_eta1_buf);
 	}
-	kyber_print_polyvec(&ws->skpv, "Keygen: Generated matrix s");
-	kyber_print_polyvec(&ws->e, "Keygen: Generated matrix e");
+	kyber_print_polyvec(&ws->skpv, "Keygen: s");
+	kyber_print_polyvec(&ws->e, "Keygen: e");
 
 	polyvec_ntt(&ws->skpv);
 	polyvec_ntt(&ws->e);
-	kyber_print_polyveck(&ws->skpv, "Keygen: Matrix sHat = NTT(s)");
-	kyber_print_polyveck(&ws->e, "Keygen: Matrix eHat = NTT(e)");
+	kyber_print_polyveck(&ws->skpv, "Keygen: sHat = NTT(s)");
+	kyber_print_polyveck(&ws->e, "Keygen: eHat = NTT(e)");
 
 	// matrix-vector multiplication
 	for (i = 0; i < LC_KYBER_K; i++) {
@@ -274,14 +274,14 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 		poly_tomont(&ws->pkpv.vec[i]);
 	}
 	kyber_print_polyvec(&ws->pkpv,
-			    "Keygen: Matrix tHat = (aHat * sHat)");
+			    "Keygen: tHat = (AHat * sHat)");
 
 	polyvec_add(&ws->pkpv, &ws->pkpv, &ws->e);
 	kyber_print_polyvec(&ws->pkpv,
-			    "Keygen: Matrix tHat = (aHat * sHat) + eHat before reduction");
+			    "Keygen: tHat = (AHat * sHat) + eHat before reduction");
 	polyvec_reduce(&ws->pkpv);
 	kyber_print_polyvec(&ws->pkpv,
-			    "Keygen: Matrix tHat = (aHat * sHat) + eHat");
+			    "Keygen: tHat = (AHat * sHat) + eHat");
 
 	pack_sk(sk, &ws->skpv);
 	pack_pk(pk, &ws->pkpv, publicseed);
@@ -297,79 +297,72 @@ int indcpa_enc(uint8_t c[LC_KYBER_INDCPA_BYTES],
 	       const uint8_t coins[LC_KYBER_SYMBYTES])
 {
 	struct workspace {
-		/* See comment below - currently not needed */
-		//uint8_t seed[LC_KYBER_SYMBYTES];
-		uint8_t poly_getnoise_eta1_buf[POLY_GETNOISE_ETA1_BUFSIZE];
-		/* See comment below - currently not needed */
-		//uint8_t poly_getnoise_eta2_buf[POLY_GETNOISE_ETA2_BUFSIZE];
 		polyvec sp, pkpv, ep, at[LC_KYBER_K], b;
 		poly v, k, epp;
+		union {
+			uint8_t seed[LC_KYBER_SYMBYTES];
+			uint8_t poly_getnoise_eta1_buf[
+					POLY_GETNOISE_ETA1_BUFSIZE];
+			uint8_t poly_getnoise_eta2_buf[
+					POLY_GETNOISE_ETA2_BUFSIZE];
+		} tmp;
 	};
 	unsigned int i;
 	uint8_t nonce = 0, nonce2 = LC_KYBER_K;
 	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	/*
-	 * Use the poly_getnoise_eta1_buf for this operation as seed is smaller
-	 * than poly_getnoise_eta1_buf and has the same alignment.
-	 */
-	BUILD_BUG_ON(POLY_GETNOISE_ETA1_BUFSIZE < LC_KYBER_SYMBYTES);
-	unpack_pk(&ws->pkpv, ws->poly_getnoise_eta1_buf /* ws->seed */, pk);
+	unpack_pk(&ws->pkpv, ws->tmp.seed, pk);
 	kyber_print_polyvec(&ws->pkpv,
-			    "K-PKE Encrypt: Matrix t after ByteDecode");
+			    "K-PKE Encrypt: tHat");
 
 	/* Validate input */
-	CKINT(kyber_kem_iv_pk_modulus(pk, &ws->pkpv,
-				      ws->poly_getnoise_eta1_buf /* ws->seed */,
-				      pack_pk));
+	CKINT(kyber_kem_iv_pk_modulus(pk, &ws->pkpv, ws->tmp.seed, pack_pk));
 
 	poly_frommsg(&ws->k, m);
-	kyber_print_poly(&ws->k, "K-PKE Encrypt: Vector mu");
-	gen_at(ws->at, ws->poly_getnoise_eta1_buf /* ws->seed */);
-	kyber_print_polyveck(ws->at, "K-PKE Encrypt: Generated matrix A");
+	kyber_print_poly(&ws->k, "K-PKE Encrypt: mu");
+	gen_at(ws->at, ws->tmp.seed);
+	kyber_print_polyveck(ws->at, "K-PKE Encrypt: BHat = AHat^T");
 
-	/*
-	 * Use the poly_getnoise_eta1_buf for this operation as
-	 * poly_getnoise_eta2_buf is smaller than poly_getnoise_eta1_buf and has
-	 * the same alignment.
-	 */
-	BUILD_BUG_ON(POLY_GETNOISE_ETA1_BUFSIZE < POLY_GETNOISE_ETA2_BUFSIZE);
 	for (i = 0; i < LC_KYBER_K; i++) {
 		poly_getnoise_eta1(ws->sp.vec + i, coins, nonce++,
-				   ws->poly_getnoise_eta1_buf);
+				   ws->tmp.poly_getnoise_eta1_buf);
 		poly_getnoise_eta2(ws->ep.vec + i, coins, nonce2++,
-				   ws->poly_getnoise_eta1_buf);
+				   ws->tmp.poly_getnoise_eta2_buf);
 	}
-	kyber_print_polyvec(&ws->sp, "K-PKE Encrypt: Matrix r");
-	kyber_print_polyvec(&ws->ep, "K-PKE Encrypt: Matrix e");
+	kyber_print_polyvec(&ws->sp, "K-PKE Encrypt: r");
+	kyber_print_polyvec(&ws->ep, "K-PKE Encrypt: e1");
 
-	poly_getnoise_eta2(&ws->epp, coins, nonce2, ws->poly_getnoise_eta1_buf);
-	kyber_print_polyvec(&ws->ep, "K-PKE Encrypt: Vector e2");
+	poly_getnoise_eta2(&ws->epp, coins, nonce2,
+			   ws->tmp.poly_getnoise_eta2_buf);
+	kyber_print_poly(&ws->epp, "K-PKE Encrypt: e2");
 
 	polyvec_ntt(&ws->sp);
-	kyber_print_polyvec(&ws->sp, "K-PKE Encrypt: Matrix r after NTT");
+	kyber_print_polyvec(&ws->sp, "K-PKE Encrypt: rHat = NTT(r)");
 
 	// matrix-vector multiplication
 	for (i = 0; i < LC_KYBER_K; i++)
 		polyvec_basemul_acc_montgomery(&ws->b.vec[i], &ws->at[i],
 					       &ws->sp);
-	kyber_print_polyvec(&ws->b, "K-PKE Encrypt: u = A * r");
+	kyber_print_polyvec(&ws->b, "K-PKE Encrypt: u = BHat * rHat");
 
 	polyvec_basemul_acc_montgomery(&ws->v, &ws->pkpv, &ws->sp);
-	kyber_print_poly(&ws->v, "K-PKE Encrypt: v = t * r");
+	kyber_print_poly(&ws->v, "K-PKE Encrypt: v = tHat^T * rHat");
 
 	polyvec_invntt_tomont(&ws->b);
-	kyber_print_polyvec(&ws->b, "K-PKE Encrypt: u = NTT=1(A * r)");
+	kyber_print_polyvec(&ws->b, "K-PKE Encrypt: u = NTT-1(BHat * rHat)");
 	poly_invntt_tomont(&ws->v);
-	kyber_print_poly(&ws->v, "K-PKE Encrypt: v = NTT-1(t * r)");
+	kyber_print_poly(&ws->v, "K-PKE Encrypt: v = NTT-1(tHat^T * rHat)");
 
 	polyvec_add(&ws->b, &ws->b, &ws->ep);
-	kyber_print_polyvec(&ws->b, "K-PKE Encrypt: u = NTT=1(A * r) + e1");
+	kyber_print_polyvec(&ws->b,
+			    "K-PKE Encrypt: u = NTT-1(BHat * rHat) + e1");
 	poly_add(&ws->v, &ws->v, &ws->epp);
-	kyber_print_poly(&ws->v, "K-PKE Encrypt: v = NTT-1(t * r) + e2");
+	kyber_print_poly(&ws->v,
+			 "K-PKE Encrypt: v = NTT-1(tHat^T * rHat) + e2");
 	poly_add(&ws->v, &ws->v, &ws->k);
-	kyber_print_poly(&ws->v, "K-PKE Encrypt: v = NTT-1(t * r) + e2 + mu");
+	kyber_print_poly(&ws->v,
+			 "K-PKE Encrypt: v = NTT-1(tHat^T * rHat) + e2 + mu");
 	polyvec_reduce(&ws->b);
 	kyber_print_polyvec(&ws->b, "K-PKE Encrypt: u after reduction");
 	poly_reduce(&ws->v);
@@ -405,7 +398,7 @@ int indcpa_dec(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
 			 "K-PKE Decrypt: v = Decompress(Bytedecode(c2))");
 	unpack_sk(&ws->skpv, sk);
 	kyber_print_polyvec(&ws->skpv,
-			    "K-PKE Decrypt: s = Decompress(Bytedecode(dk))");
+			    "K-PKE Decrypt: sHat = Decompress(Bytedecode(dk))");
 
 	/* Validate input */
 	CKINT(kyber_kem_iv_sk_modulus(sk, &ws->skpv, pack_sk));
@@ -413,7 +406,7 @@ int indcpa_dec(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
 	polyvec_ntt(&ws->b);
 	kyber_print_polyvec(&ws->b, "K-PKE Decrypt: NTT(u)");
 	polyvec_basemul_acc_montgomery(&ws->mp, &ws->skpv, &ws->b);
-	kyber_print_poly(&ws->mp, "K-PKE Decrypt: s * NTT(u)");
+	kyber_print_poly(&ws->mp, "K-PKE Decrypt: sHat^T * NTT(u)");
 	poly_invntt_tomont(&ws->mp);
 	kyber_print_poly(&ws->mp, "K-PKE Decrypt: NTT-1(s * NTT(u))");
 
@@ -423,7 +416,7 @@ int indcpa_dec(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
 
 	poly_tomsg(m, &ws->mp);
 	kyber_print_buffer(m, LC_KYBER_INDCPA_MSGBYTES,
-			   "K-PKE Encrypt: m = ByteEncode(Compress(w))");
+			   "K-PKE Decrypt: m = ByteEncode(Compress(w))");
 
 out:
 	LC_RELEASE_MEM(ws);

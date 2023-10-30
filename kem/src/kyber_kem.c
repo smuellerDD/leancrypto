@@ -229,6 +229,8 @@ int _lc_kyber_dec(
 	pk = sk->sk + LC_KYBER_INDCPA_SECRETKEYBYTES;
 
 	CKINT(indcpa_dec_f(ws->buf, ct->ct, sk->sk));
+	kyber_print_buffer(ws->buf, LC_KYBER_INDCPA_MSGBYTES,
+			   "Decapsulation: m'");
 
 	/* Multitarget countermeasure for coins + contributory KEM */
 	memcpy(&ws->buf[LC_KYBER_SYMBYTES],
