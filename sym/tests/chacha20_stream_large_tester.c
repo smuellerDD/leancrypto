@@ -39,7 +39,7 @@ static int chacha20_large_tester(void)
 
 	pt = calloc(1, LC_CHACHA_SIZE);
 	if (!pt)
-		return 1;
+		return 77;
 
 	/* Encrypt */
 	lc_sym_init(chacha20);

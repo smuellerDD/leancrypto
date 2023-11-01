@@ -35,7 +35,7 @@ static int aes_cbc_large_c(void)
 
 	pt = calloc(1, 1UL << 30);
 	if (!pt)
-		return 1;
+		return 77;
 
 	lc_sym_init(aes_cbc);
 	CKINT_LOG(lc_sym_setkey(aes_cbc, key, sizeof(key)),

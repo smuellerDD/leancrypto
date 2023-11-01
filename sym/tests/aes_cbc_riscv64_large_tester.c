@@ -36,7 +36,7 @@ static int aes_cbc_large_riscv64(void)
 
 	pt = calloc(1, LC_RISCV64_SIZE);
 	if (!pt)
-		return 1;
+		return 77;
 
 	lc_sym_init(aes_cbc);
 	CKINT(lc_sym_setkey(aes_cbc, key, sizeof(key)));

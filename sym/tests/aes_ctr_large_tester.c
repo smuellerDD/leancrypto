@@ -34,7 +34,7 @@ static int aes_ctr_large(void)
 
 	pt = calloc(1, 1UL << 30);
 	if (!pt)
-		return 1;
+		return 77;
 
 	lc_sym_init(aes_ctr);
 	CKINT(lc_sym_setkey(aes_ctr, key, sizeof(key)));
