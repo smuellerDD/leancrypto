@@ -43,7 +43,7 @@ static int symhmac_tester_large(void)
 
 	pt = calloc(1, 1UL << 30);
 	if (!pt)
-		return 1;
+		return 77;
 
 	CKINT(lc_aead_setkey(sh, key, sizeof(key), aad, sizeof(aad)));
 	lc_aead_encrypt(sh, pt, pt, 1UL << 30, aad, sizeof(aad), tag,

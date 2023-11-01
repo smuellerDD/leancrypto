@@ -38,7 +38,7 @@ static int hc_tester_sha512_large(void)
 
 	pt = calloc(1, 1UL << 30);
 	if (!pt)
-		return 1;
+		return 77;
 
 	lc_aead_setkey(hc, key, sizeof(key), NULL, 0);
 	lc_aead_encrypt(hc, pt, pt, 1UL << 30, aad, sizeof(aad), tag,

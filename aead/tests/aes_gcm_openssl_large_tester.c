@@ -40,7 +40,7 @@ static int aes_gcm_large(void)
 
 	pt = calloc(1, LC_OPENSSL_SIZE);
 	if (!pt)
-		return 1;
+		return 77;
 
 	ctx = EVP_CIPHER_CTX_new();
 	CKNULL(ctx, -ENOMEM);
