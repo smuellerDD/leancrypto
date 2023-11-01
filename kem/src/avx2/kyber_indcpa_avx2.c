@@ -101,13 +101,23 @@ static void unpack_sk(polyvec *sk,
  *			    and the compressed and serialized polynomial v
  *
  * @param r [out] pointer to the output serialized ciphertext
- * @param pk [in] pointer to the input vector of polynomials b
- * @param v [in] pointer to the input polynomial v
+ * @param b [in] pointer to the input vector of polynomials b
  */
-static void pack_ciphertext(uint8_t r[LC_KYBER_INDCPA_BYTES], polyvec *b,
-			    poly *v)
+static void pack_ciphertext_b(uint8_t r[LC_KYBER_INDCPA_BYTES], polyvec *b)
 {
 	polyvec_compress(r, b);
+}
+
+/**
+ * @brief pack_ciphertext - Serialize the ciphertext as concatenation of the
+ *			    compressed and serialized vector of polynomials b
+ *			    and the compressed and serialized polynomial v
+ *
+ * @param r [out] pointer to the output serialized ciphertext
+ * @param v [in] pointer to the input polynomial v
+ */
+static void pack_ciphertext_v(uint8_t r[LC_KYBER_INDCPA_BYTES], poly *v)
+{
 	poly_compress_avx(r + LC_KYBER_POLYVECCOMPRESSEDBYTES, v);
 }
 
@@ -116,13 +126,24 @@ static void pack_ciphertext(uint8_t r[LC_KYBER_INDCPA_BYTES], polyvec *b,
  *			      array; approximate inverse of pack_ciphertext
  *
  * @param b [out] pointer to the output vector of polynomials b
+ * @param c [in] pointer to the input serialized ciphertext
+ */
+static void unpack_ciphertext_b(polyvec *b,
+				const uint8_t c[LC_KYBER_INDCPA_BYTES])
+{
+	polyvec_decompress(b, c);
+}
+
+/**
+ * @brief unpack_ciphertext - De-serialize and decompress ciphertext from a byte
+ *			      array; approximate inverse of pack_ciphertext
+ *
  * @param v [out] pointer to the output polynomial v
  * @param c [in] pointer to the input serialized ciphertext
  */
-static void unpack_ciphertext(polyvec *b, poly *v,
-			      const uint8_t c[LC_KYBER_INDCPA_BYTES])
+static void unpack_ciphertext_v(poly *v,
+				const uint8_t c[LC_KYBER_INDCPA_BYTES])
 {
-	polyvec_decompress(b, c);
 	poly_decompress_avx(v, c + LC_KYBER_POLYVECCOMPRESSEDBYTES);
 }
 
@@ -265,14 +286,16 @@ int indcpa_keypair_avx(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 		       struct lc_rng_ctx *rng_ctx)
 {
 	struct workspace {
-		/* See comment below - currently not needed */
-		//BUF_ALIGNED_UINT8_M256I(NOISE_NBLOCKS *
-		//	LC_SHAKE_256_SIZE_BLOCK) poly_getnoise_eta1_buf[4];
-		BUF_ALIGNED_UINT8_M256I(
-			REJ_UNIFORM_AVX_NBLOCKS *LC_SHAKE_128_SIZE_BLOCK)
-		gen_a_buf[4];
+		union {
+			BUF_ALIGNED_UINT8_M256I(NOISE_NBLOCKS *
+				LC_SHAKE_256_SIZE_BLOCK) poly_getnoise_eta1_buf[4];
+			BUF_ALIGNED_UINT8_M256I(
+				REJ_UNIFORM_AVX_NBLOCKS *LC_SHAKE_128_SIZE_BLOCK)
+			gen_a_buf[4];
+			polyvec pkpv;
+		} tmp;
 		uint8_t buf[2 * LC_KYBER_SYMBYTES];
-		polyvec a[LC_KYBER_K], e, pkpv, skpv;
+		polyvec a[LC_KYBER_K], e, skpv;
 		keccakx4_state keccak_state;
 	};
 	unsigned int i;
@@ -288,36 +311,30 @@ int indcpa_keypair_avx(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, buf, LC_KYBER_SYMBYTES));
 	lc_hash(lc_sha3_512, buf, LC_KYBER_SYMBYTES, buf);
 
-	CKINT(gen_a(ws->a, publicseed, ws->gen_a_buf));
+	CKINT(gen_a(ws->a, publicseed, ws->tmp.gen_a_buf));
 
-	/*
-	 * Use the gen_a_buf for this operation as poly_getnoise_eta1_buf is
-	 * smaller than gen_a_buf and has the same alignment.
-	 */
-	BUILD_BUG_ON(REJ_UNIFORM_AVX_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK <
-		     NOISE_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK);
 	poly_getnoise_eta1_4x(ws->skpv.vec + 0, ws->skpv.vec + 1,
 			      ws->skpv.vec + 2, ws->skpv.vec + 3, noiseseed, 0,
-			      1, 2, 3, ws->gen_a_buf, &ws->keccak_state);
+			      1, 2, 3, ws->tmp.poly_getnoise_eta1_buf, &ws->keccak_state);
 	poly_getnoise_eta1_4x(ws->e.vec + 0, ws->e.vec + 1, ws->e.vec + 2,
 			      ws->e.vec + 3, noiseseed, 4, 5, 6, 7,
-			      ws->gen_a_buf, &ws->keccak_state);
+			      ws->tmp.poly_getnoise_eta1_buf, &ws->keccak_state);
 	polyvec_ntt(&ws->skpv);
 	polyvec_reduce(&ws->skpv);
 	polyvec_ntt(&ws->e);
 
 	// matrix-vector multiplication
 	for (i = 0; i < LC_KYBER_K; i++) {
-		polyvec_basemul_acc_montgomery(&ws->pkpv.vec[i], &ws->a[i],
+		polyvec_basemul_acc_montgomery(&ws->tmp.pkpv.vec[i], &ws->a[i],
 					       &ws->skpv);
-		poly_tomont_avx(&ws->pkpv.vec[i]);
+		poly_tomont_avx(&ws->tmp.pkpv.vec[i]);
 	}
 
-	polyvec_add(&ws->pkpv, &ws->pkpv, &ws->e);
-	polyvec_reduce(&ws->pkpv);
+	polyvec_add(&ws->tmp.pkpv, &ws->tmp.pkpv, &ws->e);
+	polyvec_reduce(&ws->tmp.pkpv);
 
 	pack_sk(sk, &ws->skpv);
-	pack_pk(pk, &ws->pkpv, publicseed);
+	pack_pk(pk, &ws->tmp.pkpv, publicseed);
 
 out:
 	LC_RELEASE_MEM(ws);
@@ -330,61 +347,66 @@ int indcpa_enc_avx(uint8_t c[LC_KYBER_INDCPA_BYTES],
 		   const uint8_t coins[LC_KYBER_SYMBYTES])
 {
 	struct workspace {
-		/* See comment below - currently not needed */
-		//BUF_ALIGNED_UINT8_M256I(NOISE_NBLOCKS *
-		//	LC_SHAKE_256_SIZE_BLOCK) poly_getnoise_eta1_buf[4];
-		BUF_ALIGNED_UINT8_M256I(
-			REJ_UNIFORM_AVX_NBLOCKS *LC_SHAKE_128_SIZE_BLOCK)
-		gen_at_buf[4];
-		uint8_t seed[LC_KYBER_SYMBYTES];
-		polyvec sp, pkpv, ep, at[LC_KYBER_K], b;
-		poly v, k, epp;
+		union {
+			BUF_ALIGNED_UINT8_M256I(NOISE_NBLOCKS *
+				LC_SHAKE_256_SIZE_BLOCK) poly_getnoise_eta1_buf[4];
+			BUF_ALIGNED_UINT8_M256I(
+				REJ_UNIFORM_AVX_NBLOCKS *LC_SHAKE_128_SIZE_BLOCK)
+			gen_at_buf[4];
+			polyvec b;
+			poly v;
+		} tmp;
+		union {
+			uint8_t seed[LC_KYBER_SYMBYTES];
+			polyvec sp;
+			poly k;
+		} tmp2;
+		polyvec pkpv, ep, at[LC_KYBER_K];
+		poly epp;
 		keccakx4_state keccak_state;
 	};
 	unsigned int i;
 	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, 32);
 
-	unpack_pk(&ws->pkpv, ws->seed, pk);
+	unpack_pk(&ws->pkpv, ws->tmp2.seed, pk);
 
 	/* Validate input */
-	CKINT(kyber_kem_iv_pk_modulus(pk, &ws->pkpv, ws->seed, pack_pk));
+	CKINT(kyber_kem_iv_pk_modulus(pk, &ws->pkpv, ws->tmp2.seed, pack_pk));
 
-	poly_frommsg_avx(&ws->k, m);
-	CKINT(gen_at(ws->at, ws->seed, ws->gen_at_buf));
+	CKINT(gen_at(ws->at, ws->tmp2.seed, ws->tmp.gen_at_buf));
 
-	/*
-	 * Use the gen_a_buf for this operation as poly_getnoise_eta1_buf is
-	 * smaller than gen_a_buf and has the same alignment.
-	 */
-	BUILD_BUG_ON(REJ_UNIFORM_AVX_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK <
-		     NOISE_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK);
-	poly_getnoise_eta1_4x(ws->sp.vec + 0, ws->sp.vec + 1, ws->sp.vec + 2,
-			      ws->sp.vec + 3, coins, 0, 1, 2, 3, ws->gen_at_buf,
+	poly_getnoise_eta1_4x(ws->tmp2.sp.vec + 0, ws->tmp2.sp.vec + 1, ws->tmp2.sp.vec + 2,
+			      ws->tmp2.sp.vec + 3, coins, 0, 1, 2, 3,
+			      ws->tmp.poly_getnoise_eta1_buf,
 			      &ws->keccak_state);
 	poly_getnoise_eta1_4x(ws->ep.vec + 0, ws->ep.vec + 1, ws->ep.vec + 2,
-			      ws->ep.vec + 3, coins, 4, 5, 6, 7, ws->gen_at_buf,
+			      ws->ep.vec + 3, coins, 4, 5, 6, 7,
+			      ws->tmp.poly_getnoise_eta1_buf,
 			      &ws->keccak_state);
 	poly_getnoise_eta2_avx(&ws->epp, coins, 8);
-	polyvec_ntt(&ws->sp);
+	polyvec_ntt(&ws->tmp2.sp);
 
 	// matrix-vector multiplication
 	for (i = 0; i < LC_KYBER_K; i++)
-		polyvec_basemul_acc_montgomery(&ws->b.vec[i], &ws->at[i],
-					       &ws->sp);
+		polyvec_basemul_acc_montgomery(&ws->tmp.b.vec[i], &ws->at[i],
+					       &ws->tmp2.sp);
 
-	polyvec_basemul_acc_montgomery(&ws->v, &ws->pkpv, &ws->sp);
+	polyvec_invntt_tomont(&ws->tmp.b);
+	polyvec_add(&ws->tmp.b, &ws->tmp.b, &ws->ep);
+	polyvec_reduce(&ws->tmp.b);
+	pack_ciphertext_b(c, &ws->tmp.b);
 
-	polyvec_invntt_tomont(&ws->b);
-	poly_invntt_tomont_avx(&ws->v);
+	polyvec_basemul_acc_montgomery(&ws->tmp.v, &ws->pkpv, &ws->tmp2.sp);
 
-	polyvec_add(&ws->b, &ws->b, &ws->ep);
-	kyber_poly_add_avx(&ws->v, &ws->v, &ws->epp);
-	kyber_poly_add_avx(&ws->v, &ws->v, &ws->k);
-	polyvec_reduce(&ws->b);
-	poly_reduce_avx(&ws->v);
+	poly_invntt_tomont_avx(&ws->tmp.v);
 
-	pack_ciphertext(c, &ws->b, &ws->v);
+	poly_frommsg_avx(&ws->tmp2.k, m);
+	kyber_poly_add_avx(&ws->tmp.v, &ws->tmp.v, &ws->epp);
+	kyber_poly_add_avx(&ws->tmp.v, &ws->tmp.v, &ws->tmp2.k);
+	poly_reduce_avx(&ws->tmp.v);
+
+	pack_ciphertext_v(c, &ws->tmp.v);
 
 out:
 	LC_RELEASE_MEM(ws);
@@ -396,23 +418,28 @@ int indcpa_dec_avx(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
 		   const uint8_t sk[LC_KYBER_INDCPA_SECRETKEYBYTES])
 {
 	struct workspace {
-		polyvec b, skpv;
-		poly v, mp;
+		polyvec skpv;
+		poly mp;
+		union {
+			polyvec b;
+			poly v;
+		} tmp;
 	};
 	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, 32);
 
-	unpack_ciphertext(&ws->b, &ws->v, c);
 	unpack_sk(&ws->skpv, sk);
 
 	/* Validate input */
 	CKINT(kyber_kem_iv_sk_modulus(sk, &ws->skpv, pack_sk));
 
-	polyvec_ntt(&ws->b);
-	polyvec_basemul_acc_montgomery(&ws->mp, &ws->skpv, &ws->b);
+	unpack_ciphertext_b(&ws->tmp.b, c);
+	polyvec_ntt(&ws->tmp.b);
+	polyvec_basemul_acc_montgomery(&ws->mp, &ws->skpv, &ws->tmp.b);
 	poly_invntt_tomont_avx(&ws->mp);
 
-	kyber_poly_sub_avx(&ws->mp, &ws->v, &ws->mp);
+	unpack_ciphertext_v(&ws->tmp.v, c);
+	kyber_poly_sub_avx(&ws->mp, &ws->tmp.v, &ws->mp);
 	poly_reduce_avx(&ws->mp);
 
 	poly_tomsg_avx(m, &ws->mp);
