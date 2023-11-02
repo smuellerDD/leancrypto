@@ -109,7 +109,7 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 
 	key = rhoprime + LC_DILITHIUM_CRHBYTES;
 	dilithium_print_buffer(key, LC_DILITHIUM_SEEDBYTES, "Keygen - Key");
-	pack_sk_key(sk,  key);
+	pack_sk_key(sk, key);
 
 	/* Expand matrix */
 	polyvec_matrix_expand(ws->mat, rho, ws->tmp.poly_uniform_buf);
@@ -172,7 +172,7 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 	lc_shake(lc_shake256, pk->pk, sizeof(pk->pk), ws->tmp.tr,
 		 sizeof(ws->tmp.tr));
 	dilithium_print_buffer(ws->tmp.tr, sizeof(ws->tmp.tr), "Keygen - TR:");
-	pack_sk_tr(sk,  ws->tmp.tr);
+	pack_sk_tr(sk, ws->tmp.tr);
 
 	dilithium_print_buffer(sk->sk, LC_DILITHIUM_SECRETKEYBYTES,
 			       "Keygen - SK:");
@@ -191,11 +191,12 @@ static int lc_dilithium_sign_internal(struct lc_dilithium_sig *sig,
 		polyvecl mat[LC_DILITHIUM_K], s1, y, z;
 		polyveck t0, s2, w1, w0, h;
 		poly cp;
-		uint8_t seedbuf[LC_DILITHIUM_SEEDBYTES +
-				LC_DILITHIUM_RNDBYTES + LC_DILITHIUM_CRHBYTES];
+		uint8_t seedbuf[LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_RNDBYTES +
+				LC_DILITHIUM_CRHBYTES];
 		union {
 			poly polyvecl_pointwise_acc_montgomery_buf;
-			uint8_t poly_uniform_gamma1_buf[POLY_UNIFORM_GAMMA1_BYTES];
+			uint8_t poly_uniform_gamma1_buf
+				[POLY_UNIFORM_GAMMA1_BYTES];
 			uint8_t poly_challenge_buf[POLY_CHALLENGE_BYTES];
 			uint8_t poly_uniform_buf[WS_POLY_UNIFORM_BUF_SIZE];
 		} tmp;
@@ -477,7 +478,8 @@ static int lc_dilithium_verify_internal(const struct lc_dilithium_sig *sig,
 	polyvec_matrix_expand(ws->mat, ws->buf.rho, ws->tmp.poly_uniform_buf);
 
 	unpack_sig_z(&ws->buf.z, sig);
-	if (polyvecl_chknorm(&ws->buf.z, LC_DILITHIUM_GAMMA1 - LC_DILITHIUM_BETA)) {
+	if (polyvecl_chknorm(&ws->buf.z,
+			     LC_DILITHIUM_GAMMA1 - LC_DILITHIUM_BETA)) {
 		ret = -EINVAL;
 		goto out;
 	}

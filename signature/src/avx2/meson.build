@@ -5,7 +5,6 @@ dilithium_avx2 = files([
 	'dilithium_invntt_avx2.S',
 	'dilithium_ntt_avx2.S',
 	'dilithium_pointwise_avx2.S',
-	'dilithium_pack_avx2.c',
 	'dilithium_poly_avx2.c',
 	'dilithium_polyvec_avx2.c',
 	'dilithium_rejsample_avx2.c',
