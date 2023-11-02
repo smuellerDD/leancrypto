@@ -117,7 +117,7 @@ extern __inline __m128i
 #else
 
 #define _mm_bsrli_si128(A, N)                                                  \
-	((__m128i)__builtin_ia32_psrldqi128((__m128i)(A), (int)(N)*8))
+	((__m128i)__builtin_ia32_psrldqi128((__m128i)(A), (int)(N) * 8))
 
 #endif
 

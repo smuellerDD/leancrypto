@@ -33,7 +33,7 @@ http://creativecommons.org/publicdomain/zero/1.0/
 #define KeccakP1600times4_StaticInitialize()
 void KeccakP1600times4_InitializeAll(void *states);
 #define KeccakP1600times4_AddByte(states, instanceIndex, byte, offset)         \
-	((unsigned char *)(states))[(instanceIndex)*8 +                        \
+	((unsigned char *)(states))[(instanceIndex) * 8 +                      \
 				    ((offset) / 8) * 4 * 8 + (offset) % 8] ^=  \
 		(byte)
 void KeccakP1600times4_AddBytes(void *states, unsigned int instanceIndex,

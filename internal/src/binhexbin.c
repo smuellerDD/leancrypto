@@ -152,7 +152,7 @@ int bin2hex_alloc(const uint8_t *bin, const size_t binlen, char **hex,
 	if (!binlen)
 		return -EINVAL;
 
-	outlen = (binlen)*2;
+	outlen = (binlen) * 2;
 
 	out = calloc(1, outlen + 1);
 	if (!out)

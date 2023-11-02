@@ -52,7 +52,7 @@ typedef __m256i V256;
 #pragma GCC diagnostic ignored "-Wcast-align"
 
 #define laneIndex(instanceIndex, lanePosition)                                 \
-	((lanePosition)*4 + instanceIndex)
+	((lanePosition) * 4 + instanceIndex)
 
 #if defined(KeccakP1600times4_useAVX2)
 #define ANDnu256(a, b) _mm256_andnot_si256(a, b)

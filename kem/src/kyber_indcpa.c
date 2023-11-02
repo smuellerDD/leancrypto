@@ -273,15 +273,14 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 					       &ws->skpv);
 		poly_tomont(&ws->pkpv.vec[i]);
 	}
-	kyber_print_polyvec(&ws->pkpv,
-			    "Keygen: tHat = (AHat * sHat)");
+	kyber_print_polyvec(&ws->pkpv, "Keygen: tHat = (AHat * sHat)");
 
 	polyvec_add(&ws->pkpv, &ws->pkpv, &ws->e);
-	kyber_print_polyvec(&ws->pkpv,
-			    "Keygen: tHat = (AHat * sHat) + eHat before reduction");
+	kyber_print_polyvec(
+		&ws->pkpv,
+		"Keygen: tHat = (AHat * sHat) + eHat before reduction");
 	polyvec_reduce(&ws->pkpv);
-	kyber_print_polyvec(&ws->pkpv,
-			    "Keygen: tHat = (AHat * sHat) + eHat");
+	kyber_print_polyvec(&ws->pkpv, "Keygen: tHat = (AHat * sHat) + eHat");
 
 	pack_sk(sk, &ws->skpv);
 	pack_pk(pk, &ws->pkpv, publicseed);
@@ -301,10 +300,10 @@ int indcpa_enc(uint8_t c[LC_KYBER_INDCPA_BYTES],
 		poly v, k, epp;
 		union {
 			uint8_t seed[LC_KYBER_SYMBYTES];
-			uint8_t poly_getnoise_eta1_buf[
-					POLY_GETNOISE_ETA1_BUFSIZE];
-			uint8_t poly_getnoise_eta2_buf[
-					POLY_GETNOISE_ETA2_BUFSIZE];
+			uint8_t poly_getnoise_eta1_buf
+				[POLY_GETNOISE_ETA1_BUFSIZE];
+			uint8_t poly_getnoise_eta2_buf
+				[POLY_GETNOISE_ETA2_BUFSIZE];
 		} tmp;
 	};
 	unsigned int i;
@@ -313,8 +312,7 @@ int indcpa_enc(uint8_t c[LC_KYBER_INDCPA_BYTES],
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	unpack_pk(&ws->pkpv, ws->tmp.seed, pk);
-	kyber_print_polyvec(&ws->pkpv,
-			    "K-PKE Encrypt: tHat");
+	kyber_print_polyvec(&ws->pkpv, "K-PKE Encrypt: tHat");
 
 	/* Validate input */
 	CKINT(kyber_kem_iv_pk_modulus(pk, &ws->pkpv, ws->tmp.seed, pack_pk));
