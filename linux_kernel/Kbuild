@@ -678,7 +678,6 @@ leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
 			   ../signature/src/avx2/dilithium_invntt_avx2.o       \
 			   ../signature/src/avx2/dilithium_ntt_avx2.o	       \
 			   ../signature/src/avx2/dilithium_pointwise_avx2.o    \
-			   ../signature/src/avx2/dilithium_pack_avx2.o	       \
 			   ../signature/src/avx2/dilithium_poly_avx2.o	       \
 			   ../signature/src/avx2/dilithium_polyvec_avx2.o      \
 			   ../signature/src/avx2/dilithium_rejsample_avx2.o    \
