@@ -181,10 +181,20 @@ CONFIG_LEANCRYPTO_PBKDF2=y
 ########################### Key Encapsulation Method ###########################
 
 #
-# Enable Key Exchange Mechanism provided by Kyber
+# Enable Key Encapsulation Mechanism provided by Kyber
 # Dependencies: CONFIG_LEANCRYPTO_SHA3
 #
 CONFIG_LEANCRYPTO_KEM=y
+
+#
+# Enable Key Encapsulation Mechanism provided by Kyber in collaboration with
+# X25519
+# Dependencies: CONFIG_LEANCRYPTO_KEM
+#
+# Note: When disabling this option, lc_kyber.awk needs to be changed at the
+#	marked location.
+#
+CONFIG_LEANCRYPTO_KEM_X25519=y
 
 ############################## Digital Signatures ##############################
 
@@ -544,8 +554,11 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 				   ../kem/src/kyber_selftest.o		       \
 				   ../kem/src/kyber_selftest_kdf.o	       \
 				   ../kem/src/kyber_verify.o		       \
-				   ../kem/src/kyber_x25519_kem.o	       \
-				   ../kem/src/kyber_zetas.o		       \
+				   ../kem/src/kyber_zetas.o
+
+# KEM-X25519 implementation
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_X25519)				       \
+				+= ../kem/src/kyber_x25519_kem.o	       \
 				   ../kem/src/x25519/ed25519_ref10.o	       \
 				   ../kem/src/x25519/x25519.o		       \
 				   ../kem/src/x25519/x25519_scalarmult.o
@@ -624,6 +637,12 @@ kyber_kex_tester-y  		+= ../kem/tests/kyber_kex_tester.o
 kyber_ies_tester-y  		+= ../kem/tests/kyber_ies_tester.o	       \
 				   ../drng/src/selftest_rng.o
 kyber_invalid_tester-y  	+= ../kem/tests/kyber_invalid_tester.o
+endif
+
+ifdef CONFIG_LEANCRYPTO_KEM_X25519
+obj-m				+= kyber_kem_x25519_tester.o
+obj-m				+= x25519_tester.o
+
 kyber_kem_x25519_tester-y	+= ../kem/tests/kyber_kem_x25519_tester.o      \
 				   ../drng/src/selftest_rng.o
 x25519_tester-y			+= ../kem/tests/x25519_tester.o		       \
