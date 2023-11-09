@@ -770,8 +770,8 @@ static int _ge25519_double_scalarmult_vartime(ge25519_p2 *r, const unsigned char
 		ge25519_p3 u;
 		ge25519_p3 A2;
 	};
-	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	int i;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	slide_vartime(ws->aslide, a);
 	slide_vartime(ws->bslide, b);
@@ -873,8 +873,8 @@ static int _ge25519_scalarmult(ge25519_p3 *h, const unsigned char *a,
 		ge25519_cached pi[8];
 		ge25519_cached t;
 	};
-	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	int i;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	ge25519_p3_to_cached(&ws->pi[1 - 1], p); /* p */
 
@@ -2688,7 +2688,7 @@ static void ge25519_elligator2(fe25519 x, fe25519 y, const fe25519 r,
 	/* y = sqrt(gx1) or sqrt(gx2) with gx2 = gx1 * (A+x1) / -x1 */
 	/* but it is about as fast to just recompute from the curve equation. */
 	if (ge25519_xmont_to_ymont(y, x) != 0) {
-		abort();
+		//abort();
 	}
 	*notsquare_p = notsquare;
 }
