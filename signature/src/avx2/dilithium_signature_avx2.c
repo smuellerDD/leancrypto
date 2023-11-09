@@ -236,14 +236,13 @@ static int lc_dilithium_sign_avx2_internal(struct lc_dilithium_sig *sig,
 		} tmpv;
 		keccakx4_state keccak_state;
 	};
-
-	LC_DECLARE_MEM(ws, struct workspace_sign, 32);
 	unsigned int i, n, pos;
 	uint8_t *rho, *key, *mu, *rhoprime, *rnd;
 	uint8_t *hint = sig->sig + LC_DILITHIUM_CTILDE_BYTES +
 			LC_DILITHIUM_L * LC_DILITHIUM_POLYZ_PACKEDBYTES;
 	uint64_t nonce = 0;
 	int ret = 0;
+	LC_DECLARE_MEM(ws, struct workspace_sign, 32);
 
 	/* Skip tr which is in rho + LC_DILITHIUM_SEEDBYTES; */
 	key = ws->seedbuf;

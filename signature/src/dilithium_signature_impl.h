@@ -201,13 +201,13 @@ static int lc_dilithium_sign_internal(struct lc_dilithium_sig *sig,
 			uint8_t poly_uniform_buf[WS_POLY_UNIFORM_BUF_SIZE];
 		} tmp;
 	};
-	LC_DECLARE_MEM(ws, struct workspace_sign, sizeof(uint64_t));
 	unsigned int n;
 	uint8_t *key, *mu, *rhoprime, *rnd;
 	uint16_t nonce = 0;
 	/* The first bytes of the key is rho. */
 	const uint8_t *rho;
 	int ret = 0;
+	LC_DECLARE_MEM(ws, struct workspace_sign, sizeof(uint64_t));
 
 	key = ws->seedbuf;
 	rnd = key + LC_DILITHIUM_SEEDBYTES;
@@ -469,12 +469,12 @@ static int lc_dilithium_verify_internal(const struct lc_dilithium_sig *sig,
 			uint8_t poly_challenge_buf[POLY_CHALLENGE_BYTES];
 		} tmp;
 	};
-	LC_DECLARE_MEM(ws, struct workspace_verify, sizeof(uint64_t));
 	/* The first bytes of the signature is c~ and thus contains c1. */
 	const uint8_t *c1 = sig->sig;
 	/* The first bytes of the key is rho. */
 	const uint8_t *rho = pk->pk;
 	int ret = 0;
+	LC_DECLARE_MEM(ws, struct workspace_verify, sizeof(uint64_t));
 
 	polyvec_matrix_expand(ws->mat, rho, ws->tmp.poly_uniform_buf);
 

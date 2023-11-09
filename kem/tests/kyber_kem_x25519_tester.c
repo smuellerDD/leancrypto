@@ -67,9 +67,9 @@ static int kyber_kem_double_tester(void)
 		struct lc_kyber_x25519_ct ct;
 		uint8_t ss1[sizeof(ss_exp)], ss2[sizeof(ss_exp)];
 	};
+	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
-	int ret;
 
 	CKINT(lc_kyber_x25519_keypair(&ws->pk, &ws->sk, selftest_rng));
 
