@@ -203,7 +203,7 @@ int lc_kyber_dec(struct lc_kyber_ss *ss, const struct lc_kyber_ct *ct,
 int lc_kyber_dec_kdf(uint8_t *ss, size_t ss_len, const struct lc_kyber_ct *ct,
 		     const struct lc_kyber_sk *sk);
 
-/********************************* Double KEM *********************************/
+/****************************** Kyber X25510 KEM *******************************/
 
 /*
  * The double KEM implements Kyber KEM together with the X25519 elliptic curve
@@ -211,8 +211,8 @@ int lc_kyber_dec_kdf(uint8_t *ss, size_t ss_len, const struct lc_kyber_ct *ct,
  * the transmitted pk and ct has a different content.
  */
 
-#mesondefine LC_KYBER_DOUBLE_KEM
-#ifdef LC_KYBER_DOUBLE_KEM
+#mesondefine LC_KYBER_X25519_KEM
+#ifdef LC_KYBER_X25519_KEM
 
 #define LC_X25519_SECRETKEYBYTES (32U)
 #define LC_X25519_PUBLICKEYBYTES (32U)
