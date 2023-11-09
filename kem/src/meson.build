@@ -34,5 +34,10 @@ if get_option('kyber').enabled()
 			src += files([ 'kyber_ntt.c' ])
 		endif
 	endif
+
+	if get_option('kyber_x25519').enabled()
+		subdir('x25519')
+		src += files ([ 'kyber_x25519_kem.c' ])
+	endif
 endif
 

@@ -71,6 +71,8 @@ the value 2 implies 128 bits of security strength,
 the value 3 implies 192 bits of security strength,
 the value 4 implies 256 bits of security strength,
 ''')
+option('kyber_x25519', type: 'feature', value: 'enabled',
+       description: 'Kyber-X25519 KEM')
 
 option('aes_block', type: 'feature', value: 'enabled',
        description: 'AES block cipher support (encryption of one block)')

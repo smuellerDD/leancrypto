@@ -23,6 +23,8 @@
 #include "kyber_internal.h"
 #include "kyber_kem.h"
 #include "seeded_rng.h"
+#include "../kem/src/x25519/x25519.h"
+#include "../kem/src/x25519/x25519_scalarmult.h"
 
 /* Export these symbols for testing */
 EXPORT_SYMBOL(_lc_kyber_keypair);
@@ -36,6 +38,10 @@ EXPORT_SYMBOL(lc_kex_ake_initiator_init_internal);
 EXPORT_SYMBOL(lc_kex_uake_responder_ss_internal);
 EXPORT_SYMBOL(lc_kyber_ies_enc_internal);
 EXPORT_SYMBOL(lc_kyber_ies_enc_init_internal);
+EXPORT_SYMBOL(lc_kyber_x25519_enc_kdf_internal);
+EXPORT_SYMBOL(crypto_scalarmult_curve25519);
+EXPORT_SYMBOL(crypto_scalarmult_curve25519_base);
+EXPORT_SYMBOL(lc_x25519_keypair);
 
 void sha3_fastest_impl(void);
 void aes_fastest_impl(void);

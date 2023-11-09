@@ -166,3 +166,20 @@ signature/src/armv7/dilithium_ntt_armv7.S
 signature/src/armv7/dilithium_poly_armv7.S
 signature/src/armv7/dilithium_pointwise_smull_armv7.S
 signature/src/armv7/dilithium_ntt_consts.h
+
+================================================================================
+
+The following files are licensed under the ISC icense. The original files are
+obtained from https://github.com/jedisct1/libsodium.git
+
+Copyright (c) 2013-2023
+Frank Denis <j at pureftpd dot org>
+
+kem/src/x25519/ed25519_ref10.c
+kem/src/x25519/ed25519_ref10.h
+kem/src/x25519/ed25519_ref10_fe_51.h
+kem/src/x25519/ed25519_ref10_fe_25_5.h
+kem/src/x25519/fe_25_5/*
+kem/src/x25519/fe_51/*
+kem/src/x25519/x25519_scalarmult.c
+kem/src/x25519/x25519_scalarmult.h

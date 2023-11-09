@@ -140,4 +140,26 @@ if get_option('kyber').enabled()
 		     args : [ 'armv8' ], timeout: 1000, is_parallel: false)
 	endif
 
+	if get_option('kyber_x25519').enabled()
+		x25519_tester = executable('x25519_tester',
+					[ 'x25519_tester.c', internal_src ],
+					include_directories: [
+						include_dirs,
+						include_internal_dirs,
+						include_kyber_internal
+					], link_with: leancrypto_static_lib
+					)
+		kyber_kem_x25519_tester = executable('kyber_kem_x25519_tester',
+					[ 'kyber_kem_x25519_tester.c', internal_src ],
+					include_directories: [
+						include_dirs,
+						include_internal_dirs,
+						include_kyber_internal
+					], link_with: leancrypto_static_lib
+					)
+
+		test('X25519 KEX', x25519_tester)
+		test('Kyber-X25519 KEM', kyber_kem_x25519_tester)
+	endif
+
 endif

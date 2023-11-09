@@ -34,6 +34,11 @@ int lc_kyber_enc_kdf_internal(struct lc_kyber_ct *ct, uint8_t *ss,
 			      size_t ss_len, const struct lc_kyber_pk *pk,
 			      struct lc_rng_ctx *rng_ctx);
 
+int lc_kyber_x25519_enc_kdf_internal(struct lc_kyber_x25519_ct *ct, uint8_t *ss,
+				     size_t ss_len,
+				     const struct lc_kyber_x25519_pk *pk,
+				     struct lc_rng_ctx *rng_ctx);
+
 int lc_kex_uake_initiator_init_internal(struct lc_kyber_pk *pk_e_r,
 					struct lc_kyber_ct *ct_e_r,
 					struct lc_kyber_ss *tk,
