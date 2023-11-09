@@ -488,12 +488,12 @@ static int lc_dilithium_verify_avx2_internal(const struct lc_dilithium_sig *sig,
 		poly c, w1, h;
 		keccakx4_state keccak_state;
 	};
-	LC_DECLARE_MEM(ws, struct workspace_verify, 32);
 	unsigned int i, j, pos = 0;
 	const uint8_t *hint = sig->sig + LC_DILITHIUM_CTILDE_BYTES +
 			      LC_DILITHIUM_L * LC_DILITHIUM_POLYZ_PACKEDBYTES;
 	polyvecl *row;
 	int ret = 0;
+	LC_DECLARE_MEM(ws, struct workspace_verify, 32);
 
 	row = ws->rowbuf;
 
