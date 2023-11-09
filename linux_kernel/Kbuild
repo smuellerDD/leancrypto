@@ -559,6 +559,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 # KEM-X25519 implementation
 leancrypto-$(CONFIG_LEANCRYPTO_KEM_X25519)				       \
 				+= ../kem/src/kyber_x25519_kem.o	       \
+				   ../kem/src/kyber_x25519_kex.o	       \
 				   ../kem/src/x25519/ed25519_ref10.o	       \
 				   ../kem/src/x25519/x25519.o		       \
 				   ../kem/src/x25519/x25519_scalarmult.o
@@ -641,9 +642,12 @@ endif
 
 ifdef CONFIG_LEANCRYPTO_KEM_X25519
 obj-m				+= kyber_kem_x25519_tester.o
+obj-m				+= kyber_kex_x25519_tester.o
 obj-m				+= x25519_tester.o
 
 kyber_kem_x25519_tester-y	+= ../kem/tests/kyber_kem_x25519_tester.o      \
+				   ../drng/src/selftest_rng.o
+kyber_kex_x25519_tester-y	+= ../kem/tests/kyber_kex_x25519_tester.o      \
 				   ../drng/src/selftest_rng.o
 x25519_tester-y			+= ../kem/tests/x25519_tester.o		       \
 				   ../drng/src/selftest_rng.o

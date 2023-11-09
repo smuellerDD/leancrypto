@@ -751,9 +751,10 @@ void ge25519_tobytes(unsigned char *s, const ge25519_p2 *h)
  Only used for signatures verification.
  */
 
-static int _ge25519_double_scalarmult_vartime(ge25519_p2 *r, const unsigned char *a,
-				       const ge25519_p3 *A,
-				       const unsigned char *b)
+static int _ge25519_double_scalarmult_vartime(ge25519_p2 *r,
+					      const unsigned char *a,
+					      const ge25519_p3 *A,
+					      const unsigned char *b)
 {
 	static const ge25519_precomp Bi[8] = {
 #ifdef HAVE_TI_MODE
@@ -822,18 +823,22 @@ static int _ge25519_double_scalarmult_vartime(ge25519_p2 *r, const unsigned char
 
 		if (ws->aslide[i] > 0) {
 			ge25519_p1p1_to_p3(&ws->u, &ws->t);
-			ge25519_add_cached(&ws->t, &ws->u, &ws->Ai[ws->aslide[i] / 2]);
+			ge25519_add_cached(&ws->t, &ws->u,
+					   &ws->Ai[ws->aslide[i] / 2]);
 		} else if (ws->aslide[i] < 0) {
 			ge25519_p1p1_to_p3(&ws->u, &ws->t);
-			ge25519_sub_cached(&ws->t, &ws->u, &ws->Ai[(-ws->aslide[i]) / 2]);
+			ge25519_sub_cached(&ws->t, &ws->u,
+					   &ws->Ai[(-ws->aslide[i]) / 2]);
 		}
 
 		if (ws->bslide[i] > 0) {
 			ge25519_p1p1_to_p3(&ws->u, &ws->t);
-			ge25519_add_precomp(&ws->t, &ws->u, &Bi[ws->bslide[i] / 2]);
+			ge25519_add_precomp(&ws->t, &ws->u,
+					    &Bi[ws->bslide[i] / 2]);
 		} else if (ws->bslide[i] < 0) {
 			ge25519_p1p1_to_p3(&ws->u, &ws->t);
-			ge25519_sub_precomp(&ws->t, &ws->u, &Bi[(-ws->bslide[i]) / 2]);
+			ge25519_sub_precomp(&ws->t, &ws->u,
+					    &Bi[(-ws->bslide[i]) / 2]);
 		}
 
 		ge25519_p1p1_to_p2(r, &ws->t);
@@ -861,7 +866,7 @@ void ge25519_double_scalarmult_vartime(ge25519_p2 *r, const unsigned char *a,
  */
 
 static int _ge25519_scalarmult(ge25519_p3 *h, const unsigned char *a,
-			const ge25519_p3 *p)
+			       const ge25519_p3 *p)
 {
 	struct workspace {
 		signed char e[64];
@@ -1073,10 +1078,10 @@ static void ge25519_p3_dbladd(ge25519_p3 *r, const int n, const ge25519_p3 *q)
 static int ge25519_mul_l(ge25519_p3 *r, const ge25519_p3 *p)
 {
 	struct workspace {
-		ge25519_p3 _10, _11, _100, _110, _1000, _1011, _10000, _100000, _100110,
-			_1000000, _1010000, _1010011, _1100011, _1100111, _1101011,
-			_10010011, _10010111, _10111101, _11010011, _11100111,
-			_11101101, _11110101;
+		ge25519_p3 _10, _11, _100, _110, _1000, _1011, _10000, _100000,
+			_100110, _1000000, _1010000, _1010011, _1100011,
+			_1100111, _1101011, _10010011, _10010111, _10111101,
+			_11010011, _11100111, _11101101, _11110101;
 	};
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 

@@ -150,7 +150,17 @@ if get_option('kyber').enabled()
 					], link_with: leancrypto_static_lib
 					)
 		kyber_kem_x25519_tester = executable('kyber_kem_x25519_tester',
-					[ 'kyber_kem_x25519_tester.c', internal_src ],
+					[ 'kyber_kem_x25519_tester.c',
+					  internal_src ],
+					include_directories: [
+						include_dirs,
+						include_internal_dirs,
+						include_kyber_internal
+					], link_with: leancrypto_static_lib
+					)
+		kyber_kex_x25519_tester = executable('kyber_kex_x25519_tester',
+					[ 'kyber_kex_x25519_tester.c',
+					  internal_src ],
 					include_directories: [
 						include_dirs,
 						include_internal_dirs,
@@ -160,6 +170,7 @@ if get_option('kyber').enabled()
 
 		test('X25519 KEX', x25519_tester)
 		test('Kyber-X25519 KEM', kyber_kem_x25519_tester)
+		test('Kyber-X25519 KEX', kyber_kex_x25519_tester)
 	endif
 
 endif

@@ -42,6 +42,10 @@ EXPORT_SYMBOL(lc_kyber_x25519_enc_kdf_internal);
 EXPORT_SYMBOL(crypto_scalarmult_curve25519);
 EXPORT_SYMBOL(crypto_scalarmult_curve25519_base);
 EXPORT_SYMBOL(lc_x25519_keypair);
+EXPORT_SYMBOL(lc_kex_x25519_ake_responder_ss_internal);
+EXPORT_SYMBOL(lc_kex_x25519_uake_initiator_init_internal);
+EXPORT_SYMBOL(lc_kex_x25519_ake_initiator_init_internal);
+EXPORT_SYMBOL(lc_kex_x25519_uake_responder_ss_internal);
 
 void sha3_fastest_impl(void);
 void aes_fastest_impl(void);

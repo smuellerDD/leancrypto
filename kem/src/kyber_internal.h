@@ -29,6 +29,13 @@ extern "C" {
 int lc_kyber_enc_internal(struct lc_kyber_ct *ct, struct lc_kyber_ss *ss,
 			  const struct lc_kyber_pk *pk,
 			  struct lc_rng_ctx *rng_ctx);
+int lc_kyber_x25519_enc_internal(struct lc_kyber_x25519_ct *ct,
+				 struct lc_kyber_x25519_ss *ss,
+				 const struct lc_kyber_x25519_pk *pk,
+				 struct lc_rng_ctx *rng_ctx);
+int lc_kyber_x25519_dec_internal(struct lc_kyber_x25519_ss *ss,
+				 const struct lc_kyber_x25519_ct *ct,
+				 const struct lc_kyber_x25519_sk *sk);
 
 int lc_kyber_enc_kdf_internal(struct lc_kyber_ct *ct, uint8_t *ss,
 			      size_t ss_len, const struct lc_kyber_pk *pk,
@@ -46,12 +53,24 @@ int lc_kex_uake_initiator_init_internal(struct lc_kyber_pk *pk_e_r,
 					const struct lc_kyber_pk *pk_i,
 					struct lc_rng_ctx *rng_ctx);
 
+int lc_kex_x25519_uake_initiator_init_internal(
+	struct lc_kyber_x25519_pk *pk_e_i, struct lc_kyber_x25519_ct *ct_e_i,
+	struct lc_kyber_x25519_ss *tk, struct lc_kyber_x25519_sk *sk_e,
+	const struct lc_kyber_x25519_pk *pk_r, struct lc_rng_ctx *rng_ctx);
+
 int lc_kex_uake_responder_ss_internal(
 	struct lc_kyber_ct *ct_e_i, uint8_t *shared_secret,
 	size_t shared_secret_len, const uint8_t *kdf_nonce,
 	size_t kdf_nonce_len, const struct lc_kyber_pk *pk_e_r,
 	const struct lc_kyber_ct *ct_e_r, const struct lc_kyber_sk *sk_i,
 	struct lc_rng_ctx *rng_ctx);
+
+int lc_kex_x25519_uake_responder_ss_internal(
+	struct lc_kyber_x25519_ct *ct_e_r, uint8_t *shared_secret,
+	size_t shared_secret_len, const uint8_t *kdf_nonce,
+	size_t kdf_nonce_len, const struct lc_kyber_x25519_pk *pk_e_i,
+	const struct lc_kyber_x25519_ct *ct_e_i,
+	const struct lc_kyber_x25519_sk *sk_r, struct lc_rng_ctx *rng_ctx);
 
 int lc_kex_ake_initiator_init_internal(struct lc_kyber_pk *pk_e_r,
 				       struct lc_kyber_ct *ct_e_r,
@@ -60,6 +79,11 @@ int lc_kex_ake_initiator_init_internal(struct lc_kyber_pk *pk_e_r,
 				       const struct lc_kyber_pk *pk_i,
 				       struct lc_rng_ctx *rng_ctx);
 
+int lc_kex_x25519_ake_initiator_init_internal(
+	struct lc_kyber_x25519_pk *pk_e_i, struct lc_kyber_x25519_ct *ct_e_i,
+	struct lc_kyber_x25519_ss *tk, struct lc_kyber_x25519_sk *sk_e,
+	const struct lc_kyber_x25519_pk *pk_r, struct lc_rng_ctx *rng_ctx);
+
 int lc_kex_ake_responder_ss_internal(
 	struct lc_kyber_ct *ct_e_i_1, struct lc_kyber_ct *ct_e_i_2,
 	uint8_t *shared_secret, size_t shared_secret_len,
@@ -67,6 +91,15 @@ int lc_kex_ake_responder_ss_internal(
 	const struct lc_kyber_pk *pk_e_r, const struct lc_kyber_ct *ct_e_r,
 	const struct lc_kyber_sk *sk_i, const struct lc_kyber_pk *pk_r,
 	struct lc_rng_ctx *rng_ctx);
+
+int lc_kex_x25519_ake_responder_ss_internal(
+	struct lc_kyber_x25519_ct *ct_e_r_1,
+	struct lc_kyber_x25519_ct *ct_e_r_2, uint8_t *shared_secret,
+	size_t shared_secret_len, const uint8_t *kdf_nonce,
+	size_t kdf_nonce_len, const struct lc_kyber_x25519_pk *pk_e_i,
+	const struct lc_kyber_x25519_ct *ct_e_i,
+	const struct lc_kyber_x25519_sk *sk_r,
+	const struct lc_kyber_x25519_pk *pk_i, struct lc_rng_ctx *rng_ctx);
 
 int lc_kyber_ies_enc_internal(const struct lc_kyber_pk *pk,
 			      struct lc_kyber_ct *ct, const uint8_t *plaintext,

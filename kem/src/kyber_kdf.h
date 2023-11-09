@@ -88,6 +88,7 @@ static inline void kyber_kdf3(const uint8_t *in, size_t inlen,
 
 	lc_kmac_zero(kmac_ctx);
 }
+
 /**
  * @brief Kyber KDF
  *

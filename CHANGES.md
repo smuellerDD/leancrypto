@@ -10,7 +10,7 @@ Changes 0.8.0-prerelease:
 
 * reduce memory footprint of Dilithium and Kyber
 
-* enhancement: Add Kyber-X25519 KEM
+* enhancement: Add Kyber-X25519 KEM and KEX
 
 Changes 0.7.0:
 
