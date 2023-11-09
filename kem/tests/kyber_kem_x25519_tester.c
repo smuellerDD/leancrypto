@@ -53,13 +53,13 @@ static int kyber_kem_double_tester(void)
 		0x35, 0xd2, 0x5e, 0x6a, 0x43, 0x50, 0x85, 0xb2
 	};
 	static const uint8_t ss_exp[] = {
-		0x52, 0xd8, 0xe7, 0xc0, 0xfc, 0x97, 0x25, 0xeb, 0x72, 0x17,
-		0xde, 0x01, 0xf2, 0x7f, 0xdf, 0xc7, 0xd9, 0x27, 0xe2, 0xd1,
-		0xb4, 0x55, 0xd4, 0x89, 0x65, 0xfa, 0xdf, 0xcc, 0x21, 0xae,
-		0x25, 0xf3, 0xcc, 0x56, 0xe8, 0x13, 0x38, 0x90, 0x4f, 0xb4,
-		0xfd, 0x75, 0xff, 0x03, 0x86, 0x29, 0x42, 0xe0, 0x1f, 0x58,
-		0x09, 0xad, 0x3b, 0x6e, 0xe3, 0xaa, 0xa1, 0x77, 0x11, 0x96,
-		0xf2, 0x4c, 0xaf, 0x67, 0xdc, 0x74, 0xba
+		0xea, 0x09, 0x60, 0xb5, 0xb7, 0xad, 0x78, 0x41, 0x73, 0x3e,
+		0xc6, 0x11, 0x61, 0x3b, 0x76, 0x9e, 0x2c, 0x68, 0xd9, 0x11,
+		0x52, 0x31, 0xaf, 0xef, 0x96, 0x3a, 0x7f, 0x3a, 0x13, 0x9d,
+		0x8d, 0x9e, 0x4e, 0x99, 0x85, 0xf0, 0x8c, 0x68, 0x24, 0x3e,
+		0xa5, 0x56, 0x0a, 0xc7, 0x28, 0x9b, 0x3e, 0x80, 0x49, 0xc2,
+		0xb9, 0xbb, 0xce, 0x29, 0x6d, 0x1f, 0xf7, 0xcf, 0xc6, 0xc9,
+		0x84, 0xbe, 0x9e, 0xff, 0x9b, 0x60, 0x64
 	};
 	struct workspace {
 		struct lc_kyber_x25519_pk pk;
@@ -67,36 +67,35 @@ static int kyber_kem_double_tester(void)
 		struct lc_kyber_x25519_ct ct;
 		uint8_t ss1[sizeof(ss_exp)], ss2[sizeof(ss_exp)];
 	};
-	int ret;
+	int ret, rc = 0;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 
 	CKINT(lc_kyber_x25519_keypair(&ws->pk, &ws->sk, selftest_rng));
 
-	lc_compare(ws->pk.pk.pk, kyber_pk_exp, sizeof(kyber_pk_exp),
-		   "Kyber pk keygen\n");
-	lc_compare(ws->sk.sk.sk, kyber_sk_exp, sizeof(kyber_sk_exp),
-		   "Kyber sk keygen\n");
-	lc_compare(ws->pk.pk_x25519.pk, x25519_pk_exp, sizeof(x25519_pk_exp),
-		   "X25519 pk keygen\n");
-	lc_compare(ws->sk.sk_x25519.sk, x25519_sk_exp, sizeof(x25519_sk_exp),
-		   "X25519 sk keygen\n");
+	rc += lc_compare(ws->pk.pk.pk, kyber_pk_exp, sizeof(kyber_pk_exp),
+			 "Kyber pk keygen\n");
+	rc += lc_compare(ws->sk.sk.sk, kyber_sk_exp, sizeof(kyber_sk_exp),
+			 "Kyber sk keygen\n");
+	rc += lc_compare(ws->pk.pk_x25519.pk, x25519_pk_exp,
+			 sizeof(x25519_pk_exp), "X25519 pk keygen\n");
+	rc += lc_compare(ws->sk.sk_x25519.sk, x25519_sk_exp,
+			 sizeof(x25519_sk_exp), "X25519 sk keygen\n");
 
-	CKINT(lc_kyber_x25519_enc_kdf_internal(&ws->ct, ws->ss1,
-					       sizeof(ws->ss1), &ws->pk,
-					       selftest_rng));
+	CKINT(lc_kyber_x25519_enc_kdf_internal(
+		&ws->ct, ws->ss1, sizeof(ws->ss1), &ws->pk, selftest_rng));
 
 	CKINT(lc_kyber_x25519_dec_kdf(ws->ss2, sizeof(ws->ss2), &ws->ct,
 				      &ws->sk));
 
-	lc_compare(ws->ss1, ss_exp, sizeof(ss_exp),
-		   "Kyber double SS generation\n");
-	lc_compare(ws->ss1, ws->ss2, sizeof(ws->ss2),
-		   "Kyber double SS comparison\n");
+	rc += lc_compare(ws->ss1, ss_exp, sizeof(ss_exp),
+			 "Kyber X25519 SS generation\n");
+	rc += lc_compare(ws->ss1, ws->ss2, sizeof(ws->ss2),
+			 "Kyber X25519 SS comparison\n");
 
 out:
 	LC_RELEASE_MEM(ws);
-	return ret;
+	return ret ? ret : rc;
 }
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
