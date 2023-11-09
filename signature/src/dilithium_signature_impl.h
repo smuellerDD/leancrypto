@@ -203,8 +203,10 @@ static int lc_dilithium_sign_internal(struct lc_dilithium_sig *sig,
 	};
 	LC_DECLARE_MEM(ws, struct workspace_sign, sizeof(uint64_t));
 	unsigned int n;
-	uint8_t *rho, *key, *mu, *rhoprime, *rnd;
+	uint8_t *key, *mu, *rhoprime, *rnd;
 	uint16_t nonce = 0;
+	/* The first bytes of the key is rho. */
+	const uint8_t *rho;
 	int ret = 0;
 
 	key = ws->seedbuf;
@@ -229,8 +231,7 @@ static int lc_dilithium_sign_internal(struct lc_dilithium_sig *sig,
 	dilithium_print_buffer(rnd, LC_DILITHIUM_RNDBYTES, "Siggen - RND:");
 
 	/* Expand matrix and transform vectors */
-	rho = ws->seedbuf;
-	unpack_sk_rho(rho, sk);
+	rho = sk->sk;
 	polyvec_matrix_expand(ws->mat, rho, ws->tmp.poly_uniform_buf);
 	dilithium_print_polyvecl_k(
 		ws->mat, "Siggen - A K x L x N matrix after ExpandA:");
@@ -456,7 +457,6 @@ static int lc_dilithium_verify_internal(const struct lc_dilithium_sig *sig,
 		union {
 			polyveck t1, h;
 			polyvecl z;
-			uint8_t rho[LC_DILITHIUM_SEEDBYTES];
 			uint8_t mu[LC_DILITHIUM_CRHBYTES];
 			BUF_ALIGNED_UINT8_UINT64(LC_DILITHIUM_CTILDE_BYTES) c2;
 		} buf;
@@ -472,10 +472,11 @@ static int lc_dilithium_verify_internal(const struct lc_dilithium_sig *sig,
 	LC_DECLARE_MEM(ws, struct workspace_verify, sizeof(uint64_t));
 	/* The first bytes of the signature is c~ and thus contains c1. */
 	const uint8_t *c1 = sig->sig;
+	/* The first bytes of the key is rho. */
+	const uint8_t *rho = pk->pk;
 	int ret = 0;
 
-	unpack_pk_rho(ws->buf.rho, pk);
-	polyvec_matrix_expand(ws->mat, ws->buf.rho, ws->tmp.poly_uniform_buf);
+	polyvec_matrix_expand(ws->mat, rho, ws->tmp.poly_uniform_buf);
 
 	unpack_sig_z(&ws->buf.z, sig);
 	if (polyvecl_chknorm(&ws->buf.z,
