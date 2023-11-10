@@ -2692,9 +2692,8 @@ static void ge25519_elligator2(fe25519 x, fe25519 y, const fe25519 r,
 
 	/* y = sqrt(gx1) or sqrt(gx2) with gx2 = gx1 * (A+x1) / -x1 */
 	/* but it is about as fast to just recompute from the curve equation. */
-	if (ge25519_xmont_to_ymont(y, x) != 0) {
-		//abort();
-	}
+	assert(ge25519_xmont_to_ymont(y, x) != 0);
+
 	*notsquare_p = notsquare;
 }
 
