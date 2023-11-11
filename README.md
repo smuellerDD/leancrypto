@@ -159,6 +159,8 @@ Leancrypto offers various cryptographic algorithms:
   * Kyber Integrated Encryption Schema (IES) - algorithm devised with
     leancrypto, see `kyber_ies.c` for full specification
 
+  * Kyber double KEM / KEX with Curve25519
+
 * One Time Pad algorithms
 
   * HOTP
@@ -168,6 +170,8 @@ Leancrypto offers various cryptographic algorithms:
 * Signature algorithm
 
   * Dilithium
+
+  * Dilithium double signature operation with Curve25519
 
 * Symmetric algorithms
 
