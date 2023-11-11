@@ -164,4 +164,17 @@ if get_option('dilithium').enabled()
 		     dilithium_tester_iuf_armv7,
 		     args : [ 'c' ], timeout: 1000, is_parallel: false)
 	endif
+
+	if get_option('dilithium_ed25519').enabled()
+		dilithium_ed25519_tester = executable('dilithium_ed25519_tester',
+					[ 'dilithium_ed25519_tester.c',
+					  internal_src ],
+					include_directories: [
+						include_dirs,
+						include_internal_dirs,
+						include_kyber_internal
+					], link_with: leancrypto_static_lib
+					)
+		test('Dilithium-ED25519 Signature', dilithium_ed25519_tester)
+	endif
 endif
