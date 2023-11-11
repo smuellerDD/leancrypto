@@ -91,6 +91,8 @@ int lc_ed25519_keypair(struct lc_ed25519_pk *pk, struct lc_ed25519_sk *sk,
 	memcpy(sk->sk + 32, pk->pk, 32);
 
 out:
+	lc_memset_secure(&A, 0, sizeof(A));
+	lc_memset_secure(tmp, 0, sizeof(tmp));;
 	return ret;
 }
 
@@ -195,6 +197,7 @@ out:
 	lc_memset_secure(az, 0, sizeof(az));
 	lc_memset_secure(nonce, 0, sizeof(nonce));
 	lc_memset_secure(hram, 0, sizeof(hram));
+	lc_memset_secure(&R, 0, sizeof(R));
 	lc_hash_zero(hash_ctx);
 	return ret;
 }
@@ -305,5 +308,12 @@ int lc_ed25519_verify(const struct lc_ed25519_sig *sig, const uint8_t *msg,
 		ret = -EBADMSG;
 
 out:
+	lc_memset_secure(h, 0, sizeof(h));
+	lc_memset_secure(&check, 0, sizeof(check));
+	lc_memset_secure(&expected_r, 0, sizeof(expected_r));
+	lc_memset_secure(&A, 0, sizeof(A));
+	lc_memset_secure(&sb_ah, 0, sizeof(sb_ah));
+	lc_memset_secure(&sb_ah_p2, 0, sizeof(sb_ah_p2));
+	lc_hash_zero(hash_ctx);
 	return ret;
 }
