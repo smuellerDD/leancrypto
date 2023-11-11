@@ -42,8 +42,8 @@ static int dilithium_ed25519_tester(void)
 	CKINT(lc_dilithium_ed25519_verify(&ws->sig, msg, sizeof(msg), &ws->pk));
 
 	/* modify msg */
-	if (lc_dilithium_ed25519_verify(&ws->sig, msg2, sizeof(msg2), &ws->pk) !=
-	    -EBADMSG) {
+	if (lc_dilithium_ed25519_verify(&ws->sig, msg2, sizeof(msg2),
+					&ws->pk) != -EBADMSG) {
 		ret = 1;
 		goto out;
 	}
