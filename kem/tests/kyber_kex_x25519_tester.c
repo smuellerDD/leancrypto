@@ -48,8 +48,8 @@ static int kyber_kex_tester(void)
 	};
 	unsigned int i;
 	int ret;
-	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 
 	for (i = 0; i < LC_KYBER_SSBYTES; i++)
 		ws->zero[i] = 0;

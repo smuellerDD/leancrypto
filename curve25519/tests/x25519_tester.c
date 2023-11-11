@@ -114,8 +114,8 @@ static int x25519_keygen(void)
 					  0xef, 0x26 };
 	struct lc_x25519_pk pk;
 	struct lc_x25519_sk sk;
-	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 	int ret;
+	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 
 	CKINT(lc_x25519_keypair(&pk, &sk, selftest_rng));
 

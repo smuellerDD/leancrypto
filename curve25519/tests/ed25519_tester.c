@@ -99,11 +99,9 @@ static int ed25519_sigver_neg_tester(void)
 	int ret = lc_ed25519_verify(&sig, msg, sizeof(msg), &pk);
 
 	if (ret != -EINVAL && ret != -EBADMSG)
-		ret = 1;
+		return 1;
 
-	ret = 0;
-
-	return ret;
+	return 0;
 }
 
 /* Test vector generated with libsodium using the ACVP parser tool */

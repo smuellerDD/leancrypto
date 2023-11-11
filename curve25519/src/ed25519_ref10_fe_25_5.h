@@ -171,7 +171,7 @@ static inline void fe25519_neg(fe25519 h, const fe25519 f)
 
 static inline void fe25519_cmov(fe25519 f, const fe25519 g, unsigned int b)
 {
-	uint32_t mask = (uint32_t)(-(int32_t)b);
+	int32_t mask = -(int32_t)b;
 	int32_t f0, f1, f2, f3, f4, f5, f6, f7, f8, f9;
 	int32_t x0, x1, x2, x3, x4, x5, x6, x7, x8, x9;
 
@@ -226,7 +226,7 @@ static inline void fe25519_cmov(fe25519 f, const fe25519 g, unsigned int b)
 
 static inline void fe25519_cswap(fe25519 f, fe25519 g, unsigned int b)
 {
-	uint32_t mask = (uint32_t)(-(int64_t)b);
+	int32_t mask = -(int32_t)b;
 	int32_t f0, f1, f2, f3, f4, f5, f6, f7, f8, f9;
 	int32_t g0, g1, g2, g3, g4, g5, g6, g7, g8, g9;
 	int32_t x0, x1, x2, x3, x4, x5, x6, x7, x8, x9;

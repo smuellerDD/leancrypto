@@ -28,9 +28,8 @@
 
 #include "alignment.h"
 #include "build_bug_on.h"
-#include "lc_memset_secure.h"
-
 #include "ed25519_ref10.h"
+#include "lc_memset_secure.h"
 #include "x25519_scalarmult.h"
 
 /*

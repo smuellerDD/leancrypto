@@ -113,8 +113,6 @@ meson.add_dist_script(dist_script, meson.project_version())
 cc = meson.get_compiler('c')
 pkgconfig = import('pkgconfig')
 
-curve25519_enabled = get_option('kyber_x25519').enabled() or get_option('dilithium_ed25519').enabled()
-
 include_dirs = include_directories([ 'aead/api',
 				     'curve25519/api',
 				     'drng/api',
@@ -134,6 +132,7 @@ include_files = [ ]
 include_internal_dirs = include_directories([ 'internal/api' ])
 
 subdirs = [ 'aead/src',
+	    'curve25519/src',
 	    'drng/src',
 	    'hash/src',
 	    'internal/src',
@@ -148,6 +147,7 @@ subdirs = [ 'aead/src',
 
 testdirs = [ 'apps/tests',
 	     'aead/tests',
+	     'curve25519/tests',
 	     'drng/tests',
 	     'hash/tests',
 	     'internal/tests',
@@ -157,12 +157,6 @@ testdirs = [ 'apps/tests',
 	     'signature/tests',
 	     'sym/tests'
 	   ]
-
-
-if curve25519_enabled
-	subdirs += 'curve25519/src'
-	testdirs += 'curve25519/tests'
-endif
 
 appdirs = [ 'apps/src' ]
 

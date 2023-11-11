@@ -27,11 +27,10 @@
  */
 
 #include "ed25519.h"
+#include "ed25519_ref10.h"
 #include "ext_headers.h"
 #include "lc_sha512.h"
 #include "ret_checkers.h"
-
-#include "../src/ed25519_ref10.h"
 
 int lc_ed25519_keypair(struct lc_ed25519_pk *pk, struct lc_ed25519_sk *sk,
 		       struct lc_rng_ctx *rng_ctx)
@@ -59,9 +58,9 @@ out:
 int lc_ed25519_sign(struct lc_ed25519_sig *sig, const uint8_t *msg, size_t mlen,
 		    const struct lc_ed25519_sk *sk, struct lc_rng_ctx *rng_ctx)
 {
-	unsigned char az[LC_SHA512_SIZE_DIGEST];
-	unsigned char nonce[LC_SHA512_SIZE_DIGEST];
-	unsigned char hram[LC_SHA512_SIZE_DIGEST];
+	uint8_t az[LC_SHA512_SIZE_DIGEST];
+	uint8_t nonce[LC_SHA512_SIZE_DIGEST];
+	uint8_t hram[LC_SHA512_SIZE_DIGEST];
 	ge25519_p3 R;
 	int ret = 0;
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_sha512);
@@ -111,7 +110,7 @@ out:
 int lc_ed25519_verify(const struct lc_ed25519_sig *sig, const uint8_t *msg,
 		      size_t mlen, const struct lc_ed25519_pk *pk)
 {
-	unsigned char h[LC_SHA512_SIZE_DIGEST];
+	uint8_t h[LC_SHA512_SIZE_DIGEST];
 	ge25519_p3 check;
 	ge25519_p3 expected_r;
 	ge25519_p3 A;

@@ -26,10 +26,9 @@
  * Frank Denis <j at pureftpd dot org>
  */
 
+#include "ed25519_ref10.h"
 #include "ext_headers.h"
 #include "small_stack_support.h"
-
-#include "ed25519_ref10.h"
 
 static inline uint64_t load_3(const unsigned char *in)
 {
@@ -584,7 +583,7 @@ void ge25519_p3_tobytes(unsigned char *s, const ge25519_p3 *h)
 	fe25519_mul(x, h->X, recip);
 	fe25519_mul(y, h->Y, recip);
 	fe25519_tobytes(s, y);
-	s[31] ^= fe25519_isnegative(x) << 7;
+	s[31] ^= (unsigned char)(fe25519_isnegative(x) << 7);
 }
 
 /*
@@ -739,7 +738,7 @@ void ge25519_tobytes(unsigned char *s, const ge25519_p2 *h)
 	fe25519_mul(x, h->X, recip);
 	fe25519_mul(y, h->Y, recip);
 	fe25519_tobytes(s, y);
-	s[31] ^= fe25519_isnegative(x) << 7;
+	s[31] ^= (unsigned char)(fe25519_isnegative(x) << 7);
 }
 
 /*
@@ -923,7 +922,7 @@ static int _ge25519_scalarmult(ge25519_p3 *h, const unsigned char *a,
 		ws->e[i] += ws->carry;
 		ws->carry = ws->e[i] + 8;
 		ws->carry >>= 4;
-		ws->e[i] -= ws->carry * ((signed char)1 << 4);
+		ws->e[i] -= (signed char)(ws->carry * ((signed char)1 << 4));
 	}
 	ws->e[63] += ws->carry;
 	/* each e[i] is between -8 and 8 */
@@ -991,7 +990,7 @@ void ge25519_scalarmult_base(ge25519_p3 *h, const unsigned char *a)
 		e[i] += carry;
 		carry = e[i] + 8;
 		carry >>= 4;
-		e[i] -= carry * ((signed char)1 << 4);
+		e[i] -= (signed char)(carry * ((signed char)1 << 4));
 	}
 	e[63] += carry;
 	/* each e[i] is between -8 and 8 */
@@ -1059,17 +1058,23 @@ void ge25519_p3_sub(ge25519_p3 *r, const ge25519_p3 *p, const ge25519_p3 *q)
 }
 
 /* r = r*(2^n)+q */
-static void ge25519_p3_dbladd(ge25519_p3 *r, const int n, const ge25519_p3 *q)
+static void ge25519_p3_dbladd(ge25519_p3 *r, const unsigned int n,
+			      const ge25519_p3 *q)
 {
 	ge25519_p2 p2;
 	ge25519_p1p1 p1p1;
-	int i;
+	unsigned int i;
 
 	ge25519_p3_to_p2(&p2, r);
 	for (i = 0; i < n; i++) {
 		ge25519_p2_dbl(&p1p1, &p2);
 		ge25519_p1p1_to_p2(&p2, &p1p1);
 	}
+
+	/* Initialize variable - shut up clang-scan */
+	if (i == 0)
+		memset(&p1p1, 0, sizeof(p1p1));
+
 	ge25519_p1p1_to_p3(r, &p1p1);
 	ge25519_p3_add(r, r, q);
 }
@@ -1178,7 +1183,7 @@ int ge25519_is_canonical(const unsigned char *s)
 	return 1 - (c & d & 1);
 }
 
-int ge25519_has_small_order(const ge25519_p3 *p)
+unsigned int ge25519_has_small_order(const ge25519_p3 *p)
 {
 	fe25519 recip;
 	fe25519 x;
@@ -1186,7 +1191,7 @@ int ge25519_has_small_order(const ge25519_p3 *p)
 	fe25519 y;
 	fe25519 y_sqrtm1;
 	fe25519 c;
-	int ret = 0;
+	unsigned int ret = 0;
 
 	fe25519_invert(recip, p->Z);
 	fe25519_mul(x, p->X, recip);
@@ -1227,7 +1232,7 @@ void sc25519_mul(unsigned char s[32], const unsigned char a[32],
 	int64_t a8 = 2097151 & load_3(a + 21);
 	int64_t a9 = 2097151 & (load_4(a + 23) >> 5);
 	int64_t a10 = 2097151 & (load_3(a + 26) >> 2);
-	int64_t a11 = (load_4(a + 28) >> 7);
+	int64_t a11 = (int64_t)(load_4(a + 28) >> 7);
 
 	int64_t b0 = 2097151 & load_3(b);
 	int64_t b1 = 2097151 & (load_4(b + 2) >> 5);
@@ -1240,7 +1245,7 @@ void sc25519_mul(unsigned char s[32], const unsigned char a[32],
 	int64_t b8 = 2097151 & load_3(b + 21);
 	int64_t b9 = 2097151 & (load_4(b + 23) >> 5);
 	int64_t b10 = 2097151 & (load_3(b + 26) >> 2);
-	int64_t b11 = (load_4(b + 28) >> 7);
+	int64_t b11 = (int64_t)(load_4(b + 28) >> 7);
 
 	int64_t s0;
 	int64_t s1;
@@ -1701,7 +1706,7 @@ void sc25519_muladd(unsigned char s[32], const unsigned char a[32],
 	int64_t a8 = 2097151 & load_3(a + 21);
 	int64_t a9 = 2097151 & (load_4(a + 23) >> 5);
 	int64_t a10 = 2097151 & (load_3(a + 26) >> 2);
-	int64_t a11 = (load_4(a + 28) >> 7);
+	int64_t a11 = (int64_t)(load_4(a + 28) >> 7);
 
 	int64_t b0 = 2097151 & load_3(b);
 	int64_t b1 = 2097151 & (load_4(b + 2) >> 5);
@@ -1714,7 +1719,7 @@ void sc25519_muladd(unsigned char s[32], const unsigned char a[32],
 	int64_t b8 = 2097151 & load_3(b + 21);
 	int64_t b9 = 2097151 & (load_4(b + 23) >> 5);
 	int64_t b10 = 2097151 & (load_3(b + 26) >> 2);
-	int64_t b11 = (load_4(b + 28) >> 7);
+	int64_t b11 = (int64_t)(load_4(b + 28) >> 7);
 
 	int64_t c0 = 2097151 & load_3(c);
 	int64_t c1 = 2097151 & (load_4(c + 2) >> 5);
@@ -1727,7 +1732,7 @@ void sc25519_muladd(unsigned char s[32], const unsigned char a[32],
 	int64_t c8 = 2097151 & load_3(c + 21);
 	int64_t c9 = 2097151 & (load_4(c + 23) >> 5);
 	int64_t c10 = 2097151 & (load_3(c + 26) >> 2);
-	int64_t c11 = (load_4(c + 28) >> 7);
+	int64_t c11 = (int64_t)(load_4(c + 28) >> 7);
 
 	int64_t s0;
 	int64_t s1;
@@ -2286,7 +2291,7 @@ void sc25519_reduce(unsigned char s[64])
 	int64_t s20 = 2097151 & (load_4(s + 52) >> 4);
 	int64_t s21 = 2097151 & (load_3(s + 55) >> 1);
 	int64_t s22 = 2097151 & (load_4(s + 57) >> 6);
-	int64_t s23 = (load_4(s + 60) >> 3);
+	int64_t s23 = (int64_t)(load_4(s + 60) >> 3);
 
 	int64_t carry0;
 	int64_t carry1;
@@ -2599,8 +2604,8 @@ int sc25519_is_canonical(const unsigned char s[32])
 
 	do {
 		i--;
-		c |= ((s[i] - L[i]) >> 8) & n;
-		n &= ((s[i] ^ L[i]) - 1) >> 8;
+		c |= (unsigned char)(((s[i] - L[i]) >> 8) & n);
+		n &= (unsigned char)(((s[i] ^ L[i]) - 1) >> 8);
 	} while (i != 0);
 
 	return (c != 0);

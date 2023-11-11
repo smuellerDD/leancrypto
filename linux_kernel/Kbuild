@@ -790,6 +790,13 @@ dilithium_tester_common-y	+= ../signature/tests/dilithium_tester.o       \
 dilithium_invalid_tester-y	+= ../signature/tests/dilithium_invalid_tester.o
 endif
 
+ifdef CONFIG_LEANCRYPTO_DILITHIUM_ED25519
+obj-m		  		+= dilithium_ed25519_tester.o
+
+dilithium_ed25519_tester-y	+= ../signature/tests/dilithium_ed25519_tester.o\
+				   ../drng/src/selftest_rng.o
+endif
+
 ifdef CONFIG_X86_64
 ifdef CONFIG_LEANCRYPTO_DILITHIUM
 obj-m				+= dilithium_tester_avx2.o

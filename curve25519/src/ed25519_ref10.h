@@ -137,7 +137,7 @@ unsigned int ge25519_is_on_curve(const ge25519_p3 *p);
 
 unsigned int ge25519_is_on_main_subgroup(const ge25519_p3 *p);
 
-int ge25519_has_small_order(const ge25519_p3 *p);
+unsigned int ge25519_has_small_order(const ge25519_p3 *p);
 
 void ge25519_from_uniform(unsigned char s[32], const unsigned char r[32]);
 
