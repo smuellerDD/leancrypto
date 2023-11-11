@@ -12,6 +12,8 @@ Changes 0.8.0-prerelease:
 
 * enhancement: Add Kyber-X25519 KEM and KEX
 
+* enhancement: Add Dilithium-ED25519
+
 Changes 0.7.0:
 
 * enhancement: add XDRBG256 - the SHAKE256-based DRNG discussed for SP800-90A

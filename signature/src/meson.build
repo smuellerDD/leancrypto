@@ -23,4 +23,11 @@ if get_option('dilithium').enabled()
 	else
 		src += files([ 'dilithium_signature_api_c.c' ])
 	endif
+
+	if get_option('dilithium_ed25519').enabled()
+		src += files ([
+			'dilithium_ed25519_signature.c',
+		])
+	endif
+
 endif

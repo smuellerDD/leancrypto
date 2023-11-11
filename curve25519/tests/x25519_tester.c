@@ -19,8 +19,8 @@
 
 #include "ext_headers.h"
 
-#include "../src/x25519/x25519.h"
-#include "../src/x25519/x25519_scalarmult.h"
+#include "x25519.h"
+#include "../src/x25519_scalarmult.h"
 #include "compare.h"
 #include "ret_checkers.h"
 #include "selftest_rng.h"

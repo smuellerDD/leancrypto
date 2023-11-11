@@ -21,7 +21,7 @@
 #include "kyber_internal.h"
 #include "ret_checkers.h"
 #include "visibility.h"
-#include "x25519/x25519.h"
+#include "x25519.h"
 
 LC_INTERFACE_FUNCTION(int, lc_kyber_x25519_keypair,
 		      struct lc_kyber_x25519_pk *pk,

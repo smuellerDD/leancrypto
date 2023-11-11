@@ -204,6 +204,16 @@ CONFIG_LEANCRYPTO_KEM_X25519=y
 #
 CONFIG_LEANCRYPTO_DILITHIUM=y
 
+#
+# Enable Dilithium Digital Signature Mechanism in collaboration with
+# EDDSA with ED25519
+# Dependencies: CONFIG_LEANCRYPTO_DILITHIUM
+#
+# Note: When disabling this option, lc_dilithium.awk needs to be changed at the
+#	marked location.
+#
+CONFIG_LEANCRYPTO_DILITHIUM_ED25519=y
+
 ############################ Power-Up Health Tests #############################
 
 #
@@ -213,6 +223,13 @@ CONFIG_LEANCRYPTO_DILITHIUM=y
 CONFIG_LEANCRYPTO_HEALTH_TEST=y
 
 ########################## No Changes Below This Line ##########################
+
+ifdef CONFIG_LEANCRYPTO_KEM_X25519
+CONFIG_LEANCRYPTO_CURVE25519=y
+endif
+ifdef CONFIG_LEANCRYPTO_DILITHIUM_ED25519
+CONFIG_LEANCRYPTO_CURVE25519=y
+endif
 
 obj-m		 		:= leancrypto.o
 
@@ -538,6 +555,25 @@ endif
 # Required for Kyber and Dilithium self tests
 leancrypto-y			+= ../drng/src/selftest_rng.o
 
+ccflags-$(CONFIG_LEANCRYPTO_CURVE25519)					       \
+				+= -I$(PWD)/../curve25519/api		       \
+				   -I$(PWD)/../curve25519/src
+leancrypto-$(CONFIG_LEANCRYPTO_CURVE25519)				       \
+				+= ../curve25519/src/ed25519.o		       \
+				   ../curve25519/src/ed25519_ref10.o	       \
+				   ../curve25519/src/x25519.o		       \
+				   ../curve25519/src/x25519_scalarmult.o
+
+ifdef CONFIG_LEANCRYPTO_CURVE25519
+obj-m				+= ed25519_tester.o
+obj-m				+= x25519_tester.o
+
+ed25519_tester-y		+= ../curve25519/tests/ed25519_tester.o	       \
+				   ../drng/src/selftest_rng.o
+x25519_tester-y			+= ../curve25519/tests/x25519_tester.o	       \
+				   ../drng/src/selftest_rng.o
+endif
+
 # KEM implementation
 ccflags-$(CONFIG_LEANCRYPTO_KEM)					       \
 				+= -I$(PWD)/../kem/api -I$(PWD)/../kem/src
@@ -559,10 +595,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 # KEM-X25519 implementation
 leancrypto-$(CONFIG_LEANCRYPTO_KEM_X25519)				       \
 				+= ../kem/src/kyber_x25519_kem.o	       \
-				   ../kem/src/kyber_x25519_kex.o	       \
-				   ../kem/src/x25519/ed25519_ref10.o	       \
-				   ../kem/src/x25519/x25519.o		       \
-				   ../kem/src/x25519/x25519_scalarmult.o
+				   ../kem/src/kyber_x25519_kex.o
 
 ifdef CONFIG_X86_64
 asflags-$(CONFIG_LEANCRYPTO_KEM)					       \
@@ -620,7 +653,6 @@ obj-m		 		+= kyber_kex_tester.o
 obj-m		 		+= kyber_ies_tester.o
 obj-m		 		+= kyber_invalid_tester.o
 obj-m				+= kyber_kem_x25519_tester.o
-obj-m				+= x25519_tester.o
 
 kyber_kem_tester_c-y		+= ../kem/tests/kyber_kem_tester.o	       \
 				   ../kem/tests/kyber_kem_tester_c.o	       \
@@ -643,13 +675,10 @@ endif
 ifdef CONFIG_LEANCRYPTO_KEM_X25519
 obj-m				+= kyber_kem_x25519_tester.o
 obj-m				+= kyber_kex_x25519_tester.o
-obj-m				+= x25519_tester.o
 
 kyber_kem_x25519_tester-y	+= ../kem/tests/kyber_kem_x25519_tester.o      \
 				   ../drng/src/selftest_rng.o
 kyber_kex_x25519_tester-y	+= ../kem/tests/kyber_kex_x25519_tester.o      \
-				   ../drng/src/selftest_rng.o
-x25519_tester-y			+= ../kem/tests/x25519_tester.o		       \
 				   ../drng/src/selftest_rng.o
 endif
 
@@ -704,6 +733,10 @@ leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
 				   ../signature/src/dilithium_rounding.o       \
 				   ../signature/src/dilithium_selftest.o       \
 				   ../signature/src/dilithium_signature_c.o
+
+# KEM-X25519 implementation
+leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_ED25519)			       \
+				+= ../signature/src/dilithium_ed25519_signature.o
 
 ifdef CONFIG_X86_64
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \

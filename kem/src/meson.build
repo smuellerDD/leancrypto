@@ -36,7 +36,6 @@ if get_option('kyber').enabled()
 	endif
 
 	if get_option('kyber_x25519').enabled()
-		subdir('x25519')
 		src += files ([
 			'kyber_x25519_kem.c',
 			'kyber_x25519_kex.c',

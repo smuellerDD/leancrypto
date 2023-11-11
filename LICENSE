@@ -175,11 +175,12 @@ obtained from https://github.com/jedisct1/libsodium.git
 Copyright (c) 2013-2023
 Frank Denis <j at pureftpd dot org>
 
-kem/src/x25519/ed25519_ref10.c
-kem/src/x25519/ed25519_ref10.h
-kem/src/x25519/ed25519_ref10_fe_51.h
-kem/src/x25519/ed25519_ref10_fe_25_5.h
-kem/src/x25519/fe_25_5/*
-kem/src/x25519/fe_51/*
-kem/src/x25519/x25519_scalarmult.c
-kem/src/x25519/x25519_scalarmult.h
+curve25519/src/ed25519.c
+curve25519/src/ed25519_ref10.c
+curve25519/src/ed25519_ref10.h
+curve25519/src/ed25519_ref10_fe_51.h
+curve25519/src/ed25519_ref10_fe_25_5.h
+curve25519/src/fe_25_5/*
+curve25519/src/fe_51/*
+curve25519/src/x25519_scalarmult.c
+curve25519/src/x25519_scalarmult.h

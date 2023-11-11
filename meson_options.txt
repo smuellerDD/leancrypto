@@ -58,6 +58,8 @@ the value 2 implies 128 bits of security strength,
 the value 3 implies 192 bits of security strength,
 the value 5 implies 256 bits of security strength,
 ''')
+option('dilithium_ed25519', type: 'feature', value: 'enabled',
+       description: 'Dilithium-ED25519 KEM')
 
 option('kyber', type: 'feature', value: 'enabled',
        description: 'Kyber key exchange mechanism (KEM) support - FIPS 203')
