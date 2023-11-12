@@ -612,7 +612,8 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 
 # KEM-X25519 implementation
 leancrypto-$(CONFIG_LEANCRYPTO_KEM_X25519)				       \
-				+= ../kem/src/kyber_x25519_kem.o	       \
+				+= ../kem/src/kyber_x25519_ies.o	       \
+				   ../kem/src/kyber_x25519_kem.o	       \
 				   ../kem/src/kyber_x25519_kex.o
 
 ifdef CONFIG_X86_64
@@ -670,7 +671,6 @@ obj-m		 		+= kyber_kem_kdf_tester_common.o
 obj-m		 		+= kyber_kex_tester.o
 obj-m		 		+= kyber_ies_tester.o
 obj-m		 		+= kyber_invalid_tester.o
-obj-m				+= kyber_kem_x25519_tester.o
 
 kyber_kem_tester_c-y		+= ../kem/tests/kyber_kem_tester.o	       \
 				   ../kem/tests/kyber_kem_tester_c.o	       \
@@ -691,9 +691,12 @@ kyber_invalid_tester-y  	+= ../kem/tests/kyber_invalid_tester.o
 endif
 
 ifdef CONFIG_LEANCRYPTO_KEM_X25519
+obj-m				+= kyber_ies_x25519_tester.o
 obj-m				+= kyber_kem_x25519_tester.o
 obj-m				+= kyber_kex_x25519_tester.o
 
+kyber_ies_x25519_tester-y	+= ../kem/tests/kyber_ies_x25519_tester.o      \
+				   ../drng/src/selftest_rng.o
 kyber_kem_x25519_tester-y	+= ../kem/tests/kyber_kem_x25519_tester.o      \
 				   ../drng/src/selftest_rng.o
 kyber_kex_x25519_tester-y	+= ../kem/tests/kyber_kex_x25519_tester.o      \

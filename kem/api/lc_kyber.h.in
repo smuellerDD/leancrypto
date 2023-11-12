@@ -953,6 +953,240 @@ int lc_kex_x25519_ake_initiator_ss(uint8_t *shared_secret,
 				   const struct lc_kyber_x25519_sk *sk_e,
 				   const struct lc_kyber_x25519_sk *sk_i);
 
+/****************************** Kyber X25510 IES ******************************/
+/**
+ * @brief lc_kyber_x25519_ies_enc - KyberIES encryption oneshot
+ *
+ * The implementation supports an in-place data encryption where the
+ * plaintext and ciphertext buffer pointers refer to the same memory location.
+ *
+ * The function entirely operates on stack memory.
+ *
+ * @param [in] pk Kyber public key of data owner
+ * @param [out] ct Kyber ciphertext to be sent to the decryption operation
+ * @param [in] plaintext Plaintext data to be encrypted
+ * @param [out] ciphertext Buffer of equal size as plaintext that will be filled
+ *			   with the encryption result
+ * @param [in] datalen Length of the plaintext buffer
+ * @param [in] aad Additional authenticate data to be processed - this is data
+ *		   which is not encrypted, but considered as part of the
+ *		   authentication.
+ * @param [in] aadlen Length of the AAD buffer
+ * @param [out] tag Buffer that will be filled with the authentication tag
+ * @param [in] taglen Length of the tag buffer
+ * @param [in] aead Allocated AEAD algorithm - the caller only needs to provide
+ *		    an allocated but otherwise unused instance of an AEAD
+ *		    algorithm. This allows the caller to define the AEAD
+ *		    algorithm type. The caller must zeroize and release the
+ *		    context after completion.
+ *
+ * @return 0 on success, < 0 on error
+ */
+int lc_kyber_x25519_ies_enc(const struct lc_kyber_x25519_pk *pk,
+			    struct lc_kyber_x25519_ct *ct,
+			    const uint8_t *plaintext, uint8_t *ciphertext,
+			    size_t datalen, const uint8_t *aad, size_t aadlen,
+			    uint8_t *tag, size_t taglen,
+			    struct lc_aead_ctx *aead);
+
+/**
+ * @brief lc_kyber_x25519_ies_enc_init - KyberIES encryption stream operation
+ *				 	 initialization
+ *
+ * The implementation supports an in-place data encryption where the
+ * plaintext and ciphertext buffer pointers refer to the same memory location.
+ *
+ * The function entirely operates on stack memory.
+ *
+ * The aead context is initialized such that it can be used with
+ * lc_kyber_x25519_ies_enc_[update|final].
+ *
+ * @param [out] aead Allocated AEAD algorithm - the caller only needs to provide
+ *		     an allocated but otherwise unused instance of an AEAD
+ *		     algorithm. This allows the caller to define the AEAD
+ *		     algorithm type. The caller must zeroize and release the
+ *		     context after completion.
+ * @param [in] pk Kyber public key of data owner
+ * @param [out] ct Kyber ciphertext to be sent to the decryption operation
+ *
+ * @return 0 on success, < 0 on error
+ */
+int lc_kyber_x25519_ies_enc_init(struct lc_aead_ctx *aead,
+				 const struct lc_kyber_x25519_pk *pk,
+				 struct lc_kyber_x25519_ct *ct);
+
+/**
+ * @brief lc_kyber_x25519_ies_enc_update - KyberIES encryption stream operation
+ *				    	   add more data
+ *
+ * The implementation supports an in-place data encryption where the
+ * plaintext and ciphertext buffer pointers refer to the same memory location.
+ *
+ * The function entirely operates on stack memory.
+ *
+ * @param [in] aead Allocated AEAD algorithm - the caller only needs to provide
+ *		    an allocated but otherwise unused instance of an AEAD
+ *		    algorithm. This allows the caller to define the AEAD
+ *		    algorithm type. The caller must zeroize and release the
+ *		    context after completion.
+ * @param [in] plaintext Plaintext data to be encrypted
+ * @param [out] ciphertext Buffer of equal size as plaintext that will be filled
+ *			   with the encryption result
+ * @param [in] datalen Length of the plaintext buffer
+ */
+static inline void lc_kyber_x25519_ies_enc_update(struct lc_aead_ctx *aead,
+						  const uint8_t *plaintext,
+						  uint8_t *ciphertext,
+						  size_t datalen)
+{
+	lc_aead_enc_update(aead, plaintext, ciphertext, datalen);
+}
+
+/**
+ * @brief lc_kyber_x25519_ies_enc_final - KyberIES encryption stream operation
+ *				 	  finalization / integrity test
+ *
+ * The implementation supports an in-place data encryption where the
+ * plaintext and ciphertext buffer pointers refer to the same memory location.
+ *
+ * The function entirely operates on stack memory.
+ *
+ * @param [in] aead Allocated AEAD algorithm - the caller only needs to provide
+ *		    an allocated but otherwise unused instance of an AEAD
+ *		    algorithm. This allows the caller to define the AEAD
+ *		    algorithm type. The caller must zeroize and release the
+ *		    context after completion.
+ * @param [in] aad Additional authenticate data to be processed - this is data
+ *		   which is not encrypted, but considered as part of the
+ *		   authentication.
+ * @param [in] aadlen Length of the AAD buffer
+ * @param [out] tag Buffer that will be filled with the authentication tag
+ * @param [in] taglen Length of the tag buffer
+ */
+static inline void lc_kyber_x25519_ies_enc_final(struct lc_aead_ctx *aead,
+						 const uint8_t *aad,
+						 size_t aadlen,
+						 uint8_t *tag, size_t taglen)
+{
+	lc_aead_enc_final(aead, aad, aadlen, tag, taglen);
+}
+
+/**
+ * @brief lc_kyber_x25519_ies_dec - KyberIES decryption oneshot
+ *
+ * The implementation supports an in-place data decryption where the
+ * plaintext and ciphertext buffer pointers refer to the same memory location.
+ *
+ * The function entirely operates on stack memory.
+ *
+ * @param [in] sk Kyber secret key of data owner
+ * @param [in] ct Kyber ciphertext received from the encryption operation
+ * @param [in] ciphertext Ciphertext data to be encrypted
+ * @param [out] plaintext Buffer of equal size as ciphertext that will be
+ *			   filled with the decryption result
+ * @param [in] datalen Length of the ciphertext buffer
+ * @param [in] aad Additional authenticate data to be processed - this is data
+ *		   which is not encrypted, but considered as part of the
+ *		   authentication.
+ * @param [in] aadlen Length of the AAD buffer
+ * @param [in] tag Buffer with the authentication tag
+ * @param [in] taglen Length of the tag buffer
+ * @param [in] aead Allocated AEAD algorithm - the caller only needs to provide
+ *		    an allocated but otherwise unused instance of an AEAD
+ *		    algorithm. This allows the caller to define the AEAD
+ *		    algorithm type. The caller must zeroize and release the
+ *		    context after completion.
+ * @return 0 on success, < 0 on error (-EBADMSG on integrity error)
+ */
+int lc_kyber_x25519_ies_dec(const struct lc_kyber_x25519_sk *sk,
+			    const struct lc_kyber_x25519_ct *ct,
+			    const uint8_t *ciphertext, uint8_t *plaintext,
+			    size_t datalen, const uint8_t *aad, size_t aadlen,
+			    const uint8_t *tag, size_t taglen,
+			    struct lc_aead_ctx *aead);
+
+/**
+ * @brief lc_kyber_x25519_ies_dec_init - KyberIES decryption stream operation
+ *					 initialization
+ *
+ * The implementation supports an in-place data decryption where the
+ * plaintext and ciphertext buffer pointers refer to the same memory location.
+ *
+ * The function entirely operates on stack memory.
+ *
+ * The aead context is initialized such that it can be used with
+ * lc_kyber_x25519_ies_dec_[update|final].
+ *
+ * @param [out] aead Allocated AEAD algorithm - the caller only needs to provide
+ *		     an allocated but otherwise unused instance of an AEAD
+ *		     algorithm. This allows the caller to define the AEAD
+ *		     algorithm type. The caller must zeroize and release the
+ *		     context after completion.
+ * @param [in] sk Kyber secret key of data owner
+ * @param [in] ct Kyber ciphertext received from the encryption operation
+ * @return 0 on success, < 0 on error
+ */
+int lc_kyber_x25519_ies_dec_init(struct lc_aead_ctx *aead,
+				 const struct lc_kyber_x25519_sk *sk,
+				 const struct lc_kyber_x25519_ct *ct);
+
+/**
+ * @brief lc_kyber_x25519_ies_dec_update - KyberIES decryption stream operation
+ *				  	   add more data
+ *
+ * The implementation supports an in-place data decryption where the
+ * plaintext and ciphertext buffer pointers refer to the same memory location.
+ *
+ * The function entirely operates on stack memory.
+ *
+ * @param [in] aead Allocated AEAD algorithm - the caller only needs to provide
+ *		    an allocated but otherwise unused instance of an AEAD
+ *		    algorithm. This allows the caller to define the AEAD
+ *		    algorithm type. The caller must zeroize and release the
+ *		    context after completion.
+ * @param [in] ciphertext Ciphertext data to be encrypted
+ * @param [out] plaintext Buffer of equal size as ciphertext that will be
+ *			   filled with the decryption result
+ * @param [in] datalen Length of the ciphertext buffer
+ */
+static inline void lc_kyber_x25519_ies_dec_update(struct lc_aead_ctx *aead,
+						  const uint8_t *ciphertext,
+						  uint8_t *plaintext,
+						  size_t datalen)
+{
+	lc_aead_dec_update(aead, ciphertext, plaintext, datalen);
+}
+
+/**
+ * @brief lc_kyber_x25519_ies_dec_final - KyberIES decryption stream operation
+ *				  	  finalization / integrity test
+ *
+ * The implementation supports an in-place data decryption where the
+ * plaintext and ciphertext buffer pointers refer to the same memory location.
+ *
+ * The function entirely operates on stack memory.
+ *
+ * @param [in] aead Allocated AEAD algorithm - the caller only needs to provide
+ *		    an allocated but otherwise unused instance of an AEAD
+ *		    algorithm. This allows the caller to define the AEAD
+ *		    algorithm type. The caller must zeroize and release the
+ *		    context after completion.
+ * @param [in] aad Additional authenticate data to be processed - this is data
+ *		   which is not encrypted, but considered as part of the
+ *		   authentication.
+ * @param [in] aadlen Length of the AAD buffer
+ * @param [in] tag Buffer with the authentication tag
+ * @param [in] taglen Length of the tag buffer
+ * @return 0 on success, < 0 on error (-EBADMSG on integrity error)
+ */
+static inline int lc_kyber_x25519_ies_dec_final(struct lc_aead_ctx *aead,
+						const uint8_t *aad,
+						size_t aadlen,
+						const uint8_t *tag,
+						size_t taglen)
+{
+	return lc_aead_dec_final(aead, aad, aadlen, tag, taglen);
+}
 
 #endif /* LC_KYBER_X25519_KEM */
 

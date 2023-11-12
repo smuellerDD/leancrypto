@@ -23,6 +23,7 @@
 #include "ed25519.h"
 #include "kyber_internal.h"
 #include "kyber_kem.h"
+#include "lc_kyber.h"
 #include "seeded_rng.h"
 #include "x25519.h"
 #include "x25519_scalarmult.h"
@@ -40,7 +41,10 @@ EXPORT_SYMBOL(lc_kex_ake_initiator_init_internal);
 EXPORT_SYMBOL(lc_kex_uake_responder_ss_internal);
 EXPORT_SYMBOL(lc_kyber_ies_enc_internal);
 EXPORT_SYMBOL(lc_kyber_ies_enc_init_internal);
+#ifdef LC_KYBER_X25519_KEM
 EXPORT_SYMBOL(lc_kyber_x25519_enc_kdf_internal);
+EXPORT_SYMBOL(lc_kyber_x25519_ies_enc_internal);
+EXPORT_SYMBOL(lc_kyber_x25519_ies_enc_init_internal);
 EXPORT_SYMBOL(crypto_scalarmult_curve25519);
 EXPORT_SYMBOL(crypto_scalarmult_curve25519_base);
 EXPORT_SYMBOL(lc_x25519_keypair);
@@ -48,10 +52,13 @@ EXPORT_SYMBOL(lc_kex_x25519_ake_responder_ss_internal);
 EXPORT_SYMBOL(lc_kex_x25519_uake_initiator_init_internal);
 EXPORT_SYMBOL(lc_kex_x25519_ake_initiator_init_internal);
 EXPORT_SYMBOL(lc_kex_x25519_uake_responder_ss_internal);
+#endif /* LC_KYBER_X25519_KEM */
+#if (defined(LC_KYBER_X25519_KEM) || defined(LC_DILITHIUM_ED25519_SIG))
 EXPORT_SYMBOL(lc_ed25519_sign);
 EXPORT_SYMBOL(lc_ed25519_keypair);
 EXPORT_SYMBOL(lc_ed25519_verify);
 EXPORT_SYMBOL(crypto_scalarmult_curve25519_c);
+#endif
 
 void sha3_fastest_impl(void);
 void aes_fastest_impl(void);
