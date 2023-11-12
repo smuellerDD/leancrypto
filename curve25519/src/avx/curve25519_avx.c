@@ -46,8 +46,7 @@
 #define x2 var[1]
 #define z2 var[2]
 
-int crypto_scalarmult_curve25519_avx(unsigned char *q,
-				     const unsigned char *n,
+int crypto_scalarmult_curve25519_avx(unsigned char *q, const unsigned char *n,
 				     const unsigned char *p)
 {
 	unsigned char t[32];
