@@ -67,6 +67,7 @@
 	.size SYM_FUNC(name),.-SYM_FUNC(name)
 
 #  define SYM_FUNC_START(name)						       \
+	.hidden SYM_FUNC(name) ;					       \
 	.global SYM_FUNC(name) ;					       \
 	SYM_FUNC(name):
 
