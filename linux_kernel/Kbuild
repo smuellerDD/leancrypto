@@ -562,16 +562,34 @@ leancrypto-$(CONFIG_LEANCRYPTO_CURVE25519)				       \
 				+= ../curve25519/src/ed25519.o		       \
 				   ../curve25519/src/ed25519_ref10.o	       \
 				   ../curve25519/src/x25519.o		       \
-				   ../curve25519/src/x25519_scalarmult.o
+				   ../curve25519/src/x25519_scalarmult_c.o
+
+ifdef CONFIG_X86_64
+leancrypto-$(CONFIG_LEANCRYPTO_CURVE25519)				       \
+				+= ../curve25519/src/avx/curve25519_avx.o      \
+				   ../curve25519/src/avx/curve25519_avx_asm.o  \
+				   ../curve25519/src/avx/fe51_invert.o	       \
+				   ../curve25519/src/avx/fe_frombytes_avx.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_CURVE25519)				       \
+				+= ../curve25519/src/x25519_scalarmult.o
+endif
 
 ifdef CONFIG_LEANCRYPTO_CURVE25519
 obj-m				+= ed25519_tester.o
-obj-m				+= x25519_tester.o
+obj-m				+= x25519_c_tester.o
 
 ed25519_tester-y		+= ../curve25519/tests/ed25519_tester.o	       \
 				   ../drng/src/selftest_rng.o
-x25519_tester-y			+= ../curve25519/tests/x25519_tester.o	       \
+x25519_c_tester-y		+= ../curve25519/tests/x25519_c_tester.o       \
 				   ../drng/src/selftest_rng.o
+
+ifdef CONFIG_X86_64
+obj-m				+= x25519_avx_tester.o
+x25519_avx_tester-y		+= ../curve25519/tests/x25519_c_tester.o       \
+				   ../drng/src/selftest_rng.o
+endif
+
 endif
 
 # KEM implementation

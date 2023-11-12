@@ -3,6 +3,15 @@ if get_option('kyber_x25519').enabled() or get_option('dilithium_ed25519').enabl
 		'ed25519.c',
 		'ed25519_ref10.c',
 		'x25519.c',
-		'x25519_scalarmult.c',
+		'x25519_scalarmult_c.c',
 	])
+
+	if (x86_64_asm)
+		subdir('avx')
+	else
+		src += files([
+			'x25519_scalarmult.c',
+		])
+	endif
+
 endif

@@ -184,3 +184,15 @@ curve25519/src/fe_25_5/*
 curve25519/src/fe_51/*
 curve25519/src/x25519_scalarmult.c
 curve25519/src/x25519_scalarmult.h
+curve25519/src/avx/consts.S
+curve25519/src/avx/curve25519_avx_asm.S
+curve25519/src/avx/curve25519_avx.c
+curve25519/src/avx/fe51.h
+curve25519/src/avx/fe51_invert.c
+curve25519/src/avx/fe51_mul.S
+curve25519/src/avx/fe51_nsquare.S
+curve25519/src/avx/fe51_pack.S
+curve25519/src/avx/fe_frombytes_avx.c
+curve25519/src/avx/fe.h
+curve25519/src/avx/ladder.h
+curve25519/src/avx/ladder.S

@@ -92,7 +92,8 @@ int lc_ed25519_keypair(struct lc_ed25519_pk *pk, struct lc_ed25519_sk *sk,
 
 out:
 	lc_memset_secure(&A, 0, sizeof(A));
-	lc_memset_secure(tmp, 0, sizeof(tmp));;
+	lc_memset_secure(tmp, 0, sizeof(tmp));
+	;
 	return ret;
 }
 

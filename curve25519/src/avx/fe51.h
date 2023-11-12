@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2023, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *
@@ -16,40 +16,43 @@
  * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
+/*
+ * This code is derived in parts from the code distribution provided with
+ * https://github.com/jedisct1/libsodium.git
+ *
+ * That code is released under ISC License
+ *
+ * Copyright (c) 2013-2023
+ * Frank Denis <j at pureftpd dot org>
+ */
 
-#ifndef CPUFEATURES_H
-#define CPUFEATURES_H
+#ifndef FE51_H
+#define FE51_H
+
+#include "ext_headers.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-enum lc_cpu_features {
-	LC_CPU_FEATURE_NONE = 0,
+/*
+   This file is adapted from amd64-51/fe25519.h:
+   'fe25519' is renamed as 'fe51';
+   All the redundant functions are removed;
+   New function fe51_nsquare is introduced.
+*/
 
-	/* Intel-specific */
-	LC_CPU_FEATURE_INTEL_AVX = 1 << 0,
-	LC_CPU_FEATURE_INTEL_AVX2 = 1 << 1,
-	LC_CPU_FEATURE_INTEL_AVX512 = 1 << 2,
-	LC_CPU_FEATURE_INTEL_AESNI = 1 << 3,
+typedef struct {
+	uint64_t v[5];
+} fe51;
 
-	/* ARM-specific */
-	LC_CPU_FEATURE_ARM = 1 << 8,
-	LC_CPU_FEATURE_ARM_AES = 1 << 9,
-	LC_CPU_FEATURE_ARM_NEON = 1 << 10,
-	LC_CPU_FEATURE_ARM_SHA2 = 1 << 11,
-	LC_CPU_FEATURE_ARM_SHA3 = 1 << 12,
-
-	/* RISC-V-specific */
-	LC_CPU_FEATURE_RISCV_ASM = 1 << 16,
-
-	LC_CPU_FEATURE_UNSET = (1U) << 30
-};
-
-enum lc_cpu_features lc_cpu_feature_available(void);
+extern void curve25519_fe51_pack_avx(unsigned char *, const fe51 *);
+extern void curve25519_fe51_mul_avx(fe51 *, const fe51 *, const fe51 *);
+extern void curve25519_fe51_nsquare_avx(fe51 *, const fe51 *, int);
+extern void curve25519_fe51_invert_avx(fe51 *, const fe51 *);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* CPUFEATURES_H */
+#endif /* FE51_H */

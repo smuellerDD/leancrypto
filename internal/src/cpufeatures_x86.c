@@ -33,6 +33,7 @@
 
 /* Leaf 1 */
 #define LC_INTEL_AESNI_ECX (1 << 25)
+#define LC_INTEL_AVX_ECX (1 << 28)
 /* Leaf 7, subleaf 0 of CPUID */
 #define LC_INTEL_AVX2_EBX (1 << 5)
 #define LC_INTEL_AVX512F_EBX (1 << 16)
@@ -54,6 +55,8 @@ LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 
 	if (lc_x86_64_cpuid[2] & LC_INTEL_AESNI_ECX)
 		feat |= LC_CPU_FEATURE_INTEL_AESNI;
+	if (lc_x86_64_cpuid[2] & LC_INTEL_AVX_ECX)
+		feat |= LC_CPU_FEATURE_INTEL_AVX;
 
 	/* Read the maximum leaf */
 	cpuid_eax(0, eax, ebx, ecx, edx);

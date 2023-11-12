@@ -21,6 +21,7 @@
 
 #include "x25519.h"
 #include "../src/x25519_scalarmult.h"
+#include "../src/x25519_scalarmult_c.h"
 #include "compare.h"
 #include "ret_checkers.h"
 #include "selftest_rng.h"
@@ -91,7 +92,7 @@ static int x25519_scalarmult_tester(void)
 	uint8_t out[sizeof(exp)];
 	int ret;
 
-	CKINT(crypto_scalarmult_curve25519(out, scalar, p1));
+	CKINT(crypto_scalarmult_curve25519_c(out, scalar, p1));
 	lc_compare(out, exp, sizeof(exp), "X25519 scalar multiplication\n");
 
 out:

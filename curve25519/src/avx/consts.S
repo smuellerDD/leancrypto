@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2023, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *
@@ -16,40 +16,33 @@
  * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
+/*
+ * This code is derived in parts from the code distribution provided with
+ * https://github.com/jedisct1/libsodium.git
+ *
+ * That code is released under ISC License
+ *
+ * Copyright (c) 2013-2023
+ * Frank Denis <j at pureftpd dot org>
+ */
 
-#ifndef CPUFEATURES_H
-#define CPUFEATURES_H
+/*
+   REDMASK51 is from amd64-51/consts.s.
+*/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-enum lc_cpu_features {
-	LC_CPU_FEATURE_NONE = 0,
-
-	/* Intel-specific */
-	LC_CPU_FEATURE_INTEL_AVX = 1 << 0,
-	LC_CPU_FEATURE_INTEL_AVX2 = 1 << 1,
-	LC_CPU_FEATURE_INTEL_AVX512 = 1 << 2,
-	LC_CPU_FEATURE_INTEL_AESNI = 1 << 3,
-
-	/* ARM-specific */
-	LC_CPU_FEATURE_ARM = 1 << 8,
-	LC_CPU_FEATURE_ARM_AES = 1 << 9,
-	LC_CPU_FEATURE_ARM_NEON = 1 << 10,
-	LC_CPU_FEATURE_ARM_SHA2 = 1 << 11,
-	LC_CPU_FEATURE_ARM_SHA3 = 1 << 12,
-
-	/* RISC-V-specific */
-	LC_CPU_FEATURE_RISCV_ASM = 1 << 16,
-
-	LC_CPU_FEATURE_UNSET = (1U) << 30
-};
-
-enum lc_cpu_features lc_cpu_feature_available(void);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* CPUFEATURES_H */
+.data
+.p2align 4
+v0_0: .quad 0, 0
+v1_0: .quad 1, 0
+v2_1: .quad 2, 1
+v9_0: .quad 9, 0
+v9_9: .quad 9, 9
+v19_19: .quad 19, 19
+v38_1: .quad 38, 1
+v38_38: .quad 38, 38
+v121666_121666: .quad 121666, 121666
+m25: .quad 33554431, 33554431
+m26: .quad 67108863, 67108863
+subc0: .quad 0x07FFFFDA, 0x03FFFFFE
+subc2: .quad 0x07FFFFFE, 0x03FFFFFE
+REDMASK51:   .quad 0x0007FFFFFFFFFFFF

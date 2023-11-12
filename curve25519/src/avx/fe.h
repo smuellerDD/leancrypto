@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2023, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *
@@ -16,40 +16,39 @@
  * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
+/*
+ * This code is derived in parts from the code distribution provided with
+ * https://github.com/jedisct1/libsodium.git
+ *
+ * That code is released under ISC License
+ *
+ * Copyright (c) 2013-2023
+ * Frank Denis <j at pureftpd dot org>
+ */
 
-#ifndef CPUFEATURES_H
-#define CPUFEATURES_H
+#ifndef FE_H
+#define FE_H
+
+#include "ext_headers.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-enum lc_cpu_features {
-	LC_CPU_FEATURE_NONE = 0,
+typedef uint64_t fe[10];
 
-	/* Intel-specific */
-	LC_CPU_FEATURE_INTEL_AVX = 1 << 0,
-	LC_CPU_FEATURE_INTEL_AVX2 = 1 << 1,
-	LC_CPU_FEATURE_INTEL_AVX512 = 1 << 2,
-	LC_CPU_FEATURE_INTEL_AESNI = 1 << 3,
+/*
+fe means field element.
+Here the field is \Z/(2^255-19).
+An element t, entries t[0]...t[9], represents the integer
+t[0]+2^26 t[1]+2^51 t[2]+2^77 t[3]+2^102 t[4]+...+2^230 t[9].
+Bounds on each t[i] vary depending on context.
+*/
 
-	/* ARM-specific */
-	LC_CPU_FEATURE_ARM = 1 << 8,
-	LC_CPU_FEATURE_ARM_AES = 1 << 9,
-	LC_CPU_FEATURE_ARM_NEON = 1 << 10,
-	LC_CPU_FEATURE_ARM_SHA2 = 1 << 11,
-	LC_CPU_FEATURE_ARM_SHA3 = 1 << 12,
-
-	/* RISC-V-specific */
-	LC_CPU_FEATURE_RISCV_ASM = 1 << 16,
-
-	LC_CPU_FEATURE_UNSET = (1U) << 30
-};
-
-enum lc_cpu_features lc_cpu_feature_available(void);
+extern void curve25519_fe_frombytes_avx(fe, const unsigned char *);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* CPUFEATURES_H */
+#endif /* FE_H */

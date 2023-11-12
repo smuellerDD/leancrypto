@@ -26,6 +26,7 @@
 #include "seeded_rng.h"
 #include "x25519.h"
 #include "x25519_scalarmult.h"
+#include "x25519_scalarmult_c.h"
 
 /* Export these symbols for testing */
 EXPORT_SYMBOL(_lc_kyber_keypair);
@@ -50,6 +51,7 @@ EXPORT_SYMBOL(lc_kex_x25519_uake_responder_ss_internal);
 EXPORT_SYMBOL(lc_ed25519_sign);
 EXPORT_SYMBOL(lc_ed25519_keypair);
 EXPORT_SYMBOL(lc_ed25519_verify);
+EXPORT_SYMBOL(crypto_scalarmult_curve25519_c);
 
 void sha3_fastest_impl(void);
 void aes_fastest_impl(void);
