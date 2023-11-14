@@ -19,6 +19,7 @@ project('leancrypto', 'c',
 		'b_lto=true',
 		'b_staticpic=true',
 		'b_pic=true',
+		'b_asneeded=true'
 	])
 
 ################################################################################
@@ -36,7 +37,14 @@ add_global_arguments([ '-fstack-protector-strong',
 		       '-Wshadow',
 		       '-Wswitch-enum',
 		       '-Wmissing-prototypes',
-		       '-funroll-loops',
+		       '-Wformat=2',
+		       # clang currently segfaults with it
+		       #'-fzero-call-used-regs=used-gpr',
+		        ],
+		       language : 'c')
+
+# Performance Compiler flags
+add_global_arguments([ '-funroll-loops',
 		        ],
 		       language : 'c')
 
@@ -92,11 +100,6 @@ if (build_machine.system() == 'linux')
 	add_project_link_arguments('-Wl,-z,relro', language : 'c')
 	add_project_link_arguments('-Wl,-z,now', language : 'c')
 	add_project_link_arguments('-Wl,-z,noexecstack', language : 'c')
-endif
-
-# Only link to truly needed libraries
-if (build_machine.system() != 'darwin')
-	add_project_link_arguments('-Wl,--as-needed', language : 'c')
 endif
 
 # Header generation
