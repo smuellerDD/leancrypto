@@ -176,5 +176,7 @@ if get_option('dilithium').enabled()
 					], link_with: leancrypto_static_lib
 					)
 		test('Dilithium-ED25519 Signature', dilithium_ed25519_tester)
+		test('Dilithium-ED25519 signature Common 10000', dilithium_ed25519_tester,
+		     args : [ 'c' ], timeout: 1000, is_parallel: false)
 	endif
 endif

@@ -171,6 +171,8 @@ if get_option('kyber').enabled()
 
 		test('Kyber-X25519 IES', kyber_ies_x25519_tester)
 		test('Kyber-X25519 KEM', kyber_kem_x25519_tester)
+		test('Kyber-X25519 KEM 50000', kyber_kem_x25519_tester,
+		     args : [ 'c' ], timeout: 1000, is_parallel: false)
 		test('Kyber-X25519 KEX', kyber_kex_x25519_tester)
 	endif
 

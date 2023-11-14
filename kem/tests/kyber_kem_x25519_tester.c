@@ -26,7 +26,7 @@
 #include "selftest_rng.h"
 #include "visibility.h"
 
-static int kyber_kem_double_tester(void)
+static int kyber_kem_double_tester(int check)
 {
 #if LC_KYBER_K == 2
 	static const uint8_t kyber_pk_exp[] = {
@@ -143,14 +143,16 @@ static int kyber_kem_double_tester(void)
 
 	CKINT(lc_kyber_x25519_keypair(&ws->pk, &ws->sk, selftest_rng));
 
-	rc += lc_compare(ws->pk.pk.pk, kyber_pk_exp, sizeof(kyber_pk_exp),
-			 "Kyber pk keygen\n");
-	rc += lc_compare(ws->sk.sk.sk, kyber_sk_exp, sizeof(kyber_sk_exp),
-			 "Kyber sk keygen\n");
-	rc += lc_compare(ws->pk.pk_x25519.pk, x25519_pk_exp,
-			 sizeof(x25519_pk_exp), "X25519 pk keygen\n");
-	rc += lc_compare(ws->sk.sk_x25519.sk, x25519_sk_exp,
-			 sizeof(x25519_sk_exp), "X25519 sk keygen\n");
+	if (check) {
+		rc += lc_compare(ws->pk.pk.pk, kyber_pk_exp,
+				 sizeof(kyber_pk_exp), "Kyber pk keygen\n");
+		rc += lc_compare(ws->sk.sk.sk, kyber_sk_exp,
+				 sizeof(kyber_sk_exp), "Kyber sk keygen\n");
+		rc += lc_compare(ws->pk.pk_x25519.pk, x25519_pk_exp,
+				 sizeof(x25519_pk_exp), "X25519 pk keygen\n");
+		rc += lc_compare(ws->sk.sk_x25519.sk, x25519_sk_exp,
+				 sizeof(x25519_sk_exp), "X25519 sk keygen\n");
+	}
 
 	CKINT(lc_kyber_x25519_enc_kdf_internal(
 		&ws->ct, ws->ss1, sizeof(ws->ss1), &ws->pk, selftest_rng));
@@ -158,10 +160,12 @@ static int kyber_kem_double_tester(void)
 	CKINT(lc_kyber_x25519_dec_kdf(ws->ss2, sizeof(ws->ss2), &ws->ct,
 				      &ws->sk));
 
-	rc += lc_compare(ws->ss1, ss_exp, sizeof(ss_exp),
-			 "Kyber X25519 SS generation\n");
-	rc += lc_compare(ws->ss1, ws->ss2, sizeof(ws->ss2),
-			 "Kyber X25519 SS comparison\n");
+	if (check) {
+		rc += lc_compare(ws->ss1, ss_exp, sizeof(ss_exp),
+				"Kyber X25519 SS generation\n");
+		rc += lc_compare(ws->ss1, ws->ss2, sizeof(ws->ss2),
+				"Kyber X25519 SS comparison\n");
+	}
 
 out:
 	LC_RELEASE_MEM(ws);
@@ -170,12 +174,16 @@ out:
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	size_t count;
 	int ret = 0;
 
-	(void)argc;
 	(void)argv;
 
-	ret += kyber_kem_double_tester();
+	if (argc != 2)
+		return kyber_kem_double_tester(1);
+
+	for (count = 0; count < 50000; count++)
+		ret += kyber_kem_double_tester(0);
 
 	return ret;
 }

@@ -23,7 +23,7 @@
 #include "small_stack_support.h"
 #include "visibility.h"
 
-static int dilithium_ed25519_tester(void)
+static int dilithium_ed25519_tester(int failcheck)
 {
 	struct workspace {
 		struct lc_dilithium_ed25519_sk sk;
@@ -40,6 +40,9 @@ static int dilithium_ed25519_tester(void)
 	CKINT(lc_dilithium_ed25519_sign(&ws->sig, msg, sizeof(msg), &ws->sk,
 					selftest_rng));
 	CKINT(lc_dilithium_ed25519_verify(&ws->sig, msg, sizeof(msg), &ws->pk));
+
+	if (!failcheck)
+		goto out;
 
 	/* modify msg */
 	if (lc_dilithium_ed25519_verify(&ws->sig, msg2, sizeof(msg2),
@@ -75,12 +78,16 @@ out:
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	size_t count;
 	int ret = 0;
 
-	(void)argc;
 	(void)argv;
 
-	ret += dilithium_ed25519_tester();
+	if (argc != 2)
+		return dilithium_ed25519_tester(1);
+
+	for (count = 0; count < 10000; count++)
+		ret += dilithium_ed25519_tester(0);
 
 	return ret;
 }
