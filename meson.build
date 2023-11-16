@@ -26,6 +26,8 @@ project('leancrypto', 'c',
 # Generic project defines
 ################################################################################
 
+cc = meson.get_compiler('c')
+
 # Hardening Compiler flags
 add_global_arguments([ '-fstack-protector-strong',
 		       '-fwrapv',
@@ -38,7 +40,6 @@ add_global_arguments([ '-fstack-protector-strong',
 		       '-Wswitch-enum',
 		       '-Wmissing-prototypes',
 		       '-Wformat=2',
-		       '-fzero-call-used-regs=used-gpr',
 		        ],
 		       language : 'c')
 
@@ -47,8 +48,12 @@ add_global_arguments([ '-funroll-loops',
 		        ],
 		       language : 'c')
 
-c_compiler = meson.get_compiler('c')
-if c_compiler.get_id() == 'gcc'
+if cc.has_argument('-fzero-call-used-regs=used-gpr')
+	add_global_arguments([ '-fzero-call-used-regs=used-gpr' ],
+			     language: 'c')
+endif
+
+if cc.get_id() == 'gcc'
 	add_global_arguments([ '-ffat-lto-objects' ], language: 'c')
 endif
 
@@ -112,7 +117,6 @@ meson.add_dist_script(dist_script, meson.project_version())
 # Project-specific defines
 ################################################################################
 
-cc = meson.get_compiler('c')
 pkgconfig = import('pkgconfig')
 
 include_dirs = include_directories([ 'aead/api',
@@ -257,7 +261,7 @@ if (host_machine.cpu_family() == 'x86_64' and
 endif
 
 if (host_machine.cpu_family() == 'arm' and
-    c_compiler.get_id() == 'gcc')
+    cc.get_id() == 'gcc')
 
 	# 32 bit ARM processor and GCC
 	arm32_neon_gcc_asm = true
@@ -269,7 +273,7 @@ elif (host_machine.cpu_family() == 'aarch64')
 	arm64_asm = true
 	add_global_arguments([ '-DLC_HOST_AARCH64' ], language: 'c')
 
-	if (c_compiler.get_id() == 'gcc')
+	if (cc.get_id() == 'gcc')
 
 		# 64 bit ARM processor and GCC
 		# Disable assembler code as it is slower compared to C
@@ -285,7 +289,7 @@ elif (host_machine.cpu_family() == 'riscv64')
 	riscv64_asm = true
 	add_global_arguments([ '-DLC_HOST_RISCV64' ], language: 'c')
 # elif (host_machine.cpu_family() == 'riscv' and
-#       c_compiler.get_id() == 'gcc')
+#       cc.get_id() == 'gcc')
 #
 # 	# RISC-V and GCC
 # 	# riscv32_gcc_asm = true
@@ -293,7 +297,7 @@ elif (host_machine.cpu_family() == 'riscv64')
 # 	riscv32_gcc_asm = false
 #
 # elif (host_machine.cpu_family() == 'riscv64' and
-#       c_compiler.get_id() == 'gcc')
+#       cc.get_id() == 'gcc')
 #
 # 	# RISC-V and GCC
 # 	# Current code is not 64-bit ready
