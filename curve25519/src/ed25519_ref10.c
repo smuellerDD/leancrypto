@@ -74,9 +74,9 @@ static inline void fe25519_sqmul(fe25519 s, const int n, const fe25519 a)
 {
 	int i;
 
-	for (i = 0; i < n; i++) {
+	for (i = 0; i < n; i++)
 		fe25519_sq(s, s);
-	}
+
 	fe25519_mul(s, s, a);
 }
 
@@ -593,6 +593,7 @@ void ge25519_p3_tobytes(unsigned char *s, const ge25519_p3 *h)
 static void ge25519_p3_dbl(ge25519_p1p1 *r, const ge25519_p3 *p)
 {
 	ge25519_p2 q;
+
 	ge25519_p3_to_p2(&q, p);
 	ge25519_p2_dbl(r, &q);
 }
