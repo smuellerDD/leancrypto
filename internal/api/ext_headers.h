@@ -39,6 +39,11 @@ static inline int mlock(const void *ptr, size_t len)
 
 extern const int errno;
 
+static inline pid_t getpid(void)
+{
+	return 0;
+}
+
 #define printf printk
 #define assert(x) WARN_ON(!x)
 
