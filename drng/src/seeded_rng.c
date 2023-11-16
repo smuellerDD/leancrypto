@@ -81,6 +81,7 @@ struct lc_seeded_rng_ctx {
 	size_t bytes;
 #define LC_SEEDED_RNG_MAX_TIME 60 /* Max seconds without reseed */
 	unsigned long last_seeded;
+	pid_t pid; /* Detect a fork */
 };
 
 /* DRNG state */
@@ -91,7 +92,8 @@ static struct lc_seeded_rng_ctx seeded_rng = {
 
 	/* Initialize the state such that a seed is forced */
 	.bytes = LC_SEEDED_RNG_MAX_BYTES + 1,
-	.last_seeded = 0
+	.last_seeded = 0,
+	.pid = 0
 };
 
 #ifdef LINUX_KERNEL
@@ -123,7 +125,8 @@ static unsigned long get_time(void)
 
 #endif /* LINUX_KERNEL */
 
-static int lc_seed_seeded_rng(struct lc_seeded_rng_ctx *rng, int init)
+static int lc_seed_seeded_rng(struct lc_seeded_rng_ctx *rng, int init,
+			      pid_t newpid)
 {
 	uint8_t seed[256 / 8];
 	int ret;
@@ -151,6 +154,10 @@ static int lc_seed_seeded_rng(struct lc_seeded_rng_ctx *rng, int init)
 
 	rng->bytes = 0;
 	rng->last_seeded = get_time();
+
+	/* If we are given a new PID, apply it after a successful reseed */
+	if (newpid)
+		rng->pid = newpid;
 
 out:
 	lc_memset_secure(seed, 0, sizeof(seed));
@@ -187,25 +194,49 @@ static unsigned long time_after_now(unsigned long base)
 	return time_after(curr, base) ? (curr - base) : 0;
 }
 
-static int lc_seeded_rng_must_reseed(struct lc_seeded_rng_ctx *rng)
+static int lc_seeded_rng_must_reseed(struct lc_seeded_rng_ctx *rng,
+				     pid_t *newpid)
 {
-	return (rng->bytes > LC_SEEDED_RNG_MAX_BYTES ||
-		time_after_now(rng->last_seeded + LC_SEEDED_RNG_MAX_TIME));
+	pid_t pid;
+
+	/* Reseed if ... */
+
+	/* ... we generated too much data ... */
+	if (rng->bytes > LC_SEEDED_RNG_MAX_BYTES)
+		return 1;
+
+	/* ... or our seeding was too long ago ... */
+	if (time_after_now(rng->last_seeded + LC_SEEDED_RNG_MAX_TIME))
+		return 1;
+
+	/*
+	 * ... or we detected a fork (do not set the pid here. It is only set if
+	 * the reseed was successful).
+	 */
+	pid = getpid();
+	if (rng->pid != pid) {
+		*newpid = pid;
+		return 1;
+	}
+
+	return 0;
 }
 
 static int lc_get_seeded_rng(struct lc_seeded_rng_ctx **rng_ret)
 {
+	pid_t newpid = 0;
 	int ret = 0, init = 0;
 
 	/* Initialize the DRNG state at the beginning */
 	if (!seeded_rng.last_seeded) {
 		CKINT(lc_seeded_rng_init_state());
+		seeded_rng.pid = getpid();
 		init = 1;
 	}
 
 	/* Force reseed if needed */
-	if (lc_seeded_rng_must_reseed(&seeded_rng))
-		CKINT(lc_seed_seeded_rng(&seeded_rng, init));
+	if (lc_seeded_rng_must_reseed(&seeded_rng, &newpid))
+		CKINT(lc_seed_seeded_rng(&seeded_rng, init, newpid));
 
 	*rng_ret = &seeded_rng;
 
@@ -245,7 +276,7 @@ static int lc_seeded_rng_seed(void *_state, const uint8_t *seed, size_t seedlen,
 		return -EINVAL;
 
 	CKINT(lc_get_seeded_rng(&rng));
-	CKINT(lc_seed_seeded_rng(rng, 0));
+	CKINT(lc_seed_seeded_rng(rng, 0, 0));
 	CKINT(lc_rng_seed(rng->rng_ctx, seed, seedlen, persbuf, perslen));
 
 out:
