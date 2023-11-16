@@ -28,30 +28,23 @@
 extern "C" {
 #endif
 
-struct lc_selftest_drng_state {
-	struct lc_hash_ctx hash_ctx;
-	uint8_t hash_state[LC_SHAKE_128_STATE_SIZE + LC_HASH_COMMON_ALIGNMENT];
-};
-
-#define LC_SELFTEST_DRNG_STATE_SIZE (sizeof(struct lc_selftest_drng_state))
+#define LC_SELFTEST_DRNG_STATE_SIZE (LC_SHAKE_128_CTX_SIZE)
 #define LC_SELFTEST_DRNG_CTX_SIZE                                              \
 	(sizeof(struct lc_rng) + LC_SELFTEST_DRNG_STATE_SIZE)
 
 extern const struct lc_rng *lc_selftest_drng;
 
-#define LC_SELFTEST_HASH_SET_CTX(name) LC_SHAKE_128_CTX((&(name)->hash_ctx))
+#define LC_SELFTEST_HASH_SET_CTX(name) LC_SHAKE_128_CTX((name))
 
 #define LC_SELFTEST_RNG_CTX(name)                                              \
 	LC_RNG_CTX(name, lc_selftest_drng);                                    \
-	LC_SELFTEST_HASH_SET_CTX(                                              \
-		(struct lc_selftest_drng_state *)name->rng_state);             \
-	lc_rng_zero(name)
+	LC_SELFTEST_HASH_SET_CTX((struct lc_hash_ctx *)name->rng_state);       \
+	lc_rng_zero(name);                                                     \
+	lc_hash_init(name->rng_state)
 
 /*
  * The testing is based on the fact that,
  * - this "RNG" produces identical output
- * - the signature generation is performed with deterministic
- *   behavior (i.e. rng_ctx is NULL)
  *
  * WARNING: This RNG state is NOT meant to be used for any other purpose than
  * self tests!

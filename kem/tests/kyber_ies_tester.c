@@ -90,6 +90,7 @@ static int kyber_ies_determinisitic(void)
 	CKINT(lc_kyber_keypair(&ws->pk, &ws->sk, selftest_rng));
 
 	lc_rng_zero(selftest_rng);
+	lc_rng_seed(selftest_rng, NULL, 0, NULL, 0);
 	CKINT(lc_kyber_ies_enc_internal(&ws->pk, &ws->ct, plain, ws->cipher,
 					sizeof(plain), NULL, 0, ws->tag,
 					sizeof(ws->tag), cc, selftest_rng));
@@ -115,6 +116,7 @@ static int kyber_ies_determinisitic(void)
 	lc_aead_zero(cc);
 
 	lc_rng_zero(selftest_rng);
+	lc_rng_seed(selftest_rng, NULL, 0, NULL, 0);
 	CKINT(lc_kyber_ies_enc_init_internal(cc, &ws->pk, &ws->ct,
 					     selftest_rng));
 	lc_kyber_ies_enc_update(cc, plain, ws->cipher, sizeof(plain));

@@ -7,8 +7,4 @@
   compiled for target host ARMv7 - at the moment compiling on ARMv6 fails
   because the Neon code is compiled (which should not be compiled)
 
-- should compiler options of -ftrivial-auto-var-init=zero and
-  -fzero-call-used-regs=used-gpr be set? If yes, what is the performance impact?
-  What about older compilers?
-
 - poly_compress_avx does not work when compiled for Linux kernel

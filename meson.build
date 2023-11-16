@@ -38,8 +38,7 @@ add_global_arguments([ '-fstack-protector-strong',
 		       '-Wswitch-enum',
 		       '-Wmissing-prototypes',
 		       '-Wformat=2',
-		       # clang currently segfaults with it
-		       #'-fzero-call-used-regs=used-gpr',
+		       '-fzero-call-used-regs=used-gpr',
 		        ],
 		       language : 'c')
 
