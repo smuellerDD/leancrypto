@@ -60,5 +60,5 @@ int main(int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;
-	return -aes_cbc_large_c();
+	return aes_cbc_large_c();
 }
