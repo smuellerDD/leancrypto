@@ -43,15 +43,16 @@ add_global_arguments([ '-fstack-protector-strong',
 		        ],
 		       language : 'c')
 
-# Performance Compiler flags
-add_global_arguments([ '-funroll-loops',
-		        ],
-		       language : 'c')
-
+# More hardening
 if cc.has_argument('-fzero-call-used-regs=used-gpr')
 	add_global_arguments([ '-fzero-call-used-regs=used-gpr' ],
 			     language: 'c')
 endif
+
+# Performance Compiler flags
+add_global_arguments([ '-funroll-loops',
+		        ],
+		       language : 'c')
 
 if cc.get_id() == 'gcc'
 	add_global_arguments([ '-ffat-lto-objects' ], language: 'c')
