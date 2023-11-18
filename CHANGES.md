@@ -14,6 +14,9 @@ Changes 0.8.0-prerelease:
 
 * enhancement: Add Dilithium-ED25519
 
+* hardening: use -fzero-call-used-regs=used-gpr if available to counter ROP
+  attacks
+
 Changes 0.7.0:
 
 * enhancement: add XDRBG256 - the SHAKE256-based DRNG discussed for SP800-90A

@@ -110,7 +110,7 @@ static inline void lc_sym_init(struct lc_sym_ctx *ctx)
  * @brief lc_sym_setkey - Set key
  *
  * @param [in] ctx Reference to sym context implementation to be used to
- *		   set the IV.
+ *		   set the key.
  * @param [in] key Key to be set
  * @param [in] keylen Key length to be set
  *
@@ -199,8 +199,6 @@ static inline void lc_sym_zero(struct lc_sym_ctx *ctx)
 /**
  * @brief Allocate symmetric algorithm context on heap
  *
- * NOTE: This is defined for lc_cshake256 as of now.
- *
  * @param [in] sym Symmetric algorithm implementation of type struct lc_sym
  * @param [out] ctx Allocated symmetrc algorithm context
  *
@@ -221,7 +219,7 @@ void lc_sym_zero_free(struct lc_sym_ctx *ctx);
  *
  * @param [in] name Name of the stack variable
  * @param [in] symname Pointer of type struct sym referencing the sym
- *			 implementation to be used
+ *		       implementation to be used
  */
 #define LC_SYM_CTX_ON_STACK(name, symname)                                          \
 	_Pragma("GCC diagnostic push")                                              \
