@@ -34,7 +34,7 @@ struct lc_xdrbg256_drng_state {
 	uint8_t v[LC_XDRBG256_DRNG_KEYSIZE];
 };
 
-#define LC_XDRBG256_DRNG_MAX_CHUNK (2048 >> 3)
+#define LC_XDRBG256_DRNG_MAX_CHUNK (LC_SHAKE_256_SIZE_BLOCK * 2)
 #define LC_XDRBG256_DRNG_STATE_SIZE (sizeof(struct lc_xdrbg256_drng_state))
 #define LC_XDRBG256_DRNG_CTX_SIZE                                              \
 	(sizeof(struct lc_rng) + LC_XDRBG256_DRNG_STATE_SIZE)
