@@ -17,6 +17,11 @@
  * DAMAGE.
  */
 
+#include "aes_aesni.h"
+#include "aes_armce.h"
+#include "aes_c.h"
+#include "aes_riscv64.h"
+#include "cpufeatures.h"
 #include "ext_headers.h"
 #include "lc_status.h"
 #include "sha3_c.h"
@@ -29,6 +34,25 @@
 
 LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 {
+	static const char armv8[] =
+#if defined(LC_HOST_AARCH64) || defined(CONFIG_ARM64)
+		"ARMv8 ";
+#else
+		"";
+#endif
+	static const char armv7[] =
+#if defined(LC_HOST_ARM32_NEON) || defined(CONFIG_ARM)
+		"ARMv7 ";
+#else
+		"";
+#endif
+	static const char avx[] =
+#if defined(LC_HOST_X86_64) || defined(CONFIG_X86_64)
+		"AVX ";
+#else
+		"";
+#endif
+
 	size_t len;
 
 	snprintf(outbuf, outlen, "leancrypto %u.%u.%u\n", MAJVERSION,
@@ -36,10 +60,25 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 
 	len = strlen(outbuf);
 	snprintf(outbuf + len, outlen - len,
-		 "SHA Acceleration support: %s%s%s%s%s\n",
+		 "AES Acceleration support: %s%s%s\n"
+		 "SHA Acceleration support: %s%s%s%s%s\n"
+		 "Kyber Acceleration support: %s%s%s\n"
+		 "Dilithium Acceleration support: %s%s%s\n"
+		 "Curve25519 Acceleration support: %s\n",
+		 (lc_aes_cbc_aesni != lc_aes_cbc_c) ? "AESNI " : "",
+		 (lc_aes_cbc_armce != lc_aes_cbc_c) ? "ARMv8 CE " : "",
+		 (lc_aes_cbc_riscv64 != lc_aes_cbc_c) ? "RISC-V 64 " : "",
 		 (lc_sha3_512_avx512 != lc_sha3_512_c) ? "AVX512 " : "",
 		 (lc_sha3_512_avx2 != lc_sha3_512_c) ? "AVX2 " : "",
 		 (lc_sha3_512_arm_neon != lc_sha3_512_c) ? "ARMv7 Neon " : "",
 		 (lc_sha3_512_arm_asm != lc_sha3_512_c) ? "ARMv8 ASM " : "",
-		 (lc_sha3_512_arm_ce != lc_sha3_512_c) ? "ARMv8 CE " : "");
+		 (lc_sha3_512_arm_ce != lc_sha3_512_c) ? "ARMv8 CE " : "",
+		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
+			 "AVX2" :
+			 "",
+		 armv7, armv8,
+		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
+			 "AVX2" :
+			 "",
+		 armv7, armv8, avx);
 }
