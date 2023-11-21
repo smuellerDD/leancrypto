@@ -169,7 +169,7 @@ signature/src/armv7/dilithium_ntt_consts.h
 
 ================================================================================
 
-The following files are licensed under the ISC icense. The original files are
+The following files are licensed under the ISC license. The original files are
 obtained from https://github.com/jedisct1/libsodium.git
 
 Copyright (c) 2013-2023

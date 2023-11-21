@@ -162,9 +162,9 @@ static int kyber_kem_double_tester(int check)
 
 	if (check) {
 		rc += lc_compare(ws->ss1, ss_exp, sizeof(ss_exp),
-				"Kyber X25519 SS generation\n");
+				 "Kyber X25519 SS generation\n");
 		rc += lc_compare(ws->ss1, ws->ss2, sizeof(ws->ss2),
-				"Kyber X25519 SS comparison\n");
+				 "Kyber X25519 SS comparison\n");
 	}
 
 out:
