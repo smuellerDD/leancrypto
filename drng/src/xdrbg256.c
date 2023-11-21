@@ -94,7 +94,10 @@ static inline void xdrbg256_shake_final(struct lc_hash_ctx *shake_ctx,
 static void lc_xdrbg256_encode(struct lc_hash_ctx *shake_ctx, const uint8_t n,
 			       const uint8_t *alpha, size_t alphalen)
 {
+	static const uint8_t byte = 0xff;
 	uint8_t encode[LC_XDRBG256_DRNG_KEYSIZE + 1];
+	LC_HASH_CTX_ON_STACK(enc_hash_ctx, lc_shake256);
+
 
 	/* Ensure the prerequisite hash size <= 84 holds. */
 	BUILD_BUG_ON(LC_XDRBG256_DRNG_KEYSIZE > LC_XDRBG256_DRNG_ENCODE_LENGTH);
@@ -117,9 +120,13 @@ static void lc_xdrbg256_encode(struct lc_hash_ctx *shake_ctx, const uint8_t n,
 	 * alpha together with its size encoding.
 	 */
 
-	/* Hash alpha with the chosen hash mechanisms. */
-	lc_shake(lc_shake256, alpha, alphalen, encode,
-		 LC_XDRBG256_DRNG_KEYSIZE);
+	/* Hash alpha with the XOF. */
+	lc_hash_init(enc_hash_ctx);
+	lc_hash_update(enc_hash_ctx, alpha, alphalen);
+	lc_hash_update(enc_hash_ctx, &byte, sizeof(byte));
+	lc_hash_set_digestsize(enc_hash_ctx, LC_XDRBG256_DRNG_KEYSIZE);
+	lc_hash_final(enc_hash_ctx, encode);
+	lc_hash_zero(enc_hash_ctx);
 
 	/* Encode the length */
 	encode[LC_XDRBG256_DRNG_KEYSIZE] = (uint8_t)((n * 85) + 84);

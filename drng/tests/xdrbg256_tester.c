@@ -55,10 +55,12 @@ static int xdrbg256_drng_selftest(struct lc_rng_ctx *xdrbg256_ctx)
 		0x50, 0x1f, 0xc0, 0x48, 0x42, 0xb6, 0xea, 0x16, 0x4c, 0x50,
 		0x29, 0x12, 0xd0, 0x1c, 0x39, 0x9f, 0x79,
 	};
+	static const uint8_t byte = 0xff;
 	uint8_t act1[sizeof(exp1)] __align(sizeof(uint32_t));
 	uint8_t compare1[LC_XDRBG256_DRNG_KEYSIZE + sizeof(exp1)];
 	int ret = 0;
 	uint8_t encode;
+	LC_HASH_CTX_ON_STACK(enc_hash_ctx, lc_shake256);
 	LC_HASH_CTX_ON_STACK(xdrbg256_compare, lc_shake256);
 
 	/* Check the XDRBG operation */
@@ -103,8 +105,12 @@ static int xdrbg256_drng_selftest(struct lc_rng_ctx *xdrbg256_ctx)
 	lc_hash_init(xdrbg256_compare);
 	lc_hash_update(xdrbg256_compare, seed, sizeof(seed));
 	/* Insert SHA3-512 hash of alpha */
-	lc_shake(lc_shake256, exp1, sizeof(exp1), act1,
-		 LC_XDRBG256_DRNG_KEYSIZE);
+	lc_hash_init(enc_hash_ctx);
+	lc_hash_update(enc_hash_ctx, exp1, sizeof(exp1));
+	lc_hash_update(enc_hash_ctx, &byte, sizeof(byte));
+	lc_hash_set_digestsize(enc_hash_ctx, LC_XDRBG256_DRNG_KEYSIZE);
+	lc_hash_final(enc_hash_ctx, act1);
+	lc_hash_zero(enc_hash_ctx);
 	lc_hash_update(xdrbg256_compare, act1, LC_XDRBG256_DRNG_KEYSIZE);
 	encode = 0 * 85 + 84;
 	lc_hash_update(xdrbg256_compare, &encode, sizeof(encode));
