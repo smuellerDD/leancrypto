@@ -26,12 +26,7 @@
 #include "math_helper.h"
 #include "visibility.h"
 
-static inline void xdrbg256_shake_final(struct lc_hash_ctx *shake_ctx,
-					uint8_t *digest, size_t digest_len)
-{
-	lc_hash_set_digestsize(shake_ctx, digest_len);
-	lc_hash_final(shake_ctx, digest);
-}
+/********************************** Selftest **********************************/
 
 static void xdrbg256_drng_selftest(int *tested, const char *impl)
 {
@@ -39,31 +34,31 @@ static void xdrbg256_drng_selftest(int *tested, const char *impl)
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
 	};
 	static const uint8_t exp[] = {
-		0x21, 0x15, 0x36, 0x5a, 0x2c, 0x86, 0x93, 0x55, 0x80, 0x81,
-		0x52, 0xc4, 0xf4, 0xac, 0x13, 0x08, 0x7e, 0xfe, 0xe6, 0x5b,
-		0xd7, 0x77, 0x0b, 0x0e, 0xaa, 0xc2, 0x9c, 0xc7, 0xa7, 0xfd,
-		0x41, 0xbf, 0x28, 0x11, 0x4a, 0xe8, 0x90, 0x33, 0x68, 0xe0,
-		0xec, 0xcf, 0xbe, 0xc7, 0xab, 0x52, 0x95, 0xa3, 0x40, 0xa8,
-		0x99, 0x3f, 0x63, 0xf0, 0x2a, 0xe8, 0xa7, 0xa8, 0xca, 0x4e,
-		0xfd, 0xec, 0x82, 0x5a, 0x44, 0x68, 0x47, 0xfb, 0xd8, 0x36,
-		0x50, 0xb8, 0x62, 0xba, 0x8e, 0x9b, 0xaa, 0xe7, 0xbb, 0xd0,
-		0xe9, 0xc8, 0x13, 0x67, 0x0c, 0xce, 0x10, 0xc8, 0x51, 0x8d,
-		0x89, 0x44, 0xd7, 0xa2, 0xda, 0x2f, 0x2b, 0x9d, 0xad, 0xa4,
-		0x30, 0x62, 0xf9, 0x47, 0xe5, 0xa2, 0xac, 0x29, 0x87, 0xdd,
-		0x2f, 0xcc, 0x2a, 0x90, 0x1a, 0x72, 0x4d, 0x21, 0x6f, 0x8e,
-		0x95, 0xe2, 0xca, 0x7d, 0x1c, 0x46, 0x36, 0x97, 0x59, 0x8a,
-		0x7b, 0x70, 0x02, 0x5d, 0xaa, 0x98, 0x83, 0xe7, 0xfd, 0x9d,
-		0x2d, 0x34, 0x96, 0x28, 0x80, 0xbb, 0x98, 0xb8, 0x96, 0xe7,
-		0xf2, 0x9d, 0x16, 0x25, 0xae, 0xe3, 0x4b, 0x8e, 0x03, 0x3a,
-		0xae, 0xe5, 0xe9, 0x34, 0xd7, 0xf2, 0x67, 0xca, 0x15, 0x26,
-		0xc0, 0x51, 0x15, 0x68, 0x40, 0x1d, 0x87, 0xc7, 0x12, 0xdd,
-		0xca, 0x22, 0x2b, 0x80, 0xd7, 0xf9, 0x25, 0xe8, 0x51, 0x73,
-		0xfa, 0x42, 0x5b, 0x5e, 0xb3, 0x6a, 0xb7, 0x66, 0x97, 0x60,
-		0xe7, 0x8a, 0x83, 0x18, 0x8a, 0x63, 0x9a, 0x9a, 0x41, 0x11,
-		0xa0, 0x8c, 0xe5, 0x8d, 0x24, 0x4b, 0x42, 0xde, 0x4c, 0x74,
-		0xda, 0x13, 0xdb, 0x85, 0xd6, 0x30, 0x01, 0x30, 0xe8, 0x48,
-		0x28, 0xcb, 0xbd, 0xb8, 0xa0, 0x14, 0xf9, 0xec, 0x73, 0x2f,
-		0xca, 0x6d, 0xf3, 0x84, 0x30, 0x3b, 0xba
+		0xb6, 0x29, 0x62, 0x30, 0xc5, 0x98, 0x9a, 0x98, 0x42, 0xaf,
+		0x9b, 0x67, 0x99, 0x37, 0xfb, 0x7e, 0x9d, 0xa8, 0xbd, 0xb2,
+		0xc7, 0x82, 0xbd, 0xd0, 0xb6, 0x13, 0xed, 0x2c, 0x54, 0xe8,
+		0x41, 0x84, 0x92, 0x84, 0x2b, 0xfa, 0xc2, 0xab, 0x70, 0xed,
+		0x58, 0xf9, 0x67, 0x71, 0xf0, 0x22, 0x84, 0xb8, 0xad, 0x5e,
+		0xf0, 0x2c, 0x79, 0x00, 0x29, 0xfe, 0x8b, 0xa2, 0x2b, 0x2b,
+		0xff, 0xcf, 0x27, 0xce, 0x26, 0x35, 0xe8, 0xd8, 0x0d, 0x4d,
+		0x4d, 0x29, 0xf2, 0x56, 0xb7, 0x6a, 0x18, 0x40, 0xbf, 0xf4,
+		0xfe, 0xed, 0x0c, 0x11, 0x00, 0x35, 0xf1, 0xa7, 0xaf, 0x1c,
+		0x00, 0x2d, 0x81, 0x6e, 0xa3, 0x44, 0x3a, 0x36, 0x43, 0xe5,
+		0x9a, 0x91, 0xcb, 0xd5, 0xf4, 0xf3, 0x1e, 0x3f, 0x38, 0xdd,
+		0xfe, 0xa2, 0xa8, 0xb1, 0xe0, 0x36, 0x0e, 0x43, 0x29, 0x5b,
+		0x89, 0x44, 0x53, 0xbc, 0x58, 0xdb, 0xb8, 0x74, 0x76, 0xbd,
+		0xdc, 0xfa, 0x57, 0x9d, 0x5b, 0xb0, 0x2c, 0x09, 0x4b, 0x3e,
+		0x6a, 0x3d, 0xa7, 0xf3, 0x43, 0x4e, 0x3f, 0xa3, 0x43, 0xac,
+		0x57, 0x55, 0xd3, 0xe7, 0x72, 0x61, 0x49, 0x90, 0xd6, 0xbb,
+		0xcb, 0xc8, 0xfd, 0x64, 0xa6, 0x74, 0x2c, 0x90, 0x75, 0x11,
+		0xc3, 0xdb, 0x48, 0x79, 0xf4, 0x0f, 0x04, 0xf9, 0xbc, 0x79,
+		0x07, 0x6c, 0x0b, 0xd3, 0x7c, 0xa0, 0x57, 0x59, 0x97, 0xc1,
+		0xdc, 0x41, 0xe3, 0xc1, 0x6b, 0x67, 0x99, 0x9a, 0xa9, 0x83,
+		0xc8, 0x99, 0x67, 0xd5, 0x72, 0x92, 0x44, 0x87, 0x6c, 0x20,
+		0xf9, 0xf0, 0xf3, 0x91, 0x6b, 0xfa, 0x53, 0x4c, 0xcb, 0x08,
+		0xb4, 0x31, 0x25, 0xe9, 0xff, 0xb7, 0x8b, 0x81, 0x14, 0xa1,
+		0x37, 0x3b, 0xa6, 0x85, 0x89, 0x30, 0x62, 0x05, 0xfc, 0x78,
+		0x4b, 0xca, 0x6d, 0xe8, 0x5b, 0x28, 0x83
 
 	};
 	uint8_t act[sizeof(exp)] __align(sizeof(uint32_t));
@@ -76,6 +71,80 @@ static void xdrbg256_drng_selftest(int *tested, const char *impl)
 	lc_rng_generate(shake_ctx, NULL, 0, act, sizeof(act));
 	lc_compare_selftest(act, exp, sizeof(exp), impl);
 	lc_rng_zero(shake_ctx);
+}
+
+/*********************************** Helper ***********************************/
+
+static inline void xdrbg256_shake_final(struct lc_hash_ctx *shake_ctx,
+					uint8_t *digest, size_t digest_len)
+{
+	lc_hash_set_digestsize(shake_ctx, digest_len);
+	lc_hash_final(shake_ctx, digest);
+}
+
+/* Maximum size of the input data to calculate the encode value */
+#define LC_XDRBG256_DRNG_ENCODE_LENGTH 84
+
+/*
+ * The encoding is based on the XDRBG paper appendix B.2 with the following
+ * properties:
+ *
+ *   * |V| == 512 which implies that the hash length should be >= 512 bits.
+ *
+ *   * The chosen hash shall not increase the required code size of the XDRBG
+ *     implementation.
+ *
+ *   * Thus, the selected hash is, naturally SHA3-512 which uses the same Keccak
+ *     implementation as SHAKE256.
+ */
+static void lc_xdrbg256_encode(struct lc_hash_ctx *shake_ctx, const uint8_t n,
+			       const uint8_t *alpha, size_t alphalen)
+{
+	uint8_t encode[LC_SHA3_512_SIZE_DIGEST + 1];
+
+	/* Ensure the prerequisite hash size >= |V| holds. */
+	BUILD_BUG_ON(LC_XDRBG256_DRNG_KEYSIZE > LC_SHA3_512_SIZE_DIGEST);
+
+	/* Ensure the prerequisite hash size <= 84 holds. */
+	BUILD_BUG_ON(LC_SHA3_512_SIZE_DIGEST > LC_XDRBG256_DRNG_ENCODE_LENGTH);
+
+	if (alphalen <= LC_XDRBG256_DRNG_ENCODE_LENGTH) {
+		/* The alpha is sufficiently small to avoid hashing */
+
+		/* Encode the length. */
+		encode[0] =
+			(uint8_t)(n * (LC_SHA3_512_SIZE_DIGEST + 1) + alphalen);
+
+		/* Insert alpha and encode into the hash context. */
+		lc_hash_update(shake_ctx, alpha, alphalen);
+		lc_hash_update(shake_ctx, encode, 1);
+
+		return;
+	}
+
+	/*
+	 * The alpha is larger than the allowed size - perform hashing of
+	 * alpha together with its size encoding.
+	 */
+
+	/* Hash alpha with the chosen hash mechanisms. */
+	lc_hash(lc_sha3_512, alpha, alphalen, encode);
+
+	/* Encode the length */
+	encode[LC_SHA3_512_SIZE_DIGEST] =
+		(uint8_t)(n * (LC_SHA3_512_SIZE_DIGEST + 1) +
+			  LC_SHA3_512_SIZE_DIGEST);
+
+	/*
+	 * The buffer encode contains the concatentation of
+	 * h(alpha) || (n * (hash_length + 1) + hash_length)
+	 */
+	lc_hash_update(shake_ctx, encode, sizeof(encode));
+
+	/*
+	 * Zeroization of encode is not considered to be necessary as alpha is
+	 * considered to be known string.
+	 */
 }
 
 /*
@@ -95,20 +164,21 @@ static void xdrbg256_drng_selftest(int *tested, const char *impl)
  */
 static void xdrbg256_drng_fke_init_ctx(struct lc_xdrbg256_drng_state *state,
 				       struct lc_hash_ctx *shake_ctx,
-				       const uint8_t *addtl_input,
-				       size_t addtl_input_len)
+				       const uint8_t *alpha, size_t alphalen)
 {
 	lc_hash_init(shake_ctx);
 
-	/* Initialize the SHAKE with V' */
+	/* Insert V' into the SHAKE */
 	lc_hash_update(shake_ctx, state->v, LC_XDRBG256_DRNG_KEYSIZE);
 
-	/* Insert the additional data into the SHAKE state. */
-	lc_hash_update(shake_ctx, addtl_input, addtl_input_len);
+	/* Insert alpha into the SHAKE state together with its encoding. */
+	lc_xdrbg256_encode(shake_ctx, 2, alpha, alphalen);
 
 	/* Generate the V to store in the state and overwrite V'. */
 	xdrbg256_shake_final(shake_ctx, state->v, LC_XDRBG256_DRNG_KEYSIZE);
 }
+
+/********************************** XDRB256 ***********************************/
 
 /*
  * Generating random bits is performed by initializing a transient SHAKE state
@@ -118,9 +188,14 @@ static void xdrbg256_drng_fke_init_ctx(struct lc_xdrbg256_drng_state *state,
  * The random bits are generated by performing a SHAKE final operation. The
  * generation operation is chunked to ensure that the fast-key-erasure updates
  * the key when large quantities of random bits are generated.
+ *
+ * This function implements the following functions from Algorithm 2  of the
+ * XDRBG specification:
+ *
+ *   * GENERATE
  */
-static int lc_xdrbg256_drng_generate(void *_state, const uint8_t *addtl_input,
-				     size_t addtl_input_len, uint8_t *out,
+static int lc_xdrbg256_drng_generate(void *_state, const uint8_t *alpha,
+				     size_t alphalen, uint8_t *out,
 				     size_t outlen)
 {
 	struct lc_xdrbg256_drng_state *state = _state;
@@ -132,9 +207,11 @@ static int lc_xdrbg256_drng_generate(void *_state, const uint8_t *addtl_input,
 	while (outlen) {
 		size_t todo = min_size(outlen, LC_XDRBG256_DRNG_MAX_CHUNK);
 
-		/* Instantiate SHAKE with V', generate V */
-		xdrbg256_drng_fke_init_ctx(state, shake_ctx, addtl_input,
-					   addtl_input_len);
+		/*
+		 * Instantiate SHAKE with V', and alpha with its encoding,
+		 * and generate V.
+		 */
+		xdrbg256_drng_fke_init_ctx(state, shake_ctx, alpha, alphalen);
 
 		/* Generate the requested amount of output bits */
 		xdrbg256_shake_final(shake_ctx, out, todo);
@@ -155,13 +232,24 @@ static int lc_xdrbg256_drng_generate(void *_state, const uint8_t *addtl_input,
  * The DRNG is seeded by initializing a fast-key-erasure SHAKE context and add
  * the key into the SHAKE state. The SHAKE final operation replaces the key in
  * state.
+ *
+ * This function implements the following functions from Algorithm 2 of the
+ * XDRBG specification:
+ *
+ *  * INSTANTIATE: The state is empty (either freshly allocated or zeroized with
+ *                 lc_xdrbg256_drng_zero). In particular state->initially_seeded
+ *                 is 0.
+ *
+ *  * RESEED: The state contains a working XDRBG state that was seeded before.
+ *            In this case, state->initially_seeded is 1.
  */
 static int lc_xdrbg256_drng_seed(void *_state, const uint8_t *seed,
-				 size_t seedlen, const uint8_t *persbuf,
-				 size_t perslen)
+				 size_t seedlen, const uint8_t *alpha,
+				 size_t alphalen)
 {
 	static int tested = 0;
 	struct lc_xdrbg256_drng_state *state = _state;
+	uint8_t intially_seeded = state->initially_seeded;
 	LC_HASH_CTX_ON_STACK(shake_ctx, lc_shake256);
 
 	if (!state)
@@ -172,17 +260,19 @@ static int lc_xdrbg256_drng_seed(void *_state, const uint8_t *seed,
 	lc_hash_init(shake_ctx);
 
 	/*
-	 * Initialize the SHAKE with V'. During initial seeding V' is a zero
-	 * buffer.
+	 * During reseeding, insert V' into the SHAKE state. During initial
+	 * seeding, V' does not yet exist and thus is not considered.
 	 */
-	// TODO: XDRBG specification says: initial seeding shall not use V
-	lc_hash_update(shake_ctx, state->v, LC_XDRBG256_DRNG_KEYSIZE);
+	if (intially_seeded)
+		lc_hash_update(shake_ctx, state->v, LC_XDRBG256_DRNG_KEYSIZE);
+	else
+		state->initially_seeded = 1;
 
 	/* Insert the seed data into the SHAKE state. */
 	lc_hash_update(shake_ctx, seed, seedlen);
 
-	/* Insert the personalization string into the SHAKE state. */
-	lc_hash_update(shake_ctx, persbuf, perslen);
+	/* Insert alpha into the SHAKE state together with its encoding. */
+	lc_xdrbg256_encode(shake_ctx, intially_seeded, alpha, alphalen);
 
 	/* Generate the V to store in the state and overwrite V'. */
 	xdrbg256_shake_final(shake_ctx, state->v, LC_XDRBG256_DRNG_KEYSIZE);

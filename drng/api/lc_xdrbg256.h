@@ -30,6 +30,7 @@ extern "C" {
 #define LC_XDRBG256_DRNG_KEYSIZE 64
 
 struct lc_xdrbg256_drng_state {
+	uint8_t initially_seeded;
 	uint8_t v[LC_XDRBG256_DRNG_KEYSIZE];
 };
 

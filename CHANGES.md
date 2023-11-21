@@ -17,6 +17,10 @@ Changes 0.8.0-prerelease:
 * hardening: use -fzero-call-used-regs=used-gpr if available to counter ROP
   attacks
 
+* fix: Add fork-detection for seeded_rng
+
+* update XDRBG256 implementation based on latest draft
+
 Changes 0.7.0:
 
 * enhancement: add XDRBG256 - the SHAKE256-based DRNG discussed for SP800-90A
