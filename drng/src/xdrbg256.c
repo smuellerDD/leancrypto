@@ -84,6 +84,7 @@ static inline void xdrbg256_shake_final(struct lc_hash_ctx *shake_ctx,
 
 /* Maximum size of the input data to calculate the encode value */
 #define LC_XDRBG256_DRNG_ENCODE_LENGTH 84
+#define LC_XDRBG256_DRNG_HASH_TYPE lc_shake256
 
 /*
  * The encoding is based on the XDRBG paper appendix B.2 with the following
@@ -96,8 +97,7 @@ static void lc_xdrbg256_encode(struct lc_hash_ctx *shake_ctx, const uint8_t n,
 {
 	static const uint8_t byte = 0xff;
 	uint8_t encode[LC_XDRBG256_DRNG_KEYSIZE + 1];
-	LC_HASH_CTX_ON_STACK(enc_hash_ctx, lc_shake256);
-
+	LC_HASH_CTX_ON_STACK(enc_hash_ctx, LC_XDRBG256_DRNG_HASH_TYPE);
 
 	/* Ensure the prerequisite hash size <= 84 holds. */
 	BUILD_BUG_ON(LC_XDRBG256_DRNG_KEYSIZE > LC_XDRBG256_DRNG_ENCODE_LENGTH);
@@ -195,7 +195,7 @@ static int lc_xdrbg256_drng_generate(void *_state, const uint8_t *alpha,
 				     size_t outlen)
 {
 	struct lc_xdrbg256_drng_state *state = _state;
-	LC_HASH_CTX_ON_STACK(shake_ctx, lc_shake256);
+	LC_HASH_CTX_ON_STACK(shake_ctx, LC_XDRBG256_DRNG_HASH_TYPE);
 
 	if (!state)
 		return -EINVAL;
@@ -246,7 +246,7 @@ static int lc_xdrbg256_drng_seed(void *_state, const uint8_t *seed,
 	static int tested = 0;
 	struct lc_xdrbg256_drng_state *state = _state;
 	uint8_t intially_seeded = state->initially_seeded;
-	LC_HASH_CTX_ON_STACK(shake_ctx, lc_shake256);
+	LC_HASH_CTX_ON_STACK(shake_ctx, LC_XDRBG256_DRNG_HASH_TYPE);
 
 	if (!state)
 		return -EINVAL;

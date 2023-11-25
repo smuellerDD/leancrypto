@@ -30,10 +30,11 @@ extern "C" {
 #define LC_CSHAKE256_DRNG_KEYSIZE 64
 
 struct lc_cshake256_drng_state {
+	uint8_t initially_seeded;
 	uint8_t key[LC_CSHAKE256_DRNG_KEYSIZE];
 };
 
-#define LC_CSHAKE256_DRNG_MAX_CHUNK (LC_SHA3_256_SIZE_BLOCK * 100)
+#define LC_CSHAKE256_DRNG_MAX_CHUNK (LC_SHA3_256_SIZE_BLOCK * 2)
 #define LC_CSHAKE256_DRNG_STATE_SIZE (sizeof(struct lc_cshake256_drng_state))
 #define LC_CSHAKE256_DRNG_CTX_SIZE                                             \
 	(sizeof(struct lc_rng) + LC_CSHAKE256_DRNG_STATE_SIZE)
