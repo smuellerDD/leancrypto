@@ -24,6 +24,7 @@
 #include "lc_hash_drbg.h"
 #include "lc_hmac_drbg_sha512.h"
 #include "lc_rng.h"
+#include "lc_xdrbg256.h"
 #include "ret_checkers.h"
 #include "seeded_rng.h"
 #include "visibility.h"
@@ -32,7 +33,11 @@
 
 #ifdef LINUX_KERNEL
 //TODO make this selectible based on KBUILD
-#define CONFIG_LEANCRYPTO_CSHAKE_DRNG
+#define CONFIG_LEANCRYPTO_XDRBG256_DRNG
+
+#ifdef CONFIG_LEANCRYPTO_XDRBG256_DRNG
+#define LC_DRNG_XDRBG_256
+#endif
 #ifdef CONFIG_LEANCRYPTO_KMAC_DRNG
 #define LC_DRNG_KMAC
 #endif
@@ -49,7 +54,11 @@
 #include "lc_drng_config.h"
 #endif
 
-#ifdef LC_DRNG_CSHAKE
+#ifdef LC_DRNG_XDRBG_256
+#define LC_SEEDED_RNG_CTX_SIZE LC_XDRBG256_DRNG_CTX_SIZE
+#define LC_SEEDED_RNG_CTX(name) LC_XDRBG256_RNG_CTX(name)
+
+#elif defined(LC_DRNG_CSHAKE)
 /* Use cSHAKE 256 */
 #define LC_SEEDED_RNG_CTX_SIZE LC_CSHAKE256_DRNG_CTX_SIZE
 #define LC_SEEDED_RNG_CTX(name) LC_CSHAKE256_RNG_CTX(name)
