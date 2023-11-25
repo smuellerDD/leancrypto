@@ -38,7 +38,7 @@ option('kmac_drng', type: 'feature', value: 'enabled',
        description: 'KMAC DRNG support')
 option('cshake_drng', type: 'feature', value: 'enabled',
        description: 'cSHAKE DRNG support')
-option('xdrbg256', type: 'feature', value: 'disabled',
+option('xdrbg256', type: 'feature', value: 'enabled',
        description: 'SHAKE 256 XDRBG support')
 
 option('hotp', type: 'feature', value: 'enabled',
