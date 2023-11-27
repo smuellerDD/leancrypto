@@ -298,8 +298,9 @@ static void kmac256_drng_selftest(int *tested, const char *impl)
 #define LC_KMAC256_DRNG_ENCODE_LENGTH 84
 #define LC_KMAC256_DRNG_HASH_TYPE lc_cshake256
 
-static void lc_kmac256_encode(struct lc_kmac_ctx *kmac_ctx, const uint8_t n,
-			      const uint8_t *alpha, size_t alphalen)
+static void lc_kmac256_drng_encode(struct lc_kmac_ctx *kmac_ctx,
+				   const uint8_t n, const uint8_t *alpha,
+				   size_t alphalen)
 {
 	static const uint8_t byte = 0xff;
 	uint8_t encode[LC_KMAC256_DRNG_KEYSIZE + 1];
@@ -366,10 +367,10 @@ static void lc_kmac256_encode(struct lc_kmac_ctx *kmac_ctx, const uint8_t n,
  * This generates T(0) and T(1) of size 1088 of the KMAC DRNG specification
  * section 2.3.
  */
-static void kmac256_drng_fke_init_ctx(struct lc_kmac256_drng_state *state,
-				      struct lc_kmac_ctx *kmac_ctx,
-				      const uint8_t *addtl_input,
-				      size_t addtl_input_len)
+static void lc_kmac256_drng_fke_init_ctx(struct lc_kmac256_drng_state *state,
+					 struct lc_kmac_ctx *kmac_ctx,
+					 const uint8_t *addtl_input,
+					 size_t addtl_input_len)
 {
 	/* Initialize the KMAC with K(N) and the cust. string. */
 	lc_kmac_init(kmac_ctx, state->key, LC_KMAC256_DRNG_KEYSIZE,
@@ -377,7 +378,7 @@ static void kmac256_drng_fke_init_ctx(struct lc_kmac256_drng_state *state,
 		     sizeof(LC_KMAC_DRNG_CTX_CUSTOMIZATION_STRING) - 1);
 
 	/* Insert the additional data into the KMAC state. */
-	lc_kmac256_encode(kmac_ctx, 2, addtl_input, addtl_input_len);
+	lc_kmac256_drng_encode(kmac_ctx, 2, addtl_input, addtl_input_len);
 
 	/* Generate the K(N + 1) to store in the state and overwrite K(N). */
 	lc_kmac_final_xof(kmac_ctx, state->key, LC_KMAC256_DRNG_KEYSIZE);
@@ -416,8 +417,8 @@ static int lc_kmac256_drng_generate(void *_state, const uint8_t *addtl_input,
 						       LC_KMAC256_DRNG_KEYSIZE);
 
 		/* Instantiate KMAC with TMP_K(N) and generate TMP_K(N + 1). */
-		kmac256_drng_fke_init_ctx(state, kmac_ctx, addtl_input,
-					  addtl_input_len);
+		lc_kmac256_drng_fke_init_ctx(state, kmac_ctx, addtl_input,
+					     addtl_input_len);
 
 		/* Generate the requested amount of output bits */
 		lc_kmac_final_xof(kmac_ctx, out, todo);
@@ -477,7 +478,7 @@ static int lc_kmac256_drng_seed(void *_state, const uint8_t *seed,
 	lc_kmac_update(kmac_ctx, seed, seedlen);
 
 	/* Insert the personalization string into the KMAC state. */
-	lc_kmac256_encode(kmac_ctx, initially_seeded, persbuf, perslen);
+	lc_kmac256_drng_encode(kmac_ctx, initially_seeded, persbuf, perslen);
 
 	/* Generate the K(N + 1) to store in the state and overwrite K(N). */
 	lc_kmac_final_xof(kmac_ctx, state->key, LC_KMAC256_DRNG_KEYSIZE);

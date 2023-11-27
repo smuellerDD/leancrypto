@@ -352,8 +352,9 @@ static void cshake256_drng_selftest(int *tested, const char *impl)
 #define LC_CSHAKE256_DRNG_ENCODE_LENGTH 84
 #define LC_CSHAKE256_DRNG_HASH_TYPE lc_cshake256
 
-static void lc_cshake256_encode(struct lc_hash_ctx *cshake_ctx, const uint8_t n,
-				const uint8_t *alpha, size_t alphalen)
+static void lc_cshake256_drng_encode(struct lc_hash_ctx *cshake_ctx,
+				     const uint8_t n, const uint8_t *alpha,
+				     size_t alphalen)
 {
 	static const uint8_t byte = 0xff;
 	uint8_t encode[LC_CSHAKE256_DRNG_KEYSIZE + 1];
@@ -421,10 +422,9 @@ static void lc_cshake256_encode(struct lc_hash_ctx *cshake_ctx, const uint8_t n,
  * This generates T(0) and T(1) of size 1088 of the cSHAKE DRNG specification
  * section 2.3.
  */
-static void cshake256_drng_fke_init_ctx(struct lc_cshake256_drng_state *state,
-					struct lc_hash_ctx *cshake_ctx,
-					const uint8_t *addtl_input,
-					size_t addtl_input_len)
+static void lc_cshake256_drng_fke_init_ctx(
+	struct lc_cshake256_drng_state *state, struct lc_hash_ctx *cshake_ctx,
+	const uint8_t *addtl_input, size_t addtl_input_len)
 {
 	/* Initialize the cSHAKE with K(N) and the cust. string. */
 	lc_cshake_init(cshake_ctx,
@@ -433,7 +433,7 @@ static void cshake256_drng_fke_init_ctx(struct lc_cshake256_drng_state *state,
 		       state->key, LC_CSHAKE256_DRNG_KEYSIZE);
 
 	/* Insert the additional data into the cSHAKE state. */
-	lc_cshake256_encode(cshake_ctx, 2, addtl_input, addtl_input_len);
+	lc_cshake256_drng_encode(cshake_ctx, 2, addtl_input, addtl_input_len);
 
 	/* Generate the K(N + 1) to store in the state and overwrite K(N). */
 	lc_cshake_final(cshake_ctx, state->key, LC_CSHAKE256_DRNG_KEYSIZE);
@@ -473,8 +473,8 @@ static int lc_cshake256_drng_generate(void *_state, const uint8_t *addtl_input,
 						 LC_CSHAKE256_DRNG_KEYSIZE);
 
 		/* Instantiate cSHAKE with TMP_K(N), generate TMP_K(N + 1). */
-		cshake256_drng_fke_init_ctx(state, cshake_ctx, addtl_input,
-					    addtl_input_len);
+		lc_cshake256_drng_fke_init_ctx(state, cshake_ctx, addtl_input,
+					       addtl_input_len);
 
 		/* Generate the requested amount of output bits */
 		lc_cshake_final(cshake_ctx, out, todo);
@@ -537,7 +537,8 @@ static int lc_cshake256_drng_seed(void *_state, const uint8_t *seed,
 	lc_hash_update(cshake_ctx, seed, seedlen);
 
 	/* Insert the personalization string into the cSHAKE state. */
-	lc_cshake256_encode(cshake_ctx, initially_seeded, persbuf, perslen);
+	lc_cshake256_drng_encode(cshake_ctx, initially_seeded, persbuf,
+				 perslen);
 
 	/* Generate the K(N + 1) to store in the state and overwrite K(N). */
 	lc_cshake_final(cshake_ctx, state->key, LC_CSHAKE256_DRNG_KEYSIZE);
