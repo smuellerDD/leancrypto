@@ -57,7 +57,8 @@ out:
 /**
  * @brief kyber_double_ss_kdf - KDF to derive arbitrary sized SS from Kyber SS
  *
- *	SS <- KMAC256(K = Kyber-SS || X25519-SS, X = Kyber-CT,
+ *	SS <- KMAC256(K = Kyber-SS || X25519-SS,
+ *		      X = Kyber-CT || X25519-ephemeral-PK,
  *		      L = requested SS length, S = "Kyber X25519 KEM SS")
  *
  * This KDF is is consistent with SP800-108 rev 1.
@@ -69,9 +70,10 @@ static inline void kyber_x25519_ss_kdf(uint8_t *ss, size_t ss_len,
 	static const uint8_t kyber_ss_label[] = "Kyber X25519 KEM SS";
 
 	/*
-	 * NOTE: this only works because struct lc_kyber_x25519_ss contqains
-	 * Kyber SS || X25519 SS in memory. If this structure changes,
-	 * change this KDF invocation.
+	 * NOTE: this only works because struct lc_kyber_x25519_ss contains
+	 * Kyber SS || X25519 SS in memory. Also, lc_kyber_x25519_ct contains
+	 * Kyber CT || X25519 ephemeral PK in memory. If either structure
+	 * changes, change this KDF invocation.
 	 */
 	lc_kmac(lc_cshake256, (uint8_t *)calc_ss, sizeof(struct lc_kyber_ss),
 		kyber_ss_label, sizeof(kyber_ss_label) - 1, (uint8_t *)ct,
