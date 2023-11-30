@@ -68,8 +68,7 @@
  * in [FKE] to ensure "backtracking resistance" in NIST terminology (also called
  * "forward secrecy"). To ensure a key is only used for a limited amount of
  * generated random bits, the fast-key-erasure mechanism is applied at least
- * after generating of a hundred times the cSHAKE256 block size number of random
- * bits.
+ * after generating of twice the cSHAKE256 block size number of random bits.
  *
  * The state to be maintained for the life-time of the cSHAKE DRNG is only its
  * key as the cSHAKE operation is transient in nature.
