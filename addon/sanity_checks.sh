@@ -233,7 +233,7 @@ prepare_gitrepo() {
 	check_reposanity $version
 	[ $? -ne 0 ] && exit 1
 
-	code_cleanup $(pwd) ".git" build $0
+	code_cleanup $(pwd) ".git" build $0 ".pdf"
 	[ $? -ne 0 ] && exit 1
 
 	check_only_signed_commits
