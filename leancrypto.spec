@@ -68,7 +68,7 @@ Summary:        Applications provided by leancrypto
 Requires:       glibc-devel
 Requires:       lib%{name}0 = %{version}
 
-%description %{name}-tools
+%description -n %{name}-tools
 Leancrypto provides a general-purpose cryptographic library with PQC-safe
 algorithms. Further it only has POSIX dependencies, and allows all algorithms
 to be used on stack as well as on heap. Accelerated algorithms are transparently
@@ -127,6 +127,7 @@ done
 %files -n lib%{name}0
 %license LICENSE LICENSE.bsd LICENSE.gplv2
 %{_libdir}/lib%{name}.so.*
+%{_libdir}/pkgconfig/%{name}.pc
 
 %files devel
 %doc README.md CHANGES.md
@@ -138,6 +139,7 @@ done
 %{_libdir}/lib%{name}.a
 
 %files -n %{name}-tools
+%{_libexecdir}/%{name}
 %{_libexecdir}/%{name}/sha256sum
 %{_libexecdir}/%{name}/sha512sum
 %{_libexecdir}/%{name}/sha3-256sum
