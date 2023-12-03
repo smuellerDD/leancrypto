@@ -1,4 +1,4 @@
-Changes 0.8.0-prerelease:
+Changes 0.8.0:
 
 * enhancement: add applications
 
