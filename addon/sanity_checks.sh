@@ -178,7 +178,6 @@ check_reposanity() {
 
 # Check that only signed commits are present
 check_only_signed_commits() {
-return
 	# Git preparation
 	local oldver=$(git tag --sort="v:refname" | tail -n1)
 
@@ -237,8 +236,8 @@ prepare_gitrepo() {
 	code_cleanup $(pwd) ".git" build $0 ".pdf"
 	[ $? -ne 0 ] && exit 1
 
-	check_only_signed_commits
-	[ $? -ne 0 ] && exit 1
+	#check_only_signed_commits
+	#[ $? -ne 0 ] && exit 1
 
 	require_clean_work_tree
 	[ $? -ne 0 ] && exit 1
