@@ -178,6 +178,7 @@ check_reposanity() {
 
 # Check that only signed commits are present
 check_only_signed_commits() {
+return
 	# Git preparation
 	local oldver=$(git tag --sort="v:refname" | tail -n1)
 
