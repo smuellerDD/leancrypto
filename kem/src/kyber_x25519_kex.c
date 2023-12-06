@@ -57,47 +57,6 @@ LC_INTERFACE_FUNCTION(int, lc_kex_x25519_uake_initiator_init,
 		pk_e_i, ct_e_i, tk, sk_e, pk_r, lc_seeded_rng);
 }
 
-/**
- * @brief Kyber-X25519 KDF
- *
- * SS <- KMAC256(K = Kyber-SS || X25519-SS from ephemeral key 1,
- *		 X = Kyber-SS || X25519-SS from static key ||
- * 		     Nonce,
- *		 L = requested SS length,
- *		 S = "Kyber X25519 KEM 3-way SS")
- *
- * @param [in] ss0 SS0
- * @param [in] ss1 SS1
- * @param [in] in3 input buffer 3
- * @param [in] inlen3 length of input buffer 3
- * @param [out] out output buffer of size
- * @param [out] outlen output buffer length
- */
-static inline void kyber_x25519_kdf3(const struct lc_kyber_x25519_ss *ss0,
-				     const struct lc_kyber_x25519_ss *ss1,
-				     const uint8_t *in3, size_t inlen3,
-				     uint8_t *out, size_t outlen)
-{
-	static const uint8_t kyber_x25519_ss_label[] =
-		"Kyber X25519 KEM 3-way SS";
-	LC_KMAC_CTX_ON_STACK(kmac_ctx, lc_cshake256);
-
-	/*
-	 * NOTE: this only works because struct lc_kyber_x25519_ss contqains
-	 * Kyber SS || X25519 SS in memory. If this structure changes,
-	 * change this KDF invocation.
-	 */
-	lc_kmac_init(kmac_ctx, (uint8_t *)ss0,
-		     sizeof(struct lc_kyber_x25519_ss), kyber_x25519_ss_label,
-		     sizeof(kyber_x25519_ss_label) - 1);
-	lc_kmac_update(kmac_ctx, (uint8_t *)ss1,
-		       sizeof(struct lc_kyber_x25519_ss));
-	lc_kmac_update(kmac_ctx, in3, inlen3);
-	lc_kmac_final(kmac_ctx, out, outlen);
-
-	lc_kmac_zero(kmac_ctx);
-}
-
 int lc_kex_x25519_uake_responder_ss_internal(
 	struct lc_kyber_x25519_ct *ct_e_r, uint8_t *shared_secret,
 	size_t shared_secret_len, const uint8_t *kdf_nonce,
@@ -174,52 +133,6 @@ LC_INTERFACE_FUNCTION(int, lc_kex_x25519_ake_initiator_init,
 {
 	return lc_kex_x25519_ake_initiator_init_internal(
 		pk_e_i, ct_e_i, tk, sk_e, pk_r, lc_seeded_rng);
-}
-
-/**
- * @brief Kyber-X25519 KDF
- *
- * SS <- KMAC256(K = Kyber-SS || X25519-SS from ephemeral key 1,
- *		 X = Kyber-SS || X25519-SS from ephemeral key 2 ||
- *		     Kyber-SS || X25519-SS from static key ||
- * 		     Nonce,
- *		 L = requested SS length,
- *		 S = "Kyber X25519 KEM 4-way SS")
- *
- * @param [in] ss0 SS0
- * @param [in] ss1 SS1
- * @param [in] ss2 SS2
- * @param [in] in4 input buffer 4
- * @param [in] inlen4 length of input buffer 4
- * @param [out] out output buffer of size
- * @param [out] outlen output buffer length
- */
-static inline void kyber_x25519_kdf4(const struct lc_kyber_x25519_ss *ss0,
-				     const struct lc_kyber_x25519_ss *ss1,
-				     const struct lc_kyber_x25519_ss *ss2,
-				     const uint8_t *in4, size_t inlen4,
-				     uint8_t *out, size_t outlen)
-{
-	static const uint8_t kyber_x25519_ss_label[] =
-		"Kyber X25519 KEM 4-way SS";
-	LC_KMAC_CTX_ON_STACK(kmac_ctx, lc_cshake256);
-
-	/*
-	 * NOTE: this only works because struct lc_kyber_x25519_ss contqains
-	 * Kyber SS || X25519 SS in memory. If this structure changes,
-	 * change this KDF invocation.
-	 */
-	lc_kmac_init(kmac_ctx, (uint8_t *)ss0,
-		     sizeof(struct lc_kyber_x25519_ss), kyber_x25519_ss_label,
-		     sizeof(kyber_x25519_ss_label) - 1);
-	lc_kmac_update(kmac_ctx, (uint8_t *)ss1,
-		       sizeof(struct lc_kyber_x25519_ss));
-	lc_kmac_update(kmac_ctx, (uint8_t *)ss2,
-		       sizeof(struct lc_kyber_x25519_ss));
-	lc_kmac_update(kmac_ctx, in4, inlen4);
-	lc_kmac_final(kmac_ctx, out, outlen);
-
-	lc_kmac_zero(kmac_ctx);
 }
 
 int lc_kex_x25519_ake_responder_ss_internal(
