@@ -1,4 +1,39 @@
-#include "private/quirks.h"
+/*
+ * Copyright (C) 2023, Stephan Mueller <smueller@chronox.de>
+ *
+ * License: see LICENSE file in root directory
+ *
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, ALL OF
+ * WHICH ARE HEREBY DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+ * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ */
+/*
+ * This code is derived in parts from the code distribution provided with
+ * https://github.com/jedisct1/libsodium.git
+ *
+ * That code is released under ISC License
+ *
+ * Copyright (c) 2013-2023
+ * Frank Denis <j at pureftpd dot org>
+ */
+
+#ifndef FE_H
+#define FE_H
+
+#include "bitshift_le.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*
  Ignores top bit of s.
@@ -9,11 +44,11 @@ void fe25519_frombytes(fe25519 h, const unsigned char *s)
 	const uint64_t mask = 0x7ffffffffffffULL;
 	uint64_t h0, h1, h2, h3, h4;
 
-	h0 = (LOAD64_LE(s)) & mask;
-	h1 = (LOAD64_LE(s + 6) >> 3) & mask;
-	h2 = (LOAD64_LE(s + 12) >> 6) & mask;
-	h3 = (LOAD64_LE(s + 19) >> 1) & mask;
-	h4 = (LOAD64_LE(s + 24) >> 12) & mask;
+	h0 = (ptr_to_le64(s)) & mask;
+	h1 = (ptr_to_le64(s + 6) >> 3) & mask;
+	h2 = (ptr_to_le64(s + 12) >> 6) & mask;
+	h3 = (ptr_to_le64(s + 19) >> 1) & mask;
+	h4 = (ptr_to_le64(s + 24) >> 12) & mask;
 
 	h[0] = h0;
 	h[1] = h1;
@@ -91,11 +126,11 @@ static void fe25519_reduce(fe25519 h, const fe25519 f)
 	t[3] &= mask;
 	t[4] &= mask;
 
-	h[0] = t[0];
-	h[1] = t[1];
-	h[2] = t[2];
-	h[3] = t[3];
-	h[4] = t[4];
+	h[0] = (uint64_t)t[0];
+	h[1] = (uint64_t)t[1];
+	h[2] = (uint64_t)t[2];
+	h[3] = (uint64_t)t[3];
+	h[4] = (uint64_t)t[4];
 }
 
 void fe25519_tobytes(unsigned char *s, const fe25519 h)
@@ -108,8 +143,14 @@ void fe25519_tobytes(unsigned char *s, const fe25519 h)
 	t1 = (t[1] >> 13) | (t[2] << 38);
 	t2 = (t[2] >> 26) | (t[3] << 25);
 	t3 = (t[3] >> 39) | (t[4] << 12);
-	STORE64_LE(s + 0, t0);
-	STORE64_LE(s + 8, t1);
-	STORE64_LE(s + 16, t2);
-	STORE64_LE(s + 24, t3);
+	le64_to_ptr(s + 0, t0);
+	le64_to_ptr(s + 8, t1);
+	le64_to_ptr(s + 16, t2);
+	le64_to_ptr(s + 24, t3);
 }
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* FE_H */

@@ -39,7 +39,8 @@ extern "C" {
  fe means field element.
  Here the field is \Z/(2^255-19).
  */
-#ifdef HAVE_TI_MODE
+#ifdef LC_HOST_X86_64
+typedef unsigned int uint128_t __attribute__((mode(TI)));
 typedef uint64_t fe25519[5];
 #else
 typedef int32_t fe25519[10];
@@ -49,7 +50,7 @@ void fe25519_invert(fe25519 out, const fe25519 z);
 void fe25519_frombytes(fe25519 h, const unsigned char *s);
 void fe25519_tobytes(unsigned char *s, const fe25519 h);
 
-#ifdef HAVE_TI_MODE
+#ifdef LC_HOST_X86_64
 #include "ed25519_ref10_fe_51.h"
 #else
 #include "ed25519_ref10_fe_25_5.h"

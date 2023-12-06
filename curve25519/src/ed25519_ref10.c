@@ -57,12 +57,9 @@ static inline uint64_t load_4(const unsigned char *in)
  * Field arithmetic:
  * Use 5*51 bit limbs on 64-bit systems with support for 128 bit arithmetic,
  * and 10*25.5 bit limbs elsewhere.
- *
- * Functions used elsewhere that are candidates for inlining are defined
- * via "private/curve25519_ref10.h".
  */
 
-#ifdef HAVE_TI_MODE
+#ifdef LC_HOST_X86_64
 #include "fe_51/constants.h"
 #include "fe_51/fe.h"
 #else
@@ -312,14 +309,14 @@ static void slide_vartime(signed char *r, const unsigned char *a)
 			ribs = r[i + b] << b;
 			cmp = r[i] + ribs;
 			if (cmp <= 15) {
-				r[i] = (char)cmp;
+				r[i] = (signed char)cmp;
 				r[i + b] = 0;
 			} else {
 				cmp = r[i] - ribs;
 				if (cmp < -15) {
 					break;
 				}
-				r[i] = (char)cmp;
+				r[i] = (signed char)cmp;
 				for (k = i + b; k < 256; ++k) {
 					if (!r[k]) {
 						r[k] = 1;
@@ -673,7 +670,7 @@ static void ge25519_cmov8_base(ge25519_precomp *t, const int pos,
 {
 	static const ge25519_precomp base[32][8] = {
 	/* base[i][j] = (j+1)*256^i*B */
-#ifdef HAVE_TI_MODE
+#ifdef LC_HOST_X86_64
 #include "fe_51/base.h"
 #else
 #include "fe_25_5/base.h"
@@ -757,7 +754,7 @@ static int _ge25519_double_scalarmult_vartime(ge25519_p2 *r,
 					      const unsigned char *b)
 {
 	static const ge25519_precomp Bi[8] = {
-#ifdef HAVE_TI_MODE
+#ifdef LC_HOST_X86_64
 #include "fe_51/base2.h"
 #else
 #include "fe_25_5/base2.h"
@@ -2741,7 +2738,7 @@ static void fe25519_reduce64(fe25519 fe_f, const unsigned char h[64])
 	gl[31] &= 0x7f;
 	fe25519_frombytes(fe_f, fl);
 	fe25519_frombytes(fe_g, gl);
-	fe_f[0] += (h[31] >> 7) * 19 + (h[63] >> 7) * 722;
+	fe_f[0] += (uint64_t)((h[31] >> 7) * 19 + (h[63] >> 7) * 722);
 	for (i = 0; i < sizeof(fe25519) / sizeof fe_f[0]; i++) {
 		fe_f[i] += 38 * fe_g[i];
 	}

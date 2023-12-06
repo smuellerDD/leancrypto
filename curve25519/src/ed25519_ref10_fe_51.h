@@ -130,9 +130,9 @@ static inline void fe25519_neg(fe25519 h, const fe25519 f)
  Preconditions: b in {0,1}.
  */
 
-static void fe25519_cmov(fe25519 f, const fe25519 g, unsigned int b)
+static inline void fe25519_cmov(fe25519 f, const fe25519 g, unsigned int b)
 {
-#ifdef HAVE_AMD64_ASM
+#ifdef LC_HOST_X86_64
 	uint64_t t0, t1, t2;
 
 	__asm__ __volatile__("test      %[c],     %[c]\n"
@@ -171,7 +171,7 @@ static void fe25519_cmov(fe25519 f, const fe25519 g, unsigned int b)
 	x3 = f3 ^ g[3];
 	x4 = f4 ^ g[4];
 
-#ifdef HAVE_INLINE_ASM
+#ifdef LC_HOST_X86_64
 	__asm__ __volatile__("" : "+r"(mask));
 #endif
 
@@ -196,7 +196,7 @@ replace (f,g) with (f,g) if b == 0.
 Preconditions: b in {0,1}.
 */
 
-static void fe25519_cswap(fe25519 f, fe25519 g, unsigned int b)
+static inline void fe25519_cswap(fe25519 f, fe25519 g, unsigned int b)
 {
 	uint64_t mask = (uint64_t)(-(int64_t)b);
 	uint64_t f0, f1, f2, f3, f4;
@@ -221,7 +221,7 @@ static void fe25519_cswap(fe25519 f, fe25519 g, unsigned int b)
 	x3 = f3 ^ g3;
 	x4 = f4 ^ g4;
 
-#ifdef HAVE_INLINE_ASM
+#ifdef LC_HOST_X86_64
 	__asm__ __volatile__("" : "+r"(mask));
 #endif
 
@@ -258,7 +258,7 @@ static inline void fe25519_copy(fe25519 h, const fe25519 f)
  return 0 if f is in {0,2,4,...,q-1}
  */
 
-static inline int fe25519_isnegative(const fe25519 f)
+static inline unsigned int fe25519_isnegative(const fe25519 f)
 {
 	unsigned char s[32];
 
@@ -267,12 +267,24 @@ static inline int fe25519_isnegative(const fe25519 f)
 	return s[0] & 1;
 }
 
+static inline unsigned int sodium_is_zero(const unsigned char *n,
+					  const size_t nlen)
+{
+	size_t i;
+	volatile unsigned char d = 0U;
+
+	for (i = 0U; i < nlen; i++) {
+		d |= n[i];
+	}
+	return 1 & ((d - 1) >> 8);
+}
+
 /*
  return 1 if f == 0
  return 0 if f != 0
  */
 
-static inline int fe25519_iszero(const fe25519 f)
+static inline unsigned int fe25519_iszero(const fe25519 f)
 {
 	unsigned char s[32];
 
@@ -286,7 +298,7 @@ static inline int fe25519_iszero(const fe25519 f)
  Can overlap h with f or g.
  */
 
-static void fe25519_mul(fe25519 h, const fe25519 f, const fe25519 g)
+static inline void fe25519_mul(fe25519 h, const fe25519 f, const fe25519 g)
 {
 	const uint64_t mask = 0x7ffffffffffffULL;
 	uint128_t r0, r1, r2, r3, r4;
@@ -353,7 +365,7 @@ static void fe25519_mul(fe25519 h, const fe25519 f, const fe25519 g)
  Can overlap h with f.
  */
 
-static void fe25519_sq(fe25519 h, const fe25519 f)
+static inline void fe25519_sq(fe25519 h, const fe25519 f)
 {
 	const uint64_t mask = 0x7ffffffffffffULL;
 	uint128_t r0, r1, r2, r3, r4;
@@ -418,7 +430,7 @@ static void fe25519_sq(fe25519 h, const fe25519 f)
  Can overlap h with f.
 */
 
-static void fe25519_sq2(fe25519 h, const fe25519 f)
+static inline void fe25519_sq2(fe25519 h, const fe25519 f)
 {
 	const uint64_t mask = 0x7ffffffffffffULL;
 	uint128_t r0, r1, r2, r3, r4;
@@ -502,7 +514,7 @@ static inline void fe25519_mul32(fe25519 h, const fe25519 f, uint32_t n)
 	a = f[4] * sn + ((uint64_t)(a >> 51));
 	h4 = ((uint64_t)a) & mask;
 
-	h0 += (a >> 51) * 19ULL;
+	h0 += (uint64_t)(a >> 51) * 19ULL;
 
 	h[0] = h0;
 	h[1] = h1;

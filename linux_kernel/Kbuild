@@ -237,6 +237,14 @@ obj-m		 		:= leancrypto.o
 ccflags-y			:= -I$(PWD) -DLINUX_KERNEL -DLC_MEM_ON_HEAP    \
 				   -DMAJVERSION=0 -DMINVERSION=8 -DPATCHLEVEL=0
 
+ifdef CONFIG_X86_64
+ccflags-y			+= -DLC_HOST_X86_64
+else ifdef CONFIG_ARM64
+ccflags-y			+= -DLC_HOST_AARCH64
+else ifneq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
+ccflags-y			+= -DLC_HOST_RISCV64
+endif
+
 ifdef CONFIG_LEANCRYPTO_HEALTH_TEST
 ccflags-y			+= -DLC_SELFTEST_ENABLED
 endif
