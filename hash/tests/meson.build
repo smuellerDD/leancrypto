@@ -105,8 +105,8 @@ if get_option('sha3').enabled()
 					dependencies: leancrypto
 					)
 
-		test('Hash SHAKE128 2x AVX2', shake128_2x_armv8_tester)
-		test('Hash SHAKE256 2x AVX2', shake256_2x_armv8_tester)
+		test('Hash SHAKE128 2x ARMv8', shake128_2x_armv8_tester)
+		test('Hash SHAKE256 2x ARMv8', shake256_2x_armv8_tester)
 	endif
 	hasher = 1
 endif
