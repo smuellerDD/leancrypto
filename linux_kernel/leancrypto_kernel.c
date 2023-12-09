@@ -20,6 +20,7 @@
 
 #include <linux/module.h>
 
+#include "compare.h"
 #include "ed25519.h"
 #include "kyber_internal.h"
 #include "kyber_kem.h"
@@ -41,6 +42,7 @@ EXPORT_SYMBOL(lc_kex_ake_initiator_init_internal);
 EXPORT_SYMBOL(lc_kex_uake_responder_ss_internal);
 EXPORT_SYMBOL(lc_kyber_ies_enc_internal);
 EXPORT_SYMBOL(lc_kyber_ies_enc_init_internal);
+EXPORT_SYMBOL(lc_disable_selftest);
 #ifdef LC_KYBER_X25519_KEM
 EXPORT_SYMBOL(lc_kyber_x25519_enc_kdf_internal);
 EXPORT_SYMBOL(lc_kyber_x25519_ies_enc_internal);
