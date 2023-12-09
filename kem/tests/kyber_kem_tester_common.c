@@ -40,6 +40,34 @@ static int kyber_kem_tester_common(void)
 	return ret;
 }
 
+static int kyber_kem_tester_enc_common(void)
+{
+	return _kyber_kem_enc_tester(lc_kyber_enc_internal);
+}
+
+static int kyber_kem_tester_dec_common(void)
+{
+	return _kyber_kem_dec_tester(lc_kyber_dec);
+}
+
+static int kyber_kem_tester_keygen_common(void)
+{
+	return _kyber_kem_keygen_tester(lc_kyber_keypair);
+}
+
+/*
+ * Performance tests:
+ *
+ * Keygen: perf stat -B build/kem/tests/kyber_kem_tester_common k
+ * Encapsulation: perf stat -B build/kem/tests/kyber_kem_tester_common e
+ * Decapsulation: perf stat -B build/kem/tests/kyber_kem_tester_common d
+ *
+ * Performance tests with large round count:
+ * build/kem/tests/kyber_kem_tester_common c
+ *
+ * Regression test:
+ * build/kem/tests/kyber_kem_tester_common
+ */
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	(void)argc;
@@ -47,6 +75,15 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	if (argc != 2)
 		return kyber_kem_tester_common();
+
+	else if (argv[1][0] == 'e')
+		return kyber_kem_tester_enc_common();
+
+	else if (argv[1][0] == 'd')
+		return kyber_kem_tester_dec_common();
+
+	else if (argv[1][0] == 'k')
+		return kyber_kem_tester_keygen_common();
 
 	return _kyber_kem_tester_common(50000);
 }

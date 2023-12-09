@@ -44,6 +44,21 @@ static int kyber_kem_tester_avx2(void)
 	return ret;
 }
 
+static int kyber_kem_tester_enc_avx2(void)
+{
+	return _kyber_kem_enc_tester(lc_kyber_enc_avx);
+}
+
+static int kyber_kem_tester_dec_avx2(void)
+{
+	return _kyber_kem_dec_tester(lc_kyber_dec_avx);
+}
+
+static int kyber_kem_tester_keygen_avx2(void)
+{
+	return _kyber_kem_keygen_tester(lc_kyber_keypair_avx);
+}
+
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	(void)argc;
@@ -51,6 +66,15 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	if (argc != 2)
 		return kyber_kem_tester_avx2();
+
+	else if (argv[1][0] == 'e')
+		return kyber_kem_tester_enc_avx2();
+
+	else if (argv[1][0] == 'd')
+		return kyber_kem_tester_dec_avx2();
+
+	else if (argv[1][0] == 'k')
+		return kyber_kem_tester_keygen_avx2();
 
 	return _kyber_kem_tester_avx2(50000);
 }

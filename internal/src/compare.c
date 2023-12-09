@@ -75,3 +75,8 @@ void lc_compare_selftest(const uint8_t *act, const uint8_t *exp,
 {
 	assert(!lc_compare(act, exp, len, info));
 }
+
+void lc_disable_selftest(void)
+{
+	lc_selftest_level = 0;
+}

@@ -41,6 +41,21 @@ static int kyber_kem_tester_armv8(void)
 	return ret;
 }
 
+static int kyber_kem_tester_enc_armv8(void)
+{
+	return _kyber_kem_enc_tester(lc_kyber_enc_armv8);
+}
+
+static int kyber_kem_tester_dec_armv8(void)
+{
+	return _kyber_kem_dec_tester(lc_kyber_dec_armv8);
+}
+
+static int kyber_kem_tester_keygen_armv8(void)
+{
+	return _kyber_kem_keygen_tester(lc_kyber_keypair_armv8);
+}
+
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	(void)argc;
@@ -48,6 +63,16 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	if (argc != 2)
 		return kyber_kem_tester_armv8();
+
+	else if (argv[1][0] == 'e')
+		return kyber_kem_tester_enc_armv8();
+
+	else if (argv[1][0] == 'd')
+		return kyber_kem_tester_dec_armv8();
+
+	else if (argv[1][0] == 'k')
+		return kyber_kem_tester_keygen_armv8();
+
 
 	return _kyber_kem_tester_armv8(50000);
 }

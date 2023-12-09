@@ -24,6 +24,7 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
+#include "compare.h"
 #include "ext_headers.h"
 #include "kyber_kem_tester.h"
 #include "lc_kyber.h"
@@ -66,6 +67,80 @@
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #endif
 
+/********** Raw execution of operations for performance measurement ***********/
+int _kyber_kem_enc_tester(
+	int (*_lc_kyber_enc)(struct lc_kyber_ct *ct, struct lc_kyber_ss *ss,
+			     const struct lc_kyber_pk *pk,
+			     struct lc_rng_ctx *rng_ctx))
+{
+	struct workspace {
+		struct lc_kyber_ct ct;
+		struct lc_kyber_ss key_b;
+	};
+	int ret = 0;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
+
+	lc_disable_selftest();
+
+	// Encapsulation
+	CKINT(_lc_kyber_enc(
+		&ws->ct, &ws->key_b,
+		(const struct lc_kyber_pk *)&kyber_testvectors[0].pk,
+		selftest_rng));
+
+out:
+	LC_RELEASE_MEM(ws);
+	return ret;
+}
+
+int _kyber_kem_dec_tester(
+	int (*_lc_kyber_dec)(struct lc_kyber_ss *ss,
+			     const struct lc_kyber_ct *ct,
+			     const struct lc_kyber_sk *sk))
+{
+	struct workspace {
+		struct lc_kyber_ss key_a;
+	};
+	int ret = 0;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
+
+	lc_disable_selftest();
+
+	// Decapsulation
+	CKINT(_lc_kyber_dec(
+		&ws->key_a,
+		(const struct lc_kyber_ct *)&kyber_testvectors[0].ct,
+		(const struct lc_kyber_sk *)&kyber_testvectors[0].sk));
+
+out:
+	LC_RELEASE_MEM(ws);
+	return ret;
+}
+
+int _kyber_kem_keygen_tester(
+	int (*_lc_kyber_keypair)(struct lc_kyber_pk *pk, struct lc_kyber_sk *sk,
+				 struct lc_rng_ctx *rng_ctx))
+{
+	struct workspace {
+		struct lc_kyber_pk pk;
+		struct lc_kyber_sk sk;
+	};
+	int ret = 0;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
+
+	lc_disable_selftest();
+
+	CKINT(_lc_kyber_keypair(&ws->pk, &ws->sk, selftest_rng));
+
+out:
+	LC_RELEASE_MEM(ws);
+	return ret;
+}
+
+/***************************** Regression testing *****************************/
 int _kyber_kem_tester(unsigned int rounds,
 		      int (*_lc_kyber_keypair)(struct lc_kyber_pk *pk,
 					       struct lc_kyber_sk *sk,
