@@ -90,7 +90,7 @@ static int has_small_order(const unsigned char s[32])
 		}
 	}
 	for (i = 0; i < sizeof blocklist / sizeof blocklist[0]; i++) {
-		c[i] |= (s[j] & 0x7f) ^ blocklist[i][j];
+		c[i] |= (unsigned char)((s[j] & 0x7f) ^ blocklist[i][j]);
 	}
 	k = 0;
 	for (i = 0; i < sizeof blocklist / sizeof blocklist[0]; i++) {

@@ -2738,7 +2738,13 @@ static void fe25519_reduce64(fe25519 fe_f, const unsigned char h[64])
 	gl[31] &= 0x7f;
 	fe25519_frombytes(fe_f, fl);
 	fe25519_frombytes(fe_g, gl);
-	fe_f[0] += (uint64_t)((h[31] >> 7) * 19 + (h[63] >> 7) * 722);
+	fe_f[0] +=
+#ifdef LC_HOST_X86_64
+		(uint64_t)
+#else
+		(int32_t)
+#endif
+		((h[31] >> 7) * 19 + (h[63] >> 7) * 722);
 	for (i = 0; i < sizeof(fe25519) / sizeof fe_f[0]; i++) {
 		fe_f[i] += 38 * fe_g[i];
 	}

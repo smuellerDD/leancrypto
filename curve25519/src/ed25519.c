@@ -76,7 +76,6 @@ int lc_ed25519_keypair(struct lc_ed25519_pk *pk, struct lc_ed25519_sk *sk,
 	CKNULL(pk, -EINVAL);
 
 	lc_ed25519_keypair_selftest(&tested);
-	;
 
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, sk->sk, 32));
 	lc_hash(lc_sha512, sk->sk, 32, tmp);
@@ -93,7 +92,6 @@ int lc_ed25519_keypair(struct lc_ed25519_pk *pk, struct lc_ed25519_sk *sk,
 out:
 	lc_memset_secure(&A, 0, sizeof(A));
 	lc_memset_secure(tmp, 0, sizeof(tmp));
-	;
 	return ret;
 }
 
