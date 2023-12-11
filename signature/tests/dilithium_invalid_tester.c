@@ -44,15 +44,15 @@ static int dilithium_invalid(void)
 		goto out;
 
 	/* modify the pub key */
-	ws->pk.pk[0] = (ws->pk.pk[0] + 0x01) & 0xff;
+	ws->pk.pk[0] = (uint8_t)((ws->pk.pk[0] + 0x01) & 0xff);
 	if (lc_dilithium_verify(&ws->sig, msg, sizeof(msg), &ws->pk) !=
 	    -EBADMSG)
 		goto out;
 
 	/* revert modify the pub key */
-	ws->pk.pk[0] = (ws->pk.pk[0] - 0x01) & 0xff;
+	ws->pk.pk[0] = (uint8_t)((ws->pk.pk[0] - 0x01) & 0xff);
 	/* modify the sec key */
-	ws->sk.sk[0] = (ws->sk.sk[0] + 0x01) & 0xff;
+	ws->sk.sk[0] = (uint8_t)((ws->sk.sk[0] + 0x01) & 0xf);
 
 	if (lc_dilithium_sign(&ws->sig, msg, sizeof(msg), &ws->sk, rng))
 		goto out;
@@ -62,13 +62,13 @@ static int dilithium_invalid(void)
 		goto out;
 
 	/* revert modify the sec key */
-	ws->sk.sk[0] = (ws->sk.sk[0] - 0x01) & 0xff;
+	ws->sk.sk[0] = (uint8_t)((ws->sk.sk[0] - 0x01) & 0xff);
 
 	if (lc_dilithium_sign(&ws->sig, msg, sizeof(msg), &ws->sk, rng))
 		goto out;
 
 	/* modify the signature */
-	ws->sig.sig[0] = (ws->sig.sig[0] + 0x01) & 0xff;
+	ws->sig.sig[0] = (uint8_t)((ws->sig.sig[0] + 0x01) & 0xff);
 	if (lc_dilithium_verify(&ws->sig, msg, sizeof(msg), &ws->pk) !=
 	    -EBADMSG)
 		goto out;

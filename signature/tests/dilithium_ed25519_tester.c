@@ -52,22 +52,24 @@ static int dilithium_ed25519_tester(int failcheck)
 	}
 
 	/* modify Dilithium key */
-	ws->pk.pk.pk[0] = (ws->pk.pk.pk[0] + 0x01) & 0xff;
+	ws->pk.pk.pk[0] = (uint8_t)((ws->pk.pk.pk[0] + 0x01) & 0xff);
 	if (lc_dilithium_ed25519_verify(&ws->sig, msg, sizeof(msg), &ws->pk) !=
 	    -EBADMSG) {
 		ret = 1;
 		goto out;
 	}
-	ws->pk.pk.pk[0] = (ws->pk.pk.pk[0] - 0x01) & 0xff;
+	ws->pk.pk.pk[0] = (uint8_t)((ws->pk.pk.pk[0] - 0x01) & 0xff);
 
 	/* modify ED25519 key */
-	ws->pk.pk_ed25519.pk[0] = (ws->pk.pk_ed25519.pk[0] + 0x01) & 0xff;
+	ws->pk.pk_ed25519.pk[0] =
+		(uint8_t)((ws->pk.pk_ed25519.pk[0] + 0x01) & 0xff);
 	ret = lc_dilithium_ed25519_verify(&ws->sig, msg, sizeof(msg), &ws->pk);
 	if (ret != -EBADMSG && ret != -EINVAL) {
 		ret = 1;
 		goto out;
 	}
-	ws->pk.pk_ed25519.pk[0] = (ws->pk.pk_ed25519.pk[0] - 0x01) & 0xff;
+	ws->pk.pk_ed25519.pk[0] =
+		(uint8_t)((ws->pk.pk_ed25519.pk[0] - 0x01) & 0xff);
 
 	ret = 0;
 

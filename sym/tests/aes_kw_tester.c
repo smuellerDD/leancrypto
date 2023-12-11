@@ -90,7 +90,7 @@ static int test_encrypt_kw_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 	ret += lc_compare(out2, pt, ptlen, "AES-KW decrypt plaintext");
 
 	/* Decrypt with error */
-	out[0] = (out[0] + 1) & 0xff;
+	out[0] = (uint8_t)((out[0] + 1) & 0xff);
 	rc = lc_aes_kw_decrypt(ctx, out, out2, sizeof(out));
 	if (rc != -EBADMSG) {
 		ret++;
