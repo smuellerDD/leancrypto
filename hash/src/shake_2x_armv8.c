@@ -53,6 +53,7 @@
  * SOFTWARE.
  */
 
+#include "cpufeatures.h"
 #include "shake_2x_armv8.h"
 #include "visibility.h"
 
@@ -111,8 +112,14 @@ extern void keccak_f1600x2_armce(v128 *, const uint64_t *);
 static inline void KeccakF1600_StatePermutex2(v128 state[25])
 {
 #if (__APPLE__ && __ARM_FEATURE_CRYPTO) || (__ARM_FEATURE_SHA3)
-	keccak_f1600x2_armce(state, neon_KeccakF_RoundConstants);
-#else
+	enum lc_cpu_features feat = lc_cpu_feature_available();
+
+	if (feat & LC_CPU_FEATURE_ARM_SHA3) {
+		keccak_f1600x2_armce(state, neon_KeccakF_RoundConstants);
+		return;
+	}
+#endif
+
 	v128 Aba, Abe, Abi, Abo, Abu;
 	v128 Aga, Age, Agi, Ago, Agu;
 	v128 Aka, Ake, Aki, Ako, Aku;
@@ -381,7 +388,6 @@ static inline void KeccakF1600_StatePermutex2(v128 state[25])
 	state[22] = Asi;
 	state[23] = Aso;
 	state[24] = Asu;
-#endif
 }
 
 /*************************************************
