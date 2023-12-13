@@ -159,7 +159,7 @@ static int kyber_ies_determinisitic(void)
 	lc_aead_zero(cc);
 
 	/* Modify the ciphertext -> integrity error */
-	ws->cipher[0] = (ws->cipher[0] + 0x01) & 0xff;
+	ws->cipher[0] = (uint8_t)((ws->cipher[0] + 0x01) & 0xff);
 	ret = lc_kyber_x25519_ies_dec(&ws->sk, &ws->ct, ws->cipher,
 				      ws->plain_new, sizeof(ws->cipher), NULL,
 				      0, ws->tag, sizeof(ws->tag), cc);

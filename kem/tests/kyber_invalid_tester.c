@@ -44,7 +44,7 @@ static int kyber_invalid(void)
 		goto out;
 
 	/* modify the pub key */
-	ws->pk.pk[0] = (ws->pk.pk[0] + 0x01) & 0xff;
+	ws->pk.pk[0] = (uint8_t)((ws->pk.pk[0] + 0x01) & 0xff);
 	if (lc_kyber_enc_kdf_internal(&ws->ct, ws->ss, sizeof(ws->ss), &ws->pk,
 				      rng))
 		goto out;
@@ -54,9 +54,9 @@ static int kyber_invalid(void)
 		goto out;
 
 	/* revert modify the pub key */
-	ws->pk.pk[0] = (ws->pk.pk[0] - 0x01) & 0xff;
+	ws->pk.pk[0] = (uint8_t)((ws->pk.pk[0] - 0x01) & 0xff);
 	/* modify the sec key */
-	ws->sk.sk[0] = (ws->sk.sk[0] + 0x01) & 0xff;
+	ws->sk.sk[0] = (uint8_t)((ws->sk.sk[0] + 0x01) & 0xff);
 	if (lc_kyber_enc_kdf_internal(&ws->ct, ws->ss, sizeof(ws->ss), &ws->pk,
 				      rng))
 		goto out;
@@ -66,12 +66,12 @@ static int kyber_invalid(void)
 		goto out;
 
 	/* revert modify the sec key */
-	ws->sk.sk[0] = (ws->sk.sk[0] - 0x01) & 0xff;
+	ws->sk.sk[0] = (uint8_t)((ws->sk.sk[0] - 0x01) & 0xff);
 	if (lc_kyber_enc_kdf_internal(&ws->ct, ws->ss, sizeof(ws->ss), &ws->pk,
 				      rng))
 		goto out;
 	/* modify the ct */
-	ws->ct.ct[0] = (ws->ct.ct[0] + 0x01) & 0xff;
+	ws->ct.ct[0] = (uint8_t)((ws->ct.ct[0] + 0x01) & 0xff);
 	if (lc_kyber_dec_kdf(ws->ss2, sizeof(ws->ss2), &ws->ct, &ws->sk))
 		goto out;
 	if (!memcmp(ws->ss, ws->ss2, sizeof(ws->ss)))
