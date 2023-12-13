@@ -262,7 +262,7 @@ if (host_machine.cpu_family() == 'x86_64' and
 endif
 
 if (host_machine.cpu_family() == 'arm' and
-    cc.get_id() == 'gcc')
+	cc.get_id() == 'gcc')
 
 	# 32 bit ARM processor and GCC
 	arm32_neon_gcc_asm = true
