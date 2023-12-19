@@ -33,6 +33,7 @@
 #include "lc_sha512.h"
 #include "ret_checkers.h"
 #include "selftest_rng.h"
+#include "visibility.h"
 
 static void lc_ed25519_keypair_selftest(int *tested)
 {
@@ -64,6 +65,8 @@ static void lc_ed25519_keypair_selftest(int *tested)
 			    "ED25519 keypair seckey\n");
 }
 
+/* Export for test purposes */
+DSO_PUBLIC
 int lc_ed25519_keypair(struct lc_ed25519_pk *pk, struct lc_ed25519_sk *sk,
 		       struct lc_rng_ctx *rng_ctx)
 {
@@ -142,6 +145,8 @@ static void lc_ed25519_sign_tester(int *tested)
 			    "ED25519 Signature generation\n");
 }
 
+/* Export for test purposes */
+DSO_PUBLIC
 int lc_ed25519_sign(struct lc_ed25519_sig *sig, const uint8_t *msg, size_t mlen,
 		    const struct lc_ed25519_sk *sk, struct lc_rng_ctx *rng_ctx)
 {
@@ -245,6 +250,8 @@ static void lc_ed25519_verify_tester(int *tested)
 			    "ED25519 Signature verification\n");
 }
 
+/* Export for test purposes */
+DSO_PUBLIC
 int lc_ed25519_verify(const struct lc_ed25519_sig *sig, const uint8_t *msg,
 		      size_t mlen, const struct lc_ed25519_pk *pk)
 {
