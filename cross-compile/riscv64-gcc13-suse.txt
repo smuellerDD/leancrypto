@@ -1,8 +1,8 @@
 [binaries]
-c = 'riscv64-elf-gcc'
-cpp = 'riscv64-elf-g++'
-ar = 'riscv64-elf-gcc-ar'
-strip = 'riscv64-elf-strip'
+c = 'riscv64-suse-linux-gcc'
+cpp = 'riscv64-suse-linux-g++'
+ar = 'riscv64-suse-linux-gcc-ar'
+strip = 'riscv64-suse-linux-strip'
 
 [host_machine]
 system = 'linux'
