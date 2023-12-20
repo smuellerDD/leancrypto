@@ -409,6 +409,9 @@ static void lc_kc_encrypt_tag(void *state, const uint8_t *aad, size_t aadlen,
 
 	/* Generate authentication tag */
 	lc_kmac_final_xof(auth_ctx, tag, taglen);
+
+	/* Re-initialize the authentication context for new message digest */
+	lc_kmac_reinit(auth_ctx);
 }
 
 static int lc_kc_decrypt_authenticate(void *state, const uint8_t *aad,

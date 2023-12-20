@@ -50,7 +50,7 @@ struct lc_kmac_ctx {
 	_LC_KMAC_SET_CTX(name, hashname, name, sizeof(struct lc_kmac_ctx))
 
 #define _LC_KMAC_SET_CTX_REINIT(name, hashname, ctx, offset)                   \
-	_LC_HASH_SET_CTX((&name->hash_ctx), hashname, name, offset);           \
+	_LC_HASH_SET_CTX((&name->hash_ctx), hashname, ctx, offset);            \
 	name->shadow_ctx = (uint8_t *)((uint8_t *)ctx + offset +               \
 				       LC_HASH_STATE_SIZE(hashname))
 
