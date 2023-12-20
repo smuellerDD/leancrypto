@@ -45,9 +45,6 @@ struct lc_sha3_224_state {
 	unsigned int rword;
 	uint8_t padding;
 	uint8_t squeeze_more : 1;
-
-	/* Variable size */
-	uint8_t partial[LC_SHA3_224_SIZE_BLOCK];
 };
 
 #define LC_SHA3_224_STATE_SIZE (sizeof(struct lc_sha3_224_state))
@@ -89,9 +86,6 @@ struct lc_sha3_256_state {
 	unsigned int rword;
 	uint8_t padding;
 	uint8_t squeeze_more : 1;
-
-	/* Variable size */
-	uint8_t partial[LC_SHA3_256_SIZE_BLOCK];
 };
 
 #define LC_SHA3_256_STATE_SIZE (sizeof(struct lc_sha3_256_state))
@@ -132,9 +126,6 @@ struct lc_sha3_384_state {
 	unsigned int rword;
 	uint8_t padding;
 	uint8_t squeeze_more : 1;
-
-	/* Variable size */
-	uint8_t partial[LC_SHA3_384_SIZE_BLOCK];
 };
 
 #define LC_SHA3_384_STATE_SIZE (sizeof(struct lc_sha3_384_state))
@@ -175,9 +166,6 @@ struct lc_sha3_512_state {
 	unsigned int rword;
 	uint8_t padding;
 	uint8_t squeeze_more : 1;
-
-	/* Variable size */
-	uint8_t partial[LC_SHA3_512_SIZE_BLOCK];
 };
 
 #define LC_SHA3_512_STATE_SIZE (sizeof(struct lc_sha3_512_state))
@@ -218,9 +206,6 @@ struct lc_shake_128_state {
 	unsigned int rword;
 	uint8_t padding;
 	uint8_t squeeze_more : 1;
-
-	/* Variable size */
-	uint8_t partial[LC_SHAKE_128_SIZE_BLOCK];
 };
 
 #define LC_SHAKE_128_STATE_SIZE (sizeof(struct lc_shake_128_state))
