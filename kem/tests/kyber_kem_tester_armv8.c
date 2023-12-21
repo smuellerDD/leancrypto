@@ -73,6 +73,5 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	else if (argv[1][0] == 'k')
 		return kyber_kem_tester_keygen_armv8();
 
-
 	return _kyber_kem_tester_armv8(50000);
 }

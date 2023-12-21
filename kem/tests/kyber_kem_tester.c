@@ -68,10 +68,10 @@
 #endif
 
 /********** Raw execution of operations for performance measurement ***********/
-int _kyber_kem_enc_tester(
-	int (*_lc_kyber_enc)(struct lc_kyber_ct *ct, struct lc_kyber_ss *ss,
-			     const struct lc_kyber_pk *pk,
-			     struct lc_rng_ctx *rng_ctx))
+int _kyber_kem_enc_tester(int (*_lc_kyber_enc)(struct lc_kyber_ct *ct,
+					       struct lc_kyber_ss *ss,
+					       const struct lc_kyber_pk *pk,
+					       struct lc_rng_ctx *rng_ctx))
 {
 	struct workspace {
 		struct lc_kyber_ct ct;
@@ -84,20 +84,18 @@ int _kyber_kem_enc_tester(
 	lc_disable_selftest();
 
 	// Encapsulation
-	CKINT(_lc_kyber_enc(
-		&ws->ct, &ws->key_b,
-		(const struct lc_kyber_pk *)&kyber_testvectors[0].pk,
-		selftest_rng));
+	CKINT(_lc_kyber_enc(&ws->ct, &ws->key_b,
+			    (const struct lc_kyber_pk *)&kyber_testvectors[0].pk,
+			    selftest_rng));
 
 out:
 	LC_RELEASE_MEM(ws);
 	return ret;
 }
 
-int _kyber_kem_dec_tester(
-	int (*_lc_kyber_dec)(struct lc_kyber_ss *ss,
-			     const struct lc_kyber_ct *ct,
-			     const struct lc_kyber_sk *sk))
+int _kyber_kem_dec_tester(int (*_lc_kyber_dec)(struct lc_kyber_ss *ss,
+					       const struct lc_kyber_ct *ct,
+					       const struct lc_kyber_sk *sk))
 {
 	struct workspace {
 		struct lc_kyber_ss key_a;
