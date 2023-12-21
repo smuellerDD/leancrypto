@@ -290,6 +290,28 @@ covering all algorithm implementations of algorithms that are testable.
 
 - [A4406 ARMv7 NEON cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37016)
 
+## Version 0.8.0
+
+- [A4850 non-accelerated C cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37460)
+
+- [A4866 AVX2 accelerated cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37476)
+
+- [A4867 Intel 4-way SIMD accelerated cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37477)
+
+- [A4864 AVX512 accelerated cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37474)
+
+- [A4865 AES-NI accelerated cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37475)
+
+- [A4851 RISC-V assembler cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37461)
+
+- [A4852 ARMv8 assembler cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37462)
+
+- [A4853 ARMv8 Crypto Extensions cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37463)
+
+- [A4854 ARMv8 2-way SIMD accelerated cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37464)
+
+- [A4860 ARMv7 NEON cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37470)
+
 # Author
 
 Stephan Müller <smueller@chronox.de>
