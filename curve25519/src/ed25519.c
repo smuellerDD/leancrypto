@@ -66,9 +66,9 @@ static void lc_ed25519_keypair_selftest(int *tested)
 }
 
 /* Export for test purposes */
-DSO_PUBLIC
-int lc_ed25519_keypair(struct lc_ed25519_pk *pk, struct lc_ed25519_sk *sk,
-		       struct lc_rng_ctx *rng_ctx)
+LC_INTERFACE_FUNCTION(
+int, lc_ed25519_keypair, struct lc_ed25519_pk *pk, struct lc_ed25519_sk *sk,
+			 struct lc_rng_ctx *rng_ctx)
 {
 	ge25519_p3 A;
 	uint8_t tmp[LC_SHA512_SIZE_DIGEST];
@@ -146,9 +146,10 @@ static void lc_ed25519_sign_tester(int *tested)
 }
 
 /* Export for test purposes */
-DSO_PUBLIC
-int lc_ed25519_sign(struct lc_ed25519_sig *sig, const uint8_t *msg, size_t mlen,
-		    const struct lc_ed25519_sk *sk, struct lc_rng_ctx *rng_ctx)
+LC_INTERFACE_FUNCTION(
+int, lc_ed25519_sign, struct lc_ed25519_sig *sig, const uint8_t *msg,
+		      size_t mlen, const struct lc_ed25519_sk *sk,
+		      struct lc_rng_ctx *rng_ctx)
 {
 	uint8_t az[LC_SHA512_SIZE_DIGEST];
 	uint8_t nonce[LC_SHA512_SIZE_DIGEST];
@@ -251,9 +252,9 @@ static void lc_ed25519_verify_tester(int *tested)
 }
 
 /* Export for test purposes */
-DSO_PUBLIC
-int lc_ed25519_verify(const struct lc_ed25519_sig *sig, const uint8_t *msg,
-		      size_t mlen, const struct lc_ed25519_pk *pk)
+LC_INTERFACE_FUNCTION(
+int, lc_ed25519_verify, const struct lc_ed25519_sig *sig, const uint8_t *msg,
+			size_t mlen, const struct lc_ed25519_pk *pk)
 {
 	uint8_t h[LC_SHA512_SIZE_DIGEST];
 	ge25519_p3 check;

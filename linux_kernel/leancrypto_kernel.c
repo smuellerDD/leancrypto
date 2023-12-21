@@ -56,9 +56,6 @@ EXPORT_SYMBOL(lc_kex_x25519_ake_initiator_init_internal);
 EXPORT_SYMBOL(lc_kex_x25519_uake_responder_ss_internal);
 #endif /* LC_KYBER_X25519_KEM */
 #if (defined(LC_KYBER_X25519_KEM) || defined(LC_DILITHIUM_ED25519_SIG))
-EXPORT_SYMBOL(lc_ed25519_sign);
-EXPORT_SYMBOL(lc_ed25519_keypair);
-EXPORT_SYMBOL(lc_ed25519_verify);
 EXPORT_SYMBOL(crypto_scalarmult_curve25519_c);
 #endif
 
