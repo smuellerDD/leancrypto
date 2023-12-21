@@ -397,7 +397,7 @@ static int lc_cc_setkey(void *state, const uint8_t *key, size_t keylen,
 {
 	struct lc_cc_cryptor *cc = state;
 	struct lc_hash_ctx *cshake = &cc->cshake;
-	struct lc_hash_ctx *auth_ctx = &cc->auth_ctx;
+	struct lc_cshake_ctx *auth_ctx = &cc->auth_ctx;
 	static int tested = 0;
 
 	lc_cc_selftest(&tested, "cSHAKE AEAD");
@@ -422,9 +422,9 @@ static int lc_cc_setkey(void *state, const uint8_t *key, size_t keylen,
 	 * lc_cshake_final operation.
 	 */
 	lc_cshake_final(cshake, cc->keystream, LC_CC_KEYSTREAM_BLOCK);
-	lc_cshake_init(auth_ctx, (uint8_t *)LC_CC_AUTH_CUSTOMIZATION_STRING,
-		       sizeof(LC_CC_AUTH_CUSTOMIZATION_STRING) - 1,
-		       cc->keystream, LC_CC_AUTHENTICATION_KEY_SIZE);
+	lc_cshake_ctx_init(auth_ctx, (uint8_t *)LC_CC_AUTH_CUSTOMIZATION_STRING,
+			   sizeof(LC_CC_AUTH_CUSTOMIZATION_STRING) - 1,
+			   cc->keystream, LC_CC_AUTHENTICATION_KEY_SIZE);
 
 	/* Set the pointer to the start of the keystream */
 	cc->keystream_ptr = LC_CC_AUTHENTICATION_KEY_SIZE;
@@ -469,15 +469,18 @@ static void lc_cc_encrypt_tag(void *state, const uint8_t *aad, size_t aadlen,
 			      uint8_t *tag, size_t taglen)
 {
 	struct lc_cc_cryptor *cc = state;
-	struct lc_hash_ctx *auth_ctx;
+	struct lc_cshake_ctx *auth_ctx;
 
 	auth_ctx = &cc->auth_ctx;
 
 	/* Add the AAD data into the CSHAKE context */
-	lc_hash_update(auth_ctx, aad, aadlen);
+	lc_cshake_ctx_update(auth_ctx, aad, aadlen);
 
 	/* Generate authentication tag */
-	lc_cshake_final(auth_ctx, tag, taglen);
+	lc_cshake_ctx_final(auth_ctx, tag, taglen);
+
+	/* Re-initialize the authentication context for new message digest */
+	lc_cshake_ctx_reinit(auth_ctx);
 }
 
 static int lc_cc_decrypt_authenticate(void *state, const uint8_t *aad,
@@ -514,7 +517,7 @@ static void lc_cc_encrypt(void *state, const uint8_t *plaintext,
 			  uint8_t *ciphertext, size_t datalen)
 {
 	struct lc_cc_cryptor *cc = state;
-	struct lc_hash_ctx *auth_ctx;
+	struct lc_cshake_ctx *auth_ctx;
 
 	auth_ctx = &cc->auth_ctx;
 
@@ -524,14 +527,14 @@ static void lc_cc_encrypt(void *state, const uint8_t *plaintext,
 	 * Calculate the authentication MAC over the ciphertext
 	 * Perform an Encrypt-Then-MAC operation.
 	 */
-	lc_hash_update(auth_ctx, ciphertext, datalen);
+	lc_cshake_ctx_update(auth_ctx, ciphertext, datalen);
 }
 
 static void lc_cc_decrypt(void *state, const uint8_t *ciphertext,
 			  uint8_t *plaintext, size_t datalen)
 {
 	struct lc_cc_cryptor *cc = state;
-	struct lc_hash_ctx *auth_ctx;
+	struct lc_cshake_ctx *auth_ctx;
 
 	auth_ctx = &cc->auth_ctx;
 
@@ -539,7 +542,7 @@ static void lc_cc_decrypt(void *state, const uint8_t *ciphertext,
 	 * Calculate the authentication tag over the ciphertext
 	 * Perform the reverse of an Encrypt-Then-MAC operation.
 	 */
-	lc_hash_update(auth_ctx, ciphertext, datalen);
+	lc_cshake_ctx_update(auth_ctx, ciphertext, datalen);
 	lc_cc_crypt(cc, ciphertext, plaintext, datalen);
 }
 

@@ -5,9 +5,11 @@ Changes 0.9.0-prerelease
 
 * add Rust binding support
 
-* reduce memory footprint of Keccak state
+* enhancement: reduce memory footprint of Keccak state
 
-* fix: KMAC-AEAD - ensure proper re-initialization
+* enhancement: add cSHAKE re-init support
+
+* fix: KMAC-AEAD / cSHAKE-AEAD - ensure proper re-initialization
 
 Changes 0.8.0:
 

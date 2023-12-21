@@ -35,7 +35,7 @@ extern "C" {
 
 struct lc_cc_cryptor {
 	struct lc_hash_ctx cshake;
-	struct lc_hash_ctx auth_ctx;
+	struct lc_cshake_ctx auth_ctx;
 	size_t keystream_ptr;
 	uint8_t *keystream;
 };
@@ -46,7 +46,9 @@ struct lc_cc_cryptor {
  */
 #define LC_CC_KEYSTREAM_BLOCK LC_SHA3_256_SIZE_BLOCK
 
-#define LC_CC_STATE_SIZE(x) (2 * LC_HASH_STATE_SIZE(x) + LC_CC_KEYSTREAM_BLOCK)
+#define LC_CC_STATE_SIZE(x)                                                    \
+	(LC_HASH_STATE_SIZE(x) + LC_CSHAKE_STATE_SIZE_REINIT(x) +              \
+	 LC_CC_KEYSTREAM_BLOCK)
 #define LC_CC_CTX_SIZE(x)                                                      \
 	(sizeof(struct lc_aead) + sizeof(struct lc_cc_cryptor) +               \
 	 LC_CC_STATE_SIZE(x))
@@ -57,12 +59,13 @@ extern const struct lc_aead *lc_cshake_aead;
 #define _LC_CC_SET_CTX(name, hashname)                                         \
 	_LC_HASH_SET_CTX((&name->cshake), hashname, name,                      \
 			 (sizeof(struct lc_cc_cryptor)));                      \
-	_LC_HASH_SET_CTX((&name->auth_ctx), hashname, name,                    \
-			 (sizeof(struct lc_cc_cryptor) +                       \
-			  LC_HASH_STATE_SIZE(hashname)));                      \
+	_LC_CSHAKE_SET_CTX_REINIT((&name->auth_ctx), hashname, name,           \
+				  (sizeof(struct lc_cc_cryptor) +              \
+				   LC_HASH_STATE_SIZE(hashname)));             \
 	name->keystream = (uint8_t *)((uint8_t *)name +                        \
 				      (sizeof(struct lc_cc_cryptor) +          \
-				       2 * LC_HASH_STATE_SIZE(hashname)))
+				       LC_HASH_STATE_SIZE(hashname) +          \
+				       LC_CSHAKE_STATE_SIZE_REINIT(hashname)))
 
 #define LC_CC_SET_CTX(name, hashname)                                          \
 	LC_AEAD_CTX(name, lc_cshake_aead);                                     \

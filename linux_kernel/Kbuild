@@ -312,6 +312,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
 ifdef CONFIG_LEANCRYPTO_SHA3
 obj-m				+= cshake_128_tester.o
 obj-m				+= cshake_256_tester.o
+obj-m				+= cshake_ctx_256_tester.o
 obj-m				+= sha3-224_tester.o
 obj-m				+= sha3-256_tester.o
 obj-m				+= sha3-384_tester.o
@@ -322,6 +323,7 @@ obj-m				+= shake_squeeze_more_tester.o
 
 cshake_128_tester-y		+= ../hash/tests/cshake_128_tester.o
 cshake_256_tester-y		+= ../hash/tests/cshake_256_tester.o
+cshake_ctx_256_tester-y		+= ../hash/tests/cshake_ctx_256_tester.o
 sha3-224_tester-y		+= ../hash/tests/sha3-224_tester.o
 sha3-256_tester-y		+= ../hash/tests/sha3-256_tester.o
 sha3-384_tester-y		+= ../hash/tests/sha3-384_tester.o

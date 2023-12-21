@@ -45,9 +45,9 @@ struct lc_kc_cryptor {
  */
 #define LC_KC_KEYSTREAM_BLOCK LC_SHA3_256_SIZE_BLOCK
 
-#define LC_KC_STATE_SIZE(x) (LC_KMAC_STATE_SIZE(x) +                           \
-			     LC_KMAC_STATE_SIZE_REINIT(x) +                    \
-			     LC_KC_KEYSTREAM_BLOCK)
+#define LC_KC_STATE_SIZE(x)                                                    \
+	(LC_KMAC_STATE_SIZE(x) + LC_KMAC_STATE_SIZE_REINIT(x) +                \
+	 LC_KC_KEYSTREAM_BLOCK)
 #define LC_KC_CTX_SIZE(x)                                                      \
 	(sizeof(struct lc_aead) + sizeof(struct lc_kc_cryptor) +               \
 	 LC_KC_STATE_SIZE(x))
@@ -60,7 +60,7 @@ extern const struct lc_aead *lc_kmac_aead;
 			 (sizeof(struct lc_kc_cryptor)));                      \
 	_LC_KMAC_SET_CTX_REINIT((&name->auth_ctx), hashname, name,             \
 				(sizeof(struct lc_kc_cryptor) +                \
-				LC_KMAC_STATE_SIZE(hashname)));                \
+				 LC_KMAC_STATE_SIZE(hashname)));               \
 	name->keystream = (uint8_t *)((uint8_t *)name +                        \
 				      (sizeof(struct lc_kc_cryptor) +          \
 				       LC_KMAC_STATE_SIZE(hashname) +          \
