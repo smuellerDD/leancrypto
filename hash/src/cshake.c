@@ -82,3 +82,98 @@ LC_INTERFACE_FUNCTION(void, lc_cshake_init, struct lc_hash_ctx *ctx,
 	if (len)
 		lc_hash_update(ctx, zero, lc_hash_blocksize(ctx) - len);
 }
+
+LC_INTERFACE_FUNCTION(void, lc_cshake_ctx_init,
+		      struct lc_cshake_ctx *cshake_ctx, const uint8_t *n,
+		      size_t nlen, const uint8_t *s, size_t slen)
+{
+	lc_cshake_init(&cshake_ctx->hash_ctx, n, nlen, s, slen);
+
+	/* Retain key state */
+	if (cshake_ctx->shadow_ctx) {
+		memcpy(cshake_ctx->shadow_ctx, cshake_ctx->hash_ctx.hash_state,
+		       lc_hash_ctxsize(&cshake_ctx->hash_ctx));
+	}
+}
+
+LC_INTERFACE_FUNCTION(void, lc_cshake_ctx_reinit,
+		      struct lc_cshake_ctx *cshake_ctx)
+{
+	struct lc_hash_ctx *hash_ctx;
+
+	if (!cshake_ctx)
+		return;
+	hash_ctx = &cshake_ctx->hash_ctx;
+
+	if (!cshake_ctx->shadow_ctx)
+		return;
+
+	lc_hash_init(hash_ctx);
+
+	/* Copy retained key state back*/
+	memcpy(cshake_ctx->hash_ctx.hash_state, cshake_ctx->shadow_ctx,
+	       lc_hash_ctxsize(hash_ctx));
+}
+
+LC_INTERFACE_FUNCTION(void, lc_cshake_ctx_update,
+		      struct lc_cshake_ctx *cshake_ctx, const uint8_t *in,
+		      size_t inlen)
+{
+	struct lc_hash_ctx *hash_ctx;
+
+	if (!cshake_ctx)
+		return;
+	hash_ctx = &cshake_ctx->hash_ctx;
+
+	lc_hash_update(hash_ctx, in, inlen);
+}
+
+LC_INTERFACE_FUNCTION(void, lc_cshake_ctx_final,
+		      struct lc_cshake_ctx *cshake_ctx, uint8_t *mac,
+		      size_t maclen)
+{
+	if (!cshake_ctx)
+		return;
+
+	lc_cshake_final(&cshake_ctx->hash_ctx, mac, maclen);
+}
+
+LC_INTERFACE_FUNCTION(int, lc_cshake_ctx_alloc, const struct lc_hash *hash,
+		      struct lc_cshake_ctx **cshake_ctx, uint32_t flags)
+{
+	struct lc_cshake_ctx *out_ctx = NULL;
+	size_t memsize;
+	int ret;
+
+	if (!cshake_ctx)
+		return -EINVAL;
+
+	memsize = (flags & LC_CSHAKE_FLAGS_SUPPORT_REINIT) ?
+			  LC_CSHAKE_CTX_SIZE_REINIT(hash) :
+			  LC_CSHAKE_CTX_SIZE(hash);
+	ret = lc_alloc_aligned((void **)&out_ctx, LC_MEM_COMMON_ALIGNMENT,
+			       memsize);
+
+	if (ret)
+		return -ret;
+
+	if (flags & LC_CSHAKE_FLAGS_SUPPORT_REINIT) {
+		LC_CSHAKE_SET_CTX_REINIT(out_ctx, hash);
+	} else {
+		LC_CSHAKE_SET_CTX(out_ctx, hash);
+	}
+
+	*cshake_ctx = out_ctx;
+
+	return 0;
+}
+
+LC_INTERFACE_FUNCTION(void, lc_cshake_ctx_zero_free,
+		      struct lc_cshake_ctx *cshake_ctx)
+{
+	if (!cshake_ctx)
+		return;
+
+	lc_cshake_ctx_zero(cshake_ctx);
+	lc_free(cshake_ctx);
+}

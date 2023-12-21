@@ -68,6 +68,11 @@ if get_option('sha3').enabled()
 				   include_directories: [ include_internal_dirs ],
 				   dependencies: leancrypto
 				   )
+	cshake_ctx_256_tester = executable('cshake_ctx_256_tester',
+				   [ 'cshake_ctx_256_tester.c', internal_src ],
+				   include_directories: [ include_internal_dirs ],
+				   dependencies: leancrypto
+				   )
 
 	test('Hash SHA3-224', sha3_224_tester)
 	test('Hash SHA3-256', sha3_256_tester)
@@ -78,6 +83,7 @@ if get_option('sha3').enabled()
 	test('Hash SHAKE256 Squeeze More', shake_squeeze_more_tester)
 	test('Hash cSHAKE128', cshake_128_tester)
 	test('Hash cSHAKE256', cshake_256_tester)
+	test('Hash cSHAKE256 Reinit', cshake_ctx_256_tester)
 
 	if (x86_64_asm and get_option('dilithium_strength') == '5')
 		shake128_4x_avx2_tester = executable('shake128_4x_avx2_tester',
