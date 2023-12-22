@@ -2744,7 +2744,7 @@ static void fe25519_reduce64(fe25519 fe_f, const unsigned char h[64])
 #else
 		(int32_t)
 #endif
-		((h[31] >> 7) * 19 + (h[63] >> 7) * 722);
+			((h[31] >> 7) * 19 + (h[63] >> 7) * 722);
 	for (i = 0; i < sizeof(fe25519) / sizeof fe_f[0]; i++) {
 		fe_f[i] += 38 * fe_g[i];
 	}
