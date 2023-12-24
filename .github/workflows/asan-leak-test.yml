@@ -1,4 +1,4 @@
-name: Linux user space CI
+name: ASAN leak CI
 
 on:
   push:

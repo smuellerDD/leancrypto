@@ -1,4 +1,4 @@
-name: Linux user space CI
+name: ASAN address CI
 
 on:
   push:
