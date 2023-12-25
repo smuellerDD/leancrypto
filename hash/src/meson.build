@@ -119,9 +119,9 @@ if get_option('sha3').enabled()
 		src += files([ 'sha3_arm_asm_null.c', 'sha3_arm_ce_null.c' ])
 	endif
 
-# 	if (riscv)
+# 	if (riscv64_asm)
 # 		src += files([ 'sha3_riscv_asm.c',
-# 			       'asm/riscv32/keccakf1600.c' ])
+# 			       'asm/riscv64/keccakf1600_asm.S' ])
 # 	elif (riscv32_gcc_asm)
 # 		leancrypto_keccak_riscv_asm_lib = static_library(
 # 			'leancrypto_keccak_riscv_asm_lib',
@@ -135,21 +135,24 @@ if get_option('sha3').enabled()
 # 				include_internal_dirs ],
 # 		)
 # 		leancrypto_support_libs += leancrypto_keccak_riscv_asm_lib
-# 	elif (riscv64_gcc_asm)
+# 	if (riscv64_asm)
+#		# This code segfaults as somehow the use of the S3 register is
+#		# not appropriate.
+# 		src += files([ 'sha3_riscv_asm.c' ])
+#
 # 		leancrypto_keccak_riscv_asm_lib = static_library(
 # 			'leancrypto_keccak_riscv_asm_lib',
-# 			[ 'sha3_riscv_asm.c', 'asm/riscv32/keccakf1600_asm.S' ],
+# 			[ 'asm/riscv64/keccakf1600_asm.S' ],
 # 			c_args: [
 # 				'-march=rv64gc',
-# 				'-mabi=lp64d',
-# 				'-mcmodel=medany'
+# 				'-mabi=lp64d'
 # 			],
 # 			include_directories: [
 # 				include_dirs,
 # 				include_internal_dirs ],
 # 		)
 # 		leancrypto_support_libs += leancrypto_keccak_riscv_asm_lib
-# 	else
+#  	else
 		src += files([ 'sha3_riscv_asm_null.c' ])
 #	endif
 endif

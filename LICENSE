@@ -196,3 +196,10 @@ curve25519/src/avx/fe_frombytes_avx.c
 curve25519/src/avx/fe.h
 curve25519/src/avx/ladder.h
 curve25519/src/avx/ladder.S
+
+================================================================================
+
+The following files are licensed under the CC0 1.0 Universal. The original files
+are obtained from https://github.com/Ko-/riscvcrypto
+
+hash/src/asm/riscv64/keccakf1600_asm.S

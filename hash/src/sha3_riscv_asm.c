@@ -17,7 +17,7 @@
  * DAMAGE.
  */
 
-#include "asm/riscv32/keccakf1600.h"
+#include "asm/riscv64/keccakf1600.h"
 
 #include "keccak_asm_glue.h"
 #include "sha3_riscv_asm.h"
