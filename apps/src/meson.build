@@ -1,4 +1,5 @@
-if get_option('apps').enabled()
+# Apps use POSIX API that is not available on regular Windows
+if (build_machine.system() != 'windows') and get_option('apps').enabled()
 
 	shasum_files_common = files([ 'hasher_app.c' ])
 	shasum_files_common += internal_src
