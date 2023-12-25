@@ -17,8 +17,8 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y meson
-    - name: Meson setup build -Db_sanitize=address
-      run: meson setup build
+    - name: Meson setup build
+      run: meson setup build -Db_sanitize=address
     - name: Meson compile
       run: meson compile -C build
     - name: Meson test
