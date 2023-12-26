@@ -13,7 +13,6 @@ fn main() {
 	// Tell cargo to invalidate the built crate whenever the wrapper changes
 	println!("cargo:rerun-if-changed=leancrypto.h");
 
-
 	let input = "leancrypto.h";
 
 	// Tell bindgen to generate wrappers for static functions
@@ -32,6 +31,7 @@ fn main() {
 
 	// Compile the generated wrappers into an object file.
 	let clang_output = std::process::Command::new("clang")
+		.arg("-flto=thin")
 		.arg("-O")
 		.arg("-c")
 		.arg("-o")
@@ -52,7 +52,7 @@ fn main() {
 	// Turn the object file into a static library
 	#[cfg(not(target_os = "windows"))]
 	let lib_output = Command::new("ar")
-		.arg("rcs")
+		.arg("crus")
 		.arg(output_path.join("libextern.a"))
 		.arg(obj_path)
 		.output()
