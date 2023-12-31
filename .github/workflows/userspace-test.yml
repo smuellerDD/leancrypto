@@ -18,8 +18,15 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y meson
     - name: Meson setup
-      run: meson setup build -Dxdrbg256=enabled
+      run: meson setup build -Db_coverage=true
     - name: Meson compile
       run: meson compile -C build
     - name: Meson test
       run: meson test -C build
+    - name: Generate test coverage report
+      run: ninja coverage-html -C build
+    - name: Archive code coverage results
+        uses: actions/upload-artifact@v3
+        with:
+          name: code-coverage-report
+          path: build/meson-logs/coveragereport
