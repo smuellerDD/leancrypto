@@ -33,7 +33,7 @@ jobs:
     - name: Code Coverage Report
       uses: irongut/CodeCoverageSummary@v1.3.0
       with:
-        filename: build/libleancrypto.so.*.gcno,build/libleancrypto.so.*.p/*.gcda,build/libleancrypto.so.*.p/*.gcno
+        filename: build/libleancrypto.so.*.ltrans[1-9]*.ltrans.gcnoo,build/libleancrypto.so.*.p/*.gcda,build/libleancrypto.so.*.p/*.gcno
         badge: true
         fail_below_min: true
         format: markdown
