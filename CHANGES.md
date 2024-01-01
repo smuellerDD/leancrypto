@@ -11,6 +11,8 @@ Changes 0.9.0-prerelease
 
 * fix: KMAC-AEAD / cSHAKE-AEAD - ensure proper re-initialization
 
+* enhancement: add RISC-V 64 bit Keccak - currently disabled due to a bug
+
 Changes 0.8.0:
 
 * enhancement: add applications
