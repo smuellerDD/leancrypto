@@ -119,12 +119,12 @@ static void cshake_256_arm_asm_init(void *_state)
 static void keccak_arm_asm_absorb(void *_state, const uint8_t *in, size_t inlen)
 {
 	keccak_arm_asm_absorb_internal(_state, in, inlen,
-				       lc_keccak_absorb_arm_asm);
+				       lc_keccak_absorb_arm_asm,
+				       lc_keccakf1600_arm_asm);
 }
 static void keccak_arm_asm_squeeze(void *_state, uint8_t *digest)
 {
 	keccak_arm_asm_squeeze_internal(_state, digest,
-					lc_keccak_absorb_arm_asm,
 					lc_keccak_squeeze_arm_asm,
 					lc_keccakf1600_arm_asm);
 }

@@ -41,10 +41,26 @@ void lc_keccak_squeeze_arm_asm(uint64_t A[25], unsigned char *out, size_t len,
 			       size_t r);
 void lc_keccakf1600_arm_asm(uint64_t A[25]);
 
+static inline void sha3_fill_state_bytes(struct lc_sha3_224_state *ctx,
+					 size_t byte_offset, const uint8_t *in,
+					 size_t inlen)
+{
+	unsigned int i;
+	uint8_t *state = (uint8_t *)ctx->state;
+
+	state += byte_offset;
+
+	for (i = 0; i < ctx->r && i < inlen; i++) {
+		state[i] ^= *in;
+		in++;
+	}
+}
+
 static inline void keccak_arm_asm_absorb_internal(
 	void *_state, const uint8_t *in, size_t inlen,
 	size_t (*absorb)(uint64_t A[25], const unsigned char *inp, size_t len,
-			 size_t r))
+			 size_t r),
+	void (*keccakf1600)(uint64_t A[25]))
 {
 	/*
 	 * All lc_sha3_*_state are equal except for the last entry, thus we use
@@ -72,7 +88,7 @@ static inline void keccak_arm_asm_absorb_internal(
 		 * buffer, copy it and leave it unprocessed.
 		 */
 		if (inlen < todo) {
-			memcpy(ctx->partial + partial, in, inlen);
+			sha3_fill_state_bytes(ctx, partial, in, inlen);
 			return;
 		}
 
@@ -80,12 +96,12 @@ static inline void keccak_arm_asm_absorb_internal(
 		 * The input data is large enough to fill the entire partial
 		 * block buffer. Thus, we fill it and transform it.
 		 */
-		memcpy(ctx->partial + partial, in, todo);
+		sha3_fill_state_bytes(ctx, partial, in, todo);
 		inlen -= todo;
 		in += todo;
 
 		LC_NEON_ENABLE;
-		absorb(ctx->state, ctx->partial, blocksize, blocksize);
+		keccakf1600(ctx->state);
 		LC_NEON_DISABLE;
 	}
 
@@ -100,13 +116,11 @@ static inline void keccak_arm_asm_absorb_internal(
 	}
 
 	/* If we have data left, copy it into the partial block buffer */
-	memcpy(ctx->partial, in, inlen);
+	sha3_fill_state_bytes(ctx, 0, in, inlen);
 }
 
 static inline void keccak_arm_asm_squeeze_internal(
 	void *_state, uint8_t *digest,
-	size_t (*absorb)(uint64_t A[25], const unsigned char *inp, size_t len,
-			 size_t r),
 	void (*squeeze)(uint64_t A[25], unsigned char *out, size_t len,
 			size_t r),
 	void (*keccakf1600)(uint64_t A[25]))
@@ -127,21 +141,26 @@ static inline void keccak_arm_asm_squeeze_internal(
 
 	if (!ctx->squeeze_more) {
 		size_t partial = ctx->msg_len % blocksize;
+		uint8_t *state = (uint8_t *)ctx->state;
 
 		/* Final round in sponge absorbing phase */
 
-		/* Fill the unused part of the partial buffer with zeros */
-		memset(ctx->partial + partial, 0, blocksize - partial);
-
 		/* Add the padding bits and the 01 bits for the suffix. */
-		ctx->partial[partial] = ctx->padding;
-		ctx->partial[blocksize - 1] |= 0x80;
+		sha3_fill_state_bytes(ctx, partial, &ctx->padding, 1);
+
+		if ((ctx->padding >= 0x80) && (partial == (blocksize - 1))) {
+			LC_NEON_ENABLE;
+			keccakf1600(ctx->state);
+			LC_NEON_DISABLE;
+		}
+		state[blocksize - 1] ^= 0x80;
+
+		/* Prepare the state for first squeeze */
+		LC_NEON_ENABLE;
+		keccakf1600(ctx->state);
+		LC_NEON_DISABLE;
 
 		ctx->squeeze_more = 1;
-
-		LC_NEON_ENABLE;
-		absorb(ctx->state, ctx->partial, blocksize, blocksize);
-		LC_NEON_DISABLE;
 	}
 
 	if (ctx->offset) {
@@ -192,7 +211,7 @@ static inline void keccak_arm_asm_squeeze_internal(
 		/*
 		 * If there was a previous squeeze operation and there was no
 		 * offset left in that previous round, we must perform a
-		 * permutation operation, because the sqeeze implementation
+		 * permutation operation, because the squeeze implementation
 		 * first outputs the state followed by a permutation.
 		 */
 		LC_NEON_ENABLE;
