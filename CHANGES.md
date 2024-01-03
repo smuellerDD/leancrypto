@@ -13,6 +13,8 @@ Changes 0.9.0-prerelease
 
 * enhancement: add RISC-V 64 bit Keccak - currently disabled due to a bug
 
+* enhancement: compile Dilithium ARMv8 support in Linux kernel (excluding the SIMD Keccak operation)
+
 Changes 0.8.0:
 
 * enhancement: add applications

@@ -235,7 +235,7 @@ obj-m		 		:= leancrypto.o
 
 # Kernel module framework
 ccflags-y			:= -I$(PWD) -DLINUX_KERNEL -DLC_MEM_ON_HEAP    \
-				   -DMAJVERSION=0 -DMINVERSION=8 -DPATCHLEVEL=0
+				   -DMAJVERSION=0 -DMINVERSION=9 -DPATCHLEVEL=0
 
 ifdef CONFIG_X86_64
 ccflags-y			+= -DLC_HOST_X86_64
@@ -362,7 +362,6 @@ ifdef CONFIG_ARM64
 ccflags-y	  		+= -I$(PWD)/../hash/src/asm/ARMv8A/
 asflags-$(CONFIG_LEANCRYPTO_SHA3)					       \
 				+= -march=armv8-a+simd			       \
-				   -mfloat-abi=softfp			       \
 				   -funsafe-math-optimizations
 leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
 				+= ../hash/src/sha3_arm_neon.o		       \
@@ -793,13 +792,12 @@ leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
 			   ../signature/src/armv7/dilithium_poly.o	       \
 			   ../signature/src/armv7/dilithium_signature_api_armv7.o\
 			   ../signature/src/armv7/dilithium_signature_armv7.o
-else ifdef CONFIG_ARM64_NOCOMPILE
+else ifdef CONFIG_ARM64
 # Disable code for now as NEON support is needed
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
 			+= ../signature/src/armv8/dilithium_intt_armv8.o       \
 			   ../signature/src/armv8/dilithium_ntt_armv8.o	       \
 			   ../signature/src/armv8/dilithium_poly_armv8.o       \
-			   ../signature/src/armv8/dilithium_poly.o	       \
 			   ../signature/src/armv8/dilithium_signature_api_armv8.o\
 			   ../signature/src/armv8/dilithium_signature_armv8.o
 else
@@ -847,7 +845,7 @@ dilithium_tester_iuf_avx2-y	+= ../signature/tests/dilithium_tester.o       \
 endif
 endif
 
-ifdef CONFIG_ARM64_NOCOMPILE
+ifdef CONFIG_ARM64
 # Disable code for now as NEON support is needed
 ifdef CONFIG_LEANCRYPTO_DILITHIUM
 obj-m				+= dilithium_tester_armv8.o
