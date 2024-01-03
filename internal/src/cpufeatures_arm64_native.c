@@ -35,12 +35,12 @@
 #define ARM8_SM4_FEATURE (UINT64_C(0xf) << 40)
 #define ARM8_SM3_FEATURE (UINT64_C(0xf) << 36)
 #define ARM8_SHA3_FEATURE (UINT64_C(0xf) << 32)
-#define ARM8_SHA2_FEATURE (UINT64_C(0xf) << 32)
-#define ARM8_SHA256_FEATURE (UINT64_C(0x1) << 32) /* SHA256 */
-#define ARM8_SHA256512_FEATURE (UINT64_C(0x1) << 33) /* SHA256 and SHA512 */
+#define ARM8_SHA2_FEATURE (UINT64_C(0x11) << 12)
+#define ARM8_SHA256_FEATURE (UINT64_C(0x1) << 12) /* SHA256 */
+#define ARM8_SHA256512_FEATURE (UINT64_C(0x1) << 13) /* SHA256 and SHA512 */
 #define ARM8_SHA1_FEATURE (UINT64_C(0xf) << 8)
 #define ARM8_PMULL_FEATURE (UINT64_C(0x1) << 5)
-#define ARM8_AES_FEATURE (UINT64_C(0x1) << 4)
+#define ARM8_AES_FEATURE (UINT64_C(0x11) << 4)
 
 static inline int arm_id_aa64isar0_el1_feature(unsigned long feature)
 {
@@ -112,6 +112,7 @@ LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 	if (arm_id_aa64isar0_el1_feature(ARM8_AES_FEATURE))
 		features |= LC_CPU_FEATURE_ARM_AES;
 
+	// TODO This check does not detect SAH2-256 only support
 	if (arm_id_aa64isar0_el1_feature(ARM8_SHA256512_FEATURE))
 		features |= LC_CPU_FEATURE_ARM_SHA2;
 

@@ -15,6 +15,8 @@ Changes 0.9.0-prerelease
 
 * enhancement: compile Dilithium ARMv8 support in Linux kernel (excluding the SIMD Keccak operation)
 
+* fix: fix ARM-CE detection logic
+
 Changes 0.8.0:
 
 * enhancement: add applications

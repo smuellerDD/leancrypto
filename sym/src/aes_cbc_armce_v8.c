@@ -33,7 +33,7 @@ struct lc_sym_state {
 	uint8_t iv[AES_BLOCKLEN];
 };
 
-#define LC_AES_AESNI_CBC_BLOCK_SIZE sizeof(struct lc_sym_state)
+#define LC_AES_ARMV8_CBC_BLOCK_SIZE sizeof(struct lc_sym_state)
 
 static void aes_armce_cbc_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 				  uint8_t *out, size_t len)
@@ -119,7 +119,7 @@ static struct lc_sym _lc_aes_cbc_armce = {
 	.setiv = aes_armce_cbc_setiv,
 	.encrypt = aes_armce_cbc_encrypt,
 	.decrypt = aes_armce_cbc_decrypt,
-	.statesize = LC_AES_AESNI_CBC_BLOCK_SIZE,
+	.statesize = LC_AES_ARMV8_CBC_BLOCK_SIZE,
 	.blocksize = AES_BLOCKLEN,
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *,

@@ -9,4 +9,4 @@
 
 - poly_compress_avx does not work when compiled for Linux kernel
 
-- add ARMv8 Dilithium support to the kernel
+- check RISCV-64 Keccak implementation
