@@ -42,82 +42,80 @@
 #define ARM8_PMULL_FEATURE (UINT64_C(0x1) << 5)
 #define ARM8_AES_FEATURE (UINT64_C(0x11) << 4)
 
-static inline int arm_id_aa64isar0_el1_feature(unsigned long feature)
+static inline int arm_id_aa64isar0_el1_feature(void)
 {
-	static unsigned long id_aa64isar0_el1_val = 0xffffffffffffffff;
+	unsigned long id_aa64isar0_el1_val = 0;
 
-	if (id_aa64isar0_el1_val == 0xffffffffffffffff) {
 #if (defined(__APPLE__))
-		int64_t ret;
-		size_t size = sizeof(ret);
+	int64_t ret;
+	size_t size = sizeof(ret);
 
-		/* Kernel-only support */
-		//id_aa64isar0_el1_val = __builtin_arm_rsr64("ID_AA64ISAR0_EL1");
+	/* Kernel-only support */
+	//id_aa64isar0_el1_val = __builtin_arm_rsr64("ID_AA64ISAR0_EL1");
 
-		id_aa64isar0_el1_val = 0;
+	/*
+	 * See https://developer.apple.com/documentation/kernel/1387446-sysctlbyname/determining_instruction_set_characteristics
+	 */
 
-		/*
-		 * See https://developer.apple.com/documentation/kernel/1387446-sysctlbyname/determining_instruction_set_characteristics
-		 */
-
-		/*
-		 * There is no corresponding code in leancrypto to warrant those
-		 * queries.
-		 */
+	/*
+	 * There is no corresponding code in leancrypto to warrant those
+	 * queries.
+	 */
 #if 0
-		ret = 0;
-		if (!sysctlbyname("hw.optional.arm.FEAT_SHA256", &ret, &size,
-				  NULL, 0)) {
-			if (ret)
-				id_aa64isar0_el1_val |= ARM8_SHA256_FEATURE;
-		}
-
-		ret = 0;
-		if (!sysctlbyname("hw.optional.arm.FEAT_SHA512", &ret, &size,
-				  NULL, 0)) {
-			if (ret)
-				id_aa64isar0_el1_val |= ARM8_SHA256512_FEATURE;
-		}
-#endif
-
-		ret = 0;
-		if (!sysctlbyname("hw.optional.arm.FEAT_AES", &ret, &size, NULL,
-				  0)) {
-			if (ret)
-				id_aa64isar0_el1_val |= ARM8_AES_FEATURE;
-		}
-
-		ret = 0;
-		if (!sysctlbyname("hw.optional.arm.FEAT_SHA3", &ret, &size,
-				  NULL, 0)) {
-			if (ret)
-				id_aa64isar0_el1_val |= ARM8_SHA3_FEATURE;
-		}
-#else
-		__asm__ __volatile__("mrs %0, id_aa64isar0_el1 \n"
-				     : "=r"(id_aa64isar0_el1_val));
-#endif
-
-		if (id_aa64isar0_el1_val == 0xffffffffffffffff)
-			return 0;
+	ret = 0;
+	if (!sysctlbyname("hw.optional.arm.FEAT_SHA256", &ret, &size, NULL,
+			  0)) {
+		if (ret)
+			id_aa64isar0_el1_val |= ARM8_SHA256_FEATURE;
 	}
 
-	return (id_aa64isar0_el1_val & feature) ? 1 : 0;
+	ret = 0;
+	if (!sysctlbyname("hw.optional.arm.FEAT_SHA512", &ret, &size, NULL,
+			  0)) {
+		if (ret)
+			id_aa64isar0_el1_val |= ARM8_SHA256512_FEATURE;
+	}
+#endif
+
+	ret = 0;
+	if (!sysctlbyname("hw.optional.arm.FEAT_AES", &ret, &size, NULL, 0)) {
+		if (ret)
+			id_aa64isar0_el1_val |= ARM8_AES_FEATURE;
+	}
+
+	ret = 0;
+	if (!sysctlbyname("hw.optional.arm.FEAT_SHA3", &ret, &size, NULL, 0)) {
+		if (ret)
+			id_aa64isar0_el1_val |= ARM8_SHA3_FEATURE;
+	}
+#else
+	__asm__ __volatile__("mrs %0, id_aa64isar0_el1 \n"
+			     : "=r"(id_aa64isar0_el1_val));
+#endif
+
+	return id_aa64isar0_el1_val;
 }
 
 LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 {
-	enum lc_cpu_features features = LC_CPU_FEATURE_ARM;
+	static enum lc_cpu_features features = LC_CPU_FEATURE_UNSET;
 
-	if (arm_id_aa64isar0_el1_feature(ARM8_AES_FEATURE))
-		features |= LC_CPU_FEATURE_ARM_AES;
+	if (features == LC_CPU_FEATURE_UNSET) {
+		unsigned long id_aa64isar0_el1_val =
+			arm_id_aa64isar0_el1_feature();
 
-	// TODO This check does not detect SAH2-256 only support
-	if (arm_id_aa64isar0_el1_feature(ARM8_SHA256512_FEATURE))
-		features |= LC_CPU_FEATURE_ARM_SHA2;
+		features = LC_CPU_FEATURE_ARM;
 
-	if (arm_id_aa64isar0_el1_feature(ARM8_SHA3_FEATURE))
-		features |= LC_CPU_FEATURE_ARM_SHA3;
+		if (id_aa64isar0_el1_val & ARM8_AES_FEATURE)
+			features |= LC_CPU_FEATURE_ARM_AES;
+
+		// TODO This check does not detect SAH2-256 only support
+		if (id_aa64isar0_el1_val & ARM8_SHA256512_FEATURE)
+			features |= LC_CPU_FEATURE_ARM_SHA2;
+
+		if (id_aa64isar0_el1_val & ARM8_SHA3_FEATURE)
+			features |= LC_CPU_FEATURE_ARM_SHA3;
+	}
 
 	return features;
 }

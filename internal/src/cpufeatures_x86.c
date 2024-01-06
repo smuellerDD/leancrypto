@@ -24,12 +24,14 @@
 #define cpuid_eax(level, a, b, c, d)                                           \
 	__asm__ __volatile__("cpuid\n\t"                                       \
 			     : "=a"(a), "=b"(b), "=c"(c), "=d"(d)              \
-			     : "0"(level))
+			     : "0"(level)                                      \
+			     : "memory")
 
 #define cpuid_eax_ecx(level, count, a, b, c, d)                                \
 	__asm__ __volatile__("cpuid\n\t"                                       \
 			     : "=a"(a), "=b"(b), "=c"(c), "=d"(d)              \
-			     : "0"(level), "2"(count))
+			     : "0"(level), "2"(count)                          \
+			     : "memory")
 
 /* Leaf 1 */
 #define LC_INTEL_AESNI_ECX (1 << 25)
@@ -38,6 +40,7 @@
 #define LC_INTEL_AVX2_EBX (1 << 5)
 #define LC_INTEL_AVX512F_EBX (1 << 16)
 
+/* This is required by aes_aesni_x86_64.S */
 unsigned int lc_x86_64_cpuid[4];
 
 LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)

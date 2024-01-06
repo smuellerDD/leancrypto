@@ -33,22 +33,24 @@
 
 LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 {
-	static unsigned long c = 0xffffffffffffffff;
-	enum lc_cpu_features features = LC_CPU_FEATURE_ARM;
+	static enum lc_cpu_features features = LC_CPU_FEATURE_UNSET;
 
-	if (c == 0xffffffffffffffff)
-		c = getauxval(AT_HWCAP);
+	if (features == LC_CPU_FEATURE_UNSET) {
+		unsigned long c = getauxval(AT_HWCAP);
 
-	if (c & HWCAP_ASIMD)
-		features |= LC_CPU_FEATURE_ARM_NEON;
-	if (c & HWCAP_AES)
-		features |= LC_CPU_FEATURE_ARM_AES;
-	if (c & HWCAP_SHA2)
-		features |= LC_CPU_FEATURE_ARM_SHA2;
-	if (c & HWCAP_SHA512)
-		features |= LC_CPU_FEATURE_ARM_SHA2;
-	if (c & HWCAP_SHA3)
-		features |= LC_CPU_FEATURE_ARM_SHA3;
+		features = LC_CPU_FEATURE_ARM;
+
+		if (c & HWCAP_ASIMD)
+			features |= LC_CPU_FEATURE_ARM_NEON;
+		if (c & HWCAP_AES)
+			features |= LC_CPU_FEATURE_ARM_AES;
+		if (c & HWCAP_SHA2)
+			features |= LC_CPU_FEATURE_ARM_SHA2;
+		if (c & HWCAP_SHA512)
+			features |= LC_CPU_FEATURE_ARM_SHA2;
+		if (c & HWCAP_SHA3)
+			features |= LC_CPU_FEATURE_ARM_SHA3;
+	}
 
 	return features;
 }
