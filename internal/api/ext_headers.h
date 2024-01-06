@@ -68,6 +68,15 @@ static inline pid_t getpid(void)
 
 #endif
 
+/*
+ * Replace GCC-specific alternative keywords
+ * see https://gcc.gnu.org/onlinedocs/gcc/Alternate-Keywords.html
+ */
+#ifndef __GNUC__
+#define __asm__ asm
+#define __volatile__ volatile
+#endif
+
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
