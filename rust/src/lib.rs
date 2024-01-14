@@ -9,7 +9,7 @@ mod tests {
 	use super::*;
 
 	#[test]
-	fn leancrypto_lc_hash_sha3_512() {
+	fn leancrypto_lc_hash_sha3_512_lib() {
 		unsafe {
 			let msg_512: [u8; 3] = [0x82, 0xD9, 0x19];
 			let exp_512: [u8; 64] =

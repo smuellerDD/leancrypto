@@ -27,7 +27,8 @@ fn main() {
 	// This is the path to the object file.
 	let obj_path = output_path.join("extern.o");
 	// This is the path to the static library file.
-	let lib_path = output_path.join("libextern.a");
+	//let lib_path = output_path.join("libextern.a");
+	let lib_path = "../build/libextern.a";
 
 	// Compile the generated wrappers into an object file.
 	let clang_output = std::process::Command::new("clang")
@@ -43,34 +44,32 @@ fn main() {
 		.unwrap();
 
 	if !clang_output.status.success() {
-		panic!(
-			"Could not compile object file:\n{}",
-	 String::from_utf8_lossy(&clang_output.stderr)
-		);
+		panic!("Could not compile object file:\n{}",
+		       String::from_utf8_lossy(&clang_output.stderr));
 	}
 
 	// Turn the object file into a static library
 	#[cfg(not(target_os = "windows"))]
 	let lib_output = Command::new("ar")
 		.arg("crus")
-		.arg(output_path.join("libextern.a"))
-		.arg(obj_path)
+		//.arg(output_path.join("libextern.a"))
+		.arg(lib_path)
+		.arg(obj_path.clone())
 		.output()
 		.unwrap();
 	#[cfg(target_os = "windows")]
 	let lib_output = Command::new("LIB")
-		.arg(obj_path)
+		.arg(obj_path.clone())
 		.arg(format!("/OUT:{}", output_path.join("libextern.lib").display()))
 		.output()
 		.unwrap();
 	if !lib_output.status.success() {
-		panic!(
-			"Could not emit library file:\n{}",
-	 String::from_utf8_lossy(&lib_output.stderr)
-		);
+		panic!("Could not emit library file:\n{}",
+		       String::from_utf8_lossy(&lib_output.stderr));
 	}
 
 	// Tell cargo to statically link against the `libextern` static library.
+	//println!("cargo:rustc-link-arg={}", output_path.display());
 	println!("cargo:rustc-link-lib=static=extern");
 
 	// Write the rust bindings.
