@@ -17,6 +17,8 @@ Changes 0.9.0-prerelease
 
 * fix: fix ARM-CE detection logic
 
+* fix: potential Kyber side channel
+
 Changes 0.8.0:
 
 * enhancement: add applications

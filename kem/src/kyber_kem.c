@@ -255,7 +255,7 @@ int _lc_kyber_dec(
 	kyber_print_buffer(ss->ss, LC_KYBER_SYMBYTES, "Decapsulation: Kdash");
 
 	/* Copy true key to return buffer if fail is false */
-	cmov(ss->ss, ws->kr, LC_KYBER_SSBYTES, !fail);
+	cmov(ss->ss, ws->kr, LC_KYBER_SSBYTES, (uint8_t)(1 - fail));
 	kyber_print_buffer(ss->ss, LC_KYBER_SSBYTES,
 			   "======Decapsulation output: ss");
 

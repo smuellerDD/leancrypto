@@ -144,14 +144,18 @@ static inline void poly_tomsg(uint8_t msg[LC_KYBER_INDCPA_MSGBYTES],
 			      const poly *a)
 {
 	unsigned int i, j;
-	uint16_t t;
+	uint32_t t;
 
 	for (i = 0; i < LC_KYBER_N / 8; i++) {
 		msg[i] = 0;
 		for (j = 0; j < 8; j++) {
-			t = (uint16_t)a->coeffs[8 * i + j];
-			t += ((int16_t)t >> 15) & LC_KYBER_Q;
-			t = (((t << 1) + LC_KYBER_Q / 2) / LC_KYBER_Q) & 1;
+			t = (uint32_t)a->coeffs[8 * i + j];
+
+			t <<= 1;
+			t += LC_KYBER_Q - (LC_KYBER_Q / 2);
+			t *= 80635;
+			t >>= 28;
+			t &= 1;
 			msg[i] |= (uint8_t)(t << j);
 		}
 	}
