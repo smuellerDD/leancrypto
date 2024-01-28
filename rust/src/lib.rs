@@ -21,7 +21,6 @@ mod tests {
 				 0x69, 0x5D, 0xD0, 0x43, 0x77, 0x55, 0x32, 0x19,
 				 0xC8, 0xFD, 0x07, 0xA9, 0x4C, 0x29, 0xD7, 0x46,
 				 0xCC, 0xEF, 0xB1, 0x09, 0x6E, 0xDE, 0x42, 0x91];
-			//let mut act: Vec<u8> = vec![0; exp_512.len()];
 			let mut act: [u8; 64] = [0; 64];
 
 			let msg_512_ptr = &msg_512 as *const _;
@@ -29,7 +28,6 @@ mod tests {
 			lc_hash(lc_sha3_512, msg_512_ptr, msg_512.len(),
                                 act.as_mut_ptr());
 
-			//assert_eq!(act, &exp_512[..]);
 			assert_eq!(&act[..], &exp_512[..]);
 		}
 	}
