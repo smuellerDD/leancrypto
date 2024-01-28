@@ -9,7 +9,7 @@ use leancrypto;
 use std::mem::MaybeUninit;
 
 #[test]
-fn lc_rust_kyber_kex() {
+fn lc_rust_kyber_x25519_kex() {
 	unsafe {
 		let mut pk_r: MaybeUninit<lc_kyber_x25519_pk> =
 			MaybeUninit::uninit();
@@ -67,7 +67,7 @@ fn lc_rust_kyber_kex() {
 						     ct_e_i.as_mut_ptr(),
 						     tk.as_mut_ptr(),
 						     sk_e.as_mut_ptr(),
-						     pk_r.as_mut_ptr()) != 0 {
+						     pk_r.as_ptr()) != 0 {
 			println!("Bob UAKE init");
 		}
 		pk_e_i.assume_init();
@@ -80,9 +80,9 @@ fn lc_rust_kyber_kex() {
 						   ss_r.as_mut_ptr(),
 						   LC_KYBER_SSBYTES as usize,
 						   ptr::null(), 0,
-						   pk_e_i.as_mut_ptr(),
-						   ct_e_i.as_mut_ptr(),
-						   sk_r.as_mut_ptr()) != 0 {
+						   pk_e_i.as_ptr(),
+						   ct_e_i.as_ptr(),
+						   sk_r.as_ptr()) != 0 {
 			println!("Alice UAKE SS");
 		}
 		ct_e_r.assume_init();
@@ -92,9 +92,9 @@ fn lc_rust_kyber_kex() {
 		if lc_kex_x25519_uake_initiator_ss(ss_i.as_mut_ptr(),
 						   LC_KYBER_SSBYTES as usize,
 						   ptr::null(), 0,
-						   ct_e_r.as_mut_ptr(),
-						   tk.as_mut_ptr(),
-						   sk_e.as_mut_ptr()) != 0 {
+						   ct_e_r.as_ptr(),
+						   tk.as_ptr(),
+						   sk_e.as_ptr()) != 0 {
 			println!("Bob UAKE SS");
 		}
 
@@ -108,7 +108,7 @@ fn lc_rust_kyber_kex() {
 						    ct_e_i.as_mut_ptr(),
 						    tk.as_mut_ptr(),
 						    sk_e.as_mut_ptr(),
-						    pk_r.as_mut_ptr()) != 0 {
+						    pk_r.as_ptr()) != 0 {
 			println!("Bob AKE init");
 		}
 
@@ -118,10 +118,10 @@ fn lc_rust_kyber_kex() {
 						  ss_r.as_mut_ptr(),
 						  LC_KYBER_SSBYTES as usize,
 						  ptr::null(), 0,
-						  pk_e_i.as_mut_ptr(),
-						  ct_e_i.as_mut_ptr(),
-						  sk_r.as_mut_ptr(),
-						  pk_i.as_mut_ptr()) != 0 {
+						  pk_e_i.as_ptr(),
+						  ct_e_i.as_ptr(),
+						  sk_r.as_ptr(),
+						  pk_i.as_ptr()) != 0 {
 			println!("Alice AKE SS");
 		}
 		ct_e_r_1.assume_init();
@@ -131,11 +131,11 @@ fn lc_rust_kyber_kex() {
 		if lc_kex_x25519_ake_initiator_ss(ss_i.as_mut_ptr(),
 						  LC_KYBER_SSBYTES as usize,
 						  ptr::null(), 0,
-						  ct_e_r_1.as_mut_ptr(),
-						  ct_e_r_2.as_mut_ptr(),
-						  tk.as_mut_ptr(),
-						  sk_e.as_mut_ptr(),
-						  sk_i.as_mut_ptr()) != 0 {
+						  ct_e_r_1.as_ptr(),
+						  ct_e_r_2.as_ptr(),
+						  tk.as_ptr(),
+						  sk_e.as_ptr(),
+						  sk_i.as_ptr()) != 0 {
 			println!("Bob AKE SS");
 		}
 
