@@ -26,12 +26,15 @@ fn lc_rust_dilithium_ed25519() {
 						lc_seeded_rng) != 0 {
 			println!("Keypair generation failed");
 		}
+		pk.assume_init();
+		sk.assume_init();
 
 		if lc_dilithium_ed25519_sign(sig.as_mut_ptr(), msg.as_ptr(),
 					     msg.len(), sk.as_ptr(),
 					     lc_seeded_rng) != 0 {
 			println!("Signature generation failed");
 		}
+		sig.assume_init();
 
 		if lc_dilithium_ed25519_verify(sig.as_ptr(),
 					       msg.as_ptr(), msg.len(),
@@ -44,6 +47,6 @@ fn lc_rust_dilithium_ed25519() {
 						      msg2.as_ptr(),
 						      msg2.len(),
 						      pk.as_ptr());
-		assert_ne!(-74, ret);
+		assert_ne!(-i32::from(EBADMSG as i16), ret);
 	}
 }
