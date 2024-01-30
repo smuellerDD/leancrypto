@@ -24,6 +24,13 @@
 #include "left_encode.h"
 #include "visibility.h"
 
+/*
+ * SP800-185 section 8.4.2 requires the MAC size to be at least 32 bits. As this
+ * requirement is to counter too small MAC sizes which can be guessed, this
+ * requirement is not applicable when using KMAC in the RNG use case.
+ */
+#define LC_KMAC_MIN_MAC_SIZE (32 >> 3)
+
 static void lc_kmac_selftest(int *tested, const char *impl)
 {
 	static const uint8_t msg[] = { 0x0E, 0x8B, 0x97, 0x33, 0x23, 0x85,
@@ -156,8 +163,8 @@ LC_INTERFACE_FUNCTION(void, lc_kmac_update, struct lc_kmac_ctx *kmac_ctx,
 	lc_hash_update(hash_ctx, in, inlen);
 }
 
-LC_INTERFACE_FUNCTION(void, lc_kmac_final, struct lc_kmac_ctx *kmac_ctx,
-		      uint8_t *mac, size_t maclen)
+static void lc_kmac_final_internal(struct lc_kmac_ctx *kmac_ctx,
+				   uint8_t *mac, size_t maclen)
 {
 	struct lc_hash_ctx *hash_ctx;
 	uint8_t buf[sizeof(size_t) + 1];
@@ -173,8 +180,15 @@ LC_INTERFACE_FUNCTION(void, lc_kmac_final, struct lc_kmac_ctx *kmac_ctx,
 	lc_hash_final(hash_ctx, mac);
 }
 
-LC_INTERFACE_FUNCTION(void, lc_kmac_final_xof, struct lc_kmac_ctx *kmac_ctx,
+LC_INTERFACE_FUNCTION(void, lc_kmac_final, struct lc_kmac_ctx *kmac_ctx,
 		      uint8_t *mac, size_t maclen)
+{
+	if (maclen >= LC_KMAC_MIN_MAC_SIZE)
+		lc_kmac_final_internal(kmac_ctx, mac, maclen);
+}
+
+static void lc_kmac_final_xof_internal(struct lc_kmac_ctx *kmac_ctx,
+				       uint8_t *mac, size_t maclen)
 {
 	struct lc_hash_ctx *hash_ctx;
 	static const uint8_t bytepad_val[] = { 0x00, 0x01 };
@@ -188,6 +202,14 @@ LC_INTERFACE_FUNCTION(void, lc_kmac_final_xof, struct lc_kmac_ctx *kmac_ctx,
 		kmac_ctx->final_called = 1;
 	}
 	lc_cshake_final(hash_ctx, mac, maclen);
+}
+
+
+LC_INTERFACE_FUNCTION(void, lc_kmac_final_xof, struct lc_kmac_ctx *kmac_ctx,
+		      uint8_t *mac, size_t maclen)
+{
+	if (maclen >= LC_KMAC_MIN_MAC_SIZE)
+		lc_kmac_final_xof_internal(kmac_ctx, mac, maclen);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_kmac_alloc, const struct lc_hash *hash,
@@ -258,7 +280,7 @@ static int lc_kmac_rng_generate(void *_state, const uint8_t *addtl_input,
 	if (addtl_input_len)
 		lc_kmac_update(kmac_ctx, addtl_input, addtl_input_len);
 
-	lc_kmac_final_xof(kmac_ctx, out, outlen);
+	lc_kmac_final_xof_internal(kmac_ctx, out, outlen);
 	return 0;
 }
 

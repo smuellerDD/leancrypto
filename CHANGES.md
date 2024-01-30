@@ -19,6 +19,8 @@ Changes 0.9.0-prerelease
 
 * fix: potential Kyber side channel
 
+* fix: KMAC min MAC size is 32 bits
+
 Changes 0.8.0:
 
 * enhancement: add applications
