@@ -69,19 +69,19 @@ const dec_exp: [u8; 64] = [
 
 fn lc_rust_aes_dec_one(key: &[u8], data: &[u8])
 {
+	/* Define the ctx pointer */
+	let mut ctx: *mut lc_sym_ctx = ptr::null_mut();
+	let mut act: [u8; 64] = [0; 64];
+
+	/* Allocate the hash context */
+	let result = lc_sym_alloc(lc_aes_cbc, &mut ctx);
+	if result != 0 {
+		println!("allocation error: {result}");
+	}
+
+	lc_sym_init(ctx);
+
 	unsafe {
-		/* Define the ctx pointer */
-		let mut ctx: *mut lc_sym_ctx = ptr::null_mut();
-		let mut act: [u8; 64] = [0; 64];
-
-                /* Allocate the hash context */
-		let result = lc_sym_alloc(lc_aes_cbc, &mut ctx);
-		if result != 0 {
-			println!("allocation error: {result}");
-		}
-
-		lc_sym_init(ctx);
-
 		if lc_sym_setkey(ctx, key.as_ptr(), key.len()) != 0 {
 			println!("AES CBC decrypt setkey failed");
 		}
@@ -92,11 +92,12 @@ fn lc_rust_aes_dec_one(key: &[u8], data: &[u8])
 
 		lc_sym_decrypt(ctx, data.as_ptr(), act.as_mut_ptr(),
 			       data.len());
-
-		lc_sym_zero_free(ctx);
-
-		assert_eq!(&act[..], &dec_exp[..]);
 	}
+
+	lc_sym_zero_free(ctx);
+
+	assert_eq!(&act[..], &dec_exp[..]);
+
 }
 
 #[test]
@@ -170,18 +171,18 @@ fn lc_rust_aes_enc_one(key: &[u8], outdata: &[u8])
 		0xf6, 0x9f, 0x24, 0x45, 0xdf, 0x4f, 0x9b, 0x17,
 		0xad, 0x2b, 0x41, 0x7b, 0xe6, 0x6c, 0x37, 0x10 ];
 
+	/* Define the ctx pointer */
+	let mut ctx: *mut lc_sym_ctx = ptr::null_mut();
+
+	/* Allocate the hash context */
+	let result = lc_sym_alloc(lc_aes_cbc, &mut ctx);
+	if result != 0 {
+		println!("allocation error: {result}");
+	}
+
+	lc_sym_init(ctx);
+
 	unsafe {
-		/* Define the ctx pointer */
-		let mut ctx: *mut lc_sym_ctx = ptr::null_mut();
-
-                /* Allocate the hash context */
-		let result = lc_sym_alloc(lc_aes_cbc, &mut ctx);
-		if result != 0 {
-			println!("allocation error: {result}");
-		}
-
-		lc_sym_init(ctx);
-
 		if lc_sym_setkey(ctx, key.as_ptr(), key.len()) != 0 {
 			println!("AES CBC decrypt setkey failed");
 		}
@@ -192,11 +193,11 @@ fn lc_rust_aes_enc_one(key: &[u8], outdata: &[u8])
 
 		lc_sym_encrypt(ctx, indata.as_ptr(), indata.as_mut_ptr(),
 			       indata.len());
-
-		lc_sym_zero_free(ctx);
-
-		assert_eq!(&indata[..], &outdata[..]);
 	}
+
+	lc_sym_zero_free(ctx);
+
+	assert_eq!(&indata[..], &outdata[..]);
 }
 
 #[test]

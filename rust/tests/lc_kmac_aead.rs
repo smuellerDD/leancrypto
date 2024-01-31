@@ -10,19 +10,19 @@ use leancrypto;
 fn lc_rust_kmac_aead_one(data: &[u8], aad: &[u8], key: &[u8], exp_ct: &[u8],
 			 exp_tag: &[u8])
 {
+	/* Define the ctx pointer */
+	let mut ctx: *mut lc_aead_ctx = ptr::null_mut();
+	let mut act: [u8; 64] = [0; 64];
+	let mut act_dec: [u8; 64] = [0; 64];
+	let mut tag: [u8; 64] = [0; 64];
+
+	/* Allocate the hash context */
+	let result = lc_kc_alloc(lc_cshake256, &mut ctx);
+	if result != 0 {
+		println!("allocation error: {result}");
+	}
+
 	unsafe {
-		/* Define the ctx pointer */
-		let mut ctx: *mut lc_aead_ctx = ptr::null_mut();
-		let mut act: [u8; 64] = [0; 64];
-		let mut act_dec: [u8; 64] = [0; 64];
-		let mut tag: [u8; 64] = [0; 64];
-
-                /* Allocate the hash context */
-		let result = lc_kc_alloc(lc_cshake256, &mut ctx);
-		if result != 0 {
-			println!("allocation error: {result}");
-		}
-
 		if lc_aead_setkey(ctx, key.as_ptr(), key.len(), ptr::null(),
 				  0) != 0 {
 			println!("KMAC AEAD encrypt setkey failed");
@@ -31,12 +31,14 @@ fn lc_rust_kmac_aead_one(data: &[u8], aad: &[u8], key: &[u8], exp_ct: &[u8],
 		lc_aead_encrypt(ctx, data.as_ptr(), act.as_mut_ptr(),
 				data.len(), aad.as_ptr(), aad.len(),
 				tag.as_mut_ptr(), tag.len());
+	}
 
-		lc_aead_zero(ctx);
+	lc_aead_zero(ctx);
 
-		assert_eq!(&act[..], &exp_ct[..]);
-		assert_eq!(&tag[..], &exp_tag[..]);
+	assert_eq!(&act[..], &exp_ct[..]);
+	assert_eq!(&tag[..], &exp_tag[..]);
 
+	unsafe {
 		if lc_aead_setkey(ctx, key.as_ptr(), key.len(), ptr::null(),
 				  0) != 0 {
 			println!("KMAC AEAD decrypt setkey failed");
@@ -46,12 +48,12 @@ fn lc_rust_kmac_aead_one(data: &[u8], aad: &[u8], key: &[u8], exp_ct: &[u8],
 					  act_dec.as_mut_ptr(), act.len(),
 					  aad.as_ptr(), aad.len(), tag.as_ptr(),
 					  tag.len());
-
-		lc_aead_zero_free(ctx);
-
-		assert_eq!(ret, 0);
-		assert_eq!(&act_dec[..], &data[..]);
 	}
+
+	lc_aead_zero_free(ctx);
+
+	assert_eq!(ret, 0);
+	assert_eq!(&act_dec[..], &data[..]);
 }
 
 #[test]
