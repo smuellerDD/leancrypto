@@ -158,9 +158,9 @@ static void lc_xdrbg256_drng_encode(struct lc_hash_ctx *shake_ctx,
  * When this function completes, initialized SHAKE context can now be used
  * to generate random bits.
  */
-static void xdrbg256_drng_fke_init_ctx(struct lc_xdrbg256_drng_state *state,
-				       struct lc_hash_ctx *shake_ctx,
-				       const uint8_t *alpha, size_t alphalen)
+static void lc_xdrbg256_drng_fke_init_ctx(struct lc_xdrbg256_drng_state *state,
+					  struct lc_hash_ctx *shake_ctx,
+					  const uint8_t *alpha, size_t alphalen)
 {
 	lc_hash_init(shake_ctx);
 
@@ -207,7 +207,8 @@ static int lc_xdrbg256_drng_generate(void *_state, const uint8_t *alpha,
 		 * Instantiate SHAKE with V', and alpha with its encoding,
 		 * and generate V.
 		 */
-		xdrbg256_drng_fke_init_ctx(state, shake_ctx, alpha, alphalen);
+		lc_xdrbg256_drng_fke_init_ctx(state, shake_ctx, alpha,
+					      alphalen);
 
 		/* Generate the requested amount of output bits */
 		xdrbg256_shake_final(shake_ctx, out, todo);
