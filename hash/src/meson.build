@@ -31,11 +31,7 @@ if get_option('sha3').enabled()
 			'leancrypto_keccak_avx2_4x_lib',
 			[ 'shake_4x_avx2.c',
 			  'asm/AVX2_4x/KeccakP-1600-times4-SIMD256.c' ],
-			c_args: [
-				'-mavx2',
-				'-mbmi2',
-				'-mpopcnt',
-			],
+			c_args: cc_avx2_args,
 			include_directories: [ include_dirs,
 					       include_internal_dirs ],
 		)
@@ -52,12 +48,7 @@ if get_option('sha3').enabled()
 			'leancrypto_keccak_arm7a_neon_lib',
 			[ 'sha3_arm_neon.c',
 			  'asm/ARMv7A-NEON/KeccakP-1600-armv7a-le-neon-gcc.S' ],
-			c_args: [
-				'-mfpu=neon-vfpv4',
-				'-mthumb',
-				'-march=armv7-a+vfpv4',
-				'-funsafe-math-optimizations'
-			],
+			c_args: cc_armv7_neon_simd_args,
 			include_directories: [
 				include_directories(['asm/ARMv7A-NEON/']),
 				include_dirs,
@@ -71,10 +62,7 @@ if get_option('sha3').enabled()
 			'leancrypto_keccak_arm8a_neon_lib',
 			[ 'sha3_arm_neon.c',
 			  'asm/ARMv8A/KeccakP-1600-armv8a-neon.S' ],
-			c_args: [
-				'-march=armv8-a+simd',
-				'-funsafe-math-optimizations'
-			],
+			c_args: cc_armv8_neon_simd_args,
 			include_directories: [
 				include_directories(['asm/ARMv8A/']),
 				include_dirs,
@@ -94,10 +82,7 @@ if get_option('sha3').enabled()
 		leancrypto_keccak_armv8_2x_ce_lib = static_library(
 			'leancrypto_keccak_armv8_2x_ce_lib',
 			[ 'asm/ARMv8_2x/keccakx2_armce.S' ],
-			c_args: [
-				'-march=armv8-a+crypto',
-				'-Wno-unused-result',
-			],
+			c_args: cc_armv8_neon_simd_args,
 			include_directories: [ include_dirs,
 					       include_internal_dirs ],
 		)
@@ -107,10 +92,7 @@ if get_option('sha3').enabled()
 		leancrypto_keccak_armv8_2x_c_lib = static_library(
 			'leancrypto_keccak_armv8_2x_c_lib',
 			[ 'shake_2x_armv8.c' ],
-			c_args: [
-				'-march=armv8-a+simd',
-				'-Wno-unused-result',
-			],
+			c_args: cc_armv8_neon_simd_args,
 			include_directories: [ include_dirs,
 					       include_internal_dirs ],
 		)

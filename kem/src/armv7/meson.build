@@ -15,12 +15,7 @@ leancrypto_kyber_armv7_lib = static_library(
 			include_dirs,
 			include_internal_dirs
 		],
-# 		c_args: [
-# 			'-mfpu=neon-vfpv4',
-# 			'-mthumb',
-# 			'-march=armv7-a+vfpv4',
-# 			'-funsafe-math-optimizations'
-# 		],
+# 		c_args: cc_armv7_neon_simd_args,
 	)
 
 leancrypto_support_libs += leancrypto_kyber_armv7_lib

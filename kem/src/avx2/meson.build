@@ -23,11 +23,6 @@ leancrypto_kyber_avx2_lib = static_library(
 			include_dirs,
 			include_internal_dirs
 		],
-		c_args: [
-			'-mavx2',
-			'-mbmi2',
-			'-mpopcnt',
-			'-Wno-unused-command-line-argument'
-		]
+		c_args: cc_avx2_args
 	)
 leancrypto_support_libs += leancrypto_kyber_avx2_lib

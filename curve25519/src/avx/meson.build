@@ -14,11 +14,7 @@ leancrypto_curve25519_avx_lib = static_library(
 			'../',
 			include_internal_dirs
 		],
-		c_args: [
-			'-mavx2',
-			'-mpopcnt',
-			'-Wno-unused-command-line-argument'
-		]
+		c_args: cc_avx2_args
 	)
 
 leancrypto_support_libs += leancrypto_curve25519_avx_lib

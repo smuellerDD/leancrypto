@@ -22,11 +22,7 @@ leancrypto_dilithium_avx2_lib = static_library(
 			include_dirs,
 			include_internal_dirs
 		],
-		c_args: [
-			'-mavx2',
-			'-mpopcnt',
-			'-Wno-unused-command-line-argument'
-		]
+		c_args: cc_avx2_args
 	)
 
 #-Wl,--whole-archive kem/src/avx2/libleancrypto_kyber_avx2_lib.a -Wl,--no-whole-archive

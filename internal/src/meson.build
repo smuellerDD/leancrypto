@@ -22,10 +22,7 @@ if (x86_64_asm)
 			include_dirs,
 			include_internal_dirs
 		],
-		c_args: [
-			'-mavx2',
-			'-Wno-unused-command-line-argument'
-		]
+		c_args: cc_avx2_args
 	)
 	leancrypto_support_libs += leancrypto_memcmp_secure_avx2_lib
 else

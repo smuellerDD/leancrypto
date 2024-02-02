@@ -10,11 +10,7 @@ if get_option('hash_crypt').enabled()
 			'leancrypto_aead_avx2_lib',
 			[ 'cshake_crypt.c',
 			  'kmac_crypt.c' ],
-			c_args: [
-				'-mavx2',
-				'-mbmi2',
-				'-mpopcnt',
-			],
+			c_args: cc_avx2_args,
 			include_directories: [ include_dirs,
 					       include_internal_dirs ],
 		)
@@ -26,10 +22,7 @@ if get_option('hash_crypt').enabled()
 			'leancrypto_aead_neon_armv8_lib',
 			[ 'cshake_crypt.c',
 			  'kmac_crypt.c' ],
-			c_args: [
-				'-march=armv8-a+simd',
-				'-Wno-unused-result',
-			],
+			c_args: cc_armv8_neon_simd_args,
 			include_directories: [ include_dirs,
 					       include_internal_dirs ],
 		)
@@ -41,12 +34,7 @@ if get_option('hash_crypt').enabled()
 			'leancrypto_aead_neon_armv7_lib',
 			[ 'cshake_crypt.c',
 			  'kmac_crypt.c' ],
-			c_args: [
-				'-mfpu=neon-vfpv4',
-				'-mthumb',
-				'-march=armv7-a+vfpv4',
-				'-funsafe-math-optimizations'
-			],
+			c_args: cc_armv7_neon_simd_args,
 			include_directories: [ include_dirs,
 					       include_internal_dirs ],
 		)

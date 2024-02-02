@@ -259,6 +259,13 @@ if (host_machine.cpu_family() == 'x86_64' and
 	# 64 bit AVX2 / AVX512 support
 	x86_64_asm = true
 	add_global_arguments([ '-DLC_HOST_X86_64' ], language: 'c')
+
+	cc_avx2_args = [
+		'-mavx2',
+		'-mbmi2',
+		'-mpopcnt',
+		'-Wno-unused-command-line-argument'
+	]
 endif
 
 if (host_machine.cpu_family() == 'arm' and
@@ -269,10 +276,22 @@ if (host_machine.cpu_family() == 'arm' and
 
 	add_global_arguments([ '-DLC_HOST_ARM32_NEON' ], language: 'c')
 
+	cc_armv7_neon_simd_args = [
+		'-mfpu=neon-vfpv4',
+		'-mthumb',
+		'-march=armv7-a+vfpv4',
+		'-funsafe-math-optimizations'
+	]
+
 elif (host_machine.cpu_family() == 'aarch64')
 
 	arm64_asm = true
 	add_global_arguments([ '-DLC_HOST_AARCH64' ], language: 'c')
+
+	cc_armv8_neon_simd_args = [
+		'-march=armv8-a+simd',
+		'-Wno-unused-result',
+	]
 
 	if (cc.get_id() == 'gcc')
 
