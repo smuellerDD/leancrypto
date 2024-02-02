@@ -89,13 +89,7 @@
  *
  * KMAC-Encode(alpha) -> encoded string
  *
- * The encoding is based on the XDRBG paper appendix B.2 with the following
- * properties:
- *
- * E = KMAC(K = NULL,
- *          X = alpha || 0xff,
- *          L = 512,
- *          S = NULL)
+ * The encoding is based on the XDRBG paper appendix B.
  *
  * 2.3 Seeding
  *
@@ -301,51 +295,35 @@ static void lc_kmac256_drng_encode(struct lc_kmac_ctx *kmac_ctx,
 				   const uint8_t n, const uint8_t *alpha,
 				   size_t alphalen)
 {
-	static const uint8_t byte = 0xff;
-	uint8_t encode[LC_KMAC256_DRNG_KEYSIZE + 1];
-	LC_KMAC_CTX_ON_STACK(enc_hash_ctx, LC_KMAC256_DRNG_HASH_TYPE);
+	uint8_t encode;
 
 	/* Ensure the prerequisite hash size <= 84 holds. */
 	BUILD_BUG_ON(LC_KMAC256_DRNG_KEYSIZE > LC_KMAC256_DRNG_ENCODE_LENGTH);
 
-	if (alphalen < LC_KMAC256_DRNG_KEYSIZE) {
-		/* The alpha is sufficiently small to avoid hashing */
-
-		/* Encode the length. */
-		encode[0] = (uint8_t)((n * 85) + alphalen);
-
-		/* Insert alpha and encode into the hash context. */
-		lc_kmac_update(kmac_ctx, alpha, alphalen);
-		lc_kmac_update(kmac_ctx, encode, 1);
-
-		return;
-	}
-
 	/*
-	 * The alpha is larger than the allowed size - perform hashing of
-	 * alpha together with its size encoding.
+	 * Only consider up to 84 left-most bytes of alpha. According to
+	 * the XDRBG specification appendix B:
+	 *
+	 * """
+	 * This encoding is efficient and flexible, but does require that the
+	 * additional input string is no longer than 84 bytes–a constraint that
+	 * seems very easy to manage in practice.
+	 *
+	 * For example, IPV6 addresses and GUIDs are 16 bytes long, Ethernet
+	 * addresses are 12 bytes long, and the most demanding requirement for
+	 * unique randomly-generated device identifiers can be met with a
+	 * 32-byte random value. This is the encoding we recommend for XDRBG.
+	 * """
 	 */
+	if (alphalen > 84)
+		alphalen = 84;
 
-	/* Hash alpha with the XOF - cSHAKE is simply used as hash operation. */
-	lc_kmac_init(enc_hash_ctx, NULL, 0, NULL, 0);
-	lc_kmac_update(enc_hash_ctx, alpha, alphalen);
-	lc_kmac_update(enc_hash_ctx, &byte, sizeof(byte));
-	lc_kmac_final_xof(enc_hash_ctx, encode, LC_KMAC256_DRNG_KEYSIZE);
-	lc_kmac_zero(enc_hash_ctx);
+	/* Encode the length. */
+	encode = (uint8_t)((n * 85) + alphalen);
 
-	/* Encode the length */
-	encode[LC_KMAC256_DRNG_KEYSIZE] = (uint8_t)((n * 85) + 84);
-
-	/*
-	 * The buffer encode contains the concatentation of
-	 * h(alpha) || (n * (hash_length + 1) + hash_length)
-	 */
-	lc_kmac_update(kmac_ctx, encode, sizeof(encode));
-
-	/*
-	 * Zeroization of encode is not considered to be necessary as alpha is
-	 * considered to be known string.
-	 */
+	/* Insert alpha and encode into the hash context. */
+	lc_kmac_update(kmac_ctx, alpha, alphalen);
+	lc_kmac_update(kmac_ctx, &encode, 1);
 }
 
 /*

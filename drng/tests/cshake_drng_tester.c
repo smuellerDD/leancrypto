@@ -66,12 +66,10 @@ static int cshake_drng_selftest(struct lc_rng_ctx *cshake_ctx)
 		0xd2, 0x8f, 0x03, 0x27, 0x0a, 0xb9
 
 	};
-	static const uint8_t byte = 0xff;
 	uint8_t act1[sizeof(exp1)] __align(sizeof(uint32_t));
 	uint8_t compare1[LC_CSHAKE256_DRNG_MAX_CHUNK];
 	uint8_t encode;
 	int ret;
-	LC_HASH_CTX_ON_STACK(enc_hash_ctx, lc_cshake256);
 	LC_HASH_CTX_ON_STACK(cshake_compare, lc_cshake256);
 
 	BUILD_BUG_ON(sizeof(exp1) < sizeof(compare1));
@@ -109,33 +107,6 @@ static int cshake_drng_selftest(struct lc_rng_ctx *cshake_ctx)
 			  LC_CSHAKE256_DRNG_MAX_CHUNK -
 				  LC_CSHAKE256_DRNG_KEYSIZE,
 			  "CSHAKE DRNG generate verification");
-
-	lc_rng_zero(cshake_ctx);
-
-	/*
-	 * Verify the seeding operation to generate proper state with large
-	 * alpha.
-	 */
-	/* Seed the XDRBG with an alpha > 84 bytes */
-	lc_rng_seed(cshake_ctx, seed, sizeof(seed), exp1, sizeof(exp1));
-	/* Prepare the state with native SHAKE operations */
-	lc_cshake_init(cshake_compare,
-		       (uint8_t *)LC_CSHAKE_DRNG_SEED_CUSTOMIZATION_STRING,
-		       sizeof(LC_CSHAKE_DRNG_SEED_CUSTOMIZATION_STRING) - 1,
-		       NULL, 0);
-	lc_hash_update(cshake_compare, seed, sizeof(seed));
-	/* Insert SHA3-512 hash of alpha */
-	lc_cshake_init(enc_hash_ctx, NULL, 0, NULL, 0);
-	lc_hash_update(enc_hash_ctx, exp1, sizeof(exp1));
-	lc_hash_update(enc_hash_ctx, &byte, sizeof(byte));
-	lc_cshake_final(enc_hash_ctx, act1, LC_CSHAKE256_DRNG_KEYSIZE);
-	lc_hash_zero(enc_hash_ctx);
-	lc_hash_update(cshake_compare, act1, LC_CSHAKE256_DRNG_KEYSIZE);
-	encode = 0 * 85 + 84;
-	lc_hash_update(cshake_compare, &encode, sizeof(encode));
-	lc_cshake_final(cshake_compare, compare1, LC_CSHAKE256_DRNG_KEYSIZE);
-	ret += lc_compare(compare1, state->key, LC_CSHAKE256_DRNG_KEYSIZE,
-			  "CSHAKE DRNG state generation with large alpha");
 
 	lc_rng_zero(cshake_ctx);
 	lc_hash_zero(cshake_compare);

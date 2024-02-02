@@ -66,12 +66,10 @@ static int kmac_drng_selftest(struct lc_rng_ctx *kmac_ctx)
 		0xfd, 0xf6, 0xe7, 0xb0, 0x39, 0xee, 0x9b, 0x14, 0xf8, 0xca,
 		0x80, 0x35, 0x19, 0xca, 0xe5, 0x3c
 	};
-	static const uint8_t byte = 0xff;
 	uint8_t act1[sizeof(exp1)] __align(sizeof(uint32_t));
 	uint8_t compare1[LC_KMAC256_DRNG_MAX_CHUNK];
 	uint8_t encode;
 	int ret;
-	LC_KMAC_CTX_ON_STACK(enc_hash_ctx, lc_cshake256);
 	LC_KMAC_CTX_ON_STACK(kmac_compare, lc_cshake256);
 
 	BUILD_BUG_ON(sizeof(exp1) < sizeof(compare1));
@@ -106,32 +104,6 @@ static int kmac_drng_selftest(struct lc_rng_ctx *kmac_ctx)
 	ret += lc_compare(compare1 + LC_KMAC256_DRNG_KEYSIZE, exp1,
 			  LC_KMAC256_DRNG_MAX_CHUNK - LC_KMAC256_DRNG_KEYSIZE,
 			  "KMAC DRNG generate verification");
-
-	lc_rng_zero(kmac_ctx);
-
-	/*
-	 * Verify the seeding operation to generate proper state with large
-	 * alpha.
-	 */
-	/* Seed the XDRBG with an alpha > 84 bytes */
-	lc_rng_seed(kmac_ctx, seed, sizeof(seed), exp1, sizeof(exp1));
-	/* Prepare the state with native SHAKE operations */
-	lc_kmac_init(kmac_compare, NULL, 0,
-		     (uint8_t *)LC_KMAC_DRNG_SEED_CUSTOMIZATION_STRING,
-		     sizeof(LC_KMAC_DRNG_SEED_CUSTOMIZATION_STRING) - 1);
-	lc_kmac_update(kmac_compare, seed, sizeof(seed));
-	/* Insert SHA3-512 hash of alpha */
-	lc_kmac_init(enc_hash_ctx, NULL, 0, NULL, 0);
-	lc_kmac_update(enc_hash_ctx, exp1, sizeof(exp1));
-	lc_kmac_update(enc_hash_ctx, &byte, sizeof(byte));
-	lc_kmac_final_xof(enc_hash_ctx, act1, LC_KMAC256_DRNG_KEYSIZE);
-	lc_kmac_zero(enc_hash_ctx);
-	lc_kmac_update(kmac_compare, act1, LC_KMAC256_DRNG_KEYSIZE);
-	encode = 0 * 85 + 84;
-	lc_kmac_update(kmac_compare, &encode, sizeof(encode));
-	lc_kmac_final_xof(kmac_compare, compare1, LC_KMAC256_DRNG_KEYSIZE);
-	ret += lc_compare(compare1, state->key, LC_KMAC256_DRNG_KEYSIZE,
-			  "KMAC DRNG state generation with large alpha");
 
 	lc_rng_zero(kmac_ctx);
 	lc_kmac_zero(kmac_compare);
