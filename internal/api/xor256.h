@@ -20,24 +20,40 @@
 #ifndef XOR256_H
 #define XOR256_H
 
+#include "build_bug_on.h"
 #include "xor.h"
-#include "ext_headers_x86.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#define LC_XOR_MIN_ALIGNMENT(min, requested)                                   \
+	((min < requested) ? (requested) : (min))
+
+#ifdef LC_HOST_X86_64
+
 /*
- * AVX2 implementation of XOR
+ * The load of data into __m256i does not require alignment, the store
+ * requires 64 bit alignment by using _mm_storel_pd / _mm_storeh_pd.
  */
-static void xor_256(uint8_t *dst, const uint8_t *src, size_t size)
+#define LC_XOR_AVX2_ALIGNMENT (sizeof(uint64_t))
+#define LC_XOR_ALIGNMENT(min) LC_XOR_MIN_ALIGNMENT(min, LC_XOR_AVX2_ALIGNMENT)
+
+/*
+ * AVX2 implementation of XOR (processing 256 bit chunks)
+ */
+#include "ext_headers_x86.h"
+static inline void xor_256_aligned(uint8_t *dst, const uint8_t *src,
+				   size_t size)
 {
 	__m256i dst_256, src_256;
 
-	for (; size >= sizeof(src_256);
-	       size -= sizeof(src_256),
-		dst += sizeof(dst_256),
-		src += sizeof(src_256)) {
+	LC_FPU_ENABLE;
+	for (; size >= sizeof(src_256); size -= sizeof(src_256),
+					dst += sizeof(dst_256),
+					src += sizeof(src_256)) {
+		__m128d t;
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 		dst_256 = _mm256_set_epi8(
@@ -55,7 +71,6 @@ static void xor_256(uint8_t *dst, const uint8_t *src, size_t size)
 			 src[7],  src[6],  src[5],  src[4],  src[3],  src[2],
 			 src[1],  src[0]);
 #pragma GCC diagnostic pop
-		__m128d t;
 
 		dst_256 = _mm256_xor_si256(dst_256, src_256);
 
@@ -77,9 +92,100 @@ static void xor_256(uint8_t *dst, const uint8_t *src, size_t size)
 			(__attribute__((__may_alias__)) double *)&dst[24], t);
 #pragma GCC diagnostic pop
 	}
+	LC_FPU_DISABLE;
 
+	/*
+	 * As we skip the xor_64 alignment check, guarantee it at compile time.
+	 */
+	BUILD_BUG_ON(LC_XOR_AVX2_ALIGNMENT < sizeof(uint64_t));
+	xor_64_aligned(dst, src, size);
+}
+
+static inline void xor_256(uint8_t *dst, const uint8_t *src, size_t size)
+{
+	if (!aligned(src, LC_XOR_AVX2_ALIGNMENT - 1) ||
+	    !aligned(dst, LC_XOR_AVX2_ALIGNMENT - 1)) {
+		xor_64(dst, src, size);
+	} else {
+		xor_256_aligned(dst, src, size);
+	}
+}
+
+#elif (defined(LC_HOST_ARM32_NEON) || defined(LC_HOST_AARCH64)) &&             \
+      !defined(LINUX_KERNEL)
+
+/*
+ * The load of data into uint64x2_t requires 64 bit alignment, the store
+ * requires 64 bit alignment.
+ */
+#define LC_XOR_NEON_ALIGNMENT (sizeof(uint64_t))
+#define LC_XOR_ALIGNMENT(min) LC_XOR_MIN_ALIGNMENT(min, LC_XOR_NEON_ALIGNMENT)
+
+/*
+ * ARM Neon implementation of XOR (processing 128 bit chunks)
+ */
+/* This code cannot be compiled for the Linux kernel as of now */
+#include <arm_neon.h>
+#include "ext_headers_arm.h"
+static inline void xor_256_aligned(uint8_t *dst, const uint8_t *src,
+				   size_t size)
+{
+	uint64x2_t dst_128, src_128;
+
+	if (!aligned(src, sizeof(uint64x2_t) - 1) ||
+	    !aligned(dst, sizeof(uint64x2_t) - 1)) {
+		xor_64(dst, src, size);
+		return;
+	}
+
+	LC_NEON_ENABLE;
+	for (; size >= sizeof(src_128); size -= sizeof(src_128),
+					dst += sizeof(dst_128),
+					src += sizeof(src_128)) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
+		src_128 = vld1q_u64((uint64_t *)src);
+		dst_128 = vld1q_u64((uint64_t *)dst);
+#pragma GCC diagnostic pop
+
+		dst_128 = veorq_u64(dst_128, src_128);
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
+		vst1q_u64((uint64_t *)dst, dst_128);
+#pragma GCC diagnostic pop
+	}
+	LC_NEON_DISABLE;
+
+	/*
+	 * As we skip the xor_64 alignment check, guarantee it at compile time.
+	 */
+	BUILD_BUG_ON(LC_XOR_NEON_ALIGNMENT < sizeof(uint64_t));
+	xor_64_aligned(dst, src, size);
+}
+
+static inline void xor_256(uint8_t *dst, const uint8_t *src, size_t size)
+{
+	if (!aligned(src, LC_XOR_NEON_ALIGNMENT - 1) ||
+	    !aligned(dst, LC_XOR_NEON_ALIGNMENT - 1)) {
+		xor_64(dst, src, size);
+	} else {
+		xor_256_aligned(dst, src, size);
+	}
+}
+
+#else
+
+#define LC_XOR_ALIGNMENT(min) LC_XOR_MIN_ALIGNMENT(min, (sizeof(uint64_t)))
+
+static inline void xor_256(uint8_t *dst, const uint8_t *src, size_t size)
+{
 	xor_64(dst, src, size);
 }
+
+#endif
+
+
 
 #ifdef __cplusplus
 }

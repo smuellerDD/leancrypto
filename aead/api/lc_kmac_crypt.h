@@ -22,6 +22,8 @@
 
 #include "ext_headers.h"
 #include "lc_aead.h"
+#include "xor256.h"
+
 /*
  * This is the KMAC crypt cipher operation using the KMAC output as keystream
  */
@@ -45,9 +47,18 @@ struct lc_kc_cryptor {
  */
 #define LC_KC_KEYSTREAM_BLOCK LC_SHA3_256_SIZE_BLOCK
 
+#define LC_KMAC_CRYPT_ALIGNMENT LC_XOR_ALIGNMENT(LC_HASH_COMMON_ALIGNMENT)
+
+#define LC_ALIGN_KMAC_CRYPT_MASK(p)                                            \
+	LC_ALIGN_PTR_8(p, LC_ALIGNMENT_MASK(LC_KMAC_CRYPT_ALIGNMENT))
+
+/*
+ * One block LC_KMAC_CRYPT_ALIGNMENT is required to ensure the
+ * ->keystream pointer is aligned
+ */
 #define LC_KC_STATE_SIZE(x)                                                    \
 	(LC_KMAC_STATE_SIZE(x) + LC_KMAC_STATE_SIZE_REINIT(x) +                \
-	 LC_KC_KEYSTREAM_BLOCK)
+	 LC_KC_KEYSTREAM_BLOCK + LC_KMAC_CRYPT_ALIGNMENT)
 #define LC_KC_CTX_SIZE(x)                                                      \
 	(sizeof(struct lc_aead) + sizeof(struct lc_kc_cryptor) +               \
 	 LC_KC_STATE_SIZE(x))
@@ -55,16 +66,18 @@ struct lc_kc_cryptor {
 /* KMAC-based AEAD-algorithm */
 extern const struct lc_aead *lc_kmac_aead;
 
+/* Ensure that ->keystream is aligned to XOR alignment requirement */
 #define _LC_KC_SET_CTX(name, hashname)                                         \
 	_LC_KMAC_SET_CTX((&name->kmac), hashname, name,                        \
 			 (sizeof(struct lc_kc_cryptor)));                      \
 	_LC_KMAC_SET_CTX_REINIT((&name->auth_ctx), hashname, name,             \
 				(sizeof(struct lc_kc_cryptor) +                \
 				 LC_KMAC_STATE_SIZE(hashname)));               \
-	name->keystream = (uint8_t *)((uint8_t *)name +                        \
-				      (sizeof(struct lc_kc_cryptor) +          \
-				       LC_KMAC_STATE_SIZE(hashname) +          \
-				       LC_KMAC_STATE_SIZE_REINIT(hashname)))
+	name->keystream = LC_ALIGN_KMAC_CRYPT_MASK(                            \
+			   (uint8_t *)((uint8_t *)name +                       \
+				       (sizeof(struct lc_kc_cryptor) +         \
+					LC_KMAC_STATE_SIZE(hashname) +         \
+					LC_KMAC_STATE_SIZE_REINIT(hashname))))
 
 #define LC_KC_SET_CTX(name, hashname)                                          \
 	LC_AEAD_CTX(name, lc_kmac_aead);                                       \
@@ -98,7 +111,7 @@ int lc_kc_alloc(const struct lc_hash *hash, struct lc_aead_ctx **ctx);
 			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
 			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
 					  LC_KC_CTX_SIZE(hash),                     \
-					  LC_HASH_COMMON_ALIGNMENT);                \
+					  LC_KMAC_CRYPT_ALIGNMENT);                \
 	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;            \
 	LC_KC_SET_CTX(name, hash);                                                  \
 	_Pragma("GCC diagnostic pop")

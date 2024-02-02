@@ -272,7 +272,6 @@
 #include "lc_memcmp_secure.h"
 #include "math_helper.h"
 #include "visibility.h"
-#include "xor.h"
 
 #define LC_KC_AUTHENTICATION_KEY_SIZE (256 >> 3)
 
@@ -387,7 +386,7 @@ static void lc_kc_crypt(void *state, const uint8_t *in, uint8_t *out,
 			memcpy(out, in, todo);
 
 		/* Perform the encryption operation */
-		xor_64(out, kc->keystream + kc->keystream_ptr, todo);
+		xor_256(out, kc->keystream + kc->keystream_ptr, todo);
 
 		len -= todo;
 		in += todo;
@@ -536,7 +535,7 @@ LC_INTERFACE_FUNCTION(int, lc_kc_alloc, const struct lc_hash *hash,
 	if (!ctx)
 		return -EINVAL;
 
-	ret = lc_alloc_aligned((void **)&tmp, LC_MEM_COMMON_ALIGNMENT,
+	ret = lc_alloc_aligned((void **)&tmp, LC_KMAC_CRYPT_ALIGNMENT,
 			       LC_KC_CTX_SIZE(hash));
 	if (ret)
 		return -ret;

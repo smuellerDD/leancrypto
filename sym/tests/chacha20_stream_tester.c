@@ -17,10 +17,12 @@
  * DAMAGE.
  */
 
+#include "alignment.h"
 #include "conv_be_le.h"
 #include "lc_chacha20.h"
 #include "ret_checkers.h"
 #include "visibility.h"
+#include "xor256.h"
 
 static int chacha20_enc_selftest(void)
 {
@@ -48,7 +50,7 @@ static int chacha20_enc_selftest(void)
 		0x74, 0xa3, 0x5b, 0xe6, 0xb4, 0x0b, 0x8e, 0xed, 0xf2, 0x78,
 		0x5e, 0x42, 0x87, 0x4d
 	};
-	uint8_t res[sizeof(exp)];
+	uint8_t res[sizeof(exp)] __align(LC_XOR_ALIGNMENT(sizeof(uint64_t)));
 	int ret;
 	LC_SYM_CTX_ON_STACK(chacha20, lc_chacha20);
 

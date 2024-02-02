@@ -21,6 +21,8 @@ Changes 0.9.0-prerelease
 
 * fix: KMAC min MAC size is 32 bits
 
+* enhancement: use accelerated XOR for KMAC/cSHAKE AEAD
+
 Changes 0.8.0:
 
 * enhancement: add applications

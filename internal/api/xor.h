@@ -67,7 +67,6 @@ static inline void xor_32(uint8_t *dst, const uint8_t *src, size_t size)
 		xor_8(dst, src, size);
 }
 
-#ifdef __LP64__
 static inline void xor_64_aligned(uint8_t *dst, const uint8_t *src, size_t size)
 {
 	/*
@@ -80,12 +79,13 @@ static inline void xor_64_aligned(uint8_t *dst, const uint8_t *src, size_t size)
 	uint64_t *src_dword = (uint64_t *)src;
 #pragma GCC diagnostic pop
 
+#ifdef __LP64__
 	for (; size >= sizeof(*src_dword); size -= sizeof(*src_dword))
 		*dst_dword++ ^= *src_dword++;
+#endif /* __LP64__ */
 
 	xor_32_aligned((uint8_t *)dst_dword, (uint8_t *)src_dword, size);
 }
-#endif
 
 /**
  * @brief Perform XOR operation efficiently

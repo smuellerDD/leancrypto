@@ -322,7 +322,6 @@
 #include "math_helper.h"
 #include "small_stack_support.h"
 #include "visibility.h"
-#include "xor.h"
 
 #define LC_CC_AUTHENTICATION_KEY_SIZE (256 >> 3)
 #define LC_CC_CUSTOMIZATION_STRING "cSHAKE-AEAD crypt"
@@ -456,7 +455,7 @@ static void lc_cc_crypt(struct lc_cc_cryptor *cc, const uint8_t *in,
 			memcpy(out, in, todo);
 
 		/* Perform the encryption operation */
-		xor_64(out, cc->keystream + cc->keystream_ptr, todo);
+		xor_256(out, cc->keystream + cc->keystream_ptr, todo);
 
 		len -= todo;
 		in += todo;
@@ -588,7 +587,7 @@ LC_INTERFACE_FUNCTION(int, lc_cc_alloc, const struct lc_hash *hash,
 	struct lc_aead_ctx *tmp = NULL;
 	int ret;
 
-	ret = lc_alloc_aligned((void **)&tmp, LC_MEM_COMMON_ALIGNMENT,
+	ret = lc_alloc_aligned((void **)&tmp, LC_CSHAKE_CRYPT_ALIGNMENT,
 			       LC_CC_CTX_SIZE(hash));
 	if (ret)
 		return -ret;

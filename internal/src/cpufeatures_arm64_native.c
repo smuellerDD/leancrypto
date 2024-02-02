@@ -42,7 +42,7 @@
 #define ARM8_PMULL_FEATURE (UINT64_C(0x1) << 5)
 #define ARM8_AES_FEATURE (UINT64_C(0x11) << 4)
 
-static inline int arm_id_aa64isar0_el1_feature(void)
+static inline unsigned long arm_id_aa64isar0_el1_feature(void)
 {
 	unsigned long id_aa64isar0_el1_val = 0;
 

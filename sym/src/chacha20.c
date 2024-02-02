@@ -28,7 +28,7 @@
 #include "math_helper.h"
 #include "rotate.h"
 #include "visibility.h"
-#include "xor.h"
+#include "xor256.h"
 
 static void cc20_selftest(int *tested, const char *impl)
 {
@@ -230,7 +230,8 @@ static int cc20_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen)
 static void cc20_crypt(struct lc_sym_state *ctx, const uint8_t *in,
 		       uint8_t *out, size_t len)
 {
-	uint32_t keystream[LC_CC20_BLOCK_SIZE_WORDS] __align(sizeof(uint64_t));
+	uint32_t keystream[LC_CC20_BLOCK_SIZE_WORDS]
+				__align(LC_XOR_ALIGNMENT(sizeof(uint64_t)));
 
 	if (!ctx)
 		return;
@@ -243,7 +244,7 @@ static void cc20_crypt(struct lc_sym_state *ctx, const uint8_t *in,
 		if (in != out)
 			memcpy(out, in, todo);
 
-		xor_64(out, (uint8_t *)keystream, todo);
+		xor_256(out, (uint8_t *)keystream, todo);
 
 		len -= todo;
 		in += todo;
