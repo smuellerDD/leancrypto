@@ -75,8 +75,8 @@ static void xdrbg256_drng_selftest(int *tested, const char *impl)
 
 /*********************************** Helper ***********************************/
 
-static inline void xdrbg256_shake_final(struct lc_hash_ctx *shake_ctx,
-					uint8_t *digest, size_t digest_len)
+static inline void lc_xdrbg256_shake_final(struct lc_hash_ctx *shake_ctx,
+					   uint8_t *digest, size_t digest_len)
 {
 	lc_hash_set_digestsize(shake_ctx, digest_len);
 	lc_hash_final(shake_ctx, digest);
@@ -96,30 +96,44 @@ static void lc_xdrbg256_drng_encode(struct lc_hash_ctx *shake_ctx,
 				    const uint8_t n, const uint8_t *alpha,
 				    size_t alphalen)
 {
-	static const uint8_t byte = 0xff;
-	uint8_t encode[LC_XDRBG256_DRNG_KEYSIZE + 1];
-	LC_HASH_CTX_ON_STACK(enc_hash_ctx, LC_XDRBG256_DRNG_HASH_TYPE);
+	uint8_t encode;
 
 	/* Ensure the prerequisite hash size <= 84 holds. */
 	BUILD_BUG_ON(LC_XDRBG256_DRNG_KEYSIZE > LC_XDRBG256_DRNG_ENCODE_LENGTH);
 
-	if (alphalen < LC_XDRBG256_DRNG_KEYSIZE) {
-		/* The alpha is sufficiently small to avoid hashing */
+	/*
+	 * Only consider up to 84 left-most bytes of alpha. According to
+	 * the XDRBG specification appendix B:
+	 *
+	 * """
+	 * This encoding is efficient and flexible, but does require that the
+	 * additional input string is no longer than 84 bytes–a constraint that
+	 * seems very easy to manage in practice.
+	 *
+	 * For example, IPV6 addresses and GUIDs are 16 bytes long, Ethernet
+	 * addresses are 12 bytes long, and the most demanding requirement for
+	 * unique randomly-generated device identifiers can be met with a
+	 * 32-byte random value. This is the encoding we recommend for XDRBG.
+	 * """
+	 */
+	if (alphalen > 84)
+		alphalen = 84;
 
-		/* Encode the length. */
-		encode[0] = (uint8_t)((n * 85) + alphalen);
+	/* Encode the length. */
+	encode = (uint8_t)((n * 85) + alphalen);
 
-		/* Insert alpha and encode into the hash context. */
-		lc_hash_update(shake_ctx, alpha, alphalen);
-		lc_hash_update(shake_ctx, encode, 1);
+	/* Insert alpha and encode into the hash context. */
+	lc_hash_update(shake_ctx, alpha, alphalen);
+	lc_hash_update(shake_ctx, &encode, 1);
 
-		return;
-	}
-
+#if 0
 	/*
 	 * The alpha is larger than the allowed size - perform hashing of
 	 * alpha together with its size encoding.
 	 */
+	static const uint8_t byte = 0xff;
+	LC_HASH_CTX_ON_STACK(enc_hash_ctx, LC_XDRBG256_DRNG_HASH_TYPE);
+	uint8_t encode[LC_XDRBG256_DRNG_KEYSIZE + 1];
 
 	/* Hash alpha with the XOF. */
 	lc_hash_init(enc_hash_ctx);
@@ -136,6 +150,7 @@ static void lc_xdrbg256_drng_encode(struct lc_hash_ctx *shake_ctx,
 	 * h(alpha) || (n * (hash_length + 1) + hash_length)
 	 */
 	lc_hash_update(shake_ctx, encode, sizeof(encode));
+#endif
 
 	/*
 	 * Zeroization of encode is not considered to be necessary as alpha is
@@ -171,7 +186,7 @@ static void lc_xdrbg256_drng_fke_init_ctx(struct lc_xdrbg256_drng_state *state,
 	lc_xdrbg256_drng_encode(shake_ctx, 2, alpha, alphalen);
 
 	/* Generate the V to store in the state and overwrite V'. */
-	xdrbg256_shake_final(shake_ctx, state->v, LC_XDRBG256_DRNG_KEYSIZE);
+	lc_xdrbg256_shake_final(shake_ctx, state->v, LC_XDRBG256_DRNG_KEYSIZE);
 }
 
 /********************************** XDRB256 ***********************************/
@@ -211,7 +226,7 @@ static int lc_xdrbg256_drng_generate(void *_state, const uint8_t *alpha,
 					      alphalen);
 
 		/* Generate the requested amount of output bits */
-		xdrbg256_shake_final(shake_ctx, out, todo);
+		lc_xdrbg256_shake_final(shake_ctx, out, todo);
 
 		out += todo;
 		outlen -= todo;
@@ -272,7 +287,7 @@ static int lc_xdrbg256_drng_seed(void *_state, const uint8_t *seed,
 	lc_xdrbg256_drng_encode(shake_ctx, intially_seeded, alpha, alphalen);
 
 	/* Generate the V to store in the state and overwrite V'. */
-	xdrbg256_shake_final(shake_ctx, state->v, LC_XDRBG256_DRNG_KEYSIZE);
+	lc_xdrbg256_shake_final(shake_ctx, state->v, LC_XDRBG256_DRNG_KEYSIZE);
 
 	/* Clear the SHAKE state which is not needed any more. */
 	lc_hash_zero(shake_ctx);

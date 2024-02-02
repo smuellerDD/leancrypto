@@ -55,12 +55,10 @@ static int xdrbg256_drng_selftest(struct lc_rng_ctx *xdrbg256_ctx)
 		0x50, 0x1f, 0xc0, 0x48, 0x42, 0xb6, 0xea, 0x16, 0x4c, 0x50,
 		0x29, 0x12, 0xd0, 0x1c, 0x39, 0x9f, 0x79,
 	};
-	static const uint8_t byte = 0xff;
 	uint8_t act1[sizeof(exp1)] __align(sizeof(uint32_t));
 	uint8_t compare1[LC_XDRBG256_DRNG_KEYSIZE + sizeof(exp1)];
 	int ret = 0;
 	uint8_t encode;
-	LC_HASH_CTX_ON_STACK(enc_hash_ctx, lc_shake256);
 	LC_HASH_CTX_ON_STACK(xdrbg256_compare, lc_shake256);
 
 	/* Check the XDRBG operation */
@@ -95,11 +93,15 @@ static int xdrbg256_drng_selftest(struct lc_rng_ctx *xdrbg256_ctx)
 
 	lc_rng_zero(xdrbg256_ctx);
 
+#if 0
 	/*
 	 * Verify the seeding operation to generate proper state with large
 	 * alpha.
 	 */
 	/* Seed the XDRBG with an alpha > 84 bytes */
+	static const uint8_t byte = 0xff;
+	LC_HASH_CTX_ON_STACK(enc_hash_ctx, lc_shake256);
+
 	lc_rng_seed(xdrbg256_ctx, seed, sizeof(seed), exp1, sizeof(exp1));
 	/* Prepare the state with native SHAKE operations */
 	lc_hash_init(xdrbg256_compare);
@@ -120,6 +122,8 @@ static int xdrbg256_drng_selftest(struct lc_rng_ctx *xdrbg256_ctx)
 			  "SHAKE DRNG state generation with large alpha");
 
 	lc_rng_zero(xdrbg256_ctx);
+#endif
+
 	lc_hash_zero(xdrbg256_compare);
 
 	return ret;
