@@ -56,20 +56,22 @@ static inline void xor_256_aligned(uint8_t *dst, const uint8_t *src,
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
-		dst_256 = _mm256_set_epi8(
-			dst[31], dst[30], dst[29], dst[28], dst[27], dst[26],
-			dst[25], dst[24], dst[23], dst[22], dst[21], dst[20],
-			dst[19], dst[18], dst[17], dst[16], dst[15], dst[14],
-			dst[13], dst[12], dst[11], dst[10],  dst[9],  dst[8],
-			 dst[7],  dst[6],  dst[5],  dst[4],  dst[3],  dst[2],
-			 dst[1],  dst[0]);
-		src_256 = _mm256_set_epi8(
-			src[31], src[30], src[29], src[28], src[27], src[26],
-			src[25], src[24], src[23], src[22], src[21], src[20],
-			src[19], src[18], src[17], src[16], src[15], src[14],
-			src[13], src[12], src[11], src[10],  src[9],  src[8],
-			 src[7],  src[6],  src[5],  src[4],  src[3],  src[2],
-			 src[1],  src[0]);
+		dst_256 = _mm256_set_epi8(dst[31], dst[30], dst[29], dst[28],
+					  dst[27], dst[26], dst[25], dst[24],
+					  dst[23], dst[22], dst[21], dst[20],
+					  dst[19], dst[18], dst[17], dst[16],
+					  dst[15], dst[14], dst[13], dst[12],
+					  dst[11], dst[10], dst[9], dst[8],
+					  dst[7], dst[6], dst[5], dst[4],
+					  dst[3], dst[2], dst[1], dst[0]);
+		src_256 = _mm256_set_epi8(src[31], src[30], src[29], src[28],
+					  src[27], src[26], src[25], src[24],
+					  src[23], src[22], src[21], src[20],
+					  src[19], src[18], src[17], src[16],
+					  src[15], src[14], src[13], src[12],
+					  src[11], src[10], src[9], src[8],
+					  src[7], src[6], src[5], src[4],
+					  src[3], src[2], src[1], src[0]);
 #pragma GCC diagnostic pop
 
 		dst_256 = _mm256_xor_si256(dst_256, src_256);
@@ -81,15 +83,15 @@ static inline void xor_256_aligned(uint8_t *dst, const uint8_t *src,
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
 		t = _mm_castsi128_pd(_mm256_castsi256_si128(dst_256));
-		_mm_storel_pd(
-			(__attribute__((__may_alias__)) double *)&dst[0], t);
-		_mm_storeh_pd(
-			(__attribute__((__may_alias__)) double *)&dst[8], t);
+		_mm_storel_pd((__attribute__((__may_alias__)) double *)&dst[0],
+			      t);
+		_mm_storeh_pd((__attribute__((__may_alias__)) double *)&dst[8],
+			      t);
 		t = _mm_castsi128_pd(_mm256_extracti128_si256(dst_256, 1));
-		_mm_storel_pd(
-			(__attribute__((__may_alias__)) double *)&dst[16], t);
-		_mm_storeh_pd(
-			(__attribute__((__may_alias__)) double *)&dst[24], t);
+		_mm_storel_pd((__attribute__((__may_alias__)) double *)&dst[16],
+			      t);
+		_mm_storeh_pd((__attribute__((__may_alias__)) double *)&dst[24],
+			      t);
 #pragma GCC diagnostic pop
 	}
 	LC_FPU_DISABLE;
@@ -112,7 +114,7 @@ static inline void xor_256(uint8_t *dst, const uint8_t *src, size_t size)
 }
 
 #elif (defined(LC_HOST_ARM32_NEON) || defined(LC_HOST_AARCH64)) &&             \
-      !defined(LINUX_KERNEL)
+	!defined(LINUX_KERNEL)
 
 /*
  * The load of data into uint64x2_t requires 64 bit alignment, the store
@@ -184,8 +186,6 @@ static inline void xor_256(uint8_t *dst, const uint8_t *src, size_t size)
 }
 
 #endif
-
-
 
 #ifdef __cplusplus
 }

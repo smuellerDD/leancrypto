@@ -230,8 +230,8 @@ static int cc20_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen)
 static void cc20_crypt(struct lc_sym_state *ctx, const uint8_t *in,
 		       uint8_t *out, size_t len)
 {
-	uint32_t keystream[LC_CC20_BLOCK_SIZE_WORDS]
-				__align(LC_XOR_ALIGNMENT(sizeof(uint64_t)));
+	uint32_t keystream[LC_CC20_BLOCK_SIZE_WORDS] __align(
+		LC_XOR_ALIGNMENT(sizeof(uint64_t)));
 
 	if (!ctx)
 		return;

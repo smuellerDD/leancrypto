@@ -74,10 +74,10 @@ extern const struct lc_aead *lc_kmac_aead;
 				(sizeof(struct lc_kc_cryptor) +                \
 				 LC_KMAC_STATE_SIZE(hashname)));               \
 	name->keystream = LC_ALIGN_KMAC_CRYPT_MASK(                            \
-			   (uint8_t *)((uint8_t *)name +                       \
-				       (sizeof(struct lc_kc_cryptor) +         \
-					LC_KMAC_STATE_SIZE(hashname) +         \
-					LC_KMAC_STATE_SIZE_REINIT(hashname))))
+		(uint8_t *)((uint8_t *)name +                                  \
+			    (sizeof(struct lc_kc_cryptor) +                    \
+			     LC_KMAC_STATE_SIZE(hashname) +                    \
+			     LC_KMAC_STATE_SIZE_REINIT(hashname))))
 
 #define LC_KC_SET_CTX(name, hashname)                                          \
 	LC_AEAD_CTX(name, lc_kmac_aead);                                       \
@@ -111,7 +111,7 @@ int lc_kc_alloc(const struct lc_hash *hash, struct lc_aead_ctx **ctx);
 			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
 			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
 					  LC_KC_CTX_SIZE(hash),                     \
-					  LC_KMAC_CRYPT_ALIGNMENT);                \
+					  LC_KMAC_CRYPT_ALIGNMENT);                 \
 	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;            \
 	LC_KC_SET_CTX(name, hash);                                                  \
 	_Pragma("GCC diagnostic pop")

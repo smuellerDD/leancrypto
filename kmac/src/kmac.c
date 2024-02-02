@@ -163,8 +163,8 @@ LC_INTERFACE_FUNCTION(void, lc_kmac_update, struct lc_kmac_ctx *kmac_ctx,
 	lc_hash_update(hash_ctx, in, inlen);
 }
 
-static void lc_kmac_final_internal(struct lc_kmac_ctx *kmac_ctx,
-				   uint8_t *mac, size_t maclen)
+static void lc_kmac_final_internal(struct lc_kmac_ctx *kmac_ctx, uint8_t *mac,
+				   size_t maclen)
 {
 	struct lc_hash_ctx *hash_ctx;
 	uint8_t buf[sizeof(size_t) + 1];
@@ -203,7 +203,6 @@ static void lc_kmac_final_xof_internal(struct lc_kmac_ctx *kmac_ctx,
 	}
 	lc_cshake_final(hash_ctx, mac, maclen);
 }
-
 
 LC_INTERFACE_FUNCTION(void, lc_kmac_final_xof, struct lc_kmac_ctx *kmac_ctx,
 		      uint8_t *mac, size_t maclen)
