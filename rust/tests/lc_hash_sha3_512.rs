@@ -28,19 +28,20 @@ fn lc_rust_hash_sha3_512_alloc()
 	/* Define the hash_ctx pointer */
 	let mut hash_ctx: *mut lc_hash_ctx = ptr::null_mut();
 
-	/* Allocate the hash context */
-	let result = lc_hash_alloc(lc_sha3_512, &mut hash_ctx);
-	if result != 0 {
-		println!("allocation error: {result}");
-	}
-
-	lc_hash_init(hash_ctx);
-	lc_hash_update(hash_ctx, msg_512_ptr, msg_512.len());
-
 	unsafe {
+		/* Allocate the hash context */
+		let result = lc_hash_alloc(lc_sha3_512, &mut hash_ctx);
+		if result != 0 {
+			println!("allocation error: {result}");
+		}
+
+		lc_hash_init(hash_ctx);
+		lc_hash_update(hash_ctx, msg_512_ptr, msg_512.len());
+
 		lc_hash_final(hash_ctx, act.as_mut_ptr());
+
+		lc_hash_zero_free(hash_ctx);
 	}
-	lc_hash_zero_free(hash_ctx);
 
 	assert_eq!(&act[..], &exp_512[..]);
 }

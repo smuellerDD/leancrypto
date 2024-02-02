@@ -73,15 +73,15 @@ fn lc_rust_aes_dec_one(key: &[u8], data: &[u8])
 	let mut ctx: *mut lc_sym_ctx = ptr::null_mut();
 	let mut act: [u8; 64] = [0; 64];
 
-	/* Allocate the hash context */
-	let result = lc_sym_alloc(lc_aes_cbc, &mut ctx);
-	if result != 0 {
-		println!("allocation error: {result}");
-	}
-
-	lc_sym_init(ctx);
-
 	unsafe {
+		/* Allocate the hash context */
+		let result = lc_sym_alloc(lc_aes_cbc, &mut ctx);
+		if result != 0 {
+			println!("allocation error: {result}");
+		}
+
+		lc_sym_init(ctx);
+
 		if lc_sym_setkey(ctx, key.as_ptr(), key.len()) != 0 {
 			println!("AES CBC decrypt setkey failed");
 		}
@@ -92,9 +92,9 @@ fn lc_rust_aes_dec_one(key: &[u8], data: &[u8])
 
 		lc_sym_decrypt(ctx, data.as_ptr(), act.as_mut_ptr(),
 			       data.len());
-	}
 
-	lc_sym_zero_free(ctx);
+		lc_sym_zero_free(ctx);
+	}
 
 	assert_eq!(&act[..], &dec_exp[..]);
 
@@ -174,15 +174,15 @@ fn lc_rust_aes_enc_one(key: &[u8], outdata: &[u8])
 	/* Define the ctx pointer */
 	let mut ctx: *mut lc_sym_ctx = ptr::null_mut();
 
-	/* Allocate the hash context */
-	let result = lc_sym_alloc(lc_aes_cbc, &mut ctx);
-	if result != 0 {
-		println!("allocation error: {result}");
-	}
-
-	lc_sym_init(ctx);
-
 	unsafe {
+		/* Allocate the hash context */
+		let result = lc_sym_alloc(lc_aes_cbc, &mut ctx);
+		if result != 0 {
+			println!("allocation error: {result}");
+		}
+
+		lc_sym_init(ctx);
+
 		if lc_sym_setkey(ctx, key.as_ptr(), key.len()) != 0 {
 			println!("AES CBC decrypt setkey failed");
 		}
@@ -193,9 +193,9 @@ fn lc_rust_aes_enc_one(key: &[u8], outdata: &[u8])
 
 		lc_sym_encrypt(ctx, indata.as_ptr(), indata.as_mut_ptr(),
 			       indata.len());
-	}
 
-	lc_sym_zero_free(ctx);
+		lc_sym_zero_free(ctx);
+	}
 
 	assert_eq!(&indata[..], &outdata[..]);
 }
