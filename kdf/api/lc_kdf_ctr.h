@@ -118,7 +118,7 @@ extern const struct lc_rng *lc_kdf_ctr_rng;
  * @brief Allocate stack memory for the CTR_KDF DRNG context
  *
  * @param [in] name Name of the stack variable
- * @param [in] hashname Reference to lc_hash implementation
+ * @param [in] hashname Reference to lc_hash implementation used for CTR KDF
  */
 #define LC_CTR_KDF_DRNG_CTX_ON_STACK(name, hashname)                                \
 	_Pragma("GCC diagnostic push")                                              \
@@ -135,6 +135,7 @@ extern const struct lc_rng *lc_kdf_ctr_rng;
  * @brief Allocation of a Counter KDF DRNG context
  *
  * @param [out] state Counter KDF DRNG context allocated by the function
+ * @param [in] hash Reference to lc_hash implementation used for CTR KDF
  *
  * The cipher handle including its memory is allocated with this function.
  *

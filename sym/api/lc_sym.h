@@ -91,13 +91,26 @@ struct lc_sym_ctx {
 	_LC_SYM_SET_CTX(name, symname, name, sizeof(struct lc_sym_ctx))
 
 /**
+ * Concept of symmetric algorithms in leancrypto
+ *
+ * All symmetric can be used with the API calls documented below. However,
+ * the allocation part is symmetric-algorithm-specific. Thus, perform the
+ * following steps
+ *
+ * 1. Allocation: Use the stack or heap allocation functions documented in
+ *    lc_aes.h, lc_chacha20.h.
+ *
+ * 2. Use the returned cipher handle with the API calls below.
+ */
+
+
+/**
  * @brief Initialize symmetric context
  *
  * @param [in] sym_ctx Reference to sym context implementation to be used to
  *		       perform sym calculation with.
  *
- * The caller must provide an allocated sym_ctx. This can be achieved by
- * using LCSYM_CTX_ON_STACK or by using sym_alloc.
+ * The caller must provide an allocated sym_ctx.
  */
 static inline void lc_sym_init(struct lc_sym_ctx *ctx)
 {

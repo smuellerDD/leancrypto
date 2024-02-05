@@ -58,8 +58,8 @@ struct lc_aead_ctx {
 /**
  * Concept of AEAD algorithms in leancrypto
  *
- * All RNGs can be used with the API calls documented below. However,
- * the allocation part is AEAD-algorhtm-specific. Thus, perform the following
+ * All AEAD algorithms can be used with the API calls documented below. However,
+ * the allocation part is AEAD-algorithm-specific. Thus, perform the following
  * steps
  *
  * 1. Allocation: Use the stack or heap allocation functions documented in

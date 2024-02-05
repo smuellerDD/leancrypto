@@ -203,7 +203,7 @@ extern const struct lc_rng *lc_hkdf_rng;
  * @brief Allocate stack memory for the HKDF DRNG context
  *
  * @param [in] name Name of the stack variable
- * @param [in] hashname Reference to lc_hash implementation
+ * @param [in] hashname Reference to lc_hash implementation used for HKDF
  */
 #define LC_HKDF_DRNG_CTX_ON_STACK(name, hashname)                                   \
 	_Pragma("GCC diagnostic push")                                              \
@@ -220,6 +220,7 @@ extern const struct lc_rng *lc_hkdf_rng;
  * @brief Allocation of a HKDF DRNG context
  *
  * @param [out] state HKDF DRNG context allocated by the function
+ * @param [in] hash Reference to lc_hash implementation used for HKDF
  *
  * The cipher handle including its memory is allocated with this function.
  *

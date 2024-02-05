@@ -96,6 +96,18 @@ struct lc_hash_ctx {
 	_LC_HASH_SET_CTX(name, hashname, name, sizeof(struct lc_hash_ctx))
 
 /**
+ * Concept of hashes in leancrypto
+ *
+ * All hashes can be used with the API calls documented below. However,
+ * the allocation part is hash-specific. Thus, perform the following steps
+ *
+ * 1. Allocation: Use the stack or heap allocation functions documented in
+ *    lc_cshake256.h, lc_sha3.h, lc_sha256.h, lc_sha512.h.
+ *
+ * 2. Use the returned cipher handle with the API calls below.
+ */
+
+/**
  * @brief Initialize hash context
  *
  * @param [in] hash_ctx Reference to hash context implementation to be used to
@@ -139,9 +151,7 @@ static inline void lc_hash_update(struct lc_hash_ctx *hash_ctx,
  * @brief Calculate message digest
  *
  * For SHAKE, it is permissible to calculate the final digest in chunks by
- * invoking the message digest calculation multiple times. Note, as the
- * digest calculation operates block-wise, you MUST operate the message digest
- * calculation also block-wise (or multiples of blocks). The following code
+ * invoking the message digest calculation multiple times. The following code
  * example illustrates it:
  *
  * ```
@@ -149,7 +159,8 @@ static inline void lc_hash_update(struct lc_hash_ctx *hash_ctx,
  *
  * lc_hash_init(ctx);
  * lc_hash_update(ctx, msg, msg_len);
- * lc_hash_set_digestsize(ctx, LC_SHA3_256_SIZE_BLOCK);
+ * // Set an arbitrary digest size as needed
+ * lc_hash_set_digestsize(ctx, 42);
  * for (len = outlen; len > 0;
  *      len -= lc_hash_digestsize(ctx),
  *      out += lc_hash_digestsize(ctx)) {
@@ -196,6 +207,12 @@ static inline void lc_hash_set_digestsize(struct lc_hash_ctx *hash_ctx,
 		hash->set_digestsize(hash_ctx->hash_state, digestsize);
 }
 
+/**
+ * @brief Get the size of the message digest
+ *
+ * @param [in] hash_ctx Reference to hash context implementation to be used to
+ *			perform hash calculation with.
+ */
 static inline size_t lc_hash_digestsize(struct lc_hash_ctx *hash_ctx)
 {
 	const struct lc_hash *hash;
@@ -207,6 +224,13 @@ static inline size_t lc_hash_digestsize(struct lc_hash_ctx *hash_ctx)
 	return hash->get_digestsize(hash_ctx->hash_state);
 }
 
+/**
+ * @brief Get the block size of the message digest (or the "rate" in terms of
+ *	  Keccak-based algorithms)
+ *
+ * @param [in] hash_ctx Reference to hash context implementation to be used to
+ *			perform hash calculation with.
+ */
 static inline unsigned int lc_hash_blocksize(struct lc_hash_ctx *hash_ctx)
 {
 	const struct lc_hash *hash;
@@ -218,6 +242,12 @@ static inline unsigned int lc_hash_blocksize(struct lc_hash_ctx *hash_ctx)
 	return hash->blocksize;
 }
 
+/**
+ * @brief Get the context size of the message digest implementation
+ *
+ * @param [in] hash_ctx Reference to hash context implementation to be used to
+ *			perform hash calculation with.
+ */
 static inline unsigned int lc_hash_ctxsize(struct lc_hash_ctx *hash_ctx)
 {
 	const struct lc_hash *hash;
