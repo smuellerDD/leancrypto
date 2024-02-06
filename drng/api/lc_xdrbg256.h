@@ -61,9 +61,9 @@ extern const struct lc_rng *lc_xdrbg256_drng;
 	_Pragma("GCC diagnostic pop")
 
 /**
- * @brief Allocation of a CSHAKE DRNG context
+ * @brief Allocation of a XDRBG256 DRNG context
  *
- * @param [out] state CSHAKE DRNG context allocated by the function
+ * @param [out] state XDRBG256 DRNG context allocated by the function
  *
  * The cipher handle including its memory is allocated with this function.
  *
