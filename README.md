@@ -136,7 +136,7 @@ Leancrypto offers various cryptographic algorithms:
 
   * SP800-90A Hash and HMAC DRBG
 
-  * ChaCha20-based PRNG - see https://www.chronox.de/lrng.html for specification
+  * ChaCha20-based PRNG - see https://www.chronox.de/lrng for specification
 
 * Message Digest algorithms
 
