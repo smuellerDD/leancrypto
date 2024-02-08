@@ -7,6 +7,4 @@
   compiled for target host ARMv7 - at the moment compiling on ARMv6 fails
   because the Neon code is compiled (which should not be compiled)
 
-- poly_compress_avx does not work when compiled for Linux kernel - it works with current compilers (see change 0b0bf07b5f7c0d7d623087212883c427476eefef, but older compilers still fail this code
-
 - check RISCV-64 Keccak implementation

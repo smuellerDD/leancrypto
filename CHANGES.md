@@ -23,7 +23,7 @@ Changes 0.9.0-prerelease
 
 * enhancement: use accelerated XOR for KMAC/cSHAKE AEAD
 
-* fix: enable poly_compress_avx for Linux kernel compilation
+* fix: enable poly_compress_avx for Linux kernel compilation when GCC >= 13 is present
 
 Changes 0.8.0:
 
