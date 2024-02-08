@@ -238,9 +238,12 @@ ccflags-y			:= -I$(PWD) -DLINUX_KERNEL -DLC_MEM_ON_HEAP    \
 				   -DMAJVERSION=0 -DMINVERSION=9 -DPATCHLEVEL=0
 
 ifdef CONFIG_X86_64
-ccflags-y			+= -DLC_HOST_X86_64
+ccflags-y			+= -DLC_HOST_X86_64			       \
+				    -mavx2 -mbmi2 -mpopcnt		       \
+				    -Wno-unused-command-line-argument
 else ifdef CONFIG_ARM64
-ccflags-y			+= -DLC_HOST_AARCH64
+ccflags-y			+= -DLC_HOST_AARCH64			       \
+				   -march=armv8-a+simd -Wno-unused-result
 else ifneq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
 ccflags-y			+= -DLC_HOST_RISCV64
 endif
@@ -896,7 +899,7 @@ ifdef CONFIG_ARM64
 asflags-$(CONFIG_LEANCRYPTO_AES)					       \
 				+= -march=armv8-a+crypto
 leancrypto-$(CONFIG_LEANCRYPTO_AES)					       \
-				+= ../sym/src/asm/ARMv8/aes_armv8_ce.o\
+				+= ../sym/src/asm/ARMv8/aes_armv8_ce.o	       \
 				   ../sym/src/aes_block_armce_v8.o
 else
 leancrypto-$(CONFIG_LEANCRYPTO_AES)					       \

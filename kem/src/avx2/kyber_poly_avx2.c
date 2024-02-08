@@ -34,9 +34,6 @@
 #error "AVX2 support for Kyber mode 4 only"
 #endif
 
-//TODO remove from kernel code
-void poly_compress(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES],
-		   const poly *restrict a);
 /**
  * @brief poly_compress
  *
@@ -51,9 +48,6 @@ void poly_compress(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES],
 void poly_compress_avx(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES],
 		       const poly *restrict a)
 {
-#ifdef LINUX_KERNEL
-	poly_compress(r, a);
-#else /* LINUX_KERNEL */
 	unsigned int i;
 	__m256i f0, f1;
 	__m128i t0, t1;
@@ -61,7 +55,6 @@ void poly_compress_avx(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES],
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
 	/* Due to const, the variables cannot be defined before */
-	LC_FPU_ENABLE;
 	const __m256i v = _mm256_load_si256(&kyber_qdata.vec[_16XV / 16]);
 	const __m256i shift1 = _mm256_set1_epi16(1 << 10);
 	const __m256i mask = _mm256_set1_epi16(31);
@@ -74,6 +67,7 @@ void poly_compress_avx(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES],
 				-1, 4, 3, 2, 1, 0);
 #pragma GCC diagnostic pop
 
+	LC_FPU_ENABLE;
 	for (i = 0; i < LC_KYBER_N / 32; i++) {
 		f0 = _mm256_load_si256(&a->vec[2 * i + 0]);
 		f1 = _mm256_load_si256(&a->vec[2 * i + 1]);
@@ -98,7 +92,6 @@ void poly_compress_avx(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES],
 		memcpy(&r[20 * i + 16], &t1, 4);
 	}
 	LC_FPU_DISABLE;
-#endif /* LINUX_KERNEL */
 }
 
 /**
@@ -122,7 +115,6 @@ void poly_decompress_avx(poly *restrict r,
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
 	/* Due to const, the variables cannot be defined before */
-	LC_FPU_ENABLE;
 	const __m256i q = _mm256_load_si256(&kyber_qdata.vec[_16XQ / 16]);
 	const __m256i shufbidx =
 		_mm256_set_epi8(9, 9, 9, 8, 8, 8, 8, 7, 7, 6, 6, 6, 6, 5, 5, 5,
@@ -135,6 +127,7 @@ void poly_decompress_avx(poly *restrict r,
 				 512, 64, 8, 256, 32, 1024);
 #pragma GCC diagnostic pop
 
+	LC_FPU_ENABLE;
 	for (i = 0; i < LC_KYBER_N / 16; i++) {
 		t = _mm_loadl_epi64((__m128i_u *)&a[10 * i + 0]);
 		memcpy(&ti, &a[10 * i + 8], 2);
@@ -168,7 +161,6 @@ void poly_frommsg_avx(poly *restrict r,
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
 	/* Due to const, the variables cannot be defined before */
-	LC_FPU_ENABLE;
 	const __m256i shift =
 		_mm256_broadcastsi128_si256(_mm_set_epi32(0, 1, 2, 3));
 	const __m256i idx = _mm256_broadcastsi128_si256(_mm_set_epi8(
@@ -205,6 +197,7 @@ void poly_frommsg_avx(poly *restrict r,
 	_mm256_store_si256(&r->vec[8 + 2 * i + 1], g3)
 
 	f = _mm256_loadu_si256((__m256i_u *)msg);
+	LC_FPU_ENABLE;
 	FROMMSG64(0);
 	FROMMSG64(1);
 	FROMMSG64(2);
@@ -232,11 +225,11 @@ void poly_tomsg_avx(uint8_t msg[LC_KYBER_INDCPA_MSGBYTES],
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
 	/* Due to const, the variables cannot be defined before */
-	LC_FPU_ENABLE;
 	const __m256i hq = _mm256_set1_epi16((LC_KYBER_Q - 1) / 2);
 	const __m256i hhq = _mm256_set1_epi16((LC_KYBER_Q - 1) / 4);
 #pragma GCC diagnostic pop
 
+	LC_FPU_ENABLE;
 	for (i = 0; i < LC_KYBER_N / 32; i++) {
 		f0 = _mm256_load_si256(&a->vec[2 * i + 0]);
 		f1 = _mm256_load_si256(&a->vec[2 * i + 1]);
