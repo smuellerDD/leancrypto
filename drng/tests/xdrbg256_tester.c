@@ -18,6 +18,7 @@
  */
 
 #include "alignment.h"
+#include "build_bug_on.h"
 #include "compare.h"
 #include "lc_xdrbg256.h"
 #include "visibility.h"
@@ -55,7 +56,14 @@ static int xdrbg256_drng_selftest(struct lc_rng_ctx *xdrbg256_ctx)
 		0x50, 0x1f, 0xc0, 0x48, 0x42, 0xb6, 0xea, 0x16, 0x4c, 0x50,
 		0x29, 0x12, 0xd0, 0x1c, 0x39, 0x9f, 0x79,
 	};
+	static const uint8_t exp83[] = {
+		0x39, 0x2b, 0x18, 0x96, 0x45, 0x81, 0x86, 0x84, 0xcf
+	};
+	static const uint8_t exp84[] = {
+		0xf0, 0x85, 0xd6, 0xc8, 0xd1, 0x76, 0xd7, 0x12, 0x39
+	};
 	uint8_t act1[sizeof(exp1)] __align(sizeof(uint32_t));
+	uint8_t act2[sizeof(exp83)] __align(sizeof(uint32_t));
 	uint8_t compare1[LC_XDRBG256_DRNG_KEYSIZE + sizeof(exp1)];
 	int ret = 0;
 	uint8_t encode;
@@ -90,6 +98,70 @@ static int xdrbg256_drng_selftest(struct lc_rng_ctx *xdrbg256_ctx)
 	lc_hash_final(xdrbg256_compare, compare1);
 	ret += lc_compare(compare1 + LC_XDRBG256_DRNG_KEYSIZE, exp1,
 			  sizeof(exp1), "SHAKE DRNG verification");
+
+	lc_rng_zero(xdrbg256_ctx);
+
+	/*
+	 * Verify the generate operation with additional information of 83
+	 * bytes.
+	 */
+	BUILD_BUG_ON(sizeof(exp1) < 85);
+	lc_rng_seed(xdrbg256_ctx, seed, sizeof(seed), NULL, 0);
+	lc_rng_generate(xdrbg256_ctx, exp1, 83, act2, sizeof(act2));
+	ret += lc_compare(act2, exp83, sizeof(act2),
+			  "SHAKE DRNG with alpha 83 bytes");
+	lc_rng_zero(xdrbg256_ctx);
+
+	/*
+	 * Verify the generate operation with additional information of 84
+	 * bytes.
+	 */
+	lc_rng_seed(xdrbg256_ctx, seed, sizeof(seed), NULL, 0);
+	lc_rng_generate(xdrbg256_ctx, exp1, 84, act2, sizeof(act2));
+	ret += lc_compare(act2, exp84, sizeof(act2),
+			  "SHAKE DRNG with alpha 84 bytes");
+	lc_rng_zero(xdrbg256_ctx);
+
+	/*
+	 * Verify the generate operation with additional information of 85
+	 * bytes to be identical to 84 bytes due to the truncation of the
+	 * additional data.
+	 */
+	lc_rng_seed(xdrbg256_ctx, seed, sizeof(seed), NULL, 0);
+	lc_rng_generate(xdrbg256_ctx, exp1, 85, act2, sizeof(act2));
+	ret += lc_compare(act2, exp84, sizeof(act2),
+			  "SHAKE DRNG with alpha 85 bytes");
+	lc_rng_zero(xdrbg256_ctx);
+
+	/* Verify the generate operation with additional data */
+	lc_hash_init(xdrbg256_compare);
+
+	/* Verify: Seeding operation of the DRBG */
+	lc_hash_update(xdrbg256_compare, seed, sizeof(seed));
+	encode = 0;
+	lc_hash_update(xdrbg256_compare, &encode, sizeof(encode));
+
+	/* Verify: Now get the key for the next operation */
+	lc_hash_set_digestsize(xdrbg256_compare, LC_XDRBG256_DRNG_KEYSIZE);
+	lc_hash_final(xdrbg256_compare, compare1);
+
+	lc_hash_init(xdrbg256_compare);
+	/* Verify: Generate operation of the DRBG: Insert key */
+	lc_hash_update(xdrbg256_compare, compare1, LC_XDRBG256_DRNG_KEYSIZE);
+	/* Verify: Generate operation of the DRBG: Insert alpha of 84 bytes */
+	lc_hash_update(xdrbg256_compare, exp1, 84);
+
+	encode = 2 * 85 + 84;
+	/* Verify: Generate operation of the DRBG: n */
+	lc_hash_update(xdrbg256_compare, &encode, sizeof(encode));
+
+	/* Verify: Generate operation of the DRBG: generate data */
+	lc_hash_set_digestsize(xdrbg256_compare,
+			       LC_XDRBG256_DRNG_KEYSIZE + sizeof(act2));
+	lc_hash_final(xdrbg256_compare, compare1);
+	ret += lc_compare(compare1 + LC_XDRBG256_DRNG_KEYSIZE, exp84,
+			  sizeof(exp84),
+			  "SHAKE DRNG with alpha 84 bytes verification");
 
 	lc_rng_zero(xdrbg256_ctx);
 
