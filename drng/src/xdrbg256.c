@@ -84,6 +84,7 @@ static inline void lc_xdrbg256_shake_final(struct lc_hash_ctx *shake_ctx,
 
 /* Maximum size of the input data to calculate the encode value */
 #define LC_XDRBG256_DRNG_ENCODE_LENGTH 84
+#define LC_XDRBG256_DRNG_ENCODE_N(x) (x * 85)
 #define LC_XDRBG256_DRNG_HASH_TYPE lc_shake256
 
 /*
@@ -120,7 +121,7 @@ static void lc_xdrbg256_drng_encode(struct lc_hash_ctx *shake_ctx,
 		alphalen = 84;
 
 	/* Encode the length. */
-	encode = (uint8_t)((n * 85) + alphalen);
+	encode = (uint8_t)(n + alphalen);
 
 	/* Insert alpha and encode into the hash context. */
 	lc_hash_update(shake_ctx, alpha, alphalen);
@@ -183,7 +184,8 @@ static void lc_xdrbg256_drng_fke_init_ctx(struct lc_xdrbg256_drng_state *state,
 	lc_hash_update(shake_ctx, state->v, LC_XDRBG256_DRNG_KEYSIZE);
 
 	/* Insert alpha into the SHAKE state together with its encoding. */
-	lc_xdrbg256_drng_encode(shake_ctx, 2, alpha, alphalen);
+	lc_xdrbg256_drng_encode(shake_ctx, LC_XDRBG256_DRNG_ENCODE_N(2),
+				alpha, alphalen);
 
 	/* Generate the V to store in the state and overwrite V'. */
 	lc_xdrbg256_shake_final(shake_ctx, state->v, LC_XDRBG256_DRNG_KEYSIZE);
@@ -284,7 +286,9 @@ static int lc_xdrbg256_drng_seed(void *_state, const uint8_t *seed,
 	lc_hash_update(shake_ctx, seed, seedlen);
 
 	/* Insert alpha into the SHAKE state together with its encoding. */
-	lc_xdrbg256_drng_encode(shake_ctx, intially_seeded, alpha, alphalen);
+	lc_xdrbg256_drng_encode(shake_ctx,
+				LC_XDRBG256_DRNG_ENCODE_N(intially_seeded),
+				alpha, alphalen);
 
 	/* Generate the V to store in the state and overwrite V'. */
 	lc_xdrbg256_shake_final(shake_ctx, state->v, LC_XDRBG256_DRNG_KEYSIZE);
