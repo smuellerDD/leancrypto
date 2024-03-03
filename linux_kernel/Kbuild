@@ -487,6 +487,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_XDRBG256_DRNG)				       \
 				   leancrypto_kernel_rng.o
 ifdef CONFIG_LEANCRYPTO_XDRBG256_DRNG
 ccflags-y			+= -DCONFIG_LEANCRYPTO_XDRBG256_DRNG
+obj-m				+= leancrypto_kernel_rng_tester.o
 obj-m				+= xdrbg256_tester.o
 xdrbg256_tester-y		+= ../drng/tests/xdrbg256_tester.o
 endif
