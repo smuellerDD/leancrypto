@@ -30,6 +30,8 @@
 #include "x25519_scalarmult.h"
 #include "x25519_scalarmult_c.h"
 
+#include "leancrypto_kernel.h"
+
 /* Export these symbols for testing */
 EXPORT_SYMBOL(_lc_kyber_keypair);
 EXPORT_SYMBOL(_lc_kyber_enc);
@@ -63,14 +65,75 @@ void sha3_fastest_impl(void);
 void aes_fastest_impl(void);
 static int __init leancrypto_init(void)
 {
+	int ret;
+
 	sha3_fastest_impl();
 	aes_fastest_impl();
-	return 0;
+
+	/* Register crypto algorithms */
+	ret = lc_kernel_sha3_init();
+	if (ret)
+		goto out;
+
+	ret = lc_kernel_kmac256_init();
+	if (ret)
+		goto free_sha3;
+
+	ret = lc_kernel_rng_init();
+	if (ret)
+		goto free_kmac;
+
+	ret = lc_kernel_dilithium_init();
+	if (ret)
+		goto free_rng;
+
+	ret = lc_kernel_dilithium_ed25519_init();
+	if (ret)
+		goto free_dilithium;
+
+	ret = lc_kernel_kyber_init();
+	if (ret)
+		goto free_dilithium_ed25519;
+
+	ret = lc_kernel_kyber_x25519_init();
+	if (ret)
+		goto free_kyber;
+
+out:
+	return ret;
+
+free_kyber:
+	lc_kernel_kyber_exit();
+
+free_dilithium_ed25519:
+	lc_kernel_dilithium_ed25519_exit();
+
+free_dilithium:
+	lc_kernel_dilithium_exit();
+
+free_rng:
+	lc_kernel_rng_exit();
+
+free_kmac:
+	lc_kernel_kmac256_exit();
+
+free_sha3:
+	lc_kernel_sha3_exit();
+
+	goto out;
 }
 
 static void __exit leancrypto_exit(void)
 {
 	lc_seeded_rng_zero_state();
+
+	lc_kernel_sha3_exit();
+	lc_kernel_kmac256_exit();
+	lc_kernel_rng_exit();
+	lc_kernel_dilithium_exit();
+	lc_kernel_dilithium_ed25519_exit();
+	lc_kernel_kyber_exit();
+	lc_kernel_kyber_x25519_exit();
 }
 
 module_init(leancrypto_init);

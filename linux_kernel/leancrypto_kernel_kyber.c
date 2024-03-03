@@ -1,0 +1,176 @@
+/*
+ * Copyright (C) 2024, Stephan Mueller <smueller@chronox.de>
+ *
+ * License: see LICENSE file in root directory
+ *
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, ALL OF
+ * WHICH ARE HEREBY DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+ * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ */
+
+#include <crypto/internal/kpp.h>
+#include <linux/init.h>
+#include <linux/module.h>
+#include <linux/scatterlist.h>
+#include <linux/types.h>
+
+#include "lc_kyber.h"
+#include "lc_memset_secure.h"
+
+#include "leancrypto_kernel.h"
+
+struct lc_kernel_kyber_ctx {
+	struct lc_kyber_sk sk;
+};
+
+static int lc_kernel_kyber_set_secret(struct crypto_kpp *tfm,
+				      const void *buffer,
+				      unsigned int len)
+{
+	struct lc_kernel_kyber_ctx *ctx = kpp_tfm_ctx(tfm);
+
+	if (len != LC_KYBER_SECRETKEYBYTES)
+		return -EINVAL;
+
+	memcpy(ctx->sk.sk, buffer, LC_KYBER_SECRETKEYBYTES);
+
+	return 0;
+}
+
+static int lc_kernel_kyber_gen_pubkey(struct kpp_request *req)
+{
+	struct crypto_kpp *tfm = crypto_kpp_reqtfm(req);
+	struct lc_kernel_kyber_ctx *ctx = kpp_tfm_ctx(tfm);
+	struct lc_kyber_pk pk;
+	size_t nbytes, copied;
+	int ret;
+
+	/* See _lc_kyber_keypair: sk contains pk */
+	memcpy(pk.pk, &ctx->sk.sk[LC_KYBER_INDCPA_SECRETKEYBYTES],
+	       LC_KYBER_PUBLICKEYBYTES);
+
+	nbytes = min_t(size_t, LC_KYBER_PUBLICKEYBYTES, req->dst_len);
+	copied = sg_copy_from_buffer(req->dst, sg_nents_for_len(req->dst,
+								nbytes),
+				     pk.pk, nbytes);
+        if (copied != nbytes)
+                ret = -EINVAL;
+
+	return ret;
+}
+
+static int lc_kernel_kyber_ss(struct kpp_request *req)
+{
+	struct crypto_kpp *tfm = crypto_kpp_reqtfm(req);
+	struct lc_kernel_kyber_ctx *ctx = kpp_tfm_ctx(tfm);
+	struct lc_kyber_ct ct;
+	struct lc_kyber_ss ss;
+	u8 *shared_secret = NULL, *outbuf;
+	size_t copied;
+	int ret;
+
+	/*
+	 * req->src contains Kyber ciphertext of peer
+	 * req->dst will receive shared secret
+	 */
+
+	/*
+	 * Set an arbitrary limit for the shared secret to avoid allocating
+	 * too much memory. The value allows 2 AES keys + 2 IVs + 2 MAC keys.
+	 */
+	if (req->dst_len > (2 * 32 + 2* 16 + 2 * 32))
+		return -EOVERFLOW;
+
+	if (!req->dst_len)
+		return -EINVAL;
+
+	if (req->src_len != LC_CRYPTO_CIPHERTEXTBYTES)
+		return -EINVAL;
+
+	copied = sg_copy_to_buffer(req->src, sg_nents_for_len(req->src,
+							      req->src_len),
+				   ct.ct, LC_CRYPTO_CIPHERTEXTBYTES);
+	if (copied != LC_CRYPTO_CIPHERTEXTBYTES)
+		return -EINVAL;
+
+	/*
+	 * If the requested shared secret size is exactly the Kyber SS size
+	 * then perform a Kyber operation without the KDF. Otherwise invoke
+	 * Kyber with KDF.
+	 */
+	if (req->dst_len == LC_CRYPTO_CIPHERTEXTBYTES) {
+		ret = lc_kyber_dec(&ss, &ct, &ctx->sk);
+
+		outbuf = ss.ss;
+	} else {
+		shared_secret = kmalloc(req->dst_len, GFP_KERNEL);
+		if (!shared_secret)
+			return -ENOMEM;
+
+		ret = lc_kyber_dec_kdf(shared_secret, req->dst_len, &ct,
+				       &ctx->sk);
+
+		outbuf = shared_secret;
+	}
+
+	if (ret)
+		goto out;
+
+	copied = sg_copy_from_buffer(req->dst, sg_nents_for_len(req->dst,
+								req->dst_len),
+				     outbuf, req->dst_len);
+        if (copied != req->dst_len)
+                ret = -EINVAL;
+
+out:
+	if (shared_secret)
+		kfree_sensitive(shared_secret);
+	else
+		lc_memset_secure(&ss, 0, sizeof(ss));
+
+	return ret;
+}
+
+static unsigned int lc_kernel_kyber_max_size(struct crypto_kpp *tfm)
+{
+	return LC_KYBER_PUBLICKEYBYTES;
+}
+
+static struct kpp_alg lc_kernel_kyber = {
+	.set_secret		= lc_kernel_kyber_set_secret,
+	.generate_public_key	= lc_kernel_kyber_gen_pubkey,
+	.compute_shared_secret	= lc_kernel_kyber_ss,
+	.max_size		= lc_kernel_kyber_max_size,
+#if LC_KYBER_K == 2
+	.base.cra_name		= "kyber512",
+	.base.cra_driver_name	= "kyber512-leancrypto",
+#elif LC_KYBER_K == 3
+	.base.cra_name		= "kyber768",
+	.base.cra_driver_name	= "kyber768-leancrypto",
+#else
+	.base.cra_name		= "kyber1024",
+	.base.cra_driver_name	= "kyber1024-leancrypto",
+#endif
+	.base.cra_ctxsize	= sizeof(struct lc_kernel_kyber_ctx),
+	.base.cra_module	= THIS_MODULE,
+	.base.cra_priority	= LC_KERNEL_DEFAULT_PRIO,
+};
+
+int __init lc_kernel_kyber_init(void)
+{
+	return crypto_register_kpp(&lc_kernel_kyber);
+}
+
+void lc_kernel_kyber_exit(void)
+{
+	crypto_unregister_kpp(&lc_kernel_kyber);
+}

@@ -32,12 +32,11 @@
 /* Select the type of DRNG */
 
 #ifdef LINUX_KERNEL
-//TODO make this selectible based on KBUILD
-#define CONFIG_LEANCRYPTO_XDRBG256_DRNG
-
 #ifdef CONFIG_LEANCRYPTO_XDRBG256_DRNG
 #define LC_DRNG_XDRBG_256
 #endif
+
+// TODO Those are not yet defined in Kbuild
 #ifdef CONFIG_LEANCRYPTO_KMAC_DRNG
 #define LC_DRNG_KMAC
 #endif
