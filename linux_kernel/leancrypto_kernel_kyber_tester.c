@@ -1,0 +1,272 @@
+// SPDX-License-Identifier: GPL-2.0 OR BSD-2-Clause
+/*
+ * Copyright (C) 2024, Stephan Mueller <smueller@chronox.de>
+ *
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, ALL OF
+ * WHICH ARE HEREBY DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+ * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ */
+
+#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+
+#include <crypto/kpp.h>
+#include <linux/module.h>
+#include <linux/scatterlist.h>
+
+#include "../kem/tests/kyber_kem_tester_vectors_1024.h"
+
+struct lc_tcrypt_res {
+	struct completion completion;
+	int err;
+};
+
+/* tie all data structures together */
+struct lc_kpp_def {
+	struct crypto_kpp *tfm;
+	struct kpp_request *req;
+	struct lc_tcrypt_res result;
+};
+
+/* Callback function */
+static void lc_kpp_cb(void *data, int error)
+{
+	struct crypto_async_request *req = data;
+	struct lc_tcrypt_res *result = req->data;
+
+	if (error == -EINPROGRESS)
+		return;
+	result->err = error;
+	complete(&result->completion);
+	pr_info("Kyber operation finished successfully\n");
+}
+
+/* Perform KPP operation */
+static unsigned int lc_kpp_op(struct lc_kpp_def *kpp, int gen_ss)
+{
+	int rc = 0;
+
+	init_completion(&kpp->result.completion);
+
+	if (gen_ss)
+		rc = crypto_kpp_compute_shared_secret(kpp->req);
+	else
+		rc = crypto_kpp_generate_public_key(kpp->req);
+
+	switch (rc) {
+	case 0:
+		break;
+	case -EINPROGRESS:
+	case -EBUSY:
+		wait_for_completion(&kpp->result.completion);
+		rc = kpp->result.err;
+		if (!kpp->result.err) {
+			reinit_completion(&kpp->result.completion);
+		}
+		break;
+	default:
+		pr_err("kpp cipher operation returned with %d result"
+		       " %d\n",rc, kpp->result.err);
+		break;
+	}
+
+	return rc;
+}
+
+static int lc_kyber_ss(const char *algname,
+		       const struct kyber_testvector *vector,
+		       u8 *ss, size_t sslen)
+{
+	struct lc_kpp_def kpp;
+	struct crypto_kpp *tfm = NULL;
+	struct kpp_request *req = NULL;
+	struct scatterlist src, dst;
+	u8 *ct = NULL;
+	int err = -ENOMEM;
+
+	tfm = crypto_alloc_kpp(algname, 0, 0);
+	if (IS_ERR(tfm)) {
+		pr_info("could not allocate kpp handle for %s %ld\n",
+			algname, PTR_ERR(tfm));
+		return PTR_ERR(tfm);
+	}
+
+	req = kpp_request_alloc(tfm, GFP_KERNEL);
+	if (!req) {
+		pr_err("Cannot allocate request\n");
+		goto out;
+	}
+
+	kpp.tfm = tfm;
+	kpp.req = req;
+
+	err = crypto_kpp_set_secret(tfm, vector->sk, sizeof(vector->sk));
+	if (err)
+		goto out;
+
+	/*
+	 * Copy the message from the r/o buffer as otherwise it cannot be mapped
+	 * by the SG-handling logic.
+	 */
+	ct = kmalloc(sizeof(vector->ct), GFP_KERNEL);
+	if (!ct) {
+		err = -ENOMEM;
+		goto out;
+	}
+	memcpy(ct, vector->ct, sizeof(vector->ct));
+	sg_init_one(&src, ct, sizeof(vector->ct));
+
+	sg_init_one(&dst, ss, sslen);
+
+	kpp_request_set_input(req, &src, sizeof(vector->ct));
+	kpp_request_set_output(req, &dst, sslen);
+	kpp_request_set_callback(req, CRYPTO_TFM_REQ_MAY_BACKLOG,
+				 lc_kpp_cb, &kpp.result);
+
+	err = lc_kpp_op(&kpp, 1);
+	pr_info("Kyber shared secret generation result %d\n", err);
+
+out:
+	if (ct)
+		kfree(ct);
+	if (tfm)
+		crypto_free_kpp(tfm);
+	if (req)
+		kpp_request_free(req);
+
+	return err;
+}
+
+static int lc_kyber_keygen(const char *algname,
+			   const struct kyber_testvector *vector,
+			   struct lc_kyber_pk *pk)
+{
+	struct lc_kpp_def kpp;
+	struct crypto_kpp *tfm = NULL;
+	struct kpp_request *req = NULL;
+	struct scatterlist dst;
+	int err;
+
+	tfm = crypto_alloc_kpp(algname, 0, 0);
+	if (IS_ERR(tfm)) {
+		pr_info("could not allocate kpp handle for %s %ld\n",
+			algname, PTR_ERR(tfm));
+		return PTR_ERR(tfm);
+	}
+
+	if (crypto_kpp_maxsize(tfm) != LC_KYBER_PUBLICKEYBYTES) {
+		pr_err("crypto_kpp_maxsize returns wrong size\n");
+		err = -EINVAL;
+		goto out;
+	}
+
+	req = kpp_request_alloc(tfm, GFP_KERNEL);
+	if (!req) {
+		err = -ENOMEM;
+		goto out;
+	}
+
+	kpp.tfm = tfm;
+	kpp.req = req;
+
+	if (LC_KYBER_SECRETKEYBYTES != sizeof(vector->sk)) {
+		pr_err("unexpected private Kyber key size\n");
+		err = -EINVAL;
+		goto out;
+	}
+
+	/* generate a private key if key is NULL */
+	err = crypto_kpp_set_secret(tfm, vector->sk, sizeof(vector->sk));
+	if (err)
+		goto out;
+
+	sg_init_one(&dst, pk->pk, crypto_kpp_maxsize(tfm));
+
+	kpp_request_set_input(req, NULL, 0);
+	kpp_request_set_output(req, &dst, crypto_kpp_maxsize(tfm));
+	kpp_request_set_callback(req, CRYPTO_TFM_REQ_MAY_BACKLOG,
+				 lc_kpp_cb, &kpp.result);
+
+	err = lc_kpp_op(&kpp, 0);
+	pr_info("Kyber public key generation result %d\n", err);
+
+out:
+	if (tfm)
+		crypto_free_kpp(tfm);
+	if (req)
+		kpp_request_free(req);
+
+	return err;
+}
+
+static int __init leancrypto_kernel_kyber_test_init(void)
+{
+	const struct kyber_testvector *vector = &kyber_testvectors[0];
+	struct lc_kyber_pk *pk;
+	u8 ss[sizeof(vector->ss)];
+	int ret;
+
+	pk = kmalloc(sizeof(struct lc_kyber_pk), GFP_KERNEL);
+	if (!pk)
+		return -ENOMEM;
+
+	ret = lc_kyber_keygen("kyber1024-leancrypto", vector, pk);
+	if (ret) {
+		kfree(pk);
+		return ret;
+	}
+
+	if (memcmp(pk->pk, vector->pk, sizeof(vector->pk))) {
+		char hex[2 * sizeof(vector->pk)];
+
+		pr_err("Calculated public key does not match expected key\n");
+
+		memset(hex, 0, sizeof(hex));
+		bin2hex(hex, pk->pk, sizeof(vector->pk));
+		pr_err("hex string: %s\n", hex);
+
+		kfree(pk);
+		return -EINVAL;
+	}
+	kfree(pk);
+
+	ret = lc_kyber_ss("kyber1024-leancrypto", vector, ss, sizeof(ss));
+	if (ret)
+		return ret;
+
+	if (memcmp(ss, vector->ss, sizeof(vector->ss))) {
+		char hex[2 * sizeof(vector->ss)];
+
+		pr_err("Calculated shared secret does not match expected value\n");
+
+		memset(hex, 0, sizeof(hex));
+		bin2hex(hex, ss, sizeof(vector->ss));
+		pr_err("hex string: %s\n", hex);
+
+		return -EINVAL;
+	}
+
+	pr_info("Kyber invocation via kernel crypto API succeeded\n");
+
+	return 0;
+}
+
+static void __exit leancrypto_kernel_kyber_test_exit(void)
+{
+}
+
+module_init(leancrypto_kernel_kyber_test_init);
+module_exit(leancrypto_kernel_kyber_test_exit);
+
+MODULE_LICENSE("Dual BSD/GPL");
+MODULE_AUTHOR("Stephan Mueller <smueller@chronox.de>");
+MODULE_DESCRIPTION("Kernel module leancrypto_kernel_kyber_test");
+

@@ -688,6 +688,8 @@ endif
 ifdef CONFIG_LEANCRYPTO_KEM
 ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM
 
+obj-m				+= leancrypto_kernel_kyber_tester.o
+
 obj-m		 		+= kyber_kem_tester_c.o
 obj-m		 		+= kyber_kem_tester_common.o
 obj-m		 		+= kyber_kem_kdf_tester_c.o

@@ -38,6 +38,13 @@ static int lc_kernel_kyber_set_secret(struct crypto_kpp *tfm,
 {
 	struct lc_kernel_kyber_ctx *ctx = kpp_tfm_ctx(tfm);
 
+	if (!buffer || !len) {
+		struct lc_kyber_pk pk;
+
+		/* We do not need the pk at this point */
+		return lc_kyber_keypair(&pk, &ctx->sk, lc_seeded_rng);
+	}
+
 	if (len != LC_KYBER_SECRETKEYBYTES)
 		return -EINVAL;
 
@@ -50,22 +57,21 @@ static int lc_kernel_kyber_gen_pubkey(struct kpp_request *req)
 {
 	struct crypto_kpp *tfm = crypto_kpp_reqtfm(req);
 	struct lc_kernel_kyber_ctx *ctx = kpp_tfm_ctx(tfm);
-	struct lc_kyber_pk pk;
+	u8 *pk;
 	size_t nbytes, copied;
 	int ret;
 
 	/* See _lc_kyber_keypair: sk contains pk */
-	memcpy(pk.pk, &ctx->sk.sk[LC_KYBER_INDCPA_SECRETKEYBYTES],
-	       LC_KYBER_PUBLICKEYBYTES);
+	pk = &ctx->sk.sk[LC_KYBER_INDCPA_SECRETKEYBYTES];
 
 	nbytes = min_t(size_t, LC_KYBER_PUBLICKEYBYTES, req->dst_len);
 	copied = sg_copy_from_buffer(req->dst, sg_nents_for_len(req->dst,
 								nbytes),
-				     pk.pk, nbytes);
+				     pk, nbytes);
         if (copied != nbytes)
                 ret = -EINVAL;
 
-	return ret;
+	return 0;
 }
 
 static int lc_kernel_kyber_ss(struct kpp_request *req)
@@ -107,7 +113,7 @@ static int lc_kernel_kyber_ss(struct kpp_request *req)
 	 * then perform a Kyber operation without the KDF. Otherwise invoke
 	 * Kyber with KDF.
 	 */
-	if (req->dst_len == LC_CRYPTO_CIPHERTEXTBYTES) {
+	if (req->dst_len == LC_KYBER_SSBYTES) {
 		ret = lc_kyber_dec(&ss, &ct, &ctx->sk);
 
 		outbuf = ss.ss;
