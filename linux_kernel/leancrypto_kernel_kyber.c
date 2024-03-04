@@ -23,6 +23,7 @@
 #include <linux/scatterlist.h>
 #include <linux/types.h>
 
+#include "kyber_kdf.h"
 #include "lc_kyber.h"
 #include "lc_memset_secure.h"
 
@@ -30,6 +31,14 @@
 
 struct lc_kernel_kyber_ctx {
 	struct lc_kyber_sk sk;
+	struct lc_kyber_ss ss;
+	/*
+	 * The following must be held together als they both are copied in
+	 * lc_kernel_kyber_gen_ct.
+	 */
+	struct lc_kyber_ct ct;
+	struct lc_kyber_pk pk;
+	bool ss_set;
 };
 
 static int lc_kernel_kyber_set_secret(struct crypto_kpp *tfm,
@@ -53,25 +62,88 @@ static int lc_kernel_kyber_set_secret(struct crypto_kpp *tfm,
 	return 0;
 }
 
-static int lc_kernel_kyber_gen_pubkey(struct kpp_request *req)
+static int lc_kernel_kyber_gen_ct(struct kpp_request *req)
 {
 	struct crypto_kpp *tfm = crypto_kpp_reqtfm(req);
 	struct lc_kernel_kyber_ctx *ctx = kpp_tfm_ctx(tfm);
-	u8 *pk;
 	size_t nbytes, copied;
 	int ret;
 
 	/* See _lc_kyber_keypair: sk contains pk */
-	pk = &ctx->sk.sk[LC_KYBER_INDCPA_SECRETKEYBYTES];
+	memcpy(&ctx->pk.pk, &ctx->sk.sk[LC_KYBER_INDCPA_SECRETKEYBYTES],
+	       LC_KYBER_PUBLICKEYBYTES);
 
-	nbytes = min_t(size_t, LC_KYBER_PUBLICKEYBYTES, req->dst_len);
+	ret = lc_kyber_enc(&ctx->ct, &ctx->ss, &ctx->pk);
+	if (ret)
+		return ret;
+
+	ctx->ss_set = true;
+
+	/*
+	 * Now we copy out the Kyber CT and (optionally, if the caller requested
+	 * it via its provided buffer size), the Kyber PK. Both need to be sent
+	 * to the remote peer.
+	 */
+	nbytes = min_t(size_t,
+		       LC_CRYPTO_CIPHERTEXTBYTES + LC_KYBER_PUBLICKEYBYTES,
+		       req->dst_len);
 	copied = sg_copy_from_buffer(req->dst, sg_nents_for_len(req->dst,
 								nbytes),
-				     pk, nbytes);
+				     ctx->ct.ct, nbytes);
         if (copied != nbytes)
                 ret = -EINVAL;
 
 	return 0;
+}
+
+static int lc_kernel_kyber_ss_local(struct kpp_request *req)
+{
+	struct crypto_kpp *tfm = crypto_kpp_reqtfm(req);
+	struct lc_kernel_kyber_ctx *ctx = kpp_tfm_ctx(tfm);
+	u8 *shared_secret = NULL, *outbuf;
+	size_t copied;
+	int ret = 0;
+
+	/* lc_kernel_kyber_gen_ct must have been called before */
+	if (!ctx->ss_set)
+		return -EOPNOTSUPP;
+
+	/*
+	 * If the requested shared secret size is exactly the Kyber SS size
+	 * then perform a Kyber operation without the KDF. Otherwise invoke
+	 * Kyber with KDF.
+	 */
+
+	if (req->dst_len == LC_KYBER_SSBYTES) {
+		outbuf = ctx->ss.ss;
+	} else {
+		shared_secret = kmalloc(req->dst_len, GFP_KERNEL);
+		if (!shared_secret)
+			return -ENOMEM;
+
+		kyber_ss_kdf(shared_secret, req->dst_len, &ctx->ct, ctx->ss.ss);
+
+		outbuf = shared_secret;
+	}
+
+	copied = sg_copy_from_buffer(req->dst, sg_nents_for_len(req->dst,
+								req->dst_len),
+				     outbuf, req->dst_len);
+        if (copied != req->dst_len)
+                ret = -EINVAL;
+
+	if (shared_secret)
+		kfree_sensitive(shared_secret);
+
+	/*
+	 * The SS is allowed to be only used once - if the caller wants
+	 * another SS, he has to call ->generate_public_key again.
+	 */
+	lc_memset_secure(&ctx->ss, 0, sizeof(ctx->ss));
+	lc_memset_secure(&ctx->ct, 0, sizeof(ctx->ct));
+	ctx->ss_set = false;
+
+	return ret;
 }
 
 static int lc_kernel_kyber_ss(struct kpp_request *req)
@@ -85,7 +157,8 @@ static int lc_kernel_kyber_ss(struct kpp_request *req)
 	int ret;
 
 	/*
-	 * req->src contains Kyber ciphertext of peer
+	 * req->src contains Kyber ciphertext of peer - if this is NULL,
+	 * extract the local shared secret
 	 * req->dst will receive shared secret
 	 */
 
@@ -98,6 +171,10 @@ static int lc_kernel_kyber_ss(struct kpp_request *req)
 
 	if (!req->dst_len)
 		return -EINVAL;
+
+	/* Extract the local SS */
+	if (!req->src_len)
+		return lc_kernel_kyber_ss_local(req);
 
 	if (req->src_len != LC_CRYPTO_CIPHERTEXTBYTES)
 		return -EINVAL;
@@ -148,12 +225,12 @@ out:
 
 static unsigned int lc_kernel_kyber_max_size(struct crypto_kpp *tfm)
 {
-	return LC_KYBER_PUBLICKEYBYTES;
+	return LC_CRYPTO_CIPHERTEXTBYTES;
 }
 
 static struct kpp_alg lc_kernel_kyber = {
 	.set_secret		= lc_kernel_kyber_set_secret,
-	.generate_public_key	= lc_kernel_kyber_gen_pubkey,
+	.generate_public_key	= lc_kernel_kyber_gen_ct,
 	.compute_shared_secret	= lc_kernel_kyber_ss,
 	.max_size		= lc_kernel_kyber_max_size,
 #if LC_KYBER_K == 2

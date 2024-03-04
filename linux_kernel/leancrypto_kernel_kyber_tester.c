@@ -74,22 +74,22 @@ static unsigned int lc_kpp_op(struct lc_kpp_def *kpp, int gen_ss)
 		break;
 	default:
 		pr_err("kpp cipher operation returned with %d result"
-		       " %d\n",rc, kpp->result.err);
+		       " %d\n", rc, kpp->result.err);
 		break;
 	}
 
 	return rc;
 }
 
-static int lc_kyber_ss(const char *algname,
-		       const struct kyber_testvector *vector,
-		       u8 *ss, size_t sslen)
+static int lc_kyber_ss(const char *algname)
 {
 	struct lc_kpp_def kpp;
 	struct crypto_kpp *tfm = NULL;
 	struct kpp_request *req = NULL;
 	struct scatterlist src, dst;
-	u8 *ct = NULL;
+	struct lc_kyber_ct *ct = NULL;
+	struct lc_kyber_pk *pk;
+	u8 ss1[LC_KYBER_SSBYTES], ss2[LC_KYBER_SSBYTES];
 	int err = -ENOMEM;
 
 	tfm = crypto_alloc_kpp(algname, 0, 0);
@@ -99,8 +99,25 @@ static int lc_kyber_ss(const char *algname,
 		return PTR_ERR(tfm);
 	}
 
+	if (crypto_kpp_maxsize(tfm) != LC_CRYPTO_CIPHERTEXTBYTES) {
+		pr_err("crypto_kpp_maxsize returns wrong size\n");
+		err = -EINVAL;
+		goto out;
+	}
+
+	ct = kmalloc(sizeof(struct lc_kyber_ct) + sizeof(struct lc_kyber_pk),
+		     GFP_KERNEL);
+	if (!ct) {
+		err = -ENOMEM;
+		pr_err("Cannot allocate Kyber CT\n");
+		goto out;
+	}
+	/* Ensure we have a linear buffer of ct || pk */
+	pk = (struct lc_kyber_pk *)((u8 *)ct + sizeof(struct lc_kyber_ct));
+
 	req = kpp_request_alloc(tfm, GFP_KERNEL);
 	if (!req) {
+		err = -ENOMEM;
 		pr_err("Cannot allocate request\n");
 		goto out;
 	}
@@ -108,31 +125,58 @@ static int lc_kyber_ss(const char *algname,
 	kpp.tfm = tfm;
 	kpp.req = req;
 
-	err = crypto_kpp_set_secret(tfm, vector->sk, sizeof(vector->sk));
+	/* Generate a new local key pair */
+	err = crypto_kpp_set_secret(tfm, NULL, 0);
 	if (err)
 		goto out;
 
-	/*
-	 * Copy the message from the r/o buffer as otherwise it cannot be mapped
-	 * by the SG-handling logic.
-	 */
-	ct = kmalloc(sizeof(vector->ct), GFP_KERNEL);
-	if (!ct) {
-		err = -ENOMEM;
+	/* Generate our local shared secret and obtain the CT || PK */
+	sg_init_one(&dst, ct->ct, crypto_kpp_maxsize(tfm) +
+				  sizeof(struct lc_kyber_pk));
+	kpp_request_set_input(req, NULL, 0);
+	kpp_request_set_output(req, &dst, crypto_kpp_maxsize(tfm) +
+					  sizeof(struct lc_kyber_pk));
+	kpp_request_set_callback(req, CRYPTO_TFM_REQ_MAY_BACKLOG,
+				 lc_kpp_cb, &kpp.result);
+	err = lc_kpp_op(&kpp, 0);
+	pr_info("Kyber SS / CT generation and CT gathering result %d\n", err);
+	if (err)
 		goto out;
-	}
-	memcpy(ct, vector->ct, sizeof(vector->ct));
-	sg_init_one(&src, ct, sizeof(vector->ct));
 
-	sg_init_one(&dst, ss, sslen);
+	/* Obtain the local shared secret */
+	sg_init_one(&dst, ss1, sizeof(ss1));
+	kpp_request_set_output(req, &dst, sizeof(ss1));
+	err = lc_kpp_op(&kpp, 1);
+	pr_info("Kyber SS gathering result %d\n", err);
+	if (err)
+		goto out;
 
-	kpp_request_set_input(req, &src, sizeof(vector->ct));
-	kpp_request_set_output(req, &dst, sslen);
+
+	/*
+	 * Now assume we are on the remote system and have copied over the
+	 * Kyber CT.
+	 */
+	sg_init_one(&src, ct->ct, crypto_kpp_maxsize(tfm));
+	sg_init_one(&dst, ss2, sizeof(ss2));
+
+	kpp_request_set_input(req, &src, crypto_kpp_maxsize(tfm));
+	kpp_request_set_output(req, &dst, sizeof(ss1));
 	kpp_request_set_callback(req, CRYPTO_TFM_REQ_MAY_BACKLOG,
 				 lc_kpp_cb, &kpp.result);
 
 	err = lc_kpp_op(&kpp, 1);
 	pr_info("Kyber shared secret generation result %d\n", err);
+	if (err)
+		goto out;
+
+	/* Check that both shared secrets are identical */
+	if (memcmp(ss1, ss2, sizeof(ss1))) {
+		pr_err("Shared secrets mismatch\n");
+		err = -EFAULT;
+		goto out;
+	}
+
+	pr_info("Kyber SS generation test successful\n");
 
 out:
 	if (ct)
@@ -145,118 +189,9 @@ out:
 	return err;
 }
 
-static int lc_kyber_keygen(const char *algname,
-			   const struct kyber_testvector *vector,
-			   struct lc_kyber_pk *pk)
-{
-	struct lc_kpp_def kpp;
-	struct crypto_kpp *tfm = NULL;
-	struct kpp_request *req = NULL;
-	struct scatterlist dst;
-	int err;
-
-	tfm = crypto_alloc_kpp(algname, 0, 0);
-	if (IS_ERR(tfm)) {
-		pr_info("could not allocate kpp handle for %s %ld\n",
-			algname, PTR_ERR(tfm));
-		return PTR_ERR(tfm);
-	}
-
-	if (crypto_kpp_maxsize(tfm) != LC_KYBER_PUBLICKEYBYTES) {
-		pr_err("crypto_kpp_maxsize returns wrong size\n");
-		err = -EINVAL;
-		goto out;
-	}
-
-	req = kpp_request_alloc(tfm, GFP_KERNEL);
-	if (!req) {
-		err = -ENOMEM;
-		goto out;
-	}
-
-	kpp.tfm = tfm;
-	kpp.req = req;
-
-	if (LC_KYBER_SECRETKEYBYTES != sizeof(vector->sk)) {
-		pr_err("unexpected private Kyber key size\n");
-		err = -EINVAL;
-		goto out;
-	}
-
-	/* generate a private key if key is NULL */
-	err = crypto_kpp_set_secret(tfm, vector->sk, sizeof(vector->sk));
-	if (err)
-		goto out;
-
-	sg_init_one(&dst, pk->pk, crypto_kpp_maxsize(tfm));
-
-	kpp_request_set_input(req, NULL, 0);
-	kpp_request_set_output(req, &dst, crypto_kpp_maxsize(tfm));
-	kpp_request_set_callback(req, CRYPTO_TFM_REQ_MAY_BACKLOG,
-				 lc_kpp_cb, &kpp.result);
-
-	err = lc_kpp_op(&kpp, 0);
-	pr_info("Kyber public key generation result %d\n", err);
-
-out:
-	if (tfm)
-		crypto_free_kpp(tfm);
-	if (req)
-		kpp_request_free(req);
-
-	return err;
-}
-
 static int __init leancrypto_kernel_kyber_test_init(void)
 {
-	const struct kyber_testvector *vector = &kyber_testvectors[0];
-	struct lc_kyber_pk *pk;
-	u8 ss[sizeof(vector->ss)];
-	int ret;
-
-	pk = kmalloc(sizeof(struct lc_kyber_pk), GFP_KERNEL);
-	if (!pk)
-		return -ENOMEM;
-
-	ret = lc_kyber_keygen("kyber1024-leancrypto", vector, pk);
-	if (ret) {
-		kfree(pk);
-		return ret;
-	}
-
-	if (memcmp(pk->pk, vector->pk, sizeof(vector->pk))) {
-		char hex[2 * sizeof(vector->pk)];
-
-		pr_err("Calculated public key does not match expected key\n");
-
-		memset(hex, 0, sizeof(hex));
-		bin2hex(hex, pk->pk, sizeof(vector->pk));
-		pr_err("hex string: %s\n", hex);
-
-		kfree(pk);
-		return -EINVAL;
-	}
-	kfree(pk);
-
-	ret = lc_kyber_ss("kyber1024-leancrypto", vector, ss, sizeof(ss));
-	if (ret)
-		return ret;
-
-	if (memcmp(ss, vector->ss, sizeof(vector->ss))) {
-		char hex[2 * sizeof(vector->ss)];
-
-		pr_err("Calculated shared secret does not match expected value\n");
-
-		memset(hex, 0, sizeof(hex));
-		bin2hex(hex, ss, sizeof(vector->ss));
-		pr_err("hex string: %s\n", hex);
-
-		return -EINVAL;
-	}
-
-	pr_info("Kyber invocation via kernel crypto API succeeded\n");
-
-	return 0;
+	return lc_kyber_ss("kyber1024-leancrypto");
 }
 
 static void __exit leancrypto_kernel_kyber_test_exit(void)
