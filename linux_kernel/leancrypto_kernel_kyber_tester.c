@@ -88,7 +88,7 @@ static int lc_kyber_ss(const char *algname)
 	struct kpp_request *req = NULL;
 	struct scatterlist src, dst;
 	struct lc_kyber_ct *ct = NULL;
-	struct lc_kyber_pk *pk;
+	struct lc_kyber_pk *pk = NULL;
 	u8 ss1[LC_KYBER_SSBYTES], ss2[LC_KYBER_SSBYTES];
 	int err = -ENOMEM;
 
@@ -105,15 +105,19 @@ static int lc_kyber_ss(const char *algname)
 		goto out;
 	}
 
-	ct = kmalloc(sizeof(struct lc_kyber_ct) + sizeof(struct lc_kyber_pk),
-		     GFP_KERNEL);
+	ct = kmalloc(sizeof(struct lc_kyber_ct), GFP_KERNEL);
 	if (!ct) {
 		err = -ENOMEM;
 		pr_err("Cannot allocate Kyber CT\n");
 		goto out;
 	}
-	/* Ensure we have a linear buffer of ct || pk */
-	pk = (struct lc_kyber_pk *)((u8 *)ct + sizeof(struct lc_kyber_ct));
+
+	pk = kmalloc(sizeof(struct lc_kyber_pk), GFP_KERNEL);
+	if (!pk) {
+		err = -ENOMEM;
+		pr_err("Cannot allocate Kyber CT\n");
+		goto out;
+	}
 
 	req = kpp_request_alloc(tfm, GFP_KERNEL);
 	if (!req) {
@@ -130,42 +134,47 @@ static int lc_kyber_ss(const char *algname)
 	if (err)
 		goto out;
 
-	/* Generate our local shared secret and obtain the CT || PK */
-	sg_init_one(&dst, ct->ct, crypto_kpp_maxsize(tfm) +
-				  sizeof(struct lc_kyber_pk));
-	kpp_request_set_input(req, NULL, 0);
-	kpp_request_set_output(req, &dst, crypto_kpp_maxsize(tfm) +
-					  sizeof(struct lc_kyber_pk));
 	kpp_request_set_callback(req, CRYPTO_TFM_REQ_MAY_BACKLOG,
 				 lc_kpp_cb, &kpp.result);
+
+	/* Initiator: Obtain the PK */
+	sg_init_one(&dst, pk->pk, sizeof(struct lc_kyber_pk));
+	kpp_request_set_input(req, NULL, 0);
+	kpp_request_set_output(req, &dst, sizeof(struct lc_kyber_pk));
 	err = lc_kpp_op(&kpp, 0);
-	pr_info("Kyber SS / CT generation and CT gathering result %d\n", err);
+	pr_info("Initiator: Kyber PK extracted %d\n", err);
 	if (err)
 		goto out;
 
-	/* Obtain the local shared secret */
+	/* Respopnder: Generate our local shared secret and obtain the CT */
+	sg_init_one(&src, pk->pk, sizeof(struct lc_kyber_pk));
+	sg_init_one(&dst, ct->ct, sizeof(struct lc_kyber_ct));
+	kpp_request_set_input(req, &src, sizeof(struct lc_kyber_pk));
+	kpp_request_set_output(req, &dst, sizeof(struct lc_kyber_ct));
+	err = lc_kpp_op(&kpp, 0);
+	pr_info("Responder: Kyber SS / CT generation and CT gathering result %d\n", err);
+	if (err)
+		goto out;
+
+	/* Responder: Obtain the local shared secret */
 	sg_init_one(&dst, ss1, sizeof(ss1));
+	kpp_request_set_input(req, NULL, 0);
 	kpp_request_set_output(req, &dst, sizeof(ss1));
 	err = lc_kpp_op(&kpp, 1);
-	pr_info("Kyber SS gathering result %d\n", err);
+	pr_info("Responder: Kyber SS gathering result %d\n", err);
 	if (err)
 		goto out;
 
-
-	/*
-	 * Now assume we are on the remote system and have copied over the
-	 * Kyber CT.
-	 */
+	/* Initiator: Generate the SS. */
 	sg_init_one(&src, ct->ct, crypto_kpp_maxsize(tfm));
 	sg_init_one(&dst, ss2, sizeof(ss2));
-
 	kpp_request_set_input(req, &src, crypto_kpp_maxsize(tfm));
 	kpp_request_set_output(req, &dst, sizeof(ss1));
 	kpp_request_set_callback(req, CRYPTO_TFM_REQ_MAY_BACKLOG,
 				 lc_kpp_cb, &kpp.result);
 
 	err = lc_kpp_op(&kpp, 1);
-	pr_info("Kyber shared secret generation result %d\n", err);
+	pr_info("Initiator: Kyber shared secret generation result %d\n", err);
 	if (err)
 		goto out;
 
@@ -181,6 +190,8 @@ static int lc_kyber_ss(const char *algname)
 out:
 	if (ct)
 		kfree(ct);
+	if (pk)
+		kfree(pk);
 	if (tfm)
 		crypto_free_kpp(tfm);
 	if (req)

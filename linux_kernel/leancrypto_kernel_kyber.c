@@ -32,12 +32,7 @@
 struct lc_kernel_kyber_ctx {
 	struct lc_kyber_sk sk;
 	struct lc_kyber_ss ss;
-	/*
-	 * The following must be held together als they both are copied in
-	 * lc_kernel_kyber_gen_ct.
-	 */
 	struct lc_kyber_ct ct;
-	struct lc_kyber_pk pk;
 	bool ss_set;
 };
 
@@ -62,31 +57,80 @@ static int lc_kernel_kyber_set_secret(struct crypto_kpp *tfm,
 	return 0;
 }
 
+/*
+ * The kernel crypto API interface is defined as follows for the different
+ * operation types.
+ *
+ * Initiator:
+ *
+ * 1. Generate new keypair: crypto_kpp_set_secret(tfm, NULL, 0);
+ *
+ * 2. Get public key:
+ * 	crypto_kpp_generate_public_key(req->src = NULL, req->dst = PK)
+ *
+ * 3. Send the PK to remote and get the CT.
+ *
+ * 4. Calculate shared secret:
+ *	crypto_kpp_compute_shared_secret(req->src = CT, req->dst = SS)
+ *
+ * Responder:
+ *
+ * 1. Generate new keypair: crypto_kpp_set_secret(tfm, NULL, 0);
+ *
+ * 2. Get the remote PK to generate the CT and shared secret:
+ *	crypto_kpp_generate_public_key(req->src = PK, req->dst = CT)
+ *
+ * 3. Send CT to the peer
+ *
+ * 4. Get the shared secret:
+ * 	crypto_kpp_compute_shared_secret(req->src = NULL, req->dst = SS)
+ */
+
 static int lc_kernel_kyber_gen_ct(struct kpp_request *req)
 {
 	struct crypto_kpp *tfm = crypto_kpp_reqtfm(req);
 	struct lc_kernel_kyber_ctx *ctx = kpp_tfm_ctx(tfm);
+	struct lc_kyber_pk rpk;
 	size_t nbytes, copied;
 	int ret;
 
-	/* See _lc_kyber_keypair: sk contains pk */
-	memcpy(&ctx->pk.pk, &ctx->sk.sk[LC_KYBER_INDCPA_SECRETKEYBYTES],
-	       LC_KYBER_PUBLICKEYBYTES);
+	/*
+	 * req->src contains the remote public key to generate the local
+	 * Kyber CT - this is optional
+	 * req->dst is filled with either the local Kyber PK (if req->src is
+	 * NULL), or with the Kyber CT as a result of the encapsulation
+	 */
+	if (req->src_len != LC_KYBER_PUBLICKEYBYTES) {
+		/* See _lc_kyber_keypair: sk contains pk */
+		u8 *lpk = &ctx->sk.sk[LC_KYBER_INDCPA_SECRETKEYBYTES];
 
-	ret = lc_kyber_enc(&ctx->ct, &ctx->ss, &ctx->pk);
+		/* Copy out the public key */
+		copied = sg_copy_from_buffer(req->dst,
+					     sg_nents_for_len(
+						req->dst,
+						LC_KYBER_PUBLICKEYBYTES),
+					     lpk, LC_KYBER_PUBLICKEYBYTES);
+		if (copied != LC_KYBER_PUBLICKEYBYTES)
+			return -EINVAL;
+		return 0;
+	}
+
+	copied = sg_copy_to_buffer(req->src, sg_nents_for_len(req->src,
+							      req->src_len),
+				   rpk.pk, LC_KYBER_PUBLICKEYBYTES);
+	if (copied != LC_KYBER_PUBLICKEYBYTES)
+		return -EINVAL;
+
+	ret = lc_kyber_enc(&ctx->ct, &ctx->ss, &rpk);
 	if (ret)
 		return ret;
 
 	ctx->ss_set = true;
 
 	/*
-	 * Now we copy out the Kyber CT and (optionally, if the caller requested
-	 * it via its provided buffer size), the Kyber PK. Both need to be sent
-	 * to the remote peer.
+	 * Now we copy out the Kyber CT
 	 */
-	nbytes = min_t(size_t,
-		       LC_CRYPTO_CIPHERTEXTBYTES + LC_KYBER_PUBLICKEYBYTES,
-		       req->dst_len);
+	nbytes = min_t(size_t, LC_CRYPTO_CIPHERTEXTBYTES, req->dst_len);
 	copied = sg_copy_from_buffer(req->dst, sg_nents_for_len(req->dst,
 								nbytes),
 				     ctx->ct.ct, nbytes);
