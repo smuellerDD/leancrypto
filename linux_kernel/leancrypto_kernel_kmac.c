@@ -32,12 +32,17 @@
 static int lc_kernel_kmac256_init_alg(struct shash_desc *desc)
 {
 	struct lc_kmac_ctx *sctx = shash_desc_ctx(desc);
+	struct lc_hash_ctx *shash_ctx = &sctx->hash_ctx;
 	struct crypto_shash *tfm = desc->tfm;
 	struct lc_kmac_ctx *pctx = crypto_shash_ctx(tfm);
 	struct lc_hash_ctx *phash_ctx = &pctx->hash_ctx;
 
 	LC_KMAC_SET_CTX(sctx, lc_cshake256);
-	memcpy(sctx->hash_ctx.hash_state, pctx->hash_ctx.hash_state,
+
+	lc_hash_init(shash_ctx);
+	sctx->final_called = 0;
+
+	memcpy(sctx->hash_ctx.hash_state, phash_ctx->hash_state,
 	       lc_hash_ctxsize(phash_ctx));
 
 	return 0;
@@ -50,10 +55,6 @@ static int lc_kernel_kmac256_setkey(struct crypto_shash *tfm, const u8 *key,
 
 	LC_KMAC_SET_CTX(sctx, lc_cshake256);
 
-	/*
-	 * Due to restrictions of the kernel crypto API, we cannot set a
-	 * context.
-	 */
 	lc_kmac_init(sctx, key, keylen, NULL, 0);
 
 	return 0;
@@ -97,6 +98,8 @@ static struct shash_alg lc_kmac256_algs[] = { {
 	.final			= lc_kernel_kmac256_final,
 	.setkey			= lc_kernel_kmac256_setkey,
 	.descsize		= LC_KMAC_CTX_SIZE_KERNEL,
+	/* This memory is used for the state of lc_kernel_kmac256_setkey */
+	.base.cra_ctxsize	= LC_KMAC_CTX_SIZE_KERNEL,
 	.base.cra_name		= "kmac256-224",
 	.base.cra_driver_name	= "kmac256-224-leancrypto",
 	.base.cra_blocksize	= LC_SHA3_256_SIZE_BLOCK,
@@ -109,6 +112,7 @@ static struct shash_alg lc_kmac256_algs[] = { {
 	.final			= lc_kernel_kmac256_final,
 	.setkey			= lc_kernel_kmac256_setkey,
 	.descsize		= LC_KMAC_CTX_SIZE_KERNEL,
+	.base.cra_ctxsize	= LC_KMAC_CTX_SIZE_KERNEL,
 	.base.cra_name		= "kmac256-256",
 	.base.cra_driver_name	= "kmac256-256-leancrypto",
 	.base.cra_blocksize	= LC_SHA3_256_SIZE_BLOCK,
@@ -121,6 +125,7 @@ static struct shash_alg lc_kmac256_algs[] = { {
 	.final			= lc_kernel_kmac256_final,
 	.setkey			= lc_kernel_kmac256_setkey,
 	.descsize		= LC_KMAC_CTX_SIZE_KERNEL,
+	.base.cra_ctxsize	= LC_KMAC_CTX_SIZE_KERNEL,
 	.base.cra_name		= "kmac256-384",
 	.base.cra_driver_name	= "kmac256-384-leancrypto",
 	.base.cra_blocksize	= LC_SHA3_256_SIZE_BLOCK,
@@ -133,6 +138,7 @@ static struct shash_alg lc_kmac256_algs[] = { {
 	.final			= lc_kernel_kmac256_final,
 	.setkey			= lc_kernel_kmac256_setkey,
 	.descsize		= LC_KMAC_CTX_SIZE_KERNEL,
+	.base.cra_ctxsize	= LC_KMAC_CTX_SIZE_KERNEL,
 	.base.cra_name		= "kmac256-512",
 	.base.cra_driver_name	= "kmac256-512-leancrypto",
 	.base.cra_blocksize	= LC_SHA3_256_SIZE_BLOCK,
@@ -145,6 +151,7 @@ static struct shash_alg lc_kmac256_algs[] = { {
 	.final			= lc_kernel_kmac256_final_xof,
 	.setkey			= lc_kernel_kmac256_setkey,
 	.descsize		= LC_KMAC_CTX_SIZE_KERNEL,
+	.base.cra_ctxsize	= LC_KMAC_CTX_SIZE_KERNEL,
 	.base.cra_name		= "kmac256xof-224",
 	.base.cra_driver_name	= "kmac256xof-224-leancrypto",
 	.base.cra_blocksize	= LC_SHA3_256_SIZE_BLOCK,
@@ -157,6 +164,7 @@ static struct shash_alg lc_kmac256_algs[] = { {
 	.final			= lc_kernel_kmac256_final_xof,
 	.setkey			= lc_kernel_kmac256_setkey,
 	.descsize		= LC_KMAC_CTX_SIZE_KERNEL,
+	.base.cra_ctxsize	= LC_KMAC_CTX_SIZE_KERNEL,
 	.base.cra_name		= "kmac256xof-256",
 	.base.cra_driver_name	= "kmac256xof-256-leancrypto",
 	.base.cra_blocksize	= LC_SHA3_256_SIZE_BLOCK,
@@ -169,6 +177,7 @@ static struct shash_alg lc_kmac256_algs[] = { {
 	.final			= lc_kernel_kmac256_final_xof,
 	.setkey			= lc_kernel_kmac256_setkey,
 	.descsize		= LC_KMAC_CTX_SIZE_KERNEL,
+	.base.cra_ctxsize	= LC_KMAC_CTX_SIZE_KERNEL,
 	.base.cra_name		= "kmac256xof-384",
 	.base.cra_driver_name	= "kmac256xof-384-leancrypto",
 	.base.cra_blocksize	= LC_SHA3_256_SIZE_BLOCK,
@@ -181,6 +190,7 @@ static struct shash_alg lc_kmac256_algs[] = { {
 	.final			= lc_kernel_kmac256_final_xof,
 	.setkey			= lc_kernel_kmac256_setkey,
 	.descsize		= LC_KMAC_CTX_SIZE_KERNEL,
+	.base.cra_ctxsize	= LC_KMAC_CTX_SIZE_KERNEL,
 	.base.cra_name		= "kmac256xof-512",
 	.base.cra_driver_name	= "kmac256xof-512-leancrypto",
 	.base.cra_blocksize	= LC_SHA3_256_SIZE_BLOCK,
