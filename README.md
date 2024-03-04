@@ -87,6 +87,8 @@ The API specified by the header files installed as part of the
 the kernel module as well. When compiling kernel code, the flag `-DLINUX_KERNEL`
 needs to be set.
 
+For more details, see `linux_kernel/README.md`.
+
 ## Library Build for Other Environments
 
 If you need leancrypto to work in other environments like small embedded
