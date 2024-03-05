@@ -1,4 +1,4 @@
-Changes 0.9.0-prerelease
+Changes 0.9.0
 
 * enhancement: X/ED25519: enable 128 bit mode on Intel for both, kernel and user
   space
