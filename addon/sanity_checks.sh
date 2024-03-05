@@ -168,7 +168,10 @@ check_reposanity() {
 		echo "Forgot to add $version changes to ${CHANGESFILE}" >&2
 		exit 1
 	fi
+}
 
+# Check whether we have a preliminary code drop
+check_preliminary() {
 	if $(head -n1 ${CHANGESFILE} | grep -q "prerelease" )
 	then
 		echo "Preliminary release - skipping full release validation" >&2
@@ -244,6 +247,8 @@ prepare_gitrepo() {
 
 	check_git_blockchain
 	[ $? -ne 0 ] && exit 1
+
+	check_preliminary
 
 	tag $(basename $(pwd)) $version
 	[ $? -ne 0 ] && exit 1
