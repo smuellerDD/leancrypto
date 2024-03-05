@@ -25,6 +25,8 @@ Changes 0.9.0-prerelease
 
 * fix: enable poly_compress_avx for Linux kernel compilation when GCC >= 13 is present
 
+* enhancement: add interface code to register leancrypto with Linux kernel crypto API
+
 Changes 0.8.0:
 
 * enhancement: add applications
