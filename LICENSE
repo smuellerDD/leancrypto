@@ -1,4 +1,4 @@
-Copyright (C) 2018 - 2023, Stephan Mueller <smueller@chronox.de>
+Copyright (C) 2018 - 2024, Stephan Mueller <smueller@chronox.de>
 
 See LICENSE.* for the applicable license.
 
@@ -172,7 +172,7 @@ signature/src/armv7/dilithium_ntt_consts.h
 The following files are licensed under the ISC license. The original files are
 obtained from https://github.com/jedisct1/libsodium.git
 
-Copyright (c) 2013-2023
+Copyright (c) 2013-2024
 Frank Denis <j at pureftpd dot org>
 
 curve25519/src/ed25519.c

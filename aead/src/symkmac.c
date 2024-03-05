@@ -1,6 +1,6 @@
 /* AEAD cipher based on arbitrary symmetric algorithm and KMAC
  *
- * Copyright (C) 2023, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2023 - 2024, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *

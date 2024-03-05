@@ -1,6 +1,6 @@
 /* Generic SHA-256 implementation
  *
- * Copyright (C) 2020 - 2023, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2020 - 2024, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *

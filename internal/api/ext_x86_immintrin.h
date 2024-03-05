@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, Stephan Mueller "ext_x2023_smueller@chronox.de"
+ * Copyright (C) 2022, Stephan Mueller "ext_x2024_smueller@chronox.de"
  *
  * License: see LICENSE file in root directory
  *

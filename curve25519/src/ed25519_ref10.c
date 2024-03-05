@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2023 - 2024, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *
@@ -22,7 +22,7 @@
  *
  * That code is released under ISC License
  *
- * Copyright (c) 2013-2023
+ * Copyright (c) 2013-2023 - 2024
  * Frank Denis <j at pureftpd dot org>
  */
 

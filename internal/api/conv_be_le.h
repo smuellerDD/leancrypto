@@ -1,6 +1,6 @@
 /* Conversion functions from LE to BE and vice versa
  *
- * Copyright (C) 2015 - 2023, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2015 - 2024, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file
  *
