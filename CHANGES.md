@@ -1,3 +1,7 @@
+Changes 1.0.0-prerelease
+
+* fix: export xor256.h as otherwise compilation fails
+
 Changes 0.9.0
 
 * enhancement: X/ED25519: enable 128 bit mode on Intel for both, kernel and user

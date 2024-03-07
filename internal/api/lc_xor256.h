@@ -17,8 +17,8 @@
  * DAMAGE.
  */
 
-#ifndef XOR256_H
-#define XOR256_H
+#ifndef LC_XOR256_H
+#define LC_XOR256_H
 
 #include "build_bug_on.h"
 #include "xor.h"
@@ -191,4 +191,4 @@ static inline void xor_256(uint8_t *dst, const uint8_t *src, size_t size)
 }
 #endif
 
-#endif /* XOR256_H */
+#endif /* LC_XOR256_H */

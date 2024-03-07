@@ -22,7 +22,7 @@
 
 #include "ext_headers.h"
 #include "lc_aead.h"
-#include "xor256.h"
+#include "lc_xor256.h"
 
 /*
  * This is the KMAC crypt cipher operation using the KMAC output as keystream

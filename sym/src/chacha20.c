@@ -25,10 +25,10 @@
 #include "lc_chacha20.h"
 #include "lc_chacha20_private.h"
 #include "lc_sym.h"
+#include "lc_xor256.h"
 #include "math_helper.h"
 #include "rotate.h"
 #include "visibility.h"
-#include "xor256.h"
 
 static void cc20_selftest(int *tested, const char *impl)
 {
