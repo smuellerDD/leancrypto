@@ -322,6 +322,7 @@
 #include "math_helper.h"
 #include "small_stack_support.h"
 #include "visibility.h"
+#include "xor256.h"
 
 #define LC_CC_AUTHENTICATION_KEY_SIZE (256 >> 3)
 #define LC_CC_CUSTOMIZATION_STRING "cSHAKE-AEAD crypt"

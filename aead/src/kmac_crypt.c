@@ -272,6 +272,7 @@
 #include "lc_memcmp_secure.h"
 #include "math_helper.h"
 #include "visibility.h"
+#include "xor256.h"
 
 #define LC_KC_AUTHENTICATION_KEY_SIZE (256 >> 3)
 

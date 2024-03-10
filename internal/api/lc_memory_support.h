@@ -80,6 +80,37 @@ extern "C" {
 #define LC_ALIGN_PTR_8(p, a) ((uint8_t *)LC_ALIGN((unsigned long)(p), (a)))
 
 /**
+ * Proper memory alignment value when using XOR
+ */
+#define LC_XOR_MIN_ALIGNMENT(min, requested)                                   \
+	((min < requested) ? (requested) : (min))
+
+#ifdef LC_HOST_X86_64
+
+/*
+ * The load of data into __m256i does not require alignment, the store
+ * requires 64 bit alignment by using _mm_storel_pd / _mm_storeh_pd.
+ */
+#define LC_XOR_AVX2_ALIGNMENT (sizeof(uint64_t))
+#define LC_XOR_ALIGNMENT(min) LC_XOR_MIN_ALIGNMENT(min, LC_XOR_AVX2_ALIGNMENT)
+
+#elif (defined(LC_HOST_ARM32_NEON) || defined(LC_HOST_AARCH64)) &&             \
+	!defined(LINUX_KERNEL)
+
+/*
+ * The load of data into uint64x2_t requires 64 bit alignment, the store
+ * requires 64 bit alignment.
+ */
+#define LC_XOR_NEON_ALIGNMENT (sizeof(uint64_t))
+#define LC_XOR_ALIGNMENT(min) LC_XOR_MIN_ALIGNMENT(min, LC_XOR_NEON_ALIGNMENT)
+
+#else
+
+#define LC_XOR_ALIGNMENT(min) LC_XOR_MIN_ALIGNMENT(min, (sizeof(uint64_t)))
+
+#endif
+
+/**
  * @brief allocate aligned memory up to 8 bytes alignment
  *
  * @param [out] memptr pointer to the newly allocated memory

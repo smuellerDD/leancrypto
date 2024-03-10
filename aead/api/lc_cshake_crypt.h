@@ -21,7 +21,7 @@
 #define LC_CSHAKE_CRYPT_H
 
 #include "lc_aead.h"
-#include "lc_xor256.h"
+#include "lc_memory_support.h"
 
 /*
  * This is the CSHAKE crypt cipher operation using the CSHAKE output as

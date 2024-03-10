@@ -17,8 +17,8 @@
  * DAMAGE.
  */
 
-#ifndef LC_XOR256_H
-#define LC_XOR256_H
+#ifndef XOR256_H
+#define XOR256_H
 
 #include "build_bug_on.h"
 #include "xor.h"
@@ -27,17 +27,7 @@
 extern "C" {
 #endif
 
-#define LC_XOR_MIN_ALIGNMENT(min, requested)                                   \
-	((min < requested) ? (requested) : (min))
-
 #ifdef LC_HOST_X86_64
-
-/*
- * The load of data into __m256i does not require alignment, the store
- * requires 64 bit alignment by using _mm_storel_pd / _mm_storeh_pd.
- */
-#define LC_XOR_AVX2_ALIGNMENT (sizeof(uint64_t))
-#define LC_XOR_ALIGNMENT(min) LC_XOR_MIN_ALIGNMENT(min, LC_XOR_AVX2_ALIGNMENT)
 
 /*
  * AVX2 implementation of XOR (processing 256 bit chunks)
@@ -117,13 +107,6 @@ static inline void xor_256(uint8_t *dst, const uint8_t *src, size_t size)
 	!defined(LINUX_KERNEL)
 
 /*
- * The load of data into uint64x2_t requires 64 bit alignment, the store
- * requires 64 bit alignment.
- */
-#define LC_XOR_NEON_ALIGNMENT (sizeof(uint64_t))
-#define LC_XOR_ALIGNMENT(min) LC_XOR_MIN_ALIGNMENT(min, LC_XOR_NEON_ALIGNMENT)
-
-/*
  * ARM Neon implementation of XOR (processing 128 bit chunks)
  */
 /* This code cannot be compiled for the Linux kernel as of now */
@@ -178,8 +161,6 @@ static inline void xor_256(uint8_t *dst, const uint8_t *src, size_t size)
 
 #else
 
-#define LC_XOR_ALIGNMENT(min) LC_XOR_MIN_ALIGNMENT(min, (sizeof(uint64_t)))
-
 static inline void xor_256(uint8_t *dst, const uint8_t *src, size_t size)
 {
 	xor_64(dst, src, size);
@@ -191,4 +172,4 @@ static inline void xor_256(uint8_t *dst, const uint8_t *src, size_t size)
 }
 #endif
 
-#endif /* LC_XOR256_H */
+#endif /* XOR256_H */

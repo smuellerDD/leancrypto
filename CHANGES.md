@@ -1,6 +1,6 @@
-Changes 1.0.0-prerelease
+Changes 0.9.1-prerelease
 
-* fix: export xor256.h as otherwise compilation fails
+* fix: move XOR-256 memory definitions to lc_memory_support.h as otherwise compilation of external applications and libraries fail due to missing xor256.h
 
 Changes 0.9.0
 

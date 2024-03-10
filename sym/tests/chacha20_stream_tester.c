@@ -20,9 +20,9 @@
 #include "alignment.h"
 #include "conv_be_le.h"
 #include "lc_chacha20.h"
-#include "lc_xor256.h"
 #include "ret_checkers.h"
 #include "visibility.h"
+#include "xor256.h"
 
 static int chacha20_enc_selftest(void)
 {

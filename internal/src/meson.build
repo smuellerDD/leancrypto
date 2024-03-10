@@ -34,8 +34,7 @@ include_files += files([
 	'../api/lc_memcmp_secure.h',
 	'../api/lc_memset_secure.h',
 	'../api/lc_memory_support.h',
-	'../api/lc_status.h',
-	'../api/lc_xor256.h'
+	'../api/lc_status.h'
 	])
 
 c_compiler = meson.get_compiler('c')
