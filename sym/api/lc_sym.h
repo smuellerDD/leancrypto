@@ -103,7 +103,6 @@ struct lc_sym_ctx {
  * 2. Use the returned cipher handle with the API calls below.
  */
 
-
 /**
  * @brief Initialize symmetric context
  *

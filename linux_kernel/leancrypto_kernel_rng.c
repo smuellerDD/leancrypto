@@ -27,13 +27,12 @@
 #include "leancrypto_kernel.h"
 
 struct lc_kernel_rng_state {
-	struct mutex rng_mutex;        /* lock around DRBG */
+	struct mutex rng_mutex; /* lock around DRBG */
 	struct lc_rng_ctx *rng_ctx;
 };
 
-static int lc_kernel_rng_generate(struct crypto_rng *tfm,
-				  const u8 *src, unsigned int slen,
-				  u8 *dst, unsigned int dlen)
+static int lc_kernel_rng_generate(struct crypto_rng *tfm, const u8 *src,
+				  unsigned int slen, u8 *dst, unsigned int dlen)
 {
 	struct lc_kernel_rng_state *rng = crypto_rng_ctx(tfm);
 	struct lc_rng_ctx *rng_ctx = rng->rng_ctx;
@@ -58,7 +57,6 @@ static int lc_kernel_rng_seed(struct crypto_rng *tfm, const u8 *seed,
 	mutex_unlock(&rng->rng_mutex);
 
 	return ret;
-
 }
 
 static int lc_kernel_xdrbg256_init(struct crypto_tfm *tfm)
@@ -66,12 +64,12 @@ static int lc_kernel_xdrbg256_init(struct crypto_tfm *tfm)
 	struct lc_kernel_rng_state *xdrbg = crypto_tfm_ctx(tfm);
 
 	mutex_init(&xdrbg->rng_mutex);
-	xdrbg->rng_ctx = (struct lc_rng_ctx *)
-			 ((uint8_t *)xdrbg +
-			  sizeof(struct lc_kernel_rng_state));
+	xdrbg->rng_ctx =
+		(struct lc_rng_ctx *)((uint8_t *)xdrbg +
+				      sizeof(struct lc_kernel_rng_state));
 	LC_XDRBG256_RNG_CTX(xdrbg->rng_ctx);
 
-        return 0;
+	return 0;
 }
 
 static void lc_kernel_xdrbg256_cleanup(struct crypto_tfm *tfm)
@@ -89,7 +87,7 @@ static int lc_kernel_seeded_init(struct crypto_tfm *tfm)
 	mutex_init(&seeded->rng_mutex);
 	seeded->rng_ctx = lc_seeded_rng;
 
-        return 0;
+	return 0;
 }
 
 static void lc_kernel_seeded_cleanup(struct crypto_tfm *tfm)
@@ -101,30 +99,29 @@ static void lc_kernel_seeded_cleanup(struct crypto_tfm *tfm)
 	lc_rng_seed(rng_ctx, NULL, 0, NULL, 0);
 }
 
-static struct rng_alg lc_rng_algs[] = { {
-	.generate		= lc_kernel_rng_generate,
-	.seed			= lc_kernel_rng_seed,
-	.seedsize		= 256,
-	.base.cra_name		= "stdrng",
-	.base.cra_driver_name	= "xdrbg256-leancrypto",
-	.base.cra_ctxsize	= LC_XDRBG256_DRNG_CTX_SIZE +
-				  sizeof(struct lc_kernel_rng_state),
-	.base.cra_module	= THIS_MODULE,
-	.base.cra_priority	= LC_KERNEL_DEFAULT_PRIO,
-	.base.cra_init		= lc_kernel_xdrbg256_init,
-        .base.cra_exit		= lc_kernel_xdrbg256_cleanup
-}, {
-	.generate		= lc_kernel_rng_generate,
-	.seed			= lc_kernel_rng_seed,
-	.seedsize		= 0,
-	.base.cra_name		= "stdrng",
-	.base.cra_driver_name	= "seededrng-leancrypto",
-	.base.cra_ctxsize	= LC_XDRBG256_DRNG_CTX_SIZE,
-	.base.cra_module	= THIS_MODULE,
-	.base.cra_priority	= LC_KERNEL_DEFAULT_PRIO + 1,
-	.base.cra_init		= lc_kernel_seeded_init,
-        .base.cra_exit		= lc_kernel_seeded_cleanup
-} };
+static struct rng_alg lc_rng_algs[] = {
+	{ .generate = lc_kernel_rng_generate,
+	  .seed = lc_kernel_rng_seed,
+	  .seedsize = 256,
+	  .base.cra_name = "stdrng",
+	  .base.cra_driver_name = "xdrbg256-leancrypto",
+	  .base.cra_ctxsize = LC_XDRBG256_DRNG_CTX_SIZE +
+			      sizeof(struct lc_kernel_rng_state),
+	  .base.cra_module = THIS_MODULE,
+	  .base.cra_priority = LC_KERNEL_DEFAULT_PRIO,
+	  .base.cra_init = lc_kernel_xdrbg256_init,
+	  .base.cra_exit = lc_kernel_xdrbg256_cleanup },
+	{ .generate = lc_kernel_rng_generate,
+	  .seed = lc_kernel_rng_seed,
+	  .seedsize = 0,
+	  .base.cra_name = "stdrng",
+	  .base.cra_driver_name = "seededrng-leancrypto",
+	  .base.cra_ctxsize = LC_XDRBG256_DRNG_CTX_SIZE,
+	  .base.cra_module = THIS_MODULE,
+	  .base.cra_priority = LC_KERNEL_DEFAULT_PRIO + 1,
+	  .base.cra_init = lc_kernel_seeded_init,
+	  .base.cra_exit = lc_kernel_seeded_cleanup }
+};
 
 int __init lc_kernel_rng_init(void)
 {

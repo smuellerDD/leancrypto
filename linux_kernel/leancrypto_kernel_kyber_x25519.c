@@ -73,11 +73,10 @@ static int lc_kernel_kyber_x25519_gen_pubkey(struct kpp_request *req)
 		return ret;
 
 	nbytes = min_t(size_t, sizeof(pk), req->dst_len);
-	copied = sg_copy_from_buffer(req->dst, sg_nents_for_len(req->dst,
-								nbytes),
-				     &pk, nbytes);
-        if (copied != nbytes)
-                ret = -EINVAL;
+	copied = sg_copy_from_buffer(
+		req->dst, sg_nents_for_len(req->dst, nbytes), &pk, nbytes);
+	if (copied != nbytes)
+		ret = -EINVAL;
 
 	return ret;
 }
@@ -100,7 +99,7 @@ static int lc_kernel_kyber_x25519_ss(struct kpp_request *req)
 	 * Set an arbitrary limit for the shared secret to avoid allocating
 	 * too much memory. The value allows 2 AES keys + 2 IVs + 2 MAC keys.
 	 */
-	if (req->dst_len > (2 * 32 + 2* 16 + 2 * 32))
+	if (req->dst_len > (2 * 32 + 2 * 16 + 2 * 32))
 		return -EOVERFLOW;
 
 	if (!req->dst_len)
@@ -109,8 +108,8 @@ static int lc_kernel_kyber_x25519_ss(struct kpp_request *req)
 	if (req->src_len != sizeof(ct))
 		return -EINVAL;
 
-	copied = sg_copy_to_buffer(req->src, sg_nents_for_len(req->src,
-							      req->src_len),
+	copied = sg_copy_to_buffer(req->src,
+				   sg_nents_for_len(req->src, req->src_len),
 				   &ct, sizeof(ct));
 	if (copied != sizeof(ct))
 		return -EINVAL;
@@ -124,11 +123,11 @@ static int lc_kernel_kyber_x25519_ss(struct kpp_request *req)
 	if (ret)
 		goto out;
 
-	copied = sg_copy_from_buffer(req->dst, sg_nents_for_len(req->dst,
-								req->dst_len),
+	copied = sg_copy_from_buffer(req->dst,
+				     sg_nents_for_len(req->dst, req->dst_len),
 				     shared_secret, req->dst_len);
-        if (copied != req->dst_len)
-                ret = -EINVAL;
+	if (copied != req->dst_len)
+		ret = -EINVAL;
 
 out:
 	kfree_sensitive(shared_secret);
@@ -141,23 +140,23 @@ static unsigned int lc_kernel_kyber_x25519_max_size(struct crypto_kpp *tfm)
 }
 
 static struct kpp_alg lc_kernel_kyber = {
-	.set_secret		= lc_kernel_kyber_x25519_set_secret,
-	.generate_public_key	= lc_kernel_kyber_x25519_gen_pubkey,
-	.compute_shared_secret	= lc_kernel_kyber_x25519_ss,
-	.max_size		= lc_kernel_kyber_x25519_max_size,
+	.set_secret = lc_kernel_kyber_x25519_set_secret,
+	.generate_public_key = lc_kernel_kyber_x25519_gen_pubkey,
+	.compute_shared_secret = lc_kernel_kyber_x25519_ss,
+	.max_size = lc_kernel_kyber_x25519_max_size,
 #if LC_KYBER_K == 2
-	.base.cra_name		= "kyber-x25519-512",
-	.base.cra_driver_name	= "kyber-x25519-512-leancrypto",
+	.base.cra_name = "kyber-x25519-512",
+	.base.cra_driver_name = "kyber-x25519-512-leancrypto",
 #elif LC_KYBER_K == 3
-	.base.cra_name		= "kyber-x25519-768",
-	.base.cra_driver_name	= "kyber-x25519-768-leancrypto",
+	.base.cra_name = "kyber-x25519-768",
+	.base.cra_driver_name = "kyber-x25519-768-leancrypto",
 #else
-	.base.cra_name		= "kyber-x25519-1024",
-	.base.cra_driver_name	= "kyber-x25519-1024-leancrypto",
+	.base.cra_name = "kyber-x25519-1024",
+	.base.cra_driver_name = "kyber-x25519-1024-leancrypto",
 #endif
-	.base.cra_ctxsize	= sizeof(struct lc_kernel_kyber_x25519_ctx),
-	.base.cra_module	= THIS_MODULE,
-	.base.cra_priority	= LC_KERNEL_DEFAULT_PRIO,
+	.base.cra_ctxsize = sizeof(struct lc_kernel_kyber_x25519_ctx),
+	.base.cra_module = THIS_MODULE,
+	.base.cra_priority = LC_KERNEL_DEFAULT_PRIO,
 };
 
 int __init lc_kernel_kyber_x25519_init(void)

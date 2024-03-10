@@ -67,7 +67,7 @@ static int lc_kernel_sha3_512_init(struct shash_desc *desc)
 }
 
 static int lc_kernel_sha3_update(struct shash_desc *desc, const u8 *data,
-			      unsigned int len)
+				 unsigned int len)
 {
 	struct lc_hash_ctx *sctx = shash_desc_ctx(desc);
 
@@ -85,51 +85,56 @@ static int lc_kernel_sha3_final(struct shash_desc *desc, u8 *out)
 	return 0;
 }
 
-static struct shash_alg lc_sha3_algs[] = { {
-	.digestsize		= LC_SHA3_224_SIZE_DIGEST,
-	.init			= lc_kernel_sha3_224_init,
-	.update			= lc_kernel_sha3_update,
-	.final			= lc_kernel_sha3_final,
-	.descsize		= LC_SHA3_224_CTX_SIZE,
-	.base.cra_name		= "sha3-224",
-	.base.cra_driver_name	= "sha3-224-leancrypto",
-	.base.cra_blocksize	= LC_SHA3_224_SIZE_BLOCK,
-	.base.cra_module	= THIS_MODULE,
-	.base.cra_priority	= LC_KERNEL_DEFAULT_PRIO,
-}, {
-	.digestsize		= LC_SHA3_256_SIZE_DIGEST,
-	.init			= lc_kernel_sha3_256_init,
-	.update			= lc_kernel_sha3_update,
-	.final			= lc_kernel_sha3_final,
-	.descsize		= LC_SHA3_256_CTX_SIZE,
-	.base.cra_name		= "sha3-256",
-	.base.cra_driver_name	= "sha3-256-leancrypto",
-	.base.cra_blocksize	= LC_SHA3_256_SIZE_BLOCK,
-	.base.cra_module	= THIS_MODULE,
-	.base.cra_priority	= LC_KERNEL_DEFAULT_PRIO,
-}, {
-	.digestsize		= LC_SHA3_384_SIZE_DIGEST,
-	.init			= lc_kernel_sha3_384_init,
-	.update			= lc_kernel_sha3_update,
-	.final			= lc_kernel_sha3_final,
-	.descsize		= LC_SHA3_384_CTX_SIZE,
-	.base.cra_name		= "sha3-384",
-	.base.cra_driver_name	= "sha3-384-leancrypto",
-	.base.cra_blocksize	= LC_SHA3_384_SIZE_BLOCK,
-	.base.cra_module	= THIS_MODULE,
-	.base.cra_priority	= LC_KERNEL_DEFAULT_PRIO,
-}, {
-	.digestsize		= LC_SHA3_512_SIZE_DIGEST,
-	.init			= lc_kernel_sha3_512_init,
-	.update			= lc_kernel_sha3_update,
-	.final			= lc_kernel_sha3_final,
-	.descsize		= LC_SHA3_512_CTX_SIZE,
-	.base.cra_name		= "sha3-512",
-	.base.cra_driver_name	= "sha3-512-leancrypto",
-	.base.cra_blocksize	= LC_SHA3_512_SIZE_BLOCK,
-	.base.cra_module	= THIS_MODULE,
-	.base.cra_priority	= LC_KERNEL_DEFAULT_PRIO,
-} };
+static struct shash_alg lc_sha3_algs[] = {
+	{
+		.digestsize = LC_SHA3_224_SIZE_DIGEST,
+		.init = lc_kernel_sha3_224_init,
+		.update = lc_kernel_sha3_update,
+		.final = lc_kernel_sha3_final,
+		.descsize = LC_SHA3_224_CTX_SIZE,
+		.base.cra_name = "sha3-224",
+		.base.cra_driver_name = "sha3-224-leancrypto",
+		.base.cra_blocksize = LC_SHA3_224_SIZE_BLOCK,
+		.base.cra_module = THIS_MODULE,
+		.base.cra_priority = LC_KERNEL_DEFAULT_PRIO,
+	},
+	{
+		.digestsize = LC_SHA3_256_SIZE_DIGEST,
+		.init = lc_kernel_sha3_256_init,
+		.update = lc_kernel_sha3_update,
+		.final = lc_kernel_sha3_final,
+		.descsize = LC_SHA3_256_CTX_SIZE,
+		.base.cra_name = "sha3-256",
+		.base.cra_driver_name = "sha3-256-leancrypto",
+		.base.cra_blocksize = LC_SHA3_256_SIZE_BLOCK,
+		.base.cra_module = THIS_MODULE,
+		.base.cra_priority = LC_KERNEL_DEFAULT_PRIO,
+	},
+	{
+		.digestsize = LC_SHA3_384_SIZE_DIGEST,
+		.init = lc_kernel_sha3_384_init,
+		.update = lc_kernel_sha3_update,
+		.final = lc_kernel_sha3_final,
+		.descsize = LC_SHA3_384_CTX_SIZE,
+		.base.cra_name = "sha3-384",
+		.base.cra_driver_name = "sha3-384-leancrypto",
+		.base.cra_blocksize = LC_SHA3_384_SIZE_BLOCK,
+		.base.cra_module = THIS_MODULE,
+		.base.cra_priority = LC_KERNEL_DEFAULT_PRIO,
+	},
+	{
+		.digestsize = LC_SHA3_512_SIZE_DIGEST,
+		.init = lc_kernel_sha3_512_init,
+		.update = lc_kernel_sha3_update,
+		.final = lc_kernel_sha3_final,
+		.descsize = LC_SHA3_512_CTX_SIZE,
+		.base.cra_name = "sha3-512",
+		.base.cra_driver_name = "sha3-512-leancrypto",
+		.base.cra_blocksize = LC_SHA3_512_SIZE_BLOCK,
+		.base.cra_module = THIS_MODULE,
+		.base.cra_priority = LC_KERNEL_DEFAULT_PRIO,
+	}
+};
 
 int __init lc_kernel_sha3_init(void)
 {

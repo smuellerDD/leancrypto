@@ -77,8 +77,8 @@ static int lc_kernel_dilithium_ed25519_sign(struct akcipher_request *req)
 	ret = lc_dilithium_ed25519_sign(sig, miter.addr, miter.length, &ctx->sk,
 					lc_seeded_rng);
 	if (!ret) {
-		sg_pcopy_from_buffer(req->dst, sg_nents_for_len(req->dst,
-								req->dst_len),
+		sg_pcopy_from_buffer(req->dst,
+				     sg_nents_for_len(req->dst, req->dst_len),
 				     sig, req->dst_len, 0);
 	}
 
@@ -129,8 +129,8 @@ static int lc_kernel_dilithium_ed25519_verify(struct akcipher_request *req)
 }
 
 static int lc_kernel_dilithium_ed25519_set_pub_key(struct crypto_akcipher *tfm,
-					   const void *key,
-					   unsigned int keylen)
+						   const void *key,
+						   unsigned int keylen)
 {
 	struct lc_kernel_dilithium_ed25519_ctx *ctx = akcipher_tfm_ctx(tfm);
 
@@ -151,8 +151,8 @@ static int lc_kernel_dilithium_ed25519_set_pub_key(struct crypto_akcipher *tfm,
 }
 
 static int lc_kernel_dilithium_ed25519_set_priv_key(struct crypto_akcipher *tfm,
-					    const void *key,
-					    unsigned int keylen)
+						    const void *key,
+						    unsigned int keylen)
 {
 	struct lc_kernel_dilithium_ed25519_ctx *ctx = akcipher_tfm_ctx(tfm);
 
@@ -172,7 +172,8 @@ static int lc_kernel_dilithium_ed25519_set_priv_key(struct crypto_akcipher *tfm,
 	return 0;
 }
 
-static unsigned int lc_kernel_dilithium_ed25519_max_size(struct crypto_akcipher *tfm)
+static unsigned int
+lc_kernel_dilithium_ed25519_max_size(struct crypto_akcipher *tfm)
 {
 	struct lc_kernel_dilithium_ed25519_ctx *ctx = akcipher_tfm_ctx(tfm);
 
@@ -199,26 +200,26 @@ static void lc_kernel_dilithium_ed25519_alg_exit(struct crypto_akcipher *tfm)
 }
 
 static struct akcipher_alg lc_kernel_dilithium_ed25519 = {
-	.sign			= lc_kernel_dilithium_ed25519_sign,
-	.verify			= lc_kernel_dilithium_ed25519_verify,
-	.set_pub_key		= lc_kernel_dilithium_ed25519_set_pub_key,
-	.set_priv_key		= lc_kernel_dilithium_ed25519_set_priv_key,
-	.max_size		= lc_kernel_dilithium_ed25519_max_size,
-	.init			= lc_kernel_dilithium_ed25519_alg_init,
-	.exit			= lc_kernel_dilithium_ed25519_alg_exit,
+	.sign = lc_kernel_dilithium_ed25519_sign,
+	.verify = lc_kernel_dilithium_ed25519_verify,
+	.set_pub_key = lc_kernel_dilithium_ed25519_set_pub_key,
+	.set_priv_key = lc_kernel_dilithium_ed25519_set_priv_key,
+	.max_size = lc_kernel_dilithium_ed25519_max_size,
+	.init = lc_kernel_dilithium_ed25519_alg_init,
+	.exit = lc_kernel_dilithium_ed25519_alg_exit,
 #if LC_DILITHIUM_MODE == 2
-	.base.cra_name		= "dilithium-ed25519-44",
-	.base.cra_driver_name	= "dilithium-ed25519-44-leancrypto",
+	.base.cra_name = "dilithium-ed25519-44",
+	.base.cra_driver_name = "dilithium-ed25519-44-leancrypto",
 #elif LC_DILITHIUM_MODE == 3
-	.base.cra_name		= "dilithium-ed25519-65",
-	.base.cra_driver_name	= "dilithium-ed25519-65-leancrypto",
+	.base.cra_name = "dilithium-ed25519-65",
+	.base.cra_driver_name = "dilithium-ed25519-65-leancrypto",
 #else
-	.base.cra_name		= "dilithium-ed25519-87",
-	.base.cra_driver_name	= "dilithium-ed25519-87-leancrypto",
+	.base.cra_name = "dilithium-ed25519-87",
+	.base.cra_driver_name = "dilithium-ed25519-87-leancrypto",
 #endif
-	.base.cra_ctxsize	= sizeof(struct lc_kernel_dilithium_ed25519_ctx),
-	.base.cra_module	= THIS_MODULE,
-	.base.cra_priority	= LC_KERNEL_DEFAULT_PRIO,
+	.base.cra_ctxsize = sizeof(struct lc_kernel_dilithium_ed25519_ctx),
+	.base.cra_module = THIS_MODULE,
+	.base.cra_priority = LC_KERNEL_DEFAULT_PRIO,
 };
 
 int __init lc_kernel_dilithium_ed25519_init(void)

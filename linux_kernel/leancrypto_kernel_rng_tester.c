@@ -62,7 +62,6 @@ static int __init leancrypto_kernel_rng_test_init(void)
 
 static void __exit leancrypto_kernel_rng_test_exit(void)
 {
-
 }
 
 module_init(leancrypto_kernel_rng_test_init);
@@ -71,4 +70,3 @@ module_exit(leancrypto_kernel_rng_test_exit);
 MODULE_LICENSE("Dual BSD/GPL");
 MODULE_AUTHOR("Stephan Mueller <smueller@chronox.de>");
 MODULE_DESCRIPTION("Kernel module leancrypto_kernel_sha3_test");
-

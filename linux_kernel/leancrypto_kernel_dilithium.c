@@ -83,8 +83,8 @@ static int lc_kernel_dilithium_sign(struct akcipher_request *req)
 	lc_hash_zero(hash_ctx);
 
 	if (!ret) {
-		sg_pcopy_from_buffer(req->dst, sg_nents_for_len(req->dst,
-								req->dst_len),
+		sg_pcopy_from_buffer(req->dst,
+				     sg_nents_for_len(req->dst, req->dst_len),
 				     sig, LC_DILITHIUM_CRYPTO_BYTES, 0);
 	}
 
@@ -141,8 +141,7 @@ static int lc_kernel_dilithium_verify(struct akcipher_request *req)
 }
 
 static int lc_kernel_dilithium_set_pub_key(struct crypto_akcipher *tfm,
-					   const void *key,
-					   unsigned int keylen)
+					   const void *key, unsigned int keylen)
 {
 	struct lc_kernel_dilithium_ctx *ctx = akcipher_tfm_ctx(tfm);
 
@@ -203,26 +202,26 @@ static void lc_kernel_dilithium_alg_exit(struct crypto_akcipher *tfm)
 }
 
 static struct akcipher_alg lc_kernel_dilithium = {
-	.sign			= lc_kernel_dilithium_sign,
-	.verify			= lc_kernel_dilithium_verify,
-	.set_pub_key		= lc_kernel_dilithium_set_pub_key,
-	.set_priv_key		= lc_kernel_dilithium_set_priv_key,
-	.max_size		= lc_kernel_dilithium_max_size,
-	.init			= lc_kernel_dilithium_alg_init,
-	.exit			= lc_kernel_dilithium_alg_exit,
+	.sign = lc_kernel_dilithium_sign,
+	.verify = lc_kernel_dilithium_verify,
+	.set_pub_key = lc_kernel_dilithium_set_pub_key,
+	.set_priv_key = lc_kernel_dilithium_set_priv_key,
+	.max_size = lc_kernel_dilithium_max_size,
+	.init = lc_kernel_dilithium_alg_init,
+	.exit = lc_kernel_dilithium_alg_exit,
 #if LC_DILITHIUM_MODE == 2
-	.base.cra_name		= "dilithium44",
-	.base.cra_driver_name	= "dilithium44-leancrypto",
+	.base.cra_name = "dilithium44",
+	.base.cra_driver_name = "dilithium44-leancrypto",
 #elif LC_DILITHIUM_MODE == 3
-	.base.cra_name		= "dilithium65",
-	.base.cra_driver_name	= "dilithium65-leancrypto",
+	.base.cra_name = "dilithium65",
+	.base.cra_driver_name = "dilithium65-leancrypto",
 #else
-	.base.cra_name		= "dilithium87",
-	.base.cra_driver_name	= "dilithium87-leancrypto",
+	.base.cra_name = "dilithium87",
+	.base.cra_driver_name = "dilithium87-leancrypto",
 #endif
-	.base.cra_ctxsize	= sizeof(struct lc_kernel_dilithium_ctx),
-	.base.cra_module	= THIS_MODULE,
-	.base.cra_priority	= LC_KERNEL_DEFAULT_PRIO,
+	.base.cra_ctxsize = sizeof(struct lc_kernel_dilithium_ctx),
+	.base.cra_module = THIS_MODULE,
+	.base.cra_priority = LC_KERNEL_DEFAULT_PRIO,
 };
 
 int __init lc_kernel_dilithium_init(void)

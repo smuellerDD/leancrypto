@@ -74,7 +74,8 @@ static unsigned int lc_kpp_op(struct lc_kpp_def *kpp, int gen_ss)
 		break;
 	default:
 		pr_err("kpp cipher operation returned with %d result"
-		       " %d\n", rc, kpp->result.err);
+		       " %d\n",
+		       rc, kpp->result.err);
 		break;
 	}
 
@@ -94,8 +95,8 @@ static int lc_kyber_ss(const char *algname)
 
 	tfm = crypto_alloc_kpp(algname, 0, 0);
 	if (IS_ERR(tfm)) {
-		pr_info("could not allocate kpp handle for %s %ld\n",
-			algname, PTR_ERR(tfm));
+		pr_info("could not allocate kpp handle for %s %ld\n", algname,
+			PTR_ERR(tfm));
 		return PTR_ERR(tfm);
 	}
 
@@ -134,8 +135,8 @@ static int lc_kyber_ss(const char *algname)
 	if (err)
 		goto out;
 
-	kpp_request_set_callback(req, CRYPTO_TFM_REQ_MAY_BACKLOG,
-				 lc_kpp_cb, &kpp.result);
+	kpp_request_set_callback(req, CRYPTO_TFM_REQ_MAY_BACKLOG, lc_kpp_cb,
+				 &kpp.result);
 
 	/* Initiator: Obtain the PK */
 	sg_init_one(&dst, pk->pk, sizeof(struct lc_kyber_pk));
@@ -152,7 +153,8 @@ static int lc_kyber_ss(const char *algname)
 	kpp_request_set_input(req, &src, sizeof(struct lc_kyber_pk));
 	kpp_request_set_output(req, &dst, sizeof(struct lc_kyber_ct));
 	err = lc_kpp_op(&kpp, 0);
-	pr_info("Responder: Kyber SS / CT generation and CT gathering result %d\n", err);
+	pr_info("Responder: Kyber SS / CT generation and CT gathering result %d\n",
+		err);
 	if (err)
 		goto out;
 
@@ -170,8 +172,8 @@ static int lc_kyber_ss(const char *algname)
 	sg_init_one(&dst, ss2, sizeof(ss2));
 	kpp_request_set_input(req, &src, crypto_kpp_maxsize(tfm));
 	kpp_request_set_output(req, &dst, sizeof(ss1));
-	kpp_request_set_callback(req, CRYPTO_TFM_REQ_MAY_BACKLOG,
-				 lc_kpp_cb, &kpp.result);
+	kpp_request_set_callback(req, CRYPTO_TFM_REQ_MAY_BACKLOG, lc_kpp_cb,
+				 &kpp.result);
 
 	err = lc_kpp_op(&kpp, 1);
 	pr_info("Initiator: Kyber shared secret generation result %d\n", err);
@@ -215,4 +217,3 @@ module_exit(leancrypto_kernel_kyber_test_exit);
 MODULE_LICENSE("Dual BSD/GPL");
 MODULE_AUTHOR("Stephan Mueller <smueller@chronox.de>");
 MODULE_DESCRIPTION("Kernel module leancrypto_kernel_kyber_test");
-

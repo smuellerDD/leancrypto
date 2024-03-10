@@ -184,8 +184,8 @@ static void lc_xdrbg256_drng_fke_init_ctx(struct lc_xdrbg256_drng_state *state,
 	lc_hash_update(shake_ctx, state->v, LC_XDRBG256_DRNG_KEYSIZE);
 
 	/* Insert alpha into the SHAKE state together with its encoding. */
-	lc_xdrbg256_drng_encode(shake_ctx, LC_XDRBG256_DRNG_ENCODE_N(2),
-				alpha, alphalen);
+	lc_xdrbg256_drng_encode(shake_ctx, LC_XDRBG256_DRNG_ENCODE_N(2), alpha,
+				alphalen);
 
 	/* Generate the V to store in the state and overwrite V'. */
 	lc_xdrbg256_shake_final(shake_ctx, state->v, LC_XDRBG256_DRNG_KEYSIZE);

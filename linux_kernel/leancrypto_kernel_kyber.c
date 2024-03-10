@@ -37,8 +37,7 @@ struct lc_kernel_kyber_ctx {
 };
 
 static int lc_kernel_kyber_set_secret(struct crypto_kpp *tfm,
-				      const void *buffer,
-				      unsigned int len)
+				      const void *buffer, unsigned int len)
 {
 	struct lc_kernel_kyber_ctx *ctx = kpp_tfm_ctx(tfm);
 
@@ -105,18 +104,17 @@ static int lc_kernel_kyber_gen_ct(struct kpp_request *req)
 		u8 *lpk = &ctx->sk.sk[LC_KYBER_INDCPA_SECRETKEYBYTES];
 
 		/* Copy out the public key */
-		copied = sg_copy_from_buffer(req->dst,
-					     sg_nents_for_len(
-						req->dst,
-						LC_KYBER_PUBLICKEYBYTES),
-					     lpk, LC_KYBER_PUBLICKEYBYTES);
+		copied = sg_copy_from_buffer(
+			req->dst,
+			sg_nents_for_len(req->dst, LC_KYBER_PUBLICKEYBYTES),
+			lpk, LC_KYBER_PUBLICKEYBYTES);
 		if (copied != LC_KYBER_PUBLICKEYBYTES)
 			return -EINVAL;
 		return 0;
 	}
 
-	copied = sg_copy_to_buffer(req->src, sg_nents_for_len(req->src,
-							      req->src_len),
+	copied = sg_copy_to_buffer(req->src,
+				   sg_nents_for_len(req->src, req->src_len),
 				   rpk.pk, LC_KYBER_PUBLICKEYBYTES);
 	if (copied != LC_KYBER_PUBLICKEYBYTES)
 		return -EINVAL;
@@ -131,11 +129,11 @@ static int lc_kernel_kyber_gen_ct(struct kpp_request *req)
 	 * Now we copy out the Kyber CT
 	 */
 	nbytes = min_t(size_t, LC_CRYPTO_CIPHERTEXTBYTES, req->dst_len);
-	copied = sg_copy_from_buffer(req->dst, sg_nents_for_len(req->dst,
-								nbytes),
+	copied = sg_copy_from_buffer(req->dst,
+				     sg_nents_for_len(req->dst, nbytes),
 				     ctx->ct.ct, nbytes);
-        if (copied != nbytes)
-                ret = -EINVAL;
+	if (copied != nbytes)
+		ret = -EINVAL;
 
 	return 0;
 }
@@ -170,11 +168,11 @@ static int lc_kernel_kyber_ss_local(struct kpp_request *req)
 		outbuf = shared_secret;
 	}
 
-	copied = sg_copy_from_buffer(req->dst, sg_nents_for_len(req->dst,
-								req->dst_len),
+	copied = sg_copy_from_buffer(req->dst,
+				     sg_nents_for_len(req->dst, req->dst_len),
 				     outbuf, req->dst_len);
-        if (copied != req->dst_len)
-                ret = -EINVAL;
+	if (copied != req->dst_len)
+		ret = -EINVAL;
 
 	if (shared_secret)
 		kfree_sensitive(shared_secret);
@@ -210,7 +208,7 @@ static int lc_kernel_kyber_ss(struct kpp_request *req)
 	 * Set an arbitrary limit for the shared secret to avoid allocating
 	 * too much memory. The value allows 2 AES keys + 2 IVs + 2 MAC keys.
 	 */
-	if (req->dst_len > (2 * 32 + 2* 16 + 2 * 32))
+	if (req->dst_len > (2 * 32 + 2 * 16 + 2 * 32))
 		return -EOVERFLOW;
 
 	if (!req->dst_len)
@@ -223,8 +221,8 @@ static int lc_kernel_kyber_ss(struct kpp_request *req)
 	if (req->src_len != LC_CRYPTO_CIPHERTEXTBYTES)
 		return -EINVAL;
 
-	copied = sg_copy_to_buffer(req->src, sg_nents_for_len(req->src,
-							      req->src_len),
+	copied = sg_copy_to_buffer(req->src,
+				   sg_nents_for_len(req->src, req->src_len),
 				   ct.ct, LC_CRYPTO_CIPHERTEXTBYTES);
 	if (copied != LC_CRYPTO_CIPHERTEXTBYTES)
 		return -EINVAL;
@@ -252,11 +250,11 @@ static int lc_kernel_kyber_ss(struct kpp_request *req)
 	if (ret)
 		goto out;
 
-	copied = sg_copy_from_buffer(req->dst, sg_nents_for_len(req->dst,
-								req->dst_len),
+	copied = sg_copy_from_buffer(req->dst,
+				     sg_nents_for_len(req->dst, req->dst_len),
 				     outbuf, req->dst_len);
-        if (copied != req->dst_len)
-                ret = -EINVAL;
+	if (copied != req->dst_len)
+		ret = -EINVAL;
 
 out:
 	if (shared_secret)
@@ -273,23 +271,23 @@ static unsigned int lc_kernel_kyber_max_size(struct crypto_kpp *tfm)
 }
 
 static struct kpp_alg lc_kernel_kyber = {
-	.set_secret		= lc_kernel_kyber_set_secret,
-	.generate_public_key	= lc_kernel_kyber_gen_ct,
-	.compute_shared_secret	= lc_kernel_kyber_ss,
-	.max_size		= lc_kernel_kyber_max_size,
+	.set_secret = lc_kernel_kyber_set_secret,
+	.generate_public_key = lc_kernel_kyber_gen_ct,
+	.compute_shared_secret = lc_kernel_kyber_ss,
+	.max_size = lc_kernel_kyber_max_size,
 #if LC_KYBER_K == 2
-	.base.cra_name		= "kyber512",
-	.base.cra_driver_name	= "kyber512-leancrypto",
+	.base.cra_name = "kyber512",
+	.base.cra_driver_name = "kyber512-leancrypto",
 #elif LC_KYBER_K == 3
-	.base.cra_name		= "kyber768",
-	.base.cra_driver_name	= "kyber768-leancrypto",
+	.base.cra_name = "kyber768",
+	.base.cra_driver_name = "kyber768-leancrypto",
 #else
-	.base.cra_name		= "kyber1024",
-	.base.cra_driver_name	= "kyber1024-leancrypto",
+	.base.cra_name = "kyber1024",
+	.base.cra_driver_name = "kyber1024-leancrypto",
 #endif
-	.base.cra_ctxsize	= sizeof(struct lc_kernel_kyber_ctx),
-	.base.cra_module	= THIS_MODULE,
-	.base.cra_priority	= LC_KERNEL_DEFAULT_PRIO,
+	.base.cra_ctxsize = sizeof(struct lc_kernel_kyber_ctx),
+	.base.cra_module = THIS_MODULE,
+	.base.cra_priority = LC_KERNEL_DEFAULT_PRIO,
 };
 
 int __init lc_kernel_kyber_init(void)

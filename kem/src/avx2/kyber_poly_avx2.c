@@ -55,7 +55,7 @@ void poly_compress_avx(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES],
 	 * For some unkown reason, this code compiles, but does not work
 	 * correctly when compiled with GCC < 13!
 	 */
-#if defined(LINUX_KERNEL) && defined(__GNUC__) &&  (__GNUC__ < 13)
+#if defined(LINUX_KERNEL) && defined(__GNUC__) && (__GNUC__ < 13)
 	poly_compress(r, a);
 #else /* LINUX_KERNEL */
 

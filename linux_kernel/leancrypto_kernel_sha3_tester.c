@@ -26,10 +26,10 @@
  * kzfree was renamed to kfree_sensitive in 5.9
  */
 #undef free_zero
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,9,0)
-# define free_zero(x)	kfree_sensitive(x)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 9, 0)
+#define free_zero(x) kfree_sensitive(x)
 #else
-# define free_zero(x)	kzfree(x)
+#define free_zero(x) kzfree(x)
 #endif
 
 struct sdesc {
@@ -47,16 +47,14 @@ static struct sdesc *lc_init_sdesc(struct crypto_shash *alg)
 	if (!sdesc)
 		return ERR_PTR(-ENOMEM);
 	sdesc->shash.tfm = alg;
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,1,0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 1, 0)
 	sdesc->shash.flags = 0x0;
 #endif
 	return sdesc;
 }
 
-static int lc_test_hash(const char *algname,
-			const u8 *msg, size_t msglen,
-			const u8 *key, u8 keylen,
-			u8 *digest, size_t digestlen)
+static int lc_test_hash(const char *algname, const u8 *msg, size_t msglen,
+			const u8 *key, u8 keylen, u8 *digest, size_t digestlen)
 {
 	int ret;
 	struct crypto_shash *tfm;
@@ -142,7 +140,6 @@ static int __init leancrypto_kernel_sha3_test_init(void)
 
 static void __exit leancrypto_kernel_sha3_test_exit(void)
 {
-
 }
 
 module_init(leancrypto_kernel_sha3_test_init);
@@ -151,4 +148,3 @@ module_exit(leancrypto_kernel_sha3_test_exit);
 MODULE_LICENSE("Dual BSD/GPL");
 MODULE_AUTHOR("Stephan Mueller <smueller@chronox.de>");
 MODULE_DESCRIPTION("Kernel module leancrypto_kernel_sha3_test");
-

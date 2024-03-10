@@ -29,10 +29,10 @@
  * kzfree was renamed to kfree_sensitive in 5.9
  */
 #undef free_zero
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,9,0)
-# define free_zero(x)	kfree_sensitive(x)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 9, 0)
+#define free_zero(x) kfree_sensitive(x)
 #else
-# define free_zero(x)	kzfree(x)
+#define free_zero(x) kzfree(x)
 #endif
 
 struct lc_tcrypt_res {
@@ -64,7 +64,8 @@ static void lc_akcipher_wait(struct lc_akcipher_def *akcipher, int rc)
 		break;
 	default:
 		pr_info("akcipher cipher operation returned with %d result"
-			" %d\n",rc, akcipher->result.err);
+			" %d\n",
+			rc, akcipher->result.err);
 		break;
 	}
 }
@@ -143,8 +144,8 @@ err:
 }
 
 static int lc_test_siggen(const char *algname,
-			  const struct dilithium_testvector *vector,
-			  u8 *sig, size_t siglen)
+			  const struct dilithium_testvector *vector, u8 *sig,
+			  size_t siglen)
 {
 	struct crypto_akcipher *tfm = NULL;
 	struct lc_akcipher_def akcipher;
@@ -219,12 +220,11 @@ static int lc_dilithium_tester(void)
 	if (!sig)
 		return -ENOMEM;
 
-	ret = lc_test_siggen("dilithium87-leancrypto", vector,
-			     sig, siglen);
+	ret = lc_test_siggen("dilithium87-leancrypto", vector, sig, siglen);
 	if (ret)
 		goto out;
 
-	/*
+		/*
 	 * memcmp is not possible as we use lc_seeded_rng causing a different
 	 * signature for each invocation. When using NULL as the RNG context
 	 * in sig gen, this can be enabled.
@@ -248,7 +248,6 @@ static int lc_dilithium_tester(void)
 	if (ret)
 		goto out;
 
-
 	pr_info("Dilithium invocation via kernel crypto API succeeded\n");
 
 out:
@@ -263,7 +262,6 @@ static int __init leancrypto_kernel_dilithium_test_init(void)
 
 static void __exit leancrypto_kernel_dilithium_test_exit(void)
 {
-
 }
 
 module_init(leancrypto_kernel_dilithium_test_init);
@@ -272,4 +270,3 @@ module_exit(leancrypto_kernel_dilithium_test_exit);
 MODULE_LICENSE("Dual BSD/GPL");
 MODULE_AUTHOR("Stephan Mueller <smueller@chronox.de>");
 MODULE_DESCRIPTION("Kernel module leancrypto_kernel_dilithium_test");
-

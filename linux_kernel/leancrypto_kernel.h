@@ -38,7 +38,9 @@ static inline int __init lc_kernel_sha3_init(void)
 	return 0;
 }
 
-static inline void lc_kernel_sha3_exit(void) { }
+static inline void lc_kernel_sha3_exit(void)
+{
+}
 #endif
 
 #ifdef CONFIG_LEANCRYPTO_KMAC
@@ -50,7 +52,9 @@ static inline int __init lc_kernel_kmac256_init(void)
 	return 0;
 }
 
-static inline void lc_kernel_kmac256_exit(void) { }
+static inline void lc_kernel_kmac256_exit(void)
+{
+}
 #endif
 
 #ifdef CONFIG_LEANCRYPTO_XDRBG256_DRNG
@@ -62,7 +66,9 @@ static inline int __init lc_kernel_rng_init(void)
 	return 0;
 }
 
-static inline void lc_kernel_rng_exit(void) { }
+static inline void lc_kernel_rng_exit(void)
+{
+}
 #endif
 
 #ifdef CONFIG_LEANCRYPTO_DILITHIUM
@@ -74,7 +80,9 @@ static inline int __init lc_kernel_dilithium_init(void)
 	return 0;
 }
 
-static inline void lc_kernel_dilithium_exit(void) { }
+static inline void lc_kernel_dilithium_exit(void)
+{
+}
 #endif
 
 #ifdef CONFIG_LEANCRYPTO_DILITHIUM_ED25519
@@ -86,7 +94,9 @@ static inline int __init lc_kernel_dilithium_ed25519_init(void)
 	return 0;
 }
 
-static inline void lc_kernel_dilithium_ed25519_exit(void) { }
+static inline void lc_kernel_dilithium_ed25519_exit(void)
+{
+}
 #endif
 
 #ifdef CONFIG_LEANCRYPTO_KEM
@@ -98,7 +108,9 @@ static inline int __init lc_kernel_kyber_init(void)
 	return 0;
 }
 
-static inline void lc_kernel_kyber_exit(void) { }
+static inline void lc_kernel_kyber_exit(void)
+{
+}
 #endif
 
 #ifdef CONFIG_LEANCRYPTO_KEM_X25519
@@ -110,7 +122,9 @@ static inline int __init lc_kernel_kyber_x25519_init(void)
 	return 0;
 }
 
-static inline void lc_kernel_kyber_x25519_exit(void) { }
+static inline void lc_kernel_kyber_x25519_exit(void)
+{
+}
 #endif
 #ifdef __cplusplus
 }
