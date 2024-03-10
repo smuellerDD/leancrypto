@@ -1,4 +1,4 @@
-Changes 0.9.1-prerelease
+Changes 0.9.1
 
 * fix: move XOR-256 memory definitions to lc_memory_support.h as otherwise compilation of external applications and libraries fail due to missing xor256.h
 
