@@ -1,3 +1,7 @@
+Changes 0.9.2-prerelease
+
+* fix: revert "reduce memory footprint of Keccak state" as this fails on big-endian systems
+
 Changes 0.9.1
 
 * fix: move XOR-256 memory definitions to lc_memory_support.h as otherwise compilation of external applications and libraries fail due to missing xor256.h
