@@ -416,21 +416,6 @@ static void cshake_128_init(void *_state)
 	sha3_state_init(ctx->state);
 }
 
-static inline void sha3_fill_state_bytes(struct lc_sha3_224_state *ctx,
-					 size_t byte_offset, const uint8_t *in,
-					 size_t inlen)
-{
-	unsigned int i;
-	uint8_t *state = (uint8_t *)ctx->state;
-
-	state += byte_offset;
-
-	for (i = 0; i < ctx->r && i < inlen; i++) {
-		state[i] ^= *in;
-		in++;
-	}
-}
-
 /*
  * All lc_sha3_*_state are equal except for the last entry, thus we use
  * the largest state.
@@ -491,7 +476,7 @@ static void keccak_absorb(void *_state, const uint8_t *in, size_t inlen)
 		 * buffer, copy it and leave it unprocessed.
 		 */
 		if (inlen < todo) {
-			sha3_fill_state_bytes(ctx, partial, in, inlen);
+			memcpy(ctx->partial + partial, in, inlen);
 			return;
 		}
 
@@ -499,9 +484,11 @@ static void keccak_absorb(void *_state, const uint8_t *in, size_t inlen)
 		 * The input data is large enough to fill the entire partial
 		 * block buffer. Thus, we fill it and transform it.
 		 */
-		sha3_fill_state_bytes(ctx, partial, in, todo);
+		memcpy(ctx->partial + partial, in, todo);
 		inlen -= todo;
 		in += todo;
+
+		sha3_fill_state(ctx, ctx->partial);
 		keccakp_1600(ctx->state);
 	}
 
@@ -526,7 +513,7 @@ static void keccak_absorb(void *_state, const uint8_t *in, size_t inlen)
 	}
 
 	/* If we have data left, copy it into the partial block buffer */
-	sha3_fill_state_bytes(ctx, 0, in, inlen);
+	memcpy(ctx->partial, in, inlen);
 }
 
 static void keccak_squeeze(void *_state, uint8_t *digest)
@@ -547,18 +534,22 @@ static void keccak_squeeze(void *_state, uint8_t *digest)
 
 	if (!ctx->squeeze_more) {
 		size_t partial = ctx->msg_len % ctx->r;
-		uint8_t *state = (uint8_t *)ctx->state;
 
 		/* Final round in sponge absorbing phase */
 
-		/* Add the padding bits and the 01 bits for the suffix. */
-		sha3_fill_state_bytes(ctx, partial, &ctx->padding, 1);
+		/* Fill the unused part of the partial buffer with zeros */
+		memset(ctx->partial + partial, 0, ctx->r - partial);
 
-		if ((ctx->padding >= 0x80) && (partial == (ctx->r - 1)))
-			keccakp_1600(ctx->state);
-		state[ctx->r - 1] ^= 0x80;
+		/* Add the padding bits and the 01 bits for the suffix. */
+		ctx->partial[partial] = ctx->padding;
+		ctx->partial[ctx->r - 1] |= 0x80;
 
 		ctx->squeeze_more = 1;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
+		sha3_fill_state_aligned(ctx, (uint64_t *)ctx->partial);
+#pragma GCC diagnostic pop
 	}
 
 	while (digest_len) {
