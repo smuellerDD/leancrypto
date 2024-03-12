@@ -8,3 +8,5 @@
   because the Neon code is compiled (which should not be compiled)
 
 - check RISCV-64 Keccak implementation
+
+- re-enable SHA-3 and KMAC kernel crypto API support (disabled due to too large state)
