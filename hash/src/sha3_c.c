@@ -553,13 +553,14 @@ static void keccak_squeeze(void *_state, uint8_t *digest)
 	}
 
 	while (digest_len) {
-		size_t todo_64, todo_32;
+		unsigned short todo_64, todo_32, j;
 
 		/* How much data can we squeeze considering current state? */
-		size_t todo = ctx->r - ctx->offset;
+		unsigned short todo = ctx->r - ctx->offset;
 
 		/* Limit the data to be squeezed by the requested amount. */
-		todo = (digest_len > todo) ? todo : digest_len;
+		todo = (unsigned short)((digest_len > todo) ? todo :
+							      digest_len);
 
 		digest_len -= todo;
 
@@ -603,10 +604,10 @@ static void keccak_squeeze(void *_state, uint8_t *digest)
 		todo_64 = todo >> 3;
 
 		/* How much 32-bit aligned data can we obtain? */
-		todo_32 = (todo - (todo_64 << 3)) >> 2;
+		todo_32 = (unsigned short)((todo - (todo_64 << 3)) >> 2);
 
 		/* How much non-aligned do we have to obtain? */
-		todo -= ((todo_64 << 3) + (todo_32 << 2));
+		todo -= (unsigned short)(((todo_64 << 3) + (todo_32 << 2)));
 
 		/* Sponge squeeze phase */
 
@@ -624,8 +625,8 @@ static void keccak_squeeze(void *_state, uint8_t *digest)
 			part = (uint32_t)(ctx->state[i]);
 		}
 
-		for (i = 0; i < todo << 3; i += 8, digest++)
-			*digest = (uint8_t)(part >> i);
+		for (j = 0; j < todo << 3; j += 8, digest++)
+			*digest = (uint8_t)(part >> j);
 	}
 
 	/* Zeroization */

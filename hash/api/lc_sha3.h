@@ -42,9 +42,9 @@ struct lc_sha3_224_state {
 	uint64_t state[LC_SHA3_STATE_WORDS];
 	size_t msg_len;
 	size_t digestsize;
-	size_t offset;
-	unsigned int r;
-	unsigned int rword;
+	unsigned short offset;
+	unsigned short r;
+	unsigned short rword;
 	uint8_t padding;
 	uint8_t squeeze_more : 1;
 
@@ -86,9 +86,9 @@ struct lc_sha3_256_state {
 	uint64_t state[LC_SHA3_STATE_WORDS];
 	size_t msg_len;
 	size_t digestsize;
-	size_t offset;
-	unsigned int r;
-	unsigned int rword;
+	unsigned short offset;
+	unsigned short r;
+	unsigned short rword;
 	uint8_t padding;
 	uint8_t squeeze_more : 1;
 
@@ -129,9 +129,9 @@ struct lc_sha3_384_state {
 	uint64_t state[LC_SHA3_STATE_WORDS];
 	size_t msg_len;
 	size_t digestsize;
-	size_t offset;
-	unsigned int r;
-	unsigned int rword;
+	unsigned short offset;
+	unsigned short r;
+	unsigned short rword;
 	uint8_t padding;
 	uint8_t squeeze_more : 1;
 
@@ -172,9 +172,9 @@ struct lc_sha3_512_state {
 	uint64_t state[LC_SHA3_STATE_WORDS];
 	size_t msg_len;
 	size_t digestsize;
-	size_t offset;
-	unsigned int r;
-	unsigned int rword;
+	unsigned short offset;
+	unsigned short r;
+	unsigned short rword;
 	uint8_t padding;
 	uint8_t squeeze_more : 1;
 
@@ -215,9 +215,9 @@ struct lc_shake_128_state {
 	uint64_t state[LC_SHA3_STATE_WORDS];
 	size_t msg_len;
 	size_t digestsize;
-	size_t offset;
-	unsigned int r;
-	unsigned int rword;
+	unsigned short offset;
+	unsigned short r;
+	unsigned short rword;
 	uint8_t padding;
 	uint8_t squeeze_more : 1;
 

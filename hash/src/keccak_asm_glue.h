@@ -298,12 +298,12 @@ static inline void keccak_asm_absorb_last_bits(
 	 * the largest state.
 	 */
 	struct lc_sha3_224_state *ctx = _state;
-	size_t partial;
+	unsigned short partial;
 
 	if (ctx->squeeze_more)
 		return; /* Too late for additional input */
 
-	partial = ctx->msg_len % ctx->r;
+	partial = (unsigned short)(ctx->msg_len % ctx->r);
 
 	/* Last few bits, whose delimiter coincides with first bit of padding */
 	AddByte(ctx->state, ctx->padding, (unsigned int)partial);
