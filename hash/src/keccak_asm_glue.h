@@ -397,7 +397,7 @@ static inline void keccak_asm_squeeze(
 			ExtractBytes(ctx->state, digest, ctx->offset,
 				     partialBlock);
 			digest += partialBlock;
-			ctx->offset += partialBlock;
+			ctx->offset += (uint8_t)partialBlock;
 		}
 	}
 }

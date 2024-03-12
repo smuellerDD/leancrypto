@@ -449,6 +449,47 @@ static inline void sha3_fill_state_aligned(struct lc_sha3_224_state *ctx,
 	}
 }
 
+static inline void sha3_fill_state_bytes(struct lc_sha3_224_state *ctx,
+					 size_t byte_offset, const uint8_t *in,
+					 size_t inlen)
+{
+	unsigned int i;
+	uint64_t *state = ctx->state;
+	union {
+		uint64_t dw;
+		uint8_t b[sizeof(uint64_t)];
+	} tmp;
+
+	state += byte_offset / sizeof(ctx->state[0]);
+
+	i = byte_offset & (sizeof(tmp) - 1);
+
+	tmp.dw = 0;
+
+	/*
+	 * This loop simply XORs the data in *in with the state starting from
+	 * byte_offset. The complication is that the simple XOR of the *in bytes
+	 * with the respective bytes in the state only works on little endian
+	 * systems. For big endian systems, we must apply a byte swap! This
+	 * loop therefore concatenates the *in bytes in chunks of uint64_t
+	 * and then XORs the byte swapped value into the state.
+	 */
+	while (inlen) {
+		uint8_t ctr;
+
+		for (ctr = 0; i < sizeof(tmp) && ctr < inlen; i++, in++, ctr++)
+			tmp.b[i] = *in;
+
+		*state ^= le_bswap64(tmp.dw);
+		state++;
+		inlen -= ctr;
+		i = 0;
+
+		/* This line also implies zeroization of the data */
+		tmp.dw = 0;
+	}
+}
+
 static void keccak_absorb(void *_state, const uint8_t *in, size_t inlen)
 {
 	/*
@@ -476,7 +517,7 @@ static void keccak_absorb(void *_state, const uint8_t *in, size_t inlen)
 		 * buffer, copy it and leave it unprocessed.
 		 */
 		if (inlen < todo) {
-			memcpy(ctx->partial + partial, in, inlen);
+			sha3_fill_state_bytes(ctx, partial, in, inlen);
 			return;
 		}
 
@@ -484,11 +525,10 @@ static void keccak_absorb(void *_state, const uint8_t *in, size_t inlen)
 		 * The input data is large enough to fill the entire partial
 		 * block buffer. Thus, we fill it and transform it.
 		 */
-		memcpy(ctx->partial + partial, in, todo);
+		sha3_fill_state_bytes(ctx, partial, in, todo);
 		inlen -= todo;
 		in += todo;
 
-		sha3_fill_state(ctx, ctx->partial);
 		keccakp_1600(ctx->state);
 	}
 
@@ -513,7 +553,7 @@ static void keccak_absorb(void *_state, const uint8_t *in, size_t inlen)
 	}
 
 	/* If we have data left, copy it into the partial block buffer */
-	memcpy(ctx->partial, in, inlen);
+	sha3_fill_state_bytes(ctx, 0, in, inlen);
 }
 
 static void keccak_squeeze(void *_state, uint8_t *digest)
@@ -534,33 +574,28 @@ static void keccak_squeeze(void *_state, uint8_t *digest)
 
 	if (!ctx->squeeze_more) {
 		size_t partial = ctx->msg_len % ctx->r;
+		static const uint8_t terminator = 0x80;
 
 		/* Final round in sponge absorbing phase */
 
-		/* Fill the unused part of the partial buffer with zeros */
-		memset(ctx->partial + partial, 0, ctx->r - partial);
-
 		/* Add the padding bits and the 01 bits for the suffix. */
-		ctx->partial[partial] = ctx->padding;
-		ctx->partial[ctx->r - 1] |= 0x80;
+		sha3_fill_state_bytes(ctx, partial, &ctx->padding, 1);
+
+		if ((ctx->padding >= 0x80) && (partial == (size_t)(ctx->r - 1)))
+			keccakp_1600(ctx->state);
+		sha3_fill_state_bytes(ctx, ctx->r - 1, &terminator, 1);
 
 		ctx->squeeze_more = 1;
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
-		sha3_fill_state_aligned(ctx, (uint64_t *)ctx->partial);
-#pragma GCC diagnostic pop
 	}
 
 	while (digest_len) {
-		unsigned short todo_64, todo_32, j;
+		uint8_t todo_64, todo_32, j;
 
 		/* How much data can we squeeze considering current state? */
-		unsigned short todo = ctx->r - ctx->offset;
+		uint8_t todo = ctx->r - ctx->offset;
 
 		/* Limit the data to be squeezed by the requested amount. */
-		todo = (unsigned short)((digest_len > todo) ? todo :
-							      digest_len);
+		todo = (uint8_t)((digest_len > todo) ? todo : digest_len);
 
 		digest_len -= todo;
 
@@ -604,10 +639,10 @@ static void keccak_squeeze(void *_state, uint8_t *digest)
 		todo_64 = todo >> 3;
 
 		/* How much 32-bit aligned data can we obtain? */
-		todo_32 = (unsigned short)((todo - (todo_64 << 3)) >> 2);
+		todo_32 = (uint8_t)((todo - (todo_64 << 3)) >> 2);
 
 		/* How much non-aligned do we have to obtain? */
-		todo -= (unsigned short)(((todo_64 << 3) + (todo_32 << 2)));
+		todo -= (uint8_t)(((todo_64 << 3) + (todo_32 << 2)));
 
 		/* Sponge squeeze phase */
 

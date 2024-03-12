@@ -309,12 +309,12 @@ leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
 				   ../hash/src/sha3_selector.o		       \
 				   ../hash/src/sha3_selftest.o		       \
 				   ../hash/src/sha3_c.o			       \
-#				   leancrypto_kernel_sha3.o
+				   leancrypto_kernel_sha3.o
 
 ifdef CONFIG_LEANCRYPTO_SHA3
-#ccflags-y			+= -DCONFIG_LEANCRYPTO_SHA3
+ccflags-y			+= -DCONFIG_LEANCRYPTO_SHA3
 
-#obj-m				+= leancrypto_kernel_sha3_tester.o
+obj-m				+= leancrypto_kernel_sha3_tester.o
 
 obj-m				+= cshake_128_tester.o
 obj-m				+= cshake_256_tester.o
@@ -762,12 +762,12 @@ ccflags-$(CONFIG_LEANCRYPTO_KMAC)					       \
 				+= -I$(PWD)/../kmac/api
 leancrypto-$(CONFIG_LEANCRYPTO_KMAC)					       \
 				+= ../kmac/src/kmac.o			       \
-#				   leancrypto_kernel_kmac.o
+				   leancrypto_kernel_kmac.o
 
 ifdef CONFIG_LEANCRYPTO_KMAC
-#ccflags-y			+= -DCONFIG_LEANCRYPTO_KMAC
+ccflags-y			+= -DCONFIG_LEANCRYPTO_KMAC
 
-#obj-m				+= leancrypto_kernel_kmac_tester.o
+obj-m				+= leancrypto_kernel_kmac_tester.o
 
 obj-m		  		+= kmac_128_tester.o
 obj-m		  		+= kmac_256_tester.o
