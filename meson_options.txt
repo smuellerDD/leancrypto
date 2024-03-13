@@ -111,4 +111,3 @@ The leancrypto library offers a set of applications that work as
 drop-in-replacement for the corresponding apps offered by other environments.
 These include the known sha*sum applications.
 ''')
-

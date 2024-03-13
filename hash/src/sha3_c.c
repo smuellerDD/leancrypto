@@ -449,6 +449,11 @@ static inline void sha3_fill_state_aligned(struct lc_sha3_224_state *ctx,
 	}
 }
 
+#ifdef LC_BIG_ENDIAN
+/*
+ * This function works on both endianesses, but since it has more code than
+ * the little endian code base. Thus, there is a special case for little endian.
+ */
 static inline void sha3_fill_state_bytes(struct lc_sha3_224_state *ctx,
 					 size_t byte_offset, const uint8_t *in,
 					 size_t inlen)
@@ -489,6 +494,25 @@ static inline void sha3_fill_state_bytes(struct lc_sha3_224_state *ctx,
 		tmp.dw = 0;
 	}
 }
+
+#elif defined(LC_LITTLE_ENDIAN)
+
+static inline void sha3_fill_state_bytes(struct lc_sha3_224_state *ctx,
+					 size_t byte_offset, const uint8_t *in,
+					 size_t inlen)
+{
+	unsigned int i;
+	uint8_t *state = (uint8_t *)ctx->state;
+
+	state += byte_offset;
+
+	for (i = 0; i < ctx->r && i < inlen; i++, in++)
+		state[i] ^= *in;
+}
+
+#else
+#error "Endianess not defined"
+#endif
 
 static void keccak_absorb(void *_state, const uint8_t *in, size_t inlen)
 {

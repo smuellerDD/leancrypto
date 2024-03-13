@@ -107,6 +107,13 @@ if (build_machine.system() == 'linux')
 	add_project_link_arguments('-Wl,-z,noexecstack', language : 'c')
 endif
 
+# Check for the endianess of the target
+if (host_machine.endian() == 'big')
+	add_global_arguments([ '-DLC_BIG_ENDIAN' ], language: 'c')
+else
+	add_global_arguments([ '-DLC_LITTLE_ENDIAN' ], language: 'c')
+endif
+
 # Header generation
 header_script = find_program('addon/generate_header.sh', required: true)
 

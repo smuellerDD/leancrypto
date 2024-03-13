@@ -1,6 +1,6 @@
 Changes 0.9.2-prerelease
 
-* fix: revert "reduce memory footprint of Keccak state" as this fails on big-endian systems
+* fix: update "reduce memory footprint of Keccak state" to handle big-endian systems
 
 Changes 0.9.1
 
