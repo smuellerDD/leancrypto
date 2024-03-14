@@ -23,10 +23,12 @@
 #include "ext_headers.h"
 #include "lc_sha3.h"
 #include "lc_memset_secure.h"
+#include "math_helper.h"
 #include "sha3_c.h"
 #include "sha3_common.h"
 #include "sha3_selftest.h"
 #include "visibility.h"
+#include "xor.h"
 
 static inline uint64_t rol(uint64_t x, int n)
 {
@@ -450,6 +452,7 @@ static inline void sha3_fill_state_aligned(struct lc_sha3_224_state *ctx,
 }
 
 #ifdef LC_BIG_ENDIAN
+
 /*
  * This function works on both endianesses, but since it has more code than
  * the little endian code base. Thus, there is a special case for little endian.
@@ -501,13 +504,9 @@ static inline void sha3_fill_state_bytes(struct lc_sha3_224_state *ctx,
 					 size_t byte_offset, const uint8_t *in,
 					 size_t inlen)
 {
-	unsigned int i;
 	uint8_t *state = (uint8_t *)ctx->state;
 
-	state += byte_offset;
-
-	for (i = 0; i < ctx->r && i < inlen; i++, in++)
-		state[i] ^= *in;
+	xor_64(state + byte_offset, in, min_size(ctx->r, inlen));
 }
 
 #else
