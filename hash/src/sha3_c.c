@@ -451,7 +451,7 @@ static inline void sha3_fill_state_aligned(struct lc_sha3_224_state *ctx,
 	}
 }
 
-#if defined(LC_BIG_ENDIAN) || defined(CONFIG_CPU_BIG_ENDIAN)
+#if defined(LC_BIG_ENDIAN) || defined(__BIG_ENDIAN)
 
 /*
  * This function works on both endianesses, but since it has more code than
@@ -498,7 +498,7 @@ static inline void sha3_fill_state_bytes(struct lc_sha3_224_state *ctx,
 	}
 }
 
-#elif defined(LC_LITTLE_ENDIAN) || defined(CONFIG_CPU_LITTLE_ENDIAN)
+#elif defined(LC_LITTLE_ENDIAN) || defined(__LITTLE_ENDIAN)
 
 static inline void sha3_fill_state_bytes(struct lc_sha3_224_state *ctx,
 					 size_t byte_offset, const uint8_t *in,
