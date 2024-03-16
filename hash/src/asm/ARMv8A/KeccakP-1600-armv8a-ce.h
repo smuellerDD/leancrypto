@@ -130,7 +130,8 @@ static inline void keccak_arm_asm_squeeze_internal(
 	 * the largest state.
 	 */
 	struct lc_sha3_224_state *ctx = _state;
-	size_t digest_len, blocksize;
+	size_t digest_len;
+	uint8_t blocksize;
 	unsigned int squeeze_more = ctx->squeeze_more;
 
 	if (!ctx || !digest)
@@ -140,7 +141,7 @@ static inline void keccak_arm_asm_squeeze_internal(
 	blocksize = ctx->r;
 
 	if (!ctx->squeeze_more) {
-		size_t partial = ctx->msg_len % blocksize;
+		uint8_t partial = (uint8_t)(ctx->msg_len % blocksize);
 		uint8_t *state = (uint8_t *)ctx->state;
 
 		/* Final round in sponge absorbing phase */
@@ -172,10 +173,10 @@ static inline void keccak_arm_asm_squeeze_internal(
 		size_t word, byte, i;
 
 		/* How much data can we squeeze considering current state? */
-		size_t todo = blocksize - ctx->offset;
+		uint8_t todo = blocksize - ctx->offset;
 
 		/* Limit the data to be squeezed by the requested amount. */
-		todo = min_size(digest_len, todo);
+		todo = (uint8_t)(min_size(digest_len, todo));
 
 		digest_len -= todo;
 
@@ -224,9 +225,11 @@ static inline void keccak_arm_asm_squeeze_internal(
 	LC_NEON_DISABLE;
 
 	/* Advance the offset */
-	ctx->offset += digest_len;
+	digest_len += ctx->offset;
 	/* Wrap the offset at block size */
-	ctx->offset %= blocksize;
+	digest_len %= blocksize;
+
+	ctx->offset += (uint8_t)digest_len;
 }
 
 #ifdef __cplusplus
