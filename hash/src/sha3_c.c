@@ -455,7 +455,7 @@ static inline void sha3_fill_state_aligned(struct lc_sha3_224_state *ctx,
 
 /*
  * This function works on both endianesses, but since it has more code than
- * the little endian code base. Thus, there is a special case for little endian.
+ * the little endian code base, there is a special case for little endian.
  */
 static inline void sha3_fill_state_bytes(struct lc_sha3_224_state *ctx,
 					 size_t byte_offset, const uint8_t *in,
@@ -485,7 +485,9 @@ static inline void sha3_fill_state_bytes(struct lc_sha3_224_state *ctx,
 	while (inlen) {
 		uint8_t ctr;
 
-		for (ctr = 0; i < sizeof(tmp) && ctr < inlen; i++, in++, ctr++)
+		for (ctr = 0;
+		     i < sizeof(tmp) && ctr < (uint8_t)(inlen & 0xff);
+		     i++, in++, ctr++)
 			tmp.b[i] = *in;
 
 		*state ^= le_bswap64(tmp.dw);
@@ -612,7 +614,8 @@ static void keccak_squeeze(void *_state, uint8_t *digest)
 	}
 
 	while (digest_len) {
-		uint8_t todo_64, todo_32, j;
+		unsigned int j;
+		uint8_t todo_64, todo_32;
 
 		/* How much data can we squeeze considering current state? */
 		uint8_t todo = ctx->r - ctx->offset;
@@ -683,7 +686,7 @@ static void keccak_squeeze(void *_state, uint8_t *digest)
 			part = (uint32_t)(ctx->state[i]);
 		}
 
-		for (j = 0; j < todo << 3; j += 8, digest++)
+		for (j = 0; j < (unsigned int)(todo << 3); j += 8, digest++)
 			*digest = (uint8_t)(part >> j);
 	}
 
