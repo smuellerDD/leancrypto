@@ -23,6 +23,34 @@
 #include <linux/module.h>
 #include <linux/version.h>
 
+static int lc_seeded_rng_test(void)
+{
+	struct crypto_rng *rng;
+	u8 outbuf[50], hex[2 * sizeof(outbuf) + 1];
+	int ret;
+
+	rng = crypto_alloc_rng("seededrng-leancrypto", 0, 0);
+	if (IS_ERR(rng)) {
+		pr_err("DRNG xdrbg256-leancrypto cannot be allocated\n");
+		ret = PTR_ERR(rng);
+		goto free;
+	}
+
+	ret = crypto_rng_get_bytes(rng, outbuf, sizeof(outbuf));
+	if (ret)
+		goto free;
+
+	memset(hex, 0, sizeof(hex));
+	bin2hex(hex, outbuf, sizeof(outbuf));
+	printk("generated seeded rng data: %s\n", hex);
+
+	pr_info("XDRBG invocation via kernel crypto API succeeded\n");
+
+free:
+	crypto_free_rng(rng);
+	return ret;
+}
+
 static int lc_rng_test(void)
 {
 	struct crypto_rng *rng;
@@ -46,7 +74,7 @@ static int lc_rng_test(void)
 
 	memset(hex, 0, sizeof(hex));
 	bin2hex(hex, outbuf, sizeof(outbuf));
-	printk("generated rng data: %s\n", hex);
+	printk("generated xdrbg256 rng data: %s\n", hex);
 
 	pr_info("XDRBG invocation via kernel crypto API succeeded\n");
 
@@ -57,7 +85,13 @@ free:
 
 static int __init leancrypto_kernel_rng_test_init(void)
 {
-	return lc_rng_test();
+	int ret;
+
+	ret = lc_rng_test();
+	if (ret)
+		return ret;
+
+	return lc_seeded_rng_test();
 }
 
 static void __exit leancrypto_kernel_rng_test_exit(void)
