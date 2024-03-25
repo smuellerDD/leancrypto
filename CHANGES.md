@@ -2,6 +2,8 @@ Changes 0.9.2-prerelease
 
 * fix: update "reduce memory footprint of Keccak state" to handle big-endian systems
 
+* enhancement: Seed the lc_seeded_rng with SHA3-256(random.c || Jitter RNG)
+
 Changes 0.9.1
 
 * fix: move XOR-256 memory definitions to lc_memory_support.h as otherwise compilation of external applications and libraries fail due to missing xor256.h
