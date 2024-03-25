@@ -48,7 +48,9 @@
 	EXPORT_SYMBOL(symbol);                                                 \
 	ret symbol
 
-#define LC_CONSTRUCTOR(_func) void __init _func(void)
+#define LC_CONSTRUCTOR(_func)                                                  \
+	void __init _func(void);                                               \
+	void __init _func(void)
 
 #else /* LINUX_KERNEL */
 
