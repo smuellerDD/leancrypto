@@ -486,7 +486,7 @@ static inline void sha3_fill_state_bytes(struct lc_sha3_224_state *ctx,
 		uint8_t ctr;
 
 		for (ctr = 0;
-		     i < sizeof(tmp) && ctr < (uint8_t)(inlen & 0xff);
+		     i < sizeof(tmp) && (size_t)ctr < inlen;
 		     i++, in++, ctr++)
 			tmp.b[i] = *in;
 
