@@ -2,7 +2,7 @@ Changes 0.9.2-prerelease
 
 * fix: update "reduce memory footprint of Keccak state" to handle big-endian systems
 
-* enhancement: Seed the lc_seeded_rng with SHA3-256(random.c || Jitter RNG)
+* enhancement: Seed the lc_seeded_rng with (random.c || Jitter RNG)
 
 Changes 0.9.1
 

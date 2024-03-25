@@ -136,27 +136,32 @@ static unsigned long get_time(void)
 static int lc_seed_seeded_rng(struct lc_seeded_rng_ctx *rng, int init,
 			      pid_t newpid)
 {
-	uint8_t seed[256 / 8];
+	/* We provide twice the buffer size for the kernel seed sources */
+	uint8_t seed[(256 / 8) * 2];
+	ssize_t datasize;
 	int ret;
 
 	if (!rng)
 		return -EINVAL;
 
 	/* Seed it with 256 bits of entropy */
-	if (get_full_entropy(seed, sizeof(seed)) != sizeof(seed))
+	datasize = get_full_entropy(seed, sizeof(seed) / 2);
+	if ((datasize < (ssize_t)sizeof(seed) / 2) ||
+	    (size_t)datasize > sizeof(seed))
 		return -EFAULT;
 
-	CKINT(lc_rng_seed(rng->rng_ctx, seed, sizeof(seed),
+	CKINT(lc_rng_seed(rng->rng_ctx, seed, (size_t)datasize,
 			  (uint8_t *)LC_SEEDED_RNG_PERS,
 			  sizeof(LC_SEEDED_RNG_PERS) - 1));
 
 	/* Insert 128 additional bits of entropy to the DRNG */
 	if (init) {
-		if (get_full_entropy(seed, sizeof(seed) / 2) !=
-		    sizeof(seed) / 2)
+		datasize = get_full_entropy(seed, sizeof(seed) / 4);
+		if ((datasize < (ssize_t)sizeof(seed) / 4)  ||
+		    (size_t)datasize > sizeof(seed))
 			return -EFAULT;
 
-		CKINT(lc_rng_seed(rng->rng_ctx, seed, sizeof(seed) / 2, NULL,
+		CKINT(lc_rng_seed(rng->rng_ctx, seed, (size_t)datasize, NULL,
 				  0));
 	}
 
