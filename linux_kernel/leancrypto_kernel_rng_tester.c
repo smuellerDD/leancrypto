@@ -44,7 +44,7 @@ static int lc_seeded_rng_test(void)
 	bin2hex(hex, outbuf, sizeof(outbuf));
 	printk("generated seeded rng data: %s\n", hex);
 
-	pr_info("XDRBG invocation via kernel crypto API succeeded\n");
+	pr_info("Seeded RNG invocation via kernel crypto API succeeded\n");
 
 free:
 	crypto_free_rng(rng);
