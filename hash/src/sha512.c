@@ -268,7 +268,11 @@ static const struct lc_hash _sha512 = {
 	.final = sha512_final,
 	.set_digestsize = NULL,
 	.get_digestsize = sha512_get_digestsize,
-	.blocksize = LC_SHA512_SIZE_BLOCK,
+	.keccak_permutation = NULL,
+	.keccak_add_bytes = NULL,
+	.keccak_extract_bytes = NULL,
+	.keccak_newstate = NULL,
+	.rate = LC_SHA512_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha512_state),
 };
 

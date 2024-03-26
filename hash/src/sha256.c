@@ -249,7 +249,11 @@ static const struct lc_hash _sha256 = {
 	.final = sha256_final,
 	.set_digestsize = NULL,
 	.get_digestsize = sha256_get_digestsize,
-	.blocksize = LC_SHA256_SIZE_BLOCK,
+	.keccak_permutation = NULL,
+	.keccak_add_bytes = NULL,
+	.keccak_extract_bytes = NULL,
+	.keccak_newstate = NULL,
+	.rate = LC_SHA256_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha256_state),
 };
 

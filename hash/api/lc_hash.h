@@ -29,13 +29,24 @@ extern "C" {
 #endif
 
 struct lc_hash {
+	/* SHA3 / SHAKE interface */
 	void (*init)(void *state);
 	void (*update)(void *state, const uint8_t *in, size_t inlen);
 	void (*final)(void *state, uint8_t *digest);
 	void (*set_digestsize)(void *state, size_t digestsize);
 	size_t (*get_digestsize)(void *state);
-	unsigned int blocksize;
-	unsigned int statesize;
+
+	/* Keccak interface */
+	void (*keccak_permutation)(void *state);
+	void (*keccak_add_bytes)(void *state, const uint8_t *data,
+				 unsigned int offset, unsigned int length);
+	void (*keccak_extract_bytes)(const void *state, uint8_t *data,
+				     size_t offset, size_t length);
+	void (*keccak_newstate)(void *state, const uint8_t *newstate,
+				size_t offset, size_t length);
+
+	uint8_t rate;
+	unsigned short statesize;
 };
 
 struct lc_hash_ctx {
@@ -239,7 +250,7 @@ static inline unsigned int lc_hash_blocksize(struct lc_hash_ctx *hash_ctx)
 		return 0;
 
 	hash = hash_ctx->hash;
-	return hash->blocksize;
+	return hash->rate;
 }
 
 /**
@@ -331,8 +342,8 @@ void lc_hash(const struct lc_hash *hash, const uint8_t *in, size_t inlen,
 /**
  * @brief Calculate message digest for SHAKE - one-shot
  *
- * @param [in] hash Reference to hash implementation to be used to perform
- *		    hash calculation with.
+ * @param [in] shake Reference to hash implementation to be used to perform
+ *		     hash calculation with.
  * @param [in] in Buffer holding the data whose MAC shall be calculated
  * @param [in] inlen Length of the input buffer
  * @param [out] digest Buffer with at least the size of the message digest.
@@ -342,6 +353,113 @@ void lc_hash(const struct lc_hash *hash, const uint8_t *in, size_t inlen,
  */
 void lc_shake(const struct lc_hash *shake, const uint8_t *in, size_t inlen,
 	      uint8_t *digest, size_t digestlen);
+
+
+/**
+ * @brief Perform Keccak permutation on buffer
+ *
+ * WARNING: This call does NOT constitude SHA-3, or SHAKE. It is ONLY a raw
+ *	    Keccak permutation with the accelerated implementation of the given
+ *	    hash reference. If you do not understand this comment, you
+ *	    MUST NOT use this interface.
+ *
+ * @param [in] hash Reference to hash implementation to be used to perform
+ *		    Keccak calculation with.
+ * @param [in] state State buffer of 200 bytes aligned to
+ *		     LC_HASH_COMMON_ALIGNMENT.
+ */
+static inline void lc_keccak(const struct lc_hash *hash, void *state)
+{
+	if (!state || !hash || !hash->keccak_permutation)
+		return;
+
+	hash->keccak_permutation(state);
+}
+
+/**
+ * @brief Function to add (in GF(2), using bitwise exclusive-or) data given
+ *	  as bytes into the state.
+ *
+ * The bit positions that are affected by this function are
+ * from @a offset*8 to @a offset*8 + @a length*8.
+ *
+ * (The bit positions, the x,y,z coordinates and their link are defined in the
+ * "Keccak reference".)
+ *
+ * @param [in] hash Reference to hash implementation to be used to perform
+ *		    Keccak calculation with.
+ * @param [in] state Pointer to the state.
+ * @param [in] data Pointer to the input data.
+ * @param [in] offset Offset in bytes within the state.
+ * @param [in] length Number of bytes.
+ *
+ * WARNING: The caller is responsible that offset / length points to data
+ * within the state (within the size of LC_SHA3_STATE_SIZE).
+ *
+ * @pre 0 ≤ @a offset < (width in bytes)
+ * @pre 0 ≤ @a offset + @a length ≤ (width in bytes)
+ */
+static inline void lc_keccak_add_bytes(const struct lc_hash *hash, void *state, 					       const uint8_t *data, unsigned int offset,
+				       unsigned int length)
+{
+	if (!state || !hash || !hash->keccak_add_bytes)
+		return;
+
+	hash->keccak_add_bytes(state, data, offset, length);
+}
+
+/**
+ * @brief Function to retrieve data from the state. The bit positions that are
+ *	  retrieved by this function are from
+ *	  @a offset*8 to @a offset*8 + @a length*8.
+ *	  (The bit positions, the x,y,z coordinates and their link are defined
+ *	  in the "Keccak reference".)
+ *
+ * @param [in] hash Reference to hash implementation to be used to perform
+ *		    Keccak calculation with.
+ * @param [in] state Pointer to the state.
+ * @param [out] data Pointer to the area where to store output data.
+ * @param [in] offset Offset in bytes within the state.
+ * @param [in] length Number of bytes.
+ *
+ * WARNING: The caller is responsible that offset / length points to data
+ * within the state (within the size of LC_SHA3_STATE_SIZE).
+ *
+ * @pre 0 ≤ @a offset < (width in bytes)
+ * @pre 0 ≤ @a offset + @a length ≤ (width in bytes)
+ */
+static inline void lc_keccak_extract_bytes(const struct lc_hash *hash,
+					   const void *state, uint8_t *data,
+					   size_t offset, size_t length)
+{
+	if (!state || !hash || !hash->keccak_extract_bytes)
+		return;
+
+	hash->keccak_extract_bytes(state, data, offset, length);
+}
+
+/**
+ * @brief Function to insert a complete new Keccak state
+ *
+ * @param [in] hash Reference to hash implementation to be used to perform
+ *		    Keccak calculation with.
+ * @param [in] state Pointer to the state.
+ * @param [out] data Pointer to new state
+ * @param [in] offset Offset in bytes within the state.
+ * @param [in] length Number of bytes.
+ *
+ * WARNING: The caller is responsible that offset / length points to data
+ * within the state (within the size of LC_SHA3_STATE_SIZE).
+ */
+static inline void lc_keccak_newstate(const struct lc_hash *hash,
+				      void *state, const uint8_t *data,
+				      size_t offset, size_t length)
+{
+	if (!state || !hash || !hash->keccak_newstate)
+		return;
+
+	hash->keccak_newstate(state, data, offset, length);
+}
 
 #ifdef __cplusplus
 }

@@ -115,13 +115,40 @@ static void keccak_arm_neon_squeeze(void *_state, uint8_t *digest)
 	LC_NEON_DISABLE;
 }
 
+static void keccak_arm_neon_add_bytes(void *state, const unsigned char *data,
+				      unsigned int offset, unsigned int length)
+{
+	LC_NEON_ENABLE;
+	KeccakP1600_AddBytes(state, data, offset, length);
+	LC_NEON_DISABLE;
+}
+
+static void keccak_arm_neon_extract_bytes(const void *state,
+					  unsigned char *data, size_t offset,
+					  size_t length)
+{
+	LC_NEON_ENABLE;
+	KeccakP1600_ExtractBytes(state, data, offset, length);
+	LC_NEON_DISABLE;
+}
+
+static void keccak_arm_neon_newstate(void *state, const uint8_t *data,
+				     size_t offset, size_t length)
+{
+	memcpy((uint8_t *)state + offset, data, length);
+}
+
 static const struct lc_hash _sha3_224_arm_neon = {
 	.init = sha3_224_arm_neon_init,
 	.update = keccak_arm_neon_absorb,
 	.final = keccak_arm_neon_squeeze,
 	.set_digestsize = NULL,
 	.get_digestsize = sha3_224_digestsize,
-	.blocksize = LC_SHA3_224_SIZE_BLOCK,
+	.keccak_permutation = KeccakP1600_Permute_24rounds,
+	.keccak_add_bytes = keccak_arm_neon_add_bytes,
+	.keccak_extract_bytes = keccak_arm_neon_extract_bytes,
+	.keccak_newstate = keccak_arm_neon_newstate,
+	.rate = LC_SHA3_224_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_224_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,
@@ -133,7 +160,11 @@ static const struct lc_hash _sha3_256_arm_neon = {
 	.final = keccak_arm_neon_squeeze,
 	.set_digestsize = NULL,
 	.get_digestsize = sha3_256_digestsize,
-	.blocksize = LC_SHA3_256_SIZE_BLOCK,
+	.keccak_permutation = KeccakP1600_Permute_24rounds,
+	.keccak_add_bytes = keccak_arm_neon_add_bytes,
+	.keccak_extract_bytes = keccak_arm_neon_extract_bytes,
+	.keccak_newstate = keccak_arm_neon_newstate,
+	.rate = LC_SHA3_256_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_256_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,
@@ -145,7 +176,11 @@ static const struct lc_hash _sha3_384_arm_neon = {
 	.final = keccak_arm_neon_squeeze,
 	.set_digestsize = NULL,
 	.get_digestsize = sha3_384_digestsize,
-	.blocksize = LC_SHA3_384_SIZE_BLOCK,
+	.keccak_permutation = KeccakP1600_Permute_24rounds,
+	.keccak_add_bytes = keccak_arm_neon_add_bytes,
+	.keccak_extract_bytes = keccak_arm_neon_extract_bytes,
+	.keccak_newstate = keccak_arm_neon_newstate,
+	.rate = LC_SHA3_384_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_384_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,
@@ -157,7 +192,11 @@ static const struct lc_hash _sha3_512_arm_neon = {
 	.final = keccak_arm_neon_squeeze,
 	.set_digestsize = NULL,
 	.get_digestsize = sha3_512_digestsize,
-	.blocksize = LC_SHA3_512_SIZE_BLOCK,
+	.keccak_permutation = KeccakP1600_Permute_24rounds,
+	.keccak_add_bytes = keccak_arm_neon_add_bytes,
+	.keccak_extract_bytes = keccak_arm_neon_extract_bytes,
+	.keccak_newstate = keccak_arm_neon_newstate,
+	.rate = LC_SHA3_512_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_512_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,
@@ -169,7 +208,11 @@ static const struct lc_hash _shake128_arm_neon = {
 	.final = keccak_arm_neon_squeeze,
 	.set_digestsize = shake_set_digestsize,
 	.get_digestsize = shake_get_digestsize,
-	.blocksize = LC_SHAKE_128_SIZE_BLOCK,
+	.keccak_permutation = KeccakP1600_Permute_24rounds,
+	.keccak_add_bytes = keccak_arm_neon_add_bytes,
+	.keccak_extract_bytes = keccak_arm_neon_extract_bytes,
+	.keccak_newstate = keccak_arm_neon_newstate,
+	.rate = LC_SHAKE_128_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_shake_128_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,
@@ -181,7 +224,11 @@ static const struct lc_hash _shake256_arm_neon = {
 	.final = keccak_arm_neon_squeeze,
 	.set_digestsize = shake_set_digestsize,
 	.get_digestsize = shake_get_digestsize,
-	.blocksize = LC_SHA3_256_SIZE_BLOCK,
+	.keccak_permutation = KeccakP1600_Permute_24rounds,
+	.keccak_add_bytes = keccak_arm_neon_add_bytes,
+	.keccak_extract_bytes = keccak_arm_neon_extract_bytes,
+	.keccak_newstate = keccak_arm_neon_newstate,
+	.rate = LC_SHA3_256_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_256_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,
@@ -193,7 +240,11 @@ static const struct lc_hash _cshake128_arm_neon = {
 	.final = keccak_arm_neon_squeeze,
 	.set_digestsize = shake_set_digestsize,
 	.get_digestsize = shake_get_digestsize,
-	.blocksize = LC_SHAKE_128_SIZE_BLOCK,
+	.keccak_permutation = KeccakP1600_Permute_24rounds,
+	.keccak_add_bytes = keccak_arm_neon_add_bytes,
+	.keccak_extract_bytes = keccak_arm_neon_extract_bytes,
+	.keccak_newstate = keccak_arm_neon_newstate,
+	.rate = LC_SHAKE_128_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_shake_128_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,
@@ -205,7 +256,11 @@ static const struct lc_hash _cshake256_arm_neon = {
 	.final = keccak_arm_neon_squeeze,
 	.set_digestsize = shake_set_digestsize,
 	.get_digestsize = shake_get_digestsize,
-	.blocksize = LC_SHA3_256_SIZE_BLOCK,
+	.keccak_permutation = KeccakP1600_Permute_24rounds,
+	.keccak_add_bytes = keccak_arm_neon_add_bytes,
+	.keccak_extract_bytes = keccak_arm_neon_extract_bytes,
+	.keccak_newstate = keccak_arm_neon_newstate,
+	.rate = LC_SHA3_256_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_256_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,

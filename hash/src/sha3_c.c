@@ -18,7 +18,7 @@
  */
 
 #include "build_bug_on.h"
-#include "bitshift_le.h"
+#include "bitshift.h"
 #include "conv_be_le.h"
 #include "ext_headers.h"
 #include "lc_sha3.h"
@@ -457,18 +457,17 @@ static inline void sha3_fill_state_aligned(struct lc_sha3_224_state *ctx,
  * This function works on both endianesses, but since it has more code than
  * the little endian code base, there is a special case for little endian.
  */
-static inline void sha3_fill_state_bytes(struct lc_sha3_224_state *ctx,
-					 size_t byte_offset, const uint8_t *in,
+static inline void sha3_fill_state_bytes(uint64_t state[LC_SHA3_STATE_WORDS],
+					 const uint8_t *in, size_t byte_offset,
 					 size_t inlen)
 {
 	unsigned int i;
-	uint64_t *state = ctx->state;
 	union {
 		uint64_t dw;
 		uint8_t b[sizeof(uint64_t)];
 	} tmp;
 
-	state += byte_offset / sizeof(ctx->state[0]);
+	state += byte_offset / sizeof(state[0]);
 
 	i = byte_offset & (sizeof(tmp) - 1);
 
@@ -502,13 +501,13 @@ static inline void sha3_fill_state_bytes(struct lc_sha3_224_state *ctx,
 
 #elif defined(LC_LITTLE_ENDIAN) || defined(__LITTLE_ENDIAN)
 
-static inline void sha3_fill_state_bytes(struct lc_sha3_224_state *ctx,
-					 size_t byte_offset, const uint8_t *in,
+static inline void sha3_fill_state_bytes(uint64_t state[LC_SHA3_STATE_WORDS],
+					 const uint8_t *in, size_t byte_offset,
 					 size_t inlen)
 {
-	uint8_t *state = (uint8_t *)ctx->state;
+	uint8_t *_state = (uint8_t *)state;
 
-	xor_64(state + byte_offset, in, min_size(ctx->r, inlen));
+	xor_64(_state + byte_offset, in, inlen);
 }
 
 #else
@@ -542,7 +541,7 @@ static void keccak_absorb(void *_state, const uint8_t *in, size_t inlen)
 		 * buffer, copy it and leave it unprocessed.
 		 */
 		if (inlen < todo) {
-			sha3_fill_state_bytes(ctx, partial, in, inlen);
+			sha3_fill_state_bytes(ctx->state, in, partial, inlen);
 			return;
 		}
 
@@ -550,7 +549,7 @@ static void keccak_absorb(void *_state, const uint8_t *in, size_t inlen)
 		 * The input data is large enough to fill the entire partial
 		 * block buffer. Thus, we fill it and transform it.
 		 */
-		sha3_fill_state_bytes(ctx, partial, in, todo);
+		sha3_fill_state_bytes(ctx->state, in, partial, todo);
 		inlen -= todo;
 		in += todo;
 
@@ -578,7 +577,7 @@ static void keccak_absorb(void *_state, const uint8_t *in, size_t inlen)
 	}
 
 	/* If we have data left, copy it into the partial block buffer */
-	sha3_fill_state_bytes(ctx, 0, in, inlen);
+	sha3_fill_state_bytes(ctx->state, in, 0, inlen);
 }
 
 static void keccak_squeeze(void *_state, uint8_t *digest)
@@ -604,11 +603,11 @@ static void keccak_squeeze(void *_state, uint8_t *digest)
 		/* Final round in sponge absorbing phase */
 
 		/* Add the padding bits and the 01 bits for the suffix. */
-		sha3_fill_state_bytes(ctx, partial, &ctx->padding, 1);
+		sha3_fill_state_bytes(ctx->state, &ctx->padding, partial, 1);
 
 		if ((ctx->padding >= 0x80) && (partial == (size_t)(ctx->r - 1)))
 			keccakp_1600(ctx->state);
-		sha3_fill_state_bytes(ctx, ctx->r - 1, &terminator, 1);
+		sha3_fill_state_bytes(ctx->state, &terminator, ctx->r - 1, 1);
 
 		ctx->squeeze_more = 1;
 	}
@@ -695,6 +694,122 @@ static void keccak_squeeze(void *_state, uint8_t *digest)
 	*part_p = 0;
 }
 
+static void keccak_c_permutation(void *state)
+{
+	uint64_t *s = state;
+
+	keccakp_1600(s);
+}
+
+static void keccak_c_add_bytes(void *state, const uint8_t *data,
+			       unsigned int offset, unsigned int length)
+{
+	sha3_fill_state_bytes((uint64_t *)state, data, offset, length);
+}
+
+static void keccak_c_extract_bytes(const void *state, uint8_t *data,
+				   size_t offset, size_t length)
+{
+	size_t i;
+	const uint64_t *_state = state;
+
+	if (offset) {
+		/*
+		 * Access requests when squeezing more data that happens to be
+		 * not aligned with the block size of the used SHAKE algorithm
+		 * are processed byte-wise.
+		 */
+		size_t word, byte;
+
+		for (i = offset; i < length + offset; i++, data++) {
+			word = i / sizeof(*_state);
+			byte = (i % sizeof(*_state)) << 3;
+
+			*data = (uint8_t)(_state[word] >> byte);
+		}
+	} else {
+		uint32_t part;
+		unsigned int j;
+		uint8_t todo_64, todo_32, todo;
+
+		/* How much 64-bit aligned data can we obtain? */
+		todo_64 = (uint8_t)(length >> 3);
+
+		/* How much 32-bit aligned data can we obtain? */
+		todo_32 = (uint8_t)((length - (uint8_t)(todo_64 << 3)) >> 2);
+
+		/* How much non-aligned do we have to obtain? */
+		todo = (uint8_t)(length -
+				 (uint8_t)((todo_64 << 3) + (todo_32 << 2)));
+
+		/* Sponge squeeze phase */
+
+		/* 64-bit aligned request */
+		for (i = 0; i < todo_64; i++, data += 8)
+			le64_to_ptr(data, _state[i]);
+
+		if (todo_32) {
+			/* 32-bit aligned request */
+			le32_to_ptr(data, (uint32_t)(_state[i]));
+			data += 4;
+			part = (uint32_t)(_state[i] >> 32);
+		} else {
+			/* non-aligned request */
+			part = (uint32_t)(_state[i]);
+		}
+
+		for (j = 0; j < (unsigned int)(todo << 3); j += 8, data++)
+			*data = (uint8_t)(part >> j);
+	}
+}
+
+static void keccak_c_newstate(void *_state, const uint8_t *data,
+			      size_t offset, size_t length)
+{
+	memcpy((uint8_t *)_state + offset, data, length);
+#if 0
+	uint64_t *state = _state;
+	unsigned int i;
+	union {
+		uint64_t dw;
+		uint8_t b[sizeof(uint64_t)];
+	} tmp;
+
+	state += offset / sizeof(state[0]);
+
+	i = offset & (sizeof(tmp) - 1);
+
+	/*
+	 * This loop simply copy the data in *data with the state starting from
+	 * byte_offset. The complication is that the simple copy of the *data
+	 * bytes with the respective bytes in the state only works on little
+	 * endian systems. For big endian systems, we must apply a byte swap!
+	 * This loop therefore concatenates the *data bytes in chunks of
+	 * uint64_t and then copies the byte swapped value into the state.
+	 */
+	while (length) {
+		uint8_t ctr;
+
+		/* Copy the current state data into tmp */
+		tmp.dw = *state;
+
+		/* Overwrite the existing tmp data with new data */
+		for (ctr = 0;
+		     i < sizeof(tmp) && (size_t)ctr < length;
+		     i++, data++, ctr++)
+			tmp.b[i] = *data;
+
+		*state = le_bswap64(tmp.dw);
+		state++;
+		length -= ctr;
+		i = 0;
+
+		/* This line also implies zeroization of the data */
+		tmp.dw = 0;
+	}
+#endif
+}
+
 void shake_set_digestsize(void *_state, size_t digestsize)
 {
 	struct lc_sha3_256_state *ctx = _state;
@@ -715,7 +830,11 @@ static const struct lc_hash _sha3_224_c = {
 	.final = keccak_squeeze,
 	.set_digestsize = NULL,
 	.get_digestsize = sha3_224_digestsize,
-	.blocksize = LC_SHA3_224_SIZE_BLOCK,
+	.keccak_permutation = keccak_c_permutation,
+	.keccak_add_bytes = keccak_c_add_bytes,
+	.keccak_extract_bytes = keccak_c_extract_bytes,
+	.keccak_newstate = keccak_c_newstate,
+	.rate = LC_SHA3_224_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_224_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_224_c) = &_sha3_224_c;
@@ -726,7 +845,11 @@ static const struct lc_hash _sha3_256_c = {
 	.final = keccak_squeeze,
 	.set_digestsize = NULL,
 	.get_digestsize = sha3_256_digestsize,
-	.blocksize = LC_SHA3_256_SIZE_BLOCK,
+	.keccak_permutation = keccak_c_permutation,
+	.keccak_add_bytes = keccak_c_add_bytes,
+	.keccak_extract_bytes = keccak_c_extract_bytes,
+	.keccak_newstate = keccak_c_newstate,
+	.rate = LC_SHA3_256_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_256_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_256_c) = &_sha3_256_c;
@@ -737,7 +860,11 @@ static const struct lc_hash _sha3_384_c = {
 	.final = keccak_squeeze,
 	.set_digestsize = NULL,
 	.get_digestsize = sha3_384_digestsize,
-	.blocksize = LC_SHA3_384_SIZE_BLOCK,
+	.keccak_permutation = keccak_c_permutation,
+	.keccak_add_bytes = keccak_c_add_bytes,
+	.keccak_extract_bytes = keccak_c_extract_bytes,
+	.keccak_newstate = keccak_c_newstate,
+	.rate = LC_SHA3_384_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_384_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_384_c) = &_sha3_384_c;
@@ -748,7 +875,11 @@ static const struct lc_hash _sha3_512_c = {
 	.final = keccak_squeeze,
 	.set_digestsize = NULL,
 	.get_digestsize = sha3_512_digestsize,
-	.blocksize = LC_SHA3_512_SIZE_BLOCK,
+	.keccak_permutation = keccak_c_permutation,
+	.keccak_add_bytes = keccak_c_add_bytes,
+	.keccak_extract_bytes = keccak_c_extract_bytes,
+	.keccak_newstate = keccak_c_newstate,
+	.rate = LC_SHA3_512_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_512_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_512_c) = &_sha3_512_c;
@@ -759,7 +890,11 @@ static const struct lc_hash _shake128_c = {
 	.final = keccak_squeeze,
 	.set_digestsize = shake_set_digestsize,
 	.get_digestsize = shake_get_digestsize,
-	.blocksize = LC_SHAKE_128_SIZE_BLOCK,
+	.keccak_permutation = keccak_c_permutation,
+	.keccak_add_bytes = keccak_c_add_bytes,
+	.keccak_extract_bytes = keccak_c_extract_bytes,
+	.keccak_newstate = keccak_c_newstate,
+	.rate = LC_SHAKE_128_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_shake_128_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake128_c) = &_shake128_c;
@@ -770,7 +905,11 @@ static const struct lc_hash _shake256_c = {
 	.final = keccak_squeeze,
 	.set_digestsize = shake_set_digestsize,
 	.get_digestsize = shake_get_digestsize,
-	.blocksize = LC_SHA3_256_SIZE_BLOCK,
+	.keccak_permutation = keccak_c_permutation,
+	.keccak_add_bytes = keccak_c_add_bytes,
+	.keccak_extract_bytes = keccak_c_extract_bytes,
+	.keccak_newstate = keccak_c_newstate,
+	.rate = LC_SHA3_256_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_256_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake256_c) = &_shake256_c;
@@ -781,7 +920,11 @@ static const struct lc_hash _cshake256_c = {
 	.final = keccak_squeeze,
 	.set_digestsize = shake_set_digestsize,
 	.get_digestsize = shake_get_digestsize,
-	.blocksize = LC_SHA3_256_SIZE_BLOCK,
+	.keccak_permutation = keccak_c_permutation,
+	.keccak_add_bytes = keccak_c_add_bytes,
+	.keccak_extract_bytes = keccak_c_extract_bytes,
+	.keccak_newstate = keccak_c_newstate,
+	.rate = LC_SHA3_256_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_256_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_cshake256_c) = &_cshake256_c;
@@ -792,7 +935,10 @@ static const struct lc_hash _cshake128_c = {
 	.final = keccak_squeeze,
 	.set_digestsize = shake_set_digestsize,
 	.get_digestsize = shake_get_digestsize,
-	.blocksize = LC_SHAKE_128_SIZE_BLOCK,
+	.keccak_permutation = keccak_c_permutation,
+	.keccak_add_bytes = keccak_c_add_bytes,
+	.keccak_extract_bytes = keccak_c_extract_bytes,
+	.rate = LC_SHAKE_128_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_shake_128_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_cshake128_c) = &_cshake128_c;
