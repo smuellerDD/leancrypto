@@ -71,7 +71,7 @@ static int lc_ak_setkey(void *state, const uint8_t *key, size_t keylen,
 	case 0x240 / 8:
 		if (ivlen != 16 || keylen != 32)
 			return -EINVAL;
-		ak->keccak_state[0] = be_bswap64(LC_AEAD_AK_SHA3_512_INIT);
+		ak->keccak_state[0] = LC_AEAD_AK_SHA3_512_INIT;
 		for (i = 1;
 		     i < (LC_SHA3_STATE_WORDS - (16 + 32) / sizeof(uint64_t));
 		     i++)
@@ -83,7 +83,7 @@ static int lc_ak_setkey(void *state, const uint8_t *key, size_t keylen,
 	case 0x440 / 8:
 		if (ivlen != 16 || keylen != 32)
 			return -EINVAL;
-		ak->keccak_state[0] = be_bswap64(LC_AEAD_AK_SHA3_256_INIT);
+		ak->keccak_state[0] = LC_AEAD_AK_SHA3_256_INIT;
 		for (i = 1;
 		     i < (LC_SHA3_STATE_WORDS - (16 + 16) / sizeof(uint64_t));
 		     i++)

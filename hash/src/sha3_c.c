@@ -704,14 +704,16 @@ static void keccak_c_permutation(void *state)
 static void keccak_c_add_bytes(void *state, const uint8_t *data,
 			       unsigned int offset, unsigned int length)
 {
-	sha3_fill_state_bytes((uint64_t *)state, data, offset, length);
+	uint64_t *s = state;
+
+	sha3_fill_state_bytes(s, data, offset, length);
 }
 
 static void keccak_c_extract_bytes(const void *state, uint8_t *data,
 				   size_t offset, size_t length)
 {
 	size_t i;
-	const uint64_t *_state = state;
+	const uint64_t *s = state;
 
 	if (offset) {
 		/*
@@ -722,10 +724,10 @@ static void keccak_c_extract_bytes(const void *state, uint8_t *data,
 		size_t word, byte;
 
 		for (i = offset; i < length + offset; i++, data++) {
-			word = i / sizeof(*_state);
-			byte = (i % sizeof(*_state)) << 3;
+			word = i / sizeof(*s);
+			byte = (i % sizeof(*s)) << 3;
 
-			*data = (uint8_t)(_state[word] >> byte);
+			*data = (uint8_t)(s[word] >> byte);
 		}
 	} else {
 		uint32_t part;
@@ -746,16 +748,16 @@ static void keccak_c_extract_bytes(const void *state, uint8_t *data,
 
 		/* 64-bit aligned request */
 		for (i = 0; i < todo_64; i++, data += 8)
-			le64_to_ptr(data, _state[i]);
+			le64_to_ptr(data, s[i]);
 
 		if (todo_32) {
 			/* 32-bit aligned request */
-			le32_to_ptr(data, (uint32_t)(_state[i]));
+			le32_to_ptr(data, (uint32_t)(s[i]));
 			data += 4;
-			part = (uint32_t)(_state[i] >> 32);
+			part = (uint32_t)(s[i] >> 32);
 		} else {
 			/* non-aligned request */
-			part = (uint32_t)(_state[i]);
+			part = (uint32_t)(s[i]);
 		}
 
 		for (j = 0; j < (unsigned int)(todo << 3); j += 8, data++)
@@ -763,19 +765,17 @@ static void keccak_c_extract_bytes(const void *state, uint8_t *data,
 	}
 }
 
-static void keccak_c_newstate(void *_state, const uint8_t *data,
+static void keccak_c_newstate(void *state, const uint8_t *data,
 			      size_t offset, size_t length)
 {
-	memcpy((uint8_t *)_state + offset, data, length);
-#if 0
-	uint64_t *state = _state;
+	uint64_t *s = state;
 	unsigned int i;
 	union {
 		uint64_t dw;
 		uint8_t b[sizeof(uint64_t)];
 	} tmp;
 
-	state += offset / sizeof(state[0]);
+	s += offset / sizeof(s[0]);
 
 	i = offset & (sizeof(tmp) - 1);
 
@@ -791,7 +791,7 @@ static void keccak_c_newstate(void *_state, const uint8_t *data,
 		uint8_t ctr;
 
 		/* Copy the current state data into tmp */
-		tmp.dw = *state;
+		tmp.dw = *s;
 
 		/* Overwrite the existing tmp data with new data */
 		for (ctr = 0;
@@ -799,15 +799,14 @@ static void keccak_c_newstate(void *_state, const uint8_t *data,
 		     i++, data++, ctr++)
 			tmp.b[i] = *data;
 
-		*state = le_bswap64(tmp.dw);
-		state++;
+		*s = le_bswap64(tmp.dw);
+		s++;
 		length -= ctr;
 		i = 0;
 
 		/* This line also implies zeroization of the data */
 		tmp.dw = 0;
 	}
-#endif
 }
 
 void shake_set_digestsize(void *_state, size_t digestsize)
