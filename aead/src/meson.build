@@ -8,7 +8,8 @@ if get_option('hash_crypt').enabled()
 		# This is required for the XOR 256 bit AVX2 implementation
 		leancrypto_aead_avx2_lib = static_library(
 			'leancrypto_aead_avx2_lib',
-			[ 'cshake_crypt.c',
+			[ 'ascon_keccak.c',
+			  'cshake_crypt.c',
 			  'kmac_crypt.c' ],
 			c_args: cc_avx2_args,
 			include_directories: [ include_dirs,
@@ -20,7 +21,8 @@ if get_option('hash_crypt').enabled()
 		# This is required for the XOR 128 bit NEON implementation
 		leancrypto_aead_neon_armv8_lib = static_library(
 			'leancrypto_aead_neon_armv8_lib',
-			[ 'cshake_crypt.c',
+			[ 'ascon_keccak.c',
+			  'cshake_crypt.c',
 			  'kmac_crypt.c' ],
 			c_args: cc_armv8_neon_simd_args,
 			include_directories: [ include_dirs,
@@ -32,7 +34,8 @@ if get_option('hash_crypt').enabled()
 		# This is required for the XOR 128 bit NEON implementation
 		leancrypto_aead_neon_armv7_lib = static_library(
 			'leancrypto_aead_neon_armv7_lib',
-			[ 'cshake_crypt.c',
+			[ 'ascon_keccak.c',
+			  'cshake_crypt.c',
 			  'kmac_crypt.c' ],
 			c_args: cc_armv7_neon_simd_args,
 			include_directories: [ include_dirs,
@@ -42,6 +45,7 @@ if get_option('hash_crypt').enabled()
 
 	else
 		src += files([
+			'ascon_keccak.c',
 			'cshake_crypt.c',
 			'kmac_crypt.c'
 		])
@@ -49,6 +53,7 @@ if get_option('hash_crypt').enabled()
 
 	include_files += files([
 		'../api/lc_aead.h',
+		'../api/lc_ascon_keccak.h',
 		'../api/lc_cshake_crypt.h',
 		'../api/lc_hash_crypt.h',
 		'../api/lc_kmac_crypt.h',

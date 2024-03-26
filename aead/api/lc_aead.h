@@ -55,6 +55,11 @@ struct lc_aead_ctx {
 	name->aead = cb;                                                       \
 	name->aead_state = (uint8_t *)(name) + sizeof(struct lc_aead_ctx)
 
+#define LC_AEAD_HASH_ALIGN_CTX(name, cb)                                       \
+	name->aead = cb;                                                       \
+	name->aead_state = LC_ALIGN_HASH_MASK(                                 \
+				(uint8_t *)(name) + sizeof(struct lc_aead_ctx))
+
 /**
  * Concept of AEAD algorithms in leancrypto
  *

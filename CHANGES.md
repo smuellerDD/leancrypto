@@ -1,3 +1,9 @@
+Changes 0.10.0
+
+* enhancement: add Keccak APIs
+
+* enhancement: add Ascon Keccak 256/512 and 256/256
+
 Changes 0.9.2
 
 * fix: update "reduce memory footprint of Keccak state" to handle big-endian systems

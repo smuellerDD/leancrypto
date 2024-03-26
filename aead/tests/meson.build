@@ -121,3 +121,54 @@ if get_option('aes_cbc').enabled()
 		     timeout: 2500, is_parallel: false)
 	endif
 endif
+
+if get_option('hash_crypt').enabled()
+
+	ascon_keccak_crypt_test = executable('ascon_keccak_crypt_test',
+				[ 'ascon_keccak_crypt_test.c', internal_src ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto
+				)
+	ascon_keccak_crypt_large_test_512 = \
+				executable('ascon_keccak_crypt_large_test_512',
+				[ 'ascon_keccak_crypt_large_test_512.c',
+				  internal_src ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto
+				)
+	ascon_keccak_crypt_large_test_512_c = \
+				executable('ascon_keccak_crypt_large_test_512_c',
+				[ 'ascon_keccak_crypt_large_test_512_c.c',
+				  internal_src ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto
+				)
+	ascon_keccak_crypt_large_test_256 = \
+				executable('ascon_keccak_crypt_large_test_256',
+				[ 'ascon_keccak_crypt_large_test_256.c',
+				  internal_src ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto
+				)
+	ascon_keccak_crypt_large_test_256_c = \
+				executable('ascon_keccak_crypt_large_test_256_c',
+				[ 'ascon_keccak_crypt_large_test_256_c.c',
+				  internal_src ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto
+				)
+	test('AEAD Ascon Keccak', ascon_keccak_crypt_test)
+	test('AEAD Ascon Keccak 256/512 Accel 1GB',
+	     ascon_keccak_crypt_large_test_512,
+	     timeout: 2500, is_parallel: false)
+	test('AEAD Ascon Keccak 256/512 C 1GB',
+	     ascon_keccak_crypt_large_test_512_c,
+	     timeout: 2500, is_parallel: false)
+	test('AEAD Ascon Keccak 256/256 Accel 1GB',
+	     ascon_keccak_crypt_large_test_256,
+	     timeout: 2500, is_parallel: false)
+	test('AEAD Ascon Keccak 256/256 C 1GB',
+	     ascon_keccak_crypt_large_test_256_c,
+	     timeout: 2500, is_parallel: false)
+
+endif
