@@ -95,6 +95,12 @@ CONFIG_LEANCRYPTO_CSHAKE_CRYPT=y
 CONFIG_LEANCRYPTO_KMAC_CRYPT=y
 
 #
+# Enable AEAD cipher implementing the Ascon algorithm but using Keccak Sponge
+# Dependencies: CONFIG_LEANCRYPTO_SHA3
+#
+CONFIG_LEANCRYPTO_ASCON_KECCAK_CRYPT=y
+
+#
 # Enable AEAD stream cipher algorithm based on symmetric algorithm and HMAC
 # Dependencies: CONFIG_LEANCRYPTO_HMAC and at least one of
 #		CONFIG_LEANCRYPTO_AES_*
@@ -235,7 +241,7 @@ obj-m		 		:= leancrypto.o
 
 # Kernel module framework
 ccflags-y			:= -I$(PWD) -DLINUX_KERNEL -DLC_MEM_ON_HEAP    \
-				   -DMAJVERSION=0 -DMINVERSION=9 -DPATCHLEVEL=2
+				   -DMAJVERSION=0 -DMINVERSION=10 -DPATCHLEVEL=0
 
 ifdef CONFIG_X86_64
 ccflags-y			+= -DLC_HOST_X86_64
@@ -319,6 +325,7 @@ obj-m				+= leancrypto_kernel_sha3_tester.o
 obj-m				+= cshake_128_tester.o
 obj-m				+= cshake_256_tester.o
 obj-m				+= cshake_ctx_256_tester.o
+obj-m				+= keccak_tester.o
 obj-m				+= sha3-224_tester.o
 obj-m				+= sha3-256_tester.o
 obj-m				+= sha3-384_tester.o
@@ -330,6 +337,7 @@ obj-m				+= shake_squeeze_more_tester.o
 cshake_128_tester-y		+= ../hash/tests/cshake_128_tester.o
 cshake_256_tester-y		+= ../hash/tests/cshake_256_tester.o
 cshake_ctx_256_tester-y		+= ../hash/tests/cshake_ctx_256_tester.o
+keccak_tester-y			+= ../hash/tests/keccak_tester.o
 sha3-224_tester-y		+= ../hash/tests/sha3-224_tester.o
 sha3-256_tester-y		+= ../hash/tests/sha3-256_tester.o
 sha3-384_tester-y		+= ../hash/tests/sha3-384_tester.o
@@ -441,6 +449,13 @@ leancrypto-$(CONFIG_LEANCRYPTO_KMAC_CRYPT)				       \
 ifdef CONFIG_LEANCRYPTO_KMAC_CRYPT
 obj-m		  		+= kmac_crypt_test.o
 kmac_crypt_test-y 		+= ../aead/tests/kmac_crypt_test.o
+endif
+
+leancrypto-$(CONFIG_LEANCRYPTO_ASCON_KECCAK_CRYPT)			       \
+				+= ../aead/src/ascon_keccak.o
+ifdef CONFIG_LEANCRYPTO_ASCON_KECCAK_CRYPT
+obj-m		  		+= ascon_keccak_crypt_test.o
+ascon_keccak_crypt_test-y 	+= ../aead/tests/ascon_keccak_crypt_test.o
 endif
 
 # DRNG implementation
