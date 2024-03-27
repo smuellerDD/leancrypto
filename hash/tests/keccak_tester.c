@@ -109,7 +109,7 @@ static int _keccak_tester(const struct lc_hash *sha3_512, const char *name)
 	return ret;
 }
 
-static int sha3_512_tester(void)
+static int keccak_tester(void)
 {
 	int ret = 0;
 
@@ -129,5 +129,5 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;
-	return sha3_512_tester();
+	return keccak_tester();
 }
