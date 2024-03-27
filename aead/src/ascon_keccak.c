@@ -19,18 +19,23 @@
 
 #include "alignment.h"
 #include "bitshift.h"
+#include "build_bug_on.h"
 #include "compare.h"
 #include "ext_headers.h"
 #include "lc_ascon_keccak.h"
 #include "lc_memcmp_secure.h"
 #include "lc_memory_support.h"
 #include "math_helper.h"
+#include "ret_checkers.h"
 #include "visibility.h"
 #include "xor.h"
 
 /*
  * Algorithms with 256 bit security strength based on the fact that the
  * capacity is 512 bits or larger.
+ *
+ * The Ascon-Keccak algorithm is defined with the reference to
+ * <keysize>/<Keccak security level (half of capacity)>.
  *
  *                       ---- Bit size of ----- Rounds
  *                       Key Nonce Tag DataBlock pa pb
@@ -45,6 +50,16 @@
 #define LC_AEAD_AK_SHA3_256_512_INIT 0x0100024000180018
 #define LC_AEAD_AK_SHA3_256_256_INIT 0x0100044000180018
 
+/*
+ * Some considerations on the self test: The different lc_keccak* APIs return
+ * error indicators which are important to observe, because those APIs refuse
+ * to operate when there is no Keccak implementation provided by the selected
+ * hash instance. As the entire AEAD code does not check for these errors,
+ * it could lead to the case that plaintext is leaked if (a) an encryption
+ * in place is performed, and (b) the used hash implementation does not
+ * have a Keccak implementation. This issue is alleviated by the self test
+ * which would only return success if all Keccak implementations are provided.
+ */
 static void lc_ak_selftest(int *tested, const char *impl)
 {
 	static const uint8_t in[] = {
@@ -67,17 +82,17 @@ static void lc_ak_selftest(int *tested, const char *impl)
 		0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f,
 	};
 	static const uint8_t exp_ct[] = {
-		0x66, 0xeb, 0x20, 0xf0, 0x33, 0xf0, 0x12, 0xe0, 0x5a, 0xe3,
-		0x41, 0x0f, 0xf0, 0xf4, 0xe2, 0x86, 0xa7, 0xec, 0xd6, 0x5a,
-		0x91, 0x74, 0x62, 0x04, 0xcd, 0x4c, 0xb7, 0xf5, 0x65, 0x68,
-		0x98, 0x03, 0x1a, 0xf2, 0x49, 0xcf, 0x9f, 0x09, 0x86, 0x0c,
-		0xe4, 0xda, 0xaa, 0xfa, 0xf0, 0x74, 0xc5, 0x4c, 0x87, 0x66,
-		0x49, 0x53, 0x45, 0x1a, 0x63, 0x3f, 0x57, 0xfa, 0x5c, 0x7b,
-		0x4b, 0xbe, 0xa1, 0xca
+		0x98, 0xe1, 0x5c, 0xd7, 0x81, 0xd9, 0x90, 0x9a, 0x63, 0x87,
+		0x6f, 0xf8, 0x2a, 0x74, 0x38, 0xa2, 0xc0, 0xbf, 0x1e, 0xe4,
+		0x82, 0x50, 0xc0, 0x1d, 0xea, 0x17, 0x30, 0xec, 0xb7, 0xd2,
+		0x36, 0xbc, 0x83, 0xd8, 0x8d, 0xa1, 0xf1, 0x7e, 0xe9, 0x6d,
+		0x53, 0xb6, 0x48, 0xef, 0x43, 0x85, 0xea, 0x72, 0x6f, 0x51,
+		0x3d, 0xb2, 0x35, 0x5d, 0x48, 0x44, 0x77, 0xb7, 0x60, 0x27,
+		0x53, 0x9a, 0x74, 0x8e
 	};
 	static const uint8_t exp_tag[] = {
-		0x03, 0x3b, 0x2d, 0x50, 0x90, 0x16, 0x72, 0x4f, 0x36, 0xf4,
-		0xe3, 0x0a, 0xfd, 0x58, 0x5c, 0x65
+		0x79, 0xd0, 0x7e, 0x7a, 0xb6, 0x79, 0x7d, 0x14, 0x0e, 0x6b,
+		0xe6, 0xe9, 0x64, 0xdb, 0x59, 0x14,
 	};
 	uint8_t act_ct[sizeof(exp_ct)] __align(sizeof(uint32_t));
 	uint8_t act_tag[sizeof(exp_tag)] __align(sizeof(uint32_t));
@@ -105,19 +120,19 @@ static void lc_ak_selftest(int *tested, const char *impl)
 }
 
 /**
- * @brief Set the key for the encyption or decryption operation
+ * @brief Set the key for the encryption or decryption operation
  *
  * @param ak [in] Ascon-Keccak crypt cipher handle
  * @param key [in] Buffer with key
  * @param keylen [in] Length of key buffer
- * @param iv [in] initialization vector to be used
- * @param ivlen [in] length of initialization vector
+ * @param nonce [in] Nonce vector to be used
+ * @param noncelen [in] Length of nonce vector
  *
  * The algorithm supports a key of arbitrary size. The only requirement is that
  * the same key is used for decryption as for encryption.
  */
 static int lc_ak_setkey(void *state, const uint8_t *key, size_t keylen,
-			const uint8_t *iv, size_t ivlen)
+			const uint8_t *nonce, size_t noncelen)
 {
 	struct lc_ak_cryptor *ak = state;
 	const struct lc_hash *hash = ak->hash;
@@ -126,20 +141,25 @@ static int lc_ak_setkey(void *state, const uint8_t *key, size_t keylen,
 
 	lc_ak_selftest(&tested, "Asacon Keccak AEAD");
 
+	if (noncelen != 16)
+		return -EINVAL;
+
 	memset(state, 0, LC_SHA3_STATE_SIZE);
 
-	/* INIT || 0* || key || iv */
+	/*
+	 * Add (IV || key || Nonce) to rate section and first part of capacity
+	 * section of state.
+	 */
 	switch (hash->rate) {
-	case 0x240 / 8:
-		if (ivlen != 16)
-			return -EINVAL;
-
+	case 0x240 / 8:			/* Keccak security level 512 bits */
 		switch (keylen) {
 		case 32:
 			ak->keccak_state[0] = LC_AEAD_AK_SHA3_256_512_INIT;
+			ak->keylen = 32;
 			break;
 		case 64:
 			ak->keccak_state[0] = LC_AEAD_AK_SHA3_512_512_INIT;
+			ak->keylen = 64;
 			break;
 		default:
 			return -EINVAL;
@@ -153,33 +173,37 @@ static int lc_ak_setkey(void *state, const uint8_t *key, size_t keylen,
 		memcpy(ak->key, key, keylen);
 
 		break;
-	case 0x440 / 8:
-		if (ivlen != 16 || keylen != 32)
+	case 0x440 / 8:			/* Keccak security level 256 bits */
+		if (keylen != 32)
 			return -EINVAL;
 		ak->keccak_state[0] = LC_AEAD_AK_SHA3_256_256_INIT;
+		ak->keylen = 32;
 		for (i = 1;
 		     i < (LC_SHA3_STATE_WORDS - (16 + 16) / sizeof(uint64_t));
 		     i++)
 			ak->keccak_state[i] = 0;
 
 		memcpy(ak->key, key, keylen);
-		memset(ak->key + 16, 0, 16);
+
 		break;
 	default:
 		return -EINVAL;
 	}
 
+	/* Insert key past the IV. */
 	lc_keccak_add_bytes(hash, ak->keccak_state, key,
-			    (unsigned int)(LC_SHA3_STATE_SIZE - ivlen - keylen),
+			    (unsigned int)(sizeof(uint64_t)),
 			    (unsigned int)keylen);
-	lc_keccak_add_bytes(hash, ak->keccak_state, iv,
-			    (unsigned int)(LC_SHA3_STATE_SIZE - ivlen),
-			    (unsigned int)ivlen);
 
-	/* Keccak */
+	/* Insert nonce past the key. */
+	lc_keccak_add_bytes(hash, ak->keccak_state, nonce,
+			    (unsigned int)(sizeof(uint64_t) + keylen),
+			    (unsigned int)noncelen);
+
+	/* Keccak permutation */
 	lc_keccak(hash, state);
 
-	/* XOR key to last part of state */
+	/* XOR key to last part of capacity */
 	lc_keccak_add_bytes(hash, ak->keccak_state, key,
 			    (unsigned int)(LC_SHA3_STATE_SIZE - keylen),
 			    (unsigned int)keylen);
@@ -210,7 +234,7 @@ static void lc_ak_aad(struct lc_ak_cryptor *ak, const uint8_t *aad,
 	size_t todo = 0;
 	static const uint8_t pad_trail = 0x01;
 
-	/* Authenticated Data - Insert into rate */
+	/* Authenticated Data - Insert into rate section of the state */
 	while (aadlen) {
 		todo = min_size(aadlen, hash->rate);
 		lc_keccak_add_bytes(hash, ak->keccak_state, aad, 0,
@@ -218,7 +242,7 @@ static void lc_ak_aad(struct lc_ak_cryptor *ak, const uint8_t *aad,
 
 		aadlen -= todo;
 
-		/* Insert the trailing 1 */
+		/* We reached the end of AAD - Insert the trailing 1 */
 		if (!aadlen)
 			lc_ak_add_padbyte(ak, todo);
 
@@ -236,12 +260,15 @@ static void lc_ak_finalization(struct lc_ak_cryptor *ak, uint8_t *tag,
 	const struct lc_hash *hash = ak->hash;
 
 	/* Finalization - Insert key into capacity */
-	lc_keccak_add_bytes(hash, ak->keccak_state, ak->key, hash->rate, 32);
+	lc_keccak_add_bytes(hash, ak->keccak_state, ak->key, hash->rate,
+			    ak->keylen);
 
+	/* Keccak permutation */
 	lc_keccak(hash, ak->keccak_state);
 
 	/* Finalization - Insert key into capacity */
-	lc_keccak_add_bytes(hash, ak->keccak_state, ak->key, hash->rate, 32);
+	lc_keccak_add_bytes(hash, ak->keccak_state, ak->key, hash->rate,
+			    ak->keylen);
 
 	/* Finalization - Extract tag from capacity */
 	lc_keccak_extract_bytes(hash, ak->keccak_state, tag, hash->rate,
@@ -257,7 +284,14 @@ static void lc_ak_encrypt(void *state, const uint8_t *plaintext,
 	const struct lc_hash *hash = ak->hash;
 	size_t todo = 0;
 
-	if (taglen > (LC_SHA3_STATE_SIZE - hash->rate) || taglen < 16)
+	/*
+	 * Tag size can be at most the size of the capacity.
+	 *
+	 * Note, this code allows small tag sizes, including zero tag sizes.
+	 * It is supported here, but the decryption side requires 16 bytes
+	 * tag length as a minimum.
+	 */
+	if (taglen > (LC_SHA3_STATE_SIZE - hash->rate))
 		return;
 
 	/* Authenticated Data */
@@ -300,6 +334,9 @@ static int lc_ak_decrypt(void *state, const uint8_t *ciphertext,
 	uint8_t *calctag_p = calctag, *pt_p = plaintext;
 	size_t todo;
 	int ret, zero_tmp = 0;
+
+	if (taglen < sizeof(calctag))
+		return -EINVAL;
 
 	/* If we have an in-place cipher operation, we need a tmp-buffer */
 	if (plaintext == ciphertext) {
