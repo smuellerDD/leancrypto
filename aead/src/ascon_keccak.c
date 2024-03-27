@@ -32,16 +32,18 @@
  * Algorithms with 256 bit security strength based on the fact that the
  * capacity is 512 bits or larger.
  *
- *                       -------- Bit size of -------- Rounds
- *                       Key        Nonce Tag DataBlock pa pb
- *                                            Rate
- * Ascon-Keccak 256/512  256 or 512 128   128  576      24 24
- * Ascon-Keccak 256/256  256        128   128 1088      24 24
+ *                       ---- Bit size of ----- Rounds
+ *                       Key Nonce Tag DataBlock pa pb
+ *                                     Rate
+ * Ascon-Keccak 512/512  512 128   128  576      24 24
+ * Ascon-Keccak 256/512  256 128   128  576      24 24
+ * Ascon-Keccak 256/256  256 128   128 1088      24 24
  *
  * Note, the tag is allowed also to be larger, up to the size of the capacity.
  */
-#define LC_AEAD_AK_SHA3_512_INIT 0x0100024000180018
-#define LC_AEAD_AK_SHA3_256_INIT 0x0100044000180018
+#define LC_AEAD_AK_SHA3_512_512_INIT 0x0200024000180018
+#define LC_AEAD_AK_SHA3_256_512_INIT 0x0100024000180018
+#define LC_AEAD_AK_SHA3_256_256_INIT 0x0100044000180018
 
 static void lc_ak_selftest(int *tested, const char *impl)
 {
@@ -129,9 +131,20 @@ static int lc_ak_setkey(void *state, const uint8_t *key, size_t keylen,
 	/* INIT || 0* || key || iv */
 	switch (hash->rate) {
 	case 0x240 / 8:
-		if (ivlen != 16 || (keylen != 32 && keylen != 64))
+		if (ivlen != 16)
 			return -EINVAL;
-		ak->keccak_state[0] = LC_AEAD_AK_SHA3_512_INIT;
+
+		switch (keylen) {
+		case 32:
+			ak->keccak_state[0] = LC_AEAD_AK_SHA3_256_512_INIT;
+			break;
+		case 64:
+			ak->keccak_state[0] = LC_AEAD_AK_SHA3_512_512_INIT;
+			break;
+		default:
+			return -EINVAL;
+		}
+
 		for (i = 1;
 		     i < (LC_SHA3_STATE_WORDS - (16 + 32) / sizeof(uint64_t));
 		     i++)
@@ -143,7 +156,7 @@ static int lc_ak_setkey(void *state, const uint8_t *key, size_t keylen,
 	case 0x440 / 8:
 		if (ivlen != 16 || keylen != 32)
 			return -EINVAL;
-		ak->keccak_state[0] = LC_AEAD_AK_SHA3_256_INIT;
+		ak->keccak_state[0] = LC_AEAD_AK_SHA3_256_256_INIT;
 		for (i = 1;
 		     i < (LC_SHA3_STATE_WORDS - (16 + 16) / sizeof(uint64_t));
 		     i++)

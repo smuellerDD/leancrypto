@@ -29,7 +29,7 @@ extern "C" {
 
 struct lc_ak_cryptor {
 	uint64_t keccak_state[LC_SHA3_STATE_WORDS];
-	uint8_t key[32];
+	uint8_t key[64];
 	const struct lc_hash *hash;
 };
 
