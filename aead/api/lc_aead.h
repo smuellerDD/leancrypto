@@ -159,27 +159,31 @@ static inline int lc_aead_setkey(struct lc_aead_ctx *ctx, const uint8_t *key,
  * @param [in] taglen Length of tag buffer. The full tag size hc_get_tagsize().
  *		      If the buffer is smaller, a truncated tag value is
  *		      returned.
+ *
+ * @return amount of processed bytes on success, < 0 on error
  */
-static inline void lc_aead_encrypt(struct lc_aead_ctx *ctx,
-				   const uint8_t *plaintext,
-				   uint8_t *ciphertext, size_t datalen,
-				   const uint8_t *aad, size_t aadlen,
-				   uint8_t *tag, size_t taglen)
+static inline int lc_aead_encrypt(struct lc_aead_ctx *ctx,
+				  const uint8_t *plaintext,
+				  uint8_t *ciphertext, size_t datalen,
+				  const uint8_t *aad, size_t aadlen,
+				  uint8_t *tag, size_t taglen)
 {
 	const struct lc_aead *aead;
 	void *aead_state;
 
 	if (!ctx)
-		return;
+		return -EINVAL;
 
 	aead = ctx->aead;
 	aead_state = ctx->aead_state;
 
-	if (!aead || !aead_state)
-		return;
+	if (!aead || !aead_state || !aead->encrypt)
+		return -EOPNOTSUPP;
 
 	aead->encrypt(aead_state, plaintext, ciphertext, datalen, aad, aadlen,
 		      tag, taglen);
+
+	return 0;
 }
 
 /**
@@ -197,23 +201,25 @@ static inline void lc_aead_encrypt(struct lc_aead_ctx *ctx,
  *
  * @return amount of processed bytes on success, < 0 on error
  */
-static inline void lc_aead_enc_update(struct lc_aead_ctx *ctx,
-				      const uint8_t *plaintext,
-				      uint8_t *ciphertext, size_t datalen)
+static inline int lc_aead_enc_update(struct lc_aead_ctx *ctx,
+				     const uint8_t *plaintext,
+				     uint8_t *ciphertext, size_t datalen)
 {
 	const struct lc_aead *aead;
 	void *aead_state;
 
 	if (!ctx)
-		return;
+		return -EINVAL;
 
 	aead = ctx->aead;
 	aead_state = ctx->aead_state;
 
-	if (!aead || !aead_state)
-		return;
+	if (!aead || !aead_state || !aead->enc_update)
+		return -EOPNOTSUPP;
 
 	aead->enc_update(aead_state, plaintext, ciphertext, datalen);
+
+	return 0;
 }
 
 /**
@@ -229,24 +235,28 @@ static inline void lc_aead_enc_update(struct lc_aead_ctx *ctx,
  * @param [in] taglen Length of tag buffer. The full tag size hc_get_tagsize().
  *		      If the buffer is smaller, a truncated tag value is
  *		      returned.
+ *
+ * @return amount of processed bytes on success, < 0 on error
  */
-static inline void lc_aead_enc_final(struct lc_aead_ctx *ctx,
-				     const uint8_t *aad, size_t aadlen,
-				     uint8_t *tag, size_t taglen)
+static inline int lc_aead_enc_final(struct lc_aead_ctx *ctx,
+				    const uint8_t *aad, size_t aadlen,
+				    uint8_t *tag, size_t taglen)
 {
 	const struct lc_aead *aead;
 	void *aead_state;
 
 	if (!ctx)
-		return;
+		return -EINVAL;
 
 	aead = ctx->aead;
 	aead_state = ctx->aead_state;
 
-	if (!aead || !aead_state)
-		return;
+	if (!aead || !aead_state || !aead->enc_final)
+		return -EOPNOTSUPP;
 
 	aead->enc_final(aead_state, aad, aadlen, tag, taglen);
+
+	return 0;
 }
 
 /**
@@ -284,8 +294,8 @@ static inline int lc_aead_decrypt(struct lc_aead_ctx *ctx,
 	aead = ctx->aead;
 	aead_state = ctx->aead_state;
 
-	if (!aead || !aead_state)
-		return -EINVAL;
+	if (!aead || !aead_state || !aead->decrypt)
+		return -EOPNOTSUPP;
 
 	return aead->decrypt(aead_state, ciphertext, plaintext, datalen, aad,
 			     aadlen, tag, taglen);
@@ -303,24 +313,28 @@ static inline int lc_aead_decrypt(struct lc_aead_ctx *ctx,
  * @param [in] datalen Length of the plaintext and ciphertext data buffers
  *		       NOTE: the encryption operation is symmetric and
  *			     generates as much output as input.
+ *
+ * @return amount of processed bytes on success, < 0 on error
  */
-static inline void lc_aead_dec_update(struct lc_aead_ctx *ctx,
-				      const uint8_t *ciphertext,
-				      uint8_t *plaintext, size_t datalen)
+static inline int lc_aead_dec_update(struct lc_aead_ctx *ctx,
+				     const uint8_t *ciphertext,
+				     uint8_t *plaintext, size_t datalen)
 {
 	const struct lc_aead *aead;
 	void *aead_state;
 
 	if (!ctx)
-		return;
+		return -EINVAL;
 
 	aead = ctx->aead;
 	aead_state = ctx->aead_state;
 
-	if (!aead || !aead_state)
-		return;
+	if (!aead || !aead_state || !aead->dec_update)
+		return -EOPNOTSUPP;
 
 	aead->dec_update(aead_state, ciphertext, plaintext, datalen);
+
+	return 0;
 }
 
 /**
@@ -351,8 +365,8 @@ static inline int lc_aead_dec_final(struct lc_aead_ctx *ctx, const uint8_t *aad,
 	aead = ctx->aead;
 	aead_state = ctx->aead_state;
 
-	if (!aead || !aead_state)
-		return -EINVAL;
+	if (!aead || !aead_state || !aead->dec_final)
+		return -EOPNOTSUPP;
 
 	return aead->dec_final(aead_state, aad, aadlen, tag, taglen);
 }

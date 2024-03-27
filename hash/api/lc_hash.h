@@ -367,13 +367,17 @@ void lc_shake(const struct lc_hash *shake, const uint8_t *in, size_t inlen,
  *		    Keccak calculation with.
  * @param [in] state State buffer of 200 bytes aligned to
  *		     LC_HASH_COMMON_ALIGNMENT.
+ *
+ * @return: 0 on success, < 0 on error
  */
-static inline void lc_keccak(const struct lc_hash *hash, void *state)
+static inline int lc_keccak(const struct lc_hash *hash, void *state)
 {
 	if (!state || !hash || !hash->keccak_permutation)
-		return;
+		return -EOPNOTSUPP;
 
 	hash->keccak_permutation(state);
+
+	return 0;
 }
 
 /**
@@ -398,14 +402,18 @@ static inline void lc_keccak(const struct lc_hash *hash, void *state)
  *
  * @pre 0 ≤ @a offset < (width in bytes)
  * @pre 0 ≤ @a offset + @a length ≤ (width in bytes)
+ *
+ * @return: 0 on success, < 0 on error
  */
-static inline void lc_keccak_add_bytes(const struct lc_hash *hash, void *state, 					       const uint8_t *data, unsigned int offset,
-				       unsigned int length)
+static inline int lc_keccak_add_bytes(const struct lc_hash *hash, void *state, 					     	      const uint8_t *data, unsigned int offset,
+				      unsigned int length)
 {
 	if (!state || !hash || !hash->keccak_add_bytes)
-		return;
+		return -EOPNOTSUPP;
 
 	hash->keccak_add_bytes(state, data, offset, length);
+
+	return 0;
 }
 
 /**
@@ -427,15 +435,19 @@ static inline void lc_keccak_add_bytes(const struct lc_hash *hash, void *state, 
  *
  * @pre 0 ≤ @a offset < (width in bytes)
  * @pre 0 ≤ @a offset + @a length ≤ (width in bytes)
+ *
+ * @return: 0 on success, < 0 on error
  */
-static inline void lc_keccak_extract_bytes(const struct lc_hash *hash,
-					   const void *state, uint8_t *data,
-					   size_t offset, size_t length)
+static inline int lc_keccak_extract_bytes(const struct lc_hash *hash,
+					  const void *state, uint8_t *data,
+					  size_t offset, size_t length)
 {
 	if (!state || !hash || !hash->keccak_extract_bytes)
-		return;
+		return -EOPNOTSUPP;
 
 	hash->keccak_extract_bytes(state, data, offset, length);
+
+	return 0;
 }
 
 /**
@@ -450,15 +462,19 @@ static inline void lc_keccak_extract_bytes(const struct lc_hash *hash,
  *
  * WARNING: The caller is responsible that offset / length points to data
  * within the state (within the size of LC_SHA3_STATE_SIZE).
+ *
+ * @return: 0 on success, < 0 on error
  */
-static inline void lc_keccak_newstate(const struct lc_hash *hash,
-				      void *state, const uint8_t *data,
-				      size_t offset, size_t length)
+static inline int lc_keccak_newstate(const struct lc_hash *hash,
+				     void *state, const uint8_t *data,
+				     size_t offset, size_t length)
 {
 	if (!state || !hash || !hash->keccak_newstate)
-		return;
+		return -EOPNOTSUPP;
 
 	hash->keccak_newstate(state, data, offset, length);
+
+	return 0;
 }
 
 #ifdef __cplusplus
