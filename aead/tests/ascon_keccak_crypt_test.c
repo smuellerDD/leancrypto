@@ -224,7 +224,7 @@ static int ak_tester_256_256(const struct lc_hash *hash, const char *name)
 	};
 
 	printf("Ascon Keccak 256/256 crypt ctx %s (%s implementation) len %u, state len %u\n",
-	       name, hash == lc_sha3_512_c ? "C" : "accelerated",
+	       name, hash == lc_sha3_256_c ? "C" : "accelerated",
 	       (unsigned int)LC_AK_CTX_SIZE(hash),
 	       (unsigned int)LC_AK_STATE_SIZE);
 	return ak_tester_one(hash,
