@@ -751,13 +751,17 @@ static void keccak_c_extract_bytes(const void *state, uint8_t *data,
 			le64_to_ptr(data, s[i]);
 
 		if (todo_32) {
+			const uint32_t *state32 = state;
+
 			/* 32-bit aligned request */
-			le32_to_ptr(data, (uint32_t)(s[i]));
+			le32_to_ptr(data, state32[i]);
 			data += 4;
-			part = (uint32_t)(s[i] >> 32);
+			part = 0;
 		} else {
+			const uint32_t *state32 = state;
+
 			/* non-aligned request */
-			part = (uint32_t)(s[i]);
+			part = state32[i];
 		}
 
 		for (j = 0; j < (unsigned int)(todo << 3); j += 8, data++)
