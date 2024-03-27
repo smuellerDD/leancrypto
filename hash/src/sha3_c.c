@@ -484,8 +484,7 @@ static inline void sha3_fill_state_bytes(uint64_t state[LC_SHA3_STATE_WORDS],
 	while (inlen) {
 		uint8_t ctr;
 
-		for (ctr = 0;
-		     i < sizeof(tmp) && (size_t)ctr < inlen;
+		for (ctr = 0; i < sizeof(tmp) && (size_t)ctr < inlen;
 		     i++, in++, ctr++)
 			tmp.b[i] = *in;
 
@@ -765,8 +764,8 @@ static void keccak_c_extract_bytes(const void *state, uint8_t *data,
 	}
 }
 
-static void keccak_c_newstate(void *state, const uint8_t *data,
-			      size_t offset, size_t length)
+static void keccak_c_newstate(void *state, const uint8_t *data, size_t offset,
+			      size_t length)
 {
 	uint64_t *s = state;
 	unsigned int i;
@@ -794,8 +793,7 @@ static void keccak_c_newstate(void *state, const uint8_t *data,
 		tmp.dw = *s;
 
 		/* Overwrite the existing tmp data with new data */
-		for (ctr = 0;
-		     i < sizeof(tmp) && (size_t)ctr < length;
+		for (ctr = 0; i < sizeof(tmp) && (size_t)ctr < length;
 		     i++, data++, ctr++)
 			tmp.b[i] = *data;
 

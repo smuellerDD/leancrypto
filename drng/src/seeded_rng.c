@@ -157,7 +157,7 @@ static int lc_seed_seeded_rng(struct lc_seeded_rng_ctx *rng, int init,
 	/* Insert 128 additional bits of entropy to the DRNG */
 	if (init) {
 		datasize = get_full_entropy(seed, sizeof(seed) / 4);
-		if ((datasize < (ssize_t)sizeof(seed) / 4)  ||
+		if ((datasize < (ssize_t)sizeof(seed) / 4) ||
 		    (size_t)datasize > sizeof(seed))
 			return -EFAULT;
 

@@ -354,7 +354,6 @@ void lc_hash(const struct lc_hash *hash, const uint8_t *in, size_t inlen,
 void lc_shake(const struct lc_hash *shake, const uint8_t *in, size_t inlen,
 	      uint8_t *digest, size_t digestlen);
 
-
 /**
  * @brief Perform Keccak permutation on buffer
  *
@@ -405,7 +404,8 @@ static inline int lc_keccak(const struct lc_hash *hash, void *state)
  *
  * @return: 0 on success, < 0 on error
  */
-static inline int lc_keccak_add_bytes(const struct lc_hash *hash, void *state, 					     	      const uint8_t *data, unsigned int offset,
+static inline int lc_keccak_add_bytes(const struct lc_hash *hash, void *state,
+				      const uint8_t *data, unsigned int offset,
 				      unsigned int length)
 {
 	if (!state || !hash || !hash->keccak_add_bytes)
@@ -465,9 +465,9 @@ static inline int lc_keccak_extract_bytes(const struct lc_hash *hash,
  *
  * @return: 0 on success, < 0 on error
  */
-static inline int lc_keccak_newstate(const struct lc_hash *hash,
-				     void *state, const uint8_t *data,
-				     size_t offset, size_t length)
+static inline int lc_keccak_newstate(const struct lc_hash *hash, void *state,
+				     const uint8_t *data, size_t offset,
+				     size_t length)
 {
 	if (!state || !hash || !hash->keccak_newstate)
 		return -EOPNOTSUPP;

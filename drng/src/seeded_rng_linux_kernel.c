@@ -37,7 +37,6 @@ ssize_t get_full_entropy(uint8_t *buffer, size_t bufferlen)
 		return (ssize_t)bufferlen;
 	}
 
-
 	/* Get data from random.c */
 	get_random_bytes(buffer, bufferlen);
 
@@ -51,26 +50,26 @@ ssize_t get_full_entropy(uint8_t *buffer, size_t bufferlen)
 	if (fips_enabled && ret)
 		return (ssize_t)ret;
 
-	return  (ssize_t)(bufferlen * 2);
+	return (ssize_t)(bufferlen * 2);
 }
 
 void seeded_rng_noise_fini(void)
 {
 	if (!IS_ERR_OR_NULL(jent))
-                crypto_free_rng(jent);
-        jent = NULL;
+		crypto_free_rng(jent);
+	jent = NULL;
 }
 
 int seeded_rng_noise_init(void)
 {
 	jent = crypto_alloc_rng("jitterentropy_rng", 0, 0);
-        if (IS_ERR(jent)) {
-                const int err = PTR_ERR(jent);
+	if (IS_ERR(jent)) {
+		const int err = PTR_ERR(jent);
 
-                jent = NULL;
-                if (fips_enabled)
-                        return err;
-                pr_info("DRBG: Continuing without Jitter RNG\n");
-        }
+		jent = NULL;
+		if (fips_enabled)
+			return err;
+		pr_info("DRBG: Continuing without Jitter RNG\n");
+	}
 	return 0;
 }

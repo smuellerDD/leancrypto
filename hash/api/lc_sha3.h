@@ -195,8 +195,7 @@ struct lc_sha3_512_state {
 
 /********************************* SHAKE-128 **********************************/
 #define LC_SHAKE_128_SIZE_DIGEST_BITS 128
-#define LC_SHAKE_128_SIZE_BLOCK                                                \
-	LC_SHA3_SIZE_RATE(LC_SHAKE_128_SIZE_DIGEST_BITS)
+#define LC_SHAKE_128_SIZE_BLOCK LC_SHA3_SIZE_RATE(LC_SHAKE_128_SIZE_DIGEST_BITS)
 extern const struct lc_hash *lc_shake128;
 
 struct lc_shake_128_state {
@@ -235,8 +234,7 @@ struct lc_shake_128_state {
 
 /********************************* SHAKE-256 **********************************/
 #define LC_SHAKE_256_SIZE_DIGEST_BITS 256
-#define LC_SHAKE_256_SIZE_BLOCK                                                \
-	LC_SHA3_SIZE_RATE(LC_SHAKE_256_SIZE_DIGEST_BITS)
+#define LC_SHAKE_256_SIZE_BLOCK LC_SHA3_SIZE_RATE(LC_SHAKE_256_SIZE_DIGEST_BITS)
 extern const struct lc_hash *lc_shake256;
 
 #define LC_SHAKE_256_CTX_SIZE LC_SHA3_256_CTX_SIZE

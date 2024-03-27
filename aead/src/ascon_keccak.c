@@ -72,14 +72,14 @@ static void lc_ak_selftest(int *tested, const char *impl)
 		0x3c, 0x3d, 0x3e, 0x3f,
 	};
 	static const uint8_t key[] = {
-		0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89,
-		0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f, 0x90, 0x91, 0x92, 0x93,
-		0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9a, 0x9b, 0x9c, 0x9d,
-		0x9e, 0x9f,
+		0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87,
+		0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f,
+		0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97,
+		0x98, 0x99, 0x9a, 0x9b, 0x9c, 0x9d, 0x9e, 0x9f,
 	};
 	static const uint8_t iv[] = {
-		0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29,
-		0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f,
+		0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
+		0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f,
 	};
 	static const uint8_t exp_ct[] = {
 		0x98, 0xe1, 0x5c, 0xd7, 0x81, 0xd9, 0x90, 0x9a, 0x63, 0x87,
@@ -91,8 +91,8 @@ static void lc_ak_selftest(int *tested, const char *impl)
 		0x53, 0x9a, 0x74, 0x8e
 	};
 	static const uint8_t exp_tag[] = {
-		0x79, 0xd0, 0x7e, 0x7a, 0xb6, 0x79, 0x7d, 0x14, 0x0e, 0x6b,
-		0xe6, 0xe9, 0x64, 0xdb, 0x59, 0x14,
+		0x79, 0xd0, 0x7e, 0x7a, 0xb6, 0x79, 0x7d, 0x14,
+		0x0e, 0x6b, 0xe6, 0xe9, 0x64, 0xdb, 0x59, 0x14,
 	};
 	uint8_t act_ct[sizeof(exp_ct)] __align(sizeof(uint32_t));
 	uint8_t act_tag[sizeof(exp_tag)] __align(sizeof(uint32_t));
@@ -153,7 +153,7 @@ static int lc_ak_setkey(void *state, const uint8_t *key, size_t keylen,
 	 * section of state.
 	 */
 	switch (hash->rate) {
-	case 0x240 / 8:			/* Keccak security level 512 bits */
+	case 0x240 / 8: /* Keccak security level 512 bits */
 		switch (keylen) {
 		case 32:
 			ak->keccak_state[0] = LC_AEAD_AK_SHA3_256_512_INIT;
@@ -175,7 +175,7 @@ static int lc_ak_setkey(void *state, const uint8_t *key, size_t keylen,
 		memcpy(ak->key, key, keylen);
 
 		break;
-	case 0x440 / 8:			/* Keccak security level 256 bits */
+	case 0x440 / 8: /* Keccak security level 256 bits */
 		if (keylen != 32)
 			return -EINVAL;
 		ak->keccak_state[0] = LC_AEAD_AK_SHA3_256_256_INIT;
@@ -289,7 +289,6 @@ static void lc_ak_enc_update(struct lc_ak_cryptor *ak, const uint8_t *plaintext,
 {
 	const struct lc_hash *hash = ak->hash;
 	size_t todo = 0;
-
 
 	while (datalen) {
 		todo = min_size(datalen, hash->rate - ak->rate_offset);
@@ -535,16 +534,17 @@ static void lc_ak_zero(void *state)
 	ak->rate_offset = 0;
 }
 
-struct lc_aead _lc_ascon_keccak_aead = {
-	.setkey = lc_ak_setkey,
-	.encrypt = lc_ak_encrypt,
-	.enc_init = lc_ak_aad_interface,
-	.enc_update = lc_ak_enc_update_interface,
-	.enc_final = lc_ak_enc_final_interface,
-	.decrypt = lc_ak_decrypt,
-	.dec_init = lc_ak_aad_interface,
-	.dec_update = lc_ak_dec_update_interface,
-	.dec_final = lc_ak_dec_final_interface,
-	.zero = lc_ak_zero };
-LC_INTERFACE_SYMBOL(const struct lc_aead *, lc_ascon_keccak_aead) =
-	&_lc_ascon_keccak_aead;
+struct lc_aead _lc_ascon_keccak_aead = { .setkey = lc_ak_setkey,
+					 .encrypt = lc_ak_encrypt,
+					 .enc_init = lc_ak_aad_interface,
+					 .enc_update =
+						 lc_ak_enc_update_interface,
+					 .enc_final = lc_ak_enc_final_interface,
+					 .decrypt = lc_ak_decrypt,
+					 .dec_init = lc_ak_aad_interface,
+					 .dec_update =
+						 lc_ak_dec_update_interface,
+					 .dec_final = lc_ak_dec_final_interface,
+					 .zero = lc_ak_zero };
+LC_INTERFACE_SYMBOL(const struct lc_aead *,
+		    lc_ascon_keccak_aead) = &_lc_ascon_keccak_aead;

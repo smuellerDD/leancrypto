@@ -37,16 +37,14 @@ struct lc_ak_cryptor {
 
 #define LC_ASCON_KECCAK_ALIGNMENT LC_XOR_ALIGNMENT(LC_HASH_COMMON_ALIGNMENT)
 
-#define LC_AK_STATE_SIZE                                                       \
-	(LC_SHA3_STATE_SIZE + LC_ASCON_KECCAK_ALIGNMENT)
+#define LC_AK_STATE_SIZE (LC_SHA3_STATE_SIZE + LC_ASCON_KECCAK_ALIGNMENT)
 #define LC_AK_CTX_SIZE(x)                                                      \
 	(sizeof(struct lc_aead) + sizeof(struct lc_ak_cryptor))
 
 /* Ascon-Keccak-based AEAD-algorithm */
 extern const struct lc_aead *lc_ascon_keccak_aead;
 
-#define _LC_AK_SET_CTX(name, hashname)                                         \
-	name->hash = hashname
+#define _LC_AK_SET_CTX(name, hashname) name->hash = hashname
 
 #define LC_AK_SET_CTX(name, hashname)                                          \
 	LC_AEAD_HASH_ALIGN_CTX(name, lc_ascon_keccak_aead);                    \

@@ -380,9 +380,8 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_ies_enc, const struct lc_kyber_pk *pk,
 
 int lc_kyber_ies_enc_init_internal(struct lc_aead_ctx *aead,
 				   const struct lc_kyber_pk *pk,
-				   struct lc_kyber_ct *ct,
-				   const uint8_t *aad, size_t aadlen,
-				   struct lc_rng_ctx *rng_ctx)
+				   struct lc_kyber_ct *ct, const uint8_t *aad,
+				   size_t aadlen, struct lc_rng_ctx *rng_ctx)
 {
 	uint8_t ss[LC_KYBER_IES_SYM_KEYSIZE + LC_KYBER_IES_SYM_IVSIZE];
 	uint8_t *ies_key = ss;
@@ -436,8 +435,8 @@ out:
 
 LC_INTERFACE_FUNCTION(int, lc_kyber_ies_dec_init, struct lc_aead_ctx *aead,
 		      const struct lc_kyber_sk *sk,
-		      const struct lc_kyber_ct *ct,
-		      const uint8_t *aad, size_t aadlen)
+		      const struct lc_kyber_ct *ct, const uint8_t *aad,
+		      size_t aadlen)
 {
 	uint8_t ss[LC_KYBER_IES_SYM_KEYSIZE + LC_KYBER_IES_SYM_IVSIZE];
 	uint8_t *ies_key = ss;

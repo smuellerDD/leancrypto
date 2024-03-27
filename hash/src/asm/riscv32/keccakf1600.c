@@ -458,8 +458,8 @@ round1(uint32_t *lanes, uint32_t *rc, uint32_t *a2, uint32_t *a3, uint32_t *a4,
 		t1);
 }
 
-inline static void __attribute__((always_inline))
-round2(uint32_t *lanes, uint32_t *rc, reg *p)
+inline static void __attribute__((always_inline)) round2(uint32_t *lanes,
+							 uint32_t *rc, reg *p)
 {
 	xor5(&p->a2, Aku1, Agu0, Abu1, Asu1, Amu1, lanes, &p->t1);
 	xor5(&p->a6, Ame0, Ake0, Age0, Abe0, Ase1, lanes, &p->t1);

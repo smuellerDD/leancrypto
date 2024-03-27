@@ -490,7 +490,7 @@ static void lc_cc_encrypt_tag(void *state, uint8_t *tag, size_t taglen)
 	lc_cshake_ctx_reinit(auth_ctx);
 }
 
-static int lc_cc_decrypt_authenticate(void *state,const uint8_t *tag,
+static int lc_cc_decrypt_authenticate(void *state, const uint8_t *tag,
 				      size_t taglen)
 {
 	struct lc_cc_cryptor *cc = state;

@@ -117,8 +117,8 @@ static int kyber_ies_determinisitic(void)
 
 	lc_rng_zero(selftest_rng);
 	lc_rng_seed(selftest_rng, NULL, 0, NULL, 0);
-	CKINT(lc_kyber_x25519_ies_enc_init_internal(cc, &ws->pk, &ws->ct,
-						    NULL, 0, selftest_rng));
+	CKINT(lc_kyber_x25519_ies_enc_init_internal(cc, &ws->pk, &ws->ct, NULL,
+						    0, selftest_rng));
 	lc_kyber_x25519_ies_enc_update(cc, plain, ws->cipher, sizeof(plain));
 	lc_kyber_x25519_ies_enc_final(cc, ws->tag, sizeof(ws->tag));
 	if (memcmp(ws->cipher, exp_cipher, sizeof(exp_cipher))) {

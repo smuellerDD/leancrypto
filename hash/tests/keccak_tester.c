@@ -96,8 +96,7 @@ static int _keccak_tester(const struct lc_hash *sha3_512, const char *name)
 			 "Keccak on zero state");
 
 	memset(state, 0, sizeof(state));
-	for (i = 0;
-	     i < LC_SHA3_STATE_SIZE - sizeof(msg) + 1;
+	for (i = 0; i < LC_SHA3_STATE_SIZE - sizeof(msg) + 1;
 	     i += sizeof(msg)) {
 		lc_keccak_add_bytes(sha3_512, state, msg, i, sizeof(msg));
 		lc_keccak(sha3_512, state);
