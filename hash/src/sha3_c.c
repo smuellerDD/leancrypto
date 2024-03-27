@@ -696,17 +696,13 @@ static void keccak_squeeze(void *_state, uint8_t *digest)
 
 static void keccak_c_permutation(void *state)
 {
-	uint64_t *s = state;
-
-	keccakp_1600(s);
+	keccakp_1600((uint64_t *)state);
 }
 
 static void keccak_c_add_bytes(void *state, const uint8_t *data,
 			       unsigned int offset, unsigned int length)
 {
-	uint64_t *s = state;
-
-	sha3_fill_state_bytes(s, data, offset, length);
+	sha3_fill_state_bytes((uint64_t *)state, data, offset, length);
 }
 
 static void keccak_c_extract_bytes(const void *state, uint8_t *data,

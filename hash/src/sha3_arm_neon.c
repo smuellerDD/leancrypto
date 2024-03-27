@@ -115,7 +115,7 @@ static void keccak_arm_neon_squeeze(void *_state, uint8_t *digest)
 	LC_NEON_DISABLE;
 }
 
-static void keccak_arm_neon_add_bytes(void *state, const unsigned char *data,
+static void keccak_arm_neon_add_bytes(void *state, const uint8_t *data,
 				      unsigned int offset, unsigned int length)
 {
 	LC_NEON_ENABLE;
@@ -123,9 +123,8 @@ static void keccak_arm_neon_add_bytes(void *state, const unsigned char *data,
 	LC_NEON_DISABLE;
 }
 
-static void keccak_arm_neon_extract_bytes(const void *state,
-					  unsigned char *data, size_t offset,
-					  size_t length)
+static void keccak_arm_neon_extract_bytes(const void *state, uint8_t *data,
+					  size_t offset, size_t length)
 {
 	LC_NEON_ENABLE;
 	KeccakP1600_ExtractBytes(state, data, offset, length);
