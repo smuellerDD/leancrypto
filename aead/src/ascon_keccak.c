@@ -32,11 +32,11 @@
  * Algorithms with 256 bit security strength based on the fact that the
  * capacity is 512 bits or larger.
  *
- *                       ----- Bit size of ----- Rounds
- *                       Key Nonce Tag DataBlock pa pb
- *                                     Rate
- * Ascon-Keccak 256/512  256 128   128  576      24 24
- * Ascon-Keccak 256/256  256 128   128 1088      24 24
+ *                       -------- Bit size of -------- Rounds
+ *                       Key        Nonce Tag DataBlock pa pb
+ *                                            Rate
+ * Ascon-Keccak 256/512  256 or 512 128   128  576      24 24
+ * Ascon-Keccak 256/256  256        128   128 1088      24 24
  *
  * Note, the tag is allowed also to be larger, up to the size of the capacity.
  */
@@ -129,7 +129,7 @@ static int lc_ak_setkey(void *state, const uint8_t *key, size_t keylen,
 	/* INIT || 0* || key || iv */
 	switch (hash->rate) {
 	case 0x240 / 8:
-		if (ivlen != 16 || keylen != 32)
+		if (ivlen != 16 || (keylen != 32 && keylen != 64))
 			return -EINVAL;
 		ak->keccak_state[0] = LC_AEAD_AK_SHA3_512_INIT;
 		for (i = 1;
