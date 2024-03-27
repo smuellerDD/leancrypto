@@ -145,6 +145,8 @@ static int lc_ak_setkey(void *state, const uint8_t *key, size_t keylen,
 		return -EINVAL;
 
 	memset(state, 0, LC_SHA3_STATE_SIZE);
+	ak->keylen = 0;
+	ak->rate_offset = 0;
 
 	/*
 	 * Add (IV || key || Nonce) to rate section and first part of capacity
@@ -254,6 +256,13 @@ static void lc_ak_aad(struct lc_ak_cryptor *ak, const uint8_t *aad,
 			    LC_SHA3_STATE_SIZE - 1, 1);
 }
 
+static void lc_ak_aad_interface(void *state, const uint8_t *aad, size_t aadlen)
+{
+	struct lc_ak_cryptor *ak = state;
+
+	lc_ak_aad(ak, aad, aadlen);
+}
+
 static void lc_ak_finalization(struct lc_ak_cryptor *ak, uint8_t *tag,
 			       size_t taglen)
 {
@@ -273,6 +282,59 @@ static void lc_ak_finalization(struct lc_ak_cryptor *ak, uint8_t *tag,
 	/* Finalization - Extract tag from capacity */
 	lc_keccak_extract_bytes(hash, ak->keccak_state, tag, hash->rate,
 				(unsigned int)taglen);
+}
+
+static void lc_ak_enc_update(void *state, const uint8_t *plaintext,
+			     uint8_t *ciphertext, size_t datalen)
+{
+	struct lc_ak_cryptor *ak = state;
+	const struct lc_hash *hash = ak->hash;
+	size_t todo = 0;
+
+	/* Plaintext - Insert into rate */
+	while (datalen) {
+		todo = min_size(datalen, hash->rate - ak->rate_offset);
+
+		lc_keccak_add_bytes(hash, ak->keccak_state, plaintext,
+				    ak->rate_offset, (unsigned int)todo);
+
+		lc_keccak_extract_bytes(hash, ak->keccak_state, ciphertext,
+					ak->rate_offset, (unsigned int)todo);
+
+		datalen -= todo;
+
+		/* Apply Keccak for all rounds other than the last one */
+		if (datalen) {
+			lc_keccak(hash, ak->keccak_state);
+			plaintext += todo;
+			ciphertext += todo;
+			ak->rate_offset = 0;
+		} else {
+			ak->rate_offset += (uint8_t)todo;
+		}
+	}
+
+}
+
+static void lc_ak_enc_final(void *state, uint8_t *tag, size_t taglen)
+{
+	struct lc_ak_cryptor *ak = state;
+	const struct lc_hash *hash = ak->hash;
+
+	/*
+	 * Tag size can be at most the size of the capacity.
+	 *
+	 * Note, this code allows small tag sizes, including zero tag sizes.
+	 * It is supported here, but the decryption side requires 16 bytes
+	 * tag length as a minimum.
+	 */
+	if (taglen > (LC_SHA3_STATE_SIZE - hash->rate))
+		return;
+
+	lc_ak_add_padbyte(ak, ak->rate_offset);
+
+	/* Finalization */
+	lc_ak_finalization(ak, tag, taglen);
 }
 
 static void lc_ak_encrypt(void *state, const uint8_t *plaintext,
@@ -323,20 +385,15 @@ static void lc_ak_encrypt(void *state, const uint8_t *plaintext,
 	lc_ak_finalization(ak, tag, taglen);
 }
 
-static int lc_ak_decrypt(void *state, const uint8_t *ciphertext,
-			 uint8_t *plaintext, size_t datalen, const uint8_t *aad,
-			 size_t aadlen, const uint8_t *tag, size_t taglen)
+static void lc_ak_dec_update(void *state, const uint8_t *ciphertext,
+			     uint8_t *plaintext, size_t datalen)
 {
 	struct lc_ak_cryptor *ak = state;
 	const struct lc_hash *hash = ak->hash;
-	uint8_t calctag[16] __align(sizeof(uint64_t));
 	uint8_t tmp_pt[136] __align(sizeof(uint64_t)) = { 0 };
-	uint8_t *calctag_p = calctag, *pt_p = plaintext;
-	size_t todo;
-	int ret, zero_tmp = 0;
-
-	if (taglen < sizeof(calctag))
-		return -EINVAL;
+	uint8_t *pt_p = plaintext;
+	size_t todo = 0;
+	int zero_tmp = 0;
 
 	/* If we have an in-place cipher operation, we need a tmp-buffer */
 	if (plaintext == ciphertext) {
@@ -344,11 +401,106 @@ static int lc_ak_decrypt(void *state, const uint8_t *ciphertext,
 		zero_tmp = 1;
 	}
 
+	/* Plaintext - Insert into rate */
+	while (datalen) {
+		todo = min_size(datalen, hash->rate - ak->rate_offset);
+		lc_keccak_extract_bytes(hash, ak->keccak_state, pt_p,
+					ak->rate_offset, (unsigned int)todo);
+
+		datalen -= todo;
+
+		/*
+		 * Replace state with ciphertext and apply Keccak for all
+		 * rounds other than the last one.
+		 */
+		if (datalen) {
+			lc_keccak_newstate(hash, ak->keccak_state, ciphertext,
+					   ak->rate_offset, todo);
+			lc_keccak(hash, ak->keccak_state);
+
+			/*
+			 * Perform XOR operation here to ensure decryption in
+			 * place.
+			 */
+			if (!zero_tmp) {
+				xor_64(pt_p, ciphertext, todo);
+				pt_p += todo;
+			} else {
+				xor_64_3(plaintext, pt_p, ciphertext, todo);
+				plaintext += todo;
+			}
+
+			ciphertext += todo;
+			ak->rate_offset = 0;
+		} else {
+			if (!zero_tmp) {
+				xor_64(pt_p, ciphertext, todo);
+				lc_keccak_add_bytes(hash, ak->keccak_state,
+						    pt_p, ak->rate_offset,
+						    (unsigned int)todo);
+			} else {
+				xor_64_3(plaintext, pt_p, ciphertext, todo);
+				lc_keccak_add_bytes(hash, ak->keccak_state,
+						    plaintext, ak->rate_offset,
+						    (unsigned int)todo);
+			}
+			ak->rate_offset += (uint8_t)todo;
+		}
+	}
+}
+
+static int lc_ak_dec_finalization(struct lc_ak_cryptor *ak,
+				  const uint8_t *tag, size_t taglen)
+{
+	uint8_t calctag[16] __align(sizeof(uint64_t));
+	uint8_t *calctag_p = calctag;
+	int ret;
+
+	if (taglen < sizeof(calctag))
+		return -EINVAL;
+
 	if (taglen > sizeof(calctag)) {
 		ret = lc_alloc_aligned((void **)&calctag_p,
 				       LC_MEM_COMMON_ALIGNMENT, taglen);
 		if (ret)
 			return -ret;
+	}
+
+	/* Finalization */
+	lc_ak_finalization(ak, calctag_p, taglen);
+
+	ret = (lc_memcmp_secure(calctag_p, taglen, tag, taglen) ? -EBADMSG : 0);
+	lc_memset_secure(calctag_p, 0, taglen);
+	if (taglen > sizeof(calctag))
+		lc_free(calctag_p);
+
+	return ret;
+}
+
+static int lc_ak_dec_final(void *state, const uint8_t *tag, size_t taglen)
+{
+	struct lc_ak_cryptor *ak = state;
+
+	lc_ak_add_padbyte(ak, ak->rate_offset);
+
+	return lc_ak_dec_finalization(ak, tag, taglen);
+}
+
+static int lc_ak_decrypt(void *state, const uint8_t *ciphertext,
+			 uint8_t *plaintext, size_t datalen, const uint8_t *aad,
+			 size_t aadlen, const uint8_t *tag, size_t taglen)
+{
+	struct lc_ak_cryptor *ak = state;
+	const struct lc_hash *hash = ak->hash;
+	uint8_t tmp_pt[136] __align(sizeof(uint64_t)) = { 0 };
+	uint8_t *pt_p = plaintext;
+	size_t todo;
+	int zero_tmp = 0;
+
+	/* If we have an in-place cipher operation, we need a tmp-buffer */
+	if (plaintext == ciphertext) {
+		pt_p = tmp_pt;
+		zero_tmp = 1;
 	}
 
 	/* Authenticated Data - Insert into rate */
@@ -401,18 +553,10 @@ static int lc_ak_decrypt(void *state, const uint8_t *ciphertext,
 		}
 	}
 
-	/* Finalization */
-	lc_ak_finalization(ak, calctag_p, taglen);
-
-	ret = (lc_memcmp_secure(calctag_p, taglen, tag, taglen) ? -EBADMSG : 0);
-	lc_memset_secure(calctag_p, 0, taglen);
-	if (taglen > sizeof(calctag))
-		lc_free(calctag_p);
-
 	if (zero_tmp)
 		lc_memset_secure(tmp_pt, 0, sizeof(tmp_pt));
 
-	return ret;
+	return lc_ak_dec_finalization(ak, tag, taglen);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_ak_alloc, const struct lc_hash *hash,
@@ -440,18 +584,20 @@ static void lc_ak_zero(void *state)
 	lc_memset_secure((uint8_t *)ak->keccak_state, 0,
 			 sizeof(ak->keccak_state));
 	lc_memset_secure((uint8_t *)ak->key, 0, sizeof(ak->key));
+	ak->keylen = 0;
+	ak->rate_offset = 0;
 }
 
 struct lc_aead _lc_ascon_keccak_aead = {
 	.setkey = lc_ak_setkey,
 	.encrypt = lc_ak_encrypt,
-	.enc_init = NULL,
-	.enc_update = NULL,
-	.enc_final = NULL,
+	.enc_init = lc_ak_aad_interface,
+	.enc_update = lc_ak_enc_update,
+	.enc_final = lc_ak_enc_final,
 	.decrypt = lc_ak_decrypt,
-	.dec_init = NULL,
-	.dec_update = NULL,
-	.dec_final = NULL,
+	.dec_init = lc_ak_aad_interface,
+	.dec_update = lc_ak_dec_update,
+	.dec_final = lc_ak_dec_final,
 	.zero = lc_ak_zero };
 LC_INTERFACE_SYMBOL(const struct lc_aead *, lc_ascon_keccak_aead) =
 	&_lc_ascon_keccak_aead;

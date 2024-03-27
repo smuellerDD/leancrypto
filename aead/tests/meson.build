@@ -129,6 +129,11 @@ if get_option('hash_crypt').enabled()
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto
 				)
+	ascon_keccak_crypt_iuf_test = executable('ascon_keccak_crypt_iuf_test',
+				[ 'ascon_keccak_crypt_iuf_test.c', internal_src ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto
+				)
 	ascon_keccak_crypt_large_test_512 = \
 				executable('ascon_keccak_crypt_large_test_512',
 				[ 'ascon_keccak_crypt_large_test_512.c',
@@ -158,6 +163,7 @@ if get_option('hash_crypt').enabled()
 				dependencies: leancrypto
 				)
 	test('AEAD Ascon Keccak', ascon_keccak_crypt_test)
+	test('AEAD Ascon Keccak', ascon_keccak_crypt_iuf_test)
 	test('AEAD Ascon Keccak 256/512 Accel 1GB',
 	     ascon_keccak_crypt_large_test_512,
 	     timeout: 2500, is_parallel: false)
