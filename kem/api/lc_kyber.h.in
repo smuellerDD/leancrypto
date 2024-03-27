@@ -497,11 +497,16 @@ int lc_kyber_ies_enc(const struct lc_kyber_pk *pk, struct lc_kyber_ct *ct,
  *		     context after completion.
  * @param [in] pk Kyber public key of data owner
  * @param [out] ct Kyber ciphertext to be sent to the decryption operation
+ * @param [in] aad Additional authenticate data to be processed - this is data
+ *		   which is not encrypted, but considered as part of the
+ *		   authentication.
+ * @param [in] aadlen Length of the AAD buffer
  *
  * @return 0 on success, < 0 on error
  */
 int lc_kyber_ies_enc_init(struct lc_aead_ctx *aead,
-			  const struct lc_kyber_pk *pk, struct lc_kyber_ct *ct);
+			  const struct lc_kyber_pk *pk, struct lc_kyber_ct *ct,
+			  const uint8_t *aad, size_t aadlen);
 
 /**
  * @brief lc_kyber_ies_enc_update - KyberIES encryption stream operation
@@ -543,18 +548,13 @@ static inline void lc_kyber_ies_enc_update(struct lc_aead_ctx *aead,
  *		    algorithm. This allows the caller to define the AEAD
  *		    algorithm type. The caller must zeroize and release the
  *		    context after completion.
- * @param [in] aad Additional authenticate data to be processed - this is data
- *		   which is not encrypted, but considered as part of the
- *		   authentication.
- * @param [in] aadlen Length of the AAD buffer
  * @param [out] tag Buffer that will be filled with the authentication tag
  * @param [in] taglen Length of the tag buffer
  */
 static inline void lc_kyber_ies_enc_final(struct lc_aead_ctx *aead,
-					  const uint8_t *aad, size_t aadlen,
 					  uint8_t *tag, size_t taglen)
 {
-	lc_aead_enc_final(aead, aad, aadlen, tag, taglen);
+	lc_aead_enc_final(aead, tag, taglen);
 }
 
 /**
@@ -609,11 +609,16 @@ int lc_kyber_ies_dec(const struct lc_kyber_sk *sk, const struct lc_kyber_ct *ct,
  *		     context after completion.
  * @param [in] sk Kyber secret key of data owner
  * @param [in] ct Kyber ciphertext received from the encryption operation
+ * @param [in] aad Additional authenticate data to be processed - this is data
+ *		   which is not encrypted, but considered as part of the
+ *		   authentication.
+ * @param [in] aadlen Length of the AAD buffer
  * @return 0 on success, < 0 on error
  */
 int lc_kyber_ies_dec_init(struct lc_aead_ctx *aead,
 			  const struct lc_kyber_sk *sk,
-			  const struct lc_kyber_ct *ct);
+			  const struct lc_kyber_ct *ct,
+			  const uint8_t *aad, size_t aadlen);
 
 /**
  * @brief lc_kyber_ies_dec_update - KyberIES decryption stream operation
@@ -655,19 +660,14 @@ static inline void lc_kyber_ies_dec_update(struct lc_aead_ctx *aead,
  *		    algorithm. This allows the caller to define the AEAD
  *		    algorithm type. The caller must zeroize and release the
  *		    context after completion.
- * @param [in] aad Additional authenticate data to be processed - this is data
- *		   which is not encrypted, but considered as part of the
- *		   authentication.
- * @param [in] aadlen Length of the AAD buffer
  * @param [in] tag Buffer with the authentication tag
  * @param [in] taglen Length of the tag buffer
  * @return 0 on success, < 0 on error (-EBADMSG on integrity error)
  */
 static inline int lc_kyber_ies_dec_final(struct lc_aead_ctx *aead,
-					 const uint8_t *aad, size_t aadlen,
 					 const uint8_t *tag, size_t taglen)
 {
-	return lc_aead_dec_final(aead, aad, aadlen, tag, taglen);
+	return lc_aead_dec_final(aead, tag, taglen);
 }
 
 /****************************** Kyber X25510 KEM ******************************/
@@ -1008,12 +1008,17 @@ int lc_kyber_x25519_ies_enc(const struct lc_kyber_x25519_pk *pk,
  *		     context after completion.
  * @param [in] pk Kyber public key of data owner
  * @param [out] ct Kyber ciphertext to be sent to the decryption operation
+ * @param [in] aad Additional authenticate data to be processed - this is data
+ *		   which is not encrypted, but considered as part of the
+ *		   authentication.
+ * @param [in] aadlen Length of the AAD buffer
  *
  * @return 0 on success, < 0 on error
  */
 int lc_kyber_x25519_ies_enc_init(struct lc_aead_ctx *aead,
 				 const struct lc_kyber_x25519_pk *pk,
-				 struct lc_kyber_x25519_ct *ct);
+				 struct lc_kyber_x25519_ct *ct,
+				 const uint8_t *aad, size_t aadlen);
 
 /**
  * @brief lc_kyber_x25519_ies_enc_update - KyberIES encryption stream operation
@@ -1056,19 +1061,13 @@ static inline void lc_kyber_x25519_ies_enc_update(struct lc_aead_ctx *aead,
  *		    algorithm. This allows the caller to define the AEAD
  *		    algorithm type. The caller must zeroize and release the
  *		    context after completion.
- * @param [in] aad Additional authenticate data to be processed - this is data
- *		   which is not encrypted, but considered as part of the
- *		   authentication.
- * @param [in] aadlen Length of the AAD buffer
  * @param [out] tag Buffer that will be filled with the authentication tag
  * @param [in] taglen Length of the tag buffer
  */
 static inline void lc_kyber_x25519_ies_enc_final(struct lc_aead_ctx *aead,
-						 const uint8_t *aad,
-						 size_t aadlen,
 						 uint8_t *tag, size_t taglen)
 {
-	lc_aead_enc_final(aead, aad, aadlen, tag, taglen);
+	lc_aead_enc_final(aead, tag, taglen);
 }
 
 /**
@@ -1124,11 +1123,16 @@ int lc_kyber_x25519_ies_dec(const struct lc_kyber_x25519_sk *sk,
  *		     context after completion.
  * @param [in] sk Kyber secret key of data owner
  * @param [in] ct Kyber ciphertext received from the encryption operation
+ * @param [in] aad Additional authenticate data to be processed - this is data
+ *		   which is not encrypted, but considered as part of the
+ *		   authentication.
+ * @param [in] aadlen Length of the AAD buffer
  * @return 0 on success, < 0 on error
  */
 int lc_kyber_x25519_ies_dec_init(struct lc_aead_ctx *aead,
 				 const struct lc_kyber_x25519_sk *sk,
-				 const struct lc_kyber_x25519_ct *ct);
+				 const struct lc_kyber_x25519_ct *ct,
+				 const uint8_t *aad, size_t aadlen);
 
 /**
  * @brief lc_kyber_x25519_ies_dec_update - KyberIES decryption stream operation
@@ -1171,21 +1175,15 @@ static inline void lc_kyber_x25519_ies_dec_update(struct lc_aead_ctx *aead,
  *		    algorithm. This allows the caller to define the AEAD
  *		    algorithm type. The caller must zeroize and release the
  *		    context after completion.
- * @param [in] aad Additional authenticate data to be processed - this is data
- *		   which is not encrypted, but considered as part of the
- *		   authentication.
- * @param [in] aadlen Length of the AAD buffer
  * @param [in] tag Buffer with the authentication tag
  * @param [in] taglen Length of the tag buffer
  * @return 0 on success, < 0 on error (-EBADMSG on integrity error)
  */
 static inline int lc_kyber_x25519_ies_dec_final(struct lc_aead_ctx *aead,
-						const uint8_t *aad,
-						size_t aadlen,
 						const uint8_t *tag,
 						size_t taglen)
 {
-	return lc_aead_dec_final(aead, aad, aadlen, tag, taglen);
+	return lc_aead_dec_final(aead, tag, taglen);
 }
 
 #endif /* LC_KYBER_X25519_KEM */
