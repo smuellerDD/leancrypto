@@ -213,6 +213,10 @@ static int lc_ak_setkey(void *state, const uint8_t *key, size_t keylen,
 	return 0;
 }
 
+/*
+ * This function adds the padding byte with which the AAD as well as the
+ * plaintext is appended with.
+ */
 static void lc_ak_add_padbyte(struct lc_ak_cryptor *ak, size_t offset)
 {
 	const struct lc_hash *hash = ak->hash;
@@ -229,6 +233,7 @@ static void lc_ak_add_padbyte(struct lc_ak_cryptor *ak, size_t offset)
 			    (unsigned int)offset, 1);
 }
 
+/* Insert the AAD into the sponge state. */
 static void lc_ak_aad(struct lc_ak_cryptor *ak, const uint8_t *aad,
 		      size_t aadlen)
 {
@@ -256,13 +261,7 @@ static void lc_ak_aad(struct lc_ak_cryptor *ak, const uint8_t *aad,
 			    LC_SHA3_STATE_SIZE - 1, 1);
 }
 
-static void lc_ak_aad_interface(void *state, const uint8_t *aad, size_t aadlen)
-{
-	struct lc_ak_cryptor *ak = state;
-
-	lc_ak_aad(ak, aad, aadlen);
-}
-
+/* Handle the finalization phase of the Ascon algorithm. */
 static void lc_ak_finalization(struct lc_ak_cryptor *ak, uint8_t *tag,
 			       size_t taglen)
 {
@@ -284,14 +283,14 @@ static void lc_ak_finalization(struct lc_ak_cryptor *ak, uint8_t *tag,
 				(unsigned int)taglen);
 }
 
-static void lc_ak_enc_update(void *state, const uint8_t *plaintext,
+/* Plaintext - Insert into sponge state and extract the ciphertext */
+static void lc_ak_enc_update(struct lc_ak_cryptor *ak, const uint8_t *plaintext,
 			     uint8_t *ciphertext, size_t datalen)
 {
-	struct lc_ak_cryptor *ak = state;
 	const struct lc_hash *hash = ak->hash;
 	size_t todo = 0;
 
-	/* Plaintext - Insert into rate */
+
 	while (datalen) {
 		todo = min_size(datalen, hash->rate - ak->rate_offset);
 
@@ -313,12 +312,11 @@ static void lc_ak_enc_update(void *state, const uint8_t *plaintext,
 			ak->rate_offset += (uint8_t)todo;
 		}
 	}
-
 }
 
-static void lc_ak_enc_final(void *state, uint8_t *tag, size_t taglen)
+static void lc_ak_enc_final(struct lc_ak_cryptor *ak, uint8_t *tag,
+			    size_t taglen)
 {
-	struct lc_ak_cryptor *ak = state;
 	const struct lc_hash *hash = ak->hash;
 
 	/*
@@ -337,58 +335,29 @@ static void lc_ak_enc_final(void *state, uint8_t *tag, size_t taglen)
 	lc_ak_finalization(ak, tag, taglen);
 }
 
+/* Complete one-shot encryption */
 static void lc_ak_encrypt(void *state, const uint8_t *plaintext,
 			  uint8_t *ciphertext, size_t datalen,
 			  const uint8_t *aad, size_t aadlen, uint8_t *tag,
 			  size_t taglen)
 {
 	struct lc_ak_cryptor *ak = state;
-	const struct lc_hash *hash = ak->hash;
-	size_t todo = 0;
-
-	/*
-	 * Tag size can be at most the size of the capacity.
-	 *
-	 * Note, this code allows small tag sizes, including zero tag sizes.
-	 * It is supported here, but the decryption side requires 16 bytes
-	 * tag length as a minimum.
-	 */
-	if (taglen > (LC_SHA3_STATE_SIZE - hash->rate))
-		return;
 
 	/* Authenticated Data */
 	lc_ak_aad(ak, aad, aadlen);
 
 	/* Plaintext - Insert into rate */
-	while (datalen) {
-		todo = min_size(datalen, hash->rate);
+	lc_ak_enc_update(ak, plaintext, ciphertext, datalen);
 
-		lc_keccak_add_bytes(hash, ak->keccak_state, plaintext, 0,
-				    (unsigned int)todo);
-
-		lc_keccak_extract_bytes(hash, ak->keccak_state, ciphertext, 0,
-					(unsigned int)todo);
-
-		datalen -= todo;
-
-		/* Apply Keccak for all rounds other than the last one */
-		if (datalen) {
-			lc_keccak(hash, ak->keccak_state);
-			plaintext += todo;
-			ciphertext += todo;
-		} else {
-			lc_ak_add_padbyte(ak, todo);
-		}
-	}
-
-	/* Finalization */
-	lc_ak_finalization(ak, tag, taglen);
+	/* Finalize operation and get authentication tag */
+	lc_ak_enc_final(ak, tag, taglen);
 }
 
-static void lc_ak_dec_update(void *state, const uint8_t *ciphertext,
-			     uint8_t *plaintext, size_t datalen)
+/* Ciphertext - Insert into sponge state and extract the plaintext */
+static void lc_ak_dec_update(struct lc_ak_cryptor *ak,
+			     const uint8_t *ciphertext, uint8_t *plaintext,
+			     size_t datalen)
 {
-	struct lc_ak_cryptor *ak = state;
 	const struct lc_hash *hash = ak->hash;
 	uint8_t tmp_pt[136] __align(sizeof(uint64_t)) = { 0 };
 	uint8_t *pt_p = plaintext;
@@ -401,7 +370,6 @@ static void lc_ak_dec_update(void *state, const uint8_t *ciphertext,
 		zero_tmp = 1;
 	}
 
-	/* Plaintext - Insert into rate */
 	while (datalen) {
 		todo = min_size(datalen, hash->rate - ak->rate_offset);
 		lc_keccak_extract_bytes(hash, ak->keccak_state, pt_p,
@@ -447,10 +415,14 @@ static void lc_ak_dec_update(void *state, const uint8_t *ciphertext,
 			ak->rate_offset += (uint8_t)todo;
 		}
 	}
+
+	if (zero_tmp)
+		lc_memset_secure(tmp_pt, 0, sizeof(tmp_pt));
 }
 
-static int lc_ak_dec_finalization(struct lc_ak_cryptor *ak,
-				  const uint8_t *tag, size_t taglen)
+/* Perform the authentication as the last step of the decryption operation */
+static int lc_ak_dec_final(struct lc_ak_cryptor *ak, const uint8_t *tag,
+			   size_t taglen)
 {
 	uint8_t calctag[16] __align(sizeof(uint64_t));
 	uint8_t *calctag_p = calctag;
@@ -466,6 +438,8 @@ static int lc_ak_dec_finalization(struct lc_ak_cryptor *ak,
 			return -ret;
 	}
 
+	lc_ak_add_padbyte(ak, ak->rate_offset);
+
 	/* Finalization */
 	lc_ak_finalization(ak, calctag_p, taglen);
 
@@ -477,86 +451,59 @@ static int lc_ak_dec_finalization(struct lc_ak_cryptor *ak,
 	return ret;
 }
 
-static int lc_ak_dec_final(void *state, const uint8_t *tag, size_t taglen)
-{
-	struct lc_ak_cryptor *ak = state;
-
-	lc_ak_add_padbyte(ak, ak->rate_offset);
-
-	return lc_ak_dec_finalization(ak, tag, taglen);
-}
-
+/* Complete one-shot decryption */
 static int lc_ak_decrypt(void *state, const uint8_t *ciphertext,
 			 uint8_t *plaintext, size_t datalen, const uint8_t *aad,
 			 size_t aadlen, const uint8_t *tag, size_t taglen)
 {
 	struct lc_ak_cryptor *ak = state;
-	const struct lc_hash *hash = ak->hash;
-	uint8_t tmp_pt[136] __align(sizeof(uint64_t)) = { 0 };
-	uint8_t *pt_p = plaintext;
-	size_t todo;
-	int zero_tmp = 0;
-
-	/* If we have an in-place cipher operation, we need a tmp-buffer */
-	if (plaintext == ciphertext) {
-		pt_p = tmp_pt;
-		zero_tmp = 1;
-	}
 
 	/* Authenticated Data - Insert into rate */
 	lc_ak_aad(ak, aad, aadlen);
 
-	/* Plaintext - Insert into rate */
-	while (datalen) {
-		todo = min_size(datalen, hash->rate);
-		lc_keccak_extract_bytes(hash, ak->keccak_state, pt_p, 0,
-					(unsigned int)todo);
+	/* Ciphertext - Insert into rate */
+	lc_ak_dec_update(ak, ciphertext, plaintext, datalen);
 
-		datalen -= todo;
+	/* Finalize operation and authenticate operation */
+	return lc_ak_dec_final(ak, tag, taglen);
+}
 
-		/*
-		 * Replace state with ciphertext and apply Keccak for all
-		 * rounds other than the last one.
-		 */
-		if (datalen) {
-			lc_keccak_newstate(hash, ak->keccak_state, ciphertext,
-					   0, todo);
-			lc_keccak(hash, ak->keccak_state);
+static void lc_ak_aad_interface(void *state, const uint8_t *aad, size_t aadlen)
+{
+	struct lc_ak_cryptor *ak = state;
 
-			/*
-			 * Perform XOR operation here to ensure decryption in
-			 * place.
-			 */
-			if (!zero_tmp) {
-				xor_64(pt_p, ciphertext, todo);
-				pt_p += todo;
-			} else {
-				xor_64_3(plaintext, pt_p, ciphertext, todo);
-				plaintext += todo;
-			}
+	lc_ak_aad(ak, aad, aadlen);
+}
 
-			ciphertext += todo;
-		} else {
-			if (!zero_tmp) {
-				xor_64(pt_p, ciphertext, todo);
-				lc_keccak_add_bytes(hash, ak->keccak_state,
-						    pt_p, 0,
-						    (unsigned int)todo);
-			} else {
-				xor_64_3(plaintext, pt_p, ciphertext, todo);
-				lc_keccak_add_bytes(hash, ak->keccak_state,
-						    plaintext, 0,
-						    (unsigned int)todo);
-			}
+static void lc_ak_enc_update_interface(void *state, const uint8_t *plaintext,
+				       uint8_t *ciphertext, size_t datalen)
+{
+	struct lc_ak_cryptor *ak = state;
 
-			lc_ak_add_padbyte(ak, todo);
-		}
-	}
+	lc_ak_enc_update(ak, plaintext, ciphertext, datalen);
+}
 
-	if (zero_tmp)
-		lc_memset_secure(tmp_pt, 0, sizeof(tmp_pt));
+static void lc_ak_enc_final_interface(void *state, uint8_t *tag, size_t taglen)
+{
+	struct lc_ak_cryptor *ak = state;
 
-	return lc_ak_dec_finalization(ak, tag, taglen);
+	lc_ak_enc_final(ak, tag, taglen);
+}
+
+static void lc_ak_dec_update_interface(void *state, const uint8_t *ciphertext,
+				       uint8_t *plaintext, size_t datalen)
+{
+	struct lc_ak_cryptor *ak = state;
+
+	lc_ak_dec_update(ak, ciphertext, plaintext, datalen);
+}
+
+static int lc_ak_dec_final_interface(void *state, const uint8_t *tag,
+				     size_t taglen)
+{
+	struct lc_ak_cryptor *ak = state;
+
+	return lc_ak_dec_final(ak, tag, taglen);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_ak_alloc, const struct lc_hash *hash,
@@ -592,12 +539,12 @@ struct lc_aead _lc_ascon_keccak_aead = {
 	.setkey = lc_ak_setkey,
 	.encrypt = lc_ak_encrypt,
 	.enc_init = lc_ak_aad_interface,
-	.enc_update = lc_ak_enc_update,
-	.enc_final = lc_ak_enc_final,
+	.enc_update = lc_ak_enc_update_interface,
+	.enc_final = lc_ak_enc_final_interface,
 	.decrypt = lc_ak_decrypt,
 	.dec_init = lc_ak_aad_interface,
-	.dec_update = lc_ak_dec_update,
-	.dec_final = lc_ak_dec_final,
+	.dec_update = lc_ak_dec_update_interface,
+	.dec_final = lc_ak_dec_final_interface,
 	.zero = lc_ak_zero };
 LC_INTERFACE_SYMBOL(const struct lc_aead *, lc_ascon_keccak_aead) =
 	&_lc_ascon_keccak_aead;
