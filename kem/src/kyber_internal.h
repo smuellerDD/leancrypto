@@ -117,11 +117,13 @@ int lc_kyber_x25519_ies_enc_internal(
 int lc_kyber_ies_enc_init_internal(struct lc_aead_ctx *aead,
 				   const struct lc_kyber_pk *pk,
 				   struct lc_kyber_ct *ct,
+				   const uint8_t *aad, size_t aadlen,
 				   struct lc_rng_ctx *rng_ctx);
 
 int lc_kyber_x25519_ies_enc_init_internal(struct lc_aead_ctx *aead,
 					  const struct lc_kyber_x25519_pk *pk,
 					  struct lc_kyber_x25519_ct *ct,
+					  const uint8_t *aad, size_t aadlen,
 					  struct lc_rng_ctx *rng_ctx);
 
 #ifdef __cplusplus

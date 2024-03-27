@@ -158,10 +158,18 @@ static void lc_hc_crypt(struct lc_hc_cryptor *hc, const uint8_t *in,
 	}
 }
 
+static void lc_hc_add_aad(void *state, const uint8_t *aad, size_t aadlen)
+{
+	struct lc_hc_cryptor *hc = state;
+	struct lc_hmac_ctx *auth_ctx = &hc->auth_ctx;
+
+	/* Add the AAD data into the CSHAKE context */
+	lc_hmac_update(auth_ctx, aad, aadlen);
+}
+
 #define LC_SHA_MAX_SIZE_DIGEST 64
 
-static void lc_hc_encrypt_tag(void *state, const uint8_t *aad, size_t aadlen,
-			      uint8_t *tag, size_t taglen)
+static void lc_hc_encrypt_tag(void *state, uint8_t *tag, size_t taglen)
 {
 	struct lc_hc_cryptor *hc = state;
 	struct lc_hmac_ctx *auth_ctx;
@@ -172,9 +180,6 @@ static void lc_hc_encrypt_tag(void *state, const uint8_t *aad, size_t aadlen,
 	/* Guard against programming error. */
 	if (LC_SHA_MAX_SIZE_DIGEST < digestsize)
 		return;
-
-	/* Add the AAD data into the HMAC context */
-	lc_hmac_update(auth_ctx, aad, aadlen);
 
 	/* Generate authentication tag */
 	if (taglen < digestsize) {
@@ -224,15 +229,17 @@ static void lc_hc_encrypt_oneshot(void *state, const uint8_t *plaintext,
 {
 	struct lc_hc_cryptor *hc = state;
 
+	/* Insert the AAD */
+	lc_hc_add_aad(state, aad, aadlen);
+
 	/* Confidentiality protection: Encrypt data */
 	lc_hc_encrypt(hc, plaintext, ciphertext, datalen);
 
 	/* Integrity protection: MAC data */
-	lc_hc_encrypt_tag(hc, aad, aadlen, tag, taglen);
+	lc_hc_encrypt_tag(hc, tag, taglen);
 }
 
-static int lc_hc_decrypt_authenticate(void *state, const uint8_t *aad,
-				      size_t aadlen, const uint8_t *tag,
+static int lc_hc_decrypt_authenticate(void *state, const uint8_t *tag,
 				      size_t taglen)
 {
 	struct lc_hc_cryptor *hc = state;
@@ -246,7 +253,7 @@ static int lc_hc_decrypt_authenticate(void *state, const uint8_t *aad,
 	 * Calculate the authentication tag for the processed. We do not need
 	 * to check the return code as we use the maximum tag size.
 	 */
-	lc_hc_encrypt_tag(hc, aad, aadlen, calctag, taglen);
+	lc_hc_encrypt_tag(hc, calctag, taglen);
 	ret = (lc_memcmp_secure(calctag, taglen, tag, taglen) ? -EBADMSG : 0);
 	lc_memset_secure(calctag, 0, taglen);
 
@@ -259,6 +266,9 @@ static int lc_hc_decrypt_oneshot(void *state, const uint8_t *ciphertext,
 				 const uint8_t *tag, size_t taglen)
 {
 	struct lc_hc_cryptor *hc = state;
+
+	/* Insert the AAD */
+	lc_hc_add_aad(state, aad, aadlen);
 
 	/*
 	 * To ensure constant time between passing and failing decryption,
@@ -273,7 +283,7 @@ static int lc_hc_decrypt_oneshot(void *state, const uint8_t *ciphertext,
 	lc_hc_decrypt(hc, ciphertext, plaintext, datalen);
 
 	/* Integrity protection: verify MAC of data */
-	return lc_hc_decrypt_authenticate(hc, aad, aadlen, tag, taglen);
+	return lc_hc_decrypt_authenticate(hc, tag, taglen);
 }
 
 static void lc_hc_zero(void *state)
@@ -311,9 +321,11 @@ LC_INTERFACE_FUNCTION(int, lc_hc_alloc, const struct lc_hash *hash,
 
 struct lc_aead _lc_hash_aead = { .setkey = lc_hc_setkey,
 				 .encrypt = lc_hc_encrypt_oneshot,
+				 .enc_init = lc_hc_add_aad,
 				 .enc_update = lc_hc_encrypt,
 				 .enc_final = lc_hc_encrypt_tag,
 				 .decrypt = lc_hc_decrypt_oneshot,
+				 .dec_init = lc_hc_add_aad,
 				 .dec_update = lc_hc_decrypt,
 				 .dec_final = lc_hc_decrypt_authenticate,
 				 .zero = lc_hc_zero };

@@ -136,7 +136,7 @@
  *
  * temporary tag = HMAC(HASH,
  *                      key = auth key,
- *                      input = ciphertext || AAD)
+ *                      input = AAD || ciphertext)
  *
  * tag = taglen left-most bits of temporary tag
  *
@@ -270,13 +270,13 @@ static void lc_sh_selftest(int *tested, const char *impl)
 		0x9b, 0x53, 0xa1, 0x67
 	};
 	static const uint8_t exp_tag[] = {
-		0x99, 0xf7, 0x17, 0x92, 0x78, 0x5f, 0xb6, 0xb3, 0xc5, 0xb4,
-		0x8d, 0xb6, 0xc6, 0xb3, 0x27, 0xf0, 0x0c, 0xd1, 0x8d, 0x21,
-		0x30, 0x76, 0x8a, 0x7d, 0x68, 0x20, 0xf5, 0x60, 0x0b, 0xbe,
-		0x89, 0xce, 0x1f, 0x64, 0xb4, 0x31, 0x26, 0x73, 0x98, 0xb5,
-		0x28, 0xf6, 0x53, 0xce, 0x4e, 0x45, 0x12, 0xaa, 0x34, 0xe0,
-		0xe5, 0x98, 0x24, 0x9b, 0x6a, 0xcb, 0xff, 0xdb, 0x87, 0xbc,
-		0xe9, 0x40, 0xce, 0xea
+		0xa9, 0xd1, 0x8a, 0x72, 0xed, 0xc2, 0x30, 0x26, 0xef, 0x4c,
+		0x69, 0x1e, 0xf9, 0x67, 0x1b, 0x7c, 0xaf, 0x40, 0x59, 0x59,
+		0x90, 0x63, 0xd5, 0x64, 0x5f, 0x19, 0x4a, 0x98, 0xf6, 0x4d,
+		0x72, 0x2e, 0xf5, 0xc7, 0xcb, 0x67, 0x1d, 0x1a, 0x34, 0xf8,
+		0x79, 0xd8, 0xc3, 0x36, 0x59, 0xbf, 0x9a, 0xcb, 0xb3, 0x58,
+		0x62, 0xac, 0xc4, 0x83, 0x91, 0x97, 0x31, 0x19, 0x56, 0x8d,
+		0x32, 0xbe, 0xf1, 0x30,
 	};
 	uint8_t act_ct[sizeof(exp_ct)] __align(sizeof(uint32_t));
 	uint8_t act_tag[sizeof(exp_tag)] __align(sizeof(uint32_t));
@@ -344,8 +344,16 @@ out:
 	return ret;
 }
 
-static void lc_sh_encrypt_tag(void *state, const uint8_t *aad, size_t aadlen,
-			      uint8_t *tag, size_t taglen)
+static void lc_sh_add_aad(void *state, const uint8_t *aad, size_t aadlen)
+{
+	struct lc_sh_cryptor *sh = state;
+	struct lc_hmac_ctx *auth_ctx = &sh->auth_ctx;
+
+	/* Add the AAD data into the CSHAKE context */
+	lc_hmac_update(auth_ctx, aad, aadlen);
+}
+
+static void lc_sh_encrypt_tag(void *state, uint8_t *tag, size_t taglen)
 {
 	struct lc_sh_cryptor *sh = state;
 	struct lc_hmac_ctx *auth_ctx = &sh->auth_ctx;
@@ -354,9 +362,6 @@ static void lc_sh_encrypt_tag(void *state, const uint8_t *aad, size_t aadlen,
 #pragma GCC diagnostic ignored "-Wvla"
 	uint8_t tmptag[maxtaglen];
 #pragma GCC diagnostic pop
-
-	/* Add the AAD data into the HMAC context */
-	lc_hmac_update(auth_ctx, aad, aadlen);
 
 	/* Generate authentication tag */
 	lc_hmac_final(auth_ctx, tmptag);
@@ -369,8 +374,7 @@ static void lc_sh_encrypt_tag(void *state, const uint8_t *aad, size_t aadlen,
 	lc_memset_secure(tmptag, 0, sizeof(tmptag));
 }
 
-static int lc_sh_decrypt_authenticate(void *state, const uint8_t *aad,
-				      size_t aadlen, const uint8_t *tag,
+static int lc_sh_decrypt_authenticate(void *state, const uint8_t *tag,
 				      size_t taglen)
 {
 	struct lc_sh_cryptor *sh = state;
@@ -388,7 +392,7 @@ static int lc_sh_decrypt_authenticate(void *state, const uint8_t *aad,
 	 * Calculate the authentication tag for the processed. We do not need
 	 * to check the return code as we use the maximum tag size.
 	 */
-	lc_sh_encrypt_tag(sh, aad, aadlen, calctag, taglen);
+	lc_sh_encrypt_tag(sh, calctag, taglen);
 
 	ret = (lc_memcmp_secure(calctag, taglen, tag, taglen) ? -EBADMSG : 0);
 	lc_memset_secure(calctag, 0, taglen);
@@ -449,11 +453,14 @@ static void lc_sh_encrypt_oneshot(void *state, const uint8_t *plaintext,
 {
 	struct lc_sh_cryptor *sh = state;
 
+	/* Insert the AAD */
+	lc_sh_add_aad(state, aad, aadlen);
+
 	/* Confidentiality protection: Encrypt data */
 	lc_sh_encrypt(sh, plaintext, ciphertext, datalen);
 
 	/* Integrity protection: HMAC data */
-	lc_sh_encrypt_tag(sh, aad, aadlen, tag, taglen);
+	lc_sh_encrypt_tag(sh, tag, taglen);
 }
 
 static int lc_sh_decrypt_oneshot(void *state, const uint8_t *ciphertext,
@@ -462,6 +469,9 @@ static int lc_sh_decrypt_oneshot(void *state, const uint8_t *ciphertext,
 				 const uint8_t *tag, size_t taglen)
 {
 	struct lc_sh_cryptor *sh = state;
+
+	/* Insert the AAD */
+	lc_sh_add_aad(state, aad, aadlen);
 
 	/*
 	 * To ensure constant time between passing and failing decryption,
@@ -475,7 +485,7 @@ static int lc_sh_decrypt_oneshot(void *state, const uint8_t *ciphertext,
 	lc_sh_decrypt(sh, ciphertext, plaintext, datalen);
 
 	/* Integrity protection: verify MAC of data */
-	return lc_sh_decrypt_authenticate(sh, aad, aadlen, tag, taglen);
+	return lc_sh_decrypt_authenticate(sh, tag, taglen);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_sh_alloc, const struct lc_sym *sym,
@@ -511,9 +521,11 @@ static void lc_sh_zero(void *state)
 
 struct lc_aead _lc_symhmac_aead = { .setkey = lc_sh_setkey,
 				    .encrypt = lc_sh_encrypt_oneshot,
+				    .enc_init = lc_sh_add_aad,
 				    .enc_update = lc_sh_encrypt,
 				    .enc_final = lc_sh_encrypt_tag,
 				    .decrypt = lc_sh_decrypt_oneshot,
+				    .dec_init = lc_sh_add_aad,
 				    .dec_update = lc_sh_decrypt,
 				    .dec_final = lc_sh_decrypt_authenticate,
 				    .zero = lc_sh_zero };

@@ -68,6 +68,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x25519_ies_enc,
 int lc_kyber_x25519_ies_enc_init_internal(struct lc_aead_ctx *aead,
 					  const struct lc_kyber_x25519_pk *pk,
 					  struct lc_kyber_x25519_ct *ct,
+					  const uint8_t *aad, size_t aadlen,
 					  struct lc_rng_ctx *rng_ctx)
 {
 	uint8_t ss[LC_KYBER_IES_SYM_KEYSIZE + LC_KYBER_IES_SYM_IVSIZE];
@@ -79,6 +80,7 @@ int lc_kyber_x25519_ies_enc_init_internal(struct lc_aead_ctx *aead,
 					       rng_ctx));
 	CKINT(lc_aead_setkey(aead, ies_key, LC_KYBER_IES_SYM_KEYSIZE, ies_iv,
 			     LC_KYBER_IES_SYM_IVSIZE));
+	CKINT(lc_aead_dec_init(aead, aad, aadlen));
 
 out:
 	lc_memset_secure(ss, 0, sizeof(ss));
@@ -88,10 +90,16 @@ out:
 LC_INTERFACE_FUNCTION(int, lc_kyber_x25519_ies_enc_init,
 		      struct lc_aead_ctx *aead,
 		      const struct lc_kyber_x25519_pk *pk,
-		      struct lc_kyber_x25519_ct *ct)
+		      struct lc_kyber_x25519_ct *ct,
+		      const uint8_t *aad, size_t aadlen)
 {
-	return lc_kyber_x25519_ies_enc_init_internal(aead, pk, ct,
-						     lc_seeded_rng);
+	int ret;
+
+	CKINT(lc_kyber_x25519_ies_enc_init_internal(aead, pk, ct, aad, aadlen,
+						    lc_seeded_rng));
+
+out:
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_kyber_x25519_ies_dec,
@@ -121,7 +129,8 @@ out:
 LC_INTERFACE_FUNCTION(int, lc_kyber_x25519_ies_dec_init,
 		      struct lc_aead_ctx *aead,
 		      const struct lc_kyber_x25519_sk *sk,
-		      const struct lc_kyber_x25519_ct *ct)
+		      const struct lc_kyber_x25519_ct *ct,
+		      const uint8_t *aad, size_t aadlen)
 {
 	uint8_t ss[LC_KYBER_IES_SYM_KEYSIZE + LC_KYBER_IES_SYM_IVSIZE];
 	uint8_t *ies_key = ss;
@@ -131,6 +140,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x25519_ies_dec_init,
 	CKINT(lc_kyber_x25519_dec_kdf(ss, sizeof(ss), ct, sk));
 	CKINT(lc_aead_setkey(aead, ies_key, LC_KYBER_IES_SYM_KEYSIZE, ies_iv,
 			     LC_KYBER_IES_SYM_IVSIZE));
+	CKINT(lc_aead_dec_init(aead, aad, aadlen));
 
 out:
 	lc_memset_secure(ss, 0, sizeof(ss));

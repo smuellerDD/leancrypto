@@ -117,10 +117,10 @@ static int kyber_ies_determinisitic(void)
 
 	lc_rng_zero(selftest_rng);
 	lc_rng_seed(selftest_rng, NULL, 0, NULL, 0);
-	CKINT(lc_kyber_ies_enc_init_internal(cc, &ws->pk, &ws->ct,
+	CKINT(lc_kyber_ies_enc_init_internal(cc, &ws->pk, &ws->ct, NULL, 0,
 					     selftest_rng));
 	lc_kyber_ies_enc_update(cc, plain, ws->cipher, sizeof(plain));
-	lc_kyber_ies_enc_final(cc, NULL, 0, ws->tag, sizeof(ws->tag));
+	lc_kyber_ies_enc_final(cc, ws->tag, sizeof(ws->tag));
 	if (memcmp(ws->cipher, exp_cipher, sizeof(exp_cipher))) {
 		printf("Error in encryption of stream IES: ciphertext\n");
 		ret = 1;
@@ -144,10 +144,10 @@ static int kyber_ies_determinisitic(void)
 	}
 
 	lc_aead_zero(cc);
-	CKINT(lc_kyber_ies_dec_init(cc, &ws->sk, &ws->ct));
+	CKINT(lc_kyber_ies_dec_init(cc, &ws->sk, &ws->ct, NULL, 0));
 
 	lc_kyber_ies_dec_update(cc, ws->cipher, ws->plain_new, sizeof(plain));
-	CKINT(lc_kyber_ies_dec_final(cc, NULL, 0, ws->tag, sizeof(ws->tag)));
+	CKINT(lc_kyber_ies_dec_final(cc, ws->tag, sizeof(ws->tag)));
 	if (memcmp(plain, ws->plain_new, sizeof(plain))) {
 		printf("Error in decryption of stream IES\n");
 		ret = 1;

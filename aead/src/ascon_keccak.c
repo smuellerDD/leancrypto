@@ -103,8 +103,8 @@ static void lc_ak_selftest(int *tested, const char *impl)
 	LC_AK_CTX_ON_STACK(ak, lc_sha3_256);
 
 	assert(!lc_aead_setkey(ak, key, sizeof(key), iv, sizeof(iv)));
-	lc_aead_encrypt(ak, in, act_ct, sizeof(in), in, sizeof(in), act_tag,
-			sizeof(act_tag));
+	assert(!lc_aead_encrypt(ak, in, act_ct, sizeof(in), in, sizeof(in),
+				act_tag, sizeof(act_tag)));
 	snprintf(status, sizeof(status), "%s encrypt", impl);
 	lc_compare_selftest(act_ct, exp_ct, sizeof(exp_ct), status);
 	lc_compare_selftest(act_tag, exp_tag, sizeof(exp_tag), status);
@@ -445,9 +445,11 @@ static void lc_ak_zero(void *state)
 struct lc_aead _lc_ascon_keccak_aead = {
 	.setkey = lc_ak_setkey,
 	.encrypt = lc_ak_encrypt,
+	.enc_init = NULL,
 	.enc_update = NULL,
 	.enc_final = NULL,
 	.decrypt = lc_ak_decrypt,
+	.dec_init = NULL,
 	.dec_update = NULL,
 	.dec_final = NULL,
 	.zero = lc_ak_zero };

@@ -4,6 +4,8 @@ Changes 0.10.0
 
 * enhancement: add Ascon Keccak 256/512 and 256/256
 
+* update AEAD: add lc_aead_enc|dec_init and change all AEAD algo's tag calculation to now perform MAC(AAD || ciphertext) instead of MAC(ciphertext || AAD) - this brings it in line with all AEAD algorithms
+
 Changes 0.9.2
 
 * fix: update "reduce memory footprint of Keccak state" to handle big-endian systems

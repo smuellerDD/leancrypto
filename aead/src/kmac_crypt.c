@@ -127,7 +127,7 @@
  * The calculation of the message authentication tag is performed as follows:
  *
  * tag = KMAC(K = auth key,
- *            X = ciphertext || AAD,
+ *            X = AAD || ciphertext,
  *            L = taglen,
  *            S = "")
  *
@@ -396,16 +396,23 @@ static void lc_kc_crypt(void *state, const uint8_t *in, uint8_t *out,
 	}
 }
 
-static void lc_kc_encrypt_tag(void *state, const uint8_t *aad, size_t aadlen,
-			      uint8_t *tag, size_t taglen)
+static void lc_kc_add_aad(void *state, const uint8_t *aad, size_t aadlen)
 {
 	struct lc_kc_cryptor *kc = state;
 	struct lc_kmac_ctx *auth_ctx;
 
 	auth_ctx = &kc->auth_ctx;
 
-	/* Add the AAD data into the KMAC context */
+	/* Add the AAD data into the CSHAKE context */
 	lc_kmac_update(auth_ctx, aad, aadlen);
+}
+
+static void lc_kc_encrypt_tag(void *state, uint8_t *tag, size_t taglen)
+{
+	struct lc_kc_cryptor *kc = state;
+	struct lc_kmac_ctx *auth_ctx;
+
+	auth_ctx = &kc->auth_ctx;
 
 	/* Generate authentication tag */
 	lc_kmac_final_xof(auth_ctx, tag, taglen);
@@ -414,8 +421,7 @@ static void lc_kc_encrypt_tag(void *state, const uint8_t *aad, size_t aadlen,
 	lc_kmac_reinit(auth_ctx);
 }
 
-static int lc_kc_decrypt_authenticate(void *state, const uint8_t *aad,
-				      size_t aadlen, const uint8_t *tag,
+static int lc_kc_decrypt_authenticate(void *state, const uint8_t *tag,
 				      size_t taglen)
 {
 	struct lc_kc_cryptor *kc = state;
@@ -434,7 +440,7 @@ static int lc_kc_decrypt_authenticate(void *state, const uint8_t *aad,
 	 * Calculate the authentication tag for the processed. We do not need
 	 * to check the return code as we use the maximum tag size.
 	 */
-	lc_kc_encrypt_tag(kc, aad, aadlen, calctag_p, taglen);
+	lc_kc_encrypt_tag(kc, calctag_p, taglen);
 
 	ret = (lc_memcmp_secure(calctag_p, taglen, tag, taglen) ? -EBADMSG : 0);
 	lc_memset_secure(calctag_p, 0, taglen);
@@ -484,11 +490,14 @@ static void lc_kc_encrypt_oneshot(void *state, const uint8_t *plaintext,
 {
 	struct lc_kc_cryptor *cc = state;
 
+	/* Insert the AAD */
+	lc_kc_add_aad(state, aad, aadlen);
+
 	/* Confidentiality protection: Encrypt data */
 	lc_kc_encrypt(cc, plaintext, ciphertext, datalen);
 
 	/* Integrity protection: KMAC data */
-	lc_kc_encrypt_tag(cc, aad, aadlen, tag, taglen);
+	lc_kc_encrypt_tag(cc, tag, taglen);
 }
 
 static int lc_kc_decrypt_oneshot(void *state, const uint8_t *ciphertext,
@@ -497,6 +506,9 @@ static int lc_kc_decrypt_oneshot(void *state, const uint8_t *ciphertext,
 				 const uint8_t *tag, size_t taglen)
 {
 	struct lc_kc_cryptor *cc = state;
+
+	/* Insert the AAD */
+	lc_kc_add_aad(state, aad, aadlen);
 
 	/*
 	 * To ensure constant time between passing and failing decryption,
@@ -510,7 +522,7 @@ static int lc_kc_decrypt_oneshot(void *state, const uint8_t *ciphertext,
 	lc_kc_decrypt(cc, ciphertext, plaintext, datalen);
 
 	/* Integrity protection: verify MAC of data */
-	return lc_kc_decrypt_authenticate(cc, aad, aadlen, tag, taglen);
+	return lc_kc_decrypt_authenticate(cc, tag, taglen);
 }
 
 static inline void lc_kc_zero(void *state)
@@ -550,9 +562,11 @@ LC_INTERFACE_FUNCTION(int, lc_kc_alloc, const struct lc_hash *hash,
 
 struct lc_aead _lc_kmac_aead = { .setkey = lc_kc_setkey,
 				 .encrypt = lc_kc_encrypt_oneshot,
+				 .enc_init = lc_kc_add_aad,
 				 .enc_update = lc_kc_encrypt,
 				 .enc_final = lc_kc_encrypt_tag,
 				 .decrypt = lc_kc_decrypt_oneshot,
+				 .dec_init = lc_kc_add_aad,
 				 .dec_update = lc_kc_decrypt,
 				 .dec_final = lc_kc_decrypt_authenticate,
 				 .zero = lc_kc_zero };

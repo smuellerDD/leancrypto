@@ -128,7 +128,7 @@
  * The calculation of the message authentication tag is performed as follows:
  *
  * tag = KMAC(K = auth key,
- *            X = ciphertext || AAD,
+ *            X = AAD || ciphertext,
  *            L = taglen,
  *            S = "")
  *
@@ -257,13 +257,13 @@ static void lc_kh_selftest(int *tested, const char *impl)
 		0xd9, 0xd8, 0x04, 0xeb
 	};
 	static const uint8_t exp_tag[] = {
-		0xc8, 0xec, 0x37, 0x23, 0x34, 0xbb, 0x2f, 0xfd, 0xc6, 0x37,
-		0x27, 0xfc, 0xc1, 0xc3, 0x21, 0x7f, 0x81, 0x82, 0x54, 0xe3,
-		0xbe, 0x22, 0xe5, 0xa1, 0x16, 0xf1, 0x78, 0x91, 0x0f, 0x66,
-		0xe9, 0xe7, 0x54, 0x25, 0x59, 0xb3, 0x99, 0xd1, 0x3c, 0x8e,
-		0x50, 0x67, 0xb6, 0x20, 0x5e, 0xc3, 0xd5, 0xac, 0xb9, 0xc1,
-		0xfb, 0xb2, 0x8f, 0xdb, 0x2d, 0x04, 0xd8, 0xe0, 0xbb, 0xb1,
-		0xf4, 0xa3, 0x53, 0x20
+		0xfa, 0x3c, 0xc4, 0x08, 0x17, 0xa4, 0x61, 0xfa, 0xa3, 0x78,
+		0x63, 0x58, 0xef, 0x1e, 0xe0, 0x92, 0xf8, 0xf4, 0xe3, 0xfc,
+		0xb6, 0xf7, 0xa1, 0xa1, 0x90, 0xc6, 0x33, 0xf0, 0x49, 0x0a,
+		0x64, 0x58, 0x56, 0x51, 0x72, 0x58, 0x94, 0xf6, 0xc5, 0xb3,
+		0x0d, 0x08, 0x2d, 0xc5, 0x97, 0x99, 0xd5, 0x52, 0x8a, 0x2a,
+		0x9d, 0xd4, 0x0d, 0x00, 0x06, 0xcd, 0x72, 0x39, 0x8c, 0x03,
+		0xb2, 0xeb, 0x6a, 0xa4
 	};
 	uint8_t act_ct[sizeof(exp_ct)] __align(sizeof(uint32_t));
 	uint8_t act_tag[sizeof(exp_tag)] __align(sizeof(uint32_t));
@@ -333,21 +333,25 @@ out:
 	return ret;
 }
 
-static void lc_kh_encrypt_tag(void *state, const uint8_t *aad, size_t aadlen,
-			      uint8_t *tag, size_t taglen)
+static void lc_kh_add_aad(void *state, const uint8_t *aad, size_t aadlen)
 {
 	struct lc_kh_cryptor *kh = state;
 	struct lc_kmac_ctx *auth_ctx = &kh->auth_ctx;
 
-	/* Add the AAD data into the KMAC context */
+	/* Add the AAD data into the CSHAKE context */
 	lc_kmac_update(auth_ctx, aad, aadlen);
+}
+
+static void lc_kh_encrypt_tag(void *state, uint8_t *tag, size_t taglen)
+{
+	struct lc_kh_cryptor *kh = state;
+	struct lc_kmac_ctx *auth_ctx = &kh->auth_ctx;
 
 	/* Generate authentication tag */
 	lc_kmac_final_xof(auth_ctx, tag, taglen);
 }
 
-static int lc_kh_decrypt_authenticate(void *state, const uint8_t *aad,
-				      size_t aadlen, const uint8_t *tag,
+static int lc_kh_decrypt_authenticate(void *state, const uint8_t *tag,
 				      size_t taglen)
 {
 	struct lc_kh_cryptor *kh = state;
@@ -360,7 +364,7 @@ static int lc_kh_decrypt_authenticate(void *state, const uint8_t *aad,
 	 * Calculate the authentication tag for the processed. We do not need
 	 * to check the return code as we use the maximum tag size.
 	 */
-	lc_kh_encrypt_tag(kh, aad, aadlen, calctag, taglen);
+	lc_kh_encrypt_tag(kh, calctag, taglen);
 
 	ret = (lc_memcmp_secure(calctag, taglen, tag, taglen) ? -EBADMSG : 0);
 	lc_memset_secure(calctag, 0, taglen);
@@ -420,11 +424,14 @@ static void lc_kh_encrypt_oneshot(void *state, const uint8_t *plaintext,
 {
 	struct lc_kh_cryptor *kh = state;
 
+	/* Insert the AAD */
+	lc_kh_add_aad(state, aad, aadlen);
+
 	/* Confidentiality protection: Encrypt data */
 	lc_kh_encrypt(kh, plaintext, ciphertext, datalen);
 
 	/* Integrity protection: KMAC data */
-	lc_kh_encrypt_tag(kh, aad, aadlen, tag, taglen);
+	lc_kh_encrypt_tag(kh, tag, taglen);
 }
 
 static int lc_kh_decrypt_oneshot(void *state, const uint8_t *ciphertext,
@@ -433,6 +440,9 @@ static int lc_kh_decrypt_oneshot(void *state, const uint8_t *ciphertext,
 				 const uint8_t *tag, size_t taglen)
 {
 	struct lc_kh_cryptor *kh = state;
+
+	/* Insert the AAD */
+	lc_kh_add_aad(state, aad, aadlen);
 
 	/*
 	 * To ensure constant time between passing and failing decryption,
@@ -445,7 +455,7 @@ static int lc_kh_decrypt_oneshot(void *state, const uint8_t *ciphertext,
 	lc_kh_decrypt(kh, ciphertext, plaintext, datalen);
 
 	/* Integrity protection: verify MAC of data */
-	return lc_kh_decrypt_authenticate(kh, aad, aadlen, tag, taglen);
+	return lc_kh_decrypt_authenticate(kh, tag, taglen);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_kh_alloc, const struct lc_sym *sym,
@@ -481,9 +491,11 @@ static void lc_kh_zero(void *state)
 
 struct lc_aead _lc_symkmac_aead = { .setkey = lc_kh_setkey,
 				    .encrypt = lc_kh_encrypt_oneshot,
+				    .enc_init = lc_kh_add_aad,
 				    .enc_update = lc_kh_encrypt,
 				    .enc_final = lc_kh_encrypt_tag,
 				    .decrypt = lc_kh_decrypt_oneshot,
+				    .dec_init = lc_kh_add_aad,
 				    .dec_update = lc_kh_decrypt,
 				    .dec_final = lc_kh_decrypt_authenticate,
 				    .zero = lc_kh_zero };

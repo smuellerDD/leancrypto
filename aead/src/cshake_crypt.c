@@ -128,7 +128,7 @@
  * The calculation of the message authentication tag is performed as follows:
  *
  * tag = cSHAKE(N = "cSHAKE-AEAD auth",
- *              X = ciphertext || AAD,
+ *              X = AAD || ciphertext,
  *              L = taglen,
  *              S = auth key)
  *
@@ -465,8 +465,7 @@ static void lc_cc_crypt(struct lc_cc_cryptor *cc, const uint8_t *in,
 	}
 }
 
-static void lc_cc_encrypt_tag(void *state, const uint8_t *aad, size_t aadlen,
-			      uint8_t *tag, size_t taglen)
+static void lc_cc_add_aad(void *state, const uint8_t *aad, size_t aadlen)
 {
 	struct lc_cc_cryptor *cc = state;
 	struct lc_cshake_ctx *auth_ctx;
@@ -475,6 +474,14 @@ static void lc_cc_encrypt_tag(void *state, const uint8_t *aad, size_t aadlen,
 
 	/* Add the AAD data into the CSHAKE context */
 	lc_cshake_ctx_update(auth_ctx, aad, aadlen);
+}
+
+static void lc_cc_encrypt_tag(void *state, uint8_t *tag, size_t taglen)
+{
+	struct lc_cc_cryptor *cc = state;
+	struct lc_cshake_ctx *auth_ctx;
+
+	auth_ctx = &cc->auth_ctx;
 
 	/* Generate authentication tag */
 	lc_cshake_ctx_final(auth_ctx, tag, taglen);
@@ -483,8 +490,7 @@ static void lc_cc_encrypt_tag(void *state, const uint8_t *aad, size_t aadlen,
 	lc_cshake_ctx_reinit(auth_ctx);
 }
 
-static int lc_cc_decrypt_authenticate(void *state, const uint8_t *aad,
-				      size_t aadlen, const uint8_t *tag,
+static int lc_cc_decrypt_authenticate(void *state,const uint8_t *tag,
 				      size_t taglen)
 {
 	struct lc_cc_cryptor *cc = state;
@@ -503,7 +509,7 @@ static int lc_cc_decrypt_authenticate(void *state, const uint8_t *aad,
 	 * Calculate the authentication tag for the processed. We do not need
 	 * to check the return code as we use the maximum tag size.
 	 */
-	lc_cc_encrypt_tag(cc, aad, aadlen, calctag_p, taglen);
+	lc_cc_encrypt_tag(cc, calctag_p, taglen);
 
 	ret = (lc_memcmp_secure(calctag_p, taglen, tag, taglen) ? -EBADMSG : 0);
 	lc_memset_secure(calctag_p, 0, taglen);
@@ -553,11 +559,14 @@ static void lc_cc_encrypt_oneshot(void *state, const uint8_t *plaintext,
 {
 	struct lc_cc_cryptor *cc = state;
 
+	/* Insert the AAD */
+	lc_cc_add_aad(state, aad, aadlen);
+
 	/* Confidentiality protection: Encrypt data */
 	lc_cc_encrypt(cc, plaintext, ciphertext, datalen);
 
 	/* Integrity protection: CSHAKE data */
-	lc_cc_encrypt_tag(cc, aad, aadlen, tag, taglen);
+	lc_cc_encrypt_tag(cc, tag, taglen);
 }
 
 static int lc_cc_decrypt_oneshot(void *state, const uint8_t *ciphertext,
@@ -566,6 +575,9 @@ static int lc_cc_decrypt_oneshot(void *state, const uint8_t *ciphertext,
 				 const uint8_t *tag, size_t taglen)
 {
 	struct lc_cc_cryptor *cc = state;
+
+	/* Insert the AAD */
+	lc_cc_add_aad(state, aad, aadlen);
 
 	/*
 	 * To ensure constant time between passing and failing decryption,
@@ -579,7 +591,7 @@ static int lc_cc_decrypt_oneshot(void *state, const uint8_t *ciphertext,
 	lc_cc_decrypt(cc, ciphertext, plaintext, datalen);
 
 	/* Integrity protection: verify MAC of data */
-	return lc_cc_decrypt_authenticate(cc, aad, aadlen, tag, taglen);
+	return lc_cc_decrypt_authenticate(cc, tag, taglen);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_cc_alloc, const struct lc_hash *hash,
@@ -614,9 +626,11 @@ static void lc_cc_zero(void *state)
 
 struct lc_aead _lc_cshake_aead = { .setkey = lc_cc_setkey,
 				   .encrypt = lc_cc_encrypt_oneshot,
+				   .enc_init = lc_cc_add_aad,
 				   .enc_update = lc_cc_encrypt,
 				   .enc_final = lc_cc_encrypt_tag,
 				   .decrypt = lc_cc_decrypt_oneshot,
+				   .dec_init = lc_cc_add_aad,
 				   .dec_update = lc_cc_decrypt,
 				   .dec_final = lc_cc_decrypt_authenticate,
 				   .zero = lc_cc_zero };
