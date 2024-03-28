@@ -455,7 +455,9 @@ leancrypto-$(CONFIG_LEANCRYPTO_ASCON_KECCAK_CRYPT)			       \
 				+= ../aead/src/ascon_keccak.o
 ifdef CONFIG_LEANCRYPTO_ASCON_KECCAK_CRYPT
 obj-m		  		+= ascon_keccak_crypt_test.o
+obj-m		  		+= ascon_keccak_crypt_iuf_test.o
 ascon_keccak_crypt_test-y 	+= ../aead/tests/ascon_keccak_crypt_test.o
+ascon_keccak_crypt_iuf_test-y 	+= ../aead/tests/ascon_keccak_crypt_iuf_test.o
 endif
 
 # DRNG implementation
