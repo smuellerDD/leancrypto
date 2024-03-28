@@ -725,6 +725,10 @@ static void keccak_c_extract_bytes(const void *state, uint8_t *data,
 			*data = (uint8_t)(s[word] >> byte);
 		}
 	} else {
+		union {
+			uint64_t dw;
+			uint32_t w[2];
+		} val;
 		uint32_t part;
 		unsigned int j;
 		uint8_t todo_64, todo_32, todo;
@@ -745,18 +749,19 @@ static void keccak_c_extract_bytes(const void *state, uint8_t *data,
 		for (i = 0; i < todo_64; i++, data += 8)
 			le64_to_ptr(data, s[i]);
 
+		if (i < LC_SHA3_STATE_WORDS)
+			val.dw = le_bswap64(s[i]);
+		else
+			val.dw = 0;
+
 		if (todo_32) {
-			const uint32_t *state32 = state;
-
 			/* 32-bit aligned request */
-			le32_to_ptr(data, state32[i]);
+			le32_to_ptr(data, val.w[0]);
 			data += 4;
-			part = 0;
+			part = le_bswap32(val.w[1]);
 		} else {
-			const uint32_t *state32 = state;
-
 			/* non-aligned request */
-			part = state32[i];
+			part = le_bswap32(val.w[0]);
 		}
 
 		for (j = 0; j < (unsigned int)(todo << 3); j += 8, data++)
