@@ -4,13 +4,31 @@ if get_option('hash_crypt').enabled()
 		'hash_crypt.c',
 	])
 
+	include_files += files([
+		'../api/lc_aead.h',
+		'../api/lc_ascon.h',
+		'../api/lc_cshake_crypt.h',
+		'../api/lc_hash_crypt.h',
+		'../api/lc_kmac_crypt.h',
+	])
+
+	aead_src_files = files([
+				'ascon.c',
+				'ascon_ascon.c',
+				'cshake_crypt.c',
+				'kmac_crypt.c'
+			       ])
+	if get_option('sha3').enabled()
+		aead_src_files += files([ 'ascon_keccak.c' ])
+		include_files += files([ '../api/lc_ascon_keccak.h' ])
+		add_global_arguments([ '-DLC_ASCON_KECCAK' ], language: 'c')
+	endif
+
 	if (x86_64_asm)
 		# This is required for the XOR 256 bit AVX2 implementation
 		leancrypto_aead_avx2_lib = static_library(
 			'leancrypto_aead_avx2_lib',
-			[ 'ascon_keccak.c',
-			  'cshake_crypt.c',
-			  'kmac_crypt.c' ],
+			aead_src_files,
 			c_args: cc_avx2_args,
 			include_directories: [ include_dirs,
 					       include_internal_dirs ],
@@ -21,9 +39,7 @@ if get_option('hash_crypt').enabled()
 		# This is required for the XOR 128 bit NEON implementation
 		leancrypto_aead_neon_armv8_lib = static_library(
 			'leancrypto_aead_neon_armv8_lib',
-			[ 'ascon_keccak.c',
-			  'cshake_crypt.c',
-			  'kmac_crypt.c' ],
+			aead_src_files,
 			c_args: cc_armv8_neon_simd_args,
 			include_directories: [ include_dirs,
 					       include_internal_dirs ],
@@ -34,9 +50,7 @@ if get_option('hash_crypt').enabled()
 		# This is required for the XOR 128 bit NEON implementation
 		leancrypto_aead_neon_armv7_lib = static_library(
 			'leancrypto_aead_neon_armv7_lib',
-			[ 'ascon_keccak.c',
-			  'cshake_crypt.c',
-			  'kmac_crypt.c' ],
+			aead_src_files,
 			c_args: cc_armv7_neon_simd_args,
 			include_directories: [ include_dirs,
 					       include_internal_dirs ],
@@ -44,20 +58,8 @@ if get_option('hash_crypt').enabled()
 		leancrypto_support_libs += leancrypto_aead_neon_armv7_lib
 
 	else
-		src += files([
-			'ascon_keccak.c',
-			'cshake_crypt.c',
-			'kmac_crypt.c'
-		])
+		src += aead_src_files
 	endif
-
-	include_files += files([
-		'../api/lc_aead.h',
-		'../api/lc_ascon_keccak.h',
-		'../api/lc_cshake_crypt.h',
-		'../api/lc_hash_crypt.h',
-		'../api/lc_kmac_crypt.h',
-	])
 endif
 
 # We need HMAC and a symmetric algo

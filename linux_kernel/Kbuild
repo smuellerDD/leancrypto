@@ -95,10 +95,13 @@ CONFIG_LEANCRYPTO_CSHAKE_CRYPT=y
 CONFIG_LEANCRYPTO_KMAC_CRYPT=y
 
 #
-# Enable AEAD cipher implementing the Ascon algorithm but using Keccak Sponge
-# Dependencies: CONFIG_LEANCRYPTO_SHA3
+# Enable AEAD cipher implementing the Ascon algorithm allowing both, the Ascon
+# as well as the Keccak Sponge
+# Dependencies: CONFIG_LEANCRYPTO_SHA3 (in case the Keccak sponge is to be used)
+#               or CONFIG_LEANCRYPTO_ASCON_HASH (in case the Ascon sponge is to
+#               be used)
 #
-CONFIG_LEANCRYPTO_ASCON_KECCAK_CRYPT=y
+CONFIG_LEANCRYPTO_ASCON_CRYPT=y
 
 #
 # Enable AEAD stream cipher algorithm based on symmetric algorithm and HMAC
@@ -451,13 +454,21 @@ obj-m		  		+= kmac_crypt_test.o
 kmac_crypt_test-y 		+= ../aead/tests/kmac_crypt_test.o
 endif
 
-leancrypto-$(CONFIG_LEANCRYPTO_ASCON_KECCAK_CRYPT)			       \
+leancrypto-$(CONFIG_LEANCRYPTO_ASCON_CRYPT)				       \
+				+= ../aead/src/ascon.o			       \
+				   ../aead/src/ascon_ascon.o
+
+leancrypto-$(CONFIG_LEANCRYPTO_ASCON_CRYPT)				       \
 				+= ../aead/src/ascon_keccak.o
-ifdef CONFIG_LEANCRYPTO_ASCON_KECCAK_CRYPT
+endif
+
+ifdef CONFIG_LEANCRYPTO_ASCON_CRYPT
+ifdef CONFIG_LEANCRYPTO_SHA3
 obj-m		  		+= ascon_keccak_crypt_test.o
 obj-m		  		+= ascon_keccak_crypt_iuf_test.o
 ascon_keccak_crypt_test-y 	+= ../aead/tests/ascon_keccak_crypt_test.o
 ascon_keccak_crypt_iuf_test-y 	+= ../aead/tests/ascon_keccak_crypt_iuf_test.o
+endif
 endif
 
 # DRNG implementation

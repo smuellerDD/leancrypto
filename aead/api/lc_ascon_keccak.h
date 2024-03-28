@@ -20,35 +20,17 @@
 #ifndef LC_ASCON_KECCAK_H
 #define LC_ASCON_KECCAK_H
 
-#include "lc_aead.h"
+#include "lc_ascon.h"
 #include "lc_sha3.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct lc_ak_cryptor {
-	uint64_t keccak_state[LC_SHA3_STATE_WORDS];
-	uint8_t key[64];
-	uint8_t keylen;
-	uint8_t rate_offset;
-	const struct lc_hash *hash;
-};
-
-#define LC_ASCON_KECCAK_ALIGNMENT LC_XOR_ALIGNMENT(LC_HASH_COMMON_ALIGNMENT)
-
 #define LC_AK_STATE_SIZE (LC_SHA3_STATE_SIZE + LC_ASCON_KECCAK_ALIGNMENT)
 #define LC_AK_CTX_SIZE(x)                                                      \
-	(sizeof(struct lc_aead) + sizeof(struct lc_ak_cryptor))
-
-/* Ascon-Keccak-based AEAD-algorithm */
-extern const struct lc_aead *lc_ascon_keccak_aead;
-
-#define _LC_AK_SET_CTX(name, hashname) name->hash = hashname
-
-#define LC_AK_SET_CTX(name, hashname)                                          \
-	LC_AEAD_HASH_ALIGN_CTX(name, lc_ascon_keccak_aead);                    \
-	_LC_AK_SET_CTX(((struct lc_ak_cryptor *)name->aead_state), hashname)
+	(sizeof(struct lc_aead) + sizeof(struct lc_ascon_cryptor) +            \
+	 LC_AK_STATE_SIZE)
 
 /**
  * @brief Allocate Ascon Keccak cryptor context on heap
@@ -80,7 +62,9 @@ int lc_ak_alloc(const struct lc_hash *hash, struct lc_aead_ctx **ctx);
 					  LC_AK_CTX_SIZE(hash),                     \
 					  LC_ASCON_KECCAK_ALIGNMENT);               \
 	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;            \
-	LC_AK_SET_CTX(name, hash);                                                  \
+	LC_ASCON_SET_CTX(name, hash);                                               \
+	struct lc_ascon_cryptor *__name_ascon_crypto = name->aead_state;            \
+	__name_ascon_crypto->statesize = LC_SHA3_STATE_SIZE;                        \
 	_Pragma("GCC diagnostic pop")
 /* invocation of lc_ak_zero_free(name); not needed */
 
