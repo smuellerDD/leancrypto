@@ -316,16 +316,16 @@ static void lc_ak_enc_update(struct lc_ak_cryptor *ak, const uint8_t *plaintext,
 static void lc_ak_enc_final(struct lc_ak_cryptor *ak, uint8_t *tag,
 			    size_t taglen)
 {
-	const struct lc_hash *hash = ak->hash;
-
 	/*
-	 * Tag size can be at most the size of the capacity.
+	 * Tag size can be at most the key size which in turn is smaller than
+	 * the capacity. Thus, all bits of the tag (a) are always affected by
+	 * the key, and (b) affected by the capacity.
 	 *
 	 * Note, this code allows small tag sizes, including zero tag sizes.
 	 * It is supported here, but the decryption side requires 16 bytes
 	 * tag length as a minimum.
 	 */
-	if (taglen > (LC_SHA3_STATE_SIZE - hash->rate))
+	if (taglen > ak->keylen)
 		return;
 
 	lc_ak_add_padbyte(ak, ak->rate_offset);
@@ -423,29 +423,21 @@ static void lc_ak_dec_update(struct lc_ak_cryptor *ak,
 static int lc_ak_dec_final(struct lc_ak_cryptor *ak, const uint8_t *tag,
 			   size_t taglen)
 {
-	uint8_t calctag[16] __align(sizeof(uint64_t));
-	uint8_t *calctag_p = calctag;
+	uint8_t calctag[64] __align(sizeof(uint64_t));
 	int ret;
 
-	if (taglen < sizeof(calctag))
-		return -EINVAL;
+	BUILD_BUG_ON(sizeof(calctag) != sizeof(ak->key));
 
-	if (taglen > sizeof(calctag)) {
-		ret = lc_alloc_aligned((void **)&calctag_p,
-				       LC_MEM_COMMON_ALIGNMENT, taglen);
-		if (ret)
-			return -ret;
-	}
+	if (taglen < 16)
+		return -EINVAL;
 
 	lc_ak_add_padbyte(ak, ak->rate_offset);
 
 	/* Finalization */
-	lc_ak_finalization(ak, calctag_p, taglen);
+	lc_ak_finalization(ak, calctag, taglen);
 
-	ret = (lc_memcmp_secure(calctag_p, taglen, tag, taglen) ? -EBADMSG : 0);
-	lc_memset_secure(calctag_p, 0, taglen);
-	if (taglen > sizeof(calctag))
-		lc_free(calctag_p);
+	ret = (lc_memcmp_secure(calctag, taglen, tag, taglen) ? -EBADMSG : 0);
+	lc_memset_secure(calctag, 0, taglen);
 
 	return ret;
 }
