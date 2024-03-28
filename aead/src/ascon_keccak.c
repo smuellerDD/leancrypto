@@ -51,7 +51,7 @@
 #define LC_AEAD_AK_SHA3_256_256_INIT 0x0100044000180018
 
 /*
- * Some considerations on the self test: The different lc_keccak* APIs return
+ * Some considerations on the self test: The different lc_sponge* APIs return
  * error indicators which are important to observe, because those APIs refuse
  * to operate when there is no Keccak implementation provided by the selected
  * hash instance. As the entire AEAD code does not check for these errors,
@@ -193,20 +193,20 @@ static int lc_ak_setkey(void *state, const uint8_t *key, size_t keylen,
 	}
 
 	/* Insert key past the IV. */
-	lc_keccak_add_bytes(hash, ak->keccak_state, key,
+	lc_sponge_add_bytes(hash, ak->keccak_state, key,
 			    (unsigned int)(sizeof(uint64_t)),
 			    (unsigned int)keylen);
 
 	/* Insert nonce past the key. */
-	lc_keccak_add_bytes(hash, ak->keccak_state, nonce,
+	lc_sponge_add_bytes(hash, ak->keccak_state, nonce,
 			    (unsigned int)(sizeof(uint64_t) + keylen),
 			    (unsigned int)noncelen);
 
 	/* Keccak permutation */
-	lc_keccak(hash, state);
+	lc_sponge(hash, state);
 
 	/* XOR key to last part of capacity */
-	lc_keccak_add_bytes(hash, ak->keccak_state, key,
+	lc_sponge_add_bytes(hash, ak->keccak_state, key,
 			    (unsigned int)(LC_SHA3_STATE_SIZE - keylen),
 			    (unsigned int)keylen);
 
@@ -227,9 +227,9 @@ static void lc_ak_add_padbyte(struct lc_ak_cryptor *ak, size_t offset)
 	 * the padding byte.
 	 */
 	if (offset == hash->rate)
-		lc_keccak(hash, ak->keccak_state);
+		lc_sponge(hash, ak->keccak_state);
 
-	lc_keccak_add_bytes(hash, ak->keccak_state, &pad_data,
+	lc_sponge_add_bytes(hash, ak->keccak_state, &pad_data,
 			    (unsigned int)offset, 1);
 }
 
@@ -244,7 +244,7 @@ static void lc_ak_aad(struct lc_ak_cryptor *ak, const uint8_t *aad,
 	/* Authenticated Data - Insert into rate section of the state */
 	while (aadlen) {
 		todo = min_size(aadlen, hash->rate);
-		lc_keccak_add_bytes(hash, ak->keccak_state, aad, 0,
+		lc_sponge_add_bytes(hash, ak->keccak_state, aad, 0,
 				    (unsigned int)todo);
 
 		aadlen -= todo;
@@ -253,11 +253,11 @@ static void lc_ak_aad(struct lc_ak_cryptor *ak, const uint8_t *aad,
 		if (!aadlen)
 			lc_ak_add_padbyte(ak, todo);
 
-		lc_keccak(hash, ak->keccak_state);
+		lc_sponge(hash, ak->keccak_state);
 	}
 
 	/* Add pad_trail bit */
-	lc_keccak_add_bytes(hash, ak->keccak_state, &pad_trail,
+	lc_sponge_add_bytes(hash, ak->keccak_state, &pad_trail,
 			    LC_SHA3_STATE_SIZE - 1, 1);
 }
 
@@ -268,18 +268,18 @@ static void lc_ak_finalization(struct lc_ak_cryptor *ak, uint8_t *tag,
 	const struct lc_hash *hash = ak->hash;
 
 	/* Finalization - Insert key into capacity */
-	lc_keccak_add_bytes(hash, ak->keccak_state, ak->key, hash->rate,
+	lc_sponge_add_bytes(hash, ak->keccak_state, ak->key, hash->rate,
 			    ak->keylen);
 
 	/* Keccak permutation */
-	lc_keccak(hash, ak->keccak_state);
+	lc_sponge(hash, ak->keccak_state);
 
 	/* Finalization - Insert key into capacity */
-	lc_keccak_add_bytes(hash, ak->keccak_state, ak->key, hash->rate,
+	lc_sponge_add_bytes(hash, ak->keccak_state, ak->key, hash->rate,
 			    ak->keylen);
 
 	/* Finalization - Extract tag from capacity */
-	lc_keccak_extract_bytes(hash, ak->keccak_state, tag, hash->rate,
+	lc_sponge_extract_bytes(hash, ak->keccak_state, tag, hash->rate,
 				(unsigned int)taglen);
 }
 
@@ -293,17 +293,17 @@ static void lc_ak_enc_update(struct lc_ak_cryptor *ak, const uint8_t *plaintext,
 	while (datalen) {
 		todo = min_size(datalen, hash->rate - ak->rate_offset);
 
-		lc_keccak_add_bytes(hash, ak->keccak_state, plaintext,
+		lc_sponge_add_bytes(hash, ak->keccak_state, plaintext,
 				    ak->rate_offset, (unsigned int)todo);
 
-		lc_keccak_extract_bytes(hash, ak->keccak_state, ciphertext,
+		lc_sponge_extract_bytes(hash, ak->keccak_state, ciphertext,
 					ak->rate_offset, (unsigned int)todo);
 
 		datalen -= todo;
 
 		/* Apply Keccak for all rounds other than the last one */
 		if (datalen) {
-			lc_keccak(hash, ak->keccak_state);
+			lc_sponge(hash, ak->keccak_state);
 			plaintext += todo;
 			ciphertext += todo;
 			ak->rate_offset = 0;
@@ -371,7 +371,7 @@ static void lc_ak_dec_update(struct lc_ak_cryptor *ak,
 
 	while (datalen) {
 		todo = min_size(datalen, hash->rate - ak->rate_offset);
-		lc_keccak_extract_bytes(hash, ak->keccak_state, pt_p,
+		lc_sponge_extract_bytes(hash, ak->keccak_state, pt_p,
 					ak->rate_offset, (unsigned int)todo);
 
 		datalen -= todo;
@@ -381,9 +381,9 @@ static void lc_ak_dec_update(struct lc_ak_cryptor *ak,
 		 * rounds other than the last one.
 		 */
 		if (datalen) {
-			lc_keccak_newstate(hash, ak->keccak_state, ciphertext,
+			lc_sponge_newstate(hash, ak->keccak_state, ciphertext,
 					   ak->rate_offset, todo);
-			lc_keccak(hash, ak->keccak_state);
+			lc_sponge(hash, ak->keccak_state);
 
 			/*
 			 * Perform XOR operation here to ensure decryption in
@@ -402,12 +402,12 @@ static void lc_ak_dec_update(struct lc_ak_cryptor *ak,
 		} else {
 			if (!zero_tmp) {
 				xor_64(pt_p, ciphertext, todo);
-				lc_keccak_add_bytes(hash, ak->keccak_state,
+				lc_sponge_add_bytes(hash, ak->keccak_state,
 						    pt_p, ak->rate_offset,
 						    (unsigned int)todo);
 			} else {
 				xor_64_3(plaintext, pt_p, ciphertext, todo);
-				lc_keccak_add_bytes(hash, ak->keccak_state,
+				lc_sponge_add_bytes(hash, ak->keccak_state,
 						    plaintext, ak->rate_offset,
 						    (unsigned int)todo);
 			}

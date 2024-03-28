@@ -162,15 +162,22 @@ static void keccak_riscv_extract_bytes(const void *state, unsigned char *data,
 	keccakf1600_extract_bytes(state, data, offset, length);
 }
 
+static void keccak_riscv_newstate(void *state, const uint8_t *data,
+				  size_t offset, size_t length)
+{
+	memcpy((uint8_t *)state + offset, data, length);
+}
+
 static const struct lc_hash _sha3_224_riscv_asm = {
 	.init = sha3_224_riscv_asm_init,
 	.update = keccak_riscv_asm_absorb,
 	.final = keccak_riscv_asm_squeeze,
 	.set_digestsize = NULL,
 	.get_digestsize = sha3_224_digestsize,
-	.keccak_permutation = keccakf1600_permute,
-	.keccak_add_bytes = keccak_riscv_add_bytes,
-	.keccak_extract_bytes = keccak_riscv_extract_bytes,
+	.sponge_permutation = keccakf1600_permute,
+	.sponge_add_bytes = keccak_riscv_add_bytes,
+	.sponge_extract_bytes = keccak_riscv_extract_bytes,
+	.sponge_newstate = keccak_riscv_newstate,
 	.rate = LC_SHA3_224_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_224_state),
 };
@@ -183,9 +190,10 @@ static const struct lc_hash _sha3_256_riscv_asm = {
 	.final = keccak_riscv_asm_squeeze,
 	.set_digestsize = NULL,
 	.get_digestsize = sha3_256_digestsize,
-	.keccak_permutation = keccakf1600_permute,
-	.keccak_add_bytes = keccak_riscv_add_bytes,
-	.keccak_extract_bytes = keccak_riscv_extract_bytes,
+	.sponge_permutation = keccakf1600_permute,
+	.sponge_add_bytes = keccak_riscv_add_bytes,
+	.sponge_extract_bytes = keccak_riscv_extract_bytes,
+	.sponge_newstate = keccak_riscv_newstate,
 	.rate = LC_SHA3_256_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_256_state),
 };
@@ -198,9 +206,10 @@ static const struct lc_hash _sha3_384_riscv_asm = {
 	.final = keccak_riscv_asm_squeeze,
 	.set_digestsize = NULL,
 	.get_digestsize = sha3_384_digestsize,
-	.keccak_permutation = keccakf1600_permute,
-	.keccak_add_bytes = keccak_riscv_add_bytes,
-	.keccak_extract_bytes = keccak_riscv_extract_bytes,
+	.sponge_permutation = keccakf1600_permute,
+	.sponge_add_bytes = keccak_riscv_add_bytes,
+	.sponge_extract_bytes = keccak_riscv_extract_bytes,
+	.sponge_newstate = keccak_riscv_newstate,
 	.rate = LC_SHA3_384_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_384_state),
 };
@@ -213,9 +222,10 @@ static const struct lc_hash _sha3_512_riscv_asm = {
 	.final = keccak_riscv_asm_squeeze,
 	.set_digestsize = NULL,
 	.get_digestsize = sha3_512_digestsize,
-	.keccak_permutation = keccakf1600_permute,
-	.keccak_add_bytes = keccak_riscv_add_bytes,
-	.keccak_extract_bytes = keccak_riscv_extract_bytes,
+	.sponge_permutation = keccakf1600_permute,
+	.sponge_add_bytes = keccak_riscv_add_bytes,
+	.sponge_extract_bytes = keccak_riscv_extract_bytes,
+	.sponge_newstate = keccak_riscv_newstate,
 	.rate = LC_SHA3_512_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_512_state),
 };
@@ -228,9 +238,10 @@ static const struct lc_hash _shake128_riscv_asm = {
 	.final = keccak_riscv_asm_squeeze,
 	.set_digestsize = shake_set_digestsize,
 	.get_digestsize = shake_get_digestsize,
-	.keccak_permutation = keccakf1600_permute,
-	.keccak_add_bytes = keccak_riscv_add_bytes,
-	.keccak_extract_bytes = keccak_riscv_extract_bytes,
+	.sponge_permutation = keccakf1600_permute,
+	.sponge_add_bytes = keccak_riscv_add_bytes,
+	.sponge_extract_bytes = keccak_riscv_extract_bytes,
+	.sponge_newstate = keccak_riscv_newstate,
 	.rate = LC_SHAKE_128_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_shake_128_state),
 };
@@ -243,9 +254,10 @@ static const struct lc_hash _shake256_riscv_asm = {
 	.final = keccak_riscv_asm_squeeze,
 	.set_digestsize = shake_set_digestsize,
 	.get_digestsize = shake_get_digestsize,
-	.keccak_permutation = keccakf1600_permute,
-	.keccak_add_bytes = keccak_riscv_add_bytes,
-	.keccak_extract_bytes = keccak_riscv_extract_bytes,
+	.sponge_permutation = keccakf1600_permute,
+	.sponge_add_bytes = keccak_riscv_add_bytes,
+	.sponge_extract_bytes = keccak_riscv_extract_bytes,
+	.sponge_newstate = keccak_riscv_newstate,
 	.rate = LC_SHA3_256_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_256_state),
 };
@@ -258,9 +270,10 @@ static const struct lc_hash _cshake128_riscv_asm = {
 	.final = keccak_riscv_asm_squeeze,
 	.set_digestsize = shake_set_digestsize,
 	.get_digestsize = shake_get_digestsize,
-	.keccak_permutation = keccakf1600_permute,
-	.keccak_add_bytes = keccak_riscv_add_bytes,
-	.keccak_extract_bytes = keccak_riscv_extract_bytes,
+	.sponge_permutation = keccakf1600_permute,
+	.sponge_add_bytes = keccak_riscv_add_bytes,
+	.sponge_extract_bytes = keccak_riscv_extract_bytes,
+	.sponge_newstate = keccak_riscv_newstate,
 	.rate = LC_SHAKE_128_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_shake_128_state),
 };
@@ -273,9 +286,10 @@ static const struct lc_hash _cshake256_riscv_asm = {
 	.final = keccak_riscv_asm_squeeze,
 	.set_digestsize = shake_set_digestsize,
 	.get_digestsize = shake_get_digestsize,
-	.keccak_permutation = keccakf1600_permute,
-	.keccak_add_bytes = keccak_riscv_add_bytes,
-	.keccak_extract_bytes = keccak_riscv_extract_bytes,
+	.sponge_permutation = keccakf1600_permute,
+	.sponge_add_bytes = keccak_riscv_add_bytes,
+	.sponge_extract_bytes = keccak_riscv_extract_bytes,
+	.sponge_newstate = keccak_riscv_newstate,
 	.rate = LC_SHA3_256_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_256_state),
 };

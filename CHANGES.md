@@ -1,6 +1,6 @@
 Changes 0.10.0
 
-* enhancement: add Keccak APIs
+* enhancement: add Sponge APIs
 
 * enhancement: add Ascon Keccak 256/512 and 256/256
 

@@ -36,13 +36,13 @@ struct lc_hash {
 	void (*set_digestsize)(void *state, size_t digestsize);
 	size_t (*get_digestsize)(void *state);
 
-	/* Keccak interface */
-	void (*keccak_permutation)(void *state);
-	void (*keccak_add_bytes)(void *state, const uint8_t *data,
+	/* Sponge interface */
+	void (*sponge_permutation)(void *state);
+	void (*sponge_add_bytes)(void *state, const uint8_t *data,
 				 unsigned int offset, unsigned int length);
-	void (*keccak_extract_bytes)(const void *state, uint8_t *data,
+	void (*sponge_extract_bytes)(const void *state, uint8_t *data,
 				     size_t offset, size_t length);
-	void (*keccak_newstate)(void *state, const uint8_t *newstate,
+	void (*sponge_newstate)(void *state, const uint8_t *newstate,
 				size_t offset, size_t length);
 
 	uint8_t rate;
@@ -237,7 +237,7 @@ static inline size_t lc_hash_digestsize(struct lc_hash_ctx *hash_ctx)
 
 /**
  * @brief Get the block size of the message digest (or the "rate" in terms of
- *	  Keccak-based algorithms)
+ *	  Sponge-based algorithms)
  *
  * @param [in] hash_ctx Reference to hash context implementation to be used to
  *			perform hash calculation with.
@@ -355,42 +355,39 @@ void lc_shake(const struct lc_hash *shake, const uint8_t *in, size_t inlen,
 	      uint8_t *digest, size_t digestlen);
 
 /**
- * @brief Perform Keccak permutation on buffer
+ * @brief Perform Sponge permutation on buffer
  *
- * WARNING: This call does NOT constitude SHA-3, or SHAKE. It is ONLY a raw
- *	    Keccak permutation with the accelerated implementation of the given
+ * WARNING: This call does NOT constitude a hash. It is ONLY a raw
+ *	    sponge permutation with the accelerated implementation of the given
  *	    hash reference. If you do not understand this comment, you
  *	    MUST NOT use this interface.
  *
  * @param [in] hash Reference to hash implementation to be used to perform
- *		    Keccak calculation with.
+ *		    Sponge calculation with.
  * @param [in] state State buffer of 200 bytes aligned to
  *		     LC_HASH_COMMON_ALIGNMENT.
  *
  * @return: 0 on success, < 0 on error
  */
-static inline int lc_keccak(const struct lc_hash *hash, void *state)
+static inline int lc_sponge(const struct lc_hash *hash, void *state)
 {
-	if (!state || !hash || !hash->keccak_permutation)
+	if (!state || !hash || !hash->sponge_permutation)
 		return -EOPNOTSUPP;
 
-	hash->keccak_permutation(state);
+	hash->sponge_permutation(state);
 
 	return 0;
 }
 
 /**
  * @brief Function to add (in GF(2), using bitwise exclusive-or) data given
- *	  as bytes into the state.
+ *	  as bytes into the sponge state.
  *
  * The bit positions that are affected by this function are
  * from @a offset*8 to @a offset*8 + @a length*8.
  *
- * (The bit positions, the x,y,z coordinates and their link are defined in the
- * "Keccak reference".)
- *
  * @param [in] hash Reference to hash implementation to be used to perform
- *		    Keccak calculation with.
+ *		    Sponge calculation with.
  * @param [in] state Pointer to the state.
  * @param [in] data Pointer to the input data.
  * @param [in] offset Offset in bytes within the state.
@@ -404,14 +401,14 @@ static inline int lc_keccak(const struct lc_hash *hash, void *state)
  *
  * @return: 0 on success, < 0 on error
  */
-static inline int lc_keccak_add_bytes(const struct lc_hash *hash, void *state,
+static inline int lc_sponge_add_bytes(const struct lc_hash *hash, void *state,
 				      const uint8_t *data, unsigned int offset,
 				      unsigned int length)
 {
-	if (!state || !hash || !hash->keccak_add_bytes)
+	if (!state || !hash || !hash->sponge_add_bytes)
 		return -EOPNOTSUPP;
 
-	hash->keccak_add_bytes(state, data, offset, length);
+	hash->sponge_add_bytes(state, data, offset, length);
 
 	return 0;
 }
@@ -420,11 +417,9 @@ static inline int lc_keccak_add_bytes(const struct lc_hash *hash, void *state,
  * @brief Function to retrieve data from the state. The bit positions that are
  *	  retrieved by this function are from
  *	  @a offset*8 to @a offset*8 + @a length*8.
- *	  (The bit positions, the x,y,z coordinates and their link are defined
- *	  in the "Keccak reference".)
  *
  * @param [in] hash Reference to hash implementation to be used to perform
- *		    Keccak calculation with.
+ *		    sponge calculation with.
  * @param [in] state Pointer to the state.
  * @param [out] data Pointer to the area where to store output data.
  * @param [in] offset Offset in bytes within the state.
@@ -438,23 +433,23 @@ static inline int lc_keccak_add_bytes(const struct lc_hash *hash, void *state,
  *
  * @return: 0 on success, < 0 on error
  */
-static inline int lc_keccak_extract_bytes(const struct lc_hash *hash,
+static inline int lc_sponge_extract_bytes(const struct lc_hash *hash,
 					  const void *state, uint8_t *data,
 					  size_t offset, size_t length)
 {
-	if (!state || !hash || !hash->keccak_extract_bytes)
+	if (!state || !hash || !hash->sponge_extract_bytes)
 		return -EOPNOTSUPP;
 
-	hash->keccak_extract_bytes(state, data, offset, length);
+	hash->sponge_extract_bytes(state, data, offset, length);
 
 	return 0;
 }
 
 /**
- * @brief Function to insert a complete new Keccak state
+ * @brief Function to insert a complete new sponge state
  *
  * @param [in] hash Reference to hash implementation to be used to perform
- *		    Keccak calculation with.
+ *		    sponge calculation with.
  * @param [in] state Pointer to the state.
  * @param [out] data Pointer to new state
  * @param [in] offset Offset in bytes within the state.
@@ -465,14 +460,14 @@ static inline int lc_keccak_extract_bytes(const struct lc_hash *hash,
  *
  * @return: 0 on success, < 0 on error
  */
-static inline int lc_keccak_newstate(const struct lc_hash *hash, void *state,
+static inline int lc_sponge_newstate(const struct lc_hash *hash, void *state,
 				     const uint8_t *data, size_t offset,
 				     size_t length)
 {
-	if (!state || !hash || !hash->keccak_newstate)
+	if (!state || !hash || !hash->sponge_newstate)
 		return -EOPNOTSUPP;
 
-	hash->keccak_newstate(state, data, offset, length);
+	hash->sponge_newstate(state, data, offset, length);
 
 	return 0;
 }

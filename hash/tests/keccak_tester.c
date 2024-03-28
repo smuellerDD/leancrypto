@@ -90,18 +90,18 @@ static int _keccak_tester(const struct lc_hash *sha3_512, const char *name)
 	       sha3_512 == lc_sha3_512_c ? "C" : "accelerated");
 
 	memset(state, 0, sizeof(state));
-	lc_keccak(sha3_512, state);
-	lc_keccak_extract_bytes(sha3_512, state, act, 0, sizeof(act));
+	lc_sponge(sha3_512, state);
+	lc_sponge_extract_bytes(sha3_512, state, act, 0, sizeof(act));
 	ret = lc_compare(act, exp_zero, LC_SHA3_STATE_SIZE,
 			 "Keccak on zero state");
 
 	memset(state, 0, sizeof(state));
 	for (i = 0; i < LC_SHA3_STATE_SIZE - sizeof(msg) + 1;
 	     i += sizeof(msg)) {
-		lc_keccak_add_bytes(sha3_512, state, msg, i, sizeof(msg));
-		lc_keccak(sha3_512, state);
+		lc_sponge_add_bytes(sha3_512, state, msg, i, sizeof(msg));
+		lc_sponge(sha3_512, state);
 	}
-	lc_keccak_extract_bytes(sha3_512, state, act, 0, sizeof(act));
+	lc_sponge_extract_bytes(sha3_512, state, act, 0, sizeof(act));
 	ret += lc_compare(act, exp_filled, LC_SHA3_STATE_SIZE,
 			  "Keccak on filled state");
 
