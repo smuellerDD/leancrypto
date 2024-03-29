@@ -48,7 +48,7 @@ static int randombytes(void *_state, const uint8_t *addtl_input,
 		buf[i] = (uint8_t)(ctr >> 8 * i);
 
 	ctr++;
-	lc_shake(lc_shake128, buf, 8, out, outlen);
+	lc_xof(lc_shake128, buf, 8, out, outlen);
 
 	return 0;
 }
