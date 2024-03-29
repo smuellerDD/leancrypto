@@ -5,6 +5,9 @@ option('sha2-512', type: 'feature', value: 'enabled',
 option('sha3', type: 'feature', value: 'enabled',
        description: 'SHA3 support')
 
+option('ascon', type: 'feature', value: 'enabled',
+       description: 'Ascon message digest support')
+
 option('chacha20', type: 'feature', value: 'enabled',
        description: 'ChaCha20 support')
 option('chacha20_drng', type: 'feature', value: 'enabled',

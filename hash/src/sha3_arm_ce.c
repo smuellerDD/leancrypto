@@ -111,8 +111,10 @@ static void keccak_arm_ce_squeeze(void *_state, uint8_t *digest)
 					lc_keccakf1600_arm_ce);
 }
 
-static void keccak_arm_ce_permutation(void *state)
+static void keccak_arm_ce_permutation(void *state, unsigned int rounds)
 {
+	(void)rounds;
+
 	LC_NEON_ENABLE;
 	lc_keccakf1600_arm_ce((uint64_t *)state);
 	LC_NEON_DISABLE;

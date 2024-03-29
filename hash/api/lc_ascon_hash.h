@@ -17,39 +17,27 @@
  * DAMAGE.
  */
 
-#include "ascon_internal.h"
+#ifndef LC_ASCON_HASH_H
+#define LC_ASCON_HASH_H
 
-/*
- * Ascon with standard Ascon permutation
- */
-#define LC_AEAD_ASCON_128_IV 0x80400c0600000000
-#define LC_AEAD_ASCON_128a_IV 0x80800c0800000000
+#include "lc_hash.h"
 
-int lc_ascon_ascon_setiv(struct lc_ascon_cryptor *ascon, size_t keylen)
-{
-	const struct lc_hash *hash = ascon->hash;
-	uint64_t *state_mem = ascon->state;
-//	static int tested = 0;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-	switch (hash->rate) {
-	case 128 / 8: /* Ascon 128a */
-		if (keylen != 16)
-			return -EINVAL;
-		state_mem[0] = LC_AEAD_ASCON_128a_IV;
-		ascon->keylen = 16;
+#define LC_ASCON_HASH_STATE_WORDS 5
+#define LC_ASCON_HASH_STATE_SIZE (LC_ASCON_HASH_STATE_WORDS * sizeof(uint64_t))
 
-		break;
+struct lc_ascon_hash {
+	uint64_t state[LC_ASCON_HASH_STATE_WORDS];
+};
 
-	case 64 / 8: /* Ascon 128 */
-		if (keylen != 16)
-			return -EINVAL;
-		state_mem[0] = LC_AEAD_ASCON_128_IV;
-		ascon->keylen = 16;
+extern const struct lc_hash *lc_ascon_128;
+extern const struct lc_hash *lc_ascon_128a;
 
-		break;
-	default:
-		return 0;
-	}
-
-	return 1;
+#ifdef __cplusplus
 }
+#endif
+
+#endif /* LC_ASCON_HASH_H */

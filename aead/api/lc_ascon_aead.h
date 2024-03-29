@@ -17,8 +17,8 @@
  * DAMAGE.
  */
 
-#ifndef LC_ASCON_H
-#define LC_ASCON_H
+#ifndef LC_ASCON_AEAD_H
+#define LC_ASCON_AEAD_H
 
 #include "lc_aead.h"
 #include "lc_hash.h"
@@ -32,11 +32,12 @@ struct lc_ascon_cryptor {
 	uint8_t keylen;
 	uint8_t rate_offset;
 	uint8_t statesize;
+	uint8_t roundb;
 	const struct lc_hash *hash;
 	uint64_t *state;
 };
 
-#define LC_ASCON_KECCAK_ALIGNMENT LC_XOR_ALIGNMENT(LC_HASH_COMMON_ALIGNMENT)
+#define LC_ASCON_ALIGNMENT LC_XOR_ALIGNMENT(LC_HASH_COMMON_ALIGNMENT)
 
 /* Ascon-Keccak-based AEAD-algorithm */
 extern const struct lc_aead *lc_ascon_aead;
@@ -56,4 +57,4 @@ extern const struct lc_aead *lc_ascon_aead;
 }
 #endif
 
-#endif /* LC_ASCON_KECCAK_H */
+#endif /* LC_ASCON_AEAD_H */

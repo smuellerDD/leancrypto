@@ -37,7 +37,7 @@ struct lc_hash {
 	size_t (*get_digestsize)(void *state);
 
 	/* Sponge interface */
-	void (*sponge_permutation)(void *state);
+	void (*sponge_permutation)(void *state, unsigned int rounds);
 	void (*sponge_add_bytes)(void *state, const uint8_t *data,
 				 unsigned int offset, unsigned int length);
 	void (*sponge_extract_bytes)(const void *state, uint8_t *data,
@@ -366,15 +366,18 @@ void lc_shake(const struct lc_hash *shake, const uint8_t *in, size_t inlen,
  *		    Sponge calculation with.
  * @param [in] state State buffer of 200 bytes aligned to
  *		     LC_HASH_COMMON_ALIGNMENT.
+ * @param [in] rounds Number of sponge rounds - may be ignored by sponge
+ *		      implementation
  *
  * @return: 0 on success, < 0 on error
  */
-static inline int lc_sponge(const struct lc_hash *hash, void *state)
+static inline int lc_sponge(const struct lc_hash *hash, void *state,
+			    unsigned int rounds)
 {
 	if (!state || !hash || !hash->sponge_permutation)
 		return -EOPNOTSUPP;
 
-	hash->sponge_permutation(state);
+	hash->sponge_permutation(state, rounds);
 
 	return 0;
 }

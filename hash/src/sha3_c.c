@@ -457,9 +457,8 @@ static inline void sha3_fill_state_aligned(struct lc_sha3_224_state *ctx,
  * This function works on both endianesses, but since it has more code than
  * the little endian code base, there is a special case for little endian.
  */
-static inline void sha3_fill_state_bytes(uint64_t state[LC_SHA3_STATE_WORDS],
-					 const uint8_t *in, size_t byte_offset,
-					 size_t inlen)
+static inline void sha3_fill_state_bytes(uint64_t *state, const uint8_t *in,
+					 size_t byte_offset, size_t inlen)
 {
 	unsigned int i;
 	union {
@@ -500,9 +499,8 @@ static inline void sha3_fill_state_bytes(uint64_t state[LC_SHA3_STATE_WORDS],
 
 #elif defined(LC_LITTLE_ENDIAN) || defined(__LITTLE_ENDIAN)
 
-static inline void sha3_fill_state_bytes(uint64_t state[LC_SHA3_STATE_WORDS],
-					 const uint8_t *in, size_t byte_offset,
-					 size_t inlen)
+static inline void sha3_fill_state_bytes(uint64_t *state, const uint8_t *in,
+					   size_t byte_offset, size_t inlen)
 {
 	uint8_t *_state = (uint8_t *)state;
 
@@ -512,6 +510,7 @@ static inline void sha3_fill_state_bytes(uint64_t state[LC_SHA3_STATE_WORDS],
 #else
 #error "Endianess not defined"
 #endif
+
 
 static void keccak_absorb(void *_state, const uint8_t *in, size_t inlen)
 {
@@ -693,8 +692,24 @@ static void keccak_squeeze(void *_state, uint8_t *digest)
 	*part_p = 0;
 }
 
-static void keccak_c_permutation(void *state)
+/************************ Raw Keccak Sponge Operations *************************
+ *
+ * NOTE: This handling code is almost identical to the original Ascon sponge
+ * operation code found in ascon_c.c. The only difference is that the Keccak
+ * code stores the data into the Keccak state in little-endian whereas
+ * the Ascon code operates in big-endian. This difference should not have
+ * any impact on the cryptographic strength. However, it has an impact on
+ * interoperability as the ciphertext / tag differs.
+ *
+ * The decision to use little-endian code is based on the following: most
+ * systems are little-endian today which implies that little-endian code
+ * spares byte-swaps. Furthermore, it allows direct use of accelerated
+ * Keccak implementations as they handle the data also in little-endian format.
+ */
+
+static void keccak_c_permutation(void *state, unsigned int rounds)
 {
+	(void)rounds;
 	keccakp_1600((uint64_t *)state);
 }
 
@@ -707,8 +722,14 @@ static void keccak_c_add_bytes(void *state, const uint8_t *data,
 static void keccak_c_extract_bytes(const void *state, uint8_t *data,
 				   size_t offset, size_t length)
 {
+	//sponge_c_extract_bytes(state, data, offset, length,
+	//		       LC_SHA3_STATE_WORDS);
 	size_t i;
 	const uint64_t *s = state;
+	union {
+		uint64_t dw;
+		uint32_t w[2];
+	} val;
 
 	if (offset) {
 		/*
@@ -717,7 +738,6 @@ static void keccak_c_extract_bytes(const void *state, uint8_t *data,
 		 * are processed byte-wise.
 		 */
 		size_t word, byte;
-
 		for (i = offset; i < length + offset; i++, data++) {
 			word = i / sizeof(*s);
 			byte = (i % sizeof(*s)) << 3;
@@ -725,10 +745,6 @@ static void keccak_c_extract_bytes(const void *state, uint8_t *data,
 			*data = (uint8_t)(s[word] >> byte);
 		}
 	} else {
-		union {
-			uint64_t dw;
-			uint32_t w[2];
-		} val;
 		uint32_t part;
 		unsigned int j;
 		uint8_t todo_64, todo_32, todo;
@@ -772,6 +788,7 @@ static void keccak_c_extract_bytes(const void *state, uint8_t *data,
 static void keccak_c_newstate(void *state, const uint8_t *data, size_t offset,
 			      size_t length)
 {
+	//sponge_c_newstate(state, data, offset, length);
 	uint64_t *s = state;
 	unsigned int i;
 	union {

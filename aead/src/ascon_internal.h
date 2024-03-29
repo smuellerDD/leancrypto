@@ -20,15 +20,18 @@
 #ifndef ASCON_INTERNAL_H
 #define ASCON_INTERNAL_H
 
-#include "lc_ascon.h"
+#include "lc_ascon_aead.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #if defined(LC_ASCON_KECCAK) || defined(CONFIG_LEANCRYPTO_SHA3)
+
 int lc_ak_setiv(struct lc_ascon_cryptor *ascon, size_t keylen);
+
 #else
+
 static inline int lc_ak_setiv(struct lc_ascon_cryptor *ascon, size_t keylen)
 {
 	(void)ascon;

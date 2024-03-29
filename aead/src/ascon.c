@@ -21,7 +21,7 @@
 #include "ascon_internal.h"
 #include "bitshift.h"
 #include "build_bug_on.h"
-#include "lc_ascon.h"
+#include "lc_ascon_aead.h"
 #include "lc_memcmp_secure.h"
 #include "math_helper.h"
 #include "ret_checkers.h"
@@ -36,6 +36,7 @@ static void lc_ascon_zero(struct lc_ascon_cryptor *ascon)
 	lc_memset_secure((uint8_t *)ascon->key, 0, sizeof(ascon->key));
 	ascon->keylen = 0;
 	ascon->rate_offset = 0;
+	ascon->roundb = 0;
 
 	/* Do not touch ascon->statesize! */
 }
@@ -97,7 +98,7 @@ static int lc_ascon_setkey(void *state, const uint8_t *key, size_t keylen,
 			    (unsigned int)noncelen);
 
 	/* Sponge permutation */
-	lc_sponge(hash, state_mem);
+	lc_sponge(hash, state_mem, 12);
 
 	/* XOR key to last part of capacity */
 	lc_sponge_add_bytes(hash, state_mem, key,
@@ -122,7 +123,7 @@ static void lc_ascon_add_padbyte(struct lc_ascon_cryptor *ascon, size_t offset)
 	 * the padding byte.
 	 */
 	if (offset == hash->rate)
-		lc_sponge(hash, state_mem);
+		offset = 0;
 
 	lc_sponge_add_bytes(hash, state_mem, &pad_data, (unsigned int)offset,
 			    1);
@@ -134,23 +135,25 @@ static void lc_ascon_aad(struct lc_ascon_cryptor *ascon, const uint8_t *aad,
 {
 	const struct lc_hash *hash = ascon->hash;
 	uint64_t *state_mem = ascon->state;
-	size_t todo = 0;
 	static const uint8_t pad_trail = 0x01;
 
+	if (!aadlen)
+		return;
+
 	/* Authenticated Data - Insert into rate section of the state */
-	while (aadlen) {
-		todo = min_size(aadlen, hash->rate);
-		lc_sponge_add_bytes(hash, state_mem, aad, 0,
-				    (unsigned int)todo);
+	while (aadlen >= hash->rate) {
+		lc_sponge_add_bytes(hash, state_mem, aad, 0, hash->rate);
 
-		aadlen -= todo;
+		aadlen -= hash->rate;
+		aad += hash->rate;
 
-		/* We reached the end of AAD - Insert the trailing 1 */
-		if (!aadlen)
-			lc_ascon_add_padbyte(ascon, todo);
-
-		lc_sponge(hash, state_mem);
+		lc_sponge(hash, state_mem, ascon->roundb);
 	}
+
+	lc_sponge_add_bytes(hash, state_mem, aad, 0, (unsigned int)aadlen);
+	lc_ascon_add_padbyte(ascon, aadlen);
+
+	lc_sponge(hash, state_mem, ascon->roundb);
 
 	/* Add pad_trail bit */
 	lc_sponge_add_bytes(hash, state_mem, &pad_trail, ascon->statesize - 1,
@@ -163,20 +166,21 @@ static void lc_ascon_finalization(struct lc_ascon_cryptor *ascon, uint8_t *tag,
 {
 	const struct lc_hash *hash = ascon->hash;
 	uint64_t *state_mem = ascon->state;
+	uint8_t tag_offset = ascon->statesize - (uint8_t)taglen;
 
 	/* Finalization - Insert key into capacity */
 	lc_sponge_add_bytes(hash, state_mem, ascon->key, hash->rate,
 			    ascon->keylen);
 
 	/* Sponge permutation */
-	lc_sponge(hash, state_mem);
+	lc_sponge(hash, state_mem, 12);
 
 	/* Finalization - Insert key into capacity */
-	lc_sponge_add_bytes(hash, state_mem, ascon->key, hash->rate,
-			    ascon->keylen);
+	lc_sponge_add_bytes(hash, state_mem, ascon->key, tag_offset,
+			    (unsigned int)taglen);
 
 	/* Finalization - Extract tag from capacity */
-	lc_sponge_extract_bytes(hash, state_mem, tag, hash->rate,
+	lc_sponge_extract_bytes(hash, state_mem, tag, tag_offset,
 				(unsigned int)taglen);
 }
 
@@ -202,13 +206,15 @@ static void lc_ascon_enc_update(struct lc_ascon_cryptor *ascon,
 
 		/* Apply Sponge for all rounds other than the last one */
 		if (datalen) {
-			lc_sponge(hash, state_mem);
 			plaintext += todo;
 			ciphertext += todo;
 			ascon->rate_offset = 0;
+
 		} else {
 			ascon->rate_offset += (uint8_t)todo;
 		}
+
+		lc_sponge(hash, state_mem, ascon->roundb);
 	}
 }
 
@@ -283,7 +289,6 @@ static void lc_ascon_dec_update(struct lc_ascon_cryptor *ascon,
 		if (datalen) {
 			lc_sponge_newstate(hash, state_mem, ciphertext,
 					   ascon->rate_offset, todo);
-			lc_sponge(hash, ascon->state);
 
 			/*
 			 * Perform XOR operation here to ensure decryption in
@@ -313,6 +318,9 @@ static void lc_ascon_dec_update(struct lc_ascon_cryptor *ascon,
 			}
 			ascon->rate_offset += (uint8_t)todo;
 		}
+
+		lc_sponge(hash, ascon->state, ascon->roundb);
+
 	}
 
 	if (zero_tmp)

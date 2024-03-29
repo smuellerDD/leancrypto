@@ -139,6 +139,12 @@ if get_option('sha3').enabled()
 #	endif
 endif
 
+if get_option('ascon').enabled()
+	src += files([ 'ascon_c.c' ])
+	include_files += files([ '../api/lc_ascon_hash.h' ])
+	lc_hash = 1
+endif
+
 if (lc_hash == 1)
 	src += files([ 'hash.c' ])
 	include_files += files([ '../api/lc_hash.h' ])

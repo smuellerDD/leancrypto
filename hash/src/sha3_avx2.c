@@ -107,8 +107,10 @@ static void keccak_avx2_squeeze(void *_state, uint8_t *digest)
 	LC_FPU_DISABLE;
 }
 
-static void keccak_avx2_permutation(void *state)
+static void keccak_avx2_permutation(void *state, unsigned int rounds)
 {
+	(void)rounds;
+
 	LC_FPU_ENABLE;
 	KeccakP1600_AVX2_Permute_24rounds(state);
 	LC_FPU_DISABLE;

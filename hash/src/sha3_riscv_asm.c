@@ -113,10 +113,11 @@ static inline void keccakf1600_add_bytes(void *state, const unsigned char *data,
 		keccakf1600_add_byte(state, data[i], offset + i);
 }
 
-static inline void keccakf1600_permute(void *state)
+static inline void keccakf1600_permute(void *state, unsigned int rounds)
 {
 	uint32_t *lanes = state;
 
+	(void)rounds;
 	//LC_FPU_ENABLE;
 	lc_keccakf1600_riscv(lanes);
 	//LC_FPU_DISABLE;

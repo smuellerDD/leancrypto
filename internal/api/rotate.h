@@ -43,7 +43,7 @@ static inline uint16_t ror16(uint16_t x, uint8_t n)
 }
 
 /*
- * Rotate 16 bit unsigned integer X by N bits left/right
+ * Rotate 32 bit unsigned integer X by N bits left/right
  */
 static inline uint32_t rol32(uint32_t x, uint8_t n)
 {
@@ -53,6 +53,19 @@ static inline uint32_t rol32(uint32_t x, uint8_t n)
 static inline uint32_t ror32(uint32_t x, uint8_t n)
 {
 	return ((x >> (n & (32 - 1))) | (x << ((32 - n) & (32 - 1))));
+}
+
+/*
+ * Rotate 64 bit unsigned integer X by N bits left/right
+ */
+static inline uint64_t rol64(uint64_t x, uint8_t n)
+{
+	return ((x << (n & (64 - 1))) | (x >> ((64 - n) & (64 - 1))));
+}
+
+static inline uint64_t ror64(uint64_t x, uint8_t n)
+{
+	return ((x >> (n & (64 - 1))) | (x << ((64 - n) & (64 - 1))));
 }
 
 #endif /* LINUX_KERNEL */

@@ -27,6 +27,12 @@ CONFIG_LEANCRYPTO_SHA2_512=y
 #
 CONFIG_LEANCRYPTO_SHA3=y
 
+#
+# Enable Ascon hashing support including all its variants (XOF)
+# Dependencies: N/A
+#
+CONFIG_LEANCRYPTO_ASCON_HASH=y
+
 ####################### Keyed Message Digest Algorithms ########################
 
 #
@@ -416,6 +422,9 @@ endif
 leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
 				+= ../hash/src/sha3_riscv_asm_null.o
 
+leancrypto-$(CONFIG_LEANCRYPTO_ASCON_HASH)				       \
+				+= ../hash/src/ascon_c.o
+
 # AEAD implementation
 ccflags-y	  		+= -I$(PWD)/../aead/api
 leancrypto-$(CONFIG_LEANCRYPTO_SYMHMAC_CRYPT)				       \
@@ -454,22 +463,29 @@ obj-m		  		+= kmac_crypt_test.o
 kmac_crypt_test-y 		+= ../aead/tests/kmac_crypt_test.o
 endif
 
-leancrypto-$(CONFIG_LEANCRYPTO_ASCON_CRYPT)				       \
-				+= ../aead/src/ascon.o			       \
-				   ../aead/src/ascon_ascon.o
-
-leancrypto-$(CONFIG_LEANCRYPTO_ASCON_CRYPT)				       \
-				+= ../aead/src/ascon_keccak.o
-endif
 
 ifdef CONFIG_LEANCRYPTO_ASCON_CRYPT
+leancrypto-$(CONFIG_LEANCRYPTO_ASCON_CRYPT)				       \
+				+= ../aead/src/ascon.o
+
+ifdef CONFIG_LEANCRYPTO_ASCON_HASH
+leancrypto-$(CONFIG_LEANCRYPTO_ASCON_CRYPT)				       \
+				+= ../aead/src/ascon_lightweight.o
+obj-m		  		+= ascon_crypt_test.o
+ascon_crypt_test-y 		+= ../aead/tests/ascon_crypt_test.o
+endif
+
 ifdef CONFIG_LEANCRYPTO_SHA3
+leancrypto-$(CONFIG_LEANCRYPTO_ASCON_CRYPT)				       \
+				+= ../aead/src/ascon_keccak.o
 obj-m		  		+= ascon_keccak_crypt_test.o
 obj-m		  		+= ascon_keccak_crypt_iuf_test.o
 ascon_keccak_crypt_test-y 	+= ../aead/tests/ascon_keccak_crypt_test.o
 ascon_keccak_crypt_iuf_test-y 	+= ../aead/tests/ascon_keccak_crypt_iuf_test.o
 endif
+
 endif
+
 
 # DRNG implementation
 ccflags-y	  		+= -I$(PWD)/../drng/api -I$(PWD)/../drng/src

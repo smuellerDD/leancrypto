@@ -163,7 +163,7 @@ if get_option('hash_crypt').enabled()
 				dependencies: leancrypto
 				)
 	test('AEAD Ascon Keccak', ascon_keccak_crypt_test)
-	test('AEAD Ascon Keccak', ascon_keccak_crypt_iuf_test)
+	test('AEAD Ascon Keccak IUF', ascon_keccak_crypt_iuf_test)
 	test('AEAD Ascon Keccak 256/512 Accel 1GB',
 	     ascon_keccak_crypt_large_test_512,
 	     timeout: 2500, is_parallel: false)
@@ -177,4 +177,14 @@ if get_option('hash_crypt').enabled()
 	     ascon_keccak_crypt_large_test_256_c,
 	     timeout: 2500, is_parallel: false)
 
+endif
+
+if get_option('hash_crypt').enabled()
+
+	ascon_crypt_test = executable('ascon_crypt_test',
+				[ 'ascon_crypt_test.c', internal_src ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto
+				)
+	test('AEAD Ascon', ascon_crypt_test)
 endif

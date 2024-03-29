@@ -88,8 +88,8 @@ static void lc_ak_selftest(int *tested, const char *impl)
 		0x53, 0x9a, 0x74, 0x8e
 	};
 	static const uint8_t exp_tag[] = {
-		0x79, 0xd0, 0x7e, 0x7a, 0xb6, 0x79, 0x7d, 0x14,
-		0x0e, 0x6b, 0xe6, 0xe9, 0x64, 0xdb, 0x59, 0x14,
+		0xc1, 0x28, 0xff, 0xfd, 0x4e, 0xe2, 0x75, 0x6a, 0x87, 0x9c,
+		0xdd, 0xcb, 0x22, 0x8e, 0x26, 0xe1
 	};
 	uint8_t act_ct[sizeof(exp_ct)] __align(sizeof(uint32_t));
 	uint8_t act_tag[sizeof(exp_tag)] __align(sizeof(uint32_t));
@@ -122,10 +122,11 @@ int lc_ak_setiv(struct lc_ascon_cryptor *ascon, size_t keylen)
 	uint64_t *state_mem = ascon->state;
 	static int tested = 0;
 
-	lc_ak_selftest(&tested, "Asacon Keccak AEAD");
-
 	switch (hash->rate) {
 	case 0x240 / 8: /* Keccak security level 512 bits */
+
+		lc_ak_selftest(&tested, "Asacon Keccak AEAD");
+
 		switch (keylen) {
 		case 32:
 			state_mem[0] = LC_AEAD_ASCON_KECCAK_256_512_IV;
@@ -141,6 +142,9 @@ int lc_ak_setiv(struct lc_ascon_cryptor *ascon, size_t keylen)
 
 		break;
 	case 0x440 / 8: /* Keccak security level 256 bits */
+
+		lc_ak_selftest(&tested, "Asacon Keccak AEAD");
+
 		if (keylen != 32)
 			return -EINVAL;
 		state_mem[0] = LC_AEAD_ASCON_KECCAK_256_256_IV;
@@ -162,7 +166,7 @@ LC_INTERFACE_FUNCTION(int, lc_ak_alloc, const struct lc_hash *hash,
 	struct lc_ascon_cryptor *ascon;
 	int ret;
 
-	ret = lc_alloc_aligned((void **)&tmp, LC_ASCON_KECCAK_ALIGNMENT,
+	ret = lc_alloc_aligned((void **)&tmp, LC_ASCON_ALIGNMENT,
 			       LC_AK_CTX_SIZE(hash));
 	if (ret)
 		return -ret;

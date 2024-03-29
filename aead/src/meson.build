@@ -6,7 +6,7 @@ if get_option('hash_crypt').enabled()
 
 	include_files += files([
 		'../api/lc_aead.h',
-		'../api/lc_ascon.h',
+		'../api/lc_ascon_aead.h',
 		'../api/lc_cshake_crypt.h',
 		'../api/lc_hash_crypt.h',
 		'../api/lc_kmac_crypt.h',
@@ -14,7 +14,7 @@ if get_option('hash_crypt').enabled()
 
 	aead_src_files = files([
 				'ascon.c',
-				'ascon_ascon.c',
+				'ascon_lightweight.c',
 				'cshake_crypt.c',
 				'kmac_crypt.c'
 			       ])

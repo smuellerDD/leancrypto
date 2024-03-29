@@ -115,6 +115,15 @@ static void keccak_arm_neon_squeeze(void *_state, uint8_t *digest)
 	LC_NEON_DISABLE;
 }
 
+static void keccak_arm_neon_permutation(void *state, unsigned int rounds)
+{
+	(void)rounds;
+
+	LC_NEON_ENABLE;
+	KeccakP1600_Permute_24rounds((uint64_t *)state);
+	LC_NEON_DISABLE;
+}
+
 static void keccak_arm_neon_add_bytes(void *state, const uint8_t *data,
 				      unsigned int offset, unsigned int length)
 {
@@ -143,7 +152,7 @@ static const struct lc_hash _sha3_224_arm_neon = {
 	.final = keccak_arm_neon_squeeze,
 	.set_digestsize = NULL,
 	.get_digestsize = sha3_224_digestsize,
-	.sponge_permutation = KeccakP1600_Permute_24rounds,
+	.sponge_permutation = keccak_arm_neon_permutation,
 	.sponge_add_bytes = keccak_arm_neon_add_bytes,
 	.sponge_extract_bytes = keccak_arm_neon_extract_bytes,
 	.sponge_newstate = keccak_arm_neon_newstate,
@@ -159,7 +168,7 @@ static const struct lc_hash _sha3_256_arm_neon = {
 	.final = keccak_arm_neon_squeeze,
 	.set_digestsize = NULL,
 	.get_digestsize = sha3_256_digestsize,
-	.sponge_permutation = KeccakP1600_Permute_24rounds,
+	.sponge_permutation = keccak_arm_neon_permutation,
 	.sponge_add_bytes = keccak_arm_neon_add_bytes,
 	.sponge_extract_bytes = keccak_arm_neon_extract_bytes,
 	.sponge_newstate = keccak_arm_neon_newstate,
@@ -175,7 +184,7 @@ static const struct lc_hash _sha3_384_arm_neon = {
 	.final = keccak_arm_neon_squeeze,
 	.set_digestsize = NULL,
 	.get_digestsize = sha3_384_digestsize,
-	.sponge_permutation = KeccakP1600_Permute_24rounds,
+	.sponge_permutation = keccak_arm_neon_permutation,
 	.sponge_add_bytes = keccak_arm_neon_add_bytes,
 	.sponge_extract_bytes = keccak_arm_neon_extract_bytes,
 	.sponge_newstate = keccak_arm_neon_newstate,
@@ -191,7 +200,7 @@ static const struct lc_hash _sha3_512_arm_neon = {
 	.final = keccak_arm_neon_squeeze,
 	.set_digestsize = NULL,
 	.get_digestsize = sha3_512_digestsize,
-	.sponge_permutation = KeccakP1600_Permute_24rounds,
+	.sponge_permutation = keccak_arm_neon_permutation,
 	.sponge_add_bytes = keccak_arm_neon_add_bytes,
 	.sponge_extract_bytes = keccak_arm_neon_extract_bytes,
 	.sponge_newstate = keccak_arm_neon_newstate,
@@ -207,7 +216,7 @@ static const struct lc_hash _shake128_arm_neon = {
 	.final = keccak_arm_neon_squeeze,
 	.set_digestsize = shake_set_digestsize,
 	.get_digestsize = shake_get_digestsize,
-	.sponge_permutation = KeccakP1600_Permute_24rounds,
+	.sponge_permutation = keccak_arm_neon_permutation,
 	.sponge_add_bytes = keccak_arm_neon_add_bytes,
 	.sponge_extract_bytes = keccak_arm_neon_extract_bytes,
 	.sponge_newstate = keccak_arm_neon_newstate,
@@ -223,7 +232,7 @@ static const struct lc_hash _shake256_arm_neon = {
 	.final = keccak_arm_neon_squeeze,
 	.set_digestsize = shake_set_digestsize,
 	.get_digestsize = shake_get_digestsize,
-	.sponge_permutation = KeccakP1600_Permute_24rounds,
+	.sponge_permutation = keccak_arm_neon_permutation,
 	.sponge_add_bytes = keccak_arm_neon_add_bytes,
 	.sponge_extract_bytes = keccak_arm_neon_extract_bytes,
 	.sponge_newstate = keccak_arm_neon_newstate,
@@ -239,7 +248,7 @@ static const struct lc_hash _cshake128_arm_neon = {
 	.final = keccak_arm_neon_squeeze,
 	.set_digestsize = shake_set_digestsize,
 	.get_digestsize = shake_get_digestsize,
-	.sponge_permutation = KeccakP1600_Permute_24rounds,
+	.sponge_permutation = keccak_arm_neon_permutation,
 	.sponge_add_bytes = keccak_arm_neon_add_bytes,
 	.sponge_extract_bytes = keccak_arm_neon_extract_bytes,
 	.sponge_newstate = keccak_arm_neon_newstate,
@@ -255,7 +264,7 @@ static const struct lc_hash _cshake256_arm_neon = {
 	.final = keccak_arm_neon_squeeze,
 	.set_digestsize = shake_set_digestsize,
 	.get_digestsize = shake_get_digestsize,
-	.sponge_permutation = KeccakP1600_Permute_24rounds,
+	.sponge_permutation = keccak_arm_neon_permutation,
 	.sponge_add_bytes = keccak_arm_neon_add_bytes,
 	.sponge_extract_bytes = keccak_arm_neon_extract_bytes,
 	.sponge_newstate = keccak_arm_neon_newstate,
