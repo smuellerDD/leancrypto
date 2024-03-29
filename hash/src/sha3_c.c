@@ -156,6 +156,73 @@ static inline void keccakp_1600(uint64_t s[25])
 	}
 }
 
+/************************ Raw Keccak Sponge Operations *************************
+ *
+ * NOTE: This handling code is almost identical to the original Ascon sponge
+ * operation code found in ascon_c.c. The only difference is that the Keccak
+ * code stores the data into the Keccak state in little-endian whereas
+ * the Ascon code operates in big-endian. This difference should not have
+ * any impact on the cryptographic strength. However, it has an impact on
+ * interoperability as the ciphertext / tag differs.
+ *
+ * The decision to use little-endian code is based on the following: most
+ * systems are little-endian today which implies that little-endian code
+ * spares byte-swaps. Furthermore, it allows direct use of accelerated
+ * Keccak implementations as they handle the data also in little-endian format.
+ */
+
+#if !defined(LC_BIG_ENDIAN) || defined(__BIG_ENDIAN)
+
+/*
+ * This function works on both endianesses, but since it has more code than
+ * the little endian code base, there is a special case for little endian.
+ */
+static inline void sha3_fill_state_bytes(uint64_t *state, const uint8_t *in,
+					 size_t byte_offset, size_t inlen)
+{
+	sponge_fill_state_bytes(state, in, byte_offset, inlen, le_bswap64);
+}
+
+#elif defined(LC_LITTLE_ENDIAN) || defined(__LITTLE_ENDIAN)
+
+static inline void sha3_fill_state_bytes(uint64_t *state, const uint8_t *in,
+					   size_t byte_offset, size_t inlen)
+{
+	uint8_t *_state = (uint8_t *)state;
+
+	xor_64(_state + byte_offset, in, inlen);
+}
+
+#else
+#error "Endianess not defined"
+#endif
+
+static void keccak_c_permutation(void *state, unsigned int rounds)
+{
+	(void)rounds;
+	keccakp_1600((uint64_t *)state);
+}
+
+static void keccak_c_add_bytes(void *state, const uint8_t *data,
+			       unsigned int offset, unsigned int length)
+{
+	sha3_fill_state_bytes((uint64_t *)state, data, offset, length);
+}
+
+static void keccak_c_extract_bytes(const void *state, uint8_t *data,
+				   size_t offset, size_t length)
+{
+	sponge_extract_bytes(state, data, offset, length,
+			     LC_SHA3_STATE_WORDS, le_bswap64, le_bswap32,
+			     le64_to_ptr, le32_to_ptr);
+}
+
+static void keccak_c_newstate(void *state, const uint8_t *data, size_t offset,
+			      size_t length)
+{
+	sponge_newstate(state, data, offset, length, le_bswap64);
+}
+
 /*********************************** SHA-3 ************************************/
 
 static inline void sha3_ctx_init(void *_state)
@@ -165,14 +232,12 @@ static inline void sha3_ctx_init(void *_state)
 	 * the largest state.
 	 */
 	struct lc_sha3_224_state *ctx = _state;
-	unsigned int i;
 
 	/*
 	 * Zeroize the actual state which is required by some implementations
 	 * like ARM-CE.
 	 */
-	for (i = 0; i < LC_SHA3_STATE_WORDS; i++)
-		ctx->state[i] = 0;
+	sha3_state_init(ctx->state);
 
 	ctx->msg_len = 0;
 	ctx->squeeze_more = 0;
@@ -203,7 +268,6 @@ static void sha3_224_init(void *_state)
 
 	sha3_224_selftest_common(lc_sha3_224_c, &tested, "SHA3-224 C");
 	sha3_224_init_common(_state);
-	sha3_state_init(ctx->state);
 }
 
 size_t sha3_224_digestsize(void *_state)
@@ -236,7 +300,6 @@ static void sha3_256_init(void *_state)
 
 	sha3_256_selftest_common(lc_sha3_256_c, &tested, "SHA3-256 C");
 	sha3_256_init_common(_state);
-	sha3_state_init(ctx->state);
 }
 
 size_t sha3_256_digestsize(void *_state)
@@ -269,7 +332,6 @@ static void sha3_384_init(void *_state)
 
 	sha3_384_selftest_common(lc_sha3_384_c, &tested, "SHA3-384 C");
 	sha3_384_init_common(_state);
-	sha3_state_init(ctx->state);
 }
 
 size_t sha3_384_digestsize(void *_state)
@@ -302,7 +364,6 @@ static void sha3_512_init(void *_state)
 
 	sha3_512_selftest_common(lc_sha3_512_c, &tested, "SHA3-512 C");
 	sha3_512_init_common(_state);
-	sha3_state_init(ctx->state);
 }
 
 size_t sha3_512_digestsize(void *_state)
@@ -335,7 +396,6 @@ static void shake_128_init(void *_state)
 
 	shake128_selftest_common(lc_shake128_c, &tested, "SHAKE128 C");
 	shake_128_init_common(_state);
-	sha3_state_init(ctx->state);
 }
 
 void shake_256_init_common(void *_state)
@@ -362,7 +422,6 @@ static void shake_256_init(void *_state)
 
 	shake256_selftest_common(lc_shake256_c, &tested, "SHAKE256 C");
 	shake_256_init_common(_state);
-	sha3_state_init(ctx->state);
 }
 
 void cshake_256_init_common(void *_state)
@@ -389,7 +448,6 @@ static void cshake_256_init(void *_state)
 
 	cshake256_selftest_common(lc_cshake256_c, &tested, "cSHAKE256 C");
 	cshake_256_init_common(_state);
-	sha3_state_init(ctx->state);
 }
 
 void cshake_128_init_common(void *_state)
@@ -416,7 +474,6 @@ static void cshake_128_init(void *_state)
 
 	cshake128_selftest_common(lc_cshake128_c, &tested, "cSHAKE128 C");
 	cshake_128_init_common(_state);
-	sha3_state_init(ctx->state);
 }
 
 /*
@@ -434,13 +491,6 @@ static inline void sha3_fill_state(struct lc_sha3_224_state *ctx,
 	}
 }
 
-static inline int sha3_aligned(const uint8_t *ptr, uint32_t alignmask)
-{
-	if ((uintptr_t)ptr & alignmask)
-		return 0;
-	return 1;
-}
-
 static inline void sha3_fill_state_aligned(struct lc_sha3_224_state *ctx,
 					   const uint64_t *in)
 {
@@ -451,33 +501,6 @@ static inline void sha3_fill_state_aligned(struct lc_sha3_224_state *ctx,
 		in++;
 	}
 }
-
-#if !defined(LC_BIG_ENDIAN) || defined(__BIG_ENDIAN)
-
-/*
- * This function works on both endianesses, but since it has more code than
- * the little endian code base, there is a special case for little endian.
- */
-static inline void sha3_fill_state_bytes(uint64_t *state, const uint8_t *in,
-					 size_t byte_offset, size_t inlen)
-{
-	sponge_fill_state_bytes(state, in, byte_offset, inlen, le_bswap64);
-}
-
-#elif defined(LC_LITTLE_ENDIAN) || defined(__LITTLE_ENDIAN)
-
-static inline void sha3_fill_state_bytes(uint64_t *state, const uint8_t *in,
-					   size_t byte_offset, size_t inlen)
-{
-	uint8_t *_state = (uint8_t *)state;
-
-	xor_64(_state + byte_offset, in, inlen);
-}
-
-#else
-#error "Endianess not defined"
-#endif
-
 
 static void keccak_absorb(void *_state, const uint8_t *in, size_t inlen)
 {
@@ -522,7 +545,7 @@ static void keccak_absorb(void *_state, const uint8_t *in, size_t inlen)
 	}
 
 	/* Perform a transformation of full block-size messages */
-	if (sha3_aligned(in, sizeof(uint64_t) - 1)) {
+	if (mem_aligned(in, sizeof(uint64_t) - 1)) {
 		for (; inlen >= ctx->r; inlen -= ctx->r, in += ctx->r) {
 			/* 
 			 * We can ignore the alignment warning as we checked
@@ -552,9 +575,7 @@ static void keccak_squeeze(void *_state, uint8_t *digest)
 	 * the largest state.
 	 */
 	struct lc_sha3_224_state *ctx = _state;
-	size_t i, digest_len;
-	uint32_t part;
-	volatile uint32_t *part_p;
+	size_t digest_len;
 
 	if (!ctx || !digest)
 		return;
@@ -578,126 +599,19 @@ static void keccak_squeeze(void *_state, uint8_t *digest)
 	}
 
 	while (digest_len) {
-		unsigned int j;
-		uint8_t todo_64, todo_32;
-
 		/* How much data can we squeeze considering current state? */
 		uint8_t todo = ctx->r - ctx->offset;
 
 		/* Limit the data to be squeezed by the requested amount. */
 		todo = (uint8_t)((digest_len > todo) ? todo : digest_len);
 
-		digest_len -= todo;
-
-		if (ctx->offset) {
-			/*
-			 * Access requests when squeezing more data that
-			 * happens to be not aligned with the block size of
-			 * the used SHAKE algorithm are processed byte-wise.
-			 */
-			size_t word, byte;
-
-			for (i = ctx->offset; i < todo + ctx->offset;
-			     i++, digest++) {
-				word = i / sizeof(ctx->state[0]);
-				byte = (i % sizeof(ctx->state[0])) << 3;
-
-				*digest = (uint8_t)(ctx->state[word] >> byte);
-			}
-
-			/* Advance the offset */
-			ctx->offset += todo;
-			/* Wrap the offset at block size */
-			ctx->offset %= ctx->r;
-			continue;
-		}
-
-		/*
-		 * Access to obtain blocks without offset are implemented
-		 * with streamlined memory access.
-		 */
-
-		/* Generate new keccak block */
 		keccakp_1600(ctx->state);
 
-		/* Advance the offset */
-		ctx->offset += todo;
-		/* Wrap the offset at block size */
-		ctx->offset %= ctx->r;
+		keccak_c_extract_bytes(ctx->state, digest, ctx->offset, todo);
 
-		/* How much 64-bit aligned data can we obtain? */
-		todo_64 = todo >> 3;
-
-		/* How much 32-bit aligned data can we obtain? */
-		todo_32 = (uint8_t)((todo - (todo_64 << 3)) >> 2);
-
-		/* How much non-aligned do we have to obtain? */
-		todo -= (uint8_t)(((todo_64 << 3) + (todo_32 << 2)));
-
-		/* Sponge squeeze phase */
-
-		/* 64-bit aligned request */
-		for (i = 0; i < todo_64; i++, digest += 8)
-			le64_to_ptr(digest, ctx->state[i]);
-
-		if (todo_32) {
-			/* 32-bit aligned request */
-			le32_to_ptr(digest, (uint32_t)(ctx->state[i]));
-			digest += 4;
-			part = (uint32_t)(ctx->state[i] >> 32);
-		} else {
-			/* non-aligned request */
-			part = (uint32_t)(ctx->state[i]);
-		}
-
-		for (j = 0; j < (unsigned int)(todo << 3); j += 8, digest++)
-			*digest = (uint8_t)(part >> j);
+		digest += todo;
+		digest_len -= todo;
 	}
-
-	/* Zeroization */
-	part_p = &part;
-	*part_p = 0;
-}
-
-/************************ Raw Keccak Sponge Operations *************************
- *
- * NOTE: This handling code is almost identical to the original Ascon sponge
- * operation code found in ascon_c.c. The only difference is that the Keccak
- * code stores the data into the Keccak state in little-endian whereas
- * the Ascon code operates in big-endian. This difference should not have
- * any impact on the cryptographic strength. However, it has an impact on
- * interoperability as the ciphertext / tag differs.
- *
- * The decision to use little-endian code is based on the following: most
- * systems are little-endian today which implies that little-endian code
- * spares byte-swaps. Furthermore, it allows direct use of accelerated
- * Keccak implementations as they handle the data also in little-endian format.
- */
-
-static void keccak_c_permutation(void *state, unsigned int rounds)
-{
-	(void)rounds;
-	keccakp_1600((uint64_t *)state);
-}
-
-static void keccak_c_add_bytes(void *state, const uint8_t *data,
-			       unsigned int offset, unsigned int length)
-{
-	sha3_fill_state_bytes((uint64_t *)state, data, offset, length);
-}
-
-static void keccak_c_extract_bytes(const void *state, uint8_t *data,
-				   size_t offset, size_t length)
-{
-	sponge_extract_bytes(state, data, offset, length,
-			     LC_SHA3_STATE_WORDS, le_bswap64, le_bswap32,
-			     le64_to_ptr, le32_to_ptr);
-}
-
-static void keccak_c_newstate(void *state, const uint8_t *data, size_t offset,
-			      size_t length)
-{
-	sponge_newstate(state, data, offset, length, le_bswap64);
 }
 
 void shake_set_digestsize(void *_state, size_t digestsize)
@@ -724,7 +638,7 @@ static const struct lc_hash _sha3_224_c = {
 	.sponge_add_bytes = keccak_c_add_bytes,
 	.sponge_extract_bytes = keccak_c_extract_bytes,
 	.sponge_newstate = keccak_c_newstate,
-	.rate = LC_SHA3_224_SIZE_BLOCK,
+	.sponge_rate = LC_SHA3_224_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_224_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_224_c) = &_sha3_224_c;
@@ -739,7 +653,7 @@ static const struct lc_hash _sha3_256_c = {
 	.sponge_add_bytes = keccak_c_add_bytes,
 	.sponge_extract_bytes = keccak_c_extract_bytes,
 	.sponge_newstate = keccak_c_newstate,
-	.rate = LC_SHA3_256_SIZE_BLOCK,
+	.sponge_rate = LC_SHA3_256_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_256_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_256_c) = &_sha3_256_c;
@@ -754,7 +668,7 @@ static const struct lc_hash _sha3_384_c = {
 	.sponge_add_bytes = keccak_c_add_bytes,
 	.sponge_extract_bytes = keccak_c_extract_bytes,
 	.sponge_newstate = keccak_c_newstate,
-	.rate = LC_SHA3_384_SIZE_BLOCK,
+	.sponge_rate = LC_SHA3_384_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_384_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_384_c) = &_sha3_384_c;
@@ -769,7 +683,7 @@ static const struct lc_hash _sha3_512_c = {
 	.sponge_add_bytes = keccak_c_add_bytes,
 	.sponge_extract_bytes = keccak_c_extract_bytes,
 	.sponge_newstate = keccak_c_newstate,
-	.rate = LC_SHA3_512_SIZE_BLOCK,
+	.sponge_rate = LC_SHA3_512_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_512_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_512_c) = &_sha3_512_c;
@@ -784,7 +698,7 @@ static const struct lc_hash _shake128_c = {
 	.sponge_add_bytes = keccak_c_add_bytes,
 	.sponge_extract_bytes = keccak_c_extract_bytes,
 	.sponge_newstate = keccak_c_newstate,
-	.rate = LC_SHAKE_128_SIZE_BLOCK,
+	.sponge_rate = LC_SHAKE_128_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_shake_128_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake128_c) = &_shake128_c;
@@ -799,7 +713,7 @@ static const struct lc_hash _shake256_c = {
 	.sponge_add_bytes = keccak_c_add_bytes,
 	.sponge_extract_bytes = keccak_c_extract_bytes,
 	.sponge_newstate = keccak_c_newstate,
-	.rate = LC_SHA3_256_SIZE_BLOCK,
+	.sponge_rate = LC_SHA3_256_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_256_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake256_c) = &_shake256_c;
@@ -814,7 +728,7 @@ static const struct lc_hash _cshake256_c = {
 	.sponge_add_bytes = keccak_c_add_bytes,
 	.sponge_extract_bytes = keccak_c_extract_bytes,
 	.sponge_newstate = keccak_c_newstate,
-	.rate = LC_SHA3_256_SIZE_BLOCK,
+	.sponge_rate = LC_SHA3_256_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_256_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_cshake256_c) = &_cshake256_c;
@@ -829,7 +743,7 @@ static const struct lc_hash _cshake128_c = {
 	.sponge_add_bytes = keccak_c_add_bytes,
 	.sponge_extract_bytes = keccak_c_extract_bytes,
 	.sponge_newstate = keccak_c_newstate,
-	.rate = LC_SHAKE_128_SIZE_BLOCK,
+	.sponge_rate = LC_SHAKE_128_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_shake_128_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_cshake128_c) = &_cshake128_c;
