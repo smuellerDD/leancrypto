@@ -45,7 +45,7 @@ struct lc_hash {
 	void (*sponge_newstate)(void *state, const uint8_t *newstate,
 				size_t offset, size_t length);
 
-	uint8_t rate;
+	uint8_t sponge_rate;
 	unsigned short statesize;
 };
 
@@ -250,7 +250,7 @@ static inline unsigned int lc_hash_blocksize(struct lc_hash_ctx *hash_ctx)
 		return 0;
 
 	hash = hash_ctx->hash;
-	return hash->rate;
+	return hash->sponge_rate;
 }
 
 /**
@@ -340,10 +340,10 @@ void lc_hash(const struct lc_hash *hash, const uint8_t *in, size_t inlen,
 	     uint8_t *digest);
 
 /**
- * @brief Calculate message digest for SHAKE - one-shot
+ * @brief Calculate message digest for an XOF - one-shot
  *
- * @param [in] shake Reference to hash implementation to be used to perform
- *		     hash calculation with.
+ * @param [in] xof Reference to hash implementation to be used to perform
+ *		   hash calculation with.
  * @param [in] in Buffer holding the data whose MAC shall be calculated
  * @param [in] inlen Length of the input buffer
  * @param [out] digest Buffer with at least the size of the message digest.
@@ -351,8 +351,8 @@ void lc_hash(const struct lc_hash *hash, const uint8_t *in, size_t inlen,
  *
  * The hash calculation operates entirely on the stack.
  */
-void lc_shake(const struct lc_hash *shake, const uint8_t *in, size_t inlen,
-	      uint8_t *digest, size_t digestlen);
+void lc_xof(const struct lc_hash *xof, const uint8_t *in, size_t inlen,
+	    uint8_t *digest, size_t digestlen);
 
 /**
  * @brief Perform Sponge permutation on buffer

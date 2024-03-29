@@ -111,7 +111,7 @@ void shake128_selftest_common(const struct lc_hash *shake128, int *tested,
 
 	LC_SELFTEST_RUN(tested);
 
-	lc_shake(shake128, msg, sizeof(msg), act, sizeof(act));
+	lc_xof(shake128, msg, sizeof(msg), act, sizeof(act));
 	lc_compare_selftest(act, exp, sizeof(exp), impl);
 }
 
@@ -132,7 +132,7 @@ void shake256_selftest_common(const struct lc_hash *shake256, int *tested,
 
 	LC_SELFTEST_RUN(tested);
 
-	lc_shake(shake256, msg, sizeof(msg), act, sizeof(act));
+	lc_xof(shake256, msg, sizeof(msg), act, sizeof(act));
 	lc_compare_selftest(act, exp, sizeof(exp), impl);
 }
 

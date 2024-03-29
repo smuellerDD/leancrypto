@@ -272,7 +272,7 @@ static const struct lc_hash _sha512 = {
 	.sponge_add_bytes = NULL,
 	.sponge_extract_bytes = NULL,
 	.sponge_newstate = NULL,
-	.rate = LC_SHA512_SIZE_BLOCK,
+	.sponge_rate = LC_SHA512_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha512_state),
 };
 

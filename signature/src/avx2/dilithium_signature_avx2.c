@@ -128,8 +128,8 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_avx2,
 	/* Get randomness for rho, rhoprime and key */
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, ws->seedbuf,
 			      LC_DILITHIUM_SEEDBYTES));
-	lc_shake(lc_shake256, ws->seedbuf, LC_DILITHIUM_SEEDBYTES, ws->seedbuf,
-		 sizeof(ws->seedbuf));
+	lc_xof(lc_shake256, ws->seedbuf, LC_DILITHIUM_SEEDBYTES, ws->seedbuf,
+	       sizeof(ws->seedbuf));
 
 	rho = ws->seedbuf;
 	rhoprime = rho + LC_DILITHIUM_SEEDBYTES;
@@ -202,8 +202,8 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_avx2,
 	}
 
 	/* Compute H(rho, t1) and store in secret key */
-	lc_shake(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES,
-		 sk->sk + 2 * LC_DILITHIUM_SEEDBYTES, LC_DILITHIUM_TRBYTES);
+	lc_xof(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES,
+	       sk->sk + 2 * LC_DILITHIUM_SEEDBYTES, LC_DILITHIUM_TRBYTES);
 
 out:
 	LC_RELEASE_MEM(ws);
@@ -262,7 +262,7 @@ static int lc_dilithium_sign_avx2_internal(struct lc_dilithium_sig *sig,
 	}
 
 	unpack_sk_key_avx2(key, sk);
-	lc_shake(lc_shake256, key,
+	lc_xof(lc_shake256, key,
 		 LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_RNDBYTES +
 			 LC_DILITHIUM_CRHBYTES,
 		 rhoprime, LC_DILITHIUM_CRHBYTES);
@@ -598,7 +598,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_avx2,
 				lc_dilithium_verify_avx2);
 
 	/* Compute CRH(H(rho, t1), msg) */
-	lc_shake(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES, tr,
+	lc_xof(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES, tr,
 		 LC_DILITHIUM_TRBYTES);
 
 	lc_hash_init(hash_ctx);
@@ -631,7 +631,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_init_avx2,
 				lc_dilithium_verify_avx2);
 
 	/* Compute CRH(H(rho, t1), msg) */
-	lc_shake(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES, tr,
+	lc_xof(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES, tr,
 		 LC_DILITHIUM_TRBYTES);
 
 	lc_hash_init(hash_ctx);
