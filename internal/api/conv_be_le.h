@@ -68,19 +68,69 @@ static inline uint64_t _lc_bswap64(uint64_t x)
 
 /* Endian dependent byte swap operations.  */
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-#define le_bswap16(x) _lc_swap16(x)
-#define be_bswap16(x) ((uint16_t)(x))
-#define le_bswap32(x) _lc_swap32(x)
-#define be_bswap32(x) ((uint32_t)(x))
-#define le_bswap64(x) _lc_swap64(x)
-#define be_bswap64(x) ((uint64_t)(x))
+
+static inline uint16_t le_bswap16(uint16_t x)
+{
+	return _lc_swap16(x);
+}
+
+static inline uint16_t be_bswap16(uint16_t x)
+{
+	return x;
+}
+
+static inline uint32_t le_bswap32(uint32_t x)
+{
+	return _lc_swap32(x);
+}
+
+static inline uint32_t be_bswap32(uint32_t x)
+{
+	return x;
+}
+
+static inline uint64_t le_bswap64(uint64_t x)
+{
+	return _lc_swap64(x);
+}
+
+static inline uint64_t be_bswap64(uint64_t x)
+{
+	return x;
+}
+
 #elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-#define le_bswap16(x) ((uint16_t)(x))
-#define be_bswap16(x) _lc_swap16(x)
-#define le_bswap32(x) ((uint32_t)(x))
-#define be_bswap32(x) _lc_swap32(x)
-#define le_bswap64(x) ((uint64_t)(x))
-#define be_bswap64(x) _lc_swap64(x)
+
+static inline uint16_t le_bswap16(uint16_t x)
+{
+	return x;
+}
+
+static inline uint16_t be_bswap16(uint16_t x)
+{
+	return _lc_swap16(x);
+}
+
+static inline uint32_t le_bswap32(uint32_t x)
+{
+	return x;
+}
+
+static inline uint32_t be_bswap32(uint32_t x)
+{
+	return _lc_swap32(x);
+}
+
+static inline uint64_t le_bswap64(uint64_t x)
+{
+	return x;
+}
+
+static inline uint64_t be_bswap64(uint64_t x)
+{
+	return _lc_swap64(x);
+}
+
 #else
 #error "Endianess not defined"
 #endif
