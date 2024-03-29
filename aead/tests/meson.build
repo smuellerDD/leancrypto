@@ -186,5 +186,11 @@ if get_option('hash_crypt').enabled()
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto
 				)
+	ascon_crypt_iuf_test = executable('ascon_crypt_iuf_test',
+				[ 'ascon_crypt_iuf_test.c', internal_src ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto
+				)
 	test('AEAD Ascon', ascon_crypt_test)
+	test('AEAD Ascon IUF', ascon_crypt_iuf_test)
 endif

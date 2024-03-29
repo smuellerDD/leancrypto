@@ -126,9 +126,9 @@ static int ak_tester_one(const struct lc_hash *hash, const uint8_t *pt,
 	/* One shot decryption with pt ptr != ct ptr */
 	if (lc_aead_setkey(ak, key, keylen, iv, ivlen))
 		return -EFAULT;
-	lc_aead_enc_init(ak, aad, aadlen);
+	lc_aead_dec_init(ak, aad, aadlen);
 	ak_tester_dec(ak, out_enc, out_dec, ptlen);
-	ret = lc_aead_enc_final(ak, tag, exp_tag_len);
+	ret = lc_aead_dec_final(ak, tag, exp_tag_len);
 	//bin2print(out_dec, ptlen, stderr, "out_enc");
 	lc_aead_zero(ak);
 	if (ret < 0)
@@ -142,7 +142,7 @@ static int ak_tester_one(const struct lc_hash *hash, const uint8_t *pt,
 		return -EFAULT;
 
 	out_enc[0] = (uint8_t)((out_enc[0] + 1) & 0xff);
-	lc_aead_enc_init(ak, aad, aadlen);
+	lc_aead_dec_init(ak, aad, aadlen);
 	ak_tester_dec(ak, out_enc, out_dec, ptlen);
 	ret = lc_aead_dec_final(ak, tag, exp_tag_len);
 	lc_aead_zero(ak);
