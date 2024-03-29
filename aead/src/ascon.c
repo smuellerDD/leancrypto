@@ -116,7 +116,6 @@ static void lc_ascon_add_padbyte(struct lc_ascon_cryptor *ascon, size_t offset)
 {
 	const struct lc_hash *hash = ascon->hash;
 	static const uint8_t pad_data = 0x80;
-	uint64_t *state_mem = ascon->state;
 
 	/*
 	 * The data was exactly a multiple of the rate -> permute before adding
@@ -125,7 +124,7 @@ static void lc_ascon_add_padbyte(struct lc_ascon_cryptor *ascon, size_t offset)
 	if (offset == hash->rate)
 		offset = 0;
 
-	lc_sponge_add_bytes(hash, state_mem, &pad_data, (unsigned int)offset,
+	lc_sponge_add_bytes(hash, ascon->state, &pad_data, (unsigned int)offset,
 			    1);
 }
 
@@ -209,18 +208,27 @@ static void lc_ascon_enc_update(struct lc_ascon_cryptor *ascon,
 			plaintext += todo;
 			ciphertext += todo;
 			ascon->rate_offset = 0;
-
+			lc_sponge(hash, state_mem, ascon->roundb);
 		} else {
 			ascon->rate_offset += (uint8_t)todo;
 		}
-
-		lc_sponge(hash, state_mem, ascon->roundb);
 	}
 }
 
 static void lc_ascon_enc_final(struct lc_ascon_cryptor *ascon, uint8_t *tag,
 			       size_t taglen)
 {
+	const struct lc_hash *hash = ascon->hash;
+
+	/*
+	 * The _update function will not perform the final sponge call as
+	 * it does not know whether its invocation was the last one. When the
+	 * _final function is called, we know that no more data is sent and
+	 * we can unconditionally call the last sponge operation closing the
+	 * plaintext injection.
+	 */
+	lc_sponge(hash, ascon->state, ascon->roundb);
+
 	/*
 	 * Tag size can be at most the key size which in turn is smaller than
 	 * the capacity. Thus, all bits of the tag (a) are always affected by
@@ -289,6 +297,7 @@ static void lc_ascon_dec_update(struct lc_ascon_cryptor *ascon,
 		if (datalen) {
 			lc_sponge_newstate(hash, state_mem, ciphertext,
 					   ascon->rate_offset, todo);
+			lc_sponge(hash, ascon->state, ascon->roundb);
 
 			/*
 			 * Perform XOR operation here to ensure decryption in
@@ -318,9 +327,6 @@ static void lc_ascon_dec_update(struct lc_ascon_cryptor *ascon,
 			}
 			ascon->rate_offset += (uint8_t)todo;
 		}
-
-		lc_sponge(hash, ascon->state, ascon->roundb);
-
 	}
 
 	if (zero_tmp)
@@ -328,21 +334,25 @@ static void lc_ascon_dec_update(struct lc_ascon_cryptor *ascon,
 }
 
 /* Perform the authentication as the last step of the decryption operation */
-static int lc_ascon_dec_final(struct lc_ascon_cryptor *ak, const uint8_t *tag,
+static int lc_ascon_dec_final(struct lc_ascon_cryptor *ascon, const uint8_t *tag,
 			      size_t taglen)
 {
+	const struct lc_hash *hash = ascon->hash;;
 	uint8_t calctag[64] __align(sizeof(uint64_t));
 	int ret;
 
-	BUILD_BUG_ON(sizeof(calctag) != sizeof(ak->key));
+	BUILD_BUG_ON(sizeof(calctag) != sizeof(ascon->key));
 
 	if (taglen < 16)
 		return -EINVAL;
 
-	lc_ascon_add_padbyte(ak, ak->rate_offset);
+	/* See enc_final for a rationale why this sponge call is here. */
+	lc_sponge(hash, ascon->state, ascon->roundb);
+
+	lc_ascon_add_padbyte(ascon, ascon->rate_offset);
 
 	/* Finalization */
-	lc_ascon_finalization(ak, calctag, taglen);
+	lc_ascon_finalization(ascon, calctag, taglen);
 
 	ret = (lc_memcmp_secure(calctag, taglen, tag, taglen) ? -EBADMSG : 0);
 	lc_memset_secure(calctag, 0, taglen);
