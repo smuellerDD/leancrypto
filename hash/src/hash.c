@@ -50,11 +50,11 @@ LC_INTERFACE_FUNCTION(void, lc_hash, const struct lc_hash *hash,
 	lc_hash_zero(hash_ctx);
 }
 
-LC_INTERFACE_FUNCTION(void, lc_shake, const struct lc_hash *shake,
+LC_INTERFACE_FUNCTION(void, lc_xof, const struct lc_hash *xof,
 		      const uint8_t *in, size_t inlen, uint8_t *digest,
 		      size_t digestlen)
 {
-	LC_HASH_CTX_ON_STACK(hash_ctx, shake);
+	LC_HASH_CTX_ON_STACK(hash_ctx, xof);
 
 	lc_hash_init(hash_ctx);
 	lc_hash_update(hash_ctx, in, inlen);

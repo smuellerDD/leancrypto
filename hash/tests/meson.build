@@ -123,6 +123,35 @@ if get_option('sha3').enabled()
 	hasher = 1
 endif
 
+if get_option('ascon').enabled()
+	ascon_128_tester = executable('ascon_128_tester',
+				   [ 'ascon_128_tester.c', internal_src ],
+				   include_directories: [ include_internal_dirs ],
+				   dependencies: leancrypto
+				   )
+	ascon_128a_tester = executable('ascon_128a_tester',
+				   [ 'ascon_128a_tester.c', internal_src ],
+				   include_directories: [ include_internal_dirs ],
+				   dependencies: leancrypto
+				   )
+	ascon_xof_tester = executable('ascon_xof_tester',
+				   [ 'ascon_xof_tester.c', internal_src ],
+				   include_directories: [ include_internal_dirs ],
+				   dependencies: leancrypto
+				   )
+	ascon_xofa_tester = executable('ascon_xofa_tester',
+				   [ 'ascon_xofa_tester.c', internal_src ],
+				   include_directories: [ include_internal_dirs ],
+				   dependencies: leancrypto
+				   )
+
+	test('Hash Ascon 128', ascon_128_tester)
+	test('Hash Ascon 128a', ascon_128a_tester)
+	test('Hash Ascon XOF', ascon_xof_tester)
+	test('Hash Ascon XOFa', ascon_xofa_tester)
+	hasher = 1
+endif
+
 if (hasher == 1)
 	hasher = executable('hasher',
 				     [ 'hasher.c', internal_src ],

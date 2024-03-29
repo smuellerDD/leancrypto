@@ -18,6 +18,7 @@
  */
 
 #include "ascon_internal.h"
+#include "build_bug_on.h"
 #include "lc_ascon_lightweight.h"
 #include "visibility.h"
 
@@ -33,7 +34,10 @@ int lc_ascon_ascon_setiv(struct lc_ascon_cryptor *ascon, size_t keylen)
 	uint64_t *state_mem = ascon->state;
 //	static int tested = 0;
 
-	switch (hash->rate) {
+	/* Check that the key store is sufficiently large */
+	BUILD_BUG_ON(sizeof(ascon->key) < 64);
+
+	switch (hash->sponge_rate) {
 	case 128 / 8: /* Ascon 128a */
 		if (keylen != 16)
 			return -EINVAL;

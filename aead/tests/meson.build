@@ -191,6 +191,24 @@ if get_option('hash_crypt').enabled()
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto
 				)
+	ascon_crypt_large_test_128 = executable('ascon_crypt_large_test_128',
+				[ 'ascon_crypt_large_test_128.c',
+				  internal_src ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto
+				)
+	ascon_crypt_large_test_128a = executable('ascon_crypt_large_test_128a',
+				[ 'ascon_crypt_large_test_128a.c',
+				  internal_src ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto
+				)
 	test('AEAD Ascon', ascon_crypt_test)
 	test('AEAD Ascon IUF', ascon_crypt_iuf_test)
+	test('AEAD Ascon 128 1GB',
+	     ascon_crypt_large_test_128,
+	     timeout: 2500, is_parallel: false)
+	test('AEAD Ascon 128a 1GB',
+	     ascon_crypt_large_test_128a,
+	     timeout: 2500, is_parallel: false)
 endif

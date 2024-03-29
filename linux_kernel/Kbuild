@@ -423,7 +423,22 @@ leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
 				+= ../hash/src/sha3_riscv_asm_null.o
 
 leancrypto-$(CONFIG_LEANCRYPTO_ASCON_HASH)				       \
-				+= ../hash/src/ascon_c.o
+				+= ../hash/src/ascon_c.o		       \
+				   ../hash/src/ascon_selftest.o
+
+ifdef CONFIG_LEANCRYPTO_ASCON_HASH
+ccflags-y			+= -DCONFIG_LEANCRYPTO_SHA3
+
+obj-m				+= ascon_128a_tester.o
+obj-m				+= ascon_128_tester.o
+obj-m				+= ascon_xofa_tester.o
+obj-m				+= ascon_xof_tester.o
+
+ascon_128a_tester-y		+= ../hash/tests/ascon_128a_tester.o
+ascon_128_tester-y		+= ../hash/tests/ascon_128_tester.o
+ascon_xofa_tester-y		+= ../hash/tests/ascon_xofa_tester.o
+ascon_xof_tester-y		+= ../hash/tests/ascon_xof_tester.o
+endif
 
 # AEAD implementation
 ccflags-y	  		+= -I$(PWD)/../aead/api

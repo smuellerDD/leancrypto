@@ -140,7 +140,7 @@ if get_option('sha3').enabled()
 endif
 
 if get_option('ascon').enabled()
-	src += files([ 'ascon_c.c' ])
+	src += files([ 'ascon_c.c', 'ascon_selftest.c' ])
 	include_files += files([ '../api/lc_ascon_hash.h' ])
 	lc_hash = 1
 endif

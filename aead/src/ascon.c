@@ -121,7 +121,7 @@ static void lc_ascon_add_padbyte(struct lc_ascon_cryptor *ascon, size_t offset)
 	 * The data was exactly a multiple of the rate -> permute before adding
 	 * the padding byte.
 	 */
-	if (offset == hash->rate)
+	if (offset == hash->sponge_rate)
 		offset = 0;
 
 	lc_sponge_add_bytes(hash, ascon->state, &pad_data, (unsigned int)offset,
@@ -140,11 +140,11 @@ static void lc_ascon_aad(struct lc_ascon_cryptor *ascon, const uint8_t *aad,
 		return;
 
 	/* Authenticated Data - Insert into rate section of the state */
-	while (aadlen >= hash->rate) {
-		lc_sponge_add_bytes(hash, state_mem, aad, 0, hash->rate);
+	while (aadlen >= hash->sponge_rate) {
+		lc_sponge_add_bytes(hash, state_mem, aad, 0, hash->sponge_rate);
 
-		aadlen -= hash->rate;
-		aad += hash->rate;
+		aadlen -= hash->sponge_rate;
+		aad += hash->sponge_rate;
 
 		lc_sponge(hash, state_mem, ascon->roundb);
 	}
@@ -168,7 +168,7 @@ static void lc_ascon_finalization(struct lc_ascon_cryptor *ascon, uint8_t *tag,
 	uint8_t tag_offset = ascon->statesize - (uint8_t)taglen;
 
 	/* Finalization - Insert key into capacity */
-	lc_sponge_add_bytes(hash, state_mem, ascon->key, hash->rate,
+	lc_sponge_add_bytes(hash, state_mem, ascon->key, hash->sponge_rate,
 			    ascon->keylen);
 
 	/* Sponge permutation */
@@ -193,7 +193,7 @@ static void lc_ascon_enc_update(struct lc_ascon_cryptor *ascon,
 	size_t todo = 0;
 
 	while (datalen) {
-		todo = min_size(datalen, hash->rate - ascon->rate_offset);
+		todo = min_size(datalen, hash->sponge_rate - ascon->rate_offset);
 
 		lc_sponge_add_bytes(hash, state_mem, plaintext,
 				    ascon->rate_offset, (unsigned int)todo);
@@ -284,7 +284,7 @@ static void lc_ascon_dec_update(struct lc_ascon_cryptor *ascon,
 	}
 
 	while (datalen) {
-		todo = min_size(datalen, hash->rate - ascon->rate_offset);
+		todo = min_size(datalen, hash->sponge_rate - ascon->rate_offset);
 		lc_sponge_extract_bytes(hash, state_mem, pt_p,
 					ascon->rate_offset, (unsigned int)todo);
 

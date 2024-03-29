@@ -157,6 +157,22 @@ void lc_free(void *ptr);
  */
 void lc_free_high_aligned(void *ptr, size_t size);
 
+/**
+ * @brief Check if memory pointer is aligned to given alignment mask
+ *
+ * @param [in] ptr memory pointer to check
+ * @param [in] alignmask alignment mask to check for
+ *
+ * @return 1 if pointer is aligned, 0 if not aligned
+ */
+static inline int mem_aligned(const uint8_t *ptr, uint32_t alignmask)
+{
+	if ((uintptr_t)ptr & alignmask)
+		return 0;
+	return 1;
+}
+
+
 #ifdef __cplusplus
 }
 #endif

@@ -19,6 +19,7 @@
 
 #include "alignment.h"
 #include "ascon_internal.h"
+#include "build_bug_on.h"
 #include "compare.h"
 #include "lc_ascon_keccak.h"
 #include "lc_memory_support.h"
@@ -122,7 +123,10 @@ int lc_ak_setiv(struct lc_ascon_cryptor *ascon, size_t keylen)
 	uint64_t *state_mem = ascon->state;
 	static int tested = 0;
 
-	switch (hash->rate) {
+	/* Check that the key store is sufficiently large */
+	BUILD_BUG_ON(sizeof(ascon->key) < 64);
+
+	switch (hash->sponge_rate) {
 	case 0x240 / 8: /* Keccak security level 512 bits */
 
 		lc_ak_selftest(&tested, "Asacon Keccak AEAD");

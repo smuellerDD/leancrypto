@@ -8,6 +8,12 @@ Changes 0.10.0
 
 * enhancement: add Ascon AEAD 128 and 128b
 
+* rename API lc_shake to lc_xof
+
+* enhancement: add Ascon Hash 128 and 128a
+
+* enhancement: add Ascon XOF and XOFa
+
 Changes 0.9.2
 
 * fix: update "reduce memory footprint of Keccak state" to handle big-endian systems
