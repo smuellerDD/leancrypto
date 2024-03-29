@@ -130,8 +130,8 @@ static inline void sponge_extract_bytes(const void *state, uint8_t *data,
 			data += 4;
 			part = bswap32(val.w[1]);
 		} else {
-			/* non-aligned request */
-			part = bswap32(val.w[0]);
+			/* non-aligned request - no swapping needed */
+			part = val.w[0];
 		}
 
 		for (j = 0; j < (unsigned int)(todo << 3); j += 8, data++)
@@ -167,6 +167,12 @@ static inline void sponge_newstate(void *state, const uint8_t *data,
 
 		/* Copy the current state data into tmp */
 		tmp.dw = *s;
+
+		/*
+		 * Swap the data to local endianess to allow the following loop
+		 * to work as expected.
+		 */
+		tmp.dw = bswap64(tmp.dw);
 
 		/* Overwrite the existing tmp data with new data */
 		for (ctr = 0; i < sizeof(tmp) && (size_t)ctr < length;
