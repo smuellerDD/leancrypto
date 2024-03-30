@@ -144,11 +144,17 @@ if get_option('ascon').enabled()
 				   include_directories: [ include_internal_dirs ],
 				   dependencies: leancrypto
 				   )
+	ascon_xof_squeeze_more_tester = executable('ascon_xof_squeeze_more_tester',
+				   [ 'ascon_xof_squeeze_more_tester.c', internal_src ],
+				   include_directories: [ include_internal_dirs ],
+				   dependencies: leancrypto
+				   )
 
 	test('Hash Ascon 128', ascon_128_tester)
 	test('Hash Ascon 128a', ascon_128a_tester)
 	test('Hash Ascon XOF', ascon_xof_tester)
 	test('Hash Ascon XOFa', ascon_xofa_tester)
+	test('Hash Ascon XOF Squeeze More', ascon_xof_squeeze_more_tester)
 	hasher = 1
 endif
 
