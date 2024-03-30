@@ -8,3 +8,7 @@
   because the Neon code is compiled (which should not be compiled)
 
 - check RISCV-64 Keccak implementation
+
+- Add Ascon-AEAD / Ascon-Keccak-AEAD to skcipher API
+
+- add more Rust wrappers
