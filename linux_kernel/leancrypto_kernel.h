@@ -126,6 +126,21 @@ static inline void lc_kernel_kyber_x25519_exit(void)
 {
 }
 #endif
+
+#ifdef CONFIG_LEANCRYPTO_ASCON_HASH
+int __init lc_kernel_ascon_init(void);
+void lc_kernel_ascon_exit(void);
+#else
+static inline int __init lc_kernel_ascon_init(void)
+{
+	return 0;
+}
+
+static inline void lc_kernel_ascon_exit(void)
+{
+}
+#endif
+
 #ifdef __cplusplus
 }
 #endif

@@ -424,10 +424,12 @@ leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
 
 leancrypto-$(CONFIG_LEANCRYPTO_ASCON_HASH)				       \
 				+= ../hash/src/ascon_c.o		       \
-				   ../hash/src/ascon_selftest.o
+				   ../hash/src/ascon_selftest.o		       \
+				   leancrypto_kernel_ascon.o
 
 ifdef CONFIG_LEANCRYPTO_ASCON_HASH
-ccflags-y			+= -DCONFIG_LEANCRYPTO_SHA3
+ccflags-y			+= -DCONFIG_LEANCRYPTO_ASCON_HASH
+obj-m				+= leancrypto_kernel_ascon_tester.o
 
 obj-m				+= ascon_128a_tester.o
 obj-m				+= ascon_128_tester.o

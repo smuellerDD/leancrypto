@@ -99,8 +99,15 @@ static int __init leancrypto_init(void)
 	if (ret)
 		goto free_kyber;
 
+	ret = lc_kernel_ascon_init();
+	if (ret)
+		goto free_kyber_x25519;
+
 out:
 	return ret;
+
+free_kyber_x25519:
+	lc_kernel_kyber_x25519_exit();
 
 free_kyber:
 	lc_kernel_kyber_exit();
@@ -134,6 +141,7 @@ static void __exit leancrypto_exit(void)
 	lc_kernel_dilithium_ed25519_exit();
 	lc_kernel_kyber_exit();
 	lc_kernel_kyber_x25519_exit();
+	lc_kernel_ascon_exit();
 }
 
 module_init(leancrypto_init);
