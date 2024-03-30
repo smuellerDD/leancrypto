@@ -14,6 +14,8 @@ Changes 0.10.0
 
 * enhancement: add Ascon XOF and XOFa
 
+* enhancement: add Ascon 128/128a hasher apps
+
 Changes 0.9.2
 
 * fix: update "reduce memory footprint of Keccak state" to handle big-endian systems

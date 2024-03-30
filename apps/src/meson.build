@@ -64,5 +64,29 @@ if (build_machine.system() != 'windows') and get_option('apps').enabled()
 				install_dir: get_option('libexecdir') / meson.project_name()
 				)
 	endif
+
+	if get_option('ascon').enabled()
+		ascon128_sum_files = shasum_files_common
+		ascon128_sum_files += files([ 'ascon128-sum.c' ])
+
+		ascon128_sum = executable('ascon128-sum',
+				[ ascon128_sum_files ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto,
+				install: true,
+				install_dir: get_option('libexecdir') / meson.project_name()
+				)
+
+		ascon128a_sum_files = shasum_files_common
+		ascon128a_sum_files += files([ 'ascon128a-sum.c' ])
+		ascon128a_sum = executable('ascon128a-sum',
+				[ ascon128a_sum_files ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto,
+				install: true,
+				install_dir: get_option('libexecdir') / meson.project_name()
+				)
+	endif
+
 endif
 
