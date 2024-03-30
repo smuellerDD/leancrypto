@@ -6,22 +6,26 @@ if get_option('hash_crypt').enabled()
 
 	include_files += files([
 		'../api/lc_aead.h',
-		'../api/lc_ascon_aead.h',
 		'../api/lc_cshake_crypt.h',
 		'../api/lc_hash_crypt.h',
 		'../api/lc_kmac_crypt.h',
 	])
 
 	aead_src_files = files([
-				'ascon.c',
-				'ascon_lightweight.c',
 				'cshake_crypt.c',
 				'kmac_crypt.c'
 			       ])
-	if get_option('sha3').enabled()
-		aead_src_files += files([ 'ascon_keccak.c' ])
-		include_files += files([ '../api/lc_ascon_keccak.h' ])
-		add_global_arguments([ '-DLC_ASCON_KECCAK' ], language: 'c')
+
+	if get_option('hash_crypt').enabled()
+		aead_src_files += files([ 'ascon.c', 'ascon_lightweight.c', ])
+			include_files += files([ '../api/lc_ascon_aead.h' ])
+
+		if get_option('sha3').enabled()
+			aead_src_files += files([ 'ascon_keccak.c' ])
+			include_files += files([ '../api/lc_ascon_keccak.h' ])
+			add_global_arguments([ '-DLC_ASCON_KECCAK' ],
+					     language: 'c')
+		endif
 	endif
 
 	if (x86_64_asm)
