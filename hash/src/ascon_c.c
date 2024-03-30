@@ -466,7 +466,12 @@ static void ascon_squeeze(void *_state, uint8_t *digest)
 		digest += todo;
 		digest_len -= todo;
 
-		if (digest_len)
+		/* Advance the offset */
+		ctx->offset += todo;
+		/* Wrap the offset at block size */
+		ctx->offset %= LC_ASCON_HASH_RATE;
+
+		if (!ctx->offset)
 			ascon_c_permutation(ctx->state, ctx->roundb);
 	}
 }
