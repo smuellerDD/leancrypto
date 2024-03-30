@@ -575,9 +575,7 @@ static void keccak_squeeze(void *_state, uint8_t *digest)
 	 * the largest state.
 	 */
 	struct lc_sha3_224_state *ctx = _state;
-	size_t i, digest_len;
-	uint32_t part;
-	volatile uint32_t *part_p;
+	size_t digest_len;
 
 	if (!ctx || !digest)
 		return;
@@ -601,102 +599,25 @@ static void keccak_squeeze(void *_state, uint8_t *digest)
 	}
 
 	while (digest_len) {
-#if 0
-		//TODO does not work with squeeze more
-
 		/* How much data can we squeeze considering current state? */
 		uint8_t todo = ctx->r - ctx->offset;
 
 		/* Limit the data to be squeezed by the requested amount. */
 		todo = (uint8_t)((digest_len > todo) ? todo : digest_len);
 
-		keccakp_1600(ctx->state);
+		if (!ctx->offset)
+			keccakp_1600(ctx->state);
 
 		keccak_c_extract_bytes(ctx->state, digest, ctx->offset, todo);
 
 		digest += todo;
 		digest_len -= todo;
-#else
-		unsigned int j;
-		uint8_t todo_64, todo_32;
-
-		/* How much data can we squeeze considering current state? */
-		uint8_t todo = ctx->r - ctx->offset;
-
-		/* Limit the data to be squeezed by the requested amount. */
-		todo = (uint8_t)((digest_len > todo) ? todo : digest_len);
-
-		digest_len -= todo;
-
-		if (ctx->offset) {
-			/*
-			 * Access requests when squeezing more data that
-			 * happens to be not aligned with the block size of
-			 * the used SHAKE algorithm are processed byte-wise.
-			 */
-			size_t word, byte;
-
-			for (i = ctx->offset; i < todo + ctx->offset;
-			     i++, digest++) {
-				word = i / sizeof(ctx->state[0]);
-				byte = (i % sizeof(ctx->state[0])) << 3;
-
-				*digest = (uint8_t)(ctx->state[word] >> byte);
-			}
-
-			/* Advance the offset */
-			ctx->offset += todo;
-			/* Wrap the offset at block size */
-			ctx->offset %= ctx->r;
-			continue;
-		}
-
-		/*
-		 * Access to obtain blocks without offset are implemented
-		 * with streamlined memory access.
-		 */
-
-		/* Generate new keccak block */
-		keccakp_1600(ctx->state);
 
 		/* Advance the offset */
 		ctx->offset += todo;
 		/* Wrap the offset at block size */
 		ctx->offset %= ctx->r;
-
-		/* How much 64-bit aligned data can we obtain? */
-		todo_64 = todo >> 3;
-
-		/* How much 32-bit aligned data can we obtain? */
-		todo_32 = (uint8_t)((todo - (todo_64 << 3)) >> 2);
-
-		/* How much non-aligned do we have to obtain? */
-		todo -= (uint8_t)(((todo_64 << 3) + (todo_32 << 2)));
-
-		/* Sponge squeeze phase */
-
-		/* 64-bit aligned request */
-		for (i = 0; i < todo_64; i++, digest += 8)
-			le64_to_ptr(digest, ctx->state[i]);
-
-		if (todo_32) {
-			/* 32-bit aligned request */
-			le32_to_ptr(digest, (uint32_t)(ctx->state[i]));
-			digest += 4;
-			part = (uint32_t)(ctx->state[i] >> 32);
-		} else {
-			/* non-aligned request */
-			part = (uint32_t)(ctx->state[i]);
-		}
-
-		for (j = 0; j < (unsigned int)(todo << 3); j += 8, digest++)
-			*digest = (uint8_t)(part >> j);
-#endif
 	}
-
-	/* Zeroization */
-	part_p = &part;
-	*part_p = 0;
 }
 
 void shake_set_digestsize(void *_state, size_t digestsize)
