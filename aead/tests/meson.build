@@ -179,7 +179,7 @@ if get_option('hash_crypt').enabled()
 
 endif
 
-if get_option('hash_crypt').enabled()
+if (get_option('hash_crypt').enabled() and get_option('ascon').enabled())
 
 	ascon_crypt_test = executable('ascon_crypt_test',
 				[ 'ascon_crypt_test.c', internal_src ],
@@ -203,12 +203,12 @@ if get_option('hash_crypt').enabled()
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto
 				)
-	test('AEAD Ascon', ascon_crypt_test)
-	test('AEAD Ascon IUF', ascon_crypt_iuf_test)
-	test('AEAD Ascon 128 1GB',
+	test('AEAD Ascon C', ascon_crypt_test)
+	test('AEAD Ascon IUF C', ascon_crypt_iuf_test)
+	test('AEAD Ascon 128 C 1GB',
 	     ascon_crypt_large_test_128,
 	     timeout: 2500, is_parallel: false)
-	test('AEAD Ascon 128a 1GB',
+	test('AEAD Ascon 128a C 1GB',
 	     ascon_crypt_large_test_128a,
 	     timeout: 2500, is_parallel: false)
 endif
