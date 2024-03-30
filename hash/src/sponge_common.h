@@ -83,8 +83,6 @@ static inline void sponge_extract_bytes(const void *state, uint8_t *data,
 	} val;
 
 	if (offset) {
-		uint64_t tmp;
-
 		/*
 		 * Access requests when squeezing more data that happens to be
 		 * not aligned with the block size of the used SHAKE algorithm
@@ -95,8 +93,7 @@ static inline void sponge_extract_bytes(const void *state, uint8_t *data,
 			word = i / sizeof(*s);
 			byte = (i % sizeof(*s)) << 3;
 
-			tmp = bswap64(s[word]);
-			*data = (uint8_t)(tmp >> byte);
+			*data = (uint8_t)(bswap64(s[word]) >> byte);
 		}
 	} else {
 		uint32_t part;
@@ -120,18 +117,26 @@ static inline void sponge_extract_bytes(const void *state, uint8_t *data,
 			to_ptr64(data, s[i]);
 
 		if (i < state_len)
-			val.dw = bswap64(s[i]);
+			val.dw = s[i];
 		else
 			val.dw = 0;
 
 		if (todo_32) {
 			/* 32-bit aligned request */
-			to_ptr32(data, val.w[0]);
+			if (bswap32 == be_bswap32) {
+				to_ptr32(data, val.w[1]);
+				part = bswap32(val.w[0]);
+			} else {
+				to_ptr32(data, val.w[0]);
+				part = bswap32(val.w[1]);
+			}
 			data += 4;
-			part = bswap32(val.w[1]);
 		} else {
 			/* non-aligned request - no swapping needed */
-			part = val.w[0];
+			if (bswap32 == be_bswap32)
+				part = bswap32(val.w[1]);
+			else
+				part = bswap32(val.w[0]);
 		}
 
 		for (j = 0; j < (unsigned int)(todo << 3); j += 8, data++)
