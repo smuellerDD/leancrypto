@@ -113,6 +113,10 @@ Leancrypto offers various cryptographic algorithms:
 
 * Authenticated Encryption with Associated Data
 
+  * Ascon 128 AEAD and Ascon 128a AEAD
+
+  * Ascon Keccak 256/256, 256/512 and 512/512 AEAD, full specification pending
+
   * cSHAKE-based AEAD algorithm - algorithm devised with leancrypto,
     see `cshake_crypt.c` for full specification
 
@@ -130,9 +134,11 @@ Leancrypto offers various cryptographic algorithms:
 
 * Pseudo Random Number Generators
 
-  * cSHAKE-based PRNG - see `cshake_drng.c` for full specification
+  * XDRBG256 - see `drng/doc/ToSC2024_1_01.pdf` for full specification and proof
 
-  * KMAC-based PRNG - see `kmac_drng.c` for full specification
+  * cSHAKE-based PRNG - see `cshake_drng.c` for full specification - it complies with the XDRBG specification given in `drng/doc/ToSC2024_1_01.pdf`
+
+  * KMAC-based PRNG - see `kmac_drng.c` for full specification - it complies with the XDRBG specification given in `drng/doc/ToSC2024_1_01.pdf`
 
   * SHAKE-based PRNG
 
@@ -149,6 +155,10 @@ Leancrypto offers various cryptographic algorithms:
   * SHAKE-128, SHAKE-256
 
   * cSHAKE-128, cSHAKE-256
+
+  * Ascon 128 / 128a
+
+  * Ascon XOF / XOFa
 
 * Keyed Message Digest algorithms
 
