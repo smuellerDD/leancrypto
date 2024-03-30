@@ -19,12 +19,16 @@
 
 #include "asm/ARMv8A/KeccakP-1600-armv8a-ce.h"
 
+#include "bitshift.h"
+#include "conv_be_le.h"
 #include "ext_headers_arm.h"
 #include "lc_sha3.h"
 #include "sha3_arm_ce.h"
 #include "sha3_common.h"
 #include "sha3_selftest.h"
+#include "sponge_common.h"
 #include "visibility.h"
+#include "xor.h"
 
 static void sha3_224_arm_ce_init(void *_state)
 {
@@ -123,17 +127,17 @@ static void keccak_arm_ce_permutation(void *state, unsigned int rounds)
 static void keccak_arm_ce_add_bytes(void *state, const unsigned char *data,
 				    unsigned int offset, unsigned int length)
 {
-	LC_NEON_ENABLE;
-	lc_keccak_absorb_arm_ce((uint64_t *)state, data, offset, length);
-	LC_NEON_DISABLE;
+	uint8_t *_state = (uint8_t *)state;
+
+	xor_64(_state + offset, data, length);
 }
 
 static void keccak_arm_ce_extract_bytes(const void *state, unsigned char *data,
 					size_t offset, size_t length)
 {
-	LC_NEON_ENABLE;
-	lc_keccak_squeeze_arm_ce((uint64_t *)state, data, offset, length);
-	LC_NEON_DISABLE;
+	sponge_extract_bytes(state, data, offset, length,
+			     LC_SHA3_STATE_WORDS, le_bswap64, le_bswap32,
+			     le64_to_ptr, le32_to_ptr);
 }
 
 static void keccak_arm_ce_newstate(void *state, const uint8_t *data,

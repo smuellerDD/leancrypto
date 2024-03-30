@@ -89,6 +89,7 @@ static inline void sponge_extract_bytes(const void *state, uint8_t *data,
 		 * are processed byte-wise.
 		 */
 		size_t word, byte;
+
 		for (i = offset; i < length + offset; i++, data++) {
 			word = i / sizeof(*s);
 			byte = (i % sizeof(*s)) << 3;
