@@ -129,7 +129,7 @@ int lc_ak_setiv(struct lc_ascon_cryptor *ascon, size_t keylen)
 	switch (hash->sponge_rate) {
 	case 0x240 / 8: /* Keccak security level 512 bits */
 
-		lc_ak_selftest(&tested, "Asacon Keccak AEAD");
+		lc_ak_selftest(&tested, "Ascon Keccak AEAD");
 
 		switch (keylen) {
 		case 32:
@@ -147,7 +147,7 @@ int lc_ak_setiv(struct lc_ascon_cryptor *ascon, size_t keylen)
 		break;
 	case 0x440 / 8: /* Keccak security level 256 bits */
 
-		lc_ak_selftest(&tested, "Asacon Keccak AEAD");
+		lc_ak_selftest(&tested, "Ascon Keccak AEAD");
 
 		if (keylen != 32)
 			return -EINVAL;
