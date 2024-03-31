@@ -45,7 +45,8 @@ polyvec_matrix_expand(polyvecl mat[LC_DILITHIUM_K],
 	for (i = 0; i < LC_DILITHIUM_K; ++i)
 		for (j = 0; j < LC_DILITHIUM_L; ++j)
 			poly_uniform_armv7(&mat[i].vec[j], rho,
-					   le_bswap16((i << 8) + j), ws_buf);
+					   le_bswap16((uint16_t)((i << 8) + j)),
+					   ws_buf);
 }
 
 static inline void
@@ -67,7 +68,7 @@ polyvecl_uniform_gamma1(polyvecl *v, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
 	for (i = 0; i < LC_DILITHIUM_L; ++i)
 		poly_uniform_gamma1(
 			&v->vec[i], seed,
-			le_bswap16(LC_DILITHIUM_L * nonce + (uint16_t)i),
+			le_bswap16((uint16_t)(LC_DILITHIUM_L * nonce + (uint16_t)i)),
 			ws_buf);
 }
 
