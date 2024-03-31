@@ -20,6 +20,9 @@
 #ifndef SPONGE_COMMON_H
 #define SPONGE_COMMON_H
 
+#include "build_bug_on.h"
+#include "conv_be_le.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -82,10 +85,10 @@ static inline void sponge_extract_bytes(const void *state, uint8_t *data,
 		uint32_t w[2];
 	} val;
 
-	if (offset) {
+	if (offset & (sizeof(s[0]) - 1)) {
 		/*
 		 * Access requests when squeezing more data that happens to be
-		 * not aligned with the block size of the used SHAKE algorithm
+		 * not aligned with the block size of the used sponge algorithm
 		 * are processed byte-wise.
 		 */
 		size_t word, byte;
@@ -94,12 +97,31 @@ static inline void sponge_extract_bytes(const void *state, uint8_t *data,
 			word = i / sizeof(*s);
 			byte = (i % sizeof(*s)) << 3;
 
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+			if (bswap64 == be_bswap64) {
+				/*
+				 * Counterintuitively this byte-swap is needed
+				 * here because the bit-shift below assigning
+				 * the value into *data is little-endian in
+				 * nature. Thus, we have to convert the
+				 * big-endian word into little-endian to
+				 * process it with the little-endian bit-shift.
+				 */
+				*data = (uint8_t)(le_bswap64(s[word]) >> byte);
+			} else {
+				*data = (uint8_t)(s[word] >> byte);
+			}
+#else
 			*data = (uint8_t)(bswap64(s[word]) >> byte);
+#endif
 		}
 	} else {
-		uint32_t part;
+		uint32_t part = 0;
 		unsigned int j;
 		uint8_t todo_64, todo_32, todo;
+
+		BUILD_BUG_ON(sizeof(s[0]) != 8);
+		s += offset >> 3;
 
 		/* How much 64-bit aligned data can we obtain? */
 		todo_64 = (uint8_t)(length >> 3);
@@ -124,6 +146,16 @@ static inline void sponge_extract_bytes(const void *state, uint8_t *data,
 
 		if (todo_32) {
 			/* 32-bit aligned request */
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+			if (bswap32 == be_bswap32) {
+				to_ptr32(data, val.w[0]);
+				/* see above for why this byte-swap is needed */
+				part = le_bswap32(val.w[1]);
+			} else {
+				to_ptr32(data, val.w[1]);
+				part = val.w[0];
+			}
+#else
 			if (bswap32 == be_bswap32) {
 				to_ptr32(data, val.w[1]);
 				part = bswap32(val.w[0]);
@@ -131,13 +163,23 @@ static inline void sponge_extract_bytes(const void *state, uint8_t *data,
 				to_ptr32(data, val.w[0]);
 				part = bswap32(val.w[1]);
 			}
+#endif
 			data += 4;
 		} else {
-			/* non-aligned request - no swapping needed */
+			/* non-aligned request */
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+			if (bswap32 == be_bswap32) {
+				/* see above for why this byte-swap is needed */
+				part = le_bswap32(val.w[0]);
+			} else {
+				part = val.w[1];
+			}
+#else
 			if (bswap32 == be_bswap32)
 				part = bswap32(val.w[1]);
 			else
 				part = bswap32(val.w[0]);
+#endif
 		}
 
 		for (j = 0; j < (unsigned int)(todo << 3); j += 8, data++)

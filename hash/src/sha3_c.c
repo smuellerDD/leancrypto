@@ -171,7 +171,7 @@ static inline void keccakp_1600(uint64_t s[25])
  * Keccak implementations as they handle the data also in little-endian format.
  */
 
-#if !defined(LC_BIG_ENDIAN) || defined(__BIG_ENDIAN)
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 
 /*
  * This function works on both endianesses, but since it has more code than
@@ -183,10 +183,10 @@ static inline void sha3_fill_state_bytes(uint64_t *state, const uint8_t *in,
 	sponge_fill_state_bytes(state, in, byte_offset, inlen, le_bswap64);
 }
 
-#elif defined(LC_LITTLE_ENDIAN) || defined(__LITTLE_ENDIAN)
+#elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 
 static inline void sha3_fill_state_bytes(uint64_t *state, const uint8_t *in,
-					   size_t byte_offset, size_t inlen)
+					 size_t byte_offset, size_t inlen)
 {
 	uint8_t *_state = (uint8_t *)state;
 

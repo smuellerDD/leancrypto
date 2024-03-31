@@ -24,7 +24,7 @@
 #include "rotate.h"
 #include "sponge_common.h"
 #include "visibility.h"
-
+#include "xor.h"
 
 /***************************** Ascon Permutation ******************************/
 
@@ -154,7 +154,7 @@ static void ascon_c_permutation(void *state, unsigned int rounds)
 
 /************************ Raw Ascon Sponge Operations *************************/
 
-#if defined(LC_LITTLE_ENDIAN) || defined(__LITTLE_ENDIAN)
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 
 /*
  * This function works on both endianesses, but since it has more code than
@@ -166,7 +166,7 @@ static inline void ascon_fill_state_bytes(uint64_t *state, const uint8_t *in,
 	sponge_fill_state_bytes(state, in, byte_offset, inlen, be_bswap64);
 }
 
-#elif defined(LC_BIG_ENDIAN) || defined(__BIG_ENDIAN)
+#elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 
 static inline void ascon_fill_state_bytes(uint64_t *state, const uint8_t *in,
 					  size_t byte_offset, size_t inlen)
