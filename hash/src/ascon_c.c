@@ -17,14 +17,12 @@
  * DAMAGE.
  */
 
-#include "ascon_selftest.h"
-#include "bitshift.h"
+#include "ascon_c.h"
+#include "ascon_hash.h"
+#include "ascon_hash_common.h"
 #include "conv_be_le.h"
 #include "lc_ascon_hash.h"
-#include "rotate.h"
-#include "sponge_common.h"
 #include "visibility.h"
-#include "xor.h"
 
 /***************************** Ascon Permutation ******************************/
 
@@ -152,328 +150,15 @@ static void ascon_c_permutation(void *state, unsigned int rounds)
 	}
 }
 
-/************************ Raw Ascon Sponge Operations *************************/
-
-#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-
-/*
- * This function works on both endianesses, but since it has more code than
- * the little endian code base, there is a special case for little endian.
- */
-static inline void ascon_fill_state_bytes(uint64_t *state, const uint8_t *in,
-					  size_t byte_offset, size_t inlen)
+static void ascon_absorb(void *state, const uint8_t *in, size_t inlen)
 {
-	sponge_fill_state_bytes(state, in, byte_offset, inlen, be_bswap64);
+	ascon_absorb_common(state, in, inlen, ascon_c_permutation);
 }
 
-#elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-
-static inline void ascon_fill_state_bytes(uint64_t *state, const uint8_t *in,
-					  size_t byte_offset, size_t inlen)
+static void ascon_squeeze(void *state, uint8_t *digest)
 {
-	uint8_t *_state = (uint8_t *)state;
-
-	xor_64(_state + byte_offset, in, inlen);
-}
-
-#else
-#error "Endianess not defined"
-#endif
-
-static void ascon_c_add_bytes(void *state, const uint8_t *data,
-			      unsigned int offset, unsigned int length)
-{
-	ascon_fill_state_bytes((uint64_t *)state, data, offset, length);
-}
-
-static void ascon_c_extract_bytes(const void *state, uint8_t *data,
-				  size_t offset, size_t length)
-{
-	sponge_extract_bytes(state, data, offset, length,
-			     LC_ASCON_HASH_STATE_WORDS, be_bswap64, be_bswap32,
-			     be64_to_ptr, be32_to_ptr);
-}
-
-static void ascon_c_newstate(void *state, const uint8_t *data, size_t offset,
-			      size_t length)
-{
-	sponge_newstate(state, data, offset, length, be_bswap64);
-}
-
-/********************************* Ascon Hash *********************************/
-
-static inline void ascon_ctx_init(struct lc_ascon_hash *ctx)
-{
-	ctx->msg_len = 0;
-	ctx->squeeze_more = 0;
-	ctx->offset = 0;
-}
-
-static void ascon_128_init_common(struct lc_ascon_hash *ctx)
-{
-	if (!ctx)
-		return;
-
-	ascon_ctx_init(ctx);
-	ctx->roundb = 12;
-	ctx->digestsize = LC_ASCON_HASH_DIGESTSIZE;
-
-	ctx->state[0] = 0xee9398aadb67f03d;
-	ctx->state[1] = 0x8bb21831c60f1002;
-	ctx->state[2] = 0xb48a92db98d5da62;
-	ctx->state[3] = 0x43189921b8f8e3e8;
-	ctx->state[4] = 0x348fa5c9d525e140;
-}
-
-static void ascon_128_init(void *_state)
-{
-	struct lc_ascon_hash *ctx = _state;
-	static int tested = 0;
-
-	if (!ctx)
-		return;
-
-	ascon_128_selftest_common(lc_ascon_128, &tested, "Ascon 128 C");
-	ascon_128_init_common(ctx);
-}
-
-static void ascon_128a_init_common(struct lc_ascon_hash *ctx)
-{
-	if (!ctx)
-		return;
-
-	ascon_ctx_init(ctx);
-	ctx->roundb = 8;
-	ctx->digestsize = LC_ASCON_HASH_DIGESTSIZE;
-
-	ctx->state[0] = 0x01470194fc6528a6;
-	ctx->state[1] = 0x738ec38ac0adffa7;
-	ctx->state[2] = 0x2ec8e3296c76384c;
-	ctx->state[3] = 0xd6f6a54d7f52377d;
-	ctx->state[4] = 0xa13c42a223be8d87;
-}
-
-static void ascon_128a_init(void *_state)
-{
-	struct lc_ascon_hash *ctx = _state;
-	static int tested = 0;
-
-	if (!ctx)
-		return;
-
-	ascon_128a_selftest_common(lc_ascon_128a, &tested, "Ascon 128a C");
-	ascon_128a_init_common(ctx);
-}
-
-static void ascon_xof_init_common(struct lc_ascon_hash *ctx)
-{
-	if (!ctx)
-		return;
-
-	ascon_ctx_init(ctx);
-	ctx->roundb = 12;
-	ctx->digestsize = 0;
-
-	ctx->state[0] = 0xb57e273b814cd416;
-	ctx->state[1] = 0x2b51042562ae2420;
-	ctx->state[2] = 0x66a3a7768ddf2218;
-	ctx->state[3] = 0x5aad0a7a8153650c;
-	ctx->state[4] = 0x4f3e0e32539493b6;
-}
-
-static void ascon_xof_init(void *_state)
-{
-	struct lc_ascon_hash *ctx = _state;
-	static int tested = 0;
-
-	if (!ctx)
-		return;
-
-	ascon_xof_selftest_common(lc_ascon_xof, &tested, "Ascon XOF C");
-	ascon_xof_init_common(ctx);
-}
-
-static void ascon_xofa_init_common(struct lc_ascon_hash *ctx)
-{
-	if (!ctx)
-		return;
-
-	ascon_ctx_init(ctx);
-	ctx->roundb = 8;
-	ctx->digestsize = 0;
-
-	ctx->state[0] = 0x44906568b77b9832;
-	ctx->state[1] = 0xcd8d6cae53455532;
-	ctx->state[2] = 0xf7b5212756422129;
-	ctx->state[3] = 0x246885e1de0d225b;
-	ctx->state[4] = 0xa8cb5ce33449973f;
-}
-
-static void ascon_xofa_init(void *_state)
-{
-	struct lc_ascon_hash *ctx = _state;
-	static int tested = 0;
-
-	if (!ctx)
-		return;
-
-	ascon_xofa_selftest_common(lc_ascon_xofa, &tested, "Ascon XOFa C");
-	ascon_xofa_init_common(ctx);
-}
-static size_t ascon_digestsize(void *_state)
-{
-	(void)_state;
-	return LC_ASCON_HASH_DIGESTSIZE;
-}
-
-static void ascon_xof_set_digestsize(void *_state, size_t digestsize)
-{
-	struct lc_ascon_hash *ctx = _state;
-
-	ctx->digestsize = digestsize;
-}
-
-static size_t ascon_xof_get_digestsize(void *_state)
-{
-	struct lc_ascon_hash *ctx = _state;
-
-	return ctx->digestsize;
-}
-
-static inline void ascon_fill_state_aligned(struct lc_ascon_hash *ctx,
-					    const uint64_t *in)
-{
-	unsigned int i;
-
-	for (i = 0; i < LC_ASCON_HASH_RATE_WORDS; i++) {
-		ctx->state[i] ^= be_bswap64(*in);
-		in++;
-	}
-}
-
-static inline void ascon_fill_state(struct lc_ascon_hash *ctx,
-				    const uint8_t *in)
-{
-	unsigned int i;
-
-	for (i = 0; i < LC_ASCON_HASH_RATE_WORDS; i++) {
-		ctx->state[i] ^= ptr_to_be64(in);
-		in += 8;
-	}
-}
-
-static void ascon_absorb(void *_state, const uint8_t *in, size_t inlen)
-{
-	struct lc_ascon_hash *ctx = _state;
-	size_t partial;
-
-	if (!ctx)
-		return;
-
-	partial = ctx->msg_len % LC_ASCON_HASH_RATE;
-	ctx->squeeze_more = 0;
-	ctx->msg_len += inlen;
-
-	/* Sponge absorbing phase */
-
-	/* Check if we have a partial block stored */
-	if (partial) {
-		size_t todo = LC_ASCON_HASH_RATE - partial;
-
-		/*
-		 * If the provided data is small enough to fit in the partial
-		 * buffer, copy it and leave it unprocessed.
-		 */
-		if (inlen < todo) {
-			ascon_fill_state_bytes(ctx->state, in, partial, inlen);
-			return;
-		}
-
-		/*
-		 * The input data is large enough to fill the entire partial
-		 * block buffer. Thus, we fill it and transform it.
-		 */
-		ascon_fill_state_bytes(ctx->state, in, partial, todo);
-		inlen -= todo;
-		in += todo;
-	}
-
-	if (partial && inlen)
-		ascon_c_permutation(ctx->state, ctx->roundb);
-
-	/* Perform a transformation of full block-size messages */
-	if (mem_aligned(in, sizeof(uint64_t) - 1)) {
-		for (; inlen >= LC_ASCON_HASH_RATE;
-		       inlen -= LC_ASCON_HASH_RATE, in += LC_ASCON_HASH_RATE) {
-			/*
-			 * We can ignore the alignment warning as we checked
-			 * for proper alignment.
-			 */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
-			ascon_fill_state_aligned(ctx, (uint64_t *)in);
-#pragma GCC diagnostic pop
-			if (inlen)
-				ascon_c_permutation(ctx->state, ctx->roundb);
-		}
-	} else {
-		for (; inlen >= LC_ASCON_HASH_RATE;
-		       inlen -= LC_ASCON_HASH_RATE, in += LC_ASCON_HASH_RATE) {
-			ascon_fill_state(ctx, in);
-			if (inlen)
-				ascon_c_permutation(ctx->state, ctx->roundb);
-		}
-	}
-
-	/* If we have data left, copy it into the partial block buffer */
-	ascon_fill_state_bytes(ctx->state, in, 0, inlen);
-}
-
-static void ascon_squeeze(void *_state, uint8_t *digest)
-{
-	struct lc_ascon_hash *ctx = _state;
-	size_t digest_len;
-
-	if (!ctx || !digest)
-		return;
-
-	digest_len = ctx->digestsize;
-
-	if (!ctx->squeeze_more) {
-		uint8_t partial = ctx->msg_len % LC_ASCON_HASH_RATE;
-		static const uint8_t pad_data = 0x80;
-
-		/* Add the padding bits and the 01 bits for the suffix. */
-		ascon_fill_state_bytes(ctx->state, &pad_data, partial, 1);
-
-		/* Final round in sponge absorbing phase */
-		ascon_permutation_12(ctx->state);
-
-		ctx->squeeze_more = 1;
-	}
-
-	while (digest_len) {
-		/* How much data can we squeeze considering current state? */
-		uint8_t todo = LC_ASCON_HASH_RATE - ctx->offset;
-
-		/* Limit the data to be squeezed by the requested amount. */
-		todo = (uint8_t)((digest_len > todo) ? todo : digest_len);
-
-		sponge_extract_bytes(ctx->state, digest, ctx->offset, todo,
-				     LC_ASCON_HASH_STATE_WORDS, be_bswap64,
-				     be_bswap32, be64_to_ptr, be32_to_ptr);
-
-		digest += todo;
-		digest_len -= todo;
-
-		/* Advance the offset */
-		ctx->offset += todo;
-		/* Wrap the offset at block size */
-		ctx->offset %= LC_ASCON_HASH_RATE;
-
-		if (!ctx->offset)
-			ascon_c_permutation(ctx->state, ctx->roundb);
-	}
+	ascon_squeeze_common(state, digest, ascon_permutation_12,
+			     ascon_c_permutation);
 }
 
 static const struct lc_hash _ascon_128_c = {
@@ -489,7 +174,7 @@ static const struct lc_hash _ascon_128_c = {
 	.sponge_rate = 64 / 8,
 	.statesize = sizeof(struct lc_ascon_hash),
 };
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_128) = &_ascon_128_c;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_128_c) = &_ascon_128_c;
 
 
 static const struct lc_hash _ascon_128a_c = {
@@ -505,7 +190,7 @@ static const struct lc_hash _ascon_128a_c = {
 	.sponge_rate = 128 / 8,
 	.statesize = sizeof(struct lc_ascon_hash),
 };
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_128a) = &_ascon_128a_c;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_128a_c) = &_ascon_128a_c;
 
 static const struct lc_hash _ascon_xof_c = {
 	.init = ascon_xof_init,
@@ -520,8 +205,7 @@ static const struct lc_hash _ascon_xof_c = {
 	.sponge_rate = 64 / 8,
 	.statesize = sizeof(struct lc_ascon_hash),
 };
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_xof) = &_ascon_xof_c;
-
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_xof_c) = &_ascon_xof_c;
 
 static const struct lc_hash _ascon_xofa_c = {
 	.init = ascon_xofa_init,
@@ -536,4 +220,9 @@ static const struct lc_hash _ascon_xofa_c = {
 	.sponge_rate = 64 / 8,
 	.statesize = sizeof(struct lc_ascon_hash),
 };
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_xofa_c) = &_ascon_xofa_c;
+
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_128) = &_ascon_128_c;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_128a) = &_ascon_128a_c;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_xof) = &_ascon_xof_c;
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_xofa) = &_ascon_xofa_c;

@@ -140,9 +140,47 @@ if get_option('sha3').enabled()
 endif
 
 if get_option('ascon').enabled()
-	src += files([ 'ascon_c.c', 'ascon_selftest.c' ])
+	src += files([
+		'ascon_c.c',
+		'ascon_hash_common.c',
+		'ascon_selector.c',
+		'ascon_selftest.c'
+		])
 	include_files += files([ '../api/lc_ascon_hash.h' ])
 	lc_hash = 1
+
+	# Ascon: Intel AVX2 implementation - Disabled as it is slower than C
+	# If you want to enable it, search for AsconAVX512 and apply the
+	# comments
+# 	if (x86_64_asm)
+# 		leancrypto_ascon_avx512_lib = static_library(
+# 			'leancrypto_ascon_avx512_lib',
+# 			[ 'ascon_avx512.c' ],
+# 			c_args: cc_avx512_args,
+# 			include_directories: [ include_dirs,
+# 					       include_internal_dirs ],
+# 		)
+# 		leancrypto_support_libs += leancrypto_ascon_avx512_lib
+#
+# 	else
+		src += files([ 'ascon_avx512_null.c' ])
+#	endif
+
+	# 32 bit ARM processor and GCC
+	if (arm32_neon_gcc_asm)
+		leancrypto_asm_arm7a_neon_lib = static_library(
+			'leancrypto_asm_arm7a_neon_lib',
+			[ 'ascon_arm_neon.c' ],
+			c_args: cc_armv7_neon_simd_args,
+			include_directories: [
+				include_dirs,
+				include_internal_dirs ],
+		)
+		leancrypto_support_libs += leancrypto_asm_arm7a_neon_lib
+	else
+		src += files([ 'ascon_arm_neon_null.c' ])
+	endif
+
 endif
 
 if (lc_hash == 1)
