@@ -22,13 +22,9 @@
 #include "compare.h"
 #include "visibility.h"
 
-#include "sha3_c.h"
-#include "sha3_arm_asm.h"
-#include "sha3_arm_ce.h"
-#include "sha3_arm_neon.h"
-#include "sha3_avx2.h"
-#include "sha3_avx512.h"
-#include "sha3_riscv_asm.h"
+#include "ascon_avx512.h"
+#include "ascon_arm_neon.h"
+#include "ascon_c.h"
 
 #define LC_EXEC_ONE_TEST(ascon_impl)                                           \
 	if (ascon_impl)                                                        \
@@ -50,7 +46,9 @@ static int _ascon_sqeeze_more_tester(const struct lc_hash *ascon,
 	int ret;
 	LC_HASH_CTX_ON_STACK(ctx, ascon);
 
-	printf("hash ctx %s len %lu\n", name, LC_HASH_CTX_SIZE(ascon));
+	printf("hash ctx %s (%s implementation) len %lu\n", name,
+	       ascon == lc_ascon_xof_c ? "C" : "accelerated",
+	       LC_HASH_CTX_SIZE(ascon));
 
 	for (i = 1; i <= sizeof(exp); i++) {
 		act_p = act;
@@ -83,6 +81,9 @@ static int ascon_sqeeze_more_tester(void)
 	int ret = 0;
 
 	LC_EXEC_ONE_TEST(lc_ascon_xof);
+	LC_EXEC_ONE_TEST(lc_ascon_xof_c);
+	LC_EXEC_ONE_TEST(lc_ascon_xof_avx512);
+	LC_EXEC_ONE_TEST(lc_ascon_xof_arm_neon);
 
 	return ret;
 }
