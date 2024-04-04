@@ -36,8 +36,12 @@ extern "C" {
 #define LC_ASCON_HASH_DIGESTSIZE (LC_ASCON_HASH_DIGESTSIZE_BITS >> 3)
 
 struct lc_ascon_hash {
-	uint64_t state[LC_ASCON_HASH_STATE_WORDS];
-
+	uint64_t state[LC_ASCON_HASH_STATE_WORDS
+	/* AsconAVX512: enable if compilation is activated
+	#ifdef LC_HOST_X86_64
+	+ 3
+	#endif */
+	];
 	size_t msg_len;
 	size_t digestsize;
 	uint8_t roundb;
