@@ -210,3 +210,4 @@ The following files are licensed under the CC0 1.0 Universal. The original files
 are obtained from https://github.com/ascon/ascon-c
 
 hash/src/asm/ascon_avx512/*
+hash/src/asm/ascon_arm_neon/*
