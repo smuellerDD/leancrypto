@@ -25,7 +25,8 @@
 #include "lc_ascon_hash.h"
 #include "visibility.h"
 
-static inline void ascon_permutation_6(uint64_t s[LC_ASCON_HASH_STATE_WORDS + 3])
+static inline void
+ascon_permutation_6(uint64_t s[LC_ASCON_HASH_STATE_WORDS + 3])
 {
 	__m512i *z = (void *)s;
 
@@ -37,7 +38,8 @@ static inline void ascon_permutation_6(uint64_t s[LC_ASCON_HASH_STATE_WORDS + 3]
 	ascon_permutation_one_avx512(z, 0x4b);
 }
 
-static inline void ascon_permutation_8(uint64_t s[LC_ASCON_HASH_STATE_WORDS + 3])
+static inline void
+ascon_permutation_8(uint64_t s[LC_ASCON_HASH_STATE_WORDS + 3])
 {
 	__m512i *z = (void *)s;
 
@@ -51,7 +53,8 @@ static inline void ascon_permutation_8(uint64_t s[LC_ASCON_HASH_STATE_WORDS + 3]
 	ascon_permutation_one_avx512(z, 0x4b);
 }
 
-static inline void ascon_permutation_12(uint64_t s[LC_ASCON_HASH_STATE_WORDS + 3])
+static inline void
+ascon_permutation_12(uint64_t s[LC_ASCON_HASH_STATE_WORDS + 3])
 {
 	__m512i *z = (void *)s;
 
@@ -110,8 +113,8 @@ static const struct lc_hash _ascon_128_avx512 = {
 	.sponge_rate = 64 / 8,
 	.statesize = sizeof(struct lc_ascon_hash),
 };
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_128_avx512) = &_ascon_128_avx512;
-
+LC_INTERFACE_SYMBOL(const struct lc_hash *,
+		    lc_ascon_128_avx512) = &_ascon_128_avx512;
 
 static const struct lc_hash _ascon_128a_avx512 = {
 	.init = ascon_128a_init,
@@ -126,7 +129,8 @@ static const struct lc_hash _ascon_128a_avx512 = {
 	.sponge_rate = 128 / 8,
 	.statesize = sizeof(struct lc_ascon_hash),
 };
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_128a_avx512) = &_ascon_128a_avx512;
+LC_INTERFACE_SYMBOL(const struct lc_hash *,
+		    lc_ascon_128a_avx512) = &_ascon_128a_avx512;
 
 static const struct lc_hash _ascon_xof_avx512 = {
 	.init = ascon_xof_init,
@@ -141,8 +145,8 @@ static const struct lc_hash _ascon_xof_avx512 = {
 	.sponge_rate = 64 / 8,
 	.statesize = sizeof(struct lc_ascon_hash),
 };
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_xof_avx512) = &_ascon_xof_avx512;
-
+LC_INTERFACE_SYMBOL(const struct lc_hash *,
+		    lc_ascon_xof_avx512) = &_ascon_xof_avx512;
 
 static const struct lc_hash _ascon_xofa_avx512 = {
 	.init = ascon_xofa_init,
@@ -157,4 +161,5 @@ static const struct lc_hash _ascon_xofa_avx512 = {
 	.sponge_rate = 64 / 8,
 	.statesize = sizeof(struct lc_ascon_hash),
 };
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_xofa_avx512) = &_ascon_xofa_avx512;
+LC_INTERFACE_SYMBOL(const struct lc_hash *,
+		    lc_ascon_xofa_avx512) = &_ascon_xofa_avx512;

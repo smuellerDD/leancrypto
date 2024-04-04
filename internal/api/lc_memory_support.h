@@ -172,7 +172,6 @@ static inline int mem_aligned(const uint8_t *ptr, uint32_t alignmask)
 	return 1;
 }
 
-
 #ifdef __cplusplus
 }
 #endif

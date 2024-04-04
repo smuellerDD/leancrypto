@@ -31,96 +31,87 @@
 #include "round.h"
 
 const uint64_t C[12] = {
-    0xffffffffffffff0full, 0xffffffffffffff1eull, 0xffffffffffffff2dull,
-    0xffffffffffffff3cull, 0xffffffffffffff4bull, 0xffffffffffffff5aull,
-    0xffffffffffffff69ull, 0xffffffffffffff78ull, 0xffffffffffffff87ull,
-    0xffffffffffffff96ull, 0xffffffffffffffa5ull, 0xffffffffffffffb4ull,
+	0xffffffffffffff0full, 0xffffffffffffff1eull, 0xffffffffffffff2dull,
+	0xffffffffffffff3cull, 0xffffffffffffff4bull, 0xffffffffffffff5aull,
+	0xffffffffffffff69ull, 0xffffffffffffff78ull, 0xffffffffffffff87ull,
+	0xffffffffffffff96ull, 0xffffffffffffffa5ull, 0xffffffffffffffb4ull,
 };
 
-#define P12ROUNDS(s) \
-  ROUND(0)           \
-  ROUND(8)           \
-  ROUND(16)          \
-  ROUND(24)          \
-  ROUND(32)          \
-  ROUND(40)          \
-  ROUND(48)          \
-  ROUND(56)          \
-  ROUND(64)          \
-  ROUND(72)          \
-  ROUND(80)          \
-  ROUND(88)
+#define P12ROUNDS(s)                                                           \
+	ROUND(0)                                                               \
+	ROUND(8)                                                               \
+	ROUND(16)                                                              \
+	ROUND(24)                                                              \
+	ROUND(32)                                                              \
+	ROUND(40)                                                              \
+	ROUND(48)                                                              \
+	ROUND(56)                                                              \
+	ROUND(64)                                                              \
+	ROUND(72)                                                              \
+	ROUND(80)                                                              \
+	ROUND(88)
 
-#define P8ROUNDS(s) \
-  ROUND(32)         \
-  ROUND(40)         \
-  ROUND(48)         \
-  ROUND(56)         \
-  ROUND(64)         \
-  ROUND(72)         \
-  ROUND(80)         \
-  ROUND(88)
+#define P8ROUNDS(s)                                                            \
+	ROUND(32)                                                              \
+	ROUND(40)                                                              \
+	ROUND(48)                                                              \
+	ROUND(56)                                                              \
+	ROUND(64)                                                              \
+	ROUND(72)                                                              \
+	ROUND(80)                                                              \
+	ROUND(88)
 
-#define P6ROUNDS(s) \
-  ROUND(48)         \
-  ROUND(56)         \
-  ROUND(64)         \
-  ROUND(72)         \
-  ROUND(80)         \
-  ROUND(88)
+#define P6ROUNDS(s)                                                            \
+	ROUND(48)                                                              \
+	ROUND(56)                                                              \
+	ROUND(64)                                                              \
+	ROUND(72)                                                              \
+	ROUND(80)                                                              \
+	ROUND(88)
 
-static inline void ascon_permutation_12_arm_neon(
-	uint64_t s[LC_ASCON_HASH_STATE_WORDS])
+static inline void
+ascon_permutation_12_arm_neon(uint64_t s[LC_ASCON_HASH_STATE_WORDS])
 {
-  __asm__ __volatile__ ( \
-      ".arm \n\t" \
-      ".fpu neon \n\t" \
-      "vldm.64 %[s], {d0-d4} \n\t" \
-      "vmvn.64 d2, d2 \n\t" \
-      P12ROUNDS(s) \
-      "vmvn.64 d2, d2 \n\t" \
-      "vstm.64 %[s], {d0-d4} \n\t" \
-      :: [s] "r" (s), [C] "r" (C) \
-      : "d0", "d1", "d2", "d3", "d4", \
-        "d10", "d11", "d12", "d13", "d14", \
-        "d20", "d21", "d22", "d23", "d24", \
-        "d31", "memory");
+	__asm__ __volatile__(
+		".arm \n\t"
+		".fpu neon \n\t"
+		"vldm.64 %[s], {d0-d4} \n\t"
+		"vmvn.64 d2, d2 \n\t" P12ROUNDS(
+			s) "vmvn.64 d2, d2 \n\t"
+			   "vstm.64 %[s], {d0-d4} \n\t" ::[s] "r"(s),
+		[C] "r"(C)
+		: "d0", "d1", "d2", "d3", "d4", "d10", "d11", "d12", "d13",
+		  "d14", "d20", "d21", "d22", "d23", "d24", "d31", "memory");
 }
 
-static inline void ascon_permutation_8_arm_neon(
-	uint64_t s[LC_ASCON_HASH_STATE_WORDS])
+static inline void
+ascon_permutation_8_arm_neon(uint64_t s[LC_ASCON_HASH_STATE_WORDS])
 {
-  __asm__ __volatile__ ( \
-      ".arm \n\t" \
-      ".fpu neon \n\t" \
-      "vldm.64 %[s], {d0-d4} \n\t" \
-      "vmvn.64 d2, d2 \n\t" \
-      P8ROUNDS(s) \
-      "vmvn.64 d2, d2 \n\t" \
-      "vstm.64 %[s], {d0-d4} \n\t" \
-      :: [s] "r" (s), [C] "r" (C) \
-      : "d0", "d1", "d2", "d3", "d4", \
-        "d10", "d11", "d12", "d13", "d14", \
-        "d20", "d21", "d22", "d23", "d24", \
-        "d31", "memory");
+	__asm__ __volatile__(
+		".arm \n\t"
+		".fpu neon \n\t"
+		"vldm.64 %[s], {d0-d4} \n\t"
+		"vmvn.64 d2, d2 \n\t" P8ROUNDS(
+			s) "vmvn.64 d2, d2 \n\t"
+			   "vstm.64 %[s], {d0-d4} \n\t" ::[s] "r"(s),
+		[C] "r"(C)
+		: "d0", "d1", "d2", "d3", "d4", "d10", "d11", "d12", "d13",
+		  "d14", "d20", "d21", "d22", "d23", "d24", "d31", "memory");
 }
 
-static inline void ascon_permutation_6_arm_neon(
-	uint64_t s[LC_ASCON_HASH_STATE_WORDS])
+static inline void
+ascon_permutation_6_arm_neon(uint64_t s[LC_ASCON_HASH_STATE_WORDS])
 {
-  __asm__ __volatile__ ( \
-      ".arm \n\t" \
-      ".fpu neon \n\t" \
-      "vldm.64 %[s], {d0-d4} \n\t" \
-      "vmvn.64 d2, d2 \n\t" \
-      P6ROUNDS(s) \
-      "vmvn.64 d2, d2 \n\t" \
-      "vstm.64 %[s], {d0-d4} \n\t" \
-      :: [s] "r" (s), [C] "r" (C) \
-      : "d0", "d1", "d2", "d3", "d4", \
-        "d10", "d11", "d12", "d13", "d14", \
-        "d20", "d21", "d22", "d23", "d24", \
-        "d31", "memory");
+	__asm__ __volatile__(
+		".arm \n\t"
+		".fpu neon \n\t"
+		"vldm.64 %[s], {d0-d4} \n\t"
+		"vmvn.64 d2, d2 \n\t" P6ROUNDS(
+			s) "vmvn.64 d2, d2 \n\t"
+			   "vstm.64 %[s], {d0-d4} \n\t" ::[s] "r"(s),
+		[C] "r"(C)
+		: "d0", "d1", "d2", "d3", "d4", "d10", "d11", "d12", "d13",
+		  "d14", "d20", "d21", "d22", "d23", "d24", "d31", "memory");
 }
 
 #endif /* PERMUTATIONS_H_ */

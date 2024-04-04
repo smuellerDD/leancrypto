@@ -212,9 +212,8 @@ static void keccak_c_add_bytes(void *state, const uint8_t *data,
 static void keccak_c_extract_bytes(const void *state, uint8_t *data,
 				   size_t offset, size_t length)
 {
-	sponge_extract_bytes(state, data, offset, length,
-			     LC_SHA3_STATE_WORDS, le_bswap64, le_bswap32,
-			     le64_to_ptr, le32_to_ptr);
+	sponge_extract_bytes(state, data, offset, length, LC_SHA3_STATE_WORDS,
+			     le_bswap64, le_bswap32, le64_to_ptr, le32_to_ptr);
 }
 
 static void keccak_c_newstate(void *state, const uint8_t *data, size_t offset,

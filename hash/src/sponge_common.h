@@ -68,15 +68,13 @@ static inline void sponge_fill_state_bytes(uint64_t *state, const uint8_t *in,
 	}
 }
 
-static inline void sponge_extract_bytes(const void *state, uint8_t *data,
-					size_t offset, size_t length,
-					unsigned int state_len,
-					uint64_t (*bswap64)(uint64_t),
-					uint32_t (*bswap32)(uint32_t),
-					void (*to_ptr64)(uint8_t *p,
-							const uint64_t value),
-					void (*to_ptr32)(uint8_t *p,
-							const uint32_t value))
+static inline void
+sponge_extract_bytes(const void *state, uint8_t *data, size_t offset,
+		     size_t length, unsigned int state_len,
+		     uint64_t (*bswap64)(uint64_t),
+		     uint32_t (*bswap32)(uint32_t),
+		     void (*to_ptr64)(uint8_t *p, const uint64_t value),
+		     void (*to_ptr32)(uint8_t *p, const uint32_t value))
 {
 	size_t i;
 	const uint64_t *s = state;

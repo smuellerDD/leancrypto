@@ -68,7 +68,8 @@ polyvecl_uniform_gamma1(polyvecl *v, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
 	for (i = 0; i < LC_DILITHIUM_L; ++i)
 		poly_uniform_gamma1(
 			&v->vec[i], seed,
-			le_bswap16((uint16_t)(LC_DILITHIUM_L * nonce + (uint16_t)i)),
+			le_bswap16((uint16_t)(LC_DILITHIUM_L * nonce +
+					      (uint16_t)i)),
 			ws_buf);
 }
 

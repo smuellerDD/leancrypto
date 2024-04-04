@@ -64,8 +64,8 @@ static inline void ascon_permutation_one(
 }
 
 #else
-static inline void ascon_permutation_one(
-	uint64_t s[LC_ASCON_HASH_STATE_WORDS], uint8_t constant)
+static inline void ascon_permutation_one(uint64_t s[LC_ASCON_HASH_STATE_WORDS],
+					 uint8_t constant)
 {
 	uint64_t t[5];
 
@@ -176,7 +176,6 @@ static const struct lc_hash _ascon_128_c = {
 	.statesize = sizeof(struct lc_ascon_hash),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_128_c) = &_ascon_128_c;
-
 
 static const struct lc_hash _ascon_128a_c = {
 	.init = ascon_128a_init,

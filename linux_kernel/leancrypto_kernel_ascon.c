@@ -47,7 +47,7 @@ static int lc_kernel_ascon_128a_init(struct shash_desc *desc)
 }
 
 static int lc_kernel_ascon_update(struct shash_desc *desc, const u8 *data,
-				 unsigned int len)
+				  unsigned int len)
 {
 	struct lc_hash_ctx *sctx = shash_desc_ctx(desc);
 
@@ -94,7 +94,8 @@ static struct shash_alg lc_ascon_algs[] = {
 
 int __init lc_kernel_ascon_init(void)
 {
-	return crypto_register_shashes(lc_ascon_algs, ARRAY_SIZE(lc_ascon_algs));
+	return crypto_register_shashes(lc_ascon_algs,
+				       ARRAY_SIZE(lc_ascon_algs));
 }
 
 void lc_kernel_ascon_exit(void)

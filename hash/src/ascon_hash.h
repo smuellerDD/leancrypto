@@ -30,7 +30,6 @@
 extern "C" {
 #endif
 
-
 /************************ Raw Ascon Sponge Operations *************************/
 
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
@@ -74,7 +73,7 @@ static void ascon_c_extract_bytes(const void *state, uint8_t *data,
 }
 
 static void ascon_c_newstate(void *state, const uint8_t *data, size_t offset,
-			      size_t length)
+			     size_t length)
 {
 	sponge_newstate(state, data, offset, length, be_bswap64);
 }
@@ -103,9 +102,9 @@ static inline void ascon_fill_state(struct lc_ascon_hash *ctx,
 	}
 }
 
-static inline void ascon_absorb_common(
-	void *_state, const uint8_t *in, size_t inlen,
-	void(*permutation)(void *state, unsigned int rounds))
+static inline void
+ascon_absorb_common(void *_state, const uint8_t *in, size_t inlen,
+		    void (*permutation)(void *state, unsigned int rounds))
 {
 	struct lc_ascon_hash *ctx = _state;
 	size_t partial;
@@ -147,7 +146,7 @@ static inline void ascon_absorb_common(
 	/* Perform a transformation of full block-size messages */
 	if (mem_aligned(in, sizeof(uint64_t) - 1)) {
 		for (; inlen >= LC_ASCON_HASH_RATE;
-		       inlen -= LC_ASCON_HASH_RATE, in += LC_ASCON_HASH_RATE) {
+		     inlen -= LC_ASCON_HASH_RATE, in += LC_ASCON_HASH_RATE) {
 			/*
 			 * We can ignore the alignment warning as we checked
 			 * for proper alignment.
@@ -161,7 +160,7 @@ static inline void ascon_absorb_common(
 		}
 	} else {
 		for (; inlen >= LC_ASCON_HASH_RATE;
-		       inlen -= LC_ASCON_HASH_RATE, in += LC_ASCON_HASH_RATE) {
+		     inlen -= LC_ASCON_HASH_RATE, in += LC_ASCON_HASH_RATE) {
 			ascon_fill_state(ctx, in);
 			if (inlen)
 				permutation(ctx->state, ctx->roundb);
@@ -174,8 +173,8 @@ static inline void ascon_absorb_common(
 
 static inline void ascon_squeeze_common(
 	void *_state, uint8_t *digest,
-	void(*permutation12)(uint64_t s[LC_ASCON_HASH_STATE_WORDS]),
-	void(*permutation)(void *state, unsigned int rounds))
+	void (*permutation12)(uint64_t s[LC_ASCON_HASH_STATE_WORDS]),
+	void (*permutation)(void *state, unsigned int rounds))
 {
 	struct lc_ascon_hash *ctx = _state;
 	size_t digest_len;

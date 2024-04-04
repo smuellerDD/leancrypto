@@ -69,8 +69,8 @@ static const struct lc_hash _ascon_128_arm_neon = {
 	.sponge_rate = 64 / 8,
 	.statesize = sizeof(struct lc_ascon_hash),
 };
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_128_arm_neon) = &_ascon_128_arm_neon;
-
+LC_INTERFACE_SYMBOL(const struct lc_hash *,
+		    lc_ascon_128_arm_neon) = &_ascon_128_arm_neon;
 
 static const struct lc_hash _ascon_128a_arm_neon = {
 	.init = ascon_128a_init,
@@ -85,7 +85,8 @@ static const struct lc_hash _ascon_128a_arm_neon = {
 	.sponge_rate = 128 / 8,
 	.statesize = sizeof(struct lc_ascon_hash),
 };
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_128a_arm_neon) = &_ascon_128a_arm_neon;
+LC_INTERFACE_SYMBOL(const struct lc_hash *,
+		    lc_ascon_128a_arm_neon) = &_ascon_128a_arm_neon;
 
 static const struct lc_hash _ascon_xof_arm_neon = {
 	.init = ascon_xof_init,
@@ -100,8 +101,8 @@ static const struct lc_hash _ascon_xof_arm_neon = {
 	.sponge_rate = 64 / 8,
 	.statesize = sizeof(struct lc_ascon_hash),
 };
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_xof_arm_neon) = &_ascon_xof_arm_neon;
-
+LC_INTERFACE_SYMBOL(const struct lc_hash *,
+		    lc_ascon_xof_arm_neon) = &_ascon_xof_arm_neon;
 
 static const struct lc_hash _ascon_xofa_arm_neon = {
 	.init = ascon_xofa_init,
@@ -116,4 +117,5 @@ static const struct lc_hash _ascon_xofa_arm_neon = {
 	.sponge_rate = 64 / 8,
 	.statesize = sizeof(struct lc_ascon_hash),
 };
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_xofa_arm_neon) = &_ascon_xofa_arm_neon;
+LC_INTERFACE_SYMBOL(const struct lc_hash *,
+		    lc_ascon_xofa_arm_neon) = &_ascon_xofa_arm_neon;

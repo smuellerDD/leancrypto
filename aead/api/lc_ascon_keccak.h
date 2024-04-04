@@ -60,7 +60,7 @@ int lc_ak_alloc(const struct lc_hash *hash, struct lc_aead_ctx **ctx);
 			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
 			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
 					  LC_AK_CTX_SIZE(hash),                     \
-					  LC_ASCON_ALIGNMENT);               \
+					  LC_ASCON_ALIGNMENT);                      \
 	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;            \
 	LC_ASCON_SET_CTX(name, hash);                                               \
 	struct lc_ascon_cryptor *__name_ascon_crypto = name->aead_state;            \

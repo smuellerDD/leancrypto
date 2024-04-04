@@ -155,9 +155,8 @@ static void keccak_arm_asm_add_bytes(void *state, const unsigned char *data,
 static void keccak_arm_asm_extract_bytes(const void *state, unsigned char *data,
 					 size_t offset, size_t length)
 {
-	sponge_extract_bytes(state, data, offset, length,
-			     LC_SHA3_STATE_WORDS, le_bswap64, le_bswap32,
-			     le64_to_ptr, le32_to_ptr);
+	sponge_extract_bytes(state, data, offset, length, LC_SHA3_STATE_WORDS,
+			     le_bswap64, le_bswap32, le64_to_ptr, le32_to_ptr);
 }
 
 static void keccak_arm_asm_newstate(void *state, const uint8_t *data,

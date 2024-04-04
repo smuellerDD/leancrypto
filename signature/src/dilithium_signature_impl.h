@@ -95,7 +95,7 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 			       "Keygen - Seed");
 
 	lc_xof(lc_shake256, ws->seedbuf, LC_DILITHIUM_SEEDBYTES, ws->seedbuf,
-		 sizeof(ws->seedbuf));
+	       sizeof(ws->seedbuf));
 
 	rho = ws->seedbuf;
 	dilithium_print_buffer(ws->seedbuf, LC_DILITHIUM_SEEDBYTES,
@@ -170,7 +170,7 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 
 	/* Compute H(rho, t1) and write secret key */
 	lc_xof(lc_shake256, pk->pk, sizeof(pk->pk), ws->tmp.tr,
-		 sizeof(ws->tmp.tr));
+	       sizeof(ws->tmp.tr));
 	dilithium_print_buffer(ws->tmp.tr, sizeof(ws->tmp.tr), "Keygen - TR:");
 	pack_sk_tr(sk, ws->tmp.tr);
 
@@ -238,9 +238,9 @@ static int lc_dilithium_sign_internal(struct lc_dilithium_sig *sig,
 
 	unpack_sk_key(key, sk);
 	lc_xof(lc_shake256, key,
-		 LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_RNDBYTES +
-			 LC_DILITHIUM_CRHBYTES,
-		 rhoprime, LC_DILITHIUM_CRHBYTES);
+	       LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_RNDBYTES +
+		       LC_DILITHIUM_CRHBYTES,
+	       rhoprime, LC_DILITHIUM_CRHBYTES);
 	dilithium_print_buffer(rhoprime, LC_DILITHIUM_CRHBYTES,
 			       "Siggen - RHOPrime:");
 
@@ -564,7 +564,7 @@ static int lc_dilithium_verify_impl(const struct lc_dilithium_sig *sig,
 
 	/* Compute CRH(H(rho, t1), msg) */
 	lc_xof(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES, tr,
-		 LC_DILITHIUM_TRBYTES);
+	       LC_DILITHIUM_TRBYTES);
 
 	lc_hash_init(hash_ctx);
 	lc_hash_update(hash_ctx, tr, LC_DILITHIUM_TRBYTES);
@@ -597,7 +597,7 @@ static int lc_dilithium_verify_init_impl(struct lc_hash_ctx *hash_ctx,
 
 	/* Compute CRH(H(rho, t1), msg) */
 	lc_xof(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES, mu,
-		 LC_DILITHIUM_TRBYTES);
+	       LC_DILITHIUM_TRBYTES);
 
 	lc_hash_init(hash_ctx);
 	lc_hash_update(hash_ctx, mu, LC_DILITHIUM_TRBYTES);

@@ -263,9 +263,9 @@ static int lc_dilithium_sign_avx2_internal(struct lc_dilithium_sig *sig,
 
 	unpack_sk_key_avx2(key, sk);
 	lc_xof(lc_shake256, key,
-		 LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_RNDBYTES +
-			 LC_DILITHIUM_CRHBYTES,
-		 rhoprime, LC_DILITHIUM_CRHBYTES);
+	       LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_RNDBYTES +
+		       LC_DILITHIUM_CRHBYTES,
+	       rhoprime, LC_DILITHIUM_CRHBYTES);
 
 	/* Expand matrix and transform vectors */
 	rho = ws->seedbuf;
@@ -599,7 +599,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_avx2,
 
 	/* Compute CRH(H(rho, t1), msg) */
 	lc_xof(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES, tr,
-		 LC_DILITHIUM_TRBYTES);
+	       LC_DILITHIUM_TRBYTES);
 
 	lc_hash_init(hash_ctx);
 	lc_hash_update(hash_ctx, tr, LC_DILITHIUM_TRBYTES);
@@ -632,7 +632,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_init_avx2,
 
 	/* Compute CRH(H(rho, t1), msg) */
 	lc_xof(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES, tr,
-		 LC_DILITHIUM_TRBYTES);
+	       LC_DILITHIUM_TRBYTES);
 
 	lc_hash_init(hash_ctx);
 	lc_hash_update(hash_ctx, tr, LC_DILITHIUM_TRBYTES);

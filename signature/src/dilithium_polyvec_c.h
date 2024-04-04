@@ -74,9 +74,10 @@ polyvec_matrix_expand(polyvecl mat[LC_DILITHIUM_K],
 
 	for (i = 0; i < LC_DILITHIUM_K; ++i)
 		for (j = 0; j < LC_DILITHIUM_L; ++j)
-			poly_uniform(&mat[i].vec[j], rho,
-				     le_bswap16((uint16_t)(i << 8) +
-						(uint16_t)j), ws_buf);
+			poly_uniform(
+				&mat[i].vec[j], rho,
+				le_bswap16((uint16_t)(i << 8) + (uint16_t)j),
+				ws_buf);
 }
 
 /**

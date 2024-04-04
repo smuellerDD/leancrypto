@@ -37,7 +37,7 @@ extern "C" {
 
 struct lc_ascon_hash {
 	uint64_t state[LC_ASCON_HASH_STATE_WORDS
-	/* AsconAVX512: enable if compilation is activated
+		       /* AsconAVX512: enable if compilation is activated
 	#ifdef LC_HOST_X86_64
 	+ 3
 	#endif */

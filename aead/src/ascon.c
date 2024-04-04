@@ -193,7 +193,8 @@ static void lc_ascon_enc_update(struct lc_ascon_cryptor *ascon,
 	size_t todo = 0;
 
 	while (datalen) {
-		todo = min_size(datalen, hash->sponge_rate - ascon->rate_offset);
+		todo = min_size(datalen,
+				hash->sponge_rate - ascon->rate_offset);
 
 		lc_sponge_add_bytes(hash, state_mem, plaintext,
 				    ascon->rate_offset, (unsigned int)todo);
@@ -284,7 +285,8 @@ static void lc_ascon_dec_update(struct lc_ascon_cryptor *ascon,
 	}
 
 	while (datalen) {
-		todo = min_size(datalen, hash->sponge_rate - ascon->rate_offset);
+		todo = min_size(datalen,
+				hash->sponge_rate - ascon->rate_offset);
 		lc_sponge_extract_bytes(hash, state_mem, pt_p,
 					ascon->rate_offset, (unsigned int)todo);
 
@@ -334,10 +336,11 @@ static void lc_ascon_dec_update(struct lc_ascon_cryptor *ascon,
 }
 
 /* Perform the authentication as the last step of the decryption operation */
-static int lc_ascon_dec_final(struct lc_ascon_cryptor *ascon, const uint8_t *tag,
-			      size_t taglen)
+static int lc_ascon_dec_final(struct lc_ascon_cryptor *ascon,
+			      const uint8_t *tag, size_t taglen)
 {
-	const struct lc_hash *hash = ascon->hash;;
+	const struct lc_hash *hash = ascon->hash;
+	;
 	uint8_t calctag[64] __align(sizeof(uint64_t));
 	int ret;
 

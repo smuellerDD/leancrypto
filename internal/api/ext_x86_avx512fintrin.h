@@ -29,17 +29,17 @@
 #ifndef EXT_X86_AVX512FINTRIN_H
 #define EXT_X86_AVX512FINTRIN_H
 
-typedef long long __v8di __attribute__ ((__vector_size__ (64)));
-typedef long long __m512i __attribute__ ((__vector_size__ (64), __may_alias__));
+typedef long long __v8di __attribute__((__vector_size__(64)));
+typedef long long __m512i __attribute__((__vector_size__(64), __may_alias__));
 
 extern __inline __m512i
-__attribute__ ((__gnu_inline__, __always_inline__, __artificial__))
-_mm512_set_epi64 (long long __A, long long __B, long long __C,
-		  long long __D, long long __E, long long __F,
-		  long long __G, long long __H)
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm512_set_epi64(long long __A, long long __B, long long __C,
+			 long long __D, long long __E, long long __F,
+			 long long __G, long long __H)
 {
-  return __extension__ (__m512i) (__v8di)
-	 { __H, __G, __F, __E, __D, __C, __B, __A };
+	return __extension__(__m512i)(__v8di){ __H, __G, __F, __E,
+					       __D, __C, __B, __A };
 }
 
 #endif /* EXT_X86_AVX512FINTRIN_H */
