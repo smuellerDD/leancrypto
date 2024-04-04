@@ -55,10 +55,11 @@ static inline void ascon_permutation_pl(uint64_t s[LC_ASCON_HASH_STATE_WORDS])
 	s[4] ^= ror64(s[4],  7) ^ ror64(s[4], 41);
 	// clang-format on
 }
-static inline void ascon_permutation_ps_pl(
-	uint64_t s[LC_ASCON_HASH_STATE_WORDS])
+
+static inline void ascon_permutation_one(
+	uint64_t s[LC_ASCON_HASH_STATE_WORDS], uint8_t constant)
 {
-	ascon_permutation_ps(s);
+	ascon_permutation_ps(s, constant);
 	ascon_permutation_pl(s);
 }
 
