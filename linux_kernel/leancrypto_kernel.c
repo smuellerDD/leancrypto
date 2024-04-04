@@ -61,12 +61,14 @@ EXPORT_SYMBOL(lc_kex_x25519_uake_responder_ss_internal);
 EXPORT_SYMBOL(crypto_scalarmult_curve25519_c);
 #endif
 
+void ascon_fastest_impl(void);
 void sha3_fastest_impl(void);
 void aes_fastest_impl(void);
 static int __init leancrypto_init(void)
 {
 	int ret;
 
+	ascon_fastest_impl();
 	sha3_fastest_impl();
 	aes_fastest_impl();
 
