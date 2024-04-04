@@ -267,8 +267,17 @@ if (host_machine.cpu_family() == 'x86_64' and
 	x86_64_asm = true
 	add_global_arguments([ '-DLC_HOST_X86_64' ], language: 'c')
 
+	# AsconAVX512: Enable if AVX512 support is enabled
+	# add_global_arguments([ '-DLC_HASH_COMMON_ALIGNMENT=64' ], language: 'c')
+
 	cc_avx2_args = [
 		'-mavx2',
+		'-mbmi2',
+		'-mpopcnt',
+		'-Wno-unused-command-line-argument'
+	]
+	cc_avx512_args = [
+		'-mavx512f',
 		'-mbmi2',
 		'-mpopcnt',
 		'-Wno-unused-command-line-argument'
