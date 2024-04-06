@@ -26,23 +26,24 @@
 #ifndef ROUND_H_
 #define ROUND_H_
 
-#define ROUND(OFFSET) /* clang-format off */ \
-  "vldr.64 d31, [%[C], #" #OFFSET "] \n\t" /* clang-format on */           \
-	"veor.64 d0, d0, d4 \n\t"                                              \
-	"veor.64 d4, d4, d3 \n\t"                                              \
-	"veor.64 d2, d2, d31 \n\t"                                             \
-	"vbic.64 d13, d0, d4 \n\t"                                             \
-	"vbic.64 d12, d4, d3 \n\t"                                             \
-	"veor.64 d2, d2, d1 \n\t"                                              \
-	"vbic.64 d14, d1, d0 \n\t"                                             \
-	"vbic.64 d11, d3, d2 \n\t"                                             \
-	"vbic.64 d10, d2, d1 \n\t"                                             \
-	"veor.64 q0, q0, q5 \n\t"                                              \
-	"veor.64 q1, q1, q6 \n\t"                                              \
-	"veor.64 d4, d4, d14 \n\t"                                             \
-	"veor.64 d1, d1, d0 \n\t"                                              \
-	"veor.64 d3, d3, d2 \n\t"                                              \
-	"veor.64 d0, d0, d4 \n\t"                                              \
+ /* clang-format off */
+#define ROUND(OFFSET)                                                          \
+  "vldr d31, [%[C], #" #OFFSET "] \n\t"                                        \
+	"veor d0, d0, d4 \n\t"                                                 \
+	"veor d4, d4, d3 \n\t"                                                 \
+	"veor d2, d2, d31 \n\t"                                                \
+	"vbic d13, d0, d4 \n\t"                                                \
+	"vbic d12, d4, d3 \n\t"                                                \
+	"veor d2, d2, d1 \n\t"                                                 \
+	"vbic d14, d1, d0 \n\t"                                                \
+	"vbic d11, d3, d2 \n\t"                                                \
+	"vbic d10, d2, d1 \n\t"                                                \
+	"veor q0, q0, q5 \n\t"                                                 \
+	"veor q1, q1, q6 \n\t"                                                 \
+	"veor d4, d4, d14 \n\t"                                                \
+	"veor d1, d1, d0 \n\t"                                                 \
+	"veor d3, d3, d2 \n\t"                                                 \
+	"veor d0, d0, d4 \n\t"                                                 \
 	"vsri.64 d14, d4, #7 \n\t"                                             \
 	"vsri.64 d24, d4, #41 \n\t"                                            \
 	"vsri.64 d11, d1, #39 \n\t"                                            \
@@ -63,11 +64,12 @@
 	"vsli.64 d23, d3, #47 \n\t"                                            \
 	"vsli.64 d14, d4, #57 \n\t"                                            \
 	"vsli.64 d24, d4, #23 \n\t"                                            \
-	"veor.64 q5, q5, q0 \n\t"                                              \
-	"veor.64 q6, q6, q1 \n\t"                                              \
-	"veor.64 d14, d14, d4 \n\t"                                            \
-	"veor.64 q0, q5, q10 \n\t"                                             \
-	"veor.64 d4, d14, d24 \n\t"                                            \
-	"veor.64 q1, q6, q11 \n\t"
+	"veor q5, q5, q0 \n\t"                                                 \
+	"veor q6, q6, q1 \n\t"                                                 \
+	"veor d14, d14, d4 \n\t"                                               \
+	"veor q0, q5, q10 \n\t"                                                \
+	"veor d4, d14, d24 \n\t"                                               \
+	"veor q1, q6, q11 \n\t"
+/* clang-format on */
 
 #endif /* ROUND_H_ */

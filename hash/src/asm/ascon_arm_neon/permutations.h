@@ -69,49 +69,51 @@ const uint64_t C[12] = {
 	ROUND(80)                                                              \
 	ROUND(88)
 
+/* clang-format off */
 static inline void
 ascon_permutation_12_arm_neon(uint64_t s[LC_ASCON_HASH_STATE_WORDS])
 {
 	__asm__ __volatile__(
-		".arm \n\t"
 		".fpu neon \n\t"
-		"vldm.64 %[s], {d0-d4} \n\t"
-		"vmvn.64 d2, d2 \n\t" P12ROUNDS(
-			s) "vmvn.64 d2, d2 \n\t"
-			   "vstm.64 %[s], {d0-d4} \n\t" ::[s] "r"(s),
-		[C] "r"(C)
-		: "d0", "d1", "d2", "d3", "d4", "d10", "d11", "d12", "d13",
-		  "d14", "d20", "d21", "d22", "d23", "d24", "d31", "memory");
+		"vldm %[s], {d0-d4} \n\t"
+		"vmvn d2, d2 \n\t" P12ROUNDS(s)
+		"vmvn d2, d2 \n\t"
+		"vstm %[s], {d0-d4} \n\t"
+		::[s] "r"(s), [C] "r"(C)
+		: "d0", "d1", "d2", "d3", "d4", "d10", "d11",
+		"d12", "d13", "d14", "d20", "d21", "d22", "d23",
+		"d24", "d31", "memory");
 }
 
 static inline void
 ascon_permutation_8_arm_neon(uint64_t s[LC_ASCON_HASH_STATE_WORDS])
 {
 	__asm__ __volatile__(
-		".arm \n\t"
 		".fpu neon \n\t"
-		"vldm.64 %[s], {d0-d4} \n\t"
-		"vmvn.64 d2, d2 \n\t" P8ROUNDS(
-			s) "vmvn.64 d2, d2 \n\t"
-			   "vstm.64 %[s], {d0-d4} \n\t" ::[s] "r"(s),
-		[C] "r"(C)
-		: "d0", "d1", "d2", "d3", "d4", "d10", "d11", "d12", "d13",
-		  "d14", "d20", "d21", "d22", "d23", "d24", "d31", "memory");
+		"vldm %[s], {d0-d4} \n\t"
+		"vmvn d2, d2 \n\t" P8ROUNDS(s)
+		"vmvn d2, d2 \n\t"
+		"vstm %[s], {d0-d4} \n\t"
+		::[s] "r"(s), [C] "r"(C)
+		: "d0", "d1", "d2", "d3", "d4", "d10", "d11",
+		"d12", "d13", "d14", "d20", "d21", "d22", "d23",
+		"d24", "d31", "memory");
 }
 
 static inline void
 ascon_permutation_6_arm_neon(uint64_t s[LC_ASCON_HASH_STATE_WORDS])
 {
 	__asm__ __volatile__(
-		".arm \n\t"
 		".fpu neon \n\t"
-		"vldm.64 %[s], {d0-d4} \n\t"
-		"vmvn.64 d2, d2 \n\t" P6ROUNDS(
-			s) "vmvn.64 d2, d2 \n\t"
-			   "vstm.64 %[s], {d0-d4} \n\t" ::[s] "r"(s),
-		[C] "r"(C)
-		: "d0", "d1", "d2", "d3", "d4", "d10", "d11", "d12", "d13",
-		  "d14", "d20", "d21", "d22", "d23", "d24", "d31", "memory");
+		"vldm %[s], {d0-d4} \n\t"
+		"vmvn d2, d2 \n\t" P6ROUNDS(s)
+		"vmvn d2, d2 \n\t"
+		"vstm %[s], {d0-d4} \n\t"
+		::[s] "r"(s), [C] "r"(C)
+		: "d0", "d1", "d2", "d3", "d4", "d10", "d11",
+		"d12", "d13", "d14", "d20", "d21", "d22", "d23",
+		"d24", "d31", "memory");
 }
+/* clang-format on */
 
 #endif /* PERMUTATIONS_H_ */
