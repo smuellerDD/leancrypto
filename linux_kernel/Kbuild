@@ -424,6 +424,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
 
 leancrypto-$(CONFIG_LEANCRYPTO_ASCON_HASH)				       \
 				+= ../hash/src/ascon_c.o		       \
+				   ../hash/src/ascon_hash_common.o	       \
 				   ../hash/src/ascon_selector.o		       \
 				   ../hash/src/ascon_selftest.o		       \
 				   leancrypto_kernel_ascon.o
@@ -436,6 +437,20 @@ leancrypto-$(CONFIG_LEANCRYPTO_ASCON_HASH)				       \
 leancrypto-$(CONFIG_LEANCRYPTO_ASCON_HASH)				       \
 				+= ../hash/src/ascon_avx512_null.o
 #endif
+
+ifdef CONFIG_ARM
+asflags-$(CONFIG_LEANCRYPTO_ASCON_HASH)					       \
+				+= -mfpu=neon-vfpv4			       \
+				   -mthumb				       \
+				   -march=armv7-a+vfpv4			       \
+				   -mfloat-abi=softfp			       \
+				   -funsafe-math-optimizations
+leancrypto-$(CONFIG_LEANCRYPTO_ASCON_HASH)				       \
+				+= ../hash/src/ascon_arm_neon.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_ASCON_HASH)				       \
+				+= ../hash/src/ascon_arm_neon_null.o
+endif
 
 ifdef CONFIG_LEANCRYPTO_ASCON_HASH
 ccflags-y			+= -DCONFIG_LEANCRYPTO_ASCON_HASH
@@ -712,6 +727,8 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM_X25519)				       \
 				   leancrypto_kernel_kyber_x25519.o
 
 ifdef CONFIG_X86_64
+ccflags-$(CONFIG_LEANCRYPTO_KEM)					       \
+				+= -mavx512f
 asflags-$(CONFIG_LEANCRYPTO_KEM)					       \
 				+= -I$(PWD)/../internal/api -DLINUX_KERNEL
 leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \

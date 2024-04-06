@@ -62,8 +62,7 @@
 #include "ext_x86_popcntintrin.h"
 #endif
 
-#if !(defined(_MSC_VER) || defined(__SCE__)) || __has_feature(modules) ||      \
-	defined(__AVX512F__)
+#if !(defined(_MSC_VER) || defined(__SCE__)) || defined(__AVX512F__)
 #include "ext_x86_avx512fintrin.h"
 #endif
 
