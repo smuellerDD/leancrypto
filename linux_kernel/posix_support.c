@@ -19,6 +19,7 @@
 
 #include <linux/slab.h>
 #include <linux/mm.h>
+#include <linux/log2.h>
 
 #include "ext_headers.h"
 #include "lc_memory_support.h"
@@ -27,9 +28,17 @@ const int errno = 0;
 
 int lc_alloc_aligned(void **memptr, size_t alignment, size_t size)
 {
-	void *mem = kmalloc(size, GFP_KERNEL);
+	void *mem;
 
-	WARN_ON(alignment > ARCH_KMALLOC_MINALIGN);
+	/* kmalloc is guaranteed to be aligned to power of 2 */
+	if (ARCH_KMALLOC_MINALIGN < alignment) {
+		if (size < alignment)
+			size = alignment;
+		mem = kmalloc(__roundup_pow_of_two(size), GFP_KERNEL);
+	} else {
+		mem = kmalloc(size, GFP_KERNEL);
+	}
+
 	if (!mem)
 		return -ENOMEM;
 

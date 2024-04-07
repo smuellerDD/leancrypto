@@ -149,22 +149,20 @@ if get_option('ascon').enabled()
 	include_files += files([ '../api/lc_ascon_hash.h' ])
 	lc_hash = 1
 
-	# Ascon: Intel AVX2 implementation - Disabled as it is slower than C
-	# If you want to enable it, search for AsconAVX512 and apply the
-	# comments
-# 	if (x86_64_asm)
-# 		leancrypto_ascon_avx512_lib = static_library(
-# 			'leancrypto_ascon_avx512_lib',
-# 			[ 'ascon_avx512.c' ],
-# 			c_args: cc_avx512_args,
-# 			include_directories: [ include_dirs,
-# 					       include_internal_dirs ],
-# 		)
-# 		leancrypto_support_libs += leancrypto_ascon_avx512_lib
-#
-# 	else
+	# Ascon: Intel AVX2 implementation
+	if (x86_64_asm)
+		leancrypto_ascon_avx512_lib = static_library(
+			'leancrypto_ascon_avx512_lib',
+			[ 'ascon_avx512.c' ],
+			c_args: cc_avx512_args,
+			include_directories: [ include_dirs,
+					       include_internal_dirs ],
+		)
+		leancrypto_support_libs += leancrypto_ascon_avx512_lib
+
+	else
 		src += files([ 'ascon_avx512_null.c' ])
-#	endif
+	endif
 
 	# 32 bit ARM processor and GCC
 	if (arm32_neon_gcc_asm)

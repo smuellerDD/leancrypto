@@ -29,47 +29,94 @@ static inline void
 ascon_permutation_6(uint64_t s[LC_ASCON_HASH_STATE_WORDS + 3])
 {
 	__m512i *z = (void *)s;
+	__m512i pxor1 = _mm512_set_epi64(0, 0, 0, 3, 0, 1, 0, 4);
+	__m512i pxor2 = _mm512_set_epi64(0, 0, 0, 0, 2, 0, 0, 4);
+	__m512i n = _mm512_set_epi64(0, 0, 0, 0, 0, ~0ll, 0, 0);
+	__m512i pchi1 = _mm512_set_epi64(0, 0, 0, 0, 4, 3, 2, 1);
+	__m512i pchi2 = _mm512_set_epi64(0, 0, 0, 1, 0, 4, 3, 2);
+	__m512i rot1 = _mm512_set_epi64(0, 0, 0, 7, 10, 1, 61, 19);
+	__m512i rot2 = _mm512_set_epi64(0, 0, 0, 41, 17, 6, 39, 28);
 
-	ascon_permutation_one_avx512(z, 0x96);
-	ascon_permutation_one_avx512(z, 0x87);
-	ascon_permutation_one_avx512(z, 0x78);
-	ascon_permutation_one_avx512(z, 0x69);
-	ascon_permutation_one_avx512(z, 0x5a);
-	ascon_permutation_one_avx512(z, 0x4b);
+	ascon_permutation_one_avx512(z, 0x96, pxor1, pxor2, n, pchi1, pchi2,
+				     rot1, rot2);
+	ascon_permutation_one_avx512(z, 0x87, pxor1, pxor2, n, pchi1, pchi2,
+				     rot1, rot2);
+	ascon_permutation_one_avx512(z, 0x78, pxor1, pxor2, n, pchi1, pchi2,
+				     rot1, rot2);
+	ascon_permutation_one_avx512(z, 0x69, pxor1, pxor2, n, pchi1, pchi2,
+				     rot1, rot2);
+	ascon_permutation_one_avx512(z, 0x5a, pxor1, pxor2, n, pchi1, pchi2,
+				     rot1, rot2);
+	ascon_permutation_one_avx512(z, 0x4b, pxor1, pxor2, n, pchi1, pchi2,
+				     rot1, rot2);
 }
 
 static inline void
 ascon_permutation_8(uint64_t s[LC_ASCON_HASH_STATE_WORDS + 3])
 {
 	__m512i *z = (void *)s;
+	__m512i pxor1 = _mm512_set_epi64(0, 0, 0, 3, 0, 1, 0, 4);
+	__m512i pxor2 = _mm512_set_epi64(0, 0, 0, 0, 2, 0, 0, 4);
+	__m512i n = _mm512_set_epi64(0, 0, 0, 0, 0, ~0ll, 0, 0);
+	__m512i pchi1 = _mm512_set_epi64(0, 0, 0, 0, 4, 3, 2, 1);
+	__m512i pchi2 = _mm512_set_epi64(0, 0, 0, 1, 0, 4, 3, 2);
+	__m512i rot1 = _mm512_set_epi64(0, 0, 0, 7, 10, 1, 61, 19);
+	__m512i rot2 = _mm512_set_epi64(0, 0, 0, 41, 17, 6, 39, 28);
 
-	ascon_permutation_one_avx512(z, 0xb4);
-	ascon_permutation_one_avx512(z, 0xa5);
-	ascon_permutation_one_avx512(z, 0x96);
-	ascon_permutation_one_avx512(z, 0x87);
-	ascon_permutation_one_avx512(z, 0x78);
-	ascon_permutation_one_avx512(z, 0x69);
-	ascon_permutation_one_avx512(z, 0x5a);
-	ascon_permutation_one_avx512(z, 0x4b);
+	ascon_permutation_one_avx512(z, 0xb4, pxor1, pxor2, n, pchi1, pchi2,
+				     rot1, rot2);
+	ascon_permutation_one_avx512(z, 0xa5, pxor1, pxor2, n, pchi1, pchi2,
+				     rot1, rot2);
+	ascon_permutation_one_avx512(z, 0x96, pxor1, pxor2, n, pchi1, pchi2,
+				     rot1, rot2);
+	ascon_permutation_one_avx512(z, 0x87, pxor1, pxor2, n, pchi1, pchi2,
+				     rot1, rot2);
+	ascon_permutation_one_avx512(z, 0x78, pxor1, pxor2, n, pchi1, pchi2,
+				     rot1, rot2);
+	ascon_permutation_one_avx512(z, 0x69, pxor1, pxor2, n, pchi1, pchi2,
+				     rot1, rot2);
+	ascon_permutation_one_avx512(z, 0x5a, pxor1, pxor2, n, pchi1, pchi2,
+				     rot1, rot2);
+	ascon_permutation_one_avx512(z, 0x4b, pxor1, pxor2, n, pchi1, pchi2,
+				     rot1, rot2);
 }
 
 static inline void
 ascon_permutation_12(uint64_t s[LC_ASCON_HASH_STATE_WORDS + 3])
 {
 	__m512i *z = (void *)s;
+	__m512i pxor1 = _mm512_set_epi64(0, 0, 0, 3, 0, 1, 0, 4);
+	__m512i pxor2 = _mm512_set_epi64(0, 0, 0, 0, 2, 0, 0, 4);
+	__m512i n = _mm512_set_epi64(0, 0, 0, 0, 0, ~0ll, 0, 0);
+	__m512i pchi1 = _mm512_set_epi64(0, 0, 0, 0, 4, 3, 2, 1);
+	__m512i pchi2 = _mm512_set_epi64(0, 0, 0, 1, 0, 4, 3, 2);
+	__m512i rot1 = _mm512_set_epi64(0, 0, 0, 7, 10, 1, 61, 19);
+	__m512i rot2 = _mm512_set_epi64(0, 0, 0, 41, 17, 6, 39, 28);
 
-	ascon_permutation_one_avx512(z, 0xf0);
-	ascon_permutation_one_avx512(z, 0xe1);
-	ascon_permutation_one_avx512(z, 0xd2);
-	ascon_permutation_one_avx512(z, 0xc3);
-	ascon_permutation_one_avx512(z, 0xb4);
-	ascon_permutation_one_avx512(z, 0xa5);
-	ascon_permutation_one_avx512(z, 0x96);
-	ascon_permutation_one_avx512(z, 0x87);
-	ascon_permutation_one_avx512(z, 0x78);
-	ascon_permutation_one_avx512(z, 0x69);
-	ascon_permutation_one_avx512(z, 0x5a);
-	ascon_permutation_one_avx512(z, 0x4b);
+	ascon_permutation_one_avx512(z, 0xf0, pxor1, pxor2, n, pchi1, pchi2,
+				     rot1, rot2);
+	ascon_permutation_one_avx512(z, 0xe1, pxor1, pxor2, n, pchi1, pchi2,
+				     rot1, rot2);
+	ascon_permutation_one_avx512(z, 0xd2, pxor1, pxor2, n, pchi1, pchi2,
+				     rot1, rot2);
+	ascon_permutation_one_avx512(z, 0xc3, pxor1, pxor2, n, pchi1, pchi2,
+				     rot1, rot2);
+	ascon_permutation_one_avx512(z, 0xb4, pxor1, pxor2, n, pchi1, pchi2,
+				     rot1, rot2);
+	ascon_permutation_one_avx512(z, 0xa5, pxor1, pxor2, n, pchi1, pchi2,
+				     rot1, rot2);
+	ascon_permutation_one_avx512(z, 0x96, pxor1, pxor2, n, pchi1, pchi2,
+				     rot1, rot2);
+	ascon_permutation_one_avx512(z, 0x87, pxor1, pxor2, n, pchi1, pchi2,
+				     rot1, rot2);
+	ascon_permutation_one_avx512(z, 0x78, pxor1, pxor2, n, pchi1, pchi2,
+				     rot1, rot2);
+	ascon_permutation_one_avx512(z, 0x69, pxor1, pxor2, n, pchi1, pchi2,
+				     rot1, rot2);
+	ascon_permutation_one_avx512(z, 0x5a, pxor1, pxor2, n, pchi1, pchi2,
+				     rot1, rot2);
+	ascon_permutation_one_avx512(z, 0x4b, pxor1, pxor2, n, pchi1, pchi2,
+				     rot1, rot2);
 }
 
 static void ascon_avx512_permutation(void *state, unsigned int rounds)

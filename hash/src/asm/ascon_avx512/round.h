@@ -29,21 +29,19 @@
 #include "ascon_hash.h"
 #include "ext_headers_x86.h"
 
-static inline void ascon_permutation_one_avx512(__m512i *z, long long C)
+static const __mmask8 mxor1 = 0x15;
+static const __mmask8 mxor2 = 0x0b;
+
+static inline void ascon_permutation_one_avx512(__m512i *z, long long C,
+						__m512i pxor1, __m512i pxor2,
+						__m512i n, __m512i pchi1,
+						__m512i pchi2, __m512i rot1,
+						__m512i rot2)
 {
 	long long x = 0;
-
-	__mmask8 mxor1 = 0x15;
-	__mmask8 mxor2 = 0x0b;
-	__m512i pxor1 = _mm512_set_epi64(x, x, x, 3, x, 1, x, 4);
-	__m512i pxor2 = _mm512_set_epi64(x, x, x, x, 2, x, 0, 4);
 	__m512i c = _mm512_set_epi64(x, x, x, 0, 0, C, 0, 0);
-	__m512i n = _mm512_set_epi64(x, x, x, 0, 0, ~0ll, 0, 0);
-	__m512i pchi1 = _mm512_set_epi64(x, x, x, 0, 4, 3, 2, 1);
-	__m512i pchi2 = _mm512_set_epi64(x, x, x, 1, 0, 4, 3, 2);
-	__m512i rot1 = _mm512_set_epi64(x, x, x, 7, 10, 1, 61, 19);
-	__m512i rot2 = _mm512_set_epi64(x, x, x, 41, 17, 6, 39, 28);
 	__m512i t0, t1, t2;
+
 	/* round constant + s-box layer */
 	t0 = _mm512_maskz_permutexvar_epi64(mxor1, pxor1, *z);
 	t0 = _mm512_ternarylogic_epi64(*z, t0, c, 0x96);

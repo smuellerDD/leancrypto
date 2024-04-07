@@ -429,14 +429,17 @@ leancrypto-$(CONFIG_LEANCRYPTO_ASCON_HASH)				       \
 				   ../hash/src/ascon_selftest.o		       \
 				   leancrypto_kernel_ascon.o
 
-# AsconAVX512: enable if desired - yet it is slower than C
-#ifdef CONFIG_X86_64
-#leancrypto-$(CONFIG_LEANCRYPTO_ASCON_HASH)				       \
-#				+= ../hash/src/ascon_avx512.o
-#else
+ifdef CONFIG_X86_64
+ccflags-$(CONFIG_LEANCRYPTO_ASCON_HASH)					       \
+				+= -I$(PWD)/../hash/src -DLINUX_KERNEL
+leancrypto-$(CONFIG_LEANCRYPTO_ASCON_HASH)				       \
+				+= ../hash/src/ascon_avx512.o
+CFLAGS_../hash/src/ascon_avx512.o					       \
+				= -mavx512f
+else
 leancrypto-$(CONFIG_LEANCRYPTO_ASCON_HASH)				       \
 				+= ../hash/src/ascon_avx512_null.o
-#endif
+endif
 
 ifdef CONFIG_ARM
 asflags-$(CONFIG_LEANCRYPTO_ASCON_HASH)					       \
