@@ -13,7 +13,7 @@ if get_option('chacha20_drng').enabled()
 				   )
 
 	test('DRNG ChaCha20', chacha20_drng_tester)
-	test('DRNG ChaCha20 1GB', chacha20_drng_tester_large, timeout: 600,
+	test('DRNG ChaCha20 large', chacha20_drng_tester_large, timeout: 600,
 	     is_parallel: false)
 endif
 
@@ -44,9 +44,9 @@ if get_option('kmac_drng').enabled()
 				   )
 
 	test('DRNG KMAC', kmac_drng_tester)
-	test('DRNG KMAC Accel 1GB', kmac_drng_tester_large, timeout: 600,
+	test('DRNG KMAC Accel large', kmac_drng_tester_large, timeout: 600,
 	     is_parallel: false)
-	test('DRNG KMAC C 1GB', kmac_drng_tester_large_c, timeout: 600,
+	test('DRNG KMAC C large', kmac_drng_tester_large_c, timeout: 600,
 	     is_parallel: false)
 endif
 
@@ -77,9 +77,9 @@ if get_option('cshake_drng').enabled()
 				   )
 
 	test('DRNG cSHAKE', cshake_drng_tester)
-	test('DRNG cSHAKE Accel 1GB', cshake_drng_tester_large, timeout: 600,
+	test('DRNG cSHAKE Accel large', cshake_drng_tester_large, timeout: 600,
 	     is_parallel: false)
-	test('DRNG cSHAKE C 1GB', cshake_drng_tester_large_c, timeout: 600,
+	test('DRNG cSHAKE C large', cshake_drng_tester_large_c, timeout: 600,
 	     is_parallel: false)
 endif
 
@@ -110,9 +110,9 @@ if get_option('xdrbg256').enabled()
 				   )
 
 	test('DRNG XDRBG 256', xdrbg256_tester)
-	test('DRNG XDRBG 256 Accel 1GB', xdrbg256_tester_large, timeout: 600,
+	test('DRNG XDRBG 256 Accel large', xdrbg256_tester_large, timeout: 600,
 	     is_parallel: false)
-	test('DRNG XDRBG 256 C 1GB', xdrbg256_tester_large_c, timeout: 600,
+	test('DRNG XDRBG 256 C large', xdrbg256_tester_large_c, timeout: 600,
 	     is_parallel: false)
 endif
 
@@ -128,7 +128,7 @@ if get_option('drbg_hash').enabled()
 				dependencies: leancrypto
 				)
 	test('DRNG Hash SHA2-512 DRBG', hash_sha2_drbg_tester)
-	test('DRNG Hash SHA2-512 DRBG 1GB', hash_sha2_drbg_tester_large,
+	test('DRNG Hash SHA2-512 DRBG large', hash_sha2_drbg_tester_large,
 	     timeout: 1500, is_parallel: false)
 
 #	Disabled as SHA3 DRBG is disabled in main meson.build
@@ -154,7 +154,7 @@ if get_option('drbg_hmac').enabled()
 				dependencies: leancrypto
 				)
 	test('DRNG HMAC SHA2-512 DRBG', hmac_sha2_drbg_tester)
-	test('DRNG HMAC SHA2-512 DRBG 1GB', hmac_sha2_drbg_tester_large,
+	test('DRNG HMAC SHA2-512 DRBG large', hmac_sha2_drbg_tester_large,
 	     timeout: 1500, is_parallel: false)
 endif
 

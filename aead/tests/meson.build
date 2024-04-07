@@ -20,7 +20,7 @@ if get_option('sha2-512').enabled() and get_option('drbg_hash').enabled()
 			       )
 
 	test('AEAD Hash Crypt', hash_crypt_tester)
-	test('AEAD Hash Crypt 1GB', hash_crypt_large_tester,
+	test('AEAD Hash Crypt large', hash_crypt_large_tester,
 	     timeout: 2500, is_parallel: false)
 endif
 
@@ -42,9 +42,9 @@ if get_option('kmac_drng').enabled()
 				)
 
 	test('AEAD KMAC Crypt', kmac_crypt_tester)
-	test('AEAD KMAC Crypt Accel 1GB', kmac_crypt_large_tester,
+	test('AEAD KMAC Crypt Accel large', kmac_crypt_large_tester,
 	     timeout: 2500, is_parallel: false)
-	test('AEAD KMAC Crypt C 1GB', kmac_crypt_large_tester_c, timeout: 2500,
+	test('AEAD KMAC Crypt C large', kmac_crypt_large_tester_c, timeout: 2500,
 	     is_parallel: false)
 endif
 
@@ -66,9 +66,9 @@ if get_option('cshake_drng').enabled()
 				)
 
 	test('AEAD cSHAKE Crypt', cshake_crypt_tester)
-	test('AEAD cSHAKE Crypt Accel 1GB', cshake_crypt_large_tester,
+	test('AEAD cSHAKE Crypt Accel large', cshake_crypt_large_tester,
 	     timeout: 2500, is_parallel: false)
-	test('AEAD cSHAKE Crypt C 1GB', cshake_crypt_large_tester_c,
+	test('AEAD cSHAKE Crypt C large', cshake_crypt_large_tester_c,
 	     timeout: 2500, is_parallel: false)
 endif
 
@@ -86,7 +86,7 @@ if get_option('aes_cbc').enabled()
 				)
 
 		test('AEAD Sym HMAC', symhmac_test)
-		test('AEAD Sym HMAC 1GB', symhmac_large_test,
+		test('AEAD Sym HMAC large', symhmac_large_test,
 		     timeout: 2500, is_parallel: false)
 	endif
 
@@ -113,11 +113,11 @@ if get_option('aes_cbc').enabled()
 				)
 
 		test('AEAD Sym KMAC256', symkmac256_test)
-		test('AEAD Sym KMAC256 1GB', symkmac256_large_test,
+		test('AEAD Sym KMAC256 large', symkmac256_large_test,
 		     timeout: 2500, is_parallel: false)
 
 		test('AEAD Sym KMAC128', symkmac128_test)
-		test('AEAD Sym KMAC128 1GB', symkmac128_large_test,
+		test('AEAD Sym KMAC128 large', symkmac128_large_test,
 		     timeout: 2500, is_parallel: false)
 	endif
 endif
@@ -164,16 +164,16 @@ if get_option('hash_crypt').enabled()
 				)
 	test('AEAD Ascon Keccak', ascon_keccak_crypt_test)
 	test('AEAD Ascon Keccak IUF', ascon_keccak_crypt_iuf_test)
-	test('AEAD Ascon Keccak 256/512 Accel 1GB',
+	test('AEAD Ascon Keccak 256/512 Accel large',
 	     ascon_keccak_crypt_large_test_512,
 	     timeout: 2500, is_parallel: false)
-	test('AEAD Ascon Keccak 256/512 C 1GB',
+	test('AEAD Ascon Keccak 256/512 C large',
 	     ascon_keccak_crypt_large_test_512_c,
 	     timeout: 2500, is_parallel: false)
-	test('AEAD Ascon Keccak 256/256 Accel 1GB',
+	test('AEAD Ascon Keccak 256/256 Accel large',
 	     ascon_keccak_crypt_large_test_256,
 	     timeout: 2500, is_parallel: false)
-	test('AEAD Ascon Keccak 256/256 C 1GB',
+	test('AEAD Ascon Keccak 256/256 C large',
 	     ascon_keccak_crypt_large_test_256_c,
 	     timeout: 2500, is_parallel: false)
 
@@ -217,16 +217,16 @@ if (get_option('hash_crypt').enabled() and get_option('ascon').enabled())
 				)
 	test('AEAD Ascon C', ascon_crypt_test)
 	test('AEAD Ascon IUF C', ascon_crypt_iuf_test)
-	test('AEAD Ascon 128 Accel 1GB',
+	test('AEAD Ascon 128 Accel large',
 	     ascon_crypt_large_test_128,
 	     timeout: 2500, is_parallel: false)
-	test('AEAD Ascon 128a Accel 1GB',
+	test('AEAD Ascon 128a Accel large',
 	     ascon_crypt_large_test_128a,
 	     timeout: 2500, is_parallel: false)
-	test('AEAD Ascon 128 C 1GB',
+	test('AEAD Ascon 128 C large',
 	     ascon_crypt_large_test_128_c,
 	     timeout: 2500, is_parallel: false)
-	test('AEAD Ascon 128a C 1GB',
+	test('AEAD Ascon 128a C large',
 	     ascon_crypt_large_test_128a_c,
 	     timeout: 2500, is_parallel: false)
 endif

@@ -23,7 +23,7 @@ if get_option('chacha20').enabled()
 
 	test('Symmetric ChaCha20 block', chacha20_block_tester)
 	test('Symmetric ChaCha20 stream', chacha20_stream_tester)
-	test('Symmetric ChaCha20 1GB', chacha20_stream_large_tester,
+	test('Symmetric ChaCha20 large', chacha20_stream_large_tester,
 	     timeout: 600)
 endif
 
@@ -131,9 +131,9 @@ if get_option('aes_cbc').enabled()
 
 	test('Symmetric AES CBC encryption', aes_cbc_enc_tester)
 	test('Symmetric AES CBC decryption', aes_cbc_dec_tester)
-	test('AES CBC C 1GB', aes_cbc_c_large_tester, timeout: 2000)
-	test('AES CBC Accel 1GB', aes_cbc_large_tester, timeout: 2000)
-#	test('AES CBC OpenSSL 1GB', aes_cbc_openssl_large_tester, timeout: 300)
+	test('AES CBC C large', aes_cbc_c_large_tester, timeout: 2000)
+	test('AES CBC Accel large', aes_cbc_large_tester, timeout: 2000)
+#	test('AES CBC OpenSSL large', aes_cbc_openssl_large_tester, timeout: 300)
 endif
 
 if get_option('aes_ctr').enabled()
@@ -154,7 +154,7 @@ if get_option('aes_ctr').enabled()
 					)
 
 	test('Symmetric AES CTR en/decryption', aes_ctr_tester)
-	#test('AES CTR 1GB', aes_ctr_large_tester, timeout: 300)
+	#test('AES CTR large', aes_ctr_large_tester, timeout: 300)
 endif
 
 if get_option('aes_kw').enabled()
