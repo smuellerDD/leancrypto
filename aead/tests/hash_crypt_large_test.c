@@ -24,6 +24,7 @@
 #include "binhexbin.h"
 #include "lc_hash_crypt.h"
 #include "lc_sha256.h"
+#include "test_helper.h"
 
 static int hc_tester_sha512_large(void)
 {
@@ -34,26 +35,28 @@ static int hc_tester_sha512_large(void)
 			  0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
 	uint8_t key[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 			  0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
+	size_t len;
 	ssize_t ret;
 
-	pt = calloc(1, 1UL << 30);
-	if (!pt)
-		return 77;
+	CKINT(test_mem(&pt, &len));
 
 	lc_aead_setkey(hc, key, sizeof(key), NULL, 0);
-	lc_aead_encrypt(hc, pt, pt, 1UL << 30, aad, sizeof(aad), tag,
+	lc_aead_encrypt(hc, pt, pt, len, aad, sizeof(aad), tag,
 			sizeof(tag));
 	lc_aead_zero(hc);
 
 	lc_aead_setkey(hc, key, sizeof(key), NULL, 0);
-	ret = lc_aead_decrypt(hc, pt, pt, 1UL << 30, aad, sizeof(aad), tag,
+	ret = lc_aead_decrypt(hc, pt, pt, len, aad, sizeof(aad), tag,
 			      sizeof(tag));
 	lc_aead_zero(hc);
-	free(pt);
+
 	if (ret < 0) {
 		printf("Error return code %zd\n", ret);
 		return 1;
 	}
+
+out:
+	free(pt);
 	return 0;
 }
 

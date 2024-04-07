@@ -23,10 +23,10 @@
 #include "compare.h"
 #include "binhexbin.h"
 #include "lc_ascon_keccak.h"
+#include "test_helper.h"
 
 #include "sha3_c.h"
 
-#define LC_AK_DATA_LEN (1UL << 30)
 static int ak_256512_tester_large(void)
 {
 	LC_AK_CTX_ON_STACK(ak, lc_sha3_256_c);
@@ -42,17 +42,16 @@ static int ak_256512_tester_large(void)
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 		0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
 	};
+	size_t len;
 	int ret;
 
-	pt = calloc(1, LC_AK_DATA_LEN);
-	if (!pt)
-		return 77;
+	CKINT(test_mem(&pt, &len));
 
 	if (lc_aead_setkey(ak, key, sizeof(key), iv, sizeof(iv))) {
 		ret = EFAULT;
 		goto out;
 	}
-	lc_aead_encrypt(ak, pt, pt, LC_AK_DATA_LEN, aad, sizeof(aad), tag,
+	lc_aead_encrypt(ak, pt, pt, len, aad, sizeof(aad), tag,
 			sizeof(tag));
 	lc_aead_zero(ak);
 
@@ -60,7 +59,7 @@ static int ak_256512_tester_large(void)
 		ret = EFAULT;
 		goto out;
 	}
-	ret = lc_aead_decrypt(ak, pt, pt, LC_AK_DATA_LEN, aad, sizeof(aad), tag,
+	ret = lc_aead_decrypt(ak, pt, pt, len, aad, sizeof(aad), tag,
 			      sizeof(tag));
 	lc_aead_zero(ak);
 

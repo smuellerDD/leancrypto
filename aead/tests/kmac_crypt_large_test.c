@@ -24,6 +24,7 @@
 #include "binhexbin.h"
 #include "lc_kmac_crypt.h"
 #include "lc_cshake.h"
+#include "test_helper.h"
 
 static int kc_tester_kmac_large(void)
 {
@@ -34,21 +35,22 @@ static int kc_tester_kmac_large(void)
 			  0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
 	uint8_t key[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 			  0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
+	size_t len;
 	int ret;
 
-	pt = calloc(1, 1UL << 30);
-	if (!pt)
-		return 77;
+	CKINT(test_mem(&pt, &len));
 
 	lc_aead_setkey(kc, key, sizeof(key), NULL, 0);
-	lc_aead_encrypt(kc, pt, pt, 1UL << 30, aad, sizeof(aad), tag,
+	lc_aead_encrypt(kc, pt, pt, len, aad, sizeof(aad), tag,
 			sizeof(tag));
 	lc_aead_zero(kc);
 
 	lc_aead_setkey(kc, key, sizeof(key), NULL, 0);
-	ret = lc_aead_decrypt(kc, pt, pt, 1UL << 30, aad, sizeof(aad), tag,
+	ret = lc_aead_decrypt(kc, pt, pt, len, aad, sizeof(aad), tag,
 			      sizeof(tag));
 	lc_aead_zero(kc);
+
+out:
 	free(pt);
 	return ret;
 }

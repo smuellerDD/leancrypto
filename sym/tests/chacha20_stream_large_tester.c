@@ -20,9 +20,9 @@
 #include "conv_be_le.h"
 #include "lc_chacha20.h"
 #include "ret_checkers.h"
+#include "test_helper.h"
 #include "visibility.h"
 
-#define LC_CHACHA_SIZE (1UL << 30)
 static int chacha20_large_tester(void)
 {
 	/* Test vector according to RFC 7539 section 2.4.2 */
@@ -34,25 +34,24 @@ static int chacha20_large_tester(void)
 	static const uint8_t iv[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 				      0x00, 0x4a, 0x00, 0x00, 0x00, 0x00 };
 	uint8_t *pt = NULL;
+	size_t len;
 	int ret;
 	LC_SYM_CTX_ON_STACK(chacha20, lc_chacha20);
 
-	pt = calloc(1, LC_CHACHA_SIZE);
-	if (!pt)
-		return 77;
+	CKINT(test_mem(&pt, &len));
 
 	/* Encrypt */
 	lc_sym_init(chacha20);
 	CKINT(lc_sym_setkey(chacha20, (uint8_t *)key, sizeof(key)));
 	CKINT(lc_sym_setiv(chacha20, (uint8_t *)iv, sizeof(iv)));
-	lc_sym_encrypt(chacha20, pt, pt, LC_CHACHA_SIZE);
+	lc_sym_encrypt(chacha20, pt, pt, len);
 	lc_sym_zero(chacha20);
 
 	/* Decrypt */
 	lc_sym_init(chacha20);
 	CKINT(lc_sym_setkey(chacha20, (uint8_t *)key, sizeof(key)));
 	CKINT(lc_sym_setiv(chacha20, (uint8_t *)iv, sizeof(iv)));
-	lc_sym_decrypt(chacha20, pt, pt, LC_CHACHA_SIZE);
+	lc_sym_decrypt(chacha20, pt, pt, len);
 	lc_sym_zero(chacha20);
 
 out:

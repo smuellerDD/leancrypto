@@ -24,13 +24,14 @@
 #include "compare.h"
 #include "binhexbin.h"
 #include "lc_ascon_lightweight.h"
+#include "test_helper.h"
 
-#define LC_AL_DATA_LEN (1UL << 30)
 static int al_128a_tester_large(void)
 {
 	LC_AL_CTX_ON_STACK(al, lc_ascon_128a_c);
 	uint8_t tag[16];
 	uint8_t *pt;
+	size_t len;
 	static const uint8_t aad[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
 				       0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D,
 				       0x0E, 0x0F, 0x10, 0x11, 0x12, 0x13, 0x14,
@@ -44,15 +45,13 @@ static int al_128a_tester_large(void)
 					 0x0C, 0x0D, 0x0E, 0x0F };
 	int ret;
 
-	pt = calloc(1, LC_AL_DATA_LEN);
-	if (!pt)
-		return 77;
+	CKINT(test_mem(&pt, &len));
 
 	if (lc_aead_setkey(al, key, sizeof(key), nonce, sizeof(nonce))) {
 		ret = EFAULT;
 		goto out;
 	}
-	lc_aead_encrypt(al, pt, pt, LC_AL_DATA_LEN, aad, sizeof(aad), tag,
+	lc_aead_encrypt(al, pt, pt, len, aad, sizeof(aad), tag,
 			sizeof(tag));
 	lc_aead_zero(al);
 
@@ -60,7 +59,7 @@ static int al_128a_tester_large(void)
 		ret = EFAULT;
 		goto out;
 	}
-	ret = lc_aead_decrypt(al, pt, pt, LC_AL_DATA_LEN, aad, sizeof(aad), tag,
+	ret = lc_aead_decrypt(al, pt, pt, len, aad, sizeof(aad), tag,
 			      sizeof(tag));
 	lc_aead_zero(al);
 

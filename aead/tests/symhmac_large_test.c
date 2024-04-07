@@ -26,7 +26,7 @@
 #include "../../hash/api/sha3_c.h"
 #include "lc_sha512.h"
 #include "lc_symhmac.h"
-#include "ret_checkers.h"
+#include "test_helper.h"
 
 static int symhmac_tester_large(void)
 {
@@ -39,19 +39,18 @@ static int symhmac_tester_large(void)
 			  0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
 			  0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 			  0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
+	size_t len;
 	int ret;
 
-	pt = calloc(1, 1UL << 30);
-	if (!pt)
-		return 77;
+	CKINT(test_mem(&pt, &len));
 
 	CKINT(lc_aead_setkey(sh, key, sizeof(key), aad, sizeof(aad)));
-	lc_aead_encrypt(sh, pt, pt, 1UL << 30, aad, sizeof(aad), tag,
+	lc_aead_encrypt(sh, pt, pt, len, aad, sizeof(aad), tag,
 			sizeof(tag));
 	lc_aead_zero(sh);
 
 	CKINT(lc_aead_setkey(sh, key, sizeof(key), aad, sizeof(aad)));
-	ret = lc_aead_decrypt(sh, pt, pt, 1UL << 30, aad, sizeof(aad), tag,
+	ret = lc_aead_decrypt(sh, pt, pt, len, aad, sizeof(aad), tag,
 			      sizeof(tag));
 
 out:

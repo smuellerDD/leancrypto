@@ -18,14 +18,12 @@
  */
 
 #include <errno.h>
-#include <stdlib.h>
 
 #include <openssl/aes.h>
 #include <openssl/evp.h>
 
-#include "ret_checkers.h"
+#include "test_helper.h"
 
-#define LC_OPENSSL_SIZE (1UL << 30)
 static int aes_cbc_large(void)
 {
 	EVP_CIPHER_CTX *ctx = NULL;
@@ -36,11 +34,10 @@ static int aes_cbc_large(void)
 			  0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
 	uint8_t iv[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 			 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
+	size_t len;
 	int ret;
 
-	pt = calloc(1, LC_OPENSSL_SIZE);
-	if (!pt)
-		return 77;
+	CKINT(test_mem(&pt, &len));
 
 	ctx = EVP_CIPHER_CTX_new();
 	CKNULL(ctx, -ENOMEM);
@@ -50,7 +47,7 @@ static int aes_cbc_large(void)
 		ret = 1;
 		goto out;
 	}
-	ret = EVP_CipherUpdate(ctx, pt, &outl, pt, LC_OPENSSL_SIZE);
+	ret = EVP_CipherUpdate(ctx, pt, &outl, pt, len);
 	if (!ret) {
 		ret = 1;
 		goto out;
@@ -70,7 +67,7 @@ static int aes_cbc_large(void)
 		ret = 1;
 		goto out;
 	}
-	ret = EVP_CipherUpdate(ctx, pt, &outl, pt, LC_OPENSSL_SIZE);
+	ret = EVP_CipherUpdate(ctx, pt, &outl, pt, len);
 	if (!ret) {
 		ret = 1;
 		goto out;

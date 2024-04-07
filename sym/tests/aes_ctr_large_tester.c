@@ -20,7 +20,7 @@
 #include "aes_internal.h"
 #include "ext_headers.h"
 #include "lc_aes.h"
-#include "ret_checkers.h"
+#include "test_helper.h"
 
 static int aes_ctr_large(void)
 {
@@ -30,21 +30,20 @@ static int aes_ctr_large(void)
 			  0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
 	uint8_t iv[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 			 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
+	size_t len;
 	int ret;
 
-	pt = calloc(1, 1UL << 30);
-	if (!pt)
-		return 77;
+	CKINT(test_mem(&pt, &len));
 
 	lc_sym_init(aes_ctr);
 	CKINT(lc_sym_setkey(aes_ctr, key, sizeof(key)));
 	CKINT(lc_sym_setiv(aes_ctr, iv, sizeof(iv)));
-	lc_sym_encrypt(aes_ctr, pt, pt, 1UL << 30);
+	lc_sym_encrypt(aes_ctr, pt, pt, len);
 	lc_sym_zero(aes_ctr);
 
 	CKINT(lc_sym_setkey(aes_ctr, key, sizeof(key)));
 	CKINT(lc_sym_setiv(aes_ctr, iv, sizeof(iv)));
-	lc_sym_decrypt(aes_ctr, pt, pt, 1UL << 30);
+	lc_sym_decrypt(aes_ctr, pt, pt, len);
 	lc_sym_zero(aes_ctr);
 
 out:
