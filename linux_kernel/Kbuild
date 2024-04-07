@@ -727,8 +727,6 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM_X25519)				       \
 				   leancrypto_kernel_kyber_x25519.o
 
 ifdef CONFIG_X86_64
-ccflags-$(CONFIG_LEANCRYPTO_KEM)					       \
-				+= -mavx512f
 asflags-$(CONFIG_LEANCRYPTO_KEM)					       \
 				+= -I$(PWD)/../internal/api -DLINUX_KERNEL
 leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \

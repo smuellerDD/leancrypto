@@ -29,6 +29,12 @@
 #ifndef EXT_X86_AVX512FINTRIN_H
 #define EXT_X86_AVX512FINTRIN_H
 
+#ifndef __AVX512F__
+#pragma GCC push_options
+#pragma GCC target("avx512f")
+#define __DISABLE_AVX512F__
+#endif /* __AVX512F__ */
+
 typedef long long __v8di __attribute__((__vector_size__(64)));
 typedef long long __m512i __attribute__((__vector_size__(64), __may_alias__));
 
@@ -41,5 +47,10 @@ extern __inline __m512i
 	return __extension__(__m512i)(__v8di){ __H, __G, __F, __E,
 					       __D, __C, __B, __A };
 }
+
+#ifdef __DISABLE_AVX512F__
+#undef __DISABLE_AVX512F__
+#pragma GCC pop_options
+#endif /* __DISABLE_AVX512F__ */
 
 #endif /* EXT_X86_AVX512FINTRIN_H */

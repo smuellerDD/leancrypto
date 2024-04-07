@@ -16,6 +16,8 @@ Changes 0.10.0
 
 * enhancement: add Ascon 128/128a hasher apps
 
+* large data tests can now execute on small systems by using smaller memory sizes
+
 Changes 0.9.2
 
 * fix: update "reduce memory footprint of Keccak state" to handle big-endian systems
