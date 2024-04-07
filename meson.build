@@ -18,7 +18,8 @@ project('leancrypto', 'c',
 		'strip=true',
 		'b_lto=true',
 		'b_staticpic=true',
-		'b_pic=true',
+		'b_pie=true',
+		'b_staticpic=true',
 		'b_asneeded=true'
 	])
 
