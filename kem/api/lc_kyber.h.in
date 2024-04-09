@@ -526,12 +526,14 @@ int lc_kyber_ies_enc_init(struct lc_aead_ctx *aead,
  * @param [out] ciphertext Buffer of equal size as plaintext that will be filled
  *			   with the encryption result
  * @param [in] datalen Length of the plaintext buffer
+ *
+ * @return 0 on success, < 0 on error
  */
-static inline void lc_kyber_ies_enc_update(struct lc_aead_ctx *aead,
-					   const uint8_t *plaintext,
-					   uint8_t *ciphertext, size_t datalen)
+static inline int lc_kyber_ies_enc_update(struct lc_aead_ctx *aead,
+					  const uint8_t *plaintext,
+					  uint8_t *ciphertext, size_t datalen)
 {
-	lc_aead_enc_update(aead, plaintext, ciphertext, datalen);
+	return lc_aead_enc_update(aead, plaintext, ciphertext, datalen);
 }
 
 /**
@@ -550,11 +552,13 @@ static inline void lc_kyber_ies_enc_update(struct lc_aead_ctx *aead,
  *		    context after completion.
  * @param [out] tag Buffer that will be filled with the authentication tag
  * @param [in] taglen Length of the tag buffer
+ *
+ * @return 0 on success, < 0 on error
  */
-static inline void lc_kyber_ies_enc_final(struct lc_aead_ctx *aead,
-					  uint8_t *tag, size_t taglen)
+static inline int lc_kyber_ies_enc_final(struct lc_aead_ctx *aead,
+					 uint8_t *tag, size_t taglen)
 {
-	lc_aead_enc_final(aead, tag, taglen);
+	return lc_aead_enc_final(aead, tag, taglen);
 }
 
 /**
@@ -638,12 +642,14 @@ int lc_kyber_ies_dec_init(struct lc_aead_ctx *aead,
  * @param [out] plaintext Buffer of equal size as ciphertext that will be
  *			   filled with the decryption result
  * @param [in] datalen Length of the ciphertext buffer
+ *
+ * @return 0 on success, < 0 on error
  */
-static inline void lc_kyber_ies_dec_update(struct lc_aead_ctx *aead,
-					   const uint8_t *ciphertext,
-					   uint8_t *plaintext, size_t datalen)
+static inline int lc_kyber_ies_dec_update(struct lc_aead_ctx *aead,
+					  const uint8_t *ciphertext,
+					  uint8_t *plaintext, size_t datalen)
 {
-	lc_aead_dec_update(aead, ciphertext, plaintext, datalen);
+	return lc_aead_dec_update(aead, ciphertext, plaintext, datalen);
 }
 
 /**
@@ -662,6 +668,7 @@ static inline void lc_kyber_ies_dec_update(struct lc_aead_ctx *aead,
  *		    context after completion.
  * @param [in] tag Buffer with the authentication tag
  * @param [in] taglen Length of the tag buffer
+ *
  * @return 0 on success, < 0 on error (-EBADMSG on integrity error)
  */
 static inline int lc_kyber_ies_dec_final(struct lc_aead_ctx *aead,
@@ -1039,12 +1046,12 @@ int lc_kyber_x25519_ies_enc_init(struct lc_aead_ctx *aead,
  *			   with the encryption result
  * @param [in] datalen Length of the plaintext buffer
  */
-static inline void lc_kyber_x25519_ies_enc_update(struct lc_aead_ctx *aead,
-						  const uint8_t *plaintext,
-						  uint8_t *ciphertext,
-						  size_t datalen)
+static inline int lc_kyber_x25519_ies_enc_update(struct lc_aead_ctx *aead,
+						 const uint8_t *plaintext,
+						 uint8_t *ciphertext,
+						 size_t datalen)
 {
-	lc_aead_enc_update(aead, plaintext, ciphertext, datalen);
+	return lc_aead_enc_update(aead, plaintext, ciphertext, datalen);
 }
 
 /**
@@ -1063,11 +1070,13 @@ static inline void lc_kyber_x25519_ies_enc_update(struct lc_aead_ctx *aead,
  *		    context after completion.
  * @param [out] tag Buffer that will be filled with the authentication tag
  * @param [in] taglen Length of the tag buffer
+ *
+ * @return 0 on success, < 0 on error
  */
-static inline void lc_kyber_x25519_ies_enc_final(struct lc_aead_ctx *aead,
-						 uint8_t *tag, size_t taglen)
+static inline int lc_kyber_x25519_ies_enc_final(struct lc_aead_ctx *aead,
+						uint8_t *tag, size_t taglen)
 {
-	lc_aead_enc_final(aead, tag, taglen);
+	return lc_aead_enc_final(aead, tag, taglen);
 }
 
 /**
@@ -1095,6 +1104,7 @@ static inline void lc_kyber_x25519_ies_enc_final(struct lc_aead_ctx *aead,
  *		    algorithm. This allows the caller to define the AEAD
  *		    algorithm type. The caller must zeroize and release the
  *		    context after completion.
+ *
  * @return 0 on success, < 0 on error (-EBADMSG on integrity error)
  */
 int lc_kyber_x25519_ies_dec(const struct lc_kyber_x25519_sk *sk,
@@ -1127,6 +1137,7 @@ int lc_kyber_x25519_ies_dec(const struct lc_kyber_x25519_sk *sk,
  *		   which is not encrypted, but considered as part of the
  *		   authentication.
  * @param [in] aadlen Length of the AAD buffer
+ *
  * @return 0 on success, < 0 on error
  */
 int lc_kyber_x25519_ies_dec_init(struct lc_aead_ctx *aead,
@@ -1152,13 +1163,15 @@ int lc_kyber_x25519_ies_dec_init(struct lc_aead_ctx *aead,
  * @param [out] plaintext Buffer of equal size as ciphertext that will be
  *			   filled with the decryption result
  * @param [in] datalen Length of the ciphertext buffer
+ *
+ * @return 0 on success, < 0 on error
  */
-static inline void lc_kyber_x25519_ies_dec_update(struct lc_aead_ctx *aead,
-						  const uint8_t *ciphertext,
-						  uint8_t *plaintext,
-						  size_t datalen)
+static inline int lc_kyber_x25519_ies_dec_update(struct lc_aead_ctx *aead,
+						 const uint8_t *ciphertext,
+						 uint8_t *plaintext,
+						 size_t datalen)
 {
-	lc_aead_dec_update(aead, ciphertext, plaintext, datalen);
+	return lc_aead_dec_update(aead, ciphertext, plaintext, datalen);
 }
 
 /**
@@ -1177,6 +1190,7 @@ static inline void lc_kyber_x25519_ies_dec_update(struct lc_aead_ctx *aead,
  *		    context after completion.
  * @param [in] tag Buffer with the authentication tag
  * @param [in] taglen Length of the tag buffer
+ *
  * @return 0 on success, < 0 on error (-EBADMSG on integrity error)
  */
 static inline int lc_kyber_x25519_ies_dec_final(struct lc_aead_ctx *aead,
