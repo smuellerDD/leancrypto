@@ -67,7 +67,6 @@ static int kmac_drng_selftest(struct lc_rng_ctx *kmac_ctx)
 	lc_rng_seed(kmac_ctx, key, sizeof(key), cust, sizeof(cust));
 	lc_rng_generate(kmac_ctx, msg, sizeof(msg), act, sizeof(act));
 	ret = lc_compare(act, exp, sizeof(act), "KMAC KDF RNG");
-	lc_rng_zero(kmac_ctx);
 
 	return ret;
 }
@@ -82,11 +81,17 @@ static int kmac_test(void)
 	lc_rng_zero(kmac_ctx);
 
 	ret = kmac_drng_selftest(kmac_ctx);
+	printf("Test result of KMAC KDF RNG stack %d\n", ret);
+	lc_rng_zero(kmac_ctx);
+	if (ret)
+		return ret;
 
-	if (lc_kmac256_drng_alloc(&kmac_ctx_heap))
-		return 1;
+	ret = lc_kmac_rng_alloc(&kmac_ctx_heap, lc_cshake256);
+	if (ret)
+		return ret;
 
-	ret += lc_kmac_rng_alloc(&kmac_ctx_heap, lc_cshake256);
+	ret = kmac_drng_selftest(kmac_ctx_heap);
+	printf("Test result of KMAC KDF RNG heap %d\n", ret);
 
 	lc_rng_zero_free(kmac_ctx_heap);
 	return ret;
