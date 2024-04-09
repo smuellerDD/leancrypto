@@ -18,8 +18,14 @@ kmac_xof_more_tester = executable('kmac_xof_more_tester',
 			     include_directories: [ include_internal_dirs ],
 			     dependencies: leancrypto
 			     )
+kmac_kdf_rng = executable('kmac_kdf_rng',
+			     [ 'kmac_kdf_rng.c', internal_src ],
+			     include_directories: [ include_internal_dirs ],
+			     dependencies: leancrypto
+			     )
 
 test('KMAC 128', kmac_128_tester)
 test('KMAC 256', kmac_256_tester)
 test('KMAC XOF', kmac_xof_tester)
 test('KMAC XOF iterative squeeze', kmac_xof_more_tester)
+test('KMAC KDF RNG', kmac_kdf_rng)
