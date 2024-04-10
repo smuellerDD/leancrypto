@@ -164,16 +164,16 @@ if get_option('hash_crypt').enabled()
 				)
 	test('AEAD Ascon Keccak', ascon_keccak_crypt_test)
 	test('AEAD Ascon Keccak IUF', ascon_keccak_crypt_iuf_test)
-	test('AEAD Ascon Keccak 256/512 Accel large',
+	test('AEAD Ascon Keccak 512 Accel large',
 	     ascon_keccak_crypt_large_test_512,
 	     timeout: 2500, is_parallel: false)
-	test('AEAD Ascon Keccak 256/512 C large',
+	test('AEAD Ascon Keccak 512 C large',
 	     ascon_keccak_crypt_large_test_512_c,
 	     timeout: 2500, is_parallel: false)
-	test('AEAD Ascon Keccak 256/256 Accel large',
+	test('AEAD Ascon Keccak 256 Accel large',
 	     ascon_keccak_crypt_large_test_256,
 	     timeout: 2500, is_parallel: false)
-	test('AEAD Ascon Keccak 256/256 C large',
+	test('AEAD Ascon Keccak 256 C large',
 	     ascon_keccak_crypt_large_test_256_c,
 	     timeout: 2500, is_parallel: false)
 

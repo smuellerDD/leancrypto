@@ -38,14 +38,12 @@
  *                       ---- Bit size of ----- Rounds
  *                       Key Nonce Tag DataBlock pa pb
  *                                     Rate
- * Ascon-Keccak 512/512  512 128   128  576      24 24
- * Ascon-Keccak 256/512  256 128   128  576      24 24
- * Ascon-Keccak 256/256  256 128   128 1088      24 24
+ * Ascon-Keccak 512      512 128   128  576      24 24
+ * Ascon-Keccak 256      256 128   128 1088      24 24
  *
  * Note, the tag is allowed also to be larger, up to the size of the capacity.
  */
 #define LC_AEAD_ASCON_KECCAK_512_512_IV 0x0200024000180018
-#define LC_AEAD_ASCON_KECCAK_256_512_IV 0x0100024000180018
 #define LC_AEAD_ASCON_KECCAK_256_256_IV 0x0100044000180018
 
 /*
@@ -130,18 +128,10 @@ int lc_ak_setiv(struct lc_ascon_cryptor *ascon, size_t keylen)
 
 		lc_ak_selftest(&tested, "Ascon Keccak AEAD");
 
-		switch (keylen) {
-		case 32:
-			state_mem[0] = LC_AEAD_ASCON_KECCAK_256_512_IV;
-			ascon->keylen = 32;
-			break;
-		case 64:
-			state_mem[0] = LC_AEAD_ASCON_KECCAK_512_512_IV;
-			ascon->keylen = 64;
-			break;
-		default:
+		if (keylen != 64)
 			return -EINVAL;
-		}
+		state_mem[0] = LC_AEAD_ASCON_KECCAK_512_512_IV;
+		ascon->keylen = 64;
 
 		break;
 	case 0x440 / 8: /* Keccak security level 256 bits */

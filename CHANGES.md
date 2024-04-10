@@ -2,7 +2,7 @@ Changes 0.10.0
 
 * enhancement: add Sponge APIs
 
-* enhancement: add Ascon Keccak 256/512 and 256/256
+* enhancement: add Ascon Keccak 512 and 256
 
 * update AEAD: add lc_aead_enc|dec_init and change all AEAD algo's tag calculation to now perform MAC(AAD || ciphertext) instead of MAC(ciphertext || AAD) - this brings it in line with all AEAD algorithms
 
