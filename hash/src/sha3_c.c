@@ -156,20 +156,7 @@ static inline void keccakp_1600(uint64_t s[25])
 	}
 }
 
-/************************ Raw Keccak Sponge Operations *************************
- *
- * NOTE: This handling code is almost identical to the original Ascon sponge
- * operation code found in ascon_c.c. The only difference is that the Keccak
- * code stores the data into the Keccak state in little-endian whereas
- * the Ascon code operates in big-endian. This difference should not have
- * any impact on the cryptographic strength. However, it has an impact on
- * interoperability as the ciphertext / tag differs.
- *
- * The decision to use little-endian code is based on the following: most
- * systems are little-endian today which implies that little-endian code
- * spares byte-swaps. Furthermore, it allows direct use of accelerated
- * Keccak implementations as they handle the data also in little-endian format.
- */
+/************************ Raw Keccak Sponge Operations *************************/
 
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 
