@@ -32,14 +32,16 @@
 static const __mmask8 mxor1 = 0x15;
 static const __mmask8 mxor2 = 0x0b;
 
-static inline void ascon_permutation_one_avx512(__m512i *z, long long C,
-						__m512i pxor1, __m512i pxor2,
-						__m512i n, __m512i pchi1,
-						__m512i pchi2, __m512i rot1,
-						__m512i rot2)
+static inline void ascon_permutation_one_avx512(__m512i *z, long long C)
 {
-	long long x = 0;
-	__m512i c = _mm512_set_epi64(x, x, x, 0, 0, C, 0, 0);
+	const __m512i c = _mm512_set_epi64(0, 0, 0, 0, 0, C, 0, 0);
+	const __m512i pxor1 = _mm512_set_epi64(0, 0, 0, 3, 0, 1, 0, 4);
+	const __m512i pxor2 = _mm512_set_epi64(0, 0, 0, 0, 2, 0, 0, 4);
+	const __m512i n = _mm512_set_epi64(0, 0, 0, 0, 0, ~0ll, 0, 0);
+	const __m512i pchi1 = _mm512_set_epi64(0, 0, 0, 0, 4, 3, 2, 1);
+	const __m512i pchi2 = _mm512_set_epi64(0, 0, 0, 1, 0, 4, 3, 2);
+	const __m512i rot1 = _mm512_set_epi64(0, 0, 0, 7, 10, 1, 61, 19);
+	const __m512i rot2 = _mm512_set_epi64(0, 0, 0, 41, 17, 6, 39, 28);
 	__m512i t0, t1, t2;
 
 	/* round constant + s-box layer */
