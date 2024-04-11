@@ -146,7 +146,6 @@ if get_option('ascon').enabled()
 		'ascon_selector.c',
 		'ascon_selftest.c'
 		])
-	include_files += files([ '../api/lc_ascon_hash.h' ])
 	lc_hash = 1
 
 	# Ascon: Intel AVX2 implementation

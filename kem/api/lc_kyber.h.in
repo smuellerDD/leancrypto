@@ -684,7 +684,7 @@ static inline int lc_kyber_ies_dec_final(struct lc_aead_ctx *aead,
  * KEX. The use is identical as the Kyber KEM. The only difference is that
  * the transmitted pk and ct has a different content.
  */
-
+/* Macro set during leancrypto compile time for target platform */
 #mesondefine LC_KYBER_X25519_KEM
 #ifdef LC_KYBER_X25519_KEM
 

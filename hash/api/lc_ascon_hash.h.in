@@ -35,10 +35,12 @@ extern "C" {
 #define LC_ASCON_HASH_DIGESTSIZE_BITS 256
 #define LC_ASCON_HASH_DIGESTSIZE (LC_ASCON_HASH_DIGESTSIZE_BITS >> 3)
 
+/* Macro set during leancrypto compile time for target platform */
+#mesondefine LC_DEF_ASCON_AVX512
+
 struct lc_ascon_hash {
 	uint64_t state[LC_ASCON_HASH_STATE_WORDS
-	/* AsconAVX512 */
-#if defined(__x86_64__) || defined(_M_X64) || defined(CONFIG_X86_64)
+#ifdef LC_DEF_ASCON_AVX512
 	+ 3
 #endif
 	];

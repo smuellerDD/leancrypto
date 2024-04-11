@@ -1,4 +1,4 @@
-# Set the hash alignment value
+# Set the XOR alignment value
 BEGIN {
 	"uname -m" | getline host
 }
