@@ -67,7 +67,8 @@ struct lc_hash_ctx {
 #ifdef __arm__
 /* Required by NEON 32-bit implementation */
 #define LC_HASH_COMMON_ALIGNMENT (32)
-#elif defined(LC_HOST_X86_64)
+#elif defined(__x86_64__) || defined(_M_X64)
+/* Required by Ascon AVX512 implementation */
 #define LC_HASH_COMMON_ALIGNMENT (64)
 #else
 #define LC_HASH_COMMON_ALIGNMENT (8)
