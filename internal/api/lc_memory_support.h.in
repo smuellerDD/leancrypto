@@ -85,7 +85,12 @@ extern "C" {
 #define LC_XOR_MIN_ALIGNMENT(min, requested)                                   \
 	((min < requested) ? (requested) : (min))
 
-#ifdef LC_HOST_X86_64
+/* Macros set during leancrypto compile time for target platform */
+#mesondefine LC_DEF_HOST_X86_64
+#mesondefine LC_DEF_HOST_ARM32_NEON
+#mesondefine LC_DEF_HOST_AARCH64
+
+#ifdef LC_DEF_HOST_X86_64
 
 /*
  * The load of data into __m256i does not require alignment, the store
@@ -94,7 +99,7 @@ extern "C" {
 #define LC_XOR_AVX2_ALIGNMENT (sizeof(uint64_t))
 #define LC_XOR_ALIGNMENT(min) LC_XOR_MIN_ALIGNMENT(min, LC_XOR_AVX2_ALIGNMENT)
 
-#elif (defined(LC_HOST_ARM32_NEON) || defined(LC_HOST_AARCH64)) &&             \
+#elif (defined(LC_DEF_HOST_ARM32_NEON) || defined(LC_DEF_HOST_AARCH64)) &&     \
 	!defined(LINUX_KERNEL)
 
 /*

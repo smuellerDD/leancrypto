@@ -146,7 +146,12 @@ include_files = [ ]
 
 include_internal_dirs = include_directories([ 'internal/api' ])
 
-subdirs = [ 'aead/src',
+subdirs = [
+	    # These must be first to generate the header files
+	    'internal/api',
+	    'hash/api',
+
+	    'aead/src',
 	    'curve25519/src',
 	    'drng/src',
 	    'hash/src',

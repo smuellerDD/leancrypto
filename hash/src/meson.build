@@ -183,5 +183,4 @@ endif
 
 if (lc_hash == 1)
 	src += files([ 'hash.c' ])
-	include_files += files([ '../api/lc_hash.h' ])
 endif

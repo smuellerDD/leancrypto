@@ -57,22 +57,15 @@ struct lc_hash_ctx {
 /*
  * Align the hash_state pointer to 8 bytes boundary irrespective where
  * it is embedded into. This is achieved by adding 7 more bytes than necessary
- * to LC_ALIGNED_SYM_BUFFER and then adjusting the pointer offset in that range
+ * to LC_ALIGNED_BUFFER and then adjusting the pointer offset in that range
  * accordingly.
  *
  * It is permissible to set the alignment requirement with compile-time
  * arguments.
  */
 #ifndef LC_HASH_COMMON_ALIGNMENT
-#ifdef __arm__
-/* Required by NEON 32-bit implementation */
-#define LC_HASH_COMMON_ALIGNMENT (32)
-#elif defined(__x86_64__) || defined(_M_X64)
-/* Required by Ascon AVX512 implementation */
-#define LC_HASH_COMMON_ALIGNMENT (64)
-#else
-#define LC_HASH_COMMON_ALIGNMENT (8)
-#endif
+/* Macro set during leancrypto compile time for target platform */
+#define LC_HASH_COMMON_ALIGNMENT @hash_common_alignment@
 #endif
 
 #define LC_ALIGN_HASH_MASK(p)                                                  \

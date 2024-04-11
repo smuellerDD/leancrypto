@@ -38,7 +38,7 @@ extern "C" {
 struct lc_ascon_hash {
 	uint64_t state[LC_ASCON_HASH_STATE_WORDS
 	/* AsconAVX512 */
-#if defined(LC_HOST_X86_64) || defined(CONFIG_X86_64)
+#if defined(__x86_64__) || defined(_M_X64) || defined(CONFIG_X86_64)
 	+ 3
 #endif
 	];

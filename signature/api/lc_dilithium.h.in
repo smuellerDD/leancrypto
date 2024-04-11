@@ -314,7 +314,7 @@ int lc_dilithium_verify_final(struct lc_dilithium_sig *sig,
 			      const struct lc_dilithium_pk *pk);
 
 /****************************** Dilithium ED25510 *****************************/
-
+/* Macro set during leancrypto compile time for target platform */
 #mesondefine LC_DILITHIUM_ED25519_SIG
 #ifdef LC_DILITHIUM_ED25519_SIG
 
