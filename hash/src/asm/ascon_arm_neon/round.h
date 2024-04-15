@@ -28,7 +28,7 @@
 
  /* clang-format off */
 #define ROUND(OFFSET)                                                          \
-  "vldr d31, [%[C], #" #OFFSET "] \n\t"                                        \
+	"vldr d31, [%[C], #" #OFFSET "] \n\t"                                  \
 	"veor d0, d0, d4 \n\t"                                                 \
 	"veor d4, d4, d3 \n\t"                                                 \
 	"veor d2, d2, d31 \n\t"                                                \
