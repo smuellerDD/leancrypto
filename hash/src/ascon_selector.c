@@ -44,6 +44,7 @@ LC_CONSTRUCTOR(ascon_fastest_impl)
 
 	/* Check if NULL pointers are present */
 	LC_FILL_ACCEL_NULL(avx512)
+	LC_FILL_ACCEL_NULL(arm_neon)
 
 #define LC_FILL_DFLT_IMPL(accel)                                               \
 	lc_ascon_128 = lc_ascon_128_##accel;                                   \
