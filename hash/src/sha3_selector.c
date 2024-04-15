@@ -79,7 +79,15 @@ LC_CONSTRUCTOR(sha3_fastest_impl)
 	} else if (feat & LC_CPU_FEATURE_ARM_SHA3) {
 		LC_FILL_DFLT_IMPL(arm_ce)
 	} else if (feat & LC_CPU_FEATURE_ARM_NEON) {
-		LC_FILL_DFLT_IMPL(arm_neon)
+		/*
+		 * NEON is only defined for ARMv7, but ARMv8 also has NEON,
+		 * for which we can only define the assembler.
+		 */
+		if (lc_sha3_224_arm_neon == lc_sha3_224_c) {
+			LC_FILL_DFLT_IMPL(arm_asm)
+		} else {
+			LC_FILL_DFLT_IMPL(arm_neon)
+		}
 	} else if (feat & LC_CPU_FEATURE_ARM) {
 		LC_FILL_DFLT_IMPL(arm_asm)
 	} else if (feat & LC_CPU_FEATURE_RISCV_ASM) {
