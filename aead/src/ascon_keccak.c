@@ -41,7 +41,7 @@
  * Ascon-Keccak 512      512 128   128  576      24 24
  * Ascon-Keccak 256      256 128   128 1088      24 24
  *
- * Note, the tag is allowed also to be larger, up to the size of the capacity.
+ * Note, the tag is allowed also to be larger, up to the size of the key.
  */
 #define LC_AEAD_ASCON_KECCAK_512_512_IV 0x0200024000180018
 #define LC_AEAD_ASCON_KECCAK_256_256_IV 0x0100044000180018
