@@ -61,7 +61,7 @@ static int lc_ascon_setkey(void *state, const uint8_t *key, size_t keylen,
 	uint64_t *state_mem = ascon->state;
 	int ret;
 
-	if (noncelen != 16)
+	if (noncelen < 16 || noncelen > keylen)
 		return -EINVAL;
 
 	lc_ascon_zero(ascon);
