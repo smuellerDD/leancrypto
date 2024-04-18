@@ -41,8 +41,7 @@ static int kc_tester_cshake_large(void)
 	CKINT(test_mem(&pt, &len));
 
 	lc_aead_setkey(kc, key, sizeof(key), NULL, 0);
-	lc_aead_encrypt(kc, pt, pt, len, aad, sizeof(aad), tag,
-			sizeof(tag));
+	lc_aead_encrypt(kc, pt, pt, len, aad, sizeof(aad), tag, sizeof(tag));
 	lc_aead_zero(kc);
 
 	lc_aead_setkey(kc, key, sizeof(key), NULL, 0);

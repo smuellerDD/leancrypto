@@ -26,7 +26,7 @@
 #ifndef ROUND_H_
 #define ROUND_H_
 
- /* clang-format off */
+/* clang-format off */
 #define ROUND(OFFSET)                                                          \
 	"vldr d31, [%[C], #" #OFFSET "] \n\t"                                  \
 	"veor d0, d0, d4 \n\t"                                                 \

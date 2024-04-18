@@ -50,8 +50,7 @@ static int al_128a_tester_large(void)
 		ret = EFAULT;
 		goto out;
 	}
-	lc_aead_encrypt(al, pt, pt, len, aad, sizeof(aad), tag,
-			sizeof(tag));
+	lc_aead_encrypt(al, pt, pt, len, aad, sizeof(aad), tag, sizeof(tag));
 	lc_aead_zero(al);
 
 	if (lc_aead_setkey(al, key, sizeof(key), nonce, sizeof(nonce))) {

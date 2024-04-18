@@ -51,8 +51,7 @@ static int ak_256512_tester_large(void)
 		ret = EFAULT;
 		goto out;
 	}
-	lc_aead_encrypt(ak, pt, pt, len, aad, sizeof(aad), tag,
-			sizeof(tag));
+	lc_aead_encrypt(ak, pt, pt, len, aad, sizeof(aad), tag, sizeof(tag));
 	lc_aead_zero(ak);
 
 	if (lc_aead_setkey(ak, key, sizeof(key), iv, sizeof(iv))) {

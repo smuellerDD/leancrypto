@@ -43,8 +43,7 @@ static int symhmac_tester_large(void)
 	CKINT(test_mem(&pt, &len));
 
 	CKINT(lc_aead_setkey(sh, key, sizeof(key), aad, sizeof(aad)));
-	lc_aead_encrypt(sh, pt, pt, len, aad, sizeof(aad), tag,
-			sizeof(tag));
+	lc_aead_encrypt(sh, pt, pt, len, aad, sizeof(aad), tag, sizeof(tag));
 	lc_aead_zero(sh);
 
 	CKINT(lc_aead_setkey(sh, key, sizeof(key), aad, sizeof(aad)));

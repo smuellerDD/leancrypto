@@ -35,26 +35,26 @@
 #define __DISABLE_AVX512F__
 #endif /* __AVX512F__ */
 
-typedef unsigned char  __mmask8;
+typedef unsigned char __mmask8;
 typedef long long __v8di __attribute__((__vector_size__(64)));
 typedef long long __m512i __attribute__((__vector_size__(64), __may_alias__));
 
 extern __inline __m512i
-__attribute__ ((__gnu_inline__, __always_inline__, __artificial__))
-_mm512_setzero_si512 (void)
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm512_setzero_si512(void)
 {
-  return __extension__ (__m512i)(__v8di){ 0, 0, 0, 0, 0, 0, 0, 0 };
+	return __extension__(__m512i)(__v8di){ 0, 0, 0, 0, 0, 0, 0, 0 };
 }
 
 extern __inline __m512i
-__attribute__ ((__gnu_inline__, __always_inline__, __artificial__))
-_mm512_undefined_epi32 (void)
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm512_undefined_epi32(void)
 {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Winit-self"
-  __m512i __Y = __Y;
+	__m512i __Y = __Y;
 #pragma GCC diagnostic pop
-  return __Y;
+	return __Y;
 }
 
 extern __inline __m512i
@@ -68,44 +68,35 @@ extern __inline __m512i
 }
 
 extern __inline __m512i
-__attribute__ ((__gnu_inline__, __always_inline__, __artificial__))
-_mm512_maskz_permutexvar_epi64 (__mmask8 __M, __m512i __X, __m512i __Y)
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm512_maskz_permutexvar_epi64(__mmask8 __M, __m512i __X, __m512i __Y)
 {
-	return (__m512i) __builtin_ia32_permvardi512_mask ((__v8di) __Y,
-							   (__v8di) __X,
-							   (__v8di)
-							_mm512_setzero_si512 (),
-						     __M);
+	return (__m512i)__builtin_ia32_permvardi512_mask(
+		(__v8di)__Y, (__v8di)__X, (__v8di)_mm512_setzero_si512(), __M);
 }
 
 extern __inline __m512i
-__attribute__ ((__gnu_inline__, __always_inline__, __artificial__))
-_mm512_permutexvar_epi64 (__m512i __X, __m512i __Y)
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm512_permutexvar_epi64(__m512i __X, __m512i __Y)
 {
-  return (__m512i) __builtin_ia32_permvardi512_mask ((__v8di) __Y,
-						     (__v8di) __X,
-						     (__v8di)
-						     _mm512_undefined_epi32 (),
-						     (__mmask8) -1);
+	return (__m512i)__builtin_ia32_permvardi512_mask(
+		(__v8di)__Y, (__v8di)__X, (__v8di)_mm512_undefined_epi32(),
+		(__mmask8)-1);
 }
 
 extern __inline __m512i
-__attribute__ ((__gnu_inline__, __always_inline__, __artificial__))
-_mm512_rorv_epi64 (__m512i __A, __m512i __B)
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm512_rorv_epi64(__m512i __A, __m512i __B)
 {
-  return (__m512i) __builtin_ia32_prorvq512_mask ((__v8di) __A,
-						  (__v8di) __B,
-						  (__v8di) _mm512_undefined_epi32 (),
-						  (__mmask8) -1);
+	return (__m512i)__builtin_ia32_prorvq512_mask(
+		(__v8di)__A, (__v8di)__B, (__v8di)_mm512_undefined_epi32(),
+		(__mmask8)-1);
 }
 
-#define _mm512_ternarylogic_epi64(A, B, C, I)			\
-  ((__m512i)							\
-   __builtin_ia32_pternlogq512_mask ((__v8di) (__m512i) (A),	\
-				     (__v8di) (__m512i) (B),	\
-				     (__v8di) (__m512i) (C),	\
-				     (unsigned char) (I),	\
-				     (__mmask8) -1))
+#define _mm512_ternarylogic_epi64(A, B, C, I)                                  \
+	((__m512i)__builtin_ia32_pternlogq512_mask(                            \
+		(__v8di)(__m512i)(A), (__v8di)(__m512i)(B),                    \
+		(__v8di)(__m512i)(C), (unsigned char)(I), (__mmask8) - 1))
 
 #ifdef __DISABLE_AVX512F__
 #undef __DISABLE_AVX512F__
