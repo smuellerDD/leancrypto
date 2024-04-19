@@ -18,6 +18,8 @@ Changes 0.10.0
 
 * large data tests can now execute on small systems by using smaller memory sizes
 
+* remove riscv64 hash assembler directory: it is a duplicate of the riscv32 assembler code
+
 Changes 0.9.2
 
 * fix: update "reduce memory footprint of Keccak state" to handle big-endian systems

@@ -1,4 +1,5 @@
-/*
+/* Ascon-Keccak specific code
+ *
  * Copyright (C) 2024, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
@@ -35,11 +36,11 @@
  * The Ascon-Keccak algorithm is defined with the reference to
  * <keysize>/<Keccak security level (half of capacity)>.
  *
- *                       ---- Bit size of ----- Rounds
- *                       Key Nonce Tag DataBlock pa pb
- *                                     Rate
- * Ascon-Keccak 512      512 128   128  576      24 24
- * Ascon-Keccak 256      256 128   128 1088      24 24
+ *                       -------------- Bit size of -------------- Rounds
+ *                       Key   Nonce        Tag          DataBlock  pa pb
+ *                                                       Rate
+ * Ascon-Keccak 512      512   128 to 512   128 to 512    576       24 24
+ * Ascon-Keccak 256      256   128 to 256   128 to 256   1088       24 24
  *
  * Note, the tag is allowed also to be larger, up to the size of the key.
  */

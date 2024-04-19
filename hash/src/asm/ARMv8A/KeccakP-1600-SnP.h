@@ -1,13 +1,35 @@
 /*
-The eXtended Keccak Code Package (XKCP)
-https://github.com/XKCP/XKCP
-
-Implementation by Andre Moraes
-
----
-
-Please refer to SnP-documentation.h for more details.
-*/
+ * Copyright (C) 2024, Stephan Mueller <smueller@chronox.de>
+ *
+ * License: see LICENSE file in root directory
+ *
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, ALL OF
+ * WHICH ARE HEREBY DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+ * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ *
+ * This code is derived from "The eXtended Keccak Code Package (XKCP)"
+ * https://github.com/XKCP/XKCP
+ *
+ * Implementation by Andre Moraes
+ *
+ * This code is licensed with:
+ *
+ * The redistribution and use of this software (with or without changes) is
+ * allowed without the payment of fees or royalties provided that the terms
+ * of the licenses of the different source files used is respected. Most of the
+ * source and header files in the XKCP are released to the public domain and
+ * associated to the CC0 (http://creativecommons.org/publicdomain/zero/1.0/)
+ * deed, but there are exceptions.
+ */
 
 #ifndef _KeccakP_1600_SnP_h_
 #define _KeccakP_1600_SnP_h_

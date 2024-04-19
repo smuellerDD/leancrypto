@@ -1,30 +1,43 @@
 /*
-Implementation by the Keccak, Keyak and Ketje Teams, namely, Guido Bertoni,
-Joan Daemen, Michaël Peeters, Gilles Van Assche and Ronny Van Keer, hereby
-denoted as "the implementer".
-
-For more information, feedback or questions, please refer to our websites:
-http://keccak.noekeon.org/
-http://keyak.noekeon.org/
-http://ketje.noekeon.org/
-
-To the extent possible under law, the implementer has waived all copyright
-and related or neighboring rights to the source code in this file.
-http://creativecommons.org/publicdomain/zero/1.0/
-*/
+ * Copyright (C) 2024, Stephan Mueller <smueller@chronox.de>
+ *
+ * License: see LICENSE file in root directory
+ *
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, ALL OF
+ * WHICH ARE HEREBY DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+ * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ *
+ * This code is derived from "The eXtended Keccak Code Package (XKCP)"
+ * https://github.com/XKCP/XKCP
+ *
+ * Implementation by the Keccak, Keyak and Ketje Teams, namely, Guido Bertoni,
+ * Joan Daemen, Michaël Peeters, Gilles Van Assche and Ronny Van Keer, hereby
+ * denoted as "the implementer".
+ *
+ * For more information, feedback or questions, please refer to our websites:
+ * http://keccak.noekeon.org/
+ * http://keyak.noekeon.org/
+ * http://ketje.noekeon.org/
+ *
+ * To the extent possible under law, the implementer has waived all copyright
+ * and related or neighboring rights to the source code in this file.
+ * http://creativecommons.org/publicdomain/zero/1.0/
+ */
 
 #ifndef _KeccakP_1600_times4_SnP_h_
 #define _KeccakP_1600_times4_SnP_h_
 
-/** For the documentation, see PlSnP-documentation.h.
- */
-
-#include "KeccakP-SIMD256-config.h"
 #include "shake_4x_avx2.h"
 
-#define KeccakP1600times4_implementation                                        \
-	"256-bit SIMD implementation (" KeccakP1600times4_implementation_config \
-	")"
 #define KeccakP1600times4_statesSizeInBytes 800
 #define KeccakP1600times4_statesAlignment 32
 #define KeccakF1600times4_FastLoop_supported

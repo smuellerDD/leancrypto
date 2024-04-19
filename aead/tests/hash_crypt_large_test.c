@@ -36,7 +36,7 @@ static int hc_tester_sha512_large(void)
 	uint8_t key[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 			  0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
 	size_t len;
-	ssize_t ret;
+	int ret;
 
 	CKINT(test_mem(&pt, &len));
 
@@ -50,13 +50,14 @@ static int hc_tester_sha512_large(void)
 	lc_aead_zero(hc);
 
 	if (ret < 0) {
-		printf("Error return code %zd\n", ret);
-		return 1;
+		printf("Error return code %d\n", ret);
+		ret = 1;
+		goto out;
 	}
 
 out:
 	free(pt);
-	return 0;
+	return ret;
 }
 
 int main(int argc, char *argv[])

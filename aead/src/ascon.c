@@ -51,7 +51,8 @@ static void lc_ascon_zero(struct lc_ascon_cryptor *ascon)
  * @param noncelen [in] Length of nonce vector
  *
  * The algorithm supports a key of arbitrary size. The only requirement is that
- * the same key is used for decryption as for encryption.
+ * the same key is used for decryption as for encryption. Yet, checks specific
+ * to the used sponge limit the key size.
  */
 static int lc_ascon_setkey(void *state, const uint8_t *key, size_t keylen,
 			   const uint8_t *nonce, size_t noncelen)
@@ -70,6 +71,8 @@ static int lc_ascon_setkey(void *state, const uint8_t *key, size_t keylen,
 	 * Add (IV || key || Nonce) to rate section and first part of capacity
 	 * section of state.
 	 */
+
+	/* Insert the IV into the first 64-bit word */
 	ret = lc_ak_setiv(ascon, keylen);
 	if (ret < 0)
 		return ret;

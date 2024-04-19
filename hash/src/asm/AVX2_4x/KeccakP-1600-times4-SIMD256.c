@@ -31,15 +31,16 @@ and related or neighboring rights to the source code in this file.
 http://creativecommons.org/publicdomain/zero/1.0/
 */
 
+#include "alignment.h"
 #include "ext_headers.h"
 #include "ext_headers_x86.h"
-#include "KeccakP-align.h"
 #include "KeccakP-1600-times4-SnP.h"
-#include "KeccakP-SIMD256-config.h"
 
 #if __BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__
 #error Expecting a little-endian platform
 #endif
+
+#define KeccakP1600times4_fullUnrolling
 
 typedef __m128i V128;
 typedef __m256i V256;
@@ -54,7 +55,6 @@ typedef __m256i V256;
 #define laneIndex(instanceIndex, lanePosition)                                 \
 	((lanePosition) * 4 + instanceIndex)
 
-#if defined(KeccakP1600times4_useAVX2)
 #define ANDnu256(a, b) _mm256_andnot_si256(a, b)
 #define CONST256(a) _mm256_load_si256((const V256 *)&(a))
 #define CONST256_64(a) (V256) _mm256_broadcast_sd((const double *)(&a))
@@ -104,8 +104,6 @@ static const uint64_t rho56[4] = { 0x0007060504030201, 0x080F0E0D0C0B0A09,
 	lanes1 = SHUFFLE64(lanesL01, lanesH01, 0x0F),                          \
 	lanes2 = SHUFFLE64(lanesL23, lanesH23, 0x00),                          \
 	lanes3 = SHUFFLE64(lanesL23, lanesH23, 0x0F)
-
-#endif
 
 #define SnP_laneLengthInBytes 8
 
@@ -783,7 +781,7 @@ void KeccakP1600times4_ExtractAndAddLanesAll(const void *states,
 	E##so = XOR256(Bso, ANDnu256(Bsu, Bsa));                               \
 	E##su = XOR256(Bsu, ANDnu256(Bsa, Bse));
 
-static ALIGN(KeccakP1600times4_statesAlignment) const uint64_t
+static __align(KeccakP1600times4_statesAlignment) const uint64_t
 	KeccakF1600RoundConstants[24] = {
 		0x0000000000000001ULL, 0x0000000000008082ULL,
 		0x800000000000808aULL, 0x8000000080008000ULL,
@@ -895,7 +893,9 @@ void KeccakP1600times4_PermuteAll_24rounds(void *states)
 		unsigned int i;
 #endif
 
-	copyFromState(A, statesAsLanes) rounds24 copyToState(statesAsLanes, A)
+	copyFromState(A, statesAsLanes)
+	rounds24
+	copyToState(statesAsLanes, A)
 }
 
 void KeccakP1600times4_PermuteAll_12rounds(void *states)
@@ -906,7 +906,9 @@ void KeccakP1600times4_PermuteAll_12rounds(void *states)
 		unsigned int i;
 #endif
 
-	copyFromState(A, statesAsLanes) rounds12 copyToState(statesAsLanes, A)
+	copyFromState(A, statesAsLanes)
+	rounds12
+	copyToState(statesAsLanes, A)
 }
 
 size_t KeccakF1600times4_FastLoop_Absorb(void *states, unsigned int laneCount,
