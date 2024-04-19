@@ -101,10 +101,7 @@ if get_option('sha3').enabled()
 		src += files([ 'sha3_arm_asm_null.c', 'sha3_arm_ce_null.c' ])
 	endif
 
-# 	if (riscv64_asm)
-# 		src += files([ 'sha3_riscv_asm.c',
-# 			       'asm/riscv64/keccakf1600_asm.S' ])
-# 	elif (riscv32_gcc_asm)
+# 	if (riscv32_gcc_asm)
 # 		leancrypto_keccak_riscv_asm_lib = static_library(
 # 			'leancrypto_keccak_riscv_asm_lib',
 # 			[ 'sha3_riscv_asm.c', 'asm/riscv32/keccakf1600_asm.S' ],
@@ -126,8 +123,9 @@ if get_option('sha3').enabled()
 # 			'leancrypto_keccak_riscv_asm_lib',
 # 			[ 'asm/riscv64/keccakf1600_asm.S' ],
 # 			c_args: [
-# 				'-march=rv64gc',
-# 				'-mabi=lp64d'
+# 				'-march=rv64imac',
+# 				'-mabi=lp64',
+#				'-mcmodel=medany'
 # 			],
 # 			include_directories: [
 # 				include_dirs,
