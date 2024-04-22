@@ -133,6 +133,13 @@ _kyber_kem_dec_selftest(const char *impl,
 	lc_compare_selftest(key_a.ss, kyber_testvectors[0].ss.ss,
 			    LC_KYBER_SSBYTES, str);
 
+	/* Implicit rejection testing */
+	_lc_kyber_dec(&key_a, &kyber_testvectors[1].ct,
+		      &kyber_testvectors[0].sk);
+	snprintf(str, sizeof(str), "%s SS", impl);
+	lc_compare_selftest(key_a.ss, kyber_testvectors[1].ss.ss,
+			    LC_KYBER_SSBYTES, str);
+
 	return 0;
 }
 
