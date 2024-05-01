@@ -32,10 +32,6 @@
 #include "small_stack_support.h"
 #include "ret_checkers.h"
 
-#if LC_KYBER_K != 4
-#error "Kyber ARMv8 support only present for Kyber1024"
-#endif
-
 /**
  * @brief pack_pk - Serialize the public key as concatenation of the
  *		    serialized vector of polynomials pk and the public seed

@@ -19,10 +19,10 @@ if get_option('kyber').enabled()
 		src += files ([ 'kyber_debug.c', ])
 	endif
 
-	if (x86_64_asm and get_option('kyber_strength') == '4')
+	if (x86_64_asm and get_option('kyber_strength') != '2')
 		src += files([ 'kyber_ntt.c' ])
 		subdir('avx2')
-	elif (arm64_asm and get_option('kyber_strength') == '4')
+	elif (arm64_asm and get_option('kyber_strength') != '2')
 		src += files([ 'kyber_ntt.c' ])
 		subdir('armv8')
 	else

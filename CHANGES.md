@@ -20,6 +20,8 @@ Changes 0.10.0
 
 * remove riscv64 hash assembler directory: it is a duplicate of the riscv32 assembler code
 
+* Kyber 768: Add AVX2, ARMv8, ARMv7 support
+
 Changes 0.9.2
 
 * fix: update "reduce memory footprint of Keccak state" to handle big-endian systems

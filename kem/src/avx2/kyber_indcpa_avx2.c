@@ -36,10 +36,6 @@
 #include "small_stack_support.h"
 #include "ret_checkers.h"
 
-#if LC_KYBER_K != 4
-#error "Kyber AVX2 support only present for Kyber1024"
-#endif
-
 /**
  * @brief pack_pk - Serialize the public key as concatenation of the
  *		    serialized vector of polynomials pk and the public seed
@@ -194,6 +190,7 @@ static unsigned int rej_uniform(int16_t *r, unsigned int len,
  * @param seed [in] pointer to input seed
  * @param transposed [in] boolean deciding whether A or A^T is generated
  */
+#if LC_KYBER_K == 4
 static int gen_matrix(polyvec *a, const uint8_t seed[LC_KYBER_SYMBYTES],
 		      void *ws_buf, int transposed)
 {
@@ -280,6 +277,181 @@ static int gen_matrix(polyvec *a, const uint8_t seed[LC_KYBER_SYMBYTES],
 	return 0;
 }
 
+#elif LC_KYBER_K == 3
+static int gen_matrix(polyvec *a, const uint8_t seed[LC_KYBER_SYMBYTES],
+		      void *ws_buf, int transposed)
+{
+	keccakx4_state state;
+	unsigned int ctr0, ctr1, ctr2, ctr3;
+	__m256i f;
+#define BUFSIZE (REJ_UNIFORM_AVX_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK)
+	__m256i *vec0 = (__m256i *)ws_buf;
+	__m256i *vec1 = (__m256i *)(ws_buf) + ALIGNED_UINT8_M256I(BUFSIZE);
+	__m256i *vec2 = (__m256i *)(ws_buf) + ALIGNED_UINT8_M256I(BUFSIZE) * 2;
+	__m256i *vec3 = (__m256i *)(ws_buf) + ALIGNED_UINT8_M256I(BUFSIZE) * 3;
+	uint8_t *coeffs0 = (uint8_t *)vec0;
+	uint8_t *coeffs1 = (uint8_t *)vec1;
+	uint8_t *coeffs2 = (uint8_t *)vec2;
+	uint8_t *coeffs3 = (uint8_t *)vec3;
+#undef BUFSIZE
+	LC_SHAKE_128_CTX_ON_STACK(shake_128);
+
+	LC_FPU_ENABLE;
+	f = _mm256_loadu_si256((__m256i_u *)seed);
+	_mm256_store_si256(vec0, f);
+	_mm256_store_si256(vec1, f);
+	_mm256_store_si256(vec2, f);
+	_mm256_store_si256(vec3, f);
+	LC_FPU_DISABLE;
+
+	if (transposed) {
+		coeffs0[32] = 0;
+		coeffs0[33] = 0;
+		coeffs1[32] = 0;
+		coeffs1[33] = 1;
+		coeffs2[32] = 0;
+		coeffs2[33] = 2;
+		coeffs3[32] = 1;
+		coeffs3[33] = 0;
+	} else {
+		coeffs0[32] = 0;
+		coeffs0[33] = 0;
+		coeffs1[32] = 1;
+		coeffs1[33] = 0;
+		coeffs2[32] = 2;
+		coeffs2[33] = 0;
+		coeffs3[32] = 0;
+		coeffs3[33] = 1;
+	}
+
+	shake128x4_absorb_once(&state, coeffs0, coeffs1, coeffs2,
+			       coeffs3, 34);
+	shake128x4_squeezeblocks(coeffs0, coeffs1, coeffs2, coeffs3,
+				 REJ_UNIFORM_AVX_NBLOCKS, &state);
+
+	ctr0 = kyber_rej_uniform_avx(a[0].vec[0].coeffs, coeffs0);
+	ctr1 = kyber_rej_uniform_avx(a[0].vec[1].coeffs, coeffs1);
+	ctr2 = kyber_rej_uniform_avx(a[0].vec[2].coeffs, coeffs2);
+	ctr3 = kyber_rej_uniform_avx(a[1].vec[0].coeffs, coeffs3);
+
+	while(ctr0 < LC_KYBER_N || ctr1 < LC_KYBER_N ||
+	      ctr2 < LC_KYBER_N || ctr3 < LC_KYBER_N) {
+		shake128x4_squeezeblocks(coeffs0, coeffs1, coeffs2, coeffs3, 1,
+					 &state);
+
+		ctr0 += rej_uniform(a[0].vec[0].coeffs + ctr0,
+				    LC_KYBER_N - ctr0, coeffs0,
+				    LC_SHAKE_128_SIZE_BLOCK);
+		ctr1 += rej_uniform(a[0].vec[1].coeffs + ctr1,
+				    LC_KYBER_N - ctr1, coeffs1,
+				    LC_SHAKE_128_SIZE_BLOCK);
+		ctr2 += rej_uniform(a[0].vec[2].coeffs + ctr2,
+				    LC_KYBER_N - ctr2, coeffs2,
+				    LC_SHAKE_128_SIZE_BLOCK);
+		ctr3 += rej_uniform(a[1].vec[0].coeffs + ctr3,
+				    LC_KYBER_N - ctr3, coeffs3,
+				    LC_SHAKE_128_SIZE_BLOCK);
+	}
+
+	poly_nttunpack_avx(&a[0].vec[0]);
+	poly_nttunpack_avx(&a[0].vec[1]);
+	poly_nttunpack_avx(&a[0].vec[2]);
+	poly_nttunpack_avx(&a[1].vec[0]);
+
+	LC_FPU_ENABLE;
+	f = _mm256_loadu_si256((__m256i_u *)seed);
+	_mm256_store_si256(vec0, f);
+	_mm256_store_si256(vec1, f);
+	_mm256_store_si256(vec2, f);
+	_mm256_store_si256(vec3, f);
+	LC_FPU_DISABLE;
+
+	if(transposed) {
+		coeffs0[32] = 1;
+		coeffs0[33] = 1;
+		coeffs1[32] = 1;
+		coeffs1[33] = 2;
+		coeffs2[32] = 2;
+		coeffs2[33] = 0;
+		coeffs3[32] = 2;
+		coeffs3[33] = 1;
+	} else {
+		coeffs0[32] = 1;
+		coeffs0[33] = 1;
+		coeffs1[32] = 2;
+		coeffs1[33] = 1;
+		coeffs2[32] = 0;
+		coeffs2[33] = 2;
+		coeffs3[32] = 1;
+		coeffs3[33] = 2;
+	}
+
+	shake128x4_absorb_once(&state, coeffs0, coeffs1, coeffs2,
+			       coeffs3, 34);
+	shake128x4_squeezeblocks(coeffs0, coeffs1, coeffs2, coeffs3,
+				 REJ_UNIFORM_AVX_NBLOCKS, &state);
+
+	ctr0 = kyber_rej_uniform_avx(a[1].vec[1].coeffs, coeffs0);
+	ctr1 = kyber_rej_uniform_avx(a[1].vec[2].coeffs, coeffs1);
+	ctr2 = kyber_rej_uniform_avx(a[2].vec[0].coeffs, coeffs2);
+	ctr3 = kyber_rej_uniform_avx(a[2].vec[1].coeffs, coeffs3);
+
+	while(ctr0 < LC_KYBER_N || ctr1 < LC_KYBER_N ||
+	      ctr2 < LC_KYBER_N || ctr3 < LC_KYBER_N) {
+		shake128x4_squeezeblocks(coeffs0, coeffs1, coeffs2, coeffs3, 1,
+					 &state);
+
+		ctr0 += rej_uniform(a[1].vec[1].coeffs + ctr0,
+				    LC_KYBER_N - ctr0, coeffs0,
+				    LC_SHAKE_128_SIZE_BLOCK);
+		ctr1 += rej_uniform(a[1].vec[2].coeffs + ctr1,
+				    LC_KYBER_N - ctr1, coeffs1,
+				    LC_SHAKE_128_SIZE_BLOCK);
+		ctr2 += rej_uniform(a[2].vec[0].coeffs + ctr2,
+				    LC_KYBER_N - ctr2, coeffs2,
+				    LC_SHAKE_128_SIZE_BLOCK);
+		ctr3 += rej_uniform(a[2].vec[1].coeffs + ctr3,
+				    LC_KYBER_N - ctr3, coeffs3,
+				    LC_SHAKE_128_SIZE_BLOCK);
+	}
+
+	poly_nttunpack_avx(&a[1].vec[1]);
+	poly_nttunpack_avx(&a[1].vec[2]);
+	poly_nttunpack_avx(&a[2].vec[0]);
+	poly_nttunpack_avx(&a[2].vec[1]);
+
+	LC_FPU_ENABLE;
+	f = _mm256_loadu_si256((__m256i_u *)seed);
+	_mm256_store_si256(vec0, f);
+	LC_FPU_DISABLE;
+
+	coeffs0[32] = 2;
+	coeffs0[33] = 2;
+
+	lc_hash_init(shake_128);
+	lc_hash_update(shake_128, coeffs0, 34);
+	lc_hash_set_digestsize(shake_128, REJ_UNIFORM_AVX_NBLOCKS *
+					  LC_SHAKE_128_SIZE_BLOCK);
+	lc_hash_final(shake_128, coeffs0);
+
+	ctr0 = kyber_rej_uniform_avx(a[2].vec[2].coeffs, coeffs0);
+
+	while(ctr0 < LC_KYBER_N) {
+		lc_hash_set_digestsize(shake_128, LC_SHAKE_128_SIZE_BLOCK);
+		lc_hash_final(shake_128, coeffs0);
+		ctr0 += rej_uniform(a[2].vec[2].coeffs + ctr0,
+				    LC_KYBER_N - ctr0, coeffs0,
+				    LC_SHAKE_128_SIZE_BLOCK);
+	}
+
+	poly_nttunpack_avx(&a[2].vec[2]);
+
+	return 0;
+}
+#else
+#error "Kyber AVX2 support incomplete"
+#endif
+
 int indcpa_keypair_avx(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 		       uint8_t sk[LC_KYBER_INDCPA_SECRETKEYBYTES],
 		       struct lc_rng_ctx *rng_ctx)
@@ -287,13 +459,13 @@ int indcpa_keypair_avx(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 	struct workspace {
 		union {
 			BUF_ALIGNED_UINT8_M256I(
-				NOISE_NBLOCKS *LC_SHAKE_256_SIZE_BLOCK)
-			poly_getnoise_eta1_buf[4];
-			BUF_ALIGNED_UINT8_M256I(
 				REJ_UNIFORM_AVX_NBLOCKS *LC_SHAKE_128_SIZE_BLOCK)
 			gen_a_buf[4];
 			polyvec pkpv;
 		} tmp;
+		BUF_ALIGNED_UINT8_M256I(
+			NOISE_NBLOCKS *LC_SHAKE_256_SIZE_BLOCK)
+			poly_getnoise_eta1_buf[4];
 		uint8_t buf[2 * LC_KYBER_SYMBYTES];
 		polyvec a[LC_KYBER_K], e, skpv;
 		keccakx4_state keccak_state;
@@ -313,14 +485,30 @@ int indcpa_keypair_avx(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 
 	CKINT(gen_a(ws->a, publicseed, ws->tmp.gen_a_buf));
 
+#if LC_KYBER_K == 4
 	poly_getnoise_eta1_4x(ws->skpv.vec + 0, ws->skpv.vec + 1,
 			      ws->skpv.vec + 2, ws->skpv.vec + 3, noiseseed, 0,
-			      1, 2, 3, ws->tmp.poly_getnoise_eta1_buf,
+			      1, 2, 3, ws->poly_getnoise_eta1_buf,
 			      &ws->keccak_state);
 	poly_getnoise_eta1_4x(ws->e.vec + 0, ws->e.vec + 1, ws->e.vec + 2,
 			      ws->e.vec + 3, noiseseed, 4, 5, 6, 7,
-			      ws->tmp.poly_getnoise_eta1_buf,
+			      ws->poly_getnoise_eta1_buf,
 			      &ws->keccak_state);
+#elif LC_KYBER_K == 3
+	poly_getnoise_eta1_4x(ws->skpv.vec + 0, ws->skpv.vec + 1,
+			      ws->skpv.vec + 2, ws->e.vec + 0,
+			      noiseseed, 0, 1, 2, 3,
+			      ws->poly_getnoise_eta1_buf,
+			      &ws->keccak_state);
+	poly_getnoise_eta1_4x(ws->e.vec + 1, ws->e.vec + 2,
+			      ws->tmp.pkpv.vec + 0, ws->tmp.pkpv.vec + 1,
+			      noiseseed, 4, 5, 6, 7,
+			      ws->poly_getnoise_eta1_buf,
+			      &ws->keccak_state);
+#else
+#error "Kyber AVX2 support incomplete"
+#endif
+
 	polyvec_ntt(&ws->skpv);
 	polyvec_reduce(&ws->skpv);
 	polyvec_ntt(&ws->e);
@@ -351,9 +539,6 @@ int indcpa_enc_avx(uint8_t c[LC_KYBER_INDCPA_BYTES],
 	struct workspace {
 		union {
 			BUF_ALIGNED_UINT8_M256I(
-				NOISE_NBLOCKS *LC_SHAKE_256_SIZE_BLOCK)
-			poly_getnoise_eta1_buf[4];
-			BUF_ALIGNED_UINT8_M256I(
 				REJ_UNIFORM_AVX_NBLOCKS *LC_SHAKE_128_SIZE_BLOCK)
 			gen_at_buf[4];
 			polyvec b;
@@ -364,6 +549,9 @@ int indcpa_enc_avx(uint8_t c[LC_KYBER_INDCPA_BYTES],
 			polyvec sp;
 			poly k;
 		} tmp2;
+		BUF_ALIGNED_UINT8_M256I(
+			NOISE_NBLOCKS *LC_SHAKE_256_SIZE_BLOCK)
+			poly_getnoise_eta1_buf[4];
 		polyvec pkpv, ep, at[LC_KYBER_K];
 		poly epp;
 		keccakx4_state keccak_state;
@@ -379,15 +567,29 @@ int indcpa_enc_avx(uint8_t c[LC_KYBER_INDCPA_BYTES],
 
 	CKINT(gen_at(ws->at, ws->tmp2.seed, ws->tmp.gen_at_buf));
 
+#if LC_KYBER_K == 4
 	poly_getnoise_eta1_4x(ws->tmp2.sp.vec + 0, ws->tmp2.sp.vec + 1,
 			      ws->tmp2.sp.vec + 2, ws->tmp2.sp.vec + 3, coins,
-			      0, 1, 2, 3, ws->tmp.poly_getnoise_eta1_buf,
+			      0, 1, 2, 3, ws->poly_getnoise_eta1_buf,
 			      &ws->keccak_state);
 	poly_getnoise_eta1_4x(ws->ep.vec + 0, ws->ep.vec + 1, ws->ep.vec + 2,
 			      ws->ep.vec + 3, coins, 4, 5, 6, 7,
-			      ws->tmp.poly_getnoise_eta1_buf,
+			      ws->poly_getnoise_eta1_buf,
 			      &ws->keccak_state);
 	poly_getnoise_eta2_avx(&ws->epp, coins, 8);
+#elif LC_KYBER_K == 3
+	poly_getnoise_eta1_4x(ws->tmp2.sp.vec + 0, ws->tmp2.sp.vec + 1,
+			      ws->tmp2.sp.vec + 2, ws->ep.vec + 0, coins, 0, 1,
+			      2, 3, ws->poly_getnoise_eta1_buf,
+			      &ws->keccak_state);
+	poly_getnoise_eta1_4x(ws->ep.vec + 1, ws->ep.vec + 2, &ws->epp,
+			      ws->tmp.b.vec + 0, coins,  4, 5, 6, 7,
+			      ws->poly_getnoise_eta1_buf,
+		              &ws->keccak_state);
+#else
+#error "Kyber AVX2 support incomplete"
+#endif
+
 	polyvec_ntt(&ws->tmp2.sp);
 
 	// matrix-vector multiplication
