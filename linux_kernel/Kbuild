@@ -872,6 +872,8 @@ endif
 # Signature implementation
 ccflags-$(CONFIG_LEANCRYPTO_DILITHIUM)					       \
 				+= -I$(PWD)/../signature/api
+asflags-$(CONFIG_LEANCRYPTO_DILITHIUM)					       \
+				+= -I$(PWD)
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
 				+= ../signature/src/dilithium_ntt.o	       \
 				   ../signature/src/dilithium_poly.o	       \
