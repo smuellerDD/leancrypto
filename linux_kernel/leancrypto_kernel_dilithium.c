@@ -44,7 +44,6 @@ struct lc_kernel_dilithium_ctx {
 
 static int lc_kernel_dilithium_sign(struct akcipher_request *req)
 {
-	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
 	struct crypto_akcipher *tfm = crypto_akcipher_reqtfm(req);
 	struct lc_kernel_dilithium_ctx *ctx = akcipher_tfm_ctx(tfm);
 	struct lc_dilithium_sig *sig;
@@ -52,6 +51,7 @@ static int lc_kernel_dilithium_sign(struct akcipher_request *req)
 	size_t offset = 0;
 	unsigned int sg_flags = SG_MITER_ATOMIC | SG_MITER_FROM_SG;
 	int ret;
+	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
 
 	/* req->src -> message */
 	/* req->dst -> signature */
@@ -94,7 +94,6 @@ static int lc_kernel_dilithium_sign(struct akcipher_request *req)
 
 static int lc_kernel_dilithium_verify(struct akcipher_request *req)
 {
-	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
 	struct crypto_akcipher *tfm = crypto_akcipher_reqtfm(req);
 	struct lc_kernel_dilithium_ctx *ctx = akcipher_tfm_ctx(tfm);
 	struct lc_dilithium_sig *sig;
@@ -102,6 +101,7 @@ static int lc_kernel_dilithium_verify(struct akcipher_request *req)
 	size_t offset = 0;
 	unsigned int sg_flags = SG_MITER_ATOMIC | SG_MITER_FROM_SG;
 	int ret;
+	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
 
 	/* req->src -> signature */
 	/* req->dst -> message */
