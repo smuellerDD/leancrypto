@@ -19,7 +19,7 @@
 
 /*
  * This code is derived in parts from the code distribution provided with
- * git@github.com:dsprenkels/dilithium-cortexm.git
+ * https://github.com/dilithium-coretexm/dilithium-cortexm.git
  *
  * Creative Commons Legal Code
  *

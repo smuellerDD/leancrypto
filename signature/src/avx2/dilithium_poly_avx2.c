@@ -460,8 +460,9 @@ void polyeta_pack_avx(uint8_t r[LC_DILITHIUM_POLYETA_PACKEDBYTES],
 		      const poly *restrict a)
 {
 	unsigned int i;
-	uint8_t t[8];
 
+#if LC_DILITHIUM_ETA == 2
+	uint8_t t[8];
 	for (i = 0; i < LC_DILITHIUM_N / 8; ++i) {
 		t[0] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[8 * i + 0]);
 		t[1] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[8 * i + 1]);
@@ -479,6 +480,17 @@ void polyeta_pack_avx(uint8_t r[LC_DILITHIUM_POLYETA_PACKEDBYTES],
 		r[3 * i + 2] =
 			(uint8_t)((t[5] >> 1) | (t[6] << 2) | (t[7] << 5));
 	}
+#elif LC_DILITHIUM_ETA == 4
+	uint8_t t[2];
+
+	for (i = 0; i < LC_DILITHIUM_N / 2; ++i) {
+		t[0] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[2 * i + 0]);
+		t[1] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[2 * i + 1]);
+		r[i] = (uint8_t)(t[0] | (t[1] << 4));
+	}
+#else
+#error "Undefined LC_DILITHIUM_ETA"
+#endif
 }
 
 /**
@@ -494,6 +506,7 @@ void polyeta_unpack_avx(poly *restrict r,
 {
 	unsigned int i;
 
+#if LC_DILITHIUM_ETA == 2
 	for (i = 0; i < LC_DILITHIUM_N / 8; ++i) {
 		r->coeffs[8 * i + 0] = (a[3 * i + 0] >> 0) & 7;
 		r->coeffs[8 * i + 1] = (a[3 * i + 0] >> 3) & 7;
@@ -515,6 +528,16 @@ void polyeta_unpack_avx(poly *restrict r,
 		r->coeffs[8 * i + 6] = LC_DILITHIUM_ETA - r->coeffs[8 * i + 6];
 		r->coeffs[8 * i + 7] = LC_DILITHIUM_ETA - r->coeffs[8 * i + 7];
 	}
+#elif LC_DILITHIUM_ETA == 4
+	for (i = 0; i < LC_DILITHIUM_N / 2; ++i) {
+		r->coeffs[2 * i + 0] = a[i] & 0x0F;
+		r->coeffs[2 * i + 1] = a[i] >> 4;
+		r->coeffs[2 * i + 0] = LC_DILITHIUM_ETA - r->coeffs[2 * i + 0];
+		r->coeffs[2 * i + 1] = LC_DILITHIUM_ETA - r->coeffs[2 * i + 1];
+	}
+#else
+#error "Undefined LC_DILITHIUM_ETA"
+#endif
 }
 
 /**

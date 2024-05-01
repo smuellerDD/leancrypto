@@ -22,6 +22,8 @@ Changes 0.10.0
 
 * Kyber 768: Add AVX2, ARMv8, ARMv7 support
 
+* Dilithium 65: Add AVX2, ARMv8, ARMv7 support
+
 Changes 0.9.2
 
 * fix: update "reduce memory footprint of Keccak state" to handle big-endian systems

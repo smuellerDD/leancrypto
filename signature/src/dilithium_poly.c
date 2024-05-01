@@ -26,6 +26,7 @@
  */
 
 #include "dilithium_poly.h"
+#include "dilithium_poly_common.h"
 #include "dilithium_service_helpers.h"
 #include "lc_sha3.h"
 

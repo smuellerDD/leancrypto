@@ -28,9 +28,18 @@
 #ifndef LC_DILITHIUM_H
 #define LC_DILITHIUM_H
 
+/*
+ * The macro LC_ASSEMBLER_INCLDUE is set when including this file into an
+ * assembler file. It is irrelevant (and thus not set) for all regular use
+ * cases.
+ */
+#ifndef LC_ASSEMBLER_INCLDUE
+
 #include "ext_headers.h"
 #include "lc_hash.h"
 #include "lc_rng.h"
+
+#endif /* LC_ASSEMBLER_INCLDUE */
 
 #ifdef __cplusplus
 extern "C" {
@@ -125,6 +134,7 @@ extern "C" {
 	 LC_DILITHIUM_L * LC_DILITHIUM_POLYZ_PACKEDBYTES +                     \
 	 LC_DILITHIUM_POLYVECH_PACKEDBYTES)
 
+#ifndef LC_ASSEMBLER_INCLDUE
 /**
  * @brief Dilithium secret key
  */
@@ -406,6 +416,8 @@ int lc_dilithium_ed25519_verify(const struct lc_dilithium_ed25519_sig *sig,
 				const struct lc_dilithium_ed25519_pk *pk);
 
 #endif /* LC_DILITHIUM_ED25519_SIG */
+
+#endif /* LC_ASSEMBLER_INCLDUE */
 
 #ifdef __cplusplus
 }

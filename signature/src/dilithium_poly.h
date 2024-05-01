@@ -176,8 +176,6 @@ void poly_uniform_eta(poly *a, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
 	 LC_SHAKE_256_SIZE_BLOCK)
 #define POLY_UNIFORM_GAMMA1_BYTES                                              \
 	POLY_UNIFORM_GAMMA1_NBLOCKS *LC_SHAKE_256_SIZE_BLOCK
-void poly_uniform_gamma1(poly *a, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
-			 uint16_t nonce, void *ws_buf);
 
 #define POLY_CHALLENGE_BYTES LC_SHAKE_256_SIZE_BLOCK
 void poly_challenge(poly *c, const uint8_t seed[LC_DILITHIUM_SEEDBYTES],

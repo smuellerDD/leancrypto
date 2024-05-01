@@ -24,6 +24,7 @@
 #define LC_POLY_UNIFOR_BUF_SIZE_MULTIPLIER 1
 
 #include "dilithium_poly.h"
+#include "dilithium_poly_common.h"
 #include "dilithium_poly_armv7.h"
 #include "dilithium_polyvec.h"
 #include "dilithium_polyvec_armv7.h"

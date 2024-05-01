@@ -29,6 +29,7 @@
 #include "build_bug_on.h"
 #include "dilithium_pack_avx2.h"
 #include "dilithium_poly_avx2.h"
+#include "dilithium_poly_common.h"
 #include "dilithium_polyvec_avx2.h"
 #include "dilithium_selftest.h"
 #include "dilithium_signature_avx2.h"
@@ -77,6 +78,7 @@ polyvec_matrix_expand_row(polyvecl **row, polyvecl buf[2],
 					   ws_keccak);
 		*row = buf + 1;
 		break;
+#if LC_DILITHIUM_K > 6
 	case 6:
 		polyvec_matrix_expand_row6(buf, buf + 1, rho, ws_buf,
 					   ws_keccak);
@@ -87,6 +89,7 @@ polyvec_matrix_expand_row(polyvecl **row, polyvecl buf[2],
 					   ws_keccak);
 		*row = buf + 1;
 		break;
+#endif
 	}
 }
 
@@ -140,6 +143,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_avx2,
 	memcpy(sk->sk, rho, LC_DILITHIUM_SEEDBYTES);
 	memcpy(sk->sk + LC_DILITHIUM_SEEDBYTES, key, LC_DILITHIUM_SEEDBYTES);
 
+#if LC_DILITHIUM_K == 8 && LC_DILITHIUM_L == 7
 	poly_uniform_eta_4x_avx(&ws->s1.vec[0], &ws->s1.vec[1], &ws->s1.vec[2],
 				&ws->s1.vec[3], rhoprime, 0, 1, 2, 3,
 				ws->tmp.poly_uniform_eta_4x_buf,
@@ -156,6 +160,22 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_avx2,
 				&ws->t0, rhoprime, 12, 13, 14, 15,
 				ws->tmp.poly_uniform_eta_4x_buf,
 				&ws->keccak_state);
+#elif LC_DILITHIUM_K == 6 && LC_DILITHIUM_L == 5
+	poly_uniform_eta_4x_avx(&ws->s1.vec[0], &ws->s1.vec[1], &ws->s1.vec[2],
+				&ws->s1.vec[3], rhoprime, 0, 1, 2, 3,
+				ws->tmp.poly_uniform_eta_4x_buf,
+				&ws->keccak_state);
+	poly_uniform_eta_4x_avx(&ws->s1.vec[4], &ws->s2.vec[0], &ws->s2.vec[1],
+				&ws->s2.vec[2], rhoprime, 4, 5, 6, 7,
+				ws->tmp.poly_uniform_eta_4x_buf,
+				&ws->keccak_state);
+	poly_uniform_eta_4x_avx(&ws->s2.vec[3], &ws->s2.vec[4], &ws->s2.vec[5],
+				&ws->t0, rhoprime, 8, 9, 10, 11,
+				ws->tmp.poly_uniform_eta_4x_buf,
+				&ws->keccak_state);
+#else
+#error "Undefined LC_DILITHIUM_K"
+#endif
 
 	/* Pack secret vectors */
 	for (i = 0; i < LC_DILITHIUM_L; i++)
@@ -281,6 +301,7 @@ static int lc_dilithium_sign_avx2_internal(struct lc_dilithium_sig *sig,
 
 rej:
 	/* Sample intermediate vector y */
+#if LC_DILITHIUM_L == 7
 	poly_uniform_gamma1_4x_avx(&ws->z.vec[0], &ws->z.vec[1], &ws->z.vec[2],
 				   &ws->z.vec[3], rhoprime, (uint16_t)nonce,
 				   (uint16_t)(nonce + 1), (uint16_t)(nonce + 2),
@@ -293,6 +314,19 @@ rej:
 				   0, ws->buf.poly_uniform_gamma1,
 				   &ws->keccak_state);
 	nonce += 7;
+#elif LC_DILITHIUM_L == 5
+	poly_uniform_gamma1_4x_avx(&ws->z.vec[0], &ws->z.vec[1], &ws->z.vec[2],
+				   &ws->z.vec[3], rhoprime, (uint16_t)nonce,
+				   (uint16_t)(nonce + 1), (uint16_t)(nonce + 2),
+				   (uint16_t)(nonce + 3),
+				   ws->buf.poly_uniform_gamma1,
+				   &ws->keccak_state);
+	poly_uniform_gamma1(&ws->z.vec[4], rhoprime, (uint16_t)(nonce + 4),
+			    ws->buf.poly_uniform_gamma1);
+	nonce += 5;
+#else
+#error "Undefined LC_DILITHIUM_K"
+#endif
 
 	/* Matrix-vector product */
 	ws->tmpv.y = ws->z;

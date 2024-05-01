@@ -67,7 +67,7 @@ if get_option('dilithium').enabled()
 	     args : [ 'c' ], timeout: 1000, is_parallel: false)
 	test('Dilithium invalid signature', dilithium_invalid_tester)
 
-	if (x86_64_asm and get_option('dilithium_strength') == '5')
+	if (x86_64_asm and get_option('dilithium_strength') != '2')
 		dilithium_tester_avx2 = executable('dilithium_tester_avx2',
 				[ 'dilithium_tester_avx2.c',
 				  'dilithium_tester.c',
@@ -99,7 +99,7 @@ if get_option('dilithium').enabled()
 		test('Dilithium init update final AVX2 10000',
 		     dilithium_tester_iuf_avx2,
 		     args : [ 'c' ], timeout: 1000, is_parallel: false)
-	elif (arm64_asm and get_option('dilithium_strength') == '5')
+	elif (arm64_asm and get_option('dilithium_strength') != '2')
 		dilithium_tester_armv8 = executable('dilithium_tester_armv8',
 				[ 'dilithium_tester_armv8.c',
 				  'dilithium_tester.c',
@@ -131,7 +131,7 @@ if get_option('dilithium').enabled()
 		test('Dilithium init update final ARMv8 10000',
 		     dilithium_tester_iuf_armv8,
 		     args : [ 'c' ], timeout: 1000, is_parallel: false)
-	elif (arm32_neon_gcc_asm and get_option('dilithium_strength') == '5')
+	elif (arm32_neon_gcc_asm and get_option('dilithium_strength') != '2')
 		dilithium_tester_armv7 = executable('dilithium_tester_armv7',
 				[ 'dilithium_tester_armv7.c',
 				  'dilithium_tester.c',

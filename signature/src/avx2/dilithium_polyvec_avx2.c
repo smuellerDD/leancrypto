@@ -31,10 +31,6 @@
 #include "dilithium_polyvec_avx2.h"
 #include "lc_dilithium.h"
 
-#if LC_DILITHIUM_MODE != 5
-#error
-#endif
-
 /**
  * @brief polyvec_matrix_expand
  *
@@ -45,7 +41,7 @@
  * @param mat[K] output matrix
  * @param rho[] byte array containing seed rho
  */
-
+#if LC_DILITHIUM_K == 8 && LC_DILITHIUM_L == 7
 void polyvec_matrix_expand(polyvecl mat[LC_DILITHIUM_K],
 			   const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
 			   void *ws_buf, void *ws_keccak)
@@ -206,3 +202,112 @@ void polyvec_matrix_expand_row7(polyvecl *rowa,
 	poly_nttunpack_avx(&rowa->vec[5]);
 	poly_nttunpack_avx(&rowa->vec[6]);
 }
+
+#elif LC_DILITHIUM_K == 6 && LC_DILITHIUM_L == 5
+
+void polyvec_matrix_expand(polyvecl mat[LC_DILITHIUM_K],
+			   const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
+			   void *ws_buf, void *ws_keccak)
+{
+	polyvecl tmp;
+	polyvec_matrix_expand_row0(&mat[0], &mat[1], rho, ws_buf, ws_keccak);
+	polyvec_matrix_expand_row1(&mat[1], &mat[2], rho, ws_buf, ws_keccak);
+	polyvec_matrix_expand_row2(&mat[2], &mat[3], rho, ws_buf, ws_keccak);
+	polyvec_matrix_expand_row3(&mat[3], NULL, rho, ws_buf, ws_keccak);
+	polyvec_matrix_expand_row4(&mat[4], &mat[5], rho, ws_buf, ws_keccak);
+	polyvec_matrix_expand_row5(&mat[5], &tmp, rho, ws_buf, ws_keccak);
+}
+
+void polyvec_matrix_expand_row0(polyvecl *rowa, polyvecl *rowb,
+				const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
+				void *ws_buf, void *ws_keccak)
+{
+	poly_uniform_4x_avx(&rowa->vec[0], &rowa->vec[1], &rowa->vec[2],
+			    &rowa->vec[3], rho, 0, 1, 2, 3, ws_buf, ws_keccak);
+	poly_uniform_4x_avx(&rowa->vec[4], &rowb->vec[0], &rowb->vec[1],
+			    &rowb->vec[2], rho, 4, 256, 257, 258, ws_buf,
+			    ws_keccak);
+	poly_nttunpack_avx(&rowa->vec[0]);
+	poly_nttunpack_avx(&rowa->vec[1]);
+	poly_nttunpack_avx(&rowa->vec[2]);
+	poly_nttunpack_avx(&rowa->vec[3]);
+	poly_nttunpack_avx(&rowa->vec[4]);
+	poly_nttunpack_avx(&rowb->vec[0]);
+	poly_nttunpack_avx(&rowb->vec[1]);
+	poly_nttunpack_avx(&rowb->vec[2]);
+}
+
+void polyvec_matrix_expand_row1(polyvecl *rowa, polyvecl *rowb,
+				const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
+				void *ws_buf, void *ws_keccak)
+{
+	poly_uniform_4x_avx(&rowa->vec[3], &rowa->vec[4], &rowb->vec[0],
+			    &rowb->vec[1], rho, 259, 260, 512, 513, ws_buf,
+			    ws_keccak);
+	poly_nttunpack_avx(&rowa->vec[3]);
+	poly_nttunpack_avx(&rowa->vec[4]);
+	poly_nttunpack_avx(&rowb->vec[0]);
+	poly_nttunpack_avx(&rowb->vec[1]);
+}
+
+void polyvec_matrix_expand_row2(polyvecl *rowa, polyvecl *rowb,
+				const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
+				void *ws_buf, void *ws_keccak)
+{
+	poly_uniform_4x_avx(&rowa->vec[2], &rowa->vec[3], &rowa->vec[4],
+			    &rowb->vec[0], rho, 514, 515, 516, 768, ws_buf,
+			    ws_keccak);
+	poly_nttunpack_avx(&rowa->vec[2]);
+	poly_nttunpack_avx(&rowa->vec[3]);
+	poly_nttunpack_avx(&rowa->vec[4]);
+	poly_nttunpack_avx(&rowb->vec[0]);
+}
+
+void polyvec_matrix_expand_row3(polyvecl *rowa,
+				__attribute__((unused)) polyvecl *rowb,
+				const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
+				void *ws_buf, void *ws_keccak)
+{
+	poly_uniform_4x_avx(&rowa->vec[1], &rowa->vec[2], &rowa->vec[3],
+			    &rowa->vec[4], rho, 769, 770, 771, 772, ws_buf,
+			    ws_keccak);
+	poly_nttunpack_avx(&rowa->vec[1]);
+	poly_nttunpack_avx(&rowa->vec[2]);
+	poly_nttunpack_avx(&rowa->vec[3]);
+	poly_nttunpack_avx(&rowa->vec[4]);
+}
+
+void polyvec_matrix_expand_row4(polyvecl *rowa, polyvecl *rowb,
+				const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
+				void *ws_buf, void *ws_keccak)
+{
+	poly_uniform_4x_avx(&rowa->vec[0], &rowa->vec[1], &rowa->vec[2],
+			    &rowa->vec[3], rho, 1024, 1025, 1026, 1027, ws_buf,
+			    ws_keccak);
+	poly_uniform_4x_avx(&rowa->vec[4], &rowb->vec[0], &rowb->vec[1],
+			    &rowb->vec[2], rho, 1028, 1280, 1281, 1282, ws_buf,
+			    ws_keccak);
+	poly_nttunpack_avx(&rowa->vec[0]);
+	poly_nttunpack_avx(&rowa->vec[1]);
+	poly_nttunpack_avx(&rowa->vec[2]);
+	poly_nttunpack_avx(&rowa->vec[3]);
+	poly_nttunpack_avx(&rowa->vec[4]);
+	poly_nttunpack_avx(&rowb->vec[0]);
+	poly_nttunpack_avx(&rowb->vec[1]);
+	poly_nttunpack_avx(&rowb->vec[2]);
+}
+
+void polyvec_matrix_expand_row5(polyvecl *rowa, polyvecl *rowb,
+				const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
+				void *ws_buf, void *ws_keccak)
+{
+	poly_uniform_4x_avx(&rowa->vec[3], &rowa->vec[4], &rowb->vec[0],
+			    &rowb->vec[1], rho, 1283, 1284, 1536, 1537, ws_buf,
+			    ws_keccak);
+	poly_nttunpack_avx(&rowa->vec[3]);
+	poly_nttunpack_avx(&rowa->vec[4]);
+}
+
+#else
+#error "Undefined LC_DILITHIUM_K"
+#endif

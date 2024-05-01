@@ -31,8 +31,16 @@ extern "C" {
 	((768 + LC_SHAKE_128_SIZE_BLOCK - 1) / LC_SHAKE_128_SIZE_BLOCK)
 #define REJ_UNIFORM_BUFLEN (REJ_UNIFORM_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK)
 
+#if LC_DILITHIUM_ETA == 2
 #define REJ_UNIFORM_ETA_NBLOCKS                                                \
 	((136 + LC_SHAKE_256_SIZE_BLOCK - 1) / LC_SHAKE_256_SIZE_BLOCK)
+#elif LC_DILITHIUM_ETA == 4
+#define REJ_UNIFORM_ETA_NBLOCKS                                                \
+	((227 + LC_SHAKE_256_SIZE_BLOCK - 1 ) / LC_SHAKE_256_SIZE_BLOCK)
+#else
+#error "Undefined LC_DILITHIUM_ETA"
+#endif
+
 #define REJ_UNIFORM_ETA_BUFLEN                                                 \
 	(REJ_UNIFORM_ETA_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK)
 

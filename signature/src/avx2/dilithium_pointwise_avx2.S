@@ -1,5 +1,7 @@
 #include "assembler_support.h"
 #include "dilithium_consts_avx2.h"
+#define LC_ASSEMBLER_INCLDUE
+#include "lc_dilithium.h"
 
 .text
 SYM_FUNC_START(dilithium_pointwise_avx)
@@ -155,17 +157,25 @@ acc
 pointwise	2048
 acc
 
+#if LC_DILITHIUM_L >= 4
 pointwise	3072
 acc
+#endif
 
+#if LC_DILITHIUM_L >= 5
 pointwise	4096
 acc
+#endif
 
+#if LC_DILITHIUM_L >= 6
 pointwise	5120
 acc
+#endif
 
+#if LC_DILITHIUM_L >= 7
 pointwise	6144
 acc
+#endif
 
 #reduce
 vpmuldq		%ymm0,%ymm2,%ymm6

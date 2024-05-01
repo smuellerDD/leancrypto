@@ -215,6 +215,7 @@ unsigned int rej_uniform_avx(int32_t *restrict r,
 	return ctr;
 }
 
+#if LC_DILITHIUM_ETA == 2
 unsigned int rej_eta_avx(int32_t *restrict r,
 			 const uint8_t buf[REJ_UNIFORM_ETA_BUFLEN])
 {
@@ -319,3 +320,95 @@ unsigned int rej_eta_avx(int32_t *restrict r,
 
 	return ctr;
 }
+
+#elif LC_DILITHIUM_ETA == 4
+unsigned int rej_eta_avx(int32_t *restrict r,
+			 const uint8_t buf[REJ_UNIFORM_ETA_BUFLEN])
+{
+	unsigned int ctr, pos;
+	uint32_t good;
+	__m256i f0, f1;
+	__m128i g0, g1;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
+	LC_FPU_ENABLE;
+	const __m256i mask = _mm256_set1_epi8(15);
+	const __m256i eta = _mm256_set1_epi8(4);
+	const __m256i bound = _mm256_set1_epi8(9);
+#pragma GCC diagnostic pop
+	uint32_t t0, t1;
+
+	ctr = pos = 0;
+	while (ctr <= LC_DILITHIUM_N - 8 &&
+	       pos <= REJ_UNIFORM_ETA_BUFLEN - 16) {
+
+		f0 = _mm256_cvtepu8_epi16(
+			_mm_loadu_si128((__m128i_u *)&buf[pos]));
+		f1 = _mm256_slli_epi16(f0,4);
+		f0 = _mm256_or_si256(f0,f1);
+		f0 = _mm256_and_si256(f0,mask);
+
+		f1 = _mm256_sub_epi8(f0,bound);
+		f0 = _mm256_sub_epi8(eta,f0);
+		good =  (uint32_t)_mm256_movemask_epi8(f1);
+
+		g0 = _mm256_castsi256_si128(f0);
+		g1 = _mm_loadl_epi64((__m128i_u *)&idxlut[good & 0xFF]);
+		g1 = _mm_shuffle_epi8(g0,g1);
+		f1 = _mm256_cvtepi8_epi32(g1);
+		_mm256_storeu_si256((__m256i_u *)&r[ctr],f1);
+		ctr +=  (uint32_t)_mm_popcnt_u32(good & 0xFF);
+		good >>= 8;
+		pos += 4;
+
+		if (ctr > LC_DILITHIUM_N - 8)
+			break;
+		g0 = _mm_bsrli_si128(g0,8);
+		g1 = _mm_loadl_epi64((__m128i_u *)&idxlut[good & 0xFF]);
+		g1 = _mm_shuffle_epi8(g0,g1);
+		f1 = _mm256_cvtepi8_epi32(g1);
+		_mm256_storeu_si256((__m256i_u *)&r[ctr],f1);
+		ctr += (uint32_t)_mm_popcnt_u32(good & 0xFF);
+		good >>= 8;
+		pos += 4;
+
+		if (ctr > LC_DILITHIUM_N - 8)
+			break;
+		g0 = _mm256_extracti128_si256(f0,1);
+		g1 = _mm_loadl_epi64((__m128i_u *)&idxlut[good & 0xFF]);
+		g1 = _mm_shuffle_epi8(g0,g1);
+		f1 = _mm256_cvtepi8_epi32(g1);
+		_mm256_storeu_si256((__m256i_u *)&r[ctr],f1);
+		ctr +=  (uint32_t)_mm_popcnt_u32(good & 0xFF);
+		good >>= 8;
+		pos += 4;
+
+		if (ctr > LC_DILITHIUM_N - 8)
+			break;
+		g0 = _mm_bsrli_si128(g0,8);
+		g1 = _mm_loadl_epi64((__m128i_u *)&idxlut[good]);
+		g1 = _mm_shuffle_epi8(g0,g1);
+		f1 = _mm256_cvtepi8_epi32(g1);
+		_mm256_storeu_si256((__m256i_u *)&r[ctr],f1);
+		ctr +=  (uint32_t)_mm_popcnt_u32(good);
+		pos += 4;
+	}
+	LC_FPU_DISABLE;
+
+	while (ctr < LC_DILITHIUM_N && pos < REJ_UNIFORM_ETA_BUFLEN) {
+		t0 = buf[pos] & 0x0F;
+		t1 = buf[pos++] >> 4;
+
+		if (t0 < 9)
+			r[ctr++] = (int32_t)(4 - t0);
+		if (t1 < 9 && ctr < LC_DILITHIUM_N)
+			r[ctr++] = (int32_t)(4 - t1);
+	}
+
+	return ctr;
+}
+
+#else
+#error "Undefined LC_DILITHIUM_ETA"
+#endif

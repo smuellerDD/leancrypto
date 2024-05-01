@@ -157,7 +157,7 @@ signature/src/armv8/macros_common.inc
 
 The following files are licensed under the Creative Commons Legal Code CC0 1.0
 Universal license. The original files are obtained from
-git@github.com:dsprenkels/dilithium-cortexm.git
+https://github.com/dilithium-coretexm/dilithium-cortexm.git
 
 kem/src/armv7/kyber_fastinvntt_armv7.S
 kem/src/armv7/kyber_fastntt_armv7.S

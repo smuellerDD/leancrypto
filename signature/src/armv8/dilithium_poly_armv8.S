@@ -47,10 +47,10 @@
  */
 
 #include "assembler_support.h"
+#define LC_ASSEMBLER_INCLDUE
+#include "lc_dilithium.h"
 
 #include "macros.inc"
-/* Support Dilithium type 5 only */
-#define LC_DILIHITUM_L 7
 
 SYM_FUNC_START(armv8_10_to_32)
 SYM_FUNC_ENTER(armv8_10_to_32)
@@ -588,12 +588,12 @@ SYM_FUNC_ENTER(polyvecl_pointwise_acc_montgomery_armv8)
     add  x9,  x1, #1024*3
     add x10,  x2, #1024*3
 
-#if LC_DILIHITUM_L > 4
+#if LC_DILITHIUM_L > 4
     add x11,  x1, #1024*4
     add x12,  x2, #1024*4
 #endif
 
-#if LC_DILIHITUM_L > 5
+#if LC_DILITHIUM_L > 5
     add x13,  x11, #1024*1
     add x14,  x12, #1024*1
 
@@ -664,7 +664,7 @@ SYM_FUNC_ENTER(polyvecl_pointwise_acc_montgomery_armv8)
     ld1 { v3.4S}, [ x9], #16 
     ld1 { v7.4S}, [x10], #16
 
-#if LC_DILIHITUM_L > 4
+#if LC_DILITHIUM_L > 4
     smlal  v12.2D,  v0.2S,  v4.2S
     smlal2 v16.2D,  v0.4S,  v4.4S
     ld1 { v0.4S}, [x11], #16 
@@ -683,7 +683,7 @@ SYM_FUNC_ENTER(polyvecl_pointwise_acc_montgomery_armv8)
     ld1 { v7.4S}, [x12], #16
 #endif
 
-#if LC_DILIHITUM_L > 5
+#if LC_DILITHIUM_L > 5
     smlal  v12.2D,  v0.2S,  v4.2S
     smlal2 v16.2D,  v0.4S,  v4.4S
     ld1 { v0.4S}, [x13], #16 
@@ -818,7 +818,7 @@ SYM_FUNC_ENTER(polyvecl_pointwise_acc_montgomery_armv8)
     ld1 { v3.4S}, [ x9], #16 
     ld1 { v7.4S}, [x10], #16
 
-#if LC_DILIHITUM_L > 4
+#if LC_DILITHIUM_L > 4
     smlal  v12.2D,  v0.2S,  v4.2S
     smlal2 v16.2D,  v0.4S,  v4.4S
     ld1 { v0.4S}, [x11], #16 
@@ -837,7 +837,7 @@ SYM_FUNC_ENTER(polyvecl_pointwise_acc_montgomery_armv8)
     ld1 { v7.4S}, [x12], #16
 #endif
 
-#if LC_DILIHITUM_L > 5
+#if LC_DILITHIUM_L > 5
     smlal  v12.2D,  v0.2S,  v4.2S
     smlal2 v16.2D,  v0.4S,  v4.4S
     ld1 { v0.4S}, [x13], #16 
