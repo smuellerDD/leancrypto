@@ -1,6 +1,8 @@
 /* ARMv8 implementation of Polynomial Functions */
 
 #include "assembler_support.h"
+#include "kyber_type.h"
+
 
 // poly_tobytes
 // read a, b, c, d -> write e, f, g

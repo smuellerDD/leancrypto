@@ -27,10 +27,9 @@
 #ifndef KYBER_POLY_H
 #define KYBER_POLY_H
 
+#include "kyber_type.h"
 #include "kyber_ntt.h"
 #include "kyber_reduce.h"
-
-#include "lc_kyber.h"
 
 #ifdef __cplusplus
 extern "C" {

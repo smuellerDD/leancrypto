@@ -17,11 +17,12 @@
  * DAMAGE.
  */
 
+#include "kyber_type.h"
+
 #include "cpufeatures.h"
 #include "kyber_internal.h"
 #include "kyber_kem_avx2.h"
 #include "kyber_kem_c.h"
-#include "lc_kyber.h"
 #include "visibility.h"
 
 LC_INTERFACE_FUNCTION(int, lc_kyber_keypair, struct lc_kyber_pk *pk,

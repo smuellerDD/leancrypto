@@ -144,7 +144,7 @@ include_dirs = include_directories([ 'aead/api',
 
 include_files = [ ]
 
-include_internal_dirs = include_directories([ 'internal/api' ])
+include_internal_dirs = include_directories([ 'internal/api', 'kem/src' ])
 
 subdirs = [
 	    # These must be first to generate the header files

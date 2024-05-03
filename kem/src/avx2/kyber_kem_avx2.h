@@ -20,7 +20,7 @@
 #ifndef KYBER_KEM_AVX2_H
 #define KYBER_KEM_AVX2_H
 
-#include "lc_kyber.h"
+#include "kyber_type.h"
 
 #ifdef __cplusplus
 extern "C" {

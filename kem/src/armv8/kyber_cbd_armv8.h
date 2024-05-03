@@ -26,8 +26,8 @@
 #ifndef KYBER_CBD_ARMV8_H
 #define KYBER_CBD_ARMV8_H
 
+#include "kyber_type.h"
 #include "kyber_poly_armv8.h"
-#include "lc_kyber.h"
 
 #ifdef __cplusplus
 extern "C" {

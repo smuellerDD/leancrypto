@@ -1,6 +1,7 @@
 /* ARMv8 implementation of ADD function */
 
 #include "assembler_support.h"
+#include "kyber_type.h"
 
 /*************************************************
 *	Function Name:	kyber_add_armv8

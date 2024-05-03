@@ -21,7 +21,7 @@
 #define X25519_H
 
 #include "ext_headers.h"
-#include "lc_kyber.h"
+#include "kyber_type.h"
 
 #ifdef __cplusplus
 extern "C" {

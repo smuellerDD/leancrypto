@@ -1,6 +1,6 @@
 #ifndef KYBER_TESTVECTORS_H
 #define KYBER_TESTVECTORS_H
-#include "lc_kyber.h"
+#include "kyber_type.h"
 struct kyber_testvector {
 	uint8_t pk[LC_CRYPTO_PUBLICKEYBYTES];
 	uint8_t sk[LC_CRYPTO_SECRETKEYBYTES];

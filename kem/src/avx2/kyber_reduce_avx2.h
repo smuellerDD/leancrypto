@@ -28,7 +28,7 @@
 #define KYBER_REDUCE_AVX2_H
 
 #include "ext_headers_x86.h"
-#include "lc_kyber.h"
+#include "kyber_type.h"
 
 #ifdef __cplusplus
 extern "C" {

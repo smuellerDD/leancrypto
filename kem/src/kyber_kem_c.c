@@ -17,6 +17,8 @@
  * DAMAGE.
  */
 
+#include "kyber_type.h"
+
 #include "kyber_debug.h"
 #include "kyber_indcpa.h"
 #include "kyber_kem.h"
@@ -24,7 +26,6 @@
 #include "kyber_selftest.h"
 #include "kyber_verify.h"
 #include "lc_hash.h"
-#include "lc_kyber.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
 #include "visibility.h"

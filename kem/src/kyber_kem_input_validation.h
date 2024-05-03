@@ -20,7 +20,7 @@
 #ifndef KYBER_KEM_INPUT_VALIDATION_H
 #define KYBER_KEM_INPUT_VALIDATION_H
 
-#include "lc_kyber.h"
+#include "kyber_type.h"
 #include "lc_memcmp_secure.h"
 #include "small_stack_support.h"
 

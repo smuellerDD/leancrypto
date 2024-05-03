@@ -36,6 +36,7 @@
  */
 
 #include "assembler_support.h"
+#include "kyber_type.h"
 
 .syntax unified
 .thumb

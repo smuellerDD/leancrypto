@@ -1,4 +1,5 @@
 #include "assembler_support.h"
+#include "kyber_type.h"
 #include "kyber_consts_avx2.h"
 
 .macro schoolbook off

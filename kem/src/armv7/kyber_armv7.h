@@ -21,6 +21,7 @@
 #define KYBER_ARMV7_H
 
 #include "ext_headers.h"
+#include "kyber_type.h"
 
 #ifdef __cplusplus
 extern "C" {

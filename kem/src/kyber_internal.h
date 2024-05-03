@@ -20,7 +20,7 @@
 #ifndef KYBER_INTERNAL_H
 #define KYBER_INTERNAL_H
 
-#include "lc_kyber.h"
+#include "kyber_type.h"
 
 #ifdef __cplusplus
 extern "C" {

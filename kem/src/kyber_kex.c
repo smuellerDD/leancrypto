@@ -24,11 +24,11 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
+#include "kyber_type.h"
 #include "kyber_internal.h"
 #include "kyber_kdf.h"
 
 #include "lc_memset_secure.h"
-#include "lc_kyber.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 

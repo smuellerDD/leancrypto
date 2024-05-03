@@ -27,8 +27,8 @@
 #include "ext_headers.h"
 #include "ext_headers_x86.h"
 
+#include "kyber_type.h"
 #include "kyber_poly_avx2.h"
-#include "lc_kyber.h"
 
 /**
  * cbd2

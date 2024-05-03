@@ -28,6 +28,7 @@
 
 #include "ext_headers.h"
 #include "ext_headers_x86.h"
+#include "kyber_type.h"
 
 #ifdef __cplusplus
 extern "C" {

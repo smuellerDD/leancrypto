@@ -1,6 +1,7 @@
 /* ARMv8 implementation of CBD functions */
 
 #include "assembler_support.h"
+#include "kyber_type.h"
 
 /*************************************************	
 *	Macro Name:		MCBD2

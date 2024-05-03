@@ -2,6 +2,7 @@
 /* Called in REDUCE.H */ 
 
 #include "assembler_support.h"
+#include "kyber_type.h"
 
 // Include macros mbarret16
 .include "macros.inc"

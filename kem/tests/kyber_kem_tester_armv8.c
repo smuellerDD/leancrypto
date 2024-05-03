@@ -18,8 +18,8 @@
  */
 
 #include "ext_headers.h"
+#include "kyber_type.h"
 #include "kyber_kem_tester.h"
-#include "lc_kyber.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
 #include "visibility.h"

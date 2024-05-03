@@ -20,7 +20,7 @@
 #ifndef KYBER_KDF_H
 #define KYBER_KDF_H
 
-#include "lc_kyber.h"
+#include "kyber_type.h"
 #include "lc_hash.h"
 #include "lc_kmac.h"
 #include "lc_sha3.h"

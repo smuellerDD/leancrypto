@@ -1,4 +1,5 @@
 #include "assembler_support.h"
+#include "kyber_type.h"
 #include "kyber_consts_avx2.h"
 #include "kyber_fq_avx2.inc"
 #include "kyber_shuffle_avx2.inc"

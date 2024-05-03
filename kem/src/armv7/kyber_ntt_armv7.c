@@ -17,9 +17,9 @@
  * DAMAGE.
  */
 
+#include "kyber_type.h"
 #include "kyber_armv7.h"
 #include "kyber_ntt.h"
-#include "lc_kyber.h"
 
 const int16_t zetas_armv7[64] = {
 	2226, 430,  555,  843,	2078, 871,  1550, 105,	422,  587,  177,

@@ -26,13 +26,12 @@
 #ifndef KYBER_POLY_ARMV8_H
 #define KYBER_POLY_ARMV8_H
 
+#include "kyber_type.h"
 #include "kyber_cbd_armv8.h"
 #include "kyber_kdf.h"
 #include "kyber_ntt.h"
 #include "kyber_ntt_armv8.h"
 #include "kyber_reduce_armv8.h"
-
-#include "lc_kyber.h"
 
 #ifdef __cplusplus
 extern "C" {

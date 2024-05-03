@@ -196,8 +196,16 @@ CONFIG_LEANCRYPTO_PBKDF2=y
 ########################### Key Encapsulation Method ###########################
 
 #
-# Enable Key Encapsulation Mechanism provided by Kyber
+# Enable Key Encapsulation Mechanism provided by Kyber-1024
 # Dependencies: CONFIG_LEANCRYPTO_SHA3
+#
+# NOTE: It is possible to compile Kyber-768 and Kyber-512 at the same time.
+# However, this requires that identical C files need to be compiled multiple
+# times with a different macro set (see meson). Unfortunately, the Linux kernel
+# Kbuild system does not seem to offer an option to trigger a re-compilation
+# of a C file even though an object exists. Thus, only one of the Kyber
+# types can be compiled. You may switch it by definiting nothing (Kyber-1024),
+# -DLC_KYBER_TYPE_768 or -DLC_KYBER_TYPE_512 to get the respective others.
 #
 CONFIG_LEANCRYPTO_KEM=y
 
@@ -251,6 +259,9 @@ obj-m		 		:= leancrypto.o
 # Kernel module framework
 ccflags-y			:= -I$(PWD) -DLINUX_KERNEL -DLC_MEM_ON_HEAP    \
 				   -DMAJVERSION=0 -DMINVERSION=10 -DPATCHLEVEL=0
+asflags-$(CONFIG_LEANCRYPTO_KEM)					       \
+				+= -I$(PWD)/../internal/api -I$(PWD)/../kem/src\
+				   -DLINUX_KERNEL
 
 ifdef CONFIG_X86_64
 ccflags-y			+= -DLC_HOST_X86_64
@@ -730,8 +741,6 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM_X25519)				       \
 				   leancrypto_kernel_kyber_x25519.o
 
 ifdef CONFIG_X86_64
-asflags-$(CONFIG_LEANCRYPTO_KEM)					       \
-				+= -I$(PWD)/../internal/api -DLINUX_KERNEL
 leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 				+= ../kem/src/avx2/kyber_basemul_avx2.o	       \
 				   ../kem/src/avx2/kyber_cbd_avx2.o	       \
@@ -747,7 +756,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 				   ../kem/src/avx2/kyber_shuffle_avx2.o
 else ifdef CONFIG_ARM
 asflags-$(CONFIG_LEANCRYPTO_KEM)					       \
-				+= -I$(PWD)/../internal/api -I$(PWD)/../kem/src/armv7
+				+= -I$(PWD)/../kem/src/armv7
 leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 				+= ../kem/src/kyber_kem_api_c.o		       \
 				   ../kem/src/armv7/kyber_fastinvntt_armv7.o   \

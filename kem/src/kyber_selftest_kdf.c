@@ -17,9 +17,10 @@
  * DAMAGE.
  */
 
+#include "kyber_type.h"
+
 #include "compare.h"
 #include "kyber_selftest.h"
-#include "lc_kyber.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"

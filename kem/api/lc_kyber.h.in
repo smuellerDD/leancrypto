@@ -24,8 +24,8 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
-#ifndef LC_KYBER_H
-#define LC_KYBER_H
+#ifndef LC_KYBER_@kyber_header@H
+#define LC_KYBER_@kyber_header@H
 
 #include "ext_headers.h"
 #include "lc_aead.h"
@@ -86,32 +86,41 @@ extern "C" {
 #define LC_CRYPTO_CIPHERTEXTBYTES LC_KYBER_CIPHERTEXTBYTES
 #define LC_CRYPTO_BYTES LC_KYBER_SSBYTES
 
+/**
+ * General KEM API considerations:
+ *
+ * * all APIs starting with lc_kyber_512 / lc_kex_512 use Kyber-512
+ * * all APIs starting with lc_kyber_768 / lc_kex_768 use Kyber-768
+ * * all APIs with a function name prefix that has no reference to the Kyber
+ *   strength refer to Kyber-1024 as this is intended to be the default.
+ */
+
 /************************************* KEM ************************************/
 /**
  * @brief Kyber secret key
  */
-struct lc_kyber_sk {
+struct @kyber_name@_sk {
 	uint8_t sk[LC_KYBER_SECRETKEYBYTES];
 };
 
 /**
  * @brief Kyber public key
  */
-struct lc_kyber_pk {
+struct @kyber_name@_pk {
 	uint8_t pk[LC_KYBER_PUBLICKEYBYTES];
 };
 
 /**
  * @brief Kyber ciphertext
  */
-struct lc_kyber_ct {
+struct @kyber_name@_ct {
 	uint8_t ct[LC_CRYPTO_CIPHERTEXTBYTES];
 };
 
 /**
  * @brief Kyber shared secret
  */
-struct lc_kyber_ss {
+struct @kyber_name@_ss {
 	uint8_t ss[LC_KYBER_SSBYTES];
 };
 
@@ -125,7 +134,7 @@ struct lc_kyber_ss {
  *
  * @return 0 (success) or < 0 on error
  */
-int lc_kyber_keypair(struct lc_kyber_pk *pk, struct lc_kyber_sk *sk,
+int @kyber_name@_keypair(struct @kyber_name@_pk *pk, struct @kyber_name@_sk *sk,
 		     struct lc_rng_ctx *rng_ctx);
 
 /**
@@ -140,11 +149,11 @@ int lc_kyber_keypair(struct lc_kyber_pk *pk, struct lc_kyber_sk *sk,
  *
  * Returns 0 (success) or < 0 on error
  */
-int lc_kyber_enc(struct lc_kyber_ct *ct, struct lc_kyber_ss *ss,
-		 const struct lc_kyber_pk *pk);
+int @kyber_name@_enc(struct @kyber_name@_ct *ct, struct @kyber_name@_ss *ss,
+		 const struct @kyber_name@_pk *pk);
 
 /**
- * @brief lc_kyber_enc_kdf - Key encapsulation with KDF applied to shared secret
+ * @brief @kyber_name@_enc_kdf - Key encapsulation with KDF applied to shared secret
  *
  * Generates cipher text and shared secret for given public key. The shared
  * secret is derived from the Kyber SS using the KDF derived from the round 3
@@ -161,8 +170,8 @@ int lc_kyber_enc(struct lc_kyber_ct *ct, struct lc_kyber_ss *ss,
  *
  * Returns 0 (success) or < 0 on error
  */
-int lc_kyber_enc_kdf(struct lc_kyber_ct *ct, uint8_t *ss, size_t ss_len,
-		     const struct lc_kyber_pk *pk);
+int @kyber_name@_enc_kdf(struct @kyber_name@_ct *ct, uint8_t *ss, size_t ss_len,
+		     const struct @kyber_name@_pk *pk);
 
 /**
  * @brief lc_kyber_dec - Key decapsulation
@@ -178,8 +187,9 @@ int lc_kyber_enc_kdf(struct lc_kyber_ct *ct, uint8_t *ss, size_t ss_len,
  *
  * On failure, ss will contain a pseudo-random value.
  */
-int lc_kyber_dec(struct lc_kyber_ss *ss, const struct lc_kyber_ct *ct,
-		 const struct lc_kyber_sk *sk);
+int @kyber_name@_dec(struct @kyber_name@_ss *ss, const struct @kyber_name@_ct *ct,
+		 const struct @kyber_name@_sk *sk);
+
 /**
  * @brief lc_kyber_dec_kdf - Key decapsulation with KDF applied to shared secret
  *
@@ -200,8 +210,8 @@ int lc_kyber_dec(struct lc_kyber_ss *ss, const struct lc_kyber_ct *ct,
  *
  * On failure, ss will contain a pseudo-random value.
  */
-int lc_kyber_dec_kdf(uint8_t *ss, size_t ss_len, const struct lc_kyber_ct *ct,
-		     const struct lc_kyber_sk *sk);
+int @kyber_name@_dec_kdf(uint8_t *ss, size_t ss_len, const struct @kyber_name@_ct *ct,
+		     const struct @kyber_name@_sk *sk);
 
 /************************************* KEX ************************************/
 
@@ -266,10 +276,10 @@ int lc_kyber_dec_kdf(uint8_t *ss, size_t ss_len, const struct lc_kyber_ct *ct,
  *
  * @return 0 (success) or < 0 on error
  */
-int lc_kex_uake_initiator_init(struct lc_kyber_pk *pk_e_i,
-			       struct lc_kyber_ct *ct_e_i,
-			       struct lc_kyber_ss *tk, struct lc_kyber_sk *sk_e,
-			       const struct lc_kyber_pk *pk_r);
+int @kex_name@_uake_initiator_init(struct @kyber_name@_pk *pk_e_i,
+			       struct @kyber_name@_ct *ct_e_i,
+			       struct @kyber_name@_ss *tk, struct @kyber_name@_sk *sk_e,
+			       const struct @kyber_name@_pk *pk_r);
 
 /**
  * @brief lc_kex_uake_responder_ss - Initiator's shared secret generation
@@ -288,12 +298,12 @@ int lc_kex_uake_initiator_init(struct lc_kyber_pk *pk_e_i,
  *
  * @return 0 (success) or < 0 on error
  */
-int lc_kex_uake_responder_ss(struct lc_kyber_ct *ct_e_r, uint8_t *shared_secret,
+int @kex_name@_uake_responder_ss(struct @kyber_name@_ct *ct_e_r, uint8_t *shared_secret,
 			     size_t shared_secret_len, const uint8_t *kdf_nonce,
 			     size_t kdf_nonce_len,
-			     const struct lc_kyber_pk *pk_e_i,
-			     const struct lc_kyber_ct *ct_e_i,
-			     const struct lc_kyber_sk *sk_r);
+			     const struct @kyber_name@_pk *pk_e_i,
+			     const struct @kyber_name@_ct *ct_e_i,
+			     const struct @kyber_name@_sk *sk_r);
 
 /**
  * @brief lc_kex_uake_initiator_ss - Responder's shared secret generation
@@ -312,11 +322,11 @@ int lc_kex_uake_responder_ss(struct lc_kyber_ct *ct_e_r, uint8_t *shared_secret,
  *
  * @return 0 (success) or < 0 on error
  */
-int lc_kex_uake_initiator_ss(uint8_t *shared_secret, size_t shared_secret_len,
+int @kex_name@_uake_initiator_ss(uint8_t *shared_secret, size_t shared_secret_len,
 			     const uint8_t *kdf_nonce, size_t kdf_nonce_len,
-			     const struct lc_kyber_ct *ct_e_r,
-			     const struct lc_kyber_ss *tk,
-			     const struct lc_kyber_sk *sk_e);
+			     const struct @kyber_name@_ct *ct_e_r,
+			     const struct @kyber_name@_ss *tk,
+			     const struct @kyber_name@_sk *sk_e);
 
 /**
  * Authenticated key exchange
@@ -382,10 +392,10 @@ int lc_kex_uake_initiator_ss(uint8_t *shared_secret, size_t shared_secret_len,
  *
  * @return 0 (success) or < 0 on error
  */
-int lc_kex_ake_initiator_init(struct lc_kyber_pk *pk_e_i,
-			      struct lc_kyber_ct *ct_e_i,
-			      struct lc_kyber_ss *tk, struct lc_kyber_sk *sk_e,
-			      const struct lc_kyber_pk *pk_r);
+int @kex_name@_ake_initiator_init(struct @kyber_name@_pk *pk_e_i,
+			      struct @kyber_name@_ct *ct_e_i,
+			      struct @kyber_name@_ss *tk, struct @kyber_name@_sk *sk_e,
+			      const struct @kyber_name@_pk *pk_r);
 
 /**
  * @brief lc_kex_ake_responder_ss - Initiator's shared secret generation
@@ -407,14 +417,14 @@ int lc_kex_ake_initiator_init(struct lc_kyber_pk *pk_e_i,
  *
  * @return 0 (success) or < 0 on error
  */
-int lc_kex_ake_responder_ss(struct lc_kyber_ct *ct_e_r_1,
-			    struct lc_kyber_ct *ct_e_r_2,
+int @kex_name@_ake_responder_ss(struct @kyber_name@_ct *ct_e_r_1,
+			    struct @kyber_name@_ct *ct_e_r_2,
 			    uint8_t *shared_secret, size_t shared_secret_len,
 			    const uint8_t *kdf_nonce, size_t kdf_nonce_len,
-			    const struct lc_kyber_pk *pk_e_i,
-			    const struct lc_kyber_ct *ct_e_i,
-			    const struct lc_kyber_sk *sk_r,
-			    const struct lc_kyber_pk *pk_i);
+			    const struct @kyber_name@_pk *pk_e_i,
+			    const struct @kyber_name@_ct *ct_e_i,
+			    const struct @kyber_name@_sk *sk_r,
+			    const struct @kyber_name@_pk *pk_i);
 
 /**
  * @brief lc_kex_ake_initiator_ss - Responder's shared secret generation
@@ -435,13 +445,13 @@ int lc_kex_ake_responder_ss(struct lc_kyber_ct *ct_e_r_1,
  *
  * @return 0 (success) or < 0 on error
  */
-int lc_kex_ake_initiator_ss(uint8_t *shared_secret, size_t shared_secret_len,
+int @kex_name@_ake_initiator_ss(uint8_t *shared_secret, size_t shared_secret_len,
 			    const uint8_t *kdf_nonce, size_t kdf_nonce_len,
-			    const struct lc_kyber_ct *ct_e_r_1,
-			    const struct lc_kyber_ct *ct_e_r_2,
-			    const struct lc_kyber_ss *tk,
-			    const struct lc_kyber_sk *sk_e,
-			    const struct lc_kyber_sk *sk_i);
+			    const struct @kyber_name@_ct *ct_e_r_1,
+			    const struct @kyber_name@_ct *ct_e_r_2,
+			    const struct @kyber_name@_ss *tk,
+			    const struct @kyber_name@_sk *sk_e,
+			    const struct @kyber_name@_sk *sk_i);
 
 /************************************* IES ************************************/
 
@@ -473,7 +483,7 @@ int lc_kex_ake_initiator_ss(uint8_t *shared_secret, size_t shared_secret_len,
  *
  * @return 0 on success, < 0 on error
  */
-int lc_kyber_ies_enc(const struct lc_kyber_pk *pk, struct lc_kyber_ct *ct,
+int @kyber_name@_ies_enc(const struct @kyber_name@_pk *pk, struct @kyber_name@_ct *ct,
 		     const uint8_t *plaintext, uint8_t *ciphertext,
 		     size_t datalen, const uint8_t *aad, size_t aadlen,
 		     uint8_t *tag, size_t taglen, struct lc_aead_ctx *aead);
@@ -504,8 +514,8 @@ int lc_kyber_ies_enc(const struct lc_kyber_pk *pk, struct lc_kyber_ct *ct,
  *
  * @return 0 on success, < 0 on error
  */
-int lc_kyber_ies_enc_init(struct lc_aead_ctx *aead,
-			  const struct lc_kyber_pk *pk, struct lc_kyber_ct *ct,
+int @kyber_name@_ies_enc_init(struct lc_aead_ctx *aead,
+			  const struct @kyber_name@_pk *pk, struct @kyber_name@_ct *ct,
 			  const uint8_t *aad, size_t aadlen);
 
 /**
@@ -529,7 +539,7 @@ int lc_kyber_ies_enc_init(struct lc_aead_ctx *aead,
  *
  * @return 0 on success, < 0 on error
  */
-static inline int lc_kyber_ies_enc_update(struct lc_aead_ctx *aead,
+static inline int @kyber_name@_ies_enc_update(struct lc_aead_ctx *aead,
 					  const uint8_t *plaintext,
 					  uint8_t *ciphertext, size_t datalen)
 {
@@ -555,7 +565,7 @@ static inline int lc_kyber_ies_enc_update(struct lc_aead_ctx *aead,
  *
  * @return 0 on success, < 0 on error
  */
-static inline int lc_kyber_ies_enc_final(struct lc_aead_ctx *aead,
+static inline int @kyber_name@_ies_enc_final(struct lc_aead_ctx *aead,
 					 uint8_t *tag, size_t taglen)
 {
 	return lc_aead_enc_final(aead, tag, taglen);
@@ -588,7 +598,7 @@ static inline int lc_kyber_ies_enc_final(struct lc_aead_ctx *aead,
  *		    context after completion.
  * @return 0 on success, < 0 on error (-EBADMSG on integrity error)
  */
-int lc_kyber_ies_dec(const struct lc_kyber_sk *sk, const struct lc_kyber_ct *ct,
+int @kyber_name@_ies_dec(const struct @kyber_name@_sk *sk, const struct @kyber_name@_ct *ct,
 		     const uint8_t *ciphertext, uint8_t *plaintext,
 		     size_t datalen, const uint8_t *aad, size_t aadlen,
 		     const uint8_t *tag, size_t taglen,
@@ -604,7 +614,7 @@ int lc_kyber_ies_dec(const struct lc_kyber_sk *sk, const struct lc_kyber_ct *ct,
  * The function entirely operates on stack memory.
  *
  * The aead context is initialized such that it can be used with
- * lc_kyber_ies_dec_[update|final].
+ * @kyber_name@_ies_dec_[update|final].
  *
  * @param [out] aead Allocated AEAD algorithm - the caller only needs to provide
  *		     an allocated but otherwise unused instance of an AEAD
@@ -619,9 +629,9 @@ int lc_kyber_ies_dec(const struct lc_kyber_sk *sk, const struct lc_kyber_ct *ct,
  * @param [in] aadlen Length of the AAD buffer
  * @return 0 on success, < 0 on error
  */
-int lc_kyber_ies_dec_init(struct lc_aead_ctx *aead,
-			  const struct lc_kyber_sk *sk,
-			  const struct lc_kyber_ct *ct,
+int @kyber_name@_ies_dec_init(struct lc_aead_ctx *aead,
+			  const struct @kyber_name@_sk *sk,
+			  const struct @kyber_name@_ct *ct,
 			  const uint8_t *aad, size_t aadlen);
 
 /**
@@ -645,7 +655,7 @@ int lc_kyber_ies_dec_init(struct lc_aead_ctx *aead,
  *
  * @return 0 on success, < 0 on error
  */
-static inline int lc_kyber_ies_dec_update(struct lc_aead_ctx *aead,
+static inline int @kyber_name@_ies_dec_update(struct lc_aead_ctx *aead,
 					  const uint8_t *ciphertext,
 					  uint8_t *plaintext, size_t datalen)
 {
@@ -671,7 +681,7 @@ static inline int lc_kyber_ies_dec_update(struct lc_aead_ctx *aead,
  *
  * @return 0 on success, < 0 on error (-EBADMSG on integrity error)
  */
-static inline int lc_kyber_ies_dec_final(struct lc_aead_ctx *aead,
+static inline int @kyber_name@_ies_dec_final(struct lc_aead_ctx *aead,
 					 const uint8_t *tag, size_t taglen)
 {
 	return lc_aead_dec_final(aead, tag, taglen);
@@ -707,32 +717,32 @@ struct lc_x25519_ss {
 /**
  * @brief Kyber secret key
  */
-struct lc_kyber_x25519_sk {
-	struct lc_kyber_sk sk;
+struct @kyber_name@_x25519_sk {
+	struct @kyber_name@_sk sk;
 	struct lc_x25519_sk sk_x25519;
 };
 
 /**
  * @brief Kyber public key
  */
-struct lc_kyber_x25519_pk {
-	struct lc_kyber_pk pk;
+struct @kyber_name@_x25519_pk {
+	struct @kyber_name@_pk pk;
 	struct lc_x25519_pk pk_x25519;
 };
 
 /**
  * @brief Kyber ciphertext
  */
-struct lc_kyber_x25519_ct {
-	struct lc_kyber_ct ct;
+struct @kyber_name@_x25519_ct {
+	struct @kyber_name@_ct ct;
 	struct lc_x25519_pk pk_x25519;
 };
 
 /**
  * @brief Kyber shared secret
  */
-struct lc_kyber_x25519_ss {
-	struct lc_kyber_ss ss;
+struct @kyber_name@_x25519_ss {
+	struct @kyber_name@_ss ss;
 	struct lc_x25519_ss ss_x25519;
 };
 
@@ -747,8 +757,8 @@ struct lc_kyber_x25519_ss {
  *
  * @return 0 (success) or < 0 on error
  */
-int lc_kyber_x25519_keypair(struct lc_kyber_x25519_pk *pk,
-			    struct lc_kyber_x25519_sk *sk,
+int @kyber_name@_x25519_keypair(struct @kyber_name@_x25519_pk *pk,
+			    struct @kyber_name@_x25519_sk *sk,
 			    struct lc_rng_ctx *rng_ctx);
 
 /**
@@ -775,8 +785,8 @@ int lc_kyber_x25519_keypair(struct lc_kyber_x25519_pk *pk,
  *
  * Returns 0 (success) or < 0 on error
  */
-int lc_kyber_x25519_enc_kdf(struct lc_kyber_x25519_ct *ct, uint8_t *ss,
-			    size_t ss_len, const struct lc_kyber_x25519_pk *pk);
+int @kyber_name@_x25519_enc_kdf(struct @kyber_name@_x25519_ct *ct, uint8_t *ss,
+			    size_t ss_len, const struct @kyber_name@_x25519_pk *pk);
 
 /**
  * @brief lc_kyber_x25519_dec_kdf - Key decapsulation with KDF applied to shared
@@ -799,9 +809,9 @@ int lc_kyber_x25519_enc_kdf(struct lc_kyber_x25519_ct *ct, uint8_t *ss,
  *
  * On failure, ss will contain a pseudo-random value.
  */
-int lc_kyber_x25519_dec_kdf(uint8_t *ss, size_t ss_len,
-			    const struct lc_kyber_x25519_ct *ct,
-			    const struct lc_kyber_x25519_sk *sk);
+int @kyber_name@_x25519_dec_kdf(uint8_t *ss, size_t ss_len,
+			    const struct @kyber_name@_x25519_ct *ct,
+			    const struct @kyber_name@_x25519_sk *sk);
 
 /****************************** Kyber X25510 KEX ******************************/
 
@@ -821,11 +831,11 @@ int lc_kyber_x25519_dec_kdf(uint8_t *ss, size_t ss_len,
  *
  * @return 0 (success) or < 0 on error
  */
-int lc_kex_x25519_uake_initiator_init(struct lc_kyber_x25519_pk *pk_e_i,
-				      struct lc_kyber_x25519_ct *ct_e_i,
-				      struct lc_kyber_x25519_ss *tk,
-				      struct lc_kyber_x25519_sk *sk_e,
-				      const struct lc_kyber_x25519_pk *pk_r);
+int @kex_name@_x25519_uake_initiator_init(struct @kyber_name@_x25519_pk *pk_e_i,
+				      struct @kyber_name@_x25519_ct *ct_e_i,
+				      struct @kyber_name@_x25519_ss *tk,
+				      struct @kyber_name@_x25519_sk *sk_e,
+				      const struct @kyber_name@_x25519_pk *pk_r);
 
 /**
  * @brief lc_kex_x25519_uake_responder_ss - Initiator's shared secret generation
@@ -844,14 +854,14 @@ int lc_kex_x25519_uake_initiator_init(struct lc_kyber_x25519_pk *pk_e_i,
  *
  * @return 0 (success) or < 0 on error
  */
-int lc_kex_x25519_uake_responder_ss(struct lc_kyber_x25519_ct *ct_e_r,
+int @kex_name@_x25519_uake_responder_ss(struct @kyber_name@_x25519_ct *ct_e_r,
 				    uint8_t *shared_secret,
 				    size_t shared_secret_len,
 				    const uint8_t *kdf_nonce,
 				    size_t kdf_nonce_len,
-				    const struct lc_kyber_x25519_pk *pk_e_i,
-				    const struct lc_kyber_x25519_ct *ct_e_i,
-				    const struct lc_kyber_x25519_sk *sk_r);
+				    const struct @kyber_name@_x25519_pk *pk_e_i,
+				    const struct @kyber_name@_x25519_ct *ct_e_i,
+				    const struct @kyber_name@_x25519_sk *sk_r);
 
 /**
  * @brief lc_kex_x25519_uake_initiator_ss - Responder's shared secret generation
@@ -870,13 +880,13 @@ int lc_kex_x25519_uake_responder_ss(struct lc_kyber_x25519_ct *ct_e_r,
  *
  * @return 0 (success) or < 0 on error
  */
-int lc_kex_x25519_uake_initiator_ss(uint8_t *shared_secret,
+int @kex_name@_x25519_uake_initiator_ss(uint8_t *shared_secret,
 				    size_t shared_secret_len,
 				    const uint8_t *kdf_nonce,
 				    size_t kdf_nonce_len,
-				    const struct lc_kyber_x25519_ct *ct_e_r,
-				    const struct lc_kyber_x25519_ss *tk,
-				    const struct lc_kyber_x25519_sk *sk_e);
+				    const struct @kyber_name@_x25519_ct *ct_e_r,
+				    const struct @kyber_name@_x25519_ss *tk,
+				    const struct @kyber_name@_x25519_sk *sk_e);
 
 /**
  * @brief lc_kex_x25519_ake_initiator_init - Initialize authenticated key
@@ -894,11 +904,11 @@ int lc_kex_x25519_uake_initiator_ss(uint8_t *shared_secret,
  *
  * @return 0 (success) or < 0 on error
  */
-int lc_kex_x25519_ake_initiator_init(struct lc_kyber_x25519_pk *pk_e_i,
-				     struct lc_kyber_x25519_ct *ct_e_i,
-				     struct lc_kyber_x25519_ss *tk,
-				     struct lc_kyber_x25519_sk *sk_e,
-				     const struct lc_kyber_x25519_pk *pk_r);
+int @kex_name@_x25519_ake_initiator_init(struct @kyber_name@_x25519_pk *pk_e_i,
+				     struct @kyber_name@_x25519_ct *ct_e_i,
+				     struct @kyber_name@_x25519_ss *tk,
+				     struct @kyber_name@_x25519_sk *sk_e,
+				     const struct @kyber_name@_x25519_pk *pk_r);
 
 /**
  * @brief lc_kex_x25519_ake_responder_ss - Initiator's shared secret generation
@@ -920,16 +930,16 @@ int lc_kex_x25519_ake_initiator_init(struct lc_kyber_x25519_pk *pk_e_i,
  *
  * @return 0 (success) or < 0 on error
  */
-int lc_kex_x25519_ake_responder_ss(struct lc_kyber_x25519_ct *ct_e_r_1,
-				   struct lc_kyber_x25519_ct *ct_e_r_2,
+int @kex_name@_x25519_ake_responder_ss(struct @kyber_name@_x25519_ct *ct_e_r_1,
+				   struct @kyber_name@_x25519_ct *ct_e_r_2,
 				   uint8_t *shared_secret,
 				   size_t shared_secret_len,
 				   const uint8_t *kdf_nonce,
 				   size_t kdf_nonce_len,
-				   const struct lc_kyber_x25519_pk *pk_e_i,
-				   const struct lc_kyber_x25519_ct *ct_e_i,
-				   const struct lc_kyber_x25519_sk *sk_r,
-				   const struct lc_kyber_x25519_pk *pk_i);
+				   const struct @kyber_name@_x25519_pk *pk_e_i,
+				   const struct @kyber_name@_x25519_ct *ct_e_i,
+				   const struct @kyber_name@_x25519_sk *sk_r,
+				   const struct @kyber_name@_x25519_pk *pk_i);
 
 /**
  * @brief lc_kex_x25519_ake_initiator_ss - Responder's shared secret generation
@@ -950,17 +960,17 @@ int lc_kex_x25519_ake_responder_ss(struct lc_kyber_x25519_ct *ct_e_r_1,
  *
  * @return 0 (success) or < 0 on error
  */
-int lc_kex_x25519_ake_initiator_ss(uint8_t *shared_secret,
+int @kex_name@_x25519_ake_initiator_ss(uint8_t *shared_secret,
 				   size_t shared_secret_len,
 				   const uint8_t *kdf_nonce,
 				   size_t kdf_nonce_len,
-				   const struct lc_kyber_x25519_ct *ct_e_r_1,
-				   const struct lc_kyber_x25519_ct *ct_e_r_2,
-				   const struct lc_kyber_x25519_ss *tk,
-				   const struct lc_kyber_x25519_sk *sk_e,
-				   const struct lc_kyber_x25519_sk *sk_i);
+				   const struct @kyber_name@_x25519_ct *ct_e_r_1,
+				   const struct @kyber_name@_x25519_ct *ct_e_r_2,
+				   const struct @kyber_name@_x25519_ss *tk,
+				   const struct @kyber_name@_x25519_sk *sk_e,
+				   const struct @kyber_name@_x25519_sk *sk_i);
 
-/****************************** Kyber X25510 IES ******************************/
+/****************************** Kyber X25519 IES ******************************/
 /**
  * @brief lc_kyber_x25519_ies_enc - KyberIES encryption oneshot
  *
@@ -989,8 +999,8 @@ int lc_kex_x25519_ake_initiator_ss(uint8_t *shared_secret,
  *
  * @return 0 on success, < 0 on error
  */
-int lc_kyber_x25519_ies_enc(const struct lc_kyber_x25519_pk *pk,
-			    struct lc_kyber_x25519_ct *ct,
+int @kyber_name@_x25519_ies_enc(const struct @kyber_name@_x25519_pk *pk,
+			    struct @kyber_name@_x25519_ct *ct,
 			    const uint8_t *plaintext, uint8_t *ciphertext,
 			    size_t datalen, const uint8_t *aad, size_t aadlen,
 			    uint8_t *tag, size_t taglen,
@@ -1022,9 +1032,9 @@ int lc_kyber_x25519_ies_enc(const struct lc_kyber_x25519_pk *pk,
  *
  * @return 0 on success, < 0 on error
  */
-int lc_kyber_x25519_ies_enc_init(struct lc_aead_ctx *aead,
-				 const struct lc_kyber_x25519_pk *pk,
-				 struct lc_kyber_x25519_ct *ct,
+int @kyber_name@_x25519_ies_enc_init(struct lc_aead_ctx *aead,
+				 const struct @kyber_name@_x25519_pk *pk,
+				 struct @kyber_name@_x25519_ct *ct,
 				 const uint8_t *aad, size_t aadlen);
 
 /**
@@ -1046,7 +1056,7 @@ int lc_kyber_x25519_ies_enc_init(struct lc_aead_ctx *aead,
  *			   with the encryption result
  * @param [in] datalen Length of the plaintext buffer
  */
-static inline int lc_kyber_x25519_ies_enc_update(struct lc_aead_ctx *aead,
+static inline int @kyber_name@_x25519_ies_enc_update(struct lc_aead_ctx *aead,
 						 const uint8_t *plaintext,
 						 uint8_t *ciphertext,
 						 size_t datalen)
@@ -1073,7 +1083,7 @@ static inline int lc_kyber_x25519_ies_enc_update(struct lc_aead_ctx *aead,
  *
  * @return 0 on success, < 0 on error
  */
-static inline int lc_kyber_x25519_ies_enc_final(struct lc_aead_ctx *aead,
+static inline int @kyber_name@_x25519_ies_enc_final(struct lc_aead_ctx *aead,
 						uint8_t *tag, size_t taglen)
 {
 	return lc_aead_enc_final(aead, tag, taglen);
@@ -1107,8 +1117,8 @@ static inline int lc_kyber_x25519_ies_enc_final(struct lc_aead_ctx *aead,
  *
  * @return 0 on success, < 0 on error (-EBADMSG on integrity error)
  */
-int lc_kyber_x25519_ies_dec(const struct lc_kyber_x25519_sk *sk,
-			    const struct lc_kyber_x25519_ct *ct,
+int @kyber_name@_x25519_ies_dec(const struct @kyber_name@_x25519_sk *sk,
+			    const struct @kyber_name@_x25519_ct *ct,
 			    const uint8_t *ciphertext, uint8_t *plaintext,
 			    size_t datalen, const uint8_t *aad, size_t aadlen,
 			    const uint8_t *tag, size_t taglen,
@@ -1140,9 +1150,9 @@ int lc_kyber_x25519_ies_dec(const struct lc_kyber_x25519_sk *sk,
  *
  * @return 0 on success, < 0 on error
  */
-int lc_kyber_x25519_ies_dec_init(struct lc_aead_ctx *aead,
-				 const struct lc_kyber_x25519_sk *sk,
-				 const struct lc_kyber_x25519_ct *ct,
+int @kyber_name@_x25519_ies_dec_init(struct lc_aead_ctx *aead,
+				 const struct @kyber_name@_x25519_sk *sk,
+				 const struct @kyber_name@_x25519_ct *ct,
 				 const uint8_t *aad, size_t aadlen);
 
 /**
@@ -1166,7 +1176,7 @@ int lc_kyber_x25519_ies_dec_init(struct lc_aead_ctx *aead,
  *
  * @return 0 on success, < 0 on error
  */
-static inline int lc_kyber_x25519_ies_dec_update(struct lc_aead_ctx *aead,
+static inline int @kyber_name@_x25519_ies_dec_update(struct lc_aead_ctx *aead,
 						 const uint8_t *ciphertext,
 						 uint8_t *plaintext,
 						 size_t datalen)
@@ -1175,7 +1185,7 @@ static inline int lc_kyber_x25519_ies_dec_update(struct lc_aead_ctx *aead,
 }
 
 /**
- * @brief lc_kyber_x25519_ies_dec_final - KyberIES decryption stream operation
+ * @brief lc_kyber	_x25519_ies_dec_final - KyberIES decryption stream operation
  *				  	  finalization / integrity test
  *
  * The implementation supports an in-place data decryption where the
@@ -1193,7 +1203,7 @@ static inline int lc_kyber_x25519_ies_dec_update(struct lc_aead_ctx *aead,
  *
  * @return 0 on success, < 0 on error (-EBADMSG on integrity error)
  */
-static inline int lc_kyber_x25519_ies_dec_final(struct lc_aead_ctx *aead,
+static inline int @kyber_name@_x25519_ies_dec_final(struct lc_aead_ctx *aead,
 						const uint8_t *tag,
 						size_t taglen)
 {
@@ -1206,4 +1216,4 @@ static inline int lc_kyber_x25519_ies_dec_final(struct lc_aead_ctx *aead,
 }
 #endif
 
-#endif /* LC_KYBER_H */
+#endif /* LC_KYBER_@kyber_header@H */

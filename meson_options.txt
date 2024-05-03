@@ -68,13 +68,21 @@ option('kyber', type: 'feature', value: 'enabled',
        description: 'Kyber key exchange mechanism (KEM) support - FIPS 203')
 option('kyber_debug', type: 'feature', value: 'disabled',
        description: 'Kyber debug printout - DO NOT ENABLE IN PRODUCTION SYSTEMS!')
-option('kyber_strength', type: 'combo', choices: ['2', '3', '4' ],
-       value: '4', description: '''Kyber Security Strength
+option('kyber_768', type: 'feature', value: 'enabled',
+       description: '''Kyber-768 Support
 
-The allowed choices represent the Kzber specification security levels as follows:
-the value 2 implies 128 bits of security strength,
-the value 3 implies 192 bits of security strength,
-the value 4 implies 256 bits of security strength,
+Per default, Kyber-1024 is enabled and accessible with the regular API. When
+enabling this option, Kyber-768 is also made available which has the same API,
+but instead of the prefix lc_kyber, all APIs use lc_kyber_768. This algorithm
+has 192 bits of security strength.
+''')
+option('kyber_512', type: 'feature', value: 'enabled',
+       description: '''Kyber-512 Support
+
+Per default, Kyber-1024 is enabled and accessible with the regular API. When
+enabling this option, Kyber-512 is also made available which has the same API,
+but instead of the prefix lc_kyber, all APIs use lc_kyber_512. This algorithm
+has 128 bits of security strength.
 ''')
 option('kyber_x25519', type: 'feature', value: 'enabled',
        description: 'Kyber-X25519 KEM')

@@ -27,7 +27,7 @@
 #ifndef KYBER_REJSAMPLE_AVX2_H
 #define KYBER_REJSAMPLE_AVX2_H
 
-#include "lc_kyber.h"
+#include "kyber_type.h"
 #include "lc_sha3.h"
 
 #ifdef __cplusplus

@@ -3,7 +3,7 @@ include Kbuild
 KERNELRELEASE ?= $(shell uname -r)
 KDIR ?= /lib/modules/$(KERNELRELEASE)/build
 
-clean-files := lc_kyber.h lc_dilithium.h
+clean-files := lc_kyber.h lc_kyber_768.h lc_kyber_512.h lc_dilithium.h lc_hash.h lc_memory_support.h lc_ascon_hash.h
 
 default: modules
 install: modules_install
@@ -18,6 +18,8 @@ clean:
 
 modules modules_install: ../kem/api/lc_kyber.h.in lc_kyber.h.awk ../signature/api/lc_dilithium.h.in lc_dilithium.h.awk ../hash/api/lc_hash.h.in lc_hash.h.awk ../internal/api/lc_memory_support.h.in lc_memory_support.awk ../hash/api/lc_ascon_hash.h.in lc_ascon_hash.awk
 	awk -f lc_kyber.h.awk ../kem/api/lc_kyber.h.in > lc_kyber.h
+	awk -f lc_kyber.h.awk ../kem/api/lc_kyber.h.in > lc_kyber_768.h
+	awk -f lc_kyber.h.awk ../kem/api/lc_kyber.h.in > lc_kyber_512.h
 	awk -f lc_dilithium.h.awk ../signature/api/lc_dilithium.h.in > lc_dilithium.h
 	awk -f lc_hash.h.awk ../hash/api/lc_hash.h.in > lc_hash.h
 	awk -f lc_memory_support.awk ../internal/api/lc_memory_support.h.in > lc_memory_support.h

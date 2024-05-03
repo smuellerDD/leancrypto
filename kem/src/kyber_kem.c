@@ -24,12 +24,13 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
+#include "kyber_type.h"
+
 #include "kyber_debug.h"
 #include "kyber_kdf.h"
 #include "kyber_kem.h"
 #include "kyber_verify.h"
 #include "lc_hash.h"
-#include "lc_kyber.h"
 #include "lc_memcmp_secure.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"

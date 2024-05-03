@@ -335,7 +335,6 @@
 #include "kyber_internal.h"
 
 #include "lc_aead.h"
-#include "lc_kyber.h"
 #include "lc_rng.h"
 #include "lc_memset_secure.h"
 #include "ret_checkers.h"

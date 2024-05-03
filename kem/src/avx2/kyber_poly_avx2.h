@@ -27,12 +27,14 @@
 #ifndef KYBER_POLY_AVX2_H
 #define KYBER_POLY_AVX2_H
 
+#include "kyber_type.h"
+
 #include "alignment_x86.h"
+#include "kyber_type.h"
 #include "kyber_consts_avx2.h"
 #include "kyber_kdf.h"
 #include "kyber_ntt_avx2.h"
 #include "kyber_reduce_avx2.h"
-#include "lc_kyber.h"
 
 #ifdef __cplusplus
 extern "C" {

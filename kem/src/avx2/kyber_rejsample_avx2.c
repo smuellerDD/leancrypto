@@ -26,7 +26,7 @@
 
 #include "ext_headers.h"
 #include "ext_headers_x86.h"
-#include "lc_kyber.h"
+#include "kyber_type.h"
 #include "kyber_consts_avx2.h"
 #include "kyber_rejsample_avx2.h"
 

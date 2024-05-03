@@ -24,8 +24,8 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
+#include "kyber_type.h"
 #include "kyber_consts_avx2.h"
-#include "lc_kyber.h"
 
 #define Q LC_KYBER_Q
 #define MONT -1044 // 2^16 mod q

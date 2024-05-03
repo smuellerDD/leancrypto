@@ -3,6 +3,7 @@
 /* New version (v2) */
 
 #include "assembler_support.h"
+#include "kyber_type.h"
 
 // Requires fqmul, shuffle4, shuffle2
 .include "macros.inc"

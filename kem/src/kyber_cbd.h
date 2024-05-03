@@ -28,9 +28,10 @@
 #define KYBER_CBD_H
 
 #include "ext_headers.h"
-#include "kyber_poly.h"
 
-#include "lc_kyber.h"
+#include "kyber_type.h"
+
+#include "kyber_poly.h"
 
 #ifdef __cplusplus
 extern "C" {

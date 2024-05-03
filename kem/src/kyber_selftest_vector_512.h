@@ -1,6 +1,6 @@
 #ifndef KYBER_SELFTEST_TESTVECTORS_H
 #define KYBER_SELFTEST_TESTVECTORS_H
-#include "lc_kyber.h"
+#include "kyber_type.h"
 struct kyber_testvector {
 	const struct lc_kyber_pk pk;
 	const struct lc_kyber_sk sk;

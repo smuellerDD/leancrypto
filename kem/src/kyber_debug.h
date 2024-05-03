@@ -20,9 +20,10 @@
 #ifndef KYBER_DEBUG_H
 #define KYBER_DEBUG_H
 
+#include "kyber_type.h"
+
 #include "kyber_poly.h"
 #include "kyber_polyvec.h"
-#include "lc_kyber.h"
 
 #ifdef __cplusplus
 extern "C" {
