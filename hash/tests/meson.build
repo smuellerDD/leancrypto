@@ -1,4 +1,4 @@
-hasher = 0
+hasher = 1
 
 if get_option('sha2-256').enabled()
 	sha256_tester = executable('sha256_tester',
@@ -8,7 +8,8 @@ if get_option('sha2-256').enabled()
 				   )
 
 	test('Hash SHA256', sha256_tester)
-	hasher = 1
+else
+	hasher = 0
 endif
 
 if get_option('sha2-512').enabled()
@@ -19,7 +20,8 @@ if get_option('sha2-512').enabled()
 				   )
 
 	test('Hash SHA512', sha512_tester)
-	hasher = 1
+else
+	hasher = 0
 endif
 
 if get_option('sha3').enabled()
@@ -120,7 +122,8 @@ if get_option('sha3').enabled()
 		test('Hash SHAKE128 2x ARMv8', shake128_2x_armv8_tester)
 		test('Hash SHAKE256 2x ARMv8', shake256_2x_armv8_tester)
 	endif
-	hasher = 1
+else
+	hasher = 0
 endif
 
 if get_option('ascon').enabled()
@@ -155,7 +158,6 @@ if get_option('ascon').enabled()
 	test('Hash Ascon XOF', ascon_xof_tester)
 	test('Hash Ascon XOFa', ascon_xofa_tester)
 	test('Hash Ascon XOF Squeeze More', ascon_xof_squeeze_more_tester)
-	hasher = 1
 endif
 
 if (hasher == 1)

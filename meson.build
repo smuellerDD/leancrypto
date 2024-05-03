@@ -216,10 +216,10 @@ if get_option('kmac').enabled()
 	testdirs += 'kmac/tests'
 endif
 
-if get_option('sha2-256').disabled() and
+if (get_option('sha2-256').disabled() and
    (get_option('hkdf').enabled() or get_option('kdf_ctr').enabled() or
     get_option('kdf_fb').enabled() or get_option('kdf_dpi').enabled() or
-    get_option('pbkdf2').enabled())
+    get_option('pbkdf2').enabled()))
 	error('KDF support requires SHA2-256')
 endif
 
@@ -243,12 +243,18 @@ if get_option('sha3').disabled() and get_option('dilithium').enabled()
 	error('Dilithium support requires SHA-3')
 endif
 
-if get_option('kmac').disabled() and get_option('dilithium').enabled()
-	error('Dilithium support requires KMAC due to SP800-108 KDF')
+if get_option('kmac').disabled() and get_option('kyber').enabled()
+	error('Kyper support requires KMAC due to SP800-108 KDF')
 endif
 
 if get_option('sha3').disabled() and get_option('kyber').enabled()
 	error('Kyber support requires SHA-3')
+endif
+
+if ((get_option('dilithium_ed25519').enabled() or
+     get_option('kyber_x25519').enabled()) and
+     get_option('sha2-512').disabled())
+	error('Curve 25519 support requires SHA2-512')
 endif
 
 ################################################################################

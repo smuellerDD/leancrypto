@@ -65,14 +65,34 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 		 "Kyber Acceleration support: %s%s%s\n"
 		 "Dilithium Acceleration support: %s%s%s\n"
 		 "Curve25519 Acceleration support: %s\n",
-		 (lc_aes_cbc_aesni != lc_aes_cbc_c) ? "AESNI " : "",
-		 (lc_aes_cbc_armce != lc_aes_cbc_c) ? "ARMv8 CE " : "",
-		 (lc_aes_cbc_riscv64 != lc_aes_cbc_c) ? "RISC-V 64 " : "",
-		 (lc_sha3_512_avx512 != lc_sha3_512_c) ? "AVX512 " : "",
-		 (lc_sha3_512_avx2 != lc_sha3_512_c) ? "AVX2 " : "",
-		 (lc_sha3_512_arm_neon != lc_sha3_512_c) ? "ARMv7 Neon " : "",
-		 (lc_sha3_512_arm_asm != lc_sha3_512_c) ? "ARMv8 ASM " : "",
-		 (lc_sha3_512_arm_ce != lc_sha3_512_c) ? "ARMv8 CE " : "",
+
+		 /* AES */
+		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
+			 "AVX2 " :
+			 "",
+		 (lc_cpu_feature_available() & LC_CPU_FEATURE_ARM_AES) ?
+			 "ARMv8 CE " :
+			 "",
+		 (lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV_ASM) ?
+			 "RISC-V 64 " :
+			 "",
+		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX512) ?
+			 "AVX512 " :
+			 "",
+
+		 /* SHA3 */
+		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
+			 "AVX2 " :
+			 "",
+		 (lc_cpu_feature_available() & LC_CPU_FEATURE_ARM_NEON) ?
+			 "ARMv7 Neon " :
+			 "",
+		 armv8,
+		 (lc_cpu_feature_available() & LC_CPU_FEATURE_ARM_SHA3) ?
+			 "ARMv8 CE " :
+			 "",
+
+		 /* Others */
 		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
 			 "AVX2" :
 			 "",

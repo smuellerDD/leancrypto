@@ -19,7 +19,6 @@
 
 #include "compare.h"
 #include "kyber_internal.h"
-#include "lc_cshake256_drng.h"
 #include "lc_kyber.h"
 #include "lc_rng.h"
 #include "small_stack_support.h"
@@ -35,18 +34,17 @@ static int kyber_invalid(void)
 	};
 	int ret = 1;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
-	LC_CSHAKE256_DRNG_CTX_ON_STACK(rng);
 
-	if (lc_rng_seed(rng, (uint8_t *)"123", 3, NULL, 0))
+	if (lc_rng_seed(lc_seeded_rng, (uint8_t *)"123", 3, NULL, 0))
 		goto out;
 
-	if (lc_kyber_keypair(&ws->pk, &ws->sk, rng))
+	if (lc_kyber_keypair(&ws->pk, &ws->sk, lc_seeded_rng))
 		goto out;
 
 	/* modify the pub key */
 	ws->pk.pk[0] = (uint8_t)((ws->pk.pk[0] + 0x01) & 0xff);
 	if (lc_kyber_enc_kdf_internal(&ws->ct, ws->ss, sizeof(ws->ss), &ws->pk,
-				      rng))
+				      lc_seeded_rng))
 		goto out;
 	if (lc_kyber_dec_kdf(ws->ss2, sizeof(ws->ss2), &ws->ct, &ws->sk))
 		goto out;
@@ -58,7 +56,7 @@ static int kyber_invalid(void)
 	/* modify the sec key */
 	ws->sk.sk[0] = (uint8_t)((ws->sk.sk[0] + 0x01) & 0xff);
 	if (lc_kyber_enc_kdf_internal(&ws->ct, ws->ss, sizeof(ws->ss), &ws->pk,
-				      rng))
+				      lc_seeded_rng))
 		goto out;
 	if (lc_kyber_dec_kdf(ws->ss2, sizeof(ws->ss2), &ws->ct, &ws->sk))
 		goto out;
@@ -68,7 +66,7 @@ static int kyber_invalid(void)
 	/* revert modify the sec key */
 	ws->sk.sk[0] = (uint8_t)((ws->sk.sk[0] - 0x01) & 0xff);
 	if (lc_kyber_enc_kdf_internal(&ws->ct, ws->ss, sizeof(ws->ss), &ws->pk,
-				      rng))
+				      lc_seeded_rng))
 		goto out;
 	/* modify the ct */
 	ws->ct.ct[0] = (uint8_t)((ws->ct.ct[0] + 0x01) & 0xff);

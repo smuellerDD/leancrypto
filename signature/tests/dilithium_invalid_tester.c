@@ -17,8 +17,8 @@
  * DAMAGE.
  */
 
-#include "lc_cshake256_drng.h"
 #include "lc_dilithium.h"
+#include "lc_rng.h"
 #include "small_stack_support.h"
 #include "visibility.h"
 
@@ -32,15 +32,15 @@ static int dilithium_invalid(void)
 	uint8_t msg[] = { 0x01, 0x02, 0x03 };
 	int ret = 1;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
-	LC_CSHAKE256_DRNG_CTX_ON_STACK(rng);
 
-	if (lc_rng_seed(rng, msg, sizeof(msg), NULL, 0))
+	if (lc_rng_seed(lc_seeded_rng, msg, sizeof(msg), NULL, 0))
 		goto out;
 
-	if (lc_dilithium_keypair(&ws->pk, &ws->sk, rng))
+	if (lc_dilithium_keypair(&ws->pk, &ws->sk, lc_seeded_rng))
 		goto out;
 
-	if (lc_dilithium_sign(&ws->sig, msg, sizeof(msg), &ws->sk, rng))
+	if (lc_dilithium_sign(&ws->sig, msg, sizeof(msg), &ws->sk,
+			      lc_seeded_rng))
 		goto out;
 
 	/* modify the pub key */
@@ -54,7 +54,8 @@ static int dilithium_invalid(void)
 	/* modify the sec key */
 	ws->sk.sk[0] = (uint8_t)((ws->sk.sk[0] + 0x01) & 0xf);
 
-	if (lc_dilithium_sign(&ws->sig, msg, sizeof(msg), &ws->sk, rng))
+	if (lc_dilithium_sign(&ws->sig, msg, sizeof(msg), &ws->sk,
+			      lc_seeded_rng))
 		goto out;
 
 	if (lc_dilithium_verify(&ws->sig, msg, sizeof(msg), &ws->pk) !=
@@ -64,7 +65,8 @@ static int dilithium_invalid(void)
 	/* revert modify the sec key */
 	ws->sk.sk[0] = (uint8_t)((ws->sk.sk[0] - 0x01) & 0xff);
 
-	if (lc_dilithium_sign(&ws->sig, msg, sizeof(msg), &ws->sk, rng))
+	if (lc_dilithium_sign(&ws->sig, msg, sizeof(msg), &ws->sk,
+			      lc_seeded_rng))
 		goto out;
 
 	/* modify the signature */

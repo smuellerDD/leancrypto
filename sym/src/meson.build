@@ -5,7 +5,7 @@ lc_aes = 0
 lc_aesni_asm = 0
 lc_armce_v8_asm = 0
 lc_riscv64_asm = 0
-lc_block = 1
+lc_block = 0
 
 if get_option('chacha20').enabled()
 	if (x86_64_asm)
