@@ -33,7 +33,7 @@ elif (arm32_neon_gcc_asm)
 	subdir('armv7')
 endif
 
-if get_option('kyber').enabled()
+if get_option('kyber_1024').enabled()
 
 	# Kyber-1024 Support compiled unconditionally
 	kyber_1024_files = kyber_c

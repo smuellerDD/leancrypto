@@ -1,4 +1,4 @@
-if get_option('kyber').enabled()
+if get_option('kyber_1024').enabled()
 	include_kyber_internal = include_directories([ '../src' ])
 
 	kyber_kex_tester = executable('kyber_kex_tester',
@@ -183,11 +183,21 @@ if get_option('kyber').enabled()
 		     args : [ 'c' ], timeout: 1000, is_parallel: false)
 		test('Kyber-X25519 KEX', kyber_kex_x25519_tester)
 	endif
+endif
 
-
-	if get_option('kyber_768').enabled()
-		kyber_768_kex_tester = executable('kyber_768_kex_tester',
-					[ 'kyber_kex_tester.c', internal_src ],
+if get_option('kyber_768').enabled()
+	kyber_768_kex_tester = executable('kyber_768_kex_tester',
+				[ 'kyber_kex_tester.c', internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_kyber_internal
+				], link_with: leancrypto_static_lib,
+				c_args : '-DLC_KYBER_TYPE_768'
+				)
+	if get_option('cshake_drng').enabled()
+		kyber_768_ies_tester = executable('kyber_768_ies_tester',
+					[ 'kyber_ies_tester.c', internal_src ],
 					include_directories: [
 						include_dirs,
 						include_internal_dirs,
@@ -195,19 +205,83 @@ if get_option('kyber').enabled()
 					], link_with: leancrypto_static_lib,
 					c_args : '-DLC_KYBER_TYPE_768'
 					)
-		if get_option('cshake_drng').enabled()
-			kyber_768_ies_tester = executable('kyber_768_ies_tester',
-						[ 'kyber_ies_tester.c', internal_src ],
-						include_directories: [
-							include_dirs,
-							include_internal_dirs,
-							include_kyber_internal
-						], link_with: leancrypto_static_lib,
-						c_args : '-DLC_KYBER_TYPE_768'
-						)
-		endif
-		kyber_768_kem_tester_common = executable('kyber_768_kem_tester_common',
-					[ 'kyber_kem_tester_common.c',
+	endif
+	kyber_768_kem_tester_common = executable('kyber_768_kem_tester_common',
+				[ 'kyber_kem_tester_common.c',
+				'kyber_kem_tester.c',
+				internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_kyber_internal
+				], link_with: leancrypto_static_lib,
+				c_args : '-DLC_KYBER_TYPE_768'
+				)
+	kyber_768_kem_kdf_tester_common = executable('kyber_768_kem_kdf_tester_common',
+				[ 'kyber_kem_kdf_tester_common.c',
+				'kyber_kem_tester.c',
+				internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_kyber_internal
+				], link_with: leancrypto_static_lib,
+				c_args : '-DLC_KYBER_TYPE_768'
+				)
+	kyber_768_kem_tester_c = executable('kyber_768_kem_tester_c',
+				[ 'kyber_kem_tester_c.c',
+				'kyber_kem_tester.c',
+				internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_kyber_internal
+				], link_with: leancrypto_static_lib,
+				c_args : '-DLC_KYBER_TYPE_768'
+				)
+	kyber_768_kem_kdf_tester_c = executable('kyber_768_kem_kdf_tester_c',
+				[ 'kyber_kem_kdf_tester_c.c',
+				'kyber_kem_tester.c',
+				internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_kyber_internal
+				], link_with: leancrypto_static_lib,
+				c_args : '-DLC_KYBER_TYPE_768'
+				)
+	kyber_768_invalid_tester = executable('kyber_768_invalid_tester',
+				[ 'kyber_invalid_tester.c', internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_kyber_internal
+				], link_with: leancrypto_static_lib,
+				c_args : '-DLC_KYBER_TYPE_768'
+				)
+
+	test('Kyber 768 KEX', kyber_768_kex_tester)
+	if get_option('cshake_drng').enabled()
+		test('Kyber 768 IES', kyber_768_ies_tester)
+	endif
+	test('Kyber 768 KEM common', kyber_768_kem_tester_common)
+	test('Kyber 768 KEM C', kyber_768_kem_tester_c)
+	test('Kyber 768 KEM KDF common', kyber_768_kem_kdf_tester_common)
+
+	test('Kyber 768 KEM KDF C', kyber_768_kem_kdf_tester_c)
+	test('Kyber 768 KEM common 50000', kyber_768_kem_tester_common, args : [ 'c' ],
+	timeout: 1000, is_parallel: false)
+	test('Kyber 768 KEM C 50000', kyber_768_kem_tester_c, args : [ 'c' ],
+	timeout: 1000, is_parallel: false)
+	test('Kyber 768 KEM KDF common 50000', kyber_768_kem_kdf_tester_common,
+	args : [ 'c' ], timeout: 1000, is_parallel: false)
+	test('Kyber 768 KEM KDF C 50000', kyber_768_kem_kdf_tester_c, args : [ 'c' ],
+	timeout: 1000, is_parallel: false)
+	test('Kyber 768 invalid KEM', kyber_768_invalid_tester)
+
+	if (x86_64_asm)
+		kyber_768_kem_tester_avx2 = executable('kyber_768_kem_tester_avx2',
+					[ 'kyber_kem_tester_avx2.c',
 					'kyber_kem_tester.c',
 					internal_src ],
 					include_directories: [
@@ -217,8 +291,8 @@ if get_option('kyber').enabled()
 					], link_with: leancrypto_static_lib,
 					c_args : '-DLC_KYBER_TYPE_768'
 					)
-		kyber_768_kem_kdf_tester_common = executable('kyber_768_kem_kdf_tester_common',
-					[ 'kyber_kem_kdf_tester_common.c',
+		kyber_768_kem_kdf_tester_avx2 = executable('kyber_768_kem_kdf_tester_avx2',
+					[ 'kyber_kem_kdf_tester_avx2.c',
 					'kyber_kem_tester.c',
 					internal_src ],
 					include_directories: [
@@ -228,8 +302,16 @@ if get_option('kyber').enabled()
 					], link_with: leancrypto_static_lib,
 					c_args : '-DLC_KYBER_TYPE_768'
 					)
-		kyber_768_kem_tester_c = executable('kyber_768_kem_tester_c',
-					[ 'kyber_kem_tester_c.c',
+
+		test('Kyber 768 KEM AVX2', kyber_768_kem_tester_avx2)
+		test('Kyber 768 KEM AVX2 50000', kyber_768_kem_tester_avx2,
+		args : [ 'avx2' ], timeout: 1000, is_parallel: false)
+		test('Kyber 768 KEM KDF AVX2', kyber_768_kem_kdf_tester_avx2)
+		test('Kyber 768 KEM KDF AVX2 50000', kyber_768_kem_kdf_tester_avx2,
+		args : [ 'avx2' ], timeout: 1000, is_parallel: false)
+	elif (arm64_asm)
+		kyber_768_kem_tester_armv8 = executable('kyber_768_kem_tester_armv8',
+					[ 'kyber_kem_tester_armv8.c',
 					'kyber_kem_tester.c',
 					internal_src ],
 					include_directories: [
@@ -239,8 +321,8 @@ if get_option('kyber').enabled()
 					], link_with: leancrypto_static_lib,
 					c_args : '-DLC_KYBER_TYPE_768'
 					)
-		kyber_768_kem_kdf_tester_c = executable('kyber_768_kem_kdf_tester_c',
-					[ 'kyber_kem_kdf_tester_c.c',
+		kyber_768_kem_kdf_tester_armv8 = executable('kyber_768_kem_kdf_tester_armv8',
+					[ 'kyber_kem_kdf_tester_armv8.c',
 					'kyber_kem_tester.c',
 					internal_src ],
 					include_directories: [
@@ -250,277 +332,193 @@ if get_option('kyber').enabled()
 					], link_with: leancrypto_static_lib,
 					c_args : '-DLC_KYBER_TYPE_768'
 					)
-		kyber_768_invalid_tester = executable('kyber_768_invalid_tester',
-					[ 'kyber_invalid_tester.c', internal_src ],
-					include_directories: [
-						include_dirs,
-						include_internal_dirs,
-						include_kyber_internal
-					], link_with: leancrypto_static_lib,
-					c_args : '-DLC_KYBER_TYPE_768'
-					)
 
-		test('Kyber 768 KEX', kyber_768_kex_tester)
-		if get_option('cshake_drng').enabled()
-			test('Kyber 768 IES', kyber_768_ies_tester)
-		endif
-		test('Kyber 768 KEM common', kyber_768_kem_tester_common)
-		test('Kyber 768 KEM C', kyber_768_kem_tester_c)
-		test('Kyber 768 KEM KDF common', kyber_768_kem_kdf_tester_common)
-
-		test('Kyber 768 KEM KDF C', kyber_768_kem_kdf_tester_c)
-		test('Kyber 768 KEM common 50000', kyber_768_kem_tester_common, args : [ 'c' ],
-		timeout: 1000, is_parallel: false)
-		test('Kyber 768 KEM C 50000', kyber_768_kem_tester_c, args : [ 'c' ],
-		timeout: 1000, is_parallel: false)
-		test('Kyber 768 KEM KDF common 50000', kyber_768_kem_kdf_tester_common,
-		args : [ 'c' ], timeout: 1000, is_parallel: false)
-		test('Kyber 768 KEM KDF C 50000', kyber_768_kem_kdf_tester_c, args : [ 'c' ],
-		timeout: 1000, is_parallel: false)
-		test('Kyber 768 invalid KEM', kyber_768_invalid_tester)
-
-		if (x86_64_asm)
-			kyber_768_kem_tester_avx2 = executable('kyber_768_kem_tester_avx2',
-						[ 'kyber_kem_tester_avx2.c',
-						'kyber_kem_tester.c',
-						internal_src ],
-						include_directories: [
-							include_dirs,
-							include_internal_dirs,
-							include_kyber_internal
-						], link_with: leancrypto_static_lib,
-						c_args : '-DLC_KYBER_TYPE_768'
-						)
-			kyber_768_kem_kdf_tester_avx2 = executable('kyber_768_kem_kdf_tester_avx2',
-						[ 'kyber_kem_kdf_tester_avx2.c',
-						'kyber_kem_tester.c',
-						internal_src ],
-						include_directories: [
-							include_dirs,
-							include_internal_dirs,
-							include_kyber_internal
-						], link_with: leancrypto_static_lib,
-						c_args : '-DLC_KYBER_TYPE_768'
-						)
-
-			test('Kyber 768 KEM AVX2', kyber_768_kem_tester_avx2)
-			test('Kyber 768 KEM AVX2 50000', kyber_768_kem_tester_avx2,
-			args : [ 'avx2' ], timeout: 1000, is_parallel: false)
-			test('Kyber 768 KEM KDF AVX2', kyber_768_kem_kdf_tester_avx2)
-			test('Kyber 768 KEM KDF AVX2 50000', kyber_768_kem_kdf_tester_avx2,
-			args : [ 'avx2' ], timeout: 1000, is_parallel: false)
-		elif (arm64_asm)
-			kyber_768_kem_tester_armv8 = executable('kyber_768_kem_tester_armv8',
-						[ 'kyber_kem_tester_armv8.c',
-						'kyber_kem_tester.c',
-						internal_src ],
-						include_directories: [
-							include_dirs,
-							include_internal_dirs,
-							include_kyber_internal
-						], link_with: leancrypto_static_lib,
-						c_args : '-DLC_KYBER_TYPE_768'
-						)
-			kyber_768_kem_kdf_tester_armv8 = executable('kyber_768_kem_kdf_tester_armv8',
-						[ 'kyber_kem_kdf_tester_armv8.c',
-						'kyber_kem_tester.c',
-						internal_src ],
-						include_directories: [
-							include_dirs,
-							include_internal_dirs,
-							include_kyber_internal
-						], link_with: leancrypto_static_lib,
-						c_args : '-DLC_KYBER_TYPE_768'
-						)
-
-			test('Kyber 768 KEM ARMv8', kyber_768_kem_tester_armv8)
-			test('Kyber 768 KEM ARMv8 50000', kyber_768_kem_tester_armv8,
-			args : [ 'armv8' ], timeout: 1000, is_parallel: false)
-			test('Kyber 768 KEM KDF ARMv8', kyber_768_kem_kdf_tester_armv8)
-			test('Kyber 768 KEM KDF ARMv8 50000', kyber_768_kem_kdf_tester_armv8,
-			args : [ 'armv8' ], timeout: 1000, is_parallel: false)
-		endif
-
-		if get_option('kyber_x25519').enabled()
-			if get_option('cshake_drng').enabled()
-				kyber_768_ies_x25519_tester = executable('kyber_768_ies_x25519_tester',
-							[ 'kyber_ies_x25519_tester.c',
-							internal_src ],
-							include_directories: [
-								include_dirs,
-								include_internal_dirs,
-								include_kyber_internal
-							], link_with: leancrypto_static_lib,
-							c_args : '-DLC_KYBER_TYPE_768'
-							)
-			endif
-			kyber_768_kem_x25519_tester = executable('kyber_768_kem_x25519_tester',
-						[ 'kyber_kem_x25519_tester.c',
-						internal_src ],
-						include_directories: [
-							include_dirs,
-							include_internal_dirs,
-							include_kyber_internal
-						], link_with: leancrypto_static_lib,
-						c_args : '-DLC_KYBER_TYPE_768'
-						)
-			kyber_768_kex_x25519_tester = executable('kyber_768_kex_x25519_tester',
-						[ 'kyber_kex_x25519_tester.c',
-						internal_src ],
-						include_directories: [
-							include_dirs,
-							include_internal_dirs,
-							include_kyber_internal
-						], link_with: leancrypto_static_lib,
-						c_args : '-DLC_KYBER_TYPE_768'
-						)
-
-			if get_option('cshake_drng').enabled()
-				test('Kyber768-X25519 IES', kyber_768_ies_x25519_tester)
-			endif
-			test('Kyber768-X25519 KEM', kyber_768_kem_x25519_tester)
-			test('Kyber768-X25519 KEM 50000', kyber_768_kem_x25519_tester,
-			args : [ 'c' ], timeout: 1000, is_parallel: false)
-			test('Kyber768-X25519 KEX', kyber_768_kex_x25519_tester)
-		endif
+		test('Kyber 768 KEM ARMv8', kyber_768_kem_tester_armv8)
+		test('Kyber 768 KEM ARMv8 50000', kyber_768_kem_tester_armv8,
+		args : [ 'armv8' ], timeout: 1000, is_parallel: false)
+		test('Kyber 768 KEM KDF ARMv8', kyber_768_kem_kdf_tester_armv8)
+		test('Kyber 768 KEM KDF ARMv8 50000', kyber_768_kem_kdf_tester_armv8,
+		args : [ 'armv8' ], timeout: 1000, is_parallel: false)
 	endif
 
-	if get_option('kyber_512').enabled()
-		kyber_512_kex_tester = executable('kyber_512_kex_tester',
-					[ 'kyber_kex_tester.c', internal_src ],
-					include_directories: [
-						include_dirs,
-						include_internal_dirs,
-						include_kyber_internal
-					], link_with: leancrypto_static_lib,
-					c_args : '-DLC_KYBER_TYPE_512'
-					)
+	if get_option('kyber_x25519').enabled()
 		if get_option('cshake_drng').enabled()
-			kyber_512_ies_tester = executable('kyber_512_ies_tester',
-						[ 'kyber_ies_tester.c', internal_src ],
+			kyber_768_ies_x25519_tester = executable('kyber_768_ies_x25519_tester',
+						[ 'kyber_ies_x25519_tester.c',
+						internal_src ],
 						include_directories: [
 							include_dirs,
 							include_internal_dirs,
 							include_kyber_internal
 						], link_with: leancrypto_static_lib,
-						c_args : '-DLC_KYBER_TYPE_512'
+						c_args : '-DLC_KYBER_TYPE_768'
 						)
 		endif
-		kyber_512_kem_tester_common = executable('kyber_512_kem_tester_common',
-					[ 'kyber_kem_tester_common.c',
-					'kyber_kem_tester.c',
+		kyber_768_kem_x25519_tester = executable('kyber_768_kem_x25519_tester',
+					[ 'kyber_kem_x25519_tester.c',
 					internal_src ],
 					include_directories: [
 						include_dirs,
 						include_internal_dirs,
 						include_kyber_internal
 					], link_with: leancrypto_static_lib,
-					c_args : '-DLC_KYBER_TYPE_512'
+					c_args : '-DLC_KYBER_TYPE_768'
 					)
-		kyber_512_kem_kdf_tester_common = executable('kyber_512_kem_kdf_tester_common',
-					[ 'kyber_kem_kdf_tester_common.c',
-					'kyber_kem_tester.c',
+		kyber_768_kex_x25519_tester = executable('kyber_768_kex_x25519_tester',
+					[ 'kyber_kex_x25519_tester.c',
 					internal_src ],
 					include_directories: [
 						include_dirs,
 						include_internal_dirs,
 						include_kyber_internal
 					], link_with: leancrypto_static_lib,
-					c_args : '-DLC_KYBER_TYPE_512'
-					)
-		kyber_512_kem_tester_c = executable('kyber_512_kem_tester_c',
-					[ 'kyber_kem_tester_c.c',
-					'kyber_kem_tester.c',
-					internal_src ],
-					include_directories: [
-						include_dirs,
-						include_internal_dirs,
-						include_kyber_internal
-					], link_with: leancrypto_static_lib,
-					c_args : '-DLC_KYBER_TYPE_512'
-					)
-		kyber_512_kem_kdf_tester_c = executable('kyber_512_kem_kdf_tester_c',
-					[ 'kyber_kem_kdf_tester_c.c',
-					'kyber_kem_tester.c',
-					internal_src ],
-					include_directories: [
-						include_dirs,
-						include_internal_dirs,
-						include_kyber_internal
-					], link_with: leancrypto_static_lib,
-					c_args : '-DLC_KYBER_TYPE_512'
-					)
-		kyber_512_invalid_tester = executable('kyber_512_invalid_tester',
-					[ 'kyber_invalid_tester.c', internal_src ],
-					include_directories: [
-						include_dirs,
-						include_internal_dirs,
-						include_kyber_internal
-					], link_with: leancrypto_static_lib,
-					c_args : '-DLC_KYBER_TYPE_512'
+					c_args : '-DLC_KYBER_TYPE_768'
 					)
 
-		test('Kyber 512 KEX', kyber_512_kex_tester)
 		if get_option('cshake_drng').enabled()
-			test('Kyber 512 IES', kyber_512_ies_tester)
+			test('Kyber768-X25519 IES', kyber_768_ies_x25519_tester)
 		endif
-		test('Kyber 512 KEM common', kyber_512_kem_tester_common)
-		test('Kyber 512 KEM C', kyber_512_kem_tester_c)
-		test('Kyber 512 KEM KDF common', kyber_512_kem_kdf_tester_common)
-
-		test('Kyber 512 KEM KDF C', kyber_512_kem_kdf_tester_c)
-		test('Kyber 512 KEM common 50000', kyber_512_kem_tester_common, args : [ 'c' ],
-		timeout: 1000, is_parallel: false)
-		test('Kyber 512 KEM C 50000', kyber_512_kem_tester_c, args : [ 'c' ],
-		timeout: 1000, is_parallel: false)
-		test('Kyber 512 KEM KDF common 50000', kyber_512_kem_kdf_tester_common,
+		test('Kyber768-X25519 KEM', kyber_768_kem_x25519_tester)
+		test('Kyber768-X25519 KEM 50000', kyber_768_kem_x25519_tester,
 		args : [ 'c' ], timeout: 1000, is_parallel: false)
-		test('Kyber 512 KEM KDF C 50000', kyber_512_kem_kdf_tester_c, args : [ 'c' ],
-		timeout: 1000, is_parallel: false)
-		test('Kyber 512 invalid KEM', kyber_512_invalid_tester)
-
-		if get_option('kyber_x25519').enabled()
-			if get_option('cshake_drng').enabled()
-				kyber_512_ies_x25519_tester = executable('kyber_512_ies_x25519_tester',
-							[ 'kyber_ies_x25519_tester.c',
-							internal_src ],
-							include_directories: [
-								include_dirs,
-								include_internal_dirs,
-								include_kyber_internal
-							], link_with: leancrypto_static_lib,
-							c_args : '-DLC_KYBER_TYPE_512'
-							)
-			endif
-			kyber_512_kem_x25519_tester = executable('kyber_512_kem_x25519_tester',
-						[ 'kyber_kem_x25519_tester.c',
-						internal_src ],
-						include_directories: [
-							include_dirs,
-							include_internal_dirs,
-							include_kyber_internal
-						], link_with: leancrypto_static_lib,
-						c_args : '-DLC_KYBER_TYPE_512'
-						)
-			kyber_512_kex_x25519_tester = executable('kyber_512_kex_x25519_tester',
-						[ 'kyber_kex_x25519_tester.c',
-						internal_src ],
-						include_directories: [
-							include_dirs,
-							include_internal_dirs,
-							include_kyber_internal
-						], link_with: leancrypto_static_lib,
-						c_args : '-DLC_KYBER_TYPE_512'
-						)
-
-			if get_option('cshake_drng').enabled()
-				test('Kyber512-X25519 IES', kyber_512_ies_x25519_tester)
-			endif
-			test('Kyber512-X25519 KEM', kyber_512_kem_x25519_tester)
-			test('Kyber512-X25519 KEM 50000', kyber_512_kem_x25519_tester,
-			args : [ 'c' ], timeout: 1000, is_parallel: false)
-			test('Kyber512-X25519 KEX', kyber_512_kex_x25519_tester)
-		endif
+		test('Kyber768-X25519 KEX', kyber_768_kex_x25519_tester)
 	endif
+endif
 
+if get_option('kyber_512').enabled()
+	kyber_512_kex_tester = executable('kyber_512_kex_tester',
+				[ 'kyber_kex_tester.c', internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_kyber_internal
+				], link_with: leancrypto_static_lib,
+				c_args : '-DLC_KYBER_TYPE_512'
+				)
+	if get_option('cshake_drng').enabled()
+		kyber_512_ies_tester = executable('kyber_512_ies_tester',
+					[ 'kyber_ies_tester.c', internal_src ],
+					include_directories: [
+						include_dirs,
+						include_internal_dirs,
+						include_kyber_internal
+					], link_with: leancrypto_static_lib,
+					c_args : '-DLC_KYBER_TYPE_512'
+					)
+	endif
+	kyber_512_kem_tester_common = executable('kyber_512_kem_tester_common',
+				[ 'kyber_kem_tester_common.c',
+				'kyber_kem_tester.c',
+				internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_kyber_internal
+				], link_with: leancrypto_static_lib,
+				c_args : '-DLC_KYBER_TYPE_512'
+				)
+	kyber_512_kem_kdf_tester_common = executable('kyber_512_kem_kdf_tester_common',
+				[ 'kyber_kem_kdf_tester_common.c',
+				'kyber_kem_tester.c',
+				internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_kyber_internal
+				], link_with: leancrypto_static_lib,
+				c_args : '-DLC_KYBER_TYPE_512'
+				)
+	kyber_512_kem_tester_c = executable('kyber_512_kem_tester_c',
+				[ 'kyber_kem_tester_c.c',
+				'kyber_kem_tester.c',
+				internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_kyber_internal
+				], link_with: leancrypto_static_lib,
+				c_args : '-DLC_KYBER_TYPE_512'
+				)
+	kyber_512_kem_kdf_tester_c = executable('kyber_512_kem_kdf_tester_c',
+				[ 'kyber_kem_kdf_tester_c.c',
+				'kyber_kem_tester.c',
+				internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_kyber_internal
+				], link_with: leancrypto_static_lib,
+				c_args : '-DLC_KYBER_TYPE_512'
+				)
+	kyber_512_invalid_tester = executable('kyber_512_invalid_tester',
+				[ 'kyber_invalid_tester.c', internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_kyber_internal
+				], link_with: leancrypto_static_lib,
+				c_args : '-DLC_KYBER_TYPE_512'
+				)
+
+	test('Kyber 512 KEX', kyber_512_kex_tester)
+	if get_option('cshake_drng').enabled()
+		test('Kyber 512 IES', kyber_512_ies_tester)
+	endif
+	test('Kyber 512 KEM common', kyber_512_kem_tester_common)
+	test('Kyber 512 KEM C', kyber_512_kem_tester_c)
+	test('Kyber 512 KEM KDF common', kyber_512_kem_kdf_tester_common)
+
+	test('Kyber 512 KEM KDF C', kyber_512_kem_kdf_tester_c)
+	test('Kyber 512 KEM common 50000', kyber_512_kem_tester_common, args : [ 'c' ],
+	timeout: 1000, is_parallel: false)
+	test('Kyber 512 KEM C 50000', kyber_512_kem_tester_c, args : [ 'c' ],
+	timeout: 1000, is_parallel: false)
+	test('Kyber 512 KEM KDF common 50000', kyber_512_kem_kdf_tester_common,
+	args : [ 'c' ], timeout: 1000, is_parallel: false)
+	test('Kyber 512 KEM KDF C 50000', kyber_512_kem_kdf_tester_c, args : [ 'c' ],
+	timeout: 1000, is_parallel: false)
+	test('Kyber 512 invalid KEM', kyber_512_invalid_tester)
+
+	if get_option('kyber_x25519').enabled()
+		if get_option('cshake_drng').enabled()
+			kyber_512_ies_x25519_tester = executable('kyber_512_ies_x25519_tester',
+						[ 'kyber_ies_x25519_tester.c',
+						internal_src ],
+						include_directories: [
+							include_dirs,
+							include_internal_dirs,
+							include_kyber_internal
+						], link_with: leancrypto_static_lib,
+						c_args : '-DLC_KYBER_TYPE_512'
+						)
+		endif
+		kyber_512_kem_x25519_tester = executable('kyber_512_kem_x25519_tester',
+					[ 'kyber_kem_x25519_tester.c',
+					internal_src ],
+					include_directories: [
+						include_dirs,
+						include_internal_dirs,
+						include_kyber_internal
+					], link_with: leancrypto_static_lib,
+					c_args : '-DLC_KYBER_TYPE_512'
+					)
+		kyber_512_kex_x25519_tester = executable('kyber_512_kex_x25519_tester',
+					[ 'kyber_kex_x25519_tester.c',
+					internal_src ],
+					include_directories: [
+						include_dirs,
+						include_internal_dirs,
+						include_kyber_internal
+					], link_with: leancrypto_static_lib,
+					c_args : '-DLC_KYBER_TYPE_512'
+					)
+
+		if get_option('cshake_drng').enabled()
+			test('Kyber512-X25519 IES', kyber_512_ies_x25519_tester)
+		endif
+		test('Kyber512-X25519 KEM', kyber_512_kem_x25519_tester)
+		test('Kyber512-X25519 KEM 50000', kyber_512_kem_x25519_tester,
+		args : [ 'c' ], timeout: 1000, is_parallel: false)
+		test('Kyber512-X25519 KEX', kyber_512_kex_x25519_tester)
+	endif
 endif

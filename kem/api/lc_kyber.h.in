@@ -27,9 +27,13 @@
 #ifndef LC_KYBER_@kyber_header@H
 #define LC_KYBER_@kyber_header@H
 
+#ifndef __ASSEMBLER__
+
 #include "ext_headers.h"
 #include "lc_aead.h"
 #include "lc_rng.h"
+
+#endif /* __ASSEMBLER__ */
 
 #ifdef __cplusplus
 extern "C" {
@@ -86,6 +90,7 @@ extern "C" {
 #define LC_CRYPTO_CIPHERTEXTBYTES LC_KYBER_CIPHERTEXTBYTES
 #define LC_CRYPTO_BYTES LC_KYBER_SSBYTES
 
+#ifndef __ASSEMBLER__
 /**
  * General KEM API considerations:
  *
@@ -1211,6 +1216,8 @@ static inline int @kyber_name@_x25519_ies_dec_final(struct lc_aead_ctx *aead,
 }
 
 #endif /* LC_KYBER_X25519_KEM */
+
+#endif /* __ASSEMBLER__ */
 
 #ifdef __cplusplus
 }

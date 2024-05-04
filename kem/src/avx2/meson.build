@@ -15,17 +15,19 @@ kyber_avx2 = files([
 	'kyber_shuffle_avx2.S',
 ])
 
-leancrypto_kyber_1024_avx2_lib = static_library(
-		'leancrypto_kyber_1024_avx2_lib',
-		[ kyber_avx2 ],
-		include_directories: [
-			'../',
-			include_dirs,
-			include_internal_dirs
-		],
-		c_args: cc_avx2_args
-	)
-leancrypto_support_libs += leancrypto_kyber_1024_avx2_lib
+if get_option('kyber_1024').enabled()
+	leancrypto_kyber_1024_avx2_lib = static_library(
+			'leancrypto_kyber_1024_avx2_lib',
+			[ kyber_avx2 ],
+			include_directories: [
+				'../',
+				include_dirs,
+				include_internal_dirs
+			],
+			c_args: cc_avx2_args
+		)
+	leancrypto_support_libs += leancrypto_kyber_1024_avx2_lib
+endif
 
 if get_option('kyber_768').enabled()
 	leancrypto_kyber_768_avx2_lib = static_library(

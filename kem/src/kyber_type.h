@@ -48,9 +48,7 @@ extern "C" {
 # define lc_kyber_x25519_ct lc_kyber_768_x25519_ct
 # define lc_kyber_x25519_ss lc_kyber_768_x25519_ss
 
-#ifndef __ASSEMBLER__
 # include "lc_kyber_768.h"
-#endif
 
 #elif defined LC_KYBER_TYPE_512
 # define KYBER_F(name) lc_kyber_512_##name
@@ -64,17 +62,13 @@ extern "C" {
 # define lc_kyber_x25519_ct lc_kyber_512_x25519_ct
 # define lc_kyber_x25519_ss lc_kyber_512_x25519_ss
 
-#ifndef __ASSEMBLER__
 # include "lc_kyber_512.h"
-#endif
 
 #else
 # define KYBER_F(name) lc_kyber_##name
 # define KEX_F(name) lc_kex_##name
 
-#ifndef __ASSEMBLER__
-# include "lc_kyber.h"
-#endif
+# include "lc_kyber_1024.h"
 
 #endif
 
@@ -231,6 +225,8 @@ extern "C" {
 #define kyber_sub_reduce_armv8 KYBER_F(sub_reduce_armv8)
 #define kyber_add_reduce_armv8 KYBER_F(add_reduce_armv8)
 #define kyber_add_add_reduce_armv8 KYBER_F(add_add_reduce_armv8)
+#define kyber_cbd2_armv8 KYBER_F(cbd2_armv8)
+#define kyber_zetas_inv_armv8 KYBER_F(zetas_inv_armv8)
 
 /* ARMv7 Implementation */
 #define kyber_ntt_armv7 KYBER_F(ntt_armv7)

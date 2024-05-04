@@ -7,18 +7,19 @@ kyber_armv7 = files([
 	'kyber_poly_armv7.S',
 ])
 
-leancrypto_kyber_1024_armv7_lib = static_library(
-		'leancrypto_kyber_1024_armv7_lib',
-		[ kyber_armv7 ],
-		include_directories: [
-			'../',
-			include_dirs,
-			include_internal_dirs
-		],
-# 		c_args: cc_armv7_neon_simd_args,
-	)
-
-leancrypto_support_libs += leancrypto_kyber_1024_armv7_lib
+if get_option('kyber_1024').enabled()
+	leancrypto_kyber_1024_armv7_lib = static_library(
+			'leancrypto_kyber_1024_armv7_lib',
+			[ kyber_armv7 ],
+			include_directories: [
+				'../',
+				include_dirs,
+				include_internal_dirs
+			],
+	# 		c_args: cc_armv7_neon_simd_args,
+		)
+	leancrypto_support_libs += leancrypto_kyber_1024_armv7_lib
+endif
 
 if get_option('kyber_768').enabled()
 	leancrypto_kyber_768_armv7_lib = static_library(

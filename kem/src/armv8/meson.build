@@ -15,19 +15,21 @@ kyber_armv8 = files([
 	'kyber_reduce_armv8.S'
 ])
 
-leancrypto_kyber_1024_armv8_lib = static_library(
-		'leancrypto_kyber_1024_armv8_lib',
-		[ kyber_armv8 ],
-		include_directories: [
-			'../',
-			include_dirs,
-			include_internal_dirs
-		],
-		c_args: [
-			'-Wno-unused-result',
-		]
-	)
-leancrypto_support_libs += leancrypto_kyber_1024_armv8_lib
+if get_option('kyber_1024').enabled()
+	leancrypto_kyber_1024_armv8_lib = static_library(
+			'leancrypto_kyber_1024_armv8_lib',
+			[ kyber_armv8 ],
+			include_directories: [
+				'../',
+				include_dirs,
+				include_internal_dirs
+			],
+			c_args: [
+				'-Wno-unused-result',
+			]
+		)
+	leancrypto_support_libs += leancrypto_kyber_1024_armv8_lib
+endif
 
 if get_option('kyber_768').enabled()
 	leancrypto_kyber_768_armv8_lib = static_library(
