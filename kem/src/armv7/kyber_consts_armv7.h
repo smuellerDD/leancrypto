@@ -17,19 +17,21 @@
  * DAMAGE.
  */
 
-#ifndef DILITHIUM_ZETAS_H
-#define DILITHIUM_ZETAS_H
+#ifndef KYBER_CONSTS_ARMV7_H
+#define KYBER_CONSTS_ARMV7_H
 
-#include "dilithium_type.h"
+#include "ext_headers.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern const int32_t dilithium_zetas[LC_DILITHIUM_N];
+extern const int16_t zetas_armv7[64];
+extern const int16_t kyber_zetas_asm[128];
+extern const int16_t kyber_zetas_inv_asm[128];
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* DILITHIUM_ZETAS_H */
+#endif /* KYBER_CONSTS_ARMV7_H */

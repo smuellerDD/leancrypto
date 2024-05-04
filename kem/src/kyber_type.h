@@ -150,9 +150,6 @@ extern "C" {
 
 #define poly_cbd_eta1 KYBER_F(poly_cbd_eta1)
 #define poly_cbd_eta2 KYBER_F(poly_cbd_eta2)
-#define kyber_invntt KYBER_F(kyber_invntt)
-#define kyber_ntt KYBER_F(kyber_ntt)
-#define zetas KYBER_F(zetas)
 #define cmov KYBER_F(cmov)
 #define verify KYBER_F(verify)
 #define kyber_kem_dec_kdf_selftest KYBER_F(kem_dec_kdf_selftest)
@@ -172,6 +169,11 @@ extern "C" {
 #define indcpa_enc KYBER_F(indcpa_enc)
 #define indcpa_keypair KYBER_F(indcpa_keypair)
 
+#define kyber_print_buffer KYBER_F(print_buffer)
+#define kyber_print_polyvec KYBER_F(print_polyvec)
+#define kyber_print_polyveck KYBER_F(print_polyveck)
+#define kyber_print_poly KYBER_F(_print_poly)
+
 /* AVX2 Implementation */
 #define kyber_rej_uniform_avx KYBER_F(rey_uniform_avx)
 #define kyber_poly_sub_avx KYBER_F(poly_sub_avx)
@@ -189,8 +191,6 @@ extern "C" {
 #define indcpa_dec_avx KYBER_F(indcpa_dec_avx)
 #define indcpa_enc_avx KYBER_F(indcpa_enc_avx)
 #define indcpa_keypair_avx KYBER_F(indcpa_keypair_avx)
-#define kyber_qdata KYBER_F(_qdata)
-#define cbd2 KYBER_F(cbd2)
 #define kyber_nttfrombytes_avx KYBER_F(nttfrombytes_avx)
 #define kyber_ntttobytes_avx KYBER_F(ntttobytes_avx)
 #define kyber_nttunpack_avx KYBER_F(nttunpack_avx)
@@ -214,7 +214,6 @@ extern "C" {
 #define lc_kyber_dec_armv8 KYBER_F(dec_armv8)
 #define lc_kyber_enc_kdf_armv8 KYBER_F(enc_kdf_armv8)
 #define lc_kyber_dec_kdf_armv8 KYBER_F(dec_kdf_armv8)
-#define kyber_zetas_armv8 KYBER_F(zetas_armv8)
 #define kyber_ntt_armv8 KYBER_F(ntt_armv8)
 #define poly_compress_armv8 KYBER_F(poly_compress_armv8)
 #define poly_decompress_armv8 KYBER_F(poly_decompress_armv8)
@@ -226,18 +225,12 @@ extern "C" {
 #define kyber_add_reduce_armv8 KYBER_F(add_reduce_armv8)
 #define kyber_add_add_reduce_armv8 KYBER_F(add_add_reduce_armv8)
 #define kyber_cbd2_armv8 KYBER_F(cbd2_armv8)
-#define kyber_zetas_inv_armv8 KYBER_F(zetas_inv_armv8)
 
 /* ARMv7 Implementation */
-#define kyber_ntt_armv7 KYBER_F(ntt_armv7)
-#define kyber_invntt_armv7 KYBER_F(invntt_armv7)
 #define kyber_poly_sub_armv7 KYBER_F(poly_sub_armv7)
 #define kyber_poly_add_armv7 KYBER_F(poly_add_armv7)
 #define kyber_barrett_reduce_armv7 KYBER_F(barrett_reduce_armv7)
 #define kyber_basemul_armv7 KYBER_F(basemul_armv7)
-#define zetas_armv7 KYBER_F(zetas_armv7)
-#define kyber_zetas_asm KYBER_F(zetas_asm)
-#define kyber_zetas_inv_asm KYBER_F(zetas_inv_asm)
 
 #ifdef __cplusplus
 }

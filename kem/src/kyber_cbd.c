@@ -54,7 +54,7 @@ static uint32_t load32_littleendian(const uint8_t x[4])
  *
  * @return 32-bit unsigned integer loaded from x (most significant byte is zero)
  */
-#if LC_KYBER_ETA1 == 3
+//#if LC_KYBER_ETA1 == 3
 static uint32_t load24_littleendian(const uint8_t x[3])
 {
 	uint32_t r;
@@ -64,7 +64,7 @@ static uint32_t load24_littleendian(const uint8_t x[3])
 	r |= (uint32_t)x[2] << 16;
 	return r;
 }
-#endif
+//#endif
 
 /**
  * @brief cbd2 - Given an array of uniformly random bytes, compute polynomial
@@ -74,7 +74,7 @@ static uint32_t load24_littleendian(const uint8_t x[3])
  * @param r [out] pointer to output polynomial
  * @param buf in pointer to input byte array
  */
-static void cbd2(poly *r, const uint8_t buf[2 * LC_KYBER_N / 4])
+void cbd2(poly *r, const uint8_t buf[2 * LC_KYBER_N / 4])
 {
 	unsigned int i, j;
 	uint32_t t, d;
@@ -102,8 +102,8 @@ static void cbd2(poly *r, const uint8_t buf[2 * LC_KYBER_N / 4])
  * @param r [out] pointer to output polynomial
  * @param buf [in] pointer to input byte array
  */
-#if LC_KYBER_ETA1 == 3
-static void cbd3(poly *r, const uint8_t buf[3 * LC_KYBER_N / 4])
+//#if LC_KYBER_ETA1 == 3
+void cbd3(poly *r, const uint8_t buf[3 * LC_KYBER_N / 4])
 {
 	unsigned int i, j;
 	uint32_t t, d;
@@ -122,24 +122,4 @@ static void cbd3(poly *r, const uint8_t buf[3 * LC_KYBER_N / 4])
 		}
 	}
 }
-#endif
-
-void poly_cbd_eta1(poly *r, const uint8_t buf[LC_KYBER_ETA1 * LC_KYBER_N / 4])
-{
-#if LC_KYBER_ETA1 == 2
-	cbd2(r, buf);
-#elif LC_KYBER_ETA1 == 3
-	cbd3(r, buf);
-#else
-#error "This implementation requires eta1 in {2,3}"
-#endif
-}
-
-void poly_cbd_eta2(poly *r, const uint8_t buf[LC_KYBER_ETA2 * LC_KYBER_N / 4])
-{
-#if LC_KYBER_ETA2 == 2
-	cbd2(r, buf);
-#else
-#error "This implementation requires eta2 = 2"
-#endif
-}
+//#endif

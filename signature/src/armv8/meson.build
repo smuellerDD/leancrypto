@@ -1,9 +1,11 @@
 # for i in $(ls *.c | sort); do echo "'$i',"; done
 
 # Files compiled only once
-src += files([
-	'NTT_params.c'
-])
+if (get_option('dilithium_87').enabled() or get_option('dilithium_65').enabled())
+	src += files([
+		'NTT_params.c'
+	])
+endif
 
 # Files which are compiled for each Dilithium implementation separately
 

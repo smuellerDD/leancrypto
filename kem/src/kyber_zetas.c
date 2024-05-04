@@ -53,16 +53,16 @@ void init_ntt()
 		tmp[i] = fqmul(tmp[i-1],MONT*LC_KYBER_ROOT_OF_UNITY % LC_KYBER_Q);
 
 	for (i = 0; i < 128; i++) {
-	zetas[i] = tmp[tree[i]];
-	if (zetas[i] > KYBER_Q/2)
-		zetas[i] -= KYBER_Q;
-	if (zetas[i] < -KYBER_Q/2)
-		zetas[i] += KYBER_Q;
+	kyber_zetas[i] = tmp[tree[i]];
+	if (kyber_zetas[i] > KYBER_Q/2)
+		kyber_zetas[i] -= KYBER_Q;
+	if (kyber_zetas[i] < -KYBER_Q/2)
+		kyber_zetas[i] += KYBER_Q;
 	}
 	}
  */
 
-const int16_t zetas[128] = {
+const int16_t kyber_zetas[128] = {
 	-1044, -758,  -359,  -1517, 1493,  1422,  287,	 202,	-171,  622,
 	1577,  182,   962,   -1202, -1474, 1468,  573,	 -1325, 264,   383,
 	-829,  1458,  -1602, -130,  -681,  1017,  732,	 608,	-1542, 411,

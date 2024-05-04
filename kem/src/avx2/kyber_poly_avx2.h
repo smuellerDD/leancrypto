@@ -53,7 +53,7 @@ void poly_tomsg_avx(uint8_t msg[LC_KYBER_INDCPA_MSGBYTES],
 void kyber_poly_add_avx(poly *r, const poly *a, const poly *b);
 void kyber_poly_sub_avx(poly *r, const poly *a, const poly *b);
 
-void cbd2(poly *restrict r, const __m256i buf[2 * LC_KYBER_N / 128]);
+void kyber_cbd2_avx2(poly *restrict r, const __m256i buf[2 * LC_KYBER_N / 128]);
 
 /* buf 32 bytes longer for cbd3 */
 static inline void
@@ -61,7 +61,7 @@ poly_cbd_eta1_avx(poly *r,
 		  const __m256i buf[LC_KYBER_ETA1 * LC_KYBER_N / 128 + 1])
 {
 #if LC_KYBER_ETA1 == 2
-	cbd2(r, buf);
+	kyber_cbd2_avx2(r, buf);
 #else
 #error "This implementation requires eta1 in {2}"
 #endif
@@ -71,7 +71,7 @@ static inline void
 poly_cbd_eta2_avx(poly *r, const __m256i buf[LC_KYBER_ETA2 * LC_KYBER_N / 128])
 {
 #if LC_KYBER_ETA2 == 2
-	cbd2(r, buf);
+	kyber_cbd2_avx2(r, buf);
 #else
 #error "This implementation requires eta2 = 2"
 #endif

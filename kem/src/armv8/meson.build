@@ -1,5 +1,13 @@
 # for i in $(ls *.c | sort); do echo "'$i',"; done
 
+# Files compiled only once
+if (get_option('kyber_1024').enabled() or get_option('kyber_768').enabled())
+	src += files([
+		'kyber_ntt_armv8.c',
+	])
+endif
+
+# Files which are compiled for each Kyber implementation separately
 kyber_armv8 = files([
 	'kyber_add_armv8.S',
 	'kyber_basemul_armv8.S',
@@ -8,7 +16,6 @@ kyber_armv8 = files([
 	'kyber_inv_ntt_armv8.S',
 	'kyber_kem_api_armv8.c',
 	'kyber_kem_armv8.c',
-	'kyber_ntt_armv8.c',
 	'kyber_ntt_armv8_asm.S',
 	'kyber_poly_armv8.c',
 	'kyber_poly_armv8_asm.S',

@@ -91,9 +91,9 @@ static inline void poly_basemul_montgomery(poly *r, const poly *a,
 
 	for (i = 0; i < LC_KYBER_N / 4; i++) {
 		basemul(&r->coeffs[4 * i], &a->coeffs[4 * i], &b->coeffs[4 * i],
-			zetas[64 + i]);
+			kyber_zetas[64 + i]);
 		basemul(&r->coeffs[4 * i + 2], &a->coeffs[4 * i + 2],
-			&b->coeffs[4 * i + 2], -zetas[64 + i]);
+			&b->coeffs[4 * i + 2], -kyber_zetas[64 + i]);
 	}
 }
 

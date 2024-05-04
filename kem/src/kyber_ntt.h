@@ -34,7 +34,7 @@
 extern "C" {
 #endif
 
-extern const int16_t zetas[128];
+extern const int16_t kyber_zetas[128];
 
 /**
  * @brief ntt - Inplace number-theoretic transform (NTT) in Rq.

@@ -1,6 +1,23 @@
 # for i in $(ls *.c | sort); do echo "'$i',"; done
+
+# Files compiled only once
+if (get_option('kyber_1024').enabled() or get_option('kyber_768').enabled() or get_option('kyber_512').enabled())
+	src += files([
+		'kyber_cbd.c',
+		'kyber_zetas.c'
+	])
+
+	if (x86_64_asm)
+		src += files([ 'kyber_ntt.c' ])
+	elif (arm64_asm)
+		src += files([ 'kyber_ntt.c' ])
+	elif (not arm32_neon_gcc_asm)
+		src += files([ 'kyber_ntt.c' ])
+	endif
+endif
+
+# Files which are compiled for each Kyber implementation separately
 kyber_c = files([
-	'kyber_cbd.c',
 	'kyber_ies.c',
 	'kyber_kem.c',
 	'kyber_kem_c.c',
@@ -11,7 +28,6 @@ kyber_c = files([
 	'kyber_selftest.c',
 	'kyber_selftest_kdf.c',
 	'kyber_verify.c',
-	'kyber_zetas.c'
 ])
 if get_option('kyber_debug').enabled()
 	kyber_c += files ([ 'kyber_debug.c', ])
@@ -38,16 +54,8 @@ if get_option('kyber_1024').enabled()
 	# Kyber-1024 Support compiled unconditionally
 	kyber_1024_files = kyber_c
 
-	if (x86_64_asm)
-		kyber_1024_files += files([ 'kyber_ntt.c' ])
-	elif (arm64_asm)
-		kyber_1024_files += files([ 'kyber_ntt.c' ])
-	else
+	if (not x86_64_asm and not arm64_asm)
 		kyber_1024_files += files([ 'kyber_kem_api_c.c' ])
-
-		if (not arm32_neon_gcc_asm)
-			kyber_1024_files += files([ 'kyber_ntt.c' ])
-		endif
 	endif
 	leancrypto_kyber_1024_c_lib = static_library(
 		'leancrypto_kyber_1024_c_lib',
@@ -63,16 +71,8 @@ endif
 if get_option('kyber_768').enabled()
 	kyber_768_files = kyber_c
 
-	if (x86_64_asm)
-		kyber_768_files += files([ 'kyber_ntt.c' ])
-	elif (arm64_asm)
-		kyber_768_files += files([ 'kyber_ntt.c' ])
-	else
+	if (not x86_64_asm and not arm64_asm)
 		kyber_768_files += files([ 'kyber_kem_api_c.c' ])
-
-		if (not arm32_neon_gcc_asm)
-			kyber_768_files += files([ 'kyber_ntt.c' ])
-		endif
 	endif
 
 	leancrypto_kyber_768_c_lib = static_library(
@@ -91,10 +91,6 @@ if get_option('kyber_512').enabled()
 	kyber_512_files = kyber_c
 
 	kyber_512_files += files([ 'kyber_kem_api_c.c' ])
-
-	if (not arm32_neon_gcc_asm)
-		kyber_512_files += files([ 'kyber_ntt.c' ])
-	endif
 
 	leancrypto_kyber_512_c_lib = static_library(
 		'leancrypto_kyber_512_c_lib',

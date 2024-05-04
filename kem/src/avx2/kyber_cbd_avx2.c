@@ -40,7 +40,7 @@
  * @param r pointer to output polynomial
  * @param buf pointer to aligned input byte array
  */
-void cbd2(poly *restrict r, const __m256i buf[2 * LC_KYBER_N / 128])
+void kyber_cbd2_avx2(poly *restrict r, const __m256i buf[2 * LC_KYBER_N / 128])
 {
 	unsigned int i;
 	__m256i f0, f1, f2, f3;

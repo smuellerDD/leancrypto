@@ -35,7 +35,7 @@ void kyber_ntt(int16_t r[LC_KYBER_N])
 	k = 1;
 	for (len = 128; len >= 2; len >>= 1) {
 		for (start = 0; start < LC_KYBER_N; start = j + len) {
-			zeta = zetas[k++];
+			zeta = kyber_zetas[k++];
 			for (j = start; j < start + len; j++) {
 				t = fqmul(zeta, r[j + len]);
 				r[j + len] = r[j] - t;
@@ -54,7 +54,7 @@ void kyber_invntt(int16_t r[LC_KYBER_N])
 	k = 127;
 	for (len = 2; len <= 128; len <<= 1) {
 		for (start = 0; start < LC_KYBER_N; start = j + len) {
-			zeta = zetas[k--];
+			zeta = kyber_zetas[k--];
 			for (j = start; j < start + len; j++) {
 				t = r[j];
 				r[j] = barrett_reduce(t + r[j + len]);

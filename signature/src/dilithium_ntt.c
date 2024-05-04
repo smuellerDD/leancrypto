@@ -45,7 +45,7 @@ void ntt(int32_t a[LC_DILITHIUM_N])
 
 	for (len = 128; len > 0; len >>= 1) {
 		for (start = 0; start < LC_DILITHIUM_N; start = j + len) {
-			zeta = zetas[++k];
+			zeta = dilithium_zetas[++k];
 			for (j = start; j < start + len; ++j) {
 				t = montgomery_reduce((int64_t)zeta *
 						      a[j + len]);
@@ -75,7 +75,7 @@ void invntt_tomont(int32_t a[LC_DILITHIUM_N])
 
 	for (len = 1; len < LC_DILITHIUM_N; len <<= 1) {
 		for (start = 0; start < LC_DILITHIUM_N; start = j + len) {
-			zeta = -zetas[--k];
+			zeta = -dilithium_zetas[--k];
 			for (j = start; j < start + len; ++j) {
 				t = a[j];
 				a[j] = t + a[j + len];

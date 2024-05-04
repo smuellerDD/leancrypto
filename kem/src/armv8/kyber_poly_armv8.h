@@ -362,7 +362,7 @@ static inline void poly_invntt_tomont(poly *r)
 static inline void poly_basemul_montgomery(poly *r, const poly *a,
 					   const poly *b)
 {
-	kyber_basemul_armv8(r->coeffs, a->coeffs, b->coeffs, zetas);
+	kyber_basemul_armv8(r->coeffs, a->coeffs, b->coeffs, kyber_zetas);
 }
 
 /**
