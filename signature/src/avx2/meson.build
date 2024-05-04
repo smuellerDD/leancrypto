@@ -1,7 +1,12 @@
 # for i in $(ls *.c | sort); do echo "'$i',"; done
 
-dilithium_avx2 = files([
+# Files compiled only once
+src += files([
 	'dilithium_consts_avx2.c',
+])
+
+# Files which are compiled for each Dilithium implementation separately
+dilithium_avx2 = files([
 	'dilithium_invntt_avx2.S',
 	'dilithium_ntt_avx2.S',
 	'dilithium_pointwise_avx2.S',

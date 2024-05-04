@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2024, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2024, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *
@@ -17,32 +17,19 @@
  * DAMAGE.
  */
 
-#ifndef DILITHIUM_CONSTS_AVX2_H
-#define DILITHIUM_CONSTS_AVX2_H
+#ifndef DILITHIUM_ZETAS_H
+#define DILITHIUM_ZETAS_H
+
+#include "dilithium_type.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define _8XQ 0
-#define _8XQINV 8
-#define _8XDIV_QINV 16
-#define _8XDIV 24
-#define _ZETAS_QINV 32
-#define _ZETAS 328
-
-#ifndef __ASSEMBLER__
-
-#include "alignment_x86.h"
-
-typedef BUF_ALIGNED_INT32_M256I(624) dilithium_qdata_t;
-
-extern const dilithium_qdata_t dilithium_qdata;
-
-#endif
+extern const int32_t zetas[LC_DILITHIUM_N];
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* DILITHIUM_CONSTS_AVX2_H */
+#endif /* DILITHIUM_ZETAS_H */

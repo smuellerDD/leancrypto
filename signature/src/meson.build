@@ -1,5 +1,11 @@
 # for i in $(ls *.c | sort); do echo "'$i',"; done
 
+# Files compiled only once
+src += files([
+	'dilithium_zetas.c'
+])
+
+# Files which are compiled for each Dilithium implementation separately
 dilithium_c = files([
 	'dilithium_signature_c.c',
 	'dilithium_ntt.c',

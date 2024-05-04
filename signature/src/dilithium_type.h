@@ -124,7 +124,6 @@ extern "C" {
 #define dilithium_print_poly DILITHIUM_F(print_poly)
 
 /* AVX2 Implementation */
-#define dilithium_qdata DILITHIUM_F(qdata)
 #define dilithium_invntt_avx DILITHIUM_F(invntt_avx)
 #define dilithium_ntt_avx DILITHIUM_F(ntt_avx)
 #define dilithium_nttunpack_avx DILITHIUM_F(nttunpack_avx)
