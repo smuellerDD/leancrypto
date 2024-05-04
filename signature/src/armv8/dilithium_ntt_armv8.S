@@ -47,6 +47,7 @@
  */
 
 #include "assembler_support.h"
+#include "dilithium_type.h"
 #include "macros.inc"
 
 SYM_FUNC_START(ntt_SIMD_top_armv8)

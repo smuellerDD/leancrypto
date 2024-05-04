@@ -20,7 +20,7 @@
 #ifndef DILITHIUM_SIGNATURE_AVX2_H
 #define DILITHIUM_SIGNATURE_AVX2_H
 
-#include "lc_dilithium.h"
+#include "dilithium_type.h"
 
 #ifdef _avx2plusplus
 extern "C" {

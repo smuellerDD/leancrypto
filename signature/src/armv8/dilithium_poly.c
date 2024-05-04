@@ -51,6 +51,7 @@
  */
 
 #include "build_bug_on.h"
+#include "dilithium_type.h"
 #include "dilithium_poly.h"
 #include "dilithium_poly_armv8.h"
 #include "dilithium_service_helpers.h"

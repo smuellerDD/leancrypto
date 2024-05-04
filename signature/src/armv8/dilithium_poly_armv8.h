@@ -20,7 +20,7 @@
 #ifndef DILITHIUM_POLY_ARMV8_H
 #define DILITHIUM_POLY_ARMV8_H
 
-#include "lc_dilithium.h"
+#include "dilithium_type.h"
 
 #include "NTT_params.h"
 

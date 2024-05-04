@@ -23,7 +23,7 @@
 #include <linux/scatterlist.h>
 #include <linux/types.h>
 
-#include "lc_kyber.h"
+#include "lc_kyber_1024.h"
 #include "lc_memset_secure.h"
 #include "x25519_scalarmult.h"
 

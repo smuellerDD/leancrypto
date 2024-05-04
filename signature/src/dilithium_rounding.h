@@ -28,6 +28,7 @@
 #ifndef DILITHIUM_ROUNDING_H
 #define DILITHIUM_ROUNDING_H
 
+#include "dilithium_type.h"
 #include "ext_headers.h"
 
 #ifdef __cplusplus

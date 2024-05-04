@@ -27,13 +27,14 @@
 
 #include "alignment_x86.h"
 #include "build_bug_on.h"
+#include "dilithium_type.h"
 #include "dilithium_pack_avx2.h"
 #include "dilithium_poly_avx2.h"
 #include "dilithium_poly_common.h"
 #include "dilithium_polyvec_avx2.h"
+#include "dilithium_debug.h"
 #include "dilithium_selftest.h"
 #include "dilithium_signature_avx2.h"
-#include "lc_dilithium.h"
 #include "lc_rng.h"
 #include "lc_sha3.h"
 #include "lc_memcmp_secure.h"
@@ -192,6 +193,8 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_avx2,
 
 	/* Transform s1 */
 	polyvecl_ntt_avx(&ws->s1);
+	dilithium_print_polyvecl(&ws->s1,
+				 "Keygen - S1 L x N matrix after NTT:");
 
 	for (i = 0; i < LC_DILITHIUM_K; i++) {
 		polyvec_matrix_expand_row(&row, ws->rowbuf, rho, i,
@@ -200,6 +203,9 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_avx2,
 
 		/* Compute inner-product */
 		polyvecl_pointwise_acc_montgomery_avx(&ws->t1, row, &ws->s1);
+		dilithium_print_poly(&ws->t1,
+				     "Keygen - T N vector after A*NTT(s1):");
+
 		poly_invntt_tomont_avx(&ws->t1);
 
 		/* Add error polynomial */
@@ -220,6 +226,9 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_avx2,
 				i * LC_DILITHIUM_POLYT0_PACKEDBYTES,
 			&ws->t0);
 	}
+
+	dilithium_print_buffer(pk->pk, LC_DILITHIUM_PUBLICKEYBYTES,
+			       "Keygen - PK after pkEncode:");
 
 	/* Compute H(rho, t1) and store in secret key */
 	lc_xof(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES,

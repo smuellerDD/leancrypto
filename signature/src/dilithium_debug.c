@@ -20,7 +20,9 @@
 #include "binhexbin.h"
 
 /* This code is only tuned to the C implementation */
+#include "dilithium_type.h"
 #include "dilithium_poly.h"
+#include "dilithium_poly_common.h"
 #include "dilithium_poly_c.h"
 #include "dilithium_polyvec.h"
 #include "dilithium_polyvec_c.h"

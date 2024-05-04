@@ -28,8 +28,8 @@
 #ifndef DILITHIUM_POLYVEC_AVX2_H
 #define DILITHIUM_POLYVEC_AVX2_H
 
+#include "dilithium_type.h"
 #include "dilithium_poly_avx2.h"
-#include "lc_dilithium.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -23,7 +23,7 @@
 #include <linux/scatterlist.h>
 #include <linux/types.h>
 
-#include "lc_dilithium.h"
+#include "lc_dilithium_87.h"
 #include "lc_sha3.h"
 
 #include "leancrypto_kernel.h"

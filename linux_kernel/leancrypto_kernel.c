@@ -24,7 +24,7 @@
 #include "ed25519.h"
 #include "kyber_internal.h"
 #include "kyber_kem.h"
-#include "lc_kyber.h"
+#include "lc_kyber_1024.h"
 #include "seeded_rng.h"
 #include "x25519.h"
 #include "x25519_scalarmult.h"

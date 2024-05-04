@@ -20,7 +20,7 @@
 #ifndef DILITHIUM_REJSAMPLE_AVX2_H
 #define DILITHIUM_REJSAMPLE_AVX2_H
 
-#include "lc_dilithium.h"
+#include "dilithium_type.h"
 #include "lc_sha3.h"
 
 #ifdef __cplusplus

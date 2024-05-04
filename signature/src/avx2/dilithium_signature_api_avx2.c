@@ -18,9 +18,9 @@
  */
 
 #include "cpufeatures.h"
+#include "dilithium_type.h"
 #include "dilithium_signature_avx2.h"
 #include "../dilithium_signature_c.h"
-#include "lc_dilithium.h"
 #include "visibility.h"
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair, struct lc_dilithium_pk *pk,

@@ -20,7 +20,7 @@
 #ifndef ED25519_H
 #define ED25519_H
 
-#include "lc_dilithium.h"
+#include "dilithium_type.h"
 #include "lc_rng.h"
 
 #ifdef __cplusplus

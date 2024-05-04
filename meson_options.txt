@@ -49,25 +49,39 @@ option('hotp', type: 'feature', value: 'enabled',
 option('totp', type: 'feature', value: 'enabled',
        description: 'HOTP support')
 
-option('dilithium', type: 'feature', value: 'enabled',
-       description: 'Dilithium signature support - FIPS 204')
 option('dilithium_debug', type: 'feature', value: 'disabled',
        description: 'Dilithium debug printout - DO NOT ENABLE IN PRODUCTION SYSTEMS!')
-option('dilithium_strength', type: 'combo', choices: ['2', '3', '5' ],
-       value: '5', description: '''Dilithium Security Strength
+option('dilithium_87', type: 'feature', value: 'enabled',
+       description: '''Dilithium-87 Support
 
-The allowed choices represent the NIST security levels as follows:
-the value 2 implies 128 bits of security strength,
-the value 3 implies 192 bits of security strength,
-the value 5 implies 256 bits of security strength,
+Per default, Dilithium-87 is enabled and accessible with the regular API.
+''')
+option('dilithium_65', type: 'feature', value: 'enabled',
+       description: '''Dilithium-65 Support
+
+Per default, Dilithium-87 is enabled and accessible with the regular API. When
+enabling this option, Dilithium-65 is also made available which has the same API,
+but instead of the prefix lc_dilithium, all APIs use lc_dilithium_65. This
+algorithm has 192 bits of security strength.
+''')
+option('dilithium_44', type: 'feature', value: 'enabled',
+       description: '''Dilithium-44 Support
+
+Per default, Dilithium-87 is enabled and accessible with the regular API. When
+enabling this option, Dilithium-44 is also made available which has the same API,
+but instead of the prefix lc_dilithium, all APIs use lc_dilithium_44. This
+algorithm has 128 bits of security strength.
 ''')
 option('dilithium_ed25519', type: 'feature', value: 'enabled',
        description: 'Dilithium-ED25519 KEM')
 
-option('kyber', type: 'feature', value: 'enabled',
-       description: 'Kyber key exchange mechanism (KEM) support - FIPS 203')
 option('kyber_debug', type: 'feature', value: 'disabled',
        description: 'Kyber debug printout - DO NOT ENABLE IN PRODUCTION SYSTEMS!')
+option('kyber_1024', type: 'feature', value: 'enabled',
+       description: '''Kyber-1024 Support
+
+Per default, Kyber-1024 is enabled and accessible with the regular API.
+''')
 option('kyber_768', type: 'feature', value: 'enabled',
        description: '''Kyber-768 Support
 

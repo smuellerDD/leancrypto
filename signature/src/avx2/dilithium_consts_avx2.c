@@ -26,7 +26,6 @@
  */
 
 #include "dilithium_consts_avx2.h"
-#include "lc_dilithium.h"
 
 #define QINV 58728449 // q^(-1) mod 2^32
 #define MONT -4186625 // 2^32 mod q

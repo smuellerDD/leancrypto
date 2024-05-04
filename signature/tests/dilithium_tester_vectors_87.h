@@ -1,6 +1,6 @@
 #ifndef DILITHIUM_TESTVECTORS_H
 #define DILITHIUM_TESTVECTORS_H
-#include "lc_dilithium.h"
+#include "dilithium_type.h"
 struct dilithium_testvector {
 	uint8_t m[32];
 	uint8_t pk[LC_DILITHIUM_PUBLICKEYBYTES];

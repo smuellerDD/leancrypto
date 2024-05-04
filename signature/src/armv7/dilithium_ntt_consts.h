@@ -41,6 +41,8 @@
 #ifndef DILITHIUM_NTT_CONSTS_H
 #define DILITHIUM_NTT_CONSTS_H
 
+#include "dilithium_type.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

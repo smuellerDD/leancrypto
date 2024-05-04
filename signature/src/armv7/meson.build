@@ -9,15 +9,33 @@ dilithium_armv7 = files([
 	'dilithium_signature_armv7.c'
 ])
 
-leancrypto_dilithium_armv7_lib = static_library(
-		'leancrypto_dilithium_armv7_lib',
-		[ dilithium_armv7 ],
-		include_directories: [
-			'../',
-			include_dirs,
-			include_internal_dirs
-		],
-# 		c_args: cc_armv7_neon_simd_args,
-	)
+if get_option('dilithium_87').enabled()
+	leancrypto_dilithium_87_armv7_lib = static_library(
+			'leancrypto_dilithium_87_armv7_lib',
+			[ dilithium_armv7 ],
+			include_directories: [
+				'../',
+				include_dirs,
+				include_internal_dirs
+			],
+	# 		c_args: cc_armv7_neon_simd_args,
+		)
 
-leancrypto_support_libs += leancrypto_dilithium_armv7_lib
+	leancrypto_support_libs += leancrypto_dilithium_87_armv7_lib
+endif
+
+if get_option('dilithium_65').enabled()
+	leancrypto_dilithium_65_armv7_lib = static_library(
+			'leancrypto_dilithium_65_armv7_lib',
+			[ dilithium_armv7 ],
+			include_directories: [
+				'../',
+				include_dirs,
+				include_internal_dirs
+			],
+	# 		c_args: cc_armv7_neon_simd_args,
+			c_args: [ '-DLC_DILITHIUM_TYPE_65' ]
+		)
+
+	leancrypto_support_libs += leancrypto_dilithium_65_armv7_lib
+endif

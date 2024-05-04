@@ -20,14 +20,13 @@
 #include "cpufeatures.h"
 #include "ext_headers.h"
 #include "dilithium_tester.h"
-#include "lc_dilithium.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 
 #include "avx2/dilithium_signature_avx2.h"
 
-static int _dilithium_tester_suf_avx2(unsigned int rounds)
+static int _dilithium_tester_iuf_avx2(unsigned int rounds)
 {
 	if (!(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2))
 		return 77;
@@ -41,11 +40,11 @@ static int _dilithium_tester_suf_avx2(unsigned int rounds)
 		lc_dilithium_verify_final_avx2);
 }
 
-static int dilithium_tester_suf_avx2(void)
+static int dilithium_tester_iuf_avx2(void)
 {
 	int ret = 0;
 
-	ret += _dilithium_tester_suf_avx2(0);
+	ret += _dilithium_tester_iuf_avx2(0);
 
 	return ret;
 }
@@ -56,7 +55,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	(void)argv;
 
 	if (argc != 2)
-		return dilithium_tester_suf_avx2();
+		return dilithium_tester_iuf_avx2();
 
-	return _dilithium_tester_suf_avx2(10000);
+	return _dilithium_tester_iuf_avx2(10000);
 }

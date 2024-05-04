@@ -93,7 +93,7 @@ if get_option('sha3').enabled()
 	test('Hash cSHAKE256 Reinit', cshake_ctx_256_tester)
 	test('Keccak Permutation', keccak_tester)
 
-	if (x86_64_asm and get_option('dilithium_strength') == '5')
+	if (x86_64_asm)
 		shake128_4x_avx2_tester = executable('shake128_4x_avx2_tester',
 					[ 'shake128_4x_avx2_tester.c', internal_src ],
 					include_directories: [ include_internal_dirs ],
@@ -107,7 +107,7 @@ if get_option('sha3').enabled()
 
 		test('Hash SHAKE128 4x AVX2', shake128_4x_avx2_tester)
 		test('Hash SHAKE256 4x AVX2', shake256_4x_avx2_tester)
-	elif (arm64_asm and get_option('dilithium_strength') == '5')
+	elif (arm64_asm)
 		shake128_2x_armv8_tester = executable('shake128_2x_armv8_tester',
 					[ 'shake128_2x_armv8_tester.c', internal_src ],
 					include_directories: [ include_internal_dirs ],

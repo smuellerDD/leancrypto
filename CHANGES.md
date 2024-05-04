@@ -26,6 +26,8 @@ Changes 0.10.0
 
 * Enable compilation of Kyber 1024, Kyber-768 and Kyber-512 at the same time (APIs starting with lc_kyber_768/lc_kex_768 refer to Kyber-768, APIs starting with lc_kyber_512/lc_kex_512 refer to Kyber-512, all others refer to Kyber-1024)
 
+* Enable compilation of Dilithium 87, Dilithium-65 and Dilithium-44 at the same time (APIs starting with lc_dilithium_65 refer to Dilithium-768, APIs starting with lc_dilithium_44 refer to Dilithium-44, all others refer to Dilithium-87)
+
 Changes 0.9.2
 
 * fix: update "reduce memory footprint of Keccak state" to handle big-endian systems

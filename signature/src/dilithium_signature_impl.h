@@ -30,11 +30,11 @@
 
 #include "alignment.h"
 #include "build_bug_on.h"
+#include "dilithium_type.h"
 #include "dilithium_debug.h"
 #include "dilithium_pack.h"
 #include "dilithium_selftest.h"
 #include "dilithium_signature_impl.h"
-#include "lc_dilithium.h"
 #include "lc_hash.h"
 #include "lc_memcmp_secure.h"
 #include "lc_sha3.h"

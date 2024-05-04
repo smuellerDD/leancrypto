@@ -17,7 +17,7 @@
  * DAMAGE.
  */
 
-#include "lc_dilithium.h"
+#include "dilithium_type.h"
 #include "lc_rng.h"
 #include "small_stack_support.h"
 #include "visibility.h"

@@ -27,8 +27,6 @@
 
 #include "dilithium_rounding.h"
 
-#include "lc_dilithium.h"
-
 /**
  * @brief power2round - For finite field element a, compute a0, a1 such that
  *			a mod^+ Q = a1*2^D + a0 with -2^{D-1} < a0 <= 2^{D-1}.

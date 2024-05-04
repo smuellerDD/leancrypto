@@ -261,7 +261,7 @@ ccflags-y			:= -I$(PWD) -DLINUX_KERNEL -DLC_MEM_ON_HEAP    \
 				   -DMAJVERSION=0 -DMINVERSION=10 -DPATCHLEVEL=0
 asflags-$(CONFIG_LEANCRYPTO_KEM)					       \
 				+= -I$(PWD)/../internal/api -I$(PWD)/../kem/src\
-				   -DLINUX_KERNEL
+				   -I$(PWD)/../signature/src -DLINUX_KERNEL
 
 ifdef CONFIG_X86_64
 ccflags-y			+= -DLC_HOST_X86_64

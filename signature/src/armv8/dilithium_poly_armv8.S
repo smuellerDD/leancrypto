@@ -47,8 +47,7 @@
  */
 
 #include "assembler_support.h"
-#define LC_ASSEMBLER_INCLDUE
-#include "lc_dilithium.h"
+#include "dilithium_type.h"
 
 #include "macros.inc"
 

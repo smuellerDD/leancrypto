@@ -21,7 +21,7 @@
 #define DILITHIUM_POLYVEC_ARMV8_H
 
 #include "build_bug_on.h"
-#include "lc_dilithium.h"
+#include "dilithium_type.h"
 
 #ifdef __cplusplus
 extern "C" {

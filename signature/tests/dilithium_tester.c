@@ -30,7 +30,6 @@
 //#include "dilithium_polyvec.h"
 #include "dilithium_tester.h"
 #include "ext_headers.h"
-#include "lc_dilithium.h"
 #include "lc_hash.h"
 #include "lc_sha3.h"
 #include "selftest_rng.h"

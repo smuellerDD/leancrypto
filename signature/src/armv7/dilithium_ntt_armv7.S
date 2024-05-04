@@ -39,6 +39,7 @@
  */
 
 #include "assembler_support.h"
+#include "dilithium_type.h"
 
 .syntax unified
 

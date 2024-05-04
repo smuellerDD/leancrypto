@@ -24,7 +24,7 @@
 #include <linux/types.h>
 
 #include "kyber_kdf.h"
-#include "lc_kyber.h"
+#include "lc_kyber_1024.h"
 #include "lc_memset_secure.h"
 
 #include "leancrypto_kernel.h"

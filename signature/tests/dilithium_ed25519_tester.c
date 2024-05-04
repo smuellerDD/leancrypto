@@ -17,7 +17,7 @@
  * DAMAGE.
  */
 
-#include "lc_dilithium.h"
+#include "dilithium_tester.h"
 #include "ret_checkers.h"
 #include "selftest_rng.h"
 #include "small_stack_support.h"

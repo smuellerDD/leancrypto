@@ -29,8 +29,8 @@
 #define DILITHIUM_POLYVEC_H
 
 #include "conv_be_le.h"
+#include "dilithium_type.h"
 #include "dilithium_poly.h"
-#include "lc_dilithium.h"
 
 #ifdef __cplusplus
 extern "C" {

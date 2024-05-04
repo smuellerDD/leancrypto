@@ -29,11 +29,11 @@
 #define DILITHIUM_POLY_AVX2_H
 
 #include "alignment_x86.h"
+#include "dilithium_type.h"
 #include "dilithium_consts_avx2.h"
 #include "dilithium_ntt_avx2.h"
 #include "dilithium_rejsample_avx2.h"
 #include "dilithium_rounding_avx2.h"
-#include "lc_dilithium.h"
 
 #ifdef __cplusplus
 extern "C" {

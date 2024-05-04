@@ -1,7 +1,6 @@
 #include "assembler_support.h"
+#include "dilithium_type.h"
 #include "dilithium_consts_avx2.h"
-#define LC_ASSEMBLER_INCLDUE
-#include "lc_dilithium.h"
 
 .text
 SYM_FUNC_START(dilithium_pointwise_avx)

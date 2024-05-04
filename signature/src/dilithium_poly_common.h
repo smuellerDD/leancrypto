@@ -28,7 +28,7 @@
 #ifndef DILITHIUM_POLY_COMMON_H
 #define DILITHIUM_POLY_COMMON_H
 
-#include "lc_dilithium.h"
+#include "dilithium_type.h"
 
 #ifdef __cplusplus
 extern "C" {

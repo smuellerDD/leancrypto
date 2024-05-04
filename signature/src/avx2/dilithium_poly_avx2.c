@@ -26,10 +26,10 @@
  */
 
 #include "alignment_x86.h"
+#include "dilithium_type.h"
 #include "dilithium_poly_avx2.h"
 #include "../dilithium_service_helpers.h"
 #include "ext_headers_x86.h"
-#include "lc_dilithium.h"
 #include "lc_sha3.h"
 #include "shake_4x_avx2.h"
 

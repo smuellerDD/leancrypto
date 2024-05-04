@@ -20,8 +20,7 @@
 #ifndef DILITHIUM_POLY_ARMV7_H
 #define DILITHIUM_POLY_ARMV7_H
 
-#include "lc_dilithium.h"
-
+#include "dilithium_type.h"
 #include "dilithium_ntt_consts.h"
 
 #ifdef __cplusplus

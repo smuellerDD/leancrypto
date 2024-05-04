@@ -25,11 +25,11 @@
  * or Apache 2.0 License (https://www.apache.org/licenses/LICENSE-2.0.html).
  */
 
+#include "dilithium_type.h"
 #include "dilithium_consts_avx2.h"
 #include "dilithium_ntt_avx2.h"
 #include "dilithium_poly_avx2.h"
 #include "dilithium_polyvec_avx2.h"
-#include "lc_dilithium.h"
 
 /**
  * @brief polyvec_matrix_expand

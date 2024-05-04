@@ -29,7 +29,7 @@
 #define DILITHIUM_NTT_H
 
 #include "ext_headers.h"
-#include "lc_dilithium.h"
+#include "dilithium_type.h"
 
 #ifdef __cplusplus
 extern "C" {

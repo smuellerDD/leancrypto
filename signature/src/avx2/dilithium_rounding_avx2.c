@@ -25,11 +25,11 @@
  * or Apache 2.0 License (https://www.apache.org/licenses/LICENSE-2.0.html).
  */
 
+#include "dilithium_type.h"
 #include "dilithium_consts_avx2.h"
 #include "dilithium_rejsample_avx2.h"
 #include "dilithium_rounding_avx2.h"
 #include "ext_headers_x86.h"
-#include "lc_dilithium.h"
 
 #define _mm256_blendv_epi32(a, b, mask)                                        \
 	_mm256_castps_si256(_mm256_blendv_ps(_mm256_castsi256_ps(a),           \

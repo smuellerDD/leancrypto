@@ -14,17 +14,30 @@ dilithium_avx2 = files([
 	'dilithium_shuffle_avx2.S',
 ])
 
-leancrypto_dilithium_avx2_lib = static_library(
-		'leancrypto_dilithium_avx2_lib',
-		[ dilithium_avx2 ],
-		include_directories: [
-			'../',
-			include_dirs,
-			include_internal_dirs
-		],
-		c_args: cc_avx2_args
-	)
+if get_option('dilithium_87').enabled()
+	leancrypto_dilithium_87_avx2_lib = static_library(
+			'leancrypto_dilithium_87_avx2_lib',
+			[ dilithium_avx2 ],
+			include_directories: [
+				'../',
+				include_dirs,
+				include_internal_dirs
+			],
+			c_args: cc_avx2_args
+		)
+	leancrypto_support_libs += leancrypto_dilithium_87_avx2_lib
+endif
 
-#-Wl,--whole-archive kem/src/avx2/libleancrypto_kyber_avx2_lib.a -Wl,--no-whole-archive
-
-leancrypto_support_libs += leancrypto_dilithium_avx2_lib
+if get_option('dilithium_65').enabled()
+	leancrypto_dilithium_65_avx2_lib = static_library(
+			'leancrypto_dilithium_65_avx2_lib',
+			[ dilithium_avx2 ],
+			include_directories: [
+				'../',
+				include_dirs,
+				include_internal_dirs
+			],
+			c_args: [ cc_avx2_args, '-DLC_DILITHIUM_TYPE_65' ]
+		)
+	leancrypto_support_libs += leancrypto_dilithium_65_avx2_lib
+endif

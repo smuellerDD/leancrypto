@@ -1,4 +1,5 @@
 #include "assembler_support.h"
+#include "dilithium_type.h"
 #include "dilithium_consts_avx2.h"
 #include "dilithium_shuffle_avx2.inc"
 

@@ -17,9 +17,9 @@
  * DAMAGE.
  */
 
+#include "dilithium_type.h"
 #include "dilithium_signature_armv7.h"
 #include "../dilithium_signature_c.h"
-#include "lc_dilithium.h"
 #include "visibility.h"
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair, struct lc_dilithium_pk *pk,

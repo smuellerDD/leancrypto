@@ -17,6 +17,7 @@
  * DAMAGE.
  */
 
+#include "dilithium_type.h"
 #include "dilithium_signature_armv8.h"
 #include "visibility.h"
 

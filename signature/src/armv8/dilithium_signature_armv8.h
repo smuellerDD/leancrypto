@@ -20,7 +20,7 @@
 #ifndef DILITHIUM_SIGNATURE_ARMV8_H
 #define DILITHIUM_SIGNATURE_ARMV8_H
 
-#include "lc_dilithium.h"
+#include "dilithium_type.h"
 #include "lc_rng.h"
 
 #ifdef __cplusplus

@@ -20,8 +20,7 @@
 #ifndef DILITHIUM_DEBUG_H
 #define DILITHIUM_DEBUG_H
 
-#include "dilithium_polyvec.h"
-#include "lc_dilithium.h"
+#include "dilithium_type.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -17,8 +17,8 @@
  * DAMAGE.
  */
 
+#include "dilithium_type.h"
 #include "ed25519.h"
-#include "lc_dilithium.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 

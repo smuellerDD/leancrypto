@@ -27,7 +27,6 @@
 
 #include "dilithium_rejsample_avx2.h"
 #include "ext_headers_x86.h"
-#include "lc_dilithium.h"
 
 const uint8_t idxlut[256][8] = {
 	{ 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0, 0, 0 },

@@ -1,4 +1,5 @@
 #include "assembler_support.h"
+#include "dilithium_type.h"
 #include "dilithium_shuffle_avx2.inc"
 
 .macro nttunpack128_avx

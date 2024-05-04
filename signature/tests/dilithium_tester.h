@@ -20,7 +20,7 @@
 #ifndef DILITHIUM_TESTER_H
 #define DILITHIUM_TESTER_H
 
-#include "lc_dilithium.h"
+#include "dilithium_type.h"
 
 #ifdef __cplusplus
 extern "C" {
