@@ -20,7 +20,7 @@
 #include "compare.h"
 #include "lc_rng.h"
 #include "ret_checkers.h"
-#include "x25519.h"
+#include "lc_x25519.h"
 #include "x25519_scalarmult.h"
 
 static void lc_x25519_keypair_selftest(int *tested)

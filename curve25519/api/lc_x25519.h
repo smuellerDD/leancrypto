@@ -17,15 +17,30 @@
  * DAMAGE.
  */
 
-#ifndef X25519_H
-#define X25519_H
+#ifndef LC_X25519_H
+#define LC_X25519_H
 
-#include "ext_headers.h"
-#include "kyber_type.h"
+#include "lc_rng.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define LC_X25519_SECRETKEYBYTES (32U)
+#define LC_X25519_PUBLICKEYBYTES (32U)
+#define LC_X25519_SSBYTES (32U)
+
+struct lc_x25519_sk {
+	uint8_t sk[LC_X25519_SECRETKEYBYTES];
+};
+
+struct lc_x25519_pk {
+	uint8_t pk[LC_X25519_PUBLICKEYBYTES];
+};
+
+struct lc_x25519_ss {
+	uint8_t ss[LC_X25519_SSBYTES];
+};
 
 int lc_x25519_keypair(struct lc_x25519_pk *pk, struct lc_x25519_sk *sk,
 		      struct lc_rng_ctx *rng_ctx);
@@ -36,4 +51,4 @@ int lc_x25519_ss(struct lc_x25519_ss *ss, const struct lc_x25519_pk *pk,
 }
 #endif
 
-#endif /* X25519_H */
+#endif /* LC_X25519_H */

@@ -17,7 +17,7 @@
  * DAMAGE.
  */
 
-#include "ed25519.h"
+#include "lc_ed25519.h"
 #include "compare.h"
 #include "selftest_rng.h"
 #include "ret_checkers.h"

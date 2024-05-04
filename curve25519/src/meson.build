@@ -6,6 +6,11 @@ if get_option('kyber_x25519').enabled() or get_option('dilithium_ed25519').enabl
 		'x25519_scalarmult_c.c',
 	])
 
+	include_files += files([
+		'../api/lc_ed25519.h',
+		'../api/lc_x25519.h',
+	])
+
 	if (x86_64_asm)
 		subdir('avx')
 	else

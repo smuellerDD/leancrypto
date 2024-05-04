@@ -19,7 +19,7 @@
 
 #include "ext_headers.h"
 
-#include "x25519.h"
+#include "lc_x25519.h"
 #include "../src/x25519_scalarmult.h"
 #include "../src/x25519_scalarmult_c.h"
 #include "compare.h"

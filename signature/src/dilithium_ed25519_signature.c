@@ -18,7 +18,7 @@
  */
 
 #include "dilithium_type.h"
-#include "ed25519.h"
+#include "lc_ed25519.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 

@@ -27,7 +27,7 @@
  */
 
 #include "compare.h"
-#include "ed25519.h"
+#include "lc_ed25519.h"
 #include "ed25519_ref10.h"
 #include "ext_headers.h"
 #include "lc_sha512.h"

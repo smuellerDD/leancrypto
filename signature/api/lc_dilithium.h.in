@@ -31,6 +31,7 @@
 #ifndef __ASSEMBLER__
 
 #include "ext_headers.h"
+#include "lc_ed25519.h"
 #include "lc_hash.h"
 #include "lc_rng.h"
 
@@ -322,22 +323,6 @@ int @dilithium_name@_verify_final(struct @dilithium_name@_sig *sig,
 /* Macro set during leancrypto compile time for target platform */
 #mesondefine LC_DILITHIUM_ED25519_SIG
 #ifdef LC_DILITHIUM_ED25519_SIG
-
-#define LC_ED25519_SECRETKEYBYTES (64U)
-#define LC_ED25519_PUBLICKEYBYTES (32U)
-#define LC_ED25519_SIGBYTES (64U)
-
-struct lc_ed25519_sk {
-	uint8_t sk[LC_ED25519_SECRETKEYBYTES];
-};
-
-struct lc_ed25519_pk {
-	uint8_t pk[LC_ED25519_PUBLICKEYBYTES];
-};
-
-struct lc_ed25519_sig {
-	uint8_t sig[LC_ED25519_SIGBYTES];
-};
 
 /**
  * @brief Dilithium secret key

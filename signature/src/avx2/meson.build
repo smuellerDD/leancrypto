@@ -42,7 +42,7 @@ if get_option('dilithium_65').enabled()
 			include_directories: [
 				'../',
 				include_dirs,
-				include_internal_dirs
+				include_internal_dirs,
 			],
 			c_args: [ cc_avx2_args, '-DLC_DILITHIUM_TYPE_65' ]
 		)
