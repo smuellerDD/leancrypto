@@ -28,7 +28,7 @@ endif
 
 if get_option('dilithium_65').enabled()
 	leancrypto_dilithium_65_armv8_lib = static_library(
-			'v',
+			'leancrypto_dilithium_65_armv8_lib',
 			[ dilithium_armv8 ],
 			include_directories: [
 				'../',
