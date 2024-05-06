@@ -53,8 +53,8 @@
 #include "NTT_params.h"
 
 const int streamlined_CT_negacyclic_table_Q1_extended[(NTT_N + (1 << 0) +
-							      (1 << 4))
-							     << 1] = {
+						       (1 << 4))
+						      << 1] = {
 	0,	     0,	       -915382907,  -3572223, 964937599,   3765607,
 	963888510,   3761513,  -820383522,  -3201494, -738955404,  -2883726,
 	-806080660,  -3145678, -820367122,  -3201430, -154181397,  -601683,
@@ -148,9 +148,8 @@ const int streamlined_CT_negacyclic_table_Q1_extended[(NTT_N + (1 << 0) +
 	270210213,   1054478,  -187430119,  -731434,  0,	   0
 };
 
-const int streamlined_inv_CT_table_Q1_extended[(NTT_N + (1 << 0) +
-						       (1 << 4))
-						      << 1] = {
+const int streamlined_inv_CT_table_Q1_extended[(NTT_N + (1 << 0) + (1 << 4))
+					       << 1] = {
 	0,	    0,	      915382907,   3572223,  -963888510,  -3761513,
 	-964937599, -3765607, 820367122,   3201430,  806080660,	  3145678,
 	738955404,  2883726,  820383522,   3201494,  312926867,	  1221177,
@@ -245,10 +244,10 @@ const int streamlined_inv_CT_table_Q1_extended[(NTT_N + (1 << 0) +
 };
 
 const int constants[8] = { Q1,
-				  Q1prime,
-				  RmodQ1_prime_half,
-				  RmodQ1_doubleprime,
-				  invNQ1R2modQ1_prime_half,
-				  invNQ1R2modQ1_doubleprime,
-				  invNQ1_final_R2modQ1_prime_half,
-				  invNQ1_final_R2modQ1_doubleprime };
+			   Q1prime,
+			   RmodQ1_prime_half,
+			   RmodQ1_doubleprime,
+			   invNQ1R2modQ1_prime_half,
+			   invNQ1R2modQ1_doubleprime,
+			   invNQ1_final_R2modQ1_prime_half,
+			   invNQ1_final_R2modQ1_doubleprime };

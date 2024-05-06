@@ -61,7 +61,6 @@ poly_cbd_eta2(poly *r, const uint8_t buf[LC_KYBER_ETA2 * LC_KYBER_N / 4])
 #endif
 }
 
-
 #ifdef __cplusplus
 }
 #endif

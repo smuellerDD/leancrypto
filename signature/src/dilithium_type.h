@@ -37,31 +37,31 @@ extern "C" {
  * compilation different sizes would not be possible.
  */
 #ifdef LC_DILITHIUM_TYPE_65
-# define DILITHIUM_F(name) lc_dilithium_65_##name
-# define lc_dilithium_pk lc_dilithium_65_pk
-# define lc_dilithium_sk lc_dilithium_65_sk
-# define lc_dilithium_sig lc_dilithium_65_sig
-# define lc_dilithium_ed25519_pk lc_dilithium_65_ed25519_pk
-# define lc_dilithium_ed25519_sk lc_dilithium_65_ed25519_sk
-# define lc_dilithium_ed25519_sig lc_dilithium_65_ed25519_sig
+#define DILITHIUM_F(name) lc_dilithium_65_##name
+#define lc_dilithium_pk lc_dilithium_65_pk
+#define lc_dilithium_sk lc_dilithium_65_sk
+#define lc_dilithium_sig lc_dilithium_65_sig
+#define lc_dilithium_ed25519_pk lc_dilithium_65_ed25519_pk
+#define lc_dilithium_ed25519_sk lc_dilithium_65_ed25519_sk
+#define lc_dilithium_ed25519_sig lc_dilithium_65_ed25519_sig
 
-# include "lc_dilithium_65.h"
+#include "lc_dilithium_65.h"
 
 #elif defined LC_DILITHIUM_TYPE_44
-# define DILITHIUM_F(name) lc_dilithium_44_##name
-# define lc_dilithium_pk lc_dilithium_44_pk
-# define lc_dilithium_sk lc_dilithium_44_sk
-# define lc_dilithium_sig lc_dilithium_44_sig
-# define lc_dilithium_ed25519_pk lc_dilithium_44_ed25519_pk
-# define lc_dilithium_ed25519_sk lc_dilithium_44_ed25519_sk
-# define lc_dilithium_ed25519_sig lc_dilithium_44_ed25519_sig
+#define DILITHIUM_F(name) lc_dilithium_44_##name
+#define lc_dilithium_pk lc_dilithium_44_pk
+#define lc_dilithium_sk lc_dilithium_44_sk
+#define lc_dilithium_sig lc_dilithium_44_sig
+#define lc_dilithium_ed25519_pk lc_dilithium_44_ed25519_pk
+#define lc_dilithium_ed25519_sk lc_dilithium_44_ed25519_sk
+#define lc_dilithium_ed25519_sig lc_dilithium_44_ed25519_sig
 
-# include "lc_dilithium_44.h"
+#include "lc_dilithium_44.h"
 
 #else
-# define DILITHIUM_F(name) lc_dilithium_##name
+#define DILITHIUM_F(name) lc_dilithium_##name
 
-# include "lc_dilithium_87.h"
+#include "lc_dilithium_87.h"
 
 #endif
 
@@ -186,8 +186,10 @@ extern "C" {
 #define poly_reduce_armv8 DILITHIUM_F(poly_reduce_armv8)
 #define poly_caddq_armv8 DILITHIUM_F(poly_caddq_armv8)
 #define poly_power2round_armv8 DILITHIUM_F(poly_power2round_armv8)
-#define poly_pointwise_montgomery_armv8 DILITHIUM_F(poly_pointwise_montgomery_armv8)
-#define polyvecl_pointwise_acc_montgomery_armv8 DILITHIUM_F(polyvecl_pointwise_acc_montgomery_armv8)
+#define poly_pointwise_montgomery_armv8                                        \
+	DILITHIUM_F(poly_pointwise_montgomery_armv8)
+#define polyvecl_pointwise_acc_montgomery_armv8                                \
+	DILITHIUM_F(polyvecl_pointwise_acc_montgomery_armv8)
 #define lc_dilithium_keypair_armv8 DILITHIUM_F(keypair_armv8)
 #define lc_dilithium_sign_armv8 DILITHIUM_F(sign_armv8)
 #define lc_dilithium_sign_init_armv8 DILITHIUM_F(sign_init_armv8)
@@ -201,8 +203,10 @@ extern "C" {
 /* ARMv7 Implementation */
 #define armv7_ntt_asm_smull DILITHIUM_F(armv7_ntt_asm_smull)
 #define armv7_inv_ntt_asm_smull DILITHIUM_F(armv7_inv_ntt_asm_smull)
-#define armv7_poly_pointwise_invmontgomery_asm_smull DILITHIUM_F(armv7_poly_pointwise_invmontgomery_asm_smull)
-#define armv7_poly_pointwise_acc_invmontgomery_asm_smull DILITHIUM_F(armv7_poly_pointwise_acc_invmontgomery_asm_smull)
+#define armv7_poly_pointwise_invmontgomery_asm_smull                           \
+	DILITHIUM_F(armv7_poly_pointwise_invmontgomery_asm_smull)
+#define armv7_poly_pointwise_acc_invmontgomery_asm_smull                       \
+	DILITHIUM_F(armv7_poly_pointwise_acc_invmontgomery_asm_smull)
 #define poly_uniform_armv7 DILITHIUM_F(poly_uniform_armv7)
 #define armv7_poly_reduce_asm DILITHIUM_F(armv7_poly_reduce_asm)
 #define armv7_rej_uniform_asm DILITHIUM_F(armv7_rej_uniform_asm)

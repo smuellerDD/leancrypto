@@ -154,7 +154,7 @@ void poly_decompress_avx(poly *restrict r,
 
 #elif (LC_KYBER_POLYCOMPRESSEDBYTES == 128)
 void poly_compress_avx(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES],
-		       const poly * restrict a)
+		       const poly *restrict a)
 {
 	unsigned int i;
 	__m256i f0, f1, f2, f3;
@@ -165,7 +165,7 @@ void poly_compress_avx(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES],
 	const __m256i shift1 = _mm256_set1_epi16(1 << 9);
 	const __m256i mask = _mm256_set1_epi16(15);
 	const __m256i shift2 = _mm256_set1_epi16((16 << 8) + 1);
-	const __m256i permdidx = _mm256_set_epi32(7, 3 ,6, 2, 5, 1, 4, 0);
+	const __m256i permdidx = _mm256_set_epi32(7, 3, 6, 2, 5, 1, 4, 0);
 #pragma GCC diagnostic pop
 
 	LC_FPU_ENABLE;
@@ -197,7 +197,7 @@ void poly_compress_avx(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES],
 	LC_FPU_DISABLE;
 }
 
-void poly_decompress_avx(poly * restrict r,
+void poly_decompress_avx(poly *restrict r,
 			 const uint8_t a[LC_KYBER_POLYCOMPRESSEDBYTES])
 {
 	unsigned int i;
@@ -206,17 +206,16 @@ void poly_decompress_avx(poly * restrict r,
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
-	const __m256i q = _mm256_load_si256(&kyber_qdata.vec[_16XQ/16]);
-	const __m256i shufbidx = _mm256_set_epi8(7, 7, 7, 7, 6, 6, 6, 6, 5, 5,
-						 5, 5, 4, 4, 4, 4, 3, 3, 3, 3,
-						 2, 2, 2, 2, 1, 1, 1, 1, 0, 0,
-						 0, 0);
+	const __m256i q = _mm256_load_si256(&kyber_qdata.vec[_16XQ / 16]);
+	const __m256i shufbidx =
+		_mm256_set_epi8(7, 7, 7, 7, 6, 6, 6, 6, 5, 5, 5, 5, 4, 4, 4, 4,
+				3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0);
 	const __m256i mask = _mm256_set1_epi32(0x00F0000F);
 	const __m256i shift = _mm256_set1_epi32((128 << 16) + 2048);
 #pragma GCC diagnostic pop
 
 	LC_FPU_ENABLE;
-	for (i =0; i < LC_KYBER_N / 16; i++) {
+	for (i = 0; i < LC_KYBER_N / 16; i++) {
 		t = _mm_loadl_epi64((__m128i_u *)&a[8 * i]);
 		f = _mm256_broadcastsi128_si256(t);
 		f = _mm256_shuffle_epi8(f, shufbidx);

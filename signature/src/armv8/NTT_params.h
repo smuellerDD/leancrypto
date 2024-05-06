@@ -99,9 +99,8 @@ extern const int streamlined_CT_negacyclic_table_Q1_extended[(NTT_N + (1 << 0) +
 							      (1 << 4))
 							     << 1];
 
-extern const int streamlined_inv_CT_table_Q1_extended[(NTT_N + (1 << 0) +
-						       (1 << 4))
-						      << 1];
+extern const int
+	streamlined_inv_CT_table_Q1_extended[(NTT_N + (1 << 0) + (1 << 4)) << 1];
 
 extern const int constants[8];
 

@@ -893,9 +893,11 @@ void KeccakP1600times4_PermuteAll_24rounds(void *states)
 		unsigned int i;
 #endif
 
+	// clang-format off
 	copyFromState(A, statesAsLanes)
 	rounds24
 	copyToState(statesAsLanes, A)
+	// clang-format on
 }
 
 void KeccakP1600times4_PermuteAll_12rounds(void *states)
@@ -906,9 +908,11 @@ void KeccakP1600times4_PermuteAll_12rounds(void *states)
 		unsigned int i;
 #endif
 
+	// clang-format off
 	copyFromState(A, statesAsLanes)
 	rounds12
 	copyToState(statesAsLanes, A)
+	// clang-format on
 }
 
 size_t KeccakF1600times4_FastLoop_Absorb(void *states, unsigned int laneCount,

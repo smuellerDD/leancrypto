@@ -37,38 +37,38 @@ extern "C" {
  * compilation different sizes would not be possible.
  */
 #ifdef LC_KYBER_TYPE_768
-# define KYBER_F(name) lc_kyber_768_##name
-# define KEX_F(name) lc_kex_768_##name
-# define lc_kyber_pk lc_kyber_768_pk
-# define lc_kyber_sk lc_kyber_768_sk
-# define lc_kyber_ct lc_kyber_768_ct
-# define lc_kyber_ss lc_kyber_768_ss
-# define lc_kyber_x25519_pk lc_kyber_768_x25519_pk
-# define lc_kyber_x25519_sk lc_kyber_768_x25519_sk
-# define lc_kyber_x25519_ct lc_kyber_768_x25519_ct
-# define lc_kyber_x25519_ss lc_kyber_768_x25519_ss
+#define KYBER_F(name) lc_kyber_768_##name
+#define KEX_F(name) lc_kex_768_##name
+#define lc_kyber_pk lc_kyber_768_pk
+#define lc_kyber_sk lc_kyber_768_sk
+#define lc_kyber_ct lc_kyber_768_ct
+#define lc_kyber_ss lc_kyber_768_ss
+#define lc_kyber_x25519_pk lc_kyber_768_x25519_pk
+#define lc_kyber_x25519_sk lc_kyber_768_x25519_sk
+#define lc_kyber_x25519_ct lc_kyber_768_x25519_ct
+#define lc_kyber_x25519_ss lc_kyber_768_x25519_ss
 
-# include "lc_kyber_768.h"
+#include "lc_kyber_768.h"
 
 #elif defined LC_KYBER_TYPE_512
-# define KYBER_F(name) lc_kyber_512_##name
-# define KEX_F(name) lc_kex_512_##name
-# define lc_kyber_pk lc_kyber_512_pk
-# define lc_kyber_sk lc_kyber_512_sk
-# define lc_kyber_ct lc_kyber_512_ct
-# define lc_kyber_ss lc_kyber_512_ss
-# define lc_kyber_x25519_pk lc_kyber_512_x25519_pk
-# define lc_kyber_x25519_sk lc_kyber_512_x25519_sk
-# define lc_kyber_x25519_ct lc_kyber_512_x25519_ct
-# define lc_kyber_x25519_ss lc_kyber_512_x25519_ss
+#define KYBER_F(name) lc_kyber_512_##name
+#define KEX_F(name) lc_kex_512_##name
+#define lc_kyber_pk lc_kyber_512_pk
+#define lc_kyber_sk lc_kyber_512_sk
+#define lc_kyber_ct lc_kyber_512_ct
+#define lc_kyber_ss lc_kyber_512_ss
+#define lc_kyber_x25519_pk lc_kyber_512_x25519_pk
+#define lc_kyber_x25519_sk lc_kyber_512_x25519_sk
+#define lc_kyber_x25519_ct lc_kyber_512_x25519_ct
+#define lc_kyber_x25519_ss lc_kyber_512_x25519_ss
 
-# include "lc_kyber_512.h"
+#include "lc_kyber_512.h"
 
 #else
-# define KYBER_F(name) lc_kyber_##name
-# define KEX_F(name) lc_kex_##name
+#define KYBER_F(name) lc_kyber_##name
+#define KEX_F(name) lc_kex_##name
 
-# include "lc_kyber_1024.h"
+#include "lc_kyber_1024.h"
 
 #endif
 
@@ -136,17 +136,22 @@ extern "C" {
 #define lc_kyber_enc_kdf_internal KYBER_F(enc_kdf_internal)
 #define lc_kyber_x25519_enc_kdf_internal KYBER_F(x25519_enc_kdf_internal)
 #define lc_kex_uake_initiator_init_internal KEX_F(initiator_init_internal)
-#define lc_kex_x25519_uake_initiator_init_internal KEX_F(lc_kex_x25519_uake_initiator_init_internal)
+#define lc_kex_x25519_uake_initiator_init_internal                             \
+	KEX_F(lc_kex_x25519_uake_initiator_init_internal)
 #define lc_kex_uake_responder_ss_internal KEX_F(uake_responder_ss_internal)
-#define lc_kex_x25519_uake_responder_ss_internal KEX_F(x25519_uake_responder_ss_internal)
+#define lc_kex_x25519_uake_responder_ss_internal                               \
+	KEX_F(x25519_uake_responder_ss_internal)
 #define lc_kex_ake_initiator_init_internal KEX_F(ake_initiator_init_internal)
-#define lc_kex_x25519_ake_initiator_init_internal KEX_F(x25519_ake_initiator_init_internal)
+#define lc_kex_x25519_ake_initiator_init_internal                              \
+	KEX_F(x25519_ake_initiator_init_internal)
 #define lc_kex_ake_responder_ss_internal KEX_F(ake_responder_ss_internal)
-#define lc_kex_x25519_ake_responder_ss_internal KEX_F(x25519_ake_responder_ss_internal)
+#define lc_kex_x25519_ake_responder_ss_internal                                \
+	KEX_F(x25519_ake_responder_ss_internal)
 #define lc_kyber_ies_enc_internal KYBER_F(ies_enc_internal)
 #define lc_kyber_x25519_ies_enc_internal KYBER_F(x25519_ies_enc_internal)
 #define lc_kyber_ies_enc_init_internal KYBER_F(ies_enc_init_internal)
-#define lc_kyber_x25519_ies_enc_init_internal KYBER_F(x25519_ies_enc_init_internal)
+#define lc_kyber_x25519_ies_enc_init_internal                                  \
+	KYBER_F(x25519_ies_enc_init_internal)
 
 #define poly_cbd_eta1 KYBER_F(poly_cbd_eta1)
 #define poly_cbd_eta2 KYBER_F(poly_cbd_eta2)

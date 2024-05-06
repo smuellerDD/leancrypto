@@ -36,7 +36,7 @@ extern "C" {
 	((136 + LC_SHAKE_256_SIZE_BLOCK - 1) / LC_SHAKE_256_SIZE_BLOCK)
 #elif LC_DILITHIUM_ETA == 4
 #define REJ_UNIFORM_ETA_NBLOCKS                                                \
-	((227 + LC_SHAKE_256_SIZE_BLOCK - 1 ) / LC_SHAKE_256_SIZE_BLOCK)
+	((227 + LC_SHAKE_256_SIZE_BLOCK - 1) / LC_SHAKE_256_SIZE_BLOCK)
 #else
 #error "Undefined LC_DILITHIUM_ETA"
 #endif
