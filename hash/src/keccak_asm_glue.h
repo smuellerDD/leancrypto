@@ -221,7 +221,7 @@ static inline void cshake_256_asm_init(void *_state,
 static inline void
 keccak_asm_absorb(void *_state, const uint8_t *in, size_t inlen,
 		  void (*AddBytes)(void *state, const unsigned char *data,
-				   unsigned int offset, unsigned int length),
+				   size_t offset, size_t length),
 		  void (*Permute)(void *state),
 		  size_t (*FastLoop_Absorb)(void *state, unsigned int laneCount,
 					    const unsigned char *data,
@@ -250,8 +250,7 @@ keccak_asm_absorb(void *_state, const uint8_t *in, size_t inlen,
 		 * buffer, copy it and leave it unprocessed.
 		 */
 		if (inlen < todo) {
-			AddBytes(ctx->state, in, (unsigned int)partial,
-				 (unsigned int)inlen);
+			AddBytes(ctx->state, in, partial, inlen);
 			return;
 		}
 
@@ -259,8 +258,7 @@ keccak_asm_absorb(void *_state, const uint8_t *in, size_t inlen,
 		 * The input data is large enough to fill the entire partial
 		 * block buffer. Thus, we fill it and transform it.
 		 */
-		AddBytes(ctx->state, in, (unsigned int)partial,
-			 (unsigned int)todo);
+		AddBytes(ctx->state, in, partial, todo);
 		inlen -= todo;
 		in += todo;
 
@@ -285,7 +283,7 @@ keccak_asm_absorb(void *_state, const uint8_t *in, size_t inlen,
 	}
 
 	/* If we have data left, copy it into the partial block buffer */
-	AddBytes(ctx->state, in, 0, (unsigned int)inlen);
+	AddBytes(ctx->state, in, 0, inlen);
 }
 
 static inline void keccak_asm_absorb_last_bits(

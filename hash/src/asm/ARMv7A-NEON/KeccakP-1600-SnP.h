@@ -48,8 +48,8 @@ static inline void KeccakP1600_AddByte(void *state, unsigned char byte,
 {
 	((unsigned char *)state)[offset] ^= (byte);
 }
-void KeccakP1600_AddBytes(void *state, const unsigned char *data,
-			  unsigned int offset, unsigned int length);
+void KeccakP1600_AddBytes(void *state, const unsigned char *data, size_t offset,
+			  size_t length);
 void KeccakP1600_OverwriteBytes(void *state, const unsigned char *data,
 				unsigned int offset, unsigned int length);
 void KeccakP1600_OverwriteWithZeroes(void *state, unsigned int byteCount);

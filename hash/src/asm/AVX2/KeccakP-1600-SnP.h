@@ -45,7 +45,7 @@ void KeccakP1600_AVX2_Initialize(void *state);
 void KeccakP1600_AVX2_AddByte(void *state, unsigned char data,
 			      unsigned int offset);
 void KeccakP1600_AVX2_AddBytes(void *state, const unsigned char *data,
-			       unsigned int offset, unsigned int length);
+			       size_t offset, size_t length);
 void KeccakP1600_AVX2_OverwriteBytes(void *state, const unsigned char *data,
 				     unsigned int offset, unsigned int length);
 void KeccakP1600_AVX2_OverwriteWithZeroes(void *state, unsigned int byteCount);

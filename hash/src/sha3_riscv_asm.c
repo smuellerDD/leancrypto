@@ -104,10 +104,9 @@ static inline void keccakf1600_add_byte(void *state, const unsigned char byte,
 }
 
 static inline void keccakf1600_add_bytes(void *state, const unsigned char *data,
-					 unsigned int offset,
-					 unsigned int length)
+					 size_t offset, size_t length)
 {
-	unsigned int i;
+	size_t i;
 
 	for (i = 0; i < length; i++)
 		keccakf1600_add_byte(state, data[i], offset + i);
@@ -152,7 +151,7 @@ static void keccak_riscv_asm_squeeze(void *_state, uint8_t *digest)
 }
 
 static void keccak_riscv_add_bytes(void *state, const unsigned char *data,
-				   unsigned int offset, unsigned int length)
+				   size_t offset, size_t int length)
 {
 	keccakf1600_add_bytes(state, data, offset, length);
 }

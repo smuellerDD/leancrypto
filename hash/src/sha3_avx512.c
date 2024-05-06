@@ -125,7 +125,7 @@ static void keccak_avx512_permutation(void *state, unsigned int rounds)
 }
 
 static void keccak_avx512_add_bytes(void *state, const uint8_t *data,
-				    unsigned int offset, unsigned int length)
+				    size_t offset, size_t length)
 {
 	LC_FPU_ENABLE;
 	KeccakP1600_AVX512_AddBytes(state, data, offset, length);
@@ -150,12 +150,10 @@ static void keccak_avx512_newstate(void *state, const uint8_t *data,
 	uint8_t tmp[200];
 
 	keccak_avx512_extract_bytes(state, tmp, offset, length);
-	keccak_avx512_add_bytes(state, data, (unsigned int)offset,
-				(unsigned int)length);
+	keccak_avx512_add_bytes(state, data, offset, length);
 
 	/* The following XOR masks out the existing data. */
-	keccak_avx512_add_bytes(state, tmp, (unsigned int)offset,
-				(unsigned int)length);
+	keccak_avx512_add_bytes(state, tmp, offset, length);
 
 	lc_memset_secure(tmp, 0, length);
 }

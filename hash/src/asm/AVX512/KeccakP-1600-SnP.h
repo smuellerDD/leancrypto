@@ -49,7 +49,7 @@ static inline void KeccakP1600_AVX512_AddByte(void *state, unsigned char byte,
 	((unsigned char *)(state))[(offset)] ^= (byte);
 }
 void KeccakP1600_AVX512_AddBytes(void *state, const unsigned char *data,
-				 unsigned int offset, unsigned int length);
+				 size_t offset, size_t length);
 void KeccakP1600_AVX512_OverwriteBytes(void *state, const unsigned char *data,
 				       unsigned int offset,
 				       unsigned int length);

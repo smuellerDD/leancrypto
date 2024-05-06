@@ -191,7 +191,7 @@ static void keccak_c_permutation(void *state, unsigned int rounds)
 }
 
 static void keccak_c_add_bytes(void *state, const uint8_t *data,
-			       unsigned int offset, unsigned int length)
+			       size_t offset, size_t length)
 {
 	sha3_fill_state_bytes((uint64_t *)state, data, offset, length);
 }

@@ -117,7 +117,7 @@ static void keccak_avx2_permutation(void *state, unsigned int rounds)
 }
 
 static void keccak_avx2_add_bytes(void *state, const uint8_t *data,
-				  unsigned int offset, unsigned int length)
+				  size_t offset, size_t length)
 {
 	LC_FPU_ENABLE;
 	KeccakP1600_AVX2_AddBytes(state, data, offset, length);

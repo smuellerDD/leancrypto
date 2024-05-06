@@ -91,22 +91,18 @@ static int lc_ascon_setkey(void *state, const uint8_t *key, size_t keylen,
 	memcpy(ascon->key, key, keylen);
 
 	/* Insert key past the IV. */
-	lc_sponge_add_bytes(hash, state_mem, key,
-			    (unsigned int)(sizeof(uint64_t)),
-			    (unsigned int)keylen);
+	lc_sponge_add_bytes(hash, state_mem, key, sizeof(uint64_t), keylen);
 
 	/* Insert nonce past the key. */
-	lc_sponge_add_bytes(hash, state_mem, nonce,
-			    (unsigned int)(sizeof(uint64_t) + keylen),
-			    (unsigned int)noncelen);
+	lc_sponge_add_bytes(hash, state_mem, nonce, sizeof(uint64_t) + keylen,
+			    noncelen);
 
 	/* Sponge permutation */
 	lc_sponge(hash, state_mem, 12);
 
 	/* XOR key to last part of capacity */
-	lc_sponge_add_bytes(hash, state_mem, key,
-			    (unsigned int)(ascon->statesize - keylen),
-			    (unsigned int)keylen);
+	lc_sponge_add_bytes(hash, state_mem, key, ascon->statesize - keylen,
+			    keylen);
 
 	return 0;
 }
@@ -127,7 +123,7 @@ static void lc_ascon_add_padbyte(struct lc_ascon_cryptor *ascon, size_t offset)
 	if (offset == hash->sponge_rate)
 		offset = 0;
 
-	lc_sponge_add_bytes(hash, ascon->state, &pad_data, (unsigned int)offset,
+	lc_sponge_add_bytes(hash, ascon->state, &pad_data, offset,
 			    1);
 }
 
@@ -152,7 +148,7 @@ static void lc_ascon_aad(struct lc_ascon_cryptor *ascon, const uint8_t *aad,
 		lc_sponge(hash, state_mem, ascon->roundb);
 	}
 
-	lc_sponge_add_bytes(hash, state_mem, aad, 0, (unsigned int)aadlen);
+	lc_sponge_add_bytes(hash, state_mem, aad, 0, aadlen);
 	lc_ascon_add_padbyte(ascon, aadlen);
 
 	lc_sponge(hash, state_mem, ascon->roundb);
@@ -178,12 +174,10 @@ static void lc_ascon_finalization(struct lc_ascon_cryptor *ascon, uint8_t *tag,
 	lc_sponge(hash, state_mem, 12);
 
 	/* Finalization - Insert key into capacity */
-	lc_sponge_add_bytes(hash, state_mem, ascon->key, tag_offset,
-			    (unsigned int)taglen);
+	lc_sponge_add_bytes(hash, state_mem, ascon->key, tag_offset, taglen);
 
 	/* Finalization - Extract tag from capacity */
-	lc_sponge_extract_bytes(hash, state_mem, tag, tag_offset,
-				(unsigned int)taglen);
+	lc_sponge_extract_bytes(hash, state_mem, tag, tag_offset, taglen);
 }
 
 /* Plaintext - Insert into sponge state and extract the ciphertext */
@@ -200,10 +194,10 @@ static void lc_ascon_enc_update(struct lc_ascon_cryptor *ascon,
 				hash->sponge_rate - ascon->rate_offset);
 
 		lc_sponge_add_bytes(hash, state_mem, plaintext,
-				    ascon->rate_offset, (unsigned int)todo);
+				    ascon->rate_offset, todo);
 
 		lc_sponge_extract_bytes(hash, state_mem, ciphertext,
-					ascon->rate_offset, (unsigned int)todo);
+					ascon->rate_offset, todo);
 
 		datalen -= todo;
 
@@ -291,7 +285,7 @@ static void lc_ascon_dec_update(struct lc_ascon_cryptor *ascon,
 		todo = min_size(datalen,
 				hash->sponge_rate - ascon->rate_offset);
 		lc_sponge_extract_bytes(hash, state_mem, pt_p,
-					ascon->rate_offset, (unsigned int)todo);
+					ascon->rate_offset, todo);
 
 		datalen -= todo;
 
@@ -322,13 +316,11 @@ static void lc_ascon_dec_update(struct lc_ascon_cryptor *ascon,
 			if (!zero_tmp) {
 				xor_64(pt_p, ciphertext, todo);
 				lc_sponge_add_bytes(hash, state_mem, pt_p,
-						    ascon->rate_offset,
-						    (unsigned int)todo);
+						    ascon->rate_offset, todo);
 			} else {
 				xor_64_3(plaintext, pt_p, ciphertext, todo);
 				lc_sponge_add_bytes(hash, state_mem, plaintext,
-						    ascon->rate_offset,
-						    (unsigned int)todo);
+						    ascon->rate_offset, todo);
 			}
 			ascon->rate_offset += (uint8_t)todo;
 		}

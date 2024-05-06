@@ -58,8 +58,8 @@ static inline void ascon_fill_state_bytes(uint64_t *state, const uint8_t *in,
 #error "Endianess not defined"
 #endif
 
-static void ascon_c_add_bytes(void *state, const uint8_t *data,
-			      unsigned int offset, unsigned int length)
+static void ascon_c_add_bytes(void *state, const uint8_t *data, size_t offset,
+			      size_t length)
 {
 	ascon_fill_state_bytes((uint64_t *)state, data, offset, length);
 }

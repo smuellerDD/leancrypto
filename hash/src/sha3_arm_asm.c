@@ -145,7 +145,7 @@ static void keccak_arm_asm_permutation(void *state, unsigned int rounds)
 }
 
 static void keccak_arm_asm_add_bytes(void *state, const unsigned char *data,
-				     unsigned int offset, unsigned int length)
+				     size_t offset, size_t length)
 {
 	uint8_t *_state = (uint8_t *)state;
 

@@ -39,7 +39,7 @@ struct lc_hash {
 	/* Sponge interface */
 	void (*sponge_permutation)(void *state, unsigned int rounds);
 	void (*sponge_add_bytes)(void *state, const uint8_t *data,
-				 unsigned int offset, unsigned int length);
+				 size_t offset, size_t length);
 	void (*sponge_extract_bytes)(const void *state, uint8_t *data,
 				     size_t offset, size_t length);
 	void (*sponge_newstate)(void *state, const uint8_t *newstate,
@@ -401,8 +401,8 @@ static inline int lc_sponge(const struct lc_hash *hash, void *state,
  * @return: 0 on success, < 0 on error
  */
 static inline int lc_sponge_add_bytes(const struct lc_hash *hash, void *state,
-				      const uint8_t *data, unsigned int offset,
-				      unsigned int length)
+				      const uint8_t *data, size_t offset,
+				      size_t length)
 {
 	if (!state || !hash || !hash->sponge_add_bytes)
 		return -EOPNOTSUPP;
