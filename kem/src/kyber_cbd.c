@@ -24,26 +24,8 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
+#include "bitshift_le.h"
 #include "kyber_cbd.h"
-
-/**
- * @brief load32_littleendian - load 4 bytes into a 32-bit integer
- *				in little-endian order
- *
- * @param x [in] pointer to input byte array
- *
- * @return 32-bit unsigned integer loaded from x
- */
-static uint32_t load32_littleendian(const uint8_t x[4])
-{
-	uint32_t r;
-
-	r = (uint32_t)x[0];
-	r |= (uint32_t)x[1] << 8;
-	r |= (uint32_t)x[2] << 16;
-	r |= (uint32_t)x[3] << 24;
-	return r;
-}
 
 /**
  * @brief load24_littleendian - load 3 bytes into a 32-bit integer in
@@ -54,7 +36,6 @@ static uint32_t load32_littleendian(const uint8_t x[4])
  *
  * @return 32-bit unsigned integer loaded from x (most significant byte is zero)
  */
-//#if LC_KYBER_ETA1 == 3
 static uint32_t load24_littleendian(const uint8_t x[3])
 {
 	uint32_t r;
@@ -64,7 +45,6 @@ static uint32_t load24_littleendian(const uint8_t x[3])
 	r |= (uint32_t)x[2] << 16;
 	return r;
 }
-//#endif
 
 /**
  * @brief cbd2 - Given an array of uniformly random bytes, compute polynomial
@@ -81,7 +61,7 @@ void cbd2(poly *r, const uint8_t buf[2 * LC_KYBER_N / 4])
 	int16_t a, b;
 
 	for (i = 0; i < LC_KYBER_N / 8; i++) {
-		t = load32_littleendian(buf + 4 * i);
+		t = ptr_to_le32(buf + 4 * i);
 		d = t & 0x55555555;
 		d += (t >> 1) & 0x55555555;
 
@@ -102,7 +82,6 @@ void cbd2(poly *r, const uint8_t buf[2 * LC_KYBER_N / 4])
  * @param r [out] pointer to output polynomial
  * @param buf [in] pointer to input byte array
  */
-//#if LC_KYBER_ETA1 == 3
 void cbd3(poly *r, const uint8_t buf[3 * LC_KYBER_N / 4])
 {
 	unsigned int i, j;
@@ -122,4 +101,3 @@ void cbd3(poly *r, const uint8_t buf[3 * LC_KYBER_N / 4])
 		}
 	}
 }
-//#endif

@@ -42,7 +42,7 @@ extern const int16_t kyber_zetas[128];
  *
  * @param [in,out] r pointer to input/output vector of elements of Zq
  */
-void kyber_ntt(int16_t poly[256]);
+void kyber_ntt(int16_t poly[LC_KYBER_N]);
 
 /**
  * @brief invntt_tomont - Inplace inverse number-theoretic transform in Rq and
@@ -52,7 +52,7 @@ void kyber_ntt(int16_t poly[256]);
  *
  * @param r pointer to input/output vector of elements of Zq
  */
-void kyber_invntt(int16_t poly[256]);
+void kyber_invntt(int16_t poly[LC_KYBER_N]);
 
 #ifdef __cplusplus
 }
