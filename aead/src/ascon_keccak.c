@@ -30,11 +30,15 @@
 /*
  * Ascon with Keccak permutation
  *
- * Algorithms with 256 bit security strength based on the fact that the
- * capacity is 512 bits or larger.
+ * The algorithm with have the security strength equal to their key size
+ * as they are defined with a Keccak sponge capacity of double the size of
+ * the key. The associated quantum adversary strength is half of the key
+ * size.
  *
- * The Ascon-Keccak algorithm is defined with the reference to
- * <keysize>/<Keccak security level (half of capacity)>.
+ * The selected capacity defines the datablock rate as specified for SHA3-256 /
+ * SHA3-512 considering the use of Keccak-p[1600,24]: rate = 1600 - capacity.
+ *
+ * The Ascon-Keccak algorithm is defined with the reference to <keysize>.
  *
  *                       -------------- Bit size of -------------- Rounds
  *                       Key   Nonce        Tag          DataBlock  pa pb
@@ -44,19 +48,13 @@
  *
  * Note, the tag is allowed also to be larger, up to the size of the key.
  */
+
+/*
+ * The IV is defined using the specification provided with the Ascon algorithm.
+ */
 #define LC_AEAD_ASCON_KECCAK_512_512_IV 0x0200024000180018
 #define LC_AEAD_ASCON_KECCAK_256_256_IV 0x0100044000180018
 
-/*
- * Some considerations on the self test: The different lc_sponge* APIs return
- * error indicators which are important to observe, because those APIs refuse
- * to operate when there is no Sponge implementation provided by the selected
- * hash instance. As the entire AEAD code does not check for these errors,
- * it could lead to the case that plaintext is leaked if (a) an encryption
- * in place is performed, and (b) the used hash implementation does not
- * have a Sponge implementation. This issue is alleviated by the self test
- * which would only return success if all Sponge implementations are provided.
- */
 static void lc_ak_selftest(int *tested, const char *impl)
 {
 	static const uint8_t in[] = {

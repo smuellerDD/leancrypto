@@ -62,6 +62,21 @@ static int lc_ascon_setkey(void *state, const uint8_t *key, size_t keylen,
 	uint64_t *state_mem = ascon->state;
 	int ret;
 
+	/*
+	 * The different lc_sponge* APIs return error indicators which are
+	 * important to observe, because those APIs refuse to operate when
+	 * there is no Sponge implementation provided by the selected hash
+	 * instance. As the entire AEAD code does not check for these errors,
+	 * it could lead to the case that plaintext is leaked if (a) an
+	 * encryption in place is performed, and (b) the used hash
+	 * implementation does not have a Sponge implementation. This issue is
+	 * alleviated by this check.
+	 */
+	if (!hash->sponge_add_bytes || !hash->sponge_extract_bytes ||
+	    !hash->sponge_newstate || !hash->sponge_permutation ||
+	    !hash->sponge_rate)
+		return -EOPNOTSUPP;
+
 	if (noncelen < 16 || noncelen > keylen)
 		return -EINVAL;
 
@@ -123,8 +138,7 @@ static void lc_ascon_add_padbyte(struct lc_ascon_cryptor *ascon, size_t offset)
 	if (offset == hash->sponge_rate)
 		offset = 0;
 
-	lc_sponge_add_bytes(hash, ascon->state, &pad_data, offset,
-			    1);
+	lc_sponge_add_bytes(hash, ascon->state, &pad_data, offset, 1);
 }
 
 /* Insert the AAD into the sponge state. */

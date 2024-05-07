@@ -162,6 +162,11 @@ if get_option('hash_crypt').enabled()
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto
 				)
+	ascon_crypt_wrong_algo = executable('ascon_crypt_wrong_algo',
+				[ 'ascon_crypt_wrong_algo.c', internal_src ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto
+				)
 	test('AEAD Ascon Keccak', ascon_keccak_crypt_test)
 	test('AEAD Ascon Keccak IUF', ascon_keccak_crypt_iuf_test)
 	test('AEAD Ascon Keccak 512 Accel large',
@@ -176,7 +181,7 @@ if get_option('hash_crypt').enabled()
 	test('AEAD Ascon Keccak 256 C large',
 	     ascon_keccak_crypt_large_test_256_c,
 	     timeout: 2500, is_parallel: false)
-
+	test('AEAD Ascon Error Handling', ascon_crypt_wrong_algo)
 endif
 
 if (get_option('hash_crypt').enabled() and get_option('ascon').enabled())
