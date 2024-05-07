@@ -190,8 +190,8 @@ static void keccak_c_permutation(void *state, unsigned int rounds)
 	keccakp_1600((uint64_t *)state);
 }
 
-static void keccak_c_add_bytes(void *state, const uint8_t *data,
-			       size_t offset, size_t length)
+static void keccak_c_add_bytes(void *state, const uint8_t *data, size_t offset,
+			       size_t length)
 {
 	sha3_fill_state_bytes((uint64_t *)state, data, offset, length);
 }
