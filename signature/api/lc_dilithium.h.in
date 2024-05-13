@@ -116,6 +116,12 @@ extern "C" {
 #define LC_DILITHIUM_POLYETA_PACKEDBYTES 128
 #endif
 
+/*
+ * Sizes of the different Dilithium buffer types.
+ *
+ * WARNING: Do not use these defines in your code. If you need the sizes of
+ * the different variable sizes, use sizeof of the different variable structs.
+ */
 #define LC_DILITHIUM_PUBLICKEYBYTES                                            \
 	(LC_DILITHIUM_SEEDBYTES +                                              \
 	 LC_DILITHIUM_K * LC_DILITHIUM_POLYT1_PACKEDBYTES)

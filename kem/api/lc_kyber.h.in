@@ -79,6 +79,12 @@ extern "C" {
 #define LC_KYBER_INDCPA_BYTES                                                  \
 	(LC_KYBER_POLYVECCOMPRESSEDBYTES + LC_KYBER_POLYCOMPRESSEDBYTES)
 
+/*
+ * Sizes of the different Kyber buffer types.
+ *
+ * WARNING: Do not use these defines in your code. If you need the sizes of
+ * the different variable sizes, use sizeof of the different variable structs.
+ */
 #define LC_KYBER_PUBLICKEYBYTES (LC_KYBER_INDCPA_PUBLICKEYBYTES)
 /* 32 bytes of additional space to save H(pk) */
 #define LC_KYBER_SECRETKEYBYTES                                                \
@@ -129,6 +135,11 @@ struct @kyber_name@_ct {
 struct @kyber_name@_ss {
 	uint8_t ss[LC_KYBER_SSBYTES];
 };
+
+static inline unsigned int @kyber_name@_sk_size(void)
+{
+	return
+}
 
 /**
  * @brief lc_kyber_keypair - Generates public and private key for
