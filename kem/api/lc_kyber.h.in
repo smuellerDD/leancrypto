@@ -83,7 +83,9 @@ extern "C" {
  * Sizes of the different Kyber buffer types.
  *
  * WARNING: Do not use these defines in your code. If you need the sizes of
- * the different variable sizes, use sizeof of the different variable structs.
+ * the different variable sizes, use sizeof of the different variable structs
+ * or use the different *_size functions offered below for the particular sizes
+ * of a given parameter.
  */
 #define LC_KYBER_PUBLICKEYBYTES (LC_KYBER_INDCPA_PUBLICKEYBYTES)
 /* 32 bytes of additional space to save H(pk) */
@@ -136,10 +138,41 @@ struct @kyber_name@_ss {
 	uint8_t ss[LC_KYBER_SSBYTES];
 };
 
+#define lc_member_size(struct, member) (sizeof( ((struct *)0)->member ))
+
+/**
+ * @brief Return the size of the Kyber secret key.
+ */
 static inline unsigned int @kyber_name@_sk_size(void)
 {
-	return
+	return lc_member_size(struct @kyber_name@_sk, sk);
 }
+
+/**
+ * @brief Return the size of the Kyber public key.
+ */
+static inline unsigned int @kyber_name@_pk_size(void)
+{
+	return lc_member_size(struct @kyber_name@_pk, pk);
+}
+
+/**
+ * @brief Return the size of the Kyber ciphertext.
+ */
+static inline unsigned int @kyber_name@_ct_size(void)
+{
+	return lc_member_size(struct @kyber_name@_ct, ct);
+}
+
+/**
+ * @brief Return the size of the Kyber shared secret.
+ */
+static inline unsigned int @kyber_name@_ss_size(void)
+{
+	return lc_member_size(struct @kyber_name@_ss, ss);
+}
+
+#undef lc_member_size
 
 /**
  * @brief lc_kyber_keypair - Generates public and private key for

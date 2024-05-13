@@ -30,8 +30,28 @@ extern "C" {
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
+/**
+ * @brief Obtain pointer to data structure when having a pointer to one of
+ *	  its members.
+ *
+ * Example:
+ * struct foo *val = member_to_struct(&struct->list_entry, struct foo, list_entry);
+ *
+ * @param member the pointer to the member.
+ * @param data_type the data type of the struct the member is part of.
+ * @param member_var the member variable of the struct the member is
+ *                   referenced with
+ */
 #define member_to_struct(member, data_type, member_var)                        \
 	(data_type *)((char *)(member) - (char *)&((data_type *)0)->member_var)
+
+/**
+ * @brief Obtain size of a member of a data structure
+ *
+ * @param struct Data structure
+ * @param member Member variable to obtain size from
+ */
+#define member_size(struct, member) (sizeof( ((struct *)0)->member ))
 
 #ifdef __cplusplus
 }
