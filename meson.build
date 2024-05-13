@@ -49,20 +49,15 @@ if cc.has_argument('-fzero-call-used-regs=used-gpr')
 			     language: 'c')
 endif
 
-# Performance Compiler flags
-add_global_arguments([ '-funroll-loops',
-		        ],
-		       language : 'c')
-
-if cc.get_id() == 'gcc'
+if cc.has_argument('-ffat-lto-objects')
 	add_global_arguments([ '-ffat-lto-objects' ], language: 'c')
 endif
 
-if get_option('optimization') != '0'
-        add_global_arguments([ '-U_FORTIFY_SOURCE' ], language: 'c')
-        add_global_arguments([ '-D_FORTIFY_SOURCE=3' ], language: 'c')
+if get_option('optimization') == '0'
+	add_global_arguments([ '-DDEBUG' ], language: 'c')
 else
-        add_global_arguments([ '-DDEBUG' ], language: 'c')
+	add_global_arguments([ '-U_FORTIFY_SOURCE' ], language: 'c')
+	add_global_arguments([ '-D_FORTIFY_SOURCE=3' ], language: 'c')
 endif
 
 if get_option('enable_selftests').enabled()
@@ -143,9 +138,7 @@ include_dirs = include_directories([ 'aead/api',
 
 include_files = [ ]
 
-include_internal_dirs = include_directories([ 'internal/api',
-					      'kem/src',
-					      'signature/src' ])
+include_internal_dirs = include_directories([ 'internal/api' ])
 
 subdirs = [
 	    # These must be first to generate the header files
@@ -280,9 +273,6 @@ if (host_machine.cpu_family() == 'x86_64' and
 	x86_64_asm = true
 	add_global_arguments([ '-DLC_HOST_X86_64' ], language: 'c')
 
-	# AsconAVX512: Enable if AVX512 support is enabled
-	# add_global_arguments([ '-DLC_HASH_COMMON_ALIGNMENT=64' ], language: 'c')
-
 	cc_avx2_args = [
 		'-mavx2',
 		'-mbmi2',
@@ -344,13 +334,6 @@ elif (host_machine.cpu_family() == 'riscv64')
 # 	# riscv32_gcc_asm = true
 # 	# Disable implementation as it currently is not tested
 # 	riscv32_gcc_asm = false
-#
-# elif (host_machine.cpu_family() == 'riscv64' and
-#       cc.get_id() == 'gcc')
-#
-# 	# RISC-V and GCC
-# 	# Current code is not 64-bit ready
-# 	riscv64_gcc_asm = true
 endif
 
 ################################################################################
@@ -389,6 +372,7 @@ else
 		    check: true)
 endif
 
+# Create the official static library
 leancrypto_static_lib = static_library('leancrypto',
 	[ src, internal_src ],
 	include_directories: [ include_dirs, include_internal_dirs ],
@@ -397,6 +381,7 @@ leancrypto_static_lib = static_library('leancrypto',
 	install: true
 	)
 
+# Create the official shared library
 leancrypto_lib = library('leancrypto',
 	[ src, internal_src ],
 	include_directories: [ include_dirs, include_internal_dirs ],
@@ -427,7 +412,6 @@ endforeach
 ################################################################################
 # Execute testing
 ################################################################################
-
 foreach n : testdirs
 	subdir(n)
 endforeach
