@@ -87,6 +87,17 @@ needs to be set.
 
 For more details, see `linux_kernel/README.md`.
 
+## Library Build for Windows
+
+The `leancrypto` library can be built on Windows using
+[MSYS2](https://www.msys2.org/). Once `MSYS2` is installed along with `meson`
+and the `mingw` compiler, the standard compilation procedure outlined above
+for `meson` can be used.
+
+Note, the assembler implementations for the accelerated crypto algorithms is
+currently not compiled as the calling convention of Windows is not adopted
+to those implementations.
+
 ## Library Build for Other Environments
 
 If you need leancrypto to work in other environments like small embedded

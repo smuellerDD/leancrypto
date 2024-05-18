@@ -54,8 +54,33 @@
 #  define SYM_FUNC_ENTER(name)						       \
 	SYM_FUNC(name):
 
-# else /* __APPLE__ */
+# define SYM_FUNC_END(name)						       \
+	SYM_TYPE_FUNC(name) ;						       \
+	SYM_SIZE(name)
+
+# elif (defined(__CYGWIN__) || defined(_WIN32))
+
 #  define SYM_FUNC(name)	name
+
+#  define SYM_TYPE_OBJ(name)						       \
+	.type SYM_FUNC(name),%object
+
+#  define SYM_TYPE_FUNC(name)
+
+#  define SYM_SIZE(name)						       \
+	.size SYM_FUNC(name),.-SYM_FUNC(name)
+
+#  define SYM_FUNC_START(name)						       \
+	.global SYM_FUNC(name) ;					       \
+	SYM_FUNC(name):
+
+#  define SYM_FUNC_ENTER(name)
+
+#  define SYM_FUNC_END(name)
+
+# else /* __APPLE__ */
+
+	#  define SYM_FUNC(name)	name
 
 #  define SYM_TYPE_OBJ(name)						       \
 	.type SYM_FUNC(name),%object
@@ -73,11 +98,11 @@
 
 #  define SYM_FUNC_ENTER(name)
 
-# endif
-
 # define SYM_FUNC_END(name)						       \
 	SYM_TYPE_FUNC(name) ;						       \
 	SYM_SIZE(name)
+
+# endif
 
 # define RET	ret
 

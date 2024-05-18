@@ -67,7 +67,7 @@ static int _cshake_256_tester(const struct lc_hash *cshake_256,
 	LC_HASH_CTX_ON_STACK(ctx, cshake_256);
 	LC_CSHAKE_256_CTX_ON_STACK(cshake256_stack);
 
-	printf("hash ctx %s (%s implementation) len %lu\n", name,
+	printf("hash ctx %s (%s implementation) len %" PRIu64 "\n", name,
 	       cshake_256 == lc_cshake256_c ? "C" : "accelerated",
 	       LC_HASH_CTX_SIZE(cshake_256));
 

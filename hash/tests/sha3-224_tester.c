@@ -47,7 +47,7 @@ static int _sha3_224_tester(const struct lc_hash *sha3_224, const char *name)
 	LC_HASH_CTX_ON_STACK(ctx224, sha3_224);
 	LC_SHA3_224_CTX_ON_STACK(ctx224_stack);
 
-	printf("hash ctx %s (%s implementation) len %lu\n", name,
+	printf("hash ctx %s (%s implementation) len %" PRIu64 "\n", name,
 	       sha3_224 == lc_sha3_224_c ? "C" : "accelerated",
 	       LC_HASH_CTX_SIZE(sha3_224));
 	lc_hash_init(ctx224);

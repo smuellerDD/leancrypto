@@ -28,6 +28,8 @@ Changes 0.10.0
 
 * Enable compilation of Dilithium 87, Dilithium-65 and Dilithium-44 at the same time (APIs starting with lc_dilithium_65 refer to Dilithium-768, APIs starting with lc_dilithium_44 refer to Dilithium-44, all others refer to Dilithium-87)
 
+* enhancement: Windows is now supported as target platform using the MINGW compiler 
+
 Changes 0.9.2
 
 * fix: update "reduce memory footprint of Keccak state" to handle big-endian systems

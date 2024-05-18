@@ -84,7 +84,7 @@ static int hash_drbg_tester(void)
 	int ret = 0;
 	LC_DRBG_HASH_CTX_ON_STACK(drbg_stack);
 
-	printf("hash DRBG ctx len %lu\n", LC_DRBG_HASH_CTX_SIZE);
+	printf("hash DRBG ctx len %" PRIu64 "\n", LC_DRBG_HASH_CTX_SIZE);
 	if (lc_drbg_hash_healthcheck_sanity(drbg_stack))
 		return 1;
 

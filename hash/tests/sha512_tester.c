@@ -38,7 +38,7 @@ static int sha512_tester(void)
 	int ret;
 	LC_SHA512_CTX_ON_STACK(sha512_stack);
 
-	printf("hash ctx len %lu\n", LC_HASH_CTX_SIZE(lc_sha512));
+	printf("hash ctx len %" PRIu64 "\n", LC_HASH_CTX_SIZE(lc_sha512));
 
 	if (lc_hash_alloc(lc_sha512, &ctx512))
 		return 1;

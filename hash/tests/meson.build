@@ -160,7 +160,7 @@ if get_option('ascon').enabled()
 	test('Hash Ascon XOF Squeeze More', ascon_xof_squeeze_more_tester)
 endif
 
-if (hasher == 1)
+if (hasher == 1 and host_machine.system() != 'windows')
 	hasher = executable('hasher',
 				     [ 'hasher.c', internal_src ],
 				     include_directories: [ include_internal_dirs ],

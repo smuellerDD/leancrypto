@@ -27,8 +27,9 @@
 
 #include "assembler_support.h"
 
-.text
 .extern lc_x86_64_cpuid
+
+.text
 
 SYM_FUNC_START(aesni_encrypt)
 SYM_FUNC_ENTER(aesni_encrypt)
@@ -82,9 +83,8 @@ SYM_FUNC_ENTER(aesni_decrypt)
 .cfi_endproc
 SYM_FUNC_END(aesni_decrypt)
 
-.type	_aesni_encrypt2,@function
+SYM_FUNC_START(_aesni_encrypt2)
 .align	16
-_aesni_encrypt2:
 .cfi_startproc
 	movups	(%rcx),%xmm0
 	shll	$4,%eax
@@ -112,11 +112,10 @@ _aesni_encrypt2:
 	aesenclast	%xmm0,%xmm3
 	.byte	0xf3,0xc3
 .cfi_endproc
-.size	_aesni_encrypt2,.-_aesni_encrypt2
+SYM_FUNC_END(_aesni_encrypt2)
 
-.type	_aesni_decrypt2,@function
+SYM_FUNC_START(_aesni_decrypt2)
 .align	16
-_aesni_decrypt2:
 .cfi_startproc
 	movups	(%rcx),%xmm0
 	shll	$4,%eax
@@ -144,11 +143,10 @@ _aesni_decrypt2:
 	aesdeclast	%xmm0,%xmm3
 	.byte	0xf3,0xc3
 .cfi_endproc
-.size	_aesni_decrypt2,.-_aesni_decrypt2
+SYM_FUNC_END(_aesni_decrypt2)
 
-.type	_aesni_encrypt3,@function
+SYM_FUNC_START(_aesni_encrypt3)
 .align	16
-_aesni_encrypt3:
 .cfi_startproc
 	movups	(%rcx),%xmm0
 	shll	$4,%eax
@@ -181,11 +179,10 @@ _aesni_encrypt3:
 	aesenclast	%xmm0,%xmm4
 	.byte	0xf3,0xc3
 .cfi_endproc
-.size	_aesni_encrypt3,.-_aesni_encrypt3
+SYM_FUNC_END(_aesni_encrypt3)
 
-.type	_aesni_decrypt3,@function
+SYM_FUNC_START(_aesni_decrypt3)
 .align	16
-_aesni_decrypt3:
 .cfi_startproc
 	movups	(%rcx),%xmm0
 	shll	$4,%eax
@@ -218,11 +215,10 @@ _aesni_decrypt3:
 	aesdeclast	%xmm0,%xmm4
 	.byte	0xf3,0xc3
 .cfi_endproc
-.size	_aesni_decrypt3,.-_aesni_decrypt3
+SYM_FUNC_END(_aesni_decrypt3)
 
-.type	_aesni_encrypt4,@function
+SYM_FUNC_START(_aesni_encrypt4)
 .align	16
-_aesni_encrypt4:
 .cfi_startproc
 	movups	(%rcx),%xmm0
 	shll	$4,%eax
@@ -261,11 +257,10 @@ _aesni_encrypt4:
 	aesenclast	%xmm0,%xmm5
 	.byte	0xf3,0xc3
 .cfi_endproc
-.size	_aesni_encrypt4,.-_aesni_encrypt4
+SYM_FUNC_END(_aesni_encrypt4)
 
-.type	_aesni_decrypt4,@function
+SYM_FUNC_START(_aesni_decrypt4)
 .align	16
-_aesni_decrypt4:
 .cfi_startproc
 	movups	(%rcx),%xmm0
 	shll	$4,%eax
@@ -304,11 +299,10 @@ _aesni_decrypt4:
 	aesdeclast	%xmm0,%xmm5
 	.byte	0xf3,0xc3
 .cfi_endproc
-.size	_aesni_decrypt4,.-_aesni_decrypt4
+SYM_FUNC_END(_aesni_decrypt4)
 
-.type	_aesni_encrypt6,@function
+SYM_FUNC_START(_aesni_encrypt6)
 .align	16
-_aesni_encrypt6:
 .cfi_startproc
 	movups	(%rcx),%xmm0
 	shll	$4,%eax
@@ -361,11 +355,10 @@ _aesni_encrypt6:
 	aesenclast	%xmm0,%xmm7
 	.byte	0xf3,0xc3
 .cfi_endproc
-.size	_aesni_encrypt6,.-_aesni_encrypt6
+SYM_FUNC_END(_aesni_encrypt6)
 
-.type	_aesni_decrypt6,@function
+SYM_FUNC_START(_aesni_decrypt6)
 .align	16
-_aesni_decrypt6:
 .cfi_startproc
 	movups	(%rcx),%xmm0
 	shll	$4,%eax
@@ -418,11 +411,10 @@ _aesni_decrypt6:
 	aesdeclast	%xmm0,%xmm7
 	.byte	0xf3,0xc3
 .cfi_endproc
-.size	_aesni_decrypt6,.-_aesni_decrypt6
+SYM_FUNC_END(_aesni_decrypt6)
 
-.type	_aesni_encrypt8,@function
+SYM_FUNC_START(_aesni_encrypt8)
 .align	16
-_aesni_encrypt8:
 .cfi_startproc
 	movups	(%rcx),%xmm0
 	shll	$4,%eax
@@ -485,11 +477,10 @@ _aesni_encrypt8:
 	aesenclast	%xmm0,%xmm9
 	.byte	0xf3,0xc3
 .cfi_endproc
-.size	_aesni_encrypt8,.-_aesni_encrypt8
+SYM_FUNC_END(_aesni_encrypt8)
 
-.type	_aesni_decrypt8,@function
+SYM_FUNC_START(_aesni_decrypt8)
 .align	16
-_aesni_decrypt8:
 .cfi_startproc
 	movups	(%rcx),%xmm0
 	shll	$4,%eax
@@ -552,7 +543,7 @@ _aesni_decrypt8:
 	aesdeclast	%xmm0,%xmm9
 	.byte	0xf3,0xc3
 .cfi_endproc
-.size	_aesni_decrypt8,.-_aesni_decrypt8
+SYM_FUNC_END(_aesni_decrypt8)
 
 #if 0
 SYM_FUNC_START(aesni_ecb_encrypt)
@@ -2834,9 +2825,8 @@ SYM_FUNC_ENTER(aesni_ocb_encrypt)
 .cfi_endproc
 SYM_FUNC_END(aesni_ocb_encrypt)
 
-.type	__ocb_encrypt6,@function
+SYM_FUNC_START(__ocb_encrypt6)
 .align	32
-__ocb_encrypt6:
 .cfi_startproc	
 	pxor	%xmm9,%xmm15
 	movdqu	(%rbx,%r12,1),%xmm11
@@ -2935,12 +2925,11 @@ __ocb_encrypt6:
 	aesenclast	%xmm14,%xmm6
 	aesenclast	%xmm15,%xmm7
 	.byte	0xf3,0xc3
-.cfi_endproc	
-.size	__ocb_encrypt6,.-__ocb_encrypt6
+.cfi_endproc
+SYM_FUNC_END(__ocb_encrypt6)
 
-.type	__ocb_encrypt4,@function
+SYM_FUNC_START(__ocb_encrypt4)
 .align	32
-__ocb_encrypt4:
 .cfi_startproc	
 	pxor	%xmm9,%xmm15
 	movdqu	(%rbx,%r12,1),%xmm11
@@ -3007,11 +2996,10 @@ __ocb_encrypt4:
 	aesenclast	%xmm13,%xmm5
 	.byte	0xf3,0xc3
 .cfi_endproc	
-.size	__ocb_encrypt4,.-__ocb_encrypt4
+SYM_FUNC_END(__ocb_encrypt4)
 
-.type	__ocb_encrypt1,@function
+SYM_FUNC_START(__ocb_encrypt1)
 .align	32
-__ocb_encrypt1:
 .cfi_startproc	
 	pxor	%xmm15,%xmm7
 	pxor	%xmm9,%xmm7
@@ -3044,7 +3032,7 @@ __ocb_encrypt1:
 	aesenclast	%xmm7,%xmm2
 	.byte	0xf3,0xc3
 .cfi_endproc	
-.size	__ocb_encrypt1,.-__ocb_encrypt1
+SYM_FUNC_END(__ocb_encrypt1)
 
 SYM_FUNC_START(aesni_ocb_decrypt)
 SYM_FUNC_ENTER(aesni_ocb_decrypt)
@@ -3283,9 +3271,8 @@ SYM_FUNC_ENTER(aesni_ocb_decrypt)
 .cfi_endproc
 SYM_FUNC_END(aesni_ocb_decrypt)
 
-.type	__ocb_decrypt6,@function
+SYM_FUNC_START(__ocb_decrypt6)
 .align	32
-__ocb_decrypt6:
 .cfi_startproc	
 	pxor	%xmm9,%xmm15
 	movdqu	(%rbx,%r12,1),%xmm11
@@ -3379,11 +3366,10 @@ __ocb_decrypt6:
 	aesdeclast	%xmm15,%xmm7
 	.byte	0xf3,0xc3
 .cfi_endproc	
-.size	__ocb_decrypt6,.-__ocb_decrypt6
+SYM_FUNC_END(__ocb_decrypt6)
 
-.type	__ocb_decrypt4,@function
+SYM_FUNC_START(__ocb_decrypt4)
 .align	32
-__ocb_decrypt4:
 .cfi_startproc	
 	pxor	%xmm9,%xmm15
 	movdqu	(%rbx,%r12,1),%xmm11
@@ -3446,11 +3432,10 @@ __ocb_decrypt4:
 	aesdeclast	%xmm13,%xmm5
 	.byte	0xf3,0xc3
 .cfi_endproc	
-.size	__ocb_decrypt4,.-__ocb_decrypt4
+SYM_FUNC_END(__ocb_decrypt4)
 
-.type	__ocb_decrypt1,@function
+SYM_FUNC_START(__ocb_decrypt1)
 .align	32
-__ocb_decrypt1:
 .cfi_startproc	
 	pxor	%xmm15,%xmm7
 	pxor	%xmm9,%xmm7
@@ -3482,7 +3467,7 @@ __ocb_decrypt1:
 	aesdeclast	%xmm7,%xmm2
 	.byte	0xf3,0xc3
 .cfi_endproc	
-.size	__ocb_decrypt1,.-__ocb_decrypt1
+SYM_FUNC_END(__ocb_decrypt1)
 #endif
 
 SYM_FUNC_START(aesni_cbc_encrypt)
@@ -4116,7 +4101,6 @@ SYM_FUNC_ENTER(aesni_set_decrypt_key)
 	.byte	0xf3,0xc3
 .cfi_endproc	
 .LSEH_end_set_decrypt_key:
-.size	aesni_set_decrypt_key,.-aesni_set_decrypt_key
 SYM_FUNC_END(aesni_set_decrypt_key)
 
 SYM_FUNC_START(aesni_set_encrypt_key)

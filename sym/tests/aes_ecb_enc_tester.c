@@ -89,7 +89,7 @@ static int test_encrypt_ecb(void)
 				    out256);
 	lc_sym_zero_free(aes_ecb_heap);
 
-	printf("AES ECB ctx size: %lu\n", LC_SYM_CTX_SIZE(lc_aes_ecb));
+	printf("AES ECB ctx size: %" PRIu64 "\n", LC_SYM_CTX_SIZE(lc_aes_ecb));
 
 	return ret;
 }

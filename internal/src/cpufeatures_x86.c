@@ -41,7 +41,7 @@
 #define LC_INTEL_AVX512F_EBX (1 << 16)
 
 /* This is required by aes_aesni_x86_64.S */
-unsigned int lc_x86_64_cpuid[4];
+unsigned int lc_x86_64_cpuid[4] __attribute__((used));
 
 LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 {

@@ -86,7 +86,7 @@ static int _keccak_tester(const struct lc_hash *sha3_512, const char *name)
 	unsigned int i;
 	int ret;
 
-	printf("Keccak permutation %s (%s implementation) len\n", name,
+	printf("Keccak permutation %s (%s implementation)\n", name,
 	       sha3_512 == lc_sha3_512_c ? "C" : "accelerated");
 
 	memset(state, 0, sizeof(state));

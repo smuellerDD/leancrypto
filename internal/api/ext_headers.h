@@ -21,6 +21,9 @@
 #define EXT_HEADERS_H
 
 #ifdef LINUX_KERNEL
+/******************************************************************************
+ * Linux Kernel
+ ******************************************************************************/
 
 #include <linux/errno.h>
 #include <linux/module.h>
@@ -46,11 +49,15 @@ static inline pid_t getpid(void)
 
 #define printf printk
 #define assert(x) WARN_ON(!x)
+#define PRIu64 "%lu"
 
 #define LC_DEFINE_CONSTRUCTOR(_func) void _func(void)
 #define LC_DEFINE_DESTRUCTOR(_func) void _func(void)
 
-#else /* LINUX_KERNEL */
+#elif (defined(__CYGWIN__) || defined(_WIN32))
+/******************************************************************************
+ * Windows
+ ******************************************************************************/
 
 #ifndef MB_LEN_MAX
 #define MB_LEN_MAX 16
@@ -80,6 +87,58 @@ static inline pid_t getpid(void)
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <inttypes.h>
+#include <limits.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/types.h>
+#include <time.h>
+#include <unistd.h>
+
+static inline int mlock(const void *ptr, size_t len)
+{
+	(void)ptr;
+	(void)len;
+	return 0;
+}
+
+#else /* LINUX_KERNEL */
+/******************************************************************************
+ * POSIX
+ ******************************************************************************/
+
+#ifndef MB_LEN_MAX
+#define MB_LEN_MAX 16
+#endif
+
+#if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7)
+
+#define LC_DEFINE_CONSTRUCTOR(_func)                                           \
+	void __attribute__((constructor)) _func(void)
+#define LC_DEFINE_DESTRUCTOR(_func) void __attribute__((destructor)) _func(void)
+
+#else
+
+#error "Constructor / destructor not defined for compiler"
+
+#endif
+
+/*
+ * Replace GCC-specific alternative keywords
+ * see https://gcc.gnu.org/onlinedocs/gcc/Alternate-Keywords.html
+ */
+#ifndef __GNUC__
+#define __asm__ asm
+#define __volatile__ volatile
+#endif
+
+#include <assert.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <inttypes.h>
 #include <limits.h>
 #include <stddef.h>
 #include <stdint.h>

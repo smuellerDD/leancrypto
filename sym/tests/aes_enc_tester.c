@@ -82,7 +82,7 @@ static int test_encrypt_all(const struct lc_sym *aes_impl, const char *name)
 {
 	int ret;
 
-	printf("AES block ctx %s (%s implementation) len %lu\n", name,
+	printf("AES block ctx %s (%s implementation) len %" PRIu64 "\n", name,
 	       aes_impl == lc_aes_c ? "C" : "accelerated",
 	       LC_SYM_CTX_SIZE(aes_impl));
 

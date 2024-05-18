@@ -49,7 +49,8 @@ if cc.has_argument('-fzero-call-used-regs=used-gpr')
 			     language: 'c')
 endif
 
-if cc.has_argument('-ffat-lto-objects')
+if (cc.has_argument('-ffat-lto-objects') and
+    host_machine.system() != 'windows')
 	add_global_arguments([ '-ffat-lto-objects' ], language: 'c')
 endif
 
@@ -89,14 +90,14 @@ add_global_arguments(['-DMAJVERSION=' + version_array[0],
 
 # Dead-code-stripping support
 add_global_arguments(['-ffunction-sections', '-fdata-sections'], language : 'c')
-if (build_machine.system() == 'darwin')
+if (host_machine.system() == 'darwin')
 	add_project_link_arguments('-Wl,-dead_strip', language : 'c')
 else
 	add_project_link_arguments('-Wl,--gc-sections', language : 'c')
 endif
 
 # Link for full RELRO
-if (build_machine.system() == 'linux')
+if (host_machine.system() == 'linux')
 	add_project_link_arguments('-Wl,-z,relro', language : 'c')
 	add_project_link_arguments('-Wl,-z,now', language : 'c')
 	add_project_link_arguments('-Wl,-z,noexecstack', language : 'c')
@@ -266,8 +267,10 @@ riscv64_gcc_asm = false
 
 # Enable x86_64 assembler code only on x86 (naturally) and with the presence of
 # the GNU assembler - the LLVM assembler on MacOS does not work!
+# Also, Windows is not supported due to the different calling convention
 if (host_machine.cpu_family() == 'x86_64' and
-    host_machine.system() != 'darwin')
+    host_machine.system() != 'darwin' and
+    host_machine.system() != 'windows')
 
 	# 64 bit AVX2 / AVX512 support
 	x86_64_asm = true
@@ -356,21 +359,11 @@ endforeach
 # Generate leancrypto.h
 autogen_header = meson.build_root() + '/leancrypto.h'
 leancrypto_header_subdir = 'leancrypto'
-if (build_machine.system() == 'windows')
-# Disable - use Windows for testing only
-# 	run_command('C:\Windows\System32\\bash.exe',
-# 		    header_script,
-# 		    autogen_header,
-# 		    leancrypto_header_subdir,
-# 		    include_files,
-# 		    check: true)
-else
-	run_command(header_script,
-		    autogen_header,
-		    leancrypto_header_subdir,
-		    include_files,
-		    check: true)
-endif
+run_command(header_script,
+	    autogen_header,
+	    leancrypto_header_subdir,
+	    include_files,
+	    check: true)
 
 # Create the official static library
 leancrypto_static_lib = static_library('leancrypto',
@@ -397,7 +390,7 @@ pkgconfig.generate(leancrypto_lib,
 		   description: 'PQC-resistant cryptographic library')
 
 install_headers(include_files, subdir: leancrypto_header_subdir)
-if (build_machine.system() != 'windows')
+if (host_machine.system() != 'windows')
 	# TODO: reenable
 	install_headers(autogen_header)
 endif
