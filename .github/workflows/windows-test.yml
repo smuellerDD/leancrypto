@@ -1,0 +1,29 @@
+name: Windows user space CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: msys2/setup-msys2@v2
+      with:
+        update: true
+        install: git meson mingw-w64-x86_64-meson
+    - name: Meson setup
+      run: meson setup build
+    - name: Meson compile
+      run: meson compile -C build
+    - name: Meson test
+      run: meson test -C build
