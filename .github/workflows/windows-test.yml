@@ -18,7 +18,7 @@ jobs:
         update: true
         install: git meson mingw-w64-x86_64-meson
     - name: Meson setup
-      run: msys2 -c 'meson setup build'
+      run: msys2 -c 'CC=gcc meson setup build'
     - name: Meson compile
       run: msys2 -c 'meson compile -C build'
     - name: Meson test
