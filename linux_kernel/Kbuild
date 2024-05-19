@@ -785,6 +785,7 @@ asflags-$(CONFIG_LEANCRYPTO_KEM)					       \
 				+= -I$(PWD)/../kem/src/armv7
 leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 				+= ../kem/src/kyber_kem_api_c.o		       \
+				   ../kem/src/armv7/kyber_consts_armv7.o       \
 				   ../kem/src/armv7/kyber_fastinvntt_armv7.o   \
 				   ../kem/src/armv7/kyber_fastntt_armv7.o      \
 				   ../kem/src/armv7/kyber_ntt_armv7.o	       \
