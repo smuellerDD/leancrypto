@@ -1,7 +1,7 @@
 hasher_test_script = find_program('hasher-test.sh', required: true)
 
 # Apps use POSIX API that is not available on regular Windows
-if (build_machine.system() != 'windows') and get_option('apps').enabled()
+if (host_machine.system() != 'windows') and get_option('apps').enabled()
 	if get_option('sha2-256').enabled()
 		test('sha256sum', hasher_test_script,
 		     args: [ sha256sum.full_path(), '/usr/bin/sha256sum' ])

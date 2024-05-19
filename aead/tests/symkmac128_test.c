@@ -205,9 +205,9 @@ static int kh_tester(void)
 		0x85, 0x78, 0x31, 0x8d,
 	};
 
-	printf("SymKMAC crypt ctx len %lu, state len %lu\n",
-	       LC_KH_CTX_SIZE(lc_aes_cbc, lc_cshake128),
-	       LC_KH_STATE_SIZE(lc_aes_cbc, lc_cshake128));
+	printf("SymKMAC crypt ctx len %u, state len %u\n",
+	       (unsigned int)LC_KH_CTX_SIZE(lc_aes_cbc, lc_cshake128),
+	       (unsigned int)LC_KH_STATE_SIZE(lc_aes_cbc, lc_cshake128));
 
 	ret += kh_tester_one(lc_aes_cbc, lc_cshake128, in, sizeof(in), in,
 			     sizeof(in), in, sizeof(in), in, 16, exp_ct,

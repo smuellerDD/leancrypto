@@ -174,7 +174,7 @@ LC_INTERFACE_FUNCTION(void, lc_cc20_drng_generate,
 	chacha20_state = sym_ctx->sym_state;
 
 	while (outbuflen >= LC_CC20_BLOCK_SIZE) {
-		if ((unsigned long)outbuf & (sizeof(aligned_buf[0]) - 1)) {
+		if ((uintptr_t)outbuf & (sizeof(aligned_buf[0]) - 1)) {
 			cc20_block(chacha20_state, aligned_buf);
 			memcpy(outbuf, aligned_buf, LC_CC20_BLOCK_SIZE);
 			zeroize_buf = 1;

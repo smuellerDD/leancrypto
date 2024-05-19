@@ -62,7 +62,7 @@ static inline void kyber_print_polyvec(polyvec *polyvec_val,
 	(void)explanation;
 }
 
-static inline void kyber_print_polyveck(polyvec polyvec_val[LC_KYBER_K],
+static inline void kyber_print_polyveck(polyvec *polyvec_val,
 					const char *explanation)
 {
 	(void)polyvec_val;

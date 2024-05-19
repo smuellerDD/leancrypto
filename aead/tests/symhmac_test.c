@@ -210,9 +210,9 @@ static int sh_tester(void)
 		0x32, 0xbe, 0xf1, 0x30
 	};
 
-	printf("SymHMAC crypt ctx len %lu, state len %lu\n",
-	       LC_SH_CTX_SIZE(lc_aes_cbc, lc_sha512),
-	       LC_SH_STATE_SIZE(lc_aes_cbc, lc_sha512));
+	printf("SymHMAC crypt ctx len %u, state len %u\n",
+	       (unsigned int)LC_SH_CTX_SIZE(lc_aes_cbc, lc_sha512),
+	       (unsigned int)LC_SH_STATE_SIZE(lc_aes_cbc, lc_sha512));
 
 	ret += sh_tester_one(lc_aes_cbc, lc_sha512, in, sizeof(in), in,
 			     sizeof(in), in, sizeof(in), in, 16, exp_ct,

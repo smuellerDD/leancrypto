@@ -765,7 +765,7 @@ static int _kmac_128_tester(const struct lc_hash *cshake_128, const char *name)
 	LC_KMAC_CTX_ON_STACK_REINIT(ctx_re, cshake_128);
 	LC_KMAC_CTX_ON_STACK(ctx, cshake_128);
 
-	printf("hash ctx %s (%s implementation) len %lu\n", name,
+	printf("hash ctx %s (%s implementation) len %" PRIu64 "\n", name,
 	       cshake_128 == lc_cshake128_c ? "C" : "accelerated",
 	       LC_KMAC_CTX_SIZE(cshake_128));
 

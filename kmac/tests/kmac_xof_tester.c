@@ -670,7 +670,7 @@ static int _kmac_256_xof_tester(const struct lc_hash *cshake_256,
 	int ret;
 	LC_KMAC_KDF_DRNG_CTX_ON_STACK(kmac_rng, cshake_256);
 
-	printf("kmac ctx %s (%s implementation) len %lu, re-init ctx len %lu\n",
+	printf("kmac ctx %s (%s implementation) len %" PRIu64 ", re-init ctx len %" PRIu64 "\n",
 	       name, cshake_256 == lc_cshake256_c ? "C" : "accelerated",
 	       LC_KMAC_CTX_SIZE(cshake_256),
 	       LC_KMAC_CTX_SIZE_REINIT(cshake_256));
