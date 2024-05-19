@@ -11,10 +11,6 @@ jobs:
 
     runs-on: windows-latest
 
-    defaults:
-      run:
-        shell: msys2 {0}
-
     steps:
     - uses: actions/checkout@v3
     - uses: msys2/setup-msys2@v2
@@ -22,8 +18,8 @@ jobs:
         update: true
         install: git meson mingw-w64-x86_64-meson
     - name: Meson setup
-      run: meson setup build
+      run: msys2 -c 'meson setup build'
     - name: Meson compile
-      run: meson compile -C build
+      run: msys2 -c 'meson compile -C build'
     - name: Meson test
-      run: meson test -C build
+      run: msys2 -c 'meson test -C build'
