@@ -37,8 +37,7 @@ extern "C" {
 void kyber_print_buffer(const uint8_t *buffer, const size_t bufferlen,
 			const char *explanation);
 void kyber_print_polyvec(polyvec *polyvec_val, const char *explanation);
-void kyber_print_polyveck(polyvec polyvec_val[LC_KYBER_K],
-			  const char *explanation);
+void kyber_print_polyveck(polyvec *polyvec_val, const char *explanation);
 void kyber_print_poly(poly *vec, const char *explanation);
 
 #else /* LC_KYBER_DEBUG */

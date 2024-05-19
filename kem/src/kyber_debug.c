@@ -40,8 +40,7 @@ void kyber_print_polyvec(polyvec *polyvec_val, const char *explanation)
 	printf("\n");
 }
 
-void kyber_print_polyveck(polyvec polyvec_val[LC_KYBER_K],
-			  const char *explanation)
+void kyber_print_polyveck(polyvec *polyvec_val, const char *explanation)
 {
 	unsigned int i, j, k;
 
