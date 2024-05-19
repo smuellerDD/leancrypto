@@ -41,6 +41,7 @@ Small Stack         | GitHub                | [![Build Status Small Stack](https
 ASAN Address Check  | GitHub                | [![Build Status ASAN Address](https://github.com/smuellerDD/leancrypto/actions/workflows/asan-address-test.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/asan-address-test.yml)
 CodeQL Scan         | GitHub                | [![CodeQL](https://github.com/smuellerDD/leancrypto/actions/workflows/codeql.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/codeql.yml)
 Codacy Scan         | GitHub                | [![Codacy](https://github.com/smuellerDD/leancrypto/actions/workflows/codacy.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/codacy.yml)
+Windows User Space  | GitHub                | [![Windows user space CI](https://github.com/smuellerDD/leancrypto/actions/workflows/windows-test.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/windows-test.yml)
 
 ## Library Build
 

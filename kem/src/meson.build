@@ -50,8 +50,6 @@ elif (arm32_neon_gcc_asm)
 endif
 
 if get_option('kyber_1024').enabled()
-
-	# Kyber-1024 Support compiled unconditionally
 	kyber_1024_files = kyber_c
 
 	if (not x86_64_asm and not arm64_asm)
