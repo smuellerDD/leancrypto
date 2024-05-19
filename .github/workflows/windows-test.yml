@@ -27,8 +27,11 @@ jobs:
         update: true
         install: git meson mingw-w64-${{matrix.env}}-meson mingw-w64-${{matrix.env}}-gcc
     - name: Meson setup
-      run: msys2 -ucrt64 -c 'meson setup build'
+    - shell: msys2 {0}
+      run: meson setup build
     - name: Meson compile
-      run: msys2 -ucrt64 -c 'meson compile -C build'
+    - shell: msys2 {0}
+      run: meson compile -C build
     - name: Meson test
-      run: msys2 -ucrt64 -c 'meson test -C build'
+    - shell: msys2 {0}
+      run: meson test -C build
