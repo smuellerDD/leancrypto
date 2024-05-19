@@ -39,7 +39,7 @@ static inline ssize_t __getentropy(uint8_t *buffer, size_t bufferlen)
 		CryptReleaseContext(hProvider, 0);
 	}
 
-	return ret ? (size_t)bufferlen : -EFAULT;
+	return ret ? (ssize_t)bufferlen : -EFAULT;
 }
 
 ssize_t get_full_entropy(uint8_t *buffer, size_t bufferlen)
