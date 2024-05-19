@@ -11,20 +11,12 @@ jobs:
 
     runs-on: windows-latest
 
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - { sys: mingw64, env: x86_64 }
-          - { sys: ucrt64,  env: ucrt-x86_64 }
-          - { sys: clang64, env: clang-x86_64 }
-
     steps:
     - uses: msys2/setup-msys2@v2
       with:
-        msystem: ${{matrix.sys}}
+        msystem: mingw64
         update: true
-        install: git meson mingw-w64-${{matrix.env}}-meson mingw-w64-${{matrix.env}}-gcc
+        install: git meson mingw-w64-x86_64-meson mingw-w64-x86_64-gcc
     - name: Meson setup
       run: msys2 -c 'CC=gcc meson setup build'
     - name: Meson compile
