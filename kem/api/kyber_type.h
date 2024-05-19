@@ -164,6 +164,7 @@ extern "C" {
 #define kyber_kem_keygen_selftest KYBER_F(kem_keygen_selftest)
 #define polyvec_decompress KYBER_F(polyvec_decompress)
 #define polyvec_compress KYBER_F(polyvec_compress)
+#define poly_compress KYBER_F(poly_compress)
 #define basemul KYBER_F(basemul)
 #define poly_getnoise_eta2 KYBER_F(poly_getnoise_eta2)
 #define poly_getnoise_eta1 KYBER_F(poly_getnoise_eta1)
