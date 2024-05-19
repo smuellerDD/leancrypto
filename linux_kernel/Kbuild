@@ -278,6 +278,8 @@ endif
 ifdef CONFIG_ARM64
 ccflags-y			+= -mno-outline-atomics
 endif
+
+# Basic leancrypto KO construct
 leancrypto-y			+= posix_support.o			       \
 				   leancrypto_kernel.o
 

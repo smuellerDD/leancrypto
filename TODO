@@ -7,8 +7,8 @@
   compiled for target host ARMv7 - at the moment compiling on ARMv6 fails
   because the Neon code is compiled (which should not be compiled)
 
-- check RISCV-64 Keccak implementation
-
 - Add Ascon-AEAD / Ascon-Keccak-AEAD to skcipher API
 
 - add more Rust wrappers
+
+- Linux kernel: add support for parallel Kyber/Dilithium support (at the moment this would require generating a separate .o file for the Kyber-768/512 and Dilithium-65/44 compile runs which then is linked into leancrypto.o to get leancrypto.ko - this compilation of a "sub-o-file" (like the static library supported by Meson) is not available).

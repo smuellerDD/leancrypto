@@ -273,9 +273,9 @@ riscv64_asm = false
 riscv32_gcc_asm = false
 riscv64_gcc_asm = false
 
-# Enable x86_64 assembler code only on x86 (naturally) and with the presence of
-# the GNU assembler - the LLVM assembler on MacOS does not work!
-# Also, Windows is not supported due to the different calling convention
+# Enable x86_64 assembler code on x86 (naturally) with the following exceptions:
+#	- macOS: the LLVM somehow does not seem to handle the asm well
+#	- Windows: itis not supported due to the different calling convention
 if (host_machine.cpu_family() == 'x86_64' and
     host_machine.system() != 'darwin' and
     host_machine.system() != 'windows')
@@ -298,6 +298,7 @@ if (host_machine.cpu_family() == 'x86_64' and
 	]
 endif
 
+# 32-bit ARM assembler support
 if (host_machine.cpu_family() == 'arm' and
 	cc.get_id() == 'gcc')
 
@@ -313,6 +314,7 @@ if (host_machine.cpu_family() == 'arm' and
 		'-funsafe-math-optimizations'
 	]
 
+# 64-bit ARM assembler support
 elif (host_machine.cpu_family() == 'aarch64')
 
 	arm64_asm = true
