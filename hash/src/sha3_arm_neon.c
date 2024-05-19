@@ -125,7 +125,7 @@ static void keccak_arm_neon_permutation(void *state, unsigned int rounds)
 }
 
 static void keccak_arm_neon_add_bytes(void *state, const uint8_t *data,
-				      unsigned int offset, unsigned int length)
+				      size_t offset, size_t length)
 {
 	LC_NEON_ENABLE;
 	KeccakP1600_AddBytes(state, data, offset, length);
