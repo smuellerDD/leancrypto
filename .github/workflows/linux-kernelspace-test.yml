@@ -13,8 +13,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: Install GCC
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc-13
     - name: Linux kernel build
-      run: make -C linux_kernel
+      run: make -C linux_kernel CC=gcc-13
     - name: Load leancrypto kernel module
       run: sudo insmod linux_kernel/leancrypto.ko
     - name: Linux kernel test
