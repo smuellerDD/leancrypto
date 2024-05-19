@@ -1,4 +1,4 @@
-Changes 0.10.0
+Changes 0.10.0-prerelease
 
 * enhancement: add Sponge APIs
 

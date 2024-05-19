@@ -279,6 +279,9 @@ ifdef CONFIG_ARM64
 ccflags-y			+= -mno-outline-atomics
 endif
 
+################################################################################
+# Basic support code
+
 # Basic leancrypto KO construct
 leancrypto-y			+= posix_support.o			       \
 				   leancrypto_kernel.o
@@ -301,7 +304,7 @@ else
 leancrypto-y	 		+= ../internal/src/cpufeatures_none.o
 endif
 
-# Special Memset Support
+# Special Memcmp Support
 ifdef CONFIG_X86_64
 leancrypto-y	  		+= ../internal/src/memcmp_secure_avx2.o
 else
@@ -314,7 +317,8 @@ obj-m				+= rerun_selftests_tester.o
 status_tester-y			+= ../internal/tests/status_tester.o
 rerun_selftests_tester-y	+= ../internal/tests/rerun_selftests_tester.o
 
-# Hash implementation
+################################################################################
+# Hash implementation: SHA-256
 ccflags-y	 		+= -I$(PWD)/../hash/api
 leancrypto-y	  		+= ../hash/src/hash.o
 
@@ -325,6 +329,8 @@ obj-m				+= sha256_tester.o
 sha256_tester-y			+= ../hash/tests/sha256_tester.o
 endif
 
+################################################################################
+# Hash implementation: SHA-512
 leancrypto-$(CONFIG_LEANCRYPTO_SHA2_512)				       \
 				+= ../hash/src/sha512.o
 ifdef CONFIG_LEANCRYPTO_SHA2_512
@@ -332,6 +338,8 @@ obj-m				+= sha512_tester.o
 sha512_tester-y			+= ../hash/tests/sha512_tester.o
 endif
 
+################################################################################
+# Hash implementation: SHA-3
 leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
 				+= ../hash/src/cshake.o			       \
 				   ../hash/src/sha3_selector.o		       \
@@ -435,6 +443,8 @@ endif
 leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
 				+= ../hash/src/sha3_riscv_asm_null.o
 
+################################################################################
+# Hash implementation: Ascon
 leancrypto-$(CONFIG_LEANCRYPTO_ASCON_HASH)				       \
 				+= ../hash/src/ascon_c.o		       \
 				   ../hash/src/ascon_hash_common.o	       \
@@ -483,6 +493,7 @@ ascon_xofa_tester-y		+= ../hash/tests/ascon_xofa_tester.o
 ascon_xof_tester-y		+= ../hash/tests/ascon_xof_tester.o
 endif
 
+################################################################################
 # AEAD implementation
 ccflags-y	  		+= -I$(PWD)/../aead/api
 leancrypto-$(CONFIG_LEANCRYPTO_SYMHMAC_CRYPT)				       \
@@ -521,7 +532,8 @@ obj-m		  		+= kmac_crypt_test.o
 kmac_crypt_test-y 		+= ../aead/tests/kmac_crypt_test.o
 endif
 
-
+################################################################################
+# AEAD implementation: Ascon and Ascon/Keccak
 ifdef CONFIG_LEANCRYPTO_ASCON_CRYPT
 leancrypto-$(CONFIG_LEANCRYPTO_ASCON_CRYPT)				       \
 				+= ../aead/src/ascon.o
@@ -544,8 +556,8 @@ endif
 
 endif
 
-
-# DRNG implementation
+################################################################################
+# DRNG implementation: ChaCha20 DRNG
 ccflags-y	  		+= -I$(PWD)/../drng/api -I$(PWD)/../drng/src
 leancrypto-y			+= ../drng/src/seeded_rng.o		       \
 				   ../drng/src/seeded_rng_linux_kernel.o
@@ -557,6 +569,8 @@ obj-m		  		+= chacha20_drng_tester.o
 chacha20_drng_tester-y		+= ../drng/tests/chacha20_drng_tester.o
 endif
 
+################################################################################
+# DRNG implementation: SP800-90A Hash DRBG
 leancrypto-$(CONFIG_LEANCRYPTO_HASH_DRBG)				       \
 				+= ../drng/src/hash_drbg.o
 ifdef CONFIG_LEANCRYPTO_HASH_DRBG
@@ -564,6 +578,8 @@ obj-m		  		+= hash_drbg_tester.o
 hash_drbg_tester-y		+= ../drng/tests/hash_drbg_tester.o
 endif
 
+################################################################################
+# DRNG implementation: SP800-90A HMAC DRBG
 leancrypto-$(CONFIG_LEANCRYPTO_HMAC_DRBG)				       \
 				+= ../drng/src/hmac_drbg.o
 ifdef CONFIG_LEANCRYPTO_HMAC_DRBG
@@ -571,6 +587,8 @@ obj-m		  		+= hmac_drbg_tester.o
 hmac_drbg_tester-y		+= ../drng/tests/hmac_drbg_tester.o
 endif
 
+################################################################################
+# DRNG implementation: XDRBG implementations
 leancrypto-$(CONFIG_LEANCRYPTO_KMAC_DRNG)				       \
 				+= ../drng/src/kmac_drng.o
 ifdef CONFIG_LEANCRYPTO_KMAC_DRNG
@@ -595,6 +613,7 @@ obj-m				+= xdrbg256_tester.o
 xdrbg256_tester-y		+= ../drng/tests/xdrbg256_tester.o
 endif
 
+################################################################################
 # HMAC implementation
 ccflags-$(CONFIG_LEANCRYPTO_HMAC)					       \
 				+= -I$(PWD)/../hmac/api
@@ -635,6 +654,7 @@ endif
 
 endif
 
+################################################################################
 # KDF implementation
 ccflags-y	 		+= -I$(PWD)/../kdf/api
 leancrypto-$(CONFIG_LEANCRYPTO_HKDF)					       \
@@ -672,9 +692,8 @@ obj-m				+= pbkdf2_tester.o
 pbkdf2_tester-y			+= ../kdf/tests/pbkdf2_tester.o
 endif
 
-# Required for Kyber and Dilithium self tests
-leancrypto-y			+= ../drng/src/selftest_rng.o
-
+################################################################################
+# Curve25519 implementation: X25519 and ED25519
 ccflags-$(CONFIG_LEANCRYPTO_CURVE25519)					       \
 				+= -I$(PWD)/../curve25519/api		       \
 				   -I$(PWD)/../curve25519/src
@@ -712,7 +731,12 @@ endif
 
 endif
 
-# KEM implementation
+################################################################################
+# KEM implementation: Kyber
+
+# Required for Kyber and Dilithium self tests
+leancrypto-y			+= ../drng/src/selftest_rng.o
+
 ccflags-$(CONFIG_LEANCRYPTO_KEM)					       \
 				+= -I$(PWD)/../kem/api -I$(PWD)/../kem/src
 leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
@@ -857,6 +881,7 @@ kyber_kem_kdf_tester_armv8-y	+= ../kem/tests/kyber_kem_tester.o	       \
 endif
 endif
 
+################################################################################
 # KMAC implementation
 ccflags-$(CONFIG_LEANCRYPTO_KMAC)					       \
 				+= -I$(PWD)/../kmac/api
@@ -880,7 +905,8 @@ kmac_xof_more_tester-y		+= ../kmac/tests/kmac_xof_more_tester.o
 kmac_xof_tester-y		+= ../kmac/tests/kmac_xof_tester.o
 endif
 
-# Signature implementation
+################################################################################
+# Signature implementation: Dilithium
 ccflags-$(CONFIG_LEANCRYPTO_DILITHIUM)					       \
 				+= -I$(PWD)/../signature/api
 asflags-$(CONFIG_LEANCRYPTO_DILITHIUM)					       \
@@ -1010,7 +1036,8 @@ dilithium_tester_iuf_armv7-y	+= ../signature/tests/dilithium_tester.o       \
 endif
 endif
 
-# Symmetric implementation
+################################################################################
+# Symmetric implementation: AES
 ccflags-y	 		+= -I$(PWD)/../sym/api -I$(PWD)/../sym/src
 leancrypto-y	 		+= ../sym/src/sym.o
 
@@ -1156,6 +1183,8 @@ obj-m				+= aes_kw_tester.o
 aes_kw_tester-y			+= ../sym/tests/aes_kw_tester.o
 endif
 
+################################################################################
+# Symmetric implementation: ChaCha20
 leancrypto-$(CONFIG_LEANCRYPTO_CHACHA20)				       \
 				+= ../sym/src/chacha20.o
 ifdef CONFIG_LEANCRYPTO_CHACHA20
