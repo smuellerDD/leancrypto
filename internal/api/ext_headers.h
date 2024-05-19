@@ -49,7 +49,7 @@ static inline pid_t getpid(void)
 
 #define printf printk
 #define assert(x) WARN_ON(!x)
-#define PRIu64 "%lu"
+#define PRIu64 "lu"
 
 #define LC_DEFINE_CONSTRUCTOR(_func) void _func(void)
 #define LC_DEFINE_DESTRUCTOR(_func) void _func(void)
