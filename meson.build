@@ -16,7 +16,8 @@ project('leancrypto', 'c',
 		'warning_level=3',
 		'optimization=3',
 		'strip=true',
-		'b_lto=true',
+		#LTO is enabled below
+		#'b_lto=true',
 		'b_staticpic=true',
 		'b_pie=true',
 		'b_asneeded=true'
@@ -47,6 +48,13 @@ add_global_arguments([ '-fstack-protector-strong',
 if cc.has_argument('-fzero-call-used-regs=used-gpr')
 	add_global_arguments([ '-fzero-call-used-regs=used-gpr' ],
 			     language: 'c')
+endif
+
+# MINGW64 cannot handle lto properly at the moment
+if (cc.has_argument('-flto') and
+    host_machine.system() != 'windows')
+	add_global_arguments([ '-flto=auto' ], language: 'c')
+	add_project_link_arguments('-flto=auto', language : 'c')
 endif
 
 if (cc.has_argument('-ffat-lto-objects') and
@@ -359,11 +367,17 @@ endforeach
 # Generate leancrypto.h
 autogen_header = meson.build_root() + '/leancrypto.h'
 leancrypto_header_subdir = 'leancrypto'
-run_command(header_script,
-	    autogen_header,
-	    leancrypto_header_subdir,
-	    include_files,
-	    check: true)
+
+# meson under Windows does not resolve the script directory properly - thus
+# under Windows the convenience include file of leancrypto.h is not yet
+# available
+if (host_machine.system() != 'windows')
+	run_command(header_script,
+		    autogen_header,
+		    leancrypto_header_subdir,
+		    include_files,
+		    check: true)
+endif
 
 # Create the official static library
 leancrypto_static_lib = static_library('leancrypto',
