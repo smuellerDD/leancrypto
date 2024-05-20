@@ -954,7 +954,6 @@ leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
 			+= ../signature/src/armv8/NTT_params.o		       \
 			   ../signature/src/armv8/dilithium_intt_armv8.o       \
 			   ../signature/src/armv8/dilithium_ntt_armv8.o	       \
-			   ../signature/src/armv8/dilithium_poly.o	       \
 			   ../signature/src/armv8/dilithium_poly_armv8.o       \
 			   ../signature/src/armv8/dilithium_signature_api_armv8.o\
 			   ../signature/src/armv8/dilithium_signature_armv8.o

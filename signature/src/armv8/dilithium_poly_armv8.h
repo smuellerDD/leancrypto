@@ -34,7 +34,13 @@ extern "C" {
 
 static const int32_t montgomery_const[2] = { LC_DILITHIUM_Q,
 					     LC_DILITHIUM_QINV };
+
 #ifdef LINUX_KERNEL
+/*
+ * In the kernel, we cannot compile dilithium_poly.c as it uses NEON inrinsics.
+ * Thus, use "common" C functions to implement the following function avoiding
+ * these NEON intrinsics.
+ */
 static inline void poly_uniformx2(poly *a0, poly *a1,
 				  const uint8_t seed[LC_DILITHIUM_SEEDBYTES],
 				  uint16_t nonce0, uint16_t nonce1,
