@@ -95,9 +95,7 @@ The `leancrypto` library can be built on Windows using
 and the `mingw` compiler, the standard compilation procedure outlined above
 for `meson` can be used.
 
-Note, the assembler implementations for the accelerated crypto algorithms is
-currently not compiled as the calling convention of Windows is not adopted
-to those implementations.
+The support for full assembler acceleration is enabled.
 
 ## Library Build for Other Environments
 
