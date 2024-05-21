@@ -31,7 +31,7 @@
 	}
 
 static int ak_tester_one(const struct lc_hash *hash, const uint8_t *iv,
-			 size_t ivlen, const uint8_t *key,  size_t keylen)
+			 size_t ivlen, const uint8_t *key, size_t keylen)
 {
 	LC_AK_CTX_ON_STACK(ak, hash);
 

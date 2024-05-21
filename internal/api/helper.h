@@ -51,7 +51,7 @@ extern "C" {
  * @param struct Data structure
  * @param member Member variable to obtain size from
  */
-#define member_size(struct, member) (sizeof( ((struct *)0)->member ))
+#define member_size(struct, member) (sizeof(((struct *)0)->member))
 
 #ifdef __cplusplus
 }

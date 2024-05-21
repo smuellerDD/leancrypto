@@ -79,8 +79,8 @@ void poly_compress(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES], const poly *a);
  * @param [out] r pointer to output polynomial
  * @param [in] a pointer to input byte array
  */
-static inline void poly_decompress(
-	poly *r, const uint8_t a[LC_KYBER_POLYCOMPRESSEDBYTES])
+static inline void
+poly_decompress(poly *r, const uint8_t a[LC_KYBER_POLYCOMPRESSEDBYTES])
 {
 	unsigned int i;
 
@@ -141,7 +141,6 @@ static inline void poly_tobytes(uint8_t r[LC_KYBER_POLYBYTES], const poly *a)
 		r[3 * i + 2] = (uint8_t)(t1 >> 4);
 	}
 }
-
 
 /**
  * @brief poly_frombytes - De-serialization of a polynomial;

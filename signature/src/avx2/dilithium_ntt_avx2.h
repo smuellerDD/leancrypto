@@ -40,10 +40,11 @@ void SYSV_ABI dilithium_invntt_avx(__m256i *a, const __m256i *qdata);
 
 void SYSV_ABI dilithium_nttunpack_avx(__m256i *a);
 
-void SYSV_ABI dilithium_pointwise_avx(__m256i *c, const __m256i *a, const __m256i *b,
-			     const __m256i *qdata);
-void SYSV_ABI dilithium_pointwise_acc_avx(__m256i *c, const __m256i *a, const __m256i *b,
-				 const __m256i *qdata);
+void SYSV_ABI dilithium_pointwise_avx(__m256i *c, const __m256i *a,
+				      const __m256i *b, const __m256i *qdata);
+void SYSV_ABI dilithium_pointwise_acc_avx(__m256i *c, const __m256i *a,
+					  const __m256i *b,
+					  const __m256i *qdata);
 
 #ifdef __cplusplus
 }

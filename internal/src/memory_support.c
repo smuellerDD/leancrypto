@@ -38,8 +38,7 @@ int posix_memalign(void **ptr, size_t align, size_t size)
 
 	int saved_errno = errno;
 	void *p = _aligned_malloc(size, align);
-	if (p == NULL)
-	{
+	if (p == NULL) {
 		errno = saved_errno;
 		return -ENOMEM;
 	}

@@ -48,29 +48,33 @@ static inline void KeccakP1600_AVX512_AddByte(void *state, unsigned char byte,
 {
 	((unsigned char *)(state))[(offset)] ^= (byte);
 }
-void SYSV_ABI KeccakP1600_AVX512_AddBytes(void *state, const unsigned char *data,
-				 size_t offset, size_t length);
-void SYSV_ABI  KeccakP1600_AVX512_OverwriteBytes(void *state, const unsigned char *data,
-				       unsigned int offset,
-				       unsigned int length);
+void SYSV_ABI KeccakP1600_AVX512_AddBytes(void *state,
+					  const unsigned char *data,
+					  size_t offset, size_t length);
+void SYSV_ABI KeccakP1600_AVX512_OverwriteBytes(void *state,
+						const unsigned char *data,
+						unsigned int offset,
+						unsigned int length);
 void SYSV_ABI KeccakP1600_AVX512_OverwriteWithZeroes(void *state,
-					    unsigned int byteCount);
-void SYSV_ABI SYSV_ABI KeccakP1600_AVX512_Permute_Nrounds(void *state, unsigned int nrounds);
+						     unsigned int byteCount);
+void SYSV_ABI SYSV_ABI KeccakP1600_AVX512_Permute_Nrounds(void *state,
+							  unsigned int nrounds);
 void SYSV_ABI KeccakP1600_AVX512_Permute_12rounds(void *state);
 void SYSV_ABI KeccakP1600_AVX512_Permute_24rounds(void *state);
-void SYSV_ABI KeccakP1600_AVX512_ExtractBytes(const void *state, unsigned char *data,
-				     size_t offset, size_t length);
+void SYSV_ABI KeccakP1600_AVX512_ExtractBytes(const void *state,
+					      unsigned char *data,
+					      size_t offset, size_t length);
 void SYSV_ABI KeccakP1600_AVX512_ExtractAndAddBytes(const void *state,
-					   const unsigned char *input,
-					   unsigned char *output,
-					   unsigned int offset,
-					   unsigned int length);
-size_t SYSV_ABI KeccakF1600_AVX512_FastLoop_Absorb(void *state, unsigned int laneCount,
-					  const unsigned char *data,
-					  size_t dataByteLen);
-size_t SYSV_ABI KeccakP1600_AVX512_12rounds_FastLoop_Absorb(void *state,
+						    const unsigned char *input,
+						    unsigned char *output,
+						    unsigned int offset,
+						    unsigned int length);
+size_t SYSV_ABI KeccakF1600_AVX512_FastLoop_Absorb(void *state,
 						   unsigned int laneCount,
 						   const unsigned char *data,
 						   size_t dataByteLen);
+size_t SYSV_ABI KeccakP1600_AVX512_12rounds_FastLoop_Absorb(
+	void *state, unsigned int laneCount, const unsigned char *data,
+	size_t dataByteLen);
 
 #endif /* _KeccakP_1600_SnP_h_ */

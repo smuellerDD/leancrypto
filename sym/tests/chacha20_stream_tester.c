@@ -54,7 +54,8 @@ static int chacha20_enc_selftest(void)
 	int ret;
 	LC_SYM_CTX_ON_STACK(chacha20, lc_chacha20);
 
-	printf("ChaCha20 ctx size: %" PRIu64 "\n", LC_SYM_CTX_SIZE(lc_chacha20));
+	printf("ChaCha20 ctx size: %" PRIu64 "\n",
+	       LC_SYM_CTX_SIZE(lc_chacha20));
 	/* Encrypt */
 	lc_sym_init(chacha20);
 	CKINT(lc_sym_setkey(chacha20, (uint8_t *)key, sizeof(key)));

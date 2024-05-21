@@ -59,9 +59,10 @@ static inline void poly_uniform_etax2(poly *a0, poly *a1,
 	poly_uniform_eta(a1, seed, nonce1, ws_buf);
 }
 
-static inline void poly_uniform_gamma1x2(
-	poly *a0, poly *a1, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
-	uint16_t nonce0, uint16_t nonce1, void *ws_buf)
+static inline void
+poly_uniform_gamma1x2(poly *a0, poly *a1,
+		      const uint8_t seed[LC_DILITHIUM_CRHBYTES],
+		      uint16_t nonce0, uint16_t nonce1, void *ws_buf)
 {
 	poly_uniform_gamma1(a0, seed, nonce0, ws_buf);
 	poly_uniform_gamma1(a1, seed, nonce1, ws_buf);
