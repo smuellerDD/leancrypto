@@ -27,21 +27,21 @@ static int check_align(size_t align)
 	for (size_t i = sizeof(void *); i != 0; i *= 2)
 		if (align == i)
 			return 0;
-	return EINVAL;
+	return -EINVAL;
 }
 
 int posix_memalign(void **ptr, size_t align, size_t size);
 int posix_memalign(void **ptr, size_t align, size_t size)
 {
 	if (check_align(align))
-		return EINVAL;
+		return -EINVAL;
 
 	int saved_errno = errno;
 	void *p = _aligned_malloc(size, align);
 	if (p == NULL)
 	{
 		errno = saved_errno;
-		return ENOMEM;
+		return -ENOMEM;
 	}
 
 	*ptr = p;
@@ -90,7 +90,11 @@ LC_INTERFACE_FUNCTION(void, lc_free, void *ptr)
 {
 	if (!ptr)
 		return;
+#ifdef _WIN32
+	_aligned_free(ptr);
+#else
 	free(ptr);
+#endif
 }
 
 LC_INTERFACE_FUNCTION(void, lc_free_high_aligned, void *ptr, size_t size)
