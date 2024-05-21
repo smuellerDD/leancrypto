@@ -30,7 +30,5 @@ jobs:
       run: msys2 -c 'meson setup build'
     - name: Meson compile
       run: msys2 -c 'meson compile -C build'
-    #Test is disabled for the moment: on my local Windows system, all tests
-    #pass. But on github, some segfaults are present which I cannot reproduce
-    #- name: Meson test
-    #  run: msys2 -c 'meson test -C build'
+    - name: Meson test
+      run: msys2 -c 'meson test -C build'
