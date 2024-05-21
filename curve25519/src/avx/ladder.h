@@ -35,7 +35,7 @@
 extern "C" {
 #endif
 
-extern void curve25519_ladder_avx2(fe *, const unsigned char *);
+extern void SYSV_ABI curve25519_ladder_avx2(fe *, const unsigned char *);
 
 #ifdef __cplusplus
 }

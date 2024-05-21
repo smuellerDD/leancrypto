@@ -54,6 +54,8 @@ static inline pid_t getpid(void)
 #define LC_DEFINE_CONSTRUCTOR(_func) void _func(void)
 #define LC_DEFINE_DESTRUCTOR(_func) void _func(void)
 
+#define SYSV_ABI
+
 #elif (defined(__CYGWIN__) || defined(_WIN32))
 /******************************************************************************
  * Windows
@@ -105,6 +107,8 @@ static inline int mlock(const void *ptr, size_t len)
 	return 0;
 }
 
+#define SYSV_ABI __attribute__((sysv_abi))
+
 #else /* LINUX_KERNEL */
 /******************************************************************************
  * POSIX
@@ -150,6 +154,8 @@ static inline int mlock(const void *ptr, size_t len)
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
+
+#define SYSV_ABI
 
 #endif /* LINUX_KERNEL */
 

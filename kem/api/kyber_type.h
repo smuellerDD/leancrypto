@@ -178,7 +178,7 @@ extern "C" {
 #define kyber_print_poly KYBER_F(_print_poly)
 
 /* AVX2 Implementation */
-#define kyber_rej_uniform_avx KYBER_F(rey_uniform_avx)
+#define kyber_rej_uniform_avx KYBER_F(rej_uniform_avx)
 #define kyber_poly_sub_avx KYBER_F(poly_sub_avx)
 #define kyber_poly_add_avx KYBER_F(poly_add_avx)
 #define poly_getnoise_eta1_4x KYBER_F(poly_getnoise_eta1_4x)

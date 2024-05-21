@@ -46,9 +46,9 @@ typedef struct {
 	uint64_t v[5];
 } fe51;
 
-extern void curve25519_fe51_pack_avx(unsigned char *, const fe51 *);
-extern void curve25519_fe51_mul_avx(fe51 *, const fe51 *, const fe51 *);
-extern void curve25519_fe51_nsquare_avx(fe51 *, const fe51 *, int);
+extern void SYSV_ABI curve25519_fe51_pack_avx(unsigned char *, const fe51 *);
+extern void SYSV_ABI curve25519_fe51_mul_avx(fe51 *, const fe51 *, const fe51 *);
+extern void SYSV_ABI curve25519_fe51_nsquare_avx(fe51 *, const fe51 *, int);
 extern void curve25519_fe51_invert_avx(fe51 *, const fe51 *);
 
 #ifdef __cplusplus

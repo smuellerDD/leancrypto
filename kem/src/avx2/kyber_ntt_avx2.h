@@ -34,17 +34,17 @@
 extern "C" {
 #endif
 
-void kyber_ntt_avx(__m256i *r, const __m256i *qdata);
-void kyber_invntt_avx(__m256i *r, const __m256i *qdata);
+void SYSV_ABI kyber_ntt_avx(__m256i *r, const __m256i *qdata);
+void SYSV_ABI kyber_invntt_avx(__m256i *r, const __m256i *qdata);
 
-void kyber_nttpack_avx(__m256i *r, const __m256i *qdata);
-void kyber_nttunpack_avx(__m256i *r, const __m256i *qdata);
+void SYSV_ABI kyber_nttpack_avx(__m256i *r, const __m256i *qdata);
+void SYSV_ABI kyber_nttunpack_avx(__m256i *r, const __m256i *qdata);
 
-void kyber_basemul_avx(__m256i *r, const __m256i *a, const __m256i *b,
+void SYSV_ABI kyber_basemul_avx(__m256i *r, const __m256i *a, const __m256i *b,
 		       const __m256i *qdata);
 
-void kyber_ntttobytes_avx(uint8_t *r, const __m256i *a, const __m256i *qdata);
-void kyber_nttfrombytes_avx(__m256i *r, const uint8_t *a, const __m256i *qdata);
+void SYSV_ABI kyber_ntttobytes_avx(uint8_t *r, const __m256i *a, const __m256i *qdata);
+void SYSV_ABI kyber_nttfrombytes_avx(__m256i *r, const uint8_t *a, const __m256i *qdata);
 
 #ifdef __cplusplus
 }

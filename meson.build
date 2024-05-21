@@ -277,8 +277,7 @@ riscv64_gcc_asm = false
 #	- macOS: the LLVM somehow does not seem to handle the asm well
 #	- Windows: itis not supported due to the different calling convention
 if (host_machine.cpu_family() == 'x86_64' and
-    host_machine.system() != 'darwin' and
-    host_machine.system() != 'windows')
+    host_machine.system() != 'darwin')
 
 	# 64 bit AVX2 / AVX512 support
 	x86_64_asm = true

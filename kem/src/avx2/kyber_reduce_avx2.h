@@ -34,8 +34,8 @@
 extern "C" {
 #endif
 
-void reduce_avx(__m256i *r, const __m256i *qdata);
-void tomont_avx(__m256i *r, const __m256i *qdata);
+void SYSV_ABI reduce_avx(__m256i *r, const __m256i *qdata);
+void SYSV_ABI tomont_avx(__m256i *r, const __m256i *qdata);
 
 #ifdef __cplusplus
 }
