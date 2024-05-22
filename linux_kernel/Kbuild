@@ -539,6 +539,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_ASCON_CRYPT)				       \
 				+= ../aead/src/ascon.o
 
 ifdef CONFIG_LEANCRYPTO_ASCON_HASH
+ccflags-y			+= -DLC_ASCON
 leancrypto-$(CONFIG_LEANCRYPTO_ASCON_CRYPT)				       \
 				+= ../aead/src/ascon_lightweight.o
 obj-m		  		+= ascon_crypt_test.o
@@ -546,6 +547,7 @@ ascon_crypt_test-y 		+= ../aead/tests/ascon_crypt_test.o
 endif
 
 ifdef CONFIG_LEANCRYPTO_SHA3
+ccflags-y			+= -DLC_ASCON_KECCAK
 leancrypto-$(CONFIG_LEANCRYPTO_ASCON_CRYPT)				       \
 				+= ../aead/src/ascon_keccak.o
 obj-m		  		+= ascon_keccak_crypt_test.o
