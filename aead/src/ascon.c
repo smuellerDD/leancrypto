@@ -94,7 +94,7 @@ static int lc_ascon_setkey(void *state, const uint8_t *key, size_t keylen,
 
 	/* lc_ak_setiv did not identify the key */
 	if (!ret) {
-		ret = lc_ascon_ascon_setiv(ascon, keylen);
+		ret = lc_ascon_setiv(ascon, keylen);
 		if (ret < 0)
 			return ret;
 	}

@@ -1,4 +1,7 @@
 # for i in $(ls *.c | sort); do echo "'$i',"; done
+
+compile_hash_crypt = 0
+
 if get_option('hash_crypt').enabled()
 	src += files([
 		'hash_crypt.c',
@@ -16,18 +19,30 @@ if get_option('hash_crypt').enabled()
 				'kmac_crypt.c'
 			       ])
 
-	if get_option('hash_crypt').enabled()
-		aead_src_files += files([ 'ascon.c', 'ascon_lightweight.c', ])
-			include_files += files([ '../api/lc_ascon_aead.h' ])
+	compile_hash_crypt = 1
+endif
 
-		if get_option('sha3').enabled()
-			aead_src_files += files([ 'ascon_keccak.c' ])
-			include_files += files([ '../api/lc_ascon_keccak.h' ])
-			add_global_arguments([ '-DLC_ASCON_KECCAK' ],
-					     language: 'c')
-		endif
-	endif
+if get_option('ascon').enabled() or get_option('ascon_keccak').enabled()
+	aead_src_files += files([ 'ascon.c', ])
+endif
 
+if get_option('ascon').enabled()
+	aead_src_files += files([ 'ascon_lightweight.c', ])
+		include_files += files([ '../api/lc_ascon_aead.h' ])
+	add_global_arguments([ '-DLC_ASCON' ], language: 'c')
+
+	compile_hash_crypt = 1
+endif
+
+if get_option('ascon_keccak').enabled()
+	aead_src_files += files([ 'ascon_keccak.c' ])
+	include_files += files([ '../api/lc_ascon_keccak.h' ])
+	add_global_arguments([ '-DLC_ASCON_KECCAK' ], language: 'c')
+
+	compile_hash_crypt = 1
+endif
+
+if (compile_hash_crypt == 1)
 	if (x86_64_asm)
 		# This is required for the XOR 256 bit AVX2 implementation
 		leancrypto_aead_avx2_lib = static_library(

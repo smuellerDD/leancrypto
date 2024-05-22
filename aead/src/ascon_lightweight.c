@@ -91,7 +91,7 @@ static void ascon_aead_selftest(int *tested)
 			    "Ascon lightweight crypt: Decryption, plaintext");
 }
 
-int lc_ascon_ascon_setiv(struct lc_ascon_cryptor *ascon, size_t keylen)
+int lc_ascon_setiv(struct lc_ascon_cryptor *ascon, size_t keylen)
 {
 	const struct lc_hash *hash = ascon->hash;
 	uint64_t *state_mem = ascon->state;

@@ -6,7 +6,18 @@ option('sha3', type: 'feature', value: 'enabled',
        description: 'SHA3 support')
 
 option('ascon', type: 'feature', value: 'enabled',
-       description: 'Ascon message digest support')
+       description: '''Ascon message digest and AEAD support
+
+This option enables the Ascon-128, Ascon-128a, AEAD and message digest support
+as well as Ascon-XOF and Ascon-XOFa.
+''')
+
+option('ascon_keccak', type: 'feature', value: 'enabled',
+       description: '''Ascon-Keccak AEAD support
+
+This option enables the Ascon-Keccak 256, and Ascon-Keccak 512 AEAD. Note, this
+requires also SHA-3 being enabled.
+''')
 
 option('chacha20', type: 'feature', value: 'enabled',
        description: 'ChaCha20 support')

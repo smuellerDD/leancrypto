@@ -260,6 +260,10 @@ if ((get_option('dilithium_ed25519').enabled() or
 	error('Curve 25519 support requires SHA2-512')
 endif
 
+if get_option('sha3').disabled() and get_option('ascon_keccak').enabled()
+	error('Ascon-Keccak support requires SHA-3')
+endif
+
 ################################################################################
 # Enable assembler support
 ################################################################################
@@ -274,8 +278,7 @@ riscv32_gcc_asm = false
 riscv64_gcc_asm = false
 
 # Enable x86_64 assembler code on x86 (naturally) with the following exceptions:
-#	- macOS: the LLVM somehow does not seem to handle the asm well
-#	- Windows: itis not supported due to the different calling convention
+#	- macOS: the LLVM somehow does not seem to handle the x86_64 asm well
 if (host_machine.cpu_family() == 'x86_64' and
     host_machine.system() != 'darwin')
 
