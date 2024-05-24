@@ -114,7 +114,7 @@ int _dilithium_tester(
 #ifdef GENERATE_VECTORS
 	printf("#ifndef DILITHIUM_TESTVECTORS_H\n"
 	       "#define DILITHIUM_TESTVECTORS_H\n"
-	       "#include \"lc_dilithium.h\"\n"
+	       "#include \"dilithium_type.h\"\n"
 	       "struct dilithium_testvector {\n"
 	       "\tuint8_t m[32];\n"
 	       "\tuint8_t pk[LC_DILITHIUM_PUBLICKEYBYTES];\n"

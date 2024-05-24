@@ -174,7 +174,7 @@ void poly_sub_avx(poly *c, const poly *a, const poly *b);
 void poly_shiftl_avx(poly *a);
 
 int poly_chknorm_avx(const poly *a, int32_t B);
-void poly_challenge_avx(poly *c, const uint8_t seed[LC_DILITHIUM_SEEDBYTES]);
+void poly_challenge_avx(poly *c, const uint8_t seed[LC_DILITHIUM_CTILDE_BYTES]);
 
 void poly_uniform_4x_avx(poly *a0, poly *a1, poly *a2, poly *a3,
 			 const uint8_t seed[32], uint16_t nonce0,

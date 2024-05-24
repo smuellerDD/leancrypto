@@ -410,10 +410,10 @@ void poly_uniform_gamma1_4x_avx(poly *a0, poly *a1, poly *a2, poly *a3,
  * {-1,1} using the output stream of SHAKE256(seed).
  *
  * @param c pointer to output polynomial
- * @param mu[] byte array containing seed of length SEEDBYTES
+ * @param mu[] byte array containing seed of length LC_DILITHIUM_CTILDE_BYTES
  */
 void poly_challenge_avx(poly *restrict c,
-			const uint8_t seed[LC_DILITHIUM_SEEDBYTES])
+			const uint8_t seed[LC_DILITHIUM_CTILDE_BYTES])
 {
 	unsigned int i, b, pos;
 	uint64_t signs;
@@ -421,7 +421,7 @@ void poly_challenge_avx(poly *restrict c,
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
 
 	lc_hash_init(hash_ctx);
-	lc_hash_update(hash_ctx, seed, LC_DILITHIUM_SEEDBYTES);
+	lc_hash_update(hash_ctx, seed, LC_DILITHIUM_CTILDE_BYTES);
 	lc_hash_set_digestsize(hash_ctx, sizeof(buf));
 	lc_hash_final(hash_ctx, buf);
 

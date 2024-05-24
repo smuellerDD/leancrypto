@@ -177,7 +177,7 @@ void poly_uniform_eta(poly *a, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
 	POLY_UNIFORM_GAMMA1_NBLOCKS *LC_SHAKE_256_SIZE_BLOCK
 
 #define POLY_CHALLENGE_BYTES LC_SHAKE_256_SIZE_BLOCK
-void poly_challenge(poly *c, const uint8_t seed[LC_DILITHIUM_SEEDBYTES],
+void poly_challenge(poly *c, const uint8_t seed[LC_DILITHIUM_CTILDE_BYTES],
 		    void *ws_buf);
 
 void polyeta_pack(uint8_t *r, const poly *a);

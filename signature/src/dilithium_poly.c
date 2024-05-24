@@ -170,9 +170,9 @@ void poly_uniform_gamma1(poly *a, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
  *			   stream of SHAKE256(seed).
  *
  * @param c [out] pointer to output polynomial
- * @param mu [in] byte array containing seed of length LC_DILITHIUM_SEEDBYTES
+ * @param mu [in] byte array containing seed of length LC_DILITHIUM_CTILDE_BYTES
  */
-void poly_challenge(poly *c, const uint8_t seed[LC_DILITHIUM_SEEDBYTES],
+void poly_challenge(poly *c, const uint8_t seed[LC_DILITHIUM_CTILDE_BYTES],
 		    void *ws_buf)
 {
 	unsigned int i, b, pos;
@@ -181,7 +181,7 @@ void poly_challenge(poly *c, const uint8_t seed[LC_DILITHIUM_SEEDBYTES],
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
 
 	lc_hash_init(hash_ctx);
-	lc_hash_update(hash_ctx, seed, LC_DILITHIUM_SEEDBYTES);
+	lc_hash_update(hash_ctx, seed, LC_DILITHIUM_CTILDE_BYTES);
 	lc_hash_set_digestsize(hash_ctx, POLY_CHALLENGE_BYTES);
 	lc_hash_final(hash_ctx, buf);
 
@@ -548,7 +548,7 @@ void polyz_unpack(poly *r, const uint8_t *a)
 		r->coeffs[2 * i + 1] = a[5 * i + 2] >> 4;
 		r->coeffs[2 * i + 1] |= (int32_t)a[5 * i + 3] << 4;
 		r->coeffs[2 * i + 1] |= (int32_t)a[5 * i + 4] << 12;
-		r->coeffs[2 * i + 0] &= 0xFFFFF;
+		r->coeffs[2 * i + 1] &= 0xFFFFF;
 
 		r->coeffs[2 * i + 0] =
 			LC_DILITHIUM_GAMMA1 - r->coeffs[2 * i + 0];
