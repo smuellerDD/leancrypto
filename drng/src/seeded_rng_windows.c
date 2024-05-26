@@ -18,6 +18,7 @@
  */
 
 #include <windows.h>
+#include <bcrypt.h>
 
 #include "ext_headers.h"
 #include "math_helper.h"
@@ -25,21 +26,15 @@
 
 static inline ssize_t __getentropy(uint8_t *buffer, size_t bufferlen)
 {
-	BOOL ret;
-	HCRYPTPROV hProvider;
-
 	if (bufferlen > INT_MAX)
 		return -EINVAL;
 
-	ret = CryptAcquireContext(&hProvider, 0, 0, PROV_RSA_FULL,
-				  CRYPT_VERIFYCONTEXT | CRYPT_SILENT);
-	if (ret) {
-		ret = CryptGenRandom(hProvider, (unsigned int)bufferlen,
-				     buffer);
-		CryptReleaseContext(hProvider, 0);
-	}
+	if (!BCRYPT_SUCCESS(BCryptGenRandom(NULL, buffer,
+					    (unsigned int)bufferlen,
+					    BCRYPT_USE_SYSTEM_PREFERRED_RNG)))
+		return -EFAULT;
 
-	return ret ? (ssize_t)bufferlen : -EFAULT;
+	return (ssize_t)bufferlen;
 }
 
 ssize_t get_full_entropy(uint8_t *buffer, size_t bufferlen)

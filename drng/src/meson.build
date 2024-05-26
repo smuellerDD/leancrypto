@@ -92,6 +92,8 @@ if (seeded_rng == 1)
 
 		if (host_machine.system() == 'windows')
 			src += files([ 'seeded_rng_windows.c' ])
+			leancrypto_link += cc.find_library( 'bcrypt',
+							    required: true)
 		endif
 	endif
 endif
