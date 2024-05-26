@@ -30,6 +30,8 @@ Changes 0.10.0-prerelease
 
 * enhancement: Windows is now supported as target platform using the MINGW compiler with full acceleration support
 
+* Dilithium: update SampleInBall implementation following https://groups.google.com/a/list.nist.gov/g/pqc-forum/c/y8ul-ZcVWI4 - implementation is fully checked against NIST ACVP Demo server
+
 Changes 0.9.2
 
 * fix: update "reduce memory footprint of Keccak state" to handle big-endian systems
