@@ -1248,6 +1248,36 @@ static inline int @kyber_name@_x25519_ies_dec_final(struct lc_aead_ctx *aead,
 
 #endif /* __ASSEMBLER__ */
 
+/*
+ * To allow including the different lc_kyber_*.h files, these macros need to be
+ * undefined. Only during compilation of leancrypto, these macros remain defined
+ * as this header file is not included multiple times.
+ */
+#ifndef LC_KYBER_INTERNAL
+#undef LC_KYBER_K
+#undef LC_KYBER_N
+#undef LC_KYBER_Q
+#undef LC_KYBER_SYMBYTES
+#undef LC_KYBER_SSBYTES
+#undef LC_KYBER_POLYBYTES
+#undef LC_KYBER_POLYVECBYTES
+#undef LC_KYBER_ETA1
+#undef LC_KYBER_POLYCOMPRESSEDBYTES
+#undef LC_KYBER_POLYVECCOMPRESSEDBYTES
+#undef LC_KYBER_ETA2
+#undef LC_KYBER_INDCPA_MSGBYTES
+#undef LC_KYBER_INDCPA_PUBLICKEYBYTES
+#undef LC_KYBER_INDCPA_SECRETKEYBYTES
+#undef LC_KYBER_INDCPA_BYTES
+#undef LC_KYBER_PUBLICKEYBYTES
+#undef LC_KYBER_SECRETKEYBYTES
+#undef LC_KYBER_CIPHERTEXTBYTES
+#undef LC_CRYPTO_SECRETKEYBYTES
+#undef LC_CRYPTO_PUBLICKEYBYTES
+#undef LC_CRYPTO_CIPHERTEXTBYTES
+#undef LC_CRYPTO_BYTES
+#endif /* LC_KYBER_INTERNAL */
+
 #ifdef __cplusplus
 }
 #endif

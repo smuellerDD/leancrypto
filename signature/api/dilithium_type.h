@@ -24,6 +24,9 @@
 extern "C" {
 #endif
 
+/* Prevent Kyber macros from getting undefined */
+#define LC_DILITHIUM_INTERNAL
+
 /*
  * This define replaces all symbol names accordingly to allow double compilation
  * of the same code base.
