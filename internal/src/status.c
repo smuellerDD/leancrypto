@@ -67,8 +67,8 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 		 "Curve25519 Acceleration support: %s\n",
 
 		 /* AES */
-		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
-			 "AVX2 " :
+		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AESNI) ?
+			 "AESNI " :
 			 "",
 		 (lc_cpu_feature_available() & LC_CPU_FEATURE_ARM_AES) ?
 			 "ARMv8 CE " :
@@ -76,11 +76,11 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 		 (lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV_ASM) ?
 			 "RISC-V 64 " :
 			 "",
+
+		 /* SHA3 */
 		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX512) ?
 			 "AVX512 " :
 			 "",
-
-		 /* SHA3 */
 		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
 			 "AVX2 " :
 			 "",
@@ -92,13 +92,18 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 			 "ARMv8 CE " :
 			 "",
 
-		 /* Others */
+		 /* Kyber */
 		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
 			 "AVX2" :
 			 "",
 		 armv7, armv8,
+
+		 /* Dilithium */
 		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
 			 "AVX2" :
 			 "",
-		 armv7, armv8, avx);
+		 armv7, armv8,
+
+		 /* Curve25519 */
+		 avx);
 }
