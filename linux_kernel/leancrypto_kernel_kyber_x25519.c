@@ -23,6 +23,9 @@
 #include <linux/scatterlist.h>
 #include <linux/types.h>
 
+/* Prevent Kyber macros from getting undefined */
+#define LC_KYBER_INTERNAL
+
 #include "lc_kyber_1024.h"
 #include "lc_memset_secure.h"
 #include "x25519_scalarmult.h"

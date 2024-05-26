@@ -23,6 +23,9 @@
 #include <linux/scatterlist.h>
 #include <linux/types.h>
 
+/* Prevent Kyber macros from getting undefined */
+#define LC_DILITHIUM_INTERNAL
+
 #include "lc_dilithium_87.h"
 #include "lc_sha3.h"
 
