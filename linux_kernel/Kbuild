@@ -258,7 +258,7 @@ obj-m		 		:= leancrypto.o
 
 # Kernel module framework
 ccflags-y			:= -I$(PWD) -DLINUX_KERNEL                     \
-				   -DMAJVERSION=0 -DMINVERSION=10 -DPATCHLEVEL=0
+				   -DMAJVERSION=0 -DMINVERSION=10 -DPATCHLEVEL=1
 ccflags-y			+= -DLC_MEM_ON_HEAP -Wframe-larger-than=2048
 asflags-$(CONFIG_LEANCRYPTO_KEM)					       \
 				+= -I$(PWD)/../internal/api -DLINUX_KERNEL     \

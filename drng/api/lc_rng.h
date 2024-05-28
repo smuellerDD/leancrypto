@@ -57,6 +57,20 @@ struct lc_rng_ctx {
 extern struct lc_rng_ctx *lc_seeded_rng;
 
 /**
+ * @brief Get the default leancrypto RNG
+ *
+ * The function checks if an RNG was already provided and only returns the
+ * default RNG context if none was provided.
+ */
+static inline void lc_rng_check(struct lc_rng_ctx **ctx)
+{
+	if (!ctx)
+		return;
+	if (!*ctx)
+		*ctx = lc_seeded_rng;
+}
+
+/**
  * Concept of RNGs in leancrypto
  *
  * All RNGs can be used with the API calls documented below. However,

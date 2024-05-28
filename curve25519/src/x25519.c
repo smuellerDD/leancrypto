@@ -55,7 +55,12 @@ int lc_x25519_keypair(struct lc_x25519_pk *pk, struct lc_x25519_sk *sk,
 	static int tested = 0;
 	int ret;
 
+	CKNULL(sk, -EINVAL);
+	CKNULL(pk, -EINVAL);
+
 	lc_x25519_keypair_selftest(&tested);
+
+	lc_rng_check(&rng_ctx);
 
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, sk->sk,
 			      LC_X25519_SECRETKEYBYTES));
@@ -102,6 +107,10 @@ int lc_x25519_ss(struct lc_x25519_ss *ss, const struct lc_x25519_pk *pk,
 {
 	static int tested = 0;
 	int ret;
+
+	CKNULL(sk, -EINVAL);
+	CKNULL(pk, -EINVAL);
+	CKNULL(ss, -EINVAL);
 
 	lc_x25519_ss_selftest(&tested);
 

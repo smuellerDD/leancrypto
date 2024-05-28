@@ -80,10 +80,10 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 	static int tested = LC_DILITHIUM_TEST_INIT;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	if (!pk || !sk || !rng_ctx) {
-		ret = -EINVAL;
-		goto out;
-	}
+	CKNULL(pk, -EINVAL);
+	CKNULL(sk, -EINVAL);
+
+	lc_rng_check(&rng_ctx);
 
 	dilithium_keypair_tester(&tested, "Dilithium Keygen C",
 				 lc_dilithium_keypair_impl);

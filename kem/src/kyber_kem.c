@@ -46,8 +46,10 @@ int _lc_kyber_keypair(
 {
 	int ret;
 
-	if (!pk || !sk || !rng_ctx)
+	if (!pk || !sk)
 		return -EINVAL;
+
+	lc_rng_check(&rng_ctx);
 
 	ret = indcpa_keypair_f(pk->pk, sk->sk, rng_ctx);
 	if (ret)
@@ -86,8 +88,10 @@ int _lc_kyber_enc(
 	uint8_t kr[2 * LC_KYBER_SYMBYTES];
 	int ret;
 
-	if (!ct || !ss || !pk || !rng_ctx)
+	if (!ct || !ss || !pk)
 		return -EINVAL;
+
+	lc_rng_check(&rng_ctx);
 
 	kyber_print_buffer(pk->pk, LC_KYBER_PUBLICKEYBYTES,
 			   "======Encapsulation input: pk");
