@@ -165,6 +165,7 @@ struct @dilithium_name@_sig {
 /**
  * @brief Return the size of the Dilithium secret key.
  */
+LC_PURE
 static inline unsigned int @dilithium_name@_sk_size(void)
 {
 	return lc_member_size(struct @dilithium_name@_sk, sk);
@@ -173,6 +174,7 @@ static inline unsigned int @dilithium_name@_sk_size(void)
 /**
  * @brief Return the size of the Dilithium public key.
  */
+LC_PURE
 static inline unsigned int @dilithium_name@_pk_size(void)
 {
 	return lc_member_size(struct @dilithium_name@_pk, pk);
@@ -181,6 +183,7 @@ static inline unsigned int @dilithium_name@_pk_size(void)
 /**
  * @brief Return the size of the Dilithium signature.
  */
+LC_PURE
 static inline unsigned int @dilithium_name@_sig_size(void)
 {
 	return lc_member_size(struct @dilithium_name@_sig, sig);

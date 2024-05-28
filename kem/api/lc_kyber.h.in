@@ -143,6 +143,7 @@ struct @kyber_name@_ss {
 /**
  * @brief Return the size of the Kyber secret key.
  */
+LC_PURE
 static inline unsigned int @kyber_name@_sk_size(void)
 {
 	return lc_member_size(struct @kyber_name@_sk, sk);
@@ -151,6 +152,7 @@ static inline unsigned int @kyber_name@_sk_size(void)
 /**
  * @brief Return the size of the Kyber public key.
  */
+LC_PURE
 static inline unsigned int @kyber_name@_pk_size(void)
 {
 	return lc_member_size(struct @kyber_name@_pk, pk);
@@ -159,6 +161,7 @@ static inline unsigned int @kyber_name@_pk_size(void)
 /**
  * @brief Return the size of the Kyber ciphertext.
  */
+LC_PURE
 static inline unsigned int @kyber_name@_ct_size(void)
 {
 	return lc_member_size(struct @kyber_name@_ct, ct);
@@ -167,6 +170,7 @@ static inline unsigned int @kyber_name@_ct_size(void)
 /**
  * @brief Return the size of the Kyber shared secret.
  */
+LC_PURE
 static inline unsigned int @kyber_name@_ss_size(void)
 {
 	return lc_member_size(struct @kyber_name@_ss, ss);
