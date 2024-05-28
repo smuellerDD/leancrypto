@@ -158,8 +158,6 @@ extern "C" {
 
 #define poly_cbd_eta1 KYBER_F(poly_cbd_eta1)
 #define poly_cbd_eta2 KYBER_F(poly_cbd_eta2)
-#define cmov KYBER_F(cmov)
-#define verify KYBER_F(verify)
 #define kyber_kem_dec_kdf_selftest KYBER_F(kem_dec_kdf_selftest)
 #define kyber_kem_enc_kdf_selftest KYBER_F(kem_enc_kdf_selftest)
 #define kyber_kem_dec_selftest KYBER_F(kem_dec_selftest)

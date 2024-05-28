@@ -4,14 +4,11 @@
 if (get_option('kyber_1024').enabled() or get_option('kyber_768').enabled() or get_option('kyber_512').enabled())
 	src += files([
 		'kyber_cbd.c',
-		'kyber_zetas.c'
+		'kyber_zetas.c',
+		'kyber_verify.c',
 	])
 
-	if (x86_64_asm)
-		src += files([ 'kyber_ntt.c' ])
-	elif (arm64_asm)
-		src += files([ 'kyber_ntt.c' ])
-	elif (not arm32_neon_gcc_asm)
+	if (not arm32_neon_gcc_asm)
 		src += files([ 'kyber_ntt.c' ])
 	endif
 endif
@@ -27,7 +24,6 @@ kyber_c = files([
 	'kyber_polyvec.c',
 	'kyber_selftest.c',
 	'kyber_selftest_kdf.c',
-	'kyber_verify.c',
 ])
 if get_option('kyber_debug').enabled()
 	kyber_c += files ([ 'kyber_debug.c', ])
