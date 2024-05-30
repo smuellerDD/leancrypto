@@ -1,0 +1,146 @@
+################################################################################
+# Symmetric implementation: AES
+ccflags-y	 		+= -I$(PWD)/../sym/api -I$(PWD)/../sym/src
+leancrypto-y	 		+= ../sym/src/sym.o
+
+leancrypto-$(CONFIG_LEANCRYPTO_AES)					       \
+				+= ../sym/src/aes.o			       \
+				   ../sym/src/aes_block.o		       \
+				   ../sym/src/aes_selector.o
+
+ifdef CONFIG_X86_64
+leancrypto-$(CONFIG_LEANCRYPTO_AES)					       \
+				+= ../sym/src/asm/AESNI_x86_64/aes_aesni_x86_64.o\
+				   ../sym/src/aes_block_aesni.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_AES)					       \
+				+= ../sym/src/aes_block_aesni_null.o
+endif
+
+ifdef CONFIG_ARM64
+asflags-$(CONFIG_LEANCRYPTO_AES)					       \
+				+= -march=armv8-a+crypto
+leancrypto-$(CONFIG_LEANCRYPTO_AES)					       \
+				+= ../sym/src/asm/ARMv8/aes_armv8_ce.o	       \
+				   ../sym/src/aes_block_armce_v8.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_AES)					       \
+				+= ../sym/src/aes_block_armce_v8_null.o
+endif
+
+ifneq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
+leancrypto-$(CONFIG_LEANCRYPTO_AES_CBC)					       \
+				+= ../sym/src/asm/riscv64/riscv64_aes_asm.o    \
+				   ../sym/src/aes_block_riscv64.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_AES)					       \
+				+= ../sym/src/aes_block_riscv64_null.o
+endif
+
+ifdef CONFIG_LEANCRYPTO_AES
+obj-m				+= aes_dec_tester.o
+obj-m				+= aes_enc_tester.o
+aes_dec_tester-y		+= ../sym/tests/aes_dec_tester.o
+aes_enc_tester-y		+= ../sym/tests/aes_enc_tester.o
+endif
+
+leancrypto-$(CONFIG_LEANCRYPTO_AES_CBC)					       \
+				+= ../sym/src/aes_cbc.o			       \
+				   ../sym/src/mode_cbc.o
+
+ifdef CONFIG_X86_64
+leancrypto-$(CONFIG_LEANCRYPTO_AES_CBC)					       \
+				+= ../sym/src/aes_cbc_aesni.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_AES_CBC)					       \
+				+= ../sym/src/aes_cbc_aesni_null.o
+endif
+
+ifdef CONFIG_ARM64
+leancrypto-$(CONFIG_LEANCRYPTO_AES_CBC)					       \
+				+= ../sym/src/aes_cbc_armce_v8.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_AES_CBC)					       \
+				+= ../sym/src/aes_cbc_armce_v8_null.o
+endif
+
+ifneq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
+leancrypto-$(CONFIG_LEANCRYPTO_AES_CBC)					       \
+				+= ../sym/src/aes_cbc_riscv64.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_AES_CBC)					       \
+				+= ../sym/src/aes_cbc_riscv64_null.o
+endif
+
+ifdef CONFIG_LEANCRYPTO_AES_CBC
+obj-m				+= aes_cbc_dec_tester.o
+obj-m				+= aes_cbc_enc_tester.o
+aes_cbc_dec_tester-y		+= ../sym/tests/aes_cbc_dec_tester.o
+aes_cbc_enc_tester-y		+= ../sym/tests/aes_cbc_enc_tester.o
+endif
+
+leancrypto-$(CONFIG_LEANCRYPTO_AES_CTR)					       \
+				+= ../sym/src/aes_ctr.o			       \
+				   ../sym/src/mode_ctr.o
+
+ifdef CONFIG_X86_64
+leancrypto-$(CONFIG_LEANCRYPTO_AES_CTR)					       \
+				+= ../sym/src/aes_ctr_aesni.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_AES_CTR)					       \
+				+= ../sym/src/aes_ctr_aesni_null.o
+endif
+
+ifdef CONFIG_ARM64
+leancrypto-$(CONFIG_LEANCRYPTO_AES_CTR)					       \
+				+= ../sym/src/aes_ctr_armce_v8.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_AES_CTR)					       \
+				+= ../sym/src/aes_ctr_armce_v8_null.o
+endif
+
+ifneq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
+leancrypto-$(CONFIG_LEANCRYPTO_AES_CTR)					       \
+				+= ../sym/src/aes_ctr_riscv64.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_AES_CTR)					       \
+				+= ../sym/src/aes_ctr_riscv64_null.o
+endif
+
+ifdef CONFIG_LEANCRYPTO_AES_CTR
+obj-m		  		+= aes_ctr_tester.o
+aes_ctr_tester-y		+= ../sym/tests/aes_ctr_tester.o
+endif
+
+leancrypto-$(CONFIG_LEANCRYPTO_AES_KW)					       \
+				+= ../sym/src/aes_kw.o			       \
+				   ../sym/src/mode_kw.o
+
+ifdef CONFIG_X86_64
+leancrypto-$(CONFIG_LEANCRYPTO_AES_KW)					       \
+				+= ../sym/src/aes_kw_aesni.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_AES_KW)					       \
+				+= ../sym/src/aes_kw_aesni_null.o
+endif
+
+ifdef CONFIG_ARM64
+leancrypto-$(CONFIG_LEANCRYPTO_AES_KW)					       \
+				+= ../sym/src/aes_kw_armce_v8.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_AES_KW)					       \
+				+= ../sym/src/aes_kw_armce_v8_null.o
+endif
+
+ifneq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
+leancrypto-$(CONFIG_LEANCRYPTO_AES_KW)					       \
+				+= ../sym/src/aes_kw_riscv64.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_AES_KW)					       \
+				+= ../sym/src/aes_kw_riscv64_null.o
+endif
+
+ifdef CONFIG_LEANCRYPTO_AES_KW
+obj-m				+= aes_kw_tester.o
+aes_kw_tester-y			+= ../sym/tests/aes_kw_tester.o
+endif

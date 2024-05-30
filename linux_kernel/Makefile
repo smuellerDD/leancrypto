@@ -1,7 +1,3 @@
-# Include the files creating a binary blob
-
-include Kbuild
-
 KERNELRELEASE ?= $(shell uname -r)
 KDIR ?= /lib/modules/$(KERNELRELEASE)/build
 

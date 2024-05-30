@@ -1,0 +1,104 @@
+################################################################################
+# Hash implementation: SHA-3
+leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
+				+= ../hash/src/cshake.o			       \
+				   ../hash/src/sha3_selector.o		       \
+				   ../hash/src/sha3_selftest.o		       \
+				   ../hash/src/sha3_c.o			       \
+				   leancrypto_kernel_sha3.o
+
+ifdef CONFIG_LEANCRYPTO_SHA3
+ccflags-y			+= -DCONFIG_LEANCRYPTO_SHA3
+
+obj-m				+= leancrypto_kernel_sha3_tester.o
+
+obj-m				+= cshake_128_tester.o
+obj-m				+= cshake_256_tester.o
+obj-m				+= cshake_ctx_256_tester.o
+obj-m				+= keccak_tester.o
+obj-m				+= sha3-224_tester.o
+obj-m				+= sha3-256_tester.o
+obj-m				+= sha3-384_tester.o
+obj-m				+= sha3-512_tester.o
+obj-m				+= shake128_tester.o
+obj-m				+= shake256_tester.o
+obj-m				+= shake_squeeze_more_tester.o
+
+cshake_128_tester-y		+= ../hash/tests/cshake_128_tester.o
+cshake_256_tester-y		+= ../hash/tests/cshake_256_tester.o
+cshake_ctx_256_tester-y		+= ../hash/tests/cshake_ctx_256_tester.o
+keccak_tester-y			+= ../hash/tests/keccak_tester.o
+sha3-224_tester-y		+= ../hash/tests/sha3-224_tester.o
+sha3-256_tester-y		+= ../hash/tests/sha3-256_tester.o
+sha3-384_tester-y		+= ../hash/tests/sha3-384_tester.o
+sha3-512_tester-y		+= ../hash/tests/sha3-512_tester.o
+shake128_tester-y		+= ../hash/tests/shake128_tester.o
+shake256_tester-y		+= ../hash/tests/shake256_tester.o
+shake_squeeze_more_tester-y	+= ../hash/tests/shake_squeeze_more_tester.o
+endif
+
+ifdef CONFIG_X86_64
+leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
+				+= ../hash/src/sha3_avx2.o		       \
+				   ../hash/src/asm/AVX2/KeccakP-1600-AVX2.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
+				+= ../hash/src/sha3_avx2_null.o
+endif
+
+ifdef CONFIG_X86_64
+leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
+				+= ../hash/src/sha3_avx512.o		       \
+				   ../hash/src/asm/AVX512/KeccakP-1600-AVX512.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
+				+= ../hash/src/sha3_avx512_null.o
+endif
+
+ifdef CONFIG_X86_64
+leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
+				+= ../hash/src/shake_4x_avx2.o		       \
+				   ../hash/src/asm/AVX2_4x/KeccakP-1600-times4-SIMD256.o
+endif
+
+# ARM Neon support
+ifdef CONFIG_ARM64
+ccflags-y	  		+= -I$(PWD)/../hash/src/asm/ARMv8A/
+asflags-$(CONFIG_LEANCRYPTO_SHA3)					       \
+				+= -march=armv8-a+simd			       \
+				   -funsafe-math-optimizations
+leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
+				+= ../hash/src/sha3_arm_neon.o		       \
+				   ../hash/src/asm/ARMv8A/KeccakP-1600-armv8a-neon.o
+else ifdef CONFIG_ARM
+ccflags-y	  		+= -I$(PWD)/../hash/src/asm/ARMv7A-NEON
+asflags-$(CONFIG_LEANCRYPTO_SHA3)					       \
+				+= -mfpu=neon-vfpv4			       \
+				   -mthumb				       \
+				   -march=armv7-a+vfpv4			       \
+				   -mfloat-abi=softfp			       \
+				   -funsafe-math-optimizations
+leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
+				+= ../hash/src/sha3_arm_neon.o		       \
+				   ../hash/src/asm/ARMv7A-NEON/KeccakP-1600-armv7a-le-neon-gcc.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
+				+= ../hash/src/sha3_arm_neon_null.o
+endif
+
+# Generic ARM assembler and ARM CE support
+ifdef CONFIG_ARM64
+asflags-$(CONFIG_LEANCRYPTO_SHA3)					       \
+				+= -I$(PWD)/../internal/api -DLINUX_KERNEL
+leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
+				+= ../hash/src/sha3_arm_asm.o		       \
+				   ../hash/src/sha3_arm_ce.o		       \
+				   ../hash/src/asm/ARMv8A/KeccakP-1600-armv8a-ce.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
+				+= ../hash/src/sha3_arm_asm_null.o	       \
+				   ../hash/src/sha3_arm_ce_null.o
+endif
+
+leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
+				+= ../hash/src/sha3_riscv_asm_null.o

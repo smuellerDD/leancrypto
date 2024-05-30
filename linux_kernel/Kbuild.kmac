@@ -1,0 +1,23 @@
+################################################################################
+# KMAC implementation
+ccflags-$(CONFIG_LEANCRYPTO_KMAC)					       \
+				+= -I$(PWD)/../kmac/api
+leancrypto-$(CONFIG_LEANCRYPTO_KMAC)					       \
+				+= ../kmac/src/kmac.o			       \
+				   leancrypto_kernel_kmac.o
+
+ifdef CONFIG_LEANCRYPTO_KMAC
+ccflags-y			+= -DCONFIG_LEANCRYPTO_KMAC
+
+obj-m				+= leancrypto_kernel_kmac_tester.o
+
+obj-m		  		+= kmac_128_tester.o
+obj-m		  		+= kmac_256_tester.o
+obj-m		  		+= kmac_xof_more_tester.o
+obj-m		  		+= kmac_xof_tester.o
+
+kmac_128_tester-y		+= ../kmac/tests/kmac_128_tester.o
+kmac_256_tester-y		+= ../kmac/tests/kmac_256_tester.o
+kmac_xof_more_tester-y		+= ../kmac/tests/kmac_xof_more_tester.o
+kmac_xof_tester-y		+= ../kmac/tests/kmac_xof_tester.o
+endif

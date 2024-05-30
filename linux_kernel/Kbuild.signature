@@ -1,0 +1,129 @@
+################################################################################
+# Signature implementation: Dilithium
+ccflags-$(CONFIG_LEANCRYPTO_DILITHIUM)					       \
+				+= -I$(PWD)/../signature/api
+asflags-$(CONFIG_LEANCRYPTO_DILITHIUM)					       \
+				+= -I$(PWD)
+leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
+				+= ../signature/src/dilithium_ntt.o	       \
+				   ../signature/src/dilithium_poly.o	       \
+				   ../signature/src/dilithium_rounding.o       \
+				   ../signature/src/dilithium_selftest.o       \
+				   ../signature/src/dilithium_signature_c.o    \
+				   ../signature/src/dilithium_zetas.o	       \
+				   leancrypto_kernel_dilithium.o
+
+# Dilithium-ED25519 implementation
+leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_ED25519)			       \
+				+= ../signature/src/dilithium_ed25519_signature.o\
+				   leancrypto_kernel_dilithium_ed25519.o
+
+ifdef CONFIG_X86_64
+leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
+			+= ../signature/src/avx2/dilithium_consts_avx2.o       \
+			   ../signature/src/avx2/dilithium_invntt_avx2.o       \
+			   ../signature/src/avx2/dilithium_ntt_avx2.o	       \
+			   ../signature/src/avx2/dilithium_pointwise_avx2.o    \
+			   ../signature/src/avx2/dilithium_poly_avx2.o	       \
+			   ../signature/src/avx2/dilithium_polyvec_avx2.o      \
+			   ../signature/src/avx2/dilithium_rejsample_avx2.o    \
+			   ../signature/src/avx2/dilithium_rounding_avx2.o     \
+			   ../signature/src/avx2/dilithium_signature_api_avx2.o\
+			   ../signature/src/avx2/dilithium_signature_avx2.o    \
+			   ../signature/src/avx2/dilithium_shuffle_avx2.o
+else ifdef CONFIG_ARM
+leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
+			+= ../signature/src/armv7/dilithium_ntt_consts.o       \
+			   ../signature/src/armv7/dilithium_ntt_armv7.o	       \
+			   ../signature/src/armv7/dilithium_pointwise_smull_armv7.o\
+			   ../signature/src/armv7/dilithium_poly_armv7.o       \
+			   ../signature/src/armv7/dilithium_poly.o	       \
+			   ../signature/src/armv7/dilithium_signature_api_armv7.o\
+			   ../signature/src/armv7/dilithium_signature_armv7.o
+else ifdef CONFIG_ARM64
+# Disable code for now as NEON support is needed
+leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
+			+= ../signature/src/armv8/NTT_params.o		       \
+			   ../signature/src/armv8/dilithium_intt_armv8.o       \
+			   ../signature/src/armv8/dilithium_ntt_armv8.o	       \
+			   ../signature/src/armv8/dilithium_poly_armv8.o       \
+			   ../signature/src/armv8/dilithium_signature_api_armv8.o\
+			   ../signature/src/armv8/dilithium_signature_armv8.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
+			+= ../signature/src/dilithium_signature_api_c.o
+endif
+
+
+ccflags-$(CONFIG_LEANCRYPTO_DILITHIUM)					       \
+				+= -I$(PWD)/../signature/src
+ifdef CONFIG_LEANCRYPTO_DILITHIUM
+ccflags-y			+= -DCONFIG_LEANCRYPTO_DILITHIUM
+
+obj-m				+= leancrypto_kernel_dilithium_tester.o
+
+obj-m		  		+= dilithium_tester_c.o
+obj-m		  		+= dilithium_tester_common.o
+obj-m		  		+= dilithium_invalid_tester.o
+
+dilithium_tester_c-y		+= ../signature/tests/dilithium_tester.o       \
+				   ../signature/tests/dilithium_tester_c.o     \
+				   ../drng/src/selftest_rng.o
+
+dilithium_tester_common-y	+= ../signature/tests/dilithium_tester.o       \
+				   ../signature/tests/dilithium_tester_common.o\
+				   ../drng/src/selftest_rng.o
+
+dilithium_invalid_tester-y	+= ../signature/tests/dilithium_invalid_tester.o
+endif
+
+ifdef CONFIG_LEANCRYPTO_DILITHIUM_ED25519
+ccflags-y			+= -DCONFIG_LEANCRYPTO_DILITHIUM_ED25519
+obj-m		  		+= dilithium_ed25519_tester.o
+
+dilithium_ed25519_tester-y	+= ../signature/tests/dilithium_ed25519_tester.o\
+				   ../drng/src/selftest_rng.o
+endif
+
+ifdef CONFIG_X86_64
+ifdef CONFIG_LEANCRYPTO_DILITHIUM
+obj-m				+= dilithium_tester_avx2.o
+obj-m				+= dilithium_tester_iuf_avx2.o
+
+dilithium_tester_avx2-y		+= ../signature/tests/dilithium_tester.o       \
+				   ../signature/tests/dilithium_tester_avx2.o  \
+				   ../drng/src/selftest_rng.o
+dilithium_tester_iuf_avx2-y	+= ../signature/tests/dilithium_tester.o       \
+				   ../signature/tests/dilithium_tester_iuf_avx2.o\
+				   ../drng/src/selftest_rng.o
+endif
+endif
+
+ifdef CONFIG_ARM64
+# Disable code for now as NEON support is needed
+ifdef CONFIG_LEANCRYPTO_DILITHIUM
+obj-m				+= dilithium_tester_armv8.o
+obj-m				+= dilithium_tester_iuf_armv8.o
+
+dilithium_tester_armv8-y	+= ../signature/tests/dilithium_tester.o       \
+				   ../signature/tests/dilithium_tester_armv8.o \
+				   ../drng/src/selftest_rng.o
+dilithium_tester_iuf_armv8-y	+= ../signature/tests/dilithium_tester.o       \
+				   ../signature/tests/dilithium_tester_iuf_armv8.o\
+				   ../drng/src/selftest_rng.o
+endif
+endif
+
+ifdef CONFIG_ARM
+ifdef CONFIG_LEANCRYPTO_DILITHIUM
+obj-m				+= dilithium_tester_armv7.o
+obj-m				+= dilithium_tester_iuf_armv7.o
+
+dilithium_tester_armv7-y	+= ../signature/tests/dilithium_tester.o       \
+				   ../signature/tests/dilithium_tester_armv7.o \
+				   ../drng/src/selftest_rng.o
+dilithium_tester_iuf_armv7-y	+= ../signature/tests/dilithium_tester.o       \
+				   ../signature/tests/dilithium_tester_iuf_armv7.o\
+				   ../drng/src/selftest_rng.o
+endif
+endif

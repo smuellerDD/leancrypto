@@ -1,0 +1,70 @@
+ifdef CONFIG_LEANCRYPTO_KEM_X25519
+CONFIG_LEANCRYPTO_CURVE25519=y
+endif
+ifdef CONFIG_LEANCRYPTO_DILITHIUM_ED25519
+CONFIG_LEANCRYPTO_CURVE25519=y
+endif
+
+obj-m		 		:= leancrypto.o
+
+# Kernel module framework
+ccflags-y			:= -I$(PWD) -DLINUX_KERNEL                     \
+				   -DMAJVERSION=0 -DMINVERSION=10 -DPATCHLEVEL=1
+ccflags-y			+= -DLC_MEM_ON_HEAP -Wframe-larger-than=2048
+asflags-$(CONFIG_LEANCRYPTO_KEM)					       \
+				+= -I$(PWD)/../internal/api -DLINUX_KERNEL     \
+				   -I$(PWD)/../kem/api -I$(PWD)/../signature/api
+
+ifdef CONFIG_X86_64
+ccflags-y			+= -DLC_HOST_X86_64
+else ifdef CONFIG_ARM64
+ccflags-y			+= -DLC_HOST_AARCH64
+else ifneq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
+ccflags-y			+= -DLC_HOST_RISCV64
+endif
+
+ifdef CONFIG_LEANCRYPTO_HEALTH_TEST
+ccflags-y			+= -DLC_SELFTEST_ENABLED
+endif
+
+ifdef CONFIG_ARM64
+ccflags-y			+= -mno-outline-atomics
+endif
+
+################################################################################
+# Basic support code
+
+# Basic leancrypto KO construct
+leancrypto-y			+= posix_support.o			       \
+				   leancrypto_kernel.o
+
+# Internal helper code
+ccflags-y			+= -I$(PWD)/../internal/api
+leancrypto-y			+= ../internal/src/left_encode.o	       \
+				   ../internal/src/compare.o		       \
+				   ../internal/src/null_buffer.o	       \
+				   ../internal/src/status.o
+
+# CPU Features Support
+ifdef CONFIG_X86
+leancrypto-y	  		+= ../internal/src/cpufeatures_x86.o
+else ifdef CONFIG_ARM
+leancrypto-y	  		+= cpufeatures_arm32_linux_kernel.o
+else ifdef CONFIG_ARM64
+leancrypto-y	  		+= ../internal/src/cpufeatures_arm64_native.o
+else
+leancrypto-y	 		+= ../internal/src/cpufeatures_none.o
+endif
+
+# Special Memcmp Support
+ifdef CONFIG_X86_64
+leancrypto-y	  		+= ../internal/src/memcmp_secure_avx2.o
+else
+leancrypto-y	 		+= ../internal/src/memcmp_secure_c.o
+endif
+
+obj-m				+= status_tester.o
+obj-m				+= rerun_selftests_tester.o
+
+status_tester-y			+= ../internal/tests/status_tester.o
+rerun_selftests_tester-y	+= ../internal/tests/rerun_selftests_tester.o

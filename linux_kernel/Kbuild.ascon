@@ -1,0 +1,49 @@
+################################################################################
+# Hash implementation: Ascon
+leancrypto-$(CONFIG_LEANCRYPTO_ASCON_HASH)				       \
+				+= ../hash/src/ascon_c.o		       \
+				   ../hash/src/ascon_hash_common.o	       \
+				   ../hash/src/ascon_selector.o		       \
+				   ../hash/src/ascon_selftest.o		       \
+				   leancrypto_kernel_ascon.o
+
+ifdef CONFIG_X86_64
+ccflags-$(CONFIG_LEANCRYPTO_ASCON_HASH)					       \
+				+= -I$(PWD)/../hash/src -DLINUX_KERNEL
+leancrypto-$(CONFIG_LEANCRYPTO_ASCON_HASH)				       \
+				+= ../hash/src/ascon_avx512.o
+CFLAGS_../hash/src/ascon_avx512.o					       \
+				= -mavx512f
+else
+leancrypto-$(CONFIG_LEANCRYPTO_ASCON_HASH)				       \
+				+= ../hash/src/ascon_avx512_null.o
+endif
+
+ifdef CONFIG_ARM
+asflags-$(CONFIG_LEANCRYPTO_ASCON_HASH)					       \
+				+= -mfpu=neon-vfpv4			       \
+				   -mthumb				       \
+				   -march=armv7-a+vfpv4			       \
+				   -mfloat-abi=softfp			       \
+				   -funsafe-math-optimizations
+leancrypto-$(CONFIG_LEANCRYPTO_ASCON_HASH)				       \
+				+= ../hash/src/ascon_arm_neon.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_ASCON_HASH)				       \
+				+= ../hash/src/ascon_arm_neon_null.o
+endif
+
+ifdef CONFIG_LEANCRYPTO_ASCON_HASH
+ccflags-y			+= -DCONFIG_LEANCRYPTO_ASCON_HASH
+obj-m				+= leancrypto_kernel_ascon_tester.o
+
+obj-m				+= ascon_128a_tester.o
+obj-m				+= ascon_128_tester.o
+obj-m				+= ascon_xofa_tester.o
+obj-m				+= ascon_xof_tester.o
+
+ascon_128a_tester-y		+= ../hash/tests/ascon_128a_tester.o
+ascon_128_tester-y		+= ../hash/tests/ascon_128_tester.o
+ascon_xofa_tester-y		+= ../hash/tests/ascon_xofa_tester.o
+ascon_xof_tester-y		+= ../hash/tests/ascon_xof_tester.o
+endif
