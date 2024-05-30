@@ -1,0 +1,6 @@
+# Version Number of Leancrypto
+#
+# Unfortunately I did not figure out how to read the version number from
+# meson.build to have only one location of the version number.
+#
+ccflags-y	+= -DMAJVERSION=0 -DMINVERSION=10 -DPATCHLEVEL=1

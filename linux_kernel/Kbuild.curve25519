@@ -1,8 +1,5 @@
 ################################################################################
 # Curve25519 implementation: X25519 and ED25519
-ccflags-$(CONFIG_LEANCRYPTO_CURVE25519)					       \
-				+= -I$(PWD)/../curve25519/api		       \
-				   -I$(PWD)/../curve25519/src
 leancrypto-$(CONFIG_LEANCRYPTO_CURVE25519)				       \
 				+= ../curve25519/src/ed25519.o		       \
 				   ../curve25519/src/ed25519_ref10.o	       \
@@ -21,6 +18,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_CURVE25519)				       \
 endif
 
 ifdef CONFIG_LEANCRYPTO_CURVE25519
+ccflags-y			+= -DLC_CURVE25519
 obj-m				+= ed25519_tester.o
 obj-m				+= x25519_c_tester.o
 

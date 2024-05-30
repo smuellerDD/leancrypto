@@ -1,3 +1,7 @@
+#
+# The Curve25519 is not defined to be configurable as this is not PQC-resistant.
+# It is only provided to allow a hybrid Dilithium / Kyber algorithm.
+#
 ifdef CONFIG_LEANCRYPTO_KEM_X25519
 CONFIG_LEANCRYPTO_CURVE25519=y
 endif
@@ -8,12 +12,16 @@ endif
 obj-m		 		:= leancrypto.o
 
 # Kernel module framework
-ccflags-y			:= -I$(PWD) -DLINUX_KERNEL                     \
-				   -DMAJVERSION=0 -DMINVERSION=10 -DPATCHLEVEL=1
+ccflags-y			+= -I$(PWD) -DLINUX_KERNEL
 ccflags-y			+= -DLC_MEM_ON_HEAP -Wframe-larger-than=2048
+
+# Required for leancrypto_kernel.c
+ccflags-y			+= -I$(PWD)/../curve25519/api		       \
+				   -I$(PWD)/../curve25519/src
 asflags-$(CONFIG_LEANCRYPTO_KEM)					       \
 				+= -I$(PWD)/../internal/api -DLINUX_KERNEL     \
-				   -I$(PWD)/../kem/api -I$(PWD)/../signature/api
+				   -I$(PWD)/../kem/api			       \
+				   -I$(PWD)/../signature/api
 
 ifdef CONFIG_X86_64
 ccflags-y			+= -DLC_HOST_X86_64
