@@ -49,6 +49,10 @@ if cc.has_argument('-fzero-call-used-regs=used-gpr')
 	add_global_arguments([ '-fzero-call-used-regs=used-gpr' ],
 			     language: 'c')
 endif
+if cc.has_argument('-ftrivial-auto-var-init=zero')
+	add_global_arguments([ '-ftrivial-auto-var-init=zero' ],
+			     language: 'c')
+endif
 
 # MINGW64 cannot handle lto properly at the moment
 if (cc.has_argument('-flto') and
