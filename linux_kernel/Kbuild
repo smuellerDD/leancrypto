@@ -196,18 +196,31 @@ CONFIG_LEANCRYPTO_PBKDF2=y
 ########################### Key Encapsulation Method ###########################
 
 #
-# Enable Key Encapsulation Mechanism provided by Kyber-1024
+# Enable Key Encapsulation Mechanism provided by Kyber
 # Dependencies: CONFIG_LEANCRYPTO_SHA3
 #
-# NOTE: It is possible to compile Kyber-768 and Kyber-512 at the same time.
-# However, this requires that identical C files need to be compiled multiple
-# times with a different macro set (see meson). Unfortunately, the Linux kernel
-# Kbuild system does not seem to offer an option to trigger a re-compilation
-# of a C file even though an object exists. Thus, only one of the Kyber
-# types can be compiled. You may switch it by definiting nothing (Kyber-1024),
-# -DLC_KYBER_TYPE_768 or -DLC_KYBER_TYPE_512 to get the respective others.
+# NOTE: This option only enables the support files to be compiled. Enable also
+#	one or more of the KYBER_1024, KYBER_768 and KYBER_512 options below
 #
 CONFIG_LEANCRYPTO_KEM=y
+
+#
+# Enable Key Encapsulation Mechanism provided by Kyber-1024
+# Dependencies: CONFIG_LEANCRYPTO_KEM
+#
+CONFIG_LEANCRYPTO_KEM_KYBER_1024=y
+
+#
+# Enable Key Encapsulation Mechanism provided by Kyber-768
+# Dependencies: CONFIG_LEANCRYPTO_KEM
+#
+CONFIG_LEANCRYPTO_KEM_KYBER_768=y
+
+#
+# Enable Key Encapsulation Mechanism provided by Kyber-512
+# Dependencies: CONFIG_LEANCRYPTO_KEM
+#
+CONFIG_LEANCRYPTO_KEM_KYBER_512=y
 
 #
 # Enable Key Encapsulation Mechanism provided by Kyber in collaboration with
@@ -742,9 +755,15 @@ leancrypto-y			+= ../drng/src/selftest_rng.o
 
 ccflags-$(CONFIG_LEANCRYPTO_KEM)					       \
 				+= -I$(PWD)/../kem/api -I$(PWD)/../kem/src
+
+# Kyber Common
 leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 				+= ../kem/src/kyber_cbd.o		       \
-				   ../kem/src/kyber_ies.o		       \
+				   ../kem/src/kyber_zetas.o
+
+# Kyber 1024
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER_1024)				       \
+				+= ../kem/src/kyber_ies.o		       \
 				   ../kem/src/kyber_indcpa.o		       \
 				   ../kem/src/kyber_kem.o		       \
 				   ../kem/src/kyber_kem_c.o		       \
@@ -754,26 +773,111 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 				   ../kem/src/kyber_selftest.o		       \
 				   ../kem/src/kyber_selftest_kdf.o	       \
 				   ../kem/src/kyber_verify.o		       \
-				   ../kem/src/kyber_zetas.o		       \
 				   leancrypto_kernel_kyber.o
+
+# Kyber 768
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER_768)				       \
+				+= kyber768/kyber_ies.o			       \
+				   kyber768/kyber_indcpa.o		       \
+				   kyber768/kyber_kem.o			       \
+				   kyber768/kyber_kem_c.o		       \
+				   kyber768/kyber_kex.o			       \
+				   kyber768/kyber_poly.o		       \
+				   kyber768/kyber_polyvec.o		       \
+				   kyber768/kyber_selftest.o		       \
+				   kyber768/kyber_selftest_kdf.o	       \
+				   kyber768/kyber_verify.o		       \
+				   kyber768/leancrypto_kernel_kyber.o
+
+CFLAGS_kyber768/kyber_ies.o			:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/kyber_indcpa.o			:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/kyber_kem.o			:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/kyber_kem_c.o			:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/kyber_kex.o			:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/kyber_poly.o			:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/kyber_polyvec.o			:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/kyber_selftest.o		:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/kyber_selftest_kdf.o		:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/kyber_verify.o			:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/leancrypto_kernel_kyber.o	:= -DLC_KYBER_TYPE_768
+
+# Kyber 512
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER_512)				       \
+				+= kyber512/kyber_ies.o			       \
+				   kyber512/kyber_indcpa.o		       \
+				   kyber512/kyber_kem.o			       \
+				   kyber512/kyber_kem_api_c.o		       \
+				   kyber512/kyber_kem_c.o		       \
+				   kyber512/kyber_kex.o			       \
+				   kyber512/kyber_poly.o		       \
+				   kyber512/kyber_polyvec.o		       \
+				   kyber512/kyber_selftest.o		       \
+				   kyber512/kyber_selftest_kdf.o	       \
+				   kyber512/kyber_verify.o		       \
+				   kyber512/leancrypto_kernel_kyber.o
+
+CFLAGS_kyber512/kyber_ies.o			:= -DLC_KYBER_TYPE_512
+CFLAGS_kyber512/kyber_indcpa.o			:= -DLC_KYBER_TYPE_512
+CFLAGS_kyber512/kyber_kem.o			:= -DLC_KYBER_TYPE_512
+CFLAGS_kyber512/kyber_kem_api_c.o		:= -DLC_KYBER_TYPE_512
+CFLAGS_kyber512/kyber_kem_c.o			:= -DLC_KYBER_TYPE_512
+CFLAGS_kyber512/kyber_kex.o			:= -DLC_KYBER_TYPE_512
+CFLAGS_kyber512/kyber_poly.o			:= -DLC_KYBER_TYPE_512
+CFLAGS_kyber512/kyber_polyvec.o			:= -DLC_KYBER_TYPE_512
+CFLAGS_kyber512/kyber_selftest.o		:= -DLC_KYBER_TYPE_512
+CFLAGS_kyber512/kyber_selftest_kdf.o		:= -DLC_KYBER_TYPE_512
+CFLAGS_kyber512/kyber_verify.o			:= -DLC_KYBER_TYPE_512
+CFLAGS_kyber512/leancrypto_kernel_kyber.o	:= -DLC_KYBER_TYPE_512
 
 ifndef CONFIG_ARM
 leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 				+= ../kem/src/kyber_ntt.o
 endif
 
-# KEM-X25519 implementation
+# Kyber 1024 KEM-X25519 implementation
+ifdef CONFIG_LEANCRYPTO_KEM_KYBER_1024
 leancrypto-$(CONFIG_LEANCRYPTO_KEM_X25519)				       \
 				+= ../kem/src/kyber_x25519_ies.o	       \
 				   ../kem/src/kyber_x25519_kem.o	       \
 				   ../kem/src/kyber_x25519_kex.o	       \
 				   leancrypto_kernel_kyber_x25519.o
+endif
+
+# Kyber 768 KEM-X25519 implementation
+ifdef CONFIG_LEANCRYPTO_KEM_KYBER_768
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_X25519)				       \
+				+= kyber768/kyber_x25519_ies.o		       \
+				   kyber768/kyber_x25519_kem.o		       \
+				   kyber768/kyber_x25519_kex.o		       \
+				   kyber768/leancrypto_kernel_kyber_x25519.o
+CFLAGS_kyber768/kyber_x25519_ies.o		:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/kyber_x25519_kem.o		:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/kyber_x25519_kex.o		:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/leancrypto_kernel_kyber_x25519.o:= -DLC_KYBER_TYPE_768
+endif
+
+# Kyber 512 KEM-X25519 implementation
+ifdef CONFIG_LEANCRYPTO_KEM_KYBER_512
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_X25519)				       \
+				+= kyber512/kyber_x25519_ies.o		       \
+				   kyber512/kyber_x25519_kem.o		       \
+				   kyber512/kyber_x25519_kex.o		       \
+				   kyber512/leancrypto_kernel_kyber_x25519.o
+CFLAGS_kyber512/kyber_x25519_ies.o		:= -DLC_KYBER_TYPE_512
+CFLAGS_kyber512/kyber_x25519_kem.o		:= -DLC_KYBER_TYPE_512
+CFLAGS_kyber512/kyber_x25519_kex.o		:= -DLC_KYBER_TYPE_512
+CFLAGS_kyber512/leancrypto_kernel_kyber_x25519.o:= -DLC_KYBER_TYPE_512
+endif
+
+# Kyber Common
+leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
+				+= ../kem/src/avx2/kyber_cbd_avx2.o	       \
+				   ../kem/src/avx2/kyber_consts_avx2.o
 
 ifdef CONFIG_X86_64
-leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
+# Kyber 1024
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER_1024)				       \
 				+= ../kem/src/avx2/kyber_basemul_avx2.o	       \
-				   ../kem/src/avx2/kyber_cbd_avx2.o	       \
-				   ../kem/src/avx2/kyber_consts_avx2.o	       \
 				   ../kem/src/avx2/kyber_fq_avx2.o	       \
 				   ../kem/src/avx2/kyber_indcpa_avx2.o	       \
 				   ../kem/src/avx2/kyber_invntt_avx2.o	       \
@@ -783,20 +887,66 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 				   ../kem/src/avx2/kyber_poly_avx2.o	       \
 				   ../kem/src/avx2/kyber_rejsample_avx2.o      \
 				   ../kem/src/avx2/kyber_shuffle_avx2.o
+
+# Kyber 768
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER_768)				       \
+				+= kyber768/avx2/kyber_basemul_avx2.o	       \
+				   kyber768/avx2/kyber_fq_avx2.o	       \
+				   kyber768/avx2/kyber_indcpa_avx2.o	       \
+				   kyber768/avx2/kyber_invntt_avx2.o	       \
+				   kyber768/avx2/kyber_kem_api_avx2.o	       \
+				   kyber768/avx2/kyber_kem_avx2.o	       \
+				   kyber768/avx2/kyber_ntt_avx2.o	       \
+				   kyber768/avx2/kyber_poly_avx2.o	       \
+				   kyber768/avx2/kyber_rejsample_avx2.o	       \
+				   kyber768/avx2/kyber_shuffle_avx2.o
+AFLAGS_kyber768/avx2/kyber_basemul_avx2.o	:= -DLC_KYBER_TYPE_768
+AFLAGS_kyber768/avx2/kyber_fq_avx2.o		:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/avx2/kyber_indcpa_avx2.o	:= -DLC_KYBER_TYPE_768
+AFLAGS_kyber768/avx2/kyber_invntt_avx2.o	:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/avx2/kyber_kem_api_avx2.o	:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/avx2/kyber_kem_avx2.o		:= -DLC_KYBER_TYPE_768
+AFLAGS_kyber768/avx2/kyber_ntt_avx2.o		:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/avx2/kyber_poly_avx2.o		:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/avx2/kyber_rejsample_avx2.o	:= -DLC_KYBER_TYPE_768
+AFLAGS_kyber768/avx2/kyber_shuffle_avx2.o	:= -DLC_KYBER_TYPE_768
+
 else ifdef CONFIG_ARM
 asflags-$(CONFIG_LEANCRYPTO_KEM)					       \
 				+= -I$(PWD)/../kem/src/armv7
+
+# Kyber Common
 leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 				+= ../kem/src/kyber_kem_api_c.o		       \
 				   ../kem/src/armv7/kyber_consts_armv7.o       \
 				   ../kem/src/armv7/kyber_fastinvntt_armv7.o   \
 				   ../kem/src/armv7/kyber_fastntt_armv7.o      \
-				   ../kem/src/armv7/kyber_ntt_armv7.o	       \
-				   ../kem/src/armv7/kyber_poly_armv7.o
+				   ../kem/src/armv7/kyber_ntt_armv7.o
+
+# Kyber 1024
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER_1024)				       \
+				+= ../kem/src/armv7/kyber_poly_armv7.o
+
+# Kyber 768
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER_768)				       \
+				+= kyber768/armv7/kyber_poly_armv7.o
+AFLAGS_kyber768/armv7/kyber_poly_armv7.o	:= -DLC_KYBER_TYPE_768
+
+# Kyber 512
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER_512)				       \
+				+= kyber512/armv7/kyber_poly_armv7.o
+AFLAGS_kyber512/armv7/kyber_poly_armv7.o	:= -DLC_KYBER_TYPE_512
+
 else ifdef CONFIG_ARM64
 asflags-$(CONFIG_LEANCRYPTO_KEM)					       \
 				+= -I$(PWD)/../kem/src/armv8
+
+# Kyber Common
 leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
+				+= ../kem/src/armv8/kyber_ntt_armv8.o
+
+# Kyber 1024
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER_1024)				       \
 				+= ../kem/src/armv8/kyber_add_armv8.o	       \
 				   ../kem/src/armv8/kyber_basemul_armv8.o      \
 				   ../kem/src/armv8/kyber_cbd_armv8.o	       \
@@ -804,11 +954,36 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 				   ../kem/src/armv8/kyber_inv_ntt_armv8.o      \
 				   ../kem/src/armv8/kyber_kem_api_armv8.o      \
 				   ../kem/src/armv8/kyber_kem_armv8.o	       \
-				   ../kem/src/armv8/kyber_ntt_armv8.o	       \
 				   ../kem/src/armv8/kyber_ntt_armv8_asm.o      \
 				   ../kem/src/armv8/kyber_poly_armv8.o	       \
 				   ../kem/src/armv8/kyber_poly_armv8_asm.o     \
 				   ../kem/src/armv8/kyber_reduce_armv8.o
+
+# Kyber 768
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER_768)				       \
+				+= kyber768/armv8/kyber_add_armv8.o	       \
+				   kyber768/armv8/kyber_basemul_armv8.o	       \
+				   kyber768/armv8/kyber_cbd_armv8.o	       \
+				   kyber768/armv8/kyber_indcpa_armv8.o	       \
+				   kyber768/armv8/kyber_inv_ntt_armv8.o	       \
+				   kyber768/armv8/kyber_kem_api_armv8.o	       \
+				   kyber768/armv8/kyber_kem_armv8.o	       \
+				   kyber768/armv8/kyber_ntt_armv8_asm.o	       \
+				   kyber768/armv8/kyber_poly_armv8.o	       \
+				   kyber768/armv8/kyber_poly_armv8_asm.o       \
+				   kyber768/armv8/kyber_reduce_armv8.o
+AFLAGS_kyber768/armv8/kyber_add_armv8.o		:= -DLC_KYBER_TYPE_768
+AFLAGS_kyber768/armv8/kyber_basemul_armv8.o	:= -DLC_KYBER_TYPE_768
+AFLAGS_kyber768/armv8/kyber_cbd_armv8.o		:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/armv8/kyber_indcpa_armv8.o	:= -DLC_KYBER_TYPE_768
+AFLAGS_kyber768/armv8/kyber_inv_ntt_armv8.o	:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/armv8/kyber_kem_api_armv8.o	:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/armv8/kyber_kem_armv8.o		:= -DLC_KYBER_TYPE_768
+AFLAGS_kyber768/armv8/kyber_ntt_armv8_asm.o	:= -DLC_KYBER_TYPE_768
+AFLAGS_kyber768/armv8/kyber_poly_armv8.o	:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/armv8/kyber_poly_armv8_asm.o	:= -DLC_KYBER_TYPE_768
+AFLAGS_kyber768/armv8/kyber_reduce_armv8.o	:= -DLC_KYBER_TYPE_768
+
 else
 leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 				+= ../kem/src/kyber_kem_api_c.o
@@ -817,7 +992,10 @@ endif
 ifdef CONFIG_LEANCRYPTO_KEM
 ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM
 
-obj-m				+= leancrypto_kernel_kyber_tester.o
+# Kyber 1024
+ifdef CONFIG_LEANCRYPTO_KEM_KYBER_1024
+ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM_KYBER_1024
+obj-m				+= leancrypto_kernel_kyber_1024_tester.o
 
 obj-m		 		+= kyber_kem_tester_c.o
 obj-m		 		+= kyber_kem_tester_common.o
@@ -845,9 +1023,95 @@ kyber_ies_tester-y  		+= ../kem/tests/kyber_ies_tester.o	       \
 kyber_invalid_tester-y  	+= ../kem/tests/kyber_invalid_tester.o
 endif
 
+# Kyber 768
+ifdef CONFIG_LEANCRYPTO_KEM_KYBER_768
+ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM_KYBER_768
+obj-m				+= leancrypto_kernel_kyber_768_tester.o
+
+obj-m		 		+= kyber_768_kem_tester_c.o
+obj-m		 		+= kyber_768_kem_tester_common.o
+obj-m		 		+= kyber_768_kem_kdf_tester_c.o
+obj-m		 		+= kyber_768_kem_kdf_tester_common.o
+obj-m		 		+= kyber_768_kex_tester.o
+obj-m		 		+= kyber_768_ies_tester.o
+obj-m		 		+= kyber_768_invalid_tester.o
+
+kyber_768_kem_tester_c-y	+= kyber768/tests/kyber_kem_tester.o	       \
+				   kyber768/tests/kyber_kem_tester_c.o	       \
+				   ../drng/src/selftest_rng.o
+kyber_768_kem_kdf_tester_c-y	+= kyber768/tests/kyber_kem_tester.o	       \
+				   kyber768/tests/kyber_kem_kdf_tester_c.o     \
+				   ../drng/src/selftest_rng.o
+kyber_768_kem_tester_common-y	+= kyber768/tests/kyber_kem_tester.o	       \
+				   kyber768/tests/kyber_kem_tester_common.o    \
+				   ../drng/src/selftest_rng.o
+kyber_768_kem_kdf_tester_common-y+= kyber768/tests/kyber_kem_tester.o	       \
+				   kyber768/tests/kyber_kem_kdf_tester_common.o\
+				   ../drng/src/selftest_rng.o
+kyber_768_kex_tester-y 		+= kyber768/tests/kyber_kex_tester.o
+kyber_768_ies_tester-y  	+= kyber768/tests/kyber_ies_tester.o	       \
+				   ../drng/src/selftest_rng.o
+kyber_768_invalid_tester-y  	+= kyber768/tests/kyber_invalid_tester.o
+
+CFLAGS_leancrypto_kernel_kyber_768_tester.o	:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/tests/kyber_kem_tester.o	:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/tests/kyber_kem_tester_c.o	:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/tests/kyber_kem_kdf_tester_c.o	:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/tests/kyber_kem_tester_common.o	:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/tests/kyber_kem_kdf_tester_common.o:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/tests/kyber_kex_tester.o	:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/tests/kyber_ies_tester.o	:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/tests/kyber_invalid_tester.o	:= -DLC_KYBER_TYPE_768
+
+endif
+
+# Kyber 512
+ifdef CONFIG_LEANCRYPTO_KEM_KYBER_512
+ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM_KYBER_512
+obj-m				+= leancrypto_kernel_kyber_512_tester.o
+
+obj-m		 		+= kyber_512_kem_tester_c.o
+obj-m		 		+= kyber_512_kem_tester_common.o
+obj-m		 		+= kyber_512_kem_kdf_tester_c.o
+obj-m		 		+= kyber_512_kem_kdf_tester_common.o
+obj-m		 		+= kyber_512_kex_tester.o
+obj-m		 		+= kyber_512_ies_tester.o
+obj-m		 		+= kyber_512_invalid_tester.o
+
+kyber_512_kem_tester_c-y	+= kyber512/tests/kyber_kem_tester.o	       \
+				   kyber512/tests/kyber_kem_tester_c.o	       \
+				   ../drng/src/selftest_rng.o
+kyber_512_kem_kdf_tester_c-y	+= kyber512/tests/kyber_kem_tester.o	       \
+				   kyber512/tests/kyber_kem_kdf_tester_c.o     \
+				   ../drng/src/selftest_rng.o
+kyber_512_kem_tester_common-y	+= kyber512/tests/kyber_kem_tester.o	       \
+				   kyber512/tests/kyber_kem_tester_common.o    \
+				   ../drng/src/selftest_rng.o
+kyber_512_kem_kdf_tester_common-y+= kyber512/tests/kyber_kem_tester.o	       \
+				   kyber512/tests/kyber_kem_kdf_tester_common.o\
+				   ../drng/src/selftest_rng.o
+kyber_512_kex_tester-y 		+= kyber512/tests/kyber_kex_tester.o
+kyber_512_ies_tester-y  	+= kyber512/tests/kyber_ies_tester.o	       \
+				   ../drng/src/selftest_rng.o
+kyber_512_invalid_tester-y  	+= kyber512/tests/kyber_invalid_tester.o
+
+CFLAGS_leancrypto_kernel_kyber_512_tester.o	:= -DLC_KYBER_TYPE_512
+CFLAGS_kyber512/tests/kyber_kem_tester.o	:= -DLC_KYBER_TYPE_512
+CFLAGS_kyber512/tests/kyber_kem_tester_c.o	:= -DLC_KYBER_TYPE_512
+CFLAGS_kyber512/tests/kyber_kem_kdf_tester_c.o	:= -DLC_KYBER_TYPE_512
+CFLAGS_kyber512/tests/kyber_kem_tester_common.o	:= -DLC_KYBER_TYPE_512
+CFLAGS_kyber512/tests/kyber_kem_kdf_tester_common.o:= -DLC_KYBER_TYPE_512
+CFLAGS_kyber512/tests/kyber_kex_tester.o	:= -DLC_KYBER_TYPE_512
+CFLAGS_kyber512/tests/kyber_ies_tester.o	:= -DLC_KYBER_TYPE_512
+CFLAGS_kyber512/tests/kyber_invalid_tester.o	:= -DLC_KYBER_TYPE_512
+endif
+
+endif
+
 ifdef CONFIG_LEANCRYPTO_KEM_X25519
 ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM_X25519
 
+ifdef CONFIG_LEANCRYPTO_KEM_KYBER_1024
 obj-m				+= kyber_ies_x25519_tester.o
 obj-m				+= kyber_kem_x25519_tester.o
 obj-m				+= kyber_kex_x25519_tester.o
@@ -859,9 +1123,10 @@ kyber_kem_x25519_tester-y	+= ../kem/tests/kyber_kem_x25519_tester.o      \
 kyber_kex_x25519_tester-y	+= ../kem/tests/kyber_kex_x25519_tester.o      \
 				   ../drng/src/selftest_rng.o
 endif
+endif
 
 ifdef CONFIG_X86_64
-ifdef CONFIG_LEANCRYPTO_KEM
+ifdef CONFIG_LEANCRYPTO_KEM_KYBER_1024
 obj-m		  		+= kyber_kem_tester_avx2.o
 obj-m		  		+= kyber_kem_kdf_tester_avx2.o
 
@@ -871,8 +1136,27 @@ kyber_kem_tester_avx2-y		+= ../kem/tests/kyber_kem_tester.o	       \
 kyber_kem_kdf_tester_avx2-y	+= ../kem/tests/kyber_kem_tester.o	       \
 				   ../kem/tests/kyber_kem_kdf_tester_avx2.o    \
 				   ../drng/src/selftest_rng.o
+endif
+
+ifdef CONFIG_LEANCRYPTO_KEM_KYBER_768
+obj-m		  		+= kyber_768_kem_tester_avx2.o
+obj-m		  		+= kyber_768_kem_kdf_tester_avx2.o
+
+kyber_768_kem_tester_avx2-y	+= kyber768/tests/kyber_kem_tester.o	       \
+				   kyber768/tests/kyber_kem_tester_avx2.o      \
+				   ../drng/src/selftest_rng.o
+kyber_768_kem_kdf_tester_avx2-y	+= kyber768/tests/kyber_kem_tester.o	       \
+				   kyber768/tests/kyber_kem_kdf_tester_avx2.o  \
+				   ../drng/src/selftest_rng.o
+
+CFLAGS_kyber768/tests/kyber_kem_tester.o	:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/tests/kyber_kem_tester_avx2.o	:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/tests/kyber_kem_kdf_tester_avx2.o:= -DLC_KYBER_TYPE_768
+
+endif
 
 else ifdef CONFIG_ARM64
+ifdef CONFIG_LEANCRYPTO_KEM_KYBER_1024
 obj-m				+= kyber_kem_tester_armv8.o
 obj-m				+= kyber_kem_kdf_tester_armv8.o
 
@@ -882,6 +1166,23 @@ kyber_kem_tester_armv8-y	+= ../kem/tests/kyber_kem_tester.o	       \
 kyber_kem_kdf_tester_armv8-y	+= ../kem/tests/kyber_kem_tester.o	       \
 				   ../kem/tests/kyber_kem_kdf_tester_armv8.o   \
 				   ../drng/src/selftest_rng.o
+endif
+
+ifdef CONFIG_LEANCRYPTO_KEM_KYBER_768
+obj-m		  		+= kyber_768_kem_tester_armv8.o
+obj-m		  		+= kyber_768_kem_kdf_tester_armv8.o
+
+kyber_768_kem_tester_armv8-y	+= kyber768/tests/kyber_kem_tester.o	       \
+				   kyber768/tests/kyber_kem_tester_armv8.o     \
+				   ../drng/src/selftest_rng.o
+kyber_768_kem_kdf_tester_armv8-y+= kyber768/tests/kyber_kem_tester.o	       \
+				   kyber768/tests/kyber_kem_kdf_tester_armv8.o \
+				   ../drng/src/selftest_rng.o
+
+CFLAGS_kyber768/tests/kyber_kem_tester.o	:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/tests/kyber_kem_tester_armv8.o	:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/tests/kyber_kem_kdf_tester_armv8.o:= -DLC_KYBER_TYPE_768
+
 endif
 endif
 

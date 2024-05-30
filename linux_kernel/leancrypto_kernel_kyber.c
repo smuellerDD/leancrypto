@@ -24,7 +24,8 @@
 #include <linux/types.h>
 
 #include "kyber_kdf.h"
-#include "lc_kyber_1024.h"
+#include "kyber_type.h"
+#include "kyber_internal.h"
 #include "lc_memset_secure.h"
 
 #include "leancrypto_kernel.h"
@@ -275,10 +276,10 @@ static struct kpp_alg lc_kernel_kyber = {
 	.generate_public_key = lc_kernel_kyber_gen_ct,
 	.compute_shared_secret = lc_kernel_kyber_ss,
 	.max_size = lc_kernel_kyber_max_size,
-#if LC_KYBER_K == 2
+#ifdef LC_KYBER_TYPE_512
 	.base.cra_name = "kyber512",
 	.base.cra_driver_name = "kyber512-leancrypto",
-#elif LC_KYBER_K == 3
+#elif defined(LC_KYBER_TYPE_768)
 	.base.cra_name = "kyber768",
 	.base.cra_driver_name = "kyber768-leancrypto",
 #else
@@ -290,6 +291,47 @@ static struct kpp_alg lc_kernel_kyber = {
 	.base.cra_priority = LC_KERNEL_DEFAULT_PRIO,
 };
 
+#ifdef LC_KYBER_TYPE_512
+int __init lc_kernel_kyber_512_init(void)
+{
+	return crypto_register_kpp(&lc_kernel_kyber);
+}
+
+void lc_kernel_kyber_512_exit(void)
+{
+	crypto_unregister_kpp(&lc_kernel_kyber);
+}
+
+EXPORT_SYMBOL(lc_kyber_512_enc_internal);
+EXPORT_SYMBOL(lc_kyber_512_enc_kdf_internal);
+EXPORT_SYMBOL(lc_kex_512_ake_responder_ss_internal);
+EXPORT_SYMBOL(lc_kex_512_uake_initiator_init_internal);
+EXPORT_SYMBOL(lc_kex_512_ake_initiator_init_internal);
+EXPORT_SYMBOL(lc_kex_512_uake_responder_ss_internal);
+EXPORT_SYMBOL(lc_kyber_512_ies_enc_internal);
+EXPORT_SYMBOL(lc_kyber_512_ies_enc_init_internal);
+
+#elif defined(LC_KYBER_TYPE_768)
+int __init lc_kernel_kyber_768_init(void)
+{
+	return crypto_register_kpp(&lc_kernel_kyber);
+}
+
+void lc_kernel_kyber_768_exit(void)
+{
+	crypto_unregister_kpp(&lc_kernel_kyber);
+}
+
+EXPORT_SYMBOL(lc_kyber_768_enc_internal);
+EXPORT_SYMBOL(lc_kyber_768_enc_kdf_internal);
+EXPORT_SYMBOL(lc_kex_768_ake_responder_ss_internal);
+EXPORT_SYMBOL(lc_kex_768_uake_initiator_init_internal);
+EXPORT_SYMBOL(lc_kex_768_ake_initiator_init_internal);
+EXPORT_SYMBOL(lc_kex_768_uake_responder_ss_internal);
+EXPORT_SYMBOL(lc_kyber_768_ies_enc_internal);
+EXPORT_SYMBOL(lc_kyber_768_ies_enc_init_internal);
+
+#else
 int __init lc_kernel_kyber_init(void)
 {
 	return crypto_register_kpp(&lc_kernel_kyber);
@@ -299,3 +341,14 @@ void lc_kernel_kyber_exit(void)
 {
 	crypto_unregister_kpp(&lc_kernel_kyber);
 }
+
+EXPORT_SYMBOL(lc_kyber_enc_internal);
+EXPORT_SYMBOL(lc_kyber_enc_kdf_internal);
+EXPORT_SYMBOL(lc_kex_ake_responder_ss_internal);
+EXPORT_SYMBOL(lc_kex_uake_initiator_init_internal);
+EXPORT_SYMBOL(lc_kex_ake_initiator_init_internal);
+EXPORT_SYMBOL(lc_kex_uake_responder_ss_internal);
+EXPORT_SYMBOL(lc_kyber_ies_enc_internal);
+EXPORT_SYMBOL(lc_kyber_ies_enc_init_internal);
+
+#endif

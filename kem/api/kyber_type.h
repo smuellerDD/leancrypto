@@ -138,9 +138,9 @@ extern "C" {
 #define lc_kyber_x25519_dec_internal KYBER_F(x25519_dec_internal)
 #define lc_kyber_enc_kdf_internal KYBER_F(enc_kdf_internal)
 #define lc_kyber_x25519_enc_kdf_internal KYBER_F(x25519_enc_kdf_internal)
-#define lc_kex_uake_initiator_init_internal KEX_F(initiator_init_internal)
+#define lc_kex_uake_initiator_init_internal KEX_F(uake_initiator_init_internal)
 #define lc_kex_x25519_uake_initiator_init_internal                             \
-	KEX_F(lc_kex_x25519_uake_initiator_init_internal)
+	KEX_F(x25519_uake_initiator_init_internal)
 #define lc_kex_uake_responder_ss_internal KEX_F(uake_responder_ss_internal)
 #define lc_kex_x25519_uake_responder_ss_internal                               \
 	KEX_F(x25519_uake_responder_ss_internal)
@@ -176,7 +176,7 @@ extern "C" {
 #define kyber_print_buffer KYBER_F(print_buffer)
 #define kyber_print_polyvec KYBER_F(print_polyvec)
 #define kyber_print_polyveck KYBER_F(print_polyveck)
-#define kyber_print_poly KYBER_F(_print_poly)
+#define kyber_print_poly KYBER_F(print_poly)
 
 /* AVX2 Implementation */
 #define kyber_rej_uniform_avx KYBER_F(rej_uniform_avx)

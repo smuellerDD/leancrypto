@@ -22,7 +22,16 @@
 #include <linux/module.h>
 #include <linux/scatterlist.h>
 
+#ifdef LC_KYBER_TYPE_768
+#include "../kem/tests/kyber_kem_tester_vectors_768.h"
+#define LC_KYBER_IMPL_NAME "kyber768-leancrypto"
+#elif defined LC_KYBER_TYPE_512
+#include "../kem/tests/kyber_kem_tester_vectors_512.h"
+#define LC_KYBER_IMPL_NAME "kyber512-leancrypto"
+#else
 #include "../kem/tests/kyber_kem_tester_vectors_1024.h"
+#define LC_KYBER_IMPL_NAME "kyber1024-leancrypto"
+#endif
 
 struct lc_tcrypt_res {
 	struct completion completion;
@@ -204,7 +213,7 @@ out:
 
 static int __init leancrypto_kernel_kyber_test_init(void)
 {
-	return lc_kyber_ss("kyber1024-leancrypto");
+	return lc_kyber_ss(LC_KYBER_IMPL_NAME);
 }
 
 static void __exit leancrypto_kernel_kyber_test_exit(void)
@@ -216,4 +225,4 @@ module_exit(leancrypto_kernel_kyber_test_exit);
 
 MODULE_LICENSE("Dual BSD/GPL");
 MODULE_AUTHOR("Stephan Mueller <smueller@chronox.de>");
-MODULE_DESCRIPTION("Kernel module leancrypto_kernel_kyber_test");
+MODULE_DESCRIPTION("Kernel module leancrypto_kernel_kyber_test for implementation " LC_KYBER_IMPL_NAME);

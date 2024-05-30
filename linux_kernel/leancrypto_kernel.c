@@ -21,10 +21,10 @@
 #include <linux/module.h>
 
 #include "compare.h"
+#include "kyber_type.h"
 #include "lc_ed25519.h"
 #include "kyber_internal.h"
 #include "kyber_kem.h"
-#include "lc_kyber_1024.h"
 #include "seeded_rng.h"
 #include "lc_x25519.h"
 #include "x25519_scalarmult.h"
@@ -32,30 +32,11 @@
 
 #include "leancrypto_kernel.h"
 
-/* Export these symbols for testing */
-EXPORT_SYMBOL(_lc_kyber_keypair);
-EXPORT_SYMBOL(_lc_kyber_enc);
-EXPORT_SYMBOL(_lc_kyber_dec);
-EXPORT_SYMBOL(lc_kyber_enc_internal);
-EXPORT_SYMBOL(lc_kyber_enc_kdf_internal);
-EXPORT_SYMBOL(lc_kex_ake_responder_ss_internal);
-EXPORT_SYMBOL(lc_kex_uake_initiator_init_internal);
-EXPORT_SYMBOL(lc_kex_ake_initiator_init_internal);
-EXPORT_SYMBOL(lc_kex_uake_responder_ss_internal);
-EXPORT_SYMBOL(lc_kyber_ies_enc_internal);
-EXPORT_SYMBOL(lc_kyber_ies_enc_init_internal);
 EXPORT_SYMBOL(lc_disable_selftest);
 #ifdef LC_KYBER_X25519_KEM
-EXPORT_SYMBOL(lc_kyber_x25519_enc_kdf_internal);
-EXPORT_SYMBOL(lc_kyber_x25519_ies_enc_internal);
-EXPORT_SYMBOL(lc_kyber_x25519_ies_enc_init_internal);
 EXPORT_SYMBOL(crypto_scalarmult_curve25519);
 EXPORT_SYMBOL(crypto_scalarmult_curve25519_base);
 EXPORT_SYMBOL(lc_x25519_keypair);
-EXPORT_SYMBOL(lc_kex_x25519_ake_responder_ss_internal);
-EXPORT_SYMBOL(lc_kex_x25519_uake_initiator_init_internal);
-EXPORT_SYMBOL(lc_kex_x25519_ake_initiator_init_internal);
-EXPORT_SYMBOL(lc_kex_x25519_uake_responder_ss_internal);
 #endif /* LC_KYBER_X25519_KEM */
 #if (defined(LC_KYBER_X25519_KEM) || defined(LC_DILITHIUM_ED25519_SIG))
 EXPORT_SYMBOL(crypto_scalarmult_curve25519_c);
@@ -97,19 +78,47 @@ static int __init leancrypto_init(void)
 	if (ret)
 		goto free_dilithium_ed25519;
 
-	ret = lc_kernel_kyber_x25519_init();
+	ret = lc_kernel_kyber_768_init();
 	if (ret)
 		goto free_kyber;
 
-	ret = lc_kernel_ascon_init();
+	ret = lc_kernel_kyber_512_init();
+	if (ret)
+		goto free_kyber_768;
+
+	ret = lc_kernel_kyber_x25519_init();
+	if (ret)
+		goto free_kyber_512;
+
+	ret = lc_kernel_kyber_x25519_768_init();
 	if (ret)
 		goto free_kyber_x25519;
+
+	ret = lc_kernel_kyber_x25519_512_init();
+	if (ret)
+		goto free_kyber_x25519_768;
+
+	ret = lc_kernel_ascon_init();
+	if (ret)
+		goto free_kyber_x25519_512;
 
 out:
 	return ret;
 
+free_kyber_x25519_512:
+	lc_kernel_kyber_x25519_512_exit();
+
+free_kyber_x25519_768:
+	lc_kernel_kyber_x25519_768_exit();
+
 free_kyber_x25519:
 	lc_kernel_kyber_x25519_exit();
+
+free_kyber_512:
+	lc_kernel_kyber_512_exit();
+
+free_kyber_768:
+	lc_kernel_kyber_768_exit();
 
 free_kyber:
 	lc_kernel_kyber_exit();
@@ -142,7 +151,11 @@ static void __exit leancrypto_exit(void)
 	lc_kernel_dilithium_exit();
 	lc_kernel_dilithium_ed25519_exit();
 	lc_kernel_kyber_exit();
+	lc_kernel_kyber_768_exit();
+	lc_kernel_kyber_512_exit();
 	lc_kernel_kyber_x25519_exit();
+	lc_kernel_kyber_x25519_768_exit();
+	lc_kernel_kyber_x25519_512_exit();
 	lc_kernel_ascon_exit();
 }
 

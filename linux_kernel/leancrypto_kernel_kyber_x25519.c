@@ -26,7 +26,8 @@
 /* Prevent Kyber macros from getting undefined */
 #define LC_KYBER_INTERNAL
 
-#include "lc_kyber_1024.h"
+#include "kyber_type.h"
+#include "kyber_internal.h"
 #include "lc_memset_secure.h"
 #include "x25519_scalarmult.h"
 
@@ -162,6 +163,46 @@ static struct kpp_alg lc_kernel_kyber = {
 	.base.cra_priority = LC_KERNEL_DEFAULT_PRIO,
 };
 
+#ifdef LC_KYBER_TYPE_512
+int __init lc_kernel_kyber_x25519_512_init(void)
+{
+	return crypto_register_kpp(&lc_kernel_kyber);
+}
+
+void lc_kernel_kyber_x25519_512_exit(void)
+{
+	crypto_unregister_kpp(&lc_kernel_kyber);
+}
+
+EXPORT_SYMBOL(lc_kyber_512_x25519_enc_kdf_internal);
+EXPORT_SYMBOL(lc_kyber_512_x25519_ies_enc_internal);
+EXPORT_SYMBOL(lc_kyber_512_x25519_ies_enc_init_internal);
+EXPORT_SYMBOL(lc_kex_512_x25519_ake_responder_ss_internal);
+EXPORT_SYMBOL(lc_kex_512_x25519_uake_initiator_init_internal);
+EXPORT_SYMBOL(lc_kex_512_x25519_ake_initiator_init_internal);
+EXPORT_SYMBOL(lc_kex_512_x25519_uake_responder_ss_internal);
+
+#elif defined(LC_KYBER_TYPE_768)
+int __init lc_kernel_kyber_x25519_768_init(void)
+{
+	return crypto_register_kpp(&lc_kernel_kyber);
+}
+
+void lc_kernel_kyber_x25519_768_exit(void)
+{
+	crypto_unregister_kpp(&lc_kernel_kyber);
+}
+
+EXPORT_SYMBOL(lc_kyber_768_x25519_enc_kdf_internal);
+EXPORT_SYMBOL(lc_kyber_768_x25519_ies_enc_internal);
+EXPORT_SYMBOL(lc_kyber_768_x25519_ies_enc_init_internal);
+EXPORT_SYMBOL(lc_kex_768_x25519_ake_responder_ss_internal);
+EXPORT_SYMBOL(lc_kex_768_x25519_uake_initiator_init_internal);
+EXPORT_SYMBOL(lc_kex_768_x25519_ake_initiator_init_internal);
+EXPORT_SYMBOL(lc_kex_768_x25519_uake_responder_ss_internal);
+
+#else
+
 int __init lc_kernel_kyber_x25519_init(void)
 {
 	return crypto_register_kpp(&lc_kernel_kyber);
@@ -171,3 +212,12 @@ void lc_kernel_kyber_x25519_exit(void)
 {
 	crypto_unregister_kpp(&lc_kernel_kyber);
 }
+
+EXPORT_SYMBOL(lc_kyber_x25519_enc_kdf_internal);
+EXPORT_SYMBOL(lc_kyber_x25519_ies_enc_internal);
+EXPORT_SYMBOL(lc_kyber_x25519_ies_enc_init_internal);
+EXPORT_SYMBOL(lc_kex_x25519_ake_responder_ss_internal);
+EXPORT_SYMBOL(lc_kex_x25519_uake_initiator_init_internal);
+EXPORT_SYMBOL(lc_kex_x25519_ake_initiator_init_internal);
+EXPORT_SYMBOL(lc_kex_x25519_uake_responder_ss_internal);
+#endif

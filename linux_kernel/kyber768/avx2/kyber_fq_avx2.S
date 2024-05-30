@@ -1,0 +1,1 @@
+../../../kem/src/avx2/kyber_fq_avx2.S

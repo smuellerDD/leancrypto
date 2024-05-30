@@ -1,3 +1,5 @@
+# Include the files creating a binary blob
+
 include Kbuild
 
 KERNELRELEASE ?= $(shell uname -r)
@@ -26,4 +28,6 @@ modules modules_install: ../kem/api/lc_kyber.h.in lc_kyber_1024.h.awk lc_kyber_7
 	awk -f lc_hash.h.awk ../hash/api/lc_hash.h.in > lc_hash.h
 	awk -f lc_memory_support.awk ../internal/api/lc_memory_support.h.in > lc_memory_support.h
 	awk -f lc_ascon_hash.awk ../hash/api/lc_ascon_hash.h.in > lc_ascon_hash.h
+
+	# Compile the KO files
 	$(MAKE) -C $(KDIR) M=$$PWD $@
