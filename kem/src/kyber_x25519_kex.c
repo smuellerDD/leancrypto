@@ -24,8 +24,8 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
-#include "kyber_internal.h"
-#include "kyber_kdf.h"
+#include "kyber_x25519_internal.h"
+#include "kyber_x25519_kdf.h"
 
 #include "lc_memset_secure.h"
 #include "ret_checkers.h"

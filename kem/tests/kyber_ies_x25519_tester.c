@@ -18,7 +18,7 @@
  */
 
 #include "ext_headers.h"
-#include "kyber_internal.h"
+#include "kyber_x25519_internal.h"
 #include "lc_cshake256_drng.h"
 #include "lc_cshake_crypt.h"
 #include "lc_rng.h"

@@ -19,7 +19,8 @@
 
 #include "lc_kmac.h"
 #include "kyber_internal.h"
-#include "kyber_kdf.h"
+#include "kyber_x25519_internal.h"
+#include "kyber_x25519_kdf.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 #include "lc_x25519.h"

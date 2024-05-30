@@ -19,7 +19,7 @@
  */
 
 #include "kyber_type.h"
-#include "kyber_internal.h"
+#include "kyber_x25519_internal.h"
 
 #include "lc_aead.h"
 #include "lc_rng.h"

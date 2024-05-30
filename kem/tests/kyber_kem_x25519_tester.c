@@ -20,7 +20,7 @@
 #include "ext_headers.h"
 
 #include "compare.h"
-#include "kyber_internal.h"
+#include "kyber_x25519_internal.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
 #include "selftest_rng.h"
