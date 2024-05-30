@@ -759,6 +759,7 @@ ccflags-$(CONFIG_LEANCRYPTO_KEM)					       \
 # Kyber Common
 leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 				+= ../kem/src/kyber_cbd.o		       \
+				   ../kem/src/kyber_verify.o		       \
 				   ../kem/src/kyber_zetas.o
 
 # Kyber 1024
@@ -772,7 +773,6 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER_1024)				       \
 				   ../kem/src/kyber_polyvec.o		       \
 				   ../kem/src/kyber_selftest.o		       \
 				   ../kem/src/kyber_selftest_kdf.o	       \
-				   ../kem/src/kyber_verify.o		       \
 				   leancrypto_kernel_kyber.o
 
 # Kyber 768
@@ -786,7 +786,6 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER_768)				       \
 				   kyber768/kyber_polyvec.o		       \
 				   kyber768/kyber_selftest.o		       \
 				   kyber768/kyber_selftest_kdf.o	       \
-				   kyber768/kyber_verify.o		       \
 				   kyber768/leancrypto_kernel_kyber.o
 
 CFLAGS_kyber768/kyber_ies.o			:= -DLC_KYBER_TYPE_768
@@ -798,7 +797,6 @@ CFLAGS_kyber768/kyber_poly.o			:= -DLC_KYBER_TYPE_768
 CFLAGS_kyber768/kyber_polyvec.o			:= -DLC_KYBER_TYPE_768
 CFLAGS_kyber768/kyber_selftest.o		:= -DLC_KYBER_TYPE_768
 CFLAGS_kyber768/kyber_selftest_kdf.o		:= -DLC_KYBER_TYPE_768
-CFLAGS_kyber768/kyber_verify.o			:= -DLC_KYBER_TYPE_768
 CFLAGS_kyber768/leancrypto_kernel_kyber.o	:= -DLC_KYBER_TYPE_768
 
 # Kyber 512
@@ -813,7 +811,6 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER_512)				       \
 				   kyber512/kyber_polyvec.o		       \
 				   kyber512/kyber_selftest.o		       \
 				   kyber512/kyber_selftest_kdf.o	       \
-				   kyber512/kyber_verify.o		       \
 				   kyber512/leancrypto_kernel_kyber.o
 
 CFLAGS_kyber512/kyber_ies.o			:= -DLC_KYBER_TYPE_512
@@ -826,7 +823,6 @@ CFLAGS_kyber512/kyber_poly.o			:= -DLC_KYBER_TYPE_512
 CFLAGS_kyber512/kyber_polyvec.o			:= -DLC_KYBER_TYPE_512
 CFLAGS_kyber512/kyber_selftest.o		:= -DLC_KYBER_TYPE_512
 CFLAGS_kyber512/kyber_selftest_kdf.o		:= -DLC_KYBER_TYPE_512
-CFLAGS_kyber512/kyber_verify.o			:= -DLC_KYBER_TYPE_512
 CFLAGS_kyber512/leancrypto_kernel_kyber.o	:= -DLC_KYBER_TYPE_512
 
 ifndef CONFIG_ARM
