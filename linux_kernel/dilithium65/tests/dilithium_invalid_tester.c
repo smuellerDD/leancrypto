@@ -1,0 +1,1 @@
+../../../signature/tests/dilithium_invalid_tester.c

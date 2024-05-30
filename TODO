@@ -11,4 +11,3 @@
 
 - add more Rust wrappers
 
-- Linux kernel: add support for parallel Kyber/Dilithium support (at the moment this would require generating a separate .o file for the Kyber-768/512 and Dilithium-65/44 compile runs which then is linked into leancrypto.o to get leancrypto.ko - this compilation of a "sub-o-file" (like the static library supported by Meson) is not available).

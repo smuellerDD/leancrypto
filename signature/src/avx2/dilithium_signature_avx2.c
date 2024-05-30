@@ -300,7 +300,7 @@ static int lc_dilithium_sign_avx2_internal(struct lc_dilithium_sig *sig,
 	rho = ws->seedbuf;
 	unpack_sk_rho_avx2(rho, sk);
 	polyvec_matrix_expand(ws->mat, rho, ws->buf.poly_uniform_4x_buf,
-			      &ws->keccak_state);
+			      &ws->keccak_state, &ws->z);
 	unpack_sk_s1_avx2(&ws->s1, sk);
 	unpack_sk_s2_avx2(&ws->s2, sk);
 	unpack_sk_t0_avx2(&ws->t0, sk);

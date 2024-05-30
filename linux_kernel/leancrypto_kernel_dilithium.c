@@ -26,7 +26,7 @@
 /* Prevent Kyber macros from getting undefined */
 #define LC_DILITHIUM_INTERNAL
 
-#include "lc_dilithium_87.h"
+#include "dilithium_type.h"
 #include "lc_sha3.h"
 
 #include "leancrypto_kernel.h"
@@ -212,10 +212,10 @@ static struct akcipher_alg lc_kernel_dilithium = {
 	.max_size = lc_kernel_dilithium_max_size,
 	.init = lc_kernel_dilithium_alg_init,
 	.exit = lc_kernel_dilithium_alg_exit,
-#if LC_DILITHIUM_MODE == 2
+#ifdef LC_DILITHIUM_TYPE_44
 	.base.cra_name = "dilithium44",
 	.base.cra_driver_name = "dilithium44-leancrypto",
-#elif LC_DILITHIUM_MODE == 3
+#elif defined(LC_DILITHIUM_TYPE_65)
 	.base.cra_name = "dilithium65",
 	.base.cra_driver_name = "dilithium65-leancrypto",
 #else
@@ -227,6 +227,31 @@ static struct akcipher_alg lc_kernel_dilithium = {
 	.base.cra_priority = LC_KERNEL_DEFAULT_PRIO,
 };
 
+#ifdef LC_DILITHIUM_TYPE_44
+int __init lc_kernel_dilithium_44_init(void)
+{
+	return crypto_register_akcipher(&lc_kernel_dilithium);
+}
+
+void lc_kernel_dilithium_44_exit(void)
+{
+	crypto_unregister_akcipher(&lc_kernel_dilithium);
+}
+
+#elif defined(LC_DILITHIUM_TYPE_65)
+
+int __init lc_kernel_dilithium_65_init(void)
+{
+	return crypto_register_akcipher(&lc_kernel_dilithium);
+}
+
+void lc_kernel_dilithium_65_exit(void)
+{
+	crypto_unregister_akcipher(&lc_kernel_dilithium);
+}
+
+#else
+
 int __init lc_kernel_dilithium_init(void)
 {
 	return crypto_register_akcipher(&lc_kernel_dilithium);
@@ -236,3 +261,4 @@ void lc_kernel_dilithium_exit(void)
 {
 	crypto_unregister_akcipher(&lc_kernel_dilithium);
 }
+#endif

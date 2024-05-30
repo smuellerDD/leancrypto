@@ -404,7 +404,7 @@ static inline void polyvec_matrix_pointwise_montgomery_avx(
 
 void polyvec_matrix_expand(polyvecl mat[LC_DILITHIUM_K],
 			   const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
-			   void *ws_buf, void *ws_keccak);
+			   void *ws_buf, void *ws_keccak, polyvecl *tmp);
 
 void polyvec_matrix_expand_row0(polyvecl *rowa, polyvecl *rowb,
 				const uint8_t rho[LC_DILITHIUM_SEEDBYTES],

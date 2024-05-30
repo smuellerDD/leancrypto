@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-/* Prevent Kyber macros from getting undefined */
+/* Prevent Dilithium macros from getting undefined */
 #define LC_DILITHIUM_INTERNAL
 
 /*

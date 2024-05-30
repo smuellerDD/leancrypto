@@ -23,7 +23,16 @@
 #include <linux/scatterlist.h>
 #include <linux/version.h>
 
+#ifdef LC_DILITHIUM_TYPE_65
+#include "../signature/tests/dilithium_tester_vectors_65.h"
+#define LC_DILITHIUM_IMPL_NAME "dilithium65-leancrypto"
+#elif defined LC_DILITHIUM_TYPE_44
+#include "../signature/tests/dilithium_tester_vectors_44.h"
+#define LC_DILITHIUM_IMPL_NAME "dilithium44-leancrypto"
+#else
 #include "../signature/tests/dilithium_tester_vectors_87.h"
+#define LC_DILITHIUM_IMPL_NAME "dilithium87-leancrypto"
+#endif
 
 /*
  * kzfree was renamed to kfree_sensitive in 5.9
@@ -220,7 +229,7 @@ static int lc_dilithium_tester(void)
 	if (!sig)
 		return -ENOMEM;
 
-	ret = lc_test_siggen("dilithium87-leancrypto", vector, sig, siglen);
+	ret = lc_test_siggen(LC_DILITHIUM_IMPL_NAME, vector, sig, siglen);
 	if (ret)
 		goto out;
 
@@ -244,11 +253,11 @@ static int lc_dilithium_tester(void)
 	}
 #endif
 
-	ret = lc_test_sigver("dilithium87-leancrypto", vector);
+	ret = lc_test_sigver(LC_DILITHIUM_IMPL_NAME, vector);
 	if (ret)
 		goto out;
 
-	pr_info("Dilithium invocation via kernel crypto API succeeded\n");
+	pr_info("Dilithium " LC_DILITHIUM_IMPL_NAME " invocation via kernel crypto API succeeded\n");
 
 out:
 	free_zero(sig);
@@ -269,4 +278,4 @@ module_exit(leancrypto_kernel_dilithium_test_exit);
 
 MODULE_LICENSE("Dual BSD/GPL");
 MODULE_AUTHOR("Stephan Mueller <smueller@chronox.de>");
-MODULE_DESCRIPTION("Kernel module leancrypto_kernel_dilithium_test");
+MODULE_DESCRIPTION("Kernel module leancrypto_kernel_dilithium_test for implementation " LC_DILITHIUM_IMPL_NAME);
