@@ -27,7 +27,7 @@
 #define LC_KYBER_INTERNAL
 
 #include "kyber_type.h"
-#include "kyber_internal.h"
+#include "kyber_x25519_internal.h"
 #include "lc_memset_secure.h"
 #include "x25519_scalarmult.h"
 
