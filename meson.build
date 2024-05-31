@@ -4,7 +4,7 @@
 # Major Version: API / ABI incompatible changes, functional changes that require
 #		 consumer to be updated (as long as this number is zero, the API
 #		 is not considered stable and can change without a bump of the
-#		  major version).
+#		 major version).
 # Minor Version: API compatible, ABI may change, functional enhancements only,
 #		 consumer can be left unchanged if enhancements are not
 #		 considered. Yet, consumer must be recompiled.
@@ -62,7 +62,7 @@ if cc.has_argument('-fcf-protection=full')
 			     language: 'c')
 endif
 
-# ARM64 hardening - this is expensive
+# ARM64 hardening
 if cc.has_argument('-mbranch-protection=standard')
 	add_global_arguments([ '-mbranch-protection=standard' ],
 			     language: 'c')
@@ -135,6 +135,20 @@ if (host_machine.endian() == 'big')
 	add_global_arguments([ '-DLC_BIG_ENDIAN' ], language: 'c')
 else
 	add_global_arguments([ '-DLC_LITTLE_ENDIAN' ], language: 'c')
+endif
+
+# Profiling
+if get_option('profile-generate')
+	if cc.has_argument('-fprofile-generate')
+		add_global_arguments([ '-fprofile-generate=' + meson.build_root() ], language: 'c')
+		add_project_link_arguments('-fprofile-generate=' + meson.build_root(), language : 'c')
+	endif
+endif
+if get_option('profile-use')
+	if cc.has_argument('-fprofile-use')
+		add_global_arguments([ '-fprofile-use=' + meson.build_root() ], language: 'c')
+		add_project_link_arguments('-fprofile-use=' + meson.build_root(), language : 'c')
+	endif
 endif
 
 # Header generation

@@ -147,3 +147,24 @@ The leancrypto library offers a set of applications that work as
 drop-in-replacement for the corresponding apps offered by other environments.
 These include the known sha*sum applications.
 ''')
+
+option('profile-generate', type: 'boolean', value: false,
+       description: '''Enable profiling compilation
+
+This option enables the compiler profiling logic. The profiling approach should
+follow these steps:
+
+1. enable this option and compile
+
+2. run all test cases with meson test
+
+3. disable this option and enable profile-use option: meson configure -Dprofile-generate=false -Dprofile-use=true
+
+4. recompile - the final libary should now have some performance improvements
+''')
+
+option('profile-use', type: 'boolean', value: false,
+       description: '''Enable application of profiling data compilation
+
+See option profile-generate on how to use this.
+''')
