@@ -25,6 +25,16 @@
  ******************************************************************************/
 #define LC_PURE __attribute__((pure))
 
+/**
+ * @brief Return the size of a member variable of a data structure
+ *
+ * @param [in] struct data structure containing the member variable
+ * @param [in] member member variable name whose size shall be obtained
+ *
+ * @return size of the variable
+ */
+#define lc_member_size(struct, member) (sizeof( ((struct *)0)->member ))
+
 #ifdef LINUX_KERNEL
 /******************************************************************************
  * Linux Kernel

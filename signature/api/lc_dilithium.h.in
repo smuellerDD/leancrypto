@@ -160,8 +160,6 @@ struct @dilithium_name@_sig {
 	uint8_t sig[LC_DILITHIUM_CRYPTO_BYTES];
 };
 
-#define lc_member_size(struct, member) (sizeof( ((struct *)0)->member ))
-
 /**
  * @brief Return the size of the Dilithium secret key.
  */
@@ -188,8 +186,6 @@ static inline unsigned int @dilithium_name@_sig_size(void)
 {
 	return lc_member_size(struct @dilithium_name@_sig, sig);
 }
-
-#undef lc_member_size
 
 /**
  * @brief lc_dilithium_keypair - Generates Dilithium public and private key.

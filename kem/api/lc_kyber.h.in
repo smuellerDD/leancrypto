@@ -138,8 +138,6 @@ struct @kyber_name@_ss {
 	uint8_t ss[LC_KYBER_SSBYTES];
 };
 
-#define lc_member_size(struct, member) (sizeof( ((struct *)0)->member ))
-
 /**
  * @brief Return the size of the Kyber secret key.
  */
@@ -175,8 +173,6 @@ static inline unsigned int @kyber_name@_ss_size(void)
 {
 	return lc_member_size(struct @kyber_name@_ss, ss);
 }
-
-#undef lc_member_size
 
 /**
  * @brief lc_kyber_keypair - Generates public and private key for
