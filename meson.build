@@ -41,6 +41,8 @@ add_global_arguments([ '-fstack-protector-strong',
 		       '-Wswitch-enum',
 		       '-Wmissing-prototypes',
 		       '-Wformat=2',
+		       '-fno-delete-null-pointer-checks',
+		       '-fno-strict-aliasing',
 		        ],
 		       language : 'c')
 
@@ -51,6 +53,18 @@ if cc.has_argument('-fzero-call-used-regs=used-gpr')
 endif
 if cc.has_argument('-ftrivial-auto-var-init=zero')
 	add_global_arguments([ '-ftrivial-auto-var-init=zero' ],
+			     language: 'c')
+endif
+
+# x86_64 hardening
+if cc.has_argument('-fcf-protection=full')
+	add_global_arguments([ '-fcf-protection=full' ],
+			     language: 'c')
+endif
+
+# ARM64 hardening - this is expensive
+if cc.has_argument('-mbranch-protection=standard')
+	add_global_arguments([ '-mbranch-protection=standard' ],
 			     language: 'c')
 endif
 
@@ -113,6 +127,7 @@ if (host_machine.system() == 'linux')
 	add_project_link_arguments('-Wl,-z,relro', language : 'c')
 	add_project_link_arguments('-Wl,-z,now', language : 'c')
 	add_project_link_arguments('-Wl,-z,noexecstack', language : 'c')
+	add_project_link_arguments('-Wl,-z,nodlopen', language : 'c')
 endif
 
 # Check for the endianess of the target
