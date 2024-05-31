@@ -1,0 +1,42 @@
+################################################################################
+# Automated configuration
+#
+# This file is not meant for manually selecting options.
+#
+
+#
+# The Curve25519 is not defined to be configurable as this is not PQC-resistant.
+# It is only provided to allow a hybrid Dilithium / Kyber algorithm.
+#
+ifdef CONFIG_LEANCRYPTO_KEM_X25519
+CONFIG_LEANCRYPTO_CURVE25519=y
+endif
+ifdef CONFIG_LEANCRYPTO_DILITHIUM_ED25519
+CONFIG_LEANCRYPTO_CURVE25519=y
+endif
+
+#
+# Automatically select the common Kyber code
+#
+ifdef CONFIG_LEANCRYPTO_KEM_KYBER_1024
+CONFIG_LEANCRYPTO_KEM=y
+endif
+ifdef CONFIG_LEANCRYPTO_KEM_KYBER_768
+CONFIG_LEANCRYPTO_KEM=y
+endif
+ifdef CONFIG_LEANCRYPTO_KEM_KYBER_512
+CONFIG_LEANCRYPTO_KEM=y
+endif
+
+#
+# Automatically select the common Dilithium code
+#
+ifdef CONFIG_LEANCRYPTO_DILITHIUM_87
+CONFIG_LEANCRYPTO_DILITHIUM=y
+endif
+ifdef CONFIG_LEANCRYPTO_DILITHIUM_65
+CONFIG_LEANCRYPTO_DILITHIUM=y
+endif
+ifdef CONFIG_LEANCRYPTO_DILITHIUM_44
+CONFIG_LEANCRYPTO_DILITHIUM=y
+endif

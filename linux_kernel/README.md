@@ -112,10 +112,10 @@ disable algorithms as needed.
 
 Unfortunately, the Linux kernel build system's graphical configuration tools
 cannot be used for out-of-tree modules. Thus, if changes to the set of
-algorithms is intended, the file `Kbuild` must be modified as follows:
+algorithms is intended, the file `Kbuild.config` must be modified as follows:
 
 The file `Kbuild.config` contains a configuration of the services. Simply
-commet out the respective symbols that are not desired to be present. The
+comment out the respective symbols that are not desired to be present. The
 `Kbuild.config` file contains a description of each option including its
 dependencies, if any. You MUST adhere to the specified dependencies as
 otherwise the compilation will fail due to missing symbols.

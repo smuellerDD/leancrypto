@@ -1,10 +1,14 @@
 ################################################################################
 # Signature implementation: Dilithium
+
 ccflags-$(CONFIG_LEANCRYPTO_DILITHIUM)					       \
 				+= -I$(PWD)/../signature/api
 asflags-$(CONFIG_LEANCRYPTO_DILITHIUM)					       \
 				+= -I$(PWD)
 
+################################################################################
+# C Implementation
+################################################################################
 # Dilithium Common
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
 				+= ../signature/src/dilithium_zetas.o
@@ -77,6 +81,9 @@ endif
 
 ifdef CONFIG_X86_64
 
+################################################################################
+# AVX2 Implementation
+################################################################################
 # Dilithium Common
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
 			+= ../signature/src/avx2/dilithium_consts_avx2.o       \
@@ -118,6 +125,10 @@ CFLAGS_dilithium65/avx2/dilithium_signature_avx2.o	:= -DLC_DILITHIUM_TYPE_65
 AFLAGS_dilithium65/avx2/dilithium_shuffle_avx2.o	:= -DLC_DILITHIUM_TYPE_65
 
 else ifdef CONFIG_ARM
+
+################################################################################
+# ARMv7 Implementation
+################################################################################
 # Dilithium Common
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
 			+= ../signature/src/armv7/dilithium_ntt_consts.o
@@ -165,6 +176,9 @@ CFLAGS_dilithium44/armv7/dilithium_signature_armv7.o	:= -DLC_DILITHIUM_TYPE_44
 
 else ifdef CONFIG_ARM64
 
+################################################################################
+# ARMv8 Implementation
+################################################################################
 # Dilithium Common
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
 			+= ../signature/src/armv8/NTT_params.o
@@ -194,7 +208,9 @@ leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
 			+= ../signature/src/dilithium_signature_api_c.o
 endif
 
-
+################################################################################
+# Dilithium Test Cases
+################################################################################
 ccflags-$(CONFIG_LEANCRYPTO_DILITHIUM)					       \
 				+= -I$(PWD)/../signature/src
 ifdef CONFIG_LEANCRYPTO_DILITHIUM
