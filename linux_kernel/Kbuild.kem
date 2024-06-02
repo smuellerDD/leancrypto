@@ -260,7 +260,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER_1024)				       \
 # Kyber 768
 leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER_768)				       \
 				+= kyber768/kyber_kem_api_c.o
-CFLAGS_kyber768/src/kyber_kem_api_c.o		:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/kyber_kem_api_c.o		:= -DLC_KYBER_TYPE_768
 
 # Kyber 512 is already covered by the C implementation definition
 endif

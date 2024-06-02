@@ -158,22 +158,6 @@ CFLAGS_dilithium65/armv7/dilithium_poly.o		:= -DLC_DILITHIUM_TYPE_65
 CFLAGS_dilithium65/armv7/dilithium_signature_api_armv7.o:= -DLC_DILITHIUM_TYPE_65
 CFLAGS_dilithium65/armv7/dilithium_signature_armv7.o	:= -DLC_DILITHIUM_TYPE_65
 
-# Dilithium 44
-leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_44)				       \
-			+= dilithium44/armv7/dilithium_ntt_armv7.o	       \
-			   dilithium44/armv7/dilithium_pointwise_smull_armv7.o \
-			   dilithium44/armv7/dilithium_poly_armv7.o	       \
-			   dilithium44/armv7/dilithium_poly.o		       \
-			   dilithium44/armv7/dilithium_signature_api_armv7.o   \
-			   dilithium44/armv7/dilithium_signature_armv7.o
-
-AFLAGS_dilithium44/armv7/dilithium_ntt_armv7.o		:= -DLC_DILITHIUM_TYPE_44
-AFLAGS_dilithium44/armv7/dilithium_pointwise_smull_armv7.o:= -DLC_DILITHIUM_TYPE_44
-AFLAGS_dilithium44/armv7/dilithium_poly_armv7.o		:= -DLC_DILITHIUM_TYPE_44
-CFLAGS_dilithium44/armv7/dilithium_poly.o		:= -DLC_DILITHIUM_TYPE_44
-CFLAGS_dilithium44/armv7/dilithium_signature_api_armv7.o:= -DLC_DILITHIUM_TYPE_44
-CFLAGS_dilithium44/armv7/dilithium_signature_armv7.o	:= -DLC_DILITHIUM_TYPE_44
-
 else ifdef CONFIG_ARM64
 
 ################################################################################
