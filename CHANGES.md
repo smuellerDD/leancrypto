@@ -1,10 +1,11 @@
-Changes 0.10.1-prerelease
+Changes 0.10.1
 
 * enhancement: Linux kernel - Kyber: allow parallel compilation of all Kyber types including all optimizations
 
 * enhancement: Linux kernel - Dilithium: allow parallel compilation of all Dilithium types including all optimizations
 
 * add additional hardening compiler flags stipulated by openssf.org
+
 Changes 0.10.0
 
 * enhancement: add Sponge APIs
