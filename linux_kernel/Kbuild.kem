@@ -177,22 +177,24 @@ asflags-$(CONFIG_LEANCRYPTO_KEM)					       \
 
 # Kyber Common
 leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
-				+= ../kem/src/kyber_kem_api_c.o		       \
-				   ../kem/src/armv7/kyber_consts_armv7.o       \
+				+= ../kem/src/armv7/kyber_consts_armv7.o       \
 				   ../kem/src/armv7/kyber_fastinvntt_armv7.o   \
 				   ../kem/src/armv7/kyber_fastntt_armv7.o      \
 				   ../kem/src/armv7/kyber_ntt_armv7.o
 
 # Kyber 1024
 leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER_1024)				       \
-				+= ../kem/src/armv7/kyber_poly_armv7.o
+				+= ../kem/src/kyber_kem_api_c.o		       \
+				   ../kem/src/armv7/kyber_poly_armv7.o
 
 # Kyber 768
 leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER_768)				       \
-				+= kyber768/armv7/kyber_poly_armv7.o
+				+= kyber768/kyber_kem_api_c.o		       \
+				   kyber768/armv7/kyber_poly_armv7.o
+CFLAGS_kyber768/kyber_kem_api_c.o		:= -DLC_KYBER_TYPE_768
 AFLAGS_kyber768/armv7/kyber_poly_armv7.o	:= -DLC_KYBER_TYPE_768
 
-# Kyber 512
+# Kyber 512 - kyber_kem_api_c.c is already compiled as part of C
 leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER_512)				       \
 				+= kyber512/armv7/kyber_poly_armv7.o
 AFLAGS_kyber512/armv7/kyber_poly_armv7.o	:= -DLC_KYBER_TYPE_512
