@@ -1,0 +1,1 @@
+../../../kem/src/armv7/kyber_consts_armv7.c

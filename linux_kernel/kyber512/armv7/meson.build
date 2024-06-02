@@ -1,1 +1,1 @@
-../../../kem/src/armv8/meson.build
+../../../kem/src/armv7/meson.build
