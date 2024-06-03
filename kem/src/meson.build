@@ -5,7 +5,6 @@ if (get_option('kyber_1024').enabled() or get_option('kyber_768').enabled() or g
 	src += files([
 		'kyber_cbd.c',
 		'kyber_zetas.c',
-		'kyber_verify.c',
 	])
 
 	if (not arm32_neon_gcc_asm)

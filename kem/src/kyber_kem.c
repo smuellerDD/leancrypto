@@ -200,7 +200,7 @@ int _lc_kyber_dec(
 		uint8_t cmp[LC_KYBER_CIPHERTEXTBYTES];
 	};
 	const uint8_t *pk;
-	uint8_t fail;
+	int fail;
 	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
@@ -251,7 +251,8 @@ int _lc_kyber_dec(
 	kyber_print_buffer(ws->cmp, LC_KYBER_CIPHERTEXTBYTES,
 			   "Decapsulation: c'");
 
-	fail = verify(ct->ct, ws->cmp, LC_KYBER_CIPHERTEXTBYTES);
+	fail = lc_memcmp_secure(ct->ct, LC_KYBER_CIPHERTEXTBYTES, ws->cmp,
+				LC_KYBER_CIPHERTEXTBYTES);
 
 	/* Compute rejection key */
 	kyber_shake256_rkprf(

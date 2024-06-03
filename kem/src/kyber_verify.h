@@ -34,8 +34,25 @@
 extern "C" {
 #endif
 
-uint8_t verify(const uint8_t *a, const uint8_t *b, size_t len);
-void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b);
+/**
+ * @brief cmov - Copy len bytes from x to r if b is 1;
+ *		 don't modify x if b is 0. Requires b to be in {0,1};
+ *		 assumes two's complement representation of negative integers.
+ *		 Runs in constant time.
+ *
+ * @param r [out] pointer to output byte array
+ * @param x [in] pointer to input byte array
+ * @param len [in] Amount of bytes to be copied
+ * @param b [in] Condition bit; has to be in {0,1}
+ */
+static inline void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b)
+{
+	size_t i;
+
+	b = -b;
+	for (i = 0; i < len; i++)
+		r[i] ^= b & (r[i] ^ x[i]);
+}
 
 /**
  * @brief cmov_int16 - Copy input v to *r if b is 1, don't modify *r if b is 0.

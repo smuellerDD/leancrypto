@@ -41,7 +41,7 @@ static inline int memcmp_secure_8(const void *s1, const void *s2, size_t n)
 	int ret = 0;
 
 	while (n) {
-		ret |= (*s1p != *s2p);
+		ret |= (*s1p ^ *s2p);
 		n--;
 		s1p++;
 		s2p++;
@@ -62,14 +62,15 @@ static inline int memcmp_secure_32_aligned(const void *s1, const void *s2,
 	uint32_t *s1_word = (uint32_t *)s1;
 	uint32_t *s2_word = (uint32_t *)s2;
 #pragma GCC diagnostic pop
-	int ret = 0;
+	uint32_t ret = 0;
 
 	for (; n >= sizeof(*s1_word); n -= sizeof(*s2_word))
-		ret |= (*s1_word++ != *s2_word++);
+		ret |= (*s1_word++ ^ *s2_word++);
 
-	ret |= memcmp_secure_8((uint8_t *)s1_word, (uint8_t *)s2_word, n);
+	ret |= (uint32_t)memcmp_secure_8((uint8_t *)s1_word,
+					 (uint8_t *)s2_word, n);
 
-	return ret;
+	return !!ret;
 }
 
 static inline int memcmp_secure_32(const void *s1, const void *s2, size_t n)
@@ -110,15 +111,15 @@ static inline int memcmp_secure_64_aligned(const void *s1, const void *s2,
 	uint64_t *s1_dword = (uint64_t *)s1;
 	uint64_t *s2_dword = (uint64_t *)s2;
 #pragma GCC diagnostic pop
-	int ret = 0;
+	uint64_t ret = 0;
 
 	for (; n >= sizeof(*s1_dword); n -= sizeof(*s1_dword))
-		ret |= (*s2_dword++ != *s1_dword++);
+		ret |= (*s2_dword++ ^ *s1_dword++);
 
-	ret |= memcmp_secure_32_aligned((uint8_t *)s1_dword,
-					(uint8_t *)s2_dword, n);
+	ret |= (uint64_t)memcmp_secure_32_aligned((uint8_t *)s1_dword,
+						  (uint8_t *)s2_dword, n);
 
-	return ret;
+	return !!ret;
 }
 
 #else
