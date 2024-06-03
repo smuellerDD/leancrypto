@@ -37,6 +37,20 @@ extern "C" {
 uint8_t verify(const uint8_t *a, const uint8_t *b, size_t len);
 void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b);
 
+/**
+ * @brief cmov_int16 - Copy input v to *r if b is 1, don't modify *r if b is 0.
+ *		       Requires b to be in {0,1}; Runs in constant time.
+ *
+ * @param [out] r pointer to output int16_t
+ * @param [in] v input int16_t
+ * @param [in] b Condition bit; has to be in {0,1}
+ */
+static inline void cmov_int16(int16_t *r, int16_t v, uint16_t b)
+{
+	b = -b;
+	*r ^= (int16_t)(b & ((*r) ^ v));
+}
+
 #ifdef __cplusplus
 }
 #endif

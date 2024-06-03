@@ -32,6 +32,7 @@
 #include "kyber_ntt.h"
 #include "kyber_ntt_armv8.h"
 #include "kyber_reduce_armv8.h"
+#include "kyber_verify.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -207,7 +208,6 @@ static inline void poly_frommsg(poly *r,
 				const uint8_t msg[LC_KYBER_INDCPA_MSGBYTES])
 {
 	unsigned int i, j;
-	int16_t mask;
 
 #if (LC_KYBER_INDCPA_MSGBYTES != LC_KYBER_N / 8)
 #error "LC_KYBER_INDCPA_MSGBYTES must be equal to LC_KYBER_N/8 bytes!"
@@ -215,8 +215,9 @@ static inline void poly_frommsg(poly *r,
 
 	for (i = 0; i < LC_KYBER_N / 8; i++) {
 		for (j = 0; j < 8; j++) {
-			mask = -(int16_t)((msg[i] >> j) & 1);
-			r->coeffs[8 * i + j] = mask & ((LC_KYBER_Q + 1) / 2);
+			r->coeffs[8 * i + j] = 0;
+			cmov_int16(r->coeffs + 8 * i + j,
+				   ((LC_KYBER_Q + 1) / 2), (msg[i] >> j) & 1);
 		}
 	}
 }
