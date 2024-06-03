@@ -47,7 +47,7 @@ static inline int memcmp_secure_8(const void *s1, const void *s2, size_t n)
 		s2p++;
 	}
 
-	return ret;
+	return !!ret;
 }
 
 static inline int memcmp_secure_32_aligned(const void *s1, const void *s2,
@@ -76,7 +76,7 @@ static inline int memcmp_secure_32_aligned(const void *s1, const void *s2,
 static inline int memcmp_secure_32(const void *s1, const void *s2, size_t n)
 {
 	const uint8_t *s1p, *s2p;
-	int ret;
+	uint32_t ret;
 
 	if (memcmp_secure_aligned(s1, sizeof(uint32_t) - 1) &&
 	    memcmp_secure_aligned(s2, sizeof(uint32_t) - 1))
@@ -87,15 +87,15 @@ static inline int memcmp_secure_32(const void *s1, const void *s2, size_t n)
 	ret = 0;
 
 	if (n > sizeof(uint32_t)) {
-		ret |= (ptr_to_32(s1p) != ptr_to_32(s2p));
+		ret |= (ptr_to_32(s1p) ^ ptr_to_32(s2p));
 		n -= sizeof(uint32_t);
 		s1p += sizeof(uint32_t);
 		s2p += sizeof(uint32_t);
 	}
 
-	ret |= memcmp_secure_8(s1p, s2p, n);
+	ret |= (uint32_t)memcmp_secure_8(s1p, s2p, n);
 
-	return ret;
+	return !!ret;
 }
 
 #ifdef __LP64__
@@ -134,7 +134,7 @@ static inline int memcmp_secure_64_aligned(const void *s1, const void *s2,
 static inline int memcmp_secure_64(const void *s1, const void *s2, size_t n)
 {
 	const uint8_t *s1p, *s2p;
-	int ret;
+	uint64_t ret;
 
 #ifdef __LP64__
 	if (memcmp_secure_aligned(s1, sizeof(uint64_t) - 1) &&
@@ -147,15 +147,15 @@ static inline int memcmp_secure_64(const void *s1, const void *s2, size_t n)
 	ret = 0;
 
 	if (n > sizeof(uint64_t)) {
-		ret |= (ptr_to_64(s1p) != ptr_to_64(s2p));
+		ret |= (ptr_to_64(s1p) ^ ptr_to_64(s2p));
 		n -= sizeof(uint64_t);
 		s1p += sizeof(uint64_t);
 		s2p += sizeof(uint64_t);
 	}
 
-	ret |= memcmp_secure_32(s1p, s2p, n);
+	ret |= (uint64_t)memcmp_secure_32(s1p, s2p, n);
 
-	return ret;
+	return !!ret;
 }
 
 #ifdef __cplusplus
