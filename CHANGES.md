@@ -1,3 +1,9 @@
+Changes 0.10.2
+
+* security fix: fix possible leak of message in Kyber
+
+* Kyber: reduce memory footprint, use common lc_memcmp_secure API
+
 Changes 0.10.1
 
 * enhancement: Linux kernel - Kyber: allow parallel compilation of all Kyber types including all optimizations
