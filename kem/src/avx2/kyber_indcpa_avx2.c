@@ -556,7 +556,8 @@ int indcpa_enc_avx(uint8_t c[LC_KYBER_INDCPA_BYTES],
 	unpack_pk(&ws->pkpv, ws->tmp2.seed, pk);
 
 	/* Validate input */
-	CKINT(kyber_kem_iv_pk_modulus(pk, &ws->pkpv, ws->tmp2.seed, pack_pk));
+	CKINT(kyber_kem_iv_pk_modulus(pk, &ws->pkpv, ws->tmp2.seed,
+				      (void *)ws->at, pack_pk));
 
 	CKINT(gen_at(ws->at, ws->tmp2.seed, ws->tmp.gen_at_buf));
 

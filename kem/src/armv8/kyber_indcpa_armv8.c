@@ -300,7 +300,7 @@ int indcpa_enc_armv8(uint8_t c[LC_KYBER_INDCPA_BYTES],
 	/* Validate input */
 	CKINT(kyber_kem_iv_pk_modulus(pk, &ws->pkpv,
 				      ws->poly_getnoise_eta1_buf /* ws->seed */,
-				      pack_pk));
+				      (void *)ws->at, pack_pk));
 
 	poly_frommsg(&ws->k, m);
 	gen_at(ws->at, ws->poly_getnoise_eta1_buf /* ws->seed */);

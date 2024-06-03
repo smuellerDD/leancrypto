@@ -59,24 +59,19 @@ static inline int kyber_kem_iv_type(const struct lc_kyber_pk *pk)
  */
 static inline int kyber_kem_iv_pk_modulus(
 	const uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES], const polyvec *pkpv,
-	uint8_t seed[LC_KYBER_SYMBYTES],
+	uint8_t seed[LC_KYBER_SYMBYTES], void *ws,
 	void (*pack_pk)(uint8_t r[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 			const polyvec *pk,
 			const uint8_t seed[LC_KYBER_SYMBYTES]))
 {
-	struct workspace {
-		uint8_t pknew[LC_KYBER_INDCPA_PUBLICKEYBYTES];
-	};
 	int ret = 0;
-	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	pack_pk(ws->pknew, pkpv, seed);
+	pack_pk(ws, pkpv, seed);
 
-	if (lc_memcmp_secure(pk, LC_KYBER_INDCPA_PUBLICKEYBYTES, ws->pknew,
+	if (lc_memcmp_secure(pk, LC_KYBER_INDCPA_PUBLICKEYBYTES, ws,
 			     LC_KYBER_INDCPA_PUBLICKEYBYTES))
 		ret = -EINVAL;
 
-	LC_RELEASE_MEM(ws);
 	return ret;
 }
 

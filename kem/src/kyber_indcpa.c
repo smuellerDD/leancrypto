@@ -315,7 +315,9 @@ int indcpa_enc(uint8_t c[LC_KYBER_INDCPA_BYTES],
 	kyber_print_polyvec(&ws->pkpv, "K-PKE Encrypt: tHat");
 
 	/* Validate input */
-	CKINT(kyber_kem_iv_pk_modulus(pk, &ws->pkpv, ws->tmp.seed, pack_pk));
+	BUILD_BUG_ON(LC_KYBER_INDCPA_PUBLICKEYBYTES > sizeof(ws->at));
+	CKINT(kyber_kem_iv_pk_modulus(pk, &ws->pkpv, ws->tmp.seed,
+				      (void *)ws->at, pack_pk));
 
 	poly_frommsg(&ws->k, m);
 	kyber_print_poly(&ws->k, "K-PKE Encrypt: mu");
