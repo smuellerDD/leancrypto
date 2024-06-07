@@ -143,6 +143,7 @@ LC_INTERFACE_FUNCTION(int, lc_al_alloc, const struct lc_hash *hash,
 
 	ascon = tmp->aead_state;
 	ascon->statesize = LC_ASCON_HASH_STATE_SIZE;
+	ascon->taglen = 16;
 
 	*ctx = tmp;
 

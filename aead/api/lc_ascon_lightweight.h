@@ -65,6 +65,7 @@ int lc_al_alloc(const struct lc_hash *hash, struct lc_aead_ctx **ctx);
 	LC_ASCON_SET_CTX(name, hash);                                               \
 	struct lc_ascon_cryptor *__name_ascon_crypto = name->aead_state;            \
 	__name_ascon_crypto->statesize = LC_ASCON_HASH_STATE_SIZE;                  \
+	__name_ascon_crypto->taglen = 16;                                           \
 	_Pragma("GCC diagnostic pop")
 /* invocation of lc_ak_zero_free(name); not needed */
 

@@ -37,6 +37,7 @@ static void lc_ascon_zero(struct lc_ascon_cryptor *ascon)
 	ascon->keylen = 0;
 	ascon->rate_offset = 0;
 	ascon->roundb = 0;
+	ascon->taglen = 0;
 
 	/* Do not touch ascon->statesize! */
 }
@@ -241,16 +242,8 @@ static void lc_ascon_enc_final(struct lc_ascon_cryptor *ascon, uint8_t *tag,
 	 */
 	lc_sponge(hash, ascon->state, ascon->roundb);
 
-	/*
-	 * Tag size can be at most the key size which in turn is smaller than
-	 * the capacity. Thus, all bits of the tag (a) are always affected by
-	 * the key, and (b) affected by the capacity.
-	 *
-	 * Note, this code allows small tag sizes, including zero tag sizes.
-	 * It is supported here, but the decryption side requires 16 bytes
-	 * tag length as a minimum.
-	 */
-	if (taglen > ascon->keylen)
+	/* Enforce the tag size */
+	if (taglen != ascon->taglen)
 		return;
 
 	lc_ascon_add_padbyte(ascon, ascon->rate_offset);
@@ -354,7 +347,8 @@ static int lc_ascon_dec_final(struct lc_ascon_cryptor *ascon,
 
 	BUILD_BUG_ON(sizeof(calctag) != sizeof(ascon->key));
 
-	if (taglen < 16)
+	/* Tag length must match the initially configured tag length */
+	if (taglen != ascon->taglen)
 		return -EINVAL;
 
 	/* See enc_final for a rationale why this sponge call is here. */

@@ -51,9 +51,10 @@
 
 /*
  * The IV is defined using the specification provided with the Ascon algorithm.
+ * The IV is specified without the tag length which is set in lc_ak_setiv.
  */
-#define LC_AEAD_ASCON_KECCAK_512_512_IV 0x0200024000180018
-#define LC_AEAD_ASCON_KECCAK_256_256_IV 0x0100044000180018
+#define LC_AEAD_ASCON_KECCAK_512_IV 0x0200024018180000
+#define LC_AEAD_ASCON_KECCAK_256_IV 0x0100044018180000
 
 static void lc_ak_selftest(int *tested, const char *impl)
 {
@@ -77,17 +78,17 @@ static void lc_ak_selftest(int *tested, const char *impl)
 		0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f,
 	};
 	static const uint8_t exp_ct[] = {
-		0x98, 0xe1, 0x5c, 0xd7, 0x81, 0xd9, 0x90, 0x9a, 0x63, 0x87,
-		0x6f, 0xf8, 0x2a, 0x74, 0x38, 0xa2, 0xc0, 0xbf, 0x1e, 0xe4,
-		0x82, 0x50, 0xc0, 0x1d, 0xea, 0x17, 0x30, 0xec, 0xb7, 0xd2,
-		0x36, 0xbc, 0x83, 0xd8, 0x8d, 0xa1, 0xf1, 0x7e, 0xe9, 0x6d,
-		0x53, 0xb6, 0x48, 0xef, 0x43, 0x85, 0xea, 0x72, 0x6f, 0x51,
-		0x3d, 0xb2, 0x35, 0x5d, 0x48, 0x44, 0x77, 0xb7, 0x60, 0x27,
-		0x53, 0x9a, 0x74, 0x8e
+		0x39, 0xb5, 0x1b, 0xc6, 0x72, 0xab, 0x1a, 0xcb, 0x49, 0x4c,
+		0xe8, 0x66, 0x53, 0x3c, 0x10, 0x7f, 0xed, 0xde, 0xb3, 0x0c,
+		0x46, 0x6a, 0xb8, 0x98, 0xc0, 0x40, 0x2b, 0xbc, 0x56, 0x41,
+		0xfa, 0x9f, 0x56, 0xb4, 0xf6, 0xce, 0x29, 0x67, 0xa2, 0x80,
+		0x44, 0xed, 0x7c, 0x07, 0x07, 0xd4, 0x66, 0x94, 0x9f, 0xe8,
+		0x6d, 0xa5, 0x60, 0x6d, 0xa9, 0xb9, 0x06, 0x0d, 0x00, 0xd8,
+		0x7b, 0xba, 0xff, 0x59
 	};
-	static const uint8_t exp_tag[] = { 0xc1, 0x28, 0xff, 0xfd, 0x4e, 0xe2,
-					   0x75, 0x6a, 0x87, 0x9c, 0xdd, 0xcb,
-					   0x22, 0x8e, 0x26, 0xe1 };
+	static const uint8_t exp_tag[] = { 0xc7, 0xe7, 0x58, 0x28, 0xe5, 0x76,
+					   0x7c, 0xc7, 0xfa, 0xdf, 0x16, 0xa3,
+					   0x54, 0x2c, 0x0e, 0x11 };
 	uint8_t act_ct[sizeof(exp_ct)] __align(sizeof(uint32_t));
 	uint8_t act_tag[sizeof(exp_tag)] __align(sizeof(uint32_t));
 	char status[35];
@@ -122,6 +123,18 @@ int lc_ak_setiv(struct lc_ascon_cryptor *ascon, size_t keylen)
 	/* Check that the key store is sufficiently large */
 	BUILD_BUG_ON(sizeof(ascon->key) < 64);
 
+	/*
+	 * Tag size can be at most the key size which in turn is smaller than
+	 * the capacity. Thus, all bits of the tag (a) are always affected by
+	 * the key, and (b) affected by the capacity.
+	 *
+	 * Note, this code allows small tag sizes, including zero tag sizes.
+	 * It is supported here, but the decryption side requires 16 bytes
+	 * tag length as a minimum.
+	 */
+	if (ascon->taglen < 16 || ascon->taglen > keylen)
+		return -EINVAL;
+
 	switch (hash->sponge_rate) {
 	case 0x240 / 8: /* Keccak security level 512 bits */
 
@@ -129,7 +142,11 @@ int lc_ak_setiv(struct lc_ascon_cryptor *ascon, size_t keylen)
 
 		if (keylen != 64)
 			return -EINVAL;
-		state_mem[0] = LC_AEAD_ASCON_KECCAK_512_512_IV;
+		state_mem[0] = LC_AEAD_ASCON_KECCAK_512_IV;
+
+		/* Add the taglen */
+		state_mem[0] |= ascon->taglen * 8;
+
 		ascon->keylen = 64;
 
 		break;
@@ -139,7 +156,11 @@ int lc_ak_setiv(struct lc_ascon_cryptor *ascon, size_t keylen)
 
 		if (keylen != 32)
 			return -EINVAL;
-		state_mem[0] = LC_AEAD_ASCON_KECCAK_256_256_IV;
+		state_mem[0] = LC_AEAD_ASCON_KECCAK_256_IV;
+
+		/* Add the taglen */
+		state_mem[0] |= ascon->taglen * 8;
+
 		ascon->keylen = 32;
 
 		break;
@@ -151,8 +172,8 @@ int lc_ak_setiv(struct lc_ascon_cryptor *ascon, size_t keylen)
 	return 1;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_ak_alloc, const struct lc_hash *hash,
-		      struct lc_aead_ctx **ctx)
+static int lc_ak_alloc_internal(const struct lc_hash *hash, uint8_t taglen,
+				struct lc_aead_ctx **ctx)
 {
 	struct lc_aead_ctx *tmp = NULL;
 	struct lc_ascon_cryptor *ascon;
@@ -167,8 +188,21 @@ LC_INTERFACE_FUNCTION(int, lc_ak_alloc, const struct lc_hash *hash,
 
 	ascon = tmp->aead_state;
 	ascon->statesize = LC_SHA3_STATE_SIZE;
+	ascon->taglen = taglen;
 
 	*ctx = tmp;
 
 	return 0;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_ak_alloc, const struct lc_hash *hash,
+		      struct lc_aead_ctx **ctx)
+{
+	return lc_ak_alloc_internal(hash, 16, ctx);
+}
+
+LC_INTERFACE_FUNCTION(int, lc_ak_alloc_taglen, const struct lc_hash *hash,
+		      uint8_t taglen, struct lc_aead_ctx **ctx)
+{
+	return lc_ak_alloc_internal(hash, taglen, ctx);
 }

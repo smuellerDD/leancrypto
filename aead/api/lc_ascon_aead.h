@@ -33,6 +33,7 @@ struct lc_ascon_cryptor {
 	uint8_t rate_offset;
 	uint8_t statesize;
 	uint8_t roundb;
+	uint8_t taglen;
 	const struct lc_hash *hash;
 	uint64_t *state;
 };
