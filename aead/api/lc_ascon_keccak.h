@@ -83,7 +83,6 @@ int lc_ak_alloc_taglen(const struct lc_hash *hash, uint8_t taglen,
 	__name_ascon_crypto->statesize = LC_SHA3_STATE_SIZE;                        \
 	__name_ascon_crypto->taglen = 16;                                           \
 	_Pragma("GCC diagnostic pop")
-/* invocation of lc_ak_zero_free(name); not needed */
 
 /**
  * @brief Allocate stack memory for the Ascon-Keccak cryptor context using

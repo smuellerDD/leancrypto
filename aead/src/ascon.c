@@ -37,9 +37,9 @@ static void lc_ascon_zero(struct lc_ascon_cryptor *ascon)
 	ascon->keylen = 0;
 	ascon->rate_offset = 0;
 	ascon->roundb = 0;
-	ascon->taglen = 0;
 
 	/* Do not touch ascon->statesize! */
+	/* Do not touch ascon->taglen! */
 }
 
 /**
