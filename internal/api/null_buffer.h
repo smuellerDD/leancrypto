@@ -29,6 +29,8 @@ extern "C" {
 #define LC_NULL_BUFFER_SIZE 64
 extern const uint8_t null_buffer[];
 
+extern volatile int16_t optimization_blocker_int16;
+
 #ifdef __cplusplus
 }
 #endif

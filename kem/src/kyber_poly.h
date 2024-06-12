@@ -31,6 +31,7 @@
 #include "kyber_ntt.h"
 #include "kyber_reduce.h"
 #include "kyber_verify.h"
+#include "null_buffer.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -174,6 +175,31 @@ static inline void poly_frommsg(poly *r,
 				const uint8_t msg[LC_KYBER_INDCPA_MSGBYTES])
 {
 	unsigned int i, j;
+	int16_t mask, opt_blocker;
+
+	/*
+	 * Goal: copy variable only depending on a given condition without
+	 * the use of a branching operation which alters the timing behavior
+	 * depending on the condition. As the condition here depends on
+	 * secret data (the msg variable), the code has to ensure that no
+	 * branching is used to have time-invariant code. This solution
+	 * below also shall ensure that the compiler cannot optimize this code
+	 * such that it brings back the branching.
+	 *
+	 * An exploit of the timing channel that would be present with a
+	 * branching operation is available at
+	 * https://github.com/antoonpurnal/clangover which reportedly
+	 * needs <10 minutes for ML-KEM 512 key recovery. More details about
+	 * the exploit is given in https://pqshield.com/pqshield-plugs-timing-leaks-in-kyber-ml-kem-to-improve-pqc-implementation-maturity/
+	 *
+	 * (mask ^ opt_blocker) can be any value at run-time to the compiler,
+	 * making it impossible to skip the computation (except the compiler
+	 * would care to create a branch for opt_blocker to be either
+	 * 0 or -1, which would be extremely unlikely). Yet the volatile
+	 * variable has to be loaded only once at the beginning of the function
+	 * call.
+	 */
+	opt_blocker = optimization_blocker_int16;
 
 #if (LC_KYBER_INDCPA_MSGBYTES != LC_KYBER_N / 8)
 #error "LC_KYBER_INDCPA_MSGBYTES must be equal to LC_KYBER_N/8 bytes!"
@@ -181,9 +207,22 @@ static inline void poly_frommsg(poly *r,
 
 	for (i = 0; i < LC_KYBER_N / 8; i++) {
 		for (j = 0; j < 8; j++) {
-			r->coeffs[8 * i + j] = 0;
-			cmov_int16(r->coeffs + 8 * i + j,
-				   ((LC_KYBER_Q + 1) / 2), (msg[i] >> j) & 1);
+			/*
+			 * Calculate condition when a variable shall be
+			 * copied. This depends on the secret msg.
+			 */
+			mask  = -(int16_t)((msg[i] >> j) & 1);
+
+			/*
+			 * XOR the mask with a zero value which is obtained from
+			 * a volatile variable to ensure the compiler cannot
+			 * turn this into a branching operation.
+			 *
+			 * See https://microblog.cr.yp.to/1713627640/ for
+			 * an analysis.
+			 */
+			r->coeffs[8 * i + j] = (mask ^ opt_blocker) &
+						((LC_KYBER_Q + 1) / 2);
 		}
 	}
 }
