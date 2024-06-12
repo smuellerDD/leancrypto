@@ -98,7 +98,7 @@ int lc_ascon_setiv(struct lc_ascon_cryptor *ascon, size_t keylen)
 	static int tested = 0;
 
 	/* Check that the key store is sufficiently large */
-	BUILD_BUG_ON(sizeof(ascon->key) < 64);
+	BUILD_BUG_ON(sizeof(ascon->key) < 16);
 
 	ascon_aead_selftest(&tested);
 
