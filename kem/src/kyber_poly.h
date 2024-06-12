@@ -209,14 +209,18 @@ static inline void poly_frommsg(poly *r,
 		for (j = 0; j < 8; j++) {
 			/*
 			 * Calculate condition when a variable shall be
-			 * copied. This depends on the secret msg.
+			 * copied. This depends on the secret msg. The mask is
+			 * either zero or all bits are 1.
 			 */
 			mask  = -(int16_t)((msg[i] >> j) & 1);
 
 			/*
 			 * XOR the mask with a zero value which is obtained from
 			 * a volatile variable to ensure the compiler cannot
-			 * turn this into a branching operation.
+			 * turn this into a branching operation. This does not
+			 * alter the mask, but is intended to prevent the
+			 * compiler to be clever and add a branching instruction
+			 * instead.
 			 *
 			 * See https://microblog.cr.yp.to/1713627640/ for
 			 * an analysis.
