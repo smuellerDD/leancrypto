@@ -63,7 +63,11 @@ static inline pid_t getpid(void)
 }
 
 #define printf printk
+
+#ifndef assert
 #define assert(x) WARN_ON(!x)
+#endif
+
 #define PRIu64 "lu"
 
 #define LC_DEFINE_CONSTRUCTOR(_func) void _func(void)
