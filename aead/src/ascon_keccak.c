@@ -56,7 +56,7 @@
 #define LC_AEAD_ASCON_KECCAK_512_IV 0x0200024018180000
 #define LC_AEAD_ASCON_KECCAK_256_IV 0x0100044018180000
 
-static void lc_ak_selftest(int *tested, const char *impl)
+static void lc_ak_selftest(int *tested)
 {
 	static const uint8_t in[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
@@ -91,7 +91,6 @@ static void lc_ak_selftest(int *tested, const char *impl)
 					   0x54, 0x2c, 0x0e, 0x11 };
 	uint8_t act_ct[sizeof(exp_ct)] __align(sizeof(uint32_t));
 	uint8_t act_tag[sizeof(exp_tag)] __align(sizeof(uint32_t));
-	char status[35];
 
 	LC_SELFTEST_RUN(tested);
 
@@ -100,17 +99,18 @@ static void lc_ak_selftest(int *tested, const char *impl)
 	assert(!lc_aead_setkey(ak, key, sizeof(key), iv, sizeof(iv)));
 	assert(!lc_aead_encrypt(ak, in, act_ct, sizeof(in), in, sizeof(in),
 				act_tag, sizeof(act_tag)));
-	snprintf(status, sizeof(status), "%s encrypt", impl);
-	lc_compare_selftest(act_ct, exp_ct, sizeof(exp_ct), status);
-	lc_compare_selftest(act_tag, exp_tag, sizeof(exp_tag), status);
+	lc_compare_selftest(act_ct, exp_ct, sizeof(exp_ct),
+			    "Ascon Keccak crypt: Encryption, ciphertext");
+	lc_compare_selftest(act_tag, exp_tag, sizeof(exp_tag),
+			    "Ascon Keccak crypt: Encryption, tag");
 	lc_aead_zero(ak);
 
 	assert(!lc_aead_setkey(ak, key, sizeof(key), iv, sizeof(iv)));
 	assert(!lc_aead_decrypt(ak, act_ct, act_ct, sizeof(act_ct), in,
 				sizeof(in), act_tag, sizeof(act_tag)));
 
-	snprintf(status, sizeof(status), "%s decrypt", impl);
-	lc_compare_selftest(act_ct, in, sizeof(in), status);
+	lc_compare_selftest(act_ct, in, sizeof(in),
+			    "Ascon Keccak crypt: Decryption, plaintext");
 	lc_aead_zero(ak);
 }
 
@@ -138,7 +138,7 @@ int lc_ak_setiv(struct lc_ascon_cryptor *ascon, size_t keylen)
 	switch (hash->sponge_rate) {
 	case 0x240 / 8: /* Keccak security level 512 bits */
 
-		lc_ak_selftest(&tested, "Ascon Keccak AEAD");
+		lc_ak_selftest(&tested);
 
 		if (keylen != 64)
 			return -EINVAL;
@@ -152,7 +152,7 @@ int lc_ak_setiv(struct lc_ascon_cryptor *ascon, size_t keylen)
 		break;
 	case 0x440 / 8: /* Keccak security level 256 bits */
 
-		lc_ak_selftest(&tested, "Ascon Keccak AEAD");
+		lc_ak_selftest(&tested);
 
 		if (keylen != 32)
 			return -EINVAL;
