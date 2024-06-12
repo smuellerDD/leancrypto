@@ -12,3 +12,5 @@
 - add more Rust wrappers
 
 - add more complete profiling support
+
+- provide version numbers in one place (currently found in meson.build, leancrypto.spec and Kbuild.version)
