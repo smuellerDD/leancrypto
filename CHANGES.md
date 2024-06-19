@@ -4,6 +4,8 @@ Changes 0.10.2
 
 * Kyber: reduce memory footprint, use common lc_memcmp_secure API
 
+* Ascon-Keccak: include the tag length into the IV and thus implicitly authenticate the tag length (thanks to Markku-Juhani Saarinen to suggest this)
+
 Changes 0.10.1
 
 * enhancement: Linux kernel - Kyber: allow parallel compilation of all Kyber types including all optimizations
