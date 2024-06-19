@@ -691,7 +691,7 @@ SYM_FUNC_ENTER(aes_riscv64_set_encrypt_key)
     bnez    x10,1f    # if (!userKey || !key) return -1;
     bnez    x12,1f
     li      a0,-1
-    ret
+    RET
 1:
     la      x9,AES_rcon
     la      x20,AES_Te0
@@ -1031,7 +1031,7 @@ SYM_FUNC_ENTER(aes_riscv64_set_decrypt_key)
     ld      ra,8(sp)
     addi    sp,sp,16
     bgez    a0,1f   # If error, return error
-    ret
+    RET
 1:
     addi    sp,sp,-48
     sd      x8,40(sp)

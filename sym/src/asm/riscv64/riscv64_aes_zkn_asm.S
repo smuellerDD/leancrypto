@@ -89,7 +89,7 @@ rv64i_zkne_encrypt:
     ld      x8,8(sp)
     ld      x9,0(sp)
     addi    sp,sp,16
-    ret
+    RET
 .text
 .balign 16
 .globl rv64i_zknd_decrypt
@@ -151,7 +151,7 @@ rv64i_zknd_decrypt:
     ld      x8,8(sp)
     ld      x9,0(sp)
     addi    sp,sp,16
-    ret
+    RET
 .text
 .balign 16
 .globl rv64i_zkne_set_encrypt_key
@@ -162,7 +162,7 @@ rv64i_zkne_set_encrypt_key:
     bnez    x10,1f        # if (!userKey || !key) return -1;
     bnez    x12,1f
     li      a0,-1
-    ret
+    RET
 1:
     # Determine number of rounds from key size in bits
     li      x6,128
@@ -404,7 +404,7 @@ rv64i_zkne_set_encrypt_key:
 5:  # return a0
     ld      x8,0(sp)
     addi    sp,sp,16
-    ret
+    RET
 .text
 .balign 16
 .globl rv64i_zknd_set_decrypt_key
@@ -415,7 +415,7 @@ rv64i_zknd_set_decrypt_key:
     bnez    x10,1f        # if (!userKey || !key) return -1;
     bnez    x12,1f
     li      a0,-1
-    ret
+    RET
 1:
     # Determine number of rounds from key size in bits
     li      x6,128
@@ -731,4 +731,4 @@ rv64i_zknd_set_decrypt_key:
 5:  # return a0
     ld      x8,0(sp)
     addi    sp,sp,16
-    ret
+    RET

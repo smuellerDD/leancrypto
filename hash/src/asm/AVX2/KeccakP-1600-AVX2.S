@@ -655,7 +655,7 @@ KeccakF1600_AVX2_FastLoop_Absorb_Exit:
     sub             %rbx, %rax
     pop             %r10
     pop             %rbx
-    ret
+    RET
 KeccakF1600_AVX2_FastLoop_Absorb_Not21Lanes:
     cmp             $17, %rsi    
     jnz             KeccakF1600_AVX2_FastLoop_Absorb_Not17Lanes
@@ -826,7 +826,7 @@ KeccakP1600_AVX2_12rounds_FastLoop_Absorb_Exit:
     sub             %rbx, %rax
     pop             %r10
     pop             %rbx
-    ret
+    RET
 KeccakP1600_AVX2_12rounds_FastLoop_Absorb_Not21Lanes:
     cmp             $17, %rsi    
     jnz             KeccakP1600_AVX2_12rounds_FastLoop_Absorb_Not17Lanes
