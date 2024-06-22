@@ -33,7 +33,7 @@
  *
  * @return size of the variable
  */
-#define lc_member_size(struct, member) (sizeof( ((struct *)0)->member ))
+#define lc_member_size(struct, member) (sizeof(((struct *)0)->member))
 
 #ifdef LINUX_KERNEL
 /******************************************************************************
@@ -65,7 +65,7 @@ static inline pid_t getpid(void)
 #define printf printk
 
 #ifndef assert
-#define assert(x) WARN_ON(!x)
+#define assert(x) WARN_ON(!(x))
 #endif
 
 #define PRIu64 "lu"
