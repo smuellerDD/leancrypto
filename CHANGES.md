@@ -1,10 +1,12 @@
-Changes 0.10.2
+Changes 0.11.0
 
 * security fix: fix possible leak of message in Kyber
 
 * Kyber: reduce memory footprint, use common lc_memcmp_secure API
 
 * Ascon-Keccak: include the tag length into the IV and thus implicitly authenticate the tag length (thanks to Markku-Juhani Saarinen to suggest this)
+
+* Kyber: change standard API such that caller can select Kyber type
 
 Changes 0.10.1
 

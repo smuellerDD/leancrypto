@@ -68,8 +68,16 @@ extern "C" {
 #include "lc_kyber_512.h"
 
 #else
-#define KYBER_F(name) lc_kyber_##name
-#define KEX_F(name) lc_kex_##name
+#define KYBER_F(name) lc_kyber_1024_##name
+#define KEX_F(name) lc_kex_1024_##name
+#define lc_kyber_pk lc_kyber_1024_pk
+#define lc_kyber_sk lc_kyber_1024_sk
+#define lc_kyber_ct lc_kyber_1024_ct
+#define lc_kyber_ss lc_kyber_1024_ss
+#define lc_kyber_x25519_pk lc_kyber_1024_x25519_pk
+#define lc_kyber_x25519_sk lc_kyber_1024_x25519_sk
+#define lc_kyber_x25519_ct lc_kyber_1024_x25519_ct
+#define lc_kyber_x25519_ss lc_kyber_1024_x25519_ss
 
 #include "lc_kyber_1024.h"
 

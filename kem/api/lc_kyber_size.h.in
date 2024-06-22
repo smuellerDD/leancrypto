@@ -105,8 +105,7 @@ extern "C" {
  *
  * * all APIs starting with lc_kyber_512 / lc_kex_512 use Kyber-512
  * * all APIs starting with lc_kyber_768 / lc_kex_768 use Kyber-768
- * * all APIs with a function name prefix that has no reference to the Kyber
- *   strength refer to Kyber-1024 as this is intended to be the default.
+ * * all APIs starting with lc_kyber_1024 / lc_kex_1024 use Kyber-1024
  */
 
 /************************************* KEM ************************************/

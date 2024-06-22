@@ -68,6 +68,15 @@ if get_option('kyber_1024').enabled()
 				], link_with: leancrypto_static_lib
 				)
 
+	kyber_kem_official_tester = executable('kyber_kem_official_tester',
+				[ 'kyber_kem_official_tester.c', internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_kyber_internal
+				], link_with: leancrypto_static_lib
+				)
+
 	test('Kyber KEX', kyber_kex_tester)
 	if get_option('cshake_drng').enabled()
 		test('Kyber IES', kyber_ies_tester)
@@ -85,6 +94,7 @@ if get_option('kyber_1024').enabled()
 	test('Kyber KEM KDF C 50000', kyber_kem_kdf_tester_c, args : [ 'c' ],
 	     timeout: 1000, is_parallel: false)
 	test('Kyber invalid KEM', kyber_invalid_tester)
+	test('Kyber official API KEM', kyber_kem_official_tester)
 
 	if (x86_64_asm)
 		kyber_kem_tester_avx2 = executable('kyber_kem_tester_avx2',
