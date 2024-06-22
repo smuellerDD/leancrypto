@@ -212,7 +212,7 @@ static inline void poly_frommsg(poly *r,
 			 * copied. This depends on the secret msg. The mask is
 			 * either zero or all bits are 1.
 			 */
-			mask  = -(int16_t)((msg[i] >> j) & 1);
+			mask = -(int16_t)((msg[i] >> j) & 1);
 
 			/*
 			 * XOR the mask with a zero value which is obtained from
@@ -225,8 +225,8 @@ static inline void poly_frommsg(poly *r,
 			 * See https://microblog.cr.yp.to/1713627640/ for
 			 * an analysis.
 			 */
-			r->coeffs[8 * i + j] = (mask ^ opt_blocker) &
-						((LC_KYBER_Q + 1) / 2);
+			r->coeffs[8 * i + j] =
+				(mask ^ opt_blocker) & ((LC_KYBER_Q + 1) / 2);
 		}
 	}
 }

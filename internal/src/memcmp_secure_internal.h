@@ -67,8 +67,8 @@ static inline int memcmp_secure_32_aligned(const void *s1, const void *s2,
 	for (; n >= sizeof(*s1_word); n -= sizeof(*s2_word))
 		ret |= (*s1_word++ ^ *s2_word++);
 
-	ret |= (uint32_t)memcmp_secure_8((uint8_t *)s1_word,
-					 (uint8_t *)s2_word, n);
+	ret |= (uint32_t)memcmp_secure_8((uint8_t *)s1_word, (uint8_t *)s2_word,
+					 n);
 
 	return !!ret;
 }

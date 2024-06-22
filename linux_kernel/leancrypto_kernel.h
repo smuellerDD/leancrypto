@@ -113,7 +113,7 @@ static inline void lc_kernel_dilithium_44_exit(void)
 }
 #endif
 
-#if (defined(CONFIG_LEANCRYPTO_DILITHIUM_ED25519) &&			\
+#if (defined(CONFIG_LEANCRYPTO_DILITHIUM_ED25519) &&                           \
      defined(CONFIG_LEANCRYPTO_DILITHIUM_87))
 int __init lc_kernel_dilithium_ed25519_init(void);
 void lc_kernel_dilithium_ed25519_exit(void);
@@ -127,7 +127,7 @@ static inline void lc_kernel_dilithium_ed25519_exit(void)
 {
 }
 #endif
-#if (defined(CONFIG_LEANCRYPTO_DILITHIUM_ED25519) &&			\
+#if (defined(CONFIG_LEANCRYPTO_DILITHIUM_ED25519) &&                           \
      defined(CONFIG_LEANCRYPTO_DILITHIUM_65))
 int __init lc_kernel_dilithium_65_ed25519_init(void);
 void lc_kernel_dilithium_65_ed25519_exit(void);
@@ -142,7 +142,7 @@ static inline void lc_kernel_dilithium_65_ed25519_exit(void)
 }
 #endif
 
-#if (defined(CONFIG_LEANCRYPTO_DILITHIUM_ED25519) &&			\
+#if (defined(CONFIG_LEANCRYPTO_DILITHIUM_ED25519) &&                           \
      defined(CONFIG_LEANCRYPTO_DILITHIUM_44))
 int __init lc_kernel_dilithium_44_ed25519_init(void);
 void lc_kernel_dilithium_44_ed25519_exit(void);
@@ -199,7 +199,7 @@ static inline void lc_kernel_kyber_512_exit(void)
 }
 #endif
 
-#if (defined(CONFIG_LEANCRYPTO_KEM_X25519) &&				\
+#if (defined(CONFIG_LEANCRYPTO_KEM_X25519) &&                                  \
      defined(CONFIG_LEANCRYPTO_KEM_KYBER_1024))
 int __init lc_kernel_kyber_x25519_init(void);
 void lc_kernel_kyber_x25519_exit(void);
@@ -214,7 +214,7 @@ static inline void lc_kernel_kyber_x25519_exit(void)
 }
 #endif
 
-#if (defined(CONFIG_LEANCRYPTO_KEM_X25519) &&				\
+#if (defined(CONFIG_LEANCRYPTO_KEM_X25519) &&                                  \
      defined(CONFIG_LEANCRYPTO_KEM_KYBER_768))
 int __init lc_kernel_kyber_x25519_768_init(void);
 void lc_kernel_kyber_x25519_768_exit(void);
@@ -229,7 +229,7 @@ static inline void lc_kernel_kyber_x25519_768_exit(void)
 }
 #endif
 
-#if (defined(CONFIG_LEANCRYPTO_KEM_X25519) &&				\
+#if (defined(CONFIG_LEANCRYPTO_KEM_X25519) &&                                  \
      defined(CONFIG_LEANCRYPTO_KEM_KYBER_512))
 int __init lc_kernel_kyber_x25519_512_init(void);
 void lc_kernel_kyber_x25519_512_exit(void);
