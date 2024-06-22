@@ -36,3 +36,5 @@ if get_option('kyber_512').enabled()
 					output: 'lc_kyber_512.h',
 					configuration: kyber_512_conf_data)
 endif
+
+include_files += files([ 'lc_kyber.h' ])
