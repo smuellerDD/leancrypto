@@ -450,6 +450,146 @@ static inline int lc_kyber_ss_load(struct lc_kyber_ss *ss,
 	}
 }
 
+static inline int lc_kyber_sk_ptr(uint8_t **kyber_key,
+					 size_t *kyber_key_len,
+					 struct lc_kyber_sk *sk)
+{
+	if (!sk || !kyber_key || !kyber_key_len) {
+		return -EINVAL;
+#ifdef LC_KYBER_1024_ENABLED
+	} else if (sk->kyber_type == LC_KYBER_1024) {
+		struct lc_kyber_1024_sk *_sk = &sk->key.sk_1024;
+
+		*kyber_key = _sk->sk;
+		*kyber_key_len = lc_kyber_sk_size(sk->kyber_type);
+		return 0;
+#endif
+#ifdef LC_KYBER_768_ENABLED
+	} else if (sk->kyber_type == LC_KYBER_768) {
+		struct lc_kyber_768_sk *_sk = &sk->key.sk_768;
+
+		*kyber_key = _sk->sk;
+		*kyber_key_len = lc_kyber_sk_size(sk->kyber_type);
+		return 0;
+#endif
+#ifdef LC_KYBER_512_ENABLED
+	} else if (sk->kyber_type == LC_KYBER_512) {
+		struct lc_kyber_512_sk *_sk = &sk->key.sk_512;
+
+		*kyber_key = _sk->sk;
+		*kyber_key_len = lc_kyber_sk_size(sk->kyber_type);
+		return 0;
+#endif
+	} else {
+		return -EINVAL;
+	}
+}
+
+static inline int lc_kyber_pk_ptr(uint8_t **kyber_key,
+					 size_t *kyber_key_len,
+					 struct lc_kyber_pk *pk)
+{
+	if (!pk || !kyber_key || !kyber_key_len) {
+		return -EINVAL;
+#ifdef LC_KYBER_1024_ENABLED
+	} else if (pk->kyber_type == LC_KYBER_1024) {
+		struct lc_kyber_1024_pk *_pk = &pk->key.pk_1024;
+
+		*kyber_key = _pk->pk;
+		*kyber_key_len = lc_kyber_pk_size(pk->kyber_type);
+		return 0;
+#endif
+#ifdef LC_KYBER_768_ENABLED
+	} else if (pk->kyber_type == LC_KYBER_768) {
+		struct lc_kyber_768_pk *_pk = &pk->key.pk_768;
+
+		*kyber_key = _pk->pk;
+		*kyber_key_len = lc_kyber_pk_size(pk->kyber_type);
+		return 0;
+#endif
+#ifdef LC_KYBER_512_ENABLED
+	} else if (pk->kyber_type == LC_KYBER_512) {
+		struct lc_kyber_512_pk *_pk = &pk->key.pk_512;
+
+		*kyber_key = _pk->pk;
+		*kyber_key_len = lc_kyber_pk_size(pk->kyber_type);
+		return 0;
+#endif
+	} else {
+		return -EINVAL;
+	}
+}
+
+static inline int lc_kyber_ct_ptr(uint8_t **kyber_key,
+					 size_t *kyber_key_len,
+					 struct lc_kyber_ct *ct)
+{
+	if (!ct || !kyber_key || !kyber_key_len) {
+		return -EINVAL;
+#ifdef LC_KYBER_1024_ENABLED
+	} else if (ct->kyber_type == LC_KYBER_1024) {
+		struct lc_kyber_1024_ct *_ct = &ct->key.ct_1024;
+
+		*kyber_key = _ct->ct;
+		*kyber_key_len = lc_kyber_ct_size(ct->kyber_type);
+		return 0;
+#endif
+#ifdef LC_KYBER_768_ENABLED
+	} else if (ct->kyber_type == LC_KYBER_768) {
+		struct lc_kyber_768_ct *_ct = &ct->key.ct_768;
+
+		*kyber_key = _ct->ct;
+		*kyber_key_len = lc_kyber_ct_size(ct->kyber_type);
+		return 0;
+#endif
+#ifdef LC_KYBER_512_ENABLED
+	} else if (ct->kyber_type == LC_KYBER_512) {
+		struct lc_kyber_512_ct *_ct = &ct->key.ct_512;
+
+		*kyber_key = _ct->ct;
+		*kyber_key_len = lc_kyber_ct_size(ct->kyber_type);
+		return 0;
+#endif
+	} else {
+		return -EINVAL;
+	}
+}
+
+static inline int lc_kyber_ss_ptr(uint8_t **kyber_key,
+					 size_t *kyber_key_len,
+					 struct lc_kyber_ss *ss)
+{
+	if (!ss || !kyber_key || !kyber_key_len) {
+		return -EINVAL;
+#ifdef LC_KYBER_1024_ENABLED
+	} else if (ss->kyber_type == LC_KYBER_1024) {
+		struct lc_kyber_1024_ss *_ss = &ss->key.ss_1024;
+
+		*kyber_key = _ss->ss;
+		*kyber_key_len = lc_kyber_ss_size(ss->kyber_type);
+		return 0;
+#endif
+#ifdef LC_KYBER_768_ENABLED
+	} else if (ss->kyber_type == LC_KYBER_768) {
+		struct lc_kyber_768_ss *_ss = &ss->key.ss_768;
+
+		*kyber_key = _ss->ss;
+		*kyber_key_len = lc_kyber_ss_size(ss->kyber_type);
+		return 0;
+#endif
+#ifdef LC_KYBER_512_ENABLED
+	} else if (ss->kyber_type == LC_KYBER_512) {
+		struct lc_kyber_512_ss *_ss = &ss->key.ss_512;
+
+		*kyber_key = _ss->ss;
+		*kyber_key_len = lc_kyber_ss_size(ss->kyber_type);
+		return 0;
+#endif
+	} else {
+		return -EINVAL;
+	}
+}
+
 /**
  * @brief lc_kyber_keypair - Generates public and private key for
  *			     IND-CCA2-secure Kyber key encapsulation mechanism
@@ -1681,6 +1821,130 @@ struct lc_kyber_x25519_ss {
 	} key;
 };
 
+/**
+ * @brief Return the size of the Kyber secret key.
+ */
+LC_PURE
+static inline unsigned int lc_kyber_x25519_sk_size(enum lc_kyber_type kyber_type)
+{
+	switch (kyber_type) {
+	case LC_KYBER_1024:
+#ifdef LC_KYBER_1024_ENABLED
+		return lc_member_size(struct lc_kyber_x25519_sk, key.sk_1024);
+#else
+		return 0;
+#endif
+	case LC_KYBER_768:
+#ifdef LC_KYBER_768_ENABLED
+		return lc_member_size(struct lc_kyber_x25519_sk, key.sk_768);
+#else
+		return 0;
+#endif
+	case LC_KYBER_512:
+#ifdef LC_KYBER_512_ENABLED
+		return lc_member_size(struct lc_kyber_x25519_sk, key.sk_512);
+#else
+		return 0;
+#endif
+	case LC_KYBER_UNKNOWN:
+	default:
+		return 0;
+	}
+}
+
+/**
+ * @brief Return the size of the Kyber public key.
+ */
+LC_PURE
+static inline unsigned int lc_kyber_x25519_pk_size(enum lc_kyber_type kyber_type)
+{
+	switch (kyber_type) {
+	case LC_KYBER_1024:
+#ifdef LC_KYBER_1024_ENABLED
+		return lc_member_size(struct lc_kyber_x25519_pk, key.pk_1024);
+#else
+		return 0;
+#endif
+	case LC_KYBER_768:
+#ifdef LC_KYBER_768_ENABLED
+		return lc_member_size(struct lc_kyber_x25519_pk, key.pk_768);
+#else
+		return 0;
+#endif
+	case LC_KYBER_512:
+#ifdef LC_KYBER_512_ENABLED
+		return lc_member_size(struct lc_kyber_x25519_pk, key.pk_512);
+#else
+		return 0;
+#endif
+	case LC_KYBER_UNKNOWN:
+	default:
+		return 0;
+	}
+}
+
+/**
+ * @brief Return the size of the Kyber ciphertext.
+ */
+LC_PURE
+static inline unsigned int lc_kyber_x25519_ct_size(enum lc_kyber_type kyber_type)
+{
+	switch (kyber_type) {
+	case LC_KYBER_1024:
+#ifdef LC_KYBER_1024_ENABLED
+		return lc_member_size(struct lc_kyber_x25519_ct, key.ct_1024);
+#else
+		return 0;
+#endif
+	case LC_KYBER_768:
+#ifdef LC_KYBER_768_ENABLED
+		return lc_member_size(struct lc_kyber_x25519_ct, key.ct_768);
+#else
+		return 0;
+#endif
+	case LC_KYBER_512:
+#ifdef LC_KYBER_512_ENABLED
+		return lc_member_size(struct lc_kyber_x25519_ct, key.ct_512);
+#else
+		return 0;
+#endif
+	case LC_KYBER_UNKNOWN:
+	default:
+		return 0;
+	}
+}
+
+/**
+ * @brief Return the size of the Kyber shared secret.
+ */
+LC_PURE
+static inline unsigned int lc_kyber_x25519_ss_size(enum lc_kyber_type kyber_type)
+{
+	switch (kyber_type) {
+	case LC_KYBER_1024:
+#ifdef LC_KYBER_1024_ENABLED
+		return lc_member_size(struct lc_kyber_x25519_ss, key.ss_1024);
+#else
+		return 0;
+#endif
+	case LC_KYBER_768:
+#ifdef LC_KYBER_768_ENABLED
+		return lc_member_size(struct lc_kyber_x25519_ss, key.ss_768);
+#else
+		return 0;
+#endif
+	case LC_KYBER_512:
+#ifdef LC_KYBER_512_ENABLED
+		return lc_member_size(struct lc_kyber_x25519_ss, key.ss_512);
+#else
+		return 0;
+#endif
+	case LC_KYBER_UNKNOWN:
+	default:
+		return 0;
+	}
+}
+
 static inline int lc_kyber_x25519_sk_load(struct lc_kyber_x25519_sk *sk,
 					  const uint8_t *kyber_src_key,
 					  size_t kyber_src_key_len,
@@ -1844,6 +2108,182 @@ static inline int lc_kyber_x25519_ss_load(struct lc_kyber_x25519_ss *ss,
 		memcpy(_ss->ss.ss, kyber_src_ss, kyber_src_ss_len);
 		memcpy(_ss->ss_x25519.ss, x25519_ss, x25519_ss_len);
 		ss->kyber_type = LC_KYBER_512;
+		return 0;
+#endif
+	} else {
+		return -EINVAL;
+	}
+}
+
+static inline int lc_kyber_x25519_sk_ptr(uint8_t **kyber_key,
+					 size_t *kyber_key_len,
+					 uint8_t **x25519_key,
+					 size_t *x25519_key_len,
+					 struct lc_kyber_x25519_sk *sk)
+{
+	if (!sk || !kyber_key || !kyber_key_len || !x25519_key ||
+	    !x25519_key_len) {
+		return -EINVAL;
+#ifdef LC_KYBER_1024_ENABLED
+	} else if (sk->kyber_type == LC_KYBER_1024) {
+		struct lc_kyber_1024_x25519_sk *_sk = &sk->key.sk_1024;
+
+		*kyber_key = _sk->sk.sk;
+		*kyber_key_len = lc_kyber_sk_size(sk->kyber_type);
+		*x25519_key = _sk->sk_x25519.sk;
+		*x25519_key_len = LC_X25519_SECRETKEYBYTES;
+		return 0;
+#endif
+#ifdef LC_KYBER_768_ENABLED
+	} else if (sk->kyber_type == LC_KYBER_768) {
+		struct lc_kyber_768_x25519_sk *_sk = &sk->key.sk_768;
+
+		*kyber_key = _sk->sk.sk;
+		*kyber_key_len = lc_kyber_sk_size(sk->kyber_type);
+		*x25519_key = _sk->sk_x25519.sk;
+		*x25519_key_len = LC_X25519_SECRETKEYBYTES;
+		return 0;
+#endif
+#ifdef LC_KYBER_512_ENABLED
+	} else if (sk->kyber_type == LC_KYBER_512) {
+		struct lc_kyber_512_x25519_sk *_sk = &sk->key.sk_512;
+
+		*kyber_key = _sk->sk.sk;
+		*kyber_key_len = lc_kyber_sk_size(sk->kyber_type);
+		*x25519_key = _sk->sk_x25519.sk;
+		*x25519_key_len = LC_X25519_SECRETKEYBYTES;
+		return 0;
+#endif
+	} else {
+		return -EINVAL;
+	}
+}
+
+static inline int lc_kyber_x25519_pk_ptr(uint8_t **kyber_key,
+					 size_t *kyber_key_len,
+					 uint8_t **x25519_key,
+					 size_t *x25519_key_len,
+					 struct lc_kyber_x25519_pk *pk)
+{
+	if (!pk || !kyber_key || !kyber_key_len || !x25519_key ||
+	    !x25519_key_len) {
+		return -EINVAL;
+#ifdef LC_KYBER_1024_ENABLED
+	} else if (pk->kyber_type == LC_KYBER_1024) {
+		struct lc_kyber_1024_x25519_pk *_pk = &pk->key.pk_1024;
+
+		*kyber_key = _pk->pk.pk;
+		*kyber_key_len = lc_kyber_pk_size(pk->kyber_type);
+		*x25519_key = _pk->pk_x25519.pk;
+		*x25519_key_len = LC_X25519_PUBLICKEYBYTES;
+		return 0;
+#endif
+#ifdef LC_KYBER_768_ENABLED
+	} else if (pk->kyber_type == LC_KYBER_768) {
+		struct lc_kyber_768_x25519_pk *_pk = &pk->key.pk_768;
+
+		*kyber_key = _pk->pk.pk;
+		*kyber_key_len = lc_kyber_pk_size(pk->kyber_type);
+		*x25519_key = _pk->pk_x25519.pk;
+		*x25519_key_len = LC_X25519_PUBLICKEYBYTES;
+		return 0;
+#endif
+#ifdef LC_KYBER_512_ENABLED
+	} else if (pk->kyber_type == LC_KYBER_512) {
+		struct lc_kyber_512_x25519_pk *_pk = &pk->key.pk_512;
+
+		*kyber_key = _pk->pk.pk;
+		*kyber_key_len = lc_kyber_pk_size(pk->kyber_type);
+		*x25519_key = _pk->pk_x25519.pk;
+		*x25519_key_len = LC_X25519_PUBLICKEYBYTES;
+		return 0;
+#endif
+	} else {
+		return -EINVAL;
+	}
+}
+
+static inline int lc_kyber_x25519_ct_ptr(uint8_t **kyber_key,
+					 size_t *kyber_key_len,
+					 uint8_t **x25519_key,
+					 size_t *x25519_key_len,
+					 struct lc_kyber_x25519_ct *ct)
+{
+	if (!ct || !kyber_key || !kyber_key_len || !x25519_key ||
+	    !x25519_key_len) {
+		return -EINVAL;
+#ifdef LC_KYBER_1024_ENABLED
+	} else if (ct->kyber_type == LC_KYBER_1024) {
+		struct lc_kyber_1024_x25519_ct *_ct = &ct->key.ct_1024;
+
+		*kyber_key = _ct->ct.ct;
+		*kyber_key_len = lc_kyber_ct_size(ct->kyber_type);
+		*x25519_key = _ct->pk_x25519.pk;
+		*x25519_key_len = LC_X25519_PUBLICKEYBYTES;
+		return 0;
+#endif
+#ifdef LC_KYBER_768_ENABLED
+	} else if (ct->kyber_type == LC_KYBER_768) {
+		struct lc_kyber_768_x25519_ct *_ct = &ct->key.ct_768;
+
+		*kyber_key = _ct->ct.ct;
+		*kyber_key_len = lc_kyber_ct_size(ct->kyber_type);
+		*x25519_key = _ct->pk_x25519.pk;
+		*x25519_key_len = LC_X25519_PUBLICKEYBYTES;
+		return 0;
+#endif
+#ifdef LC_KYBER_512_ENABLED
+	} else if (ct->kyber_type == LC_KYBER_512) {
+		struct lc_kyber_512_x25519_ct *_ct = &ct->key.ct_512;
+
+		*kyber_key = _ct->ct.ct;
+		*kyber_key_len = lc_kyber_ct_size(ct->kyber_type);
+		*x25519_key = _ct->pk_x25519.pk;
+		*x25519_key_len = LC_X25519_PUBLICKEYBYTES;
+		return 0;
+#endif
+	} else {
+		return -EINVAL;
+	}
+}
+
+static inline int lc_kyber_x25519_ss_ptr(uint8_t **kyber_key,
+					 size_t *kyber_key_len,
+					 uint8_t **x25519_key,
+					 size_t *x25519_key_len,
+					 struct lc_kyber_x25519_ss *ss)
+{
+	if (!ss || !kyber_key || !kyber_key_len || !x25519_key ||
+	    !x25519_key_len) {
+		return -EINVAL;
+#ifdef LC_KYBER_1024_ENABLED
+	} else if (ss->kyber_type == LC_KYBER_1024) {
+		struct lc_kyber_1024_x25519_ss *_ss = &ss->key.ss_1024;
+
+		*kyber_key = _ss->ss.ss;
+		*kyber_key_len = lc_kyber_ss_size(ss->kyber_type);
+		*x25519_key = _ss->ss_x25519.ss;
+		*x25519_key_len = LC_X25519_SSBYTES;
+		return 0;
+#endif
+#ifdef LC_KYBER_768_ENABLED
+	} else if (ss->kyber_type == LC_KYBER_768) {
+		struct lc_kyber_768_x25519_ss *_ss = &ss->key.ss_768;
+
+		*kyber_key = _ss->ss.ss;
+		*kyber_key_len = lc_kyber_ss_size(ss->kyber_type);
+		*x25519_key = _ss->ss_x25519.ss;
+		*x25519_key_len = LC_X25519_SSBYTES;
+		return 0;
+#endif
+#ifdef LC_KYBER_512_ENABLED
+	} else if (ss->kyber_type == LC_KYBER_512) {
+		struct lc_kyber_512_x25519_ss *_ss = &ss->key.ss_512;
+
+		*kyber_key = _ss->ss.ss;
+		*kyber_key_len = lc_kyber_ss_size(ss->kyber_type);
+		*x25519_key = _ss->ss_x25519.ss;
+		*x25519_key_len = LC_X25519_SSBYTES;
 		return 0;
 #endif
 	} else {
