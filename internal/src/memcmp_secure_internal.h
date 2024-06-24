@@ -86,7 +86,7 @@ static inline int memcmp_secure_32(const void *s1, const void *s2, size_t n)
 	s2p = s2;
 	ret = 0;
 
-	if (n > sizeof(uint32_t)) {
+	while (n > sizeof(uint32_t)) {
 		ret |= (ptr_to_32(s1p) ^ ptr_to_32(s2p));
 		n -= sizeof(uint32_t);
 		s1p += sizeof(uint32_t);
@@ -146,7 +146,7 @@ static inline int memcmp_secure_64(const void *s1, const void *s2, size_t n)
 	s2p = s2;
 	ret = 0;
 
-	if (n > sizeof(uint64_t)) {
+	while (n > sizeof(uint64_t)) {
 		ret |= (ptr_to_64(s1p) ^ ptr_to_64(s2p));
 		n -= sizeof(uint64_t);
 		s1p += sizeof(uint64_t);
