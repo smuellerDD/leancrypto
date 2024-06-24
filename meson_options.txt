@@ -60,8 +60,6 @@ option('hotp', type: 'feature', value: 'enabled',
 option('totp', type: 'feature', value: 'enabled',
        description: 'HOTP support')
 
-option('dilithium_debug', type: 'feature', value: 'disabled',
-       description: 'Dilithium debug printout - DO NOT ENABLE IN PRODUCTION SYSTEMS!')
 option('dilithium_87', type: 'feature', value: 'enabled',
        description: '''Dilithium-87 Support
 
@@ -86,8 +84,6 @@ algorithm has 128 bits of security strength.
 option('dilithium_ed25519', type: 'feature', value: 'enabled',
        description: 'Dilithium-ED25519 KEM')
 
-option('kyber_debug', type: 'feature', value: 'disabled',
-       description: 'Kyber debug printout - DO NOT ENABLE IN PRODUCTION SYSTEMS!')
 option('kyber_1024', type: 'feature', value: 'enabled',
        description: '''Kyber-1024 Support
 
@@ -167,4 +163,34 @@ option('profile-use', type: 'boolean', value: false,
        description: '''Enable application of profiling data compilation
 
 See option profile-generate on how to use this.
+''')
+
+################################################################################
+# DEBUGGING OPTIONS - NONE OF THEM ARE TO BE ENABLED IN PRODUCTION CODE!!
+################################################################################
+
+option('kyber_debug', type: 'feature', value: 'disabled',
+       description: 'DEBUGGING: Kyber debug printout - DO NOT ENABLE IN PRODUCTION SYSTEMS!')
+
+option('dilithium_debug', type: 'feature', value: 'disabled',
+       description: 'DEBUGGING: Dilithium debug printout - DO NOT ENABLE IN PRODUCTION SYSTEMS!')
+
+option('timecop', type: 'feature', value: 'disabled',
+       description: '''DEBUGGING: enable TIMECOP - DO NOT ENABLE IN PRODUCTION SYSTEMS!
+
+From https://www.post-apocalyptic-crypto.org/timecop/ - Most timing
+side-channels are rooted in one of the following three causes:
+
+Conditional jumps based on secret data, e.g. if(key[i] == 0)
+Table lookups at secret indices, e.g. s[i] = substitution_table[key[i]]
+Variable-time CPU instructions operating on secret data, e.g. key[i] / c
+
+Adam Langley described in 2010 how the first two types can be detected automatically using Valgrind
+(https://www.imperialviolet.org/2010/04/01/ctgrind.html). When enabling this
+option, Valgrind is used to check for such issues. Once compiled with this
+option enabled, the test applications need to be executed with
+`valgrind --track-origins=yes <application>`. An issue is found if valgrind
+reports a "Conditional jump or move depends on uninitialised value(s)".
+
+This code requires the presence of Valgrind header files.
 ''')

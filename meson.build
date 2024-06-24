@@ -151,6 +151,11 @@ if get_option('profile-use')
 	endif
 endif
 
+# Debugging options
+if get_option('timecop').enabled()
+	add_global_arguments([ '-DLC_USE_TIMECOP' ], language: 'c')
+endif
+
 # Header generation
 header_script = find_program('addon/generate_header.sh', required: true)
 
