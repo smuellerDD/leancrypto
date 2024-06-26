@@ -321,6 +321,7 @@
 #include "lc_memcmp_secure.h"
 #include "math_helper.h"
 #include "small_stack_support.h"
+#include "timecop.h"
 #include "visibility.h"
 #include "xor256.h"
 
@@ -331,6 +332,15 @@
 static void lc_cc_selftest(int *tested, const char *impl)
 {
 	static const uint8_t in[] = {
+		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
+		0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13,
+		0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d,
+		0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
+		0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31,
+		0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b,
+		0x3c, 0x3d, 0x3e, 0x3f,
+	};
+	static const uint8_t key[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
 		0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13,
 		0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d,
@@ -365,14 +375,14 @@ static void lc_cc_selftest(int *tested, const char *impl)
 
 	LC_CC_CTX_ON_STACK(cc, lc_cshake256);
 
-	lc_aead_setkey(cc, in, sizeof(in), NULL, 0);
+	lc_aead_setkey(cc, key, sizeof(key), NULL, 0);
 	lc_aead_encrypt(cc, in, act_ct, sizeof(in), in, sizeof(in), act_tag,
 			sizeof(act_tag));
 	snprintf(status, sizeof(status), "%s encrypt", impl);
 	lc_compare_selftest(act_ct, exp_ct, sizeof(exp_ct), status);
 	lc_aead_zero(cc);
 
-	lc_aead_setkey(cc, in, sizeof(in), NULL, 0);
+	lc_aead_setkey(cc, key, sizeof(key), NULL, 0);
 	lc_aead_decrypt(cc, act_ct, act_ct, sizeof(act_ct), in, sizeof(in),
 			act_tag, sizeof(act_tag));
 	snprintf(status, sizeof(status), "%s decrypt", impl);
@@ -399,6 +409,9 @@ static int lc_cc_setkey(void *state, const uint8_t *key, size_t keylen,
 	struct lc_hash_ctx *cshake = &cc->cshake;
 	struct lc_cshake_ctx *auth_ctx = &cc->auth_ctx;
 	static int tested = 0;
+
+	/* Timecop: The key is sentitive. */
+	poison(key, keylen);
 
 	lc_cc_selftest(&tested, "cSHAKE AEAD");
 
@@ -486,6 +499,9 @@ static void lc_cc_encrypt_tag(void *state, uint8_t *tag, size_t taglen)
 	/* Generate authentication tag */
 	lc_cshake_ctx_final(auth_ctx, tag, taglen);
 
+	/* Timecop: Tag is not sensitive. */
+	unpoison(tag, taglen);
+
 	/* Re-initialize the authentication context for new message digest */
 	lc_cshake_ctx_reinit(auth_ctx);
 }
@@ -529,6 +545,9 @@ static void lc_cc_encrypt(void *state, const uint8_t *plaintext,
 
 	lc_cc_crypt(cc, plaintext, ciphertext, datalen);
 
+	/* Timecop: ciphertext is not sensitive regarding side channels. */
+	unpoison(ciphertext, datalen);
+
 	/*
 	 * Calculate the authentication MAC over the ciphertext
 	 * Perform an Encrypt-Then-MAC operation.
@@ -550,6 +569,9 @@ static void lc_cc_decrypt(void *state, const uint8_t *ciphertext,
 	 */
 	lc_cshake_ctx_update(auth_ctx, ciphertext, datalen);
 	lc_cc_crypt(cc, ciphertext, plaintext, datalen);
+
+	/* Timecop: plaintext is not sensitive regarding side channels. */
+	unpoison(plaintext, datalen);
 }
 
 static void lc_cc_encrypt_oneshot(void *state, const uint8_t *plaintext,
