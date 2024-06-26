@@ -26,6 +26,7 @@
 #include "lc_sha256.h"
 #include "math_helper.h"
 #include "null_buffer.h"
+#include "timecop.h"
 #include "visibility.h"
 
 static void hkdf_selftest(int *tested, const char *impl)
@@ -67,6 +68,9 @@ LC_INTERFACE_FUNCTION(int, lc_hkdf_extract, struct lc_hkdf_ctx *hkdf_ctx,
 	size_t h;
 	uint8_t prk_tmp[LC_SHA_MAX_SIZE_DIGEST];
 	static int tested = 0;
+
+	/* Timecop: IKM is sensitive */
+	poison(ikm, ikmlen);
 
 	if (!hkdf_ctx)
 		return -EINVAL;
@@ -111,6 +115,8 @@ static int hkdf_expand_internal(struct lc_hkdf_ctx *hkdf_ctx,
 
 	/* Expand phase - expects a HMAC handle from the extract phase */
 
+	/* Timecop: generated data is not sensitive for side-channels. */
+
 	/* T(1) and following */
 	while (dlen) {
 		if (info)
@@ -125,12 +131,14 @@ static int hkdf_expand_internal(struct lc_hkdf_ctx *hkdf_ctx,
 			lc_hmac_reinit(hmac_ctx);
 			lc_hmac_update(hmac_ctx, hkdf_ctx->partial, dlen);
 			memcpy(dst, hkdf_ctx->partial, dlen);
+			unpoison(dst, dlen);
 			hkdf_ctx->partial_ptr = dlen;
 			hkdf_ctx->ctr++;
 
 			goto out;
 		} else {
 			lc_hmac_final(hmac_ctx, dst);
+			unpoison(dst, h);
 
 			/* Prepare for next round */
 			lc_hmac_reinit(hmac_ctx);
@@ -198,6 +206,9 @@ static int lc_hkdf_rng_seed(void *_state, const uint8_t *seed, size_t seedlen,
 			    const uint8_t *persbuf, size_t perslen)
 {
 	struct lc_hkdf_ctx *state = _state;
+
+	/* Timecop: seed is sensitive */
+	poison(seed, seedlen);
 
 	if (state->rng_initialized)
 		return -EOPNOTSUPP;

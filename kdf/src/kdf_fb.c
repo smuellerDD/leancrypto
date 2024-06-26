@@ -26,6 +26,7 @@
 #include "lc_memset_secure.h"
 #include "lc_sha256.h"
 #include "ret_checkers.h"
+#include "timecop.h"
 #include "visibility.h"
 
 /*
@@ -77,6 +78,7 @@ LC_INTERFACE_FUNCTION(int, lc_kdf_fb_generate, struct lc_hmac_ctx *hmac_ctx,
 	if (ivlen != h)
 		return -EINVAL;
 
+	/* Timecop: generated data is not sensitive for side-channels. */
 	while (dlen) {
 		uint32_t ibe = be_bswap32(i);
 
@@ -99,11 +101,13 @@ LC_INTERFACE_FUNCTION(int, lc_kdf_fb_generate, struct lc_hmac_ctx *hmac_ctx,
 
 			lc_hmac_final(hmac_ctx, tmp);
 			memcpy(dst, tmp, dlen);
+			unpoison(dst, dlen);
 			lc_memset_secure(tmp, 0, sizeof(tmp));
 
 			goto out;
 		} else {
 			lc_hmac_final(hmac_ctx, dst);
+			unpoison(dst, h);
 			lc_hmac_reinit(hmac_ctx);
 
 			dlen -= h;
@@ -133,6 +137,9 @@ LC_INTERFACE_FUNCTION(int, lc_kdf_fb, const struct lc_hash *hash,
 {
 	int ret;
 	LC_HMAC_CTX_ON_STACK(hmac_ctx, hash);
+
+	/* Timecop: key is sensitive */
+	poison(key, keylen);
 
 	CKINT(lc_kdf_fb_init(hmac_ctx, key, keylen));
 	CKINT(lc_kdf_fb_generate(hmac_ctx, iv, ivlen, label, labellen, dst,

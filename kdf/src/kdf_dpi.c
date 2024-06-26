@@ -26,6 +26,7 @@
 #include "lc_memset_secure.h"
 #include "lc_sha256.h"
 #include "ret_checkers.h"
+#include "timecop.h"
 #include "visibility.h"
 
 /*
@@ -71,6 +72,7 @@ LC_INTERFACE_FUNCTION(int, lc_kdf_dpi_generate, struct lc_hmac_ctx *hmac_ctx,
 	h = lc_hmac_macsize(hmac_ctx);
 	memset(Ai, 0, h);
 
+	/* Timecop: generated data is not sensitive for side-channels. */
 	while (dlen) {
 		uint32_t ibe = be_bswap32(i);
 
@@ -99,11 +101,13 @@ LC_INTERFACE_FUNCTION(int, lc_kdf_dpi_generate, struct lc_hmac_ctx *hmac_ctx,
 
 			lc_hmac_final(hmac_ctx, tmp);
 			memcpy(dst, tmp, dlen);
+			unpoison(dst, dlen);
 			lc_memset_secure(tmp, 0, sizeof(tmp));
 
 			goto out;
 		} else {
 			lc_hmac_final(hmac_ctx, dst);
+			unpoison(dst, h);
 			lc_hmac_reinit(hmac_ctx);
 
 			dlen -= h;
@@ -121,6 +125,9 @@ LC_INTERFACE_FUNCTION(int, lc_kdf_dpi_init, struct lc_hmac_ctx *hmac_ctx,
 		      const uint8_t *key, size_t keylen)
 {
 	static int tested = 0;
+
+	/* Timecop: key is sensitive */
+	poison(key, keylen);
 
 	lc_kdf_dpi_selftest(&tested, "SP800-108 DPI KDF");
 	lc_hmac_init(hmac_ctx, key, keylen);

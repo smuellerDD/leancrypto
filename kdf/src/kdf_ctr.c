@@ -25,6 +25,7 @@
 #include "lc_kdf_ctr.h"
 #include "lc_sha256.h"
 #include "ret_checkers.h"
+#include "timecop.h"
 #include "visibility.h"
 
 /*
@@ -74,6 +75,7 @@ static int lc_kdf_ctr_generate_internal(struct lc_hmac_ctx *hmac_ctx,
 
 	h = lc_hmac_macsize(hmac_ctx);
 
+	/* Timecop: generated data is not sensitive for side-channels. */
 	while (dlen) {
 		uint32_t ibe = be_bswap32(i);
 
@@ -87,6 +89,7 @@ static int lc_kdf_ctr_generate_internal(struct lc_hmac_ctx *hmac_ctx,
 
 			lc_hmac_final(hmac_ctx, tmp);
 			memcpy(dst, tmp, dlen);
+			unpoison(dst, dlen);
 			lc_memset_secure(tmp, 0, sizeof(tmp));
 
 			/*
@@ -99,6 +102,7 @@ static int lc_kdf_ctr_generate_internal(struct lc_hmac_ctx *hmac_ctx,
 			goto out;
 		} else {
 			lc_hmac_final(hmac_ctx, dst);
+			unpoison(dst, h);
 			lc_hmac_reinit(hmac_ctx);
 
 			dlen -= h;
@@ -139,6 +143,8 @@ LC_INTERFACE_FUNCTION(int, lc_kdf_ctr, const struct lc_hash *hash,
 	int ret;
 	LC_HMAC_CTX_ON_STACK(hmac_ctx, hash);
 
+	/* Timecop: key is sensitive */
+	poison(key, keylen);
 	CKINT(lc_kdf_ctr_init(hmac_ctx, key, keylen));
 	CKINT(lc_kdf_ctr_generate(hmac_ctx, label, labellen, dst, dlen));
 
@@ -152,6 +158,9 @@ static int lc_kdf_ctr_rng_seed(void *_state, const uint8_t *seed,
 			       size_t perslen)
 {
 	struct lc_kdf_ctr_ctx *state = _state;
+
+	/* Timecop: seed is sensitive */
+	poison(seed, seedlen);
 
 	if (state->rng_initialized)
 		return -EOPNOTSUPP;
