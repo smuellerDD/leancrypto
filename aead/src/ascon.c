@@ -25,6 +25,7 @@
 #include "lc_memcmp_secure.h"
 #include "math_helper.h"
 #include "ret_checkers.h"
+#include "timecop.h"
 #include "visibility.h"
 #include "xor.h"
 
@@ -62,6 +63,8 @@ static int lc_ascon_setkey(void *state, const uint8_t *key, size_t keylen,
 	const struct lc_hash *hash = ascon->hash;
 	uint64_t *state_mem = ascon->state;
 	int ret;
+
+	poison(key, keylen);
 
 	/*
 	 * The different lc_sponge* APIs return error indicators which are
@@ -193,6 +196,9 @@ static void lc_ascon_finalization(struct lc_ascon_cryptor *ascon, uint8_t *tag,
 
 	/* Finalization - Extract tag from capacity */
 	lc_sponge_extract_bytes(hash, state_mem, tag, tag_offset, taglen);
+
+	/* Timecop: Tag is not sensitive. */
+	unpoison(tag, taglen);
 }
 
 /* Plaintext - Insert into sponge state and extract the ciphertext */
@@ -213,6 +219,9 @@ static void lc_ascon_enc_update(struct lc_ascon_cryptor *ascon,
 
 		lc_sponge_extract_bytes(hash, state_mem, ciphertext,
 					ascon->rate_offset, todo);
+
+		/* Timecop: Ciphertext is not sensitive. */
+		unpoison(ciphertext, todo);
 
 		datalen -= todo;
 
@@ -288,6 +297,7 @@ static void lc_ascon_dec_update(struct lc_ascon_cryptor *ascon,
 		zero_tmp = 1;
 	}
 
+	/* Timecop: Plaintext is no sensitive data regarding side-channels. */
 	while (datalen) {
 		todo = min_size(datalen,
 				hash->sponge_rate - ascon->rate_offset);
@@ -311,9 +321,11 @@ static void lc_ascon_dec_update(struct lc_ascon_cryptor *ascon,
 			 */
 			if (!zero_tmp) {
 				xor_64(pt_p, ciphertext, todo);
+				unpoison(pt_p, todo);
 				pt_p += todo;
 			} else {
 				xor_64_3(plaintext, pt_p, ciphertext, todo);
+				unpoison(plaintext, todo);
 				plaintext += todo;
 			}
 
@@ -322,10 +334,12 @@ static void lc_ascon_dec_update(struct lc_ascon_cryptor *ascon,
 		} else {
 			if (!zero_tmp) {
 				xor_64(pt_p, ciphertext, todo);
+				unpoison(pt_p, todo);
 				lc_sponge_add_bytes(hash, state_mem, pt_p,
 						    ascon->rate_offset, todo);
 			} else {
 				xor_64_3(plaintext, pt_p, ciphertext, todo);
+				unpoison(plaintext, todo);
 				lc_sponge_add_bytes(hash, state_mem, plaintext,
 						    ascon->rate_offset, todo);
 			}

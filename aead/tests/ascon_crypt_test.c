@@ -87,7 +87,7 @@ static int ascon_tester_one(const struct lc_hash *hash, const uint8_t *pt,
 	//bin2print(out_dec, ptlen, stderr, "out_enc");
 	lc_aead_zero(al);
 	if (ret < 0)
-		return 1;
+		ret_checked += 1;
 
 	ret_checked +=
 		lc_compare(out_dec, pt, ptlen,
@@ -102,7 +102,7 @@ static int ascon_tester_one(const struct lc_hash *hash, const uint8_t *pt,
 			      exp_tag_len);
 	lc_aead_zero(al);
 	if (ret != -EBADMSG)
-		return 1;
+		ret_checked += 1;
 
 	return ret_checked;
 }

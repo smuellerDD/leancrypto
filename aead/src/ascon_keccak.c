@@ -25,6 +25,7 @@
 #include "lc_ascon_keccak.h"
 #include "lc_memory_support.h"
 #include "lc_sha3.h"
+#include "timecop.h"
 #include "visibility.h"
 
 /*
@@ -108,7 +109,6 @@ static void lc_ak_selftest(int *tested)
 	assert(!lc_aead_setkey(ak, key, sizeof(key), iv, sizeof(iv)));
 	assert(!lc_aead_decrypt(ak, act_ct, act_ct, sizeof(act_ct), in,
 				sizeof(in), act_tag, sizeof(act_tag)));
-
 	lc_compare_selftest(act_ct, in, sizeof(in),
 			    "Ascon Keccak crypt: Decryption, plaintext");
 	lc_aead_zero(ak);

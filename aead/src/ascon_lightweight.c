@@ -24,6 +24,7 @@
 #include "compare.h"
 #include "lc_ascon_hash.h"
 #include "lc_ascon_lightweight.h"
+#include "timecop.h"
 #include "visibility.h"
 
 /*

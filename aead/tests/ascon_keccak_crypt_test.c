@@ -95,13 +95,13 @@ static int ak_tester_one(const struct lc_hash *hash, const uint8_t *pt,
 
 	/* One shot decryption with pt ptr != ct ptr */
 	if (lc_aead_setkey(ak, key, keylen, iv, ivlen))
-		return -EFAULT;
+		return 1;
 	ret = lc_aead_decrypt(ak, out_enc, out_dec, ptlen, aad, aadlen, tag,
 			      exp_tag_len);
 	//bin2print(out_dec, ptlen, stderr, "out_enc");
 	lc_aead_zero(ak);
 	if (ret < 0)
-		return 1;
+		ret_checked += 1;
 
 	ret_checked += lc_compare(out_dec, pt, ptlen,
 				  "Ascon Keccak crypt: Decryption, plaintext");
@@ -115,7 +115,7 @@ static int ak_tester_one(const struct lc_hash *hash, const uint8_t *pt,
 			      exp_tag_len);
 	lc_aead_zero(ak);
 	if (ret != -EBADMSG)
-		return 1;
+		ret_checked += 1;
 
 	return ret_checked;
 }
