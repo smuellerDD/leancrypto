@@ -33,6 +33,7 @@
 #include "small_stack_support.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
+#include "timecop.h"
 
 /**
  * @brief pack_pk - Serialize the public key as concatenation of the
@@ -242,6 +243,9 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 	publicseed = ws->buf;
 	noiseseed = ws->buf + LC_KYBER_SYMBYTES;
 
+	/* Timecop: Mark sensitive part of the seed. */
+	poison(noiseseed, LC_KYBER_SYMBYTES);
+
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, buf, LC_KYBER_SYMBYTES));
 	kyber_print_buffer(buf, LC_KYBER_SYMBYTES, "Keygen: d");
 
@@ -284,6 +288,10 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 
 	pack_sk(sk, &ws->skpv);
 	pack_pk(pk, &ws->pkpv, publicseed);
+
+	/* Timecop: sk, pk are not relevant any more for side-channels */
+	unpoison(sk, LC_KYBER_INDCPA_SECRETKEYBYTES);
+	unpoison(pk, LC_KYBER_INDCPA_PUBLICKEYBYTES);
 
 out:
 	LC_RELEASE_MEM(ws);
@@ -406,6 +414,9 @@ int indcpa_dec(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
 	polyvec_ntt(&ws->b);
 	kyber_print_polyvec(&ws->b, "K-PKE Decrypt: NTT(u)");
 	polyvec_basemul_acc_montgomery(&ws->mp, &ws->skpv, &ws->b);
+
+	/* Timecop: Mark the vector with the secret message */
+	poison(&ws->mp, sizeof(ws->mp));
 	kyber_print_poly(&ws->mp, "K-PKE Decrypt: sHat^T * NTT(u)");
 	poly_invntt_tomont(&ws->mp);
 	kyber_print_poly(&ws->mp, "K-PKE Decrypt: NTT-1(s * NTT(u))");

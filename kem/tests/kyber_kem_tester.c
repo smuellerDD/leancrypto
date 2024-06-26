@@ -32,6 +32,7 @@
 #include "ret_checkers.h"
 #include "small_stack_support.h"
 #include "selftest_rng.h"
+#include "timecop.h"
 #include "visibility.h"
 
 /*
@@ -256,18 +257,24 @@ int _kyber_kem_tester(unsigned int rounds,
 			ret = 1;
 			goto out;
 		}
+
+		unpoison(ws->sk.sk, LC_CRYPTO_SECRETKEYBYTES);
 		if (i < nvectors && memcmp(ws->sk.sk, kyber_testvectors[i].sk,
 					   LC_CRYPTO_SECRETKEYBYTES)) {
 			printf("Secret key mismatch at test vector %u\n", i);
 			ret = 1;
 			goto out;
 		}
+
+		unpoison(ws->ct.ct, LC_CRYPTO_CIPHERTEXTBYTES);
 		if (i < nvectors && memcmp(ws->ct.ct, kyber_testvectors[i].ct,
 					   LC_CRYPTO_CIPHERTEXTBYTES)) {
 			printf("Ciphertext mismatch at test vector %u\n", i);
 			ret = 1;
 			goto out;
 		}
+
+		unpoison(ws->key_b.ss, LC_KYBER_SSBYTES);
 		if (i < nvectors &&
 		    memcmp(ws->key_b.ss, kyber_testvectors[i].ss,
 			   LC_KYBER_SSBYTES)) {
@@ -278,6 +285,7 @@ int _kyber_kem_tester(unsigned int rounds,
 
 		//printf("Sucessful validation of test vector %u\n", i);
 
+		unpoison(ws->key_a.ss, LC_KYBER_SSBYTES);
 		for (j = 0; j < LC_KYBER_SSBYTES; j++) {
 			if (ws->key_a.ss[j] != ws->key_b.ss[j]) {
 				printf("ERROR\n");

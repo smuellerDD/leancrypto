@@ -35,6 +35,7 @@
 #include "lc_sha3.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
+#include "timecop.h"
 #include "visibility.h"
 
 int _lc_kyber_keypair(
@@ -101,6 +102,8 @@ int _lc_kyber_enc(
 	 * struct lc_kyber_pk ensures that the input is of required length.
 	 */
 
+	/* Timecop: buf contains the secret message to be protected */
+	poison(buf, 2 * LC_KYBER_SYMBYTES);
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, buf, LC_KYBER_SYMBYTES));
 	kyber_print_buffer(buf, LC_KYBER_SYMBYTES, "Encapsulation: m");
 
@@ -108,6 +111,7 @@ int _lc_kyber_enc(
 	lc_hash(lc_sha3_256, pk->pk, LC_KYBER_PUBLICKEYBYTES,
 		buf + LC_KYBER_SYMBYTES);
 	lc_hash(lc_sha3_512, buf, sizeof(buf), kr);
+	poison(kr, sizeof(kr));
 	kyber_print_buffer(buf + LC_KYBER_SYMBYTES, LC_KYBER_SYMBYTES,
 			   "Encapsulation: H(ek)");
 	kyber_print_buffer(kr, LC_KYBER_SYMBYTES,
@@ -179,6 +183,7 @@ static int kyber_kem_iv_sk(const struct lc_kyber_sk *sk)
 		ret = -EINVAL;
 
 	lc_memset_secure(kr, 0, sizeof(kr));
+
 	return ret;
 }
 
@@ -208,6 +213,9 @@ int _lc_kyber_dec(
 		ret = -EINVAL;
 		goto out;
 	}
+
+	/* Timecop: Mark the secret part of the secret key. */
+	poison(sk->sk, LC_KYBER_INDCPA_SECRETKEYBYTES);
 
 	kyber_print_buffer(ct->ct, LC_CRYPTO_CIPHERTEXTBYTES,
 			   "======Decapsulation input: ct");
@@ -264,6 +272,8 @@ int _lc_kyber_dec(
 	cmov(ss->ss, ws->kr, LC_KYBER_SSBYTES, (uint8_t)(1 - fail));
 	kyber_print_buffer(ss->ss, LC_KYBER_SSBYTES,
 			   "======Decapsulation output: ss");
+
+	unpoison(sk->sk, LC_KYBER_INDCPA_SECRETKEYBYTES);
 
 out:
 	LC_RELEASE_MEM(ws);

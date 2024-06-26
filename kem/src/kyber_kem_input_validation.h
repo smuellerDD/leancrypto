@@ -23,6 +23,7 @@
 #include "kyber_type.h"
 #include "lc_memcmp_secure.h"
 #include "small_stack_support.h"
+#include "timecop.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -105,6 +106,9 @@ static inline int kyber_kem_iv_sk_modulus(
 
 	pack_sk(ws->sknew, skpv);
 
+	/* Timecop: timing difference due to memcmp is no side channel leak. */
+	unpoison(sk, LC_KYBER_INDCPA_SECRETKEYBYTES);
+	unpoison(ws->sknew, LC_KYBER_INDCPA_SECRETKEYBYTES);
 	if (lc_memcmp_secure(sk, LC_KYBER_INDCPA_SECRETKEYBYTES, ws->sknew,
 			     LC_KYBER_INDCPA_SECRETKEYBYTES))
 		ret = -EINVAL;

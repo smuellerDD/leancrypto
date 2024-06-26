@@ -21,9 +21,10 @@
 #include "lc_kyber.h"
 #include "lc_rng.h"
 #include "small_stack_support.h"
+#include "timecop.h"
 #include "visibility.h"
 
-static int kyber_invalid(enum lc_kyber_type type)
+static int kyber_official(enum lc_kyber_type type)
 {
 	struct workspace {
 		struct lc_kyber_sk sk;
@@ -77,6 +78,8 @@ static int kyber_invalid(enum lc_kyber_type type)
 		goto out;
 	}
 
+	unpoison(ws->ss, sizeof(ws->ss));
+	unpoison(ws->ss2, sizeof(ws->ss));
 	if (memcmp(ws->ss, ws->ss2, sizeof(ws->ss))) {
 		printf("Shared secrets do not match\n");
 		goto out;
@@ -97,13 +100,13 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	(void)argv;
 
 #ifdef LC_KYBER_1024_ENABLED
-	ret += kyber_invalid(LC_KYBER_1024);
+	ret += kyber_official(LC_KYBER_1024);
 #endif
 #ifdef LC_KYBER_768_ENABLED
-	ret += kyber_invalid(LC_KYBER_768);
+	ret += kyber_official(LC_KYBER_768);
 #endif
 #ifdef LC_KYBER_512_ENABLED
-	ret += kyber_invalid(LC_KYBER_512);
+	ret += kyber_official(LC_KYBER_512);
 #endif
 
 	return ret;
