@@ -30,6 +30,9 @@ have the following properties:
 * testable: all algorithm implementations are directly accessible via their
   data structures at runtime.
 
+* side-channel-resistant: A valgrind-based dynamic side channel analysis is
+  applied to find time-variant code paths based on secret data.
+
 ## Status
 
 Type                | Service               | Status

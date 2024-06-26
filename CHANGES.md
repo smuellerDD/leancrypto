@@ -8,6 +8,8 @@ Changes 0.11.0
 
 * Kyber: change standard API such that caller can select Kyber type
 
+* security: addition of Timecop and instrumentation of tests to find side-channels
+
 Changes 0.10.1
 
 * enhancement: Linux kernel - Kyber: allow parallel compilation of all Kyber types including all optimizations
