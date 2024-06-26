@@ -29,6 +29,7 @@
 #include "dilithium_poly_common.h"
 #include "dilithium_service_helpers.h"
 #include "lc_sha3.h"
+#include "timecop.h"
 
 /**
  * @brief poly_chknorm - Check infinity norm of polynomial against given bound.
@@ -128,10 +129,22 @@ void poly_uniform_eta(poly *a, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
 	lc_hash_set_digestsize(hash_ctx, POLY_UNIFORM_ETA_BYTES);
 	lc_hash_final(hash_ctx, buf);
 
+	/* Timecop: message digest of RHO' is not sensitive. */
+	/*
+	 * TODO: Recheck whether this is indeed correct considering that the
+	 * message digest is only an expansion of the RHO' instead of hiding
+	 * its contents.
+	 */
+	unpoison(buf, POLY_UNIFORM_ETA_BYTES);
+
 	ctr = rej_eta(a->coeffs, LC_DILITHIUM_N, buf, POLY_UNIFORM_ETA_BYTES);
 
 	while (ctr < LC_DILITHIUM_N) {
 		lc_hash_final(hash_ctx, buf);
+
+		/* Timecop: message digest of RHO' is not sensitive. */
+		unpoison(buf, POLY_UNIFORM_ETA_BYTES);
+
 		ctr += rej_eta(a->coeffs + ctr, LC_DILITHIUM_N - ctr, buf,
 			       LC_SHAKE_256_SIZE_BLOCK);
 	}
@@ -160,6 +173,14 @@ void poly_uniform_gamma1(poly *a, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
 	lc_hash_set_digestsize(hash_ctx, POLY_UNIFORM_GAMMA1_BYTES);
 	lc_hash_final(hash_ctx, ws_buf);
 	lc_hash_zero(hash_ctx);
+
+	/* Timecop: message digest of RHO' is not sensitive. */
+	/*
+	 * TODO: Recheck whether this is indeed correct considering that the
+	 * message digest is only an expansion of the RHO' instead of hiding
+	 * its contents.
+	 */
+	unpoison(ws_buf, POLY_UNIFORM_GAMMA1_BYTES);
 
 	polyz_unpack(a, ws_buf);
 }

@@ -40,6 +40,7 @@
 #include "lc_sha3.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
+#include "timecop.h"
 #include "visibility.h"
 
 #ifdef __cplusplus
@@ -107,8 +108,15 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 	dilithium_print_buffer(rhoprime, LC_DILITHIUM_CRHBYTES,
 			       "Keygen - RHOPrime");
 
+	/* Timecop: RHO' goes into the secret key */
+	poison(rhoprime, LC_DILITHIUM_CRHBYTES);
+
 	key = rhoprime + LC_DILITHIUM_CRHBYTES;
 	dilithium_print_buffer(key, LC_DILITHIUM_SEEDBYTES, "Keygen - Key");
+
+	/* Timecop: key goes into the secret key */
+	poison(key, LC_DILITHIUM_SEEDBYTES);
+
 	pack_sk_key(sk, key);
 
 	/* Expand matrix */
@@ -122,6 +130,11 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 			     ws->tmp.poly_uniform_eta_buf);
 	polyveck_uniform_eta(&ws->s2, rhoprime, LC_DILITHIUM_L,
 			     ws->tmp.poly_uniform_eta_buf);
+
+	/* Timecop: s1 and s2 are secret */
+	poison(&ws->s1.s1, sizeof(polyvecl));
+	poison(&ws->s2, sizeof(polyveck));
+
 	dilithium_print_polyvecl(&ws->s1.s1,
 				 "Keygen - S1 L x N matrix after ExpandS:");
 	dilithium_print_polyveck(&ws->s2,
@@ -177,6 +190,10 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 	dilithium_print_buffer(sk->sk, LC_DILITHIUM_SECRETKEYBYTES,
 			       "Keygen - SK:");
 
+	/* Timecop: pk and sk are not relevant for side-channels any more. */
+	unpoison(pk->pk, sizeof(pk->pk));
+	unpoison(sk->sk, sizeof(sk->sk));
+
 out:
 	LC_RELEASE_MEM(ws);
 	return ret;
@@ -218,6 +235,9 @@ static int lc_dilithium_sign_internal(struct lc_dilithium_sig *sig,
 		     LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_RNDBYTES);
 	rhoprime = key;
 
+	/* Timecop: key is secret */
+	poison(rhoprime, LC_DILITHIUM_CRHBYTES);
+
 	lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_CRHBYTES);
 	lc_hash_final(hash_ctx, mu);
 	dilithium_print_buffer(mu, LC_DILITHIUM_CRHBYTES, "Siggen - MU:");
@@ -237,6 +257,10 @@ static int lc_dilithium_sign_internal(struct lc_dilithium_sig *sig,
 		ws->mat, "Siggen - A K x L x N matrix after ExpandA:");
 
 	unpack_sk_key(key, sk);
+
+	/* Timecop: key is secret */
+	poison(key, LC_DILITHIUM_SEEDBYTES);
+
 	lc_xof(lc_shake256, key,
 	       LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_RNDBYTES +
 		       LC_DILITHIUM_CRHBYTES,
@@ -245,11 +269,19 @@ static int lc_dilithium_sign_internal(struct lc_dilithium_sig *sig,
 			       "Siggen - RHOPrime:");
 
 	unpack_sk_s1(&ws->s1, sk);
+
+	/* Timecop: s1 is secret */
+	poison(&ws->s1, sizeof(polyvecl));
+
 	polyvecl_ntt(&ws->s1);
 	dilithium_print_polyvecl(&ws->s1,
 				 "Siggen - S1 L x N matrix after NTT:");
 
 	unpack_sk_s2(&ws->s2, sk);
+
+	/* Timecop: s2 is secret */
+	poison(&ws->s2, sizeof(polyveck));
+
 	polyveck_ntt(&ws->s2);
 	dilithium_print_polyveck(&ws->s2,
 				 "Siggen - S2 K x N matrix after NTT:");
@@ -309,6 +341,9 @@ rej:
 	polyvecl_reduce(&ws->z);
 	dilithium_print_polyvecl(&ws->z, "Siggen - z reduction");
 
+	/* Timecop: the signature component z is not sensitive any more. */
+	unpoison(&ws->z, sizeof(polyvecl));
+
 	if (polyvecl_chknorm(&ws->z, LC_DILITHIUM_GAMMA1 - LC_DILITHIUM_BETA))
 		goto rej;
 
@@ -320,6 +355,10 @@ rej:
 	polyveck_invntt_tomont(&ws->h);
 	polyveck_sub(&ws->w0, &ws->w0, &ws->h);
 	polyveck_reduce(&ws->w0);
+
+	/* Timecop: verification data w0 is not sensitive any more. */
+	unpoison(&ws->w0, sizeof(polyveck));
+
 	if (polyveck_chknorm(&ws->w0, LC_DILITHIUM_GAMMA2 - LC_DILITHIUM_BETA))
 		goto rej;
 
@@ -327,10 +366,15 @@ rej:
 	polyveck_pointwise_poly_montgomery(&ws->h, &ws->cp, &ws->t0);
 	polyveck_invntt_tomont(&ws->h);
 	polyveck_reduce(&ws->h);
+
+	/* Timecop: the signature component h is not sensitive any more. */
+	unpoison(&ws->h, sizeof(polyveck));
+
 	if (polyveck_chknorm(&ws->h, LC_DILITHIUM_GAMMA2))
 		goto rej;
 
 	polyveck_add(&ws->w0, &ws->w0, &ws->h);
+
 	n = polyveck_make_hint(&ws->h, &ws->w0, &ws->w1);
 	if (n > LC_DILITHIUM_OMEGA)
 		goto rej;
