@@ -21,6 +21,7 @@
 #include "build_bug_on.h"
 #include "compare.h"
 #include "lc_xdrbg256.h"
+#include "timecop.h"
 #include "visibility.h"
 
 static int xdrbg256_drng_selftest(struct lc_rng_ctx *xdrbg256_ctx)
@@ -78,11 +79,13 @@ static int xdrbg256_drng_selftest(struct lc_rng_ctx *xdrbg256_ctx)
 	lc_rng_seed(xdrbg256_ctx, seed, sizeof(seed), NULL, 0);
 	/* Prepare the state with native SHAKE operations */
 	lc_hash_init(xdrbg256_compare);
+	unpoison(seed, sizeof(seed));
 	lc_hash_update(xdrbg256_compare, seed, sizeof(seed));
 	encode = 0;
 	lc_hash_update(xdrbg256_compare, &encode, sizeof(encode));
 	lc_hash_set_digestsize(xdrbg256_compare, LC_XDRBG256_DRNG_KEYSIZE);
 	lc_hash_final(xdrbg256_compare, compare1);
+	unpoison(state->v, LC_XDRBG256_DRNG_KEYSIZE);
 	ret += lc_compare(compare1, state->v, LC_XDRBG256_DRNG_KEYSIZE,
 			  "SHAKE DRNG state generation");
 
@@ -135,6 +138,7 @@ static int xdrbg256_drng_selftest(struct lc_rng_ctx *xdrbg256_ctx)
 	lc_hash_init(xdrbg256_compare);
 
 	/* Verify: Seeding operation of the DRBG */
+	unpoison(seed, sizeof(seed));
 	lc_hash_update(xdrbg256_compare, seed, sizeof(seed));
 	encode = 0;
 	lc_hash_update(xdrbg256_compare, &encode, sizeof(encode));

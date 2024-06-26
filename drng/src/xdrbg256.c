@@ -24,6 +24,7 @@
 #include "lc_memcmp_secure.h"
 #include "lc_xdrbg256.h"
 #include "math_helper.h"
+#include "timecop.h"
 #include "visibility.h"
 
 /********************************** Selftest **********************************/
@@ -230,6 +231,9 @@ static int lc_xdrbg256_drng_generate(void *_state, const uint8_t *alpha,
 		/* Generate the requested amount of output bits */
 		lc_xdrbg256_shake_final(shake_ctx, out, todo);
 
+		/* Timecop: out is not sensitive for side channels. */
+		unpoison(out, todo);
+
 		out += todo;
 		outlen -= todo;
 	}
@@ -265,6 +269,9 @@ static int lc_xdrbg256_drng_seed(void *_state, const uint8_t *seed,
 	struct lc_xdrbg256_drng_state *state = _state;
 	uint8_t intially_seeded = state->initially_seeded;
 	LC_HASH_CTX_ON_STACK(shake_ctx, LC_XDRBG256_DRNG_HASH_TYPE);
+
+	/* Timecop: Seed is sensitive. */
+	poison(seed, seedlen);
 
 	if (!state)
 		return -EINVAL;
