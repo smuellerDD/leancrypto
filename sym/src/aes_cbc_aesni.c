@@ -24,6 +24,7 @@
 #include "lc_sym.h"
 #include "mode_cbc.h"
 #include "ret_checkers.h"
+#include "timecop.h"
 #include "visibility.h"
 #include "xor.h"
 
@@ -47,6 +48,9 @@ static void aes_aesni_cbc_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 	aesni_cbc_encrypt(in, out, round_len, &ctx->enc_block_ctx, ctx->iv, 1);
 	LC_FPU_DISABLE;
 
+	/* Timecop: output is not sensitive regarding side-channels. */
+	unpoison(out, round_len);
+
 	/*
 	 * Trailing data that is not multiple of block len cannot be encrypted
 	 * and thus the corresponding part in the output block is zeroized.
@@ -66,6 +70,9 @@ static void aes_aesni_cbc_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 	LC_FPU_ENABLE;
 	aesni_cbc_encrypt(in, out, round_len, &ctx->dec_block_ctx, ctx->iv, 0);
 	LC_FPU_DISABLE;
+
+	/* Timecop: output is not sensitive regarding side-channels. */
+	unpoison(out, round_len);
 
 	/*
 	 * Trailing data that is not multiple of block len cannot be decrypted
@@ -88,6 +95,9 @@ static int aes_aesni_cbc_setkey(struct lc_sym_state *ctx, const uint8_t *key,
 				size_t keylen)
 {
 	int ret;
+
+	/* Timecop: key is sensitive. */
+	poison(key, keylen);
 
 	if (!ctx)
 		return -EINVAL;

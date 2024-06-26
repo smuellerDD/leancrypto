@@ -31,6 +31,7 @@
 #include "lc_aes.h"
 #include "compare.h"
 #include "ret_checkers.h"
+#include "timecop.h"
 #include "visibility.h"
 
 #define LC_EXEC_ONE_TEST(aes_impl)                                             \
@@ -69,6 +70,9 @@ static int test_decrypt_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 				       0x9f, 0x96, 0xe9, 0x3d, 0x7e, 0x11,
 				       0x73, 0x93, 0x17, 0x2a };
 	int ret;
+
+	/* Unpoison key to let implementation poison it */
+	unpoison(key, keylen);
 
 	lc_sym_init(ctx);
 	CKINT(lc_sym_setkey(ctx, key, keylen));

@@ -32,6 +32,7 @@
 #include "mode_ctr.h"
 #include "math_helper.h"
 #include "lc_memset_secure.h"
+#include "timecop.h"
 #include "visibility.h"
 #include "xor.h"
 
@@ -72,6 +73,9 @@ void mode_ctr_selftest(const struct lc_sym *aes, int *tested, const char *impl)
 	LC_SELFTEST_RUN(tested);
 
 	LC_SYM_CTX_ON_STACK(ctx, aes);
+
+	/* Unpoison key to let implementation poison it */
+	unpoison(key256, sizeof(key256));
 
 	lc_sym_init(ctx);
 	lc_sym_setkey(ctx, key256, sizeof(key256));

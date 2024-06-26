@@ -31,6 +31,7 @@
 #include "lc_aes.h"
 #include "mode_ctr.h"
 #include "compare.h"
+#include "timecop.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 
@@ -97,6 +98,9 @@ static int test_xcrypt_ctr_one(const char *xcrypt, struct lc_sym_ctx *ctx,
 	int ret;
 
 	snprintf(status, sizeof(status), "AES-CTR %s", xcrypt);
+
+	/* Unpoison key to let implementation poison it */
+	unpoison(key, keylen);
 
 	/* Encrypt */
 	lc_sym_init(ctx);
@@ -195,6 +199,9 @@ static int ctr_tester_one(uint8_t *iv, uint64_t *iv128)
 	lc_sym_init(aesni);
 	CKINT(lc_sym_setkey(aesni, key, sizeof(key)));
 	CKINT(lc_sym_setiv(aesni, iv, AES_BLOCKLEN));
+
+	/* Unpoison key to let implementation poison it */
+	unpoison(key, sizeof(key));
 
 	lc_sym_init(aes_armce);
 	CKINT(lc_sym_setkey(aes_armce, key, sizeof(key)));

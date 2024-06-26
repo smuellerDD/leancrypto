@@ -28,6 +28,7 @@
 #include "ext_headers.h"
 #include "lc_aes.h"
 #include "lc_sym.h"
+#include "timecop.h"
 #include "visibility.h"
 
 struct lc_sym_state {
@@ -53,6 +54,9 @@ static void aes_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 
 	/* In-place encryption operation of plaintext. */
 	aes_cipher((state_t *)out, block_ctx);
+
+	/* Timecop: output is not sensitive regarding side-channels. */
+	unpoison(out, AES_BLOCKLEN);
 }
 
 static void aes_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
@@ -72,6 +76,9 @@ static void aes_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 
 	/* In-place decryption operation of plaintext. */
 	aes_inv_cipher((state_t *)out, block_ctx);
+
+	/* Timecop: output is not sensitive regarding side-channels. */
+	unpoison(out, AES_BLOCKLEN);
 }
 
 static void aes_init(struct lc_sym_state *ctx)
@@ -83,6 +90,10 @@ static int aes_setkey(struct lc_sym_state *ctx, const uint8_t *key,
 		      size_t keylen)
 {
 	int ret;
+
+	/* Timecop: key is sensitive. */
+	// TODO: AES C implementation is not side-channel-resistant!
+	//poison(key, keylen);
 
 	if (!ctx)
 		return -EINVAL;

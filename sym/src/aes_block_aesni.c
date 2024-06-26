@@ -30,6 +30,7 @@
 #include "lc_aes.h"
 #include "lc_sym.h"
 #include "ret_checkers.h"
+#include "timecop.h"
 #include "visibility.h"
 
 struct lc_sym_state {
@@ -48,6 +49,9 @@ static void aes_aesni_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 	LC_FPU_ENABLE;
 	aesni_encrypt(in, out, &ctx->enc_block_ctx);
 	LC_FPU_DISABLE;
+
+	/* Timecop: output is not sensitive regarding side-channels. */
+	unpoison(out, AES_BLOCKLEN);
 }
 
 static void aes_aesni_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
@@ -59,6 +63,9 @@ static void aes_aesni_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 	LC_FPU_ENABLE;
 	aesni_decrypt(in, out, &ctx->dec_block_ctx);
 	LC_FPU_DISABLE;
+
+	/* Timecop: output is not sensitive regarding side-channels. */
+	unpoison(out, AES_BLOCKLEN);
 }
 
 static void aes_aesni_init(struct lc_sym_state *ctx)
@@ -70,6 +77,9 @@ static int aes_aesni_setkey(struct lc_sym_state *ctx, const uint8_t *key,
 			    size_t keylen)
 {
 	int ret;
+
+	/* Timecop: key is sensitive. */
+	poison(key, keylen);
 
 	if (!ctx)
 		return -EINVAL;

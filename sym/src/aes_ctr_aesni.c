@@ -25,6 +25,7 @@
 #include "lc_sym.h"
 #include "mode_ctr.h"
 #include "ret_checkers.h"
+#include "timecop.h"
 #include "visibility.h"
 #include "xor.h"
 
@@ -113,6 +114,9 @@ static void aes_aesni_ctr_crypt(struct lc_sym_state *ctx, const uint8_t *in,
 	}
 
 	LC_FPU_DISABLE;
+
+	/* Timecop: output is not sensitive regarding side-channels. */
+	unpoison(out, len);
 }
 
 static void aes_aesni_ctr_init(struct lc_sym_state *ctx)
@@ -128,6 +132,9 @@ static int aes_aesni_ctr_setkey(struct lc_sym_state *ctx, const uint8_t *key,
 				size_t keylen)
 {
 	int ret;
+
+	/* Timecop: key is sensitive. */
+	poison(key, keylen);
 
 	if (!ctx)
 		return -EINVAL;

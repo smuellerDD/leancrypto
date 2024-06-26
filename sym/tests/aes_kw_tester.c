@@ -25,6 +25,7 @@
 #include "lc_aes.h"
 #include "compare.h"
 #include "ret_checkers.h"
+#include "timecop.h"
 #include "visibility.h"
 
 #define LC_EXEC_ONE_TEST(aes_impl)                                             \
@@ -73,6 +74,9 @@ static int test_encrypt_kw_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 #pragma GCC diagnostic pop
 	uint8_t tag[8];
 	int ret, rc;
+
+	/* Unpoison key to let implementation poison it */
+	unpoison(key, keylen);
 
 	/* Encrypt */
 	lc_sym_init(ctx);

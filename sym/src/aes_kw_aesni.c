@@ -24,6 +24,7 @@
 #include "lc_aes.h"
 #include "lc_sym.h"
 #include "mode_kw.h"
+#include "timecop.h"
 #include "visibility.h"
 
 struct lc_sym_state {
@@ -38,12 +39,18 @@ static void aes_aesni_kw_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 				 uint8_t *out, size_t len)
 {
 	lc_mode_kw_c->encrypt(&ctx->kw_state, in, out, len);
+
+	/* Timecop: output is not sensitive regarding side-channels. */
+	unpoison(out, len);
 }
 
 static void aes_aesni_kw_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 				 uint8_t *out, size_t len)
 {
 	lc_mode_kw_c->decrypt(&ctx->kw_state, in, out, len);
+
+	/* Timecop: output is not sensitive regarding side-channels. */
+	unpoison(out, len);
 }
 
 static void aes_aesni_kw_init(struct lc_sym_state *ctx)
@@ -59,6 +66,9 @@ static void aes_aesni_kw_init(struct lc_sym_state *ctx)
 static int aes_aesni_kw_setkey(struct lc_sym_state *ctx, const uint8_t *key,
 			       size_t keylen)
 {
+	/* Timecop: key is sensitive. */
+	poison(key, keylen);
+
 	if (!ctx)
 		return -EINVAL;
 	return lc_mode_kw_c->setkey(&ctx->kw_state, key, keylen);
