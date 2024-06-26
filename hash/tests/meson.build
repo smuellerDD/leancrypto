@@ -7,7 +7,7 @@ if get_option('sha2-256').enabled()
 				   dependencies: leancrypto
 				   )
 
-	test('Hash SHA256', sha256_tester)
+	test('Hash SHA256', sha256_tester, suite: regression)
 else
 	hasher = 0
 endif
@@ -19,7 +19,7 @@ if get_option('sha2-512').enabled()
 				   dependencies: leancrypto
 				   )
 
-	test('Hash SHA512', sha512_tester)
+	test('Hash SHA512', sha512_tester, suite: regression)
 else
 	hasher = 0
 endif
@@ -81,17 +81,17 @@ if get_option('sha3').enabled()
 				   dependencies: leancrypto
 				   )
 
-	test('Hash SHA3-224', sha3_224_tester)
-	test('Hash SHA3-256', sha3_256_tester)
-	test('Hash SHA3-384', sha3_384_tester)
-	test('Hash SHA3-512', sha3_512_tester)
-	test('Hash SHAKE128', shake128_tester)
-	test('Hash SHAKE256', shake256_tester)
-	test('Hash SHAKE256 Squeeze More', shake_squeeze_more_tester)
-	test('Hash cSHAKE128', cshake_128_tester)
-	test('Hash cSHAKE256', cshake_256_tester)
-	test('Hash cSHAKE256 Reinit', cshake_ctx_256_tester)
-	test('Keccak Permutation', keccak_tester)
+	test('Hash SHA3-224', sha3_224_tester, suite: regression)
+	test('Hash SHA3-256', sha3_256_tester, suite: regression)
+	test('Hash SHA3-384', sha3_384_tester, suite: regression)
+	test('Hash SHA3-512', sha3_512_tester, suite: regression)
+	test('Hash SHAKE128', shake128_tester, suite: regression)
+	test('Hash SHAKE256', shake256_tester, suite: regression)
+	test('Hash SHAKE256 Squeeze More', shake_squeeze_more_tester, suite: regression)
+	test('Hash cSHAKE128', cshake_128_tester, suite: regression)
+	test('Hash cSHAKE256', cshake_256_tester, suite: regression)
+	test('Hash cSHAKE256 Reinit', cshake_ctx_256_tester, suite: regression)
+	test('Keccak Permutation', keccak_tester, suite: regression)
 
 	if (x86_64_asm)
 		shake128_4x_avx2_tester = executable('shake128_4x_avx2_tester',
@@ -105,8 +105,10 @@ if get_option('sha3').enabled()
 					dependencies: leancrypto
 					)
 
-		test('Hash SHAKE128 4x AVX2', shake128_4x_avx2_tester)
-		test('Hash SHAKE256 4x AVX2', shake256_4x_avx2_tester)
+		test('Hash SHAKE128 4x AVX2', shake128_4x_avx2_tester,
+		     suite: regression)
+		test('Hash SHAKE256 4x AVX2', shake256_4x_avx2_tester,
+		     suite: regression)
 	elif (arm64_asm)
 		shake128_2x_armv8_tester = executable('shake128_2x_armv8_tester',
 					[ 'shake128_2x_armv8_tester.c', internal_src ],
@@ -119,8 +121,10 @@ if get_option('sha3').enabled()
 					dependencies: leancrypto
 					)
 
-		test('Hash SHAKE128 2x ARMv8', shake128_2x_armv8_tester)
-		test('Hash SHAKE256 2x ARMv8', shake256_2x_armv8_tester)
+		test('Hash SHAKE128 2x ARMv8', shake128_2x_armv8_tester,
+		     suite: regression)
+		test('Hash SHAKE256 2x ARMv8', shake256_2x_armv8_tester,
+		     suite: regression)
 	endif
 else
 	hasher = 0
@@ -153,11 +157,12 @@ if get_option('ascon').enabled()
 				   dependencies: leancrypto
 				   )
 
-	test('Hash Ascon 128', ascon_128_tester)
-	test('Hash Ascon 128a', ascon_128a_tester)
-	test('Hash Ascon XOF', ascon_xof_tester)
-	test('Hash Ascon XOFa', ascon_xofa_tester)
-	test('Hash Ascon XOF Squeeze More', ascon_xof_squeeze_more_tester)
+	test('Hash Ascon 128', ascon_128_tester, suite: regression)
+	test('Hash Ascon 128a', ascon_128a_tester, suite: regression)
+	test('Hash Ascon XOF', ascon_xof_tester, suite: regression)
+	test('Hash Ascon XOFa', ascon_xofa_tester, suite: regression)
+	test('Hash Ascon XOF Squeeze More', ascon_xof_squeeze_more_tester,
+	     suite: regression)
 endif
 
 if (hasher == 1 and host_machine.system() != 'windows')

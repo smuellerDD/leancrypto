@@ -4,7 +4,7 @@ if get_option('hkdf').enabled()
 				 include_directories: [ include_internal_dirs ],
 				 dependencies: leancrypto
 				)
-	test('KDF HKDF', hkdf_tester)
+	test('KDF HKDF', hkdf_tester, suite: regression)
 endif
 
 if get_option('kdf_ctr').enabled()
@@ -13,7 +13,7 @@ if get_option('kdf_ctr').enabled()
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto
 				)
-	test('KDF Counter', kdf_ctr_tester)
+	test('KDF Counter', kdf_ctr_tester, suite: regression)
 endif
 
 if get_option('kdf_fb').enabled()
@@ -22,7 +22,7 @@ if get_option('kdf_fb').enabled()
 				   include_directories: [ include_internal_dirs ],
 				   dependencies: leancrypto
 				  )
-	test('KDF Feedback', kdf_fb_tester)
+	test('KDF Feedback', kdf_fb_tester, suite: regression)
 endif
 
 if get_option('kdf_dpi').enabled()
@@ -31,7 +31,7 @@ if get_option('kdf_dpi').enabled()
 				    include_directories: [ include_internal_dirs ],
 				    dependencies: leancrypto
 				   )
-	test('KDF Double Pipeline', kdf_dpi_tester)
+	test('KDF Double Pipeline', kdf_dpi_tester, suite: regression)
 endif
 
 if get_option('pbkdf2').enabled()
@@ -40,5 +40,5 @@ if get_option('pbkdf2').enabled()
 				   include_directories: [ include_internal_dirs ],
 				   dependencies: leancrypto
 				   )
-	test('KDF PBKDF2', pbkdf2_tester)
+	test('KDF PBKDF2', pbkdf2_tester, suite: regression)
 endif

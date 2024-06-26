@@ -21,10 +21,12 @@ if get_option('chacha20').enabled()
 				   dependencies: leancrypto
 				   )
 
-	test('Symmetric ChaCha20 block', chacha20_block_tester)
-	test('Symmetric ChaCha20 stream', chacha20_stream_tester)
+	test('Symmetric ChaCha20 block', chacha20_block_tester,
+	     suite: regression)
+	test('Symmetric ChaCha20 stream', chacha20_stream_tester,
+	     suite: regression)
 	test('Symmetric ChaCha20 large', chacha20_stream_large_tester,
-	     timeout: 600)
+	     timeout: 600, suite: performance)
 endif
 
 if get_option('aes_block').enabled()
@@ -43,8 +45,10 @@ if get_option('aes_block').enabled()
 					dependencies: leancrypto
 					)
 
-	test('Symmetric AES block encryption', aes_enc_tester)
-	test('Symmetric AES block decryption', aes_dec_tester)
+	test('Symmetric AES block encryption', aes_enc_tester,
+	     suite: regression)
+	test('Symmetric AES block decryption', aes_dec_tester,
+	     suite: regression)
 endif
 
 if get_option('aes_ecb').enabled()
@@ -63,8 +67,10 @@ if get_option('aes_ecb').enabled()
 					dependencies: leancrypto
 					)
 
-	test('Symmetric AES ECB encryption', aes_ecb_enc_tester)
-	test('Symmetric AES ECB decryption', aes_ecb_dec_tester)
+	test('Symmetric AES ECB encryption', aes_ecb_enc_tester,
+	     suite: regression)
+	test('Symmetric AES ECB decryption', aes_ecb_dec_tester,
+	     suite: regression)
 endif
 
 if get_option('aes_cbc').enabled()
@@ -129,10 +135,14 @@ if get_option('aes_cbc').enabled()
 # 							dependency('openssl') ]
 # 					)
 
-	test('Symmetric AES CBC encryption', aes_cbc_enc_tester)
-	test('Symmetric AES CBC decryption', aes_cbc_dec_tester)
-	test('AES CBC C large', aes_cbc_c_large_tester, timeout: 2000)
-	test('AES CBC Accel large', aes_cbc_large_tester, timeout: 2000)
+	test('Symmetric AES CBC encryption', aes_cbc_enc_tester,
+	     suite: regression)
+	test('Symmetric AES CBC decryption', aes_cbc_dec_tester,
+	     suite: regression)
+	test('AES CBC C large', aes_cbc_c_large_tester, timeout: 2000,
+	     suite: performance)
+	test('AES CBC Accel large', aes_cbc_large_tester, timeout: 2000,
+	     suite: performance)
 #	test('AES CBC OpenSSL large', aes_cbc_openssl_large_tester, timeout: 300)
 endif
 
@@ -153,7 +163,7 @@ if get_option('aes_ctr').enabled()
 					dependencies: leancrypto
 					)
 
-	test('Symmetric AES CTR en/decryption', aes_ctr_tester)
+	test('Symmetric AES CTR en/decryption', aes_ctr_tester, suite: regression)
 	#test('AES CTR large', aes_ctr_large_tester, timeout: 300)
 endif
 
@@ -166,5 +176,5 @@ if get_option('aes_kw').enabled()
 					dependencies: leancrypto
 					)
 
-	test('Symmetric AES KW en/decryption', aes_kw_tester)
+	test('Symmetric AES KW en/decryption', aes_kw_tester, suite: regression)
 endif

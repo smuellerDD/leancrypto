@@ -5,5 +5,5 @@ if get_option('hotp').enabled()
 					dependencies: leancrypto
 					)
 
-	test('HOTP SHA-256', hotp_sha256_tester)
+	test('HOTP SHA-256', hotp_sha256_tester, suite: regression)
 endif

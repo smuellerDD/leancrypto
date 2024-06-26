@@ -19,9 +19,9 @@ if get_option('sha2-512').enabled() and get_option('drbg_hash').enabled()
 			       dependencies: leancrypto
 			       )
 
-	test('AEAD Hash Crypt', hash_crypt_tester)
+	test('AEAD Hash Crypt', hash_crypt_tester, suite: regression)
 	test('AEAD Hash Crypt large', hash_crypt_large_tester,
-	     timeout: 2500, is_parallel: false)
+	     timeout: 2500, is_parallel: false, suite: performance)
 endif
 
 if get_option('kmac_drng').enabled()
@@ -41,11 +41,11 @@ if get_option('kmac_drng').enabled()
 				dependencies: leancrypto
 				)
 
-	test('AEAD KMAC Crypt', kmac_crypt_tester)
+	test('AEAD KMAC Crypt', kmac_crypt_tester, suite: regression)
 	test('AEAD KMAC Crypt Accel large', kmac_crypt_large_tester,
-	     timeout: 2500, is_parallel: false)
+	     timeout: 2500, is_parallel: false, suite: performance)
 	test('AEAD KMAC Crypt C large', kmac_crypt_large_tester_c, timeout: 2500,
-	     is_parallel: false)
+	     is_parallel: false, suite: performance)
 endif
 
 if get_option('cshake_drng').enabled()
@@ -65,11 +65,11 @@ if get_option('cshake_drng').enabled()
 				dependencies: leancrypto
 				)
 
-	test('AEAD cSHAKE Crypt', cshake_crypt_tester)
+	test('AEAD cSHAKE Crypt', cshake_crypt_tester, suite: regression)
 	test('AEAD cSHAKE Crypt Accel large', cshake_crypt_large_tester,
-	     timeout: 2500, is_parallel: false)
+	     timeout: 2500, is_parallel: false, suite: performance)
 	test('AEAD cSHAKE Crypt C large', cshake_crypt_large_tester_c,
-	     timeout: 2500, is_parallel: false)
+	     timeout: 2500, is_parallel: false, suite: performance)
 endif
 
 if get_option('aes_cbc').enabled()
@@ -85,9 +85,9 @@ if get_option('aes_cbc').enabled()
 				dependencies: leancrypto
 				)
 
-		test('AEAD Sym HMAC', symhmac_test)
+		test('AEAD Sym HMAC', symhmac_test, suite: regression)
 		test('AEAD Sym HMAC large', symhmac_large_test,
-		     timeout: 2500, is_parallel: false)
+		     timeout: 2500, is_parallel: false, suite: performance)
 	endif
 
 	if get_option('kmac').enabled()
@@ -112,13 +112,13 @@ if get_option('aes_cbc').enabled()
 				dependencies: leancrypto
 				)
 
-		test('AEAD Sym KMAC256', symkmac256_test)
+		test('AEAD Sym KMAC256', symkmac256_test, suite: regression)
 		test('AEAD Sym KMAC256 large', symkmac256_large_test,
-		     timeout: 2500, is_parallel: false)
+		     timeout: 2500, is_parallel: false, suite: performance)
 
-		test('AEAD Sym KMAC128', symkmac128_test)
+		test('AEAD Sym KMAC128', symkmac128_test, suite: regression)
 		test('AEAD Sym KMAC128 large', symkmac128_large_test,
-		     timeout: 2500, is_parallel: false)
+		     timeout: 2500, is_parallel: false, suite: performance)
 	endif
 endif
 
@@ -167,21 +167,22 @@ if get_option('hash_crypt').enabled()
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto
 				)
-	test('AEAD Ascon Keccak', ascon_keccak_crypt_test)
-	test('AEAD Ascon Keccak IUF', ascon_keccak_crypt_iuf_test)
+	test('AEAD Ascon Keccak', ascon_keccak_crypt_test, suite: regression)
+	test('AEAD Ascon Keccak IUF', ascon_keccak_crypt_iuf_test, suite: regression)
 	test('AEAD Ascon Keccak 512 Accel large',
 	     ascon_keccak_crypt_large_test_512,
-	     timeout: 2500, is_parallel: false)
+	     timeout: 2500, is_parallel: false, suite: performance)
 	test('AEAD Ascon Keccak 512 C large',
 	     ascon_keccak_crypt_large_test_512_c,
-	     timeout: 2500, is_parallel: false)
+	     timeout: 2500, is_parallel: false, suite: performance)
 	test('AEAD Ascon Keccak 256 Accel large',
 	     ascon_keccak_crypt_large_test_256,
-	     timeout: 2500, is_parallel: false)
+	     timeout: 2500, is_parallel: false, suite: performance)
 	test('AEAD Ascon Keccak 256 C large',
 	     ascon_keccak_crypt_large_test_256_c,
-	     timeout: 2500, is_parallel: false)
-	test('AEAD Ascon Error Handling', ascon_crypt_wrong_algo)
+	     timeout: 2500, is_parallel: false, suite: performance)
+	test('AEAD Ascon Error Handling', ascon_crypt_wrong_algo,
+	     suite: regression)
 endif
 
 if (get_option('hash_crypt').enabled() and get_option('ascon').enabled())
@@ -220,18 +221,18 @@ if (get_option('hash_crypt').enabled() and get_option('ascon').enabled())
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto
 				)
-	test('AEAD Ascon C', ascon_crypt_test)
-	test('AEAD Ascon IUF C', ascon_crypt_iuf_test)
+	test('AEAD Ascon C', ascon_crypt_test, suite: regression)
+	test('AEAD Ascon IUF C', ascon_crypt_iuf_test, suite: regression)
 	test('AEAD Ascon 128 Accel large',
 	     ascon_crypt_large_test_128,
-	     timeout: 2500, is_parallel: false)
+	     timeout: 2500, is_parallel: false, suite: performance)
 	test('AEAD Ascon 128a Accel large',
 	     ascon_crypt_large_test_128a,
-	     timeout: 2500, is_parallel: false)
+	     timeout: 2500, is_parallel: false, suite: performance)
 	test('AEAD Ascon 128 C large',
 	     ascon_crypt_large_test_128_c,
-	     timeout: 2500, is_parallel: false)
+	     timeout: 2500, is_parallel: false, suite: performance)
 	test('AEAD Ascon 128a C large',
 	     ascon_crypt_large_test_128a_c,
-	     timeout: 2500, is_parallel: false)
+	     timeout: 2500, is_parallel: false, suite: performance)
 endif

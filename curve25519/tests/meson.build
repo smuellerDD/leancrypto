@@ -7,7 +7,7 @@ if get_option('kyber_x25519').enabled() or get_option('dilithium_ed25519').enabl
 					include_internal_dirs
 				], link_with: leancrypto_static_lib
 				)
-	test('ECDH X25519 C', x25519_c_tester)
+	test('ECDH X25519 C', x25519_c_tester, suite: regression)
 
 	ed25519_tester = executable('ed25519_tester',
 			[ 'ed25519_tester.c',
@@ -18,7 +18,7 @@ if get_option('kyber_x25519').enabled() or get_option('dilithium_ed25519').enabl
 			],
 			link_with: leancrypto_static_lib
 			)
-	test('EDDSA ED25519', ed25519_tester)
+	test('EDDSA ED25519', ed25519_tester, suite: regression)
 
 	if (x86_64_asm)
 		x25519_avx_tester = executable('x25519_avx_tester',
@@ -28,7 +28,7 @@ if get_option('kyber_x25519').enabled() or get_option('dilithium_ed25519').enabl
 						include_internal_dirs
 					], link_with: leancrypto_static_lib
 					)
-		test('ECDH X25519 AVX', x25519_avx_tester)
+		test('ECDH X25519 AVX', x25519_avx_tester, suite: regression)
 	endif
 
 endif

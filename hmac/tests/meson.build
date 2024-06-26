@@ -15,6 +15,6 @@ hmac_sha2_512_tester = executable('hmac_sha2_512_tester',
 				  dependencies: leancrypto
 				 )
 
-test('HMAC SHA2-256', hmac_sha2_256_tester)
-test('HMAC SHA2-512', hmac_sha2_512_tester)
-test('HMAC SHA3-224', hmac_tester)
+test('HMAC SHA2-256', hmac_sha2_256_tester, suite: regression)
+test('HMAC SHA2-512', hmac_sha2_512_tester, suite: regression)
+test('HMAC SHA3-224', hmac_tester, suite: regression)

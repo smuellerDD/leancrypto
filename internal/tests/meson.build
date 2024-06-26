@@ -4,7 +4,7 @@ conversion_be_le = executable('conversion_be_le',
 			      dependencies: leancrypto
 			      )
 
-test('Conversion LE<->BE', conversion_be_le)
+test('Conversion LE<->BE', conversion_be_le, suite: regression)
 
 if get_option('drbg_hash').enabled()
 	memcmp_secure_test = executable('memcmp_secure_test',
@@ -13,7 +13,8 @@ if get_option('drbg_hash').enabled()
 					dependencies: leancrypto
 					)
 
-	test('memcmp secure', memcmp_secure_test, timeout: 600)
+	test('memcmp secure', memcmp_secure_test, timeout: 600,
+	     suite: regression)
 endif
 
 status_tester = executable('status_tester',
@@ -26,5 +27,5 @@ rerun_selftests_tester = executable('rerun_selftests_tester',
 			   include_directories: [ include_internal_dirs ],
 			   dependencies: leancrypto
 			  )
-test('Status', status_tester)
-test('Rerun selftests', rerun_selftests_tester)
+test('Status', status_tester, suite: regression)
+test('Rerun selftests', rerun_selftests_tester, suite: regression)

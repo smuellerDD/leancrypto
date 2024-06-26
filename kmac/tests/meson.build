@@ -24,8 +24,8 @@ kmac_kdf_rng = executable('kmac_kdf_rng',
 			     dependencies: leancrypto
 			     )
 
-test('KMAC 128', kmac_128_tester)
-test('KMAC 256', kmac_256_tester)
-test('KMAC XOF', kmac_xof_tester)
-test('KMAC XOF iterative squeeze', kmac_xof_more_tester)
-test('KMAC KDF RNG', kmac_kdf_rng)
+test('KMAC 128', kmac_128_tester, suite: regression)
+test('KMAC 256', kmac_256_tester, suite: regression)
+test('KMAC XOF', kmac_xof_tester, suite: regression)
+test('KMAC XOF iterative squeeze', kmac_xof_more_tester, suite: regression)
+test('KMAC KDF RNG', kmac_kdf_rng, suite: regression)

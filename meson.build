@@ -461,6 +461,9 @@ endforeach
 ################################################################################
 # Execute testing
 ################################################################################
+performance = 'performance'
+regression = 'regression'
+
 foreach n : testdirs
 	subdir(n)
 endforeach
