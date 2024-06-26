@@ -22,6 +22,7 @@
 #include "lc_cshake.h"
 #include "lc_kmac.h"
 #include "left_encode.h"
+#include "timecop.h"
 #include "visibility.h"
 
 /*
@@ -114,6 +115,9 @@ LC_INTERFACE_FUNCTION(void, lc_kmac_init, struct lc_kmac_ctx *kmac_ctx,
 	size_t added = 2;
 	static int tested = 0;
 
+	/* Timecop: Mark the key as sensitive data. */
+	poison(key, klen);
+
 	if (!kmac_ctx)
 		return;
 	hash_ctx = &kmac_ctx->hash_ctx;
@@ -178,6 +182,9 @@ static void lc_kmac_final_internal(struct lc_kmac_ctx *kmac_ctx, uint8_t *mac,
 	lc_hash_update(hash_ctx, buf, len);
 	lc_hash_set_digestsize(hash_ctx, maclen);
 	lc_hash_final(hash_ctx, mac);
+
+	/* Timecop: Message digest is not sensitive any more */
+	unpoison(mac, maclen);
 }
 
 LC_INTERFACE_FUNCTION(void, lc_kmac_final, struct lc_kmac_ctx *kmac_ctx,
@@ -202,6 +209,9 @@ static void lc_kmac_final_xof_internal(struct lc_kmac_ctx *kmac_ctx,
 		kmac_ctx->final_called = 1;
 	}
 	lc_cshake_final(hash_ctx, mac, maclen);
+
+	/* Timecop: Message digest is not sensitive any more */
+	unpoison(mac, maclen);
 }
 
 LC_INTERFACE_FUNCTION(void, lc_kmac_final_xof, struct lc_kmac_ctx *kmac_ctx,
