@@ -21,6 +21,7 @@
 #include "compare.h"
 #include "hmac_selftest.h"
 #include "lc_hmac.h"
+#include "timecop.h"
 #include "visibility.h"
 
 #define IPAD 0x36
@@ -51,6 +52,9 @@ LC_INTERFACE_FUNCTION(void, lc_hmac_init, struct lc_hmac_ctx *hmac_ctx,
 	uint8_t *k_opad, *k_ipad;
 	unsigned int i;
 	static int tested = 0;
+
+	/* Timecop: key is sensitive. */
+	poison(key, keylen);
 
 	if (lc_hash_ctxsize(hash_ctx) > LC_HASH_STATE_SIZE(hash) ||
 	    lc_hash_blocksize(hash_ctx) > LC_SHA_MAX_SIZE_BLOCK ||
@@ -104,6 +108,9 @@ LC_INTERFACE_FUNCTION(void, lc_hmac_final, struct lc_hmac_ctx *hmac_ctx,
 	lc_hash_update(hash_ctx, k_opad, lc_hash_blocksize(hash_ctx));
 	lc_hash_update(hash_ctx, mac, lc_hash_digestsize(hash_ctx));
 	lc_hash_final(hash_ctx, mac);
+
+	/* Timecop: mac is not sensitive regarding side-channels. */
+	unpoison(mac, lc_hash_digestsize(hash_ctx));
 }
 
 LC_INTERFACE_FUNCTION(int, lc_hmac_alloc, const struct lc_hash *hash,
