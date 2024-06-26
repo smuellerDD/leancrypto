@@ -27,6 +27,7 @@
 #include "lc_sym.h"
 #include "math_helper.h"
 #include "rotate.h"
+#include "timecop.h"
 #include "visibility.h"
 #include "xor256.h"
 
@@ -177,6 +178,9 @@ LC_INTERFACE_FUNCTION(void, cc20_block, struct lc_sym_state *state,
 		out[i] = le_bswap32(ws[i] + state_w[i]);
 
 	state_w[12]++;
+
+	/* Timecop: output is not sensitive regarding side-channels. */
+	unpoison(stream, LC_CC20_BLOCK_SIZE);
 }
 
 static void cc20_init(struct lc_sym_state *ctx)
@@ -201,6 +205,9 @@ static int cc20_setkey(struct lc_sym_state *ctx, const uint8_t *key,
 {
 	if (!ctx || keylen != 32)
 		return -EINVAL;
+
+	/* Timecop: key is sensitive. */
+	poison(key, keylen);
 
 	ctx->key.u[0] = ptr_to_le32(key);
 	ctx->key.u[1] = ptr_to_le32(key + sizeof(uint32_t));
