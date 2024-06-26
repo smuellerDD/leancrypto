@@ -35,7 +35,7 @@
 #include "kyber_selftest_vector_1024.h"
 #endif
 
-static void _kyber_kem_keygen_selftest(
+static int _kyber_kem_keygen_selftest(
 	const char *impl,
 	int (*_lc_kyber_keypair)(struct lc_kyber_pk *pk, struct lc_kyber_sk *sk,
 				 struct lc_rng_ctx *rng_ctx))
@@ -61,6 +61,8 @@ static void _kyber_kem_keygen_selftest(
 
 	LC_RELEASE_MEM(ws);
 	lc_rng_zero(selftest_rng);
+
+	return 0;
 }
 
 void kyber_kem_keygen_selftest(
@@ -70,10 +72,11 @@ void kyber_kem_keygen_selftest(
 {
 	LC_SELFTEST_RUN(tested);
 
-	_kyber_kem_keygen_selftest(impl, _lc_kyber_keypair);
+	if (_kyber_kem_keygen_selftest(impl, _lc_kyber_keypair))
+		*tested = 0;
 }
 
-static void _kyber_kem_enc_selftest(
+static int _kyber_kem_enc_selftest(
 	const char *impl,
 	int (*_lc_kyber_enc)(struct lc_kyber_ct *ct, struct lc_kyber_ss *ss,
 			     const struct lc_kyber_pk *pk,
@@ -109,6 +112,8 @@ static void _kyber_kem_enc_selftest(
 
 	LC_RELEASE_MEM(ws);
 	lc_rng_zero(selftest_rng);
+
+	return 0;
 }
 
 void kyber_kem_enc_selftest(int *tested, const char *impl,
@@ -119,7 +124,8 @@ void kyber_kem_enc_selftest(int *tested, const char *impl,
 {
 	LC_SELFTEST_RUN(tested);
 
-	_kyber_kem_enc_selftest(impl, _lc_kyber_enc);
+	if (_kyber_kem_enc_selftest(impl, _lc_kyber_enc))
+		*tested = 0;
 }
 
 static void

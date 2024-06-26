@@ -35,7 +35,7 @@
 #include "kyber_selftest_kdf_vector_1024.h"
 #endif
 
-static void _kyber_kem_enc_kdf_selftest(
+static int _kyber_kem_enc_kdf_selftest(
 	const char *impl,
 	int (*_lc_kyber_enc_kdf)(struct lc_kyber_ct *ct, uint8_t *ss,
 				 size_t ss_len, const struct lc_kyber_pk *pk,
@@ -71,6 +71,8 @@ static void _kyber_kem_enc_kdf_selftest(
 
 	LC_RELEASE_MEM(ws);
 	lc_rng_zero(selftest_rng);
+
+	return 0;
 }
 
 void kyber_kem_enc_kdf_selftest(
@@ -81,7 +83,8 @@ void kyber_kem_enc_kdf_selftest(
 {
 	LC_SELFTEST_RUN(tested);
 
-	_kyber_kem_enc_kdf_selftest(impl, _lc_kyber_kdf_enc);
+	if (_kyber_kem_enc_kdf_selftest(impl, _lc_kyber_kdf_enc))
+		*tested = 0;
 }
 
 static void _kyber_kem_dec_kdf_selftest(
