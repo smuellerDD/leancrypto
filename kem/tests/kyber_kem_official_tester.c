@@ -66,7 +66,7 @@ static int kyber_official(enum lc_kyber_type type)
 	/* modify type to get error */
 	ws->sk.kyber_type = 123;
 	if (lc_kyber_dec_kdf(ws->ss2, sizeof(ws->ss2), &ws->ct, &ws->sk) !=
-	   -EINVAL) {
+	    -EINVAL) {
 		printf("Unexpected error dec 1\n");
 		goto out;
 	}

@@ -257,7 +257,8 @@ static int lc_dilithium_tester(void)
 	if (ret)
 		goto out;
 
-	pr_info("Dilithium " LC_DILITHIUM_IMPL_NAME " invocation via kernel crypto API succeeded\n");
+	pr_info("Dilithium " LC_DILITHIUM_IMPL_NAME
+		" invocation via kernel crypto API succeeded\n");
 
 out:
 	free_zero(sig);
@@ -278,4 +279,5 @@ module_exit(leancrypto_kernel_dilithium_test_exit);
 
 MODULE_LICENSE("Dual BSD/GPL");
 MODULE_AUTHOR("Stephan Mueller <smueller@chronox.de>");
-MODULE_DESCRIPTION("Kernel module leancrypto_kernel_dilithium_test for implementation " LC_DILITHIUM_IMPL_NAME);
+MODULE_DESCRIPTION(
+	"Kernel module leancrypto_kernel_dilithium_test for implementation " LC_DILITHIUM_IMPL_NAME);

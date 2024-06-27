@@ -48,7 +48,6 @@ extern "C" {
  */
 #include <valgrind/memcheck.h>
 
-
 /**
  * Poisons a memory region of len bytes, starting at addr, indicating that
  * execution time must not depend on the content of this memory region.

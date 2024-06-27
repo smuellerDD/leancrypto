@@ -209,7 +209,8 @@ static int kc_tester_kmac(void)
 	//       LC_KC_CTX_SIZE(lc_cshake256),
 	//       LC_KC_STATE_SIZE(lc_cshake256));
 	return kc_tester_kmac_one(in, sizeof(in), in, sizeof(in), key,
-				  sizeof(key), exp_ct, exp_tag, sizeof(exp_tag));
+				  sizeof(key), exp_ct, exp_tag,
+				  sizeof(exp_tag));
 }
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])

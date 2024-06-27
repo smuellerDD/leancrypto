@@ -57,7 +57,7 @@ enum lc_kyber_type {
  * purpose.
  *
  * * lc_kyber.h: This API is the generic API allowing the caller to select
- *   which Kyber type (Kyber 124, 768 or 512) are to be used. The selection is
+ *   which Kyber type (Kyber 1024, 768 or 512) are to be used. The selection is
  *   made either with the flag specified during key generation or by matching
  *   the size of the imported data with the different lc_kyber_*_load API calls.
  *   All remaining APIs take the information about the Kyber type from the
@@ -450,9 +450,8 @@ static inline int lc_kyber_ss_load(struct lc_kyber_ss *ss,
 	}
 }
 
-static inline int lc_kyber_sk_ptr(uint8_t **kyber_key,
-					 size_t *kyber_key_len,
-					 struct lc_kyber_sk *sk)
+static inline int lc_kyber_sk_ptr(uint8_t **kyber_key, size_t *kyber_key_len,
+				  struct lc_kyber_sk *sk)
 {
 	if (!sk || !kyber_key || !kyber_key_len) {
 		return -EINVAL;
@@ -485,9 +484,8 @@ static inline int lc_kyber_sk_ptr(uint8_t **kyber_key,
 	}
 }
 
-static inline int lc_kyber_pk_ptr(uint8_t **kyber_key,
-					 size_t *kyber_key_len,
-					 struct lc_kyber_pk *pk)
+static inline int lc_kyber_pk_ptr(uint8_t **kyber_key, size_t *kyber_key_len,
+				  struct lc_kyber_pk *pk)
 {
 	if (!pk || !kyber_key || !kyber_key_len) {
 		return -EINVAL;
@@ -520,9 +518,8 @@ static inline int lc_kyber_pk_ptr(uint8_t **kyber_key,
 	}
 }
 
-static inline int lc_kyber_ct_ptr(uint8_t **kyber_key,
-					 size_t *kyber_key_len,
-					 struct lc_kyber_ct *ct)
+static inline int lc_kyber_ct_ptr(uint8_t **kyber_key, size_t *kyber_key_len,
+				  struct lc_kyber_ct *ct)
 {
 	if (!ct || !kyber_key || !kyber_key_len) {
 		return -EINVAL;
@@ -555,9 +552,8 @@ static inline int lc_kyber_ct_ptr(uint8_t **kyber_key,
 	}
 }
 
-static inline int lc_kyber_ss_ptr(uint8_t **kyber_key,
-					 size_t *kyber_key_len,
-					 struct lc_kyber_ss *ss)
+static inline int lc_kyber_ss_ptr(uint8_t **kyber_key, size_t *kyber_key_len,
+				  struct lc_kyber_ss *ss)
 {
 	if (!ss || !kyber_key || !kyber_key_len) {
 		return -EINVAL;
@@ -1825,7 +1821,8 @@ struct lc_kyber_x25519_ss {
  * @brief Return the size of the Kyber secret key.
  */
 LC_PURE
-static inline unsigned int lc_kyber_x25519_sk_size(enum lc_kyber_type kyber_type)
+static inline unsigned int
+lc_kyber_x25519_sk_size(enum lc_kyber_type kyber_type)
 {
 	switch (kyber_type) {
 	case LC_KYBER_1024:
@@ -1856,7 +1853,8 @@ static inline unsigned int lc_kyber_x25519_sk_size(enum lc_kyber_type kyber_type
  * @brief Return the size of the Kyber public key.
  */
 LC_PURE
-static inline unsigned int lc_kyber_x25519_pk_size(enum lc_kyber_type kyber_type)
+static inline unsigned int
+lc_kyber_x25519_pk_size(enum lc_kyber_type kyber_type)
 {
 	switch (kyber_type) {
 	case LC_KYBER_1024:
@@ -1887,7 +1885,8 @@ static inline unsigned int lc_kyber_x25519_pk_size(enum lc_kyber_type kyber_type
  * @brief Return the size of the Kyber ciphertext.
  */
 LC_PURE
-static inline unsigned int lc_kyber_x25519_ct_size(enum lc_kyber_type kyber_type)
+static inline unsigned int
+lc_kyber_x25519_ct_size(enum lc_kyber_type kyber_type)
 {
 	switch (kyber_type) {
 	case LC_KYBER_1024:
@@ -1918,7 +1917,8 @@ static inline unsigned int lc_kyber_x25519_ct_size(enum lc_kyber_type kyber_type
  * @brief Return the size of the Kyber shared secret.
  */
 LC_PURE
-static inline unsigned int lc_kyber_x25519_ss_size(enum lc_kyber_type kyber_type)
+static inline unsigned int
+lc_kyber_x25519_ss_size(enum lc_kyber_type kyber_type)
 {
 	switch (kyber_type) {
 	case LC_KYBER_1024:
