@@ -1,4 +1,4 @@
-Changes 0.11.0
+Changes 1.0.0-prerelease
 
 * security fix: fix possible leak of message in Kyber
 
