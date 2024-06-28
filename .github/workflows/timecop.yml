@@ -1,0 +1,26 @@
+name: Side-Channel Detection
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install meson
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y meson
+        sudo apt-get install -y valgrind
+    - name: Meson setup build
+      run: meson setup build -Dtimecop=enabled
+    - name: Meson compile
+      run: meson compile -C build
+    - name: Meson test
+      run: meson test --wrap='valgrind --track-origins=yes' -C build --suite regression
