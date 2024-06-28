@@ -245,7 +245,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_from_seed_avx2,
 		      struct lc_dilithium_pk *pk, struct lc_dilithium_sk *sk,
 		      const uint8_t *seed, size_t seedlen)
 {
-	struct lc_static_rng s_rng_state;
+	struct lc_static_rng_data s_rng_state;
 	LC_STATIC_DRNG_ON_STACK(s_drng, &s_rng_state);
 	int ret;
 

@@ -33,7 +33,7 @@ extern "C" {
  * WARNING: This RNG state is NOT meant to be used for any other purpose than
  * for internal operation of Kyber and Dilithium!
  */
-struct lc_static_rng {
+struct lc_static_rng_data {
 	const uint8_t *seed;
 	size_t seedlen;
 };

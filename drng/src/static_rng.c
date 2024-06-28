@@ -18,13 +18,12 @@
  */
 
 #include "static_rng.h"
-#include "visibility.h"
 
 static int lc_static_rng_gen(void *_state, const uint8_t *addtl_input,
 			     size_t addtl_input_len, uint8_t *out,
 			     size_t outlen)
 {
-	struct lc_static_rng *state = _state;
+	struct lc_static_rng_data *state = _state;
 
 	(void)addtl_input;
 	(void)addtl_input_len;
@@ -65,4 +64,4 @@ static const struct lc_rng _lc_static_drng = {
 	.seed = lc_static_rng_seed,
 	.zero = lc_static_rng_zero,
 };
-LC_INTERFACE_SYMBOL(const struct lc_rng *, lc_static_drng) = &_lc_static_drng;
+const struct lc_rng * lc_static_drng = &_lc_static_drng;

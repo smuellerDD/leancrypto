@@ -46,7 +46,7 @@ int _lc_kyber_keypair_from_seed(
 				uint8_t sk[LC_KYBER_INDCPA_SECRETKEYBYTES],
 				struct lc_rng_ctx *rng_ctx))
 {
-	struct lc_static_rng s_rng_state;
+	struct lc_static_rng_data s_rng_state;
 	LC_STATIC_DRNG_ON_STACK(s_drng, &s_rng_state);
 	int ret;
 
