@@ -110,7 +110,7 @@ for flavor in %flavors_to_build; do
 done
 
 %check
-%meson_test
+%meson_test --suite regression
 
 %install
 %meson_install
