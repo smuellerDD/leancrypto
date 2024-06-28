@@ -29,13 +29,13 @@
 #include "kyber_debug.h"
 #include "kyber_kdf.h"
 #include "kyber_kem.h"
-#include "kyber_static_rng.h"
 #include "kyber_verify.h"
 #include "lc_hash.h"
 #include "lc_memcmp_secure.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
+#include "static_rng.h"
 #include "timecop.h"
 #include "visibility.h"
 
@@ -46,8 +46,8 @@ int _lc_kyber_keypair_from_seed(
 				uint8_t sk[LC_KYBER_INDCPA_SECRETKEYBYTES],
 				struct lc_rng_ctx *rng_ctx))
 {
-	struct lc_static_kyber_rng s_rng_state;
-	LC_STATIC_KYBER_DRNG_ON_STACK(s_drng, &s_rng_state);
+	struct lc_static_rng s_rng_state;
+	LC_STATIC_DRNG_ON_STACK(s_drng, &s_rng_state);
 	int ret;
 
 	if (seedlen != 2 * LC_KYBER_SYMBYTES)

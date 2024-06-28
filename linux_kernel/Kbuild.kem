@@ -1,9 +1,6 @@
 ################################################################################
 # KEM implementation: Kyber
 
-# Required for Kyber and Dilithium self tests
-leancrypto-y			+= ../drng/src/selftest_rng.o
-
 ccflags-$(CONFIG_LEANCRYPTO_KEM)					       \
 				+= -I$(PWD)/../kem/api -I$(PWD)/../kem/src
 
@@ -13,7 +10,6 @@ ccflags-$(CONFIG_LEANCRYPTO_KEM)					       \
 # Kyber Common
 leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 				+= ../kem/src/kyber_cbd.o		       \
-				   ../kem/src/kyber_static_rng.o	       \
 				   ../kem/src/kyber_zetas.o
 
 # Kyber 1024

@@ -17,8 +17,8 @@
  * DAMAGE.
  */
 
-#ifndef KYBER_STATIC_RNG_H
-#define KYBER_STATIC_RNG_H
+#ifndef STATIC_RNG_H
+#define STATIC_RNG_H
 
 #include "lc_rng.h"
 
@@ -29,18 +29,21 @@ extern "C" {
 /*
  * This "RNG" provides static data to the caller as set during its
  * initialization.
+ *
+ * WARNING: This RNG state is NOT meant to be used for any other purpose than
+ * for internal operation of Kyber and Dilithium!
  */
-struct lc_static_kyber_rng {
+struct lc_static_rng {
 	const uint8_t *seed;
 	size_t seedlen;
 };
 
-extern const struct lc_rng *lc_static_kyber_drng;
+extern const struct lc_rng *lc_static_drng;
 
-#define LC_STATIC_KYBER_DRNG_ON_STACK(name, static_data)                       \
+#define LC_STATIC_DRNG_ON_STACK(name, static_data)                             \
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-	struct lc_rng_ctx name = { .rng = lc_static_kyber_drng,                \
+	struct lc_rng_ctx name = { .rng = lc_static_drng,                      \
 				   .rng_state = static_data };                 \
 	_Pragma("GCC diagnostic pop")
 

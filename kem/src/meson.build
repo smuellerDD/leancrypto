@@ -4,7 +4,6 @@
 if (get_option('kyber_1024').enabled() or get_option('kyber_768').enabled() or get_option('kyber_512').enabled())
 	src += files([
 		'kyber_cbd.c',
-		'kyber_static_rng.c',
 		'kyber_zetas.c',
 	])
 

@@ -35,13 +35,14 @@
 #include "dilithium_debug.h"
 #include "dilithium_selftest.h"
 #include "dilithium_signature_avx2.h"
-#include "dilithium_static_rng.h"
 #include "lc_rng.h"
 #include "lc_sha3.h"
 #include "lc_memcmp_secure.h"
+#include "static_rng.h"
 #include "ret_checkers.h"
 #include "shake_4x_avx2.h"
 #include "small_stack_support.h"
+#include "static_rng.h"
 #include "visibility.h"
 
 static inline void

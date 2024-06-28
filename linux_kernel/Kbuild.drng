@@ -1,4 +1,9 @@
 ################################################################################
+# Required for Kyber and Dilithium
+leancrypto-y			+= ../drng/src/selftest_rng.o		       \
+				   ../drng/src/static_rng.o
+
+################################################################################
 # DRNG implementation: ChaCha20 DRNG
 ccflags-y	  		+= -I$(PWD)/../drng/api -I$(PWD)/../drng/src
 leancrypto-y			+= ../drng/src/seeded_rng.o		       \

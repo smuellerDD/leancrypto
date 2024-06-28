@@ -35,12 +35,12 @@
 #include "dilithium_pack.h"
 #include "dilithium_selftest.h"
 #include "dilithium_signature_impl.h"
-#include "dilithium_static_rng.h"
 #include "lc_hash.h"
 #include "lc_memcmp_secure.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
+#include "static_rng.h"
 #include "timecop.h"
 #include "visibility.h"
 

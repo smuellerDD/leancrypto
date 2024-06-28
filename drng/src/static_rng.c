@@ -17,14 +17,14 @@
  * DAMAGE.
  */
 
-#include "kyber_static_rng.h"
+#include "static_rng.h"
 #include "visibility.h"
 
-static int lc_static_kyber_rng_gen(void *_state, const uint8_t *addtl_input,
-				   size_t addtl_input_len, uint8_t *out,
-				   size_t outlen)
+static int lc_static_rng_gen(void *_state, const uint8_t *addtl_input,
+			     size_t addtl_input_len, uint8_t *out,
+			     size_t outlen)
 {
-	struct lc_static_kyber_rng *state = _state;
+	struct lc_static_rng *state = _state;
 
 	(void)addtl_input;
 	(void)addtl_input_len;
@@ -44,9 +44,8 @@ static int lc_static_kyber_rng_gen(void *_state, const uint8_t *addtl_input,
 	return 0;
 }
 
-static int lc_static_kyber_rng_seed(void *_state, const uint8_t *seed,
-				    size_t seedlen, const uint8_t *persbuf,
-				    size_t perslen)
+static int lc_static_rng_seed(void *_state, const uint8_t *seed, size_t seedlen,
+			      const uint8_t *persbuf, size_t perslen)
 {
 	(void)_state;
 	(void)seed;
@@ -56,14 +55,14 @@ static int lc_static_kyber_rng_seed(void *_state, const uint8_t *seed,
 	return 0;
 }
 
-static void lc_static_kyber_rng_zero(void *_state)
+static void lc_static_rng_zero(void *_state)
 {
 	(void)_state;
 }
 
-static const struct lc_rng _lc_static_kyber_drng = {
-	.generate = lc_static_kyber_rng_gen,
-	.seed = lc_static_kyber_rng_seed,
-	.zero = lc_static_kyber_rng_zero,
+static const struct lc_rng _lc_static_drng = {
+	.generate = lc_static_rng_gen,
+	.seed = lc_static_rng_seed,
+	.zero = lc_static_rng_zero,
 };
-LC_INTERFACE_SYMBOL(const struct lc_rng *, lc_static_kyber_drng) = &_lc_static_kyber_drng;
+LC_INTERFACE_SYMBOL(const struct lc_rng *, lc_static_drng) = &_lc_static_drng;

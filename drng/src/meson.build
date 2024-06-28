@@ -2,7 +2,7 @@
 
 # The selftest_rng is internal code to be used for testing only - it shall not
 # export any APIs and thus must be compiled along with internal support files
-internal_src += files([ 'selftest_rng.c' ])
+internal_src += files([ 'selftest_rng.c', 'static_rng.c' ])
 
 lc_rng_header = 0
 seeded_rng = 0
