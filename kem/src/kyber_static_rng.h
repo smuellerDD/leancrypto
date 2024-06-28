@@ -31,13 +31,8 @@ extern "C" {
  * initialization.
  */
 struct lc_static_kyber_rng {
-	const uint8_t *d;
-	size_t dlen;
-	const uint8_t *z;
-	size_t zlen;
-
-	const uint8_t *ptr;
-	size_t *ptr_len;
+	const uint8_t *seed;
+	size_t seedlen;
 };
 
 extern const struct lc_rng *lc_static_kyber_drng;

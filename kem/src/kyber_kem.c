@@ -53,14 +53,8 @@ int _lc_kyber_keypair_from_seed(
 	if (seedlen != 2 * LC_KYBER_SYMBYTES)
 		return -EINVAL;
 
-	s_rng_state.d = seed;
-	s_rng_state.dlen = LC_KYBER_SYMBYTES;
-	s_rng_state.z = seed + LC_KYBER_SYMBYTES;
-	s_rng_state.zlen = LC_KYBER_SYMBYTES;
-
-	/* The d value is the first random number to be supplied */
-	s_rng_state.ptr = s_rng_state.d;
-	s_rng_state.ptr_len = &s_rng_state.dlen;
+	s_rng_state.seed = seed;
+	s_rng_state.seedlen = seedlen;
 
 	ret = indcpa_keypair_f(pk->pk, sk->sk, &s_drng);
 	if (ret)

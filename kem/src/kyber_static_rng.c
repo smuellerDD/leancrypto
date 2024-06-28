@@ -29,19 +29,17 @@ static int lc_static_kyber_rng_gen(void *_state, const uint8_t *addtl_input,
 	(void)addtl_input;
 	(void)addtl_input_len;
 
-	if (outlen != *state->ptr_len)
+	if (outlen > state->seedlen)
 		return -EINVAL;
 
-	memcpy(out, state->ptr, outlen);
+	memcpy(out, state->seed, outlen);
+	state->seed += outlen;
+	state->seedlen -= outlen;
 
-	/* Flip-flop between seed values */
-	if (state->ptr == state->d) {
-		state->ptr = state->z;
-		state->ptr_len = &state->zlen;
-	} else {
-		state->ptr = state->d;
-		state->ptr_len = &state->dlen;
-	}
+	/*
+	 * The used seed is not cleared out as this is the responsibility of
+	 * the owner of the seed buffer.
+	 */
 
 	return 0;
 }
