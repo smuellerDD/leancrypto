@@ -24,7 +24,7 @@
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_from_seed,
 		      struct lc_dilithium_pk *pk, struct lc_dilithium_sk *sk,
-		      uint8_t *seed, size_t seedlen)
+		      const uint8_t *seed, size_t seedlen)
 {
 	return lc_dilithium_keypair_from_seed_armv7(pk, sk, seed, seedlen);
 }

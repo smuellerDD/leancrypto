@@ -32,7 +32,7 @@ int lc_dilithium_keypair_armv7(struct lc_dilithium_pk *pk,
 			       struct lc_rng_ctx *rng_ctx);
 int lc_dilithium_keypair_from_seed_armv7(struct lc_dilithium_pk *pk,
 					 struct lc_dilithium_sk *sk,
-					 uint8_t *seed, size_t seedlen);
+					 const uint8_t *seed, size_t seedlen);
 
 int lc_dilithium_sign_armv7(struct lc_dilithium_sig *sig, const uint8_t *m,
 			    size_t mlen, const struct lc_dilithium_sk *sk,

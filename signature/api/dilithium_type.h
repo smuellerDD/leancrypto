@@ -219,6 +219,8 @@ extern "C" {
 #define armv7_poly_reduce_asm DILITHIUM_F(armv7_poly_reduce_asm)
 #define armv7_rej_uniform_asm DILITHIUM_F(armv7_rej_uniform_asm)
 #define lc_dilithium_keypair_armv7 DILITHIUM_F(keypair_armv7)
+#define lc_dilithium_keypair_from_seed_armv7                                   \
+		DILITHIUM_F(keypair_from_seed_armv7)
 #define lc_dilithium_sign_armv7 DILITHIUM_F(sign_armv7)
 #define lc_dilithium_sign_init_armv7 DILITHIUM_F(sign_init_armv7)
 #define lc_dilithium_sign_update_armv7 DILITHIUM_F(sign_update_armv7)
