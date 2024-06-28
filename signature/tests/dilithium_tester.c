@@ -75,6 +75,10 @@ int _dilithium_tester(
 	int (*_lc_dilithium_keypair)(struct lc_dilithium_pk *pk,
 				     struct lc_dilithium_sk *sk,
 				     struct lc_rng_ctx *rng_ctx),
+	int (*_lc_dilithium_keypair_from_seed)(struct lc_dilithium_pk *pk,
+					       struct lc_dilithium_sk *sk,
+					       const uint8_t *seed,
+					       size_t seedlen),
 	int (*_lc_dilithium_sign)(struct lc_dilithium_sig *sig,
 				  const uint8_t *m, size_t mlen,
 				  const struct lc_dilithium_sk *sk,
@@ -84,8 +88,8 @@ int _dilithium_tester(
 				    const struct lc_dilithium_pk *pk))
 {
 	struct workspace {
-		struct lc_dilithium_pk pk;
-		struct lc_dilithium_sk sk;
+		struct lc_dilithium_pk pk, pk2;
+		struct lc_dilithium_sk sk, sk2;
 		struct lc_dilithium_sig sig;
 		struct lc_dilithium_sig sig_tmp;
 		uint8_t m[MLEN];
@@ -126,6 +130,30 @@ int _dilithium_tester(
 	nvectors = NVECTORS;
 #else
 	nvectors = ARRAY_SIZE(dilithium_testvectors);
+#endif
+
+#ifndef GENERATE_VECTORS
+	if (_lc_dilithium_keypair_from_seed(&ws->pk, &ws->sk, ws->buf,
+					    LC_DILITHIUM_SEEDBYTES)) {
+		ret = 1;
+		goto out;
+	}
+	if (_lc_dilithium_keypair_from_seed(&ws->pk2, &ws->sk2, ws->buf,
+					    LC_DILITHIUM_SEEDBYTES)) {
+		ret = 1;
+		goto out;
+	}
+
+	if (memcmp(ws->pk.pk, ws->pk2.pk, LC_DILITHIUM_PUBLICKEYBYTES)) {
+		printf("Public key mismatch for keygen from seed\n");
+		ret = 1;
+		goto out;
+	}
+	if (memcmp(ws->sk.sk, ws->sk2.sk, LC_DILITHIUM_SECRETKEYBYTES)) {
+		printf("Secret key mismatch for keygen from seed\n");
+		ret = 1;
+		goto out;
+	}
 #endif
 
 	if (!rounds)

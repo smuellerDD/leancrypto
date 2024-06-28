@@ -32,6 +32,13 @@
 #include "dilithium_pack.h"
 #include "dilithium_signature_impl.h"
 
+LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_from_seed_armv7,
+		      struct lc_dilithium_pk *pk, struct lc_dilithium_sk *sk,
+		      uint8_t *seed, size_t seedlen)
+{
+	return lc_dilithium_keypair_from_seed_impl(pk, sk, seed, seedlen);
+}
+
 LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_armv7,
 		      struct lc_dilithium_pk *pk, struct lc_dilithium_sk *sk,
 		      struct lc_rng_ctx *rng_ctx)

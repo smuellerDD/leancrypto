@@ -73,6 +73,7 @@ extern "C" {
  * respective functions.
  */
 #define lc_dilithium_keypair DILITHIUM_F(keypair)
+#define lc_dilithium_keypair_from_seed DILITHIUM_F(keypair_from_seed)
 #define lc_dilithium_sign DILITHIUM_F(sign)
 #define lc_dilithium_sign_init DILITHIUM_F(sign_init)
 #define lc_dilithium_sign_update DILITHIUM_F(sign_update)
@@ -83,6 +84,7 @@ extern "C" {
 #define lc_dilithium_verify_final DILITHIUM_F(verify_final)
 
 #define lc_dilithium_keypair_c DILITHIUM_F(keypair_c)
+#define lc_dilithium_keypair_from_seed_c DILITHIUM_F(keypair_from_seed_c)
 #define lc_dilithium_sign_c DILITHIUM_F(sign_c)
 #define lc_dilithium_sign_init_c DILITHIUM_F(sign_init_c)
 #define lc_dilithium_sign_update_c DILITHIUM_F(sign_update_c)
@@ -168,6 +170,7 @@ extern "C" {
 #define make_hint_avx DILITHIUM_F(make_hint_avx)
 #define use_hint_avx DILITHIUM_F(use_hint_avx)
 #define lc_dilithium_keypair_avx2 DILITHIUM_F(keypair_avx2)
+#define lc_dilithium_keypair_from_seed_avx2 DILITHIUM_F(keypair_from_seed_avx2)
 #define lc_dilithium_sign_avx2 DILITHIUM_F(sign_avx2)
 #define lc_dilithium_sign_init_avx2 DILITHIUM_F(sign_init_avx2)
 #define lc_dilithium_sign_update_avx2 DILITHIUM_F(sign_update_avx2)
@@ -194,6 +197,8 @@ extern "C" {
 #define polyvecl_pointwise_acc_montgomery_armv8                                \
 	DILITHIUM_F(polyvecl_pointwise_acc_montgomery_armv8)
 #define lc_dilithium_keypair_armv8 DILITHIUM_F(keypair_armv8)
+#define lc_dilithium_keypair_from_seed_armv8                                   \
+	DILITHIUM_F(keypair_from_seed_armv8)
 #define lc_dilithium_sign_armv8 DILITHIUM_F(sign_armv8)
 #define lc_dilithium_sign_init_armv8 DILITHIUM_F(sign_init_armv8)
 #define lc_dilithium_sign_update_armv8 DILITHIUM_F(sign_update_armv8)

@@ -29,6 +29,7 @@
 static int _dilithium_tester_armv7(unsigned int rounds)
 {
 	return _dilithium_tester(rounds, 0, lc_dilithium_keypair_armv7,
+				 lc_dilithium_keypair_from_seed_armv7,
 				 lc_dilithium_sign_armv7,
 				 lc_dilithium_verify_armv7);
 }

@@ -21,6 +21,13 @@
 #include "dilithium_signature_c.h"
 #include "visibility.h"
 
+LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_from_seed,
+		      struct lc_dilithium_pk *pk, struct lc_dilithium_sk *sk,
+		      const uint8_t *seed, size_t seedlen)
+{
+	return lc_dilithium_keypair_from_seed_c(pk, sk, seed, seedlen);
+}
+
 LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair, struct lc_dilithium_pk *pk,
 		      struct lc_dilithium_sk *sk, struct lc_rng_ctx *rng_ctx)
 {

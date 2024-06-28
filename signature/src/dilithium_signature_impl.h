@@ -35,6 +35,7 @@
 #include "dilithium_pack.h"
 #include "dilithium_selftest.h"
 #include "dilithium_signature_impl.h"
+#include "dilithium_static_rng.h"
 #include "lc_hash.h"
 #include "lc_memcmp_secure.h"
 #include "lc_sha3.h"
@@ -196,6 +197,29 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 
 out:
 	LC_RELEASE_MEM(ws);
+	return ret;
+}
+
+static int lc_dilithium_keypair_from_seed_impl(struct lc_dilithium_pk *pk,
+					       struct lc_dilithium_sk *sk,
+					       const uint8_t *seed,
+					       size_t seedlen)
+{
+	struct lc_static_rng s_rng_state;
+	LC_STATIC_DRNG_ON_STACK(s_drng, &s_rng_state);
+	int ret;
+
+	if (seedlen != LC_DILITHIUM_SEEDBYTES)
+		return -EINVAL;
+
+	/* Set the seed that the key generation can pull via the RNG. */
+	s_rng_state.seed = seed;
+	s_rng_state.seedlen = seedlen;
+
+	/* Generate the key pair from the seed. */
+	CKINT(lc_dilithium_keypair_impl(pk, sk, &s_drng));
+
+out:
 	return ret;
 }
 

@@ -28,6 +28,7 @@
 static int _dilithium_tester_c(unsigned int rounds)
 {
 	return _dilithium_tester(rounds, 1, lc_dilithium_keypair_c,
+				 lc_dilithium_keypair_from_seed_c,
 				 lc_dilithium_sign_c, lc_dilithium_verify_c);
 }
 
