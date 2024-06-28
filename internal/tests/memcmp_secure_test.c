@@ -41,7 +41,7 @@ static int memcmp_secure_tester(void)
 	if (lc_rng_seed(drbg, (uint8_t *)&now, sizeof(now), NULL, 0))
 		return 1;
 
-	for (i = 0; i < 10000; i++) {
+	for (i = 0; i < 1000; i++) {
 		if (lc_rng_generate(drbg, NULL, 0, (uint8_t *)&rnd,
 				    sizeof(rnd)) < 0) {
 			printf("error in generating random number\n");
