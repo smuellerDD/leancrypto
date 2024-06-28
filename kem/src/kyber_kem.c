@@ -39,44 +39,6 @@
 #include "timecop.h"
 #include "visibility.h"
 
-int _lc_kyber_keypair(
-	struct lc_kyber_pk *pk, struct lc_kyber_sk *sk,
-	struct lc_rng_ctx *rng_ctx,
-	int (*indcpa_keypair_f)(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
-				uint8_t sk[LC_KYBER_INDCPA_SECRETKEYBYTES],
-				struct lc_rng_ctx *rng_ctx))
-{
-	int ret;
-
-	if (!pk || !sk)
-		return -EINVAL;
-
-	lc_rng_check(&rng_ctx);
-
-	ret = indcpa_keypair_f(pk->pk, sk->sk, rng_ctx);
-	if (ret)
-		return ret;
-
-	memcpy(&sk->sk[LC_KYBER_INDCPA_SECRETKEYBYTES], pk->pk,
-	       LC_KYBER_INDCPA_PUBLICKEYBYTES);
-
-	lc_hash(lc_sha3_256, pk->pk, LC_KYBER_PUBLICKEYBYTES,
-		sk->sk + LC_KYBER_SECRETKEYBYTES - 2 * LC_KYBER_SYMBYTES);
-
-	/* Value z for pseudo-random output on reject */
-	ret = lc_rng_generate(rng_ctx, NULL, 0,
-			      sk->sk + LC_KYBER_SECRETKEYBYTES -
-				      LC_KYBER_SYMBYTES,
-			      LC_KYBER_SYMBYTES);
-	kyber_print_buffer(sk->sk + LC_KYBER_SECRETKEYBYTES - LC_KYBER_SYMBYTES,
-			   LC_KYBER_SYMBYTES, "Keygen: z");
-	kyber_print_buffer(pk->pk, LC_KYBER_PUBLICKEYBYTES,
-			   "======Keygen output: pk");
-	kyber_print_buffer(sk->sk, LC_KYBER_SECRETKEYBYTES,
-			   "======Keygen output: sk");
-	return ret;
-}
-
 int _lc_kyber_keypair_from_seed(
 	struct lc_kyber_pk *pk, struct lc_kyber_sk *sk, const uint8_t *seed,
 	size_t seedlen,
@@ -100,9 +62,52 @@ int _lc_kyber_keypair_from_seed(
 	s_rng_state.ptr = s_rng_state.d;
 	s_rng_state.ptr_len = &s_rng_state.dlen;
 
-	CKINT(_lc_kyber_keypair(pk, sk, &s_drng, indcpa_keypair_f));
+	ret = indcpa_keypair_f(pk->pk, sk->sk, &s_drng);
+	if (ret)
+		return ret;
+
+	memcpy(&sk->sk[LC_KYBER_INDCPA_SECRETKEYBYTES], pk->pk,
+	       LC_KYBER_INDCPA_PUBLICKEYBYTES);
+
+	lc_hash(lc_sha3_256, pk->pk, LC_KYBER_PUBLICKEYBYTES,
+		sk->sk + LC_KYBER_SECRETKEYBYTES - 2 * LC_KYBER_SYMBYTES);
+
+	/* Value z for pseudo-random output on reject */
+	ret = lc_rng_generate(&s_drng, NULL, 0,
+			      sk->sk + LC_KYBER_SECRETKEYBYTES -
+				      LC_KYBER_SYMBYTES,
+			      LC_KYBER_SYMBYTES);
+	kyber_print_buffer(sk->sk + LC_KYBER_SECRETKEYBYTES - LC_KYBER_SYMBYTES,
+			   LC_KYBER_SYMBYTES, "Keygen: z");
+	kyber_print_buffer(pk->pk, LC_KYBER_PUBLICKEYBYTES,
+			   "======Keygen output: pk");
+	kyber_print_buffer(sk->sk, LC_KYBER_SECRETKEYBYTES,
+			   "======Keygen output: sk");
+
+	return ret;
+}
+
+int _lc_kyber_keypair(
+	struct lc_kyber_pk *pk, struct lc_kyber_sk *sk,
+	struct lc_rng_ctx *rng_ctx,
+	int (*indcpa_keypair_f)(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
+				uint8_t sk[LC_KYBER_INDCPA_SECRETKEYBYTES],
+				struct lc_rng_ctx *rng_ctx))
+{
+	uint8_t rnd[2 * LC_KYBER_SYMBYTES];
+	int ret;
+
+	if (!pk || !sk)
+		return -EINVAL;
+
+	lc_rng_check(&rng_ctx);
+
+	CKINT(lc_rng_generate(rng_ctx, NULL, 0, rnd, sizeof(rnd)));
+	CKINT(_lc_kyber_keypair_from_seed(pk, sk, rnd, sizeof(rnd),
+					  indcpa_keypair_f));
 
 out:
+	lc_memset_secure(rnd, 0, sizeof(rnd));
 	return ret;
 }
 

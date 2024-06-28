@@ -76,6 +76,14 @@ if get_option('kyber_1024').enabled()
 					include_kyber_internal
 				], link_with: leancrypto_static_lib
 				)
+	kyber_keygen_tester = executable('kyber_keygen_tester',
+				[ 'kyber_keygen_tester.c', internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_kyber_internal
+				], link_with: leancrypto_static_lib
+				)
 
 	test('Kyber KEX', kyber_kex_tester, suite: regression)
 	if get_option('cshake_drng').enabled()
@@ -98,6 +106,8 @@ if get_option('kyber_1024').enabled()
 	test('Kyber invalid KEM', kyber_invalid_tester, suite: regression)
 	test('Kyber official API KEM', kyber_kem_official_tester,
 	     suite: regression)
+	test('Kyber Keygen Performance', kyber_keygen_tester, timeout: 1000,
+	     is_parallel: false, suite: performance)
 
 	if (x86_64_asm)
 		kyber_kem_tester_avx2 = executable('kyber_kem_tester_avx2',
@@ -283,6 +293,15 @@ if get_option('kyber_768').enabled()
 				], link_with: leancrypto_static_lib,
 				c_args : '-DLC_KYBER_TYPE_768'
 				)
+	kyber_768_keygen_tester = executable('kyber_768_keygen_tester',
+				[ 'kyber_keygen_tester.c', internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_kyber_internal
+				], link_with: leancrypto_static_lib,
+				c_args : '-DLC_KYBER_TYPE_768'
+				)
 
 	test('Kyber 768 KEX', kyber_768_kex_tester, suite: regression)
 	if get_option('cshake_drng').enabled()
@@ -309,6 +328,9 @@ if get_option('kyber_768').enabled()
 	     args : [ 'c' ], timeout: 1000, is_parallel: false,
 	     suite: performance)
 	test('Kyber 768 invalid KEM', kyber_768_invalid_tester, suite: regression)
+	test('Kyber 768 Keygen Performance', kyber_768_keygen_tester,
+	     timeout: 1000, is_parallel: false, suite: performance)
+
 
 	if (x86_64_asm)
 		kyber_768_kem_tester_avx2 = executable('kyber_768_kem_tester_avx2',
@@ -502,6 +524,15 @@ if get_option('kyber_512').enabled()
 				], link_with: leancrypto_static_lib,
 				c_args : '-DLC_KYBER_TYPE_512'
 				)
+	kyber_512_keygen_tester = executable('kyber_512_keygen_tester',
+				[ 'kyber_keygen_tester.c', internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_kyber_internal
+				], link_with: leancrypto_static_lib,
+				c_args : '-DLC_KYBER_TYPE_512'
+				)
 
 	test('Kyber 512 KEX', kyber_512_kex_tester, suite: regression)
 	if get_option('cshake_drng').enabled()
@@ -528,6 +559,8 @@ if get_option('kyber_512').enabled()
 	     suite: performance)
 	test('Kyber 512 invalid KEM', kyber_512_invalid_tester,
 	     suite: regression)
+	test('Kyber 768 Keygen Performance', kyber_768_keygen_tester,
+	     timeout: 1000, is_parallel: false, suite: performance)
 
 	if get_option('kyber_x25519').enabled()
 		if get_option('cshake_drng').enabled()
