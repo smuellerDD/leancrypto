@@ -35,16 +35,17 @@ have the following properties:
 
 ## Status
 
-Type                | Service               | Status
----                 | ---                   | ---
-Linux User Space    | GitHub                | [![Linux user space CI](https://github.com/smuellerDD/leancrypto/actions/workflows/userspace-test.yml/badge.svg)](https://github.com/smuellerDD/leancrypto/actions/workflows/userspace-test.yml)
-Linux Kernel Space  | GitHub                | [![Build Status Linux Kernel Space](https://github.com/smuellerDD/leancrypto/actions/workflows/linux-kernelspace-test.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/linux-kernelspace-test.yml)
-macOS User Space    | GitHub                | [![Build Status macOS User Space](https://github.com/smuellerDD/leancrypto/actions/workflows/macos-test.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/macos-test.yml)
-Small Stack         | GitHub                | [![Build Status Small Stack](https://github.com/smuellerDD/leancrypto/actions/workflows/small-stack-test.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/small-stack-test.yml)
-ASAN Address Check  | GitHub                | [![Build Status ASAN Address](https://github.com/smuellerDD/leancrypto/actions/workflows/asan-address-test.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/asan-address-test.yml)
-CodeQL Scan         | GitHub                | [![CodeQL](https://github.com/smuellerDD/leancrypto/actions/workflows/codeql.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/codeql.yml)
-Codacy Scan         | GitHub                | [![Codacy](https://github.com/smuellerDD/leancrypto/actions/workflows/codacy.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/codacy.yml)
-Windows User Space  | GitHub                | [![Windows user space CI](https://github.com/smuellerDD/leancrypto/actions/workflows/windows-test.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/windows-test.yml)
+Type                  | Service               | Status
+---                   | ---                   | ---
+Linux User Space      | GitHub                | [![Linux user space CI](https://github.com/smuellerDD/leancrypto/actions/workflows/userspace-test.yml/badge.svg)](https://github.com/smuellerDD/leancrypto/actions/workflows/userspace-test.yml)
+Linux Kernel Space    | GitHub                | [![Build Status Linux Kernel Space](https://github.com/smuellerDD/leancrypto/actions/workflows/linux-kernelspace-test.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/linux-kernelspace-test.yml)
+macOS User Space      | GitHub                | [![Build Status macOS User Space](https://github.com/smuellerDD/leancrypto/actions/workflows/macos-test.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/macos-test.yml)
+Small Stack           | GitHub                | [![Build Status Small Stack](https://github.com/smuellerDD/leancrypto/actions/workflows/small-stack-test.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/small-stack-test.yml)
+ASAN Address Check    | GitHub                | [![Build Status ASAN Address](https://github.com/smuellerDD/leancrypto/actions/workflows/asan-address-test.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/asan-address-test.yml)
+CodeQL Scan           | GitHub                | [![CodeQL](https://github.com/smuellerDD/leancrypto/actions/workflows/codeql.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/codeql.yml)
+Codacy Scan           | GitHub                | [![Codacy](https://github.com/smuellerDD/leancrypto/actions/workflows/codacy.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/codacy.yml)
+Windows User Space    | GitHub                | [![Windows user space CI](https://github.com/smuellerDD/leancrypto/actions/workflows/windows-test.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/windows-test.yml)
+Side-Channel Analysis | GitHub                | [![Side-Channels](https://github.com/smuellerDD/leancrypto/actions/workflows/timecop.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/timecop.yml)
 
 ## Library Build
 
