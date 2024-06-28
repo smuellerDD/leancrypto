@@ -32,6 +32,12 @@ int _lc_kyber_keypair(
 	int (*indcpa_keypair_f)(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 				uint8_t sk[LC_KYBER_INDCPA_SECRETKEYBYTES],
 				struct lc_rng_ctx *rng_ctx));
+int _lc_kyber_keypair_from_seed(
+	struct lc_kyber_pk *pk, struct lc_kyber_sk *sk, const uint8_t *seed,
+	size_t seedlen,
+	int (*indcpa_keypair_f)(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
+				uint8_t sk[LC_KYBER_INDCPA_SECRETKEYBYTES],
+				struct lc_rng_ctx *rng_ctx));
 
 int _lc_kyber_enc(
 	struct lc_kyber_ct *ct, struct lc_kyber_ss *ss,

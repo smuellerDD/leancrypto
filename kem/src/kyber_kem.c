@@ -29,6 +29,7 @@
 #include "kyber_debug.h"
 #include "kyber_kdf.h"
 #include "kyber_kem.h"
+#include "kyber_static_rng.h"
 #include "kyber_verify.h"
 #include "lc_hash.h"
 #include "lc_memcmp_secure.h"
@@ -73,6 +74,35 @@ int _lc_kyber_keypair(
 			   "======Keygen output: pk");
 	kyber_print_buffer(sk->sk, LC_KYBER_SECRETKEYBYTES,
 			   "======Keygen output: sk");
+	return ret;
+}
+
+int _lc_kyber_keypair_from_seed(
+	struct lc_kyber_pk *pk, struct lc_kyber_sk *sk, const uint8_t *seed,
+	size_t seedlen,
+	int (*indcpa_keypair_f)(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
+				uint8_t sk[LC_KYBER_INDCPA_SECRETKEYBYTES],
+				struct lc_rng_ctx *rng_ctx))
+{
+	struct lc_static_kyber_rng s_rng_state;
+	LC_STATIC_KYBER_DRNG_ON_STACK(s_drng, &s_rng_state);
+	int ret;
+
+	if (seedlen != 2 * LC_KYBER_SYMBYTES)
+		return -EINVAL;
+
+	s_rng_state.d = seed;
+	s_rng_state.dlen = LC_KYBER_SYMBYTES;
+	s_rng_state.z = seed + LC_KYBER_SYMBYTES;
+	s_rng_state.zlen = LC_KYBER_SYMBYTES;
+
+	/* The d value is the first random number to be supplied */
+	s_rng_state.ptr = s_rng_state.d;
+	s_rng_state.ptr_len = &s_rng_state.dlen;
+
+	CKINT(_lc_kyber_keypair(pk, sk, &s_drng, indcpa_keypair_f));
+
+out:
 	return ret;
 }
 

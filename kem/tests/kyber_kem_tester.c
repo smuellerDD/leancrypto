@@ -144,6 +144,10 @@ int _kyber_kem_tester(unsigned int rounds,
 		      int (*_lc_kyber_keypair)(struct lc_kyber_pk *pk,
 					       struct lc_kyber_sk *sk,
 					       struct lc_rng_ctx *rng_ctx),
+		      int (*_lc_kyber_keypair_from_seed)(struct lc_kyber_pk *pk,
+							 struct lc_kyber_sk *sk,
+							 const uint8_t *seed,
+							 size_t seedlen),
 		      int (*_lc_kyber_enc)(struct lc_kyber_ct *ct,
 					   struct lc_kyber_ss *ss,
 					   const struct lc_kyber_pk *pk,
@@ -153,11 +157,12 @@ int _kyber_kem_tester(unsigned int rounds,
 					   const struct lc_kyber_sk *sk))
 {
 	struct workspace {
-		struct lc_kyber_pk pk;
-		struct lc_kyber_sk sk;
+		struct lc_kyber_pk pk, pk2;
+		struct lc_kyber_sk sk, sk2;
 		struct lc_kyber_ct ct;
 		struct lc_kyber_ss key_a;
 		struct lc_kyber_ss key_b;
+		uint8_t buf[2 * LC_KYBER_SYMBYTES];
 	};
 	int ret = 0;
 	unsigned int i, j, nvectors;
@@ -179,6 +184,28 @@ int _kyber_kem_tester(unsigned int rounds,
 	nvectors = NTESTS;
 #else
 	nvectors = ARRAY_SIZE(kyber_testvectors);
+
+	if (_lc_kyber_keypair_from_seed(&ws->pk, &ws->sk, ws->buf,
+				        sizeof(ws->buf))) {
+		ret = 1;
+		goto out;
+	}
+	if (_lc_kyber_keypair_from_seed(&ws->pk2, &ws->sk2, ws->buf,
+					sizeof(ws->buf))) {
+		ret = 1;
+		goto out;
+	}
+
+	if (memcmp(ws->pk.pk, ws->pk2.pk, LC_CRYPTO_PUBLICKEYBYTES)) {
+		printf("Public key mismatch for keygen from seed\n");
+		ret = 1;
+		goto out;
+	}
+	if (memcmp(ws->sk.sk, ws->sk2.sk, LC_CRYPTO_SECRETKEYBYTES)) {
+		printf("Secret key mismatch for keygen from seed\n");
+		ret = 1;
+		goto out;
+	}
 #endif
 
 	if (!rounds)

@@ -30,6 +30,18 @@
 #include "ret_checkers.h"
 #include "visibility.h"
 
+LC_INTERFACE_FUNCTION(int, lc_kyber_keypair_from_seed_avx,
+		      struct lc_kyber_pk *pk, struct lc_kyber_sk *sk,
+		      const uint8_t *seed, size_t seedlen)
+{
+	static int tester = LC_KYBER_TEST_INIT;
+
+	kyber_kem_keygen_selftest(&tester, "Kyber KEM keypair AVX",
+				  lc_kyber_keypair_avx);
+	return _lc_kyber_keypair_from_seed(pk, sk, seed, seedlen,
+					   indcpa_keypair_avx);
+}
+
 LC_INTERFACE_FUNCTION(int, lc_kyber_keypair_avx, struct lc_kyber_pk *pk,
 		      struct lc_kyber_sk *sk, struct lc_rng_ctx *rng_ctx)
 {

@@ -23,6 +23,13 @@
 #include "kyber_kem_c.h"
 #include "visibility.h"
 
+LC_INTERFACE_FUNCTION(int, lc_kyber_keypair_from_seed, struct lc_kyber_pk *pk,
+		      struct lc_kyber_sk *sk, const uint8_t *seed,
+		      size_t seedlen)
+{
+	return lc_kyber_keypair_from_seed_c(pk, sk, seed, seedlen);
+}
+
 LC_INTERFACE_FUNCTION(int, lc_kyber_keypair, struct lc_kyber_pk *pk,
 		      struct lc_kyber_sk *sk, struct lc_rng_ctx *rng_ctx)
 {

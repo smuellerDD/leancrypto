@@ -28,6 +28,9 @@ extern "C" {
 
 int lc_kyber_keypair_avx(struct lc_kyber_pk *pk, struct lc_kyber_sk *sk,
 			 struct lc_rng_ctx *rng_ctx);
+int lc_kyber_keypair_from_seed_avx(struct lc_kyber_pk *pk,
+				   struct lc_kyber_sk *sk, const uint8_t *seed,
+				   size_t seedlen);
 int lc_kyber_enc_avx(struct lc_kyber_ct *ct, struct lc_kyber_ss *ss,
 		     const struct lc_kyber_pk *pk, struct lc_rng_ctx *rng_ctx);
 int lc_kyber_enc_kdf_avx(struct lc_kyber_ct *ct, uint8_t *ss, size_t ss_len,

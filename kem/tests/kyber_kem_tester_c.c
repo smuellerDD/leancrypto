@@ -28,7 +28,8 @@
 
 static int _kyber_kem_tester_c(unsigned int rounds)
 {
-	return _kyber_kem_tester(rounds, lc_kyber_keypair_c, lc_kyber_enc_c,
+	return _kyber_kem_tester(rounds, lc_kyber_keypair_c,
+				 lc_kyber_keypair_from_seed_c, lc_kyber_enc_c,
 				 lc_kyber_dec_c);
 }
 

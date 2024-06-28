@@ -13,6 +13,7 @@ ccflags-$(CONFIG_LEANCRYPTO_KEM)					       \
 # Kyber Common
 leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
 				+= ../kem/src/kyber_cbd.o		       \
+				   ../kem/src/kyber_static_rng.o	       \
 				   ../kem/src/kyber_zetas.o
 
 # Kyber 1024
