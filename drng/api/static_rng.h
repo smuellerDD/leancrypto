@@ -40,11 +40,10 @@ struct lc_static_rng_data {
 
 extern const struct lc_rng *lc_static_drng;
 
-#define LC_STATIC_DRNG_ON_STACK(name, static_data)                             \
-	_Pragma("GCC diagnostic push") _Pragma(                                \
-		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-	struct lc_rng_ctx name = { .rng = lc_static_drng,                      \
-				   .rng_state = static_data };                 \
+#define LC_STATIC_DRNG_ON_STACK(name, static_data)                                            \
+	_Pragma("GCC diagnostic push") _Pragma(                                               \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") struct lc_rng_ctx \
+		name = { .rng = lc_static_drng, .rng_state = static_data };                   \
 	_Pragma("GCC diagnostic pop")
 
 #ifdef __cplusplus

@@ -64,4 +64,4 @@ static const struct lc_rng _lc_static_drng = {
 	.seed = lc_static_rng_seed,
 	.zero = lc_static_rng_zero,
 };
-const struct lc_rng * lc_static_drng = &_lc_static_drng;
+const struct lc_rng *lc_static_drng = &_lc_static_drng;

@@ -140,21 +140,19 @@ out:
 }
 
 /***************************** Regression testing *****************************/
-int _kyber_kem_tester(unsigned int rounds,
-		      int (*_lc_kyber_keypair)(struct lc_kyber_pk *pk,
-					       struct lc_kyber_sk *sk,
-					       struct lc_rng_ctx *rng_ctx),
-		      int (*_lc_kyber_keypair_from_seed)(struct lc_kyber_pk *pk,
-							 struct lc_kyber_sk *sk,
-							 const uint8_t *seed,
-							 size_t seedlen),
-		      int (*_lc_kyber_enc)(struct lc_kyber_ct *ct,
-					   struct lc_kyber_ss *ss,
-					   const struct lc_kyber_pk *pk,
-					   struct lc_rng_ctx *rng_ctx),
-		      int (*_lc_kyber_dec)(struct lc_kyber_ss *ss,
-					   const struct lc_kyber_ct *ct,
-					   const struct lc_kyber_sk *sk))
+int _kyber_kem_tester(
+	unsigned int rounds,
+	int (*_lc_kyber_keypair)(struct lc_kyber_pk *pk, struct lc_kyber_sk *sk,
+				 struct lc_rng_ctx *rng_ctx),
+	int (*_lc_kyber_keypair_from_seed)(struct lc_kyber_pk *pk,
+					   struct lc_kyber_sk *sk,
+					   const uint8_t *seed, size_t seedlen),
+	int (*_lc_kyber_enc)(struct lc_kyber_ct *ct, struct lc_kyber_ss *ss,
+			     const struct lc_kyber_pk *pk,
+			     struct lc_rng_ctx *rng_ctx),
+	int (*_lc_kyber_dec)(struct lc_kyber_ss *ss,
+			     const struct lc_kyber_ct *ct,
+			     const struct lc_kyber_sk *sk))
 {
 	struct workspace {
 		struct lc_kyber_pk pk, pk2;
@@ -186,7 +184,7 @@ int _kyber_kem_tester(unsigned int rounds,
 	nvectors = ARRAY_SIZE(kyber_testvectors);
 
 	if (_lc_kyber_keypair_from_seed(&ws->pk, &ws->sk, ws->buf,
-				        sizeof(ws->buf))) {
+					sizeof(ws->buf))) {
 		ret = 1;
 		goto out;
 	}
