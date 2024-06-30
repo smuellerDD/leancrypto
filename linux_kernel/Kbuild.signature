@@ -11,7 +11,8 @@ asflags-$(CONFIG_LEANCRYPTO_DILITHIUM)					       \
 ################################################################################
 # Dilithium Common
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
-				+= ../signature/src/dilithium_zetas.o
+				+= ../signature/src/dilithium_zetas.o	       \
+				   leancrypto_kernel_dilithium.o
 
 # Dilithium 87
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_87)				       \
@@ -19,9 +20,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_87)				       \
 				   ../signature/src/dilithium_poly.o	       \
 				   ../signature/src/dilithium_rounding.o       \
 				   ../signature/src/dilithium_selftest.o       \
-				   ../signature/src/dilithium_signature_c.o    \
-				   leancrypto_kernel_dilithium.o
-CFLAGS_leancrypto_kernel_dilithium.o			:= -DLC_DILITHIUM_TYPE_87
+				   ../signature/src/dilithium_signature_c.o
 
 # Dilithium 65
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_65)				       \
@@ -29,14 +28,12 @@ leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_65)				       \
 				   dilithium65/dilithium_poly.o		       \
 				   dilithium65/dilithium_rounding.o	       \
 				   dilithium65/dilithium_selftest.o	       \
-				   dilithium65/dilithium_signature_c.o	       \
-				   dilithium65/leancrypto_kernel_dilithium.o
+				   dilithium65/dilithium_signature_c.o
 CFLAGS_dilithium65/dilithium_ntt.o			:= -DLC_DILITHIUM_TYPE_65
 CFLAGS_dilithium65/dilithium_poly.o			:= -DLC_DILITHIUM_TYPE_65
 CFLAGS_dilithium65/dilithium_rounding.o			:= -DLC_DILITHIUM_TYPE_65
 CFLAGS_dilithium65/dilithium_selftest.o			:= -DLC_DILITHIUM_TYPE_65
 CFLAGS_dilithium65/dilithium_signature_c.o		:= -DLC_DILITHIUM_TYPE_65
-CFLAGS_dilithium65/leancrypto_kernel_dilithium.o	:= -DLC_DILITHIUM_TYPE_65
 
 # Dilithium 44
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_44)				       \
@@ -45,40 +42,35 @@ leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_44)				       \
 				   dilithium44/dilithium_rounding.o	       \
 				   dilithium44/dilithium_selftest.o	       \
 				   dilithium44/dilithium_signature_api_c.o     \
-				   dilithium44/dilithium_signature_c.o	       \
-				   dilithium44/leancrypto_kernel_dilithium.o
+				   dilithium44/dilithium_signature_c.o
 CFLAGS_dilithium44/dilithium_ntt.o			:= -DLC_DILITHIUM_TYPE_44
 CFLAGS_dilithium44/dilithium_poly.o			:= -DLC_DILITHIUM_TYPE_44
 CFLAGS_dilithium44/dilithium_rounding.o			:= -DLC_DILITHIUM_TYPE_44
 CFLAGS_dilithium44/dilithium_selftest.o			:= -DLC_DILITHIUM_TYPE_44
 CFLAGS_dilithium44/dilithium_signature_api_c.o		:= -DLC_DILITHIUM_TYPE_44
 CFLAGS_dilithium44/dilithium_signature_c.o		:= -DLC_DILITHIUM_TYPE_44
-CFLAGS_dilithium44/leancrypto_kernel_dilithium.o	:= -DLC_DILITHIUM_TYPE_44
 
 # Dilithium-87-ED25519 implementation
+leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_ED25519)			       \
+				+= leancrypto_kernel_dilithium_ed25519.o
+
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_87
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_ED25519)			       \
-				+= ../signature/src/dilithium_ed25519_signature.o\
-				   leancrypto_kernel_dilithium_ed25519.o
-CFLAGS_leancrypto_kernel_dilithium_ed25519.o		:= -DLC_DILITHIUM_TYPE_87
+				+= ../signature/src/dilithium_ed25519_signature.o
 endif
 
 # Dilithium-65-ED25519 implementation
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_65
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_ED25519)			       \
-				+= dilithium65/dilithium_ed25519_signature.o   \
-				   dilithium65/leancrypto_kernel_dilithium_ed25519.o
+				+= dilithium65/dilithium_ed25519_signature.o
 CFLAGS_dilithium65/dilithium_ed25519_signature.o	:= -DLC_DILITHIUM_TYPE_65
-CFLAGS_dilithium65/leancrypto_kernel_dilithium_ed25519.o:= -DLC_DILITHIUM_TYPE_65
 endif
 
 # Dilithium-44-ED25519 implementation
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_44
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_ED25519)			       \
-				+= dilithium44/dilithium_ed25519_signature.o   \
-				   dilithium44/leancrypto_kernel_dilithium_ed25519.o
+				+= dilithium44/dilithium_ed25519_signature.o
 CFLAGS_dilithium44/dilithium_ed25519_signature.o	:= -DLC_DILITHIUM_TYPE_44
-CFLAGS_dilithium44/leancrypto_kernel_dilithium_ed25519.o:= -DLC_DILITHIUM_TYPE_44
 endif
 
 ifdef CONFIG_X86_64

@@ -28,14 +28,6 @@
 
 #include "leancrypto_kernel.h"
 
-#ifdef LC_DILITHIUM_TYPE_44
-#define DILITHIUM_TYPE LC_DILITHIUM_44
-#elif defined(LC_DILITHIUM_TYPE_65)
-#define DILITHIUM_TYPE LC_DILITHIUM_65
-#elif defined(LC_DILITHIUM_TYPE_87)
-#define DILITHIUM_TYPE LC_DILITHIUM_87
-#endif
-
 enum lc_kernel_dilithium_ed25519_key_type {
 	lc_kernel_dilithium_ed25519_key_unset = 0,
 	lc_kernel_dilithium_ed25519_key_sk = 1,
@@ -57,18 +49,22 @@ static int lc_kernel_dilithium_ed25519_sign(struct akcipher_request *req)
 	struct lc_dilithium_ed25519_sig *sig;
 	struct sg_mapping_iter miter;
 	unsigned int sg_flags = SG_MITER_ATOMIC | SG_MITER_FROM_SG;
+	enum lc_dilithium_type type;
 	int ret;
 
 	/* req->src -> message */
 	/* req->dst -> signature */
 
-	if (unlikely(ctx->key_type != lc_kernel_dilithium_ed25519_key_sk) ||
-	    req->dst_len != lc_dilithium_ed25519_sig_size(DILITHIUM_TYPE) ||
+	if (unlikely(ctx->key_type != lc_kernel_dilithium_ed25519_key_sk))
+		return -EINVAL;
+
+	type = lc_dilithium_ed25519_sk_type(&ctx->sk);
+	if (req->dst_len != lc_dilithium_ed25519_sig_size(type) ||
 	    /* We have no init-update-final and we want to avoid a memcpy */
 	    sg_nents_for_len(req->src, req->src_len) > 1)
 		return -EINVAL;
 
-	sig = kmalloc(lc_dilithium_ed25519_sig_size(DILITHIUM_TYPE),
+	sig = kmalloc(lc_dilithium_ed25519_sig_size(type),
 		      GFP_KERNEL);
 	if (!sig)
 		return -ENOMEM;
@@ -130,18 +126,22 @@ static int lc_kernel_dilithium_ed25519_verify(struct akcipher_request *req)
 	struct lc_dilithium_ed25519_sig *sig;
 	struct sg_mapping_iter miter;
 	unsigned int sg_flags = SG_MITER_ATOMIC | SG_MITER_FROM_SG;
+	enum lc_dilithium_type type;
 	int ret;
 
 	/* req->src -> signature */
 	/* req->dst -> message */
 
-	if (unlikely(ctx->key_type != lc_kernel_dilithium_ed25519_key_pk) ||
-	    req->src_len != lc_dilithium_ed25519_sig_size(DILITHIUM_TYPE) ||
+	if (unlikely(ctx->key_type != lc_kernel_dilithium_ed25519_key_pk))
+		return -EINVAL;
+
+	type = lc_dilithium_ed25519_pk_type(&ctx->pk);
+	if (req->src_len != lc_dilithium_ed25519_sig_size(type) ||
 	    /* We have no init-update-final and we want to avoid a memcpy */
 	    sg_nents_for_len(req->dst, req->dst_len) > 1)
 		return -EINVAL;
 
-	sig = kmalloc(lc_dilithium_ed25519_sig_size(DILITHIUM_TYPE), GFP_KERNEL);
+	sig = kmalloc(lc_dilithium_ed25519_sig_size(type), GFP_KERNEL);
 	if (!sig)
 		return -ENOMEM;
 
@@ -154,7 +154,7 @@ static int lc_kernel_dilithium_ed25519_verify(struct akcipher_request *req)
 	 * lc_dilithium_ed25519_sig_ptr as implemented in
 	 * lc_kernel_dilithium_verify.
 	 */
-	sig->dilithium_type = DILITHIUM_TYPE;
+	sig->dilithium_type = type;
 	sg_miter_start(&miter, req->dst,
 		       sg_nents_for_len(req->dst, req->dst_len), sg_flags);
 
@@ -172,17 +172,18 @@ static int lc_kernel_dilithium_ed25519_verify(struct akcipher_request *req)
 	return ret;
 }
 
-static int lc_kernel_dilithium_ed25519_set_pub_key(struct crypto_akcipher *tfm,
-						   const void *key,
-						   unsigned int keylen)
+static int lc_kernel_dilithium_ed25519_set_pub_key_int(
+	struct crypto_akcipher *tfm, const void *key, unsigned int keylen,
+	enum lc_dilithium_type type)
 {
 	struct lc_kernel_dilithium_ed25519_ctx *ctx = akcipher_tfm_ctx(tfm);
+	size_t dilithium_key_size = lc_dilithium_pk_size(type);
 	int ret;
 
 	ctx->key_type = lc_kernel_dilithium_ed25519_key_unset;
 
 	/* Ensure the subtraction below works */
-	if (keylen != lc_dilithium_ed25519_pk_size(DILITHIUM_TYPE))
+	if (keylen != lc_dilithium_ed25519_pk_size(type))
 		return -EINVAL;
 
 	/*
@@ -190,56 +191,106 @@ static int lc_kernel_dilithium_ed25519_set_pub_key(struct crypto_akcipher *tfm,
 	 * the ED25519 key.
 	 */
 	ret = lc_dilithium_ed25519_pk_load(
-		&ctx->pk, key, keylen - LC_ED25519_PUBLICKEYBYTES,
-		key + keylen  - LC_ED25519_PUBLICKEYBYTES,
+		&ctx->pk, key, dilithium_key_size, key + dilithium_key_size,
 		LC_ED25519_PUBLICKEYBYTES);
 
-	if (!ret)
-		ctx->key_type = lc_kernel_dilithium_ed25519_key_pk;
+	if (!ret) {
+		if (lc_dilithium_ed25519_pk_type(&ctx->pk) != type)
+			ret = -EOPNOTSUPP;
+		else
+			ctx->key_type = lc_kernel_dilithium_ed25519_key_pk;
+	}
 
 	return 0;
 }
 
-static int lc_kernel_dilithium_ed25519_set_priv_key(struct crypto_akcipher *tfm,
-						    const void *key,
-						    unsigned int keylen)
+static int lc_kernel_dilithium_87_ed25519_set_pub_key(
+	struct crypto_akcipher *tfm, const void *key, unsigned int keylen)
+{
+	return lc_kernel_dilithium_ed25519_set_pub_key_int(tfm, key, keylen,
+							   LC_DILITHIUM_87);
+}
+
+static int lc_kernel_dilithium_65_ed25519_set_pub_key(
+	struct crypto_akcipher *tfm, const void *key, unsigned int keylen)
+{
+	return lc_kernel_dilithium_ed25519_set_pub_key_int(tfm, key, keylen,
+							   LC_DILITHIUM_65);
+}
+
+static int lc_kernel_dilithium_44_ed25519_set_pub_key(
+	struct crypto_akcipher *tfm, const void *key, unsigned int keylen)
+{
+	return lc_kernel_dilithium_ed25519_set_pub_key_int(tfm, key, keylen,
+							   LC_DILITHIUM_44);
+}
+
+static int lc_kernel_dilithium_ed25519_set_priv_key_int(
+	struct crypto_akcipher *tfm, const void *key, unsigned int keylen,
+	enum lc_dilithium_type type)
 {
 	struct lc_kernel_dilithium_ed25519_ctx *ctx = akcipher_tfm_ctx(tfm);
+	size_t dilithium_key_size = lc_dilithium_sk_size(type);
 	int ret;
 
 	ctx->key_type = lc_kernel_dilithium_ed25519_key_unset;
 
 	/* Ensure the subtraction below works */
-	if (keylen != lc_dilithium_ed25519_sk_size(DILITHIUM_TYPE))
+	if (keylen != lc_dilithium_ed25519_sk_size(type))
 		return -EINVAL;
-
-	ctx->key_type = lc_kernel_dilithium_ed25519_key_unset;
 
 	/*
 	 * This operation requires that the Dilithium key is concatenated with
 	 * the ED25519 key.
 	 */
 	ret = lc_dilithium_ed25519_sk_load(
-		&ctx->sk, key, keylen - LC_ED25519_SECRETKEYBYTES,
-		key + keylen  - LC_ED25519_SECRETKEYBYTES,
+		&ctx->sk, key, dilithium_key_size, key + dilithium_key_size,
 		LC_ED25519_SECRETKEYBYTES);
 
-	if (!ret)
-		ctx->key_type = lc_kernel_dilithium_ed25519_key_sk;
+	if (!ret) {
+		if (lc_dilithium_ed25519_sk_type(&ctx->sk) != type)
+			ret = -EOPNOTSUPP;
+		else
+			ctx->key_type = lc_kernel_dilithium_ed25519_key_sk;
+	}
 
 	return 0;
+}
+
+static int lc_kernel_dilithium_87_ed25519_set_priv_key(
+	struct crypto_akcipher *tfm, const void *key, unsigned int keylen)
+{
+	return lc_kernel_dilithium_ed25519_set_priv_key_int(tfm, key, keylen,
+							    LC_DILITHIUM_87);
+}
+
+static int lc_kernel_dilithium_65_ed25519_set_priv_key(
+	struct crypto_akcipher *tfm, const void *key, unsigned int keylen)
+{
+	return lc_kernel_dilithium_ed25519_set_priv_key_int(tfm, key, keylen,
+							    LC_DILITHIUM_65);
+}
+
+static int lc_kernel_dilithium_44_ed25519_set_priv_key(
+	struct crypto_akcipher *tfm, const void *key, unsigned int keylen)
+{
+	return lc_kernel_dilithium_ed25519_set_priv_key_int(tfm, key, keylen,
+							    LC_DILITHIUM_44);
 }
 
 static unsigned int
 lc_kernel_dilithium_ed25519_max_size(struct crypto_akcipher *tfm)
 {
 	struct lc_kernel_dilithium_ed25519_ctx *ctx = akcipher_tfm_ctx(tfm);
+	enum lc_dilithium_type type;
 
 	switch (ctx->key_type) {
 	case lc_kernel_dilithium_ed25519_key_sk:
-		return lc_dilithium_ed25519_sig_size(DILITHIUM_TYPE);
+		type = lc_dilithium_ed25519_sk_type(&ctx->sk);
+		return lc_dilithium_ed25519_sig_size(type);
 	case lc_kernel_dilithium_ed25519_key_pk:
-		return lc_dilithium_ed25519_sig_size(DILITHIUM_TYPE);
+		type = lc_dilithium_ed25519_pk_type(&ctx->pk);
+		return lc_dilithium_ed25519_sig_size(type);
 	default:
 		return 0;
 	}
@@ -257,63 +308,77 @@ static void lc_kernel_dilithium_ed25519_alg_exit(struct crypto_akcipher *tfm)
 	ctx->key_type = lc_kernel_dilithium_ed25519_key_unset;
 }
 
-static struct akcipher_alg lc_kernel_dilithium_ed25519 = {
+static struct akcipher_alg lc_kernel_dilithium_ed25519_87 = {
 	.sign = lc_kernel_dilithium_ed25519_sign,
 	.verify = lc_kernel_dilithium_ed25519_verify,
-	.set_pub_key = lc_kernel_dilithium_ed25519_set_pub_key,
-	.set_priv_key = lc_kernel_dilithium_ed25519_set_priv_key,
+	.set_pub_key = lc_kernel_dilithium_87_ed25519_set_pub_key,
+	.set_priv_key = lc_kernel_dilithium_87_ed25519_set_priv_key,
 	.max_size = lc_kernel_dilithium_ed25519_max_size,
 	.init = lc_kernel_dilithium_ed25519_alg_init,
 	.exit = lc_kernel_dilithium_ed25519_alg_exit,
-#ifdef LC_DILITHIUM_TYPE_44
-	.base.cra_name = "dilithium-ed25519-44",
-	.base.cra_driver_name = "dilithium-ed25519-44-leancrypto",
-#elif defined(LC_DILITHIUM_TYPE_65)
-	.base.cra_name = "dilithium-ed25519-65",
-	.base.cra_driver_name = "dilithium-ed25519-65-leancrypto",
-#else
 	.base.cra_name = "dilithium-ed25519-87",
 	.base.cra_driver_name = "dilithium-ed25519-87-leancrypto",
-#endif
 	.base.cra_ctxsize = sizeof(struct lc_kernel_dilithium_ed25519_ctx),
 	.base.cra_module = THIS_MODULE,
 	.base.cra_priority = LC_KERNEL_DEFAULT_PRIO,
 };
 
-#ifdef LC_DILITHIUM_TYPE_44
+static struct akcipher_alg lc_kernel_dilithium_ed25519_65 = {
+	.sign = lc_kernel_dilithium_ed25519_sign,
+	.verify = lc_kernel_dilithium_ed25519_verify,
+	.set_pub_key = lc_kernel_dilithium_65_ed25519_set_pub_key,
+	.set_priv_key = lc_kernel_dilithium_65_ed25519_set_priv_key,
+	.max_size = lc_kernel_dilithium_ed25519_max_size,
+	.init = lc_kernel_dilithium_ed25519_alg_init,
+	.exit = lc_kernel_dilithium_ed25519_alg_exit,
+	.base.cra_name = "dilithium-ed25519-65",
+	.base.cra_driver_name = "dilithium-ed25519-65-leancrypto",
+	.base.cra_ctxsize = sizeof(struct lc_kernel_dilithium_ed25519_ctx),
+	.base.cra_module = THIS_MODULE,
+	.base.cra_priority = LC_KERNEL_DEFAULT_PRIO,
+};
+
+static struct akcipher_alg lc_kernel_dilithium_ed25519_44 = {
+	.sign = lc_kernel_dilithium_ed25519_sign,
+	.verify = lc_kernel_dilithium_ed25519_verify,
+	.set_pub_key = lc_kernel_dilithium_44_ed25519_set_pub_key,
+	.set_priv_key = lc_kernel_dilithium_44_ed25519_set_priv_key,
+	.max_size = lc_kernel_dilithium_ed25519_max_size,
+	.init = lc_kernel_dilithium_ed25519_alg_init,
+	.exit = lc_kernel_dilithium_ed25519_alg_exit,
+	.base.cra_name = "dilithium-ed25519-44",
+	.base.cra_driver_name = "dilithium-ed25519-44-leancrypto",
+	.base.cra_ctxsize = sizeof(struct lc_kernel_dilithium_ed25519_ctx),
+	.base.cra_module = THIS_MODULE,
+	.base.cra_priority = LC_KERNEL_DEFAULT_PRIO,
+};
 
 int __init lc_kernel_dilithium_44_ed25519_init(void)
 {
-	return crypto_register_akcipher(&lc_kernel_dilithium_ed25519);
+	return crypto_register_akcipher(&lc_kernel_dilithium_ed25519_44);
 }
 
 void lc_kernel_dilithium_44_ed25519_exit(void)
 {
-	crypto_unregister_akcipher(&lc_kernel_dilithium_ed25519);
+	crypto_unregister_akcipher(&lc_kernel_dilithium_ed25519_44);
 }
-
-#elif defined(LC_DILITHIUM_TYPE_65)
 
 int __init lc_kernel_dilithium_65_ed25519_init(void)
 {
-	return crypto_register_akcipher(&lc_kernel_dilithium_ed25519);
+	return crypto_register_akcipher(&lc_kernel_dilithium_ed25519_65);
 }
 
 void lc_kernel_dilithium_65_ed25519_exit(void)
 {
-	crypto_unregister_akcipher(&lc_kernel_dilithium_ed25519);
+	crypto_unregister_akcipher(&lc_kernel_dilithium_ed25519_65);
 }
-
-#else
 
 int __init lc_kernel_dilithium_ed25519_init(void)
 {
-	return crypto_register_akcipher(&lc_kernel_dilithium_ed25519);
+	return crypto_register_akcipher(&lc_kernel_dilithium_ed25519_87);
 }
 
 void lc_kernel_dilithium_ed25519_exit(void)
 {
-	crypto_unregister_akcipher(&lc_kernel_dilithium_ed25519);
+	crypto_unregister_akcipher(&lc_kernel_dilithium_ed25519_87);
 }
-
-#endif

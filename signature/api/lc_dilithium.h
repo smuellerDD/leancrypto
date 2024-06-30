@@ -136,6 +136,51 @@ struct lc_dilithium_sig {
 };
 
 /**
+ * @brief Obtain Dilithium type from secret key
+ *
+ * @param [in] sk Secret key from which the type is to be obtained
+ *
+ * @return key type
+ */
+static inline enum lc_dilithium_type lc_dilithium_sk_type(
+	const struct lc_dilithium_sk *sk)
+{
+	if (!sk)
+		return LC_DILITHIUM_UNKNOWN;
+	return sk->dilithium_type;
+}
+
+/**
+ * @brief Obtain Dilithium type from public key
+ *
+ * @param [in] pk Public key from which the type is to be obtained
+ *
+ * @return key type
+ */
+static inline enum lc_dilithium_type lc_dilithium_pk_type(
+	const struct lc_dilithium_pk *pk)
+{
+	if (!pk)
+		return LC_DILITHIUM_UNKNOWN;
+	return pk->dilithium_type;
+}
+
+/**
+ * @brief Obtain Dilithium type from signature
+ *
+ * @param [in] sig Signature from which the type is to be obtained
+ *
+ * @return key type
+ */
+static inline enum lc_dilithium_type lc_dilithium_sig_type(
+	const struct lc_dilithium_sig *sig)
+{
+	if (!sig)
+		return LC_DILITHIUM_UNKNOWN;
+	return sig->dilithium_type;
+}
+
+/**
  * @brief Return the size of the Dilithium secret key.
  *
  * @param [in] dilithium_type Dilithium type for which the size is requested
@@ -1060,6 +1105,51 @@ struct lc_dilithium_ed25519_sig {
 };
 
 /**
+ * @brief Obtain Dilithium type from secret key
+ *
+ * @param [in] sk Secret key from which the type is to be obtained
+ *
+ * @return key type
+ */
+static inline enum lc_dilithium_type lc_dilithium_ed25519_sk_type(
+	const struct lc_dilithium_ed25519_sk *sk)
+{
+	if (!sk)
+		return LC_DILITHIUM_UNKNOWN;
+	return sk->dilithium_type;
+}
+
+/**
+ * @brief Obtain Dilithium type from public key
+ *
+ * @param [in] pk Public key from which the type is to be obtained
+ *
+ * @return key type
+ */
+static inline enum lc_dilithium_type lc_dilithium_ed25519_pk_type(
+	const struct lc_dilithium_ed25519_pk *pk)
+{
+	if (!pk)
+		return LC_DILITHIUM_UNKNOWN;
+	return pk->dilithium_type;
+}
+
+/**
+ * @brief Obtain Dilithium type from signature
+ *
+ * @param [in] sig Signature from which the type is to be obtained
+ *
+ * @return key type
+ */
+static inline enum lc_dilithium_type lc_dilithium_ed25519_sig_type(
+	const struct lc_dilithium_ed25519_sig *sig)
+{
+	if (!sig)
+		return LC_DILITHIUM_UNKNOWN;
+	return sig->dilithium_type;
+}
+
+/**
  * @brief Return the size of the Dilithium secret key.
  *
  * @param [in] dilithium_type Dilithium type for which the size is requested
@@ -1196,8 +1286,8 @@ static inline int lc_dilithium_ed25519_sk_load(
 	size_t dilithium_src_key_len, const uint8_t *ed25519_src_key,
 	size_t ed25519_src_key_len)
 {
-	if (!sk || !dilithium_src_key || dilithium_src_key_len == 0 ||
-	    !ed25519_src_key || ed25519_src_key_len == 0) {
+	if (!sk || !dilithium_src_key || !ed25519_src_key ||
+	    ed25519_src_key_len != LC_ED25519_SECRETKEYBYTES) {
 		return -EINVAL;
 #ifdef LC_DILITHIUM_87_ENABLED
 	} else if (dilithium_src_key_len ==
@@ -1257,8 +1347,8 @@ static inline int lc_dilithium_ed25519_pk_load(
 	size_t dilithium_src_key_len, const uint8_t *ed25519_src_key,
 	size_t ed25519_src_key_len)
 {
-	if (!pk || !dilithium_src_key || dilithium_src_key_len == 0 ||
-	    !ed25519_src_key || ed25519_src_key_len == 0) {
+	if (!pk || !dilithium_src_key || !ed25519_src_key ||
+	    ed25519_src_key_len != LC_ED25519_PUBLICKEYBYTES) {
 		return -EINVAL;
 #ifdef LC_DILITHIUM_87_ENABLED
 	} else if (dilithium_src_key_len ==
@@ -1319,8 +1409,8 @@ static inline int lc_dilithium_ed25519_sig_load(
 	size_t dilithium_src_sig_len, const uint8_t *ed25519_src_sig,
 	size_t ed25519_src_sig_len)
 {
-	if (!sig || !dilithium_src_sig || dilithium_src_sig_len == 0 ||
-	    !ed25519_src_sig || ed25519_src_sig_len == 0) {
+	if (!sig || !dilithium_src_sig || !ed25519_src_sig ||
+	    ed25519_src_sig_len != LC_ED25519_SIGBYTES) {
 		return -EINVAL;
 #ifdef LC_DILITHIUM_87_ENABLED
 	} else if (dilithium_src_sig_len ==
