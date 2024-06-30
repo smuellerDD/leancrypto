@@ -293,6 +293,15 @@ if get_option('kyber_768').enabled()
 				], link_with: leancrypto_static_lib,
 				c_args : '-DLC_KYBER_TYPE_768'
 				)
+	kyber_768_kem_official_tester = executable('kyber_768_kem_official_tester',
+				[ 'kyber_kem_official_tester.c', internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_kyber_internal
+				], link_with: leancrypto_static_lib,
+				c_args : '-DLC_KYBER_TYPE_768'
+				)
 	kyber_768_keygen_tester = executable('kyber_768_keygen_tester',
 				[ 'kyber_keygen_tester.c', internal_src ],
 				include_directories: [
@@ -328,6 +337,8 @@ if get_option('kyber_768').enabled()
 	     args : [ 'c' ], timeout: 1000, is_parallel: false,
 	     suite: performance)
 	test('Kyber 768 invalid KEM', kyber_768_invalid_tester, suite: regression)
+	test('Kyber 768 official API KEM', kyber_768_kem_official_tester,
+	     suite: regression)
 	test('Kyber 768 Keygen Performance', kyber_768_keygen_tester,
 	     timeout: 1000, is_parallel: false, suite: performance)
 
@@ -524,6 +535,15 @@ if get_option('kyber_512').enabled()
 				], link_with: leancrypto_static_lib,
 				c_args : '-DLC_KYBER_TYPE_512'
 				)
+	kyber_512_kem_official_tester = executable('kyber_512_kem_official_tester',
+				[ 'kyber_kem_official_tester.c', internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_kyber_internal
+				], link_with: leancrypto_static_lib,
+				c_args : '-DLC_KYBER_TYPE_512'
+				)
 	kyber_512_keygen_tester = executable('kyber_512_keygen_tester',
 				[ 'kyber_keygen_tester.c', internal_src ],
 				include_directories: [
@@ -559,7 +579,9 @@ if get_option('kyber_512').enabled()
 	     suite: performance)
 	test('Kyber 512 invalid KEM', kyber_512_invalid_tester,
 	     suite: regression)
-	test('Kyber 768 Keygen Performance', kyber_768_keygen_tester,
+	test('Kyber 512 official API KEM', kyber_512_kem_official_tester,
+	     suite: regression)
+	test('Kyber 512 Keygen Performance', kyber_512_keygen_tester,
 	     timeout: 1000, is_parallel: false, suite: performance)
 
 	if get_option('kyber_x25519').enabled()
