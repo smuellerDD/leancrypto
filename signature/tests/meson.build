@@ -63,6 +63,16 @@ if get_option('dilithium_87').enabled()
 				],
 				dependencies: leancrypto
 				)
+	dilithium_tester_official = executable('dilithium_tester_official',
+				[ 'dilithium_tester_official.c',
+				  internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_dilithium_internal
+				],
+				dependencies: leancrypto
+				)
 
 	test('Dilithium signature C', dilithium_tester_c, suite: regression)
 	test('Dilithium init update final C', dilithium_tester_iuf_c,
@@ -70,6 +80,8 @@ if get_option('dilithium_87').enabled()
 	test('Dilithium signature Common', dilithium_tester_common,
 	     suite: regression)
 	test('Dilithium init update final C', dilithium_tester_iuf_common,
+	     suite: regression)
+	test('Dilithium official API', dilithium_tester_official,
 	     suite: regression)
 
 	test('Dilithium signature C 10000', dilithium_tester_c, args : [ 'c' ],
@@ -282,6 +294,17 @@ if get_option('dilithium_65').enabled()
 				dependencies: leancrypto,
 				c_args : '-DLC_DILITHIUM_TYPE_65'
 				)
+	dilithium_65_tester_official = executable('dilithium_65_tester_official',
+				[ 'dilithium_tester_official.c',
+				  internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_dilithium_internal
+				],
+				dependencies: leancrypto,
+				c_args : '-DLC_DILITHIUM_TYPE_65'
+				)
 
 	test('Dilithium 65 signature C', dilithium_65_tester_c,
 	     suite: regression)
@@ -290,6 +313,8 @@ if get_option('dilithium_65').enabled()
 	test('Dilithium 65 signature Common', dilithium_65_tester_common,
 	     suite: regression)
 	test('Dilithium 65 init update final C', dilithium_65_tester_iuf_common,
+	     suite: regression)
+	test('Dilithium 65 official API', dilithium_65_tester_official,
 	     suite: regression)
 
 	test('Dilithium 65 signature C 10000', dilithium_65_tester_c, args : [ 'c' ],
@@ -508,6 +533,17 @@ if get_option('dilithium_44').enabled()
 				dependencies: leancrypto,
 				c_args : '-DLC_DILITHIUM_TYPE_44'
 				)
+	dilithium_44_tester_official = executable('dilithium_44_tester_official',
+				[ 'dilithium_tester_official.c',
+				  internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_dilithium_internal
+				],
+				dependencies: leancrypto,
+				c_args : '-DLC_DILITHIUM_TYPE_44'
+				)
 
 	test('Dilithium 44 signature C', dilithium_44_tester_c,
 	     suite: regression)
@@ -516,6 +552,8 @@ if get_option('dilithium_44').enabled()
 	test('Dilithium 44 signature Common', dilithium_44_tester_common,
 	     suite: regression)
 	test('Dilithium 44 init update final C', dilithium_44_tester_iuf_common,
+	     suite: regression)
+	test('Dilithium 44 official API', dilithium_44_tester_official,
 	     suite: regression)
 
 	test('Dilithium 44 signature C 10000', dilithium_44_tester_c, args : [ 'c' ],

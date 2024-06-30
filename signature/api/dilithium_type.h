@@ -62,7 +62,13 @@ extern "C" {
 #include "lc_dilithium_44.h"
 
 #else
-#define DILITHIUM_F(name) lc_dilithium_##name
+#define DILITHIUM_F(name) lc_dilithium_87_##name
+#define lc_dilithium_pk lc_dilithium_87_pk
+#define lc_dilithium_sk lc_dilithium_87_sk
+#define lc_dilithium_sig lc_dilithium_87_sig
+#define lc_dilithium_ed25519_pk lc_dilithium_87_ed25519_pk
+#define lc_dilithium_ed25519_sk lc_dilithium_87_ed25519_sk
+#define lc_dilithium_ed25519_sig lc_dilithium_87_ed25519_sig
 
 #include "lc_dilithium_87.h"
 
@@ -220,7 +226,7 @@ extern "C" {
 #define armv7_rej_uniform_asm DILITHIUM_F(armv7_rej_uniform_asm)
 #define lc_dilithium_keypair_armv7 DILITHIUM_F(keypair_armv7)
 #define lc_dilithium_keypair_from_seed_armv7                                   \
-		DILITHIUM_F(keypair_from_seed_armv7)
+	DILITHIUM_F(keypair_from_seed_armv7)
 #define lc_dilithium_sign_armv7 DILITHIUM_F(sign_armv7)
 #define lc_dilithium_sign_init_armv7 DILITHIUM_F(sign_init_armv7)
 #define lc_dilithium_sign_update_armv7 DILITHIUM_F(sign_update_armv7)

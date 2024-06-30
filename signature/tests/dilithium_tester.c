@@ -293,7 +293,7 @@ int _dilithium_init_update_final_tester(
 					 const struct lc_dilithium_pk *pk),
 	int (*_lc_dilithium_verify_update)(struct lc_hash_ctx *hash_ctx,
 					   const uint8_t *m, size_t mlen),
-	int (*_lc_dilithium_verify_final)(struct lc_dilithium_sig *sig,
+	int (*_lc_dilithium_verify_final)(const struct lc_dilithium_sig *sig,
 					  struct lc_hash_ctx *hash_ctx,
 					  const struct lc_dilithium_pk *pk))
 {

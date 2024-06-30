@@ -99,7 +99,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_update_armv8,
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_final_armv8,
-		      struct lc_dilithium_sig *sig,
+		      const struct lc_dilithium_sig *sig,
 		      struct lc_hash_ctx *hash_ctx,
 		      const struct lc_dilithium_pk *pk)
 {

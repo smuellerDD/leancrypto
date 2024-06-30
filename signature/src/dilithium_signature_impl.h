@@ -686,7 +686,7 @@ static int lc_dilithium_verify_update_impl(struct lc_hash_ctx *hash_ctx,
 	return 0;
 }
 
-static int lc_dilithium_verify_final_impl(struct lc_dilithium_sig *sig,
+static int lc_dilithium_verify_final_impl(const struct lc_dilithium_sig *sig,
 					  struct lc_hash_ctx *hash_ctx,
 					  const struct lc_dilithium_pk *pk)
 {

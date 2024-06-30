@@ -374,7 +374,7 @@ int @dilithium_name@_verify_update(struct lc_hash_ctx *hash_ctx, const uint8_t *
  * @return 0 if signature could be verified correctly and -EBADMSG when
  * signature cannot be verified, < 0 on other errors
  */
-int @dilithium_name@_verify_final(struct @dilithium_name@_sig *sig,
+int @dilithium_name@_verify_final(const struct @dilithium_name@_sig *sig,
 			      struct lc_hash_ctx *hash_ctx,
 			      const struct @dilithium_name@_pk *pk);
 

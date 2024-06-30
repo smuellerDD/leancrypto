@@ -105,7 +105,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_update_c,
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_final_c,
-		      struct lc_dilithium_sig *sig,
+		      const struct lc_dilithium_sig *sig,
 		      struct lc_hash_ctx *hash_ctx,
 		      const struct lc_dilithium_pk *pk)
 {

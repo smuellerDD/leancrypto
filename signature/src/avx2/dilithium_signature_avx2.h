@@ -52,7 +52,7 @@ int lc_dilithium_verify_init_avx2(struct lc_hash_ctx *hash_ctx,
 				  const struct lc_dilithium_pk *pk);
 int lc_dilithium_verify_update_avx2(struct lc_hash_ctx *hash_ctx,
 				    const uint8_t *m, size_t mlen);
-int lc_dilithium_verify_final_avx2(struct lc_dilithium_sig *sig,
+int lc_dilithium_verify_final_avx2(const struct lc_dilithium_sig *sig,
 				   struct lc_hash_ctx *hash_ctx,
 				   const struct lc_dilithium_pk *pk);
 
