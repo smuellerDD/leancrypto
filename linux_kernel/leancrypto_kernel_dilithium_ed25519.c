@@ -23,13 +23,18 @@
 #include <linux/scatterlist.h>
 #include <linux/types.h>
 
-/* Prevent Kyber macros from getting undefined */
-#define LC_DILITHIUM_INTERNAL
-
-#include "dilithium_type.h"
+#include "lc_dilithium.h"
 #include "lc_sha3.h"
 
 #include "leancrypto_kernel.h"
+
+#ifdef LC_DILITHIUM_TYPE_44
+#define DILITHIUM_TYPE LC_DILITHIUM_44
+#elif defined(LC_DILITHIUM_TYPE_65)
+#define DILITHIUM_TYPE LC_DILITHIUM_65
+#elif defined(LC_DILITHIUM_TYPE_87)
+#define DILITHIUM_TYPE LC_DILITHIUM_87
+#endif
 
 enum lc_kernel_dilithium_ed25519_key_type {
 	lc_kernel_dilithium_ed25519_key_unset = 0,
@@ -58,12 +63,13 @@ static int lc_kernel_dilithium_ed25519_sign(struct akcipher_request *req)
 	/* req->dst -> signature */
 
 	if (unlikely(ctx->key_type != lc_kernel_dilithium_ed25519_key_sk) ||
-	    req->dst_len != sizeof(struct lc_dilithium_ed25519_sig) ||
+	    req->dst_len != lc_dilithium_ed25519_sig_size(DILITHIUM_TYPE) ||
 	    /* We have no init-update-final and we want to avoid a memcpy */
 	    sg_nents_for_len(req->src, req->src_len) > 1)
 		return -EINVAL;
 
-	sig = kmalloc(sizeof(struct lc_dilithium_ed25519_sig), GFP_KERNEL);
+	sig = kmalloc(lc_dilithium_ed25519_sig_size(DILITHIUM_TYPE),
+		      GFP_KERNEL);
 	if (!sig)
 		return -ENOMEM;
 
@@ -80,11 +86,39 @@ static int lc_kernel_dilithium_ed25519_sign(struct akcipher_request *req)
 	ret = lc_dilithium_ed25519_sign(sig, miter.addr, miter.length, &ctx->sk,
 					lc_seeded_rng);
 	if (!ret) {
+		uint8_t *dilithium_sig_ptr, *ed25519_sig_ptr;
+		size_t dilithium_sig_len, ed25519_sig_len;
+
+		ret = lc_dilithium_ed25519_sig_ptr(&dilithium_sig_ptr,
+						   &dilithium_sig_len,
+						   &ed25519_sig_ptr,
+						   &ed25519_sig_len, sig);
+		if (ret)
+			goto out;
+
+#if 0
+		uint8_t *sig;
+		sig_len = dilithium_sig_len + ed25519_sig_len;
+		sig = kmalloc(sig_len, GFP_KERNEL);
+		if (!sig) {
+			ret = -ENOMEM;
+			goto out;
+		}
+		memcpy(sig, dilithium_sig_ptr, dilithium_sig_len);
+		memcpy(sig, ed25519_sig_ptr, ed25519_sig_len);
+#else
+		/* Check that we have one linear buffer of both signatures */
+		BUG_ON(dilithium_sig_ptr !=
+		       ed25519_sig_ptr - dilithium_sig_len);
+#endif
+
 		sg_pcopy_from_buffer(req->dst,
 				     sg_nents_for_len(req->dst, req->dst_len),
-				     sig, req->dst_len, 0);
+				     dilithium_sig_ptr,
+				     dilithium_sig_len + ed25519_sig_len, 0);
 	}
 
+out:
 	kfree_sensitive(sig);
 	return ret;
 }
@@ -102,12 +136,12 @@ static int lc_kernel_dilithium_ed25519_verify(struct akcipher_request *req)
 	/* req->dst -> message */
 
 	if (unlikely(ctx->key_type != lc_kernel_dilithium_ed25519_key_pk) ||
-	    req->src_len != sizeof(struct lc_dilithium_ed25519_sig) ||
+	    req->src_len != lc_dilithium_ed25519_sig_size(DILITHIUM_TYPE) ||
 	    /* We have no init-update-final and we want to avoid a memcpy */
 	    sg_nents_for_len(req->dst, req->dst_len) > 1)
 		return -EINVAL;
 
-	sig = kmalloc(sizeof(struct lc_dilithium_ed25519_sig), GFP_KERNEL);
+	sig = kmalloc(lc_dilithium_ed25519_sig_size(DILITHIUM_TYPE), GFP_KERNEL);
 	if (!sig)
 		return -ENOMEM;
 
@@ -136,19 +170,25 @@ static int lc_kernel_dilithium_ed25519_set_pub_key(struct crypto_akcipher *tfm,
 						   unsigned int keylen)
 {
 	struct lc_kernel_dilithium_ed25519_ctx *ctx = akcipher_tfm_ctx(tfm);
+	int ret;
 
 	ctx->key_type = lc_kernel_dilithium_ed25519_key_unset;
 
-	if (keylen != sizeof(struct lc_dilithium_ed25519_pk))
+	/* Ensure the subtraction below works */
+	if (keylen != lc_dilithium_ed25519_pk_size(DILITHIUM_TYPE))
 		return -EINVAL;
 
 	/*
-	 * Note, this only works because struct lc_dilithium_ed25519_pk
-	 * is a linear buffer where the Dilithium and ED25519 pub keys
-	 * are concatenated in memory.
+	 * This operation requires that the Dilithium key is concatenated with
+	 * the ED25519 key.
 	 */
-	memcpy(&ctx->pk, key, sizeof(struct lc_dilithium_ed25519_pk));
-	ctx->key_type = lc_kernel_dilithium_ed25519_key_pk;
+	ret = lc_dilithium_ed25519_pk_load(
+		&ctx->pk, key, keylen - LC_ED25519_PUBLICKEYBYTES,
+		key + keylen  - LC_ED25519_PUBLICKEYBYTES,
+		LC_ED25519_PUBLICKEYBYTES);
+
+	if (!ret)
+		ctx->key_type = lc_kernel_dilithium_ed25519_key_pk;
 
 	return 0;
 }
@@ -158,19 +198,27 @@ static int lc_kernel_dilithium_ed25519_set_priv_key(struct crypto_akcipher *tfm,
 						    unsigned int keylen)
 {
 	struct lc_kernel_dilithium_ed25519_ctx *ctx = akcipher_tfm_ctx(tfm);
+	int ret;
 
 	ctx->key_type = lc_kernel_dilithium_ed25519_key_unset;
 
-	if (keylen != sizeof(struct lc_dilithium_ed25519_sk))
+	/* Ensure the subtraction below works */
+	if (keylen != lc_dilithium_ed25519_sk_size(DILITHIUM_TYPE))
 		return -EINVAL;
 
+	ctx->key_type = lc_kernel_dilithium_ed25519_key_unset;
+
 	/*
-	 * Note, this only works because struct lc_dilithium_ed25519_sk
-	 * is a linear buffer where the Dilithium and ED25519 secret keys
-	 * are concatenated in memory.
+	 * This operation requires that the Dilithium key is concatenated with
+	 * the ED25519 key.
 	 */
-	memcpy(&ctx->sk, key, sizeof(struct lc_dilithium_ed25519_sk));
-	ctx->key_type = lc_kernel_dilithium_ed25519_key_sk;
+	ret = lc_dilithium_ed25519_sk_load(
+		&ctx->sk, key, keylen - LC_ED25519_SECRETKEYBYTES,
+		key + keylen  - LC_ED25519_SECRETKEYBYTES,
+		LC_ED25519_SECRETKEYBYTES);
+
+	if (!ret)
+		ctx->key_type = lc_kernel_dilithium_ed25519_key_sk;
 
 	return 0;
 }

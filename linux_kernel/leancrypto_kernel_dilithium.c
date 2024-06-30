@@ -23,13 +23,18 @@
 #include <linux/scatterlist.h>
 #include <linux/types.h>
 
-/* Prevent Kyber macros from getting undefined */
-#define LC_DILITHIUM_INTERNAL
-
-#include "dilithium_type.h"
+#include "lc_dilithium.h"
 #include "lc_sha3.h"
 
 #include "leancrypto_kernel.h"
+
+#ifdef LC_DILITHIUM_TYPE_44
+#define DILITHIUM_TYPE LC_DILITHIUM_44
+#elif defined(LC_DILITHIUM_TYPE_65)
+#define DILITHIUM_TYPE LC_DILITHIUM_65
+#elif defined(LC_DILITHIUM_TYPE_87)
+#define DILITHIUM_TYPE LC_DILITHIUM_87
+#endif
 
 enum lc_kernel_dilithium_key_type {
 	lc_kernel_dilithium_key_unset = 0,
@@ -60,10 +65,10 @@ static int lc_kernel_dilithium_sign(struct akcipher_request *req)
 	/* req->dst -> signature */
 
 	if (unlikely(ctx->key_type != lc_kernel_dilithium_key_sk) ||
-	    req->dst_len != LC_DILITHIUM_CRYPTO_BYTES)
+	    req->dst_len != lc_dilithium_sig_size(DILITHIUM_TYPE))
 		return -EINVAL;
 
-	sig = kmalloc(sizeof(struct lc_dilithium_sig), GFP_KERNEL);
+	sig = kmalloc(lc_dilithium_sig_size(DILITHIUM_TYPE), GFP_KERNEL);
 	if (!sig)
 		return -ENOMEM;
 
@@ -86,11 +91,19 @@ static int lc_kernel_dilithium_sign(struct akcipher_request *req)
 	lc_hash_zero(hash_ctx);
 
 	if (!ret) {
+		uint8_t *sig_ptr;
+		size_t sig_len;
+
+		ret = lc_dilithium_sig_ptr(&sig_ptr, &sig_len, sig);
+		if (ret)
+			goto out;
+
 		sg_pcopy_from_buffer(req->dst,
 				     sg_nents_for_len(req->dst, req->dst_len),
-				     sig, LC_DILITHIUM_CRYPTO_BYTES, 0);
+				     sig_ptr, sig_len, 0);
 	}
 
+out:
 	kfree_sensitive(sig);
 	return ret;
 }
@@ -101,8 +114,9 @@ static int lc_kernel_dilithium_verify(struct akcipher_request *req)
 	struct lc_kernel_dilithium_ctx *ctx = akcipher_tfm_ctx(tfm);
 	struct lc_dilithium_sig *sig;
 	struct sg_mapping_iter miter;
-	size_t offset = 0;
+	size_t offset = 0, sig_len;
 	unsigned int sg_flags = SG_MITER_ATOMIC | SG_MITER_FROM_SG;
+	uint8_t *sig_ptr;
 	int ret;
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
 
@@ -110,15 +124,18 @@ static int lc_kernel_dilithium_verify(struct akcipher_request *req)
 	/* req->dst -> message */
 
 	if (unlikely(ctx->key_type != lc_kernel_dilithium_key_pk) ||
-	    req->src_len != LC_DILITHIUM_CRYPTO_BYTES)
+	    req->src_len != lc_dilithium_sig_size(DILITHIUM_TYPE))
 		return -EINVAL;
 
-	sig = kmalloc(sizeof(struct lc_dilithium_sig), GFP_KERNEL);
+	sig = kmalloc(lc_dilithium_sig_size(DILITHIUM_TYPE), GFP_KERNEL);
 	if (!sig)
 		return -ENOMEM;
+	ret = lc_dilithium_sig_ptr(&sig_ptr, &sig_len, sig);
+	if (ret)
+		goto out;
 
 	sg_pcopy_to_buffer(req->src, sg_nents_for_len(req->src, req->src_len),
-			   sig->sig, LC_DILITHIUM_CRYPTO_BYTES, 0);
+			   sig_ptr, sig_len, 0);
 
 	lc_dilithium_verify_init(hash_ctx, &ctx->pk);
 
@@ -136,6 +153,7 @@ static int lc_kernel_dilithium_verify(struct akcipher_request *req)
 
 	ret = lc_dilithium_verify_final(sig, hash_ctx, &ctx->pk);
 
+out:
 	lc_hash_zero(hash_ctx);
 
 	kfree_sensitive(sig);
@@ -147,16 +165,16 @@ static int lc_kernel_dilithium_set_pub_key(struct crypto_akcipher *tfm,
 					   const void *key, unsigned int keylen)
 {
 	struct lc_kernel_dilithium_ctx *ctx = akcipher_tfm_ctx(tfm);
+	int ret;
 
 	ctx->key_type = lc_kernel_dilithium_key_unset;
 
-	if (keylen != LC_DILITHIUM_PUBLICKEYBYTES)
-		return -EINVAL;
+	ret = lc_dilithium_pk_load(&ctx->pk, key, keylen);
 
-	memcpy(ctx->pk.pk, key, LC_DILITHIUM_PUBLICKEYBYTES);
-	ctx->key_type = lc_kernel_dilithium_key_pk;
+	if (!ret)
+		ctx->key_type = lc_kernel_dilithium_key_pk;
 
-	return 0;
+	return ret;
 }
 
 static int lc_kernel_dilithium_set_priv_key(struct crypto_akcipher *tfm,
@@ -164,16 +182,16 @@ static int lc_kernel_dilithium_set_priv_key(struct crypto_akcipher *tfm,
 					    unsigned int keylen)
 {
 	struct lc_kernel_dilithium_ctx *ctx = akcipher_tfm_ctx(tfm);
+	int ret;
 
 	ctx->key_type = lc_kernel_dilithium_key_unset;
 
-	if (keylen != LC_DILITHIUM_SECRETKEYBYTES)
-		return -EINVAL;
+	ret = lc_dilithium_sk_load(&ctx->sk, key, keylen);
 
-	memcpy(ctx->sk.sk, key, LC_DILITHIUM_SECRETKEYBYTES);
-	ctx->key_type = lc_kernel_dilithium_key_sk;
+	if (!ret)
+		ctx->key_type = lc_kernel_dilithium_key_sk;
 
-	return 0;
+	return ret;
 }
 
 static unsigned int lc_kernel_dilithium_max_size(struct crypto_akcipher *tfm)
@@ -183,10 +201,10 @@ static unsigned int lc_kernel_dilithium_max_size(struct crypto_akcipher *tfm)
 	switch (ctx->key_type) {
 	case lc_kernel_dilithium_key_sk:
 		/* When SK is set -> generate a signature */
-		return LC_DILITHIUM_CRYPTO_BYTES;
+		return lc_dilithium_sk_size(DILITHIUM_TYPE);
 	case lc_kernel_dilithium_key_pk:
 		/* When PK is set, this is a safety valve, result is boolean */
-		return LC_DILITHIUM_CRYPTO_BYTES;
+		return lc_dilithium_pk_size(DILITHIUM_TYPE);
 	default:
 		return 0;
 	}

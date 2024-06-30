@@ -21,6 +21,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_87)				       \
 				   ../signature/src/dilithium_selftest.o       \
 				   ../signature/src/dilithium_signature_c.o    \
 				   leancrypto_kernel_dilithium.o
+CFLAGS_leancrypto_kernel_dilithium.o			:= -DLC_DILITHIUM_TYPE_87
 
 # Dilithium 65
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_65)				       \
@@ -59,6 +60,7 @@ ifdef CONFIG_LEANCRYPTO_DILITHIUM_87
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_ED25519)			       \
 				+= ../signature/src/dilithium_ed25519_signature.o\
 				   leancrypto_kernel_dilithium_ed25519.o
+CFLAGS_leancrypto_kernel_dilithium_ed25519.o		:= -DLC_DILITHIUM_TYPE_87
 endif
 
 # Dilithium-65-ED25519 implementation
