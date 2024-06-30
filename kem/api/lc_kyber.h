@@ -147,6 +147,62 @@ struct lc_kyber_ss {
 };
 
 /**
+ * @brief Obtain Kyber type from secret key
+ *
+ * @param [in] sk Secret key from which the type is to be obtained
+ *
+ * @return key type
+ */
+static inline enum lc_kyber_type lc_kyber_sk_type(const struct lc_kyber_sk *sk)
+{
+	if (!sk)
+		return LC_KYBER_UNKNOWN;
+	return sk->kyber_type;
+}
+
+/**
+ * @brief Obtain Kyber type from public key
+ *
+ * @param [in] pk Public key from which the type is to be obtained
+ *
+ * @return key type
+ */
+static inline enum lc_kyber_type lc_kyber_pk_type(const struct lc_kyber_pk *pk)
+{
+	if (!pk)
+		return LC_KYBER_UNKNOWN;
+	return pk->kyber_type;
+}
+
+/**
+ * @brief Obtain Kyber type from Kyber ciphertext
+ *
+ * @param [in] ct Ciphertext from which the type is to be obtained
+ *
+ * @return key type
+ */
+static inline enum lc_kyber_type lc_kyber_ct_type(const struct lc_kyber_ct *ct)
+{
+	if (!ct)
+		return LC_KYBER_UNKNOWN;
+	return ct->kyber_type;
+}
+
+/**
+ * @brief Obtain Kyber type from shared secret
+ *
+ * @param [in] ss Shared secret key from which the type is to be obtained
+ *
+ * @return key type
+ */
+static inline enum lc_kyber_type lc_kyber_ss_type(const struct lc_kyber_ss *ss)
+{
+	if (!ss)
+		return LC_KYBER_UNKNOWN;
+	return ss->kyber_type;
+}
+
+/**
  * @brief Return the size of the Kyber secret key.
  *
  * @param [in] kyber_type Kyber type for which the size is requested
@@ -1946,6 +2002,66 @@ struct lc_kyber_x25519_ss {
 #endif
 	} key;
 };
+
+/**
+ * @brief Obtain Kyber type from secret key
+ *
+ * @param [in] sk Secret key from which the type is to be obtained
+ *
+ * @return key type
+ */
+static inline enum lc_kyber_type lc_kyber_x25519_sk_type(
+	const struct lc_kyber_x25519_sk *sk)
+{
+	if (!sk)
+		return LC_KYBER_UNKNOWN;
+	return sk->kyber_type;
+}
+
+/**
+ * @brief Obtain Kyber type from public key
+ *
+ * @param [in] pk Public key from which the type is to be obtained
+ *
+ * @return key type
+ */
+static inline enum lc_kyber_type lc_kyber_x25519_pk_type(
+	const struct lc_kyber_x25519_pk *pk)
+{
+	if (!pk)
+		return LC_KYBER_UNKNOWN;
+	return pk->kyber_type;
+}
+
+/**
+ * @brief Obtain Kyber type from Kyber ciphertext
+ *
+ * @param [in] ct Ciphertext from which the type is to be obtained
+ *
+ * @return key type
+ */
+static inline enum lc_kyber_type lc_kyber_x25519_ct_type(
+	const struct lc_kyber_x25519_ct *ct)
+{
+	if (!ct)
+		return LC_KYBER_UNKNOWN;
+	return ct->kyber_type;
+}
+
+/**
+ * @brief Obtain Kyber type from shared secret
+ *
+ * @param [in] ss Shared secret key from which the type is to be obtained
+ *
+ * @return key type
+ */
+static inline enum lc_kyber_type lc_kyber_x25519_ss_type(
+	const struct lc_kyber_x25519_ss *ss)
+{
+	if (!ss)
+		return LC_KYBER_UNKNOWN;
+	return ss->kyber_type;
+}
 
 /**
  * @brief Return the size of the Kyber secret key.
