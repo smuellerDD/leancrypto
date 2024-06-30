@@ -130,6 +130,13 @@ static int lc_kernel_dilithium_verify(struct akcipher_request *req)
 	sig = kmalloc(lc_dilithium_sig_size(DILITHIUM_TYPE), GFP_KERNEL);
 	if (!sig)
 		return -ENOMEM;
+
+	/*
+	 * Obtain the empty pointers to fill it with a signature. Thus, we
+	 * need to set the signature type here as the signature struct is
+	 * currently unset.
+	 */
+	sig->dilithium_type = DILITHIUM_TYPE;
 	ret = lc_dilithium_sig_ptr(&sig_ptr, &sig_len, sig);
 	if (ret)
 		goto out;
@@ -201,10 +208,10 @@ static unsigned int lc_kernel_dilithium_max_size(struct crypto_akcipher *tfm)
 	switch (ctx->key_type) {
 	case lc_kernel_dilithium_key_sk:
 		/* When SK is set -> generate a signature */
-		return lc_dilithium_sk_size(DILITHIUM_TYPE);
+		return lc_dilithium_sig_size(DILITHIUM_TYPE);
 	case lc_kernel_dilithium_key_pk:
 		/* When PK is set, this is a safety valve, result is boolean */
-		return lc_dilithium_pk_size(DILITHIUM_TYPE);
+		return lc_dilithium_sig_size(DILITHIUM_TYPE);
 	default:
 		return 0;
 	}

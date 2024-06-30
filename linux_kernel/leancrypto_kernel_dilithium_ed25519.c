@@ -148,6 +148,13 @@ static int lc_kernel_dilithium_ed25519_verify(struct akcipher_request *req)
 	sg_pcopy_to_buffer(req->src, sg_nents_for_len(req->src, req->src_len),
 			   sig, req->src_len, 0);
 
+	/*
+	 * This copy directly into the signature buffer only works because
+	 * both signatures are adjacent. If they would not be, use
+	 * lc_dilithium_ed25519_sig_ptr as implemented in
+	 * lc_kernel_dilithium_verify.
+	 */
+	sig->dilithium_type = DILITHIUM_TYPE;
 	sg_miter_start(&miter, req->dst,
 		       sg_nents_for_len(req->dst, req->dst_len), sg_flags);
 
@@ -230,9 +237,9 @@ lc_kernel_dilithium_ed25519_max_size(struct crypto_akcipher *tfm)
 
 	switch (ctx->key_type) {
 	case lc_kernel_dilithium_ed25519_key_sk:
-		return sizeof(struct lc_dilithium_ed25519_sk);
+		return lc_dilithium_ed25519_sig_size(DILITHIUM_TYPE);
 	case lc_kernel_dilithium_ed25519_key_pk:
-		return sizeof(struct lc_dilithium_ed25519_sk);
+		return lc_dilithium_ed25519_sig_size(DILITHIUM_TYPE);
 	default:
 		return 0;
 	}
