@@ -148,6 +148,10 @@ struct lc_kyber_ss {
 
 /**
  * @brief Return the size of the Kyber secret key.
+ *
+ * @param [in] kyber_type Kyber type for which the size is requested
+ *
+ * @return requested size
  */
 LC_PURE
 static inline unsigned int lc_kyber_sk_size(enum lc_kyber_type kyber_type)
@@ -179,6 +183,10 @@ static inline unsigned int lc_kyber_sk_size(enum lc_kyber_type kyber_type)
 
 /**
  * @brief Return the size of the Kyber public key.
+ *
+ * @param [in] kyber_type Kyber type for which the size is requested
+ *
+ * @return requested size
  */
 LC_PURE
 static inline unsigned int lc_kyber_pk_size(enum lc_kyber_type kyber_type)
@@ -210,6 +218,10 @@ static inline unsigned int lc_kyber_pk_size(enum lc_kyber_type kyber_type)
 
 /**
  * @brief Return the size of the Kyber ciphertext.
+ *
+ * @param [in] kyber_type Kyber type for which the size is requested
+ *
+ * @return requested size
  */
 LC_PURE
 static inline unsigned int lc_kyber_ct_size(enum lc_kyber_type kyber_type)
@@ -241,6 +253,10 @@ static inline unsigned int lc_kyber_ct_size(enum lc_kyber_type kyber_type)
 
 /**
  * @brief Return the size of the Kyber shared secret.
+ *
+ * @param [in] kyber_type Kyber type for which the size is requested
+ *
+ * @return requested size
  */
 LC_PURE
 static inline unsigned int lc_kyber_ss_size(enum lc_kyber_type kyber_type)
@@ -450,6 +466,18 @@ static inline int lc_kyber_ss_load(struct lc_kyber_ss *ss,
 	}
 }
 
+/**
+ * @brief Obtain the reference to the Kyber key and its length
+ *
+ * NOTE: Only pointer references into the leancrypto data structure are returned
+ * which implies that any modification will modify the leancrypto key, too.
+ *
+ * @param [out] kyber_key Kyber key pointer
+ * @param [out] kyber_key_len Length of the key buffer
+ * @param [in] sk Kyber secret key from which the references are obtained
+ *
+ * @return 0 on success, != 0 on error
+ */
 static inline int lc_kyber_sk_ptr(uint8_t **kyber_key, size_t *kyber_key_len,
 				  struct lc_kyber_sk *sk)
 {
@@ -484,6 +512,18 @@ static inline int lc_kyber_sk_ptr(uint8_t **kyber_key, size_t *kyber_key_len,
 	}
 }
 
+/**
+ * @brief Obtain the reference to the Kyber key and its length
+ *
+ * NOTE: Only pointer references into the leancrypto data structure are returned
+ * which implies that any modification will modify the leancrypto key, too.
+ *
+ * @param [out] kyber_key Kyber key pointer
+ * @param [out] kyber_key_len Length of the key buffer
+ * @param [in] pk Kyber public key from which the references are obtained
+ *
+ * @return 0 on success, != 0 on error
+ */
 static inline int lc_kyber_pk_ptr(uint8_t **kyber_key, size_t *kyber_key_len,
 				  struct lc_kyber_pk *pk)
 {
@@ -518,33 +558,46 @@ static inline int lc_kyber_pk_ptr(uint8_t **kyber_key, size_t *kyber_key_len,
 	}
 }
 
-static inline int lc_kyber_ct_ptr(uint8_t **kyber_key, size_t *kyber_key_len,
+/**
+ * @brief Obtain the reference to the Kyber ciphertext and its length
+ *
+ * NOTE: Only pointer references into the leancrypto data structure are returned
+ * which implies that any modification will modify the leancrypto ciphertext,
+ * too.
+ *
+ * @param [out] kyber_ct Kyber ciphertext pointer
+ * @param [out] kyber_ct_len Length of the ciphertext buffer
+ * @param [in] ct Kyber ciphertext from which the references are obtained
+ *
+ * @return 0 on success, != 0 on error
+ */
+static inline int lc_kyber_ct_ptr(uint8_t **kyber_ct, size_t *kyber_ct_len,
 				  struct lc_kyber_ct *ct)
 {
-	if (!ct || !kyber_key || !kyber_key_len) {
+	if (!ct || !kyber_ct || !kyber_ct_len) {
 		return -EINVAL;
 #ifdef LC_KYBER_1024_ENABLED
 	} else if (ct->kyber_type == LC_KYBER_1024) {
 		struct lc_kyber_1024_ct *_ct = &ct->key.ct_1024;
 
-		*kyber_key = _ct->ct;
-		*kyber_key_len = lc_kyber_ct_size(ct->kyber_type);
+		*kyber_ct = _ct->ct;
+		*kyber_ct_len = lc_kyber_ct_size(ct->kyber_type);
 		return 0;
 #endif
 #ifdef LC_KYBER_768_ENABLED
 	} else if (ct->kyber_type == LC_KYBER_768) {
 		struct lc_kyber_768_ct *_ct = &ct->key.ct_768;
 
-		*kyber_key = _ct->ct;
-		*kyber_key_len = lc_kyber_ct_size(ct->kyber_type);
+		*kyber_ct = _ct->ct;
+		*kyber_ct_len = lc_kyber_ct_size(ct->kyber_type);
 		return 0;
 #endif
 #ifdef LC_KYBER_512_ENABLED
 	} else if (ct->kyber_type == LC_KYBER_512) {
 		struct lc_kyber_512_ct *_ct = &ct->key.ct_512;
 
-		*kyber_key = _ct->ct;
-		*kyber_key_len = lc_kyber_ct_size(ct->kyber_type);
+		*kyber_ct = _ct->ct;
+		*kyber_ct_len = lc_kyber_ct_size(ct->kyber_type);
 		return 0;
 #endif
 	} else {
@@ -552,6 +605,19 @@ static inline int lc_kyber_ct_ptr(uint8_t **kyber_key, size_t *kyber_key_len,
 	}
 }
 
+/**
+ * @brief Obtain the reference to the Kyber shared secret and its length
+ *
+ * NOTE: Only pointer references into the leancrypto data structure are returned
+ * which implies that any modification will modify the leancrypto shared secret,
+ * too.
+ *
+ * @param [out] kyber_ss Kyber shared secret pointer
+ * @param [out] kyber_ss_len Length of the shared secret buffer
+ * @param [in] ss Kyber shared secret from which the references are obtained
+ *
+ * @return 0 on success, != 0 on error
+ */
 static inline int lc_kyber_ss_ptr(uint8_t **kyber_key, size_t *kyber_key_len,
 				  struct lc_kyber_ss *ss)
 {
@@ -674,9 +740,8 @@ static inline int lc_kyber_keypair_from_seed(struct lc_kyber_pk *pk,
 #ifdef LC_KYBER_1024_ENABLED
 		pk->kyber_type = kyber_type;
 		sk->kyber_type = kyber_type;
-		return lc_kyber_1024_keypair_from_seed(&pk->key.pk_1024,
-						       &sk->key.sk_1024, seed,
-						       seedlen);
+		return lc_kyber_1024_keypair_from_seed(
+			&pk->key.pk_1024, &sk->key.sk_1024, seed, seedlen);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -684,9 +749,8 @@ static inline int lc_kyber_keypair_from_seed(struct lc_kyber_pk *pk,
 #ifdef LC_KYBER_768_ENABLED
 		pk->kyber_type = kyber_type;
 		sk->kyber_type = kyber_type;
-		return lc_kyber_768_keypair_from_seed(&pk->key.pk_768,
-						      &sk->key.sk_768, seed,
-						       seedlen);
+		return lc_kyber_768_keypair_from_seed(
+			&pk->key.pk_768, &sk->key.sk_768, seed, seedlen);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -694,9 +758,8 @@ static inline int lc_kyber_keypair_from_seed(struct lc_kyber_pk *pk,
 #ifdef LC_KYBER_512_ENABLED
 		pk->kyber_type = kyber_type;
 		sk->kyber_type = kyber_type;
-		return lc_kyber_512_keypair_from_seed(&pk->key.pk_512,
-						      &sk->key.sk_512, seed,
-						      seedlen);
+		return lc_kyber_512_keypair_from_seed(
+			&pk->key.pk_512, &sk->key.sk_512, seed, seedlen);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -1886,6 +1949,10 @@ struct lc_kyber_x25519_ss {
 
 /**
  * @brief Return the size of the Kyber secret key.
+ *
+ * @param [in] kyber_type Kyber type for which the size is requested
+ *
+ * @return requested size
  */
 LC_PURE
 static inline unsigned int
@@ -1918,6 +1985,10 @@ lc_kyber_x25519_sk_size(enum lc_kyber_type kyber_type)
 
 /**
  * @brief Return the size of the Kyber public key.
+ *
+ * @param [in] kyber_type Kyber type for which the size is requested
+ *
+ * @return requested size
  */
 LC_PURE
 static inline unsigned int
@@ -1950,6 +2021,10 @@ lc_kyber_x25519_pk_size(enum lc_kyber_type kyber_type)
 
 /**
  * @brief Return the size of the Kyber ciphertext.
+ *
+ * @param [in] kyber_type Kyber type for which the size is requested
+ *
+ * @return requested size
  */
 LC_PURE
 static inline unsigned int
@@ -1982,6 +2057,10 @@ lc_kyber_x25519_ct_size(enum lc_kyber_type kyber_type)
 
 /**
  * @brief Return the size of the Kyber shared secret.
+ *
+ * @param [in] kyber_type Kyber type for which the size is requested
+ *
+ * @return requested size
  */
 LC_PURE
 static inline unsigned int
@@ -2182,6 +2261,20 @@ static inline int lc_kyber_x25519_ss_load(struct lc_kyber_x25519_ss *ss,
 	}
 }
 
+/**
+ * @brief Obtain the reference to the Kyber key and its length
+ *
+ * NOTE: Only pointer references into the leancrypto data structure are returned
+ * which implies that any modification will modify the leancrypto key, too.
+ *
+ * @param [out] kyber_key Kyber key pointer
+ * @param [out] kyber_key_len Length of the key buffer
+ * @param [out] x25519_key X25519 key pointer
+ * @param [out] x25519_key_len X25519 of the key buffer
+ * @param [in] sk Hybrid secret key from which the references are obtained
+ *
+ * @return 0 on success, != 0 on error
+ */
 static inline int lc_kyber_x25519_sk_ptr(uint8_t **kyber_key,
 					 size_t *kyber_key_len,
 					 uint8_t **x25519_key,
@@ -2226,6 +2319,20 @@ static inline int lc_kyber_x25519_sk_ptr(uint8_t **kyber_key,
 	}
 }
 
+/**
+ * @brief Obtain the reference to the Kyber key and its length
+ *
+ * NOTE: Only pointer references into the leancrypto data structure are returned
+ * which implies that any modification will modify the leancrypto key, too.
+ *
+ * @param [out] kyber_key Kyber key pointer
+ * @param [out] kyber_key_len Length of the key buffer
+ * @param [out] x25519_key X25519 key pointer
+ * @param [out] x25519_key_len X25519 of the key buffer
+ * @param [in] pk Hybrid public key from which the references are obtained
+ *
+ * @return 0 on success, != 0 on error
+ */
 static inline int lc_kyber_x25519_pk_ptr(uint8_t **kyber_key,
 					 size_t *kyber_key_len,
 					 uint8_t **x25519_key,
@@ -2270,21 +2377,36 @@ static inline int lc_kyber_x25519_pk_ptr(uint8_t **kyber_key,
 	}
 }
 
-static inline int lc_kyber_x25519_ct_ptr(uint8_t **kyber_key,
-					 size_t *kyber_key_len,
+/**
+ * @brief Obtain the reference to the Kyber ciphertext and its length
+ *
+ * NOTE: Only pointer references into the leancrypto data structure are returned
+ * which implies that any modification will modify the leancrypto ciphertext,
+ * too.
+ *
+ * @param [out] kyber_ct Kyber ciphertext pointer
+ * @param [out] kyber_ct_len Length of the ciphertext buffer
+ * @param [out] x25519_key X25519 ephermeral public key pointer
+ * @param [out] x25519_key_len X25519 of the key buffer
+ * @param [in] ct Hybrid ciphertext from which the references are obtained
+ *
+ * @return 0 on success, != 0 on error
+ */
+static inline int lc_kyber_x25519_ct_ptr(uint8_t **kyber_ct,
+					 size_t *kyber_ct_len,
 					 uint8_t **x25519_key,
 					 size_t *x25519_key_len,
 					 struct lc_kyber_x25519_ct *ct)
 {
-	if (!ct || !kyber_key || !kyber_key_len || !x25519_key ||
+	if (!ct || !kyber_ct || !kyber_ct_len || !x25519_key ||
 	    !x25519_key_len) {
 		return -EINVAL;
 #ifdef LC_KYBER_1024_ENABLED
 	} else if (ct->kyber_type == LC_KYBER_1024) {
 		struct lc_kyber_1024_x25519_ct *_ct = &ct->key.ct_1024;
 
-		*kyber_key = _ct->ct.ct;
-		*kyber_key_len = lc_kyber_ct_size(ct->kyber_type);
+		*kyber_ct = _ct->ct.ct;
+		*kyber_ct_len = lc_kyber_ct_size(ct->kyber_type);
 		*x25519_key = _ct->pk_x25519.pk;
 		*x25519_key_len = LC_X25519_PUBLICKEYBYTES;
 		return 0;
@@ -2293,8 +2415,8 @@ static inline int lc_kyber_x25519_ct_ptr(uint8_t **kyber_key,
 	} else if (ct->kyber_type == LC_KYBER_768) {
 		struct lc_kyber_768_x25519_ct *_ct = &ct->key.ct_768;
 
-		*kyber_key = _ct->ct.ct;
-		*kyber_key_len = lc_kyber_ct_size(ct->kyber_type);
+		*kyber_ct = _ct->ct.ct;
+		*kyber_ct_len = lc_kyber_ct_size(ct->kyber_type);
 		*x25519_key = _ct->pk_x25519.pk;
 		*x25519_key_len = LC_X25519_PUBLICKEYBYTES;
 		return 0;
@@ -2303,8 +2425,8 @@ static inline int lc_kyber_x25519_ct_ptr(uint8_t **kyber_key,
 	} else if (ct->kyber_type == LC_KYBER_512) {
 		struct lc_kyber_512_x25519_ct *_ct = &ct->key.ct_512;
 
-		*kyber_key = _ct->ct.ct;
-		*kyber_key_len = lc_kyber_ct_size(ct->kyber_type);
+		*kyber_ct = _ct->ct.ct;
+		*kyber_ct_len = lc_kyber_ct_size(ct->kyber_type);
 		*x25519_key = _ct->pk_x25519.pk;
 		*x25519_key_len = LC_X25519_PUBLICKEYBYTES;
 		return 0;
@@ -2314,43 +2436,57 @@ static inline int lc_kyber_x25519_ct_ptr(uint8_t **kyber_key,
 	}
 }
 
-static inline int lc_kyber_x25519_ss_ptr(uint8_t **kyber_key,
-					 size_t *kyber_key_len,
-					 uint8_t **x25519_key,
-					 size_t *x25519_key_len,
+/**
+ * @brief Obtain the reference to the Kyber shared secret and its length
+ *
+ * NOTE: Only pointer references into the leancrypto data structure are returned
+ * which implies that any modification will modify the leancrypto shared secret,
+ * too.
+ *
+ * @param [out] kyber_ss Kyber shared secret pointer
+ * @param [out] kyber_ss_len Length of the shared secret buffer
+ * @param [out] x25519_ss X25519 shared secret pointer
+ * @param [out] x25519_ss_len X25519 of the shared secret buffer
+ * @param [in] ss Hybrid shared secret from which the references are obtained
+ *
+ * @return 0 on success, != 0 on error
+ */
+static inline int lc_kyber_x25519_ss_ptr(uint8_t **kyber_ss,
+					 size_t *kyber_ss_len,
+					 uint8_t **x25519_ss,
+					 size_t *x25519_ss_len,
 					 struct lc_kyber_x25519_ss *ss)
 {
-	if (!ss || !kyber_key || !kyber_key_len || !x25519_key ||
-	    !x25519_key_len) {
+	if (!ss || !kyber_ss || !kyber_ss_len || !x25519_ss || !x25519_ss_len) {
 		return -EINVAL;
 #ifdef LC_KYBER_1024_ENABLED
 	} else if (ss->kyber_type == LC_KYBER_1024) {
 		struct lc_kyber_1024_x25519_ss *_ss = &ss->key.ss_1024;
 
-		*kyber_key = _ss->ss.ss;
-		*kyber_key_len = lc_kyber_ss_size(ss->kyber_type);
-		*x25519_key = _ss->ss_x25519.ss;
-		*x25519_key_len = LC_X25519_SSBYTES;
+		*kyber_ss = _ss->ss.ss;
+		*kyber_ss_len = lc_kyber_ss_size(ss->kyber_type);
+		*x25519_ss = _ss->ss_x25519.ss;
+		*x25519_ss_len = LC_X25519_SSBYTES;
 		return 0;
 #endif
 #ifdef LC_KYBER_768_ENABLED
 	} else if (ss->kyber_type == LC_KYBER_768) {
 		struct lc_kyber_768_x25519_ss *_ss = &ss->key.ss_768;
 
-		*kyber_key = _ss->ss.ss;
-		*kyber_key_len = lc_kyber_ss_size(ss->kyber_type);
-		*x25519_key = _ss->ss_x25519.ss;
-		*x25519_key_len = LC_X25519_SSBYTES;
+		*kyber_ss = _ss->ss.ss;
+		*kyber_ss_len = lc_kyber_ss_size(ss->kyber_type);
+		*x25519_ss = _ss->ss_x25519.ss;
+		*x25519_ss_len = LC_X25519_SSBYTES;
 		return 0;
 #endif
 #ifdef LC_KYBER_512_ENABLED
 	} else if (ss->kyber_type == LC_KYBER_512) {
 		struct lc_kyber_512_x25519_ss *_ss = &ss->key.ss_512;
 
-		*kyber_key = _ss->ss.ss;
-		*kyber_key_len = lc_kyber_ss_size(ss->kyber_type);
-		*x25519_key = _ss->ss_x25519.ss;
-		*x25519_key_len = LC_X25519_SSBYTES;
+		*kyber_ss = _ss->ss.ss;
+		*kyber_ss_len = lc_kyber_ss_size(ss->kyber_type);
+		*x25519_ss = _ss->ss_x25519.ss;
+		*x25519_ss_len = LC_X25519_SSBYTES;
 		return 0;
 #endif
 	} else {
