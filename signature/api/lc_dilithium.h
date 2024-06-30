@@ -1193,7 +1193,7 @@ lc_dilithium_ed25519_sig_size(enum lc_dilithium_type dilithium_type)
  */
 static inline int lc_dilithium_ed25519_sk_load(
 	struct lc_dilithium_ed25519_sk *sk, const uint8_t *dilithium_src_key,
-	size_t dilithium_src_key_len, uint8_t *ed25519_src_key,
+	size_t dilithium_src_key_len, const uint8_t *ed25519_src_key,
 	size_t ed25519_src_key_len)
 {
 	if (!sk || !dilithium_src_key || dilithium_src_key_len == 0 ||
@@ -1254,7 +1254,7 @@ static inline int lc_dilithium_ed25519_sk_load(
  */
 static inline int lc_dilithium_ed25519_pk_load(
 	struct lc_dilithium_ed25519_pk *pk, const uint8_t *dilithium_src_key,
-	size_t dilithium_src_key_len, uint8_t *ed25519_src_key,
+	size_t dilithium_src_key_len, const uint8_t *ed25519_src_key,
 	size_t ed25519_src_key_len)
 {
 	if (!pk || !dilithium_src_key || dilithium_src_key_len == 0 ||
@@ -1316,7 +1316,7 @@ static inline int lc_dilithium_ed25519_pk_load(
  */
 static inline int lc_dilithium_ed25519_sig_load(
 	struct lc_dilithium_ed25519_sig *sig, const uint8_t *dilithium_src_sig,
-	size_t dilithium_src_sig_len, uint8_t *ed25519_src_sig,
+	size_t dilithium_src_sig_len, const uint8_t *ed25519_src_sig,
 	size_t ed25519_src_sig_len)
 {
 	if (!sig || !dilithium_src_sig || dilithium_src_sig_len == 0 ||
