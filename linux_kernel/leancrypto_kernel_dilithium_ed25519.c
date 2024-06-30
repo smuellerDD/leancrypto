@@ -191,7 +191,8 @@ static int lc_kernel_dilithium_ed25519_set_pub_key_int(
 	 * the ED25519 key.
 	 */
 	ret = lc_dilithium_ed25519_pk_load(
-		&ctx->pk, key, dilithium_key_size, key + dilithium_key_size,
+		&ctx->pk, key, dilithium_key_size,
+		((uint8_t *)key) + dilithium_key_size,
 		LC_ED25519_PUBLICKEYBYTES);
 
 	if (!ret) {
@@ -231,6 +232,7 @@ static int lc_kernel_dilithium_ed25519_set_priv_key_int(
 {
 	struct lc_kernel_dilithium_ed25519_ctx *ctx = akcipher_tfm_ctx(tfm);
 	size_t dilithium_key_size = lc_dilithium_sk_size(type);
+	const uint8_t *key_int = key;
 	int ret;
 
 	ctx->key_type = lc_kernel_dilithium_ed25519_key_unset;
@@ -244,7 +246,8 @@ static int lc_kernel_dilithium_ed25519_set_priv_key_int(
 	 * the ED25519 key.
 	 */
 	ret = lc_dilithium_ed25519_sk_load(
-		&ctx->sk, key, dilithium_key_size, key + dilithium_key_size,
+		&ctx->sk, key_int, dilithium_key_size,
+		key_int + dilithium_key_size,
 		LC_ED25519_SECRETKEYBYTES);
 
 	if (!ret) {
