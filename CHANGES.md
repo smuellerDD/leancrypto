@@ -8,6 +8,8 @@ Changes 1.0.0-prerelease
 
 * Kyber: change standard API such that caller can select Kyber type
 
+* Dilithium: change standard API such that caller can select Dilithium type
+
 * security: addition of Timecop and instrumentation of tests to find side-channels
 
 Changes 0.10.1
