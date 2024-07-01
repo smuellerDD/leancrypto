@@ -1477,8 +1477,7 @@ lc_dilithium_ed25519_sk_ptr(uint8_t **dilithium_key, size_t *dilithium_key_len,
 		struct lc_dilithium_87_ed25519_sk *_sk = &sk->key.sk_87;
 
 		*dilithium_key = _sk->sk.sk;
-		*dilithium_key_len =
-			lc_dilithium_ed25519_sk_size(sk->dilithium_type);
+		*dilithium_key_len = lc_dilithium_sk_size(sk->dilithium_type);
 		*ed25519_key = _sk->sk_ed25519.sk;
 		*ed25519_key_len = LC_ED25519_SECRETKEYBYTES;
 		return 0;
@@ -1488,8 +1487,7 @@ lc_dilithium_ed25519_sk_ptr(uint8_t **dilithium_key, size_t *dilithium_key_len,
 		struct lc_dilithium_65_ed25519_sk *_sk = &sk->key.sk_65;
 
 		*dilithium_key = _sk->sk.sk;
-		*dilithium_key_len =
-			lc_dilithium_ed25519_sk_size(sk->dilithium_type);
+		*dilithium_key_len = lc_dilithium_sk_size(sk->dilithium_type);
 		*ed25519_key = _sk->sk_ed25519.sk;
 		*ed25519_key_len = LC_ED25519_SECRETKEYBYTES;
 		return 0;
@@ -1499,8 +1497,7 @@ lc_dilithium_ed25519_sk_ptr(uint8_t **dilithium_key, size_t *dilithium_key_len,
 		struct lc_dilithium_44_ed25519_sk *_sk = &sk->key.sk_44;
 
 		*dilithium_key = _sk->sk.sk;
-		*dilithium_key_len =
-			lc_dilithium_ed25519_sk_size(sk->dilithium_type);
+		*dilithium_key_len = lc_dilithium_sk_size(sk->dilithium_type);
 		*ed25519_key = _sk->sk_ed25519.sk;
 		*ed25519_key_len = LC_ED25519_SECRETKEYBYTES;
 		return 0;
@@ -1537,10 +1534,9 @@ lc_dilithium_ed25519_pk_ptr(uint8_t **dilithium_key, size_t *dilithium_key_len,
 		struct lc_dilithium_87_ed25519_pk *_pk = &pk->key.pk_87;
 
 		*dilithium_key = _pk->pk.pk;
-		*dilithium_key_len =
-			lc_dilithium_ed25519_pk_size(pk->dilithium_type);
+		*dilithium_key_len = lc_dilithium_pk_size(pk->dilithium_type);
 		*ed25519_key = _pk->pk_ed25519.pk;
-		*ed25519_key_len = LC_ED25519_SECRETKEYBYTES;
+		*ed25519_key_len = LC_ED25519_PUBLICKEYBYTES;
 		return 0;
 #endif
 #ifdef LC_DILITHIUM_65_ENABLED
@@ -1548,10 +1544,9 @@ lc_dilithium_ed25519_pk_ptr(uint8_t **dilithium_key, size_t *dilithium_key_len,
 		struct lc_dilithium_65_ed25519_pk *_pk = &pk->key.pk_65;
 
 		*dilithium_key = _pk->pk.pk;
-		*dilithium_key_len =
-			lc_dilithium_ed25519_pk_size(pk->dilithium_type);
+		*dilithium_key_len = lc_dilithium_pk_size(pk->dilithium_type);
 		*ed25519_key = _pk->pk_ed25519.pk;
-		*ed25519_key_len = LC_ED25519_SECRETKEYBYTES;
+		*ed25519_key_len = LC_ED25519_PUBLICKEYBYTES;
 		return 0;
 #endif
 #ifdef LC_DILITHIUM_44_ENABLED
@@ -1559,10 +1554,9 @@ lc_dilithium_ed25519_pk_ptr(uint8_t **dilithium_key, size_t *dilithium_key_len,
 		struct lc_dilithium_44_ed25519_pk *_pk = &pk->key.pk_44;
 
 		*dilithium_key = _pk->pk.pk;
-		*dilithium_key_len =
-			lc_dilithium_ed25519_pk_size(pk->dilithium_type);
+		*dilithium_key_len = lc_dilithium_pk_size(pk->dilithium_type);
 		*ed25519_key = _pk->pk_ed25519.pk;
-		*ed25519_key_len = LC_ED25519_SECRETKEYBYTES;
+		*ed25519_key_len = LC_ED25519_PUBLICKEYBYTES;
 		return 0;
 #endif
 	} else {
@@ -1598,10 +1592,9 @@ lc_dilithium_ed25519_sig_ptr(uint8_t **dilithium_sig, size_t *dilithium_sig_len,
 		struct lc_dilithium_87_ed25519_sig *_sig = &sig->sig.sig_87;
 
 		*dilithium_sig = _sig->sig.sig;
-		*dilithium_sig_len =
-			lc_dilithium_ed25519_sig_size(sig->dilithium_type);
+		*dilithium_sig_len = lc_dilithium_sig_size(sig->dilithium_type);
 		*ed25519_sig = _sig->sig_ed25519.sig;
-		*ed25519_sig_len = LC_ED25519_SECRETKEYBYTES;
+		*ed25519_sig_len = LC_ED25519_SIGBYTES;
 		return 0;
 #endif
 #ifdef LC_DILITHIUM_65_ENABLED
@@ -1609,10 +1602,9 @@ lc_dilithium_ed25519_sig_ptr(uint8_t **dilithium_sig, size_t *dilithium_sig_len,
 		struct lc_dilithium_65_ed25519_sig *_sig = &sig->sig.sig_65;
 
 		*dilithium_sig = _sig->sig.sig;
-		*dilithium_sig_len =
-			lc_dilithium_ed25519_sig_size(sig->dilithium_type);
+		*dilithium_sig_len = lc_dilithium_sig_size(sig->dilithium_type);
 		*ed25519_sig = _sig->sig_ed25519.sig;
-		*ed25519_sig_len = LC_ED25519_SECRETKEYBYTES;
+		*ed25519_sig_len = LC_ED25519_SIGBYTES;
 		return 0;
 #endif
 #ifdef LC_DILITHIUM_44_ENABLED
@@ -1620,10 +1612,9 @@ lc_dilithium_ed25519_sig_ptr(uint8_t **dilithium_sig, size_t *dilithium_sig_len,
 		struct lc_dilithium_44_ed25519_sig *_sig = &sig->sig.sig_44;
 
 		*dilithium_sig = _sig->sig.sig;
-		*dilithium_sig_len =
-			lc_dilithium_ed25519_sig_size(sig->dilithium_type);
+		*dilithium_sig_len = lc_dilithium_sig_size(sig->dilithium_type);
 		*ed25519_sig = _sig->sig_ed25519.sig;
-		*ed25519_sig_len = LC_ED25519_SECRETKEYBYTES;
+		*ed25519_sig_len = LC_ED25519_SIGBYTES;
 		return 0;
 #endif
 	} else {
