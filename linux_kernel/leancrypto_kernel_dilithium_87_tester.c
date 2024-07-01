@@ -233,7 +233,7 @@ static int lc_dilithium_tester(void)
 	if (ret)
 		goto out;
 
-		/*
+	/*
 	 * memcmp is not possible as we use lc_seeded_rng causing a different
 	 * signature for each invocation. When using NULL as the RNG context
 	 * in sig gen, this can be enabled.
