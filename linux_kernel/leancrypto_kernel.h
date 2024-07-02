@@ -113,50 +113,6 @@ static inline void lc_kernel_dilithium_44_exit(void)
 }
 #endif
 
-#if (defined(CONFIG_LEANCRYPTO_DILITHIUM_ED25519) &&                           \
-     defined(CONFIG_LEANCRYPTO_DILITHIUM_87))
-int __init lc_kernel_dilithium_ed25519_init(void);
-void lc_kernel_dilithium_ed25519_exit(void);
-#else
-static inline int __init lc_kernel_dilithium_ed25519_init(void)
-{
-	return 0;
-}
-
-static inline void lc_kernel_dilithium_ed25519_exit(void)
-{
-}
-#endif
-#if (defined(CONFIG_LEANCRYPTO_DILITHIUM_ED25519) &&                           \
-     defined(CONFIG_LEANCRYPTO_DILITHIUM_65))
-int __init lc_kernel_dilithium_65_ed25519_init(void);
-void lc_kernel_dilithium_65_ed25519_exit(void);
-#else
-static inline int __init lc_kernel_dilithium_65_ed25519_init(void)
-{
-	return 0;
-}
-
-static inline void lc_kernel_dilithium_65_ed25519_exit(void)
-{
-}
-#endif
-
-#if (defined(CONFIG_LEANCRYPTO_DILITHIUM_ED25519) &&                           \
-     defined(CONFIG_LEANCRYPTO_DILITHIUM_44))
-int __init lc_kernel_dilithium_44_ed25519_init(void);
-void lc_kernel_dilithium_44_ed25519_exit(void);
-#else
-static inline int __init lc_kernel_dilithium_44_ed25519_init(void)
-{
-	return 0;
-}
-
-static inline void lc_kernel_dilithium_44_ed25519_exit(void)
-{
-}
-#endif
-
 #ifdef CONFIG_LEANCRYPTO_KEM_KYBER_1024
 int __init lc_kernel_kyber_init(void);
 void lc_kernel_kyber_exit(void);

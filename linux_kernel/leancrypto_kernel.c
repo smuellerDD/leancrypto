@@ -78,21 +78,9 @@ static int __init leancrypto_init(void)
 	if (ret)
 		goto free_dilithium_65;
 
-	ret = lc_kernel_dilithium_ed25519_init();
-	if (ret)
-		goto free_dilithium_44;
-
-	ret = lc_kernel_dilithium_65_ed25519_init();
-	if (ret)
-		goto free_dilithium_ed25519;
-
-	ret = lc_kernel_dilithium_44_ed25519_init();
-	if (ret)
-		goto free_dilithium_65_ed25519;
-
 	ret = lc_kernel_kyber_init();
 	if (ret)
-		goto free_dilithium_44_ed25519;
+		goto free_dilithium_44;
 
 	ret = lc_kernel_kyber_768_init();
 	if (ret)
@@ -139,15 +127,6 @@ free_kyber_768:
 free_kyber:
 	lc_kernel_kyber_exit();
 
-free_dilithium_44_ed25519:
-	lc_kernel_dilithium_44_ed25519_exit();
-
-free_dilithium_65_ed25519:
-	lc_kernel_dilithium_65_ed25519_exit();
-
-free_dilithium_ed25519:
-	lc_kernel_dilithium_ed25519_exit();
-
 free_dilithium_44:
 	lc_kernel_dilithium_44_exit();
 
@@ -179,9 +158,6 @@ static void __exit leancrypto_exit(void)
 	lc_kernel_dilithium_exit();
 	lc_kernel_dilithium_65_exit();
 	lc_kernel_dilithium_44_exit();
-	lc_kernel_dilithium_ed25519_exit();
-	lc_kernel_dilithium_65_ed25519_exit();
-	lc_kernel_dilithium_44_ed25519_exit();
 	lc_kernel_kyber_exit();
 	lc_kernel_kyber_768_exit();
 	lc_kernel_kyber_512_exit();
