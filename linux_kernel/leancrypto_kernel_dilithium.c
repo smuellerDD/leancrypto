@@ -73,8 +73,8 @@ static int lc_kernel_dilithium_sign(struct akcipher_request *req)
 	sg_miter_start(&miter, req->src,
 		       sg_nents_for_len(req->src, req->src_len), sg_flags);
 
-	while ((offset < req->dst_len) && sg_miter_next(&miter)) {
-		unsigned int len = min(miter.length, req->dst_len - offset);
+	while ((offset < req->src_len) && sg_miter_next(&miter)) {
+		unsigned int len = min(miter.length, req->src_len - offset);
 
 		lc_dilithium_sign_update(hash_ctx, miter.addr, len);
 		offset += len;
