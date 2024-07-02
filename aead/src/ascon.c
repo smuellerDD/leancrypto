@@ -29,18 +29,24 @@
 #include "visibility.h"
 #include "xor.h"
 
-static void lc_ascon_zero(struct lc_ascon_cryptor *ascon)
+static void lc_ascon_zero_ex_key(struct lc_ascon_cryptor *ascon)
 {
 	uint64_t *state_mem = ascon->state;
 
 	lc_memset_secure((uint8_t *)state_mem, 0, ascon->statesize);
-	lc_memset_secure((uint8_t *)ascon->key, 0, sizeof(ascon->key));
-	ascon->keylen = 0;
 	ascon->rate_offset = 0;
 	ascon->roundb = 0;
 
 	/* Do not touch ascon->statesize! */
 	/* Do not touch ascon->taglen! */
+}
+
+static void lc_ascon_zero(struct lc_ascon_cryptor *ascon)
+{
+	lc_memset_secure((uint8_t *)ascon->key, 0, sizeof(ascon->key));
+	ascon->keylen = 0;
+
+	lc_ascon_zero_ex_key(ascon);
 }
 
 /**
@@ -81,10 +87,20 @@ static int lc_ascon_setkey(void *state, const uint8_t *key, size_t keylen,
 	    !hash->sponge_rate)
 		return -EOPNOTSUPP;
 
+	/*
+	 * If we receive a NULL key, assume it was loaded before with
+	 * lc_ascon_load_key.
+	 */
+	if (!key) {
+		lc_ascon_zero_ex_key(ascon);
+		key = ascon->key;
+		keylen = ascon->keylen;
+	} else {
+		lc_ascon_zero(ascon);
+	}
+
 	if (noncelen < 16 || noncelen > keylen)
 		return -EINVAL;
-
-	lc_ascon_zero(ascon);
 
 	/*
 	 * Add (IV || key || Nonce) to rate section and first part of capacity
@@ -107,7 +123,9 @@ static int lc_ascon_setkey(void *state, const uint8_t *key, size_t keylen,
 	if (!ret)
 		return -EINVAL;
 
-	memcpy(ascon->key, key, keylen);
+	/* Allow this function being called with the ascon->key */
+	if (key != ascon->key)
+		memcpy(ascon->key, key, keylen);
 
 	/* Insert key past the IV. */
 	lc_sponge_add_bytes(hash, state_mem, key, sizeof(uint64_t), keylen);
@@ -124,25 +142,6 @@ static int lc_ascon_setkey(void *state, const uint8_t *key, size_t keylen,
 			    keylen);
 
 	return 0;
-}
-
-/*
- * This function adds the padding byte with which the AAD as well as the
- * plaintext is appended with.
- */
-static void lc_ascon_add_padbyte(struct lc_ascon_cryptor *ascon, size_t offset)
-{
-	const struct lc_hash *hash = ascon->hash;
-	static const uint8_t pad_data = 0x80;
-
-	/*
-	 * The data was exactly a multiple of the rate -> permute before adding
-	 * the padding byte.
-	 */
-	if (offset == hash->sponge_rate)
-		offset = 0;
-
-	lc_sponge_add_bytes(hash, ascon->state, &pad_data, offset, 1);
 }
 
 /* Insert the AAD into the sponge state. */

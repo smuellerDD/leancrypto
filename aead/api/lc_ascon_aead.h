@@ -27,8 +27,10 @@
 extern "C" {
 #endif
 
+#define LC_ASCON_MAX_KEYSIZE 64
+
 struct lc_ascon_cryptor {
-	uint8_t key[64];
+	uint8_t key[LC_ASCON_MAX_KEYSIZE];
 	uint8_t keylen;
 	uint8_t rate_offset;
 	uint8_t statesize;
@@ -53,6 +55,38 @@ extern const struct lc_aead *lc_ascon_aead;
 			  hashname,                                            \
 			  ((struct lc_ascon_cryptor *)name->aead_state),       \
 			  (sizeof(struct lc_ascon_cryptor)))
+
+static inline int lc_ascon_load_key(struct lc_ascon_cryptor *ascon,
+				    uint8_t *key, size_t keylen)
+{
+	if (ascon && keylen < LC_ASCON_MAX_KEYSIZE) {
+		memcpy(ascon->key, key, keylen);
+		ascon->keylen = (uint8_t)keylen;
+		return 0;
+	}
+	return -EINVAL;
+}
+
+/*
+ * This function adds the padding byte with which the AAD as well as the
+ * plaintext is appended with.
+ */
+static inline void lc_ascon_add_padbyte(struct lc_ascon_cryptor *ascon,
+					size_t offset)
+{
+	const struct lc_hash *hash = ascon->hash;
+	static const uint8_t pad_data = 0x80;
+
+	/*
+	 * The data was exactly a multiple of the rate -> permute before adding
+	 * the padding byte.
+	 */
+	if (offset == hash->sponge_rate)
+		offset = 0;
+
+	lc_sponge_add_bytes(hash, ascon->state, &pad_data, offset, 1);
+}
+
 
 #ifdef __cplusplus
 }
