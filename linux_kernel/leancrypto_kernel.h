@@ -214,6 +214,19 @@ static inline void lc_kernel_ascon_exit(void)
 }
 #endif
 
+#ifdef CONFIG_LEANCRYPTO_ASCON_CRYPT
+int __init lc_kernel_aead_ascon_init(void);
+void lc_kernel_aead_ascon_exit(void);
+#else
+static inline int __init lc_kernel_aead_ascon_init(void)
+{
+	return 0;
+}
+
+static inline void lc_kernel_aead_ascon_exit(void)
+{
+}
+#endif
 #ifdef __cplusplus
 }
 #endif

@@ -7,8 +7,6 @@
   compiled for target host ARMv7 - at the moment compiling on ARMv6 fails
   because the Neon code is compiled (which should not be compiled)
 
-- Add Ascon-AEAD / Ascon-Keccak-AEAD to skcipher API
-
 - add more Rust wrappers
 
 - add more complete profiling support

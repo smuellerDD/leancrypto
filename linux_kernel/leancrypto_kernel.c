@@ -106,8 +106,15 @@ static int __init leancrypto_init(void)
 	if (ret)
 		goto free_kyber_x25519_512;
 
+	ret = lc_kernel_aead_ascon_init();
+	if (ret)
+		goto free_ascon;
+
 out:
 	return ret;
+
+free_ascon:
+	lc_kernel_ascon_exit();
 
 free_kyber_x25519_512:
 	lc_kernel_kyber_x25519_512_exit();
@@ -165,6 +172,7 @@ static void __exit leancrypto_exit(void)
 	lc_kernel_kyber_x25519_768_exit();
 	lc_kernel_kyber_x25519_512_exit();
 	lc_kernel_ascon_exit();
+	lc_kernel_aead_ascon_exit();
 }
 
 module_init(leancrypto_init);

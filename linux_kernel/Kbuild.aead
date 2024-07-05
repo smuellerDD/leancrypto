@@ -40,13 +40,16 @@ endif
 ################################################################################
 # AEAD implementation: Ascon and Ascon/Keccak
 ifdef CONFIG_LEANCRYPTO_ASCON_CRYPT
+ccflags-y			+= -DCONFIG_LEANCRYPTO_ASCON_CRYPT
 leancrypto-$(CONFIG_LEANCRYPTO_ASCON_CRYPT)				       \
-				+= ../aead/src/ascon.o
+				+= ../aead/src/ascon.o			       \
+				   leancrypto_kernel_aead_ascon.o
 
 ifdef CONFIG_LEANCRYPTO_ASCON_HASH
 ccflags-y			+= -DLC_ASCON
 leancrypto-$(CONFIG_LEANCRYPTO_ASCON_CRYPT)				       \
 				+= ../aead/src/ascon_lightweight.o
+obj-m				+= leancrypto_kernel_aead_ascon_tester.o
 obj-m		  		+= ascon_crypt_test.o
 ascon_crypt_test-y 		+= ../aead/tests/ascon_crypt_test.o
 endif
