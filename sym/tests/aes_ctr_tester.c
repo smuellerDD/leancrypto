@@ -121,7 +121,7 @@ static int test_xcrypt_ctr(const struct lc_sym *aes, const char *name,
 	int ret;
 	LC_SYM_CTX_ON_STACK(aes_ctr, aes);
 
-	printf("AES CTR ctx %s (%s implementation) len %" PRIu64 "\n", name,
+	printf("AES CTR ctx %s (%s implementation) len %lu\n", name,
 	       aes == lc_aes_ctr_c ? "C" : "accelerated", LC_SYM_CTX_SIZE(aes));
 
 	memcpy(in2, in256, sizeof(in256));

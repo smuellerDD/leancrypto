@@ -90,7 +90,7 @@ static int test_decrypt(const struct lc_sym *aes_impl, const char *name)
 	int ret;
 	LC_SYM_CTX_ON_STACK(aes, aes_impl);
 
-	printf("AES block ctx %s (%s implementation) len %" PRIu64 "\n", name,
+	printf("AES block ctx %s (%s implementation) len %lu\n", name,
 	       aes_impl == lc_aes_c ? "C" : "accelerated",
 	       LC_SYM_CTX_SIZE(aes_impl));
 

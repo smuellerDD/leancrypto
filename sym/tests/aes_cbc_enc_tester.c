@@ -107,7 +107,7 @@ static int test_encrypt_cbc(const struct lc_sym *aes, const char *name)
 	int ret;
 	LC_SYM_CTX_ON_STACK(aes_cbc, aes);
 
-	printf("AES CBC ctx %s (%s implementation) len %" PRIu64 "\n", name,
+	printf("AES CBC ctx %s (%s implementation) len %lu\n", name,
 	       aes == lc_aes_cbc_c ? "C" : "accelerated", LC_SYM_CTX_SIZE(aes));
 
 	ret = test_encrypt_cbc_one(aes_cbc, key256, sizeof(key256), out256);

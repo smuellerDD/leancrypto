@@ -139,7 +139,7 @@ static int aascon_tester_128(const struct lc_hash *hash, const char *name)
 					   0x2F, 0xC9, 0x35, 0x0B, 0x91, 0x5C,
 					   0x29, 0x2B, 0xDB, 0x8D };
 
-	printf("Ascon lightweight 128/128 crypt ctx %s len %u, state len %u\n",
+	printf("Ascon lightweight 128 crypt ctx %s len %u, state len %u\n",
 	       name, (unsigned int)LC_AL_CTX_SIZE(hash),
 	       (unsigned int)LC_AL_STATE_SIZE);
 	return ascon_tester_one(hash, pt, sizeof(pt), nonce, sizeof(nonce), aad,
@@ -179,7 +179,7 @@ static int aascon_tester_128a(const struct lc_hash *hash, const char *name)
 					   0x41, 0x12, 0x83, 0x0E, 0x01, 0x96,
 					   0x0B, 0x9D, 0x38, 0xD5 };
 
-	printf("Ascon lightweight 128/128 crypt ctx %s len %u, state len %u\n",
+	printf("Ascon lightweight 128a crypt ctx %s len %u, state len %u\n",
 	       name, (unsigned int)LC_AL_CTX_SIZE(hash),
 	       (unsigned int)LC_AL_STATE_SIZE);
 	return ascon_tester_one(hash, pt, sizeof(pt), nonce, sizeof(nonce), aad,

@@ -57,7 +57,7 @@ extern const struct lc_aead *lc_ascon_aead;
 			  (sizeof(struct lc_ascon_cryptor)))
 
 static inline int lc_ascon_load_key(struct lc_ascon_cryptor *ascon,
-				    uint8_t *key, size_t keylen)
+				    const uint8_t *key, size_t keylen)
 {
 	if (ascon && keylen < LC_ASCON_MAX_KEYSIZE) {
 		memcpy(ascon->key, key, keylen);

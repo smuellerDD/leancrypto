@@ -109,7 +109,7 @@ static int test_decrypt_cbc(const struct lc_sym *aes, const char *name)
 	int ret;
 	LC_SYM_CTX_ON_STACK(aes_cbc, aes);
 
-	printf("AES CBC ctx %s (%s implementation) len %" PRIu64 "\n", name,
+	printf("AES CBC ctx %s (%s implementation) len %lu\n", name,
 	       aes == lc_aes_cbc_c ? "C" : "accelerated", LC_SYM_CTX_SIZE(aes));
 
 	memcpy(in, in256, sizeof(in256));

@@ -85,7 +85,7 @@ static int _shake_sqeeze_more_tester(const struct lc_hash *shake_256,
 	int ret;
 	LC_HASH_CTX_ON_STACK(ctx, shake_256);
 
-	printf("hash ctx %s (%s implementation) len %" PRIu64 "\n", name,
+	printf("hash ctx %s (%s implementation) len %lu\n", name,
 	       shake_256 == lc_shake256_c ? "C" : "accelerated",
 	       LC_HASH_CTX_SIZE(shake_256));
 
