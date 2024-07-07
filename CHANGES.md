@@ -12,6 +12,8 @@ Changes 1.0.0-prerelease
 
 * security: addition of Timecop and instrumentation of tests to find side-channels
 
+* enhancement: add Linux kernel crypto API support for Ascon / Ascon-Keccak
+
 Changes 0.10.1
 
 * enhancement: Linux kernel - Kyber: allow parallel compilation of all Kyber types including all optimizations
