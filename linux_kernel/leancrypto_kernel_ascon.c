@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0 OR BSD-2-Clause
 /*
  * Copyright (C) 2024, Stephan Mueller <smueller@chronox.de>
  *
