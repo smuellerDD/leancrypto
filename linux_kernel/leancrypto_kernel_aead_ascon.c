@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0 OR BSD-2-Clause
 /*
  * Copyright (C) 2024, Stephan Mueller <smueller@chronox.de>
  *
@@ -235,6 +236,7 @@ static int lc_aead_setauthsize(struct crypto_aead *aead, unsigned int authsize)
 	return 0;
 }
 
+#ifdef LC_ASCON
 static int lc_aead_init_ascon128(struct crypto_aead *aead)
 {
 	struct lc_aead_ctx *ctx = crypto_aead_ctx(aead);
@@ -260,7 +262,9 @@ static int lc_aead_init_ascon128a(struct crypto_aead *aead)
 
 	return 0;
 }
+#endif
 
+#ifdef LC_ASCON_KECCAK
 static int lc_aead_init_ascon_keccak256(struct crypto_aead *aead)
 {
 	struct lc_aead_ctx *ctx = crypto_aead_ctx(aead);
@@ -286,12 +290,14 @@ static int lc_aead_init_ascon_keccak512(struct crypto_aead *aead)
 
 	return 0;
 }
+#endif
 
 static void lc_aead_exit(struct crypto_aead *aead)
 {
 }
 
 static struct aead_alg lc_aead_algs[] = {
+#ifdef LC_ASCON
 	{
 		.base = {
 			.cra_name = "ascon-aead-128",
@@ -328,7 +334,10 @@ static struct aead_alg lc_aead_algs[] = {
 		.exit = lc_aead_exit,
 		.ivsize = 16,
 		.maxauthsize = 16,
-	}, {
+	},
+#endif
+#ifdef LC_ASCON_KECCAK
+	{
 		.base = {
 			.cra_name = "ascon-aead-keccak256",
 			.cra_driver_name = "ascon-aead-keccak256-leancrypto",
@@ -365,6 +374,7 @@ static struct aead_alg lc_aead_algs[] = {
 		.ivsize = 16,
 		.maxauthsize = 64,
 	}
+#endif
 };
 
 int __init lc_kernel_aead_ascon_init(void)
