@@ -43,7 +43,10 @@ int lc_alloc_aligned(void **memptr, size_t alignment, size_t size)
 		return -ENOMEM;
 
 	*memptr = mem;
-	return -0;
+
+	memset(*memptr, 0, size);
+
+	return 0;
 }
 EXPORT_SYMBOL(lc_alloc_aligned);
 
@@ -62,6 +65,9 @@ int lc_alloc_high_aligned(void **memptr, size_t alignment, size_t size)
 		return -ENOMEM;
 
 	*memptr = page_address(pages);
+
+	memset(*memptr, 0, size);
+
 	return 0;
 }
 EXPORT_SYMBOL(lc_alloc_high_aligned);

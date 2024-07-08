@@ -78,6 +78,8 @@ static int alloc_aligned_secure_internal(void **memptr, size_t alignment,
 	mem->fd = -1;
 	*memptr = ((uint8_t *)mem) + LC_MEM_DEF_ALIGNED_OFFSET;
 
+	memset(*memptr, 0, size);
+
 	return 0;
 }
 

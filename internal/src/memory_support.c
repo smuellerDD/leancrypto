@@ -44,6 +44,9 @@ int posix_memalign(void **ptr, size_t align, size_t size)
 	}
 
 	*ptr = p;
+
+	memset(p, 0, size);
+
 	return 0;
 }
 #endif
