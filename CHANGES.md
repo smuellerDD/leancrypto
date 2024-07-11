@@ -14,6 +14,8 @@ Changes 1.0.0-prerelease
 
 * enhancement: add Linux kernel crypto API support for Ascon / Ascon-Keccak
 
+* fix: performance of seeded RNG by setting reseed threshold to 1MB
+
 Changes 0.10.1
 
 * enhancement: Linux kernel - Kyber: allow parallel compilation of all Kyber types including all optimizations
