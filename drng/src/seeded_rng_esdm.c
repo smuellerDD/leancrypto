@@ -40,14 +40,15 @@ ssize_t get_full_entropy(uint8_t *buffer, size_t bufferlen)
 {
 	ssize_t ret;
 
-	esdm_invoke(esdm_rpcc_get_random_bytes_full(buffer, bufferlen));
+	/* Reseed from ESDM with prediction resistance enabled. */
+	esdm_invoke(esdm_rpcc_get_random_bytes_pr(buffer, bufferlen));
 
 	/*
 	 * When ESDM was unsuccessful, revert to system native call. As the ESDM
 	 * is intended for the Linux platform only, we can directly use the
 	 * Linux entropy source as fallback.
 	 */
-	if (ret != 0)
+	if (ret != (ssize_t)bufferlen)
 		return getrandom_random(buffer, bufferlen);
 
 	return ret ? ret : (ssize_t)bufferlen;
