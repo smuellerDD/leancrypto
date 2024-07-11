@@ -16,6 +16,8 @@ Changes 1.0.0-prerelease
 
 * fix: performance of seeded RNG by setting reseed threshold to 1MB
 
+* fix: Linux kernel warning on return thunk
+
 Changes 0.10.1
 
 * enhancement: Linux kernel - Kyber: allow parallel compilation of all Kyber types including all optimizations

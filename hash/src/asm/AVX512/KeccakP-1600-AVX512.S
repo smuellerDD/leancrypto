@@ -886,6 +886,7 @@ KeccakP1600_AVX512_FastLoop_Absorb_LanesAddLoop:
     jmp             KeccakP1600_AVX512_FastLoop_Absorb_Exit
 SYM_FUNC_END(KeccakP1600_AVX512_12rounds_FastLoop_Absorb)
 
+.data
 .balign 64
 theta_perm:
     .quad    0, 1, 2, 3, 4, 5, 6, 7        # [not used]

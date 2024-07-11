@@ -917,6 +917,7 @@ SYM_FUNC_END(KeccakP1600_AVX2_12rounds_FastLoop_Absorb)
 
 .equ    ALLON,        0xFFFFFFFFFFFFFFFF
 
+.data
 .balign 64
 rhotates_left:
     .quad     3,   18,    36,    41         # [2][0] [4][0] [1][0] [3][0]

@@ -28,6 +28,7 @@
 
 .p2align 5
 
+STACK_FRAME_NON_STANDARD(curve25519_ladder_avx2);
 SYM_FUNC_START(curve25519_ladder_avx2)
 SYM_FUNC_ENTER(curve25519_ladder_avx2)
 
