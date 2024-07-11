@@ -16,3 +16,6 @@
 - AES C implementation: remove side-channels in implementation
 
 - Dilithium: Recheck TODOs on side-channels
+
+- Kyber Linux kernel support: use the common API to avoid recompiling the same
+code three times
