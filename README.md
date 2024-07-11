@@ -127,16 +127,16 @@ Leancrypto offers various cryptographic algorithms:
 
   * Ascon 128 AEAD and Ascon 128a AEAD
 
-  * Ascon Keccak 256/256, 256/512 and 512/512 AEAD, full specification provided with `aead/doc/Ascon-Keccak.pdf`
+  * Ascon Keccak 256, and 512 AEAD, full specification provided with `aead/doc/Ascon-Keccak.pdf`
 
   * cSHAKE-based AEAD algorithm - algorithm devised with leancrypto,
-    see `cshake_crypt.c` for full specification
+    full specification provided with `aead/doc/KMAC_cSHAKE_AEAD_algorithm.pdf`
 
   * hash-based AEAD algorithm -  algorithm devised with leancrypto,
     see `hash_crypt.c` for full specification
 
   * KMAC-based AEAD algorithm - algorithm devised with leancrypto,
-    see `kmac_crypt.c` for full specification
+    full specification provided with `aead/doc/KMAC_cSHAKE_AEAD_algorithm.pdf`
 
   * AES-based AEAD algorithm using SHA2 - see `symhmac_crypt.c` for full
     specification
@@ -275,13 +275,13 @@ ACVP certificates covering all ciphers and their implementations testable by NIS
 
 The testing covered the following platforms:
 
-- x86_64 systems: Intel Tiger Lake i7, Intel Alder Lake i7, AMD Ryzen 9 5950X
+- x86_64 systems: Intel Tiger Lake i7, Intel Alder Lake i7, Intel Meteor Lake Ultra 7, AMD Ryzen 9 5950X
 
 - RISC-V system: SiFive Unmatched board with U74 SiFive Freedom U740 SoC
 
 - ARMv7: NXP Cortex-A7 i.MX6ULZ
 
-- ARMv8: Apple M2, Broadcom BCM2711
+- ARMv8: Apple M2, Broadcom BCM2711, Broadcom BCM2712
 
 The test harness is available at https://github.com/smuellerDD/acvpparser
 covering all algorithm implementations of algorithms that are testable.
