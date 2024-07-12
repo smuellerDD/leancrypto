@@ -272,9 +272,10 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 	kyber_print_polyveck(&ws->e, "Keygen: eHat = NTT(e)");
 
 	// matrix-vector multiplication
+	BUILD_BUG_ON(sizeof(poly) > sizeof(ws->a));
 	for (i = 0; i < LC_KYBER_K; i++) {
 		polyvec_basemul_acc_montgomery(&ws->pkpv.vec[i], &ws->a[i],
-					       &ws->skpv);
+					       &ws->skpv, &ws->a);
 		poly_tomont(&ws->pkpv.vec[i]);
 	}
 	kyber_print_polyvec(&ws->pkpv, "Keygen: tHat = (AHat * sHat)");
@@ -351,10 +352,11 @@ int indcpa_enc(uint8_t c[LC_KYBER_INDCPA_BYTES],
 	// matrix-vector multiplication
 	for (i = 0; i < LC_KYBER_K; i++)
 		polyvec_basemul_acc_montgomery(&ws->b.vec[i], &ws->at[i],
-					       &ws->sp);
+					       &ws->sp, &ws->v);
 	kyber_print_polyvec(&ws->b, "K-PKE Encrypt: u = BHat * rHat");
 
-	polyvec_basemul_acc_montgomery(&ws->v, &ws->pkpv, &ws->sp);
+	BUILD_BUG_ON(sizeof(poly) > sizeof(ws->at));
+	polyvec_basemul_acc_montgomery(&ws->v, &ws->pkpv, &ws->sp, ws->at);
 	kyber_print_poly(&ws->v, "K-PKE Encrypt: v = tHat^T * rHat");
 
 	polyvec_invntt_tomont(&ws->b);
@@ -393,27 +395,34 @@ int indcpa_dec(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
 	       const uint8_t sk[LC_KYBER_INDCPA_SECRETKEYBYTES])
 {
 	struct workspace {
-		polyvec b, skpv;
+		polyvec skpv;
 		poly v, mp;
+		union {
+			polyvec b;
+			poly v;
+		} tmp;
 	};
 	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	unpack_ciphertext(&ws->b, &ws->v, c);
-	kyber_print_polyvec(&ws->b,
-			    "K-PKE Decrypt: u = Decompress(Bytedecode(c1))");
-	kyber_print_poly(&ws->v,
-			 "K-PKE Decrypt: v = Decompress(Bytedecode(c2))");
 	unpack_sk(&ws->skpv, sk);
 	kyber_print_polyvec(&ws->skpv,
 			    "K-PKE Decrypt: sHat = Decompress(Bytedecode(dk))");
 
 	/* Validate input */
-	CKINT(kyber_kem_iv_sk_modulus(sk, &ws->skpv, pack_sk));
+	BUILD_BUG_ON(sizeof(ws->tmp.b) < LC_KYBER_INDCPA_SECRETKEYBYTES);
+	CKINT(kyber_kem_iv_sk_modulus(sk, &ws->skpv, &ws->tmp.b, pack_sk));
 
-	polyvec_ntt(&ws->b);
-	kyber_print_polyvec(&ws->b, "K-PKE Decrypt: NTT(u)");
-	polyvec_basemul_acc_montgomery(&ws->mp, &ws->skpv, &ws->b);
+	unpack_ciphertext(&ws->tmp.b, &ws->v, c);
+	kyber_print_polyvec(&ws->tmp.b,
+			    "K-PKE Decrypt: u = Decompress(Bytedecode(c1))");
+	kyber_print_poly(&ws->v,
+			 "K-PKE Decrypt: v = Decompress(Bytedecode(c2))");
+
+	polyvec_ntt(&ws->tmp.b);
+	kyber_print_polyvec(&ws->tmp.b, "K-PKE Decrypt: NTT(u)");
+	polyvec_basemul_acc_montgomery(&ws->mp, &ws->skpv, &ws->tmp.b,
+				       &ws->tmp.v);
 
 	/* Timecop: Mark the vector with the secret message */
 	poison(&ws->mp, sizeof(ws->mp));

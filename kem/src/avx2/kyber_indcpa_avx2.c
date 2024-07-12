@@ -511,9 +511,11 @@ int indcpa_keypair_avx(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 	polyvec_ntt(&ws->e);
 
 	// matrix-vector multiplication
+	BUILD_BUG_ON(sizeof(ws->poly_getnoise_eta1_buf) < sizeof(poly));
 	for (i = 0; i < LC_KYBER_K; i++) {
 		polyvec_basemul_acc_montgomery(&ws->tmp.pkpv.vec[i], &ws->a[i],
-					       &ws->skpv);
+					       &ws->skpv,
+					       ws->poly_getnoise_eta1_buf);
 		poly_tomont_avx(&ws->tmp.pkpv.vec[i]);
 	}
 
@@ -550,7 +552,7 @@ int indcpa_enc_avx(uint8_t c[LC_KYBER_INDCPA_BYTES],
 			polyvec sp;
 			poly k;
 		} tmp2;
-		BUF_ALIGNED_UINT8_M256I(NOISE_NBLOCKS *LC_SHAKE_256_SIZE_BLOCK)
+		BUF_ALIGNED_UINT8_M256I(NOISE_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK)
 		poly_getnoise_eta1_buf[4];
 		polyvec pkpv, ep, at[LC_KYBER_K];
 		poly epp;
@@ -592,16 +594,19 @@ int indcpa_enc_avx(uint8_t c[LC_KYBER_INDCPA_BYTES],
 	polyvec_ntt(&ws->tmp2.sp);
 
 	// matrix-vector multiplication
+	BUILD_BUG_ON(sizeof(poly) > sizeof(ws->poly_getnoise_eta1_buf));
 	for (i = 0; i < LC_KYBER_K; i++)
 		polyvec_basemul_acc_montgomery(&ws->tmp.b.vec[i], &ws->at[i],
-					       &ws->tmp2.sp);
+					       &ws->tmp2.sp,
+					       ws->poly_getnoise_eta1_buf);
 
 	polyvec_invntt_tomont(&ws->tmp.b);
 	polyvec_add(&ws->tmp.b, &ws->tmp.b, &ws->ep);
 	polyvec_reduce(&ws->tmp.b);
 	pack_ciphertext_b(c, &ws->tmp.b);
 
-	polyvec_basemul_acc_montgomery(&ws->tmp.v, &ws->pkpv, &ws->tmp2.sp);
+	polyvec_basemul_acc_montgomery(&ws->tmp.v, &ws->pkpv, &ws->tmp2.sp,
+				       ws->poly_getnoise_eta1_buf);
 
 	poly_invntt_tomont_avx(&ws->tmp.v);
 
@@ -635,11 +640,13 @@ int indcpa_dec_avx(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
 	unpack_sk(&ws->skpv, sk);
 
 	/* Validate input */
-	CKINT(kyber_kem_iv_sk_modulus(sk, &ws->skpv, pack_sk));
+	BUILD_BUG_ON(sizeof(ws->tmp.b) < LC_KYBER_INDCPA_SECRETKEYBYTES);
+	CKINT(kyber_kem_iv_sk_modulus(sk, &ws->skpv, &ws->tmp.b, pack_sk));
 
 	unpack_ciphertext_b(&ws->tmp.b, c);
 	polyvec_ntt(&ws->tmp.b);
-	polyvec_basemul_acc_montgomery(&ws->mp, &ws->skpv, &ws->tmp.b);
+	polyvec_basemul_acc_montgomery(&ws->mp, &ws->skpv, &ws->tmp.b,
+				       &ws->tmp.v);
 
 	/* Timecop: Mark the vector with the secret message */
 	poison(&ws->mp, sizeof(ws->mp));

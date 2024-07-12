@@ -95,25 +95,21 @@ static inline int kyber_kem_iv_pk_modulus(
  */
 static inline int kyber_kem_iv_sk_modulus(
 	const uint8_t sk[LC_KYBER_INDCPA_SECRETKEYBYTES], const polyvec *skpv,
+	void *ws_buf,
 	void (*pack_sk)(uint8_t r[LC_KYBER_INDCPA_SECRETKEYBYTES],
 			const polyvec *sk))
 {
-	struct workspace {
-		uint8_t sknew[LC_KYBER_INDCPA_SECRETKEYBYTES];
-	};
 	int ret = 0;
-	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	pack_sk(ws->sknew, skpv);
+	pack_sk(ws_buf, skpv);
 
 	/* Timecop: timing difference due to memcmp is no side channel leak. */
 	unpoison(sk, LC_KYBER_INDCPA_SECRETKEYBYTES);
-	unpoison(ws->sknew, LC_KYBER_INDCPA_SECRETKEYBYTES);
-	if (lc_memcmp_secure(sk, LC_KYBER_INDCPA_SECRETKEYBYTES, ws->sknew,
+	unpoison(ws_buf, LC_KYBER_INDCPA_SECRETKEYBYTES);
+	if (lc_memcmp_secure(sk, LC_KYBER_INDCPA_SECRETKEYBYTES, ws_buf,
 			     LC_KYBER_INDCPA_SECRETKEYBYTES))
 		ret = -EINVAL;
 
-	LC_RELEASE_MEM(ws);
 	return ret;
 }
 

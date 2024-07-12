@@ -128,15 +128,16 @@ static inline void polyvec_invntt_tomont(polyvec *r)
  * @param [in] b pointer to second input vector of polynomials
  */
 static inline void polyvec_basemul_acc_montgomery(poly *r, const polyvec *a,
-						  const polyvec *b)
+						  const polyvec *b,
+						  void *ws_buf)
 {
 	unsigned int i;
-	poly t;
+	poly *t = (poly *)ws_buf;
 
 	poly_basemul_montgomery_avx(r, &a->vec[0], &b->vec[0]);
 	for (i = 1; i < LC_KYBER_K; i++) {
-		poly_basemul_montgomery_avx(&t, &a->vec[i], &b->vec[i]);
-		kyber_poly_add_avx(r, r, &t);
+		poly_basemul_montgomery_avx(t, &a->vec[i], &b->vec[i]);
+		kyber_poly_add_avx(r, r, t);
 	}
 
 	poly_reduce_avx(r);
