@@ -165,6 +165,11 @@ static int lc_kernel_kyber_ss_local(struct kpp_request *req)
 		if (!shared_secret)
 			return -ENOMEM;
 
+		/*
+		 * NOTE: This function call implies that this code is not
+		 * converted to the common Kyber API, but uses the
+		 * API specific to 1024/768/512.
+		 */
 		kyber_ss_kdf(shared_secret, req->dst_len, &ctx->ct, ctx->ss.ss);
 
 		outbuf = shared_secret;
