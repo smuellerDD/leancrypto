@@ -65,7 +65,7 @@ static int lc_kernel_dilithium_sign(struct akcipher_request *req)
 	if (req->dst_len != lc_dilithium_sig_size(type))
 		return -EINVAL;
 
-	sig = kmalloc(lc_dilithium_sig_size(type), GFP_KERNEL);
+	sig = kmalloc(sizeof(struct lc_dilithium_sig), GFP_KERNEL);
 	if (!sig)
 		return -ENOMEM;
 
@@ -128,7 +128,7 @@ static int lc_kernel_dilithium_verify(struct akcipher_request *req)
 	if (req->src_len != lc_dilithium_sig_size(type))
 		return -EINVAL;
 
-	sig = kmalloc(lc_dilithium_sig_size(type), GFP_KERNEL);
+	sig = kmalloc(sizeof(struct lc_dilithium_sig), GFP_KERNEL);
 	if (!sig)
 		return -ENOMEM;
 
