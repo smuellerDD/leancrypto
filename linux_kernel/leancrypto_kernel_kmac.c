@@ -27,7 +27,8 @@
 #include "leancrypto_kernel.h"
 
 #define LC_KMAC_CTX_SIZE_KERNEL                                                \
-	(LC_SHA3_256_STATE_SIZE + sizeof(struct lc_kmac_ctx))
+	(LC_SHA3_256_STATE_SIZE + LC_HASH_COMMON_ALIGNMENT +                   \
+	 sizeof(struct lc_kmac_ctx))
 
 static int lc_kernel_kmac256_init_alg(struct shash_desc *desc)
 {
