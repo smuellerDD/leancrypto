@@ -86,7 +86,6 @@ static int lc_test_sigver(const char *algname,
 	struct lc_akcipher_def akcipher;
 	struct akcipher_request *req = NULL;
 	struct scatterlist src, dst;
-	u8 *msg = NULL, *sig = NULL;
 	int err = -ENOMEM;
 
 	tfm = crypto_alloc_akcipher(algname, 0, 0);
@@ -109,29 +108,8 @@ static int lc_test_sigver(const char *algname,
 	akcipher.tfm = tfm;
 	akcipher.req = req;
 
-	/*
-	 * Copy the message from the r/o buffer as otherwise it cannot be mapped
-	 * by the SG-handling logic.
-	 */
-	sig = kmalloc(sizeof(vector->sig), GFP_KERNEL);
-	if (!sig) {
-		err = -ENOMEM;
-		goto err;
-	}
-	memcpy(sig, vector->sig, sizeof(vector->sig));
-	sg_init_one(&src, sig, sizeof(vector->sig));
-
-	/*
-	 * Copy the message from the r/o buffer as otherwise it cannot be mapped
-	 * by the SG-handling logic.
-	 */
-	msg = kmalloc(sizeof(vector->m), GFP_KERNEL);
-	if (!msg) {
-		err = -ENOMEM;
-		goto err;
-	}
-	memcpy(msg, vector->m, sizeof(vector->m));
-	sg_init_one(&dst, msg, sizeof(vector->m));
+	sg_init_one(&src, vector->sig, sizeof(vector->sig));
+	sg_init_one(&dst, vector->m, sizeof(vector->m));
 
 	akcipher_request_set_crypt(req, &src, &dst, sizeof(vector->sig),
 				   sizeof(vector->m));
@@ -143,8 +121,6 @@ static int lc_test_sigver(const char *algname,
 	pr_info("Signature verification result %d\n", err);
 
 err:
-	free_zero(msg);
-	free_zero(sig);
 	if (req)
 		akcipher_request_free(req);
 	if (tfm)
@@ -153,14 +129,12 @@ err:
 }
 
 static int lc_test_siggen(const char *algname,
-			  const struct dilithium_testvector *vector, u8 *sig,
-			  size_t siglen)
+			  struct dilithium_testvector *vector)
 {
 	struct crypto_akcipher *tfm = NULL;
 	struct lc_akcipher_def akcipher;
 	struct akcipher_request *req = NULL;
 	struct scatterlist src, dst;
-	u8 *msg = NULL;
 	int err = -ENOMEM;
 
 	tfm = crypto_alloc_akcipher(algname, 0, 0);
@@ -179,7 +153,7 @@ static int lc_test_siggen(const char *algname,
 		goto err;
 
 	pr_info("output datasize: %u\n", crypto_akcipher_maxsize(tfm));
-	if (siglen < crypto_akcipher_maxsize(tfm)) {
+	if (sizeof(vector->sig) < crypto_akcipher_maxsize(tfm)) {
 		err = -EOVERFLOW;
 		goto err;
 	}
@@ -187,19 +161,8 @@ static int lc_test_siggen(const char *algname,
 	akcipher.tfm = tfm;
 	akcipher.req = req;
 
-	/*
-	 * Copy the message from the r/o buffer as otherwise it cannot be mapped
-	 * by the SG-handling logic.
-	 */
-	msg = kmalloc(sizeof(vector->m), GFP_KERNEL);
-	if (!msg) {
-		err = -ENOMEM;
-		goto err;
-	}
-	memcpy(msg, vector->m, sizeof(vector->m));
-	sg_init_one(&src, msg, sizeof(vector->m));
-
-	sg_init_one(&dst, sig, crypto_akcipher_maxsize(tfm));
+	sg_init_one(&src, vector->m, sizeof(vector->m));
+	sg_init_one(&dst, vector->sig, crypto_akcipher_maxsize(tfm));
 	akcipher_request_set_crypt(req, &src, &dst, sizeof(vector->m),
 				   crypto_akcipher_maxsize(tfm));
 
@@ -209,7 +172,6 @@ static int lc_test_siggen(const char *algname,
 	pr_info("Dilithium signature generation result %d\n", err);
 
 err:
-	free_zero(msg);
 	if (req)
 		akcipher_request_free(req);
 	if (tfm)
@@ -221,17 +183,34 @@ static int lc_dilithium_tester(void)
 {
 	static const struct dilithium_testvector *vector =
 		&dilithium_testvectors[0];
-	size_t siglen = sizeof(vector->sig);
-	u8 *sig;
+	struct dilithium_testvector *v = NULL;
 	int ret;
 
-	sig = kmalloc(siglen, GFP_KERNEL);
-	if (!sig)
-		return -ENOMEM;
-
-	ret = lc_test_siggen(LC_DILITHIUM_IMPL_NAME, vector, sig, siglen);
-	if (ret)
+	v = kmalloc(sizeof(*v), GFP_KERNEL);
+	if (!v) {
+		ret = -ENOMEM;
 		goto out;
+	}
+	/*
+	 * Copy the data from the r/o buffer as otherwise it cannot be mapped
+	 * by the SG-handling logic.
+	 */
+	memcpy(v->m, vector->m, sizeof(v->m));
+	memcpy(v->pk, vector->pk, sizeof(v->pk));
+	memcpy(v->sk, vector->sk, sizeof(v->sk));
+
+	ret = lc_test_siggen(LC_DILITHIUM_IMPL_NAME, v);
+	if (ret) {
+		pr_err("Generation of signature failed\n");
+		goto out;
+	}
+
+
+	ret = lc_test_sigver(LC_DILITHIUM_IMPL_NAME, v);
+	if (ret) {
+		pr_err("Verification of generated signature failed\n");
+		goto out;
+	}
 
 	/*
 	 * memcmp is not possible as we use lc_seeded_rng causing a different
@@ -253,15 +232,12 @@ static int lc_dilithium_tester(void)
 	}
 #endif
 
-	ret = lc_test_sigver(LC_DILITHIUM_IMPL_NAME, vector);
-	if (ret)
-		goto out;
-
 	pr_info("Dilithium " LC_DILITHIUM_IMPL_NAME
 		" invocation via kernel crypto API succeeded\n");
 
 out:
-	free_zero(sig);
+	if (v)
+		free_zero(v);
 	return ret;
 }
 
