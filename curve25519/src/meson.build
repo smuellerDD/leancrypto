@@ -15,7 +15,7 @@ if get_option('kyber_x25519').enabled() or get_option('dilithium_ed25519').enabl
 		subdir('avx')
 	elif (arm64_asm)
 		subdir('armv8')
-	elif (arm32_neon_gcc_asm)
+	elif (arm32_neon_asm)
 		subdir('armv7')
 	else
 		src += files([

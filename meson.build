@@ -307,7 +307,7 @@ endif
 ################################################################################
 
 x86_64_asm = false
-arm32_neon_gcc_asm = false
+arm32_neon_asm = false
 arm64_neon_gcc_asm = false
 arm64_asm = false
 riscv32_asm = false
@@ -339,11 +339,10 @@ if (host_machine.cpu_family() == 'x86_64' and
 endif
 
 # 32-bit ARM assembler support
-if (host_machine.cpu_family() == 'arm' and
-	cc.get_id() == 'gcc')
+if (host_machine.cpu_family() == 'arm')
 
 	# 32 bit ARM processor and GCC
-	arm32_neon_gcc_asm = true
+	arm32_neon_asm = true
 
 	add_global_arguments([ '-DLC_HOST_ARM32_NEON' ], language: 'c')
 

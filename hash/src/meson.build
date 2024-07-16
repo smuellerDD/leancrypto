@@ -43,7 +43,7 @@ if get_option('sha3').enabled()
 	endif
 
 	# 32 bit ARM processor and GCC
-	if (arm32_neon_gcc_asm)
+	if (arm32_neon_asm)
 		leancrypto_keccak_arm7a_neon_lib = static_library(
 			'leancrypto_keccak_arm7a_neon_lib',
 			[ 'sha3_arm_neon.c',
@@ -162,7 +162,7 @@ if get_option('ascon').enabled()
 	endif
 
 	# 32 bit ARM processor and GCC
-	if (arm32_neon_gcc_asm)
+	if (arm32_neon_asm)
 		leancrypto_asm_arm7a_neon_lib = static_library(
 			'leancrypto_asm_arm7a_neon_lib',
 			[ 'ascon_arm_neon.c' ],

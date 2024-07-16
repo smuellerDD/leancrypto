@@ -30,7 +30,7 @@ if get_option('chacha20').enabled()
 		)
 		leancrypto_support_libs += leancrypto_chacha20_neon_armv8_lib
 
-	elif (arm32_neon_gcc_asm)
+	elif (arm32_neon_asm)
 		# This is required for the XOR 128 bit NEON implementation
 		leancrypto_chacha20_neon_armv7_lib = static_library(
 			'leancrypto_chacha20_neon_armv7_lib',

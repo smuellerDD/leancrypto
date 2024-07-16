@@ -167,7 +167,7 @@ if get_option('dilithium_87').enabled()
 		     dilithium_tester_iuf_armv8,
 		     args : [ 'c' ], timeout: 1000, is_parallel: false,
 		     suite: performance)
-	elif (arm32_neon_gcc_asm)
+	elif (arm32_neon_asm)
 		dilithium_tester_armv7 = executable('dilithium_tester_armv7',
 				[ 'dilithium_tester_armv7.c',
 				  'dilithium_tester.c',
@@ -404,7 +404,7 @@ if get_option('dilithium_65').enabled()
 		     dilithium_65_tester_iuf_armv8,
 		     args : [ 'c' ], timeout: 1000, is_parallel: false,
 		     suite: performance)
-	elif (arm32_neon_gcc_asm)
+	elif (arm32_neon_asm)
 		dilithium_65_tester_armv7 = executable('dilithium_65_tester_armv7',
 				[ 'dilithium_tester_armv7.c',
 				  'dilithium_tester.c',

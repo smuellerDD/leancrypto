@@ -32,7 +32,7 @@ if (x86_64_asm)
 elif (arm64_asm)
 	subdir('armv8')
 # 32 bit ARM processor and GCC
-elif (arm32_neon_gcc_asm)
+elif (arm32_neon_asm)
 	subdir('armv7')
 else
 	dilithium_api_c = 1
