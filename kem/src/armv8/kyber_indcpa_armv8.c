@@ -366,7 +366,8 @@ int indcpa_dec_armv8(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
 	unpack_sk(&ws->skpv, sk);
 
 	/* Validate input */
-	CKINT(kyber_kem_iv_sk_modulus(sk, &ws->skpv, pack_sk));
+	BUILD_BUG_ON(sizeof(ws->b) < LC_KYBER_INDCPA_SECRETKEYBYTES);
+	CKINT(kyber_kem_iv_sk_modulus(sk, &ws->skpv, &ws->b, pack_sk));
 
 	polyvec_ntt(&ws->b);
 	polyvec_basemul_acc_montgomery(&ws->mp, &ws->skpv, &ws->b);
