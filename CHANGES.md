@@ -18,6 +18,8 @@ Changes 1.0.0-prerelease
 
 * fix: Linux kernel warning on return thunk
 
+* enhancement: add ASM ARMv7 and ARMv8 implementation for X25519
+
 Changes 0.10.1
 
 * enhancement: Linux kernel - Kyber: allow parallel compilation of all Kyber types including all optimizations

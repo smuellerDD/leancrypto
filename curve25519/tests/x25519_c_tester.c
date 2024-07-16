@@ -66,7 +66,7 @@ out:
 	return ret;
 }
 
-static int x25519_scalarmult_tester(void)
+static int x25519_scalarmult_tester(unsigned int loops)
 {
 	/*
 	 * Test vector is
@@ -90,9 +90,11 @@ static int x25519_scalarmult_tester(void)
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	};
 	uint8_t out[sizeof(exp)];
+	unsigned int i;
 	int ret;
 
-	CKINT(crypto_scalarmult_curve25519_c(out, scalar, p1));
+	for (i = 0; i < loops; i++)
+		CKINT(crypto_scalarmult_curve25519_c(out, scalar, p1));
 	lc_compare(out, exp, sizeof(exp), "X25519 scalar multiplication\n");
 
 out:
@@ -134,9 +136,13 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	(void)argv;
 	(void)argc;
 
-	ret += x25519_scalarmult_base_tester();
-	ret += x25519_scalarmult_tester();
-	ret += x25519_keygen();
+	if (argc != 2) {
+		ret += x25519_scalarmult_base_tester();
+		ret += x25519_scalarmult_tester(1);
+		ret += x25519_keygen();
+	} else {
+		ret += x25519_scalarmult_tester(100000);
+	}
 
 	return ret;
 }
