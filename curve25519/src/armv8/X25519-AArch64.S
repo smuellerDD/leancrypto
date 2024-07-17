@@ -49,8 +49,8 @@
 	
 	// in: x0: pointer
 	// out: x0: loaded value
-	.type	load64unaligned, %function
-load64unaligned:
+SYM_FUNC_START(load64unaligned)
+SYM_FUNC_ENTER(load64unaligned)
 	ldrb w1, [x0]
 	ldrb w2, [x0, #1]
 	ldrb w3, [x0, #2]
@@ -103,7 +103,7 @@ load256unaligned:
 	ldp	x21, x22, [sp, #32]
 	ldp	x29, x30, [sp], #64
 	RET
-	.size load256unaligned, .-load256unaligned
+SYM_FUNC_END(load64unaligned)
 
 	// in: x1: scalar pointer, x2: base point pointer
 	// out: x0: result pointer
