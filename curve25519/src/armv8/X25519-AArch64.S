@@ -107,8 +107,8 @@ load256unaligned:
 
 	// in: x1: scalar pointer, x2: base point pointer
 	// out: x0: result pointer
-SYM_FUNC_START(crypto_scalarmult_curve25519)
-SYM_FUNC_ENTER(crypto_scalarmult_curve25519)
+SYM_FUNC_START(crypto_scalarmult_curve25519_armv8)
+SYM_FUNC_ENTER(crypto_scalarmult_curve25519_armv8)
 	stp	x29, x30, [sp, #-160]!
 	mov	x29, sp
 	stp	x19, x20, [sp, #16]
@@ -1623,7 +1623,7 @@ SYM_FUNC_ENTER(crypto_scalarmult_curve25519)
 	ldp	x29, x30, [sp], #160
 
 	RET
-SYM_FUNC_END(crypto_scalarmult_curve25519)
+SYM_FUNC_END(crypto_scalarmult_curve25519_armv8)
 	
 	.type	invtable, %object
 invtable:
