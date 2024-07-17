@@ -24,8 +24,8 @@
 extern "C" {
 #endif
 
-int crypto_scalarmult_curve25519_armv7(unsigned char *q, const unsigned char *n,
-				       const unsigned char *p);
+void crypto_scalarmult_curve25519_armv7(unsigned char *q, const unsigned char *n,
+				        const unsigned char *p);
 
 #ifdef __cplusplus
 }

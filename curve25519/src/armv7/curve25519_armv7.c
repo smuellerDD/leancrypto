@@ -25,7 +25,10 @@
 int crypto_scalarmult_curve25519(unsigned char *q, const unsigned char *n,
 				 const unsigned char *p)
 {
-	if (lc_cpu_feature_available() & LC_CPU_FEATURE_ARM_NEON)
-		return crypto_scalarmult_curve25519_armv7(q, n, p);
+	if (lc_cpu_feature_available() & LC_CPU_FEATURE_ARM_NEON) {
+		crypto_scalarmult_curve25519_armv7(q, n, p);
+		return 0;
+	}
+
 	return crypto_scalarmult_curve25519_c(q, n, p);
 }
