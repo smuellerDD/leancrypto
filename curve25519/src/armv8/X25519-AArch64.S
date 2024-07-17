@@ -49,8 +49,8 @@
 	
 	// in: x0: pointer
 	// out: x0: loaded value
-SYM_FUNC_START(load64unaligned)
-SYM_FUNC_ENTER(load64unaligned)
+.global load64unaligned
+load64unaligned:
 	ldrb w1, [x0]
 	ldrb w2, [x0, #1]
 	ldrb w3, [x0, #2]
@@ -71,12 +71,11 @@ SYM_FUNC_ENTER(load64unaligned)
 	orr	x0, x1, x5, lsl #32
 	
 	RET
-SYM_FUNC_END(load64unaligned)
 
 	// in: x0: pointer
 	// out: x0-x3: loaded value
-SYM_FUNC_START(load256unaligned)
-SYM_FUNC_ENTER(load256unaligned)
+.global load256unaligned
+load256unaligned:
 	stp	x29, x30, [sp, #-64]!
 	mov	x29, sp
 	stp	x19, x20, [sp, #16]
@@ -103,7 +102,6 @@ SYM_FUNC_ENTER(load256unaligned)
 	ldp	x21, x22, [sp, #32]
 	ldp	x29, x30, [sp], #64
 	RET
-SYM_FUNC_END(load256unaligned)
 
 	// in: x1: scalar pointer, x2: base point pointer
 	// out: x0: result pointer
@@ -1625,12 +1623,11 @@ SYM_FUNC_ENTER(crypto_scalarmult_curve25519_armv8)
 	RET
 SYM_FUNC_END(crypto_scalarmult_curve25519_armv8)
 	
+invtable:
 	//    	square times,
 	//    	    skip mul,
 	//    	           mulsource,
 	//    	                  dest
-SYM_FUNC_START(invtable)
-SYM_FUNC_ENTER(invtable)
 	.hword	  1|(1<<8)       |(1<<11)
 	.hword	  2|       (2<<9)|(2<<11)
 	.hword	  0|       (1<<9)|(1<<11)
@@ -1644,4 +1641,3 @@ SYM_FUNC_ENTER(invtable)
 	.hword	 50|       (2<<9)
 	.hword	  5|       (1<<9)
 	.hword	  0|       (0<<9)
-SYM_FUNC_END(invtable)
