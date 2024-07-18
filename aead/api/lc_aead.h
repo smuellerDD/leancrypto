@@ -68,7 +68,8 @@ struct lc_aead_ctx {
  * steps
  *
  * 1. Allocation: Use the stack or heap allocation functions documented in
- *    lc_cshake_crypt.h, lc_kmac_crypt.h, lc_hash_crypt.h.
+ *    lc_ascon_lightweight.h, lc_ascon_keccak.h, lc_cshake_crypt.h,
+ *    lc_kmac_crypt.h, or lc_hash_crypt.h.
  *
  * 2. Use the returned cipher handle with the API calls below.
  */
@@ -143,7 +144,7 @@ static inline int lc_aead_setkey(struct lc_aead_ctx *ctx, const uint8_t *key,
 }
 
 /**
- * @brief AEAD-encrypt data
+ * @brief AEAD-encrypt data in one call
  *
  * @param [in] ctx AEAD context handle with key set / IV
  * @param [in] plaintext Plaintext data to be encrypted
@@ -187,6 +188,8 @@ static inline int lc_aead_encrypt(struct lc_aead_ctx *ctx,
 
 /**
  * @brief Initialize AEAD encryption
+ *
+ * This call allows multiple successive _update calls to process data.
  *
  * @param [in] ctx AEAD context handle with key set / IV
  * @param [in] aad Additional authenticate data to be processed - this is data
@@ -328,6 +331,8 @@ static inline int lc_aead_decrypt(struct lc_aead_ctx *ctx,
 
 /**
  * @brief Initialize AEAD decryption
+ *
+ * This call allows multiple successive _update calls to process data.
  *
  * @param [in] ctx AEAD context handle with key set / IV
  * @param [in] aad Additional authenticate data to be processed - this is data

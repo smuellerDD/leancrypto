@@ -87,7 +87,6 @@ static inline void lc_ascon_add_padbyte(struct lc_ascon_cryptor *ascon,
 	lc_sponge_add_bytes(hash, ascon->state, &pad_data, offset, 1);
 }
 
-
 #ifdef __cplusplus
 }
 #endif

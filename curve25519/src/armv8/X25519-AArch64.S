@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 - 2024, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2024, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *
@@ -17,7 +17,7 @@
  * DAMAGE.
  */
 /*
- * This file is dervied from https://github.com/Emill/X25519-AArch64 which uses
+ * This file is derived from https://github.com/Emill/X25519-AArch64 which uses
  * the following license.
  */
 /* X25519-AArch64 by Emil Lenngren (2018)
