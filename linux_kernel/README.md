@@ -25,8 +25,8 @@ directory `linux_kernel`:
 
 In addition to the `leancrypto.ko` kernel module, a large number of additional
 kernel modules are compiled. They are all test modules for regression testing
-and are not required for production use. Insert the kernel modules and check
-`dmesg` for the results. Unload the kernel modules afterwards.
+and are not required and even not intended for production use. Insert the kernel
+modules and check `dmesg` for the results. Unload the kernel modules afterwards.
 
 The test modules almost all are the user space test application the `meson`
 test framework uses too, but compiled into kernel modules. They invoke the
@@ -35,6 +35,14 @@ as well as user space.
 
 In addition to the standard leancrypto test code, the following test modules
 are provided to validate the leancrypto integration into the kernel crypto API:
+
+* `leancrypto_kernel_aead_ascon_tester.ko` invokes the Linux kernel crypto API
+  of type `skcipher` to perform a Ascon and Ascon-Keccak encryption / decryption
+  operation.
+
+* `leancrypto_kernel_ascon_tester.ko` invokes the Linux kernel crypto API
+  of type `shash` to perform a Ascon 128 and Ascon 128a message digest
+  calculation.
 
 * `leancrypto_kernel_dilithium_tester.ko` invokes the Linux kernel crypto API
   of type `akcipher` to perform a FIPS 204 (CRYSTALS Dilithium) signature
