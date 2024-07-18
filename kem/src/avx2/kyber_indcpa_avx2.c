@@ -552,7 +552,7 @@ int indcpa_enc_avx(uint8_t c[LC_KYBER_INDCPA_BYTES],
 			polyvec sp;
 			poly k;
 		} tmp2;
-		BUF_ALIGNED_UINT8_M256I(NOISE_NBLOCKS * LC_SHAKE_256_SIZE_BLOCK)
+		BUF_ALIGNED_UINT8_M256I(NOISE_NBLOCKS *LC_SHAKE_256_SIZE_BLOCK)
 		poly_getnoise_eta1_buf[4];
 		polyvec pkpv, ep, at[LC_KYBER_K];
 		poly epp;

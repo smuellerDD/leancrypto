@@ -2010,8 +2010,8 @@ struct lc_kyber_x25519_ss {
  *
  * @return key type
  */
-static inline enum lc_kyber_type lc_kyber_x25519_sk_type(
-	const struct lc_kyber_x25519_sk *sk)
+static inline enum lc_kyber_type
+lc_kyber_x25519_sk_type(const struct lc_kyber_x25519_sk *sk)
 {
 	if (!sk)
 		return LC_KYBER_UNKNOWN;
@@ -2025,8 +2025,8 @@ static inline enum lc_kyber_type lc_kyber_x25519_sk_type(
  *
  * @return key type
  */
-static inline enum lc_kyber_type lc_kyber_x25519_pk_type(
-	const struct lc_kyber_x25519_pk *pk)
+static inline enum lc_kyber_type
+lc_kyber_x25519_pk_type(const struct lc_kyber_x25519_pk *pk)
 {
 	if (!pk)
 		return LC_KYBER_UNKNOWN;
@@ -2040,8 +2040,8 @@ static inline enum lc_kyber_type lc_kyber_x25519_pk_type(
  *
  * @return key type
  */
-static inline enum lc_kyber_type lc_kyber_x25519_ct_type(
-	const struct lc_kyber_x25519_ct *ct)
+static inline enum lc_kyber_type
+lc_kyber_x25519_ct_type(const struct lc_kyber_x25519_ct *ct)
 {
 	if (!ct)
 		return LC_KYBER_UNKNOWN;
@@ -2055,8 +2055,8 @@ static inline enum lc_kyber_type lc_kyber_x25519_ct_type(
  *
  * @return key type
  */
-static inline enum lc_kyber_type lc_kyber_x25519_ss_type(
-	const struct lc_kyber_x25519_ss *ss)
+static inline enum lc_kyber_type
+lc_kyber_x25519_ss_type(const struct lc_kyber_x25519_ss *ss)
 {
 	if (!ss)
 		return LC_KYBER_UNKNOWN;

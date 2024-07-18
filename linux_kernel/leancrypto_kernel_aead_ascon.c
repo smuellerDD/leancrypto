@@ -48,9 +48,9 @@ static void lc_aead_ascon_aad(struct aead_request *areq)
 
 	/* Insert the associated data into the sponge */
 	while (nbytes) {
-		unsigned int todo = min_t(unsigned int,
-					  hash->sponge_rate - sponge_offset,
-					  scatterwalk_clamp(&src_walk, nbytes));
+		unsigned int todo =
+			min_t(unsigned int, hash->sponge_rate - sponge_offset,
+			      scatterwalk_clamp(&src_walk, nbytes));
 		u8 *src_vaddr = scatterwalk_map(&src_walk);
 
 		lc_sponge_add_bytes(hash, state_mem, src_vaddr, sponge_offset,
@@ -107,7 +107,7 @@ static int lc_aead_ascon_update(struct aead_request *areq,
 		unsigned int todo =
 			min_t(unsigned int, scatterwalk_pagelen(&src_walk),
 			      scatterwalk_pagelen(&dst_walk));
-                u8 *src_vaddr, *dst_vaddr;
+		u8 *src_vaddr, *dst_vaddr;
 
 		todo = min_t(unsigned int, nbytes, todo);
 

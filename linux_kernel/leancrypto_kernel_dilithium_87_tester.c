@@ -205,7 +205,6 @@ static int lc_dilithium_tester(void)
 		goto out;
 	}
 
-
 	ret = lc_test_sigver(LC_DILITHIUM_IMPL_NAME, v);
 	if (ret) {
 		pr_err("Verification of generated signature failed\n");

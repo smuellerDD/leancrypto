@@ -73,7 +73,8 @@ static unsigned int lc_aead_test_encdec(struct lc_aead_test_def *aead, int enc)
 		break;
 	default:
 		pr_info("aead cipher operation returned with %d result"
-			" %d\n",rc, aead->result.err);
+			" %d\n",
+			rc, aead->result.err);
 		break;
 	}
 
@@ -96,10 +97,10 @@ static unsigned int lc_aead_test_encdec(struct lc_aead_test_def *aead, int enc)
  *	 authentication failed.
  */
 static int lc_aead_test(const char *name, const uint8_t *data, size_t inlen,
-			uint8_t *nonce, size_t noncelen,
-			const uint8_t *aad_in, size_t aadlen, const uint8_t *key,
-			size_t keylen, const uint8_t *exp_ct,
-			const uint8_t *exp_tag, size_t exp_tag_len)
+			uint8_t *nonce, size_t noncelen, const uint8_t *aad_in,
+			size_t aadlen, const uint8_t *key, size_t keylen,
+			const uint8_t *exp_ct, const uint8_t *exp_tag,
+			size_t exp_tag_len)
 {
 	int ret = -EFAULT;
 	struct lc_aead_test_def aead;
@@ -284,7 +285,8 @@ static int lc_aead_test(const char *name, const uint8_t *data, size_t inlen,
 	out_enc[0] ^= 0x01;
 	ret = lc_aead_test_encdec(&aead, 0);
 	if (ret != -EBADMSG) {
-		pr_info("AEAD decryption unexpected result (should be -EBADMSG): %d\n", ret);
+		pr_info("AEAD decryption unexpected result (should be -EBADMSG): %d\n",
+			ret);
 		goto out;
 	}
 
@@ -308,7 +310,6 @@ out:
 		aead_request_free(req);
 	return ret;
 }
-
 
 static int aascon_tester_128(void)
 {
@@ -383,7 +384,6 @@ static int aascon_tester_128a(void)
 			    sizeof(nonce), aad, sizeof(aad), key, sizeof(key),
 			    exp_ct, exp_tag, sizeof(exp_tag));
 }
-
 
 static int __init leancrypto_kernel_aead_test_init(void)
 {

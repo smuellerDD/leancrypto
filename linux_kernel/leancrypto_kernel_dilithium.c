@@ -366,4 +366,3 @@ void lc_kernel_dilithium_exit(void)
 {
 	crypto_unregister_akcipher(&lc_kernel_dilithium_87);
 }
-

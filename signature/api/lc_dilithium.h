@@ -142,8 +142,8 @@ struct lc_dilithium_sig {
  *
  * @return key type
  */
-static inline enum lc_dilithium_type lc_dilithium_sk_type(
-	const struct lc_dilithium_sk *sk)
+static inline enum lc_dilithium_type
+lc_dilithium_sk_type(const struct lc_dilithium_sk *sk)
 {
 	if (!sk)
 		return LC_DILITHIUM_UNKNOWN;
@@ -157,8 +157,8 @@ static inline enum lc_dilithium_type lc_dilithium_sk_type(
  *
  * @return key type
  */
-static inline enum lc_dilithium_type lc_dilithium_pk_type(
-	const struct lc_dilithium_pk *pk)
+static inline enum lc_dilithium_type
+lc_dilithium_pk_type(const struct lc_dilithium_pk *pk)
 {
 	if (!pk)
 		return LC_DILITHIUM_UNKNOWN;
@@ -172,8 +172,8 @@ static inline enum lc_dilithium_type lc_dilithium_pk_type(
  *
  * @return key type
  */
-static inline enum lc_dilithium_type lc_dilithium_sig_type(
-	const struct lc_dilithium_sig *sig)
+static inline enum lc_dilithium_type
+lc_dilithium_sig_type(const struct lc_dilithium_sig *sig)
 {
 	if (!sig)
 		return LC_DILITHIUM_UNKNOWN;
@@ -1111,8 +1111,8 @@ struct lc_dilithium_ed25519_sig {
  *
  * @return key type
  */
-static inline enum lc_dilithium_type lc_dilithium_ed25519_sk_type(
-	const struct lc_dilithium_ed25519_sk *sk)
+static inline enum lc_dilithium_type
+lc_dilithium_ed25519_sk_type(const struct lc_dilithium_ed25519_sk *sk)
 {
 	if (!sk)
 		return LC_DILITHIUM_UNKNOWN;
@@ -1126,8 +1126,8 @@ static inline enum lc_dilithium_type lc_dilithium_ed25519_sk_type(
  *
  * @return key type
  */
-static inline enum lc_dilithium_type lc_dilithium_ed25519_pk_type(
-	const struct lc_dilithium_ed25519_pk *pk)
+static inline enum lc_dilithium_type
+lc_dilithium_ed25519_pk_type(const struct lc_dilithium_ed25519_pk *pk)
 {
 	if (!pk)
 		return LC_DILITHIUM_UNKNOWN;
@@ -1141,8 +1141,8 @@ static inline enum lc_dilithium_type lc_dilithium_ed25519_pk_type(
  *
  * @return key type
  */
-static inline enum lc_dilithium_type lc_dilithium_ed25519_sig_type(
-	const struct lc_dilithium_ed25519_sig *sig)
+static inline enum lc_dilithium_type
+lc_dilithium_ed25519_sig_type(const struct lc_dilithium_ed25519_sig *sig)
 {
 	if (!sig)
 		return LC_DILITHIUM_UNKNOWN;
@@ -1313,7 +1313,7 @@ static inline int lc_dilithium_ed25519_sk_load(
 #endif
 #ifdef LC_DILITHIUM_44_ENABLED
 	} else if (dilithium_src_key_len ==
-			lc_dilithium_sk_size(LC_DILITHIUM_44)) {
+		   lc_dilithium_sk_size(LC_DILITHIUM_44)) {
 		struct lc_dilithium_44_ed25519_sk *_sk = &sk->key.sk_44;
 
 		memcpy(_sk->sk.sk, dilithium_src_key, dilithium_src_key_len);
