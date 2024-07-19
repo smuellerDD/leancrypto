@@ -50,12 +50,30 @@ obj-m				+= cshake_drng_tester.o
 cshake_drng_tester-y		+= ../drng/tests/cshake_drng_tester.o
 endif
 
-leancrypto-$(CONFIG_LEANCRYPTO_XDRBG256_DRNG)				       \
-				+= ../drng/src/xdrbg256.o		       \
+leancrypto-$(CONFIG_LEANCRYPTO_XDRBG_DRNG)				       \
+				+= ../drng/src/xdrbg.o			       \
 				   leancrypto_kernel_rng.o
-ifdef CONFIG_LEANCRYPTO_XDRBG256_DRNG
-ccflags-y			+= -DCONFIG_LEANCRYPTO_XDRBG256_DRNG
+ifdef CONFIG_LEANCRYPTO_SHA3
+leancrypto-$(CONFIG_LEANCRYPTO_XDRBG_DRNG)				       \
+				+= ../drng/src/xdrbg256.o
+endif
+ifdef CONFIG_LEANCRYPTO_ASCON_HASH
+leancrypto-$(CONFIG_LEANCRYPTO_XDRBG_DRNG)				       \
+				+= ../drng/src/xdrbg128.o
+endif
+
+ifdef CONFIG_LEANCRYPTO_XDRBG_DRNG
+ccflags-y			+= -DCONFIG_LEANCRYPTO_XDRBG_DRNG
+
+ifdef CONFIG_LEANCRYPTO_SHA3
 obj-m				+= leancrypto_kernel_rng_tester.o
 obj-m				+= xdrbg256_tester.o
 xdrbg256_tester-y		+= ../drng/tests/xdrbg256_tester.o
+endif
+
+ifdef CONFIG_LEANCRYPTO_ASCON_HASH
+obj-m				+= xdrbg128_tester.o
+xdrbg128_tester-y		+= ../drng/tests/xdrbg128_tester.o
+endif
+
 endif

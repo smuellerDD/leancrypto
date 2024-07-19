@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-#include "lc_xdrbg256.h"
+#include "lc_xdrbg.h"
 #include "small_stack_support.h"
 
 struct opts {

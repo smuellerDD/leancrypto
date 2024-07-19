@@ -83,7 +83,7 @@ if get_option('cshake_drng').enabled()
 	     is_parallel: false, suite: performance)
 endif
 
-if get_option('xdrbg256').enabled()
+if (get_option('xdrbg').enabled() and get_option('sha3').enabled())
 	xdrbg256_tester = executable('xdrbg256_tester',
 				   [ 'xdrbg256_tester.c',
 				     internal_src ],
@@ -113,6 +113,39 @@ if get_option('xdrbg256').enabled()
 	test('DRNG XDRBG 256 Accel large', xdrbg256_tester_large, timeout: 600,
 	     is_parallel: false, suite: performance)
 	test('DRNG XDRBG 256 C large', xdrbg256_tester_large_c, timeout: 600,
+	     is_parallel: false, suite: performance)
+endif
+
+if (get_option('xdrbg').enabled() and get_option('ascon').enabled())
+	xdrbg128_tester = executable('xdrbg128_tester',
+				   [ 'xdrbg128_tester.c',
+				     internal_src ],
+				   include_directories: [ include_internal_dirs ],
+				   dependencies: leancrypto
+ 				   )
+	xdrbg128_tester_large = executable('xdrbg128_tester_large',
+				   [ 'xdrbg128_tester_large.c',
+				     internal_src ],
+				   include_directories: [ include_internal_dirs ],
+				   dependencies: leancrypto
+				   )
+	xdrbg128_tester_large_c = executable('xdrbg128_tester_large_c',
+				   [ 'xdrbg128_tester_large_c.c',
+				     internal_src ],
+				   include_directories: [ include_internal_dirs ],
+				   dependencies: leancrypto
+				   )
+	xdrbg128_tester_output = executable('xdrbg128_tester_output',
+				   [ 'xdrbg128_tester_output.c',
+				     internal_src ],
+				   include_directories: [ include_internal_dirs ],
+				   dependencies: leancrypto
+				   )
+
+	test('DRNG XDRBG 128', xdrbg128_tester, suite: regression)
+	test('DRNG XDRBG 128 Accel large', xdrbg128_tester_large, timeout: 600,
+	     is_parallel: false, suite: performance)
+	test('DRNG XDRBG 128 C large', xdrbg128_tester_large_c, timeout: 600,
 	     is_parallel: false, suite: performance)
 endif
 

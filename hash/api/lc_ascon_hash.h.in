@@ -98,7 +98,7 @@ extern const struct lc_hash *lc_ascon_xofa;
 	LC_ASCON_CTX_ON_STACK(name, lc_ascon_xof)
 
 /**
- * @brief Allocate stack memory for the Ascon XOF context without VLA
+ * @brief Allocate stack memory for the Ascon XOFa context without VLA
  *
  * @param [in] name Name of the stack variable
  */

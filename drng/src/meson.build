@@ -34,10 +34,18 @@ if get_option('cshake_drng').enabled()
 	lc_rng_header = 1
 endif
 
-if get_option('xdrbg256').enabled()
-	src += files([ 'xdrbg256.c' ])
-	include_files += files([ '../api/lc_xdrbg256.h' ])
-	conf_data.set('LC_DRNG_XDRBG_256', 1)
+if get_option('xdrbg').enabled()
+	src += files([ 'xdrbg.c' ])
+	if get_option('sha3').enabled()
+		src += files([ 'xdrbg256.c' ])
+		conf_data.set('LC_DRNG_XDRBG256', 1)
+	endif
+	if get_option('ascon').enabled()
+		src += files([ 'xdrbg128.c' ])
+		conf_data.set('LC_DRNG_XDRBG128', 1)
+	endif
+	include_files += files([ '../api/lc_xdrbg.h' ])
+	conf_data.set('LC_DRNG_XDRBG', 1)
 	seeded_rng = 1
 	lc_rng_header = 1
 endif

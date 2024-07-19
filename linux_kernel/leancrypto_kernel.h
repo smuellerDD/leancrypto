@@ -57,7 +57,7 @@ static inline void lc_kernel_kmac256_exit(void)
 }
 #endif
 
-#ifdef CONFIG_LEANCRYPTO_XDRBG256_DRNG
+#ifdef CONFIG_LEANCRYPTO_XDRBG_DRNG
 int __init lc_kernel_rng_init(void);
 void lc_kernel_rng_exit(void);
 #else

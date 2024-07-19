@@ -17,7 +17,7 @@
  * DAMAGE.
  */
 
-#include "lc_xdrbg256.h"
+#include "lc_xdrbg.h"
 #include "small_stack_support.h"
 
 #include "sha3_c.h"
@@ -34,10 +34,11 @@ static int xdrbg256_drng_selftest_large(struct lc_rng_ctx *xdrbg256_ctx)
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08
 	};
 	unsigned int i;
+	struct lc_xdrbg_drng_state *xdrbg = xdrbg256_ctx->rng_state;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	/* Set back to C */
-	lc_shake256 = lc_shake256_c;
+	xdrbg->xof = lc_shake256_c;
 
 	lc_rng_seed(xdrbg256_ctx, seed, sizeof(seed), NULL, 0);
 

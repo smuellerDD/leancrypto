@@ -23,7 +23,7 @@
 #include <linux/module.h>
 #include <linux/types.h>
 
-#include "lc_xdrbg256.h"
+#include "lc_xdrbg.h"
 
 #include "leancrypto_kernel.h"
 

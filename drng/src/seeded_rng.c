@@ -24,7 +24,7 @@
 #include "lc_hash_drbg.h"
 #include "lc_hmac_drbg_sha512.h"
 #include "lc_rng.h"
-#include "lc_xdrbg256.h"
+#include "lc_xdrbg.h"
 #include "ret_checkers.h"
 #include "seeded_rng.h"
 #include "visibility.h"
@@ -32,8 +32,8 @@
 /* Select the type of DRNG */
 
 #ifdef LINUX_KERNEL
-#ifdef CONFIG_LEANCRYPTO_XDRBG256_DRNG
-#define LC_DRNG_XDRBG_256
+#ifdef CONFIG_LEANCRYPTO_XDRBG_DRNG
+#define LC_DRNG_XDRBG
 #endif
 
 // TODO Those are not yet defined in Kbuild
@@ -53,7 +53,7 @@
 #include "lc_drng_config.h"
 #endif
 
-#ifdef LC_DRNG_XDRBG_256
+#ifdef LC_DRNG_XDRBG
 #define LC_SEEDED_RNG_CTX_SIZE LC_XDRBG256_DRNG_CTX_SIZE
 #define LC_SEEDED_RNG_CTX(name) LC_XDRBG256_RNG_CTX(name)
 

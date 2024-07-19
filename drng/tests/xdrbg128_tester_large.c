@@ -20,13 +20,13 @@
 #include "lc_xdrbg.h"
 #include "small_stack_support.h"
 
-#define XDRBG256_TEST_BLOCKSIZE LC_XDRBG256_DRNG_MAX_CHUNK
-//#define XDRBG256_TEST_BLOCKSIZE	32
+#define XDRBG128_TEST_BLOCKSIZE LC_XDRBG128_DRNG_MAX_CHUNK
+//#define XDRBG128_TEST_BLOCKSIZE	32
 
-static int xdrbg256_drng_selftest_large(struct lc_rng_ctx *xdrbg256_ctx)
+static int xdrbg128_drng_selftest_large(struct lc_rng_ctx *xdrbg128_ctx)
 {
 	struct workspace {
-		uint8_t out[XDRBG256_TEST_BLOCKSIZE];
+		uint8_t out[XDRBG128_TEST_BLOCKSIZE];
 	};
 	uint8_t seed[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08
@@ -34,12 +34,12 @@ static int xdrbg256_drng_selftest_large(struct lc_rng_ctx *xdrbg256_ctx)
 	unsigned int i;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	lc_rng_seed(xdrbg256_ctx, seed, sizeof(seed), NULL, 0);
+	lc_rng_seed(xdrbg128_ctx, seed, sizeof(seed), NULL, 0);
 
-	for (i = 0; i < ((1U << 30) / XDRBG256_TEST_BLOCKSIZE); i++)
-		lc_rng_generate(xdrbg256_ctx, NULL, 0, ws->out,
-				XDRBG256_TEST_BLOCKSIZE);
-	lc_rng_zero(xdrbg256_ctx);
+	for (i = 0; i < ((1U << 30) / XDRBG128_TEST_BLOCKSIZE); i++)
+		lc_rng_generate(xdrbg128_ctx, NULL, 0, ws->out,
+				XDRBG128_TEST_BLOCKSIZE);
+	lc_rng_zero(xdrbg128_ctx);
 
 	LC_RELEASE_MEM(ws);
 	return 0;
@@ -47,8 +47,8 @@ static int xdrbg256_drng_selftest_large(struct lc_rng_ctx *xdrbg256_ctx)
 
 int main(int argc, char *argv[])
 {
-	LC_XDRBG256_DRNG_CTX_ON_STACK(xdrbg256_ctx);
-	int ret = xdrbg256_drng_selftest_large(xdrbg256_ctx);
+	LC_XDRBG128_DRNG_CTX_ON_STACK(xdrbg128_ctx);
+	int ret = xdrbg128_drng_selftest_large(xdrbg128_ctx);
 
 	(void)argc;
 	(void)argv;

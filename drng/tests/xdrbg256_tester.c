@@ -20,13 +20,13 @@
 #include "alignment.h"
 #include "build_bug_on.h"
 #include "compare.h"
-#include "lc_xdrbg256.h"
+#include "lc_xdrbg.h"
 #include "timecop.h"
 #include "visibility.h"
 
 static int xdrbg256_drng_selftest(struct lc_rng_ctx *xdrbg256_ctx)
 {
-	struct lc_xdrbg256_drng_state *state = xdrbg256_ctx->rng_state;
+	struct lc_xdrbg_drng_state *state = xdrbg256_ctx->rng_state;
 	uint8_t seed[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
 	};
@@ -67,6 +67,8 @@ static int xdrbg256_drng_selftest(struct lc_rng_ctx *xdrbg256_ctx)
 	int ret = 0;
 	uint8_t encode;
 	LC_HASH_CTX_ON_STACK(xdrbg256_compare, lc_shake256);
+
+	printf("XDRBG256 ctx len %lu\n", LC_XDRBG256_DRNG_CTX_SIZE);
 
 	/* Check the XDRBG operation */
 	lc_rng_seed(xdrbg256_ctx, seed, sizeof(seed), NULL, 0);
