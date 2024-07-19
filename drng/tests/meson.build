@@ -1,4 +1,8 @@
+seeded_selftest_enable = 0
+
 if get_option('chacha20_drng').enabled()
+	seeded_selftest_enable = 1
+
 	chacha20_drng_tester = executable('chacha20_drng_tester',
 				   [ 'chacha20_drng_tester.c',
 				     internal_src ],
@@ -18,6 +22,8 @@ if get_option('chacha20_drng').enabled()
 endif
 
 if get_option('kmac_drng').enabled()
+	seeded_selftest_enable = 1
+
 	kmac_drng_tester = executable('kmac_drng_tester',
 				   [ 'kmac_drng_tester.c',
 				     internal_src ],
@@ -51,6 +57,8 @@ if get_option('kmac_drng').enabled()
 endif
 
 if get_option('cshake_drng').enabled()
+	seeded_selftest_enable = 1
+
 	cshake_drng_tester = executable('cshake_drng_tester',
 				   [ 'cshake_drng_tester.c',
 				     internal_src ],
@@ -84,6 +92,8 @@ if get_option('cshake_drng').enabled()
 endif
 
 if (get_option('xdrbg').enabled() and get_option('sha3').enabled())
+	seeded_selftest_enable = 1
+
 	xdrbg256_tester = executable('xdrbg256_tester',
 				   [ 'xdrbg256_tester.c',
 				     internal_src ],
@@ -117,6 +127,8 @@ if (get_option('xdrbg').enabled() and get_option('sha3').enabled())
 endif
 
 if (get_option('xdrbg').enabled() and get_option('ascon').enabled())
+	seeded_selftest_enable = 1
+
 	xdrbg128_tester = executable('xdrbg128_tester',
 				   [ 'xdrbg128_tester.c',
 				     internal_src ],
@@ -150,6 +162,8 @@ if (get_option('xdrbg').enabled() and get_option('ascon').enabled())
 endif
 
 if get_option('drbg_hash').enabled()
+	seeded_selftest_enable = 1
+
 	hash_sha2_drbg_tester = executable('hash_sha2_drbg_tester',
 				[ 'hash_drbg_tester.c', internal_src ],
 				include_directories: [ include_internal_dirs ],
@@ -176,6 +190,8 @@ if get_option('drbg_hash').enabled()
 endif
 
 if get_option('drbg_hmac').enabled()
+	seeded_selftest_enable = 1
+
 	hmac_sha2_drbg_tester = executable('hmac_sha2_drbg_tester',
 				[ 'hmac_drbg_tester.c', internal_src ],
 				include_directories: [ include_internal_dirs ],
@@ -191,10 +207,12 @@ if get_option('drbg_hmac').enabled()
 	     timeout: 1500, is_parallel: false, suite: performance)
 endif
 
-seeded_rng_tester = executable('seeded_rng_tester',
+if (seeded_selftest_enable == 1)
+	seeded_rng_tester = executable('seeded_rng_tester',
 				   [ 'seeded_rng_tester.c',
 				     internal_src ],
 				   include_directories: [ include_internal_dirs ],
 				   dependencies: leancrypto
 				   )
-test('DRNG Seeded RNG', seeded_rng_tester, suite: regression)
+	test('DRNG Seeded RNG', seeded_rng_tester, suite: regression)
+endif

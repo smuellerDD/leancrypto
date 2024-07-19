@@ -1,6 +1,7 @@
 # for i in $(ls *.c | sort); do echo "'$i',"; done
 
 compile_hash_crypt = 0
+aead_src_files = []
 
 if get_option('hash_crypt').enabled()
 	src += files([
@@ -14,7 +15,7 @@ if get_option('hash_crypt').enabled()
 		'../api/lc_kmac_crypt.h',
 	])
 
-	aead_src_files = files([
+	aead_src_files += files([
 				'cshake_crypt.c',
 				'kmac_crypt.c'
 			       ])

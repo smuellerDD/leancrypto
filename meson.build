@@ -280,15 +280,24 @@ if get_option('chacha20_drng').enabled() and get_option('chacha20').disabled()
 	error('ChaCha20 DRNG requires ChaCha20 support')
 endif
 
-if get_option('sha3').disabled() and get_option('dilithium').enabled()
+if (get_option('sha3').disabled() and
+    (get_option('dilithium_87').enabled() or
+     get_option('dilithium_65').enabled() or
+     get_option('dilithium_44').enabled()))
 	error('Dilithium support requires SHA-3')
 endif
 
-if get_option('kmac').disabled() and get_option('kyber').enabled()
+if (get_option('kmac').disabled() and
+    (get_option('kyber_1024').enabled() or
+     get_option('kyber_768').enabled() or
+     get_option('kyber_512').enabled()))
 	error('Kyper support requires KMAC due to SP800-108 KDF')
 endif
 
-if get_option('sha3').disabled() and get_option('kyber').enabled()
+if (get_option('sha3').disabled() and
+    (get_option('kyber_1024').enabled() or
+     get_option('kyber_768').enabled() or
+     get_option('kyber_512').enabled()))
 	error('Kyber support requires SHA-3')
 endif
 
