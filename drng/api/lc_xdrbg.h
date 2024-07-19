@@ -66,7 +66,13 @@ extern const struct lc_rng *lc_xdrbg_drng;
  */
 
 #define LC_XDRBG256_DRNG_KEYSIZE 64
-#define LC_XDRBG256_DRNG_MAX_CHUNK (LC_SHAKE_256_SIZE_BLOCK * 2)
+/*
+ * For streamlining the access requests, the max chunk size plus the key size
+ * should be a full multiple of the SHAKE rate. As the key size is not
+ * exactly the rate size, the chunk size needs to consider it
+ */
+#define LC_XDRBG256_DRNG_MAX_CHUNK                                             \
+	(LC_SHAKE_256_SIZE_BLOCK * 2 - LC_XDRBG256_DRNG_KEYSIZE)
 #define LC_XDRBG256_DRNG_STATE_SIZE                                            \
 	(sizeof(struct lc_xdrbg_drng_state) + LC_XDRBG256_DRNG_KEYSIZE)
 #define LC_XDRBG256_DRNG_CTX_SIZE                                              \
