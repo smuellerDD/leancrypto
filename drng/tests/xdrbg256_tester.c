@@ -51,11 +51,11 @@ static int xdrbg256_drng_selftest(struct lc_rng_ctx *xdrbg256_ctx)
 		0xcc, 0xdd, 0xdc, 0x4e, 0xe1, 0x64, 0x9f, 0x1e, 0xb3, 0xfa,
 		0x97, 0xa7, 0x02, 0x0a, 0x28, 0x01, 0x19, 0xd0, 0x45, 0xe9,
 		0x21, 0x74, 0x52, 0x1a, 0xac, 0x5f, 0x58, 0x7c, 0x02, 0x47,
-		0x45, 0x06, 0x17, 0x71, 0xc5, 0x2b, 0x0f, 0xa9, 0xed, 0x5c,
-		0xd1, 0x46, 0x63, 0x57, 0xb5, 0x6a, 0x5c, 0x95, 0xd1, 0xa4,
-		0xdf, 0x61, 0x62, 0x39, 0x41, 0x47, 0xb1, 0x4e, 0x91, 0x7c,
-		0x50, 0x1f, 0xc0, 0x48, 0x42, 0xb6, 0xea, 0x16, 0x4c, 0x50,
-		0x29, 0x12, 0xd0, 0x1c, 0x39, 0x9f, 0x79,
+		0x45, 0x06, 0x17, 0x71, 0xc5, 0x2b, 0x0f, 0xa9, 0x7f, 0x9c,
+		0x15, 0x9c, 0xde, 0x00, 0x25, 0xf9, 0xa3, 0x1b, 0x44, 0xfe,
+		0x4f, 0xc6, 0xf8, 0xbf, 0x6c, 0x9f, 0x12, 0xc7, 0x67, 0xb9,
+		0x3f, 0xd8, 0x92, 0xcf, 0xbb, 0x9d, 0x2c, 0x7e, 0x6a, 0x62,
+		0x8b, 0xa7, 0xe5, 0xfa, 0xab, 0x40, 0xc2
 	};
 	static const uint8_t exp83[] = { 0x39, 0x2b, 0x18, 0x96, 0x45,
 					 0x81, 0x86, 0x84, 0xcf };
@@ -92,13 +92,35 @@ static int xdrbg256_drng_selftest(struct lc_rng_ctx *xdrbg256_ctx)
 			  "SHAKE DRNG state generation");
 
 	/* Verify the generate operation */
-	lc_hash_init(xdrbg256_compare);
 	/* Use the already generated state from above */
+
+	/* First loop iteratipn */
+	lc_hash_init(xdrbg256_compare);
 	lc_hash_update(xdrbg256_compare, compare1, LC_XDRBG256_DRNG_KEYSIZE);
 	encode = 2 * 85;
 	lc_hash_update(xdrbg256_compare, &encode, sizeof(encode));
-	lc_hash_set_digestsize(xdrbg256_compare, sizeof(compare1));
+	/* First loop iteratipn: generate key */
+	lc_hash_set_digestsize(xdrbg256_compare, LC_XDRBG256_DRNG_KEYSIZE);
 	lc_hash_final(xdrbg256_compare, compare1);
+	/* First loop iteratipn: generate data */
+	lc_hash_set_digestsize(xdrbg256_compare, LC_XDRBG256_DRNG_MAX_CHUNK);
+	lc_hash_final(xdrbg256_compare, compare1+ LC_XDRBG256_DRNG_KEYSIZE);
+
+	/* 2nd loop round as output size is larger than chunk size */
+	lc_hash_init(xdrbg256_compare);
+	lc_hash_update(xdrbg256_compare, compare1, LC_XDRBG256_DRNG_KEYSIZE);
+	encode = 2 * 85;
+	lc_hash_update(xdrbg256_compare, &encode, sizeof(encode));
+	/* Second loop iteratipn: generate key */
+	lc_hash_set_digestsize(xdrbg256_compare, LC_XDRBG256_DRNG_KEYSIZE);
+	lc_hash_final(xdrbg256_compare, compare1);
+	/* Second loop iteratipn: generate data */
+	lc_hash_set_digestsize(xdrbg256_compare,
+			       sizeof(compare1) - LC_XDRBG256_DRNG_MAX_CHUNK -
+			       LC_XDRBG256_DRNG_KEYSIZE);
+	lc_hash_final(xdrbg256_compare, compare1 + LC_XDRBG256_DRNG_MAX_CHUNK +
+					LC_XDRBG256_DRNG_KEYSIZE);
+
 	ret += lc_compare(compare1 + LC_XDRBG256_DRNG_KEYSIZE, exp1,
 			  sizeof(exp1), "SHAKE DRNG verification");
 
