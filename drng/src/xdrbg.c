@@ -90,32 +90,6 @@ static void lc_xdrbg_drng_encode(struct lc_hash_ctx *xof_ctx, const uint8_t n,
 	lc_hash_update(xof_ctx, alpha, alphalen);
 	lc_hash_update(xof_ctx, &encode, 1);
 
-#if 0
-	/*
-	 * The alpha is larger than the allowed size - perform hashing of
-	 * alpha together with its size encoding.
-	 */
-	static const uint8_t byte = 0xff;
-	LC_HASH_CTX_ON_STACK(enc_hash_ctx, LC_XDRBG256_DRNG_HASH_TYPE);
-	uint8_t encode[LC_XDRBG256_DRNG_KEYSIZE + 1];
-
-	/* Hash alpha with the XOF. */
-	lc_hash_init(enc_hash_ctx);
-	lc_hash_update(enc_hash_ctx, alpha, alphalen);
-	lc_hash_update(enc_hash_ctx, &byte, sizeof(byte));
-	xdrbg256_xof_final(enc_hash_ctx, encode, LC_XDRBG256_DRNG_KEYSIZE);
-	lc_hash_zero(enc_hash_ctx);
-
-	/* Encode the length */
-	encode[LC_XDRBG256_DRNG_KEYSIZE] = (uint8_t)((n * 85) + 84);
-
-	/*
-	 * The buffer encode contains the concatentation of
-	 * h(alpha) || (n * (hash_length + 1) + hash_length)
-	 */
-	lc_hash_update(xof_ctx, encode, sizeof(encode));
-#endif
-
 	/*
 	 * Zeroization of encode is not considered to be necessary as alpha is
 	 * considered to be known string.

@@ -167,38 +167,7 @@ static int xdrbg128_drng_selftest(struct lc_rng_ctx *xdrbg128_ctx)
 			  sizeof(exp84),
 			  "Ascon DRNG with alpha 84 bytes verification");
 
-	// lc_rng_zero(xdrbg128_ctx);
-
-#if 0
-	/*
-	 * Verify the seeding operation to generate proper state with large
-	 * alpha.
-	 */
-	/* Seed the XDRBG with an alpha > 84 bytes */
-	static const uint8_t byte = 0xff;
-	LC_HASH_CTX_ON_STACK(enc_hash_ctx, lc_shake128);
-
-	lc_rng_seed(xdrbg128_ctx, seed, sizeof(seed), exp1, sizeof(exp1));
-	/* Prepare the state with native Ascon operations */
-	lc_hash_init(xdrbg128_compare);
-	lc_hash_update(xdrbg128_compare, seed, sizeof(seed));
-	/* Insert SHA3-512 hash of alpha */
-	lc_hash_init(enc_hash_ctx);
-	lc_hash_update(enc_hash_ctx, exp1, sizeof(exp1));
-	lc_hash_update(enc_hash_ctx, &byte, sizeof(byte));
-	lc_hash_set_digestsize(enc_hash_ctx, LC_XDRBG128_DRNG_KEYSIZE);
-	lc_hash_final(enc_hash_ctx, act1);
-	lc_hash_zero(enc_hash_ctx);
-	lc_hash_update(xdrbg128_compare, act1, LC_XDRBG128_DRNG_KEYSIZE);
-	encode = 0 * 85 + 84;
-	lc_hash_update(xdrbg128_compare, &encode, sizeof(encode));
-	lc_hash_set_digestsize(xdrbg128_compare, LC_XDRBG128_DRNG_KEYSIZE);
-	lc_hash_final(xdrbg128_compare, compare1);
-	ret += lc_compare(compare1, state->v, LC_XDRBG128_DRNG_KEYSIZE,
-			  "Ascon DRNG state generation with large alpha");
-
 	lc_rng_zero(xdrbg128_ctx);
-#endif
 
 	lc_hash_zero(xdrbg128_compare);
 
