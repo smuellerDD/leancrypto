@@ -229,8 +229,12 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 {
 	struct workspace {
 		uint8_t buf[2 * LC_KYBER_SYMBYTES];
-		uint8_t poly_getnoise_eta1_buf[POLY_GETNOISE_ETA1_BUFSIZE];
-		polyvec a[LC_KYBER_K], e, pkpv, skpv;
+		polyvec e, pkpv, skpv;
+		union {
+			uint8_t poly_getnoise_eta1_buf[
+				POLY_GETNOISE_ETA1_BUFSIZE];
+			polyvec a[LC_KYBER_K];
+		} tmp;
 	};
 	unsigned int i;
 	uint8_t *buf;
@@ -254,14 +258,11 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 	kyber_print_buffer(buf + LC_KYBER_SYMBYTES, LC_KYBER_SYMBYTES,
 			   "Keygen: Sigma");
 
-	gen_a(ws->a, publicseed);
-	kyber_print_polyveck(ws->a, "Keygen: AHat");
-
 	for (i = 0; i < LC_KYBER_K; i++) {
 		poly_getnoise_eta1(&ws->skpv.vec[i], noiseseed, nonce++,
-				   ws->poly_getnoise_eta1_buf);
+				   ws->tmp.poly_getnoise_eta1_buf);
 		poly_getnoise_eta1(&ws->e.vec[i], noiseseed, nonce2++,
-				   ws->poly_getnoise_eta1_buf);
+				   ws->tmp.poly_getnoise_eta1_buf);
 	}
 	kyber_print_polyvec(&ws->skpv, "Keygen: s");
 	kyber_print_polyvec(&ws->e, "Keygen: e");
@@ -271,11 +272,14 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 	kyber_print_polyveck(&ws->skpv, "Keygen: sHat = NTT(s)");
 	kyber_print_polyveck(&ws->e, "Keygen: eHat = NTT(e)");
 
+	gen_a(ws->tmp.a, publicseed);
+	kyber_print_polyveck(ws->tmp.a, "Keygen: AHat");
+
 	// matrix-vector multiplication
-	BUILD_BUG_ON(sizeof(poly) > sizeof(ws->a));
+	BUILD_BUG_ON(sizeof(poly) > sizeof(ws->tmp.a));
 	for (i = 0; i < LC_KYBER_K; i++) {
-		polyvec_basemul_acc_montgomery(&ws->pkpv.vec[i], &ws->a[i],
-					       &ws->skpv, &ws->a);
+		polyvec_basemul_acc_montgomery(&ws->pkpv.vec[i], &ws->tmp.a[i],
+					       &ws->skpv, &ws->tmp.a);
 		poly_tomont(&ws->pkpv.vec[i]);
 	}
 	kyber_print_polyvec(&ws->pkpv, "Keygen: tHat = (AHat * sHat)");

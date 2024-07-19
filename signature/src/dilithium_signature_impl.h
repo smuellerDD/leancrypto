@@ -63,11 +63,14 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 				     struct lc_rng_ctx *rng_ctx)
 {
 	struct workspace {
-		polyvecl mat[LC_DILITHIUM_K];
 		union {
 			polyvecl s1, s1hat;
 		} s1;
-		polyveck s2, t1, t0;
+		union {
+			polyvecl mat[LC_DILITHIUM_K];
+			polyveck t0;
+		} matrix;
+		polyveck s2, t1;
 		uint8_t seedbuf[2 * LC_DILITHIUM_SEEDBYTES +
 				LC_DILITHIUM_CRHBYTES];
 		union {
@@ -120,11 +123,6 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 
 	pack_sk_key(sk, key);
 
-	/* Expand matrix */
-	polyvec_matrix_expand(ws->mat, rho, ws->tmp.poly_uniform_buf);
-	dilithium_print_polyvecl_k(
-		ws->mat, "Keygen - MAT K x L x N matrix after ExpandA:");
-
 	/* Sample short vectors s1 and s2 */
 
 	polyvecl_uniform_eta(&ws->s1.s1, rhoprime, 0,
@@ -148,8 +146,13 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 	dilithium_print_polyvecl(&ws->s1.s1hat,
 				 "Keygen - S1 L x N matrix after NTT:");
 
+	/* Expand matrix */
+	polyvec_matrix_expand(ws->matrix.mat, rho, ws->tmp.poly_uniform_buf);
+	dilithium_print_polyvecl_k(
+		ws->matrix.mat, "Keygen - MAT K x L x N matrix after ExpandA:");
+
 	polyvec_matrix_pointwise_montgomery(
-		&ws->t1, ws->mat, &ws->s1.s1hat,
+		&ws->t1, ws->matrix.mat, &ws->s1.s1hat,
 		&ws->tmp.polyvecl_pointwise_acc_montgomery_buf);
 	dilithium_print_polyveck(&ws->t1,
 				 "Keygen - T K x N matrix after A*NTT(s1):");
@@ -171,13 +174,13 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 	polyveck_caddq(&ws->t1);
 	dilithium_print_polyveck(&ws->t1, "Keygen - T K x N matrix caddq:");
 
-	polyveck_power2round(&ws->t1, &ws->t0, &ws->t1);
-	dilithium_print_polyveck(&ws->t0,
+	polyveck_power2round(&ws->t1, &ws->matrix.t0, &ws->t1);
+	dilithium_print_polyveck(&ws->matrix.t0,
 				 "Keygen - T0 K x N matrix after power2round:");
 	dilithium_print_polyveck(&ws->t1,
 				 "Keygen - T1 K x N matrix after power2round:");
 
-	pack_sk_t0(sk, &ws->t0);
+	pack_sk_t0(sk, &ws->matrix.t0);
 	pack_pk_t1(pk, &ws->t1);
 	dilithium_print_buffer(pk->pk, LC_DILITHIUM_PUBLICKEYBYTES,
 			       "Keygen - PK after pkEncode:");
@@ -235,7 +238,6 @@ static int lc_dilithium_sign_internal(struct lc_dilithium_sig *sig,
 		uint8_t seedbuf[LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_RNDBYTES +
 				LC_DILITHIUM_CRHBYTES];
 		union {
-			poly polyvecl_pointwise_acc_montgomery_buf;
 			uint8_t poly_uniform_gamma1_buf
 				[POLY_UNIFORM_GAMMA1_BYTES];
 			uint8_t poly_challenge_buf[POLY_CHALLENGE_BYTES];
@@ -519,8 +521,10 @@ static int lc_dilithium_verify_internal(const struct lc_dilithium_sig *sig,
 					struct lc_hash_ctx *hash_ctx)
 {
 	struct workspace_verify {
-		poly cp;
-		polyvecl mat[LC_DILITHIUM_K];
+		union {
+			poly cp;
+			polyvecl mat[LC_DILITHIUM_K];
+		} matrix;
 		polyveck w1;
 		union {
 			polyveck t1, h;
@@ -544,8 +548,6 @@ static int lc_dilithium_verify_internal(const struct lc_dilithium_sig *sig,
 	int ret = 0;
 	LC_DECLARE_MEM(ws, struct workspace_verify, sizeof(uint64_t));
 
-	polyvec_matrix_expand(ws->mat, rho, ws->tmp.poly_uniform_buf);
-
 	unpack_sig_z(&ws->buf.z, sig);
 	if (polyvecl_chknorm(&ws->buf.z,
 			     LC_DILITHIUM_GAMMA1 - LC_DILITHIUM_BETA)) {
@@ -553,20 +555,21 @@ static int lc_dilithium_verify_internal(const struct lc_dilithium_sig *sig,
 		goto out;
 	}
 
-	/* Matrix-vector multiplication; compute Az - c2^dt1 */
-	poly_challenge(&ws->cp, c1, ws->tmp.poly_challenge_buf);
-
 	polyvecl_ntt(&ws->buf.z);
+	polyvec_matrix_expand(ws->matrix.mat, rho, ws->tmp.poly_uniform_buf);
 	polyvec_matrix_pointwise_montgomery(
-		&ws->w1, ws->mat, &ws->buf.z,
+		&ws->w1, ws->matrix.mat, &ws->buf.z,
 		&ws->tmp.polyvecl_pointwise_acc_montgomery_buf);
 
-	poly_ntt(&ws->cp);
+	/* Matrix-vector multiplication; compute Az - c2^dt1 */
+	poly_challenge(&ws->matrix.cp, c1, ws->tmp.poly_challenge_buf);
+	poly_ntt(&ws->matrix.cp);
 
 	unpack_pk_t1(&ws->buf.t1, pk);
 	polyveck_shiftl(&ws->buf.t1);
 	polyveck_ntt(&ws->buf.t1);
-	polyveck_pointwise_poly_montgomery(&ws->buf.t1, &ws->cp, &ws->buf.t1);
+	polyveck_pointwise_poly_montgomery(&ws->buf.t1, &ws->matrix.cp,
+					   &ws->buf.t1);
 
 	polyveck_sub(&ws->w1, &ws->w1, &ws->buf.t1);
 	polyveck_reduce(&ws->w1);
