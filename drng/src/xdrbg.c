@@ -1,4 +1,4 @@
-/* XDRBG with XOF256
+/* XDRBG
  *
  * Copyright (C) 2023 - 2024, Stephan Mueller <smueller@chronox.de>
  *
@@ -218,9 +218,9 @@ static int lc_xdrbg_drng_seed(void *_state, const uint8_t *seed, size_t seedlen,
 	keysize = lc_xdrbg_keysize(state);
 
 	if (keysize == LC_XDRBG256_DRNG_KEYSIZE)
-		xdrbg256_drng_selftest(&tested, "XOF DRNG");
+		xdrbg256_drng_selftest(&tested, "SHAKE-256 XDRBG");
 	else
-		xdrbg128_drng_selftest(&tested, "Ascon DRNG");
+		xdrbg128_drng_selftest(&tested, "Ascon XOF XDRBG");
 
 	lc_hash_init(xof_ctx);
 

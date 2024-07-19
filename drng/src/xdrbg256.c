@@ -1,4 +1,5 @@
-/*
+/* XDRBG with SHAKE-256 support functions
+ *
  * Copyright (C) 2024, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
@@ -57,12 +58,9 @@ void xdrbg256_drng_selftest(int *tested, const char *impl)
 		0x4f, 0xc6, 0xf8, 0xbf, 0x6c, 0x9f, 0x12, 0xc7, 0x67, 0xb9,
 		0x3f, 0xd8, 0x92, 0xcf, 0xbb, 0x9d, 0x2c, 0x7e, 0x6a, 0x62,
 		0x8b, 0xa7, 0xe5, 0xfa, 0xab, 0x40, 0xc2
-
-
 	};
 	uint8_t act[sizeof(exp)] __align(sizeof(uint32_t));
 
-return;
 	LC_SELFTEST_RUN(tested);
 
 	LC_XDRBG256_DRNG_CTX_ON_STACK(shake_ctx);

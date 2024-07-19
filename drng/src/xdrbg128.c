@@ -1,4 +1,5 @@
-/*
+/* XDRBG with Ascon XOF support functions
+ *
  * Copyright (C) 2024, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
@@ -57,10 +58,9 @@ void xdrbg128_drng_selftest(int *tested, const char *impl)
 		0xda, 0xa5, 0xf3, 0xa1, 0xf6, 0x62, 0xd8, 0x43, 0xf5, 0xb4,
 		0xb5, 0xca, 0x47, 0xd9, 0xec, 0x36, 0xa2, 0x13, 0x89, 0x1c,
 		0x46, 0x2c, 0x43, 0x3c, 0xf9, 0x82, 0x23
-
 	};
 	uint8_t act[sizeof(exp)] __align(sizeof(uint32_t));
-return;
+
 	LC_SELFTEST_RUN(tested);
 
 	LC_XDRBG128_DRNG_CTX_ON_STACK(shake_ctx);
