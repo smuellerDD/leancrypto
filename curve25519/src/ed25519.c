@@ -146,11 +146,25 @@ static void lc_ed25519_sign_tester(int *tested)
 			    "ED25519 Signature generation\n");
 }
 
-/* Export for test purposes */
-LC_INTERFACE_FUNCTION(int, lc_ed25519_sign, struct lc_ed25519_sig *sig,
-		      const uint8_t *msg, size_t mlen,
-		      const struct lc_ed25519_sk *sk,
-		      struct lc_rng_ctx *rng_ctx)
+static inline void lc_ed25519_dom2(struct lc_hash_ctx *hash_ctx, int prehash)
+{
+	/* Label + phflag = 1 + size of context */
+	static const uint8_t label[] = {
+		'S', 'i', 'g', 'E', 'd', '2', '5', '5', '1', '9', ' ',
+		'n', 'o', ' ', 'E', 'd', '2', '5', '5', '1', '9', ' ',
+		'c', 'o', 'l', 'l', 'i', 's', 'i', 'o', 'n', 's', 1, 0
+	};
+
+	if (!prehash)
+		return;
+
+	lc_hash_update(hash_ctx, label, sizeof(label));;
+}
+
+static int lc_ed25519_sign_internal(struct lc_ed25519_sig *sig, int prehash,
+				    const uint8_t *msg, size_t mlen,
+				    const struct lc_ed25519_sk *sk,
+				    struct lc_rng_ctx *rng_ctx)
 {
 	uint8_t az[LC_SHA512_SIZE_DIGEST];
 	uint8_t nonce[LC_SHA512_SIZE_DIGEST];
@@ -168,6 +182,7 @@ LC_INTERFACE_FUNCTION(int, lc_ed25519_sign, struct lc_ed25519_sig *sig,
 	lc_hash(lc_sha512, sk->sk, 32, az);
 
 	lc_hash_init(hash_ctx);
+	lc_ed25519_dom2(hash_ctx, prehash);
 
 	if (rng_ctx) {
 		/* r = hash(k || K || noise || pad || M) (mod q) */
@@ -189,9 +204,11 @@ LC_INTERFACE_FUNCTION(int, lc_ed25519_sign, struct lc_ed25519_sig *sig,
 	ge25519_p3_tobytes(sig->sig, &R);
 
 	lc_hash_init(hash_ctx);
+	lc_ed25519_dom2(hash_ctx, prehash);
 	lc_hash_update(hash_ctx, sig->sig, LC_ED25519_SIGBYTES);
 	lc_hash_update(hash_ctx, msg, mlen);
 	lc_hash_final(hash_ctx, hram);
+
 
 	sc25519_reduce(hram);
 	az[0] &= 248;
@@ -206,6 +223,23 @@ out:
 	lc_memset_secure(&R, 0, sizeof(R));
 	lc_hash_zero(hash_ctx);
 	return ret;
+}
+
+/* Export for test purposes */
+LC_INTERFACE_FUNCTION(int, lc_ed25519_sign, struct lc_ed25519_sig *sig,
+		      const uint8_t *msg, size_t mlen,
+		      const struct lc_ed25519_sk *sk,
+		      struct lc_rng_ctx *rng_ctx)
+{
+	return lc_ed25519_sign_internal(sig, 0, msg, mlen, sk, rng_ctx);
+}
+
+LC_INTERFACE_FUNCTION(int, lc_ed25519ph_sign, struct lc_ed25519_sig *sig,
+		      const uint8_t *msg, size_t mlen,
+		      const struct lc_ed25519_sk *sk,
+		      struct lc_rng_ctx *rng_ctx)
+{
+	return lc_ed25519_sign_internal(sig, 1, msg, mlen, sk, rng_ctx);
 }
 
 /* Test vector obtained from NIST ACVP demo server */
@@ -252,10 +286,10 @@ static void lc_ed25519_verify_tester(int *tested)
 			    "ED25519 Signature verification\n");
 }
 
-/* Export for test purposes */
-LC_INTERFACE_FUNCTION(int, lc_ed25519_verify, const struct lc_ed25519_sig *sig,
-		      const uint8_t *msg, size_t mlen,
-		      const struct lc_ed25519_pk *pk)
+static int lc_ed25519_verify_internal(const struct lc_ed25519_sig *sig,
+				      int prehash, const uint8_t *msg,
+				      size_t mlen,
+				      const struct lc_ed25519_pk *pk)
 {
 	uint8_t h[LC_SHA512_SIZE_DIGEST];
 	ge25519_p3 check;
@@ -301,6 +335,7 @@ LC_INTERFACE_FUNCTION(int, lc_ed25519_verify, const struct lc_ed25519_sig *sig,
 	}
 
 	lc_hash_init(hash_ctx);
+	lc_ed25519_dom2(hash_ctx, prehash);
 	lc_hash_update(hash_ctx, sig->sig, 32);
 	lc_hash_update(hash_ctx, pk->pk, LC_ED25519_PUBLICKEYBYTES);
 	lc_hash_update(hash_ctx, msg, mlen);
@@ -325,3 +360,19 @@ out:
 	lc_hash_zero(hash_ctx);
 	return ret;
 }
+/* Export for test purposes */
+LC_INTERFACE_FUNCTION(int, lc_ed25519_verify, const struct lc_ed25519_sig *sig,
+		      const uint8_t *msg, size_t mlen,
+		      const struct lc_ed25519_pk *pk)
+{
+	return lc_ed25519_verify_internal(sig, 0, msg, mlen, pk);
+}
+
+LC_INTERFACE_FUNCTION(int, lc_ed25519ph_verify,
+		      const struct lc_ed25519_sig *sig,
+		      const uint8_t *msg, size_t mlen,
+		      const struct lc_ed25519_pk *pk)
+{
+	return lc_ed25519_verify_internal(sig, 1, msg, mlen, pk);
+}
+
