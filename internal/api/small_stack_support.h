@@ -34,6 +34,7 @@ extern "C" {
 /* Allocate memory on stack */
 #define __LC_DECLARE_MEM_STACK(name, type, alignment)                          \
 	LC_ALIGNED_BUFFER_ALIGNMENTSIZE(name##_buf, sizeof(type), alignment);  \
+	lc_memset_secure(name##_buf, 0, sizeof(type));                         \
 	type *name = (type *)name##_buf
 #define __LC_RELEASE_MEM_STACK(name) lc_memset_secure(name, 0, sizeof(*name))
 
