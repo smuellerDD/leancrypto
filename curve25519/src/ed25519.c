@@ -146,23 +146,11 @@ static void lc_ed25519_sign_tester(int *tested)
 			    "ED25519 Signature generation\n");
 }
 
-static inline void lc_ed25519_dom2(struct lc_hash_ctx *hash_ctx, int prehash)
-{
-	static const uint8_t label[] = "SigEd25519 no Ed25519 collisions";
-	static const uint8_t phflag[] = { 0x01, 0x00 };
-
-	if (!prehash)
-		return;
-
-	lc_hash_update(hash_ctx, label, 32);
-	lc_hash_update(hash_ctx, phflag, sizeof(phflag));
-}
-
 /* Export for test purposes */
-static int lc_ed25519_sign_internal(struct lc_ed25519_sig *sig, int prehash,
-				    const uint8_t *msg, size_t mlen,
-				    const struct lc_ed25519_sk *sk,
-				    struct lc_rng_ctx *rng_ctx)
+LC_INTERFACE_FUNCTION(int, lc_ed25519_sign, struct lc_ed25519_sig *sig,
+		      const uint8_t *msg, size_t mlen,
+		      const struct lc_ed25519_sk *sk,
+		      struct lc_rng_ctx *rng_ctx)
 {
 	uint8_t az[LC_SHA512_SIZE_DIGEST];
 	uint8_t nonce[LC_SHA512_SIZE_DIGEST];
@@ -180,7 +168,6 @@ static int lc_ed25519_sign_internal(struct lc_ed25519_sig *sig, int prehash,
 	lc_hash(lc_sha512, sk->sk, 32, az);
 
 	lc_hash_init(hash_ctx);
-	lc_ed25519_dom2(hash_ctx, prehash);
 
 	if (rng_ctx) {
 		/* r = hash(k || K || noise || pad || M) (mod q) */
@@ -202,7 +189,6 @@ static int lc_ed25519_sign_internal(struct lc_ed25519_sig *sig, int prehash,
 	ge25519_p3_tobytes(sig->sig, &R);
 
 	lc_hash_init(hash_ctx);
-	lc_ed25519_dom2(hash_ctx, prehash);
 	lc_hash_update(hash_ctx, sig->sig, LC_ED25519_SIGBYTES);
 	lc_hash_update(hash_ctx, msg, mlen);
 	lc_hash_final(hash_ctx, hram);
@@ -220,23 +206,6 @@ out:
 	lc_memset_secure(&R, 0, sizeof(R));
 	lc_hash_zero(hash_ctx);
 	return ret;
-}
-
-/* Export for test purposes */
-LC_INTERFACE_FUNCTION(int, lc_ed25519_sign, struct lc_ed25519_sig *sig,
-		      const uint8_t *msg, size_t mlen,
-		      const struct lc_ed25519_sk *sk,
-		      struct lc_rng_ctx *rng_ctx)
-{
-	return lc_ed25519_sign_internal(sig, 0, msg, mlen, sk, rng_ctx);
-}
-
-LC_INTERFACE_FUNCTION(int, lc_ed25519ph_sign, struct lc_ed25519_sig *sig,
-		      const uint8_t *msg, size_t mlen,
-		      const struct lc_ed25519_sk *sk,
-		      struct lc_rng_ctx *rng_ctx)
-{
-	return lc_ed25519_sign_internal(sig, 1, msg, mlen, sk, rng_ctx);
 }
 
 /* Test vector obtained from NIST ACVP demo server */

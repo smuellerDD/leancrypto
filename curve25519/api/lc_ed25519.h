@@ -49,10 +49,6 @@ int lc_ed25519_sign(struct lc_ed25519_sig *sig, const uint8_t *msg, size_t mlen,
 int lc_ed25519_verify(const struct lc_ed25519_sig *sig, const uint8_t *msg,
 		      size_t mlen, const struct lc_ed25519_pk *pk);
 
-int lc_ed25519ph_sign(struct lc_ed25519_sig *sig, const uint8_t *msg,
-		      size_t mlen, const struct lc_ed25519_sk *sk,
-		      struct lc_rng_ctx *rng_ctx);
-
 #ifdef __cplusplus
 }
 #endif
