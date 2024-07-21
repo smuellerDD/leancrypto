@@ -23,6 +23,4 @@ jobs:
     - name: Meson compile
       run: meson compile -C build
     - name: Meson test
-      run: meson test --wrap='valgrind --vex-guest-max-insns=25 --track-origins=yes --error-exitcode=1' -C build --suite regression
-    - name: Meson logs
-      run: cat /home/runner/work/leancrypto/leancrypto/build/meson-logs/testlog-valgrind.txt
+      run: meson test -v --wrap='valgrind --vex-guest-max-insns=25 --track-origins=yes --error-exitcode=1' -C build --suite regression
