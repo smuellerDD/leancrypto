@@ -24,3 +24,6 @@ jobs:
       run: meson compile -C build
     - name: Meson test
       run: meson test --wrap='valgrind --vex-guest-max-insns=25 --track-origins=yes --error-exitcode=1' -C build --suite regression
+    - name: Archive test results
+      uses: actions/upload-artifact@v4
+      path: build/meson-logs
