@@ -21,6 +21,7 @@
 #include "lc_rng.h"
 #include "ret_checkers.h"
 #include "lc_x25519.h"
+#include "timecop.h"
 #include "x25519_scalarmult.h"
 
 static void lc_x25519_keypair_selftest(int *tested)
@@ -64,7 +65,15 @@ int lc_x25519_keypair(struct lc_x25519_pk *pk, struct lc_x25519_sk *sk,
 
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, sk->sk,
 			      LC_X25519_SECRETKEYBYTES));
+
+	/* Timecop: the random number is the sentitive data */
+	poison(sk->sk, LC_X25519_SECRETKEYBYTES);
+
 	CKINT(crypto_scalarmult_curve25519_base(pk->pk, sk->sk));
+
+	/* Timecop: pk and sk are not relevant for side-channels any more. */
+	unpoison(sk->sk, LC_X25519_SECRETKEYBYTES);
+	unpoison(pk->pk, LC_X25519_PUBLICKEYBYTES);
 
 out:
 	return ret;
@@ -114,7 +123,14 @@ int lc_x25519_ss(struct lc_x25519_ss *ss, const struct lc_x25519_pk *pk,
 
 	lc_x25519_ss_selftest(&tested);
 
+	/* Timecop: mark the secret key as sensitive */
+	poison(sk->sk, sizeof(sk->sk));
+
 	CKINT(crypto_scalarmult_curve25519(ss->ss, sk->sk, pk->pk));
+
+	/* Timecop: pk and sk are not relevant for side-channels any more. */
+	unpoison(sk->sk, LC_X25519_SECRETKEYBYTES);
+	unpoison(ss->ss, LC_X25519_SSBYTES);
 
 out:
 	return ret;

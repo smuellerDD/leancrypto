@@ -33,6 +33,7 @@
 #include "lc_sha512.h"
 #include "ret_checkers.h"
 #include "selftest_rng.h"
+#include "timecop.h"
 #include "visibility.h"
 
 static void lc_ed25519_keypair_selftest(int *tested)
@@ -82,6 +83,10 @@ LC_INTERFACE_FUNCTION(int, lc_ed25519_keypair, struct lc_ed25519_pk *pk,
 	lc_rng_check(&rng_ctx);
 
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, sk->sk, 32));
+
+	/* Timecop: the random number is the sentitive data */
+	poison(sk->sk, 32);
+
 	lc_hash(lc_sha512, sk->sk, 32, tmp);
 	tmp[0] &= 248;
 	tmp[31] &= 127;
@@ -92,6 +97,10 @@ LC_INTERFACE_FUNCTION(int, lc_ed25519_keypair, struct lc_ed25519_pk *pk,
 	ge25519_p3_tobytes(pk->pk, &A);
 
 	memcpy(sk->sk + 32, pk->pk, 32);
+
+	/* Timecop: pk and sk are not relevant for side-channels any more. */
+	unpoison(sk->sk, sizeof(sk->sk));
+	unpoison(pk->pk, sizeof(pk->pk));
 
 out:
 	lc_memset_secure(&A, 0, sizeof(A));
@@ -179,6 +188,9 @@ static int lc_ed25519_sign_internal(struct lc_ed25519_sig *sig, int prehash,
 
 	lc_ed25519_sign_tester(&tested);
 
+	/* Timecop: mark the secret key as sensitive */
+	poison(sk->sk, sizeof(sk->sk));
+
 	lc_hash(lc_sha512, sk->sk, 32, az);
 
 	lc_hash_init(hash_ctx);
@@ -215,6 +227,9 @@ static int lc_ed25519_sign_internal(struct lc_ed25519_sig *sig, int prehash,
 	az[31] &= 127;
 	az[31] |= 64;
 	sc25519_muladd(sig->sig + 32, hram, az, nonce);
+
+	/* Timecop: pk and sk are not relevant for side-channels any more. */
+	unpoison(sig->sig, LC_ED25519_SIGBYTES);
 
 out:
 	lc_memset_secure(az, 0, sizeof(az));
