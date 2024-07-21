@@ -23,4 +23,4 @@ jobs:
     - name: Meson compile
       run: meson compile -C build
     - name: Meson test
-      run: meson test --wrap='valgrind --track-origins=yes' -C build --suite regression
+      run: meson test --wrap='valgrind --track-origins=yes --error-exitcode=1' -C build --suite regression
