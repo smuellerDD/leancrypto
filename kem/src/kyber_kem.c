@@ -157,6 +157,9 @@ int _lc_kyber_enc(
 	kyber_print_buffer(ct->ct, LC_CRYPTO_CIPHERTEXTBYTES,
 			   "======Encapsulation output: ct");
 
+	/* Timecop: the Kyber CT is secured and can be freely processed */
+	unpoison(ct->ct, LC_CRYPTO_CIPHERTEXTBYTES);
+
 out:
 	lc_memset_secure(buf, 0, sizeof(buf));
 	lc_memset_secure(kr, 0, sizeof(kr));

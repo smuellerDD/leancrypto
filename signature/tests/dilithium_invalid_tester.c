@@ -20,6 +20,7 @@
 #include "dilithium_type.h"
 #include "lc_rng.h"
 #include "small_stack_support.h"
+#include "timecop.h"
 #include "visibility.h"
 
 static int dilithium_invalid(void)
@@ -30,10 +31,11 @@ static int dilithium_invalid(void)
 		struct lc_dilithium_sig sig;
 	};
 	uint8_t msg[] = { 0x01, 0x02, 0x03 };
+	static const uint8_t seed[] = { 0x01, 0x02, 0x03 };
 	int ret = 1;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	if (lc_rng_seed(lc_seeded_rng, msg, sizeof(msg), NULL, 0))
+	if (lc_rng_seed(lc_seeded_rng, seed, sizeof(seed), NULL, 0))
 		goto out;
 
 	if (lc_dilithium_keypair(&ws->pk, &ws->sk, lc_seeded_rng))
@@ -64,7 +66,6 @@ static int dilithium_invalid(void)
 
 	/* revert modify the sec key */
 	ws->sk.sk[0] = (uint8_t)((ws->sk.sk[0] - 0x01) & 0xff);
-
 	if (lc_dilithium_sign(&ws->sig, msg, sizeof(msg), &ws->sk,
 			      lc_seeded_rng))
 		goto out;

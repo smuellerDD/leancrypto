@@ -159,11 +159,17 @@ static int sh_nonaligned(void)
 		0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
 		0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
 	};
+	static const uint8_t key[] = {
+		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+		0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+		0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+		0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
+	};
 	int ret_checked = 0;
 	LC_SH_CTX_ON_STACK(sh, lc_aes_cbc, lc_sha512);
 
 	/* One shot encryption with pt ptr != ct ptr */
-	if (lc_aead_setkey(sh, in, 32, in, 16))
+	if (lc_aead_setkey(sh, key, 32, in, 16))
 		return 1;
 
 	lc_aead_encrypt(sh, pt, pt, sizeof(pt), NULL, 0, tag, sizeof(tag));
@@ -183,6 +189,15 @@ static int sh_tester(void)
 {
 	int ret = 0;
 	static const uint8_t in[] = {
+		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
+		0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13,
+		0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d,
+		0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
+		0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31,
+		0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b,
+		0x3c, 0x3d, 0x3e, 0x3f,
+	};
+	static const uint8_t key[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
 		0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13,
 		0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d,
@@ -215,35 +230,35 @@ static int sh_tester(void)
 	       (unsigned int)LC_SH_STATE_SIZE(lc_aes_cbc, lc_sha512));
 
 	ret += sh_tester_one(lc_aes_cbc, lc_sha512, in, sizeof(in), in,
-			     sizeof(in), in, sizeof(in), in, 16, exp_ct,
+			     sizeof(in), key, sizeof(key), in, 16, exp_ct,
 			     exp_tag, sizeof(exp_tag));
 
 	ret += sh_tester_one(lc_aes_cbc, lc_sha256, in, sizeof(in), in,
-			     sizeof(in), in, sizeof(in), in, 16, NULL, NULL,
+			     sizeof(in), key, sizeof(key), in, 16, NULL, NULL,
 			     32);
 
 	ret += sh_tester_one(lc_aes_ctr, lc_sha256, in, sizeof(in), in,
-			     sizeof(in), in, sizeof(in), in, 16, NULL, NULL,
+			     sizeof(in), key, sizeof(key), in, 16, NULL, NULL,
 			     32);
 
 	ret += sh_tester_one(lc_aes_ctr, lc_sha512, in, sizeof(in), in,
-			     sizeof(in), in, sizeof(in), in, 16, NULL, NULL,
+			     sizeof(in), key, sizeof(key), in, 16, NULL, NULL,
 			     64);
 
 	ret += sh_tester_one(lc_aes_ctr, lc_sha3_256, in, sizeof(in), in,
-			     sizeof(in), in, sizeof(in), in, 16, NULL, NULL,
+			     sizeof(in), key, sizeof(key), in, 16, NULL, NULL,
 			     32);
 
 	ret += sh_tester_one(lc_aes_ctr, lc_sha3_512, in, sizeof(in), in,
-			     sizeof(in), in, sizeof(in), in, 16, NULL, NULL,
+			     sizeof(in), key, sizeof(key), in, 16, NULL, NULL,
 			     64);
 
 	ret += sh_tester_one(lc_aes_cbc, lc_sha3_256, in, sizeof(in), in,
-			     sizeof(in), in, sizeof(in), in, 16, NULL, NULL,
+			     sizeof(in), key, sizeof(key), in, 16, NULL, NULL,
 			     32);
 
 	ret += sh_tester_one(lc_aes_cbc, lc_sha3_512, in, sizeof(in), in,
-			     sizeof(in), in, sizeof(in), in, 16, NULL, NULL,
+			     sizeof(in), key, sizeof(key), in, 16, NULL, NULL,
 			     64);
 
 	ret += sh_nonaligned();

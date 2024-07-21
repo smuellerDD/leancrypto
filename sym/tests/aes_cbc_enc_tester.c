@@ -31,6 +31,7 @@
 #include "lc_aes.h"
 #include "compare.h"
 #include "ret_checkers.h"
+#include "timecop.h"
 #include "visibility.h"
 
 #define LC_EXEC_ONE_TEST(aes_impl)                                             \
@@ -110,19 +111,23 @@ static int test_encrypt_cbc(const struct lc_sym *aes, const char *name)
 	printf("AES CBC ctx %s (%s implementation) len %lu\n", name,
 	       aes == lc_aes_cbc_c ? "C" : "accelerated", LC_SYM_CTX_SIZE(aes));
 
+	unpoison(key256, sizeof(key256));
 	ret = test_encrypt_cbc_one(aes_cbc, key256, sizeof(key256), out256);
 
 	lc_sym_zero(aes_cbc);
 
+	unpoison(key192, sizeof(key192));
 	ret += test_encrypt_cbc_one(aes_cbc, key192, sizeof(key192), out192);
 	lc_sym_zero(aes_cbc);
 
+	unpoison(key128, sizeof(key128));
 	ret += test_encrypt_cbc_one(aes_cbc, key128, sizeof(key128), out128);
 	lc_sym_zero(aes_cbc);
 
 	if (lc_sym_alloc(aes, &aes_cbc_heap))
 		return ret + 1;
 
+	unpoison(key256, sizeof(key256));
 	ret += test_encrypt_cbc_one(aes_cbc_heap, key256, sizeof(key256),
 				    out256);
 	lc_sym_zero_free(aes_cbc_heap);
