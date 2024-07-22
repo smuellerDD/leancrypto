@@ -22,12 +22,12 @@ algorithms. Further it only has POSIX dependencies, and allows all algorithms
 to be used on stack as well as on heap. Accelerated algorithms are transparently
 enabled if possible.
 
-%package -n lib%{name}1
+%package -n lib%{name}0
 Summary:        Cryptographic library with stack-only support and PQC-safe algorithms
 Provides:       %{name} = %{version}-%{release}
 Obsoletes:      %{name} < %{version}-%{release}
 
-%description -n lib%{name}1
+%description -n lib%{name}0
 Leancrypto provides a general-purpose cryptographic library with PQC-safe
 algorithms. Further it only has POSIX dependencies, and allows all algorithms
 to be used on stack as well as on heap. Accelerated algorithms are transparently
@@ -36,7 +36,7 @@ enabled if possible.
 %package devel
 Summary:        Development files for leancrypto, a cryptographic library
 Requires:       glibc-devel
-Requires:       lib%{name}1 = %{version}
+Requires:       lib%{name}0 = %{version}
 # Cannot be noarch due to leancrypto.so symlink
 #BuildArch:      noarch
 #BuildArchitectures: noarch
@@ -66,7 +66,7 @@ used for development.
 %package -n %{name}-tools
 Summary:        Applications provided by leancrypto
 Requires:       glibc-devel
-Requires:       lib%{name}1 = %{version}
+Requires:       lib%{name}0 = %{version}
 
 %description -n %{name}-tools
 Leancrypto provides a general-purpose cryptographic library with PQC-safe
@@ -78,10 +78,10 @@ This subpackage holds the tools provided by the library, such as sha*sum.
 
 %kernel_module_package
 
-%package -n lib%{name}1-kernel
+%package -n lib%{name}0-kernel
 Summary:	Cryptographic library with PQC-safe algorithms Kernel Module Package
 
-%description -n lib%{name}1-kernel
+%description -n lib%{name}0-kernel
 Leancrypto provides a general-purpose cryptographic library with PQC-safe
 algorithms. Further it only has POSIX dependencies, and allows all algorithms
 to be used on stack as well as on heap. Accelerated algorithms are transparently
@@ -121,10 +121,10 @@ for flavor in %flavors_to_build; do
 	make -C obj/$flavor/linux_kernel modules_install M=$PWD/obj/$flavor KERNELRELEASE=$KERNELRELEASE
 done
 
-%post -n lib%{name}1 -p /sbin/ldconfig
-%postun -n lib%{name}1 -p /sbin/ldconfig
+%post -n lib%{name}0 -p /sbin/ldconfig
+%postun -n lib%{name}0 -p /sbin/ldconfig
 
-%files -n lib%{name}1
+%files -n lib%{name}0
 %license LICENSE LICENSE.bsd LICENSE.gplv2
 %{_libdir}/lib%{name}.so.*
 %{_libdir}/pkgconfig/%{name}.pc

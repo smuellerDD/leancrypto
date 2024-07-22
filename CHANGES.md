@@ -1,4 +1,4 @@
-Changes 0.11.0-prerelease
+Changes 0.11.0
 
 * security fix: fix possible leak of message in Kyber
 
@@ -23,6 +23,8 @@ Changes 0.11.0-prerelease
 * enhancement: add Ascon support for XDRBG
 
 * enhancement: performance increase for XDRBG256
+
+* enhancement: add ED25519ph to support Dilithium hybrid init/update/final handling
 
 Changes 0.10.1
 
