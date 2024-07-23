@@ -26,6 +26,7 @@
 extern "C" {
 #endif
 
+/// \cond DO_NOT_DOCUMENT
 struct lc_rng {
 	int (*generate)(void *state, const uint8_t *addtl_input,
 			size_t addtl_input_len, uint8_t *out, size_t outlen);
@@ -42,11 +43,26 @@ struct lc_rng_ctx {
 #define LC_RNG_CTX(name, cb)                                                   \
 	name->rng = cb;                                                        \
 	name->rng_state = (uint8_t *)(name) + sizeof(struct lc_rng_ctx)
+/// \endcond
+
+/** @defgroup RNGs Random Number Generation
+ *
+ * Concept of RNGs in leancrypto
+ *
+ * All RNGs can be used with the API calls documented below. However,
+ * the allocation part is RNG-specific. Thus, perform the following steps
+ *
+ * 1. Allocation: Use the stack or heap allocation functions documented in
+ *    lc_cshake256_drng.h, lc_kmac256_drng.h, lc_hash_drbg.h, lc_hmac_sha512.h.
+ *
+ * 2. Use the returned cipher handle with the API calls below.
+ */
 
 /**
- * Seeded DRNG
+ * @ingroup RNGs
  *
- * One common instance of a seeded DRNG. The caller does not need to consider
+ * @var lc_seeded_rng
+ * @brief One common instance of a seeded DRNG. The caller does not need to consider
  * the seeding and reseeding - it is automatically and transparently handled.
  * Thus, this structure can be directly used for the lc_rng API by a caller
  * and have a properly seeded DRNG.
@@ -57,7 +73,10 @@ struct lc_rng_ctx {
 extern struct lc_rng_ctx *lc_seeded_rng;
 
 /**
+ * @ingroup RNGs
  * @brief Get the default leancrypto RNG
+ *
+ * @param [in,out] ctx Random Number Generator context to analyze
  *
  * The function checks if an RNG was already provided and only returns the
  * default RNG context if none was provided.
@@ -71,18 +90,7 @@ static inline void lc_rng_check(struct lc_rng_ctx **ctx)
 }
 
 /**
- * Concept of RNGs in leancrypto
- *
- * All RNGs can be used with the API calls documented below. However,
- * the allocation part is RNG-specific. Thus, perform the following steps
- *
- * 1. Allocation: Use the stack or heap allocation functions documented in
- *    lc_cshake256_drng.h, lc_kmac256_drng.h, lc_hash_drbg*.h.
- *
- * 2. Use the returned cipher handle with the API calls below.
- */
-
-/**
+ * @ingroup RNGs
  * @brief Zeroize RNG context
  *
  * @param [in] ctx RNG context to be zeroized
@@ -102,6 +110,7 @@ static inline void lc_rng_zero(struct lc_rng_ctx *ctx)
 }
 
 /**
+ * @ingroup RNGs
  * @brief Zeroize and free RNG context
  *
  * @param [in] ctx RNG context to be zeroized and freed
@@ -116,13 +125,14 @@ static inline void lc_rng_zero_free(struct lc_rng_ctx *ctx)
 }
 
 /**
+ * @ingroup RNGs
  * @brief Obtain random numbers
  *
  * @param [in] ctx allocated RNG cipher handle
  * @param [in] addtl_input Additional input to diversify state
  * @param [in] addtl_input_len Length of additional input buffer
- * @param [out] outbuf allocated buffer that is to be filled with random numbers
- * @param [in] outbuflen length of outbuf indicating the size of the random
+ * @param [out] out allocated buffer that is to be filled with random numbers
+ * @param [in] outlen length of \p out indicating the size of the random
  *			 number byte string to be generated
  *
  * Generate random numbers and fill the buffer provided by the caller.
@@ -148,6 +158,7 @@ static inline int lc_rng_generate(struct lc_rng_ctx *ctx,
 }
 
 /**
+ * @ingroup RNGs
  * @brief (Re)Seed the RNG
  *
  * @param [in] ctx allocated RNG cipher handle

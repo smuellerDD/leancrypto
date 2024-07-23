@@ -29,6 +29,7 @@
 extern "C" {
 #endif
 
+/// \cond DO_NOT_DOCUMENT
 struct lc_hkdf_ctx {
 	uint8_t partial[LC_SHA_MAX_SIZE_DIGEST];
 	size_t partial_ptr;
@@ -46,8 +47,13 @@ struct lc_hkdf_ctx {
 
 #define LC_HKDF_SET_CTX(name, hashname)                                        \
 	_LC_HKDF_SET_CTX(name, hashname, name, sizeof(struct lc_hkdf_ctx))
+/// \endcond
 
 /**
+ * @defgroup KDF Key Derivation Functions
+ */
+/**
+ * @ingroup KDF
  * @brief HMAC-based Extract-and-Expand Key Derivation Function (HKDF) - RFC5869
  *	  Extract phase
  *
@@ -68,6 +74,7 @@ int lc_hkdf_extract(struct lc_hkdf_ctx *hkdf_ctx, const uint8_t *ikm,
 		    size_t ikmlen, const uint8_t *salt, size_t saltlen);
 
 /**
+ * @ingroup KDF
  * @brief HMAC-based Extract-and-Expand Key Derivation Function (HKDF) - RFC5869
  *	  Expand phase
  *
@@ -86,10 +93,11 @@ int lc_hkdf_expand(struct lc_hkdf_ctx *hkdf_ctx, const uint8_t *info,
 		   size_t infolen, uint8_t *dst, size_t dlen);
 
 /**
+ * @ingroup KDF
  * @brief Zeroize HKDF context allocated with either LC_HKDF_CTX_ON_STACK or
  *	  hkdf_alloc
  *
- * @param [in] hmac_ctx HMAC context to be zeroized
+ * @param [in] hkdf_ctx HMAC context to be zeroized
  */
 static inline void lc_hkdf_zero(struct lc_hkdf_ctx *hkdf_ctx)
 {
@@ -105,6 +113,7 @@ static inline void lc_hkdf_zero(struct lc_hkdf_ctx *hkdf_ctx)
 }
 
 /**
+ * @ingroup KDF
  * @brief Allocate HKDF context on heap
  *
  * @param [in] hash Reference to hash implementation to be used to perform
@@ -116,13 +125,15 @@ static inline void lc_hkdf_zero(struct lc_hkdf_ctx *hkdf_ctx)
 int lc_hkdf_alloc(const struct lc_hash *hash, struct lc_hkdf_ctx **hkdf_ctx);
 
 /**
+ * @ingroup KDF
  * @brief Zeroize and free HKDF context
  *
- * @param [in] hmac_ctx HKDF context to be zeroized and freed
+ * @param [in] hkdf_ctx HKDF context to be zeroized and freed
  */
 void lc_hkdf_zero_free(struct lc_hkdf_ctx *hkdf_ctx);
 
 /**
+ * @ingroup KDF
  * @brief Allocate stack memory for the HKDF context
  *
  * @param [in] name Name of the stack variable
@@ -141,6 +152,7 @@ void lc_hkdf_zero_free(struct lc_hkdf_ctx *hkdf_ctx);
 	_Pragma("GCC diagnostic pop")
 
 /**
+ * @ingroup KDF
  * @brief HMAC-based Extract-and-Expand Key Derivation Function (HKDF) - RFC5869
  *	  Complete implementation
  *
@@ -178,7 +190,9 @@ out:
 
 /******************************** HKDF as RNG *********************************/
 
-/*
+/**
+ * @defgroup KDFasRNG Key Derivation Functions used with RNG API
+ *
  * The HKDF can be used as an RNG context for aggregated algorithms like
  * Kyber or Dilithium. The idea is that the KDF state can be initialized
  * from an input data to deterministically derive the values required for the
@@ -200,10 +214,13 @@ extern const struct lc_rng *lc_hkdf_rng;
 	lc_rng_zero(name)
 
 /**
+ * @ingroup KDFasRNG
  * @brief Allocate stack memory for the HKDF DRNG context
  *
  * @param [in] name Name of the stack variable
  * @param [in] hashname Reference to lc_hash implementation used for HKDF
+ *
+ * \warning You MUST seed the DRNG!
  */
 #define LC_HKDF_DRNG_CTX_ON_STACK(name, hashname)                                   \
 	_Pragma("GCC diagnostic push")                                              \
@@ -217,6 +234,7 @@ extern const struct lc_rng *lc_hkdf_rng;
 	_Pragma("GCC diagnostic pop")
 
 /**
+ * @ingroup KDFasRNG
  * @brief Allocation of a HKDF DRNG context
  *
  * @param [out] state HKDF DRNG context allocated by the function
@@ -226,7 +244,7 @@ extern const struct lc_rng *lc_hkdf_rng;
  *
  * The memory is pinned so that the DRNG state cannot be swapped out to disk.
  *
- * You need to seed the DRNG!
+ * \warning You MUST seed the DRNG!
  *
  * @return 0 upon success; < 0 on error
  */

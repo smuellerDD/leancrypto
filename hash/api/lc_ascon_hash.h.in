@@ -26,6 +26,7 @@
 extern "C" {
 #endif
 
+/// \cond DO_NOT_DOCUMENT
 #define LC_ASCON_HASH_STATE_WORDS 5
 #define LC_ASCON_HASH_STATE_SIZE (LC_ASCON_HASH_STATE_WORDS * sizeof(uint64_t))
 
@@ -51,11 +52,6 @@ struct lc_ascon_hash {
 	uint8_t squeeze_more : 1;
 };
 
-extern const struct lc_hash *lc_ascon_128;
-extern const struct lc_hash *lc_ascon_128a;
-extern const struct lc_hash *lc_ascon_xof;
-extern const struct lc_hash *lc_ascon_xofa;
-
 #define LC_ASCON_STATE_SIZE (sizeof(struct lc_ascon_hash))
 #define LC_ASCON_CTX_SIZE (sizeof(struct lc_hash) + LC_ASCON_STATE_SIZE)
 
@@ -72,6 +68,31 @@ extern const struct lc_hash *lc_ascon_xofa;
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name##_ctx_buf;            \
 	LC_ASCON_CTX(name, ascon);                                                  \
 	_Pragma("GCC diagnostic pop")
+/// \endcond
+
+/**
+ * @var lc_ascon_128
+ * @brief Ascon 128 message digest algorithm
+ */
+extern const struct lc_hash *lc_ascon_128;
+
+/**
+ * @var lc_ascon_128a
+ * @brief Ascon 128a message digest algorithm
+ */
+extern const struct lc_hash *lc_ascon_128a;
+
+/**
+ * @var lc_ascon_xof
+ * @brief Ascon XOF extended output function
+ */
+extern const struct lc_hash *lc_ascon_xof;
+
+/**
+ * @var lc_ascon_xofa
+ * @brief Ascon XOFa extended output function
+ */
+extern const struct lc_hash *lc_ascon_xofa;
 
 /**
  * @brief Allocate stack memory for the Ascon 128 context without VLA

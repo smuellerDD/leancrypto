@@ -34,6 +34,7 @@
 extern "C" {
 #endif
 
+/// \cond DO_NOT_DOCUMENT
 struct lc_kc_cryptor {
 	struct lc_kmac_ctx kmac;
 	struct lc_kmac_ctx auth_ctx;
@@ -82,6 +83,7 @@ extern const struct lc_aead *lc_kmac_aead;
 #define LC_KC_SET_CTX(name, hashname)                                          \
 	LC_AEAD_CTX(name, lc_kmac_aead);                                       \
 	_LC_KC_SET_CTX(((struct lc_kc_cryptor *)name->aead_state), hashname)
+/// \endcond
 
 /**
  * @brief Allocate KMAC cryptor context on heap

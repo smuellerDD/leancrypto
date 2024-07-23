@@ -29,6 +29,7 @@
 extern "C" {
 #endif
 
+/// \cond DO_NOT_DOCUMENT
 struct lc_kh_cryptor {
 	struct lc_sym_ctx sym;
 	struct lc_kmac_ctx auth_ctx;
@@ -53,6 +54,7 @@ extern const struct lc_aead *lc_symkmac_aead;
 #define LC_KH_SET_CTX(name, sym, hash)                                         \
 	LC_AEAD_CTX(name, lc_symkmac_aead);                                    \
 	_LC_KH_SET_CTX(((struct lc_kh_cryptor *)name->aead_state), sym, hash)
+/// \endcond
 
 /**
  * @brief Allocate symmetric algorithm with KMAC cryptor context on heap

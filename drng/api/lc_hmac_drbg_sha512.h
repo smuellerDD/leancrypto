@@ -26,12 +26,14 @@
 extern "C" {
 #endif
 
+/// \cond DO_NOT_DOCUMENT
 #define LC_DRBG_HMAC_STATELEN 64
 #define LC_DRBG_HMAC_BLOCKLEN 64
 
 #define LC_DRBG_HMAC_CORE lc_sha512
 
 #include "lc_hmac_drbg.h"
+/// \endcond
 
 #ifdef __cplusplus
 }

@@ -117,7 +117,7 @@ struct lc_cshake_ctx {
  * @brief Initialize the hash state with re-init support following the cSHAKE
  * specification
  *
- * @param [in] ctx Initialized hash context
+ * @param [in] cshake_ctx Initialized hash context
  * @param [in] n N is a function-name bit string, used by NIST to define
  *		 functions based on cSHAKE. When no function other than cSHAKE
  *		 is desired, N is set to the empty string.
@@ -158,7 +158,7 @@ void lc_cshake_ctx_update(struct lc_cshake_ctx *cshake_ctx, const uint8_t *in,
  * The function can be invoked repeatedly to squeeze more data from the
  * cSHAKE state.
  *
- * @param [in] ctx Initialized hash context
+ * @param [in] cshake_ctx Initialized hash context
  * @param [out] out Buffer allocated by caller that is filled with the message
  *		    digest data.
  * @param [in] outlen Size of the output buffer to be filled.

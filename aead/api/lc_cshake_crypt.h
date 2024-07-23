@@ -34,6 +34,7 @@
 extern "C" {
 #endif
 
+/// \cond DO_NOT_DOCUMENT
 struct lc_cc_cryptor {
 	struct lc_hash_ctx cshake;
 	struct lc_cshake_ctx auth_ctx;
@@ -82,6 +83,7 @@ extern const struct lc_aead *lc_cshake_aead;
 #define LC_CC_SET_CTX(name, hashname)                                          \
 	LC_AEAD_CTX(name, lc_cshake_aead);                                     \
 	_LC_CC_SET_CTX(((struct lc_cc_cryptor *)name->aead_state), hashname)
+/// \endcond
 
 /**
  * @brief Allocate cSHAKE cryptor context on heap

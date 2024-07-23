@@ -50,7 +50,8 @@ enum lc_kyber_type {
 	LC_KYBER_512, /** Kyber 512 */
 };
 
-/**
+/** @defgroup Kyber ML-KEM / CRYSTALS-Kyber Key Encapsulation Mechanism
+ *
  * Kyber API concept
  *
  * The Kyber API is accessible via the following header files with the mentioned
@@ -70,7 +71,7 @@ enum lc_kyber_type {
  *
  * * lc_kyber_768.h: Direct access to Kyber 768.
  *
- * * lc_kyber_512.h: Direct access to Kyber 512
+ * * lc_kyber_512.h: Direct access to Kyber 512.
  */
 
 /************************************* KEM ************************************/
@@ -147,6 +148,7 @@ struct lc_kyber_ss {
 };
 
 /**
+ * @ingroup Kyber
  * @brief Obtain Kyber type from secret key
  *
  * @param [in] sk Secret key from which the type is to be obtained
@@ -161,6 +163,7 @@ static inline enum lc_kyber_type lc_kyber_sk_type(const struct lc_kyber_sk *sk)
 }
 
 /**
+ * @ingroup Kyber
  * @brief Obtain Kyber type from public key
  *
  * @param [in] pk Public key from which the type is to be obtained
@@ -175,6 +178,7 @@ static inline enum lc_kyber_type lc_kyber_pk_type(const struct lc_kyber_pk *pk)
 }
 
 /**
+ * @ingroup Kyber
  * @brief Obtain Kyber type from Kyber ciphertext
  *
  * @param [in] ct Ciphertext from which the type is to be obtained
@@ -189,6 +193,7 @@ static inline enum lc_kyber_type lc_kyber_ct_type(const struct lc_kyber_ct *ct)
 }
 
 /**
+ * @ingroup Kyber
  * @brief Obtain Kyber type from shared secret
  *
  * @param [in] ss Shared secret key from which the type is to be obtained
@@ -203,6 +208,7 @@ static inline enum lc_kyber_type lc_kyber_ss_type(const struct lc_kyber_ss *ss)
 }
 
 /**
+ * @ingroup Kyber
  * @brief Return the size of the Kyber secret key.
  *
  * @param [in] kyber_type Kyber type for which the size is requested
@@ -238,6 +244,7 @@ static inline unsigned int lc_kyber_sk_size(enum lc_kyber_type kyber_type)
 }
 
 /**
+ * @ingroup Kyber
  * @brief Return the size of the Kyber public key.
  *
  * @param [in] kyber_type Kyber type for which the size is requested
@@ -273,6 +280,7 @@ static inline unsigned int lc_kyber_pk_size(enum lc_kyber_type kyber_type)
 }
 
 /**
+ * @ingroup Kyber
  * @brief Return the size of the Kyber ciphertext.
  *
  * @param [in] kyber_type Kyber type for which the size is requested
@@ -308,6 +316,7 @@ static inline unsigned int lc_kyber_ct_size(enum lc_kyber_type kyber_type)
 }
 
 /**
+ * @ingroup Kyber
  * @brief Return the size of the Kyber shared secret.
  *
  * @param [in] kyber_type Kyber type for which the size is requested
@@ -343,6 +352,7 @@ static inline unsigned int lc_kyber_ss_size(enum lc_kyber_type kyber_type)
 }
 
 /**
+ * @ingroup Kyber
  * @brief Load a Kyber secret key provided with a buffer into the leancrypto
  *	  data structure.
  *
@@ -387,6 +397,7 @@ static inline int lc_kyber_sk_load(struct lc_kyber_sk *sk,
 }
 
 /**
+ * @ingroup Kyber
  * @brief Load a Kyber public key provided with a buffer into the leancrypto
  *	  data structure.
  *
@@ -431,6 +442,7 @@ static inline int lc_kyber_pk_load(struct lc_kyber_pk *pk,
 }
 
 /**
+ * @ingroup Kyber
  * @brief Load a Kyber ciphertext key provided with a buffer into the leancrypto
  *	  data structure.
  *
@@ -477,6 +489,7 @@ static inline int lc_kyber_ct_load(struct lc_kyber_ct *ct,
 }
 
 /**
+ * @ingroup Kyber
  * @brief Load a Kyber shared secret provided with a buffer into the leancrypto
  *	  data structure.
  *
@@ -523,6 +536,7 @@ static inline int lc_kyber_ss_load(struct lc_kyber_ss *ss,
 }
 
 /**
+ * @ingroup Kyber
  * @brief Obtain the reference to the Kyber key and its length
  *
  * NOTE: Only pointer references into the leancrypto data structure are returned
@@ -569,6 +583,7 @@ static inline int lc_kyber_sk_ptr(uint8_t **kyber_key, size_t *kyber_key_len,
 }
 
 /**
+ * @ingroup Kyber
  * @brief Obtain the reference to the Kyber key and its length
  *
  * NOTE: Only pointer references into the leancrypto data structure are returned
@@ -615,6 +630,7 @@ static inline int lc_kyber_pk_ptr(uint8_t **kyber_key, size_t *kyber_key_len,
 }
 
 /**
+ * @ingroup Kyber
  * @brief Obtain the reference to the Kyber ciphertext and its length
  *
  * NOTE: Only pointer references into the leancrypto data structure are returned
@@ -662,6 +678,7 @@ static inline int lc_kyber_ct_ptr(uint8_t **kyber_ct, size_t *kyber_ct_len,
 }
 
 /**
+ * @ingroup Kyber
  * @brief Obtain the reference to the Kyber shared secret and its length
  *
  * NOTE: Only pointer references into the leancrypto data structure are returned
@@ -674,33 +691,33 @@ static inline int lc_kyber_ct_ptr(uint8_t **kyber_ct, size_t *kyber_ct_len,
  *
  * @return 0 on success, != 0 on error
  */
-static inline int lc_kyber_ss_ptr(uint8_t **kyber_key, size_t *kyber_key_len,
+static inline int lc_kyber_ss_ptr(uint8_t **kyber_ss, size_t *kyber_ss_len,
 				  struct lc_kyber_ss *ss)
 {
-	if (!ss || !kyber_key || !kyber_key_len) {
+	if (!ss || !kyber_ss || !kyber_ss_len) {
 		return -EINVAL;
 #ifdef LC_KYBER_1024_ENABLED
 	} else if (ss->kyber_type == LC_KYBER_1024) {
 		struct lc_kyber_1024_ss *_ss = &ss->key.ss_1024;
 
-		*kyber_key = _ss->ss;
-		*kyber_key_len = lc_kyber_ss_size(ss->kyber_type);
+		*kyber_ss = _ss->ss;
+		*kyber_ss_len = lc_kyber_ss_size(ss->kyber_type);
 		return 0;
 #endif
 #ifdef LC_KYBER_768_ENABLED
 	} else if (ss->kyber_type == LC_KYBER_768) {
 		struct lc_kyber_768_ss *_ss = &ss->key.ss_768;
 
-		*kyber_key = _ss->ss;
-		*kyber_key_len = lc_kyber_ss_size(ss->kyber_type);
+		*kyber_ss = _ss->ss;
+		*kyber_ss_len = lc_kyber_ss_size(ss->kyber_type);
 		return 0;
 #endif
 #ifdef LC_KYBER_512_ENABLED
 	} else if (ss->kyber_type == LC_KYBER_512) {
 		struct lc_kyber_512_ss *_ss = &ss->key.ss_512;
 
-		*kyber_key = _ss->ss;
-		*kyber_key_len = lc_kyber_ss_size(ss->kyber_type);
+		*kyber_ss = _ss->ss;
+		*kyber_ss_len = lc_kyber_ss_size(ss->kyber_type);
 		return 0;
 #endif
 	} else {
@@ -709,8 +726,9 @@ static inline int lc_kyber_ss_ptr(uint8_t **kyber_key, size_t *kyber_key_len,
 }
 
 /**
- * @brief lc_kyber_keypair - Generates public and private key for
- *			     IND-CCA2-secure Kyber key encapsulation mechanism
+ * @ingroup Kyber
+ * @brief Generates public and private key for IND-CCA2-secure Kyber key
+ *        encapsulation mechanism
  *
  * @param [out] pk pointer to already allocated output public key
  * @param [out] sk pointer to already allocated output private key
@@ -762,8 +780,8 @@ static inline int lc_kyber_keypair(struct lc_kyber_pk *pk,
 }
 
 /**
- * @brief lc_kyber__keypair_from_seed - Generates Kyber public and private key
- *					from a given seed.
+ * @ingroup Kyber
+ * @brief Generates Kyber public and private key from a given seed.
  *
  * The idea of the function is the allowance of FIPS 203 to maintain the seed
  * used to generate a key pair in lieu of maintaining a private key or the
@@ -826,7 +844,8 @@ static inline int lc_kyber_keypair_from_seed(struct lc_kyber_pk *pk,
 }
 
 /**
- * @brief lc_kyber_enc - Key encapsulation
+ * @ingroup Kyber
+ * @brief Key encapsulation
  *
  * Generates cipher text and shared secret for given public key.
  *
@@ -878,7 +897,8 @@ static inline int lc_kyber_enc(struct lc_kyber_ct *ct, struct lc_kyber_ss *ss,
 }
 
 /**
- * @brief lc_kyber_enc_kdf - Key encapsulation with KDF applied to shared secret
+ * @ingroup Kyber
+ * @brief Key encapsulation with KDF applied to shared secret
  *
  * Generates cipher text and shared secret for given public key. The shared
  * secret is derived from the Kyber SS using the KDF derived from the round 3
@@ -933,7 +953,8 @@ static inline int lc_kyber_enc_kdf(struct lc_kyber_ct *ct, uint8_t *ss,
 }
 
 /**
- * @brief lc_kyber_dec - Key decapsulation
+ * @ingroup Kyber
+ * @brief Key decapsulation
  *
  * Generates shared secret for given cipher text and private key
  *
@@ -985,7 +1006,8 @@ static inline int lc_kyber_dec(struct lc_kyber_ss *ss,
 }
 
 /**
- * @brief lc_kyber_dec_kdf - Key decapsulation with KDF applied to shared secret
+ * @ingroup Kyber
+ * @brief Key decapsulation with KDF applied to shared secret
  *
  * Generates cipher text and shared secret for given private key. The shared
  * secret is derived from the Kyber SS using the KDF derived from the round 3
@@ -1041,7 +1063,8 @@ static inline int lc_kyber_dec_kdf(uint8_t *ss, size_t ss_len,
 
 /************************************* KEX ************************************/
 
-/**
+/** @defgroup KyberKEXUAKE ML-KEM / CRYSTALS-Kyber used in Unilaterally Authenticated Key Exchange Mechanism
+ *
  * Unilaterally authenticated key exchange
  *
  * The key exchange provides a shared secret between two communication parties.
@@ -1051,7 +1074,7 @@ static inline int lc_kyber_dec_kdf(uint8_t *ss, size_t ss_len,
  * generated and exchanged before the KEX handshake. For the unilaterally
  * authenticated key exchange, only the initiator uses the responder's public
  * key which implies that the initiator authenticates the responder.
- *
+ *```
  * 		Alice (initiator)		Bob (responder)
  *
  * Step 1					generate static keypair
@@ -1084,11 +1107,12 @@ static inline int lc_kyber_dec_kdf(uint8_t *ss, size_t ss_len,
  * Step 7	calculate shared secret
  *		Result:
  * 			Shared secret SS
+ *```
  */
 
 /**
- * @brief lc_kex_uake_initiator_init - Initialize unilaterally authenticated
- *				       key exchange
+ * @ingroup KyberKEXUAKE
+ * @brief Initialize unilaterally authenticated key exchange
  *
  * @param [out] pk_e_i initiator's ephemeral public key to be sent to the
  *		       responder
@@ -1157,7 +1181,8 @@ static inline int lc_kex_uake_initiator_init(struct lc_kyber_pk *pk_e_i,
 }
 
 /**
- * @brief lc_kex_uake_responder_ss - Initiator's shared secret generation
+ * @ingroup KyberKEXUAKE
+ * @brief Initiator's shared secret generation
  *
  * @param [out] ct_e_r responder's ephemeral cipher text to be sent to the
  *		       initiator
@@ -1223,7 +1248,8 @@ lc_kex_uake_responder_ss(struct lc_kyber_ct *ct_e_r, uint8_t *shared_secret,
 }
 
 /**
- * @brief lc_kex_uake_initiator_ss - Responder's shared secret generation
+ * @ingroup KyberKEXUAKE
+ * @brief Responder's shared secret generation
  *
  * @param [out] shared_secret Shared secret between initiator and responder
  * @param [in] shared_secret_len Requested size of the shared secret
@@ -1285,8 +1311,7 @@ static inline int lc_kex_uake_initiator_ss(uint8_t *shared_secret,
 	}
 }
 
-/**
- * Authenticated key exchange
+/** @defgroup KyberKEXAKE ML-KEM / CRYSTALS-Kyber used in Authenticated Key Exchange Mechanism
  *
  * The key exchange provides a shared secret between two communication parties.
  * The initiator and responder authenticates the key exchange with their private
@@ -1296,7 +1321,7 @@ static inline int lc_kex_uake_initiator_ss(uint8_t *shared_secret,
  * that are generated and exchanged before the KEX handshake. For the
  * authenticated key exchange, both sides use the respective peer's public key
  * which implies either side authenticates the other end.
- *
+ *```
  * 		Alice (initiator)		Bob (responder)
  *
  * Step 1	generate static keypair		generate static keypair
@@ -1332,10 +1357,12 @@ static inline int lc_kex_uake_initiator_ss(uint8_t *shared_secret,
  * Step 7	calculate shared secret
  *		Result:
  * 			Shared secret SS
+ *```
  */
 
 /**
- * @brief lc_kex_ake_initiator_init - Initialize authenticated key exchange
+ * @ingroup KyberKEXAKE
+ * @brief Initialize authenticated key exchange
  *
  * @param [out] pk_e_i initiator's ephemeral public key to be sent to the
  *		       responder
@@ -1404,7 +1431,8 @@ static inline int lc_kex_ake_initiator_init(struct lc_kyber_pk *pk_e_i,
 }
 
 /**
- * @brief lc_kex_ake_responder_ss - Initiator's shared secret generation
+ * @ingroup KyberKEXAKE
+ * @brief Initiator's shared secret generation
  *
  * @param [out] ct_e_r_1 responder's ephemeral cipher text to be sent to the
  *			 initator
@@ -1481,7 +1509,8 @@ static inline int lc_kex_ake_responder_ss(
 }
 
 /**
- * @brief lc_kex_ake_initiator_ss - Responder's shared secret generation
+ * @ingroup KyberKEXAKE
+ * @brief Responder's shared secret generation
  *
  * @param [out] shared_secret Shared secret between initiator and responder
  * @param [in] shared_secret_len Requested size of the shared secret
@@ -1552,8 +1581,18 @@ static inline int lc_kex_ake_initiator_ss(
 
 /************************************* IES ************************************/
 
+/** @defgroup KyberIES ML-KEM / CRYSTALS-Kyber used in Integrated Encryption Schema
+ *
+ * Kyber Integrated Encryption Schema
+ *
+ * This mechanism uses Kyber to encrypt arbitrary data. See
+ * [KyberIES](https://leancrypto.org/papers/KyberIES_specification.pdf) for
+ * the associated documentation.
+ */
+
 /**
- * @brief lc_kyber_ies_enc - KyberIES encryption oneshot
+ * @ingroup KyberIES
+ * @brief KyberIES encryption oneshot
  *
  * The implementation supports an in-place data encryption where the
  * plaintext and ciphertext buffer pointers refer to the same memory location.
@@ -1624,8 +1663,8 @@ lc_kyber_ies_enc(const struct lc_kyber_pk *pk, struct lc_kyber_ct *ct,
 }
 
 /**
- * @brief lc_kyber_ies_enc_init - KyberIES encryption stream operation
- *				  initialization
+ * @ingroup KyberIES
+ * @brief KyberIES encryption stream operation initialization
  *
  * The implementation supports an in-place data encryption where the
  * plaintext and ciphertext buffer pointers refer to the same memory location.
@@ -1689,8 +1728,8 @@ static inline int lc_kyber_ies_enc_init(struct lc_aead_ctx *aead,
 }
 
 /**
- * @brief lc_kyber_ies_enc_update - KyberIES encryption stream operation
- *				    add more data
+ * @ingroup KyberIES
+ * @brief KyberIES encryption stream operation add more data
  *
  * The implementation supports an in-place data encryption where the
  * plaintext and ciphertext buffer pointers refer to the same memory location.
@@ -1717,8 +1756,8 @@ static inline int lc_kyber_ies_enc_update(struct lc_aead_ctx *aead,
 }
 
 /**
- * @brief lc_kyber_ies_enc_final - KyberIES encryption stream operation
- *				   finalization / integrity test
+ * @ingroup KyberIES
+ * @brief KyberIES encryption stream operation finalization / integrity test
  *
  * The implementation supports an in-place data encryption where the
  * plaintext and ciphertext buffer pointers refer to the same memory location.
@@ -1742,7 +1781,8 @@ static inline int lc_kyber_ies_enc_final(struct lc_aead_ctx *aead, uint8_t *tag,
 }
 
 /**
- * @brief lc_kyber_ies_dec - KyberIES decryption oneshot
+ * @ingroup KyberIES
+ * @brief KyberIES decryption oneshot
  *
  * The implementation supports an in-place data decryption where the
  * plaintext and ciphertext buffer pointers refer to the same memory location.
@@ -1809,8 +1849,8 @@ lc_kyber_ies_dec(const struct lc_kyber_sk *sk, const struct lc_kyber_ct *ct,
 }
 
 /**
- * @brief lc_kyber_ies_dec_init - KyberIES decryption stream operation
- *				  initialization
+ * @ingroup KyberIES
+ * @brief KyberIES decryption stream operation initialization
  *
  * The implementation supports an in-place data decryption where the
  * plaintext and ciphertext buffer pointers refer to the same memory location.
@@ -1870,8 +1910,8 @@ static inline int lc_kyber_ies_dec_init(struct lc_aead_ctx *aead,
 }
 
 /**
- * @brief lc_kyber_ies_dec_update - KyberIES decryption stream operation
- *				    add more data
+ * @ingroup KyberIES
+ * @brief KyberIES decryption stream operation add more data
  *
  * The implementation supports an in-place data decryption where the
  * plaintext and ciphertext buffer pointers refer to the same memory location.
@@ -1898,8 +1938,8 @@ static inline int lc_kyber_ies_dec_update(struct lc_aead_ctx *aead,
 }
 
 /**
- * @brief lc_kyber_ies_dec_final - KyberIES decryption stream operation
- *				   finalization / integrity test
+ * @ingroup KyberIES
+ * @brief KyberIES decryption stream operation finalization / integrity test
  *
  * The implementation supports an in-place data decryption where the
  * plaintext and ciphertext buffer pointers refer to the same memory location.
@@ -1924,12 +1964,21 @@ static inline int lc_kyber_ies_dec_final(struct lc_aead_ctx *aead,
 
 /****************************** Kyber X25510 KEM ******************************/
 
-/*
- * The double KEM implements Kyber KEM together with the X25519 elliptic curve
+#ifdef LC_KYBER_X25519_KEM
+
+/** @defgroup HybridKyber ML-KEM / CRYSTALS-Kyber Hybrid Mechanism
+ *
+ * The hybrid KEM implements Kyber KEM together with the X25519 elliptic curve
  * KEX. The use is identical as the Kyber KEM. The only difference is that
  * the transmitted pk and ct has a different content.
+ *
+ * The API offered for the hybrid Kyber support can be used as a drop-in
+ * replacement. The exception are the API calls to get the pointers to the
+ * key members, Kyber ciphertext or shared secret data.
+ *
+ * See also the [separate Hybrid Kyber](https://leancrypto.org/papers/HybridKEM_algorithm.pdf)
+ * documentation providing a mathematical specification.
  */
-#ifdef LC_KYBER_X25519_KEM
 
 /**
  * @brief Kyber secret key
@@ -2004,6 +2053,7 @@ struct lc_kyber_x25519_ss {
 };
 
 /**
+ * @ingroup HybridKyber
  * @brief Obtain Kyber type from secret key
  *
  * @param [in] sk Secret key from which the type is to be obtained
@@ -2019,6 +2069,7 @@ lc_kyber_x25519_sk_type(const struct lc_kyber_x25519_sk *sk)
 }
 
 /**
+ * @ingroup HybridKyber
  * @brief Obtain Kyber type from public key
  *
  * @param [in] pk Public key from which the type is to be obtained
@@ -2034,6 +2085,7 @@ lc_kyber_x25519_pk_type(const struct lc_kyber_x25519_pk *pk)
 }
 
 /**
+ * @ingroup HybridKyber
  * @brief Obtain Kyber type from Kyber ciphertext
  *
  * @param [in] ct Ciphertext from which the type is to be obtained
@@ -2049,6 +2101,7 @@ lc_kyber_x25519_ct_type(const struct lc_kyber_x25519_ct *ct)
 }
 
 /**
+ * @ingroup HybridKyber
  * @brief Obtain Kyber type from shared secret
  *
  * @param [in] ss Shared secret key from which the type is to be obtained
@@ -2064,6 +2117,7 @@ lc_kyber_x25519_ss_type(const struct lc_kyber_x25519_ss *ss)
 }
 
 /**
+ * @ingroup HybridKyber
  * @brief Return the size of the Kyber secret key.
  *
  * @param [in] kyber_type Kyber type for which the size is requested
@@ -2100,6 +2154,7 @@ lc_kyber_x25519_sk_size(enum lc_kyber_type kyber_type)
 }
 
 /**
+ * @ingroup HybridKyber
  * @brief Return the size of the Kyber public key.
  *
  * @param [in] kyber_type Kyber type for which the size is requested
@@ -2136,6 +2191,7 @@ lc_kyber_x25519_pk_size(enum lc_kyber_type kyber_type)
 }
 
 /**
+ * @ingroup HybridKyber
  * @brief Return the size of the Kyber ciphertext.
  *
  * @param [in] kyber_type Kyber type for which the size is requested
@@ -2172,6 +2228,7 @@ lc_kyber_x25519_ct_size(enum lc_kyber_type kyber_type)
 }
 
 /**
+ * @ingroup HybridKyber
  * @brief Return the size of the Kyber shared secret.
  *
  * @param [in] kyber_type Kyber type for which the size is requested
@@ -2378,6 +2435,7 @@ static inline int lc_kyber_x25519_ss_load(struct lc_kyber_x25519_ss *ss,
 }
 
 /**
+ * @ingroup HybridKyber
  * @brief Obtain the reference to the Kyber key and its length
  *
  * NOTE: Only pointer references into the leancrypto data structure are returned
@@ -2436,6 +2494,7 @@ static inline int lc_kyber_x25519_sk_ptr(uint8_t **kyber_key,
 }
 
 /**
+ * @ingroup HybridKyber
  * @brief Obtain the reference to the Kyber key and its length
  *
  * NOTE: Only pointer references into the leancrypto data structure are returned
@@ -2494,6 +2553,7 @@ static inline int lc_kyber_x25519_pk_ptr(uint8_t **kyber_key,
 }
 
 /**
+ * @ingroup HybridKyber
  * @brief Obtain the reference to the Kyber ciphertext and its length
  *
  * NOTE: Only pointer references into the leancrypto data structure are returned
@@ -2553,6 +2613,7 @@ static inline int lc_kyber_x25519_ct_ptr(uint8_t **kyber_ct,
 }
 
 /**
+ * @ingroup HybridKyber
  * @brief Obtain the reference to the Kyber shared secret and its length
  *
  * NOTE: Only pointer references into the leancrypto data structure are returned
@@ -2611,9 +2672,9 @@ static inline int lc_kyber_x25519_ss_ptr(uint8_t **kyber_ss,
 }
 
 /**
- * @brief lc_kyber_x25519_keypair - Generates public and private key for
- *			     	    IND-CCA2-secure Kyber key encapsulation
- *				    mechanism
+ * @ingroup HybridKyber
+ * @brief Generates public and private key for IND-CCA2-secure Kyber key
+ *	  encapsulation mechanism
  *
  * @param [out] pk pointer to already allocated output public key
  * @param [out] sk pointer to already allocated output private key
@@ -2665,8 +2726,8 @@ static inline int lc_kyber_x25519_keypair(struct lc_kyber_x25519_pk *pk,
 }
 
 /**
- * @brief lc_kyber_x25519_enc_kdf - Key encapsulation with KDF applied to shared
- *			      	    secret
+ * @ingroup HybridKyber
+ * @brief Key encapsulation with KDF applied to shared secret
  *
  * Generates cipher text and shared secret for given public key. The shared
  * secret is derived from the Kyber SS using the KDF derived from the round 3
@@ -2727,8 +2788,8 @@ static inline int lc_kyber_x25519_enc_kdf(struct lc_kyber_x25519_ct *ct,
 }
 
 /**
- * @brief lc_kyber_x25519_dec_kdf - Key decapsulation with KDF applied to shared
- *			       	    secret
+ * @ingroup HybridKyber
+ * @brief Key decapsulation with KDF applied to shared secret
  *
  * Generates cipher text and shared secret for given private key. The shared
  * secret is derived from the Kyber SS using the KDF derived from the round 3
@@ -2785,8 +2846,8 @@ static inline int lc_kyber_x25519_dec_kdf(uint8_t *ss, size_t ss_len,
 /****************************** Kyber X25510 KEX ******************************/
 
 /**
- * @brief lc_kex_x25519_uake_initiator_init - Initialize unilaterally
- *					      authenticated key exchange
+ * @ingroup HybridKyber
+ * @brief Initialize unilaterally authenticated key exchange
  *
  * @param [out] pk_e_i initiator's ephemeral public key to be sent to the
  *		       responder
@@ -2853,7 +2914,8 @@ static inline int lc_kex_x25519_uake_initiator_init(
 }
 
 /**
- * @brief lc_kex_x25519_uake_responder_ss - Initiator's shared secret generation
+ * @ingroup HybridKyber
+ * @brief Initiator's shared secret generation
  *
  * @param [out] ct_e_r responder's ephemeral cipher text to be sent to the
  *		       initiator
@@ -2919,7 +2981,8 @@ static inline int lc_kex_x25519_uake_responder_ss(
 }
 
 /**
- * @brief lc_kex_x25519_uake_initiator_ss - Responder's shared secret generation
+ * @ingroup HybridKyber
+ * @brief Responder's shared secret generation
  *
  * @param [out] shared_secret Shared secret between initiator and responder
  * @param [in] shared_secret_len Requested size of the shared secret
@@ -2982,8 +3045,8 @@ lc_kex_x25519_uake_initiator_ss(uint8_t *shared_secret,
 }
 
 /**
- * @brief lc_kex_x25519_ake_initiator_init - Initialize authenticated key
- *					     exchange
+ * @ingroup HybridKyber
+ * @brief Initialize authenticated key exchange
  *
  * @param [out] pk_e_i initiator's ephemeral public key to be sent to the
  *		       responder
@@ -3050,7 +3113,8 @@ static inline int lc_kex_x25519_ake_initiator_init(
 }
 
 /**
- * @brief lc_kex_x25519_ake_responder_ss - Initiator's shared secret generation
+ * @ingroup HybridKyber
+ * @brief Initiator's shared secret generation
  *
  * @param [out] ct_e_r_1 responder's ephemeral cipher text to be sent to the
  *			 initator
@@ -3130,7 +3194,8 @@ lc_kex_x25519_ake_responder_ss(struct lc_kyber_x25519_ct *ct_e_r_1,
 }
 
 /**
- * @brief lc_kex_x25519_ake_initiator_ss - Responder's shared secret generation
+ * @ingroup HybridKyber
+ * @brief Responder's shared secret generation
  *
  * @param [out] shared_secret Shared secret between initiator and responder
  * @param [in] shared_secret_len Requested size of the shared secret
@@ -3203,7 +3268,8 @@ lc_kex_x25519_ake_initiator_ss(uint8_t *shared_secret, size_t shared_secret_len,
 
 /****************************** Kyber X25519 IES ******************************/
 /**
- * @brief lc_kyber_x25519_ies_enc - KyberIES encryption oneshot
+ * @ingroup HybridKyber
+ * @brief KyberIES encryption oneshot
  *
  * The implementation supports an in-place data encryption where the
  * plaintext and ciphertext buffer pointers refer to the same memory location.
@@ -3279,8 +3345,8 @@ static inline int lc_kyber_x25519_ies_enc(const struct lc_kyber_x25519_pk *pk,
 }
 
 /**
- * @brief lc_kyber_x25519_ies_enc_init - KyberIES encryption stream operation
- *				 	 initialization
+ * @ingroup HybridKyber
+ * @brief KyberIES encryption stream operation initialization
  *
  * The implementation supports an in-place data encryption where the
  * plaintext and ciphertext buffer pointers refer to the same memory location.
@@ -3343,8 +3409,8 @@ static inline int lc_kyber_x25519_ies_enc_init(
 }
 
 /**
- * @brief lc_kyber_x25519_ies_enc_update - KyberIES encryption stream operation
- *				    	   add more data
+ * @ingroup HybridKyber
+ * @brief KyberIES encryption stream operation add more data
  *
  * The implementation supports an in-place data encryption where the
  * plaintext and ciphertext buffer pointers refer to the same memory location.
@@ -3370,8 +3436,8 @@ static inline int lc_kyber_x25519_ies_enc_update(struct lc_aead_ctx *aead,
 }
 
 /**
- * @brief lc_kyber_x25519_ies_enc_final - KyberIES encryption stream operation
- *				 	  finalization / integrity test
+ * @ingroup HybridKyber
+ * @brief KyberIES encryption stream operation finalization / integrity test
  *
  * The implementation supports an in-place data encryption where the
  * plaintext and ciphertext buffer pointers refer to the same memory location.
@@ -3395,7 +3461,8 @@ static inline int lc_kyber_x25519_ies_enc_final(struct lc_aead_ctx *aead,
 }
 
 /**
- * @brief lc_kyber_x25519_ies_dec - KyberIES decryption oneshot
+ * @ingroup HybridKyber
+ * @brief KyberIES decryption oneshot
  *
  * The implementation supports an in-place data decryption where the
  * plaintext and ciphertext buffer pointers refer to the same memory location.
@@ -3467,8 +3534,8 @@ static inline int lc_kyber_x25519_ies_dec(const struct lc_kyber_x25519_sk *sk,
 }
 
 /**
- * @brief lc_kyber_x25519_ies_dec_init - KyberIES decryption stream operation
- *					 initialization
+ * @ingroup HybridKyber
+ * @brief KyberIES decryption stream operation initialization
  *
  * The implementation supports an in-place data decryption where the
  * plaintext and ciphertext buffer pointers refer to the same memory location.
@@ -3528,8 +3595,8 @@ static inline int lc_kyber_x25519_ies_dec_init(
 }
 
 /**
- * @brief lc_kyber_x25519_ies_dec_update - KyberIES decryption stream operation
- *				  	   add more data
+ * @ingroup HybridKyber
+ * @brief KyberIES decryption stream operation add more data
  *
  * The implementation supports an in-place data decryption where the
  * plaintext and ciphertext buffer pointers refer to the same memory location.
@@ -3557,8 +3624,8 @@ static inline int lc_kyber_x25519_ies_dec_update(struct lc_aead_ctx *aead,
 }
 
 /**
- * @brief lc_kyber	_x25519_ies_dec_final - KyberIES decryption stream operation
- *				  	  finalization / integrity test
+ * @ingroup HybridKyber
+ * @brief KyberIES decryption stream operation finalization / integrity test
  *
  * The implementation supports an in-place data decryption where the
  * plaintext and ciphertext buffer pointers refer to the same memory location.

@@ -27,6 +27,7 @@
 extern "C" {
 #endif
 
+/// \cond DO_NOT_DOCUMENT
 #define LC_CSHAKE256_DRNG_KEYSIZE 64
 
 struct lc_cshake256_drng_state {
@@ -45,11 +46,14 @@ extern const struct lc_rng *lc_cshake256_drng;
 #define LC_CSHAKE256_RNG_CTX(name)                                             \
 	LC_RNG_CTX(name, lc_cshake256_drng);                                   \
 	lc_cshake256_drng->zero(name->rng_state)
+/// \endcond
 
 /**
  * @brief Allocate stack memory for the CSHAKE256 DRNG context
  *
  * @param [in] name Name of the stack variable
+ *
+ * \warning You MUST seed the DRNG!
  */
 #define LC_CSHAKE256_DRNG_CTX_ON_STACK(name)                                   \
 	_Pragma("GCC diagnostic push") _Pragma(                                \
@@ -69,7 +73,7 @@ extern const struct lc_rng *lc_cshake256_drng;
  *
  * The memory is pinned so that the DRNG state cannot be swapped out to disk.
  *
- * You need to seed the DRNG!
+ * \warning You MUST seed the DRNG!
  *
  * @return 0 upon success; < 0 on error
  */

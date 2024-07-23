@@ -40,6 +40,7 @@
 extern "C" {
 #endif
 
+/// \cond DO_NOT_DOCUMENT
 /*
  * Kyber 512:  K == 2 - NIST security category 1
  * Kyber 768:  K == 3 - NIST security category 3
@@ -98,6 +99,7 @@ extern "C" {
 #define LC_CRYPTO_PUBLICKEYBYTES LC_KYBER_PUBLICKEYBYTES
 #define LC_CRYPTO_CIPHERTEXTBYTES LC_KYBER_CIPHERTEXTBYTES
 #define LC_CRYPTO_BYTES LC_KYBER_SSBYTES
+/// \endcond
 
 #ifndef __ASSEMBLER__
 /**
@@ -298,7 +300,7 @@ int @kyber_name@_dec_kdf(uint8_t *ss, size_t ss_len, const struct @kyber_name@_c
  * generated and exchanged before the KEX handshake. For the unilaterally
  * authenticated key exchange, only the initiator uses the responder's public
  * key which implies that the initiator authenticates the responder.
- *
+ *```
  * 		Alice (initiator)		Bob (responder)
  *
  * Step 1					generate static keypair
@@ -331,6 +333,7 @@ int @kyber_name@_dec_kdf(uint8_t *ss, size_t ss_len, const struct @kyber_name@_c
  * Step 7	calculate shared secret
  *		Result:
  * 			Shared secret SS
+ *```
  */
 
 /**
@@ -412,7 +415,7 @@ int @kex_name@_uake_initiator_ss(uint8_t *shared_secret, size_t shared_secret_le
  * that are generated and exchanged before the KEX handshake. For the
  * authenticated key exchange, both sides use the respective peer's public key
  * which implies either side authenticates the other end.
- *
+ *```
  * 		Alice (initiator)		Bob (responder)
  *
  * Step 1	generate static keypair		generate static keypair
@@ -448,6 +451,7 @@ int @kex_name@_uake_initiator_ss(uint8_t *shared_secret, size_t shared_secret_le
  * Step 7	calculate shared secret
  *		Result:
  * 			Shared secret SS
+ *```
  */
 
 /**

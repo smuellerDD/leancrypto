@@ -28,6 +28,7 @@
 extern "C" {
 #endif
 
+/// \cond DO_NOT_DOCUMENT
 #define LC_XDRBG_DRNG_INITIALLY_SEEDED 0x80
 #define LC_XDRBG_DRNG_KEYSIZE_MASK 0x7F
 
@@ -55,16 +56,6 @@ extern const struct lc_rng *lc_xdrbg_drng;
 	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name##_ctx_buf;         \
 	_Pragma("GCC diagnostic pop")
 
-/**
- * XDRBG 256 definition using SHAKE-256 providing the following security level:
- *
- * 	* classical: 256 bits of security
- *
- * 	* quantum (Grover): 128 bits of security
- *
- * 	* category: NIST level 5
- */
-
 #define LC_XDRBG256_DRNG_KEYSIZE 64
 /*
  * For streamlining the access requests, the max chunk size plus the key size
@@ -85,11 +76,22 @@ extern const struct lc_rng *lc_xdrbg_drng;
 	__name->xof = lc_shake256;                                             \
 	__name->chunksize = LC_XDRBG256_DRNG_MAX_CHUNK;                        \
 	lc_xdrbg_drng->zero(name->rng_state);
+/// \endcond
 
 /**
  * @brief Allocate stack memory for the XDRBG256 DRNG context
  *
+ * XDRBG 256 definition using SHAKE-256 providing the following security level:
+ *
+ * 	* classical: 256 bits of security
+ *
+ * 	* quantum (Grover): 128 bits of security
+ *
+ * 	* category: NIST level 5
+ *
  * @param [in] name Name of the stack variable
+ *
+ * \warning You MUST seed the DRNG!
  */
 #define LC_XDRBG256_DRNG_CTX_ON_STACK(name)                                    \
 	LC_XDRBG_DRNG_CTX_ON_STACK(name);                                      \
@@ -104,24 +106,15 @@ extern const struct lc_rng *lc_xdrbg_drng;
  *
  * The memory is pinned so that the DRNG state cannot be swapped out to disk.
  *
- * You need to seed the DRNG!
+ * \warning You MUST seed the DRNG!
  *
  * @return 0 upon success; < 0 on error
  */
 int lc_xdrbg256_drng_alloc(struct lc_rng_ctx **state);
 
-/**
- * XDRBG 128 definition using Ascon-XOF to provide a lightweight algorithm
- * providing the following security level:
- *
- * 	* classical: 128 bits of security
- *
- * 	* quantum (Grover): 64 bits of security
- *
- * 	* category: NIST level 1
- */
-
+/// \cond DO_NOT_DOCUMENT
 #define LC_XDRBG128_DRNG_KEYSIZE 32
+
 /*
  * For streamlining the access requests, the max chunk size plus the key size
  * should be a full multiple of the Ascon rate. As the key size is already
@@ -140,11 +133,23 @@ int lc_xdrbg256_drng_alloc(struct lc_rng_ctx **state);
 	__name->xof = lc_ascon_xof;                                            \
 	__name->chunksize = LC_XDRBG128_DRNG_MAX_CHUNK;                        \
 	lc_xdrbg_drng->zero(name->rng_state);
+/// \endcond
 
 /**
  * @brief Allocate stack memory for the XDRBG128 DRNG context
  *
+ * XDRBG 128 definition using Ascon-XOF to provide a lightweight algorithm
+ * providing the following security level:
+ *
+ * 	* classical: 128 bits of security
+ *
+ * 	* quantum (Grover): 64 bits of security
+ *
+ * 	* category: NIST level 1
+ *
  * @param [in] name Name of the stack variable
+ *
+ * \warning You MUST seed the DRNG!
  */
 #define LC_XDRBG128_DRNG_CTX_ON_STACK(name)                                    \
 	LC_XDRBG_DRNG_CTX_ON_STACK(name);                                      \
@@ -159,7 +164,7 @@ int lc_xdrbg256_drng_alloc(struct lc_rng_ctx **state);
  *
  * The memory is pinned so that the DRNG state cannot be swapped out to disk.
  *
- * You need to seed the DRNG!
+ * \warning You MUST seed the DRNG!
  *
  * @return 0 upon success; < 0 on error
  */

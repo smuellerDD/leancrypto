@@ -30,6 +30,7 @@ extern "C" {
 #endif
 
 /**
+ * @ingroup KDF
  * @brief Key-based Key Derivation in Counter Mode - SP800-108 - initialization
  *
  * @param [in,out] hmac_ctx The caller is expected to provide an allocated HMAC
@@ -46,6 +47,7 @@ int lc_kdf_ctr_init(struct lc_hmac_ctx *hmac_ctx, const uint8_t *key,
 		    size_t keylen);
 
 /**
+ * @ingroup KDF
  * @brief Key-based Key Derivation in Counter Mode - SP800-108 - data generation
  *
  * @param [in] hmac_ctx Cipher handle for the operation. This call expects
@@ -63,6 +65,7 @@ int lc_kdf_ctr_generate(struct lc_hmac_ctx *hmac_ctx, const uint8_t *label,
 			size_t labellen, uint8_t *dst, size_t dlen);
 
 /**
+ * @ingroup KDF
  * @brief One-shot Key-based Key Derivation in Counter Mode - SP800-108
  *
  * @param [in] hash Hash implementation to use for the KDF operation - this
@@ -115,6 +118,7 @@ extern const struct lc_rng *lc_kdf_ctr_rng;
 	lc_rng_zero(name)
 
 /**
+ * @ingroup KDF
  * @brief Allocate stack memory for the CTR_KDF DRNG context
  *
  * @param [in] name Name of the stack variable
@@ -132,6 +136,7 @@ extern const struct lc_rng *lc_kdf_ctr_rng;
 	_Pragma("GCC diagnostic pop")
 
 /**
+ * @ingroup KDF
  * @brief Allocation of a Counter KDF DRNG context
  *
  * @param [out] state Counter KDF DRNG context allocated by the function

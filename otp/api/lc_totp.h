@@ -27,6 +27,11 @@ extern "C" {
 #endif
 
 /**
+ * @defgroup OneTimePad One-Time Pad Algorithms
+ */
+
+/**
+ * @ingroup OneTimePad
  * @brief Time-Based One-Time Password Algorithm - RFC 6238
  *
  * The TOTP algorithm uses HMAC SHA-256
@@ -38,7 +43,7 @@ extern "C" {
  * @param [in] step Time step in seconds - to use the default value of 30
  *		    seconds, use 30
  * @param [in] digits number of digits in a TOTP value; system parameter.
- * @param [out] hotp_val TOTP output value
+ * @param [out] totp_val TOTP output value
  */
 int lc_totp(const uint8_t *hmac_key, size_t hmac_key_len, uint32_t step,
 	    uint32_t digits, uint32_t *totp_val);

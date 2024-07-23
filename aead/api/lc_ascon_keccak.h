@@ -27,10 +27,12 @@
 extern "C" {
 #endif
 
+/// \cond DO_NOT_DOCUMENT
 #define LC_AK_STATE_SIZE (LC_SHA3_STATE_SIZE + LC_ASCON_ALIGNMENT)
 #define LC_AK_CTX_SIZE(x)                                                      \
 	(sizeof(struct lc_aead) + sizeof(struct lc_ascon_cryptor) +            \
 	 LC_AK_STATE_SIZE)
+/// \endcond
 
 /**
  * @brief Allocate Ascon Keccak cryptor context on heap

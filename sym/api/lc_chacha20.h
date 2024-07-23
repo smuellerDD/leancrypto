@@ -29,6 +29,7 @@ extern "C" {
 extern const struct lc_sym *lc_chacha20;
 
 /**
+ * @ingroup Symmetric
  * @brief ChaCha20 block function
  *
  * Block operation from the ChaCah20 state

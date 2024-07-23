@@ -11,7 +11,7 @@
 # Patchlevel Version: API / ABI compatible, no functional changes, no
 #		      enhancements, bug fixes only.
 project('leancrypto', 'c',
-	version: '0.11.0',
+	version: '0.12.0',
 	default_options: [
 		'warning_level=3',
 		'optimization=3',
@@ -162,6 +162,9 @@ header_script = find_program('addon/generate_header.sh', required: true)
 # Prepare distribution
 dist_script = find_program('addon/sanity_checks.sh', required: true)
 meson.add_dist_script(dist_script, meson.project_version())
+
+# Find Doxygen program
+doxygen = find_program('doxygen', required : false)
 
 ################################################################################
 # Project-specific defines
@@ -465,6 +468,15 @@ endif
 foreach n : appdirs
 	subdir(n)
 endforeach
+
+################################################################################
+# Create Doxygen documentation
+################################################################################
+if doxygen.found()
+	subdir('doc')
+else
+	message('Doxygen documentation not generated due to missing Doxygen binary')
+endif
 
 ################################################################################
 # Execute testing

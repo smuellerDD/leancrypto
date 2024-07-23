@@ -28,6 +28,7 @@
 extern "C" {
 #endif
 
+/// \cond DO_NOT_DOCUMENT
 #if LC_SHA3_MAX_SIZE_BLOCK
 #define LC_SHA_MAX_SIZE_BLOCK LC_SHA3_MAX_SIZE_BLOCK
 #elif LC_SHA512_SIZE_BLOCK
@@ -58,8 +59,14 @@ struct lc_hmac_ctx {
 
 #define LC_HMAC_SET_CTX(name, hashname)                                        \
 	_LC_HMAC_SET_CTX(name, hashname, name, sizeof(struct lc_hmac_ctx))
+/// \endcond
 
 /**
+ * @defgroup HMAC HMAC Keyed Message Digest
+ */
+
+/**
+ * @ingroup HMAC
  * @brief Initialize HMAC context
  *
  * @param [in] hmac_ctx Reference to hmac context implementation to be used to
@@ -74,6 +81,7 @@ void lc_hmac_init(struct lc_hmac_ctx *hmac_ctx, const uint8_t *key,
 		  size_t keylen);
 
 /**
+ * @ingroup HMAC
  * @brief Re-initialize HMAC context after a hmac_final operation
  *
  * This operation allows the HMAC context to be used again with the same key
@@ -85,6 +93,7 @@ void lc_hmac_init(struct lc_hmac_ctx *hmac_ctx, const uint8_t *key,
 void lc_hmac_reinit(struct lc_hmac_ctx *hmac_ctx);
 
 /**
+ * @ingroup HMAC
  * @brief Update HMAC
  *
  * @param [in] hmac_ctx Reference to hmac context implementation to be used to
@@ -96,6 +105,7 @@ void lc_hmac_update(struct lc_hmac_ctx *hmac_ctx, const uint8_t *in,
 		    size_t inlen);
 
 /**
+ * @ingroup HMAC
  * @brief Calculate HMAC mac
  *
  * If the cipher handle shall be used for a new HMAC operation with the same
@@ -109,6 +119,7 @@ void lc_hmac_update(struct lc_hmac_ctx *hmac_ctx, const uint8_t *in,
 void lc_hmac_final(struct lc_hmac_ctx *hmac_ctx, uint8_t *mac);
 
 /**
+ * @ingroup HMAC
  * @brief Allocate HMAC context on heap
  *
  * @param [in] hash Reference to hash implementation to be used to perform
@@ -120,6 +131,7 @@ void lc_hmac_final(struct lc_hmac_ctx *hmac_ctx, uint8_t *mac);
 int lc_hmac_alloc(const struct lc_hash *hash, struct lc_hmac_ctx **hmac_ctx);
 
 /**
+ * @ingroup HMAC
  * @brief Zeroize and free HMAC context
  *
  * @param [in] hmac_ctx HMAC context to be zeroized and freed
@@ -127,6 +139,7 @@ int lc_hmac_alloc(const struct lc_hash *hash, struct lc_hmac_ctx **hmac_ctx);
 void lc_hmac_zero_free(struct lc_hmac_ctx *hmac_ctx);
 
 /**
+ * @ingroup HMAC
  * @brief Zeroize HMAC context allocated with either HMAC_CTX_ON_STACK or
  *	  hmac_alloc
  *
@@ -142,6 +155,7 @@ static inline void lc_hmac_zero(struct lc_hmac_ctx *hmac_ctx)
 }
 
 /**
+ * @ingroup HMAC
  * @brief Allocate stack memory for the HMAC context
  *
  * @param [in] name Name of the stack variable
@@ -161,6 +175,7 @@ static inline void lc_hmac_zero(struct lc_hmac_ctx *hmac_ctx)
 	_Pragma("GCC diagnostic pop")
 
 /**
+ * @ingroup HMAC
  * @brief Return the MAC size
  *
  * @param [in] hmac_ctx HMAC context to be zeroized
@@ -175,6 +190,7 @@ static inline size_t lc_hmac_macsize(struct lc_hmac_ctx *hmac_ctx)
 }
 
 /**
+ * @ingroup HMAC
  * @brief Calculate HMAC - one-shot
  *
  * @param [in] hash Reference to hash implementation to be used to perform

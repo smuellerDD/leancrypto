@@ -26,17 +26,26 @@
 extern "C" {
 #endif
 
+/// \cond DO_NOT_DOCUMENT
 #define LC_SHA3_SIZE_RATE(bits) ((1600 - 2 * bits) >> 3)
 #define LC_SHA3_STATE_WORDS 25
 #define LC_SHA3_STATE_SIZE (LC_SHA3_STATE_WORDS * sizeof(uint64_t))
 
 #define LC_SHA3_STATE_SIZE_ALIGN(x) (x + LC_HASH_COMMON_ALIGNMENT)
+/// \endcond
 
 /********************************** SHA3-224 **********************************/
+
+/**
+ * @var lc_sha3_224
+ * @brief SHA3-224 algorithm reference
+ */
+extern const struct lc_hash *lc_sha3_224;
+
+/// \cond DO_NOT_DOCUMENT
 #define LC_SHA3_224_SIZE_DIGEST_BITS 224
 #define LC_SHA3_224_SIZE_DIGEST (LC_SHA3_224_SIZE_DIGEST_BITS >> 3)
 #define LC_SHA3_224_SIZE_BLOCK LC_SHA3_SIZE_RATE(LC_SHA3_224_SIZE_DIGEST_BITS)
-extern const struct lc_hash *lc_sha3_224;
 
 struct lc_sha3_224_state {
 	uint64_t state[LC_SHA3_STATE_WORDS];
@@ -56,6 +65,7 @@ struct lc_sha3_224_state {
 #define LC_SHA3_224_CTX(name)                                                  \
 	LC_HASH_SET_CTX(name, lc_sha3_224);                                    \
 	lc_hash_zero(name)
+/// \endcond
 
 /**
  * @brief Allocate stack memory for the SHA3_224 context without VLA
@@ -74,10 +84,17 @@ struct lc_sha3_224_state {
 	_Pragma("GCC diagnostic pop")
 
 /********************************** SHA3-256 **********************************/
+
+/**
+ * @var lc_sha3_256
+ * @brief SHA3-256 algorithm reference
+ */
+extern const struct lc_hash *lc_sha3_256;
+
+/// \cond DO_NOT_DOCUMENT
 #define LC_SHA3_256_SIZE_DIGEST_BITS 256
 #define LC_SHA3_256_SIZE_DIGEST (LC_SHA3_256_SIZE_DIGEST_BITS >> 3)
 #define LC_SHA3_256_SIZE_BLOCK LC_SHA3_SIZE_RATE(LC_SHA3_256_SIZE_DIGEST_BITS)
-extern const struct lc_hash *lc_sha3_256;
 
 struct lc_sha3_256_state {
 	uint64_t state[LC_SHA3_STATE_WORDS];
@@ -96,6 +113,7 @@ struct lc_sha3_256_state {
 #define LC_SHA3_256_CTX(name)                                                  \
 	LC_HASH_SET_CTX(name, lc_sha3_256);                                    \
 	lc_hash_zero(name)
+/// \endcond
 
 /**
  * @brief Allocate stack memory for the SHA3_256 context without VLA
@@ -114,10 +132,17 @@ struct lc_sha3_256_state {
 	_Pragma("GCC diagnostic pop")
 
 /********************************** SHA3-384 **********************************/
+
+/**
+ * @var lc_sha3_384
+ * @brief SHA3-384 algorithm reference
+ */
+extern const struct lc_hash *lc_sha3_384;
+
+/// \cond DO_NOT_DOCUMENT
 #define LC_SHA3_384_SIZE_DIGEST_BITS 384
 #define LC_SHA3_384_SIZE_DIGEST (LC_SHA3_384_SIZE_DIGEST_BITS >> 3)
 #define LC_SHA3_384_SIZE_BLOCK LC_SHA3_SIZE_RATE(LC_SHA3_384_SIZE_DIGEST_BITS)
-extern const struct lc_hash *lc_sha3_384;
 
 struct lc_sha3_384_state {
 	uint64_t state[LC_SHA3_STATE_WORDS];
@@ -136,6 +161,7 @@ struct lc_sha3_384_state {
 #define LC_SHA3_384_CTX(name)                                                  \
 	LC_HASH_SET_CTX(name, lc_sha3_384);                                    \
 	lc_hash_zero(name)
+/// \endcond
 
 /**
  * @brief Allocate stack memory for the SHA3_384 context without VLA
@@ -154,10 +180,17 @@ struct lc_sha3_384_state {
 	_Pragma("GCC diagnostic pop")
 
 /********************************** SHA3-512 **********************************/
+
+/**
+ * @var lc_sha3_512
+ * @brief SHA3-512 algorithm reference
+ */
+extern const struct lc_hash *lc_sha3_512;
+
+/// \cond DO_NOT_DOCUMENT
 #define LC_SHA3_512_SIZE_DIGEST_BITS 512
 #define LC_SHA3_512_SIZE_DIGEST (LC_SHA3_512_SIZE_DIGEST_BITS >> 3)
 #define LC_SHA3_512_SIZE_BLOCK LC_SHA3_SIZE_RATE(LC_SHA3_512_SIZE_DIGEST_BITS)
-extern const struct lc_hash *lc_sha3_512;
 
 struct lc_sha3_512_state {
 	uint64_t state[LC_SHA3_STATE_WORDS];
@@ -176,6 +209,7 @@ struct lc_sha3_512_state {
 #define LC_SHA3_512_CTX(name)                                                  \
 	LC_HASH_SET_CTX(name, lc_sha3_512);                                    \
 	lc_hash_zero(name)
+/// \endcond
 
 /**
  * @brief Allocate stack memory for the SHA3_512 context without VLA
@@ -194,9 +228,16 @@ struct lc_sha3_512_state {
 	_Pragma("GCC diagnostic pop")
 
 /********************************* SHAKE-128 **********************************/
+
+/**
+ * @var lc_shake128
+ * @brief SHAKE128 algorithm reference
+ */
+extern const struct lc_hash *lc_shake128;
+
+/// \cond DO_NOT_DOCUMENT
 #define LC_SHAKE_128_SIZE_DIGEST_BITS 128
 #define LC_SHAKE_128_SIZE_BLOCK LC_SHA3_SIZE_RATE(LC_SHAKE_128_SIZE_DIGEST_BITS)
-extern const struct lc_hash *lc_shake128;
 
 struct lc_shake_128_state {
 	uint64_t state[LC_SHA3_STATE_WORDS];
@@ -215,6 +256,7 @@ struct lc_shake_128_state {
 #define LC_SHAKE_128_CTX(name)                                                 \
 	LC_HASH_SET_CTX(name, lc_shake128);                                    \
 	lc_hash_zero(name)
+/// \endcond
 
 /**
  * @brief Allocate stack memory for the SHAKE-128 context without VLA
@@ -233,15 +275,23 @@ struct lc_shake_128_state {
 	_Pragma("GCC diagnostic pop")
 
 /********************************* SHAKE-256 **********************************/
+
+/**
+ * @var lc_shake256
+ * @brief SHAKE256 algorithm reference
+ */
+extern const struct lc_hash *lc_shake256;
+
+/// \cond DO_NOT_DOCUMENT
 #define LC_SHAKE_256_SIZE_DIGEST_BITS 256
 #define LC_SHAKE_256_SIZE_BLOCK LC_SHA3_SIZE_RATE(LC_SHAKE_256_SIZE_DIGEST_BITS)
-extern const struct lc_hash *lc_shake256;
 
 #define LC_SHAKE_256_CTX_SIZE LC_SHA3_256_CTX_SIZE
 
 #define LC_SHAKE_256_CTX(name)                                                 \
 	LC_HASH_SET_CTX(name, lc_shake256);                                    \
 	lc_hash_zero(name)
+/// \endcond
 
 /**
  * @brief Allocate stack memory for the SHAKE-256 context without VLA
@@ -260,11 +310,19 @@ extern const struct lc_hash *lc_shake256;
 	_Pragma("GCC diagnostic pop")
 
 /********************************* cSHAKE-256 *********************************/
+
+/**
+ * @var lc_cshake256
+ * @brief cSHAKE256 algorithm reference
+ */
 extern const struct lc_hash *lc_cshake256;
+
+/// \cond DO_NOT_DOCUMENT
 
 #define LC_CSHAKE_256_CTX(name)                                                \
 	LC_HASH_SET_CTX(name, lc_cshake256);                                   \
 	lc_hash_zero(name)
+/// \endcond
 
 /**
  * @brief Allocate stack memory for the cSHAKE-256 context without VLA
@@ -283,11 +341,18 @@ extern const struct lc_hash *lc_cshake256;
 	_Pragma("GCC diagnostic pop")
 
 /********************************* cSHAKE-128 *********************************/
+
+/**
+ * @var lc_cshake128
+ * @brief cSHAKE128 algorithm reference
+ */
 extern const struct lc_hash *lc_cshake128;
 
+/// \cond DO_NOT_DOCUMENT
 #define LC_CSHAKE_128_CTX(name)                                                \
 	LC_HASH_SET_CTX(name, lc_cshake128);                                   \
 	lc_hash_zero(name)
+/// \endcond
 
 /**
  * @brief Allocate stack memory for the cSHAKE-256 context without VLA

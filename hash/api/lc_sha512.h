@@ -26,6 +26,13 @@
 extern "C" {
 #endif
 
+/**
+ * @var lc_sha512
+ * @brief SHA2-512 algorithm reference
+ */
+extern const struct lc_hash *lc_sha512;
+
+/// \cond DO_NOT_DOCUMENT
 #define LC_SHA512_SIZE_BLOCK 128
 #define LC_SHA512_SIZE_DIGEST 64
 
@@ -38,11 +45,10 @@ struct lc_sha512_state {
 #define LC_SHA512_STATE_SIZE (sizeof(struct lc_sha512_state))
 #define LC_SHA512_CTX_SIZE (sizeof(struct lc_hash) + LC_SHA512_STATE_SIZE)
 
-extern const struct lc_hash *lc_sha512;
-
 #define LC_SHA512_CTX(name)                                                    \
 	LC_HASH_SET_CTX(name, lc_sha512);                                      \
 	lc_hash_zero(name)
+/// \endcond
 
 /**
  * @brief Allocate stack memory for the SHA512 context without VLA

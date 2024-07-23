@@ -27,6 +27,7 @@ extern "C" {
 #endif
 
 /**
+ * @ingroup OneTimePad
  * @brief HMAC-Based One-Time Password Algorithm - RFC 4226
  *
  * The HOTP algorithm uses HMAC SHA-256

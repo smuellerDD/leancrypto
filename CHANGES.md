@@ -1,3 +1,7 @@
+Changes 0.12.0-prerelease
+
+* enhancement: add Doxygen support - it is automatically compiled if Doxygen is present
+
 Changes 0.11.0
 
 * security fix: fix possible leak of message in Kyber

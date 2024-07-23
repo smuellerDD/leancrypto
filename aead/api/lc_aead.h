@@ -26,6 +26,7 @@
 extern "C" {
 #endif
 
+/// \cond DO_NOT_DOCUMENT
 struct lc_aead {
 	int (*setkey)(void *state, const uint8_t *key, const size_t keylen,
 		      const uint8_t *iv, size_t ivlen);
@@ -59,8 +60,10 @@ struct lc_aead_ctx {
 	name->aead = cb;                                                       \
 	name->aead_state = LC_ALIGN_HASH_MASK((uint8_t *)(name) +              \
 					      sizeof(struct lc_aead_ctx))
+/// \endcond
 
-/**
+/** @defgroup AEAD Authenticated Encryption with Associated Data
+ *
  * Concept of AEAD algorithms in leancrypto
  *
  * All AEAD algorithms can be used with the API calls documented below. However,
@@ -75,6 +78,7 @@ struct lc_aead_ctx {
  */
 
 /**
+ * @ingroup AEAD
  * @brief Zeroize AEAD context
  *
  * @param [in] ctx AEAD context to be zeroized
@@ -97,6 +101,7 @@ static inline void lc_aead_zero(struct lc_aead_ctx *ctx)
 }
 
 /**
+ * @ingroup AEAD
  * @brief Zeroize and free AEAD context
  *
  * @param [in] ctx AEAD context to be zeroized and freed
@@ -111,6 +116,7 @@ static inline void lc_aead_zero_free(struct lc_aead_ctx *ctx)
 }
 
 /**
+ * @ingroup AEAD
  * @brief Set the key for the AEAD encyption or decryption operation
  *
  * @param [in] ctx AEAD context handle
@@ -144,6 +150,7 @@ static inline int lc_aead_setkey(struct lc_aead_ctx *ctx, const uint8_t *key,
 }
 
 /**
+ * @ingroup AEAD
  * @brief AEAD-encrypt data in one call
  *
  * @param [in] ctx AEAD context handle with key set / IV
@@ -187,6 +194,7 @@ static inline int lc_aead_encrypt(struct lc_aead_ctx *ctx,
 }
 
 /**
+ * @ingroup AEAD
  * @brief Initialize AEAD encryption
  *
  * This call allows multiple successive _update calls to process data.
@@ -220,6 +228,7 @@ static inline int lc_aead_enc_init(struct lc_aead_ctx *ctx, const uint8_t *aad,
 }
 
 /**
+ * @ingroup AEAD
  * @brief AEAD-encrypt data - send partial data
  *
  * NOTE: This operation can be invoked multiple times and must be completed
@@ -256,6 +265,7 @@ static inline int lc_aead_enc_update(struct lc_aead_ctx *ctx,
 }
 
 /**
+ * @ingroup AEAD
  * @brief Complete AEAD encryption - Obtain the authentication tag from the
  *	  encryption operation
  *
@@ -288,6 +298,7 @@ static inline int lc_aead_enc_final(struct lc_aead_ctx *ctx, uint8_t *tag,
 }
 
 /**
+ * @ingroup AEAD
  * @brief AEAD-decrypt data in one call
  *
  * @param [in] ctx AEAD context handle with key set / IV
@@ -330,6 +341,7 @@ static inline int lc_aead_decrypt(struct lc_aead_ctx *ctx,
 }
 
 /**
+ * @ingroup AEAD
  * @brief Initialize AEAD decryption
  *
  * This call allows multiple successive _update calls to process data.
@@ -363,6 +375,7 @@ static inline int lc_aead_dec_init(struct lc_aead_ctx *ctx, const uint8_t *aad,
 }
 
 /**
+ * @ingroup AEAD
  * @brief AEAD-decrypt data - send partial data
  *
  * NOTE: This operation can be invoked multiple times and must be completed
@@ -399,6 +412,7 @@ static inline int lc_aead_dec_update(struct lc_aead_ctx *ctx,
 }
 
 /**
+ * @ingroup AEAD
  * @brief AEAD-decrypt data - Perform authentication
  *
  * @param [in] ctx AEAD context handle with key set / IV

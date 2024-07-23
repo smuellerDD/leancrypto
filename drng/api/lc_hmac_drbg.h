@@ -33,6 +33,7 @@ extern "C" {
 #error "Do not include this header file directly! Use lc_hmac_drbg_<hashtype>.h"
 #endif
 
+/// \cond DO_NOT_DOCUMENT
 struct lc_drbg_hmac_state {
 	struct lc_hmac_ctx hmac_ctx; /* Cipher handle - HMAC_MAX_STATE_SIZE */
 	uint8_t *V; /* internal state 10.1.1.1 1a) - DRBG_STATELEN */
@@ -64,11 +65,14 @@ extern const struct lc_rng *lc_hmac_drbg;
 	LC_RNG_CTX(name, lc_hmac_drbg);                                        \
 	LC_DRBG_HMAC_SET_CTX((struct lc_drbg_hmac_state *)name->rng_state);    \
 	lc_hmac_drbg->zero(name->rng_state)
+/// \endcond
 
 /**
  * @brief Allocate stack memory for the Hash DRBG context
  *
  * @param [in] name Name of the stack variable
+ *
+ * \warning You MUST seed the DRNG!
  */
 #define LC_DRBG_HMAC_CTX_ON_STACK(name)                                             \
 	_Pragma("GCC diagnostic push")                                              \
@@ -86,6 +90,8 @@ extern const struct lc_rng *lc_hmac_drbg;
  * @brief Allocate HMAC DRBG context on heap
  *
  * @param [out] drbg Allocated HMAC DRBG context
+ *
+ * \warning You MUST seed the DRNG!
  *
  * @return: 0 on success, < 0 on error
  */

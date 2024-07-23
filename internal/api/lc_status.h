@@ -35,8 +35,9 @@ void lc_rerun_selftests(void);
 /**
  * @brief Status information about leancrypto
  *
- * @outbuf [in] Buffer to be filled with status information, allocated by caller
- * @outlen [in] Size of the output buffer
+ * @param outbuf [in] Buffer to be filled with status information, allocated by
+ *		      caller
+ * @param outlen [in] Size of the output buffer
  */
 void lc_status(char *outbuf, size_t outlen);
 

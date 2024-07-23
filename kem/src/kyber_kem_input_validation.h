@@ -48,7 +48,7 @@ static inline int kyber_kem_iv_type(const struct lc_kyber_pk *pk)
  *	     ek_n = ByteEncode(ByteDecode(ek)). If ek ̸= ek_n , the input is
  *	     invalid.
  *
- * @param  [in] pk Public key (ek)
+ * @param [in] pk Public key (ek)
  * @param [in] pkpv Already decoded public key (ek) to prevent another decoding
  *		    step. Note, as this parameter is implementation dependent,
  *		    the caller must include this header file after the header
@@ -84,7 +84,7 @@ static inline int kyber_kem_iv_pk_modulus(
  *	     dk_n = ByteEncode(ByteDecode(dk)). If dk ̸= dk_n , the input is
  *	     invalid.
  *
- * @param  [in] sk Secret key (dk)
+ * @param [in] sk Secret key (dk)
  * @param [in] skpv Already decoded secret key (dk) to prevent another decoding
  *		    step. Note, as this parameter is implementation dependent,
  *		    the caller must include this header file after the header

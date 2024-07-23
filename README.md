@@ -25,10 +25,10 @@ have the following properties:
   stripping,
 
 * performance: provide optimized code invoked with minimal overhead, thus
-  significantly faster than other libraries like OpenSSL, and
+  significantly faster than other libraries like OpenSSL,
 
 * testable: all algorithm implementations are directly accessible via their
-  data structures at runtime.
+  data structures at runtime, and
 
 * side-channel-resistant: A valgrind-based dynamic side channel analysis is
   applied to find time-variant code paths based on secret data.
@@ -219,6 +219,9 @@ Leancrypto offers various cryptographic algorithms:
 
 The complete API documentation is provided in the different header files
 `lc_*.h`.
+
+The Doxygen documentation is automatically compiled if the Doxygen binary is
+found during the compilation run.
 
 # Testing
 

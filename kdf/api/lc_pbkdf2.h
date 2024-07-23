@@ -28,6 +28,7 @@ extern "C" {
 #endif
 
 /**
+ * @ingroup KDF
  * @brief Password-based Key Derivation Function - SP800-132
  *
  * @param [in] hash Hash implementation to use for the PBKDF2 operation - this

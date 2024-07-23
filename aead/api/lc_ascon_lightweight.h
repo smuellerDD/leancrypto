@@ -27,10 +27,12 @@
 extern "C" {
 #endif
 
+/// \cond DO_NOT_DOCUMENT
 #define LC_AL_STATE_SIZE (LC_ASCON_HASH_STATE_SIZE + LC_ASCON_ALIGNMENT)
 #define LC_AL_CTX_SIZE(x)                                                      \
 	(sizeof(struct lc_aead) + sizeof(struct lc_ascon_cryptor) +            \
 	 LC_AL_STATE_SIZE)
+/// \endcond
 
 /**
  * @brief Allocate Ascon Lightweight cryptor context on heap

@@ -28,6 +28,7 @@
 extern "C" {
 #endif
 
+/// \cond DO_NOT_DOCUMENT
 #define LC_DRBG_HASH_STATELEN 111
 #define LC_DRBG_HASH_BLOCKLEN 64
 
@@ -62,11 +63,14 @@ extern const struct lc_rng *lc_hash_drbg;
 	LC_RNG_CTX((name), lc_hash_drbg);                                      \
 	LC_DRBG_HASH_SET_CTX((struct lc_drbg_hash_state *)name->rng_state);    \
 	lc_rng_zero(name)
+/// \endcond
 
 /**
  * @brief Allocate stack memory for the Hash DRBG context
  *
  * @param [in] name Name of the stack variable
+ *
+ * \warning You MUST seed the DRNG!
  */
 #define LC_DRBG_HASH_CTX_ON_STACK(name)                                        \
 	_Pragma("GCC diagnostic push") _Pragma(                                \
@@ -81,6 +85,8 @@ extern const struct lc_rng *lc_hash_drbg;
  * @brief Allocate Hash DRBG context on heap
  *
  * @param [out] drbg Allocated Hash DRBG context
+ *
+ * \warning You MUST seed the DRNG!
  *
  * @return: 0 on success, < 0 on error
  */

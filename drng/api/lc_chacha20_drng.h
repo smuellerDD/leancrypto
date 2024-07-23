@@ -27,6 +27,7 @@
 extern "C" {
 #endif
 
+/// \cond DO_NOT_DOCUMENT
 struct lc_chacha20_drng_ctx {
 	struct lc_sym_ctx cc20;
 };
@@ -40,12 +41,13 @@ struct lc_chacha20_drng_ctx {
 
 #define LC_CC20_DRNG_SET_CTX(name)                                             \
 	_LC_CC20_DRNG_SET_CTX(name, name, sizeof(struct lc_chacha20_drng_ctx))
+/// \endcond
 
 /**
  * @brief Zeroize ChaCha20 DRNG context allocated with either
  *	  LC_CC20_DRNG_CTX_ON_STACK or lc_cc20_drng_alloc
  *
- * @param [in] hash_state Hash context to be zeroized
+ * @param [in] cc20_ctx Hash context to be zeroized
  */
 static inline void lc_cc20_drng_zero(struct lc_chacha20_drng_ctx *cc20_ctx)
 {
@@ -61,6 +63,8 @@ static inline void lc_cc20_drng_zero(struct lc_chacha20_drng_ctx *cc20_ctx)
  * @brief Allocate stack memory for the ChaCha20 context
  *
  * @param [in] name Name of the stack variable
+ *
+ * \warning You MUST seed the DRNG!
  */
 #define LC_CC20_DRNG_CTX_ON_STACK(name)                                             \
 	_Pragma("GCC diagnostic push")                                              \
@@ -83,7 +87,7 @@ static inline void lc_cc20_drng_zero(struct lc_chacha20_drng_ctx *cc20_ctx)
  *
  * The memory is pinned so that the DRNG state cannot be swapped out to disk.
  *
- * You need to seed the DRNG!
+ * \warning You MUST seed the DRNG!
  *
  * @return 0 upon success; < 0 on error
  */
@@ -111,8 +115,6 @@ void lc_cc20_drng_zero_free(struct lc_chacha20_drng_ctx *cc20_ctx);
  * resistance. I.e. if the state of the DRNG becomes known after generation
  * of random numbers, an attacker cannot deduce the already generated
  * random numbers.
- *
- * @return 0 upon success; < 0 on error
  */
 void lc_cc20_drng_generate(struct lc_chacha20_drng_ctx *cc20_ctx,
 			   uint8_t *outbuf, size_t outbuflen);
@@ -126,8 +128,6 @@ void lc_cc20_drng_generate(struct lc_chacha20_drng_ctx *cc20_ctx,
  *
  * When calling the function, the DRNG is seeded or reseeded. If it is reseeded,
  * the old state information is mixed into the new state.
- *
- * @return 0 upon succes; < 0 on error
  */
 void lc_cc20_drng_seed(struct lc_chacha20_drng_ctx *cc20_ctx,
 		       const uint8_t *inbuf, size_t inbuflen);

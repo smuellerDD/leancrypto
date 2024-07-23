@@ -26,6 +26,13 @@
 extern "C" {
 #endif
 
+/**
+ * @var lc_sha256
+ * @brief SHA2-256 algorithm reference
+ */
+extern const struct lc_hash *lc_sha256;
+
+/// \cond DO_NOT_DOCUMENT
 #define LC_SHA256_SIZE_BLOCK 64
 #define LC_SHA256_SIZE_DIGEST 32
 
@@ -38,11 +45,10 @@ struct lc_sha256_state {
 #define LC_SHA256_STATE_SIZE (sizeof(struct lc_sha256_state))
 #define LC_SHA256_CTX_SIZE (sizeof(struct lc_hash) + LC_SHA256_STATE_SIZE)
 
-extern const struct lc_hash *lc_sha256;
-
 #define LC_SHA256_CTX(name)                                                    \
 	LC_HASH_SET_CTX(name, lc_sha256);                                      \
 	lc_hash_zero(name)
+/// \endcond
 
 /**
  * @brief Allocate stack memory for the SHA256 context without VLA

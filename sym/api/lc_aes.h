@@ -45,7 +45,8 @@ extern const struct lc_sym *lc_aes_ctr;
 extern const struct lc_sym *lc_aes_kw;
 
 /**
- * @brief lc_aes_kw_encrypt - AES KW encrypt
+ * @ingroup Symmetric
+ * @brief AES KW encrypt
  *
  * @param [in] ctx Reference to sym context implementation to be used to
  *		   perform sym calculation with.
@@ -66,7 +67,8 @@ void lc_aes_kw_encrypt(struct lc_sym_ctx *ctx, const uint8_t *in, uint8_t *out,
 		       size_t len);
 
 /**
- * @brief lc_aes_kw_decrypt - AES KW decrypt
+ * @ingroup Symmetric
+ * @brief AES KW decrypt
  *
  * @param [in] ctx Reference to sym context implementation to be used to
  *		   perform sym calculation with.

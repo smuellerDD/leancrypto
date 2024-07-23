@@ -221,7 +221,6 @@ static int lc_ed25519_sign_internal(struct lc_ed25519_sig *sig, int prehash,
 	lc_hash_update(hash_ctx, msg, mlen);
 	lc_hash_final(hash_ctx, hram);
 
-
 	sc25519_reduce(hram);
 	az[0] &= 248;
 	az[31] &= 127;

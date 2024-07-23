@@ -26,6 +26,7 @@
 extern "C" {
 #endif
 
+/// \cond DO_NOT_DOCUMENT
 /******************************************************************
  * Generic internal DRBG helper functions
  ******************************************************************/
@@ -72,6 +73,7 @@ static inline size_t lc_drbg_max_addtl(void)
 {
 	return (1UL << 31);
 }
+/// \endcond
 
 #ifdef __cplusplus
 }

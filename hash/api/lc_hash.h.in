@@ -28,6 +28,7 @@
 extern "C" {
 #endif
 
+/// \cond DO_NOT_DOCUMENT
 struct lc_hash {
 	/* SHA3 / SHAKE interface */
 	void (*init)(void *state);
@@ -101,20 +102,23 @@ struct lc_hash_ctx {
 
 #define LC_HASH_SET_CTX(name, hashname)                                        \
 	_LC_HASH_SET_CTX(name, hashname, name, sizeof(struct lc_hash_ctx))
+/// \endcond
 
-/**
+/** @defgroup Hashing Message Digest and XOF Support
+ *
  * Concept of hashes in leancrypto
  *
  * All hashes can be used with the API calls documented below. However,
  * the allocation part is hash-specific. Thus, perform the following steps
  *
  * 1. Allocation: Use the stack or heap allocation functions documented in
- *    lc_cshake256.h, lc_sha3.h, lc_sha256.h, lc_sha512.h.
+ *    lc_cshake.h, lc_sha3.h, lc_sha256.h, lc_sha512.h, lc_ascon_hash.h.
  *
  * 2. Use the returned cipher handle with the API calls below.
  */
 
 /**
+ * @ingroup Hashing
  * @brief Initialize hash context
  *
  * @param [in] hash_ctx Reference to hash context implementation to be used to
@@ -135,6 +139,7 @@ static inline void lc_hash_init(struct lc_hash_ctx *hash_ctx)
 }
 
 /**
+ * @ingroup Hashing
  * @brief Update hash
  *
  * @param [in] hash_ctx Reference to hash context implementation to be used to
@@ -155,6 +160,7 @@ static inline void lc_hash_update(struct lc_hash_ctx *hash_ctx,
 }
 
 /**
+ * @ingroup Hashing
  * @brief Calculate message digest
  *
  * For SHAKE, it is permissible to calculate the final digest in chunks by
@@ -195,6 +201,7 @@ static inline void lc_hash_final(struct lc_hash_ctx *hash_ctx, uint8_t *digest)
 }
 
 /**
+ * @ingroup Hashing
  * @brief Set the size of the message digest - this call is intended for SHAKE
  *
  * @param [in] hash_ctx Reference to hash context implementation to be used to
@@ -215,6 +222,7 @@ static inline void lc_hash_set_digestsize(struct lc_hash_ctx *hash_ctx,
 }
 
 /**
+ * @ingroup Hashing
  * @brief Get the size of the message digest
  *
  * @param [in] hash_ctx Reference to hash context implementation to be used to
@@ -232,6 +240,7 @@ static inline size_t lc_hash_digestsize(struct lc_hash_ctx *hash_ctx)
 }
 
 /**
+ * @ingroup Hashing
  * @brief Get the block size of the message digest (or the "rate" in terms of
  *	  Sponge-based algorithms)
  *
@@ -250,6 +259,7 @@ static inline unsigned int lc_hash_blocksize(struct lc_hash_ctx *hash_ctx)
 }
 
 /**
+ * @ingroup Hashing
  * @brief Get the context size of the message digest implementation
  *
  * @param [in] hash_ctx Reference to hash context implementation to be used to
@@ -267,10 +277,11 @@ static inline unsigned int lc_hash_ctxsize(struct lc_hash_ctx *hash_ctx)
 }
 
 /**
+ * @ingroup Hashing
  * @brief Zeroize Hash context allocated with either LC_HASH_CTX_ON_STACK or
  *	  lc_hmac_alloc
  *
- * @param [in] hash_state Hash context to be zeroized
+ * @param [in] hash_ctx Hash context to be zeroized
  */
 static inline void lc_hash_zero(struct lc_hash_ctx *hash_ctx)
 {
@@ -285,11 +296,13 @@ static inline void lc_hash_zero(struct lc_hash_ctx *hash_ctx)
 }
 
 /**
+ * @ingroup Hashing
  * @brief Allocate stack memory for the hash context
  *
  * @param [in] name Name of the stack variable
  * @param [in] hashname Pointer of type struct hash referencing the hash
- *			 implementation to be used
+ *			 implementation to be used - see lc_sha256.h, lc_sha3.h,
+ *			 lc_sha512.h, lc_ascon_hash.h
  */
 #define LC_HASH_CTX_ON_STACK(name, hashname)                                        \
 	_Pragma("GCC diagnostic push")                                              \
@@ -304,10 +317,12 @@ static inline void lc_hash_zero(struct lc_hash_ctx *hash_ctx)
 	_Pragma("GCC diagnostic pop")
 
 /**
+ * @ingroup Hashing
  * @brief Allocate Hash context on heap
  *
  * @param [in] hash Reference to hash implementation to be used to perform
- *		    hash calculation with.
+ *		    hash calculation with - see lc_sha256.h, lc_sha3.h,
+ *		    lc_sha512.h, lc_ascon_hash.h
  * @param [out] hash_ctx Allocated hash context
  *
  * @return: 0 on success, < 0 on error
@@ -315,6 +330,7 @@ static inline void lc_hash_zero(struct lc_hash_ctx *hash_ctx)
 int lc_hash_alloc(const struct lc_hash *hash, struct lc_hash_ctx **hash_ctx);
 
 /**
+ * @ingroup Hashing
  * @brief Zeroize and free hash context
  *
  * @param [in] hash_ctx hash context to be zeroized and freed
@@ -322,10 +338,12 @@ int lc_hash_alloc(const struct lc_hash *hash, struct lc_hash_ctx **hash_ctx);
 void lc_hash_zero_free(struct lc_hash_ctx *hash_ctx);
 
 /**
+ * @ingroup Hashing
  * @brief Calculate message digest - one-shot
  *
  * @param [in] hash Reference to hash implementation to be used to perform
- *		    hash calculation with.
+ *		    hash calculation with - see lc_sha256.h, lc_sha3.h,
+ *		    lc_sha512.h, lc_ascon_hash.h
  * @param [in] in Buffer holding the data whose MAC shall be calculated
  * @param [in] inlen Length of the input buffer
  * @param [out] digest Buffer with at least the size of the message digest.
@@ -336,10 +354,11 @@ void lc_hash(const struct lc_hash *hash, const uint8_t *in, size_t inlen,
 	     uint8_t *digest);
 
 /**
+ * @ingroup Hashing
  * @brief Calculate message digest for an XOF - one-shot
  *
  * @param [in] xof Reference to hash implementation to be used to perform
- *		   hash calculation with.
+ *		   hash calculation with - see lc_sha3.h, lc_ascon_hash.h
  * @param [in] in Buffer holding the data whose MAC shall be calculated
  * @param [in] inlen Length of the input buffer
  * @param [out] digest Buffer with at least the size of the message digest.
@@ -351,17 +370,18 @@ void lc_xof(const struct lc_hash *xof, const uint8_t *in, size_t inlen,
 	    uint8_t *digest, size_t digestlen);
 
 /**
+ * @ingroup Hashing
  * @brief Perform Sponge permutation on buffer
  *
- * WARNING: This call does NOT constitude a hash. It is ONLY a raw
+ * \warning This call does NOT constitute a hash. It is ONLY a raw
  *	    sponge permutation with the accelerated implementation of the given
  *	    hash reference. If you do not understand this comment, you
  *	    MUST NOT use this interface.
  *
  * @param [in] hash Reference to hash implementation to be used to perform
- *		    Sponge calculation with.
- * @param [in] state State buffer of 200 bytes aligned to
- *		     LC_HASH_COMMON_ALIGNMENT.
+ *		    Sponge calculation with - see lc_sha3.h, lc_ascon_hash.h
+ * @param [in] state State buffer of 200 bytes (Keccak) or 320 bits (Ascon)
+ *		     aligned to LC_HASH_COMMON_ALIGNMENT.
  * @param [in] rounds Number of sponge rounds - may be ignored by sponge
  *		      implementation
  *
@@ -379,6 +399,7 @@ static inline int lc_sponge(const struct lc_hash *hash, void *state,
 }
 
 /**
+ * @ingroup Hashing
  * @brief Function to add (in GF(2), using bitwise exclusive-or) data given
  *	  as bytes into the sponge state.
  *
@@ -386,14 +407,15 @@ static inline int lc_sponge(const struct lc_hash *hash, void *state,
  * from @a offset*8 to @a offset*8 + @a length*8.
  *
  * @param [in] hash Reference to hash implementation to be used to perform
- *		    Sponge calculation with.
+ *		    Sponge calculation with - see lc_sha3.h, lc_ascon_hash.h
  * @param [in] state Pointer to the state.
  * @param [in] data Pointer to the input data.
  * @param [in] offset Offset in bytes within the state.
  * @param [in] length Number of bytes.
  *
- * WARNING: The caller is responsible that offset / length points to data
- * within the state (within the size of LC_SHA3_STATE_SIZE).
+ * \warning The caller is responsible that offset / length points to data
+ * within the state (within the size of \p LC_SHA3_STATE_SIZE for Keccak or
+ * \p LC_ASCON_HASH_STATE_SIZE for Ascon).
  *
  * @pre 0 ≤ @a offset < (width in bytes)
  * @pre 0 ≤ @a offset + @a length ≤ (width in bytes)
@@ -413,19 +435,21 @@ static inline int lc_sponge_add_bytes(const struct lc_hash *hash, void *state,
 }
 
 /**
+ * @ingroup Hashing
  * @brief Function to retrieve data from the state. The bit positions that are
  *	  retrieved by this function are from
  *	  @a offset*8 to @a offset*8 + @a length*8.
  *
  * @param [in] hash Reference to hash implementation to be used to perform
- *		    sponge calculation with.
+ *		    sponge calculation with - see lc_sha3.h, lc_ascon_hash.h
  * @param [in] state Pointer to the state.
  * @param [out] data Pointer to the area where to store output data.
  * @param [in] offset Offset in bytes within the state.
  * @param [in] length Number of bytes.
  *
- * WARNING: The caller is responsible that offset / length points to data
- * within the state (within the size of LC_SHA3_STATE_SIZE).
+ * \warning The caller is responsible that offset / length points to data
+ * within the state (within the size of \p LC_SHA3_STATE_SIZE for Keccak or
+ * \p LC_ASCON_HASH_STATE_SIZE for Ascon).
  *
  * @pre 0 ≤ @a offset < (width in bytes)
  * @pre 0 ≤ @a offset + @a length ≤ (width in bytes)
@@ -445,17 +469,19 @@ static inline int lc_sponge_extract_bytes(const struct lc_hash *hash,
 }
 
 /**
+ * @ingroup Hashing
  * @brief Function to insert a complete new sponge state
  *
  * @param [in] hash Reference to hash implementation to be used to perform
- *		    sponge calculation with.
+ *		    sponge calculation with - see lc_sha3.h, lc_ascon_hash.h
  * @param [in] state Pointer to the state.
  * @param [out] data Pointer to new state
  * @param [in] offset Offset in bytes within the state.
  * @param [in] length Number of bytes.
  *
- * WARNING: The caller is responsible that offset / length points to data
- * within the state (within the size of LC_SHA3_STATE_SIZE).
+ * \warning The caller is responsible that offset / length points to data
+ * within the state (within the size of \p LC_SHA3_STATE_SIZE for Keccak or
+ * \p LC_ASCON_HASH_STATE_SIZE for Ascon).
  *
  * @return: 0 on success, < 0 on error
  */

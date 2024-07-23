@@ -27,6 +27,7 @@
 extern "C" {
 #endif
 
+/// \cond DO_NOT_DOCUMENT
 #define LC_ASCON_MAX_KEYSIZE 64
 
 struct lc_ascon_cryptor {
@@ -44,6 +45,7 @@ struct lc_ascon_cryptor {
 
 /* Ascon-Keccak-based AEAD-algorithm */
 extern const struct lc_aead *lc_ascon_aead;
+/// \endcond
 
 #define _LC_ASCON_SET_CTX(name, hashname, ctx, offset)                         \
 	name->state = LC_ALIGN_HASH_MASK(((uint8_t *)(ctx)) + (offset));       \

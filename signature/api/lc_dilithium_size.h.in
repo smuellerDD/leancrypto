@@ -41,6 +41,7 @@
 extern "C" {
 #endif
 
+/// \cond DO_NOT_DOCUMENT
 /*
  * Dilithium Security Levels
  * 2 -> 192 bits of security strength
@@ -137,6 +138,7 @@ extern "C" {
 	(LC_DILITHIUM_CTILDE_BYTES +                                           \
 	 LC_DILITHIUM_L * LC_DILITHIUM_POLYZ_PACKEDBYTES +                     \
 	 LC_DILITHIUM_POLYVECH_PACKEDBYTES)
+/// \endcond
 
 #ifndef __ASSEMBLER__
 /**
@@ -188,7 +190,7 @@ static inline unsigned int @dilithium_name@_sig_size(void)
 }
 
 /**
- * @brief lc_dilithium_keypair - Generates Dilithium public and private key.
+ * @brief Generates Dilithium public and private key.
  *
  * @param [out] pk pointer to allocated output public key
  * @param [out] sk pointer to allocated output private key
@@ -200,8 +202,7 @@ int @dilithium_name@_keypair(struct @dilithium_name@_pk *pk, struct @dilithium_n
 			 struct lc_rng_ctx *rng_ctx);
 
 /**
- * @brief lc_dilithium_keypair_from_seed - Generates Dilithium public and
- *					   private key from a given seed.
+ * @brief Generates Dilithium public and private key from a given seed.
  *
  * The idea of the function is the allowance of FIPS 204 to maintain the seed
  * used to generate a key pair in lieu of maintaining a private key or the
@@ -224,7 +225,7 @@ int @dilithium_name@_keypair_from_seed(struct @dilithium_name@_pk *pk,
 				       const uint8_t *seed, size_t seedlen);
 
 /**
- * @param lc_dilithium_sign - Computes signature in one shot
+ * @brief Computes signature in one shot
  *
  * @param [out] sig pointer to output signature
  * @param [in] m pointer to message to be signed
@@ -241,7 +242,7 @@ int @dilithium_name@_sign(struct @dilithium_name@_sig *sig, const uint8_t *m,
 		      struct lc_rng_ctx *rng_ctx);
 
 /**
- * @param lc_dilithium_sign_init - Initializes a signature operation
+ * @brief Initializes a signature operation
  *
  * This call is intended to support messages that are located in non-contiguous
  * places and even becomes available at different times. This call is to be
@@ -266,8 +267,7 @@ int @dilithium_name@_sign_init(struct lc_hash_ctx *hash_ctx,
 			   const struct @dilithium_name@_sk *sk);
 
 /**
- * @param lc_dilithium_sign_update - Add more data to an already initialized
- *				     signature state
+ * @brief Add more data to an already initialized signature state
  *
  * This call is intended to support messages that are located in non-contiguous
  * places and even becomes available at different times. This call is to be
@@ -284,7 +284,7 @@ int @dilithium_name@_sign_update(struct lc_hash_ctx *hash_ctx, const uint8_t *m,
 			     size_t mlen);
 
 /**
- * @param lc_dilithium_sign_final - Computes signature
+ * @brief Computes signature
  *
  * @param [out] sig pointer to output signature
  * @param [in] hash_ctx pointer to hash context that was initialized with
@@ -303,7 +303,7 @@ int @dilithium_name@_sign_final(struct @dilithium_name@_sig *sig,
 			    struct lc_rng_ctx *rng_ctx);
 
 /**
- * @brief lc_dilithium_verify - Verifies signature in one shot
+ * @brief Verifies signature in one shot
  *
  * @param [in] sig pointer to input signature
  * @param [in] m pointer to message
@@ -317,8 +317,7 @@ int @dilithium_name@_verify(const struct @dilithium_name@_sig *sig, const uint8_
 			size_t mlen, const struct @dilithium_name@_pk *pk);
 
 /**
- * @param lc_dilithium_verify_init - Initializes a signature verification
- * 				     operation
+ * @brief Initializes a signature verification operation
  *
  * This call is intended to support messages that are located in non-contiguous
  * places and even becomes available at different times. This call is to be
@@ -344,8 +343,7 @@ int @dilithium_name@_verify_init(struct lc_hash_ctx *hash_ctx,
 			     const struct @dilithium_name@_pk *pk);
 
 /**
- * @param lc_dilithium_verify_update - Add more data to an already initialized
- *				       signature state
+ * @brief Add more data to an already initialized signature state
  *
  * This call is intended to support messages that are located in non-contiguous
  * places and even becomes available at different times. This call is to be
@@ -363,7 +361,7 @@ int @dilithium_name@_verify_update(struct lc_hash_ctx *hash_ctx, const uint8_t *
 			       size_t mlen);
 
 /**
- * @param lc_dilithium_verify_final - Verifies signature
+ * @brief Verifies signature
  *
  * @param [in] sig pointer to output signature
  * @param [in] hash_ctx pointer to hash context that was initialized with
@@ -408,8 +406,7 @@ struct @dilithium_name@_ed25519_sig {
 };
 
 /**
- * @brief lc_dilithium_ed25519_keypair - Generates Dilithium public and private
- *					 key.
+ * @brief Generates Dilithium public and private key.
  *
  * @param [out] pk pointer to allocated output public key
  * @param [out] sk pointer to allocated output private key
@@ -422,7 +419,7 @@ int @dilithium_name@_ed25519_keypair(struct @dilithium_name@_ed25519_pk *pk,
 				 struct lc_rng_ctx *rng_ctx);
 
 /**
- * @param lc_dilithium_ed25519_sign - Computes signature in one shot
+ * @brief Computes signature in one shot
  *
  * @param [out] sig pointer to output signature
  * @param [in] m pointer to message to be signed
@@ -440,7 +437,7 @@ int @dilithium_name@_ed25519_sign(struct @dilithium_name@_ed25519_sig *sig,
 			      struct lc_rng_ctx *rng_ctx);
 
 /**
- * @brief lc_dilithium_ed25519_verify - Verifies signature in one shot
+ * @brief Verifies signature in one shot
  *
  * @param [in] sig pointer to input signature
  * @param [in] m pointer to message

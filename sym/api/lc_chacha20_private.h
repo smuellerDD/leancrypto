@@ -26,6 +26,7 @@
 extern "C" {
 #endif
 
+/// \cond DO_NOT_DOCUMENT
 #define LC_CC20_KEY_SIZE 32
 #define LC_CC20_KEY_SIZE_WORDS (LC_CC20_KEY_SIZE / sizeof(uint32_t))
 
@@ -42,6 +43,7 @@ struct lc_sym_state {
 
 #define LC_CC20_BLOCK_SIZE sizeof(struct lc_sym_state)
 #define LC_CC20_BLOCK_SIZE_WORDS (LC_CC20_BLOCK_SIZE / sizeof(uint32_t))
+/// \endcond
 
 #ifdef __cplusplus
 }

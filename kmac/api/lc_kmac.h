@@ -29,6 +29,7 @@
 extern "C" {
 #endif
 
+/// \cond DO_NOT_DOCUMENT
 struct lc_kmac_ctx {
 	uint8_t final_called : 1;
 	uint8_t rng_initialized : 1;
@@ -57,6 +58,7 @@ struct lc_kmac_ctx {
 #define LC_KMAC_SET_CTX_REINIT(name, hashname)                                 \
 	_LC_KMAC_SET_CTX_REINIT(name, hashname, name,                          \
 				sizeof(struct lc_kmac_ctx))
+/// \endcond
 
 /**
  * @brief Initialize KMAC context

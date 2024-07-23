@@ -29,6 +29,7 @@ extern "C" {
 #endif
 
 /**
+ * @ingroup KDF
  * @brief Key-based Key Derivation in Feedback Mode - SP800-108 -
  *	  initialization
  *
@@ -46,6 +47,7 @@ int lc_kdf_fb_init(struct lc_hmac_ctx *hmac_ctx, const uint8_t *key,
 		   size_t keylen);
 
 /**
+ * @ingroup KDF
  * @brief Key-based Key Derivation in Feedback Mode - SP800-108 -
  *	  data generation
  *
@@ -68,6 +70,7 @@ int lc_kdf_fb_generate(struct lc_hmac_ctx *hmac_ctx, const uint8_t *iv,
 		       uint8_t *dst, size_t dlen);
 
 /**
+ * @ingroup KDF
  * @brief One-shot Key-based Key Derivation in Feedback Mode - SP800-108
  *
  * @param [in] hash Hash implementation to use for the KDF operation - this

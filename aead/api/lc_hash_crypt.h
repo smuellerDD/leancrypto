@@ -33,6 +33,7 @@
 extern "C" {
 #endif
 
+/// \cond DO_NOT_DOCUMENT
 /*
  * The block size of the algorithm for generating the key stream. The min DRBG
  * generate size is larger. This implies that there is no DRBG update operation
@@ -63,6 +64,7 @@ extern const struct lc_aead *lc_hash_aead;
 #define LC_HC_SET_CTX(name, hashname)                                          \
 	LC_AEAD_CTX(name, lc_hash_aead);                                       \
 	_LC_HC_SET_CTX(((struct lc_hc_cryptor *)name->aead_state), hashname)
+/// \endcond
 
 /**
  * @brief Return maximum size of authentication tag

@@ -52,13 +52,18 @@ extern "C" {
 #endif
 
 enum lc_dilithium_type {
-	LC_DILITHIUM_UNKNOWN, /** Unknown key type */
-	LC_DILITHIUM_87, /** Dilithium 87 */
-	LC_DILITHIUM_65, /** Dilithium 65 */
-	LC_DILITHIUM_44, /** Dilithium 44 */
+	 /** Unknown key type */
+	LC_DILITHIUM_UNKNOWN,
+	 /** Dilithium 87 */
+	LC_DILITHIUM_87,
+	 /** Dilithium 65 */
+	LC_DILITHIUM_65,
+	 /** Dilithium 44 */
+	LC_DILITHIUM_44,
 };
 
-/**
+/** @defgroup Dilithium ML-DSA / CRYSTALS-Dilithium Signature Mechanism
+ *
  * Dilithium API concept
  *
  * The Dilithium API is accessible via the following header files with the
@@ -78,7 +83,7 @@ enum lc_dilithium_type {
  *
  * * lc_dilithium_65.h: Direct access to Dilithium 65.
  *
- * * lc_dilithium_44.h: Direct access to Dilithium 44
+ * * lc_dilithium_44.h: Direct access to Dilithium 44.
  */
 
 /**
@@ -136,6 +141,7 @@ struct lc_dilithium_sig {
 };
 
 /**
+ * @ingroup Dilithium
  * @brief Obtain Dilithium type from secret key
  *
  * @param [in] sk Secret key from which the type is to be obtained
@@ -151,6 +157,7 @@ lc_dilithium_sk_type(const struct lc_dilithium_sk *sk)
 }
 
 /**
+ * @ingroup Dilithium
  * @brief Obtain Dilithium type from public key
  *
  * @param [in] pk Public key from which the type is to be obtained
@@ -166,6 +173,7 @@ lc_dilithium_pk_type(const struct lc_dilithium_pk *pk)
 }
 
 /**
+ * @ingroup Dilithium
  * @brief Obtain Dilithium type from signature
  *
  * @param [in] sig Signature from which the type is to be obtained
@@ -181,6 +189,7 @@ lc_dilithium_sig_type(const struct lc_dilithium_sig *sig)
 }
 
 /**
+ * @ingroup Dilithium
  * @brief Return the size of the Dilithium secret key.
  *
  * @param [in] dilithium_type Dilithium type for which the size is requested
@@ -217,6 +226,7 @@ lc_dilithium_sk_size(enum lc_dilithium_type dilithium_type)
 }
 
 /**
+ * @ingroup Dilithium
  * @brief Return the size of the Dilithium public key.
  *
  * @param [in] dilithium_type Dilithium type for which the size is requested
@@ -253,6 +263,7 @@ lc_dilithium_pk_size(enum lc_dilithium_type dilithium_type)
 }
 
 /**
+ * @ingroup Dilithium
  * @brief Return the size of the Dilithium signature.
  *
  * @param [in] dilithium_type Dilithium type for which the size is requested
@@ -289,6 +300,7 @@ lc_dilithium_sig_size(enum lc_dilithium_type dilithium_type)
 }
 
 /**
+ * @ingroup Dilithium
  * @brief Load a Dilithium secret key provided with a buffer into the leancrypto
  *	  data structure.
  *
@@ -334,6 +346,7 @@ static inline int lc_dilithium_sk_load(struct lc_dilithium_sk *sk,
 }
 
 /**
+ * @ingroup Dilithium
  * @brief Load a Dilithium public key provided with a buffer into the leancrypto
  *	  data structure.
  *
@@ -379,6 +392,7 @@ static inline int lc_dilithium_pk_load(struct lc_dilithium_pk *pk,
 }
 
 /**
+ * @ingroup Dilithium
  * @brief Load a Dilithium signature provided with a buffer into the leancrypto
  *	  data structure.
  *
@@ -424,6 +438,7 @@ static inline int lc_dilithium_sig_load(struct lc_dilithium_sig *sig,
 }
 
 /**
+ * @ingroup Dilithium
  * @brief Obtain the reference to the Dilithium key and its length
  *
  * NOTE: Only pointer references into the leancrypto data structure are returned
@@ -471,6 +486,7 @@ static inline int lc_dilithium_sk_ptr(uint8_t **dilithium_key,
 }
 
 /**
+ * @ingroup Dilithium
  * @brief Obtain the reference to the Dilithium key and its length
  *
  * NOTE: Only pointer references into the leancrypto data structure are returned
@@ -518,6 +534,7 @@ static inline int lc_dilithium_pk_ptr(uint8_t **dilithium_key,
 }
 
 /**
+ * @ingroup Dilithium
  * @brief Obtain the reference to the Dilithium signature and its length
  *
  * NOTE: Only pointer references into the leancrypto data structure are returned
@@ -566,7 +583,8 @@ static inline int lc_dilithium_sig_ptr(uint8_t **dilithium_sig,
 }
 
 /**
- * @brief lc_dilithium_keypair - Generates Dilithium public and private key.
+ * @ingroup Dilithium
+ * @brief Generates Dilithium public and private key.
  *
  * @param [out] pk pointer to allocated output public key
  * @param [out] sk pointer to allocated output private key
@@ -618,8 +636,8 @@ static inline int lc_dilithium_keypair(struct lc_dilithium_pk *pk,
 }
 
 /**
- * @brief lc_dilithium_keypair_from_seed - Generates Dilithium public and
- *					   private key from a given seed.
+ * @ingroup Dilithium
+ * @brief Generates Dilithium public and private key from a given seed.
  *
  * The idea of the function is the allowance of FIPS 204 to maintain the seed
  * used to generate a key pair in lieu of maintaining a private key or the
@@ -682,7 +700,8 @@ lc_dilithium_keypair_from_seed(struct lc_dilithium_pk *pk,
 }
 
 /**
- * @param lc_dilithium_sign - Computes signature in one shot
+ * @ingroup Dilithium
+ * @brief Computes signature in one shot
  *
  * @param [out] sig pointer to output signature
  * @param [in] m pointer to message to be signed
@@ -734,7 +753,8 @@ static inline int lc_dilithium_sign(struct lc_dilithium_sig *sig,
 }
 
 /**
- * @param lc_dilithium_sign_init - Initializes a signature operation
+ * @ingroup Dilithium
+ * @brief Initializes a signature operation
  *
  * This call is intended to support messages that are located in non-contiguous
  * places and even becomes available at different times. This call is to be
@@ -787,8 +807,8 @@ static inline int lc_dilithium_sign_init(struct lc_hash_ctx *hash_ctx,
 }
 
 /**
- * @param lc_dilithium_sign_update - Add more data to an already initialized
- *				     signature state
+ * @ingroup Dilithium
+ * @brief Add more data to an already initialized signature state
  *
  * This call is intended to support messages that are located in non-contiguous
  * places and even becomes available at different times. This call is to be
@@ -816,7 +836,8 @@ static inline int lc_dilithium_sign_update(struct lc_hash_ctx *hash_ctx,
 }
 
 /**
- * @param lc_dilithium_sign_final - Computes signature
+ * @ingroup Dilithium
+ * @brief Computes signature
  *
  * @param [out] sig pointer to output signature
  * @param [in] hash_ctx pointer to hash context that was initialized with
@@ -869,7 +890,8 @@ static inline int lc_dilithium_sign_final(struct lc_dilithium_sig *sig,
 }
 
 /**
- * @brief lc_dilithium_verify - Verifies signature in one shot
+ * @ingroup Dilithium
+ * @brief Verifies signature in one shot
  *
  * @param [in] sig pointer to input signature
  * @param [in] m pointer to message
@@ -915,8 +937,8 @@ static inline int lc_dilithium_verify(const struct lc_dilithium_sig *sig,
 }
 
 /**
- * @param lc_dilithium_verify_init - Initializes a signature verification
- * 				     operation
+ * @ingroup Dilithium
+ * @brief Initializes a signature verification operation
  *
  * This call is intended to support messages that are located in non-contiguous
  * places and even becomes available at different times. This call is to be
@@ -970,8 +992,8 @@ static inline int lc_dilithium_verify_init(struct lc_hash_ctx *hash_ctx,
 }
 
 /**
- * @param lc_dilithium_verify_update - Add more data to an already initialized
- *				       signature state
+ * @ingroup Dilithium
+ * @brief Add more data to an already initialized signature state
  *
  * This call is intended to support messages that are located in non-contiguous
  * places and even becomes available at different times. This call is to be
@@ -1000,7 +1022,8 @@ static inline int lc_dilithium_verify_update(struct lc_hash_ctx *hash_ctx,
 }
 
 /**
- * @param lc_dilithium_verify_final - Verifies signature
+ * @ingroup Dilithium
+ * @brief Verifies signature
  *
  * @param [in] sig pointer to output signature
  * @param [in] hash_ctx pointer to hash context that was initialized with
@@ -1049,6 +1072,13 @@ static inline int lc_dilithium_verify_final(const struct lc_dilithium_sig *sig,
 /****************************** Dilithium ED25510 *****************************/
 
 #ifdef LC_DILITHIUM_ED25519_SIG
+
+/** @defgroup HybridDilithium ML-DSA / CRYSTALS-Dilithium Hybrid Signature Mechanism
+ *
+ * The Dilithium hybrid API performs signature operations with Dilithium and
+ * the classic ED25519 algorithm at the same time. The API is identical to
+ * the Dilithium API and can be used as a drop-in replacement.
+ */
 
 /**
  * @brief Dilithium secret key
@@ -1105,6 +1135,7 @@ struct lc_dilithium_ed25519_sig {
 };
 
 /**
+ * @ingroup HybridDilithium
  * @brief Obtain Dilithium type from secret key
  *
  * @param [in] sk Secret key from which the type is to be obtained
@@ -1120,6 +1151,7 @@ lc_dilithium_ed25519_sk_type(const struct lc_dilithium_ed25519_sk *sk)
 }
 
 /**
+ * @ingroup HybridDilithium
  * @brief Obtain Dilithium type from public key
  *
  * @param [in] pk Public key from which the type is to be obtained
@@ -1135,6 +1167,7 @@ lc_dilithium_ed25519_pk_type(const struct lc_dilithium_ed25519_pk *pk)
 }
 
 /**
+ * @ingroup HybridDilithium
  * @brief Obtain Dilithium type from signature
  *
  * @param [in] sig Signature from which the type is to be obtained
@@ -1150,6 +1183,7 @@ lc_dilithium_ed25519_sig_type(const struct lc_dilithium_ed25519_sig *sig)
 }
 
 /**
+ * @ingroup HybridDilithium
  * @brief Return the size of the Dilithium secret key.
  *
  * @param [in] dilithium_type Dilithium type for which the size is requested
@@ -1189,6 +1223,7 @@ lc_dilithium_ed25519_sk_size(enum lc_dilithium_type dilithium_type)
 }
 
 /**
+ * @ingroup HybridDilithium
  * @brief Return the size of the Dilithium public key.
  *
  * @param [in] dilithium_type Dilithium type for which the size is requested
@@ -1228,6 +1263,7 @@ lc_dilithium_ed25519_pk_size(enum lc_dilithium_type dilithium_type)
 }
 
 /**
+ * @ingroup HybridDilithium
  * @brief Return the size of the Dilithium signature.
  *
  * @param [in] dilithium_type Dilithium type for which the size is requested
@@ -1267,6 +1303,7 @@ lc_dilithium_ed25519_sig_size(enum lc_dilithium_type dilithium_type)
 }
 
 /**
+ * @ingroup HybridDilithium
  * @brief Load a Dilithium secret key provided with a buffer into the leancrypto
  *	  data structure.
  *
@@ -1328,6 +1365,7 @@ static inline int lc_dilithium_ed25519_sk_load(
 }
 
 /**
+ * @ingroup HybridDilithium
  * @brief Load a Dilithium public key provided with a buffer into the leancrypto
  *	  data structure.
  *
@@ -1389,6 +1427,7 @@ static inline int lc_dilithium_ed25519_pk_load(
 }
 
 /**
+ * @ingroup HybridDilithium
  * @brief Load a Dilithium signature provided with a buffer into the leancrypto
  *	  data structure.
  *
@@ -1451,6 +1490,7 @@ static inline int lc_dilithium_ed25519_sig_load(
 }
 
 /**
+ * @ingroup HybridDilithium
  * @brief Obtain the reference to the Dilithium key and its length
  *
  * NOTE: Only pointer references into the leancrypto data structure are returned
@@ -1508,6 +1548,7 @@ lc_dilithium_ed25519_sk_ptr(uint8_t **dilithium_key, size_t *dilithium_key_len,
 }
 
 /**
+ * @ingroup HybridDilithium
  * @brief Obtain the reference to the Dilithium key and its length
  *
  * NOTE: Only pointer references into the leancrypto data structure are returned
@@ -1565,6 +1606,7 @@ lc_dilithium_ed25519_pk_ptr(uint8_t **dilithium_key, size_t *dilithium_key_len,
 }
 
 /**
+ * @ingroup HybridDilithium
  * @brief Obtain the reference to the Dilithium signature and its length
  *
  * NOTE: Only pointer references into the leancrypto data structure are returned
@@ -1623,8 +1665,8 @@ lc_dilithium_ed25519_sig_ptr(uint8_t **dilithium_sig, size_t *dilithium_sig_len,
 }
 
 /**
- * @brief lc_dilithium_ed25519_keypair - Generates Dilithium public and private
- *					 key.
+ * @ingroup HybridDilithium
+ * @brief Generates Dilithium public and private key.
  *
  * @param [out] pk pointer to allocated output public key
  * @param [out] sk pointer to allocated output private key
@@ -1675,7 +1717,8 @@ static inline int lc_dilithium_ed25519_keypair(
 }
 
 /**
- * @param lc_dilithium_ed25519_sign - Computes signature in one shot
+ * @ingroup HybridDilithium
+ * @brief Computes signature in one shot
  *
  * @param [out] sig pointer to output signature
  * @param [in] m pointer to message to be signed
@@ -1726,7 +1769,8 @@ static inline int lc_dilithium_ed25519_sign(
 }
 
 /**
- * @brief lc_dilithium_ed25519_verify - Verifies signature in one shot
+ * @ingroup HybridDilithium
+ * @brief Verifies signature in one shot
  *
  * @param [in] sig pointer to input signature
  * @param [in] m pointer to message

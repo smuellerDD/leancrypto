@@ -28,6 +28,7 @@
 extern "C" {
 #endif
 
+/// \cond DO_NOT_DOCUMENT
 struct lc_sym_state;
 struct lc_sym {
 	void (*init)(struct lc_sym_state *ctx);
@@ -89,8 +90,10 @@ struct lc_sym_ctx {
 
 #define LC_SYM_SET_CTX(name, symname)                                          \
 	_LC_SYM_SET_CTX(name, symname, name, sizeof(struct lc_sym_ctx))
+/// \endcond
 
-/**
+/** @defgroup Symmetric Symmetric Unauthenticated Encryption Algorithms
+ *
  * Concept of symmetric algorithms in leancrypto
  *
  * All symmetric can be used with the API calls documented below. However,
@@ -104,12 +107,13 @@ struct lc_sym_ctx {
  */
 
 /**
+ * @ingroup Symmetric
  * @brief Initialize symmetric context
  *
- * @param [in] sym_ctx Reference to sym context implementation to be used to
+ * @param [in] ctx Reference to sym context implementation to be used to
  *		       perform sym calculation with.
  *
- * The caller must provide an allocated sym_ctx.
+ * The caller must provide an allocated \p ctx.
  */
 static inline void lc_sym_init(struct lc_sym_ctx *ctx)
 {
@@ -119,7 +123,8 @@ static inline void lc_sym_init(struct lc_sym_ctx *ctx)
 }
 
 /**
- * @brief lc_sym_setkey - Set key
+ * @ingroup Symmetric
+ * @brief Set key
  *
  * @param [in] ctx Reference to sym context implementation to be used to
  *		   set the key.
@@ -137,7 +142,8 @@ static inline int lc_sym_setkey(struct lc_sym_ctx *ctx, const uint8_t *key,
 }
 
 /**
- * @brief lc_sym_setiv - Set IV
+ * @ingroup Symmetric
+ * @brief Set IV
  *
  * @param [in] ctx Reference to sym context implementation to be used to
  *		   set the IV.
@@ -155,7 +161,8 @@ static inline int lc_sym_setiv(struct lc_sym_ctx *ctx, const uint8_t *iv,
 }
 
 /**
- * @brief lc_sym_encrypt - Symmetric encryption
+ * @ingroup Symmetric
+ * @brief Symmetric encryption
  *
  * @param [in] ctx Reference to sym context implementation to be used to
  *		   perform sym calculation with.
@@ -175,7 +182,8 @@ static inline void lc_sym_encrypt(struct lc_sym_ctx *ctx, const uint8_t *in,
 }
 
 /**
- * @brief lc_sym_decrypt - AES KW decrypt
+ * @ingroup Symmetric
+ * @brief Symmetric decryption
  *
  * @param [in] ctx Reference to sym context implementation to be used to
  *		   perform sym calculation with.
@@ -195,6 +203,7 @@ static inline void lc_sym_decrypt(struct lc_sym_ctx *ctx, const uint8_t *in,
 }
 
 /**
+ * @ingroup Symmetric
  * @brief Zeroize symmetric context allocated with either LC_SYM_CTX_ON_STACK
  *	  or lc_sym_alloc
  *
@@ -209,6 +218,7 @@ static inline void lc_sym_zero(struct lc_sym_ctx *ctx)
 }
 
 /**
+ * @ingroup Symmetric
  * @brief Allocate symmetric algorithm context on heap
  *
  * @param [in] sym Symmetric algorithm implementation of type struct lc_sym
@@ -219,6 +229,7 @@ static inline void lc_sym_zero(struct lc_sym_ctx *ctx)
 int lc_sym_alloc(const struct lc_sym *sym, struct lc_sym_ctx **ctx);
 
 /**
+ * @ingroup Symmetric
  * @brief Symmetric algorithm deallocation and properly zeroization function to
  *	  frees all buffers and the cipher handle
  *
@@ -227,6 +238,7 @@ int lc_sym_alloc(const struct lc_sym *sym, struct lc_sym_ctx **ctx);
 void lc_sym_zero_free(struct lc_sym_ctx *ctx);
 
 /**
+ * @ingroup Symmetric
  * @brief Allocate stack memory for the sym context
  *
  * @param [in] name Name of the stack variable
