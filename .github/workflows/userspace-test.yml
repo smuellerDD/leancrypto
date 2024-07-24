@@ -16,7 +16,7 @@ jobs:
     - name: Install meson
       run: |
         sudo apt-get update
-        sudo apt-get install -y meson gcovr
+        sudo apt-get install -y meson gcovr doxygen graphviz
     - name: Meson setup
       run: meson setup build -Db_coverage=true
     - name: Meson compile
