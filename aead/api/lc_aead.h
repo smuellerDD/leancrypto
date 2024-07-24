@@ -72,7 +72,7 @@ struct lc_aead_ctx {
  *
  * 1. Allocation: Use the stack or heap allocation functions documented in
  *    lc_ascon_lightweight.h, lc_ascon_keccak.h, lc_cshake_crypt.h,
- *    lc_kmac_crypt.h, or lc_hash_crypt.h.
+ *    lc_kmac_crypt.h, lc_hash_crypt.h, lc_symhmac.h, or lc_symkmac.h.
  *
  * 2. Use the returned cipher handle with the API calls below.
  */
