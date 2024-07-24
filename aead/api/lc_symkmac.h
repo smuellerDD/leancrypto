@@ -60,7 +60,7 @@ extern const struct lc_aead *lc_symkmac_aead;
  * \section SymKMAC_intro Specification of Symmetric / KMAC AEAD Algorithm
  *
  * This specification defines a symmetric stream cipher algorithm using
- * the authenticated encryption with additional data (AEAD) approach. This
+ * the authenticated encryption with associated data (AEAD) approach. This
  * algorithm can be used to encrypt and decrypt arbitrary user data.
  * The cipher algorithm uses a symmetric algorithm to encrypt/decrypt data
  * along with a KMAC to perform the data authentication. The keys for both
