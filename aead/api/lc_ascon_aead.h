@@ -45,7 +45,6 @@ struct lc_ascon_cryptor {
 
 /* Ascon-Keccak-based AEAD-algorithm */
 extern const struct lc_aead *lc_ascon_aead;
-/// \endcond
 
 #define _LC_ASCON_SET_CTX(name, hashname, ctx, offset)                         \
 	name->state = LC_ALIGN_HASH_MASK(((uint8_t *)(ctx)) + (offset));       \
@@ -88,6 +87,7 @@ static inline void lc_ascon_add_padbyte(struct lc_ascon_cryptor *ascon,
 
 	lc_sponge_add_bytes(hash, ascon->state, &pad_data, offset, 1);
 }
+/// \endcond
 
 #ifdef __cplusplus
 }

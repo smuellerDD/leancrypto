@@ -84,7 +84,7 @@ static inline void lc_cshake_final(struct lc_hash_ctx *ctx, uint8_t *out,
  * Re-initialization means that any state created by the init operation can be
  * re-established during re-init.
  */
-
+/// \cond DO_NOT_DOCUMENT
 struct lc_cshake_ctx {
 	uint8_t *shadow_ctx;
 	struct lc_hash_ctx hash_ctx;
@@ -112,6 +112,7 @@ struct lc_cshake_ctx {
 #define LC_CSHAKE_SET_CTX_REINIT(name, hashname)                               \
 	_LC_CSHAKE_SET_CTX_REINIT(name, hashname, name,                        \
 				  sizeof(struct lc_cshake_ctx))
+/// \endcond
 
 /**
  * @brief Initialize the hash state with re-init support following the cSHAKE

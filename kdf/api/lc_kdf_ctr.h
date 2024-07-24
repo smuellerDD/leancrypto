@@ -86,6 +86,7 @@ int lc_kdf_ctr(const struct lc_hash *hash, const uint8_t *key, size_t keylen,
 
 /***************************** Counter KDF as RNG *****************************/
 
+/// \cond DO_NOT_DOCUMENT
 struct lc_kdf_ctr_ctx {
 	uint32_t counter;
 	uint8_t rng_initialized : 1;
@@ -116,13 +117,16 @@ extern const struct lc_rng *lc_kdf_ctr_rng;
 	LC_CTR_KDF_DRNG_SET_CTX(((struct lc_kdf_ctr_ctx *)(name->rng_state)),  \
 				hashname);                                     \
 	lc_rng_zero(name)
+/// \endcond
 
 /**
- * @ingroup KDF
- * @brief Allocate stack memory for the CTR_KDF DRNG context
+ * @ingroup KDFasRNG
+ * @brief Allocate stack memory for the Counter KDF DRNG context
  *
  * @param [in] name Name of the stack variable
  * @param [in] hashname Reference to lc_hash implementation used for CTR KDF
+ *
+ * \warning You MUST seed the DRNG!
  */
 #define LC_CTR_KDF_DRNG_CTX_ON_STACK(name, hashname)                                \
 	_Pragma("GCC diagnostic push")                                              \
@@ -136,7 +140,7 @@ extern const struct lc_rng *lc_kdf_ctr_rng;
 	_Pragma("GCC diagnostic pop")
 
 /**
- * @ingroup KDF
+ * @ingroup KDFasRNG
  * @brief Allocation of a Counter KDF DRNG context
  *
  * @param [out] state Counter KDF DRNG context allocated by the function
@@ -146,7 +150,7 @@ extern const struct lc_rng *lc_kdf_ctr_rng;
  *
  * The memory is pinned so that the DRNG state cannot be swapped out to disk.
  *
- * You need to seed the DRNG!
+ * \warning You MUST seed the DRNG!
  *
  * @return 0 upon success; < 0 on error
  */
