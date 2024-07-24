@@ -170,7 +170,7 @@ void lc_free_high_aligned(void *ptr, size_t size);
  *
  * @return 1 if pointer is aligned, 0 if not aligned
  */
-static inline int mem_aligned(const uint8_t *ptr, uint32_t alignmask)
+static inline int lc_mem_aligned(const uint8_t *ptr, uint32_t alignmask)
 {
 	if ((uintptr_t)ptr & alignmask)
 		return 0;

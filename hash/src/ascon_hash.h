@@ -144,7 +144,7 @@ ascon_absorb_common(void *_state, const uint8_t *in, size_t inlen,
 		permutation(ctx->state, ctx->roundb);
 
 	/* Perform a transformation of full block-size messages */
-	if (mem_aligned(in, sizeof(uint64_t) - 1)) {
+	if (lc_mem_aligned(in, sizeof(uint64_t) - 1)) {
 		for (; inlen >= LC_ASCON_HASH_RATE;
 		     inlen -= LC_ASCON_HASH_RATE, in += LC_ASCON_HASH_RATE) {
 			/*

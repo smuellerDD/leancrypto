@@ -531,7 +531,7 @@ static void keccak_absorb(void *_state, const uint8_t *in, size_t inlen)
 	}
 
 	/* Perform a transformation of full block-size messages */
-	if (mem_aligned(in, sizeof(uint64_t) - 1)) {
+	if (lc_mem_aligned(in, sizeof(uint64_t) - 1)) {
 		for (; inlen >= ctx->r; inlen -= ctx->r, in += ctx->r) {
 			/* 
 			 * We can ignore the alignment warning as we checked
