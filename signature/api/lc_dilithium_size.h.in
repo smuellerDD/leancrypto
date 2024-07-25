@@ -33,6 +33,7 @@
 #include "ext_headers.h"
 #include "lc_hash.h"
 #include "lc_rng.h"
+#include "lc_sha3.h"
 
 #endif /* __ASSEMBLER__ */
 
@@ -162,6 +163,73 @@ struct @dilithium_name@_sig {
 };
 
 /**
+ * @brief Dilithium stream context
+ *
+ * This structure is used for the init/update/final operation of the
+ * Dilithium signature operation.
+ */
+#ifndef LC_DILITHIUM_CTX_ON_STACK
+struct lc_dilithium_ctx {
+	struct lc_hash_ctx dilithium_hash_ctx;
+	uint8_t shake_state[LC_SHA3_STATE_SIZE_ALIGN(LC_SHA3_256_CTX_SIZE)];
+};
+#endif
+
+/// \cond DO_NOT_DOCUMENT
+#ifndef LC_DILITHIUM_CTX_ON_STACK
+#define LC_DILITHIUM_CTX_SIZE                                                  \
+	sizeof(struct lc_dilithium_ctx)
+#endif
+/// \endcond
+
+/**
+ * @brief Allocate stack memory for the Dilithium-ED25519 stream context
+ *
+ * @param [in] name Name of the stack variable
+ */
+#ifndef LC_DILITHIUM_CTX_ON_STACK
+#define LC_DILITHIUM_CTX_ON_STACK(name)                                        \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(                                             \
+			name##_ctx_buf, LC_DILITHIUM_ED25519_CTX_SIZE,         \
+			LC_HASH_COMMON_ALIGNMENT);                             \
+	struct lc_dilithium_ctx *name =                                        \
+		(struct lc_dilithium_ctx *)name##_ctx_buf;                     \
+	LC_SHAKE_256_CTX((&(name)->dilithium_hash_ctx));                       \
+	_Pragma("GCC diagnostic pop")
+#endif
+
+/**
+ * @brief Zeroize Dilithium context allocated with
+ *	  LC_DILITHIUM_CTX_ON_STACK lc_dilithium_ed25519_alloc
+ *
+ * @param [in] ctx Dilithium context to be zeroized
+ */
+static inline void @dilithium_name@_ctx_zero(struct lc_dilithium_ctx *ctx)
+{
+	if (!ctx)
+		return;
+	lc_hash_zero(&ctx->dilithium_hash_ctx);
+}
+
+/**
+ * @brief Allocate Dilithium stream context on heap
+ *
+ * @param [out] ctx Allocated Dilithium stream context
+ *
+ * @return: 0 on success, < 0 on error
+ */
+int @dilithium_name@_ctx_alloc(struct lc_dilithium_ctx **ctx);
+
+/**
+ * @brief Zeroize and free Dilithium stream context
+ *
+ * @param [in] ctx Dilithium stream context to be zeroized and freed
+ */
+void @dilithium_name@_ctx_zero_free(struct lc_dilithium_ctx *ctx);
+
+/**
  * @brief Return the size of the Dilithium secret key.
  */
 LC_PURE
@@ -247,22 +315,13 @@ int @dilithium_name@_sign(struct @dilithium_name@_sig *sig, const uint8_t *m,
  * places and even becomes available at different times. This call is to be
  * used together with the lc_dilithium_sign_update and lc_dilithium_sign_final.
  *
- * @param  [in,out] hash_ctx pointer to an allocated (but not yet initialized)
- *			    hash context - this hash context MUST use
- *			    lc_shake256 as otherwise the function will return
- *			    an error.
+ * @param [in,out] ctx pointer to an allocated Dilithium context
  * @param [in] sk pointer to bit-packed secret key
- *
- * NOTE: This API call is NOT yet stable and thus will not cause a the
- *	 libraries major version to change. An update request is filed with
- *	 the FIPS 204 authors to change the cause for providing the sk parameter
- *	 in the init call. Once that change is applied, the sk parameter is
- *	 removed for good.
  *
  * @return 0 (success) or < 0 on error; -EOPNOTSUPP is returned if a different
  *	   hash than lc_shake256 is used.
  */
-int @dilithium_name@_sign_init(struct lc_hash_ctx *hash_ctx,
+int @dilithium_name@_sign_init(struct lc_dilithium_ctx *ctx,
 			   const struct @dilithium_name@_sk *sk);
 
 /**
@@ -272,21 +331,21 @@ int @dilithium_name@_sign_init(struct lc_hash_ctx *hash_ctx,
  * places and even becomes available at different times. This call is to be
  * used together with the lc_dilithium_sign_init and lc_dilithium_sign_final.
  *
- * @param [in,out] hash_ctx pointer to hash context that was initialized with
+ * @param [in] ctx pointer to Dilithium context that was initialized with
  *			    lc_dilithium_sign_init
  * @param [in] m pointer to message to be signed
  * @param [in] mlen length of message
  *
  * @return 0 (success) or < 0 on error
  */
-int @dilithium_name@_sign_update(struct lc_hash_ctx *hash_ctx, const uint8_t *m,
+int @dilithium_name@_sign_update(struct lc_dilithium_ctx *ctx, const uint8_t *m,
 			     size_t mlen);
 
 /**
  * @brief Computes signature
  *
  * @param [out] sig pointer to output signature
- * @param [in] hash_ctx pointer to hash context that was initialized with
+ * @param [in] ctx pointer to Dilithium context that was initialized with
  *			lc_dilithium_sign_init and filled with
  *			lc_dilithium_sign_update
  * @param [in] sk pointer to bit-packed secret key
@@ -297,7 +356,7 @@ int @dilithium_name@_sign_update(struct lc_hash_ctx *hash_ctx, const uint8_t *m,
  * @return 0 (success) or < 0 on error
  */
 int @dilithium_name@_sign_final(struct @dilithium_name@_sig *sig,
-			    struct lc_hash_ctx *hash_ctx,
+			    struct lc_dilithium_ctx *ctx,
 			    const struct @dilithium_name@_sk *sk,
 			    struct lc_rng_ctx *rng_ctx);
 
@@ -323,22 +382,13 @@ int @dilithium_name@_verify(const struct @dilithium_name@_sig *sig, const uint8_
  * used together with the lc_dilithium_verify_update and
  * lc_dilithium_verify_final.
  *
- * @param [in,out] hash_ctx pointer to an allocated (but not yet initialized)
- *			    hash context - this hash context MUST use
- *			    lc_shake256 as otherwise the function will return
- *			    an error.
+ * @param [in,out] ctx pointer to an allocated Dilithium context
  * @param [in] pk pointer to bit-packed public key
- *
- * NOTE: This API call is NOT yet stable and thus will not cause a the
- *	 libraries major version to change. An update request is filed with
- *	 the FIPS 204 authors to change the cause for providing the pk parameter
- *	 in the init call. Once that change is applied, the pk parameter is
- *	 removed for good.
  *
  * @return 0 (success) or < 0 on error; -EOPNOTSUPP is returned if a different
  *	   hash than lc_shake256 is used.
  */
-int @dilithium_name@_verify_init(struct lc_hash_ctx *hash_ctx,
+int @dilithium_name@_verify_init(struct lc_dilithium_ctx *ctx,
 			     const struct @dilithium_name@_pk *pk);
 
 /**
@@ -349,21 +399,21 @@ int @dilithium_name@_verify_init(struct lc_hash_ctx *hash_ctx,
  * used together with the lc_dilithium_verify_init and
  * lc_dilithium_verify_final.
  *
- * @param [in,out] hash_ctx pointer to hash context that was initialized with
+ * @param [in,out] ctx pointer to Dilithium context that was initialized with
  *			    lc_dilithium_sign_init
  * @param [in] m pointer to message to be signed
  * @param [in] mlen length of message
  *
  * @return 0 (success) or < 0 on error
  */
-int @dilithium_name@_verify_update(struct lc_hash_ctx *hash_ctx, const uint8_t *m,
+int @dilithium_name@_verify_update(struct lc_dilithium_ctx *ctx, const uint8_t *m,
 			       size_t mlen);
 
 /**
  * @brief Verifies signature
  *
  * @param [in] sig pointer to output signature
- * @param [in] hash_ctx pointer to hash context that was initialized with
+ * @param [in] ctx pointer to Dilithium context that was initialized with
  *			lc_dilithium_sign_init and filled with
  *			lc_dilithium_sign_update
  * @param [in] pk pointer to bit-packed public key
@@ -372,7 +422,7 @@ int @dilithium_name@_verify_update(struct lc_hash_ctx *hash_ctx, const uint8_t *
  * signature cannot be verified, < 0 on other errors
  */
 int @dilithium_name@_verify_final(const struct @dilithium_name@_sig *sig,
-			      struct lc_hash_ctx *hash_ctx,
+			      struct lc_dilithium_ctx *ctx,
 			      const struct @dilithium_name@_pk *pk);
 
 /****************************** Dilithium ED25510 *****************************/
@@ -381,7 +431,6 @@ int @dilithium_name@_verify_final(const struct @dilithium_name@_sig *sig,
 #ifdef LC_DILITHIUM_ED25519_SIG
 
 #include "lc_ed25519.h"
-#include "lc_sha3.h"
 #include "lc_sha512.h"
 
 /**
@@ -416,8 +465,7 @@ struct @dilithium_name@_ed25519_sig {
  */
 #ifndef LC_DILITHIUM_ED25519_CTX_ON_STACK
 struct lc_dilithium_ed25519_ctx {
-	struct lc_hash_ctx dilithium_hash_ctx;
-	uint8_t cshake_state[LC_SHA3_STATE_SIZE_ALIGN(LC_SHA3_256_CTX_SIZE)];
+	struct lc_dilithium_ctx dilithium_ctx;
 	struct lc_hash_ctx ed25519_hash_ctx;
 	uint8_t sha512_state[LC_SHA512_STATE_SIZE + LC_HASH_COMMON_ALIGNMENT];
 };
@@ -444,7 +492,7 @@ struct lc_dilithium_ed25519_ctx {
 			LC_HASH_COMMON_ALIGNMENT);                             \
 	struct lc_dilithium_ed25519_ctx *name =                                \
 		(struct lc_dilithium_ed25519_ctx *)name##_ctx_buf;             \
-	LC_SHAKE_256_CTX((&(name)->dilithium_hash_ctx));                       \
+	LC_SHAKE_256_CTX((&(name)->dilithium_ctx.dilithium_hash_ctx));         \
 	LC_SHA512_CTX((&(name)->ed25519_hash_ctx));                            \
 	_Pragma("GCC diagnostic pop")
 #endif
@@ -460,7 +508,7 @@ static inline void @dilithium_name@_ed25519_ctx_zero(
 {
 	if (!ctx)
 		return;
-	lc_hash_zero(&ctx->dilithium_hash_ctx);
+	@dilithium_name@_ctx_zero(&ctx->dilithium_ctx);
 	lc_hash_zero(&ctx->ed25519_hash_ctx);
 }
 

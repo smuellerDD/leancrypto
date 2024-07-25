@@ -53,7 +53,7 @@ static int lc_kernel_dilithium_sign(struct akcipher_request *req)
 	unsigned int sg_flags = SG_MITER_ATOMIC | SG_MITER_FROM_SG;
 	enum lc_dilithium_type type;
 	int ret;
-	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
+	LC_DILITHIUM_CTX_ON_STACK(dilithium_ctx);
 
 	/* req->src -> message */
 	/* req->dst -> signature */
@@ -69,7 +69,7 @@ static int lc_kernel_dilithium_sign(struct akcipher_request *req)
 	if (!sig)
 		return -ENOMEM;
 
-	lc_dilithium_sign_init(hash_ctx, &ctx->sk);
+	lc_dilithium_sign_init(dilithium_ctx, &ctx->sk);
 
 	sg_miter_start(&miter, req->src,
 		       sg_nents_for_len(req->src, req->src_len), sg_flags);
@@ -77,15 +77,14 @@ static int lc_kernel_dilithium_sign(struct akcipher_request *req)
 	while ((offset < req->src_len) && sg_miter_next(&miter)) {
 		unsigned int len = min(miter.length, req->src_len - offset);
 
-		lc_dilithium_sign_update(hash_ctx, miter.addr, len);
+		lc_dilithium_sign_update(dilithium_ctx, miter.addr, len);
 		offset += len;
 	}
 
 	sg_miter_stop(&miter);
 
-	ret = lc_dilithium_sign_final(sig, hash_ctx, &ctx->sk, lc_seeded_rng);
-
-	lc_hash_zero(hash_ctx);
+	ret = lc_dilithium_sign_final(sig, dilithium_ctx, &ctx->sk,
+				      lc_seeded_rng);
 
 	if (!ret) {
 		uint8_t *sig_ptr;
@@ -102,6 +101,7 @@ static int lc_kernel_dilithium_sign(struct akcipher_request *req)
 
 out:
 	kfree_sensitive(sig);
+	lc_dilithium_ctx_zero(dilithium_ctx);
 	return ret;
 }
 
@@ -116,7 +116,7 @@ static int lc_kernel_dilithium_verify(struct akcipher_request *req)
 	enum lc_dilithium_type type;
 	uint8_t *sig_ptr;
 	int ret;
-	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
+	LC_DILITHIUM_CTX_ON_STACK(dilithium_ctx);
 
 	/* req->src -> signature */
 	/* req->dst -> message */
@@ -145,7 +145,7 @@ static int lc_kernel_dilithium_verify(struct akcipher_request *req)
 	sg_pcopy_to_buffer(req->src, sg_nents_for_len(req->src, req->src_len),
 			   sig_ptr, sig_len, 0);
 
-	lc_dilithium_verify_init(hash_ctx, &ctx->pk);
+	lc_dilithium_verify_init(dilithium_ctx, &ctx->pk);
 
 	sg_miter_start(&miter, req->dst,
 		       sg_nents_for_len(req->dst, req->dst_len), sg_flags);
@@ -153,16 +153,16 @@ static int lc_kernel_dilithium_verify(struct akcipher_request *req)
 	while ((offset < req->dst_len) && sg_miter_next(&miter)) {
 		unsigned int len = min(miter.length, req->dst_len - offset);
 
-		lc_dilithium_verify_update(hash_ctx, miter.addr, len);
+		lc_dilithium_verify_update(dilithium_ctx, miter.addr, len);
 		offset += len;
 	}
 
 	sg_miter_stop(&miter);
 
-	ret = lc_dilithium_verify_final(sig, hash_ctx, &ctx->pk);
+	ret = lc_dilithium_verify_final(sig, dilithium_ctx, &ctx->pk);
 
 out:
-	lc_hash_zero(hash_ctx);
+	lc_dilithium_ctx_zero(dilithium_ctx);
 
 	kfree_sensitive(sig);
 

@@ -78,7 +78,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sign_init,
 	if (ed25519_hash_ctx->hash != lc_sha512)
 		return -EOPNOTSUPP;
 
-	CKINT(lc_dilithium_sign_init(&ctx->dilithium_hash_ctx, &sk->sk));
+	CKINT(lc_dilithium_sign_init(&ctx->dilithium_ctx, &sk->sk));
 
 	/* ED25519: Only perform hashing part */
 	lc_hash_init(ed25519_hash_ctx);
@@ -98,7 +98,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sign_update,
 
 	ed25519_hash_ctx = &ctx->ed25519_hash_ctx;
 
-	CKINT(lc_dilithium_sign_update(&ctx->dilithium_hash_ctx, m, mlen));
+	CKINT(lc_dilithium_sign_update(&ctx->dilithium_ctx, m, mlen));
 
 	/* ED25519: Only perform hashing part */
 	lc_hash_update(ed25519_hash_ctx, m, mlen);
@@ -123,7 +123,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sign_final,
 
 	ed25519_hash_ctx = &ctx->ed25519_hash_ctx;
 
-	CKINT(lc_dilithium_sign_final(&sig->sig, &ctx->dilithium_hash_ctx,
+	CKINT(lc_dilithium_sign_final(&sig->sig, &ctx->dilithium_ctx,
 				      &sk->sk, rng_ctx));
 
 	lc_hash_final(ed25519_hash_ctx, digest);
@@ -183,7 +183,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_verify_init,
 	if (ed25519_hash_ctx->hash != lc_sha512)
 		return -EOPNOTSUPP;
 
-	CKINT(lc_dilithium_verify_init(&ctx->dilithium_hash_ctx, &pk->pk));
+	CKINT(lc_dilithium_verify_init(&ctx->dilithium_ctx, &pk->pk));
 
 	/* ED25519: Only perform hashing part */
 	lc_hash_init(ed25519_hash_ctx);
@@ -203,7 +203,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_verify_update,
 
 	ed25519_hash_ctx = &ctx->ed25519_hash_ctx;
 
-	CKINT(lc_dilithium_verify_update(&ctx->dilithium_hash_ctx, m, mlen));
+	CKINT(lc_dilithium_verify_update(&ctx->dilithium_ctx, m, mlen));
 
 	/* ED25519: Only perform hashing part */
 	lc_hash_update(ed25519_hash_ctx, m, mlen);
@@ -227,7 +227,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_verify_final,
 
 	ed25519_hash_ctx = &ctx->ed25519_hash_ctx;
 
-	retd = lc_dilithium_verify_final(&sig->sig, &ctx->dilithium_hash_ctx,
+	retd = lc_dilithium_verify_final(&sig->sig, &ctx->dilithium_ctx,
 					 &pk->pk);
 
 	lc_hash_final(ed25519_hash_ctx, digest);
@@ -253,7 +253,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_ctx_alloc,
 	if (ret)
 		return -ret;
 
-	LC_SHAKE_256_CTX((&(out_ctx)->dilithium_hash_ctx));
+	LC_SHAKE_256_CTX((&(out_ctx)->dilithium_ctx.dilithium_hash_ctx));
 	LC_SHA512_CTX((&(out_ctx)->ed25519_hash_ctx));
 
 	*ctx = out_ctx;

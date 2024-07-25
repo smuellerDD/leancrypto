@@ -49,21 +49,21 @@ int _dilithium_init_update_final_tester(
 				     struct lc_dilithium_sk *sk,
 				     struct lc_rng_ctx *rng_ctx),
 
-	int (*_lc_dilithium_sign_init)(struct lc_hash_ctx *hash_ctx,
+	int (*_lc_dilithium_sign_init)(struct lc_dilithium_ctx *ctx,
 				       const struct lc_dilithium_sk *sk),
-	int (*_lc_dilithium_sign_update)(struct lc_hash_ctx *hash_ctx,
+	int (*_lc_dilithium_sign_update)(struct lc_dilithium_ctx *ctx,
 					 const uint8_t *m, size_t mlen),
 	int (*_lc_dilithium_sign_final)(struct lc_dilithium_sig *sig,
-					struct lc_hash_ctx *hash_ctx,
+					struct lc_dilithium_ctx *ctx,
 					const struct lc_dilithium_sk *sk,
 					struct lc_rng_ctx *rng_ctx),
 
-	int (*_lc_dilithium_verify_init)(struct lc_hash_ctx *hash_ctx,
+	int (*_lc_dilithium_verify_init)(struct lc_dilithium_ctx *ctx,
 					 const struct lc_dilithium_pk *pk),
-	int (*_lc_dilithium_verify_update)(struct lc_hash_ctx *hash_ctx,
+	int (*_lc_dilithium_verify_update)(struct lc_dilithium_ctx *ctx,
 					   const uint8_t *m, size_t mlen),
 	int (*_lc_dilithium_verify_final)(const struct lc_dilithium_sig *sig,
-					  struct lc_hash_ctx *hash_ctx,
+					  struct lc_dilithium_ctx *ctx,
 					  const struct lc_dilithium_pk *pk));
 
 #ifdef __cplusplus

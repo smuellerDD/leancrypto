@@ -55,26 +55,26 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_armv8,
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_init_armv8,
-		      struct lc_hash_ctx *hash_ctx,
+		      struct lc_dilithium_ctx *ctx,
 		      const struct lc_dilithium_sk *sk)
 {
-	return lc_dilithium_sign_init_impl(hash_ctx, sk);
+	return lc_dilithium_sign_init_impl(ctx, sk);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_update_armv8,
-		      struct lc_hash_ctx *hash_ctx, const uint8_t *m,
+		      struct lc_dilithium_ctx *ctx, const uint8_t *m,
 		      size_t mlen)
 {
-	return lc_dilithium_sign_update_impl(hash_ctx, m, mlen);
+	return lc_dilithium_sign_update_impl(ctx, m, mlen);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_final_armv8,
 		      struct lc_dilithium_sig *sig,
-		      struct lc_hash_ctx *hash_ctx,
+		      struct lc_dilithium_ctx *ctx,
 		      const struct lc_dilithium_sk *sk,
 		      struct lc_rng_ctx *rng_ctx)
 {
-	return lc_dilithium_sign_final_impl(sig, hash_ctx, sk, rng_ctx);
+	return lc_dilithium_sign_final_impl(sig, ctx, sk, rng_ctx);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_armv8,
@@ -85,23 +85,23 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_armv8,
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_init_armv8,
-		      struct lc_hash_ctx *hash_ctx,
+		      struct lc_dilithium_ctx *ctx,
 		      const struct lc_dilithium_pk *pk)
 {
-	return lc_dilithium_verify_init_impl(hash_ctx, pk);
+	return lc_dilithium_verify_init_impl(ctx, pk);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_update_armv8,
-		      struct lc_hash_ctx *hash_ctx, const uint8_t *m,
+		      struct lc_dilithium_ctx *ctx, const uint8_t *m,
 		      size_t mlen)
 {
-	return lc_dilithium_verify_update_impl(hash_ctx, m, mlen);
+	return lc_dilithium_verify_update_impl(ctx, m, mlen);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_final_armv8,
 		      const struct lc_dilithium_sig *sig,
-		      struct lc_hash_ctx *hash_ctx,
+		      struct lc_dilithium_ctx *ctx,
 		      const struct lc_dilithium_pk *pk)
 {
-	return lc_dilithium_verify_final_impl(sig, hash_ctx, pk);
+	return lc_dilithium_verify_final_impl(sig, ctx, pk);
 }

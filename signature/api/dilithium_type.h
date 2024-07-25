@@ -90,6 +90,9 @@ extern "C" {
 #define lc_dilithium_verify_init DILITHIUM_F(verify_init)
 #define lc_dilithium_verify_update DILITHIUM_F(verify_update)
 #define lc_dilithium_verify_final DILITHIUM_F(verify_final)
+#define lc_dilithium_ctx_alloc DILITHIUM_F(ed25519_ctx_alloc)
+#define lc_dilithium_ctx_zero_free DILITHIUM_F(ctx_zero_free)
+#define lc_dilithium_ctx_zero DILITHIUM_F(ctx_zero)
 
 #define lc_dilithium_keypair_c DILITHIUM_F(keypair_c)
 #define lc_dilithium_keypair_from_seed_c DILITHIUM_F(keypair_from_seed_c)

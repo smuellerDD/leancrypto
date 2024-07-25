@@ -142,6 +142,74 @@ struct lc_dilithium_sig {
 
 /**
  * @ingroup Dilithium
+ * @brief Allocates Dilithium context on heap
+ *
+ * @param [out] ctx Dilithium context pointer
+ *
+ * @return 0 (success) or < 0 on error
+ */
+static inline int lc_dilithium_ctx_alloc(struct lc_dilithium_ctx **ctx)
+{
+	if (!ctx)
+		return -EINVAL;
+
+#ifdef LC_DILITHIUM_87_ENABLED
+	return lc_dilithium_87_ctx_alloc(ctx);
+#elif defined(LC_DILITHIUM_65_ENABLED)
+	return lc_dilithium_65_ctx_alloc(ctx);
+#elif defined(LC_DILITHIUM_44_ENABLED)
+	return lc_dilithium_44_ctx_alloc(ctx);
+#else
+	return -EOPNOTSUPP;
+#endif
+}
+
+/**
+ * @ingroup Dilithium
+ * @brief Zeroizes and frees Dilithium context on heap
+ *
+ * @param [out] ctx Dilithium context pointer
+ *
+ * @return 0 (success) or < 0 on error
+ */
+static inline void lc_dilithium_ctx_zero_free(struct lc_dilithium_ctx *ctx)
+{
+	if (!ctx)
+		return;
+
+#ifdef LC_DILITHIUM_87_ENABLED
+	lc_dilithium_87_ctx_zero_free(ctx);
+#elif defined(LC_DILITHIUM_65_ENABLED)
+	lc_dilithium_65_ctx_zero_free(ctx);
+#elif defined(LC_DILITHIUM_44_ENABLED)
+	lc_dilithium_44_ctx_zero_free(ctx);
+#endif
+}
+
+/**
+ * @ingroup Dilithium
+ * @brief Zeroizes Dilithium context either on heap or on stack
+ *
+ * @param [out] ctx Dilithium context pointer
+ *
+ * @return 0 (success) or < 0 on error
+ */
+static inline void lc_dilithium_ctx_zero(struct lc_dilithium_ctx *ctx)
+{
+	if (!ctx)
+		return;
+
+#ifdef LC_DILITHIUM_87_ENABLED
+	lc_dilithium_87_ctx_zero(ctx);
+#elif defined(LC_DILITHIUM_65_ENABLED)
+	lc_dilithium_65_ctx_zero(ctx);
+#elif defined(LC_DILITHIUM_44_ENABLED)
+	lc_dilithium_44_ctx_zero(ctx);
+#endif
+}
+
+/**
+ * @ingroup Dilithium
  * @brief Obtain Dilithium type from secret key
  *
  * @param [in] sk Secret key from which the type is to be obtained
@@ -760,10 +828,7 @@ static inline int lc_dilithium_sign(struct lc_dilithium_sig *sig,
  * places and even becomes available at different times. This call is to be
  * used together with the lc_dilithium_sign_update and lc_dilithium_sign_final.
  *
- * @param  [in,out] hash_ctx pointer to an allocated (but not yet initialized)
- *			    hash context - this hash context MUST use
- *			    lc_shake256 as otherwise the function will return
- *			    an error.
+ * @param [in,out] ctx pointer Dilithium context
  * @param [in] sk pointer to bit-packed secret key
  *
  * NOTE: This API call is NOT yet stable and thus will not cause a the
@@ -775,7 +840,7 @@ static inline int lc_dilithium_sign(struct lc_dilithium_sig *sig,
  * @return 0 (success) or < 0 on error; -EOPNOTSUPP is returned if a different
  *	   hash than lc_shake256 is used.
  */
-static inline int lc_dilithium_sign_init(struct lc_hash_ctx *hash_ctx,
+static inline int lc_dilithium_sign_init(struct lc_dilithium_ctx *ctx,
 					 const struct lc_dilithium_sk *sk)
 {
 	if (!sk)
@@ -784,19 +849,19 @@ static inline int lc_dilithium_sign_init(struct lc_hash_ctx *hash_ctx,
 	switch (sk->dilithium_type) {
 	case LC_DILITHIUM_87:
 #ifdef LC_DILITHIUM_87_ENABLED
-		return lc_dilithium_87_sign_init(hash_ctx, &sk->key.sk_87);
+		return lc_dilithium_87_sign_init(ctx, &sk->key.sk_87);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_DILITHIUM_65:
 #ifdef LC_DILITHIUM_65_ENABLED
-		return lc_dilithium_65_sign_init(hash_ctx, &sk->key.sk_65);
+		return lc_dilithium_65_sign_init(ctx, &sk->key.sk_65);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_DILITHIUM_44:
 #ifdef LC_DILITHIUM_44_ENABLED
-		return lc_dilithium_44_sign_init(hash_ctx, &sk->key.sk_44);
+		return lc_dilithium_44_sign_init(ctx, &sk->key.sk_44);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -814,22 +879,22 @@ static inline int lc_dilithium_sign_init(struct lc_hash_ctx *hash_ctx,
  * places and even becomes available at different times. This call is to be
  * used together with the lc_dilithium_sign_init and lc_dilithium_sign_final.
  *
- * @param [in,out] hash_ctx pointer to hash context that was initialized with
- *			    lc_dilithium_sign_init
+ * @param [in] ctx pointer to Dilithium context that was initialized with
+ *	      	   lc_dilithium_sign_init
  * @param [in] m pointer to message to be signed
  * @param [in] mlen length of message
  *
  * @return 0 (success) or < 0 on error
  */
-static inline int lc_dilithium_sign_update(struct lc_hash_ctx *hash_ctx,
+static inline int lc_dilithium_sign_update(struct lc_dilithium_ctx *ctx,
 					   const uint8_t *m, size_t mlen)
 {
 #ifdef LC_DILITHIUM_87_ENABLED
-	return lc_dilithium_87_sign_update(hash_ctx, m, mlen);
+	return lc_dilithium_87_sign_update(ctx, m, mlen);
 #elif defined(LC_DILITHIUM_65_ENABLED)
-	return lc_dilithium_65_sign_update(hash_ctx, m, mlen);
+	return lc_dilithium_65_sign_update(ctx, m, mlen);
 #elif defined(LC_DILITHIUM_44_ENABLED)
-	return lc_dilithium_44_sign_update(hash_ctx, m, mlen);
+	return lc_dilithium_44_sign_update(ctx, m, mlen);
 #else
 	return -EOPNOTSUPP;
 #endif
@@ -840,9 +905,9 @@ static inline int lc_dilithium_sign_update(struct lc_hash_ctx *hash_ctx,
  * @brief Computes signature
  *
  * @param [out] sig pointer to output signature
- * @param [in] hash_ctx pointer to hash context that was initialized with
- *			lc_dilithium_sign_init and filled with
- *			lc_dilithium_sign_update
+ * @param [in] ctx pointer to Dilithium context that was initialized with
+ *	      	   lc_dilithium_sign_init and filled with
+ * 		   lc_dilithium_sign_update
  * @param [in] sk pointer to bit-packed secret key
  * @param [in] rng_ctx pointer to seeded random number generator context - when
  *		       pointer is non-NULL, perform a randomized signing.
@@ -851,7 +916,7 @@ static inline int lc_dilithium_sign_update(struct lc_hash_ctx *hash_ctx,
  * @return 0 (success) or < 0 on error
  */
 static inline int lc_dilithium_sign_final(struct lc_dilithium_sig *sig,
-					  struct lc_hash_ctx *hash_ctx,
+					  struct lc_dilithium_ctx *ctx,
 					  const struct lc_dilithium_sk *sk,
 					  struct lc_rng_ctx *rng_ctx)
 {
@@ -862,7 +927,7 @@ static inline int lc_dilithium_sign_final(struct lc_dilithium_sig *sig,
 	case LC_DILITHIUM_87:
 #ifdef LC_DILITHIUM_87_ENABLED
 		sig->dilithium_type = LC_DILITHIUM_87;
-		return lc_dilithium_87_sign_final(&sig->sig.sig_87, hash_ctx,
+		return lc_dilithium_87_sign_final(&sig->sig.sig_87, ctx,
 						  &sk->key.sk_87, rng_ctx);
 #else
 		return -EOPNOTSUPP;
@@ -870,7 +935,7 @@ static inline int lc_dilithium_sign_final(struct lc_dilithium_sig *sig,
 	case LC_DILITHIUM_65:
 #ifdef LC_DILITHIUM_65_ENABLED
 		sig->dilithium_type = LC_DILITHIUM_65;
-		return lc_dilithium_65_sign_final(&sig->sig.sig_65, hash_ctx,
+		return lc_dilithium_65_sign_final(&sig->sig.sig_65, ctx,
 						  &sk->key.sk_65, rng_ctx);
 #else
 		return -EOPNOTSUPP;
@@ -878,7 +943,7 @@ static inline int lc_dilithium_sign_final(struct lc_dilithium_sig *sig,
 	case LC_DILITHIUM_44:
 #ifdef LC_DILITHIUM_44_ENABLED
 		sig->dilithium_type = LC_DILITHIUM_44;
-		return lc_dilithium_44_sign_final(&sig->sig.sig_44, hash_ctx,
+		return lc_dilithium_44_sign_final(&sig->sig.sig_44, ctx,
 						  &sk->key.sk_44, rng_ctx);
 #else
 		return -EOPNOTSUPP;
@@ -945,10 +1010,7 @@ static inline int lc_dilithium_verify(const struct lc_dilithium_sig *sig,
  * used together with the lc_dilithium_verify_update and
  * lc_dilithium_verify_final.
  *
- * @param [in,out] hash_ctx pointer to an allocated (but not yet initialized)
- *			    hash context - this hash context MUST use
- *			    lc_shake256 as otherwise the function will return
- *			    an error.
+ * @param [in,out] ctx pointer to an allocated Dilithium context
  * @param [in] pk pointer to bit-packed public key
  *
  * NOTE: This API call is NOT yet stable and thus will not cause a the
@@ -960,7 +1022,7 @@ static inline int lc_dilithium_verify(const struct lc_dilithium_sig *sig,
  * @return 0 (success) or < 0 on error; -EOPNOTSUPP is returned if a different
  *	   hash than lc_shake256 is used.
  */
-static inline int lc_dilithium_verify_init(struct lc_hash_ctx *hash_ctx,
+static inline int lc_dilithium_verify_init(struct lc_dilithium_ctx *ctx,
 					   const struct lc_dilithium_pk *pk)
 {
 	if (!pk)
@@ -969,19 +1031,19 @@ static inline int lc_dilithium_verify_init(struct lc_hash_ctx *hash_ctx,
 	switch (pk->dilithium_type) {
 	case LC_DILITHIUM_87:
 #ifdef LC_DILITHIUM_87_ENABLED
-		return lc_dilithium_87_verify_init(hash_ctx, &pk->key.pk_87);
+		return lc_dilithium_87_verify_init(ctx, &pk->key.pk_87);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_DILITHIUM_65:
 #ifdef LC_DILITHIUM_65_ENABLED
-		return lc_dilithium_65_verify_init(hash_ctx, &pk->key.pk_65);
+		return lc_dilithium_65_verify_init(ctx, &pk->key.pk_65);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_DILITHIUM_44:
 #ifdef LC_DILITHIUM_44_ENABLED
-		return lc_dilithium_44_verify_init(hash_ctx, &pk->key.pk_44);
+		return lc_dilithium_44_verify_init(ctx, &pk->key.pk_44);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -1000,22 +1062,22 @@ static inline int lc_dilithium_verify_init(struct lc_hash_ctx *hash_ctx,
  * used together with the lc_dilithium_verify_init and
  * lc_dilithium_verify_final.
  *
- * @param [in,out] hash_ctx pointer to hash context that was initialized with
- *			    lc_dilithium_sign_init
+ * @param [in] ctx pointer to Dilithium context that was initialized with
+ *		   lc_dilithium_sign_init
  * @param [in] m pointer to message to be signed
  * @param [in] mlen length of message
  *
  * @return 0 (success) or < 0 on error
  */
-static inline int lc_dilithium_verify_update(struct lc_hash_ctx *hash_ctx,
+static inline int lc_dilithium_verify_update(struct lc_dilithium_ctx *ctx,
 					     const uint8_t *m, size_t mlen)
 {
 #ifdef LC_DILITHIUM_87_ENABLED
-	return lc_dilithium_87_verify_update(hash_ctx, m, mlen);
+	return lc_dilithium_87_verify_update(ctx, m, mlen);
 #elif defined(LC_DILITHIUM_65_ENABLED)
-	return lc_dilithium_65_verify_update(hash_ctx, m, mlen);
+	return lc_dilithium_65_verify_update(ctx, m, mlen);
 #elif defined(LC_DILITHIUM_44_ENABLED)
-	return lc_dilithium_44_verify_update(hash_ctx, m, mlen);
+	return lc_dilithium_44_verify_update(ctx, m, mlen);
 #else
 	return -EOPNOTSUPP;
 #endif
@@ -1026,16 +1088,16 @@ static inline int lc_dilithium_verify_update(struct lc_hash_ctx *hash_ctx,
  * @brief Verifies signature
  *
  * @param [in] sig pointer to output signature
- * @param [in] hash_ctx pointer to hash context that was initialized with
- *			lc_dilithium_sign_init and filled with
- *			lc_dilithium_sign_update
+ * @param [in] ctx pointer to Dilithium context that was initialized with
+ *		   lc_dilithium_sign_init and filled with
+ *		   lc_dilithium_sign_update
  * @param [in] pk pointer to bit-packed public key
  *
  * @return 0 if signature could be verified correctly and -EBADMSG when
  * signature cannot be verified, < 0 on other errors
  */
 static inline int lc_dilithium_verify_final(const struct lc_dilithium_sig *sig,
-					    struct lc_hash_ctx *hash_ctx,
+					    struct lc_dilithium_ctx *ctx,
 					    const struct lc_dilithium_pk *pk)
 {
 	if (!pk || !sig || sig->dilithium_type != pk->dilithium_type)
@@ -1044,21 +1106,21 @@ static inline int lc_dilithium_verify_final(const struct lc_dilithium_sig *sig,
 	switch (pk->dilithium_type) {
 	case LC_DILITHIUM_87:
 #ifdef LC_DILITHIUM_87_ENABLED
-		return lc_dilithium_87_verify_final(&sig->sig.sig_87, hash_ctx,
+		return lc_dilithium_87_verify_final(&sig->sig.sig_87, ctx,
 						    &pk->key.pk_87);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_DILITHIUM_65:
 #ifdef LC_DILITHIUM_65_ENABLED
-		return lc_dilithium_65_verify_final(&sig->sig.sig_65, hash_ctx,
+		return lc_dilithium_65_verify_final(&sig->sig.sig_65, ctx,
 						    &pk->key.pk_65);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_DILITHIUM_44:
 #ifdef LC_DILITHIUM_44_ENABLED
-		return lc_dilithium_44_verify_final(&sig->sig.sig_44, hash_ctx,
+		return lc_dilithium_44_verify_final(&sig->sig.sig_44, ctx,
 						    &pk->key.pk_44);
 #else
 		return -EOPNOTSUPP;
@@ -1137,6 +1199,77 @@ struct lc_dilithium_ed25519_sig {
 #endif
 	} sig;
 };
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Allocates Dilithium-ED25519 context on heap
+ *
+ * @param [out] ctx Dilithium-ED25519 context pointer
+ *
+ * @return 0 (success) or < 0 on error
+ */
+static inline int lc_dilithium_ed25519_ctx_alloc(
+	struct lc_dilithium_ed25519_ctx **ctx)
+{
+	if (!ctx)
+		return -EINVAL;
+
+#ifdef LC_DILITHIUM_87_ENABLED
+	return lc_dilithium_87_ed25519_ctx_alloc(ctx);
+#elif defined(LC_DILITHIUM_65_ENABLED)
+	return lc_dilithium_65_ed25519_ctx_alloc(ctx);
+#elif defined(LC_DILITHIUM_44_ENABLED)
+	return lc_dilithium_44_ed25519_ctx_alloc(ctx);
+#else
+	return -EOPNOTSUPP;
+#endif
+}
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Zeroizes and frees Dilithium-ED25519 context on heap
+ *
+ * @param [out] ctx Dilithium-ED25519 context pointer
+ *
+ * @return 0 (success) or < 0 on error
+ */
+static inline void lc_dilithium_ed25519_ctx_zero_free(
+	struct lc_dilithium_ed25519_ctx *ctx)
+{
+	if (!ctx)
+		return;
+
+#ifdef LC_DILITHIUM_87_ENABLED
+	lc_dilithium_87_ed25519_ctx_zero_free(ctx);
+#elif defined(LC_DILITHIUM_65_ENABLED)
+	lc_dilithium_65_ed25519_ctx_zero_free(ctx);
+#elif defined(LC_DILITHIUM_44_ENABLED)
+	lc_dilithium_44_ed25519_ctx_zero_free(ctx);
+#endif
+}
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Zeroizes Dilithium-ED25519 context either on heap or on stack
+ *
+ * @param [out] ctx Dilithium-ED25519 context pointer
+ *
+ * @return 0 (success) or < 0 on error
+ */
+static inline void lc_dilithium_ed25519_ctx_zero(
+	struct lc_dilithium_ed25519_ctx *ctx)
+{
+	if (!ctx)
+		return;
+
+#ifdef LC_DILITHIUM_87_ENABLED
+	lc_dilithium_87_ed25519_ctx_zero(ctx);
+#elif defined(LC_DILITHIUM_65_ENABLED)
+	lc_dilithium_65_ed25519_ctx_zero(ctx);
+#elif defined(LC_DILITHIUM_44_ENABLED)
+	lc_dilithium_44_ed25519_ctx_zero(ctx);
+#endif
+}
 
 /**
  * @ingroup HybridDilithium

@@ -40,7 +40,7 @@ static int dilithium_tester_official(void)
 		struct lc_dilithium_sig sig;
 		uint8_t msg[10];
 	};
-	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
+	LC_DILITHIUM_CTX_ON_STACK(ctx);
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	int ret = 0;
 
@@ -52,27 +52,26 @@ static int dilithium_tester_official(void)
 	CKINT(lc_dilithium_verify(&ws->sig, ws->msg, sizeof(ws->msg), &ws->pk));
 
 	/* Stream operation */
-	CKINT_LOG(lc_dilithium_sign_init(hash_ctx, &ws->sk),
+	CKINT_LOG(lc_dilithium_sign_init(ctx, &ws->sk),
 		  "Sign init failed - ret %d\n", ret);
-	CKINT_LOG(lc_dilithium_sign_update(hash_ctx, ws->msg, sizeof(ws->msg)),
+	CKINT_LOG(lc_dilithium_sign_update(ctx, ws->msg, sizeof(ws->msg)),
 		  "Sign update failed - ret %u\n", ret);
-	CKINT_LOG(lc_dilithium_sign_final(&ws->sig, hash_ctx, &ws->sk,
+	CKINT_LOG(lc_dilithium_sign_final(&ws->sig, ctx, &ws->sk,
 					  lc_seeded_rng),
 		  "Sign final failed - ret %u\n", ret);
 
-	CKINT_LOG(lc_dilithium_verify_init(hash_ctx, &ws->pk),
+	CKINT_LOG(lc_dilithium_verify_init(ctx, &ws->pk),
 		  "Verify init failed - ret %u\n", ret);
-	CKINT_LOG(lc_dilithium_verify_update(hash_ctx, ws->msg,
+	CKINT_LOG(lc_dilithium_verify_update(ctx, ws->msg,
 					     sizeof(ws->msg)),
 		  "Verify update failed - ret %u\n", ret);
-	CKINT_LOG(lc_dilithium_verify_final(&ws->sig, hash_ctx, &ws->pk),
+	CKINT_LOG(lc_dilithium_verify_final(&ws->sig, ctx, &ws->pk),
 		  "Signature verification stream operatino fialed - ret: %d\n",
 		  ret);
 
 out:
 	LC_RELEASE_MEM(ws);
-	lc_hash_zero(hash_ctx);
-	;
+	lc_dilithium_ctx_zero(ctx);
 	return ret;
 }
 

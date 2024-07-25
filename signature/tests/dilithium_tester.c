@@ -280,21 +280,21 @@ int _dilithium_init_update_final_tester(
 				     struct lc_dilithium_sk *sk,
 				     struct lc_rng_ctx *rng_ctx),
 
-	int (*_lc_dilithium_sign_init)(struct lc_hash_ctx *hash_ctx,
+	int (*_lc_dilithium_sign_init)(struct lc_dilithium_ctx *ctx,
 				       const struct lc_dilithium_sk *sk),
-	int (*_lc_dilithium_sign_update)(struct lc_hash_ctx *hash_ctx,
+	int (*_lc_dilithium_sign_update)(struct lc_dilithium_ctx *ctx,
 					 const uint8_t *m, size_t mlen),
 	int (*_lc_dilithium_sign_final)(struct lc_dilithium_sig *sig,
-					struct lc_hash_ctx *hash_ctx,
+					struct lc_dilithium_ctx *ctx,
 					const struct lc_dilithium_sk *sk,
 					struct lc_rng_ctx *rng_ctx),
 
-	int (*_lc_dilithium_verify_init)(struct lc_hash_ctx *hash_ctx,
+	int (*_lc_dilithium_verify_init)(struct lc_dilithium_ctx *ctx,
 					 const struct lc_dilithium_pk *pk),
-	int (*_lc_dilithium_verify_update)(struct lc_hash_ctx *hash_ctx,
+	int (*_lc_dilithium_verify_update)(struct lc_dilithium_ctx *ctx,
 					   const uint8_t *m, size_t mlen),
 	int (*_lc_dilithium_verify_final)(const struct lc_dilithium_sig *sig,
-					  struct lc_hash_ctx *hash_ctx,
+					  struct lc_dilithium_ctx *ctx,
 					  const struct lc_dilithium_pk *pk))
 {
 #ifdef GENERATE_VECTORS
@@ -327,7 +327,7 @@ int _dilithium_init_update_final_tester(
 	unsigned int i, nvectors;
 	int ret = 0;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
-	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
+	LC_DILITHIUM_CTX_ON_STACK(ctx);
 	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 
 	nvectors = ARRAY_SIZE(dilithium_testvectors);
@@ -338,16 +338,16 @@ int _dilithium_init_update_final_tester(
 	for (i = 0; i < rounds; ++i) {
 		lc_rng_generate(selftest_rng, NULL, 0, ws->m, MLEN);
 		_lc_dilithium_keypair(&ws->pk, &ws->sk, selftest_rng);
-		_lc_dilithium_sign_init(hash_ctx, &ws->sk);
-		_lc_dilithium_sign_update(hash_ctx, ws->m, 1);
-		_lc_dilithium_sign_update(hash_ctx, ws->m + 1, MLEN - 1);
-		_lc_dilithium_sign_final(&ws->sig, hash_ctx, &ws->sk,
+		_lc_dilithium_sign_init(ctx, &ws->sk);
+		_lc_dilithium_sign_update(ctx, ws->m, 1);
+		_lc_dilithium_sign_update(ctx, ws->m + 1, MLEN - 1);
+		_lc_dilithium_sign_final(&ws->sig, ctx, &ws->sk,
 					 NULL /*selftest_rng*/);
 
-		_lc_dilithium_verify_init(hash_ctx, &ws->pk);
-		_lc_dilithium_verify_update(hash_ctx, ws->m, 3);
-		_lc_dilithium_verify_update(hash_ctx, ws->m + 3, MLEN - 3);
-		if (_lc_dilithium_verify_final(&ws->sig, hash_ctx, &ws->pk))
+		_lc_dilithium_verify_init(ctx, &ws->pk);
+		_lc_dilithium_verify_update(ctx, ws->m, 3);
+		_lc_dilithium_verify_update(ctx, ws->m + 3, MLEN - 3);
+		if (_lc_dilithium_verify_final(&ws->sig, ctx, &ws->pk))
 			printf("Signature verification failed!\n");
 
 		lc_rng_generate(selftest_rng, NULL, 0, ws->seed,
@@ -383,7 +383,7 @@ int _dilithium_init_update_final_tester(
 	}
 
 out:
-	lc_hash_zero(hash_ctx);
+	lc_dilithium_ctx_zero(ctx);
 	LC_RELEASE_MEM(ws);
 	return ret;
 #endif

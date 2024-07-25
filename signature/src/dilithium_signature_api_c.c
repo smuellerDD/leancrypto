@@ -42,26 +42,26 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign, struct lc_dilithium_sig *sig,
 	return lc_dilithium_sign_c(sig, m, mlen, sk, rng_ctx);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_init, struct lc_hash_ctx *hash_ctx,
+LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_init, struct lc_dilithium_ctx *ctx,
 		      const struct lc_dilithium_sk *sk)
 {
-	return lc_dilithium_sign_init_c(hash_ctx, sk);
+	return lc_dilithium_sign_init_c(ctx, sk);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_update,
-		      struct lc_hash_ctx *hash_ctx, const uint8_t *m,
+		      struct lc_dilithium_ctx *ctx, const uint8_t *m,
 		      size_t mlen)
 {
-	return lc_dilithium_sign_update_c(hash_ctx, m, mlen);
+	return lc_dilithium_sign_update_c(ctx, m, mlen);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_final,
 		      struct lc_dilithium_sig *sig,
-		      struct lc_hash_ctx *hash_ctx,
+		      struct lc_dilithium_ctx *ctx,
 		      const struct lc_dilithium_sk *sk,
 		      struct lc_rng_ctx *rng_ctx)
 {
-	return lc_dilithium_sign_final_c(sig, hash_ctx, sk, rng_ctx);
+	return lc_dilithium_sign_final_c(sig, ctx, sk, rng_ctx);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_verify,
@@ -72,23 +72,23 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify,
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_init,
-		      struct lc_hash_ctx *hash_ctx,
+		      struct lc_dilithium_ctx *ctx,
 		      const struct lc_dilithium_pk *pk)
 {
-	return lc_dilithium_verify_init_c(hash_ctx, pk);
+	return lc_dilithium_verify_init_c(ctx, pk);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_update,
-		      struct lc_hash_ctx *hash_ctx, const uint8_t *m,
+		      struct lc_dilithium_ctx *ctx, const uint8_t *m,
 		      size_t mlen)
 {
-	return lc_dilithium_verify_update_c(hash_ctx, m, mlen);
+	return lc_dilithium_verify_update_c(ctx, m, mlen);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_final,
 		      const struct lc_dilithium_sig *sig,
-		      struct lc_hash_ctx *hash_ctx,
+		      struct lc_dilithium_ctx *ctx,
 		      const struct lc_dilithium_pk *pk)
 {
-	return lc_dilithium_verify_final_c(sig, hash_ctx, pk);
+	return lc_dilithium_verify_final_c(sig, ctx, pk);
 }

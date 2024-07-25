@@ -228,7 +228,7 @@ out:
 
 static int lc_dilithium_sign_internal(struct lc_dilithium_sig *sig,
 				      const struct lc_dilithium_sk *sk,
-				      struct lc_hash_ctx *hash_ctx,
+				      struct lc_dilithium_ctx *ctx,
 				      struct lc_rng_ctx *rng_ctx)
 {
 	struct workspace_sign {
@@ -250,6 +250,7 @@ static int lc_dilithium_sign_internal(struct lc_dilithium_sig *sig,
 	/* The first bytes of the key is rho. */
 	const uint8_t *rho;
 	int ret = 0;
+	struct lc_hash_ctx *hash_ctx = &ctx->dilithium_hash_ctx;
 	LC_DECLARE_MEM(ws, struct workspace_sign, sizeof(uint64_t));
 
 	key = ws->seedbuf;
@@ -429,7 +430,8 @@ static int lc_dilithium_sign_impl(struct lc_dilithium_sig *sig,
 	uint8_t tr[LC_DILITHIUM_TRBYTES];
 	int ret = 0;
 	static int tested = LC_DILITHIUM_TEST_INIT;
-	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
+	struct lc_hash_ctx *hash_ctx;
+	LC_DILITHIUM_CTX_ON_STACK(ctx);
 
 	/* rng_ctx is allowed to be NULL as handled below */
 	if (!sig || !m || !sk) {
@@ -445,27 +447,31 @@ static int lc_dilithium_sign_impl(struct lc_dilithium_sig *sig,
 	unpack_sk_tr(tr, sk);
 
 	/* Compute mu = CRH(tr, msg) */
+	hash_ctx = &ctx->dilithium_hash_ctx;
 	lc_hash_init(hash_ctx);
 	lc_hash_update(hash_ctx, tr, LC_DILITHIUM_TRBYTES);
 	lc_hash_update(hash_ctx, m, mlen);
 
-	ret = lc_dilithium_sign_internal(sig, sk, hash_ctx, rng_ctx);
+	ret = lc_dilithium_sign_internal(sig, sk, ctx, rng_ctx);
 
 out:
-	lc_hash_zero(hash_ctx);
+	lc_dilithium_ctx_zero(ctx);
 	lc_memset_secure(tr, 0, sizeof(tr));
 	return ret;
 }
 
-static int lc_dilithium_sign_init_impl(struct lc_hash_ctx *hash_ctx,
+static int lc_dilithium_sign_init_impl(struct lc_dilithium_ctx *ctx,
 				       const struct lc_dilithium_sk *sk)
 {
 	uint8_t tr[LC_DILITHIUM_TRBYTES];
+	struct lc_hash_ctx *hash_ctx;
 	static int tested = LC_DILITHIUM_TEST_INIT;
 
 	/* rng_ctx is allowed to be NULL as handled below */
-	if (!hash_ctx || !sk)
+	if (!ctx || !sk)
 		return -EINVAL;
+
+	hash_ctx = &ctx->dilithium_hash_ctx;
 
 	/* Require the use of SHAKE256 */
 	if (hash_ctx->hash != lc_shake256)
@@ -484,41 +490,41 @@ static int lc_dilithium_sign_init_impl(struct lc_hash_ctx *hash_ctx,
 	return 0;
 }
 
-static int lc_dilithium_sign_update_impl(struct lc_hash_ctx *hash_ctx,
+static int lc_dilithium_sign_update_impl(struct lc_dilithium_ctx *ctx,
 					 const uint8_t *m, size_t mlen)
 {
-	if (!hash_ctx || !m)
+	if (!ctx || !m)
 		return -EINVAL;
 
 	/* Compute CRH(tr, msg) */
-	lc_hash_update(hash_ctx, m, mlen);
+	lc_hash_update(&ctx->dilithium_hash_ctx, m, mlen);
 
 	return 0;
 }
 
 static int lc_dilithium_sign_final_impl(struct lc_dilithium_sig *sig,
-					struct lc_hash_ctx *hash_ctx,
+					struct lc_dilithium_ctx *ctx,
 					const struct lc_dilithium_sk *sk,
 					struct lc_rng_ctx *rng_ctx)
 {
 	int ret = 0;
 
 	/* rng_ctx is allowed to be NULL as handled below */
-	if (!sig || !hash_ctx || !sk) {
+	if (!sig || !ctx || !sk) {
 		ret = -EINVAL;
 		goto out;
 	}
 
-	ret = lc_dilithium_sign_internal(sig, sk, hash_ctx, rng_ctx);
+	ret = lc_dilithium_sign_internal(sig, sk, ctx, rng_ctx);
 
 out:
-	lc_hash_zero(hash_ctx);
+	lc_dilithium_ctx_zero(ctx);
 	return ret;
 }
 
 static int lc_dilithium_verify_internal(const struct lc_dilithium_sig *sig,
 					const struct lc_dilithium_pk *pk,
-					struct lc_hash_ctx *hash_ctx)
+					struct lc_dilithium_ctx *ctx)
 {
 	struct workspace_verify {
 		union {
@@ -545,6 +551,7 @@ static int lc_dilithium_verify_internal(const struct lc_dilithium_sig *sig,
 	const uint8_t *c1 = sig->sig;
 	/* The first bytes of the key is rho. */
 	const uint8_t *rho = pk->pk;
+	struct lc_hash_ctx *hash_ctx = &ctx->dilithium_hash_ctx;
 	int ret = 0;
 	LC_DECLARE_MEM(ws, struct workspace_verify, sizeof(uint64_t));
 
@@ -620,7 +627,8 @@ static int lc_dilithium_verify_impl(const struct lc_dilithium_sig *sig,
 	uint8_t tr[LC_DILITHIUM_TRBYTES];
 	int ret = 0;
 	static int tested = LC_DILITHIUM_TEST_INIT;
-	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
+	struct lc_hash_ctx *hash_ctx;
+	LC_DILITHIUM_CTX_ON_STACK(ctx);
 
 	if (!sig || !m || !pk) {
 		ret = -EINVAL;
@@ -637,27 +645,31 @@ static int lc_dilithium_verify_impl(const struct lc_dilithium_sig *sig,
 	lc_xof(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES, tr,
 	       LC_DILITHIUM_TRBYTES);
 
+	hash_ctx = &ctx->dilithium_hash_ctx;
 	lc_hash_init(hash_ctx);
 	lc_hash_update(hash_ctx, tr, LC_DILITHIUM_TRBYTES);
 	lc_hash_update(hash_ctx, m, mlen);
 
-	ret = lc_dilithium_verify_internal(sig, pk, hash_ctx);
+	ret = lc_dilithium_verify_internal(sig, pk, ctx);
 
 out:
-	lc_hash_zero(hash_ctx);
+	lc_dilithium_ctx_zero(ctx);
 	lc_memset_secure(tr, 0, sizeof(tr));
 	return ret;
 }
 
-static int lc_dilithium_verify_init_impl(struct lc_hash_ctx *hash_ctx,
+static int lc_dilithium_verify_init_impl(struct lc_dilithium_ctx *ctx,
 					 const struct lc_dilithium_pk *pk)
 {
 	uint8_t mu[LC_DILITHIUM_TRBYTES];
+	struct lc_hash_ctx *hash_ctx;
 	static int tested = LC_DILITHIUM_TEST_INIT;
 
 	/* rng_ctx is allowed to be NULL as handled below */
-	if (!hash_ctx || !pk)
+	if (!ctx || !pk)
 		return -EINVAL;
+
+	hash_ctx = &ctx->dilithium_hash_ctx;
 
 	/* Require the use of SHAKE256 */
 	if (hash_ctx->hash != lc_shake256)
@@ -677,33 +689,36 @@ static int lc_dilithium_verify_init_impl(struct lc_hash_ctx *hash_ctx,
 	return 0;
 }
 
-static int lc_dilithium_verify_update_impl(struct lc_hash_ctx *hash_ctx,
+static int lc_dilithium_verify_update_impl(struct lc_dilithium_ctx *ctx,
 					   const uint8_t *m, size_t mlen)
 {
-	if (!hash_ctx || !m)
+	struct lc_hash_ctx *hash_ctx;
+
+	if (!ctx || !m)
 		return -EINVAL;
 
 	/* Compute CRH(H(rho, t1), msg) */
+	hash_ctx = &ctx->dilithium_hash_ctx;
 	lc_hash_update(hash_ctx, m, mlen);
 
 	return 0;
 }
 
 static int lc_dilithium_verify_final_impl(const struct lc_dilithium_sig *sig,
-					  struct lc_hash_ctx *hash_ctx,
+					  struct lc_dilithium_ctx *ctx,
 					  const struct lc_dilithium_pk *pk)
 {
 	int ret = 0;
 
-	if (!sig || !hash_ctx || !pk) {
+	if (!sig || !ctx || !pk) {
 		ret = -EINVAL;
 		goto out;
 	}
 
-	ret = lc_dilithium_verify_internal(sig, pk, hash_ctx);
+	ret = lc_dilithium_verify_internal(sig, pk, ctx);
 
 out:
-	lc_hash_zero(hash_ctx);
+	lc_dilithium_ctx_zero(ctx);
 	return ret;
 }
 
