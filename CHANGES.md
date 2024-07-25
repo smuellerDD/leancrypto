@@ -2,6 +2,10 @@ Changes 0.12.0-prerelease
 
 * enhancement: add Doxygen support - it is automatically compiled if Doxygen is present
 
+* enhancement: add Dilithium-ED25519 stream mode operation (i.e. init/update/final)
+
+* due to the Dilithium-ED25519 stream mode support, the Dilithium-ED25519 now used ED25519ph signature algorithm mode
+
 Changes 0.11.0
 
 * security fix: fix possible leak of message in Kyber

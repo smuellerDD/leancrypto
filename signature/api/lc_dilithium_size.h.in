@@ -31,7 +31,6 @@
 #ifndef __ASSEMBLER__
 
 #include "ext_headers.h"
-#include "lc_ed25519.h"
 #include "lc_hash.h"
 #include "lc_rng.h"
 
@@ -381,6 +380,10 @@ int @dilithium_name@_verify_final(const struct @dilithium_name@_sig *sig,
 #mesondefine LC_DILITHIUM_ED25519_SIG
 #ifdef LC_DILITHIUM_ED25519_SIG
 
+#include "lc_ed25519.h"
+#include "lc_sha3.h"
+#include "lc_sha512.h"
+
 /**
  * @brief Dilithium secret key
  */
@@ -404,6 +407,80 @@ struct @dilithium_name@_ed25519_sig {
 	struct @dilithium_name@_sig sig;
 	struct lc_ed25519_sig sig_ed25519;
 };
+
+/**
+ * @brief Dilithium stream context
+ *
+ * This structure is used for the init/update/final operation of the
+ * Dilithium-ED25519 hybrid.
+ */
+#ifndef LC_DILITHIUM_ED25519_CTX_ON_STACK
+struct lc_dilithium_ed25519_ctx {
+	struct lc_hash_ctx dilithium_hash_ctx;
+	uint8_t cshake_state[LC_SHA3_STATE_SIZE_ALIGN(LC_SHA3_256_CTX_SIZE)];
+	struct lc_hash_ctx ed25519_hash_ctx;
+	uint8_t sha512_state[LC_SHA512_STATE_SIZE + LC_HASH_COMMON_ALIGNMENT];
+};
+#endif
+
+/// \cond DO_NOT_DOCUMENT
+#ifndef LC_DILITHIUM_ED25519_CTX_ON_STACK
+#define LC_DILITHIUM_ED25519_CTX_SIZE                                          \
+	sizeof(struct lc_dilithium_ed25519_ctx)
+#endif
+/// \endcond
+
+/**
+ * @brief Allocate stack memory for the Dilithium-ED25519 stream context
+ *
+ * @param [in] name Name of the stack variable
+ */
+#ifndef LC_DILITHIUM_ED25519_CTX_ON_STACK
+#define LC_DILITHIUM_ED25519_CTX_ON_STACK(name)                                \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(                                             \
+			name##_ctx_buf, LC_DILITHIUM_ED25519_CTX_SIZE,         \
+			LC_HASH_COMMON_ALIGNMENT);                             \
+	struct lc_dilithium_ed25519_ctx *name =                                \
+		(struct lc_dilithium_ed25519_ctx *)name##_ctx_buf;             \
+	LC_SHAKE_256_CTX((&(name)->dilithium_hash_ctx));                       \
+	LC_SHA512_CTX((&(name)->ed25519_hash_ctx));                            \
+	_Pragma("GCC diagnostic pop")
+#endif
+
+/**
+ * @brief Zeroize Dilithium-ED25519 context allocated with
+ *	  LC_DILITHIUM_ED25519_CTX_ON_STACK lc_dilithium_ed25519_alloc
+ *
+ * @param [in] ctx Dilithium-ED25519 context to be zeroized
+ */
+static inline void @dilithium_name@_ed25519_ctx_zero(
+	struct lc_dilithium_ed25519_ctx *ctx)
+{
+	if (!ctx)
+		return;
+	lc_hash_zero(&ctx->dilithium_hash_ctx);
+	lc_hash_zero(&ctx->ed25519_hash_ctx);
+}
+
+/**
+ * @brief Allocate Dilithium-ED25519 stream context on heap
+ *
+ * @param [out] ctx Allocated  Dilithium-ED25519 stream context
+ *
+ * @return: 0 on success, < 0 on error
+ */
+int @dilithium_name@_ed25519_ctx_alloc(
+	struct lc_dilithium_ed25519_ctx **ctx);
+
+/**
+ * @brief Zeroize and free Dilithium-ED25519 stream context
+ *
+ * @param [in] ctx Dilithium-ED25519 stream context to be zeroized and freed
+ */
+void @dilithium_name@_ed25519_ctx_zero_free(
+	struct lc_dilithium_ed25519_ctx *ctx);
 
 /**
  * @brief Generates Dilithium public and private key.
@@ -436,6 +513,20 @@ int @dilithium_name@_ed25519_sign(struct @dilithium_name@_ed25519_sig *sig,
 			      const struct @dilithium_name@_ed25519_sk *sk,
 			      struct lc_rng_ctx *rng_ctx);
 
+int @dilithium_name@_ed25519_sign_init(
+	struct lc_dilithium_ed25519_ctx *ctx,
+	const struct @dilithium_name@_ed25519_sk *sk);
+
+int @dilithium_name@_ed25519_sign_update(
+	struct lc_dilithium_ed25519_ctx *ctx, const uint8_t *m,
+	size_t mlen);
+
+int  @dilithium_name@_ed25519_sign_final(
+	struct @dilithium_name@_ed25519_sig *sig,
+	struct lc_dilithium_ed25519_ctx *ctx,
+	const struct @dilithium_name@_ed25519_sk *sk,
+	struct lc_rng_ctx *rng_ctx);
+
 /**
  * @brief Verifies signature in one shot
  *
@@ -450,6 +541,17 @@ int @dilithium_name@_ed25519_sign(struct @dilithium_name@_ed25519_sig *sig,
 int @dilithium_name@_ed25519_verify(const struct @dilithium_name@_ed25519_sig *sig,
 				const uint8_t *m, size_t mlen,
 				const struct @dilithium_name@_ed25519_pk *pk);
+
+int @dilithium_name@_ed25519_verify_init(
+	struct lc_dilithium_ed25519_ctx *ctx,
+	const struct @dilithium_name@_ed25519_pk *pk);
+int @dilithium_name@_ed25519_verify_update(
+	struct lc_dilithium_ed25519_ctx *ctx, const uint8_t *m,
+	size_t mlen);
+int @dilithium_name@_ed25519_verify_final(
+	const struct @dilithium_name@_ed25519_sig *sig,
+	struct lc_dilithium_ed25519_ctx *ctx,
+	const struct @dilithium_name@_ed25519_pk *pk);
 
 #endif /* LC_DILITHIUM_ED25519_SIG */
 

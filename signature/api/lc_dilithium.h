@@ -1078,6 +1078,10 @@ static inline int lc_dilithium_verify_final(const struct lc_dilithium_sig *sig,
  * The Dilithium hybrid API performs signature operations with Dilithium and
  * the classic ED25519 algorithm at the same time. The API is identical to
  * the Dilithium API and can be used as a drop-in replacement.
+ *
+ * ED25519ph is used for the hybrid signature operation compliant to
+ * RFC8032 using a NULL context. This approach is taken to support the
+ * stream mode operation with init / update / final.
  */
 
 /**
@@ -1770,6 +1774,129 @@ static inline int lc_dilithium_ed25519_sign(
 
 /**
  * @ingroup HybridDilithium
+ * @brief Initializes signature operation in stream mode
+ *
+ * @param [in] ctx Dilithium-ED25519 context pointer
+ * @param [in] sk pointer to bit-packed secret key
+ *
+ * @return 0 (success) or < 0 on error
+ */
+static inline int lc_dilithium_ed25519_sign_init(
+	struct lc_dilithium_ed25519_ctx *ctx,
+	const struct lc_dilithium_ed25519_sk *sk)
+{
+	if (!ctx || !sk)
+		return -EINVAL;
+
+	switch (sk->dilithium_type) {
+	case LC_DILITHIUM_87:
+#ifdef LC_DILITHIUM_87_ENABLED
+		return lc_dilithium_87_ed25519_sign_init(ctx, &sk->key.sk_87);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_DILITHIUM_65:
+#ifdef LC_DILITHIUM_65_ENABLED
+		return lc_dilithium_65_ed25519_sign_init(ctx, &sk->key.sk_65);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_DILITHIUM_44:
+#ifdef LC_DILITHIUM_44_ENABLED
+		return lc_dilithium_44_ed25519_sign_init(ctx, &sk->key.sk_44);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_DILITHIUM_UNKNOWN:
+	default:
+		return -EOPNOTSUPP;
+	}
+}
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Updates signature in stream mode
+ *
+ * @param [in] ctx Dilithium-ED25519 context pointer
+ * @param [in] m pointer to message to be signed
+ * @param [in] mlen length of message
+ *
+ * @return 0 (success) or < 0 on error
+ */
+static inline int lc_dilithium_ed25519_sign_update(
+	struct lc_dilithium_ed25519_ctx *ctx, const uint8_t *m, size_t mlen)
+{
+	if (!ctx)
+		return -EINVAL;
+
+#ifdef LC_DILITHIUM_87_ENABLED
+	return lc_dilithium_87_ed25519_sign_update(ctx, m, mlen);
+#elif defined(LC_DILITHIUM_65_ENABLED)
+	return lc_dilithium_65_ed25519_sign_update(ctx, m, mlen);
+#elif defined(LC_DILITHIUM_44_ENABLED)
+	return lc_dilithium_44_ed25519_sign_update(ctx, m, mlen);
+#else
+	return -EOPNOTSUPP;
+#endif
+}
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Computes signature in stream mode
+ *
+ * @param [out] sig pointer to output signature
+ * @param [in] ctx Dilithium-ED25519 context pointer
+ * @param [in] sk pointer to bit-packed secret key
+ * @param [in] rng_ctx pointer to seeded random number generator context - when
+ *		       pointer is non-NULL, perform a randomized signing.
+ *		       Otherwise use deterministic signing.
+ *
+ * @return 0 (success) or < 0 on error
+ */
+static inline int lc_dilithium_ed25519_sign_final(
+	struct lc_dilithium_ed25519_sig *sig,
+	struct lc_dilithium_ed25519_ctx *ctx,
+	const struct lc_dilithium_ed25519_sk *sk, struct lc_rng_ctx *rng_ctx)
+{
+	if (!sk || !sig || !ctx)
+		return -EINVAL;
+
+	switch (sk->dilithium_type) {
+	case LC_DILITHIUM_87:
+#ifdef LC_DILITHIUM_87_ENABLED
+		sig->dilithium_type = LC_DILITHIUM_87;
+		return lc_dilithium_87_ed25519_sign_final(&sig->sig.sig_87, ctx,
+							  &sk->key.sk_87,
+							  rng_ctx);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_DILITHIUM_65:
+#ifdef LC_DILITHIUM_65_ENABLED
+		sig->dilithium_type = LC_DILITHIUM_65;
+		return lc_dilithium_65_ed25519_sign_final(&sig->sig.sig_65, ctx,
+							  &sk->key.sk_65,
+							  rng_ctx);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_DILITHIUM_44:
+#ifdef LC_DILITHIUM_44_ENABLED
+		sig->dilithium_type = LC_DILITHIUM_44;
+		return lc_dilithium_44_ed25519_sign_final(&sig->sig.sig_44, ctx,
+							  &sk->key.sk_44,
+							  rng_ctx);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_DILITHIUM_UNKNOWN:
+	default:
+		return -EOPNOTSUPP;
+	}
+}
+
+/**
+ * @ingroup HybridDilithium
  * @brief Verifies signature in one shot
  *
  * @param [in] sig pointer to input signature
@@ -1807,6 +1934,124 @@ lc_dilithium_ed25519_verify(const struct lc_dilithium_ed25519_sig *sig,
 #ifdef LC_DILITHIUM_44_ENABLED
 		return lc_dilithium_44_ed25519_verify(&sig->sig.sig_44, m, mlen,
 						      &pk->key.pk_44);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_DILITHIUM_UNKNOWN:
+	default:
+		return -EOPNOTSUPP;
+	}
+}
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Initializes signature verification operation in stream mode
+ *
+ * @param [in] ctx Dilithium-ED25519 context pointer
+ * @param [in] pk pointer to bit-packed public key
+ *
+ * @return 0 (success) or < 0 on error
+ */
+static inline int lc_dilithium_ed25519_verify_init(
+	struct lc_dilithium_ed25519_ctx *ctx,
+	const struct lc_dilithium_ed25519_pk *pk)
+{
+	if (!pk || !ctx)
+		return -EINVAL;
+
+	switch (pk->dilithium_type) {
+	case LC_DILITHIUM_87:
+#ifdef LC_DILITHIUM_87_ENABLED
+		return lc_dilithium_87_ed25519_verify_init(ctx, &pk->key.pk_87);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_DILITHIUM_65:
+#ifdef LC_DILITHIUM_65_ENABLED
+		return lc_dilithium_65_ed25519_verify_init(ctx, &pk->key.pk_65);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_DILITHIUM_44:
+#ifdef LC_DILITHIUM_44_ENABLED
+		return lc_dilithium_44_ed25519_verify_init(ctx, &pk->key.pk_44);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_DILITHIUM_UNKNOWN:
+	default:
+		return -EOPNOTSUPP;
+	}
+}
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Updates signature verification in stream mode
+ *
+ * @param [in] ctx Dilithium-ED25519 context pointer
+ * @param [in] m pointer to message to be signed
+ * @param [in] mlen length of message
+ *
+ * @return 0 (success) or < 0 on error
+ */
+static inline int lc_dilithium_ed25519_verify_update(
+	struct lc_dilithium_ed25519_ctx *ctx, const uint8_t *m, size_t mlen)
+{
+	if (!ctx)
+		return -EINVAL;
+
+#ifdef LC_DILITHIUM_87_ENABLED
+	return lc_dilithium_87_ed25519_verify_update(ctx, m, mlen);
+#elif defined(LC_DILITHIUM_65_ENABLED)
+	return lc_dilithium_65_ed25519_verify_update(ctx, m, mlen);
+#elif defined(LC_DILITHIUM_44_ENABLED)
+	return lc_dilithium_44_ed25519_verify_update(ctx, m, mlen);
+#else
+	return -EOPNOTSUPP;
+#endif
+}
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Verifies signature in stream mode
+ *
+ * @param [in] sig pointer to input signatur
+ * @param [in] ctx Dilithium-ED25519 context pointer
+ * @param [in] pk pointer to bit-packed public key
+ *
+ * @return 0 if signature could be verified correctly and -EBADMSG when
+ * signature cannot be verified, < 0 on other errors
+ */
+static inline int lc_dilithium_ed25519_verify_final(
+	const struct lc_dilithium_ed25519_sig *sig,
+	struct lc_dilithium_ed25519_ctx *ctx,
+	const struct lc_dilithium_ed25519_pk *pk)
+{
+	if (!ctx || !pk || !sig || sig->dilithium_type != pk->dilithium_type)
+		return -EINVAL;
+
+	switch (pk->dilithium_type) {
+	case LC_DILITHIUM_87:
+#ifdef LC_DILITHIUM_87_ENABLED
+		return lc_dilithium_87_ed25519_verify_final(&sig->sig.sig_87,
+							    ctx,
+							    &pk->key.pk_87);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_DILITHIUM_65:
+#ifdef LC_DILITHIUM_65_ENABLED
+		return lc_dilithium_65_ed25519_verify_final(&sig->sig.sig_65,
+							    ctx,
+							    &pk->key.pk_65);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_DILITHIUM_44:
+#ifdef LC_DILITHIUM_44_ENABLED
+		return lc_dilithium_44_ed25519_verify_final(&sig->sig.sig_44,
+							    ctx,
+							    &pk->key.pk_44);
 #else
 		return -EOPNOTSUPP;
 #endif
