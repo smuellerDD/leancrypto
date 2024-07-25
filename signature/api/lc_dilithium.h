@@ -84,6 +84,13 @@ enum lc_dilithium_type {
  * * lc_dilithium_65.h: Direct access to Dilithium 65.
  *
  * * lc_dilithium_44.h: Direct access to Dilithium 44.
+ *
+ * To support the stream mode of the Dilithium signature operation, a
+ * context structure is required. This context structure can be allocated either
+ * on the stack or heap with \p LC_DILITHIUM_CTX_ON_STACK or
+ * \p lc_dilithium_ctx_alloc. The context should be zeroized
+ * and freed (only for heap) with \p lc_dilithium_ctx_zero or
+ * \p lc_dilithium_ctx_zero_free.
  */
 
 /**
@@ -169,8 +176,6 @@ static inline int lc_dilithium_ctx_alloc(struct lc_dilithium_ctx **ctx)
  * @brief Zeroizes and frees Dilithium context on heap
  *
  * @param [out] ctx Dilithium context pointer
- *
- * @return 0 (success) or < 0 on error
  */
 static inline void lc_dilithium_ctx_zero_free(struct lc_dilithium_ctx *ctx)
 {
@@ -191,8 +196,6 @@ static inline void lc_dilithium_ctx_zero_free(struct lc_dilithium_ctx *ctx)
  * @brief Zeroizes Dilithium context either on heap or on stack
  *
  * @param [out] ctx Dilithium context pointer
- *
- * @return 0 (success) or < 0 on error
  */
 static inline void lc_dilithium_ctx_zero(struct lc_dilithium_ctx *ctx)
 {
@@ -1144,6 +1147,13 @@ static inline int lc_dilithium_verify_final(const struct lc_dilithium_sig *sig,
  * ED25519ph is used for the hybrid signature operation compliant to
  * RFC8032 using a NULL context. This approach is taken to support the
  * stream mode operation with init / update / final.
+ *
+ * To support the stream mode of the Dilithium signature operation, a
+ * context structure is required. This context structure can be allocated either
+ * on the stack or heap with \p LC_DILITHIUM_ED25519_CTX_ON_STACK or
+ * \p lc_dilithium_ed25519_ctx_alloc. The context should be zeroized
+ * and freed (only for heap) with \p lc_dilithium_ed25519_ctx_zero or
+ * \p lc_dilithium_ed25519_ctx_zero_free.
  */
 
 /**
@@ -1230,8 +1240,6 @@ static inline int lc_dilithium_ed25519_ctx_alloc(
  * @brief Zeroizes and frees Dilithium-ED25519 context on heap
  *
  * @param [out] ctx Dilithium-ED25519 context pointer
- *
- * @return 0 (success) or < 0 on error
  */
 static inline void lc_dilithium_ed25519_ctx_zero_free(
 	struct lc_dilithium_ed25519_ctx *ctx)
@@ -1253,8 +1261,6 @@ static inline void lc_dilithium_ed25519_ctx_zero_free(
  * @brief Zeroizes Dilithium-ED25519 context either on heap or on stack
  *
  * @param [out] ctx Dilithium-ED25519 context pointer
- *
- * @return 0 (success) or < 0 on error
  */
 static inline void lc_dilithium_ed25519_ctx_zero(
 	struct lc_dilithium_ed25519_ctx *ctx)

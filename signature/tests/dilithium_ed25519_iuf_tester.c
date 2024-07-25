@@ -88,9 +88,9 @@ static int dilithium_ed25519_tester(struct lc_dilithium_ed25519_ctx *ctx,
 	/* modify Dilithium key */
 	ws->pk.pk.pk[0] = (uint8_t)((ws->pk.pk.pk[0] + 0x01) & 0xff);
 	CKINT(lc_dilithium_ed25519_verify_init(ctx, &ws->pk));
-	CKINT(lc_dilithium_ed25519_verify_update(ctx, &msg2[0], 1));
-	CKINT(lc_dilithium_ed25519_verify_update(ctx, &msg2[1], 1));
-	CKINT(lc_dilithium_ed25519_verify_update(ctx, &msg2[2], 1));
+	CKINT(lc_dilithium_ed25519_verify_update(ctx, &msg[0], 1));
+	CKINT(lc_dilithium_ed25519_verify_update(ctx, &msg[1], 1));
+	CKINT(lc_dilithium_ed25519_verify_update(ctx, &msg[2], 1));
 	if (lc_dilithium_ed25519_verify_final(&ws->sig, ctx, &ws->pk) !=
 	    -EBADMSG) {
 		ret = 1;
@@ -102,9 +102,9 @@ static int dilithium_ed25519_tester(struct lc_dilithium_ed25519_ctx *ctx,
 	ws->pk.pk_ed25519.pk[0] =
 		(uint8_t)((ws->pk.pk_ed25519.pk[0] + 0x01) & 0xff);
 	CKINT(lc_dilithium_ed25519_verify_init(ctx, &ws->pk));
-	CKINT(lc_dilithium_ed25519_verify_update(ctx, &msg2[0], 1));
-	CKINT(lc_dilithium_ed25519_verify_update(ctx, &msg2[1], 1));
-	CKINT(lc_dilithium_ed25519_verify_update(ctx, &msg2[2], 1));
+	CKINT(lc_dilithium_ed25519_verify_update(ctx, &msg[0], 1));
+	CKINT(lc_dilithium_ed25519_verify_update(ctx, &msg[1], 1));
+	CKINT(lc_dilithium_ed25519_verify_update(ctx, &msg[2], 1));
 	ret = lc_dilithium_ed25519_verify_final(&ws->sig, ctx, &ws->pk);
 	if (ret != -EBADMSG && ret != -EINVAL) {
 		ret = 1;
