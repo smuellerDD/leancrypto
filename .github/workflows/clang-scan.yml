@@ -1,0 +1,23 @@
+name: Clang-Scan
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install meson
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y meson clang 
+    - name: Meson setup
+      run: CC=clang meson setup build
+    - name: Clang Scanner
+      run: SCANBUILD=$(pwd)/addon/scan-build.sh ninja -C build/ scan-build
