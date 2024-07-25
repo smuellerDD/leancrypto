@@ -16,7 +16,7 @@ jobs:
     - name: Install meson
       run: |
         sudo apt-get update
-        sudo apt-get install -y meson clang 
+        sudo apt-get install -y meson clang clang-tools
     - name: Meson setup
       run: CC=clang meson setup build
     - name: Clang Scanner
