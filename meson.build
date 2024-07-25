@@ -137,20 +137,6 @@ else
 	add_global_arguments([ '-DLC_LITTLE_ENDIAN' ], language: 'c')
 endif
 
-# Profiling
-if get_option('profile-generate')
-	if cc.has_argument('-fprofile-generate')
-		add_global_arguments([ '-fprofile-generate=' + meson.build_root() ], language: 'c')
-		add_project_link_arguments('-fprofile-generate=' + meson.build_root(), language : 'c')
-	endif
-endif
-if get_option('profile-use')
-	if cc.has_argument('-fprofile-use')
-		add_global_arguments([ '-fprofile-use=' + meson.build_root() ], language: 'c')
-		add_project_link_arguments('-fprofile-use=' + meson.build_root(), language : 'c')
-	endif
-endif
-
 # Debugging options
 if get_option('timecop').enabled()
 	add_global_arguments([ '-DLC_USE_TIMECOP' ], language: 'c')

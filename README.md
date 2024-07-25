@@ -1,5 +1,7 @@
 # Lean Crypto Library
 
+
+
 The leancrypto library is a cryptographic library that exclusively contains
 only PQC-resistant cryptographic algorithms. The algorithm implementations
 have the following properties:
@@ -46,6 +48,7 @@ CodeQL Scan           | GitHub                | [![CodeQL](https://github.com/sm
 Codacy Scan           | GitHub                | [![Codacy](https://github.com/smuellerDD/leancrypto/actions/workflows/codacy.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/codacy.yml)
 Windows User Space    | GitHub                | [![Windows user space CI](https://github.com/smuellerDD/leancrypto/actions/workflows/windows-test.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/windows-test.yml)
 Side-Channel Analysis | GitHub                | [![Side-Channels](https://github.com/smuellerDD/leancrypto/actions/workflows/timecop.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/timecop.yml)
+Static Code Analysis | GitHub                | [![Static Code Analysis](https://github.com/smuellerDD/leancrypto/actions/workflows/clang-scan.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/clang-scan.yml)
 
 ## Library Build
 
@@ -118,6 +121,37 @@ systems, you need:
 
 An example on the approach is given with the Linux kernel support found
 in the directory `linux_kernel`.
+
+## Library Build Using Profile Guided Optimization
+
+
+
+Using profile guided optimization with GCC is a two phase operation. First,
+et up `leancrypto` with profile measurements enabled and compile it.
+
+```
+meson setup build -Db_pgo=generate
+meson compile -C build
+```
+
+Then execute the test environment with the regression test suite to create
+representative input:
+
+`meson test -C build --suite regression`
+
+Once that is done the compiler flags are changed to use the generated
+nformation and rebuild.
+
+```
+meson configure build -Db_pgo=use
+meson compile -C build
+```
+
+Note, it is possible that for some source code files, no profiling data is
+creeated due to them not being excercised in the test. This should be ignored
+as the affected code is either auxiliary code or test code.
+
+After these steps the resulting `leancrypto` library binary is fully optimized.
 
 # Cryptographic Algorithms
 
