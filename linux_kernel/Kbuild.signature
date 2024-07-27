@@ -51,6 +51,9 @@ CFLAGS_dilithium44/dilithium_signature_api_c.o		:= -DLC_DILITHIUM_TYPE_44
 CFLAGS_dilithium44/dilithium_signature_c.o		:= -DLC_DILITHIUM_TYPE_44
 
 # Dilithium-87-ED25519 implementation
+leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_ED25519)			       \
+				+= leancrypto_kernel_dilithium_ed25519.o
+
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_87
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_ED25519)			       \
 				+= ../signature/src/dilithium_ed25519_signature.o
@@ -352,6 +355,7 @@ ccflags-y			+= -DCONFIG_LEANCRYPTO_DILITHIUM_ED25519
 
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_87
 obj-m		  		+= dilithium_ed25519_tester.o
+obj-m		  		+= leancrypto_kernel_dilithium_87_ed25519_tester.o
 
 dilithium_ed25519_tester-y	+= ../signature/tests/dilithium_ed25519_tester.o\
 				   ../drng/src/selftest_rng.o
@@ -359,6 +363,7 @@ endif
 
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_65
 obj-m		  		+= dilithium_65_ed25519_tester.o
+obj-m		  		+= leancrypto_kernel_dilithium_65_ed25519_tester.o
 
 dilithium_65_ed25519_tester-y	+= dilithium65/tests/dilithium_ed25519_tester.o\
 				   ../drng/src/selftest_rng.o
@@ -367,6 +372,7 @@ endif
 
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_44
 obj-m		  		+= dilithium_44_ed25519_tester.o
+obj-m		  		+= leancrypto_kernel_dilithium_44_ed25519_tester.o
 
 dilithium_44_ed25519_tester-y	+= dilithium44/tests/dilithium_ed25519_tester.o\
 				   ../drng/src/selftest_rng.o
