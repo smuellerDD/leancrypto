@@ -108,12 +108,16 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 	pack_pk_rho(pk, rho);
 	pack_sk_rho(sk, rho);
 
+	/*
+	 * Timecop: RHO' is a random number which is enlarged to sample the
+	 * vectors S1 and S2 from. The sampling operation is not considered
+	 * relevant for the side channel operation as (a) an attacker does not
+	 * have access to the random number and (b) only the result after the
+	 * sampling operation of S1 and S2 is released.
+	 */
 	rhoprime = rho + LC_DILITHIUM_SEEDBYTES;
 	dilithium_print_buffer(rhoprime, LC_DILITHIUM_CRHBYTES,
 			       "Keygen - RHOPrime");
-
-	/* Timecop: RHO' goes into the secret key */
-	poison(rhoprime, LC_DILITHIUM_CRHBYTES);
 
 	key = rhoprime + LC_DILITHIUM_CRHBYTES;
 	dilithium_print_buffer(key, LC_DILITHIUM_SEEDBYTES, "Keygen - Key");
@@ -257,14 +261,6 @@ static int lc_dilithium_sign_internal(struct lc_dilithium_sig *sig,
 	rnd = key + LC_DILITHIUM_SEEDBYTES;
 	mu = rnd + LC_DILITHIUM_RNDBYTES;
 
-	/* Re-use the ws->seedbuf, but making sure that mu is unchanged */
-	BUILD_BUG_ON(LC_DILITHIUM_CRHBYTES >
-		     LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_RNDBYTES);
-	rhoprime = key;
-
-	/* Timecop: key is secret */
-	poison(rhoprime, LC_DILITHIUM_CRHBYTES);
-
 	lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_CRHBYTES);
 	lc_hash_final(hash_ctx, mu);
 	dilithium_print_buffer(mu, LC_DILITHIUM_CRHBYTES, "Siggen - MU:");
@@ -288,12 +284,25 @@ static int lc_dilithium_sign_internal(struct lc_dilithium_sig *sig,
 	/* Timecop: key is secret */
 	poison(key, LC_DILITHIUM_SEEDBYTES);
 
+	/* Re-use the ws->seedbuf, but making sure that mu is unchanged */
+	BUILD_BUG_ON(LC_DILITHIUM_CRHBYTES >
+		     LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_RNDBYTES);
+	rhoprime = key;
+
 	lc_xof(lc_shake256, key,
 	       LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_RNDBYTES +
 		       LC_DILITHIUM_CRHBYTES,
 	       rhoprime, LC_DILITHIUM_CRHBYTES);
 	dilithium_print_buffer(rhoprime, LC_DILITHIUM_CRHBYTES,
 			       "Siggen - RHOPrime:");
+
+	/*
+	 * Timecop: RHO' is the hash of the secret value of key which is
+	 * enlarged to sample the intermediate vector y from. Due to the hashing
+	 * any side channel on RHO' cannot allow the deduction of the original
+	 * key.
+	 */
+	unpoison(rhoprime, LC_DILITHIUM_CRHBYTES);
 
 	unpack_sk_s1(&ws->s1, sk);
 
@@ -326,6 +335,9 @@ rej:
 		&ws->y,
 		"Siggen - Y L x N matrix after ExpandMask - start of loop");
 
+	/* Timecop: s2 is secret */
+	poison(&ws->y, sizeof(polyvecl));
+
 	/* Matrix-vector multiplication */
 	ws->z = ws->y;
 	polyvecl_ntt(&ws->z);
@@ -340,6 +352,9 @@ rej:
 	/* Decompose w and call the random oracle */
 	polyveck_caddq(&ws->w1);
 	polyveck_decompose(&ws->w1, &ws->w0, &ws->w1);
+
+	/* Timecop: the signature component w1 is not sensitive any more. */
+	unpoison(&ws->w1, sizeof(polyveck));
 	polyveck_pack_w1(sig->sig, &ws->w1);
 	dilithium_print_buffer(sig->sig,
 			       LC_DILITHIUM_K * LC_DILITHIUM_POLYW1_PACKEDBYTES,
