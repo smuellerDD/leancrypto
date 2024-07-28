@@ -50,7 +50,10 @@ static int lc_kernel_dilithium_ed25519_sign(struct akcipher_request *req)
 	struct lc_kernel_dilithium_ed25519_ctx *ctx = akcipher_tfm_ctx(tfm);
 	struct lc_dilithium_ed25519_sig *sig;
 	struct sg_mapping_iter miter;
-	size_t offset = 0;
+	struct scatterlist ed25519_sg_dst[2];
+	struct scatterlist *ed25519_dst;
+	uint8_t *sig_ptr, *sig_ed25519_ptr;
+	size_t copied, sig_len, sig_ed25519_len, offset = 0;
 	unsigned int sg_flags = SG_MITER_ATOMIC | SG_MITER_FROM_SG;
 	enum lc_dilithium_type type;
 	int ret;
@@ -87,40 +90,40 @@ static int lc_kernel_dilithium_ed25519_sign(struct akcipher_request *req)
 
 	ret = lc_dilithium_ed25519_sign_final(sig, dilithium_ed25519_ctx,
 					      &ctx->sk, lc_seeded_rng);
+	if (ret)
+		goto out;
 
-	if (!ret) {
-		struct scatterlist ed25519_sg_dst[2];
-		struct scatterlist *ed25519_dst;
-		uint8_t *sig_ptr, *sig_ed25519_ptr;
-		size_t sig_len, sig_ed25519_len;
 
-		ret = lc_dilithium_ed25519_sig_ptr(&sig_ptr, &sig_len,
-						   &sig_ed25519_ptr,
-						   &sig_ed25519_len, sig);
-		if (ret)
-			goto out;
+	ret = lc_dilithium_ed25519_sig_ptr(&sig_ptr, &sig_len, &sig_ed25519_ptr,
+					   &sig_ed25519_len, sig);
+	if (ret)
+		goto out;
 
-		if (req->dst_len < sig_len + sig_ed25519_len) {
-			ret = -EOVERFLOW;
-			goto out;
-		}
-
-		/* Copy the Dilithium signature */
-		sg_pcopy_from_buffer(req->dst,
-				     sg_nents_for_len(req->dst, sig_len),
-				     sig_ptr, sig_len, 0);
-
-		/*
-		 * Copy the ED25519 signature which is simply concatenated to
-		 * the Dilithium signature.
-		 */
-		ed25519_dst = scatterwalk_ffwd(ed25519_sg_dst, req->dst,
-					       sig_len);
-		sg_pcopy_from_buffer(ed25519_dst,
-				     sg_nents_for_len(ed25519_dst,
-						      sig_ed25519_len),
-				     sig_ed25519_ptr, sig_ed25519_len, 0);
+	if (req->dst_len < sig_len + sig_ed25519_len) {
+		ret = -EOVERFLOW;
+		goto out;
 	}
+
+	/* Copy the Dilithium signature */
+	copied = sg_pcopy_from_buffer(req->dst,
+				      sg_nents_for_len(req->dst, sig_len),
+				      sig_ptr, sig_len, 0);
+	if (copied != sig_len) {
+		ret = -EINVAL;
+		goto out;
+	}
+
+	/*
+	 * Copy the ED25519 signature which is simply concatenated to
+	 * the Dilithium signature.
+	 */
+	ed25519_dst = scatterwalk_ffwd(ed25519_sg_dst, req->dst, sig_len);
+	copied = sg_pcopy_from_buffer(ed25519_dst,
+				      sg_nents_for_len(ed25519_dst,
+						       sig_ed25519_len),
+				      sig_ed25519_ptr, sig_ed25519_len, 0);
+	if (copied != sig_ed25519_len)
+		ret = -EINVAL;
 
 out:
 	kfree_sensitive(sig);
