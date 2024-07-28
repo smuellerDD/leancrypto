@@ -23,14 +23,14 @@
 #include <linux/scatterlist.h>
 
 #ifdef LC_KYBER_TYPE_768
-#include "../kem/tests/kyber_kem_tester_vectors_768.h"
-#define LC_KYBER_IMPL_NAME "kyber768-leancrypto"
+#include "kyber_type.h"
+#define LC_KYBER_IMPL_NAME "kyber768-x25519-leancrypto"
 #elif defined LC_KYBER_TYPE_512
-#include "../kem/tests/kyber_kem_tester_vectors_512.h"
-#define LC_KYBER_IMPL_NAME "kyber512-leancrypto"
+#include "kyber_type.h"
+#define LC_KYBER_IMPL_NAME "kyber512-x25519-leancrypto"
 #else
-#include "../kem/tests/kyber_kem_tester_vectors_1024.h"
-#define LC_KYBER_IMPL_NAME "kyber1024-leancrypto"
+#include "kyber_type.h"
+#define LC_KYBER_IMPL_NAME "kyber1024-x25519-leancrypto"
 #endif
 
 struct lc_tcrypt_res {
@@ -91,15 +91,16 @@ static unsigned int lc_kpp_op(struct lc_kpp_def *kpp, int gen_ss)
 	return rc;
 }
 
-static int lc_kyber_ss(const char *algname)
+static int lc_kyber_x25519_ss(const char *algname)
 {
+#define SSLEN 20
 	struct lc_kpp_def kpp;
 	struct crypto_kpp *tfm = NULL;
 	struct kpp_request *req = NULL;
 	struct scatterlist src, dst;
-	struct lc_kyber_ct *ct = NULL;
-	struct lc_kyber_pk *pk = NULL;
-	u8 ss1[LC_KYBER_SSBYTES], ss2[LC_KYBER_SSBYTES];
+	struct lc_kyber_x25519_ct *ct = NULL;
+	struct lc_kyber_x25519_pk *pk = NULL;
+	u8 *ss1 = NULL, *ss2 = NULL;
 	int err = -ENOMEM;
 
 	tfm = crypto_alloc_kpp(algname, 0, 0);
@@ -109,24 +110,38 @@ static int lc_kyber_ss(const char *algname)
 		return PTR_ERR(tfm);
 	}
 
-	if (crypto_kpp_maxsize(tfm) != LC_CRYPTO_CIPHERTEXTBYTES) {
-		pr_err("crypto_kpp_maxsize returns wrong size: %u vs %u\n",
-		       crypto_kpp_maxsize(tfm), LC_CRYPTO_CIPHERTEXTBYTES);
+	if (crypto_kpp_maxsize(tfm) !=
+	    LC_CRYPTO_CIPHERTEXTBYTES + LC_X25519_PUBLICKEYBYTES) {
+		pr_err("crypto_kpp_maxsize returns wrong size\n");
 		err = -EINVAL;
 		goto out;
 	}
 
-	ct = kmalloc(sizeof(struct lc_kyber_ct), GFP_KERNEL);
+	ct = kmalloc(sizeof(struct lc_kyber_x25519_ct), GFP_KERNEL);
 	if (!ct) {
 		err = -ENOMEM;
 		pr_err("Cannot allocate Kyber CT\n");
 		goto out;
 	}
 
-	pk = kmalloc(sizeof(struct lc_kyber_pk), GFP_KERNEL);
+	pk = kmalloc(sizeof(struct lc_kyber_x25519_pk), GFP_KERNEL);
 	if (!pk) {
 		err = -ENOMEM;
 		pr_err("Cannot allocate Kyber CT\n");
+		goto out;
+	}
+
+	ss1 = kmalloc(SSLEN, GFP_KERNEL);
+	if (!ss1) {
+		err = -ENOMEM;
+		pr_err("Cannot allocate Kyber SS1\n");
+		goto out;
+	}
+
+	ss2 = kmalloc(SSLEN, GFP_KERNEL);
+	if (!ss2) {
+		err = -ENOMEM;
+		pr_err("Cannot allocate Kyber SS1\n");
 		goto out;
 	}
 
@@ -149,19 +164,23 @@ static int lc_kyber_ss(const char *algname)
 				 &kpp.result);
 
 	/* Initiator: Obtain the PK */
-	sg_init_one(&dst, pk->pk, sizeof(struct lc_kyber_pk));
+	sg_init_one(&dst, &pk->pk, sizeof(struct lc_kyber_x25519_pk));
 	kpp_request_set_input(req, NULL, 0);
-	kpp_request_set_output(req, &dst, sizeof(struct lc_kyber_pk));
+	kpp_request_set_output(req, &dst, sizeof(struct lc_kyber_x25519_pk));
 	err = lc_kpp_op(&kpp, 0);
 	pr_info("Initiator: Kyber PK extracted %d\n", err);
 	if (err)
 		goto out;
 
+	/* Sanity check as otherwise the follownig call must be changed */
+	BUILD_BUG_ON(sizeof(struct lc_kyber_x25519_ct) !=
+		     LC_CRYPTO_CIPHERTEXTBYTES + LC_X25519_PUBLICKEYBYTES);
+
 	/* Respopnder: Generate our local shared secret and obtain the CT */
-	sg_init_one(&src, pk->pk, sizeof(struct lc_kyber_pk));
-	sg_init_one(&dst, ct->ct, sizeof(struct lc_kyber_ct));
-	kpp_request_set_input(req, &src, sizeof(struct lc_kyber_pk));
-	kpp_request_set_output(req, &dst, sizeof(struct lc_kyber_ct));
+	sg_init_one(&src, &pk->pk, sizeof(struct lc_kyber_x25519_pk));
+	sg_init_one(&dst, &ct->ct, sizeof(struct lc_kyber_x25519_ct));
+	kpp_request_set_input(req, &src, sizeof(struct lc_kyber_x25519_pk));
+	kpp_request_set_output(req, &dst, sizeof(struct lc_kyber_x25519_ct));
 	err = lc_kpp_op(&kpp, 0);
 	pr_info("Responder: Kyber SS / CT generation and CT gathering result %d\n",
 		err);
@@ -169,19 +188,19 @@ static int lc_kyber_ss(const char *algname)
 		goto out;
 
 	/* Responder: Obtain the local shared secret */
-	sg_init_one(&dst, ss1, sizeof(ss1));
+	sg_init_one(&dst, ss1, SSLEN);
 	kpp_request_set_input(req, NULL, 0);
-	kpp_request_set_output(req, &dst, sizeof(ss1));
+	kpp_request_set_output(req, &dst, SSLEN);
 	err = lc_kpp_op(&kpp, 1);
 	pr_info("Responder: Kyber SS gathering result %d\n", err);
 	if (err)
 		goto out;
 
 	/* Initiator: Generate the SS. */
-	sg_init_one(&src, ct->ct, crypto_kpp_maxsize(tfm));
-	sg_init_one(&dst, ss2, sizeof(ss2));
+	sg_init_one(&src, &ct->ct, crypto_kpp_maxsize(tfm));
+	sg_init_one(&dst, ss2, SSLEN);
 	kpp_request_set_input(req, &src, crypto_kpp_maxsize(tfm));
-	kpp_request_set_output(req, &dst, sizeof(ss1));
+	kpp_request_set_output(req, &dst, SSLEN);
 	kpp_request_set_callback(req, CRYPTO_TFM_REQ_MAY_BACKLOG, lc_kpp_cb,
 				 &kpp.result);
 
@@ -191,7 +210,7 @@ static int lc_kyber_ss(const char *algname)
 		goto out;
 
 	/* Check that both shared secrets are identical */
-	if (memcmp(ss1, ss2, sizeof(ss1))) {
+	if (memcmp(ss1, ss2, SSLEN)) {
 		pr_err("Shared secrets mismatch\n");
 		err = -EFAULT;
 		goto out;
@@ -204,6 +223,10 @@ out:
 		kfree(ct);
 	if (pk)
 		kfree(pk);
+	if (ss1)
+		kfree(ss1);
+	if (ss2)
+		kfree(ss2);
 	if (tfm)
 		crypto_free_kpp(tfm);
 	if (req)
@@ -212,19 +235,19 @@ out:
 	return err;
 }
 
-static int __init leancrypto_kernel_kyber_test_init(void)
+static int __init leancrypto_kernel_kyber_x25519_test_init(void)
 {
-	return lc_kyber_ss(LC_KYBER_IMPL_NAME);
+	return lc_kyber_x25519_ss(LC_KYBER_IMPL_NAME);
 }
 
-static void __exit leancrypto_kernel_kyber_test_exit(void)
+static void __exit leancrypto_kernel_kyber_x25519_test_exit(void)
 {
 }
 
-module_init(leancrypto_kernel_kyber_test_init);
-module_exit(leancrypto_kernel_kyber_test_exit);
+module_init(leancrypto_kernel_kyber_x25519_test_init);
+module_exit(leancrypto_kernel_kyber_x25519_test_exit);
 
 MODULE_LICENSE("Dual BSD/GPL");
 MODULE_AUTHOR("Stephan Mueller <smueller@chronox.de>");
 MODULE_DESCRIPTION(
-	"Kernel module leancrypto_kernel_kyber_test for implementation " LC_KYBER_IMPL_NAME);
+	"Kernel module leancrypto_kernel_kyber_x25519_test for implementation " LC_KYBER_IMPL_NAME);

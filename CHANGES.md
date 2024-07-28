@@ -10,6 +10,8 @@ Changes 0.12.0-prerelease
 
 - enhancement: add Dilithium-ED25519 as Linux kernel akcipher algorithm
 
+- enhancement: make Kyber-X25519 as Linux kernel kpp algorithm consistent with the standalone Kyber kpp implementation and add a tester
+
 Changes 0.11.0
 
 * security fix: fix possible leak of message in Kyber

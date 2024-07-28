@@ -274,6 +274,9 @@ ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM
 ifdef CONFIG_LEANCRYPTO_KEM_KYBER_1024
 ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM_KYBER_1024
 obj-m				+= leancrypto_kernel_kyber_1024_tester.o
+ifdef CONFIG_LEANCRYPTO_KEM_X25519
+obj-m				+= leancrypto_kernel_kyber_1024_x25519_tester.o
+endif
 
 obj-m		 		+= kyber_kem_tester_c.o
 obj-m		 		+= kyber_kem_tester_common.o
@@ -305,6 +308,9 @@ endif
 ifdef CONFIG_LEANCRYPTO_KEM_KYBER_768
 ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM_KYBER_768
 obj-m				+= leancrypto_kernel_kyber_768_tester.o
+ifdef CONFIG_LEANCRYPTO_KEM_X25519
+obj-m				+= leancrypto_kernel_kyber_768_x25519_tester.o
+endif
 
 obj-m		 		+= kyber_768_kem_tester_c.o
 obj-m		 		+= kyber_768_kem_tester_common.o
@@ -347,6 +353,9 @@ endif
 ifdef CONFIG_LEANCRYPTO_KEM_KYBER_512
 ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM_KYBER_512
 obj-m				+= leancrypto_kernel_kyber_512_tester.o
+ifdef CONFIG_LEANCRYPTO_KEM_X25519
+obj-m				+= leancrypto_kernel_kyber_512_x25519_tester.o
+endif
 
 obj-m		 		+= kyber_512_kem_tester_c.o
 obj-m		 		+= kyber_512_kem_tester_common.o
