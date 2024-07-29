@@ -21,7 +21,6 @@
 #include <crypto/rng.h>
 #include <linux/err.h>
 #include <linux/module.h>
-#include <linux/version.h>
 
 static int lc_seeded_rng_test(void)
 {

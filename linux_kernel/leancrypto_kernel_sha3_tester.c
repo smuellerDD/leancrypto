@@ -20,17 +20,8 @@
 
 #include <crypto/hash.h>
 #include <linux/module.h>
-#include <linux/version.h>
 
-/*
- * kzfree was renamed to kfree_sensitive in 5.9
- */
-#undef free_zero
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 9, 0)
-#define free_zero(x) kfree_sensitive(x)
-#else
-#define free_zero(x) kzfree(x)
-#endif
+#include "leancrypto_kernel.h"
 
 struct sdesc {
 	struct shash_desc shash;

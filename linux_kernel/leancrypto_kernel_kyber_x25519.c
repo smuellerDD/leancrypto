@@ -296,7 +296,7 @@ static int lc_kernel_kyber_x25519_ss(struct kpp_request *req)
 
 out:
 	lc_memset_secure(&ss, 0, req->dst_len);
-	kfree_sensitive(ct);
+	free_zero(ct);
 	return ret;
 }
 

@@ -21,9 +21,9 @@
 #include <crypto/akcipher.h>
 #include <linux/module.h>
 #include <linux/scatterlist.h>
-#include <linux/version.h>
 
 #include "lc_dilithium.h"
+#include "leancrypto_kernel.h"
 
 #ifdef LC_DILITHIUM_TYPE_65
 #define DILITHIUM_TYPE LC_DILITHIUM_65
@@ -34,16 +34,6 @@
 #else
 #define DILITHIUM_TYPE LC_DILITHIUM_87
 #define LC_DILITHIUM_IMPL_NAME "dilithium87-ed25519-leancrypto"
-#endif
-
-/*
- * kzfree was renamed to kfree_sensitive in 5.9
- */
-#undef free_zero
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 9, 0)
-#define free_zero(x) kfree_sensitive(x)
-#else
-#define free_zero(x) kzfree(x)
 #endif
 
 struct lc_tcrypt_res {

@@ -22,12 +22,23 @@
 
 #include <linux/module.h>
 #include <linux/types.h>
+#include <linux/version.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #define LC_KERNEL_DEFAULT_PRIO 5000
+
+/*
+ * kzfree was renamed to kfree_sensitive in 5.9
+ */
+#undef free_zero
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 9, 0)
+#define free_zero(x) kfree_sensitive(x)
+#else
+#define free_zero(x) kzfree(x)
+#endif
 
 #ifdef CONFIG_LEANCRYPTO_SHA3
 int __init lc_kernel_sha3_init(void);

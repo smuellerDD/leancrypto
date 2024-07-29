@@ -182,7 +182,7 @@ static int lc_kernel_kyber_ss_local(struct kpp_request *req)
 		ret = -EINVAL;
 
 	if (shared_secret)
-		kfree_sensitive(shared_secret);
+		free_zero(shared_secret);
 
 	/*
 	 * The SS is allowed to be only used once - if the caller wants
@@ -265,7 +265,7 @@ static int lc_kernel_kyber_ss(struct kpp_request *req)
 
 out:
 	if (shared_secret)
-		kfree_sensitive(shared_secret);
+		free_zero(shared_secret);
 	else
 		lc_memset_secure(&ss, 0, sizeof(ss));
 

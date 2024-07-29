@@ -100,7 +100,7 @@ static int lc_kernel_dilithium_sign(struct akcipher_request *req)
 	}
 
 out:
-	kfree_sensitive(sig);
+	free_zero(sig);
 	lc_dilithium_ctx_zero(dilithium_ctx);
 	return ret;
 }
@@ -164,7 +164,7 @@ static int lc_kernel_dilithium_verify(struct akcipher_request *req)
 out:
 	lc_dilithium_ctx_zero(dilithium_ctx);
 
-	kfree_sensitive(sig);
+	free_zero(sig);
 
 	return ret;
 }
