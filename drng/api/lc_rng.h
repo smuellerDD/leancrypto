@@ -53,7 +53,8 @@ struct lc_rng_ctx {
  * the allocation part is RNG-specific. Thus, perform the following steps
  *
  * 1. Allocation: Use the stack or heap allocation functions documented in
- *    lc_cshake256_drng.h, lc_kmac256_drng.h, lc_hash_drbg.h, lc_hmac_sha512.h.
+ *    lc_xdrbg.h, lc_cshake256_drng.h, lc_kmac256_drng.h, lc_hash_drbg.h,
+ *    lc_hmac_sha512.h.
  *
  * 2. Use the returned cipher handle with the API calls below.
  */
@@ -62,10 +63,10 @@ struct lc_rng_ctx {
  * @ingroup RNGs
  *
  * @var lc_seeded_rng
- * @brief One common instance of a seeded DRNG. The caller does not need to consider
- * the seeding and reseeding - it is automatically and transparently handled.
- * Thus, this structure can be directly used for the lc_rng API by a caller
- * and have a properly seeded DRNG.
+ * @brief One common instance of a seeded DRNG. The caller does not need to
+ * consider the seeding and reseeding - it is automatically and transparently
+ * handled. Thus, this structure can be directly used for the lc_rng API by a
+ * caller and have a properly seeded DRNG.
  *
  * NOTE: The caller must ensure that a lock is applied around the use of this
  * variable if there is the potential of concurrent use.
