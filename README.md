@@ -122,8 +122,6 @@ in the directory `linux_kernel`.
 
 ## Library Build Using Profile Guided Optimization
 
-
-
 Using profile guided optimization with GCC is a two phase operation. First,
 et up `leancrypto` with profile measurements enabled and compile it.
 
@@ -135,7 +133,9 @@ meson compile -C build
 Then execute the test environment with the regression test suite to create
 representative input:
 
-`meson test -C build --suite regression`
+```
+meson test -C build --suite regression
+```
 
 Once that is done the compiler flags are changed to use the generated
 nformation and rebuild.
@@ -178,7 +178,7 @@ Leancrypto offers various cryptographic algorithms:
 
 * Pseudo Random Number Generators
 
-  * XDRBG256 - see `drng/doc/ToSC2024_1_01.pdf` for full specification and proof
+  * XDRBG using either SHAKE-256 or Ascon-128 providing either 256 bits or 128 bits cryptographic strength respectively - see `drng/doc/ToSC2024_1_01.pdf` for full specification and proof
 
   * cSHAKE-based PRNG - see `cshake_drng.c` for full specification - it complies with the XDRBG specification given in `drng/doc/ToSC2024_1_01.pdf`
 

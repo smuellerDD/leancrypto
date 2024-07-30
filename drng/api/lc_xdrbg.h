@@ -156,7 +156,7 @@ int lc_xdrbg256_drng_alloc(struct lc_rng_ctx **state);
 	LC_XDRBG128_RNG_CTX(name)
 
 /**
- * @brief Allocation of a XDRBG128 DRNG context using SHAKE-128
+ * @brief Allocation of a XDRBG128 DRNG context using Ascon-XOF
  *
  * @param [out] state XDRBG128 DRNG context allocated by the function
  *
