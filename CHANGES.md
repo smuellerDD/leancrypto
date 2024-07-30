@@ -8,9 +8,9 @@ Changes 0.12.0-prerelease
 
 * Dilithium API change: the stream mode uses struct lc_dilithium_ctx instead of lc_hash_ctx to reflect the newly added Dilithium-ED25519 API - the lc_dilithium_ctx can be allocated on the stack or heap using LC_DILITHIUM_CTX_ON_STACK or lc_dilithium_ctx_alloc
 
-- enhancement: add Dilithium-ED25519 as Linux kernel akcipher algorithm
+* enhancement: add Dilithium-ED25519 as Linux kernel akcipher algorithm
 
-- enhancement: make Kyber-X25519 as Linux kernel kpp algorithm consistent with the standalone Kyber kpp implementation and add a tester
+* enhancement: make Kyber-X25519 as Linux kernel kpp algorithm consistent with the standalone Kyber kpp implementation and add a tester
 
 Changes 0.11.0
 
