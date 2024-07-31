@@ -291,8 +291,7 @@ static inline void lc_hash_zero(struct lc_hash_ctx *hash_ctx)
 		return;
 
 	hash = hash_ctx->hash;
-	lc_memset_secure((uint8_t *)hash_ctx + sizeof(struct lc_hash_ctx), 0,
-			 hash->statesize);
+	lc_memset_secure(hash_ctx->hash_state, 0, hash->statesize);
 }
 
 /**
@@ -313,7 +312,6 @@ static inline void lc_hash_zero(struct lc_hash_ctx *hash_ctx)
 					  LC_HASH_COMMON_ALIGNMENT);                \
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name##_ctx_buf;            \
 	LC_HASH_SET_CTX(name, hashname);                                            \
-	lc_hash_zero(name);                                                         \
 	_Pragma("GCC diagnostic pop")
 
 /**
