@@ -95,12 +95,12 @@ static int xdrbg256_drng_selftest(struct lc_rng_ctx *xdrbg256_ctx)
 	/* Verify the generate operation */
 	/* Use the already generated state from above */
 
-	/* First loop iteratipn */
+	/* First loop iteration */
 	lc_hash_init(xdrbg256_compare);
 	lc_hash_update(xdrbg256_compare, compare1, LC_XDRBG256_DRNG_KEYSIZE);
 	encode = 2 * 85;
 	lc_hash_update(xdrbg256_compare, &encode, sizeof(encode));
-	/* First loop iteratipn: generate key */
+	/* First loop iteration: generate key */
 	lc_hash_set_digestsize(xdrbg256_compare, LC_XDRBG256_DRNG_KEYSIZE);
 	lc_hash_final(xdrbg256_compare, compare1);
 	/* First loop iteratipn: generate data */
