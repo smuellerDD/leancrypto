@@ -82,14 +82,14 @@ static uint8_t gf_mulinv(uint8_t x)
 	if (x) {
 		// calculate logarithm gen 3
 		for (i = 1, y = 1; i > 0; i++) {
-			y ^= gf_mul2(y);
+			y ^= (uint8_t)gf_mul2(y);
 			if (y == x)
 				break;
 		}
 		x = ~i;
 		// calculate anti-logarithm gen 3
 		for (i = 0, y = 1; i < x; i++) {
-			y ^= gf_mul2(y);
+			y ^= (uint8_t)gf_mul2(y);
 		}
 	}
 	return y;
@@ -283,8 +283,13 @@ static void aes_setkey(struct aes_block_ctx *ctx, const uint8_t *key)
 		}
 	}
 
-	for (i = ctx->nk; i < Nb * (ctx->nr + 1); i++) {
+	for (i = ctx->nk; i < (unsigned int)(Nb * (ctx->nr + 1)); i++) {
 		x = w[i - 1];
+
+		/* Shut up clang-scan */
+		if (!ctx->nk)
+			break;
+
 		if ((i % ctx->nk) == 0) {
 			x = ror32(x, 8);
 			x = aes_sub_word(x) ^ rcon;
