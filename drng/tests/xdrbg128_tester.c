@@ -57,18 +57,19 @@ static int xdrbg128_drng_selftest(struct lc_rng_ctx *xdrbg128_ctx)
 		0xb5, 0xca, 0x47, 0xd9, 0xec, 0x36, 0xa2, 0x13, 0x89, 0x1c,
 		0x46, 0x2c, 0x43, 0x3c, 0xf9, 0x82, 0x23
 	};
-	static const uint8_t exp83[] = { 0x8a, 0x57, 0x1b, 0xc6, 0x18, 0x11,
-					 0x2c, 0x17, 0xcd };
-	static const uint8_t exp84[] = { 0x53, 0x47, 0x20, 0xf1, 0xba, 0x1c,
-					 0xef, 0x9f, 0x48 };
-	uint8_t act1[sizeof(exp1)] __align(sizeof(uint32_t));
+	static const uint8_t exp83[] = { 0x8a, 0x57, 0x1b, 0xc6, 0x18,
+					 0x11, 0x2c, 0x17, 0xcd };
+	static const uint8_t exp84[] = { 0x53, 0x47, 0x20, 0xf1, 0xba,
+					 0x1c, 0xef, 0x9f, 0x48 };
+	uint8_t act1[sizeof(exp1)] __align(sizeof(uint32_t)) = { 0 };
 	uint8_t act2[sizeof(exp83)] __align(sizeof(uint32_t));
 	uint8_t compare1[LC_XDRBG128_DRNG_KEYSIZE + sizeof(exp1)];
 	int ret = 0;
 	uint8_t encode;
 	LC_HASH_CTX_ON_STACK(xdrbg128_compare, lc_ascon_xof);
 
-	printf("XDRBG128 ctx len %lu\n", LC_XDRBG128_DRNG_CTX_SIZE);
+	printf("XDRBG128 ctx len %lu\n",
+	       (unsigned long)LC_XDRBG128_DRNG_CTX_SIZE);
 
 	/* Check the XDRBG operation */
 	lc_rng_seed(xdrbg128_ctx, seed, sizeof(seed), NULL, 0);

@@ -66,7 +66,7 @@ static int cshake_drng_selftest(struct lc_rng_ctx *cshake_ctx)
 		0xd2, 0x8f, 0x03, 0x27, 0x0a, 0xb9
 
 	};
-	uint8_t act1[sizeof(exp1)] __align(sizeof(uint32_t));
+	uint8_t act1[sizeof(exp1)] __align(sizeof(uint32_t)) = { 0 };
 	uint8_t compare1[LC_CSHAKE256_DRNG_MAX_CHUNK];
 	uint8_t encode;
 	int ret;

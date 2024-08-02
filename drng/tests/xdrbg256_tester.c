@@ -61,14 +61,15 @@ static int xdrbg256_drng_selftest(struct lc_rng_ctx *xdrbg256_ctx)
 					 0x81, 0x86, 0x84, 0xcf };
 	static const uint8_t exp84[] = { 0xf0, 0x85, 0xd6, 0xc8, 0xd1,
 					 0x76, 0xd7, 0x12, 0x39 };
-	uint8_t act1[sizeof(exp1)] __align(sizeof(uint32_t));
+	uint8_t act1[sizeof(exp1)] __align(sizeof(uint32_t)) = { 0 };
 	uint8_t act2[sizeof(exp83)] __align(sizeof(uint32_t));
 	uint8_t compare1[LC_XDRBG256_DRNG_KEYSIZE + sizeof(exp1)];
 	int ret = 0;
 	uint8_t encode;
 	LC_HASH_CTX_ON_STACK(xdrbg256_compare, lc_shake256);
 
-	printf("XDRBG256 ctx len %lu\n", LC_XDRBG256_DRNG_CTX_SIZE);
+	printf("XDRBG256 ctx len %lu\n",
+	       (unsigned long)LC_XDRBG256_DRNG_CTX_SIZE);
 
 	/* Check the XDRBG operation */
 	lc_rng_seed(xdrbg256_ctx, seed, sizeof(seed), NULL, 0);
@@ -104,7 +105,7 @@ static int xdrbg256_drng_selftest(struct lc_rng_ctx *xdrbg256_ctx)
 	lc_hash_final(xdrbg256_compare, compare1);
 	/* First loop iteratipn: generate data */
 	lc_hash_set_digestsize(xdrbg256_compare, LC_XDRBG256_DRNG_MAX_CHUNK);
-	lc_hash_final(xdrbg256_compare, compare1+ LC_XDRBG256_DRNG_KEYSIZE);
+	lc_hash_final(xdrbg256_compare, compare1 + LC_XDRBG256_DRNG_KEYSIZE);
 
 	/* 2nd loop round as output size is larger than chunk size */
 	lc_hash_init(xdrbg256_compare);
@@ -117,9 +118,9 @@ static int xdrbg256_drng_selftest(struct lc_rng_ctx *xdrbg256_ctx)
 	/* Second loop iteratipn: generate data */
 	lc_hash_set_digestsize(xdrbg256_compare,
 			       sizeof(compare1) - LC_XDRBG256_DRNG_MAX_CHUNK -
-			       LC_XDRBG256_DRNG_KEYSIZE);
+				       LC_XDRBG256_DRNG_KEYSIZE);
 	lc_hash_final(xdrbg256_compare, compare1 + LC_XDRBG256_DRNG_MAX_CHUNK +
-					LC_XDRBG256_DRNG_KEYSIZE);
+						LC_XDRBG256_DRNG_KEYSIZE);
 
 	ret += lc_compare(compare1 + LC_XDRBG256_DRNG_KEYSIZE, exp1,
 			  sizeof(exp1), "SHAKE DRNG verification");
