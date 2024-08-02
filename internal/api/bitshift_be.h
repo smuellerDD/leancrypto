@@ -27,7 +27,7 @@ extern "C" {
 #endif
 
 /*
- * Conversion of Big-Endian representations in byte streams  - the data
+ * Conversion of Big-Endian representations in byte streams - the data
  * representation in the integer values is the host representation.
  */
 static inline uint32_t ptr_to_be32(const uint8_t *p)

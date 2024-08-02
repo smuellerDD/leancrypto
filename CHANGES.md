@@ -12,6 +12,8 @@ Changes 0.12.0-prerelease
 
 * enhancement: make Kyber-X25519 as Linux kernel kpp algorithm consistent with the standalone Kyber kpp implementation and add a tester
 
+* enhancement: add side-channel-resistant AES implementation that does not use an SBOX
+
 Changes 0.11.0
 
 * security fix: fix possible leak of message in Kyber

@@ -30,6 +30,19 @@ extern "C" {
 #ifndef LINUX_KERNEL
 
 /*
+ * Rotate 8 bit unsigned integer X by N bits left/right
+ */
+static inline uint8_t rol8(uint16_t x, uint8_t n)
+{
+	return (uint8_t)((x << (n & (8 - 1))) | (x >> ((8 - n) & (8 - 1))));
+}
+
+static inline uint8_t ror8(uint16_t x, uint8_t n)
+{
+	return (uint8_t)((x >> (n & (8 - 1))) | (x << ((8 - n) & (8 - 1))));
+}
+
+/*
  * Rotate 16 bit unsigned integer X by N bits left/right
  */
 static inline uint16_t rol16(uint16_t x, uint8_t n)

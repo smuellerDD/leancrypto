@@ -245,6 +245,8 @@ Leancrypto offers various cryptographic algorithms:
 
   * AES: ECB, CBC, CTR, KW
 
+  * Side-Channel-Resistant AES implementation
+
   * ChaCha20
 
 # API Documentation

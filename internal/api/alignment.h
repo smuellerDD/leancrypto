@@ -53,6 +53,13 @@ extern "C" {
 		uint64_t vec[ALIGNED_UINT8_UINT64(N)];                         \
 	}
 
+static inline int aligned(const uint8_t *ptr, uint32_t alignmask)
+{
+	if ((uintptr_t)ptr & alignmask)
+		return 0;
+	return 1;
+}
+
 #ifdef __cplusplus
 }
 #endif

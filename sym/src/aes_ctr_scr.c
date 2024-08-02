@@ -17,7 +17,7 @@
  * DAMAGE.
  */
 
-#include "aes_c.h"
+#include "aes_scr.h"
 #include "aes_internal.h"
 #include "compare.h"
 #include "ext_headers.h"
@@ -38,43 +38,41 @@ struct lc_sym_state {
  * Symmetrical operation: same function for encrypting as for decrypting.
  * Note any IV/nonce should never be reused with the same key.
  */
-static void aes_ctr_crypt(struct lc_sym_state *ctx, const uint8_t *in,
-			  uint8_t *out, size_t len)
+static void aes_ctr_crypt_scr(struct lc_sym_state *ctx, const uint8_t *in,
+			      uint8_t *out, size_t len)
 {
 	lc_mode_ctr_c->encrypt(&ctx->ctr_state, in, out, len);
 }
 
-static void aes_ctr_init(struct lc_sym_state *ctx)
+static void aes_ctr_init_scr(struct lc_sym_state *ctx)
 {
 	static int tested = 0;
 
-	mode_ctr_selftest(lc_aes_ctr_c, &tested, "AES-CTR");
-	lc_mode_ctr_c->init(&ctx->ctr_state, lc_aes_c, &ctx->block_ctx);
+	mode_ctr_selftest(lc_aes_ctr_scr, &tested, "AES-CTR SCR");
+	lc_mode_ctr_c->init(&ctx->ctr_state, lc_aes_scr, &ctx->block_ctx);
 }
 
-static int aes_ctr_setkey(struct lc_sym_state *ctx, const uint8_t *key,
-			  size_t keylen)
+static int aes_ctr_setkey_scr(struct lc_sym_state *ctx, const uint8_t *key,
+			      size_t keylen)
 {
 	if (!ctx)
 		return -EINVAL;
 	return lc_mode_ctr_c->setkey(&ctx->ctr_state, key, keylen);
 }
 
-static int aes_ctr_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
-			 size_t ivlen)
+static int aes_ctr_setiv_scr(struct lc_sym_state *ctx, const uint8_t *iv,
+			     size_t ivlen)
 {
 	return lc_mode_ctr_c->setiv(&ctx->ctr_state, iv, ivlen);
 }
 
-static struct lc_sym _lc_aes_ctr_c = {
-	.init = aes_ctr_init,
-	.setkey = aes_ctr_setkey,
-	.setiv = aes_ctr_setiv,
-	.encrypt = aes_ctr_crypt,
-	.decrypt = aes_ctr_crypt,
+static struct lc_sym _lc_aes_ctr_scr = {
+	.init = aes_ctr_init_scr,
+	.setkey = aes_ctr_setkey_scr,
+	.setiv = aes_ctr_setiv_scr,
+	.encrypt = aes_ctr_crypt_scr,
+	.decrypt = aes_ctr_crypt_scr,
 	.statesize = LC_AES_CTR_BLOCK_SIZE,
 	.blocksize = 1,
 };
-LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_ctr_c) = &_lc_aes_ctr_c;
-
-LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_ctr) = &_lc_aes_ctr_c;
+LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_ctr_scr) = &_lc_aes_ctr_scr;

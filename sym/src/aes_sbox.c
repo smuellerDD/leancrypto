@@ -23,6 +23,8 @@
  * This is free and unencumbered software released into the public domain.
  */
 
+#define AES_SBOX
+
 #include "aes_internal.h"
 #include "ext_headers.h"
 #include "lc_aes.h"
@@ -116,11 +118,11 @@ static uint8_t getSBoxValue(uint8_t num)
  * This function produces Nb(Nr+1) round keys. The round keys are used in each
  * round to decrypt the states.
  */
-void KeyExpansion(struct aes_block_ctx *block_ctx, const uint8_t *Key)
+void aes_key_expansion(struct aes_block_ctx *block_ctx, const uint8_t *Key)
 {
 	uint8_t Nk = block_ctx->nk;
 	uint8_t Nr = block_ctx->nr;
-	uint8_t *RoundKey = block_ctx->RoundKey;
+	uint8_t *RoundKey = (uint8_t *)block_ctx->round_key;
 	unsigned int i, j, k;
 	uint8_t tempa[4]; // Used for the column/row operations
 
@@ -200,7 +202,8 @@ void KeyExpansion(struct aes_block_ctx *block_ctx, const uint8_t *Key)
  * This function adds the round key to state.
  * The round key is added to the state by an XOR function.
  */
-static void AddRoundKey(uint8_t round, state_t *state, const uint8_t *RoundKey)
+static void aes_add_round_key(uint8_t round, state_t *state,
+			      const uint8_t *RoundKey)
 {
 	uint8_t i, j;
 
@@ -213,10 +216,10 @@ static void AddRoundKey(uint8_t round, state_t *state, const uint8_t *RoundKey)
 }
 
 /*
- * The SubBytes Function Substitutes the values in the
+ * The aes_sub_bytes Function Substitutes the values in the
  * state matrix with values in an S-box.
  */
-static void SubBytes(state_t *state)
+static void aes_sub_bytes(state_t *state)
 {
 	uint8_t i, j;
 
@@ -227,11 +230,11 @@ static void SubBytes(state_t *state)
 }
 
 /*
- * The ShiftRows() function shifts the rows in the state to the left.
+ * The aes_shift_rows() function shifts the rows in the state to the left.
  * Each row is shifted with different offset.
  * Offset = Row number. So the first row is not shifted.
  */
-static void ShiftRows(state_t *state)
+static void aes_shift_rows(state_t *state)
 {
 	uint8_t temp;
 
@@ -264,8 +267,8 @@ static uint8_t xtime(uint8_t x)
 	return (uint8_t)((x << 1) ^ (((x >> 7) & 1) * 0x1b));
 }
 
-/* MixColumns function mixes the columns of the state matrix */
-static void MixColumns(state_t *state)
+/* aes_mix_columns function mixes the columns of the state matrix */
+static void aes_mix_columns(state_t *state)
 {
 	uint8_t i;
 	uint8_t Tmp, Tm, t;
@@ -309,11 +312,11 @@ static uint8_t getSBoxInvert(uint8_t num)
 }
 
 /*
- * MixColumns function mixes the columns of the state matrix.
+ * aes_mix_columns function mixes the columns of the state matrix.
  * The method used to multiply may be difficult to understand for the
  * inexperienced. Please use the references to gain more information.
  */
-static void InvMixColumns(state_t *state)
+static void Invaes_mix_columns(state_t *state)
 {
 	int i;
 	uint8_t a, b, c, d;
@@ -336,10 +339,10 @@ static void InvMixColumns(state_t *state)
 }
 
 /*
- * The SubBytes Function Substitutes the values in the
+ * The aes_sub_bytes Function Substitutes the values in the
  * state matrix with values in an S-box.
  */
-static void InvSubBytes(state_t *state)
+static void Invaes_sub_bytes(state_t *state)
 {
 	uint8_t i, j;
 
@@ -349,7 +352,7 @@ static void InvSubBytes(state_t *state)
 	}
 }
 
-static void InvShiftRows(state_t *state)
+static void Invaes_shift_rows(state_t *state)
 {
 	uint8_t temp;
 
@@ -382,48 +385,48 @@ static void InvShiftRows(state_t *state)
  */
 void aes_cipher(state_t *state, const struct aes_block_ctx *block_ctx)
 {
-	const uint8_t *RoundKey = block_ctx->RoundKey;
+	const uint8_t *RoundKey = (uint8_t *)block_ctx->round_key;
 	uint8_t Nr = block_ctx->nr;
 	uint8_t round = 0;
 
 	// Add the First round key to the state before starting the rounds.
-	AddRoundKey(0, state, RoundKey);
+	aes_add_round_key(0, state, RoundKey);
 
 	// There will be Nr rounds.
 	// The first Nr-1 rounds are identical.
 	// These Nr rounds are executed in the loop below.
-	// Last one without MixColumns()
+	// Last one without aes_mix_columns()
 	for (round = 1;; ++round) {
-		SubBytes(state);
-		ShiftRows(state);
+		aes_sub_bytes(state);
+		aes_shift_rows(state);
 		if (round == Nr)
 			break;
-		MixColumns(state);
-		AddRoundKey(round, state, RoundKey);
+		aes_mix_columns(state);
+		aes_add_round_key(round, state, RoundKey);
 	}
 	// Add round key to last round
-	AddRoundKey(Nr, state, RoundKey);
+	aes_add_round_key(Nr, state, RoundKey);
 }
 
 void aes_inv_cipher(state_t *state, const struct aes_block_ctx *block_ctx)
 {
-	const uint8_t *RoundKey = block_ctx->RoundKey;
+	const uint8_t *RoundKey = (uint8_t *)block_ctx->round_key;
 	uint8_t Nr = block_ctx->nr;
 	uint8_t round = 0;
 
 	// Add the First round key to the state before starting the rounds.
-	AddRoundKey(Nr, state, RoundKey);
+	aes_add_round_key(Nr, state, RoundKey);
 
 	// There will be Nr rounds.
 	// The first Nr-1 rounds are identical.
 	// These Nr rounds are executed in the loop below.
 	// Last one without InvMixColumn()
 	for (round = (Nr - 1);; --round) {
-		InvShiftRows(state);
-		InvSubBytes(state);
-		AddRoundKey(round, state, RoundKey);
+		Invaes_shift_rows(state);
+		Invaes_sub_bytes(state);
+		aes_add_round_key(round, state, RoundKey);
 		if (round == 0)
 			break;
-		InvMixColumns(state);
+		Invaes_mix_columns(state);
 	}
 }

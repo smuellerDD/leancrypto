@@ -18,13 +18,15 @@
  */
 
 /*
- * AES C implementation using S-BOX
+ * AES C implementation without using S-BOX
  *
- * This implementation is not side-channel-resistant, but is decently fast.
+ * This implementation is side-channel-resistant, but is very slow.
  */
 
 #include "aes_c.h"
 #include "aes_internal.h"
+#include "alignment.h"
+#include "build_bug_on.h"
 #include "ext_headers.h"
 #include "lc_aes.h"
 #include "lc_sym.h"
@@ -37,8 +39,8 @@ struct lc_sym_state {
 
 #define LC_AES_BLOCK_SIZE sizeof(struct lc_sym_state)
 
-static void aes_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
-			uint8_t *out, size_t len)
+static void aes_encrypt_scr(struct lc_sym_state *ctx, const uint8_t *in,
+			    uint8_t *out, size_t len)
 {
 	const struct aes_block_ctx *block_ctx;
 
@@ -49,18 +51,35 @@ static void aes_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 	if (len != AES_BLOCKLEN)
 		return;
 
-	if (in != out)
-		memcpy(out, in, AES_BLOCKLEN);
-
 	/* In-place encryption operation of plaintext. */
-	aes_cipher((state_t *)out, block_ctx);
+	if (aligned(out, sizeof(uint32_t) - 1)) {
+		if (in != out)
+			memcpy(out, in, AES_BLOCKLEN);
+
+			/*
+		 * We can ignore the alignment warning as we checked
+		 * for proper alignment.
+		 */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
+		aes_cipher_scr((state_t *)out, block_ctx);
+#pragma GCC diagnostic pop
+	} else {
+		state_t block;
+
+		BUILD_BUG_ON(sizeof(block) != AES_BLOCKLEN);
+
+		memcpy(&block, in, AES_BLOCKLEN);
+		aes_cipher_scr(&block, block_ctx);
+		memcpy(out, &block, AES_BLOCKLEN);
+	}
 
 	/* Timecop: output is not sensitive regarding side-channels. */
 	unpoison(out, AES_BLOCKLEN);
 }
 
-static void aes_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
-			uint8_t *out, size_t len)
+static void aes_decrypt_scr(struct lc_sym_state *ctx, const uint8_t *in,
+			    uint8_t *out, size_t len)
 {
 	const struct aes_block_ctx *block_ctx;
 
@@ -71,11 +90,27 @@ static void aes_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 	if (len != AES_BLOCKLEN)
 		return;
 
-	if (in != out)
-		memcpy(out, in, AES_BLOCKLEN);
+	if (aligned(out, sizeof(uint32_t) - 1)) {
+		if (in != out)
+			memcpy(out, in, AES_BLOCKLEN);
 
-	/* In-place decryption operation of plaintext. */
-	aes_inv_cipher((state_t *)out, block_ctx);
+			/*
+		 * We can ignore the alignment warning as we checked
+		 * for proper alignment.
+		 */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
+		aes_inv_cipher_scr((state_t *)out, block_ctx);
+#pragma GCC diagnostic pop
+	} else {
+		state_t block;
+
+		BUILD_BUG_ON(sizeof(block) != AES_BLOCKLEN);
+
+		memcpy(&block, in, AES_BLOCKLEN);
+		aes_inv_cipher_scr(&block, block_ctx);
+		memcpy(out, &block, AES_BLOCKLEN);
+	}
 
 	/* Timecop: output is not sensitive regarding side-channels. */
 	unpoison(out, AES_BLOCKLEN);
@@ -86,21 +121,20 @@ static void aes_init(struct lc_sym_state *ctx)
 	(void)ctx;
 }
 
-static int aes_setkey(struct lc_sym_state *ctx, const uint8_t *key,
-		      size_t keylen)
+static int aes_setkey_scr(struct lc_sym_state *ctx, const uint8_t *key,
+			  size_t keylen)
 {
 	int ret;
 
 	/* Timecop: key is sensitive. */
-	// TODO: AES C implementation is not side-channel-resistant!
-	//poison(key, keylen);
+	poison(key, keylen);
 
 	if (!ctx)
 		return -EINVAL;
 
 	ret = aes_set_type(&ctx->block_ctx, keylen);
 	if (!ret)
-		aes_key_expansion(&ctx->block_ctx, key);
+		aes_key_expansion_scr(&ctx->block_ctx, key);
 
 	return 0;
 }
@@ -113,13 +147,13 @@ static int aes_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen)
 	return -EOPNOTSUPP;
 }
 
-static struct lc_sym _lc_aes_c = {
+static struct lc_sym _lc_aes_scr = {
 	.init = aes_init,
-	.setkey = aes_setkey,
+	.setkey = aes_setkey_scr,
 	.setiv = aes_setiv,
-	.encrypt = aes_encrypt,
-	.decrypt = aes_decrypt,
+	.encrypt = aes_encrypt_scr,
+	.decrypt = aes_decrypt_scr,
 	.statesize = LC_AES_BLOCK_SIZE,
 	.blocksize = AES_BLOCKLEN,
 };
-LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_c) = &_lc_aes_c;
+LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_scr) = &_lc_aes_scr;

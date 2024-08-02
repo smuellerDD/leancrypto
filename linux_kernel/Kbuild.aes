@@ -4,8 +4,10 @@ ccflags-y	 		+= -I$(PWD)/../sym/api -I$(PWD)/../sym/src
 leancrypto-y	 		+= ../sym/src/sym.o
 
 leancrypto-$(CONFIG_LEANCRYPTO_AES)					       \
-				+= ../sym/src/aes.o			       \
+				+= ../sym/src/aes_sbox.o		       \
+				   ../sym/src/aes_no_sbox.o		       \
 				   ../sym/src/aes_block.o		       \
+				   ../sym/src/aes_block_scr.o		       \
 				   ../sym/src/aes_selector.o
 
 ifdef CONFIG_X86_64
@@ -46,6 +48,7 @@ endif
 
 leancrypto-$(CONFIG_LEANCRYPTO_AES_CBC)					       \
 				+= ../sym/src/aes_cbc.o			       \
+				   ../sym/src/aes_cbc_scr.o		       \
 				   ../sym/src/mode_cbc.o
 
 ifdef CONFIG_X86_64
@@ -81,6 +84,7 @@ endif
 
 leancrypto-$(CONFIG_LEANCRYPTO_AES_CTR)					       \
 				+= ../sym/src/aes_ctr.o			       \
+				   ../sym/src/aes_ctr_scr.o		       \
 				   ../sym/src/mode_ctr.o
 
 ifdef CONFIG_X86_64
@@ -114,6 +118,7 @@ endif
 
 leancrypto-$(CONFIG_LEANCRYPTO_AES_KW)					       \
 				+= ../sym/src/aes_kw.o			       \
+				   ../sym/src/aes_kw_scr.o		       \
 				   ../sym/src/mode_kw.o
 
 ifdef CONFIG_X86_64

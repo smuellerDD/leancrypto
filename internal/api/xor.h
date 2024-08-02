@@ -21,18 +21,12 @@
 #ifndef XOR_H
 #define XOR_H
 
+#include "alignment.h"
 #include "ext_headers.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-static inline int aligned(const uint8_t *ptr, uint32_t alignmask)
-{
-	if ((uintptr_t)ptr & alignmask)
-		return 0;
-	return 1;
-}
 
 static inline void xor_8(uint8_t *dst, const uint8_t *src, size_t size)
 {

@@ -17,7 +17,7 @@
  * DAMAGE.
  */
 
-#include "aes_c.h"
+#include "aes_scr.h"
 #include "aes_internal.h"
 #include "compare.h"
 #include "ext_headers.h"
@@ -34,49 +34,47 @@ struct lc_sym_state {
 
 #define LC_AES_CBC_BLOCK_SIZE sizeof(struct lc_sym_state)
 
-static void aes_cbc_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
-			    uint8_t *out, size_t len)
+static void aes_cbc_encrypt_scr(struct lc_sym_state *ctx, const uint8_t *in,
+				uint8_t *out, size_t len)
 {
 	lc_mode_cbc_c->encrypt(&ctx->cbc_state, in, out, len);
 }
 
-static void aes_cbc_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
-			    uint8_t *out, size_t len)
+static void aes_cbc_decrypt_scr(struct lc_sym_state *ctx, const uint8_t *in,
+				uint8_t *out, size_t len)
 {
 	lc_mode_cbc_c->decrypt(&ctx->cbc_state, in, out, len);
 }
 
-static void aes_cbc_init(struct lc_sym_state *ctx)
+static void aes_cbc_init_scr(struct lc_sym_state *ctx)
 {
 	static int tested = 0;
 
-	mode_cbc_selftest(lc_aes_cbc_c, &tested, "AES-CBC");
-	lc_mode_cbc_c->init(&ctx->cbc_state, lc_aes_c, &ctx->block_ctx);
+	mode_cbc_selftest(lc_aes_cbc_scr, &tested, "AES-CBC SCR");
+	lc_mode_cbc_c->init(&ctx->cbc_state, lc_aes_scr, &ctx->block_ctx);
 }
 
-static int aes_cbc_setkey(struct lc_sym_state *ctx, const uint8_t *key,
-			  size_t keylen)
+static int aes_cbc_setkey_scr(struct lc_sym_state *ctx, const uint8_t *key,
+			      size_t keylen)
 {
 	if (!ctx)
 		return -EINVAL;
 	return lc_mode_cbc_c->setkey(&ctx->cbc_state, key, keylen);
 }
 
-static int aes_cbc_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
-			 size_t ivlen)
+static int aes_cbc_setiv_scr(struct lc_sym_state *ctx, const uint8_t *iv,
+			     size_t ivlen)
 {
 	return lc_mode_cbc_c->setiv(&ctx->cbc_state, iv, ivlen);
 }
 
-static struct lc_sym _lc_aes_cbc_c = {
-	.init = aes_cbc_init,
-	.setkey = aes_cbc_setkey,
-	.setiv = aes_cbc_setiv,
-	.encrypt = aes_cbc_encrypt,
-	.decrypt = aes_cbc_decrypt,
+static struct lc_sym _lc_aes_cbc_scr = {
+	.init = aes_cbc_init_scr,
+	.setkey = aes_cbc_setkey_scr,
+	.setiv = aes_cbc_setiv_scr,
+	.encrypt = aes_cbc_encrypt_scr,
+	.decrypt = aes_cbc_decrypt_scr,
 	.statesize = LC_AES_CBC_BLOCK_SIZE,
 	.blocksize = AES_BLOCKLEN,
 };
-LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_cbc_c) = &_lc_aes_cbc_c;
-
-LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_cbc) = &_lc_aes_cbc_c;
+LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_cbc_scr) = &_lc_aes_cbc_scr;

@@ -11,4 +11,3 @@
 
 - provide version numbers in one place (currently found in meson.build, leancrypto.spec and Kbuild.version)
 
-- AES C implementation: remove side-channels in implementation

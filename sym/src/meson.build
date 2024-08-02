@@ -55,7 +55,7 @@ if get_option('aes_ecb').enabled()
 endif
 
 if get_option('aes_cbc').enabled()
-	src += files([ 'aes_cbc.c', 'mode_cbc.c' ])
+	src += files([ 'aes_cbc.c', 'aes_cbc_scr.c', 'mode_cbc.c' ])
 	lc_aes = 1
 
 	# AES-NI
@@ -82,7 +82,7 @@ if get_option('aes_cbc').enabled()
 endif
 
 if get_option('aes_ctr').enabled()
-	src += files([ 'aes_ctr.c', 'mode_ctr.c' ])
+	src += files([ 'aes_ctr.c', 'aes_ctr_scr.c', 'mode_ctr.c' ])
 	lc_aes = 1
 
 	# AES-NI
@@ -109,7 +109,7 @@ if get_option('aes_ctr').enabled()
 endif
 
 if get_option('aes_kw').enabled()
-	src += files([ 'aes_kw.c', 'mode_kw.c'])
+	src += files([ 'aes_kw.c', 'aes_kw_scr.c', 'mode_kw.c'])
 	lc_aes = 1
 	lc_block = 1
 
@@ -137,7 +137,7 @@ if get_option('aes_kw').enabled()
 endif
 
 if (lc_block == 1)
-	src += files([ 'aes_block.c' ])
+	src += files([ 'aes_block.c', 'aes_block_scr.c' ])
 	lc_aes = 1
 
 	# AES-NI
@@ -201,7 +201,8 @@ if (lc_riscv64_asm == 1)
 endif
 
 if (lc_aes == 1)
-	src += files([ 'aes.c',
+	src += files([ 'aes_no_sbox.c',
+		       'aes_sbox.c',
 		       'aes_selector.c'
 		     ])
 	include_files += files([ '../api/lc_aes.h' ])

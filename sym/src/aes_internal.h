@@ -50,13 +50,15 @@ struct lc_sym_mode {
 };
 
 /* AES block algorithm context */
+#define Nb 4 // number of words in each block
 struct aes_block_ctx {
 	/*
-	 * AES-256: 240
-	 * AES-192: 208
-	 * AES-128: 176
+	 * AES-256: 240 bytes
+	 * AES-192: 208 bytes
+	 * AES-128: 176 bytes
 	 */
-	uint8_t RoundKey[240];
+	uint32_t round_key[Nb * (14 + 1)];
+
 	uint8_t nk;
 	uint8_t nr;
 };
@@ -83,16 +85,26 @@ static inline int aes_set_type(struct aes_block_ctx *ctx, size_t keylen)
 }
 
 /* state - array holding the intermediate results during decryption. */
+#ifdef AES_NO_SBOX
+typedef union _aes_blk_t {
+	uint8_t b[Nb * 4];
+	uint32_t w[Nb];
+} state_t;
+#else
 typedef uint8_t state_t[4][4];
+#endif
 
 /* Key expansion operation */
-void KeyExpansion(struct aes_block_ctx *block_ctx, const uint8_t *Key);
+void aes_key_expansion(struct aes_block_ctx *block_ctx, const uint8_t *Key);
+void aes_key_expansion_scr(struct aes_block_ctx *block_ctx, const uint8_t *Key);
 
 /* AES block cipher operation */
 void aes_cipher(state_t *state, const struct aes_block_ctx *block_ctx);
+void aes_cipher_scr(state_t *state, const struct aes_block_ctx *block_ctx);
 
 /* AES inverse block cipher operation */
 void aes_inv_cipher(state_t *state, const struct aes_block_ctx *block_ctx);
+void aes_inv_cipher_scr(state_t *state, const struct aes_block_ctx *block_ctx);
 
 #ifdef __cplusplus
 }
