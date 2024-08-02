@@ -62,8 +62,7 @@ static int dilithium_tester_official(void)
 
 	CKINT_LOG(lc_dilithium_verify_init(ctx, &ws->pk),
 		  "Verify init failed - ret %u\n", ret);
-	CKINT_LOG(lc_dilithium_verify_update(ctx, ws->msg,
-					     sizeof(ws->msg)),
+	CKINT_LOG(lc_dilithium_verify_update(ctx, ws->msg, sizeof(ws->msg)),
 		  "Verify update failed - ret %u\n", ret);
 	CKINT_LOG(lc_dilithium_verify_final(&ws->sig, ctx, &ws->pk),
 		  "Signature verification stream operatino fialed - ret: %d\n",

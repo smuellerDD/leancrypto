@@ -125,7 +125,7 @@ static inline void lc_kernel_dilithium_44_exit(void)
 #endif
 
 #if defined(CONFIG_LEANCRYPTO_DILITHIUM_87) &&                                 \
-    defined(CONFIG_LEANCRYPTO_DILITHIUM_ED25519)
+	defined(CONFIG_LEANCRYPTO_DILITHIUM_ED25519)
 int __init lc_kernel_dilithium_ed25519_init(void);
 void lc_kernel_dilithium_ed25519_exit(void);
 #else
@@ -140,7 +140,7 @@ static inline void lc_kernel_dilithium_ed25519_exit(void)
 #endif
 
 #if defined(CONFIG_LEANCRYPTO_DILITHIUM_65) &&                                 \
-    defined(CONFIG_LEANCRYPTO_DILITHIUM_ED25519)
+	defined(CONFIG_LEANCRYPTO_DILITHIUM_ED25519)
 int __init lc_kernel_dilithium_65_ed25519_init(void);
 void lc_kernel_dilithium_65_ed25519_exit(void);
 #else
@@ -155,7 +155,7 @@ static inline void lc_kernel_dilithium_65_ed25519_exit(void)
 #endif
 
 #if defined(CONFIG_LEANCRYPTO_DILITHIUM_44) &&                                 \
-    defined(CONFIG_LEANCRYPTO_DILITHIUM_ED25519)
+	defined(CONFIG_LEANCRYPTO_DILITHIUM_ED25519)
 int __init lc_kernel_dilithium_44_ed25519_init(void);
 void lc_kernel_dilithium_44_ed25519_exit(void);
 #else

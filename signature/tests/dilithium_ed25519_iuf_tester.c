@@ -44,7 +44,8 @@ static int dilithium_ed25519_tester(struct lc_dilithium_ed25519_ctx *ctx,
 	CKINT(lc_dilithium_ed25519_sign_update(ctx, &msg[2], 1));
 	CKINT(lc_dilithium_ed25519_sign_final(&ws->sig, ctx, &ws->sk,
 					      selftest_rng));
-	CKINT_LOG(lc_dilithium_ed25519_verify(&ws->sig, msg, sizeof(msg), &ws->pk),
+	CKINT_LOG(lc_dilithium_ed25519_verify(&ws->sig, msg, sizeof(msg),
+					      &ws->pk),
 		  "Sign IUF, Verify one-shot\n");
 
 	CKINT(lc_dilithium_ed25519_keypair(&ws->pk, &ws->sk, selftest_rng));

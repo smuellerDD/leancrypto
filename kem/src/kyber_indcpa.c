@@ -231,8 +231,8 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 		uint8_t buf[2 * LC_KYBER_SYMBYTES];
 		polyvec e, pkpv, skpv;
 		union {
-			uint8_t poly_getnoise_eta1_buf[
-				POLY_GETNOISE_ETA1_BUFSIZE];
+			uint8_t poly_getnoise_eta1_buf
+				[POLY_GETNOISE_ETA1_BUFSIZE];
 			polyvec a[LC_KYBER_K];
 		} tmp;
 	};

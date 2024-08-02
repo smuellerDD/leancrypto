@@ -52,13 +52,13 @@ extern "C" {
 #endif
 
 enum lc_dilithium_type {
-	 /** Unknown key type */
+	/** Unknown key type */
 	LC_DILITHIUM_UNKNOWN,
-	 /** Dilithium 87 */
+	/** Dilithium 87 */
 	LC_DILITHIUM_87,
-	 /** Dilithium 65 */
+	/** Dilithium 65 */
 	LC_DILITHIUM_65,
-	 /** Dilithium 44 */
+	/** Dilithium 44 */
 	LC_DILITHIUM_44,
 };
 
@@ -1218,8 +1218,8 @@ struct lc_dilithium_ed25519_sig {
  *
  * @return 0 (success) or < 0 on error
  */
-static inline int lc_dilithium_ed25519_ctx_alloc(
-	struct lc_dilithium_ed25519_ctx **ctx)
+static inline int
+lc_dilithium_ed25519_ctx_alloc(struct lc_dilithium_ed25519_ctx **ctx)
 {
 	if (!ctx)
 		return -EINVAL;
@@ -1241,8 +1241,8 @@ static inline int lc_dilithium_ed25519_ctx_alloc(
  *
  * @param [out] ctx Dilithium-ED25519 context pointer
  */
-static inline void lc_dilithium_ed25519_ctx_zero_free(
-	struct lc_dilithium_ed25519_ctx *ctx)
+static inline void
+lc_dilithium_ed25519_ctx_zero_free(struct lc_dilithium_ed25519_ctx *ctx)
 {
 	if (!ctx)
 		return;
@@ -1262,8 +1262,8 @@ static inline void lc_dilithium_ed25519_ctx_zero_free(
  *
  * @param [out] ctx Dilithium-ED25519 context pointer
  */
-static inline void lc_dilithium_ed25519_ctx_zero(
-	struct lc_dilithium_ed25519_ctx *ctx)
+static inline void
+lc_dilithium_ed25519_ctx_zero(struct lc_dilithium_ed25519_ctx *ctx)
 {
 	if (!ctx)
 		return;
@@ -1920,9 +1920,9 @@ static inline int lc_dilithium_ed25519_sign(
  *
  * @return 0 (success) or < 0 on error
  */
-static inline int lc_dilithium_ed25519_sign_init(
-	struct lc_dilithium_ed25519_ctx *ctx,
-	const struct lc_dilithium_ed25519_sk *sk)
+static inline int
+lc_dilithium_ed25519_sign_init(struct lc_dilithium_ed25519_ctx *ctx,
+			       const struct lc_dilithium_ed25519_sk *sk)
 {
 	if (!ctx || !sk)
 		return -EINVAL;
@@ -1962,8 +1962,9 @@ static inline int lc_dilithium_ed25519_sign_init(
  *
  * @return 0 (success) or < 0 on error
  */
-static inline int lc_dilithium_ed25519_sign_update(
-	struct lc_dilithium_ed25519_ctx *ctx, const uint8_t *m, size_t mlen)
+static inline int
+lc_dilithium_ed25519_sign_update(struct lc_dilithium_ed25519_ctx *ctx,
+				 const uint8_t *m, size_t mlen)
 {
 	if (!ctx)
 		return -EINVAL;
@@ -1992,10 +1993,11 @@ static inline int lc_dilithium_ed25519_sign_update(
  *
  * @return 0 (success) or < 0 on error
  */
-static inline int lc_dilithium_ed25519_sign_final(
-	struct lc_dilithium_ed25519_sig *sig,
-	struct lc_dilithium_ed25519_ctx *ctx,
-	const struct lc_dilithium_ed25519_sk *sk, struct lc_rng_ctx *rng_ctx)
+static inline int
+lc_dilithium_ed25519_sign_final(struct lc_dilithium_ed25519_sig *sig,
+				struct lc_dilithium_ed25519_ctx *ctx,
+				const struct lc_dilithium_ed25519_sk *sk,
+				struct lc_rng_ctx *rng_ctx)
 {
 	if (!sk || !sig || !ctx)
 		return -EINVAL;
@@ -2004,27 +2006,24 @@ static inline int lc_dilithium_ed25519_sign_final(
 	case LC_DILITHIUM_87:
 #ifdef LC_DILITHIUM_87_ENABLED
 		sig->dilithium_type = LC_DILITHIUM_87;
-		return lc_dilithium_87_ed25519_sign_final(&sig->sig.sig_87, ctx,
-							  &sk->key.sk_87,
-							  rng_ctx);
+		return lc_dilithium_87_ed25519_sign_final(
+			&sig->sig.sig_87, ctx, &sk->key.sk_87, rng_ctx);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_DILITHIUM_65:
 #ifdef LC_DILITHIUM_65_ENABLED
 		sig->dilithium_type = LC_DILITHIUM_65;
-		return lc_dilithium_65_ed25519_sign_final(&sig->sig.sig_65, ctx,
-							  &sk->key.sk_65,
-							  rng_ctx);
+		return lc_dilithium_65_ed25519_sign_final(
+			&sig->sig.sig_65, ctx, &sk->key.sk_65, rng_ctx);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_DILITHIUM_44:
 #ifdef LC_DILITHIUM_44_ENABLED
 		sig->dilithium_type = LC_DILITHIUM_44;
-		return lc_dilithium_44_ed25519_sign_final(&sig->sig.sig_44, ctx,
-							  &sk->key.sk_44,
-							  rng_ctx);
+		return lc_dilithium_44_ed25519_sign_final(
+			&sig->sig.sig_44, ctx, &sk->key.sk_44, rng_ctx);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -2091,9 +2090,9 @@ lc_dilithium_ed25519_verify(const struct lc_dilithium_ed25519_sig *sig,
  *
  * @return 0 (success) or < 0 on error
  */
-static inline int lc_dilithium_ed25519_verify_init(
-	struct lc_dilithium_ed25519_ctx *ctx,
-	const struct lc_dilithium_ed25519_pk *pk)
+static inline int
+lc_dilithium_ed25519_verify_init(struct lc_dilithium_ed25519_ctx *ctx,
+				 const struct lc_dilithium_ed25519_pk *pk)
 {
 	if (!pk || !ctx)
 		return -EINVAL;
@@ -2133,8 +2132,9 @@ static inline int lc_dilithium_ed25519_verify_init(
  *
  * @return 0 (success) or < 0 on error
  */
-static inline int lc_dilithium_ed25519_verify_update(
-	struct lc_dilithium_ed25519_ctx *ctx, const uint8_t *m, size_t mlen)
+static inline int
+lc_dilithium_ed25519_verify_update(struct lc_dilithium_ed25519_ctx *ctx,
+				   const uint8_t *m, size_t mlen)
 {
 	if (!ctx)
 		return -EINVAL;
@@ -2161,10 +2161,10 @@ static inline int lc_dilithium_ed25519_verify_update(
  * @return 0 if signature could be verified correctly and -EBADMSG when
  * signature cannot be verified, < 0 on other errors
  */
-static inline int lc_dilithium_ed25519_verify_final(
-	const struct lc_dilithium_ed25519_sig *sig,
-	struct lc_dilithium_ed25519_ctx *ctx,
-	const struct lc_dilithium_ed25519_pk *pk)
+static inline int
+lc_dilithium_ed25519_verify_final(const struct lc_dilithium_ed25519_sig *sig,
+				  struct lc_dilithium_ed25519_ctx *ctx,
+				  const struct lc_dilithium_ed25519_pk *pk)
 {
 	if (!ctx || !pk || !sig || sig->dilithium_type != pk->dilithium_type)
 		return -EINVAL;
@@ -2172,25 +2172,22 @@ static inline int lc_dilithium_ed25519_verify_final(
 	switch (pk->dilithium_type) {
 	case LC_DILITHIUM_87:
 #ifdef LC_DILITHIUM_87_ENABLED
-		return lc_dilithium_87_ed25519_verify_final(&sig->sig.sig_87,
-							    ctx,
-							    &pk->key.pk_87);
+		return lc_dilithium_87_ed25519_verify_final(
+			&sig->sig.sig_87, ctx, &pk->key.pk_87);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_DILITHIUM_65:
 #ifdef LC_DILITHIUM_65_ENABLED
-		return lc_dilithium_65_ed25519_verify_final(&sig->sig.sig_65,
-							    ctx,
-							    &pk->key.pk_65);
+		return lc_dilithium_65_ed25519_verify_final(
+			&sig->sig.sig_65, ctx, &pk->key.pk_65);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_DILITHIUM_44:
 #ifdef LC_DILITHIUM_44_ENABLED
-		return lc_dilithium_44_ed25519_verify_final(&sig->sig.sig_44,
-							    ctx,
-							    &pk->key.pk_44);
+		return lc_dilithium_44_ed25519_verify_final(
+			&sig->sig.sig_44, ctx, &pk->key.pk_44);
 #else
 		return -EOPNOTSUPP;
 #endif

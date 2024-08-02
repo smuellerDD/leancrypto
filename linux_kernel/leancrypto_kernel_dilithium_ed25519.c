@@ -93,7 +93,6 @@ static int lc_kernel_dilithium_ed25519_sign(struct akcipher_request *req)
 	if (ret)
 		goto out;
 
-
 	ret = lc_dilithium_ed25519_sig_ptr(&sig_ptr, &sig_len, &sig_ed25519_ptr,
 					   &sig_ed25519_len, sig);
 	if (ret)
@@ -118,10 +117,9 @@ static int lc_kernel_dilithium_ed25519_sign(struct akcipher_request *req)
 	 * the Dilithium signature.
 	 */
 	ed25519_dst = scatterwalk_ffwd(ed25519_sg_dst, req->dst, sig_len);
-	copied = sg_pcopy_from_buffer(ed25519_dst,
-				      sg_nents_for_len(ed25519_dst,
-						       sig_ed25519_len),
-				      sig_ed25519_ptr, sig_ed25519_len, 0);
+	copied = sg_pcopy_from_buffer(
+		ed25519_dst, sg_nents_for_len(ed25519_dst, sig_ed25519_len),
+		sig_ed25519_ptr, sig_ed25519_len, 0);
 	if (copied != sig_ed25519_len)
 		ret = -EINVAL;
 
@@ -240,22 +238,25 @@ static int lc_kernel_dilithium_ed25519_set_pub_key_int(
 	return ret;
 }
 
-static int lc_kernel_dilithium_ed25519_44_set_pub_key(
-	struct crypto_akcipher *tfm, const void *key, unsigned int keylen)
+static int
+lc_kernel_dilithium_ed25519_44_set_pub_key(struct crypto_akcipher *tfm,
+					   const void *key, unsigned int keylen)
 {
 	return lc_kernel_dilithium_ed25519_set_pub_key_int(tfm, key, keylen,
 							   LC_DILITHIUM_44);
 }
 
-static int lc_kernel_dilithium_ed25519_65_set_pub_key(
-	struct crypto_akcipher *tfm, const void *key, unsigned int keylen)
+static int
+lc_kernel_dilithium_ed25519_65_set_pub_key(struct crypto_akcipher *tfm,
+					   const void *key, unsigned int keylen)
 {
 	return lc_kernel_dilithium_ed25519_set_pub_key_int(tfm, key, keylen,
 							   LC_DILITHIUM_65);
 }
 
-static int lc_kernel_dilithium_ed25519_87_set_pub_key(
-	struct crypto_akcipher *tfm, const void *key, unsigned int keylen)
+static int
+lc_kernel_dilithium_ed25519_87_set_pub_key(struct crypto_akcipher *tfm,
+					   const void *key, unsigned int keylen)
 {
 	return lc_kernel_dilithium_ed25519_set_pub_key_int(tfm, key, keylen,
 							   LC_DILITHIUM_87);
@@ -313,8 +314,8 @@ static int lc_kernel_dilithium_ed25519_87_set_priv_key(
 							    LC_DILITHIUM_87);
 }
 
-static unsigned int lc_kernel_dilithium_ed25519_max_size(
-	struct crypto_akcipher *tfm)
+static unsigned int
+lc_kernel_dilithium_ed25519_max_size(struct crypto_akcipher *tfm)
 {
 	struct lc_kernel_dilithium_ed25519_ctx *ctx = akcipher_tfm_ctx(tfm);
 	enum lc_dilithium_type type;

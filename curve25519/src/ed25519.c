@@ -158,16 +158,17 @@ static void lc_ed25519_sign_tester(int *tested)
 static inline void lc_ed25519_dom2(struct lc_hash_ctx *hash_ctx, int prehash)
 {
 	/* Label + phflag = 1 + size of context */
-	static const uint8_t label[] = {
-		'S', 'i', 'g', 'E', 'd', '2', '5', '5', '1', '9', ' ',
-		'n', 'o', ' ', 'E', 'd', '2', '5', '5', '1', '9', ' ',
-		'c', 'o', 'l', 'l', 'i', 's', 'i', 'o', 'n', 's', 1, 0
-	};
+	static const uint8_t label[] = { 'S', 'i', 'g', 'E', 'd', '2', '5',
+					 '5', '1', '9', ' ', 'n', 'o', ' ',
+					 'E', 'd', '2', '5', '5', '1', '9',
+					 ' ', 'c', 'o', 'l', 'l', 'i', 's',
+					 'i', 'o', 'n', 's', 1,	  0 };
 
 	if (!prehash)
 		return;
 
-	lc_hash_update(hash_ctx, label, sizeof(label));;
+	lc_hash_update(hash_ctx, label, sizeof(label));
+	;
 }
 
 static int lc_ed25519_sign_internal(struct lc_ed25519_sig *sig, int prehash,
@@ -383,10 +384,8 @@ LC_INTERFACE_FUNCTION(int, lc_ed25519_verify, const struct lc_ed25519_sig *sig,
 }
 
 LC_INTERFACE_FUNCTION(int, lc_ed25519ph_verify,
-		      const struct lc_ed25519_sig *sig,
-		      const uint8_t *msg, size_t mlen,
-		      const struct lc_ed25519_pk *pk)
+		      const struct lc_ed25519_sig *sig, const uint8_t *msg,
+		      size_t mlen, const struct lc_ed25519_pk *pk)
 {
 	return lc_ed25519_verify_internal(sig, 1, msg, mlen, pk);
 }
-

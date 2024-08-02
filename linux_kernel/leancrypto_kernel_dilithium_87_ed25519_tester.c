@@ -72,8 +72,8 @@ static void lc_akcipher_wait(struct lc_akcipher_def *akcipher, int rc)
 }
 
 static int lc_test_sigver(const char *algname,
-			  struct lc_dilithium_ed25519_pk *pk,
-			  uint8_t *sig, uint8_t *msg, size_t msglen)
+			  struct lc_dilithium_ed25519_pk *pk, uint8_t *sig,
+			  uint8_t *msg, size_t msglen)
 {
 	struct crypto_akcipher *tfm = NULL;
 	struct lc_akcipher_def akcipher;
@@ -103,7 +103,7 @@ static int lc_test_sigver(const char *algname,
 	    lc_dilithium_ed25519_pk_size(DILITHIUM_TYPE)) {
 		pr_info("Unexpected public key length: %zu %u\n",
 			dilithium_len + ed25519_len,
-		        lc_dilithium_ed25519_pk_size(DILITHIUM_TYPE));
+			lc_dilithium_ed25519_pk_size(DILITHIUM_TYPE));
 		err = -EFAULT;
 		goto err;
 	}
@@ -129,9 +129,9 @@ static int lc_test_sigver(const char *algname,
 	sg_init_one(&src, sig, lc_dilithium_ed25519_sig_size(DILITHIUM_TYPE));
 	sg_init_one(&dst, msg, msglen);
 
-	akcipher_request_set_crypt(req, &src, &dst,
-				   lc_dilithium_ed25519_sig_size(DILITHIUM_TYPE),
-				   msglen);
+	akcipher_request_set_crypt(
+		req, &src, &dst, lc_dilithium_ed25519_sig_size(DILITHIUM_TYPE),
+		msglen);
 
 	err = crypto_akcipher_verify(req);
 
@@ -148,8 +148,8 @@ err:
 }
 
 static int lc_test_siggen(const char *algname,
-			  struct lc_dilithium_ed25519_sk *sk,
-			  uint8_t *sig, uint8_t *msg, size_t msglen)
+			  struct lc_dilithium_ed25519_sk *sk, uint8_t *sig,
+			  uint8_t *msg, size_t msglen)
 {
 	struct crypto_akcipher *tfm = NULL;
 	struct lc_akcipher_def akcipher;
@@ -179,11 +179,10 @@ static int lc_test_siggen(const char *algname,
 	    lc_dilithium_ed25519_sk_size(DILITHIUM_TYPE)) {
 		pr_info("Unexpected private key length: %zu %u\n",
 			dilithium_len + ed25519_len,
-		        lc_dilithium_ed25519_sk_size(DILITHIUM_TYPE));
+			lc_dilithium_ed25519_sk_size(DILITHIUM_TYPE));
 		err = -EFAULT;
 		goto err;
 	}
-
 
 	/*
 	 * NOTE: This only works because dilithium_sk_ptr and ed25519_sk_ptr
@@ -201,8 +200,9 @@ static int lc_test_siggen(const char *algname,
 
 	sg_init_one(&src, msg, msglen);
 	sg_init_one(&dst, sig, lc_dilithium_ed25519_sig_size(DILITHIUM_TYPE));
-	akcipher_request_set_crypt(req, &src, &dst, msglen,
-				   lc_dilithium_ed25519_sig_size(DILITHIUM_TYPE));
+	akcipher_request_set_crypt(
+		req, &src, &dst, msglen,
+		lc_dilithium_ed25519_sig_size(DILITHIUM_TYPE));
 
 	err = crypto_akcipher_sign(req);
 	lc_akcipher_wait(&akcipher, err);
@@ -243,7 +243,8 @@ static int lc_dilithium_tester(void)
 	int ret;
 
 	ws = kzalloc(sizeof(struct workspace) +
-		     lc_dilithium_ed25519_sig_size(DILITHIUM_TYPE), GFP_KERNEL);
+			     lc_dilithium_ed25519_sig_size(DILITHIUM_TYPE),
+		     GFP_KERNEL);
 	if (!ws)
 		return -ENOMEM;
 

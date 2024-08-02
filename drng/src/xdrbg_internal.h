@@ -38,7 +38,8 @@ extern "C" {
 #endif
 
 #if (!defined(LC_DRNG_XDRBG256) && !defined(LC_DRNG_XDRBG128))
-#pragma message "XDRBG compiled but without support for either XDRBG256 or XDRBG128"
+#pragma message                                                                \
+	"XDRBG compiled but without support for either XDRBG256 or XDRBG128"
 #endif
 
 #ifdef LC_DRNG_XDRBG256

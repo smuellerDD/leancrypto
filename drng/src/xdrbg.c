@@ -28,8 +28,8 @@
 
 /*********************************** Helper ***********************************/
 
-static inline uint8_t lc_xdrbg_initially_seeded(
-	struct lc_xdrbg_drng_state *state)
+static inline uint8_t
+lc_xdrbg_initially_seeded(struct lc_xdrbg_drng_state *state)
 {
 	return !!(state->status & LC_XDRBG_DRNG_INITIALLY_SEEDED);
 }
@@ -38,7 +38,6 @@ static inline uint8_t lc_xdrbg_keysize(struct lc_xdrbg_drng_state *state)
 {
 	return state->status & LC_XDRBG_DRNG_KEYSIZE_MASK;
 }
-
 
 static inline void lc_xdrbg_xof_final(struct lc_hash_ctx *xof_ctx,
 				      uint8_t *digest, size_t digest_len)
@@ -237,9 +236,8 @@ static int lc_xdrbg_drng_seed(void *_state, const uint8_t *seed, size_t seedlen,
 	lc_hash_update(xof_ctx, seed, seedlen);
 
 	/* Insert alpha into the XOF state together with its encoding. */
-	lc_xdrbg_drng_encode(xof_ctx,
-			     LC_XDRBG_DRNG_ENCODE_N(initially_seeded), alpha,
-			     alphalen);
+	lc_xdrbg_drng_encode(xof_ctx, LC_XDRBG_DRNG_ENCODE_N(initially_seeded),
+			     alpha, alphalen);
 
 	/* Generate the V to store in the state and overwrite V'. */
 	lc_xdrbg_xof_final(xof_ctx, state->v, keysize);

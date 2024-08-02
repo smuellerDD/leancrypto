@@ -123,8 +123,8 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sign_final,
 
 	ed25519_hash_ctx = &ctx->ed25519_hash_ctx;
 
-	CKINT(lc_dilithium_sign_final(&sig->sig, &ctx->dilithium_ctx,
-				      &sk->sk, rng_ctx));
+	CKINT(lc_dilithium_sign_final(&sig->sig, &ctx->dilithium_ctx, &sk->sk,
+				      rng_ctx));
 
 	lc_hash_final(ed25519_hash_ctx, digest);
 	CKINT(lc_ed25519ph_sign(&sig->sig_ed25519, digest, sizeof(digest),
@@ -219,7 +219,8 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_verify_final,
 {
 	uint8_t digest[LC_SHA512_SIZE_DIGEST];
 	struct lc_hash_ctx *ed25519_hash_ctx;
-	int retd, rete, ret = 0;;
+	int retd, rete, ret = 0;
+	;
 
 	CKNULL(sig, -EINVAL);
 	CKNULL(pk, -EINVAL);

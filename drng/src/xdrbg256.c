@@ -71,7 +71,6 @@ void xdrbg256_drng_selftest(int *tested, const char *impl)
 	lc_rng_zero(shake_ctx);
 }
 
-
 LC_INTERFACE_FUNCTION(int, lc_xdrbg256_drng_alloc, struct lc_rng_ctx **state)
 {
 	struct lc_rng_ctx *out_state = NULL;

@@ -139,8 +139,8 @@ static int lc_kernel_kyber_x25519_gen_ct(struct kpp_request *req)
 		x25519 = scatterwalk_ffwd(x25519_sg, req->dst,
 					  LC_KYBER_PUBLICKEYBYTES);
 		copied = sg_pcopy_from_buffer(
-			x25519, sg_nents_for_len(x25519,
-						 LC_X25519_PUBLICKEYBYTES),
+			x25519,
+			sg_nents_for_len(x25519, LC_X25519_PUBLICKEYBYTES),
 			lpk->pk_x25519.pk, LC_X25519_PUBLICKEYBYTES, 0);
 		if (copied != LC_X25519_PUBLICKEYBYTES)
 			return -EINVAL;
@@ -160,16 +160,15 @@ static int lc_kernel_kyber_x25519_gen_ct(struct kpp_request *req)
 		return -EINVAL;
 
 	/* Copy in the X25519 public key */
-	x25519 = scatterwalk_ffwd(x25519_sg, req->src,
-				  LC_KYBER_PUBLICKEYBYTES);
+	x25519 = scatterwalk_ffwd(x25519_sg, req->src, LC_KYBER_PUBLICKEYBYTES);
 	copied = sg_copy_to_buffer(x25519,
 				   sg_nents_for_len(x25519, req->src_len),
 				   rpk.pk_x25519.pk, LC_X25519_PUBLICKEYBYTES);
 	if (copied != LC_X25519_PUBLICKEYBYTES)
 		return -EINVAL;
 
-	ret = lc_kyber_x25519_enc_kdf(&ctx->ct, ctx->ss,
-				      LC_KYBER_X25519_MAX_SS, &rpk);
+	ret = lc_kyber_x25519_enc_kdf(&ctx->ct, ctx->ss, LC_KYBER_X25519_MAX_SS,
+				      &rpk);
 	if (ret)
 		return ret;
 
