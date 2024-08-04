@@ -20,7 +20,10 @@
 /*
  * AES C implementation using S-BOX
  *
- * This implementation is not side-channel-resistant, but is decently fast.
+ * This implementation is implements a side-channel-resistant key handling,
+ * but does not prevent side-channels regarding the plaintext or ciphertext.
+ * Furthermore it is decently fast compared to the full side-channel-resistant
+ * implementation.
  */
 
 #include "aes_c.h"
@@ -92,8 +95,7 @@ static int aes_setkey(struct lc_sym_state *ctx, const uint8_t *key,
 	int ret;
 
 	/* Timecop: key is sensitive. */
-	// TODO: AES C implementation is not side-channel-resistant!
-	//poison(key, keylen);
+	poison(key, keylen);
 
 	if (!ctx)
 		return -EINVAL;

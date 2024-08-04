@@ -26,18 +26,22 @@
 #define AES_SBOX
 
 #include "aes_internal.h"
+#include "aes_scr_helper.h"
+#include "alignment.h"
+#include "bitshift.h"
 #include "ext_headers.h"
 #include "lc_aes.h"
+#include "rotate.h"
+#include "timecop.h"
 #include "visibility.h"
 
-/*****************************************************************************
- * AES Definitions
- *****************************************************************************/
 /*
- * The number of columns comprising a state in AES. This is a constant in AES.
- * Value=4
+ * When enabled, the code uses the SBox-free implementation of the key expansion
+ * code. This code is significantly more inefficient, but reduces side channels.
+ * Although it reduces side channels, it is not free of it. If you want to have
+ * side-channel free ciphers, use others like Ascon or Ascon-Keccak.
  */
-#define Nb 4
+#undef AES_SIDE_CHANNEL_RESISTANT_KEYEXPANSION
 
 /*****************************************************************************/
 /* Private variables:                                                        */
@@ -94,6 +98,66 @@ static const uint8_t rsbox[256] = {
 	0x55, 0x21, 0x0c, 0x7d
 };
 
+static uint8_t getSBoxValue(uint8_t num)
+{
+	return sbox[num];
+}
+
+#ifdef AES_SIDE_CHANNEL_RESISTANT_KEYEXPANSION
+
+static void aes_setkey(struct aes_block_ctx *ctx, const uint8_t *key)
+{
+	unsigned int i;
+	uint32_t x;
+	uint32_t *w = (uint32_t *)ctx->round_key;
+	uint32_t rcon = 1;
+
+	if (aligned(key, sizeof(uint32_t) - 1)) {
+		for (i = 0; i < ctx->nk; i++) {
+			/*
+			 * We can ignore the alignment warning as we checked
+			 * for proper alignment.
+			 */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
+			w[i] = ((uint32_t *)key)[i];
+#pragma GCC diagnostic pop
+		}
+	} else {
+		for (i = 0; i < ctx->nk; i++) {
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+			w[i] = ptr_to_le32(key + (i * sizeof(uint32_t)));
+#elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+			w[i] = ptr_to_be32(key + (i * sizeof(uint32_t)));
+#else
+#error "Endianess not defined"
+#endif
+		}
+	}
+
+	for (i = ctx->nk; i < (unsigned int)(Nb * (ctx->nr + 1)); i++) {
+		x = w[i - 1];
+
+		/* Shut up clang-scan */
+		if (!ctx->nk)
+			break;
+
+		if ((i % ctx->nk) == 0) {
+			x = ror32(x, 8);
+			x = aes_sub_word(x) ^ rcon;
+			rcon = gf_mul2(rcon);
+		} else if ((ctx->nk > 6) && ((i % ctx->nk) == 4)) {
+			x = aes_sub_word(x);
+		}
+		w[i] = w[i - ctx->nk] ^ x;
+	}
+}
+void aes_key_expansion(struct aes_block_ctx *block_ctx, const uint8_t *Key)
+{
+	aes_setkey(block_ctx, Key);
+}
+#else
+
 /*
  * The round constant word array, Rcon[i], contains the values given by
  * x to the power (i-1) being powers of x (x is denoted as {02}) in the field
@@ -108,11 +172,6 @@ static const uint8_t rsbox[256] = {
  */
 static const uint8_t Rcon[11] = { 0x8d, 0x01, 0x02, 0x04, 0x08, 0x10,
 				  0x20, 0x40, 0x80, 0x1b, 0x36 };
-
-static uint8_t getSBoxValue(uint8_t num)
-{
-	return sbox[num];
-}
 
 /*
  * This function produces Nb(Nr+1) round keys. The round keys are used in each
@@ -197,6 +256,7 @@ void aes_key_expansion(struct aes_block_ctx *block_ctx, const uint8_t *Key)
 		RoundKey[j + 3] = RoundKey[k + 3] ^ tempa[3];
 	}
 }
+#endif
 
 /*
  * This function adds the round key to state.
@@ -213,6 +273,15 @@ static void aes_add_round_key(uint8_t round, state_t *state,
 				RoundKey[(round * Nb * 4) + (i * Nb) + j];
 		}
 	}
+
+	/*
+	 * Timecop: Once the round key is XORed with the state (originating
+	 * from the plaintext or ciphertext and perhaps already partially
+	 * processed by previous rounds), any lookup using this state data
+	 * in the SBox is not considered to reveal a timing channel to
+	 * resolve the key / round key. Thus, let us unmark this memory.
+	 */
+	unpoison(state, sizeof(state_t));
 }
 
 /*

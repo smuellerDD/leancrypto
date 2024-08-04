@@ -56,7 +56,7 @@ static void aes_encrypt_scr(struct lc_sym_state *ctx, const uint8_t *in,
 		if (in != out)
 			memcpy(out, in, AES_BLOCKLEN);
 
-			/*
+		/*
 		 * We can ignore the alignment warning as we checked
 		 * for proper alignment.
 		 */
@@ -65,13 +65,15 @@ static void aes_encrypt_scr(struct lc_sym_state *ctx, const uint8_t *in,
 		aes_cipher_scr((state_t *)out, block_ctx);
 #pragma GCC diagnostic pop
 	} else {
-		state_t block;
+		/* Alignment to support aligned XOR usage */
+		state_t block __align(sizeof(uint64_t));
 
 		BUILD_BUG_ON(sizeof(block) != AES_BLOCKLEN);
 
 		memcpy(&block, in, AES_BLOCKLEN);
 		aes_cipher_scr(&block, block_ctx);
 		memcpy(out, &block, AES_BLOCKLEN);
+		lc_memset_secure(&block, 0, AES_BLOCKLEN);
 	}
 
 	/* Timecop: output is not sensitive regarding side-channels. */

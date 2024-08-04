@@ -1,5 +1,6 @@
-/*
- * Copyright (C) 2022 - 2024, Stephan Mueller <smueller@chronox.de>
+/* AES (s)ide-(c)hannel-(r)esistant implementation
+ *
+ * Copyright (C) 2024, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *
@@ -52,6 +53,7 @@
 #define AES_NO_SBOX
 
 #include "aes_internal.h"
+#include "aes_scr_helper.h"
 #include "alignment.h"
 #include "bitshift.h"
 #include "ext_headers.h"
@@ -59,92 +61,7 @@
 #include "rotate.h"
 #include "timecop.h"
 #include "visibility.h"
-
-#define RotWord(x) ror32(x, 8)
-
-static uint32_t gf_mul2(uint32_t w)
-{
-	uint32_t t = w & 0x80808080;
-
-	return ((w ^ t) << 1) ^ ((t >> 7) * 0x0000001B);
-}
-
-/*
- * multiplicative inverse
- */
-static uint8_t gf_mulinv(uint8_t x)
-{
-	uint8_t y = x, i;
-
-	// TODO
-	unpoison(&x, 1);
-	unpoison(&y, 1);
-	if (x) {
-		// calculate logarithm gen 3
-		for (i = 1, y = 1; i > 0; i++) {
-			y ^= (uint8_t)gf_mul2(y);
-			if (y == x)
-				break;
-		}
-		x = ~i;
-		// calculate anti-logarithm gen 3
-		for (i = 0, y = 1; i < x; i++) {
-			y ^= (uint8_t)gf_mul2(y);
-		}
-	}
-	return y;
-}
-
-/*
- * Substitute one byte
- */
-static uint8_t aes_sub_byte(uint8_t x)
-{
-	uint8_t i, y = 0, sb;
-
-	sb = y = gf_mulinv(x);
-
-	for (i = 0; i < 4; i++) {
-		y = rol8(y, 1);
-		sb ^= y;
-	}
-
-	sb ^= 0x63;
-
-	return sb;
-}
-
-static uint8_t aes_sub_byte_inv(uint8_t x)
-{
-	uint8_t y = 0, sb;
-
-	y = x ^ 0x63;
-	y = rol8(y, 1);
-	sb = y;
-	y = rol8(y, 2);
-	sb ^= y;
-	y = rol8(y, 3);
-	sb ^= y;
-	sb = gf_mulinv(sb);
-
-	return sb;
-}
-
-/*
- * Substitute four bytes
- */
-static uint32_t aes_sub_word(uint32_t x)
-{
-	uint8_t i;
-	uint32_t r = 0;
-
-	for (i = 0; i < 4; i++) {
-		r |= aes_sub_byte(x & 0xFF);
-		r = ror32(r, 8);
-		x >>= 8;
-	}
-	return r;
-}
+#include "xor.h"
 
 /*
  * Substitute 16 bytes
@@ -225,10 +142,10 @@ static uint32_t aes_mix_one_column(uint32_t w)
 
 static void aes_mix_columns(state_t *state)
 {
-	uint32_t i;
-
-	for (i = 0; i < 4; i++)
-		state->w[i] = aes_mix_one_column(state->w[i]);
+	state->w[0] = aes_mix_one_column(state->w[0]);
+	state->w[1] = aes_mix_one_column(state->w[1]);
+	state->w[2] = aes_mix_one_column(state->w[2]);
+	state->w[3] = aes_mix_one_column(state->w[3]);
 }
 
 static void aes_mix_columns_inv(state_t *state)
@@ -246,11 +163,16 @@ static void aes_mix_columns_inv(state_t *state)
 
 static void aes_add_round_key(state_t *state, uint32_t w[], int rnd)
 {
-	uint32_t i;
-	uint8_t *key = (uint8_t *)&w[rnd * 4];
+	xor_64(state->b, (uint8_t *)&w[rnd * 4], AES_BLOCKLEN);
 
-	for (i = 0; i < 16; i++)
-		state->b[i] ^= key[i];
+	/*
+	 * Timecop: Once the round key is XORed with the state (originating
+	 * from the plaintext or ciphertext and perhaps already partially
+	 * processed by previous rounds), any lookup using this state data
+	 * in the SBox is not considered to reveal a timing channel to
+	 * resolve the key / round key. Thus, let us unmark this memory.
+	 */
+	unpoison(state, sizeof(state_t));
 }
 
 static void aes_setkey(struct aes_block_ctx *ctx, const uint8_t *key)
