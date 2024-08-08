@@ -34,3 +34,5 @@ if get_option('dilithium_44').enabled()
 					output: 'lc_dilithium_44.h',
 					configuration: dilithium_44_conf_data)
 endif
+
+include_files += files([ 'lc_dilithium.h' ])
