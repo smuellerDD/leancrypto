@@ -183,7 +183,7 @@ struct lc_dilithium_ctx {
 /// \endcond
 
 /**
- * @brief Allocate stack memory for the Dilithium-ED25519 stream context
+ * @brief Allocate stack memory for the Dilithium stream context
  *
  * @param [in] name Name of the stack variable
  */
@@ -192,7 +192,7 @@ struct lc_dilithium_ctx {
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 		LC_ALIGNED_BUFFER(                                             \
-			name##_ctx_buf, LC_DILITHIUM_ED25519_CTX_SIZE,         \
+			name##_ctx_buf, LC_DILITHIUM_CTX_SIZE,                 \
 			LC_HASH_COMMON_ALIGNMENT);                             \
 	struct lc_dilithium_ctx *name =                                        \
 		(struct lc_dilithium_ctx *)name##_ctx_buf;                     \
