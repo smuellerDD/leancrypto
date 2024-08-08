@@ -39,8 +39,6 @@
 #include "dilithium_pack.h"
 #include "dilithium_signature_impl.h"
 
-#include "lc_sha3.h"
-
 LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_from_seed_c,
 		      struct lc_dilithium_pk *pk, struct lc_dilithium_sk *sk,
 		      const uint8_t *seed, size_t seedlen)
@@ -112,35 +110,4 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_final_c,
 		      const struct lc_dilithium_pk *pk)
 {
 	return lc_dilithium_verify_final_impl(sig, ctx, pk);
-}
-
-LC_INTERFACE_FUNCTION(int, lc_dilithium_ctx_alloc,
-		      struct lc_dilithium_ctx **ctx)
-{
-	struct lc_dilithium_ctx *out_ctx = NULL;
-	int ret;
-
-	if (!ctx)
-		return -EINVAL;
-
-	ret = lc_alloc_aligned((void **)&out_ctx, LC_HASH_COMMON_ALIGNMENT,
-			       LC_DILITHIUM_CTX_SIZE);
-	if (ret)
-		return -ret;
-
-	LC_SHAKE_256_CTX((&(out_ctx)->dilithium_hash_ctx));
-
-	*ctx = out_ctx;
-
-	return 0;
-}
-
-LC_INTERFACE_FUNCTION(void, lc_dilithium_ctx_zero_free,
-		      struct lc_dilithium_ctx *ctx)
-{
-	if (!ctx)
-		return;
-
-	lc_dilithium_ctx_zero(ctx);
-	lc_free(ctx);
 }
