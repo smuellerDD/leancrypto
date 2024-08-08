@@ -32,35 +32,37 @@
 #define DILITHIUM_TYPE LC_DILITHIUM_87
 #endif
 
-static int dilithium_iuf_tester_official(struct lc_dilithium_ctx *ctx)
+static int dilithium_iuf_tester_official(struct lc_dilithium_ed25519_ctx *ctx)
 {
 	struct workspace {
-		struct lc_dilithium_sk sk;
-		struct lc_dilithium_pk pk;
-		struct lc_dilithium_sig sig;
+		struct lc_dilithium_ed25519_sk sk;
+		struct lc_dilithium_ed25519_pk pk;
+		struct lc_dilithium_ed25519_sig sig;
 		uint8_t msg[10];
 	};
 
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	int ret = 0;
 
-	CKINT(lc_dilithium_keypair(&ws->pk, &ws->sk, lc_seeded_rng,
-				   DILITHIUM_TYPE));
+	CKINT(lc_dilithium_ed25519_keypair(&ws->pk, &ws->sk, lc_seeded_rng,
+					   DILITHIUM_TYPE));
 
 	/* Stream operation */
-	CKINT_LOG(lc_dilithium_sign_init(ctx, &ws->sk),
+	CKINT_LOG(lc_dilithium_ed25519_sign_init(ctx, &ws->sk),
 		  "Sign init failed - ret %d\n", ret);
-	CKINT_LOG(lc_dilithium_sign_update(ctx, ws->msg, sizeof(ws->msg)),
+	CKINT_LOG(lc_dilithium_ed25519_sign_update(ctx, ws->msg,
+						   sizeof(ws->msg)),
 		  "Sign update failed - ret %u\n", ret);
-	CKINT_LOG(lc_dilithium_sign_final(&ws->sig, ctx, &ws->sk,
-					  lc_seeded_rng),
+	CKINT_LOG(lc_dilithium_ed25519_sign_final(&ws->sig, ctx, &ws->sk,
+						  lc_seeded_rng),
 		  "Sign final failed - ret %u\n", ret);
 
-	CKINT_LOG(lc_dilithium_verify_init(ctx, &ws->pk),
+	CKINT_LOG(lc_dilithium_ed25519_verify_init(ctx, &ws->pk),
 		  "Verify init failed - ret %u\n", ret);
-	CKINT_LOG(lc_dilithium_verify_update(ctx, ws->msg, sizeof(ws->msg)),
+	CKINT_LOG(lc_dilithium_ed25519_verify_update(ctx, ws->msg,
+						     sizeof(ws->msg)),
 		  "Verify update failed - ret %u\n", ret);
-	CKINT_LOG(lc_dilithium_verify_final(&ws->sig, ctx, &ws->pk),
+	CKINT_LOG(lc_dilithium_ed25519_verify_final(&ws->sig, ctx, &ws->pk),
 		  "Signature verification stream operatino fialed - ret: %d\n",
 		  ret);
 
@@ -72,20 +74,21 @@ out:
 static int dilithium_tester_official(void)
 {
 	struct workspace {
-		struct lc_dilithium_sk sk;
-		struct lc_dilithium_pk pk;
-		struct lc_dilithium_sig sig;
+		struct lc_dilithium_ed25519_sk sk;
+		struct lc_dilithium_ed25519_pk pk;
+		struct lc_dilithium_ed25519_sig sig;
 		uint8_t msg[10];
 	};
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	int ret = 0;
 
+
 	/* One-shot */
-	CKINT(lc_dilithium_keypair(&ws->pk, &ws->sk, lc_seeded_rng,
+	CKINT(lc_dilithium_ed25519_keypair(&ws->pk, &ws->sk, lc_seeded_rng,
 				   DILITHIUM_TYPE));
-	CKINT(lc_dilithium_sign(&ws->sig, ws->msg, sizeof(ws->msg), &ws->sk,
+	CKINT(lc_dilithium_ed25519_sign(&ws->sig, ws->msg, sizeof(ws->msg), &ws->sk,
 				lc_seeded_rng));
-	CKINT(lc_dilithium_verify(&ws->sig, ws->msg, sizeof(ws->msg), &ws->pk));
+	CKINT(lc_dilithium_ed25519_verify(&ws->sig, ws->msg, sizeof(ws->msg), &ws->pk));
 
 out:
 	LC_RELEASE_MEM(ws);
@@ -94,21 +97,21 @@ out:
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
-	struct lc_dilithium_ctx *ctx_heap = NULL;
+	struct lc_dilithium_ed25519_ctx *ctx_heap = NULL;
 	int ret = 0;
-	LC_DILITHIUM_CTX_ON_STACK(ctx);
+	LC_DILITHIUM_ED25519_CTX_ON_STACK(ctx);
 
 	(void)argc;
 	(void)argv;
 
-	CKINT(lc_dilithium_ctx_alloc(&ctx_heap));
+	CKINT(lc_dilithium_ed25519_ctx_alloc(&ctx_heap));
 
 	ret += dilithium_tester_official();
 	ret += dilithium_iuf_tester_official(ctx);
 	ret += dilithium_iuf_tester_official(ctx_heap);
 
 out:
-	lc_dilithium_ctx_zero(ctx);
-	lc_dilithium_ctx_zero_free(ctx_heap);
+	lc_dilithium_ed25519_ctx_zero(ctx);
+	lc_dilithium_ed25519_ctx_zero_free(ctx_heap);
 	return ret;
 }

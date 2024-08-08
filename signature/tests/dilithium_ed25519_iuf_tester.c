@@ -35,22 +35,20 @@ static int dilithium_ed25519_tester(struct lc_dilithium_ed25519_ctx *ctx,
 	static const uint8_t msg2[] = { 0x00, 0x01, 0x03 };
 	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
-	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 
-	CKINT(lc_dilithium_ed25519_keypair(&ws->pk, &ws->sk, selftest_rng));
+	CKINT(lc_dilithium_ed25519_keypair(&ws->pk, &ws->sk, lc_seeded_rng));
 	CKINT(lc_dilithium_ed25519_sign_init(ctx, &ws->sk));
 	CKINT(lc_dilithium_ed25519_sign_update(ctx, &msg[0], 1));
 	CKINT(lc_dilithium_ed25519_sign_update(ctx, &msg[1], 1));
 	CKINT(lc_dilithium_ed25519_sign_update(ctx, &msg[2], 1));
 	CKINT(lc_dilithium_ed25519_sign_final(&ws->sig, ctx, &ws->sk,
-					      selftest_rng));
+					      lc_seeded_rng));
 	CKINT_LOG(lc_dilithium_ed25519_verify(&ws->sig, msg, sizeof(msg),
 					      &ws->pk),
 		  "Sign IUF, Verify one-shot\n");
 
-	CKINT(lc_dilithium_ed25519_keypair(&ws->pk, &ws->sk, selftest_rng));
 	CKINT(lc_dilithium_ed25519_sign(&ws->sig, msg, sizeof(msg), &ws->sk,
-					selftest_rng));
+					lc_seeded_rng));
 	CKINT(lc_dilithium_ed25519_verify_init(ctx, &ws->pk));
 	CKINT(lc_dilithium_ed25519_verify_update(ctx, &msg[0], 1));
 	CKINT(lc_dilithium_ed25519_verify_update(ctx, &msg[1], 1));
@@ -58,13 +56,12 @@ static int dilithium_ed25519_tester(struct lc_dilithium_ed25519_ctx *ctx,
 	CKINT_LOG(lc_dilithium_ed25519_verify_final(&ws->sig, ctx, &ws->pk),
 		  "Sign one-shot, Verify IUF\n");
 
-	CKINT(lc_dilithium_ed25519_keypair(&ws->pk, &ws->sk, selftest_rng));
 	CKINT(lc_dilithium_ed25519_sign_init(ctx, &ws->sk));
 	CKINT(lc_dilithium_ed25519_sign_update(ctx, &msg[0], 1));
 	CKINT(lc_dilithium_ed25519_sign_update(ctx, &msg[1], 1));
 	CKINT(lc_dilithium_ed25519_sign_update(ctx, &msg[2], 1));
 	CKINT(lc_dilithium_ed25519_sign_final(&ws->sig, ctx, &ws->sk,
-					      selftest_rng));
+					      lc_seeded_rng));
 	CKINT(lc_dilithium_ed25519_verify_init(ctx, &ws->pk));
 	CKINT(lc_dilithium_ed25519_verify_update(ctx, &msg[0], 1));
 	CKINT(lc_dilithium_ed25519_verify_update(ctx, &msg[1], 1));
