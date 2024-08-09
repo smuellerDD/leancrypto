@@ -82,13 +82,13 @@ static int dilithium_tester_official(void)
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	int ret = 0;
 
-
 	/* One-shot */
 	CKINT(lc_dilithium_ed25519_keypair(&ws->pk, &ws->sk, lc_seeded_rng,
-				   DILITHIUM_TYPE));
-	CKINT(lc_dilithium_ed25519_sign(&ws->sig, ws->msg, sizeof(ws->msg), &ws->sk,
-				lc_seeded_rng));
-	CKINT(lc_dilithium_ed25519_verify(&ws->sig, ws->msg, sizeof(ws->msg), &ws->pk));
+					   DILITHIUM_TYPE));
+	CKINT(lc_dilithium_ed25519_sign(&ws->sig, ws->msg, sizeof(ws->msg),
+					&ws->sk, lc_seeded_rng));
+	CKINT(lc_dilithium_ed25519_verify(&ws->sig, ws->msg, sizeof(ws->msg),
+					  &ws->pk));
 
 out:
 	LC_RELEASE_MEM(ws);
