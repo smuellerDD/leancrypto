@@ -599,6 +599,30 @@ if get_option('dilithium_44').enabled()
 				dependencies: leancrypto,
 				c_args : '-DLC_DILITHIUM_TYPE_44'
 				)
+	dilithium_44_edge_case_tester_c = executable('dilithium_44_edge_case_tester_c',
+				[ 'dilithium_edge_case_tester.c',
+				  'dilithium_edge_case_tester_c.c',
+				  internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_dilithium_internal
+				],
+				dependencies: leancrypto,
+				c_args : '-DLC_DILITHIUM_TYPE_44'
+				)
+	dilithium_44_edge_case_tester_common = executable('dilithium_44_edge_case_tester_common',
+				[ 'dilithium_edge_case_tester.c',
+				  'dilithium_edge_case_tester_common.c',
+				  internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_dilithium_internal
+				],
+				dependencies: leancrypto,
+				c_args : '-DLC_DILITHIUM_TYPE_44'
+				)
 
 	test('Dilithium 44 signature C', dilithium_44_tester_c,
 	     suite: regression)
@@ -609,6 +633,10 @@ if get_option('dilithium_44').enabled()
 	test('Dilithium 44 init update final C', dilithium_44_tester_iuf_common,
 	     suite: regression)
 	test('Dilithium 44 official API', dilithium_44_tester_official,
+	     suite: regression)
+	test('Dilithium 44 Edge Cases C', dilithium_44_edge_case_tester_c,
+	     suite: regression)
+	test('Dilithium 44 Edge Cases Common', dilithium_44_edge_case_tester_common,
 	     suite: regression)
 
 	test('Dilithium 44 signature C 10000', dilithium_44_tester_c, args : [ 'c' ],
