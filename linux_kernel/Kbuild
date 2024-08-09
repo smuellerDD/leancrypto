@@ -1,3 +1,7 @@
+ifeq ($(kbuild-dir),)
+kbuild-dir = $(if $(filter /%,$(src)),$(src),$(srctree)/$(src))
+endif
+
 include $(kbuild-dir)/Kbuild.config
 include $(kbuild-dir)/Kbuild.autoconfig
 include $(kbuild-dir)/Kbuild.version

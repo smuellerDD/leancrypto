@@ -217,6 +217,7 @@ obj-m				+= leancrypto_kernel_dilithium_87_tester.o
 obj-m		  		+= dilithium_tester_c.o
 obj-m		  		+= dilithium_tester_common.o
 obj-m		  		+= dilithium_invalid_tester.o
+obj-m		  		+= dilithium_tester_official.o
 
 dilithium_tester_c-y		+= ../signature/tests/dilithium_tester.o       \
 				   ../signature/tests/dilithium_tester_c.o     \
@@ -227,6 +228,9 @@ dilithium_tester_common-y	+= ../signature/tests/dilithium_tester.o       \
 				   ../drng/src/selftest_rng.o
 
 dilithium_invalid_tester-y	+= ../signature/tests/dilithium_invalid_tester.o
+
+dilithium_tester_official-y	+= ../signature/tests/dilithium_tester_official.o
+
 endif
 
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_65
@@ -236,6 +240,7 @@ obj-m				+= leancrypto_kernel_dilithium_65_tester.o
 obj-m		  		+= dilithium_65_tester_c.o
 obj-m		  		+= dilithium_65_tester_common.o
 obj-m		  		+= dilithium_65_invalid_tester.o
+obj-m		  		+= dilithium_65_tester_official.o
 
 dilithium_65_tester_c-y		+= dilithium65/tests/dilithium_tester.o	       \
 				   dilithium65/tests/dilithium_tester_c.o      \
@@ -247,11 +252,14 @@ dilithium_65_tester_common-y	+= dilithium65/tests/dilithium_tester.o	       \
 
 dilithium_65_invalid_tester-y	+= dilithium65/tests/dilithium_invalid_tester.o
 
+dilithium_65_tester_official-y	+= dilithium65/tests/dilithium_tester_official.o
+
 CFLAGS_leancrypto_kernel_dilithium_65_tester.o		:= -DLC_DILITHIUM_TYPE_65
 CFLAGS_dilithium65/tests/dilithium_tester.o		:= -DLC_DILITHIUM_TYPE_65
 CFLAGS_dilithium65/tests/dilithium_tester_c.o		:= -DLC_DILITHIUM_TYPE_65
 CFLAGS_dilithium65/tests/dilithium_tester_common.o	:= -DLC_DILITHIUM_TYPE_65
 CFLAGS_dilithium65/tests/dilithium_invalid_tester.o	:= -DLC_DILITHIUM_TYPE_65
+CFLAGS_dilithium65/tests/dilithium_tester_official.o	:= -DLC_DILITHIUM_TYPE_65
 endif
 
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_44
@@ -260,7 +268,10 @@ obj-m				+= leancrypto_kernel_dilithium_44_tester.o
 
 obj-m		  		+= dilithium_44_tester_c.o
 obj-m		  		+= dilithium_44_tester_common.o
+obj-m		  		+= dilithium_44_edge_case_tester_c.o
+obj-m		  		+= dilithium_44_edge_case_tester_common.o
 obj-m		  		+= dilithium_44_invalid_tester.o
+obj-m		  		+= dilithium_44_tester_official.o
 
 dilithium_44_tester_c-y		+= dilithium44/tests/dilithium_tester.o	       \
 				   dilithium44/tests/dilithium_tester_c.o      \
@@ -270,13 +281,25 @@ dilithium_44_tester_common-y	+= dilithium44/tests/dilithium_tester.o	       \
 				   dilithium44/tests/dilithium_tester_common.o \
 				   ../drng/src/selftest_rng.o
 
+dilithium_44_edge_case_tester_c-y+= dilithium44/tests/dilithium_edge_case_tester.o\
+				   dilithium44/tests/dilithium_edge_case_tester_c.o
+
+dilithium_44_edge_case_tester_common-y+= dilithium44/tests/dilithium_edge_case_tester.o\
+				   dilithium44/tests/dilithium_edge_case_tester_common.o
+
 dilithium_44_invalid_tester-y	+= dilithium44/tests/dilithium_invalid_tester.o
+
+dilithium_44_tester_official-y	+= dilithium44/tests/dilithium_tester_official.o
 
 CFLAGS_leancrypto_kernel_dilithium_44_tester.o		:= -DLC_DILITHIUM_TYPE_44
 CFLAGS_dilithium44/tests/dilithium_tester.o		:= -DLC_DILITHIUM_TYPE_44
 CFLAGS_dilithium44/tests/dilithium_tester_c.o		:= -DLC_DILITHIUM_TYPE_44
 CFLAGS_dilithium44/tests/dilithium_tester_common.o	:= -DLC_DILITHIUM_TYPE_44
+CFLAGS_dilithium44/tests/dilithium_edge_case_tester.o	:= -DLC_DILITHIUM_TYPE_44
+CFLAGS_dilithium44/tests/dilithium_edge_case_tester_c.o	:= -DLC_DILITHIUM_TYPE_44
+CFLAGS_dilithium44/tests/dilithium_edge_case_tester_common.o:= -DLC_DILITHIUM_TYPE_44
 CFLAGS_dilithium44/tests/dilithium_invalid_tester.o	:= -DLC_DILITHIUM_TYPE_44
+CFLAGS_dilithium44/tests/dilithium_tester_official.o	:= -DLC_DILITHIUM_TYPE_44
 endif
 
 ifdef CONFIG_X86_64
