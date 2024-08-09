@@ -14,6 +14,8 @@ Changes 0.12.0-prerelease
 
 * enhancement: add side-channel-resistant AES implementation that does not use an SBOX
 
+* seeded_rng: when using the ESDM as entropy source, use DRBG without prediction resistance. When having heavy respawning of applications, using the PR DRBG will strain the entropy source significantly.
+
 Changes 0.11.0
 
 * security fix: fix possible leak of message in Kyber

@@ -40,8 +40,8 @@ ssize_t get_full_entropy(uint8_t *buffer, size_t bufferlen)
 {
 	ssize_t ret;
 
-	/* Reseed from ESDM with prediction resistance enabled. */
-	esdm_invoke(esdm_rpcc_get_random_bytes_pr(buffer, bufferlen));
+	/* Reseed from ESDM without prediction resistance enabled. */
+	esdm_invoke(esdm_rpcc_get_random_bytes_full(buffer, bufferlen));
 
 	/*
 	 * When ESDM was unsuccessful, revert to system native call. As the ESDM
