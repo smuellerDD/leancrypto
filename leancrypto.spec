@@ -9,11 +9,11 @@ Version:        0.12.0
 Release:        1.1
 Summary:        Cryptographic library with stack-only support and PQC-safe algorithms
 License:        GPL-2.0 OR BSD-2-Clause
-URL:            https://www.chronox.de/leancrypto.html
-Source0:        https://www.chronox.de/leancrypto/%{name}-%{version}.tar.xz
-#Source1:        https://www.chronox.de/leancrypto/%{name}-%{version}.tar.xz.asc
+URL:            https://www.leancrypto.org
+Source0:        https://www.leancrypto.org/%{name}/releases/%{name}-%{version}/%{name}-%{version}.tar.xz
+#Source1:        https://www.leancrypto.org/%{name}/releases/%{name}-%{version}/%{name}-%{version}.tar.xz.asc
 BuildRequires:  meson
-BuildRequires:  gcc
+BuildRequires:  clang
 BuildRequires:	%kernel_module_package_buildreqs
 
 %description
@@ -100,7 +100,7 @@ cp -ar "$@" source/
 mkdir obj
 
 %build
-%meson
+%meson -Dseedsource=esdm
 %meson_build
 for flavor in %flavors_to_build; do
 	KERNELRELEASE=`make -s -C /%{_prefix}/src/linux-obj/%{_target_cpu}/$flavor kernelrelease`
