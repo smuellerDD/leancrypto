@@ -31,8 +31,9 @@
  * entropy source.
  */
 static void *esdm_rpc_client_handle = NULL;
-static ssize_t (*esdm_rpcc_get_random_bytes_full)(uint8_t *buf, size_t buflen);
-static void (*esdm_rpcc_fini_unpriv_service)(void);
+static ssize_t (*esdm_rpcc_get_random_bytes_full)(uint8_t *buf, size_t buflen) =
+	NULL;
+static void (*esdm_rpcc_fini_unpriv_service)(void) = NULL;
 
 /* Duplication from esdm_rpc_client.h */
 #define esdm_invoke(x)                                                         \
