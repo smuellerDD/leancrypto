@@ -27,7 +27,6 @@
 #include "aes_armce.h"
 #include "aes_c.h"
 #include "aes_riscv64.h"
-#include "aes_scr.h"
 #include "aes_internal.h"
 #include "lc_aes.h"
 #include "mode_ctr.h"
@@ -280,7 +279,6 @@ static int test_ctr(void)
 	LC_EXEC_ONE_TEST(lc_aes_ctr_aesni);
 	LC_EXEC_ONE_TEST(lc_aes_ctr_armce);
 	LC_EXEC_ONE_TEST(lc_aes_ctr_c);
-	LC_EXEC_ONE_TEST(lc_aes_ctr_scr);
 	LC_EXEC_ONE_TEST(lc_aes_ctr_riscv64);
 
 	return ret;

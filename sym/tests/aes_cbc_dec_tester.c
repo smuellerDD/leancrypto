@@ -27,7 +27,6 @@
 #include "aes_armce.h"
 #include "aes_c.h"
 #include "aes_riscv64.h"
-#include "aes_scr.h"
 #include "aes_internal.h"
 #include "lc_aes.h"
 #include "compare.h"
@@ -150,7 +149,6 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_EXEC_ONE_TEST(lc_aes_cbc_aesni);
 	LC_EXEC_ONE_TEST(lc_aes_cbc_armce);
 	LC_EXEC_ONE_TEST(lc_aes_cbc_c);
-	LC_EXEC_ONE_TEST(lc_aes_cbc_scr);
 	LC_EXEC_ONE_TEST(lc_aes_cbc_riscv64);
 
 	return ret;

@@ -12,8 +12,6 @@ Changes 1.0.0-prerelease
 
 * enhancement: make Kyber-X25519 as Linux kernel kpp algorithm consistent with the standalone Kyber kpp implementation and add a tester
 
-* enhancement: add side-channel-resistant AES implementation that does not use an SBOX
-
 * seeded_rng: when using the ESDM as entropy source, use DRBG without prediction resistance. When having heavy respawning of applications, using the PR DRBG will strain the entropy source significantly.
 
 * Dilithium: add edge case tests as referenced by https://github.com/usnistgov/ACVP/pull/1525.patch and https://groups.google.com/a/list.nist.gov/g/pqc-forum/c/G8Zf0hC-uu0/m/Kb3qNJb0AwAJ
