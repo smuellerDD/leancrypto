@@ -24,8 +24,7 @@ have the following properties:
 * size: minimizing footprint when statically linking by supporting dead-code
   stripping,
 
-* performance: provide optimized code invoked with minimal overhead, thus
-  significantly faster than other libraries like OpenSSL,
+* performance: provide optimized code invoked with minimal overhead,
 
 * testable: all algorithm implementations are directly accessible via their
   data structures at runtime, and
