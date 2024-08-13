@@ -81,8 +81,9 @@ if (seeded_rng == 1)
 
 	if get_option('seedsource') == 'esdm'
 		src += files([ 'seeded_rng_esdm.c' ])
-		leancrypto_link += cc.find_library( 'esdm_rpc_client',
-						    required: true)
+		#Not required due to runtime linking
+		#leancrypto_link += cc.find_library( 'esdm_rpc_client',
+		#				    required: true)
 	else
 		if (host_machine.system() == 'linux')
 			src += files([ 'seeded_rng_linux.c' ])
