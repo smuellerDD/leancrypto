@@ -1,4 +1,4 @@
-Changes 0.12.0-prerelease
+Changes 1.0.0-prerelease
 
 * enhancement: add Doxygen support - it is automatically compiled if Doxygen is present
 

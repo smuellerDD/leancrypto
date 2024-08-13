@@ -1,3 +1,3 @@
 # Version Number of Leancrypto
 #
-ccflags-y	+= -DMAJVERSION=0 -DMINVERSION=12 -DPATCHLEVEL=0
+ccflags-y	+= -DMAJVERSION=1 -DMINVERSION=0 -DPATCHLEVEL=0
