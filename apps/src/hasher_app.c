@@ -210,7 +210,11 @@ static int mmap_file(const char *filename, uint8_t **memory, off_t *size,
 		ret = -errno;
 		goto out;
 	}
-	madvise(*memory, *mapped, MADV_SEQUENTIAL | MADV_WILLNEED);
+	madvise(*memory, *mapped, MADV_SEQUENTIAL | MADV_WILLNEED
+#ifdef __linux__
+				  | MADV_HUGEPAGE
+#endif
+	);
 
 out:
 	close(fd);
@@ -222,8 +226,9 @@ static int hasher(struct lc_hash_ctx *hash_ctx,
 		  const char *filename, const char *comphash,
 		  uint32_t comphashlen, FILE *outfile)
 {
-	/* Mapping file in 16M segments */
-	size_t mapped = 16 << 20, hashlen = lc_hash_digestsize(hash_ctx);
+	/* Mapping file in up to 18M segments */
+	size_t mapped = lc_hash_blocksize(hash_ctx) << 17,
+	       hashlen = lc_hash_digestsize(hash_ctx);
 	off_t offset = 0, size = 0;
 	uint8_t *memblock = NULL;
 	uint8_t md[64];
@@ -252,7 +257,6 @@ static int hasher(struct lc_hash_ctx *hash_ctx,
 						  sizeof(ws->tmpbuf), stdin))) {
 			lc_hash_update(hash_ctx, ws->tmpbuf, bufsize);
 		}
-		lc_memset_secure(ws->tmpbuf, 0, sizeof(ws->tmpbuf));
 		LC_RELEASE_MEM(ws);
 	}
 
