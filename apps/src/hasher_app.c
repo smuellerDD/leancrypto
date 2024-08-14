@@ -210,9 +210,10 @@ static int mmap_file(const char *filename, uint8_t **memory, off_t *size,
 		ret = -errno;
 		goto out;
 	}
-	madvise(*memory, *mapped, MADV_SEQUENTIAL | MADV_WILLNEED
+	madvise(*memory, *mapped,
+		MADV_SEQUENTIAL | MADV_WILLNEED
 #ifdef __linux__
-				  | MADV_HUGEPAGE
+			| MADV_HUGEPAGE
 #endif
 	);
 
