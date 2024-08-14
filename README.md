@@ -384,6 +384,10 @@ covering all algorithm implementations of algorithms that are testable.
 
 - [A4860 ARMv7 NEON cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37470)
 
+## Version 1.0.0
+
+[CAVP Certificates](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/validation-search?searchMode=implementation&product=leancrypto&productType=-1&dateFrom=08%2F13%2F2024&ipp=25)
+
 # Author
 
 Stephan Müller <smueller@chronox.de>
