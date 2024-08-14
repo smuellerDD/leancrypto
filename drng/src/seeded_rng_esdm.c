@@ -31,8 +31,8 @@
  * entropy source.
  */
 static void *esdm_rpc_client_handle = NULL;
-static ssize_t (*esdm_rpcc_get_random_bytes_full)(uint8_t *buf, size_t buflen) =
-	NULL;
+static ssize_t (*esdm_rpcc_get_random_bytes_full)(uint8_t *buf,
+						  size_t buflen) = NULL;
 static void (*esdm_rpcc_fini_unpriv_service)(void) = NULL;
 
 /* Duplication from esdm_rpc_client.h */
@@ -54,8 +54,8 @@ int seeded_rng_noise_init(void)
 	char *error;
 
 	if (!esdm_rpc_client_handle) {
-		esdm_rpc_client_handle = dlopen("libesdm_rpc_client.so.1",
-						RTLD_LAZY);
+		esdm_rpc_client_handle =
+			dlopen("libesdm_rpc_client.so.1", RTLD_LAZY);
 	}
 
 	/* If we have no success in opening the file, gracefully continue */
@@ -66,10 +66,8 @@ int seeded_rng_noise_init(void)
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
-	esdm_rpcc_set_max_online_nodes =
-		(int (*)(uint32_t nodes)) dlsym(
-			esdm_rpc_client_handle,
-			"esdm_rpcc_set_max_online_nodes");
+	esdm_rpcc_set_max_online_nodes = (int (*)(uint32_t nodes))dlsym(
+		esdm_rpc_client_handle, "esdm_rpcc_set_max_online_nodes");
 #pragma GCC diagnostic pop
 	error = dlerror();
 	if (error != NULL)
@@ -78,7 +76,7 @@ int seeded_rng_noise_init(void)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
 	esdm_rpcc_init_unpriv_service =
-		(int (*)(esdm_rpcc_interrupt_func_t interrupt_func)) dlsym(
+		(int (*)(esdm_rpcc_interrupt_func_t interrupt_func))dlsym(
 			esdm_rpc_client_handle,
 			"esdm_rpcc_init_unpriv_service");
 #pragma GCC diagnostic pop
@@ -88,10 +86,8 @@ int seeded_rng_noise_init(void)
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
-	esdm_rpcc_fini_unpriv_service =
-		(void (*)(void)) dlsym(
-			esdm_rpc_client_handle,
-			"esdm_rpcc_fini_unpriv_service");
+	esdm_rpcc_fini_unpriv_service = (void (*)(void))dlsym(
+		esdm_rpc_client_handle, "esdm_rpcc_fini_unpriv_service");
 #pragma GCC diagnostic pop
 	error = dlerror();
 	if (error != NULL)
@@ -100,9 +96,9 @@ int seeded_rng_noise_init(void)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
 	esdm_rpcc_get_random_bytes_full =
-		(ssize_t (*)(uint8_t *buf, size_t buflen)) dlsym(
-			esdm_rpc_client_handle,
-			"esdm_rpcc_get_random_bytes_full");
+		(ssize_t(*)(uint8_t * buf, size_t buflen))
+			dlsym(esdm_rpc_client_handle,
+			      "esdm_rpcc_get_random_bytes_full");
 #pragma GCC diagnostic pop
 	error = dlerror();
 	if (error != NULL)
