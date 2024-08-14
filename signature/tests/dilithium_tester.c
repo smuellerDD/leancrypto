@@ -128,6 +128,8 @@ int _dilithium_tester(
 	       "static const struct dilithium_testvector dilithium_testvectors[] =\n"
 	       "{\n");
 	nvectors = NVECTORS;
+
+	(void)_lc_dilithium_keypair_from_seed;
 #else
 	nvectors = ARRAY_SIZE(dilithium_testvectors);
 #endif

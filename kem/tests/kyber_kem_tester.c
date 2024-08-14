@@ -84,12 +84,16 @@ int _kyber_kem_enc_tester(int (*_lc_kyber_enc)(struct lc_kyber_ct *ct,
 
 	lc_disable_selftest();
 
+#ifndef GENERATE_VECTORS
 	// Encapsulation
 	CKINT(_lc_kyber_enc(&ws->ct, &ws->key_b,
 			    (const struct lc_kyber_pk *)&kyber_testvectors[0].pk,
 			    selftest_rng));
 
 out:
+#else
+	(void)_lc_kyber_enc;
+#endif
 	LC_RELEASE_MEM(ws);
 	return ret;
 }
@@ -107,6 +111,7 @@ int _kyber_kem_dec_tester(int (*_lc_kyber_dec)(struct lc_kyber_ss *ss,
 
 	lc_disable_selftest();
 
+#ifndef GENERATE_VECTORS
 	// Decapsulation
 	CKINT(_lc_kyber_dec(
 		&ws->key_a,
@@ -114,6 +119,9 @@ int _kyber_kem_dec_tester(int (*_lc_kyber_dec)(struct lc_kyber_ss *ss,
 		(const struct lc_kyber_sk *)&kyber_testvectors[0].sk));
 
 out:
+#else
+	(void)_lc_kyber_dec;
+#endif
 	LC_RELEASE_MEM(ws);
 	return ret;
 }
@@ -170,7 +178,7 @@ int _kyber_kem_tester(
 #ifdef GENERATE_VECTORS
 	printf("#ifndef KYBER_TESTVECTORS_H\n"
 	       "#define KYBER_TESTVECTORS_H\n"
-	       "#include \"lc_kyber.h\"\n"
+	       "#include \"kyber_type.h\"\n"
 	       "struct kyber_testvector {\n"
 	       "\tuint8_t pk[LC_CRYPTO_PUBLICKEYBYTES];\n"
 	       "\tuint8_t sk[LC_CRYPTO_SECRETKEYBYTES];\n"
@@ -180,6 +188,8 @@ int _kyber_kem_tester(
 	       "static const struct kyber_testvector kyber_testvectors[] =\n"
 	       "{\n");
 	nvectors = NTESTS;
+
+	(void)_lc_kyber_keypair_from_seed;
 #else
 	nvectors = ARRAY_SIZE(kyber_testvectors);
 
@@ -357,7 +367,7 @@ int _kyber_kem_kdf_tester(
 #ifdef GENERATE_VECTORS
 	printf("#ifndef KYBER_KDF_TESTVECTORS_H\n"
 	       "#define KYBER_KDF_TESTVECTORS_H\n"
-	       "#include \"lc_kyber.h\"\n"
+	       "#include \"kyber_type.h\"\n"
 	       "struct kyber_kdf_testvector {\n"
 	       "\tuint8_t pk[LC_CRYPTO_PUBLICKEYBYTES];\n"
 	       "\tuint8_t sk[LC_CRYPTO_SECRETKEYBYTES];\n"
