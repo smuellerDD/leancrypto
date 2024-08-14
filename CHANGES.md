@@ -1,3 +1,11 @@
+Changes 1.0.1-prerelease
+
+* fix: Kyber keygen - add LC_KYBER_K to initial hash (change is only relevant when storing keys as seed and for interoperability)
+
+* fix: Dilithium keygen - add dimensions K and L (change is only relevant when storing keys as seed and for interoperability)
+
+* small performance improvements for hasher apps
+
 Changes 1.0.0
 
 * enhancement: add Doxygen support - it is automatically compiled if Doxygen is present

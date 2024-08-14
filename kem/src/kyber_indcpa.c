@@ -236,11 +236,13 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 			polyvec a[LC_KYBER_K];
 		} tmp;
 	};
+	static const uint8_t kval = LC_KYBER_K;
 	unsigned int i;
 	uint8_t *buf;
 	const uint8_t *publicseed, *noiseseed;
 	uint8_t nonce = 0, nonce2 = LC_KYBER_K;
 	int ret;
+	LC_HASH_CTX_ON_STACK(sha3_512_ctx, lc_sha3_512);
 	LC_DECLARE_MEM(ws, struct workspace, 32);
 
 	buf = ws->buf;
@@ -253,7 +255,12 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, buf, LC_KYBER_SYMBYTES));
 	kyber_print_buffer(buf, LC_KYBER_SYMBYTES, "Keygen: d");
 
-	lc_hash(lc_sha3_512, buf, LC_KYBER_SYMBYTES, buf);
+	lc_hash_init(sha3_512_ctx);
+	lc_hash_update(sha3_512_ctx, buf, LC_KYBER_SYMBYTES);
+	lc_hash_update(sha3_512_ctx, &kval, sizeof(kval));
+	lc_hash_final(sha3_512_ctx, buf);
+	lc_hash_zero(sha3_512_ctx);
+
 	kyber_print_buffer(buf, LC_KYBER_SYMBYTES, "Keygen: RHO");
 	kyber_print_buffer(buf + LC_KYBER_SYMBYTES, LC_KYBER_SYMBYTES,
 			   "Keygen: Sigma");

@@ -467,10 +467,12 @@ int indcpa_keypair_avx(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 		polyvec a[LC_KYBER_K], e, skpv;
 		keccakx4_state keccak_state;
 	};
+	static const uint8_t kval = LC_KYBER_K;
 	unsigned int i;
 	uint8_t *buf;
 	const uint8_t *publicseed, *noiseseed;
 	int ret;
+	LC_HASH_CTX_ON_STACK(sha3_512_ctx, lc_sha3_512);
 	LC_DECLARE_MEM(ws, struct workspace, 32);
 
 	buf = ws->buf;
@@ -481,7 +483,11 @@ int indcpa_keypair_avx(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 	poison(noiseseed, LC_KYBER_SYMBYTES);
 
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, buf, LC_KYBER_SYMBYTES));
-	lc_hash(lc_sha3_512, buf, LC_KYBER_SYMBYTES, buf);
+	lc_hash_init(sha3_512_ctx);
+	lc_hash_update(sha3_512_ctx, buf, LC_KYBER_SYMBYTES);
+	lc_hash_update(sha3_512_ctx, &kval, sizeof(kval));
+	lc_hash_final(sha3_512_ctx, buf);
+	lc_hash_zero(sha3_512_ctx);
 
 	CKINT(gen_a(ws->a, publicseed, ws->tmp.gen_a_buf));
 
