@@ -80,9 +80,11 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 			uint8_t tr[LC_DILITHIUM_TRBYTES];
 		} tmp;
 	};
+	static const uint8_t dimension[2] = { LC_DILITHIUM_K, LC_DILITHIUM_L };
 	const uint8_t *rho, *rhoprime, *key;
 	int ret;
 	static int tested = LC_DILITHIUM_TEST_INIT;
+	LC_HASH_CTX_ON_STACK(shake256_ctx, lc_shake256);
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	CKNULL(pk, -EINVAL);
@@ -99,8 +101,12 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 	dilithium_print_buffer(ws->seedbuf, LC_DILITHIUM_SEEDBYTES,
 			       "Keygen - Seed");
 
-	lc_xof(lc_shake256, ws->seedbuf, LC_DILITHIUM_SEEDBYTES, ws->seedbuf,
-	       sizeof(ws->seedbuf));
+	lc_hash_init(shake256_ctx);
+	lc_hash_update(shake256_ctx, ws->seedbuf, LC_DILITHIUM_SEEDBYTES);
+	lc_hash_update(shake256_ctx, dimension, sizeof(dimension));
+	lc_hash_set_digestsize(shake256_ctx, sizeof(ws->seedbuf));
+	lc_hash_final(shake256_ctx, ws->seedbuf);
+	lc_hash_zero(shake256_ctx);
 
 	rho = ws->seedbuf;
 	dilithium_print_buffer(ws->seedbuf, LC_DILITHIUM_SEEDBYTES,

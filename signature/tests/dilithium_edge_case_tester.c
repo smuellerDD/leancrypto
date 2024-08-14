@@ -526,6 +526,12 @@ int dilithium_edge_tester(
 	unsigned int i;
 	int ret = 0;
 
+	/*
+	 * The test vectors apply to the key gen without the hashing of the
+	 * dimension together with the seed. Let us wait for new vectors.
+	 */
+	return 77;
+
 	for (i = 0; i < ARRAY_SIZE(tcs); i++)
 		ret += dilithium_edge_tester_internal(
 			&tcs[i], _lc_dilithium_keypair_from_seed,

@@ -114,11 +114,13 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_avx2,
 		poly t1, t0;
 		keccakx4_state keccak_state;
 	};
+	static const uint8_t dimension[2] = { LC_DILITHIUM_K, LC_DILITHIUM_L };
 	unsigned int i;
 	const uint8_t *rho, *rhoprime, *key;
 	polyvecl *row;
 	int ret;
 	static int tested = 0;
+	LC_HASH_CTX_ON_STACK(shake256_ctx, lc_shake256);
 	LC_DECLARE_MEM(ws, struct workspace, 32);
 
 	if (!pk || !sk || !rng_ctx) {
@@ -134,8 +136,12 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_avx2,
 	/* Get randomness for rho, rhoprime and key */
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, ws->seedbuf,
 			      LC_DILITHIUM_SEEDBYTES));
-	lc_xof(lc_shake256, ws->seedbuf, LC_DILITHIUM_SEEDBYTES, ws->seedbuf,
-	       sizeof(ws->seedbuf));
+	lc_hash_init(shake256_ctx);
+	lc_hash_update(shake256_ctx, ws->seedbuf, LC_DILITHIUM_SEEDBYTES);
+	lc_hash_update(shake256_ctx, dimension, sizeof(dimension));
+	lc_hash_set_digestsize(shake256_ctx, sizeof(ws->seedbuf));
+	lc_hash_final(shake256_ctx, ws->seedbuf);
+	lc_hash_zero(shake256_ctx);
 
 	rho = ws->seedbuf;
 	rhoprime = rho + LC_DILITHIUM_SEEDBYTES;
