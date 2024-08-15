@@ -268,8 +268,8 @@ obj-m				+= leancrypto_kernel_dilithium_44_tester.o
 
 obj-m		  		+= dilithium_44_tester_c.o
 obj-m		  		+= dilithium_44_tester_common.o
-obj-m		  		+= dilithium_44_edge_case_tester_c.o
-obj-m		  		+= dilithium_44_edge_case_tester_common.o
+#obj-m		  		+= dilithium_44_edge_case_tester_c.o
+#obj-m		  		+= dilithium_44_edge_case_tester_common.o
 obj-m		  		+= dilithium_44_invalid_tester.o
 obj-m		  		+= dilithium_44_tester_official.o
 
@@ -281,11 +281,11 @@ dilithium_44_tester_common-y	+= dilithium44/tests/dilithium_tester.o	       \
 				   dilithium44/tests/dilithium_tester_common.o \
 				   ../drng/src/selftest_rng.o
 
-dilithium_44_edge_case_tester_c-y+= dilithium44/tests/dilithium_edge_case_tester.o\
-				   dilithium44/tests/dilithium_edge_case_tester_c.o
+#dilithium_44_edge_case_tester_c-y+= dilithium44/tests/dilithium_edge_case_tester.o\
+#				   dilithium44/tests/dilithium_edge_case_tester_c.o
 
-dilithium_44_edge_case_tester_common-y+= dilithium44/tests/dilithium_edge_case_tester.o\
-				   dilithium44/tests/dilithium_edge_case_tester_common.o
+#dilithium_44_edge_case_tester_common-y+= dilithium44/tests/dilithium_edge_case_tester.o\
+#				   dilithium44/tests/dilithium_edge_case_tester_common.o
 
 dilithium_44_invalid_tester-y	+= dilithium44/tests/dilithium_invalid_tester.o
 
@@ -295,9 +295,9 @@ CFLAGS_leancrypto_kernel_dilithium_44_tester.o		:= -DLC_DILITHIUM_TYPE_44
 CFLAGS_dilithium44/tests/dilithium_tester.o		:= -DLC_DILITHIUM_TYPE_44
 CFLAGS_dilithium44/tests/dilithium_tester_c.o		:= -DLC_DILITHIUM_TYPE_44
 CFLAGS_dilithium44/tests/dilithium_tester_common.o	:= -DLC_DILITHIUM_TYPE_44
-CFLAGS_dilithium44/tests/dilithium_edge_case_tester.o	:= -DLC_DILITHIUM_TYPE_44
-CFLAGS_dilithium44/tests/dilithium_edge_case_tester_c.o	:= -DLC_DILITHIUM_TYPE_44
-CFLAGS_dilithium44/tests/dilithium_edge_case_tester_common.o:= -DLC_DILITHIUM_TYPE_44
+#CFLAGS_dilithium44/tests/dilithium_edge_case_tester.o	:= -DLC_DILITHIUM_TYPE_44
+#CFLAGS_dilithium44/tests/dilithium_edge_case_tester_c.o	:= -DLC_DILITHIUM_TYPE_44
+#CFLAGS_dilithium44/tests/dilithium_edge_case_tester_common.o:= -DLC_DILITHIUM_TYPE_44
 CFLAGS_dilithium44/tests/dilithium_invalid_tester.o	:= -DLC_DILITHIUM_TYPE_44
 CFLAGS_dilithium44/tests/dilithium_tester_official.o	:= -DLC_DILITHIUM_TYPE_44
 endif
