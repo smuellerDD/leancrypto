@@ -32,7 +32,7 @@
  *				little-endian order. This function is only
  *				needed for Kyber-512
  *
- * @param x [in] pointer to input byte array
+ * @param [in] x pointer to input byte array
  *
  * @return 32-bit unsigned integer loaded from x (most significant byte is zero)
  */
@@ -51,7 +51,7 @@ static uint32_t load24_littleendian(const uint8_t x[3])
  *		 with coefficients distributed according to a centered binomial
  *		 distribution with parameter eta=2
  *
- * @param r [out] pointer to output polynomial
+ * @param [out] r pointer to output polynomial
  * @param buf in pointer to input byte array
  */
 void cbd2(poly *r, const uint8_t buf[2 * LC_KYBER_N / 4])
@@ -79,8 +79,8 @@ void cbd2(poly *r, const uint8_t buf[2 * LC_KYBER_N / 4])
  *		 a centered binomial distribution with parameter eta=3.
  *		 This function is only needed for Kyber-512
  *
- * @param r [out] pointer to output polynomial
- * @param buf [in] pointer to input byte array
+ * @param [out] r pointer to output polynomial
+ * @param [in] buf pointer to input byte array
  */
 void cbd3(poly *r, const uint8_t buf[3 * LC_KYBER_N / 4])
 {

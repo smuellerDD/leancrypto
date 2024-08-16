@@ -78,8 +78,8 @@ static inline int16_t barrett_reduce(int16_t a)
 /**
  * @brief fqmul - Multiplication followed by Montgomery reduction
  *
- * @param a [in] first factor
- * @param b [in] second factor
+ * @param [in] a first factor
+ * @param [in] b second factor
  *
  * @return 16-bit integer congruent to a*b*R^{-1} mod q
  */

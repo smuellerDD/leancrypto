@@ -32,8 +32,8 @@
  *			a mod^+ Q = a1*2^D + a0 with -2^{D-1} < a0 <= 2^{D-1}.
  *			Assumes a to be standard representative.
  *
- * @param a [in] input element
- * @param a0 [out] pointer to output element a0
+ * @param [in] a input element
+ * @param [out] a0 pointer to output element a0
  *
  * @return a1.
  */
@@ -53,8 +53,8 @@ int32_t power2round(int32_t *a0, int32_t a)
  *		      we set a1 = 0 and -ALPHA/2 <= a0 = a mod^+ Q - Q < 0.
  *		      Assumes a to be standard representative.
  *
- * @param a [in] input element
- * @param a0 [out] pointer to output element a0
+ * @param [in] a input element
+ * @param [out] a0 pointer to output element a0
  *
  * @return a1.
  */
@@ -100,8 +100,8 @@ int32_t make_hint(int32_t a0, int32_t a1)
 /**
  * @brief use_hint - Correct high bits according to hint.
  *
- * @param a [in] input element
- * @param hint [in] hint bit
+ * @param [in] a input element
+ * @param [in] hint hint bit
  *
  * @return corrected high bits.
  */

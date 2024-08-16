@@ -188,9 +188,9 @@ static inline void unpack_sk_t0(polyveck *t0, const struct lc_dilithium_sk *sk)
  *	 not need to copy it yet again to the right location. This implies that
  *	 this function does not process c.
  *
- * @param sig [out] signature
- * @param z [in] pointer to vector z
- * @param h [in] pointer to hint vector h
+ * @param [out] sig signature
+ * @param [in] z pointer to vector z
+ * @param [in] h pointer to hint vector h
  */
 static inline void pack_sig(struct lc_dilithium_sig *sig, const polyvecl *z,
 			    const polyveck *h)
@@ -227,8 +227,8 @@ static inline void pack_sig(struct lc_dilithium_sig *sig, const polyvecl *z,
  *	 To access it, a caller simply needs to use the first
  *	 LC_DILITHIUM_CTILDE_BYTES of the signature.
  *
- * @param z [out] pointer to output vector z
- * @param sig [in] signature
+ * @param [out] z pointer to output vector z
+ * @param [in] sig signature
  */
 static inline void unpack_sig_z(polyvecl *z, const struct lc_dilithium_sig *sig)
 {
@@ -248,8 +248,8 @@ static inline void unpack_sig_z(polyvecl *z, const struct lc_dilithium_sig *sig)
  *	 To access it, a caller simply needs to use the first
  *	 LC_DILITHIUM_CTILDE_BYTES of the signature.
  *
- * @param h [out] pointer to output hint vector h
- * @param sig [in] signature
+ * @param [out] h pointer to output hint vector h
+ * @param [in] sig signature
  *
  * @return 1 in case of malformed signature; otherwise 0.
  */

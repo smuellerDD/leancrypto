@@ -31,9 +31,9 @@ extern unsigned int armv7_rej_uniform_asm(int32_t *a, unsigned int len,
  *			 in [0,Q-1] by performing rejection sampling on the
  *			 output stream of SHAKE128(seed|nonce).
  *
- * @param a [out] pointer to output polynomial
- * @param seed [in] byte array with seed of length LC_DILITHIUM_SEEDBYTES
- * @param nonce [in] 2-byte nonce
+ * @param [out] a pointer to output polynomial
+ * @param [in] seed byte array with seed of length LC_DILITHIUM_SEEDBYTES
+ * @param [in] nonce 2-byte nonce
  */
 void poly_uniform_armv7(poly *a, const uint8_t seed[LC_DILITHIUM_SEEDBYTES],
 			uint16_t nonce, void *ws_buf)

@@ -52,11 +52,11 @@ static void lc_ascon_zero(struct lc_ascon_cryptor *ascon)
 /**
  * @brief Set the key for the encryption or decryption operation
  *
- * @param state [in] Ascon crypt cipher handle
- * @param key [in] Buffer with key
- * @param keylen [in] Length of key buffer
- * @param nonce [in] Nonce vector to be used
- * @param noncelen [in] Length of nonce vector
+ * @param [in] state Ascon crypt cipher handle
+ * @param [in] key Buffer with key
+ * @param [in] keylen Length of key buffer
+ * @param [in] nonce Nonce vector to be used
+ * @param [in] noncelen Length of nonce vector
  *
  * The algorithm supports a key of arbitrary size. The only requirement is that
  * the same key is used for decryption as for encryption. Yet, checks specific

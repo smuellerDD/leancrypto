@@ -35,8 +35,8 @@
  * @brief poly_chknorm - Check infinity norm of polynomial against given bound.
  *			 Assumes input coefficients were reduced by reduce32().
  *
- * @param a [in] pointer to polynomial
- * @param B [in] norm bound
+ * @param [in] a pointer to polynomial
+ * @param [in] B norm bound
  *
  * @return 0 if norm is strictly smaller than B <= (Q-1)/8 and 1 otherwise.
  */
@@ -70,9 +70,9 @@ int poly_chknorm(const poly *a, int32_t B)
  *			 in [0,Q-1] by performing rejection sampling on the
  *			 output stream of SHAKE128(seed|nonce).
  *
- * @param a [out] pointer to output polynomial
- * @param seed [in] byte array with seed of length LC_DILITHIUM_SEEDBYTES
- * @param nonce [in] 2-byte nonce
+ * @param [out] a pointer to output polynomial
+ * @param [in] seed byte array with seed of length LC_DILITHIUM_SEEDBYTES
+ * @param [in] nonce 2-byte nonce
  */
 void poly_uniform(poly *a, const uint8_t seed[LC_DILITHIUM_SEEDBYTES],
 		  uint16_t nonce, void *ws_buf)
@@ -112,9 +112,9 @@ void poly_uniform(poly *a, const uint8_t seed[LC_DILITHIUM_SEEDBYTES],
  *			     sampling on the output stream from
  *			     SHAKE256(seed|nonce).
  *
- * @param a [out] pointer to output polynomial
- * @param seed [in] byte array with seed of length LC_DILITHIUM_CRHBYTES
- * @param nonce [in] 2-byte nonce
+ * @param [out] a pointer to output polynomial
+ * @param [in] seed byte array with seed of length LC_DILITHIUM_CRHBYTES
+ * @param [in] nonce 2-byte nonce
  */
 void poly_uniform_eta(poly *a, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
 		      uint16_t nonce, void *ws_buf)
@@ -147,8 +147,8 @@ void poly_uniform_eta(poly *a, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
  *				unpacking output stream of
  *				SHAKE256(seed|nonce).
  *
- * @param a [out] pointer to output polynomial
- * @param seed [in]: byte array with seed of length LC_DILITHIUM_CRHBYTES
+ * @param [out] a pointer to output polynomial
+ * @param [in] seed: byte array with seed of length LC_DILITHIUM_CRHBYTES
  * @param nonce 16-bit nonce
  */
 void poly_uniform_gamma1(poly *a, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
@@ -171,8 +171,8 @@ void poly_uniform_gamma1(poly *a, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
  *			   nonzero coefficients in {-1,1} using the output
  *			   stream of SHAKE256(seed).
  *
- * @param c [out] pointer to output polynomial
- * @param mu [in] byte array containing seed of length LC_DILITHIUM_CTILDE_BYTES
+ * @param [out] c pointer to output polynomial
+ * @param [in] mu byte array containing seed of length LC_DILITHIUM_CTILDE_BYTES
  */
 void poly_challenge(poly *c, const uint8_t seed[LC_DILITHIUM_CTILDE_BYTES],
 		    void *ws_buf)
@@ -216,9 +216,9 @@ void poly_challenge(poly *c, const uint8_t seed[LC_DILITHIUM_CTILDE_BYTES],
 /**
  * @brief polyeta_pack - Bit-pack polynomial with coefficients in [-ETA,ETA].
  *
- * @param r [out] pointer to output byte array with at least
+ * @param [out] r pointer to output byte array with at least
  *		  LC_DILITHIUM_POLYETA_PACKEDBYTES bytes
- * @param a [in] pointer to input polynomial
+ * @param [in] a pointer to input polynomial
  */
 void polyeta_pack(uint8_t *r, const poly *a)
 {
@@ -257,8 +257,8 @@ void polyeta_pack(uint8_t *r, const poly *a)
 /**
  * @brief polyeta_unpack - Unpack polynomial with coefficients in [-ETA,ETA].
  *
- * @param r [out] pointer to output polynomial
- * @param a [in] byte array with bit-packed polynomial
+ * @param [out] r pointer to output polynomial
+ * @param [in] a byte array with bit-packed polynomial
  */
 void polyeta_unpack(poly *r, const uint8_t *a)
 {
@@ -303,9 +303,9 @@ void polyeta_unpack(poly *r, const uint8_t *a)
  *			bits. Input coefficients are assumed to be standard
  *			representatives.
  *
- * @param r [out] pointer to output byte array with at least
+ * @param [out] r pointer to output byte array with at least
  * 		  LC_DILITHIUM_POLYT1_PACKEDBYTES bytes
- * @param a [in] pointer to input polynomial
+ * @param [in] a pointer to input polynomial
  */
 void polyt1_pack(uint8_t *r, const poly *a)
 {
@@ -327,9 +327,9 @@ void polyt1_pack(uint8_t *r, const poly *a)
  * @brief polyt0_pack - Bit-pack polynomial t0 with coefficients in
  *			]-2^{D-1}, 2^{D-1}].
  *
- * @param r [out] pointer to output byte array with at least
+ * @param [out] r pointer to output byte array with at least
  *		  LC_DILITHIUM_POLYT0_PACKEDBYTES bytes
- * @param a [in] pointer to input polynomial
+ * @param [in] a pointer to input polynomial
  */
 void polyt0_pack(uint8_t *r, const poly *a)
 {
@@ -383,8 +383,8 @@ void polyt0_pack(uint8_t *r, const poly *a)
  * @brief polyt0_unpack - Unpack polynomial t0 with coefficients in
  *			  ]-2^{D-1}, 2^{D-1}].
  *
- * @param r [out] pointer to output polynomial
- * @param a [in] byte array with bit-packed polynomial
+ * @param [out] r pointer to output polynomial
+ * @param [in] a byte array with bit-packed polynomial
  */
 void polyt0_unpack(poly *r, const uint8_t *a)
 {
@@ -450,9 +450,9 @@ void polyt0_unpack(poly *r, const uint8_t *a)
  * @param polyz_pack - Bit-pack polynomial with coefficients
  *		       in [-(GAMMA1 - 1), GAMMA1].
  *
- * @param r [out] pointer to output byte array with at least
+ * @param [out] r pointer to output byte array with at least
  *		  LC_DILITHIUM_POLYZ_PACKEDBYTES bytes
- * @param a [in] pointer to input polynomial
+ * @param [in] a pointer to input polynomial
  */
 void polyz_pack(uint8_t *r, const poly *a)
 {
@@ -502,8 +502,8 @@ void polyz_pack(uint8_t *r, const poly *a)
  * @brief polyz_unpack - Unpack polynomial z with coefficients
  *			 in [-(GAMMA1 - 1), GAMMA1].
  *
- * @param r [out] pointer to output polynomial
- * @param a [in] byte array with bit-packed polynomial
+ * @param [out] r pointer to output polynomial
+ * @param [in] a byte array with bit-packed polynomial
  */
 void polyz_unpack(poly *r, const uint8_t *a)
 {
@@ -567,9 +567,9 @@ void polyz_unpack(poly *r, const uint8_t *a)
  *			[0,43]. Input coefficients are assumed to be standard
  *			representatives.
  *
- * @param r [out] pointer to output byte array with at least
+ * @param [out] r pointer to output byte array with at least
  *		  LC_DILITHIUM_POLYW1_PACKEDBYTES bytes
- * @param a [in] pointer to input polynomial
+ * @param [in] a pointer to input polynomial
  */
 void polyw1_pack(uint8_t *r, const poly *a)
 {

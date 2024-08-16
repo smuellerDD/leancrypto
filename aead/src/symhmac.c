@@ -94,12 +94,12 @@ static void lc_sh_selftest(int *tested, const char *impl)
 /**
  * @brief Set the key for the encryption or decryption operation
  *
- * @param sh [in] symmetric/HMAC crypt cipher handle
- * @param key [in] Buffer with key
- * @param keylen [in] Length of key buffer
- * @param iv [in] initialization vector to be used - only the IV size of the
+ * @param [in] sh symmetric/HMAC crypt cipher handle
+ * @param [in] key Buffer with key
+ * @param [in] keylen Length of key buffer
+ * @param [in] iv initialization vector to be used - only the IV size of the
  *		  underlying symmetric algorithm is supported
- * @param ivlen [in] length of initialization vector
+ * @param [in] ivlen length of initialization vector
  *
  * The algorithm supports a key of arbitrary size. The only requirement is that
  * the same key is used for decryption as for encryption.

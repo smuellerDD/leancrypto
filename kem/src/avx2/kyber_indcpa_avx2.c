@@ -41,9 +41,9 @@
  *		    serialized vector of polynomials pk and the public seed
  *		    used to generate the matrix A.
  *
- * @param r [out] pointer to the output serialized public key
- * @param pk [in] pointer to the input public-key polyvec
- * @param seed [in] pointer to the input public seed
+ * @param [out] r pointer to the output serialized public key
+ * @param [in] pk pointer to the input public-key polyvec
+ * @param [in] seed pointer to the input public seed
  */
 static void pack_pk(uint8_t r[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 		    const polyvec *pk, const uint8_t seed[LC_KYBER_SYMBYTES])
@@ -56,9 +56,9 @@ static void pack_pk(uint8_t r[LC_KYBER_INDCPA_PUBLICKEYBYTES],
  * @brief unpack_pk - De-serialize public key from a byte array;
  *		      approximate inverse of pack_pk
  *
- * @param pk [out] pointer to output public-key polynomial vector
- * @param seed [out] pointer to output seed to generate matrix A
- * @param packedpk [out] pointer to input serialized public key
+ * @param [out] pk pointer to output public-key polynomial vector
+ * @param [out] seed pointer to output seed to generate matrix A
+ * @param [out] packedpk pointer to input serialized public key
  */
 static void unpack_pk(polyvec *pk, uint8_t seed[LC_KYBER_SYMBYTES],
 		      const uint8_t packedpk[LC_KYBER_INDCPA_PUBLICKEYBYTES])
@@ -70,8 +70,8 @@ static void unpack_pk(polyvec *pk, uint8_t seed[LC_KYBER_SYMBYTES],
 /**
  * @brief pack_sk - Serialize the secret key
  *
- * @param r [out] pointer to output serialized secret key
- * @param sk [in] pointer to input vector of polynomials (secret key)
+ * @param [out] r pointer to output serialized secret key
+ * @param [in] sk pointer to input vector of polynomials (secret key)
  */
 static void pack_sk(uint8_t r[LC_KYBER_INDCPA_SECRETKEYBYTES],
 		    const polyvec *sk)
@@ -82,8 +82,8 @@ static void pack_sk(uint8_t r[LC_KYBER_INDCPA_SECRETKEYBYTES],
 /**
  * @brief unpack_sk - De-serialize the secret key; inverse of pack_sk
  *
- * @param sk [out] pointer to output vector of polynomials (secret key)
- * @param packedsk [in] pointer to input serialized secret key
+ * @param [out] sk pointer to output vector of polynomials (secret key)
+ * @param [in] packedsk pointer to input serialized secret key
  */
 static void unpack_sk(polyvec *sk,
 		      const uint8_t packedsk[LC_KYBER_INDCPA_SECRETKEYBYTES])
@@ -96,8 +96,8 @@ static void unpack_sk(polyvec *sk,
  *			    compressed and serialized vector of polynomials b
  *			    and the compressed and serialized polynomial v
  *
- * @param r [out] pointer to the output serialized ciphertext
- * @param b [in] pointer to the input vector of polynomials b
+ * @param [out] r pointer to the output serialized ciphertext
+ * @param [in] b pointer to the input vector of polynomials b
  */
 static void pack_ciphertext_b(uint8_t r[LC_KYBER_INDCPA_BYTES], polyvec *b)
 {
@@ -109,8 +109,8 @@ static void pack_ciphertext_b(uint8_t r[LC_KYBER_INDCPA_BYTES], polyvec *b)
  *			    compressed and serialized vector of polynomials b
  *			    and the compressed and serialized polynomial v
  *
- * @param r [out] pointer to the output serialized ciphertext
- * @param v [in] pointer to the input polynomial v
+ * @param [out] r pointer to the output serialized ciphertext
+ * @param [in] v pointer to the input polynomial v
  */
 static void pack_ciphertext_v(uint8_t r[LC_KYBER_INDCPA_BYTES], poly *v)
 {
@@ -121,8 +121,8 @@ static void pack_ciphertext_v(uint8_t r[LC_KYBER_INDCPA_BYTES], poly *v)
  * @brief unpack_ciphertext - De-serialize and decompress ciphertext from a byte
  *			      array; approximate inverse of pack_ciphertext
  *
- * @param b [out] pointer to the output vector of polynomials b
- * @param c [in] pointer to the input serialized ciphertext
+ * @param [out] b pointer to the output vector of polynomials b
+ * @param [in] c pointer to the input serialized ciphertext
  */
 static void unpack_ciphertext_b(polyvec *b,
 				const uint8_t c[LC_KYBER_INDCPA_BYTES])
@@ -134,8 +134,8 @@ static void unpack_ciphertext_b(polyvec *b,
  * @brief unpack_ciphertext - De-serialize and decompress ciphertext from a byte
  *			      array; approximate inverse of pack_ciphertext
  *
- * @param v [out] pointer to the output polynomial v
- * @param c [in] pointer to the input serialized ciphertext
+ * @param [out] v pointer to the output polynomial v
+ * @param [in] c pointer to the input serialized ciphertext
  */
 static void unpack_ciphertext_v(poly *v, const uint8_t c[LC_KYBER_INDCPA_BYTES])
 {
@@ -146,11 +146,11 @@ static void unpack_ciphertext_v(poly *v, const uint8_t c[LC_KYBER_INDCPA_BYTES])
  * @brief rej_uniform - Run rejection sampling on uniform random bytes to
  *			generate uniform random integers mod q
  *
- * @param r [out] pointer to output buffer
- * @param len [in] requested number of 16-bit integers (uniform mod q)
- * @param buf [in] pointer to input buffer (assumed to be uniformly random
+ * @param [out] r pointer to output buffer
+ * @param [in] len requested number of 16-bit integers (uniform mod q)
+ * @param [in] buf pointer to input buffer (assumed to be uniformly random
  *		   bytes)
- * @param buflen [in] length of input buffer in bytes
+ * @param [in] buflen length of input buffer in bytes
  *
  * @returns number of sampled 16-bit integers (at most len)
  */
@@ -186,9 +186,9 @@ static unsigned int rej_uniform(int16_t *r, unsigned int len,
  *		       that look uniformly random. Performs rejection sampling
  *		       on output of a XOF
  *
- * @param a [out] pointer to output matrix A
- * @param seed [in] pointer to input seed
- * @param transposed [in] boolean deciding whether A or A^T is generated
+ * @param [out] a pointer to output matrix A
+ * @param [in] seed pointer to input seed
+ * @param [in] transposed boolean deciding whether A or A^T is generated
  */
 #if LC_KYBER_K == 4
 static int gen_matrix(polyvec *a, const uint8_t seed[LC_KYBER_SYMBYTES],

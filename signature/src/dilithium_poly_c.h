@@ -96,8 +96,8 @@ static inline void poly_power2round(poly *a1, poly *a0, const poly *a)
  * @brief polyt1_unpack - Unpack polynomial t1 with 10-bit coefficients.
  *			  Output coefficients are standard representatives.
  *
- * @param r [out] pointer to output polynomial
- * @param a [in] byte array with bit-packed polynomial
+ * @param [out] r pointer to output polynomial
+ * @param [in] a byte array with bit-packed polynomial
  */
 static inline void polyt1_unpack(poly *r, const uint8_t *a)
 {

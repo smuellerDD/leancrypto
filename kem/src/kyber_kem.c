@@ -191,7 +191,7 @@ out:
  *
  * FIPS 203: Optional check
  *
- * @param  [in] sk Secret key (dk)
+ * @param [in]  sk Secret key (dk)
  *
  * @return 0 on success, < 0 on error
  */

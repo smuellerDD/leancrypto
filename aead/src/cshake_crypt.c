@@ -393,11 +393,11 @@ static void lc_cc_selftest(int *tested, const char *impl)
 /**
  * @brief Set the key for the encyption or decryption operation
  *
- * @param cc [in] cSHAKE crypt cipher handle
- * @param key [in] Buffer with key
- * @param keylen [in] Length of key buffer
- * @param iv [in] initialization vector to be used
- * @param ivlen [in] length of initialization vector
+ * @param [in] cc cSHAKE crypt cipher handle
+ * @param [in] key Buffer with key
+ * @param [in] keylen Length of key buffer
+ * @param [in] iv initialization vector to be used
+ * @param [in] ivlen length of initialization vector
  *
  * The algorithm supports a key of arbitrary size. The only requirement is that
  * the same key is used for decryption as for encryption.

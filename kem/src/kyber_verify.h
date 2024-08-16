@@ -40,10 +40,10 @@ extern "C" {
  *		 assumes two's complement representation of negative integers.
  *		 Runs in constant time.
  *
- * @param r [out] pointer to output byte array
- * @param x [in] pointer to input byte array
- * @param len [in] Amount of bytes to be copied
- * @param b [in] Condition bit; has to be in {0,1}
+ * @param [out] r pointer to output byte array
+ * @param [in] x pointer to input byte array
+ * @param [in] len Amount of bytes to be copied
+ * @param [in] b Condition bit; has to be in {0,1}
  */
 static inline void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b)
 {
