@@ -43,6 +43,11 @@ static int kyber_official(enum lc_kyber_type type)
 		goto out;
 	}
 
+	if (lc_kyber_pct(&ws->pk, &ws->sk)) {
+		printf("Kyber PCT failed\n");
+		goto out;
+	}
+
 	/* modify type to get error */
 	ws->pk.kyber_type = 123;
 	if (lc_kyber_enc_kdf(&ws->ct, ws->ss, sizeof(ws->ss), &ws->pk) !=

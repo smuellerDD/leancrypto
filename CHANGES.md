@@ -1,4 +1,7 @@
-Changes 1.0.2-prerelease
+Changes 1.1.0-prerelease
+* ML-KEM remove modulus check of decapsulation key (not required by FIPS 203)
+
+* ML-KEM: add key pair PCT API - leancrypto cannot invoke it itself as it does not know when both keys are provided from outside
 
 Changes 1.0.1
 

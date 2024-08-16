@@ -536,6 +536,19 @@ static inline int lc_kyber_ss_load(struct lc_kyber_ss *ss,
 }
 
 /**
+ * @brief Pairwise consistency check as per FIPS 203 section 7.1
+ *
+ * This call should be invoked when importing an encapsulation and decapsulation
+ * key pair.
+ *
+ * @param [in] pk Public key (ek)
+ * @param [in] sk Secret key (dk)
+ *
+ * @return 0 on success, < 0 on error
+ */
+int lc_kyber_pct(const struct lc_kyber_pk *pk, const struct lc_kyber_sk *sk);
+
+/**
  * @ingroup Kyber
  * @brief Obtain the reference to the Kyber key and its length
  *

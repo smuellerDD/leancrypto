@@ -11,7 +11,7 @@
 # Patchlevel Version: API / ABI compatible, no functional changes, no
 #		      enhancements, bug fixes only.
 project('leancrypto', 'c',
-	version: '1.0.2',
+	version: '1.1.0',
 	default_options: [
 		'warning_level=3',
 		'optimization=3',
