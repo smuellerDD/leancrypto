@@ -5,7 +5,7 @@
 #
 
 Name:           leancrypto
-Version:        1.0.1
+Version:        1.0.2
 Release:        1.1
 Summary:        Cryptographic library with stack-only support and PQC-safe algorithms
 License:        GPL-2.0 OR BSD-2-Clause
