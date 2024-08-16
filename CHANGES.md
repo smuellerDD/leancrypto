@@ -1,4 +1,4 @@
-Changes 1.0.1-prerelease
+Changes 1.0.1
 
 * fix: Kyber keygen - add LC_KYBER_K to initial hash (change is only relevant when storing keys as seed and for interoperability)
 
