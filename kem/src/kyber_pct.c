@@ -21,6 +21,7 @@
 #include "lc_memcmp_secure.h"
 #include "lc_memset_secure.h"
 #include "ret_checkers.h"
+#include "timecop.h"
 #include "visibility.h"
 
 LC_INTERFACE_FUNCTION(int, lc_kyber_pct, const struct lc_kyber_pk *pk,
@@ -40,6 +41,15 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_pct, const struct lc_kyber_pk *pk,
 
 	CKINT(lc_kyber_ss_ptr(&ss1_p, &ss1_size, &ss1));
 	CKINT(lc_kyber_ss_ptr(&ss2_p, &ss2_size, &ss2));
+
+	/*
+	 * Timecop: the Kyber SS will not reveal anything about the SK or PK.
+	 * Further, it is not a secret here, as it is generated for testing.
+	 * Thus, we can ignore side channels here.
+	 */
+	unpoison(ss1_p, ss1_size);
+	unpoison(ss2_p, ss2_size);
+
 	CKINT(lc_memcmp_secure(ss1_p, ss1_size, ss2_p, ss2_size));
 
 out:
