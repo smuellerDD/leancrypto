@@ -189,7 +189,8 @@ out:
 /**
  * @brief kyber_kem_iv_sk - Check consistency of Kyber secret key
  *
- * FIPS 203: Optional check
+ * FIPS 203: Mandatory check verifying the hash of the encapsulation key matches
+ * the encapsulation key which both are stored in the decapsulation key.
  *
  * @param [in]  sk Secret key (dk)
  *
@@ -262,13 +263,6 @@ int _lc_kyber_dec(
 	 * struct lc_kyber_sk ensures that the input is of required length.
 	 */
 
-	/*
-	 * Additional input validation - it may be disabled as it is may be
-	 * viewed as not useful, because the public key and the SHA3-512 hash of
-	 * (m || H(pk)) is processed with the indcpa_enc function. But for
-	 * high-security use cases, it may be useful to counter any potential
-	 * flaws present in indcpa_enc.
-	 */
 	CKINT(kyber_kem_iv_sk(sk));
 
 	pk = sk->sk + LC_KYBER_INDCPA_SECRETKEYBYTES;

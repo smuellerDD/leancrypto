@@ -640,14 +640,12 @@ int indcpa_dec_avx(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
 			poly v;
 		} tmp;
 	};
-	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, 32);
 
 	unpack_sk(&ws->skpv, sk);
 
 	/* Validate input */
 	BUILD_BUG_ON(sizeof(ws->tmp.b) < LC_KYBER_INDCPA_SECRETKEYBYTES);
-	CKINT(kyber_kem_iv_sk_modulus(sk, &ws->skpv, &ws->tmp.b, pack_sk));
 
 	unpack_ciphertext_b(&ws->tmp.b, c);
 	polyvec_ntt(&ws->tmp.b);
@@ -664,7 +662,6 @@ int indcpa_dec_avx(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
 
 	poly_tomsg_avx(m, &ws->mp);
 
-out:
 	LC_RELEASE_MEM(ws);
-	return ret;
+	return 0;
 }

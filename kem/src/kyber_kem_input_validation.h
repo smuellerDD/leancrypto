@@ -76,43 +76,6 @@ static inline int kyber_kem_iv_pk_modulus(
 	return ret;
 }
 
-/**
- * @brief kyber_kem_iv_sk_modulus - Encapsulation input validation of modulus of
- *				    encryption key.
- *
- * FIPS 203: (Modulus check.) Perform the computation
- *	     dk_n = ByteEncode(ByteDecode(dk)). If dk ̸= dk_n , the input is
- *	     invalid.
- *
- * @param [in] sk Secret key (dk)
- * @param [in] skpv Already decoded secret key (dk) to prevent another decoding
- *		    step. Note, as this parameter is implementation dependent,
- *		    the caller must include this header file after the header
- *		    file defining polyvec.
- * @param [in] pack_sk Function to encode key
- *
- * @return 0 on success, < 0 on error
- */
-static inline int kyber_kem_iv_sk_modulus(
-	const uint8_t sk[LC_KYBER_INDCPA_SECRETKEYBYTES], const polyvec *skpv,
-	void *ws_buf,
-	void (*pack_sk)(uint8_t r[LC_KYBER_INDCPA_SECRETKEYBYTES],
-			const polyvec *sk))
-{
-	int ret = 0;
-
-	pack_sk(ws_buf, skpv);
-
-	/* Timecop: timing difference due to memcmp is no side channel leak. */
-	unpoison(sk, LC_KYBER_INDCPA_SECRETKEYBYTES);
-	unpoison(ws_buf, LC_KYBER_INDCPA_SECRETKEYBYTES);
-	if (lc_memcmp_secure(sk, LC_KYBER_INDCPA_SECRETKEYBYTES, ws_buf,
-			     LC_KYBER_INDCPA_SECRETKEYBYTES))
-		ret = -EINVAL;
-
-	return ret;
-}
-
 #ifdef __cplusplus
 }
 #endif

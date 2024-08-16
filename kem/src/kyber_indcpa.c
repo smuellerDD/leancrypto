@@ -413,7 +413,6 @@ int indcpa_dec(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
 			poly v;
 		} tmp;
 	};
-	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	unpack_sk(&ws->skpv, sk);
@@ -422,7 +421,6 @@ int indcpa_dec(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
 
 	/* Validate input */
 	BUILD_BUG_ON(sizeof(ws->tmp.b) < LC_KYBER_INDCPA_SECRETKEYBYTES);
-	CKINT(kyber_kem_iv_sk_modulus(sk, &ws->skpv, &ws->tmp.b, pack_sk));
 
 	unpack_ciphertext(&ws->tmp.b, &ws->v, c);
 	kyber_print_polyvec(&ws->tmp.b,
@@ -449,7 +447,6 @@ int indcpa_dec(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
 	kyber_print_buffer(m, LC_KYBER_INDCPA_MSGBYTES,
 			   "K-PKE Decrypt: m = ByteEncode(Compress(w))");
 
-out:
 	LC_RELEASE_MEM(ws);
-	return ret;
+	return 0;
 }
