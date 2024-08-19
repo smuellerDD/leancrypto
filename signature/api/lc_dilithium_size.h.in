@@ -162,34 +162,49 @@ struct @dilithium_name@_sig {
 	uint8_t sig[LC_DILITHIUM_CRYPTO_BYTES];
 };
 
-/**
- * @brief Dilithium stream context
- *
- * @var dilithium_hash_ctx Hash context used internally to the library - it
- *      should not be touched by the user
- * @var shake_state State memory of the hash context used internally to the
- *      library - it should not be touched by the user
- * @var dilithium_prehash_type When using HashML-DSA, set the hash reference
- *      used for the hash operation. Allowed values are lc_sha256, lc_sha512,
- *      lc_shake128 and lc_shake256. Note, the actual message digest operation
- *      can be performed external to leancrypto. This parameter only shall
- *      indicate the used hash operation.
- * @var userctx buffer with a caller-specified context string
- * @var userctxlen length of the user context (allowed range between 0 and 255
- *      bytes)
- * @var ml_dsa_internal When set to true, only the ML-DSA.Sign_internal or
- *      ML-DSA.Verify_internal are performed (see FIPS 204 chapter 6). Otherwise
- *      the ML-DSA.Sign / ML-DSA.Verify (see FIPS chapter 5) is applied.
- *      \warning Only set this value to true if you exactly know what you are
- *      doing!.
- */
 #ifndef LC_DILITHIUM_CTX_ON_STACK
 struct lc_dilithium_ctx {
+	/**
+	 * @brief Hash context used internally to the library - it should not
+	 * be touched by the user
+	 */
 	struct lc_hash_ctx dilithium_hash_ctx;
+
+	/**
+	 * @brief State memory of the hash context used internally to the
+	 * library - it should not be touched by the user
+	 */
 	uint8_t shake_state[LC_SHA3_STATE_SIZE_ALIGN(LC_SHA3_256_CTX_SIZE)];
+
+	/**
+	 * @brief When using HashML-DSA, set the hash reference used for the
+	 * hash operation. Allowed values are lc_sha256, lc_sha512, lc_shake128
+	 * and lc_shake256. Note, the actual message digest operation can be
+	 * performed external to leancrypto. This parameter only shall indicate
+	 * the used hash operation.
+	 */
 	struct lc_hash *dilithium_prehash_type;
+
+	/**
+	 * @brief length of the user context (allowed range between 0 and 255
+	 * bytes)
+	 */
 	size_t userctxlen;
+
+	/**
+	 * @brief buffer with a caller-specified context string
+	 */
 	const uint8_t *userctx;
+
+	/**
+	 * @brief When set to true, only the ML-DSA.Sign_internal or
+	 * ML-DSA.Verify_internal are performed (see FIPS 204 chapter 6).
+	 * Otherwise the ML-DSA.Sign / ML-DSA.Verify (see FIPS chapter 5) is
+	 * applied.
+	 *
+	 * \warning Only set this value to true if you exactly know what you are
+	 * doing!.
+	 */
 	unsigned int ml_dsa_internal:1;
 };
 #endif
