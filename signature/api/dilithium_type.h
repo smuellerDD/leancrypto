@@ -245,6 +245,7 @@ extern "C" {
 #define lc_dilithium_verify_armv8 DILITHIUM_F(verify_armv8)
 #define lc_dilithium_verify_ctx_armv8 DILITHIUM_F(verify_ctx_armv8)
 #define lc_dilithium_verify_init_armv8 DILITHIUM_F(verify_init_armv8)
+#define lc_dilithium_verify_init_ctx_armv8 DILITHIUM_F(verify_init_ctx_armv8)
 #define lc_dilithium_verify_update_armv8 DILITHIUM_F(verify_update_armv8)
 #define lc_dilithium_verify_final_armv8 DILITHIUM_F(verify_final_armv8)
 
