@@ -26,10 +26,11 @@
 
 #include "armv7/dilithium_signature_armv7.h"
 
-static int _dilithium_tester_suf_armv7(unsigned int rounds)
+static int _dilithium_tester_suf_armv7(unsigned int rounds,
+				       unsigned int internal)
 {
 	return _dilithium_init_update_final_tester(
-		rounds, lc_dilithium_keypair_armv7,
+		rounds, internal, lc_dilithium_keypair_armv7,
 
 		lc_dilithium_sign_init_armv7, lc_dilithium_sign_update_armv7,
 		lc_dilithium_sign_final_armv7,
@@ -43,7 +44,8 @@ static int dilithium_tester_suf_armv7(void)
 {
 	int ret = 0;
 
-	ret += _dilithium_tester_suf_armv7(0);
+	ret += _dilithium_tester_suf_armv7(0, 0);
+	ret += _dilithium_tester_suf_armv7(0, 1);
 
 	return ret;
 }
@@ -56,5 +58,5 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	if (argc != 2)
 		return dilithium_tester_suf_armv7();
 
-	return _dilithium_tester_suf_armv7(10000);
+	return _dilithium_tester_suf_armv7(10000, 0);
 }

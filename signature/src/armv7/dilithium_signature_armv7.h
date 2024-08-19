@@ -37,8 +37,14 @@ int lc_dilithium_keypair_from_seed_armv7(struct lc_dilithium_pk *pk,
 int lc_dilithium_sign_armv7(struct lc_dilithium_sig *sig, const uint8_t *m,
 			    size_t mlen, const struct lc_dilithium_sk *sk,
 			    struct lc_rng_ctx *rng_ctx);
+int lc_dilithium_sign_ctx_armv7(struct lc_dilithium_sig *sig,
+				struct lc_dilithium_ctx *ctx, const uint8_t *m,
+				size_t mlen, const struct lc_dilithium_sk *sk,
+				struct lc_rng_ctx *rng_ctx);
 int lc_dilithium_sign_init_armv7(struct lc_dilithium_ctx *ctx,
 				 const struct lc_dilithium_sk *sk);
+int lc_dilithium_sign_init_ctx_armv7(struct lc_dilithium_ctx *ctx,
+				     const struct lc_dilithium_sk *sk);
 int lc_dilithium_sign_update_armv7(struct lc_dilithium_ctx *ctx,
 				   const uint8_t *m, size_t mlen);
 int lc_dilithium_sign_final_armv7(struct lc_dilithium_sig *sig,
@@ -49,8 +55,14 @@ int lc_dilithium_sign_final_armv7(struct lc_dilithium_sig *sig,
 int lc_dilithium_verify_armv7(const struct lc_dilithium_sig *sig,
 			      const uint8_t *m, size_t mlen,
 			      const struct lc_dilithium_pk *pk);
+int lc_dilithium_verify_ctx_armv7(const struct lc_dilithium_sig *sig,
+				  struct lc_dilithium_ctx *ctx,
+				  const uint8_t *m, size_t mlen,
+				  const struct lc_dilithium_pk *pk);
 int lc_dilithium_verify_init_armv7(struct lc_dilithium_ctx *ctx,
 				   const struct lc_dilithium_pk *pk);
+int lc_dilithium_verify_init_ctx_armv7(struct lc_dilithium_ctx *ctx,
+				       const struct lc_dilithium_pk *pk);
 int lc_dilithium_verify_update_armv7(struct lc_dilithium_ctx *ctx,
 				     const uint8_t *m, size_t mlen);
 int lc_dilithium_verify_final_armv7(const struct lc_dilithium_sig *sig,

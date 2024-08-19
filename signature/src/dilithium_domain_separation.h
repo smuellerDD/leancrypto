@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2024, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2024, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *
@@ -17,37 +17,21 @@
  * DAMAGE.
  */
 
-#include "ext_headers.h"
-#include "dilithium_tester.h"
-#include "lc_sha3.h"
-#include "ret_checkers.h"
-#include "visibility.h"
+#ifndef DILITHIUM_DOMAIN_SEPARATION_H
+#define DILITHIUM_DOMAIN_SEPARATION_H
 
-static int _dilithium_tester_common(unsigned int rounds, unsigned int internal)
-{
-	return _dilithium_tester(rounds, 1, internal, lc_dilithium_keypair,
-				 lc_dilithium_keypair_from_seed,
-				 lc_dilithium_sign_ctx,
-				 lc_dilithium_verify_ctx);
+#include "dilithium_type.h"
+#include "lc_hash.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+int dilithium_domain_separation(struct lc_dilithium_ctx *ctx, const uint8_t *m,
+				size_t mlen);
+
+#ifdef __cplusplus
 }
+#endif
 
-static int dilithium_tester_common(void)
-{
-	int ret = 0;
-
-	ret += _dilithium_tester_common(0, 0);
-	ret += _dilithium_tester_common(0, 1);
-
-	return ret;
-}
-
-LC_TEST_FUNC(int, main, int argc, char *argv[])
-{
-	(void)argc;
-	(void)argv;
-
-	if (argc != 2)
-		return dilithium_tester_common();
-
-	return _dilithium_tester_common(10000, 0);
-}
+#endif /* DILITHIUM_DOMAIN_SEPARATION_H */

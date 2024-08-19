@@ -11,7 +11,8 @@ asflags-$(CONFIG_LEANCRYPTO_DILITHIUM)					       \
 ################################################################################
 # Dilithium Common
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
-				+= ../signature/src/dilithium_signature_helper.o\
+				+= ../signature/src/dilithium_domain_separation.o\
+				   ../signature/src/dilithium_signature_helper.o\
 				   ../signature/src/dilithium_zetas.o	       \
 				   leancrypto_kernel_dilithium.o
 

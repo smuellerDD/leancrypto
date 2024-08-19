@@ -165,13 +165,32 @@ struct @dilithium_name@_sig {
 /**
  * @brief Dilithium stream context
  *
- * This structure is used for the init/update/final operation of the
- * Dilithium signature operation.
+ * @var dilithium_hash_ctx Hash context used internally to the library - it
+ *      should not be touched by the user
+ * @var shake_state State memory of the hash context used internally to the
+ *      library - it should not be touched by the user
+ * @var dilithium_prehash_type When using HashML-DSA, set the hash reference
+ *      used for the hash operation. Allowed values are lc_sha256, lc_sha512,
+ *      lc_shake128 and lc_shake256. Note, the actual message digest operation
+ *      can be performed external to leancrypto. This parameter only shall
+ *      indicate the used hash operation.
+ * @var userctx buffer with a caller-specified context string
+ * @var userctxlen length of the user context (allowed range between 0 and 255
+ *      bytes)
+ * @var ml_dsa_internal When set to true, only the ML-DSA.Sign_internal or
+ *      ML-DSA.Verify_internal are performed (see FIPS 204 chapter 6). Otherwise
+ *      the ML-DSA.Sign / ML-DSA.Verify (see FIPS chapter 5) is applied.
+ *      \warning Only set this value to true if you exactly know what you are
+ *      doing!.
  */
 #ifndef LC_DILITHIUM_CTX_ON_STACK
 struct lc_dilithium_ctx {
 	struct lc_hash_ctx dilithium_hash_ctx;
 	uint8_t shake_state[LC_SHA3_STATE_SIZE_ALIGN(LC_SHA3_256_CTX_SIZE)];
+	struct lc_hash *dilithium_prehash_type;
+	size_t userctxlen;
+	const uint8_t *userctx;
+	unsigned int ml_dsa_internal:1;
 };
 #endif
 
@@ -179,6 +198,13 @@ struct lc_dilithium_ctx {
 #ifndef LC_DILITHIUM_CTX_ON_STACK
 #define LC_DILITHIUM_CTX_SIZE                                                  \
 	sizeof(struct lc_dilithium_ctx)
+
+#define LC_DILITHIUM_SET_CTX(name)                                             \
+	LC_SHAKE_256_CTX((&(name)->dilithium_hash_ctx));                       \
+	(name)->dilithium_prehash_type = NULL;                                 \
+	(name)->ml_dsa_internal = 0;                                           \
+	(name)->userctxlen = 0;                                                \
+	(name)->userctx = NULL
 #endif
 /// \endcond
 
@@ -196,7 +222,7 @@ struct lc_dilithium_ctx {
 			LC_HASH_COMMON_ALIGNMENT);                             \
 	struct lc_dilithium_ctx *name =                                        \
 		(struct lc_dilithium_ctx *)name##_ctx_buf;                     \
-	LC_SHAKE_256_CTX((&(name)->dilithium_hash_ctx));                       \
+	LC_DILITHIUM_SET_CTX(name);                                            \
 	_Pragma("GCC diagnostic pop")
 #endif
 
@@ -292,7 +318,7 @@ int @dilithium_name@_keypair_from_seed(struct @dilithium_name@_pk *pk,
 				       const uint8_t *seed, size_t seedlen);
 
 /**
- * @brief Computes signature in one shot
+ * @brief Computes ML-DSA signature in one shot
  *
  * @param [out] sig pointer to output signature
  * @param [in] m pointer to message to be signed
@@ -309,6 +335,29 @@ int @dilithium_name@_sign(struct @dilithium_name@_sig *sig, const uint8_t *m,
 		      struct lc_rng_ctx *rng_ctx);
 
 /**
+ * @brief Computes signature with Dilithium context in one shot
+ *
+ * This API allows the caller to provide an arbitrary context buffer which
+ * is hashed together with the message to form the message digest to be signed.
+ *
+ * @param [out] sig pointer to output signature
+ * @param [in] ctx reference to the allocated Dilithium context handle
+ * @param [in] m pointer to message to be signed
+ * @param [in] mlen length of message
+ * @param [in] sk pointer to bit-packed secret key
+ * @param [in] rng_ctx pointer to seeded random number generator context - when
+ *		       pointer is non-NULL, perform a randomized signing.
+ *		       Otherwise use deterministic signing.
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int @dilithium_name@_sign_ctx(struct @dilithium_name@_sig *sig,
+			      struct lc_dilithium_ctx *ctx,
+			      const uint8_t *m, size_t mlen,
+			      const struct @dilithium_name@_sk *sk,
+			      struct lc_rng_ctx *rng_ctx);
+
+/**
  * @brief Initializes a signature operation
  *
  * This call is intended to support messages that are located in non-contiguous
@@ -323,6 +372,25 @@ int @dilithium_name@_sign(struct @dilithium_name@_sig *sig, const uint8_t *m,
  */
 int @dilithium_name@_sign_init(struct lc_dilithium_ctx *ctx,
 			   const struct @dilithium_name@_sk *sk);
+
+/**
+ * @brief Initializes a signature operation with Dilithium context
+ *
+ * This call is intended to support messages that are located in non-contiguous
+ * places and even becomes available at different times. This call is to be
+ * used together with the lc_dilithium_sign_update and lc_dilithium_sign_final.
+ *
+ * This API allows the caller to provide an arbitrary context buffer which
+ * is hashed together with the message to form the message digest to be signed.
+ *
+ * @param [in,out] ctx pointer to an allocated Dilithium context
+ * @param [in] sk pointer to bit-packed secret key
+ *
+ * @return 0 (success) or < 0 on error; -EOPNOTSUPP is returned if a different
+ *	   hash than lc_shake256 is used.
+ */
+int @dilithium_name@_sign_init_ctx(struct lc_dilithium_ctx *ctx,
+				   const struct @dilithium_name@_sk *sk);
 
 /**
  * @brief Add more data to an already initialized signature state
@@ -361,7 +429,7 @@ int @dilithium_name@_sign_final(struct @dilithium_name@_sig *sig,
 			    struct lc_rng_ctx *rng_ctx);
 
 /**
- * @brief Verifies signature in one shot
+ * @brief Verifies ML-DSA signature in one shot
  *
  * @param [in] sig pointer to input signature
  * @param [in] m pointer to message
@@ -373,6 +441,26 @@ int @dilithium_name@_sign_final(struct @dilithium_name@_sig *sig,
  */
 int @dilithium_name@_verify(const struct @dilithium_name@_sig *sig, const uint8_t *m,
 			size_t mlen, const struct @dilithium_name@_pk *pk);
+
+/**
+ * @brief Verifies signature with Dilithium context in one shot
+ *
+ * This API allows the caller to provide an arbitrary context buffer which
+ * is hashed together with the message to form the message digest to be signed.
+ *
+ * @param [in] sig pointer to input signature
+ * @param [in] ctx reference to the allocated Dilithium context handle
+ * @param [in] m pointer to message
+ * @param [in] mlen length of message
+ * @param [in] pk pointer to bit-packed public key
+ *
+ * @return 0 if signature could be verified correctly and -EBADMSG when
+ * signature cannot be verified, < 0 on other errors
+ */
+int @dilithium_name@_verify_ctx(const struct @dilithium_name@_sig *sig,
+				struct lc_dilithium_ctx *ctx,
+				const uint8_t *m, size_t mlen,
+				const struct @dilithium_name@_pk *pk);
 
 /**
  * @brief Initializes a signature verification operation
@@ -390,6 +478,26 @@ int @dilithium_name@_verify(const struct @dilithium_name@_sig *sig, const uint8_
  */
 int @dilithium_name@_verify_init(struct lc_dilithium_ctx *ctx,
 			     const struct @dilithium_name@_pk *pk);
+
+/**
+ * @brief Initializes a signature verification operation with Dilithium context
+ *
+ * This call is intended to support messages that are located in non-contiguous
+ * places and even becomes available at different times. This call is to be
+ * used together with the lc_dilithium_verify_update and
+ * lc_dilithium_verify_final.
+ *
+ * This API allows the caller to provide an arbitrary context buffer which
+ * is hashed together with the message to form the message digest to be signed.
+ *
+ * @param [in,out] ctx pointer to an allocated Dilithium context
+ * @param [in] pk pointer to bit-packed public key
+ *
+ * @return 0 (success) or < 0 on error; -EOPNOTSUPP is returned if a different
+ *	   hash than lc_shake256 is used.
+ */
+int @dilithium_name@_verify_init_ctx(struct lc_dilithium_ctx *ctx,
+				     const struct @dilithium_name@_pk *pk);
 
 /**
  * @brief Add more data to an already initialized signature state
@@ -492,7 +600,7 @@ struct lc_dilithium_ed25519_ctx {
 			LC_HASH_COMMON_ALIGNMENT);                             \
 	struct lc_dilithium_ed25519_ctx *name =                                \
 		(struct lc_dilithium_ed25519_ctx *)name##_ctx_buf;             \
-	LC_SHAKE_256_CTX((&(name)->dilithium_ctx.dilithium_hash_ctx));         \
+	LC_DILITHIUM_SET_CTX(&(name)->dilithium_ctx);                          \
 	LC_SHA512_CTX((&(name)->ed25519_hash_ctx));                            \
 	_Pragma("GCC diagnostic pop")
 #endif
@@ -561,7 +669,34 @@ int @dilithium_name@_ed25519_sign(struct @dilithium_name@_ed25519_sig *sig,
 			      const struct @dilithium_name@_ed25519_sk *sk,
 			      struct lc_rng_ctx *rng_ctx);
 
+/**
+ * @brief Computes signature with Dilithium context in one shot
+ *
+ * This API allows the caller to provide an arbitrary context buffer which
+ * is hashed together with the message to form the message digest to be signed.
+ *
+ * @param [out] sig pointer to output signature
+ * @param [in] ctx reference to the allocated Dilithium context handle
+ * @param [in] m pointer to message to be signed
+ * @param [in] mlen length of message
+ * @param [in] sk pointer to bit-packed secret key
+ * @param [in] rng_ctx pointer to seeded random number generator context - when
+ *		       pointer is non-NULL, perform a randomized signing.
+ *		       Otherwise use deterministic signing.
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int @dilithium_name@_ed25519_sign_ctx(struct @dilithium_name@_ed25519_sig *sig,
+				      struct lc_dilithium_ed25519_ctx *ctx,
+			      const uint8_t *m, size_t mlen,
+			      const struct @dilithium_name@_ed25519_sk *sk,
+			      struct lc_rng_ctx *rng_ctx);
+
 int @dilithium_name@_ed25519_sign_init(
+	struct lc_dilithium_ed25519_ctx *ctx,
+	const struct @dilithium_name@_ed25519_sk *sk);
+
+int @dilithium_name@_ed25519_sign_init_ctx(
 	struct lc_dilithium_ed25519_ctx *ctx,
 	const struct @dilithium_name@_ed25519_sk *sk);
 
@@ -590,7 +725,30 @@ int @dilithium_name@_ed25519_verify(const struct @dilithium_name@_ed25519_sig *s
 				const uint8_t *m, size_t mlen,
 				const struct @dilithium_name@_ed25519_pk *pk);
 
+/**
+ * @brief Verifies signature in one shot with Dilithium context
+ *
+ * This API allows the caller to provide an arbitrary context buffer which
+ * is hashed together with the message to form the message digest to be signed.
+ *
+ * @param [in] sig pointer to input signature
+ * @param [in] ctx reference to the allocated Dilithium context handle
+ * @param [in] m pointer to message
+ * @param [in] mlen length of message
+ * @param [in] pk pointer to bit-packed public key
+ *
+ * @return 0 if signature could be verified correctly and -EBADMSG when
+ * signature cannot be verified, < 0 on other errors
+ */
+int @dilithium_name@_ed25519_verify_ctx(const struct @dilithium_name@_ed25519_sig *sig,
+					struct lc_dilithium_ed25519_ctx *ctx,
+				const uint8_t *m, size_t mlen,
+				const struct @dilithium_name@_ed25519_pk *pk);
+
 int @dilithium_name@_ed25519_verify_init(
+	struct lc_dilithium_ed25519_ctx *ctx,
+	const struct @dilithium_name@_ed25519_pk *pk);
+int @dilithium_name@_ed25519_verify_init_ctx(
 	struct lc_dilithium_ed25519_ctx *ctx,
 	const struct @dilithium_name@_ed25519_pk *pk);
 int @dilithium_name@_ed25519_verify_update(

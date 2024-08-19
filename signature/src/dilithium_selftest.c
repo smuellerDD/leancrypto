@@ -77,6 +77,7 @@ void dilithium_keypair_tester(
 static int _dilithium_siggen_tester(
 	const char *impl,
 	int (*_lc_dilithium_sign)(struct lc_dilithium_sig *sig,
+				  struct lc_dilithium_ctx *ctx,
 				  const uint8_t *m, size_t mlen,
 				  const struct lc_dilithium_sk *sk,
 				  struct lc_rng_ctx *rng_ctx))
@@ -84,20 +85,23 @@ static int _dilithium_siggen_tester(
 	struct workspace {
 		struct lc_dilithium_sig sig;
 	};
+	LC_DILITHIUM_CTX_ON_STACK(ctx);
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	_lc_dilithium_sign(&ws->sig, vector.m, sizeof(vector.m), &vector.sk,
-			   NULL);
+	_lc_dilithium_sign(&ws->sig, ctx, vector.m, sizeof(vector.m),
+			   &vector.sk, NULL);
 	lc_compare_selftest(ws->sig.sig, vector.sig.sig,
 			    LC_DILITHIUM_CRYPTO_BYTES, impl);
 
 	LC_RELEASE_MEM(ws);
+	lc_dilithium_ctx_zero(ctx);
 	return 0;
 }
 
 void dilithium_siggen_tester(
 	int *tested, const char *impl,
 	int (*_lc_dilithium_sign)(struct lc_dilithium_sig *sig,
+				  struct lc_dilithium_ctx *ctx,
 				  const uint8_t *m, size_t mlen,
 				  const struct lc_dilithium_sk *sk,
 				  struct lc_rng_ctx *rng_ctx))
@@ -112,16 +116,18 @@ void dilithium_siggen_tester(
 void dilithium_sigver_tester(
 	int *tested, const char *impl,
 	int (*_lc_dilithium_verify)(const struct lc_dilithium_sig *sig,
+				    struct lc_dilithium_ctx *ctx,
 				    const uint8_t *m, size_t mlen,
 				    const struct lc_dilithium_pk *pk))
 {
 	int ret, exp;
-
+	LC_DILITHIUM_CTX_ON_STACK(ctx);
 	LC_SELFTEST_RUN(tested);
 
 	exp = 0;
-	ret = _lc_dilithium_verify(&vector.sig, vector.m, sizeof(vector.m),
+	ret = _lc_dilithium_verify(&vector.sig, ctx, vector.m, sizeof(vector.m),
 				   &vector.pk);
+	lc_dilithium_ctx_zero(ctx);
 
 	lc_compare_selftest((uint8_t *)&ret, (uint8_t *)&exp, sizeof(ret),
 			    impl);

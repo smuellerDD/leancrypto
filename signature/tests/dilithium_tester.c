@@ -59,10 +59,13 @@
 #ifndef GENERATE_VECTORS
 #if LC_DILITHIUM_MODE == 2
 #include "dilithium_tester_vectors_44.h"
+#include "dilithium_internal_vectors_44.h"
 #elif LC_DILITHIUM_MODE == 3
 #include "dilithium_tester_vectors_65.h"
+#include "dilithium_internal_vectors_65.h"
 #elif LC_DILITHIUM_MODE == 5
 #include "dilithium_tester_vectors_87.h"
+#include "dilithium_internal_vectors_87.h"
 #endif
 #endif
 
@@ -71,7 +74,7 @@
 #endif
 
 int _dilithium_tester(
-	unsigned int rounds, int verify_calculation,
+	unsigned int rounds, int verify_calculation, unsigned int internal_test,
 	int (*_lc_dilithium_keypair)(struct lc_dilithium_pk *pk,
 				     struct lc_dilithium_sk *sk,
 				     struct lc_rng_ctx *rng_ctx),
@@ -80,10 +83,12 @@ int _dilithium_tester(
 					       const uint8_t *seed,
 					       size_t seedlen),
 	int (*_lc_dilithium_sign)(struct lc_dilithium_sig *sig,
+				  struct lc_dilithium_ctx *ctx,
 				  const uint8_t *m, size_t mlen,
 				  const struct lc_dilithium_sk *sk,
 				  struct lc_rng_ctx *rng_ctx),
 	int (*_lc_dilithium_verify)(const struct lc_dilithium_sig *sig,
+				    struct lc_dilithium_ctx *ctx,
 				    const uint8_t *m, size_t mlen,
 				    const struct lc_dilithium_pk *pk))
 {
@@ -103,12 +108,16 @@ int _dilithium_tester(
 		//polyveck w, w1, w0, t1, t0, h;
 	};
 	unsigned int i, j, k, l, nvectors;
+	const struct dilithium_testvector *vec_p =
+		internal_test ? dilithium_internal_testvectors :
+				dilithium_testvectors;
 	int ret = 0;
 #if (defined(SHOW_SHAKEd_KEY) && !defined(GENERATE_VECTORS))
 	uint8_t buf[32];
 #endif
 
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+	LC_DILITHIUM_CTX_ON_STACK(ctx);
 	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 
 	(void)j;
@@ -133,6 +142,9 @@ int _dilithium_tester(
 #else
 	nvectors = ARRAY_SIZE(dilithium_testvectors);
 #endif
+
+	printf("internal %u\n", internal_test);
+	ctx->ml_dsa_internal = !!internal_test;
 
 #ifndef GENERATE_VECTORS
 	if (_lc_dilithium_keypair_from_seed(&ws->pk, &ws->sk, ws->buf,
@@ -168,10 +180,10 @@ int _dilithium_tester(
 	for (i = 0; i < rounds; ++i) {
 		lc_rng_generate(selftest_rng, NULL, 0, ws->m, MLEN);
 		_lc_dilithium_keypair(&ws->pk, &ws->sk, selftest_rng);
-		_lc_dilithium_sign(&ws->sig, ws->m, MLEN, &ws->sk,
+		_lc_dilithium_sign(&ws->sig, ctx, ws->m, MLEN, &ws->sk,
 				   NULL /*selftest_rng*/);
 
-		if (_lc_dilithium_verify(&ws->sig, ws->m, MLEN, &ws->pk))
+		if (_lc_dilithium_verify(&ws->sig, ctx, ws->m, MLEN, &ws->pk))
 			printf("Signature verification failed!\n");
 
 		/* One more generation to match up with the CRYSTALS impl */
@@ -212,27 +224,28 @@ int _dilithium_tester(
 		}
 		printf("},\n\t}, ");
 #else
-		if (memcmp(ws->m, dilithium_testvectors[i].m, MLEN)) {
+		if (memcmp(ws->m, vec_p[i].m, MLEN)) {
 			printf("Message mismatch at test vector %u\n", i);
 			ret = 1;
 			goto out;
 		}
 
-		if (memcmp(ws->pk.pk, dilithium_testvectors[i].pk,
+		if (memcmp(ws->pk.pk, vec_p[i].pk,
 			   LC_DILITHIUM_PUBLICKEYBYTES)) {
 			printf("Public key mismatch at test vector %u\n", i);
 			ret = 1;
 			goto out;
 		}
-		if (memcmp(ws->sk.sk, dilithium_testvectors[i].sk,
+		if (memcmp(ws->sk.sk, vec_p[i].sk,
 			   LC_DILITHIUM_SECRETKEYBYTES)) {
 			printf("Secret key mismatch at test vector %u\n", i);
 			ret = 1;
 			goto out;
 		}
-		if (memcmp(ws->sig.sig, dilithium_testvectors[i].sig,
+		if (memcmp(ws->sig.sig, vec_p[i].sig,
 			   LC_DILITHIUM_CRYPTO_BYTES)) {
-			printf("Signature mismatch at test vector %u\n", i);
+			printf("Signature (%u) mismatch at test vector %u\n",
+			       internal_test, i);
 			ret = 1;
 			goto out;
 		}
@@ -277,7 +290,7 @@ out:
 }
 
 int _dilithium_init_update_final_tester(
-	unsigned int rounds,
+	unsigned int rounds, unsigned int internal_test,
 	int (*_lc_dilithium_keypair)(struct lc_dilithium_pk *pk,
 				     struct lc_dilithium_sk *sk,
 				     struct lc_rng_ctx *rng_ctx),
@@ -328,11 +341,17 @@ int _dilithium_init_update_final_tester(
 	};
 	unsigned int i, nvectors;
 	int ret = 0;
+	const struct dilithium_testvector *vec_p =
+		internal_test ? dilithium_internal_testvectors :
+				dilithium_testvectors;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	LC_DILITHIUM_CTX_ON_STACK(ctx);
 	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 
+	/* we assume that all arrays have same size */
 	nvectors = ARRAY_SIZE(dilithium_testvectors);
+
+	ctx->ml_dsa_internal = !!internal_test;
 
 	if (!rounds)
 		rounds = nvectors;
@@ -358,27 +377,28 @@ int _dilithium_init_update_final_tester(
 		if (rounds > nvectors)
 			continue;
 
-		if (memcmp(ws->m, dilithium_testvectors[i].m, MLEN)) {
+		if (memcmp(ws->m, vec_p[i].m, MLEN)) {
 			printf("Message mismatch at test vector %u\n", i);
 			ret = 1;
 			goto out;
 		}
 
-		if (memcmp(ws->pk.pk, dilithium_testvectors[i].pk,
+		if (memcmp(ws->pk.pk, vec_p[i].pk,
 			   LC_DILITHIUM_PUBLICKEYBYTES)) {
 			printf("Public key mismatch at test vector %u\n", i);
 			ret = 1;
 			goto out;
 		}
-		if (memcmp(ws->sk.sk, dilithium_testvectors[i].sk,
+		if (memcmp(ws->sk.sk, vec_p[i].sk,
 			   LC_DILITHIUM_SECRETKEYBYTES)) {
 			printf("Secret key mismatch at test vector %u\n", i);
 			ret = 1;
 			goto out;
 		}
-		if (memcmp(ws->sig.sig, dilithium_testvectors[i].sig,
+		if (memcmp(ws->sig.sig, vec_p[i].sig,
 			   LC_DILITHIUM_CRYPTO_BYTES)) {
-			printf("Signature mismatch at test vector %u\n", i);
+			printf("Signature (%u) mismatch at test vector %u\n",
+			       internal_test, i);
 			ret = 1;
 			goto out;
 		}

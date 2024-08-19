@@ -26,12 +26,13 @@
 
 #include "avx2/dilithium_signature_avx2.h"
 
-static int _dilithium_tester_iuf_avx2(unsigned int rounds)
+static int _dilithium_tester_iuf_avx2(unsigned int rounds,
+				      unsigned int internal)
 {
 	if (!(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2))
 		return 77;
 	return _dilithium_init_update_final_tester(
-		rounds, lc_dilithium_keypair_avx2,
+		rounds, internal, lc_dilithium_keypair_avx2,
 
 		lc_dilithium_sign_init_avx2, lc_dilithium_sign_update_avx2,
 		lc_dilithium_sign_final_avx2,
@@ -44,7 +45,8 @@ static int dilithium_tester_iuf_avx2(void)
 {
 	int ret = 0;
 
-	ret += _dilithium_tester_iuf_avx2(0);
+	ret += _dilithium_tester_iuf_avx2(0, 0);
+	ret += _dilithium_tester_iuf_avx2(0, 1);
 
 	return ret;
 }
@@ -57,5 +59,5 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	if (argc != 2)
 		return dilithium_tester_iuf_avx2();
 
-	return _dilithium_tester_iuf_avx2(10000);
+	return _dilithium_tester_iuf_avx2(10000, 0);
 }

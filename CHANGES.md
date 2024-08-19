@@ -3,6 +3,10 @@ Changes 1.1.0-prerelease
 
 * ML-KEM: add key pair PCT API - leancrypto cannot invoke it itself as it does not know when both keys are provided from outside
 
+* ML-DSA: add consistency with FIPS 204 - the signature changes as the input data handling is added (if you want to apply the old signature, use the new lc_dilithium_[sign|verify]_ctx API with ctx->ml_dsa_internal = 1)
+
+* ML-DSA: add API to allow caller to provide a user context as allowed by FIPS 204, to invoke ML-DSA.Sign_internal, ML-DSA.Verify_internal and HashML-DSA
+
 Changes 1.0.1
 
 * fix: Kyber keygen - add LC_KYBER_K to initial hash (change is only relevant when storing keys as seed and for interoperability)

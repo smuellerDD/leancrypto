@@ -27,7 +27,7 @@ extern "C" {
 #endif
 
 int _dilithium_tester(
-	unsigned int rounds, int verify_calculation,
+	unsigned int rounds, int verify_calculation, unsigned int internal_test,
 	int (*_lc_dilithium_keypair)(struct lc_dilithium_pk *pk,
 				     struct lc_dilithium_sk *sk,
 				     struct lc_rng_ctx *rng_ctx),
@@ -36,15 +36,17 @@ int _dilithium_tester(
 					       const uint8_t *seed,
 					       size_t seedlen),
 	int (*_lc_dilithium_sign)(struct lc_dilithium_sig *sig,
+				  struct lc_dilithium_ctx *ctx,
 				  const uint8_t *m, size_t mlen,
 				  const struct lc_dilithium_sk *sk,
 				  struct lc_rng_ctx *rng_ctx),
 	int (*_lc_dilithium_verify)(const struct lc_dilithium_sig *sig,
+				    struct lc_dilithium_ctx *ctx,
 				    const uint8_t *m, size_t mlen,
 				    const struct lc_dilithium_pk *pk));
 
 int _dilithium_init_update_final_tester(
-	unsigned int rounds,
+	unsigned int rounds, unsigned int internal_test,
 	int (*_lc_dilithium_keypair)(struct lc_dilithium_pk *pk,
 				     struct lc_dilithium_sk *sk,
 				     struct lc_rng_ctx *rng_ctx),

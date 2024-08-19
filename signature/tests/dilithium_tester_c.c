@@ -25,18 +25,20 @@
 
 #include "dilithium_signature_c.h"
 
-static int _dilithium_tester_c(unsigned int rounds)
+static int _dilithium_tester_c(unsigned int rounds, unsigned int internal)
 {
-	return _dilithium_tester(rounds, 1, lc_dilithium_keypair_c,
+	return _dilithium_tester(rounds, 1, internal, lc_dilithium_keypair_c,
 				 lc_dilithium_keypair_from_seed_c,
-				 lc_dilithium_sign_c, lc_dilithium_verify_c);
+				 lc_dilithium_sign_ctx_c,
+				 lc_dilithium_verify_ctx_c);
 }
 
 static int dilithium_tester_c(void)
 {
 	int ret = 0;
 
-	ret += _dilithium_tester_c(0);
+	ret += _dilithium_tester_c(0, 0);
+	ret += _dilithium_tester_c(0, 1);
 
 	return ret;
 }
@@ -49,5 +51,5 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	if (argc != 2)
 		return dilithium_tester_c();
 
-	return _dilithium_tester_c(10000);
+	return _dilithium_tester_c(10000, 0);
 }

@@ -42,6 +42,7 @@ void dilithium_keypair_tester(
 void dilithium_siggen_tester(
 	int *tested, const char *impl,
 	int (*_lc_dilithium_sign)(struct lc_dilithium_sig *sig,
+				  struct lc_dilithium_ctx *ctx,
 				  const uint8_t *m, size_t mlen,
 				  const struct lc_dilithium_sk *sk,
 				  struct lc_rng_ctx *rng_ctx));
@@ -49,6 +50,7 @@ void dilithium_siggen_tester(
 void dilithium_sigver_tester(
 	int *tested, const char *impl,
 	int (*_lc_dilithium_verify)(const struct lc_dilithium_sig *sig,
+				    struct lc_dilithium_ctx *ctx,
 				    const uint8_t *m, size_t mlen,
 				    const struct lc_dilithium_pk *pk));
 

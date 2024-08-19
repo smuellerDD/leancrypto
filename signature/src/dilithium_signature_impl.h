@@ -32,6 +32,7 @@
 #include "build_bug_on.h"
 #include "dilithium_type.h"
 #include "dilithium_debug.h"
+#include "dilithium_domain_separation.h"
 #include "dilithium_pack.h"
 #include "dilithium_selftest.h"
 #include "dilithium_signature_impl.h"
@@ -443,25 +444,23 @@ out:
 	return ret;
 }
 
-static int lc_dilithium_sign_impl(struct lc_dilithium_sig *sig,
-				  const uint8_t *m, size_t mlen,
-				  const struct lc_dilithium_sk *sk,
-				  struct lc_rng_ctx *rng_ctx)
+static int lc_dilithium_sign_ctx_impl(struct lc_dilithium_sig *sig,
+				      struct lc_dilithium_ctx *ctx,
+				      const uint8_t *m, size_t mlen,
+				      const struct lc_dilithium_sk *sk,
+				      struct lc_rng_ctx *rng_ctx)
 {
 	uint8_t tr[LC_DILITHIUM_TRBYTES];
 	int ret = 0;
-	static int tested = LC_DILITHIUM_TEST_INIT;
 	struct lc_hash_ctx *hash_ctx;
-	LC_DILITHIUM_CTX_ON_STACK(ctx);
+	static int tested = LC_DILITHIUM_TEST_INIT;
 
 	/* rng_ctx is allowed to be NULL as handled below */
-	if (!sig || !m || !sk) {
-		ret = -EINVAL;
-		goto out;
-	}
+	if (!sig || !m || !sk || !ctx)
+		return -EINVAL;
 
 	dilithium_siggen_tester(&tested, "Dilithium Siggen C",
-				lc_dilithium_sign_impl);
+				lc_dilithium_sign_ctx_impl);
 
 	dilithium_print_buffer(m, mlen, "Siggen - Message");
 
@@ -471,18 +470,30 @@ static int lc_dilithium_sign_impl(struct lc_dilithium_sig *sig,
 	hash_ctx = &ctx->dilithium_hash_ctx;
 	lc_hash_init(hash_ctx);
 	lc_hash_update(hash_ctx, tr, LC_DILITHIUM_TRBYTES);
-	lc_hash_update(hash_ctx, m, mlen);
+	CKINT(dilithium_domain_separation(ctx, m, mlen));
 
 	ret = lc_dilithium_sign_internal(sig, sk, ctx, rng_ctx);
 
 out:
-	lc_dilithium_ctx_zero(ctx);
 	lc_memset_secure(tr, 0, sizeof(tr));
 	return ret;
 }
 
-static int lc_dilithium_sign_init_impl(struct lc_dilithium_ctx *ctx,
-				       const struct lc_dilithium_sk *sk)
+static int lc_dilithium_sign_impl(struct lc_dilithium_sig *sig,
+				  const uint8_t *m, size_t mlen,
+				  const struct lc_dilithium_sk *sk,
+				  struct lc_rng_ctx *rng_ctx)
+{
+	LC_DILITHIUM_CTX_ON_STACK(dilithium_ctx);
+	int ret = lc_dilithium_sign_ctx_impl(sig, dilithium_ctx, m, mlen, sk,
+					     rng_ctx);
+
+	lc_dilithium_ctx_zero(dilithium_ctx);
+	return ret;
+}
+
+static int lc_dilithium_sign_init_ctx_impl(struct lc_dilithium_ctx *ctx,
+					   const struct lc_dilithium_sk *sk)
 {
 	uint8_t tr[LC_DILITHIUM_TRBYTES];
 	struct lc_hash_ctx *hash_ctx;
@@ -499,7 +510,7 @@ static int lc_dilithium_sign_init_impl(struct lc_dilithium_ctx *ctx,
 		return -EOPNOTSUPP;
 
 	dilithium_siggen_tester(&tested, "Dilithium Siggen C",
-				lc_dilithium_sign_impl);
+				lc_dilithium_sign_ctx_impl);
 
 	unpack_sk_tr(tr, sk);
 
@@ -508,7 +519,13 @@ static int lc_dilithium_sign_init_impl(struct lc_dilithium_ctx *ctx,
 	lc_hash_update(hash_ctx, tr, LC_DILITHIUM_TRBYTES);
 	lc_memset_secure(tr, 0, sizeof(tr));
 
-	return 0;
+	return dilithium_domain_separation(ctx, NULL, 0);
+}
+
+static int lc_dilithium_sign_init_impl(struct lc_dilithium_ctx *ctx,
+				       const struct lc_dilithium_sk *sk)
+{
+	return lc_dilithium_sign_init_ctx_impl(ctx, sk);
 }
 
 static int lc_dilithium_sign_update_impl(struct lc_dilithium_ctx *ctx,
@@ -641,23 +658,21 @@ out:
 	return ret;
 }
 
-static int lc_dilithium_verify_impl(const struct lc_dilithium_sig *sig,
-				    const uint8_t *m, size_t mlen,
-				    const struct lc_dilithium_pk *pk)
+static int lc_dilithium_verify_ctx_impl(const struct lc_dilithium_sig *sig,
+					struct lc_dilithium_ctx *ctx,
+					const uint8_t *m, size_t mlen,
+					const struct lc_dilithium_pk *pk)
 {
 	uint8_t tr[LC_DILITHIUM_TRBYTES];
 	int ret = 0;
 	static int tested = LC_DILITHIUM_TEST_INIT;
 	struct lc_hash_ctx *hash_ctx;
-	LC_DILITHIUM_CTX_ON_STACK(ctx);
 
-	if (!sig || !m || !pk) {
-		ret = -EINVAL;
-		goto out;
-	}
+	if (!sig || !m || !pk || !ctx)
+		return -EINVAL;
 
 	dilithium_sigver_tester(&tested, "Dilithium Sigver C",
-				lc_dilithium_verify_impl);
+				lc_dilithium_verify_ctx_impl);
 
 	/* Make sure that ->mu is large enough for ->tr */
 	BUILD_BUG_ON(LC_DILITHIUM_TRBYTES > LC_DILITHIUM_CRHBYTES);
@@ -669,18 +684,28 @@ static int lc_dilithium_verify_impl(const struct lc_dilithium_sig *sig,
 	hash_ctx = &ctx->dilithium_hash_ctx;
 	lc_hash_init(hash_ctx);
 	lc_hash_update(hash_ctx, tr, LC_DILITHIUM_TRBYTES);
-	lc_hash_update(hash_ctx, m, mlen);
+	CKINT(dilithium_domain_separation(ctx, m, mlen));
 
 	ret = lc_dilithium_verify_internal(sig, pk, ctx);
 
 out:
-	lc_dilithium_ctx_zero(ctx);
 	lc_memset_secure(tr, 0, sizeof(tr));
 	return ret;
 }
 
-static int lc_dilithium_verify_init_impl(struct lc_dilithium_ctx *ctx,
-					 const struct lc_dilithium_pk *pk)
+static int lc_dilithium_verify_impl(const struct lc_dilithium_sig *sig,
+				    const uint8_t *m, size_t mlen,
+				    const struct lc_dilithium_pk *pk)
+{
+	LC_DILITHIUM_CTX_ON_STACK(ctx);
+	int ret = lc_dilithium_verify_ctx_impl(sig, ctx, m, mlen, pk);
+
+	lc_dilithium_ctx_zero(ctx);
+	return ret;
+}
+
+static int lc_dilithium_verify_init_ctx_impl(struct lc_dilithium_ctx *ctx,
+					     const struct lc_dilithium_pk *pk)
 {
 	uint8_t mu[LC_DILITHIUM_TRBYTES];
 	struct lc_hash_ctx *hash_ctx;
@@ -697,7 +722,7 @@ static int lc_dilithium_verify_init_impl(struct lc_dilithium_ctx *ctx,
 		return -EOPNOTSUPP;
 
 	dilithium_sigver_tester(&tested, "Dilithium Sigver C",
-				lc_dilithium_verify_impl);
+				lc_dilithium_verify_ctx_impl);
 
 	/* Compute CRH(H(rho, t1), msg) */
 	lc_xof(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES, mu,
@@ -707,7 +732,13 @@ static int lc_dilithium_verify_init_impl(struct lc_dilithium_ctx *ctx,
 	lc_hash_update(hash_ctx, mu, LC_DILITHIUM_TRBYTES);
 	lc_memset_secure(mu, 0, sizeof(mu));
 
-	return 0;
+	return dilithium_domain_separation(ctx, NULL, 0);
+}
+
+static int lc_dilithium_verify_init_impl(struct lc_dilithium_ctx *ctx,
+					 const struct lc_dilithium_pk *pk)
+{
+	return lc_dilithium_verify_init_ctx_impl(ctx, pk);
 }
 
 static int lc_dilithium_verify_update_impl(struct lc_dilithium_ctx *ctx,
