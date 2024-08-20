@@ -31,6 +31,16 @@ static const uint8_t sha256_oid_der[] = { 0x06, 0x09, 0x60, 0x86, 0x48, 0x01,
 static const uint8_t sha512_oid_der[] = { 0x06, 0x09, 0x60, 0x86, 0x48, 0x01,
 					  0x65, 0x03, 0x04, 0x02, 0x03 };
 
+/*
+ *https://csrc.nist.gov/projects/computer-security-objects-register/algorithm-registration
+ */
+static const uint8_t sha3_256_oid_der[] = { 0x06, 0x09, 0x60, 0x86, 0x48, 0x01,
+					    0x65, 0x03, 0x04, 0x02, 0x08 };
+static const uint8_t sha3_384_oid_der[] = { 0x06, 0x09, 0x60, 0x86, 0x48, 0x01,
+					    0x65, 0x03, 0x04, 0x02, 0x09 };
+static const uint8_t sha3_512_oid_der[] = { 0x06, 0x09, 0x60, 0x86, 0x48, 0x01,
+					    0x65, 0x03, 0x04, 0x02, 0x0a };
+
 /* RFC8692 2.16.840.1.101.3.4.2.11 */
 static const uint8_t shake128_oid_der[] = { 0x06, 0x09, 0x60, 0x86, 0x48, 0x01,
 					    0x65, 0x03, 0x04, 0x02, 0x0B };
@@ -48,26 +58,48 @@ static int dilithium_ph_oids(struct lc_dilithium_ctx *ctx, size_t mlen)
 	if (!ctx->dilithium_prehash_type)
 		return 0;
 
+	/*
+	 * The signature init/update/final operation will not work with the
+	 * check of mlen, as only when _final is invoked, the message length
+	 * is known.
+	 */
+	(void)mlen;
+
 	if (ctx->dilithium_prehash_type == lc_sha256) {
-		if (mlen != LC_SHA256_SIZE_DIGEST)
-			return -EOPNOTSUPP;
+		// if (mlen != LC_SHA256_SIZE_DIGEST)
+		// 	return -EOPNOTSUPP;
 		lc_hash_update(hash_ctx, sha256_oid_der,
 			       sizeof(sha256_oid_der));
 	} else if (ctx->dilithium_prehash_type == lc_sha512) {
-		if (mlen != LC_SHA512_SIZE_DIGEST)
-			return -EOPNOTSUPP;
+		// if (mlen != LC_SHA512_SIZE_DIGEST)
+		// 	return -EOPNOTSUPP;
 		lc_hash_update(hash_ctx, sha512_oid_der,
 			       sizeof(sha512_oid_der));
+	} else if (ctx->dilithium_prehash_type == lc_sha3_256) {
+		// if (mlen != LC_SHA3_256_SIZE_DIGEST)
+		// 	return -EOPNOTSUPP;
+		lc_hash_update(hash_ctx, sha3_256_oid_der,
+			       sizeof(sha3_256_oid_der));
+	} else if (ctx->dilithium_prehash_type == lc_sha3_384) {
+		// if (mlen != LC_SHA3_384_SIZE_DIGEST)
+		// 	return -EOPNOTSUPP;
+		lc_hash_update(hash_ctx, sha3_384_oid_der,
+			       sizeof(sha3_384_oid_der));
+	} else if (ctx->dilithium_prehash_type == lc_sha3_512) {
+		// if (mlen != LC_SHA3_512_SIZE_DIGEST)
+		// 	return -EOPNOTSUPP;
+		lc_hash_update(hash_ctx, sha3_512_oid_der,
+			       sizeof(sha3_512_oid_der));
 	} else if (ctx->dilithium_prehash_type == lc_shake128) {
 		/* FIPS 204 section 5.4.1 */
-		if (mlen != 32)
-			return -EOPNOTSUPP;
+		// if (mlen != 32)
+		// 	return -EOPNOTSUPP;
 		lc_hash_update(hash_ctx, shake128_oid_der,
 			       sizeof(shake128_oid_der));
 	} else if (ctx->dilithium_prehash_type == lc_shake256) {
 		/* FIPS 204 section 5.4.1 */
-		if (mlen != 64)
-			return -EOPNOTSUPP;
+		// if (mlen != 64)
+		// 	return -EOPNOTSUPP;
 		lc_hash_update(hash_ctx, shake256_oid_der,
 			       sizeof(shake256_oid_der));
 	} else {
