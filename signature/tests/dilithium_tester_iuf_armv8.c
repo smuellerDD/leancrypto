@@ -27,10 +27,11 @@
 #include "armv8/dilithium_signature_armv8.h"
 
 static int _dilithium_tester_suf_armv8(unsigned int rounds,
-				       unsigned int internal)
+				       unsigned int internal,
+				       unsigned int prehashed)
 {
 	return _dilithium_init_update_final_tester(
-		rounds, internal, lc_dilithium_keypair_armv8,
+		rounds, internal, prehashed, lc_dilithium_keypair_armv8,
 
 		lc_dilithium_sign_init_armv8, lc_dilithium_sign_update_armv8,
 		lc_dilithium_sign_final_armv8,
@@ -44,8 +45,9 @@ static int dilithium_tester_suf_armv8(void)
 {
 	int ret = 0;
 
-	ret += _dilithium_tester_suf_armv8(0, 0);
-	ret += _dilithium_tester_suf_armv8(0, 1);
+	ret += _dilithium_tester_suf_armv8(0, 0, 0);
+	ret += _dilithium_tester_suf_armv8(0, 1, 0);
+	ret += _dilithium_tester_suf_armv8(0, 0, 1);
 
 	return ret;
 }
@@ -58,5 +60,5 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	if (argc != 2)
 		return dilithium_tester_suf_armv8();
 
-	return _dilithium_tester_suf_armv8(10000, 0);
+	return _dilithium_tester_suf_armv8(10000, 0, 0);
 }

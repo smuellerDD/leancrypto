@@ -32,6 +32,7 @@
 #include "ext_headers.h"
 #include "lc_hash.h"
 #include "lc_sha3.h"
+#include "ret_checkers.h"
 #include "selftest_rng.h"
 #include "small_stack_support.h"
 #include "visibility.h"
@@ -60,12 +61,15 @@
 #if LC_DILITHIUM_MODE == 2
 #include "dilithium_tester_vectors_44.h"
 #include "dilithium_internal_vectors_44.h"
+#include "dilithium_prehashed_vectors_44.h"
 #elif LC_DILITHIUM_MODE == 3
 #include "dilithium_tester_vectors_65.h"
 #include "dilithium_internal_vectors_65.h"
+#include "dilithium_prehashed_vectors_65.h"
 #elif LC_DILITHIUM_MODE == 5
 #include "dilithium_tester_vectors_87.h"
 #include "dilithium_internal_vectors_87.h"
+#include "dilithium_prehashed_vectors_87.h"
 #endif
 #endif
 
@@ -75,6 +79,7 @@
 
 int _dilithium_tester(
 	unsigned int rounds, int verify_calculation, unsigned int internal_test,
+	unsigned int prehashed,
 	int (*_lc_dilithium_keypair)(struct lc_dilithium_pk *pk,
 				     struct lc_dilithium_sk *sk,
 				     struct lc_rng_ctx *rng_ctx),
@@ -108,9 +113,12 @@ int _dilithium_tester(
 		//polyveck w, w1, w0, t1, t0, h;
 	};
 	unsigned int i, j, k, l, nvectors;
+#ifndef GENERATE_VECTORS
 	const struct dilithium_testvector *vec_p =
 		internal_test ? dilithium_internal_testvectors :
-				dilithium_testvectors;
+				prehashed ? dilithium_prehashed_testvectors :
+					    dilithium_testvectors;
+#endif
 	int ret = 0;
 #if (defined(SHOW_SHAKEd_KEY) && !defined(GENERATE_VECTORS))
 	uint8_t buf[32];
@@ -123,6 +131,12 @@ int _dilithium_tester(
 	(void)j;
 	(void)k;
 	(void)l;
+
+	ctx->ml_dsa_internal = !!internal_test;
+
+	if (prehashed)
+		ctx->dilithium_prehash_type = lc_shake128;
+
 
 #ifdef GENERATE_VECTORS
 	printf("#ifndef DILITHIUM_TESTVECTORS_H\n"
@@ -141,10 +155,14 @@ int _dilithium_tester(
 	(void)_lc_dilithium_keypair_from_seed;
 #else
 	nvectors = ARRAY_SIZE(dilithium_testvectors);
-#endif
 
-	printf("internal %u\n", internal_test);
-	ctx->ml_dsa_internal = !!internal_test;
+	if (ctx->ml_dsa_internal)
+		printf("ML-DSA.Sign_internal / ML-DSA.Verify_internal test\n");
+	else if (ctx->dilithium_prehash_type)
+		printf("HashML-DSA test\n");
+	else
+		printf("ML-DSA test\n");
+#endif
 
 #ifndef GENERATE_VECTORS
 	if (_lc_dilithium_keypair_from_seed(&ws->pk, &ws->sk, ws->buf,
@@ -180,8 +198,8 @@ int _dilithium_tester(
 	for (i = 0; i < rounds; ++i) {
 		lc_rng_generate(selftest_rng, NULL, 0, ws->m, MLEN);
 		_lc_dilithium_keypair(&ws->pk, &ws->sk, selftest_rng);
-		_lc_dilithium_sign(&ws->sig, ctx, ws->m, MLEN, &ws->sk,
-				   NULL /*selftest_rng*/);
+		CKINT(_lc_dilithium_sign(&ws->sig, ctx, ws->m, MLEN, &ws->sk,
+					 NULL /*selftest_rng*/));
 
 		if (_lc_dilithium_verify(&ws->sig, ctx, ws->m, MLEN, &ws->pk))
 			printf("Signature verification failed!\n");
@@ -291,6 +309,7 @@ out:
 
 int _dilithium_init_update_final_tester(
 	unsigned int rounds, unsigned int internal_test,
+	unsigned int prehashed,
 	int (*_lc_dilithium_keypair)(struct lc_dilithium_pk *pk,
 				     struct lc_dilithium_sk *sk,
 				     struct lc_rng_ctx *rng_ctx),
@@ -314,6 +333,8 @@ int _dilithium_init_update_final_tester(
 {
 #ifdef GENERATE_VECTORS
 	(void)rounds;
+	(void)internal_test;
+	(void)prehashed;
 	(void)_lc_dilithium_keypair;
 	(void)_lc_dilithium_sign_init;
 	(void)_lc_dilithium_sign_update;
@@ -343,7 +364,8 @@ int _dilithium_init_update_final_tester(
 	int ret = 0;
 	const struct dilithium_testvector *vec_p =
 		internal_test ? dilithium_internal_testvectors :
-				dilithium_testvectors;
+				prehashed ? dilithium_prehashed_testvectors :
+					    dilithium_testvectors;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	LC_DILITHIUM_CTX_ON_STACK(ctx);
 	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
@@ -353,13 +375,23 @@ int _dilithium_init_update_final_tester(
 
 	ctx->ml_dsa_internal = !!internal_test;
 
+	if (prehashed)
+		ctx->dilithium_prehash_type = lc_shake128;
+
+	if (ctx->ml_dsa_internal)
+		printf("ML-DSA.Sign_internal / ML-DSA.Verify_internal test\n");
+	else if (ctx->dilithium_prehash_type)
+		printf("HashML-DSA test\n");
+	else
+		printf("ML-DSA test\n");
+
 	if (!rounds)
 		rounds = nvectors;
 
 	for (i = 0; i < rounds; ++i) {
 		lc_rng_generate(selftest_rng, NULL, 0, ws->m, MLEN);
 		_lc_dilithium_keypair(&ws->pk, &ws->sk, selftest_rng);
-		_lc_dilithium_sign_init(ctx, &ws->sk);
+		CKINT(_lc_dilithium_sign_init(ctx, &ws->sk));
 		_lc_dilithium_sign_update(ctx, ws->m, 1);
 		_lc_dilithium_sign_update(ctx, ws->m + 1, MLEN - 1);
 		_lc_dilithium_sign_final(&ws->sig, ctx, &ws->sk,

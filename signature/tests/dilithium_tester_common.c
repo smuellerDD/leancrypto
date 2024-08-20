@@ -23,9 +23,11 @@
 #include "ret_checkers.h"
 #include "visibility.h"
 
-static int _dilithium_tester_common(unsigned int rounds, unsigned int internal)
+static int _dilithium_tester_common(unsigned int rounds, unsigned int internal,
+				    unsigned int prehashed)
 {
-	return _dilithium_tester(rounds, 1, internal, lc_dilithium_keypair,
+	return _dilithium_tester(rounds, 1, internal, prehashed,
+				 lc_dilithium_keypair,
 				 lc_dilithium_keypair_from_seed,
 				 lc_dilithium_sign_ctx,
 				 lc_dilithium_verify_ctx);
@@ -35,8 +37,9 @@ static int dilithium_tester_common(void)
 {
 	int ret = 0;
 
-	ret += _dilithium_tester_common(0, 0);
-	ret += _dilithium_tester_common(0, 1);
+	ret += _dilithium_tester_common(0, 0, 0);
+	ret += _dilithium_tester_common(0, 1, 0);
+	ret += _dilithium_tester_common(0, 0, 1);
 
 	return ret;
 }
@@ -49,5 +52,5 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	if (argc != 2)
 		return dilithium_tester_common();
 
-	return _dilithium_tester_common(10000, 0);
+	return _dilithium_tester_common(10000, 0, 0);
 }

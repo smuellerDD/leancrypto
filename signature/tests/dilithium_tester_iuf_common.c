@@ -25,10 +25,11 @@
 
 #include "dilithium_signature_c.h"
 
-static int _dilithium_tester_iuf(unsigned int rounds, unsigned int internal)
+static int _dilithium_tester_iuf(unsigned int rounds, unsigned int internal,
+				 unsigned int prehashed)
 {
 	return _dilithium_init_update_final_tester(
-		rounds, internal, lc_dilithium_keypair,
+		rounds, internal, prehashed, lc_dilithium_keypair,
 
 		lc_dilithium_sign_init, lc_dilithium_sign_update,
 		lc_dilithium_sign_final,
@@ -41,8 +42,9 @@ static int dilithium_tester_iuf(void)
 {
 	int ret = 0;
 
-	ret += _dilithium_tester_iuf(0, 0);
-	ret += _dilithium_tester_iuf(0, 1);
+	ret += _dilithium_tester_iuf(0, 0, 0);
+	ret += _dilithium_tester_iuf(0, 1, 0);
+	ret += _dilithium_tester_iuf(0, 0, 1);
 
 	return ret;
 }
@@ -55,5 +57,5 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	if (argc != 2)
 		return dilithium_tester_iuf();
 
-	return _dilithium_tester_iuf(10000, 0);
+	return _dilithium_tester_iuf(10000, 0, 0);
 }
