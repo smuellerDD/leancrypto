@@ -386,6 +386,7 @@ rej:
 		       LC_DILITHIUM_K * LC_DILITHIUM_POLYW1_PACKEDBYTES);
 	lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_CTILDE_BYTES);
 	lc_hash_final(hash_ctx, sig->sig);
+	lc_hash_zero(hash_ctx);
 
 	poly_challenge_avx(&ws->c, sig->sig);
 	poly_ntt_avx(&ws->c);
@@ -672,6 +673,7 @@ static int lc_dilithium_verify_avx2_internal(const struct lc_dilithium_sig *sig,
 		       LC_DILITHIUM_K * LC_DILITHIUM_POLYW1_PACKEDBYTES);
 	lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_CTILDE_BYTES);
 	lc_hash_final(hash_ctx, ws->buf.coeffs);
+	lc_hash_zero(hash_ctx);
 
 	/* Signature verification operation */
 	if (lc_memcmp_secure(ws->buf.coeffs, LC_DILITHIUM_CTILDE_BYTES,

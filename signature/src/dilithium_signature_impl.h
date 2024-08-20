@@ -373,6 +373,7 @@ rej:
 		       LC_DILITHIUM_K * LC_DILITHIUM_POLYW1_PACKEDBYTES);
 	lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_CTILDE_BYTES);
 	lc_hash_final(hash_ctx, sig->sig);
+	lc_hash_zero(hash_ctx);
 	dilithium_print_buffer(sig->sig, LC_DILITHIUM_CTILDE_BYTES,
 			       "Siggen - ctilde");
 
@@ -647,6 +648,7 @@ static int lc_dilithium_verify_internal(const struct lc_dilithium_sig *sig,
 		       LC_DILITHIUM_K * LC_DILITHIUM_POLYW1_PACKEDBYTES);
 	lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_CTILDE_BYTES);
 	lc_hash_final(hash_ctx, ws->buf.c2.coeffs);
+	lc_hash_zero(hash_ctx);
 
 	/* Signature verification operation */
 	if (lc_memcmp_secure(c1, LC_DILITHIUM_CTILDE_BYTES, ws->buf.c2.coeffs,
