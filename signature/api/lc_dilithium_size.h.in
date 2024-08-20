@@ -178,12 +178,13 @@ struct lc_dilithium_ctx {
 
 	/**
 	 * @brief When using HashML-DSA, set the hash reference used for the
-	 * hash operation. Allowed values are lc_sha256, lc_sha512, lc_shake128
-	 * and lc_shake256. Note, the actual message digest operation can be
-	 * performed external to leancrypto. This parameter only shall indicate
-	 * the used hash operation.
+	 * hash operation. Allowed values are lc_sha256, lc_sha512, lc_sha3_256,
+	 * lc_sha3_384, lc_sha3_512, lc_shake128 and lc_shake256. Note, the
+	 * actual message digest operation can be performed external to
+	 * leancrypto. This parameter only shall indicate the used hash
+	 * operation.
 	 */
-	struct lc_hash *dilithium_prehash_type;
+	const struct lc_hash *dilithium_prehash_type;
 
 	/**
 	 * @brief length of the user context (allowed range between 0 and 255
