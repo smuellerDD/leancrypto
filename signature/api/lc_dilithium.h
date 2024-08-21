@@ -213,6 +213,55 @@ static inline void lc_dilithium_ctx_zero(struct lc_dilithium_ctx *ctx)
 
 /**
  * @ingroup Dilithium
+ * @brief Mark the Dilithium context to execute ML-DSA.Sign_internal /
+ *	  ML-DSA.Verify_internal.
+ *
+ * @param [in] xtx Dilithium context
+ */
+static inline void lc_dilithium_ctx_internal(struct lc_dilithium_ctx *ctx)
+{
+	if (ctx)
+		ctx->ml_dsa_internal = 1;
+}
+
+/**
+ * @ingroup Dilithium
+ * @brief Set the hash type that was used for pre-hashing the message. The
+ *	  message digest ist used with the HashML-DSA. The message digest
+ *	  is to be provided via the message pointer in the sign/verify APIs.
+ *
+ * @param [in] xtx Dilithium-ED25519 context
+ * @param [in] hash Hash context referencing the used hash for pre-hashing the
+ *		    message
+ */
+static inline void lc_dilithium_ctx_hash(struct lc_dilithium_ctx *ctx,
+					 const struct lc_hash *hash)
+{
+	if (ctx)
+		ctx->dilithium_prehash_type = hash;
+}
+
+/**
+ * @ingroup Dilithium
+ * @brief Specify the optional user context string to be applied with the
+ *	  Dilithium signature operation.
+ *
+ * @param [in] xtx Dilithium context
+ * @param [in] userctx User context string
+ * @param [in] userctxlen Size of the user context string
+ */
+static inline void lc_dilithium_ctx_userctx(struct lc_dilithium_ctx *ctx,
+					    const uint8_t *userctx,
+					    size_t userctxlen)
+{
+	if (ctx) {
+		ctx->userctx = userctx;
+		ctx->userctxlen = userctxlen;
+	}
+}
+
+/**
+ * @ingroup Dilithium
  * @brief Obtain Dilithium type from secret key
  *
  * @param [in] sk Secret key from which the type is to be obtained
@@ -1482,6 +1531,56 @@ lc_dilithium_ed25519_ctx_zero(struct lc_dilithium_ed25519_ctx *ctx)
 #elif defined(LC_DILITHIUM_44_ENABLED)
 	lc_dilithium_44_ed25519_ctx_zero(ctx);
 #endif
+}
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Set the hash type that was used for pre-hashing the message. The
+ *	  message digest ist used with the HashML-DSA. The message digest
+ *	  is to be provided via the message pointer in the sign/verify APIs.
+ *
+ * @param [in] xtx Dilithium-ED25519 context
+ * @param [in] hash Hash context referencing the used hash for pre-hashing the
+ *		    message
+ */
+static inline void lc_dilithium_ed25519_ctx_hash(
+	struct lc_dilithium_ed25519_ctx *ctx, const struct lc_hash *hash)
+{
+	if (ctx)
+		ctx->dilithium_ctx.dilithium_prehash_type = hash;
+}
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Mark the Dilithium context to execute ML-DSA.Sign_internal /
+ *	  ML-DSA.Verify_internal.
+ *
+ * @param [in] xtx Dilithium-ED25519 context
+ */
+static inline void lc_dilithium_ed25519_ctx_internal(
+	struct lc_dilithium_ed25519_ctx *ctx)
+{
+	if (ctx)
+		ctx->dilithium_ctx.ml_dsa_internal = 1;
+}
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Specify the optional user context string to be applied with the
+ *	  Dilithium-ED25510 signature operation.
+ *
+ * @param [in] xtx Dilithium-ED25519 context
+ * @param [in] userctx User context string
+ * @param [in] userctxlen Size of the user context string
+ */
+static inline void lc_dilithium_ed25519_ctx_userctx(
+	struct lc_dilithium_ed25519_ctx *ctx, const uint8_t *userctx,
+	size_t userctxlen)
+{
+	if (ctx) {
+		ctx->dilithium_ctx.userctx = userctx;
+		ctx->dilithium_ctx.userctxlen = userctxlen;
+	}
 }
 
 /**
