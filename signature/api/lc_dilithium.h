@@ -216,7 +216,7 @@ static inline void lc_dilithium_ctx_zero(struct lc_dilithium_ctx *ctx)
  * @brief Mark the Dilithium context to execute ML-DSA.Sign_internal /
  *	  ML-DSA.Verify_internal.
  *
- * @param [in] xtx Dilithium context
+ * @param [in] ctx Dilithium context
  */
 static inline void lc_dilithium_ctx_internal(struct lc_dilithium_ctx *ctx)
 {
@@ -230,7 +230,7 @@ static inline void lc_dilithium_ctx_internal(struct lc_dilithium_ctx *ctx)
  *	  message digest ist used with the HashML-DSA. The message digest
  *	  is to be provided via the message pointer in the sign/verify APIs.
  *
- * @param [in] xtx Dilithium-ED25519 context
+ * @param [in] ctx Dilithium-ED25519 context
  * @param [in] hash Hash context referencing the used hash for pre-hashing the
  *		    message
  */
@@ -246,7 +246,7 @@ static inline void lc_dilithium_ctx_hash(struct lc_dilithium_ctx *ctx,
  * @brief Specify the optional user context string to be applied with the
  *	  Dilithium signature operation.
  *
- * @param [in] xtx Dilithium context
+ * @param [in] ctx Dilithium context
  * @param [in] userctx User context string
  * @param [in] userctxlen Size of the user context string
  */
@@ -1539,7 +1539,7 @@ lc_dilithium_ed25519_ctx_zero(struct lc_dilithium_ed25519_ctx *ctx)
  *	  message digest ist used with the HashML-DSA. The message digest
  *	  is to be provided via the message pointer in the sign/verify APIs.
  *
- * @param [in] xtx Dilithium-ED25519 context
+ * @param [in] ctx Dilithium-ED25519 context
  * @param [in] hash Hash context referencing the used hash for pre-hashing the
  *		    message
  */
@@ -1555,7 +1555,7 @@ static inline void lc_dilithium_ed25519_ctx_hash(
  * @brief Mark the Dilithium context to execute ML-DSA.Sign_internal /
  *	  ML-DSA.Verify_internal.
  *
- * @param [in] xtx Dilithium-ED25519 context
+ * @param [in] ctx Dilithium-ED25519 context
  */
 static inline void lc_dilithium_ed25519_ctx_internal(
 	struct lc_dilithium_ed25519_ctx *ctx)
@@ -1569,7 +1569,7 @@ static inline void lc_dilithium_ed25519_ctx_internal(
  * @brief Specify the optional user context string to be applied with the
  *	  Dilithium-ED25510 signature operation.
  *
- * @param [in] xtx Dilithium-ED25519 context
+ * @param [in] ctx Dilithium-ED25519 context
  * @param [in] userctx User context string
  * @param [in] userctxlen Size of the user context string
  */
