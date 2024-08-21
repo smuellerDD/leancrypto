@@ -27,6 +27,5 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	(void)argc;
 	(void)argv;
 
-	return dilithium_edge_tester(lc_dilithium_keypair_from_seed,
-				     lc_dilithium_sign);
+	return dilithium_edge_tester(lc_dilithium_sign_ctx);
 }
