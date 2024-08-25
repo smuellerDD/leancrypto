@@ -227,10 +227,10 @@ static inline void lc_dilithium_ctx_internal(struct lc_dilithium_ctx *ctx)
 /**
  * @ingroup Dilithium
  * @brief Set the hash type that was used for pre-hashing the message. The
- *	  message digest ist used with the HashML-DSA. The message digest
+ *	  message digest is used with the HashML-DSA. The message digest
  *	  is to be provided via the message pointer in the sign/verify APIs.
  *
- * @param [in] ctx Dilithium-ED25519 context
+ * @param [in] ctx Dilithium context
  * @param [in] hash Hash context referencing the used hash for pre-hashing the
  *		    message
  */

@@ -1,8 +1,8 @@
 # Lean Crypto Library
 
 The leancrypto library is a cryptographic library that exclusively contains
-only PQC-resistant cryptographic algorithms. The algorithm implementations
-have the following properties:
+only PQC-resistant cryptographic algorithms. It is lean in every of its
+properties listed in the following:
 
 * minimal dependencies: only minimal POSIX environment needed - function calls
   are abstracted into helper code that may need to be replaced for other
