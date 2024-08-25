@@ -41,7 +41,7 @@ static int _dilithium_keypair_tester(
 		struct lc_dilithium_sk sk;
 	};
 	char str[25];
-	uint8_t discard[32];
+	uint8_t discard[64];
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 

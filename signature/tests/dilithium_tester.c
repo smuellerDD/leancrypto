@@ -37,7 +37,7 @@
 #include "small_stack_support.h"
 #include "visibility.h"
 
-#define MLEN 32
+#define MLEN 64
 #define NVECTORS 50
 
 /*
@@ -135,21 +135,35 @@ int _dilithium_tester(
 	ctx->ml_dsa_internal = !!internal_test;
 
 	if (prehashed)
-		ctx->dilithium_prehash_type = lc_shake128;
+		ctx->dilithium_prehash_type = lc_shake256;
 
 
 #ifdef GENERATE_VECTORS
-	printf("#ifndef DILITHIUM_TESTVECTORS_H\n"
-	       "#define DILITHIUM_TESTVECTORS_H\n"
-	       "#include \"dilithium_type.h\"\n"
-	       "struct dilithium_testvector {\n"
-	       "\tuint8_t m[32];\n"
-	       "\tuint8_t pk[LC_DILITHIUM_PUBLICKEYBYTES];\n"
-	       "\tuint8_t sk[LC_DILITHIUM_SECRETKEYBYTES];\n"
-	       "\tuint8_t sig[LC_DILITHIUM_CRYPTO_BYTES];\n"
-	       "};\n\n"
-	       "static const struct dilithium_testvector dilithium_testvectors[] =\n"
-	       "{\n");
+	if (internal_test) {
+		printf("#ifndef DILITHIUM_INTERNAL_TESTVECTORS_H\n"
+		       "#define DILITHIUM_INTERNAL_TESTVECTORS_H\n"
+		       "#include \"dilithium_type.h\"\n"
+		       "static const struct dilithium_testvector dilithium_internal_testvectors[] =\n"
+		      "{\n");
+	} else if (prehashed) {
+		printf("#ifndef DILITHIUM_PREHASHED_TESTVECTORS_H\n"
+		       "#define DILITHIUM_PREHASHED_TESTVECTORS_H\n"
+		       "#include \"dilithium_type.h\"\n"
+		       "static const struct dilithium_testvector dilithium_prehashed_testvectors[] =\n"
+		      "{\n");
+	} else {
+		printf("#ifndef DILITHIUM_TESTVECTORS_H\n"
+		       "#define DILITHIUM_TESTVECTORS_H\n"
+		       "#include \"dilithium_type.h\"\n"
+		       "struct dilithium_testvector {\n"
+		       "\tuint8_t m[64];\n"
+		       "\tuint8_t pk[LC_DILITHIUM_PUBLICKEYBYTES];\n"
+		       "\tuint8_t sk[LC_DILITHIUM_SECRETKEYBYTES];\n"
+		       "\tuint8_t sig[LC_DILITHIUM_CRYPTO_BYTES];\n"
+		       "};\n\n"
+		       "static const struct dilithium_testvector dilithium_testvectors[] =\n"
+		      "{\n");
+	}
 	nvectors = NVECTORS;
 
 	(void)_lc_dilithium_keypair_from_seed;
@@ -300,9 +314,8 @@ int _dilithium_tester(
 #ifdef GENERATE_VECTORS
 	printf("\n};\n");
 	printf("#endif\n");
-#else
-out:
 #endif
+out:
 	LC_RELEASE_MEM(ws);
 	return ret;
 }

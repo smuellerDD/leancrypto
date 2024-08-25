@@ -28,7 +28,7 @@ extern "C" {
 #endif
 
 int dilithium_domain_separation(struct lc_dilithium_ctx *ctx, const uint8_t *m,
-				size_t mlen);
+				size_t mlen, unsigned int dilithium_mode);
 
 #ifdef __cplusplus
 }

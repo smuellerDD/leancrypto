@@ -263,7 +263,6 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_verify_final,
 	uint8_t digest[LC_SHA512_SIZE_DIGEST];
 	struct lc_hash_ctx *ed25519_hash_ctx;
 	int retd, rete, ret = 0;
-	;
 
 	CKNULL(sig, -EINVAL);
 	CKNULL(pk, -EINVAL);

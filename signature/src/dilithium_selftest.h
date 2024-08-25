@@ -27,7 +27,7 @@ extern "C" {
 #endif
 
 struct dilithium_testvector {
-	uint8_t m[32];
+	uint8_t m[64];
 	struct lc_dilithium_pk pk;
 	struct lc_dilithium_sk sk;
 	struct lc_dilithium_sig sig;
