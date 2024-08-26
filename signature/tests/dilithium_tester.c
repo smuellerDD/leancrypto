@@ -389,7 +389,7 @@ int _dilithium_init_update_final_tester(
 	ctx->ml_dsa_internal = !!internal_test;
 
 	if (prehashed)
-		ctx->dilithium_prehash_type = lc_shake128;
+		ctx->dilithium_prehash_type = lc_shake256;
 
 	if (ctx->ml_dsa_internal)
 		printf("ML-DSA.Sign_internal / ML-DSA.Verify_internal test\n");
