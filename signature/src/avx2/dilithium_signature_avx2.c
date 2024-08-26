@@ -44,7 +44,6 @@
 #include "shake_4x_avx2.h"
 #include "small_stack_support.h"
 #include "static_rng.h"
-#include "timecop.h"
 #include "visibility.h"
 
 static inline void
@@ -154,9 +153,6 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_avx2,
 	memcpy(sk->sk, rho, LC_DILITHIUM_SEEDBYTES);
 	memcpy(sk->sk + LC_DILITHIUM_SEEDBYTES, key, LC_DILITHIUM_SEEDBYTES);
 
-	/* Timecop: key goes into the secret key */
-	poison(key, LC_DILITHIUM_SEEDBYTES);
-
 #if LC_DILITHIUM_K == 8 && LC_DILITHIUM_L == 7
 	poly_uniform_eta_4x_avx(&ws->s1.vec[0], &ws->s1.vec[1], &ws->s1.vec[2],
 				&ws->s1.vec[3], rhoprime, 0, 1, 2, 3,
@@ -190,10 +186,6 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_avx2,
 #else
 #error "Undefined LC_DILITHIUM_K"
 #endif
-
-	/* Timecop: s1 and s2 are secret */
-	poison(&ws->s1, sizeof(polyvecl));
-	poison(&ws->s2, sizeof(polyveck));
 
 	/* Pack secret vectors */
 	for (i = 0; i < LC_DILITHIUM_L; i++)
@@ -250,10 +242,6 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_avx2,
 	/* Compute H(rho, t1) and store in secret key */
 	lc_xof(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES,
 	       sk->sk + 2 * LC_DILITHIUM_SEEDBYTES, LC_DILITHIUM_TRBYTES);
-
-	/* Timecop: pk and sk are not relevant for side-channels any more. */
-	unpoison(pk->pk, sizeof(pk->pk));
-	unpoison(sk->sk, sizeof(sk->sk));
 
 out:
 	LC_RELEASE_MEM(ws);
@@ -335,22 +323,10 @@ static int lc_dilithium_sign_avx2_internal(struct lc_dilithium_sig *sig,
 	}
 
 	unpack_sk_key_avx2(key, sk);
-
-	/* Timecop: key is secret */
-	poison(key, LC_DILITHIUM_SEEDBYTES);
-
 	lc_xof(lc_shake256, key,
 	       LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_RNDBYTES +
 		       LC_DILITHIUM_CRHBYTES,
 	       rhoprime, LC_DILITHIUM_CRHBYTES);
-
-	/*
-	 * Timecop: RHO' is the hash of the secret value of key which is
-	 * enlarged to sample the intermediate vector y from. Due to the hashing
-	 * any side channel on RHO' cannot allow the deduction of the original
-	 * key.
-	 */
-	unpoison(rhoprime, LC_DILITHIUM_CRHBYTES);
 
 	/* Expand matrix and transform vectors */
 	rho = ws->seedbuf;
@@ -358,13 +334,7 @@ static int lc_dilithium_sign_avx2_internal(struct lc_dilithium_sig *sig,
 	polyvec_matrix_expand(ws->mat, rho, ws->buf.poly_uniform_4x_buf,
 			      &ws->keccak_state, &ws->z);
 	unpack_sk_s1_avx2(&ws->s1, sk);
-	/* Timecop: s1 is secret */
-	poison(&ws->s1, sizeof(polyvecl));
-
 	unpack_sk_s2_avx2(&ws->s2, sk);
-	/* Timecop: s2 is secret */
-	poison(&ws->s2, sizeof(polyveck));
-
 	unpack_sk_t0_avx2(&ws->t0, sk);
 	polyvecl_ntt_avx(&ws->s1);
 	polyveck_ntt_avx(&ws->s2);
@@ -399,12 +369,8 @@ rej:
 #error "Undefined LC_DILITHIUM_K"
 #endif
 
-	/* Timecop: s2 is secret */
-	poison(&ws->tmpv.y, sizeof(polyvecl));
-
 	/* Matrix-vector product */
 	ws->tmpv.y = ws->z;
-
 	polyvecl_ntt_avx(&ws->tmpv.y);
 	polyvec_matrix_pointwise_montgomery_avx(&ws->w1, ws->mat, &ws->tmpv.y);
 	polyveck_invntt_tomont_avx(&ws->w1);
@@ -479,13 +445,6 @@ rej:
 		polyz_pack_avx(sig->sig + LC_DILITHIUM_CTILDE_BYTES +
 				       i * LC_DILITHIUM_POLYZ_PACKEDBYTES,
 			       &ws->z.vec[i]);
-
-	/* Timecop: the signature component w1 is not sensitive any more. */
-	unpoison(&ws->w1, sizeof(polyveck));
-	/* Timecop: the signature component z is not sensitive any more. */
-	unpoison(&ws->z, sizeof(polyvecl));
-	/* Timecop: verification data w0 is not sensitive any more. */
-	unpoison(&ws->tmpv.w0, sizeof(polyveck));
 
 out:
 	LC_RELEASE_MEM(ws);
