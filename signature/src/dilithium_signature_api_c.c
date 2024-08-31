@@ -56,13 +56,6 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_init, struct lc_dilithium_ctx *ctx,
 	return lc_dilithium_sign_init_c(ctx, sk);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_init_ctx,
-		      struct lc_dilithium_ctx *ctx,
-		      const struct lc_dilithium_sk *sk)
-{
-	return lc_dilithium_sign_init_ctx_c(ctx, sk);
-}
-
 LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_update,
 		      struct lc_dilithium_ctx *ctx, const uint8_t *m,
 		      size_t mlen)
@@ -99,13 +92,6 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_init,
 		      const struct lc_dilithium_pk *pk)
 {
 	return lc_dilithium_verify_init_c(ctx, pk);
-}
-
-LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_init_ctx,
-		      struct lc_dilithium_ctx *ctx,
-		      const struct lc_dilithium_pk *pk)
-{
-	return lc_dilithium_verify_init_ctx_c(ctx, pk);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_update,

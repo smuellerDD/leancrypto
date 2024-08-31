@@ -402,25 +402,6 @@ int @dilithium_name@_sign_init(struct lc_dilithium_ctx *ctx,
 			   const struct @dilithium_name@_sk *sk);
 
 /**
- * @brief Initializes a signature operation with Dilithium context
- *
- * This call is intended to support messages that are located in non-contiguous
- * places and even becomes available at different times. This call is to be
- * used together with the lc_dilithium_sign_update and lc_dilithium_sign_final.
- *
- * This API allows the caller to provide an arbitrary context buffer which
- * is hashed together with the message to form the message digest to be signed.
- *
- * @param [in,out] ctx pointer to an allocated Dilithium context
- * @param [in] sk pointer to bit-packed secret key
- *
- * @return 0 (success) or < 0 on error; -EOPNOTSUPP is returned if a different
- *	   hash than lc_shake256 is used.
- */
-int @dilithium_name@_sign_init_ctx(struct lc_dilithium_ctx *ctx,
-				   const struct @dilithium_name@_sk *sk);
-
-/**
  * @brief Add more data to an already initialized signature state
  *
  * This call is intended to support messages that are located in non-contiguous
@@ -506,26 +487,6 @@ int @dilithium_name@_verify_ctx(const struct @dilithium_name@_sig *sig,
  */
 int @dilithium_name@_verify_init(struct lc_dilithium_ctx *ctx,
 			     const struct @dilithium_name@_pk *pk);
-
-/**
- * @brief Initializes a signature verification operation with Dilithium context
- *
- * This call is intended to support messages that are located in non-contiguous
- * places and even becomes available at different times. This call is to be
- * used together with the lc_dilithium_verify_update and
- * lc_dilithium_verify_final.
- *
- * This API allows the caller to provide an arbitrary context buffer which
- * is hashed together with the message to form the message digest to be signed.
- *
- * @param [in,out] ctx pointer to an allocated Dilithium context
- * @param [in] pk pointer to bit-packed public key
- *
- * @return 0 (success) or < 0 on error; -EOPNOTSUPP is returned if a different
- *	   hash than lc_shake256 is used.
- */
-int @dilithium_name@_verify_init_ctx(struct lc_dilithium_ctx *ctx,
-				     const struct @dilithium_name@_pk *pk);
 
 /**
  * @brief Add more data to an already initialized signature state
@@ -724,10 +685,6 @@ int @dilithium_name@_ed25519_sign_init(
 	struct lc_dilithium_ed25519_ctx *ctx,
 	const struct @dilithium_name@_ed25519_sk *sk);
 
-int @dilithium_name@_ed25519_sign_init_ctx(
-	struct lc_dilithium_ed25519_ctx *ctx,
-	const struct @dilithium_name@_ed25519_sk *sk);
-
 int @dilithium_name@_ed25519_sign_update(
 	struct lc_dilithium_ed25519_ctx *ctx, const uint8_t *m,
 	size_t mlen);
@@ -774,9 +731,6 @@ int @dilithium_name@_ed25519_verify_ctx(const struct @dilithium_name@_ed25519_si
 				const struct @dilithium_name@_ed25519_pk *pk);
 
 int @dilithium_name@_ed25519_verify_init(
-	struct lc_dilithium_ed25519_ctx *ctx,
-	const struct @dilithium_name@_ed25519_pk *pk);
-int @dilithium_name@_ed25519_verify_init_ctx(
 	struct lc_dilithium_ed25519_ctx *ctx,
 	const struct @dilithium_name@_ed25519_pk *pk);
 int @dilithium_name@_ed25519_verify_update(

@@ -989,54 +989,6 @@ static inline int lc_dilithium_sign_init(struct lc_dilithium_ctx *ctx,
 
 /**
  * @ingroup Dilithium
- * @brief Initializes a signature operation with Dilithium context
- *
- * This call is intended to support messages that are located in non-contiguous
- * places and even becomes available at different times. This call is to be
- * used together with the lc_dilithium_sign_update and lc_dilithium_sign_final.
- *
- * This API allows the caller to provide an arbitrary context buffer which
- * is hashed together with the message to form the message digest to be signed.
- *
- * @param [in,out] ctx pointer Dilithium context
- * @param [in] sk pointer to bit-packed secret key
- *
- * @return 0 (success) or < 0 on error; -EOPNOTSUPP is returned if a different
- *	   hash than lc_shake256 is used.
- */
-static inline int lc_dilithium_sign_init_ctx(struct lc_dilithium_ctx *ctx,
-					     const struct lc_dilithium_sk *sk)
-{
-	if (!sk)
-		return -EINVAL;
-
-	switch (sk->dilithium_type) {
-	case LC_DILITHIUM_87:
-#ifdef LC_DILITHIUM_87_ENABLED
-		return lc_dilithium_87_sign_init_ctx(ctx, &sk->key.sk_87);
-#else
-		return -EOPNOTSUPP;
-#endif
-	case LC_DILITHIUM_65:
-#ifdef LC_DILITHIUM_65_ENABLED
-		return lc_dilithium_65_sign_init_ctx(ctx, &sk->key.sk_65);
-#else
-		return -EOPNOTSUPP;
-#endif
-	case LC_DILITHIUM_44:
-#ifdef LC_DILITHIUM_44_ENABLED
-		return lc_dilithium_44_sign_init_ctx(ctx, &sk->key.sk_44);
-#else
-		return -EOPNOTSUPP;
-#endif
-	case LC_DILITHIUM_UNKNOWN:
-	default:
-		return -EOPNOTSUPP;
-	}
-}
-
-/**
- * @ingroup Dilithium
  * @brief Add more data to an already initialized signature state
  *
  * This call is intended to support messages that are located in non-contiguous
@@ -1254,55 +1206,6 @@ static inline int lc_dilithium_verify_init(struct lc_dilithium_ctx *ctx,
 	case LC_DILITHIUM_44:
 #ifdef LC_DILITHIUM_44_ENABLED
 		return lc_dilithium_44_verify_init(ctx, &pk->key.pk_44);
-#else
-		return -EOPNOTSUPP;
-#endif
-	case LC_DILITHIUM_UNKNOWN:
-	default:
-		return -EOPNOTSUPP;
-	}
-}
-
-/**
- * @ingroup Dilithium
- * @brief Initializes a signature verification operation
- *
- * This call is intended to support messages that are located in non-contiguous
- * places and even becomes available at different times. This call is to be
- * used together with the lc_dilithium_verify_update and
- * lc_dilithium_verify_final.
- *
- * This API allows the caller to provide an arbitrary context buffer which
- * is hashed together with the message to form the message digest to be signed.
- *
- * @param [in,out] ctx pointer to an allocated Dilithium context
- * @param [in] pk pointer to bit-packed public key
- *
- * @return 0 (success) or < 0 on error; -EOPNOTSUPP is returned if a different
- *	   hash than lc_shake256 is used.
- */
-static inline int lc_dilithium_verify_init_ctx(struct lc_dilithium_ctx *ctx,
-					       const struct lc_dilithium_pk *pk)
-{
-	if (!pk)
-		return -EINVAL;
-
-	switch (pk->dilithium_type) {
-	case LC_DILITHIUM_87:
-#ifdef LC_DILITHIUM_87_ENABLED
-		return lc_dilithium_87_verify_init_ctx(ctx, &pk->key.pk_87);
-#else
-		return -EOPNOTSUPP;
-#endif
-	case LC_DILITHIUM_65:
-#ifdef LC_DILITHIUM_65_ENABLED
-		return lc_dilithium_65_verify_init_ctx(ctx, &pk->key.pk_65);
-#else
-		return -EOPNOTSUPP;
-#endif
-	case LC_DILITHIUM_44:
-#ifdef LC_DILITHIUM_44_ENABLED
-		return lc_dilithium_44_verify_init_ctx(ctx, &pk->key.pk_44);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -2320,53 +2223,6 @@ lc_dilithium_ed25519_sign_init(struct lc_dilithium_ed25519_ctx *ctx,
 
 /**
  * @ingroup HybridDilithium
- * @brief Initializes signature operation in stream mode with Dilithium context
- *
- * This API allows the caller to provide an arbitrary context buffer which
- * is hashed together with the message to form the message digest to be signed.
- *
- * @param [in] ctx Dilithium-ED25519 context pointer
- * @param [in] sk pointer to bit-packed secret key
- *
- * @return 0 (success) or < 0 on error
- */
-static inline int
-lc_dilithium_ed25519_sign_init_ctx(struct lc_dilithium_ed25519_ctx *ctx,
-				   const struct lc_dilithium_ed25519_sk *sk)
-{
-	if (!ctx || !sk)
-		return -EINVAL;
-
-	switch (sk->dilithium_type) {
-	case LC_DILITHIUM_87:
-#ifdef LC_DILITHIUM_87_ENABLED
-		return lc_dilithium_87_ed25519_sign_init_ctx(ctx,
-							     &sk->key.sk_87);
-#else
-		return -EOPNOTSUPP;
-#endif
-	case LC_DILITHIUM_65:
-#ifdef LC_DILITHIUM_65_ENABLED
-		return lc_dilithium_65_ed25519_sign_init_ctx(ctx,
-							     &sk->key.sk_65);
-#else
-		return -EOPNOTSUPP;
-#endif
-	case LC_DILITHIUM_44:
-#ifdef LC_DILITHIUM_44_ENABLED
-		return lc_dilithium_44_ed25519_sign_init_ctx(ctx,
-							     &sk->key.sk_44);
-#else
-		return -EOPNOTSUPP;
-#endif
-	case LC_DILITHIUM_UNKNOWN:
-	default:
-		return -EOPNOTSUPP;
-	}
-}
-
-/**
- * @ingroup HybridDilithium
  * @brief Updates signature in stream mode
  *
  * @param [in] ctx Dilithium-ED25519 context pointer
@@ -2579,54 +2435,6 @@ lc_dilithium_ed25519_verify_init(struct lc_dilithium_ed25519_ctx *ctx,
 	case LC_DILITHIUM_44:
 #ifdef LC_DILITHIUM_44_ENABLED
 		return lc_dilithium_44_ed25519_verify_init(ctx, &pk->key.pk_44);
-#else
-		return -EOPNOTSUPP;
-#endif
-	case LC_DILITHIUM_UNKNOWN:
-	default:
-		return -EOPNOTSUPP;
-	}
-}
-
-/**
- * @ingroup HybridDilithium
- * @brief Initializes signature verification operation in stream mode with user
- *	  context
- *
- * This API allows the caller to provide an arbitrary context buffer which
- * is hashed together with the message to form the message digest to be signed.
- *
- * @param [in] ctx Dilithium-ED25519 context pointer
- * @param [in] pk pointer to bit-packed public key
- *
- * @return 0 (success) or < 0 on error
- */
-static inline int
-lc_dilithium_ed25519_verify_init_ctx(struct lc_dilithium_ed25519_ctx *ctx,
-				     const struct lc_dilithium_ed25519_pk *pk)
-{
-	if (!pk || !ctx)
-		return -EINVAL;
-
-	switch (pk->dilithium_type) {
-	case LC_DILITHIUM_87:
-#ifdef LC_DILITHIUM_87_ENABLED
-		return lc_dilithium_87_ed25519_verify_init_ctx(ctx,
-							       &pk->key.pk_87);
-#else
-		return -EOPNOTSUPP;
-#endif
-	case LC_DILITHIUM_65:
-#ifdef LC_DILITHIUM_65_ENABLED
-		return lc_dilithium_65_ed25519_verify_init_ctx(ctx,
-							       &pk->key.pk_65);
-#else
-		return -EOPNOTSUPP;
-#endif
-	case LC_DILITHIUM_44:
-#ifdef LC_DILITHIUM_44_ENABLED
-		return lc_dilithium_44_ed25519_verify_init_ctx(ctx,
-							       &pk->key.pk_44);
 #else
 		return -EOPNOTSUPP;
 #endif

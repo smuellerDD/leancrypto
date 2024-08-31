@@ -77,7 +77,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sign,
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sign_init_ctx,
+LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sign_init,
 		      struct lc_dilithium_ed25519_ctx *ctx,
 		      const struct lc_dilithium_ed25519_sk *sk)
 {
@@ -93,20 +93,13 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sign_init_ctx,
 	if (ed25519_hash_ctx->hash != lc_sha512)
 		return -EOPNOTSUPP;
 
-	CKINT(lc_dilithium_sign_init_ctx(&ctx->dilithium_ctx, &sk->sk));
+	CKINT(lc_dilithium_sign_init(&ctx->dilithium_ctx, &sk->sk));
 
 	/* ED25519: Only perform hashing part */
 	lc_hash_init(ed25519_hash_ctx);
 
 out:
 	return ret;
-}
-
-LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sign_init,
-		      struct lc_dilithium_ed25519_ctx *ctx,
-		      const struct lc_dilithium_ed25519_sk *sk)
-{
-	return lc_dilithium_ed25519_sign_init_ctx(ctx, sk);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sign_update,
@@ -203,7 +196,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_verify,
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_verify_init_ctx,
+LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_verify_init,
 		      struct lc_dilithium_ed25519_ctx *ctx,
 		      const struct lc_dilithium_ed25519_pk *pk)
 {
@@ -219,20 +212,13 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_verify_init_ctx,
 	if (ed25519_hash_ctx->hash != lc_sha512)
 		return -EOPNOTSUPP;
 
-	CKINT(lc_dilithium_verify_init_ctx(&ctx->dilithium_ctx, &pk->pk));
+	CKINT(lc_dilithium_verify_init(&ctx->dilithium_ctx, &pk->pk));
 
 	/* ED25519: Only perform hashing part */
 	lc_hash_init(ed25519_hash_ctx);
 
 out:
 	return ret;
-}
-
-LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_verify_init,
-		      struct lc_dilithium_ed25519_ctx *ctx,
-		      const struct lc_dilithium_ed25519_pk *pk)
-{
-	return lc_dilithium_ed25519_verify_init_ctx(ctx, pk);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_verify_update,

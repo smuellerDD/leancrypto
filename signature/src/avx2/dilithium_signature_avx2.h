@@ -42,8 +42,6 @@ int lc_dilithium_sign_ctx_avx2(struct lc_dilithium_sig *sig,
 			       struct lc_rng_ctx *rng_ctx);
 int lc_dilithium_sign_init_avx2(struct lc_dilithium_ctx *ctx,
 				const struct lc_dilithium_sk *sk);
-int lc_dilithium_sign_init_ctx_avx2(struct lc_dilithium_ctx *ctx,
-				    const struct lc_dilithium_sk *sk);
 int lc_dilithium_sign_update_avx2(struct lc_dilithium_ctx *ctx,
 				  const uint8_t *m, size_t mlen);
 int lc_dilithium_sign_final_avx2(struct lc_dilithium_sig *sig,
@@ -59,8 +57,6 @@ int lc_dilithium_verify_ctx_avx2(const struct lc_dilithium_sig *sig,
 				 size_t mlen, const struct lc_dilithium_pk *pk);
 int lc_dilithium_verify_init_avx2(struct lc_dilithium_ctx *ctx,
 				  const struct lc_dilithium_pk *pk);
-int lc_dilithium_verify_init_ctx_avx2(struct lc_dilithium_ctx *ctx,
-				      const struct lc_dilithium_pk *pk);
 int lc_dilithium_verify_update_avx2(struct lc_dilithium_ctx *ctx,
 				    const uint8_t *m, size_t mlen);
 int lc_dilithium_verify_final_avx2(const struct lc_dilithium_sig *sig,

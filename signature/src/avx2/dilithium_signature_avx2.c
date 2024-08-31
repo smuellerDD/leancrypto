@@ -496,7 +496,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_avx2, struct lc_dilithium_sig *sig,
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_init_ctx_avx2,
+LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_init_avx2,
 		      struct lc_dilithium_ctx *ctx,
 		      const struct lc_dilithium_sk *sk)
 {
@@ -525,13 +525,6 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_init_ctx_avx2,
 	lc_memset_secure(tr, 0, sizeof(tr));
 
 	return dilithium_domain_separation(ctx, NULL, 0, LC_DILITHIUM_MODE);
-}
-
-LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_init_avx2,
-		      struct lc_dilithium_ctx *ctx,
-		      const struct lc_dilithium_sk *sk)
-{
-	return lc_dilithium_sign_init_ctx_avx2(ctx, sk);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_update_avx2,
@@ -728,7 +721,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_avx2,
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_init_ctx_avx2,
+LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_init_avx2,
 		      struct lc_dilithium_ctx *ctx,
 		      const struct lc_dilithium_pk *pk)
 {
@@ -758,13 +751,6 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_init_ctx_avx2,
 	lc_memset_secure(tr, 0, sizeof(tr));
 
 	return dilithium_domain_separation(ctx, NULL, 0, LC_DILITHIUM_MODE);
-}
-
-LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_init_avx2,
-		      struct lc_dilithium_ctx *ctx,
-		      const struct lc_dilithium_pk *pk)
-{
-	return lc_dilithium_verify_init_ctx_avx2(ctx, pk);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_update_avx2,

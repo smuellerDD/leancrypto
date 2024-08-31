@@ -493,8 +493,8 @@ static int lc_dilithium_sign_impl(struct lc_dilithium_sig *sig,
 	return ret;
 }
 
-static int lc_dilithium_sign_init_ctx_impl(struct lc_dilithium_ctx *ctx,
-					   const struct lc_dilithium_sk *sk)
+static int lc_dilithium_sign_init_impl(struct lc_dilithium_ctx *ctx,
+				       const struct lc_dilithium_sk *sk)
 {
 	uint8_t tr[LC_DILITHIUM_TRBYTES];
 	struct lc_hash_ctx *hash_ctx;
@@ -521,12 +521,6 @@ static int lc_dilithium_sign_init_ctx_impl(struct lc_dilithium_ctx *ctx,
 	lc_memset_secure(tr, 0, sizeof(tr));
 
 	return dilithium_domain_separation(ctx, NULL, 0, LC_DILITHIUM_MODE);
-}
-
-static int lc_dilithium_sign_init_impl(struct lc_dilithium_ctx *ctx,
-				       const struct lc_dilithium_sk *sk)
-{
-	return lc_dilithium_sign_init_ctx_impl(ctx, sk);
 }
 
 static int lc_dilithium_sign_update_impl(struct lc_dilithium_ctx *ctx,
@@ -706,8 +700,8 @@ static int lc_dilithium_verify_impl(const struct lc_dilithium_sig *sig,
 	return ret;
 }
 
-static int lc_dilithium_verify_init_ctx_impl(struct lc_dilithium_ctx *ctx,
-					     const struct lc_dilithium_pk *pk)
+static int lc_dilithium_verify_init_impl(struct lc_dilithium_ctx *ctx,
+					 const struct lc_dilithium_pk *pk)
 {
 	uint8_t mu[LC_DILITHIUM_TRBYTES];
 	struct lc_hash_ctx *hash_ctx;
@@ -735,12 +729,6 @@ static int lc_dilithium_verify_init_ctx_impl(struct lc_dilithium_ctx *ctx,
 	lc_memset_secure(mu, 0, sizeof(mu));
 
 	return dilithium_domain_separation(ctx, NULL, 0, LC_DILITHIUM_MODE);
-}
-
-static int lc_dilithium_verify_init_impl(struct lc_dilithium_ctx *ctx,
-					 const struct lc_dilithium_pk *pk)
-{
-	return lc_dilithium_verify_init_ctx_impl(ctx, pk);
 }
 
 static int lc_dilithium_verify_update_impl(struct lc_dilithium_ctx *ctx,
