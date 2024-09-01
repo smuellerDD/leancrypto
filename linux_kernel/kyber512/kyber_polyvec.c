@@ -1,1 +1,1 @@
-../../kem/src/kyber_polyvec.c
+../../ml-kem/src/kyber_polyvec.c

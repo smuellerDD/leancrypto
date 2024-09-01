@@ -1,1 +1,1 @@
-../../../kem/tests/kyber_kem_tester_avx2.c
+../../../ml-kem/tests/kyber_kem_tester_avx2.c

@@ -1,1 +1,1 @@
-../../kem/src/kyber_x25519_kex.c
+../../ml-kem/src/kyber_x25519_kex.c

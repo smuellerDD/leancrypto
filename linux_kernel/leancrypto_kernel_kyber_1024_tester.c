@@ -23,13 +23,13 @@
 #include <linux/scatterlist.h>
 
 #ifdef LC_KYBER_TYPE_768
-#include "../kem/tests/kyber_kem_tester_vectors_768.h"
+#include "../ml-kem/tests/kyber_kem_tester_vectors_768.h"
 #define LC_KYBER_IMPL_NAME "kyber768-leancrypto"
 #elif defined LC_KYBER_TYPE_512
-#include "../kem/tests/kyber_kem_tester_vectors_512.h"
+#include "../ml-kem/tests/kyber_kem_tester_vectors_512.h"
 #define LC_KYBER_IMPL_NAME "kyber512-leancrypto"
 #else
-#include "../kem/tests/kyber_kem_tester_vectors_1024.h"
+#include "../ml-kem/tests/kyber_kem_tester_vectors_1024.h"
 #define LC_KYBER_IMPL_NAME "kyber1024-leancrypto"
 #endif
 

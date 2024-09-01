@@ -1,1 +1,1 @@
-../../../kem/src/avx2/kyber_ntt_avx2.h
+../../../ml-kem/src/avx2/kyber_ntt_avx2.h

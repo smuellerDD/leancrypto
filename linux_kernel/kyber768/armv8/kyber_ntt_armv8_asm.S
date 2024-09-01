@@ -1,1 +1,1 @@
-../../../kem/src/armv8/kyber_ntt_armv8_asm.S
+../../../ml-kem/src/armv8/kyber_ntt_armv8_asm.S

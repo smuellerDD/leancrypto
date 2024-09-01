@@ -1,1 +1,1 @@
-../../../kem/tests/kyber_kem_tester_vectors_1024.h
+../../../ml-kem/tests/kyber_kem_tester_vectors_1024.h

@@ -1,1 +1,1 @@
-../../kem/src/kyber_indcpa.c
+../../ml-kem/src/kyber_indcpa.c

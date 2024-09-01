@@ -1,1 +1,1 @@
-../../kem/src/kyber_ntt.c
+../../ml-kem/src/kyber_ntt.c

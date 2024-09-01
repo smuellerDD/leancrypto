@@ -8,7 +8,7 @@ ccflags-y			+= -DLC_MEM_ON_HEAP -Wframe-larger-than=2048
 ccflags-y			+= -I$(PWD)/../curve25519/api		       \
 				   -I$(PWD)/../curve25519/src
 asflags-y			+= -I$(PWD)/../internal/api -DLINUX_KERNEL     \
-				   -I$(PWD)/../kem/api			       \
+				   -I$(PWD)/../ml-kem/api		       \
 				   -I$(PWD)/../signature/api
 
 ifdef CONFIG_X86_64

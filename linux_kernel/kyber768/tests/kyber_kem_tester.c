@@ -1,1 +1,1 @@
-../../../kem/tests/kyber_kem_tester.c
+../../../ml-kem/tests/kyber_kem_tester.c

@@ -1,1 +1,1 @@
-../../kem/src/kyber_selftest_kdf.c
+../../ml-kem/src/kyber_selftest_kdf.c

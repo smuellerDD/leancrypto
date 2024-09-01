@@ -1,1 +1,1 @@
-../../../kem/src/armv8/kyber_basemul_armv8.S
+../../../ml-kem/src/armv8/kyber_basemul_armv8.S

@@ -1,1 +1,1 @@
-../../../kem/src/avx2/kyber_consts_avx2.c
+../../../ml-kem/src/avx2/kyber_consts_avx2.c

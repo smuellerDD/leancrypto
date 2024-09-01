@@ -1,1 +1,1 @@
-../../../kem/tests/kyber_kem_tester_armv8.c
+../../../ml-kem/tests/kyber_kem_tester_armv8.c

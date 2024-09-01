@@ -1,1 +1,1 @@
-../../../kem/src/armv7/kyber_poly_armv7.S
+../../../ml-kem/src/armv7/kyber_poly_armv7.S

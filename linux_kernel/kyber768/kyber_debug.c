@@ -1,1 +1,1 @@
-../../kem/src/kyber_debug.c
+../../ml-kem/src/kyber_debug.c
