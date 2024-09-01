@@ -7,6 +7,8 @@ Changes 1.1.0-prerelease
 
 * ML-DSA: add API to allow caller to provide a user context as allowed by FIPS 204, to invoke ML-DSA.Sign_internal, ML-DSA.Verify_internal and HashML-DSA
 
+* ML-KEM: rename source code directory to ml-kem
+
 Changes 1.0.1
 
 * fix: Kyber keygen - add LC_KYBER_K to initial hash (change is only relevant when storing keys as seed and for interoperability)

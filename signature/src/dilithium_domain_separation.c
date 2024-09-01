@@ -97,6 +97,7 @@ static int dilithium_ph_oids(struct lc_dilithium_ctx *ctx, size_t mlen,
 			return 0;
 		}
 		/* FALLTHROUGH - Dilithium44 allows the following, too */
+		fallthrough;
 	case 3:
 		if (ctx->dilithium_prehash_type == lc_sha3_384) {
 			// if (mlen != LC_SHA3_384_SIZE_DIGEST)
@@ -106,6 +107,7 @@ static int dilithium_ph_oids(struct lc_dilithium_ctx *ctx, size_t mlen,
 			return 0;
 		}
 		/* FALLTHROUGH - Dilithium[44|65] allows the following, too  */
+		fallthrough;
 	case 5:
 		if (ctx->dilithium_prehash_type == lc_sha512) {
 			// if (mlen != LC_SHA512_SIZE_DIGEST)
