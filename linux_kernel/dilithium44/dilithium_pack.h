@@ -1,1 +1,1 @@
-../../signature/src/dilithium_pack.h
+../../ml-dsa/src/dilithium_pack.h

@@ -1,1 +1,1 @@
-../../../signature/src/armv7/dilithium_pointwise_smull_armv7.S
+../../../ml-dsa/src/armv7/dilithium_pointwise_smull_armv7.S

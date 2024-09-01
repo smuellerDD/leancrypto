@@ -168,7 +168,7 @@ include_dirs = include_directories([ 'aead/api',
 				     'kdf/api',
 				     'kmac/api',
 				     'otp/api',
-				     'signature/api',
+				     'ml-dsa/api',
 				     'sym/api'
 				   ])
 
@@ -190,8 +190,8 @@ subdirs = [
 	    'ml-kem/api',
 	    'ml-kem/src',
 	    'otp/src',
-	    'signature/api',
-	    'signature/src',
+	    'ml-dsa/api',
+	    'ml-dsa/src',
 	    'sym/src'
 	  ]
 
@@ -204,7 +204,7 @@ testdirs = [ 'apps/tests',
 	     'kdf/tests',
 	     'ml-kem/tests',
 	     'otp/tests',
-	     'signature/tests',
+	     'ml-dsa/tests',
 	     'sym/tests'
 	   ]
 

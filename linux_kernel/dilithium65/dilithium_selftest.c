@@ -1,1 +1,1 @@
-../../signature/src/dilithium_selftest.c
+../../ml-dsa/src/dilithium_selftest.c

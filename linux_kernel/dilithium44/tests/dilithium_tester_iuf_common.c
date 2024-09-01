@@ -1,1 +1,1 @@
-../../../signature/tests/dilithium_tester_iuf_common.c
+../../../ml-dsa/tests/dilithium_tester_iuf_common.c

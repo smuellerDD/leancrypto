@@ -1,1 +1,1 @@
-../../../signature/tests/dilithium_invalid_tester.c
+../../../ml-dsa/tests/dilithium_invalid_tester.c

@@ -1,1 +1,1 @@
-../../../signature/src/armv8/NTT_params.c
+../../../ml-dsa/src/armv8/NTT_params.c

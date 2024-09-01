@@ -9,7 +9,7 @@ ccflags-y			+= -I$(PWD)/../curve25519/api		       \
 				   -I$(PWD)/../curve25519/src
 asflags-y			+= -I$(PWD)/../internal/api -DLINUX_KERNEL     \
 				   -I$(PWD)/../ml-kem/api		       \
-				   -I$(PWD)/../signature/api
+				   -I$(PWD)/../ml-dsa/api
 
 ifdef CONFIG_X86_64
 ccflags-y			+= -DLC_HOST_X86_64

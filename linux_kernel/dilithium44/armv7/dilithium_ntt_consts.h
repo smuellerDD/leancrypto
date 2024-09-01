@@ -1,1 +1,1 @@
-../../../signature/src/armv7/dilithium_ntt_consts.h
+../../../ml-dsa/src/armv7/dilithium_ntt_consts.h

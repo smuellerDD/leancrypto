@@ -1,1 +1,1 @@
-../../../signature/tests/dilithium_tester_vectors_44.h
+../../../ml-dsa/tests/dilithium_tester_vectors_44.h

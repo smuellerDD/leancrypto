@@ -1,1 +1,1 @@
-../../../signature/tests/dilithium_edge_case_tester.c
+../../../ml-dsa/tests/dilithium_edge_case_tester.c

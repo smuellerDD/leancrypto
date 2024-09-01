@@ -1,1 +1,1 @@
-../../../signature/src/avx2/dilithium_rounding_avx2.c
+../../../ml-dsa/src/avx2/dilithium_rounding_avx2.c

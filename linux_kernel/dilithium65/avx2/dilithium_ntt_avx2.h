@@ -1,1 +1,1 @@
-../../../signature/src/avx2/dilithium_ntt_avx2.h
+../../../ml-dsa/src/avx2/dilithium_ntt_avx2.h

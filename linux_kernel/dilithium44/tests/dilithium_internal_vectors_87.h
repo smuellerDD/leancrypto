@@ -1,1 +1,1 @@
-../../../signature/tests/dilithium_internal_vectors_87.h
+../../../ml-dsa/tests/dilithium_internal_vectors_87.h

@@ -1,1 +1,1 @@
-../../../signature/src/armv8/dilithium_signature_armv8.h
+../../../ml-dsa/src/armv8/dilithium_signature_armv8.h

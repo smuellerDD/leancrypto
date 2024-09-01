@@ -1,1 +1,1 @@
-../../signature/src/dilithium_poly_common.h
+../../ml-dsa/src/dilithium_poly_common.h

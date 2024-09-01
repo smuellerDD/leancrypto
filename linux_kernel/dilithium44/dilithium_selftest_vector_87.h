@@ -1,1 +1,1 @@
-../../signature/src/dilithium_selftest_vector_87.h
+../../ml-dsa/src/dilithium_selftest_vector_87.h

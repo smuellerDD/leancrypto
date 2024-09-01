@@ -1,1 +1,1 @@
-../../../signature/tests/dilithium_ed25519_tester.c
+../../../ml-dsa/tests/dilithium_ed25519_tester.c

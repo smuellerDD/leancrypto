@@ -2,7 +2,7 @@
 # Signature implementation: Dilithium
 
 ccflags-$(CONFIG_LEANCRYPTO_DILITHIUM)					       \
-				+= -I$(PWD)/../signature/api
+				+= -I$(PWD)/../ml-dsa/api
 asflags-$(CONFIG_LEANCRYPTO_DILITHIUM)					       \
 				+= -I$(PWD)
 
@@ -11,18 +11,18 @@ asflags-$(CONFIG_LEANCRYPTO_DILITHIUM)					       \
 ################################################################################
 # Dilithium Common
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
-				+= ../signature/src/dilithium_domain_separation.o\
-				   ../signature/src/dilithium_signature_helper.o\
-				   ../signature/src/dilithium_zetas.o	       \
+				+= ../ml-dsa/src/dilithium_domain_separation.o\
+				   ../ml-dsa/src/dilithium_signature_helper.o\
+				   ../ml-dsa/src/dilithium_zetas.o	       \
 				   leancrypto_kernel_dilithium.o
 
 # Dilithium 87
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_87)				       \
-				+= ../signature/src/dilithium_ntt.o	       \
-				   ../signature/src/dilithium_poly.o	       \
-				   ../signature/src/dilithium_rounding.o       \
-				   ../signature/src/dilithium_selftest.o       \
-				   ../signature/src/dilithium_signature_c.o
+				+= ../ml-dsa/src/dilithium_ntt.o	       \
+				   ../ml-dsa/src/dilithium_poly.o	       \
+				   ../ml-dsa/src/dilithium_rounding.o	       \
+				   ../ml-dsa/src/dilithium_selftest.o	       \
+				   ../ml-dsa/src/dilithium_signature_c.o
 
 # Dilithium 65
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_65)				       \
@@ -58,7 +58,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_ED25519)			       \
 
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_87
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_ED25519)			       \
-				+= ../signature/src/dilithium_ed25519_signature.o
+				+= ../ml-dsa/src/dilithium_ed25519_signature.o
 endif
 
 # Dilithium-65-ED25519 implementation
@@ -82,20 +82,20 @@ ifdef CONFIG_X86_64
 ################################################################################
 # Dilithium Common
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
-			+= ../signature/src/avx2/dilithium_consts_avx2.o       \
+			+= ../ml-dsa/src/avx2/dilithium_consts_avx2.o	       \
 
 # Dilithium 87
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_87)				       \
-			+= ../signature/src/avx2/dilithium_invntt_avx2.o       \
-			   ../signature/src/avx2/dilithium_ntt_avx2.o	       \
-			   ../signature/src/avx2/dilithium_pointwise_avx2.o    \
-			   ../signature/src/avx2/dilithium_poly_avx2.o	       \
-			   ../signature/src/avx2/dilithium_polyvec_avx2.o      \
-			   ../signature/src/avx2/dilithium_rejsample_avx2.o    \
-			   ../signature/src/avx2/dilithium_rounding_avx2.o     \
-			   ../signature/src/avx2/dilithium_signature_api_avx2.o\
-			   ../signature/src/avx2/dilithium_signature_avx2.o    \
-			   ../signature/src/avx2/dilithium_shuffle_avx2.o
+			+= ../ml-dsa/src/avx2/dilithium_invntt_avx2.o	       \
+			   ../ml-dsa/src/avx2/dilithium_ntt_avx2.o	       \
+			   ../ml-dsa/src/avx2/dilithium_pointwise_avx2.o       \
+			   ../ml-dsa/src/avx2/dilithium_poly_avx2.o	       \
+			   ../ml-dsa/src/avx2/dilithium_polyvec_avx2.o	       \
+			   ../ml-dsa/src/avx2/dilithium_rejsample_avx2.o       \
+			   ../ml-dsa/src/avx2/dilithium_rounding_avx2.o	       \
+			   ../ml-dsa/src/avx2/dilithium_signature_api_avx2.o   \
+			   ../ml-dsa/src/avx2/dilithium_signature_avx2.o       \
+			   ../ml-dsa/src/avx2/dilithium_shuffle_avx2.o
 
 # Dilithium 65
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_65)				       \
@@ -127,16 +127,16 @@ else ifdef CONFIG_ARM
 ################################################################################
 # Dilithium Common
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
-			+= ../signature/src/armv7/dilithium_ntt_consts.o
+			+= ../ml-dsa/src/armv7/dilithium_ntt_consts.o
 
 # Dilithium 87
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_87)				       \
-			+= ../signature/src/armv7/dilithium_ntt_armv7.o	       \
-			   ../signature/src/armv7/dilithium_pointwise_smull_armv7.o\
-			   ../signature/src/armv7/dilithium_poly_armv7.o       \
-			   ../signature/src/armv7/dilithium_poly.o	       \
-			   ../signature/src/armv7/dilithium_signature_api_armv7.o\
-			   ../signature/src/armv7/dilithium_signature_armv7.o
+			+= ../ml-dsa/src/armv7/dilithium_ntt_armv7.o	       \
+			   ../ml-dsa/src/armv7/dilithium_pointwise_smull_armv7.o\
+			   ../ml-dsa/src/armv7/dilithium_poly_armv7.o	       \
+			   ../ml-dsa/src/armv7/dilithium_poly.o		       \
+			   ../ml-dsa/src/armv7/dilithium_signature_api_armv7.o\
+			   ../ml-dsa/src/armv7/dilithium_signature_armv7.o
 
 # Dilithium 65
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_65)				       \
@@ -161,15 +161,15 @@ else ifdef CONFIG_ARM64
 ################################################################################
 # Dilithium Common
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
-			+= ../signature/src/armv8/NTT_params.o
+			+= ../ml-dsa/src/armv8/NTT_params.o
 
 # Dilithium 87
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_87)				       \
-			+= ../signature/src/armv8/dilithium_intt_armv8.o       \
-			   ../signature/src/armv8/dilithium_ntt_armv8.o	       \
-			   ../signature/src/armv8/dilithium_poly_armv8.o       \
-			   ../signature/src/armv8/dilithium_signature_api_armv8.o\
-			   ../signature/src/armv8/dilithium_signature_armv8.o
+			+= ../ml-dsa/src/armv8/dilithium_intt_armv8.o	       \
+			   ../ml-dsa/src/armv8/dilithium_ntt_armv8.o	       \
+			   ../ml-dsa/src/armv8/dilithium_poly_armv8.o 	       \
+			   ../ml-dsa/src/armv8/dilithium_signature_api_armv8.o\
+			   ../ml-dsa/src/armv8/dilithium_signature_armv8.o
 
 # Dilithium 65
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_65)				       \
@@ -192,7 +192,7 @@ else
 
 # Dilithium 87
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_87)				       \
-			+= ../signature/src/dilithium_signature_api_c.o
+			+= ../ml-dsa/src/dilithium_signature_api_c.o
 
 # Dilithium 65
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_65)				       \
@@ -207,7 +207,7 @@ endif
 # Dilithium Test Cases
 ################################################################################
 ccflags-$(CONFIG_LEANCRYPTO_DILITHIUM)					       \
-				+= -I$(PWD)/../signature/src
+				+= -I$(PWD)/../ml-dsa/src
 ifdef CONFIG_LEANCRYPTO_DILITHIUM
 ccflags-y			+= -DCONFIG_LEANCRYPTO_DILITHIUM
 
@@ -220,17 +220,17 @@ obj-m		  		+= dilithium_tester_common.o
 obj-m		  		+= dilithium_invalid_tester.o
 obj-m		  		+= dilithium_tester_official.o
 
-dilithium_tester_c-y		+= ../signature/tests/dilithium_tester.o       \
-				   ../signature/tests/dilithium_tester_c.o     \
+dilithium_tester_c-y		+= ../ml-dsa/tests/dilithium_tester.o	       \
+				   ../ml-dsa/tests/dilithium_tester_c.o	       \
 				   ../drng/src/selftest_rng.o
 
-dilithium_tester_common-y	+= ../signature/tests/dilithium_tester.o       \
-				   ../signature/tests/dilithium_tester_common.o\
+dilithium_tester_common-y	+= ../ml-dsa/tests/dilithium_tester.o	       \
+				   ../ml-dsa/tests/dilithium_tester_common.o\
 				   ../drng/src/selftest_rng.o
 
-dilithium_invalid_tester-y	+= ../signature/tests/dilithium_invalid_tester.o
+dilithium_invalid_tester-y	+= ../ml-dsa/tests/dilithium_invalid_tester.o
 
-dilithium_tester_official-y	+= ../signature/tests/dilithium_tester_official.o
+dilithium_tester_official-y	+= ../ml-dsa/tests/dilithium_tester_official.o
 
 endif
 
@@ -308,11 +308,11 @@ ifdef CONFIG_LEANCRYPTO_DILITHIUM_87
 obj-m				+= dilithium_tester_avx2.o
 obj-m				+= dilithium_tester_iuf_avx2.o
 
-dilithium_tester_avx2-y		+= ../signature/tests/dilithium_tester.o       \
-				   ../signature/tests/dilithium_tester_avx2.o  \
+dilithium_tester_avx2-y		+= ../ml-dsa/tests/dilithium_tester.o	       \
+				   ../ml-dsa/tests/dilithium_tester_avx2.o     \
 				   ../drng/src/selftest_rng.o
-dilithium_tester_iuf_avx2-y	+= ../signature/tests/dilithium_tester.o       \
-				   ../signature/tests/dilithium_tester_iuf_avx2.o\
+dilithium_tester_iuf_avx2-y	+= ../ml-dsa/tests/dilithium_tester.o	       \
+				   ../ml-dsa/tests/dilithium_tester_iuf_avx2.o\
 				   ../drng/src/selftest_rng.o
 endif
 
@@ -337,11 +337,11 @@ ifdef CONFIG_LEANCRYPTO_DILITHIUM_87
 obj-m				+= dilithium_tester_armv8.o
 obj-m				+= dilithium_tester_iuf_armv8.o
 
-dilithium_tester_armv8-y	+= ../signature/tests/dilithium_tester.o       \
-				   ../signature/tests/dilithium_tester_armv8.o \
+dilithium_tester_armv8-y	+= ../ml-dsa/tests/dilithium_tester.o	       \
+				   ../ml-dsa/tests/dilithium_tester_armv8.o    \
 				   ../drng/src/selftest_rng.o
-dilithium_tester_iuf_armv8-y	+= ../signature/tests/dilithium_tester.o       \
-				   ../signature/tests/dilithium_tester_iuf_armv8.o\
+dilithium_tester_iuf_armv8-y	+= ../ml-dsa/tests/dilithium_tester.o	       \
+				   ../ml-dsa/tests/dilithium_tester_iuf_armv8.o\
 				   ../drng/src/selftest_rng.o
 endif
 
@@ -349,10 +349,10 @@ ifdef CONFIG_LEANCRYPTO_DILITHIUM_87
 obj-m				+= dilithium_65_tester_armv8.o
 obj-m				+= dilithium_65_tester_iuf_armv8.o
 
-dilithium_65_tester_armv8-y	+= dilithium65/tests/dilithium_tester.o       \
-				   dilithium65/tests/dilithium_tester_armv8.o \
+dilithium_65_tester_armv8-y	+= dilithium65/tests/dilithium_tester.o	       \
+				   dilithium65/tests/dilithium_tester_armv8.o  \
 				   ../drng/src/selftest_rng.o
-dilithium_65_tester_iuf_armv8-y	+= dilithium65/tests/dilithium_tester.o       \
+dilithium_65_tester_iuf_armv8-y	+= dilithium65/tests/dilithium_tester.o	       \
 				   dilithium65/tests/dilithium_tester_iuf_armv8.o\
 				   ../drng/src/selftest_rng.o
 CFLAGS_dilithium65/tests/dilithium_tester.o		:= -DLC_DILITHIUM_TYPE_65
@@ -365,11 +365,11 @@ ifdef CONFIG_ARM
 obj-m				+= dilithium_tester_armv7.o
 obj-m				+= dilithium_tester_iuf_armv7.o
 
-dilithium_tester_armv7-y	+= ../signature/tests/dilithium_tester.o       \
-				   ../signature/tests/dilithium_tester_armv7.o \
+dilithium_tester_armv7-y	+= ../ml-dsa/tests/dilithium_tester.o	       \
+				   ../ml-dsa/tests/dilithium_tester_armv7.o    \
 				   ../drng/src/selftest_rng.o
-dilithium_tester_iuf_armv7-y	+= ../signature/tests/dilithium_tester.o       \
-				   ../signature/tests/dilithium_tester_iuf_armv7.o\
+dilithium_tester_iuf_armv7-y	+= ../ml-dsa/tests/dilithium_tester.o	       \
+				   ../ml-dsa/tests/dilithium_tester_iuf_armv7.o\
 				   ../drng/src/selftest_rng.o
 endif
 
@@ -382,7 +382,7 @@ ifdef CONFIG_LEANCRYPTO_DILITHIUM_87
 obj-m		  		+= dilithium_ed25519_tester.o
 obj-m		  		+= leancrypto_kernel_dilithium_87_ed25519_tester.o
 
-dilithium_ed25519_tester-y	+= ../signature/tests/dilithium_ed25519_tester.o\
+dilithium_ed25519_tester-y	+= ../ml-dsa/tests/dilithium_ed25519_tester.o  \
 				   ../drng/src/selftest_rng.o
 endif
 

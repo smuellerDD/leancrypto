@@ -1,1 +1,1 @@
-../../../signature/src/armv7/dilithium_poly.c
+../../../ml-dsa/src/armv7/dilithium_poly.c

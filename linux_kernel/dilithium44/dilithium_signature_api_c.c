@@ -1,1 +1,1 @@
-../../signature/src/dilithium_signature_api_c.c
+../../ml-dsa/src/dilithium_signature_api_c.c

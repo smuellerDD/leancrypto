@@ -16,6 +16,6 @@ include $(kbuild-dir)/Kbuild.kdf
 include $(kbuild-dir)/Kbuild.curve25519
 include $(kbuild-dir)/Kbuild.ml-kem
 include $(kbuild-dir)/Kbuild.kmac
-include $(kbuild-dir)/Kbuild.signature
+include $(kbuild-dir)/Kbuild.ml-dsa
 include $(kbuild-dir)/Kbuild.aes
 include $(kbuild-dir)/Kbuild.chacha20

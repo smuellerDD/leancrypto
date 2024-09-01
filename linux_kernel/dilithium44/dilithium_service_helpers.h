@@ -1,1 +1,1 @@
-../../signature/src/dilithium_service_helpers.h
+../../ml-dsa/src/dilithium_service_helpers.h

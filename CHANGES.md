@@ -9,6 +9,8 @@ Changes 1.1.0-prerelease
 
 * ML-KEM: rename source code directory to ml-kem
 
+* ML-DSA: rename source code directory to ml-dsa
+
 Changes 1.0.1
 
 * fix: Kyber keygen - add LC_KYBER_K to initial hash (change is only relevant when storing keys as seed and for interoperability)

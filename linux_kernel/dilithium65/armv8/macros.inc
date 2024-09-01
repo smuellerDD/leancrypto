@@ -1,1 +1,1 @@
-../../../signature/src/armv8/macros.inc
+../../../ml-dsa/src/armv8/macros.inc

@@ -1,1 +1,1 @@
-../../../signature/tests/dilithium_tester_armv7.c
+../../../ml-dsa/tests/dilithium_tester_armv7.c

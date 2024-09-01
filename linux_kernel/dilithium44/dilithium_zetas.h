@@ -1,1 +1,1 @@
-../../signature/src/dilithium_zetas.h
+../../ml-dsa/src/dilithium_zetas.h

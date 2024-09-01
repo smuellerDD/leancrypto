@@ -24,13 +24,13 @@
 #include <linux/version.h>
 
 #ifdef LC_DILITHIUM_TYPE_65
-#include "../signature/tests/dilithium_tester_vectors_65.h"
+#include "../ml-dsa/tests/dilithium_tester_vectors_65.h"
 #define LC_DILITHIUM_IMPL_NAME "dilithium65-leancrypto"
 #elif defined LC_DILITHIUM_TYPE_44
-#include "../signature/tests/dilithium_tester_vectors_44.h"
+#include "../ml-dsa/tests/dilithium_tester_vectors_44.h"
 #define LC_DILITHIUM_IMPL_NAME "dilithium44-leancrypto"
 #else
-#include "../signature/tests/dilithium_tester_vectors_87.h"
+#include "../ml-dsa/tests/dilithium_tester_vectors_87.h"
 #define LC_DILITHIUM_IMPL_NAME "dilithium87-leancrypto"
 #endif
 
