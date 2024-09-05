@@ -283,5 +283,11 @@ sym/src/aes_no_sbox.c
   ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
   POSSIBILITY OF SUCH DAMAGE.
 
+================================================================================
 
+The BIKE KEM code is derived in parts from the code distribution provided with
+https://github.com/awslabs/bike-kem. The license for the original code is:
 
+Apache 2.0 License (https://www.apache.org/licenses/LICENSE-2.0.html).
+
+Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
