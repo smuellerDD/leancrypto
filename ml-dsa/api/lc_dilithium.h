@@ -1446,8 +1446,9 @@ lc_dilithium_ed25519_ctx_zero(struct lc_dilithium_ed25519_ctx *ctx)
  * @param [in] hash Hash context referencing the used hash for pre-hashing the
  *		    message
  */
-static inline void lc_dilithium_ed25519_ctx_hash(
-	struct lc_dilithium_ed25519_ctx *ctx, const struct lc_hash *hash)
+static inline void
+lc_dilithium_ed25519_ctx_hash(struct lc_dilithium_ed25519_ctx *ctx,
+			      const struct lc_hash *hash)
 {
 	if (ctx)
 		ctx->dilithium_ctx.dilithium_prehash_type = hash;
@@ -1460,8 +1461,8 @@ static inline void lc_dilithium_ed25519_ctx_hash(
  *
  * @param [in] ctx Dilithium-ED25519 context
  */
-static inline void lc_dilithium_ed25519_ctx_internal(
-	struct lc_dilithium_ed25519_ctx *ctx)
+static inline void
+lc_dilithium_ed25519_ctx_internal(struct lc_dilithium_ed25519_ctx *ctx)
 {
 	if (ctx)
 		ctx->dilithium_ctx.ml_dsa_internal = 1;
@@ -1476,9 +1477,9 @@ static inline void lc_dilithium_ed25519_ctx_internal(
  * @param [in] userctx User context string
  * @param [in] userctxlen Size of the user context string
  */
-static inline void lc_dilithium_ed25519_ctx_userctx(
-	struct lc_dilithium_ed25519_ctx *ctx, const uint8_t *userctx,
-	size_t userctxlen)
+static inline void
+lc_dilithium_ed25519_ctx_userctx(struct lc_dilithium_ed25519_ctx *ctx,
+				 const uint8_t *userctx, size_t userctxlen)
 {
 	if (ctx) {
 		ctx->dilithium_ctx.userctx = userctx;

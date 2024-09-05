@@ -93,7 +93,7 @@ static int dilithium_ph_oids(struct lc_dilithium_ctx *ctx, size_t mlen,
 			// if (mlen != 32)
 			// 	return -EOPNOTSUPP;
 			lc_hash_update(hash_ctx, shake128_oid_der,
-				sizeof(shake128_oid_der));
+				       sizeof(shake128_oid_der));
 			return 0;
 		}
 		/* FALLTHROUGH - Dilithium44 allows the following, too */

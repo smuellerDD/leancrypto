@@ -116,8 +116,8 @@ int _dilithium_tester(
 #ifndef GENERATE_VECTORS
 	const struct dilithium_testvector *vec_p =
 		internal_test ? dilithium_internal_testvectors :
-				prehashed ? dilithium_prehashed_testvectors :
-					    dilithium_testvectors;
+		prehashed     ? dilithium_prehashed_testvectors :
+				dilithium_testvectors;
 #endif
 	int ret = 0;
 #if (defined(SHOW_SHAKEd_KEY) && !defined(GENERATE_VECTORS))
@@ -137,20 +137,19 @@ int _dilithium_tester(
 	if (prehashed)
 		ctx->dilithium_prehash_type = lc_shake256;
 
-
 #ifdef GENERATE_VECTORS
 	if (internal_test) {
 		printf("#ifndef DILITHIUM_INTERNAL_TESTVECTORS_H\n"
 		       "#define DILITHIUM_INTERNAL_TESTVECTORS_H\n"
 		       "#include \"dilithium_type.h\"\n"
 		       "static const struct dilithium_testvector dilithium_internal_testvectors[] =\n"
-		      "{\n");
+		       "{\n");
 	} else if (prehashed) {
 		printf("#ifndef DILITHIUM_PREHASHED_TESTVECTORS_H\n"
 		       "#define DILITHIUM_PREHASHED_TESTVECTORS_H\n"
 		       "#include \"dilithium_type.h\"\n"
 		       "static const struct dilithium_testvector dilithium_prehashed_testvectors[] =\n"
-		      "{\n");
+		       "{\n");
 	} else {
 		printf("#ifndef DILITHIUM_TESTVECTORS_H\n"
 		       "#define DILITHIUM_TESTVECTORS_H\n"
@@ -162,7 +161,7 @@ int _dilithium_tester(
 		       "\tuint8_t sig[LC_DILITHIUM_CRYPTO_BYTES];\n"
 		       "};\n\n"
 		       "static const struct dilithium_testvector dilithium_testvectors[] =\n"
-		      "{\n");
+		       "{\n");
 	}
 	nvectors = NVECTORS;
 
@@ -321,8 +320,7 @@ out:
 }
 
 int _dilithium_init_update_final_tester(
-	unsigned int rounds, unsigned int internal_test,
-	unsigned int prehashed,
+	unsigned int rounds, unsigned int internal_test, unsigned int prehashed,
 	int (*_lc_dilithium_keypair)(struct lc_dilithium_pk *pk,
 				     struct lc_dilithium_sk *sk,
 				     struct lc_rng_ctx *rng_ctx),
@@ -377,8 +375,8 @@ int _dilithium_init_update_final_tester(
 	int ret = 0;
 	const struct dilithium_testvector *vec_p =
 		internal_test ? dilithium_internal_testvectors :
-				prehashed ? dilithium_prehashed_testvectors :
-					    dilithium_testvectors;
+		prehashed     ? dilithium_prehashed_testvectors :
+				dilithium_testvectors;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	LC_DILITHIUM_CTX_ON_STACK(ctx);
 	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);

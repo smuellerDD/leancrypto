@@ -132,9 +132,11 @@ static inline int mlock(const void *ptr, size_t len)
  * See https://gcc.gnu.org/onlinedocs/gcc/Statement-Attributes.html#Statement-Attributes
  */
 #if __has_attribute(__fallthrough__)
-#define fallthrough	__attribute__((__fallthrough__))
+#define fallthrough __attribute__((__fallthrough__))
 #else
-#define fallthrough	do {} while (0)
+#define fallthrough                                                            \
+	do {                                                                   \
+	} while (0)
 #endif
 
 #else /* LINUX_KERNEL */
@@ -189,9 +191,11 @@ static inline int mlock(const void *ptr, size_t len)
  * See https://gcc.gnu.org/onlinedocs/gcc/Statement-Attributes.html#Statement-Attributes
  */
 #if __has_attribute(__fallthrough__)
-#define fallthrough	__attribute__((__fallthrough__))
+#define fallthrough __attribute__((__fallthrough__))
 #else
-#define fallthrough	do {} while (0)
+#define fallthrough                                                            \
+	do {                                                                   \
+	} while (0)
 #endif
 
 #endif /* LINUX_KERNEL */

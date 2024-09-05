@@ -11604,19 +11604,17 @@ out:
 	return ret ? 1 : 0;
 }
 
-int dilithium_edge_tester(
-	int (*_lc_dilithium_sign_ctx)(struct lc_dilithium_sig *sig,
-				      struct lc_dilithium_ctx *ctx,
-				      const uint8_t *m, size_t mlen,
-				      const struct lc_dilithium_sk *sk,
-				      struct lc_rng_ctx *rng_ctx))
+int dilithium_edge_tester(int (*_lc_dilithium_sign_ctx)(
+	struct lc_dilithium_sig *sig, struct lc_dilithium_ctx *ctx,
+	const uint8_t *m, size_t mlen, const struct lc_dilithium_sk *sk,
+	struct lc_rng_ctx *rng_ctx))
 {
 	unsigned int i;
 	int ret = 0;
 
 	for (i = 0; i < ARRAY_SIZE(tcs); i++)
-		ret += dilithium_edge_tester_internal(
-			&tcs[i], _lc_dilithium_sign_ctx);
+		ret += dilithium_edge_tester_internal(&tcs[i],
+						      _lc_dilithium_sign_ctx);
 
 	return ret;
 }

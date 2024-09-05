@@ -26,12 +26,10 @@
 extern "C" {
 #endif
 
-int dilithium_edge_tester(
-	int (*_lc_dilithium_sign_ctx)(struct lc_dilithium_sig *sig,
-				      struct lc_dilithium_ctx *ctx,
-				      const uint8_t *m, size_t mlen,
-				      const struct lc_dilithium_sk *sk,
-				      struct lc_rng_ctx *rng_ctx));
+int dilithium_edge_tester(int (*_lc_dilithium_sign_ctx)(
+	struct lc_dilithium_sig *sig, struct lc_dilithium_ctx *ctx,
+	const uint8_t *m, size_t mlen, const struct lc_dilithium_sk *sk,
+	struct lc_rng_ctx *rng_ctx));
 
 #ifdef __cplusplus
 }

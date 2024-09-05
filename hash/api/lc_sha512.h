@@ -81,7 +81,6 @@ struct lc_sha512_state {
 	LC_SHA384_CTX(name);                                                        \
 	_Pragma("GCC diagnostic pop")
 
-
 /**
  * @brief Allocate stack memory for the SHA512 context without VLA
  *
