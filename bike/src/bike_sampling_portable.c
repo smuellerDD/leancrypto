@@ -29,35 +29,40 @@
 
 #include "bike_utilities.h"
 #include "bike_sampling_internal.h"
+#include "build_bug_on.h"
 #include "ext_headers.h"
 
 #define MAX_WLIST_SIZE (LC_BIKE_MAX_RAND_INDICES_T)
 
-void secure_set_bits_port(pad_r_t *r, const size_t first_pos,
-			  const idx_t *wlist, const size_t w_size)
+void secure_set_bits_port(pad_r_t *r, const uint32_t first_pos,
+			  const idx_t *wlist, const uint32_t w_size)
 {
 	assert(w_size <= MAX_WLIST_SIZE);
 
-	// Ideally we would like to cast r.val but it is not guaranteed to be aligned
-	// as the entire pad_r_t structure. Thus, we assert that the position of val
-	// is at the beginning of r.
-	static_assert(offsetof(pad_r_t, val) == 0);
 	uint64_t *a64 = (uint64_t *)r;
 	uint64_t val, mask;
 
 	// The size of wlist can be either D or T. So, we set it to max(D, T)
-	size_t pos_qw[MAX_WLIST_SIZE];
-	size_t pos_bit[MAX_WLIST_SIZE];
+	uint32_t pos_qw[MAX_WLIST_SIZE];
+	uint64_t pos_bit[MAX_WLIST_SIZE];
+
+	uint32_t i;
+
+	// Ideally we would like to cast r.val but it is not guaranteed to be aligned
+	// as the entire pad_r_t structure. Thus, we assert that the position of val
+	// is at the beginning of r.
+	BUILD_BUG_ON(offsetof(pad_r_t, val) != 0);
 
 	// Identify the QW position of every value, and the bit position inside this QW.
-	for (size_t i = 0; i < w_size; i++) {
-		uint64_t w = wlist[i] - first_pos;
+	for (i = 0; i < w_size; i++) {
+		uint32_t w = wlist[i] - first_pos;
+
 		pos_qw[i] = (w >> 6);
 		pos_bit[i] = LC_BIKE_BIT(w & LC_BIKE_MASK(6));
 	}
 
 	// Fill each QW in constant time
-	for (size_t i = 0; i < (sizeof(*r) / sizeof(uint64_t)); i++) {
+	for (i = 0; i < (sizeof(*r) / sizeof(uint64_t)); i++) {
 		val = 0;
 		for (size_t j = 0; j < w_size; j++) {
 			mask = (-1ULL) + (!secure_cmp32(pos_qw[j], i));

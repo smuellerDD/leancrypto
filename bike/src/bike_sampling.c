@@ -58,19 +58,7 @@ static inline get_rand_mod_len(uint32_t *rand_pos, const uint32_t len,
 
 	} while (1 == 1);
 }
-#endif
 
-static inline void make_odd_weight(r_t *r)
-{
-	if (((r_bits_vector_weight(r) % 2) == 1)) {
-		// Already odd
-		return;
-	}
-
-	r->raw[0] ^= 1;
-}
-
-#if defined(UNIFORM_SAMPLING)
 static void generate_indices_mod_z(idx_t *out, const size_t num_indices,
 				   const size_t z,
 				   struct lc_hash_ctx *prf_state)

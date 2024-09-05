@@ -34,6 +34,7 @@
 
 #include "bike_gf2x.h"
 #include "bike_gf2x_internal.h"
+#include "build_bug_on.h"
 #include "lc_bike.h"
 #include "lc_memset_secure.h"
 
@@ -92,8 +93,6 @@ static inline void repeated_squaring(pad_r_t *c, pad_r_t *a,
 //   exp1_l = [inverse_mod((2^k) % r, r) if k != 0 else 0 for k in exp1_k]
 
 #if (LC_BIKE_LEVEL == 1)
-// The parameters below are hard-coded for R=12323
-static_assert(LC_BIKE_R_BITS == 12323);
 
 // MAX_I = floor(log(r-2)) + 1
 #define MAX_I (14)
@@ -106,8 +105,6 @@ static_assert(LC_BIKE_R_BITS == 12323);
 #define EXP1_L_VALS 0, 0, 0, 0, 0, 6162, 0, 0, 0, 0, 0, 0, 242, 5717
 
 #elif (LC_BIKE_LEVEL == 3)
-// The parameters below are hard-coded for R=24659
-static_assert(LC_BIKE_R_BITS == 24659);
 
 // MAX_I = floor(log(r-2)) + 1
 #define MAX_I (15)
@@ -120,8 +117,6 @@ static_assert(LC_BIKE_R_BITS == 24659);
 #define EXP1_L_VALS 0, 0, 0, 0, 12330, 0, 13685, 0, 0, 0, 0, 0, 0, 23678, 19056
 
 #else
-// The parameters below are hard-coded for R=40973
-static_assert(LC_BIKE_R_BITS == 40973);
 
 // MAX_I = floor(log(r-2)) + 1
 #define MAX_I (16)
@@ -160,6 +155,17 @@ void gf2x_mod_inv(pad_r_t *c, const pad_r_t *a)
 	dbl_pad_r_t sec_buf = { 0 };
 
 	unsigned int i;
+
+#if (LC_BIKE_LEVEL == 1)
+	// The parameters below are hard-coded for R=12323
+	BUILD_BUG_ON(LC_BIKE_R_BITS != 12323);
+#elif (LC_BIKE_LEVEL == 3)
+	// The parameters below are hard-coded for R=24659
+	BUILD_BUG_ON(LC_BIKE_R_BITS != 24659);
+#else
+	// The parameters below are hard-coded for R=40973
+	BUILD_BUG_ON(LC_BIKE_R_BITS != 40973);
+#endif
 
 	// Steps 2 and 3 in [1](Algorithm 2)
 	f.val = a->val;

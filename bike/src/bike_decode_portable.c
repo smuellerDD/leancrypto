@@ -30,14 +30,15 @@
 #include "bike_decode.h"
 #include "bike_decode_internal.h"
 #include "bike_utilities.h"
+#include "build_bug_on.h"
 
 #define R_QWORDS_HALF_LOG2 LC_BIKE_UPTOPOW2(LC_BIKE_R_QWORDS / 2)
 
 static inline void rotr_big(syndrome_t *out, const syndrome_t *in,
-			    size_t qw_num)
+			    uint32_t qw_num)
 {
 	// For preventing overflows (comparison in bytes)
-	static_assert(sizeof(*out) >
+	BUILD_BUG_ON(sizeof(*out) <=
 		      8 * (LC_BIKE_R_QWORDS + (2 * R_QWORDS_HALF_LOG2)));
 
 	*out = *in;
@@ -60,12 +61,12 @@ static inline void rotr_big(syndrome_t *out, const syndrome_t *in,
 static inline void rotr_small(syndrome_t *out, const syndrome_t *in,
 			      const size_t bits)
 {
-	static_assert(sizeof(*out) > (8 * LC_BIKE_R_QWORDS));
-
 	// Convert |bits| to 0/1 by using !!bits; then create a mask of 0 or
 	// 0xffffffffff Use high_shift to avoid undefined behaviour when doing x << 64;
 	const uint64_t mask = (0 - (!!bits));
 	const uint64_t high_shift = (64 - bits) & u64_barrier(mask);
+
+	BUILD_BUG_ON(sizeof(*out) <= (8 * LC_BIKE_R_QWORDS));
 
 	for (size_t i = 0; i < LC_BIKE_R_QWORDS; i++) {
 		const uint64_t low_part = in->qw[i] >> bits;

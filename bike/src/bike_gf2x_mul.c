@@ -8,6 +8,7 @@
 #include "alignment.h"
 #include "bike_gf2x.h"
 #include "bike_gf2x_internal.h"
+#include "build_bug_on.h"
 #include "ext_headers.h"
 #include "lc_memset_secure.h"
 
@@ -84,11 +85,11 @@ static inline void karatzuba(uint64_t *c, const uint64_t *a, const uint64_t *b,
 void gf2x_mod_mul_with_ctx(pad_r_t *c, const pad_r_t *a, const pad_r_t *b,
 			   const gf2x_ctx *ctx)
 {
-	static_assert(LC_BIKE_R_PADDED_BYTES % 2 == 0);
-
 	dbl_pad_r_t t = { 0 };
 	uint64_t secure_buffer[SECURE_BUFFER_QWORDS] __align(
 		LC_BIKE_ALIGN_BYTES);
+
+	BUILD_BUG_ON(LC_BIKE_R_PADDED_BYTES % 2 != 0);
 
 	karatzuba((uint64_t *)&t, (const uint64_t *)a, (const uint64_t *)b,
 		  LC_BIKE_R_QWORDS, LC_BIKE_R_PADDED_QWORDS, secure_buffer,
@@ -102,10 +103,11 @@ void gf2x_mod_mul_with_ctx(pad_r_t *c, const pad_r_t *a, const pad_r_t *b,
 
 void gf2x_mod_mul(pad_r_t *c, const pad_r_t *a, const pad_r_t *b)
 {
-	static_assert(LC_BIKE_R_PADDED_BYTES % 2 == 0);
-
 	// Initialize gf2x methods struct
 	gf2x_ctx ctx;
+
+	BUILD_BUG_ON(LC_BIKE_R_PADDED_BYTES % 2 != 0);
+
 	gf2x_ctx_init(&ctx);
 
 	gf2x_mod_mul_with_ctx(c, a, b, &ctx);
