@@ -17,7 +17,18 @@
  * DAMAGE.
  */
 
+#include "lc_bike.h"
+
+#if (LC_BIKE_LEVEL == 1)
 #include "bike_tester_vectors_l1.h"
+#elif (LC_BIKE_LEVEL == 3)
+#include "bike_tester_vectors_l3.h"
+#elif (LC_BIKE_LEVEL == 5)
+#include "bike_tester_vectors_l5.h"
+#else
+#error "Bad level, choose one of 1/3/5"
+#endif
+
 #include "compare.h"
 #include "static_rng.h"
 #include "ret_checkers.h"

@@ -44,7 +44,7 @@ extern "C" {
 #define LC_BIKE_N0 2
 
 #if !defined(LC_BIKE_LEVEL)
-#define LC_BIKE_LEVEL 1
+#define LC_BIKE_LEVEL 5
 #endif
 
 #if (LC_BIKE_LEVEL == 1)
