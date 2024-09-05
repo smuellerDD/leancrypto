@@ -29,6 +29,7 @@
 
 #include "ext_headers.h"
 
+#include "bike_internal.h"
 #include "bike_sampling.h"
 #include "bike_sampling_internal.h"
 #include "bike_utilities.h"

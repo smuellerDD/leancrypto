@@ -17,7 +17,7 @@
  * DAMAGE.
  */
 
-#include "lc_bike.h"
+#include "../src/bike_internal.h"
 
 #if (LC_BIKE_LEVEL == 1)
 #include "bike_tester_vectors_l1.h"
@@ -54,7 +54,7 @@ static int bike_tester_one(const struct lc_bike_testvector *vector)
 	rc += lc_compare((uint8_t *)&pk, vector->pk, sizeof(pk), "BIKE PK");
 	rc += lc_compare((uint8_t *)&sk, vector->sk, sizeof(sk), "BIKE SK");
 
-	CKINT(lc_bike_enc(&ct, &ss, &pk, &sdrng));
+	CKINT(lc_bike_enc_internal(&ct, &ss, &pk, &sdrng));
 	rc += lc_compare((uint8_t *)&ct, vector->ct, sizeof(ct), "BIKE Enc CT");
 	rc += lc_compare((uint8_t *)&ss, vector->ss, sizeof(ss), "BIKE Enc SS");
 

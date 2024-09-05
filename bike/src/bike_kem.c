@@ -29,11 +29,11 @@
 
 #include "bike_decode.h"
 #include "bike_gf2x.h"
+#include "bike_internal.h"
 #include "bike_sampling.h"
 #include "bike_utilities.h"
 
 #include "build_bug_on.h"
-#include "lc_bike.h"
 #include "lc_memset_secure.h"
 #include "lc_memcmp_secure.h"
 #include "lc_rng.h"
@@ -69,7 +69,7 @@ static inline void convert_m_to_seed_type(seed_t *seed, const m_t *m)
 #endif
 
 // (e0, e1) = H(m)
-static inline void function_h(pad_e_t *e, const m_t *m, const pk_t *pk)
+static inline void function_h(pad_e_t *e, const m_t *m, const r_t *pk)
 {
 	seed_t seed = { 0 };
 
@@ -146,7 +146,7 @@ static inline void function_k(struct lc_bike_ss *out, const m_t *m,
 }
 
 static inline void encrypt(struct lc_bike_ct *ct, const pad_e_t *e,
-			   const pk_t *pk, const m_t *m)
+			   const r_t *pk, const m_t *m)
 {
 	// Pad the public key and the ciphertext
 	pad_r_t p_ct = { 0 };
@@ -233,12 +233,9 @@ LC_INTERFACE_FUNCTION(int, lc_bike_keypair, struct lc_bike_pk *pk,
 	return 0;
 }
 
-// Encapsulate - pk is the public key,
-//               ct is a key encapsulation message (ciphertext),
-//               ss is the shared secret.
-LC_INTERFACE_FUNCTION(int, lc_bike_enc, struct lc_bike_ct *ct,
-		      struct lc_bike_ss *ss, const struct lc_bike_pk *pk,
-		      struct lc_rng_ctx *rng_ctx)
+int lc_bike_enc_internal(struct lc_bike_ct *ct, struct lc_bike_ss *ss,
+			 const struct lc_bike_pk *pk,
+			 struct lc_rng_ctx *rng_ctx)
 {
 	m_t m;
 	seeds_t seeds = { 0 };
@@ -267,9 +264,12 @@ LC_INTERFACE_FUNCTION(int, lc_bike_enc, struct lc_bike_ct *ct,
 	return 0;
 }
 
-// Decapsulate - ct is a key encapsulation message (ciphertext),
-//               sk is the private key,
-//               ss is the shared secret
+LC_INTERFACE_FUNCTION(int, lc_bike_enc, struct lc_bike_ct *ct,
+		      struct lc_bike_ss *ss, const struct lc_bike_pk *pk)
+{
+	return lc_bike_enc_internal(ct, ss, pk, lc_seeded_rng);
+}
+
 LC_INTERFACE_FUNCTION(int, lc_bike_dec, struct lc_bike_ss *ss,
 		      const struct lc_bike_ct *ct, const struct lc_bike_sk *sk)
 {

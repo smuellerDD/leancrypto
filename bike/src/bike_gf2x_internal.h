@@ -30,8 +30,8 @@
 #ifndef BIKE_GF2X_INTERNAL_H
 #define BIKE_GF2X_INTERNAL_H
 
+#include "bike_internal.h"
 #include "ext_headers.h"
-#include "lc_bike.h"
 
 #ifdef __cplusplus
 extern "C" {

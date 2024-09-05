@@ -30,7 +30,7 @@
 #ifndef BIKE_DECODE_H
 #define BIKE_DECODE_H
 
-#include "lc_bike.h"
+#include "bike_internal.h"
 
 #ifdef __cplusplus
 extern "C" {

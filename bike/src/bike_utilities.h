@@ -20,21 +20,23 @@
 #ifndef BIKE_UTILITIES_H
 #define BIKE_UTILITIES_H
 
+#include "bike_internal.h"
 #include "ext_headers.h"
-#include "lc_bike.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// "VALUE_BARRIER returns |a|, but prevents GCC and Clang from reasoning about
-// the returned value. This is used to mitigate compilers undoing constant-time
-// code, until we can express our requirements directly in the language.
-// Note the compiler is aware that |VALUE_BARRIER| has no side effects and
-// always has the same output for a given input. This allows it to eliminate
-// dead code, move computations across loops, and vectorize."
-// See:
-// https://github.com/google/boringssl/commit/92b7c89e6e8ba82924b57153bea68241cc45f658
+/*
+ * "VALUE_BARRIER returns |a|, but prevents GCC and Clang from reasoning about
+ * the returned value. This is used to mitigate compilers undoing constant-time
+ * code, until we can express our requirements directly in the language.
+ * Note the compiler is aware that |VALUE_BARRIER| has no side effects and
+ * always has the same output for a given input. This allows it to eliminate
+ * dead code, move computations across loops, and vectorize."
+ * See:
+ * https://github.com/google/boringssl/commit/92b7c89e6e8ba82924b57153bea68241cc45f658
+ */
 #if (defined(__GNUC__) || defined(__clang__))
 #define VALUE_BARRIER(name, type)                                              \
 	static inline type name##_barrier(type a)                              \
@@ -79,9 +81,11 @@ static inline uint32_t secure_l32_mask(const uint32_t v1, const uint32_t v2)
 
 	return res;
 #else
-	// If v1 >= v2 then the subtraction result is 0^32||(v1-v2).
-	// else it is 1^32||(v2-v1+1). Subsequently, negating the upper
-	// 32 bits gives 0 if v1 < v2 and otherwise (-1).
+	/*
+	 * If v1 >= v2 then the subtraction result is 0^32||(v1-v2).
+	 * else it is 1^32||(v2-v1+1). Subsequently, negating the upper
+	 * 32 bits gives 0 if v1 < v2 and otherwise (-1).
+	 */
 	return ~((uint32_t)(((uint64_t)v1 - (uint64_t)v2) >> 32));
 #endif
 }
@@ -108,14 +112,16 @@ static inline uint32_t secure_l32(const uint32_t v1, const uint32_t v2)
 			     : "rdx");
 	return res;
 #else
-	// Insecure comparison: The main purpose of secure_l32 is to avoid
-	// branches to prevent potential side channel leaks. To do that,
-	// we normally leverage some special CPU instructions such as "setl"
-	// (for __x86_64__) and "cset" (for __aarch64__). When dealing with general
-	// CPU architectures, the interpretation of the line below is left for the
-	// compiler. It could lead to an "insecure" branch. This case needs to be
-	// checked individually on such platforms
-	// (e.g., by checking the compiler-generated assembly).
+	/*
+	 * Insecure comparison: The main purpose of secure_l32 is to avoid
+	 * branches to prevent potential side channel leaks. To do that,
+	 * we normally leverage some special CPU instructions such as "setl"
+	 * (for __x86_64__) and "cset" (for __aarch64__). When dealing with
+	 * general CPU architectures, the interpretation of the line below is
+	 * left for the compiler. It could lead to an "insecure" branch. This
+	 * case needs to be checked individually on such platforms (e.g., by
+	 * checking the compiler-generated assembly).
+	 */
 	return (v1 < v2 ? 1 : 0);
 #endif
 }
@@ -161,14 +167,16 @@ static inline uint32_t secure_cmp32(const uint32_t v1, const uint32_t v2)
 			     : "rdx");
 	return res;
 #else
-	// Insecure comparison: The main purpose of secure_cmp32 is to avoid
-	// branches to prevent potential side channel leaks. To do that,
-	// we normally leverage some special CPU instructions such as "sete"
-	// (for __x86_64__) and "cset" (for __aarch64__). When dealing with general
-	// CPU architectures, the interpretation of the line below is left for the
-	// compiler. It could lead to an "insecure" branch. This case needs to be
-	// checked individually on such platforms
-	// (e.g., by checking the compiler-generated assembly).
+	/*
+	 * Insecure comparison: The main purpose of secure_l32 is to avoid
+	 * branches to prevent potential side channel leaks. To do that,
+	 * we normally leverage some special CPU instructions such as "setl"
+	 * (for __x86_64__) and "cset" (for __aarch64__). When dealing with
+	 * general CPU architectures, the interpretation of the line below is
+	 * left for the compiler. It could lead to an "insecure" branch. This
+	 * case needs to be checked individually on such platforms (e.g., by
+	 * checking the compiler-generated assembly).
+	 */
 	return (v1 == v2 ? 1 : 0);
 #endif
 }

@@ -30,17 +30,12 @@
 #ifndef BIKE_SAMPLING_INTERNAL_H
 #define BIKE_SAMPLING_INTERNAL_H
 
-#include "lc_bike.h"
+#include "bike_internal.h"
 #include "lc_hash.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-//#include "cpu_features.h"
-//#include "defs.h"
-//#include "types.h"
-//#include "prf_internal.h"
 
 // Value used to denote an invalid index for ther error vector.
 #define IDX_INVALID_VAL (0xffffffff)

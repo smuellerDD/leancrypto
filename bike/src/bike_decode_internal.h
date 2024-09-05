@@ -30,10 +30,6 @@
 #ifndef BIKE_DECODE_INTERNAL_H
 #define BIKE_DECODE_INTERNAL_H
 
-//#include "cpu_features.h"
-//#include "defs.h"
-//#include "types.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif

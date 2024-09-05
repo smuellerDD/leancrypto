@@ -35,7 +35,6 @@
 #include "bike_gf2x.h"
 #include "bike_gf2x_internal.h"
 #include "build_bug_on.h"
-#include "lc_bike.h"
 #include "lc_memset_secure.h"
 
 // a = a^2 mod (x^r - 1)
