@@ -36,191 +36,164 @@
 #include "lc_sha3.h"
 
 #if defined(UNIFORM_SAMPLING)
-static inline get_rand_mod_len(uint32_t       *rand_pos,
-                                const uint32_t  len,
-                                struct lc_hash_ctx *prf_state)
+static inline get_rand_mod_len(uint32_t *rand_pos, const uint32_t len,
+			       struct lc_hash_ctx *prf_state)
 {
-  const uint64_t mask = LC_BIKE_MASK(bit_scan_reverse_vartime(len));
+	const uint64_t mask = LC_BIKE_MASK(bit_scan_reverse_vartime(len));
 
-  lc_hash_set_digestsize(prf_state, sizeof(*rand_pos));
+	lc_hash_set_digestsize(prf_state, sizeof(*rand_pos));
 
-  do {
-    // Generate a 32 bits (pseudo) random value.
-    // This can be optimized to take only 16 bits.
-	lc_hash_final(prf_state, (uint8_t *)rand_pos);
+	do {
+		// Generate a 32 bits (pseudo) random value.
+		// This can be optimized to take only 16 bits.
+		lc_hash_final(prf_state, (uint8_t *)rand_pos);
 
-    // Mask relevant bits only
-    (*rand_pos) &= mask;
+		// Mask relevant bits only
+		(*rand_pos) &= mask;
 
-    // Break if a number that is smaller than len is found.
-    if((*rand_pos) < len) {
-      break;
-    }
+		// Break if a number that is smaller than len is found.
+		if ((*rand_pos) < len) {
+			break;
+		}
 
-  } while(1 == 1);
+	} while (1 == 1);
 }
 #endif
 
 static inline void make_odd_weight(r_t *r)
 {
-  if(((r_bits_vector_weight(r) % 2) == 1)) {
-    // Already odd
-    return;
-  }
+	if (((r_bits_vector_weight(r) % 2) == 1)) {
+		// Already odd
+		return;
+	}
 
-  r->raw[0] ^= 1;
+	r->raw[0] ^= 1;
 }
-
-#if 0
-// Returns an array of r pseudorandom bits.
-// No restrictions exist for the top or bottom bits.
-// If the generation requires an odd number, then set must_be_odd=1.
-// The function uses the provided prf context.
-ret_t sample_uniform_r_bits_with_fixed_prf_context(
-  r_t *r,
-  prf_state_t         *prf_state,
-  const must_be_odd_t      must_be_odd)
-{
-	int ret;
-
-  // Generate random data
-  CKINT(get_prf_output(r->raw, prf_state, LC_BIKE_R_BYTES));
-
-  // Mask upper bits of the MSByte
-  r->raw[LC_BIKE_R_BYTES - 1] &= LC_BIKE_MASK(LC_BIKE_R_BITS + 8 - (LC_BIKE_R_BYTES * 8));
-
-  if (must_be_odd == LC_BIKE_MUST_BE_ODD) {
-    make_odd_weight(r);
-  }
-
-out:
-  return ret;
-}
-#endif
 
 #if defined(UNIFORM_SAMPLING)
-static void generate_indices_mod_z(idx_t *     out,
-                             const size_t num_indices,
-                             const size_t z,
-                             struct lc_hash_ctx *prf_state)
+static void generate_indices_mod_z(idx_t *out, const size_t num_indices,
+				   const size_t z,
+				   struct lc_hash_ctx *prf_state)
 {
-  size_t ctr = 0;
+	size_t ctr = 0;
 
-  // Generate num_indices unique (pseudo) random numbers modulo z.
-  do {
-    CKINT(get_rand_mod_len(&out[ctr], z, prf_state));
+	// Generate num_indices unique (pseudo) random numbers modulo z.
+	do {
+		CKINT(get_rand_mod_len(&out[ctr], z, prf_state));
 
-    // Check if the index is new and increment the counter if it is.
-    int is_new = 1;
-    for (size_t i = 0; i < ctr; i++) {
-      if (out[i] == out[ctr]) {
-        is_new = 0;
-        break;
-      }
-    }
-    ctr += is_new;
-  } while(ctr < num_indices);
+		// Check if the index is new and increment the counter if it is.
+		int is_new = 1;
+		for (size_t i = 0; i < ctr; i++) {
+			if (out[i] == out[ctr]) {
+				is_new = 0;
+				break;
+			}
+		}
+		ctr += is_new;
+	} while (ctr < num_indices);
 }
 #endif
 
-static void sample_indices_fisher_yates(idx_t *out,
-                                   unsigned int num_indices,
-                                   idx_t max_idx_val,
-                                  struct lc_hash_ctx *prf_state)
+static void sample_indices_fisher_yates(idx_t *out, unsigned int num_indices,
+					idx_t max_idx_val,
+					struct lc_hash_ctx *prf_state)
 {
 #define CWW_RAND_BYTES 4
 
 	lc_hash_set_digestsize(prf_state, CWW_RAND_BYTES);
 
-    for (unsigned int i = num_indices; i-- > 0;) {
-        uint64_t rand = 0ULL;
+	for (unsigned int i = num_indices; i-- > 0;) {
+		uint64_t rand = 0ULL;
 
-	lc_hash_final(prf_state, (uint8_t *)&rand);
+		lc_hash_final(prf_state, (uint8_t *)&rand);
 
-        rand *= (max_idx_val - i);
+		rand *= (max_idx_val - i);
 
 		// new index l is such that i <= l < max_idx_val
-        uint32_t l = i + (uint32_t)(rand >> (CWW_RAND_BYTES * 8));
+		uint32_t l = i + (uint32_t)(rand >> (CWW_RAND_BYTES * 8));
 
 		// Loop over (the end of) the output array to determine if l is a duplicate
-        uint32_t is_dup = 0;
-        for (size_t j = i + 1; j < num_indices; ++j) {
-            is_dup |= secure_cmp32(l, out[j]);
-        }
+		uint32_t is_dup = 0;
+		for (size_t j = i + 1; j < num_indices; ++j) {
+			is_dup |= secure_cmp32(l, out[j]);
+		}
 
 		// if l is a duplicate out[i] gets i else out[i] gets l
 		// mask is all 1 if l is a duplicate, all 0 else
-        uint32_t mask = -is_dup;
-        out[i] = (mask & i) ^ (~mask & l);
-    }
+		uint32_t mask = -is_dup;
+		out[i] = (mask & i) ^ (~mask & l);
+	}
 }
 
-static inline void generate_sparse_rep_for_sk(pad_r_t *r,
-                                          idx_t *wlist,
-                                          struct lc_hash_ctx *prf_state,
-                                          sampling_ctx *ctx)
+static inline void generate_sparse_rep_for_sk(pad_r_t *r, idx_t *wlist,
+					      struct lc_hash_ctx *prf_state,
+					      sampling_ctx *ctx)
 {
-  idx_t wlist_temp[LC_BIKE_D] = {0};
+	idx_t wlist_temp[LC_BIKE_D] = { 0 };
 
 #if defined(UNIFORM_SAMPLING)
-  generate_indices_mod_z(wlist_temp, LC_BIKE_D, LC_BIKE_R_BITS, prf_state);
+	generate_indices_mod_z(wlist_temp, LC_BIKE_D, LC_BIKE_R_BITS,
+			       prf_state);
 #else
-  sample_indices_fisher_yates(wlist_temp, LC_BIKE_D, LC_BIKE_R_BITS, prf_state);
+	sample_indices_fisher_yates(wlist_temp, LC_BIKE_D, LC_BIKE_R_BITS,
+				    prf_state);
 #endif
 
-  memcpy(wlist, wlist_temp, LC_BIKE_D * sizeof(idx_t));
-  ctx->secure_set_bits(r, 0, wlist, LC_BIKE_D);
+	memcpy(wlist, wlist_temp, LC_BIKE_D * sizeof(idx_t));
+	ctx->secure_set_bits(r, 0, wlist, LC_BIKE_D);
 
-  lc_memset_secure((uint8_t *)wlist_temp, 0, sizeof(*wlist_temp));
+	lc_memset_secure((uint8_t *)wlist_temp, 0, sizeof(*wlist_temp));
 }
 
-void generate_secret_key(pad_r_t *h0, pad_r_t *h1,
-                          idx_t *h0_wlist, idx_t *h1_wlist,
-                          const seed_t *seed)
+void generate_secret_key(pad_r_t *h0, pad_r_t *h1, idx_t *h0_wlist,
+			 idx_t *h1_wlist, const seed_t *seed)
 {
-  // Initialize the sampling context.
-  sampling_ctx ctx = {0};
-  LC_SHAKE_256_CTX_ON_STACK(prf_state);
+	// Initialize the sampling context.
+	sampling_ctx ctx = { 0 };
+	LC_SHAKE_256_CTX_ON_STACK(prf_state);
 
-  sampling_ctx_init(&ctx);
+	sampling_ctx_init(&ctx);
 
- lc_hash_init(prf_state);
-  lc_hash_update(prf_state, seed->raw, sizeof(*seed));
+	lc_hash_init(prf_state);
+	lc_hash_update(prf_state, seed->raw, sizeof(*seed));
 
-  generate_sparse_rep_for_sk(h0, h0_wlist, prf_state, &ctx);
-  generate_sparse_rep_for_sk(h1, h1_wlist, prf_state, &ctx);
+	generate_sparse_rep_for_sk(h0, h0_wlist, prf_state, &ctx);
+	generate_sparse_rep_for_sk(h1, h1_wlist, prf_state, &ctx);
 
-   lc_hash_zero(prf_state);
+	lc_hash_zero(prf_state);
 }
 
 void generate_error_vector(pad_e_t *e, const seed_t *seed)
 {
-  // Initialize the sampling context.
-  sampling_ctx ctx;
-  LC_SHAKE_256_CTX_ON_STACK(prf_state);
+	// Initialize the sampling context.
+	sampling_ctx ctx;
+	LC_SHAKE_256_CTX_ON_STACK(prf_state);
 
-  sampling_ctx_init(&ctx);
+	sampling_ctx_init(&ctx);
 
-  lc_hash_init(prf_state);
-  lc_hash_update(prf_state, seed->raw, sizeof(*seed));
+	lc_hash_init(prf_state);
+	lc_hash_update(prf_state, seed->raw, sizeof(*seed));
 
-  idx_t wlist[LC_BIKE_T];
+	idx_t wlist[LC_BIKE_T];
 #if defined(UNIFORM_SAMPLING)
-  ctx.sample_error_vec_indices(wlist, prf_state);
+	ctx.sample_error_vec_indices(wlist, prf_state);
 #else
-  sample_indices_fisher_yates(wlist, LC_BIKE_T, LC_BIKE_N_BITS, prf_state);
+	sample_indices_fisher_yates(wlist, LC_BIKE_T, LC_BIKE_N_BITS,
+				    prf_state);
 #endif
 
-  // (e0, e1) hold bits 0..R_BITS-1 and R_BITS..2*R_BITS-1 of the error, resp.
-  ctx.secure_set_bits(&e->val[0], 0, wlist, LC_BIKE_T);
-  ctx.secure_set_bits(&e->val[1], LC_BIKE_R_BITS, wlist, LC_BIKE_T);
+	// (e0, e1) hold bits 0..R_BITS-1 and R_BITS..2*R_BITS-1 of the error, resp.
+	ctx.secure_set_bits(&e->val[0], 0, wlist, LC_BIKE_T);
+	ctx.secure_set_bits(&e->val[1], LC_BIKE_R_BITS, wlist, LC_BIKE_T);
 
-  // Clean the padding of the elements.
-  PE0_RAW(e)[LC_BIKE_R_BYTES - 1] &= LC_BIKE_LAST_R_BYTE_MASK;
-  PE1_RAW(e)[LC_BIKE_R_BYTES - 1] &= LC_BIKE_LAST_R_BYTE_MASK;
-  memset(&PE0_RAW(e)[LC_BIKE_R_BYTES], 0, LC_BIKE_R_PADDED_BYTES - LC_BIKE_R_BYTES);
-  memset(&PE1_RAW(e)[LC_BIKE_R_BYTES], 0, LC_BIKE_R_PADDED_BYTES - LC_BIKE_R_BYTES);
+	// Clean the padding of the elements.
+	PE0_RAW(e)[LC_BIKE_R_BYTES - 1] &= LC_BIKE_LAST_R_BYTE_MASK;
+	PE1_RAW(e)[LC_BIKE_R_BYTES - 1] &= LC_BIKE_LAST_R_BYTE_MASK;
+	memset(&PE0_RAW(e)[LC_BIKE_R_BYTES], 0,
+	       LC_BIKE_R_PADDED_BYTES - LC_BIKE_R_BYTES);
+	memset(&PE1_RAW(e)[LC_BIKE_R_BYTES], 0,
+	       LC_BIKE_R_PADDED_BYTES - LC_BIKE_R_BYTES);
 
-  lc_hash_zero(prf_state);
-  lc_memset_secure((uint8_t *)wlist, 0, sizeof(*wlist));
+	lc_hash_zero(prf_state);
+	lc_memset_secure((uint8_t *)wlist, 0, sizeof(*wlist));
 }

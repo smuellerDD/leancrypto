@@ -38,11 +38,6 @@ static int bike_tester_one(const struct lc_bike_testvector *vector)
 	int ret, rc = 0;
 	LC_STATIC_DRNG_ON_STACK(sdrng, &static_data);
 
-	//memcpy(&pk, vector->pk, sizeof(pk));
-	//memcpy(&sk, vector->sk, sizeof(sk));
-	//memcpy(&ct, vector->ct, sizeof(ct));
-	//memcpy(&ss, vector->ss, sizeof(ss));
-
 	CKINT(lc_bike_keypair(&pk, &sk, &sdrng));
 
 	rc += lc_compare((uint8_t *)&pk, vector->pk, sizeof(pk), "BIKE PK");
@@ -53,7 +48,8 @@ static int bike_tester_one(const struct lc_bike_testvector *vector)
 	rc += lc_compare((uint8_t *)&ss, vector->ss, sizeof(ss), "BIKE Enc SS");
 
 	CKINT(lc_bike_dec(&ss2, &ct, &sk));
-	rc += lc_compare((uint8_t *)&ss2, vector->ss, sizeof(ss2), "BIKE Dec SS");
+	rc += lc_compare((uint8_t *)&ss2, vector->ss, sizeof(ss2),
+			 "BIKE Dec SS");
 
 out:
 	return ret ? ret : rc;

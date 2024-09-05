@@ -49,22 +49,22 @@
 // Input argument l_param is defined as the value (2^-k) % r.
 void k_sqr_port(pad_r_t *c, const pad_r_t *a, const size_t l_param)
 {
-  memset(c->val.raw, 0, sizeof(c->val));
+	memset(c->val.raw, 0, sizeof(c->val));
 
-  // Compute the result byte by byte
-  size_t idx = 0;
-  for(size_t i = 0; i < LC_BIKE_R_BYTES; i++) {
-    for(size_t j = 0; j < BITS_IN_BYTE; j++, idx++) {
-      // Bit of "c" at position idx is set to the value of
-      // the bit of "a" at position pi1(idx) = (l_param * idx) % R_BITS.
-      size_t pos = (l_param * idx) % LC_BIKE_R_BITS;
+	// Compute the result byte by byte
+	size_t idx = 0;
+	for (size_t i = 0; i < LC_BIKE_R_BYTES; i++) {
+		for (size_t j = 0; j < BITS_IN_BYTE; j++, idx++) {
+			// Bit of "c" at position idx is set to the value of
+			// the bit of "a" at position pi1(idx) = (l_param * idx) % R_BITS.
+			size_t pos = (l_param * idx) % LC_BIKE_R_BITS;
 
-      size_t  pos_byte = pos >> 3;
-      size_t  pos_bit  = pos & 7;
-      uint8_t bit      = (a->val.raw[pos_byte] >> pos_bit) & 1;
+			size_t pos_byte = pos >> 3;
+			size_t pos_bit = pos & 7;
+			uint8_t bit = (a->val.raw[pos_byte] >> pos_bit) & 1;
 
-      c->val.raw[i] |= (bit << j);
-    }
-  }
-  c->val.raw[LC_BIKE_R_BYTES - 1] &= LC_BIKE_LAST_R_BYTE_MASK;
+			c->val.raw[i] |= (bit << j);
+		}
+	}
+	c->val.raw[LC_BIKE_R_BYTES - 1] &= LC_BIKE_LAST_R_BYTE_MASK;
 }

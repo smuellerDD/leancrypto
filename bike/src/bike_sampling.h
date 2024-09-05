@@ -36,15 +36,13 @@
 extern "C" {
 #endif
 
-typedef enum
-{
-  LC_BIKE_NO_RESTRICTION = 0,
-  LC_BIKE_MUST_BE_ODD    = 1
+typedef enum {
+	LC_BIKE_NO_RESTRICTION = 0,
+	LC_BIKE_MUST_BE_ODD = 1
 } must_be_odd_t;
 
-void generate_secret_key(pad_r_t *h0, pad_r_t *h1,
-                          idx_t *h0_wlist, idx_t *h1_wlist,
-                          const seed_t *seed);
+void generate_secret_key(pad_r_t *h0, pad_r_t *h1, idx_t *h0_wlist,
+			 idx_t *h1_wlist, const seed_t *seed);
 
 void generate_error_vector(pad_e_t *e, const seed_t *seed);
 

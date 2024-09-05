@@ -39,10 +39,10 @@ extern "C" {
 #endif
 
 typedef struct shake256_prf_state_s {
-  uint64_t s[25];
-  uint8_t  buffer[LC_SHAKE_256_SIZE_BLOCK];
-  size_t   curr_pos_in_buffer;
-  size_t   rem_invocations;
+	uint64_t s[25];
+	uint8_t buffer[LC_SHAKE_256_SIZE_BLOCK];
+	size_t curr_pos_in_buffer;
+	size_t rem_invocations;
 } shake256_prf_state_t;
 
 typedef shake256_prf_state_t prf_state_t;
@@ -51,7 +51,7 @@ typedef shake256_prf_state_t prf_state_t;
 
 // Methods for interacting with the PRFs.
 ret_t init_prf_state(prf_state_t *s, size_t max_num_invocations,
-                     const seed_t *seed);
+		     const seed_t *seed);
 
 ret_t get_prf_output(uint8_t *out, prf_state_t *s, size_t len);
 

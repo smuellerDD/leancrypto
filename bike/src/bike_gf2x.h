@@ -37,16 +37,15 @@ extern "C" {
 #endif
 
 // c = a+b mod (x^r - 1)
-static inline void
-gf2x_mod_add(pad_r_t *c, const pad_r_t *a, const pad_r_t *b)
+static inline void gf2x_mod_add(pad_r_t *c, const pad_r_t *a, const pad_r_t *b)
 {
-  const uint64_t *a_qwords = (const uint64_t *)a;
-  const uint64_t *b_qwords = (const uint64_t *)b;
-  uint64_t *      c_qwords = (uint64_t *)c;
-  unsigned int i;
+	const uint64_t *a_qwords = (const uint64_t *)a;
+	const uint64_t *b_qwords = (const uint64_t *)b;
+	uint64_t *c_qwords = (uint64_t *)c;
+	unsigned int i;
 
-  for (i = 0; i < LC_BIKE_R_PADDED_QWORDS; i++)
-    c_qwords[i] = a_qwords[i] ^ b_qwords[i];
+	for (i = 0; i < LC_BIKE_R_PADDED_QWORDS; i++)
+		c_qwords[i] = a_qwords[i] ^ b_qwords[i];
 }
 
 // c = a*b mod (x^r - 1)

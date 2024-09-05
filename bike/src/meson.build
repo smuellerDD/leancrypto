@@ -1,5 +1,5 @@
 # for i in $(ls *.c | sort); do echo "'$i',"; done
-src += files([
+bike_c = files([
 	'bike_decode.c',
 	'bike_decode_portable.c',
 	'bike_gf2x_inv.c',
@@ -12,4 +12,9 @@ src += files([
 	'bike_sampling_portable.c',
 ])
 
-include_files += files([ '../api/lc_bike.h' ])
+if get_option('bike').enabled()
+	include_files += files([ '../api/lc_bike.h' ])
+
+	src += bike_c
+endif
+

@@ -108,6 +108,12 @@ has 128 bits of security strength.
 option('kyber_x25519', type: 'feature', value: 'enabled',
        description: 'Kyber-X25519 KEM')
 
+option('bike', type: 'feature', value: 'enabled',
+       description: '''BIKE Support
+
+Per default, BIKE is enabled and accessible with the regular API.
+''')
+
 option('aes_block', type: 'feature', value: 'enabled',
        description: 'AES block cipher support (encryption of one block)')
 option('aes_ecb', type: 'feature', value: 'disabled',

@@ -38,27 +38,24 @@
 #include "lc_memset_secure.h"
 
 // a = a^2 mod (x^r - 1)
-static inline void gf2x_mod_sqr_in_place(pad_r_t *a,
-                                    dbl_pad_r_t *secure_buffer,
-                                    const gf2x_ctx *ctx)
+static inline void gf2x_mod_sqr_in_place(pad_r_t *a, dbl_pad_r_t *secure_buffer,
+					 const gf2x_ctx *ctx)
 {
-  ctx->sqr(secure_buffer, a);
-  ctx->red(a, secure_buffer);
+	ctx->sqr(secure_buffer, a);
+	ctx->red(a, secure_buffer);
 }
 
 // c = a^2^2^num_sqrs
-static inline void repeated_squaring(pad_r_t *c,
-                                pad_r_t *    a,
-                                const size_t num_sqrs,
-                                dbl_pad_r_t *sec_buf,
-                                const gf2x_ctx *ctx)
+static inline void repeated_squaring(pad_r_t *c, pad_r_t *a,
+				     const size_t num_sqrs,
+				     dbl_pad_r_t *sec_buf, const gf2x_ctx *ctx)
 {
 	size_t i;
 
-  c->val = a->val;
+	c->val = a->val;
 
-  for (i = 0; i < num_sqrs; i++)
-    gf2x_mod_sqr_in_place(c, sec_buf, ctx);
+	for (i = 0; i < num_sqrs; i++)
+		gf2x_mod_sqr_in_place(c, sec_buf, ctx);
 }
 
 // The gf2x_mod_inv function implements inversion in F_2[x]/(x^R - 1)
@@ -99,41 +96,44 @@ static inline void repeated_squaring(pad_r_t *c,
 static_assert(LC_BIKE_R_BITS == 12323);
 
 // MAX_I = floor(log(r-2)) + 1
-#  define MAX_I (14)
-#  define EXP0_K_VALS \
-     1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192
-#  define EXP0_L_VALS \
-     6162, 3081, 3851, 5632, 22, 484, 119, 1838, 1742, 3106, 10650, 1608, 10157, 8816
-#  define EXP1_K_VALS 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 33, 4129
-#  define EXP1_L_VALS 0, 0, 0, 0, 0, 6162, 0, 0, 0, 0, 0, 0, 242, 5717
+#define MAX_I (14)
+#define EXP0_K_VALS                                                            \
+	1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192
+#define EXP0_L_VALS                                                            \
+	6162, 3081, 3851, 5632, 22, 484, 119, 1838, 1742, 3106, 10650, 1608,   \
+		10157, 8816
+#define EXP1_K_VALS 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 33, 4129
+#define EXP1_L_VALS 0, 0, 0, 0, 0, 6162, 0, 0, 0, 0, 0, 0, 242, 5717
 
 #elif (LC_BIKE_LEVEL == 3)
 // The parameters below are hard-coded for R=24659
 static_assert(LC_BIKE_R_BITS == 24659);
 
 // MAX_I = floor(log(r-2)) + 1
-#  define MAX_I (15)
-#  define EXP0_K_VALS \
-     1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384
-#  define EXP0_L_VALS                                                           \
-     12330, 6165, 7706, 3564, 2711, 1139, 15053, 1258, 4388, 20524, 9538, 6393, \
-     10486, 1715, 6804
-#  define EXP1_K_VALS 0, 0, 0, 0, 1, 0, 17, 0, 0, 0, 0, 0, 0, 81, 8273
-#  define EXP1_L_VALS 0, 0, 0, 0, 12330, 0, 13685, 0, 0, 0, 0, 0, 0, 23678, 19056
+#define MAX_I (15)
+#define EXP0_K_VALS                                                            \
+	1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384
+#define EXP0_L_VALS                                                            \
+	12330, 6165, 7706, 3564, 2711, 1139, 15053, 1258, 4388, 20524, 9538,   \
+		6393, 10486, 1715, 6804
+#define EXP1_K_VALS 0, 0, 0, 0, 1, 0, 17, 0, 0, 0, 0, 0, 0, 81, 8273
+#define EXP1_L_VALS 0, 0, 0, 0, 12330, 0, 13685, 0, 0, 0, 0, 0, 0, 23678, 19056
 
 #else
 // The parameters below are hard-coded for R=40973
 static_assert(LC_BIKE_R_BITS == 40973);
 
 // MAX_I = floor(log(r-2)) + 1
-#  define MAX_I (16)
-#  define EXP0_K_VALS \
-     1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768
-#  define EXP0_L_VALS                                                         \
-     20487, 30730, 28169, 9443, 13001, 12376, 8302, 6618, 38760, 21582, 1660, \
-     10409, 14669, 30338, 17745, 7520
-#  define EXP1_K_VALS 0, 1, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 8203
-#  define EXP1_L_VALS 0, 20487, 0, 15365, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6302, 0, 10058
+#define MAX_I (16)
+#define EXP0_K_VALS                                                            \
+	1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384,  \
+		32768
+#define EXP0_L_VALS                                                            \
+	20487, 30730, 28169, 9443, 13001, 12376, 8302, 6618, 38760, 21582,     \
+		1660, 10409, 14669, 30338, 17745, 7520
+#define EXP1_K_VALS 0, 1, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 8203
+#define EXP1_L_VALS                                                            \
+	0, 20487, 0, 15365, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6302, 0, 10058
 
 #endif
 
@@ -141,60 +141,62 @@ static_assert(LC_BIKE_R_BITS == 40973);
 // c = a^{-1} mod x^r-1
 void gf2x_mod_inv(pad_r_t *c, const pad_r_t *a)
 {
-  // Initialize gf2x methods struct
-  gf2x_ctx ctx;
-  gf2x_ctx_init(&ctx);
+	// Initialize gf2x methods struct
+	gf2x_ctx ctx;
+	gf2x_ctx_init(&ctx);
 
-  // Note that exp0/1_k/l are predefined constants that depend only on the value
-  // of R. This value is public. Therefore, branches in this function, which
-  // depends on R, are also "public". Code that releases these branches
-  // (taken/not-taken) does not leak secret information.
-  const size_t exp0_k[MAX_I] = {EXP0_K_VALS};
-  const size_t exp0_l[MAX_I] = {EXP0_L_VALS};
-  const size_t exp1_k[MAX_I] = {EXP1_K_VALS};
-  const size_t exp1_l[MAX_I] = {EXP1_L_VALS};
+	// Note that exp0/1_k/l are predefined constants that depend only on the value
+	// of R. This value is public. Therefore, branches in this function, which
+	// depends on R, are also "public". Code that releases these branches
+	// (taken/not-taken) does not leak secret information.
+	const size_t exp0_k[MAX_I] = { EXP0_K_VALS };
+	const size_t exp0_l[MAX_I] = { EXP0_L_VALS };
+	const size_t exp1_k[MAX_I] = { EXP1_K_VALS };
+	const size_t exp1_l[MAX_I] = { EXP1_L_VALS };
 
-  pad_r_t f = {0};
-  pad_r_t g = {0};
-  pad_r_t t = {0};
-  dbl_pad_r_t sec_buf = {0};
+	pad_r_t f = { 0 };
+	pad_r_t g = { 0 };
+	pad_r_t t = { 0 };
+	dbl_pad_r_t sec_buf = { 0 };
 
-  unsigned int i;
+	unsigned int i;
 
-  // Steps 2 and 3 in [1](Algorithm 2)
-  f.val = a->val;
-  t.val = a->val;
+	// Steps 2 and 3 in [1](Algorithm 2)
+	f.val = a->val;
+	t.val = a->val;
 
-  for (i = 1; i < MAX_I; i++) {
-    // Step 5 in [1](Algorithm 2), exponentiation 0: g = f^2^2^(i-1)
-    if (exp0_k[i - 1] <= K_SQR_THR) {
-      repeated_squaring(&g, &f, exp0_k[i - 1], &sec_buf, &ctx);
-    } else {
-      ctx.k_sqr(&g, &f, exp0_l[i - 1]);
-    }
+	for (i = 1; i < MAX_I; i++) {
+		// Step 5 in [1](Algorithm 2), exponentiation 0: g = f^2^2^(i-1)
+		if (exp0_k[i - 1] <= K_SQR_THR) {
+			repeated_squaring(&g, &f, exp0_k[i - 1], &sec_buf,
+					  &ctx);
+		} else {
+			ctx.k_sqr(&g, &f, exp0_l[i - 1]);
+		}
 
-    // Step 6, [1](Algorithm 2): f = f*g
-    gf2x_mod_mul_with_ctx(&f, &g, &f, &ctx);
+		// Step 6, [1](Algorithm 2): f = f*g
+		gf2x_mod_mul_with_ctx(&f, &g, &f, &ctx);
 
-    if(exp1_k[i] != 0) {
-      // Step 8, [1](Algorithm 2), exponentiation 1: g = f^2^((r-2) % 2^i)
-      if(exp1_k[i] <= K_SQR_THR) {
-        repeated_squaring(&g, &f, exp1_k[i], &sec_buf, &ctx);
-      } else {
-        ctx.k_sqr(&g, &f, exp1_l[i]);
-      }
+		if (exp1_k[i] != 0) {
+			// Step 8, [1](Algorithm 2), exponentiation 1: g = f^2^((r-2) % 2^i)
+			if (exp1_k[i] <= K_SQR_THR) {
+				repeated_squaring(&g, &f, exp1_k[i], &sec_buf,
+						  &ctx);
+			} else {
+				ctx.k_sqr(&g, &f, exp1_l[i]);
+			}
 
-      // Step 9, [1](Algorithm 2): t = t*g;
-      gf2x_mod_mul_with_ctx(&t, &g, &t, &ctx);
-    }
-  }
+			// Step 9, [1](Algorithm 2): t = t*g;
+			gf2x_mod_mul_with_ctx(&t, &g, &t, &ctx);
+		}
+	}
 
-  // Step 10, [1](Algorithm 2): c = t^2
-  gf2x_mod_sqr_in_place(&t, &sec_buf, &ctx);
-  c->val = t.val;
+	// Step 10, [1](Algorithm 2): c = t^2
+	gf2x_mod_sqr_in_place(&t, &sec_buf, &ctx);
+	c->val = t.val;
 
-  lc_memset_secure(&f, 0, sizeof(f));
-  lc_memset_secure(&g, 0, sizeof(g));
-  lc_memset_secure(&t, 0, sizeof(t));
-  lc_memset_secure(&sec_buf, 0, sizeof(sec_buf));
+	lc_memset_secure(&f, 0, sizeof(f));
+	lc_memset_secure(&g, 0, sizeof(g));
+	lc_memset_secure(&t, 0, sizeof(t));
+	lc_memset_secure(&sec_buf, 0, sizeof(sec_buf));
 }

@@ -293,6 +293,11 @@ if (get_option('sha3').disabled() and
 	error('Kyber support requires SHA-3')
 endif
 
+if (get_option('sha3').disabled() and
+    get_option('bike').enabled())
+	error('BIKE support requires SHA-3')
+endif
+
 if ((get_option('dilithium_ed25519').enabled() or
      get_option('kyber_x25519').enabled()) and
      get_option('sha2-512').disabled())

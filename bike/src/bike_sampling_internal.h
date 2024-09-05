@@ -45,68 +45,57 @@ extern "C" {
 // Value used to denote an invalid index for ther error vector.
 #define IDX_INVALID_VAL (0xffffffff)
 
-void secure_set_bits_port(pad_r_t *r,
-                          size_t    first_pos,
-                          const idx_t *wlist,
-                          size_t       w_size);
+void secure_set_bits_port(pad_r_t *r, size_t first_pos, const idx_t *wlist,
+			  size_t w_size);
 
 #if defined(UNIFORM_SAMPLING)
-void sample_error_vec_indices_port(idx_t *out,
-                                    struct lc_hash_ctx *prf_state);
+void sample_error_vec_indices_port(idx_t *out, struct lc_hash_ctx *prf_state);
 #endif
 
 #if defined(X86_64)
-void secure_set_bits_avx2(pad_r_t *r,
-                          size_t    first_pos,
-                          const idx_t *wlist,
-                          size_t       w_size);
+void secure_set_bits_avx2(pad_r_t *r, size_t first_pos, const idx_t *wlist,
+			  size_t w_size);
 
-void secure_set_bits_avx512(pad_r_t *r,
-                            size_t    first_pos,
-                            const idx_t *wlist,
-                            size_t       w_size);
+void secure_set_bits_avx512(pad_r_t *r, size_t first_pos, const idx_t *wlist,
+			    size_t w_size);
 
 #if defined(UNIFORM_SAMPLING)
-void sample_error_vec_indices_avx2(idx_t *out,
-                                    struct lc_hash_ctx *prf_state);
-void sample_error_vec_indices_avx512(idx_t *out,
-                                      struct lc_hash_ctx *prf_state);
+void sample_error_vec_indices_avx2(idx_t *out, struct lc_hash_ctx *prf_state);
+void sample_error_vec_indices_avx512(idx_t *out, struct lc_hash_ctx *prf_state);
 #endif
 #endif
 
 typedef struct sampling_ctx_st {
-  void (*secure_set_bits)(pad_r_t *r,
-                          size_t    first_pos,
-                          const idx_t *wlist,
-                          size_t       w_size);
+	void (*secure_set_bits)(pad_r_t *r, size_t first_pos,
+				const idx_t *wlist, size_t w_size);
 
 #if defined(UNIFORM_SAMPLING)
-  void (*sample_error_vec_indices)(idx_t *out,
-                                    struct lc_hash_ctx *prf_state);
+	void (*sample_error_vec_indices)(idx_t *out,
+					 struct lc_hash_ctx *prf_state);
 #endif
 } sampling_ctx;
 
 static inline void sampling_ctx_init(sampling_ctx *ctx)
 {
 #if defined(X86_64)
-  if(is_avx512_enabled()) {
-    ctx->secure_set_bits = secure_set_bits_avx512;
+	if (is_avx512_enabled()) {
+		ctx->secure_set_bits = secure_set_bits_avx512;
 #if defined(UNIFORM_SAMPLING)
-    ctx->sample_error_vec_indices = sample_error_vec_indices_avx512;
+		ctx->sample_error_vec_indices = sample_error_vec_indices_avx512;
 #endif
-  } else if(is_avx2_enabled()) {
-    ctx->secure_set_bits = secure_set_bits_avx2;
+	} else if (is_avx2_enabled()) {
+		ctx->secure_set_bits = secure_set_bits_avx2;
 #if defined(UNIFORM_SAMPLING)
-    ctx->sample_error_vec_indices = sample_error_vec_indices_avx2;
+		ctx->sample_error_vec_indices = sample_error_vec_indices_avx2;
 #endif
-  } else
+	} else
 #endif
-  {
-    ctx->secure_set_bits = secure_set_bits_port;
+	{
+		ctx->secure_set_bits = secure_set_bits_port;
 #if defined(UNIFORM_SAMPLING)
-    ctx->sample_error_vec_indices = sample_error_vec_indices_port;
+		ctx->sample_error_vec_indices = sample_error_vec_indices_port;
 #endif
-  }
+	}
 }
 
 #ifdef __cplusplus
