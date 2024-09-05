@@ -15,6 +15,17 @@ if (host_machine.system() != 'windows') and get_option('apps').enabled()
 				install: true,
 				install_dir: get_option('libexecdir') / meson.project_name()
 				)
+
+		sha384sum_files = shasum_files_common
+		sha384sum_files += files([ 'sha384sum.c' ])
+
+		sha384sum = executable('sha384sum',
+				[ sha384sum_files ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto,
+				install: true,
+				install_dir: get_option('libexecdir') / meson.project_name()
+				)
 	endif
 
 	if get_option('sha2-256').enabled()

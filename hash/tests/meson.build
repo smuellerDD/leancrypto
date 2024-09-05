@@ -13,12 +13,19 @@ else
 endif
 
 if get_option('sha2-512').enabled()
+	sha384_tester = executable('sha384_tester',
+				   [ 'sha384_tester.c', internal_src ],
+				   include_directories: [ include_internal_dirs ],
+				   dependencies: leancrypto
+				   )
+
 	sha512_tester = executable('sha512_tester',
 				   [ 'sha512_tester.c', internal_src ],
 				   include_directories: [ include_internal_dirs ],
 				   dependencies: leancrypto
 				   )
 
+	test('Hash SHA384', sha384_tester, suite: regression)
 	test('Hash SHA512', sha512_tester, suite: regression)
 else
 	hasher = 0

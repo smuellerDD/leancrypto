@@ -141,6 +141,7 @@ done
 %files -n %{name}-tools
 %{_libexecdir}/%{name}
 %{_libexecdir}/%{name}/sha256sum
+%{_libexecdir}/%{name}/sha384sum
 %{_libexecdir}/%{name}/sha512sum
 %{_libexecdir}/%{name}/sha3-256sum
 %{_libexecdir}/%{name}/sha3-384sum
