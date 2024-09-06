@@ -31,6 +31,7 @@
 #define BIKE_SAMPLING_INTERNAL_H
 
 #include "bike_internal.h"
+#include "cpufeatures.h"
 #include "lc_hash.h"
 
 #ifdef __cplusplus
@@ -48,10 +49,10 @@ void sample_error_vec_indices_port(idx_t *out, struct lc_hash_ctx *prf_state);
 #endif
 
 #if defined(X86_64)
-void secure_set_bits_avx2(pad_r_t *r, size_t first_pos, const idx_t *wlist,
+void secure_set_bits_avx2(pad_r_t *r, uint32_t first_pos, const idx_t *wlist,
 			  uint32_t w_size);
 
-void secure_set_bits_avx512(pad_r_t *r, size_t first_pos, const idx_t *wlist,
+void secure_set_bits_avx512(pad_r_t *r, uint32_t first_pos, const idx_t *wlist,
 			    uint32_t w_size);
 
 #if defined(UNIFORM_SAMPLING)
@@ -73,12 +74,14 @@ typedef struct sampling_ctx_st {
 static inline void sampling_ctx_init(sampling_ctx *ctx)
 {
 #if defined(X86_64)
-	if (is_avx512_enabled()) {
+	enum lc_cpu_features feat = lc_cpu_feature_available();
+
+	if (feat & LC_CPU_FEATURE_INTEL_AVX512) {
 		ctx->secure_set_bits = secure_set_bits_avx512;
 #if defined(UNIFORM_SAMPLING)
 		ctx->sample_error_vec_indices = sample_error_vec_indices_avx512;
 #endif
-	} else if (is_avx2_enabled()) {
+	} else if (feat & LC_CPU_FEATURE_INTEL_AVX2) {
 		ctx->secure_set_bits = secure_set_bits_avx2;
 #if defined(UNIFORM_SAMPLING)
 		ctx->sample_error_vec_indices = sample_error_vec_indices_avx2;

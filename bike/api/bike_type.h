@@ -96,6 +96,31 @@ extern "C" {
 #define generate_error_vector BIKE_F(generate_error_vector)
 #define secure_set_bits_port BIKE_F(secure_set_bits_port)
 
+#define secure_set_bits_avx2 BIKE_F(secure_set_bits_avx2)
+#define secure_set_bits_avx512 BIKE_F(secure_set_bits_avx512)
+#define rotate_right_avx2 BIKE_F(rotate_right_avx2)
+#define dup_avx2 BIKE_F(dup_avx2)
+#define bit_sliced_adder_avx2 BIKE_F(bit_sliced_adder_avx2)
+#define bit_slice_full_subtract_avx2 BIKE_F(bit_slice_full_subtract_avx2)
+#define rotate_right_avx512 BIKE_F(rotate_right_avx512)
+#define dup_avx512 BIKE_F(dup_avx512)
+#define bit_sliced_adder_avx512 BIKE_F(bit_sliced_adder_avx512)
+#define bit_slice_full_subtract_avx512 BIKE_F(bit_slice_full_subtract_avx512)
+#define k_sqr_avx2 BIKE_F(k_sqr_avx2)
+#define k_sqr_avx512 BIKE_F(k_sqr_avx512)
+#define karatzuba_add1_avx2 BIKE_F(karatzuba_add1_avx2)
+#define karatzuba_add2_avx2 BIKE_F(karatzuba_add2_avx2)
+#define karatzuba_add3_avx2 BIKE_F(karatzuba_add3_avx2)
+#define gf2x_red_avx2 BIKE_F(gf2x_red_avx2)
+#define karatzuba_add1_avx512 BIKE_F(karatzuba_add1_avx512)
+#define karatzuba_add2_avx512 BIKE_F(karatzuba_add2_avx512)
+#define karatzuba_add3_avx512 BIKE_F(karatzuba_add3_avx512)
+#define gf2x_red_avx512 BIKE_F(gf2x_red_avx512)
+#define gf2x_mul_base_pclmul BIKE_F(gf2x_mul_base_pclmul)
+#define gf2x_sqr_pclmul BIKE_F(gf2x_sqr_pclmul)
+#define gf2x_mul_base_vpclmul BIKE_F(gf2x_mul_base_vpclmul)
+#define gf2x_sqr_vpclmul BIKE_F(gf2x_sqr_vpclmul)
+
 #ifdef __cplusplus
 }
 #endif

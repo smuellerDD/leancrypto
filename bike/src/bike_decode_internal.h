@@ -31,6 +31,7 @@
 #define BIKE_DECODE_INTERNAL_H
 
 #include "bike_internal.h"
+#include "cpufeatures.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -78,12 +79,14 @@ typedef struct decode_ctx_st {
 static inline void decode_ctx_init(decode_ctx *ctx)
 {
 #if defined(X86_64)
-	if (is_avx512_enabled()) {
+	enum lc_cpu_features feat = lc_cpu_feature_available();
+
+	if (feat & LC_CPU_FEATURE_INTEL_AVX512) {
 		ctx->rotate_right = rotate_right_avx512;
 		ctx->dup = dup_avx512;
 		ctx->bit_sliced_adder = bit_sliced_adder_avx512;
 		ctx->bit_slice_full_subtract = bit_slice_full_subtract_avx512;
-	} else if (is_avx2_enabled()) {
+	} else if (feat & LC_CPU_FEATURE_INTEL_AVX2) {
 		ctx->rotate_right = rotate_right_avx2;
 		ctx->dup = dup_avx2;
 		ctx->bit_sliced_adder = bit_sliced_adder_avx2;

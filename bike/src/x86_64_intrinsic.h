@@ -36,9 +36,7 @@
 #ifndef X86_64_INTRINSICS_H
 #define X86_64_INTRINSICS_H
 
-#if defined(X86_64)
-#include <immintrin.h>
-#endif
+#include "ext_headers_x86.h"
 
 #ifdef __cplusplus
 extern "C" {

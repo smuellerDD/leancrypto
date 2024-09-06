@@ -34,6 +34,19 @@ extern "C" {
 #define LC_BIKE_BYTES_IN_YMM 0x20
 #define LC_BIKE_BYTES_IN_ZMM 0x40
 
+#define LC_BIKE_BITS_IN_YMM (LC_BIKE_BYTES_IN_YMM * 8)
+#define LC_BIKE_BITS_IN_ZMM (LC_BIKE_BYTES_IN_ZMM * 8)
+
+#define LC_BIKE_WORDS_IN_YMM (LC_BIKE_BYTES_IN_YMM / sizeof(uint16_t))
+#define LC_BIKE_WORDS_IN_ZMM (LC_BIKE_BYTES_IN_ZMM / sizeof(uint16_t))
+
+#define LC_BIKE_DWORDS_IN_YMM (LC_BIKE_BYTES_IN_YMM / sizeof(uint32_t))
+#define LC_BIKE_DWORDS_IN_ZMM (LC_BIKE_BYTES_IN_ZMM / sizeof(uint32_t))
+
+#define LC_BIKE_QWORDS_IN_XMM (LC_BIKE_BYTES_IN_XMM / sizeof(uint64_t))
+#define LC_BIKE_QWORDS_IN_YMM (LC_BIKE_BYTES_IN_YMM / sizeof(uint64_t))
+#define LC_BIKE_QWORDS_IN_ZMM (LC_BIKE_BYTES_IN_ZMM / sizeof(uint64_t))
+
 // Copied from (Kaz answer)
 // https://stackoverflow.com/questions/466204/rounding-up-to-next-power-of-2
 #define LC_BIKE_UPTOPOW2_0(v) ((v) - 1)

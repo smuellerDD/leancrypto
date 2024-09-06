@@ -39,6 +39,8 @@
 /* Leaf 7, subleaf 0 of CPUID */
 #define LC_INTEL_AVX2_EBX (1 << 5)
 #define LC_INTEL_AVX512F_EBX (1 << 16)
+#define LC_INTEL_VPCLMUL_ECX (1 << 10)
+#define LC_INTEL_PCLMUL_ECX (1 << 1)
 
 /* This is required by aes_aesni_x86_64.S */
 unsigned int lc_x86_64_cpuid[4] __attribute__((used));
@@ -64,6 +66,13 @@ LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 	/* Read the maximum leaf */
 	cpuid_eax(0, eax, ebx, ecx, edx);
 
+	if (eax >= 1) {
+		cpuid_eax_ecx(1, 0, eax, ebx, ecx, edx);
+
+		if (ecx & LC_INTEL_PCLMUL_ECX)
+			feat |= LC_CPU_FEATURE_INTEL_PCLMUL;
+	}
+
 	/* Only make call if the leaf is present */
 	if (eax < 7)
 		return feat;
@@ -75,6 +84,9 @@ LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 
 	if (ebx & LC_INTEL_AVX512F_EBX)
 		feat |= LC_CPU_FEATURE_INTEL_AVX512;
+
+	if (ecx & LC_INTEL_VPCLMUL_ECX)
+		feat |= LC_CPU_FEATURE_INTEL_VPCLMUL;
 
 	return feat;
 }

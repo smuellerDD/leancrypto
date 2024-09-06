@@ -20,7 +20,6 @@
  * This code is derived in parts from the code distribution provided with
  * https://github.com/awslabs/bike-kem
  *
- *
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: Apache-2.0"
  *

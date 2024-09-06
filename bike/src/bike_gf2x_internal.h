@@ -31,6 +31,7 @@
 #define BIKE_GF2X_INTERNAL_H
 
 #include "bike_internal.h"
+#include "cpufeatures.h"
 #include "ext_headers.h"
 
 #ifdef __cplusplus
@@ -124,13 +125,15 @@ void gf2x_mod_mul_with_ctx(pad_r_t *c, const pad_r_t *a, const pad_r_t *b,
 static inline void gf2x_ctx_init(gf2x_ctx *ctx)
 {
 #if defined(X86_64)
-	if (is_avx512_enabled()) {
+	enum lc_cpu_features feat = lc_cpu_feature_available();
+
+	if (feat & LC_CPU_FEATURE_INTEL_AVX512) {
 		ctx->karatzuba_add1 = karatzuba_add1_avx512;
 		ctx->karatzuba_add2 = karatzuba_add2_avx512;
 		ctx->karatzuba_add3 = karatzuba_add3_avx512;
 		ctx->k_sqr = k_sqr_avx512;
 		ctx->red = gf2x_red_avx512;
-	} else if (is_avx2_enabled()) {
+	} else if (feat & LC_CPU_FEATURE_INTEL_AVX2) {
 		ctx->karatzuba_add1 = karatzuba_add1_avx2;
 		ctx->karatzuba_add2 = karatzuba_add2_avx2;
 		ctx->karatzuba_add3 = karatzuba_add3_avx2;
@@ -147,11 +150,12 @@ static inline void gf2x_ctx_init(gf2x_ctx *ctx)
 	}
 
 #if defined(X86_64)
-	if (is_vpclmul_enabled() && is_avx512_enabled()) {
+	if ((feat & LC_CPU_FEATURE_INTEL_AVX512) &&
+	    (feat & LC_CPU_FEATURE_INTEL_VPCLMUL)) {
 		ctx->mul_base_qwords = GF2X_VPCLMUL_BASE_QWORDS;
 		ctx->mul_base = gf2x_mul_base_vpclmul;
 		ctx->sqr = gf2x_sqr_vpclmul;
-	} else if (is_pclmul_enabled()) {
+	} else if (feat & LC_CPU_FEATURE_INTEL_PCLMUL) {
 		ctx->mul_base_qwords = GF2X_PCLMUL_BASE_QWORDS;
 		ctx->mul_base = gf2x_mul_base_pclmul;
 		ctx->sqr = gf2x_sqr_pclmul;
