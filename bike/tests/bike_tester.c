@@ -17,7 +17,7 @@
  * DAMAGE.
  */
 
-#include "../src/bike_internal.h"
+#include "bike_internal.h"
 
 #if (LC_BIKE_LEVEL == 1)
 #include "bike_tester_vectors_l1.h"

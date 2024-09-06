@@ -1,6 +1,6 @@
-if get_option('kyber_1024').enabled()
-	include_kyber_internal = include_directories([ '../src' ])
+include_kyber_internal = include_directories([ '../src' ])
 
+if get_option('kyber_1024').enabled()
 	kyber_kex_tester = executable('kyber_kex_tester',
 				[ 'kyber_kex_tester.c', internal_src ],
 				include_directories: [

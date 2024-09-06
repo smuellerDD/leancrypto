@@ -1,9 +1,12 @@
+include_bike_internal = include_directories([ '../src' ])
+
 if get_option('bike_5').enabled()
 	bike_5_tester = executable('bike_5_tester',
 				[ 'bike_tester.c', internal_src ],
 				include_directories: [
 					include_dirs,
 					include_internal_dirs,
+					include_bike_internal
 				], link_with: leancrypto_static_lib
 				)
 
@@ -16,6 +19,7 @@ if get_option('bike_3').enabled()
 				include_directories: [
 					include_dirs,
 					include_internal_dirs,
+					include_bike_internal
 				], link_with: leancrypto_static_lib,
 				c_args : '-DLC_BIKE_TYPE_3'
 				)
@@ -29,6 +33,7 @@ if get_option('bike_1').enabled()
 				include_directories: [
 					include_dirs,
 					include_internal_dirs,
+					include_bike_internal
 				], link_with: leancrypto_static_lib,
 				c_args : '-DLC_BIKE_TYPE_1'
 				)
