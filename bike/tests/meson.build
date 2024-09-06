@@ -9,9 +9,22 @@ if get_option('bike_5').enabled()
 					include_bike_internal
 				], link_with: leancrypto_static_lib
 				)
+	bike_5_tester_perf = executable('bike_5_tester_perf',
+				[ 'bike_tester_perf.c', internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_bike_internal
+				], link_with: leancrypto_static_lib
+				)
 
 	test('BIKE 5 KEM Common', bike_5_tester, suite: regression)
 	test('BIKE 5 KEM C', bike_5_tester, args : [ 'c' ], suite: regression)
+
+	test('BIKE 5 KEM 200 Common', bike_5_tester_perf, timeout: 1000,
+	     is_parallel: false, suite: performance)
+	test('BIKE 5 KEM 200 C', bike_5_tester_perf, args : [ 'c' ], timeout: 1000,
+	     is_parallel: false, suite: performance)
 endif
 
 if get_option('bike_3').enabled()
@@ -24,9 +37,23 @@ if get_option('bike_3').enabled()
 				], link_with: leancrypto_static_lib,
 				c_args : '-DLC_BIKE_TYPE_3'
 				)
+	bike_3_tester_perf = executable('bike_3_tester_perf',
+				[ 'bike_tester_perf.c', internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_bike_internal
+				], link_with: leancrypto_static_lib,
+				c_args : '-DLC_BIKE_TYPE_3'
+				)
 
 	test('BIKE 3 KEM Common', bike_3_tester, suite: regression)
 	test('BIKE 3 KEM C', bike_3_tester, args : [ 'c' ], suite: regression)
+
+	test('BIKE 3 KEM 200 Common', bike_3_tester_perf, timeout: 1000,
+	     is_parallel: false, suite: performance)
+	test('BIKE 3 KEM 200 C', bike_3_tester_perf, args : [ 'c' ], timeout: 1000,
+	     is_parallel: false, suite: performance)
 endif
 
 if get_option('bike_1').enabled()
@@ -39,7 +66,21 @@ if get_option('bike_1').enabled()
 				], link_with: leancrypto_static_lib,
 				c_args : '-DLC_BIKE_TYPE_1'
 				)
+	bike_1_tester_perf = executable('bike_1_tester_perf',
+				[ 'bike_tester_perf.c', internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_bike_internal
+				], link_with: leancrypto_static_lib,
+				c_args : '-DLC_BIKE_TYPE_1'
+				)
 
 	test('BIKE 1 KEM Common', bike_1_tester, suite: regression)
 	test('BIKE 1 KEM C', bike_1_tester, args : [ 'c' ], suite: regression)
+
+	test('BIKE 1 KEM 200 Common', bike_1_tester_perf, timeout: 1000,
+	     is_parallel: false, suite: performance)
+	test('BIKE 1 KEM 200 C', bike_1_tester_perf, args : [ 'c' ], timeout: 1000,
+	     is_parallel: false, suite: performance)
 endif
