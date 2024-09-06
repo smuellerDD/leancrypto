@@ -31,10 +31,15 @@
 #define HWCAP_SHA3 (1 << 17)
 #define HWCAP_SHA512 (1 << 21)
 
+static enum lc_cpu_features features = LC_CPU_FEATURE_UNSET;
+
+void lc_cpu_feature_disable(void)
+{
+	features = LC_CPU_FEATURE_NONE;
+}
+
 LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 {
-	static enum lc_cpu_features features = LC_CPU_FEATURE_UNSET;
-
 	if (features == LC_CPU_FEATURE_UNSET) {
 		unsigned long c = getauxval(AT_HWCAP);
 

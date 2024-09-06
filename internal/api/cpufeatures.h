@@ -48,6 +48,7 @@ enum lc_cpu_features {
 	LC_CPU_FEATURE_UNSET = (1U) << 30
 };
 
+void lc_cpu_feature_disable(void);
 enum lc_cpu_features lc_cpu_feature_available(void);
 
 #ifdef __cplusplus

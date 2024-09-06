@@ -96,10 +96,15 @@ static inline unsigned long arm_id_aa64isar0_el1_feature(void)
 	return id_aa64isar0_el1_val;
 }
 
+static enum lc_cpu_features features = LC_CPU_FEATURE_UNSET;
+
+void lc_cpu_feature_disable(void)
+{
+	features = LC_CPU_FEATURE_NONE;
+}
+
 LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 {
-	static enum lc_cpu_features features = LC_CPU_FEATURE_UNSET;
-
 	if (features == LC_CPU_FEATURE_UNSET) {
 		unsigned long id_aa64isar0_el1_val =
 			arm_id_aa64isar0_el1_feature();
