@@ -38,7 +38,7 @@
 
 #if defined(UNIFORM_SAMPLING)
 static inline void get_rand_mod_len(uint32_t *rand_pos, const uint32_t len,
-			       struct lc_hash_ctx *prf_state)
+				    struct lc_hash_ctx *prf_state)
 {
 	const uint64_t mask = LC_BIKE_MASK(bit_scan_reverse_vartime(len));
 

@@ -283,7 +283,8 @@ static inline void find_err2(e_t *e, e_t *pos_e, const syndrome_t *syndrome,
 	lc_memset_secure(&upc, 0, sizeof(upc));
 }
 
-void bike_decode(e_t *e, const struct lc_bike_ct *ct, const struct lc_bike_sk *sk)
+void bike_decode(e_t *e, const struct lc_bike_ct *ct,
+		 const struct lc_bike_sk *sk)
 {
 	// Initialize the decode methods struct
 	decode_ctx ctx;

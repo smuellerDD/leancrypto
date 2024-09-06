@@ -39,7 +39,7 @@ static inline void rotr_big(syndrome_t *out, const syndrome_t *in,
 {
 	// For preventing overflows (comparison in bytes)
 	BUILD_BUG_ON(sizeof(*out) <=
-		      8 * (LC_BIKE_R_QWORDS + (2 * R_QWORDS_HALF_LOG2)));
+		     8 * (LC_BIKE_R_QWORDS + (2 * R_QWORDS_HALF_LOG2)));
 
 	*out = *in;
 
