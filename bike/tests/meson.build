@@ -10,7 +10,8 @@ if get_option('bike_5').enabled()
 				], link_with: leancrypto_static_lib
 				)
 
-	test('BIKE 5 KEM', bike_5_tester, suite: regression)
+	test('BIKE 5 KEM Common', bike_5_tester, suite: regression)
+	test('BIKE 5 KEM C', bike_5_tester, args : [ 'c' ], suite: regression)
 endif
 
 if get_option('bike_3').enabled()
@@ -24,7 +25,8 @@ if get_option('bike_3').enabled()
 				c_args : '-DLC_BIKE_TYPE_3'
 				)
 
-	test('BIKE 3 KEM', bike_3_tester, suite: regression)
+	test('BIKE 3 KEM Common', bike_3_tester, suite: regression)
+	test('BIKE 3 KEM C', bike_3_tester, args : [ 'c' ], suite: regression)
 endif
 
 if get_option('bike_1').enabled()
@@ -38,5 +40,6 @@ if get_option('bike_1').enabled()
 				c_args : '-DLC_BIKE_TYPE_1'
 				)
 
-	test('BIKE 1 KEM', bike_1_tester, suite: regression)
+	test('BIKE 1 KEM Common', bike_1_tester, suite: regression)
+	test('BIKE 1 KEM C', bike_1_tester, args : [ 'c' ], suite: regression)
 endif

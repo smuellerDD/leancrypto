@@ -30,6 +30,7 @@
 #endif
 
 #include "compare.h"
+#include "cpufeatures.h"
 #include "static_rng.h"
 #include "ret_checkers.h"
 #include "visibility.h"
@@ -71,8 +72,11 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	unsigned int i;
 	int ret = 0;
 
-	(void)argc;
 	(void)argv;
+
+	/* Disable any accelerations when there is one parameter */
+	if (argc > 1)
+		lc_cpu_feature_disable();
 
 	for (i = 0; i < ARRAY_SIZE(bike_test); i++) {
 		ret += bike_tester_one(&bike_test[i]);
