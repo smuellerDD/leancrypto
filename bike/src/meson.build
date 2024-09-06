@@ -12,6 +12,15 @@ bike_c = files([
 	'bike_sampling_portable.c',
 ])
 
+bike_c_args = [ '-funroll-loops' ]
+
+if (host_machine.cpu_family() == 'x86_64')
+	bike_c_args += [ '-mno-red-zone' ]
+endif
+
+#bike_c_args += [ '-DUNIFORM_SAMPLING=1' ]
+#bike_c_args += [ '-DBIND_PK_AND_M=1' ]
+
 if get_option('bike_5').enabled()
 	bike_5_files = bike_c
 
@@ -22,6 +31,7 @@ if get_option('bike_5').enabled()
 			include_dirs,
 			include_internal_dirs
 		],
+		c_args : bike_c_args
 	)
 	leancrypto_support_libs += leancrypto_bike_5_c_lib
 endif
@@ -36,7 +46,7 @@ if get_option('bike_3').enabled()
 			include_dirs,
 			include_internal_dirs
 		],
-		c_args : '-DLC_BIKE_TYPE_3'
+		c_args : [ bike_c_args, '-DLC_BIKE_TYPE_3' ]
 	)
 	leancrypto_support_libs += leancrypto_bike_3_c_lib
 endif
@@ -51,7 +61,7 @@ if get_option('bike_1').enabled()
 			include_dirs,
 			include_internal_dirs
 		],
-		c_args : '-DLC_BIKE_TYPE_1'
+		c_args : [ bike_c_args, '-DLC_BIKE_TYPE_1' ]
 	)
 	leancrypto_support_libs += leancrypto_bike_1_c_lib
 endif

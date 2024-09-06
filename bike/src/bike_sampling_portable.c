@@ -80,14 +80,14 @@ void sample_error_vec_indices_port(idx_t *out, struct lc_hash_ctx *prf_state)
 	// length (the bit size of N) and in constant time copy the first T valid
 	// indices to the output.
 
-	size_t ctr = 0; // Current number of valid and distinct indices.
+	uint32_t ctr = 0; // Current number of valid and distinct indices.
 	const idx_t bit_mask =
 		LC_BIKE_MASK(bit_scan_reverse_vartime(2 * LC_BIKE_R_BITS));
 
 	lc_hash_set_digestsize(prf_state, sizeof(idx_t));
 
 	// Label all output elements as invalid.
-	memset((uint8_t *)out, 0xff, T * sizeof(idx_t));
+	memset((uint8_t *)out, 0xff, LC_BIKE_T * sizeof(idx_t));
 
 	// Generate MAX_RAND_INDICES_T random values.
 	for (size_t i = 0; i < LC_BIKE_MAX_RAND_INDICES_T; i++) {
@@ -100,7 +100,7 @@ void sample_error_vec_indices_port(idx_t *out, struct lc_hash_ctx *prf_state)
 		// Loop over the output array to determine if |idx| is a duplicate,
 		// and store it in the lcoation pointed to by |ctr|.
 		uint32_t is_dup = 0;
-		for (size_t j = 0; j < T; j++) {
+		for (uint32_t j = 0; j < LC_BIKE_T; j++) {
 			is_dup |= secure_cmp32(idx, out[j]);
 
 			// Set |mask| to 0 if |ctr| != |j|, to all ones otherwise.
@@ -111,7 +111,7 @@ void sample_error_vec_indices_port(idx_t *out, struct lc_hash_ctx *prf_state)
 
 		// Check if |idx| is a valid index (< N) and increase the counter
 		// only if |idx| is valid and it is not a duplicate.
-		uint32_t is_valid = secure_l32(idx, 2 * R_BITS);
+		uint32_t is_valid = secure_l32(idx, 2 * LC_BIKE_R_BITS);
 		ctr += ((1 - is_dup) & is_valid);
 	}
 }

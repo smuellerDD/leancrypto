@@ -51,14 +51,7 @@ static inline void convert_seed_to_m_type(m_t *m, const seed_t *seed)
 	memcpy(m->raw, seed->raw, sizeof(*m));
 }
 
-#if defined(BIND_PK_AND_M)
-
-static inline void convert_dgst_to_seed_type(seed_t *seed, const sha_dgst_t *in)
-{
-	memcpy(seed->raw, in->u.raw, sizeof(*seed));
-}
-
-#else
+#if !defined(BIND_PK_AND_M)
 
 static inline void convert_m_to_seed_type(seed_t *seed, const m_t *m)
 {
@@ -74,13 +67,17 @@ static inline void function_h(pad_e_t *e, const m_t *m, const r_t *pk)
 	seed_t seed = { 0 };
 
 #if defined(BIND_PK_AND_M)
-	LC_HASH_CTX_ON_STACK(hash_ctx, lc_sha384);
+	uint8_t dgst[LC_SHA3_384_SIZE_DIGEST];
+	LC_HASH_CTX_ON_STACK(hash_ctx, lc_sha3_384);
 
 	lc_hash_init(hash_ctx);
 	lc_hash_update(hash_ctx, pk->raw, sizeof(pk->raw));
 	lc_hash_update(hash_ctx, m->raw, sizeof(m->raw));
-	lc_hash_final(hash_ctx, seed.u.raw);
+	lc_hash_final(hash_ctx, dgst);
 	lc_hash_zero(hash_ctx);
+
+	memcpy(seed.raw, dgst, sizeof(seed));
+	lc_memset_secure(&dgst, 0, sizeof(dgst));
 #else
 	// pk is unused parameter in this case so we do this to avoid
 	// clang sanitizers complaining.
@@ -92,11 +89,6 @@ static inline void function_h(pad_e_t *e, const m_t *m, const r_t *pk)
 	generate_error_vector(e, &seed);
 
 	lc_memset_secure(&seed, 0, sizeof(seed));
-
-#if defined(BIND_PK_AND_M)
-	lc_memset_secure(&dgst, 0, sizeof(dgst));
-	lc_memset_secure(&pk_m, 0, sizeof(pk_m));
-#endif
 }
 
 // out = L(e)

@@ -37,7 +37,7 @@
 #include "lc_sha3.h"
 
 #if defined(UNIFORM_SAMPLING)
-static inline get_rand_mod_len(uint32_t *rand_pos, const uint32_t len,
+static inline void get_rand_mod_len(uint32_t *rand_pos, const uint32_t len,
 			       struct lc_hash_ctx *prf_state)
 {
 	const uint64_t mask = LC_BIKE_MASK(bit_scan_reverse_vartime(len));
@@ -61,17 +61,17 @@ static inline get_rand_mod_len(uint32_t *rand_pos, const uint32_t len,
 }
 
 static void generate_indices_mod_z(idx_t *out, const size_t num_indices,
-				   const size_t z,
+				   const uint32_t z,
 				   struct lc_hash_ctx *prf_state)
 {
 	size_t ctr = 0;
 
 	// Generate num_indices unique (pseudo) random numbers modulo z.
 	do {
-		CKINT(get_rand_mod_len(&out[ctr], z, prf_state));
+		get_rand_mod_len(&out[ctr], z, prf_state);
 
 		// Check if the index is new and increment the counter if it is.
-		int is_new = 1;
+		size_t is_new = 1;
 		for (size_t i = 0; i < ctr; i++) {
 			if (out[i] == out[ctr]) {
 				is_new = 0;
