@@ -20,7 +20,7 @@
 #ifndef BIKE_INTERNAL_H
 #define BIKE_INTERNAL_H
 
-#include "lc_bike.h"
+#include "bike_type.h"
 #include "lc_rng.h"
 
 #ifdef __cplusplus

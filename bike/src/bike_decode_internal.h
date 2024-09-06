@@ -30,6 +30,8 @@
 #ifndef BIKE_DECODE_INTERNAL_H
 #define BIKE_DECODE_INTERNAL_H
 
+#include "bike_internal.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -94,24 +94,41 @@ option('kyber_768', type: 'feature', value: 'enabled',
 
 Per default, Kyber-1024 is enabled and accessible with the regular API. When
 enabling this option, Kyber-768 is also made available which has the same API,
-but instead of the prefix lc_kyber, all APIs use lc_kyber_768. This algorithm
-has 192 bits of security strength.
+but instead of the prefix lc_kyber_1024, all APIs use lc_kyber_768. This
+algorithm has 192 bits of security strength.
 ''')
 option('kyber_512', type: 'feature', value: 'enabled',
        description: '''Kyber-512 Support
 
 Per default, Kyber-1024 is enabled and accessible with the regular API. When
 enabling this option, Kyber-512 is also made available which has the same API,
-but instead of the prefix lc_kyber, all APIs use lc_kyber_512. This algorithm
-has 128 bits of security strength.
+but instead of the prefix lc_kyber_1024, all APIs use lc_kyber_512. This
+algorithm has 128 bits of security strength.
 ''')
 option('kyber_x25519', type: 'feature', value: 'enabled',
        description: 'Kyber-X25519 KEM')
 
-option('bike', type: 'feature', value: 'enabled',
-       description: '''BIKE Support
+option('bike_5', type: 'feature', value: 'enabled',
+       description: '''BIKE Category 5 Support
 
-Per default, BIKE is enabled and accessible with the regular API.
+Per default, BIKE with NIST category 5 is enabled and accessible with the
+regular API.
+''')
+option('bike_3', type: 'feature', value: 'enabled',
+       description: '''BIKE Category 3 Support
+
+Per default, BIKE category 5 is enabled and accessible with the regular API.
+When enabling this option, BIKE category 3 is also made available which has the
+same API, but instead of the prefix lc_bike_5, all APIs use lc_bike_3. This
+algorithm has 192 bits of security strength.
+''')
+option('bike_1', type: 'feature', value: 'enabled',
+       description: '''BIKE Category 1 Support
+
+Per default, BIKE category 5 is enabled and accessible with the regular API.
+When enabling this option, BIKE category 1 is also made available which has the
+same API, but instead of the prefix lc_bike_5, all APIs use lc_bike_1. This
+algorithm has 128 bits of security strength.
 ''')
 
 option('aes_block', type: 'feature', value: 'enabled',

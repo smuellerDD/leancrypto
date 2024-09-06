@@ -27,8 +27,8 @@
  * AWS Cryptographic Algorithms Group.
  */
 
-#ifndef LC_BIKE_H
-#define LC_BIKE_H
+#ifndef LC_BIKE_@bike_header@H
+#define LC_BIKE_@bike_header@H
 
 #include "alignment.h"
 #include "ext_headers.h"
@@ -45,9 +45,7 @@ extern "C" {
  ******************************************************************************/
 #define LC_BIKE_N0 2
 
-#if !defined(LC_BIKE_LEVEL)
-#define LC_BIKE_LEVEL 5
-#endif
+#define LC_BIKE_LEVEL @bike_strength@
 
 #if (LC_BIKE_LEVEL == 1)
 // 64-bits of post-quantum security parameters (BIKE spec):
@@ -138,14 +136,14 @@ typedef struct r_s {
 /**
  * @brief Bike public key
  */
-struct lc_bike_pk {
+struct @bike_name@_pk {
 	r_t pk;
 };
 
 /**
  * @brief Bike secret key
  */
-struct lc_bike_sk {
+struct @bike_name@_sk {
 	compressed_idx_d_ar_t wlist;
 	r_t bin[LC_BIKE_N0];
 	r_t pk;
@@ -155,7 +153,7 @@ struct lc_bike_sk {
 /**
  * @brief Bike ciphertext
  */
-struct lc_bike_ct {
+struct @bike_name@_ct {
 	r_t c0;
 	m_t c1;
 };
@@ -163,7 +161,7 @@ struct lc_bike_ct {
 /**
  * @brief Bike shared secret
  */
-struct lc_bike_ss {
+struct @bike_name@_ss {
 	uint8_t ss[LC_BIKE_SS_BYTES];
 };
 
@@ -177,7 +175,7 @@ struct lc_bike_ss {
  *
  * @return 0 (success) or < 0 on error
  */
-int lc_bike_keypair(struct lc_bike_pk *pk, struct lc_bike_sk *sk,
+int @bike_name@_keypair(struct @bike_name@_pk *pk, struct @bike_name@_sk *sk,
 		    struct lc_rng_ctx *rng_ctx);
 
 /**
@@ -192,8 +190,8 @@ int lc_bike_keypair(struct lc_bike_pk *pk, struct lc_bike_sk *sk,
  *
  * Returns 0 (success) or < 0 on error
  */
-int lc_bike_enc(struct lc_bike_ct *ct, struct lc_bike_ss *ss,
-		const struct lc_bike_pk *pk);
+int @bike_name@_enc(struct @bike_name@_ct *ct, struct @bike_name@_ss *ss,
+		const struct @bike_name@_pk *pk);
 
 /**
  * @brief BIKE Key decapsulation
@@ -209,11 +207,11 @@ int lc_bike_enc(struct lc_bike_ct *ct, struct lc_bike_ss *ss,
  *
  * On failure, ss will contain a pseudo-random value.
  */
-int lc_bike_dec(struct lc_bike_ss *ss, const struct lc_bike_ct *ct,
-		const struct lc_bike_sk *sk);
+int @bike_name@_dec(struct @bike_name@_ss *ss, const struct @bike_name@_ct *ct,
+		const struct @bike_name@_sk *sk);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* LC_BIKE_H */
+#endif /* LC_BIKE_@bike_header@H */

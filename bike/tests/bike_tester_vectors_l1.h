@@ -29,7 +29,7 @@
 
 #pragma once
 
-#include "lc_bike.h"
+#include "bike_type.h"
 
 struct lc_bike_testvector {
 	uint8_t seed[128];

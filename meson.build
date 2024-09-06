@@ -183,6 +183,7 @@ subdirs = [
 	    'hash/api',
 
 	    'aead/src',
+	    'bike/api',
 	    'bike/src',
 	    'curve25519/src',
 	    'drng/src',
@@ -294,7 +295,9 @@ if (get_option('sha3').disabled() and
 endif
 
 if (get_option('sha3').disabled() and
-    get_option('bike').enabled())
+    (get_option('bike_5').enabled() or
+     get_option('bike_3').enabled() or
+     get_option('bike_1').enabled()))
 	error('BIKE support requires SHA-3')
 endif
 

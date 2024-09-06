@@ -30,7 +30,7 @@
 #ifndef BIKE_SAMPLING_H
 #define BIKE_SAMPLING_H
 
-#include "lc_bike.h"
+#include "bike_type.h"
 
 #ifdef __cplusplus
 extern "C" {

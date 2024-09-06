@@ -282,7 +282,7 @@ LC_INTERFACE_FUNCTION(int, lc_bike_dec, struct lc_bike_ss *ss,
 	int success_cond;
 
 	// Decode
-	decode(&e, ct, sk);
+	bike_decode(&e, ct, sk);
 
 	// Copy the error vector in the padded struct.
 	e_prime.val[0].val = e.val[0];

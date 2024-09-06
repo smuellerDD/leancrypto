@@ -36,7 +36,7 @@
 extern "C" {
 #endif
 
-void decode(e_t *e, const struct lc_bike_ct *ct, const struct lc_bike_sk *sk);
+void bike_decode(e_t *e, const struct lc_bike_ct *ct, const struct lc_bike_sk *sk);
 
 #ifdef __cplusplus
 }
