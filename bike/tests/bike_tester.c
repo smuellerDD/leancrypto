@@ -35,7 +35,9 @@
 #include "ret_checkers.h"
 #include "visibility.h"
 
+#ifndef ARRAY_SIZE
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+#endif
 
 static int bike_tester_one(const struct lc_bike_testvector *vector)
 {

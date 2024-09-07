@@ -43,6 +43,7 @@ add_global_arguments([ '-fstack-protector-strong',
 		       '-Wformat=2',
 		       '-fno-delete-null-pointer-checks',
 		       '-fno-strict-aliasing',
+		       '-Wundef',
 		        ],
 		       language : 'c')
 

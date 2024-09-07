@@ -56,7 +56,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
 endif
 
 ifdef CONFIG_X86_64
-leancrypto-$(CONFIG_LEANCRYPTO_KEM)					       \
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER)				       \
 				+= ../hash/src/shake_4x_avx2.o		       \
 				   ../hash/src/asm/AVX2_4x/KeccakP-1600-times4-SIMD256.o
 endif

@@ -411,6 +411,29 @@ static __inline__ __m256i __DEFAULT_FN_ATTRS256 _mm256_andnot_si256(__m256i __a,
 	return (__m256i)(~(__v4du)__a & (__v4du)__b);
 }
 
+extern __inline __m256i
+__attribute__ ((__gnu_inline__, __always_inline__, __artificial__))
+_mm256_blendv_epi8 (__m256i __X, __m256i __Y, __m256i __M)
+{
+  return (__m256i) __builtin_ia32_pblendvb256 ((__v32qi)__X,
+                                               (__v32qi)__Y,
+                                               (__v32qi)__M);
+}
+
+extern __inline __m256i
+__attribute__ ((__gnu_inline__, __always_inline__, __artificial__))
+_mm256_add_epi64 (__m256i __A, __m256i __B)
+{
+  return (__m256i) ((__v4du)__A + (__v4du)__B);
+}
+
+extern __inline __m256i
+__attribute__ ((__gnu_inline__, __always_inline__, __artificial__))
+_mm256_cmpeq_epi64 (__m256i __A, __m256i __B)
+{
+  return (__m256i) ((__v4di)__A == (__v4di)__B);
+}
+
 #undef __DEFAULT_FN_ATTRS256
 
 #endif /* EXT_X86_AVX2INTRIN_H */

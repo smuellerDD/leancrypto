@@ -47,6 +47,10 @@ typedef unsigned char __v16qu __attribute__((__vector_size__(16)));
 
 typedef signed char __v16qs __attribute__((__vector_size__(16)));
 
+/* Create a selector for use with the SHUFPD instruction.  */
+#define _MM_SHUFFLE2(fp1,fp0) \
+ (((fp1) << 1) | (fp0))
+
 /* Define the default attributes for the functions in this file. */
 #ifdef __clang__
 #define __DEFAULT_FN_ATTRS                                                     \
@@ -204,6 +208,24 @@ static __inline__ __m128i __DEFAULT_FN_ATTRS _mm_set1_epi32(int __i)
 #define _mm_insert_epi16(a, b, imm)                                            \
 	((__m128i)__builtin_ia32_vec_set_v8hi((__v8hi)(__m128i)(a),            \
 					      (short)(b), (int)(imm)))
+
+extern __inline __m128i __attribute__((__gnu_inline__, __always_inline__, __artificial__))
+_mm_unpacklo_epi64 (__m128i __A, __m128i __B)
+{
+  return (__m128i)__builtin_ia32_punpcklqdq128 ((__v2di)__A, (__v2di)__B);
+}
+
+extern __inline __m128i __attribute__((__gnu_inline__, __always_inline__, __artificial__))
+_mm_unpackhi_epi64 (__m128i __A, __m128i __B)
+{
+  return (__m128i)__builtin_ia32_punpckhqdq128 ((__v2di)__A, (__v2di)__B);
+}
+
+extern __inline __m128i __attribute__((__gnu_inline__, __always_inline__, __artificial__))
+_mm_bslli_si128 (__m128i __A, const int __N)
+{
+  return (__m128i)__builtin_ia32_pslldqi128 (__A, __N * 8);
+}
 
 #undef __DEFAULT_FN_ATTRS
 

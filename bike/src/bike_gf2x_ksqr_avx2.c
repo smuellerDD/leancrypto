@@ -50,6 +50,7 @@
 #define MAP_WORDS_IN_YMM LC_BIKE_WORDS_IN_YMM
 
 #define map_word_t uint16_t
+#define map_wordi_t int16_t
 #define SET1(x) SET1_I16(x)
 #define SUB(x, y) SUB_I16(x, y)
 #define ADD(x, y) ADD_I16(x, y)
@@ -60,6 +61,7 @@
 #define MAP_WORDS_IN_YMM LC_BIKE_DWORDS_IN_YMM
 
 #define map_word_t uint32_t
+#define map_wordi_t int32_t
 #define SET1(x) SET1_I32(x)
 #define SUB(x, y) SUB_I32(x, y)
 #define ADD(x, y) ADD_I32(x, y)
@@ -88,7 +90,7 @@ static inline void generate_map(map_word_t *map, const map_word_t l_param)
 	// certain number of values (NUM_OF_VALS) in parallel. Therefore,
 	// in the beginning we need to initialize the first NUM_OF_VALS elements.
 	for (size_t i = 0; i < NUM_OF_VALS; i++) {
-		map[i] = (i * l_param) % LC_BIKE_R_BITS;
+		map[i] = (map_word_t)((i * l_param) % LC_BIKE_R_BITS);
 	}
 
 	vr = SET1(LC_BIKE_R_BITS);
@@ -108,7 +110,7 @@ static inline void generate_map(map_word_t *map, const map_word_t l_param)
 	//   3.   map[i] = map[i - 1] + (l_param - r)
 	//   4.   if map[i] < 0:
 	//   5.     map[i] = map[i] + r
-	inc = SET1((l_param * NUM_OF_VALS) % LC_BIKE_R_BITS);
+	inc = SET1((map_wordi_t)((l_param * NUM_OF_VALS) % LC_BIKE_R_BITS));
 	inc = SUB(inc, vr);
 
 	// Load the first NUM_OF_VALS elements in the vmap vectors

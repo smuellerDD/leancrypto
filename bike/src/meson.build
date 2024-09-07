@@ -9,7 +9,7 @@ bike_src = files([
 	'bike_gf2x_mul_portable.c',
 	'bike_kem.c',
 	'bike_sampling.c',
-	'bike_sampling_portable.c',
+	'bike_sampling_portable.c'
 ])
 
 bike_avx2_src = [

@@ -86,6 +86,7 @@ void gf2x_mul_base_port(uint64_t *c, const uint64_t *a, const uint64_t *b)
 	// Step 3: Multiply the last three bits.
 	for (size_t i = 61; i < 64; i++) {
 		uint64_t mask = (-((b0 >> i) & 1));
+
 		l ^= ((a0 << i) & mask);
 		h ^= ((a0 >> (w - i)) & mask);
 	}

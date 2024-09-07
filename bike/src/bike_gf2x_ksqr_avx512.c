@@ -45,7 +45,7 @@
 // permutation map. Otherwise, uint16_t suffices, which allows us to work with
 // this type and have a more efficient implementation (a single AVX512 register
 // can hold sixteen 32-bit elements or thirty-two 16-bit elements).
-#if (R_BITS < 32768)
+#if (LC_BIKE_R_BITS < 32768)
 
 #define MAP_WORDS_IN_ZMM LC_BIKE_WORDS_IN_ZMM
 
@@ -100,7 +100,7 @@ static inline void generate_map(map_word_t *map, const map_word_t l_param)
 	// certain number of values (NUM_OF_VALS) in parallel. Therefore,
 	// in the beginning we need to initialize the first NUM_OF_VALS elements.
 	for (size_t i = 0; i < NUM_OF_VALS; i++) {
-		map[i] = (i * l_param) % LC_BIKE_R_BITS;
+		map[i] = (map_word_t)((i * l_param) % LC_BIKE_R_BITS);
 	}
 
 	// Set the increment vector such that by adding it to vmap vectors

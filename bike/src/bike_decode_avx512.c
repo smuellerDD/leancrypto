@@ -77,7 +77,7 @@ static inline void rotate512_small(syndrome_t *out, const syndrome_t *in,
 	const __m512i count64_512 = SET1_I64(count64);
 	const __m512i count64_512r = SET1_I64((int)64 - count64);
 
-	const __m512i num_full_qw = SET1_I64(bitscount >> 6);
+	const __m512i num_full_qw = SET1_I64((int64_t)(bitscount >> 6));
 	const __m512i one = SET1_I64(1);
 	__m512i a0, a1;
 

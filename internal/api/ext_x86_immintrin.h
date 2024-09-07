@@ -29,6 +29,8 @@
 #ifndef EXT_X86_IMMINTRIN_H
 #define EXT_X86_IMMINTRIN_H
 
+#include "ext_x86_xmmintrin.h"
+
 #if !(defined(_MSC_VER) || defined(__SCE__)) || defined(__SSE2__)
 #include "ext_x86_emmintrin.h"
 #endif
@@ -36,6 +38,8 @@
 #if !(defined(_MSC_VER) || defined(__SCE__)) || defined(__SSE3__)
 #include "ext_x86_pmmintrin.h"
 #endif
+
+#include "ext_x86_wmmintrin.h"
 
 #if !(defined(_MSC_VER) || defined(__SCE__)) || defined(__SSSE3__)
 #include "ext_x86_tmmintrin.h"
@@ -64,6 +68,16 @@
 
 #if !(defined(_MSC_VER) || defined(__SCE__)) || defined(__AVX512F__)
 #include "ext_x86_avx512fintrin.h"
+#endif
+
+#include "ext_x86_avx512vlintrin.h"
+
+#if defined(__AVX512BW__)
+#include "ext_x86_avx512bwintrin.h"
+#endif
+
+#if (defined(__VPCLMULQDQ__) && defined(__AVX512F__))
+#include "ext_x86_vpclmulqdqintrin.h"
 #endif
 
 #endif /* EXT_X86_IMMINTRIN_H */

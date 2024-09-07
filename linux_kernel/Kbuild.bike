@@ -1,0 +1,82 @@
+################################################################################
+# BIKE implementation
+ccflags-$(CONFIG_LEANCRYPTO_KEM_BIKE)					       \
+				+= -I$(PWD)/../bike/api -I$(PWD)/../bike/src
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_5)				       \
+				+= ../bike/src/bike_decode.o		       \
+				   ../bike/src/bike_decode_portable.o	       \
+				   ../bike/src/bike_gf2x_inv.o		       \
+				   ../bike/src/bike_gf2x_ksqr_portable.o       \
+				   ../bike/src/bike_gf2x_mul.o		       \
+				   ../bike/src/bike_gf2x_mul_base_portable.o   \
+				   ../bike/src/bike_gf2x_mul_portable.o	       \
+				   ../bike/src/bike_kem.o		       \
+				   ../bike/src/bike_sampling.o		       \
+				   ../bike/src/bike_sampling_portable.o	       \
+				   ../bike/src/compiler_support.o
+
+bike_c_args = -funroll-loops
+ifdef CONFIG_X86_64
+bike_c_args += -mno-red-zone -DX86_64
+endif
+
+CFLAGS_../bike/src/bike_decode.o		= $(bike_c_args)
+CFLAGS_../bike/src/bike_decode_portable.o	= $(bike_c_args)
+CFLAGS_../bike/src/bike_gf2x_inv.o		= $(bike_c_args)
+CFLAGS_../bike/src/bike_gf2x_ksqr_portable.o	= $(bike_c_args)
+CFLAGS_../bike/src/bike_gf2x_mul.o		= $(bike_c_args)
+CFLAGS_../bike/src/bike_gf2x_mul_base_portable.o= $(bike_c_args)
+CFLAGS_../bike/src/bike_gf2x_mul_portable.o	= $(bike_c_args)
+CFLAGS_../bike/src/bike_kem.o			= $(bike_c_args)
+CFLAGS_../bike/src/bike_sampling.o		= $(bike_c_args)
+CFLAGS_../bike/src/bike_sampling_portable.o	= $(bike_c_args)
+
+ifdef CONFIG_X86_64
+
+bike_avx2_args += $(bike_c_args) -mavx2 -mbmi2 -mpopcnt			       \
+		  -Wno-unused-command-line-argument
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_5)				       \
+				+= ../bike/src/bike_decode_avx2.o	       \
+				   ../bike/src/bike_gf2x_mul_avx2.o	       \
+				   ../bike/src/bike_gf2x_ksqr_avx2.o	       \
+				   ../bike/src/bike_sampling_avx2.o
+CFLAGS_../bike/src/bike_decode_avx2.o		= $(bike_avx2_args)
+CFLAGS_../bike/src/bike_gf2x_mul_avx2.o		= $(bike_avx2_args)
+CFLAGS_../bike/src/bike_gf2x_ksqr_avx2.o	= $(bike_avx2_args)
+CFLAGS_../bike/src/bike_sampling_avx2.o		= $(bike_avx2_args)
+
+bike_avx512_args += $(bike_c_args) -mavx512bw -mavx512dq -mavx512f -mbmi2      \
+		    -mpopcnt -Wno-unused-command-line-argument
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_5)				       \
+				+= ../bike/src/bike_decode_avx512.o	       \
+				   ../bike/src/bike_gf2x_mul_avx512.o	       \
+				   ../bike/src/bike_gf2x_ksqr_avx512.o	       \
+				   ../bike/src/bike_sampling_avx512.o
+CFLAGS_../bike/src/bike_decode_avx512.o		= $(bike_avx512_args)
+CFLAGS_../bike/src/bike_gf2x_mul_avx512.o	= $(bike_avx512_args)
+CFLAGS_../bike/src/bike_gf2x_ksqr_avx512.o	= $(bike_avx512_args)
+CFLAGS_../bike/src/bike_sampling_avx512.o	= $(bike_avx512_args)
+
+bike_pclmul_args += $(bike_c_args) -mpclmul
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_5)				       \
+				+= ../bike/src/bike_gf2x_mul_base_pclmul.o
+CFLAGS_../bike/src/bike_gf2x_mul_base_pclmul.o	= $(bike_pclmul_args)
+
+bike_vpclmul_args += $(bike_avx512_args) -mvpclmulqdq
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_5)				       \
+				+= ../bike/src/bike_gf2x_mul_base_vpclmul.o
+CFLAGS_../bike/src/bike_gf2x_mul_base_vpclmul.o	= $(bike_vpclmul_args)
+
+endif
+
+
+################################################################################
+# Testing Code
+################################################################################
+
+ifdef CONFIG_LEANCRYPTO_KEM_BIKE_5
+obj-m		 		+= bike_5_tester.o
+
+bike_5_tester-y			+= ../bike/tests/bike_tester.o		       \
+				   ../drng/src/static_rng.o
+endif
