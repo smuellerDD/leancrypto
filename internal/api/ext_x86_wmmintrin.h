@@ -45,7 +45,6 @@
 #define __DISABLE_PCLMUL__
 #endif /* __PCLMUL__ */
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -55,16 +54,17 @@ extern "C" {
    haves of the input parameters v1 and v2 should be used. It must be
    a compile time constant.  */
 #ifdef __OPTIMIZE__
-extern __inline __m128i __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_mm_clmulepi64_si128 (__m128i __X, __m128i __Y, const int __I)
+extern __inline __m128i
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm_clmulepi64_si128(__m128i __X, __m128i __Y, const int __I)
 {
-  return (__m128i) __builtin_ia32_pclmulqdq128 ((__v2di)__X,
-                                                (__v2di)__Y, __I);
+	return (__m128i)__builtin_ia32_pclmulqdq128((__v2di)__X, (__v2di)__Y,
+						    __I);
 }
 #else
-#define _mm_clmulepi64_si128(X, Y, I)                                   \
-  ((__m128i) __builtin_ia32_pclmulqdq128 ((__v2di)(__m128i)(X),         \
-                                          (__v2di)(__m128i)(Y), (int)(I)))
+#define _mm_clmulepi64_si128(X, Y, I)                                          \
+	((__m128i)__builtin_ia32_pclmulqdq128((__v2di)(__m128i)(X),            \
+					      (__v2di)(__m128i)(Y), (int)(I)))
 #endif
 
 #ifdef __DISABLE_PCLMUL__

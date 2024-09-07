@@ -33,50 +33,42 @@ extern "C" {
 typedef unsigned long long __mmask64;
 
 extern __inline __m512i
-__attribute__ ((__gnu_inline__, __always_inline__, __artificial__))
-_mm512_add_epi16 (__m512i __A, __m512i __B)
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm512_add_epi16(__m512i __A, __m512i __B)
 {
-  return (__m512i) ((__v32hu) __A + (__v32hu) __B);
+	return (__m512i)((__v32hu)__A + (__v32hu)__B);
 }
 
 extern __inline __mmask32
-__attribute__ ((__gnu_inline__, __always_inline__, __artificial__))
-_mm512_cmp_epu16_mask (__m512i __X, __m512i __Y, const int __P)
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm512_cmp_epu16_mask(__m512i __X, __m512i __Y, const int __P)
 {
-  return (__mmask32) __builtin_ia32_ucmpw512_mask ((__v32hi) __X,
-                                                   (__v32hi) __Y, __P,
-                                                   (__mmask32) -1);
+	return (__mmask32)__builtin_ia32_ucmpw512_mask(
+		(__v32hi)__X, (__v32hi)__Y, __P, (__mmask32)-1);
 }
 
-extern __inline __m512i
-__attribute__ ((__gnu_inline__, __always_inline__, __artificial__))
-_mm512_mask_sub_epi16 (__m512i __W, __mmask32 __U, __m512i __A,
-                       __m512i __B)
+extern __inline __m512i __attribute__((__gnu_inline__, __always_inline__,
+				       __artificial__))
+_mm512_mask_sub_epi16(__m512i __W, __mmask32 __U, __m512i __A, __m512i __B)
 {
-  return (__m512i) __builtin_ia32_psubw512_mask ((__v32hi) __A,
-                                                 (__v32hi) __B,
-                                                 (__v32hi) __W,
-                                                 (__mmask32) __U);
+	return (__m512i)__builtin_ia32_psubw512_mask(
+		(__v32hi)__A, (__v32hi)__B, (__v32hi)__W, (__mmask32)__U);
 }
 
 extern __inline __mmask64
-__attribute__ ((__gnu_inline__, __always_inline__, __artificial__))
-_mm512_cmp_epu8_mask (__m512i __X, __m512i __Y, const int __P)
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm512_cmp_epu8_mask(__m512i __X, __m512i __Y, const int __P)
 {
-  return (__mmask64) __builtin_ia32_ucmpb512_mask ((__v64qi) __X,
-                                                   (__v64qi) __Y, __P,
-                                                   (__mmask64) -1);
+	return (__mmask64)__builtin_ia32_ucmpb512_mask(
+		(__v64qi)__X, (__v64qi)__Y, __P, (__mmask64)-1);
 }
 
 extern __inline __m512i
-__attribute__ ((__gnu_inline__, __always_inline__, __artificial__))
-_mm512_maskz_set1_epi8 (__mmask64 __M, char __A)
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm512_maskz_set1_epi8(__mmask64 __M, char __A)
 {
-  return (__m512i)
-         __builtin_ia32_pbroadcastb512_gpr_mask (__A,
-                                                 (__v64qi)
-                                                 _mm512_setzero_si512 (),
-                                                 __M);
+	return (__m512i)__builtin_ia32_pbroadcastb512_gpr_mask(
+		__A, (__v64qi)_mm512_setzero_si512(), __M);
 }
 
 #ifdef __DISABLE_AVX512BW__

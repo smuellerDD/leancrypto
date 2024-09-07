@@ -225,9 +225,9 @@ LC_INTERFACE_FUNCTION(int, lc_bike_keypair, struct lc_bike_pk *pk,
 	return 0;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_bike_enc_internal, struct lc_bike_ct *ct, struct lc_bike_ss *ss,
-			 const struct lc_bike_pk *pk,
-			 struct lc_rng_ctx *rng_ctx)
+LC_INTERFACE_FUNCTION(int, lc_bike_enc_internal, struct lc_bike_ct *ct,
+		      struct lc_bike_ss *ss, const struct lc_bike_pk *pk,
+		      struct lc_rng_ctx *rng_ctx)
 {
 	m_t m;
 	seeds_t seeds = { 0 };

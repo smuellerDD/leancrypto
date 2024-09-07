@@ -26,7 +26,6 @@
  * necessary.
  */
 
-
 #ifndef EXT_X86_AVX512VLINTRIN_H
 #define EXT_X86_AVX512VLINTRIN_H
 

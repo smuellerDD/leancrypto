@@ -40,14 +40,13 @@ extern "C" {
 #endif /* __SSE__ */
 
 /* Create a selector for use with the SHUFPS instruction.  */
-#define _MM_SHUFFLE(fp3,fp2,fp1,fp0) \
- (((fp3) << 6) | ((fp2) << 4) | ((fp1) << 2) | (fp0))
+#define _MM_SHUFFLE(fp3, fp2, fp1, fp0)                                        \
+	(((fp3) << 6) | ((fp2) << 4) | ((fp1) << 2) | (fp0))
 
 #ifdef __DISABLE_SSE__
 #undef __DISABLE_SSE__
 #pragma GCC pop_options
 #endif /* __DISABLE_SSE__ */
-
 
 #ifdef __cplusplus
 }
