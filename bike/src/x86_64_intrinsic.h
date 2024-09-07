@@ -36,7 +36,9 @@
 #ifndef X86_64_INTRINSICS_H
 #define X86_64_INTRINSICS_H
 
+#if (defined(AVX2_INTERNAL) || defined(AVX512_INTERNAL))
 #include "ext_headers_x86.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {

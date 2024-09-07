@@ -47,7 +47,7 @@ static inline void rotr_big(syndrome_t *out, const syndrome_t *in,
 		// Convert 32 bit mask to 64 bit mask
 		const uint64_t mask =
 			((uint32_t)secure_l32_mask(qw_num, idx) + 1U) - 1ULL;
-		qw_num = qw_num - (idx & u64_barrier(mask));
+		qw_num = qw_num - (idx & (uint32_t)u64_barrier(mask));
 
 		// Rotate R_QWORDS quadwords and another idx quadwords,
 		// as needed by the next iteration.
@@ -63,7 +63,7 @@ static inline void rotr_small(syndrome_t *out, const syndrome_t *in,
 {
 	// Convert |bits| to 0/1 by using !!bits; then create a mask of 0 or
 	// 0xffffffffff Use high_shift to avoid undefined behaviour when doing x << 64;
-	const uint64_t mask = (0 - (!!bits));
+	const uint64_t mask = (uint64_t)(0 - (!!bits));
 	const uint64_t high_shift = (64 - bits) & u64_barrier(mask);
 
 	BUILD_BUG_ON(sizeof(*out) <= (8 * LC_BIKE_R_QWORDS));
