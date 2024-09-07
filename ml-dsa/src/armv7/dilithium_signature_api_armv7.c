@@ -85,7 +85,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_ctx,
 		      struct lc_dilithium_ctx *ctx, const uint8_t *m,
 		      size_t mlen, const struct lc_dilithium_pk *pk)
 {
-	return lc_dilithium_verify_ctx_armv7(sig, sig, m, mlen, pk);
+	return lc_dilithium_verify_ctx_armv7(sig, ctx, m, mlen, pk);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_init,
