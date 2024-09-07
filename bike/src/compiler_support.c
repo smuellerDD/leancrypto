@@ -22,6 +22,7 @@
  * by the compiler library.
  */
 
+int __popcountdi2(unsigned long a);
 int __popcountdi2(unsigned long a)
 {
 	unsigned long long x2 = (unsigned long long)a;
