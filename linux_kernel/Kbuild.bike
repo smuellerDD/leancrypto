@@ -192,7 +192,7 @@ endif
 ################################################################################
 
 ifdef CONFIG_LEANCRYPTO_KEM_BIKE_5
-#obj-m		 		+= bike_5_tester.o
+obj-m		 		+= bike_5_tester.o
 ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM_BIKE_5
 obj-m				+= leancrypto_kernel_bike_5_tester.o
 
@@ -201,7 +201,7 @@ bike_5_tester-y			+= ../bike/tests/bike_tester.o		       \
 endif
 
 ifdef CONFIG_LEANCRYPTO_KEM_BIKE_3
-#obj-m		 		+= bike_3_tester.o
+obj-m		 		+= bike_3_tester.o
 ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM_BIKE_3
 obj-m				+= leancrypto_kernel_bike_3_tester.o
 
@@ -213,7 +213,7 @@ endif
 
 
 ifdef CONFIG_LEANCRYPTO_KEM_BIKE_1
-#obj-m		 		+= bike_1_tester.o
+obj-m		 		+= bike_1_tester.o
 ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM_BIKE_1
 obj-m				+= leancrypto_kernel_bike_1_tester.o
 

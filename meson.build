@@ -153,6 +153,22 @@ meson.add_dist_script(dist_script, meson.project_version())
 # Find Doxygen program
 doxygen = find_program('doxygen', required : false)
 
+bike5_option = false
+bike3_option = false
+bike3_option = false
+
+if host_machine.endian() != 'big'
+	if get_option('bike_5').enabled()
+		bike5_option = true
+	endif
+	if get_option('bike_3').enabled()
+		bike3_option = true
+	endif
+	if get_option('bike_1').enabled()
+		bike1_option = true
+	endif
+endif
+
 ################################################################################
 # Project-specific defines
 ################################################################################
@@ -300,13 +316,6 @@ if (get_option('sha3').disabled() and
      get_option('bike_3').enabled() or
      get_option('bike_1').enabled()))
 	error('BIKE support requires SHA-3')
-endif
-
-if (host_machine.endian() == 'big' and
-    (get_option('bike_5').enabled() or
-     get_option('bike_3').enabled() or
-     get_option('bike_1').enabled()))
-	error('BIKE support currently limited to Little Endian - you MUST disable all BIKE options to proceed')
 endif
 
 if ((get_option('dilithium_ed25519').enabled() or

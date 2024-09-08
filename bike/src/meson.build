@@ -41,7 +41,7 @@ endif
 #bike_args += [ '-DUNIFORM_SAMPLING=1' ]
 #bike_args += [ '-DBIND_PK_AND_M=1' ]
 
-if get_option('bike_5').enabled()
+if bike5_option
 	if x86_64_asm
 		leancrypto_bike_5_avx2_lib = static_library(
 			'leancrypto_bike_5_avx2_lib',
@@ -102,7 +102,7 @@ if get_option('bike_5').enabled()
 	leancrypto_support_libs += leancrypto_bike_5_c_lib
 endif
 
-if get_option('bike_3').enabled()
+if bike3_option
 	if x86_64_asm
 		leancrypto_bike_3_avx2_lib = static_library(
 			'leancrypto_bike_3_avx2_lib',
@@ -164,7 +164,7 @@ if get_option('bike_3').enabled()
 	leancrypto_support_libs += leancrypto_bike_3_c_lib
 endif
 
-if get_option('bike_1').enabled()
+if bike1_option
 	if x86_64_asm
 		leancrypto_bike_1_avx2_lib = static_library(
 			'leancrypto_bike_1_avx2_lib',
