@@ -46,6 +46,8 @@ static int bike_tester_perf_one(struct workspace *ws)
 	CKINT(lc_bike_dec(&ws->ss2, &ws->ct, &ws->sk));
 
 out:
+	if (ret == -EOPNOTSUPP)
+		ret = 77;
 	return ret;
 }
 
@@ -62,7 +64,9 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 		lc_cpu_feature_disable();
 
 	for (i = 0; i < 200; i++) {
-		ret += bike_tester_perf_one(ws);
+		ret = bike_tester_perf_one(ws);
+		if (ret)
+			break;
 	}
 
 	LC_RELEASE_MEM(ws);

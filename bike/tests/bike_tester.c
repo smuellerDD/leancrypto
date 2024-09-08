@@ -75,6 +75,8 @@ static int bike_tester_one(const struct lc_bike_testvector *vector,
 			 "BIKE Dec SS");
 
 out:
+	if (ret == -EOPNOTSUPP)
+		ret = 77;
 	return ret ? ret : rc;
 }
 
@@ -91,7 +93,9 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 		lc_cpu_feature_disable();
 
 	for (i = 0; i < ARRAY_SIZE(bike_test); i++) {
-		ret += bike_tester_one(&bike_test[i], ws);
+		ret = bike_tester_one(&bike_test[i], ws);
+		if (ret)
+			break;
 	}
 
 	LC_RELEASE_MEM(ws);
