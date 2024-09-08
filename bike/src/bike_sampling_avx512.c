@@ -39,7 +39,7 @@
 #define NUM_ZMMS (8)
 #define ZMMS_QWORDS (LC_BIKE_QWORDS_IN_ZMM * NUM_ZMMS)
 
-void secure_set_bits_avx512(pad_r_t *r, const uint32_t first_pos,
+int secure_set_bits_avx512(pad_r_t *r, const uint32_t first_pos,
 			    const idx_t *wlist, const uint32_t w_size)
 {
 	// The function assumes that the size of r is a multiple
@@ -108,6 +108,8 @@ void secure_set_bits_avx512(pad_r_t *r, const uint32_t first_pos,
 			va_pos_qw[va_iter] = ADD_I64(va_pos_qw[va_iter], inc);
 		}
 	}
+
+	return 0;
 }
 
 #if defined(UNIFORM_SAMPLING)

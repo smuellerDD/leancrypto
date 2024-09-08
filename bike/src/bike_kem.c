@@ -40,6 +40,7 @@
 #include "lc_sha3.h"
 
 #include "ret_checkers.h"
+#include "small_stack_support.h"
 #include "visibility.h"
 
 // m_t and seed_t have the same size and thus can be considered
@@ -62,9 +63,10 @@ static inline void convert_m_to_seed_type(seed_t *seed, const m_t *m)
 #endif
 
 // (e0, e1) = H(m)
-static inline void function_h(pad_e_t *e, const m_t *m, const r_t *pk)
+static inline int function_h(pad_e_t *e, const m_t *m, const r_t *pk)
 {
 	seed_t seed = { 0 };
+	int ret;
 
 #if defined(BIND_PK_AND_M)
 	uint8_t dgst[LC_SHA3_384_SIZE_DIGEST];
@@ -86,9 +88,11 @@ static inline void function_h(pad_e_t *e, const m_t *m, const r_t *pk)
 	convert_m_to_seed_type(&seed, m);
 #endif
 
-	generate_error_vector(e, &seed);
+	CKINT(generate_error_vector(e, &seed));
 
+out:
 	lc_memset_secure(&seed, 0, sizeof(seed));
+	return ret;
 }
 
 // out = L(e)
@@ -138,21 +142,20 @@ static inline void function_k(struct lc_bike_ss *out, const m_t *m,
 }
 
 static inline void encrypt(struct lc_bike_ct *ct, const pad_e_t *e,
-			   const r_t *pk, const m_t *m)
+			   const r_t *pk, const m_t *m, pad_r_t *p_ct,
+			   pad_r_t *p_pk, dbl_pad_r_t *t,
+			   uint64_t secure_buffer[LC_SECURE_BUFFER_QWORDS])
 {
-	// Pad the public key and the ciphertext
-	pad_r_t p_ct = { 0 };
-	pad_r_t p_pk = { 0 };
 	unsigned int i;
 
-	p_pk.val = *pk;
+	p_pk->val = *pk;
 
 	// Generate the ciphertext
 	// ct = pk * e1 + e0
-	gf2x_mod_mul(&p_ct, &e->val[1], &p_pk);
-	gf2x_mod_add(&p_ct, &p_ct, &e->val[0]);
+	gf2x_mod_mul(p_ct, &e->val[1], p_pk, t, secure_buffer);
+	gf2x_mod_add(p_ct, p_ct, &e->val[0]);
 
-	ct->c0 = p_ct.val;
+	ct->c0 = p_ct->val;
 
 	// c1 = L(e0, e1)
 	function_l(&ct->c1, e);
@@ -168,18 +171,15 @@ static inline void encrypt(struct lc_bike_ct *ct, const pad_e_t *e,
 }
 
 static inline void reencrypt(m_t *m, const pad_e_t *e,
-			     const struct lc_bike_ct *l_ct)
+			     const struct lc_bike_ct *l_ct, m_t *tmp)
 {
-	m_t tmp;
 	unsigned int i;
 
-	function_l(&tmp, e);
+	function_l(tmp, e);
 
 	// m' = c1 ^ L(e')
 	for (i = 0; i < sizeof(*m); i++)
-		m->raw[i] = tmp.raw[i] ^ l_ct->c1.raw[i];
-
-	lc_memset_secure(&tmp, 0, sizeof(tmp));
+		m->raw[i] = tmp->raw[i] ^ l_ct->c1.raw[i];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -188,72 +188,85 @@ static inline void reencrypt(m_t *m, const pad_e_t *e,
 LC_INTERFACE_FUNCTION(int, lc_bike_keypair, struct lc_bike_pk *pk,
 		      struct lc_bike_sk *sk, struct lc_rng_ctx *rng_ctx)
 {
-	// The secret key is (h0, h1),
-	// and the public key h=(h0^-1 * h1).
-	// Padded structures are used internally, and are required by the
-	// decoder and the gf2x multiplication.
-	pad_r_t h0 = { 0 };
-	pad_r_t h1 = { 0 };
-	pad_r_t h0inv = { 0 };
-	pad_r_t h = { 0 };
+	struct workspace {
+		// The secret key is (h0, h1),
+		// and the public key h=(h0^-1 * h1).
+		// Padded structures are used internally, and are required by
+		// the decoder and the gf2x multiplication.
+		pad_r_t h0, h1, h0inv, h;
+		dbl_pad_r_t t;
+		uint64_t secure_buffer[LC_SECURE_BUFFER_QWORDS];
 
-	// The randomness of the key generation
-	seeds_t seeds = { 0 };
+		// The randomness of the key generation
+		seeds_t seeds;
+	};
+	int ret;
+	LC_DECLARE_MEM(ws, struct workspace, LC_BIKE_ALIGN_BYTES);
 
 	lc_rng_check(&rng_ctx);
 
-	lc_rng_generate(rng_ctx, NULL, 0, (uint8_t *)&seeds.seed,
-			sizeof(seeds.seed));
-	generate_secret_key(&h0, &h1, sk->wlist[0].val, sk->wlist[1].val,
-			    &seeds.seed[0]);
+	lc_rng_generate(rng_ctx, NULL, 0, (uint8_t *)&ws->seeds.seed,
+			sizeof(ws->seeds.seed));
+	CKINT(generate_secret_key(&ws->h0, &ws->h1, sk->wlist[0].val, sk->wlist[1].val,
+			    &ws->seeds.seed[0]));
 
 	// Generate sigma
-	convert_seed_to_m_type(&sk->sigma, &seeds.seed[1]);
+	convert_seed_to_m_type(&sk->sigma, &ws->seeds.seed[1]);
 
 	// Calculate the public key
-	gf2x_mod_inv(&h0inv, &h0);
-	gf2x_mod_mul(&h, &h1, &h0inv);
+	CKINT(gf2x_mod_inv(&ws->h0inv, &ws->h0));
+	gf2x_mod_mul(&ws->h, &ws->h1, &ws->h0inv, &ws->t, ws->secure_buffer);
 
 	// Fill the secret key data structure with contents - cancel the padding
-	sk->bin[0] = h0.val;
-	sk->bin[1] = h1.val;
-	sk->pk = h.val;
+	sk->bin[0] = ws->h0.val;
+	sk->bin[1] = ws->h1.val;
+	sk->pk = ws->h.val;
 
 	// Copy the data to the output buffers
 	memcpy(pk, &sk->pk, sizeof(sk->pk));
 
-	return 0;
+out:
+	LC_RELEASE_MEM(ws);
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_bike_enc_internal, struct lc_bike_ct *ct,
 		      struct lc_bike_ss *ss, const struct lc_bike_pk *pk,
 		      struct lc_rng_ctx *rng_ctx)
 {
-	m_t m;
-	seeds_t seeds = { 0 };
-	pad_e_t e;
+	struct workspace {
+		pad_e_t e;
+		// Pad the public key and the ciphertext
+		pad_r_t p_ct;
+		pad_r_t p_pk;
+		dbl_pad_r_t t;
+		uint64_t secure_buffer[LC_SECURE_BUFFER_QWORDS];
+		m_t m;
+		seeds_t seeds;
+	};
+	int ret;
+	LC_DECLARE_MEM(ws, struct workspace,LC_BIKE_ALIGN_BYTES);
 
 	lc_rng_check(&rng_ctx);
 
-	lc_rng_generate(rng_ctx, NULL, 0, (uint8_t *)&seeds.seed,
-			sizeof(seeds.seed));
+	lc_rng_generate(rng_ctx, NULL, 0, (uint8_t *)&ws->seeds.seed,
+			sizeof(ws->seeds.seed));
 
 	// e = H(m) = H(seed[0])
-	convert_seed_to_m_type(&m, &seeds.seed[0]);
-	function_h(&e, &m, &pk->pk);
+	convert_seed_to_m_type(&ws->m, &ws->seeds.seed[0]);
+	CKINT(function_h(&ws->e, &ws->m, &pk->pk));
 
 	// Calculate the ciphertext
-	encrypt(ct, &e, &pk->pk, &m);
+	encrypt(ct, &ws->e, &pk->pk, &ws->m, &ws->p_ct, &ws->p_pk, &ws->t, ws->secure_buffer);
 
 	// Generate the shared secret
-	function_k(ss, &m, ct);
+	function_k(ss, &ws->m, ct);
 
 	//print("ss: ", (uint64_t *)l_ss.raw, SIZEOF_BITS(l_ss));
 
-	lc_memset_secure(&m, 0, sizeof(m));
-	lc_memset_secure(&seeds, 0, sizeof(seeds));
-	lc_memset_secure(&e, 0, sizeof(e));
-	return 0;
+out:
+	LC_RELEASE_MEM(ws);
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_bike_enc, struct lc_bike_ct *ct,
@@ -265,46 +278,47 @@ LC_INTERFACE_FUNCTION(int, lc_bike_enc, struct lc_bike_ct *ct,
 LC_INTERFACE_FUNCTION(int, lc_bike_dec, struct lc_bike_ss *ss,
 		      const struct lc_bike_ct *ct, const struct lc_bike_sk *sk)
 {
-	e_t e;
-	m_t m_prime;
-	pad_e_t e_tmp;
-	pad_e_t e_prime = { 0 };
+	struct workspace {
+		pad_e_t e_tmp, e_prime;
+		m_t tmp;
+		e_t e;
+		m_t m_prime;
+	};
 	uint32_t mask;
 	unsigned int i;
-	int success_cond;
+	int success_cond, ret;
+	LC_DECLARE_MEM(ws, struct workspace, LC_BIKE_ALIGN_BYTES);
 
 	// Decode
-	bike_decode(&e, ct, sk);
+	CKINT(bike_decode(&ws->e, ct, sk));
 
 	// Copy the error vector in the padded struct.
-	e_prime.val[0].val = e.val[0];
-	e_prime.val[1].val = e.val[1];
+	ws->e_prime.val[0].val = ws->e.val[0];
+	ws->e_prime.val[1].val = ws->e.val[1];
 
-	reencrypt(&m_prime, &e_prime, ct);
+	reencrypt(&ws->m_prime, &ws->e_prime, ct, &ws->tmp);
 
 	// Check if H(m') is equal to (e0', e1')
 	// (in constant-time)
-	function_h(&e_tmp, &m_prime, &sk->pk);
+	function_h(&ws->e_tmp, &ws->m_prime, &sk->pk);
 
-	success_cond = !lc_memcmp_secure(PE0_RAW(&e_prime), LC_BIKE_R_BYTES,
-					 PE0_RAW(&e_tmp), LC_BIKE_R_BYTES);
-	success_cond &= !lc_memcmp_secure(PE1_RAW(&e_prime), LC_BIKE_R_BYTES,
-					  PE1_RAW(&e_tmp), LC_BIKE_R_BYTES);
+	success_cond = !lc_memcmp_secure(PE0_RAW(&ws->e_prime), LC_BIKE_R_BYTES,
+					 PE0_RAW(&ws->e_tmp), LC_BIKE_R_BYTES);
+	success_cond &= !lc_memcmp_secure(PE1_RAW(&ws->e_prime), LC_BIKE_R_BYTES,
+					  PE1_RAW(&ws->e_tmp), LC_BIKE_R_BYTES);
 
 	// Compute either K(m', C) or K(sigma, C) based on the success condition
 	mask = secure_l32_mask(0, (uint32_t)success_cond);
 	for (i = 0; i < LC_BIKE_M_BYTES; i++) {
-		m_prime.raw[i] &= u8_barrier((uint8_t)(~mask));
-		m_prime.raw[i] |=
+		ws->m_prime.raw[i] &= u8_barrier((uint8_t)(~mask));
+		ws->m_prime.raw[i] |=
 			(u8_barrier((uint8_t)mask) & sk->sigma.raw[i]);
 	}
 
 	// Generate the shared secret
-	function_k(ss, &m_prime, ct);
+	function_k(ss, &ws->m_prime, ct);
 
-	lc_memset_secure(&e, 0, sizeof(e));
-	lc_memset_secure(&m_prime, 0, sizeof(m_prime));
-	lc_memset_secure(&e_tmp, 0, sizeof(e_tmp));
-	lc_memset_secure(&e_prime, 0, sizeof(e_prime));
-	return 0;
+out:
+	LC_RELEASE_MEM(ws);
+	return ret;
 }

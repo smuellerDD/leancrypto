@@ -33,18 +33,23 @@
 #include "cpufeatures.h"
 #include "static_rng.h"
 #include "ret_checkers.h"
+#include "small_stack_support.h"
 #include "visibility.h"
 
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #endif
 
-static int bike_tester_one(const struct lc_bike_testvector *vector)
-{
+struct workspace {
 	struct lc_bike_pk pk;
 	struct lc_bike_sk sk;
 	struct lc_bike_ct ct;
 	struct lc_bike_ss ss, ss2;
+};
+
+static int bike_tester_one(const struct lc_bike_testvector *vector,
+			   struct workspace *ws)
+{
 	struct lc_static_rng_data static_data = {
 		.seed = vector->seed,
 		.seedlen = sizeof(vector->seed),
@@ -52,17 +57,17 @@ static int bike_tester_one(const struct lc_bike_testvector *vector)
 	int ret, rc = 0;
 	LC_STATIC_DRNG_ON_STACK(sdrng, &static_data);
 
-	CKINT(lc_bike_keypair(&pk, &sk, &sdrng));
+	CKINT(lc_bike_keypair(&ws->pk, &ws->sk, &sdrng));
 
-	rc += lc_compare((uint8_t *)&pk, vector->pk, sizeof(pk), "BIKE PK");
-	rc += lc_compare((uint8_t *)&sk, vector->sk, sizeof(sk), "BIKE SK");
+	rc += lc_compare((uint8_t *)&ws->pk, vector->pk, sizeof(ws->pk), "BIKE PK");
+	rc += lc_compare((uint8_t *)&ws->sk, vector->sk, sizeof(ws->sk), "BIKE SK");
 
-	CKINT(lc_bike_enc_internal(&ct, &ss, &pk, &sdrng));
-	rc += lc_compare((uint8_t *)&ct, vector->ct, sizeof(ct), "BIKE Enc CT");
-	rc += lc_compare((uint8_t *)&ss, vector->ss, sizeof(ss), "BIKE Enc SS");
+	CKINT(lc_bike_enc_internal(&ws->ct, &ws->ss, &ws->pk, &sdrng));
+	rc += lc_compare((uint8_t *)&ws->ct, vector->ct, sizeof(ws->ct), "BIKE Enc CT");
+	rc += lc_compare((uint8_t *)&ws->ss, vector->ss, sizeof(ws->ss), "BIKE Enc SS");
 
-	CKINT(lc_bike_dec(&ss2, &ct, &sk));
-	rc += lc_compare((uint8_t *)&ss2, vector->ss, sizeof(ss2),
+	CKINT(lc_bike_dec(&ws->ss2, &ws->ct, &ws->sk));
+	rc += lc_compare((uint8_t *)&ws->ss2, vector->ss, sizeof(ws->ss2),
 			 "BIKE Dec SS");
 
 out:
@@ -73,6 +78,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	unsigned int i;
 	int ret = 0;
+	LC_DECLARE_MEM(ws, struct workspace, LC_BIKE_ALIGN_BYTES);
 
 	(void)argv;
 
@@ -81,8 +87,9 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 		lc_cpu_feature_disable();
 
 	for (i = 0; i < ARRAY_SIZE(bike_test); i++) {
-		ret += bike_tester_one(&bike_test[i]);
+		ret += bike_tester_one(&bike_test[i], ws);
 	}
 
+	LC_RELEASE_MEM(ws);
 	return ret;
 }

@@ -34,10 +34,6 @@
 #include "ext_headers.h"
 #include "lc_memset_secure.h"
 
-// The secure buffer size required for Karatsuba is computed by:
-//    size(n) = 3*n/2 + size(n/2) = 3*sum_{i}{n/2^i} < 3n
-#define SECURE_BUFFER_QWORDS (3 * LC_BIKE_R_PADDED_QWORDS)
-
 // Karatsuba multiplication algorithm.
 // Input arguments a and b are padded with zeros, here:
 //   - n: real number of digits in a and b (R_QWORDS)
@@ -105,25 +101,20 @@ static inline void karatzuba(uint64_t *c, const uint64_t *a, const uint64_t *b,
 }
 
 void gf2x_mod_mul_with_ctx(pad_r_t *c, const pad_r_t *a, const pad_r_t *b,
-			   const gf2x_ctx *ctx)
+			   const gf2x_ctx *ctx, dbl_pad_r_t *t,
+			   uint64_t secure_buffer[LC_SECURE_BUFFER_QWORDS])
 {
-	dbl_pad_r_t t = { 0 };
-	uint64_t secure_buffer[SECURE_BUFFER_QWORDS] __align(
-		LC_BIKE_ALIGN_BYTES);
-
 	BUILD_BUG_ON(LC_BIKE_R_PADDED_BYTES % 2 != 0);
 
-	karatzuba((uint64_t *)&t, (const uint64_t *)a, (const uint64_t *)b,
+	karatzuba((uint64_t *)t, (const uint64_t *)a, (const uint64_t *)b,
 		  LC_BIKE_R_QWORDS, LC_BIKE_R_PADDED_QWORDS, secure_buffer,
 		  ctx);
 
-	ctx->red(c, &t);
-
-	lc_memset_secure((uint8_t *)secure_buffer, 0, sizeof(secure_buffer));
-	lc_memset_secure(&t, 0, sizeof(t));
+	ctx->red(c, t);
 }
 
-void gf2x_mod_mul(pad_r_t *c, const pad_r_t *a, const pad_r_t *b)
+void gf2x_mod_mul(pad_r_t *c, const pad_r_t *a, const pad_r_t *b, dbl_pad_r_t *t,
+		uint64_t secure_buffer[LC_SECURE_BUFFER_QWORDS])
 {
 	// Initialize gf2x methods struct
 	gf2x_ctx ctx;
@@ -132,5 +123,5 @@ void gf2x_mod_mul(pad_r_t *c, const pad_r_t *a, const pad_r_t *b)
 
 	gf2x_ctx_init(&ctx);
 
-	gf2x_mod_mul_with_ctx(c, a, b, &ctx);
+	gf2x_mod_mul_with_ctx(c, a, b, &ctx, t, secure_buffer);
 }

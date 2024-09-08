@@ -59,7 +59,7 @@ void karatzuba_add3_port(uint64_t *c, const uint64_t *mid,
 void gf2x_sqr_port(dbl_pad_r_t *c, const pad_r_t *a);
 // The k-squaring function computes c = a^(2^k) % (x^r - 1),
 // It is required by inversion, where l_param is derived from k.
-void k_sqr_port(pad_r_t *c, const pad_r_t *a, size_t l_param);
+int k_sqr_port(pad_r_t *c, const pad_r_t *a, size_t l_param);
 // c = a mod (x^r - 1)
 void gf2x_red_port(pad_r_t *c, const dbl_pad_r_t *a);
 
@@ -92,8 +92,8 @@ void gf2x_sqr_vpclmul(dbl_pad_r_t *c, const pad_r_t *a);
 
 // The k-squaring function computes c = a^(2^k) % (x^r - 1),
 // It is required by inversion, where l_param is derived from k.
-void k_sqr_avx2(pad_r_t *c, const pad_r_t *a, size_t l_param);
-void k_sqr_avx512(pad_r_t *c, const pad_r_t *a, size_t l_param);
+int k_sqr_avx2(pad_r_t *c, const pad_r_t *a, size_t l_param);
+int k_sqr_avx512(pad_r_t *c, const pad_r_t *a, size_t l_param);
 
 // c = a mod (x^r - 1)
 void gf2x_red_avx2(pad_r_t *c, const dbl_pad_r_t *a);
@@ -113,14 +113,15 @@ typedef struct gf2x_ctx_st {
 			       const size_t qwords_len);
 
 	void (*sqr)(dbl_pad_r_t *c, const pad_r_t *a);
-	void (*k_sqr)(pad_r_t *c, const pad_r_t *a, size_t l_param);
+	int (*k_sqr)(pad_r_t *c, const pad_r_t *a, size_t l_param);
 
 	void (*red)(pad_r_t *c, const dbl_pad_r_t *a);
 } gf2x_ctx;
 
 // Used in gf2x_inv.c to avoid initializing the context many times.
 void gf2x_mod_mul_with_ctx(pad_r_t *c, const pad_r_t *a, const pad_r_t *b,
-			   const gf2x_ctx *ctx);
+			   const gf2x_ctx *ctx, dbl_pad_r_t *t,
+			   uint64_t secure_buffer[LC_SECURE_BUFFER_QWORDS]);
 
 static inline void gf2x_ctx_init(gf2x_ctx *ctx)
 {

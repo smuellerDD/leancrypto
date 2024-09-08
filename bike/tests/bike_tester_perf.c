@@ -23,23 +23,28 @@
 #include "cpufeatures.h"
 #include "lc_rng.h"
 #include "ret_checkers.h"
+#include "small_stack_support.h"
 #include "visibility.h"
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
-static int bike_tester_perf_one(void)
-{
+struct workspace {
 	struct lc_bike_pk pk;
 	struct lc_bike_sk sk;
 	struct lc_bike_ct ct;
 	struct lc_bike_ss ss, ss2;
+};
+
+static int bike_tester_perf_one(struct workspace *ws)
+{
 	int ret;
 
-	CKINT(lc_bike_keypair(&pk, &sk, lc_seeded_rng));
-	CKINT(lc_bike_enc(&ct, &ss, &pk));
-	CKINT(lc_bike_dec(&ss2, &ct, &sk));
+	CKINT(lc_bike_keypair(&ws->pk, &ws->sk, lc_seeded_rng));
+	CKINT(lc_bike_enc(&ws->ct, &ws->ss, &ws->pk));
+	CKINT(lc_bike_dec(&ws->ss2, &ws->ct, &ws->sk));
 
 out:
+	LC_RELEASE_MEM(ws);
 	return ret;
 }
 
@@ -47,6 +52,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	unsigned int i;
 	int ret = 0;
+	LC_DECLARE_MEM(ws, struct workspace, LC_BIKE_ALIGN_BYTES);
 
 	(void)argv;
 
@@ -55,8 +61,9 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 		lc_cpu_feature_disable();
 
 	for (i = 0; i < 200; i++) {
-		ret += bike_tester_perf_one();
+		ret += bike_tester_perf_one(ws);
 	}
 
+	LC_RELEASE_MEM(ws);
 	return ret;
 }

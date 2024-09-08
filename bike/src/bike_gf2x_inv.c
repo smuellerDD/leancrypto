@@ -36,6 +36,8 @@
 #include "bike_gf2x_internal.h"
 #include "build_bug_on.h"
 #include "lc_memset_secure.h"
+#include "small_stack_support.h"
+#include "ret_checkers.h"
 
 // a = a^2 mod (x^r - 1)
 static inline void gf2x_mod_sqr_in_place(pad_r_t *a, dbl_pad_r_t *secure_buffer,
@@ -133,27 +135,34 @@ static inline void repeated_squaring(pad_r_t *c, pad_r_t *a,
 
 // Inversion in F_2[x]/(x^R - 1), [1](Algorithm 2).
 // c = a^{-1} mod x^r-1
-void gf2x_mod_inv(pad_r_t *c, const pad_r_t *a)
+int gf2x_mod_inv(pad_r_t *c, const pad_r_t *a)
 {
+	/*
+	 * Note that exp0/1_k/l are predefined constants that depend
+	 * only on the value of R. This value is public. Therefore,
+	 * branches in this function, which depends on R, are also
+	 * "public". Code that releases these branches
+	 * (taken/not-taken) does not leak secret information.
+	 */
+	static const size_t exp0_k[MAX_I] = { EXP0_K_VALS };
+	static const size_t exp0_l[MAX_I] = { EXP0_L_VALS };
+	static const size_t exp1_k[MAX_I] = { EXP1_K_VALS };
+	static const size_t exp1_l[MAX_I] = { EXP1_L_VALS };
+	struct workspace {
+		pad_r_t f;
+		pad_r_t g;
+		pad_r_t t;
+		dbl_pad_r_t sec_buf;
+		dbl_pad_r_t tmp;
+		uint64_t secure_buffer[LC_SECURE_BUFFER_QWORDS];
+	};
 	// Initialize gf2x methods struct
 	gf2x_ctx ctx;
-	gf2x_ctx_init(&ctx);
-
-	// Note that exp0/1_k/l are predefined constants that depend only on the value
-	// of R. This value is public. Therefore, branches in this function, which
-	// depends on R, are also "public". Code that releases these branches
-	// (taken/not-taken) does not leak secret information.
-	const size_t exp0_k[MAX_I] = { EXP0_K_VALS };
-	const size_t exp0_l[MAX_I] = { EXP0_L_VALS };
-	const size_t exp1_k[MAX_I] = { EXP1_K_VALS };
-	const size_t exp1_l[MAX_I] = { EXP1_L_VALS };
-
-	pad_r_t f = { 0 };
-	pad_r_t g = { 0 };
-	pad_r_t t = { 0 };
-	dbl_pad_r_t sec_buf = { 0 };
-
 	unsigned int i;
+	int ret = 0;
+	LC_DECLARE_MEM(ws, struct workspace, 64);
+
+	gf2x_ctx_init(&ctx);
 
 #if (LC_BIKE_LEVEL == 1)
 	// The parameters below are hard-coded for R=12323
@@ -167,41 +176,43 @@ void gf2x_mod_inv(pad_r_t *c, const pad_r_t *a)
 #endif
 
 	// Steps 2 and 3 in [1](Algorithm 2)
-	f.val = a->val;
-	t.val = a->val;
+	ws->f.val = a->val;
+	ws->t.val = a->val;
 
 	for (i = 1; i < MAX_I; i++) {
 		// Step 5 in [1](Algorithm 2), exponentiation 0: g = f^2^2^(i-1)
 		if (exp0_k[i - 1] <= K_SQR_THR) {
-			repeated_squaring(&g, &f, exp0_k[i - 1], &sec_buf,
+			repeated_squaring(&ws->g, &ws->f, exp0_k[i - 1], &ws->sec_buf,
 					  &ctx);
 		} else {
-			ctx.k_sqr(&g, &f, exp0_l[i - 1]);
+			CKINT(ctx.k_sqr(&ws->g, &ws->f, exp0_l[i - 1]));
 		}
 
+		lc_memset_secure(ws->secure_buffer, 0, sizeof(ws->secure_buffer));
 		// Step 6, [1](Algorithm 2): f = f*g
-		gf2x_mod_mul_with_ctx(&f, &g, &f, &ctx);
+		gf2x_mod_mul_with_ctx(&ws->f, &ws->g, &ws->f, &ctx, &ws->tmp,
+				      ws->secure_buffer);
 
 		if (exp1_k[i] != 0) {
 			// Step 8, [1](Algorithm 2), exponentiation 1: g = f^2^((r-2) % 2^i)
 			if (exp1_k[i] <= K_SQR_THR) {
-				repeated_squaring(&g, &f, exp1_k[i], &sec_buf,
+				repeated_squaring(&ws->g, &ws->f, exp1_k[i], &ws->sec_buf,
 						  &ctx);
 			} else {
-				ctx.k_sqr(&g, &f, exp1_l[i]);
+				CKINT(ctx.k_sqr(&ws->g, &ws->f, exp1_l[i]));
 			}
 
+			lc_memset_secure(ws->secure_buffer, 0, sizeof(ws->secure_buffer));
 			// Step 9, [1](Algorithm 2): t = t*g;
-			gf2x_mod_mul_with_ctx(&t, &g, &t, &ctx);
+			gf2x_mod_mul_with_ctx(&ws->t, &ws->g, &ws->t, &ctx, &ws->tmp, ws->secure_buffer);
 		}
 	}
 
 	// Step 10, [1](Algorithm 2): c = t^2
-	gf2x_mod_sqr_in_place(&t, &sec_buf, &ctx);
-	c->val = t.val;
+	gf2x_mod_sqr_in_place(&ws->t, &ws->sec_buf, &ctx);
+	c->val = ws->t.val;
 
-	lc_memset_secure(&f, 0, sizeof(f));
-	lc_memset_secure(&g, 0, sizeof(g));
-	lc_memset_secure(&t, 0, sizeof(t));
-	lc_memset_secure(&sec_buf, 0, sizeof(sec_buf));
+out:
+	LC_RELEASE_MEM(ws);
+	return ret;
 }

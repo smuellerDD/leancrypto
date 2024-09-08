@@ -93,6 +93,11 @@ extern "C" {
 
 #define LC_BIKE_SEED_BYTES (256 / 8)
 
+// The secure buffer size required for Karatsuba is computed by:
+//    size(n) = 3*n/2 + size(n/2) = 3*sum_{i}{n/2^i} < 3n
+#define LC_SECURE_BUFFER_QWORDS (3 * LC_BIKE_R_PADDED_QWORDS)
+
+
 /*******************************************************************************
  * Parameters for the BGF decoder.
  ******************************************************************************/

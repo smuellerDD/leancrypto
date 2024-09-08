@@ -48,8 +48,7 @@
 
 #else /* LINUX_KERNEL */
 
-//#include <immintrin.h>
-#include "ext_x86_immintrin.h"
+#include <immintrin.h>
 
 #define LC_FPU_ENABLE
 #define LC_FPU_DISABLE

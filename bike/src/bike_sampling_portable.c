@@ -31,22 +31,25 @@
 #include "bike_sampling_internal.h"
 #include "build_bug_on.h"
 #include "ext_headers.h"
+#include "small_stack_support.h"
 
 #define MAX_WLIST_SIZE (LC_BIKE_MAX_RAND_INDICES_T)
 
-void secure_set_bits_port(pad_r_t *r, const uint32_t first_pos,
+int secure_set_bits_port(pad_r_t *r, const uint32_t first_pos,
 			  const idx_t *wlist, const uint32_t w_size)
 {
-	assert(w_size <= MAX_WLIST_SIZE);
-
+	struct workspace {
+		// The size of wlist can be either D or T. So, we set it to
+		// max(D, T)
+		uint64_t pos_bit[MAX_WLIST_SIZE];
+		uint32_t pos_qw[MAX_WLIST_SIZE];
+	};
 	uint64_t *a64 = (uint64_t *)r;
 	uint64_t val, mask;
-
-	// The size of wlist can be either D or T. So, we set it to max(D, T)
-	uint32_t pos_qw[MAX_WLIST_SIZE];
-	uint64_t pos_bit[MAX_WLIST_SIZE];
-
 	uint32_t i;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+
+	assert(w_size <= MAX_WLIST_SIZE);
 
 	// Ideally we would like to cast r.val but it is not guaranteed to be aligned
 	// as the entire pad_r_t structure. Thus, we assert that the position of val
@@ -57,19 +60,22 @@ void secure_set_bits_port(pad_r_t *r, const uint32_t first_pos,
 	for (i = 0; i < w_size; i++) {
 		uint32_t w = wlist[i] - first_pos;
 
-		pos_qw[i] = (w >> 6);
-		pos_bit[i] = LC_BIKE_BIT(w & LC_BIKE_MASK(6));
+		ws->pos_qw[i] = (w >> 6);
+		ws->pos_bit[i] = LC_BIKE_BIT(w & LC_BIKE_MASK(6));
 	}
 
 	// Fill each QW in constant time
 	for (i = 0; i < (sizeof(*r) / sizeof(uint64_t)); i++) {
 		val = 0;
 		for (size_t j = 0; j < w_size; j++) {
-			mask = (-1ULL) + (!secure_cmp32(pos_qw[j], i));
-			val |= (pos_bit[j] & mask);
+			mask = (-1ULL) + (!secure_cmp32(ws->pos_qw[j], i));
+			val |= (ws->pos_bit[j] & mask);
 		}
 		a64[i] = val;
 	}
+
+	LC_RELEASE_MEM(ws);
+	return 0;
 }
 
 #if defined(UNIFORM_SAMPLING)

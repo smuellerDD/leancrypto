@@ -47,7 +47,7 @@
 // For improved performance, we compute the result by inverted permutation pi1:
 //     pi1 : (j * 2^-k) % r --> j.
 // Input argument l_param is defined as the value (2^-k) % r.
-void k_sqr_port(pad_r_t *c, const pad_r_t *a, const size_t l_param)
+int k_sqr_port(pad_r_t *c, const pad_r_t *a, const size_t l_param)
 {
 	memset(c->val.raw, 0, sizeof(c->val));
 
@@ -67,4 +67,6 @@ void k_sqr_port(pad_r_t *c, const pad_r_t *a, const size_t l_param)
 		}
 	}
 	c->val.raw[LC_BIKE_R_BYTES - 1] &= LC_BIKE_LAST_R_BYTE_MASK;
+
+	return 0;
 }

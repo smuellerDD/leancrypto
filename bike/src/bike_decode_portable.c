@@ -31,6 +31,7 @@
 #include "bike_decode_internal.h"
 #include "bike_utilities.h"
 #include "build_bug_on.h"
+#include "small_stack_support.h"
 
 #define R_QWORDS_HALF_LOG2 LC_BIKE_UPTOPOW2(LC_BIKE_R_QWORDS / 2)
 
@@ -118,10 +119,13 @@ void bit_sliced_adder_port(upc_t *upc, syndrome_t *rotated_syndrome,
 	}
 }
 
-void bit_slice_full_subtract_port(upc_t *upc, uint8_t val)
+int bit_slice_full_subtract_port(upc_t *upc, uint8_t val)
 {
-	// Borrow
-	uint64_t br[LC_BIKE_R_QWORDS] = { 0 };
+	struct workspace {
+		// Borrow
+		uint64_t br[LC_BIKE_R_QWORDS];
+	};
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	for (size_t j = 0; j < LC_BIKE_SLICES; j++) {
 		const uint64_t lsb_mask = 0 - (val & 0x1);
@@ -143,9 +147,12 @@ void bit_slice_full_subtract_port(upc_t *upc, uint8_t val)
 			const uint64_t a = upc->slice[j].u.qw[i];
 			const uint64_t b = lsb_mask;
 			const uint64_t tmp =
-				((~a) & b & (~br[i])) | ((((~a) | b) & br[i]));
-			upc->slice[j].u.qw[i] = a ^ b ^ br[i];
-			br[i] = tmp;
+				((~a) & b & (~ws->br[i])) | ((((~a) | b) & ws->br[i]));
+			upc->slice[j].u.qw[i] = a ^ b ^ ws->br[i];
+			ws->br[i] = tmp;
 		}
 	}
+
+	LC_RELEASE_MEM(ws);
+	return 0;
 }

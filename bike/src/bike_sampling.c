@@ -35,6 +35,7 @@
 #include "bike_utilities.h"
 #include "lc_memset_secure.h"
 #include "lc_sha3.h"
+#include "ret_checkers.h"
 
 #if defined(UNIFORM_SAMPLING)
 static inline void get_rand_mod_len(uint32_t *rand_pos, const uint32_t len,
@@ -114,11 +115,12 @@ static void sample_indices_fisher_yates(idx_t *out, unsigned int num_indices,
 	}
 }
 
-static inline void generate_sparse_rep_for_sk(pad_r_t *r, idx_t *wlist,
+static inline int generate_sparse_rep_for_sk(pad_r_t *r, idx_t *wlist,
 					      struct lc_hash_ctx *prf_state,
 					      sampling_ctx *ctx)
 {
 	idx_t wlist_temp[LC_BIKE_D] = { 0 };
+	int ret;
 
 #if defined(UNIFORM_SAMPLING)
 	generate_indices_mod_z(wlist_temp, LC_BIKE_D, LC_BIKE_R_BITS,
@@ -129,16 +131,19 @@ static inline void generate_sparse_rep_for_sk(pad_r_t *r, idx_t *wlist,
 #endif
 
 	memcpy(wlist, wlist_temp, LC_BIKE_D * sizeof(idx_t));
-	ctx->secure_set_bits(r, 0, wlist, LC_BIKE_D);
+	CKINT(ctx->secure_set_bits(r, 0, wlist, LC_BIKE_D));
 
+out:
 	lc_memset_secure((uint8_t *)wlist_temp, 0, sizeof(*wlist_temp));
+	return ret;
 }
 
-void generate_secret_key(pad_r_t *h0, pad_r_t *h1, idx_t *h0_wlist,
+int generate_secret_key(pad_r_t *h0, pad_r_t *h1, idx_t *h0_wlist,
 			 idx_t *h1_wlist, const seed_t *seed)
 {
 	// Initialize the sampling context.
 	sampling_ctx ctx = { 0 };
+	int ret;
 	LC_SHAKE_256_CTX_ON_STACK(prf_state);
 
 	sampling_ctx_init(&ctx);
@@ -146,16 +151,19 @@ void generate_secret_key(pad_r_t *h0, pad_r_t *h1, idx_t *h0_wlist,
 	lc_hash_init(prf_state);
 	lc_hash_update(prf_state, seed->raw, sizeof(*seed));
 
-	generate_sparse_rep_for_sk(h0, h0_wlist, prf_state, &ctx);
-	generate_sparse_rep_for_sk(h1, h1_wlist, prf_state, &ctx);
+	CKINT(generate_sparse_rep_for_sk(h0, h0_wlist, prf_state, &ctx));
+	CKINT(generate_sparse_rep_for_sk(h1, h1_wlist, prf_state, &ctx));
 
+out:
 	lc_hash_zero(prf_state);
+	return ret;
 }
 
-void generate_error_vector(pad_e_t *e, const seed_t *seed)
+int generate_error_vector(pad_e_t *e, const seed_t *seed)
 {
 	// Initialize the sampling context.
 	sampling_ctx ctx;
+	int ret;
 	LC_SHAKE_256_CTX_ON_STACK(prf_state);
 
 	sampling_ctx_init(&ctx);
@@ -172,8 +180,8 @@ void generate_error_vector(pad_e_t *e, const seed_t *seed)
 #endif
 
 	// (e0, e1) hold bits 0..R_BITS-1 and R_BITS..2*R_BITS-1 of the error, resp.
-	ctx.secure_set_bits(&e->val[0], 0, wlist, LC_BIKE_T);
-	ctx.secure_set_bits(&e->val[1], LC_BIKE_R_BITS, wlist, LC_BIKE_T);
+	CKINT(ctx.secure_set_bits(&e->val[0], 0, wlist, LC_BIKE_T));
+	CKINT(ctx.secure_set_bits(&e->val[1], LC_BIKE_R_BITS, wlist, LC_BIKE_T));
 
 	// Clean the padding of the elements.
 	PE0_RAW(e)[LC_BIKE_R_BYTES - 1] &= LC_BIKE_LAST_R_BYTE_MASK;
@@ -183,6 +191,8 @@ void generate_error_vector(pad_e_t *e, const seed_t *seed)
 	memset(&PE1_RAW(e)[LC_BIKE_R_BYTES], 0,
 	       LC_BIKE_R_PADDED_BYTES - LC_BIKE_R_BYTES);
 
+out:
 	lc_hash_zero(prf_state);
 	lc_memset_secure((uint8_t *)wlist, 0, sizeof(*wlist));
+	return ret;
 }

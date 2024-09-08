@@ -35,6 +35,7 @@
 #include "alignment.h"
 #include "bike_gf2x_internal.h"
 #include "lc_memset_secure.h"
+#include "small_stack_support.h"
 
 #define AVX2_INTERNAL
 #include "x86_64_intrinsic.h"
@@ -213,24 +214,27 @@ static inline void bin_to_bytes(uint8_t *bytes_buf, const pad_r_t *bin_buf)
 // For improved performance, we compute the result by inverted permutation pi1:
 //     pi1 : (j * 2^-k) % r --> j.
 // Input argument l_param is defined as the value (2^-k) % r.
-void k_sqr_avx2(pad_r_t *c, const pad_r_t *a, const size_t l_param)
+int k_sqr_avx2(pad_r_t *c, const pad_r_t *a, const size_t l_param)
 {
-	map_word_t map[LC_BIKE_R_PADDED] __align(LC_BIKE_ALIGN_BYTES);
-	uint8_t a_bytes[LC_BIKE_R_PADDED] __align(LC_BIKE_ALIGN_BYTES);
-	uint8_t c_bytes[LC_BIKE_R_PADDED] __align(LC_BIKE_ALIGN_BYTES) = { 0 };
+	struct workspace {
+		map_word_t map[LC_BIKE_R_PADDED];
+		uint8_t a_bytes[LC_BIKE_R_PADDED];
+		uint8_t c_bytes[LC_BIKE_R_PADDED];
+	};
+	LC_DECLARE_MEM(ws, struct workspace, LC_BIKE_ALIGN_BYTES);
 
 	// Generate the permutation map defined by pi1 and l_param.
-	generate_map(map, (map_word_t)l_param);
+	generate_map(ws->map, (map_word_t)l_param);
 
-	bin_to_bytes(a_bytes, a);
+	bin_to_bytes(ws->a_bytes, a);
 
 	// Permute "a" using the generated permutation map.
 	for (size_t i = 0; i < LC_BIKE_R_BITS; i++) {
-		c_bytes[i] = a_bytes[map[i]];
+		ws->c_bytes[i] = ws->a_bytes[ws->map[i]];
 	}
 
-	bytes_to_bin(c, c_bytes);
+	bytes_to_bin(c, ws->c_bytes);
 
-	lc_memset_secure(a_bytes, 0, sizeof(a_bytes));
-	lc_memset_secure(c_bytes, 0, sizeof(c_bytes));
+	LC_RELEASE_MEM(ws);
+	return 0;
 }

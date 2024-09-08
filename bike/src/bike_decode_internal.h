@@ -47,7 +47,7 @@ void rotate_right_port(syndrome_t *out, const syndrome_t *in,
 void dup_port(syndrome_t *s);
 void bit_sliced_adder_port(upc_t *upc, syndrome_t *rotated_syndrome,
 			   const size_t num_of_slices);
-void bit_slice_full_subtract_port(upc_t *upc, uint8_t val);
+int bit_slice_full_subtract_port(upc_t *upc, uint8_t val);
 
 #if defined(X86_64)
 void rotate_right_avx2(syndrome_t *out, const syndrome_t *in,
@@ -62,8 +62,8 @@ void bit_sliced_adder_avx2(upc_t *upc, syndrome_t *rotated_syndrome,
 void bit_sliced_adder_avx512(upc_t *upc, syndrome_t *rotated_syndrome,
 			     const size_t num_of_slices);
 
-void bit_slice_full_subtract_avx2(upc_t *upc, uint8_t val);
-void bit_slice_full_subtract_avx512(upc_t *upc, uint8_t val);
+int bit_slice_full_subtract_avx2(upc_t *upc, uint8_t val);
+int bit_slice_full_subtract_avx512(upc_t *upc, uint8_t val);
 #endif
 
 // Decode methods struct
@@ -73,7 +73,7 @@ typedef struct decode_ctx_st {
 	void (*dup)(syndrome_t *s);
 	void (*bit_sliced_adder)(upc_t *upc, syndrome_t *rotated_syndrom,
 				 const size_t num_of_slices);
-	void (*bit_slice_full_subtract)(upc_t *upc, uint8_t val);
+	int (*bit_slice_full_subtract)(upc_t *upc, uint8_t val);
 } decode_ctx;
 
 static inline void decode_ctx_init(decode_ctx *ctx)
