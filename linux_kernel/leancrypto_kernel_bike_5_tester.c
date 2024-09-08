@@ -110,8 +110,9 @@ static int lc_bike_ss(const char *algname)
 	}
 
 	if (crypto_kpp_maxsize(tfm) != sizeof(struct lc_bike_ct)) {
-		pr_err("crypto_kpp_maxsize returns wrong size: %u vs %lu\n",
-		       crypto_kpp_maxsize(tfm), sizeof(struct lc_bike_ct));
+		pr_err("crypto_kpp_maxsize returns wrong size: %u vs %u\n",
+		       crypto_kpp_maxsize(tfm),
+		       (unsigned int)(sizeof(struct lc_bike_ct)));
 		err = -EINVAL;
 		goto out;
 	}
