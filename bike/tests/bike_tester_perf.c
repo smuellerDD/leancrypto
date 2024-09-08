@@ -26,7 +26,9 @@
 #include "small_stack_support.h"
 #include "visibility.h"
 
+#ifndef ARRAY_SIZE
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+#endif
 
 struct workspace {
 	struct lc_bike_pk pk;
@@ -44,7 +46,6 @@ static int bike_tester_perf_one(struct workspace *ws)
 	CKINT(lc_bike_dec(&ws->ss2, &ws->ct, &ws->sk));
 
 out:
-	LC_RELEASE_MEM(ws);
 	return ret;
 }
 
