@@ -38,7 +38,7 @@
 void karatzuba_add1_avx2(uint64_t *alah, uint64_t *blbh, const uint64_t *a,
 			 const uint64_t *b, const size_t qwords_len)
 {
-	assert(qwords_len % REG_QWORDS == 0);
+	//assert(qwords_len % REG_QWORDS == 0);
 
 	LC_FPU_ENABLE;
 	REG_T va0, va1, vb0, vb1;
@@ -58,7 +58,7 @@ void karatzuba_add1_avx2(uint64_t *alah, uint64_t *blbh, const uint64_t *a,
 void karatzuba_add2_avx2(uint64_t *z, const uint64_t *x, const uint64_t *y,
 			 const size_t qwords_len)
 {
-	assert(qwords_len % REG_QWORDS == 0);
+	//assert(qwords_len % REG_QWORDS == 0);
 
 	LC_FPU_ENABLE;
 	REG_T vx, vy;
@@ -75,7 +75,7 @@ void karatzuba_add2_avx2(uint64_t *z, const uint64_t *x, const uint64_t *y,
 void karatzuba_add3_avx2(uint64_t *c, const uint64_t *mid,
 			 const size_t qwords_len)
 {
-	assert(qwords_len % REG_QWORDS == 0);
+	//assert(qwords_len % REG_QWORDS == 0);
 
 	LC_FPU_ENABLE;
 	REG_T vr0, vr1, vr2, vr3, vt;

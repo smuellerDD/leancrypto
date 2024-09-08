@@ -83,6 +83,7 @@ static void compute_syndrome(syndrome_t *syndrome, const pad_r_t *c0,
 			     pad_r_t *pad_s, dbl_pad_r_t *t,
 			     uint64_t secure_buffer[LC_SECURE_BUFFER_QWORDS])
 {
+	lc_memset_secure(secure_buffer, 0, sizeof(*secure_buffer));
 	gf2x_mod_mul(pad_s, c0, h0, t, secure_buffer);
 
 	memcpy((uint8_t *)syndrome->qw, pad_s->val.raw, LC_BIKE_R_BYTES);
@@ -96,15 +97,19 @@ recompute_syndrome(syndrome_t *syndrome, const pad_r_t *c0, const pad_r_t *h0,
 		   dbl_pad_r_t *t,
 		   uint64_t secure_buffer[LC_SECURE_BUFFER_QWORDS])
 {
+	lc_memset_secure(e0, 0, sizeof(*e0));
+	lc_memset_secure(e1, 0, sizeof(*e1));
+
 	e0->val = e->val[0];
 	e1->val = e->val[1];
+
+	lc_memset_secure(secure_buffer, 0, sizeof(*secure_buffer));
 
 	// tmp_c0 = pk * e1 + c0 + e0
 	gf2x_mod_mul(tmp_c0, e1, pk, t, secure_buffer);
 	gf2x_mod_add(tmp_c0, tmp_c0, c0);
 	gf2x_mod_add(tmp_c0, tmp_c0, e0);
 
-	lc_memset_secure(secure_buffer, 0, sizeof(*secure_buffer));
 	// Recompute the syndrome using the updated ciphertext
 	compute_syndrome(syndrome, tmp_c0, h0, ctx, pad_s, t, secure_buffer);
 }
@@ -168,6 +173,8 @@ static inline int find_err1(e_t *e, e_t *black_e, e_t *gray_e,
 	// This function uses the bit-slice-adder methodology of [5]:
 	unsigned int i;
 	int ret;
+
+	lc_memset_secure(rotated_syndrome, 0, sizeof(*rotated_syndrome));
 
 	for (i = 0; i < LC_BIKE_N0; i++) {
 		unsigned int j, l;
@@ -236,6 +243,8 @@ static inline int find_err2(e_t *e, e_t *pos_e, const syndrome_t *syndrome,
 {
 	unsigned int i;
 	int ret;
+
+	lc_memset_secure(rotated_syndrome, 0, sizeof(*rotated_syndrome));
 
 	for (i = 0; i < LC_BIKE_N0; i++) {
 		unsigned int j;
@@ -317,8 +326,6 @@ int bike_decode(e_t *e, const struct lc_bike_ct *ct,
 				threshold, &ws->ctx, &ws->rotated_syndrome,
 				&ws->upc));
 
-		lc_memset_secure(ws->secure_buffer, 0,
-				 sizeof(ws->secure_buffer));
 		recompute_syndrome(&ws->s, &ws->c0, &ws->h0, &ws->pk, e,
 				   &ws->ctx, &ws->tmp_c0, &ws->e0, &ws->e1,
 				   &ws->pad_s, &ws->t, ws->secure_buffer);
@@ -332,8 +339,6 @@ int bike_decode(e_t *e, const struct lc_bike_ct *ct,
 		//DMSG("    Weight of syndrome: %lu\n", r_bits_vector_weight((r_t *)s.qw));
 
 		//find_err2(e, &black_e, &s, sk->wlist, ((D + 1) / 2) + 1, &ctx);
-		lc_memset_secure(ws->secure_buffer, 0,
-				 sizeof(ws->secure_buffer));
 		recompute_syndrome(&ws->s, &ws->c0, &ws->h0, &ws->pk, e,
 				   &ws->ctx, &ws->tmp_c0, &ws->e0, &ws->e1,
 				   &ws->pad_s, &ws->t, ws->secure_buffer);
@@ -341,15 +346,10 @@ int bike_decode(e_t *e, const struct lc_bike_ct *ct,
 		//DMSG("    Weight of e: %lu\n",
 		//     r_bits_vector_weight(&e->val[0]) + r_bits_vector_weight(&e->val[1]));
 		//DMSG("    Weight of syndrome: %lu\n", r_bits_vector_weight((r_t *)s.qw));
-
-		lc_memset_secure(&ws->rotated_syndrome, 0,
-				 sizeof(ws->rotated_syndrome));
 		CKINT(find_err2(e, &ws->gray_e, &ws->s, sk->wlist,
 				((LC_BIKE_D + 1) / 2) + 1, &ws->ctx,
 				&ws->rotated_syndrome, &ws->upc));
 
-		lc_memset_secure(ws->secure_buffer, 0,
-				 sizeof(ws->secure_buffer));
 		recompute_syndrome(&ws->s, &ws->c0, &ws->h0, &ws->pk, e,
 				   &ws->ctx, &ws->tmp_c0, &ws->e0, &ws->e1,
 				   &ws->pad_s, &ws->t, ws->secure_buffer);

@@ -106,6 +106,7 @@ void gf2x_mod_mul_with_ctx(pad_r_t *c, const pad_r_t *a, const pad_r_t *b,
 {
 	BUILD_BUG_ON(LC_BIKE_R_PADDED_BYTES % 2 != 0);
 
+	lc_memset_secure(t, 0, sizeof(*t));
 	karatzuba((uint64_t *)t, (const uint64_t *)a, (const uint64_t *)b,
 		  LC_BIKE_R_QWORDS, LC_BIKE_R_PADDED_QWORDS, secure_buffer,
 		  ctx);

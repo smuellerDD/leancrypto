@@ -232,9 +232,8 @@ int k_sqr_avx2(pad_r_t *c, const pad_r_t *a, const size_t l_param)
 	bin_to_bytes(ws->a_bytes, a);
 
 	// Permute "a" using the generated permutation map.
-	for (size_t i = 0; i < LC_BIKE_R_BITS; i++) {
+	for (size_t i = 0; i < LC_BIKE_R_BITS; i++)
 		ws->c_bytes[i] = ws->a_bytes[ws->map[i]];
-	}
 
 	bytes_to_bin(c, ws->c_bytes);
 

@@ -107,14 +107,14 @@ static inline void gf2x_mul8_512_int(__m512i *zh, __m512i *zl, const __m512i a,
 // Here, a and b are considered as having 16 digits of size 64 bits.
 void gf2x_mul_base_vpclmul(uint64_t *c, const uint64_t *a, const uint64_t *b)
 {
+	LC_FPU_ENABLE;
+
 	const __m512i a0 = LOAD(a);
 	const __m512i a1 = LOAD(&a[LC_BIKE_QWORDS_IN_ZMM]);
 	const __m512i b0 = LOAD(b);
 	const __m512i b1 = LOAD(&b[LC_BIKE_QWORDS_IN_ZMM]);
 
 	__m512i hi[2], lo[2], mi[2];
-
-	LC_FPU_ENABLE;
 
 	gf2x_mul8_512_int(&lo[1], &lo[0], a0, b0);
 	gf2x_mul8_512_int(&hi[1], &hi[0], a1, b1);
