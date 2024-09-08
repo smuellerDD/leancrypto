@@ -187,10 +187,21 @@ int generate_error_vector(pad_e_t *e, const seed_t *seed)
 	// Clean the padding of the elements.
 	PE0_RAW(e)[LC_BIKE_R_BYTES - 1] &= LC_BIKE_LAST_R_BYTE_MASK;
 	PE1_RAW(e)[LC_BIKE_R_BYTES - 1] &= LC_BIKE_LAST_R_BYTE_MASK;
+
+	/*
+	 * The compiler (rightfully) complains that this may overwrite the
+	 * buffer. But as the buffer contains a trailing padding buffer that
+	 * is defind with a separate variable it is not considered by the
+	 * compiler for taking the overflow. But as it is designed for the
+	 * overflow, the compiler reports a false positive.
+	 */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wattribute-warning"
 	memset(&PE0_RAW(e)[LC_BIKE_R_BYTES], 0,
 	       LC_BIKE_R_PADDED_BYTES - LC_BIKE_R_BYTES);
 	memset(&PE1_RAW(e)[LC_BIKE_R_BYTES], 0,
 	       LC_BIKE_R_PADDED_BYTES - LC_BIKE_R_BYTES);
+#pragma GCC diagnostic pop
 
 out:
 	lc_hash_zero(prf_state);
