@@ -188,7 +188,12 @@ static inline void reencrypt(m_t *m, const pad_e_t *e,
 LC_INTERFACE_FUNCTION(int, lc_bike_keypair, struct lc_bike_pk *pk,
 		      struct lc_bike_sk *sk, struct lc_rng_ctx *rng_ctx)
 {
-#if defined(LC_BIG_ENDIAN) || defined(__BIG_ENDIAN)
+#if (defined(LC_BIG_ENDIAN) || (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__))
+	(void)pk;
+	(void)sk;
+	(void)rng_ctx;
+	return -EOPNOTSUPP;
+#else
 	struct workspace {
 		// The secret key is (h0, h1),
 		// and the public key h=(h0^-1 * h1).
@@ -229,8 +234,6 @@ LC_INTERFACE_FUNCTION(int, lc_bike_keypair, struct lc_bike_pk *pk,
 out:
 	LC_RELEASE_MEM(ws);
 	return ret;
-#else
-	return -EOPNOTSUPP;
 #endif
 }
 
@@ -238,7 +241,13 @@ LC_INTERFACE_FUNCTION(int, lc_bike_enc_internal, struct lc_bike_ct *ct,
 		      struct lc_bike_ss *ss, const struct lc_bike_pk *pk,
 		      struct lc_rng_ctx *rng_ctx)
 {
-#if defined(LC_BIG_ENDIAN) || defined(__BIG_ENDIAN)
+#if (defined(LC_BIG_ENDIAN) || (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__))
+	(void)ct;
+	(void)ss;
+	(void)pk;
+	(void)rng_ctx;
+	return -EOPNOTSUPP;
+#else
 	struct workspace {
 		pad_e_t e;
 		// Pad the public key and the ciphertext
@@ -273,8 +282,6 @@ LC_INTERFACE_FUNCTION(int, lc_bike_enc_internal, struct lc_bike_ct *ct,
 out:
 	LC_RELEASE_MEM(ws);
 	return ret;
-#else
-	return -EOPNOTSUPP;
 #endif
 }
 
@@ -287,7 +294,12 @@ LC_INTERFACE_FUNCTION(int, lc_bike_enc, struct lc_bike_ct *ct,
 LC_INTERFACE_FUNCTION(int, lc_bike_dec, struct lc_bike_ss *ss,
 		      const struct lc_bike_ct *ct, const struct lc_bike_sk *sk)
 {
-#if defined(LC_BIG_ENDIAN) || defined(__BIG_ENDIAN)
+#if (defined(LC_BIG_ENDIAN) || (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__))
+	(void)ss;
+	(void)ct;
+	(void)sk;
+	return -EOPNOTSUPP;
+#else
 	struct workspace {
 		pad_e_t e_tmp, e_prime;
 		m_t tmp;
@@ -332,7 +344,5 @@ LC_INTERFACE_FUNCTION(int, lc_bike_dec, struct lc_bike_ss *ss,
 out:
 	LC_RELEASE_MEM(ws);
 	return ret;
-#else
-	return -EOPNOTSUPP;
 #endif
 }
