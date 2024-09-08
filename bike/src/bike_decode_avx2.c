@@ -45,6 +45,7 @@
 #include "bike_decode_internal.h"
 #include "bike_utilities.h"
 #include "build_bug_on.h"
+#include "ext_headers_x86.h"
 #include "small_stack_support.h"
 
 #define AVX2_INTERNAL
@@ -121,10 +122,14 @@ static inline void rotate256_small(syndrome_t *out, const syndrome_t *in,
 void rotate_right_avx2(syndrome_t *out, const syndrome_t *in,
 		       const uint32_t bitscount)
 {
+	LC_FPU_ENABLE;
+
 	// 1) Rotate in granularity of 256 bits blocks, using YMMs
 	rotate256_big(out, in, (bitscount / LC_BIKE_BITS_IN_YMM));
 	// 2) Rotate in smaller granularity (less than 256 bits), using YMMs
 	rotate256_small(out, out, (bitscount % LC_BIKE_BITS_IN_YMM));
+
+	LC_FPU_DISABLE;
 }
 
 // Duplicates the first R_BITS of the syndrome three times

@@ -31,6 +31,7 @@
 #include "bike_utilities.h"
 #include "bike_sampling_internal.h"
 #include "ext_headers.h"
+#include "ext_headers_x86.h"
 
 #define AVX512_INTERNAL
 #include "x86_64_intrinsic.h"
@@ -62,6 +63,8 @@ int secure_set_bits_avx512(pad_r_t *r, const uint32_t first_pos,
 	__mmask8 va_mask;
 
 	uint64_t *r64 = (uint64_t *)r;
+
+	LC_FPU_ENABLE;
 
 	one = SET1_I64(1);
 	inc = SET1_I64(LC_BIKE_QWORDS_IN_ZMM);
@@ -108,6 +111,8 @@ int secure_set_bits_avx512(pad_r_t *r, const uint32_t first_pos,
 			va_pos_qw[va_iter] = ADD_I64(va_pos_qw[va_iter], inc);
 		}
 	}
+
+	LC_FPU_DISABLE;
 
 	return 0;
 }

@@ -34,6 +34,7 @@
 
 #include "alignment.h"
 #include "bike_gf2x_internal.h"
+#include "ext_headers_x86.h"
 #include "lc_memset_secure.h"
 #include "small_stack_support.h"
 
@@ -223,6 +224,8 @@ int k_sqr_avx2(pad_r_t *c, const pad_r_t *a, const size_t l_param)
 	};
 	LC_DECLARE_MEM(ws, struct workspace, LC_BIKE_ALIGN_BYTES);
 
+	LC_FPU_ENABLE;
+
 	// Generate the permutation map defined by pi1 and l_param.
 	generate_map(ws->map, (map_word_t)l_param);
 
@@ -234,6 +237,8 @@ int k_sqr_avx2(pad_r_t *c, const pad_r_t *a, const size_t l_param)
 	}
 
 	bytes_to_bin(c, ws->c_bytes);
+
+	LC_FPU_DISABLE;
 
 	LC_RELEASE_MEM(ws);
 	return 0;

@@ -28,6 +28,7 @@
  */
 
 #include "bike_gf2x_internal.h"
+#include "ext_headers_x86.h"
 
 #define AVX512_INTERNAL
 #include "x86_64_intrinsic.h"
@@ -113,6 +114,8 @@ void gf2x_mul_base_vpclmul(uint64_t *c, const uint64_t *a, const uint64_t *b)
 
 	__m512i hi[2], lo[2], mi[2];
 
+	LC_FPU_ENABLE;
+
 	gf2x_mul8_512_int(&lo[1], &lo[0], a0, b0);
 	gf2x_mul8_512_int(&hi[1], &hi[0], a1, b1);
 	gf2x_mul8_512_int(&mi[1], &mi[0], a0 ^ a1, b0 ^ b1);
@@ -123,6 +126,8 @@ void gf2x_mul_base_vpclmul(uint64_t *c, const uint64_t *a, const uint64_t *b)
 	STORE(&c[1 * LC_BIKE_QWORDS_IN_ZMM], mi[0] ^ lo[0] ^ m);
 	STORE(&c[2 * LC_BIKE_QWORDS_IN_ZMM], mi[1] ^ hi[1] ^ m);
 	STORE(&c[3 * LC_BIKE_QWORDS_IN_ZMM], hi[1]);
+
+	LC_FPU_DISABLE;
 }
 
 void gf2x_sqr_vpclmul(dbl_pad_r_t *c, const pad_r_t *a)
@@ -131,6 +136,8 @@ void gf2x_sqr_vpclmul(dbl_pad_r_t *c, const pad_r_t *a)
 
 	const uint64_t *a64 = (const uint64_t *)a;
 	uint64_t *c64 = (uint64_t *)c;
+
+	LC_FPU_ENABLE;
 
 	vm = SET_I64(7, 3, 6, 2, 5, 1, 4, 0);
 
@@ -145,4 +152,6 @@ void gf2x_sqr_vpclmul(dbl_pad_r_t *c, const pad_r_t *a)
 		STORE(&c64[i * 2], vr0);
 		STORE(&c64[i * 2 + LC_BIKE_QWORDS_IN_ZMM], vr1);
 	}
+
+	LC_FPU_DISABLE;
 }

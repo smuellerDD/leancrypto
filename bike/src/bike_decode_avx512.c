@@ -43,6 +43,7 @@
 #include "bike_decode_internal.h"
 #include "bike_utilities.h"
 #include "build_bug_on.h"
+#include "ext_headers_x86.h"
 #include "small_stack_support.h"
 
 #define AVX512_INTERNAL
@@ -113,10 +114,14 @@ static inline void rotate512_small(syndrome_t *out, const syndrome_t *in,
 void rotate_right_avx512(syndrome_t *out, const syndrome_t *in,
 			 const uint32_t bitscount)
 {
+	LC_FPU_ENABLE;
+
 	// 1) Rotate in granularity of 512 bits blocks, using ZMMs
 	rotate512_big(out, in, (bitscount / LC_BIKE_BITS_IN_ZMM));
 	// 2) Rotate in smaller granularity (less than 512 bits), using ZMMs
 	rotate512_small(out, out, (bitscount % LC_BIKE_BITS_IN_ZMM));
+
+	LC_FPU_DISABLE;
 }
 
 // Duplicates the first R_BITS of the syndrome three times

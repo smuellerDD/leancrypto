@@ -29,6 +29,7 @@
 
 #include "bike_gf2x_internal.h"
 #include "ext_headers.h"
+#include "ext_headers_x86.h"
 #include "lc_memset_secure.h"
 
 #define AVX2_INTERNAL
@@ -39,6 +40,7 @@ void karatzuba_add1_avx2(uint64_t *alah, uint64_t *blbh, const uint64_t *a,
 {
 	assert(qwords_len % REG_QWORDS == 0);
 
+	LC_FPU_ENABLE;
 	REG_T va0, va1, vb0, vb1;
 
 	for (size_t i = 0; i < qwords_len; i += REG_QWORDS) {
@@ -50,6 +52,7 @@ void karatzuba_add1_avx2(uint64_t *alah, uint64_t *blbh, const uint64_t *a,
 		STORE(&alah[i], va0 ^ va1);
 		STORE(&blbh[i], vb0 ^ vb1);
 	}
+	LC_FPU_DISABLE;
 }
 
 void karatzuba_add2_avx2(uint64_t *z, const uint64_t *x, const uint64_t *y,
@@ -57,6 +60,7 @@ void karatzuba_add2_avx2(uint64_t *z, const uint64_t *x, const uint64_t *y,
 {
 	assert(qwords_len % REG_QWORDS == 0);
 
+	LC_FPU_ENABLE;
 	REG_T vx, vy;
 
 	for (size_t i = 0; i < qwords_len; i += REG_QWORDS) {
@@ -65,6 +69,7 @@ void karatzuba_add2_avx2(uint64_t *z, const uint64_t *x, const uint64_t *y,
 
 		STORE(&z[i], vx ^ vy);
 	}
+	LC_FPU_DISABLE;
 }
 
 void karatzuba_add3_avx2(uint64_t *c, const uint64_t *mid,
@@ -72,6 +77,7 @@ void karatzuba_add3_avx2(uint64_t *c, const uint64_t *mid,
 {
 	assert(qwords_len % REG_QWORDS == 0);
 
+	LC_FPU_ENABLE;
 	REG_T vr0, vr1, vr2, vr3, vt;
 
 	uint64_t *c0 = c;
@@ -89,6 +95,7 @@ void karatzuba_add3_avx2(uint64_t *c, const uint64_t *mid,
 		STORE(&c1[i], vt ^ vr0 ^ vr1);
 		STORE(&c2[i], vt ^ vr2 ^ vr3);
 	}
+	LC_FPU_DISABLE;
 }
 
 // c = a mod (x^r - 1)
@@ -96,6 +103,8 @@ void gf2x_red_avx2(pad_r_t *c, const dbl_pad_r_t *a)
 {
 	const uint64_t *a64 = (const uint64_t *)a;
 	uint64_t *c64 = (uint64_t *)c;
+
+	LC_FPU_ENABLE;
 
 	for (size_t i = 0; i < LC_BIKE_R_QWORDS; i += REG_QWORDS) {
 		REG_T vt0 = LOAD(&a64[i]);
@@ -116,4 +125,6 @@ void gf2x_red_avx2(pad_r_t *c, const dbl_pad_r_t *a)
 	lc_memset_secure((uint8_t *)&c64[LC_BIKE_R_QWORDS], 0,
 			 (LC_BIKE_R_PADDED_QWORDS - LC_BIKE_R_QWORDS) *
 				 sizeof(uint64_t));
+
+	LC_FPU_DISABLE;
 }

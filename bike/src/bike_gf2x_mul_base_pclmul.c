@@ -113,6 +113,8 @@ void gf2x_mul_base_pclmul(uint64_t *c, const uint64_t *a, const uint64_t *b)
 	__m128i aa[2], bb[2];
 	__m128i lo[4], hi[4], mi[4], m[2];
 
+	LC_FPU_ENABLE;
+
 	for (size_t i = 0; i < 4; i++) {
 		va[i] = LOAD128(&a[LC_BIKE_QWORDS_IN_XMM * i]);
 		vb[i] = LOAD128(&b[LC_BIKE_QWORDS_IN_XMM * i]);
@@ -145,6 +147,8 @@ void gf2x_mul_base_pclmul(uint64_t *c, const uint64_t *a, const uint64_t *b)
 	STORE128(&c[5 * LC_BIKE_QWORDS_IN_XMM], mi[3] ^ hi[3] ^ m[1]);
 	STORE128(&c[6 * LC_BIKE_QWORDS_IN_XMM], hi[2]);
 	STORE128(&c[7 * LC_BIKE_QWORDS_IN_XMM], hi[3]);
+
+	LC_FPU_DISABLE;
 }
 
 void gf2x_sqr_pclmul(dbl_pad_r_t *c, const pad_r_t *a)
@@ -153,6 +157,8 @@ void gf2x_sqr_pclmul(dbl_pad_r_t *c, const pad_r_t *a)
 
 	const uint64_t *a64 = (const uint64_t *)a;
 	uint64_t *c64 = (uint64_t *)c;
+
+	LC_FPU_ENABLE;
 
 	for (size_t i = 0; i < (LC_BIKE_R_XMM * LC_BIKE_QWORDS_IN_XMM);
 	     i += LC_BIKE_QWORDS_IN_XMM) {
@@ -164,4 +170,6 @@ void gf2x_sqr_pclmul(dbl_pad_r_t *c, const pad_r_t *a)
 		STORE128(&c64[i * 2], vr0);
 		STORE128(&c64[i * 2 + LC_BIKE_QWORDS_IN_XMM], vr1);
 	}
+
+	LC_FPU_DISABLE;
 }
