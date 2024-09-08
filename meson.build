@@ -302,13 +302,6 @@ if (get_option('sha3').disabled() and
 	error('BIKE support requires SHA-3')
 endif
 
-if (host_machine.endian() == 'big' and
-    (get_option('bike_5').enabled() or
-     get_option('bike_3').enabled() or
-     get_option('bike_1').enabled()))
-	error('BIKE support currently limited to Little Endian - you MUST disable all BIKE options to proceed')
-endif
-
 if ((get_option('dilithium_ed25519').enabled() or
      get_option('kyber_x25519').enabled()) and
      get_option('sha2-512').disabled())
