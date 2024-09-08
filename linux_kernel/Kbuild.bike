@@ -13,7 +13,8 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_5)				       \
 				   ../bike/src/bike_kem.o		       \
 				   ../bike/src/bike_sampling.o		       \
 				   ../bike/src/bike_sampling_portable.o	       \
-				   ../bike/src/compiler_support.o
+				   ../bike/src/compiler_support.o	       \
+				   leancrypto_kernel_bike.o
 
 bike_c_args = -funroll-loops
 ifdef CONFIG_X86_64
@@ -41,7 +42,8 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_3)				       \
 				   bike3/bike_gf2x_mul_portable.o	       \
 				   bike3/bike_kem.o			       \
 				   bike3/bike_sampling.o		       \
-				   bike3/bike_sampling_portable.o
+				   bike3/bike_sampling_portable.o	       \
+				   bike3/leancrypto_kernel_bike.o
 
 bike3_c_args = $(bike_c_args) -DLC_BIKE_TYPE_3
 CFLAGS_bike3/bike_decode.o			= $(bike3_c_args)
@@ -54,6 +56,7 @@ CFLAGS_bike3/bike_gf2x_mul_portable.o		= $(bike3_c_args)
 CFLAGS_bike3/bike_kem.o				= $(bike3_c_args)
 CFLAGS_bike3/bike_sampling.o			= $(bike3_c_args)
 CFLAGS_bike3/bike_sampling_portable.o		= $(bike3_c_args)
+CFLAGS_bike3/leancrypto_kernel_bike.o		= -DLC_BIKE_TYPE_3
 
 leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_1)				       \
 				+= bike1/bike_decode.o			       \
@@ -65,7 +68,8 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_1)				       \
 				   bike1/bike_gf2x_mul_portable.o	       \
 				   bike1/bike_kem.o			       \
 				   bike1/bike_sampling.o		       \
-				   bike1/bike_sampling_portable.o
+				   bike1/bike_sampling_portable.o	       \
+				   bike1/leancrypto_kernel_bike.o
 
 bike1_c_args = $(bike_c_args) -DLC_BIKE_TYPE_1
 CFLAGS_bike1/bike_decode.o			= $(bike1_c_args)
@@ -78,6 +82,7 @@ CFLAGS_bike1/bike_gf2x_mul_portable.o		= $(bike1_c_args)
 CFLAGS_bike1/bike_kem.o				= $(bike1_c_args)
 CFLAGS_bike1/bike_sampling.o			= $(bike1_c_args)
 CFLAGS_bike1/bike_sampling_portable.o		= $(bike1_c_args)
+CFLAGS_bike1/leancrypto_kernel_bike.o		= -DLC_BIKE_TYPE_1
 
 ifdef CONFIG_X86_64
 
@@ -188,6 +193,8 @@ endif
 
 ifdef CONFIG_LEANCRYPTO_KEM_BIKE_5
 obj-m		 		+= bike_5_tester.o
+ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM_BIKE_5
+obj-m				+= leancrypto_kernel_bike_5_tester.o
 
 bike_5_tester-y			+= ../bike/tests/bike_tester.o		       \
 				   ../drng/src/static_rng.o
@@ -195,17 +202,23 @@ endif
 
 ifdef CONFIG_LEANCRYPTO_KEM_BIKE_3
 obj-m		 		+= bike_3_tester.o
+ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM_BIKE_3
+obj-m				+= leancrypto_kernel_bike_3_tester.o
 
 bike_3_tester-y			+= bike3/tests/bike_tester.o		       \
 				   ../drng/src/static_rng.o
-CFLAGS_bike3/tests/bike_tester.o	= -DLC_BIKE_TYPE_3
+CFLAGS_leancrypto_kernel_bike_3_tester.o	= -DLC_BIKE_TYPE_3
+CFLAGS_bike3/tests/bike_tester.o		= -DLC_BIKE_TYPE_3
 endif
 
 
 ifdef CONFIG_LEANCRYPTO_KEM_BIKE_1
 obj-m		 		+= bike_1_tester.o
+ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM_BIKE_1
+obj-m				+= leancrypto_kernel_bike_1_tester.o
 
 bike_1_tester-y			+= bike1/tests/bike_tester.o		       \
 				   ../drng/src/static_rng.o
-CFLAGS_bike1/tests/bike_tester.o	= -DLC_BIKE_TYPE_1
+CFLAGS_leancrypto_kernel_bike_1_tester.o	= -DLC_BIKE_TYPE_1
+CFLAGS_bike1/tests/bike_tester.o		= -DLC_BIKE_TYPE_1
 endif

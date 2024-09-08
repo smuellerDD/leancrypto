@@ -122,8 +122,30 @@ static int __init leancrypto_init(void)
 	if (ret)
 		goto free_ascon;
 
+	ret = lc_kernel_bike_init();
+	if (ret)
+		goto free_aead_ascon;
+
+	ret = lc_kernel_bike_3_init();
+	if (ret)
+		goto free_bike5;
+
+	ret = lc_kernel_bike_1_init();
+	if (ret)
+		goto free_bike3;
+
+
 out:
 	return ret;
+
+free_bike3:
+	lc_kernel_bike_3_exit();
+
+free_bike5:
+	lc_kernel_bike_exit();
+
+free_aead_ascon:
+	lc_kernel_aead_ascon_exit();
 
 free_ascon:
 	lc_kernel_ascon_exit();
@@ -197,6 +219,9 @@ static void __exit leancrypto_exit(void)
 	lc_kernel_kyber_x25519_512_exit();
 	lc_kernel_ascon_exit();
 	lc_kernel_aead_ascon_exit();
+	lc_kernel_bike_exit();
+	lc_kernel_bike_3_exit();
+	lc_kernel_bike_1_exit();
 }
 
 module_init(leancrypto_init);
