@@ -31,6 +31,54 @@ CFLAGS_../bike/src/bike_kem.o			= $(bike_c_args)
 CFLAGS_../bike/src/bike_sampling.o		= $(bike_c_args)
 CFLAGS_../bike/src/bike_sampling_portable.o	= $(bike_c_args)
 
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_3)				       \
+				+= bike3/bike_decode.o			       \
+				   bike3/bike_decode_portable.o		       \
+				   bike3/bike_gf2x_inv.o		       \
+				   bike3/bike_gf2x_ksqr_portable.o 	       \
+				   bike3/bike_gf2x_mul.o		       \
+				   bike3/bike_gf2x_mul_base_portable.o	       \
+				   bike3/bike_gf2x_mul_portable.o	       \
+				   bike3/bike_kem.o			       \
+				   bike3/bike_sampling.o		       \
+				   bike3/bike_sampling_portable.o
+
+bike3_c_args = $(bike_c_args) -DLC_BIKE_TYPE_3
+CFLAGS_bike3/bike_decode.o			= $(bike3_c_args)
+CFLAGS_bike3/bike_decode_portable.o		= $(bike3_c_args)
+CFLAGS_bike3/bike_gf2x_inv.o			= $(bike3_c_args)
+CFLAGS_bike3/bike_gf2x_ksqr_portable.o		= $(bike3_c_args)
+CFLAGS_bike3/bike_gf2x_mul.o			= $(bike3_c_args)
+CFLAGS_bike3/bike_gf2x_mul_base_portable.o	= $(bike3_c_args)
+CFLAGS_bike3/bike_gf2x_mul_portable.o		= $(bike3_c_args)
+CFLAGS_bike3/bike_kem.o				= $(bike3_c_args)
+CFLAGS_bike3/bike_sampling.o			= $(bike3_c_args)
+CFLAGS_bike3/bike_sampling_portable.o		= $(bike3_c_args)
+
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_1)				       \
+				+= bike1/bike_decode.o			       \
+				   bike1/bike_decode_portable.o		       \
+				   bike1/bike_gf2x_inv.o		       \
+				   bike1/bike_gf2x_ksqr_portable.o 	       \
+				   bike1/bike_gf2x_mul.o		       \
+				   bike1/bike_gf2x_mul_base_portable.o	       \
+				   bike1/bike_gf2x_mul_portable.o	       \
+				   bike1/bike_kem.o			       \
+				   bike1/bike_sampling.o		       \
+				   bike1/bike_sampling_portable.o
+
+bike1_c_args = $(bike_c_args) -DLC_BIKE_TYPE_1
+CFLAGS_bike1/bike_decode.o			= $(bike1_c_args)
+CFLAGS_bike1/bike_decode_portable.o		= $(bike1_c_args)
+CFLAGS_bike1/bike_gf2x_inv.o			= $(bike1_c_args)
+CFLAGS_bike1/bike_gf2x_ksqr_portable.o		= $(bike1_c_args)
+CFLAGS_bike1/bike_gf2x_mul.o			= $(bike1_c_args)
+CFLAGS_bike1/bike_gf2x_mul_base_portable.o	= $(bike1_c_args)
+CFLAGS_bike1/bike_gf2x_mul_portable.o		= $(bike1_c_args)
+CFLAGS_bike1/bike_kem.o				= $(bike1_c_args)
+CFLAGS_bike1/bike_sampling.o			= $(bike1_c_args)
+CFLAGS_bike1/bike_sampling_portable.o		= $(bike1_c_args)
+
 ifdef CONFIG_X86_64
 
 bike_avx2_args += $(bike_c_args) -mavx2 -mbmi2 -mpopcnt			       \
@@ -45,6 +93,28 @@ CFLAGS_../bike/src/bike_gf2x_mul_avx2.o		= $(bike_avx2_args)
 CFLAGS_../bike/src/bike_gf2x_ksqr_avx2.o	= $(bike_avx2_args)
 CFLAGS_../bike/src/bike_sampling_avx2.o		= $(bike_avx2_args)
 
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_3)				       \
+				+= bike3/bike_decode_avx2.o		       \
+				   bike3/bike_gf2x_mul_avx2.o		       \
+				   bike3/bike_gf2x_ksqr_avx2.o		       \
+				   bike3/bike_sampling_avx2.o
+bike3_avx2_args = $(bike_avx2_args) -DLC_BIKE_TYPE_3
+CFLAGS_bike3/bike_decode_avx2.o		= $(bike3_avx2_args)
+CFLAGS_bike3/bike_gf2x_mul_avx2.o	= $(bike3_avx2_args)
+CFLAGS_bike3/bike_gf2x_ksqr_avx2.o	= $(bike3_avx2_args)
+CFLAGS_bike3/bike_sampling_avx2.o	= $(bike3_avx2_args)
+
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_1)				       \
+				+= bike1/bike_decode_avx2.o		       \
+				   bike1/bike_gf2x_mul_avx2.o		       \
+				   bike1/bike_gf2x_ksqr_avx2.o		       \
+				   bike1/bike_sampling_avx2.o
+bike1_avx2_args = $(bike_avx2_args) -DLC_BIKE_TYPE_1
+CFLAGS_bike1/bike_decode_avx2.o		= $(bike1_avx2_args)
+CFLAGS_bike1/bike_gf2x_mul_avx2.o	= $(bike1_avx2_args)
+CFLAGS_bike1/bike_gf2x_ksqr_avx2.o	= $(bike1_avx2_args)
+CFLAGS_bike1/bike_sampling_avx2.o	= $(bike1_avx2_args)
+
 bike_avx512_args += $(bike_c_args) -mavx512bw -mavx512dq -mavx512f -mbmi2      \
 		    -mpopcnt -Wno-unused-command-line-argument
 leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_5)				       \
@@ -57,15 +127,57 @@ CFLAGS_../bike/src/bike_gf2x_mul_avx512.o	= $(bike_avx512_args)
 CFLAGS_../bike/src/bike_gf2x_ksqr_avx512.o	= $(bike_avx512_args)
 CFLAGS_../bike/src/bike_sampling_avx512.o	= $(bike_avx512_args)
 
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_3)				       \
+				+= bike3/bike_decode_avx512.o		       \
+				   bike3/bike_gf2x_mul_avx512.o		       \
+				   bike3/bike_gf2x_ksqr_avx512.o	       \
+				   bike3/bike_sampling_avx512.o
+bike3_avx512_args = $(bike_avx512_args) -DLC_BIKE_TYPE_3
+CFLAGS_bike3/bike_decode_avx512.o	= $(bike3_avx512_args)
+CFLAGS_bike3/bike_gf2x_mul_avx512.o	= $(bike3_avx512_args)
+CFLAGS_bike3/bike_gf2x_ksqr_avx512.o	= $(bike3_avx512_args)
+CFLAGS_bike3/bike_sampling_avx512.o	= $(bike3_avx512_args)
+
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_1)				       \
+				+= bike1/bike_decode_avx512.o		       \
+				   bike1/bike_gf2x_mul_avx512.o		       \
+				   bike1/bike_gf2x_ksqr_avx512.o	       \
+				   bike1/bike_sampling_avx512.o
+bike1_avx512_args = $(bike_avx512_args) -DLC_BIKE_TYPE_1
+CFLAGS_bike1/bike_decode_avx512.o	= $(bike1_avx512_args)
+CFLAGS_bike1/bike_gf2x_mul_avx512.o	= $(bike1_avx512_args)
+CFLAGS_bike1/bike_gf2x_ksqr_avx512.o	= $(bike1_avx512_args)
+CFLAGS_bike1/bike_sampling_avx512.o	= $(bike1_avx512_args)
+
 bike_pclmul_args += $(bike_c_args) -mpclmul
 leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_5)				       \
 				+= ../bike/src/bike_gf2x_mul_base_pclmul.o
 CFLAGS_../bike/src/bike_gf2x_mul_base_pclmul.o	= $(bike_pclmul_args)
 
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_3)				       \
+				+= bike3/bike_gf2x_mul_base_pclmul.o
+bike3_pclmul_args = $(bike_pclmul_args) -DLC_BIKE_TYPE_3
+CFLAGS_bike3/bike_gf2x_mul_base_pclmul.o	= $(bike3_pclmul_args)
+
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_1)				       \
+				+= bike1/bike_gf2x_mul_base_pclmul.o
+bike1_pclmul_args = $(bike_pclmul_args) -DLC_BIKE_TYPE_1
+CFLAGS_bike1/bike_gf2x_mul_base_pclmul.o	= $(bike1_pclmul_args)
+
 bike_vpclmul_args += $(bike_avx512_args) -mvpclmulqdq
 leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_5)				       \
 				+= ../bike/src/bike_gf2x_mul_base_vpclmul.o
 CFLAGS_../bike/src/bike_gf2x_mul_base_vpclmul.o	= $(bike_vpclmul_args)
+
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_3)				       \
+				+= bike3/bike_gf2x_mul_base_vpclmul.o
+bike3_vpclmul_args = $(bike_vpclmul_args) -DLC_BIKE_TYPE_3
+CFLAGS_bike3/bike_gf2x_mul_base_vpclmul.o	= $(bike3_vpclmul_args)
+
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_1)				       \
+				+= bike1/bike_gf2x_mul_base_vpclmul.o
+bike1_vpclmul_args = $(bike_vpclmul_args) -DLC_BIKE_TYPE_1
+CFLAGS_bike1/bike_gf2x_mul_base_vpclmul.o	= $(bike1_vpclmul_args)
 
 endif
 
@@ -79,4 +191,21 @@ obj-m		 		+= bike_5_tester.o
 
 bike_5_tester-y			+= ../bike/tests/bike_tester.o		       \
 				   ../drng/src/static_rng.o
+endif
+
+ifdef CONFIG_LEANCRYPTO_KEM_BIKE_3
+obj-m		 		+= bike_3_tester.o
+
+bike_3_tester-y			+= bike3/tests/bike_tester.o		       \
+				   ../drng/src/static_rng.o
+CFLAGS_bike3/tests/bike_tester.o	= -DLC_BIKE_TYPE_3
+endif
+
+
+ifdef CONFIG_LEANCRYPTO_KEM_BIKE_1
+obj-m		 		+= bike_1_tester.o
+
+bike_1_tester-y			+= bike1/tests/bike_tester.o		       \
+				   ../drng/src/static_rng.o
+CFLAGS_bike1/tests/bike_tester.o	= -DLC_BIKE_TYPE_1
 endif

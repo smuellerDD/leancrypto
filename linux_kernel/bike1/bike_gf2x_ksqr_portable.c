@@ -1,0 +1,1 @@
+../../bike/src/bike_gf2x_ksqr_portable.c
