@@ -146,8 +146,8 @@ int bit_slice_full_subtract_port(upc_t *upc, uint8_t val)
 		for (size_t i = 0; i < LC_BIKE_R_QWORDS; i++) {
 			const uint64_t a = upc->slice[j].u.qw[i];
 			const uint64_t b = lsb_mask;
-			const uint64_t tmp =
-				((~a) & b & (~ws->br[i])) | ((((~a) | b) & ws->br[i]));
+			const uint64_t tmp = ((~a) & b & (~ws->br[i])) |
+					     ((((~a) | b) & ws->br[i]));
 			upc->slice[j].u.qw[i] = a ^ b ^ ws->br[i];
 			ws->br[i] = tmp;
 		}

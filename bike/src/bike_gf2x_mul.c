@@ -113,8 +113,9 @@ void gf2x_mod_mul_with_ctx(pad_r_t *c, const pad_r_t *a, const pad_r_t *b,
 	ctx->red(c, t);
 }
 
-void gf2x_mod_mul(pad_r_t *c, const pad_r_t *a, const pad_r_t *b, dbl_pad_r_t *t,
-		uint64_t secure_buffer[LC_SECURE_BUFFER_QWORDS])
+void gf2x_mod_mul(pad_r_t *c, const pad_r_t *a, const pad_r_t *b,
+		  dbl_pad_r_t *t,
+		  uint64_t secure_buffer[LC_SECURE_BUFFER_QWORDS])
 {
 	// Initialize gf2x methods struct
 	gf2x_ctx ctx;

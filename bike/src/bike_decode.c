@@ -89,12 +89,12 @@ static void compute_syndrome(syndrome_t *syndrome, const pad_r_t *c0,
 	ctx->dup(syndrome);
 }
 
-static inline void recompute_syndrome(syndrome_t *syndrome, const pad_r_t *c0,
-				      const pad_r_t *h0, const pad_r_t *pk,
-				      const e_t *e, const decode_ctx *ctx,
-				      pad_r_t *tmp_c0, pad_r_t *e0, pad_r_t *e1,
-				      pad_r_t *pad_s, dbl_pad_r_t *t,
-				      uint64_t secure_buffer[LC_SECURE_BUFFER_QWORDS])
+static inline void
+recompute_syndrome(syndrome_t *syndrome, const pad_r_t *c0, const pad_r_t *h0,
+		   const pad_r_t *pk, const e_t *e, const decode_ctx *ctx,
+		   pad_r_t *tmp_c0, pad_r_t *e0, pad_r_t *e1, pad_r_t *pad_s,
+		   dbl_pad_r_t *t,
+		   uint64_t secure_buffer[LC_SECURE_BUFFER_QWORDS])
 {
 	e0->val = e->val[0];
 	e1->val = e->val[1];
@@ -160,10 +160,10 @@ static inline uint8_t get_threshold(const syndrome_t *s)
 // vector (e) accordingly. In addition, update the black and gray errors vector
 // with the relevant values.
 static inline int find_err1(e_t *e, e_t *black_e, e_t *gray_e,
-			     const syndrome_t *syndrome,
-			     const compressed_idx_d_ar_t wlist,
-			     const uint8_t threshold, const decode_ctx *ctx,
-			     syndrome_t *rotated_syndrome, upc_t *upc)
+			    const syndrome_t *syndrome,
+			    const compressed_idx_d_ar_t wlist,
+			    const uint8_t threshold, const decode_ctx *ctx,
+			    syndrome_t *rotated_syndrome, upc_t *upc)
 {
 	// This function uses the bit-slice-adder methodology of [5]:
 	unsigned int i;
@@ -230,9 +230,9 @@ out:
 // Recalculate the UPCs and update the errors vector (e) according to it
 // and to the black/gray vectors.
 static inline int find_err2(e_t *e, e_t *pos_e, const syndrome_t *syndrome,
-			     const compressed_idx_d_ar_t wlist,
-			     const uint8_t threshold, const decode_ctx *ctx,
-			     syndrome_t *rotated_syndrome, upc_t *upc)
+			    const compressed_idx_d_ar_t wlist,
+			    const uint8_t threshold, const decode_ctx *ctx,
+			    syndrome_t *rotated_syndrome, upc_t *upc)
 {
 	unsigned int i;
 	int ret;
@@ -314,9 +314,11 @@ int bike_decode(e_t *e, const struct lc_bike_ct *ct,
 		//DMSG("    Weight of syndrome: %lu\n", r_bits_vector_weight((r_t *)s.qw));
 
 		CKINT(find_err1(e, &ws->black_e, &ws->gray_e, &ws->s, sk->wlist,
-			  threshold, &ws->ctx, &ws->rotated_syndrome, &ws->upc));
+				threshold, &ws->ctx, &ws->rotated_syndrome,
+				&ws->upc));
 
-		lc_memset_secure(ws->secure_buffer, 0, sizeof(ws->secure_buffer));
+		lc_memset_secure(ws->secure_buffer, 0,
+				 sizeof(ws->secure_buffer));
 		recompute_syndrome(&ws->s, &ws->c0, &ws->h0, &ws->pk, e,
 				   &ws->ctx, &ws->tmp_c0, &ws->e0, &ws->e1,
 				   &ws->pad_s, &ws->t, ws->secure_buffer);
@@ -330,9 +332,11 @@ int bike_decode(e_t *e, const struct lc_bike_ct *ct,
 		//DMSG("    Weight of syndrome: %lu\n", r_bits_vector_weight((r_t *)s.qw));
 
 		//find_err2(e, &black_e, &s, sk->wlist, ((D + 1) / 2) + 1, &ctx);
-		lc_memset_secure(ws->secure_buffer, 0, sizeof(ws->secure_buffer));
+		lc_memset_secure(ws->secure_buffer, 0,
+				 sizeof(ws->secure_buffer));
 		recompute_syndrome(&ws->s, &ws->c0, &ws->h0, &ws->pk, e,
-				   &ws->ctx, &ws->tmp_c0, &ws->e0, &ws->e1, &ws->pad_s, &ws->t, ws->secure_buffer);
+				   &ws->ctx, &ws->tmp_c0, &ws->e0, &ws->e1,
+				   &ws->pad_s, &ws->t, ws->secure_buffer);
 
 		//DMSG("    Weight of e: %lu\n",
 		//     r_bits_vector_weight(&e->val[0]) + r_bits_vector_weight(&e->val[1]));
@@ -341,10 +345,11 @@ int bike_decode(e_t *e, const struct lc_bike_ct *ct,
 		lc_memset_secure(&ws->rotated_syndrome, 0,
 				 sizeof(ws->rotated_syndrome));
 		CKINT(find_err2(e, &ws->gray_e, &ws->s, sk->wlist,
-			  ((LC_BIKE_D + 1) / 2) + 1, &ws->ctx,
-			  &ws->rotated_syndrome, &ws->upc));
+				((LC_BIKE_D + 1) / 2) + 1, &ws->ctx,
+				&ws->rotated_syndrome, &ws->upc));
 
-		lc_memset_secure(ws->secure_buffer, 0, sizeof(ws->secure_buffer));
+		lc_memset_secure(ws->secure_buffer, 0,
+				 sizeof(ws->secure_buffer));
 		recompute_syndrome(&ws->s, &ws->c0, &ws->h0, &ws->pk, e,
 				   &ws->ctx, &ws->tmp_c0, &ws->e0, &ws->e1,
 				   &ws->pad_s, &ws->t, ws->secure_buffer);

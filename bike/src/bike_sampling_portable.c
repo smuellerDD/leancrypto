@@ -36,7 +36,7 @@
 #define MAX_WLIST_SIZE (LC_BIKE_MAX_RAND_INDICES_T)
 
 int secure_set_bits_port(pad_r_t *r, const uint32_t first_pos,
-			  const idx_t *wlist, const uint32_t w_size)
+			 const idx_t *wlist, const uint32_t w_size)
 {
 	struct workspace {
 		// The size of wlist can be either D or T. So, we set it to

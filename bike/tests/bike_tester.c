@@ -59,12 +59,16 @@ static int bike_tester_one(const struct lc_bike_testvector *vector,
 
 	CKINT(lc_bike_keypair(&ws->pk, &ws->sk, &sdrng));
 
-	rc += lc_compare((uint8_t *)&ws->pk, vector->pk, sizeof(ws->pk), "BIKE PK");
-	rc += lc_compare((uint8_t *)&ws->sk, vector->sk, sizeof(ws->sk), "BIKE SK");
+	rc += lc_compare((uint8_t *)&ws->pk, vector->pk, sizeof(ws->pk),
+			 "BIKE PK");
+	rc += lc_compare((uint8_t *)&ws->sk, vector->sk, sizeof(ws->sk),
+			 "BIKE SK");
 
 	CKINT(lc_bike_enc_internal(&ws->ct, &ws->ss, &ws->pk, &sdrng));
-	rc += lc_compare((uint8_t *)&ws->ct, vector->ct, sizeof(ws->ct), "BIKE Enc CT");
-	rc += lc_compare((uint8_t *)&ws->ss, vector->ss, sizeof(ws->ss), "BIKE Enc SS");
+	rc += lc_compare((uint8_t *)&ws->ct, vector->ct, sizeof(ws->ct),
+			 "BIKE Enc CT");
+	rc += lc_compare((uint8_t *)&ws->ss, vector->ss, sizeof(ws->ss),
+			 "BIKE Enc SS");
 
 	CKINT(lc_bike_dec(&ws->ss2, &ws->ct, &ws->sk));
 	rc += lc_compare((uint8_t *)&ws->ss2, vector->ss, sizeof(ws->ss2),

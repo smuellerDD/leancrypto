@@ -207,8 +207,8 @@ LC_INTERFACE_FUNCTION(int, lc_bike_keypair, struct lc_bike_pk *pk,
 
 	lc_rng_generate(rng_ctx, NULL, 0, (uint8_t *)&ws->seeds.seed,
 			sizeof(ws->seeds.seed));
-	CKINT(generate_secret_key(&ws->h0, &ws->h1, sk->wlist[0].val, sk->wlist[1].val,
-			    &ws->seeds.seed[0]));
+	CKINT(generate_secret_key(&ws->h0, &ws->h1, sk->wlist[0].val,
+				  sk->wlist[1].val, &ws->seeds.seed[0]));
 
 	// Generate sigma
 	convert_seed_to_m_type(&sk->sigma, &ws->seeds.seed[1]);
@@ -245,7 +245,7 @@ LC_INTERFACE_FUNCTION(int, lc_bike_enc_internal, struct lc_bike_ct *ct,
 		seeds_t seeds;
 	};
 	int ret;
-	LC_DECLARE_MEM(ws, struct workspace,LC_BIKE_ALIGN_BYTES);
+	LC_DECLARE_MEM(ws, struct workspace, LC_BIKE_ALIGN_BYTES);
 
 	lc_rng_check(&rng_ctx);
 
@@ -257,7 +257,8 @@ LC_INTERFACE_FUNCTION(int, lc_bike_enc_internal, struct lc_bike_ct *ct,
 	CKINT(function_h(&ws->e, &ws->m, &pk->pk));
 
 	// Calculate the ciphertext
-	encrypt(ct, &ws->e, &pk->pk, &ws->m, &ws->p_ct, &ws->p_pk, &ws->t, ws->secure_buffer);
+	encrypt(ct, &ws->e, &pk->pk, &ws->m, &ws->p_ct, &ws->p_pk, &ws->t,
+		ws->secure_buffer);
 
 	// Generate the shared secret
 	function_k(ss, &ws->m, ct);
@@ -304,8 +305,9 @@ LC_INTERFACE_FUNCTION(int, lc_bike_dec, struct lc_bike_ss *ss,
 
 	success_cond = !lc_memcmp_secure(PE0_RAW(&ws->e_prime), LC_BIKE_R_BYTES,
 					 PE0_RAW(&ws->e_tmp), LC_BIKE_R_BYTES);
-	success_cond &= !lc_memcmp_secure(PE1_RAW(&ws->e_prime), LC_BIKE_R_BYTES,
-					  PE1_RAW(&ws->e_tmp), LC_BIKE_R_BYTES);
+	success_cond &=
+		!lc_memcmp_secure(PE1_RAW(&ws->e_prime), LC_BIKE_R_BYTES,
+				  PE1_RAW(&ws->e_tmp), LC_BIKE_R_BYTES);
 
 	// Compute either K(m', C) or K(sigma, C) based on the success condition
 	mask = secure_l32_mask(0, (uint32_t)success_cond);

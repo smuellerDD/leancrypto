@@ -97,7 +97,6 @@ extern "C" {
 //    size(n) = 3*n/2 + size(n/2) = 3*sum_{i}{n/2^i} < 3n
 #define LC_SECURE_BUFFER_QWORDS (3 * LC_BIKE_R_PADDED_QWORDS)
 
-
 /*******************************************************************************
  * Parameters for the BGF decoder.
  ******************************************************************************/

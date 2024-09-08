@@ -49,8 +49,9 @@ static inline void gf2x_mod_add(pad_r_t *c, const pad_r_t *a, const pad_r_t *b)
 }
 
 // c = a*b mod (x^r - 1)
-void gf2x_mod_mul(pad_r_t *c, const pad_r_t *a, const pad_r_t *b, dbl_pad_r_t *t,
-		uint64_t secure_buffer[LC_SECURE_BUFFER_QWORDS]);
+void gf2x_mod_mul(pad_r_t *c, const pad_r_t *a, const pad_r_t *b,
+		  dbl_pad_r_t *t,
+		  uint64_t secure_buffer[LC_SECURE_BUFFER_QWORDS]);
 
 // c = a^-1 mod (x^r - 1)
 int gf2x_mod_inv(pad_r_t *c, const pad_r_t *a);

@@ -116,8 +116,8 @@ static void sample_indices_fisher_yates(idx_t *out, unsigned int num_indices,
 }
 
 static inline int generate_sparse_rep_for_sk(pad_r_t *r, idx_t *wlist,
-					      struct lc_hash_ctx *prf_state,
-					      sampling_ctx *ctx)
+					     struct lc_hash_ctx *prf_state,
+					     sampling_ctx *ctx)
 {
 	idx_t wlist_temp[LC_BIKE_D] = { 0 };
 	int ret;
@@ -139,7 +139,7 @@ out:
 }
 
 int generate_secret_key(pad_r_t *h0, pad_r_t *h1, idx_t *h0_wlist,
-			 idx_t *h1_wlist, const seed_t *seed)
+			idx_t *h1_wlist, const seed_t *seed)
 {
 	// Initialize the sampling context.
 	sampling_ctx ctx = { 0 };
@@ -181,7 +181,8 @@ int generate_error_vector(pad_e_t *e, const seed_t *seed)
 
 	// (e0, e1) hold bits 0..R_BITS-1 and R_BITS..2*R_BITS-1 of the error, resp.
 	CKINT(ctx.secure_set_bits(&e->val[0], 0, wlist, LC_BIKE_T));
-	CKINT(ctx.secure_set_bits(&e->val[1], LC_BIKE_R_BITS, wlist, LC_BIKE_T));
+	CKINT(ctx.secure_set_bits(&e->val[1], LC_BIKE_R_BITS, wlist,
+				  LC_BIKE_T));
 
 	// Clean the padding of the elements.
 	PE0_RAW(e)[LC_BIKE_R_BYTES - 1] &= LC_BIKE_LAST_R_BYTE_MASK;

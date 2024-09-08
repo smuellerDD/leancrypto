@@ -39,7 +39,7 @@
 #define YMMS_QWORDS (LC_BIKE_QWORDS_IN_YMM * NUM_YMMS)
 
 int secure_set_bits_avx2(pad_r_t *r, const uint32_t first_pos,
-			  const idx_t *wlist, const uint32_t w_size)
+			 const idx_t *wlist, const uint32_t w_size)
 {
 	// The function assumes that the size of r is a multiple
 	// of the cumulative size of used YMM registers.

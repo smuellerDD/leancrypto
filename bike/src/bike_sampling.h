@@ -42,7 +42,7 @@ typedef enum {
 } must_be_odd_t;
 
 int generate_secret_key(pad_r_t *h0, pad_r_t *h1, idx_t *h0_wlist,
-			 idx_t *h1_wlist, const seed_t *seed);
+			idx_t *h1_wlist, const seed_t *seed);
 
 int generate_error_vector(pad_e_t *e, const seed_t *seed);
 

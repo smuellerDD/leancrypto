@@ -182,13 +182,14 @@ int gf2x_mod_inv(pad_r_t *c, const pad_r_t *a)
 	for (i = 1; i < MAX_I; i++) {
 		// Step 5 in [1](Algorithm 2), exponentiation 0: g = f^2^2^(i-1)
 		if (exp0_k[i - 1] <= K_SQR_THR) {
-			repeated_squaring(&ws->g, &ws->f, exp0_k[i - 1], &ws->sec_buf,
-					  &ctx);
+			repeated_squaring(&ws->g, &ws->f, exp0_k[i - 1],
+					  &ws->sec_buf, &ctx);
 		} else {
 			CKINT(ctx.k_sqr(&ws->g, &ws->f, exp0_l[i - 1]));
 		}
 
-		lc_memset_secure(ws->secure_buffer, 0, sizeof(ws->secure_buffer));
+		lc_memset_secure(ws->secure_buffer, 0,
+				 sizeof(ws->secure_buffer));
 		// Step 6, [1](Algorithm 2): f = f*g
 		gf2x_mod_mul_with_ctx(&ws->f, &ws->g, &ws->f, &ctx, &ws->tmp,
 				      ws->secure_buffer);
@@ -196,15 +197,17 @@ int gf2x_mod_inv(pad_r_t *c, const pad_r_t *a)
 		if (exp1_k[i] != 0) {
 			// Step 8, [1](Algorithm 2), exponentiation 1: g = f^2^((r-2) % 2^i)
 			if (exp1_k[i] <= K_SQR_THR) {
-				repeated_squaring(&ws->g, &ws->f, exp1_k[i], &ws->sec_buf,
-						  &ctx);
+				repeated_squaring(&ws->g, &ws->f, exp1_k[i],
+						  &ws->sec_buf, &ctx);
 			} else {
 				CKINT(ctx.k_sqr(&ws->g, &ws->f, exp1_l[i]));
 			}
 
-			lc_memset_secure(ws->secure_buffer, 0, sizeof(ws->secure_buffer));
+			lc_memset_secure(ws->secure_buffer, 0,
+					 sizeof(ws->secure_buffer));
 			// Step 9, [1](Algorithm 2): t = t*g;
-			gf2x_mod_mul_with_ctx(&ws->t, &ws->g, &ws->t, &ctx, &ws->tmp, ws->secure_buffer);
+			gf2x_mod_mul_with_ctx(&ws->t, &ws->g, &ws->t, &ctx,
+					      &ws->tmp, ws->secure_buffer);
 		}
 	}
 

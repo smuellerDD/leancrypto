@@ -42,7 +42,7 @@ extern "C" {
 #define IDX_INVALID_VAL (0xffffffff)
 
 int secure_set_bits_port(pad_r_t *r, uint32_t first_pos, const idx_t *wlist,
-			  uint32_t w_size);
+			 uint32_t w_size);
 
 #if defined(UNIFORM_SAMPLING)
 void sample_error_vec_indices_port(idx_t *out, struct lc_hash_ctx *prf_state);
@@ -50,10 +50,10 @@ void sample_error_vec_indices_port(idx_t *out, struct lc_hash_ctx *prf_state);
 
 #if defined(X86_64)
 int secure_set_bits_avx2(pad_r_t *r, uint32_t first_pos, const idx_t *wlist,
-			  uint32_t w_size);
+			 uint32_t w_size);
 
 int secure_set_bits_avx512(pad_r_t *r, uint32_t first_pos, const idx_t *wlist,
-			    uint32_t w_size);
+			   uint32_t w_size);
 
 #if defined(UNIFORM_SAMPLING)
 void sample_error_vec_indices_avx2(idx_t *out, struct lc_hash_ctx *prf_state);
@@ -63,7 +63,7 @@ void sample_error_vec_indices_avx512(idx_t *out, struct lc_hash_ctx *prf_state);
 
 typedef struct sampling_ctx_st {
 	int (*secure_set_bits)(pad_r_t *r, uint32_t first_pos,
-				const idx_t *wlist, uint32_t w_size);
+			       const idx_t *wlist, uint32_t w_size);
 
 #if defined(UNIFORM_SAMPLING)
 	void (*sample_error_vec_indices)(idx_t *out,
