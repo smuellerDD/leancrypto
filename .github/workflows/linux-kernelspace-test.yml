@@ -22,4 +22,4 @@ jobs:
     - name: Load leancrypto kernel module
       run: sudo insmod linux_kernel/leancrypto.ko
     - name: Linux kernel test
-      run: for i in linux_kernel/*.ko; do if [ "$i" != "linux_kernel/leancrypto.ko" ]; then sudo insmod $i; fi; done
+      run: for i in linux_kernel/*.ko; do if [ "$i" != "linux_kernel/leancrypto.ko" ]; then sudo insmod $i; if [ $? -ne 0 ]; then dmesg; fi; fi; done
