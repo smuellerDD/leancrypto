@@ -25,7 +25,7 @@
 
 static int compiler_test_le(void)
 {
-#if GCC_VERSION >= 40400
+#if (defined(GCC_VERSION) && (GCC_VERSION >= 40400))
 	uint16_t u16 = 1234;
 	uint32_t u32 = 1234567890;
 	uint64_t u64 = 1234567890123456789;
