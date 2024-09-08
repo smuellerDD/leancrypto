@@ -141,10 +141,10 @@ static inline void function_k(struct lc_bike_ss *out, const m_t *m,
 	lc_memset_secure(dgst, 0, sizeof(dgst));
 }
 
-static inline void encrypt(struct lc_bike_ct *ct, const pad_e_t *e,
-			   const r_t *pk, const m_t *m, pad_r_t *p_ct,
-			   pad_r_t *p_pk, dbl_pad_r_t *t,
-			   uint64_t secure_buffer[LC_SECURE_BUFFER_QWORDS])
+static inline void bike_encrypt(struct lc_bike_ct *ct, const pad_e_t *e,
+				const r_t *pk, const m_t *m, pad_r_t *p_ct,
+				pad_r_t *p_pk, dbl_pad_r_t *t,
+				uint64_t secure_buffer[LC_SECURE_BUFFER_QWORDS])
 {
 	unsigned int i;
 
@@ -257,8 +257,8 @@ LC_INTERFACE_FUNCTION(int, lc_bike_enc_internal, struct lc_bike_ct *ct,
 	CKINT(function_h(&ws->e, &ws->m, &pk->pk));
 
 	// Calculate the ciphertext
-	encrypt(ct, &ws->e, &pk->pk, &ws->m, &ws->p_ct, &ws->p_pk, &ws->t,
-		ws->secure_buffer);
+	bike_encrypt(ct, &ws->e, &pk->pk, &ws->m, &ws->p_ct, &ws->p_pk, &ws->t,
+		     ws->secure_buffer);
 
 	// Generate the shared secret
 	function_k(ss, &ws->m, ct);
