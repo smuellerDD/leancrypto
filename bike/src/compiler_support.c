@@ -47,6 +47,8 @@ int __popcountdi2(unsigned long a)
 int __popcountsi2(unsigned int a);
 int __popcountsi2(unsigned int a)
 {
+	unsigned int x = a;
+
 	x = x - ((x >> 1) & 0x55555555);
 	// Every 2 bits holds the sum of every pair of bits
 	x = ((x >> 2) & 0x33333333) + (x & 0x33333333);
