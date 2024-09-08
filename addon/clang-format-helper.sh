@@ -14,8 +14,8 @@ EXCLUDE="./internal/api/assembler_support.h"
 CLANGFORMAT="clang-format"
 CLANGCONF="./.clang-format"
 
-files="$(find ./ -name *.c)"
-files="$files $(find ./ -name *.h)"
+files="$(find ./ -name *.c -type f)"
+files="$files $(find ./ -name *.h -type f)"
 
 if [ ! -f "$CLANGCONF" ]
 then
