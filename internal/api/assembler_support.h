@@ -29,6 +29,13 @@
 # define stack_frame_non_standard
 #endif
 
+#if __has_include(<asm/frame.h>)
+# include <asm/frame.h>
+#else
+# define FRAME_START
+# define FRAME_END
+#endif
+
 # define SYM_FUNC_ENTER(name)
 
 # define SYM_FUNC(name)	name
@@ -52,15 +59,6 @@
 	SYM_TYPE_FUNC(name) ;						       \
 	SYM_SIZE(name)
 # endif
-
-# ifndef FRAME_BEGIN
-#  define FRAME_BEGIN
-# endif
-
-# ifndef FRAME_END
-#  define FRAME_END
-# endif
-
 
 #else /* LINUX_KERNEL */
 
