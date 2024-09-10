@@ -135,8 +135,9 @@ static inline uint64_t secure_cmpeq64_mask(const uint64_t v1, const uint64_t v2)
 static inline uint64_t r_bits_vector_weight(const r_t *in)
 {
 	uint64_t acc = 0;
+	size_t i;
 
-	for (size_t i = 0; i < (LC_BIKE_R_BYTES - 1); i++) {
+	for (i = 0; i < (LC_BIKE_R_BYTES - 1); i++) {
 		acc += (uint64_t)__builtin_popcount(in->raw[i]);
 	}
 

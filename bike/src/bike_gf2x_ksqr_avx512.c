@@ -87,6 +87,7 @@ static inline void generate_map(map_word_t *map, const map_word_t l_param)
 {
 	__m512i vmap[NUM_ZMMS], vr, inc;
 	mmask_t mask[NUM_ZMMS];
+	size_t i;
 
 	// The permutation map is generated in the following way:
 	//   1. for i = 0 to map size:
@@ -101,7 +102,7 @@ static inline void generate_map(map_word_t *map, const map_word_t l_param)
 	// This algorithm is parallelized with vector instructions by processing
 	// certain number of values (NUM_OF_VALS) in parallel. Therefore,
 	// in the beginning we need to initialize the first NUM_OF_VALS elements.
-	for (size_t i = 0; i < NUM_OF_VALS; i++) {
+	for (i = 0; i < NUM_OF_VALS; i++) {
 		map[i] = (map_word_t)((i * l_param) % LC_BIKE_R_BITS);
 	}
 
@@ -111,13 +112,15 @@ static inline void generate_map(map_word_t *map, const map_word_t l_param)
 	vr = SET1((short)LC_BIKE_R_BITS);
 
 	// Load the first NUM_OF_VALS elements in the vmap vectors
-	for (size_t i = 0; i < NUM_ZMMS; i++) {
+	for (i = 0; i < NUM_ZMMS; i++) {
 		vmap[i] = LOAD(&map[i * MAP_WORDS_IN_ZMM]);
 	}
 
-	for (size_t i = NUM_ZMMS; i < (LC_BIKE_R_PADDED / MAP_WORDS_IN_ZMM);
+	for (i = NUM_ZMMS; i < (LC_BIKE_R_PADDED / MAP_WORDS_IN_ZMM);
 	     i += NUM_ZMMS) {
-		for (size_t j = 0; j < NUM_ZMMS; j++) {
+		size_t j;
+
+		for (j = 0; j < NUM_ZMMS; j++) {
 			vmap[j] = ADD(vmap[j], inc);
 			mask[j] = CMPM(vmap[j], vr, _MM_CMPINT_NLT);
 			vmap[j] = MSUB(vmap[j], mask[j], vmap[j], vr);
@@ -132,9 +135,10 @@ static inline void generate_map(map_word_t *map, const map_word_t l_param)
 static inline void bytes_to_bin(pad_r_t *bin_buf, const uint8_t *bytes_buf)
 {
 	uint64_t *bin64 = (uint64_t *)bin_buf;
-
+	size_t i;
 	__m512i first_bit_mask = SET1_I8(1);
-	for (size_t i = 0; i < LC_BIKE_R_QWORDS; i++) {
+
+	for (i = 0; i < LC_BIKE_R_QWORDS; i++) {
 		__m512i t = LOAD(&bytes_buf[i * LC_BIKE_BYTES_IN_ZMM]);
 		bin64[i] = CMPM_U8(t, first_bit_mask, _MM_CMPINT_EQ);
 	}
@@ -145,8 +149,9 @@ static inline void bytes_to_bin(pad_r_t *bin_buf, const uint8_t *bytes_buf)
 static inline void bin_to_bytes(uint8_t *bytes_buf, const pad_r_t *bin_buf)
 {
 	const uint64_t *bin64 = (const uint64_t *)bin_buf;
+	size_t i;
 
-	for (size_t i = 0; i < LC_BIKE_R_QWORDS; i++) {
+	for (i = 0; i < LC_BIKE_R_QWORDS; i++) {
 		__m512i t = SET1MZ_I8(bin64[i], 1);
 		STORE(&bytes_buf[i * LC_BIKE_BYTES_IN_ZMM], t);
 	}
@@ -169,6 +174,7 @@ int k_sqr_avx512(pad_r_t *c, const pad_r_t *a, const size_t l_param)
 		uint8_t a_bytes[LC_BIKE_R_PADDED];
 		uint8_t c_bytes[LC_BIKE_R_PADDED];
 	};
+	size_t i;
 	LC_DECLARE_MEM(ws, struct workspace, LC_BIKE_ALIGN_BYTES);
 
 	LC_FPU_ENABLE;
@@ -179,7 +185,7 @@ int k_sqr_avx512(pad_r_t *c, const pad_r_t *a, const size_t l_param)
 	bin_to_bytes(ws->a_bytes, a);
 
 	// Permute "a" using the generated permutation map.
-	for (size_t i = 0; i < LC_BIKE_R_BITS; i++)
+	for (i = 0; i < LC_BIKE_R_BITS; i++)
 		ws->c_bytes[i] = ws->a_bytes[ws->map[i]];
 
 	bytes_to_bin(c, ws->c_bytes);

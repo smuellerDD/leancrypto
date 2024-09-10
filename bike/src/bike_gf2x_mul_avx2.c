@@ -38,12 +38,15 @@
 void karatzuba_add1_avx2(uint64_t *alah, uint64_t *blbh, const uint64_t *a,
 			 const uint64_t *b, const size_t qwords_len)
 {
+	size_t i;
+
 	//assert(qwords_len % REG_QWORDS == 0);
 
-	LC_FPU_ENABLE;
 	REG_T va0, va1, vb0, vb1;
 
-	for (size_t i = 0; i < qwords_len; i += REG_QWORDS) {
+	LC_FPU_ENABLE;
+
+	for (i = 0; i < qwords_len; i += REG_QWORDS) {
 		va0 = LOAD(&a[i]);
 		va1 = LOAD(&a[i + qwords_len]);
 		vb0 = LOAD(&b[i]);
@@ -58,12 +61,14 @@ void karatzuba_add1_avx2(uint64_t *alah, uint64_t *blbh, const uint64_t *a,
 void karatzuba_add2_avx2(uint64_t *z, const uint64_t *x, const uint64_t *y,
 			 const size_t qwords_len)
 {
+	size_t i;
+	REG_T vx, vy;
+
 	//assert(qwords_len % REG_QWORDS == 0);
 
 	LC_FPU_ENABLE;
-	REG_T vx, vy;
 
-	for (size_t i = 0; i < qwords_len; i += REG_QWORDS) {
+	for (i = 0; i < qwords_len; i += REG_QWORDS) {
 		vx = LOAD(&x[i]);
 		vy = LOAD(&y[i]);
 
@@ -76,16 +81,16 @@ void karatzuba_add3_avx2(uint64_t *c, const uint64_t *mid,
 			 const size_t qwords_len)
 {
 	//assert(qwords_len % REG_QWORDS == 0);
-
-	LC_FPU_ENABLE;
 	REG_T vr0, vr1, vr2, vr3, vt;
+	LC_FPU_ENABLE;
 
 	uint64_t *c0 = c;
 	uint64_t *c1 = &c[qwords_len];
 	uint64_t *c2 = &c[2 * qwords_len];
 	uint64_t *c3 = &c[3 * qwords_len];
+	size_t i;
 
-	for (size_t i = 0; i < qwords_len; i += REG_QWORDS) {
+	for (i = 0; i < qwords_len; i += REG_QWORDS) {
 		vr0 = LOAD(&c0[i]);
 		vr1 = LOAD(&c1[i]);
 		vr2 = LOAD(&c2[i]);
@@ -103,10 +108,11 @@ void gf2x_red_avx2(pad_r_t *c, const dbl_pad_r_t *a)
 {
 	const uint64_t *a64 = (const uint64_t *)a;
 	uint64_t *c64 = (uint64_t *)c;
+	size_t i;
 
 	LC_FPU_ENABLE;
 
-	for (size_t i = 0; i < LC_BIKE_R_QWORDS; i += REG_QWORDS) {
+	for (i = 0; i < LC_BIKE_R_QWORDS; i += REG_QWORDS) {
 		REG_T vt0 = LOAD(&a64[i]);
 		REG_T vt1 = LOAD(&a64[i + LC_BIKE_R_QWORDS]);
 		REG_T vt2 = LOAD(&a64[i + LC_BIKE_R_QWORDS - 1]);

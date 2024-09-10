@@ -49,6 +49,7 @@ void gf2x_mul_base_port(uint64_t *c, const uint64_t *a, const uint64_t *b)
 	// Multiplying 64 bits by 7 can results in an overflow of 3 bits.
 	// Therefore, these bits are masked out, and are treated in step 3.
 	const uint64_t b0m = b0 & LC_BIKE_MASK(61);
+	size_t i;
 
 	// Step 1: Calculate a multiplication table with 8 entries.
 	u[0] = 0;
@@ -61,19 +62,20 @@ void gf2x_mul_base_port(uint64_t *c, const uint64_t *a, const uint64_t *b)
 	u[7] = u[6] ^ b0m;
 
 	// Step 2: Multiply two elements in parallel in positions i, i+s
-	for (size_t i = 0; i < 8; ++i) {
+	for (i = 0; i < 8; ++i) {
 		// use a mask for secret-independent memory access
 		l ^= u[i] & secure_cmpeq64_mask(LSB3(a0), i);
 		l ^= (u[i] << 3) & secure_cmpeq64_mask(LSB3(a0 >> 3), i);
 		h ^= (u[i] >> 61) & secure_cmpeq64_mask(LSB3(a0 >> 3), i);
 	}
 
-	for (size_t i = (2 * s); i < w; i += (2 * s)) {
+	for (i = (2 * s); i < w; i += (2 * s)) {
 		const size_t i2 = (i + s);
+		size_t j;
 
 		g1 = 0;
 		g2 = 0;
-		for (size_t j = 0; j < 8; ++j) {
+		for (j = 0; j < 8; ++j) {
 			// use a mask for secret-independent memory access
 			g1 ^= u[j] & secure_cmpeq64_mask(LSB3(a0 >> i), j);
 			g2 ^= u[j] & secure_cmpeq64_mask(LSB3(a0 >> i2), j);
@@ -84,7 +86,7 @@ void gf2x_mul_base_port(uint64_t *c, const uint64_t *a, const uint64_t *b)
 	}
 
 	// Step 3: Multiply the last three bits.
-	for (size_t i = 61; i < 64; i++) {
+	for (i = 61; i < 64; i++) {
 		uint64_t mask = (-((b0 >> i) & 1));
 
 		l ^= ((a0 << i) & mask);
@@ -100,8 +102,9 @@ void gf2x_sqr_port(dbl_pad_r_t *c, const pad_r_t *a)
 {
 	const uint64_t *a64 = (const uint64_t *)a;
 	uint64_t *c64 = (uint64_t *)c;
+	size_t i;
 
-	for (size_t i = 0; i < LC_BIKE_R_QWORDS; i++) {
+	for (i = 0; i < LC_BIKE_R_QWORDS; i++) {
 		gf2x_mul_base_port(&c64[2 * i], &a64[i], &a64[i]);
 	}
 }

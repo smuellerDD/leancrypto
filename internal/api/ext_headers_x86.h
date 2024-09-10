@@ -35,6 +35,7 @@
 #define restrict
 #endif
 
+#include <linux/types.h>
 #include <asm/fpu/api.h>
 
 #define LC_FPU_ENABLE kernel_fpu_begin()

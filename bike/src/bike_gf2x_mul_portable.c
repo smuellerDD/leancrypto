@@ -37,11 +37,13 @@
 void karatzuba_add1_port(uint64_t *alah, uint64_t *blbh, const uint64_t *a,
 			 const uint64_t *b, const size_t qwords_len)
 {
-	assert(qwords_len % REG_QWORDS == 0);
+	size_t i;
+
+	//assert(qwords_len % REG_QWORDS == 0);
 
 	REG_T va0, va1, vb0, vb1;
 
-	for (size_t i = 0; i < qwords_len; i += REG_QWORDS) {
+	for (i = 0; i < qwords_len; i += REG_QWORDS) {
 		va0 = LOAD(&a[i]);
 		va1 = LOAD(&a[i + qwords_len]);
 		vb0 = LOAD(&b[i]);
@@ -55,11 +57,13 @@ void karatzuba_add1_port(uint64_t *alah, uint64_t *blbh, const uint64_t *a,
 void karatzuba_add2_port(uint64_t *z, const uint64_t *x, const uint64_t *y,
 			 const size_t qwords_len)
 {
-	assert(qwords_len % REG_QWORDS == 0);
+	size_t i;
+
+	//assert(qwords_len % REG_QWORDS == 0);
 
 	REG_T vx, vy;
 
-	for (size_t i = 0; i < qwords_len; i += REG_QWORDS) {
+	for (i = 0; i < qwords_len; i += REG_QWORDS) {
 		vx = LOAD(&x[i]);
 		vy = LOAD(&y[i]);
 
@@ -98,8 +102,9 @@ void gf2x_red_port(pad_r_t *c, const dbl_pad_r_t *a)
 {
 	const uint64_t *a64 = (const uint64_t *)a;
 	uint64_t *c64 = (uint64_t *)c;
+	size_t i;
 
-	for (size_t i = 0; i < LC_BIKE_R_QWORDS; i += REG_QWORDS) {
+	for (i = 0; i < LC_BIKE_R_QWORDS; i += REG_QWORDS) {
 		REG_T vt0 = LOAD(&a64[i]);
 		REG_T vt1 = LOAD(&a64[i + LC_BIKE_R_QWORDS]);
 		REG_T vt2 = LOAD(&a64[i + LC_BIKE_R_QWORDS - 1]);

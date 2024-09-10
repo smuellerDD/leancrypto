@@ -49,12 +49,14 @@
 // Input argument l_param is defined as the value (2^-k) % r.
 int k_sqr_port(pad_r_t *c, const pad_r_t *a, const size_t l_param)
 {
+	size_t i, idx = 0;
 	memset(c->val.raw, 0, sizeof(c->val));
 
 	// Compute the result byte by byte
-	size_t idx = 0;
-	for (size_t i = 0; i < LC_BIKE_R_BYTES; i++) {
-		for (size_t j = 0; j < BITS_IN_BYTE; j++, idx++) {
+	for (i = 0; i < LC_BIKE_R_BYTES; i++) {
+		size_t j;
+
+		for (j = 0; j < BITS_IN_BYTE; j++, idx++) {
 			// Bit of "c" at position idx is set to the value of
 			// the bit of "a" at position pi1(idx) = (l_param * idx) % R_BITS.
 			size_t pos = (l_param * idx) % LC_BIKE_R_BITS;

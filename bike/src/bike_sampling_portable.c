@@ -66,8 +66,10 @@ int secure_set_bits_port(pad_r_t *r, const uint32_t first_pos,
 
 	// Fill each QW in constant time
 	for (i = 0; i < (sizeof(*r) / sizeof(uint64_t)); i++) {
+		size_t j;
+
 		val = 0;
-		for (size_t j = 0; j < w_size; j++) {
+		for (j = 0; j < w_size; j++) {
 			mask = (-1ULL) + (!secure_cmp32(ws->pos_qw[j], i));
 			val |= (ws->pos_bit[j] & mask);
 		}

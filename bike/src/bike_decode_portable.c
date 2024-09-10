@@ -38,21 +38,25 @@
 static inline void rotr_big(syndrome_t *out, const syndrome_t *in,
 			    uint32_t qw_num)
 {
+	uint32_t idx;
+
 	// For preventing overflows (comparison in bytes)
 	BUILD_BUG_ON(sizeof(*out) <=
 		     8 * (LC_BIKE_R_QWORDS + (2 * R_QWORDS_HALF_LOG2)));
 
 	*out = *in;
 
-	for (uint32_t idx = R_QWORDS_HALF_LOG2; idx >= 1; idx >>= 1) {
+	for (idx = R_QWORDS_HALF_LOG2; idx >= 1; idx >>= 1) {
 		// Convert 32 bit mask to 64 bit mask
 		const uint64_t mask =
 			((uint32_t)secure_l32_mask(qw_num, idx) + 1U) - 1ULL;
+		size_t i;
+
 		qw_num = qw_num - (idx & (uint32_t)u64_barrier(mask));
 
 		// Rotate R_QWORDS quadwords and another idx quadwords,
 		// as needed by the next iteration.
-		for (size_t i = 0; i < (LC_BIKE_R_QWORDS + idx); i++) {
+		for (i = 0; i < (LC_BIKE_R_QWORDS + idx); i++) {
 			out->qw[i] = (out->qw[i] & u64_barrier(~mask)) |
 				     (out->qw[i + idx] & u64_barrier(mask));
 		}
@@ -66,13 +70,15 @@ static inline void rotr_small(syndrome_t *out, const syndrome_t *in,
 	// 0xffffffffff Use high_shift to avoid undefined behaviour when doing x << 64;
 	const uint64_t mask = (uint64_t)(0 - (!!bits));
 	const uint64_t high_shift = (64 - bits) & u64_barrier(mask);
+	size_t i;
 
 	BUILD_BUG_ON(sizeof(*out) <= (8 * LC_BIKE_R_QWORDS));
 
-	for (size_t i = 0; i < LC_BIKE_R_QWORDS; i++) {
+	for (i = 0; i < LC_BIKE_R_QWORDS; i++) {
 		const uint64_t low_part = in->qw[i] >> bits;
 		const uint64_t high_part =
 			(in->qw[i + 1] << high_shift) & u64_barrier(mask);
+
 		out->qw[i] = low_part | high_part;
 	}
 }
@@ -93,11 +99,13 @@ void rotate_right_port(syndrome_t *out, const syndrome_t *in,
 // This is required by the rotate functions.
 void dup_port(syndrome_t *s)
 {
+	size_t i;
+
 	s->qw[LC_BIKE_R_QWORDS - 1] =
 		(s->qw[0] << LC_BIKE_LAST_R_QWORD_LEAD) |
 		(s->qw[LC_BIKE_R_QWORDS - 1] & LC_BIKE_LAST_R_QWORD_MASK);
 
-	for (size_t i = 0; i < (2 * LC_BIKE_R_QWORDS) - 1; i++) {
+	for (i = 0; i < (2 * LC_BIKE_R_QWORDS) - 1; i++) {
 		s->qw[LC_BIKE_R_QWORDS + i] =
 			(s->qw[i] >> LC_BIKE_LAST_R_QWORD_TRAIL) |
 			(s->qw[i + 1] << LC_BIKE_LAST_R_QWORD_LEAD);
@@ -108,9 +116,11 @@ void dup_port(syndrome_t *s)
 void bit_sliced_adder_port(upc_t *upc, syndrome_t *rotated_syndrome,
 			   const size_t num_of_slices)
 {
+	size_t i, j;
+
 	// From cache-memory perspective this loop should be the outside loop
-	for (size_t j = 0; j < num_of_slices; j++) {
-		for (size_t i = 0; i < LC_BIKE_R_QWORDS; i++) {
+	for (j = 0; j < num_of_slices; j++) {
+		for (i = 0; i < LC_BIKE_R_QWORDS; i++) {
 			const uint64_t carry = (upc->slice[j].u.qw[i] &
 						rotated_syndrome->qw[i]);
 			upc->slice[j].u.qw[i] ^= rotated_syndrome->qw[i];
@@ -125,10 +135,13 @@ int bit_slice_full_subtract_port(upc_t *upc, uint8_t val)
 		// Borrow
 		uint64_t br[LC_BIKE_R_QWORDS];
 	};
+	size_t j;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	for (size_t j = 0; j < LC_BIKE_SLICES; j++) {
+	for (j = 0; j < LC_BIKE_SLICES; j++) {
 		const uint64_t lsb_mask = 0 - (val & 0x1);
+		size_t i;
+
 		val >>= 1;
 
 		// Perform a - b with c as the input/output carry
@@ -143,11 +156,12 @@ int bit_slice_full_subtract_port(upc_t *upc, uint8_t val)
 		//            _     __    _ _   _ _     _
 		// br = abc + abc + abc + abc = abc + ((a+b))c
 
-		for (size_t i = 0; i < LC_BIKE_R_QWORDS; i++) {
+		for (i = 0; i < LC_BIKE_R_QWORDS; i++) {
 			const uint64_t a = upc->slice[j].u.qw[i];
 			const uint64_t b = lsb_mask;
 			const uint64_t tmp = ((~a) & b & (~ws->br[i])) |
 					     ((((~a) | b) & ws->br[i]));
+
 			upc->slice[j].u.qw[i] = a ^ b ^ ws->br[i];
 			ws->br[i] = tmp;
 		}

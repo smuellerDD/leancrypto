@@ -77,6 +77,7 @@
 static inline void generate_map(map_word_t *map, const map_word_t l_param)
 {
 	__m256i vmap[NUM_YMMS], vtmp[NUM_YMMS], vr, inc, zero;
+	size_t i;
 
 	// The permutation map is generated in the following way:
 	//   1. for i = 0 to map size:
@@ -91,7 +92,7 @@ static inline void generate_map(map_word_t *map, const map_word_t l_param)
 	// This algorithm is parallelized with vector instructions by processing
 	// certain number of values (NUM_OF_VALS) in parallel. Therefore,
 	// in the beginning we need to initialize the first NUM_OF_VALS elements.
-	for (size_t i = 0; i < NUM_OF_VALS; i++) {
+	for (i = 0; i < NUM_OF_VALS; i++) {
 		map[i] = (map_word_t)((i * l_param) % LC_BIKE_R_BITS);
 	}
 
@@ -116,13 +117,15 @@ static inline void generate_map(map_word_t *map, const map_word_t l_param)
 	inc = SUB(inc, vr);
 
 	// Load the first NUM_OF_VALS elements in the vmap vectors
-	for (size_t i = 0; i < NUM_YMMS; i++) {
+	for (i = 0; i < NUM_YMMS; i++) {
 		vmap[i] = LOAD(&map[i * MAP_WORDS_IN_YMM]);
 	}
 
-	for (size_t i = NUM_YMMS; i < (LC_BIKE_R_PADDED / MAP_WORDS_IN_YMM);
+	for (i = NUM_YMMS; i < (LC_BIKE_R_PADDED / MAP_WORDS_IN_YMM);
 	     i += NUM_YMMS) {
-		for (size_t j = 0; j < NUM_YMMS; j++) {
+		size_t j;
+
+		for (j = 0; j < NUM_YMMS; j++) {
 			vmap[j] = ADD(vmap[j], inc);
 			vtmp[j] = CMPGT(zero, vmap[j]);
 			vmap[j] = ADD(vmap[j], vtmp[j] & vr);
@@ -137,9 +140,10 @@ static inline void generate_map(map_word_t *map, const map_word_t l_param)
 // holds 8 bits of the polynomial.
 static inline void bytes_to_bin(pad_r_t *bin_buf, const uint8_t *bytes_buf)
 {
+	size_t i;
 	uint32_t *bin32 = (uint32_t *)bin_buf;
 
-	for (size_t i = 0; i < LC_BIKE_R_QWORDS * 2; i++) {
+	for (i = 0; i < LC_BIKE_R_QWORDS * 2; i++) {
 		__m256i t = LOAD(&bytes_buf[i * LC_BIKE_BYTES_IN_YMM]);
 		bin32[i] = (uint32_t)MOVEMASK(t);
 	}
@@ -193,8 +197,9 @@ static inline void bin_to_bytes(uint8_t *bytes_buf, const pad_r_t *bin_buf)
 	const __m256i blend_mask = SET1_I16(0x00ff);
 
 	const uint32_t *bin32 = (const uint32_t *)bin_buf;
+	size_t i;
 
-	for (size_t i = 0; i < LC_BIKE_R_QWORDS * 2; i++) {
+	for (i = 0; i < LC_BIKE_R_QWORDS * 2; i++) {
 		t = SET1_I32((const int)bin32[i]);
 		t = SLLV_I32(t, shift_mask);
 
@@ -222,6 +227,7 @@ int k_sqr_avx2(pad_r_t *c, const pad_r_t *a, const size_t l_param)
 		uint8_t a_bytes[LC_BIKE_R_PADDED];
 		uint8_t c_bytes[LC_BIKE_R_PADDED];
 	};
+	size_t i;
 	LC_DECLARE_MEM(ws, struct workspace, LC_BIKE_ALIGN_BYTES);
 
 	LC_FPU_ENABLE;
@@ -232,7 +238,7 @@ int k_sqr_avx2(pad_r_t *c, const pad_r_t *a, const size_t l_param)
 	bin_to_bytes(ws->a_bytes, a);
 
 	// Permute "a" using the generated permutation map.
-	for (size_t i = 0; i < LC_BIKE_R_BITS; i++)
+	for (i = 0; i < LC_BIKE_R_BITS; i++)
 		ws->c_bytes[i] = ws->a_bytes[ws->map[i]];
 
 	bytes_to_bin(c, ws->c_bytes);

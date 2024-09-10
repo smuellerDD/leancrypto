@@ -23,7 +23,11 @@
 #ifdef LINUX_KERNEL
 
 #include <linux/linkage.h>
-#include <linux/objtool.h>
+#if __has_include(<linux/objtool.h>)
+# include <linux/objtool.h>
+#else
+# define stack_frame_non_standard
+#endif
 
 # define SYM_FUNC_ENTER(name)
 
@@ -36,6 +40,19 @@
 
 # define SYM_SIZE(name)							       \
 	.size SYM_FUNC(name),.-SYM_FUNC(name)
+
+# ifndef SYM_FUNC_START
+#  define SYM_FUNC_START(name)						       \
+	.global SYM_FUNC(name) ;					       \
+	SYM_FUNC(name):
+# endif
+
+# ifndef SYM_FUNC_END
+#  define SYM_FUNC_END(name)						       \
+	SYM_TYPE_FUNC(name) ;						       \
+	SYM_SIZE(name)
+# endif
+
 
 #else /* LINUX_KERNEL */
 
@@ -80,7 +97,7 @@
 
 # else /* __APPLE__ */
 
-	#  define SYM_FUNC(name)	name
+#  define SYM_FUNC(name)	name
 
 #  define SYM_TYPE_OBJ(name)						       \
 	.type SYM_FUNC(name),%object
@@ -98,7 +115,7 @@
 
 #  define SYM_FUNC_ENTER(name)
 
-# define SYM_FUNC_END(name)						       \
+#  define SYM_FUNC_END(name)						       \
 	SYM_TYPE_FUNC(name) ;						       \
 	SYM_SIZE(name)
 

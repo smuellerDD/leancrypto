@@ -62,6 +62,8 @@ static inline pid_t getpid(void)
 	return 0;
 }
 
+#define restrict
+
 #define printf printk
 
 #ifndef assert

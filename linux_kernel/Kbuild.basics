@@ -4,6 +4,9 @@ obj-m		 		:= leancrypto.o
 ccflags-y			+= -I$(PWD) -DLINUX_KERNEL
 ccflags-y			+= -DLC_MEM_ON_HEAP -Wframe-larger-than=2048
 
+# Shut up some annoying warnings
+ccflags-y	  		+= -Wno-declaration-after-statement -Wno-main
+
 # Required for leancrypto_kernel.c
 ccflags-y			+= -I$(PWD)/../curve25519/api		       \
 				   -I$(PWD)/../curve25519/src

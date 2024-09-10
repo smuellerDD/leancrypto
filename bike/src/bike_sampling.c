@@ -69,11 +69,13 @@ static void generate_indices_mod_z(idx_t *out, const size_t num_indices,
 
 	// Generate num_indices unique (pseudo) random numbers modulo z.
 	do {
+		size_t i, is_new = 1;
+
 		get_rand_mod_len(&out[ctr], z, prf_state);
 
 		// Check if the index is new and increment the counter if it is.
-		size_t is_new = 1;
-		for (size_t i = 0; i < ctr; i++) {
+
+		for (i = 0; i < ctr; i++) {
 			if (out[i] == out[ctr]) {
 				is_new = 0;
 				break;
@@ -89,28 +91,30 @@ static void sample_indices_fisher_yates(idx_t *out, unsigned int num_indices,
 					struct lc_hash_ctx *prf_state)
 {
 #define CWW_RAND_BYTES 4
+	unsigned int i, j;
 
 	lc_hash_set_digestsize(prf_state, CWW_RAND_BYTES);
 
-	for (unsigned int i = num_indices; i-- > 0;) {
+	for (i = num_indices; i-- > 0;) {
 		uint64_t rand = 0ULL;
+		uint32_t is_dup, mask, l;
 
 		lc_hash_final(prf_state, (uint8_t *)&rand);
 
 		rand *= (max_idx_val - i);
 
 		// new index l is such that i <= l < max_idx_val
-		uint32_t l = i + (uint32_t)(rand >> (CWW_RAND_BYTES * 8));
+		l = i + (uint32_t)(rand >> (CWW_RAND_BYTES * 8));
 
 		// Loop over (the end of) the output array to determine if l is a duplicate
-		uint32_t is_dup = 0;
-		for (size_t j = i + 1; j < num_indices; ++j) {
+		is_dup = 0;
+		for (j = i + 1; j < num_indices; ++j) {
 			is_dup |= secure_cmp32(l, out[j]);
 		}
 
 		// if l is a duplicate out[i] gets i else out[i] gets l
 		// mask is all 1 if l is a duplicate, all 0 else
-		uint32_t mask = -is_dup;
+		mask = -is_dup;
 		out[i] = (mask & i) ^ (~mask & l);
 	}
 }

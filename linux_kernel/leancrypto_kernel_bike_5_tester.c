@@ -18,6 +18,7 @@
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
+#include <linux/version.h>
 #include <crypto/kpp.h>
 #include <linux/module.h>
 #include <linux/scatterlist.h>
@@ -46,9 +47,14 @@ struct lc_kpp_def {
 };
 
 /* Callback function */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,3,0)
+static void lc_kpp_cb(struct crypto_async_request *req, int error)
+{
+#else
 static void lc_kpp_cb(void *data, int error)
 {
-	struct crypto_async_request *req = data;
+        struct crypto_async_request *req = data;
+#endif
 	struct lc_tcrypt_res *result = req->data;
 
 	if (error == -EINPROGRESS)
@@ -99,7 +105,7 @@ static int lc_bike_ss(const char *algname)
 	struct scatterlist src, dst;
 	struct lc_bike_ct *ct = NULL;
 	struct lc_bike_pk *pk = NULL;
-	u8 ss1[LC_BIKE_SS_BYTES], ss2[LC_BIKE_SS_BYTES];
+	u8 *ss1 = NULL, *ss2 = NULL;
 	int err = -ENOMEM;
 
 	tfm = crypto_alloc_kpp(algname, 0, 0);
@@ -138,6 +144,20 @@ static int lc_bike_ss(const char *algname)
 		goto out;
 	}
 
+	ss1 = kmalloc(LC_BIKE_SS_BYTES, GFP_KERNEL);
+	if (!ss1) {
+		err = -ENOMEM;
+		pr_err("Cannot allocate BIKE PK\n");
+		goto out;
+	}
+
+	ss2 = kmalloc(LC_BIKE_SS_BYTES, GFP_KERNEL);
+	if (!ss2) {
+		err = -ENOMEM;
+		pr_err("Cannot allocate BIKE PK\n");
+		goto out;
+	}
+
 	kpp.tfm = tfm;
 	kpp.req = req;
 
@@ -170,9 +190,9 @@ static int lc_bike_ss(const char *algname)
 		goto out;
 
 	/* Responder: Obtain the local shared secret */
-	sg_init_one(&dst, ss1, sizeof(ss1));
+	sg_init_one(&dst, ss1, LC_BIKE_SS_BYTES);
 	kpp_request_set_input(req, NULL, 0);
-	kpp_request_set_output(req, &dst, sizeof(ss1));
+	kpp_request_set_output(req, &dst, LC_BIKE_SS_BYTES);
 	err = lc_kpp_op(&kpp, 1);
 	pr_info("Responder: BIKE SS gathering result %d\n", err);
 	if (err)
@@ -180,9 +200,9 @@ static int lc_bike_ss(const char *algname)
 
 	/* Initiator: Generate the SS. */
 	sg_init_one(&src, ct, crypto_kpp_maxsize(tfm));
-	sg_init_one(&dst, ss2, sizeof(ss2));
+	sg_init_one(&dst, ss2, LC_BIKE_SS_BYTES);
 	kpp_request_set_input(req, &src, crypto_kpp_maxsize(tfm));
-	kpp_request_set_output(req, &dst, sizeof(ss2));
+	kpp_request_set_output(req, &dst, LC_BIKE_SS_BYTES);
 	kpp_request_set_callback(req, CRYPTO_TFM_REQ_MAY_BACKLOG, lc_kpp_cb,
 				 &kpp.result);
 
@@ -192,7 +212,7 @@ static int lc_bike_ss(const char *algname)
 		goto out;
 
 	/* Check that both shared secrets are identical */
-	if (memcmp(ss1, ss2, sizeof(ss1))) {
+	if (memcmp(ss1, ss2, LC_BIKE_SS_BYTES)) {
 		pr_err("Shared secrets mismatch\n");
 		err = -EFAULT;
 		goto out;
@@ -201,6 +221,10 @@ static int lc_bike_ss(const char *algname)
 	pr_info("BIKE SS generation test successful\n");
 
 out:
+	if (ss1)
+		kfree(ss1);
+	if (ss2)
+		kfree(ss2);
 	if (ct)
 		kfree(ct);
 	if (pk)

@@ -54,16 +54,20 @@
 static inline void rotate512_big(syndrome_t *out, const syndrome_t *in,
 				 uint32_t zmm_num)
 {
+	uint32_t idx;
+
 	// For preventing overflows (comparison in bytes)
 	BUILD_BUG_ON(sizeof(*out) <= (LC_BIKE_BYTES_IN_ZMM *
 				      (LC_BIKE_R_ZMM + (2 * R_ZMM_HALF_LOG2))));
 	*out = *in;
 
-	for (uint32_t idx = R_ZMM_HALF_LOG2; idx >= 1; idx >>= 1) {
+	for (idx = R_ZMM_HALF_LOG2; idx >= 1; idx >>= 1) {
 		const uint8_t mask = (uint8_t)secure_l32_mask(zmm_num, idx);
+		size_t i;
+
 		zmm_num = zmm_num - (idx & mask);
 
-		for (size_t i = 0; i < (LC_BIKE_R_ZMM + idx); i++) {
+		for (i = 0; i < (LC_BIKE_R_ZMM + idx); i++) {
 			const __m512i a = LOAD(&out->qw[8 * (i + idx)]);
 			MSTORE64(&out->qw[8 * i], mask, a);
 		}
@@ -83,14 +87,15 @@ static inline void rotate512_small(syndrome_t *out, const syndrome_t *in,
 	const __m512i one = SET1_I64(1);
 	__m512i a0, a1;
 
-	__m512i idx = SET_I64(7, 6, 5, 4, 3, 2, 1, 0);
+	__m512i idx1, idx = SET_I64(7, 6, 5, 4, 3, 2, 1, 0);
+	int i;
 
 	// Positions above 7 are taken from the second register in
 	// _mm512_permutex2var_epi64
 	idx = ADD_I64(idx, num_full_qw);
-	__m512i idx1 = ADD_I64(idx, one);
+	idx1 = ADD_I64(idx, one);
 
-	for (int i = LC_BIKE_R_ZMM; i >= 0; i--) {
+	for (i = LC_BIKE_R_ZMM; i >= 0; i--) {
 		// Load the next 512 bits
 		const __m512i in512 = LOAD(&in->qw[8 * i]);
 
@@ -131,11 +136,13 @@ void rotate_right_avx512(syndrome_t *out, const syndrome_t *in,
 // This is required by the rotate functions.
 void dup_avx512(syndrome_t *s)
 {
+	size_t i;
+
 	s->qw[LC_BIKE_R_QWORDS - 1] =
 		(s->qw[0] << LC_BIKE_LAST_R_QWORD_LEAD) |
 		(s->qw[LC_BIKE_R_QWORDS - 1] & LC_BIKE_LAST_R_QWORD_MASK);
 
-	for (size_t i = 0; i < (2 * LC_BIKE_R_QWORDS) - 1; i++) {
+	for (i = 0; i < (2 * LC_BIKE_R_QWORDS) - 1; i++) {
 		s->qw[LC_BIKE_R_QWORDS + i] =
 			(s->qw[i] >> LC_BIKE_LAST_R_QWORD_TRAIL) |
 			(s->qw[i + 1] << LC_BIKE_LAST_R_QWORD_LEAD);
@@ -146,9 +153,13 @@ void dup_avx512(syndrome_t *s)
 void bit_sliced_adder_avx512(upc_t *upc, syndrome_t *rotated_syndrome,
 			     const size_t num_of_slices)
 {
+	size_t j;
+
 	// From cache-memory perspective this loop should be the outside loop
-	for (size_t j = 0; j < num_of_slices; j++) {
-		for (size_t i = 0; i < LC_BIKE_R_QWORDS; i++) {
+	for (j = 0; j < num_of_slices; j++) {
+		size_t i;
+
+		for (i = 0; i < LC_BIKE_R_QWORDS; i++) {
 			const uint64_t carry = (upc->slice[j].u.qw[i] &
 						rotated_syndrome->qw[i]);
 			upc->slice[j].u.qw[i] ^= rotated_syndrome->qw[i];
@@ -163,10 +174,13 @@ int bit_slice_full_subtract_avx512(upc_t *upc, uint8_t val)
 		// Borrow
 		uint64_t br[LC_BIKE_R_QWORDS];
 	};
+	size_t j;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	for (size_t j = 0; j < LC_BIKE_SLICES; j++) {
+	for (j = 0; j < LC_BIKE_SLICES; j++) {
 		const uint64_t lsb_mask = 0 - (val & 0x1);
+		size_t i;
+
 		val >>= 1;
 
 		// Perform a - b with c as the input/output carry
@@ -181,7 +195,7 @@ int bit_slice_full_subtract_avx512(upc_t *upc, uint8_t val)
 		//            _     __    _ _   _ _     _
 		// br = abc + abc + abc + abc = abc + ((a+b))c
 
-		for (size_t i = 0; i < LC_BIKE_R_QWORDS; i++) {
+		for (i = 0; i < LC_BIKE_R_QWORDS; i++) {
 			const uint64_t a = upc->slice[j].u.qw[i];
 			const uint64_t b = lsb_mask;
 			const uint64_t tmp = ((~a) & b & (~ws->br[i])) |

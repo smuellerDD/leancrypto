@@ -136,12 +136,13 @@ void gf2x_sqr_vpclmul(dbl_pad_r_t *c, const pad_r_t *a)
 
 	const uint64_t *a64 = (const uint64_t *)a;
 	uint64_t *c64 = (uint64_t *)c;
+	size_t i;
 
 	LC_FPU_ENABLE;
 
 	vm = SET_I64(7, 3, 6, 2, 5, 1, 4, 0);
 
-	for (size_t i = 0; i < (LC_BIKE_R_ZMM * LC_BIKE_QWORDS_IN_ZMM);
+	for (i = 0; i < (LC_BIKE_R_ZMM * LC_BIKE_QWORDS_IN_ZMM);
 	     i += LC_BIKE_QWORDS_IN_ZMM) {
 		va = LOAD(&a64[i]);
 		va = PERMXVAR_I64(vm, va);
