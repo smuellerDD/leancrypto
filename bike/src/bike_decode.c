@@ -290,8 +290,8 @@ int bike_decode(e_t *e, const struct lc_bike_ct *ct,
 		pad_r_t c0, h0, pk, pad_s, tmp_c0, e0, e1;
 		dbl_pad_r_t t;
 		syndrome_t s, rotated_syndrome;
-		uint64_t secure_buffer[LC_SECURE_BUFFER_QWORDS];
 		upc_t upc;
+		uint64_t secure_buffer[LC_SECURE_BUFFER_QWORDS];
 		decode_ctx ctx;
 		e_t black_e, gray_e;
 	};
