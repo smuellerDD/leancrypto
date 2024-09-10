@@ -149,11 +149,8 @@ int gf2x_mod_inv(pad_r_t *c, const pad_r_t *a)
 	static const size_t exp1_k[MAX_I] = { EXP1_K_VALS };
 	static const size_t exp1_l[MAX_I] = { EXP1_L_VALS };
 	struct workspace {
-		pad_r_t f;
-		pad_r_t g;
-		pad_r_t t;
-		dbl_pad_r_t sec_buf;
-		dbl_pad_r_t tmp;
+		pad_r_t f, g, t;
+		dbl_pad_r_t sec_buf, tmp;
 		uint64_t secure_buffer[LC_SECURE_BUFFER_QWORDS];
 	};
 	// Initialize gf2x methods struct
