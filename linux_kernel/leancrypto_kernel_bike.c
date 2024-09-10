@@ -103,12 +103,12 @@ static int lc_kernel_bike_gen_ct(struct kpp_request *req)
 
 	/*
 	 * req->src contains the remote public key to generate the local
-	 * Kyber CT - this is optional
-	 * req->dst is filled with either the local Kyber PK (if req->src is
-	 * NULL), or with the Kyber CT as a result of the encapsulation
+	 * BIKE CT - this is optional
+	 * req->dst is filled with either the local BIKE PK (if req->src is
+	 * NULL), or with the BIKE CT as a result of the encapsulation
 	 */
 	if (req->src_len != sizeof(struct lc_bike_pk)) {
-		/* See _lc_bike_keypair: sk contains pk */
+		/* See lc_bike_keypair: sk contains pk */
 		u8 *lpk = ctx->sk.pk.raw;
 
 		/* Copy out the public key */
@@ -140,7 +140,7 @@ static int lc_kernel_bike_gen_ct(struct kpp_request *req)
 	ctx->ss_set = true;
 
 	/*
-	 * Now we copy out the Kyber CT
+	 * Now we copy out the BIKE CT
 	 */
 	nbytes = min_t(size_t, sizeof(struct lc_bike_ct), req->dst_len);
 	copied = sg_copy_from_buffer(req->dst,
@@ -168,9 +168,9 @@ static int lc_kernel_bike_ss_local(struct kpp_request *req)
 		return -EOPNOTSUPP;
 
 	/*
-	 * If the requested shared secret size is exactly the Kyber SS size
-	 * then perform a Kyber operation without the KDF. Otherwise invoke
-	 * Kyber with KDF.
+	 * If the requested shared secret size is exactly the BIKE SS size
+	 * then perform a BIKE operation without the KDF. Otherwise invoke
+	 * BIKE with KDF.
 	 */
 
 	if (req->dst_len == LC_BIKE_SS_BYTES) {
@@ -183,8 +183,8 @@ static int lc_kernel_bike_ss_local(struct kpp_request *req)
 
 		/*
 		 * NOTE: This function call implies that this code is not
-		 * converted to the common Kyber API, but uses the
-		 * API specific to 1024/768/512.
+		 * converted to the common BIKE API, but uses the
+		 * API specific to levels 5/3/1.
 		 */
 		bike_ss_kdf(shared_secret, req->dst_len, &ctx->ct, ctx->ss.ss);
 
@@ -225,7 +225,7 @@ static int lc_kernel_bike_ss(struct kpp_request *req)
 	int ret;
 
 	/*
-	 * req->src contains Kyber ciphertext of peer - if this is NULL,
+	 * req->src contains BIKE ciphertext of peer - if this is NULL,
 	 * extract the local shared secret
 	 * req->dst will receive shared secret
 	 */
@@ -258,9 +258,9 @@ static int lc_kernel_bike_ss(struct kpp_request *req)
 		return -EINVAL;
 
 	/*
-	 * If the requested shared secret size is exactly the Kyber SS size
-	 * then perform a Kyber operation without the KDF. Otherwise invoke
-	 * Kyber with KDF.
+	 * If the requested shared secret size is exactly the BIKE SS size
+	 * then perform a BIKE operation without the KDF. Otherwise invoke
+	 * BIKE with KDF.
 	 */
 	if (req->dst_len == LC_BIKE_SS_BYTES) {
 		ret = lc_bike_dec(&ss, ct, &ctx->sk);
@@ -273,7 +273,7 @@ static int lc_kernel_bike_ss(struct kpp_request *req)
 			return -ENOMEM;
 
 		ret = lc_bike_dec_kdf(shared_secret, req->dst_len, ct,
-				       &ctx->sk);
+				      &ctx->sk);
 
 		outbuf = shared_secret;
 #else

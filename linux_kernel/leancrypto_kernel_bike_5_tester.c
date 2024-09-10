@@ -1,4 +1,4 @@
-	// SPDX-License-Identifier: GPL-2.0 OR BSD-2-Clause
+// SPDX-License-Identifier: GPL-2.0 OR BSD-2-Clause
 /*
  * Copyright (C) 2024, Stephan Mueller <smueller@chronox.de>
  *
@@ -55,7 +55,7 @@ static void lc_kpp_cb(void *data, int error)
 		return;
 	result->err = error;
 	complete(&result->completion);
-	pr_info("Kyber operation finished successfully\n");
+	pr_info("BIKE operation finished successfully\n");
 }
 
 /* Perform KPP operation */
@@ -120,14 +120,14 @@ static int lc_bike_ss(const char *algname)
 	ct = kmalloc(sizeof(struct lc_bike_ct), GFP_KERNEL);
 	if (!ct) {
 		err = -ENOMEM;
-		pr_err("Cannot allocate Kyber CT\n");
+		pr_err("Cannot allocate BIKE CT\n");
 		goto out;
 	}
 
 	pk = kmalloc(sizeof(struct lc_bike_pk), GFP_KERNEL);
 	if (!pk) {
 		err = -ENOMEM;
-		pr_err("Cannot allocate Kyber CT\n");
+		pr_err("Cannot allocate BIKE PK\n");
 		goto out;
 	}
 
@@ -154,7 +154,7 @@ static int lc_bike_ss(const char *algname)
 	kpp_request_set_input(req, NULL, 0);
 	kpp_request_set_output(req, &dst, sizeof(struct lc_bike_pk));
 	err = lc_kpp_op(&kpp, 0);
-	pr_info("Initiator: Kyber PK extracted %d\n", err);
+	pr_info("Initiator: BIKE PK extracted %d\n", err);
 	if (err)
 		goto out;
 
@@ -164,7 +164,7 @@ static int lc_bike_ss(const char *algname)
 	kpp_request_set_input(req, &src, sizeof(struct lc_bike_pk));
 	kpp_request_set_output(req, &dst, sizeof(struct lc_bike_ct));
 	err = lc_kpp_op(&kpp, 0);
-	pr_info("Responder: Kyber SS / CT generation and CT gathering result %d\n",
+	pr_info("Responder: BIKE SS / CT generation and CT gathering result %d\n",
 		err);
 	if (err)
 		goto out;
@@ -174,7 +174,7 @@ static int lc_bike_ss(const char *algname)
 	kpp_request_set_input(req, NULL, 0);
 	kpp_request_set_output(req, &dst, sizeof(ss1));
 	err = lc_kpp_op(&kpp, 1);
-	pr_info("Responder: Kyber SS gathering result %d\n", err);
+	pr_info("Responder: BIKE SS gathering result %d\n", err);
 	if (err)
 		goto out;
 
@@ -187,7 +187,7 @@ static int lc_bike_ss(const char *algname)
 				 &kpp.result);
 
 	err = lc_kpp_op(&kpp, 1);
-	pr_info("Initiator: Kyber shared secret generation result %d\n", err);
+	pr_info("Initiator: BIKE shared secret generation result %d\n", err);
 	if (err)
 		goto out;
 
@@ -198,7 +198,7 @@ static int lc_bike_ss(const char *algname)
 		goto out;
 	}
 
-	pr_info("Kyber SS generation test successful\n");
+	pr_info("BIKE SS generation test successful\n");
 
 out:
 	if (ct)

@@ -126,7 +126,7 @@ static int lc_kyber_ss(const char *algname)
 	pk = kmalloc(sizeof(struct lc_kyber_pk), GFP_KERNEL);
 	if (!pk) {
 		err = -ENOMEM;
-		pr_err("Cannot allocate Kyber CT\n");
+		pr_err("Cannot allocate Kyber PK\n");
 		goto out;
 	}
 
