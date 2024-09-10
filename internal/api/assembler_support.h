@@ -53,6 +53,14 @@
 	SYM_SIZE(name)
 # endif
 
+# ifndef FRAME_BEGIN
+#  define FRAME_BEGIN
+# endif
+
+# ifndef FRAME_END
+#  define FRAME_END
+# endif
+
 
 #else /* LINUX_KERNEL */
 
@@ -95,6 +103,10 @@
 
 #  define SYM_FUNC_END(name)
 
+#  define FRAME_BEGIN
+
+#  define FRAME_END
+
 # else /* __APPLE__ */
 
 #  define SYM_FUNC(name)	name
@@ -118,6 +130,10 @@
 #  define SYM_FUNC_END(name)						       \
 	SYM_TYPE_FUNC(name) ;						       \
 	SYM_SIZE(name)
+
+#  define FRAME_BEGIN
+
+#  define FRAME_END
 
 # endif
 

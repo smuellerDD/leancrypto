@@ -504,6 +504,7 @@ SYM_FUNC_END(__KeccakF1600_AVX2)
 #
 SYM_FUNC_START(KeccakP1600_AVX2_Permute_24rounds)
 .balign 32
+    FRAME_BEGIN
     lea             rhotates_left+96(%rip),%r8
     lea             rhotates_right+96(%rip),%r9
     lea             iotas(%rip),%r10
@@ -526,6 +527,7 @@ SYM_FUNC_START(KeccakP1600_AVX2_Permute_24rounds)
     vmovdqu         %ymm5,8+32*4-96(%rdi)
     vmovdqu         %ymm6,8+32*5-96(%rdi)
     vzeroupper
+    FRAME_END
     RET
 SYM_FUNC_END(KeccakP1600_AVX2_Permute_24rounds)
 
@@ -536,6 +538,7 @@ SYM_FUNC_END(KeccakP1600_AVX2_Permute_24rounds)
 #
 SYM_FUNC_START(KeccakP1600_AVX2_Permute_12rounds)
 .balign 32
+    FRAME_BEGIN
     lea             rhotates_left+96(%rip),%r8
     lea             rhotates_right+96(%rip),%r9
     lea             iotas+12*4*8(%rip),%r10
@@ -558,6 +561,7 @@ SYM_FUNC_START(KeccakP1600_AVX2_Permute_12rounds)
     vmovdqu         %ymm5,8+32*4-96(%rdi)
     vmovdqu         %ymm6,8+32*5-96(%rdi)
     vzeroupper
+    FRAME_END
     RET
 SYM_FUNC_END(KeccakP1600_AVX2_Permute_12rounds)
 
@@ -568,6 +572,7 @@ SYM_FUNC_END(KeccakP1600_AVX2_Permute_12rounds)
 #
 SYM_FUNC_START(KeccakP1600_AVX2_Permute_Nrounds)
 .balign 32
+    FRAME_BEGIN
     lea             rhotates_left+96(%rip),%r8
     lea             rhotates_right+96(%rip),%r9
     lea             iotas+24*4*8(%rip),%r10
@@ -592,6 +597,7 @@ SYM_FUNC_START(KeccakP1600_AVX2_Permute_Nrounds)
     vmovdqu         %ymm5,8+32*4-96(%rdi)
     vmovdqu         %ymm6,8+32*5-96(%rdi)
     vzeroupper
+    FRAME_END
     RET
 SYM_FUNC_END(KeccakP1600_AVX2_Permute_Nrounds)
 
@@ -602,6 +608,7 @@ SYM_FUNC_END(KeccakP1600_AVX2_Permute_Nrounds)
 #
 SYM_FUNC_START(KeccakF1600_AVX2_FastLoop_Absorb)
 .balign 32
+    FRAME_BEGIN
     push            %rbx
     push            %r10
     shr             $3, %rcx                # rcx = data length in lanes
@@ -677,6 +684,7 @@ KeccakF1600_AVX2_FastLoop_Absorb_Exit:
     sub             %rbx, %rax
     pop             %r10
     pop             %rbx
+    FRAME_END
     RET
 KeccakF1600_AVX2_FastLoop_Absorb_Not21Lanes:
     cmp             $17, %rsi    
@@ -773,6 +781,7 @@ SYM_FUNC_END(KeccakF1600_AVX2_FastLoop_Absorb)
 #
 SYM_FUNC_START(KeccakP1600_AVX2_12rounds_FastLoop_Absorb)
 .balign 32
+    FRAME_BEGIN
     push            %rbx
     push            %r10
     shr             $3, %rcx                # rcx = data length in lanes
@@ -848,6 +857,7 @@ KeccakP1600_AVX2_12rounds_FastLoop_Absorb_Exit:
     sub             %rbx, %rax
     pop             %r10
     pop             %rbx
+    FRAME_END
     RET
 KeccakP1600_AVX2_12rounds_FastLoop_Absorb_Not21Lanes:
     cmp             $17, %rsi    
