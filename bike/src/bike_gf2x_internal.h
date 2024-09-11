@@ -138,7 +138,13 @@ static inline void gf2x_ctx_init(gf2x_ctx *ctx)
 		ctx->karatzuba_add1 = karatzuba_add1_avx2;
 		ctx->karatzuba_add2 = karatzuba_add2_avx2;
 		ctx->karatzuba_add3 = karatzuba_add3_avx2;
+
+		//TODO fix this
+#ifdef LINUX_KERNEL
+		ctx->k_sqr = k_sqr_port;
+#else
 		ctx->k_sqr = k_sqr_avx2;
+#endif
 		ctx->red = gf2x_red_avx2;
 	} else
 #endif

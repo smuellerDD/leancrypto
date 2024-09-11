@@ -87,7 +87,13 @@ static inline void decode_ctx_init(decode_ctx *ctx)
 		ctx->bit_sliced_adder = bit_sliced_adder_avx512;
 		ctx->bit_slice_full_subtract = bit_slice_full_subtract_avx512;
 	} else if (feat & LC_CPU_FEATURE_INTEL_AVX2) {
+
+		//TODO recheck and fix
+#ifdef LINUX_KERNEL
+		ctx->rotate_right = rotate_right_port;
+#else
 		ctx->rotate_right = rotate_right_avx2;
+#endif
 		ctx->dup = dup_avx2;
 		ctx->bit_sliced_adder = bit_sliced_adder_avx2;
 		ctx->bit_slice_full_subtract = bit_slice_full_subtract_avx2;
