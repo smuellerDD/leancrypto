@@ -213,6 +213,7 @@ LC_INTERFACE_FUNCTION(int, lc_bike_keypair, struct lc_bike_pk *pk,
 
 	lc_rng_generate(rng_ctx, NULL, 0, (uint8_t *)&ws->seeds.seed,
 			sizeof(ws->seeds.seed));
+
 	CKINT(generate_secret_key(&ws->h0, &ws->h1, sk->wlist[0].val,
 				  sk->wlist[1].val, &ws->seeds.seed[0]));
 

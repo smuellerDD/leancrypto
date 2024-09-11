@@ -48,7 +48,7 @@ static inline void gf2x_mod_sqr_in_place(pad_r_t *a, dbl_pad_r_t *secure_buffer,
 }
 
 // c = a^2^2^num_sqrs
-static inline void repeated_squaring(pad_r_t *c, pad_r_t *a,
+static inline void repeated_squaring(pad_r_t *c, const pad_r_t *a,
 				     const size_t num_sqrs,
 				     dbl_pad_r_t *sec_buf, const gf2x_ctx *ctx)
 {
@@ -144,10 +144,10 @@ int gf2x_mod_inv(pad_r_t *c, const pad_r_t *a)
 	 * "public". Code that releases these branches
 	 * (taken/not-taken) does not leak secret information.
 	 */
-	static const size_t exp0_k[MAX_I] = { EXP0_K_VALS };
-	static const size_t exp0_l[MAX_I] = { EXP0_L_VALS };
-	static const size_t exp1_k[MAX_I] = { EXP1_K_VALS };
-	static const size_t exp1_l[MAX_I] = { EXP1_L_VALS };
+	static const unsigned short exp0_k[MAX_I] = { EXP0_K_VALS };
+	static const unsigned short exp0_l[MAX_I] = { EXP0_L_VALS };
+	static const unsigned short exp1_k[MAX_I] = { EXP1_K_VALS };
+	static const unsigned short exp1_l[MAX_I] = { EXP1_L_VALS };
 	struct workspace {
 		pad_r_t f, g, t;
 		dbl_pad_r_t sec_buf, tmp;
@@ -205,6 +205,8 @@ int gf2x_mod_inv(pad_r_t *c, const pad_r_t *a)
 			// Step 9, [1](Algorithm 2): t = t*g;
 			gf2x_mod_mul_with_ctx(&ws->t, &ws->g, &ws->t, &ctx,
 					      &ws->tmp, ws->secure_buffer);
+
+
 		}
 	}
 

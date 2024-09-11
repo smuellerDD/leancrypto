@@ -197,7 +197,7 @@ static inline void bin_to_bytes(uint8_t *bytes_buf, const pad_r_t *bin_buf)
 	const __m256i blend_mask = SET1_I16(0x00ff);
 
 	const uint32_t *bin32 = (const uint32_t *)bin_buf;
-	size_t i;
+	unsigned int i;
 
 	for (i = 0; i < LC_BIKE_R_QWORDS * 2; i++) {
 		t = SET1_I32((const int)bin32[i]);
@@ -227,7 +227,7 @@ int k_sqr_avx2(pad_r_t *c, const pad_r_t *a, const size_t l_param)
 		uint8_t a_bytes[LC_BIKE_R_PADDED];
 		uint8_t c_bytes[LC_BIKE_R_PADDED];
 	};
-	size_t i;
+	unsigned int i;
 	LC_DECLARE_MEM(ws, struct workspace, LC_BIKE_ALIGN_BYTES);
 
 	LC_FPU_ENABLE;
