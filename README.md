@@ -219,14 +219,16 @@ Leancrypto offers various cryptographic algorithms:
 
 * Key Encapsulation Mechanism
 
-  * Kyber Key Encapsulation Mechanism (KEM)
+  * ML-KEM (Kyber) Key Encapsulation Mechanism (KEM)
 
-  * Kyber Key Exchange Mechanism (KEX)
+  * ML-KEM (Kyber) Key Exchange Mechanism (KEX)
 
-  * Kyber Integrated Encryption Schema (IES) - algorithm devised with
+  * ML-KEM (Kyber) Integrated Encryption Schema (IES) - algorithm devised with
     leancrypto, see `kyber_ies.c` for full specification
 
-  * Kyber hybrid KEM / KEX with Curve25519
+  * ML-KEM (Kyber) hybrid KEM / KEX with Curve25519
+
+  * BIKE Key Encapsulation Mechanism (KEM)
 
 * One Time Pad algorithms
 
