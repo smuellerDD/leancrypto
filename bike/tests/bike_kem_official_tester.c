@@ -75,8 +75,8 @@ static int bike_official(enum lc_bike_type type)
 		goto out;
 	}
 
-	unpoison(ws->ss, sizeof(ws->ss));
-	unpoison(ws->ss2, sizeof(ws->ss));
+	unpoison(&ws->ss, sizeof(ws->ss));
+	unpoison(&ws->ss2, sizeof(ws->ss));
 	if (memcmp(&ws->ss, &ws->ss2, sizeof(ws->ss))) {
 		printf("Shared secrets do not match\n");
 		goto out;
