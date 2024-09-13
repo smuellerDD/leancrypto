@@ -45,6 +45,14 @@ extern "C" {
 #define lc_bike_sk lc_bike_3_sk
 #define lc_bike_ct lc_bike_3_ct
 #define lc_bike_ss lc_bike_3_ss
+#define idx_t lc_bike_3_idx_t
+#define compressed_idx_d_t lc_bike_3_compressed_idx_d_t
+#define compressed_idx_d_s lc_bike_3_compressed_idx_d_s
+#define compressed_idx_d_ar_t lc_bike_3_compressed_idx_d_ar_t
+#define m_t lc_bike_3_m_t
+#define m_s lc_bike_3_m_s
+#define r_t lc_bike_3_r_t
+#define r_s lc_bike_3_r_s
 
 #include "lc_bike_3.h"
 
@@ -54,6 +62,14 @@ extern "C" {
 #define lc_bike_sk lc_bike_1_sk
 #define lc_bike_ct lc_bike_1_ct
 #define lc_bike_ss lc_bike_1_ss
+#define idx_t lc_bike_1_idx_t
+#define compressed_idx_d_t lc_bike_1_compressed_idx_d_t
+#define compressed_idx_d_s lc_bike_1_compressed_idx_d_s
+#define compressed_idx_d_ar_t lc_bike_1_compressed_idx_d_ar_t
+#define m_t lc_bike_1_m_t
+#define m_s lc_bike_1_m_s
+#define r_t lc_bike_1_r_t
+#define r_s lc_bike_1_r_s
 
 #include "lc_bike_1.h"
 
@@ -63,6 +79,14 @@ extern "C" {
 #define lc_bike_sk lc_bike_5_sk
 #define lc_bike_ct lc_bike_5_ct
 #define lc_bike_ss lc_bike_5_ss
+#define idx_t lc_bike_5_idx_t
+#define compressed_idx_d_t lc_bike_5_compressed_idx_d_t
+#define compressed_idx_d_s lc_bike_5_compressed_idx_d_s
+#define compressed_idx_d_ar_t lc_bike_5_compressed_idx_d_ar_t
+#define m_t lc_bike_5_m_t
+#define m_s lc_bike_5_m_s
+#define r_t lc_bike_5_r_t
+#define r_s lc_bike_5_r_s
 
 #include "lc_bike_5.h"
 
@@ -73,9 +97,12 @@ extern "C" {
  * respective functions.
  */
 #define lc_bike_keypair BIKE_F(keypair)
+#define lc_bike_keypair_from_seed BIKE_F(keypair_from_seed)
 #define lc_bike_enc BIKE_F(enc)
+#define lc_bike_enc_kdf BIKE_F(enc_kdf)
 #define lc_bike_enc_internal BIKE_F(enc_internal)
 #define lc_bike_dec BIKE_F(dec)
+#define lc_bike_dec_kdf BIKE_F(dec_kdf)
 
 #define bike_decode BIKE_F(bike_decode)
 #define rotate_right_port BIKE_F(rotate_right_port)

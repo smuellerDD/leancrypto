@@ -29,4 +29,4 @@ if get_option('bike_1').enabled()
 					configuration: bike_1_conf_data)
 endif
 
-#include_files += files([ 'lc_bike.h' ])
+include_files += files([ 'lc_bike.h' ])

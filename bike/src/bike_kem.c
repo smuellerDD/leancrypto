@@ -34,6 +34,7 @@
 #include "bike_utilities.h"
 
 #include "build_bug_on.h"
+#include "lc_kmac.h"
 #include "lc_memset_secure.h"
 #include "lc_memcmp_secure.h"
 #include "lc_rng.h"
@@ -41,6 +42,7 @@
 
 #include "ret_checkers.h"
 #include "small_stack_support.h"
+#include "static_rng.h"
 #include "visibility.h"
 
 // m_t and seed_t have the same size and thus can be considered
@@ -182,6 +184,27 @@ static inline void reencrypt(m_t *m, const pad_e_t *e,
 		m->raw[i] = tmp->raw[i] ^ l_ct->c1.raw[i];
 }
 
+
+/**
+ * @brief kyber_ss_kdf - KDF to derive arbitrary sized SS from BIKE SS
+ *
+ *	SS <- KMAC256(K = BIKE-SS, X = BIKE-CT, L = requested SS length,
+ *		      S = "BIKE KEM SS")
+ *
+ * This KDF is is consistent with SP800-108 rev 1.
+ */
+static inline void bike_ss_kdf(uint8_t *ss, size_t ss_len,
+			       const struct lc_bike_ct *ct,
+			       const uint8_t bike_ss[LC_BIKE_SS_BYTES])
+{
+	static const uint8_t kyber_ss_label[] = "BIKE KEM SS";
+
+	lc_kmac(lc_cshake256, bike_ss, LC_BIKE_SS_BYTES, kyber_ss_label,
+		sizeof(kyber_ss_label) - 1, (uint8_t *)ct,
+		sizeof(struct lc_bike_ct), ss, ss_len);
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 // The three APIs below (keypair, encapsulate, decapsulate) are defined by NIST:
 ////////////////////////////////////////////////////////////////////////////////
@@ -211,8 +234,8 @@ LC_INTERFACE_FUNCTION(int, lc_bike_keypair, struct lc_bike_pk *pk,
 
 	lc_rng_check(&rng_ctx);
 
-	lc_rng_generate(rng_ctx, NULL, 0, (uint8_t *)&ws->seeds.seed,
-			sizeof(ws->seeds.seed));
+	CKINT(lc_rng_generate(rng_ctx, NULL, 0, (uint8_t *)&ws->seeds.seed,
+			      sizeof(ws->seeds.seed)));
 
 	CKINT(generate_secret_key(&ws->h0, &ws->h1, sk->wlist[0].val,
 				  sk->wlist[1].val, &ws->seeds.seed[0]));
@@ -236,6 +259,19 @@ out:
 	LC_RELEASE_MEM(ws);
 	return ret;
 #endif
+}
+
+LC_INTERFACE_FUNCTION(int, lc_bike_keypair_from_seed, struct lc_bike_pk *pk,
+		      struct lc_bike_sk *sk, const uint8_t *seed,
+		      size_t seedlen)
+{
+	struct lc_static_rng_data static_data = {
+		.seed = seed,
+		.seedlen = seedlen,
+        };
+	LC_STATIC_DRNG_ON_STACK(sdrng, &static_data);
+
+	return lc_bike_keypair(pk, sk, &sdrng);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_bike_enc_internal, struct lc_bike_ct *ct,
@@ -264,8 +300,8 @@ LC_INTERFACE_FUNCTION(int, lc_bike_enc_internal, struct lc_bike_ct *ct,
 
 	lc_rng_check(&rng_ctx);
 
-	lc_rng_generate(rng_ctx, NULL, 0, (uint8_t *)&ws->seeds.seed,
-			sizeof(ws->seeds.seed));
+	CKINT(lc_rng_generate(rng_ctx, NULL, 0, (uint8_t *)&ws->seeds.seed,
+			      sizeof(ws->seeds.seed)));
 
 	// e = H(m) = H(seed[0])
 	convert_seed_to_m_type(&ws->m, &ws->seeds.seed[0]);
@@ -290,6 +326,21 @@ LC_INTERFACE_FUNCTION(int, lc_bike_enc, struct lc_bike_ct *ct,
 		      struct lc_bike_ss *ss, const struct lc_bike_pk *pk)
 {
 	return lc_bike_enc_internal(ct, ss, pk, lc_seeded_rng);
+}
+
+LC_INTERFACE_FUNCTION(int, lc_bike_enc_kdf, struct lc_bike_ct *ct, uint8_t *ss,
+		      size_t ss_len, const struct lc_bike_pk *pk)
+{
+	struct lc_bike_ss bike_ss;
+	int ret;
+
+	CKINT(lc_bike_enc(ct, &bike_ss, pk));
+
+	bike_ss_kdf(ss, ss_len, ct, bike_ss.ss);
+
+out:
+	lc_memset_secure(&bike_ss, 0, sizeof(bike_ss));
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_bike_dec, struct lc_bike_ss *ss,
@@ -346,4 +397,19 @@ out:
 	LC_RELEASE_MEM(ws);
 	return ret;
 #endif
+}
+
+LC_INTERFACE_FUNCTION(int, lc_bike_dec_kdf, uint8_t *ss, size_t ss_len,
+		      const struct lc_bike_ct *ct, const struct lc_bike_sk *sk)
+{
+	struct lc_bike_ss bike_ss;
+	int ret;
+
+	CKINT(lc_bike_dec(&bike_ss, ct, sk));
+
+	bike_ss_kdf(ss, ss_len, ct, bike_ss.ss);
+
+out:
+	lc_memset_secure(&bike_ss, 0, sizeof(bike_ss));
+	return ret;
 }
