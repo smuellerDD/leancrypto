@@ -16,6 +16,49 @@
  * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
+/*
+ * This code checks the leancrypto implementation against the test vectors
+ * provided with
+ * https://github.com/post-quantum-cryptography/KAT/tree/main/MLDSA
+ *
+ * To execute; use the following commands:
+ *
+ * pure ML-DSA:
+ *
+ * for i in "*pure*"
+ * do
+ *	build/internal/tests/tester_kat -f $i
+ *	if [ $? -ne 0 ]
+ *		then echo $i FAILED
+ *		break
+ *	fi
+ * done
+ *
+ *
+ * ML-DSA.Sign_internal and ML-DSA.Verify_internal:
+ *
+ * for i in "*raw*"
+ * do
+ *	build/internal/tests/tester_kat --internal -f $i
+ *	if [ $? -ne 0 ]
+ *		then echo $i FAILED
+ *		break
+ *	fi
+ * done
+ *
+ *
+ * HashML-DSA:
+ *
+ * for i in "*hashed*"
+ * do
+ *	build/internal/tests/tester_kat --prehash -f $i
+ *	if [ $? -ne 0 ]
+ *		then echo $i FAILED
+ *		break
+ *	fi
+ * done
+ *
+ */
 
 #define _POSIX_C_SOURCE 200112L
 #include <ctype.h>
@@ -30,6 +73,7 @@
 #include "compare.h"
 #include "lc_dilithium.h"
 #include "lc_sha256.h"
+#include "lc_sha512.h"
 #include "ret_checkers.h"
 #include "static_rng.h"
 
@@ -115,7 +159,6 @@ struct lc_mldsa_test_def {
 	FILE *infile;
 	int prehash;
 	int internal;
-	enum lc_dilithium_type type;
 };
 
 static void lc_mldsa_kat(struct lc_mldsa_kat *kat)
@@ -132,18 +175,41 @@ static void lc_mldsa_kat(struct lc_mldsa_kat *kat)
 	LC_BUF_FREE_NULL(&kat->ctx);
 }
 
-static int lc_hash_msg(struct lc_mldsa_kat *kat)
+static int lc_hash_msg(struct lc_buffer *msg, struct lc_dilithium_ctx *ctx,
+		       enum lc_dilithium_type type)
 {
 	struct lc_buffer tmp = { 0 };
 	int ret = 0;
 
-	tmp.buf = malloc(LC_SHA256_SIZE_DIGEST);
-	CKNULL(tmp.buf, -ENOMEM);
-	tmp.len = LC_SHA256_SIZE_DIGEST;
-	lc_hash(lc_sha256, kat->m.buf, kat->m.len, tmp.buf);
-	free(kat->m.buf);
-	kat->m.buf = tmp.buf;
-	kat->m.len = LC_SHA256_SIZE_DIGEST;
+	switch (type) {
+	case LC_DILITHIUM_87:
+		tmp.buf = malloc(LC_SHA512_SIZE_DIGEST);
+		CKNULL(tmp.buf, -ENOMEM);
+		tmp.len = LC_SHA512_SIZE_DIGEST;
+		lc_hash(lc_sha512, msg->buf, msg->len, tmp.buf);
+		lc_dilithium_ctx_hash(ctx, lc_sha512);
+		break;
+	case LC_DILITHIUM_65:
+		tmp.buf = malloc(LC_SHA384_SIZE_DIGEST);
+		CKNULL(tmp.buf, -ENOMEM);
+		tmp.len = LC_SHA384_SIZE_DIGEST;
+		lc_hash(lc_sha384, msg->buf, msg->len, tmp.buf);
+		lc_dilithium_ctx_hash(ctx, lc_sha384);
+		break;
+	case LC_DILITHIUM_44:
+		tmp.buf = malloc(LC_SHA256_SIZE_DIGEST);
+		CKNULL(tmp.buf, -ENOMEM);
+		tmp.len = LC_SHA256_SIZE_DIGEST;
+		lc_hash(lc_sha256, msg->buf, msg->len, tmp.buf);
+		lc_dilithium_ctx_hash(ctx, lc_sha256);
+		break;
+	case LC_DILITHIUM_UNKNOWN:
+	default:
+		return -EINVAL;
+	}
+
+	msg->buf = tmp.buf;
+	msg->len = tmp.len;
 
 out:
 	return ret;
@@ -154,6 +220,7 @@ static int lc_exec_mldsa_verify_kat(const struct lc_mldsa_test_def *def,
 {
 	struct lc_dilithium_pk pk;
 	struct lc_dilithium_sig sig;
+	struct lc_buffer msg = { .buf = kat->m.buf, .len = kat->m.len };
 	int ret;
 	LC_DILITHIUM_CTX_ON_STACK(ctx);
 
@@ -172,13 +239,12 @@ static int lc_exec_mldsa_verify_kat(const struct lc_mldsa_test_def *def,
 	if (def->internal)
 		lc_dilithium_ctx_internal(ctx);
 	if (def->prehash) {
-		CKINT(lc_hash_msg(kat));
-		lc_dilithium_ctx_hash(ctx, lc_sha256);
+		CKINT(lc_hash_msg(&msg, ctx, lc_dilithium_pk_type(&pk)));
 	}
 
 	lc_dilithium_ctx_userctx(ctx, kat->ctx.buf, kat->ctx.len);
 
-	CKINT(lc_dilithium_verify_ctx(&sig, ctx, kat->m.buf, kat->m.len, &pk));
+	CKINT(lc_dilithium_verify_ctx(&sig, ctx, msg.buf, msg.len, &pk));
 
 
 out:
@@ -188,13 +254,14 @@ out:
 static int lc_exec_mldsa_sign_kat(const struct lc_mldsa_test_def *def,
 				  struct lc_mldsa_kat *kat)
 {
-	struct lc_dilithium_pk pk = { 0 };
+	struct lc_dilithium_pk pk = { 0 }, pk2 = { 0 };
 	struct lc_dilithium_sk sk = { 0 };
 	struct lc_dilithium_sig sig = { 0 };
 	struct lc_static_rng_data static_data = {
 		.seed = kat->rng.buf,
 		.seedlen = kat->rng.len,
         };
+	struct lc_buffer msg = { .buf = kat->m.buf, .len = kat->m.len };
 	uint8_t *ptr;
 	size_t plen;
 	int ret;
@@ -206,8 +273,12 @@ static int lc_exec_mldsa_sign_kat(const struct lc_mldsa_test_def *def,
 		return -EINVAL;
 	}
 
+	CKINT_LOG(lc_dilithium_pk_load(&pk2, kat->pk.buf, kat->pk.len),
+		  "Loading of PK failed (size %zu)\n", kat->pk.len);
+
 	CKINT_LOG(lc_dilithium_keypair_from_seed(&pk, &sk, kat->xi.buf,
-						 kat->xi.len, def->type),
+						 kat->xi.len,
+						 lc_dilithium_pk_type(&pk2)),
 		  "Dilithium keypair generation failed: %d\n", ret);
 
 	CKINT(lc_dilithium_pk_ptr(&ptr, &plen, &pk));
@@ -218,13 +289,12 @@ static int lc_exec_mldsa_sign_kat(const struct lc_mldsa_test_def *def,
 	if (def->internal)
 		lc_dilithium_ctx_internal(ctx);
 	if (def->prehash) {
-		CKINT(lc_hash_msg(kat));
-		lc_dilithium_ctx_hash(ctx, lc_sha256);
+		CKINT(lc_hash_msg(&msg, ctx, lc_dilithium_pk_type(&pk)));
 	}
 
 	lc_dilithium_ctx_userctx(ctx, kat->ctx.buf, kat->ctx.len);
 
-	CKINT(lc_dilithium_sign_ctx(&sig, ctx, kat->m.buf, kat->m.len, &sk,
+	CKINT(lc_dilithium_sign_ctx(&sig, ctx, msg.buf, msg.len, &sk,
 				    kat->rng.len ? &sdrng : NULL));
 	CKINT(lc_dilithium_sig_ptr(&ptr, &plen, &sig));
 	lc_test_compare(ptr, plen, kat->sig.buf, kat->sig.len - kat->m.len,
@@ -297,7 +367,6 @@ int main(int argc, char *argv[])
 			{ "file", required_argument, 0, 'f' },
 			{ "prehash", no_argument, 0, 0 },
 			{ "internal", no_argument, 0, 0 },
-			{ "type", required_argument, 0, 0 },
 
 			{ 0, 0, 0, 0 }
 		};
@@ -330,12 +399,6 @@ int main(int argc, char *argv[])
 			case 2:
 				/* internal */
 				def.internal = 1;
-				break;
-
-			case 3:
-				/* type */
-				def.type = (unsigned int)strtoul(optarg, NULL,
-								 10);
 				break;
 
 			default:
