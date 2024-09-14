@@ -248,6 +248,8 @@ static int lc_exec_mldsa_verify_kat(const struct lc_mldsa_test_def *def,
 
 
 out:
+	if (msg.buf != kat->m.buf)
+		free(msg.buf);
 	return ret;
 }
 
@@ -302,6 +304,8 @@ static int lc_exec_mldsa_sign_kat(const struct lc_mldsa_test_def *def,
 
 
 out:
+	if (msg.buf != kat->m.buf)
+		free(msg.buf);
 	return ret;
 }
 
