@@ -90,32 +90,38 @@ bike_avx2_args += $(bike_c_args) -mavx2 -mbmi2 -mpopcnt			       \
 		  -Wno-unused-command-line-argument
 leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_5)				       \
 				+= ../bike/src/bike_decode_avx2.o	       \
+				   ../bike/src/bike_kem.o		       \
 				   ../bike/src/bike_gf2x_mul_avx2.o	       \
 				   ../bike/src/bike_gf2x_ksqr_avx2.o	       \
 				   ../bike/src/bike_sampling_avx2.o
 CFLAGS_../bike/src/bike_decode_avx2.o		= $(bike_avx2_args)
+CFLAGS_../bike/src/bike_kem.o			= $(bike_avx2_args)
 CFLAGS_../bike/src/bike_gf2x_mul_avx2.o		= $(bike_avx2_args)
 CFLAGS_../bike/src/bike_gf2x_ksqr_avx2.o	= $(bike_avx2_args)
 CFLAGS_../bike/src/bike_sampling_avx2.o		= $(bike_avx2_args)
 
 leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_3)				       \
 				+= bike3/bike_decode_avx2.o		       \
+				   bike3/bike_kem.o			       \
 				   bike3/bike_gf2x_mul_avx2.o		       \
 				   bike3/bike_gf2x_ksqr_avx2.o		       \
 				   bike3/bike_sampling_avx2.o
 bike3_avx2_args = $(bike_avx2_args) -DLC_BIKE_TYPE_3
 CFLAGS_bike3/bike_decode_avx2.o		= $(bike3_avx2_args)
+CFLAGS_bike3/bike_kem.o			= $(bike3_avx2_args)
 CFLAGS_bike3/bike_gf2x_mul_avx2.o	= $(bike3_avx2_args)
 CFLAGS_bike3/bike_gf2x_ksqr_avx2.o	= $(bike3_avx2_args)
 CFLAGS_bike3/bike_sampling_avx2.o	= $(bike3_avx2_args)
 
 leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_1)				       \
 				+= bike1/bike_decode_avx2.o		       \
+				   bike1/bike_kem.o			       \
 				   bike1/bike_gf2x_mul_avx2.o		       \
 				   bike1/bike_gf2x_ksqr_avx2.o		       \
 				   bike1/bike_sampling_avx2.o
 bike1_avx2_args = $(bike_avx2_args) -DLC_BIKE_TYPE_1
 CFLAGS_bike1/bike_decode_avx2.o		= $(bike1_avx2_args)
+CFLAGS_bike1/bike_kem.o			= $(bike1_avx2_args)
 CFLAGS_bike1/bike_gf2x_mul_avx2.o	= $(bike1_avx2_args)
 CFLAGS_bike1/bike_gf2x_ksqr_avx2.o	= $(bike1_avx2_args)
 CFLAGS_bike1/bike_sampling_avx2.o	= $(bike1_avx2_args)
@@ -186,6 +192,60 @@ CFLAGS_bike1/bike_gf2x_mul_base_vpclmul.o	= $(bike1_vpclmul_args)
 
 endif
 
+################################################################################
+# Handling of the XOR256 support in bike_kem.c (X86_64 support covered above)
+################################################################################
+
+ifdef CONFIG_ARM64
+bike_armv8_args += $(bike_c_args) -march=armv8-a+simd			       \
+		   -funsafe-math-optimizations
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_5)				       \
+				+= ../bike/src/bike_kem.o
+CFLAGS_../bike/src/bike_kem.o			= $(bike_armv8_args)
+
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_3)				       \
+				+= bike3/bike_kem.o
+bike3_armv8_args = $(bike_armv8_args) -DLC_BIKE_TYPE_3
+CFLAGS_bike3/bike_kem.o			= $(bike3_armv8_args)
+
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_1)				       \
+				+= bike1/bike_kem.o
+bike1_armv8_args = $(bike_armv8_args) -DLC_BIKE_TYPE_1
+CFLAGS_bike1/bike_kem.o			= $(bike1_armv8_args)
+endif
+
+ifdef CONFIG_ARM
+bike_armv7_args += $(bike_c_args) -mfpu=neon-vfpv4 -mthumb -march=armv7-a+vfpv4\
+		   -mfloat-abi=softfp -funsafe-math-optimizations
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_5)				       \
+				+= ../bike/src/bike_kem.o
+CFLAGS_../bike/src/bike_kem.o			= $(bike_armv7_args)
+
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_3)				       \
+				+= bike3/bike_kem.o
+bike3_armv7_args = $(bike_armv7_args) -DLC_BIKE_TYPE_3
+CFLAGS_bike3/bike_kem.o			= $(bike3_armv7_args)
+
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_1)				       \
+				+= bike1/bike_kem.o
+bike1_armv7_args = $(bike_armv7_args) -DLC_BIKE_TYPE_1
+CFLAGS_bike1/bike_kem.o			= $(bike1_armv7_args)
+endif
+
+ifndef CONFIG_ARM
+ifndef CONFIG_ARM64
+ifndef CONFIG_X86_64
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_5)				       \
+				+= ../bike/src/bike_kem.o
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_3)				       \
+				+= bike3/bike_kem.o
+CFLAGS_bike3/bike_kem.o			= -DLC_BIKE_TYPE_3
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_1)				       \
+				+= bike1/bike_kem.o
+CFLAGS_bike1/bike_kem.o			= -DLC_BIKE_TYPE_1
+endif
+endif
+endif
 
 ################################################################################
 # Testing Code
