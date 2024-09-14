@@ -44,6 +44,7 @@
 #include "small_stack_support.h"
 #include "static_rng.h"
 #include "visibility.h"
+#include "xor256.h"
 
 // m_t and seed_t have the same size and thus can be considered
 // to be of the same type. However, for security reasons we distinguish
@@ -173,17 +174,13 @@ static inline void bike_encrypt(struct lc_bike_ct *ct, const pad_e_t *e,
 }
 
 static inline void reencrypt(m_t *m, const pad_e_t *e,
-			     const struct lc_bike_ct *l_ct, m_t *tmp)
+			     const struct lc_bike_ct *l_ct)
 {
-	unsigned int i;
-
-	function_l(tmp, e);
+	function_l(m, e);
 
 	// m' = c1 ^ L(e')
-	for (i = 0; i < sizeof(*m); i++)
-		m->raw[i] = tmp->raw[i] ^ l_ct->c1.raw[i];
+	xor_256(m->raw, l_ct->c1.raw, sizeof(*m));
 }
-
 
 /**
  * @brief kyber_ss_kdf - KDF to derive arbitrary sized SS from BIKE SS
@@ -354,9 +351,8 @@ LC_INTERFACE_FUNCTION(int, lc_bike_dec, struct lc_bike_ss *ss,
 #else
 	struct workspace {
 		pad_e_t e_tmp, e_prime;
-		m_t tmp;
-		e_t e;
 		m_t m_prime;
+		e_t e;
 	};
 	uint32_t mask;
 	unsigned int i;
@@ -370,7 +366,7 @@ LC_INTERFACE_FUNCTION(int, lc_bike_dec, struct lc_bike_ss *ss,
 	ws->e_prime.val[0].val = ws->e.val[0];
 	ws->e_prime.val[1].val = ws->e.val[1];
 
-	reencrypt(&ws->m_prime, &ws->e_prime, ct, &ws->tmp);
+	reencrypt(&ws->m_prime, &ws->e_prime, ct);
 
 	// Check if H(m') is equal to (e0', e1')
 	// (in constant-time)
