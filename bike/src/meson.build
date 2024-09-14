@@ -187,7 +187,8 @@ if get_option('bike_3').enabled()
 				include_dirs,
 				include_internal_dirs
 			],
-			c_args : [ bike_args, cc_armv8_neon_simd_args ]
+			c_args : [ bike_args, cc_armv8_neon_simd_args,
+				   '-DLC_BIKE_TYPE_3' ]
 		)
 		leancrypto_support_libs += leancrypto_bike_3_armv8_lib
 	elif arm32_neon_asm
@@ -198,7 +199,8 @@ if get_option('bike_3').enabled()
 				include_dirs,
 				include_internal_dirs
 			],
-			c_args : [ bike_args, cc_armv7_neon_simd_args ]
+			c_args : [ bike_args, cc_armv7_neon_simd_args,
+				   '-DLC_BIKE_TYPE_3' ]
 		)
 		leancrypto_support_libs += leancrypto_bike_3_armv7_lib
 	else
@@ -273,7 +275,8 @@ if get_option('bike_1').enabled()
 				include_dirs,
 				include_internal_dirs
 			],
-			c_args : [ bike_args, cc_armv8_neon_simd_args ]
+			c_args : [ bike_args, cc_armv8_neon_simd_args,
+				   '-DLC_BIKE_TYPE_1']
 		)
 		leancrypto_support_libs += leancrypto_bike_1_armv8_lib
 	elif arm32_neon_asm
@@ -284,7 +287,8 @@ if get_option('bike_1').enabled()
 				include_dirs,
 				include_internal_dirs
 			],
-			c_args : [ bike_args, cc_armv7_neon_simd_args ]
+			c_args : [ bike_args, cc_armv7_neon_simd_args,
+				   '-DLC_BIKE_TYPE_1' ]
 		)
 		leancrypto_support_libs += leancrypto_bike_1_armv7_lib
 	else
