@@ -36,11 +36,19 @@
 #include "small_stack_support.h"
 #include "visibility.h"
 
+/*
+ * Enable to generate vectors. When enabling this, invoke the application
+ * which outputs the header file.
+ */
+#undef GENERATE_VECTORS
+#define NTESTS 6
+
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #endif
 
 struct workspace {
+	uint8_t seed[128];
 	struct lc_bike_pk pk;
 	struct lc_bike_sk sk;
 	struct lc_bike_ct ct;
@@ -50,29 +58,77 @@ struct workspace {
 static int bike_tester_one(const struct lc_bike_testvector *vector,
 			   struct workspace *ws)
 {
-	struct lc_static_rng_data static_data = {
-		.seed = vector->seed,
-		.seedlen = sizeof(vector->seed),
-	};
+	struct lc_static_rng_data static_data;
 	int ret, rc = 0;
 	LC_STATIC_DRNG_ON_STACK(sdrng, &static_data);
 
-	CKINT(lc_bike_keypair(&ws->pk, &ws->sk, &sdrng));
+#ifdef GENERATE_VECTORS
+	(void)vector;
+	CKINT(lc_rng_generate(lc_seeded_rng, NULL, 0, ws->seed,
+			      sizeof(ws->seed)));
+	static_data.seed = ws->seed;
+	static_data.seedlen = sizeof(ws->seed);
+#else
+	static_data.seed = vector->seed;
+	static_data.seedlen = sizeof(vector->seed);
+#endif
 
+	CKINT(lc_bike_keypair(&ws->pk, &ws->sk, &sdrng));
+	CKINT(lc_bike_enc_internal(&ws->ct, &ws->ss, &ws->pk, &sdrng));
+	CKINT(lc_bike_dec(&ws->ss2, &ws->ct, &ws->sk));
+
+#ifdef GENERATE_VECTORS
+	unsigned int j;
+
+	printf("\t{\n\t\t.seed = {\n\t\t\t");
+	for (j = 0; j < sizeof(ws->seed); j++) {
+		printf("0x%02x, ", ws->seed[j]);
+		if (j && !((j + 1) % 8))
+			printf("\n\t\t\t");
+	}
+	printf("},\n");
+	printf("\t\t.pk = {\n\t\t\t");
+	for (j = 0; j < sizeof(struct lc_bike_pk); j++) {
+		printf("0x%02x, ", ((uint8_t *)(&ws->pk))[j]);
+		if (j && !((j + 1) % 8))
+			printf("\n\t\t\t");
+	}
+	printf("},\n");
+	printf("\t\t.sk = {\n\t\t\t");
+	for (j = 0; j < sizeof(struct lc_bike_sk); ++j) {
+		printf("0x%02x, ", ((uint8_t *)(&ws->sk))[j]);
+		if (j && !((j + 1) % 8))
+			printf("\n\t\t\t");
+	}
+	printf("},\n");
+	printf("\t\t.ct = {\n\t\t\t");
+	for (j = 0; j < sizeof(struct lc_bike_ct); ++j) {
+		printf("0x%02x, ", ((uint8_t *)(&ws->ct))[j]);
+		if (j && !((j + 1) % 8))
+			printf("\n\t\t\t");
+	}
+	printf("},\n");
+	printf("\t\t.ss = {\n\t\t\t");
+	for (j = 0; j < sizeof(struct lc_bike_ss); ++j) {
+		printf("0x%02x, ", ((uint8_t *)(&ws->ss))[j]);
+		if (j && !((j + 1) % 8))
+			printf("\n\t\t\t");
+	}
+	printf("},\n\t}, ");
+#else
 	rc += lc_compare((uint8_t *)&ws->pk, vector->pk, sizeof(ws->pk),
 			 "BIKE PK");
 	rc += lc_compare((uint8_t *)&ws->sk, vector->sk, sizeof(ws->sk),
 			 "BIKE SK");
 
-	CKINT(lc_bike_enc_internal(&ws->ct, &ws->ss, &ws->pk, &sdrng));
 	rc += lc_compare((uint8_t *)&ws->ct, vector->ct, sizeof(ws->ct),
 			 "BIKE Enc CT");
 	rc += lc_compare((uint8_t *)&ws->ss, vector->ss, sizeof(ws->ss),
 			 "BIKE Enc SS");
 
-	CKINT(lc_bike_dec(&ws->ss2, &ws->ct, &ws->sk));
 	rc += lc_compare((uint8_t *)&ws->ss2, vector->ss, sizeof(ws->ss2),
 			 "BIKE Dec SS");
+#endif
 
 out:
 	if (ret == -EOPNOTSUPP)
@@ -82,21 +138,40 @@ out:
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
-	unsigned int i;
+	unsigned int i, count = ARRAY_SIZE(bike_test);
 	int ret = 0;
 	LC_DECLARE_MEM(ws, struct workspace, LC_BIKE_ALIGN_BYTES);
 
 	(void)argv;
 
+#ifdef GENERATE_VECTORS
+	printf("#pragma once\n"
+	       "#include \"bike_type.h\"\n"
+	       "struct lc_bike_testvector {\n"
+	       "\tuint8_t seed[128];\n"
+	       "\tuint8_t pk[sizeof(struct lc_bike_pk)];\n"
+	       "\tuint8_t sk[sizeof(struct lc_bike_sk)];\n"
+	       "\tuint8_t ct[sizeof(struct lc_bike_ct)];\n"
+	       "\tuint8_t ss[sizeof(struct lc_bike_ss)];\n"
+	       "};\n\n"
+	       "static const struct lc_bike_testvector bike_test[] =\n"
+	       "{\n");
+	count = NTESTS;
+#endif
+
 	/* Disable any accelerations when there is one parameter */
 	if (argc > 1)
 		lc_cpu_feature_disable();
 
-	for (i = 0; i < ARRAY_SIZE(bike_test); i++) {
+	for (i = 0; i < count; i++) {
 		ret = bike_tester_one(&bike_test[i], ws);
 		if (ret)
 			break;
 	}
+
+#ifdef GENERATE_VECTORS
+	printf("\n};\n");
+#endif
 
 	LC_RELEASE_MEM(ws);
 	return ret;
