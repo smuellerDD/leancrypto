@@ -21,6 +21,7 @@
 #define XOR256_H
 
 #include "build_bug_on.h"
+#include "cpufeatures.h"
 #include "xor.h"
 
 #ifdef __cplusplus
@@ -95,8 +96,11 @@ static inline void xor_256_aligned(uint8_t *dst, const uint8_t *src,
 
 static inline void xor_256(uint8_t *dst, const uint8_t *src, size_t size)
 {
+	enum lc_cpu_features feat =
+		lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2;
+
 	if (!aligned(src, LC_XOR_AVX2_ALIGNMENT - 1) ||
-	    !aligned(dst, LC_XOR_AVX2_ALIGNMENT - 1)) {
+	    !aligned(dst, LC_XOR_AVX2_ALIGNMENT - 1) || !feat) {
 		xor_64(dst, src, size);
 	} else {
 		xor_256_aligned(dst, src, size);
@@ -151,15 +155,18 @@ static inline void xor_256_aligned(uint8_t *dst, const uint8_t *src,
 
 static inline void xor_256(uint8_t *dst, const uint8_t *src, size_t size)
 {
+	enum lc_cpu_features feat =
+		lc_cpu_feature_available() & LC_CPU_FEATURE_ARM_NEON;
+
 	if (!aligned(src, LC_XOR_NEON_ALIGNMENT - 1) ||
-	    !aligned(dst, LC_XOR_NEON_ALIGNMENT - 1)) {
+	    !aligned(dst, LC_XOR_NEON_ALIGNMENT - 1) || !feat) {
 		xor_64(dst, src, size);
 	} else {
 		xor_256_aligned(dst, src, size);
 	}
 }
 
-#else
+#else /* LC_HOST_X86_64 */
 
 static inline void xor_256(uint8_t *dst, const uint8_t *src, size_t size)
 {
