@@ -26,7 +26,9 @@
 /* RFC4055 2.16.840.1.101.3.4.2.1 */
 static const uint8_t sha256_oid_der[] = { 0x06, 0x09, 0x60, 0x86, 0x48, 0x01,
 					  0x65, 0x03, 0x04, 0x02, 0x01 };
-
+/* RFC4055 2.16.840.1.101.3.4.2.3 */
+static const uint8_t sha384_oid_der[] = { 0x06, 0x09, 0x60, 0x86, 0x48, 0x01,
+					  0x65, 0x03, 0x04, 0x02, 0x02 };
 /* RFC4055 2.16.840.1.101.3.4.2.3 */
 static const uint8_t sha512_oid_der[] = { 0x06, 0x09, 0x60, 0x86, 0x48, 0x01,
 					  0x65, 0x03, 0x04, 0x02, 0x03 };
@@ -104,6 +106,13 @@ static int dilithium_ph_oids(struct lc_dilithium_ctx *ctx, size_t mlen,
 			// 	return -EOPNOTSUPP;
 			lc_hash_update(hash_ctx, sha3_384_oid_der,
 				       sizeof(sha3_384_oid_der));
+			return 0;
+		}
+		if (ctx->dilithium_prehash_type == lc_sha384) {
+			// if (mlen != LC_SHA384_SIZE_DIGEST)
+			// 	return -EOPNOTSUPP;
+			lc_hash_update(hash_ctx, sha384_oid_der,
+				       sizeof(sha384_oid_der));
 			return 0;
 		}
 		/* FALLTHROUGH - Dilithium[44|65] allows the following, too  */
