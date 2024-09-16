@@ -95,9 +95,6 @@ enum lc_dilithium_type {
 
 /**
  * @brief Dilithium secret key
- *
- * \note When being allocated, at least ensure that the member variable of
- * \p ahat is NULL.
  */
 struct lc_dilithium_sk {
 	enum lc_dilithium_type dilithium_type;
@@ -116,9 +113,6 @@ struct lc_dilithium_sk {
 
 /**
  * @brief Dilithium public key
- *
- * NOTE When being allocated, at least ensure that the member variable of
- * @var ahat is NULL.
  */
 struct lc_dilithium_pk {
 	enum lc_dilithium_type dilithium_type;
