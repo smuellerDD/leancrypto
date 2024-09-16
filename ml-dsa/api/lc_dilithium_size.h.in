@@ -266,7 +266,8 @@ struct lc_dilithium_ctx {
 	(name)->dilithium_prehash_type = NULL;                                 \
 	(name)->ml_dsa_internal = 0;                                           \
 	(name)->userctxlen = 0;                                                \
-	(name)->userctx = NULL
+	(name)->userctx = NULL;                                                \
+	(name)->ahat = NULL
 #endif
 /// \endcond
 
@@ -286,7 +287,6 @@ struct lc_dilithium_ctx {
 	struct lc_dilithium_ctx *name =                                        \
 		(struct lc_dilithium_ctx *)name##_ctx_buf;                     \
 	LC_DILITHIUM_SET_CTX(name);                                            \
-	name->ahat = NULL;                                                     \
 	_Pragma("GCC diagnostic pop")
 #endif
 
