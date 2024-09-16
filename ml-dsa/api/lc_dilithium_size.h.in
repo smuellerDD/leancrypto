@@ -207,6 +207,16 @@ struct lc_dilithium_ctx {
 	const uint8_t *userctx;
 
 	/**
+	 * @brief Pointer to the AHat buffer. This can be provided by the caller
+	 * or it must be NULL otherwise.
+	 *
+	 * \note Use \p LC_DILITHIUM_CTX_ON_STACK to store AHat in the caller
+	 * context and thus make the signature operation much faster.
+	 */
+	void *ahat;
+	unsigned short ahat_size;
+
+	/**
 	 * @brief When set to true, only the ML-DSA.Sign_internal or
 	 * ML-DSA.Verify_internal are performed (see FIPS 204 chapter 6).
 	 * Otherwise the ML-DSA.Sign / ML-DSA.Verify (see FIPS chapter 5) is
@@ -219,10 +229,34 @@ struct lc_dilithium_ctx {
 	 * doing!.
 	 */
 	unsigned int ml_dsa_internal:1;
+
+	/**
+	 * @brief Was aHat already filled? This is used and set internally.
+	 */
+	unsigned int ahat_expanded:1;
 };
 #endif
 
 /// \cond DO_NOT_DOCUMENT
+
+/*
+ * The alignment is based on largest alignment of a polyvecl typedef - this is
+ * the AVX2 definition.
+ */
+#define LC_DILITHIUM_AHAT_ALIGNMENT (32)
+
+/*
+ * Padding between struct lc_dilithium_ctx and AHat buffer to ensure AHat buffer
+ * is aligned to LC_DILITHIUM_AHAT_ALIGNMENT
+ */
+#define @dilithium_macro@_AHAT_PAD                                               \
+	(LC_DILITHIUM_AHAT_ALIGNMENT -                                         \
+	 (sizeof(struct lc_dilithium_ctx) % LC_DILITHIUM_AHAT_ALIGNMENT))
+
+/* Size of the AHat matrix for ML-DSA 87 */
+#define @dilithium_macro@_AHAT_SIZE                                              \
+	(256 * sizeof(int32_t) * LC_DILITHIUM_K * LC_DILITHIUM_L)
+
 #ifndef LC_DILITHIUM_CTX_ON_STACK
 #define LC_DILITHIUM_CTX_SIZE                                                  \
 	sizeof(struct lc_dilithium_ctx)
@@ -237,7 +271,8 @@ struct lc_dilithium_ctx {
 /// \endcond
 
 /**
- * @brief Allocate stack memory for the Dilithium stream context
+ * @brief Allocate stack memory for the Dilithium stream context or additional
+ * parameter relevant for the signature operation.
  *
  * @param [in] name Name of the stack variable
  */
@@ -251,8 +286,47 @@ struct lc_dilithium_ctx {
 	struct lc_dilithium_ctx *name =                                        \
 		(struct lc_dilithium_ctx *)name##_ctx_buf;                     \
 	LC_DILITHIUM_SET_CTX(name);                                            \
+	name->ahat = NULL;                                                     \
 	_Pragma("GCC diagnostic pop")
 #endif
+
+/**
+ * @brief Allocate stack memory for the Dilithium stream context and additional
+ * parameter relevant for the signature operation.
+ *
+ * In addition, the memory buffer returned by this allocation contains the space
+ * for an expanded representation of the public key which is required in both,
+ * signature generation and verififcation. When using this memory, the first
+ * signature operation expands the key and any subsequent operation using this
+ * context will re-use the expanded key which improves performance of the
+ * signature operation significantly.
+ *
+ * As the same expanded structure is used for signature generation and
+ * verification and the structure can be expanded by either operation, it
+ * is perfectly legal to use one context for both operations.
+ *
+ * \note: ML-DSA AVX2 signature operation uses a completely different
+ * algorithm which does not use a pre-pcomputed expanded key. Thus, if you know
+ * you have AVX2 support, you *may* not need this larger buffer and you *can*
+ * use \p LC_DILITHIUM_CTX_ON_STACK instead.
+ *
+ * @param [in] name Name of the stack variable
+ */
+#define @dilithium_macro@_CTX_ON_STACK_AHAT(name)                                \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(                                             \
+			name##_ctx_buf, LC_DILITHIUM_CTX_SIZE +                \
+			@dilithium_macro@_AHAT_PAD + @dilithium_macro@_AHAT_SIZE,  \
+			LC_HASH_COMMON_ALIGNMENT);                             \
+	struct lc_dilithium_ctx *name =                                        \
+		(struct lc_dilithium_ctx *)name##_ctx_buf;                     \
+	LC_DILITHIUM_SET_CTX(name);                                            \
+	name->ahat = (uint8_t *)name + LC_DILITHIUM_CTX_SIZE +                 \
+		      @dilithium_macro@_AHAT_PAD;                                \
+	name->ahat_expanded = 0;                                               \
+	name->ahat_size = @dilithium_macro@_AHAT_SIZE;                           \
+	_Pragma("GCC diagnostic pop")
 
 /**
  * @brief Zeroize Dilithium context allocated with
@@ -265,6 +339,10 @@ static inline void @dilithium_name@_ctx_zero(struct lc_dilithium_ctx *ctx)
 	if (!ctx)
 		return;
 	lc_hash_zero(&ctx->dilithium_hash_ctx);
+	if (ctx->ahat) {
+		lc_memset_secure(ctx->ahat, 0, ctx->ahat_size);
+		ctx->ahat_expanded = 0;
+	}
 }
 
 /**
@@ -275,6 +353,18 @@ static inline void @dilithium_name@_ctx_zero(struct lc_dilithium_ctx *ctx)
  * @return: 0 on success, < 0 on error
  */
 int @dilithium_name@_ctx_alloc(struct lc_dilithium_ctx **ctx);
+
+/**
+ * @brief Allocate Dilithium stream context on heap including additional
+ * parameter relevant for the signature operation.
+ *
+ * \note See \p @dilithium_macro@_CTX_ON_STACK for details.
+ *
+ * @param [out] ctx Allocated Dilithium stream context
+ *
+ * @return: 0 on success, < 0 on error
+ */
+int @dilithium_name@_ctx_alloc_ahat(struct lc_dilithium_ctx **ctx);
 
 /**
  * @brief Zeroize and free Dilithium stream context

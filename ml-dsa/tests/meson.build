@@ -73,6 +73,16 @@ if get_option('dilithium_87').enabled()
 				],
 				dependencies: leancrypto
 				)
+	dilithium_tester_ahat = executable('dilithium_tester_ahat',
+				[ 'dilithium_tester_ahat.c',
+				  internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_dilithium_internal
+				],
+				dependencies: leancrypto
+				)
 
 	test('Dilithium signature C', dilithium_tester_c, suite: regression)
 	test('Dilithium init update final C', dilithium_tester_iuf_c,
@@ -96,6 +106,10 @@ if get_option('dilithium_87').enabled()
 	     suite: regression)
 	test('Dilithium keygen Performance', dilithium_keygen_tester,
 	     timeout: 1000, is_parallel: false, suite: performance)
+	test('Dilithium C keep AHat API 10000', dilithium_tester_ahat,
+	     timeout: 1000, is_parallel: false, suite: performance)
+	test('Dilithium C discard AHat API 10000', dilithium_tester_ahat,
+	     args : [ 'd' ], timeout: 1000, is_parallel: false, suite: performance)
 
 	if (x86_64_asm)
 		dilithium_tester_avx2 = executable('dilithium_tester_avx2',
@@ -332,6 +346,17 @@ if get_option('dilithium_65').enabled()
 				dependencies: leancrypto,
 				c_args : '-DLC_DILITHIUM_TYPE_65'
 				)
+	dilithium_65_tester_ahat = executable('dilithium_65_tester_ahat',
+				[ 'dilithium_tester_ahat.c',
+				  internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_dilithium_internal
+				],
+				dependencies: leancrypto,
+				c_args : '-DLC_DILITHIUM_TYPE_65'
+				)
 
 	test('Dilithium 65 signature C', dilithium_65_tester_c,
 	     suite: regression)
@@ -356,6 +381,11 @@ if get_option('dilithium_65').enabled()
 	     suite: regression)
 	test('Dilithium 65 keygen Performance', dilithium_65_keygen_tester,
 	     timeout: 1000, is_parallel: false, suite: performance)
+
+	test('Dilithium 65 C keep AHat API 10000', dilithium_65_tester_ahat,
+	     timeout: 1000, is_parallel: false, suite: performance)
+	test('Dilithium 65 C discard AHat API 10000', dilithium_65_tester_ahat,
+	     args : [ 'd' ], timeout: 1000, is_parallel: false, suite: performance)
 
 	if (x86_64_asm)
 		dilithium_65_tester_avx2 = executable('dilithium_65_tester_avx2',
@@ -623,6 +653,17 @@ if get_option('dilithium_44').enabled()
 				dependencies: leancrypto,
 				c_args : '-DLC_DILITHIUM_TYPE_44'
 				)
+	dilithium_44_tester_ahat = executable('dilithium_44_tester_ahat',
+				[ 'dilithium_tester_ahat.c',
+				  internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_dilithium_internal
+				],
+				dependencies: leancrypto,
+				c_args : '-DLC_DILITHIUM_TYPE_65'
+				)
 
 	test('Dilithium 44 signature C', dilithium_44_tester_c,
 	     suite: regression)
@@ -651,6 +692,11 @@ if get_option('dilithium_44').enabled()
 	     suite: regression)
 	test('Dilithium 44 keygen Performance', dilithium_44_keygen_tester,
 	     timeout: 1000, is_parallel: false, suite: performance)
+
+	test('Dilithium 44 C keep AHat API 10000', dilithium_44_tester_ahat,
+	     timeout: 1000, is_parallel: false, suite: performance)
+	test('Dilithium 44 C discard AHat API 10000', dilithium_44_tester_ahat,
+	     args : [ 'd' ], timeout: 1000, is_parallel: false, suite: performance)
 
 	if get_option('dilithium_ed25519').enabled()
 		dilithium_44_ed25519_tester = executable('dilithium_44_ed25519_tester',

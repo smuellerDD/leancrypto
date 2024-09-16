@@ -93,6 +93,7 @@ extern "C" {
 #define lc_dilithium_verify_update DILITHIUM_F(verify_update)
 #define lc_dilithium_verify_final DILITHIUM_F(verify_final)
 #define lc_dilithium_ctx_alloc DILITHIUM_F(ctx_alloc)
+#define lc_dilithium_ctx_alloc_ahat DILITHIUM_F(ctx_alloc_ahat)
 #define lc_dilithium_ctx_zero_free DILITHIUM_F(ctx_zero_free)
 #define lc_dilithium_ctx_zero DILITHIUM_F(ctx_zero)
 

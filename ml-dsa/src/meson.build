@@ -4,7 +4,6 @@
 if (get_option('dilithium_87').enabled() or get_option('dilithium_65').enabled() or get_option('dilithium_44').enabled())
 	src += files([
 		'dilithium_domain_separation.c',
-		'dilithium_signature_helper.c',
 		'dilithium_zetas.c'
 	])
 endif
@@ -15,7 +14,8 @@ dilithium_c = files([
 	'dilithium_ntt.c',
 	'dilithium_poly.c',
 	'dilithium_rounding.c',
-	'dilithium_selftest.c'
+	'dilithium_selftest.c',
+	'dilithium_signature_helper.c',
 ])
 
 if get_option('dilithium_debug').enabled()

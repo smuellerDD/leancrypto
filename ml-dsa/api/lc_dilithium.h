@@ -95,6 +95,9 @@ enum lc_dilithium_type {
 
 /**
  * @brief Dilithium secret key
+ *
+ * NOTE When being allocated, at least ensure that the member variable of
+ * @var ahat is NULL.
  */
 struct lc_dilithium_sk {
 	enum lc_dilithium_type dilithium_type;
@@ -113,6 +116,9 @@ struct lc_dilithium_sk {
 
 /**
  * @brief Dilithium public key
+ *
+ * NOTE When being allocated, at least ensure that the member variable of
+ * @var ahat is NULL.
  */
 struct lc_dilithium_pk {
 	enum lc_dilithium_type dilithium_type;
@@ -148,6 +154,31 @@ struct lc_dilithium_sig {
 };
 
 /**
+ * @brief Allocate stack memory for the Dilithium stream context or additional
+ * parameter relevant for the signature operation.
+ *
+ * In addition, the memory buffer returned by this allocation contains the space
+ * for an expanded representation of the public key which is required in both,
+ * signature generation and verififcation. When using this memory, the first
+ * signature operation expands the key and any subsequent operation using this
+ * context will re-use the expanded key which improves performance of the
+ * signature operation significantly.
+ *
+ * As the same expanded structure is used for signature generation and
+ * verification and the structure can be expanded by either operation, it
+ * is perfectly legal to use one context for both operations.
+ *
+ * \note: ML-DSA AVX2 signature verification uses a completely different
+ * algorithm which does not use a pre-pcomputed expanded key. Thus, if you
+ * only do ML-DSA AVX2 signature verification, you *may* not need this larger
+ * buffer and you *can* use \p LC_DILITHIUM_CTX_ON_STACK instead.
+ *
+ * @param [in] name Name of the stack variable
+ */
+#define LC_DILITHIUM_CTX_ON_STACK_AHAT(name)                                   \
+	LC_DILITHIUM_87_CTX_ON_STACK_AHAT(name)
+
+/**
  * @ingroup Dilithium
  * @brief Allocates Dilithium context on heap
  *
@@ -156,6 +187,31 @@ struct lc_dilithium_sig {
  * @return 0 (success) or < 0 on error
  */
 static inline int lc_dilithium_ctx_alloc(struct lc_dilithium_ctx **ctx)
+{
+	if (!ctx)
+		return -EINVAL;
+
+#ifdef LC_DILITHIUM_87_ENABLED
+	return lc_dilithium_87_ctx_alloc(ctx);
+#elif defined(LC_DILITHIUM_65_ENABLED)
+	return lc_dilithium_65_ctx_alloc(ctx);
+#elif defined(LC_DILITHIUM_44_ENABLED)
+	return lc_dilithium_44_ctx_alloc(ctx);
+#else
+	return -EOPNOTSUPP;
+#endif
+}
+
+/**
+ * @ingroup Dilithium
+ * @brief Allocates Dilithium context on heap with support to keep the internal
+ *	  representation of the key.
+ *
+ * @param [out] ctx Dilithium context pointer
+ *
+ * @return 0 (success) or < 0 on error
+ */
+static inline int lc_dilithium_ctx_alloc_ahat(struct lc_dilithium_ctx **ctx)
 {
 	if (!ctx)
 		return -EINVAL;
