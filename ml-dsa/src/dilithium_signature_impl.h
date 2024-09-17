@@ -467,33 +467,57 @@ out:
 }
 
 static int lc_dilithium_sk_expand_impl(const struct lc_dilithium_sk *sk,
-				       void *ahat)
+				       struct lc_dilithium_ctx *ctx)
 {
 	struct workspace_sign {
 		uint8_t poly_uniform_buf[WS_POLY_UNIFORM_BUF_SIZE];
 	};
 	/* The first bytes of the key is rho. */
 	const uint8_t *rho = sk->sk;
-	polyvecl *mat = ahat;
+	polyvecl *mat = ctx->ahat;
 	int ret = 0;
 	LC_DECLARE_MEM(ws, struct workspace_sign, sizeof(uint64_t));
 
-
+	/*
+	 * The compile time sanity check links API header file with
+	 * Dilithium-internal definitions.
+	 *
+	 * Runtime sanity check ensures that the allocated context has
+	 * sufficient size (e.g. not that caller used, say,
+	 * LC_DILITHIUM_44_CTX_ON_STACK_AHAT with a ML-DSA 65 or 87 key)
+	 */
 #if LC_DILITHIUM_MODE == 2
 	BUILD_BUG_ON(LC_DILITHIUM_44_AHAT_SIZE !=
 		     sizeof(polyvecl) * LC_DILITHIUM_K);
-#elif LC_DILITHIUM_MODE == 2
+	if (ctx->ahat_size < LC_DILITHIUM_44_AHAT_SIZE) {
+		ret = -EOVERFLOW;
+		goto out;
+	}
+#elif LC_DILITHIUM_MODE == 3
 	BUILD_BUG_ON(LC_DILITHIUM_65_AHAT_SIZE !=
 		     sizeof(polyvecl) * LC_DILITHIUM_K);
+	if (ctx->ahat_size < LC_DILITHIUM_65_AHAT_SIZE) {
+		ret = -EOVERFLOW;
+		goto out;
+	}
 #elif LC_DILITHIUM_MODE == 5
 	BUILD_BUG_ON(LC_DILITHIUM_87_AHAT_SIZE !=
 		     sizeof(polyvecl) * LC_DILITHIUM_K);
+	if (ctx->ahat_size < LC_DILITHIUM_87_AHAT_SIZE) {
+		ret = -EOVERFLOW;
+		goto out;
+	}
+#else
+#error "Undefined LC_DILITHIUM_MODE"
 #endif
 
 	polyvec_matrix_expand(mat, rho, ws->poly_uniform_buf);
 	dilithium_print_polyvecl_k(
 		mat, "AHAT - A K x L x N matrix after ExpandA:");
 
+	ctx->ahat_expanded = 1;
+
+out:
 	LC_RELEASE_MEM(ws);
 	return ret;
 }
@@ -508,10 +532,8 @@ static int lc_dilithium_sign_internal(struct lc_dilithium_sig *sig,
 	if (!ctx->ahat)
 		return lc_dilithium_sign_internal_noahat(sig, sk, ctx, rng_ctx);
 
-	if (!ctx->ahat_expanded) {
-		CKINT(lc_dilithium_sk_expand_impl(sk, ctx->ahat));
-		ctx->ahat_expanded = 1;
-	}
+	if (!ctx->ahat_expanded)
+		CKINT(lc_dilithium_sk_expand_impl(sk, ctx));
 
 	CKINT(lc_dilithium_sign_internal_ahat(sig, sk, ctx, rng_ctx));
 
@@ -754,19 +776,45 @@ out:
 }
 
 static int lc_dilithium_pk_expand_impl(const struct lc_dilithium_pk *pk,
-				       void *ahat)
+				       struct lc_dilithium_ctx *ctx)
 {
 	struct workspace_verify {
 		uint8_t poly_uniform_buf[WS_POLY_UNIFORM_BUF_SIZE];
 	};
 	/* The first bytes of the key is rho. */
 	const uint8_t *rho = pk->pk;
-	polyvecl *mat = ahat;
+	polyvecl *mat = ctx->ahat;
 	int ret = 0;
 	LC_DECLARE_MEM(ws, struct workspace_verify, sizeof(uint64_t));
 
-	polyvec_matrix_expand(mat, rho, ws->poly_uniform_buf);
+	/*
+	 * Runtime sanity check ensures that the allocated context has
+	 * sufficient size (e.g. not that caller used, say,
+	 * LC_DILITHIUM_44_CTX_ON_STACK_AHAT with a ML-DSA 65 or 87 key)
+	 */
+#if LC_DILITHIUM_MODE == 2
+	if (ctx->ahat_size < LC_DILITHIUM_44_AHAT_SIZE) {
+		ret = -EOVERFLOW;
+		goto out;
+	}
+#elif LC_DILITHIUM_MODE == 3
+	if (ctx->ahat_size < LC_DILITHIUM_65_AHAT_SIZE) {
+		ret = -EOVERFLOW;
+		goto out;
+	}
+#elif LC_DILITHIUM_MODE == 5
+	if (ctx->ahat_size < LC_DILITHIUM_87_AHAT_SIZE) {
+		ret = -EOVERFLOW;
+		goto out;
+	}
+#else
+#error "Undefined LC_DILITHIUM_MODE"
+#endif
 
+	polyvec_matrix_expand(mat, rho, ws->poly_uniform_buf);
+	ctx->ahat_expanded = 1;
+
+out:
 	LC_RELEASE_MEM(ws);
 	return ret;
 }
@@ -780,10 +828,8 @@ static int lc_dilithium_verify_internal(const struct lc_dilithium_sig *sig,
 	if (!ctx->ahat)
 		return lc_dilithium_verify_internal_noahat(sig, pk, ctx);
 
-	if (!ctx->ahat_expanded) {
-		CKINT(lc_dilithium_pk_expand_impl(pk, ctx->ahat));
-		ctx->ahat_expanded = 1;
-	}
+	if (!ctx->ahat_expanded)
+		CKINT(lc_dilithium_pk_expand_impl(pk, ctx));
 
 	CKINT(lc_dilithium_verify_internal_ahat(sig, pk, ctx));
 

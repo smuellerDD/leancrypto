@@ -148,29 +148,58 @@ struct lc_dilithium_sig {
 };
 
 /**
- * @brief Allocate stack memory for the Dilithium stream context or additional
+ * @brief Allocate stack memory for the Dilithium stream context and additional
  * parameter relevant for the signature operation.
  *
  * In addition, the memory buffer returned by this allocation contains the space
  * for an expanded representation of the public key which is required in both,
- * signature generation and verififcation. When using this memory, the first
+ * signature generation and verification. When using this memory, the first
  * signature operation expands the key and any subsequent operation using this
  * context will re-use the expanded key which improves performance of the
  * signature operation significantly.
  *
  * As the same expanded structure is used for signature generation and
  * verification and the structure can be expanded by either operation, it
- * is perfectly legal to use one context for both operations.
+ * is perfectly legal to use one context for both operations as the expanded
+ * key can (a) be generated from either the public or the secret key and (b)
+ * it applies to both operations and (c) is identical irrespective it was
+ * generated from the public or secret key.
  *
- * \note: ML-DSA AVX2 signature verification uses a completely different
- * algorithm which does not use a pre-pcomputed expanded key. Thus, if you
- * only do ML-DSA AVX2 signature verification, you *may* not need this larger
- * buffer and you *can* use \p LC_DILITHIUM_CTX_ON_STACK instead.
+ * The provided context size is sufficiently large to support all ML-DSA key
+ * sizes this library version offers support for.
+ *
+ * \note: ML-DSA AVX2 signature operation uses a completely different
+ * algorithm which does not use a pre-pcomputed expanded key. Thus, if you know
+ * you have AVX2 support, you *may* not need this larger buffer and you *can*
+ * use \p LC_DILITHIUM_CTX_ON_STACK instead.
+ *
+ * \note: The expanded representation only uses public key data. Even when
+ * deriving the expanded representation from a secret key, this data is only
+ * obtained from a part that is considered public. Thus, this memory does not
+ * require special protections. See FIPS 204 section 3.6.3 on the properties
+ * and handling requirements of the Â matrix. Further, see the FIPS 204
+ * ML-DSA.Sign_internal and ML-DSA.Verify_internal algorithm specification on
+ * how this Â matrix is generated and that the input to the generation is public
+ * data.
+ *
+ * \warning: One instance of the expanded key representation can only ever apply
+ * to one given key (pair). If you want to reuse the context with multiple keys,
+ * you MUST invalidate the potentially present expanded key representation. Such
+ * invalidation is invoked with the method \p lc_dilithium_ctx_drop_ahat. Only
+ * after this invalidation you can use the context with a different key.
  *
  * @param [in] name Name of the stack variable
  */
+#ifdef LC_DILITHIUM_87_ENABLED
 #define LC_DILITHIUM_CTX_ON_STACK_AHAT(name)                                   \
 	LC_DILITHIUM_87_CTX_ON_STACK_AHAT(name)
+#elif defined(LC_DILITHIUM_65_ENABLED)
+	LC_DILITHIUM_CTX_ON_STACK_AHAT(name)                                   \
+	LC_DILITHIUM_65_CTX_ON_STACK_AHAT(name)
+#elif defined(LC_DILITHIUM_44_ENABLED)
+	LC_DILITHIUM_CTX_ON_STACK_AHAT(name)                                   \
+	LC_DILITHIUM_44_CTX_ON_STACK_AHAT(name)
+#endif
 
 /**
  * @ingroup Dilithium
@@ -200,6 +229,8 @@ static inline int lc_dilithium_ctx_alloc(struct lc_dilithium_ctx **ctx)
  * @ingroup Dilithium
  * @brief Allocates Dilithium context on heap with support to keep the internal
  *	  representation of the key.
+ *
+ * \note See \p LC_DILITHIUM_CTX_ON_STACK_AHAT for details.
  *
  * @param [out] ctx Dilithium context pointer
  *
@@ -308,6 +339,22 @@ static inline void lc_dilithium_ctx_userctx(struct lc_dilithium_ctx *ctx,
 		ctx->userctx = userctx;
 		ctx->userctxlen = userctxlen;
 	}
+}
+
+/**
+ * @ingroup Dilithium
+ * @brief Invalidate the expanded key that potentially is stored in the context.
+ *
+ * This call can be executed on a context irrespective it was allocated with
+ * space for the expanded representation or not. Thus, the caller does not need
+ * to track whether the context supports the expanded key.
+ *
+ * @param [in] ctx Dilithium context
+ */
+static inline void lc_dilithium_ctx_drop_ahat(struct lc_dilithium_ctx *ctx)
+{
+	if (ctx)
+		ctx->ahat_expanded = 0;
 }
 
 /**

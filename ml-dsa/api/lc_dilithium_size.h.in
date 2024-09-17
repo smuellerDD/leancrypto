@@ -210,8 +210,9 @@ struct lc_dilithium_ctx {
 	 * @brief Pointer to the AHat buffer. This can be provided by the caller
 	 * or it must be NULL otherwise.
 	 *
-	 * \note Use \p LC_DILITHIUM_CTX_ON_STACK to store AHat in the caller
-	 * context and thus make the signature operation much faster.
+	 * \note Use \p LC_DILITHIUM_CTX_ON_STACK_AHAT to provide memory for
+	 * storing AHat in the caller context and thus make the signature
+	 * operation much faster starting with the 2nd use of the key (pair).
 	 */
 	void *ahat;
 	unsigned short ahat_size;
@@ -297,19 +298,37 @@ struct lc_dilithium_ctx {
  *
  * In addition, the memory buffer returned by this allocation contains the space
  * for an expanded representation of the public key which is required in both,
- * signature generation and verififcation. When using this memory, the first
+ * signature generation and verification. When using this memory, the first
  * signature operation expands the key and any subsequent operation using this
  * context will re-use the expanded key which improves performance of the
  * signature operation significantly.
  *
  * As the same expanded structure is used for signature generation and
  * verification and the structure can be expanded by either operation, it
- * is perfectly legal to use one context for both operations.
+ * is perfectly legal to use one context for both operations as the expanded
+ * key can (a) be generated from either the public or the secret key and (b)
+ * it applies to both operations and (c) is identical irrespective it was
+ * generated from the public or secret key.
  *
  * \note: ML-DSA AVX2 signature operation uses a completely different
  * algorithm which does not use a pre-pcomputed expanded key. Thus, if you know
  * you have AVX2 support, you *may* not need this larger buffer and you *can*
  * use \p LC_DILITHIUM_CTX_ON_STACK instead.
+ *
+ * \note: The expanded representation only uses public key data. Even when
+ * deriving the expanded representation from a secret key, this data is only
+ * obtained from a part that is considered public. Thus, this memory does not
+ * require special protections. See FIPS 204 section 3.6.3 on the properties
+ * and handling requirements of the Â matrix. Further, see the FIPS 204
+ * ML-DSA.Sign_internal and ML-DSA.Verify_internal algorithm specification on
+ * how this Â matrix is generated and that the input to the generation is public
+ * data.
+ *
+ * \warning: One instance of the expanded key representation can only ever apply
+ * to one given key (pair). If you want to reuse the context with multiple keys,
+ * you MUST invalidate the potentially present expanded key representation. Such
+ * invalidation is invoked with the method \p lc_dilithium_ctx_drop_ahat. Only
+ * after this invalidation you can use the context with a different key.
  *
  * @param [in] name Name of the stack variable
  */
@@ -359,7 +378,7 @@ int @dilithium_name@_ctx_alloc(struct lc_dilithium_ctx **ctx);
  * @brief Allocate Dilithium stream context on heap including additional
  * parameter relevant for the signature operation.
  *
- * \note See \p @dilithium_macro@_CTX_ON_STACK for details.
+ * \note See \p @dilithium_macro@_CTX_ON_STACK_AHAT for details.
  *
  * @param [out] ctx Allocated Dilithium stream context
  *
