@@ -238,9 +238,9 @@ Leancrypto offers various cryptographic algorithms:
 
 * Signature algorithm
 
-  * Dilithium
+  * ML-DSA (Dilithium)
 
-  * Dilithium hybrid signature operation with Curve25519
+  * ML-DSA (Dilithium) hybrid signature operation with Curve25519
 
 * Symmetric algorithms
 
