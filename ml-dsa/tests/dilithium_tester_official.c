@@ -47,6 +47,8 @@ static int dilithium_iuf_tester_official(struct lc_dilithium_ctx *ctx)
 	CKINT(lc_dilithium_keypair(&ws->pk, &ws->sk, lc_seeded_rng,
 				   DILITHIUM_TYPE));
 
+	CKINT(lc_dilithium_pct(&ws->pk, &ws->sk));
+
 	/* Stream operation */
 	CKINT_LOG(lc_dilithium_sign_init(ctx, &ws->sk),
 		  "Sign init failed - ret %d\n", ret);

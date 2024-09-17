@@ -4,6 +4,7 @@
 if (get_option('dilithium_87').enabled() or get_option('dilithium_65').enabled() or get_option('dilithium_44').enabled())
 	src += files([
 		'dilithium_domain_separation.c',
+		'dilithium_pct.c',
 		'dilithium_zetas.c'
 	])
 endif

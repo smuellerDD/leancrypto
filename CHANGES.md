@@ -13,6 +13,10 @@ Changes 1.1.0-prerelease
 
 * BIKE: Add NIST round 4 KEM candiate
 
+* ML-DSA: Add support to retain the expanded key to increase the performance of signature operations by 15 to 20%
+
+* ML-DSA: add key pair PCT API - leancrypto will not invoke it, but provides it for FIPS 140 support
+
 Changes 1.0.1
 
 * fix: Kyber keygen - add LC_KYBER_K to initial hash (change is only relevant when storing keys as seed and for interoperability)

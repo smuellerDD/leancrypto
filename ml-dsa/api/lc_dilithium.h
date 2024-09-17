@@ -917,6 +917,19 @@ lc_dilithium_keypair_from_seed(struct lc_dilithium_pk *pk,
 }
 
 /**
+ * @brief Pairwise consistency check as per FIPS 140 IG
+ *
+ * This call should be invoked after generating a key pair in FIPS mode
+ *
+ * @param [in] pk Public key
+ * @param [in] sk Secret key
+ *
+ * @return 0 on success, < 0 on error
+ */
+int lc_dilithium_pct(const struct lc_dilithium_pk *pk,
+		     const struct lc_dilithium_sk *sk);
+
+/**
  * @ingroup Dilithium
  * @brief Computes signature in one shot
  *
