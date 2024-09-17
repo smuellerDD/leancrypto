@@ -188,7 +188,7 @@ struct lc_dilithium_sig {
  * invalidation is invoked with the method \p lc_dilithium_ctx_drop_ahat. Only
  * after this invalidation you can use the context with a different key.
  *
- * @param [in] name Name of the stack variable
+ * param [in] name Name of the stack variable
  */
 #ifdef LC_DILITHIUM_87_ENABLED
 #define LC_DILITHIUM_CTX_ON_STACK_AHAT(name)                                   \
