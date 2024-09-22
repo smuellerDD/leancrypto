@@ -42,19 +42,16 @@
 /**
  * Computes up the chains
  */
-static void gen_chains(
-	unsigned char *out,
-	const unsigned char *in,
-	unsigned int start[LC_SPX_WOTS_LEN],
-	unsigned int steps[LC_SPX_WOTS_LEN],
-	const spx_ctx *ctx,
-	uint32_t addr[8])
+static void gen_chains(unsigned char *out, const unsigned char *in,
+		       unsigned int start[LC_SPX_WOTS_LEN],
+		       unsigned int steps[LC_SPX_WOTS_LEN], const spx_ctx *ctx,
+		       uint32_t addr[8])
 {
 	uint32_t j, k, idx, watching;
 	int done;
 	unsigned char empty[LC_SPX_N];
 	unsigned char *bufs[4];
-	uint32_t addrs[8*4];
+	uint32_t addrs[8 * 4];
 
 	int l;
 	uint16_t counts[LC_SPX_WOTS_W] = { 0 };
@@ -63,11 +60,11 @@ static void gen_chains(
 
 	/* set addrs = {addr, addr, addr, addr} */
 	for (j = 0; j < 4; j++) {
-		memcpy(addrs+j*8, addr, sizeof(uint32_t) * 8);
+		memcpy(addrs + j * 8, addr, sizeof(uint32_t) * 8);
 	}
 
 	/* Initialize out with the value at position 'start'. */
-	memcpy(out, in, LC_SPX_WOTS_LEN*LC_SPX_N);
+	memcpy(out, in, LC_SPX_WOTS_LEN * LC_SPX_N);
 
 	/* Sort the chains in reverse order by steps using counting sort. */
 	for (i = 0; i < LC_SPX_WOTS_LEN; i++) {
@@ -86,9 +83,9 @@ static void gen_chains(
 
 	/* We got our work cut out for us: do it! */
 	for (i = 0; i < LC_SPX_WOTS_LEN; i += 4) {
-		for (j = 0; j < 4 && i+j < LC_SPX_WOTS_LEN; j++) {
-			idx = idxs[i+j];
-			set_chain_addr(addrs+j*8, idx);
+		for (j = 0; j < 4 && i + j < LC_SPX_WOTS_LEN; j++) {
+			idx = idxs[i + j];
+			set_chain_addr(addrs + j * 8, idx);
 			bufs[j] = out + LC_SPX_N * idx;
 		}
 
@@ -104,7 +101,7 @@ static void gen_chains(
 		}
 
 		for (k = 0;; k++) {
-			while (k == steps[idxs[i+watching]]) {
+			while (k == steps[idxs[i + watching]]) {
 				bufs[watching] = &empty[0];
 				if (watching == 0) {
 					done = 1;
@@ -116,11 +113,12 @@ static void gen_chains(
 				break;
 			}
 			for (j = 0; j < watching + 1; j++) {
-				set_hash_addr(addrs+j*8, k + start[idxs[i+j]]);
+				set_hash_addr(addrs + j * 8,
+					      k + start[idxs[i + j]]);
 			}
 
-			thashx4(bufs[0], bufs[1], bufs[2], bufs[3],
-				bufs[0], bufs[1], bufs[2], bufs[3], 1, ctx, addrs);
+			thashx4(bufs[0], bufs[1], bufs[2], bufs[3], bufs[0],
+				bufs[1], bufs[2], bufs[3], 1, ctx, addrs);
 		}
 	}
 }
@@ -183,9 +181,9 @@ void chain_lengths_avx2(unsigned int *lengths, const uint8_t *msg)
  *
  * Writes the computed public key to 'pk'.
  */
-void wots_pk_from_sig_avx2(uint8_t pk[LC_SPX_WOTS_BYTES],
-		      const uint8_t *sig, const uint8_t *msg,
-		      const spx_ctx *ctx, uint32_t addr[8])
+void wots_pk_from_sig_avx2(uint8_t pk[LC_SPX_WOTS_BYTES], const uint8_t *sig,
+			   const uint8_t *msg, const spx_ctx *ctx,
+			   uint32_t addr[8])
 {
 	unsigned int steps[LC_SPX_WOTS_LEN];
 	unsigned int start[LC_SPX_WOTS_LEN];
@@ -205,14 +203,14 @@ void wots_pk_from_sig_avx2(uint8_t pk[LC_SPX_WOTS_BYTES],
  * It also generates the WOTS signature if leaf_info indicates
  * that we're signing with one of these WOTS keys
  */
-void wots_gen_leafx4(unsigned char *dest,
-		     const spx_ctx *ctx,
-		     uint32_t leaf_idx, void *v_info) {
+void wots_gen_leafx4(unsigned char *dest, const spx_ctx *ctx, uint32_t leaf_idx,
+		     void *v_info)
+{
 	struct leaf_info_x4 *info = v_info;
 	uint32_t *leaf_addr = info->leaf_addr;
 	uint32_t *pk_addr = info->pk_addr;
 	unsigned int i, j, k;
-	unsigned char pk_buffer[ 4 * LC_SPX_WOTS_BYTES ];
+	unsigned char pk_buffer[4 * LC_SPX_WOTS_BYTES];
 	unsigned wots_offset = LC_SPX_WOTS_BYTES;
 	unsigned char *buffer;
 	uint32_t wots_k_mask;
@@ -222,7 +220,8 @@ void wots_gen_leafx4(unsigned char *dest,
 		/* We're traversing the leaf that's signing; generate the WOTS */
 		/* signature */
 		wots_k_mask = 0;
-		wots_sign_index = info->wots_sign_leaf & 3; /* Which of of the 4 */
+		wots_sign_index =
+			info->wots_sign_leaf & 3; /* Which of of the 4 */
 		/* 4 slots do the signatures come from */
 	} else {
 		/* Nope, we're just generating pk's; turn off the signature logic */
@@ -231,64 +230,62 @@ void wots_gen_leafx4(unsigned char *dest,
 	}
 
 	for (j = 0; j < 4; j++) {
-		set_keypair_addr( leaf_addr + j*8, leaf_idx + j );
-		set_keypair_addr( pk_addr + j*8, leaf_idx + j );
+		set_keypair_addr(leaf_addr + j * 8, leaf_idx + j);
+		set_keypair_addr(pk_addr + j * 8, leaf_idx + j);
 	}
 
-	for (i = 0, buffer = pk_buffer; i < LC_SPX_WOTS_LEN; i++, buffer += LC_SPX_N) {
-		uint32_t wots_k = info->wots_steps[i] | wots_k_mask; /* Set wots_k to */
+	for (i = 0, buffer = pk_buffer; i < LC_SPX_WOTS_LEN;
+	     i++, buffer += LC_SPX_N) {
+		uint32_t wots_k =
+			info->wots_steps[i] | wots_k_mask; /* Set wots_k to */
 		/* the step if we're generating a signature, ~0 if we're not */
 
 		/* Start with the secret seed */
 		for (j = 0; j < 4; j++) {
-			set_chain_addr(leaf_addr + j*8, i);
-			set_hash_addr(leaf_addr + j*8, 0);
-			set_type(leaf_addr + j*8, LC_SPX_ADDR_TYPE_WOTSPRF);
+			set_chain_addr(leaf_addr + j * 8, i);
+			set_hash_addr(leaf_addr + j * 8, 0);
+			set_type(leaf_addr + j * 8, LC_SPX_ADDR_TYPE_WOTSPRF);
 		}
-		prf_addrx4(buffer + 0*wots_offset,
-			   buffer + 1*wots_offset,
-	     buffer + 2*wots_offset,
-	     buffer + 3*wots_offset,
-	     ctx, leaf_addr);
+		prf_addrx4(buffer + 0 * wots_offset, buffer + 1 * wots_offset,
+			   buffer + 2 * wots_offset, buffer + 3 * wots_offset,
+			   ctx, leaf_addr);
 
 		for (j = 0; j < 4; j++) {
-			set_type(leaf_addr + j*8, LC_SPX_ADDR_TYPE_WOTS);
+			set_type(leaf_addr + j * 8, LC_SPX_ADDR_TYPE_WOTS);
 		}
 
 		/* Iterate down the WOTS chain */
-		for (k=0;; k++) {
+		for (k = 0;; k++) {
 			/* Check if one of the values we have needs to be saved as a */
 			/* part of the WOTS signature */
 			if (k == wots_k) {
-				memcpy( info->wots_sig + i * LC_SPX_N,
-					buffer + wots_sign_index*wots_offset, LC_SPX_N );
+				memcpy(info->wots_sig + i * LC_SPX_N,
+				       buffer + wots_sign_index * wots_offset,
+				       LC_SPX_N);
 			}
 
 			/* Check if we hit the top of the chain */
-			if (k == LC_SPX_WOTS_W - 1) break;
+			if (k == LC_SPX_WOTS_W - 1)
+				break;
 
 			/* Iterate one step on all 4 chains */
 			for (j = 0; j < 4; j++) {
-				set_hash_addr(leaf_addr + j*8, k);
+				set_hash_addr(leaf_addr + j * 8, k);
 			}
-			thashx4(buffer + 0*wots_offset,
-				buffer + 1*wots_offset,
-	   buffer + 2*wots_offset,
-	   buffer + 3*wots_offset,
-	   buffer + 0*wots_offset,
-	   buffer + 1*wots_offset,
-	   buffer + 2*wots_offset,
-	   buffer + 3*wots_offset, 1, ctx, leaf_addr);
+			thashx4(buffer + 0 * wots_offset,
+				buffer + 1 * wots_offset,
+				buffer + 2 * wots_offset,
+				buffer + 3 * wots_offset,
+				buffer + 0 * wots_offset,
+				buffer + 1 * wots_offset,
+				buffer + 2 * wots_offset,
+				buffer + 3 * wots_offset, 1, ctx, leaf_addr);
 		}
 	}
 
 	/* Do the final thash to generate the public keys */
-	thashx4(dest + 0*LC_SPX_N,
-		dest + 1*LC_SPX_N,
-	 dest + 2*LC_SPX_N,
-	 dest + 3*LC_SPX_N,
-	 pk_buffer + 0*wots_offset,
-	 pk_buffer + 1*wots_offset,
-	 pk_buffer + 2*wots_offset,
-	 pk_buffer + 3*wots_offset, LC_SPX_WOTS_LEN, ctx, pk_addr);
+	thashx4(dest + 0 * LC_SPX_N, dest + 1 * LC_SPX_N, dest + 2 * LC_SPX_N,
+		dest + 3 * LC_SPX_N, pk_buffer + 0 * wots_offset,
+		pk_buffer + 1 * wots_offset, pk_buffer + 2 * wots_offset,
+		pk_buffer + 3 * wots_offset, LC_SPX_WOTS_LEN, ctx, pk_addr);
 }

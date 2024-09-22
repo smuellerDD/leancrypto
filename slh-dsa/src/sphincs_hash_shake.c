@@ -33,8 +33,7 @@
 /*
  * Computes PRF(pk_seed, sk_seed, addr)
  */
-void prf_addr(uint8_t out[LC_SPX_N], const spx_ctx *ctx,
-	      const uint32_t addr[8])
+void prf_addr(uint8_t out[LC_SPX_N], const spx_ctx *ctx, const uint32_t addr[8])
 {
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
 
@@ -81,7 +80,8 @@ void hash_message(uint8_t *digest, uint64_t *tree, uint32_t *leaf_idx,
 #define LC_SPX_TREE_BYTES ((LC_SPX_TREE_BITS + 7) / 8)
 #define LC_SPX_LEAF_BITS LC_SPX_TREE_HEIGHT
 #define LC_SPX_LEAF_BYTES ((LC_SPX_LEAF_BITS + 7) / 8)
-#define LC_SPX_DGST_BYTES (LC_SPX_FORS_MSG_BYTES + LC_SPX_TREE_BYTES + LC_SPX_LEAF_BYTES)
+#define LC_SPX_DGST_BYTES                                                      \
+	(LC_SPX_FORS_MSG_BYTES + LC_SPX_TREE_BYTES + LC_SPX_LEAF_BYTES)
 
 	uint8_t buf[LC_SPX_DGST_BYTES];
 	uint8_t *bufp = buf;

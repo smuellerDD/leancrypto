@@ -38,7 +38,7 @@ extern "C" {
  * Converts the value of 'in' to 'outlen' bytes in big-endian byte order.
  */
 void ull_to_bytes(unsigned char *out, unsigned int outlen,
-                  unsigned long long in);
+		  unsigned long long in);
 
 /**
  * Converts the inlen bytes in 'in' from big-endian byte order to an integer.
@@ -49,10 +49,10 @@ unsigned long long bytes_to_ull(const unsigned char *in, unsigned int inlen);
  * Computes a root node given a leaf and an auth path.
  * Expects address to be complete other than the tree_height and tree_index.
  */
-void compute_root(uint8_t *root, const uint8_t *leaf,
-		  uint32_t leaf_idx, uint32_t idx_offset,
-		  const uint8_t *auth_path, uint32_t tree_height,
-		  const uint8_t pub_seed[LC_SPX_N], uint32_t addr[8]);
+void compute_root(uint8_t *root, const uint8_t *leaf, uint32_t leaf_idx,
+		  uint32_t idx_offset, const uint8_t *auth_path,
+		  uint32_t tree_height, const uint8_t pub_seed[LC_SPX_N],
+		  uint32_t addr[8]);
 
 /**
  * For a given leaf index, computes the authentication path and the resulting
@@ -62,19 +62,16 @@ void compute_root(uint8_t *root, const uint8_t *leaf,
  * Applies the offset idx_offset to indices before building addresses, so that
  * it is possible to continue counting indices across trees.
  */
-void treehash(unsigned char *root, unsigned char *auth_path,
-              const spx_ctx* ctx,
-              uint32_t leaf_idx, uint32_t idx_offset, uint32_t tree_height,
-              void (*gen_leaf)(
-                 unsigned char* /* leaf */,
-                 const spx_ctx* ctx /* ctx */,
-                 uint32_t /* addr_idx */, const uint32_t[8] /* tree_addr */),
-              uint32_t tree_addr[8]);
+void treehash(unsigned char *root, unsigned char *auth_path, const spx_ctx *ctx,
+	      uint32_t leaf_idx, uint32_t idx_offset, uint32_t tree_height,
+	      void (*gen_leaf)(unsigned char * /* leaf */,
+			       const spx_ctx *ctx /* ctx */,
+			       uint32_t /* addr_idx */,
+			       const uint32_t[8] /* tree_addr */),
+	      uint32_t tree_addr[8]);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* SPHINCS_UTILS_H */
-
-

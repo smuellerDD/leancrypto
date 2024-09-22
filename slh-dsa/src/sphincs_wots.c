@@ -44,9 +44,8 @@
  * Interprets in as start-th value of the chain.
  * addr has to contain the address of the chain.
  */
-static void gen_chain(uint8_t *out, const uint8_t *in,
-		      unsigned int start, unsigned int steps,
-		      const spx_ctx *ctx, uint32_t addr[8])
+static void gen_chain(uint8_t *out, const uint8_t *in, unsigned int start,
+		      unsigned int steps, const spx_ctx *ctx, uint32_t addr[8])
 {
 	uint32_t i;
 
@@ -54,7 +53,7 @@ static void gen_chain(uint8_t *out, const uint8_t *in,
 	memcpy(out, in, LC_SPX_N);
 
 	/* Iterate 'steps' calls to the hash function. */
-	for (i = start; i < (start+steps) && i < LC_SPX_WOTS_W; i++) {
+	for (i = start; i < (start + steps) && i < LC_SPX_WOTS_W; i++) {
 		set_hash_addr(addr, i);
 		thash(out, out, 1, ctx->pub_seed, addr);
 	}
@@ -118,9 +117,9 @@ void chain_lengths_c(unsigned int *lengths, const uint8_t *msg)
  *
  * Writes the computed public key to 'pk'.
  */
-void wots_pk_from_sig_c(uint8_t pk[LC_SPX_WOTS_BYTES],
-		      const uint8_t *sig, const uint8_t *msg,
-		      const spx_ctx *ctx, uint32_t addr[8])
+void wots_pk_from_sig_c(uint8_t pk[LC_SPX_WOTS_BYTES], const uint8_t *sig,
+			const uint8_t *msg, const spx_ctx *ctx,
+			uint32_t addr[8])
 {
 	unsigned int lengths[LC_SPX_WOTS_LEN];
 	uint32_t i;
@@ -129,7 +128,7 @@ void wots_pk_from_sig_c(uint8_t pk[LC_SPX_WOTS_BYTES],
 
 	for (i = 0; i < LC_SPX_WOTS_LEN; i++) {
 		set_chain_addr(addr, i);
-		gen_chain(pk + i*LC_SPX_N, sig + i*LC_SPX_N,
-			  lengths[i], LC_SPX_WOTS_W - 1 - lengths[i], ctx, addr);
+		gen_chain(pk + i * LC_SPX_N, sig + i * LC_SPX_N, lengths[i],
+			  LC_SPX_WOTS_W - 1 - lengths[i], ctx, addr);
 	}
 }

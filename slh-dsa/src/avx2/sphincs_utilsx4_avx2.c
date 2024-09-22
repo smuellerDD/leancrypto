@@ -59,44 +59,41 @@
  * idx, addr_idx on the gen_leafx4 call if tree_height < 2 would fix it; since
  * we don't actually use such short trees, I haven't bothered
  */
-void treehashx4(unsigned char *root, unsigned char *auth_path,
-		const spx_ctx *ctx,
-		uint32_t leaf_idx, uint32_t idx_offset,
-		uint32_t tree_height,
-		void (*gen_leafx4)(
-			unsigned char* /* Where to write the leaves */,
-		     const spx_ctx*,
-		     uint32_t idx, void *info),
-		uint32_t tree_addrx4[4*8],
-		void *info)
+void treehashx4(
+	unsigned char *root, unsigned char *auth_path, const spx_ctx *ctx,
+	uint32_t leaf_idx, uint32_t idx_offset, uint32_t tree_height,
+	void (*gen_leafx4)(unsigned char * /* Where to write the leaves */,
+			   const spx_ctx *, uint32_t idx, void *info),
+	uint32_t tree_addrx4[4 * 8], void *info)
 {
 	/* This is where we keep the intermediate nodes */
 	uint8_t stackx4[tree_height * 4 * LC_SPX_N];
-	uint32_t left_adj = 0, prev_left_adj = 0; /* When we're doing the top 3 */
+	uint32_t left_adj = 0,
+		 prev_left_adj = 0; /* When we're doing the top 3 */
 	/* levels, the left-most part of the tree isn't at the beginning */
 	/* of current[].  These give the offset of the actual start */
 
 	uint32_t idx;
-	uint32_t max_idx = (1 << (tree_height-2)) - 1;
+	uint32_t max_idx = (1 << (tree_height - 2)) - 1;
 
 	for (idx = 0;; idx++) {
-		unsigned char current[4*LC_SPX_N];   /* Current logical node */
+		unsigned char current[4 * LC_SPX_N]; /* Current logical node */
 
-		gen_leafx4( current, ctx, 4*idx + idx_offset, info );
+		gen_leafx4(current, ctx, 4 * idx + idx_offset, info);
 
 		/* Now combine the freshly generated right node with previously */
 		/* generated left ones */
 		uint32_t internal_idx_offset = idx_offset;
 		uint32_t internal_idx = idx;
 		uint32_t internal_leaf = leaf_idx;
-		uint32_t h;     /* The height we are in the Merkle tree */
-		for (h=0;; h++, internal_idx >>= 1, internal_leaf >>= 1) {
-
+		uint32_t h; /* The height we are in the Merkle tree */
+		for (h = 0;; h++, internal_idx >>= 1, internal_leaf >>= 1) {
 			/* Special processing if we're at the top of the tree */
 			if (h >= tree_height - 2) {
 				if (h == tree_height) {
 					/* We hit the root; return it */
-					memcpy( root, &current[3*LC_SPX_N], LC_SPX_N );
+					memcpy(root, &current[3 * LC_SPX_N],
+					       LC_SPX_N);
 					return;
 				}
 				/* The tree indexing logic is a bit off in this case */
@@ -109,7 +106,7 @@ void treehashx4(unsigned char *root, unsigned char *auth_path,
 			/* Check if we hit the top of the tree */
 			if (h == tree_height) {
 				/* We hit the root; return it */
-				memcpy( root, &current[3*LC_SPX_N], LC_SPX_N );
+				memcpy(root, &current[3 * LC_SPX_N], LC_SPX_N);
 				return;
 			}
 
@@ -117,10 +114,13 @@ void treehashx4(unsigned char *root, unsigned char *auth_path,
 			 * Check if one of the nodes we have is a part of the
 			 * authentication path; if it is, write it out
 			 */
-			if ((((internal_idx << 2) ^ internal_leaf) & (uint32_t)~0x3) == 0) {
-				memcpy( &auth_path[ h * LC_SPX_N ],
-					&current[(((internal_leaf&3)^1) + prev_left_adj) * LC_SPX_N],
-					LC_SPX_N );
+			if ((((internal_idx << 2) ^ internal_leaf) &
+			     (uint32_t)~0x3) == 0) {
+				memcpy(&auth_path[h * LC_SPX_N],
+				       &current[(((internal_leaf & 3) ^ 1) +
+						 prev_left_adj) *
+						LC_SPX_N],
+				       LC_SPX_N);
 			}
 
 			/*
@@ -140,9 +140,12 @@ void treehashx4(unsigned char *root, unsigned char *auth_path,
 			uint32_t j;
 			internal_idx_offset >>= 1;
 			for (j = 0; j < 4; j++) {
-				set_tree_height(tree_addrx4 + j*8, h + 1);
-				set_tree_index(tree_addrx4 + j*8,
-					       (4/2) * (internal_idx & (uint32_t)~1) + j - left_adj + internal_idx_offset );
+				set_tree_height(tree_addrx4 + j * 8, h + 1);
+				set_tree_index(tree_addrx4 + j * 8,
+					       (4 / 2) * (internal_idx &
+							  (uint32_t)~1) +
+						       j - left_adj +
+						       internal_idx_offset);
 			}
 			unsigned char *left = &stackx4[h * 4 * LC_SPX_N];
 			thashx4(&current[0 * LC_SPX_N], &current[1 * LC_SPX_N],

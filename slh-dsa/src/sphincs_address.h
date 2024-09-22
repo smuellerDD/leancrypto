@@ -72,4 +72,3 @@ void set_tree_index(uint32_t addr[8], uint32_t tree_index);
 #endif
 
 #endif /* SPHINCS_ADDRESS_H */
-

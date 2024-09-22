@@ -35,14 +35,22 @@ extern "C" {
  * Offsets of various fields in the address structure when we use SHAKE as
  * the Sphincs+ hash function
  */
-#define LC_SPX_OFFSET_LAYER     3   /* The byte used to specify the Merkle tree layer */
-#define LC_SPX_OFFSET_TREE      8   /* The start of the 8 byte field used to specify the tree */
-#define LC_SPX_OFFSET_TYPE      19  /* The byte used to specify the hash type (reason) */
-#define LC_SPX_OFFSET_KP_ADDR   20  /* The start of the 4 byte field used to specify the key pair address */
-#define LC_SPX_OFFSET_CHAIN_ADDR 27  /* The byte used to specify the chain address (which Winternitz chain) */
-#define LC_SPX_OFFSET_HASH_ADDR 31  /* The byte used to specify the hash address (where in the Winternitz chain) */
-#define LC_SPX_OFFSET_TREE_HGT  27  /* The byte used to specify the height of this node in the FORS or Merkle tree */
-#define LC_SPX_OFFSET_TREE_INDEX 28 /* The start of the 4 byte field used to specify the node in the FORS or Merkle tree */
+#define LC_SPX_OFFSET_LAYER                                                    \
+	3 /* The byte used to specify the Merkle tree layer */
+#define LC_SPX_OFFSET_TREE                                                     \
+	8 /* The start of the 8 byte field used to specify the tree */
+#define LC_SPX_OFFSET_TYPE                                                     \
+	19 /* The byte used to specify the hash type (reason) */
+#define LC_SPX_OFFSET_KP_ADDR                                                  \
+	20 /* The start of the 4 byte field used to specify the key pair address */
+#define LC_SPX_OFFSET_CHAIN_ADDR                                               \
+	27 /* The byte used to specify the chain address (which Winternitz chain) */
+#define LC_SPX_OFFSET_HASH_ADDR                                                \
+	31 /* The byte used to specify the hash address (where in the Winternitz chain) */
+#define LC_SPX_OFFSET_TREE_HGT                                                 \
+	27 /* The byte used to specify the height of this node in the FORS or Merkle tree */
+#define LC_SPX_OFFSET_TREE_INDEX                                               \
+	28 /* The start of the 4 byte field used to specify the node in the FORS or Merkle tree */
 
 #define LC_SPX_SHAKE 1
 
@@ -51,4 +59,3 @@ extern "C" {
 #endif
 
 #endif /* SPHINCS_SHAKE_OFFSETS_H */
-

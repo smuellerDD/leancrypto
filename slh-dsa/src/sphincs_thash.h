@@ -41,4 +41,3 @@ void thash(uint8_t out[LC_SPX_N], const uint8_t *in, unsigned int inblocks,
 #endif
 
 #endif /* SPHINCS_THASH_H */
-

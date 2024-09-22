@@ -66,10 +66,9 @@ static int lc_sphincs_test(struct lc_sphincs_test *tc,
 	if (t == LC_SPHINCS_REGRESSION || t == LC_SPHINCS_PERF_KEYGEN) {
 		rounds = (t == LC_SPHINCS_PERF_KEYGEN) ? 100 : 1;
 
-		for (i = 0; i < rounds; i ++) {
-			CKINT(lc_sphincs_keypair_from_seed(&ws->pk, &ws->sk,
-							   tc->seed,
-							   sizeof(tc->seed)));
+		for (i = 0; i < rounds; i++) {
+			CKINT(lc_sphincs_keypair_from_seed(
+				&ws->pk, &ws->sk, tc->seed, sizeof(tc->seed)));
 		}
 		lc_compare((uint8_t *)&ws->pk, tc->pk, sizeof(tc->pk), "PK");
 		lc_compare((uint8_t *)&ws->sk, tc->sk, sizeof(tc->sk), "SK");
@@ -78,7 +77,7 @@ static int lc_sphincs_test(struct lc_sphincs_test *tc,
 	if (t == LC_SPHINCS_REGRESSION || t == LC_SPHINCS_PERF_SIGN) {
 		rounds = (t == LC_SPHINCS_PERF_SIGN) ? 10 : 1;
 
-		for (i = 0; i < rounds; i ++) {
+		for (i = 0; i < rounds; i++) {
 			CKINT(lc_sphincs_sign(
 				&ws->sig, tc->msg, sizeof(tc->msg),
 				(struct lc_sphincs_sk *)tc->sk, NULL));
@@ -90,7 +89,7 @@ static int lc_sphincs_test(struct lc_sphincs_test *tc,
 	if (t == LC_SPHINCS_REGRESSION || t == LC_SPHINCS_PERF_VERIFY) {
 		rounds = (t == LC_SPHINCS_PERF_VERIFY) ? 1000 : 1;
 
-		for (i = 0; i < rounds; i ++) {
+		for (i = 0; i < rounds; i++) {
 			CKINT(lc_sphincs_verify(
 				(struct lc_sphincs_sig *)tc->sig, tc->msg,
 				sizeof(tc->msg),
@@ -122,7 +121,6 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	if (argc >= 3) {
 		if (argv[2][0] == 'c')
 			lc_cpu_feature_disable();
-
 	}
 
 	CKINT(lc_sphincs_test(&tests[0], t));

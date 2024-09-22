@@ -38,13 +38,13 @@
  * is involved with the WOTS signature; the Merkle authentication path logic
  * is mostly hidden in treehashx4
  */
-void sphincs_merkle_sign_c(uint8_t *sig, unsigned char *root, const spx_ctx *ctx,
-			 uint32_t wots_addr[8], uint32_t tree_addr[8],
-			 uint32_t idx_leaf)
+void sphincs_merkle_sign_c(uint8_t *sig, unsigned char *root,
+			   const spx_ctx *ctx, uint32_t wots_addr[8],
+			   uint32_t tree_addr[8], uint32_t idx_leaf)
 {
 	unsigned char *auth_path = sig + LC_SPX_WOTS_BYTES;
 	struct leaf_info_x1 info = { 0 };
-	unsigned steps[ LC_SPX_WOTS_LEN ];
+	unsigned steps[LC_SPX_WOTS_LEN];
 
 	info.wots_sig = sig;
 	chain_lengths_c(steps, root);
@@ -57,11 +57,8 @@ void sphincs_merkle_sign_c(uint8_t *sig, unsigned char *root, const spx_ctx *ctx
 
 	info.wots_sign_leaf = idx_leaf;
 
-	treehashx1(root, auth_path, ctx,
-		   idx_leaf, 0,
-	    LC_SPX_TREE_HEIGHT,
-	    wots_gen_leafx1,
-	    tree_addr, &info);
+	treehashx1(root, auth_path, ctx, idx_leaf, 0, LC_SPX_TREE_HEIGHT,
+		   wots_gen_leafx1, tree_addr, &info);
 }
 
 /* Compute root node of the top-most subtree. */
@@ -72,15 +69,15 @@ void sphincs_merkle_gen_root_c(unsigned char *root, const spx_ctx *ctx)
 	 * code to have just one treehash routine that computes both root and
 	 * path in one function.
 	 */
-	unsigned char auth_path[LC_SPX_TREE_HEIGHT * LC_SPX_N +
-				LC_SPX_WOTS_BYTES];
-	uint32_t top_tree_addr[8] = {0};
-	uint32_t wots_addr[8] = {0};
+	unsigned char
+		auth_path[LC_SPX_TREE_HEIGHT * LC_SPX_N + LC_SPX_WOTS_BYTES];
+	uint32_t top_tree_addr[8] = { 0 };
+	uint32_t wots_addr[8] = { 0 };
 
 	set_layer_addr(top_tree_addr, LC_SPX_D - 1);
 	set_layer_addr(wots_addr, LC_SPX_D - 1);
 
 	/* ~0 means "don't bother generating an auth path */
 	sphincs_merkle_sign_c(auth_path, root, ctx, wots_addr, top_tree_addr,
-			    (uint32_t)~0);
+			      (uint32_t)~0);
 }

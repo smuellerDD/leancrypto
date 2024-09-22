@@ -44,16 +44,12 @@
  *
  * This works by using the standard Merkle tree building algorithm,
  */
-void treehashx1(unsigned char *root, unsigned char *auth_path,
-		const spx_ctx* ctx,
-		uint32_t leaf_idx, uint32_t idx_offset,
-		uint32_t tree_height,
-		void (*gen_leaf)(
-			unsigned char* /* Where to write the leaves */,
-		   const spx_ctx* /* ctx */,
-		   uint32_t idx, void *info),
-		uint32_t tree_addr[8],
-		void *info)
+void treehashx1(
+	unsigned char *root, unsigned char *auth_path, const spx_ctx *ctx,
+	uint32_t leaf_idx, uint32_t idx_offset, uint32_t tree_height,
+	void (*gen_leaf)(unsigned char * /* Where to write the leaves */,
+			 const spx_ctx * /* ctx */, uint32_t idx, void *info),
+	uint32_t tree_addr[8], void *info)
 {
 	/* This is where we keep the intermediate nodes */
 	uint8_t stack[tree_height * LC_SPX_N];
@@ -61,7 +57,8 @@ void treehashx1(unsigned char *root, unsigned char *auth_path,
 	uint32_t max_idx = (uint32_t)((1 << tree_height) - 1);
 
 	for (idx = 0;; idx++) {
-		unsigned char current[2 * LC_SPX_N];   /* Current logical node is at */
+		unsigned char
+			current[2 * LC_SPX_N]; /* Current logical node is at */
 		/* index[LC_SPX_N].  We do this to minimize the number of copies */
 		/* needed during a thash */
 
@@ -72,10 +69,9 @@ void treehashx1(unsigned char *root, unsigned char *auth_path,
 		uint32_t internal_idx_offset = idx_offset;
 		uint32_t internal_idx = idx;
 		uint32_t internal_leaf = leaf_idx;
-		uint32_t h;     /* The height we are in the Merkle tree */
+		uint32_t h; /* The height we are in the Merkle tree */
 
 		for (h = 0;; h++, internal_idx >>= 1, internal_leaf >>= 1) {
-
 			/* Check if we hit the top of the tree */
 			if (h == tree_height) {
 				/* We hit the root; return it */
@@ -107,10 +103,11 @@ void treehashx1(unsigned char *root, unsigned char *auth_path,
 			/* Set the address of the node we're creating. */
 			internal_idx_offset >>= 1;
 			set_tree_height(tree_addr, h + 1);
-			set_tree_index(tree_addr, internal_idx/2 + internal_idx_offset );
+			set_tree_index(tree_addr,
+				       internal_idx / 2 + internal_idx_offset);
 
 			unsigned char *left = &stack[h * LC_SPX_N];
-			memcpy(&current[0], left, LC_SPX_N );
+			memcpy(&current[0], left, LC_SPX_N);
 			thash(&current[1 * LC_SPX_N], &current[0 * LC_SPX_N], 2,
 			      ctx->pub_seed, tree_addr);
 		}

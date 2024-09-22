@@ -24,7 +24,6 @@
 extern "C" {
 #endif
 
-
 struct lc_sphincs_test {
 	uint8_t seed[LC_SPX_SEEDBYTES];
 	uint8_t msg[33];

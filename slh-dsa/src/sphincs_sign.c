@@ -97,15 +97,14 @@ static void lc_sphincs_keypair_from_seed_internal(struct lc_sphincs_pk *pk,
 	memcpy(pk->pk_root, sk->pk_root, sizeof(pk->pk_root));
 }
 
-
 /*
  * Generates an LC_SPX key pair given a seed of length
  * Format sk: [SK_SEED || SK_PRF || PUB_SEED || root]
  * Format pk: [PUB_SEED || root]
  */
 LC_INTERFACE_FUNCTION(int, lc_sphincs_keypair_from_seed,
-	struct lc_sphincs_pk *pk, struct lc_sphincs_sk *sk,
-	const uint8_t *seed, size_t seedlen)
+		      struct lc_sphincs_pk *pk, struct lc_sphincs_sk *sk,
+		      const uint8_t *seed, size_t seedlen)
 {
 	int ret = 0;
 
@@ -210,11 +209,11 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign, struct lc_sphincs_sig *sig,
 		set_keypair_addr(ws->wots_addr, idx_leaf);
 
 		f_ctx.merkle_sign(wots_sig, ws->root, &ctx, ws->wots_addr,
-				    ws->tree_addr, idx_leaf);
+				  ws->tree_addr, idx_leaf);
 		wots_sig += LC_SPX_WOTS_BYTES + LC_SPX_TREE_HEIGHT * LC_SPX_N;
 
 		/* Update the indices for the next layer. */
-		idx_leaf = (tree & ((1 << LC_SPX_TREE_HEIGHT)-1));
+		idx_leaf = (tree & ((1 << LC_SPX_TREE_HEIGHT) - 1));
 		tree = tree >> LC_SPX_TREE_HEIGHT;
 	}
 
@@ -271,7 +270,7 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify, const struct lc_sphincs_sig *sig,
 	set_keypair_addr(ws->wots_addr, idx_leaf);
 
 	f_ctx.fors_pk_from_sig(ws->root, sig->sigfors, ws->mhash, &ctx,
-			 ws->wots_addr);
+			       ws->wots_addr);
 
 	/* For each subtree.. */
 	for (i = 0; i < LC_SPX_D; i++) {
@@ -290,7 +289,7 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify, const struct lc_sphincs_sig *sig,
 		 * processed subtree.
 		 */
 		f_ctx.wots_pk_from_sig(ws->wots_pk, wots_sig, ws->root, &ctx,
-				 ws->wots_addr);
+				       ws->wots_addr);
 		wots_sig += LC_SPX_WOTS_BYTES;
 
 		/* Compute the leaf node using the WOTS public key. */
@@ -303,7 +302,7 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify, const struct lc_sphincs_sig *sig,
 		wots_sig += LC_SPX_TREE_HEIGHT * LC_SPX_N;
 
 		/* Update the indices for the next layer. */
-		idx_leaf = (tree & ((1 << LC_SPX_TREE_HEIGHT)-1));
+		idx_leaf = (tree & ((1 << LC_SPX_TREE_HEIGHT) - 1));
 		tree = tree >> LC_SPX_TREE_HEIGHT;
 	}
 

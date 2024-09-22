@@ -43,16 +43,16 @@ void thash(uint8_t out[LC_SPX_N], const uint8_t *in, unsigned int inblocks,
 	memcpy(buf, pub_seed, LC_SPX_N);
 	memcpy(buf + LC_SPX_N, addr, LC_SPX_ADDR_BYTES);
 
-//	shake256(bitmask, inblocks * LC_SPX_N, buf, LC_SPX_N + LC_SPX_ADDR_BYTES);
+	//	shake256(bitmask, inblocks * LC_SPX_N, buf, LC_SPX_N + LC_SPX_ADDR_BYTES);
 
 	// LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
- //
+	//
 	// lc_hash_init(hash_ctx);
 	// lc_hash_update(hash_ctx, pub_seed, LC_SPX_N);
 	// lc_hash_update(hash_ctx, addr, LC_SPX_ADDR_BYTES);
 	// lc_hash_set_digestsize(hash_ctx, sizeof(bitmask));
 	// lc_hash_final(hash_ctx, bitmask);
- //
+	//
 	// lc_hash_zero(hash_ctx);
 
 	lc_xof(lc_shake256, buf, LC_SPX_N + LC_SPX_ADDR_BYTES, bitmask,

@@ -33,16 +33,12 @@
 extern "C" {
 #endif
 
-void prf_addrx4(unsigned char *out0,
-                unsigned char *out1,
-                unsigned char *out2,
-                unsigned char *out3,
-                const spx_ctx *ctx,
-                const uint32_t addrx4[4*8]);
+void prf_addrx4(unsigned char *out0, unsigned char *out1, unsigned char *out2,
+		unsigned char *out3, const spx_ctx *ctx,
+		const uint32_t addrx4[4 * 8]);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* SPHINCS_HASHX4_AVX2_H */
-
