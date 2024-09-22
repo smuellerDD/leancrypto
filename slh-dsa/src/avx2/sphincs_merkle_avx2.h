@@ -24,8 +24,8 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
-#ifndef SPHINCS_WOTS_H
-#define SPHINCS_WOTS_H
+#ifndef SPHINCS_MERKLE_AVX2_H
+#define SPHINCS_MERKLE_AVX2_H
 
 #include "sphincs_type.h"
 #include "sphincs_internal.h"
@@ -34,27 +34,19 @@
 extern "C" {
 #endif
 
-/**
- * Takes a WOTS signature and an n-byte message, computes a WOTS public key.
- *
- * Writes the computed public key to 'pk'.
- */
-void wots_pk_from_sig_c(uint8_t pk[LC_SPX_WOTS_BYTES],
-		      const uint8_t *sig, const uint8_t *msg,
-		      const spx_ctx *ctx, uint32_t addr[8]);
-
 /*
- * Compute the chain lengths needed for a given message hash
+ * Generate a Merkle signature (WOTS signature followed by the Merkle
+ * authentication path)
  */
-void chain_lengths_c(unsigned int *lengths, const uint8_t *msg);
+void sphincs_merkle_sign_avx2(uint8_t *sig, unsigned char *root, const spx_ctx* ctx,
+			 uint32_t wots_addr[8], uint32_t tree_addr[8],
+			 uint32_t idx_leaf);
 
-typedef void (*wots_pk_from_sig_f)(uint8_t pk[LC_SPX_WOTS_BYTES],
-		      const uint8_t *sig, const uint8_t *msg,
-		      const spx_ctx *ctx, uint32_t addr[8]);
-typedef void (*chain_lengths_f)(unsigned int *lengths, const uint8_t *msg);
+/* Compute the root node of the top-most subtree. */
+void sphincs_merkle_gen_root_avx2(unsigned char *root, const spx_ctx* ctx);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* SPHINCS_WOTS_H */
+#endif /* SPHINCS_MERKLE_AVX2_H */

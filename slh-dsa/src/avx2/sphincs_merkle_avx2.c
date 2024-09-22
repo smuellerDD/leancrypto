@@ -26,17 +26,17 @@
 
 #include "sphincs_type.h"
 #include "sphincs_address.h"
-#include "sphincs_merkle.h"
+#include "sphincs_merkle_avx2.h"
 #include "sphincs_utils.h"
 #include "sphincs_utilsx4_avx2.h"
-#include "sphincs_wots.h"
+#include "sphincs_wots_avx2.h"
 #include "sphincs_wotsx4_avx2.h"
 
 /*
  * This generates a Merkle signature (WOTS signature followed by the Merkle
  * authentication path).
  */ 
-void sphincs_merkle_sign(uint8_t *sig, unsigned char *root, const spx_ctx* ctx,
+void sphincs_merkle_sign_avx2(uint8_t *sig, unsigned char *root, const spx_ctx* ctx,
 			uint32_t wots_addr[8], uint32_t tree_addr[8],
 			uint32_t idx_leaf)
 {
@@ -47,7 +47,7 @@ void sphincs_merkle_sign(uint8_t *sig, unsigned char *root, const spx_ctx* ctx,
 	unsigned steps[ LC_SPX_WOTS_LEN ];
 
 	info.wots_sig = sig;
-	chain_lengths(steps, root);
+	chain_lengths_avx2(steps, root);
 	info.wots_steps = steps;
 
 	for (j=0; j<4; j++) {
@@ -66,7 +66,7 @@ void sphincs_merkle_sign(uint8_t *sig, unsigned char *root, const spx_ctx* ctx,
 }
 
 /* Compute root node of the top-most subtree. */
-void sphincs_merkle_gen_root(unsigned char *root, const spx_ctx* ctx)
+void sphincs_merkle_gen_root_avx2(unsigned char *root, const spx_ctx* ctx)
 {
 	/* We do not need the auth path in key generation, but it simplifies the
 	 *       code to have just one treehash routine that computes both root and path
@@ -79,6 +79,6 @@ void sphincs_merkle_gen_root(unsigned char *root, const spx_ctx* ctx)
 	set_layer_addr(wots_addr, LC_SPX_D - 1);
 
 	/* ~0 means "don't bother generating an auth path */
-	sphincs_merkle_sign(auth_path, root, ctx, wots_addr, top_tree_addr,
+	sphincs_merkle_sign_avx2(auth_path, root, ctx, wots_addr, top_tree_addr,
 			    (uint32_t)~0);
 }

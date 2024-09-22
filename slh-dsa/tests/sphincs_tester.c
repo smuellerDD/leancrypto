@@ -18,6 +18,7 @@
  */
 
 #include "compare.h"
+#include "cpufeatures.h"
 #include "small_stack_support.h"
 #include "sphincs_type.h"
 #include "ret_checkers.h"
@@ -114,6 +115,14 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 			t = LC_SPHINCS_PERF_SIGN;
 		if (argv[1][0] == 'v')
 			t = LC_SPHINCS_PERF_VERIFY;
+		if (argv[1][0] == 'c')
+			lc_cpu_feature_disable();
+	}
+
+	if (argc >= 3) {
+		if (argv[2][0] == 'c')
+			lc_cpu_feature_disable();
+
 	}
 
 	CKINT(lc_sphincs_test(&tests[0], t));

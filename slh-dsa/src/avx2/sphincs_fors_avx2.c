@@ -25,7 +25,7 @@
  */
 
 #include "sphincs_address.h"
-#include "sphincs_fors.h"
+#include "sphincs_fors_avx2.h"
 #include "sphincs_hash.h"
 #include "sphincs_hashx4_avx2.h"
 #include "sphincs_thash.h"
@@ -133,7 +133,7 @@ static void message_to_indices(uint32_t *indices, const unsigned char *m)
  * Signs a message m, deriving the secret key from sk_seed and the FTS address.
  * Assumes m contains at least LC_SPX_FORS_HEIGHT * LC_SPX_FORS_TREES bits.
  */
-void fors_sign(uint8_t sig[LC_SPX_FORS_BYTES], uint8_t pk[LC_SPX_N],
+void fors_sign_avx2(uint8_t sig[LC_SPX_FORS_BYTES], uint8_t pk[LC_SPX_N],
 	       const uint8_t m[LC_SPX_FORS_MSG_BYTES], const spx_ctx *ctx,
 	       const uint32_t fors_addr[8])
 {
@@ -187,7 +187,7 @@ void fors_sign(uint8_t sig[LC_SPX_FORS_BYTES], uint8_t pk[LC_SPX_N],
  * typical use-case when used as an FTS below an OTS in a hypertree.
  * Assumes m contains at least LC_SPX_FORS_HEIGHT * LC_SPX_FORS_TREES bits.
  */
-void fors_pk_from_sig(uint8_t pk[LC_SPX_N],
+void fors_pk_from_sig_avx2(uint8_t pk[LC_SPX_N],
 		      const uint8_t sig[LC_SPX_FORS_BYTES],
 		      const uint8_t m[LC_SPX_FORS_MSG_BYTES],
 		      const spx_ctx* ctx,

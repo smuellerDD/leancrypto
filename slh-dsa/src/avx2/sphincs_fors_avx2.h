@@ -24,8 +24,8 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
-#ifndef SPHINCS_FORS_H
-#define SPHINCS_FORS_H
+#ifndef SPHINCS_FORS_AVX2_H
+#define SPHINCS_FORS_AVX2_H
 
 #include "sphincs_type.h"
 #include "sphincs_internal.h"
@@ -38,7 +38,7 @@ extern "C" {
  * Signs a message m, deriving the secret key from sk_seed and the FTS address.
  * Assumes m contains at least SPX_FORS_HEIGHT * SPX_FORS_TREES bits.
  */
-void fors_sign_c(uint8_t sig[LC_SPX_FORS_BYTES], uint8_t pk[LC_SPX_N],
+void fors_sign_avx2(uint8_t sig[LC_SPX_FORS_BYTES], uint8_t pk[LC_SPX_N],
 	       const uint8_t m[LC_SPX_FORS_MSG_BYTES], const spx_ctx *ctx,
 	       const uint32_t fors_addr[8]);
 
@@ -49,16 +49,7 @@ void fors_sign_c(uint8_t sig[LC_SPX_FORS_BYTES], uint8_t pk[LC_SPX_N],
  * typical use-case when used as an FTS below an OTS in a hypertree.
  * Assumes m contains at least SPX_FORS_HEIGHT * SPX_FORS_TREES bits.
  */
-void fors_pk_from_sig_c(uint8_t pk[LC_SPX_N],
-		      const uint8_t sig[LC_SPX_FORS_BYTES],
-		      const uint8_t m[LC_SPX_FORS_MSG_BYTES],
-		      const spx_ctx* ctx,
-		      const uint32_t fors_addr[8]);
-
-typedef void (*fors_sign_f)(uint8_t sig[LC_SPX_FORS_BYTES], uint8_t pk[LC_SPX_N],
-	       const uint8_t m[LC_SPX_FORS_MSG_BYTES], const spx_ctx *ctx,
-	       const uint32_t fors_addr[8]);
-typedef void (*fors_pk_from_sig_f)(uint8_t pk[LC_SPX_N],
+void fors_pk_from_sig_avx2(uint8_t pk[LC_SPX_N],
 		      const uint8_t sig[LC_SPX_FORS_BYTES],
 		      const uint8_t m[LC_SPX_FORS_MSG_BYTES],
 		      const spx_ctx* ctx,
@@ -68,5 +59,5 @@ typedef void (*fors_pk_from_sig_f)(uint8_t pk[LC_SPX_N],
 }
 #endif
 
-#endif /* SPHINCS_FORS_H */
+#endif /* SPHINCS_FORS_AVX2_H */
 

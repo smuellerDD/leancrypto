@@ -24,8 +24,8 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
-#ifndef SPHINCS_WOTS_H
-#define SPHINCS_WOTS_H
+#ifndef SPHINCS_WOTS_AVX2_H
+#define SPHINCS_WOTS_AVX2_H
 
 #include "sphincs_type.h"
 #include "sphincs_internal.h"
@@ -39,22 +39,17 @@ extern "C" {
  *
  * Writes the computed public key to 'pk'.
  */
-void wots_pk_from_sig_c(uint8_t pk[LC_SPX_WOTS_BYTES],
+void wots_pk_from_sig_avx2(uint8_t pk[LC_SPX_WOTS_BYTES],
 		      const uint8_t *sig, const uint8_t *msg,
 		      const spx_ctx *ctx, uint32_t addr[8]);
 
 /*
  * Compute the chain lengths needed for a given message hash
  */
-void chain_lengths_c(unsigned int *lengths, const uint8_t *msg);
-
-typedef void (*wots_pk_from_sig_f)(uint8_t pk[LC_SPX_WOTS_BYTES],
-		      const uint8_t *sig, const uint8_t *msg,
-		      const spx_ctx *ctx, uint32_t addr[8]);
-typedef void (*chain_lengths_f)(unsigned int *lengths, const uint8_t *msg);
+void chain_lengths_avx2(unsigned int *lengths, const uint8_t *msg);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* SPHINCS_WOTS_H */
+#endif /* SPHINCS_WOTS_AVX2_H */

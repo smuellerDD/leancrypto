@@ -172,7 +172,7 @@ static void wots_checksum(unsigned int *csum_base_w,
 }
 
 /* Takes a message and derives the matching chain lengths. */
-void chain_lengths(unsigned int *lengths, const uint8_t *msg)
+void chain_lengths_avx2(unsigned int *lengths, const uint8_t *msg)
 {
 	base_w(lengths, LC_SPX_WOTS_LEN1, msg);
 	wots_checksum(lengths + LC_SPX_WOTS_LEN1, lengths);
@@ -183,7 +183,7 @@ void chain_lengths(unsigned int *lengths, const uint8_t *msg)
  *
  * Writes the computed public key to 'pk'.
  */
-void wots_pk_from_sig(uint8_t pk[LC_SPX_WOTS_BYTES],
+void wots_pk_from_sig_avx2(uint8_t pk[LC_SPX_WOTS_BYTES],
 		      const uint8_t *sig, const uint8_t *msg,
 		      const spx_ctx *ctx, uint32_t addr[8])
 {
@@ -191,7 +191,7 @@ void wots_pk_from_sig(uint8_t pk[LC_SPX_WOTS_BYTES],
 	unsigned int start[LC_SPX_WOTS_LEN];
 	uint32_t i;
 
-	chain_lengths(start, msg);
+	chain_lengths_avx2(start, msg);
 
 	for (i = 0; i < LC_SPX_WOTS_LEN; i++) {
 		steps[i] = LC_SPX_WOTS_W - 1 - start[i];
