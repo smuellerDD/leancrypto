@@ -47,34 +47,41 @@ void thashx4(unsigned char *out0,
 	     const unsigned char *in3, unsigned int inblocks,
 	     const spx_ctx *ctx, uint32_t addrx4[4*8])
 {
+	unsigned int i;
+
 	if (inblocks == 1 || inblocks == 2) {
 		/* As we write and read only a few quadwords, it is more efficient to
 		 * build and extract from the fourway SHAKE256 state by hand. */
 		__m256i state[25];
-		for (int i = 0; i < LC_SPX_N/8; i++) {
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
+		for (i = 0; i < LC_SPX_N/8; i++) {
 			state[i] = _mm256_set1_epi64x(((int64_t*)ctx->pub_seed)[i]);
 		}
-		for (int i = 0; i < 4; i++) {
+#pragma GCC diagnostic pop
+
+		for (i = 0; i < 4; i++) {
 			state[LC_SPX_N/8+i] = _mm256_set_epi32(
-				addrx4[3*8+1+2*i],
-				addrx4[3*8+2*i],
-				addrx4[2*8+1+2*i],
-				addrx4[2*8+2*i],
-				addrx4[8+1+2*i],
-				addrx4[8+2*i],
-				addrx4[1+2*i],
-				addrx4[2*i]
+				(int32_t)addrx4[3*8+1+2*i],
+				(int32_t)addrx4[3*8+2*i],
+				(int32_t)addrx4[2*8+1+2*i],
+				(int32_t)addrx4[2*8+2*i],
+				(int32_t)addrx4[8+1+2*i],
+				(int32_t)addrx4[8+2*i],
+				(int32_t)addrx4[1+2*i],
+				(int32_t)addrx4[2*i]
 			);
 		}
 
 		/* SHAKE domain separator and padding */
 		state[LC_SPX_N/8+4] = _mm256_set1_epi64x(0x1f);
-		for (int i = LC_SPX_N/8+5; i < 16; i++) {
+		for (i = LC_SPX_N/8+5; i < 16; i++) {
 			state[i] = _mm256_set1_epi64x(0);
 		}
 		state[16] = _mm256_set1_epi64x((long long)(0x80ULL << 56));
 
-		for (int i = 17; i < 25; i++) {
+		for (i = 17; i < 25; i++) {
 			state[i] = _mm256_set1_epi64x(0);
 		}
 
@@ -89,7 +96,9 @@ void thashx4(unsigned char *out0,
 		/* By copying from state, state2 already contains the pub_seed
 		 * and addres.  We just need to copy in the input blocks xorred with
 		 * the bitmask we just computed. */
-		for (unsigned int i = 0; i < (LC_SPX_N/8) * inblocks; i++) {
+		for (i = 0; i < (LC_SPX_N/8) * inblocks; i++) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
 			state2[LC_SPX_N/8+4+i] = _mm256_xor_si256(
 				state[i],
 				_mm256_set_epi64x(
@@ -99,6 +108,7 @@ void thashx4(unsigned char *out0,
 						  ((int64_t*)in0)[i]
 				)
 			);
+#pragma GCC diagnostic pop
 		}
 
 		/* Domain separator and start of padding.  Note that the quadwords
@@ -113,12 +123,15 @@ void thashx4(unsigned char *out0,
 
 		KeccakF1600_StatePermute4x(&state2[0]);
 
-		for (int i = 0; i < LC_SPX_N/8; i++) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
+		for (i = 0; i < LC_SPX_N/8; i++) {
 			((int64_t*)out0)[i] = _mm256_extract_epi64(state2[i], 0);
 			((int64_t*)out1)[i] = _mm256_extract_epi64(state2[i], 1);
 			((int64_t*)out2)[i] = _mm256_extract_epi64(state2[i], 2);
 			((int64_t*)out3)[i] = _mm256_extract_epi64(state2[i], 3);
 		}
+#pragma GCC diagnostic pop
 	} else {
 		uint8_t buf0[LC_SPX_N + LC_SPX_ADDR_BYTES + inblocks*LC_SPX_N];
 		uint8_t buf1[LC_SPX_N + LC_SPX_ADDR_BYTES + inblocks*LC_SPX_N];
@@ -128,7 +141,6 @@ void thashx4(unsigned char *out0,
 		uint8_t bitmask1[inblocks * LC_SPX_N];
 		uint8_t bitmask2[inblocks * LC_SPX_N];
 		uint8_t bitmask3[inblocks * LC_SPX_N];
-		unsigned int i;
 
 		memcpy(buf0, ctx->pub_seed, LC_SPX_N);
 		memcpy(buf1, ctx->pub_seed, LC_SPX_N);

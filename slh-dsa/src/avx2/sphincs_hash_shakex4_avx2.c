@@ -26,6 +26,7 @@
 
 #include "ext_headers_x86.h"
 
+#include "alignment.h"
 #include "sphincs_type.h"
 #include "sphincs_address.h"
 #include "sphincs_hashx4_avx2.h"
@@ -47,24 +48,32 @@ void prf_addrx4(unsigned char *out0,
 	__m256i state[25];
 	unsigned int i;
 
-	for (i = 0; i < LC_SPX_N/8; i++) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
+	for (i = 0; i < LC_SPX_N/8; i++)
 		state[i] = _mm256_set1_epi64x(((int64_t*)ctx->pub_seed)[i]);
-	}
+#pragma GCC diagnostic pop
+
 	for (i = 0; i < 4; i++) {
 		state[LC_SPX_N/8+i] = _mm256_set_epi32(
-			addrx4[3*8+1+2*i],
-			addrx4[3*8+2*i],
-			addrx4[2*8+1+2*i],
-			addrx4[2*8+2*i],
-			addrx4[8+1+2*i],
-			addrx4[8+2*i],
-			addrx4[1+2*i],
-			addrx4[2*i]
+			(int32_t)addrx4[3*8+1+2*i],
+			(int32_t)addrx4[3*8+2*i],
+			(int32_t)addrx4[2*8+1+2*i],
+			(int32_t)addrx4[2*8+2*i],
+			(int32_t)addrx4[8+1+2*i],
+			(int32_t)addrx4[8+2*i],
+			(int32_t)addrx4[1+2*i],
+			(int32_t)addrx4[2*i]
 		);
 	}
+
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
 	for (i = 0; i < LC_SPX_N/8; i++) {
 		state[LC_SPX_N/8+i+4] = _mm256_set1_epi64x(((int64_t*)ctx->sk_seed)[i]);
 	}
+#pragma GCC diagnostic pop
 
 	/* SHAKE domain separator and padding. */
 	state[LC_SPX_N/4+4] = _mm256_set1_epi64x(0x1f);
@@ -81,9 +90,13 @@ void prf_addrx4(unsigned char *out0,
 	KeccakF1600_StatePermute4x(&state[0]);
 
 	for (i = 0; i < LC_SPX_N/8; i++) {
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
 		((int64_t*)out0)[i] = _mm256_extract_epi64(state[i], 0);
 		((int64_t*)out1)[i] = _mm256_extract_epi64(state[i], 1);
 		((int64_t*)out2)[i] = _mm256_extract_epi64(state[i], 2);
 		((int64_t*)out3)[i] = _mm256_extract_epi64(state[i], 3);
+#pragma GCC diagnostic pop
 	}
 }
