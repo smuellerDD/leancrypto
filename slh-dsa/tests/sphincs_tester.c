@@ -43,28 +43,59 @@
 #include "sphincs_tester_vectors_shake_256s.h"
 #endif
 
-static int lc_sphincs_test(struct lc_sphincs_test *tc)
+enum lc_sphincs_test_type {
+	LC_SPHINCS_REGRESSION,
+	LC_SPHINCS_PERF_KEYGEN,
+	LC_SPHINCS_PERF_SIGN,
+	LC_SPHINCS_PERF_VERIFY,
+};
+
+static int lc_sphincs_test(struct lc_sphincs_test *tc,
+			   enum lc_sphincs_test_type t)
 {
 	struct workspace {
 		struct lc_sphincs_pk pk;
 		struct lc_sphincs_sk sk;
 		struct lc_sphincs_sig sig;
 	};
+	unsigned int rounds, i;
 	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	CKINT(lc_sphincs_keypair_from_seed(&ws->pk, &ws->sk, tc->seed,
-					   sizeof(tc->seed)));
-	lc_compare((uint8_t *)&ws->pk, tc->pk, sizeof(tc->pk), "PK");
-	lc_compare((uint8_t *)&ws->sk, tc->sk, sizeof(tc->sk), "SK");
+	if (t == LC_SPHINCS_REGRESSION || t == LC_SPHINCS_PERF_KEYGEN) {
+		rounds = (t == LC_SPHINCS_PERF_KEYGEN) ? 100 : 1;
 
-	CKINT(lc_sphincs_sign(&ws->sig, tc->msg, sizeof(tc->msg), &ws->sk,
-			      NULL));
-	lc_compare((uint8_t *)&ws->sig, tc->sig, sizeof(tc->sig), "SIG");
+		for (i = 0; i < rounds; i ++) {
+			CKINT(lc_sphincs_keypair_from_seed(&ws->pk, &ws->sk,
+							   tc->seed,
+							   sizeof(tc->seed)));
+		}
+		lc_compare((uint8_t *)&ws->pk, tc->pk, sizeof(tc->pk), "PK");
+		lc_compare((uint8_t *)&ws->sk, tc->sk, sizeof(tc->sk), "SK");
+	}
 
-	CKINT(lc_sphincs_verify((struct lc_sphincs_sig *)tc->sig, tc->msg,
+	if (t == LC_SPHINCS_REGRESSION || t == LC_SPHINCS_PERF_SIGN) {
+		rounds = (t == LC_SPHINCS_PERF_SIGN) ? 10 : 1;
+
+		for (i = 0; i < rounds; i ++) {
+			CKINT(lc_sphincs_sign(
+				&ws->sig, tc->msg, sizeof(tc->msg),
+				(struct lc_sphincs_sk *)tc->sk, NULL));
+		}
+		lc_compare((uint8_t *)&ws->sig, tc->sig, sizeof(tc->sig),
+			   "SIG");
+	}
+
+	if (t == LC_SPHINCS_REGRESSION || t == LC_SPHINCS_PERF_VERIFY) {
+		rounds = (t == LC_SPHINCS_PERF_VERIFY) ? 1000 : 1;
+
+		for (i = 0; i < rounds; i ++) {
+			CKINT(lc_sphincs_verify(
+				(struct lc_sphincs_sig *)tc->sig, tc->msg,
 				sizeof(tc->msg),
 				(struct lc_sphincs_pk *)tc->pk));
+		}
+	}
 
 out:
 	LC_RELEASE_MEM(ws);
@@ -73,11 +104,19 @@ out:
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	enum lc_sphincs_test_type t = LC_SPHINCS_REGRESSION;
 	int ret, rc = 0;
-	(void)argc;
-	(void)argv;
 
-	CKINT(lc_sphincs_test(&tests[0]));
+	if (argc >= 2) {
+		if (argv[1][0] == 'k')
+			t = LC_SPHINCS_PERF_KEYGEN;
+		if (argv[1][0] == 's')
+			t = LC_SPHINCS_PERF_SIGN;
+		if (argv[1][0] == 'v')
+			t = LC_SPHINCS_PERF_VERIFY;
+	}
+
+	CKINT(lc_sphincs_test(&tests[0], t));
 	rc += ret;
 
 out:
