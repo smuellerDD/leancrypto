@@ -25,6 +25,7 @@
  */
 
 #include "cpufeatures.h"
+#include "helper.h"
 #include "lc_rng.h"
 #include "lc_memcmp_secure.h"
 #include "small_stack_support.h"
@@ -50,40 +51,43 @@ struct lc_sphincs_func_ctx {
 	fors_sign_f fors_sign;
 	fors_pk_from_sig_f fors_pk_from_sig;
 	wots_pk_from_sig_f wots_pk_from_sig;
-	chain_lengths_f chain_lengths;
 };
 
-static void lc_sphincs_get_ctx(struct lc_sphincs_func_ctx *ctx)
+static const struct lc_sphincs_func_ctx f_ctx_c = {
+	.merkle_sign = sphincs_merkle_sign_c,
+	.merkle_gen_root = sphincs_merkle_gen_root_c,
+	.fors_sign = fors_sign_c,
+	.fors_pk_from_sig = fors_pk_from_sig_c,
+	.wots_pk_from_sig = wots_pk_from_sig_c,
+};
+
+static const struct lc_sphincs_func_ctx f_ctx_avx2 __unused = {
+	.merkle_sign = sphincs_merkle_sign_avx2,
+	.merkle_gen_root = sphincs_merkle_gen_root_avx2,
+	.fors_sign = fors_sign_avx2,
+	.fors_pk_from_sig = fors_pk_from_sig_avx2,
+	.wots_pk_from_sig = wots_pk_from_sig_avx2,
+};
+
+static const struct lc_sphincs_func_ctx *lc_sphincs_get_ctx(void)
 {
 	enum lc_cpu_features feat = lc_cpu_feature_available();
 
 #ifdef LC_HOST_X86_64
 	if (feat & LC_CPU_FEATURE_INTEL_AVX2) {
-		ctx->merkle_sign = sphincs_merkle_sign_avx2;
-		ctx->merkle_gen_root = sphincs_merkle_gen_root_avx2;
-		ctx->fors_sign = fors_sign_avx2;
-		ctx->fors_pk_from_sig = fors_pk_from_sig_avx2;
-		ctx->wots_pk_from_sig = wots_pk_from_sig_avx2;
-		ctx->chain_lengths = chain_lengths_avx2;
+		return &f_ctx_avx2;
 	} else
 #endif /* LC_HOST_X86_64 */
 	{
-		ctx->merkle_sign = sphincs_merkle_sign_c;
-		ctx->merkle_gen_root = sphincs_merkle_gen_root_c;
-		ctx->fors_sign = fors_sign_c;
-		ctx->fors_pk_from_sig = fors_pk_from_sig_c;
-		ctx->wots_pk_from_sig = wots_pk_from_sig_c;
-		ctx->chain_lengths = chain_lengths_c;
+		return &f_ctx_c;
 	}
 }
 
 static void lc_sphincs_keypair_from_seed_internal(struct lc_sphincs_pk *pk,
 						  struct lc_sphincs_sk *sk)
 {
-	struct lc_sphincs_func_ctx f_ctx;
+	const struct lc_sphincs_func_ctx *f_ctx = lc_sphincs_get_ctx();
 	spx_ctx ctx;
-
-	lc_sphincs_get_ctx(&f_ctx);
 
 	/* Initialize SK_SEED, SK_PRF and PUB_SEED from seed. */
 	memcpy(pk, sk->pk_seed, sizeof(sk->pk_seed));
@@ -92,7 +96,7 @@ static void lc_sphincs_keypair_from_seed_internal(struct lc_sphincs_pk *pk,
 	ctx.sk_seed = sk->sk_seed;
 
 	/* Compute root node of the top-most subtree. */
-	f_ctx.merkle_gen_root(sk->pk_root, &ctx);
+	f_ctx->merkle_gen_root(sk->pk_root, &ctx);
 
 	memcpy(pk->pk_root, sk->pk_root, sizeof(pk->pk_root));
 }
@@ -163,7 +167,7 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign, struct lc_sphincs_sig *sig,
 	uint32_t i;
 	uint64_t tree;
 	uint32_t idx_leaf;
-	struct lc_sphincs_func_ctx f_ctx;
+	const struct lc_sphincs_func_ctx *f_ctx = lc_sphincs_get_ctx();
 	spx_ctx ctx;
 	const uint8_t *sk_prf = sk->sk_prf;
 	const uint8_t *pk = sk->pk_seed;
@@ -173,8 +177,6 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign, struct lc_sphincs_sig *sig,
 
 	CKNULL(sig, -EINVAL);
 	CKNULL(sk, -EINVAL);
-
-	lc_sphincs_get_ctx(&f_ctx);
 
 	ctx.sk_seed = sk->sk_seed;
 	ctx.pub_seed = pk;
@@ -199,7 +201,8 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign, struct lc_sphincs_sig *sig,
 	set_keypair_addr(ws->wots_addr, idx_leaf);
 
 	/* Sign the message hash using FORS. */
-	f_ctx.fors_sign(sig->sigfors, ws->root, ws->mhash, &ctx, ws->wots_addr);
+	f_ctx->fors_sign(sig->sigfors, ws->root, ws->mhash, &ctx,
+			 ws->wots_addr);
 
 	for (i = 0; i < LC_SPX_D; i++) {
 		set_layer_addr(ws->tree_addr, i);
@@ -208,8 +211,8 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign, struct lc_sphincs_sig *sig,
 		copy_subtree_addr(ws->wots_addr, ws->tree_addr);
 		set_keypair_addr(ws->wots_addr, idx_leaf);
 
-		f_ctx.merkle_sign(wots_sig, ws->root, &ctx, ws->wots_addr,
-				  ws->tree_addr, idx_leaf);
+		f_ctx->merkle_sign(wots_sig, ws->root, &ctx, ws->wots_addr,
+				   ws->tree_addr, idx_leaf);
 		wots_sig += LC_SPX_WOTS_BYTES + LC_SPX_TREE_HEIGHT * LC_SPX_N;
 
 		/* Update the indices for the next layer. */
@@ -243,7 +246,7 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify, const struct lc_sphincs_sig *sig,
 	unsigned int i;
 	uint64_t tree;
 	uint32_t idx_leaf;
-	struct lc_sphincs_func_ctx f_ctx;
+	const struct lc_sphincs_func_ctx *f_ctx = lc_sphincs_get_ctx();
 	spx_ctx ctx;
 	const uint8_t *pub_root = pk->pk_root;
 	const uint8_t *wots_sig = sig->sight;
@@ -252,8 +255,6 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify, const struct lc_sphincs_sig *sig,
 
 	CKNULL(sig, -EINVAL);
 	CKNULL(pk, -EINVAL);
-
-	lc_sphincs_get_ctx(&f_ctx);
 
 	ctx.pub_seed = pk->pk_seed;
 
@@ -269,8 +270,8 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify, const struct lc_sphincs_sig *sig,
 	set_tree_addr(ws->wots_addr, tree);
 	set_keypair_addr(ws->wots_addr, idx_leaf);
 
-	f_ctx.fors_pk_from_sig(ws->root, sig->sigfors, ws->mhash, &ctx,
-			       ws->wots_addr);
+	f_ctx->fors_pk_from_sig(ws->root, sig->sigfors, ws->mhash, &ctx,
+				ws->wots_addr);
 
 	/* For each subtree.. */
 	for (i = 0; i < LC_SPX_D; i++) {
@@ -288,8 +289,8 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify, const struct lc_sphincs_sig *sig,
 		 * iterations it is the root of the subtree below the currently
 		 * processed subtree.
 		 */
-		f_ctx.wots_pk_from_sig(ws->wots_pk, wots_sig, ws->root, &ctx,
-				       ws->wots_addr);
+		f_ctx->wots_pk_from_sig(ws->wots_pk, wots_sig, ws->root, &ctx,
+				        ws->wots_addr);
 		wots_sig += LC_SPX_WOTS_BYTES;
 
 		/* Compute the leaf node using the WOTS public key. */

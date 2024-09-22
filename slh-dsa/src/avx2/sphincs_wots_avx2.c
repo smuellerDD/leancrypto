@@ -32,7 +32,7 @@
 #include "sphincs_thashx4_avx2.h"
 #include "sphincs_utils.h"
 #include "sphincs_utilsx4_avx2.h"
-#include "sphincs_wots.h"
+#include "sphincs_wots_avx2.h"
 #include "sphincs_wotsx4_avx2.h"
 
 // TODO clarify address expectations, and make them more uniform.
