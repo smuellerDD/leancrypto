@@ -125,6 +125,12 @@ extern "C" {
 #define wots_pk_from_sig SPHINCS_F(wots_pk_from_sig)
 #define wots_gen_leafx1 SPHINCS_F(wots_gen_leafx1)
 
+/* AVX2 */
+#define prf_addrx4 SPHINCS_F(prf_addrx4)
+#define thashx4 SPHINCS_F(thashx4)
+#define treehashx4 SPHINCS_F(treehashx4)
+#define wots_gen_leafx4 SPHINCS_F(wots_gen_leafx4)
+
 #ifdef __cplusplus
 }
 #endif
