@@ -297,7 +297,8 @@ if (get_option('sha3').disabled() and
      get_option('sphincs_shake_256f').enabled() or
      get_option('sphincs_shake_192s').enabled() or
      get_option('sphincs_shake_192f').enabled() or
-     get_option('sphincs_shake_192s').enabled()))
+     get_option('sphincs_shake_128s').enabled() or
+     get_option('sphincs_shake_128f').enabled()))
 	error('Sphincs Plux support requires SHA-3')
 endif
 
