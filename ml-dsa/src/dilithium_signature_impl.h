@@ -440,9 +440,10 @@ out:
 	return ret;
 }
 
-static int lc_dilithium_sign_internal_noahat(
-	struct lc_dilithium_sig *sig, const struct lc_dilithium_sk *sk,
-	struct lc_dilithium_ctx *ctx, struct lc_rng_ctx *rng_ctx)
+static int lc_dilithium_sign_internal_noahat(struct lc_dilithium_sig *sig,
+					     const struct lc_dilithium_sk *sk,
+					     struct lc_dilithium_ctx *ctx,
+					     struct lc_rng_ctx *rng_ctx)
 {
 	struct workspace_sign {
 		polyvecl mat[LC_DILITHIUM_K];
@@ -512,8 +513,8 @@ static int lc_dilithium_sk_expand_impl(const struct lc_dilithium_sk *sk,
 #endif
 
 	polyvec_matrix_expand(mat, rho, ws->poly_uniform_buf);
-	dilithium_print_polyvecl_k(
-		mat, "AHAT - A K x L x N matrix after ExpandA:");
+	dilithium_print_polyvecl_k(mat,
+				   "AHAT - A K x L x N matrix after ExpandA:");
 
 	ctx->ahat_expanded = 1;
 
@@ -749,9 +750,10 @@ out:
 	return ret;
 }
 
-static int lc_dilithium_verify_internal_noahat(
-	const struct lc_dilithium_sig *sig, const struct lc_dilithium_pk *pk,
-	struct lc_dilithium_ctx *ctx)
+static int
+lc_dilithium_verify_internal_noahat(const struct lc_dilithium_sig *sig,
+				    const struct lc_dilithium_pk *pk,
+				    struct lc_dilithium_ctx *ctx)
 {
 	struct workspace_verify {
 		polyvecl mat[LC_DILITHIUM_K];

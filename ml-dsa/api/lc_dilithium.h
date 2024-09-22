@@ -194,11 +194,11 @@ struct lc_dilithium_sig {
 #define LC_DILITHIUM_CTX_ON_STACK_AHAT(name)                                   \
 	LC_DILITHIUM_87_CTX_ON_STACK_AHAT(name)
 #elif defined(LC_DILITHIUM_65_ENABLED)
-	LC_DILITHIUM_CTX_ON_STACK_AHAT(name)                                   \
-	LC_DILITHIUM_65_CTX_ON_STACK_AHAT(name)
+LC_DILITHIUM_CTX_ON_STACK_AHAT(name)
+LC_DILITHIUM_65_CTX_ON_STACK_AHAT(name)
 #elif defined(LC_DILITHIUM_44_ENABLED)
-	LC_DILITHIUM_CTX_ON_STACK_AHAT(name)                                   \
-	LC_DILITHIUM_44_CTX_ON_STACK_AHAT(name)
+LC_DILITHIUM_CTX_ON_STACK_AHAT(name)
+LC_DILITHIUM_44_CTX_ON_STACK_AHAT(name)
 #endif
 
 /**

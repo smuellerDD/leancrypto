@@ -28,7 +28,8 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_pct, const struct lc_dilithium_pk *pk,
 		      const struct lc_dilithium_sk *sk)
 {
 	uint8_t m[32] = { 0 };
-	struct lc_dilithium_sig sig;;
+	struct lc_dilithium_sig sig;
+	;
 	int ret;
 
 	CKINT(lc_dilithium_sign(&sig, m, sizeof(m), sk, lc_seeded_rng));

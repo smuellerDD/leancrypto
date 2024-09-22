@@ -54,9 +54,9 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ctx_alloc_ahat,
 
 #if LC_DILITHIUM_MODE == 2
 	ret = lc_alloc_aligned((void **)&out_ctx, LC_HASH_COMMON_ALIGNMENT,
-						  LC_DILITHIUM_CTX_SIZE +
-						  LC_DILITHIUM_44_AHAT_PAD +
-						  LC_DILITHIUM_44_AHAT_SIZE);
+			       LC_DILITHIUM_CTX_SIZE +
+				       LC_DILITHIUM_44_AHAT_PAD +
+				       LC_DILITHIUM_44_AHAT_SIZE);
 	if (ret)
 		return -ret;
 	out_ctx->ahat = (uint8_t *)out_ctx + LC_DILITHIUM_CTX_SIZE +
@@ -64,9 +64,9 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ctx_alloc_ahat,
 	out_ctx->ahat_size = LC_DILITHIUM_44_AHAT_SIZE;
 #elif LC_DILITHIUM_MODE == 3
 	ret = lc_alloc_aligned((void **)&out_ctx, LC_HASH_COMMON_ALIGNMENT,
-						  LC_DILITHIUM_CTX_SIZE +
-						  LC_DILITHIUM_65_AHAT_PAD +
-						  LC_DILITHIUM_65_AHAT_SIZE);
+			       LC_DILITHIUM_CTX_SIZE +
+				       LC_DILITHIUM_65_AHAT_PAD +
+				       LC_DILITHIUM_65_AHAT_SIZE);
 	if (ret)
 		return -ret;
 	out_ctx->ahat = (uint8_t *)out_ctx + LC_DILITHIUM_CTX_SIZE +
@@ -74,9 +74,9 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ctx_alloc_ahat,
 	out_ctx->ahat_size = LC_DILITHIUM_65_AHAT_SIZE;
 #elif LC_DILITHIUM_MODE == 5
 	ret = lc_alloc_aligned((void **)&out_ctx, LC_HASH_COMMON_ALIGNMENT,
-						  LC_DILITHIUM_CTX_SIZE +
-						  LC_DILITHIUM_87_AHAT_PAD +
-						  LC_DILITHIUM_87_AHAT_SIZE);
+			       LC_DILITHIUM_CTX_SIZE +
+				       LC_DILITHIUM_87_AHAT_PAD +
+				       LC_DILITHIUM_87_AHAT_SIZE);
 	if (ret)
 		return -ret;
 	out_ctx->ahat = (uint8_t *)out_ctx + LC_DILITHIUM_CTX_SIZE +

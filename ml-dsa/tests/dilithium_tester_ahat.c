@@ -43,14 +43,14 @@ static int dilithium_tester_ahat(struct lc_dilithium_ctx *ctx, int reset)
 		if (reset)
 			ctx->ahat_expanded = 0;
 		CKINT_LOG(lc_dilithium_sign_ctx_c(&ws->sig, ctx, ws->msg,
-						sizeof(ws->msg), &ws->sk,
-						lc_seeded_rng),
+						  sizeof(ws->msg), &ws->sk,
+						  lc_seeded_rng),
 			  "Sign failed - ret %d\n", ret);
 
 		if (reset)
 			ctx->ahat_expanded = 0;
 		CKINT_LOG(lc_dilithium_verify_ctx_c(&ws->sig, ctx, ws->msg,
-						  sizeof(ws->msg), &ws->pk),
+						    sizeof(ws->msg), &ws->pk),
 			  "Verify failed - ret %u\n", ret);
 	}
 
