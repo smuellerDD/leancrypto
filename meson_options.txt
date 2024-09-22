@@ -146,7 +146,11 @@ option('sphincs_shake_192s', type: 'feature', value: 'enabled',
 ''')
 
 option('sphincs_shake_192f', type: 'feature', value: 'enabled',
-       description: '''Sphincs Plus 192 small signature (SLH-DSA-SHAKE-192f)
+       description: '''Sphincs Plus 192 fast signature (SLH-DSA-SHAKE-192f)
+''')
+
+option('sphincs_shake_128s', type: 'feature', value: 'enabled',
+       description: '''Sphincs Plus 128 small signature (SLH-DSA-SHAKE-128s)
 ''')
 
 option('aes_block', type: 'feature', value: 'enabled',

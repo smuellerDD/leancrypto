@@ -37,7 +37,16 @@ extern "C" {
  * compilation different sizes would not be possible.
  */
 
-#ifdef LC_SPHINCS_TYPE_192F
+#ifdef LC_SPHINCS_TYPE_128S
+
+#define SPHINCS_F(name) lc_sphincs_shake_128s_##name
+#define lc_sphincs_pk lc_sphincs_shake_128s_pk
+#define lc_sphincs_sk lc_sphincs_shake_128s_sk
+#define lc_sphincs_sig lc_sphincs_shake_128s_sig
+
+#include "lc_sphincs_shake_128s.h"
+
+#elif defined(LC_SPHINCS_TYPE_192F)
 
 #define SPHINCS_F(name) lc_sphincs_shake_192f_##name
 #define lc_sphincs_pk lc_sphincs_shake_192f_pk
