@@ -17,6 +17,8 @@ Changes 1.1.0-prerelease
 
 * ML-DSA: add key pair PCT API - leancrypto will not invoke it, but provides it for FIPS 140 support
 
+* SLH-DSA: Add SLH-DSA-SHAKE-256s
+
 Changes 1.0.1
 
 * fix: Kyber keygen - add LC_KYBER_K to initial hash (change is only relevant when storing keys as seed and for interoperability)

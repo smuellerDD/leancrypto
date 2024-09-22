@@ -291,3 +291,13 @@ https://github.com/awslabs/bike-kem. The license for the original code is:
 Apache 2.0 License (https://www.apache.org/licenses/LICENSE-2.0.html).
 
 Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+================================================================================
+
+The Sphincs+ / SLH-DSA code is derived in parts from the code distribution
+provided with https://github.com/sphincs/sphincsplus. The license for the
+original code is:
+
+"This work is hereby placed into the public domain."
+
+The affected code is provided under slh-dsa/src and properly marked.

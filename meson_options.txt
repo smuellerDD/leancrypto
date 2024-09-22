@@ -131,6 +131,12 @@ same API, but instead of the prefix lc_bike_5, all APIs use lc_bike_1. This
 algorithm has 128 bits of security strength.
 ''')
 
+option('sphincs_shake_256s', type: 'feature', value: 'enabled',
+       description: '''Sphincs Plus 256 (SLH-DSA-SHAKE-256s)
+
+Per default, Sphincs Plus 256 is enabled and accessible with the regular API.
+''')
+
 option('aes_block', type: 'feature', value: 'enabled',
        description: 'AES block cipher support (encryption of one block)')
 option('aes_ecb', type: 'feature', value: 'disabled',
