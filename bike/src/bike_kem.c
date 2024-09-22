@@ -201,7 +201,6 @@ static inline void bike_ss_kdf(uint8_t *ss, size_t ss_len,
 		sizeof(struct lc_bike_ct), ss, ss_len);
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // The three APIs below (keypair, encapsulate, decapsulate) are defined by NIST:
 ////////////////////////////////////////////////////////////////////////////////
@@ -265,7 +264,7 @@ LC_INTERFACE_FUNCTION(int, lc_bike_keypair_from_seed, struct lc_bike_pk *pk,
 	struct lc_static_rng_data static_data = {
 		.seed = seed,
 		.seedlen = seedlen,
-        };
+	};
 	LC_STATIC_DRNG_ON_STACK(sdrng, &static_data);
 
 	return lc_bike_keypair(pk, sk, &sdrng);

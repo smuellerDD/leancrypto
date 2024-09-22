@@ -362,8 +362,8 @@ static inline unsigned int lc_bike_ss_size(enum lc_bike_type bike_type)
  *
  * @return 0 on success or < 0 on error
  */
-static inline int lc_bike_sk_load(struct lc_bike_sk *sk,
-				   const uint8_t *src_key, size_t src_key_len)
+static inline int lc_bike_sk_load(struct lc_bike_sk *sk, const uint8_t *src_key,
+				  size_t src_key_len)
 {
 	if (!sk || !src_key || src_key_len == 0) {
 		return -EINVAL;
@@ -407,8 +407,8 @@ static inline int lc_bike_sk_load(struct lc_bike_sk *sk,
  *
  * @return 0 on success or < 0 on error
  */
-static inline int lc_bike_pk_load(struct lc_bike_pk *pk,
-				   const uint8_t *src_key, size_t src_key_len)
+static inline int lc_bike_pk_load(struct lc_bike_pk *pk, const uint8_t *src_key,
+				  size_t src_key_len)
 {
 	if (!pk || !src_key || src_key_len == 0) {
 		return -EINVAL;
@@ -454,8 +454,8 @@ static inline int lc_bike_pk_load(struct lc_bike_pk *pk,
  *
  * @return 0 on success or < 0 on error
  */
-static inline int lc_bike_ct_load(struct lc_bike_ct *ct,
-				   const uint8_t *src_key, size_t src_key_len)
+static inline int lc_bike_ct_load(struct lc_bike_ct *ct, const uint8_t *src_key,
+				  size_t src_key_len)
 {
 	if (!ct || !src_key || src_key_len == 0) {
 		return -EINVAL;
@@ -501,8 +501,8 @@ static inline int lc_bike_ct_load(struct lc_bike_ct *ct,
  *
  * @return 0 on success or < 0 on error
  */
-static inline int lc_bike_ss_load(struct lc_bike_ss *ss,
-				   const uint8_t *src_key, size_t src_key_len)
+static inline int lc_bike_ss_load(struct lc_bike_ss *ss, const uint8_t *src_key,
+				  size_t src_key_len)
 {
 	if (!ss || !src_key || src_key_len == 0) {
 		return -EINVAL;
@@ -549,7 +549,7 @@ static inline int lc_bike_ss_load(struct lc_bike_ss *ss,
  * @return 0 on success, != 0 on error
  */
 static inline int lc_bike_sk_ptr(uint8_t **bike_key, size_t *bike_key_len,
-				  struct lc_bike_sk *sk)
+				 struct lc_bike_sk *sk)
 {
 	if (!sk || !bike_key || !bike_key_len) {
 		return -EINVAL;
@@ -596,7 +596,7 @@ static inline int lc_bike_sk_ptr(uint8_t **bike_key, size_t *bike_key_len,
  * @return 0 on success, != 0 on error
  */
 static inline int lc_bike_pk_ptr(uint8_t **bike_key, size_t *bike_key_len,
-				  struct lc_bike_pk *pk)
+				 struct lc_bike_pk *pk)
 {
 	if (!pk || !bike_key || !bike_key_len) {
 		return -EINVAL;
@@ -644,7 +644,7 @@ static inline int lc_bike_pk_ptr(uint8_t **bike_key, size_t *bike_key_len,
  * @return 0 on success, != 0 on error
  */
 static inline int lc_bike_ct_ptr(uint8_t **bike_ct, size_t *bike_ct_len,
-				  struct lc_bike_ct *ct)
+				 struct lc_bike_ct *ct)
 {
 	if (!ct || !bike_ct || !bike_ct_len) {
 		return -EINVAL;
@@ -692,7 +692,7 @@ static inline int lc_bike_ct_ptr(uint8_t **bike_ct, size_t *bike_ct_len,
  * @return 0 on success, != 0 on error
  */
 static inline int lc_bike_ss_ptr(uint8_t **bike_ss, size_t *bike_ss_len,
-				  struct lc_bike_ss *ss)
+				 struct lc_bike_ss *ss)
 {
 	if (!ss || !bike_ss || !bike_ss_len) {
 		return -EINVAL;
@@ -737,10 +737,9 @@ static inline int lc_bike_ss_ptr(uint8_t **bike_ss, size_t *bike_ss_len,
  *
  * @return 0 (success) or < 0 on error
  */
-static inline int lc_bike_keypair(struct lc_bike_pk *pk,
-				   struct lc_bike_sk *sk,
-				   struct lc_rng_ctx *rng_ctx,
-				   enum lc_bike_type bike_type)
+static inline int lc_bike_keypair(struct lc_bike_pk *pk, struct lc_bike_sk *sk,
+				  struct lc_rng_ctx *rng_ctx,
+				  enum lc_bike_type bike_type)
 {
 	if (!pk || !sk)
 		return -EINVAL;
@@ -750,8 +749,7 @@ static inline int lc_bike_keypair(struct lc_bike_pk *pk,
 #ifdef LC_BIKE_5_ENABLED
 		pk->bike_type = bike_type;
 		sk->bike_type = bike_type;
-		return lc_bike_5_keypair(&pk->key.pk_5, &sk->key.sk_5,
-					     rng_ctx);
+		return lc_bike_5_keypair(&pk->key.pk_5, &sk->key.sk_5, rng_ctx);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -759,8 +757,7 @@ static inline int lc_bike_keypair(struct lc_bike_pk *pk,
 #ifdef LC_BIKE_3_ENABLED
 		pk->bike_type = bike_type;
 		sk->bike_type = bike_type;
-		return lc_bike_3_keypair(&pk->key.pk_3, &sk->key.sk_3,
-					    rng_ctx);
+		return lc_bike_3_keypair(&pk->key.pk_3, &sk->key.sk_3, rng_ctx);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -768,8 +765,7 @@ static inline int lc_bike_keypair(struct lc_bike_pk *pk,
 #ifdef LC_BIKE_1_ENABLED
 		pk->bike_type = bike_type;
 		sk->bike_type = bike_type;
-		return lc_bike_1_keypair(&pk->key.pk_1, &sk->key.sk_1,
-					    rng_ctx);
+		return lc_bike_1_keypair(&pk->key.pk_1, &sk->key.sk_1, rng_ctx);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -802,8 +798,7 @@ static inline int lc_bike_keypair(struct lc_bike_pk *pk,
  */
 static inline int lc_bike_keypair_from_seed(struct lc_bike_pk *pk,
 					    struct lc_bike_sk *sk,
-					    const uint8_t *seed,
-					    size_t seedlen,
+					    const uint8_t *seed, size_t seedlen,
 					    enum lc_bike_type bike_type)
 {
 	if (!pk || !sk)
@@ -814,8 +809,8 @@ static inline int lc_bike_keypair_from_seed(struct lc_bike_pk *pk,
 #ifdef LC_BIKE_5_ENABLED
 		pk->bike_type = bike_type;
 		sk->bike_type = bike_type;
-		return lc_bike_5_keypair_from_seed(
-			&pk->key.pk_5, &sk->key.sk_5, seed, seedlen);
+		return lc_bike_5_keypair_from_seed(&pk->key.pk_5, &sk->key.sk_5,
+						   seed, seedlen);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -823,8 +818,8 @@ static inline int lc_bike_keypair_from_seed(struct lc_bike_pk *pk,
 #ifdef LC_BIKE_3_ENABLED
 		pk->bike_type = bike_type;
 		sk->bike_type = bike_type;
-		return lc_bike_3_keypair_from_seed(
-			&pk->key.pk_3, &sk->key.sk_3, seed, seedlen);
+		return lc_bike_3_keypair_from_seed(&pk->key.pk_3, &sk->key.sk_3,
+						   seed, seedlen);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -832,8 +827,8 @@ static inline int lc_bike_keypair_from_seed(struct lc_bike_pk *pk,
 #ifdef LC_BIKE_1_ENABLED
 		pk->bike_type = bike_type;
 		sk->bike_type = bike_type;
-		return lc_bike_1_keypair_from_seed(
-			&pk->key.pk_1, &sk->key.sk_1, seed, seedlen);
+		return lc_bike_1_keypair_from_seed(&pk->key.pk_1, &sk->key.sk_1,
+						   seed, seedlen);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -857,7 +852,7 @@ static inline int lc_bike_keypair_from_seed(struct lc_bike_pk *pk,
  * Returns 0 (success) or < 0 on error
  */
 static inline int lc_bike_enc(struct lc_bike_ct *ct, struct lc_bike_ss *ss,
-			       const struct lc_bike_pk *pk)
+			      const struct lc_bike_pk *pk)
 {
 	if (!ct || !ss || !pk)
 		return -EINVAL;
@@ -868,7 +863,7 @@ static inline int lc_bike_enc(struct lc_bike_ct *ct, struct lc_bike_ss *ss,
 		ct->bike_type = LC_BIKE_5;
 		ss->bike_type = LC_BIKE_5;
 		return lc_bike_5_enc(&ct->key.ct_5, &ss->key.ss_5,
-					 &pk->key.pk_5);
+				     &pk->key.pk_5);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -877,7 +872,7 @@ static inline int lc_bike_enc(struct lc_bike_ct *ct, struct lc_bike_ss *ss,
 		ct->bike_type = LC_BIKE_3;
 		ss->bike_type = LC_BIKE_3;
 		return lc_bike_3_enc(&ct->key.ct_3, &ss->key.ss_3,
-					&pk->key.pk_3);
+				     &pk->key.pk_3);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -886,7 +881,7 @@ static inline int lc_bike_enc(struct lc_bike_ct *ct, struct lc_bike_ss *ss,
 		ct->bike_type = LC_BIKE_1;
 		ss->bike_type = LC_BIKE_1;
 		return lc_bike_1_enc(&ct->key.ct_1, &ss->key.ss_1,
-					&pk->key.pk_1);
+				     &pk->key.pk_1);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -916,7 +911,7 @@ static inline int lc_bike_enc(struct lc_bike_ct *ct, struct lc_bike_ss *ss,
  * Returns 0 (success) or < 0 on error
  */
 static inline int lc_bike_enc_kdf(struct lc_bike_ct *ct, uint8_t *ss,
-				   size_t ss_len, const struct lc_bike_pk *pk)
+				  size_t ss_len, const struct lc_bike_pk *pk)
 {
 	if (!ct || !pk)
 		return -EINVAL;
@@ -926,7 +921,7 @@ static inline int lc_bike_enc_kdf(struct lc_bike_ct *ct, uint8_t *ss,
 #ifdef LC_BIKE_5_ENABLED
 		ct->bike_type = LC_BIKE_5;
 		return lc_bike_5_enc_kdf(&ct->key.ct_5, ss, ss_len,
-					     &pk->key.pk_5);
+					 &pk->key.pk_5);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -934,7 +929,7 @@ static inline int lc_bike_enc_kdf(struct lc_bike_ct *ct, uint8_t *ss,
 #ifdef LC_BIKE_3_ENABLED
 		ct->bike_type = LC_BIKE_3;
 		return lc_bike_3_enc_kdf(&ct->key.ct_3, ss, ss_len,
-					    &pk->key.pk_3);
+					 &pk->key.pk_3);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -942,7 +937,7 @@ static inline int lc_bike_enc_kdf(struct lc_bike_ct *ct, uint8_t *ss,
 #ifdef LC_BIKE_1_ENABLED
 		ct->bike_type = LC_BIKE_1;
 		return lc_bike_1_enc_kdf(&ct->key.ct_1, ss, ss_len,
-					    &pk->key.pk_1);
+					 &pk->key.pk_1);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -968,8 +963,8 @@ static inline int lc_bike_enc_kdf(struct lc_bike_ct *ct, uint8_t *ss,
  * On failure, ss will contain a pseudo-random value.
  */
 static inline int lc_bike_dec(struct lc_bike_ss *ss,
-			       const struct lc_bike_ct *ct,
-			       const struct lc_bike_sk *sk)
+			      const struct lc_bike_ct *ct,
+			      const struct lc_bike_sk *sk)
 {
 	if (!ss || !ct || !sk || ct->bike_type != sk->bike_type)
 		return -EINVAL;
@@ -979,7 +974,7 @@ static inline int lc_bike_dec(struct lc_bike_ss *ss,
 #ifdef LC_BIKE_5_ENABLED
 		ss->bike_type = LC_BIKE_5;
 		return lc_bike_5_dec(&ss->key.ss_5, &ct->key.ct_5,
-					 &sk->key.sk_5);
+				     &sk->key.sk_5);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -987,7 +982,7 @@ static inline int lc_bike_dec(struct lc_bike_ss *ss,
 #ifdef LC_BIKE_3_ENABLED
 		ss->bike_type = LC_BIKE_3;
 		return lc_bike_3_dec(&ss->key.ss_3, &ct->key.ct_3,
-					&sk->key.sk_3);
+				     &sk->key.sk_3);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -995,7 +990,7 @@ static inline int lc_bike_dec(struct lc_bike_ss *ss,
 #ifdef LC_BIKE_1_ENABLED
 		ss->bike_type = LC_BIKE_1;
 		return lc_bike_1_dec(&ss->key.ss_1, &ct->key.ct_1,
-					&sk->key.sk_1);
+				     &sk->key.sk_1);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -1027,8 +1022,8 @@ static inline int lc_bike_dec(struct lc_bike_ss *ss,
  * On failure, ss will contain a pseudo-random value.
  */
 static inline int lc_bike_dec_kdf(uint8_t *ss, size_t ss_len,
-				   const struct lc_bike_ct *ct,
-				   const struct lc_bike_sk *sk)
+				  const struct lc_bike_ct *ct,
+				  const struct lc_bike_sk *sk)
 {
 	if (!ct || !sk || ct->bike_type != sk->bike_type)
 		return -EINVAL;
@@ -1037,21 +1032,21 @@ static inline int lc_bike_dec_kdf(uint8_t *ss, size_t ss_len,
 	case LC_BIKE_5:
 #ifdef LC_BIKE_5_ENABLED
 		return lc_bike_5_dec_kdf(ss, ss_len, &ct->key.ct_5,
-					     &sk->key.sk_5);
+					 &sk->key.sk_5);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_BIKE_3:
 #ifdef LC_BIKE_3_ENABLED
 		return lc_bike_3_dec_kdf(ss, ss_len, &ct->key.ct_3,
-					    &sk->key.sk_3);
+					 &sk->key.sk_3);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_BIKE_1:
 #ifdef LC_BIKE_1_ENABLED
 		return lc_bike_1_dec_kdf(ss, ss_len, &ct->key.ct_1,
-					    &sk->key.sk_1);
+					 &sk->key.sk_1);
 #else
 		return -EOPNOTSUPP;
 #endif

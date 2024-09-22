@@ -82,8 +82,7 @@ int secure_set_bits_avx512(pad_r_t *r, const uint32_t first_pos,
 	// va_pos_qw vectors they hold the next ZMMS_QWORDS qw positions.
 	inc = SET1_I64(ZMMS_QWORDS);
 
-	for (i = 0; i < (sizeof(*r) / sizeof(uint64_t));
-	     i += ZMMS_QWORDS) {
+	for (i = 0; i < (sizeof(*r) / sizeof(uint64_t)); i += ZMMS_QWORDS) {
 		size_t va_iter, w_iter;
 
 		for (va_iter = 0; va_iter < NUM_ZMMS; va_iter++) {

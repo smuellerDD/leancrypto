@@ -205,8 +205,6 @@ int gf2x_mod_inv(pad_r_t *c, const pad_r_t *a)
 			// Step 9, [1](Algorithm 2): t = t*g;
 			gf2x_mod_mul_with_ctx(&ws->t, &ws->g, &ws->t, &ctx,
 					      &ws->tmp, ws->secure_buffer);
-
-
 		}
 	}
 

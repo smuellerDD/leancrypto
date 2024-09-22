@@ -81,9 +81,8 @@ int secure_set_bits_avx2(pad_r_t *r, const uint32_t first_pos,
 	// va_pos_qw vectors, they hold the next YMM_QWORDS qw positions.
 	inc = SET1_I64(YMMS_QWORDS);
 
-	for (i = 0; i < (sizeof(*r) / sizeof(uint64_t));
-	     i += YMMS_QWORDS) {
-		size_t va_iter, w_iter;;
+	for (i = 0; i < (sizeof(*r) / sizeof(uint64_t)); i += YMMS_QWORDS) {
+		size_t va_iter, w_iter;
 
 		for (va_iter = 0; va_iter < NUM_YMMS; va_iter++) {
 			va[va_iter] = SET_ZERO;
@@ -98,8 +97,7 @@ int secure_set_bits_avx2(pad_r_t *r, const uint32_t first_pos,
 
 			// 4. Compare the positions in va_pos_qw with w_pos_qw
 			//    and set the appropriate bit in va
-			for (va_iter = 0; va_iter < NUM_YMMS;
-			     va_iter++) {
+			for (va_iter = 0; va_iter < NUM_YMMS; va_iter++) {
 				va_mask =
 					CMPEQ_I64(va_pos_qw[va_iter], w_pos_qw);
 				va[va_iter] |= (va_mask & w_pos_bit);
