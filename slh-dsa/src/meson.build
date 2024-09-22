@@ -37,3 +37,16 @@ if get_option('sphincs_shake_256f').enabled()
 	)
 	leancrypto_support_libs += leancrypto_sphincs_shake_256f_c_lib
 endif
+
+if get_option('sphincs_shake_192s').enabled()
+	leancrypto_sphincs_shake_192s_c_lib = static_library(
+		'leancrypto_sphincs_shake_192s_c_lib',
+		[ sphincs_src ],
+		include_directories: [
+			include_dirs,
+			include_internal_dirs
+		],
+		c_args : '-DLC_SPHINCS_TYPE_192S'
+	)
+	leancrypto_support_libs += leancrypto_sphincs_shake_192s_c_lib
+endif

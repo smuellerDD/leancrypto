@@ -36,7 +36,17 @@ extern "C" {
  * Dilithium security strength is compiled defined in lc_sphincs.h. Duplicate
  * compilation different sizes would not be possible.
  */
-#ifdef LC_SPHINCS_TYPE_256F
+
+#ifdef LC_SPHINCS_TYPE_192S
+
+#define SPHINCS_F(name) lc_sphincs_shake_192s_##name
+#define lc_sphincs_pk lc_sphincs_shake_192s_pk
+#define lc_sphincs_sk lc_sphincs_shake_192s_sk
+#define lc_sphincs_sig lc_sphincs_shake_192s_sig
+
+#include "lc_sphincs_shake_192s.h"
+
+#elif defined(LC_SPHINCS_TYPE_256F)
 
 #define SPHINCS_F(name) lc_sphincs_shake_256f_##name
 #define lc_sphincs_pk lc_sphincs_shake_256f_pk

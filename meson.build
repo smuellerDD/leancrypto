@@ -293,6 +293,13 @@ if (get_option('kmac').disabled() and
 endif
 
 if (get_option('sha3').disabled() and
+    (get_option('sphincs_shake_256s').enabled() or
+     get_option('sphincs_shake_256f').enabled() or
+     get_option('sphincs_shake_192s').enabled()))
+	error('Sphincs Plux support requires SHA-3')
+endif
+
+if (get_option('sha3').disabled() and
     (get_option('kyber_1024').enabled() or
      get_option('kyber_768').enabled() or
      get_option('kyber_512').enabled()))

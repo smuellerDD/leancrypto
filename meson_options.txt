@@ -138,7 +138,11 @@ Per default, Sphincs Plus 256s is enabled and accessible with the regular API.
 ''')
 
 option('sphincs_shake_256f', type: 'feature', value: 'enabled',
-       description: '''Sphincs Plus 256 fast signature (SLH-DSA-SHAKE-256s)
+       description: '''Sphincs Plus 256 fast signature (SLH-DSA-SHAKE-256f)
+''')
+
+option('sphincs_shake_192s', type: 'feature', value: 'enabled',
+       description: '''Sphincs Plus 192 small signature (SLH-DSA-SHAKE-192s)
 ''')
 
 option('aes_block', type: 'feature', value: 'enabled',
