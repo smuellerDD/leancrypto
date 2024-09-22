@@ -28,4 +28,14 @@ if get_option('sphincs_shake_192s').enabled()
 					configuration: sphincs_shake_192s_conf_data)
 endif
 
+if get_option('sphincs_shake_192f').enabled()
+	sphincs_shake_192f_conf_data = configuration_data()
+	sphincs_shake_192f_conf_data.set('sphincs_strength', '35664')
+	sphincs_shake_192f_conf_data.set('sphincs_name', 'lc_sphincs_shake_192f')
+	sphincs_shake_192f_conf_data.set('sphincs_header', 'SHAKE_192F_')
+	include_files += configure_file(input: 'lc_sphincs_size.h.in',
+					output: 'lc_sphincs_shake_192f.h',
+					configuration: sphincs_shake_192f_conf_data)
+endif
+
 #include_files += files([ 'lc_sphincs.h' ])

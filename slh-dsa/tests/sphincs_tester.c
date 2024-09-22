@@ -23,7 +23,10 @@
 #include "ret_checkers.h"
 #include "visibility.h"
 
-#ifdef LC_SPHINCS_TYPE_192S
+#ifdef LC_SPHINCS_TYPE_192F
+#include "lc_sphincs_shake_192f.h"
+#include "sphincs_tester_vectors_shake_192f.h"
+#elif defined(LC_SPHINCS_TYPE_192S)
 #include "lc_sphincs_shake_192s.h"
 #include "sphincs_tester_vectors_shake_192s.h"
 #elif defined(LC_SPHINCS_TYPE_256F)

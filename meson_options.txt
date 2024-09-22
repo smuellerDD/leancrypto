@@ -145,6 +145,10 @@ option('sphincs_shake_192s', type: 'feature', value: 'enabled',
        description: '''Sphincs Plus 192 small signature (SLH-DSA-SHAKE-192s)
 ''')
 
+option('sphincs_shake_192f', type: 'feature', value: 'enabled',
+       description: '''Sphincs Plus 192 small signature (SLH-DSA-SHAKE-192f)
+''')
+
 option('aes_block', type: 'feature', value: 'enabled',
        description: 'AES block cipher support (encryption of one block)')
 option('aes_ecb', type: 'feature', value: 'disabled',
