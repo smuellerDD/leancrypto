@@ -89,7 +89,7 @@ struct lc_buffer {
 		(x)->len = 0;                                                  \
 	}
 
-static char* get_val(char *str, const char *delim)
+static char *get_val(char *str, const char *delim)
 {
 	char *ret = NULL;
 	char *tmp = NULL;
@@ -109,8 +109,8 @@ static char* get_val(char *str, const char *delim)
 	/* remove trailing \n or \r*/
 	tmp = ret;
 	tmp += strlen(tmp) - 1;
-	while ((*tmp == '\n' || *tmp == '\r' || *tmp == ']' ||
-		isblank(*tmp)) && tmp >= ret) {
+	while ((*tmp == '\n' || *tmp == '\r' || *tmp == ']' || isblank(*tmp)) &&
+	       tmp >= ret) {
 		*tmp = '\0';
 		tmp--;
 	}
@@ -246,7 +246,6 @@ static int lc_exec_mldsa_verify_kat(const struct lc_mldsa_test_def *def,
 
 	CKINT(lc_dilithium_verify_ctx(&sig, ctx, msg.buf, msg.len, &pk));
 
-
 out:
 	if (msg.buf != kat->m.buf)
 		free(msg.buf);
@@ -262,7 +261,7 @@ static int lc_exec_mldsa_sign_kat(const struct lc_mldsa_test_def *def,
 	struct lc_static_rng_data static_data = {
 		.seed = kat->rng.buf,
 		.seedlen = kat->rng.len,
-        };
+	};
 	struct lc_buffer msg = { .buf = kat->m.buf, .len = kat->m.len };
 	uint8_t *ptr;
 	size_t plen;
@@ -301,7 +300,6 @@ static int lc_exec_mldsa_sign_kat(const struct lc_mldsa_test_def *def,
 	CKINT(lc_dilithium_sig_ptr(&ptr, &plen, &sig));
 	lc_test_compare(ptr, plen, kat->sig.buf, kat->sig.len - kat->m.len,
 			"SIG");
-
 
 out:
 	if (msg.buf != kat->m.buf)
@@ -353,7 +351,6 @@ static int lc_parse_mldsa_kat(const struct lc_mldsa_test_def *def)
 			continue;
 		}
 	}
-
 
 out:
 	lc_mldsa_kat(&kat);
