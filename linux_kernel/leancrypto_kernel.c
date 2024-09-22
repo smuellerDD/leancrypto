@@ -134,7 +134,6 @@ static int __init leancrypto_init(void)
 	if (ret)
 		goto free_bike3;
 
-
 out:
 	return ret;
 

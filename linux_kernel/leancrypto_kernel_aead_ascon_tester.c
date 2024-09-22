@@ -37,13 +37,13 @@ struct lc_aead_test_def {
 };
 
 /* Callback function */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6,3,0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 3, 0)
 static void lc_aead_test_cb(struct crypto_async_request *req, int error)
 {
 #else
 static void lc_aead_test_cb(void *data, int error)
 {
-        struct crypto_async_request *req = data;
+	struct crypto_async_request *req = data;
 #endif
 	struct lc_aead_test_res *result = req->data;
 

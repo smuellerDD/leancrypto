@@ -47,13 +47,13 @@ struct lc_kpp_def {
 };
 
 /* Callback function */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6,3,0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 3, 0)
 static void lc_kpp_cb(struct crypto_async_request *req, int error)
 {
 #else
 static void lc_kpp_cb(void *data, int error)
 {
-        struct crypto_async_request *req = data;
+	struct crypto_async_request *req = data;
 #endif
 	struct lc_tcrypt_res *result = req->data;
 
@@ -156,7 +156,6 @@ static int lc_kyber_ss(const char *algname)
 		pr_err("Cannot allocate BIKE PK\n");
 		goto out;
 	}
-
 
 	kpp.tfm = tfm;
 	kpp.req = req;

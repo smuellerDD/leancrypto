@@ -36,8 +36,8 @@ struct lc_kernel_bike_ctx {
 	bool ss_set;
 };
 
-static int lc_kernel_bike_set_secret(struct crypto_kpp *tfm,
-				      const void *buffer, unsigned int len)
+static int lc_kernel_bike_set_secret(struct crypto_kpp *tfm, const void *buffer,
+				     unsigned int len)
 {
 	struct lc_kernel_bike_ctx *ctx = kpp_tfm_ctx(tfm);
 
@@ -113,8 +113,7 @@ static int lc_kernel_bike_gen_ct(struct kpp_request *req)
 
 		/* Copy out the public key */
 		copied = sg_copy_from_buffer(
-			req->dst,
-			sg_nents_for_len(req->dst, LC_BIKE_R_BYTES),
+			req->dst, sg_nents_for_len(req->dst, LC_BIKE_R_BYTES),
 			lpk, LC_BIKE_R_BYTES);
 		if (copied != LC_BIKE_R_BYTES)
 			return -EINVAL;
@@ -143,9 +142,8 @@ static int lc_kernel_bike_gen_ct(struct kpp_request *req)
 	 * Now we copy out the BIKE CT
 	 */
 	nbytes = min_t(size_t, sizeof(struct lc_bike_ct), req->dst_len);
-	copied = sg_copy_from_buffer(req->dst,
-				     sg_nents_for_len(req->dst, nbytes),
-				     &ctx->ct, nbytes);
+	copied = sg_copy_from_buffer(
+		req->dst, sg_nents_for_len(req->dst, nbytes), &ctx->ct, nbytes);
 	if (copied != nbytes)
 		ret = -EINVAL;
 
@@ -252,8 +250,8 @@ static int lc_kernel_bike_ss(struct kpp_request *req)
 		return -ENOMEM;
 
 	copied = sg_copy_to_buffer(req->src,
-				   sg_nents_for_len(req->src, req->src_len),
-				   ct, sizeof(struct lc_bike_ct));
+				   sg_nents_for_len(req->src, req->src_len), ct,
+				   sizeof(struct lc_bike_ct));
 	if (copied != sizeof(struct lc_bike_ct))
 		return -EINVAL;
 
