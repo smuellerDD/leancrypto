@@ -27,6 +27,7 @@
 #ifndef SPHINCS_UTILSX1_H
 #define SPHINCS_UTILSX1_H
 
+#include "sphincs_type.h"
 #include "sphincs_internal.h"
 
 #ifdef __cplusplus

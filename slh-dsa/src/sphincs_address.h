@@ -28,6 +28,7 @@
 #define SPHINCS_ADDRESS_H
 
 #include "ext_headers.h"
+#include "sphincs_type.h"
 
 #ifdef __cplusplus
 extern "C" {

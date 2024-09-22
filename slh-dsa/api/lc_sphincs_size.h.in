@@ -138,6 +138,78 @@ extern "C" {
 
 #elif LC_SPHINCS_MODE == 49856
 
+/* Hash output length in bytes. */
+#define LC_SPX_N 32
+/* Height of the hypertree. */
+#define LC_SPX_FULL_HEIGHT 68
+/* Number of subtree layer. */
+#define LC_SPX_D 17
+/* FORS tree dimensions. */
+#define LC_SPX_FORS_HEIGHT 9
+#define LC_SPX_FORS_TREES 35
+/* Winternitz parameter, */
+#define LC_SPX_WOTS_W 16
+
+/* The hash function is defined by linking a different hash.c file, as opposed
+   to setting a #define constant. */
+
+/* For clarity */
+#define LC_SPX_ADDR_BYTES 32
+
+/* WOTS parameters. */
+#if LC_SPX_WOTS_W == 256
+    #define LC_SPX_WOTS_LOGW 8
+#elif LC_SPX_WOTS_W == 16
+    #define LC_SPX_WOTS_LOGW 4
+#else
+    #error LC_SPX_WOTS_W assumed 16 or 256
+#endif
+
+#define LC_SPX_WOTS_LEN1 (8 * LC_SPX_N / LC_SPX_WOTS_LOGW)
+
+/* LC_SPX_WOTS_LEN2 is floor(log(len_1 * (w - 1)) / log(w)) + 1; we precompute */
+#if LC_SPX_WOTS_W == 256
+    #if LC_SPX_N <= 1
+        #define LC_SPX_WOTS_LEN2 1
+    #elif LC_SPX_N <= 256
+        #define LC_SPX_WOTS_LEN2 2
+    #else
+        #error Did not precompute LC_SPX_WOTS_LEN2 for n outside {2, .., 256}
+    #endif
+#elif LC_SPX_WOTS_W == 16
+    #if LC_SPX_N <= 8
+        #define LC_SPX_WOTS_LEN2 2
+    #elif LC_SPX_N <= 136
+        #define LC_SPX_WOTS_LEN2 3
+    #elif LC_SPX_N <= 256
+        #define LC_SPX_WOTS_LEN2 4
+    #else
+        #error Did not precompute LC_SPX_WOTS_LEN2 for n outside {2, .., 256}
+    #endif
+#endif
+
+#define LC_SPX_WOTS_LEN (LC_SPX_WOTS_LEN1 + LC_SPX_WOTS_LEN2)
+#define LC_SPX_WOTS_BYTES (LC_SPX_WOTS_LEN * LC_SPX_N)
+#define LC_SPX_WOTS_PK_BYTES LC_SPX_WOTS_BYTES
+
+/* Subtree size. */
+#define LC_SPX_TREE_HEIGHT (LC_SPX_FULL_HEIGHT / LC_SPX_D)
+
+#if LC_SPX_TREE_HEIGHT * LC_SPX_D != LC_SPX_FULL_HEIGHT
+    #error LC_SPX_D should always divide LC_SPX_FULL_HEIGHT
+#endif
+
+/* FORS parameters. */
+#define LC_SPX_FORS_MSG_BYTES ((LC_SPX_FORS_HEIGHT * LC_SPX_FORS_TREES + 7) / 8)
+#define LC_SPX_FORS_BYTES ((LC_SPX_FORS_HEIGHT + 1) * LC_SPX_FORS_TREES * LC_SPX_N)
+#define LC_SPX_FORS_PK_BYTES LC_SPX_N
+
+/* Resulting LC_SPX sizes. */
+#define LC_SPX_BYTES (LC_SPX_N + LC_SPX_FORS_BYTES + LC_SPX_D * LC_SPX_WOTS_BYTES +\
+                   LC_SPX_FULL_HEIGHT * LC_SPX_N)
+#define LC_SPX_PK_BYTES (2 * LC_SPX_N)
+#define LC_SPX_SK_BYTES (2 * LC_SPX_N + LC_SPX_PK_BYTES)
+
 #else
 #error "Undefined Sphincs Plus security strength"
 #endif

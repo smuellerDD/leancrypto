@@ -17,7 +17,7 @@ Changes 1.1.0-prerelease
 
 * ML-DSA: add key pair PCT API - leancrypto will not invoke it, but provides it for FIPS 140 support
 
-* SLH-DSA: Add SLH-DSA-SHAKE-256s
+* SLH-DSA: Add SLH-DSA-SHAKE-256s, SLH-DSA-SHAKE-256f
 
 Changes 1.0.1
 

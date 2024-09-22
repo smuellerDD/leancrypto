@@ -27,6 +27,8 @@
 #ifndef SPHINCS_WOTSX1_H
 #define SPHINCS_WOTSX1_H
 
+#include "sphincs_type.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -23,13 +23,12 @@
 #include "ret_checkers.h"
 #include "visibility.h"
 
-#if LC_SPHINCS_MODE == 29792
-#include "sphincs_tester_vectors_shake_256s.h"
-
-//#elif LC_SPHINCS_MODE == 49856
-
+#ifdef LC_SPHINCS_TYPE_256F
+#include "lc_sphincs_shake_256f.h"
+#include "sphincs_tester_vectors_shake_256f.h"
 #else
-#error "Undefined Sphincs Plus security strength"
+#include "lc_sphincs_shake_256s.h"
+#include "sphincs_tester_vectors_shake_256s.h"
 #endif
 
 static int lc_sphincs_test(struct lc_sphincs_test *tc)
