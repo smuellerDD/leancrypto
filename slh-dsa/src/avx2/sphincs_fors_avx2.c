@@ -24,6 +24,7 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
+#include "small_stack_support.h"
 #include "sphincs_address.h"
 #include "sphincs_fors_avx2.h"
 #include "sphincs_hash.h"
@@ -69,11 +70,13 @@ struct fors_gen_leaf_info {
 };
 
 static void fors_gen_leafx4(unsigned char *leaf, const spx_ctx *ctx,
-			    uint32_t addr_idx, void *info)
+			    uint32_t addr_idx, void *info, void *ws_buf)
 {
 	struct fors_gen_leaf_info *fors_info = info;
 	uint32_t *fors_leaf_addrx4 = fors_info->leaf_addrx;
 	unsigned int j;
+
+	(void)ws_buf;
 
 	/* Only set the parts that the caller doesn't set */
 	for (j = 0; j < 4; j++) {
@@ -122,51 +125,60 @@ static void message_to_indices(uint32_t *indices, const unsigned char *m)
  * Signs a message m, deriving the secret key from sk_seed and the FTS address.
  * Assumes m contains at least LC_SPX_FORS_HEIGHT * LC_SPX_FORS_TREES bits.
  */
-void fors_sign_avx2(uint8_t sig[LC_SPX_FORS_BYTES], uint8_t pk[LC_SPX_N],
-		    const uint8_t m[LC_SPX_FORS_MSG_BYTES], const spx_ctx *ctx,
-		    const uint32_t fors_addr[8])
+int fors_sign_avx2(uint8_t sig[LC_SPX_FORS_BYTES], uint8_t pk[LC_SPX_N],
+		   const uint8_t m[LC_SPX_FORS_MSG_BYTES], const spx_ctx *ctx,
+		   const uint32_t fors_addr[8])
 {
-	uint32_t indices[LC_SPX_FORS_TREES];
-	unsigned char roots[LC_SPX_FORS_TREES * LC_SPX_N];
-	uint32_t fors_tree_addr[4 * 8] = { 0 };
-	struct fors_gen_leaf_info fors_info = { 0 };
-	uint32_t *fors_leaf_addr = fors_info.leaf_addrx;
-	uint32_t fors_pk_addr[8] = { 0 };
+	struct workspace {
+		uint32_t indices[LC_SPX_FORS_TREES];
+		uint32_t fors_tree_addr[4 * 8];
+		uint32_t fors_pk_addr[8];
+		struct fors_gen_leaf_info fors_info;
+		uint8_t roots[LC_SPX_FORS_TREES * LC_SPX_N];
+	};
+	uint32_t *fors_leaf_addr;
 	uint32_t idx_offset;
 	unsigned int i;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+
+	fors_leaf_addr = ws->fors_info.leaf_addrx;
 
 	for (i = 0; i < 4; i++) {
-		copy_keypair_addr(fors_tree_addr + 8 * i, fors_addr);
-		set_type(fors_tree_addr + 8 * i, LC_SPX_ADDR_TYPE_FORSTREE);
+		copy_keypair_addr(ws->fors_tree_addr + 8 * i, fors_addr);
+		set_type(ws->fors_tree_addr + 8 * i, LC_SPX_ADDR_TYPE_FORSTREE);
 		copy_keypair_addr(fors_leaf_addr + 8 * i, fors_addr);
 	}
-	copy_keypair_addr(fors_pk_addr, fors_addr);
-	set_type(fors_pk_addr, LC_SPX_ADDR_TYPE_FORSPK);
+	copy_keypair_addr(ws->fors_pk_addr, fors_addr);
+	set_type(ws->fors_pk_addr, LC_SPX_ADDR_TYPE_FORSPK);
 
-	message_to_indices(indices, m);
+	message_to_indices(ws->indices, m);
 
 	for (i = 0; i < LC_SPX_FORS_TREES; i++) {
 		idx_offset = i * (1 << LC_SPX_FORS_HEIGHT);
 
-		set_tree_height(fors_tree_addr, 0);
-		set_tree_index(fors_tree_addr, indices[i] + idx_offset);
+		set_tree_height(ws->fors_tree_addr, 0);
+		set_tree_index(ws->fors_tree_addr, ws->indices[i] + idx_offset);
 
 		/* Include the secret key part that produces the selected leaf node. */
-		set_type(fors_tree_addr, LC_SPX_ADDR_TYPE_FORSPRF);
-		fors_gen_sk(sig, ctx, fors_tree_addr);
-		set_type(fors_tree_addr, LC_SPX_ADDR_TYPE_FORSTREE);
+		set_type(ws->fors_tree_addr, LC_SPX_ADDR_TYPE_FORSPRF);
+		fors_gen_sk(sig, ctx, ws->fors_tree_addr);
+		set_type(ws->fors_tree_addr, LC_SPX_ADDR_TYPE_FORSTREE);
 		sig += LC_SPX_N;
 
 		/* Compute the authentication path for this leaf node. */
-		treehashx4(roots + i * LC_SPX_N, sig, ctx, indices[i],
+		treehashx4(ws->roots + i * LC_SPX_N, sig, ctx, ws->indices[i],
 			   idx_offset, LC_SPX_FORS_HEIGHT, fors_gen_leafx4,
-			   fors_tree_addr, &fors_info);
+			   ws->fors_tree_addr, &ws->fors_info, NULL);
 
 		sig += LC_SPX_N * LC_SPX_FORS_HEIGHT;
 	}
 
 	/* Hash horizontally across all tree roots to derive the public key. */
-	thash(pk, roots, LC_SPX_FORS_TREES, ctx->pub_seed, fors_pk_addr);
+	thash(pk, ws->roots, LC_SPX_FORS_TREES, ctx->pub_seed,
+	      ws->fors_pk_addr);
+
+	LC_RELEASE_MEM(ws);
+	return 0;
 }
 
 /**
@@ -176,44 +188,51 @@ void fors_sign_avx2(uint8_t sig[LC_SPX_FORS_BYTES], uint8_t pk[LC_SPX_N],
  * typical use-case when used as an FTS below an OTS in a hypertree.
  * Assumes m contains at least LC_SPX_FORS_HEIGHT * LC_SPX_FORS_TREES bits.
  */
-void fors_pk_from_sig_avx2(uint8_t pk[LC_SPX_N],
-			   const uint8_t sig[LC_SPX_FORS_BYTES],
-			   const uint8_t m[LC_SPX_FORS_MSG_BYTES],
-			   const spx_ctx *ctx, const uint32_t fors_addr[8])
+int fors_pk_from_sig_avx2(uint8_t pk[LC_SPX_N],
+			  const uint8_t sig[LC_SPX_FORS_BYTES],
+			  const uint8_t m[LC_SPX_FORS_MSG_BYTES],
+			  const spx_ctx *ctx, const uint32_t fors_addr[8])
 {
-	uint32_t indices[LC_SPX_FORS_TREES];
-	unsigned char roots[LC_SPX_FORS_TREES * LC_SPX_N];
-	unsigned char leaf[LC_SPX_N];
-	uint32_t fors_tree_addr[8] = { 0 };
-	uint32_t fors_pk_addr[8] = { 0 };
+	struct workspace {
+		uint32_t indices[LC_SPX_FORS_TREES];
+		uint32_t fors_tree_addr[8];
+		uint32_t fors_pk_addr[8];
+		uint8_t roots[LC_SPX_FORS_TREES * LC_SPX_N];
+		uint8_t leaf[LC_SPX_N];
+	};
 	uint32_t idx_offset;
 	unsigned int i;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	copy_keypair_addr(fors_tree_addr, fors_addr);
-	copy_keypair_addr(fors_pk_addr, fors_addr);
+	copy_keypair_addr(ws->fors_tree_addr, fors_addr);
+	copy_keypair_addr(ws->fors_pk_addr, fors_addr);
 
-	set_type(fors_tree_addr, LC_SPX_ADDR_TYPE_FORSTREE);
-	set_type(fors_pk_addr, LC_SPX_ADDR_TYPE_FORSPK);
+	set_type(ws->fors_tree_addr, LC_SPX_ADDR_TYPE_FORSTREE);
+	set_type(ws->fors_pk_addr, LC_SPX_ADDR_TYPE_FORSPK);
 
-	message_to_indices(indices, m);
+	message_to_indices(ws->indices, m);
 
 	for (i = 0; i < LC_SPX_FORS_TREES; i++) {
 		idx_offset = i * (1 << LC_SPX_FORS_HEIGHT);
 
-		set_tree_height(fors_tree_addr, 0);
-		set_tree_index(fors_tree_addr, indices[i] + idx_offset);
+		set_tree_height(ws->fors_tree_addr, 0);
+		set_tree_index(ws->fors_tree_addr, ws->indices[i] + idx_offset);
 
 		/* Derive the leaf from the included secret key part. */
-		fors_sk_to_leaf(leaf, sig, ctx, fors_tree_addr);
+		fors_sk_to_leaf(ws->leaf, sig, ctx, ws->fors_tree_addr);
 		sig += LC_SPX_N;
 
 		/* Derive the corresponding root node of this tree. */
-		compute_root(roots + i * LC_SPX_N, leaf, indices[i], idx_offset,
-			     sig, LC_SPX_FORS_HEIGHT, ctx->pub_seed,
-			     fors_tree_addr);
+		compute_root(ws->roots + i * LC_SPX_N, ws->leaf, ws->indices[i],
+			     idx_offset, sig, LC_SPX_FORS_HEIGHT, ctx->pub_seed,
+			     ws->fors_tree_addr);
 		sig += LC_SPX_N * LC_SPX_FORS_HEIGHT;
 	}
 
 	/* Hash horizontally across all tree roots to derive the public key. */
-	thash(pk, roots, LC_SPX_FORS_TREES, ctx->pub_seed, fors_pk_addr);
+	thash(pk, ws->roots, LC_SPX_FORS_TREES, ctx->pub_seed,
+	      ws->fors_pk_addr);
+
+	LC_RELEASE_MEM(ws);
+	return 0;
 }

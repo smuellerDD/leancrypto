@@ -36,7 +36,13 @@
  * This generates a WOTS public key
  * It also generates the WOTS signature if leaf_info indicates
  * that we're signing with this WOTS key
+ *
+ * The frame-size is ignored here, as the frame is just a bit larger than the
+ * 2048 limit. Further, this code is so deep embedded that a change is
+ * not easily done.
  */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wframe-larger-than"
 void wots_gen_leafx1(unsigned char *dest, const spx_ctx *ctx, uint32_t leaf_idx,
 		     void *v_info)
 {
@@ -98,3 +104,4 @@ void wots_gen_leafx1(unsigned char *dest, const spx_ctx *ctx, uint32_t leaf_idx,
 	/* Do the final thash to generate the public keys */
 	thash(dest, pk_buffer, LC_SPX_WOTS_LEN, ctx->pub_seed, pk_addr);
 }
+#pragma GCC diagnostic pop

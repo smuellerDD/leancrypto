@@ -38,12 +38,12 @@ extern "C" {
  * Generate a Merkle signature (WOTS signature followed by the Merkle
  * authentication path)
  */
-void sphincs_merkle_sign_avx2(uint8_t *sig, unsigned char *root,
-			      const spx_ctx *ctx, uint32_t wots_addr[8],
-			      uint32_t tree_addr[8], uint32_t idx_leaf);
+int sphincs_merkle_sign_avx2(uint8_t *sig, unsigned char *root,
+			     const spx_ctx *ctx, uint32_t wots_addr[8],
+			     uint32_t tree_addr[8], uint32_t idx_leaf);
 
 /* Compute the root node of the top-most subtree. */
-void sphincs_merkle_gen_root_avx2(unsigned char *root, const spx_ctx *ctx);
+int sphincs_merkle_gen_root_avx2(unsigned char *root, const spx_ctx *ctx);
 
 #ifdef __cplusplus
 }

@@ -39,9 +39,9 @@ extern "C" {
  *
  * Writes the computed public key to 'pk'.
  */
-void wots_pk_from_sig_avx2(uint8_t pk[LC_SPX_WOTS_BYTES], const uint8_t *sig,
-			   const uint8_t *msg, const spx_ctx *ctx,
-			   uint32_t addr[8]);
+int wots_pk_from_sig_avx2(uint8_t pk[LC_SPX_WOTS_BYTES], const uint8_t *sig,
+			  const uint8_t *msg, const spx_ctx *ctx,
+			  uint32_t addr[8]);
 
 /*
  * Compute the chain lengths needed for a given message hash

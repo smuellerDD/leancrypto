@@ -49,8 +49,8 @@ void treehashx4(
 	uint32_t leaf_idx, uint32_t idx_offset, uint32_t tree_height,
 	void (*gen_leafx4)(unsigned char * /* Where to write the leaves */,
 			   const spx_ctx * /* ctx */, uint32_t addr_idx,
-			   void *info),
-	uint32_t tree_addrx4[4 * 8], void *info);
+			   void *info, void *ws_buf),
+	uint32_t tree_addrx4[4 * 8], void *info, void *ws_buf);
 
 #ifdef __cplusplus
 }

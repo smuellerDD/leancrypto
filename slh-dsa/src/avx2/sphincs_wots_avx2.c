@@ -24,6 +24,7 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
+#include "small_stack_support.h"
 #include "sphincs_type.h"
 #include "sphincs_address.h"
 #include "sphincs_hash.h"
@@ -35,28 +36,22 @@
 #include "sphincs_wots_avx2.h"
 #include "sphincs_wotsx4_avx2.h"
 
-// TODO clarify address expectations, and make them more uniform.
-// TODO i.e. do we expect types to be set already?
-// TODO and do we expect modifications or copies?
-
 /**
  * Computes up the chains
  */
-static void gen_chains(unsigned char *out, const unsigned char *in,
+static void gen_chains(uint8_t *out, const uint8_t *in,
 		       unsigned int start[LC_SPX_WOTS_LEN],
 		       unsigned int steps[LC_SPX_WOTS_LEN], const spx_ctx *ctx,
 		       uint32_t addr[8])
 {
 	uint32_t j, k, idx, watching;
-	int done;
-	unsigned char empty[LC_SPX_N];
-	unsigned char *bufs[4];
+	int l, done;
 	uint32_t addrs[8 * 4];
-
-	int l;
 	uint16_t counts[LC_SPX_WOTS_W] = { 0 };
 	uint16_t idxs[LC_SPX_WOTS_LEN];
 	uint16_t i, total, newTotal;
+	uint8_t empty[LC_SPX_N];
+	uint8_t *bufs[4];
 
 	/* set addrs = {addr, addr, addr, addr} */
 	for (j = 0; j < 4; j++) {
@@ -129,13 +124,10 @@ static void gen_chains(unsigned char *out, const unsigned char *in,
  * This only works when log_w is a divisor of 8.
  */
 static void base_w(unsigned int *output, const int out_len,
-		   const unsigned char *input)
+		   const uint8_t *input)
 {
-	int in = 0;
-	int out = 0;
-	unsigned char total;
-	int bits = 0;
-	int consumed;
+	int in = 0, out = 0, bits = 0, consumed;
+	uint8_t total;
 
 	for (consumed = 0; consumed < out_len; consumed++) {
 		if (bits == 0) {
@@ -167,6 +159,8 @@ static void wots_checksum(unsigned int *csum_base_w,
 	csum = csum << ((8 - ((LC_SPX_WOTS_LEN2 * LC_SPX_WOTS_LOGW) % 8)) % 8);
 	ull_to_bytes(csum_bytes, sizeof(csum_bytes), csum);
 	base_w(csum_base_w, LC_SPX_WOTS_LEN2, csum_bytes);
+
+	lc_memset_secure(csum_bytes, 0, sizeof(csum_bytes));
 }
 
 /* Takes a message and derives the matching chain lengths. */
@@ -181,21 +175,27 @@ void chain_lengths_avx2(unsigned int *lengths, const uint8_t *msg)
  *
  * Writes the computed public key to 'pk'.
  */
-void wots_pk_from_sig_avx2(uint8_t pk[LC_SPX_WOTS_BYTES], const uint8_t *sig,
-			   const uint8_t *msg, const spx_ctx *ctx,
-			   uint32_t addr[8])
+int wots_pk_from_sig_avx2(uint8_t pk[LC_SPX_WOTS_BYTES], const uint8_t *sig,
+			  const uint8_t *msg, const spx_ctx *ctx,
+			  uint32_t addr[8])
 {
-	unsigned int steps[LC_SPX_WOTS_LEN];
-	unsigned int start[LC_SPX_WOTS_LEN];
+	struct workspace {
+		unsigned int steps[LC_SPX_WOTS_LEN];
+		unsigned int start[LC_SPX_WOTS_LEN];
+	};
 	uint32_t i;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	chain_lengths_avx2(start, msg);
+	chain_lengths_avx2(ws->start, msg);
 
 	for (i = 0; i < LC_SPX_WOTS_LEN; i++) {
-		steps[i] = LC_SPX_WOTS_W - 1 - start[i];
+		ws->steps[i] = LC_SPX_WOTS_W - 1 - ws->start[i];
 	}
 
-	gen_chains(pk, sig, start, steps, ctx, addr);
+	gen_chains(pk, sig, ws->start, ws->steps, ctx, addr);
+
+	LC_RELEASE_MEM(ws);
+	return 0;
 }
 
 /*
@@ -204,17 +204,15 @@ void wots_pk_from_sig_avx2(uint8_t pk[LC_SPX_WOTS_BYTES], const uint8_t *sig,
  * that we're signing with one of these WOTS keys
  */
 void wots_gen_leafx4(unsigned char *dest, const spx_ctx *ctx, uint32_t leaf_idx,
-		     void *v_info)
+		     void *v_info, void *ws_buf)
 {
 	struct leaf_info_x4 *info = v_info;
+	uint32_t wots_k_mask;
 	uint32_t *leaf_addr = info->leaf_addr;
 	uint32_t *pk_addr = info->pk_addr;
-	unsigned int i, j, k;
-	unsigned char pk_buffer[4 * LC_SPX_WOTS_BYTES];
-	unsigned wots_offset = LC_SPX_WOTS_BYTES;
-	unsigned char *buffer;
-	uint32_t wots_k_mask;
-	unsigned wots_sign_index;
+	unsigned int i, j, k, wots_sign_index, wots_offset = LC_SPX_WOTS_BYTES;
+	/* pk_buffer must have 4 * LC_SPX_WOTS_BYTES bytes in size */
+	uint8_t *buffer, *pk_buffer = ws_buf;
 
 	if (((leaf_idx ^ info->wots_sign_leaf) & (uint32_t)~3) == 0) {
 		/* We're traversing the leaf that's signing; generate the WOTS */

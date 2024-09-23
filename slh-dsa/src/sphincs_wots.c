@@ -25,6 +25,7 @@
  */
 
 #include "dilithium_type.h"
+#include "small_stack_support.h"
 #include "sphincs_address.h"
 #include "sphincs_hash.h"
 #include "sphincs_thash.h"
@@ -117,18 +118,24 @@ void chain_lengths_c(unsigned int *lengths, const uint8_t *msg)
  *
  * Writes the computed public key to 'pk'.
  */
-void wots_pk_from_sig_c(uint8_t pk[LC_SPX_WOTS_BYTES], const uint8_t *sig,
-			const uint8_t *msg, const spx_ctx *ctx,
-			uint32_t addr[8])
+int wots_pk_from_sig_c(uint8_t pk[LC_SPX_WOTS_BYTES], const uint8_t *sig,
+		       const uint8_t *msg, const spx_ctx *ctx,
+		       uint32_t addr[8])
 {
-	unsigned int lengths[LC_SPX_WOTS_LEN];
+	struct workspace {
+		unsigned int lengths[LC_SPX_WOTS_LEN];
+	};
 	uint32_t i;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	chain_lengths_c(lengths, msg);
+	chain_lengths_c(ws->lengths, msg);
 
 	for (i = 0; i < LC_SPX_WOTS_LEN; i++) {
 		set_chain_addr(addr, i);
-		gen_chain(pk + i * LC_SPX_N, sig + i * LC_SPX_N, lengths[i],
-			  LC_SPX_WOTS_W - 1 - lengths[i], ctx, addr);
+		gen_chain(pk + i * LC_SPX_N, sig + i * LC_SPX_N, ws->lengths[i],
+			  LC_SPX_WOTS_W - 1 - ws->lengths[i], ctx, addr);
 	}
+
+	LC_RELEASE_MEM(ws);
+	return 0;
 }

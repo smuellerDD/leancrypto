@@ -21,21 +21,25 @@
 #include "lc_memcmp_secure.h"
 #include "lc_memset_secure.h"
 #include "ret_checkers.h"
+#include "small_stack_support.h"
 #include "timecop.h"
 #include "visibility.h"
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_pct, const struct lc_dilithium_pk *pk,
 		      const struct lc_dilithium_sk *sk)
 {
-	uint8_t m[32] = { 0 };
-	struct lc_dilithium_sig sig;
-	;
+	struct workspace {
+		uint8_t m[32];
+		struct lc_dilithium_sig sig;
+	};
 	int ret;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	CKINT(lc_dilithium_sign(&sig, m, sizeof(m), sk, lc_seeded_rng));
-	CKINT(lc_dilithium_verify(&sig, m, sizeof(m), pk));
+	CKINT(lc_dilithium_sign(&ws->sig, ws->m, sizeof(ws->m), sk,
+				lc_seeded_rng));
+	CKINT(lc_dilithium_verify(&ws->sig, ws->m, sizeof(ws->m), pk));
 
 out:
-	lc_memset_secure(&sig, 0, sizeof(sig));
+	LC_RELEASE_MEM(ws);
 	return ret;
 }

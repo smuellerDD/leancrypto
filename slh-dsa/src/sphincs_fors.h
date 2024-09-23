@@ -38,9 +38,9 @@ extern "C" {
  * Signs a message m, deriving the secret key from sk_seed and the FTS address.
  * Assumes m contains at least SPX_FORS_HEIGHT * SPX_FORS_TREES bits.
  */
-void fors_sign_c(uint8_t sig[LC_SPX_FORS_BYTES], uint8_t pk[LC_SPX_N],
-		 const uint8_t m[LC_SPX_FORS_MSG_BYTES], const spx_ctx *ctx,
-		 const uint32_t fors_addr[8]);
+int fors_sign_c(uint8_t sig[LC_SPX_FORS_BYTES], uint8_t pk[LC_SPX_N],
+		const uint8_t m[LC_SPX_FORS_MSG_BYTES], const spx_ctx *ctx,
+		const uint32_t fors_addr[8]);
 
 /**
  * Derives the FORS public key from a signature.
@@ -49,20 +49,20 @@ void fors_sign_c(uint8_t sig[LC_SPX_FORS_BYTES], uint8_t pk[LC_SPX_N],
  * typical use-case when used as an FTS below an OTS in a hypertree.
  * Assumes m contains at least SPX_FORS_HEIGHT * SPX_FORS_TREES bits.
  */
-void fors_pk_from_sig_c(uint8_t pk[LC_SPX_N],
-			const uint8_t sig[LC_SPX_FORS_BYTES],
-			const uint8_t m[LC_SPX_FORS_MSG_BYTES],
-			const spx_ctx *ctx, const uint32_t fors_addr[8]);
+int fors_pk_from_sig_c(uint8_t pk[LC_SPX_N],
+		       const uint8_t sig[LC_SPX_FORS_BYTES],
+		       const uint8_t m[LC_SPX_FORS_MSG_BYTES],
+		       const spx_ctx *ctx, const uint32_t fors_addr[8]);
 
-typedef void (*fors_sign_f)(uint8_t sig[LC_SPX_FORS_BYTES],
-			    uint8_t pk[LC_SPX_N],
-			    const uint8_t m[LC_SPX_FORS_MSG_BYTES],
-			    const spx_ctx *ctx, const uint32_t fors_addr[8]);
-typedef void (*fors_pk_from_sig_f)(uint8_t pk[LC_SPX_N],
-				   const uint8_t sig[LC_SPX_FORS_BYTES],
-				   const uint8_t m[LC_SPX_FORS_MSG_BYTES],
-				   const spx_ctx *ctx,
-				   const uint32_t fors_addr[8]);
+typedef int (*fors_sign_f)(uint8_t sig[LC_SPX_FORS_BYTES],
+			   uint8_t pk[LC_SPX_N],
+			   const uint8_t m[LC_SPX_FORS_MSG_BYTES],
+			   const spx_ctx *ctx, const uint32_t fors_addr[8]);
+typedef int (*fors_pk_from_sig_f)(uint8_t pk[LC_SPX_N],
+				  const uint8_t sig[LC_SPX_FORS_BYTES],
+				  const uint8_t m[LC_SPX_FORS_MSG_BYTES],
+				  const spx_ctx *ctx,
+				  const uint32_t fors_addr[8]);
 
 #ifdef __cplusplus
 }

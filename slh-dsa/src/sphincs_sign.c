@@ -83,11 +83,12 @@ static const struct lc_sphincs_func_ctx *lc_sphincs_get_ctx(void)
 	}
 }
 
-static void lc_sphincs_keypair_from_seed_internal(struct lc_sphincs_pk *pk,
-						  struct lc_sphincs_sk *sk)
+static int lc_sphincs_keypair_from_seed_internal(struct lc_sphincs_pk *pk,
+						 struct lc_sphincs_sk *sk)
 {
 	const struct lc_sphincs_func_ctx *f_ctx = lc_sphincs_get_ctx();
 	spx_ctx ctx;
+	int ret;
 
 	/* Initialize SK_SEED, SK_PRF and PUB_SEED from seed. */
 	memcpy(pk, sk->pk_seed, sizeof(sk->pk_seed));
@@ -96,9 +97,12 @@ static void lc_sphincs_keypair_from_seed_internal(struct lc_sphincs_pk *pk,
 	ctx.sk_seed = sk->sk_seed;
 
 	/* Compute root node of the top-most subtree. */
-	f_ctx->merkle_gen_root(sk->pk_root, &ctx);
+	CKINT(f_ctx->merkle_gen_root(sk->pk_root, &ctx));
 
 	memcpy(pk->pk_root, sk->pk_root, sizeof(pk->pk_root));
+
+out:
+	return ret;
 }
 
 /*
@@ -158,15 +162,15 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign, struct lc_sphincs_sig *sig,
 		      struct lc_rng_ctx *rng_ctx)
 {
 	struct workspace {
-		uint8_t optrand[LC_SPX_N];
-		uint8_t root[LC_SPX_N];
+		uint64_t tree;
+		uint32_t idx_leaf;
 		uint32_t wots_addr[8];
 		uint32_t tree_addr[8];
+		uint8_t optrand[LC_SPX_N];
+		uint8_t root[LC_SPX_N];
 		uint8_t mhash[LC_SPX_FORS_MSG_BYTES];
 	};
 	uint32_t i;
-	uint64_t tree;
-	uint32_t idx_leaf;
 	const struct lc_sphincs_func_ctx *f_ctx = lc_sphincs_get_ctx();
 	spx_ctx ctx;
 	const uint8_t *sk_prf = sk->sk_prf;
@@ -195,29 +199,30 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign, struct lc_sphincs_sig *sig,
 	gen_message_random(sig->r, sk_prf, ws->optrand, m, mlen);
 
 	/* Derive the message digest and leaf index from R, PK and M. */
-	hash_message(ws->mhash, &tree, &idx_leaf, sig->r, pk, m, mlen);
+	hash_message(ws->mhash, &ws->tree, &ws->idx_leaf, sig->r, pk, m, mlen);
 
-	set_tree_addr(ws->wots_addr, tree);
-	set_keypair_addr(ws->wots_addr, idx_leaf);
+	set_tree_addr(ws->wots_addr, ws->tree);
+	set_keypair_addr(ws->wots_addr, ws->idx_leaf);
 
 	/* Sign the message hash using FORS. */
-	f_ctx->fors_sign(sig->sigfors, ws->root, ws->mhash, &ctx,
-			 ws->wots_addr);
+	CKINT(f_ctx->fors_sign(sig->sigfors, ws->root, ws->mhash, &ctx,
+			       ws->wots_addr));
 
 	for (i = 0; i < LC_SPX_D; i++) {
 		set_layer_addr(ws->tree_addr, i);
-		set_tree_addr(ws->tree_addr, tree);
+		set_tree_addr(ws->tree_addr, ws->tree);
 
 		copy_subtree_addr(ws->wots_addr, ws->tree_addr);
-		set_keypair_addr(ws->wots_addr, idx_leaf);
+		set_keypair_addr(ws->wots_addr, ws->idx_leaf);
 
-		f_ctx->merkle_sign(wots_sig, ws->root, &ctx, ws->wots_addr,
-				   ws->tree_addr, idx_leaf);
+		CKINT(f_ctx->merkle_sign(wots_sig, ws->root,
+					 &ctx, ws->wots_addr,
+					 ws->tree_addr, ws->idx_leaf));
 		wots_sig += LC_SPX_WOTS_BYTES + LC_SPX_TREE_HEIGHT * LC_SPX_N;
 
 		/* Update the indices for the next layer. */
-		idx_leaf = (tree & ((1 << LC_SPX_TREE_HEIGHT) - 1));
-		tree = tree >> LC_SPX_TREE_HEIGHT;
+		ws->idx_leaf = (ws->tree & ((1 << LC_SPX_TREE_HEIGHT) - 1));
+		ws->tree = ws->tree >> LC_SPX_TREE_HEIGHT;
 	}
 
 out:
@@ -235,17 +240,17 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify, const struct lc_sphincs_sig *sig,
 		      const struct lc_sphincs_pk *pk)
 {
 	struct workspace {
-		uint8_t root[LC_SPX_N];
-		uint8_t leaf[LC_SPX_N];
+		uint64_t tree;
+		uint32_t idx_leaf;
 		uint32_t wots_addr[8];
 		uint32_t tree_addr[8];
 		uint32_t wots_pk_addr[8];
+		uint8_t root[LC_SPX_N];
+		uint8_t leaf[LC_SPX_N];
 		uint8_t wots_pk[LC_SPX_WOTS_BYTES];
 		uint8_t mhash[LC_SPX_FORS_MSG_BYTES];
 	};
 	unsigned int i;
-	uint64_t tree;
-	uint32_t idx_leaf;
 	const struct lc_sphincs_func_ctx *f_ctx = lc_sphincs_get_ctx();
 	spx_ctx ctx;
 	const uint8_t *pub_root = pk->pk_root;
@@ -264,22 +269,23 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify, const struct lc_sphincs_sig *sig,
 
 	/* Derive the message digest and leaf index from R || PK || M. */
 	/* The additional LC_SPX_N is a result of the hash domain separator. */
-	hash_message(ws->mhash, &tree, &idx_leaf, sig->r, pk->pk_seed, m, mlen);
+	hash_message(ws->mhash, &ws->tree, &ws->idx_leaf, sig->r, pk->pk_seed,
+		     m, mlen);
 
 	/* Layer correctly defaults to 0, so no need to set_layer_addr */
-	set_tree_addr(ws->wots_addr, tree);
-	set_keypair_addr(ws->wots_addr, idx_leaf);
+	set_tree_addr(ws->wots_addr, ws->tree);
+	set_keypair_addr(ws->wots_addr, ws->idx_leaf);
 
-	f_ctx->fors_pk_from_sig(ws->root, sig->sigfors, ws->mhash, &ctx,
-				ws->wots_addr);
+	CKINT(f_ctx->fors_pk_from_sig(ws->root, sig->sigfors, ws->mhash, &ctx,
+				      ws->wots_addr));
 
 	/* For each subtree.. */
 	for (i = 0; i < LC_SPX_D; i++) {
 		set_layer_addr(ws->tree_addr, i);
-		set_tree_addr(ws->tree_addr, tree);
+		set_tree_addr(ws->tree_addr, ws->tree);
 
 		copy_subtree_addr(ws->wots_addr, ws->tree_addr);
-		set_keypair_addr(ws->wots_addr, idx_leaf);
+		set_keypair_addr(ws->wots_addr, ws->idx_leaf);
 
 		copy_keypair_addr(ws->wots_pk_addr, ws->wots_addr);
 
@@ -289,8 +295,8 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify, const struct lc_sphincs_sig *sig,
 		 * iterations it is the root of the subtree below the currently
 		 * processed subtree.
 		 */
-		f_ctx->wots_pk_from_sig(ws->wots_pk, wots_sig, ws->root, &ctx,
-				        ws->wots_addr);
+		CKINT(f_ctx->wots_pk_from_sig(ws->wots_pk, wots_sig, ws->root,
+					      &ctx, ws->wots_addr));
 		wots_sig += LC_SPX_WOTS_BYTES;
 
 		/* Compute the leaf node using the WOTS public key. */
@@ -298,13 +304,13 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify, const struct lc_sphincs_sig *sig,
 		      ws->wots_pk_addr);
 
 		/* Compute the root node of this subtree. */
-		compute_root(ws->root, ws->leaf, idx_leaf, 0, wots_sig,
+		compute_root(ws->root, ws->leaf, ws->idx_leaf, 0, wots_sig,
 			     LC_SPX_TREE_HEIGHT, pk->pk_seed, ws->tree_addr);
 		wots_sig += LC_SPX_TREE_HEIGHT * LC_SPX_N;
 
 		/* Update the indices for the next layer. */
-		idx_leaf = (tree & ((1 << LC_SPX_TREE_HEIGHT) - 1));
-		tree = tree >> LC_SPX_TREE_HEIGHT;
+		ws->idx_leaf = (ws->tree & ((1 << LC_SPX_TREE_HEIGHT) - 1));
+		ws->tree = ws->tree >> LC_SPX_TREE_HEIGHT;
 	}
 
 	/* Check if the root node equals the root node in the public key. */

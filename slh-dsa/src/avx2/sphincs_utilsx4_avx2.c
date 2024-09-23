@@ -63,8 +63,9 @@ void treehashx4(
 	unsigned char *root, unsigned char *auth_path, const spx_ctx *ctx,
 	uint32_t leaf_idx, uint32_t idx_offset, uint32_t tree_height,
 	void (*gen_leafx4)(unsigned char * /* Where to write the leaves */,
-			   const spx_ctx *, uint32_t idx, void *info),
-	uint32_t tree_addrx4[4 * 8], void *info)
+			   const spx_ctx *, uint32_t idx, void *info,
+			   void *ws_buf),
+	uint32_t tree_addrx4[4 * 8], void *info, void *ws_buf)
 {
 	/* This is where we keep the intermediate nodes */
 	uint8_t stackx4[tree_height * 4 * LC_SPX_N];
@@ -79,7 +80,7 @@ void treehashx4(
 	for (idx = 0;; idx++) {
 		unsigned char current[4 * LC_SPX_N]; /* Current logical node */
 
-		gen_leafx4(current, ctx, 4 * idx + idx_offset, info);
+		gen_leafx4(current, ctx, 4 * idx + idx_offset, info, ws_buf);
 
 		/* Now combine the freshly generated right node with previously */
 		/* generated left ones */

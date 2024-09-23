@@ -24,6 +24,7 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
+#include "small_stack_support.h"
 #include "sphincs_type.h"
 #include "sphincs_address.h"
 #include "sphincs_merkle_avx2.h"
@@ -36,50 +37,66 @@
  * This generates a Merkle signature (WOTS signature followed by the Merkle
  * authentication path).
  */
-void sphincs_merkle_sign_avx2(uint8_t *sig, unsigned char *root,
-			      const spx_ctx *ctx, uint32_t wots_addr[8],
-			      uint32_t tree_addr[8], uint32_t idx_leaf)
+int sphincs_merkle_sign_avx2(uint8_t *sig, unsigned char *root,
+			     const spx_ctx *ctx, uint32_t wots_addr[8],
+			     uint32_t tree_addr[8], uint32_t idx_leaf)
 {
-	unsigned char *auth_path = sig + LC_SPX_WOTS_BYTES;
-	uint32_t tree_addrx4[4 * 8] = { 0 };
-	int j;
-	struct leaf_info_x4 info = { 0 };
-	unsigned steps[LC_SPX_WOTS_LEN];
+	struct workspace {
+		struct leaf_info_x4 info;
+		uint32_t tree_addrx4[4 * 8];
+		unsigned int steps[LC_SPX_WOTS_LEN];
+		uint8_t wots_gen_leafx4_buf[4 * LC_SPX_WOTS_BYTES];
+	};
+	uint8_t *auth_path = sig + LC_SPX_WOTS_BYTES;
+	unsigned int j;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	info.wots_sig = sig;
-	chain_lengths_avx2(steps, root);
-	info.wots_steps = steps;
+	ws->info.wots_sig = sig;
+	chain_lengths_avx2(ws->steps, root);
+	ws->info.wots_steps = ws->steps;
 
 	for (j = 0; j < 4; j++) {
-		set_type(&tree_addrx4[8 * j], LC_SPX_ADDR_TYPE_HASHTREE);
-		set_type(&info.leaf_addr[8 * j], LC_SPX_ADDR_TYPE_WOTS);
-		set_type(&info.pk_addr[8 * j], LC_SPX_ADDR_TYPE_WOTSPK);
-		copy_subtree_addr(&tree_addrx4[8 * j], tree_addr);
-		copy_subtree_addr(&info.leaf_addr[8 * j], wots_addr);
-		copy_subtree_addr(&info.pk_addr[8 * j], wots_addr);
+		set_type(&ws->tree_addrx4[8 * j], LC_SPX_ADDR_TYPE_HASHTREE);
+		set_type(&ws->info.leaf_addr[8 * j], LC_SPX_ADDR_TYPE_WOTS);
+		set_type(&ws->info.pk_addr[8 * j], LC_SPX_ADDR_TYPE_WOTSPK);
+		copy_subtree_addr(&ws->tree_addrx4[8 * j], tree_addr);
+		copy_subtree_addr(&ws->info.leaf_addr[8 * j], wots_addr);
+		copy_subtree_addr(&ws->info.pk_addr[8 * j], wots_addr);
 	}
 
-	info.wots_sign_leaf = idx_leaf;
+	ws->info.wots_sign_leaf = idx_leaf;
 
 	treehashx4(root, auth_path, ctx, idx_leaf, 0, LC_SPX_TREE_HEIGHT,
-		   wots_gen_leafx4, tree_addrx4, &info);
+		   wots_gen_leafx4, ws->tree_addrx4, &ws->info,
+		   ws->wots_gen_leafx4_buf);
+
+	LC_RELEASE_MEM(ws);
+	return 0;
 }
 
 /* Compute root node of the top-most subtree. */
-void sphincs_merkle_gen_root_avx2(unsigned char *root, const spx_ctx *ctx)
+int sphincs_merkle_gen_root_avx2(unsigned char *root, const spx_ctx *ctx)
 {
-	/* We do not need the auth path in key generation, but it simplifies the
-	 *       code to have just one treehash routine that computes both root and path
-	 *       in one function. */
-	unsigned char
-		auth_path[LC_SPX_TREE_HEIGHT * LC_SPX_N + LC_SPX_WOTS_BYTES];
-	uint32_t top_tree_addr[8] = { 0 };
-	uint32_t wots_addr[8] = { 0 };
+	/*
+	 * We do not need the auth path in key generation, but it simplifies the
+	 * code to have just one treehash routine that computes both root and
+	 * path in one function.
+	 */
+	struct workspace {
+		uint8_t auth_path[LC_SPX_TREE_HEIGHT * LC_SPX_N +
+				  LC_SPX_WOTS_BYTES];
+		uint32_t top_tree_addr[8];
+		uint32_t wots_addr[8];
+	};
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	set_layer_addr(top_tree_addr, LC_SPX_D - 1);
-	set_layer_addr(wots_addr, LC_SPX_D - 1);
+	set_layer_addr(ws->top_tree_addr, LC_SPX_D - 1);
+	set_layer_addr(ws->wots_addr, LC_SPX_D - 1);
 
 	/* ~0 means "don't bother generating an auth path */
-	sphincs_merkle_sign_avx2(auth_path, root, ctx, wots_addr, top_tree_addr,
-				 (uint32_t)~0);
+	sphincs_merkle_sign_avx2(ws->auth_path, root, ctx, ws->wots_addr,
+				 ws->top_tree_addr, (uint32_t)~0);
+
+	LC_RELEASE_MEM(ws);
+	return 0;
 }

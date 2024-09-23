@@ -25,6 +25,7 @@
 #include "dilithium_type.h"
 #include "dilithium_signature_c.h"
 
+
 static int dilithium_tester_ahat(struct lc_dilithium_ctx *ctx, int reset)
 {
 	struct workspace {
@@ -59,6 +60,12 @@ out:
 	return ret;
 }
 
+/*
+ * This test app is not meant to have small stack support
+ */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wframe-larger-than"
+
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	struct lc_dilithium_ctx *ctx_heap;
@@ -89,3 +96,5 @@ out:
 	lc_dilithium_ctx_zero_free(ctx_heap);
 	return ret;
 }
+
+#pragma GCC diagnostic pop
