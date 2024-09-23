@@ -137,6 +137,19 @@ extern "C" {
 #define chain_lengths_avx2 SPHINCS_F(chain_lengths_avx2)
 #define wots_pk_from_sig_avx2 SPHINCS_F(wots_pk_from_sig_avx2)
 
+/* ARMv8 */
+#define prf_addrx2 SPHINCS_F(prf_addrx2)
+#define thash_armv8 SPHINCS_F(thash_armv8)
+#define thashx2 SPHINCS_F(thashx2)
+#define treehashx2 SPHINCS_F(treehashx2)
+#define wots_gen_leafx2 SPHINCS_F(wots_gen_leafx2)
+#define sphincs_merkle_sign_armv8 SPHINCS_F(sphincs_merkle_sign_armv8)
+#define sphincs_merkle_gen_root_armv8 SPHINCS_F(sphincs_merkle_gen_root_armv8)
+#define fors_sign_armv8 SPHINCS_F(fors_sign_armv8)
+#define fors_pk_from_sig_armv8 SPHINCS_F(fors_pk_from_sig_armv8)
+#define chain_lengths_armv8 SPHINCS_F(chain_lengths_armv8)
+#define wots_pk_from_sig_armv8 SPHINCS_F(wots_pk_from_sig_armv8)
+
 #ifdef __cplusplus
 }
 #endif

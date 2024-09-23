@@ -24,8 +24,8 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
-#ifndef SPHINCS_MERKLE_H
-#define SPHINCS_MERKLE_H
+#ifndef SPHINCS_UTILSX2_ARMV8_H
+#define SPHINCS_UTILSX2_ARMV8_H
 
 #include "sphincs_type.h"
 #include "sphincs_internal.h"
@@ -34,24 +34,27 @@
 extern "C" {
 #endif
 
-/*
- * Generate a Merkle signature (WOTS signature followed by the Merkle
- * authentication path)
+/**
+ * For a given leaf index, computes the authentication path and the resulting
+ * root node using Merkle's TreeHash algorithm.
+ * Expects the layer and tree parts of the tree_addr to be set, as well as the
+ * tree type (i.e. SPX_ADDR_TYPE_HASHTREE or SPX_ADDR_TYPE_FORSTREE).
+ * Applies the offset idx_offset to indices before building addresses, so that
+ * it is possible to continue counting indices across trees.
+ *
+ * This implementation uses SIMD to compute internal nodes 2 at a time (in
+ * parallel)
  */
-int sphincs_merkle_sign_c(uint8_t *sig, unsigned char *root, const spx_ctx *ctx,
-			  uint32_t wots_addr[8], uint32_t tree_addr[8],
-			  uint32_t idx_leaf);
-
-/* Compute the root node of the top-most subtree. */
-int sphincs_merkle_gen_root_c(unsigned char *root, const spx_ctx *ctx);
-
-typedef int (*merkle_sign_f)(uint8_t *sig, unsigned char *root,
-			     const spx_ctx *ctx, uint32_t wots_addr[8],
-			     uint32_t tree_addr[8], uint32_t idx_leaf);
-typedef int (*merkle_gen_root_f)(unsigned char *root, const spx_ctx *ctx);
+void treehashx2(
+	unsigned char *root, unsigned char *auth_path, const spx_ctx *ctx,
+	uint32_t leaf_idx, uint32_t idx_offset, uint32_t tree_height,
+	void (*gen_leafx2)(unsigned char * /* Where to write the leaves */,
+			   const spx_ctx * /* ctx */, uint32_t addr_idx,
+			   void *info),
+	uint32_t tree_addrx2[2 * 8], void *info);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* SPHINCS_MERKLE_H */
+#endif /* SPHINCS_UTILSX2_ARMV8_H */

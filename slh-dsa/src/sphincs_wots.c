@@ -119,8 +119,7 @@ void chain_lengths_c(unsigned int *lengths, const uint8_t *msg)
  * Writes the computed public key to 'pk'.
  */
 int wots_pk_from_sig_c(uint8_t pk[LC_SPX_WOTS_BYTES], const uint8_t *sig,
-		       const uint8_t *msg, const spx_ctx *ctx,
-		       uint32_t addr[8])
+		       const uint8_t *msg, const spx_ctx *ctx, uint32_t addr[8])
 {
 	struct workspace {
 		unsigned int lengths[LC_SPX_WOTS_LEN];

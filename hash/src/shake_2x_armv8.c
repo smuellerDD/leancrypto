@@ -57,8 +57,6 @@
 #include "shake_2x_armv8.h"
 #include "visibility.h"
 
-#define NROUNDS 24
-
 // Define NEON operation
 // c = load(ptr)
 #define vload(ptr) vld1q_u64(ptr);
@@ -87,7 +85,7 @@
 // End Define
 
 /* Keccak round constants */
-static const uint64_t neon_KeccakF_RoundConstants[NROUNDS] = {
+const uint64_t neon_KeccakF_RoundConstants[NROUNDS] = {
 	(uint64_t)0x0000000000000001ULL, (uint64_t)0x0000000000008082ULL,
 	(uint64_t)0x800000000000808aULL, (uint64_t)0x8000000080008000ULL,
 	(uint64_t)0x000000000000808bULL, (uint64_t)0x0000000080000001ULL,
@@ -102,20 +100,14 @@ static const uint64_t neon_KeccakF_RoundConstants[NROUNDS] = {
 	(uint64_t)0x0000000080000001ULL, (uint64_t)0x8000000080008008ULL
 };
 
-/**
- * @brief KeccakF1600_StatePermutex2 - The Keccak F1600 Permutation
- *
- * @param [in] state pointer to input/output Keccak state
- */
-extern void keccak_f1600x2_armce(v128 *, const uint64_t *);
-
 static inline void KeccakF1600_StatePermutex2(v128 state[25])
 {
 #if (__APPLE__ && __ARM_FEATURE_CRYPTO) || (__ARM_FEATURE_SHA3)
 	enum lc_cpu_features feat = lc_cpu_feature_available();
 
 	if (feat & LC_CPU_FEATURE_ARM_SHA3) {
-		keccak_f1600x2_armce(state, neon_KeccakF_RoundConstants);
+		keccak_f1600x2_armce((uint64_t *)state,
+				     neon_KeccakF_RoundConstants);
 		return;
 	}
 #endif

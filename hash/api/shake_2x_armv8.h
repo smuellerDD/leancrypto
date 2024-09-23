@@ -50,6 +50,12 @@ typedef struct {
 	v128 s[25];
 } keccakx2_state;
 
+#define NROUNDS 24
+
+extern const uint64_t neon_KeccakF_RoundConstants[NROUNDS];
+
+extern void keccak_f1600x2_armce(uint64_t *state, const uint64_t *consts);
+
 void shake128x2_armv8_absorb(keccakx2_state *state, const uint8_t *in0,
 			     const uint8_t *in1, size_t inlen);
 

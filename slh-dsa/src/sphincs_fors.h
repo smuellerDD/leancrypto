@@ -54,8 +54,7 @@ int fors_pk_from_sig_c(uint8_t pk[LC_SPX_N],
 		       const uint8_t m[LC_SPX_FORS_MSG_BYTES],
 		       const spx_ctx *ctx, const uint32_t fors_addr[8]);
 
-typedef int (*fors_sign_f)(uint8_t sig[LC_SPX_FORS_BYTES],
-			   uint8_t pk[LC_SPX_N],
+typedef int (*fors_sign_f)(uint8_t sig[LC_SPX_FORS_BYTES], uint8_t pk[LC_SPX_N],
 			   const uint8_t m[LC_SPX_FORS_MSG_BYTES],
 			   const spx_ctx *ctx, const uint32_t fors_addr[8]);
 typedef int (*fors_pk_from_sig_f)(uint8_t pk[LC_SPX_N],

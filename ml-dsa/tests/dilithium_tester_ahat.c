@@ -25,7 +25,6 @@
 #include "dilithium_type.h"
 #include "dilithium_signature_c.h"
 
-
 static int dilithium_tester_ahat(struct lc_dilithium_ctx *ctx, int reset)
 {
 	struct workspace {

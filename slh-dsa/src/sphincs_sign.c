@@ -45,6 +45,10 @@
 #include "avx2/sphincs_merkle_avx2.h"
 #include "avx2/sphincs_wots_avx2.h"
 
+#include "armv8/sphincs_fors_armv8.h"
+#include "armv8/sphincs_merkle_armv8.h"
+#include "armv8/sphincs_wots_armv8.h"
+
 struct lc_sphincs_func_ctx {
 	merkle_sign_f merkle_sign;
 	merkle_gen_root_f merkle_gen_root;
@@ -69,15 +73,28 @@ static const struct lc_sphincs_func_ctx f_ctx_avx2 __unused = {
 	.wots_pk_from_sig = wots_pk_from_sig_avx2,
 };
 
+static const struct lc_sphincs_func_ctx f_ctx_armv8 __unused = {
+	.merkle_sign = sphincs_merkle_sign_armv8,
+	.merkle_gen_root = sphincs_merkle_gen_root_armv8,
+	.fors_sign = fors_sign_armv8,
+	.fors_pk_from_sig = fors_pk_from_sig_armv8,
+	.wots_pk_from_sig = wots_pk_from_sig_armv8,
+};
+
 static const struct lc_sphincs_func_ctx *lc_sphincs_get_ctx(void)
 {
-	enum lc_cpu_features feat = lc_cpu_feature_available();
+	enum lc_cpu_features feat __unused = lc_cpu_feature_available();
 
 #ifdef LC_HOST_X86_64
 	if (feat & LC_CPU_FEATURE_INTEL_AVX2) {
 		return &f_ctx_avx2;
 	} else
 #endif /* LC_HOST_X86_64 */
+#ifdef LC_HOST_AARCH64
+	if (feat & LC_CPU_FEATURE_ARM) {
+		return &f_ctx_armv8;
+	}
+#endif /* LC_HOST_AARCH64 */
 	{
 		return &f_ctx_c;
 	}
@@ -215,9 +232,9 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign, struct lc_sphincs_sig *sig,
 		copy_subtree_addr(ws->wots_addr, ws->tree_addr);
 		set_keypair_addr(ws->wots_addr, ws->idx_leaf);
 
-		CKINT(f_ctx->merkle_sign(wots_sig, ws->root,
-					 &ctx, ws->wots_addr,
-					 ws->tree_addr, ws->idx_leaf));
+		CKINT(f_ctx->merkle_sign(wots_sig, ws->root, &ctx,
+					 ws->wots_addr, ws->tree_addr,
+					 ws->idx_leaf));
 		wots_sig += LC_SPX_WOTS_BYTES + LC_SPX_TREE_HEIGHT * LC_SPX_N;
 
 		/* Update the indices for the next layer. */
