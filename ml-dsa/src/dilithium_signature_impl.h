@@ -451,7 +451,7 @@ static int lc_dilithium_sign_internal_noahat(
 	/* The first bytes of the key is rho. */
 	const uint8_t *rho = sk->sk;
 	int ret = 0;
-	LC_DECLARE_MEM(ws, struct workspace_sign, sLC_DILITHIUM_AHAT_ALIGNMENT);
+	LC_DECLARE_MEM(ws, struct workspace_sign, LC_DILITHIUM_AHAT_ALIGNMENT);
 
 	polyvec_matrix_expand(ws->mat, rho, ws->poly_uniform_buf);
 
