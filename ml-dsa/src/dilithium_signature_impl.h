@@ -250,7 +250,7 @@ static int lc_dilithium_sign_internal_ahat(struct lc_dilithium_sig *sig,
 				LC_DILITHIUM_CRHBYTES];
 		union {
 			uint8_t poly_uniform_gamma1_buf
-				[POLY_UNIFORM_GAMMA1_BYTES];
+				[WS_POLY_UNIFORM_BUF_SIZE];
 			uint8_t poly_challenge_buf[POLY_CHALLENGE_BYTES];
 		} tmp;
 	};
@@ -451,7 +451,7 @@ static int lc_dilithium_sign_internal_noahat(
 	/* The first bytes of the key is rho. */
 	const uint8_t *rho = sk->sk;
 	int ret = 0;
-	LC_DECLARE_MEM(ws, struct workspace_sign, sizeof(uint64_t));
+	LC_DECLARE_MEM(ws, struct workspace_sign, sLC_DILITHIUM_AHAT_ALIGNMENT);
 
 	polyvec_matrix_expand(ws->mat, rho, ws->poly_uniform_buf);
 
