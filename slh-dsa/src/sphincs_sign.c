@@ -95,9 +95,8 @@ static const struct lc_sphincs_func_ctx *lc_sphincs_get_ctx(void)
 		return &f_ctx_armv8;
 	}
 #endif /* LC_HOST_AARCH64 */
-	{
-		return &f_ctx_c;
-	}
+
+	return &f_ctx_c;
 }
 
 static int lc_sphincs_keypair_from_seed_internal(struct lc_sphincs_pk *pk,
@@ -107,7 +106,7 @@ static int lc_sphincs_keypair_from_seed_internal(struct lc_sphincs_pk *pk,
 	spx_ctx ctx;
 	int ret;
 
-	/* Initialize SK_SEED, SK_PRF and PUB_SEED from seed. */
+	/* Initialize PUB_SEED of PK from SK . */
 	memcpy(pk, sk->pk_seed, sizeof(sk->pk_seed));
 
 	ctx.pub_seed = pk->pk_seed;
@@ -142,7 +141,7 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_keypair_from_seed,
 	/* Initialize SK_SEED, SK_PRF and PUB_SEED from seed. */
 	memcpy(sk, seed, LC_SPX_SEEDBYTES);
 
-	lc_sphincs_keypair_from_seed_internal(pk, sk);
+	CKINT(lc_sphincs_keypair_from_seed_internal(pk, sk));
 
 out:
 	return ret;
@@ -164,7 +163,7 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_keypair, struct lc_sphincs_pk *pk,
 
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, (uint8_t *)sk,
 			      LC_SPX_SEEDBYTES));
-	lc_sphincs_keypair_from_seed_internal(pk, sk);
+	CKINT(lc_sphincs_keypair_from_seed_internal(pk, sk));
 
 out:
 	return ret;
