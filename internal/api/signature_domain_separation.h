@@ -17,8 +17,8 @@
  * DAMAGE.
  */
 
-#ifndef DILITHIUM_DOMAIN_SEPARATION_H
-#define DILITHIUM_DOMAIN_SEPARATION_H
+#ifndef SIGNATURE_DOMAIN_SEPARATION_H
+#define SIGNATURE_DOMAIN_SEPARATION_H
 
 #include "dilithium_type.h"
 #include "lc_hash.h"
@@ -27,11 +27,15 @@
 extern "C" {
 #endif
 
-int dilithium_domain_separation(struct lc_dilithium_ctx *ctx, const uint8_t *m,
+int signature_domain_separation(struct lc_hash_ctx *hash_ctx,
+				unsigned int ml_dsa_internal,
+				const struct lc_hash *signature_prehash_type,
+				const uint8_t *userctx, size_t userctxlen,
+				const uint8_t *m,
 				size_t mlen, unsigned int dilithium_mode);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* DILITHIUM_DOMAIN_SEPARATION_H */
+#endif /* SIGNATURE_DOMAIN_SEPARATION_H */

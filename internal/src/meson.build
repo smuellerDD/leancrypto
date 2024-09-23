@@ -4,6 +4,7 @@ internal_src += files([
 	'compare.c',
 	'left_encode.c',
 	'null_buffer.c',
+	'signature_domain_separation.c',
 	'status.c'
 ])
 

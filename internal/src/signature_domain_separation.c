@@ -17,7 +17,7 @@
  * DAMAGE.
  */
 
-#include "dilithium_domain_separation.h"
+#include "signature_domain_separation.h"
 #include "lc_sha256.h"
 #include "lc_sha3.h"
 #include "lc_sha512.h"
@@ -51,13 +51,13 @@ static const uint8_t shake128_oid_der[] = { 0x06, 0x09, 0x60, 0x86, 0x48, 0x01,
 static const uint8_t shake256_oid_der[] = { 0x06, 0x09, 0x60, 0x86, 0x48, 0x01,
 					    0x65, 0x03, 0x04, 0x02, 0x0C };
 
-static int dilithium_ph_oids(struct lc_dilithium_ctx *ctx, size_t mlen,
-			     unsigned int dilithium_mode)
+static int signature_ph_oids(struct lc_hash_ctx *hash_ctx,
+			     const struct lc_hash *signature_prehash_type,
+			     size_t mlen,
+			     unsigned int signature_mode)
 {
-	struct lc_hash_ctx *hash_ctx = &ctx->dilithium_hash_ctx;
-
 	/* If no hash is supplied, we have no HashML-DSA */
-	if (!ctx->dilithium_prehash_type)
+	if (!signature_prehash_type)
 		return 0;
 
 	/*
@@ -76,21 +76,21 @@ static int dilithium_ph_oids(struct lc_dilithium_ctx *ctx, size_t mlen,
 	 */
 	(void)mlen;
 
-	switch (dilithium_mode) {
+	switch (signature_mode) {
 	case 2:
-		if (ctx->dilithium_prehash_type == lc_sha256) {
+		if (signature_prehash_type == lc_sha256) {
 			// if (mlen != LC_SHA256_SIZE_DIGEST)
 			// 	return -EOPNOTSUPP;
 			lc_hash_update(hash_ctx, sha256_oid_der,
 				       sizeof(sha256_oid_der));
 			return 0;
-		} else if (ctx->dilithium_prehash_type == lc_sha3_256) {
+		} else if (signature_prehash_type == lc_sha3_256) {
 			// if (mlen != LC_SHA3_256_SIZE_DIGEST)
 			// 	return -EOPNOTSUPP;
 			lc_hash_update(hash_ctx, sha3_256_oid_der,
 				       sizeof(sha3_256_oid_der));
 			return 0;
-		} else if (ctx->dilithium_prehash_type == lc_shake128) {
+		} else if (signature_prehash_type == lc_shake128) {
 			/* FIPS 204 section 5.4.1 */
 			// if (mlen != 32)
 			// 	return -EOPNOTSUPP;
@@ -101,14 +101,14 @@ static int dilithium_ph_oids(struct lc_dilithium_ctx *ctx, size_t mlen,
 		/* FALLTHROUGH - Dilithium44 allows the following, too */
 		fallthrough;
 	case 3:
-		if (ctx->dilithium_prehash_type == lc_sha3_384) {
+		if (signature_prehash_type == lc_sha3_384) {
 			// if (mlen != LC_SHA3_384_SIZE_DIGEST)
 			// 	return -EOPNOTSUPP;
 			lc_hash_update(hash_ctx, sha3_384_oid_der,
 				       sizeof(sha3_384_oid_der));
 			return 0;
 		}
-		if (ctx->dilithium_prehash_type == lc_sha384) {
+		if (signature_prehash_type == lc_sha384) {
 			// if (mlen != LC_SHA384_SIZE_DIGEST)
 			// 	return -EOPNOTSUPP;
 			lc_hash_update(hash_ctx, sha384_oid_der,
@@ -118,19 +118,19 @@ static int dilithium_ph_oids(struct lc_dilithium_ctx *ctx, size_t mlen,
 		/* FALLTHROUGH - Dilithium[44|65] allows the following, too  */
 		fallthrough;
 	case 5:
-		if (ctx->dilithium_prehash_type == lc_sha512) {
+		if (signature_prehash_type == lc_sha512) {
 			// if (mlen != LC_SHA512_SIZE_DIGEST)
 			// 	return -EOPNOTSUPP;
 			lc_hash_update(hash_ctx, sha512_oid_der,
 				       sizeof(sha512_oid_der));
 			return 0;
-		} else if (ctx->dilithium_prehash_type == lc_sha3_512) {
+		} else if (signature_prehash_type == lc_sha3_512) {
 			// if (mlen != LC_SHA3_512_SIZE_DIGEST)
 			// 	return -EOPNOTSUPP;
 			lc_hash_update(hash_ctx, sha3_512_oid_der,
 				       sizeof(sha3_512_oid_der));
 			return 0;
-		} else if (ctx->dilithium_prehash_type == lc_shake256) {
+		} else if (signature_prehash_type == lc_shake256) {
 			/* FIPS 204 section 5.4.1 */
 			/*
 			 * TODO: mlen must be >= 64 to comply with the
@@ -152,29 +152,31 @@ static int dilithium_ph_oids(struct lc_dilithium_ctx *ctx, size_t mlen,
 	return -EOPNOTSUPP;
 }
 
-int dilithium_domain_separation(struct lc_dilithium_ctx *ctx, const uint8_t *m,
-				size_t mlen, unsigned int dilithium_mode)
+int signature_domain_separation(struct lc_hash_ctx *hash_ctx,
+				unsigned int ml_dsa_internal,
+				const struct lc_hash *signature_prehash_type,
+				const uint8_t *userctx, size_t userctxlen,
+				const uint8_t *m,
+				size_t mlen, unsigned int signature_mode)
 {
 	uint8_t domainseparation[2];
-	struct lc_hash_ctx *hash_ctx;
 	int ret = 0;
 
-	hash_ctx = &ctx->dilithium_hash_ctx;
-
 	/* The internal operation skips the domain separation code */
-	if (ctx->ml_dsa_internal)
+	if (ml_dsa_internal)
 		goto out;
 
-	if (ctx->userctxlen > 255)
+	if (userctxlen > 255)
 		return -EINVAL;
 
-	domainseparation[0] = ctx->dilithium_prehash_type ? 1 : 0;
-	domainseparation[1] = (uint8_t)ctx->userctxlen;
+	domainseparation[0] = signature_prehash_type ? 1 : 0;
+	domainseparation[1] = (uint8_t)userctxlen;
 
 	lc_hash_update(hash_ctx, domainseparation, sizeof(domainseparation));
-	lc_hash_update(hash_ctx, ctx->userctx, ctx->userctxlen);
+	lc_hash_update(hash_ctx, userctx, userctxlen);
 
-	CKINT(dilithium_ph_oids(ctx, mlen, dilithium_mode));
+	CKINT(signature_ph_oids(hash_ctx, signature_prehash_type, mlen,
+				signature_mode));
 
 out:
 	lc_hash_update(hash_ctx, m, mlen);

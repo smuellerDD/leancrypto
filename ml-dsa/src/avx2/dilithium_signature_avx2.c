@@ -28,7 +28,6 @@
 #include "alignment_x86.h"
 #include "build_bug_on.h"
 #include "dilithium_type.h"
-#include "dilithium_domain_separation.h"
 #include "dilithium_pack_avx2.h"
 #include "dilithium_poly_avx2.h"
 #include "dilithium_poly_common.h"
@@ -39,6 +38,7 @@
 #include "lc_rng.h"
 #include "lc_sha3.h"
 #include "lc_memcmp_secure.h"
+#include "signature_domain_separation.h"
 #include "static_rng.h"
 #include "ret_checkers.h"
 #include "shake_4x_avx2.h"
@@ -475,7 +475,11 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_ctx_avx2,
 	hash_ctx = &ctx->dilithium_hash_ctx;
 	lc_hash_init(hash_ctx);
 	lc_hash_update(hash_ctx, tr, LC_DILITHIUM_TRBYTES);
-	CKINT(dilithium_domain_separation(ctx, m, mlen, LC_DILITHIUM_MODE));
+	CKINT(signature_domain_separation(&ctx->dilithium_hash_ctx,
+					  ctx->ml_dsa_internal,
+					  ctx->dilithium_prehash_type,
+					  ctx->userctx, ctx->userctxlen,
+					  m, mlen, LC_DILITHIUM_MODE));
 
 	ret = lc_dilithium_sign_avx2_internal(sig, ctx, sk, rng_ctx);
 
@@ -524,7 +528,11 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_init_avx2,
 	lc_hash_update(hash_ctx, tr, LC_DILITHIUM_TRBYTES);
 	lc_memset_secure(tr, 0, sizeof(tr));
 
-	return dilithium_domain_separation(ctx, NULL, 0, LC_DILITHIUM_MODE);
+	return signature_domain_separation(&ctx->dilithium_hash_ctx,
+					   ctx->ml_dsa_internal,
+					   ctx->dilithium_prehash_type,
+					   ctx->userctx, ctx->userctxlen,
+					   NULL, 0, LC_DILITHIUM_MODE);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_update_avx2,
@@ -701,7 +709,11 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_ctx_avx2,
 	hash_ctx = &ctx->dilithium_hash_ctx;
 	lc_hash_init(hash_ctx);
 	lc_hash_update(hash_ctx, tr, LC_DILITHIUM_TRBYTES);
-	CKINT(dilithium_domain_separation(ctx, m, mlen, LC_DILITHIUM_MODE));
+	CKINT(signature_domain_separation(&ctx->dilithium_hash_ctx,
+					  ctx->ml_dsa_internal,
+					  ctx->dilithium_prehash_type,
+					  ctx->userctx, ctx->userctxlen,
+					  m, mlen, LC_DILITHIUM_MODE));
 
 	ret = lc_dilithium_verify_avx2_internal(sig, pk, ctx);
 
@@ -750,7 +762,11 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_init_avx2,
 	lc_hash_update(hash_ctx, tr, LC_DILITHIUM_TRBYTES);
 	lc_memset_secure(tr, 0, sizeof(tr));
 
-	return dilithium_domain_separation(ctx, NULL, 0, LC_DILITHIUM_MODE);
+	return signature_domain_separation(&ctx->dilithium_hash_ctx,
+					   ctx->ml_dsa_internal,
+					   ctx->dilithium_prehash_type,
+					   ctx->userctx, ctx->userctxlen,
+					   NULL, 0, LC_DILITHIUM_MODE);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_update_avx2,

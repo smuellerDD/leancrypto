@@ -556,8 +556,7 @@ struct lc_sphincs_ctx {
 	 * leancrypto. This parameter only shall indicate the used hash
 	 * operation.
 	 *
-	 * \note Use \p lc_sphincs_ctx_hash or
-	 * \p lc_sphincs_ed25519_ctx_hash to set this value.
+	 * \note Use \p lc_sphincs_ctx_hash to set this value.
 	 */
 	const struct lc_hash *sphincs_prehash_type;
 
@@ -565,16 +564,14 @@ struct lc_sphincs_ctx {
 	 * @brief length of the user context (allowed range between 0 and 255
 	 * bytes)
 	 *
-	 * \note Use \p lc_sphincs_ctx_userctx or
-	 * \p lc_sphincs_ed25519_ctx_userctx to set this value.
+	 * \note Use \p lc_sphincs_ctx_userctx to set this value.
 	 */
 	size_t userctxlen;
 
 	/**
 	 * @brief buffer with a caller-specified context string
 	 *
-	 * \note Use \p lc_sphincs_ctx_userctx or
-	 * \p lc_sphincs_ed25519_ctx_userctx to set this value.
+	 * \note Use \p lc_sphincs_ctx_userctx to set this value.
 	 */
 	const uint8_t *userctx;
 
@@ -584,18 +581,12 @@ struct lc_sphincs_ctx {
 	 * Otherwise the SLH-DSA.Sign / SLH-DSA.Verify (see FIPS chapter 5) is
 	 * applied.
 	 *
-	 * \note Use \p lc_sphincs_ctx_internal or
-	 * \p lc_sphincs_ed25519_ctx_internal to set this value.
+	 * \note Use \p lc_sphincs_ctx_internal to set this value.
 	 *
 	 * \warning Only set this value to true if you exactly know what you are
 	 * doing!.
 	 */
-	unsigned int ml_dsa_internal:1;
-
-	/**
-	 * @brief Was aHat already filled? This is used and set internally.
-	 */
-	unsigned int ahat_expanded:1;
+	unsigned int slh_dsa_internal:1;
 };
 #endif
 
