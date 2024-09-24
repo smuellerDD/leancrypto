@@ -46,6 +46,8 @@ void prf_addrx4(unsigned char *out0, unsigned char *out1, unsigned char *out2,
 	__m256i state[25];
 	unsigned int i;
 
+	LC_FPU_ENABLE;
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
 	for (i = 0; i < LC_SPX_N / 8; i++)
@@ -95,4 +97,6 @@ void prf_addrx4(unsigned char *out0, unsigned char *out1, unsigned char *out2,
 		((int64_t *)out3)[i] = _mm256_extract_epi64(state[i], 3);
 #pragma GCC diagnostic pop
 	}
+
+	LC_FPU_DISABLE;
 }
