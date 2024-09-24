@@ -61,7 +61,14 @@ static int lc_sphincs_test(struct lc_sphincs_test *tc,
 	};
 	unsigned int rounds, i;
 	int ret;
+	LC_SPHINCS_CTX_ON_STACK(ctx);
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+
+	/*
+	 * The entire test data derived from the upstream reference
+	 * implementation covers the internal testing only.
+	 */
+	ctx->slh_dsa_internal = 1;
 
 	if (t == LC_SPHINCS_REGRESSION || t == LC_SPHINCS_PERF_KEYGEN) {
 		rounds = (t == LC_SPHINCS_PERF_KEYGEN) ? 100 : 1;
@@ -78,8 +85,8 @@ static int lc_sphincs_test(struct lc_sphincs_test *tc,
 		rounds = (t == LC_SPHINCS_PERF_SIGN) ? 10 : 1;
 
 		for (i = 0; i < rounds; i++) {
-			CKINT(lc_sphincs_sign(
-				&ws->sig, tc->msg, sizeof(tc->msg),
+			CKINT(lc_sphincs_sign_ctx(
+				&ws->sig, ctx, tc->msg, sizeof(tc->msg),
 				(struct lc_sphincs_sk *)tc->sk, NULL));
 		}
 		lc_compare((uint8_t *)&ws->sig, tc->sig, sizeof(tc->sig),
@@ -90,8 +97,8 @@ static int lc_sphincs_test(struct lc_sphincs_test *tc,
 		rounds = (t == LC_SPHINCS_PERF_VERIFY) ? 1000 : 1;
 
 		for (i = 0; i < rounds; i++) {
-			CKINT(lc_sphincs_verify(
-				(struct lc_sphincs_sig *)tc->sig, tc->msg,
+			CKINT(lc_sphincs_verify_ctx(
+				(struct lc_sphincs_sig *)tc->sig, ctx, tc->msg,
 				sizeof(tc->msg),
 				(struct lc_sphincs_pk *)tc->pk));
 		}

@@ -96,7 +96,10 @@ extern "C" {
 #define lc_sphincs_keypair SPHINCS_F(keypair)
 #define lc_sphincs_keypair_from_seed SPHINCS_F(keypair_from_seed)
 #define lc_sphincs_sign SPHINCS_F(sign)
+#define lc_sphincs_sign_ctx SPHINCS_F(sign_ctx)
 #define lc_sphincs_verify SPHINCS_F(verify)
+#define lc_sphincs_verify_ctx SPHINCS_F(verify_ctx)
+#define lc_sphincs_ctx_zero SPHINCS_F(ctx_zero)
 
 #define set_layer_addr SPHINCS_F(set_layer_addr)
 #define set_tree_addr SPHINCS_F(set_tree_addr)

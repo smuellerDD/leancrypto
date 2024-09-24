@@ -479,7 +479,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_ctx_avx2,
 					  ctx->ml_dsa_internal,
 					  ctx->dilithium_prehash_type,
 					  ctx->userctx, ctx->userctxlen,
-					  m, mlen, LC_DILITHIUM_MODE));
+					  m, mlen, LC_DILITHIUM_NIST_CATEGORY));
 
 	ret = lc_dilithium_sign_avx2_internal(sig, ctx, sk, rng_ctx);
 
@@ -532,7 +532,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_init_avx2,
 					   ctx->ml_dsa_internal,
 					   ctx->dilithium_prehash_type,
 					   ctx->userctx, ctx->userctxlen,
-					   NULL, 0, LC_DILITHIUM_MODE);
+					   NULL, 0, LC_DILITHIUM_NIST_CATEGORY);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_update_avx2,
@@ -713,7 +713,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_ctx_avx2,
 					  ctx->ml_dsa_internal,
 					  ctx->dilithium_prehash_type,
 					  ctx->userctx, ctx->userctxlen,
-					  m, mlen, LC_DILITHIUM_MODE));
+					  m, mlen, LC_DILITHIUM_NIST_CATEGORY));
 
 	ret = lc_dilithium_verify_avx2_internal(sig, pk, ctx);
 
@@ -766,7 +766,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_init_avx2,
 					   ctx->ml_dsa_internal,
 					   ctx->dilithium_prehash_type,
 					   ctx->userctx, ctx->userctxlen,
-					   NULL, 0, LC_DILITHIUM_MODE);
+					   NULL, 0, LC_DILITHIUM_NIST_CATEGORY);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_update_avx2,

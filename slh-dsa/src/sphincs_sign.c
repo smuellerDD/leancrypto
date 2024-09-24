@@ -28,6 +28,7 @@
 #include "helper.h"
 #include "lc_rng.h"
 #include "lc_memcmp_secure.h"
+#include "signature_domain_separation.h"
 #include "small_stack_support.h"
 #include "sphincs_type.h"
 #include "sphincs_address.h"
@@ -172,8 +173,8 @@ out:
 /**
  * Returns an array containing a detached signature.
  */
-LC_INTERFACE_FUNCTION(int, lc_sphincs_sign, struct lc_sphincs_sig *sig,
-		      const uint8_t *m, size_t mlen,
+LC_INTERFACE_FUNCTION(int, lc_sphincs_sign_ctx, struct lc_sphincs_sig *sig,
+		      struct lc_sphincs_ctx *ctx, const uint8_t *m, size_t mlen,
 		      const struct lc_sphincs_sk *sk,
 		      struct lc_rng_ctx *rng_ctx)
 {
@@ -188,7 +189,7 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign, struct lc_sphincs_sig *sig,
 	};
 	uint32_t i;
 	const struct lc_sphincs_func_ctx *f_ctx = lc_sphincs_get_ctx();
-	spx_ctx ctx;
+	spx_ctx ctx_int;
 	const uint8_t *sk_prf = sk->sk_prf;
 	const uint8_t *pk = sk->pk_seed;
 	uint8_t *wots_sig = sig->sight;
@@ -198,8 +199,8 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign, struct lc_sphincs_sig *sig,
 	CKNULL(sig, -EINVAL);
 	CKNULL(sk, -EINVAL);
 
-	ctx.sk_seed = sk->sk_seed;
-	ctx.pub_seed = pk;
+	ctx_int.sk_seed = sk->sk_seed;
+	ctx_int.pub_seed = pk;
 
 	set_type(ws->wots_addr, LC_SPX_ADDR_TYPE_WOTS);
 	set_type(ws->tree_addr, LC_SPX_ADDR_TYPE_HASHTREE);
@@ -212,16 +213,17 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign, struct lc_sphincs_sig *sig,
 	}
 
 	/* Compute the digest randomization value. */
-	gen_message_random(sig->r, sk_prf, ws->optrand, m, mlen);
+	CKINT(gen_message_random(sig->r, sk_prf, ws->optrand, m, mlen, ctx));
 
 	/* Derive the message digest and leaf index from R, PK and M. */
-	hash_message(ws->mhash, &ws->tree, &ws->idx_leaf, sig->r, pk, m, mlen);
+	CKINT(hash_message(ws->mhash, &ws->tree, &ws->idx_leaf, sig->r, pk, m,
+			   mlen, ctx));
 
 	set_tree_addr(ws->wots_addr, ws->tree);
 	set_keypair_addr(ws->wots_addr, ws->idx_leaf);
 
 	/* Sign the message hash using FORS. */
-	CKINT(f_ctx->fors_sign(sig->sigfors, ws->root, ws->mhash, &ctx,
+	CKINT(f_ctx->fors_sign(sig->sigfors, ws->root, ws->mhash, &ctx_int,
 			       ws->wots_addr));
 
 	for (i = 0; i < LC_SPX_D; i++) {
@@ -231,7 +233,7 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign, struct lc_sphincs_sig *sig,
 		copy_subtree_addr(ws->wots_addr, ws->tree_addr);
 		set_keypair_addr(ws->wots_addr, ws->idx_leaf);
 
-		CKINT(f_ctx->merkle_sign(wots_sig, ws->root, &ctx,
+		CKINT(f_ctx->merkle_sign(wots_sig, ws->root, &ctx_int,
 					 ws->wots_addr, ws->tree_addr,
 					 ws->idx_leaf));
 		wots_sig += LC_SPX_WOTS_BYTES + LC_SPX_TREE_HEIGHT * LC_SPX_N;
@@ -248,11 +250,24 @@ out:
 	return ret;
 }
 
+LC_INTERFACE_FUNCTION(int, lc_sphincs_sign, struct lc_sphincs_sig *sig,
+		      const uint8_t *m, size_t mlen,
+		      const struct lc_sphincs_sk *sk,
+		      struct lc_rng_ctx *rng_ctx)
+{
+	LC_SPHINCS_CTX_ON_STACK(sphincs_ctx);
+	int ret = lc_sphincs_sign_ctx(sig, sphincs_ctx, m, mlen, sk, rng_ctx);
+
+	lc_sphincs_ctx_zero(sphincs_ctx);
+	return ret;
+}
+
 /**
  * Verifies a detached signature and message under a given public key.
  */
-LC_INTERFACE_FUNCTION(int, lc_sphincs_verify, const struct lc_sphincs_sig *sig,
-		      const uint8_t *m, size_t mlen,
+LC_INTERFACE_FUNCTION(int, lc_sphincs_verify_ctx,
+		      const struct lc_sphincs_sig *sig,
+		      struct lc_sphincs_ctx *ctx, const uint8_t *m, size_t mlen,
 		      const struct lc_sphincs_pk *pk)
 {
 	struct workspace {
@@ -268,7 +283,7 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify, const struct lc_sphincs_sig *sig,
 	};
 	unsigned int i;
 	const struct lc_sphincs_func_ctx *f_ctx = lc_sphincs_get_ctx();
-	spx_ctx ctx;
+	spx_ctx ctx_int;
 	const uint8_t *pub_root = pk->pk_root;
 	const uint8_t *wots_sig = sig->sight;
 	int ret = 0;
@@ -277,7 +292,7 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify, const struct lc_sphincs_sig *sig,
 	CKNULL(sig, -EINVAL);
 	CKNULL(pk, -EINVAL);
 
-	ctx.pub_seed = pk->pk_seed;
+	ctx_int.pub_seed = pk->pk_seed;
 
 	set_type(ws->wots_addr, LC_SPX_ADDR_TYPE_WOTS);
 	set_type(ws->tree_addr, LC_SPX_ADDR_TYPE_HASHTREE);
@@ -285,15 +300,15 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify, const struct lc_sphincs_sig *sig,
 
 	/* Derive the message digest and leaf index from R || PK || M. */
 	/* The additional LC_SPX_N is a result of the hash domain separator. */
-	hash_message(ws->mhash, &ws->tree, &ws->idx_leaf, sig->r, pk->pk_seed,
-		     m, mlen);
+	CKINT(hash_message(ws->mhash, &ws->tree, &ws->idx_leaf, sig->r,
+			   pk->pk_seed, m, mlen, ctx));
 
 	/* Layer correctly defaults to 0, so no need to set_layer_addr */
 	set_tree_addr(ws->wots_addr, ws->tree);
 	set_keypair_addr(ws->wots_addr, ws->idx_leaf);
 
-	CKINT(f_ctx->fors_pk_from_sig(ws->root, sig->sigfors, ws->mhash, &ctx,
-				      ws->wots_addr));
+	CKINT(f_ctx->fors_pk_from_sig(ws->root, sig->sigfors, ws->mhash,
+				      &ctx_int, ws->wots_addr));
 
 	/* For each subtree.. */
 	for (i = 0; i < LC_SPX_D; i++) {
@@ -312,7 +327,7 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify, const struct lc_sphincs_sig *sig,
 		 * processed subtree.
 		 */
 		CKINT(f_ctx->wots_pk_from_sig(ws->wots_pk, wots_sig, ws->root,
-					      &ctx, ws->wots_addr));
+					      &ctx_int, ws->wots_addr));
 		wots_sig += LC_SPX_WOTS_BYTES;
 
 		/* Compute the leaf node using the WOTS public key. */
@@ -335,5 +350,16 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify, const struct lc_sphincs_sig *sig,
 
 out:
 	LC_RELEASE_MEM(ws);
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_sphincs_verify, const struct lc_sphincs_sig *sig,
+		      const uint8_t *m, size_t mlen,
+		      const struct lc_sphincs_pk *pk)
+{
+	LC_SPHINCS_CTX_ON_STACK(sphincs_ctx);
+	int ret = lc_sphincs_verify_ctx(sig, sphincs_ctx, m, mlen, pk);
+
+	lc_sphincs_ctx_zero(sphincs_ctx);
 	return ret;
 }

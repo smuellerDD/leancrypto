@@ -25,10 +25,12 @@
  */
 
 #include "lc_sha3.h"
+#include "signature_domain_separation.h"
 #include "sphincs_type.h"
 #include "sphincs_hash.h"
 #include "sphincs_address.h"
 #include "sphincs_utils.h"
+#include "ret_checkers.h"
 
 /*
  * Computes PRF(pk_seed, sk_seed, addr)
@@ -51,20 +53,28 @@ void prf_addr(uint8_t out[LC_SPX_N], const spx_ctx *ctx, const uint32_t addr[8])
  * Computes the message-dependent randomness R, using a secret seed and an
  * optional randomization value as well as the message.
  */
-void gen_message_random(uint8_t R[LC_SPX_N], const uint8_t sk_prf[LC_SPX_N],
-			const uint8_t optrand[LC_SPX_N], const uint8_t *m,
-			size_t mlen)
+int gen_message_random(uint8_t R[LC_SPX_N], const uint8_t sk_prf[LC_SPX_N],
+		       const uint8_t optrand[LC_SPX_N], const uint8_t *m,
+		       size_t mlen, struct lc_sphincs_ctx *ctx)
 {
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
+	int ret;
 
 	lc_hash_init(hash_ctx);
 	lc_hash_update(hash_ctx, sk_prf, LC_SPX_N);
 	lc_hash_update(hash_ctx, optrand, LC_SPX_N);
-	lc_hash_update(hash_ctx, m, mlen);
+	CKINT(signature_domain_separation(hash_ctx,
+					  ctx->slh_dsa_internal,
+					  ctx->sphincs_prehash_type,
+					  ctx->userctx, ctx->userctxlen,
+					  m, mlen, LC_SPHINCS_NIST_CATEGORY));
 	lc_hash_set_digestsize(hash_ctx, LC_SPX_N);
 	lc_hash_final(hash_ctx, R);
 
 	lc_hash_zero(hash_ctx);
+
+out:
+	return ret;
 }
 
 /**
@@ -72,9 +82,9 @@ void gen_message_random(uint8_t R[LC_SPX_N], const uint8_t sk_prf[LC_SPX_N],
  * Outputs the message digest and the index of the leaf. The index is split in
  * the tree index and the leaf index, for convenient copying to an address.
  */
-void hash_message(uint8_t *digest, uint64_t *tree, uint32_t *leaf_idx,
-		  const uint8_t R[LC_SPX_N], const uint8_t pk[LC_SPX_PK_BYTES],
-		  const uint8_t *m, unsigned long long mlen)
+int hash_message(uint8_t *digest, uint64_t *tree, uint32_t *leaf_idx,
+		 const uint8_t R[LC_SPX_N], const uint8_t pk[LC_SPX_PK_BYTES],
+		 const uint8_t *m, size_t mlen, struct lc_sphincs_ctx *ctx)
 {
 #define LC_SPX_TREE_BITS (LC_SPX_TREE_HEIGHT * (LC_SPX_D - 1))
 #define LC_SPX_TREE_BYTES ((LC_SPX_TREE_BITS + 7) / 8)
@@ -85,12 +95,17 @@ void hash_message(uint8_t *digest, uint64_t *tree, uint32_t *leaf_idx,
 
 	uint8_t buf[LC_SPX_DGST_BYTES];
 	uint8_t *bufp = buf;
+	int ret;
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
 
 	lc_hash_init(hash_ctx);
 	lc_hash_update(hash_ctx, R, LC_SPX_N);
 	lc_hash_update(hash_ctx, pk, LC_SPX_PK_BYTES);
-	lc_hash_update(hash_ctx, m, mlen);
+	CKINT(signature_domain_separation(hash_ctx,
+					  ctx->slh_dsa_internal,
+					  ctx->sphincs_prehash_type,
+					  ctx->userctx, ctx->userctxlen,
+					  m, mlen, LC_SPHINCS_NIST_CATEGORY));
 	lc_hash_set_digestsize(hash_ctx, sizeof(buf));
 	lc_hash_final(hash_ctx, buf);
 
@@ -113,4 +128,7 @@ void hash_message(uint8_t *digest, uint64_t *tree, uint32_t *leaf_idx,
 
 	*leaf_idx = (uint32_t)bytes_to_ull(bufp, LC_SPX_LEAF_BYTES);
 	*leaf_idx &= (~(uint32_t)0) >> (32 - LC_SPX_LEAF_BITS);
+
+out:
+	return ret;
 }

@@ -37,13 +37,13 @@ extern "C" {
 void prf_addr(uint8_t out[LC_SPX_N], const spx_ctx *ctx,
 	      const uint32_t addr[8]);
 
-void gen_message_random(uint8_t R[LC_SPX_N], const uint8_t sk_prf[LC_SPX_N],
-			const uint8_t optrand[LC_SPX_N], const uint8_t *m,
-			size_t mlen);
+int gen_message_random(uint8_t R[LC_SPX_N], const uint8_t sk_prf[LC_SPX_N],
+		       const uint8_t optrand[LC_SPX_N], const uint8_t *m,
+		       size_t mlen, struct lc_sphincs_ctx *ctx);
 
-void hash_message(uint8_t *digest, uint64_t *tree, uint32_t *leaf_idx,
-		  const uint8_t R[LC_SPX_N], const uint8_t pk[LC_SPX_PK_BYTES],
-		  const uint8_t *m, unsigned long long mlen);
+int hash_message(uint8_t *digest, uint64_t *tree, uint32_t *leaf_idx,
+		 const uint8_t R[LC_SPX_N], const uint8_t pk[LC_SPX_PK_BYTES],
+		 const uint8_t *m, size_t mlen, struct lc_sphincs_ctx *ctx);
 
 #ifdef __cplusplus
 }

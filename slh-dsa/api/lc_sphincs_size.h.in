@@ -54,6 +54,8 @@ extern "C" {
 
 #if LC_SPHINCS_MODE == 7856
 
+#define LC_SPHINCS_NIST_CATEGORY 1
+
 /* Hash output length in bytes. */
 #define LC_SPX_N 16
 /* Height of the hypertree. */
@@ -127,6 +129,8 @@ extern "C" {
 #define LC_SPX_SK_BYTES (2 * LC_SPX_N + LC_SPX_PK_BYTES)
 
 #elif LC_SPHINCS_MODE == 17088
+
+#define LC_SPHINCS_NIST_CATEGORY 1
 
 /* Hash output length in bytes. */
 #define LC_SPX_N 16
@@ -202,6 +206,8 @@ extern "C" {
 
 #elif LC_SPHINCS_MODE == 16224
 
+#define LC_SPHINCS_NIST_CATEGORY 3
+
 /* Hash output length in bytes. */
 #define LC_SPX_N 24
 /* Height of the hypertree. */
@@ -276,6 +282,8 @@ extern "C" {
 
 #elif LC_SPHINCS_MODE == 35664
 
+#define LC_SPHINCS_NIST_CATEGORY 3
+
 /* Hash output length in bytes. */
 #define LC_SPX_N 24
 /* Height of the hypertree. */
@@ -349,6 +357,8 @@ extern "C" {
 #define LC_SPX_SK_BYTES (2 * LC_SPX_N + LC_SPX_PK_BYTES)
 
 #elif LC_SPHINCS_MODE == 29792
+
+#define LC_SPHINCS_NIST_CATEGORY 5
 
 /* Hash output length in bytes. */
 #define LC_SPX_N 32
@@ -425,6 +435,8 @@ extern "C" {
 #define LC_SPX_SK_BYTES (2 * LC_SPX_N + LC_SPX_PK_BYTES)
 
 #elif LC_SPHINCS_MODE == 49856
+
+#define LC_SPHINCS_NIST_CATEGORY 5
 
 /* Hash output length in bytes. */
 #define LC_SPX_N 32
@@ -588,7 +600,19 @@ struct lc_sphincs_ctx {
 	 */
 	unsigned int slh_dsa_internal:1;
 };
+
+/// \cond DO_NOT_DOCUMENT
+#define LC_SPHINCS_CTX_SIZE                                                    \
+	sizeof(struct lc_sphincs_ctx)
+
+#define LC_SPHINCS_SET_CTX(name)                                               \
+	LC_SHAKE_256_CTX((&(name)->sphincs_hash_ctx));                         \
+	(name)->sphincs_prehash_type = NULL;                                   \
+	(name)->slh_dsa_internal = 0;                                          \
+	(name)->userctxlen = 0;                                                \
+	(name)->userctx = NULL
 #endif
+/// \endcond
 
 /**
  * @brief Allocate stack memory for the Sphincs stream context or additional
@@ -608,6 +632,19 @@ struct lc_sphincs_ctx {
 	LC_SPHINCS_SET_CTX(name);                                            \
 	_Pragma("GCC diagnostic pop")
 #endif
+
+/**
+ * @brief Zeroize Dilithium context allocated with
+ *	  LC_SPHINCS_CTX_ON_STACK or lc_sphincs_ctx_alloc
+ *
+ * @param [in] ctx Sphincs context to be zeroized
+ */
+static inline void @sphincs_name@_ctx_zero(struct lc_sphincs_ctx *ctx)
+{
+	if (!ctx)
+		return;
+	lc_hash_zero(&ctx->sphincs_hash_ctx);
+}
 
 /**
  * @brief Return the size of the Sphincs secret key.
@@ -712,58 +749,6 @@ int @sphincs_name@_sign_ctx(struct @sphincs_name@_sig *sig,
 			      struct lc_rng_ctx *rng_ctx);
 
 /**
- * @brief Initializes a signature operation
- *
- * This call is intended to support messages that are located in non-contiguous
- * places and even becomes available at different times. This call is to be
- * used together with the lc_sphincs_sign_update and lc_sphincs_sign_final.
- *
- * @param [in,out] ctx pointer to an allocated Sphincs context
- * @param [in] sk pointer to bit-packed secret key
- *
- * @return 0 (success) or < 0 on error; -EOPNOTSUPP is returned if a different
- *	   hash than lc_shake256 is used.
- */
-int @sphincs_name@_sign_init(struct lc_sphincs_ctx *ctx,
-			   const struct @sphincs_name@_sk *sk);
-
-/**
- * @brief Add more data to an already initialized signature state
- *
- * This call is intended to support messages that are located in non-contiguous
- * places and even becomes available at different times. This call is to be
- * used together with the lc_sphincs_sign_init and lc_sphincs_sign_final.
- *
- * @param [in] ctx pointer to Sphincs context that was initialized with
- *			    lc_sphincs_sign_init
- * @param [in] m pointer to message to be signed
- * @param [in] mlen length of message
- *
- * @return 0 (success) or < 0 on error
- */
-int @sphincs_name@_sign_update(struct lc_sphincs_ctx *ctx, const uint8_t *m,
-			     size_t mlen);
-
-/**
- * @brief Computes signature
- *
- * @param [out] sig pointer to output signature
- * @param [in] ctx pointer to Sphincs context that was initialized with
- *			lc_sphincs_sign_init and filled with
- *			lc_sphincs_sign_update
- * @param [in] sk pointer to bit-packed secret key
- * @param [in] rng_ctx pointer to seeded random number generator context - when
- *		       pointer is non-NULL, perform a randomized signing.
- *		       Otherwise use deterministic signing.
- *
- * @return 0 (success) or < 0 on error
- */
-int @sphincs_name@_sign_final(struct @sphincs_name@_sig *sig,
-			    struct lc_sphincs_ctx *ctx,
-			    const struct @sphincs_name@_sk *sk,
-			    struct lc_rng_ctx *rng_ctx);
-
-/**
  * @brief Verifies SLH-DSA signature in one shot
  *
  * @param [in] sig pointer to input signature
@@ -796,57 +781,6 @@ int @sphincs_name@_verify_ctx(const struct @sphincs_name@_sig *sig,
 				struct lc_sphincs_ctx *ctx,
 				const uint8_t *m, size_t mlen,
 				const struct @sphincs_name@_pk *pk);
-
-/**
- * @brief Initializes a signature verification operation
- *
- * This call is intended to support messages that are located in non-contiguous
- * places and even becomes available at different times. This call is to be
- * used together with the lc_sphincs_verify_update and
- * lc_sphincs_verify_final.
- *
- * @param [in,out] ctx pointer to an allocated Sphincs context
- * @param [in] pk pointer to bit-packed public key
- *
- * @return 0 (success) or < 0 on error; -EOPNOTSUPP is returned if a different
- *	   hash than lc_shake256 is used.
- */
-int @sphincs_name@_verify_init(struct lc_sphincs_ctx *ctx,
-			     const struct @sphincs_name@_pk *pk);
-
-/**
- * @brief Add more data to an already initialized signature state
- *
- * This call is intended to support messages that are located in non-contiguous
- * places and even becomes available at different times. This call is to be
- * used together with the lc_sphincs_verify_init and
- * lc_sphincs_verify_final.
- *
- * @param [in,out] ctx pointer to Sphincs context that was initialized with
- *			    lc_sphincs_sign_init
- * @param [in] m pointer to message to be signed
- * @param [in] mlen length of message
- *
- * @return 0 (success) or < 0 on error
- */
-int @sphincs_name@_verify_update(struct lc_sphincs_ctx *ctx, const uint8_t *m,
-			       size_t mlen);
-
-/**
- * @brief Verifies signature
- *
- * @param [in] sig pointer to output signature
- * @param [in] ctx pointer to Sphincs context that was initialized with
- *			lc_sphincs_sign_init and filled with
- *			lc_sphincs_sign_update
- * @param [in] pk pointer to bit-packed public key
- *
- * @return 0 if signature could be verified correctly and -EBADMSG when
- * signature cannot be verified, < 0 on other errors
- */
-int @sphincs_name@_verify_final(const struct @sphincs_name@_sig *sig,
-			      struct lc_sphincs_ctx *ctx,
-			      const struct @sphincs_name@_pk *pk);
 
 #ifdef __cplusplus
 }

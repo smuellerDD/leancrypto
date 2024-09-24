@@ -53,8 +53,7 @@ static const uint8_t shake256_oid_der[] = { 0x06, 0x09, 0x60, 0x86, 0x48, 0x01,
 
 static int signature_ph_oids(struct lc_hash_ctx *hash_ctx,
 			     const struct lc_hash *signature_prehash_type,
-			     size_t mlen,
-			     unsigned int signature_mode)
+			     size_t mlen, unsigned int nist_category)
 {
 	/* If no hash is supplied, we have no HashML-DSA */
 	if (!signature_prehash_type)
@@ -76,8 +75,8 @@ static int signature_ph_oids(struct lc_hash_ctx *hash_ctx,
 	 */
 	(void)mlen;
 
-	switch (signature_mode) {
-	case 2:
+	switch (nist_category) {
+	case 1:
 		if (signature_prehash_type == lc_sha256) {
 			// if (mlen != LC_SHA256_SIZE_DIGEST)
 			// 	return -EOPNOTSUPP;
@@ -156,8 +155,8 @@ int signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 				unsigned int ml_dsa_internal,
 				const struct lc_hash *signature_prehash_type,
 				const uint8_t *userctx, size_t userctxlen,
-				const uint8_t *m,
-				size_t mlen, unsigned int signature_mode)
+				const uint8_t *m, size_t mlen,
+				unsigned int nist_category)
 {
 	uint8_t domainseparation[2];
 	int ret = 0;
@@ -176,7 +175,7 @@ int signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 	lc_hash_update(hash_ctx, userctx, userctxlen);
 
 	CKINT(signature_ph_oids(hash_ctx, signature_prehash_type, mlen,
-				signature_mode));
+				nist_category));
 
 out:
 	lc_hash_update(hash_ctx, m, mlen);
