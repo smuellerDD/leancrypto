@@ -1,5 +1,17 @@
 # for i in $(ls *.c | sort); do echo "'$i',"; done
 
+# Files compiled only once
+if (get_option('sphincs_shake_256s').enabled() or
+    get_option('sphincs_shake_256f').enabled() or
+    get_option('sphincs_shake_192s').enabled() or
+    get_option('sphincs_shake_192f').enabled() or
+    get_option('sphincs_shake_128s').enabled() or
+    get_option('sphincs_shake_128f').enabled())
+	src += files([
+		'sphincs_pct.c',
+	])
+endif
+
 sphincs_src = files([
 	'sphincs_address.c',
 	'sphincs_fors.c',

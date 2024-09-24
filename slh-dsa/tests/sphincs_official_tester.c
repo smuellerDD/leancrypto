@@ -57,6 +57,7 @@ static int lc_sphincs_official_test(struct lc_sphincs_ctx *ctx)
 
 	CKINT(lc_sphincs_keypair(&ws->pk, &ws->sk, lc_seeded_rng,
 				 lc_sphincs_type));
+	CKINT(lc_sphincs_pct(&ws->pk, &ws->sk));
 
 	CKINT(lc_sphincs_sign_ctx(&ws->sig, ctx, ws->msg, sizeof(ws->msg),
 				  &ws->sk, lc_seeded_rng));
