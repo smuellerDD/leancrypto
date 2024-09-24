@@ -92,7 +92,7 @@ static const struct lc_sphincs_func_ctx *lc_sphincs_get_ctx(void)
 	} else
 #endif /* LC_HOST_X86_64 */
 #ifdef LC_HOST_AARCH64
-	if (feat & LC_CPU_FEATURE_ARM) {
+		if (feat & LC_CPU_FEATURE_ARM) {
 		return &f_ctx_armv8;
 	}
 #endif /* LC_HOST_AARCH64 */

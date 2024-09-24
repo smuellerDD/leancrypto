@@ -304,7 +304,7 @@ static inline void lc_sphincs_ctx_internal(struct lc_sphincs_ctx *ctx)
  *		    message
  */
 static inline void lc_sphincs_ctx_hash(struct lc_sphincs_ctx *ctx,
-					 const struct lc_hash *hash)
+				       const struct lc_hash *hash)
 {
 	if (ctx)
 		ctx->sphincs_prehash_type = hash;
@@ -320,8 +320,8 @@ static inline void lc_sphincs_ctx_hash(struct lc_sphincs_ctx *ctx,
  * @param [in] userctxlen Size of the user context string
  */
 static inline void lc_sphincs_ctx_userctx(struct lc_sphincs_ctx *ctx,
-					    const uint8_t *userctx,
-					    size_t userctxlen)
+					  const uint8_t *userctx,
+					  size_t userctxlen)
 {
 	if (ctx) {
 		ctx->userctx = userctx;
@@ -386,8 +386,7 @@ lc_sphincs_sig_type(const struct lc_sphincs_sig *sig)
  * @return requested size
  */
 LC_PURE
-static inline unsigned int
-lc_sphincs_sk_size(enum lc_sphincs_type sphincs_type)
+static inline unsigned int lc_sphincs_sk_size(enum lc_sphincs_type sphincs_type)
 {
 	switch (sphincs_type) {
 	case LC_SPHINCS_SHAKE_256s:
@@ -441,8 +440,7 @@ lc_sphincs_sk_size(enum lc_sphincs_type sphincs_type)
  * @return requested size
  */
 LC_PURE
-static inline unsigned int
-lc_sphincs_pk_size(enum lc_sphincs_type sphincs_type)
+static inline unsigned int lc_sphincs_pk_size(enum lc_sphincs_type sphincs_type)
 {
 	switch (sphincs_type) {
 	case LC_SPHINCS_SHAKE_256s:
@@ -502,37 +500,43 @@ lc_sphincs_sig_size(enum lc_sphincs_type sphincs_type)
 	switch (sphincs_type) {
 	case LC_SPHINCS_SHAKE_256s:
 #ifdef LC_SPHINCS_SHAKE_256s_ENABLED
-		return lc_member_size(struct lc_sphincs_sig, sig.sig_shake_256s);
+		return lc_member_size(struct lc_sphincs_sig,
+				      sig.sig_shake_256s);
 #else
 		return 0;
 #endif
 	case LC_SPHINCS_SHAKE_256f:
 #ifdef LC_SPHINCS_SHAKE_256f_ENABLED
-		return lc_member_size(struct lc_sphincs_sig, sig.sig_shake_256f);
+		return lc_member_size(struct lc_sphincs_sig,
+				      sig.sig_shake_256f);
 #else
 		return 0;
 #endif
 	case LC_SPHINCS_SHAKE_192s:
 #ifdef LC_SPHINCS_SHAKE_192s_ENABLED
-		return lc_member_size(struct lc_sphincs_sig, sig.sig_shake_192s);
+		return lc_member_size(struct lc_sphincs_sig,
+				      sig.sig_shake_192s);
 #else
 		return 0;
 #endif
 	case LC_SPHINCS_SHAKE_192f:
 #ifdef LC_SPHINCS_SHAKE_192f_ENABLED
-		return lc_member_size(struct lc_sphincs_sig, sig.sig_shake_192f);
+		return lc_member_size(struct lc_sphincs_sig,
+				      sig.sig_shake_192f);
 #else
 		return 0;
 #endif
 	case LC_SPHINCS_SHAKE_128s:
 #ifdef LC_SPHINCS_SHAKE_128s_ENABLED
-		return lc_member_size(struct lc_sphincs_sig, sig.sig_shake_128s);
+		return lc_member_size(struct lc_sphincs_sig,
+				      sig.sig_shake_128s);
 #else
 		return 0;
 #endif
 	case LC_SPHINCS_SHAKE_128f:
 #ifdef LC_SPHINCS_SHAKE_128f_ENABLED
-		return lc_member_size(struct lc_sphincs_sig, sig.sig_shake_128f);
+		return lc_member_size(struct lc_sphincs_sig,
+				      sig.sig_shake_128f);
 #else
 		return 0;
 #endif
@@ -554,8 +558,7 @@ lc_sphincs_sig_size(enum lc_sphincs_type sphincs_type)
  * @return 0 on success or < 0 on error
  */
 static inline int lc_sphincs_sk_load(struct lc_sphincs_sk *sk,
-				       const uint8_t *src_key,
-				       size_t src_key_len)
+				     const uint8_t *src_key, size_t src_key_len)
 {
 	if (!sk || !src_key || src_key_len == 0) {
 		return -EINVAL;
@@ -624,8 +627,7 @@ static inline int lc_sphincs_sk_load(struct lc_sphincs_sk *sk,
  * @return 0 on success or < 0 on error
  */
 static inline int lc_sphincs_pk_load(struct lc_sphincs_pk *pk,
-				       const uint8_t *src_key,
-				       size_t src_key_len)
+				     const uint8_t *src_key, size_t src_key_len)
 {
 	if (!pk || !src_key || src_key_len == 0) {
 		return -EINVAL;
@@ -694,14 +696,15 @@ static inline int lc_sphincs_pk_load(struct lc_sphincs_pk *pk,
  * @return 0 on success or < 0 on error
  */
 static inline int lc_sphincs_sig_load(struct lc_sphincs_sig *sig,
-					const uint8_t *src_sig,
-					size_t src_sig_len)
+				      const uint8_t *src_sig,
+				      size_t src_sig_len)
 {
 	if (!sig || !src_sig || src_sig_len == 0) {
 		return -EINVAL;
 #ifdef LC_SPHINCS_SHAKE_256s_ENABLED
 	} else if (src_sig_len == lc_sphincs_sig_size(LC_SPHINCS_SHAKE_256s)) {
-		struct lc_sphincs_shake_256s_sig *_sig = &sig->sig.sig_shake_256s;
+		struct lc_sphincs_shake_256s_sig *_sig =
+			&sig->sig.sig_shake_256s;
 
 		memcpy(_sig, src_sig, src_sig_len);
 		sig->sphincs_type = LC_SPHINCS_SHAKE_256s;
@@ -709,7 +712,8 @@ static inline int lc_sphincs_sig_load(struct lc_sphincs_sig *sig,
 #endif
 #ifdef LC_SPHINCS_SHAKE_256f_ENABLED
 	} else if (src_sig_len == lc_sphincs_sig_size(LC_SPHINCS_SHAKE_256f)) {
-		struct lc_sphincs_shake_256f_sig *_sig = &sig->sig.sig_shake_256f;
+		struct lc_sphincs_shake_256f_sig *_sig =
+			&sig->sig.sig_shake_256f;
 
 		memcpy(_sig, src_sig, src_sig_len);
 		sig->sphincs_type = LC_SPHINCS_SHAKE_256f;
@@ -717,7 +721,8 @@ static inline int lc_sphincs_sig_load(struct lc_sphincs_sig *sig,
 #endif
 #ifdef LC_SPHINCS_SHAKE_192s_ENABLED
 	} else if (src_sig_len == lc_sphincs_sig_size(LC_SPHINCS_SHAKE_192s)) {
-		struct lc_sphincs_shake_192s_sig *_sig = &sig->sig.sig_shake_192s;
+		struct lc_sphincs_shake_192s_sig *_sig =
+			&sig->sig.sig_shake_192s;
 
 		memcpy(_sig, src_sig, src_sig_len);
 		sig->sphincs_type = LC_SPHINCS_SHAKE_192s;
@@ -725,7 +730,8 @@ static inline int lc_sphincs_sig_load(struct lc_sphincs_sig *sig,
 #endif
 #ifdef LC_SPHINCS_SHAKE_192f_ENABLED
 	} else if (src_sig_len == lc_sphincs_sig_size(LC_SPHINCS_SHAKE_192f)) {
-		struct lc_sphincs_shake_192f_sig *_sig = &sig->sig.sig_shake_192f;
+		struct lc_sphincs_shake_192f_sig *_sig =
+			&sig->sig.sig_shake_192f;
 
 		memcpy(_sig, src_sig, src_sig_len);
 		sig->sphincs_type = LC_SPHINCS_SHAKE_192f;
@@ -733,7 +739,8 @@ static inline int lc_sphincs_sig_load(struct lc_sphincs_sig *sig,
 #endif
 #ifdef LC_SPHINCS_SHAKE_128s_ENABLED
 	} else if (src_sig_len == lc_sphincs_sig_size(LC_SPHINCS_SHAKE_128s)) {
-		struct lc_sphincs_shake_128s_sig *_sig = &sig->sig.sig_shake_128s;
+		struct lc_sphincs_shake_128s_sig *_sig =
+			&sig->sig.sig_shake_128s;
 
 		memcpy(_sig, src_sig, src_sig_len);
 		sig->sphincs_type = LC_SPHINCS_SHAKE_128s;
@@ -741,7 +748,8 @@ static inline int lc_sphincs_sig_load(struct lc_sphincs_sig *sig,
 #endif
 #ifdef LC_SPHINCS_SHAKE_128f_ENABLED
 	} else if (src_sig_len == lc_sphincs_sig_size(LC_SPHINCS_SHAKE_128f)) {
-		struct lc_sphincs_shake_128f_sig *_sig = &sig->sig.sig_shake_128f;
+		struct lc_sphincs_shake_128f_sig *_sig =
+			&sig->sig.sig_shake_128f;
 
 		memcpy(_sig, src_sig, src_sig_len);
 		sig->sphincs_type = LC_SPHINCS_SHAKE_128f;
@@ -766,8 +774,8 @@ static inline int lc_sphincs_sig_load(struct lc_sphincs_sig *sig,
  * @return 0 on success, != 0 on error
  */
 static inline int lc_sphincs_sk_ptr(uint8_t **sphincs_key,
-				      size_t *sphincs_key_len,
-				      struct lc_sphincs_sk *sk)
+				    size_t *sphincs_key_len,
+				    struct lc_sphincs_sk *sk)
 {
 	if (!sk || !sphincs_key || !sphincs_key_len) {
 		return -EINVAL;
@@ -838,8 +846,8 @@ static inline int lc_sphincs_sk_ptr(uint8_t **sphincs_key,
  * @return 0 on success, != 0 on error
  */
 static inline int lc_sphincs_pk_ptr(uint8_t **sphincs_key,
-				      size_t *sphincs_key_len,
-				      struct lc_sphincs_pk *pk)
+				    size_t *sphincs_key_len,
+				    struct lc_sphincs_pk *pk)
 {
 	if (!pk || !sphincs_key || !sphincs_key_len) {
 		return -EINVAL;
@@ -911,14 +919,15 @@ static inline int lc_sphincs_pk_ptr(uint8_t **sphincs_key,
  * @return 0 on success, != 0 on error
  */
 static inline int lc_sphincs_sig_ptr(uint8_t **sphincs_sig,
-				       size_t *sphincs_sig_len,
-				       struct lc_sphincs_sig *sig)
+				     size_t *sphincs_sig_len,
+				     struct lc_sphincs_sig *sig)
 {
 	if (!sig || !sphincs_sig || !sphincs_sig_len) {
 		return -EINVAL;
 #ifdef LC_SPHINCS_SHAKE_256s_ENABLED
 	} else if (sig->sphincs_type == LC_SPHINCS_SHAKE_256s) {
-		struct lc_sphincs_shake_256s_sig *_sig = &sig->sig.sig_shake_256s;
+		struct lc_sphincs_shake_256s_sig *_sig =
+			&sig->sig.sig_shake_256s;
 
 		*sphincs_sig = (uint8_t *)_sig;
 		*sphincs_sig_len = lc_sphincs_sig_size(sig->sphincs_type);
@@ -926,7 +935,8 @@ static inline int lc_sphincs_sig_ptr(uint8_t **sphincs_sig,
 #endif
 #ifdef LC_SPHINCS_SHAKE_256f_ENABLED
 	} else if (sig->sphincs_type == LC_SPHINCS_SHAKE_256f) {
-		struct lc_sphincs_shake_256f_sig *_sig = &sig->sig.sig_shake_256f;
+		struct lc_sphincs_shake_256f_sig *_sig =
+			&sig->sig.sig_shake_256f;
 
 		*sphincs_sig = (uint8_t *)_sig;
 		*sphincs_sig_len = lc_sphincs_sig_size(sig->sphincs_type);
@@ -934,7 +944,8 @@ static inline int lc_sphincs_sig_ptr(uint8_t **sphincs_sig,
 #endif
 #ifdef LC_SPHINCS_SHAKE_128s_ENABLED
 	} else if (sig->sphincs_type == LC_SPHINCS_SHAKE_128s) {
-		struct lc_sphincs_shake_128s_sig *_sig = &sig->sig.sig_shake_128s;
+		struct lc_sphincs_shake_128s_sig *_sig =
+			&sig->sig.sig_shake_128s;
 
 		*sphincs_sig = (uint8_t *)_sig;
 		*sphincs_sig_len = lc_sphincs_sig_size(sig->sphincs_type);
@@ -942,7 +953,8 @@ static inline int lc_sphincs_sig_ptr(uint8_t **sphincs_sig,
 #endif
 #ifdef LC_SPHINCS_SHAKE_128f_ENABLED
 	} else if (sig->sphincs_type == LC_SPHINCS_SHAKE_128f) {
-		struct lc_sphincs_shake_128f_sig *_sig = &sig->sig.sig_shake_128f;
+		struct lc_sphincs_shake_128f_sig *_sig =
+			&sig->sig.sig_shake_128f;
 
 		*sphincs_sig = (uint8_t *)_sig;
 		*sphincs_sig_len = lc_sphincs_sig_size(sig->sphincs_type);
@@ -965,9 +977,9 @@ static inline int lc_sphincs_sig_ptr(uint8_t **sphincs_sig,
  * @return 0 (success) or < 0 on error
  */
 static inline int lc_sphincs_keypair(struct lc_sphincs_pk *pk,
-				       struct lc_sphincs_sk *sk,
-				       struct lc_rng_ctx *rng_ctx,
-				       enum lc_sphincs_type sphincs_type)
+				     struct lc_sphincs_sk *sk,
+				     struct lc_rng_ctx *rng_ctx,
+				     enum lc_sphincs_type sphincs_type)
 {
 	if (!pk || !sk)
 		return -EINVAL;
@@ -977,8 +989,9 @@ static inline int lc_sphincs_keypair(struct lc_sphincs_pk *pk,
 #ifdef LC_SPHINCS_SHAKE_256s_ENABLED
 		pk->sphincs_type = sphincs_type;
 		sk->sphincs_type = sphincs_type;
-		return lc_sphincs_shake_256s_keypair(&pk->key.pk_shake_256s, &sk->key.sk_shake_256s,
-					       rng_ctx);
+		return lc_sphincs_shake_256s_keypair(&pk->key.pk_shake_256s,
+						     &sk->key.sk_shake_256s,
+						     rng_ctx);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -986,8 +999,9 @@ static inline int lc_sphincs_keypair(struct lc_sphincs_pk *pk,
 #ifdef LC_SPHINCS_SHAKE_256f_ENABLED
 		pk->sphincs_type = sphincs_type;
 		sk->sphincs_type = sphincs_type;
-		return lc_sphincs_shake_256f_keypair(&pk->key.pk_shake_256f, &sk->key.sk_shake_256f,
-					       rng_ctx);
+		return lc_sphincs_shake_256f_keypair(&pk->key.pk_shake_256f,
+						     &sk->key.sk_shake_256f,
+						     rng_ctx);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -995,8 +1009,9 @@ static inline int lc_sphincs_keypair(struct lc_sphincs_pk *pk,
 #ifdef LC_SPHINCS_SHAKE_192s_ENABLED
 		pk->sphincs_type = sphincs_type;
 		sk->sphincs_type = sphincs_type;
-		return lc_sphincs_shake_192s_keypair(&pk->key.pk_shake_192s, &sk->key.sk_shake_192s,
-					       rng_ctx);
+		return lc_sphincs_shake_192s_keypair(&pk->key.pk_shake_192s,
+						     &sk->key.sk_shake_192s,
+						     rng_ctx);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -1004,8 +1019,9 @@ static inline int lc_sphincs_keypair(struct lc_sphincs_pk *pk,
 #ifdef LC_SPHINCS_SHAKE_192f_ENABLED
 		pk->sphincs_type = sphincs_type;
 		sk->sphincs_type = sphincs_type;
-		return lc_sphincs_shake_192f_keypair(&pk->key.pk_shake_192f, &sk->key.sk_shake_192f,
-					       rng_ctx);
+		return lc_sphincs_shake_192f_keypair(&pk->key.pk_shake_192f,
+						     &sk->key.sk_shake_192f,
+						     rng_ctx);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -1013,8 +1029,9 @@ static inline int lc_sphincs_keypair(struct lc_sphincs_pk *pk,
 #ifdef LC_SPHINCS_SHAKE_128s_ENABLED
 		pk->sphincs_type = sphincs_type;
 		sk->sphincs_type = sphincs_type;
-		return lc_sphincs_shake_128s_keypair(&pk->key.pk_shake_128s, &sk->key.sk_shake_128s,
-					       rng_ctx);
+		return lc_sphincs_shake_128s_keypair(&pk->key.pk_shake_128s,
+						     &sk->key.sk_shake_128s,
+						     rng_ctx);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -1022,8 +1039,9 @@ static inline int lc_sphincs_keypair(struct lc_sphincs_pk *pk,
 #ifdef LC_SPHINCS_SHAKE_128f_ENABLED
 		pk->sphincs_type = sphincs_type;
 		sk->sphincs_type = sphincs_type;
-		return lc_sphincs_shake_128f_keypair(&pk->key.pk_shake_128f, &sk->key.sk_shake_128f,
-					       rng_ctx);
+		return lc_sphincs_shake_128f_keypair(&pk->key.pk_shake_128f,
+						     &sk->key.sk_shake_128f,
+						     rng_ctx);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -1055,10 +1073,9 @@ static inline int lc_sphincs_keypair(struct lc_sphincs_pk *pk,
  * @return 0 (success) or < 0 on error
  */
 static inline int
-lc_sphincs_keypair_from_seed(struct lc_sphincs_pk *pk,
-			       struct lc_sphincs_sk *sk, const uint8_t *seed,
-			       size_t seedlen,
-			       enum lc_sphincs_type sphincs_type)
+lc_sphincs_keypair_from_seed(struct lc_sphincs_pk *pk, struct lc_sphincs_sk *sk,
+			     const uint8_t *seed, size_t seedlen,
+			     enum lc_sphincs_type sphincs_type)
 {
 	if (!pk || !sk)
 		return -EINVAL;
@@ -1069,7 +1086,8 @@ lc_sphincs_keypair_from_seed(struct lc_sphincs_pk *pk,
 		pk->sphincs_type = sphincs_type;
 		sk->sphincs_type = sphincs_type;
 		return lc_sphincs_shake_256s_keypair_from_seed(
-			&pk->key.pk_shake_256s, &sk->key.sk_shake_256s, seed, seedlen);
+			&pk->key.pk_shake_256s, &sk->key.sk_shake_256s, seed,
+			seedlen);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -1078,7 +1096,8 @@ lc_sphincs_keypair_from_seed(struct lc_sphincs_pk *pk,
 		pk->sphincs_type = sphincs_type;
 		sk->sphincs_type = sphincs_type;
 		return lc_sphincs_shake_256f_keypair_from_seed(
-			&pk->key.pk_shake_256f, &sk->key.sk_shake_256f, seed, seedlen);
+			&pk->key.pk_shake_256f, &sk->key.sk_shake_256f, seed,
+			seedlen);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -1087,7 +1106,8 @@ lc_sphincs_keypair_from_seed(struct lc_sphincs_pk *pk,
 		pk->sphincs_type = sphincs_type;
 		sk->sphincs_type = sphincs_type;
 		return lc_sphincs_shake_192s_keypair_from_seed(
-			&pk->key.pk_shake_192s, &sk->key.sk_shake_192s, seed, seedlen);
+			&pk->key.pk_shake_192s, &sk->key.sk_shake_192s, seed,
+			seedlen);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -1096,7 +1116,8 @@ lc_sphincs_keypair_from_seed(struct lc_sphincs_pk *pk,
 		pk->sphincs_type = sphincs_type;
 		sk->sphincs_type = sphincs_type;
 		return lc_sphincs_shake_192f_keypair_from_seed(
-			&pk->key.pk_shake_192f, &sk->key.sk_shake_192f, seed, seedlen);
+			&pk->key.pk_shake_192f, &sk->key.sk_shake_192f, seed,
+			seedlen);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -1105,7 +1126,8 @@ lc_sphincs_keypair_from_seed(struct lc_sphincs_pk *pk,
 		pk->sphincs_type = sphincs_type;
 		sk->sphincs_type = sphincs_type;
 		return lc_sphincs_shake_128s_keypair_from_seed(
-			&pk->key.pk_shake_128s, &sk->key.sk_shake_128s, seed, seedlen);
+			&pk->key.pk_shake_128s, &sk->key.sk_shake_128s, seed,
+			seedlen);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -1114,7 +1136,8 @@ lc_sphincs_keypair_from_seed(struct lc_sphincs_pk *pk,
 		pk->sphincs_type = sphincs_type;
 		sk->sphincs_type = sphincs_type;
 		return lc_sphincs_shake_128f_keypair_from_seed(
-			&pk->key.pk_shake_128f, &sk->key.sk_shake_128f, seed, seedlen);
+			&pk->key.pk_shake_128f, &sk->key.sk_shake_128f, seed,
+			seedlen);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -1151,10 +1174,9 @@ int lc_sphincs_pct(const struct lc_sphincs_pk *pk,
  *
  * @return 0 (success) or < 0 on error
  */
-static inline int lc_sphincs_sign(struct lc_sphincs_sig *sig,
-				    const uint8_t *m, size_t mlen,
-				    const struct lc_sphincs_sk *sk,
-				    struct lc_rng_ctx *rng_ctx)
+static inline int lc_sphincs_sign(struct lc_sphincs_sig *sig, const uint8_t *m,
+				  size_t mlen, const struct lc_sphincs_sk *sk,
+				  struct lc_rng_ctx *rng_ctx)
 {
 	if (!sk || !sig)
 		return -EINVAL;
@@ -1163,48 +1185,54 @@ static inline int lc_sphincs_sign(struct lc_sphincs_sig *sig,
 	case LC_SPHINCS_SHAKE_256s:
 #ifdef LC_SPHINCS_SHAKE_256s_ENABLED
 		sig->sphincs_type = LC_SPHINCS_SHAKE_256s;
-		return lc_sphincs_shake_256s_sign(&sig->sig.sig_shake_256s, m, mlen,
-					    &sk->key.sk_shake_256s, rng_ctx);
+		return lc_sphincs_shake_256s_sign(&sig->sig.sig_shake_256s, m,
+						  mlen, &sk->key.sk_shake_256s,
+						  rng_ctx);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_SPHINCS_SHAKE_256f:
 #ifdef LC_SPHINCS_SHAKE_256f_ENABLED
 		sig->sphincs_type = LC_SPHINCS_SHAKE_256f;
-		return lc_sphincs_shake_256f_sign(&sig->sig.sig_shake_256f, m, mlen,
-					    &sk->key.sk_shake_256f, rng_ctx);
+		return lc_sphincs_shake_256f_sign(&sig->sig.sig_shake_256f, m,
+						  mlen, &sk->key.sk_shake_256f,
+						  rng_ctx);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_SPHINCS_SHAKE_192s:
 #ifdef LC_SPHINCS_SHAKE_192s_ENABLED
 		sig->sphincs_type = LC_SPHINCS_SHAKE_192s;
-		return lc_sphincs_shake_192s_sign(&sig->sig.sig_shake_192s, m, mlen,
-					    &sk->key.sk_shake_192s, rng_ctx);
+		return lc_sphincs_shake_192s_sign(&sig->sig.sig_shake_192s, m,
+						  mlen, &sk->key.sk_shake_192s,
+						  rng_ctx);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_SPHINCS_SHAKE_192f:
 #ifdef LC_SPHINCS_SHAKE_192f_ENABLED
 		sig->sphincs_type = LC_SPHINCS_SHAKE_192f;
-		return lc_sphincs_shake_192f_sign(&sig->sig.sig_shake_192f, m, mlen,
-					    &sk->key.sk_shake_192f, rng_ctx);
+		return lc_sphincs_shake_192f_sign(&sig->sig.sig_shake_192f, m,
+						  mlen, &sk->key.sk_shake_192f,
+						  rng_ctx);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_SPHINCS_SHAKE_128s:
 #ifdef LC_SPHINCS_SHAKE_128s_ENABLED
 		sig->sphincs_type = LC_SPHINCS_SHAKE_128s;
-		return lc_sphincs_shake_128s_sign(&sig->sig.sig_shake_128s, m, mlen,
-					    &sk->key.sk_shake_128s, rng_ctx);
+		return lc_sphincs_shake_128s_sign(&sig->sig.sig_shake_128s, m,
+						  mlen, &sk->key.sk_shake_128s,
+						  rng_ctx);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_SPHINCS_SHAKE_128f:
 #ifdef LC_SPHINCS_SHAKE_128f_ENABLED
 		sig->sphincs_type = LC_SPHINCS_SHAKE_128f;
-		return lc_sphincs_shake_128f_sign(&sig->sig.sig_shake_128f, m, mlen,
-					    &sk->key.sk_shake_128f, rng_ctx);
+		return lc_sphincs_shake_128f_sign(&sig->sig.sig_shake_128f, m,
+						  mlen, &sk->key.sk_shake_128f,
+						  rng_ctx);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -1245,10 +1273,10 @@ static inline int lc_sphincs_sign(struct lc_sphincs_sig *sig,
  * @return 0 (success) or < 0 on error
  */
 static inline int lc_sphincs_sign_ctx(struct lc_sphincs_sig *sig,
-					struct lc_sphincs_ctx *ctx,
-					const uint8_t *m, size_t mlen,
-					const struct lc_sphincs_sk *sk,
-					struct lc_rng_ctx *rng_ctx)
+				      struct lc_sphincs_ctx *ctx,
+				      const uint8_t *m, size_t mlen,
+				      const struct lc_sphincs_sk *sk,
+				      struct lc_rng_ctx *rng_ctx)
 {
 	if (!sk || !sig)
 		return -EINVAL;
@@ -1257,48 +1285,60 @@ static inline int lc_sphincs_sign_ctx(struct lc_sphincs_sig *sig,
 	case LC_SPHINCS_SHAKE_256s:
 #ifdef LC_SPHINCS_SHAKE_256s_ENABLED
 		sig->sphincs_type = LC_SPHINCS_SHAKE_256s;
-		return lc_sphincs_shake_256s_sign_ctx(&sig->sig.sig_shake_256s, ctx, m, mlen,
-						&sk->key.sk_shake_256s, rng_ctx);
+		return lc_sphincs_shake_256s_sign_ctx(&sig->sig.sig_shake_256s,
+						      ctx, m, mlen,
+						      &sk->key.sk_shake_256s,
+						      rng_ctx);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_SPHINCS_SHAKE_256f:
 #ifdef LC_SPHINCS_SHAKE_256f_ENABLED
 		sig->sphincs_type = LC_SPHINCS_SHAKE_256f;
-		return lc_sphincs_shake_256f_sign_ctx(&sig->sig.sig_shake_256f, ctx, m, mlen,
-						&sk->key.sk_shake_256f, rng_ctx);
+		return lc_sphincs_shake_256f_sign_ctx(&sig->sig.sig_shake_256f,
+						      ctx, m, mlen,
+						      &sk->key.sk_shake_256f,
+						      rng_ctx);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_SPHINCS_SHAKE_192s:
 #ifdef LC_SPHINCS_SHAKE_192s_ENABLED
 		sig->sphincs_type = LC_SPHINCS_SHAKE_192s;
-		return lc_sphincs_shake_192s_sign_ctx(&sig->sig.sig_shake_192s, ctx, m, mlen,
-						&sk->key.sk_shake_192s, rng_ctx);
+		return lc_sphincs_shake_192s_sign_ctx(&sig->sig.sig_shake_192s,
+						      ctx, m, mlen,
+						      &sk->key.sk_shake_192s,
+						      rng_ctx);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_SPHINCS_SHAKE_192f:
 #ifdef LC_SPHINCS_SHAKE_192f_ENABLED
 		sig->sphincs_type = LC_SPHINCS_SHAKE_192f;
-		return lc_sphincs_shake_192f_sign_ctx(&sig->sig.sig_shake_192f, ctx, m, mlen,
-						&sk->key.sk_shake_192f, rng_ctx);
+		return lc_sphincs_shake_192f_sign_ctx(&sig->sig.sig_shake_192f,
+						      ctx, m, mlen,
+						      &sk->key.sk_shake_192f,
+						      rng_ctx);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_SPHINCS_SHAKE_128s:
 #ifdef LC_SPHINCS_SHAKE_128s_ENABLED
 		sig->sphincs_type = LC_SPHINCS_SHAKE_128s;
-		return lc_sphincs_shake_128s_sign_ctx(&sig->sig.sig_shake_128s, ctx, m, mlen,
-						&sk->key.sk_shake_128s, rng_ctx);
+		return lc_sphincs_shake_128s_sign_ctx(&sig->sig.sig_shake_128s,
+						      ctx, m, mlen,
+						      &sk->key.sk_shake_128s,
+						      rng_ctx);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_SPHINCS_SHAKE_128f:
 #ifdef LC_SPHINCS_SHAKE_128f_ENABLED
 		sig->sphincs_type = LC_SPHINCS_SHAKE_128f;
-		return lc_sphincs_shake_128f_sign_ctx(&sig->sig.sig_shake_128f, ctx, m, mlen,
-						&sk->key.sk_shake_128f, rng_ctx);
+		return lc_sphincs_shake_128f_sign_ctx(&sig->sig.sig_shake_128f,
+						      ctx, m, mlen,
+						      &sk->key.sk_shake_128f,
+						      rng_ctx);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -1321,8 +1361,8 @@ static inline int lc_sphincs_sign_ctx(struct lc_sphincs_sig *sig,
  * signature cannot be verified, < 0 on other errors
  */
 static inline int lc_sphincs_verify(const struct lc_sphincs_sig *sig,
-				      const uint8_t *m, size_t mlen,
-				      const struct lc_sphincs_pk *pk)
+				    const uint8_t *m, size_t mlen,
+				    const struct lc_sphincs_pk *pk)
 {
 	if (!pk || !sig || sig->sphincs_type != pk->sphincs_type)
 		return -EINVAL;
@@ -1330,43 +1370,49 @@ static inline int lc_sphincs_verify(const struct lc_sphincs_sig *sig,
 	switch (pk->sphincs_type) {
 	case LC_SPHINCS_SHAKE_256s:
 #ifdef LC_SPHINCS_SHAKE_256s_ENABLED
-		return lc_sphincs_shake_256s_verify(&sig->sig.sig_shake_256s, m, mlen,
-					      &pk->key.pk_shake_256s);
+		return lc_sphincs_shake_256s_verify(&sig->sig.sig_shake_256s, m,
+						    mlen,
+						    &pk->key.pk_shake_256s);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_SPHINCS_SHAKE_256f:
 #ifdef LC_SPHINCS_SHAKE_256f_ENABLED
-		return lc_sphincs_shake_256f_verify(&sig->sig.sig_shake_256f, m, mlen,
-					      &pk->key.pk_shake_256f);
+		return lc_sphincs_shake_256f_verify(&sig->sig.sig_shake_256f, m,
+						    mlen,
+						    &pk->key.pk_shake_256f);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_SPHINCS_SHAKE_192s:
 #ifdef LC_SPHINCS_SHAKE_192s_ENABLED
-		return lc_sphincs_shake_192s_verify(&sig->sig.sig_shake_192s, m, mlen,
-					      &pk->key.pk_shake_192s);
+		return lc_sphincs_shake_192s_verify(&sig->sig.sig_shake_192s, m,
+						    mlen,
+						    &pk->key.pk_shake_192s);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_SPHINCS_SHAKE_192f:
 #ifdef LC_SPHINCS_SHAKE_192f_ENABLED
-		return lc_sphincs_shake_192f_verify(&sig->sig.sig_shake_192f, m, mlen,
-					      &pk->key.pk_shake_192f);
+		return lc_sphincs_shake_192f_verify(&sig->sig.sig_shake_192f, m,
+						    mlen,
+						    &pk->key.pk_shake_192f);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_SPHINCS_SHAKE_128s:
 #ifdef LC_SPHINCS_SHAKE_128s_ENABLED
-		return lc_sphincs_shake_128s_verify(&sig->sig.sig_shake_128s, m, mlen,
-					      &pk->key.pk_shake_128s);
+		return lc_sphincs_shake_128s_verify(&sig->sig.sig_shake_128s, m,
+						    mlen,
+						    &pk->key.pk_shake_128s);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_SPHINCS_SHAKE_128f:
 #ifdef LC_SPHINCS_SHAKE_128f_ENABLED
-		return lc_sphincs_shake_128f_verify(&sig->sig.sig_shake_128f, m, mlen,
-					      &pk->key.pk_shake_128f);
+		return lc_sphincs_shake_128f_verify(&sig->sig.sig_shake_128f, m,
+						    mlen,
+						    &pk->key.pk_shake_128f);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -1393,9 +1439,9 @@ static inline int lc_sphincs_verify(const struct lc_sphincs_sig *sig,
  * signature cannot be verified, < 0 on other errors
  */
 static inline int lc_sphincs_verify_ctx(const struct lc_sphincs_sig *sig,
-					  struct lc_sphincs_ctx *ctx,
-					  const uint8_t *m, size_t mlen,
-					  const struct lc_sphincs_pk *pk)
+					struct lc_sphincs_ctx *ctx,
+					const uint8_t *m, size_t mlen,
+					const struct lc_sphincs_pk *pk)
 {
 	if (!pk || !sig || sig->sphincs_type != pk->sphincs_type)
 		return -EINVAL;
@@ -1403,43 +1449,49 @@ static inline int lc_sphincs_verify_ctx(const struct lc_sphincs_sig *sig,
 	switch (pk->sphincs_type) {
 	case LC_SPHINCS_SHAKE_256s:
 #ifdef LC_SPHINCS_SHAKE_256s_ENABLED
-		return lc_sphincs_shake_256s_verify_ctx(&sig->sig.sig_shake_256s, ctx, m,
-						  mlen, &pk->key.pk_shake_256s);
+		return lc_sphincs_shake_256s_verify_ctx(
+			&sig->sig.sig_shake_256s, ctx, m, mlen,
+			&pk->key.pk_shake_256s);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_SPHINCS_SHAKE_256f:
 #ifdef LC_SPHINCS_SHAKE_256f_ENABLED
-		return lc_sphincs_shake_256f_verify_ctx(&sig->sig.sig_shake_256f, ctx, m,
-						  mlen, &pk->key.pk_shake_256f);
+		return lc_sphincs_shake_256f_verify_ctx(
+			&sig->sig.sig_shake_256f, ctx, m, mlen,
+			&pk->key.pk_shake_256f);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_SPHINCS_SHAKE_192s:
 #ifdef LC_SPHINCS_SHAKE_192s_ENABLED
-		return lc_sphincs_shake_192s_verify_ctx(&sig->sig.sig_shake_192s, ctx, m,
-						  mlen, &pk->key.pk_shake_192s);
+		return lc_sphincs_shake_192s_verify_ctx(
+			&sig->sig.sig_shake_192s, ctx, m, mlen,
+			&pk->key.pk_shake_192s);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_SPHINCS_SHAKE_192f:
 #ifdef LC_SPHINCS_SHAKE_192f_ENABLED
-		return lc_sphincs_shake_192f_verify_ctx(&sig->sig.sig_shake_192f, ctx, m,
-						  mlen, &pk->key.pk_shake_192f);
+		return lc_sphincs_shake_192f_verify_ctx(
+			&sig->sig.sig_shake_192f, ctx, m, mlen,
+			&pk->key.pk_shake_192f);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_SPHINCS_SHAKE_128s:
 #ifdef LC_SPHINCS_SHAKE_128s_ENABLED
-		return lc_sphincs_shake_128s_verify_ctx(&sig->sig.sig_shake_128s, ctx, m,
-						  mlen, &pk->key.pk_shake_128s);
+		return lc_sphincs_shake_128s_verify_ctx(
+			&sig->sig.sig_shake_128s, ctx, m, mlen,
+			&pk->key.pk_shake_128s);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_SPHINCS_SHAKE_128f:
 #ifdef LC_SPHINCS_SHAKE_128f_ENABLED
-		return lc_sphincs_shake_128f_verify_ctx(&sig->sig.sig_shake_128f, ctx, m,
-						  mlen, &pk->key.pk_shake_128f);
+		return lc_sphincs_shake_128f_verify_ctx(
+			&sig->sig.sig_shake_128f, ctx, m, mlen,
+			&pk->key.pk_shake_128f);
 #else
 		return -EOPNOTSUPP;
 #endif

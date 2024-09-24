@@ -31,8 +31,8 @@ int signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 				unsigned int ml_dsa_internal,
 				const struct lc_hash *signature_prehash_type,
 				const uint8_t *userctx, size_t userctxlen,
-				const uint8_t *m,
-				size_t mlen, unsigned int nist_category);
+				const uint8_t *m, size_t mlen,
+				unsigned int nist_category);
 
 #ifdef __cplusplus
 }

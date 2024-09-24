@@ -38,7 +38,6 @@ static const unsigned int lc_sphincs_type = LC_SPHINCS_SHAKE_128s;
 static const unsigned int lc_sphincs_type = LC_SPHINCS_SHAKE_128f;
 #endif
 
-
 static int lc_sphincs_official_test(struct lc_sphincs_ctx *ctx)
 {
 	struct workspace {

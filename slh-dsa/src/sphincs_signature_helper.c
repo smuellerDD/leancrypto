@@ -22,8 +22,7 @@
 
 #include "lc_sha3.h"
 
-LC_INTERFACE_FUNCTION(int, lc_sphincs_ctx_alloc,
-		      struct lc_sphincs_ctx **ctx)
+LC_INTERFACE_FUNCTION(int, lc_sphincs_ctx_alloc, struct lc_sphincs_ctx **ctx)
 {
 	struct lc_sphincs_ctx *out_ctx = NULL;
 	int ret;
