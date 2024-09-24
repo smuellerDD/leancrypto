@@ -36,7 +36,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ctx_alloc,
 	if (ret)
 		return -ret;
 
-	LC_SHAKE_256_CTX((&(out_ctx)->dilithium_hash_ctx));
+	LC_DILITHIUM_SET_CTX(out_ctx);
 
 	*ctx = out_ctx;
 
