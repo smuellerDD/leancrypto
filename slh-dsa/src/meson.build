@@ -6,6 +6,7 @@ sphincs_src = files([
 	'sphincs_hash_shake.c',
 	'sphincs_merkle.c',
 	'sphincs_sign.c',
+	'sphincs_signature_helper.c',
 	'sphincs_thash_shake_robust.c',
 	'sphincs_utils.c',
 	'sphincs_utilsx1.c',

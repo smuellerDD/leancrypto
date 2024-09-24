@@ -24,6 +24,9 @@
 extern "C" {
 #endif
 
+/* Prevent Dilithium macros from getting undefined */
+#define LC_SPHINCS_INTERNAL
+
 /*
  * This define replaces all symbol names accordingly to allow double compilation
  * of the same code base.
@@ -99,7 +102,9 @@ extern "C" {
 #define lc_sphincs_sign_ctx SPHINCS_F(sign_ctx)
 #define lc_sphincs_verify SPHINCS_F(verify)
 #define lc_sphincs_verify_ctx SPHINCS_F(verify_ctx)
+#define lc_sphincs_ctx_alloc SPHINCS_F(ctx_alloc)
 #define lc_sphincs_ctx_zero SPHINCS_F(ctx_zero)
+#define lc_sphincs_ctx_zero_free SPHINCS_F(ctx_zero_free)
 
 #define set_layer_addr SPHINCS_F(set_layer_addr)
 #define set_tree_addr SPHINCS_F(set_tree_addr)

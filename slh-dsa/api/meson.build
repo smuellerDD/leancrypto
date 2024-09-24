@@ -58,4 +58,4 @@ if get_option('sphincs_shake_128f').enabled()
 					configuration: sphincs_shake_128f_conf_data)
 endif
 
-#include_files += files([ 'lc_sphincs.h' ])
+include_files += files([ 'lc_sphincs.h' ])

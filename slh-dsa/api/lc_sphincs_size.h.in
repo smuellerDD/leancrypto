@@ -634,6 +634,22 @@ struct lc_sphincs_ctx {
 #endif
 
 /**
+ * @brief Allocate Sphincs stream context on heap
+ *
+ * @param [out] ctx Allocated Sphincs stream context
+ *
+ * @return: 0 on success, < 0 on error
+ */
+int @sphincs_name@_ctx_alloc(struct lc_sphincs_ctx **ctx);
+
+/**
+ * @brief Zeroize and free Sphincs stream context
+ *
+ * @param [in] ctx Sphincs stream context to be zeroized and freed
+ */
+void @sphincs_name@_ctx_zero_free(struct lc_sphincs_ctx *ctx);
+
+/**
  * @brief Zeroize Dilithium context allocated with
  *	  LC_SPHINCS_CTX_ON_STACK or lc_sphincs_ctx_alloc
  *
@@ -781,6 +797,37 @@ int @sphincs_name@_verify_ctx(const struct @sphincs_name@_sig *sig,
 				struct lc_sphincs_ctx *ctx,
 				const uint8_t *m, size_t mlen,
 				const struct @sphincs_name@_pk *pk);
+
+
+/*
+ * To allow including the different lc_dilithium_*.h files, these macros need to
+ * be undefined. Only during compilation of leancrypto, these macros remain
+ * defined as this header file is not included multiple times.
+ */
+#ifndef LC_SPHINCS_INTERNAL
+#undef LC_SPHINCS_NIST_CATEGORY
+#undef LC_SPHINCS_MODE
+#undef LC_SPX_N
+#undef LC_SPX_FULL_HEIGHT
+#undef LC_SPX_D
+#undef LC_SPX_FORS_HEIGHT
+#undef LC_SPX_FORS_TREES
+#undef LC_SPX_WOTS_W
+#undef LC_SPX_ADDR_BYTES
+#undef LC_SPX_WOTS_LOGW
+#undef LC_SPX_WOTS_LEN1
+#undef LC_SPX_WOTS_LEN2
+#undef LC_SPX_WOTS_LEN
+#undef LC_SPX_WOTS_BYTES
+#undef LC_SPX_WOTS_PK_BYTES
+#undef LC_SPX_TREE_HEIGHT
+#undef LC_SPX_FORS_MSG_BYTES
+#undef LC_SPX_FORS_BYTES
+#undef LC_SPX_FORS_PK_BYTES
+#undef LC_SPX_BYTES
+#undef LC_SPX_PK_BYTES
+#undef LC_SPX_SK_BYTES
+#endif /* LC_SPHINCS_INTERNAL */
 
 #ifdef __cplusplus
 }
