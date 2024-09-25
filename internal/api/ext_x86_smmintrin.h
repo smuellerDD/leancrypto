@@ -62,6 +62,14 @@ static __inline__ __m128i __DEFAULT_FN_ATTRS _mm_blendv_epi8(__m128i __V1,
 	((__m128i)__builtin_ia32_pblendw128((__v8hi)(__m128i)(V1),             \
 					    (__v8hi)(__m128i)(V2), (int)(M)))
 
+#ifdef __x86_64__
+extern __inline long long  __attribute__((__gnu_inline__, __always_inline__, __artificial__))
+_mm_extract_epi64 (__m128i __X, const int __N)
+{
+  return __builtin_ia32_vec_ext_v2di ((__v2di)__X, __N);
+}
+#endif
+
 #undef __DEFAULT_FN_ATTRS
 
 #endif /* EXT_X86_SMMINTRIN_H */

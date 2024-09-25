@@ -66,7 +66,7 @@ static const struct lc_sphincs_func_ctx f_ctx_c = {
 	.wots_pk_from_sig = wots_pk_from_sig_c,
 };
 
-static const struct lc_sphincs_func_ctx f_ctx_avx2 __unused = {
+static const struct lc_sphincs_func_ctx f_ctx_avx2 __maybe_unused = {
 	.merkle_sign = sphincs_merkle_sign_avx2,
 	.merkle_gen_root = sphincs_merkle_gen_root_avx2,
 	.fors_sign = fors_sign_avx2,
@@ -74,7 +74,7 @@ static const struct lc_sphincs_func_ctx f_ctx_avx2 __unused = {
 	.wots_pk_from_sig = wots_pk_from_sig_avx2,
 };
 
-static const struct lc_sphincs_func_ctx f_ctx_armv8 __unused = {
+static const struct lc_sphincs_func_ctx f_ctx_armv8 __maybe_unused = {
 	.merkle_sign = sphincs_merkle_sign_armv8,
 	.merkle_gen_root = sphincs_merkle_gen_root_armv8,
 	.fors_sign = fors_sign_armv8,
@@ -84,7 +84,7 @@ static const struct lc_sphincs_func_ctx f_ctx_armv8 __unused = {
 
 static const struct lc_sphincs_func_ctx *lc_sphincs_get_ctx(void)
 {
-	enum lc_cpu_features feat __unused = lc_cpu_feature_available();
+	enum lc_cpu_features feat __maybe_unused = lc_cpu_feature_available();
 
 #ifdef LC_HOST_X86_64
 	if (feat & LC_CPU_FEATURE_INTEL_AVX2) {

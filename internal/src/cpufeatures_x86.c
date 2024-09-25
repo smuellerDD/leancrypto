@@ -47,7 +47,7 @@ unsigned int lc_x86_64_cpuid[4] __attribute__((used));
 
 static enum lc_cpu_features feat = LC_CPU_FEATURE_UNSET;
 
-void lc_cpu_feature_disable(void)
+LC_INTERFACE_FUNCTION(void, lc_cpu_feature_disable, void)
 {
 	feat = LC_CPU_FEATURE_NONE;
 }

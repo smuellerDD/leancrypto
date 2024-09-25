@@ -1,0 +1,1 @@
+../../../slh-dsa/src/avx2/sphincs_wots_avx2.c

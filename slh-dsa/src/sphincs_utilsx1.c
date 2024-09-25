@@ -52,17 +52,17 @@ void treehashx1(
 	uint32_t tree_addr[8], void *info)
 {
 	/* This is where we keep the intermediate nodes */
-	uint8_t stack[tree_height * LC_SPX_N];
+	uint8_t stack_sp[tree_height * LC_SPX_N];
 	uint32_t idx;
 	uint32_t max_idx = (uint32_t)((1 << tree_height) - 1);
 
 	for (idx = 0;; idx++) {
-		unsigned char
-			current[2 * LC_SPX_N]; /* Current logical node is at */
+		/* Current logical node is at */
 		/* index[LC_SPX_N].  We do this to minimize the number of copies */
 		/* needed during a thash */
+		uint8_t current_idx[2 * LC_SPX_N];
 
-		gen_leaf(&current[LC_SPX_N], ctx, idx + idx_offset, info);
+		gen_leaf(&current_idx[LC_SPX_N], ctx, idx + idx_offset, info);
 
 		/* Now combine the freshly generated right node with previously */
 		/* generated left ones */
@@ -75,7 +75,7 @@ void treehashx1(
 			/* Check if we hit the top of the tree */
 			if (h == tree_height) {
 				/* We hit the root; return it */
-				memcpy(root, &current[LC_SPX_N], LC_SPX_N);
+				memcpy(root, &current_idx[LC_SPX_N], LC_SPX_N);
 				return;
 			}
 
@@ -85,7 +85,7 @@ void treehashx1(
 			 */
 			if ((internal_idx ^ internal_leaf) == 0x01) {
 				memcpy(&auth_path[h * LC_SPX_N],
-				       &current[LC_SPX_N], LC_SPX_N);
+				       &current_idx[LC_SPX_N], LC_SPX_N);
 			}
 
 			/*
@@ -106,14 +106,15 @@ void treehashx1(
 			set_tree_index(tree_addr,
 				       internal_idx / 2 + internal_idx_offset);
 
-			unsigned char *left = &stack[h * LC_SPX_N];
-			memcpy(&current[0], left, LC_SPX_N);
-			thash(&current[1 * LC_SPX_N], &current[0 * LC_SPX_N], 2,
-			      ctx->pub_seed, tree_addr);
+			unsigned char *left = &stack_sp[h * LC_SPX_N];
+			memcpy(&current_idx[0], left, LC_SPX_N);
+			thash(&current_idx[1 * LC_SPX_N],
+			      &current_idx[0 * LC_SPX_N], 2, ctx->pub_seed,
+			      tree_addr);
 		}
 
 		/* We've hit a left child; save the current for when we get the */
 		/* corresponding right right */
-		memcpy(&stack[h * LC_SPX_N], &current[LC_SPX_N], LC_SPX_N);
+		memcpy(&stack_sp[h * LC_SPX_N], &current_idx[LC_SPX_N], LC_SPX_N);
 	}
 }

@@ -130,6 +130,10 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 			lc_cpu_feature_disable();
 	}
 
+#ifdef LC_SPHINCS_TESTER_C
+	lc_cpu_feature_disable();
+#endif
+
 	CKINT(lc_sphincs_test(&tests[0], t));
 	rc += ret;
 

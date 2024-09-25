@@ -24,11 +24,16 @@
 extern "C" {
 #endif
 
-#define __aligned(x) __attribute__((aligned(x)))
-#define __unused __attribute__((__unused__))
+#ifndef __not_used
+#define __not_used __attribute__((__unused__))
+#endif
+#ifndef __maybe_unused
 #define __maybe_unused __attribute__((__unused__))
+#endif
 
+#ifndef LINUX_KERNEL
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+#endif
 
 /**
  * @brief Obtain pointer to data structure when having a pointer to one of

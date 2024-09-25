@@ -98,7 +98,7 @@ static inline unsigned long arm_id_aa64isar0_el1_feature(void)
 
 static enum lc_cpu_features features = LC_CPU_FEATURE_UNSET;
 
-void lc_cpu_feature_disable(void)
+LC_INTERFACE_FUNCTION(void, lc_cpu_feature_disable, void)
 {
 	features = LC_CPU_FEATURE_NONE;
 }

@@ -233,6 +233,21 @@ static __inline __m256d __DEFAULT_FN_ATTRS _mm256_broadcast_sd(double const *__a
 	return __extension__(__m256d)(__v4df){ __d, __d, __d, __d };
 }
 
+extern __inline __m128i __attribute__((__gnu_inline__, __always_inline__, __artificial__))
+_mm256_extractf128_si256 (__m256i __X, const int __N)
+{
+  return (__m128i) __builtin_ia32_vextractf128_si256 ((__v8si)__X, __N);
+}
+
+#ifdef __x86_64__
+extern __inline long long  __attribute__((__gnu_inline__, __always_inline__, __artificial__))
+_mm256_extract_epi64 (__m256i __X, const int __N)
+{
+  __m128i __Y = _mm256_extractf128_si256 (__X, __N >> 1);
+  return _mm_extract_epi64 (__Y, __N % 2);
+}
+#endif
+
 #undef __DEFAULT_FN_ATTRS
 
 #endif /* EXT_X86_AVXINTRIN_H */

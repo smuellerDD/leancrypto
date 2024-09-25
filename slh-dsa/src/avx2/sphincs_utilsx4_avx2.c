@@ -78,9 +78,10 @@ void treehashx4(
 	uint32_t max_idx = (1 << (tree_height - 2)) - 1;
 
 	for (idx = 0;; idx++) {
-		unsigned char current[4 * LC_SPX_N]; /* Current logical node */
+		/* Current logical node */
+		uint8_t current_idx[4 * LC_SPX_N];
 
-		gen_leafx4(current, ctx, 4 * idx + idx_offset, info, ws_buf);
+		gen_leafx4(current_idx, ctx, 4 * idx + idx_offset, info, ws_buf);
 
 		/* Now combine the freshly generated right node with previously */
 		/* generated left ones */
@@ -93,7 +94,7 @@ void treehashx4(
 			if (h >= tree_height - 2) {
 				if (h == tree_height) {
 					/* We hit the root; return it */
-					memcpy(root, &current[3 * LC_SPX_N],
+					memcpy(root, &current_idx[3 * LC_SPX_N],
 					       LC_SPX_N);
 					return;
 				}
@@ -107,7 +108,7 @@ void treehashx4(
 			/* Check if we hit the top of the tree */
 			if (h == tree_height) {
 				/* We hit the root; return it */
-				memcpy(root, &current[3 * LC_SPX_N], LC_SPX_N);
+				memcpy(root, &current_idx[3 * LC_SPX_N], LC_SPX_N);
 				return;
 			}
 
@@ -118,7 +119,7 @@ void treehashx4(
 			if ((((internal_idx << 2) ^ internal_leaf) &
 			     (uint32_t)~0x3) == 0) {
 				memcpy(&auth_path[h * LC_SPX_N],
-				       &current[(((internal_leaf & 3) ^ 1) +
+				       &current_idx[(((internal_leaf & 3) ^ 1) +
 						 prev_left_adj) *
 						LC_SPX_N],
 				       LC_SPX_N);
@@ -149,15 +150,15 @@ void treehashx4(
 						       internal_idx_offset);
 			}
 			unsigned char *left = &stackx4[h * 4 * LC_SPX_N];
-			thashx4(&current[0 * LC_SPX_N], &current[1 * LC_SPX_N],
-				&current[2 * LC_SPX_N], &current[3 * LC_SPX_N],
+			thashx4(&current_idx[0 * LC_SPX_N], &current_idx[1 * LC_SPX_N],
+				&current_idx[2 * LC_SPX_N], &current_idx[3 * LC_SPX_N],
 				&left[0 * LC_SPX_N], &left[2 * LC_SPX_N],
-				&current[0 * LC_SPX_N], &current[2 * LC_SPX_N],
+				&current_idx[0 * LC_SPX_N], &current_idx[2 * LC_SPX_N],
 				2, ctx, tree_addrx4);
 		}
 
 		/* We've hit a left child; save the current for when we get the */
 		/* corresponding right right */
-		memcpy(&stackx4[h * 4 * LC_SPX_N], current, 4 * LC_SPX_N);
+		memcpy(&stackx4[h * 4 * LC_SPX_N], current_idx, 4 * LC_SPX_N);
 	}
 }

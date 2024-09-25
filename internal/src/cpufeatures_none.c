@@ -21,7 +21,7 @@
 #include "ext_headers.h"
 #include "visibility.h"
 
-void lc_cpu_feature_disable(void)
+LC_INTERFACE_FUNCTION(void, lc_cpu_feature_disable, void)
 {
 }
 

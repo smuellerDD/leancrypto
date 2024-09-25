@@ -1,0 +1,1 @@
+../../../slh-dsa/src/avx2/sphincs_hash_shakex4_avx2.c
