@@ -68,6 +68,14 @@ if get_option('sphincs_shake_256s').enabled()
 				],
 				dependencies: leancrypto
 				)
+	sphincs_iuf_tester = executable('sphincs_iuf_tester',
+				[ 'sphincs_iuf_tester.c' ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+				],
+				dependencies: leancrypto
+				)
 
 	test('Sphincs SHAKE 256s Accel', sphincs_tester_256s, suite: regression)
 	test('Sphincs SHAKE 256f Accel', sphincs_tester_256f, suite: regression)
@@ -168,5 +176,8 @@ if get_option('sphincs_shake_256s').enabled()
 	     args : [ 'v', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
 
 	test('Sphincs SHAKE Official', sphincs_official_tester,
+	     suite: regression)
+
+	test('Sphincs SHAKE IUF', sphincs_official_tester,
 	     suite: regression)
 endif

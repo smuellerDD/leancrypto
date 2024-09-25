@@ -1350,6 +1350,182 @@ static inline int lc_sphincs_sign_ctx(struct lc_sphincs_sig *sig,
 
 /**
  * @ingroup Sphincs
+ * @brief Initializes a signature operation
+ *
+ * This call is intended to support messages that are located in non-contiguous
+ * places and even becomes available at different times. This call is to be
+ * used together with the lc_sphincs_sign_update and lc_sphincs_sign_final.
+ *
+ * @param [in,out] ctx pointer Sphincs context
+ * @param [in] sk pointer to bit-packed secret key
+ *
+ * @return 0 (success) or < 0 on error; -EOPNOTSUPP is returned if a different
+ *	   hash than lc_shake256 is used.
+ */
+static inline int lc_sphincs_sign_init(struct lc_sphincs_ctx *ctx,
+					 const struct lc_sphincs_sk *sk)
+{
+	if (!sk)
+		return -EINVAL;
+
+	switch (sk->sphincs_type) {
+	case LC_SPHINCS_SHAKE_256s:
+#ifdef LC_SPHINCS_SHAKE_256s_ENABLED
+		return lc_sphincs_shake_256s_sign_init(ctx, &sk->key.sk_shake_256s);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_SPHINCS_SHAKE_256f:
+#ifdef LC_SPHINCS_SHAKE_256f_ENABLED
+		return lc_sphincs_shake_256f_sign_init(ctx, &sk->key.sk_shake_256f);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_SPHINCS_SHAKE_192s:
+#ifdef LC_SPHINCS_SHAKE_192s_ENABLED
+		return lc_sphincs_shake_192s_sign_init(ctx, &sk->key.sk_shake_192s);
+#else
+		return -EOPNOTSUPP;
+#endif
+case LC_SPHINCS_SHAKE_192f:
+#ifdef LC_SPHINCS_SHAKE_192f_ENABLED
+		return lc_sphincs_shake_192f_sign_init(ctx, &sk->key.sk_shake_192f);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_SPHINCS_SHAKE_128s:
+#ifdef LC_SPHINCS_SHAKE_128s_ENABLED
+		return lc_sphincs_shake_128s_sign_init(ctx, &sk->key.sk_shake_128s);
+#else
+		return -EOPNOTSUPP;
+#endif
+case LC_SPHINCS_SHAKE_128f:
+#ifdef LC_SPHINCS_SHAKE_128f_ENABLED
+		return lc_sphincs_shake_128f_sign_init(ctx, &sk->key.sk_shake_128f);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_SPHINCS_UNKNOWN:
+	default:
+		return -EOPNOTSUPP;
+	}
+}
+
+/**
+ * @ingroup Sphincs
+ * @brief Add more data to an already initialized signature state
+ *
+ * This call is intended to support messages that are located in non-contiguous
+ * places and even becomes available at different times. This call is to be
+ * used together with the lc_sphincs_sign_init and lc_sphincs_sign_final.
+ *
+ * @param [in] ctx pointer to Sphincs context that was initialized with
+ *	      	   lc_sphincs_sign_init
+ * @param [in] m pointer to message to be signed
+ * @param [in] mlen length of message
+ *
+ * @return 0 (success) or < 0 on error
+ */
+static inline int lc_sphincs_sign_update(struct lc_sphincs_ctx *ctx,
+					   const uint8_t *m, size_t mlen)
+{
+#ifdef LC_SPHINCS_SHAKE_256s_ENABLED
+	return lc_sphincs_shake_256s_sign_update(ctx, m, mlen);
+#elif defined(LC_SPHINCS_SHAKE_256f_ENABLED)
+	return lc_sphincs_shake_256f_sign_update(ctx, m, mlen);
+#elif defined(LC_SPHINCS_SHAKE_192s_ENABLED)
+	return lc_sphincs_shake_192s_sign_update(ctx, m, mlen);
+#elif defined(LC_SPHINCS_SHAKE_192f_ENABLED)
+	return lc_sphincs_shake_192f_sign_update(ctx, m, mlen);
+#elif defined(LC_SPHINCS_SHAKE_128s_ENABLED)
+	return lc_sphincs_shake_128s_sign_update(ctx, m, mlen);
+#elif defined(LC_SPHINCS_SHAKE_128f_ENABLED)
+	return lc_sphincs_shake_128f_sign_update(ctx, m, mlen);
+#else
+	return -EOPNOTSUPP;
+#endif
+}
+
+/**
+ * @ingroup Sphincs
+ * @brief Computes signature
+ *
+ * @param [out] sig pointer to output signature
+ * @param [in] ctx pointer to Sphincs context that was initialized with
+ *	      	   lc_sphincs_sign_init and filled with
+ * 		   lc_sphincs_sign_update
+ * @param [in] sk pointer to bit-packed secret key
+ * @param [in] rng_ctx pointer to seeded random number generator context - when
+ *		       pointer is non-NULL, perform a randomized signing.
+ *		       Otherwise use deterministic signing.
+ *
+ * @return 0 (success) or < 0 on error
+ */
+static inline int lc_sphincs_sign_final(struct lc_sphincs_sig *sig,
+					  struct lc_sphincs_ctx *ctx,
+					  const struct lc_sphincs_sk *sk,
+					  struct lc_rng_ctx *rng_ctx)
+{
+	if (!sk || !sig)
+		return -EINVAL;
+
+	switch (sk->sphincs_type) {
+	case LC_SPHINCS_SHAKE_256s:
+#ifdef LC_SPHINCS_SHAKE_256s_ENABLED
+		sig->sphincs_type = LC_SPHINCS_SHAKE_256s;
+		return lc_sphincs_shake_256s_sign_final(&sig->sig.sig_shake_256s, ctx,
+						  &sk->key.sk_shake_256s, rng_ctx);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_SPHINCS_SHAKE_256f:
+#ifdef LC_SPHINCS_SHAKE_256f_ENABLED
+		sig->sphincs_type = LC_SPHINCS_SHAKE_256f;
+		return lc_sphincs_shake_256f_sign_final(&sig->sig.sig_shake_256f, ctx,
+						  &sk->key.sk_shake_256f, rng_ctx);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_SPHINCS_SHAKE_192s:
+#ifdef LC_SPHINCS_SHAKE_192s_ENABLED
+		sig->sphincs_type = LC_SPHINCS_SHAKE_192s;
+		return lc_sphincs_shake_192s_sign_final(&sig->sig.sig_shake_192s, ctx,
+						  &sk->key.sk_shake_192s, rng_ctx);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_SPHINCS_SHAKE_192f:
+#ifdef LC_SPHINCS_SHAKE_192f_ENABLED
+		sig->sphincs_type = LC_SPHINCS_SHAKE_192f;
+		return lc_sphincs_shake_192f_sign_final(&sig->sig.sig_shake_192f, ctx,
+						  &sk->key.sk_shake_192f, rng_ctx);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_SPHINCS_SHAKE_128s:
+#ifdef LC_SPHINCS_SHAKE_128s_ENABLED
+		sig->sphincs_type = LC_SPHINCS_SHAKE_128s;
+		return lc_sphincs_shake_128s_sign_final(&sig->sig.sig_shake_128s, ctx,
+						  &sk->key.sk_shake_128s, rng_ctx);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_SPHINCS_SHAKE_128f:
+#ifdef LC_SPHINCS_SHAKE_128f_ENABLED
+		sig->sphincs_type = LC_SPHINCS_SHAKE_128f;
+		return lc_sphincs_shake_128f_sign_final(&sig->sig.sig_shake_128f, ctx,
+						  &sk->key.sk_shake_128f, rng_ctx);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_SPHINCS_UNKNOWN:
+	default:
+		return -EOPNOTSUPP;
+	}
+}
+
+/**
+ * @ingroup Sphincs
  * @brief Verifies signature in one shot
  *
  * @param [in] sig pointer to input signature
@@ -1492,6 +1668,175 @@ static inline int lc_sphincs_verify_ctx(const struct lc_sphincs_sig *sig,
 		return lc_sphincs_shake_128f_verify_ctx(
 			&sig->sig.sig_shake_128f, ctx, m, mlen,
 			&pk->key.pk_shake_128f);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_SPHINCS_UNKNOWN:
+	default:
+		return -EOPNOTSUPP;
+	}
+}
+
+/**
+ * @ingroup Sphincs
+ * @brief Initializes a signature verification operation
+ *
+ * This call is intended to support messages that are located in non-contiguous
+ * places and even becomes available at different times. This call is to be
+ * used together with the lc_sphincs_verify_update and
+ * lc_sphincs_verify_final.
+ *
+ * @param [in,out] ctx pointer to an allocated Sphincs context
+ * @param [in] pk pointer to bit-packed public key
+ *
+ * @return 0 (success) or < 0 on error; -EOPNOTSUPP is returned if a different
+ *	   hash than lc_shake256 is used.
+ */
+static inline int lc_sphincs_verify_init(struct lc_sphincs_ctx *ctx,
+					   const struct lc_sphincs_pk *pk)
+{
+	if (!pk)
+		return -EINVAL;
+
+	switch (pk->sphincs_type) {
+	case LC_SPHINCS_SHAKE_256s:
+#ifdef LC_SPHINCS_SHAKE_256s_ENABLED
+		return lc_sphincs_shake_256s_verify_init(ctx, &pk->key.pk_shake_256s);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_SPHINCS_SHAKE_256f:
+#ifdef LC_SPHINCS_SHAKE_256f_ENABLED
+		return lc_sphincs_shake_256f_verify_init(ctx, &pk->key.pk_shake_256f);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_SPHINCS_SHAKE_192s:
+#ifdef LC_SPHINCS_SHAKE_192s_ENABLED
+		return lc_sphincs_shake_192s_verify_init(ctx, &pk->key.pk_shake_192s);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_SPHINCS_SHAKE_192f:
+#ifdef LC_SPHINCS_SHAKE_192f_ENABLED
+		return lc_sphincs_shake_192f_verify_init(ctx, &pk->key.pk_shake_192f);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_SPHINCS_SHAKE_128s:
+#ifdef LC_SPHINCS_SHAKE_128s_ENABLED
+		return lc_sphincs_shake_128s_verify_init(ctx, &pk->key.pk_shake_128s);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_SPHINCS_SHAKE_128f:
+#ifdef LC_SPHINCS_SHAKE_128f_ENABLED
+		return lc_sphincs_shake_128f_verify_init(ctx, &pk->key.pk_shake_128f);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_SPHINCS_UNKNOWN:
+	default:
+		return -EOPNOTSUPP;
+	}
+}
+
+/**
+ * @ingroup Sphincs
+ * @brief Add more data to an already initialized signature state
+ *
+ * This call is intended to support messages that are located in non-contiguous
+ * places and even becomes available at different times. This call is to be
+ * used together with the lc_sphincs_verify_init and
+ * lc_sphincs_verify_final.
+ *
+ * @param [in] ctx pointer to Sphincs context that was initialized with
+ *		   lc_sphincs_sign_init
+ * @param [in] m pointer to message to be signed
+ * @param [in] mlen length of message
+ *
+ * @return 0 (success) or < 0 on error
+ */
+static inline int lc_sphincs_verify_update(struct lc_sphincs_ctx *ctx,
+					     const uint8_t *m, size_t mlen)
+{
+#ifdef LC_SPHINCS_SHAKE_256s_ENABLED
+	return lc_sphincs_shake_256s_verify_update(ctx, m, mlen);
+#elif defined(LC_SPHINCS_SHAKE_256f_ENABLED)
+	return lc_sphincs_shake_256f_verify_update(ctx, m, mlen);
+#elif defined(LC_SPHINCS_SHAKE_192s_ENABLED)
+	return lc_sphincs_shake_192s_verify_update(ctx, m, mlen);
+#elif defined(LC_SPHINCS_SHAKE_192f_ENABLED)
+	return lc_sphincs_shake_192f_verify_update(ctx, m, mlen);
+#elif defined(LC_SPHINCS_SHAKE_128s_ENABLED)
+	return lc_sphincs_shake_128s_verify_update(ctx, m, mlen);
+#elif defined(LC_SPHINCS_SHAKE_128f_ENABLED)
+	return lc_sphincs_shake_128f_verify_update(ctx, m, mlen);
+#else
+	return -EOPNOTSUPP;
+#endif
+}
+
+/**
+ * @ingroup Sphincs
+ * @brief Verifies signature
+ *
+ * @param [in] sig pointer to output signature
+ * @param [in] ctx pointer to Sphincs context that was initialized with
+ *		   lc_sphincs_sign_init and filled with
+ *		   lc_sphincs_sign_update
+ * @param [in] pk pointer to bit-packed public key
+ *
+ * @return 0 if signature could be verified correctly and -EBADMSG when
+ * signature cannot be verified, < 0 on other errors
+ */
+static inline int lc_sphincs_verify_final(const struct lc_sphincs_sig *sig,
+					    struct lc_sphincs_ctx *ctx,
+					    const struct lc_sphincs_pk *pk)
+{
+	if (!pk || !sig || sig->sphincs_type != pk->sphincs_type)
+		return -EINVAL;
+
+	switch (pk->sphincs_type) {
+	case LC_SPHINCS_SHAKE_256s:
+#ifdef LC_SPHINCS_SHAKE_256s_ENABLED
+		return lc_sphincs_shake_256s_verify_final(&sig->sig.sig_shake_256s, ctx,
+						    &pk->key.pk_shake_256s);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_SPHINCS_SHAKE_256f:
+#ifdef LC_SPHINCS_SHAKE_256f_ENABLED
+		return lc_sphincs_shake_256f_verify_final(&sig->sig.sig_shake_256f, ctx,
+						    &pk->key.pk_shake_256f);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_SPHINCS_SHAKE_192s:
+#ifdef LC_SPHINCS_SHAKE_192s_ENABLED
+		return lc_sphincs_shake_192s_verify_final(&sig->sig.sig_shake_192s, ctx,
+						    &pk->key.pk_shake_192s);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_SPHINCS_SHAKE_192f:
+#ifdef LC_SPHINCS_SHAKE_192f_ENABLED
+		return lc_sphincs_shake_192f_verify_final(&sig->sig.sig_shake_192f, ctx,
+						    &pk->key.pk_shake_192f);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_SPHINCS_SHAKE_128s:
+#ifdef LC_SPHINCS_SHAKE_128s_ENABLED
+		return lc_sphincs_shake_128s_verify_final(&sig->sig.sig_shake_128s, ctx,
+						    &pk->key.pk_shake_128s);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_SPHINCS_SHAKE_128f:
+#ifdef LC_SPHINCS_SHAKE_128f_ENABLED
+		return lc_sphincs_shake_128f_verify_final(&sig->sig.sig_shake_128f, ctx,
+						    &pk->key.pk_shake_128f);
 #else
 		return -EOPNOTSUPP;
 #endif

@@ -606,7 +606,6 @@ struct lc_sphincs_ctx {
 	sizeof(struct lc_sphincs_ctx)
 
 #define LC_SPHINCS_SET_CTX(name)                                               \
-	LC_SHAKE_256_CTX((&(name)->sphincs_hash_ctx));                         \
 	(name)->sphincs_prehash_type = NULL;                                   \
 	(name)->slh_dsa_internal = 0;                                          \
 	(name)->userctxlen = 0;                                                \
@@ -650,7 +649,7 @@ int @sphincs_name@_ctx_alloc(struct lc_sphincs_ctx **ctx);
 void @sphincs_name@_ctx_zero_free(struct lc_sphincs_ctx *ctx);
 
 /**
- * @brief Zeroize Dilithium context allocated with
+ * @brief Zeroize Sphincs context allocated with
  *	  LC_SPHINCS_CTX_ON_STACK or lc_sphincs_ctx_alloc
  *
  * @param [in] ctx Sphincs context to be zeroized
@@ -659,7 +658,10 @@ static inline void @sphincs_name@_ctx_zero(struct lc_sphincs_ctx *ctx)
 {
 	if (!ctx)
 		return;
-	lc_hash_zero(&ctx->sphincs_hash_ctx);
+
+	/* Only zeroize if the hash state has been initialized */
+	if (ctx->sphincs_hash_ctx.hash)
+		lc_hash_zero(&ctx->sphincs_hash_ctx);
 }
 
 /**
@@ -765,6 +767,72 @@ int @sphincs_name@_sign_ctx(struct @sphincs_name@_sig *sig,
 			      struct lc_rng_ctx *rng_ctx);
 
 /**
+ * @brief Initializes a signature operation
+ *
+ * This call is intended to support messages that are located in non-contiguous
+ * places and even becomes available at different times. This call is to be
+ * used together with the lc_sphincs_sign_update and lc_sphincs_sign_final.
+ *
+ * NOTE: The use of the init/update/final API implies that automatically
+ * HashSLH-DSA is used. This is due to the fact that SLH-DSA cannot be used
+ * in the init/update/final mode due to mathematical issues. By default, the
+ * following hashes are used which are compliant to the requirement that the
+ * message digest must be twice as large as the parameter n:
+ *
+ * Sphincs 256s/f: SHA3-512
+ * Sphincs 192s/f: SHA3-384
+ * Sphincs 128s/f: SHA3-256
+ *
+ * It is permissible for the caller to select other message digest algorithms
+ * by using setting the requested algorithm in the ctx using the
+ * lc_sphincs_ctx_hash method *before* this init function is used.
+ *
+ * @param [in,out] ctx pointer to an allocated Sphincs context
+ * @param [in] sk pointer to bit-packed secret key
+ *
+ * @return 0 (success) or < 0 on error; -EOPNOTSUPP is returned if a different
+ *	   hash than lc_shake256 is used.
+ */
+int @sphincs_name@_sign_init(struct lc_sphincs_ctx *ctx,
+			   const struct @sphincs_name@_sk *sk);
+
+/**
+ * @brief Add more data to an already initialized signature state
+ *
+ * This call is intended to support messages that are located in non-contiguous
+ * places and even becomes available at different times. This call is to be
+ * used together with the lc_sphincs_sign_init and lc_sphincs_sign_final.
+ *
+ * @param [in] ctx pointer to Sphincs context that was initialized with
+ *			    lc_sphincs_sign_init
+ * @param [in] m pointer to message to be signed
+ * @param [in] mlen length of message
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int @sphincs_name@_sign_update(struct lc_sphincs_ctx *ctx, const uint8_t *m,
+			     size_t mlen);
+
+/**
+ * @brief Computes signature
+ *
+ * @param [out] sig pointer to output signature
+ * @param [in] ctx pointer to Sphincs context that was initialized with
+ *			lc_sphincs_sign_init and filled with
+ *			lc_sphincs_sign_update
+ * @param [in] sk pointer to bit-packed secret key
+ * @param [in] rng_ctx pointer to seeded random number generator context - when
+ *		       pointer is non-NULL, perform a randomized signing.
+ *		       Otherwise use deterministic signing.
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int @sphincs_name@_sign_final(struct @sphincs_name@_sig *sig,
+			    struct lc_sphincs_ctx *ctx,
+			    const struct @sphincs_name@_sk *sk,
+			    struct lc_rng_ctx *rng_ctx);
+
+/**
  * @brief Verifies SLH-DSA signature in one shot
  *
  * @param [in] sig pointer to input signature
@@ -799,8 +867,73 @@ int @sphincs_name@_verify_ctx(const struct @sphincs_name@_sig *sig,
 				const struct @sphincs_name@_pk *pk);
 
 
+/**
+ * @brief Initializes a signature verification operation
+ *
+ * This call is intended to support messages that are located in non-contiguous
+ * places and even becomes available at different times. This call is to be
+ * used together with the lc_sphincs_verify_update and
+ * lc_sphincs_verify_final.
+ *
+ * NOTE: The use of the init/update/final API implies that automatically
+ * HashSLH-DSA is used. This is due to the fact that SLH-DSA cannot be used
+ * in the init/update/final mode due to mathematical issues. By default, the
+ * following hashes are used which are compliant to the requirement that the
+ * message digest must be twice as large as the parameter n:
+ *
+ * Sphincs 256s/f: SHA3-512
+ * Sphincs 192s/f: SHA3-384
+ * Sphincs 128s/f: SHA3-256
+ *
+ * It is permissible for the caller to select other message digest algorithms
+ * by using setting the requested algorithm in the ctx using the
+ * lc_sphincs_ctx_hash method *before* this init function is used.
+ *
+ * @param [in,out] ctx pointer to an allocated Sphincs context
+ * @param [in] pk pointer to bit-packed public key
+ *
+ * @return 0 (success) or < 0 on error; -EOPNOTSUPP is returned if a different
+ *	   hash than lc_shake256 is used.
+ */
+int @sphincs_name@_verify_init(struct lc_sphincs_ctx *ctx,
+			     const struct @sphincs_name@_pk *pk);
+
+/**
+ * @brief Add more data to an already initialized signature state
+ *
+ * This call is intended to support messages that are located in non-contiguous
+ * places and even becomes available at different times. This call is to be
+ * used together with the lc_sphincs_verify_init and
+ * lc_sphincs_verify_final.
+ *
+ * @param [in,out] ctx pointer to Sphincs context that was initialized with
+ *			    lc_sphincs_sign_init
+ * @param [in] m pointer to message to be signed
+ * @param [in] mlen length of message
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int @sphincs_name@_verify_update(struct lc_sphincs_ctx *ctx, const uint8_t *m,
+			       size_t mlen);
+
+/**
+ * @brief Verifies signature
+ *
+ * @param [in] sig pointer to output signature
+ * @param [in] ctx pointer to Sphincs context that was initialized with
+ *			lc_sphincs_sign_init and filled with
+ *			lc_sphincs_sign_update
+ * @param [in] pk pointer to bit-packed public key
+ *
+ * @return 0 if signature could be verified correctly and -EBADMSG when
+ * signature cannot be verified, < 0 on other errors
+ */
+int @sphincs_name@_verify_final(const struct @sphincs_name@_sig *sig,
+			      struct lc_sphincs_ctx *ctx,
+			      const struct @sphincs_name@_pk *pk);
+
 /*
- * To allow including the different lc_dilithium_*.h files, these macros need to
+ * To allow including the different lc_sphincs_*.h files, these macros need to
  * be undefined. Only during compilation of leancrypto, these macros remain
  * defined as this header file is not included multiple times.
  */

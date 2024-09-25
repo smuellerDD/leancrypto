@@ -262,6 +262,102 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign, struct lc_sphincs_sig *sig,
 	return ret;
 }
 
+LC_INTERFACE_FUNCTION(int, lc_sphincs_sign_init, struct lc_sphincs_ctx *ctx,
+		      const struct lc_sphincs_sk *sk)
+{
+	int ret = 0;
+
+	/*
+	 * We do not need the SK here - but we leave it to have a consistent
+	 * API with ML-DSA.
+	 */
+	(void)sk;
+
+	CKNULL(ctx, -EINVAL);
+
+	if (!ctx->sphincs_prehash_type) {
+#if (LC_SPHINCS_NIST_CATEGORY == 1)
+		ctx->sphincs_prehash_type = lc_sha3_256;
+#elif (LC_SPHINCS_NIST_CATEGORY == 3)
+		ctx->sphincs_prehash_type = lc_sha3_384;
+#elif (LC_SPHINCS_NIST_CATEGORY == 5)
+		ctx->sphincs_prehash_type = lc_sha3_512;
+#else
+#error "Unknown NIST category"
+#endif
+	}
+
+	/*
+	 * If the prehash type was set, we do not check it here, but the
+	 * signature_domain_separation function will force the proper hash.
+	 */
+
+	/* Initialize the hash */
+	LC_HASH_SET_CTX((&ctx->sphincs_hash_ctx), ctx->sphincs_prehash_type);
+
+	lc_hash_init(&ctx->sphincs_hash_ctx);
+
+out:
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_sphincs_sign_update, struct lc_sphincs_ctx *ctx,
+		      const uint8_t *m, size_t mlen)
+{
+	int ret = 0;
+
+	CKNULL(ctx, -EINVAL);
+
+	lc_hash_update(&ctx->sphincs_hash_ctx, m, mlen);
+
+out:
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_sphincs_sign_final, struct lc_sphincs_sig *sig,
+		      struct lc_sphincs_ctx *ctx,
+		      const struct lc_sphincs_sk *sk,
+		      struct lc_rng_ctx *rng_ctx)
+{
+	uint8_t digest[LC_SHA3_512_SIZE_DIGEST];
+	int ret;
+
+	CKNULL(ctx, -EINVAL);
+
+	/*
+	 * Detect SHAKE algos and set the digest size following the
+	 * specification.
+	 */
+	if (!lc_hash_digestsize(&ctx->sphincs_hash_ctx)) {
+#if (LC_SPHINCS_NIST_CATEGORY == 1)
+		lc_hash_set_digestsize(&ctx->sphincs_hash_ctx, 32);
+#elif (LC_SPHINCS_NIST_CATEGORY == 3)
+		lc_hash_set_digestsize(&ctx->sphincs_hash_ctx, 48);
+#elif (LC_SPHINCS_NIST_CATEGORY == 5)
+		lc_hash_set_digestsize(&ctx->sphincs_hash_ctx, 64);
+#else
+#error "Unknown NIST category"
+#endif
+	}
+
+	/* Should never happen */
+	if (lc_hash_digestsize(&ctx->sphincs_hash_ctx) > sizeof(digest))
+		return -EFAULT;
+
+	lc_hash_final(&ctx->sphincs_hash_ctx, digest);
+
+	ret = lc_sphincs_sign_ctx(sig, ctx, digest,
+				  lc_hash_digestsize(&ctx->sphincs_hash_ctx),
+				  sk, rng_ctx);
+
+	/* Zeroize hash context in case of successful signature operation */
+	if (!ret)
+		lc_hash_zero(&ctx->sphincs_hash_ctx);
+
+out:
+	return ret;
+}
+
 /**
  * Verifies a detached signature and message under a given public key.
  */
@@ -361,5 +457,73 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify, const struct lc_sphincs_sig *sig,
 	int ret = lc_sphincs_verify_ctx(sig, sphincs_ctx, m, mlen, pk);
 
 	lc_sphincs_ctx_zero(sphincs_ctx);
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_sphincs_verify_init, struct lc_sphincs_ctx *ctx,
+		      const struct lc_sphincs_pk *pk)
+{
+	/*
+	 * We do not need the PK here - but we leave it to have a consistent
+	 * API with ML-DSA.
+	 */
+	(void)pk;
+	return lc_sphincs_sign_init(ctx, NULL);
+}
+
+LC_INTERFACE_FUNCTION(int, lc_sphincs_verify_update, struct lc_sphincs_ctx *ctx,
+		      const uint8_t *m, size_t mlen)
+{
+	int ret = 0;
+
+	CKNULL(ctx, -EINVAL);
+
+	lc_hash_update(&ctx->sphincs_hash_ctx, m, mlen);
+
+out:
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_sphincs_verify_final,
+		      const struct lc_sphincs_sig *sig,
+		      struct lc_sphincs_ctx *ctx,
+		      const struct lc_sphincs_pk *pk)
+{
+	uint8_t digest[LC_SHA3_512_SIZE_DIGEST];
+	int ret;
+
+	CKNULL(ctx, -EINVAL);
+
+	/*
+	 * Catch SHAKE algos and set the digestsize following the
+	 * specification.
+	 */
+	if (!lc_hash_digestsize(&ctx->sphincs_hash_ctx)) {
+#if (LC_SPHINCS_NIST_CATEGORY == 1)
+		lc_hash_set_digestsize(&ctx->sphincs_hash_ctx, 32);
+#elif (LC_SPHINCS_NIST_CATEGORY == 3)
+		lc_hash_set_digestsize(&ctx->sphincs_hash_ctx, 48);
+#elif (LC_SPHINCS_NIST_CATEGORY == 5)
+		lc_hash_set_digestsize(&ctx->sphincs_hash_ctx, 64);
+#else
+#error "Unknown NIST category"
+#endif
+	}
+
+	/* Should never happen */
+	if (lc_hash_digestsize(&ctx->sphincs_hash_ctx) > sizeof(digest))
+		return -EFAULT;
+
+	lc_hash_final(&ctx->sphincs_hash_ctx, digest);
+
+	ret = lc_sphincs_verify_ctx(sig, ctx, digest,
+				    lc_hash_digestsize(&ctx->sphincs_hash_ctx),
+				    pk);
+
+	/* Zeroize hash context in case of successful signature operation */
+	if (!ret || ret == -EBADMSG)
+		lc_hash_zero(&ctx->sphincs_hash_ctx);
+
+out:
 	return ret;
 }
