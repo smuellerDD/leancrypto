@@ -97,8 +97,7 @@ static int lc_kernel_sphincs_sign(struct akcipher_request *req)
 
 	sg_miter_stop(&miter);
 
-	ret = lc_sphincs_sign_final(sig, sphincs_ctx, &ctx->sk,
-				    lc_seeded_rng);
+	ret = lc_sphincs_sign_final(sig, sphincs_ctx, &ctx->sk, lc_seeded_rng);
 
 	if (!ret) {
 		uint8_t *sig_ptr;
@@ -186,12 +185,9 @@ out:
 	return ret;
 }
 
-static int lc_kernel_sphincs_set_pub_key_int(struct crypto_akcipher *tfm,
-					     const void *key,
-					     unsigned int keylen,
-					     enum lc_sphincs_type type,
-					     enum lc_sphincs_type type2,
-					     int fast)
+static int lc_kernel_sphincs_set_pub_key_int(
+	struct crypto_akcipher *tfm, const void *key, unsigned int keylen,
+	enum lc_sphincs_type type, enum lc_sphincs_type type2, int fast)
 {
 	struct lc_kernel_sphincs_ctx *ctx = akcipher_tfm_ctx(tfm);
 	int ret;
@@ -217,8 +213,8 @@ static int lc_kernel_sphincs_set_pub_key_int(struct crypto_akcipher *tfm,
 }
 
 static int lc_kernel_sphincs_shake_128f_set_pub_key(struct crypto_akcipher *tfm,
-					      const void *key,
-					      unsigned int keylen)
+						    const void *key,
+						    unsigned int keylen)
 {
 	return lc_kernel_sphincs_set_pub_key_int(tfm, key, keylen,
 						 LC_SPHINCS_SHAKE_128f,
@@ -226,8 +222,8 @@ static int lc_kernel_sphincs_shake_128f_set_pub_key(struct crypto_akcipher *tfm,
 }
 
 static int lc_kernel_sphincs_shake_128s_set_pub_key(struct crypto_akcipher *tfm,
-					      const void *key,
-					      unsigned int keylen)
+						    const void *key,
+						    unsigned int keylen)
 {
 	return lc_kernel_sphincs_set_pub_key_int(tfm, key, keylen,
 						 LC_SPHINCS_SHAKE_128s,
@@ -235,8 +231,8 @@ static int lc_kernel_sphincs_shake_128s_set_pub_key(struct crypto_akcipher *tfm,
 }
 
 static int lc_kernel_sphincs_shake_192f_set_pub_key(struct crypto_akcipher *tfm,
-					      const void *key,
-					      unsigned int keylen)
+						    const void *key,
+						    unsigned int keylen)
 {
 	return lc_kernel_sphincs_set_pub_key_int(tfm, key, keylen,
 						 LC_SPHINCS_SHAKE_192f,
@@ -244,8 +240,8 @@ static int lc_kernel_sphincs_shake_192f_set_pub_key(struct crypto_akcipher *tfm,
 }
 
 static int lc_kernel_sphincs_shake_192s_set_pub_key(struct crypto_akcipher *tfm,
-					      const void *key,
-					      unsigned int keylen)
+						    const void *key,
+						    unsigned int keylen)
 {
 	return lc_kernel_sphincs_set_pub_key_int(tfm, key, keylen,
 						 LC_SPHINCS_SHAKE_192s,
@@ -253,8 +249,8 @@ static int lc_kernel_sphincs_shake_192s_set_pub_key(struct crypto_akcipher *tfm,
 }
 
 static int lc_kernel_sphincs_shake_256f_set_pub_key(struct crypto_akcipher *tfm,
-					      const void *key,
-					      unsigned int keylen)
+						    const void *key,
+						    unsigned int keylen)
 {
 	return lc_kernel_sphincs_set_pub_key_int(tfm, key, keylen,
 						 LC_SPHINCS_SHAKE_256f,
@@ -262,20 +258,17 @@ static int lc_kernel_sphincs_shake_256f_set_pub_key(struct crypto_akcipher *tfm,
 }
 
 static int lc_kernel_sphincs_shake_256s_set_pub_key(struct crypto_akcipher *tfm,
-					      const void *key,
-					      unsigned int keylen)
+						    const void *key,
+						    unsigned int keylen)
 {
 	return lc_kernel_sphincs_set_pub_key_int(tfm, key, keylen,
 						 LC_SPHINCS_SHAKE_256s,
 						 LC_SPHINCS_SHAKE_256f, 0);
 }
 
-static int lc_kernel_sphincs_set_priv_key_int(struct crypto_akcipher *tfm,
-					      const void *key,
-					      unsigned int keylen,
-					      enum lc_sphincs_type type,
-					      enum lc_sphincs_type type2,
-					      int fast)
+static int lc_kernel_sphincs_set_priv_key_int(
+	struct crypto_akcipher *tfm, const void *key, unsigned int keylen,
+	enum lc_sphincs_type type, enum lc_sphincs_type type2, int fast)
 {
 	struct lc_kernel_sphincs_ctx *ctx = akcipher_tfm_ctx(tfm);
 	int ret;
@@ -300,54 +293,54 @@ static int lc_kernel_sphincs_set_priv_key_int(struct crypto_akcipher *tfm,
 	return ret;
 }
 
-static int lc_kernel_sphincs_shake_128f_set_priv_key(struct crypto_akcipher *tfm,
-					       const void *key,
-					       unsigned int keylen)
+static int
+lc_kernel_sphincs_shake_128f_set_priv_key(struct crypto_akcipher *tfm,
+					  const void *key, unsigned int keylen)
 {
 	return lc_kernel_sphincs_set_priv_key_int(tfm, key, keylen,
 						  LC_SPHINCS_SHAKE_128f,
 						  LC_SPHINCS_SHAKE_128s, 1);
 }
 
-static int lc_kernel_sphincs_shake_128s_set_priv_key(struct crypto_akcipher *tfm,
-					       const void *key,
-					       unsigned int keylen)
+static int
+lc_kernel_sphincs_shake_128s_set_priv_key(struct crypto_akcipher *tfm,
+					  const void *key, unsigned int keylen)
 {
 	return lc_kernel_sphincs_set_priv_key_int(tfm, key, keylen,
 						  LC_SPHINCS_SHAKE_128s,
 						  LC_SPHINCS_SHAKE_128f, 0);
 }
 
-static int lc_kernel_sphincs_shake_192f_set_priv_key(struct crypto_akcipher *tfm,
-					       const void *key,
-					       unsigned int keylen)
+static int
+lc_kernel_sphincs_shake_192f_set_priv_key(struct crypto_akcipher *tfm,
+					  const void *key, unsigned int keylen)
 {
 	return lc_kernel_sphincs_set_priv_key_int(tfm, key, keylen,
 						  LC_SPHINCS_SHAKE_192f,
 						  LC_SPHINCS_SHAKE_192s, 1);
 }
 
-static int lc_kernel_sphincs_shake_192s_set_priv_key(struct crypto_akcipher *tfm,
-					       const void *key,
-					       unsigned int keylen)
+static int
+lc_kernel_sphincs_shake_192s_set_priv_key(struct crypto_akcipher *tfm,
+					  const void *key, unsigned int keylen)
 {
 	return lc_kernel_sphincs_set_priv_key_int(tfm, key, keylen,
 						  LC_SPHINCS_SHAKE_192s,
 						  LC_SPHINCS_SHAKE_192f, 0);
 }
 
-static int lc_kernel_sphincs_shake_256f_set_priv_key(struct crypto_akcipher *tfm,
-					       const void *key,
-					       unsigned int keylen)
+static int
+lc_kernel_sphincs_shake_256f_set_priv_key(struct crypto_akcipher *tfm,
+					  const void *key, unsigned int keylen)
 {
 	return lc_kernel_sphincs_set_priv_key_int(tfm, key, keylen,
 						  LC_SPHINCS_SHAKE_256f,
 						  LC_SPHINCS_SHAKE_256s, 1);
 }
 
-static int lc_kernel_sphincs_shake_256s_set_priv_key(struct crypto_akcipher *tfm,
-					       const void *key,
-					       unsigned int keylen)
+static int
+lc_kernel_sphincs_shake_256s_set_priv_key(struct crypto_akcipher *tfm,
+					  const void *key, unsigned int keylen)
 {
 	return lc_kernel_sphincs_set_priv_key_int(tfm, key, keylen,
 						  LC_SPHINCS_SHAKE_256s,

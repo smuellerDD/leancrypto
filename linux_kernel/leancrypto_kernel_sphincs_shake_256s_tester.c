@@ -149,8 +149,7 @@ err:
 	return err;
 }
 
-static int lc_test_siggen(const char *algname,
-			  struct lc_sphincs_test *vector)
+static int lc_test_siggen(const char *algname, struct lc_sphincs_test *vector)
 {
 	struct crypto_akcipher *tfm = NULL;
 	struct lc_akcipher_def akcipher;

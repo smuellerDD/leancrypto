@@ -115,6 +115,7 @@ void treehashx1(
 
 		/* We've hit a left child; save the current for when we get the */
 		/* corresponding right right */
-		memcpy(&stack_sp[h * LC_SPX_N], &current_idx[LC_SPX_N], LC_SPX_N);
+		memcpy(&stack_sp[h * LC_SPX_N], &current_idx[LC_SPX_N],
+		       LC_SPX_N);
 	}
 }

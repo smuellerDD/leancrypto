@@ -102,7 +102,8 @@ void treehashx2(
 			/* Check if we hit the top of the tree */
 			if (h == tree_height) {
 				/* We hit the root; return it */
-				memcpy(root, &current_idx[1 * LC_SPX_N], LC_SPX_N);
+				memcpy(root, &current_idx[1 * LC_SPX_N],
+				       LC_SPX_N);
 				return;
 			}
 
@@ -114,8 +115,8 @@ void treehashx2(
 			     (uint32_t)~0x1) == 0) {
 				memcpy(&auth_path[h * LC_SPX_N],
 				       &current_idx[(((internal_leaf & 1) ^ 1) +
-						 prev_left_adj) *
-						LC_SPX_N],
+						     prev_left_adj) *
+						    LC_SPX_N],
 				       LC_SPX_N);
 			}
 
@@ -143,9 +144,10 @@ void treehashx2(
 						       internal_idx_offset);
 			}
 			unsigned char *left = &stackx2[h * 2 * LC_SPX_N];
-			thashx2(&current_idx[0 * LC_SPX_N], &current_idx[1 * LC_SPX_N],
-				&left[0 * LC_SPX_N], &current_idx[0 * LC_SPX_N], 2,
-				ctx, tree_addrx2);
+			thashx2(&current_idx[0 * LC_SPX_N],
+				&current_idx[1 * LC_SPX_N], &left[0 * LC_SPX_N],
+				&current_idx[0 * LC_SPX_N], 2, ctx,
+				tree_addrx2);
 		}
 
 		/* We've hit a left child; save the current for when we get the */
