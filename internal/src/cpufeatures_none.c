@@ -25,6 +25,10 @@ LC_INTERFACE_FUNCTION(void, lc_cpu_feature_disable, void)
 {
 }
 
+LC_INTERFACE_FUNCTION(void, lc_cpu_feature_enable, void)
+{
+}
+
 LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 {
 	return LC_CPU_FEATURE_NONE;

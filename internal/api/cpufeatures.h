@@ -49,6 +49,7 @@ enum lc_cpu_features {
 };
 
 void lc_cpu_feature_disable(void);
+void lc_cpu_feature_enable(void);
 enum lc_cpu_features lc_cpu_feature_available(void);
 
 #ifdef __cplusplus

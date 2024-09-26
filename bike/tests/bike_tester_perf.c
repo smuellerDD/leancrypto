@@ -69,6 +69,10 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 			break;
 	}
 
+	/* Enable any accelerations when there is one parameter */
+	if (argc > 1)
+		lc_cpu_feature_enable();
+
 	LC_RELEASE_MEM(ws);
 	return ret;
 }

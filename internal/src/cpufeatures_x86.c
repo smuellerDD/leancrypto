@@ -52,6 +52,11 @@ LC_INTERFACE_FUNCTION(void, lc_cpu_feature_disable, void)
 	feat = LC_CPU_FEATURE_NONE;
 }
 
+LC_INTERFACE_FUNCTION(void, lc_cpu_feature_enable, void)
+{
+	feat = LC_CPU_FEATURE_UNSET;
+}
+
 LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 {
 	unsigned int eax, ebx, ecx, edx;

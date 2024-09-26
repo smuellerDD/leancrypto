@@ -113,6 +113,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	enum lc_sphincs_test_type t = LC_SPHINCS_REGRESSION;
 	int ret, rc = 0;
+	int feat_disabled = 0;
 
 	if (argc >= 2) {
 		if (argv[1][0] == 'k')
@@ -121,22 +122,29 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 			t = LC_SPHINCS_PERF_SIGN;
 		if (argv[1][0] == 'v')
 			t = LC_SPHINCS_PERF_VERIFY;
-		if (argv[1][0] == 'c')
+		if (argv[1][0] == 'c') {
 			lc_cpu_feature_disable();
+			feat_disabled = 1;
+		}
 	}
 
 	if (argc >= 3) {
-		if (argv[2][0] == 'c')
+		if (argv[2][0] == 'c') {
 			lc_cpu_feature_disable();
+			feat_disabled = 1;
+		}
 	}
 
 #ifdef LC_SPHINCS_TESTER_C
 	lc_cpu_feature_disable();
+	feat_disabled = 1;
 #endif
 
 	CKINT(lc_sphincs_test(&tests[0], t));
 	rc += ret;
 
 out:
+	if (feat_disabled)
+		lc_cpu_feature_enable();
 	return ret ? -ret : rc;
 }
