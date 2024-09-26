@@ -524,16 +524,14 @@ extern "C" {
 struct @sphincs_name@_sk {
 	uint8_t sk_seed[LC_SPX_N];
 	uint8_t sk_prf[LC_SPX_N];
-	uint8_t pk_seed[LC_SPX_N];
-	uint8_t pk_root[LC_SPX_N];
+	uint8_t pk[2 * LC_SPX_N];
 };
 
 /**
  * @brief Sphincs public key
  */
 struct @sphincs_name@_pk {
-	uint8_t pk_seed[LC_SPX_N];
-	uint8_t pk_root[LC_SPX_N];
+	uint8_t pk[2 * LC_SPX_N];
 };
 
 /**

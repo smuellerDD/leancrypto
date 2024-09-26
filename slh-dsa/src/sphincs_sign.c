@@ -108,15 +108,15 @@ static int lc_sphincs_keypair_from_seed_internal(struct lc_sphincs_pk *pk,
 	int ret;
 
 	/* Initialize PUB_SEED of PK from SK . */
-	memcpy(pk, sk->pk_seed, sizeof(sk->pk_seed));
+	memcpy(pk, sk->pk, LC_SPX_N);
 
-	ctx.pub_seed = pk->pk_seed;
+	ctx.pub_seed = pk->pk;
 	ctx.sk_seed = sk->sk_seed;
 
 	/* Compute root node of the top-most subtree. */
-	CKINT(f_ctx->merkle_gen_root(sk->pk_root, &ctx));
+	CKINT(f_ctx->merkle_gen_root(sk->pk + LC_SPX_N, &ctx));
 
-	memcpy(pk->pk_root, sk->pk_root, sizeof(pk->pk_root));
+	memcpy(pk->pk + LC_SPX_N, sk->pk + LC_SPX_N, LC_SPX_N);
 
 out:
 	return ret;
@@ -191,7 +191,7 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign_ctx, struct lc_sphincs_sig *sig,
 	const struct lc_sphincs_func_ctx *f_ctx = lc_sphincs_get_ctx();
 	spx_ctx ctx_int;
 	const uint8_t *sk_prf = sk->sk_prf;
-	const uint8_t *pk = sk->pk_seed;
+	const uint8_t *pk = sk->pk;
 	uint8_t *wots_sig = sig->sight;
 	int ret = 0;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
@@ -221,13 +221,8 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign_ctx, struct lc_sphincs_sig *sig,
 	 * with pointer pk. But that pointer references pk_seed which is
 	 * concatenated with pk_root and thus has the required 64 bytes.
 	 */
-//TODO: clang complains about the -Wstringop-overread, but GCC does not know -Wunknown-warning-option
-//#pragma GCC diagnostic ignored "-Wunknown-warning-option"
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wstringop-overread"
 	CKINT(hash_message(ws->mhash, &ws->tree, &ws->idx_leaf, sig->r, pk, m,
 			   mlen, ctx));
-#pragma GCC diagnostic pop
 
 	set_tree_addr(ws->wots_addr, ws->tree);
 	set_keypair_addr(ws->wots_addr, ws->idx_leaf);
@@ -390,7 +385,7 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify_ctx,
 	unsigned int i;
 	const struct lc_sphincs_func_ctx *f_ctx = lc_sphincs_get_ctx();
 	spx_ctx ctx_int;
-	const uint8_t *pub_root = pk->pk_root;
+	const uint8_t *pub_root = pk->pk + LC_SPX_N;
 	const uint8_t *wots_sig = sig->sight;
 	int ret = 0;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
@@ -398,7 +393,7 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify_ctx,
 	CKNULL(sig, -EINVAL);
 	CKNULL(pk, -EINVAL);
 
-	ctx_int.pub_seed = pk->pk_seed;
+	ctx_int.pub_seed = pk->pk;
 
 	set_type(ws->wots_addr, LC_SPX_ADDR_TYPE_WOTS);
 	set_type(ws->tree_addr, LC_SPX_ADDR_TYPE_HASHTREE);
@@ -406,16 +401,8 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify_ctx,
 
 	/* Derive the message digest and leaf index from R || PK || M. */
 	/* The additional LC_SPX_N is a result of the hash domain separator. */
-	/*
-	 * Shut up the compiler which thinks that only 32 bytes are available
-	 * with pointer pk_seed. But that pointer references pk_seed which is
-	 * concatenated with pk_root and thus has the required 64 bytes.
-	 */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wstringop-overread"
 	CKINT(hash_message(ws->mhash, &ws->tree, &ws->idx_leaf, sig->r,
-			   pk->pk_seed, m, mlen, ctx));
-#pragma GCC diagnostic pop
+			   pk->pk, m, mlen, ctx));
 
 	/* Layer correctly defaults to 0, so no need to set_layer_addr */
 	set_tree_addr(ws->wots_addr, ws->tree);
@@ -445,12 +432,12 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify_ctx,
 		wots_sig += LC_SPX_WOTS_BYTES;
 
 		/* Compute the leaf node using the WOTS public key. */
-		thash(ws->leaf, ws->wots_pk, LC_SPX_WOTS_LEN, pk->pk_seed,
+		thash(ws->leaf, ws->wots_pk, LC_SPX_WOTS_LEN, pk->pk,
 		      ws->wots_pk_addr);
 
 		/* Compute the root node of this subtree. */
 		compute_root(ws->root, ws->leaf, ws->idx_leaf, 0, wots_sig,
-			     LC_SPX_TREE_HEIGHT, pk->pk_seed, ws->tree_addr);
+			     LC_SPX_TREE_HEIGHT, pk->pk, ws->tree_addr);
 		wots_sig += LC_SPX_TREE_HEIGHT * LC_SPX_N;
 
 		/* Update the indices for the next layer. */
