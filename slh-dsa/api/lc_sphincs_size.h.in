@@ -604,6 +604,7 @@ struct lc_sphincs_ctx {
 	sizeof(struct lc_sphincs_ctx)
 
 #define LC_SPHINCS_SET_CTX(name)                                               \
+	(name)->sphincs_hash_ctx.hash = NULL;                                  \
 	(name)->sphincs_prehash_type = NULL;                                   \
 	(name)->slh_dsa_internal = 0;                                          \
 	(name)->userctxlen = 0;                                                \
@@ -618,15 +619,15 @@ struct lc_sphincs_ctx {
  * @param [in] name Name of the stack variable
  */
 #ifndef LC_SPHINCS_CTX_ON_STACK
-#define LC_SPHINCS_CTX_ON_STACK(name)                                        \
+#define LC_SPHINCS_CTX_ON_STACK(name)                                          \
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 		LC_ALIGNED_BUFFER(                                             \
-			name##_ctx_buf, LC_SPHINCS_CTX_SIZE,                 \
+			name##_ctx_buf, LC_SPHINCS_CTX_SIZE,                   \
 			LC_HASH_COMMON_ALIGNMENT);                             \
-	struct lc_sphincs_ctx *name =                                        \
-		(struct lc_sphincs_ctx *)name##_ctx_buf;                     \
-	LC_SPHINCS_SET_CTX(name);                                            \
+	struct lc_sphincs_ctx *name =                                          \
+		(struct lc_sphincs_ctx *)name##_ctx_buf;                       \
+	LC_SPHINCS_SET_CTX(name);                                              \
 	_Pragma("GCC diagnostic pop")
 #endif
 

@@ -112,7 +112,7 @@ out:
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	enum lc_sphincs_test_type t = LC_SPHINCS_REGRESSION;
-	int ret, rc = 0;
+	int ret = 0, rc = 0;
 	int feat_disabled = 0;
 
 	if (argc >= 2) {
