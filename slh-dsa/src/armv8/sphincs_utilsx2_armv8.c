@@ -63,7 +63,12 @@ void treehashx2(
 	uint32_t tree_addrx2[2 * 8], void *info)
 {
 	/* This is where we keep the intermediate nodes */
-	uint8_t stackx2[2 * tree_height * LC_SPX_N];
+#if (LC_SPX_TREE_HEIGHT < LC_SPX_FORS_HEIGHT)
+	uint8_t stackx2[LC_SPX_FORS_HEIGHT * 2 * LC_SPX_N];
+#else
+	uint8_t stackx2[LC_SPX_TREE_HEIGHT * 2 * LC_SPX_N];
+#endif
+
 	uint32_t left_adj = 0, prev_left_adj = 0; /* When we're doing the top */
 	/* level, the left-most part of the tree isn't at the beginning */
 	/* of current[].  These give the offset of the actual start */

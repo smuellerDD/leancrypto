@@ -134,14 +134,25 @@ void thashx4(unsigned char *out0, unsigned char *out1, unsigned char *out2,
 		LC_FPU_DISABLE;
 
 	} else {
-		uint8_t buf0[LC_SPX_N + LC_SPX_ADDR_BYTES + inblocks * LC_SPX_N];
-		uint8_t buf1[LC_SPX_N + LC_SPX_ADDR_BYTES + inblocks * LC_SPX_N];
-		uint8_t buf2[LC_SPX_N + LC_SPX_ADDR_BYTES + inblocks * LC_SPX_N];
-		uint8_t buf3[LC_SPX_N + LC_SPX_ADDR_BYTES + inblocks * LC_SPX_N];
-		uint8_t bitmask0[inblocks * LC_SPX_N];
-		uint8_t bitmask1[inblocks * LC_SPX_N];
-		uint8_t bitmask2[inblocks * LC_SPX_N];
-		uint8_t bitmask3[inblocks * LC_SPX_N];
+#if (LC_SPX_FORS_TREES < LC_SPX_WOTS_LEN)
+		uint8_t buf0[LC_SPX_N + LC_SPX_ADDR_BYTES + LC_SPX_WOTS_LEN * LC_SPX_N];
+		uint8_t buf1[LC_SPX_N + LC_SPX_ADDR_BYTES + LC_SPX_WOTS_LEN * LC_SPX_N];
+		uint8_t buf2[LC_SPX_N + LC_SPX_ADDR_BYTES + LC_SPX_WOTS_LEN * LC_SPX_N];
+		uint8_t buf3[LC_SPX_N + LC_SPX_ADDR_BYTES + LC_SPX_WOTS_LEN * LC_SPX_N];
+		uint8_t bitmask0[LC_SPX_WOTS_LEN * LC_SPX_N];
+		uint8_t bitmask1[LC_SPX_WOTS_LEN * LC_SPX_N];
+		uint8_t bitmask2[LC_SPX_WOTS_LEN * LC_SPX_N];
+		uint8_t bitmask3[LC_SPX_WOTS_LEN * LC_SPX_N];
+#else
+		uint8_t buf0[LC_SPX_N + LC_SPX_ADDR_BYTES + LC_SPX_FORS_TREES * LC_SPX_N];
+		uint8_t buf1[LC_SPX_N + LC_SPX_ADDR_BYTES + LC_SPX_FORS_TREES * LC_SPX_N];
+		uint8_t buf2[LC_SPX_N + LC_SPX_ADDR_BYTES + LC_SPX_FORS_TREES * LC_SPX_N];
+		uint8_t buf3[LC_SPX_N + LC_SPX_ADDR_BYTES + LC_SPX_FORS_TREES * LC_SPX_N];
+		uint8_t bitmask0[LC_SPX_FORS_TREES * LC_SPX_N];
+		uint8_t bitmask1[LC_SPX_FORS_TREES * LC_SPX_N];
+		uint8_t bitmask2[LC_SPX_FORS_TREES * LC_SPX_N];
+		uint8_t bitmask3[LC_SPX_FORS_TREES * LC_SPX_N];
+#endif
 
 		memcpy(buf0, ctx->pub_seed, LC_SPX_N);
 		memcpy(buf1, ctx->pub_seed, LC_SPX_N);

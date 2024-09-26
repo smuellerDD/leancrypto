@@ -36,8 +36,18 @@
 void thash(uint8_t out[LC_SPX_N], const uint8_t *in, unsigned int inblocks,
 	   const uint8_t pub_seed[LC_SPX_N], uint32_t addr[8])
 {
-	uint8_t buf[LC_SPX_N + LC_SPX_ADDR_BYTES + inblocks * LC_SPX_N];
-	uint8_t bitmask[inblocks * LC_SPX_N] __align(LC_HASH_COMMON_ALIGNMENT);
+#if (LC_SPX_FORS_TREES < LC_SPX_WOTS_LEN)
+	uint8_t buf[LC_SPX_N + LC_SPX_ADDR_BYTES + LC_SPX_WOTS_LEN * LC_SPX_N]
+		__align(LC_HASH_COMMON_ALIGNMENT);
+	uint8_t bitmask[LC_SPX_WOTS_LEN * LC_SPX_N]
+		__align(LC_HASH_COMMON_ALIGNMENT);
+#else
+	uint8_t buf[LC_SPX_N + LC_SPX_ADDR_BYTES + LC_SPX_FORS_TREES * LC_SPX_N]
+		__align(LC_HASH_COMMON_ALIGNMENT);
+	uint8_t bitmask[LC_SPX_FORS_TREES * LC_SPX_N]
+		__align(LC_HASH_COMMON_ALIGNMENT);
+#endif
+
 	unsigned int i;
 
 	memcpy(buf, pub_seed, LC_SPX_N);
@@ -56,11 +66,11 @@ void thash(uint8_t out[LC_SPX_N], const uint8_t *in, unsigned int inblocks,
 	// lc_hash_zero(hash_ctx);
 
 	lc_xof(lc_shake256, buf, LC_SPX_N + LC_SPX_ADDR_BYTES, bitmask,
-	       sizeof(bitmask));
+	       inblocks * LC_SPX_N);
 
 	for (i = 0; i < inblocks * LC_SPX_N; i++) {
 		buf[LC_SPX_N + LC_SPX_ADDR_BYTES + i] = in[i] ^ bitmask[i];
 	}
 
-	lc_xof(lc_shake256, buf, sizeof(buf), out, LC_SPX_N);
+	lc_xof(lc_shake256, buf, LC_SPX_N + LC_SPX_ADDR_BYTES + inblocks * LC_SPX_N, out, LC_SPX_N);
 }

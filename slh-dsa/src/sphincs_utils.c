@@ -106,6 +106,7 @@ void compute_root(uint8_t *root, const uint8_t *leaf, uint32_t leaf_idx,
 	thash(root, buffer, 2, pub_seed, addr);
 }
 
+#if 0
 /**
  * For a given leaf index, computes the authentication path and the resulting
  * root node using Merkle's TreeHash algorithm.
@@ -171,3 +172,4 @@ void treehash(uint8_t *root, uint8_t *auth_path, const spx_ctx *ctx,
 	}
 	memcpy(root, stack, LC_SPX_N);
 }
+#endif

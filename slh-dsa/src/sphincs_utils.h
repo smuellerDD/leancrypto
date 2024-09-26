@@ -54,6 +54,7 @@ void compute_root(uint8_t *root, const uint8_t *leaf, uint32_t leaf_idx,
 		  uint32_t tree_height, const uint8_t pub_seed[LC_SPX_N],
 		  uint32_t addr[8]);
 
+#if 0
 /**
  * For a given leaf index, computes the authentication path and the resulting
  * root node using Merkle's TreeHash algorithm.
@@ -69,6 +70,7 @@ void treehash(unsigned char *root, unsigned char *auth_path, const spx_ctx *ctx,
 			       uint32_t /* addr_idx */,
 			       const uint32_t[8] /* tree_addr */),
 	      uint32_t tree_addr[8]);
+#endif
 
 #ifdef __cplusplus
 }

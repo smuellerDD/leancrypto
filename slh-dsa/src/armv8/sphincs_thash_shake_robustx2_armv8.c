@@ -104,11 +104,13 @@ void thashx2(unsigned char *out0, unsigned char *out1, const unsigned char *in0,
 				state[2 * i + 1] ^ load64(in1 + 8 * i);
 		}
 
-		/* Domain separator and start of padding.  Note that the quadwords
-         * around are already zeroed for state from which we copied.
-         * We do a XOR instead of a set as this might be the 16th quadword
-         * when N=32 and inblocks=2, which already contains the end
-         * of the padding. */
+		/*
+		 * Domain separator and start of padding.  Note that the quadwords
+		 * around are already zeroed for state from which we copied.
+		 * We do a XOR instead of a set as this might be the 16th quadword
+		 * when N=32 and inblocks=2, which already contains the end
+		 * of the padding.
+		 */
 		state2[2 * ((LC_SPX_N / 8) * (1 + inblocks) + 4)] ^= 0x1f;
 		state2[2 * ((LC_SPX_N / 8) * (1 + inblocks) + 4) + 1] ^= 0x1f;
 
@@ -119,10 +121,17 @@ void thashx2(unsigned char *out0, unsigned char *out1, const unsigned char *in0,
 			store64(out1 + 8 * i, state2[2 * i + 1]);
 		}
 	} else {
-		uint8_t buf0[LC_SPX_N + LC_SPX_ADDR_BYTES + inblocks * LC_SPX_N];
-		uint8_t buf1[LC_SPX_N + LC_SPX_ADDR_BYTES + inblocks * LC_SPX_N];
-		uint8_t bitmask0[inblocks * LC_SPX_N];
-		uint8_t bitmask1[inblocks * LC_SPX_N];
+#if (LC_SPX_FORS_TREES < LC_SPX_WOTS_LEN)
+		uint8_t buf0[LC_SPX_N + LC_SPX_ADDR_BYTES + LC_SPX_WOTS_LEN * LC_SPX_N];
+		uint8_t buf1[LC_SPX_N + LC_SPX_ADDR_BYTES + LC_SPX_WOTS_LEN * LC_SPX_N];
+		uint8_t bitmask0[LC_SPX_WOTS_LEN * LC_SPX_N];
+		uint8_t bitmask1[LC_SPX_WOTS_LEN * LC_SPX_N];
+#else
+		uint8_t buf0[LC_SPX_N + LC_SPX_ADDR_BYTES + LC_SPX_FORS_TREES * LC_SPX_N];
+		uint8_t buf1[LC_SPX_N + LC_SPX_ADDR_BYTES + LC_SPX_FORS_TREES * LC_SPX_N];
+		uint8_t bitmask0[LC_SPX_FORS_TREES * LC_SPX_N];
+		uint8_t bitmask1[LC_SPX_FORS_TREES * LC_SPX_N];
+#endif
 		unsigned int i;
 
 		memcpy(buf0, ctx->pub_seed, LC_SPX_N);

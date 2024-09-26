@@ -44,6 +44,7 @@ add_global_arguments([ '-fstack-protector-strong',
 		       '-fno-delete-null-pointer-checks',
 		       '-fno-strict-aliasing',
 		       '-Wundef',
+		       '-Wvla',
 		        ],
 		       language : 'c')
 

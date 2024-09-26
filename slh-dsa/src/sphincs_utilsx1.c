@@ -52,7 +52,11 @@ void treehashx1(
 	uint32_t tree_addr[8], void *info)
 {
 	/* This is where we keep the intermediate nodes */
-	uint8_t stack_sp[tree_height * LC_SPX_N];
+#if (LC_SPX_TREE_HEIGHT < LC_SPX_FORS_HEIGHT)
+	uint8_t stack_sp[LC_SPX_FORS_HEIGHT * LC_SPX_N];
+#else
+	uint8_t stack_sp[LC_SPX_TREE_HEIGHT * LC_SPX_N];
+#endif
 	uint32_t idx;
 	uint32_t max_idx = (uint32_t)((1 << tree_height) - 1);
 

@@ -68,7 +68,11 @@ void treehashx4(
 	uint32_t tree_addrx4[4 * 8], void *info, void *ws_buf)
 {
 	/* This is where we keep the intermediate nodes */
-	uint8_t stackx4[tree_height * 4 * LC_SPX_N];
+#if (LC_SPX_TREE_HEIGHT < LC_SPX_FORS_HEIGHT)
+	uint8_t stackx4[LC_SPX_FORS_HEIGHT * 4 * LC_SPX_N];
+#else
+	uint8_t stackx4[LC_SPX_TREE_HEIGHT * 4 * LC_SPX_N];
+#endif
 	uint32_t left_adj = 0,
 		 prev_left_adj = 0; /* When we're doing the top 3 */
 	/* levels, the left-most part of the tree isn't at the beginning */
