@@ -45,6 +45,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wundef"
 #if (__APPLE__ && __ARM_FEATURE_CRYPTO) || (__ARM_FEATURE_SHA3)
 
 #include "assembler_support.h"
@@ -189,3 +191,4 @@ loop:
 SYM_FUNC_END(keccak_f1600x2_armce)
 
 #endif
+#pragma GCC diagnostic pop

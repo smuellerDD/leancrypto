@@ -102,6 +102,8 @@ const uint64_t neon_KeccakF_RoundConstants[NROUNDS] = {
 
 static inline void KeccakF1600_StatePermutex2(v128 state[25])
 {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wundef"
 #if (__APPLE__ && __ARM_FEATURE_CRYPTO) || (__ARM_FEATURE_SHA3)
 	enum lc_cpu_features feat = lc_cpu_feature_available();
 
@@ -111,6 +113,7 @@ static inline void KeccakF1600_StatePermutex2(v128 state[25])
 		return;
 	}
 #endif
+#pragma GCC diagnostic pop
 
 	v128 Aba, Abe, Abi, Abo, Abu;
 	v128 Aga, Age, Agi, Ago, Agu;

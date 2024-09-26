@@ -11,3 +11,6 @@
 
 - provide version numbers in one place (currently found in meson.build, leancrypto.spec and Kbuild.version)
 
+- BIKE: add self tests
+
+- SLH-DSA: add self test

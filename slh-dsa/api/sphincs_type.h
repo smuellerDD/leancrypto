@@ -156,6 +156,7 @@ extern "C" {
 #define prf_addrx2 SPHINCS_F(prf_addrx2)
 #define thash_armv8 SPHINCS_F(thash_armv8)
 #define thashx2 SPHINCS_F(thashx2)
+#define thashx2_12 SPHINCS_F(thashx2_12)
 #define treehashx2 SPHINCS_F(treehashx2)
 #define wots_gen_leafx2 SPHINCS_F(wots_gen_leafx2)
 #define sphincs_merkle_sign_armv8 SPHINCS_F(sphincs_merkle_sign_armv8)
