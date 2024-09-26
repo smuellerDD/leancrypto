@@ -38,10 +38,10 @@ extern void KeccakF1600_StatePermute4x(__m256i *s);
  * 4-way parallel version of thash; takes 4x as much input and output
  */
 void thashx4_12(unsigned char *out0, unsigned char *out1, unsigned char *out2,
-	     unsigned char *out3, const unsigned char *in0,
-	     const unsigned char *in1, const unsigned char *in2,
-	     const unsigned char *in3, unsigned int inblocks,
-	     const spx_ctx *ctx, uint32_t addrx4[4 * 8])
+		unsigned char *out3, const unsigned char *in0,
+		const unsigned char *in1, const unsigned char *in2,
+		const unsigned char *in3, unsigned int inblocks,
+		const spx_ctx *ctx, uint32_t addrx4[4 * 8])
 {
 	unsigned int i;
 
@@ -56,21 +56,20 @@ void thashx4_12(unsigned char *out0, unsigned char *out1, unsigned char *out2,
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
 	for (i = 0; i < LC_SPX_N / 8; i++) {
-		state[i] = _mm256_set1_epi64x(
-			((int64_t *)ctx->pub_seed)[i]);
+		state[i] = _mm256_set1_epi64x(((int64_t *)ctx->pub_seed)[i]);
 	}
 #pragma GCC diagnostic pop
 
 	for (i = 0; i < 4; i++) {
-		state[LC_SPX_N / 8 + i] = _mm256_set_epi32(
-			(int32_t)addrx4[3 * 8 + 1 + 2 * i],
-			(int32_t)addrx4[3 * 8 + 2 * i],
-			(int32_t)addrx4[2 * 8 + 1 + 2 * i],
-			(int32_t)addrx4[2 * 8 + 2 * i],
-			(int32_t)addrx4[8 + 1 + 2 * i],
-			(int32_t)addrx4[8 + 2 * i],
-			(int32_t)addrx4[1 + 2 * i],
-			(int32_t)addrx4[2 * i]);
+		state[LC_SPX_N / 8 + i] =
+			_mm256_set_epi32((int32_t)addrx4[3 * 8 + 1 + 2 * i],
+					 (int32_t)addrx4[3 * 8 + 2 * i],
+					 (int32_t)addrx4[2 * 8 + 1 + 2 * i],
+					 (int32_t)addrx4[2 * 8 + 2 * i],
+					 (int32_t)addrx4[8 + 1 + 2 * i],
+					 (int32_t)addrx4[8 + 2 * i],
+					 (int32_t)addrx4[1 + 2 * i],
+					 (int32_t)addrx4[2 * i]);
 	}
 
 	/* SHAKE domain separator and padding */
@@ -111,9 +110,9 @@ void thashx4_12(unsigned char *out0, unsigned char *out1, unsigned char *out2,
 		* We do a XOR instead of a set as this might be the 16th quadword
 		* when N=32 and inblocks=2, which already contains the end
 		* of the padding. */
-	state2[(LC_SPX_N / 8) * (1 + inblocks) + 4] = _mm256_xor_si256(
-		state2[(LC_SPX_N / 8) * (1 + inblocks) + 4],
-		_mm256_set1_epi64x(0x1f));
+	state2[(LC_SPX_N / 8) * (1 + inblocks) + 4] =
+		_mm256_xor_si256(state2[(LC_SPX_N / 8) * (1 + inblocks) + 4],
+				 _mm256_set1_epi64x(0x1f));
 
 	KeccakF1600_StatePermute4x(&state2[0]);
 
@@ -165,22 +164,16 @@ void thashx4(unsigned char *out0, unsigned char *out1, unsigned char *out2,
 	memcpy(buf2 + LC_SPX_N, addrx4 + 2 * 8, LC_SPX_ADDR_BYTES);
 	memcpy(buf3 + LC_SPX_N, addrx4 + 3 * 8, LC_SPX_ADDR_BYTES);
 
-	shake256x4(bitmask0, bitmask1, bitmask2, bitmask3,
-			inblocks * LC_SPX_N, buf0, buf1, buf2, buf3,
-			LC_SPX_N + LC_SPX_ADDR_BYTES);
+	shake256x4(bitmask0, bitmask1, bitmask2, bitmask3, inblocks * LC_SPX_N,
+		   buf0, buf1, buf2, buf3, LC_SPX_N + LC_SPX_ADDR_BYTES);
 
 	for (i = 0; i < inblocks * LC_SPX_N; i++) {
-		buf0[LC_SPX_N + LC_SPX_ADDR_BYTES + i] =
-			in0[i] ^ bitmask0[i];
-		buf1[LC_SPX_N + LC_SPX_ADDR_BYTES + i] =
-			in1[i] ^ bitmask1[i];
-		buf2[LC_SPX_N + LC_SPX_ADDR_BYTES + i] =
-			in2[i] ^ bitmask2[i];
-		buf3[LC_SPX_N + LC_SPX_ADDR_BYTES + i] =
-			in3[i] ^ bitmask3[i];
+		buf0[LC_SPX_N + LC_SPX_ADDR_BYTES + i] = in0[i] ^ bitmask0[i];
+		buf1[LC_SPX_N + LC_SPX_ADDR_BYTES + i] = in1[i] ^ bitmask1[i];
+		buf2[LC_SPX_N + LC_SPX_ADDR_BYTES + i] = in2[i] ^ bitmask2[i];
+		buf3[LC_SPX_N + LC_SPX_ADDR_BYTES + i] = in3[i] ^ bitmask3[i];
 	}
 
-	shake256x4(out0, out1, out2, out3, LC_SPX_N, buf0, buf1, buf2,
-			buf3,
-			LC_SPX_N + LC_SPX_ADDR_BYTES + inblocks * LC_SPX_N);
+	shake256x4(out0, out1, out2, out3, LC_SPX_N, buf0, buf1, buf2, buf3,
+		   LC_SPX_N + LC_SPX_ADDR_BYTES + inblocks * LC_SPX_N);
 }

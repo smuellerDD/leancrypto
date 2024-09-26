@@ -153,9 +153,10 @@ void treehashx2(
 			}
 			unsigned char *left = &stackx2[h * 2 * LC_SPX_N];
 			thashx2_12(&current_idx[0 * LC_SPX_N],
-				&current_idx[1 * LC_SPX_N], &left[0 * LC_SPX_N],
-				&current_idx[0 * LC_SPX_N], 2, ctx,
-				tree_addrx2);
+				   &current_idx[1 * LC_SPX_N],
+				   &left[0 * LC_SPX_N],
+				   &current_idx[0 * LC_SPX_N], 2, ctx,
+				   tree_addrx2);
 		}
 
 		/* We've hit a left child; save the current for when we get the */

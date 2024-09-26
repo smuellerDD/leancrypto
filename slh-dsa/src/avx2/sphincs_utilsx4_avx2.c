@@ -88,8 +88,8 @@ void treehashx4(
 		/* Current logical node */
 		uint8_t current_idx[4 * LC_SPX_N];
 
-		gen_leafx4(current_idx, ctx, 4 * idx + idx_offset, info,
-			   ws_buf, thash_buf);
+		gen_leafx4(current_idx, ctx, 4 * idx + idx_offset, info, ws_buf,
+			   thash_buf);
 
 		/* Now combine the freshly generated right node with previously */
 		/* generated left ones */
@@ -163,8 +163,7 @@ void treehashx4(
 				   &current_idx[1 * LC_SPX_N],
 				   &current_idx[2 * LC_SPX_N],
 				   &current_idx[3 * LC_SPX_N],
-				   &left[0 * LC_SPX_N],
-				   &left[2 * LC_SPX_N],
+				   &left[0 * LC_SPX_N], &left[2 * LC_SPX_N],
 				   &current_idx[0 * LC_SPX_N],
 				   &current_idx[2 * LC_SPX_N], 2, ctx,
 				   tree_addrx4);

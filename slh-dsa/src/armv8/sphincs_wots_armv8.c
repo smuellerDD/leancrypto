@@ -113,7 +113,7 @@ static void gen_chains(unsigned char *out, const unsigned char *in,
 			}
 
 			thashx2_12(bufs[0], bufs[1], bufs[0], bufs[1], 1, ctx,
-				addrs);
+				   addrs);
 		}
 	}
 }
@@ -267,9 +267,9 @@ void wots_gen_leafx2(unsigned char *dest, const spx_ctx *ctx, uint32_t leaf_idx,
 				set_hash_addr(leaf_addr + j * 8, k);
 			}
 			thashx2_12(buffer + 0 * wots_offset,
-				buffer + 1 * wots_offset,
-				buffer + 0 * wots_offset,
-				buffer + 1 * wots_offset, 1, ctx, leaf_addr);
+				   buffer + 1 * wots_offset,
+				   buffer + 0 * wots_offset,
+				   buffer + 1 * wots_offset, 1, ctx, leaf_addr);
 		}
 	}
 

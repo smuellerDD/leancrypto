@@ -55,7 +55,7 @@ void thash(uint8_t out[LC_SPX_N], const uint8_t *in, unsigned int inblocks,
 		lc_hash_final(bitmask_ctx, bitmask);
 
 		for (j = 0; j < LC_SPX_N; j++)
-			buf[j] = in[i* LC_SPX_N + j] ^ bitmask[j];
+			buf[j] = in[i * LC_SPX_N + j] ^ bitmask[j];
 
 		/* Insert the processed data into the hash state */
 		lc_hash_update(buf_ctx, buf, sizeof(buf));

@@ -34,12 +34,14 @@
 extern "C" {
 #endif
 
-#define LC_THASHX4_BUFLEN (LC_SPX_N + LC_SPX_ADDR_BYTES + LC_SPX_WOTS_LEN * LC_SPX_N)
+#define LC_THASHX4_BUFLEN                                                      \
+	(LC_SPX_N + LC_SPX_ADDR_BYTES + LC_SPX_WOTS_LEN * LC_SPX_N)
 #define LC_THASHX4_BITMASKLEN (LC_SPX_WOTS_LEN * LC_SPX_N)
 
-void thashx2_12(unsigned char *out0, unsigned char *out1, const unsigned char *in0,
-	     const unsigned char *in1, unsigned int inblocks,
-	     const spx_ctx *ctx, uint32_t addrx2[2 * 8]);
+void thashx2_12(unsigned char *out0, unsigned char *out1,
+		const unsigned char *in0, const unsigned char *in1,
+		unsigned int inblocks, const spx_ctx *ctx,
+		uint32_t addrx2[2 * 8]);
 void thashx2(unsigned char *out0, unsigned char *out1, const unsigned char *in0,
 	     const unsigned char *in1, unsigned int inblocks,
 	     const spx_ctx *ctx, uint32_t addrx2[2 * 8], uint8_t *thash_buf);

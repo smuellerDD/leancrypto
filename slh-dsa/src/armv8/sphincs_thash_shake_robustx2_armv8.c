@@ -56,9 +56,10 @@ static void store64(uint8_t *x, uint64_t u)
 /**
  * 2-way parallel version of thash; takes 2x as much input and output
  */
-void thashx2_12(unsigned char *out0, unsigned char *out1, const unsigned char *in0,
-	     const unsigned char *in1, unsigned int inblocks,
-	     const spx_ctx *ctx, uint32_t addrx2[2 * 8])
+void thashx2_12(unsigned char *out0, unsigned char *out1,
+		const unsigned char *in0, const unsigned char *in1,
+		unsigned int inblocks, const spx_ctx *ctx,
+		uint32_t addrx2[2 * 8])
 {
 	/* As we write and read only a few quadwords, it is more efficient to
          * build and extract from the twoway SHAKE256 state by hand. */
@@ -144,18 +145,14 @@ void thashx2(unsigned char *out0, unsigned char *out1, const unsigned char *in0,
 	memcpy(buf0 + LC_SPX_N, addrx2 + 0 * 8, LC_SPX_ADDR_BYTES);
 	memcpy(buf1 + LC_SPX_N, addrx2 + 1 * 8, LC_SPX_ADDR_BYTES);
 
-	shake256x2_armv8(bitmask0, bitmask1, inblocks * LC_SPX_N, buf0,
-				buf1, LC_SPX_N + LC_SPX_ADDR_BYTES);
+	shake256x2_armv8(bitmask0, bitmask1, inblocks * LC_SPX_N, buf0, buf1,
+			 LC_SPX_N + LC_SPX_ADDR_BYTES);
 
 	for (i = 0; i < inblocks * LC_SPX_N; i++) {
-		buf0[LC_SPX_N + LC_SPX_ADDR_BYTES + i] =
-			in0[i] ^ bitmask0[i];
-		buf1[LC_SPX_N + LC_SPX_ADDR_BYTES + i] =
-			in1[i] ^ bitmask1[i];
+		buf0[LC_SPX_N + LC_SPX_ADDR_BYTES + i] = in0[i] ^ bitmask0[i];
+		buf1[LC_SPX_N + LC_SPX_ADDR_BYTES + i] = in1[i] ^ bitmask1[i];
 	}
 
 	shake256x2_armv8(out0, out1, LC_SPX_N, buf0, buf1,
-				LC_SPX_N + LC_SPX_ADDR_BYTES +
-					inblocks * LC_SPX_N);
+			 LC_SPX_N + LC_SPX_ADDR_BYTES + inblocks * LC_SPX_N);
 }
-

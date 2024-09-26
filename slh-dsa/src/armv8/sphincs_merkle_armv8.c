@@ -47,8 +47,8 @@ int sphincs_merkle_sign_armv8(uint8_t *sig, unsigned char *root,
 		unsigned int steps[LC_SPX_WOTS_LEN];
 		struct leaf_info_x2 info;
 		uint8_t wots_pk_buffer[2 * LC_SPX_WOTS_BYTES];
-		uint8_t thash_buf[LC_THASHX4_BUFLEN * 2 + LC_THASHX4_BITMASKLEN * 2];
-
+		uint8_t thash_buf[LC_THASHX4_BUFLEN * 2 +
+				  LC_THASHX4_BITMASKLEN * 2];
 	};
 	unsigned char *auth_path = sig + LC_SPX_WOTS_BYTES;
 	int j;
@@ -86,8 +86,8 @@ int sphincs_merkle_gen_root_armv8(unsigned char *root, const spx_ctx *ctx)
 	 * path in one function.
 	 */
 	struct workspace {
-		unsigned char
-			auth_path[LC_SPX_TREE_HEIGHT * LC_SPX_N + LC_SPX_WOTS_BYTES];
+		unsigned char auth_path[LC_SPX_TREE_HEIGHT * LC_SPX_N +
+					LC_SPX_WOTS_BYTES];
 		uint32_t top_tree_addr[8];
 		uint32_t wots_addr[8];
 	};
