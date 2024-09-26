@@ -319,6 +319,9 @@ static int lc_parse_mldsa_kat(const struct lc_mldsa_test_def *def)
 	char buf[16384];
 	int ret = 0;
 
+	if (!def->infile)
+		return -EINVAL;
+
 	while (fgets(buf, sizeof(buf), def->infile)) {
 		if (strstr(buf, "xi =")) {
 			CKINT(get_binval(buf, "=", &kat.xi));
