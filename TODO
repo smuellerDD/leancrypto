@@ -14,3 +14,7 @@
 - BIKE: add self tests
 
 - SLH-DSA: add self test
+
+- SLH-DSA: add timecop
+
+- BIKE: add timecop
