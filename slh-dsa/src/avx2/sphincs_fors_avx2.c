@@ -70,7 +70,7 @@ struct fors_gen_leaf_info {
 };
 
 static void fors_gen_leafx4(unsigned char *leaf, const spx_ctx *ctx,
-			    uint32_t addr_idx, void *info, void *ws_buf,
+			    uint32_t addr_idx, void *info, uint8_t *ws_buf,
 			    uint8_t *thash_buf)
 {
 	struct fors_gen_leaf_info *fors_info = info;
