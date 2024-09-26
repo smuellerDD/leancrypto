@@ -36,7 +36,13 @@ extern void KeccakF1600_StatePermute4x(__m256i *s);
 
 /**
  * 4-way parallel version of thash; takes 4x as much input and output
+ *
+ * The frame-size is ignored here, as the frame is just a bit larger than the
+ * 2048 limit. Further, this code is so deep embedded that a change is
+ * not easily done.
  */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wframe-larger-than="
 void thashx4_12(unsigned char *out0, unsigned char *out1, unsigned char *out2,
 		unsigned char *out3, const unsigned char *in0,
 		const unsigned char *in1, const unsigned char *in2,
@@ -128,6 +134,7 @@ void thashx4_12(unsigned char *out0, unsigned char *out1, unsigned char *out2,
 
 	LC_FPU_DISABLE;
 }
+#pragma GCC diagnostic pop
 
 void thashx4(unsigned char *out0, unsigned char *out1, unsigned char *out2,
 	     unsigned char *out3, const unsigned char *in0,
