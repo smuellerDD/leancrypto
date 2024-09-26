@@ -221,9 +221,9 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign_ctx, struct lc_sphincs_sig *sig,
 	 * with pointer pk. But that pointer references pk_seed which is
 	 * concatenated with pk_root and thus has the required 64 bytes.
 	 */
-#pragma GCC diagnostic push
 //TODO: clang complains about the -Wstringop-overread, but GCC does not know -Wunknown-warning-option
 //#pragma GCC diagnostic ignored "-Wunknown-warning-option"
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wstringop-overread"
 	CKINT(hash_message(ws->mhash, &ws->tree, &ws->idx_leaf, sig->r, pk, m,
 			   mlen, ctx));
@@ -412,8 +412,6 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify_ctx,
 	 * concatenated with pk_root and thus has the required 64 bytes.
 	 */
 #pragma GCC diagnostic push
-//TODO: clang complains about the -Wstringop-overread, but GCC does not know -Wunknown-warning-option
-//#pragma GCC diagnostic ignored "-Wunknown-warning-option"
 #pragma GCC diagnostic ignored "-Wstringop-overread"
 	CKINT(hash_message(ws->mhash, &ws->tree, &ws->idx_leaf, sig->r,
 			   pk->pk_seed, m, mlen, ctx));

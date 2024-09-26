@@ -93,7 +93,7 @@ struct lc_buffer {
  * This test app is not meant to have small stack support
  */
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wframe-larger-than"
+#pragma GCC diagnostic ignored "-Wframe-larger-than="
 
 static char *get_val(char *str, const char *delim)
 {

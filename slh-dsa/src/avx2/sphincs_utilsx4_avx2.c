@@ -82,7 +82,7 @@ void treehashx4(
 	/* of current[].  These give the offset of the actual start */
 
 	uint32_t idx;
-	uint32_t max_idx = (1 << (tree_height - 2)) - 1;
+	uint32_t max_idx = (uint32_t)((1 << (tree_height - 2)) - 1);
 
 	for (idx = 0;; idx++) {
 		/* Current logical node */
@@ -110,7 +110,7 @@ void treehashx4(
 				/* Adjust it so that the left-most node of the part of */
 				/* the tree that we're processing has index 0 */
 				prev_left_adj = left_adj;
-				left_adj = 4 - (1 << (tree_height - h - 1));
+				left_adj = (uint32_t)(4 - (1 << (tree_height - h - 1)));
 			}
 
 			/* Check if we hit the top of the tree */

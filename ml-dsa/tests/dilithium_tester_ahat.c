@@ -63,7 +63,7 @@ out:
  * This test app is not meant to have small stack support
  */
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wframe-larger-than"
+#pragma GCC diagnostic ignored "-Wframe-larger-than="
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
