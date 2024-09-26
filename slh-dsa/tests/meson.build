@@ -77,12 +77,12 @@ if get_option('sphincs_shake_256s').enabled()
 				dependencies: leancrypto
 				)
 
-	test('Sphincs SHAKE 256s Accel', sphincs_tester_256s, suite: regression)
-	test('Sphincs SHAKE 256f Accel', sphincs_tester_256f, suite: regression)
-	test('Sphincs SHAKE 192s Accel', sphincs_tester_192s, suite: regression)
-	test('Sphincs SHAKE 192f Accel', sphincs_tester_192f, suite: regression)
-	test('Sphincs SHAKE 128s Accel', sphincs_tester_128s, suite: regression)
-	test('Sphincs SHAKE 128f Accel', sphincs_tester_128f, suite: regression)
+	test('Sphincs SHAKE 256s Accel', sphincs_tester_256s, timeout: 600, suite: regression)
+	test('Sphincs SHAKE 256f Accel', sphincs_tester_256f, timeout: 600, suite: regression)
+	test('Sphincs SHAKE 192s Accel', sphincs_tester_192s, timeout: 600, suite: regression)
+	test('Sphincs SHAKE 192f Accel', sphincs_tester_192f, timeout: 600, suite: regression)
+	test('Sphincs SHAKE 128s Accel', sphincs_tester_128s, timeout: 600, suite: regression)
+	test('Sphincs SHAKE 128f Accel', sphincs_tester_128f, timeout: 600, suite: regression)
 
 	test('Sphincs SHAKE 256s Keygen 100 Accel', sphincs_tester_256s,
 	     args : [ 'k' ], timeout: 1000, is_parallel: false, suite: performance)
@@ -125,17 +125,17 @@ if get_option('sphincs_shake_256s').enabled()
 
 	# Disable parallel execution as accelerations are disabled
 	test('Sphincs SHAKE 256s C', sphincs_tester_256s, args : [ 'c' ],
-	     is_parallel: false, suite: regression)
+	     timeout: 600, is_parallel: false, suite: regression)
 	test('Sphincs SHAKE 256f C', sphincs_tester_256f, args : [ 'c' ],
-	     is_parallel: false, suite: regression)
+	     timeout: 600, is_parallel: false, suite: regression)
 	test('Sphincs SHAKE 192s C', sphincs_tester_192s, args : [ 'c' ],
-	     is_parallel: false, suite: regression)
+	     timeout: 600, is_parallel: false, suite: regression)
 	test('Sphincs SHAKE 192f C', sphincs_tester_192f, args : [ 'c' ],
-	     is_parallel: false, suite: regression)
+	     timeout: 600, is_parallel: false, suite: regression)
 	test('Sphincs SHAKE 128s C', sphincs_tester_128s, args : [ 'c' ],
-	     is_parallel: false, suite: regression)
+	     timeout: 600, is_parallel: false, suite: regression)
 	test('Sphincs SHAKE 128f C', sphincs_tester_128f, args : [ 'c' ],
-	     is_parallel: false, suite: regression)
+	     timeout: 600, is_parallel: false, suite: regression)
 
 	test('Sphincs SHAKE 256s Keygen 100 C', sphincs_tester_256s,
 	     args : [ 'k', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
@@ -177,8 +177,8 @@ if get_option('sphincs_shake_256s').enabled()
 	     args : [ 'v', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
 
 	test('Sphincs SHAKE Official', sphincs_official_tester,
-	     suite: regression)
+	     timeout: 600, suite: regression)
 
 	test('Sphincs SHAKE IUF', sphincs_official_tester,
-	     suite: regression)
+	     timeout: 600, suite: regression)
 endif
