@@ -61,8 +61,8 @@ static void fors_sk_to_leafx4(unsigned char *leaf0, unsigned char *leaf1,
 			      const unsigned char *sk3, const spx_ctx *ctx,
 			      uint32_t fors_leaf_addrx4[4 * 8])
 {
-	thashx4(leaf0, leaf1, leaf2, leaf3, sk0, sk1, sk2, sk3, 1, ctx,
-		fors_leaf_addrx4);
+	thashx4_12(leaf0, leaf1, leaf2, leaf3, sk0, sk1, sk2, sk3, 1, ctx,
+		   fors_leaf_addrx4);
 }
 
 struct fors_gen_leaf_info {
@@ -70,13 +70,15 @@ struct fors_gen_leaf_info {
 };
 
 static void fors_gen_leafx4(unsigned char *leaf, const spx_ctx *ctx,
-			    uint32_t addr_idx, void *info, void *ws_buf)
+			    uint32_t addr_idx, void *info, void *ws_buf,
+			    uint8_t *thash_buf)
 {
 	struct fors_gen_leaf_info *fors_info = info;
 	uint32_t *fors_leaf_addrx4 = fors_info->leaf_addrx;
 	unsigned int j;
 
 	(void)ws_buf;
+	(void)thash_buf;
 
 	/* Only set the parts that the caller doesn't set */
 	for (j = 0; j < 4; j++) {
@@ -135,6 +137,7 @@ int fors_sign_avx2(uint8_t sig[LC_SPX_FORS_BYTES], uint8_t pk[LC_SPX_N],
 		uint32_t fors_pk_addr[8];
 		struct fors_gen_leaf_info fors_info;
 		uint8_t roots[LC_SPX_FORS_TREES * LC_SPX_N];
+		uint8_t stackx4[LC_SPX_FORS_HEIGHT * 4 * LC_SPX_N];
 	};
 	uint32_t *fors_leaf_addr;
 	uint32_t idx_offset;
@@ -168,7 +171,8 @@ int fors_sign_avx2(uint8_t sig[LC_SPX_FORS_BYTES], uint8_t pk[LC_SPX_N],
 		/* Compute the authentication path for this leaf node. */
 		treehashx4(ws->roots + i * LC_SPX_N, sig, ctx, ws->indices[i],
 			   idx_offset, LC_SPX_FORS_HEIGHT, fors_gen_leafx4,
-			   ws->fors_tree_addr, &ws->fors_info, NULL);
+			   ws->fors_tree_addr, &ws->fors_info, ws->stackx4,
+			   NULL, NULL);
 
 		sig += LC_SPX_N * LC_SPX_FORS_HEIGHT;
 	}

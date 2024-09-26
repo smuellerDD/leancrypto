@@ -112,8 +112,8 @@ static void gen_chains(uint8_t *out, const uint8_t *in,
 					      k + start[idxs[i + j]]);
 			}
 
-			thashx4(bufs[0], bufs[1], bufs[2], bufs[3], bufs[0],
-				bufs[1], bufs[2], bufs[3], 1, ctx, addrs);
+			thashx4_12(bufs[0], bufs[1], bufs[2], bufs[3], bufs[0],
+				   bufs[1], bufs[2], bufs[3], 1, ctx, addrs);
 		}
 	}
 }
@@ -204,7 +204,7 @@ int wots_pk_from_sig_avx2(uint8_t pk[LC_SPX_WOTS_BYTES], const uint8_t *sig,
  * that we're signing with one of these WOTS keys
  */
 void wots_gen_leafx4(unsigned char *dest, const spx_ctx *ctx, uint32_t leaf_idx,
-		     void *v_info, void *ws_buf)
+		     void *v_info, uint8_t *pk_buffer, uint8_t *thash_buf)
 {
 	struct leaf_info_x4 *info = v_info;
 	uint32_t wots_k_mask;
@@ -212,7 +212,7 @@ void wots_gen_leafx4(unsigned char *dest, const spx_ctx *ctx, uint32_t leaf_idx,
 	uint32_t *pk_addr = info->pk_addr;
 	unsigned int i, j, k, wots_sign_index, wots_offset = LC_SPX_WOTS_BYTES;
 	/* pk_buffer must have 4 * LC_SPX_WOTS_BYTES bytes in size */
-	uint8_t *buffer, *pk_buffer = ws_buf;
+	uint8_t *buffer;
 
 	if (((leaf_idx ^ info->wots_sign_leaf) & (uint32_t)~3) == 0) {
 		/* We're traversing the leaf that's signing; generate the WOTS */
@@ -270,14 +270,14 @@ void wots_gen_leafx4(unsigned char *dest, const spx_ctx *ctx, uint32_t leaf_idx,
 			for (j = 0; j < 4; j++) {
 				set_hash_addr(leaf_addr + j * 8, k);
 			}
-			thashx4(buffer + 0 * wots_offset,
-				buffer + 1 * wots_offset,
-				buffer + 2 * wots_offset,
-				buffer + 3 * wots_offset,
-				buffer + 0 * wots_offset,
-				buffer + 1 * wots_offset,
-				buffer + 2 * wots_offset,
-				buffer + 3 * wots_offset, 1, ctx, leaf_addr);
+			thashx4_12(buffer + 0 * wots_offset,
+				   buffer + 1 * wots_offset,
+				   buffer + 2 * wots_offset,
+				   buffer + 3 * wots_offset,
+				   buffer + 0 * wots_offset,
+				   buffer + 1 * wots_offset,
+				   buffer + 2 * wots_offset,
+				   buffer + 3 * wots_offset, 1, ctx, leaf_addr);
 		}
 	}
 
@@ -285,5 +285,6 @@ void wots_gen_leafx4(unsigned char *dest, const spx_ctx *ctx, uint32_t leaf_idx,
 	thashx4(dest + 0 * LC_SPX_N, dest + 1 * LC_SPX_N, dest + 2 * LC_SPX_N,
 		dest + 3 * LC_SPX_N, pk_buffer + 0 * wots_offset,
 		pk_buffer + 1 * wots_offset, pk_buffer + 2 * wots_offset,
-		pk_buffer + 3 * wots_offset, LC_SPX_WOTS_LEN, ctx, pk_addr);
+		pk_buffer + 3 * wots_offset, LC_SPX_WOTS_LEN, ctx, pk_addr,
+		thash_buf);
 }

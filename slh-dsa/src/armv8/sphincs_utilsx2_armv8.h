@@ -50,8 +50,10 @@ void treehashx2(
 	uint32_t leaf_idx, uint32_t idx_offset, uint32_t tree_height,
 	void (*gen_leafx2)(unsigned char * /* Where to write the leaves */,
 			   const spx_ctx * /* ctx */, uint32_t addr_idx,
-			   void *info),
-	uint32_t tree_addrx2[2 * 8], void *info);
+			   void *info, uint8_t *wots_pk_buffer,
+			   uint8_t *thash_buf),
+	uint32_t tree_addrx2[2 * 8], void *info, uint8_t *wots_pk_buffer,
+	uint8_t *thash_buf);
 
 #ifdef __cplusplus
 }

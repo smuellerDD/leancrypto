@@ -36,41 +36,37 @@
 void thash(uint8_t out[LC_SPX_N], const uint8_t *in, unsigned int inblocks,
 	   const uint8_t pub_seed[LC_SPX_N], uint32_t addr[8])
 {
-#if (LC_SPX_FORS_TREES < LC_SPX_WOTS_LEN)
-	uint8_t buf[LC_SPX_N + LC_SPX_ADDR_BYTES + LC_SPX_WOTS_LEN * LC_SPX_N]
-		__align(LC_HASH_COMMON_ALIGNMENT);
-	uint8_t bitmask[LC_SPX_WOTS_LEN * LC_SPX_N]
-		__align(LC_HASH_COMMON_ALIGNMENT);
-#else
-	uint8_t buf[LC_SPX_N + LC_SPX_ADDR_BYTES + LC_SPX_FORS_TREES * LC_SPX_N]
-		__align(LC_HASH_COMMON_ALIGNMENT);
-	uint8_t bitmask[LC_SPX_FORS_TREES * LC_SPX_N]
-		__align(LC_HASH_COMMON_ALIGNMENT);
-#endif
+	uint8_t bitmask[LC_SPX_N], buf[LC_SPX_N];
+	unsigned int i, j;
+	LC_HASH_CTX_ON_STACK(bitmask_ctx, lc_shake256);
+	LC_HASH_CTX_ON_STACK(buf_ctx, lc_shake256);
 
-	unsigned int i;
+	lc_hash_init(buf_ctx);
+	lc_hash_update(buf_ctx, pub_seed, LC_SPX_N);
+	lc_hash_update(buf_ctx, (uint8_t *)addr, LC_SPX_ADDR_BYTES);
 
-	memcpy(buf, pub_seed, LC_SPX_N);
-	memcpy(buf + LC_SPX_N, addr, LC_SPX_ADDR_BYTES);
+	lc_hash_init(bitmask_ctx);
+	lc_hash_update(bitmask_ctx, pub_seed, LC_SPX_N);
+	lc_hash_update(bitmask_ctx, (uint8_t *)addr, LC_SPX_ADDR_BYTES);
+	lc_hash_set_digestsize(bitmask_ctx, sizeof(bitmask));
 
-	//	shake256(bitmask, inblocks * LC_SPX_N, buf, LC_SPX_N + LC_SPX_ADDR_BYTES);
+	for (i = 0; i < inblocks; i++) {
+		/* Squeeze out the bitmask */
+		lc_hash_final(bitmask_ctx, bitmask);
 
-	// LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
-	//
-	// lc_hash_init(hash_ctx);
-	// lc_hash_update(hash_ctx, pub_seed, LC_SPX_N);
-	// lc_hash_update(hash_ctx, addr, LC_SPX_ADDR_BYTES);
-	// lc_hash_set_digestsize(hash_ctx, sizeof(bitmask));
-	// lc_hash_final(hash_ctx, bitmask);
-	//
-	// lc_hash_zero(hash_ctx);
+		for (j = 0; j < LC_SPX_N; j++)
+			buf[j] = in[i* LC_SPX_N + j] ^ bitmask[j];
 
-	lc_xof(lc_shake256, buf, LC_SPX_N + LC_SPX_ADDR_BYTES, bitmask,
-	       inblocks * LC_SPX_N);
-
-	for (i = 0; i < inblocks * LC_SPX_N; i++) {
-		buf[LC_SPX_N + LC_SPX_ADDR_BYTES + i] = in[i] ^ bitmask[i];
+		/* Insert the processed data into the hash state */
+		lc_hash_update(buf_ctx, buf, sizeof(buf));
 	}
 
-	lc_xof(lc_shake256, buf, LC_SPX_N + LC_SPX_ADDR_BYTES + inblocks * LC_SPX_N, out, LC_SPX_N);
+	/* Squeeze out the final data point */
+	lc_hash_set_digestsize(buf_ctx, LC_SPX_N);
+	lc_hash_final(buf_ctx, out);
+
+	lc_memset_secure(bitmask, 0, sizeof(bitmask));
+	lc_memset_secure(buf, 0, sizeof(buf));
+	lc_hash_zero(bitmask_ctx);
+	lc_hash_zero(buf_ctx);
 }

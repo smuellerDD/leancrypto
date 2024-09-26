@@ -98,6 +98,7 @@ int fors_sign_c(uint8_t sig[LC_SPX_FORS_BYTES], uint8_t pk[LC_SPX_N],
 		uint32_t fors_pk_addr[8];
 		struct fors_gen_leaf_info fors_info;
 		uint8_t roots[LC_SPX_FORS_TREES * LC_SPX_N];
+		uint8_t treehash_stack_sp[LC_SPX_FORS_HEIGHT * LC_SPX_N];
 	};
 	uint32_t *fors_leaf_addr;
 	uint32_t idx_offset;
@@ -128,7 +129,8 @@ int fors_sign_c(uint8_t sig[LC_SPX_FORS_BYTES], uint8_t pk[LC_SPX_N],
 
 		/* Compute the authentication path for this leaf node. */
 		treehashx1(ws->roots + i * LC_SPX_N, sig, ctx, ws->indices[i],
-			   idx_offset, LC_SPX_FORS_HEIGHT, fors_gen_leafx1,
+			   idx_offset, LC_SPX_FORS_HEIGHT,
+			   ws->treehash_stack_sp, fors_gen_leafx1,
 			   ws->fors_tree_addr, &ws->fors_info);
 
 		sig += LC_SPX_N * LC_SPX_FORS_HEIGHT;

@@ -59,8 +59,10 @@ void treehashx2(
 	unsigned char *root, unsigned char *auth_path, const spx_ctx *ctx,
 	uint32_t leaf_idx, uint32_t idx_offset, uint32_t tree_height,
 	void (*gen_leafx2)(unsigned char * /* Where to write the leaves */,
-			   const spx_ctx *, uint32_t idx, void *info),
-	uint32_t tree_addrx2[2 * 8], void *info)
+			   const spx_ctx *, uint32_t idx, void *info,
+			   uint8_t *wots_pk_buffer, uint8_t *thash_buf),
+	uint32_t tree_addrx2[2 * 8], void *info, uint8_t *wots_pk_buffer,
+	uint8_t *thash_buf)
 {
 	/* This is where we keep the intermediate nodes */
 #if (LC_SPX_TREE_HEIGHT < LC_SPX_FORS_HEIGHT)
@@ -79,7 +81,8 @@ void treehashx2(
 	for (idx = 0;; idx++) {
 		uint8_t current_idx[2 * LC_SPX_N]; /* Current logical node */
 
-		gen_leafx2(current_idx, ctx, 2 * idx + idx_offset, info);
+		gen_leafx2(current_idx, ctx, 2 * idx + idx_offset, info,
+			   wots_pk_buffer, thash_buf);
 
 		/* Now combine the freshly generated right node with previously */
 		/* generated left ones */
@@ -149,7 +152,7 @@ void treehashx2(
 						       internal_idx_offset);
 			}
 			unsigned char *left = &stackx2[h * 2 * LC_SPX_N];
-			thashx2(&current_idx[0 * LC_SPX_N],
+			thashx2_12(&current_idx[0 * LC_SPX_N],
 				&current_idx[1 * LC_SPX_N], &left[0 * LC_SPX_N],
 				&current_idx[0 * LC_SPX_N], 2, ctx,
 				tree_addrx2);

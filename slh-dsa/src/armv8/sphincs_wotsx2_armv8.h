@@ -57,7 +57,7 @@ struct leaf_info_x2 {
 	}
 
 void wots_gen_leafx2(unsigned char *dest, const spx_ctx *ctx, uint32_t leaf_idx,
-		     void *v_info);
+		     void *v_info, uint8_t *pk_buffer, uint8_t *thash_buf);
 
 #ifdef __cplusplus
 }

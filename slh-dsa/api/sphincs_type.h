@@ -142,6 +142,7 @@ extern "C" {
 /* AVX2 */
 #define prf_addrx4 SPHINCS_F(prf_addrx4)
 #define thashx4 SPHINCS_F(thashx4)
+#define thashx4_12 SPHINCS_F(thashx4_12)
 #define treehashx4 SPHINCS_F(treehashx4)
 #define wots_gen_leafx4 SPHINCS_F(wots_gen_leafx4)
 #define sphincs_merkle_sign_avx2 SPHINCS_F(sphincs_merkle_sign_avx2)

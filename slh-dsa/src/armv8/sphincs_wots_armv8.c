@@ -112,7 +112,7 @@ static void gen_chains(unsigned char *out, const unsigned char *in,
 					      k + start[idxs[i + j]]);
 			}
 
-			thashx2(bufs[0], bufs[1], bufs[0], bufs[1], 1, ctx,
+			thashx2_12(bufs[0], bufs[1], bufs[0], bufs[1], 1, ctx,
 				addrs);
 		}
 	}
@@ -201,17 +201,16 @@ int wots_pk_from_sig_armv8(uint8_t pk[LC_SPX_WOTS_BYTES], const uint8_t *sig,
  * that we're signing with one of these WOTS keys
  */
 void wots_gen_leafx2(unsigned char *dest, const spx_ctx *ctx, uint32_t leaf_idx,
-		     void *v_info)
+		     void *v_info, uint8_t *pk_buffer, uint8_t *thash_buf)
 {
 	struct leaf_info_x2 *info = v_info;
 	uint32_t *leaf_addr = info->leaf_addr;
 	uint32_t *pk_addr = info->pk_addr;
 	unsigned int i, j, k;
-	unsigned char pk_buffer[2 * LC_SPX_WOTS_BYTES];
-	unsigned wots_offset = LC_SPX_WOTS_BYTES;
-	unsigned char *buffer;
+	unsigned int wots_offset = LC_SPX_WOTS_BYTES;
+	uint8_t *buffer;
 	uint32_t wots_k_mask;
-	unsigned wots_sign_index;
+	unsigned int wots_sign_index;
 
 	if (((leaf_idx ^ info->wots_sign_leaf) & (uint32_t)~1) == 0) {
 		/* We're traversing the leaf that's signing; generate the WOTS */
@@ -267,7 +266,7 @@ void wots_gen_leafx2(unsigned char *dest, const spx_ctx *ctx, uint32_t leaf_idx,
 			for (j = 0; j < 2; j++) {
 				set_hash_addr(leaf_addr + j * 8, k);
 			}
-			thashx2(buffer + 0 * wots_offset,
+			thashx2_12(buffer + 0 * wots_offset,
 				buffer + 1 * wots_offset,
 				buffer + 0 * wots_offset,
 				buffer + 1 * wots_offset, 1, ctx, leaf_addr);
@@ -277,5 +276,5 @@ void wots_gen_leafx2(unsigned char *dest, const spx_ctx *ctx, uint32_t leaf_idx,
 	/* Do the final thash to generate the public keys */
 	thashx2(dest + 0 * LC_SPX_N, dest + 1 * LC_SPX_N,
 		pk_buffer + 0 * wots_offset, pk_buffer + 1 * wots_offset,
-		LC_SPX_WOTS_LEN, ctx, pk_addr);
+		LC_SPX_WOTS_LEN, ctx, pk_addr, thash_buf);
 }

@@ -45,6 +45,7 @@ int sphincs_merkle_sign_c(uint8_t *sig, unsigned char *root, const spx_ctx *ctx,
 {
 	struct workspace {
 		struct leaf_info_x1 info;
+		uint8_t treehash_stack_sp[LC_SPX_TREE_HEIGHT * LC_SPX_N];
 		unsigned int steps[LC_SPX_WOTS_LEN];
 	};
 	uint8_t *auth_path = sig + LC_SPX_WOTS_BYTES;
@@ -62,7 +63,8 @@ int sphincs_merkle_sign_c(uint8_t *sig, unsigned char *root, const spx_ctx *ctx,
 	ws->info.wots_sign_leaf = idx_leaf;
 
 	treehashx1(root, auth_path, ctx, idx_leaf, 0, LC_SPX_TREE_HEIGHT,
-		   wots_gen_leafx1, tree_addr, &ws->info);
+		   ws->treehash_stack_sp, wots_gen_leafx1, tree_addr,
+		   &ws->info);
 
 	LC_RELEASE_MEM(ws);
 	return 0;

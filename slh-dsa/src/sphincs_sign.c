@@ -216,8 +216,16 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign_ctx, struct lc_sphincs_sig *sig,
 	CKINT(gen_message_random(sig->r, sk_prf, ws->optrand, m, mlen, ctx));
 
 	/* Derive the message digest and leaf index from R, PK and M. */
+	/*
+	 * Shut up the compiler which thinks that only 32 bytes are available
+	 * with pointer pk. But that pointer references pk_seed which is
+	 * concatenated with pk_root and thus has the required 64 bytes.
+	 */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overread"
 	CKINT(hash_message(ws->mhash, &ws->tree, &ws->idx_leaf, sig->r, pk, m,
 			   mlen, ctx));
+#pragma GCC diagnostic pop
 
 	set_tree_addr(ws->wots_addr, ws->tree);
 	set_keypair_addr(ws->wots_addr, ws->idx_leaf);
@@ -396,8 +404,16 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify_ctx,
 
 	/* Derive the message digest and leaf index from R || PK || M. */
 	/* The additional LC_SPX_N is a result of the hash domain separator. */
+	/*
+	 * Shut up the compiler which thinks that only 32 bytes are available
+	 * with pointer pk_seed. But that pointer references pk_seed which is
+	 * concatenated with pk_root and thus has the required 64 bytes.
+	 */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overread"
 	CKINT(hash_message(ws->mhash, &ws->tree, &ws->idx_leaf, sig->r,
 			   pk->pk_seed, m, mlen, ctx));
+#pragma GCC diagnostic pop
 
 	/* Layer correctly defaults to 0, so no need to set_layer_addr */
 	set_tree_addr(ws->wots_addr, ws->tree);

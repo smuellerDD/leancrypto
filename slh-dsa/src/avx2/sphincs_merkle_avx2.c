@@ -28,6 +28,7 @@
 #include "sphincs_type.h"
 #include "sphincs_address.h"
 #include "sphincs_merkle_avx2.h"
+#include "sphincs_thashx4_avx2.h"
 #include "sphincs_utils.h"
 #include "sphincs_utilsx4_avx2.h"
 #include "sphincs_wots_avx2.h"
@@ -46,6 +47,8 @@ int sphincs_merkle_sign_avx2(uint8_t *sig, unsigned char *root,
 		uint32_t tree_addrx4[4 * 8];
 		unsigned int steps[LC_SPX_WOTS_LEN];
 		uint8_t wots_gen_leafx4_buf[4 * LC_SPX_WOTS_BYTES];
+		uint8_t thash_buf[LC_THASHX4_BUFLEN * 4 + LC_THASHX4_BITMASKLEN * 4];
+		uint8_t stackx4[LC_SPX_TREE_HEIGHT * 4 * LC_SPX_N];
 	};
 	uint8_t *auth_path = sig + LC_SPX_WOTS_BYTES;
 	unsigned int j;
@@ -67,8 +70,8 @@ int sphincs_merkle_sign_avx2(uint8_t *sig, unsigned char *root,
 	ws->info.wots_sign_leaf = idx_leaf;
 
 	treehashx4(root, auth_path, ctx, idx_leaf, 0, LC_SPX_TREE_HEIGHT,
-		   wots_gen_leafx4, ws->tree_addrx4, &ws->info,
-		   ws->wots_gen_leafx4_buf);
+		   wots_gen_leafx4, ws->tree_addrx4, &ws->info, ws->stackx4,
+		   ws->wots_gen_leafx4_buf, ws->thash_buf);
 
 	LC_RELEASE_MEM(ws);
 	return 0;

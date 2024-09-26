@@ -44,7 +44,7 @@ extern "C" {
  */
 void treehashx1(unsigned char *root, unsigned char *auth_path,
 		const spx_ctx *ctx, uint32_t leaf_idx, uint32_t idx_offset,
-		uint32_t tree_height,
+		uint32_t tree_height, uint8_t *stack_sp,
 		void (*gen_leaf)(unsigned char * /* Where to write the leaf */,
 				 const spx_ctx * /* ctx */, uint32_t addr_idx,
 				 void *info),

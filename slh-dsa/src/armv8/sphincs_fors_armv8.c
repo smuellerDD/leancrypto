@@ -58,7 +58,7 @@ static void fors_sk_to_leafx2(unsigned char *leaf0, unsigned char *leaf1,
 			      const unsigned char *sk1, const spx_ctx *ctx,
 			      uint32_t fors_leaf_addrx2[2 * 8])
 {
-	thashx2(leaf0, leaf1, sk0, sk1, 1, ctx, fors_leaf_addrx2);
+	thashx2_12(leaf0, leaf1, sk0, sk1, 1, ctx, fors_leaf_addrx2);
 }
 
 struct fors_gen_leaf_info {
@@ -66,11 +66,15 @@ struct fors_gen_leaf_info {
 };
 
 static void fors_gen_leafx2(unsigned char *leaf, const spx_ctx *ctx,
-			    uint32_t addr_idx, void *info)
+			    uint32_t addr_idx, void *info, uint8_t *ws,
+			    uint8_t *ws2)
 {
 	struct fors_gen_leaf_info *fors_info = info;
 	uint32_t *fors_leaf_addrx2 = fors_info->leaf_addrx;
 	unsigned int j;
+
+	(void)ws;
+	(void)ws2;
 
 	/* Only set the parts that the caller doesn't set */
 	for (j = 0; j < 2; j++) {
@@ -159,7 +163,7 @@ int fors_sign_armv8(uint8_t sig[LC_SPX_FORS_BYTES], uint8_t pk[LC_SPX_N],
 		/* Compute the authentication path for this leaf node. */
 		treehashx2(ws->roots + i * LC_SPX_N, sig, ctx, ws->indices[i],
 			   idx_offset, LC_SPX_FORS_HEIGHT, fors_gen_leafx2,
-			   ws->fors_tree_addr, &ws->fors_info);
+			   ws->fors_tree_addr, &ws->fors_info, NULL, NULL);
 
 		sig += LC_SPX_N * LC_SPX_FORS_HEIGHT;
 	}

@@ -47,15 +47,18 @@
 void treehashx1(
 	unsigned char *root, unsigned char *auth_path, const spx_ctx *ctx,
 	uint32_t leaf_idx, uint32_t idx_offset, uint32_t tree_height,
+	uint8_t *stack_sp,
 	void (*gen_leaf)(unsigned char * /* Where to write the leaves */,
 			 const spx_ctx * /* ctx */, uint32_t idx, void *info),
 	uint32_t tree_addr[8], void *info)
 {
+#if 0
 	/* This is where we keep the intermediate nodes */
 #if (LC_SPX_TREE_HEIGHT < LC_SPX_FORS_HEIGHT)
 	uint8_t stack_sp[LC_SPX_FORS_HEIGHT * LC_SPX_N];
 #else
 	uint8_t stack_sp[LC_SPX_TREE_HEIGHT * LC_SPX_N];
+#endif
 #endif
 	uint32_t idx;
 	uint32_t max_idx = (uint32_t)((1 << tree_height) - 1);

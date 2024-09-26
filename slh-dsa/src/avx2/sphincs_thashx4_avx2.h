@@ -33,11 +33,19 @@
 extern "C" {
 #endif
 
-void thashx4(unsigned char *out0, unsigned char *out1, unsigned char *out2,
+#define LC_THASHX4_BUFLEN (LC_SPX_N + LC_SPX_ADDR_BYTES + LC_SPX_WOTS_LEN * LC_SPX_N)
+#define LC_THASHX4_BITMASKLEN (LC_SPX_WOTS_LEN * LC_SPX_N)
+
+void thashx4_12(unsigned char *out0, unsigned char *out1, unsigned char *out2,
 	     unsigned char *out3, const unsigned char *in0,
 	     const unsigned char *in1, const unsigned char *in2,
 	     const unsigned char *in3, unsigned int inblocks,
 	     const spx_ctx *ctx, uint32_t addrx4[4 * 8]);
+void thashx4(unsigned char *out0, unsigned char *out1, unsigned char *out2,
+	     unsigned char *out3, const unsigned char *in0,
+	     const unsigned char *in1, const unsigned char *in2,
+	     const unsigned char *in3, unsigned int inblocks,
+	     const spx_ctx *ctx, uint32_t addrx4[4 * 8], uint8_t *thash_buf);
 
 #ifdef __cplusplus
 }
