@@ -42,7 +42,7 @@
  * not easily done.
  */
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wframe-larger-than"
+#pragma GCC diagnostic ignored "-Wframe-larger-than="
 void wots_gen_leafx1(unsigned char *dest, const spx_ctx *ctx, uint32_t leaf_idx,
 		     void *v_info)
 {

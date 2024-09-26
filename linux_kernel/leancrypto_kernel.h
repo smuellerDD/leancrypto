@@ -326,6 +326,90 @@ static inline void lc_kernel_bike_1_exit(void)
 }
 #endif
 
+#ifdef CONFIG_LEANCRYPTO_SPHINCS_256s
+int __init lc_kernel_sphincs_init(void);
+void lc_kernel_sphincs_exit(void);
+#else
+static inline int __init lc_kernel_sphincs_init(void)
+{
+	return 0;
+}
+
+static inline void lc_kernel_sphincs_exit(void)
+{
+}
+#endif
+
+#ifdef CONFIG_LEANCRYPTO_SPHINCS_256f
+int __init lc_kernel_sphincs_shake_256f_init(void);
+void lc_kernel_sphincs_shake_256f_exit(void);
+#else
+static inline int __init lc_kernel_sphincs_shake_256f_init(void)
+{
+	return 0;
+}
+
+static inline void lc_kernel_sphincs_shake_256f_exit(void)
+{
+}
+#endif
+
+#ifdef CONFIG_LEANCRYPTO_SPHINCS_192s
+int __init lc_kernel_sphincs_shake_192s_init(void);
+void lc_kernel_sphincs_shake_192s_exit(void);
+#else
+static inline int __init lc_kernel_sphincs_shake_192s_init(void)
+{
+	return 0;
+}
+
+static inline void lc_kernel_sphincs_shake_192s_exit(void)
+{
+}
+#endif
+
+#ifdef CONFIG_LEANCRYPTO_SPHINCS_192f
+int __init lc_kernel_sphincs_shake_192f_init(void);
+void lc_kernel_sphincs_shake_192f_exit(void);
+#else
+static inline int __init lc_kernel_sphincs_shake_192f_init(void)
+{
+	return 0;
+}
+
+static inline void lc_kernel_sphincs_shake_192f_exit(void)
+{
+}
+#endif
+
+#ifdef CONFIG_LEANCRYPTO_SPHINCS_128s
+int __init lc_kernel_sphincs_shake_128s_init(void);
+void lc_kernel_sphincs_shake_128s_exit(void);
+#else
+static inline int __init lc_kernel_sphincs_shake_128s_init(void)
+{
+	return 0;
+}
+
+static inline void lc_kernel_sphincs_shake_128s_exit(void)
+{
+}
+#endif
+
+#ifdef CONFIG_LEANCRYPTO_SPHINCS_128f
+int __init lc_kernel_sphincs_shake_128f_init(void);
+void lc_kernel_sphincs_shake_128f_exit(void);
+#else
+static inline int __init lc_kernel_sphincs_shake_128f_init(void)
+{
+	return 0;
+}
+
+static inline void lc_kernel_sphincs_shake_128f_exit(void)
+{
+}
+#endif
+
 #ifdef __cplusplus
 }
 #endif

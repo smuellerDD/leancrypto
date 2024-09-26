@@ -617,6 +617,92 @@ static inline int lc_sphincs_sk_load(struct lc_sphincs_sk *sk,
 
 /**
  * @ingroup Sphincs
+ * @brief Set Sphincs key type to fast
+ *
+ * When loading a secret key, the load mechanism cannot detect whether the
+ * key is to be used for the fast or small Sphincs operation (e.g. 256f vs
+ * 256s). This API allows the caller to make the setting after key loading.
+ * The library uses that decision for further operations.
+ *
+ * @param [in] sk Secret key to be set
+ *
+ * @return 0 on success or < 0 on error
+ */
+static inline int lc_sphincs_sk_set_keytype_fast(struct lc_sphincs_sk *sk)
+{
+	if (!sk) {
+		return -EINVAL;
+#ifdef LC_SPHINCS_SHAKE_256f_ENABLED
+	} else if (sk->sphincs_type == LC_SPHINCS_SHAKE_256s) {
+		sk->sphincs_type = LC_SPHINCS_SHAKE_256f;
+		return 0;
+	} else if (sk->sphincs_type == LC_SPHINCS_SHAKE_256f) {
+		return 0;
+#endif
+#ifdef LC_SPHINCS_SHAKE_192f_ENABLED
+	} else if (sk->sphincs_type == LC_SPHINCS_SHAKE_192s) {
+		sk->sphincs_type = LC_SPHINCS_SHAKE_192f;
+		return 0;
+	} else if (sk->sphincs_type == LC_SPHINCS_SHAKE_192f) {
+		return 0;
+#endif
+#ifdef LC_SPHINCS_SHAKE_128f_ENABLED
+	} else if (sk->sphincs_type == LC_SPHINCS_SHAKE_128s) {
+		sk->sphincs_type = LC_SPHINCS_SHAKE_128f;
+		return 0;
+	} else if (sk->sphincs_type == LC_SPHINCS_SHAKE_128f) {
+		return 0;
+#endif
+	} else {
+		return -EINVAL;
+	}
+}
+
+/**
+ * @ingroup Sphincs
+ * @brief Set Sphincs key type to small
+ *
+ * When loading a secret key, the load mechanism cannot detect whether the
+ * key is to be used for the fast or small Sphincs operation (e.g. 256f vs
+ * 256s). This API allows the caller to make the setting after key loading.
+ * The library uses that decision for further operations.
+ *
+ * @param [in] sk Secret key to be set
+ *
+ * @return 0 on success or < 0 on error
+ */
+static inline int lc_sphincs_sk_set_keytype_small(struct lc_sphincs_sk *sk)
+{
+	if (!sk) {
+		return -EINVAL;
+#ifdef LC_SPHINCS_SHAKE_256s_ENABLED
+	} else if (sk->sphincs_type == LC_SPHINCS_SHAKE_256s) {
+		return 0;
+	} else if (sk->sphincs_type == LC_SPHINCS_SHAKE_256f) {
+		sk->sphincs_type = LC_SPHINCS_SHAKE_256s;
+		return 0;
+#endif
+#ifdef LC_SPHINCS_SHAKE_192s_ENABLED
+	} else if (sk->sphincs_type == LC_SPHINCS_SHAKE_192s) {
+		return 0;
+	} else if (sk->sphincs_type == LC_SPHINCS_SHAKE_192f) {
+		sk->sphincs_type = LC_SPHINCS_SHAKE_192s;
+		return 0;
+#endif
+#ifdef LC_SPHINCS_SHAKE_128s_ENABLED
+	} else if (sk->sphincs_type == LC_SPHINCS_SHAKE_128s) {
+		return 0;
+	} else if (sk->sphincs_type == LC_SPHINCS_SHAKE_128f) {
+		sk->sphincs_type = LC_SPHINCS_SHAKE_128s;
+		return 0;
+#endif
+	} else {
+		return -EINVAL;
+	}
+}
+
+/**
+ * @ingroup Sphincs
  * @brief Load a Sphincs public key provided with a buffer into the leancrypto
  *	  data structure.
  *
@@ -677,6 +763,92 @@ static inline int lc_sphincs_pk_load(struct lc_sphincs_pk *pk,
 
 		memcpy(_pk, src_key, src_key_len);
 		pk->sphincs_type = LC_SPHINCS_SHAKE_128f;
+		return 0;
+#endif
+	} else {
+		return -EINVAL;
+	}
+}
+
+/**
+ * @ingroup Sphincs
+ * @brief Set Sphincs key type to fast
+ *
+ * When loading a public key, the load mechanism cannot detect whether the
+ * key is to be used for the fast or small Sphincs operation (e.g. 256f vs
+ * 256s). This API allows the caller to make the setting after key loading.
+ * The library uses that decision for further operations.
+ *
+ * @param [in] pk Public key to be set
+ *
+ * @return 0 on success or < 0 on error
+ */
+static inline int lc_sphincs_pk_set_keytype_fast(struct lc_sphincs_pk *pk)
+{
+	if (!pk) {
+		return -EINVAL;
+#ifdef LC_SPHINCS_SHAKE_256f_ENABLED
+	} else if (pk->sphincs_type == LC_SPHINCS_SHAKE_256s) {
+		pk->sphincs_type = LC_SPHINCS_SHAKE_256f;
+		return 0;
+	} else if (pk->sphincs_type == LC_SPHINCS_SHAKE_256f) {
+		return 0;
+#endif
+#ifdef LC_SPHINCS_SHAKE_192f_ENABLED
+	} else if (pk->sphincs_type == LC_SPHINCS_SHAKE_192s) {
+		pk->sphincs_type = LC_SPHINCS_SHAKE_192f;
+		return 0;
+	} else if (pk->sphincs_type == LC_SPHINCS_SHAKE_192f) {
+		return 0;
+#endif
+#ifdef LC_SPHINCS_SHAKE_128f_ENABLED
+	} else if (pk->sphincs_type == LC_SPHINCS_SHAKE_128s) {
+		pk->sphincs_type = LC_SPHINCS_SHAKE_128f;
+		return 0;
+	} else if (pk->sphincs_type == LC_SPHINCS_SHAKE_128f) {
+		return 0;
+#endif
+	} else {
+		return -EINVAL;
+	}
+}
+
+/**
+ * @ingroup Sphincs
+ * @brief Set Sphincs key type to small
+ *
+ * When loading a public key, the load mechanism cannot detect whether the
+ * key is to be used for the fast or small Sphincs operation (e.g. 256f vs
+ * 256s). This API allows the caller to make the setting after key loading.
+ * The library uses that decision for further operations.
+ *
+ * @param [in] pk Public key to be set
+ *
+ * @return 0 on success or < 0 on error
+ */
+static inline int lc_sphincs_pk_set_keytype_small(struct lc_sphincs_pk *pk)
+{
+	if (!pk) {
+		return -EINVAL;
+#ifdef LC_SPHINCS_SHAKE_256s_ENABLED
+	} else if (pk->sphincs_type == LC_SPHINCS_SHAKE_256s) {
+		return 0;
+	} else if (pk->sphincs_type == LC_SPHINCS_SHAKE_256f) {
+		pk->sphincs_type = LC_SPHINCS_SHAKE_256s;
+		return 0;
+#endif
+#ifdef LC_SPHINCS_SHAKE_192s_ENABLED
+	} else if (pk->sphincs_type == LC_SPHINCS_SHAKE_192s) {
+		return 0;
+	} else if (pk->sphincs_type == LC_SPHINCS_SHAKE_192f) {
+		pk->sphincs_type = LC_SPHINCS_SHAKE_192s;
+		return 0;
+#endif
+#ifdef LC_SPHINCS_SHAKE_128s_ENABLED
+	} else if (pk->sphincs_type == LC_SPHINCS_SHAKE_128s) {
+		return 0;
+	} else if (pk->sphincs_type == LC_SPHINCS_SHAKE_128f) {
+		pk->sphincs_type = LC_SPHINCS_SHAKE_128s;
 		return 0;
 #endif
 	} else {
@@ -937,6 +1109,24 @@ static inline int lc_sphincs_sig_ptr(uint8_t **sphincs_sig,
 	} else if (sig->sphincs_type == LC_SPHINCS_SHAKE_256f) {
 		struct lc_sphincs_shake_256f_sig *_sig =
 			&sig->sig.sig_shake_256f;
+
+		*sphincs_sig = (uint8_t *)_sig;
+		*sphincs_sig_len = lc_sphincs_sig_size(sig->sphincs_type);
+		return 0;
+#endif
+#ifdef LC_SPHINCS_SHAKE_192s_ENABLED
+	} else if (sig->sphincs_type == LC_SPHINCS_SHAKE_192s) {
+		struct lc_sphincs_shake_192s_sig *_sig =
+			&sig->sig.sig_shake_192s;
+
+		*sphincs_sig = (uint8_t *)_sig;
+		*sphincs_sig_len = lc_sphincs_sig_size(sig->sphincs_type);
+		return 0;
+#endif
+#ifdef LC_SPHINCS_SHAKE_192f_ENABLED
+	} else if (sig->sphincs_type == LC_SPHINCS_SHAKE_192f) {
+		struct lc_sphincs_shake_192f_sig *_sig =
+			&sig->sig.sig_shake_192f;
 
 		*sphincs_sig = (uint8_t *)_sig;
 		*sphincs_sig_len = lc_sphincs_sig_size(sig->sphincs_type);

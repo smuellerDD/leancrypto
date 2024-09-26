@@ -11,7 +11,8 @@ asflags-$(CONFIG_LEANCRYPTO_SPHINCS)					       \
 ################################################################################
 # Sphincs Common
 leancrypto-$(CONFIG_LEANCRYPTO_SPHINCS)					       \
-				+= ../slh-dsa/src/sphincs_pct.o
+				+= ../slh-dsa/src/sphincs_pct.o		       \
+				   leancrypto_kernel_sphincs.o
 
 # Sphincs SHAKE 256s
 leancrypto-$(CONFIG_LEANCRYPTO_SPHINCS_256s)				       \
@@ -361,8 +362,8 @@ obj-m		  		+= sphincs_tester_official.o
 sphincs_tester_official-y	+= ../slh-dsa/tests/sphincs_official_tester.o
 
 ifdef CONFIG_LEANCRYPTO_SPHINCS_256s
-#ccflags-y			+= -DCONFIG_LEANCRYPTO_SPHINCS_256S
-#obj-m				+= leancrypto_kernel_sphincs_shake_256s_tester.o
+ccflags-y			+= -DCONFIG_LEANCRYPTO_SPHINCS_256s
+obj-m				+= leancrypto_kernel_sphincs_shake_256s_tester.o
 
 obj-m		  		+= sphincs_tester_256s.o
 sphincs_tester_256s-y		+= ../slh-dsa/tests/sphincs_tester.o
@@ -373,8 +374,9 @@ CFLAGS../slh-dsa/tests/sphincs_tester.o			:= -DLC_SPHINCS_TESTER_C
 endif
 
 ifdef CONFIG_LEANCRYPTO_SPHINCS_256f
-#ccflags-y			+= -DCONFIG_LEANCRYPTO_SPHINCS_256F
-#obj-m				+= leancrypto_kernel_sphincs_shake_256f_tester.o
+ccflags-y			+= -DCONFIG_LEANCRYPTO_SPHINCS_256f
+obj-m				+= leancrypto_kernel_sphincs_shake_256f_tester.o
+CFLAGS_leancrypto_kernel_sphincs_shake_256f_tester.o	:= -DLC_SPHINCS_TYPE_256F
 
 obj-m		  		+= sphincs_tester_256f.o
 sphincs_tester_256f-y		+= sphincs_shake_256f/tests/sphincs_tester.o
@@ -387,8 +389,9 @@ CFLAGS_sphincs_shake_256f/tests/sphincs_tester.o	:= -DLC_SPHINCS_TESTER_C\
 endif
 
 ifdef CONFIG_LEANCRYPTO_SPHINCS_192s
-#ccflags-y			+= -DCONFIG_LEANCRYPTO_SPHINCS_192S
-#obj-m				+= leancrypto_kernel_sphincs_shake_192s_tester.o
+ccflags-y			+= -DCONFIG_LEANCRYPTO_SPHINCS_192s
+obj-m				+= leancrypto_kernel_sphincs_shake_192s_tester.o
+CFLAGS_leancrypto_kernel_sphincs_shake_192s_tester.o	:= -DLC_SPHINCS_TYPE_192S
 
 obj-m		  		+= sphincs_tester_192s.o
 sphincs_tester_192s-y		+= sphincs_shake_192s/tests/sphincs_tester.o
@@ -401,8 +404,9 @@ CFLAGS_sphincs_shake_192s/tests/sphincs_tester.o	:= -DLC_SPHINCS_TESTER_C\
 endif
 
 ifdef CONFIG_LEANCRYPTO_SPHINCS_192f
-#ccflags-y			+= -DCONFIG_LEANCRYPTO_SPHINCS_192F
-#obj-m				+= leancrypto_kernel_sphincs_shake_192f_tester.o
+ccflags-y			+= -DCONFIG_LEANCRYPTO_SPHINCS_192f
+obj-m				+= leancrypto_kernel_sphincs_shake_192f_tester.o
+CFLAGS_leancrypto_kernel_sphincs_shake_192f_tester.o	:= -DLC_SPHINCS_TYPE_192F
 
 obj-m		  		+= sphincs_tester_192f.o
 sphincs_tester_192f-y		+= sphincs_shake_192f/tests/sphincs_tester.o
@@ -415,8 +419,9 @@ CFLAGS_sphincs_shake_192f/tests/sphincs_tester.o	:= -DLC_SPHINCS_TESTER_C\
 endif
 
 ifdef CONFIG_LEANCRYPTO_SPHINCS_128s
-#ccflags-y			+= -DCONFIG_LEANCRYPTO_SPHINCS_192S
-#obj-m				+= leancrypto_kernel_sphincs_shake_192s_tester.o
+ccflags-y			+= -DCONFIG_LEANCRYPTO_SPHINCS_128s
+obj-m				+= leancrypto_kernel_sphincs_shake_128s_tester.o
+CFLAGS_leancrypto_kernel_sphincs_shake_128s_tester.o	:= -DLC_SPHINCS_TYPE_128S
 
 obj-m		  		+= sphincs_tester_128s.o
 sphincs_tester_128s-y		+= sphincs_shake_128s/tests/sphincs_tester.o
@@ -429,8 +434,9 @@ CFLAGS_sphincs_shake_128s/tests/sphincs_tester.o	:= -DLC_SPHINCS_TESTER_C\
 endif
 
 ifdef CONFIG_LEANCRYPTO_SPHINCS_128f
-#ccflags-y			+= -DCONFIG_LEANCRYPTO_SPHINCS_128F
-#obj-m				+= leancrypto_kernel_sphincs_shake_128f_tester.o
+ccflags-y			+= -DCONFIG_LEANCRYPTO_SPHINCS_128f
+obj-m				+= leancrypto_kernel_sphincs_shake_128f_tester.o
+CFLAGS_leancrypto_kernel_sphincs_shake_128f_tester.o	+= -DLC_SPHINCS_TYPE_128F
 
 obj-m		  		+= sphincs_tester_128f.o
 sphincs_tester_128f-y		+= sphincs_shake_128f/tests/sphincs_tester.o

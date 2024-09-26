@@ -45,12 +45,12 @@ void thashx4(unsigned char *out0, unsigned char *out1, unsigned char *out2,
 {
 	unsigned int i;
 
-	LC_FPU_ENABLE;
-
 	if (inblocks == 1 || inblocks == 2) {
 		/* As we write and read only a few quadwords, it is more efficient to
 		 * build and extract from the fourway SHAKE256 state by hand. */
 		__m256i state[25];
+
+		LC_FPU_ENABLE;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
@@ -130,6 +130,9 @@ void thashx4(unsigned char *out0, unsigned char *out1, unsigned char *out2,
 				_mm256_extract_epi64(state2[i], 3);
 		}
 #pragma GCC diagnostic pop
+
+		LC_FPU_DISABLE;
+
 	} else {
 		uint8_t buf0[LC_SPX_N + LC_SPX_ADDR_BYTES + inblocks * LC_SPX_N];
 		uint8_t buf1[LC_SPX_N + LC_SPX_ADDR_BYTES + inblocks * LC_SPX_N];
@@ -168,6 +171,4 @@ void thashx4(unsigned char *out0, unsigned char *out1, unsigned char *out2,
 			   buf3,
 			   LC_SPX_N + LC_SPX_ADDR_BYTES + inblocks * LC_SPX_N);
 	}
-
-	LC_FPU_DISABLE;
 }

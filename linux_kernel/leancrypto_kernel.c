@@ -134,8 +134,50 @@ static int __init leancrypto_init(void)
 	if (ret)
 		goto free_bike3;
 
+	ret = lc_kernel_sphincs_init();
+	if (ret)
+		goto free_bike1;
+
+	ret = lc_kernel_sphincs_shake_256f_init();
+	if (ret)
+		goto free_sphincs_shake_256s;
+
+	ret = lc_kernel_sphincs_shake_192s_init();
+	if (ret)
+		goto free_sphincs_shake_256f;
+
+	ret = lc_kernel_sphincs_shake_192f_init();
+	if (ret)
+		goto free_sphincs_shake_192s;
+
+	ret = lc_kernel_sphincs_shake_128s_init();
+	if (ret)
+		goto free_sphincs_shake_192f;
+
+	ret = lc_kernel_sphincs_shake_128f_init();
+	if (ret)
+		goto free_sphincs_shake_128s;
+
 out:
 	return ret;
+
+free_sphincs_shake_128s:
+	lc_kernel_sphincs_shake_128s_exit();
+
+free_sphincs_shake_192f:
+	lc_kernel_sphincs_shake_192f_exit();
+
+free_sphincs_shake_192s:
+	lc_kernel_sphincs_shake_192s_exit();
+
+free_sphincs_shake_256f:
+	lc_kernel_sphincs_shake_256f_exit();
+
+free_sphincs_shake_256s:
+	lc_kernel_sphincs_exit();
+
+free_bike1:
+	lc_kernel_bike_1_exit();
 
 free_bike3:
 	lc_kernel_bike_3_exit();
@@ -221,6 +263,12 @@ static void __exit leancrypto_exit(void)
 	lc_kernel_bike_exit();
 	lc_kernel_bike_3_exit();
 	lc_kernel_bike_1_exit();
+	lc_kernel_sphincs_exit();
+	lc_kernel_sphincs_shake_256f_exit();
+	lc_kernel_sphincs_shake_192s_exit();
+	lc_kernel_sphincs_shake_192f_exit();
+	lc_kernel_sphincs_shake_128s_exit();
+	lc_kernel_sphincs_shake_128f_exit();
 }
 
 module_init(leancrypto_init);
