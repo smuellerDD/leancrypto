@@ -242,11 +242,11 @@ Leancrypto offers various cryptographic algorithms:
 
   * ML-DSA (Dilithium) hybrid signature operation with Curve25519
 
+  * SLH-DSA (Sphincs Plus)
+
 * Symmetric algorithms
 
   * AES: ECB, CBC, CTR, KW
-
-  * Side-Channel-Resistant AES implementation
 
   * ChaCha20
 
