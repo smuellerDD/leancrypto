@@ -201,10 +201,15 @@ static int lc_kernel_sphincs_set_pub_key_int(
 		    (lc_sphincs_pk_type(&ctx->pk) != type2)) {
 			ret = -EOPNOTSUPP;
 		} else {
-			if (fast)
-				lc_sphincs_pk_set_keytype_fast(&ctx->pk);
-			else
-				lc_sphincs_pk_set_keytype_small(&ctx->pk);
+			if (fast) {
+				ret = lc_sphincs_pk_set_keytype_fast(&ctx->pk);
+				if (ret)
+					return ret;
+			} else {
+				ret = lc_sphincs_pk_set_keytype_small(&ctx->pk);
+				if (ret)
+					return ret;
+			}
 			ctx->key_type = lc_kernel_sphincs_key_pk;
 		}
 	}
@@ -282,10 +287,15 @@ static int lc_kernel_sphincs_set_priv_key_int(
 		    (lc_sphincs_sk_type(&ctx->sk) != type2)) {
 			ret = -EOPNOTSUPP;
 		} else {
-			if (fast)
-				lc_sphincs_sk_set_keytype_fast(&ctx->sk);
-			else
-				lc_sphincs_sk_set_keytype_small(&ctx->sk);
+			if (fast) {
+				ret = lc_sphincs_sk_set_keytype_fast(&ctx->sk);
+				if (ret)
+					return ret;
+			} else {
+				ret = lc_sphincs_sk_set_keytype_small(&ctx->sk);
+				if (ret)
+					return ret;
+			}
 			ctx->key_type = lc_kernel_sphincs_key_sk;
 		}
 	}
@@ -359,7 +369,7 @@ static unsigned int lc_kernel_sphincs_max_size(struct crypto_akcipher *tfm)
 		return lc_sphincs_sig_size(type);
 	case lc_kernel_sphincs_key_pk:
 		type = lc_sphincs_pk_type(&ctx->pk);
-		/* When PK is set, this is a safety valve, result is boolean */
+		/* When PK is set, this is a safety valve */
 		return lc_sphincs_sig_size(type);
 	default:
 		return 0;
@@ -378,6 +388,12 @@ static void lc_kernel_sphincs_alg_exit(struct crypto_akcipher *tfm)
 	ctx->key_type = lc_kernel_sphincs_key_unset;
 }
 
+/*
+ * NOTE: All algorithm definitions refer to HashSLH-DSA and thus contain
+ * the hash used for processing the provided data. Due to the use of SGL
+ * the kernel crypto API interface for SLH-DSA does not offer "plain"
+ * SLH-DSA.
+ */
 static struct akcipher_alg lc_kernel_sphincs_shake_256s = {
 	.sign = lc_kernel_sphincs_sign,
 	.verify = lc_kernel_sphincs_verify,
