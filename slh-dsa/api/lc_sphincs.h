@@ -66,21 +66,24 @@ extern "C" {
 enum lc_sphincs_type {
 	/** Unknown key type */
 	LC_SPHINCS_UNKNOWN,
-	/** Sphincs 256s */
+	/** Sphincs 256s using SHAKE for signature operation */
 	LC_SPHINCS_SHAKE_256s,
-	/** Sphincs 256f */
+	/** Sphincs 256f using SHAKE for signature operation */
 	LC_SPHINCS_SHAKE_256f,
-	/** Sphincs 192s */
+	/** Sphincs 192s using SHAKE for signature operation */
 	LC_SPHINCS_SHAKE_192s,
-	/** Sphincs 192f */
+	/** Sphincs 192f using SHAKE for signature operation */
 	LC_SPHINCS_SHAKE_192f,
-	/** Sphincs 128s */
+	/** Sphincs 128s using SHAKE for signature operation */
 	LC_SPHINCS_SHAKE_128s,
-	/** Sphincs 128f */
+	/** Sphincs 128f using SHAKE for signature operation */
 	LC_SPHINCS_SHAKE_128f,
 };
 
 /** @defgroup Sphincs SLH-DSA Signature Mechanism
+ *
+ * Leancrypto implements SLH-DSA (also known as Sphincs Plus). In the following
+ * the term "Sphincs" is used to denote the reference to Sphincs Plus.
  *
  * Sphincs API concept
  *
@@ -97,17 +100,17 @@ enum lc_sphincs_type {
  *   This header file only provides inline functions which selectively call
  *   the API provided with the header files below.
  *
- * * lc_sphincs_shake_256s.h: Direct access to Sphincs 256s.
+ * * lc_sphincs_shake_256s.h: Direct access to Sphincs 256s using SHAKE.
  *
- * * lc_sphincs_shake_256f.h: Direct access to Sphincs 256f.
+ * * lc_sphincs_shake_256f.h: Direct access to Sphincs 256f using SHAKE.
  *
- * * lc_sphincs_shake_192s.h: Direct access to Sphincs 192s.
+ * * lc_sphincs_shake_192s.h: Direct access to Sphincs 192s using SHAKE.
  *
- * * lc_sphincs_shake_192f.h: Direct access to Sphincs 192f.
+ * * lc_sphincs_shake_192f.h: Direct access to Sphincs 192f using SHAKE.
  *
- * * lc_sphincs_shake_128s.h: Direct access to Sphincs 128s.
+ * * lc_sphincs_shake_128s.h: Direct access to Sphincs 128s using SHAKE.
  *
- * * lc_sphincs_shake_128f.h: Direct access to Sphincs 128f.
+ * * lc_sphincs_shake_128f.h: Direct access to Sphincs 128f using SHAKE.
  *
  * To support the stream mode of the Sphincs signature operation, a
  * context structure is required. This context structure can be allocated either
@@ -936,7 +939,7 @@ static inline int lc_sphincs_sig_load(struct lc_sphincs_sig *sig,
  * @ingroup Sphincs
  * @brief Obtain the reference to the Sphincs key and its length
  *
- * NOTE: Only pointer references into the leancrypto data structure are returned
+ * \note Only pointer references into the leancrypto data structure are returned
  * which implies that any modification will modify the leancrypto key, too.
  *
  * @param [out] sphincs_key Sphincs key pointer
@@ -1008,7 +1011,7 @@ static inline int lc_sphincs_sk_ptr(uint8_t **sphincs_key,
  * @ingroup Sphincs
  * @brief Obtain the reference to the Sphincs key and its length
  *
- * NOTE: Only pointer references into the leancrypto data structure are returned
+ * \note Only pointer references into the leancrypto data structure are returned
  * which implies that any modification will modify the leancrypto key, too.
  *
  * @param [out] sphincs_key Sphincs key pointer
@@ -1080,7 +1083,7 @@ static inline int lc_sphincs_pk_ptr(uint8_t **sphincs_key,
  * @ingroup Sphincs
  * @brief Obtain the reference to the Sphincs signature and its length
  *
- * NOTE: Only pointer references into the leancrypto data structure are returned
+ * \note Only pointer references into the leancrypto data structure are returned
  * which implies that any modification will modify the leancrypto signature,
  * too.
  *
@@ -1357,7 +1360,7 @@ int lc_sphincs_pct(const struct lc_sphincs_pk *pk,
  * @param [out] sig pointer to output signature
  * @param [in] m pointer to message to be signed
  * @param [in] mlen length of message
- * @param [in] sk pointer to bit-packed secret key
+ * @param [in] sk pointer to secret key
  * @param [in] rng_ctx pointer to seeded random number generator context - when
  *		       pointer is non-NULL, perform a randomized signing.
  *		       Otherwise use deterministic signing.
@@ -1455,7 +1458,7 @@ static inline int lc_sphincs_sign(struct lc_sphincs_sig *sig, const uint8_t *m,
  * @param [in] ctx reference to the allocated Sphincs context handle
  * @param [in] m pointer to message to be signed
  * @param [in] mlen length of message
- * @param [in] sk pointer to bit-packed secret key
+ * @param [in] sk pointer to secret key
  * @param [in] rng_ctx pointer to seeded random number generator context - when
  *		       pointer is non-NULL, perform a randomized signing.
  *		       Otherwise use deterministic signing.
@@ -1546,8 +1549,28 @@ static inline int lc_sphincs_sign_ctx(struct lc_sphincs_sig *sig,
  * places and even becomes available at different times. This call is to be
  * used together with the lc_sphincs_sign_update and lc_sphincs_sign_final.
  *
+ * \note
+ * \parblock
+ * The use of the init/update/final API implies that automatically
+ * HashSLH-DSA is used. This is due to the fact that SLH-DSA cannot be used
+ * in the init/update/final mode due to mathematical issues. By default, the
+ * following hashes are used which are compliant to the requirement that the
+ * message digest must be twice as large as the parameter n:
+ *
+ * * Sphincs 256s/f: SHA3-512
+ * * Sphincs 192s/f: SHA3-384
+ * * Sphincs 128s/f: SHA3-256
+ *
+ * It is permissible for the caller to select other message digest algorithms
+ * by using setting the requested algorithm in the ctx using the
+ * lc_sphincs_ctx_hash method *before* this init function is used. But mind
+ * the basic requirement that the message digest size must be at least twice
+ * the parameter n! This is checked by leancrypto during the signature
+ * generation.
+ * \endparblock
+ *
  * @param [in,out] ctx pointer Sphincs context
- * @param [in] sk pointer to bit-packed secret key
+ * @param [in] sk pointer to secret key
  *
  * @return 0 (success) or < 0 on error; -EOPNOTSUPP is returned if a different
  *	   hash than lc_shake256 is used.
@@ -1650,7 +1673,7 @@ static inline int lc_sphincs_sign_update(struct lc_sphincs_ctx *ctx,
  * @param [in] ctx pointer to Sphincs context that was initialized with
  *	      	   lc_sphincs_sign_init and filled with
  * 		   lc_sphincs_sign_update
- * @param [in] sk pointer to bit-packed secret key
+ * @param [in] sk pointer to secret key
  * @param [in] rng_ctx pointer to seeded random number generator context - when
  *		       pointer is non-NULL, perform a randomized signing.
  *		       Otherwise use deterministic signing.
@@ -1733,7 +1756,7 @@ static inline int lc_sphincs_sign_final(struct lc_sphincs_sig *sig,
  * @param [in] sig pointer to input signature
  * @param [in] m pointer to message
  * @param [in] mlen length of message
- * @param [in] pk pointer to bit-packed public key
+ * @param [in] pk pointer to public key
  *
  * @return 0 if signature could be verified correctly and -EBADMSG when
  * signature cannot be verified, < 0 on other errors
@@ -1811,7 +1834,7 @@ static inline int lc_sphincs_verify(const struct lc_sphincs_sig *sig,
  * @param [in] ctx reference to the allocated Sphincs context handle
  * @param [in] m pointer to message
  * @param [in] mlen length of message
- * @param [in] pk pointer to bit-packed public key
+ * @param [in] pk pointer to public key
  *
  * @return 0 if signature could be verified correctly and -EBADMSG when
  * signature cannot be verified, < 0 on other errors
@@ -1888,8 +1911,28 @@ static inline int lc_sphincs_verify_ctx(const struct lc_sphincs_sig *sig,
  * used together with the lc_sphincs_verify_update and
  * lc_sphincs_verify_final.
  *
+ * \note
+ * \parblock
+ * The use of the init/update/final API implies that automatically
+ * HashSLH-DSA is used. This is due to the fact that SLH-DSA cannot be used
+ * in the init/update/final mode due to mathematical issues. By default, the
+ * following hashes are used which are compliant to the requirement that the
+ * message digest must be twice as large as the parameter n:
+ *
+ * * Sphincs 256s/f: SHA3-512
+ * * Sphincs 192s/f: SHA3-384
+ * * Sphincs 128s/f: SHA3-256
+ *
+ * It is permissible for the caller to select other message digest algorithms
+ * by using setting the requested algorithm in the ctx using the
+ * lc_sphincs_ctx_hash method *before* this init function is used.But mind
+ * the basic requirement that the message digest size must be at least twice
+ * the parameter n! This is checked by leancrypto during the signature
+ * verification.
+ * \endparblock
+ *
  * @param [in,out] ctx pointer to an allocated Sphincs context
- * @param [in] pk pointer to bit-packed public key
+ * @param [in] pk pointer to public key
  *
  * @return 0 (success) or < 0 on error; -EOPNOTSUPP is returned if a different
  *	   hash than lc_shake256 is used.
@@ -1993,7 +2036,7 @@ static inline int lc_sphincs_verify_update(struct lc_sphincs_ctx *ctx,
  * @param [in] ctx pointer to Sphincs context that was initialized with
  *		   lc_sphincs_sign_init and filled with
  *		   lc_sphincs_sign_update
- * @param [in] pk pointer to bit-packed public key
+ * @param [in] pk pointer to public key
  *
  * @return 0 if signature could be verified correctly and -EBADMSG when
  * signature cannot be verified, < 0 on other errors
