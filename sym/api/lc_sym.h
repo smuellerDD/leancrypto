@@ -115,12 +115,7 @@ struct lc_sym_ctx {
  *
  * The caller must provide an allocated \p ctx.
  */
-static inline void lc_sym_init(struct lc_sym_ctx *ctx)
-{
-	const struct lc_sym *sym = ctx->sym;
-
-	sym->init(ctx->sym_state);
-}
+void lc_sym_init(struct lc_sym_ctx *ctx);
 
 /**
  * @ingroup Symmetric
@@ -133,13 +128,7 @@ static inline void lc_sym_init(struct lc_sym_ctx *ctx)
  *
  * @return 0 on success, < 0 on error
  */
-static inline int lc_sym_setkey(struct lc_sym_ctx *ctx, const uint8_t *key,
-				size_t keylen)
-{
-	const struct lc_sym *sym = ctx->sym;
-
-	return sym->setkey(ctx->sym_state, key, keylen);
-}
+int lc_sym_setkey(struct lc_sym_ctx *ctx, const uint8_t *key, size_t keylen);
 
 /**
  * @ingroup Symmetric
@@ -152,13 +141,7 @@ static inline int lc_sym_setkey(struct lc_sym_ctx *ctx, const uint8_t *key,
  *
  * @return 0 on success, < 0 on error
  */
-static inline int lc_sym_setiv(struct lc_sym_ctx *ctx, const uint8_t *iv,
-			       size_t ivlen)
-{
-	const struct lc_sym *sym = ctx->sym;
-
-	return sym->setiv(ctx->sym_state, iv, ivlen);
-}
+int lc_sym_setiv(struct lc_sym_ctx *ctx, const uint8_t *iv, size_t ivlen);
 
 /**
  * @ingroup Symmetric
@@ -173,13 +156,8 @@ static inline int lc_sym_setiv(struct lc_sym_ctx *ctx, const uint8_t *iv,
  * The plaintext and the ciphertext buffer may be identical to support
  * in-place cryptographic operations.
  */
-static inline void lc_sym_encrypt(struct lc_sym_ctx *ctx, const uint8_t *in,
-				  uint8_t *out, size_t len)
-{
-	const struct lc_sym *sym = ctx->sym;
-
-	sym->encrypt(ctx->sym_state, in, out, len);
-}
+void lc_sym_encrypt(struct lc_sym_ctx *ctx, const uint8_t *in, uint8_t *out,
+		    size_t len);
 
 /**
  * @ingroup Symmetric
@@ -194,13 +172,8 @@ static inline void lc_sym_encrypt(struct lc_sym_ctx *ctx, const uint8_t *in,
  * The plaintext and the ciphertext buffer may be identical to support
  * in-place cryptographic operations.
  */
-static inline void lc_sym_decrypt(struct lc_sym_ctx *ctx, const uint8_t *in,
-				  uint8_t *out, size_t len)
-{
-	const struct lc_sym *sym = ctx->sym;
-
-	sym->decrypt(ctx->sym_state, in, out, len);
-}
+void lc_sym_decrypt(struct lc_sym_ctx *ctx, const uint8_t *in, uint8_t *out,
+		    size_t len);
 
 /**
  * @ingroup Symmetric
@@ -209,13 +182,7 @@ static inline void lc_sym_decrypt(struct lc_sym_ctx *ctx, const uint8_t *in,
  *
  * @param [in] ctx Symmetric context to be zeroized
  */
-static inline void lc_sym_zero(struct lc_sym_ctx *ctx)
-{
-	const struct lc_sym *sym = ctx->sym;
-
-	lc_memset_secure((uint8_t *)ctx + sizeof(struct lc_sym_ctx), 0,
-			 LC_SYM_STATE_SIZE_NONALIGNED(sym));
-}
+void lc_sym_zero(struct lc_sym_ctx *ctx);
 
 /**
  * @ingroup Symmetric
