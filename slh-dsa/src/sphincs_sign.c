@@ -396,8 +396,8 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify_ctx,
 
 	/* Derive the message digest and leaf index from R || PK || M. */
 	/* The additional LC_SPX_N is a result of the hash domain separator. */
-	CKINT(hash_message(ws->mhash, &ws->tree, &ws->idx_leaf, sig->r,
-			   pk->pk, m, mlen, ctx));
+	CKINT(hash_message(ws->mhash, &ws->tree, &ws->idx_leaf, sig->r, pk->pk,
+			   m, mlen, ctx));
 
 	/* Layer correctly defaults to 0, so no need to set_layer_addr */
 	set_tree_addr(ws->wots_addr, ws->tree);

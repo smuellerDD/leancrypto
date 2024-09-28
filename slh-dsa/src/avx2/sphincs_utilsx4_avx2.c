@@ -110,7 +110,8 @@ void treehashx4(
 				/* Adjust it so that the left-most node of the part of */
 				/* the tree that we're processing has index 0 */
 				prev_left_adj = left_adj;
-				left_adj = (uint32_t)(4 - (1 << (tree_height - h - 1)));
+				left_adj = (uint32_t)(4 - (1 << (tree_height -
+								 h - 1)));
 			}
 
 			/* Check if we hit the top of the tree */
