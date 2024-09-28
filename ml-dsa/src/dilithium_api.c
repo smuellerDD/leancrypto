@@ -78,8 +78,7 @@ LC_INTERFACE_FUNCTION(void, lc_dilithium_ctx_zero_free,
 #endif
 }
 
-LC_INTERFACE_FUNCTION(void, lc_dilithium_ctx_zero,
-		      struct lc_dilithium_ctx *ctx)
+LC_INTERFACE_FUNCTION(void, lc_dilithium_ctx_zero, struct lc_dilithium_ctx *ctx)
 {
 	if (!ctx)
 		return;
@@ -100,8 +99,8 @@ LC_INTERFACE_FUNCTION(void, lc_dilithium_ctx_internal,
 		ctx->ml_dsa_internal = 1;
 }
 
-LC_INTERFACE_FUNCTION(void, lc_dilithium_ctx_hash,
-		      struct lc_dilithium_ctx *ctx, const struct lc_hash *hash)
+LC_INTERFACE_FUNCTION(void, lc_dilithium_ctx_hash, struct lc_dilithium_ctx *ctx,
+		      const struct lc_hash *hash)
 {
 	if (ctx)
 		ctx->dilithium_prehash_type = hash;
@@ -684,9 +683,8 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_final,
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_verify,
-		      const struct lc_dilithium_sig *sig,
-		      const uint8_t *m, size_t mlen,
-		      const struct lc_dilithium_pk *pk)
+		      const struct lc_dilithium_sig *sig, const uint8_t *m,
+		      size_t mlen, const struct lc_dilithium_pk *pk)
 {
 	if (!pk || !sig || sig->dilithium_type != pk->dilithium_type)
 		return -EINVAL;
@@ -1261,9 +1259,9 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_pk_ptr, uint8_t **dilithium_key,
 	}
 }
 
-LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sig_ptr, uint8_t **dilithium_sig,
-		      size_t *dilithium_sig_len, uint8_t **ed25519_sig,
-		      size_t *ed25519_sig_len,
+LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sig_ptr,
+		      uint8_t **dilithium_sig, size_t *dilithium_sig_len,
+		      uint8_t **ed25519_sig, size_t *ed25519_sig_len,
 		      struct lc_dilithium_ed25519_sig *sig)
 {
 	if (!sig || !dilithium_sig || !dilithium_sig_len || !ed25519_sig ||

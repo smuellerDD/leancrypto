@@ -580,8 +580,8 @@ int lc_dilithium_sign_init(struct lc_dilithium_ctx *ctx,
  *
  * @return 0 (success) or < 0 on error
  */
-int lc_dilithium_sign_update(struct lc_dilithium_ctx *ctx,
-			     const uint8_t *m, size_t mlen);
+int lc_dilithium_sign_update(struct lc_dilithium_ctx *ctx, const uint8_t *m,
+			     size_t mlen);
 
 /**
  * @ingroup Dilithium
@@ -1198,10 +1198,9 @@ int lc_dilithium_ed25519_verify_update(struct lc_dilithium_ed25519_ctx *ctx,
  * @return 0 if signature could be verified correctly and -EBADMSG when
  * signature cannot be verified, < 0 on other errors
  */
-int
-lc_dilithium_ed25519_verify_final(const struct lc_dilithium_ed25519_sig *sig,
-				  struct lc_dilithium_ed25519_ctx *ctx,
-				  const struct lc_dilithium_ed25519_pk *pk);
+int lc_dilithium_ed25519_verify_final(const struct lc_dilithium_ed25519_sig *sig,
+				      struct lc_dilithium_ed25519_ctx *ctx,
+				      const struct lc_dilithium_ed25519_pk *pk);
 
 #endif /* LC_DILITHIUM_ED25519_SIG */
 
