@@ -3,6 +3,7 @@
 # Files compiled only once
 if (get_option('kyber_1024').enabled() or get_option('kyber_768').enabled() or get_option('kyber_512').enabled())
 	src += files([
+		'kyber_api.c',
 		'kyber_cbd.c',
 		'kyber_pct.c',
 		'kyber_zetas.c',

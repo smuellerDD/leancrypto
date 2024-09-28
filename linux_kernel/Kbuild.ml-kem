@@ -9,7 +9,8 @@ ccflags-$(CONFIG_LEANCRYPTO_KEM_KYBER)					       \
 ################################################################################
 # Kyber Common
 leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER)				       \
-				+= ../ml-kem/src/kyber_cbd.o		       \
+				+= ../ml-kem/src/kyber_api.o		       \
+				   ../ml-kem/src/kyber_cbd.o		       \
 				   ../ml-kem/src/kyber_pct.o		       \
 				   ../ml-kem/src/kyber_zetas.o
 
