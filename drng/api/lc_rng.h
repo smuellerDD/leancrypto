@@ -68,7 +68,7 @@ struct lc_rng_ctx {
  * handled. Thus, this structure can be directly used for the lc_rng API by a
  * caller and have a properly seeded DRNG.
  *
- * NOTE: The caller must ensure that a lock is applied around the use of this
+ * \note The caller must ensure that a lock is applied around the use of this
  * variable if there is the potential of concurrent use.
  */
 extern struct lc_rng_ctx *lc_seeded_rng;
@@ -82,13 +82,7 @@ extern struct lc_rng_ctx *lc_seeded_rng;
  * The function checks if an RNG was already provided and only returns the
  * default RNG context if none was provided.
  */
-static inline void lc_rng_check(struct lc_rng_ctx **ctx)
-{
-	if (!ctx)
-		return;
-	if (!*ctx)
-		*ctx = lc_seeded_rng;
-}
+void lc_rng_check(struct lc_rng_ctx **ctx);
 
 /**
  * @ingroup RNGs
@@ -96,19 +90,7 @@ static inline void lc_rng_check(struct lc_rng_ctx **ctx)
  *
  * @param [in] ctx RNG context to be zeroized
  */
-static inline void lc_rng_zero(struct lc_rng_ctx *ctx)
-{
-	const struct lc_rng *rng;
-	void *rng_state;
-
-	if (!ctx)
-		return;
-
-	rng = ctx->rng;
-	rng_state = ctx->rng_state;
-
-	rng->zero(rng_state);
-}
+void lc_rng_zero(struct lc_rng_ctx *ctx);
 
 /**
  * @ingroup RNGs
@@ -116,14 +98,7 @@ static inline void lc_rng_zero(struct lc_rng_ctx *ctx)
  *
  * @param [in] ctx RNG context to be zeroized and freed
  */
-static inline void lc_rng_zero_free(struct lc_rng_ctx *ctx)
-{
-	if (!ctx)
-		return;
-
-	lc_rng_zero(ctx);
-	lc_free(ctx);
-}
+void lc_rng_zero_free(struct lc_rng_ctx *ctx);
 
 /**
  * @ingroup RNGs
@@ -140,23 +115,8 @@ static inline void lc_rng_zero_free(struct lc_rng_ctx *ctx)
  *
  * @return 0 upon success; < 0 on error
  */
-static inline int lc_rng_generate(struct lc_rng_ctx *ctx,
-				  const uint8_t *addtl_input,
-				  size_t addtl_input_len, uint8_t *out,
-				  size_t outlen)
-{
-	const struct lc_rng *rng;
-	void *rng_state;
-
-	if (!ctx)
-		return -EINVAL;
-
-	rng = ctx->rng;
-	rng_state = ctx->rng_state;
-
-	return rng->generate(rng_state, addtl_input, addtl_input_len, out,
-			     outlen);
-}
+int lc_rng_generate(struct lc_rng_ctx *ctx, const uint8_t *addtl_input,
+		    size_t addtl_input_len, uint8_t *out, size_t outlen);
 
 /**
  * @ingroup RNGs
@@ -174,21 +134,8 @@ static inline int lc_rng_generate(struct lc_rng_ctx *ctx,
  *
  * @return 0 upon success; < 0 on error
  */
-static inline int lc_rng_seed(struct lc_rng_ctx *ctx, const uint8_t *seed,
-			      size_t seedlen, const uint8_t *persbuf,
-			      size_t perslen)
-{
-	const struct lc_rng *rng;
-	void *rng_state;
-
-	if (!ctx)
-		return -EINVAL;
-
-	rng = ctx->rng;
-	rng_state = ctx->rng_state;
-
-	return rng->seed(rng_state, seed, seedlen, persbuf, perslen);
-}
+int lc_rng_seed(struct lc_rng_ctx *ctx, const uint8_t *seed, size_t seedlen,
+		const uint8_t *persbuf, size_t perslen);
 
 #ifdef __cplusplus
 }
