@@ -1,7 +1,7 @@
 # for i in $(ls *.c | sort); do echo "'$i',"; done
 
 compile_hash_crypt = 0
-aead_src_files = []
+aead_src_files = [ 'aead_api.c' ]
 
 if get_option('hash_crypt').enabled()
 	src += files([

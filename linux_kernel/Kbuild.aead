@@ -1,6 +1,10 @@
 ################################################################################
 # AEAD implementation
 ccflags-y	  		+= -I$(PWD)/../aead/api
+
+leancrypto-$(CONFIG_LEANCRYPTO_AEAD)					       \
+				+= ../aead/src/aead_api.o
+
 leancrypto-$(CONFIG_LEANCRYPTO_SYMHMAC_CRYPT)				       \
 				+= ../aead/src/symhmac.o
 ifdef CONFIG_LEANCRYPTO_SYMHMAC_CRYPT

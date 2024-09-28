@@ -83,22 +83,7 @@ struct lc_aead_ctx {
  *
  * @param [in] ctx AEAD context to be zeroized
  */
-static inline void lc_aead_zero(struct lc_aead_ctx *ctx)
-{
-	const struct lc_aead *aead;
-	void *aead_state;
-
-	if (!ctx)
-		return;
-
-	aead = ctx->aead;
-	aead_state = ctx->aead_state;
-
-	if (!aead || !aead_state)
-		return;
-
-	aead->zero(aead_state);
-}
+void lc_aead_zero(struct lc_aead_ctx *ctx);
 
 /**
  * @ingroup AEAD
@@ -106,14 +91,7 @@ static inline void lc_aead_zero(struct lc_aead_ctx *ctx)
  *
  * @param [in] ctx AEAD context to be zeroized and freed
  */
-static inline void lc_aead_zero_free(struct lc_aead_ctx *ctx)
-{
-	if (!ctx)
-		return;
-
-	lc_aead_zero(ctx);
-	lc_free(ctx);
-}
+void lc_aead_zero_free(struct lc_aead_ctx *ctx);
 
 /**
  * @ingroup AEAD
@@ -130,24 +108,8 @@ static inline void lc_aead_zero_free(struct lc_aead_ctx *ctx)
  *
  * @return 0 upon success; < 0 on error
  */
-static inline int lc_aead_setkey(struct lc_aead_ctx *ctx, const uint8_t *key,
-				 const size_t keylen, const uint8_t *iv,
-				 size_t ivlen)
-{
-	const struct lc_aead *aead;
-	void *aead_state;
-
-	if (!ctx)
-		return -EINVAL;
-
-	aead = ctx->aead;
-	aead_state = ctx->aead_state;
-
-	if (!aead || !aead_state)
-		return -EINVAL;
-
-	return aead->setkey(aead_state, key, keylen, iv, ivlen);
-}
+int lc_aead_setkey(struct lc_aead_ctx *ctx, const uint8_t *key,
+		   const size_t keylen, const uint8_t *iv, size_t ivlen);
 
 /**
  * @ingroup AEAD
@@ -157,7 +119,7 @@ static inline int lc_aead_setkey(struct lc_aead_ctx *ctx, const uint8_t *key,
  * @param [in] plaintext Plaintext data to be encrypted
  * @param [out] ciphertext Ciphertext data buffer to be filled
  * @param [in] datalen Length of the plaintext and ciphertext data buffers
- *		       NOTE: the encryption operation is symmetric and
+ *		       \note the encryption operation is symmetric and
  *			     generates as much output as input.
  * @param [in] aad Additional authenticate data to be processed - this is data
  *		   which is not encrypted, but considered as part of the
@@ -170,28 +132,9 @@ static inline int lc_aead_setkey(struct lc_aead_ctx *ctx, const uint8_t *key,
  *
  * @return amount of processed bytes on success, < 0 on error
  */
-static inline int lc_aead_encrypt(struct lc_aead_ctx *ctx,
-				  const uint8_t *plaintext, uint8_t *ciphertext,
-				  size_t datalen, const uint8_t *aad,
-				  size_t aadlen, uint8_t *tag, size_t taglen)
-{
-	const struct lc_aead *aead;
-	void *aead_state;
-
-	if (!ctx)
-		return -EINVAL;
-
-	aead = ctx->aead;
-	aead_state = ctx->aead_state;
-
-	if (!aead || !aead_state || !aead->encrypt)
-		return -EOPNOTSUPP;
-
-	aead->encrypt(aead_state, plaintext, ciphertext, datalen, aad, aadlen,
-		      tag, taglen);
-
-	return 0;
-}
+int lc_aead_encrypt(struct lc_aead_ctx *ctx, const uint8_t *plaintext,
+		    uint8_t *ciphertext, size_t datalen, const uint8_t *aad,
+		    size_t aadlen, uint8_t *tag, size_t taglen);
 
 /**
  * @ingroup AEAD
@@ -207,62 +150,27 @@ static inline int lc_aead_encrypt(struct lc_aead_ctx *ctx,
  *
  * @return amount of processed bytes on success, < 0 on error
  */
-static inline int lc_aead_enc_init(struct lc_aead_ctx *ctx, const uint8_t *aad,
-				   size_t aadlen)
-{
-	const struct lc_aead *aead;
-	void *aead_state;
-
-	if (!ctx)
-		return -EINVAL;
-
-	aead = ctx->aead;
-	aead_state = ctx->aead_state;
-
-	if (!aead || !aead_state || !aead->enc_init)
-		return -EOPNOTSUPP;
-
-	aead->enc_init(aead_state, aad, aadlen);
-
-	return 0;
-}
+int lc_aead_enc_init(struct lc_aead_ctx *ctx, const uint8_t *aad,
+		     size_t aadlen);
 
 /**
  * @ingroup AEAD
  * @brief AEAD-encrypt data - send partial data
  *
- * NOTE: This operation can be invoked multiple times and must be completed
+ * \note This operation can be invoked multiple times and must be completed
  * with a call to lc_aead_enc_final.
  *
  * @param [in] ctx AEAD context handle with key set / IV
  * @param [in] plaintext Plaintext data to be encrypted
  * @param [out] ciphertext Ciphertext data buffer to be filled
  * @param [in] datalen Length of the plaintext and ciphertext data buffers
- *		       NOTE: the encryption operation is symmetric and
+ *		       \note the encryption operation is symmetric and
  *			     generates as much output as input.
  *
  * @return amount of processed bytes on success, < 0 on error
  */
-static inline int lc_aead_enc_update(struct lc_aead_ctx *ctx,
-				     const uint8_t *plaintext,
-				     uint8_t *ciphertext, size_t datalen)
-{
-	const struct lc_aead *aead;
-	void *aead_state;
-
-	if (!ctx)
-		return -EINVAL;
-
-	aead = ctx->aead;
-	aead_state = ctx->aead_state;
-
-	if (!aead || !aead_state || !aead->enc_update)
-		return -EOPNOTSUPP;
-
-	aead->enc_update(aead_state, plaintext, ciphertext, datalen);
-
-	return 0;
-}
+int lc_aead_enc_update(struct lc_aead_ctx *ctx, const uint8_t *plaintext,
+		       uint8_t *ciphertext, size_t datalen);
 
 /**
  * @ingroup AEAD
@@ -277,25 +185,7 @@ static inline int lc_aead_enc_update(struct lc_aead_ctx *ctx,
  *
  * @return amount of processed bytes on success, < 0 on error
  */
-static inline int lc_aead_enc_final(struct lc_aead_ctx *ctx, uint8_t *tag,
-				    size_t taglen)
-{
-	const struct lc_aead *aead;
-	void *aead_state;
-
-	if (!ctx)
-		return -EINVAL;
-
-	aead = ctx->aead;
-	aead_state = ctx->aead_state;
-
-	if (!aead || !aead_state || !aead->enc_final)
-		return -EOPNOTSUPP;
-
-	aead->enc_final(aead_state, tag, taglen);
-
-	return 0;
-}
+int lc_aead_enc_final(struct lc_aead_ctx *ctx, uint8_t *tag, size_t taglen);
 
 /**
  * @ingroup AEAD
@@ -305,7 +195,7 @@ static inline int lc_aead_enc_final(struct lc_aead_ctx *ctx, uint8_t *tag,
  * @param [in] ciphertext Ciphertext data to be decrypted
  * @param [out] plaintext Plaintext data buffer to be filled
  * @param [in] datalen Length of the plaintext and ciphertext data buffers
- *		       NOTE: the encryption operation is symmetric and
+ *		       \note the encryption operation is symmetric and
  *			     generates as much output as input.
  * @param [in] aad Additional authenticate data to be processed - this is data
  *		   which is not decrypted, but considered as part of the
@@ -318,27 +208,9 @@ static inline int lc_aead_enc_final(struct lc_aead_ctx *ctx, uint8_t *tag,
  * @return 0 on successful authentication, < 0 on error
  *	   (-EBADMSG means authentication error)
  */
-static inline int lc_aead_decrypt(struct lc_aead_ctx *ctx,
-				  const uint8_t *ciphertext, uint8_t *plaintext,
-				  size_t datalen, const uint8_t *aad,
-				  size_t aadlen, const uint8_t *tag,
-				  size_t taglen)
-{
-	const struct lc_aead *aead;
-	void *aead_state;
-
-	if (!ctx)
-		return -EINVAL;
-
-	aead = ctx->aead;
-	aead_state = ctx->aead_state;
-
-	if (!aead || !aead_state || !aead->decrypt)
-		return -EOPNOTSUPP;
-
-	return aead->decrypt(aead_state, ciphertext, plaintext, datalen, aad,
-			     aadlen, tag, taglen);
-}
+int lc_aead_decrypt(struct lc_aead_ctx *ctx, const uint8_t *ciphertext,
+		    uint8_t *plaintext, size_t datalen, const uint8_t *aad,
+		    size_t aadlen, const uint8_t *tag, size_t taglen);
 
 /**
  * @ingroup AEAD
@@ -354,62 +226,27 @@ static inline int lc_aead_decrypt(struct lc_aead_ctx *ctx,
  *
  * @return amount of processed bytes on success, < 0 on error
  */
-static inline int lc_aead_dec_init(struct lc_aead_ctx *ctx, const uint8_t *aad,
-				   size_t aadlen)
-{
-	const struct lc_aead *aead;
-	void *aead_state;
-
-	if (!ctx)
-		return -EINVAL;
-
-	aead = ctx->aead;
-	aead_state = ctx->aead_state;
-
-	if (!aead || !aead_state || !aead->dec_init)
-		return -EOPNOTSUPP;
-
-	aead->dec_init(aead_state, aad, aadlen);
-
-	return 0;
-}
+int lc_aead_dec_init(struct lc_aead_ctx *ctx, const uint8_t *aad,
+		     size_t aadlen);
 
 /**
  * @ingroup AEAD
  * @brief AEAD-decrypt data - send partial data
  *
- * NOTE: This operation can be invoked multiple times and must be completed
+ * \note This operation can be invoked multiple times and must be completed
  * with a call to lc_aead_dec_final.
  *
  * @param [in] ctx AEAD context handle with key set / IV
  * @param [in] ciphertext Ciphertext data to be decrypted
  * @param [out] plaintext Plaintext data buffer to be filled
  * @param [in] datalen Length of the plaintext and ciphertext data buffers
- *		       NOTE: the encryption operation is symmetric and
+ *		       \note the encryption operation is symmetric and
  *			     generates as much output as input.
  *
  * @return amount of processed bytes on success, < 0 on error
  */
-static inline int lc_aead_dec_update(struct lc_aead_ctx *ctx,
-				     const uint8_t *ciphertext,
-				     uint8_t *plaintext, size_t datalen)
-{
-	const struct lc_aead *aead;
-	void *aead_state;
-
-	if (!ctx)
-		return -EINVAL;
-
-	aead = ctx->aead;
-	aead_state = ctx->aead_state;
-
-	if (!aead || !aead_state || !aead->dec_update)
-		return -EOPNOTSUPP;
-
-	aead->dec_update(aead_state, ciphertext, plaintext, datalen);
-
-	return 0;
-}
+int lc_aead_dec_update(struct lc_aead_ctx *ctx, const uint8_t *ciphertext,
+		       uint8_t *plaintext, size_t datalen);
 
 /**
  * @ingroup AEAD
@@ -423,23 +260,8 @@ static inline int lc_aead_dec_update(struct lc_aead_ctx *ctx,
  * @return 0 on successful authentication, < 0 on error
  *	   (-EBADMSG means authentication error)
  */
-static inline int lc_aead_dec_final(struct lc_aead_ctx *ctx, const uint8_t *tag,
-				    size_t taglen)
-{
-	const struct lc_aead *aead;
-	void *aead_state;
-
-	if (!ctx)
-		return -EINVAL;
-
-	aead = ctx->aead;
-	aead_state = ctx->aead_state;
-
-	if (!aead || !aead_state || !aead->dec_final)
-		return -EOPNOTSUPP;
-
-	return aead->dec_final(aead_state, tag, taglen);
-}
+int lc_aead_dec_final(struct lc_aead_ctx *ctx, const uint8_t *tag,
+		      size_t taglen);
 
 #ifdef __cplusplus
 }
