@@ -19,7 +19,7 @@ Changes 1.1.0-prerelease
 
 * SLH-DSA: Add SLH-DSA-SHAKE-256s, SLH-DSA-SHAKE-256f, SLH-DSA-SHAKE-192s, SLH-DSA-SHAKE-192f, SLH-DSA-SHAKE-128s, SLH-DSA-SHAKE-128f
 
-* ML-DSA, ML-KEM, SLH-DSA, BIKE: move API implementation from H to C file - this implies that no RUST wrappers are needed
+* ML-DSA, ML-KEM, SLH-DSA, BIKE, Hash: move API implementation from H to C file - this implies that no RUST wrappers are needed
 
 Changes 1.0.1
 

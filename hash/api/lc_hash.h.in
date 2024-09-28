@@ -127,16 +127,7 @@ struct lc_hash_ctx {
  * The caller must provide an allocated hash_ctx. This can be achieved by
  * using LC_HASH_CTX_ON_STACK or by using hash_alloc.
  */
-static inline void lc_hash_init(struct lc_hash_ctx *hash_ctx)
-{
-	const struct lc_hash *hash;
-
-	if (!hash_ctx)
-		return;
-
-	hash = hash_ctx->hash;
-	hash->init(hash_ctx->hash_state);
-}
+void lc_hash_init(struct lc_hash_ctx *hash_ctx);
 
 /**
  * @ingroup Hashing
@@ -147,17 +138,8 @@ static inline void lc_hash_init(struct lc_hash_ctx *hash_ctx)
  * @param [in] in Buffer holding the data whose MAC shall be calculated
  * @param [in] inlen Length of the input buffer
  */
-static inline void lc_hash_update(struct lc_hash_ctx *hash_ctx,
-				  const uint8_t *in, size_t inlen)
-{
-	const struct lc_hash *hash;
-
-	if (!hash_ctx)
-		return;
-
-	hash = hash_ctx->hash;
-	hash->update(hash_ctx->hash_state, in, inlen);
-}
+void lc_hash_update(struct lc_hash_ctx *hash_ctx, const uint8_t *in,
+		    size_t inlen);
 
 /**
  * @ingroup Hashing
@@ -189,16 +171,7 @@ static inline void lc_hash_update(struct lc_hash_ctx *hash_ctx,
  *			perform hash calculation with.
  * @param [out] digest Buffer with at least the size of the message digest.
  */
-static inline void lc_hash_final(struct lc_hash_ctx *hash_ctx, uint8_t *digest)
-{
-	const struct lc_hash *hash;
-
-	if (!hash_ctx || !digest)
-		return;
-
-	hash = hash_ctx->hash;
-	hash->final(hash_ctx->hash_state, digest);
-}
+void lc_hash_final(struct lc_hash_ctx *hash_ctx, uint8_t *digest);
 
 /**
  * @ingroup Hashing
@@ -208,18 +181,7 @@ static inline void lc_hash_final(struct lc_hash_ctx *hash_ctx, uint8_t *digest)
  *			perform hash calculation with.
  * @param [in] digestsize Size of the requested digest.
  */
-static inline void lc_hash_set_digestsize(struct lc_hash_ctx *hash_ctx,
-					  size_t digestsize)
-{
-	const struct lc_hash *hash;
-
-	if (!hash_ctx)
-		return;
-
-	hash = hash_ctx->hash;
-	if (hash->set_digestsize)
-		hash->set_digestsize(hash_ctx->hash_state, digestsize);
-}
+void lc_hash_set_digestsize(struct lc_hash_ctx *hash_ctx, size_t digestsize);
 
 /**
  * @ingroup Hashing
@@ -228,16 +190,7 @@ static inline void lc_hash_set_digestsize(struct lc_hash_ctx *hash_ctx,
  * @param [in] hash_ctx Reference to hash context implementation to be used to
  *			perform hash calculation with.
  */
-static inline size_t lc_hash_digestsize(struct lc_hash_ctx *hash_ctx)
-{
-	const struct lc_hash *hash;
-
-	if (!hash_ctx)
-		return 0;
-
-	hash = hash_ctx->hash;
-	return hash->get_digestsize(hash_ctx->hash_state);
-}
+size_t lc_hash_digestsize(struct lc_hash_ctx *hash_ctx);
 
 /**
  * @ingroup Hashing
@@ -247,16 +200,7 @@ static inline size_t lc_hash_digestsize(struct lc_hash_ctx *hash_ctx)
  * @param [in] hash_ctx Reference to hash context implementation to be used to
  *			perform hash calculation with.
  */
-static inline unsigned int lc_hash_blocksize(struct lc_hash_ctx *hash_ctx)
-{
-	const struct lc_hash *hash;
-
-	if (!hash_ctx)
-		return 0;
-
-	hash = hash_ctx->hash;
-	return hash->sponge_rate;
-}
+unsigned int lc_hash_blocksize(struct lc_hash_ctx *hash_ctx);
 
 /**
  * @ingroup Hashing
@@ -265,16 +209,7 @@ static inline unsigned int lc_hash_blocksize(struct lc_hash_ctx *hash_ctx)
  * @param [in] hash_ctx Reference to hash context implementation to be used to
  *			perform hash calculation with.
  */
-static inline unsigned int lc_hash_ctxsize(struct lc_hash_ctx *hash_ctx)
-{
-	const struct lc_hash *hash;
-
-	if (!hash_ctx)
-		return 0;
-
-	hash = hash_ctx->hash;
-	return hash->statesize;
-}
+unsigned int lc_hash_ctxsize(struct lc_hash_ctx *hash_ctx);
 
 /**
  * @ingroup Hashing
@@ -283,16 +218,7 @@ static inline unsigned int lc_hash_ctxsize(struct lc_hash_ctx *hash_ctx)
  *
  * @param [in] hash_ctx Hash context to be zeroized
  */
-static inline void lc_hash_zero(struct lc_hash_ctx *hash_ctx)
-{
-	const struct lc_hash *hash;
-
-	if (!hash_ctx)
-		return;
-
-	hash = hash_ctx->hash;
-	lc_memset_secure(hash_ctx->hash_state, 0, hash->statesize);
-}
+void lc_hash_zero(struct lc_hash_ctx *hash_ctx);
 
 /**
  * @ingroup Hashing
@@ -385,16 +311,7 @@ void lc_xof(const struct lc_hash *xof, const uint8_t *in, size_t inlen,
  *
  * @return: 0 on success, < 0 on error
  */
-static inline int lc_sponge(const struct lc_hash *hash, void *state,
-			    unsigned int rounds)
-{
-	if (!state || !hash || !hash->sponge_permutation)
-		return -EOPNOTSUPP;
-
-	hash->sponge_permutation(state, rounds);
-
-	return 0;
-}
+int lc_sponge(const struct lc_hash *hash, void *state, unsigned int rounds);
 
 /**
  * @ingroup Hashing
@@ -420,17 +337,8 @@ static inline int lc_sponge(const struct lc_hash *hash, void *state,
  *
  * @return: 0 on success, < 0 on error
  */
-static inline int lc_sponge_add_bytes(const struct lc_hash *hash, void *state,
-				      const uint8_t *data, size_t offset,
-				      size_t length)
-{
-	if (!state || !hash || !hash->sponge_add_bytes)
-		return -EOPNOTSUPP;
-
-	hash->sponge_add_bytes(state, data, offset, length);
-
-	return 0;
-}
+int lc_sponge_add_bytes(const struct lc_hash *hash, void *state,
+			const uint8_t *data, size_t offset, size_t length);
 
 /**
  * @ingroup Hashing
@@ -454,17 +362,8 @@ static inline int lc_sponge_add_bytes(const struct lc_hash *hash, void *state,
  *
  * @return: 0 on success, < 0 on error
  */
-static inline int lc_sponge_extract_bytes(const struct lc_hash *hash,
-					  const void *state, uint8_t *data,
-					  size_t offset, size_t length)
-{
-	if (!state || !hash || !hash->sponge_extract_bytes)
-		return -EOPNOTSUPP;
-
-	hash->sponge_extract_bytes(state, data, offset, length);
-
-	return 0;
-}
+int lc_sponge_extract_bytes(const struct lc_hash *hash, const void *state,
+			    uint8_t *data, size_t offset, size_t length);
 
 /**
  * @ingroup Hashing
@@ -483,17 +382,8 @@ static inline int lc_sponge_extract_bytes(const struct lc_hash *hash,
  *
  * @return: 0 on success, < 0 on error
  */
-static inline int lc_sponge_newstate(const struct lc_hash *hash, void *state,
-				     const uint8_t *data, size_t offset,
-				     size_t length)
-{
-	if (!state || !hash || !hash->sponge_newstate)
-		return -EOPNOTSUPP;
-
-	hash->sponge_newstate(state, data, offset, length);
-
-	return 0;
-}
+int lc_sponge_newstate(const struct lc_hash *hash, void *state,
+		       const uint8_t *data, size_t offset, size_t length);
 
 #ifdef __cplusplus
 }
