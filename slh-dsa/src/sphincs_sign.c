@@ -216,11 +216,6 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign_ctx, struct lc_sphincs_sig *sig,
 	CKINT(gen_message_random(sig->r, sk_prf, ws->optrand, m, mlen, ctx));
 
 	/* Derive the message digest and leaf index from R, PK and M. */
-	/*
-	 * Shut up the compiler which thinks that only 32 bytes are available
-	 * with pointer pk. But that pointer references pk_seed which is
-	 * concatenated with pk_root and thus has the required 64 bytes.
-	 */
 	CKINT(hash_message(ws->mhash, &ws->tree, &ws->idx_leaf, sig->r, pk, m,
 			   mlen, ctx));
 
