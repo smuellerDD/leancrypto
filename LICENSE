@@ -130,6 +130,9 @@ The only reason why this code is duplicated is the fact that the compiler code
 cannot be included into kernel code code as is. Thus, the functions used by
 leancrypto are extracted - I wished this would not have been necessary.
 
+In addition, the functions found in bike/src/compiler_support.c are derived
+from the LLVM project as well.
+
 Anyhow, the GCC code is: GPL 3. The LLVM code is: Apache License v2.0.
 
 ================================================================================

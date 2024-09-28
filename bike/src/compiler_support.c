@@ -16,6 +16,14 @@
  * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
+/*
+ * This code is derived in parts from the LLVM project (Apache License v2.0).
+ *
+ * The only reason why this code is duplicated is the fact that the compiler
+ * automatically creates stubs for these functions and there is no compiler
+ * library present in the kernel. Thus, the functions used by leancrypto are
+ * extracted - I wished this would not have been necessary.
+ */
 
 /*
  * This function is required for the Linux kernel - in user space it is provided
