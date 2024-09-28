@@ -182,24 +182,7 @@ void lc_kmac_zero_free(struct lc_kmac_ctx *kmac_ctx);
  *
  * @param [in] kmac_ctx KMAC context to be zeroized
  */
-static inline void lc_kmac_zero(struct lc_kmac_ctx *kmac_ctx)
-{
-	struct lc_hash_ctx *hash_ctx;
-	const struct lc_hash *hash;
-
-	if (!kmac_ctx)
-		return;
-	hash_ctx = &kmac_ctx->hash_ctx;
-	hash = hash_ctx->hash;
-
-	kmac_ctx->final_called = 0;
-	kmac_ctx->rng_initialized = 0;
-
-	lc_memset_secure((uint8_t *)kmac_ctx + sizeof(struct lc_kmac_ctx), 0,
-			 kmac_ctx->shadow_ctx ?
-				 LC_KMAC_STATE_SIZE_REINIT(hash) :
-				 LC_KMAC_STATE_SIZE(hash));
-}
+void lc_kmac_zero(struct lc_kmac_ctx *kmac_ctx);
 
 /**
  * @brief Allocate stack memory for the KMAC context
@@ -253,16 +236,7 @@ static inline void lc_kmac_zero(struct lc_kmac_ctx *kmac_ctx)
  *
  * @return MAC size
  */
-static inline size_t lc_kmac_macsize(struct lc_kmac_ctx *kmac_ctx)
-{
-	struct lc_hash_ctx *hash_ctx;
-
-	if (!kmac_ctx)
-		return 0;
-
-	hash_ctx = &kmac_ctx->hash_ctx;
-	return lc_hash_digestsize(hash_ctx);
-}
+size_t lc_kmac_macsize(struct lc_kmac_ctx *kmac_ctx);
 
 /**
  * @brief Calculate KMAC - one-shot
@@ -280,19 +254,9 @@ static inline size_t lc_kmac_macsize(struct lc_kmac_ctx *kmac_ctx)
  *
  * The KMAC calculation operates entirely on the stack.
  */
-static inline void lc_kmac(const struct lc_hash *hash, const uint8_t *key,
-			   size_t keylen, const uint8_t *s, size_t slen,
-			   const uint8_t *in, size_t inlen, uint8_t *mac,
-			   size_t maclen)
-{
-	LC_KMAC_CTX_ON_STACK(kmac_ctx, hash);
-
-	lc_kmac_init(kmac_ctx, key, keylen, s, slen);
-	lc_kmac_update(kmac_ctx, in, inlen);
-	lc_kmac_final(kmac_ctx, mac, maclen);
-
-	lc_kmac_zero(kmac_ctx);
-}
+void lc_kmac(const struct lc_hash *hash, const uint8_t *key, size_t keylen,
+	     const uint8_t *s, size_t slen, const uint8_t *in, size_t inlen,
+	     uint8_t *mac, size_t maclen);
 
 /**
  * @brief Calculate KMAC in XOF mode - one-shot
@@ -310,19 +274,9 @@ static inline void lc_kmac(const struct lc_hash *hash, const uint8_t *key,
  *
  * The KMAC calculation operates entirely on the stack.
  */
-static inline void lc_kmac_xof(const struct lc_hash *hash, const uint8_t *key,
-			       size_t keylen, const uint8_t *s, size_t slen,
-			       const uint8_t *in, size_t inlen, uint8_t *mac,
-			       size_t maclen)
-{
-	LC_KMAC_CTX_ON_STACK(kmac_ctx, hash);
-
-	lc_kmac_init(kmac_ctx, key, keylen, s, slen);
-	lc_kmac_update(kmac_ctx, in, inlen);
-	lc_kmac_final_xof(kmac_ctx, mac, maclen);
-
-	lc_kmac_zero(kmac_ctx);
-}
+void lc_kmac_xof(const struct lc_hash *hash, const uint8_t *key, size_t keylen,
+		 const uint8_t *s, size_t slen, const uint8_t *in, size_t inlen,
+		 uint8_t *mac, size_t maclen);
 
 /******************************** KMAC as RNG *********************************/
 

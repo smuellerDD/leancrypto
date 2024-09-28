@@ -7,8 +7,6 @@
   compiled for target host ARMv7 - at the moment compiling on ARMv6 fails
   because the Neon code is compiled (which should not be compiled)
 
-- add more Rust wrappers
-
 - provide version numbers in one place (currently found in meson.build, leancrypto.spec and Kbuild.version)
 
 - BIKE: add self tests
