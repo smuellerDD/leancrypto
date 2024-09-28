@@ -2,6 +2,10 @@
 # BIKE implementation
 ccflags-$(CONFIG_LEANCRYPTO_KEM_BIKE)					       \
 				+= -I$(PWD)/../bike/api -I$(PWD)/../bike/src
+
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE)				       \
+				+= ../bike/src/bike_api.o
+
 leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_5)				       \
 				+= ../bike/src/bike_decode.o		       \
 				   ../bike/src/bike_decode_portable.o	       \

@@ -1,4 +1,15 @@
 # for i in $(ls *.c | sort); do echo "'$i',"; done
+
+# Files compiled only once
+if (get_option('bike_5').enabled() or
+    get_option('bike_3').enabled() or
+    get_option('bike_1').enabled())
+	src += files([
+		'bike_api.c',
+	])
+endif
+
+
 bike_src = files([
 	'bike_decode.c',
 	'bike_decode_portable.c',
