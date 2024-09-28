@@ -16,14 +16,6 @@
  * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-/*
- * This code is derived in parts from the code distribution provided with
- * https://github.com/pq-crystals/sphincs
- *
- * That code is released under Public Domain
- * (https://creativecommons.org/share-your-work/public-domain/cc0/);
- * or Apache 2.0 License (https://www.apache.org/licenses/LICENSE-2.0.html).
- */
 
 #include "lc_sphincs.h"
 #include "visibility.h"
@@ -50,12 +42,6 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_ctx_alloc, struct lc_sphincs_ctx **ctx)
 #endif
 }
 
-/**
- * @ingroup Sphincs
- * @brief Zeroizes and frees Sphincs context on heap
- *
- * @param [out] ctx Sphincs context pointer
- */
 LC_INTERFACE_FUNCTION(void, lc_sphincs_ctx_zero_free,
 		      struct lc_sphincs_ctx *ctx)
 {
@@ -77,12 +63,6 @@ LC_INTERFACE_FUNCTION(void, lc_sphincs_ctx_zero_free,
 #endif
 }
 
-/**
- * @ingroup Sphincs
- * @brief Zeroizes Sphincs context either on heap or on stack
- *
- * @param [out] ctx Sphincs context pointer
- */
 LC_INTERFACE_FUNCTION(void, lc_sphincs_ctx_zero, struct lc_sphincs_ctx *ctx)
 {
 	if (!ctx)
@@ -103,29 +83,12 @@ LC_INTERFACE_FUNCTION(void, lc_sphincs_ctx_zero, struct lc_sphincs_ctx *ctx)
 #endif
 }
 
-/**
- * @ingroup Sphincs
- * @brief Mark the Sphincs context to execute SLH-DSA.Sign_internal /
- *	  SLH-DSA.Verify_internal.
- *
- * @param [in] ctx Sphincs context
- */
 LC_INTERFACE_FUNCTION(void, lc_sphincs_ctx_internal, struct lc_sphincs_ctx *ctx)
 {
 	if (ctx)
 		ctx->slh_dsa_internal = 1;
 }
 
-/**
- * @ingroup Sphincs
- * @brief Set the hash type that was used for pre-hashing the message. The
- *	  message digest is used with the HashSLH-DSA. The message digest
- *	  is to be provided via the message pointer in the sign/verify APIs.
- *
- * @param [in] ctx Sphincs context
- * @param [in] hash Hash context referencing the used hash for pre-hashing the
- *		    message
- */
 LC_INTERFACE_FUNCTION(void, lc_sphincs_ctx_hash, struct lc_sphincs_ctx *ctx,
 		      const struct lc_hash *hash)
 {
@@ -133,15 +96,6 @@ LC_INTERFACE_FUNCTION(void, lc_sphincs_ctx_hash, struct lc_sphincs_ctx *ctx,
 		ctx->sphincs_prehash_type = hash;
 }
 
-/**
- * @ingroup Sphincs
- * @brief Specify the optional user context string to be applied with the
- *	  Sphincs signature operation.
- *
- * @param [in] ctx Sphincs context
- * @param [in] userctx User context string
- * @param [in] userctxlen Size of the user context string
- */
 LC_INTERFACE_FUNCTION(void, lc_sphincs_ctx_userctx, struct lc_sphincs_ctx *ctx,
 		      const uint8_t *userctx, size_t userctxlen)
 {
@@ -151,14 +105,6 @@ LC_INTERFACE_FUNCTION(void, lc_sphincs_ctx_userctx, struct lc_sphincs_ctx *ctx,
 	}
 }
 
-/**
- * @ingroup Sphincs
- * @brief Obtain Sphincs type from secret key
- *
- * @param [in] sk Secret key from which the type is to be obtained
- *
- * @return key type
- */
 LC_INTERFACE_FUNCTION(enum lc_sphincs_type, lc_sphincs_sk_type,
 		      const struct lc_sphincs_sk *sk)
 {
@@ -167,14 +113,6 @@ LC_INTERFACE_FUNCTION(enum lc_sphincs_type, lc_sphincs_sk_type,
 	return sk->sphincs_type;
 }
 
-/**
- * @ingroup Sphincs
- * @brief Obtain Sphincs type from public key
- *
- * @param [in] pk Public key from which the type is to be obtained
- *
- * @return key type
- */
 LC_INTERFACE_FUNCTION(enum lc_sphincs_type, lc_sphincs_pk_type,
 		      const struct lc_sphincs_pk *pk)
 {
@@ -183,14 +121,6 @@ LC_INTERFACE_FUNCTION(enum lc_sphincs_type, lc_sphincs_pk_type,
 	return pk->sphincs_type;
 }
 
-/**
- * @ingroup Sphincs
- * @brief Obtain Sphincs type from signature
- *
- * @param [in] sig Signature from which the type is to be obtained
- *
- * @return key type
- */
 LC_INTERFACE_FUNCTION(enum lc_sphincs_type, lc_sphincs_sig_type,
 		      const struct lc_sphincs_sig *sig)
 {
@@ -199,14 +129,6 @@ LC_INTERFACE_FUNCTION(enum lc_sphincs_type, lc_sphincs_sig_type,
 	return sig->sphincs_type;
 }
 
-/**
- * @ingroup Sphincs
- * @brief Return the size of the Sphincs secret key.
- *
- * @param [in] sphincs_type Sphincs type for which the size is requested
- *
- * @return requested size
- */
 LC_PURE LC_INTERFACE_FUNCTION(unsigned int, lc_sphincs_sk_size,
 			      enum lc_sphincs_type sphincs_type)
 {
@@ -253,14 +175,6 @@ LC_PURE LC_INTERFACE_FUNCTION(unsigned int, lc_sphincs_sk_size,
 	}
 }
 
-/**
- * @ingroup Sphincs
- * @brief Return the size of the Sphincs public key.
- *
- * @param [in] sphincs_type Sphincs type for which the size is requested
- *
- * @return requested size
- */
 LC_PURE LC_INTERFACE_FUNCTION(unsigned int, lc_sphincs_pk_size,
 			      enum lc_sphincs_type sphincs_type)
 {
@@ -307,14 +221,6 @@ LC_PURE LC_INTERFACE_FUNCTION(unsigned int, lc_sphincs_pk_size,
 	}
 }
 
-/**
- * @ingroup Sphincs
- * @brief Return the size of the Sphincs signature.
- *
- * @param [in] sphincs_type Sphincs type for which the size is requested
- *
- * @return requested size
- */
 LC_PURE LC_INTERFACE_FUNCTION(unsigned int, lc_sphincs_sig_size,
 			      enum lc_sphincs_type sphincs_type)
 {
@@ -436,19 +342,6 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sk_load, struct lc_sphincs_sk *sk,
 	}
 }
 
-/**
- * @ingroup Sphincs
- * @brief Set Sphincs key type to fast
- *
- * When loading a secret key, the load mechanism cannot detect whether the
- * key is to be used for the fast or small Sphincs operation (e.g. 256f vs
- * 256s). This API allows the caller to make the setting after key loading.
- * The library uses that decision for further operations.
- *
- * @param [in] sk Secret key to be set
- *
- * @return 0 on success or < 0 on error
- */
 LC_INTERFACE_FUNCTION(int, lc_sphincs_sk_set_keytype_fast,
 		      struct lc_sphincs_sk *sk)
 {
@@ -480,19 +373,6 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sk_set_keytype_fast,
 	}
 }
 
-/**
- * @ingroup Sphincs
- * @brief Set Sphincs key type to small
- *
- * When loading a secret key, the load mechanism cannot detect whether the
- * key is to be used for the fast or small Sphincs operation (e.g. 256f vs
- * 256s). This API allows the caller to make the setting after key loading.
- * The library uses that decision for further operations.
- *
- * @param [in] sk Secret key to be set
- *
- * @return 0 on success or < 0 on error
- */
 LC_INTERFACE_FUNCTION(int, lc_sphincs_sk_set_keytype_small,
 		      struct lc_sphincs_sk *sk)
 {
@@ -524,17 +404,6 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sk_set_keytype_small,
 	}
 }
 
-/**
- * @ingroup Sphincs
- * @brief Load a Sphincs public key provided with a buffer into the leancrypto
- *	  data structure.
- *
- * @param [out] pk Secret key to be filled (the caller must have it allocated)
- * @param [in] src_key Buffer that holds the key to be imported
- * @param [in] src_key_len Buffer length that holds the key to be imported
- *
- * @return 0 on success or < 0 on error
- */
 LC_INTERFACE_FUNCTION(int, lc_sphincs_pk_load, struct lc_sphincs_pk *pk,
 		      const uint8_t *src_key, size_t src_key_len)
 {
@@ -593,19 +462,6 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_pk_load, struct lc_sphincs_pk *pk,
 	}
 }
 
-/**
- * @ingroup Sphincs
- * @brief Set Sphincs key type to fast
- *
- * When loading a public key, the load mechanism cannot detect whether the
- * key is to be used for the fast or small Sphincs operation (e.g. 256f vs
- * 256s). This API allows the caller to make the setting after key loading.
- * The library uses that decision for further operations.
- *
- * @param [in] pk Public key to be set
- *
- * @return 0 on success or < 0 on error
- */
 LC_INTERFACE_FUNCTION(int, lc_sphincs_pk_set_keytype_fast,
 		      struct lc_sphincs_pk *pk)
 {
@@ -637,19 +493,6 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_pk_set_keytype_fast,
 	}
 }
 
-/**
- * @ingroup Sphincs
- * @brief Set Sphincs key type to small
- *
- * When loading a public key, the load mechanism cannot detect whether the
- * key is to be used for the fast or small Sphincs operation (e.g. 256f vs
- * 256s). This API allows the caller to make the setting after key loading.
- * The library uses that decision for further operations.
- *
- * @param [in] pk Public key to be set
- *
- * @return 0 on success or < 0 on error
- */
 LC_INTERFACE_FUNCTION(int, lc_sphincs_pk_set_keytype_small,
 		      struct lc_sphincs_pk *pk)
 {
@@ -681,17 +524,6 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_pk_set_keytype_small,
 	}
 }
 
-/**
- * @ingroup Sphincs
- * @brief Load a Sphincs signature provided with a buffer into the leancrypto
- *	  data structure.
- *
- * @param [out] sig Secret key to be filled (the caller must have it allocated)
- * @param [in] src_sig Buffer that holds the signature to be imported
- * @param [in] src_sig_len Buffer length that holds the signature to be imported
- *
- * @return 0 on success or < 0 on error
- */
 LC_INTERFACE_FUNCTION(int, lc_sphincs_sig_load, struct lc_sphincs_sig *sig,
 		      const uint8_t *src_sig, size_t src_sig_len)
 {
@@ -756,19 +588,6 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sig_load, struct lc_sphincs_sig *sig,
 	}
 }
 
-/**
- * @ingroup Sphincs
- * @brief Obtain the reference to the Sphincs key and its length
- *
- * \note Only pointer references into the leancrypto data structure are returned
- * which implies that any modification will modify the leancrypto key, too.
- *
- * @param [out] sphincs_key Sphincs key pointer
- * @param [out] sphincs_key_len Length of the key buffer
- * @param [in] sk Sphincs secret key from which the references are obtained
- *
- * @return 0 on success, != 0 on error
- */
 LC_INTERFACE_FUNCTION(int, lc_sphincs_sk_ptr, uint8_t **sphincs_key,
 		      size_t *sphincs_key_len, struct lc_sphincs_sk *sk)
 {
@@ -827,19 +646,6 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sk_ptr, uint8_t **sphincs_key,
 	}
 }
 
-/**
- * @ingroup Sphincs
- * @brief Obtain the reference to the Sphincs key and its length
- *
- * \note Only pointer references into the leancrypto data structure are returned
- * which implies that any modification will modify the leancrypto key, too.
- *
- * @param [out] sphincs_key Sphincs key pointer
- * @param [out] sphincs_key_len Length of the key buffer
- * @param [in] pk Sphincs publi key from which the references are obtained
- *
- * @return 0 on success, != 0 on error
- */
 LC_INTERFACE_FUNCTION(int, lc_sphincs_pk_ptr, uint8_t **sphincs_key,
 		      size_t *sphincs_key_len, struct lc_sphincs_pk *pk)
 {
@@ -898,20 +704,6 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_pk_ptr, uint8_t **sphincs_key,
 	}
 }
 
-/**
- * @ingroup Sphincs
- * @brief Obtain the reference to the Sphincs signature and its length
- *
- * \note Only pointer references into the leancrypto data structure are returned
- * which implies that any modification will modify the leancrypto signature,
- * too.
- *
- * @param [out] sphincs_sig Sphincs signature pointer
- * @param [out] sphincs_sig_len Length of the signature buffer
- * @param [in] sig Sphincs signature from which the references are obtained
- *
- * @return 0 on success, != 0 on error
- */
 LC_INTERFACE_FUNCTION(int, lc_sphincs_sig_ptr, uint8_t **sphincs_sig,
 		      size_t *sphincs_sig_len, struct lc_sphincs_sig *sig)
 {
@@ -976,17 +768,6 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sig_ptr, uint8_t **sphincs_sig,
 	}
 }
 
-/**
- * @ingroup Sphincs
- * @brief Generates Sphincs public and private key.
- *
- * @param [out] pk pointer to allocated output public key
- * @param [out] sk pointer to allocated output private key
- * @param [in] rng_ctx pointer to seeded random number generator context
- * @param [in] sphincs_type type of the Sphincs key to generate
- *
- * @return 0 (success) or < 0 on error
- */
 LC_INTERFACE_FUNCTION(int, lc_sphincs_keypair, struct lc_sphincs_pk *pk,
 		      struct lc_sphincs_sk *sk, struct lc_rng_ctx *rng_ctx,
 		      enum lc_sphincs_type sphincs_type)
@@ -1061,27 +842,6 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_keypair, struct lc_sphincs_pk *pk,
 	}
 }
 
-/**
- * @ingroup Sphincs
- * @brief Generates Sphincs public and private key from a given seed.
- *
- * The idea of the function is the allowance of FIPS 204 to maintain the seed
- * used to generate a key pair in lieu of maintaining a private key or the
- * key pair (which used much more memory). The seed must be treated equally
- * sensitive as a private key.
- *
- * The seed is generated by simply obtaining 32 bytes from a properly seeded
- * DRNG, i.e. the same way as a symmetric key would be generated.
- *
- * @param [out] pk pointer to allocated output public key
- * @param [out] sk pointer to allocated output private key
- * @param [in] seed buffer with the seed data which must be exactly 32 bytes
- *		    in size
- * @param [in] seedlen length of the seed buffer
- * @param [in] sphincs_type type of the Sphincs key to generate
- *
- * @return 0 (success) or < 0 on error
- */
 LC_INTERFACE_FUNCTION(int, lc_sphincs_keypair_from_seed,
 		      struct lc_sphincs_pk *pk, struct lc_sphincs_sk *sk,
 		      const uint8_t *seed, size_t seedlen,
@@ -1157,33 +917,9 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_keypair_from_seed,
 	}
 }
 
-/**
- * @brief Pairwise consistency check as per FIPS 140 IG
- *
- * This call should be invoked after generating a key pair in FIPS mode
- *
- * @param [in] pk Public key
- * @param [in] sk Secret key
- *
- * @return 0 on success, < 0 on error
- */
 LC_INTERFACE_FUNCTION(int, lc_sphincs_pct, const struct lc_sphincs_pk *pk,
 		      const struct lc_sphincs_sk *sk);
 
-/**
- * @ingroup Sphincs
- * @brief Computes signature in one shot
- *
- * @param [out] sig pointer to output signature
- * @param [in] m pointer to message to be signed
- * @param [in] mlen length of message
- * @param [in] sk pointer to secret key
- * @param [in] rng_ctx pointer to seeded random number generator context - when
- *		       pointer is non-NULL, perform a randomized signing.
- *		       Otherwise use deterministic signing.
- *
- * @return 0 (success) or < 0 on error
- */
 LC_INTERFACE_FUNCTION(int, lc_sphincs_sign, struct lc_sphincs_sig *sig,
 		      const uint8_t *m, size_t mlen,
 		      const struct lc_sphincs_sk *sk,
@@ -1253,36 +989,6 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign, struct lc_sphincs_sig *sig,
 	}
 }
 
-/**
- * @ingroup Sphincs
- * @brief Computes signature woth user context in one shot
- *
- * This API allows the caller to provide an arbitrary context buffer which
- * is hashed together with the message to form the message digest to be signed.
- *
- * Using the ctx structure, the caller can select 3 different types of SLH-DSA:
- *
- * * ctx->sphincs_prehash_type set to a hash type, HashSLH-DSA is assumed which
- *   implies that the message m must be exactly digest size (FIPS 204 section
- *   5.4)
- *
- * * ctx->ml_dsa_internal set to 1, the SLH-DSA.Sign_internal and
- *   .Verify_internal are executed (FIPS 204 chapter 6)
- *
- * * both aforementioned parameter set to NULL / 0, SLH-DSA.Sign and
- *   SLH-DSA.Verify are executed (FIPS 204 sections 5.2 and 5.3)
- *
- * @param [out] sig pointer to output signature
- * @param [in] ctx reference to the allocated Sphincs context handle
- * @param [in] m pointer to message to be signed
- * @param [in] mlen length of message
- * @param [in] sk pointer to secret key
- * @param [in] rng_ctx pointer to seeded random number generator context - when
- *		       pointer is non-NULL, perform a randomized signing.
- *		       Otherwise use deterministic signing.
- *
- * @return 0 (success) or < 0 on error
- */
 LC_INTERFACE_FUNCTION(int, lc_sphincs_sign_ctx, struct lc_sphincs_sig *sig,
 		      struct lc_sphincs_ctx *ctx, const uint8_t *m, size_t mlen,
 		      const struct lc_sphincs_sk *sk,
@@ -1358,40 +1064,6 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign_ctx, struct lc_sphincs_sig *sig,
 	}
 }
 
-/**
- * @ingroup Sphincs
- * @brief Initializes a signature operation
- *
- * This call is intended to support messages that are located in non-contiguous
- * places and even becomes available at different times. This call is to be
- * used together with the lc_sphincs_sign_update and lc_sphincs_sign_final.
- *
- * \note
- * \parblock
- * The use of the init/update/final API implies that automatically
- * HashSLH-DSA is used. This is due to the fact that SLH-DSA cannot be used
- * in the init/update/final mode due to mathematical issues. By default, the
- * following hashes are used which are compliant to the requirement that the
- * message digest must be twice as large as the parameter n:
- *
- * * Sphincs 256s/f: SHA3-512
- * * Sphincs 192s/f: SHA3-384
- * * Sphincs 128s/f: SHA3-256
- *
- * It is permissible for the caller to select other message digest algorithms
- * by using setting the requested algorithm in the ctx using the
- * lc_sphincs_ctx_hash method *before* this init function is used. But mind
- * the basic requirement that the message digest size must be at least twice
- * the parameter n! This is checked by leancrypto during the signature
- * generation.
- * \endparblock
- *
- * @param [in,out] ctx pointer Sphincs context
- * @param [in] sk pointer to secret key
- *
- * @return 0 (success) or < 0 on error; -EOPNOTSUPP is returned if a different
- *	   hash than lc_shake256 is used.
- */
 LC_INTERFACE_FUNCTION(int, lc_sphincs_sign_init, struct lc_sphincs_ctx *ctx,
 		      const struct lc_sphincs_sk *sk)
 {
@@ -1447,21 +1119,6 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign_init, struct lc_sphincs_ctx *ctx,
 	}
 }
 
-/**
- * @ingroup Sphincs
- * @brief Add more data to an already initialized signature state
- *
- * This call is intended to support messages that are located in non-contiguous
- * places and even becomes available at different times. This call is to be
- * used together with the lc_sphincs_sign_init and lc_sphincs_sign_final.
- *
- * @param [in] ctx pointer to Sphincs context that was initialized with
- *	      	   lc_sphincs_sign_init
- * @param [in] m pointer to message to be signed
- * @param [in] mlen length of message
- *
- * @return 0 (success) or < 0 on error
- */
 LC_INTERFACE_FUNCTION(int, lc_sphincs_sign_update, struct lc_sphincs_ctx *ctx,
 		      const uint8_t *m, size_t mlen)
 {
@@ -1482,21 +1139,6 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign_update, struct lc_sphincs_ctx *ctx,
 #endif
 }
 
-/**
- * @ingroup Sphincs
- * @brief Computes signature
- *
- * @param [out] sig pointer to output signature
- * @param [in] ctx pointer to Sphincs context that was initialized with
- *	      	   lc_sphincs_sign_init and filled with
- * 		   lc_sphincs_sign_update
- * @param [in] sk pointer to secret key
- * @param [in] rng_ctx pointer to seeded random number generator context - when
- *		       pointer is non-NULL, perform a randomized signing.
- *		       Otherwise use deterministic signing.
- *
- * @return 0 (success) or < 0 on error
- */
 LC_INTERFACE_FUNCTION(int, lc_sphincs_sign_final, struct lc_sphincs_sig *sig,
 		      struct lc_sphincs_ctx *ctx,
 		      const struct lc_sphincs_sk *sk,
@@ -1566,18 +1208,6 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign_final, struct lc_sphincs_sig *sig,
 	}
 }
 
-/**
- * @ingroup Sphincs
- * @brief Verifies signature in one shot
- *
- * @param [in] sig pointer to input signature
- * @param [in] m pointer to message
- * @param [in] mlen length of message
- * @param [in] pk pointer to public key
- *
- * @return 0 if signature could be verified correctly and -EBADMSG when
- * signature cannot be verified, < 0 on other errors
- */
 LC_INTERFACE_FUNCTION(int, lc_sphincs_verify, const struct lc_sphincs_sig *sig,
 		      const uint8_t *m, size_t mlen,
 		      const struct lc_sphincs_pk *pk)
@@ -1640,22 +1270,6 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify, const struct lc_sphincs_sig *sig,
 	}
 }
 
-/**
- * @ingroup Sphincs
- * @brief Verifies signature with Sphincs context in one shot
- *
- * This API allows the caller to provide an arbitrary context buffer which
- * is hashed together with the message to form the message digest to be signed.
- *
- * @param [in] sig pointer to input signature
- * @param [in] ctx reference to the allocated Sphincs context handle
- * @param [in] m pointer to message
- * @param [in] mlen length of message
- * @param [in] pk pointer to public key
- *
- * @return 0 if signature could be verified correctly and -EBADMSG when
- * signature cannot be verified, < 0 on other errors
- */
 LC_INTERFACE_FUNCTION(int, lc_sphincs_verify_ctx,
 		      const struct lc_sphincs_sig *sig,
 		      struct lc_sphincs_ctx *ctx, const uint8_t *m, size_t mlen,
@@ -1719,41 +1333,6 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify_ctx,
 	}
 }
 
-/**
- * @ingroup Sphincs
- * @brief Initializes a signature verification operation
- *
- * This call is intended to support messages that are located in non-contiguous
- * places and even becomes available at different times. This call is to be
- * used together with the lc_sphincs_verify_update and
- * lc_sphincs_verify_final.
- *
- * \note
- * \parblock
- * The use of the init/update/final API implies that automatically
- * HashSLH-DSA is used. This is due to the fact that SLH-DSA cannot be used
- * in the init/update/final mode due to mathematical issues. By default, the
- * following hashes are used which are compliant to the requirement that the
- * message digest must be twice as large as the parameter n:
- *
- * * Sphincs 256s/f: SHA3-512
- * * Sphincs 192s/f: SHA3-384
- * * Sphincs 128s/f: SHA3-256
- *
- * It is permissible for the caller to select other message digest algorithms
- * by using setting the requested algorithm in the ctx using the
- * lc_sphincs_ctx_hash method *before* this init function is used.But mind
- * the basic requirement that the message digest size must be at least twice
- * the parameter n! This is checked by leancrypto during the signature
- * verification.
- * \endparblock
- *
- * @param [in,out] ctx pointer to an allocated Sphincs context
- * @param [in] pk pointer to public key
- *
- * @return 0 (success) or < 0 on error; -EOPNOTSUPP is returned if a different
- *	   hash than lc_shake256 is used.
- */
 LC_INTERFACE_FUNCTION(int, lc_sphincs_verify_init, struct lc_sphincs_ctx *ctx,
 		      const struct lc_sphincs_pk *pk)
 {
@@ -1809,22 +1388,6 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify_init, struct lc_sphincs_ctx *ctx,
 	}
 }
 
-/**
- * @ingroup Sphincs
- * @brief Add more data to an already initialized signature state
- *
- * This call is intended to support messages that are located in non-contiguous
- * places and even becomes available at different times. This call is to be
- * used together with the lc_sphincs_verify_init and
- * lc_sphincs_verify_final.
- *
- * @param [in] ctx pointer to Sphincs context that was initialized with
- *		   lc_sphincs_sign_init
- * @param [in] m pointer to message to be signed
- * @param [in] mlen length of message
- *
- * @return 0 (success) or < 0 on error
- */
 LC_INTERFACE_FUNCTION(int, lc_sphincs_verify_update, struct lc_sphincs_ctx *ctx,
 		      const uint8_t *m, size_t mlen)
 {
@@ -1845,19 +1408,6 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify_update, struct lc_sphincs_ctx *ctx,
 #endif
 }
 
-/**
- * @ingroup Sphincs
- * @brief Verifies signature
- *
- * @param [in] sig pointer to output signature
- * @param [in] ctx pointer to Sphincs context that was initialized with
- *		   lc_sphincs_sign_init and filled with
- *		   lc_sphincs_sign_update
- * @param [in] pk pointer to public key
- *
- * @return 0 if signature could be verified correctly and -EBADMSG when
- * signature cannot be verified, < 0 on other errors
- */
 LC_INTERFACE_FUNCTION(int, lc_sphincs_verify_final,
 		      const struct lc_sphincs_sig *sig,
 		      struct lc_sphincs_ctx *ctx,
