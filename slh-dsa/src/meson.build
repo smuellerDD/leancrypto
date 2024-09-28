@@ -8,6 +8,7 @@ if (get_option('sphincs_shake_256s').enabled() or
     get_option('sphincs_shake_128s').enabled() or
     get_option('sphincs_shake_128f').enabled())
 	src += files([
+		'sphincs_api.c',
 		'sphincs_pct.c',
 	])
 endif
