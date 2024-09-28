@@ -917,9 +917,6 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_keypair_from_seed,
 	}
 }
 
-LC_INTERFACE_FUNCTION(int, lc_sphincs_pct, const struct lc_sphincs_pk *pk,
-		      const struct lc_sphincs_sk *sk);
-
 LC_INTERFACE_FUNCTION(int, lc_sphincs_sign, struct lc_sphincs_sig *sig,
 		      const uint8_t *m, size_t mlen,
 		      const struct lc_sphincs_sk *sk,
