@@ -99,18 +99,7 @@ int lc_hkdf_expand(struct lc_hkdf_ctx *hkdf_ctx, const uint8_t *info,
  *
  * @param [in] hkdf_ctx HMAC context to be zeroized
  */
-static inline void lc_hkdf_zero(struct lc_hkdf_ctx *hkdf_ctx)
-{
-	/*
-	 * The use of this function implies that ->hmac_ctx is followed
-	 * immediately by the state buffer!
-	 */
-	lc_hmac_zero(&hkdf_ctx->hmac_ctx);
-	lc_memset_secure(hkdf_ctx->partial, 0, LC_SHA_MAX_SIZE_DIGEST);
-	hkdf_ctx->ctr = 0x01;
-	hkdf_ctx->rng_initialized = 0;
-	hkdf_ctx->partial_ptr = LC_SHA_MAX_SIZE_DIGEST;
-}
+void lc_hkdf_zero(struct lc_hkdf_ctx *hkdf_ctx);
 
 /**
  * @ingroup KDF
@@ -170,23 +159,9 @@ void lc_hkdf_zero_free(struct lc_hkdf_ctx *hkdf_ctx);
  *
  * @return 0 on success, < 0 on error
  */
-static inline int lc_hkdf(const struct lc_hash *hash, const uint8_t *ikm,
-			  size_t ikmlen, const uint8_t *salt, size_t saltlen,
-			  const uint8_t *info, size_t infolen, uint8_t *dst,
-			  size_t dlen)
-{
-	int ret;
-	LC_HKDF_CTX_ON_STACK(hkdf, hash);
-
-	ret = lc_hkdf_extract(hkdf, ikm, ikmlen, salt, saltlen);
-	if (ret < 0)
-		goto out;
-	ret = lc_hkdf_expand(hkdf, info, infolen, dst, dlen);
-
-out:
-	lc_hkdf_zero(hkdf);
-	return ret;
-}
+int lc_hkdf(const struct lc_hash *hash, const uint8_t *ikm, size_t ikmlen,
+	    const uint8_t *salt, size_t saltlen, const uint8_t *info,
+	    size_t infolen, uint8_t *dst, size_t dlen);
 
 /******************************** HKDF as RNG *********************************/
 
