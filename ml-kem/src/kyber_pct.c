@@ -20,6 +20,7 @@
 #include "lc_kyber.h"
 #include "lc_memcmp_secure.h"
 #include "lc_memset_secure.h"
+#include "small_stack_support.h"
 #include "ret_checkers.h"
 #include "timecop.h"
 #include "visibility.h"
@@ -27,20 +28,23 @@
 LC_INTERFACE_FUNCTION(int, lc_kyber_pct, const struct lc_kyber_pk *pk,
 		      const struct lc_kyber_sk *sk)
 {
-	uint8_t m[32];
-	struct lc_kyber_ct ct;
-	struct lc_kyber_ss ss1, ss2;
+	struct workspace {
+		uint8_t m[32];
+		struct lc_kyber_ct ct;
+		struct lc_kyber_ss ss1, ss2;
+	};
 	uint8_t *ss1_p, *ss2_p;
 	size_t ss1_size, ss2_size;
 	int ret;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	CKINT(lc_rng_generate(lc_seeded_rng, NULL, 0, m, sizeof(m)));
+	CKINT(lc_rng_generate(lc_seeded_rng, NULL, 0, ws->m, sizeof(ws->m)));
 
-	CKINT(lc_kyber_enc(&ct, &ss1, pk));
-	CKINT(lc_kyber_dec(&ss2, &ct, sk));
+	CKINT(lc_kyber_enc(&ws->ct, &ws->ss1, pk));
+	CKINT(lc_kyber_dec(&ws->ss2, &ws->ct, sk));
 
-	CKINT(lc_kyber_ss_ptr(&ss1_p, &ss1_size, &ss1));
-	CKINT(lc_kyber_ss_ptr(&ss2_p, &ss2_size, &ss2));
+	CKINT(lc_kyber_ss_ptr(&ss1_p, &ss1_size, &ws->ss1));
+	CKINT(lc_kyber_ss_ptr(&ss2_p, &ss2_size, &ws->ss2));
 
 	/*
 	 * Timecop: the Kyber SS will not reveal anything about the SK or PK.
@@ -53,8 +57,6 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_pct, const struct lc_kyber_pk *pk,
 	CKINT(lc_memcmp_secure(ss1_p, ss1_size, ss2_p, ss2_size));
 
 out:
-	lc_memset_secure(&ct, 0, sizeof(ct));
-	lc_memset_secure(&ss1, 0, sizeof(ss1));
-	lc_memset_secure(&ss2, 0, sizeof(ss2));
+	LC_RELEASE_MEM(ws);
 	return ret;
 }
