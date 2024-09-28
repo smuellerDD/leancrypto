@@ -138,3 +138,32 @@ LC_INTERFACE_FUNCTION(void, lc_hmac_zero_free, struct lc_hmac_ctx *hmac_ctx)
 	lc_hmac_zero(hmac_ctx);
 	lc_free(hmac_ctx);
 }
+
+LC_INTERFACE_FUNCTION(void, lc_hmac_zero, struct lc_hmac_ctx *hmac_ctx)
+{
+	struct lc_hash_ctx *hash_ctx = &hmac_ctx->hash_ctx;
+	const struct lc_hash *hash = hash_ctx->hash;
+
+	lc_memset_secure((uint8_t *)hmac_ctx + sizeof(struct lc_hmac_ctx), 0,
+			 LC_HMAC_STATE_SIZE(hash));
+}
+
+LC_INTERFACE_FUNCTION(size_t, lc_hmac_macsize, struct lc_hmac_ctx *hmac_ctx)
+{
+	struct lc_hash_ctx *hash_ctx = &hmac_ctx->hash_ctx;
+
+	return lc_hash_digestsize(hash_ctx);
+}
+
+LC_INTERFACE_FUNCTION(void, lc_hmac, const struct lc_hash *hash,
+		      const uint8_t *key, size_t keylen, const uint8_t *in,
+		      size_t inlen, uint8_t *mac)
+{
+	LC_HMAC_CTX_ON_STACK(hmac_ctx, hash);
+
+	lc_hmac_init(hmac_ctx, key, keylen);
+	lc_hmac_update(hmac_ctx, in, inlen);
+	lc_hmac_final(hmac_ctx, mac);
+
+	lc_hmac_zero(hmac_ctx);
+}
