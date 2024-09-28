@@ -19,6 +19,7 @@
  */
 
 #include <crypto/internal/akcipher.h>
+#include <crypto/scatterwalk.h>
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/scatterlist.h>
@@ -124,21 +125,22 @@ static int lc_kernel_sphincs_verify(struct akcipher_request *req)
 	struct lc_kernel_sphincs_ctx *ctx = akcipher_tfm_ctx(tfm);
 	struct lc_sphincs_sig *sig;
 	struct sg_mapping_iter miter;
-	size_t offset = 0, sig_len;
+	struct scatterlist msg_sg_src[2];
+	struct scatterlist *msg_sgl;
+	size_t msg_len, offset = 0, sig_len;
 	unsigned int sg_flags = SG_MITER_ATOMIC | SG_MITER_FROM_SG;
 	enum lc_sphincs_type type;
 	uint8_t *sig_ptr;
 	int ret;
 	LC_SPHINCS_CTX_ON_STACK(sphincs_ctx);
 
-	/* req->src -> signature */
-	/* req->dst -> message */
+	/* req->src -> signature || message */
 
 	if (unlikely(ctx->key_type != lc_kernel_sphincs_key_pk))
 		return -EINVAL;
 
 	type = lc_sphincs_pk_type(&ctx->pk);
-	if (req->src_len != lc_sphincs_sig_size(type))
+	if (req->src_len < lc_sphincs_sig_size(type))
 		return -EINVAL;
 
 	sig = kmalloc(sizeof(struct lc_sphincs_sig), GFP_KERNEL);
@@ -155,16 +157,26 @@ static int lc_kernel_sphincs_verify(struct akcipher_request *req)
 	if (ret)
 		goto out;
 
+	/* Sanity check - should not be needed as we check length above */
+	if (req->src_len < sig_len) {
+		ret = -EOVERFLOW;
+		goto out;
+	}
+
 	sg_pcopy_to_buffer(req->src, sg_nents_for_len(req->src, req->src_len),
 			   sig_ptr, sig_len, 0);
 
+	/* Forward SGL to the message */
+	msg_sgl = scatterwalk_ffwd(msg_sg_src, req->src, sig_len);
+	msg_len = req->src_len - sig_len;
+
 	lc_sphincs_verify_init(sphincs_ctx, &ctx->pk);
 
-	sg_miter_start(&miter, req->dst,
-		       sg_nents_for_len(req->dst, req->dst_len), sg_flags);
+	sg_miter_start(&miter, msg_sgl,
+		       sg_nents_for_len(msg_sgl, msg_len), sg_flags);
 
-	while ((offset < req->dst_len) && sg_miter_next(&miter)) {
-		unsigned int len = min(miter.length, req->dst_len - offset);
+	while ((offset < msg_len) && sg_miter_next(&miter)) {
+		unsigned int len = min(miter.length, msg_len - offset);
 
 		ret = lc_sphincs_verify_update(sphincs_ctx, miter.addr, len);
 		if (ret)

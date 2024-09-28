@@ -21,6 +21,8 @@ Changes 1.1.0-prerelease
 
 * ML-DSA, ML-KEM, SLH-DSA, BIKE, Hash, AEAD, RNG, HMAC, HKDF, symmetric: move API implementation from H to C file - this implies that no RUST wrappers are needed
 
+* Linux kernel: ML-DSA / SLH-DSA sigver input changed to be compliant to existing kernel structures: req->src SGL contains signature || msg, req->dst SGL is not processed
+
 Changes 1.0.1
 
 * fix: Kyber keygen - add LC_KYBER_K to initial hash (change is only relevant when storing keys as seed and for interoperability)

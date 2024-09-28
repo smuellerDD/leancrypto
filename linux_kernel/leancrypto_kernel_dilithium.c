@@ -19,6 +19,7 @@
  */
 
 #include <crypto/internal/akcipher.h>
+#include <crypto/scatterwalk.h>
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/scatterlist.h>
@@ -113,21 +114,22 @@ static int lc_kernel_dilithium_verify(struct akcipher_request *req)
 	struct lc_kernel_dilithium_ctx *ctx = akcipher_tfm_ctx(tfm);
 	struct lc_dilithium_sig *sig;
 	struct sg_mapping_iter miter;
-	size_t offset = 0, sig_len;
+	struct scatterlist msg_sg_src[2];
+	struct scatterlist *msg_sgl;
+	size_t msg_len, offset = 0, sig_len;
 	unsigned int sg_flags = SG_MITER_ATOMIC | SG_MITER_FROM_SG;
 	enum lc_dilithium_type type;
 	uint8_t *sig_ptr;
 	int ret;
 	LC_DILITHIUM_CTX_ON_STACK(dilithium_ctx);
 
-	/* req->src -> signature */
-	/* req->dst -> message */
+	/* req->src -> signature || message */
 
 	if (unlikely(ctx->key_type != lc_kernel_dilithium_key_pk))
 		return -EINVAL;
 
 	type = lc_dilithium_pk_type(&ctx->pk);
-	if (req->src_len != lc_dilithium_sig_size(type))
+	if (req->src_len < lc_dilithium_sig_size(type))
 		return -EINVAL;
 
 	sig = kmalloc(sizeof(struct lc_dilithium_sig), GFP_KERNEL);
@@ -144,16 +146,27 @@ static int lc_kernel_dilithium_verify(struct akcipher_request *req)
 	if (ret)
 		goto out;
 
+	/* Sanity check - should not be needed as we check length above */
+	if (req->src_len < sig_len) {
+		ret = -EOVERFLOW;
+		goto out;
+	}
+
+	/* Copy Dilithium signature into local buffer */
 	sg_pcopy_to_buffer(req->src, sg_nents_for_len(req->src, req->src_len),
 			   sig_ptr, sig_len, 0);
 
+	/* Forward SGL to the message */
+	msg_sgl = scatterwalk_ffwd(msg_sg_src, req->src, sig_len);
+	msg_len = req->src_len - sig_len;
+
 	lc_dilithium_verify_init(dilithium_ctx, &ctx->pk);
 
-	sg_miter_start(&miter, req->dst,
-		       sg_nents_for_len(req->dst, req->dst_len), sg_flags);
+	sg_miter_start(&miter, msg_sgl,
+		       sg_nents_for_len(msg_sgl, msg_len), sg_flags);
 
-	while ((offset < req->dst_len) && sg_miter_next(&miter)) {
-		unsigned int len = min(miter.length, req->dst_len - offset);
+	while ((offset < msg_len) && sg_miter_next(&miter)) {
+		unsigned int len = min(miter.length, msg_len - offset);
 
 		ret = lc_dilithium_verify_update(dilithium_ctx, miter.addr,
 						 len);

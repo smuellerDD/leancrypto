@@ -85,7 +85,7 @@ static int lc_test_sigver(const char *algname,
 	struct crypto_akcipher *tfm = NULL;
 	struct lc_akcipher_def akcipher;
 	struct akcipher_request *req = NULL;
-	struct scatterlist src, dst;
+	struct scatterlist src[2];
 	int err = -ENOMEM;
 
 	tfm = crypto_alloc_akcipher(algname, 0, 0);
@@ -108,11 +108,12 @@ static int lc_test_sigver(const char *algname,
 	akcipher.tfm = tfm;
 	akcipher.req = req;
 
-	sg_init_one(&src, vector->sig, sizeof(vector->sig));
-	sg_init_one(&dst, vector->m, sizeof(vector->m));
+	sg_init_table(src, 2);
+	sg_set_buf(&src[0], vector->sig, sizeof(vector->sig));
+	sg_set_buf(&src[1], vector->m, sizeof(vector->m));
 
-	akcipher_request_set_crypt(req, &src, &dst, sizeof(vector->sig),
-				   sizeof(vector->m));
+	akcipher_request_set_crypt(req, src, NULL,
+				   sizeof(vector->sig) + sizeof(vector->m), 0);
 
 	err = crypto_akcipher_verify(req);
 

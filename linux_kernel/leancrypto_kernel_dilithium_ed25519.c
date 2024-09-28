@@ -135,23 +135,22 @@ static int lc_kernel_dilithium_ed25519_verify(struct akcipher_request *req)
 	struct lc_kernel_dilithium_ed25519_ctx *ctx = akcipher_tfm_ctx(tfm);
 	struct lc_dilithium_ed25519_sig *sig;
 	struct sg_mapping_iter miter;
-	struct scatterlist ed25519_sg_src[2];
-	struct scatterlist *ed25519_src;
-	size_t offset = 0, sig_len, sig_ed25519_len;
+	struct scatterlist ffwd_sg_src[2];
+	struct scatterlist *ffwd_src;
+	size_t msg_len, offset = 0, sig_len, sig_ed25519_len;
 	unsigned int sg_flags = SG_MITER_ATOMIC | SG_MITER_FROM_SG;
 	enum lc_dilithium_type type;
 	uint8_t *sig_ptr, *sig_ed25519_ptr;
 	int ret;
 	LC_DILITHIUM_ED25519_CTX_ON_STACK(dilithium_ed25519_ctx);
 
-	/* req->src -> signature */
-	/* req->dst -> message */
+	/* req->src -> Dilithium signature || ED25519 signature || message */
 
 	if (unlikely(ctx->key_type != lc_kernel_dilithium_ed25519_key_pk))
 		return -EINVAL;
 
 	type = lc_dilithium_ed25519_pk_type(&ctx->pk);
-	if (req->src_len != lc_dilithium_ed25519_sig_size(type))
+	if (req->src_len < lc_dilithium_ed25519_sig_size(type))
 		return -EINVAL;
 
 	sig = kmalloc(sizeof(struct lc_dilithium_ed25519_sig), GFP_KERNEL);
@@ -169,25 +168,34 @@ static int lc_kernel_dilithium_ed25519_verify(struct akcipher_request *req)
 	if (ret)
 		goto out;
 
+	/* Sanity check - should not be needed as we check length above */
 	if (req->src_len < sig_len + sig_ed25519_len) {
 		ret = -EOVERFLOW;
 		goto out;
 	}
 
+	/* Copy Dilithium signature into local buffer */
 	sg_pcopy_to_buffer(req->src, sg_nents_for_len(req->src, req->src_len),
 			   sig_ptr, sig_len, 0);
-	ed25519_src = scatterwalk_ffwd(ed25519_sg_src, req->src, sig_len);
-	sg_pcopy_to_buffer(ed25519_src,
-			   sg_nents_for_len(ed25519_src, sig_ed25519_len),
+
+	/* Copy ED25529 signature into local buffer */
+	ffwd_src = scatterwalk_ffwd(ffwd_sg_src, req->src, sig_len);
+	sg_pcopy_to_buffer(ffwd_src,
+			   sg_nents_for_len(ffwd_src, sig_ed25519_len),
 			   sig_ed25519_ptr, sig_ed25519_len, 0);
+
+	/* Forward SGL to the message */
+	ffwd_src = scatterwalk_ffwd(ffwd_sg_src, req->src,
+				    sig_len + sig_ed25519_len);
+	msg_len = req->src_len - sig_len - sig_ed25519_len;
 
 	lc_dilithium_ed25519_verify_init(dilithium_ed25519_ctx, &ctx->pk);
 
-	sg_miter_start(&miter, req->dst,
-		       sg_nents_for_len(req->dst, req->dst_len), sg_flags);
+	sg_miter_start(&miter, ffwd_src,
+		       sg_nents_for_len(ffwd_src, msg_len), sg_flags);
 
-	while ((offset < req->dst_len) && sg_miter_next(&miter)) {
-		unsigned int len = min(miter.length, req->dst_len - offset);
+	while ((offset < msg_len) && sg_miter_next(&miter)) {
+		unsigned int len = min(miter.length, msg_len - offset);
 
 		lc_dilithium_ed25519_verify_update(dilithium_ed25519_ctx,
 						   miter.addr, len);

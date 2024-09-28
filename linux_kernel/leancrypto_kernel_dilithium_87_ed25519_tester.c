@@ -78,7 +78,7 @@ static int lc_test_sigver(const char *algname,
 	struct crypto_akcipher *tfm = NULL;
 	struct lc_akcipher_def akcipher;
 	struct akcipher_request *req = NULL;
-	struct scatterlist src, dst;
+	struct scatterlist src[2];
 	uint8_t *dilithium_ptr, *ed25519_ptr;
 	size_t dilithium_len, ed25519_len;
 	int err = -ENOMEM;
@@ -126,12 +126,14 @@ static int lc_test_sigver(const char *algname,
 	 * NOTE: This only works because dilithium_sk_ptr and ed25519_sk_ptr
 	 * are concatenated in a linear buffer.
 	 */
-	sg_init_one(&src, sig, lc_dilithium_ed25519_sig_size(DILITHIUM_TYPE));
-	sg_init_one(&dst, msg, msglen);
+
+	sg_init_table(src, 2);
+	sg_set_buf(&src[0], sig, lc_dilithium_ed25519_sig_size(DILITHIUM_TYPE));
+	sg_set_buf(&src[1], msg, msglen);
 
 	akcipher_request_set_crypt(
-		req, &src, &dst, lc_dilithium_ed25519_sig_size(DILITHIUM_TYPE),
-		msglen);
+		req, src, NULL,
+		lc_dilithium_ed25519_sig_size(DILITHIUM_TYPE) + msglen, 0);
 
 	err = crypto_akcipher_verify(req);
 
