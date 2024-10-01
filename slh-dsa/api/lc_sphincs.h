@@ -91,11 +91,11 @@ enum lc_sphincs_type {
  * mentioned purpose.
  *
  * * lc_sphincs.h: This API is the generic API allowing the caller to select
- *   which Sphincs type (Sphincs 256s, 256f or 192s) are to be used. The selection
- *   is made either with the flag specified during key generation or by matching
- *   the size of the imported data with the different lc_sphincs_*_load API
- *   calls. All remaining APIs take the information about the Sphincs type
- *   from the provided input data.
+ *   which Sphincs type (Sphincs 256s, 256f, 192s, 192f, 128s, 128f) are to be
+ *   used. The selection is made either with the flag specified during key
+ *   generation or by matching the size of the imported data with the different
+ *   lc_sphincs_*_load API calls. All remaining APIs take the information about
+ *   the Sphincs type from the provided input data.
  *
  *   This header file only provides inline functions which selectively call
  *   the API provided with the header files below.
