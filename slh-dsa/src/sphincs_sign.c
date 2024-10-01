@@ -131,6 +131,12 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_keypair_from_seed,
 		      struct lc_sphincs_pk *pk, struct lc_sphincs_sk *sk,
 		      const uint8_t *seed, size_t seedlen)
 {
+	/*
+	 * FIPS 205 does not allow key generation from seed, but we leave the
+	 * API to allow a seamless transition from one to another algorithm
+	 * usage.
+	 */
+#if 0
 	int ret = 0;
 
 	CKNULL(pk, -EINVAL);
@@ -146,6 +152,13 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_keypair_from_seed,
 
 out:
 	return ret;
+#else
+	(void)pk;
+	(void)sk;
+	(void)seed;
+	(void)seedlen;
+	return -EOPNOTSUPP;
+#endif
 }
 
 /*

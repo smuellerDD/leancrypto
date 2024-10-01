@@ -21,6 +21,7 @@
 #include "cpufeatures.h"
 #include "small_stack_support.h"
 #include "sphincs_type.h"
+#include "static_rng.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 
@@ -71,11 +72,19 @@ static int lc_sphincs_test(struct lc_sphincs_test *tc,
 	ctx->slh_dsa_internal = 1;
 
 	if (t == LC_SPHINCS_REGRESSION || t == LC_SPHINCS_PERF_KEYGEN) {
+		struct lc_static_rng_data s_rng_state;
+		LC_STATIC_DRNG_ON_STACK(s_drng, &s_rng_state);
+
 		rounds = (t == LC_SPHINCS_PERF_KEYGEN) ? 100 : 1;
 
 		for (i = 0; i < rounds; i++) {
-			CKINT(lc_sphincs_keypair_from_seed(
-				&ws->pk, &ws->sk, tc->seed, sizeof(tc->seed)));
+			/*
+			 * Set the seed that the key generation can pull via the
+			 * RNG.
+			 */
+			s_rng_state.seed = tc->seed;
+			s_rng_state.seedlen = sizeof(tc->seed);
+			CKINT(lc_sphincs_keypair(&ws->pk, &ws->sk, &s_drng));
 		}
 		lc_compare((uint8_t *)&ws->pk, tc->pk, sizeof(tc->pk), "PK");
 		lc_compare((uint8_t *)&ws->sk, tc->sk, sizeof(tc->sk), "SK");
