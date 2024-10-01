@@ -20,6 +20,7 @@
 #ifndef BIKE_INTERNAL_H
 #define BIKE_INTERNAL_H
 
+#include "alignment.h"
 #include "bike_type.h"
 #include "lc_rng.h"
 

@@ -30,7 +30,6 @@
 #ifndef LC_BIKE_@bike_header@H
 #define LC_BIKE_@bike_header@H
 
-#include "alignment.h"
 #include "ext_headers.h"
 #include "lc_rng.h"
 
