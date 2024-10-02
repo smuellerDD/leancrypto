@@ -20,7 +20,9 @@ sphincs_src = files([
 	'sphincs_merkle.c',
 	'sphincs_sign.c',
 	'sphincs_signature_helper.c',
-	'sphincs_thash_shake_robust.c',
+	# FIPS 205 mandates the "simple" thash operation
+	#'sphincs_thash_shake_robust.c',
+	'sphincs_thash_shake_simple.c',
 	'sphincs_utils.c',
 	'sphincs_utilsx1.c',
 	'sphincs_wots.c',
@@ -31,7 +33,9 @@ sphincs_src_avx2 = files([
 	'avx2/sphincs_fors_avx2.c',
 	'avx2/sphincs_hash_shakex4_avx2.c',
 	'avx2/sphincs_merkle_avx2.c',
-	'avx2/sphincs_thash_shake_robustx4_avx2.c',
+	# FIPS 205 mandates the "simple" thash operation
+	#'avx2/sphincs_thash_shake_robustx4_avx2.c',
+	'avx2/sphincs_thash_shake_simplex4_avx2.c',
 	'avx2/sphincs_utilsx4_avx2.c',
 	'avx2/sphincs_wots_avx2.c',
 ])
@@ -40,7 +44,9 @@ sphincs_src_armv8 = files([
 	'armv8/sphincs_fors_armv8.c',
 	'armv8/sphincs_hash_shakex2_armv8.c',
 	'armv8/sphincs_merkle_armv8.c',
-	'armv8/sphincs_thash_shake_robustx2_armv8.c',
+	# FIPS 205 mandates the "simple" thash operation
+	#'armv8/sphincs_thash_shake_robustx2_armv8.c',
+	'armv8/sphincs_thash_shake_simplex2_armv8.c',
 	'armv8/sphincs_utilsx2_armv8.c',
 	'armv8/sphincs_wots_armv8.c',
 ])

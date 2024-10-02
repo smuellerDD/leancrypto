@@ -273,17 +273,6 @@ LC_PURE LC_INTERFACE_FUNCTION(unsigned int, lc_sphincs_sig_size,
 	}
 }
 
-/**
- * @ingroup Sphincs
- * @brief Load a Sphincs secret key provided with a buffer into the leancrypto
- *	  data structure.
- *
- * @param [out] sk Secret key to be filled (the caller must have it allocated)
- * @param [in] src_key Buffer that holds the key to be imported
- * @param [in] src_key_len Buffer length that holds the key to be imported
- *
- * @return 0 on success or < 0 on error
- */
 LC_INTERFACE_FUNCTION(int, lc_sphincs_sk_load, struct lc_sphincs_sk *sk,
 		      const uint8_t *src_key, size_t src_key_len)
 {
@@ -772,7 +761,7 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_keypair, struct lc_sphincs_pk *pk,
 		      struct lc_sphincs_sk *sk, struct lc_rng_ctx *rng_ctx,
 		      enum lc_sphincs_type sphincs_type)
 {
-	if (!pk || !sk)
+	if (!pk || !sk || !rng_ctx)
 		return -EINVAL;
 
 	switch (sphincs_type) {

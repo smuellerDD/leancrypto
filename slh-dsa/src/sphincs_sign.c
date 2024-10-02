@@ -174,6 +174,7 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_keypair, struct lc_sphincs_pk *pk,
 
 	CKNULL(pk, -EINVAL);
 	CKNULL(sk, -EINVAL);
+	CKNULL(rng_ctx, -EINVAL);
 
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, (uint8_t *)sk,
 			      LC_SPX_SEEDBYTES));

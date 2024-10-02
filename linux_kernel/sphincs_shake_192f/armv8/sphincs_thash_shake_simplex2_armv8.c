@@ -1,0 +1,1 @@
+../../../slh-dsa/src/armv8/sphincs_thash_shake_simplex2_armv8.c
