@@ -162,8 +162,8 @@ static int lc_kernel_dilithium_verify(struct akcipher_request *req)
 
 	lc_dilithium_verify_init(dilithium_ctx, &ctx->pk);
 
-	sg_miter_start(&miter, msg_sgl,
-		       sg_nents_for_len(msg_sgl, msg_len), sg_flags);
+	sg_miter_start(&miter, msg_sgl, sg_nents_for_len(msg_sgl, msg_len),
+		       sg_flags);
 
 	while ((offset < msg_len) && sg_miter_next(&miter)) {
 		unsigned int len = min(miter.length, msg_len - offset);
