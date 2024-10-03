@@ -24,6 +24,7 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
+#include "bitshift.h"
 #include "lc_memset_secure.h"
 #include "shake_2x_armv8.h"
 #include "sphincs_type.h"
@@ -32,27 +33,6 @@
 #include "sphincs_utils.h"
 
 #define f1600x2(s) keccak_f1600x2_armce((s), neon_KeccakF_RoundConstants)
-
-//TODO use the ptr_to_...
-static uint64_t load64(const unsigned char *x)
-{
-	unsigned long long r = 0, i;
-
-	for (i = 0; i < 8; ++i) {
-		r |= (unsigned long long)x[i] << 8 * i;
-	}
-	return r;
-}
-
-static void store64(uint8_t *x, uint64_t u)
-{
-	unsigned int i;
-
-	for (i = 0; i < 8; ++i) {
-		x[i] = (uint8_t)u;
-		u >>= 8;
-	}
-}
 
 /**
  * 2-way parallel version of thash; takes 2x as much input and output
@@ -71,7 +51,7 @@ void thashx2_12(unsigned char *out0, unsigned char *out1,
 	uint64_t state[50] = { 0 };
 
 	for (i = 0; i < LC_SPX_N / 8; i++) {
-		uint64_t x = load64(ctx->pub_seed + 8 * i);
+		uint64_t x = ptr_to_le64(ctx->pub_seed + 8 * i);
 		state[2 * i] = x;
 		state[2 * i + 1] = x;
 	}
@@ -85,8 +65,8 @@ void thashx2_12(unsigned char *out0, unsigned char *out1,
 	}
 
 	for (i = 0; i < (LC_SPX_N / 8) * inblocks; i++) {
-		state[2 * (LC_SPX_N / 8 + 4 + i)] = load64(in0 + 8 * i);
-		state[2 * (LC_SPX_N / 8 + 4 + i) + 1] = load64(in1 + 8 * i);
+		state[2 * (LC_SPX_N / 8 + 4 + i)] = ptr_to_le64(in0 + 8 * i);
+		state[2 * (LC_SPX_N / 8 + 4 + i) + 1] = ptr_to_le64(in1 + 8 * i);
 	}
 
 	/* Domain separator and padding. */
@@ -99,8 +79,8 @@ void thashx2_12(unsigned char *out0, unsigned char *out1,
 	f1600x2(state);
 
 	for (i = 0; i < LC_SPX_N / 8; i++) {
-		store64(out0 + 8 * i, state[2 * i]);
-		store64(out1 + 8 * i, state[2 * i + 1]);
+		le64_to_ptr(out0 + 8 * i, state[2 * i]);
+		le64_to_ptr(out1 + 8 * i, state[2 * i + 1]);
 	}
 
 	lc_memset_secure(state, 0, sizeof(state));
