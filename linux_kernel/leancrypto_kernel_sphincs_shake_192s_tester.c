@@ -1,1 +1,0 @@
-leancrypto_kernel_sphincs_shake_256s_tester.c

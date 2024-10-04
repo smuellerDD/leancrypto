@@ -259,6 +259,7 @@ ifdef CONFIG_LEANCRYPTO_KEM_BIKE_5
 obj-m		 		+= bike_5_tester.o
 ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM_BIKE_5
 obj-m				+= leancrypto_kernel_bike_5_tester.o
+leancrypto_kernel_bike_5_tester-y	+= ../bike/tests/leancrypto_kernel_bike_5_tester.o
 
 bike_5_tester-y			+= ../bike/tests/bike_tester.o		       \
 				   ../drng/src/static_rng.o
@@ -268,10 +269,11 @@ ifdef CONFIG_LEANCRYPTO_KEM_BIKE_3
 obj-m		 		+= bike_3_tester.o
 ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM_BIKE_3
 obj-m				+= leancrypto_kernel_bike_3_tester.o
+leancrypto_kernel_bike_3_tester-y	+= bike3/tests/leancrypto_kernel_bike_3_tester.o
 
 bike_3_tester-y			+= bike3/tests/bike_tester.o		       \
 				   ../drng/src/static_rng.o
-CFLAGS_leancrypto_kernel_bike_3_tester.o	= -DLC_BIKE_TYPE_3
+CFLAGS_bike3/tests/leancrypto_kernel_bike_3_tester.o	= -DLC_BIKE_TYPE_3
 CFLAGS_bike3/tests/bike_tester.o		= -DLC_BIKE_TYPE_3
 endif
 
@@ -280,9 +282,10 @@ ifdef CONFIG_LEANCRYPTO_KEM_BIKE_1
 obj-m		 		+= bike_1_tester.o
 ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM_BIKE_1
 obj-m				+= leancrypto_kernel_bike_1_tester.o
+leancrypto_kernel_bike_1_tester-y	+= bike1/tests/leancrypto_kernel_bike_1_tester.o
 
 bike_1_tester-y			+= bike1/tests/bike_tester.o		       \
 				   ../drng/src/static_rng.o
-CFLAGS_leancrypto_kernel_bike_1_tester.o	= -DLC_BIKE_TYPE_1
+CFLAGS_bike1/tests/leancrypto_kernel_bike_1_tester.o	= -DLC_BIKE_TYPE_1
 CFLAGS_bike1/tests/bike_tester.o		= -DLC_BIKE_TYPE_1
 endif

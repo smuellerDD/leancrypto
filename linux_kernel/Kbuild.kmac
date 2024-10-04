@@ -10,6 +10,7 @@ ifdef CONFIG_LEANCRYPTO_KMAC
 ccflags-y			+= -DCONFIG_LEANCRYPTO_KMAC
 
 obj-m				+= leancrypto_kernel_kmac_tester.o
+leancrypto_kernel_kmac_tester-y	+= ../kmac/tests/leancrypto_kernel_kmac_tester.o
 
 obj-m		  		+= kmac_128_tester.o
 obj-m		  		+= kmac_256_tester.o

@@ -68,6 +68,7 @@ ccflags-y			+= -DCONFIG_LEANCRYPTO_XDRBG_DRNG
 
 ifdef CONFIG_LEANCRYPTO_SHA3
 obj-m				+= leancrypto_kernel_rng_tester.o
+leancrypto_kernel_rng_tester-y	+= ../drng/tests/leancrypto_kernel_rng_tester.o
 obj-m				+= xdrbg256_tester.o
 xdrbg256_tester-y		+= ../drng/tests/xdrbg256_tester.o
 endif

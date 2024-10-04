@@ -54,6 +54,7 @@ ccflags-y			+= -DLC_ASCON
 leancrypto-$(CONFIG_LEANCRYPTO_ASCON_CRYPT)				       \
 				+= ../aead/src/ascon_lightweight.o
 obj-m				+= leancrypto_kernel_aead_ascon_tester.o
+leancrypto_kernel_aead_ascon_tester-y	+= ../aead/tests/leancrypto_kernel_aead_ascon_tester.o
 obj-m		  		+= ascon_crypt_test.o
 ascon_crypt_test-y 		+= ../aead/tests/ascon_crypt_test.o
 endif
