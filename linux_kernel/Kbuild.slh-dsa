@@ -17,8 +17,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_SPHINCS)					       \
 
 # Sphincs SHAKE 256s
 leancrypto-$(CONFIG_LEANCRYPTO_SPHINCS_256s)				       \
-				+= ../slh-dsa/src/sphincs_address.o	       \
-				   ../slh-dsa/src/sphincs_fors.o	       \
+				+= ../slh-dsa/src/sphincs_fors.o	       \
 				   ../slh-dsa/src/sphincs_hash_shake.o	       \
 				   ../slh-dsa/src/sphincs_merkle.o	       \
 				   ../slh-dsa/src/sphincs_sign.o	       \
@@ -31,8 +30,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_SPHINCS_256s)				       \
 
 # Sphincs SHAKE 256f
 leancrypto-$(CONFIG_LEANCRYPTO_SPHINCS_256f)				       \
-				+= sphincs_shake_256f/sphincs_address.o	       \
-				   sphincs_shake_256f/sphincs_fors.o	       \
+				+= sphincs_shake_256f/sphincs_fors.o	       \
 				   sphincs_shake_256f/sphincs_hash_shake.o     \
 				   sphincs_shake_256f/sphincs_merkle.o	       \
 				   sphincs_shake_256f/sphincs_sign.o	       \
@@ -43,7 +41,6 @@ leancrypto-$(CONFIG_LEANCRYPTO_SPHINCS_256f)				       \
 				   sphincs_shake_256f/sphincs_wots.o	       \
 				   sphincs_shake_256f/sphincs_wotsx1.o
 
-CFLAGS_sphincs_shake_256f/sphincs_address.o		:= -DLC_SPHINCS_TYPE_256F
 CFLAGS_sphincs_shake_256f/sphincs_fors.o		:= -DLC_SPHINCS_TYPE_256F
 CFLAGS_sphincs_shake_256f/sphincs_hash_shake.o		:= -DLC_SPHINCS_TYPE_256F
 CFLAGS_sphincs_shake_256f/sphincs_merkle.o		:= -DLC_SPHINCS_TYPE_256F
@@ -57,8 +54,7 @@ CFLAGS_sphincs_shake_256f/sphincs_wotsx1.o		:= -DLC_SPHINCS_TYPE_256F
 
 # Sphincs SHAKE 192s
 leancrypto-$(CONFIG_LEANCRYPTO_SPHINCS_192s)				       \
-				+= sphincs_shake_192s/sphincs_address.o	       \
-				   sphincs_shake_192s/sphincs_fors.o	       \
+				+= sphincs_shake_192s/sphincs_fors.o	       \
 				   sphincs_shake_192s/sphincs_hash_shake.o     \
 				   sphincs_shake_192s/sphincs_merkle.o	       \
 				   sphincs_shake_192s/sphincs_sign.o	       \
@@ -69,7 +65,6 @@ leancrypto-$(CONFIG_LEANCRYPTO_SPHINCS_192s)				       \
 				   sphincs_shake_192s/sphincs_wots.o	       \
 				   sphincs_shake_192s/sphincs_wotsx1.o
 
-CFLAGS_sphincs_shake_192s/sphincs_address.o		:= -DLC_SPHINCS_TYPE_192S
 CFLAGS_sphincs_shake_192s/sphincs_fors.o		:= -DLC_SPHINCS_TYPE_192S
 CFLAGS_sphincs_shake_192s/sphincs_hash_shake.o		:= -DLC_SPHINCS_TYPE_192S
 CFLAGS_sphincs_shake_192s/sphincs_merkle.o		:= -DLC_SPHINCS_TYPE_192S
@@ -83,8 +78,7 @@ CFLAGS_sphincs_shake_192s/sphincs_wotsx1.o		:= -DLC_SPHINCS_TYPE_192S
 
 # Sphincs SHAKE 192f
 leancrypto-$(CONFIG_LEANCRYPTO_SPHINCS_192f)				       \
-				+= sphincs_shake_192f/sphincs_address.o	       \
-				   sphincs_shake_192f/sphincs_fors.o	       \
+				+= sphincs_shake_192f/sphincs_fors.o	       \
 				   sphincs_shake_192f/sphincs_hash_shake.o     \
 				   sphincs_shake_192f/sphincs_merkle.o	       \
 				   sphincs_shake_192f/sphincs_sign.o	       \
@@ -95,7 +89,6 @@ leancrypto-$(CONFIG_LEANCRYPTO_SPHINCS_192f)				       \
 				   sphincs_shake_192f/sphincs_wots.o	       \
 				   sphincs_shake_192f/sphincs_wotsx1.o
 
-CFLAGS_sphincs_shake_192f/sphincs_address.o		:= -DLC_SPHINCS_TYPE_192F
 CFLAGS_sphincs_shake_192f/sphincs_fors.o		:= -DLC_SPHINCS_TYPE_192F
 CFLAGS_sphincs_shake_192f/sphincs_hash_shake.o		:= -DLC_SPHINCS_TYPE_192F
 CFLAGS_sphincs_shake_192f/sphincs_merkle.o		:= -DLC_SPHINCS_TYPE_192F
@@ -109,8 +102,7 @@ CFLAGS_sphincs_shake_192f/sphincs_wotsx1.o		:= -DLC_SPHINCS_TYPE_192F
 
 # Sphincs SHAKE 128s
 leancrypto-$(CONFIG_LEANCRYPTO_SPHINCS_128s)				       \
-				+= sphincs_shake_128s/sphincs_address.o	       \
-				   sphincs_shake_128s/sphincs_fors.o	       \
+				+= sphincs_shake_128s/sphincs_fors.o	       \
 				   sphincs_shake_128s/sphincs_hash_shake.o     \
 				   sphincs_shake_128s/sphincs_merkle.o	       \
 				   sphincs_shake_128s/sphincs_sign.o	       \
@@ -121,7 +113,6 @@ leancrypto-$(CONFIG_LEANCRYPTO_SPHINCS_128s)				       \
 				   sphincs_shake_128s/sphincs_wots.o	       \
 				   sphincs_shake_128s/sphincs_wotsx1.o
 
-CFLAGS_sphincs_shake_128s/sphincs_address.o		:= -DLC_SPHINCS_TYPE_128S
 CFLAGS_sphincs_shake_128s/sphincs_fors.o		:= -DLC_SPHINCS_TYPE_128S
 CFLAGS_sphincs_shake_128s/sphincs_hash_shake.o		:= -DLC_SPHINCS_TYPE_128S
 CFLAGS_sphincs_shake_128s/sphincs_merkle.o		:= -DLC_SPHINCS_TYPE_128S
@@ -135,8 +126,7 @@ CFLAGS_sphincs_shake_128s/sphincs_wotsx1.o		:= -DLC_SPHINCS_TYPE_128S
 
 # Sphincs SHAKE 128f
 leancrypto-$(CONFIG_LEANCRYPTO_SPHINCS_128f)				       \
-				+= sphincs_shake_128f/sphincs_address.o	       \
-				   sphincs_shake_128f/sphincs_fors.o	       \
+				+= sphincs_shake_128f/sphincs_fors.o	       \
 				   sphincs_shake_128f/sphincs_hash_shake.o     \
 				   sphincs_shake_128f/sphincs_merkle.o	       \
 				   sphincs_shake_128f/sphincs_sign.o	       \
@@ -147,7 +137,6 @@ leancrypto-$(CONFIG_LEANCRYPTO_SPHINCS_128f)				       \
 				   sphincs_shake_128f/sphincs_wots.o	       \
 				   sphincs_shake_128f/sphincs_wotsx1.o
 
-CFLAGS_sphincs_shake_128f/sphincs_address.o		:= -DLC_SPHINCS_TYPE_128F
 CFLAGS_sphincs_shake_128f/sphincs_fors.o		:= -DLC_SPHINCS_TYPE_128F
 CFLAGS_sphincs_shake_128f/sphincs_hash_shake.o		:= -DLC_SPHINCS_TYPE_128F
 CFLAGS_sphincs_shake_128f/sphincs_merkle.o		:= -DLC_SPHINCS_TYPE_128F

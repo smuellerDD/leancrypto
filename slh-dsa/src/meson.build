@@ -14,7 +14,6 @@ if (get_option('sphincs_shake_256s').enabled() or
 endif
 
 sphincs_src = files([
-	'sphincs_address.c',
 	'sphincs_fors.c',
 	'sphincs_hash_shake.c',
 	'sphincs_merkle.c',
