@@ -34,8 +34,24 @@
 extern "C" {
 #endif
 
-void prf_addr(uint8_t out[LC_SPX_N], const spx_ctx *ctx,
-	      const uint32_t addr[8]);
+/*
+ * Computes PRF(pk_seed, sk_seed, addr)
+ */
+static inline void prf_addr(uint8_t out[LC_SPX_N], const spx_ctx *ctx,
+			    const uint32_t addr[8])
+{
+	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
+
+	lc_hash_init(hash_ctx);
+	lc_hash_update(hash_ctx, ctx->pub_seed, LC_SPX_N);
+	lc_hash_update(hash_ctx, (uint8_t *)addr, LC_SPX_ADDR_BYTES);
+	lc_hash_update(hash_ctx, ctx->sk_seed, LC_SPX_N);
+	lc_hash_set_digestsize(hash_ctx, LC_SPX_N);
+	lc_hash_final(hash_ctx, out);
+
+	lc_hash_zero(hash_ctx);
+}
+
 
 int gen_message_random(uint8_t R[LC_SPX_N], const uint8_t sk_prf[LC_SPX_N],
 		       const uint8_t optrand[LC_SPX_N], const uint8_t *m,

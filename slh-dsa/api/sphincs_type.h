@@ -114,7 +114,6 @@ extern "C" {
 
 #define fors_sign_c SPHINCS_F(fors_sign_c)
 #define fors_pk_from_sig_c SPHINCS_F(fors_pk_from_sig_c)
-#define prf_addr SPHINCS_F(prf_addr)
 #define gen_message_random SPHINCS_F(gen_message_random)
 #define hash_message SPHINCS_F(hash_message)
 #define sphincs_merkle_sign_c SPHINCS_F(sphincs_merkle_sign_c)
