@@ -24,6 +24,7 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
+#include "sidechannel_resistantce.h"
 #include "sphincs_type.h"
 #include "sphincs_address.h"
 #include "sphincs_hash.h"
@@ -252,11 +253,9 @@ void wots_gen_leafx2(unsigned char *dest, const spx_ctx *ctx, uint32_t leaf_idx,
 		for (k = 0;; k++) {
 			/* Check if one of the values we have needs to be saved as a */
 			/* part of the WOTS signature */
-			if (k == wots_k) {
-				memcpy(info->wots_sig + i * LC_SPX_N,
-				       buffer + wots_sign_index * wots_offset,
-				       LC_SPX_N);
-			}
+			cmov(info->wots_sig + i * LC_SPX_N,
+			     buffer + wots_sign_index * wots_offset, LC_SPX_N,
+			     k == wots_k);
 
 			/* Check if we hit the top of the chain */
 			if (k == LC_SPX_WOTS_W - 1)

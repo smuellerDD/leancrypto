@@ -24,6 +24,7 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
+#include "sidechannel_resistantce.h"
 #include "sphincs_type.h"
 #include "sphincs_address.h"
 #include "sphincs_utils.h"
@@ -126,14 +127,13 @@ void treehashx4(
 			 * Check if one of the nodes we have is a part of the
 			 * authentication path; if it is, write it out
 			 */
-			if ((((internal_idx << 2) ^ internal_leaf) &
-			     (uint32_t)~0x3) == 0) {
-				memcpy(&auth_path[h * LC_SPX_N],
-				       &current_idx[(((internal_leaf & 3) ^ 1) +
-						     prev_left_adj) *
-						    LC_SPX_N],
-				       LC_SPX_N);
-			}
+			cmov(&auth_path[h * LC_SPX_N],
+			     &current_idx[(((internal_leaf & 3) ^ 1) +
+					   prev_left_adj) *
+					  LC_SPX_N],
+			     LC_SPX_N,
+			     (((internal_idx << 2) ^ internal_leaf) &
+			      (uint32_t)~0x3) == 0);
 
 			/*
 			 * Check if we're at a left child; if so, stop going up the stack

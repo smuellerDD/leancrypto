@@ -39,6 +39,7 @@
 #include "sphincs_thash.h"
 #include "sphincs_utils.h"
 #include "sphincs_wots.h"
+#include "timecop.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 
@@ -107,6 +108,11 @@ static int lc_sphincs_keypair_from_seed_internal(struct lc_sphincs_pk *pk,
 	spx_ctx ctx;
 	int ret;
 
+	/*
+	 * Timecop: The SLH-DSA seed is sensitive.
+	 */
+	poison(sk, LC_SPX_SEEDBYTES);
+
 	/* Initialize PUB_SEED of PK from SK . */
 	memcpy(pk, sk->pk, LC_SPX_N);
 
@@ -119,6 +125,12 @@ static int lc_sphincs_keypair_from_seed_internal(struct lc_sphincs_pk *pk,
 	memcpy(pk->pk + LC_SPX_N, sk->pk + LC_SPX_N, LC_SPX_N);
 
 out:
+	/*
+	 * Timecop: Unmark the generated keys
+	 */
+	unpoison(sk, sizeof(*sk));
+	unpoison(pk, sizeof(*pk));
+
 	return ret;
 }
 
@@ -213,6 +225,11 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign_ctx, struct lc_sphincs_sig *sig,
 	CKNULL(sig, -EINVAL);
 	CKNULL(sk, -EINVAL);
 
+	/*
+	 * Timecop: secret key is sensitive
+	 */
+	poison(sk, 2 * LC_SPX_N);
+
 	ctx_int.sk_seed = sk->sk_seed;
 	ctx_int.pub_seed = pk;
 
@@ -228,6 +245,11 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign_ctx, struct lc_sphincs_sig *sig,
 
 	/* Compute the digest randomization value. */
 	CKINT(gen_message_random(sig->r, sk_prf, ws->optrand, m, mlen, ctx));
+
+	/*
+	 * Timecopy: signature randomness part is not sensitive.
+	 */
+	unpoison(sig->r, LC_SPX_N);
 
 	/* Derive the message digest and leaf index from R, PK and M. */
 	CKINT(hash_message(ws->mhash, &ws->tree, &ws->idx_leaf, sig->r, pk, m,
@@ -258,6 +280,9 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign_ctx, struct lc_sphincs_sig *sig,
 	}
 
 out:
+	unpoison(sk, sizeof(*sk));
+	unpoison(sig, sizeof(*sig));
+
 	if (ret && sig)
 		lc_memset_secure(sig, 0, sizeof(struct lc_sphincs_sig));
 	LC_RELEASE_MEM(ws);
