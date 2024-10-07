@@ -210,21 +210,13 @@ void wots_gen_leafx2(unsigned char *dest, const spx_ctx *ctx, uint32_t leaf_idx,
 	unsigned int i, j, k;
 	unsigned int wots_offset = LC_SPX_WOTS_BYTES;
 	uint8_t *buffer;
-	uint32_t wots_k_mask;
-	unsigned int wots_sign_index;
+	uint32_t wots_k_mask = 0;
+	unsigned int wots_sign_index = 0;
+	uint32_t dec = ((leaf_idx ^ info->wots_sign_leaf) & (uint32_t)~1) == 0;
 
-	if (((leaf_idx ^ info->wots_sign_leaf) & (uint32_t)~1) == 0) {
-		/* We're traversing the leaf that's signing; generate the WOTS */
-		/* signature */
-		wots_k_mask = 0;
-		wots_sign_index =
-			info->wots_sign_leaf & 1; /* Which of of the 2 */
-		/* slots do the signatures come from */
-	} else {
-		/* Nope, we're just generating pk's; turn off the signature logic */
-		wots_k_mask = (uint32_t)~0;
-		wots_sign_index = 0;
-	}
+	cmov_uint32(&wots_sign_index, (info->wots_sign_leaf & 1) * wots_offset,
+		    dec);
+	cmov_uint32(&wots_k_mask, (uint32_t)~0, !dec);
 
 	for (j = 0; j < 2; j++) {
 		set_keypair_addr(leaf_addr + j * 8, leaf_idx + j);
@@ -233,6 +225,7 @@ void wots_gen_leafx2(unsigned char *dest, const spx_ctx *ctx, uint32_t leaf_idx,
 
 	for (i = 0, buffer = pk_buffer; i < LC_SPX_WOTS_LEN;
 	     i++, buffer += LC_SPX_N) {
+		const uint8_t *wots_sign_buf_p = buffer + wots_sign_index;
 		uint32_t wots_k =
 			info->wots_steps[i] | wots_k_mask; /* Set wots_k to */
 		/* the step if we're generating a signature, ~0 if we're not */
@@ -253,9 +246,8 @@ void wots_gen_leafx2(unsigned char *dest, const spx_ctx *ctx, uint32_t leaf_idx,
 		for (k = 0;; k++) {
 			/* Check if one of the values we have needs to be saved as a */
 			/* part of the WOTS signature */
-			cmov(info->wots_sig + i * LC_SPX_N,
-			     buffer + wots_sign_index * wots_offset, LC_SPX_N,
-			     k == wots_k);
+			cmov(info->wots_sig + i * LC_SPX_N, wots_sign_buf_p,
+			     LC_SPX_N, k == wots_k);
 
 			/* Check if we hit the top of the chain */
 			if (k == LC_SPX_WOTS_W - 1)
