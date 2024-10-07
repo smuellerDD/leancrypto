@@ -24,11 +24,10 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
-#ifndef KYBER_VERIFY_H
-#define KYBER_VERIFY_H
+#ifndef SIDECHANNEL_RESISTANCE_H
+#define SIDECHANNEL_RESISTANCE_H
 
 #include "ext_headers.h"
-#include "kyber_type.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -68,8 +67,22 @@ static inline void cmov_int16(int16_t *r, int16_t v, uint16_t b)
 	*r ^= (int16_t)(b & ((*r) ^ v));
 }
 
+/**
+ * @brief cmov_uint32 - Copy input v to *r if b is 1, don't modify *r if b is 0.
+ *			Requires b to be in {0,1}; Runs in constant time.
+ *
+ * @param [out] r pointer to output int16_t
+ * @param [in] v input int16_t
+ * @param [in] b Condition bit; has to be in {0,1}
+ */
+static inline void cmov_uint32(uint32_t *r, uint32_t v, uint32_t b)
+{
+	b = -b;
+	*r ^= (uint32_t)(b & ((*r) ^ v));
+}
+
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* KYBER_VERIFY_H */
+#endif /* SIDECHANNEL_RESISTANCE_H */

@@ -30,7 +30,6 @@
 #include "kyber_type.h"
 #include "kyber_ntt.h"
 #include "kyber_reduce.h"
-#include "kyber_verify.h"
 #include "null_buffer.h"
 
 #ifdef __cplusplus
