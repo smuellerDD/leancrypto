@@ -40,7 +40,7 @@ extern "C" {
  * the performance
  */
 struct leaf_info_x4 {
-	unsigned char *wots_sig;
+	uint8_t *wots_sig;
 	uint32_t wots_sign_leaf; /* The index of the WOTS we're using to sign */
 	uint32_t *wots_steps;
 	uint32_t leaf_addr[4 * 8];
