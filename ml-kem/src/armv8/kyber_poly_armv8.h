@@ -32,7 +32,6 @@
 #include "kyber_ntt.h"
 #include "kyber_ntt_armv8.h"
 #include "kyber_reduce_armv8.h"
-#include "kyber_verify.h"
 #include "null_buffer.h"
 
 #ifdef __cplusplus

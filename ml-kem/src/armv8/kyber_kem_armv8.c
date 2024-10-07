@@ -23,7 +23,6 @@
 #include "kyber_kem.h"
 #include "kyber_kem_armv8.h"
 #include "kyber_selftest.h"
-#include "kyber_verify.h"
 #include "lc_hash.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
