@@ -120,13 +120,14 @@ void treehashx2(
 			 * Check if one of the nodes we have is a part of the
 			 * authentication path; if it is, write it out
 			 */
-			cmov(&auth_path[h * LC_SPX_N],
-			     &current_idx[(((internal_leaf & 1) ^ 1) +
-					   prev_left_adj) *
-					  LC_SPX_N],
-			     LC_SPX_N,
-			     ((((internal_idx << 1) ^ internal_leaf) &
-			       (uint32_t)~0x1) == 0));
+			if ((((internal_idx << 1) ^ internal_leaf) &
+			     (uint32_t)~0x1) == 0) {
+				memcpy(&auth_path[h * LC_SPX_N],
+				       &current_idx[(((internal_leaf & 1) ^ 1) +
+						     prev_left_adj) *
+						    LC_SPX_N],
+				       LC_SPX_N);
+			}
 
 			/*
 			 * Check if we're at a left child; if so, stop going up the stack
