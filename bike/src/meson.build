@@ -48,7 +48,7 @@ bike_vpclmul_src = [
 
 bike_args = [ '-funroll-loops' ]
 
-if (host_machine.cpu_family() == 'x86_64')
+if x86_64_asm
 	bike_args += [ '-mno-red-zone', '-DX86_64' ]
 endif
 

@@ -342,75 +342,77 @@ riscv64_gcc_asm = false
 
 # Enable x86_64 assembler code on x86 (naturally) with the following exceptions:
 #	- macOS: the LLVM somehow does not seem to handle the x86_64 asm well
-if (host_machine.cpu_family() == 'x86_64' and
-    host_machine.system() != 'darwin')
+if (not get_option('disable-asm'))
+	if (host_machine.cpu_family() == 'x86_64' and
+	    host_machine.system() != 'darwin')
 
-	# 64 bit AVX2 / AVX512 support
-	x86_64_asm = true
-	add_global_arguments([ '-DLC_HOST_X86_64' ], language: 'c')
+		# 64 bit AVX2 / AVX512 support
+		x86_64_asm = true
+		add_global_arguments([ '-DLC_HOST_X86_64' ], language: 'c')
 
-	cc_avx2_args = [
-		'-mavx2',
-		'-mbmi2',
-		'-mpopcnt',
-		'-Wno-unused-command-line-argument'
-	]
-	cc_avx512_args = [
-		'-mavx512f',
-		'-mbmi2',
-		'-mpopcnt',
-		'-Wno-unused-command-line-argument'
-	]
-endif
-
-# 32-bit ARM assembler support
-if (host_machine.cpu_family() == 'arm')
-
-	# 32 bit ARM processor and GCC
-	arm32_neon_asm = true
-
-	add_global_arguments([ '-DLC_HOST_ARM32_NEON' ], language: 'c')
-
-	cc_armv7_neon_simd_args = [
-		'-mfpu=neon-vfpv4',
-		'-mthumb',
-		'-march=armv7-a+vfpv4',
-		'-funsafe-math-optimizations'
-	]
-
-# 64-bit ARM assembler support
-elif (host_machine.cpu_family() == 'aarch64')
-
-	arm64_asm = true
-	add_global_arguments([ '-DLC_HOST_AARCH64' ], language: 'c')
-
-	cc_armv8_neon_simd_args = [
-		'-march=armv8-a+simd',
-		'-Wno-unused-result',
-	]
-
-	if (cc.get_id() == 'gcc')
-
-		# 64 bit ARM processor and GCC
-		# Disable assembler code as it is slower compared to C
-		# see also issue https://github.com/XKCP/XKCP/issue/74
-		arm64_neon_gcc_asm = false
-		#arm64_neon_gcc_asm = true
+		cc_avx2_args = [
+			'-mavx2',
+			'-mbmi2',
+			'-mpopcnt',
+			'-Wno-unused-command-line-argument',
+		]
+		cc_avx512_args = [
+			'-mavx512f',
+			'-mbmi2',
+			'-mpopcnt',
+			'-Wno-unused-command-line-argument',
+		]
 	endif
 
-# The specific C code for RISCV is slower by a factor of more than 2
-# elif (host_machine.cpu_family() == 'riscv')
-# 	riscv32_asm = true
-elif (host_machine.cpu_family() == 'riscv64')
-	riscv64_asm = true
-	add_global_arguments([ '-DLC_HOST_RISCV64' ], language: 'c')
-# elif (host_machine.cpu_family() == 'riscv' and
-#       cc.get_id() == 'gcc')
-#
-# 	# RISC-V and GCC
-# 	# riscv32_gcc_asm = true
-# 	# Disable implementation as it currently is not tested
-# 	riscv32_gcc_asm = false
+	# 32-bit ARM assembler support
+	if (host_machine.cpu_family() == 'arm')
+
+		# 32 bit ARM processor and GCC
+		arm32_neon_asm = true
+
+		add_global_arguments([ '-DLC_HOST_ARM32_NEON' ], language: 'c')
+
+		cc_armv7_neon_simd_args = [
+			'-mfpu=neon-vfpv4',
+			'-mthumb',
+			'-march=armv7-a+vfpv4',
+			'-funsafe-math-optimizations'
+		]
+
+	# 64-bit ARM assembler support
+	elif (host_machine.cpu_family() == 'aarch64')
+
+		arm64_asm = true
+		add_global_arguments([ '-DLC_HOST_AARCH64' ], language: 'c')
+
+		cc_armv8_neon_simd_args = [
+			'-march=armv8-a+simd',
+			'-Wno-unused-result',
+		]
+
+		if (cc.get_id() == 'gcc')
+
+			# 64 bit ARM processor and GCC
+			# Disable assembler code as it is slower compared to C
+			# see also issue https://github.com/XKCP/XKCP/issue/74
+			arm64_neon_gcc_asm = false
+			#arm64_neon_gcc_asm = true
+		endif
+
+	# The specific C code for RISCV is slower by a factor of more than 2
+	# elif (host_machine.cpu_family() == 'riscv')
+	# 	riscv32_asm = true
+	elif (host_machine.cpu_family() == 'riscv64')
+		riscv64_asm = true
+		add_global_arguments([ '-DLC_HOST_RISCV64' ], language: 'c')
+	# elif (host_machine.cpu_family() == 'riscv' and
+	#       cc.get_id() == 'gcc')
+	#
+	# 	# RISC-V and GCC
+	# 	# riscv32_gcc_asm = true
+	# 	# Disable implementation as it currently is not tested
+	# 	riscv32_gcc_asm = false
+	endif
 endif
 
 ################################################################################

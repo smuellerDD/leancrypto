@@ -194,6 +194,16 @@ These include the known sha*sum applications.
 ''')
 
 ################################################################################
+# Auxiliary options
+################################################################################
+option('disable-asm', type: 'boolean', value: 'false',
+       description: '''Disable all acceleration code
+
+When this option is enabled, only C implementation and no assembler code is
+compiled.
+''')
+
+################################################################################
 # DEBUGGING OPTIONS - NONE OF THEM ARE TO BE ENABLED IN PRODUCTION CODE!!
 ################################################################################
 
