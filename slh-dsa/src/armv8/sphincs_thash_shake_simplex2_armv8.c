@@ -66,7 +66,8 @@ void thashx2_12(unsigned char *out0, unsigned char *out1,
 
 	for (i = 0; i < (LC_SPX_N / 8) * inblocks; i++) {
 		state[2 * (LC_SPX_N / 8 + 4 + i)] = ptr_to_le64(in0 + 8 * i);
-		state[2 * (LC_SPX_N / 8 + 4 + i) + 1] = ptr_to_le64(in1 + 8 * i);
+		state[2 * (LC_SPX_N / 8 + 4 + i) + 1] =
+			ptr_to_le64(in1 + 8 * i);
 	}
 
 	/* Domain separator and padding. */

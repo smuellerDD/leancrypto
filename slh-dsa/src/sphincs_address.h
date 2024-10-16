@@ -58,9 +58,9 @@ static inline void set_layer_addr(uint32_t addr[8], uint32_t layer)
  */
 static inline void set_tree_addr(uint32_t addr[8], uint64_t tree)
 {
-//#if (LC_SPX_TREE_HEIGHT * (LC_SPX_D - 1)) > 64
-//#error Subtree addressing is currently limited to at most 2^64 trees
-//#endif
+	//#if (LC_SPX_TREE_HEIGHT * (LC_SPX_D - 1)) > 64
+	//#error Subtree addressing is currently limited to at most 2^64 trees
+	//#endif
 	ull_to_bytes(&((unsigned char *)addr)[LC_SPX_OFFSET_TREE], 8, tree);
 }
 

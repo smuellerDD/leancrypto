@@ -52,7 +52,6 @@ static inline void prf_addr(uint8_t out[LC_SPX_N], const spx_ctx *ctx,
 	lc_hash_zero(hash_ctx);
 }
 
-
 int gen_message_random(uint8_t R[LC_SPX_N], const uint8_t sk_prf[LC_SPX_N],
 		       const uint8_t optrand[LC_SPX_N], const uint8_t *m,
 		       size_t mlen, struct lc_sphincs_ctx *ctx);
