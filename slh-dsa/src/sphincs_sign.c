@@ -240,7 +240,7 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign_ctx, struct lc_sphincs_sig *sig,
 		CKINT(lc_rng_generate(rng_ctx, NULL, 0, ws->optrand,
 				      sizeof(ws->optrand)));
 	} else {
-		memset(ws->optrand, 0, sizeof(ws->optrand));
+		memcpy(ws->optrand, pk, sizeof(ws->optrand));
 	}
 
 	/* Compute the digest randomization value. */

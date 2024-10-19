@@ -115,9 +115,9 @@ static void message_to_indices(uint32_t *indices, const unsigned char *m)
 		indices[i] = 0;
 		for (j = 0; j < LC_SPX_FORS_HEIGHT; j++) {
 			indices[i] ^=
-				(uint32_t)(((m[offset >> 3] >> (offset & 0x7)) &
+				(uint32_t)(((m[offset >> 3] >> (~offset & 0x7)) &
 					    0x1)
-					   << j);
+					   << (LC_SPX_FORS_HEIGHT - 1 - j));
 			offset++;
 		}
 	}

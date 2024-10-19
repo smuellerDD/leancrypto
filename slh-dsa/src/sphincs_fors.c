@@ -77,8 +77,8 @@ static void message_to_indices(uint32_t *indices,
 	for (i = 0; i < LC_SPX_FORS_TREES; i++) {
 		indices[i] = 0;
 		for (j = 0; j < LC_SPX_FORS_HEIGHT; j++) {
-			indices[i] ^= ((m[offset >> 3] >> (offset & 0x7)) & 1u)
-				      << j;
+			indices[i] ^= ((m[offset >> 3] >> (~offset & 0x7)) & 1u)
+				      << (LC_SPX_FORS_HEIGHT - 1 - j);
 			offset++;
 		}
 	}
