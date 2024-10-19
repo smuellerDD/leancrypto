@@ -114,19 +114,28 @@ out:
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
-	int ret = 0;
+	int ret = 0, rc;
 
 	(void)argc;
 	(void)argv;
 
 #ifdef LC_BIKE_5_ENABLED
-	ret += bike_official(LC_BIKE_5);
+	rc = bike_official(LC_BIKE_5);
+	if (rc == 77)
+		return rc;
+	ret += rc;
 #endif
 #ifdef LC_BIKE_3_ENABLED
-	ret += bike_official(LC_BIKE_3);
+	rc += bike_official(LC_BIKE_3);
+	if (rc == 77)
+		return rc;
+	ret += rc;
 #endif
 #ifdef LC_BIKE_1_ENABLED
-	ret += bike_official(LC_BIKE_1);
+	rc += bike_official(LC_BIKE_1);
+	if (rc == 77)
+		return rc;
+	ret += rc;
 #endif
 
 	return ret;
