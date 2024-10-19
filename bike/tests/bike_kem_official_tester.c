@@ -20,6 +20,7 @@
 #include "compare.h"
 #include "lc_bike.h"
 #include "lc_rng.h"
+#include "ret_checkers.h"
 #include "small_stack_support.h"
 #include "timecop.h"
 #include "visibility.h"
@@ -33,11 +34,10 @@ static int bike_official(enum lc_bike_type type)
 		struct lc_bike_ss ss, ss2;
 		uint8_t ss3[10], ss4[10];
 	};
-	int ret = 1;
+	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	if (lc_bike_keypair(&ws->pk, &ws->sk, lc_seeded_rng, type))
-		goto out;
+	CKINT(lc_bike_keypair(&ws->pk, &ws->sk, lc_seeded_rng, type));
 
 	if (ws->pk.bike_type != type || ws->sk.bike_type != type) {
 		printf("BIKE type error pk/sk\n");
@@ -53,68 +53,63 @@ static int bike_official(enum lc_bike_type type)
 	ws->pk.bike_type = 123;
 	if (lc_bike_enc(&ws->ct, &ws->ss, &ws->pk) != -EOPNOTSUPP) {
 		printf("Unexpected error enc 1\n");
+		ret = 1;
 		goto out;
 	}
 
 	/* positive operation */
 	ws->pk.bike_type = type;
-	if (lc_bike_enc(&ws->ct, &ws->ss, &ws->pk)) {
-		printf("Unexpected error enc 2\n");
-		goto out;
-	}
+	CKINT_LOG(lc_bike_enc(&ws->ct, &ws->ss, &ws->pk),
+		  "Unexpected error enc 2\n");
 
 	if (ws->ct.bike_type != type) {
 		printf("BIKE type error ct\n");
+		ret = 1;
 		goto out;
 	}
 
 	/* positive operation */
 	ws->sk.bike_type = type;
-	if (lc_bike_dec(&ws->ss2, &ws->ct, &ws->sk)) {
-		printf("Unexpected error dec 2\n");
-		goto out;
-	}
+	CKINT_LOG(lc_bike_dec(&ws->ss2, &ws->ct, &ws->sk),
+		  "Unexpected error dec 2\n");
 
 	unpoison(&ws->ss, sizeof(ws->ss));
 	unpoison(&ws->ss2, sizeof(ws->ss));
 	if (memcmp(&ws->ss, &ws->ss2, sizeof(ws->ss))) {
 		printf("Shared secrets do not match\n");
+		ret = 1;
 		goto out;
 	}
 
 	/* positive operation */
 	ws->pk.bike_type = type;
-	if (lc_bike_enc_kdf(&ws->ct, ws->ss3, sizeof(ws->ss3), &ws->pk)) {
-		printf("Unexpected error enc 3\n");
-		goto out;
-	}
+	CKINT_LOG(lc_bike_enc_kdf(&ws->ct, ws->ss3, sizeof(ws->ss3), &ws->pk),
+		  "Unexpected error enc 3\n");
 
 	if (ws->ct.bike_type != type) {
 		printf("BIKE type error ct\n");
+		ret = 1;
 		goto out;
 	}
 
 	/* positive operation */
 	ws->sk.bike_type = type;
-	if (lc_bike_dec_kdf(ws->ss4, sizeof(ws->ss4), &ws->ct, &ws->sk)) {
-		printf("Unexpected error dec 3\n");
-		goto out;
-	}
+	CKINT_LOG(lc_bike_dec_kdf(ws->ss4, sizeof(ws->ss4), &ws->ct, &ws->sk),
+		  "Unexpected error dec 3\n");
 
 	unpoison(ws->ss3, sizeof(ws->ss3));
 	unpoison(ws->ss4, sizeof(ws->ss4));
 	if (memcmp(&ws->ss3, &ws->ss4, sizeof(ws->ss3))) {
 		printf("Shared secrets from KDF do not match\n");
+		ret = 1;
 		goto out;
 	}
-
-	ret = 0;
 
 out:
 	LC_RELEASE_MEM(ws);
 	if (ret == -EOPNOTSUPP)
-		ret = 77;
-	return ret;
+		return 77;
+	return !!ret;
 }
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
