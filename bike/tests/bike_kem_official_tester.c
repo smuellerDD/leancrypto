@@ -112,6 +112,8 @@ static int bike_official(enum lc_bike_type type)
 
 out:
 	LC_RELEASE_MEM(ws);
+	if (ret == -EOPNOTSUPP)
+		ret = 77;
 	return ret;
 }
 
