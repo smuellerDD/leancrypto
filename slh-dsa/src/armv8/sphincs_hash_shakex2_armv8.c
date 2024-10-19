@@ -24,6 +24,7 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
+#include "bitshift.h"
 #include "shake_2x_armv8.h"
 #include "sphincs_type.h"
 #include "sphincs_address.h"
@@ -38,67 +39,52 @@
  */
 #define f1600x2(s) keccak_f1600x2_armce((s), neon_KeccakF_RoundConstants)
 
-//TODO use the ptr_to_...
-static uint64_t load64(const unsigned char *x)
-{
-	unsigned long long r = 0, i;
-
-	for (i = 0; i < 8; ++i) {
-		r |= (unsigned long long)x[i] << 8 * i;
-	}
-	return r;
-}
-
-static void store64(uint8_t *x, uint64_t u)
-{
-	unsigned int i;
-
-	for (i = 0; i < 8; ++i) {
-		x[i] = (uint8_t)u;
-		u >>= 8;
-	}
-}
-
 /*
  * 2-way parallel version of prf_addr; takes 2x as much input and output
  */
 void prf_addrx2(unsigned char *out0, unsigned char *out1, const spx_ctx *ctx,
 		const uint32_t addrx2[2 * 8])
 {
-	/* As we write and read only a few quadwords, it is more efficient to
-     * build and extract from the fourway SHAKE256 state by hand. */
-	uint64_t state[50] = { 0 };
+	/*
+	 * As we write and read only a few quadwords, it is more efficient to
+	 * build and extract from the fourway SHAKE256 state by hand.
+	 */
+	union {
+		v128 state128[25];
+		uint64_t state[50];
+	} s = { 0 };
 
 	for (int i = 0; i < LC_SPX_N / 8; i++) {
-		uint64_t x = load64(ctx->pub_seed + 8 * i);
-		state[2 * i] = x;
-		state[2 * i + 1] = x;
+		uint64_t x = ptr_to_le64(ctx->pub_seed + 8 * i);
+		s.state[2 * i] = x;
+		s.state[2 * i + 1] = x;
 	}
 	for (int i = 0; i < 4; i++) {
-		state[2 * (LC_SPX_N / 8 + i)] =
+		s.state[2 * (LC_SPX_N / 8 + i)] =
 			(((uint64_t)addrx2[1 + 2 * i]) << 32) |
 			(uint64_t)addrx2[2 * i];
-		state[2 * (LC_SPX_N / 8 + i) + 1] =
+		s.state[2 * (LC_SPX_N / 8 + i) + 1] =
 			(((uint64_t)addrx2[8 + 1 + 2 * i]) << 32) |
 			(uint64_t)addrx2[8 + 2 * i];
 	}
 	for (int i = 0; i < LC_SPX_N / 8; i++) {
-		uint64_t x = load64(ctx->sk_seed + 8 * i);
-		state[2 * (LC_SPX_N / 8 + i + 4)] = x;
-		state[2 * (LC_SPX_N / 8 + i + 4) + 1] = x;
+		uint64_t x = ptr_to_le64(ctx->sk_seed + 8 * i);
+		s.state[2 * (LC_SPX_N / 8 + i + 4)] = x;
+		s.state[2 * (LC_SPX_N / 8 + i + 4) + 1] = x;
 	}
 
 	/* SHAKE domain separator and padding. */
-	state[2 * (LC_SPX_N / 4 + 4)] = 0x1f;
-	state[2 * (LC_SPX_N / 4 + 4) + 1] = 0x1f;
+	s.state[2 * (LC_SPX_N / 4 + 4)] = 0x1f;
+	s.state[2 * (LC_SPX_N / 4 + 4) + 1] = 0x1f;
 
-	state[2 * 16] = 0x80ULL << 56;
-	state[2 * 16 + 1] = 0x80ULL << 56;
+	s.state[2 * 16] = 0x80ULL << 56;
+	s.state[2 * 16 + 1] = 0x80ULL << 56;
 
-	f1600x2(state);
+	KeccakF1600_StatePermutex2(s.state128);
+	//f1600x2(s.state);
 
 	for (int i = 0; i < LC_SPX_N / 8; i++) {
-		store64(out0 + 8 * i, state[2 * i]);
-		store64(out1 + 8 * i, state[2 * i + 1]);
+		le64_to_ptr(out0 + 8 * i, s.state[2 * i]);
+		le64_to_ptr(out1 + 8 * i, s.state[2 * i + 1]);
 	}
 }

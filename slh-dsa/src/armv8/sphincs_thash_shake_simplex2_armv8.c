@@ -48,43 +48,47 @@ void thashx2_12(unsigned char *out0, unsigned char *out1,
 	 * As we write and read only a few quadwords, it is more efficient to
          * build and extract from the twoway SHAKE256 state by hand.
 	 */
-	uint64_t state[50] = { 0 };
+	union {
+		v128 state128[25];
+		uint64_t state[50];
+	} s = { 0 };
 
 	for (i = 0; i < LC_SPX_N / 8; i++) {
 		uint64_t x = ptr_to_le64(ctx->pub_seed + 8 * i);
-		state[2 * i] = x;
-		state[2 * i + 1] = x;
+		s.state[2 * i] = x;
+		s.state[2 * i + 1] = x;
 	}
 	for (i = 0; i < 4; i++) {
-		state[2 * (LC_SPX_N / 8 + i)] =
+		s.state[2 * (LC_SPX_N / 8 + i)] =
 			(((uint64_t)addrx2[1 + 2 * i]) << 32) |
 			(uint64_t)addrx2[2 * i];
-		state[2 * (LC_SPX_N / 8 + i) + 1] =
+		s.state[2 * (LC_SPX_N / 8 + i) + 1] =
 			(((uint64_t)addrx2[8 + 1 + 2 * i]) << 32) |
 			(uint64_t)addrx2[8 + 2 * i];
 	}
 
 	for (i = 0; i < (LC_SPX_N / 8) * inblocks; i++) {
-		state[2 * (LC_SPX_N / 8 + 4 + i)] = ptr_to_le64(in0 + 8 * i);
-		state[2 * (LC_SPX_N / 8 + 4 + i) + 1] =
+		s.state[2 * (LC_SPX_N / 8 + 4 + i)] = ptr_to_le64(in0 + 8 * i);
+		s.state[2 * (LC_SPX_N / 8 + 4 + i) + 1] =
 			ptr_to_le64(in1 + 8 * i);
 	}
 
 	/* Domain separator and padding. */
-	state[2 * 16] = 0x80ULL << 56;
-	state[2 * 16 + 1] = 0x80ULL << 56;
+	s.state[2 * 16] = 0x80ULL << 56;
+	s.state[2 * 16 + 1] = 0x80ULL << 56;
 
-	state[2 * ((LC_SPX_N / 8) * (1 + inblocks) + 4)] ^= 0x1f;
-	state[2 * ((LC_SPX_N / 8) * (1 + inblocks) + 4) + 1] ^= 0x1f;
+	s.state[2 * ((LC_SPX_N / 8) * (1 + inblocks) + 4)] ^= 0x1f;
+	s.state[2 * ((LC_SPX_N / 8) * (1 + inblocks) + 4) + 1] ^= 0x1f;
 
-	f1600x2(state);
+	KeccakF1600_StatePermutex2(s.state128);
+	//f1600x2(s.state);
 
 	for (i = 0; i < LC_SPX_N / 8; i++) {
-		le64_to_ptr(out0 + 8 * i, state[2 * i]);
-		le64_to_ptr(out1 + 8 * i, state[2 * i + 1]);
+		le64_to_ptr(out0 + 8 * i, s.state[2 * i]);
+		le64_to_ptr(out1 + 8 * i, s.state[2 * i + 1]);
 	}
 
-	lc_memset_secure(state, 0, sizeof(state));
+	lc_memset_secure(s.state, 0, sizeof(s.state));
 }
 
 void thashx2(unsigned char *out0, unsigned char *out1, const unsigned char *in0,

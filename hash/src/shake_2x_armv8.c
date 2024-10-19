@@ -100,7 +100,7 @@ const uint64_t neon_KeccakF_RoundConstants[NROUNDS] = {
 	(uint64_t)0x0000000080000001ULL, (uint64_t)0x8000000080008008ULL
 };
 
-static inline void KeccakF1600_StatePermutex2(v128 state[25])
+void KeccakF1600_StatePermutex2(v128 state[25])
 {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wundef"
