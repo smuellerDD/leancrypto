@@ -21,6 +21,7 @@
 
 #include "cpufeatures.h"
 #include "ext_headers.h"
+#include "visibility.h"
 
 static enum lc_cpu_features features = LC_CPU_FEATURE_UNSET;
 
