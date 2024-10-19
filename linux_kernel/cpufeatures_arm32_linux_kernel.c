@@ -22,11 +22,27 @@
 #include "cpufeatures.h"
 #include "ext_headers.h"
 
+static enum lc_cpu_features features = LC_CPU_FEATURE_UNSET;
+
+LC_INTERFACE_FUNCTION(void, lc_cpu_feature_disable, void)
+{
+	features = LC_CPU_FEATURE_NONE;
+}
+
+LC_INTERFACE_FUNCTION(void, lc_cpu_feature_enable, void)
+{
+	features = LC_CPU_FEATURE_UNSET;
+}
+
 enum lc_cpu_features lc_cpu_feature_available(void)
 {
-	if (may_use_simd())
-		return LC_CPU_FEATURE_ARM_NEON | LC_CPU_FEATURE_ARM;
+	if (features == LC_CPU_FEATURE_UNSET) {
+		features = LC_CPU_FEATURE_ARM;
 
-	return LC_CPU_FEATURE_ARM;
+		if (may_use_simd())
+			features |= LC_CPU_FEATURE_ARM_NEON;
+	}
+
+	return features;
 }
 EXPORT_SYMBOL(lc_cpu_feature_available);
