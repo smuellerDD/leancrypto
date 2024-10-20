@@ -54,13 +54,19 @@ extern "C" {
 #ifdef LC_MEM_ON_HEAP
 
 #define LC_DECLARE_MEM(name, type, alignment)                                  \
-	__LC_DECLARE_MEM_HEAP(name, type, alignment)
+	_Pragma("GCC diagnostic push")                                         \
+		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")             \
+		__LC_DECLARE_MEM_HEAP(name, type, alignment);                  \
+	_Pragma("GCC diagnostic pop")
 #define LC_RELEASE_MEM(name) __LC_RELEASE_MEM_HEAP(name)
 
 #else
 
 #define LC_DECLARE_MEM(name, type, alignment)                                  \
-	__LC_DECLARE_MEM_STACK(name, type, alignment)
+	_Pragma("GCC diagnostic push")                                         \
+		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")             \
+		__LC_DECLARE_MEM_STACK(name, type, alignment);                 \
+	_Pragma("GCC diagnostic pop")
 #define LC_RELEASE_MEM(name) __LC_RELEASE_MEM_STACK(name)
 
 #endif
