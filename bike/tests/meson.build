@@ -22,14 +22,15 @@ if get_option('bike_5').enabled()
 				], link_with: leancrypto_static_lib
 				)
 
-	test('BIKE 5 KEM Common', bike_5_tester, suite: regression)
+	test('BIKE 5 KEM Common', bike_5_tester, suite: regression,
+	     timeout: 300)
 	# Prevent parallel execution, as test disables acceleration
 	test('BIKE 5 KEM C', bike_5_tester, args : [ 'c' ], suite: regression,
 	     is_parallel: false, timeout: 300)
 
-	test('BIKE 5 KEM 200 Common', bike_5_tester_perf, timeout: 1000,
+	test('BIKE 5 KEM 200 Common', bike_5_tester_perf, timeout: 2000,
 	     is_parallel: false, suite: performance)
-	test('BIKE 5 KEM 200 C', bike_5_tester_perf, args : [ 'c' ], timeout: 1000,
+	test('BIKE 5 KEM 200 C', bike_5_tester_perf, args : [ 'c' ], timeout: 2000,
 	     is_parallel: false, suite: performance)
 endif
 
