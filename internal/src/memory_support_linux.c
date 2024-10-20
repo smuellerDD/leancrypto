@@ -36,11 +36,14 @@ struct lc_mem_def {
 };
 
 /* Syscall may not be known on some system - disable support for it */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wundef"
 #if (SYS_memfd_secret)
 #define LC_USE_MEMFD_SECURE
 #else
 #undef LC_USE_MEMFD_SECURE
 #endif
+#pragma GCC diagnostic pop
 
 #ifdef LC_USE_MEMFD_SECURE
 static int lc_alloc_have_memfd_secret = 1;
