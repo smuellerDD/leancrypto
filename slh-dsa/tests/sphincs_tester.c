@@ -61,7 +61,7 @@ static int lc_sphincs_test(struct lc_sphincs_test *tc,
 		struct lc_sphincs_sig sig;
 	};
 	unsigned int rounds, i;
-	int ret;
+	int ret = 0;
 	LC_SPHINCS_CTX_ON_STACK(ctx);
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
