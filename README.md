@@ -230,13 +230,13 @@ Leancrypto offers various cryptographic algorithms:
 
   * BIKE Key Encapsulation Mechanism (KEM)
 
-* One Time Pad algorithms
+* One-Time Password (OTP) algorithms
 
-  * HOTP
+  * HMAC-based One-Time Password Algorithm (HOTP)
 
-  * TOTP
+  * Time-based One-Time Password Algorithm  (TOTP)
 
-* Signature algorithm
+* Signature algorithms
 
   * ML-DSA (Dilithium)
 
