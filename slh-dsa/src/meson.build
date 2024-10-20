@@ -17,6 +17,7 @@ sphincs_src = files([
 	'sphincs_fors.c',
 	'sphincs_hash_shake.c',
 	'sphincs_merkle.c',
+	'sphincs_selftest.c',
 	'sphincs_sign.c',
 	'sphincs_signature_helper.c',
 	# FIPS 205 mandates the "simple" thash operation

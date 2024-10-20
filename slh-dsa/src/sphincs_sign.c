@@ -36,6 +36,7 @@
 #include "sphincs_hash.h"
 #include "sphincs_internal.h"
 #include "sphincs_merkle.h"
+#include "sphincs_selftest.h"
 #include "sphincs_thash.h"
 #include "sphincs_utils.h"
 #include "sphincs_wots.h"
@@ -110,7 +111,10 @@ static int lc_sphincs_keypair_from_seed_internal(struct lc_sphincs_pk *pk,
 {
 	const struct lc_sphincs_func_ctx *f_ctx = lc_sphincs_get_ctx();
 	spx_ctx ctx;
+	static int tested = 0;
 	int ret;
+
+	sphincs_selftest_keygen(&tested);
 
 	/*
 	 * Timecop: The SLH-DSA seed is sensitive.
@@ -223,11 +227,14 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign_ctx, struct lc_sphincs_sig *sig,
 	const uint8_t *sk_prf = sk->sk_prf;
 	const uint8_t *pk = sk->pk;
 	uint8_t *wots_sig = sig->sight;
+	static int tested = 0;
 	int ret = 0;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	CKNULL(sig, -EINVAL);
 	CKNULL(sk, -EINVAL);
+
+	sphincs_selftest_siggen(&tested);
 
 	/*
 	 * Timecop: secret key is sensitive
@@ -425,11 +432,14 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify_ctx,
 	spx_ctx ctx_int;
 	const uint8_t *pub_root = pk->pk + LC_SPX_N;
 	const uint8_t *wots_sig = sig->sight;
+	static int tested = 0;
 	int ret = 0;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	CKNULL(sig, -EINVAL);
 	CKNULL(pk, -EINVAL);
+
+	sphincs_selftest_sigver(&tested);
 
 	ctx_int.pub_seed = pk->pk;
 

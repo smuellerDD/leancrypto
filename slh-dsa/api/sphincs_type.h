@@ -112,6 +112,10 @@ extern "C" {
 #define lc_sphincs_ctx_zero SPHINCS_F(ctx_zero)
 #define lc_sphincs_ctx_zero_free SPHINCS_F(ctx_zero_free)
 
+#define sphincs_selftest_keygen SPHINCS_F(selftest_keygen)
+#define sphincs_selftest_siggen SPHINCS_F(selftest_siggen)
+#define sphincs_selftest_sigver SPHINCS_F(selftest_sigver)
+
 #define fors_sign_c SPHINCS_F(fors_sign_c)
 #define fors_pk_from_sig_c SPHINCS_F(fors_pk_from_sig_c)
 #define gen_message_random SPHINCS_F(gen_message_random)

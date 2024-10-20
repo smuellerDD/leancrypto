@@ -11,6 +11,6 @@
 
 - BIKE: add self tests
 
-- SLH-DSA: add self test
-
 - BIKE: add timecop
+
+- ARMv8: enable ARMv8 intrinsics in the kernel (SHAKE2x and by extension SLH-DSA)
