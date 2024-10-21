@@ -67,9 +67,6 @@ struct lc_rng_ctx {
  * consider the seeding and reseeding - it is automatically and transparently
  * handled. Thus, this structure can be directly used for the lc_rng API by a
  * caller and have a properly seeded DRNG.
- *
- * \note The caller must ensure that a lock is applied around the use of this
- * variable if there is the potential of concurrent use.
  */
 extern struct lc_rng_ctx *lc_seeded_rng;
 

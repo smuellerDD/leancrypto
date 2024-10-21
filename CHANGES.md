@@ -1,3 +1,6 @@
+Changes 1.1.1-prerelease
+* Locking für seeded_rng added to avoid requiring the caller providing a lock
+
 Changes 1.1.0
 * ML-KEM remove modulus check of decapsulation key (not required by FIPS 203)
 

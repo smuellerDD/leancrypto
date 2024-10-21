@@ -25,6 +25,7 @@
 #include "lc_hmac_drbg_sha512.h"
 #include "lc_rng.h"
 #include "lc_xdrbg.h"
+#include "mutex_w.h"
 #include "ret_checkers.h"
 #include "seeded_rng.h"
 #include "visibility.h"
@@ -102,6 +103,7 @@ struct lc_seeded_rng_ctx {
 #define LC_SEEDED_RNG_MAX_TIME 60 /* Max seconds without reseed */
 	unsigned long last_seeded;
 	pid_t pid; /* Detect a fork */
+	mutex_w_t lock; /* Lock */
 };
 
 /* DRNG state */
@@ -113,7 +115,8 @@ static struct lc_seeded_rng_ctx seeded_rng = {
 	/* Initialize the state such that a seed is forced */
 	.bytes = LC_SEEDED_RNG_MAX_BYTES + 1,
 	.last_seeded = 0,
-	.pid = 0
+	.pid = 0,
+	.lock = __MUTEX_W_INITIALIZER(false),
 };
 
 #ifdef LINUX_KERNEL
@@ -252,6 +255,8 @@ static int lc_get_seeded_rng(struct lc_seeded_rng_ctx **rng_ret)
 	pid_t newpid = 0;
 	int ret = 0, init = 0;
 
+	mutex_w_lock(&seeded_rng.lock);
+
 	/* Initialize the DRNG state at the beginning */
 	if (!seeded_rng.last_seeded) {
 		CKINT(lc_seeded_rng_init_state());
@@ -266,6 +271,7 @@ static int lc_get_seeded_rng(struct lc_seeded_rng_ctx **rng_ret)
 	*rng_ret = &seeded_rng;
 
 out:
+	mutex_w_unlock(&seeded_rng.lock);
 	return ret;
 }
 
@@ -275,6 +281,7 @@ static int lc_seeded_rng_generate(void *_state, const uint8_t *addtl_input,
 				  size_t outlen)
 {
 	struct lc_seeded_rng_ctx *rng = NULL;
+	size_t updated_len;
 	int ret;
 
 	if (_state)
@@ -282,29 +289,44 @@ static int lc_seeded_rng_generate(void *_state, const uint8_t *addtl_input,
 
 	/* Get the DRNG state that is fully seeded */
 	CKINT(lc_get_seeded_rng(&rng));
+
+	mutex_w_lock(&rng->lock);
+
 	/* Generate random numbers */
 	CKINT(lc_rng_generate(rng->rng_ctx, addtl_input, addtl_input_len, out,
 			      outlen));
-	rng->bytes += outlen;
+
+	/* Check wrap around and avoid a wrap for the rng->bytes state */
+	updated_len = rng->bytes + outlen;
+	if (updated_len < rng->bytes)
+		rng->bytes = (size_t)~0;
+	else
+		rng->bytes = updated_len;
 
 out:
+	if (rng)
+		mutex_w_unlock(&rng->lock);
 	return ret;
 }
 
 static int lc_seeded_rng_seed(void *_state, const uint8_t *seed, size_t seedlen,
 			      const uint8_t *persbuf, size_t perslen)
 {
-	struct lc_seeded_rng_ctx *rng;
+	struct lc_seeded_rng_ctx *rng = NULL;
 	int ret;
 
 	if (_state)
 		return -EINVAL;
 
 	CKINT(lc_get_seeded_rng(&rng));
+
+	mutex_w_lock(&rng->lock);
 	CKINT(lc_seed_seeded_rng(rng, 0, 0));
 	CKINT(lc_rng_seed(rng->rng_ctx, seed, seedlen, persbuf, perslen));
 
 out:
+	if (rng)
+		mutex_w_unlock(&rng->lock);
 	return ret;
 }
 
