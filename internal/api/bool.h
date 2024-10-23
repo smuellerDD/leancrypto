@@ -21,8 +21,7 @@
 #define BOOL_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #ifndef LINUX_KERNEL

@@ -43,7 +43,7 @@ static inline void atomic_bool_mb(void)
 	__sync_synchronize();
 }
 
-#define ATOMIC_BOOL_INIT(i)  { (i) }
+#define ATOMIC_BOOL_INIT(i) { (i) }
 
 /**
  * Read atomic variable

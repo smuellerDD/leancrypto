@@ -104,7 +104,6 @@ static inline int _sphincs_selftest_siggen(void)
 				  (struct lc_sphincs_sk *)tc->sk, NULL));
 	lc_compare((uint8_t *)&ws->sig, tc->sig, sizeof(tc->sig), "SIG");
 
-
 out:
 	lc_sphincs_ctx_zero(ctx);
 	LC_RELEASE_MEM(ws);

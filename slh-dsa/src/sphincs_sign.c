@@ -99,8 +99,8 @@ static const struct lc_sphincs_func_ctx *lc_sphincs_get_ctx(void)
 		 * for the Linux kernel.
 		 */
 		if (feat & LC_CPU_FEATURE_ARM) {
-		return &f_ctx_armv8;
-	}
+			return &f_ctx_armv8;
+		}
 #endif /* LC_HOST_AARCH64 */
 
 	return &f_ctx_c;

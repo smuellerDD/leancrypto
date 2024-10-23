@@ -43,17 +43,16 @@ typedef struct {
 /** 1 << (MUTEX_DEFAULT_SLEEP_TIME_NS + MUTEX_MAX_INC_BITS) */
 #define MUTEX_MAX_INC_BITS 14
 
-#define __MUTEX_W_INITIALIZER(locked)					\
-	{								\
-		.lock = ATOMIC_BOOL_INIT(locked),			\
-		.writer_pending = ATOMIC_INIT(0),			\
+#define __MUTEX_W_INITIALIZER(locked)                                          \
+	{                                                                      \
+		.lock = ATOMIC_BOOL_INIT(locked),                              \
+		.writer_pending = ATOMIC_INIT(0),                              \
 	}
 
-#define DEFINE_MUTEX_W_UNLOCKED(name)					\
+#define DEFINE_MUTEX_W_UNLOCKED(name)                                          \
 	mutex_w_t name = __MUTEX_W_INITIALIZER(false)
 
-#define DEFINE_MUTEX_W_LOCKED(name)					\
-	mutex_w_t name = __MUTEX_W_INITIALIZER(true)
+#define DEFINE_MUTEX_W_LOCKED(name) mutex_w_t name = __MUTEX_W_INITIALIZER(true)
 
 /*
  * Instead of using a environment-dependent nanosleep implementation, we use
