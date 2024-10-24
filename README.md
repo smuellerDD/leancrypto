@@ -392,7 +392,9 @@ covering all algorithm implementations of algorithms that are testable.
 
 ## Version 1.0.1
 
-[CAVP Certificates](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/validation-search?searchMode=implementation&product=leancrypto&productType=-1&dateFrom=08%2F15%2F2024&dateTo=08%2F17%2F2024&ipp=25)
+[CAVP Certificates](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/validation-search?searchMode=implementation&product=leancrypto&productType=-1&dateFrom=10%2F15%2F2024&dateTo=10%2F24%2F2024&ipp=25)
+
+## Version 1.1.0
 
 # Author
 
