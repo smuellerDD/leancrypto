@@ -731,7 +731,7 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_get_content_data,
 		      const struct pkcs7_message *pkcs7, const uint8_t **data,
 		      size_t *data_len, size_t *headerlen)
 {
-	if (!pkcs7 || !data || data_len)
+	if (!pkcs7 || !data || !data_len)
 		return -EINVAL;
 
 	if (!pkcs7->data)
