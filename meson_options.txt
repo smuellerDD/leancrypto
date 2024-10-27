@@ -196,7 +196,47 @@ These include the known sha*sum applications.
 ################################################################################
 # Auxiliary options
 ################################################################################
-option('disable-asm', type: 'boolean', value: 'false',
+option('x509', type: 'feature', value: 'enabled',
+       description: '''Enable X.509 Support
+
+The X.509 parser offers a completely different interface to utilize the
+cryptographic services of leancrypto than the regular API. It processes X.509
+signature payloads and automatically performs the signature verification along
+with the associated certificate chain validation.
+
+The X.509 support is not meant to be a full-fledged X.509 parser, but only
+supports embedded environments that require signature verifications, e.g.
+for secure boot as part of UEFI and others.
+
+The X.509 support operates completely on caller-provided memory and does not
+perform any memory allocation on its own.
+''')
+
+option('disable-asm', type: 'boolean', value: false,
+       description: '''Disable all acceleration code
+
+When this option is enabled, only C implementation and no assembler code is
+compiled.
+''')
+
+
+option('pkcs7', type: 'feature', value: 'enabled',
+       description: '''Enable PKCS#7 / CMS Support
+
+The PKCS#7 / CMS parser offers a completely different interface to utilize the
+cryptographic services of leancrypto than the regular API. It processes PKCS#7
+signature payloads and automatically performs the signature verification along
+with the associated certificate chain validation.
+
+The PKCS#7 support is not meant to be a full-fledged PKCS#7 parser, but only
+supports embedded environments that require signature verifications, e.g.
+for secure boot as part of UEFI and others.
+
+The PKCS#7 support operates on caller-provided memory, but performs a memory
+allocation for each X.509 certificate and for each signer.
+''')
+
+option('disable-asm', type: 'boolean', value: false,
        description: '''Disable all acceleration code
 
 When this option is enabled, only C implementation and no assembler code is
@@ -231,4 +271,12 @@ option enabled, the test applications need to be executed with
 reports a "Conditional jump or move depends on uninitialised value(s)".
 
 This code requires the presence of Valgrind header files.
+''')
+
+option('pkcs7_debug', type: 'feature', value: 'disabled',
+       description: '''DEBUGGING: PKCS7 no signature check - DO NOT ENABLE IN PRODUCTION SYSTEMS!
+
+When enabled, the asymmetric signature operation is not enforced and returns
+success in ANY CASE. THIS IS ONLY INTENDED FOR TESTING / DEBUGGING OF
+CERTIFICATES / PKCS7 BLOBS WITH UNSUPPORTED SIGNATURES!
 ''')

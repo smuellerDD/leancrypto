@@ -1,0 +1,8 @@
+-- SPDX-License-Identifier: BSD-3-Clause
+--
+-- Copyright (C) 2008 IETF Trust and the persons identified as authors
+-- of the code
+--
+-- https://www.rfc-editor.org/rfc/rfc5280#section-4
+
+KeyUsage ::= BIT STRING ({ x509_key_usage })

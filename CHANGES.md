@@ -1,5 +1,7 @@
-Changes 1.1.1-prerelease
+Changes 1.2.0
 * Locking für seeded_rng added to avoid requiring the caller providing a lock
+
+* Addition of ASN.1 decoder, X.509 parser, PKCS#7 / CMS parser
 
 Changes 1.1.0
 * ML-KEM remove modulus check of decapsulation key (not required by FIPS 203)

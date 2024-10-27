@@ -1,0 +1,41 @@
+-- SPDX-License-Identifier: BSD-3-Clause
+--
+-- Copyright (C) 2008 IETF Trust and the persons identified as authors
+-- of the code
+--
+-- https://www.rfc-editor.org/rfc/rfc5280#section-4
+
+SubjectAltName ::= GeneralNames
+
+GeneralNames ::= SEQUENCE OF GeneralName
+
+GeneralName ::= CHOICE {
+	otherName			[0] IMPLICIT OtherName,
+	rfc822Name			[1] IMPLICIT IA5String,
+	dNSName				[2] IMPLICIT IA5String ({ x509_san_dns }),
+	x400Address			[3] ANY,
+	directoryName			[4] Name,
+	ediPartyName			[5] IMPLICIT EDIPartyName,
+	uniformResourceIdentifier	[6] IMPLICIT IA5String,
+	iPAddress			[7] IMPLICIT OCTET STRING ({ x509_san_ip }),
+	registeredID			[8] IMPLICIT OBJECT IDENTIFIER
+	}
+
+Name ::= SEQUENCE OF RelativeDistinguishedName
+
+RelativeDistinguishedName ::= SET OF AttributeValueAssertion
+
+AttributeValueAssertion ::= SEQUENCE {
+	attributeType		OBJECT IDENTIFIER ({ x509_note_OID }),
+	attributeValue		ANY ({ x509_extract_name_segment })
+	}
+
+OtherName ::= SEQUENCE {
+	type-id			OBJECT IDENTIFIER,
+	value			[0] ANY
+	}
+
+EDIPartyName ::= SEQUENCE {
+	nameAssigner		[0] ANY OPTIONAL,
+	partyName		[1] ANY
+	}

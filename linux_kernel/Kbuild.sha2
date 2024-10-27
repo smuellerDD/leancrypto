@@ -6,6 +6,7 @@ leancrypto-y	  		+= ../hash/src/hash.o
 leancrypto-$(CONFIG_LEANCRYPTO_SHA2_256)				       \
 				+= ../hash/src/sha256.o
 ifdef CONFIG_LEANCRYPTO_SHA2_256
+ccflags-y			+= -DLC_SHA2_256
 obj-m				+= sha256_tester.o
 sha256_tester-y			+= ../hash/tests/sha256_tester.o
 endif
@@ -15,6 +16,7 @@ endif
 leancrypto-$(CONFIG_LEANCRYPTO_SHA2_512)				       \
 				+= ../hash/src/sha512.o
 ifdef CONFIG_LEANCRYPTO_SHA2_512
+ccflags-y			+= -DLC_SHA2_512
 obj-m				+= sha512_tester.o
 sha512_tester-y			+= ../hash/tests/sha512_tester.o
 endif

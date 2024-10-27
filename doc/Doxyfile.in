@@ -949,7 +949,7 @@ WARN_LOGFILE           =
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = "@TOP_BUILDDIR@" "@TOP_SRCDIR@/aead/api" "@TOP_SRCDIR@/bike/api" "@TOP_SRCDIR@/drng/api" "@TOP_BUILDDIR@/hash/api" "@TOP_SRCDIR@/hash/api" "@TOP_SRCDIR@/hmac/api" "@TOP_BUILDDIR@/internal/api" "@TOP_SRCDIR@/internal/api" "@TOP_SRCDIR@/kdf/api" "@TOP_SRCDIR@/ml-kem/api" "@TOP_BUILDDIR@/ml-kem/api" "@TOP_SRCDIR@/kmac/api" "@TOP_SRCDIR@/otp/api" "@TOP_SRCDIR@/ml-dsa/api" "@TOP_BUILDDIR@/ml-dsa/api" "@TOP_SRCDIR@/slh-dsa/api" "@TOP_BUILDDIR@/slh-dsa/api" "@TOP_SRCDIR@/sym/api"
+INPUT                  = "@TOP_BUILDDIR@" "@TOP_SRCDIR@/aead/api" "@TOP_SRCDIR@/bike/api" "@TOP_SRCDIR@/drng/api" "@TOP_BUILDDIR@/hash/api" "@TOP_SRCDIR@/hash/api" "@TOP_SRCDIR@/hmac/api" "@TOP_BUILDDIR@/internal/api" "@TOP_SRCDIR@/internal/api" "@TOP_SRCDIR@/kdf/api" "@TOP_SRCDIR@/ml-kem/api" "@TOP_BUILDDIR@/ml-kem/api" "@TOP_SRCDIR@/kmac/api" "@TOP_SRCDIR@/otp/api" "@TOP_SRCDIR@/ml-dsa/api" "@TOP_BUILDDIR@/ml-dsa/api" "@TOP_SRCDIR@/slh-dsa/api" "@TOP_BUILDDIR@/slh-dsa/api" "@TOP_SRCDIR@/sym/api" "@TOP_SRCDIR@/asn1/api"
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -2402,7 +2402,7 @@ SEARCH_INCLUDES        = YES
 # RECURSIVE has no effect here.
 # This tag requires that the tag SEARCH_INCLUDES is set to YES.
 
-INCLUDE_PATH           = "@TOP_SRCDIR@/aead/api" "@TOP_SRCDIR@/bike/api" "@TOP_SRCDIR@/drng/api" "@TOP_BUILDDIR@/hash/api" "@TOP_SRCDIR@/hash/api" "@TOP_SRCDIR@/hmac/api" "@TOP_BUILDDIR@/internal/api" "@TOP_SRCDIR@/internal/api" "@TOP_SRCDIR@/kdf/api" "@TOP_SRCDIR@/ml-kem/api" "@TOP_BUILDDIR@/ml-kem/api" "@TOP_SRCDIR@/kmac/api" "@TOP_SRCDIR@/otp/api" "@TOP_SRCDIR@/ml-dsa/api" "@TOP_BUILDDIR@/ml-dsa/api" "@TOP_SRCDIR@/slh-dsa/api" "@TOP_BUILDDIR@/slh-dsa/api" "@TOP_SRCDIR@/sym/api"
+INCLUDE_PATH           = "@TOP_SRCDIR@/aead/api" "@TOP_SRCDIR@/bike/api" "@TOP_SRCDIR@/drng/api" "@TOP_BUILDDIR@/hash/api" "@TOP_SRCDIR@/hash/api" "@TOP_SRCDIR@/hmac/api" "@TOP_BUILDDIR@/internal/api" "@TOP_SRCDIR@/internal/api" "@TOP_SRCDIR@/kdf/api" "@TOP_SRCDIR@/ml-kem/api" "@TOP_BUILDDIR@/ml-kem/api" "@TOP_SRCDIR@/kmac/api" "@TOP_SRCDIR@/otp/api" "@TOP_SRCDIR@/ml-dsa/api" "@TOP_BUILDDIR@/ml-dsa/api" "@TOP_SRCDIR@/slh-dsa/api" "@TOP_BUILDDIR@/slh-dsa/api" "@TOP_SRCDIR@/sym/api" "@TOP_SRCDIR@/asn1/api"
 
 # You can use the INCLUDE_FILE_PATTERNS tag to specify one or more wildcard
 # patterns (like *.h and *.hpp) to filter out the header-files in the

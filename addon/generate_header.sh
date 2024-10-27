@@ -132,6 +132,14 @@ have the following properties:
  * For example, different random number generator algorithms are accessible via the RNG API. To ensure the common APIs act on the proper algorithm, the caller
  * must use algorithm-specific initialization functions. The initialization logic returns a "cipher handle" that can be used with the common API for all subequent
  * operations.
+ *
+ * \note The various header files contain data structures which are provided
+ * solely for the purpose that appropriate memory on stack can be allocated.
+ * These data structures do not consititute an API in the sense that calling
+ * applications should access member variables directly. If access to member
+ * variables is desired, proper accessor functions are available. This implies
+ * that changes to the data structures in newer versions of the library are not
+ * considered as API changes!
  */
 '
 

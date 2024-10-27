@@ -31,6 +31,13 @@ extern "C" {
 #define __maybe_unused __attribute__((__unused__))
 #endif
 
+#ifndef likely
+#define likely(x) __builtin_expect(!!(x), 1)
+#endif
+#ifndef unlikely
+#define unlikely(x) __builtin_expect(!!(x), 0)
+#endif
+
 #ifndef LINUX_KERNEL
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #endif

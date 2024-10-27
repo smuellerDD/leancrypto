@@ -11,7 +11,7 @@
 # Patchlevel Version: API / ABI compatible, no functional changes, no
 #		      enhancements, bug fixes only.
 project('leancrypto', 'c',
-	version: '1.1.1',
+	version: '1.2.0',
 	default_options: [
 		'warning_level=3',
 		'optimization=3',
@@ -48,6 +48,20 @@ add_global_arguments([ '-fstack-protector-strong',
 		        ],
 		       language : 'c')
 
+# Options for compiling for UEFI
+# see https://github.com/yoppeh/efi-clang/blob/master/Makefile
+#add_global_arguments([
+#	'--target=x86_64-pc-win32-coff',
+#	'-fno-stack-protector',
+#	'-fshort-wchar',
+#	'-mno-red-zone'],
+#	language: 'c')
+#add_project_link_arguments([
+#	'-subsystem:efi_application',
+#	'-nodefaultlib',
+#	'-dll'],
+#	language : 'c')
+
 # More hardening
 if cc.has_argument('-fzero-call-used-regs=used-gpr')
 	add_global_arguments([ '-fzero-call-used-regs=used-gpr' ],
@@ -55,6 +69,10 @@ if cc.has_argument('-fzero-call-used-regs=used-gpr')
 endif
 if cc.has_argument('-ftrivial-auto-var-init=zero')
 	add_global_arguments([ '-ftrivial-auto-var-init=zero' ],
+			     language: 'c')
+endif
+if cc.has_argument('-Wshorten-64-to-32')
+	add_global_arguments([ '-Wshorten-64-to-32' ],
 			     language: 'c')
 endif
 
@@ -108,6 +126,18 @@ if get_option('kyber_debug').enabled()
 	add_global_arguments([ '-DLC_KYBER_DEBUG' ], language: 'c')
 endif
 
+if get_option('sha2-256').enabled()
+	add_global_arguments([ '-DLC_SHA2_256' ], language: 'c')
+endif
+
+if get_option('sha2-512').enabled()
+	add_global_arguments([ '-DLC_SHA2_512' ], language: 'c')
+endif
+
+if get_option('sha3').enabled()
+	add_global_arguments([ '-DLC_SHA3' ], language: 'c')
+endif
+
 # Versioning information
 version_array = meson.project_version().split('.')
 add_global_arguments(['-DMAJVERSION=' + version_array[0],
@@ -144,6 +174,10 @@ if get_option('timecop').enabled()
 	add_global_arguments([ '-DLC_USE_TIMECOP' ], language: 'c')
 endif
 
+if get_option('pkcs7_debug').enabled()
+	add_global_arguments([ '-DLC_PKCS7_DEBUG' ], language: 'c')
+endif
+
 # Header generation
 header_script = find_program('addon/generate_header.sh', required: true)
 
@@ -173,7 +207,8 @@ include_dirs = include_directories([ 'aead/api',
 				     'otp/api',
 				     'ml-dsa/api',
 				     'slh-dsa/api',
-				     'sym/api'
+				     'sym/api',
+				     'asn1/api'
 				   ])
 
 include_files = [ ]
@@ -200,7 +235,8 @@ subdirs = [
 	    'ml-dsa/src',
 	    'slh-dsa/api',
 	    'slh-dsa/src',
-	    'sym/src'
+	    'sym/src',
+	    'asn1/src'
 	  ]
 
 testdirs = [ 'apps/tests',
@@ -215,7 +251,8 @@ testdirs = [ 'apps/tests',
 	     'otp/tests',
 	     'ml-dsa/tests',
 	     'slh-dsa/tests',
-	     'sym/tests'
+	     'sym/tests',
+	     'asn1/tests'
 	   ]
 
 appdirs = [ 'apps/src' ]
@@ -327,6 +364,10 @@ if get_option('sha3').disabled() and get_option('ascon_keccak').enabled()
 	error('Ascon-Keccak support requires SHA-3')
 endif
 
+if get_option('x509').disabled() and get_option('pkcs7').enabled()
+	error('PKCS#7 support requires X.509 support')
+endif
+
 ################################################################################
 # Enable assembler support
 ################################################################################
@@ -433,7 +474,7 @@ foreach n : subdirs
 endforeach
 
 # Generate leancrypto.h
-autogen_header = meson.build_root() + '/leancrypto.h'
+autogen_header = meson.project_build_root() + '/leancrypto.h'
 leancrypto_header_subdir = 'leancrypto'
 
 # meson under Windows does not resolve the script directory properly - thus

@@ -258,6 +258,14 @@ The complete API documentation is provided in the different header files
 The Doxygen documentation is automatically compiled if the Doxygen binary is
 found during the compilation run.
 
+The various header files contain data structures which are provided
+solely for the purpose that appropriate memory on stack can be allocated.
+These data structures do not consititute an API in the sense that calling
+applications should access member variables directly. If access to member
+variables is desired, proper accessor functions are available. This implies
+that changes to the data structures in newer versions of the library are not
+considered as API changes!
+
 # Testing
 
 ## Functional Testing

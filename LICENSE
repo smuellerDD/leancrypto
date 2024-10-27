@@ -1,4 +1,4 @@
-Copyright (C) 2018 - 2024, Stephan Mueller <smueller@chronox.de>
+Copyright (C) 2022 - 2024, Stephan Mueller <smueller@chronox.de>
 
 See LICENSE.* for the applicable license.
 
@@ -304,3 +304,42 @@ original code is:
 "This work is hereby placed into the public domain."
 
 The affected code is provided under slh-dsa/src and properly marked.
+
+================================================================================
+
+The ASN.1, X.509 and PKCS#7 parser code is derived in parts from the Linux
+kernel. The license of the original code is:
+
+SPDX-License-Identifier: GPL-2.0-or-later
+
+Copyright (C) 2012 Red Hat, Inc. All Rights Reserved.
+Written by David Howells (dhowells@redhat.com)
+
+The following files are affected:
+
+asn1/src/asn1_ber_bytecode.h
+asn1/src/asn1_compiler.c
+asn1/src/asn1_decoder.c
+asn1/src/asn1_decoder.h
+asn1/src/asn1.h
+asn1/src/asymmetric_type.c
+asn1/src/asymmetric_type.h
+asn1/src/build_OID_registry
+asn1/src/oid_registry.c
+asn1/src/oid_registry_data.c
+asn1/src/oid_registry.h
+asn1/src/pkcs7_parser.c
+asn1/src/pkcs7_parser.h
+asn1/src/pkcs7_verify.c
+asn1/src/verification.h
+asn1/src/x509_cert_parser.c
+asn1/src/x509_parser.h
+asn1/src/x509_public_key.c
+
+The associated asn1/src/*.asn1 files are derived from RFC5280 or RFC5652
+as marked in the header of those files and subject to the following license:
+
+BSD-3-Clause
+
+Copyright (C) 2008 IETF Trust and the persons identified as authors
+of the code

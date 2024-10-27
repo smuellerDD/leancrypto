@@ -14,3 +14,7 @@
 - BIKE: add timecop
 
 - ARMv8: enable ARMv8 intrinsics in the kernel (SHAKE2x and by extension SLH-DSA)
+
+- PKCS7 parser: eliminate the malloc for X509 cert data structures and signer info data structures (this is, however, a challenge as we have an unknown amount of them)
+
+- PKCS7 parser: add Trust Store

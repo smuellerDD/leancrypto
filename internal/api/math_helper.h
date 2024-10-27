@@ -31,6 +31,11 @@ extern "C" {
 
 #endif /* LINUX_KERNEL */
 
+static inline uint8_t min_uint8(uint8_t a, uint8_t b)
+{
+	return a < b ? a : b;
+}
+
 static inline uint32_t min_uint32(uint32_t a, uint32_t b)
 {
 	return a < b ? a : b;

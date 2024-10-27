@@ -8,7 +8,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
 				   leancrypto_kernel_sha3.o
 
 ifdef CONFIG_LEANCRYPTO_SHA3
-ccflags-y			+= -DCONFIG_LEANCRYPTO_SHA3
+ccflags-y			+= -DCONFIG_LEANCRYPTO_SHA3 -DLC_SHA3
 
 obj-m				+= leancrypto_kernel_sha3_tester.o
 leancrypto_kernel_sha3_tester-y	+= ../hash/tests/leancrypto_kernel_sha3_tester.o

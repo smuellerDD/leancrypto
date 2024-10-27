@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-#define ret_t int __attribute__((warn_unused_result))
+//#define ret_t int __attribute__((warn_unused_result))
 
 #define CKINT(x)                                                               \
 	{                                                                      \
