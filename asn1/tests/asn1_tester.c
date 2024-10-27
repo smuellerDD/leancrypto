@@ -70,7 +70,7 @@ struct pkcs7_options {
 
 #if (defined(__CYGWIN__) || defined(_WIN32))
 
-static int read_complete(int fd, uint8_t *buf, size_t buflen)
+static int read_complete(int fd, uint8_t *buf, unsigned int buflen)
 {
 	ssize_t ret;
 
@@ -78,15 +78,17 @@ static int read_complete(int fd, uint8_t *buf, size_t buflen)
 		return -EOVERFLOW;
 
 	do {
-		ret = read(fd, buf, (unsigned int)buflen);
+		ret = read(fd, buf, buflen);
 		if (ret > 0) {
-			buflen -= (size_t)ret;
+			buflen -= (unsigned int)ret;
 			buf += ret;
 		}
 	} while ((0 < ret || EINTR == errno) && buflen);
 
 	if (buflen == 0)
 		return 0;
+
+	printf("Read error: %d\n", errno);
 	return -EFAULT;
 }
 
@@ -120,7 +122,7 @@ static int get_data(const char *filename, uint8_t **memory,
 		goto out;
 	}
 
-	CKINT(read_complete(fd, *memory, *memory_length));
+	CKINT(read_complete(fd, *memory, (unsigned int)*memory_length));
 
 out:
 	close(fd);
