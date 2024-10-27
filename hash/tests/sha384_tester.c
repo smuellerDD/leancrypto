@@ -36,7 +36,7 @@ static int sha384_tester(void)
 	int ret;
 	LC_SHA384_CTX_ON_STACK(sha384_stack);
 
-	printf("hash ctx len %lu\n", LC_HASH_CTX_SIZE(lc_sha384));
+	printf("hash ctx len %u\n", (unsigned int)LC_HASH_CTX_SIZE(lc_sha384));
 
 	if (lc_hash_alloc(lc_sha384, &ctx384))
 		return 1;

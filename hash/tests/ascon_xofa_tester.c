@@ -45,9 +45,9 @@ static int ascon_xofa_tester(const struct lc_hash *ascon, const char *name)
 	int ret;
 	LC_ASCON_CTX_ON_STACK(ascon_stack, ascon);
 
-	printf("hash ctx %s (%s implementation) len %lu\n", name,
+	printf("hash ctx %s (%s implementation) len %u\n", name,
 	       ascon == lc_ascon_xofa_c ? "C" : "accelerated",
-	       LC_HASH_CTX_SIZE(ascon));
+	       (unsigned int)LC_HASH_CTX_SIZE(ascon));
 
 	lc_xof(lc_ascon_xofa, msg, sizeof(msg), act, sizeof(act));
 	ret = lc_compare(act, exp, sizeof(act), "Ascon XOFa");

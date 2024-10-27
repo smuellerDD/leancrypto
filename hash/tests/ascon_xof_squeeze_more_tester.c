@@ -49,9 +49,9 @@ static int _ascon_sqeeze_more_tester(const struct lc_hash *ascon,
 	int ret;
 	LC_HASH_CTX_ON_STACK(ctx, ascon);
 
-	printf("hash ctx %s (%s implementation) len %lu\n", name,
+	printf("hash ctx %s (%s implementation) len %u\n", name,
 	       ascon == lc_ascon_xof_c ? "C" : "accelerated",
-	       LC_HASH_CTX_SIZE(ascon));
+	       (unsigned int)LC_HASH_CTX_SIZE(ascon));
 
 	for (i = 1; i <= sizeof(exp); i++) {
 		act_p = act;

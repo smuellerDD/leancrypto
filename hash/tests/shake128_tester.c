@@ -106,7 +106,7 @@ static int _shake_128_tester(const struct lc_hash *shake_128, const char *name)
 
 	printf("hash ctx %s (%s implementation) len %lu\n", name,
 	       shake_128 == lc_shake128_c ? "C" : "accelerated",
-	       LC_HASH_CTX_SIZE(shake_128));
+	       (unsigned int)LC_HASH_CTX_SIZE(shake_128));
 
 	lc_hash_init(ctx);
 	lc_hash_update(ctx, msg1, sizeof(msg1));

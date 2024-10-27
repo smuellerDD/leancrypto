@@ -67,9 +67,9 @@ static int _cshake_256_tester(const struct lc_hash *cshake_256,
 	LC_CSHAKE_CTX_ON_STACK_REINIT(ctx_re, cshake_256);
 	LC_CSHAKE_CTX_ON_STACK(ctx, cshake_256);
 
-	printf("hash ctx %s (%s implementation) len %lu\n", name,
+	printf("hash ctx %s (%s implementation) len %u\n", name,
 	       cshake_256 == lc_cshake256_c ? "C" : "accelerated",
-	       LC_HASH_CTX_SIZE(cshake_256));
+	       (unsigned int)LC_HASH_CTX_SIZE(cshake_256));
 
 	lc_cshake_ctx_init(ctx_re, NULL, 0, cust1, sizeof(cust1));
 	lc_cshake_ctx_update(ctx_re, msg1, sizeof(msg1));

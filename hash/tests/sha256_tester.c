@@ -34,7 +34,7 @@ static int sha256_tester(void)
 	int ret;
 	LC_SHA256_CTX_ON_STACK(sha256_stack);
 
-	printf("hash ctx len %lu\n", LC_HASH_CTX_SIZE(lc_sha256));
+	printf("hash ctx len %u\n", (unsigned int)LC_HASH_CTX_SIZE(lc_sha256));
 	lc_hash(lc_sha256, msg_256, sizeof(msg_256), act);
 	ret = lc_compare(act, exp_256, LC_SHA256_SIZE_DIGEST, "SHA-256");
 
