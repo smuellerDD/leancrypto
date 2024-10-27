@@ -68,35 +68,14 @@ struct pkcs7_options {
  * Helper code
  ******************************************************************************/
 
-#if (defined(__CYGWIN__) || defined(_WIN32))
-
-static int read_complete(int fd, uint8_t *buf, unsigned int buflen)
-{
-	ssize_t ret;
-
-	if (buflen > INT_MAX)
-		return -EOVERFLOW;
-
-	do {
-		ret = read(fd, buf, buflen);
-		if (ret > 0) {
-			buflen -= (unsigned int)ret;
-			buf += ret;
-		}
-	} while ((0 < ret || EINTR == errno) && buflen);
-
-	if (buflen == 0)
-		return 0;
-
-	printf("Read error: %d\n", errno);
-	return -EFAULT;
-}
+#if 1//(defined(__CYGWIN__) || defined(_WIN32))
 
 static int get_data(const char *filename, uint8_t **memory,
 		    size_t *memory_length)
 {
 	int fd = -1;
 	int ret = 0;
+	ssize_t rc;
 	struct stat sb;
 
 	fd = open(filename, O_RDONLY);
@@ -109,7 +88,7 @@ static int get_data(const char *filename, uint8_t **memory,
 	ret = fstat(fd, &sb);
 	if (ret)
 		return -errno;
-	if (sb.st_size < 0) {
+	if (sb.st_size < 0 || sb.st_size > INT_MAX) {
 		ret = -EFAULT;
 		goto out;
 	}
@@ -122,7 +101,11 @@ static int get_data(const char *filename, uint8_t **memory,
 		goto out;
 	}
 
-	CKINT(read_complete(fd, *memory, (unsigned int)*memory_length));
+	rc = read(fd, *memory, (unsigned int)*memory_length);
+	if (rc != (ssize_t)sb.st_size) {
+		printf("Short read: %zd\n", rc);
+		ret = -EFAULT;
+	}
 
 out:
 	close(fd);
