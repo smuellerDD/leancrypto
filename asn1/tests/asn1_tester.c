@@ -78,7 +78,7 @@ static int read_complete(int fd, uint8_t *buf, size_t buflen)
 		return -EOVERFLOW;
 
 	do {
-		ret = read(fd, buf, buflen);
+		ret = read(fd, buf, (unsigned int)buflen);
 		if (ret > 0) {
 			buflen -= (size_t)ret;
 			buf += ret;
@@ -454,13 +454,14 @@ static void print_x509_extensions(const struct x509_certificate *x509)
 
 static void print_x509_validity(const char *prefix, time64_t valid)
 {
-	struct tm time_detail;
+	struct tm *time_detail;
 
-	localtime_r(&valid, &time_detail);
+	//localtime_r(&valid, &time_detail);
+	time_detail = localtime(&valid);
 	printf("%s: %d-%.2d-%.2d %.2d:%.2d:%.2d\n", prefix,
-	       time_detail.tm_year + 1900, time_detail.tm_mon + 1,
-	       time_detail.tm_mday, time_detail.tm_hour, time_detail.tm_min,
-	       time_detail.tm_sec);
+	       time_detail->tm_year + 1900, time_detail->tm_mon + 1,
+	       time_detail->tm_mday, time_detail->tm_hour, time_detail->tm_min,
+	       time_detail->tm_sec);
 }
 
 static void _print_x509_authids(const struct asymmetric_key_id auth_ids[3])
@@ -570,22 +571,25 @@ static int apply_checks_x509(const struct x509_certificate *x509,
 
 	if (parsed_opts->valid_from) {
 		if (parsed_opts->valid_from != (uint64_t)x509->valid_from) {
-			struct tm exp_detail, act_detail;
+			struct tm *exp_detail, *act_detail;
 
-			localtime_r(&x509->valid_from, &act_detail);
-			localtime_r((int64_t *)&parsed_opts->valid_from,
-				    &exp_detail);
+			// localtime_r(&x509->valid_from, &act_detail);
+			// localtime_r((int64_t *)&parsed_opts->valid_from,
+			// 	    &exp_detail);
+			act_detail = localtime(&x509->valid_from);
+			exp_detail =
+				localtime((int64_t *)&parsed_opts->valid_from);
 			printf("Certificate valid_from time mismatch, expected %d-%.2d-%.2d %.2d:%.2d:%.2d (%" PRIu64
 			       "), actual %d-%.2d-%.2d %.2d:%.2d:%.2d (%" PRId64
 			       ")\n",
-			       exp_detail.tm_year + 1900, exp_detail.tm_mon + 1,
-			       exp_detail.tm_mday, exp_detail.tm_hour,
-			       exp_detail.tm_min, exp_detail.tm_sec,
-			       parsed_opts->valid_from,
-			       act_detail.tm_year + 1900, act_detail.tm_mon + 1,
-			       act_detail.tm_mday, act_detail.tm_hour,
-			       act_detail.tm_min, act_detail.tm_sec,
-			       x509->valid_from);
+			       exp_detail->tm_year + 1900,
+			       exp_detail->tm_mon + 1, exp_detail->tm_mday,
+			       exp_detail->tm_hour, exp_detail->tm_min,
+			       exp_detail->tm_sec, parsed_opts->valid_from,
+			       act_detail->tm_year + 1900,
+			       act_detail->tm_mon + 1, act_detail->tm_mday,
+			       act_detail->tm_hour, act_detail->tm_min,
+			       act_detail->tm_sec, x509->valid_from);
 			return -EINVAL;
 		} else {
 			printf("Certificate valid_from time successfully verified\n");
@@ -594,21 +598,25 @@ static int apply_checks_x509(const struct x509_certificate *x509,
 
 	if (parsed_opts->valid_to) {
 		if (parsed_opts->valid_to != (uint64_t)x509->valid_to) {
-			struct tm exp_detail = { 0 }, act_detail = { 0 };
+			struct tm *exp_detail, *act_detail;
 
-			localtime_r(&x509->valid_to, &act_detail);
-			localtime_r((int64_t *)&parsed_opts->valid_to,
-				    &exp_detail);
+			// localtime_r(&x509->valid_to, &act_detail);
+			// localtime_r((int64_t *)&parsed_opts->valid_to,
+			// 	    &exp_detail);
+			act_detail = localtime(&x509->valid_to);
+			exp_detail =
+				localtime((int64_t *)&parsed_opts->valid_to);
 			printf("Certificate valid_to time mismatch, expected %d-%.2d-%.2d %.2d:%.2d:%.2d (%" PRIu64
 			       "), actual %d-%.2d-%.2d %.2d:%.2d:%.2d (%" PRId64
 			       ")\n",
-			       exp_detail.tm_year + 1900, exp_detail.tm_mon + 1,
-			       exp_detail.tm_mday, exp_detail.tm_hour,
-			       exp_detail.tm_min, exp_detail.tm_sec,
-			       parsed_opts->valid_to, act_detail.tm_year + 1900,
-			       act_detail.tm_mon + 1, act_detail.tm_mday,
-			       act_detail.tm_hour, act_detail.tm_min,
-			       act_detail.tm_sec, x509->valid_to);
+			       exp_detail->tm_year + 1900,
+			       exp_detail->tm_mon + 1, exp_detail->tm_mday,
+			       exp_detail->tm_hour, exp_detail->tm_min,
+			       exp_detail->tm_sec, parsed_opts->valid_to,
+			       act_detail->tm_year + 1900,
+			       act_detail->tm_mon + 1, act_detail->tm_mday,
+			       act_detail->tm_hour, act_detail->tm_min,
+			       act_detail->tm_sec, x509->valid_to);
 			return -EINVAL;
 		} else {
 			printf("Certificate valid_to time successfully verified\n");
