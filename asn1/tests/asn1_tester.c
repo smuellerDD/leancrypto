@@ -246,7 +246,6 @@ static void _print_x509_sinature_algo(const struct public_key_signature *sig)
 	printf("\n");
 }
 
-
 static void print_x509_sinature_algo(const struct x509_certificate *x509)
 {
 	const struct public_key_signature *sig = &x509->sig;
@@ -758,7 +757,6 @@ static void print_pkcs7_data(const struct pkcs7_message *pkcs7_msg)
 		cert = cert->next;
 	}
 
-
 	if (sinfos)
 		printf("======= PKCS7 signed info listing ==========\n");
 	while (sinfos) {
@@ -769,9 +767,8 @@ static void print_pkcs7_data(const struct pkcs7_message *pkcs7_msg)
 			print_x509_cert(sinfos->signer);
 
 		if (sinfos->authattrs_len) {
-			bin2print(sinfos->authattrs,
-					sinfos->authattrs_len, stdout,
-					"Signed Authinfo");
+			bin2print(sinfos->authattrs, sinfos->authattrs_len,
+				  stdout, "Signed Authinfo");
 		}
 
 		_print_x509_sinature_algo(&sinfos->sig);
@@ -900,7 +897,6 @@ static int apply_checks_pkcs7(const struct pkcs7_message *pkcs7_msg,
 				printf("Certificate is self-signed\n");
 			}
 		}
-
 	}
 
 	if (parsed_opts->check_no_selfsigned) {
@@ -930,7 +926,7 @@ static int apply_checks_pkcs7(const struct pkcs7_message *pkcs7_msg,
 
 		while (x509) {
 			if (!strncmp(x509->issuer, parsed_opts->issuer_cn,
-			    sizeof(x509->issuer))) {
+				     sizeof(x509->issuer))) {
 				found = 1;
 				break;
 			}
@@ -952,7 +948,7 @@ static int apply_checks_pkcs7(const struct pkcs7_message *pkcs7_msg,
 
 		while (x509) {
 			if (!strncmp(x509->subject, parsed_opts->subject_cn,
-			    sizeof(x509->subject))) {
+				     sizeof(x509->subject))) {
 				found = 1;
 				break;
 			}
@@ -1049,8 +1045,7 @@ static int pkcs7_load_and_verify(const struct pkcs7_options *parsed_opts)
 					    verified_datalen));
 
 	/* Verify data */
-	CKINT_LOG(lc_pkcs7_verify(&pkcs7_msg),
-		  "Verification failure\n");
+	CKINT_LOG(lc_pkcs7_verify(&pkcs7_msg), "Verification failure\n");
 
 out:
 	if (data)
@@ -1073,7 +1068,8 @@ static void asn1_usage(void)
 	fprintf(stderr, "\t-f --file FILE\t\tinput file to be checked\n");
 	fprintf(stderr, "\t-x --x509\t\tprocess input as X.509 data\n");
 	fprintf(stderr, "\t-p --pkcs7\t\tprocess input as PKCS#7 data\n");
-	fprintf(stderr, "\t-v --verify <FILE>\t\tverify input as PKCS#7 data\n");
+	fprintf(stderr,
+		"\t-v --verify <FILE>\t\tverify input as PKCS#7 data\n");
 
 	fprintf(stderr, "\t   --check-ca\t\tcheck presence of CA\n");
 	fprintf(stderr,

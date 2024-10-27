@@ -219,7 +219,8 @@ struct x509_certificate {
 	const uint8_t *raw_akid; /* authority key Id binary format */
 	unsigned int index;
 	char issuer[LC_ASN1_MAX_ISSUER_NAME + 1]; /* Name of certificate issuer */
-	char subject[LC_ASN1_MAX_ISSUER_NAME + 1]; /* Name of certificate subject */
+	char subject[LC_ASN1_MAX_ISSUER_NAME +
+		     1]; /* Name of certificate subject */
 	unsigned int seen : 1; /* Infinite recursion prevention */
 	unsigned int verified : 1;
 	unsigned int

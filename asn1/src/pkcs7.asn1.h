@@ -8,21 +8,37 @@
 
 extern const struct asn1_decoder pkcs7_decoder;
 
-extern int pkcs7_check_content_type(void *, size_t, unsigned char, const uint8_t *, size_t);
-extern int pkcs7_extract_cert(void *, size_t, unsigned char, const uint8_t *, size_t);
-extern int pkcs7_note_OID(void *, size_t, unsigned char, const uint8_t *, size_t);
-extern int pkcs7_note_certificate_list(void *, size_t, unsigned char, const uint8_t *, size_t);
-extern int pkcs7_note_content(void *, size_t, unsigned char, const uint8_t *, size_t);
-extern int pkcs7_note_data(void *, size_t, unsigned char, const uint8_t *, size_t);
-extern int pkcs7_note_signed_info(void *, size_t, unsigned char, const uint8_t *, size_t);
-extern int pkcs7_note_signeddata_version(void *, size_t, unsigned char, const uint8_t *, size_t);
-extern int pkcs7_note_signerinfo_version(void *, size_t, unsigned char, const uint8_t *, size_t);
-extern int pkcs7_sig_note_authenticated_attr(void *, size_t, unsigned char, const uint8_t *, size_t);
-extern int pkcs7_sig_note_digest_algo(void *, size_t, unsigned char, const uint8_t *, size_t);
-extern int pkcs7_sig_note_issuer(void *, size_t, unsigned char, const uint8_t *, size_t);
-extern int pkcs7_sig_note_pkey_algo(void *, size_t, unsigned char, const uint8_t *, size_t);
-extern int pkcs7_sig_note_serial(void *, size_t, unsigned char, const uint8_t *, size_t);
-extern int pkcs7_sig_note_set_of_authattrs(void *, size_t, unsigned char, const uint8_t *, size_t);
-extern int pkcs7_sig_note_signature(void *, size_t, unsigned char, const uint8_t *, size_t);
-extern int pkcs7_sig_note_skid(void *, size_t, unsigned char, const uint8_t *, size_t);
-
+extern int pkcs7_check_content_type(void *, size_t, unsigned char,
+				    const uint8_t *, size_t);
+extern int pkcs7_extract_cert(void *, size_t, unsigned char, const uint8_t *,
+			      size_t);
+extern int pkcs7_note_OID(void *, size_t, unsigned char, const uint8_t *,
+			  size_t);
+extern int pkcs7_note_certificate_list(void *, size_t, unsigned char,
+				       const uint8_t *, size_t);
+extern int pkcs7_note_content(void *, size_t, unsigned char, const uint8_t *,
+			      size_t);
+extern int pkcs7_note_data(void *, size_t, unsigned char, const uint8_t *,
+			   size_t);
+extern int pkcs7_note_signed_info(void *, size_t, unsigned char,
+				  const uint8_t *, size_t);
+extern int pkcs7_note_signeddata_version(void *, size_t, unsigned char,
+					 const uint8_t *, size_t);
+extern int pkcs7_note_signerinfo_version(void *, size_t, unsigned char,
+					 const uint8_t *, size_t);
+extern int pkcs7_sig_note_authenticated_attr(void *, size_t, unsigned char,
+					     const uint8_t *, size_t);
+extern int pkcs7_sig_note_digest_algo(void *, size_t, unsigned char,
+				      const uint8_t *, size_t);
+extern int pkcs7_sig_note_issuer(void *, size_t, unsigned char, const uint8_t *,
+				 size_t);
+extern int pkcs7_sig_note_pkey_algo(void *, size_t, unsigned char,
+				    const uint8_t *, size_t);
+extern int pkcs7_sig_note_serial(void *, size_t, unsigned char, const uint8_t *,
+				 size_t);
+extern int pkcs7_sig_note_set_of_authattrs(void *, size_t, unsigned char,
+					   const uint8_t *, size_t);
+extern int pkcs7_sig_note_signature(void *, size_t, unsigned char,
+				    const uint8_t *, size_t);
+extern int pkcs7_sig_note_skid(void *, size_t, unsigned char, const uint8_t *,
+			       size_t);

@@ -58,8 +58,8 @@ struct pkcs7_parse_context {
  * ASN.1 parser support functions
  ******************************************************************************/
 
-static __always_inline int
-test_and_set_bit(unsigned long nr, volatile unsigned long *addr)
+static __always_inline int test_and_set_bit(unsigned long nr,
+					    volatile unsigned long *addr)
 {
 	unsigned long *p = ((unsigned long *)addr);
 	unsigned long old = *p;
@@ -479,8 +479,7 @@ int pkcs7_sig_note_authenticated_attr(void *context, size_t hdrlen,
 	struct pkcs7_signed_info *sinfo = ctx->sinfo;
 	enum OID content_type;
 
-	printf_debug("AuthAttr: %02x %zu", tag, vlen, (unsigned)vlen,
-		     value);
+	printf_debug("AuthAttr: %02x %zu", tag, vlen, (unsigned)vlen, value);
 	bin2print_debug(value, vlen, stdout, " ");
 
 #pragma GCC diagnostic push
@@ -509,8 +508,7 @@ int pkcs7_sig_note_authenticated_attr(void *context, size_t hdrlen,
 					value, vlen);
 
 	case OID_messageDigest:
-		if (test_and_set_bit(sinfo_has_message_digest,
-				       &sinfo->aa_set))
+		if (test_and_set_bit(sinfo_has_message_digest, &sinfo->aa_set))
 			goto repeated;
 		if (tag != ASN1_OTS)
 			return -EBADMSG;
@@ -525,7 +523,7 @@ int pkcs7_sig_note_authenticated_attr(void *context, size_t hdrlen,
 			printf_debug(
 				"S/MIME Caps only allowed with Authenticode\n");
 			//TODO - Why is this in the Linux code?
-//			return -EKEYREJECTED;
+			//			return -EKEYREJECTED;
 		}
 		return 0;
 
@@ -541,7 +539,7 @@ int pkcs7_sig_note_authenticated_attr(void *context, size_t hdrlen,
 		goto authenticode_check;
 	case OID_msStatementType:
 		if (test_and_set_bit(sinfo_has_ms_statement_type,
-				       &sinfo->aa_set))
+				     &sinfo->aa_set))
 			goto repeated;
 	authenticode_check:
 		if (ctx->msg->data_type != OID_msIndirectData) {
@@ -695,8 +693,8 @@ int pkcs7_note_signed_info(void *context, size_t hdrlen, unsigned char tag,
 						 ctx->raw_skid_size, NULL, 0));
 	}
 
-	bin2print_debug(sinfo->sig.auth_ids[0].data,
-			sinfo->sig.auth_ids[0].len, stdout, "SINFO KID");
+	bin2print_debug(sinfo->sig.auth_ids[0].data, sinfo->sig.auth_ids[0].len,
+			stdout, "SINFO KID");
 
 	sinfo->index = ++ctx->sinfo_index;
 	*ctx->ppsinfo = sinfo;

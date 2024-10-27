@@ -36,7 +36,8 @@
 #include "visibility.h"
 
 #ifdef LC_PKCS7_DEBUG
-#warning "LC_PKCS7_DEBUG enabled - code MUST ONLY BE USED FOR TESTING - NEVER IN PRODUCTION!"
+#warning                                                                       \
+	"LC_PKCS7_DEBUG enabled - code MUST ONLY BE USED FOR TESTING - NEVER IN PRODUCTION!"
 #define CKINT_SIGCHECK(x)                                                      \
 	{                                                                      \
 		ret = x;                                                       \
@@ -131,8 +132,8 @@ static int pkcs7_digest(struct pkcs7_message *pkcs7,
 		lc_hash_final(hash_ctx, sig->digest);
 		lc_hash_zero(hash_ctx);
 
-		bin2print_debug(sinfo->msgdigest, sinfo->msgdigest_len,
-					stdout, "signerInfos AADigest");
+		bin2print_debug(sinfo->msgdigest, sinfo->msgdigest_len, stdout,
+				"signerInfos AADigest");
 	}
 
 out:
@@ -298,8 +299,8 @@ static int pkcs7_verify_sig_chain(struct pkcs7_message *pkcs7,
 			return -EKEYREJECTED;
 #endif
 		}
-		CKINT_SIGCHECK(public_key_verify_signature(&p->pub,
-							   &x509->sig));
+		CKINT_SIGCHECK(
+			public_key_verify_signature(&p->pub, &x509->sig));
 		x509->signer = p;
 		CKINT(lc_x509_policy_is_root_ca(p));
 		if (ret == LC_X509_POL_TRUE) {
@@ -358,8 +359,8 @@ static int pkcs7_verify_one(struct pkcs7_message *pkcs7,
 	}
 
 	/* Verify the PKCS#7 binary against the key */
-	CKINT_SIGCHECK(public_key_verify_signature(&sinfo->signer->pub,
-						   &sinfo->sig));
+	CKINT_SIGCHECK(
+		public_key_verify_signature(&sinfo->signer->pub, &sinfo->sig));
 
 	printf_debug("Verified signature %u\n", sinfo->index);
 

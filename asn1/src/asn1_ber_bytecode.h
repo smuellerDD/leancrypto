@@ -46,7 +46,7 @@ struct asn1_decoder {
 };
 
 enum asn1_opcode {
-	/*
+/*
 	 * The tag-matching ops come first and the odd-numbered slots
 	 * are for OR_SKIP ops.
 	 */

@@ -151,7 +151,6 @@ int lc_pkcs7_message_parse(struct pkcs7_message *pkcs7, const uint8_t *data,
  */
 void lc_pkcs7_message_clear(struct pkcs7_message *pkcs7);
 
-
 /**
  * @ingroup PKCS7
  * @brief Get access to the PKCS#7 encapsulated content
