@@ -33,7 +33,8 @@ jobs:
     - name: Meson test
       run: msys2 -c 'meson test -C build'
     - name: Archive test logs
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: meson-logs
-        path: build/meson-logs
+        path: build/meson-logs/
