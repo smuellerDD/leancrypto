@@ -461,7 +461,7 @@ static int x509_fabricate_name(struct x509_parse_context *ctx, size_t hdrlen,
 		if (cert->san_ip_len == 4) {
 			/* IPv4 Address */
 			snprintf(_name, LC_ASN1_MAX_ISSUER_NAME,
-				 "%u.%u.%u.%u\0",
+				 "%u.%u.%u.%u",
 				 cert->san_ip[0], cert->san_ip[1],
 				 cert->san_ip[2], cert->san_ip[3]);
 

@@ -35,6 +35,13 @@
  */
 #define lc_member_size(struct, member) (sizeof(((struct *)0)->member))
 
+#ifndef ENOPKG
+#define ENOPKG 1024 /* Package not installed */
+#endif
+#ifndef EKEYREJECTED
+#define EKEYREJECTED 1025 /* Key was rejected by service */
+#endif
+
 #ifdef LINUX_KERNEL
 /******************************************************************************
  * Linux Kernel
