@@ -32,3 +32,8 @@ jobs:
       run: msys2 -c 'meson compile -C build'
     - name: Meson test
       run: msys2 -c 'meson test -C build'
+    - name: Archive test logs
+      uses: actions/upload-artifact@v4
+      with:
+        name: meson-logs
+        path: build/meson-logs
