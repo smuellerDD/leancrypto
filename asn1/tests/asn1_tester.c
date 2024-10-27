@@ -68,7 +68,7 @@ struct pkcs7_options {
  * Helper code
  ******************************************************************************/
 
-#if defined(__CYGWIN__) || defined(_WIN32))
+#if (defined(__CYGWIN__) || defined(_WIN32))
 
 static int get_data(const char *filename, uint8_t **memory,
 		    size_t *memory_length)
