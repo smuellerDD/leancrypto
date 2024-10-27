@@ -260,11 +260,20 @@ found during the compilation run.
 
 The various header files contain data structures which are provided
 solely for the purpose that appropriate memory on stack can be allocated.
-These data structures do not consititute an API in the sense that calling
+These data structures do not constitute an API in the sense that calling
 applications should access member variables directly. If access to member
 variables is desired, proper accessor functions are available. This implies
 that changes to the data structures in newer versions of the library are not
 considered as API changes!
+
+## X.509 and PKCS#7 Support
+
+The library offers an X.509 and PKCS#7 support with `lc_x509.h` and
+`lc_pkcs7.h`.
+
+The following services are offered with the PKCS#7 support:
+
+* Signature verifiation: use cases are secure boot scenarios and others
 
 # Testing
 
