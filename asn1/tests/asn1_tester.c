@@ -68,30 +68,25 @@ struct pkcs7_options {
  * Helper code
  ******************************************************************************/
 
-#if 1//(defined(__CYGWIN__) || defined(_WIN32))
+#if defined(__CYGWIN__) || defined(_WIN32))
 
 static int get_data(const char *filename, uint8_t **memory,
 		    size_t *memory_length)
 {
-	int fd = -1;
+	FILE *f = NULL;
 	int ret = 0;
-	ssize_t rc;
 	struct stat sb;
 
-	fd = open(filename, O_RDONLY);
-	if (fd < 0) {
-		fprintf(stderr, "Cannot open file %s: %s\n", filename,
-			strerror(errno));
-		return -EIO;
-	}
-
-	ret = fstat(fd, &sb);
+	ret = stat(filename, &sb);
 	if (ret)
 		return -errno;
 	if (sb.st_size < 0 || sb.st_size > INT_MAX) {
 		ret = -EFAULT;
 		goto out;
 	}
+
+	f = fopen(filename, "r");
+	CKNULL_LOG(f, -EFAULT, "Cannot open file %s\n", filename);
 
 	*memory_length = (size_t)sb.st_size;
 
@@ -101,14 +96,15 @@ static int get_data(const char *filename, uint8_t **memory,
 		goto out;
 	}
 
-	rc = read(fd, *memory, (unsigned int)*memory_length);
-	if (rc != (ssize_t)sb.st_size) {
-		printf("Short read: %zd\n", rc);
+
+	if (fread(*memory, 1, *memory_length, f) != (size_t)sb.st_size) {
+		printf("Read failed\n");
 		ret = -EFAULT;
 	}
 
 out:
-	close(fd);
+	if (f)
+		fclose(f);
 	return ret;
 }
 
