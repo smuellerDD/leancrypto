@@ -30,6 +30,9 @@ extern "C" {
 #ifndef __maybe_unused
 #define __maybe_unused __attribute__((__unused__))
 #endif
+#ifndef __always_inline
+#define __always_inline __inline __attribute__ ((__always_inline__))
+#endif
 
 #ifndef likely
 #define likely(x) __builtin_expect(!!(x), 1)

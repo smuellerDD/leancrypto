@@ -27,6 +27,7 @@
 #include "asn1_debug.h"
 #include "binhexbin.h"
 #include "ext_headers.h"
+#include "helper.h"
 #include "lc_memory_support.h"
 #include "lc_pkcs7.h"
 #include "oid_registry.h"
