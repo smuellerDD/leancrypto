@@ -68,6 +68,74 @@ struct pkcs7_options {
  * Helper code
  ******************************************************************************/
 
+#if (defined(__CYGWIN__) || defined(_WIN32))
+
+static int read_complete(int fd, uint8_t *buf, size_t buflen)
+{
+	ssize_t ret;
+
+	if (buflen > INT_MAX)
+		return -EOVERFLOW;
+
+	do {
+		ret = read(fd, buf, buflen);
+		if (ret > 0) {
+			buflen -= (size_t)ret;
+			buf += ret;
+		}
+	} while ((0 < ret || EINTR == errno) && buflen);
+
+	if (buflen == 0)
+		return 0;
+	return -EFAULT;
+}
+
+static int get_data(const char *filename, uint8_t **memory,
+		    size_t *memory_length)
+{
+	int fd = -1;
+	int ret = 0;
+	struct stat sb;
+
+	fd = open(filename, O_RDONLY);
+	if (fd < 0) {
+		fprintf(stderr, "Cannot open file %s: %s\n", filename,
+			strerror(errno));
+		return -EIO;
+	}
+
+	ret = fstat(fd, &sb);
+	if (ret)
+		return -errno;
+	if (sb.st_size < 0) {
+		ret = -EFAULT;
+		goto out;
+	}
+
+	*memory_length = (size_t)sb.st_size;
+
+	*memory = malloc((size_t)sb.st_size);
+	if (!*memory) {
+		ret = -ENOMEM;
+		goto out;
+	}
+
+	CKINT(read_complete(fd, *memory, *memory_length));
+
+out:
+	close(fd);
+	return ret;
+}
+
+static void release_data(uint8_t *memory, size_t memory_length)
+{
+	(void)memory_length;
+	if (memory)
+		free(memory);
+}
+
+#else /* (defined(__CYGWIN__) || defined(_WIN32)) */
+
 static int check_filetype(int fd, struct stat *sb)
 {
 	int ret = fstat(fd, sb);
@@ -83,7 +151,7 @@ static int check_filetype(int fd, struct stat *sb)
 	return 0;
 }
 
-static int mmap_file(const char *filename, uint8_t **memory, size_t *mapped)
+static int get_data(const char *filename, uint8_t **memory, size_t *mapped)
 {
 	int fd = -1;
 	int ret = 0;
@@ -127,6 +195,13 @@ out:
 	close(fd);
 	return ret;
 }
+
+static void release_data(uint8_t *memory, size_t memory_length)
+{
+	if (memory)
+		munmap(memory, memory_length);
+}
+#endif
 
 /******************************************************************************
  * X.509 tests
@@ -726,7 +801,7 @@ static int x509_load(const struct pkcs7_options *parsed_opts)
 
 	CKNULL_LOG(parsed_opts->file, -EINVAL, "Pathname missing\n");
 
-	CKINT_LOG(mmap_file(parsed_opts->file, &data, &datalen),
+	CKINT_LOG(get_data(parsed_opts->file, &data, &datalen),
 		  "mmap failure\n");
 
 	CKINT_LOG(lc_x509_certificate_parse(&x509_msg, data, datalen),
@@ -735,8 +810,7 @@ static int x509_load(const struct pkcs7_options *parsed_opts)
 	CKINT(apply_checks_x509(&x509_msg, parsed_opts));
 
 out:
-	if (data)
-		munmap(data, datalen);
+	release_data(data, datalen);
 	lc_x509_certificate_clear(&x509_msg);
 	return ret;
 }
@@ -1000,7 +1074,7 @@ static int pkcs7_load(const struct pkcs7_options *parsed_opts)
 
 	CKNULL_LOG(parsed_opts->file, -EINVAL, "Pathname missing\n");
 
-	CKINT_LOG(mmap_file(parsed_opts->file, &data, &datalen),
+	CKINT_LOG(get_data(parsed_opts->file, &data, &datalen),
 		  "mmap failure\n");
 
 	CKINT_LOG(lc_pkcs7_message_parse(&pkcs7_msg, data, datalen),
@@ -1009,8 +1083,7 @@ static int pkcs7_load(const struct pkcs7_options *parsed_opts)
 	CKINT(apply_checks_pkcs7(&pkcs7_msg, parsed_opts));
 
 out:
-	if (data)
-		munmap(data, datalen);
+	release_data(data, datalen);
 	lc_pkcs7_message_clear(&pkcs7_msg);
 	return ret;
 }
@@ -1030,10 +1103,10 @@ static int pkcs7_load_and_verify(const struct pkcs7_options *parsed_opts)
 
 	CKNULL_LOG(parsed_opts->file, -EINVAL, "Pathname missing\n");
 
-	CKINT_LOG(mmap_file(parsed_opts->file, &data, &datalen),
+	CKINT_LOG(get_data(parsed_opts->file, &data, &datalen),
 		  "mmap failure\n");
-	CKINT_LOG(mmap_file(parsed_opts->verified_file, &verified_data,
-			    &verified_datalen),
+	CKINT_LOG(get_data(parsed_opts->verified_file, &verified_data,
+			   &verified_datalen),
 		  "mmap failure\n");
 
 	/* Parse message */
@@ -1048,10 +1121,8 @@ static int pkcs7_load_and_verify(const struct pkcs7_options *parsed_opts)
 	CKINT_LOG(lc_pkcs7_verify(&pkcs7_msg), "Verification failure\n");
 
 out:
-	if (data)
-		munmap(data, datalen);
-	if (verified_data)
-		munmap(verified_data, verified_datalen);
+	release_data(data, datalen);
+	release_data(verified_data, verified_datalen);
 	lc_pkcs7_message_clear(&pkcs7_msg);
 	return ret;
 }
