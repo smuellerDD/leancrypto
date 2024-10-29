@@ -31,26 +31,10 @@
 #include "lc_sha512.h"
 #include "lc_pkcs7.h"
 #include "lc_x509.h"
+#include "pkcs7_internal.h"
 #include "public_key.h"
 #include "ret_checkers.h"
 #include "visibility.h"
-
-#ifdef LC_PKCS7_DEBUG
-#warning                                                                       \
-	"LC_PKCS7_DEBUG enabled - code MUST ONLY BE USED FOR TESTING - NEVER IN PRODUCTION!"
-#define CKINT_SIGCHECK(x)                                                      \
-	{                                                                      \
-		ret = x;                                                       \
-		if (ret == -ENOPKG) {                                          \
-			printf("WARNING: NO SIGNATURE CHECK\n");               \
-			ret = 0;                                               \
-		}                                                              \
-		if (ret < 0)                                                   \
-			goto out;                                              \
-	}
-#else
-#define CKINT_SIGCHECK CKINT
-#endif
 
 /*
  * Digest the relevant parts of the PKCS#7 data
@@ -176,8 +160,9 @@ static int pkcs7_find_key(struct pkcs7_message *pkcs7,
 		return 0;
 	}
 
-	/* The relevant X.509 cert isn't found here, but it might be found in
-	 * the trust keyring.
+	/*
+	 * The relevant X.509 cert isn't found here, but it might be found in
+	 * the trust database.
 	 */
 	printf_debug("Sig %u: Issuing X.509 cert not found (#%*phN)\n",
 		     sinfo->index, sig_auth_id->len, sig_auth_id->data);
@@ -187,17 +172,18 @@ static int pkcs7_find_key(struct pkcs7_message *pkcs7,
 /*
  * Verify the internal certificate chain as best we can.
  */
-static int pkcs7_verify_sig_chain(struct pkcs7_message *pkcs7,
-				  struct pkcs7_signed_info *sinfo)
+int pkcs7_verify_sig_chain(struct x509_certificate *certificate_chain,
+			   struct x509_certificate *x509,
+			   struct pkcs7_signed_info *sinfo)
 {
 	struct public_key_signature *sig;
-	struct x509_certificate *x509 = sinfo->signer, *p;
+	struct x509_certificate *p;
 	struct asymmetric_key_id *auth0, *auth1;
 	int ret = 0;
 
 	printf_debug("==> %s()\n", __func__);
 
-	for (p = pkcs7->certs; p; p = p->next)
+	for (p = certificate_chain; p; p = p->next)
 		p->seen = 0;
 
 	for (;;) {
@@ -206,14 +192,18 @@ static int pkcs7_verify_sig_chain(struct pkcs7_message *pkcs7,
 		x509->seen = 1;
 
 		if (x509->blacklisted) {
-			/* If this cert is blacklisted, then mark everything
+			/*
+			 * If this cert is blacklisted, then mark everything
 			 * that depends on this as blacklisted too.
 			 */
-			sinfo->blacklisted = 1;
-			for (p = sinfo->signer; p != x509; p = p->signer)
-				p->blacklisted = 1;
+			if (sinfo) {
+				sinfo->blacklisted = 1;
+				for (p = sinfo->signer; p != x509;
+				     p = p->signer)
+					p->blacklisted = 1;
+			}
 			printf_debug("- blacklisted\n");
-			return 0;
+			return -EKEYREJECTED;
 		}
 
 		printf_debug("- issuer %s\n", x509->issuer);
@@ -229,14 +219,16 @@ static int pkcs7_verify_sig_chain(struct pkcs7_message *pkcs7,
 					"- authkeyid.skid");
 		}
 
-		if (x509->self_signed) {
-			/* If there's no authority certificate specified, then
+		CKINT(lc_x509_policy_is_root_ca(x509));
+		if (ret == LC_X509_POL_TRUE) {
+			/*
+			 * If there's no authority certificate specified, then
 			 * the certificate must be self-signed and is the root
-			 * of the chain.  Likewise if the cert is its own
+			 * of the chain. Likewise if the cert is its own
 			 * authority.
 			 */
 			if (x509->unsupported_sig)
-				goto unsupported_sig_in_x509;
+				return -ENOPKG;
 			x509->signer = x509;
 			printf_debug("- self-signed\n");
 			return 0;
@@ -248,7 +240,7 @@ static int pkcs7_verify_sig_chain(struct pkcs7_message *pkcs7,
 		if (auth0->len) {
 			bin2print_debug(auth0->data, auth0->len, stdout,
 					"- want");
-			for (p = pkcs7->certs; p; p = p->next) {
+			for (p = certificate_chain; p; p = p->next) {
 				printf_debug("- cmp [%u] ", p->index);
 				bin2print_debug(p->id.data, p->id.len, stdout,
 						"");
@@ -259,7 +251,7 @@ static int pkcs7_verify_sig_chain(struct pkcs7_message *pkcs7,
 		} else if (auth1->len) {
 			bin2print_debug(auth1->data, auth1->len, stdout,
 					"- want");
-			for (p = pkcs7->certs; p; p = p->next) {
+			for (p = certificate_chain; p; p = p->next) {
 				if (!p->skid.len)
 					continue;
 				printf_debug("- cmp [%u] ", p->index);
@@ -271,8 +263,8 @@ static int pkcs7_verify_sig_chain(struct pkcs7_message *pkcs7,
 		}
 
 		/* We didn't find the root of this chain */
-		printf_debug("- top\n");
-		return 0;
+		printf_debug("- top of the certificate reached without match\n");
+		return -EKEYREJECTED;
 
 	found_issuer_check_skid:
 		/* We matched issuer + serialNumber, but if there's an
@@ -280,15 +272,14 @@ static int pkcs7_verify_sig_chain(struct pkcs7_message *pkcs7,
 		 */
 		if (auth1->len && !asymmetric_key_id_same(&p->skid, auth1)) {
 			printf_debug(
-				"Sig %u: X.509 chain contains auth-skid nonmatch (%u->%u)\n",
-				sinfo->index, x509->index, p->index);
+				"SignatureInfo: X.509 chain contains auth-skid nonmatch (%u->%u)\n",
+				x509->index, p->index);
 			return -EKEYREJECTED;
 		}
 	found_issuer:
 		printf_debug("- subject %s\n", p->subject);
 		if (p->seen) {
-			printf_debug("Sig %u: X.509 chain contains loop\n",
-				     sinfo->index);
+			printf_debug("SignatureInfo: X.509 chain contains loop\n");
 #ifdef LC_PKCS7_DEBUG
 			/*
 			 * The root CA detection below will not work in debug
@@ -311,14 +302,7 @@ static int pkcs7_verify_sig_chain(struct pkcs7_message *pkcs7,
 		x509 = p;
 	}
 
-unsupported_sig_in_x509:
 out:
-	/* Just prune the certificate chain at this point if we lack some
-	 * crypto module to go further.  Note, however, we don't want to set
-	 * sinfo->unsupported_crypto as the signed info block may still be
-	 * validatable against an X.509 cert lower in the chain that we have a
-	 * trusted copy of.
-	 */
 	return ret;
 }
 
@@ -365,7 +349,7 @@ static int pkcs7_verify_one(struct pkcs7_message *pkcs7,
 	printf_debug("Verified signature %u\n", sinfo->index);
 
 	/* Verify the internal certificate chain */
-	CKINT(pkcs7_verify_sig_chain(pkcs7, sinfo));
+	CKINT(pkcs7_verify_sig_chain(pkcs7->certs, sinfo->signer, sinfo));
 
 out:
 	return ret;

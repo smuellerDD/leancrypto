@@ -329,7 +329,7 @@ asn1/src/oid_registry.c
 asn1/src/oid_registry_data.c
 asn1/src/oid_registry.h
 asn1/src/pkcs7_parser.c
-asn1/src/pkcs7_parser.h
+asn1/src/pkcs7_trust.c
 asn1/src/pkcs7_verify.c
 asn1/src/verification.h
 asn1/src/x509_cert_parser.c

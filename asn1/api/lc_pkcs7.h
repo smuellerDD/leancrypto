@@ -25,6 +25,10 @@
 #include "lc_x509.h"
 
 /// \cond DO_NOT_DOCUMENT
+struct pkcs7_trust_store {
+	struct x509_certificate *anchor_cert;
+};
+
 struct pkcs7_signed_info {
 	struct pkcs7_signed_info *next;
 
@@ -110,6 +114,26 @@ struct pkcs7_message {
  *
  * The PKCS#7 message parser currently only covers signature verification to
  * support use cases of secure boot.
+ *
+ * For performing a proper PKCS#7 validation, execute the following steps:
+ *
+ * 1. Initialize and load the certificate trust store by executing the following
+ *    sub tasks. This assumes that each trusted public key is represented as an
+ *    X.509 certificate which implies the set of sub steps must be executed for
+ *    each certificate that shall be part of the trust store.
+ *
+ *    a. Load the X.509 data blob with \p lc_x509_certificate_parse
+ *
+ *    b. Register the certificate in the PKCS#7 trust store with
+ *       \p lc_pkcs7_trust_anchor_add
+ *
+ * 2. Load the PKCS#7 data blob using \p lc_pkcs7_message_parse.
+ *
+ * 3. Validate the PKCS#7 message which verifies the encapsulated data and the
+ *    certificate chain using \p lc_pkcs7_verify.
+ *
+ * 4. Validate the PKCS#7 certificate and/or its certificate chain traces back
+ *    to the trust anchor using \p lc_pkcs7_trust_validate.
  */
 
 /**
@@ -258,5 +282,64 @@ int lc_pkcs7_get_digest(struct pkcs7_message *pkcs7,
 			const uint8_t **message_digest,
 			size_t *message_digest_len,
 			const struct lc_hash **hash_algo);
+
+/**
+ * @ingroup PKCS7
+ * @brief Validate PKCS#7 trust chain
+ *
+ * Validate that the certificate chain inside the PKCS#7 message intersects
+ * keys we already know and trust.
+ *
+ * @param [in] pkcs7 The PKCS#7 certificate to validate
+ * @param [in] trust_store Signing certificates to use as starting points
+ *
+ * @return 0 on success or < 0 on error
+ *
+ * Returns, in order of descending priority:
+ *
+ *  (*) -EKEYREJECTED if a signature failed to match for which we have a valid
+ *	key, or
+ *
+ *  (*) 0 if at least one signature chain intersects with the keys in the trust
+ *	\p trust_store, or
+ *
+ *  (*) -ENOPKG if a suitable crypto module couldn't be found for a check on a
+ *	chain.
+ *
+ *  (*) -ENOKEY if we couldn't find a match for any of the signature chains in
+ *	the message.
+ */
+int lc_pkcs7_trust_validate(struct pkcs7_message *pkcs7,
+			    struct pkcs7_trust_store *trust_store);
+
+/**
+ * @ingroup PKCS7
+ * @brief Add a certificate to a certificate trust store
+ *
+ * The caller provides the \p trust_store which may be empty at the beginning.
+ * The function initializes the trust store and registers the certificate as
+ * a trusted certificate.
+ *
+ * This function can be called repeatedly with the same trust store to add
+ * an arbitrary number of X.509 certificates.
+ *
+ * Only certificates marked as CAs are allowed to be registered in the trust
+ * store.
+ *
+ * It is permissible to load intermediate certificates. But the loading of such
+ * intermediate certificate requires the presence of the certificate chain
+ * leading to the associated root CA.
+ *
+ * @return 0 on success or < 0 on error (-EKEYREJECTED implies that the
+ * provided certificate does not have a chain to a root CA in the trust store)
+ */
+int lc_pkcs7_trust_store_add(struct pkcs7_trust_store *trust_store,
+			     struct x509_certificate *x509);
+
+/**
+ * @ingroup PKCS7
+ * @brief Release and clear the trust store
+ */
+void lc_pkcs7_trust_store_clear(struct pkcs7_trust_store *trust_store);
 
 #endif /* _CRYPTO_PKCS7_H */

@@ -480,7 +480,7 @@ int pkcs7_sig_note_authenticated_attr(void *context, size_t hdrlen,
 	struct pkcs7_signed_info *sinfo = ctx->sinfo;
 	enum OID content_type;
 
-	printf_debug("AuthAttr: %02x %zu", tag, vlen, (unsigned)vlen, value);
+	printf_debug("AuthAttr: %02x %zu", tag, vlen);
 	bin2print_debug(value, vlen, stdout, " ");
 
 #pragma GCC diagnostic push

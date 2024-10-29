@@ -270,8 +270,8 @@ LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_cert_valid,
 	/* RFC5280 section 4.2.1.2: match AKID and SKID for root CA */
 	CKINT(lc_x509_policy_is_root_ca(cert));
 	if ((ret == LC_X509_POL_TRUE) && cert->raw_akid) {
-		CKINT(lc_x509_policy_match_akid(cert, cert->raw_subject,
-						cert->raw_subject_size));
+		CKINT(lc_x509_policy_match_akid(cert, cert->raw_skid,
+						cert->raw_skid_size));
 
 		if (ret != LC_X509_POL_TRUE) {
 			printf_debug(

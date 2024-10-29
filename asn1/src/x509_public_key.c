@@ -107,6 +107,9 @@ int x509_check_for_self_signed(struct x509_certificate *cert)
 		if (ret == -ENOPKG) {
 			cert->unsupported_sig = 1;
 			ret = 0;
+#ifdef LC_PKCS7_DEBUG
+			cert->self_signed = 1;
+#endif
 		}
 		goto out;
 	}

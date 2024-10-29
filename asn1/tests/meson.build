@@ -1,6 +1,7 @@
 if get_option('x509').enabled()
 	asn1_tester = executable('asn1_tester',
-			 [ 'asn1_tester.c', internal_src ],
+			 [ 'asn1_tester.c', 'asn1_test_helper.c',
+			   internal_src ],
 			 include_directories: [ include_internal_dirs ],
 			 dependencies: leancrypto,
 			 link_with: leancrypto_static_lib
@@ -49,6 +50,14 @@ if get_option('x509').enabled()
 endif
 
 if get_option('pkcs7').enabled()
+	pkcs7_trust_tester = executable('pkcs7_trust_tester',
+			 [ 'pkcs7_trust_tester.c', 'asn1_test_helper.c',
+			   internal_src ],
+			 include_directories: [ include_internal_dirs ],
+			 dependencies: leancrypto,
+			 link_with: leancrypto_static_lib
+			 )
+
 	test('PKCS7 Search Root CA', asn1_tester,
 	args: [ '-p', '-f', certdir + 'cacert.der.p7b', '--check-ca',
 		'--check-selfsigned', '--issuer-cn', 'leancrypto test CA',
@@ -75,11 +84,42 @@ if get_option('pkcs7').enabled()
 		'--unsupported-sig', '--eku', '16' ],
 		suite: regression)
 
-
 	if get_option('pkcs7_debug').enabled()
 		test('PKCS7 Full Validation - Unsupported Certs', asn1_tester,
 			args: [ '-v', certdir + 'cacert.der',
 				'-f', certdir + 'cacert.der.p7b' ],
+			suite: regression)
+
+		test('PKCS7 Trust Validation - 1 CA Cert', pkcs7_trust_tester,
+			args: [ '-f', certdir + 'cacert.der' ],
+			suite: regression)
+		test('PKCS7 Trust Validation - 2 CA Certs', pkcs7_trust_tester,
+			args: [ '-f', certdir + 'cacert.der',
+				'-f', certdir + 'int-1-cert-rsa.der' ],
+			suite: regression)
+		test('PKCS7 Trust Validation - 2 CA Certs no root', pkcs7_trust_tester,
+			args: [ '-f', certdir + 'int-1-cert-rsa.der',
+				'-f', certdir + 'cacert.der', '-e', '250' ],
+			suite: regression)
+		test('PKCS7 Trust Validation - 2 CA Certs broken chain', pkcs7_trust_tester,
+			args: [ '-f', certdir + 'cacert.der',
+				'-f', certdir + 'int-2-cert-rsa.der',
+				'-e', '250' ],
+			suite: regression)
+		test('PKCS7 Trust Validation - 2 CA Certs no chain', pkcs7_trust_tester,
+			args: [ '-f', certdir + 'int-1-cert-rsa.der',
+				'-e', '250' ],
+			suite: regression)
+
+		test('PKCS7 Trust Validation - PKCS#7 with trust chain', pkcs7_trust_tester,
+			args: [ '-f', certdir + 'cacert.der',
+				'-p', certdir + 'cacert.der.p7b',
+				'-v', certdir + 'cacert.der' ],
+			suite: regression)
+		test('PKCS7 Trust Validation - PKCS#7 without trust chain', pkcs7_trust_tester,
+			args: [ '-p', certdir + 'cacert.der.p7b',
+				'-v', certdir + 'cacert.der',
+				'-e', '249' ],
 			suite: regression)
 	endif
 endif

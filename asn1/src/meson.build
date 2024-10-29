@@ -80,6 +80,7 @@ if get_option('pkcs7').enabled()
 
 	src += files([
 		'pkcs7_parser.c',
+		'pkcs7_trust.c',
 		'pkcs7_verify.c',
 
 		'pkcs7.asn1.c',

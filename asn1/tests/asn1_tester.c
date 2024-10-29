@@ -19,12 +19,11 @@
 
 #define _GNU_SOURCE
 #include <errno.h>
-#include <fcntl.h>
 #include <getopt.h>
 #include <stdio.h>
-#include <sys/stat.h>
 #include <time.h>
 
+#include "asn1_test_helper.h"
 #include "binhexbin.h"
 #include "lc_pkcs7.h"
 #include "lc_x509.h"
@@ -63,131 +62,6 @@ struct pkcs7_options {
 	uint64_t valid_from;
 	uint64_t valid_to;
 };
-
-/******************************************************************************
- * Helper code
- ******************************************************************************/
-
-#if (defined(__CYGWIN__) || defined(_WIN32))
-
-static int get_data(const char *filename, uint8_t **memory,
-		    size_t *memory_length)
-{
-	FILE *f = NULL;
-	int ret = 0;
-	struct stat sb;
-
-	ret = stat(filename, &sb);
-	if (ret)
-		return -errno;
-	if (sb.st_size < 0 || sb.st_size > INT_MAX) {
-		ret = -EFAULT;
-		goto out;
-	}
-
-	f = fopen(filename, "r");
-	CKNULL_LOG(f, -EFAULT, "Cannot open file %s\n", filename);
-
-	*memory_length = (size_t)sb.st_size;
-
-	*memory = malloc((size_t)sb.st_size);
-	if (!*memory) {
-		ret = -ENOMEM;
-		goto out;
-	}
-
-
-	if (fread(*memory, 1, *memory_length, f) != (size_t)sb.st_size) {
-		printf("Read failed\n");
-		/*
-		 * It is totally unclear to me why on Github some read
-		 * operations fail here. To still have clean runs, return
-		 * the meson return code 77 here.
-		 */
-		ret = -77;
-	}
-
-out:
-	if (f)
-		fclose(f);
-	return ret;
-}
-
-static void release_data(uint8_t *memory, size_t memory_length)
-{
-	(void)memory_length;
-	if (memory)
-		free(memory);
-}
-
-#else /* (defined(__CYGWIN__) || defined(_WIN32)) */
-
-static int check_filetype(int fd, struct stat *sb)
-{
-	int ret = fstat(fd, sb);
-
-	if (ret)
-		return -errno;
-
-	/* Do not return an error in case we cannot validate the data. */
-	if ((sb->st_mode & S_IFMT) != S_IFREG &&
-	    (sb->st_mode & S_IFMT) != S_IFLNK)
-		return -EINVAL;
-
-	return 0;
-}
-
-static int get_data(const char *filename, uint8_t **memory, size_t *mapped)
-{
-	int fd = -1;
-	int ret = 0;
-	struct stat sb;
-
-	fd = open(filename, O_RDONLY | O_CLOEXEC);
-	if (fd < 0) {
-		fprintf(stderr, "Cannot open file %s: %s\n", filename,
-			strerror(errno));
-		return -EIO;
-	}
-
-	CKINT(check_filetype(fd, &sb));
-	if (sb.st_size < 0) {
-		ret = -EFAULT;
-		goto out;
-	}
-
-	*mapped = (size_t)sb.st_size;
-
-	*memory = mmap(NULL, (size_t)sb.st_size, PROT_READ,
-		       MAP_PRIVATE
-#ifdef __linux__
-			       | MAP_POPULATE
-#endif
-		       ,
-		       fd, 0);
-	if (*memory == MAP_FAILED) {
-		*memory = NULL;
-		ret = -errno;
-		goto out;
-	}
-	madvise(*memory, (size_t)sb.st_size,
-		MADV_SEQUENTIAL | MADV_WILLNEED
-#ifdef __linux__
-			| MADV_HUGEPAGE
-#endif
-	);
-
-out:
-	close(fd);
-	return ret;
-}
-
-static void release_data(uint8_t *memory, size_t memory_length)
-{
-	if (memory)
-		munmap(memory, memory_length);
-}
-#endif
 
 /******************************************************************************
  * X.509 tests
@@ -972,7 +846,7 @@ static int apply_checks_pkcs7(const struct pkcs7_message *pkcs7_msg,
 		int found = 0;
 
 		while (x509) {
-			if (x509->self_signed) {
+			if (!x509->self_signed) {
 				found = 1;
 				break;
 			}
@@ -981,10 +855,10 @@ static int apply_checks_pkcs7(const struct pkcs7_message *pkcs7_msg,
 		}
 
 		if (found) {
-			printf("Certificate is self-signed\n");
-			return -EINVAL;
+			printf("Certificate is not self-signed\n");
 		} else {
 			printf("Certificate is not self-signed\n");
+			return -EINVAL;
 		}
 	}
 
