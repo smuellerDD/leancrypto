@@ -75,7 +75,7 @@ found_issuer_check_skid:
 	 * We matched issuer + serialNumber, but if there's an authKeyId.keyId,
 	 * that must match the CA subjKeyId also.
 	 */
-	if (auth1->len && !asymmetric_key_id_same(&p->skid, auth1)) {
+	if (auth1 && auth1->len && !asymmetric_key_id_same(&p->skid, auth1)) {
 		bin2print_debug(auth1->data, auth1->len, stdout,
 				"Mismatch: AuthKeyID wanted");
 		bin2print_debug(p->id.data, p->id.len, stdout,
@@ -166,7 +166,7 @@ static int pkcs7_validate_trust_one(struct pkcs7_signed_info *sinfo,
 		if (!ret) {
 			x509 = last;
 			printf_debug("sinfo %u: Root cert %u signer is key ",
-				 sinfo->index, x509->index);
+				     sinfo->index, x509->index);
 			bin2print_debug(anchor_cert->id.data,
 					anchor_cert->id.len, stdout, "");
 			goto matched;
@@ -183,7 +183,7 @@ static int pkcs7_validate_trust_one(struct pkcs7_signed_info *sinfo,
 					&sinfo->sig.auth_ids[0], NULL);
 	if (!ret) {
 		printf_debug("sinfo %u: Root cert %u signer is key ",
-			     sinfo->index, x509->index);
+			     sinfo->index, x509 ? x509->index : 0);
 		bin2print_debug(anchor_cert->id.data, anchor_cert->id.len,
 				stdout, "");
 		x509 = NULL;
