@@ -31,7 +31,7 @@ extern "C" {
 #define __maybe_unused __attribute__((__unused__))
 #endif
 #ifndef __always_inline
-#define __always_inline __inline __attribute__ ((__always_inline__))
+#define __always_inline __inline __attribute__((__always_inline__))
 #endif
 
 #ifndef likely

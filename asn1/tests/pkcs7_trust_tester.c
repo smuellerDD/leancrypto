@@ -152,7 +152,8 @@ int main(int argc, char *argv[])
 					ret = -EINVAL;
 					goto out;
 				}
-				parsed_opts.file[parsed_opts.num_files++] = optarg;
+				parsed_opts.file[parsed_opts.num_files++] =
+					optarg;
 				break;
 
 			/* expected */

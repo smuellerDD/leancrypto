@@ -263,7 +263,8 @@ int pkcs7_verify_sig_chain(struct x509_certificate *certificate_chain,
 		}
 
 		/* We didn't find the root of this chain */
-		printf_debug("- top of the certificate reached without match\n");
+		printf_debug(
+			"- top of the certificate reached without match\n");
 		return -EKEYREJECTED;
 
 	found_issuer_check_skid:
@@ -279,7 +280,8 @@ int pkcs7_verify_sig_chain(struct x509_certificate *certificate_chain,
 	found_issuer:
 		printf_debug("- subject %s\n", p->subject);
 		if (p->seen) {
-			printf_debug("SignatureInfo: X.509 chain contains loop\n");
+			printf_debug(
+				"SignatureInfo: X.509 chain contains loop\n");
 #ifdef LC_PKCS7_DEBUG
 			/*
 			 * The root CA detection below will not work in debug

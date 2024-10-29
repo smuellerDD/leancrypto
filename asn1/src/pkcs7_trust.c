@@ -32,11 +32,11 @@
 #include "ret_checkers.h"
 #include "visibility.h"
 
-static int pkcs7_find_asymmetric_key(
-	struct x509_certificate **anchor_cert,
-	const struct pkcs7_trust_store *trust_store,
-	const struct asymmetric_key_id *auth0,
-	const struct asymmetric_key_id *auth1)
+static int
+pkcs7_find_asymmetric_key(struct x509_certificate **anchor_cert,
+			  const struct pkcs7_trust_store *trust_store,
+			  const struct asymmetric_key_id *auth0,
+			  const struct asymmetric_key_id *auth1)
 {
 	struct x509_certificate *p;
 
@@ -47,8 +47,7 @@ static int pkcs7_find_asymmetric_key(
 		bin2print_debug(auth0->data, auth0->len, stdout, "- want");
 		for (p = trust_store->anchor_cert; p; p = p->next) {
 			printf_debug("- cmp [%u] ", p->index);
-			bin2print_debug(p->id.data, p->id.len, stdout,
-					"");
+			bin2print_debug(p->id.data, p->id.len, stdout, "");
 
 			if (asymmetric_key_id_same(&p->id, auth0))
 				goto found_issuer_check_skid;
@@ -59,8 +58,7 @@ static int pkcs7_find_asymmetric_key(
 			if (!p->skid.len)
 				continue;
 			printf_debug("- cmp [%u] ", p->index);
-			bin2print_debug(p->skid.data, p->skid.len,
-					stdout, "");
+			bin2print_debug(p->skid.data, p->skid.len, stdout, "");
 			if (asymmetric_key_id_same(&p->skid, auth1))
 				goto found_issuer;
 		}
@@ -142,7 +140,7 @@ static int pkcs7_validate_trust_one(struct pkcs7_signed_info *sinfo,
 		if (ret != -ENOKEY)
 			return ret;
 
-		 /*
+		/*
 		  * Self-signed certificates form roots of their own, and if we
 		  * don't know them, then we can't accept them.
 		  */
@@ -261,7 +259,8 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_trust_store_add,
 
 	CKINT(lc_x509_policy_is_root_ca(x509));
 	if (ret != LC_X509_POL_TRUE) {
-		printf_debug("Certificate is no root CA, checking certificate chain in trust store\n");
+		printf_debug(
+			"Certificate is no root CA, checking certificate chain in trust store\n");
 
 		CKINT(lc_x509_policy_is_ca(x509));
 
@@ -290,8 +289,8 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_trust_store_add,
 	 */
 	for (anchor_cert = trust_store->anchor_cert; anchor_cert;
 	     anchor_cert = anchor_cert->next) {
-		if (__sync_val_compare_and_swap(
-			&anchor_cert->next, NULL, x509) == NULL)
+		if (__sync_val_compare_and_swap(&anchor_cert->next, NULL,
+						x509) == NULL)
 			goto out;
 	}
 

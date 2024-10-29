@@ -54,7 +54,6 @@ int get_data(const char *filename, uint8_t **memory, size_t *memory_length)
 		goto out;
 	}
 
-
 	if (fread(*memory, 1, *memory_length, f) != (size_t)sb.st_size) {
 		printf("Read failed\n");
 		/*
