@@ -41,6 +41,9 @@
 #ifndef EKEYREJECTED
 #define EKEYREJECTED 1025 /* Key was rejected by service */
 #endif
+#ifndef ENOKEY
+#define ENOKEY 1026 /* Key not found */
+#endif
 
 #ifdef LINUX_KERNEL
 /******************************************************************************
