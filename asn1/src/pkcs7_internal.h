@@ -27,23 +27,6 @@
 extern "C" {
 #endif
 
-#ifdef LC_PKCS7_DEBUG
-#warning                                                                       \
-	"LC_PKCS7_DEBUG enabled - code MUST ONLY BE USED FOR TESTING - NEVER IN PRODUCTION!"
-#define CKINT_SIGCHECK(x)                                                      \
-	{                                                                      \
-		ret = x;                                                       \
-		if (ret == -ENOPKG) {                                          \
-			printf("WARNING: NO SIGNATURE CHECK\n");               \
-			ret = 0;                                               \
-		}                                                              \
-		if (ret < 0)                                                   \
-			goto out;                                              \
-	}
-#else
-#define CKINT_SIGCHECK CKINT
-#endif
-
 int pkcs7_verify_sig_chain(struct x509_certificate *certificate_chain,
 			   struct x509_certificate *x509,
 			   struct pkcs7_signed_info *sinfo);

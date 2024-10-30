@@ -292,8 +292,8 @@ int pkcs7_verify_sig_chain(struct x509_certificate *certificate_chain,
 			return -EKEYREJECTED;
 #endif
 		}
-		CKINT_SIGCHECK(
-			public_key_verify_signature(&p->pub, &x509->sig));
+
+		CKINT(lc_x509_policy_cert_verify(&p->pub, x509, 0));
 		x509->signer = p;
 		CKINT(lc_x509_policy_is_root_ca(p));
 		if (ret == LC_X509_POL_TRUE) {

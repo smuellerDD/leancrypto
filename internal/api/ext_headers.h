@@ -87,6 +87,14 @@ static inline pid_t getpid(void)
 
 #define SYSV_ABI
 
+typedef s64 time64_t;
+
+static inline int lc_get_time(time64_t *time_since_epoch)
+{
+	(void)time_since_epoch;
+	return -EOPNOTSUPP;
+}
+
 #elif (defined(__CYGWIN__) || defined(_WIN32))
 /******************************************************************************
  * Windows
@@ -151,6 +159,21 @@ static inline int mlock(const void *ptr, size_t len)
 	} while (0)
 #endif
 
+typedef int64_t time64_t;
+
+static inline int lc_get_time(time64_t *time_since_epoch)
+{
+	if (!time_since_epoch)
+		return -EINVAL;
+
+	*time_since_epoch = time(NULL);
+
+	if (*time_since_epoch == (time_t)-1)
+		return -errno;
+
+	return 0;
+}
+
 #else /* LINUX_KERNEL */
 /******************************************************************************
  * POSIX
@@ -209,6 +232,21 @@ static inline int mlock(const void *ptr, size_t len)
 	do {                                                                   \
 	} while (0)
 #endif
+
+typedef int64_t time64_t;
+
+static inline int lc_get_time(time64_t *time_since_epoch)
+{
+	if (!time_since_epoch)
+		return -EINVAL;
+
+	*time_since_epoch = time(NULL);
+
+	if (*time_since_epoch == (time_t)-1)
+		return -errno;
+
+	return 0;
+}
 
 #endif /* LINUX_KERNEL */
 

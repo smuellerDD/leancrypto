@@ -20,6 +20,7 @@
 #include "asn1_debug.h"
 #include "lc_x509.h"
 #include "lc_memcmp_secure.h"
+#include "public_key.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 
@@ -303,6 +304,48 @@ LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_cert_valid,
 	}
 
 	return LC_X509_POL_TRUE;
+
+out:
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x509_policy_cert_verify,
+		      const struct public_key *pkey,
+		      const struct x509_certificate *cert, uint64_t flags)
+{
+	time64_t time_since_epoch = 0;
+	int ret;
+
+	(void)flags;
+
+	ret = lc_get_time(&time_since_epoch);
+	/*
+	 * If gathering of time is not supported on local system, do not check
+	 * it.
+	 */
+	if (ret == -EOPNOTSUPP) {
+		ret = 0;
+		time_since_epoch = 0;
+	} else if (ret)
+		return ret;
+
+	/*
+	 * Certificate validation: Check validity of time (if the underlying
+	 * platform offers a time stamp)
+	 */
+	if (time_since_epoch) {
+		CKINT(lc_x509_policy_time_valid(cert, time_since_epoch));
+		if (ret == LC_X509_POL_FALSE) {
+			printf_debug("Certificate's time not valid\n");
+			return -EKEYREJECTED;
+		}
+		printf_debug("Certificate's time valid\n");
+	}
+
+	/*
+	 * Certificate validation: Check signature
+	 */
+	CKINT_SIGCHECK(public_key_verify_signature(pkey, &cert->sig));
 
 out:
 	return ret;

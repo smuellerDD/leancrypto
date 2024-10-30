@@ -29,7 +29,6 @@ extern "C" {
 #endif
 
 /// \cond DO_NOT_DOCUMENT
-typedef int64_t time64_t;
 
 /*
  * Identifiers for an asymmetric key ID.  We have three ways of looking up a
@@ -425,6 +424,26 @@ x509_pol_ret_t lc_x509_policy_time_valid(const struct x509_certificate *cert,
  * @return < 0 on error, LC_X509_POL_TRUE or LC_X509_POL_FALSE
  */
 x509_pol_ret_t lc_x509_policy_cert_valid(const struct x509_certificate *cert);
+
+/**
+ * @brief X509
+ * @brief Verification of an X.509 certificate against a public key
+ *
+ * This function performs the signature verification of the signature associated
+ * with an X.509 certificate against the public key provided by the caller.
+ * In addition, it performs all validity checks required as part of the
+ * verification operation, including the validity time enforcement. Only if all
+ * checks pass, the certificate is considered to be validated.
+ *
+ * @param [in] pkey Public key to check the certificate against
+ * @param [in] cert Reference to the certificate to be validated
+ * @param [in] flags Flags for the verification process (currently unused)
+ *
+ * @return 0 on success, < 0 on error
+ */
+int lc_x509_policy_cert_verify(const struct public_key *pkey,
+			       const struct x509_certificate *cert,
+			       uint64_t flags);
 
 #ifdef __cplusplus
 }

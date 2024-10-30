@@ -135,7 +135,9 @@ static int pkcs7_validate_trust_one(struct pkcs7_signed_info *sinfo,
 			 */
 			printf_debug("sinfo %u: Cert %u identity match\n",
 				     sinfo->index, x509->index);
-			goto matched;
+			CKINT(lc_x509_policy_cert_verify(&anchor_cert->pub,
+							 x509, 0));
+			goto verified;
 		}
 		if (ret != -ENOKEY)
 			return ret;
@@ -167,7 +169,9 @@ static int pkcs7_validate_trust_one(struct pkcs7_signed_info *sinfo,
 				     sinfo->index, x509->index);
 			bin2print_debug(anchor_cert->id.data,
 					anchor_cert->id.len, stdout, "");
-			goto matched;
+			CKINT(lc_x509_policy_cert_verify(&anchor_cert->pub,
+							 x509, 0));
+			goto verified;
 		}
 		if (ret != -ENOKEY)
 			return ret;
@@ -186,16 +190,15 @@ static int pkcs7_validate_trust_one(struct pkcs7_signed_info *sinfo,
 				stdout, "");
 		x509 = NULL;
 		sig = &sinfo->sig;
-		goto matched;
+		CKINT_SIGCHECK(
+			public_key_verify_signature(&anchor_cert->pub, sig));
+		goto verified;
 	}
 	if (ret != -ENOKEY)
 		return ret;
 
 	printf_debug(" = -ENOKEY [no backref]");
 	return -ENOKEY;
-
-matched:
-	CKINT_SIGCHECK(public_key_verify_signature(&anchor_cert->pub, sig));
 
 verified:
 	if (x509) {

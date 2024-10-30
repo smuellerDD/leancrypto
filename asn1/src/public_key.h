@@ -31,6 +31,23 @@
 extern "C" {
 #endif
 
+#ifdef LC_PKCS7_DEBUG
+#warning                                                                       \
+	"LC_PKCS7_DEBUG enabled - code MUST ONLY BE USED FOR TESTING - NEVER IN PRODUCTION!"
+#define CKINT_SIGCHECK(x)                                                      \
+	{                                                                      \
+		ret = x;                                                       \
+		if (ret == -ENOPKG) {                                          \
+			printf("WARNING: NO SIGNATURE CHECK\n");               \
+			ret = 0;                                               \
+		}                                                              \
+		if (ret < 0)                                                   \
+			goto out;                                              \
+	}
+#else
+#define CKINT_SIGCHECK CKINT
+#endif
+
 void public_key_clear(struct public_key *key);
 
 void public_key_signature_clear(struct public_key_signature *sig);
