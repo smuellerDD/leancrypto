@@ -324,7 +324,6 @@ LC_INTERFACE_FUNCTION(int, lc_x509_policy_cert_verify,
 	 * it.
 	 */
 	if (ret == -EOPNOTSUPP) {
-		ret = 0;
 		time_since_epoch = 0;
 	} else if (ret)
 		return ret;

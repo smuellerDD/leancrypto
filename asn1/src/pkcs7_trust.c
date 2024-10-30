@@ -100,7 +100,6 @@ found_issuer:
 static int pkcs7_validate_trust_one(struct pkcs7_signed_info *sinfo,
 				    struct pkcs7_trust_store *trust_store)
 {
-	struct public_key_signature *sig = &sinfo->sig;
 	struct x509_certificate *x509, *last = NULL, *p, *anchor_cert;
 	int ret;
 
@@ -152,7 +151,6 @@ static int pkcs7_validate_trust_one(struct pkcs7_signed_info *sinfo,
 		}
 
 		last = x509;
-		sig = &last->sig;
 	}
 
 	/*
@@ -189,9 +187,8 @@ static int pkcs7_validate_trust_one(struct pkcs7_signed_info *sinfo,
 		bin2print_debug(anchor_cert->id.data, anchor_cert->id.len,
 				stdout, "");
 		x509 = NULL;
-		sig = &sinfo->sig;
-		CKINT_SIGCHECK(
-			public_key_verify_signature(&anchor_cert->pub, sig));
+		CKINT_SIGCHECK(public_key_verify_signature(&anchor_cert->pub,
+							   &sinfo->sig));
 		goto verified;
 	}
 	if (ret != -ENOKEY)
