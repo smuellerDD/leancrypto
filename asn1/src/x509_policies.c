@@ -219,7 +219,7 @@ LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_time_valid,
 		      const struct x509_certificate *cert,
 		      time64_t current_time)
 {
-	if (!cert || current_time < 9)
+	if (!cert || current_time < 0)
 		return -EINVAL;
 
 	/*

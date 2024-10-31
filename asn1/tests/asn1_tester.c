@@ -651,6 +651,17 @@ static int apply_checks_x509(const struct x509_certificate *x509,
 			return -EINVAL;
 		}
 
+		CKINT(lc_x509_policy_time_valid(x509, 1));
+		if (ret == LC_X509_POL_TRUE) {
+			printf("Time check: certificate marked as valid with unlikely time (1 second after EPOCH)\n");
+			return -EINVAL;
+		}
+		CKINT(lc_x509_policy_time_valid(x509, 9999999999));
+		if (ret == LC_X509_POL_TRUE) {
+			printf("Time check: certificate marked as valid with unlikely time (way in the future)\n");
+			return -EINVAL;
+		}
+
 		printf("Time check: certificate is valid\n");
 	}
 
