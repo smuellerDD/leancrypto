@@ -4,8 +4,13 @@
  * ASN.1 parser for x509_eku
  */
 #pragma once
+#include "asn1_encoder.h"
 #include "asn1_decoder.h"
 
+// clang-format off
+extern const struct asn1_encoder x509_eku_encoder;
 extern const struct asn1_decoder x509_eku_decoder;
 
+extern int x509_eku_enc(void *, uint8_t *, size_t *);
 extern int x509_eku(void *, size_t, unsigned char, const uint8_t *, size_t);
+// clang-format on

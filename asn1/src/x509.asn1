@@ -7,12 +7,12 @@
 
 Certificate ::= SEQUENCE {
 	tbsCertificate		TBSCertificate ({ x509_note_tbs_certificate }),
-	signatureAlgorithm	AlgorithmIdentifier,
+	signatureAlgorithm	AlgorithmIdentifier ({ x509_signature_algorithm }),
 	signature		BIT STRING ({ x509_note_signature })
 	}
 
 TBSCertificate ::= SEQUENCE {
-	version           [ 0 ]	Version DEFAULT,
+	version           [ 0 ]	Version DEFAULT ({ x509_version }),
 	serialNumber		CertificateSerialNumber ({ x509_note_serial }),
 	signature		AlgorithmIdentifier ({ x509_note_sig_algo }),
 	issuer			Name ({ x509_note_issuer }),
@@ -28,7 +28,7 @@ Version ::= INTEGER
 CertificateSerialNumber ::= INTEGER
 
 AlgorithmIdentifier ::= SEQUENCE {
-	algorithm		OBJECT IDENTIFIER ({ x509_note_OID }),
+	algorithm		OBJECT IDENTIFIER ({ x509_note_algorithm_OID }),
 	parameters		ANY OPTIONAL ({ x509_note_params })
 }
 
@@ -37,9 +37,9 @@ Name ::= SEQUENCE OF RelativeDistinguishedName
 RelativeDistinguishedName ::= SET OF AttributeValueAssertion
 
 AttributeValueAssertion ::= SEQUENCE {
-	attributeType		OBJECT IDENTIFIER ({ x509_note_OID }),
-	attributeValue		ANY ({ x509_extract_name_segment })
-	}
+	attributeType		OBJECT IDENTIFIER ({ x509_note_attribute_type_OID }),
+	attributeValue		ANY ({ x509_extract_attribute_name_segment })
+	} ({ x509_attribute_value_continue })
 
 Validity ::= SEQUENCE {
 	notBefore		Time ({ x509_note_not_before }),
@@ -47,8 +47,8 @@ Validity ::= SEQUENCE {
 	}
 
 Time ::= CHOICE {
-	utcTime			UTCTime,
-	generalTime		GeneralizedTime
+	utcTime			UTCTime ({ x509_set_uct_time }),
+	generalTime		GeneralizedTime ({ x509_set_gen_time })
 	}
 
 SubjectPublicKeyInfo ::= SEQUENCE {
@@ -61,7 +61,7 @@ UniqueIdentifier ::= BIT STRING
 Extensions ::= SEQUENCE OF Extension
 
 Extension ::= SEQUENCE {
-	extnid			OBJECT IDENTIFIER ({ x509_note_OID }),
+	extnid			OBJECT IDENTIFIER ({ x509_extension_OID }),
 	critical		BOOLEAN DEFAULT ({ x509_extension_critical }),
 	extnValue		OCTET STRING ({ x509_process_extension })
-	}
+	} ({ x509_extension_continue })

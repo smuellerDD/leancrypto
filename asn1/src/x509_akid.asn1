@@ -35,7 +35,7 @@ Name ::= SEQUENCE OF RelativeDistinguishedName
 RelativeDistinguishedName ::= SET OF AttributeValueAssertion
 
 AttributeValueAssertion ::= SEQUENCE {
-	attributeType		OBJECT IDENTIFIER ({ x509_note_OID }),
+	attributeType		OBJECT IDENTIFIER ({ x509_akid_note_OID }),
 	attributeValue		ANY ({ x509_extract_name_segment })
 	}
 

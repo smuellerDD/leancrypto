@@ -29,19 +29,19 @@
 #include "ext_headers.h"
 #include "helper.h"
 #include "lc_memory_support.h"
-#include "lc_pkcs7.h"
+#include "lc_pkcs7_parser.h"
 #include "oid_registry.h"
 #include "pkcs7.asn1.h"
 #include "ret_checkers.h"
 #include "visibility.h"
-#include "x509_parser.h"
+#include "x509_cert_parser.h"
 
 struct pkcs7_parse_context {
 	struct pkcs7_message *msg; /* Message being constructed */
 	struct pkcs7_signed_info *sinfo; /* SignedInfo being constructed */
 	struct pkcs7_signed_info **ppsinfo; /* linked list of signer info */
-	struct x509_certificate *certs; /* Certificate cache */
-	struct x509_certificate **ppcerts; /* linked list of certs */
+	struct lc_x509_certificate *certs; /* Certificate cache */
+	struct lc_x509_certificate **ppcerts; /* linked list of certs */
 	const uint8_t *data; /* Start of data */
 	enum OID last_oid; /* Last OID encountered */
 	unsigned int x509_index;
@@ -127,7 +127,7 @@ int pkcs7_sig_note_digest_algo(void *context, size_t hdrlen, unsigned char tag,
 {
 	struct pkcs7_parse_context *ctx = context;
 	struct pkcs7_signed_info *sinfo = ctx->sinfo;
-	struct public_key_signature *sig = &sinfo->sig;
+	struct lc_public_key_signature *sig = &sinfo->sig;
 
 	(void)hdrlen;
 	(void)tag;
@@ -178,7 +178,7 @@ int pkcs7_sig_note_pkey_algo(void *context, size_t hdrlen, unsigned char tag,
 {
 	struct pkcs7_parse_context *ctx = context;
 	struct pkcs7_signed_info *sinfo = ctx->sinfo;
-	struct public_key_signature *sig = &sinfo->sig;
+	struct lc_public_key_signature *sig = &sinfo->sig;
 
 	(void)hdrlen;
 	(void)tag;
@@ -367,8 +367,8 @@ int pkcs7_extract_cert(void *context, size_t hdrlen, unsigned char tag,
 		       const uint8_t *value, size_t vlen)
 {
 	struct pkcs7_parse_context *ctx = context;
-	struct x509_certificate *x509;
-	struct asymmetric_key_id *id;
+	struct lc_x509_certificate *x509;
+	struct lc_asymmetric_key_id *id;
 	int ret;
 
 	if (tag != ((ASN1_UNIV << 6) | ASN1_CONS_BIT | ASN1_SEQ)) {
@@ -389,8 +389,8 @@ int pkcs7_extract_cert(void *context, size_t hdrlen, unsigned char tag,
 		vlen += 2; /* Indefinite length - there should be an EOC */
 
 	CKINT(lc_alloc_aligned((void **)&x509, 8,
-			       sizeof(struct x509_certificate)));
-	CKINT(lc_x509_certificate_parse(x509, value, vlen));
+			       sizeof(struct lc_x509_certificate)));
+	CKINT(lc_x509_cert_parse(x509, value, vlen));
 
 	x509->index = ++ctx->x509_index;
 	printf_debug("Got cert %u for %s\n", x509->index, x509->subject);
@@ -746,20 +746,20 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_get_content_data,
 
 LC_INTERFACE_FUNCTION(void, lc_pkcs7_message_clear, struct pkcs7_message *pkcs7)
 {
-	struct x509_certificate *cert;
+	struct lc_x509_certificate *cert;
 	struct pkcs7_signed_info *sinfo;
 
 	if (pkcs7) {
 		while (pkcs7->certs) {
 			cert = pkcs7->certs;
 			pkcs7->certs = cert->next;
-			lc_x509_certificate_clear(cert);
+			lc_x509_cert_clear(cert);
 			lc_free(cert);
 		}
 		while (pkcs7->crl) {
 			cert = pkcs7->crl;
 			pkcs7->crl = cert->next;
-			lc_x509_certificate_clear(cert);
+			lc_x509_cert_clear(cert);
 		}
 		while (pkcs7->signed_infos) {
 			sinfo = pkcs7->signed_infos;
@@ -798,10 +798,10 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_message_parse, struct pkcs7_message *pkcs7,
 
 out:
 	while (ctx.certs) {
-		struct x509_certificate *cert = ctx.certs;
+		struct lc_x509_certificate *cert = ctx.certs;
 
 		ctx.certs = cert->next;
-		lc_x509_certificate_clear(cert);
+		lc_x509_cert_clear(cert);
 		lc_free(cert);
 	}
 	pkcs7_free_signed_info(ctx.sinfo);

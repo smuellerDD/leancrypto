@@ -25,12 +25,13 @@
 
 #include "asn1_test_helper.h"
 #include "binhexbin.h"
-#include "lc_pkcs7.h"
-#include "lc_x509.h"
+#include "lc_pkcs7_parser.h"
+#include "lc_x509_parser.h"
 #include "math_helper.h"
 #include "ret_checkers.h"
 
-#include "../src/x509_parser.h"
+#include "../src/x509_algorithm_mapper.h"
+#include "../src/x509_cert_parser.h"
 
 enum asn1_test_type {
 	asn1_type_undefined,
@@ -69,7 +70,7 @@ struct pkcs7_options {
 
 static void
 print_x509_name_component(unsigned int *comma, const char *prefix,
-			  const struct x509_certificate_name_component *comp)
+			  const struct lc_x509_certificate_name_component *comp)
 {
 	char buf[LC_ASN1_MAX_ISSUER_NAME + 1] = { 0 };
 
@@ -84,7 +85,7 @@ print_x509_name_component(unsigned int *comma, const char *prefix,
 }
 
 static void print_x509_name(const char *prefix,
-			    const struct x509_certificate_name *name)
+			    const struct lc_x509_certificate_name *name)
 {
 	unsigned int i;
 
@@ -159,42 +160,47 @@ static void print_x509_pubkey_algo_to_name(enum lc_sig_types pkey_algo)
 	}
 }
 
-static void _print_x509_sinature_algo(const struct public_key_signature *sig)
+static void _print_x509_sinature_algo(const struct lc_public_key_signature *sig)
 {
+	const struct lc_hash *hash_algo;
+
 	printf("Signature Algorithm: ");
 	print_x509_pubkey_algo_to_name(sig->pkey_algo);
 
-	if (sig->hash_algo == lc_sha256)
+	if (lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo)) {
+		printf("Cannot resolve signature algorithm\n");
+		return;
+	}
+
+	if (hash_algo == lc_sha256)
 		printf(" SHA2-256");
-	else if (sig->hash_algo == lc_sha384)
+	else if (hash_algo == lc_sha384)
 		printf(" SHA2-384");
-	else if (sig->hash_algo == lc_sha512)
+	else if (hash_algo == lc_sha512)
 		printf(" SHA2-512");
-	else if (sig->hash_algo == lc_sha3_256)
+	else if (hash_algo == lc_sha3_256)
 		printf(" SHA3-256");
-	else if (sig->hash_algo == lc_sha3_384)
+	else if (hash_algo == lc_sha3_384)
 		printf(" SHA3-384");
-	else if (sig->hash_algo == lc_sha3_512)
+	else if (hash_algo == lc_sha3_512)
 		printf(" SHA3-512");
 	else
 		printf(" <unknown hash>");
 	printf("\n");
 }
 
-static void print_x509_sinature_algo(const struct x509_certificate *x509)
+static void print_x509_sinature_algo(const struct lc_x509_certificate *x509)
 {
-	const struct public_key_signature *sig = &x509->sig;
+	const struct lc_public_key_signature *sig = &x509->sig;
 
 	_print_x509_sinature_algo(sig);
 }
 
-static void print_x509_pubkey_algo(const struct x509_certificate *x509)
+static void print_x509_pubkey_algo(const struct lc_x509_certificate *x509)
 {
-	const struct public_key *pub = &x509->pub;
+	const struct lc_public_key *pub = &x509->pub;
 
-	printf("Public Key Algorithm: ");
-	print_x509_pubkey_algo_to_name(pub->pkey_algo);
-	printf("\n");
+	printf("Public Key Algorithm: %s\n", lc_x509_sig_type_to_name(pub->pkey_algo));
 }
 
 static void print_x509_bindata(const char *prefix, const uint8_t *data,
@@ -214,15 +220,15 @@ static void print_x509_bindata(const char *prefix, const uint8_t *data,
 	printf("\n");
 }
 
-static void print_x509_serial(const struct x509_certificate *x509)
+static void print_x509_serial(const struct lc_x509_certificate *x509)
 {
 	print_x509_bindata("Serial Number", x509->raw_serial,
 			   x509->raw_serial_size);
 }
 
-static void print_x509_extensions(const struct x509_certificate *x509)
+static void print_x509_extensions(const struct lc_x509_certificate *x509)
 {
-	const struct public_key *pub = &x509->pub;
+	const struct lc_public_key *pub = &x509->pub;
 
 	print_x509_bindata("X509v3 Subject Key Identifier", x509->raw_skid,
 			   x509->raw_skid_size);
@@ -324,22 +330,29 @@ static void print_x509_validity(const char *prefix, time64_t valid)
 	       time_detail->tm_sec);
 }
 
-static void _print_x509_authids(const struct asymmetric_key_id auth_ids[3])
+static void _print_x509_authids(const struct lc_asymmetric_key_id auth_ids[3])
 {
 	bin2print(auth_ids[0].data, auth_ids[0].len, stdout, "AuthID[0]");
 	bin2print(auth_ids[1].data, auth_ids[1].len, stdout, "AuthID[1]");
 	bin2print(auth_ids[2].data, auth_ids[2].len, stdout, "AuthID[2]");
 }
 
-static void print_x509_authids(const struct x509_certificate *x509)
+static void print_x509_authids(const struct lc_x509_certificate *x509)
 {
-	const struct public_key_signature *sig = &x509->sig;
+	const struct lc_public_key_signature *sig = &x509->sig;
 
 	_print_x509_authids(sig->auth_ids);
 	bin2print(x509->id.data, x509->id.len, stdout, "X.509 ID");
 }
 
-static int print_x509_cert(const struct x509_certificate *x509)
+static void print_x509_pkey_size(const struct lc_x509_certificate *x509)
+{
+	const struct lc_public_key *pkey = &x509->pub;
+
+	printf("Public key size %zu\n", pkey->keylen);
+}
+
+static int print_x509_cert(const struct lc_x509_certificate *x509)
 {
 	print_x509_serial(x509);
 	print_x509_sinature_algo(x509);
@@ -350,14 +363,17 @@ static int print_x509_cert(const struct x509_certificate *x509)
 	print_x509_pubkey_algo(x509);
 	print_x509_extensions(x509);
 	print_x509_authids(x509);
+	print_x509_pkey_size(x509);
+
+	printf("Self-signed: %s\n", x509->self_signed ? "yes" : "no");
 
 	return 0;
 }
 
-static int apply_checks_x509(const struct x509_certificate *x509,
+static int apply_checks_x509(const struct lc_x509_certificate *x509,
 			     const struct pkcs7_options *parsed_opts)
 {
-	const struct public_key *pub = &x509->pub;
+	const struct lc_public_key *pub = &x509->pub;
 	x509_pol_ret_t ret;
 
 	CKINT(lc_x509_policy_cert_valid(x509))
@@ -673,7 +689,7 @@ out:
 
 static int x509_load(const struct pkcs7_options *parsed_opts)
 {
-	struct x509_certificate x509_msg;
+	struct lc_x509_certificate x509_msg;
 	size_t datalen = 0;
 	uint8_t *data = NULL;
 	int ret;
@@ -683,14 +699,14 @@ static int x509_load(const struct pkcs7_options *parsed_opts)
 	CKINT_LOG(get_data(parsed_opts->file, &data, &datalen),
 		  "mmap failure\n");
 
-	CKINT_LOG(lc_x509_certificate_parse(&x509_msg, data, datalen),
+	CKINT_LOG(lc_x509_cert_parse(&x509_msg, data, datalen),
 		  "Parsing of message failed\n");
 
 	CKINT(apply_checks_x509(&x509_msg, parsed_opts));
 
 out:
 	release_data(data, datalen);
-	lc_x509_certificate_clear(&x509_msg);
+	lc_x509_cert_clear(&x509_msg);
 	return ret;
 }
 
@@ -700,7 +716,7 @@ out:
 
 static void print_pkcs7_data(const struct pkcs7_message *pkcs7_msg)
 {
-	struct x509_certificate *cert = pkcs7_msg->certs;
+	struct lc_x509_certificate *cert = pkcs7_msg->certs;
 	struct pkcs7_signed_info *sinfos = pkcs7_msg->signed_infos;
 
 	printf("======= X.509 certificate listing ==========\n");
@@ -713,7 +729,7 @@ static void print_pkcs7_data(const struct pkcs7_message *pkcs7_msg)
 	if (sinfos)
 		printf("======= PKCS7 signed info listing ==========\n");
 	while (sinfos) {
-		struct public_key_signature *sig = &sinfos->sig;
+		struct lc_public_key_signature *sig = &sinfos->sig;
 
 		/* Print signer */
 		if (sinfos->signer)
@@ -747,11 +763,11 @@ static int apply_checks_pkcs7(const struct pkcs7_message *pkcs7_msg,
 	}
 
 	if (parsed_opts->check_ca) {
-		const struct x509_certificate *x509 = pkcs7_msg->certs;
+		const struct lc_x509_certificate *x509 = pkcs7_msg->certs;
 		int found = 0;
 
 		while (x509) {
-			const struct public_key *pub = &x509->pub;
+			const struct lc_public_key *pub = &x509->pub;
 
 			if (pub->ca_pathlen & LC_KEY_CA_MASK) {
 				found = 1;
@@ -771,7 +787,7 @@ static int apply_checks_pkcs7(const struct pkcs7_message *pkcs7_msg,
 	}
 
 	if (parsed_opts->check_ca_conformant) {
-		const struct x509_certificate *x509 = pkcs7_msg->certs;
+		const struct lc_x509_certificate *x509 = pkcs7_msg->certs;
 
 		while (x509) {
 			ret = lc_x509_policy_is_ca(x509);
@@ -790,7 +806,7 @@ static int apply_checks_pkcs7(const struct pkcs7_message *pkcs7_msg,
 	}
 
 	if (parsed_opts->check_no_ca) {
-		const struct x509_certificate *x509 = pkcs7_msg->certs;
+		const struct lc_x509_certificate *x509 = pkcs7_msg->certs;
 
 		while (x509) {
 			ret = lc_x509_policy_is_ca(x509);
@@ -816,7 +832,7 @@ static int apply_checks_pkcs7(const struct pkcs7_message *pkcs7_msg,
 		 * For other certificates, the certificate chain needs to be
 		 * followed using the PKCS7 handling.
 		 */
-		const struct x509_certificate *x509 = pkcs7_msg->certs;
+		const struct lc_x509_certificate *x509 = pkcs7_msg->certs;
 		int found = 0;
 
 		while (x509) {
@@ -853,7 +869,7 @@ static int apply_checks_pkcs7(const struct pkcs7_message *pkcs7_msg,
 	}
 
 	if (parsed_opts->check_no_selfsigned) {
-		const struct x509_certificate *x509 = pkcs7_msg->certs;
+		const struct lc_x509_certificate *x509 = pkcs7_msg->certs;
 		int found = 0;
 
 		while (x509) {
@@ -874,7 +890,7 @@ static int apply_checks_pkcs7(const struct pkcs7_message *pkcs7_msg,
 	}
 
 	if (parsed_opts->issuer_cn) {
-		const struct x509_certificate *x509 = pkcs7_msg->certs;
+		const struct lc_x509_certificate *x509 = pkcs7_msg->certs;
 		int found = 0;
 
 		while (x509) {
@@ -896,7 +912,7 @@ static int apply_checks_pkcs7(const struct pkcs7_message *pkcs7_msg,
 		}
 	}
 	if (parsed_opts->subject_cn) {
-		const struct x509_certificate *x509 = pkcs7_msg->certs;
+		const struct lc_x509_certificate *x509 = pkcs7_msg->certs;
 		int found = 0;
 
 		while (x509) {
@@ -919,7 +935,7 @@ static int apply_checks_pkcs7(const struct pkcs7_message *pkcs7_msg,
 	}
 
 	if (parsed_opts->eku) {
-		const struct x509_certificate *x509 = pkcs7_msg->certs;
+		const struct lc_x509_certificate *x509 = pkcs7_msg->certs;
 
 		while (x509) {
 			ret = lc_x509_policy_match_extended_key_usage(

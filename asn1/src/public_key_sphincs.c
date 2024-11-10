@@ -25,13 +25,15 @@
 #include "lc_sphincs.h"
 #include "public_key_sphincs.h"
 #include "ret_checkers.h"
+#include "x509_algorithm_mapper.h"
 
-int public_key_verify_signature_sphincs(const struct public_key *pkey,
-					const struct public_key_signature *sig,
-					unsigned int fast)
+int public_key_verify_signature_sphincs(
+	const struct lc_public_key *pkey,
+	const struct lc_public_key_signature *sig, unsigned int fast)
 {
 	struct lc_sphincs_pk sphincs_pk;
 	struct lc_sphincs_sig sphincs_sig;
+	const struct lc_hash *hash_algo;
 	int ret;
 	LC_SPHINCS_CTX_ON_STACK(ctx);
 
@@ -54,7 +56,8 @@ int public_key_verify_signature_sphincs(const struct public_key *pkey,
 	 *
 	 * This may change depending on the official specifications.
 	 */
-	lc_sphincs_ctx_hash(ctx, sig->hash_algo);
+	CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
+	lc_sphincs_ctx_hash(ctx, hash_algo);
 
 	CKINT(lc_sphincs_verify_ctx(&sphincs_sig, ctx, sig->digest,
 				    sig->digest_size, &sphincs_pk));

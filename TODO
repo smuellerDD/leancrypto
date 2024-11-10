@@ -17,4 +17,8 @@
 
 - PKCS7 parser: eliminate the malloc for X509 cert data structures and signer info data structures (this is, however, a challenge as we have an unknown amount of them)
 
-- PKCS7 parser: add Trust Store
+- lc_x509_helper: remove duplication between asn1/tests/asn1_test_helper.c and apps/src/lc_x509_generator_file_helper.c
+
+- lc_x509_generator: add SLH-DSA and ML-DSA hybird support
+
+- asn1_encoder.c: reduce memory footprint

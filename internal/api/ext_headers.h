@@ -125,6 +125,7 @@ static inline int lc_get_time(time64_t *time_since_epoch)
 #define __volatile__ volatile
 #endif
 
+#define _POSIX_C_SOURCE 200112L
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>

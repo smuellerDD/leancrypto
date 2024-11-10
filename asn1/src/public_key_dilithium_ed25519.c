@@ -25,12 +25,15 @@
 #include "lc_sphincs.h"
 #include "public_key_dilithium_ed25519.h"
 #include "ret_checkers.h"
+#include "x509_algorithm_mapper.h"
 
 int public_key_verify_signature_dilithium_ed25519(
-	const struct public_key *pkey, const struct public_key_signature *sig)
+	const struct lc_public_key *pkey,
+	const struct lc_public_key_signature *sig)
 {
 	struct lc_dilithium_ed25519_pk dilithium_pk;
 	struct lc_dilithium_ed25519_sig dilithium_sig;
+	const struct lc_hash *hash_algo;
 	int ret;
 	LC_DILITHIUM_ED25519_CTX_ON_STACK(ctx);
 
@@ -57,7 +60,8 @@ int public_key_verify_signature_dilithium_ed25519(
 	 *
 	 * This may change depending on the official specifications.
 	 */
-	lc_dilithium_ed25519_ctx_hash(ctx, sig->hash_algo);
+	CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
+	lc_dilithium_ed25519_ctx_hash(ctx, hash_algo);
 
 	CKINT(lc_dilithium_ed25519_verify_ctx(&dilithium_sig, ctx, sig->digest,
 					      sig->digest_size, &dilithium_pk));

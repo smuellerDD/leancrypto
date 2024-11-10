@@ -1337,8 +1337,13 @@ static void render(FILE *out, FILE *hdr)
 	fprintf(hdr, " * ASN.1 parser for %s\n", grammar_name);
 	fprintf(hdr, " */\n");
 	fprintf(hdr, "#pragma once\n");
+	fprintf(hdr, "#include \"asn1_encoder.h\"\n");
 	fprintf(hdr, "#include \"asn1_decoder.h\"\n");
 	fprintf(hdr, "\n");
+	fprintf(hdr, "// clang-format off\n");
+	fprintf(out, "\n");
+	fprintf(hdr, "extern const struct asn1_encoder %s_encoder;\n",
+		grammar_name);
 	fprintf(hdr, "extern const struct asn1_decoder %s_decoder;\n",
 		grammar_name);
 	if (ferror(hdr)) {
@@ -1355,6 +1360,8 @@ static void render(FILE *out, FILE *hdr)
 	fprintf(out, "#include \"asn1_ber_bytecode.h\"\n");
 	fprintf(out, "#include \"%s.asn1.h\"\n", grammar_name);
 	fprintf(out, "\n");
+	fprintf(out, "// clang-format off\n");
+	fprintf(out, "\n");
 	if (ferror(out)) {
 		perror(outputname);
 		exit(1);
@@ -1366,11 +1373,14 @@ static void render(FILE *out, FILE *hdr)
 	for (action = action_list; action; action = action->next) {
 		action->index = (unsigned char)index++;
 		fprintf(hdr,
+			"extern int %s_enc(void *, uint8_t *, size_t *);\n",
+			action->name);
+		fprintf(hdr,
 			"extern int %s(void *, size_t, unsigned char,"
 			" const uint8_t *, size_t);\n",
 			action->name);
 	}
-	fprintf(hdr, "\n");
+	fprintf(hdr, "// clang-format on\n");
 
 	fprintf(out, "enum %s_actions {\n", grammar_name);
 	for (action = action_list; action; action = action->next)
@@ -1384,6 +1394,15 @@ static void render(FILE *out, FILE *hdr)
 		grammar_name, grammar_name);
 	for (action = action_list; action; action = action->next)
 		fprintf(out, "\t[%4u] = %s,\n", action->index, action->name);
+	fprintf(out, "};\n");
+
+	fprintf(out, "\n");
+	fprintf(out,
+		"static const asn1_action_enc_t %s_action_table_enc[NR__%s_actions] = {\n",
+		grammar_name, grammar_name);
+	for (action = action_list; action; action = action->next)
+		fprintf(out, "\t[%4u] = %s_enc,\n", action->index,
+			action->name);
 	fprintf(out, "};\n");
 
 	if (ferror(out)) {
@@ -1422,7 +1441,15 @@ static void render(FILE *out, FILE *hdr)
 	fprintf(out, "\t.machine = %s_machine,\n", grammar_name);
 	fprintf(out, "\t.machlen = sizeof(%s_machine),\n", grammar_name);
 	fprintf(out, "\t.actions = %s_action_table,\n", grammar_name);
+	fprintf(out, "};\n\n");
+	fprintf(out, "const struct asn1_encoder %s_encoder = {\n",
+		grammar_name);
+	fprintf(out, "\t.machine = %s_machine,\n", grammar_name);
+	fprintf(out, "\t.machlen = sizeof(%s_machine),\n", grammar_name);
+	fprintf(out, "\t.actions = %s_action_table_enc,\n", grammar_name);
 	fprintf(out, "};\n");
+	fprintf(out, "\n");
+	fprintf(out, "// clang-format on\n");
 }
 
 /*

@@ -336,6 +336,19 @@ asn1/src/x509_cert_parser.c
 asn1/src/x509_parser.h
 asn1/src/x509_public_key.c
 
+
+Further, the license of the original code is:
+
+This code is derived in parts from the Linux kernel
+License: SPDX-License-Identifier: GPL-2.0-only
+
+Copyright (C) 2019 James.Bottomley@HansenPartnership.com
+
+The following files are affected:
+
+asn1/src/asn1_encoder_helper.c
+
+
 The associated asn1/src/*.asn1 files are derived from RFC5280 or RFC5652
 as marked in the header of those files and subject to the following license:
 

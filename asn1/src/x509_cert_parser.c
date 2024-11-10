@@ -36,7 +36,8 @@
 #include "math_helper.h"
 #include "oid_registry.h"
 #include "visibility.h"
-#include "x509_parser.h"
+#include "x509_cert_parser.h"
+#include "x509_algorithm_mapper.h"
 #include "x509.asn1.h"
 #include "x509_akid.asn1.h"
 #include "x509_basic_constraints.asn1.h"
@@ -44,29 +45,6 @@
 #include "x509_keyusage.asn1.h"
 #include "x509_san.asn1.h"
 #include "x509_skid.asn1.h"
-
-struct x509_parse_context {
-	struct x509_certificate *cert; /* Certificate being constructed */
-	const uint8_t *data; /* Start of data */
-	const uint8_t *key; /* Key data */
-	size_t key_size; /* Size of key data */
-	const uint8_t *params; /* Key parameters */
-	size_t params_size; /* Size of key parameters */
-	size_t raw_akid_size;
-	const uint8_t *raw_akid; /* Raw authorityKeyId in ASN.1 */
-	const uint8_t *akid_raw_issuer; /* Raw directoryName in authorityKeyId */
-	size_t akid_raw_issuer_size;
-	unsigned int extension_critical : 1;
-	uint16_t o_offset; /* Offset of organizationName (O) */
-	uint16_t cn_offset; /* Offset of commonName (CN) */
-	uint16_t email_offset; /* Offset of emailAddress */
-	enum OID key_algo; /* Algorithm used by the cert's key */
-	enum OID last_oid; /* Last OID encountered */
-	enum OID sig_algo; /* Algorithm used to sign the cert */
-	uint8_t o_size; /* Size of organizationName (O) */
-	uint8_t cn_size; /* Size of commonName (CN) */
-	uint8_t email_size; /* Size of emailAddress */
-};
 
 /******************************************************************************
  * ASN.1 parser support functions
@@ -76,8 +54,8 @@ struct x509_parse_context {
  * Note an OID when we find one for later processing when we know how
  * to interpret it.
  */
-int x509_note_OID(void *context, size_t hdrlen, unsigned char tag,
-		  const uint8_t *value, size_t vlen)
+static int x509_note_OID(void *context, size_t hdrlen, unsigned char tag,
+			 const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
 
@@ -89,8 +67,7 @@ int x509_note_OID(void *context, size_t hdrlen, unsigned char tag,
 	if (ctx->last_oid == OID__NR) {
 		char buffer[50];
 		sprint_oid(value, vlen, buffer, sizeof(buffer));
-		printf_debug("Unknown OID: [%lu] %s\n", value - ctx->data,
-			     buffer);
+		printf_debug("Unknown OID: %s\n", buffer);
 	}
 	return 0;
 }
@@ -103,7 +80,7 @@ int x509_note_tbs_certificate(void *context, size_t hdrlen, unsigned char tag,
 			      const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
-	struct x509_certificate *cert = ctx->cert;
+	struct lc_x509_certificate *cert = ctx->cert;
 
 	(void)tag;
 
@@ -122,171 +99,27 @@ int x509_note_sig_algo(void *context, size_t hdrlen, unsigned char tag,
 		       const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
-	struct x509_certificate *cert = ctx->cert;
-	struct public_key_signature *sig = &cert->sig;
+	struct lc_x509_certificate *cert = ctx->cert;
+	struct lc_public_key_signature *sig = &cert->sig;
+
 
 	(void)hdrlen;
 	(void)tag;
 	(void)value;
 	(void)vlen;
 
-	printf_debug("PubKey Algo: %u\n", ctx->last_oid);
+	printf_debug("Signature algo: %s (OID: %u)\n",
+		     lc_x509_oid_to_name(ctx->last_oid), ctx->last_oid);
 
 	ctx->sig_algo = ctx->last_oid;
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wswitch-enum"
-	switch (ctx->last_oid) {
-#ifdef LC_SHA3
-	case OID_id_MLDSA44:
-		sig->pkey_algo = LC_SIG_DILITHIUM_44;
-		sig->hash_algo = lc_sha3_256;
-		return 0;
+	return lc_x509_oid_to_sig_type(ctx->last_oid, &sig->pkey_algo);
+}
 
-	case OID_id_MLDSA65:
-		sig->pkey_algo = LC_SIG_DILITHIUM_65;
-		sig->hash_algo = lc_sha3_384;
-		return 0;
-
-	case OID_id_MLDSA87:
-		sig->pkey_algo = LC_SIG_DILITHIUM_87;
-		sig->hash_algo = lc_sha3_512;
-		return 0;
-
-	case OID_id_SLHDSA_SHAKE_128F:
-		sig->pkey_algo = LC_SIG_SPINCS_SHAKE_128F;
-		sig->hash_algo = lc_sha3_256;
-		return 0;
-
-	case OID_id_SLHDSA_SHAKE_128S:
-		sig->pkey_algo = LC_SIG_SPINCS_SHAKE_128S;
-		sig->hash_algo = lc_sha3_256;
-		return 0;
-
-	case OID_id_SLHDSA_SHAKE_192F:
-		sig->pkey_algo = LC_SIG_SPINCS_SHAKE_192F;
-		sig->hash_algo = lc_sha3_256;
-		return 0;
-
-	case OID_id_SLHDSA_SHAKE_192S:
-		sig->pkey_algo = LC_SIG_SPINCS_SHAKE_192S;
-		sig->hash_algo = lc_sha3_256;
-		return 0;
-
-	case OID_id_SLHDSA_SHAKE_256F:
-		sig->pkey_algo = LC_SIG_SPINCS_SHAKE_256F;
-		sig->hash_algo = lc_sha3_256;
-		return 0;
-
-	case OID_id_SLHDSA_SHAKE_256S:
-		sig->pkey_algo = LC_SIG_SPINCS_SHAKE_256S;
-		sig->hash_algo = lc_sha3_256;
-		return 0;
-
-	case OID_id_rsassa_pkcs1_v1_5_with_sha3_256:
-		sig->pkey_algo = LC_SIG_RSA_PKCS1;
-		sig->hash_algo = lc_sha3_256;
-		return 0;
-
-	case OID_id_rsassa_pkcs1_v1_5_with_sha3_384:
-		sig->pkey_algo = LC_SIG_RSA_PKCS1;
-		sig->hash_algo = lc_sha3_384;
-		return 0;
-
-	case OID_id_rsassa_pkcs1_v1_5_with_sha3_512:
-		sig->pkey_algo = LC_SIG_RSA_PKCS1;
-		sig->hash_algo = lc_sha3_512;
-		return 0;
-
-	case OID_id_ecdsa_with_sha3_256:
-		sig->pkey_algo = LC_SIG_ECDSA_X963;
-		sig->hash_algo = lc_sha3_256;
-		return 0;
-
-	case OID_id_ecdsa_with_sha3_384:
-		sig->pkey_algo = LC_SIG_ECDSA_X963;
-		sig->hash_algo = lc_sha3_384;
-		return 0;
-
-	case OID_id_ecdsa_with_sha3_512:
-		sig->pkey_algo = LC_SIG_ECDSA_X963;
-		sig->hash_algo = lc_sha3_512;
-		return 0;
-#endif
-#ifdef LC_SHA2_256
-	case OID_sha256WithRSAEncryption:
-		sig->pkey_algo = LC_SIG_RSA_PKCS1;
-		sig->hash_algo = lc_sha256;
-		return 0;
-	case OID_id_ecdsa_with_sha256:
-		sig->pkey_algo = LC_SIG_ECDSA_X963;
-		sig->hash_algo = lc_sha256;
-		return 0;
-#endif
-#ifdef LC_SHA2_512
-	/*
-	 * See https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-02.html
-	 * section 7 (table, column pre-hash).
-	 */
-	case OID_id_MLDSA44_Ed25519_SHA512:
-		sig->pkey_algo = LC_SIG_DILITHIUM_44;
-		sig->hash_algo = lc_sha512;
-		return 0;
-	case OID_id_MLDSA65_Ed25519_SHA512:
-		sig->pkey_algo = LC_SIG_DILITHIUM_65;
-		sig->hash_algo = lc_sha512;
-		return 0;
-	case OID_id_MLDSA87_Ed448_SHA512:
-		sig->pkey_algo = LC_SIG_DILITHIUM_87;
-		sig->hash_algo = lc_sha512;
-		return 0;
-
-	case OID_sha384WithRSAEncryption:
-		sig->pkey_algo = LC_SIG_RSA_PKCS1;
-		sig->hash_algo = lc_sha384;
-		return 0;
-
-	case OID_sha512WithRSAEncryption:
-		sig->pkey_algo = LC_SIG_RSA_PKCS1;
-		sig->hash_algo = lc_sha512;
-		return 0;
-
-	case OID_id_ecdsa_with_sha384:
-		sig->pkey_algo = LC_SIG_ECDSA_X963;
-		sig->hash_algo = lc_sha384;
-		return 0;
-
-	case OID_id_ecdsa_with_sha512:
-		sig->pkey_algo = LC_SIG_ECDSA_X963;
-		sig->hash_algo = lc_sha512;
-		return 0;
-#endif
-
-#if 0
-	case OID_gost2012Signature256:
-		sig->pkey_algo = LC_SIG_ECRDSA_PKCS1;
-		sig->hash_algo = lc_streebog256;
-		return 0;
-
-	case OID_gost2012Signature512:
-		sig->pkey_algo = LC_SIG_ECRDSA_PKCS1;
-		sig->hash_algo = lc_streebog512;
-		return 0;
-
-	case OID_SM2_with_SM3:
-		sig->pkey_algo = LC_SIG_SM2;
-		sig->hash_algo = lc_sm3;
-		return 0;
-#endif
-
-	default:
-		ctx->sig_algo = OID__NR;
-		return -ENOPKG; /* Unsupported combination */
-	}
-#pragma GCC diagnostic pop
-
-	/* We should never reach this */
-	return -EFAULT;
+int x509_note_algorithm_OID(void *context, size_t hdrlen, unsigned char tag,
+			    const uint8_t *value, size_t vlen)
+{
+	return x509_note_OID(context, hdrlen, tag, value, vlen);
 }
 
 /*
@@ -296,8 +129,8 @@ int x509_note_signature(void *context, size_t hdrlen, unsigned char tag,
 			const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
-	struct x509_certificate *cert = ctx->cert;
-	struct public_key_signature *sig = &cert->sig;
+	struct lc_x509_certificate *cert = ctx->cert;
+	struct lc_public_key_signature *sig = &cert->sig;
 
 	(void)hdrlen;
 	(void)tag;
@@ -321,14 +154,6 @@ int x509_note_signature(void *context, size_t hdrlen, unsigned char tag,
 	case LC_SIG_ECDSA_X963:
 	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_SM2:
-		/* Discard the BIT STRING metadata */
-		if (vlen < 1 || *(const uint8_t *)value != 0)
-			return -EBADMSG;
-
-		value++;
-		vlen--;
-		break;
-
 	case LC_SIG_DILITHIUM_44:
 	case LC_SIG_DILITHIUM_44_ED25519:
 	case LC_SIG_DILITHIUM_65:
@@ -342,14 +167,34 @@ int x509_note_signature(void *context, size_t hdrlen, unsigned char tag,
 	case LC_SIG_SPINCS_SHAKE_192S:
 	case LC_SIG_SPINCS_SHAKE_256F:
 	case LC_SIG_SPINCS_SHAKE_256S:
+		/* Discard the BIT STRING metadata */
+		if (vlen < 1 || *(const uint8_t *)value != 0)
+			return -EBADMSG;
+
+		value++;
+		vlen--;
+		break;
 	case LC_SIG_UNKNOWN:
 	default:
 		/* Do nothing */
 		break;
 	}
 
-	ctx->cert->raw_sig = value;
-	ctx->cert->raw_sig_size = vlen;
+	cert->raw_sig = value;
+	cert->raw_sig_size = vlen;
+	printf_debug("Found signature of size %zu\n", cert->raw_sig_size);
+
+	return 0;
+}
+
+int x509_signature_algorithm(void *context, size_t hdrlen, unsigned char tag,
+			     const uint8_t *value, size_t vlen)
+{
+	(void)context;
+	(void)hdrlen;
+	(void)tag;
+	(void)value;
+	(void)vlen;
 	return 0;
 }
 
@@ -360,13 +205,16 @@ int x509_note_serial(void *context, size_t hdrlen, unsigned char tag,
 		     const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
-	struct x509_certificate *cert = ctx->cert;
+	struct lc_x509_certificate *cert = ctx->cert;
 
 	(void)hdrlen;
 	(void)tag;
 
 	cert->raw_serial = value;
 	cert->raw_serial_size = vlen;
+	bin2print_debug(cert->raw_serial, cert->raw_serial_size, stdout,
+			"Serial");
+
 	return 0;
 }
 
@@ -377,14 +225,17 @@ int x509_extract_name_segment(void *context, size_t hdrlen, unsigned char tag,
 			      const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
-	struct x509_certificate *cert = ctx->cert;
-	struct x509_certificate_name *name = &cert->issuer_segments;
+	struct lc_x509_certificate *cert = ctx->cert;
+	struct lc_x509_certificate_name *name = &cert->issuer_segments;
 
 	(void)hdrlen;
 	(void)tag;
 
-	/* If cn.size is already filled, we received the issuer, fill subject */
-	if (name->cn.size)
+	/*
+	 * If cert->raw_issuer is filled, we received the full issuer,
+	 * fill subject
+	 */
+	if (cert->raw_issuer)
 		name = &cert->subject_segments;
 
 #pragma GCC diagnostic push
@@ -393,31 +244,31 @@ int x509_extract_name_segment(void *context, size_t hdrlen, unsigned char tag,
 	case OID_commonName:
 		ctx->cn_size = (uint8_t)vlen;
 		ctx->cn_offset = (uint16_t)(value - ctx->data);
-		name->cn.value = value;
+		name->cn.value = (char *)value;
 		name->cn.size = (uint8_t)vlen;
 		break;
 	case OID_organizationName:
 		ctx->o_size = (uint8_t)vlen;
 		ctx->o_offset = (uint16_t)(value - ctx->data);
-		name->o.value = value;
+		name->o.value = (char *)value;
 		name->o.size = (uint8_t)vlen;
 		break;
 	case OID_email_address:
 		ctx->email_size = (uint8_t)vlen;
 		ctx->email_offset = (uint16_t)(value - ctx->data);
-		name->email.value = value;
+		name->email.value = (char *)value;
 		name->email.size = (uint8_t)vlen;
 		break;
 	case OID_countryName:
-		name->c.value = value;
+		name->c.value = (char *)value;
 		name->c.size = (uint8_t)vlen;
 		break;
 	case OID_stateOrProvinceName:
-		name->st.value = value;
+		name->st.value = (char *)value;
 		name->st.size = (uint8_t)vlen;
 		break;
 	case OID_organizationUnitName:
-		name->ou.value = value;
+		name->ou.value = (char *)value;
 		name->ou.size = (uint8_t)vlen;
 		break;
 	default:
@@ -425,6 +276,32 @@ int x509_extract_name_segment(void *context, size_t hdrlen, unsigned char tag,
 	}
 #pragma GCC diagnostic pop
 
+	return 0;
+}
+
+int x509_extract_attribute_name_segment(void *context, size_t hdrlen,
+					unsigned char tag, const uint8_t *value,
+					size_t vlen)
+{
+	return x509_extract_name_segment(context, hdrlen, tag, value, vlen);
+}
+
+int x509_note_attribute_type_OID(void *context, size_t hdrlen,
+				 unsigned char tag, const uint8_t *value,
+				 size_t vlen)
+{
+	return x509_note_OID(context, hdrlen, tag, value, vlen);
+}
+
+int x509_attribute_value_continue(void *context, size_t hdrlen,
+				  unsigned char tag, const uint8_t *value,
+				  size_t vlen)
+{
+	(void)context;
+	(void)hdrlen;
+	(void)tag;
+	(void)value;
+	(void)vlen;
 	return 0;
 }
 
@@ -437,7 +314,7 @@ static int x509_fabricate_name(struct x509_parse_context *ctx, size_t hdrlen,
 			       int subject)
 {
 	const uint8_t *name, *data = (const void *)ctx->data;
-	struct x509_certificate *cert = ctx->cert;
+	struct lc_x509_certificate *cert = ctx->cert;
 	size_t namesize;
 	int ret = 0;
 
@@ -556,8 +433,8 @@ int x509_note_issuer(void *context, size_t hdrlen, unsigned char tag,
 		     const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
-	struct x509_certificate *cert = ctx->cert;
-	struct public_key_signature *sig = &cert->sig;
+	struct lc_x509_certificate *cert = ctx->cert;
+	struct lc_public_key_signature *sig = &cert->sig;
 	int ret = 0;
 
 	cert->raw_issuer = value;
@@ -581,7 +458,7 @@ int x509_note_subject(void *context, size_t hdrlen, unsigned char tag,
 		      const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
-	struct x509_certificate *cert = ctx->cert;
+	struct lc_x509_certificate *cert = ctx->cert;
 
 	cert->raw_subject = value;
 	cert->raw_subject_size = vlen;
@@ -595,7 +472,7 @@ int x509_note_params(void *context, size_t hdrlen, unsigned char tag,
 		     const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
-	struct x509_certificate *cert = ctx->cert;
+	struct lc_x509_certificate *cert = ctx->cert;
 
 	(void)tag;
 
@@ -618,82 +495,51 @@ int x509_extract_key_data(void *context, size_t hdrlen, unsigned char tag,
 			  const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
-	struct x509_certificate *cert = ctx->cert;
-	struct public_key *pub = &cert->pub;
-	enum OID oid;
+	struct lc_x509_certificate *cert = ctx->cert;
+	struct lc_public_key *pub = &cert->pub;
+	int ret;
 
 	(void)hdrlen;
 	(void)tag;
 
 	ctx->key_algo = ctx->last_oid;
 
+	printf_debug("Public key algo: %s (OID: %u)\n",
+		     lc_x509_oid_to_name(ctx->last_oid), ctx->last_oid);
+
+	CKINT(lc_x509_oid_to_sig_type(ctx->last_oid, &pub->pkey_algo));
+
+#if 0
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wswitch-enum"
+
+	enum OID oid;
 	switch (ctx->last_oid) {
-	case OID_id_MLDSA44:
-	case OID_id_MLDSA44_Ed25519_SHA512:
-		pub->pkey_algo = LC_SIG_DILITHIUM_44;
-		break;
-
-	case OID_id_MLDSA65:
-	case OID_id_MLDSA65_Ed25519_SHA512:
-		pub->pkey_algo = LC_SIG_DILITHIUM_65;
-		break;
-
-	case OID_id_MLDSA87:
-	case OID_id_MLDSA87_Ed448_SHA512:
-		pub->pkey_algo = LC_SIG_DILITHIUM_87;
-		break;
-
-	case OID_id_SLHDSA_SHAKE_128F:
-		pub->pkey_algo = LC_SIG_SPINCS_SHAKE_128F;
-		break;
-
-	case OID_id_SLHDSA_SHAKE_128S:
-		pub->pkey_algo = LC_SIG_SPINCS_SHAKE_128S;
-		break;
-
-	case OID_id_SLHDSA_SHAKE_192F:
-		pub->pkey_algo = LC_SIG_SPINCS_SHAKE_192F;
-		break;
-
-	case OID_id_SLHDSA_SHAKE_192S:
-		pub->pkey_algo = LC_SIG_SPINCS_SHAKE_192S;
-		break;
-
-	case OID_id_SLHDSA_SHAKE_256F:
-		pub->pkey_algo = LC_SIG_SPINCS_SHAKE_256F;
-		break;
-
-	case OID_id_SLHDSA_SHAKE_256S:
-		pub->pkey_algo = LC_SIG_SPINCS_SHAKE_256S;
-		break;
-
-	case OID_rsaEncryption:
-		pub->pkey_algo = LC_SIG_RSA_PKCS1;
-		break;
-	case OID_gost2012PKey256:
-	case OID_gost2012PKey512:
-		pub->pkey_algo = LC_SIG_ECRDSA_PKCS1;
-		break;
-	case OID_sm2:
-		pub->pkey_algo = LC_SIG_SM2;
-		break;
 	case OID_id_ecPublicKey:
+		printf_debug("Found public key for ECDSA with ");
 		if (parse_OID(ctx->params, ctx->params_size, &oid) != 0)
 			return -EBADMSG;
 
 		switch (oid) {
 		case OID_sm2:
 			pub->pkey_algo = LC_SIG_SM2;
+			printf_debug("SM2\n");
 			break;
 		case OID_id_prime192v1:
+			printf_debug("P-192\n");
+			fallthrough;
 		case OID_id_prime256v1:
+			printf_debug("P-256\n");
+			fallthrough;
 		case OID_id_ansip384r1:
+			printf_debug("P-384\n");
+			fallthrough;
 		case OID_id_ansip521r1:
+			printf_debug("P-521\n");
 			pub->pkey_algo = LC_SIG_ECDSA_X963;
 			break;
 		default:
+			printf("Unknown parameter\n");
 			return -ENOPKG;
 		}
 		break;
@@ -701,13 +547,18 @@ int x509_extract_key_data(void *context, size_t hdrlen, unsigned char tag,
 		return -ENOPKG;
 	}
 #pragma GCC diagnostic pop
+#endif
 
 	/* Discard the BIT STRING metadata */
 	if (vlen < 1 || *(const uint8_t *)value != 0)
 		return -EBADMSG;
 	ctx->key = value + 1;
 	ctx->key_size = vlen - 1;
-	return 0;
+	printf_debug("Public Key size %zu\n", ctx->key_size);
+	bin2print_debug(ctx->key, ctx->key_size, stdout, "Public Key");
+
+out:
+	return ret;
 }
 /*
  * Extract the criticality of an extension
@@ -735,8 +586,10 @@ int x509_eku(void *context, size_t hdrlen, unsigned char tag,
 	     const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
-	struct x509_certificate *cert = ctx->cert;
-	struct public_key *pub = &cert->pub;
+	struct lc_x509_certificate *cert = ctx->cert;
+	struct lc_public_key *pub = &cert->pub;
+	uint16_t eku;
+	int ret;
 
 	(void)hdrlen;
 	(void)tag;
@@ -745,42 +598,17 @@ int x509_eku(void *context, size_t hdrlen, unsigned char tag,
 
 	bin2print_debug(value, vlen, stdout, "OID");
 	ctx->last_oid = look_up_OID(value, vlen);
-
 	printf_debug("Extended Key Usage: %u\n", ctx->last_oid);
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wswitch-enum"
-	switch (ctx->last_oid) {
-	case OID_anyExtendedKeyUsage:
-		pub->key_eku |= LC_KEY_EKU_ANY;
-		break;
-	case OID_id_kp_serverAuth:
-		pub->key_eku |= LC_KEY_EKU_SERVER_AUTH;
-		break;
-	case OID_id_kp_clientAuth:
-		pub->key_eku |= LC_KEY_EKU_CLIENT_AUTH;
-		break;
-	case OID_id_kp_codeSigning:
-		pub->key_eku |= LC_KEY_EKU_CODE_SIGNING;
-		break;
-	case OID_id_kp_emailProtection:
-		pub->key_eku |= LC_KEY_EKU_EMAIL_PROTECTION;
-		break;
-	case OID_id_kp_timeStamping:
-		pub->key_eku |= LC_KEY_EKU_TIME_STAMPING;
-		break;
-	case OID_id_kp_OCSPSigning:
-		pub->key_eku |= LC_KEY_EKU_OCSP_SIGNING;
-		break;
-	default:
-		break;
-	}
-#pragma GCC diagnostic pop
 
+	CKINT(lc_x509_cert_oid_to_eku(ctx->last_oid, &eku));
+
+	pub->key_eku |= eku;
 	pub->key_eku |= ctx->extension_critical ? LC_KEY_EKU_CRITICAL : 0;
 	pub->key_eku |= LC_KEY_EKU_EXTENSION_PRESENT;
 
-	return 0;
+out:
+	return ret;
 }
 
 /*
@@ -790,7 +618,7 @@ int x509_san_dns(void *context, size_t hdrlen, unsigned char tag,
 		 const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
-	struct x509_certificate *cert = ctx->cert;
+	struct lc_x509_certificate *cert = ctx->cert;
 
 	(void)hdrlen;
 	(void)tag;
@@ -808,7 +636,7 @@ int x509_san_ip(void *context, size_t hdrlen, unsigned char tag,
 		const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
-	struct x509_certificate *cert = ctx->cert;
+	struct lc_x509_certificate *cert = ctx->cert;
 
 	(void)hdrlen;
 	(void)tag;
@@ -819,6 +647,12 @@ int x509_san_ip(void *context, size_t hdrlen, unsigned char tag,
 	return 0;
 }
 
+int x509_san_OID(void *context, size_t hdrlen, unsigned char tag,
+		 const uint8_t *value, size_t vlen)
+{
+	return x509_note_OID(context, hdrlen, tag, value, vlen);
+}
+
 /*
  * Extract the basic constraints CA field
  */
@@ -826,8 +660,8 @@ int x509_basic_constraints_ca(void *context, size_t hdrlen, unsigned char tag,
 			      const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
-	struct x509_certificate *cert = ctx->cert;
-	struct public_key *pub = &cert->pub;
+	struct lc_x509_certificate *cert = ctx->cert;
+	struct lc_public_key *pub = &cert->pub;
 
 	(void)hdrlen;
 	(void)tag;
@@ -850,8 +684,8 @@ int x509_basic_constraints_pathlen(void *context, size_t hdrlen,
 				   size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
-	struct x509_certificate *cert = ctx->cert;
-	struct public_key *pub = &cert->pub;
+	struct lc_x509_certificate *cert = ctx->cert;
+	struct lc_public_key *pub = &cert->pub;
 	uint8_t pathlen;
 
 	(void)hdrlen;
@@ -878,12 +712,12 @@ int x509_basic_constraints_pathlen(void *context, size_t hdrlen,
 /*
  * Extract the key usage
  */
-int x509_key_usage(void *context, size_t hdrlen, unsigned char tag,
-		   const uint8_t *value, size_t vlen)
+int x509_keyusage(void *context, size_t hdrlen, unsigned char tag,
+		  const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
-	struct x509_certificate *cert = ctx->cert;
-	struct public_key *pub = &cert->pub;
+	struct lc_x509_certificate *cert = ctx->cert;
+	struct lc_public_key *pub = &cert->pub;
 
 	(void)hdrlen;
 	(void)tag;
@@ -896,14 +730,14 @@ int x509_key_usage(void *context, size_t hdrlen, unsigned char tag,
 	if (vlen == 2)
 		pub->key_usage |= (uint16_t)(value[1] << 8);
 
-	pub->key_usage |= ctx->extension_critical ? LC_KEY_USAGE_CRITICAL : 0;
-	pub->key_usage |= LC_KEY_USAGE_EXTENSION_PRESENT;
-
 	/*
 	 * BIT STRING is handled as a big-endian value which implies that we
 	 * need to convert it here.
 	 */
 	pub->key_usage = be_bswap16(pub->key_usage);
+
+	pub->key_usage |= ctx->extension_critical ? LC_KEY_USAGE_CRITICAL : 0;
+	pub->key_usage |= LC_KEY_USAGE_EXTENSION_PRESENT;
 
 	return 0;
 }
@@ -915,8 +749,8 @@ int x509_skid(void *context, size_t hdrlen, unsigned char tag,
 	      const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
-	struct x509_certificate *cert = ctx->cert;
-	struct asymmetric_key_id *skid = &cert->skid;
+	struct lc_x509_certificate *cert = ctx->cert;
+	struct lc_asymmetric_key_id *skid = &cert->skid;
 	int ret;
 
 	(void)hdrlen;
@@ -933,6 +767,12 @@ int x509_skid(void *context, size_t hdrlen, unsigned char tag,
 
 out:
 	return ret;
+}
+
+int x509_extension_OID(void *context, size_t hdrlen, unsigned char tag,
+		       const uint8_t *value, size_t vlen)
+{
+	return x509_note_OID(context, hdrlen, tag, value, vlen);
 }
 
 /*
@@ -981,6 +821,17 @@ int x509_process_extension(void *context, size_t hdrlen, unsigned char tag,
 
 out:
 	return ret;
+}
+
+int x509_extension_continue(void *context, size_t hdrlen, unsigned char tag,
+			    const uint8_t *value, size_t vlen)
+{
+	(void)context;
+	(void)hdrlen;
+	(void)tag;
+	(void)value;
+	(void)vlen;
+	return 0;
 }
 
 static time64_t mktime64(const unsigned int year0, const unsigned int mon0,
@@ -1088,7 +939,7 @@ int x509_decode_time(time64_t *_t, size_t hdrlen, unsigned char tag,
 		goto invalid_time;
 
 	*_t = mktime64(year, mon, day, hour, min, sec);
-	printf_debug("Time stamp %" PRIu64 "\n", *_t);
+	printf_debug("Time stamp %llu\n", (unsigned long long)*_t);
 	return 0;
 
 unsupported_time:
@@ -1109,7 +960,7 @@ int x509_note_not_before(void *context, size_t hdrlen, unsigned char tag,
 			 const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
-	struct x509_certificate *cert = ctx->cert;
+	struct lc_x509_certificate *cert = ctx->cert;
 
 	return x509_decode_time(&cert->valid_from, hdrlen, tag, value, vlen);
 }
@@ -1121,9 +972,31 @@ int x509_note_not_after(void *context, size_t hdrlen, unsigned char tag,
 			const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
-	struct x509_certificate *cert = ctx->cert;
+	struct lc_x509_certificate *cert = ctx->cert;
 
 	return x509_decode_time(&cert->valid_to, hdrlen, tag, value, vlen);
+}
+
+int x509_set_uct_time(void *context, size_t hdrlen, unsigned char tag,
+		      const uint8_t *value, size_t vlen)
+{
+	(void)context;
+	(void)hdrlen;
+	(void)tag;
+	(void)value;
+	(void)vlen;
+	return 0;
+}
+
+int x509_set_gen_time(void *context, size_t hdrlen, unsigned char tag,
+		      const uint8_t *value, size_t vlen)
+{
+	(void)context;
+	(void)hdrlen;
+	(void)tag;
+	(void)value;
+	(void)vlen;
+	return 0;
 }
 
 /*
@@ -1133,9 +1006,9 @@ int x509_akid_note_kid(void *context, size_t hdrlen, unsigned char tag,
 		       const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
-	struct x509_certificate *cert = ctx->cert;
-	struct public_key_signature *sig = &cert->sig;
-	struct asymmetric_key_id *auth_id = &sig->auth_ids[1];
+	struct lc_x509_certificate *cert = ctx->cert;
+	struct lc_public_key_signature *sig = &cert->sig;
+	struct lc_asymmetric_key_id *auth_id = &sig->auth_ids[1];
 	int ret;
 
 	(void)hdrlen;
@@ -1181,9 +1054,9 @@ int x509_akid_note_serial(void *context, size_t hdrlen, unsigned char tag,
 			  const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
-	struct x509_certificate *cert = ctx->cert;
-	struct public_key_signature *sig = &cert->sig;
-	struct asymmetric_key_id *auth_id = &sig->auth_ids[0];
+	struct lc_x509_certificate *cert = ctx->cert;
+	struct lc_public_key_signature *sig = &cert->sig;
+	struct lc_asymmetric_key_id *auth_id = &sig->auth_ids[0];
 	int ret;
 
 	(void)hdrlen;
@@ -1204,12 +1077,29 @@ out:
 	return ret;
 }
 
+int x509_akid_note_OID(void *context, size_t hdrlen, unsigned char tag,
+		       const uint8_t *value, size_t vlen)
+{
+	return x509_note_OID(context, hdrlen, tag, value, vlen);
+}
+
+int x509_version(void *context, size_t hdrlen, unsigned char tag,
+		 const uint8_t *value, size_t vlen)
+{
+	(void)context;
+	(void)hdrlen;
+	(void)tag;
+	(void)value;
+	(void)vlen;
+	return 0;
+}
+
 /******************************************************************************
  * API functions
  ******************************************************************************/
 
-LC_INTERFACE_FUNCTION(void, lc_x509_certificate_clear,
-		      struct x509_certificate *cert)
+LC_INTERFACE_FUNCTION(void, lc_x509_cert_clear,
+		      struct lc_x509_certificate *cert)
 {
 	if (!cert)
 		return;
@@ -1218,9 +1108,8 @@ LC_INTERFACE_FUNCTION(void, lc_x509_certificate_clear,
 	public_key_signature_clear(&cert->sig);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_x509_certificate_parse,
-		      struct x509_certificate *x509, const uint8_t *data,
-		      size_t datalen)
+LC_INTERFACE_FUNCTION(int, lc_x509_cert_parse, struct lc_x509_certificate *x509,
+		      const uint8_t *data, size_t datalen)
 {
 	struct x509_parse_context ctx = { 0 };
 	int ret;
@@ -1228,7 +1117,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_certificate_parse,
 	CKNULL(x509, -EINVAL);
 	CKNULL(data, -EINVAL);
 
-	lc_memset_secure(x509, 0, sizeof(struct x509_certificate));
+	lc_memset_secure(x509, 0, sizeof(struct lc_x509_certificate));
 	ctx.cert = x509;
 	ctx.data = data;
 
@@ -1264,6 +1153,6 @@ LC_INTERFACE_FUNCTION(int, lc_x509_certificate_parse,
 
 out:
 	if (ret)
-		lc_x509_certificate_clear(x509);
+		lc_x509_cert_clear(x509);
 	return ret;
 }

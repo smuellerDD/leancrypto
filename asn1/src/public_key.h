@@ -21,7 +21,7 @@
 #define PUBLIC_KEY_H
 
 #include "asymmetric_type.h"
-#include "lc_x509.h"
+#include "lc_x509_parser.h"
 #include "lc_sha256.h"
 #include "lc_sha512.h"
 #include "lc_sha3.h"
@@ -48,12 +48,15 @@ extern "C" {
 #define CKINT_SIGCHECK CKINT
 #endif
 
-void public_key_clear(struct public_key *key);
+void public_key_clear(struct lc_public_key *key);
 
-void public_key_signature_clear(struct public_key_signature *sig);
+void public_key_signature_clear(struct lc_public_key_signature *sig);
 
-int public_key_verify_signature(const struct public_key *pkey,
-				const struct public_key_signature *sig);
+int public_key_verify_signature(const struct lc_public_key *pkey,
+				const struct lc_public_key_signature *sig);
+
+int public_key_generate_signature(const struct lc_x509_generate_data *gen_data,
+				  struct lc_x509_certificate *x509);
 
 #ifdef __cplusplus
 }

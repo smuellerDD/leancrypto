@@ -1,0 +1,14 @@
+-- SPDX-License-Identifier: BSD-3-Clause
+--
+-- Copyright (C) 2008 IETF Trust and the persons identified as authors
+-- of the code
+--
+-- https://www.rfc-editor.org/rfc/rfc5280#section-4
+
+Extensions ::= SEQUENCE OF Extension
+
+Extension ::= SEQUENCE {
+	extnid			OBJECT IDENTIFIER ({ x509_extension_OID }),
+	critical		BOOLEAN DEFAULT ({ x509_extension_critical }),
+	extnValue		OCTET STRING ({ x509_process_extension })
+	} ({ x509_extension_continue })

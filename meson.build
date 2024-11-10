@@ -364,8 +364,12 @@ if get_option('sha3').disabled() and get_option('ascon_keccak').enabled()
 	error('Ascon-Keccak support requires SHA-3')
 endif
 
-if get_option('x509').disabled() and get_option('pkcs7').enabled()
-	error('PKCS#7 support requires X.509 support')
+if get_option('x509_parser').disabled() and get_option('pkcs7_parser').enabled()
+	error('PKCS#7 parser support requires X.509 parser support')
+endif
+
+if get_option('x509_parser').disabled() and get_option('x509_generator').enabled()
+	error('X.509 generator support requires X.509 parser support')
 endif
 
 ################################################################################

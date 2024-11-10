@@ -99,5 +99,21 @@ if (host_machine.system() != 'windows') and get_option('apps').enabled()
 				)
 	endif
 
+	if get_option('x509_generator').enabled()
+		lc_x509_generator_files = internal_src
+		lc_x509_generator_files += files([
+						'lc_x509_generator.c',
+						'lc_x509_generator_file_helper.c'
+						])
+
+		lc_x509_generator = executable('lc_x509_generator',
+				[ lc_x509_generator_files ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto,
+				install: true,
+				install_dir: get_option('libexecdir') / meson.project_name()
+				)
+	endif
+
 endif
 

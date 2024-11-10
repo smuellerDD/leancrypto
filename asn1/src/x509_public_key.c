@@ -28,17 +28,18 @@
 #include "lc_memcmp_secure.h"
 #include "ret_checkers.h"
 #include "visibility.h"
-#include "x509_parser.h"
+#include "x509_algorithm_mapper.h"
+#include "x509_cert_parser.h"
 
 /*
  * Set up the signature parameters in an X.509 certificate.  This involves
  * digesting the signed data and extracting the signature.
  */
-int x509_get_sig_params(struct x509_certificate *cert)
+static int _x509_get_sig_params(struct lc_x509_certificate *cert, const struct lc_hash *hash_algo)
 {
-	struct public_key_signature *sig = &cert->sig;
+	struct lc_public_key_signature *sig = &cert->sig;
 	int ret = 0;
-	LC_HASH_CTX_ON_STACK(hash_ctx, sig->hash_algo);
+	LC_HASH_CTX_ON_STACK(hash_ctx, hash_algo);
 
 	printf_debug("==>%s()\n", __func__);
 
@@ -51,6 +52,7 @@ int x509_get_sig_params(struct x509_certificate *cert)
 		ret = -ENOMEM;
 		goto out;
 	}
+	printf_debug("Digest size %zu\n", sig->digest_size);
 
 	lc_hash_update(hash_ctx, cert->tbs, cert->tbs_size);
 	lc_hash_final(hash_ctx, sig->digest);
@@ -61,15 +63,29 @@ out:
 	return ret;
 }
 
+
+int x509_get_sig_params(struct lc_x509_certificate *cert)
+{
+	struct lc_public_key_signature *sig = &cert->sig;
+	const struct lc_hash *hash_algo;
+	int ret = 0;
+
+	CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
+	CKINT(_x509_get_sig_params(cert, hash_algo));
+
+out:
+	return ret;
+}
+
 /*
  * Check for self-signedness in an X.509 cert and if found, check the signature
  * immediately if we can.
  */
-int x509_check_for_self_signed(struct x509_certificate *cert)
+int x509_check_for_self_signed(struct lc_x509_certificate *cert)
 {
-	struct public_key_signature *sig = &cert->sig;
-	struct asymmetric_key_id *auth_id_0 = &sig->auth_ids[0];
-	struct asymmetric_key_id *auth_id_1 = &sig->auth_ids[1];
+	struct lc_public_key_signature *sig = &cert->sig;
+	struct lc_asymmetric_key_id *auth_id_0 = &sig->auth_ids[0];
+	struct lc_asymmetric_key_id *auth_id_1 = &sig->auth_ids[1];
 
 	int ret = 0;
 

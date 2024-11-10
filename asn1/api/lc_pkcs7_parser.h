@@ -22,11 +22,11 @@
 
 #include "ext_headers.h"
 #include "lc_hash.h"
-#include "lc_x509.h"
+#include "lc_x509_parser.h"
 
 /// \cond DO_NOT_DOCUMENT
 struct pkcs7_trust_store {
-	struct x509_certificate *anchor_cert;
+	struct lc_x509_certificate *anchor_cert;
 };
 
 struct pkcs7_signed_info {
@@ -41,8 +41,9 @@ struct pkcs7_signed_info {
 	 * This also contains the issuing cert serial number and issuer's name
 	 * [PKCS#7 or CMS ver 1] or issuing cert's SKID [CMS ver 3].
 	 */
-	struct public_key_signature sig;
-	struct x509_certificate *signer; /* Signing certificate (in msg->certs) */
+	struct lc_public_key_signature sig;
+	struct lc_x509_certificate
+		*signer; /* Signing certificate (in msg->certs) */
 	time64_t signing_time;
 
 	unsigned int index;
@@ -68,8 +69,8 @@ struct pkcs7_signed_info {
 };
 
 struct pkcs7_message {
-	struct x509_certificate *certs; /* Certificate list */
-	struct x509_certificate *crl; /* Revocation list */
+	struct lc_x509_certificate *certs; /* Certificate list */
+	struct lc_x509_certificate *crl; /* Revocation list */
 	struct pkcs7_signed_info *signed_infos;
 	uint8_t version; /* Version of cert (1 -> PKCS#7 or CMS; 3 -> CMS) */
 	unsigned int have_authattrs : 1; /* T if have authattrs */
@@ -334,7 +335,7 @@ int lc_pkcs7_trust_validate(struct pkcs7_message *pkcs7,
  * provided certificate does not have a chain to a root CA in the trust store)
  */
 int lc_pkcs7_trust_store_add(struct pkcs7_trust_store *trust_store,
-			     struct x509_certificate *x509);
+			     struct lc_x509_certificate *x509);
 
 /**
  * @ingroup PKCS7

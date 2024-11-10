@@ -28,7 +28,7 @@
 #define ASYMMETRIC_TYPE_H
 
 #include "ext_headers.h"
-#include "lc_x509.h"
+#include "lc_x509_parser.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,13 +51,13 @@ struct asymmetric_key_ids {
 	void *id[3];
 };
 
-extern int asymmetric_key_id_same(const struct asymmetric_key_id *kid1,
-				  const struct asymmetric_key_id *kid2);
+extern int asymmetric_key_id_same(const struct lc_asymmetric_key_id *kid1,
+				  const struct lc_asymmetric_key_id *kid2);
 
-extern int asymmetric_key_id_partial(const struct asymmetric_key_id *kid1,
-				     const struct asymmetric_key_id *kid2);
+extern int asymmetric_key_id_partial(const struct lc_asymmetric_key_id *kid1,
+				     const struct lc_asymmetric_key_id *kid2);
 
-extern int asymmetric_key_generate_id(struct asymmetric_key_id *,
+extern int asymmetric_key_generate_id(struct lc_asymmetric_key_id *,
 				      const uint8_t *val_1, size_t len_1,
 				      const uint8_t *val_2, size_t len_2);
 // static inline
@@ -73,9 +73,9 @@ extern int asymmetric_key_generate_id(struct asymmetric_key_id *,
 // }
 
 extern struct key *find_asymmetric_key(struct key *keyring,
-				       const struct asymmetric_key_id *id_0,
-				       const struct asymmetric_key_id *id_1,
-				       const struct asymmetric_key_id *id_2,
+				       const struct lc_asymmetric_key_id *id_0,
+				       const struct lc_asymmetric_key_id *id_1,
+				       const struct lc_asymmetric_key_id *id_2,
 				       unsigned int partial);
 
 int x509_load_certificate_list(const uint8_t cert_list[],

@@ -5,4 +5,4 @@
 --
 -- https://www.rfc-editor.org/rfc/rfc5280#section-4
 
-KeyUsage ::= BIT STRING ({ x509_key_usage })
+KeyUsage ::= BIT STRING ({ x509_keyusage })

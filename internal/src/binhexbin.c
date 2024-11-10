@@ -170,6 +170,9 @@ void bin2print(const unsigned char *bin, const size_t binlen, FILE *out,
 	char *hex = NULL;
 	size_t hexlen = binlen * 2 + 1;
 
+	if (!bin)
+		return;
+
 	if (binlen) {
 		hex = calloc(1, hexlen);
 		if (!hex)

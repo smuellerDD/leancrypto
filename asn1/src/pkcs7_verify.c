@@ -29,8 +29,6 @@
 #include "lc_sha256.h"
 #include "lc_sha3.h"
 #include "lc_sha512.h"
-#include "lc_pkcs7.h"
-#include "lc_x509.h"
 #include "pkcs7_internal.h"
 #include "public_key.h"
 #include "ret_checkers.h"
@@ -42,7 +40,7 @@
 static int pkcs7_digest(struct pkcs7_message *pkcs7,
 			struct pkcs7_signed_info *sinfo)
 {
-	struct public_key_signature *sig = &sinfo->sig;
+	struct lc_public_key_signature *sig = &sinfo->sig;
 	int ret = 0;
 	LC_HASH_CTX_ON_STACK(hash_ctx, sig->hash_algo);
 
@@ -134,10 +132,10 @@ out:
 static int pkcs7_find_key(struct pkcs7_message *pkcs7,
 			  struct pkcs7_signed_info *sinfo)
 {
-	struct x509_certificate *x509;
-	struct public_key_signature *sig = &sinfo->sig;
-	struct asymmetric_key_id *sig_auth_id = &sig->auth_ids[0];
-	struct asymmetric_key_id *cert_auth_id;
+	struct lc_x509_certificate *x509;
+	struct lc_public_key_signature *sig = &sinfo->sig;
+	struct lc_asymmetric_key_id *sig_auth_id = &sig->auth_ids[0];
+	struct lc_asymmetric_key_id *cert_auth_id;
 
 	unsigned int certix = 1;
 
@@ -172,13 +170,13 @@ static int pkcs7_find_key(struct pkcs7_message *pkcs7,
 /*
  * Verify the internal certificate chain as best we can.
  */
-int pkcs7_verify_sig_chain(struct x509_certificate *certificate_chain,
-			   struct x509_certificate *x509,
+int pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
+			   struct lc_x509_certificate *x509,
 			   struct pkcs7_signed_info *sinfo)
 {
-	struct public_key_signature *sig;
-	struct x509_certificate *p;
-	struct asymmetric_key_id *auth0, *auth1;
+	struct lc_public_key_signature *sig;
+	struct lc_x509_certificate *p;
+	struct lc_asymmetric_key_id *auth0, *auth1;
 	int ret = 0;
 
 	printf_debug("==> %s()\n", __func__);

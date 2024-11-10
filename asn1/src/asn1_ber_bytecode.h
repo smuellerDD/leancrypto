@@ -39,6 +39,19 @@ typedef int (*asn1_action_t)(void *context,
 			     unsigned char tag, /* In case of ANY type */
 			     const uint8_t *value, size_t vlen);
 
+typedef int (*asn1_action_enc_t)(void *context,
+				 uint8_t *data, /* Data buffer to fill */
+				 size_t *avail_datalen); /* Available data
+							    length - upon
+							    return, reduce by
+							    generated data */
+
+struct asn1_encoder {
+	const unsigned char *machine;
+	size_t machlen;
+	const asn1_action_enc_t *actions;
+};
+
 struct asn1_decoder {
 	const unsigned char *machine;
 	size_t machlen;
@@ -108,6 +121,8 @@ enum asn1_opcode {
 #define _tagn(CLASS, CP, TAG) ((ASN1_##CLASS << 6) | (ASN1_##CP << 5) | TAG)
 #define _jump_target(N) (N)
 #define _action(N) (N)
+
+extern const unsigned char asn1_op_lengths[ASN1_OP__NR];
 
 #ifdef __cplusplus
 }

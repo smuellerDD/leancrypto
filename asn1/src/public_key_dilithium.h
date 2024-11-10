@@ -27,7 +27,12 @@ extern "C" {
 #endif
 
 int public_key_verify_signature_dilithium(
-	const struct public_key *pkey, const struct public_key_signature *sig);
+	const struct lc_public_key *pkey,
+	const struct lc_public_key_signature *sig);
+
+int public_key_generate_signature_dilithium(
+	const struct lc_x509_generate_data *gen_data,
+	struct lc_x509_certificate *x509);
 
 #ifdef __cplusplus
 }

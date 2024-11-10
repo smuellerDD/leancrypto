@@ -29,40 +29,6 @@
 #include "asn1_ber_bytecode.h"
 #include "helper.h"
 
-static const unsigned char asn1_op_lengths[ASN1_OP__NR] = {
-	/*					OPC TAG JMP ACT */
-	[ASN1_OP_MATCH] = 1 + 1,
-	[ASN1_OP_MATCH_OR_SKIP] = 1 + 1,
-	[ASN1_OP_MATCH_ACT] = 1 + 1 + 1,
-	[ASN1_OP_MATCH_ACT_OR_SKIP] = 1 + 1 + 1,
-	[ASN1_OP_MATCH_JUMP] = 1 + 1 + 1,
-	[ASN1_OP_MATCH_JUMP_OR_SKIP] = 1 + 1 + 1,
-	[ASN1_OP_MATCH_ANY] = 1,
-	[ASN1_OP_MATCH_ANY_OR_SKIP] = 1,
-	[ASN1_OP_MATCH_ANY_ACT] = 1 + 1,
-	[ASN1_OP_MATCH_ANY_ACT_OR_SKIP] = 1 + 1,
-	[ASN1_OP_COND_MATCH_OR_SKIP] = 1 + 1,
-	[ASN1_OP_COND_MATCH_ACT_OR_SKIP] = 1 + 1 + 1,
-	[ASN1_OP_COND_MATCH_JUMP_OR_SKIP] = 1 + 1 + 1,
-	[ASN1_OP_COND_MATCH_ANY] = 1,
-	[ASN1_OP_COND_MATCH_ANY_OR_SKIP] = 1,
-	[ASN1_OP_COND_MATCH_ANY_ACT] = 1 + 1,
-	[ASN1_OP_COND_MATCH_ANY_ACT_OR_SKIP] = 1 + 1,
-	[ASN1_OP_COND_FAIL] = 1,
-	[ASN1_OP_COMPLETE] = 1,
-	[ASN1_OP_ACT] = 1 + 1,
-	[ASN1_OP_MAYBE_ACT] = 1 + 1,
-	[ASN1_OP_RETURN] = 1,
-	[ASN1_OP_END_SEQ] = 1,
-	[ASN1_OP_END_SEQ_OF] = 1 + 1,
-	[ASN1_OP_END_SET] = 1,
-	[ASN1_OP_END_SET_OF] = 1 + 1,
-	[ASN1_OP_END_SEQ_ACT] = 1 + 1,
-	[ASN1_OP_END_SEQ_OF_ACT] = 1 + 1 + 1,
-	[ASN1_OP_END_SET_ACT] = 1 + 1,
-	[ASN1_OP_END_SET_OF_ACT] = 1 + 1 + 1,
-};
-
 /*
  * Find the length of an indefinite length object
  * @data: The data buffer
@@ -182,7 +148,7 @@ error:
  *	what members of the set have been seen is a pain.
  */
 int asn1_ber_decoder(const struct asn1_decoder *decoder, void *context,
-		     const unsigned char *data, size_t datalen)
+		     const uint8_t *data, size_t datalen)
 {
 	const unsigned char *machine = decoder->machine;
 	const asn1_action_t *actions = decoder->actions;

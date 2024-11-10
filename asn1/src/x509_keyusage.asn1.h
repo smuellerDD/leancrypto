@@ -4,9 +4,13 @@
  * ASN.1 parser for x509_keyusage
  */
 #pragma once
+#include "asn1_encoder.h"
 #include "asn1_decoder.h"
 
+// clang-format off
+extern const struct asn1_encoder x509_keyusage_encoder;
 extern const struct asn1_decoder x509_keyusage_decoder;
 
-extern int x509_key_usage(void *, size_t, unsigned char, const uint8_t *,
-			  size_t);
+extern int x509_keyusage_enc(void *, uint8_t *, size_t *);
+extern int x509_keyusage(void *, size_t, unsigned char, const uint8_t *, size_t);
+// clang-format on

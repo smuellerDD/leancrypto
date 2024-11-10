@@ -18,16 +18,16 @@
  */
 
 #include "asn1_debug.h"
-#include "lc_x509.h"
+#include "lc_x509_parser.h"
 #include "lc_memcmp_secure.h"
 #include "public_key.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 
 LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_is_ca,
-		      const struct x509_certificate *cert)
+		      const struct lc_x509_certificate *cert)
 {
-	const struct public_key *pub;
+	const struct lc_public_key *pub;
 
 	if (!cert)
 		return -EINVAL;
@@ -55,8 +55,17 @@ LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_is_ca,
 	return LC_X509_POL_FALSE;
 }
 
+LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_is_selfsigned,
+		      const struct lc_x509_certificate *cert)
+{
+	if (!cert->self_signed)
+		return LC_X509_POL_FALSE;
+
+	return LC_X509_POL_TRUE;
+}
+
 LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_is_root_ca,
-		      const struct x509_certificate *cert)
+		      const struct lc_x509_certificate *cert)
 {
 	x509_pol_ret_t ret;
 
@@ -65,19 +74,16 @@ LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_is_root_ca,
 	if (ret != LC_X509_POL_TRUE)
 		return ret;
 
-	if (!cert->self_signed)
-		return LC_X509_POL_FALSE;
-
-	return LC_X509_POL_TRUE;
+	CKINT(lc_x509_policy_is_selfsigned(cert));
 
 out:
 	return ret;
 }
 
 LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_can_validate_crls,
-		      const struct x509_certificate *cert)
+		      const struct lc_x509_certificate *cert)
 {
-	const struct public_key *pub;
+	const struct lc_public_key *pub;
 
 	if (!cert)
 		return -EINVAL;
@@ -97,7 +103,7 @@ LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_can_validate_crls,
 }
 
 LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_match_akid,
-		      const struct x509_certificate *cert,
+		      const struct lc_x509_certificate *cert,
 		      const uint8_t *reference_akid, size_t reference_akid_len)
 {
 	const uint8_t *akid;
@@ -136,7 +142,7 @@ out:
 }
 
 LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_match_skid,
-		      const struct x509_certificate *cert,
+		      const struct lc_x509_certificate *cert,
 		      const uint8_t *reference_skid, size_t reference_skid_len)
 {
 	const uint8_t *skid;
@@ -175,10 +181,10 @@ out:
 }
 
 LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_match_key_usage,
-		      const struct x509_certificate *cert,
+		      const struct lc_x509_certificate *cert,
 		      uint16_t required_key_usage)
 {
-	const struct public_key *pub;
+	const struct lc_public_key *pub;
 
 	if (!cert)
 		return -EINVAL;
@@ -192,10 +198,10 @@ LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_match_key_usage,
 }
 
 LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_match_extended_key_usage,
-		      const struct x509_certificate *cert,
+		      const struct lc_x509_certificate *cert,
 		      uint16_t required_eku)
 {
-	const struct public_key *pub;
+	const struct lc_public_key *pub;
 	uint16_t eku;
 
 	if (!cert)
@@ -216,7 +222,7 @@ LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_match_extended_key_usage,
 }
 
 LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_time_valid,
-		      const struct x509_certificate *cert,
+		      const struct lc_x509_certificate *cert,
 		      time64_t current_time)
 {
 	if (!cert || current_time < 0)
@@ -251,9 +257,9 @@ LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_time_valid,
 }
 
 LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_cert_valid,
-		      const struct x509_certificate *cert)
+		      const struct lc_x509_certificate *cert)
 {
-	const struct public_key *pub;
+	const struct lc_public_key *pub;
 	x509_pol_ret_t ret;
 
 	if (!cert)
@@ -310,8 +316,8 @@ out:
 }
 
 LC_INTERFACE_FUNCTION(int, lc_x509_policy_cert_verify,
-		      const struct public_key *pkey,
-		      const struct x509_certificate *cert, uint64_t flags)
+		      const struct lc_public_key *pkey,
+		      const struct lc_x509_certificate *cert, uint64_t flags)
 {
 	time64_t time_since_epoch = 0;
 	int ret;

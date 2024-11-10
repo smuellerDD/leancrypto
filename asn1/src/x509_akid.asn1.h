@@ -4,17 +4,21 @@
  * ASN.1 parser for x509_akid
  */
 #pragma once
+#include "asn1_encoder.h"
 #include "asn1_decoder.h"
 
+// clang-format off
+extern const struct asn1_encoder x509_akid_encoder;
 extern const struct asn1_decoder x509_akid_decoder;
 
-extern int x509_akid_note_kid(void *, size_t, unsigned char, const uint8_t *,
-			      size_t);
-extern int x509_akid_note_name(void *, size_t, unsigned char, const uint8_t *,
-			       size_t);
-extern int x509_akid_note_serial(void *, size_t, unsigned char, const uint8_t *,
-				 size_t);
-extern int x509_extract_name_segment(void *, size_t, unsigned char,
-				     const uint8_t *, size_t);
-extern int x509_note_OID(void *, size_t, unsigned char, const uint8_t *,
-			 size_t);
+extern int x509_akid_note_OID_enc(void *, uint8_t *, size_t *);
+extern int x509_akid_note_OID(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int x509_akid_note_kid_enc(void *, uint8_t *, size_t *);
+extern int x509_akid_note_kid(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int x509_akid_note_name_enc(void *, uint8_t *, size_t *);
+extern int x509_akid_note_name(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int x509_akid_note_serial_enc(void *, uint8_t *, size_t *);
+extern int x509_akid_note_serial(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int x509_extract_name_segment_enc(void *, uint8_t *, size_t *);
+extern int x509_extract_name_segment(void *, size_t, unsigned char, const uint8_t *, size_t);
+// clang-format on

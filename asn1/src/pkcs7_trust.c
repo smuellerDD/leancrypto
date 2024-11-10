@@ -26,19 +26,19 @@
 
 #include "asn1_debug.h"
 #include "asymmetric_type.h"
-#include "lc_pkcs7.h"
+#include "lc_pkcs7_parser.h"
 #include "pkcs7_internal.h"
 #include "public_key.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 
 static int
-pkcs7_find_asymmetric_key(struct x509_certificate **anchor_cert,
+pkcs7_find_asymmetric_key(struct lc_x509_certificate **anchor_cert,
 			  const struct pkcs7_trust_store *trust_store,
-			  const struct asymmetric_key_id *auth0,
-			  const struct asymmetric_key_id *auth1)
+			  const struct lc_asymmetric_key_id *auth0,
+			  const struct lc_asymmetric_key_id *auth1)
 {
-	struct x509_certificate *p;
+	struct lc_x509_certificate *p;
 
 	/* Look through the X.509 certificates in the PKCS#7 message's
 		* list to see if the next one is there.
@@ -100,7 +100,7 @@ found_issuer:
 static int pkcs7_validate_trust_one(struct pkcs7_signed_info *sinfo,
 				    struct pkcs7_trust_store *trust_store)
 {
-	struct x509_certificate *x509, *last = NULL, *p, *anchor_cert;
+	struct lc_x509_certificate *x509, *last = NULL, *p, *anchor_cert;
 	int ret;
 
 	printf_debug("Validating signer at index %u\n", sinfo->index);
@@ -215,7 +215,7 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_trust_validate, struct pkcs7_message *pkcs7,
 		      struct pkcs7_trust_store *trust_store)
 {
 	struct pkcs7_signed_info *sinfo;
-	struct x509_certificate *p;
+	struct lc_x509_certificate *p;
 	int cached_ret = -ENOKEY;
 	int ret;
 
@@ -249,9 +249,9 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_trust_validate, struct pkcs7_message *pkcs7,
 
 LC_INTERFACE_FUNCTION(int, lc_pkcs7_trust_store_add,
 		      struct pkcs7_trust_store *trust_store,
-		      struct x509_certificate *x509)
+		      struct lc_x509_certificate *x509)
 {
-	struct x509_certificate *anchor_cert;
+	struct lc_x509_certificate *anchor_cert;
 	int ret;
 
 	CKNULL(x509, -EINVAL);
@@ -301,7 +301,7 @@ out:
 LC_INTERFACE_FUNCTION(void, lc_pkcs7_trust_store_clear,
 		      struct pkcs7_trust_store *trust_store)
 {
-	struct x509_certificate *anchor_cert;
+	struct lc_x509_certificate *anchor_cert;
 
 	if (!trust_store) {
 		/* Trust store is empty, nothing to do */
@@ -311,7 +311,7 @@ LC_INTERFACE_FUNCTION(void, lc_pkcs7_trust_store_clear,
 	anchor_cert = trust_store->anchor_cert;
 
 	while (anchor_cert) {
-		lc_x509_certificate_clear(anchor_cert);
+		lc_x509_cert_clear(anchor_cert);
 
 		anchor_cert = anchor_cert->next;
 	}

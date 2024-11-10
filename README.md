@@ -268,8 +268,8 @@ considered as API changes!
 
 ## X.509 and PKCS#7 Support
 
-The library offers an X.509 and PKCS#7 support with `lc_x509.h` and
-`lc_pkcs7.h`.
+The library offers an X.509 and PKCS#7 support with `lc_x509_parser.h`,
+`lc_x509_generator.h` and `lc_pkcs7_parser.h`.
 
 The following services are offered with the PKCS#7 support:
 

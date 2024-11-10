@@ -39,7 +39,7 @@
  *
  * Construct an asymmetric key ID from a pair of binary blobs.
  */
-int asymmetric_key_generate_id(struct asymmetric_key_id *kid,
+int asymmetric_key_generate_id(struct lc_asymmetric_key_id *kid,
 			       const uint8_t *val_1, size_t len_1,
 			       const uint8_t *val_2, size_t len_2)
 {
@@ -65,8 +65,9 @@ int asymmetric_key_generate_id(struct asymmetric_key_id *kid,
  * @kid1: The key ID to compare
  * @kid2: The key ID to compare
  */
-int asymmetric_key_id_same(const struct asymmetric_key_id *kid1,
-			   const struct asymmetric_key_id *kid2)
+#include "binhexbin.h"
+int asymmetric_key_id_same(const struct lc_asymmetric_key_id *kid1,
+			   const struct lc_asymmetric_key_id *kid2)
 {
 	if (!kid1 || !kid2)
 		return 0;
@@ -81,8 +82,8 @@ int asymmetric_key_id_same(const struct asymmetric_key_id *kid1,
  * @kid1: The key ID to compare
  * @kid2: The key ID to compare
  */
-int asymmetric_key_id_partial(const struct asymmetric_key_id *kid1,
-			      const struct asymmetric_key_id *kid2)
+int asymmetric_key_id_partial(const struct lc_asymmetric_key_id *kid1,
+			      const struct lc_asymmetric_key_id *kid2)
 {
 	if (!kid1 || !kid2)
 		return 0;

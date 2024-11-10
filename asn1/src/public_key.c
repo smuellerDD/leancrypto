@@ -31,30 +31,30 @@
 /*
  * Zeroize a public key signature.
  */
-void public_key_signature_clear(struct public_key_signature *sig)
+void public_key_signature_clear(struct lc_public_key_signature *sig)
 {
 	if (!sig)
 		return;
 
-	lc_memset_secure(sig, 0, sizeof(struct public_key_signature));
+	lc_memset_secure(sig, 0, sizeof(struct lc_public_key_signature));
 }
 
 /*
  * Zeroize a public key algorithm key.
  */
-void public_key_clear(struct public_key *key)
+void public_key_clear(struct lc_public_key *key)
 {
 	if (!key)
 		return;
 
-	lc_memset_secure(key, 0, sizeof(struct public_key));
+	lc_memset_secure(key, 0, sizeof(struct lc_public_key));
 }
 
 /*
  * Verify a signature using a public key.
  */
-int public_key_verify_signature(const struct public_key *pkey,
-				const struct public_key_signature *sig)
+int public_key_verify_signature(const struct lc_public_key *pkey,
+				const struct lc_public_key_signature *sig)
 {
 	int ret;
 
@@ -103,6 +103,68 @@ int public_key_verify_signature(const struct public_key *pkey,
 	case LC_SIG_UNKNOWN:
 		printf_debug("Unimplemented asymmetric algorithm %u\n",
 			     pkey->pkey_algo);
+		fallthrough;
+	default:
+		/* Unknown public key algorithm */
+		ret = -ENOPKG;
+	}
+
+out:
+	printf_debug("<==%s() = %d\n", __func__, ret);
+	return ret;
+}
+
+/*
+ * Verify a signature using a public key.
+ */
+int public_key_generate_signature(const struct lc_x509_generate_data *gen_data,
+				  struct lc_x509_certificate *x509)
+{
+	struct lc_public_key_signature *sig;
+	int ret;
+
+	printf_debug("==>%s()\n", __func__);
+
+	CKNULL(gen_data, -EFAULT);
+	CKNULL(x509, -EFAULT);
+
+	sig = &x509->sig;
+
+	if (!sig->digest_size) {
+		printf_debug("Missing message digest\n");
+		return -EINVAL;
+	}
+
+	switch (gen_data->sig_type) {
+	case LC_SIG_DILITHIUM_44:
+	case LC_SIG_DILITHIUM_65:
+	case LC_SIG_DILITHIUM_87:
+		CKINT(public_key_generate_signature_dilithium(gen_data, x509));
+		break;
+	case LC_SIG_DILITHIUM_44_ED25519:
+	case LC_SIG_DILITHIUM_65_ED25519:
+	case LC_SIG_DILITHIUM_87_ED25519:
+		//CKINT(public_key_verify_signature_dilithium_ed25519(pkey, sig));
+		//break;
+	case LC_SIG_SPINCS_SHAKE_128F:
+	case LC_SIG_SPINCS_SHAKE_192F:
+	case LC_SIG_SPINCS_SHAKE_256F:
+		//CKINT(public_key_verify_signature_sphincs(pkey, sig, 1));
+		//break;
+	case LC_SIG_SPINCS_SHAKE_128S:
+	case LC_SIG_SPINCS_SHAKE_192S:
+	case LC_SIG_SPINCS_SHAKE_256S:
+		//CKINT(public_key_verify_signature_sphincs(pkey, sig, 0));
+		//break;
+
+	case LC_SIG_DILITHIUM_87_ED448:
+	case LC_SIG_RSA_PKCS1:
+	case LC_SIG_ECDSA_X963:
+	case LC_SIG_ECRDSA_PKCS1:
+	case LC_SIG_SM2:
+	case LC_SIG_UNKNOWN:
+		printf_debug("Unimplemented asymmetric algorithm %u\n",
+			     gen_data->sig_type);
 		fallthrough;
 	default:
 		/* Unknown public key algorithm */

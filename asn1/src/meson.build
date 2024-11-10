@@ -1,21 +1,52 @@
 # for i in $(ls *.c | sort); do echo "'$i',"; done
 
-if get_option('x509').enabled()
-	asymmetric_algo = 0
+x509_common_support = 0
+
+if get_option('x509_parser').enabled()
+	x509_common_support = 1
 
 	include_files += files([
-		'../api/lc_asn1.h',
-		'../api/lc_x509.h'
+		'../api/lc_x509_parser.h'
 	])
 
 	src += files([
 		'asn1_decoder.c',
+		'x509_cert_parser.c',
+		'x509_cert_parser_get_data.c',
+		'x509_policies.c',
+		'x509_public_key.c',
+	])
+endif
+
+if get_option('x509_generator').enabled()
+	x509_common_support = 1
+
+	include_files += files([
+		'../api/lc_x509_generator.h'
+	])
+
+	src += files([
+		'asn1_encoder.c',
+		'asn1_encoder_helper.c',
+		'x509_algorithm_mapper.c',
+		'x509_cert_generator.c',
+		'x509_cert_generator_set_data.c'
+	])
+endif
+
+if x509_common_support == 1
+	asymmetric_algo = 0
+
+	include_files += files([
+		'../api/lc_asn1.h',
+		'../api/lc_x509_common.h'
+	])
+
+	src += files([
+		'asn1_common.c',
 		'asymmetric_type.c',
 		'oid_registry.c',
 		'public_key.c',
-		'x509_cert_parser.c',
-		'x509_policies.c',
-		'x509_public_key.c',
 
 		'x509.asn1.c',
 		'x509_basic_constraints.asn1.c',
@@ -23,7 +54,7 @@ if get_option('x509').enabled()
 		'x509_eku.asn1.c',
 		'x509_keyusage.asn1.c',
 		'x509_san.asn1.c',
-		'x509_skid.asn1.c'
+		'x509_skid.asn1.c',
 	])
 
 	if (get_option('sphincs_shake_256s').enabled() or
@@ -57,25 +88,11 @@ if get_option('x509').enabled()
 	if (asymmetric_algo == 0)
 		error('X.509 parser without the presence of any asymmetric signature schema is useless')
 	endif
-
-	# Enable the ASN.1 compiler if one or more of the *.asn1 files were
-	# changed and need to be converted into C / H files
-	asn1_compiler_enabled = true
-	if (asn1_compiler_enabled)
-		asn1_compiler_files = files([
-			'asn1_compiler.c'
-		])
-
-		asn1_compiler = executable('asn1_compiler',
-			[ asn1_compiler_files ],
-			include_directories: [ include_internal_dirs ],
-		)
-	endif
 endif
 
-if get_option('pkcs7').enabled()
+if get_option('pkcs7_parser').enabled()
 	include_files += files([
-		'../api/lc_pkcs7.h',
+		'../api/lc_pkcs7_parser.h',
 	])
 
 	src += files([
@@ -85,4 +102,18 @@ if get_option('pkcs7').enabled()
 
 		'pkcs7.asn1.c',
 	])
+endif
+
+# Enable the ASN.1 compiler if one or more of the *.asn1 files were
+# changed and need to be converted into C / H files
+asn1_compiler_enabled = true
+if (asn1_compiler_enabled)
+	asn1_compiler_files = files([
+		'asn1_compiler.c'
+	])
+
+	asn1_compiler = executable('asn1_compiler',
+		[ asn1_compiler_files ],
+		include_directories: [ include_internal_dirs ],
+	)
 endif

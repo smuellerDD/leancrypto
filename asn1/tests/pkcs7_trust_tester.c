@@ -23,7 +23,7 @@
 #include <stdio.h>
 
 #include "asn1_test_helper.h"
-#include "lc_pkcs7.h"
+#include "lc_pkcs7_parser.h"
 #include "ret_checkers.h"
 
 struct pkcs7_trust_options {
@@ -38,7 +38,7 @@ struct pkcs7_trust_options {
 static int pkcs7_trust_store(struct pkcs7_trust_options *opts)
 {
 	struct pkcs7_trust_store trust_store = { 0 };
-	struct x509_certificate x509[MAX_FILES];
+	struct lc_x509_certificate x509[MAX_FILES];
 	struct pkcs7_message pkcs7 = { 0 };
 	uint8_t *data[MAX_FILES] = { 0 };
 	size_t datalen[MAX_FILES] = { 0 };
@@ -52,8 +52,7 @@ static int pkcs7_trust_store(struct pkcs7_trust_options *opts)
 	for (i = 0; i < opts->num_files; i++) {
 		CKINT_LOG(get_data(opts->file[i], &data[i], &datalen[i]),
 			  "Loading of file %s\n", opts->file[i]);
-		CKINT_LOG(lc_x509_certificate_parse(&x509[i], data[i],
-						    datalen[i]),
+		CKINT_LOG(lc_x509_cert_parse(&x509[i], data[i], datalen[i]),
 			  "Parsing of certificate %u\n", i);
 		CKINT_LOG(lc_pkcs7_trust_store_add(&trust_store, &x509[i]),
 			  "Loading certificate %u into trust store\n", i);
@@ -81,7 +80,7 @@ static int pkcs7_trust_store(struct pkcs7_trust_options *opts)
 out:
 	for (i = 0; i < opts->num_files; i++) {
 		release_data(data[i], datalen[i]);
-		lc_x509_certificate_clear(&x509[i]);
+		lc_x509_cert_clear(&x509[i]);
 	}
 	release_data(pkcs7_data, pkcs7_datalen);
 	release_data(verified_data, verified_datalen);

@@ -190,12 +190,26 @@ bad:
  */
 int sprint_OID(enum OID oid, char *buffer, size_t bufsize)
 {
-	int ret;
-
 	if (oid >= OID__NR)
 		return -EFAULT;
 
-	ret = sprint_oid(oid_data + oid_index[oid],
-			 oid_index[oid + 1] - oid_index[oid], buffer, bufsize);
-	return ret;
+	return sprint_oid(oid_data + oid_index[oid],
+			  oid_index[oid + 1] - oid_index[oid], buffer, bufsize);
+}
+
+/**
+ * @brief Obtain reference to binary representation of OID
+ *
+ * @param [in] oid OID to convert to binary representation
+ * @param [out] data pointer to the binary OID data
+ * @param [out] datalen Length of the binary OID data buffer
+ */
+int OID_to_data(enum OID oid, const uint8_t **data, size_t *datalen)
+{
+	if (oid >= OID__NR)
+		return -EFAULT;
+
+	*data = oid_data + oid_index[oid];
+	*datalen = oid_index[oid + 1] - oid_index[oid];
+	return 0;
 }

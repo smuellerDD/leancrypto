@@ -196,8 +196,8 @@ These include the known sha*sum applications.
 ################################################################################
 # Auxiliary options
 ################################################################################
-option('x509', type: 'feature', value: 'enabled',
-       description: '''Enable X.509 Support
+option('x509_parser', type: 'feature', value: 'enabled',
+       description: '''Enable X.509 Parser Support
 
 The X.509 parser offers a completely different interface to utilize the
 cryptographic services of leancrypto than the regular API. It processes X.509
@@ -212,6 +212,15 @@ The X.509 support operates completely on caller-provided memory and does not
 perform any memory allocation on its own.
 ''')
 
+option('x509_generator', type: 'feature', value: 'enabled',
+       description: '''Enable X.509 Generator Support
+
+The X.509 generator allows the generation of X.509 certificates using the
+enabled asymmetric algorithms.
+
+Note: The X.509 generator requires the availability of the X.509 parser.
+''')
+
 option('disable-asm', type: 'boolean', value: false,
        description: '''Disable all acceleration code
 
@@ -220,8 +229,8 @@ compiled.
 ''')
 
 
-option('pkcs7', type: 'feature', value: 'enabled',
-       description: '''Enable PKCS#7 / CMS Support
+option('pkcs7_parser', type: 'feature', value: 'enabled',
+       description: '''Enable PKCS#7 / CMS Parser Support
 
 The PKCS#7 / CMS parser offers a completely different interface to utilize the
 cryptographic services of leancrypto than the regular API. It processes PKCS#7

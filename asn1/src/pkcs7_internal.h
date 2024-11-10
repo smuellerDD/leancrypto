@@ -20,15 +20,15 @@
 #ifndef PKCS7_INTERNAL_H
 #define PKCS7_INTERNAL_H
 
-#include "lc_pkcs7.h"
+#include "lc_pkcs7_parser.h"
 #include "ret_checkers.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int pkcs7_verify_sig_chain(struct x509_certificate *certificate_chain,
-			   struct x509_certificate *x509,
+int pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
+			   struct lc_x509_certificate *x509,
 			   struct pkcs7_signed_info *sinfo);
 
 #ifdef __cplusplus
