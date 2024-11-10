@@ -627,7 +627,8 @@ static int x509_enc_crypto_algo(struct pkcs7_options *opts)
 	CKINT(lc_dilithium_sk_load(&opts->sk, dilithium44_sk,
 				   sizeof(dilithium44_sk)));
 
-	CKINT(lc_x509_cert_set_signer_keypair_dilithium(gcert, &opts->pk, &opts->sk));
+	CKINT(lc_x509_cert_set_signer_keypair_dilithium(gcert, &opts->pk,
+							&opts->sk));
 	CKINT(lc_x509_cert_set_pubkey_dilithium(gcert, &opts->pk));
 
 out:

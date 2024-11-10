@@ -102,7 +102,6 @@ int x509_note_sig_algo(void *context, size_t hdrlen, unsigned char tag,
 	struct lc_x509_certificate *cert = ctx->cert;
 	struct lc_public_key_signature *sig = &cert->sig;
 
-
 	(void)hdrlen;
 	(void)tag;
 	(void)value;
@@ -599,7 +598,6 @@ int x509_eku(void *context, size_t hdrlen, unsigned char tag,
 	bin2print_debug(value, vlen, stdout, "OID");
 	ctx->last_oid = look_up_OID(value, vlen);
 	printf_debug("Extended Key Usage: %u\n", ctx->last_oid);
-
 
 	CKINT(lc_x509_cert_oid_to_eku(ctx->last_oid, &eku));
 

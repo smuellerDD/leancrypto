@@ -35,7 +35,8 @@
  * Set up the signature parameters in an X.509 certificate.  This involves
  * digesting the signed data and extracting the signature.
  */
-static int _x509_get_sig_params(struct lc_x509_certificate *cert, const struct lc_hash *hash_algo)
+static int _x509_get_sig_params(struct lc_x509_certificate *cert,
+				const struct lc_hash *hash_algo)
 {
 	struct lc_public_key_signature *sig = &cert->sig;
 	int ret = 0;
@@ -62,7 +63,6 @@ out:
 	printf_debug("<==%s() = %d\n", __func__, 0);
 	return ret;
 }
-
 
 int x509_get_sig_params(struct lc_x509_certificate *cert)
 {

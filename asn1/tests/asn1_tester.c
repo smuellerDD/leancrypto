@@ -200,7 +200,8 @@ static void print_x509_pubkey_algo(const struct lc_x509_certificate *x509)
 {
 	const struct lc_public_key *pub = &x509->pub;
 
-	printf("Public Key Algorithm: %s\n", lc_x509_sig_type_to_name(pub->pkey_algo));
+	printf("Public Key Algorithm: %s\n",
+	       lc_x509_sig_type_to_name(pub->pkey_algo));
 }
 
 static void print_x509_bindata(const char *prefix, const uint8_t *data,

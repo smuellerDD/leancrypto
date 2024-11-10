@@ -25,11 +25,11 @@
 #include "lc_x509_generator.h"
 #include "x509_cert_parser.h"
 
-static int lc_x509_cert_set_dilithium_keypair(
-			struct lc_x509_generate_data *gen_data,
-		      struct lc_dilithium_pk *pk, struct lc_dilithium_sk *sk)
+static int
+lc_x509_cert_set_dilithium_keypair(struct lc_x509_generate_data *gen_data,
+				   struct lc_dilithium_pk *pk,
+				   struct lc_dilithium_sk *sk)
 {
-
 	enum lc_dilithium_type dilithium_type;
 
 	int ret = 0;
@@ -86,7 +86,8 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_pubkey_dilithium,
 	if (!x509)
 		return -EINVAL;
 
-	CKINT(lc_x509_cert_set_dilithium_keypair(&x509->pub_gen_data, pk, NULL));
+	CKINT(lc_x509_cert_set_dilithium_keypair(&x509->pub_gen_data, pk,
+						 NULL));
 	x509->pub.pkey_algo = x509->pub_gen_data.sig_type;
 
 out:
@@ -361,7 +362,8 @@ x509_cert_set_string(struct lc_x509_certificate_name_component *component,
 }
 
 LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_subject_cn,
-		      struct lc_x509_certificate *cert, const char *string, size_t len)
+		      struct lc_x509_certificate *cert, const char *string,
+		      size_t len)
 {
 	int ret = 0;
 
@@ -373,7 +375,8 @@ out:
 }
 
 LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_subject_email,
-		      struct lc_x509_certificate *cert, const char *string, size_t len)
+		      struct lc_x509_certificate *cert, const char *string,
+		      size_t len)
 {
 	int ret = 0;
 
@@ -385,7 +388,8 @@ out:
 }
 
 LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_subject_ou,
-		      struct lc_x509_certificate *cert, const char *string, size_t len)
+		      struct lc_x509_certificate *cert, const char *string,
+		      size_t len)
 {
 	int ret = 0;
 
@@ -397,7 +401,8 @@ out:
 }
 
 LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_subject_o,
-		      struct lc_x509_certificate *cert, const char *string, size_t len)
+		      struct lc_x509_certificate *cert, const char *string,
+		      size_t len)
 {
 	int ret = 0;
 
@@ -409,7 +414,8 @@ out:
 }
 
 LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_subject_st,
-		      struct lc_x509_certificate *cert, const char *string, size_t len)
+		      struct lc_x509_certificate *cert, const char *string,
+		      size_t len)
 {
 	int ret = 0;
 
@@ -421,7 +427,8 @@ out:
 }
 
 LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_subject_c,
-		      struct lc_x509_certificate *cert, const char *string, size_t len)
+		      struct lc_x509_certificate *cert, const char *string,
+		      size_t len)
 {
 	int ret = 0;
 
@@ -433,7 +440,8 @@ out:
 }
 
 LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_issuer_cn,
-		      struct lc_x509_certificate *cert, const char *string, size_t len)
+		      struct lc_x509_certificate *cert, const char *string,
+		      size_t len)
 {
 	int ret = 0;
 
@@ -445,7 +453,8 @@ out:
 }
 
 LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_issuer_email,
-		      struct lc_x509_certificate *cert, const char *string, size_t len)
+		      struct lc_x509_certificate *cert, const char *string,
+		      size_t len)
 {
 	int ret = 0;
 
@@ -457,7 +466,8 @@ out:
 }
 
 LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_issuer_ou,
-		      struct lc_x509_certificate *cert, const char *string, size_t len)
+		      struct lc_x509_certificate *cert, const char *string,
+		      size_t len)
 {
 	int ret = 0;
 
@@ -469,7 +479,8 @@ out:
 }
 
 LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_issuer_o,
-		      struct lc_x509_certificate *cert, const char *string, size_t len)
+		      struct lc_x509_certificate *cert, const char *string,
+		      size_t len)
 {
 	int ret = 0;
 
@@ -481,7 +492,8 @@ out:
 }
 
 LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_issuer_st,
-		      struct lc_x509_certificate *cert, const char *string, size_t len)
+		      struct lc_x509_certificate *cert, const char *string,
+		      size_t len)
 {
 	int ret = 0;
 
@@ -493,7 +505,8 @@ out:
 }
 
 LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_issuer_c,
-		      struct lc_x509_certificate *cert, const char *string, size_t len)
+		      struct lc_x509_certificate *cert, const char *string,
+		      size_t len)
 {
 	int ret = 0;
 

@@ -287,7 +287,8 @@ static int x509_enc_subject_cn(struct x509_generator_opts *opts,
 {
 	struct lc_x509_certificate *cert = &opts->cert;
 
-	return lc_x509_cert_set_subject_cn(cert, opt_optarg, strlen(opt_optarg));
+	return lc_x509_cert_set_subject_cn(cert, opt_optarg,
+					   strlen(opt_optarg));
 }
 
 static int x509_enc_subject_email(struct x509_generator_opts *opts,
@@ -295,7 +296,8 @@ static int x509_enc_subject_email(struct x509_generator_opts *opts,
 {
 	struct lc_x509_certificate *cert = &opts->cert;
 
-	return lc_x509_cert_set_subject_email(cert, opt_optarg, strlen(opt_optarg));
+	return lc_x509_cert_set_subject_email(cert, opt_optarg,
+					      strlen(opt_optarg));
 }
 
 static int x509_enc_subject_ou(struct x509_generator_opts *opts,
@@ -303,7 +305,8 @@ static int x509_enc_subject_ou(struct x509_generator_opts *opts,
 {
 	struct lc_x509_certificate *cert = &opts->cert;
 
-	return lc_x509_cert_set_subject_ou(cert, opt_optarg, strlen(opt_optarg));
+	return lc_x509_cert_set_subject_ou(cert, opt_optarg,
+					   strlen(opt_optarg));
 }
 
 static int x509_enc_subject_o(struct x509_generator_opts *opts,
@@ -319,7 +322,8 @@ static int x509_enc_subject_st(struct x509_generator_opts *opts,
 {
 	struct lc_x509_certificate *cert = &opts->cert;
 
-	return lc_x509_cert_set_subject_st(cert, opt_optarg, strlen(opt_optarg));
+	return lc_x509_cert_set_subject_st(cert, opt_optarg,
+					   strlen(opt_optarg));
 }
 
 static int x509_enc_subject_c(struct x509_generator_opts *opts,
@@ -343,7 +347,8 @@ static int x509_enc_issuer_email(struct x509_generator_opts *opts,
 {
 	struct lc_x509_certificate *cert = &opts->cert;
 
-	return lc_x509_cert_set_issuer_email(cert, opt_optarg, strlen(opt_optarg));
+	return lc_x509_cert_set_issuer_email(cert, opt_optarg,
+					     strlen(opt_optarg));
 }
 
 static int x509_enc_issuer_ou(struct x509_generator_opts *opts,
@@ -400,17 +405,20 @@ out:
 static int x509_enc_set_signer(struct x509_generator_opts *opts)
 {
 	struct lc_x509_certificate *gcert = &opts->cert;
-	struct lc_x509_key_input_data *signer_key_input_data = &opts->signer_key_input_data;
+	struct lc_x509_key_input_data *signer_key_input_data =
+		&opts->signer_key_input_data;
 	size_t paramlen = 0, pk_len;
 	enum lc_sig_types pkey_type;
 	const uint8_t *dparam, *pk_ptr;
 	const char *param;
 	int ret;
 
-	CKINT_LOG(get_data(opts->x509_signer_file, &opts->signer_data, &opts->signer_data_len),
+	CKINT_LOG(get_data(opts->x509_signer_file, &opts->signer_data,
+			   &opts->signer_data_len),
 		  "mmap failure\n");
 
-	CKINT(lc_x509_cert_parse(&opts->signer_cert, opts->signer_data, opts->signer_data_len));
+	CKINT(lc_x509_cert_parse(&opts->signer_cert, opts->signer_data,
+				 opts->signer_data_len));
 
 	CKINT(lc_x509_policy_is_ca(&opts->signer_cert));
 	if (ret != LC_X509_POL_TRUE)
@@ -423,37 +431,55 @@ static int x509_enc_set_signer(struct x509_generator_opts *opts)
 	CKINT(lc_x509_cert_set_akid(&opts->cert, dparam, paramlen));
 
 	/* Set issuer */
-	CKINT(lc_x509_cert_get_subject_c(&opts->signer_cert, &param, &paramlen));
+	CKINT(lc_x509_cert_get_subject_c(&opts->signer_cert, &param,
+					 &paramlen));
 	CKINT(lc_x509_cert_set_issuer_c(&opts->cert, param, paramlen));
 
-	CKINT(lc_x509_cert_get_subject_st(&opts->signer_cert, &param, &paramlen));
+	CKINT(lc_x509_cert_get_subject_st(&opts->signer_cert, &param,
+					  &paramlen));
 	CKINT(lc_x509_cert_set_issuer_st(&opts->cert, param, paramlen));
 
-	CKINT(lc_x509_cert_get_subject_o(&opts->signer_cert, &param, &paramlen));
+	CKINT(lc_x509_cert_get_subject_o(&opts->signer_cert, &param,
+					 &paramlen));
 	CKINT(lc_x509_cert_set_issuer_o(&opts->cert, param, paramlen));
 
-	CKINT(lc_x509_cert_get_subject_ou(&opts->signer_cert, &param, &paramlen));
+	CKINT(lc_x509_cert_get_subject_ou(&opts->signer_cert, &param,
+					  &paramlen));
 	CKINT(lc_x509_cert_set_issuer_ou(&opts->cert, param, paramlen));
 
-	CKINT(lc_x509_cert_get_subject_cn(&opts->signer_cert, &param, &paramlen));
+	CKINT(lc_x509_cert_get_subject_cn(&opts->signer_cert, &param,
+					  &paramlen));
 	CKINT(lc_x509_cert_set_issuer_cn(&opts->cert, param, paramlen));
 
-	CKINT(lc_x509_cert_get_subject_email(&opts->signer_cert, &param, &paramlen));
+	CKINT(lc_x509_cert_get_subject_email(&opts->signer_cert, &param,
+					     &paramlen));
 	CKINT(lc_x509_cert_set_issuer_email(&opts->cert, param, paramlen));
 
-	CKINT_LOG(get_data(opts->signer_sk_file, &opts->signer_sk_data, &opts->signer_sk_len),
-			  "Signer SK mmap failure\n");
+	CKINT_LOG(get_data(opts->signer_sk_file, &opts->signer_sk_data,
+			   &opts->signer_sk_len),
+		  "Signer SK mmap failure\n");
 
 	/* Get the signature type based on the signer key */
 	CKINT_LOG(lc_x509_cert_get_pubkey(&opts->signer_cert, &pk_ptr, &pk_len,
-				      &pkey_type), "Find X.509 signer public key\n");
+					  &pkey_type),
+		  "Find X.509 signer public key\n");
 	switch (pkey_type) {
 	case LC_SIG_DILITHIUM_44:
 	case LC_SIG_DILITHIUM_65:
 	case LC_SIG_DILITHIUM_87:
-		CKINT_LOG(lc_dilithium_pk_load(&signer_key_input_data->pk.dilithium_pk, pk_ptr, pk_len), "Loading X.509 signer public key from certificate\n");
-		CKINT_LOG(lc_dilithium_sk_load(&signer_key_input_data->sk.dilithium_sk, opts->signer_sk_data, opts->signer_sk_len), "Loading X.509 signer private key from file\n");
-		CKINT_LOG(lc_x509_cert_set_signer_keypair_dilithium(gcert, &signer_key_input_data->pk.dilithium_pk, &signer_key_input_data->sk.dilithium_sk), "Setting X.509 key pair for signing\n");
+		CKINT_LOG(lc_dilithium_pk_load(
+				  &signer_key_input_data->pk.dilithium_pk,
+				  pk_ptr, pk_len),
+			  "Loading X.509 signer public key from certificate\n");
+		CKINT_LOG(lc_dilithium_sk_load(
+				  &signer_key_input_data->sk.dilithium_sk,
+				  opts->signer_sk_data, opts->signer_sk_len),
+			  "Loading X.509 signer private key from file\n");
+		CKINT_LOG(lc_x509_cert_set_signer_keypair_dilithium(
+				  gcert,
+				  &signer_key_input_data->pk.dilithium_pk,
+				  &signer_key_input_data->sk.dilithium_sk),
+			  "Setting X.509 key pair for signing\n");
 		break;
 	case LC_SIG_SPINCS_SHAKE_128F:
 		// CKINT(lc_sphincs_keypair(&key_input_data->pk.sphincs_pk,
@@ -535,34 +561,52 @@ static int x509_enc_set_pubkey(struct x509_generator_opts *opts)
 
 		switch (opts->create_keypair_algo) {
 		case LC_SIG_DILITHIUM_44:
-			CKINT(lc_dilithium_keypair(&key_input_data->pk.dilithium_pk,
-						   &key_input_data->sk.dilithium_sk,
-						   lc_seeded_rng, LC_DILITHIUM_44));
+			CKINT(lc_dilithium_keypair(
+				&key_input_data->pk.dilithium_pk,
+				&key_input_data->sk.dilithium_sk, lc_seeded_rng,
+				LC_DILITHIUM_44));
 			if (self_signed) {
-				CKINT(lc_x509_cert_set_signer_keypair_dilithium(gcert, &key_input_data->pk.dilithium_pk, &key_input_data->sk.dilithium_sk));
+				CKINT(lc_x509_cert_set_signer_keypair_dilithium(
+					gcert, &key_input_data->pk.dilithium_pk,
+					&key_input_data->sk.dilithium_sk));
 			}
-			CKINT(lc_x509_cert_set_pubkey_dilithium(gcert, &key_input_data->pk.dilithium_pk));
-			CKINT(lc_dilithium_sk_ptr(&sk_ptr, &sk_len, &key_input_data->sk.dilithium_sk));
+			CKINT(lc_x509_cert_set_pubkey_dilithium(
+				gcert, &key_input_data->pk.dilithium_pk));
+			CKINT(lc_dilithium_sk_ptr(
+				&sk_ptr, &sk_len,
+				&key_input_data->sk.dilithium_sk));
 			break;
 		case LC_SIG_DILITHIUM_65:
-			CKINT(lc_dilithium_keypair(&key_input_data->pk.dilithium_pk,
-						   &key_input_data->sk.dilithium_sk,
-						   lc_seeded_rng, LC_DILITHIUM_65));
+			CKINT(lc_dilithium_keypair(
+				&key_input_data->pk.dilithium_pk,
+				&key_input_data->sk.dilithium_sk, lc_seeded_rng,
+				LC_DILITHIUM_65));
 			if (self_signed) {
-				CKINT(lc_x509_cert_set_signer_keypair_dilithium(gcert, &key_input_data->pk.dilithium_pk, &key_input_data->sk.dilithium_sk));
+				CKINT(lc_x509_cert_set_signer_keypair_dilithium(
+					gcert, &key_input_data->pk.dilithium_pk,
+					&key_input_data->sk.dilithium_sk));
 			}
-			CKINT(lc_x509_cert_set_pubkey_dilithium(gcert, &key_input_data->pk.dilithium_pk));
-			CKINT(lc_dilithium_sk_ptr(&sk_ptr, &sk_len, &key_input_data->sk.dilithium_sk));
+			CKINT(lc_x509_cert_set_pubkey_dilithium(
+				gcert, &key_input_data->pk.dilithium_pk));
+			CKINT(lc_dilithium_sk_ptr(
+				&sk_ptr, &sk_len,
+				&key_input_data->sk.dilithium_sk));
 			break;
 		case LC_SIG_DILITHIUM_87:
-			CKINT(lc_dilithium_keypair(&key_input_data->pk.dilithium_pk,
-						   &key_input_data->sk.dilithium_sk,
-						   lc_seeded_rng, LC_DILITHIUM_87));
+			CKINT(lc_dilithium_keypair(
+				&key_input_data->pk.dilithium_pk,
+				&key_input_data->sk.dilithium_sk, lc_seeded_rng,
+				LC_DILITHIUM_87));
 			if (self_signed) {
-				CKINT(lc_x509_cert_set_signer_keypair_dilithium(gcert, &key_input_data->pk.dilithium_pk, &key_input_data->sk.dilithium_sk));
+				CKINT(lc_x509_cert_set_signer_keypair_dilithium(
+					gcert, &key_input_data->pk.dilithium_pk,
+					&key_input_data->sk.dilithium_sk));
 			}
-			CKINT(lc_x509_cert_set_pubkey_dilithium(gcert, &key_input_data->pk.dilithium_pk));
-			CKINT(lc_dilithium_sk_ptr(&sk_ptr, &sk_len, &key_input_data->sk.dilithium_sk));
+			CKINT(lc_x509_cert_set_pubkey_dilithium(
+				gcert, &key_input_data->pk.dilithium_pk));
+			CKINT(lc_dilithium_sk_ptr(
+				&sk_ptr, &sk_len,
+				&key_input_data->sk.dilithium_sk));
 			break;
 		case LC_SIG_SPINCS_SHAKE_128F:
 			// CKINT(lc_sphincs_keypair(&key_input_data->pk.sphincs_pk,
@@ -630,12 +674,15 @@ static int x509_enc_set_pubkey(struct x509_generator_opts *opts)
 		CKINT(write_data(opts->sk_file, sk_ptr, sk_len));
 
 	} else {
-		CKNULL_LOG(!opts->in_key_type, -EINVAL, "Input key files must be specified with key type\n");
+		CKNULL_LOG(!opts->in_key_type, -EINVAL,
+			   "Input key files must be specified with key type\n");
 
-		CKINT_LOG(get_data(opts->pk_file, &opts->pk_data, &opts->pk_len),
+		CKINT_LOG(get_data(opts->pk_file, &opts->pk_data,
+				   &opts->pk_len),
 			  "PK mmap failure\n");
 		if (self_signed) {
-			CKINT_LOG(get_data(opts->sk_file, &opts->sk_data, &opts->sk_len),
+			CKINT_LOG(get_data(opts->sk_file, &opts->sk_data,
+					   &opts->sk_len),
 				  "PK mmap failure\n");
 		}
 
@@ -643,11 +690,18 @@ static int x509_enc_set_pubkey(struct x509_generator_opts *opts)
 		case LC_SIG_DILITHIUM_44:
 		case LC_SIG_DILITHIUM_65:
 		case LC_SIG_DILITHIUM_87:
-			CKINT(lc_dilithium_pk_load(&key_input_data->pk.dilithium_pk, opts->pk_data, opts->pk_len));
-			CKINT(lc_x509_cert_set_pubkey_dilithium(gcert, &key_input_data->pk.dilithium_pk));
+			CKINT(lc_dilithium_pk_load(
+				&key_input_data->pk.dilithium_pk, opts->pk_data,
+				opts->pk_len));
+			CKINT(lc_x509_cert_set_pubkey_dilithium(
+				gcert, &key_input_data->pk.dilithium_pk));
 			if (self_signed) {
-				CKINT(lc_dilithium_sk_load(&key_input_data->sk.dilithium_sk, opts->sk_data, opts->sk_len));
-				CKINT(lc_x509_cert_set_signer_keypair_dilithium(gcert, &key_input_data->pk.dilithium_pk, &key_input_data->sk.dilithium_sk));
+				CKINT(lc_dilithium_sk_load(
+					&key_input_data->sk.dilithium_sk,
+					opts->sk_data, opts->sk_len));
+				CKINT(lc_x509_cert_set_signer_keypair_dilithium(
+					gcert, &key_input_data->pk.dilithium_pk,
+					&key_input_data->sk.dilithium_sk));
 			}
 			break;
 		case LC_SIG_SPINCS_SHAKE_128F:
@@ -735,13 +789,15 @@ static int x509_enc_crypto_algo(struct x509_generator_opts *opts)
 	/*
 	 * Set the public key
 	 */
-	CKINT_LOG(x509_enc_set_pubkey(opts), "Setting X.509 public key failed\n");
+	CKINT_LOG(x509_enc_set_pubkey(opts),
+		  "Setting X.509 public key failed\n");
 
 	/*
 	 * Set the signer information
 	 */
 	if (opts->x509_signer_file) {
-		CKINT_LOG(x509_enc_set_signer(opts), "Setting the signer X.509 key data failed\n");
+		CKINT_LOG(x509_enc_set_signer(opts),
+			  "Setting the signer X.509 key data failed\n");
 	}
 
 out:
@@ -772,11 +828,13 @@ static void x509_generator_usage(void)
 		"\t   --create-keypair <TYPE>\tCreate key pair of given type\n");
 	fprintf(stderr,
 		"\t   --x509-signer <FILE>\t\tX.509 certificate of signer\n");
-	fprintf(stderr, "\t\t\t\t\t\tIf not set, create a self-signed certificate\n");
+	fprintf(stderr,
+		"\t\t\t\t\t\tIf not set, create a self-signed certificate\n");
 	fprintf(stderr,
 		"\t   --signer-sk-file <FILE>\t\tFile with signer secret\n");
 
-	fprintf(stderr, "\n\t   --eku <FLAG>\t\t\tSet Extended Key Usage flag\n");
+	fprintf(stderr,
+		"\n\t   --eku <FLAG>\t\t\tSet Extended Key Usage flag\n");
 	fprintf(stderr, "\t\t\t\t\t\tQuery available flags with \"?\"\n");
 
 	fprintf(stderr, "\t   --keyusage <FLAG>\t\tSet Key Usage flag\n");
@@ -802,7 +860,8 @@ static void x509_generator_usage(void)
 	fprintf(stderr, "\t   --subject-st <VALUE>\t\tSet subject ST\n");
 	fprintf(stderr, "\t   --subject-c <VALUE>\t\tSet subject C\n");
 
-	fprintf(stderr, "\n\tThe following issuer options are only relevant if no X.509\n");
+	fprintf(stderr,
+		"\n\tThe following issuer options are only relevant if no X.509\n");
 	fprintf(stderr, "\tsigner is present - they are unused otherwise\n");
 	fprintf(stderr, "\t   --issuer-cn <VALUE>\t\tSet issuer CN\n");
 	fprintf(stderr, "\t   --issuer-email <VALUE>\tSet issuer Email\n");
@@ -887,13 +946,14 @@ int main(int argc, char *argv[])
 				break;
 			/* key-type */
 			case 4:
-				CKINT(lc_x509_pkey_name_to_algorithm(optarg,
-								     &parsed_opts.in_key_type));
+				CKINT(lc_x509_pkey_name_to_algorithm(
+					optarg, &parsed_opts.in_key_type));
 				break;
 			/* create-keypair */
 			case 5:
-				CKINT(lc_x509_pkey_name_to_algorithm(optarg,
-								     &parsed_opts.create_keypair_algo));
+				CKINT(lc_x509_pkey_name_to_algorithm(
+					optarg,
+					&parsed_opts.create_keypair_algo));
 				break;
 			/* x509-signer */
 			case 6:

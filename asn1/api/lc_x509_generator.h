@@ -88,8 +88,8 @@ int lc_x509_cert_gen(struct lc_x509_certificate *x509, uint8_t *data,
  * @return 0 on success or < 0 on error
  */
 int lc_x509_cert_set_signer_keypair_dilithium(struct lc_x509_certificate *x509,
-				       struct lc_dilithium_pk *pk,
-				       struct lc_dilithium_sk *sk);
+					      struct lc_dilithium_pk *pk,
+					      struct lc_dilithium_sk *sk);
 
 /**
  * @ingroup X509Gen
@@ -106,9 +106,8 @@ int lc_x509_cert_set_signer_keypair_dilithium(struct lc_x509_certificate *x509,
  *
  * @return 0 on success or < 0 on error
  */
-int lc_x509_cert_set_pubkey_dilithium(
-		      struct lc_x509_certificate *x509,
-		      struct lc_dilithium_pk *pk);
+int lc_x509_cert_set_pubkey_dilithium(struct lc_x509_certificate *x509,
+				      struct lc_dilithium_pk *pk);
 
 /**
  * @ingroup X509Gen
