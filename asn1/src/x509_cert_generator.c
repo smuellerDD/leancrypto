@@ -28,7 +28,6 @@
 #include "lc_x509_generator.h"
 #include "oid_registry.h"
 #include "ret_checkers.h"
-#include "timecop.h"
 #include "visibility.h"
 #include "x509_algorithm_mapper.h"
 #include "x509_cert_generator.h"
@@ -1192,7 +1191,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_gen, struct lc_x509_certificate *x509,
 {
 	struct x509_generate_context gctx = { 0 };
 	struct x509_parse_context pctx = { 0 };
-	struct lc_x509_certificate parsed_x509;
+	struct lc_x509_certificate parsed_x509 = { 0 };
 	size_t datalen = *avail_datalen;
 	int ret;
 
@@ -1207,11 +1206,6 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_gen, struct lc_x509_certificate *x509,
 	CKINT(asn1_ber_encoder(&x509_encoder, &gctx, data, avail_datalen));
 
 	datalen -= *avail_datalen;
-
-	/*
-	 * Timecop: entire data is public information, unmark it.
-	 */
-	unpoison(data, datalen);
 
 	/*
 	 * Parse the encoded signature to detect the TBSCertificate
