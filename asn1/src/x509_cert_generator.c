@@ -1189,14 +1189,17 @@ out:
 LC_INTERFACE_FUNCTION(int, lc_x509_cert_gen, struct lc_x509_certificate *x509,
 		      uint8_t *data, size_t *avail_datalen)
 {
-	struct x509_generate_context gctx = { 0 };
-	struct x509_parse_context pctx = { 0 };
+	struct x509_generate_context gctx;
+	struct x509_parse_context pctx;
 	struct lc_x509_certificate parsed_x509;
 	size_t datalen = *avail_datalen;
 	int ret;
 
 	CKNULL(x509, -EINVAL);
 	CKNULL(data, -EINVAL);
+
+	memset(&gctx, 0, sizeof(gctx));
+	memset(&pctx, 0, sizeof(pctx));
 
 	gctx.cert = x509;
 
