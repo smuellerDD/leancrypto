@@ -5,10 +5,34 @@
 
 TARGETDIR="$(dirname $0)"
 
-CA_KEYTYPE="ML-DSA87"
-INT1_KEYTYPE="ML-DSA65"
-INT2_KEYTYPE="ML-DSA44"
-LEAF_KEYTYPE="ML-DSA87"
+if [ -n "$1" ]
+then
+	echo "Invoke script to generate a 4-way certificate chain with one of the following options:"
+	echo "  SLH-DSA"
+	echo "  ML-DSA"
+	exit 1
+fi
+
+if [ x"$1" = x"SLH-DSA" ]
+then
+# Full ML-DSA-based certificate chain
+	CA_KEYTYPE="ML-DSA87"
+	INT1_KEYTYPE="ML-DSA65"
+	INT2_KEYTYPE="ML-DSA44"
+	LEAF_KEYTYPE="ML-DSA87"
+elif [ x"$1" = x"ML-DSA" ]
+then
+	# Full SLH-DSA-based certificate chain
+	CA_KEYTYPE="SLH-DSA-SHAKE-256S"
+	INT1_KEYTYPE="SLH-DSA-SHAKE-256F"
+	INT2_KEYTYPE="SLH-DSA-SHAKE-192F"
+	LEAF_KEYTYPE="SLH-DSA-SHAKE-128F"
+else
+	echo "Invoke script to generate a 4-way certificate chain with one of the following options:"
+	echo "  SLH-DSA"
+	echo "  ML-DSA"
+	exit 1
+fi
 
 CMD="$(dirname $0)/../../../build/apps/src/lc_x509_generator"
 

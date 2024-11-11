@@ -47,6 +47,43 @@ if get_option('x509_parser').enabled()
 		'--check-time' ],
 		suite: regression)
 
+	test('X.509 SLH-DSA-SHAKE-256S Root CA', asn1_tester,
+	args: [ '-x', '-f', certdir + 'slh-dsa-shake-256s_cacert.der', '--check-ca',
+		'--check-selfsigned', '--issuer-cn', 'leancrypto test CA',
+		'--subject-cn', 'leancrypto test CA',
+		'--valid-from', '1729527728', '--valid-to', '2044210606',
+		'--skid', '0a0b0c0d0e0f',
+		'--akid', '0a0b0c0d0e0f',
+		'--check-time' ],
+		suite: regression)
+
+	test('X.509 SLH-DSA-SHAKE-256F Int 1 CA', asn1_tester,
+	args: [ '-x', '-f', certdir + 'slh-dsa-shake-256f_int1.der', '--check-ca',
+		'--issuer-cn', 'leancrypto test CA',
+		'--subject-cn', 'leancrypto test int1',
+		'--valid-from', '1729527728', '--valid-to', '2044210606',
+		'--skid', '0b0c0d0e0f0001', '--akid', '0a0b0c0d0e0f',
+		'--check-time' ],
+		suite: regression)
+
+	test('X.509 SLH-DSA-SHAKE-192F Int 2 CA', asn1_tester,
+	args: [ '-x', '-f', certdir + 'slh-dsa-shake-192f_int2.der', '--check-ca',
+		'--issuer-cn', 'leancrypto test int1',
+		'--subject-cn', 'leancrypto test int2',
+		'--valid-from', '1729527728', '--valid-to', '2044210606',
+		'--skid', '0c0d0e0f000102', '--akid', '0b0c0d0e0f0001',
+		'--check-time' ],
+		suite: regression)
+
+	test('X.509 SLH-DSA-SHAKE-128F Leaf', asn1_tester,
+	args: [ '-x', '-f', certdir + 'slh-dsa-shake-128f_leaf.der', '--check-noca',
+		'--issuer-cn', 'leancrypto test int2',
+		'--subject-cn', 'leancrypto test leaf',
+		'--valid-from', '1729527728', '--valid-to', '2044210606',
+		'--skid', '0d0e0f00010203', '--akid', '0c0d0e0f000102',
+		'--check-time' ],
+		suite: regression)
+
 	if get_option('pkcs7_debug').enabled()
 		test('X.509 Root CA', asn1_tester,
 		args: [ '-x', '-f', certdir + 'cacert.der', '--check-ca',

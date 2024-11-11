@@ -141,13 +141,13 @@ int public_key_generate_signature(const struct lc_x509_generate_data *gen_data,
 	case LC_SIG_SPINCS_SHAKE_128F:
 	case LC_SIG_SPINCS_SHAKE_192F:
 	case LC_SIG_SPINCS_SHAKE_256F:
-		//CKINT(public_key_verify_signature_sphincs(pkey, sig, 1));
-		//break;
+		CKINT(public_key_generate_signature_sphincs(gen_data, x509, 1));
+		break;
 	case LC_SIG_SPINCS_SHAKE_128S:
 	case LC_SIG_SPINCS_SHAKE_192S:
 	case LC_SIG_SPINCS_SHAKE_256S:
-		//CKINT(public_key_verify_signature_sphincs(pkey, sig, 0));
-		//break;
+		CKINT(public_key_generate_signature_sphincs(gen_data, x509, 0));
+		break;
 
 	case LC_SIG_DILITHIUM_87_ED448:
 	case LC_SIG_RSA_PKCS1:

@@ -30,6 +30,10 @@ int public_key_verify_signature_sphincs(
 	const struct lc_public_key *pkey,
 	const struct lc_public_key_signature *sig, unsigned int fast);
 
+int public_key_generate_signature_sphincs(
+	const struct lc_x509_generate_data *gen_data,
+	struct lc_x509_certificate *x509, unsigned int fast);
+
 #ifdef __cplusplus
 }
 #endif

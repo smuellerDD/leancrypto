@@ -136,7 +136,7 @@ int asn1_ber_encoder(const struct asn1_encoder *encoder, void *context,
 	 * TODO: reduce amount of temporary data that is retained.
 	 */
 #define NR_DATA_STACK 7
-	uint8_t tmp_data[NR_DATA_STACK][16384];
+	uint8_t tmp_data[NR_DATA_STACK][65536];
 	uint8_t *tmp_data_p[NR_DATA_STACK];
 	size_t tmp_data_len[NR_DATA_STACK] = { 0 };
 	unsigned char tmp_tag[NR_DATA_STACK] = { 0 };

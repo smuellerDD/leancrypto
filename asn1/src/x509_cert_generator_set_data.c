@@ -94,6 +94,85 @@ out:
 	return ret;
 }
 
+
+static int
+lc_x509_cert_set_sphincs_keypair(struct lc_x509_generate_data *gen_data,
+				   struct lc_sphincs_pk *pk,
+				   struct lc_sphincs_sk *sk)
+{
+	enum lc_sphincs_type sphincs_type;
+
+	int ret = 0;
+
+	CKNULL(gen_data, -EINVAL);
+	CKNULL(pk, -EINVAL);
+
+	sphincs_type = lc_sphincs_pk_type(pk);
+	switch (sphincs_type) {
+	case LC_SPHINCS_SHAKE_128f:
+		gen_data->sig_type = LC_SIG_SPINCS_SHAKE_128F;
+		break;
+	case LC_SPHINCS_SHAKE_128s:
+		gen_data->sig_type = LC_SIG_SPINCS_SHAKE_128S;
+		break;
+	case LC_SPHINCS_SHAKE_192f:
+		gen_data->sig_type = LC_SIG_SPINCS_SHAKE_192F;
+		break;
+	case LC_SPHINCS_SHAKE_192s:
+		gen_data->sig_type = LC_SIG_SPINCS_SHAKE_192S;
+		break;
+	case LC_SPHINCS_SHAKE_256f:
+		gen_data->sig_type = LC_SIG_SPINCS_SHAKE_256F;
+		break;
+	case LC_SPHINCS_SHAKE_256s:
+		gen_data->sig_type = LC_SIG_SPINCS_SHAKE_256S;
+		break;
+	case LC_SPHINCS_UNKNOWN:
+	default:
+		printf_debug("Unknown Dilithium type\n");
+		return -ENOPKG;
+	}
+
+	gen_data->pk.sphincs_pk = pk;
+	gen_data->sk.sphincs_sk = sk;
+
+out:
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_signer_keypair_sphincs,
+		      struct lc_x509_certificate *x509,
+		      struct lc_sphincs_pk *pk, struct lc_sphincs_sk *sk)
+{
+	int ret;
+
+	if (!x509)
+		return -EINVAL;
+
+	CKINT(lc_x509_cert_set_sphincs_keypair(&x509->sig_gen_data, pk, sk));
+	x509->sig.pkey_algo = x509->sig_gen_data.sig_type;
+
+out:
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_pubkey_sphincs,
+		      struct lc_x509_certificate *x509,
+		      struct lc_sphincs_pk *pk)
+{
+	int ret;
+
+	if (!x509)
+		return -EINVAL;
+
+	CKINT(lc_x509_cert_set_sphincs_keypair(&x509->pub_gen_data, pk,
+						 NULL));
+	x509->pub.pkey_algo = x509->pub_gen_data.sig_type;
+
+out:
+	return ret;
+}
+
 /******************************************************************************
  * EKU
  ******************************************************************************/

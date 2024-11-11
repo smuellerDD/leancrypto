@@ -44,8 +44,11 @@
 static inline int x509_sufficient_size(size_t *avail_datalen,
 				       size_t requested_len)
 {
-	if (*avail_datalen < requested_len)
+	if (*avail_datalen < requested_len) {
+		printf_debug("Available data size (%zu) insufficient for requested size (%zu)\n",
+			     *avail_datalen, requested_len);
 		return -EOVERFLOW;
+	}
 	return 0;
 }
 
@@ -733,28 +736,12 @@ out:
 	return ret;
 }
 
-static int x509_signature_gen_dilithium(uint8_t *data, size_t *avail_datalen,
-					struct x509_generate_context *ctx)
+static int x509_signature_reserve_room(uint8_t *data, size_t *avail_datalen,
+				       size_t siglen)
 {
-	const struct lc_x509_certificate *cert = ctx->cert;
-	const struct lc_public_key_signature *sig = &cert->sig;
-	unsigned int siglen = 0, datalen = 0;
+	size_t datalen = 0;
 	int ret;
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wswitch"
-	switch (sig->pkey_algo) {
-	case LC_SIG_DILITHIUM_44:
-		siglen = lc_dilithium_sig_size(LC_DILITHIUM_44);
-		break;
-	case LC_SIG_DILITHIUM_65:
-		siglen = lc_dilithium_sig_size(LC_DILITHIUM_65);
-		break;
-	case LC_SIG_DILITHIUM_87:
-		siglen = lc_dilithium_sig_size(LC_DILITHIUM_87);
-		break;
-	}
-#pragma GCC diagnostic pop
 	if (siglen)
 		datalen = siglen + 1;
 
@@ -781,24 +768,44 @@ int x509_note_signature_enc(void *context, uint8_t *data, size_t *avail_datalen)
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
 	const struct lc_public_key_signature *sig = &cert->sig;
+	size_t siglen = 0;
 	int ret;
 
+printf("---- %u\n", sig->pkey_algo);
 	switch (sig->pkey_algo) {
 	case LC_SIG_DILITHIUM_44:
-	case LC_SIG_DILITHIUM_65:
-	case LC_SIG_DILITHIUM_87:
-		CKINT(x509_signature_gen_dilithium(data, avail_datalen, ctx));
+		siglen = lc_dilithium_sig_size(LC_DILITHIUM_44);
 		break;
+	case LC_SIG_DILITHIUM_65:
+		siglen = lc_dilithium_sig_size(LC_DILITHIUM_65);
+		break;
+	case LC_SIG_DILITHIUM_87:
+		siglen = lc_dilithium_sig_size(LC_DILITHIUM_87);
+		break;
+
+	case LC_SIG_SPINCS_SHAKE_128F:
+		siglen = lc_sphincs_sig_size(LC_SPHINCS_SHAKE_128f);
+		break;
+	case LC_SIG_SPINCS_SHAKE_128S:
+		siglen = lc_sphincs_sig_size(LC_SPHINCS_SHAKE_128s);
+		break;
+	case LC_SIG_SPINCS_SHAKE_192F:
+		siglen = lc_sphincs_sig_size(LC_SPHINCS_SHAKE_192f);
+		break;
+	case LC_SIG_SPINCS_SHAKE_192S:
+		siglen = lc_sphincs_sig_size(LC_SPHINCS_SHAKE_192s);
+		break;
+	case LC_SIG_SPINCS_SHAKE_256F:
+		siglen = lc_sphincs_sig_size(LC_SPHINCS_SHAKE_256f);
+		break;
+	case LC_SIG_SPINCS_SHAKE_256S:
+		siglen = lc_sphincs_sig_size(LC_SPHINCS_SHAKE_256s);
+		break;
+
 	case LC_SIG_DILITHIUM_44_ED25519:
 	case LC_SIG_DILITHIUM_65_ED25519:
 	case LC_SIG_DILITHIUM_87_ED25519:
 	case LC_SIG_DILITHIUM_87_ED448:
-	case LC_SIG_SPINCS_SHAKE_128F:
-	case LC_SIG_SPINCS_SHAKE_128S:
-	case LC_SIG_SPINCS_SHAKE_192F:
-	case LC_SIG_SPINCS_SHAKE_192S:
-	case LC_SIG_SPINCS_SHAKE_256F:
-	case LC_SIG_SPINCS_SHAKE_256S:
 	case LC_SIG_ECDSA_X963:
 	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_RSA_PKCS1:
@@ -807,6 +814,10 @@ int x509_note_signature_enc(void *context, uint8_t *data, size_t *avail_datalen)
 	default:
 		return -ENOPKG;
 	}
+
+printf("len %zu\n", siglen);
+
+	CKINT(x509_signature_reserve_room(data, avail_datalen, siglen));
 
 out:
 	return ret;

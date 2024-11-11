@@ -28,3 +28,13 @@ int public_key_verify_signature_sphincs(
 	(void)fast;
 	return -ENOPKG;
 }
+
+int public_key_generate_signature_sphincs(
+	const struct lc_x509_generate_data *gen_data,
+	struct lc_x509_certificate *x509, unsigned int fast)
+{
+	(void)gen_data;
+	(void)x509;
+	(void)fast;
+	return -ENOPKG;
+}

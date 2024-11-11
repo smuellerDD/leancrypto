@@ -111,6 +111,44 @@ int lc_x509_cert_set_pubkey_dilithium(struct lc_x509_certificate *x509,
 
 /**
  * @ingroup X509Gen
+ * @brief Set the signer Sphincs Plus key pair for certificate generation
+ *
+ * The referenced keys are used to perform the signature generation operation
+ * and to obtain information from the signer.
+ *
+ * \note The caller must keep the input data available for the lifetime of
+ * \p x509.
+ *
+ * @param [in] x509 Certificate data structure to be filled with the data.
+ * @param [in] pk Sphincs Plus public key
+ * @param [in] sk Sphincs Plus secret key
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_cert_set_signer_keypair_sphincs(struct lc_x509_certificate *x509,
+					      struct lc_sphincs_pk *pk,
+					      struct lc_sphincs_sk *sk);
+
+/**
+ * @ingroup X509Gen
+ * @brief Set the Sphincs Plus public key to be embedded into the certificate
+ *
+ * The referenced key is stored in the certificate and protected by the
+ * signature.
+ *
+ * \note The caller must keep the input data available for the lifetime of
+ * \p x509.
+ *
+ * @param [in] x509 Certificate data structure to be filled with the data.
+ * @param [in] pk Sphincs Plus public key
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_cert_set_pubkey_sphincs(struct lc_x509_certificate *x509,
+				      struct lc_sphincs_pk *pk);
+
+/**
+ * @ingroup X509Gen
  * @brief Set the extended key usage from human readable form
  *
  * The service function can be called repeadetly to set all intended EKU
