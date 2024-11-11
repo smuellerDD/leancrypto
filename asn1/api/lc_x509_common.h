@@ -169,11 +169,31 @@ struct lc_public_key {
 struct lc_public_key_signature {
 	const uint8_t *s; /* Signature */
 	size_t s_size; /* Number of bytes in signature */
+
+	/*
+	 * Digest size (0 if no digest was calculaated). This implies that the
+	 * signature algorithm must calculate the message digest.
+	 *
+	 * TODO remove when PKCS7 is updated?
+	 */
 	size_t digest_size;
 	//TODO replace with x509_algorithm_mapper
 	const struct lc_hash *hash_algo;
+
 	enum lc_sig_types pkey_algo;
+
+	/*
+	 * Message digest
+	 * TODO - remove with digest_size?
+	 */
 	uint8_t digest[LC_SHA_MAX_SIZE_DIGEST];
+
+	/*
+	 * Pointers to raw daa to be signed in case no message digest is
+	 * calculated.
+	 */
+	const uint8_t *raw_data; /* Set if no hash was set */
+	size_t raw_data_len;
 	struct lc_asymmetric_key_id auth_ids[3];
 };
 

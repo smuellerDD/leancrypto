@@ -71,8 +71,7 @@ lc_x509_generator
   --subject-o leancrypto
   --subject-st Saxony
   --subject-c DE
-  --issuer-cn
-  "leancrypto test CA"
+  --issuer-cn "leancrypto test CA"
   --issuer-ou "leancrypto test OU"
   --issuer-o leancrypto
   --issuer-st Saxony
@@ -138,7 +137,6 @@ lc_x509_generator
   --create-keypair ML-DSA65
   --x509-signer ml-dsa87_cacert.der
   --signer-sk-file ml-dsa87_cacert.privkey
-
 ```
 
 The generated result looks like:

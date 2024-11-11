@@ -198,13 +198,10 @@ int lc_x509_sig_type_to_hash(enum lc_sig_types pkey_algo,
 	switch (pkey_algo) {
 #ifdef LC_SHA3
 	case LC_SIG_DILITHIUM_44:
-		*hash_algo = lc_sha3_256;
-		return 0;
 	case LC_SIG_DILITHIUM_65:
-		*hash_algo = lc_sha3_384;
-		return 0;
 	case LC_SIG_DILITHIUM_87:
-		*hash_algo = lc_sha3_512;
+		/* They are using the builtin hash type */
+		*hash_algo = NULL;
 		return 0;
 	case LC_SIG_SPINCS_SHAKE_128F:
 	case LC_SIG_SPINCS_SHAKE_128S:

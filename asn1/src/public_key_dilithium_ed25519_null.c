@@ -20,7 +20,8 @@
 #include "public_key_dilithium_ed25519.h"
 
 int public_key_verify_signature_dilithium_ed25519(
-	const struct public_key *pkey, const struct public_key_signature *sig)
+	const struct lc_public_key *pkey,
+	const struct lc_public_key_signature *sig)
 {
 	(void)pkey;
 	(void)sig;

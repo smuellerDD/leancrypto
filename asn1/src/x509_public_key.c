@@ -44,9 +44,6 @@ static int _x509_get_sig_params(struct lc_x509_certificate *cert,
 
 	printf_debug("==>%s()\n", __func__);
 
-	sig->s = cert->raw_sig;
-	sig->s_size = cert->raw_sig_size;
-
 	lc_hash_init(hash_ctx);
 	sig->digest_size = lc_hash_digestsize(hash_ctx);
 	if (sig->digest_size > sizeof(sig->digest)) {
@@ -70,8 +67,22 @@ int x509_get_sig_params(struct lc_x509_certificate *cert)
 	const struct lc_hash *hash_algo;
 	int ret = 0;
 
+	sig->s = cert->raw_sig;
+	sig->s_size = cert->raw_sig_size;
+
 	CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
-	CKINT(_x509_get_sig_params(cert, hash_algo));
+
+	/*
+	 * If a hash algo was set, apply it to the main data, otherwise
+	 * register the main data for later processing directly as part of the
+	 * signature operation.
+	 */
+	if (hash_algo) {
+		CKINT(_x509_get_sig_params(cert, hash_algo));
+	} else {
+		sig->raw_data = cert->tbs;
+		sig->raw_data_len = cert->tbs_size;
+	}
 
 out:
 	return ret;

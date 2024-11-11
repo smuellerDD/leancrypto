@@ -120,20 +120,12 @@ out:
 int public_key_generate_signature(const struct lc_x509_generate_data *gen_data,
 				  struct lc_x509_certificate *x509)
 {
-	struct lc_public_key_signature *sig;
 	int ret;
 
 	printf_debug("==>%s()\n", __func__);
 
 	CKNULL(gen_data, -EFAULT);
 	CKNULL(x509, -EFAULT);
-
-	sig = &x509->sig;
-
-	if (!sig->digest_size) {
-		printf_debug("Missing message digest\n");
-		return -EINVAL;
-	}
 
 	switch (gen_data->sig_type) {
 	case LC_SIG_DILITHIUM_44:

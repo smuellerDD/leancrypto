@@ -55,16 +55,29 @@ int public_key_verify_signature_dilithium_ed25519(
 		sig->s + LC_ED25519_SIGBYTES, LC_ED25519_SIGBYTES));
 
 	/*
-	 * NOTE We apply the HashML-DSA here as the hash was calculated, but
-	 * we set no ctx.
-	 *
-	 * This may change depending on the official specifications.
+	 * Select hash-based signature if there was a hash
 	 */
-	CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
-	lc_dilithium_ed25519_ctx_hash(ctx, hash_algo);
+	if (sig->digest_size) {
+		CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
+		CKNULL(hash_algo, -EOPNOTSUPP);
+		lc_dilithium_ed25519_ctx_hash(ctx, hash_algo);
 
-	CKINT(lc_dilithium_ed25519_verify_ctx(&dilithium_sig, ctx, sig->digest,
-					      sig->digest_size, &dilithium_pk));
+		/*
+		 * Verify the signature
+		 */
+		CKINT(lc_dilithium_ed25519_verify_ctx(
+			&dilithium_sig, ctx, sig->digest, sig->digest_size,
+			&dilithium_pk));
+	} else {
+		CKNULL(sig->raw_data, -EOPNOTSUPP);
+
+		/*
+		 * Verify the signature
+		 */
+		CKINT(lc_dilithium_ed25519_verify_ctx(
+			&dilithium_sig, ctx, sig->raw_data, sig->raw_data_len,
+			&dilithium_pk));
+	}
 
 out:
 	lc_dilithium_ed25519_ctx_zero(ctx);

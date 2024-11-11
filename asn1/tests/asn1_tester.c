@@ -184,6 +184,8 @@ static void _print_x509_sinature_algo(const struct lc_public_key_signature *sig)
 		printf(" SHA3-384");
 	else if (hash_algo == lc_sha3_512)
 		printf(" SHA3-512");
+	else if (hash_algo == NULL)
+		printf(" <builtin hash>");
 	else
 		printf(" <unknown hash>");
 	printf("\n");

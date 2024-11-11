@@ -45,19 +45,28 @@ int public_key_verify_signature_dilithium(
 	CKINT(lc_dilithium_sig_load(&dilithium_sig, sig->s, sig->s_size));
 
 	/*
-	 * NOTE We apply the HashML-DSA here as the hash was calculated, but
-	 * we set no ctx.
-	 *
-	 * This may change depending on the official specifications.
+	 * Select hash-based signature if there was a hash
 	 */
-	CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
-	lc_dilithium_ctx_hash(ctx, hash_algo);
+	if (sig->digest_size) {
+		CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
+		CKNULL(hash_algo, -EOPNOTSUPP);
+		lc_dilithium_ctx_hash(ctx, hash_algo);
 
-	/*
-	 * Verify the signature
-	 */
-	CKINT(lc_dilithium_verify_ctx(&dilithium_sig, ctx, sig->digest,
-				      sig->digest_size, &dilithium_pk));
+		/*
+		 * Verify the signature
+		 */
+		CKINT(lc_dilithium_verify_ctx(&dilithium_sig, ctx, sig->digest,
+					      sig->digest_size, &dilithium_pk));
+	} else {
+		CKNULL(sig->raw_data, -EOPNOTSUPP);
+
+		/*
+		 * Verify the signature
+		 */
+		CKINT(lc_dilithium_verify_ctx(&dilithium_sig, ctx,
+					      sig->raw_data, sig->raw_data_len,
+					      &dilithium_pk));
+	}
 
 out:
 	lc_dilithium_ctx_zero(ctx);
@@ -80,20 +89,30 @@ int public_key_generate_signature_dilithium(
 	LC_DILITHIUM_CTX_ON_STACK(ctx);
 
 	/*
-	 * NOTE We apply the HashML-DSA here as the hash was calculated, but
-	 * we set no ctx.
-	 *
-	 * This may change depending on the official specifications.
+	 * Select hash-based signature if there was a hash
 	 */
-	CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
-	lc_dilithium_ctx_hash(ctx, hash_algo);
+	if (sig->digest_size) {
+		CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
+		CKNULL(hash_algo, -EOPNOTSUPP);
+		lc_dilithium_ctx_hash(ctx, hash_algo);
 
-	/*
-	 * Sign the hash
-	 */
-	CKINT(lc_dilithium_sign_ctx(&dilithium_sig, ctx, sig->digest,
-				    sig->digest_size, dilithium_sk,
-				    lc_seeded_rng));
+		/*
+		 * Sign the hash
+		 */
+		CKINT(lc_dilithium_sign_ctx(&dilithium_sig, ctx, sig->digest,
+					    sig->digest_size, dilithium_sk,
+					    lc_seeded_rng));
+	} else {
+		CKNULL(sig->raw_data, -EOPNOTSUPP);
+
+		/*
+		 * Verify the signature
+		 */
+		CKINT(lc_dilithium_sign_ctx(&dilithium_sig, ctx, sig->raw_data,
+					    sig->raw_data_len, dilithium_sk,
+					    lc_seeded_rng));
+	}
+
 	/*
 	 * Extract the signature
 	 */

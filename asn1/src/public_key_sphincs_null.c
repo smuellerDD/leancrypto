@@ -19,9 +19,9 @@
 
 #include "public_key_sphincs.h"
 
-int public_key_verify_signature_sphincs(const struct public_key *pkey,
-					const struct public_key_signature *sig,
-					unsigned int fast)
+int public_key_verify_signature_sphincs(
+	const struct lc_public_key *pkey,
+	const struct lc_public_key_signature *sig, unsigned int fast)
 {
 	(void)pkey;
 	(void)sig;

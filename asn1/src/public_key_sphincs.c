@@ -51,16 +51,27 @@ int public_key_verify_signature_sphincs(
 	CKINT(lc_sphincs_sig_load(&sphincs_sig, sig->s, sig->s_size));
 
 	/*
-	 * NOTE We apply the HashML-DSA here as the hash was calculated, but
-	 * we set no ctx.
-	 *
-	 * This may change depending on the official specifications.
+	 * Select hash-based signature if there was a hash
 	 */
-	CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
-	lc_sphincs_ctx_hash(ctx, hash_algo);
+	if (sig->digest_size) {
+		CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
+		CKNULL(hash_algo, -EOPNOTSUPP);
+		lc_sphincs_ctx_hash(ctx, hash_algo);
 
-	CKINT(lc_sphincs_verify_ctx(&sphincs_sig, ctx, sig->digest,
-				    sig->digest_size, &sphincs_pk));
+		/*
+		 * Verify the signature
+		 */
+		CKINT(lc_sphincs_verify_ctx(&sphincs_sig, ctx, sig->digest,
+					    sig->digest_size, &sphincs_pk));
+	} else {
+		CKNULL(sig->raw_data, -EOPNOTSUPP);
+
+		/*
+		 * Verify the signature
+		 */
+		CKINT(lc_sphincs_verify_ctx(&sphincs_sig, ctx, sig->raw_data,
+					    sig->raw_data_len, &sphincs_pk));
+	}
 
 out:
 	lc_sphincs_ctx_zero(ctx);
