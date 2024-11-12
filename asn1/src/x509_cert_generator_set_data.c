@@ -94,11 +94,10 @@ out:
 	return ret;
 }
 
-
 static int
 lc_x509_cert_set_sphincs_keypair(struct lc_x509_generate_data *gen_data,
-				   struct lc_sphincs_pk *pk,
-				   struct lc_sphincs_sk *sk)
+				 struct lc_sphincs_pk *pk,
+				 struct lc_sphincs_sk *sk)
 {
 	enum lc_sphincs_type sphincs_type;
 
@@ -165,8 +164,77 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_pubkey_sphincs,
 	if (!x509)
 		return -EINVAL;
 
-	CKINT(lc_x509_cert_set_sphincs_keypair(&x509->pub_gen_data, pk,
-						 NULL));
+	CKINT(lc_x509_cert_set_sphincs_keypair(&x509->pub_gen_data, pk, NULL));
+	x509->pub.pkey_algo = x509->pub_gen_data.sig_type;
+
+out:
+	return ret;
+}
+
+static int lc_x509_cert_set_dilithium_ed25519_keypair(
+	struct lc_x509_generate_data *gen_data,
+	struct lc_dilithium_ed25519_pk *pk, struct lc_dilithium_ed25519_sk *sk)
+{
+	enum lc_dilithium_type dilithium_ed25519_type;
+
+	int ret = 0;
+
+	CKNULL(gen_data, -EINVAL);
+	CKNULL(pk, -EINVAL);
+
+	dilithium_ed25519_type = lc_dilithium_ed25519_pk_type(pk);
+	switch (dilithium_ed25519_type) {
+	case LC_DILITHIUM_44:
+		gen_data->sig_type = LC_SIG_DILITHIUM_44_ED25519;
+		break;
+	case LC_DILITHIUM_65:
+		gen_data->sig_type = LC_SIG_DILITHIUM_65_ED25519;
+		break;
+	case LC_DILITHIUM_87:
+		gen_data->sig_type = LC_SIG_DILITHIUM_87_ED25519;
+		break;
+	case LC_DILITHIUM_UNKNOWN:
+	default:
+		printf_debug("Unknown Dilithium ED25519 type\n");
+		return -ENOPKG;
+	}
+
+	gen_data->pk.dilithium_ed25519_pk = pk;
+	gen_data->sk.dilithium_ed25519_sk = sk;
+
+out:
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_signer_keypair_dilithium_ed25519,
+		      struct lc_x509_certificate *x509,
+		      struct lc_dilithium_ed25519_pk *pk,
+		      struct lc_dilithium_ed25519_sk *sk)
+{
+	int ret;
+
+	if (!x509)
+		return -EINVAL;
+
+	CKINT(lc_x509_cert_set_dilithium_ed25519_keypair(&x509->sig_gen_data,
+							 pk, sk));
+	x509->sig.pkey_algo = x509->sig_gen_data.sig_type;
+
+out:
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_pubkey_dilithium_ed25519,
+		      struct lc_x509_certificate *x509,
+		      struct lc_dilithium_ed25519_pk *pk)
+{
+	int ret;
+
+	if (!x509)
+		return -EINVAL;
+
+	CKINT(lc_x509_cert_set_dilithium_ed25519_keypair(&x509->pub_gen_data,
+							 pk, NULL));
 	x509->pub.pkey_algo = x509->pub_gen_data.sig_type;
 
 out:

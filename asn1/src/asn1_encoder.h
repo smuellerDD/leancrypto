@@ -52,6 +52,8 @@ int asn1_encode_boolean(uint8_t *data, size_t *datalen, int val,
 
 int asn1_encode_length(uint8_t **data, size_t *data_len, size_t len);
 
+int asn1_encode_length_size(size_t len, size_t *len_len);
+
 #ifdef __cplusplus
 }
 #endif

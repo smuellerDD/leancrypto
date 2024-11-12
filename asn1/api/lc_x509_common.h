@@ -140,7 +140,7 @@ struct lc_public_key {
 #define LC_KEY_USAGE_CRITICAL 0x4000
 #define LC_KEY_USAGE_EXTENSION_PRESENT 0x2000
 #define LC_KEY_USAGE_MASK                                                      \
-	((uint16_t) ~(LC_KEY_USAGE_CRITICAL | LC_KEY_USAGE_EXTENSION_PRESENT))
+	((uint16_t)~(LC_KEY_USAGE_CRITICAL | LC_KEY_USAGE_EXTENSION_PRESENT))
 
 	uint16_t key_eku;
 #define LC_KEY_EKU_CRITICAL (1 << 1)

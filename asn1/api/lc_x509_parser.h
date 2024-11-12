@@ -96,6 +96,20 @@ int lc_x509_cert_parse(struct lc_x509_certificate *cert, const uint8_t *data,
 
 /**
  * @ingroup X509
+ * @brief Parse a Composite ML-DSA ASN.1 structure into a public key structure
+ *
+ * @param [out] dilithium_ed25519_pk Public key to be filled
+ * @param [in] pk_ptr Pointer to ASN.1 structure
+ * @param [out] pk_len Size of the public key ASN.1 structure
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_cert_load_pk_dilithium_ed25519(
+	struct lc_dilithium_ed25519_pk *dilithium_ed25519_pk,
+	const uint8_t *pk_ptr, size_t pk_len);
+
+/**
+ * @ingroup X509
  * @brief Get a reference of the public key data
  *
  * The service function returns a pointer to the public key data in the

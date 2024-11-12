@@ -1,0 +1,11 @@
+-- SPDX-License-Identifier: BSD-3-Clause
+--
+-- Copyright (C) 2024 IETF Trust and the persons identified as authors
+-- of the code
+--
+-- https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-03.html
+
+CompositeSignatureValue ::= SEQUENCE {
+	firstSignature BIT STRING ({ x509_mldsa_signature }),
+	secondSignature BIT STRING ({ x509_ed25519_signature })
+}

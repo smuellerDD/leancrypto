@@ -197,13 +197,13 @@ int pkcs7_sig_note_pkey_algo(void *context, size_t hdrlen, unsigned char tag,
 	case OID_id_MLDSA87:
 		sig->pkey_algo = LC_SIG_DILITHIUM_87;
 		break;
-	case OID_id_MLDSA44_Ed25519_SHA512:
+	case OID_id_MLDSA44_Ed25519:
 		sig->pkey_algo = LC_SIG_DILITHIUM_44_ED25519;
 		break;
-	case OID_id_MLDSA65_Ed25519_SHA512:
+	case OID_id_MLDSA65_Ed25519:
 		sig->pkey_algo = LC_SIG_DILITHIUM_65_ED25519;
 		break;
-	case OID_id_MLDSA87_Ed448_SHA512:
+	case OID_id_MLDSA87_Ed448:
 		sig->pkey_algo = LC_SIG_DILITHIUM_87_ED448;
 		break;
 

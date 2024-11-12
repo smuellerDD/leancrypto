@@ -27,6 +27,7 @@
 #include "lc_sha3.h"
 #include "lc_x509_generator.h"
 #include "oid_registry.h"
+#include "public_key_dilithium_ed25519.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 #include "x509_algorithm_mapper.h"
@@ -41,15 +42,26 @@
 #include "x509_san.asn1.h"
 #include "x509_skid.asn1.h"
 
-static inline int x509_sufficient_size(size_t *avail_datalen,
-				       size_t requested_len)
+int x509_set_bit_sting(uint8_t *dst_data, size_t *dst_avail_datalen,
+		       const uint8_t *src_data, size_t src_datalen)
 {
-	if (*avail_datalen < requested_len) {
-		printf_debug("Available data size (%zu) insufficient for requested size (%zu)\n",
-			     *avail_datalen, requested_len);
-		return -EOVERFLOW;
+	int ret;
+
+	/* Account for the BIT prefix */
+	if (src_datalen)
+		src_datalen += 1;
+
+	CKINT(x509_sufficient_size(dst_avail_datalen, src_datalen));
+
+	/* Set the BIT STRING metadata */
+	if (src_datalen) {
+		dst_data[0] = 0;
+		memcpy(dst_data + 1, src_data, src_datalen - 1);
+		*dst_avail_datalen -= src_datalen;
 	}
-	return 0;
+
+out:
+	return ret;
 }
 
 /******************************************************************************
@@ -771,7 +783,6 @@ int x509_note_signature_enc(void *context, uint8_t *data, size_t *avail_datalen)
 	size_t siglen = 0;
 	int ret;
 
-printf("---- %u\n", sig->pkey_algo);
 	switch (sig->pkey_algo) {
 	case LC_SIG_DILITHIUM_44:
 		siglen = lc_dilithium_sig_size(LC_DILITHIUM_44);
@@ -803,8 +814,17 @@ printf("---- %u\n", sig->pkey_algo);
 		break;
 
 	case LC_SIG_DILITHIUM_44_ED25519:
+		CKINT(public_key_signature_size_dilithium_ed25519(
+			LC_DILITHIUM_44, &siglen));
+		break;
 	case LC_SIG_DILITHIUM_65_ED25519:
+		CKINT(public_key_signature_size_dilithium_ed25519(
+			LC_DILITHIUM_65, &siglen));
+		break;
 	case LC_SIG_DILITHIUM_87_ED25519:
+		CKINT(public_key_signature_size_dilithium_ed25519(
+			LC_DILITHIUM_87, &siglen));
+		break;
 	case LC_SIG_DILITHIUM_87_ED448:
 	case LC_SIG_ECDSA_X963:
 	case LC_SIG_ECRDSA_PKCS1:
@@ -814,8 +834,6 @@ printf("---- %u\n", sig->pkey_algo);
 	default:
 		return -ENOPKG;
 	}
-
-printf("len %zu\n", siglen);
 
 	CKINT(x509_signature_reserve_room(data, avail_datalen, siglen));
 
@@ -1116,7 +1134,7 @@ int x509_extract_key_data_enc(void *context, uint8_t *data,
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
 	const struct lc_x509_generate_data *gen_data = &cert->pub_gen_data;
-	size_t pklen = 0, datalen = 0;
+	size_t pklen = 0;
 	uint8_t *ptr;
 	int ret;
 
@@ -1138,9 +1156,10 @@ int x509_extract_key_data_enc(void *context, uint8_t *data,
 	case LC_SIG_DILITHIUM_44_ED25519:
 	case LC_SIG_DILITHIUM_65_ED25519:
 	case LC_SIG_DILITHIUM_87_ED25519:
-		//CKINT(lc_dilithium_ed25519_pk_ptr(
-		//	&ptr, &pklen, gen_data->pk.dilithium_pk));
-		//break;
+		CKINT(public_key_encode_dilithium_ed25519(data, avail_datalen,
+							  ctx));
+		goto out;
+		break;
 	case LC_SIG_DILITHIUM_87_ED448:
 	case LC_SIG_ECDSA_X963:
 	case LC_SIG_ECRDSA_PKCS1:
@@ -1151,17 +1170,7 @@ int x509_extract_key_data_enc(void *context, uint8_t *data,
 		return -ENOPKG;
 	}
 
-	if (pklen)
-		datalen = pklen + 1;
-
-	CKINT(x509_sufficient_size(avail_datalen, datalen));
-
-	/* Set the BIT STRING metadata */
-	if (datalen) {
-		data[0] = 0;
-		memcpy(data + 1, ptr, pklen);
-		*avail_datalen -= datalen;
-	}
+	CKINT(x509_set_bit_sting(data, avail_datalen, ptr, pklen));
 
 	printf_debug("Set public key of size %zu\n", pklen);
 

@@ -111,6 +111,44 @@ int lc_x509_cert_set_pubkey_dilithium(struct lc_x509_certificate *x509,
 
 /**
  * @ingroup X509Gen
+ * @brief Set the signer Dilithium-ED25519 key pair for certificate generation
+ *
+ * The referenced keys are used to perform the signature generation operation
+ * and to obtain information from the signer.
+ *
+ * \note The caller must keep the input data available for the lifetime of
+ * \p x509.
+ *
+ * @param [in] x509 Certificate data structure to be filled with the data.
+ * @param [in] pk Dilithium-ED25519 public key
+ * @param [in] sk Dilithium-ED25519 secret key
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_cert_set_signer_keypair_dilithium_ed25519(
+	struct lc_x509_certificate *x509, struct lc_dilithium_ed25519_pk *pk,
+	struct lc_dilithium_ed25519_sk *sk);
+
+/**
+ * @ingroup X509Gen
+ * @brief Set the Dilithium-ED25519 public key to be embedded into the certificate
+ *
+ * The referenced key is stored in the certificate and protected by the
+ * signature.
+ *
+ * \note The caller must keep the input data available for the lifetime of
+ * \p x509.
+ *
+ * @param [in] x509 Certificate data structure to be filled with the data.
+ * @param [in] pk Dilithium-ED25519 public key
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_cert_set_pubkey_dilithium_ed25519(
+	struct lc_x509_certificate *x509, struct lc_dilithium_ed25519_pk *pk);
+
+/**
+ * @ingroup X509Gen
  * @brief Set the signer Sphincs Plus key pair for certificate generation
  *
  * The referenced keys are used to perform the signature generation operation
@@ -126,8 +164,8 @@ int lc_x509_cert_set_pubkey_dilithium(struct lc_x509_certificate *x509,
  * @return 0 on success or < 0 on error
  */
 int lc_x509_cert_set_signer_keypair_sphincs(struct lc_x509_certificate *x509,
-					      struct lc_sphincs_pk *pk,
-					      struct lc_sphincs_sk *sk);
+					    struct lc_sphincs_pk *pk,
+					    struct lc_sphincs_sk *sk);
 
 /**
  * @ingroup X509Gen
@@ -145,7 +183,7 @@ int lc_x509_cert_set_signer_keypair_sphincs(struct lc_x509_certificate *x509,
  * @return 0 on success or < 0 on error
  */
 int lc_x509_cert_set_pubkey_sphincs(struct lc_x509_certificate *x509,
-				      struct lc_sphincs_pk *pk);
+				    struct lc_sphincs_pk *pk);
 
 /**
  * @ingroup X509Gen

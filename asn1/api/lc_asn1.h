@@ -181,9 +181,9 @@ enum OID {
 	OID_id_MLDSA87, /* 2.16.840.1.101.3.4.3.19 */
 
 	/* https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-03.html */
-	OID_id_MLDSA44_Ed25519_SHA512, /* 2.16.840.1.114027.80.8.1.3 */
-	OID_id_MLDSA65_Ed25519_SHA512, /* 2.16.840.1.114027.80.8.1.10 */
-	OID_id_MLDSA87_Ed448_SHA512, /* 2.16.840.1.114027.80.8.1.13 */
+	OID_id_MLDSA44_Ed25519, /* 2.16.840.1.114027.80.8.1.23 */
+	OID_id_MLDSA65_Ed25519, /* 2.16.840.1.114027.80.8.1.30 */
+	OID_id_MLDSA87_Ed448, /* 2.16.840.1.114027.80.8.1.33 */
 
 	/* OIDs from https://github.com/IETF-Hackathon/pqc-certificates/blob/master/docs/oid_mapping.md */
 	OID_id_SLHDSA_SHAKE_128S, /* 2.16.840.1.101.3.4.3.26 */

@@ -115,7 +115,7 @@ out:
 }
 
 /*
- * Verify a signature using a public key.
+ * Generate a signature using a secret key.
  */
 int public_key_generate_signature(const struct lc_x509_generate_data *gen_data,
 				  struct lc_x509_certificate *x509)
@@ -136,8 +136,9 @@ int public_key_generate_signature(const struct lc_x509_generate_data *gen_data,
 	case LC_SIG_DILITHIUM_44_ED25519:
 	case LC_SIG_DILITHIUM_65_ED25519:
 	case LC_SIG_DILITHIUM_87_ED25519:
-		//CKINT(public_key_verify_signature_dilithium_ed25519(pkey, sig));
-		//break;
+		CKINT(public_key_generate_signature_dilithium_ed25519(gen_data,
+								      x509));
+		break;
 	case LC_SIG_SPINCS_SHAKE_128F:
 	case LC_SIG_SPINCS_SHAKE_192F:
 	case LC_SIG_SPINCS_SHAKE_256F:

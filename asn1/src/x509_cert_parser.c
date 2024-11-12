@@ -154,11 +154,8 @@ int x509_note_signature(void *context, size_t hdrlen, unsigned char tag,
 	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_SM2:
 	case LC_SIG_DILITHIUM_44:
-	case LC_SIG_DILITHIUM_44_ED25519:
 	case LC_SIG_DILITHIUM_65:
-	case LC_SIG_DILITHIUM_65_ED25519:
 	case LC_SIG_DILITHIUM_87:
-	case LC_SIG_DILITHIUM_87_ED25519:
 	case LC_SIG_DILITHIUM_87_ED448:
 	case LC_SIG_SPINCS_SHAKE_128F:
 	case LC_SIG_SPINCS_SHAKE_128S:
@@ -173,6 +170,13 @@ int x509_note_signature(void *context, size_t hdrlen, unsigned char tag,
 		value++;
 		vlen--;
 		break;
+
+	case LC_SIG_DILITHIUM_44_ED25519:
+	case LC_SIG_DILITHIUM_65_ED25519:
+	case LC_SIG_DILITHIUM_87_ED25519:
+		/* No BIT STRING */
+		break;
+
 	case LC_SIG_UNKNOWN:
 	default:
 		/* Do nothing */
@@ -549,10 +553,18 @@ int x509_extract_key_data(void *context, size_t hdrlen, unsigned char tag,
 #endif
 
 	/* Discard the BIT STRING metadata */
-	if (vlen < 1 || *(const uint8_t *)value != 0)
-		return -EBADMSG;
-	ctx->key = value + 1;
-	ctx->key_size = vlen - 1;
+	if (vlen > 0 && *(const uint8_t *)value == 0) {
+		ctx->key = value + 1;
+		ctx->key_size = vlen - 1;
+	} else {
+		/*
+		 * We allow that no BIT STRING prefix is set as we may have
+		 * a sequence.
+		 */
+		ctx->key = value;
+		ctx->key_size = vlen;
+	}
+
 	printf_debug("Public Key size %zu\n", ctx->key_size);
 	bin2print_debug(ctx->key, ctx->key_size, stdout, "Public Key");
 

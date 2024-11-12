@@ -17,6 +17,7 @@
  * DAMAGE.
  */
 
+#include "asn1_encoder.h"
 #include "asn1_debug.h"
 #include "ext_headers.h"
 #include "helper.h"
@@ -24,6 +25,20 @@
 #include "visibility.h"
 #include "lc_x509_parser.h"
 #include "x509_cert_parser.h"
+#include "x509_composite_mldsa_pubkey.asn1.h"
+
+LC_INTERFACE_FUNCTION(int, lc_x509_cert_load_pk_dilithium_ed25519,
+		      struct lc_dilithium_ed25519_pk *dilithium_ed25519_pk,
+		      const uint8_t *pk_ptr, size_t pk_len)
+{
+	int ret;
+
+	CKINT(asn1_ber_decoder(&x509_composite_mldsa_pubkey_decoder,
+			       dilithium_ed25519_pk, pk_ptr, pk_len));
+
+out:
+	return ret;
+}
 
 LC_INTERFACE_FUNCTION(int, lc_x509_cert_get_pubkey,
 		      const struct lc_x509_certificate *cert,

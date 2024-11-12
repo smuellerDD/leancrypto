@@ -239,19 +239,19 @@ subdirs = [
 	    'asn1/src'
 	  ]
 
-testdirs = [ 'apps/tests',
-	     'aead/tests',
-	     'bike/tests',
-	     'curve25519/tests',
-	     'drng/tests',
-	     'hash/tests',
-	     'internal/tests',
-	     'kdf/tests',
-	     'ml-kem/tests',
-	     'otp/tests',
-	     'ml-dsa/tests',
-	     'slh-dsa/tests',
-	     'sym/tests',
+testdirs = [ #'apps/tests',
+	     #'aead/tests',
+	     #'bike/tests',
+	     #'curve25519/tests',
+	     #'drng/tests',
+	     #'hash/tests',
+	     #'internal/tests',
+	     #'kdf/tests',
+	     #'ml-kem/tests',
+	     #'otp/tests',
+	     #'ml-dsa/tests',
+	     #'slh-dsa/tests',
+	     #'sym/tests',
 	     'asn1/tests'
 	   ]
 

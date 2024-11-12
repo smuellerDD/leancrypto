@@ -111,8 +111,8 @@ int public_key_generate_signature_sphincs(
 		 * Sign the hash
 		 */
 		CKINT(lc_sphincs_sign_ctx(&sphincs_sig, ctx, sig->digest,
-					    sig->digest_size, sphincs_sk,
-					    lc_seeded_rng));
+					  sig->digest_size, sphincs_sk,
+					  lc_seeded_rng));
 	} else {
 		CKNULL(sig->raw_data, -EOPNOTSUPP);
 
@@ -120,8 +120,8 @@ int public_key_generate_signature_sphincs(
 		 * Verify the signature
 		 */
 		CKINT(lc_sphincs_sign_ctx(&sphincs_sig, ctx, sig->raw_data,
-					    sig->raw_data_len, sphincs_sk,
-					    lc_seeded_rng));
+					  sig->raw_data_len, sphincs_sk,
+					  lc_seeded_rng));
 	}
 
 	/*

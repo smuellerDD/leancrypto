@@ -10,6 +10,7 @@ then
 	echo "Invoke script to generate a 4-way certificate chain with one of the following options:"
 	echo "  SLH-DSA"
 	echo "  ML-DSA"
+	echo "  Composite-ML-DSA"
 	exit 1
 fi
 
@@ -27,10 +28,18 @@ then
 	INT1_KEYTYPE="SLH-DSA-SHAKE-256F"
 	INT2_KEYTYPE="SLH-DSA-SHAKE-192F"
 	LEAF_KEYTYPE="SLH-DSA-SHAKE-128F"
+elif [ x"$1" = x"Composite-ML-DSA" ]
+then
+	# Full SLH-DSA-based certificate chain
+	CA_KEYTYPE="ML-DSA65-ED25519"
+	INT1_KEYTYPE="ML-DSA44-ED25519"
+	INT2_KEYTYPE="ML-DSA87"
+	LEAF_KEYTYPE="SLH-DSA-SHAKE-128S"
 else
 	echo "Invoke script to generate a 4-way certificate chain with one of the following options:"
 	echo "  SLH-DSA"
 	echo "  ML-DSA"
+	echo "  Composite-ML-DSA"
 	exit 1
 fi
 

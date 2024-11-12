@@ -17,32 +17,29 @@
  * DAMAGE.
  */
 
-#ifndef PUBLIC_KEY_DILITHIUM_ED25519_H
-#define PUBLIC_KEY_DILITHIUM_ED25519_H
+#ifndef DILITHIUM_HELPER_H
+#define DILITHIUM_HELPER_H
 
-#include "public_key.h"
-#include "x509_cert_generator.h"
+#include "lc_dilithium.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int public_key_encode_dilithium_ed25519(uint8_t *data, size_t *avail_datalen,
-					struct x509_generate_context *ctx);
+int lc_dilithium_ed25519_sig_load_partial(struct lc_dilithium_ed25519_sig *sig,
+					  const uint8_t *dilithium_src_sig,
+					  size_t dilithium_src_sig_len,
+					  const uint8_t *ed25519_src_sig,
+					  size_t ed25519_src_sig_len);
 
-int public_key_verify_signature_dilithium_ed25519(
-	const struct lc_public_key *pkey,
-	const struct lc_public_key_signature *sig);
-
-int public_key_generate_signature_dilithium_ed25519(
-	const struct lc_x509_generate_data *gen_data,
-	struct lc_x509_certificate *x509);
-
-int public_key_signature_size_dilithium_ed25519(
-	enum lc_dilithium_type dilithium_type, size_t *size);
+int lc_dilithium_ed25519_pk_load_partial(struct lc_dilithium_ed25519_pk *pk,
+					 const uint8_t *dilithium_src_key,
+					 size_t dilithium_src_key_len,
+					 const uint8_t *ed25519_src_key,
+					 size_t ed25519_src_key_len);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* PUBLIC_KEY_DILITHIUM_ED25519_H */
+#endif /* DILITHIUM_HELPER_H */

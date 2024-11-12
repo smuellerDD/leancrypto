@@ -313,6 +313,32 @@ int asn1_encode_length(uint8_t **data, size_t *data_len, size_t len)
 	return 0;
 }
 
+int asn1_encode_length_size(size_t len, size_t *len_len)
+{
+	if (len <= 0x7f) {
+		*len_len = 1;
+		return 0;
+	}
+
+	if (len <= 0xff) {
+		*len_len = 2;
+		return 0;
+	}
+
+	if (len <= 0xffff) {
+		*len_len = 3;
+		return 0;
+	}
+
+	if (len > 0xffffff) {
+		printf("ASN.1 length can't be > 0xffffff");
+		return -EINVAL;
+	}
+
+	*len_len = 4;
+	return 0;
+}
+
 /**
  * asn1_encode_tag() - add a tag for optional or explicit value
  * @data:	pointer to place tag at

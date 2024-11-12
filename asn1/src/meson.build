@@ -79,7 +79,11 @@ if x509_common_support == 1
 	endif
 
 	if get_option('dilithium_ed25519').enabled()
-		src += files([ 'public_key_dilithium_ed25519.c' ])
+		src += files([
+			'public_key_dilithium_ed25519.c',
+			'x509_composite_mldsa_pubkey.asn1.c',
+			'x509_composite_mldsa_signature.asn1.c'
+			])
 		asymmetric_algo += 1
 	else
 		src += files([ 'public_key_dilithium_ed25519_null.c' ])

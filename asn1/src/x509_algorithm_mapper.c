@@ -108,17 +108,17 @@ static struct lc_x509_algorithms x509_algo_table[] = {
 	 * See https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-02.html
 	 * section 7 (table, column pre-hash).
 	 */
-	{ .oid = OID_id_MLDSA44_Ed25519_SHA512,
-	  .name_algo = "ML-DSA44-ED25519-SHA2-512",
-	  .namelen = 25,
+	{ .oid = OID_id_MLDSA44_Ed25519,
+	  .name_algo = "ML-DSA44-ED25519",
+	  .namelen = 16,
 	  .pkey_algo = LC_SIG_DILITHIUM_44_ED25519 },
-	{ .oid = OID_id_MLDSA65_Ed25519_SHA512,
-	  .name_algo = "ML-DSA65-ED25519-SHA2-512",
-	  .namelen = 25,
+	{ .oid = OID_id_MLDSA65_Ed25519,
+	  .name_algo = "ML-DSA65-ED25519",
+	  .namelen = 16,
 	  .pkey_algo = LC_SIG_DILITHIUM_65_ED25519 },
-	{ .oid = OID_id_MLDSA87_Ed448_SHA512,
-	  .name_algo = "ML-DSA44-ED448-SHA2-512",
-	  .namelen = 25,
+	{ .oid = OID_id_MLDSA87_Ed448,
+	  .name_algo = "ML-DSA44-ED448",
+	  .namelen = 14,
 	  .pkey_algo = LC_SIG_DILITHIUM_87_ED448 },
 	{ .oid = OID_sha384WithRSAEncryption,
 	  .name_algo = "RSASSA-PKCS1-v1.5-SHA2-384",
@@ -226,7 +226,8 @@ int lc_x509_sig_type_to_hash(enum lc_sig_types pkey_algo,
 	case LC_SIG_DILITHIUM_65_ED25519:
 	case LC_SIG_DILITHIUM_87_ED25519:
 	case LC_SIG_DILITHIUM_87_ED448:
-		*hash_algo = lc_sha512;
+		/* They are using the builtin hash type */
+		*hash_algo = NULL;
 		return 0;
 #else
 	case LC_SIG_DILITHIUM_44_ED25519:
