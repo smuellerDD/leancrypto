@@ -4,7 +4,7 @@ The `oid_registry_data.c` file needs to be updated if new OIDs are added to
 `oid_registry.h`. The following command is to be used to (re-)generated:
 
 ```
-asn1/src/build_OID_registry asn1/src/oid_registry.h asn1/src/oid_registry_data.c
+asn1/src/build_OID_registry asn1/api/lc_asn1.h asn1/src/oid_registry_data.c
 
 ```
 

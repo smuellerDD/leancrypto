@@ -428,7 +428,7 @@ static int x509_gen_cert(struct pkcs7_options *opts)
 	 * Remove the present flag for the comparison as this is artificially
 	 * added by the parser.
 	 */
-	pcert.pub.key_usage &= (uint16_t) ~(LC_KEY_USAGE_EXTENSION_PRESENT);
+	pcert.pub.key_usage &= (uint16_t)~(LC_KEY_USAGE_EXTENSION_PRESENT);
 	printf("Out-Key Usage: %u\n", pcert.pub.key_usage);
 
 	if (gcert->pub.key_usage != pcert.pub.key_usage) {

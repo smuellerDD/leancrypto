@@ -175,24 +175,23 @@ enum OID {
 	OID_id_rsassa_pkcs1_v1_5_with_sha3_384, /* 2.16.840.1.101.3.4.3.15 */
 	OID_id_rsassa_pkcs1_v1_5_with_sha3_512, /* 2.16.840.1.101.3.4.3.16 */
 
-	/* https://www.ietf.org/archive/id/draft-ietf-lamps-dilithium-certificates-03.html */
-	OID_id_MLDSA44, /* 2.16.840.1.101.3.4.3.1 */
-	OID_id_MLDSA65, /* 2.16.840.1.101.3.4.3.2 */
-	OID_id_MLDSA87, /* 2.16.840.1.101.3.4.3.3 */
+	/* OIDs from https://github.com/IETF-Hackathon/pqc-certificates/blob/master/docs/oid_mapping.md */
+	OID_id_MLDSA44, /* 2.16.840.1.101.3.4.3.17 */
+	OID_id_MLDSA65, /* 2.16.840.1.101.3.4.3.18 */
+	OID_id_MLDSA87, /* 2.16.840.1.101.3.4.3.19 */
 
-	/* https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-02.html */
+	/* https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-03.html */
 	OID_id_MLDSA44_Ed25519_SHA512, /* 2.16.840.1.114027.80.8.1.3 */
 	OID_id_MLDSA65_Ed25519_SHA512, /* 2.16.840.1.114027.80.8.1.10 */
 	OID_id_MLDSA87_Ed448_SHA512, /* 2.16.840.1.114027.80.8.1.13 */
 
-	/* https://www.ietf.org/archive/id/draft-ietf-lamps-x509-slhdsa-01.html */
-	//TODO the last part of the OID is yet open
-	OID_id_SLHDSA_SHAKE_128S, /* 2.16.840.1.101.3.4.3.100 */
-	OID_id_SLHDSA_SHAKE_128F, /* 2.16.840.1.101.3.4.3.101 */
-	OID_id_SLHDSA_SHAKE_192S, /* 2.16.840.1.101.3.4.3.102 */
-	OID_id_SLHDSA_SHAKE_192F, /* 2.16.840.1.101.3.4.3.103 */
-	OID_id_SLHDSA_SHAKE_256S, /* 2.16.840.1.101.3.4.3.104 */
-	OID_id_SLHDSA_SHAKE_256F, /* 2.16.840.1.101.3.4.3.105 */
+	/* OIDs from https://github.com/IETF-Hackathon/pqc-certificates/blob/master/docs/oid_mapping.md */
+	OID_id_SLHDSA_SHAKE_128S, /* 2.16.840.1.101.3.4.3.26 */
+	OID_id_SLHDSA_SHAKE_128F, /* 2.16.840.1.101.3.4.3.27 */
+	OID_id_SLHDSA_SHAKE_192S, /* 2.16.840.1.101.3.4.3.28 */
+	OID_id_SLHDSA_SHAKE_192F, /* 2.16.840.1.101.3.4.3.29 */
+	OID_id_SLHDSA_SHAKE_256S, /* 2.16.840.1.101.3.4.3.30 */
+	OID_id_SLHDSA_SHAKE_256F, /* 2.16.840.1.101.3.4.3.31 */
 
 	OID__NR
 };

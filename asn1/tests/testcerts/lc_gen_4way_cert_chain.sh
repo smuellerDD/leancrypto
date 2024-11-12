@@ -5,7 +5,7 @@
 
 TARGETDIR="$(dirname $0)"
 
-if [ -n "$1" ]
+if [ -z "$1" ]
 then
 	echo "Invoke script to generate a 4-way certificate chain with one of the following options:"
 	echo "  SLH-DSA"
