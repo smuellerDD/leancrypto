@@ -18,11 +18,12 @@
  * DAMAGE.
  */
 
-#include "bitshift_be.h"
+#include "bitshift.h"
 #include "compare.h"
 #include "ext_headers.h"
 #include "lc_sha512.h"
 #include "lc_memset_secure.h"
+#include "sponge_common.h"
 #include "visibility.h"
 
 static const uint64_t sha512_K[] = {
@@ -278,12 +279,8 @@ static void sha384_final(void *_state, uint8_t *digest)
 	sha512_final_internal(_state);
 
 	/* Output digest */
-	for (i = 0; i < 6; i++, digest += 8) {
+	for (i = 0; i < 6; i++, digest += 8)
 		be64_to_ptr(digest, ctx->H[i]);
-
-		/* Zeroization */
-		ctx->H[i] = 0;
-	}
 }
 
 static void sha512_final(void *_state, uint8_t *digest)
@@ -297,12 +294,15 @@ static void sha512_final(void *_state, uint8_t *digest)
 	sha512_final_internal(_state);
 
 	/* Output digest */
-	for (i = 0; i < 8; i++, digest += 8) {
+	for (i = 0; i < 8; i++, digest += 8)
 		be64_to_ptr(digest, ctx->H[i]);
+}
 
-		/* Zeroization */
-		ctx->H[i] = 0;
-	}
+static void sha512_extract_bytes(const void *state, uint8_t *data,
+				 size_t offset, size_t length)
+{
+	sponge_extract_bytes(state, data, offset, length, LC_SHA512_STATE_WORDS,
+			     be_bswap64, be_bswap32, be64_to_ptr, be32_to_ptr);
 }
 
 static size_t sha384_get_digestsize(void *_state)
@@ -325,7 +325,7 @@ static const struct lc_hash _sha384 = {
 	.get_digestsize = sha384_get_digestsize,
 	.sponge_permutation = NULL,
 	.sponge_add_bytes = NULL,
-	.sponge_extract_bytes = NULL,
+	.sponge_extract_bytes = sha512_extract_bytes,
 	.sponge_newstate = NULL,
 	.sponge_rate = LC_SHA384_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha512_state),
@@ -341,7 +341,7 @@ static const struct lc_hash _sha512 = {
 	.get_digestsize = sha512_get_digestsize,
 	.sponge_permutation = NULL,
 	.sponge_add_bytes = NULL,
-	.sponge_extract_bytes = NULL,
+	.sponge_extract_bytes = sha512_extract_bytes,
 	.sponge_newstate = NULL,
 	.sponge_rate = LC_SHA512_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha512_state),

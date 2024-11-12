@@ -105,6 +105,11 @@ static int _shake_256_tester(const struct lc_hash *shake_256, const char *name)
 	lc_hash_set_digestsize(ctx, sizeof(act1));
 	lc_hash_final(ctx, act1);
 	ret = lc_compare(act1, exp1, sizeof(act1), "SHAKE256 1");
+	lc_memset_secure(act1, 0, sizeof(act1));
+	if (lc_sponge_extract_bytes(shake_256, ctx->hash_state, act1, 0,
+				    sizeof(act1)))
+		return 1;
+	ret += lc_compare(act1, exp1, sizeof(act1), "SHAKE256 1 extact data");
 	lc_hash_zero(ctx);
 
 	if (ret)

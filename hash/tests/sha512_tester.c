@@ -51,8 +51,15 @@ static int sha512_tester(void)
 	lc_hash_init(sha512_stack);
 	lc_hash_update(sha512_stack, msg_512, sizeof(msg_512));
 	lc_hash_final(sha512_stack, act);
-	lc_hash_zero(sha512_stack);
 	ret += lc_compare(act, exp_512, LC_SHA512_SIZE_DIGEST, "SHA-512 stack");
+	lc_memset_secure(act, 0, sizeof(act));
+	if (lc_sponge_extract_bytes(lc_sha512, sha512_stack->hash_state, act, 0,
+				    sizeof(act)))
+		return 1;
+	ret += lc_compare(act, exp_512, LC_SHA512_SIZE_DIGEST,
+			  "SHA-512 extact data");
+
+	lc_hash_zero(sha512_stack);
 
 	return ret;
 }

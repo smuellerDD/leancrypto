@@ -41,9 +41,10 @@ extern const struct lc_hash *lc_sha512;
 /// \cond DO_NOT_DOCUMENT
 #define LC_SHA512_SIZE_BLOCK 128
 #define LC_SHA512_SIZE_DIGEST 64
+#define LC_SHA512_STATE_WORDS 8
 
 struct lc_sha512_state {
-	uint64_t H[8];
+	uint64_t H[LC_SHA512_STATE_WORDS];
 	size_t msg_len;
 	uint8_t partial[LC_SHA512_SIZE_BLOCK];
 };
