@@ -96,9 +96,9 @@ int seeded_rng_noise_init(void)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
 	esdm_rpcc_get_random_bytes_full =
-		(ssize_t(*)(uint8_t * buf, size_t buflen))
-			dlsym(esdm_rpc_client_handle,
-			      "esdm_rpcc_get_random_bytes_full");
+		(ssize_t(*)(uint8_t *buf, size_t buflen))dlsym(
+			esdm_rpc_client_handle,
+			"esdm_rpcc_get_random_bytes_full");
 #pragma GCC diagnostic pop
 	error = dlerror();
 	if (error != NULL)
