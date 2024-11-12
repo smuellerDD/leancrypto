@@ -819,7 +819,11 @@ void lc_dilithium_ed25519_ctx_internal(struct lc_dilithium_ed25519_ctx *ctx);
 /**
  * @ingroup HybridDilithium
  * @brief Specify the optional user context string to be applied with the
- *	  Dilithium-ED25510 signature operation.
+ *	  Dilithium-ED25519 signature operation.
+ *
+ * \warning The operation of the HashComposite-ML-DSA operation clears out
+ * this context during processing. If this context is reused, the caller MUST
+ * set the cotext again.
  *
  * @param [in] ctx Dilithium-ED25519 context
  * @param [in] userctx User context string

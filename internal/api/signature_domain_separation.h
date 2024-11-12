@@ -21,18 +21,47 @@
 #define SIGNATURE_DOMAIN_SEPARATION_H
 
 #include "dilithium_type.h"
+#include "helper.h"
 #include "lc_hash.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/* OIDs from https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-03.html */
+/* id-HashMLDSA44-Ed25519-SHA512 */
+static const uint8_t hashmldsa44_ed25519_sha512_oid_der[] __maybe_unused = {
+	0x06, 0x0B, 0x60, 0x86, 0x48, 0x01, 0x86,
+	0xFA, 0x6B, 0x50, 0x08, 0x01, 0x2A
+};
+
+/* id-HashMLDSA65-Ed25519-SHA512 */
+static const uint8_t hashmldsa65_ed25519_sha512_oid_der[] __maybe_unused = {
+	0x06, 0x0B, 0x60, 0x86, 0x48, 0x01, 0x86,
+	0xFA, 0x6B, 0x50, 0x08, 0x01, 0x32
+};
+
+/* id-HashMLDSA87-Ed448-SHA512 */
+static const uint8_t hashmldsa87_ed448_sha512_oid_der[] __maybe_unused = {
+	0x06, 0x0B, 0x60, 0x86, 0x48, 0x01, 0x86,
+	0xFA, 0x6B, 0x50, 0x08, 0x01, 0x35
+};
+
 int signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 				unsigned int ml_dsa_internal,
 				const struct lc_hash *signature_prehash_type,
 				const uint8_t *userctx, size_t userctxlen,
 				const uint8_t *m, size_t mlen,
-				unsigned int nist_category);
+				unsigned int nist_category,
+				unsigned int composte_signature);
+int signature_ph_oids(struct lc_hash_ctx *hash_ctx,
+		      const struct lc_hash *signature_prehash_type, size_t mlen,
+		      unsigned int nist_category);
+
+int composite_signature_domain_separation(struct lc_hash_ctx *hash_ctx,
+					  const uint8_t *userctx,
+					  size_t userctxlen,
+					  unsigned int nist_category);
 
 #ifdef __cplusplus
 }

@@ -52,18 +52,18 @@ static int dilithium_iuf_tester_official(struct lc_dilithium_ed25519_ctx *ctx)
 		  "Sign init failed - ret %d\n", ret);
 	CKINT_LOG(lc_dilithium_ed25519_sign_update(ctx, ws->msg,
 						   sizeof(ws->msg)),
-		  "Sign update failed - ret %u\n", ret);
+		  "Sign update failed - ret %d\n", ret);
 	CKINT_LOG(lc_dilithium_ed25519_sign_final(&ws->sig, ctx, &ws->sk,
 						  lc_seeded_rng),
-		  "Sign final failed - ret %u\n", ret);
+		  "Sign final failed - ret %d\n", ret);
 
 	CKINT_LOG(lc_dilithium_ed25519_verify_init(ctx, &ws->pk),
-		  "Verify init failed - ret %u\n", ret);
+		  "Verify init failed - ret %d\n", ret);
 	CKINT_LOG(lc_dilithium_ed25519_verify_update(ctx, ws->msg,
 						     sizeof(ws->msg)),
-		  "Verify update failed - ret %u\n", ret);
+		  "Verify update failed - ret %d\n", ret);
 	CKINT_LOG(lc_dilithium_ed25519_verify_final(&ws->sig, ctx, &ws->pk),
-		  "Signature verification stream operatino fialed - ret: %d\n",
+		  "Signature verification stream operation fialed - ret: %d\n",
 		  ret);
 
 out:
@@ -98,7 +98,7 @@ out:
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	struct lc_dilithium_ed25519_ctx *ctx_heap = NULL;
-	int ret = 0;
+	int ret;
 	LC_DILITHIUM_ED25519_CTX_ON_STACK(ctx);
 
 	(void)argc;
@@ -106,12 +106,12 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	CKINT(lc_dilithium_ed25519_ctx_alloc(&ctx_heap));
 
-	ret += dilithium_tester_official();
-	ret += dilithium_iuf_tester_official(ctx);
-	ret += dilithium_iuf_tester_official(ctx_heap);
+	CKINT_LOG(dilithium_tester_official(), "Official stack\n");
+	CKINT_LOG(dilithium_iuf_tester_official(ctx), "Official IUT\n");
+	CKINT_LOG(dilithium_iuf_tester_official(ctx_heap), "Official heap\n");
 
 out:
 	lc_dilithium_ed25519_ctx_zero(ctx);
 	lc_dilithium_ed25519_ctx_zero_free(ctx_heap);
-	return ret;
+	return -ret;
 }

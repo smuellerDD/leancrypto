@@ -268,6 +268,12 @@ static int lc_dilithium_sign_internal_ahat(struct lc_dilithium_sig *sig,
 	rnd = key + LC_DILITHIUM_SEEDBYTES;
 	mu = rnd + LC_DILITHIUM_RNDBYTES;
 
+	/*
+	 * Set the digestsize - for SHA512 this is a noop, for SHAKE256, it
+	 * sets the value. The BUILD_BUG_ON is to check that the SHA-512
+	 * output size is identical to the expected length.
+	 */
+	BUILD_BUG_ON(LC_DILITHIUM_CRHBYTES != LC_SHA512_SIZE_DIGEST);
 	lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_CRHBYTES);
 	lc_hash_final(hash_ctx, mu);
 	dilithium_print_buffer(mu, LC_DILITHIUM_CRHBYTES, "Siggen - MU:");
@@ -571,7 +577,7 @@ static int lc_dilithium_sign_ctx_impl(struct lc_dilithium_sig *sig,
 	CKINT(signature_domain_separation(
 		&ctx->dilithium_hash_ctx, ctx->ml_dsa_internal,
 		ctx->dilithium_prehash_type, ctx->userctx, ctx->userctxlen, m,
-		mlen, LC_DILITHIUM_NIST_CATEGORY));
+		mlen, LC_DILITHIUM_NIST_CATEGORY, !!ctx->composite_ml_dsa));
 
 	ret = lc_dilithium_sign_internal(sig, sk, ctx, rng_ctx);
 
@@ -620,11 +626,10 @@ static int lc_dilithium_sign_init_impl(struct lc_dilithium_ctx *ctx,
 	lc_hash_update(hash_ctx, tr, LC_DILITHIUM_TRBYTES);
 	lc_memset_secure(tr, 0, sizeof(tr));
 
-	return signature_domain_separation(&ctx->dilithium_hash_ctx,
-					   ctx->ml_dsa_internal,
-					   ctx->dilithium_prehash_type,
-					   ctx->userctx, ctx->userctxlen, NULL,
-					   0, LC_DILITHIUM_NIST_CATEGORY);
+	return signature_domain_separation(
+		&ctx->dilithium_hash_ctx, ctx->ml_dsa_internal,
+		ctx->dilithium_prehash_type, ctx->userctx, ctx->userctxlen,
+		NULL, 0, LC_DILITHIUM_NIST_CATEGORY, !!ctx->composite_ml_dsa);
 }
 
 static int lc_dilithium_sign_update_impl(struct lc_dilithium_ctx *ctx,
@@ -875,7 +880,7 @@ static int lc_dilithium_verify_ctx_impl(const struct lc_dilithium_sig *sig,
 	CKINT(signature_domain_separation(
 		&ctx->dilithium_hash_ctx, ctx->ml_dsa_internal,
 		ctx->dilithium_prehash_type, ctx->userctx, ctx->userctxlen, m,
-		mlen, LC_DILITHIUM_NIST_CATEGORY));
+		mlen, LC_DILITHIUM_NIST_CATEGORY, !!ctx->composite_ml_dsa));
 
 	ret = lc_dilithium_verify_internal(sig, pk, ctx);
 
@@ -923,11 +928,10 @@ static int lc_dilithium_verify_init_impl(struct lc_dilithium_ctx *ctx,
 	lc_hash_update(hash_ctx, mu, LC_DILITHIUM_TRBYTES);
 	lc_memset_secure(mu, 0, sizeof(mu));
 
-	return signature_domain_separation(&ctx->dilithium_hash_ctx,
-					   ctx->ml_dsa_internal,
-					   ctx->dilithium_prehash_type,
-					   ctx->userctx, ctx->userctxlen, NULL,
-					   0, LC_DILITHIUM_NIST_CATEGORY);
+	return signature_domain_separation(
+		&ctx->dilithium_hash_ctx, ctx->ml_dsa_internal,
+		ctx->dilithium_prehash_type, ctx->userctx, ctx->userctxlen,
+		NULL, 0, LC_DILITHIUM_NIST_CATEGORY, !!ctx->composite_ml_dsa);
 }
 
 static int lc_dilithium_verify_update_impl(struct lc_dilithium_ctx *ctx,

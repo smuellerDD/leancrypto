@@ -27,12 +27,14 @@
  */
 
 #include "compare.h"
+#include "ed25519_composite.h"
 #include "lc_ed25519.h"
 #include "ed25519_ref10.h"
 #include "ext_headers.h"
 #include "lc_sha512.h"
 #include "ret_checkers.h"
 #include "selftest_rng.h"
+#include "signature_domain_separation.h"
 #include "timecop.h"
 #include "visibility.h"
 
@@ -168,18 +170,18 @@ static inline void lc_ed25519_dom2(struct lc_hash_ctx *hash_ctx, int prehash)
 		return;
 
 	lc_hash_update(hash_ctx, label, sizeof(label));
-	;
 }
 
-static int lc_ed25519_sign_internal(struct lc_ed25519_sig *sig, int prehash,
-				    const uint8_t *msg, size_t mlen,
-				    const struct lc_ed25519_sk *sk,
-				    struct lc_rng_ctx *rng_ctx)
+static int lc_ed25519_sign_internal(
+	struct lc_ed25519_sig *sig, int prehash, const uint8_t *msg,
+	size_t mlen, const struct lc_ed25519_sk *sk, struct lc_rng_ctx *rng_ctx,
+	struct lc_dilithium_ed25519_ctx *composite_ml_dsa_ctx)
 {
 	uint8_t az[LC_SHA512_SIZE_DIGEST];
 	uint8_t nonce[LC_SHA512_SIZE_DIGEST];
 	uint8_t hram[LC_SHA512_SIZE_DIGEST];
 	ge25519_p3 R;
+	struct lc_dilithium_ctx *dilithium_ctx = NULL;
 	int ret = 0;
 	static int tested = 0;
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_sha512);
@@ -188,6 +190,13 @@ static int lc_ed25519_sign_internal(struct lc_ed25519_sig *sig, int prehash,
 	CKNULL(sk, -EINVAL);
 
 	lc_ed25519_sign_tester(&tested);
+
+	if (composite_ml_dsa_ctx) {
+		dilithium_ctx = &composite_ml_dsa_ctx->dilithium_ctx;
+
+		if (!dilithium_ctx->composite_ml_dsa)
+			dilithium_ctx = NULL;
+	}
 
 	/* Timecop: mark the secret key as sensitive */
 	poison(sk->sk, sizeof(sk->sk));
@@ -207,6 +216,14 @@ static int lc_ed25519_sign_internal(struct lc_ed25519_sig *sig, int prehash,
 		lc_hash_update(hash_ctx, az + 32, 32);
 	}
 
+	/* If Composite ML-DSA is requested, apply domain separation */
+	if (dilithium_ctx) {
+		CKINT(composite_signature_domain_separation(
+			hash_ctx, dilithium_ctx->userctx,
+			dilithium_ctx->userctxlen,
+			dilithium_ctx->composite_ml_dsa));
+	}
+
 	lc_hash_update(hash_ctx, msg, mlen);
 	lc_hash_final(hash_ctx, nonce);
 
@@ -219,6 +236,15 @@ static int lc_ed25519_sign_internal(struct lc_ed25519_sig *sig, int prehash,
 	lc_hash_init(hash_ctx);
 	lc_ed25519_dom2(hash_ctx, prehash);
 	lc_hash_update(hash_ctx, sig->sig, LC_ED25519_SIGBYTES);
+
+	/* If Composite ML-DSA is requested, apply domain separation */
+	if (dilithium_ctx) {
+		CKINT(composite_signature_domain_separation(
+			hash_ctx, dilithium_ctx->userctx,
+			dilithium_ctx->userctxlen,
+			dilithium_ctx->composite_ml_dsa));
+	}
+
 	lc_hash_update(hash_ctx, msg, mlen);
 	lc_hash_final(hash_ctx, hram);
 
@@ -240,13 +266,22 @@ out:
 	return ret;
 }
 
+int lc_ed25519_sign_ctx(struct lc_ed25519_sig *sig, const uint8_t *msg,
+			size_t mlen, const struct lc_ed25519_sk *sk,
+			struct lc_rng_ctx *rng_ctx,
+			struct lc_dilithium_ed25519_ctx *composite_ml_dsa_ctx)
+{
+	return lc_ed25519_sign_internal(sig, 0, msg, mlen, sk, rng_ctx,
+					composite_ml_dsa_ctx);
+}
+
 /* Export for test purposes */
 LC_INTERFACE_FUNCTION(int, lc_ed25519_sign, struct lc_ed25519_sig *sig,
 		      const uint8_t *msg, size_t mlen,
 		      const struct lc_ed25519_sk *sk,
 		      struct lc_rng_ctx *rng_ctx)
 {
-	return lc_ed25519_sign_internal(sig, 0, msg, mlen, sk, rng_ctx);
+	return lc_ed25519_sign_internal(sig, 0, msg, mlen, sk, rng_ctx, NULL);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_ed25519ph_sign, struct lc_ed25519_sig *sig,
@@ -254,7 +289,7 @@ LC_INTERFACE_FUNCTION(int, lc_ed25519ph_sign, struct lc_ed25519_sig *sig,
 		      const struct lc_ed25519_sk *sk,
 		      struct lc_rng_ctx *rng_ctx)
 {
-	return lc_ed25519_sign_internal(sig, 1, msg, mlen, sk, rng_ctx);
+	return lc_ed25519_sign_internal(sig, 1, msg, mlen, sk, rng_ctx, NULL);
 }
 
 /* Test vector obtained from NIST ACVP demo server */
@@ -301,10 +336,10 @@ static void lc_ed25519_verify_tester(int *tested)
 			    "ED25519 Signature verification\n");
 }
 
-static int lc_ed25519_verify_internal(const struct lc_ed25519_sig *sig,
-				      int prehash, const uint8_t *msg,
-				      size_t mlen,
-				      const struct lc_ed25519_pk *pk)
+static int lc_ed25519_verify_internal(
+	const struct lc_ed25519_sig *sig, int prehash, const uint8_t *msg,
+	size_t mlen, const struct lc_ed25519_pk *pk,
+	struct lc_dilithium_ed25519_ctx *composite_ml_dsa_ctx)
 {
 	uint8_t h[LC_SHA512_SIZE_DIGEST];
 	ge25519_p3 check;
@@ -312,6 +347,7 @@ static int lc_ed25519_verify_internal(const struct lc_ed25519_sig *sig,
 	ge25519_p3 A;
 	ge25519_p3 sb_ah;
 	ge25519_p2 sb_ah_p2;
+	struct lc_dilithium_ctx *dilithium_ctx = NULL;
 	int ret = 0;
 	static int tested = 0;
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_sha512);
@@ -320,6 +356,13 @@ static int lc_ed25519_verify_internal(const struct lc_ed25519_sig *sig,
 	CKNULL(pk, -EINVAL);
 
 	lc_ed25519_verify_tester(&tested);
+
+	if (composite_ml_dsa_ctx) {
+		dilithium_ctx = &composite_ml_dsa_ctx->dilithium_ctx;
+
+		if (!dilithium_ctx->composite_ml_dsa)
+			dilithium_ctx = NULL;
+	}
 
 #if 0
 	//ED25519_COMPAT
@@ -353,6 +396,15 @@ static int lc_ed25519_verify_internal(const struct lc_ed25519_sig *sig,
 	lc_ed25519_dom2(hash_ctx, prehash);
 	lc_hash_update(hash_ctx, sig->sig, 32);
 	lc_hash_update(hash_ctx, pk->pk, LC_ED25519_PUBLICKEYBYTES);
+
+	/* If Composite ML-DSA is requested, apply domain separation */
+	if (dilithium_ctx) {
+		CKINT(composite_signature_domain_separation(
+			hash_ctx, dilithium_ctx->userctx,
+			dilithium_ctx->userctxlen,
+			dilithium_ctx->composite_ml_dsa));
+	}
+
 	lc_hash_update(hash_ctx, msg, mlen);
 	lc_hash_final(hash_ctx, h);
 	lc_hash_zero(hash_ctx);
@@ -375,17 +427,26 @@ out:
 	lc_hash_zero(hash_ctx);
 	return ret;
 }
+
+int lc_ed25519_verify_ctx(const struct lc_ed25519_sig *sig, const uint8_t *msg,
+			  size_t mlen, const struct lc_ed25519_pk *pk,
+			  struct lc_dilithium_ed25519_ctx *composite_ml_dsa_ctx)
+{
+	return lc_ed25519_verify_internal(sig, 0, msg, mlen, pk,
+					  composite_ml_dsa_ctx);
+}
+
 /* Export for test purposes */
 LC_INTERFACE_FUNCTION(int, lc_ed25519_verify, const struct lc_ed25519_sig *sig,
 		      const uint8_t *msg, size_t mlen,
 		      const struct lc_ed25519_pk *pk)
 {
-	return lc_ed25519_verify_internal(sig, 0, msg, mlen, pk);
+	return lc_ed25519_verify_internal(sig, 0, msg, mlen, pk, NULL);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_ed25519ph_verify,
 		      const struct lc_ed25519_sig *sig, const uint8_t *msg,
 		      size_t mlen, const struct lc_ed25519_pk *pk)
 {
-	return lc_ed25519_verify_internal(sig, 1, msg, mlen, pk);
+	return lc_ed25519_verify_internal(sig, 1, msg, mlen, pk, NULL);
 }

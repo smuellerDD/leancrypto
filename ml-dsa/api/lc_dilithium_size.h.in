@@ -221,6 +221,13 @@ struct lc_dilithium_ctx {
 	unsigned short ahat_size;
 
 	/**
+	 * @brief Is the Composite-ML-DSA operation wanted? If yes, set the
+	 * NIST category here
+	 * https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-03.html
+	 */
+	unsigned char composite_ml_dsa;
+
+	/**
 	 * @brief When set to true, only the ML-DSA.Sign_internal or
 	 * ML-DSA.Verify_internal are performed (see FIPS 204 chapter 6).
 	 * Otherwise the ML-DSA.Sign / ML-DSA.Verify (see FIPS chapter 5) is
@@ -265,8 +272,11 @@ struct lc_dilithium_ctx {
 #define LC_DILITHIUM_CTX_SIZE                                                  \
 	sizeof(struct lc_dilithium_ctx)
 
+#define LC_DILITHIUM_CTX_INIT_HASH(name)                                       \
+	LC_SHAKE_256_CTX((&(name)->dilithium_hash_ctx))
+
 #define LC_DILITHIUM_SET_CTX(name)                                             \
-	LC_SHAKE_256_CTX((&(name)->dilithium_hash_ctx));                       \
+	LC_DILITHIUM_CTX_INIT_HASH(name);                                      \
 	(name)->dilithium_prehash_type = NULL;                                 \
 	(name)->ml_dsa_internal = 0;                                           \
 	(name)->userctxlen = 0;                                                \
@@ -676,8 +686,6 @@ struct @dilithium_name@_ed25519_sig {
 #ifndef LC_DILITHIUM_ED25519_CTX_ON_STACK
 struct lc_dilithium_ed25519_ctx {
 	struct lc_dilithium_ctx dilithium_ctx;
-	struct lc_hash_ctx ed25519_hash_ctx;
-	uint8_t sha512_state[LC_SHA512_STATE_SIZE + LC_HASH_COMMON_ALIGNMENT];
 };
 #endif
 
@@ -703,7 +711,6 @@ struct lc_dilithium_ed25519_ctx {
 	struct lc_dilithium_ed25519_ctx *name =                                \
 		(struct lc_dilithium_ed25519_ctx *)name##_ctx_buf;             \
 	LC_DILITHIUM_SET_CTX(&(name)->dilithium_ctx);                          \
-	LC_SHA512_CTX((&(name)->ed25519_hash_ctx));                            \
 	_Pragma("GCC diagnostic pop")
 #endif
 
@@ -719,7 +726,6 @@ static inline void @dilithium_name@_ed25519_ctx_zero(
 	if (!ctx)
 		return;
 	@dilithium_name@_ctx_zero(&ctx->dilithium_ctx);
-	lc_hash_zero(&ctx->ed25519_hash_ctx);
 }
 
 /**

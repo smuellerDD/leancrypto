@@ -37,6 +37,9 @@ static int dilithium_ed25519_tester(struct lc_dilithium_ed25519_ctx *ctx,
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	CKINT(lc_dilithium_ed25519_keypair(&ws->pk, &ws->sk, lc_seeded_rng));
+
+	/* IUF is composite Hash-based, one shot is composite */
+#if 0
 	CKINT(lc_dilithium_ed25519_sign_init(ctx, &ws->sk));
 	CKINT(lc_dilithium_ed25519_sign_update(ctx, &msg[0], 1));
 	CKINT(lc_dilithium_ed25519_sign_update(ctx, &msg[1], 1));
@@ -55,6 +58,7 @@ static int dilithium_ed25519_tester(struct lc_dilithium_ed25519_ctx *ctx,
 	CKINT(lc_dilithium_ed25519_verify_update(ctx, &msg[2], 1));
 	CKINT_LOG(lc_dilithium_ed25519_verify_final(&ws->sig, ctx, &ws->pk),
 		  "Sign one-shot, Verify IUF\n");
+#endif
 
 	CKINT(lc_dilithium_ed25519_sign_init(ctx, &ws->sk));
 	CKINT(lc_dilithium_ed25519_sign_update(ctx, &msg[0], 1));

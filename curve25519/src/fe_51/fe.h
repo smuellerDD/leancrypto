@@ -44,7 +44,7 @@ void fe25519_frombytes(fe25519 h, const unsigned char *s)
 	const uint64_t mask = 0x7ffffffffffffULL;
 	uint64_t h0, h1, h2, h3, h4;
 
-	h0 = (ptr_to_le64(s)) & mask;
+	h0 = (ptr_to_le64(s))&mask;
 	h1 = (ptr_to_le64(s + 6) >> 3) & mask;
 	h2 = (ptr_to_le64(s + 12) >> 6) & mask;
 	h3 = (ptr_to_le64(s + 19) >> 1) & mask;

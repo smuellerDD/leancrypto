@@ -51,9 +51,9 @@ static const uint8_t shake128_oid_der[] = { 0x06, 0x09, 0x60, 0x86, 0x48, 0x01,
 static const uint8_t shake256_oid_der[] = { 0x06, 0x09, 0x60, 0x86, 0x48, 0x01,
 					    0x65, 0x03, 0x04, 0x02, 0x0C };
 
-static int signature_ph_oids(struct lc_hash_ctx *hash_ctx,
-			     const struct lc_hash *signature_prehash_type,
-			     size_t mlen, unsigned int nist_category)
+int signature_ph_oids(struct lc_hash_ctx *hash_ctx,
+		      const struct lc_hash *signature_prehash_type, size_t mlen,
+		      unsigned int nist_category)
 {
 	/* If no hash is supplied, we have no HashML-DSA */
 	if (!signature_prehash_type)
@@ -151,12 +151,53 @@ static int signature_ph_oids(struct lc_hash_ctx *hash_ctx,
 	return -EOPNOTSUPP;
 }
 
+int composite_signature_domain_separation(struct lc_hash_ctx *hash_ctx,
+					  const uint8_t *userctx,
+					  size_t userctxlen,
+					  unsigned int nist_category)
+{
+	if (userctxlen > 255)
+		return -EINVAL;
+
+	/*
+	 * Create M'
+	 */
+
+	/* Set Domain */
+	switch (nist_category) {
+	case 1:
+		lc_hash_update(hash_ctx, hashmldsa44_ed25519_sha512_oid_der,
+			       sizeof(hashmldsa44_ed25519_sha512_oid_der));
+		break;
+	case 3:
+		lc_hash_update(hash_ctx, hashmldsa65_ed25519_sha512_oid_der,
+			       sizeof(hashmldsa65_ed25519_sha512_oid_der));
+		break;
+	case 5:
+		/* See above for the rationale */
+		lc_hash_update(hash_ctx, hashmldsa87_ed448_sha512_oid_der,
+			       sizeof(hashmldsa87_ed448_sha512_oid_der));
+		break;
+	default:
+		return -EOPNOTSUPP;
+	}
+
+	/* Set len(ctx) */
+	lc_hash_update(hash_ctx, (uint8_t *)&userctxlen, 1);
+
+	/* Set ctx */
+	lc_hash_update(hash_ctx, userctx, userctxlen);
+
+	return 0;
+}
+
 int signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 				unsigned int ml_dsa_internal,
 				const struct lc_hash *signature_prehash_type,
 				const uint8_t *userctx, size_t userctxlen,
 				const uint8_t *m, size_t mlen,
-				unsigned int nist_category)
+				unsigned int nist_category,
+				unsigned int composte_signature)
 {
 	uint8_t domainseparation[2];
 	int ret = 0;
@@ -178,6 +219,12 @@ int signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 				nist_category));
 
 out:
+	/* If Composite ML-DSA is requested, apply domain separation */
+	if (composte_signature) {
+		ret = composite_signature_domain_separation(
+			hash_ctx, userctx, userctxlen, nist_category);
+	}
+
 	lc_hash_update(hash_ctx, m, mlen);
 	return ret;
 }

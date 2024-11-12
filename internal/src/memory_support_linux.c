@@ -167,7 +167,7 @@ static void lc_free_internal(void *ptr, int secure)
 	if (!ptr)
 		return;
 
-		/* Alignment is guaranteed due to mmap */
+	/* Alignment is guaranteed due to mmap */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
 	mem = (struct lc_mem_def *)(((uint8_t *)ptr) -

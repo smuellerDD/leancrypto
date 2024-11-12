@@ -49,7 +49,7 @@ int gen_message_random(uint8_t R[LC_SPX_N], const uint8_t sk_prf[LC_SPX_N],
 	CKINT(signature_domain_separation(hash_ctx, ctx->slh_dsa_internal,
 					  ctx->sphincs_prehash_type,
 					  ctx->userctx, ctx->userctxlen, m,
-					  mlen, LC_SPHINCS_NIST_CATEGORY));
+					  mlen, LC_SPHINCS_NIST_CATEGORY, 0));
 	lc_hash_set_digestsize(hash_ctx, LC_SPX_N);
 	lc_hash_final(hash_ctx, R);
 
@@ -86,7 +86,7 @@ int hash_message(uint8_t *digest, uint64_t *tree, uint32_t *leaf_idx,
 	CKINT(signature_domain_separation(hash_ctx, ctx->slh_dsa_internal,
 					  ctx->sphincs_prehash_type,
 					  ctx->userctx, ctx->userctxlen, m,
-					  mlen, LC_SPHINCS_NIST_CATEGORY));
+					  mlen, LC_SPHINCS_NIST_CATEGORY, 0));
 	lc_hash_set_digestsize(hash_ctx, sizeof(buf));
 	lc_hash_final(hash_ctx, buf);
 

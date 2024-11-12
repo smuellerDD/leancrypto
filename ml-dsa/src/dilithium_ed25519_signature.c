@@ -18,10 +18,118 @@
  */
 
 #include "dilithium_type.h"
+#include "ed25519_composite.h"
+#include "helper.h"
 #include "lc_ed25519.h"
 #include "lc_sha512.h"
 #include "ret_checkers.h"
+#include "signature_domain_separation.h"
 #include "visibility.h"
+
+//TODO we cannot include lc_dilithium.h
+void lc_dilithium_ed25519_ctx_hash(struct lc_dilithium_ed25519_ctx *ctx,
+				   const struct lc_hash *hash);
+void lc_dilithium_ed25519_ctx_userctx(struct lc_dilithium_ed25519_ctx *ctx,
+				      const uint8_t *userctx,
+				      size_t userctxlen);
+
+/*
+ * https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-03.html
+ * section 4.3.1
+ */
+static int
+composite_hash_signature_domain_separation(struct lc_hash_ctx *hash_ctx,
+					   struct lc_dilithium_ed25519_ctx *ctx)
+{
+	uint8_t digest[LC_SHA512_SIZE_DIGEST];
+	struct lc_dilithium_ctx *dilithium_ctx = &ctx->dilithium_ctx;
+	int ret = 0;
+
+	if (dilithium_ctx->userctxlen > 255)
+		return -EINVAL;
+
+	/*
+	 * Set the digestsize - for SHA512 this is a noop, for SHAKE256, it
+	 * sets the value. The BUILD_BUG_ON is to check that the SHA-512
+	 * output size is identical to the expected length.
+	 */
+	lc_hash_set_digestsize(hash_ctx, LC_SHA512_SIZE_DIGEST);
+
+	/* Get PH(M) */
+	lc_hash_final(hash_ctx, digest);
+
+	/*
+	 * Create M'
+	 */
+	lc_hash_init(hash_ctx);
+
+#if LC_DILITHIUM_MODE == 2
+	/* Set Domain */
+	lc_hash_update(hash_ctx, hashmldsa44_ed25519_sha512_oid_der,
+		       sizeof(hashmldsa44_ed25519_sha512_oid_der));
+
+	/* Set len(ctx) */
+	lc_hash_update(hash_ctx, (uint8_t *)&dilithium_ctx->userctxlen, 1);
+
+	/* Set ctx */
+	lc_hash_update(hash_ctx, dilithium_ctx->userctx,
+		       dilithium_ctx->userctxlen);
+
+	/* Set hash OID */
+	CKINT(signature_ph_oids(hash_ctx, dilithium_ctx->dilithium_prehash_type,
+				sizeof(digest), LC_DILITHIUM_NIST_CATEGORY));
+
+	/* Set context for ML-DSA */
+	lc_dilithium_ed25519_ctx_userctx(
+		ctx, hashmldsa44_ed25519_sha512_oid_der,
+		sizeof(hashmldsa44_ed25519_sha512_oid_der));
+#elif LC_DILITHIUM_MODE == 3
+	lc_hash_update(hash_ctx, hashmldsa65_ed25519_sha512_oid_der,
+		       sizeof(hashmldsa65_ed25519_sha512_oid_der));
+	lc_hash_update(hash_ctx, (uint8_t *)&dilithium_ctx->userctxlen, 1);
+	lc_hash_update(hash_ctx, dilithium_ctx->userctx,
+		       dilithium_ctx->userctxlen);
+
+	CKINT(signature_ph_oids(hash_ctx, dilithium_ctx->dilithium_prehash_type,
+				sizeof(digest), LC_DILITHIUM_NIST_CATEGORY));
+
+	/* Set context for ML-DSA */
+	lc_dilithium_ed25519_ctx_userctx(
+		ctx, hashmldsa65_ed25519_sha512_oid_der,
+		sizeof(hashmldsa65_ed25519_sha512_oid_der));
+#elif LC_DILITHIUM_MODE == 5
+	/*
+	 * Yes, this call is for HashML-DSA ED25519 but it uses the OID
+	 * for HashML-DSA ED448. As there is no definition for the used
+	 * signature type, this code applies the defined context.
+	 */
+	lc_hash_update(hash_ctx, hashmldsa87_ed448_sha512_oid_der,
+		       sizeof(hashmldsa87_ed448_sha512_oid_der));
+	lc_hash_update(hash_ctx, (uint8_t *)&dilithium_ctx->userctxlen, 1);
+	lc_hash_update(hash_ctx, dilithium_ctx->userctx,
+		       dilithium_ctx->userctxlen);
+
+	CKINT(signature_ph_oids(hash_ctx, dilithium_ctx->dilithium_prehash_type,
+				sizeof(digest), LC_DILITHIUM_NIST_CATEGORY));
+
+	/* Set context for ML-DSA */
+	lc_dilithium_ed25519_ctx_userctx(
+		ctx, hashmldsa87_ed448_sha512_oid_der,
+		sizeof(hashmldsa87_ed448_sha512_oid_der));
+#else
+#error "Undefined LC_DILITHIUM_MODE"
+#endif
+
+	/* Ensure the next call is ML-DSA */
+	lc_dilithium_ed25519_ctx_hash(ctx, NULL);
+
+	/* Set PH(M) */
+	lc_hash_update(hash_ctx, digest, sizeof(digest));
+
+out:
+	lc_memset_secure(digest, 0, sizeof(digest));
+	return ret;
+}
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_keypair,
 		      struct lc_dilithium_ed25519_pk *pk,
@@ -46,22 +154,23 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sign_ctx,
 		      size_t mlen, const struct lc_dilithium_ed25519_sk *sk,
 		      struct lc_rng_ctx *rng_ctx)
 {
-	uint8_t digest[LC_SHA512_SIZE_DIGEST];
+	struct lc_dilithium_ctx *dilithium_ctx;
 	int ret;
 
 	CKNULL(sig, -EINVAL);
 	CKNULL(sk, -EINVAL);
 	CKNULL(ctx, -EINVAL);
 
+	dilithium_ctx = &ctx->dilithium_ctx;
+	dilithium_ctx->composite_ml_dsa = LC_DILITHIUM_NIST_CATEGORY;
+
 	CKINT(lc_dilithium_sign_ctx(&sig->sig, &ctx->dilithium_ctx, m, mlen,
 				    &sk->sk, rng_ctx));
 
-	lc_hash(lc_sha512, m, mlen, digest);
-	CKINT(lc_ed25519ph_sign(&sig->sig_ed25519, digest, sizeof(digest),
-				&sk->sk_ed25519, rng_ctx));
+	CKINT(lc_ed25519_sign_ctx(&sig->sig_ed25519, m, mlen, &sk->sk_ed25519,
+				  rng_ctx, ctx));
 
 out:
-	lc_memset_secure(digest, 0, sizeof(digest));
 	return ret;
 }
 
@@ -77,46 +186,64 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sign,
 	return ret;
 }
 
+static int
+lc_dilithium_ed25519_common_init(struct lc_dilithium_ed25519_ctx *ctx)
+{
+	struct lc_dilithium_ctx *dilithium_ctx;
+	struct lc_hash_ctx *hash_ctx;
+	int ret = 0;
+
+	CKNULL(ctx, -EINVAL);
+
+	dilithium_ctx = &ctx->dilithium_ctx;
+	hash_ctx = &dilithium_ctx->dilithium_hash_ctx;
+
+	if (!dilithium_ctx->dilithium_prehash_type) {
+		dilithium_ctx->dilithium_prehash_type = lc_shake256;
+
+		/*
+		 * No re-initialization of the hash_ctx necessary as
+		 * LC_DILITHIUM_CTX_ON_STACK initialized it to lc_shake256
+		 */
+	} else {
+		if ((dilithium_ctx->dilithium_prehash_type != lc_shake256) &&
+		    (dilithium_ctx->dilithium_prehash_type != lc_sha512))
+			return -EOPNOTSUPP;
+
+		/* Re-purpose the hash context */
+		LC_HASH_SET_CTX(hash_ctx,
+				dilithium_ctx->dilithium_prehash_type);
+		lc_hash_zero(hash_ctx);
+	}
+
+	lc_hash_init(hash_ctx);
+
+out:
+	return ret;
+}
+
 LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sign_init,
 		      struct lc_dilithium_ed25519_ctx *ctx,
 		      const struct lc_dilithium_ed25519_sk *sk)
 {
-	struct lc_hash_ctx *ed25519_hash_ctx;
-	int ret;
+	(void)sk;
 
-	CKNULL(ctx, -EINVAL);
-	CKNULL(sk, -EINVAL);
-
-	ed25519_hash_ctx = &ctx->ed25519_hash_ctx;
-
-	/* Require the use of SHA-512 */
-	if (ed25519_hash_ctx->hash != lc_sha512)
-		return -EOPNOTSUPP;
-
-	CKINT(lc_dilithium_sign_init(&ctx->dilithium_ctx, &sk->sk));
-
-	/* ED25519: Only perform hashing part */
-	lc_hash_init(ed25519_hash_ctx);
-
-out:
-	return ret;
+	return lc_dilithium_ed25519_common_init(ctx);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sign_update,
 		      struct lc_dilithium_ed25519_ctx *ctx, const uint8_t *m,
 		      size_t mlen)
 {
-	struct lc_hash_ctx *ed25519_hash_ctx;
-	int ret;
+	struct lc_dilithium_ctx *dilithium_ctx;
+	struct lc_hash_ctx *hash_ctx;
+	int ret = 0;
 
 	CKNULL(ctx, -EINVAL);
 
-	ed25519_hash_ctx = &ctx->ed25519_hash_ctx;
-
-	CKINT(lc_dilithium_sign_update(&ctx->dilithium_ctx, m, mlen));
-
-	/* ED25519: Only perform hashing part */
-	lc_hash_update(ed25519_hash_ctx, m, mlen);
+	dilithium_ctx = &ctx->dilithium_ctx;
+	hash_ctx = &dilithium_ctx->dilithium_hash_ctx;
+	lc_hash_update(hash_ctx, m, mlen);
 
 out:
 	return ret;
@@ -128,22 +255,39 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sign_final,
 		      const struct lc_dilithium_ed25519_sk *sk,
 		      struct lc_rng_ctx *rng_ctx)
 {
+	struct lc_dilithium_ctx *dilithium_ctx;
+	struct lc_hash_ctx *hash_ctx;
 	uint8_t digest[LC_SHA512_SIZE_DIGEST];
-	struct lc_hash_ctx *ed25519_hash_ctx;
 	int ret;
 
 	CKNULL(sig, -EINVAL);
 	CKNULL(sk, -EINVAL);
 	CKNULL(ctx, -EINVAL);
 
-	ed25519_hash_ctx = &ctx->ed25519_hash_ctx;
+	dilithium_ctx = &ctx->dilithium_ctx;
+	hash_ctx = &dilithium_ctx->dilithium_hash_ctx;
 
-	CKINT(lc_dilithium_sign_final(&sig->sig, &ctx->dilithium_ctx, &sk->sk,
-				      rng_ctx));
+	CKINT(composite_hash_signature_domain_separation(hash_ctx, ctx));
 
-	lc_hash_final(ed25519_hash_ctx, digest);
-	CKINT(lc_ed25519ph_sign(&sig->sig_ed25519, digest, sizeof(digest),
-				&sk->sk_ed25519, rng_ctx));
+	/* Calculate M' */
+	lc_hash_set_digestsize(hash_ctx, sizeof(digest));
+	lc_hash_final(hash_ctx, digest);
+
+	/*
+	 * Now, re-initialize the hash context as SHAKE256 context to comply
+	 * with the LC_DILITHIUM_CTX_ON_STACK
+	 */
+	LC_DILITHIUM_CTX_INIT_HASH(&ctx->dilithium_ctx);
+
+	/* Sign M' */
+	CKINT(lc_dilithium_sign_ctx(&sig->sig, &ctx->dilithium_ctx, digest,
+				    sizeof(digest), &sk->sk, rng_ctx));
+
+	/* Clear out the hash context */
+	lc_dilithium_ed25519_ctx_userctx(ctx, NULL, 0);
+
+	CKINT(lc_ed25519_sign(&sig->sig_ed25519, digest, sizeof(digest),
+			      &sk->sk_ed25519, rng_ctx));
 
 out:
 	lc_memset_secure(digest, 0, sizeof(digest));
@@ -165,20 +309,21 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_verify_ctx,
 		      struct lc_dilithium_ed25519_ctx *ctx, const uint8_t *m,
 		      size_t mlen, const struct lc_dilithium_ed25519_pk *pk)
 {
-	uint8_t digest[LC_SHA512_SIZE_DIGEST];
+	struct lc_dilithium_ctx *dilithium_ctx;
 	int retd, rete, ret = 0;
 
 	CKNULL(sig, -EINVAL);
 	CKNULL(pk, -EINVAL);
 	CKNULL(ctx, -EINVAL);
 
+	dilithium_ctx = &ctx->dilithium_ctx;
+	dilithium_ctx->composite_ml_dsa = LC_DILITHIUM_NIST_CATEGORY;
+
 	retd = lc_dilithium_verify_ctx(&sig->sig, &ctx->dilithium_ctx, m, mlen,
 				       &pk->pk);
 
-	lc_hash(lc_sha512, m, mlen, digest);
-	rete = lc_ed25519ph_verify(&sig->sig_ed25519, digest, sizeof(digest),
-				   &pk->pk_ed25519);
-	lc_memset_secure(digest, 0, sizeof(digest));
+	rete = lc_ed25519_verify_ctx(&sig->sig_ed25519, m, mlen,
+				     &pk->pk_ed25519, ctx);
 
 out:
 	return ret ? ret : lc_dilithium_ed25519_verify_check(retd, rete);
@@ -200,45 +345,16 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_verify_init,
 		      struct lc_dilithium_ed25519_ctx *ctx,
 		      const struct lc_dilithium_ed25519_pk *pk)
 {
-	struct lc_hash_ctx *ed25519_hash_ctx;
-	int ret;
+	(void)pk;
 
-	CKNULL(ctx, -EINVAL);
-	CKNULL(pk, -EINVAL);
-
-	ed25519_hash_ctx = &ctx->ed25519_hash_ctx;
-
-	/* Require the use of SHA-512 */
-	if (ed25519_hash_ctx->hash != lc_sha512)
-		return -EOPNOTSUPP;
-
-	CKINT(lc_dilithium_verify_init(&ctx->dilithium_ctx, &pk->pk));
-
-	/* ED25519: Only perform hashing part */
-	lc_hash_init(ed25519_hash_ctx);
-
-out:
-	return ret;
+	return lc_dilithium_ed25519_common_init(ctx);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_verify_update,
 		      struct lc_dilithium_ed25519_ctx *ctx, const uint8_t *m,
 		      size_t mlen)
 {
-	struct lc_hash_ctx *ed25519_hash_ctx;
-	int ret;
-
-	CKNULL(ctx, -EINVAL);
-
-	ed25519_hash_ctx = &ctx->ed25519_hash_ctx;
-
-	CKINT(lc_dilithium_verify_update(&ctx->dilithium_ctx, m, mlen));
-
-	/* ED25519: Only perform hashing part */
-	lc_hash_update(ed25519_hash_ctx, m, mlen);
-
-out:
-	return ret;
+	return lc_dilithium_ed25519_sign_update(ctx, m, mlen);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_verify_final,
@@ -246,25 +362,42 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_verify_final,
 		      struct lc_dilithium_ed25519_ctx *ctx,
 		      const struct lc_dilithium_ed25519_pk *pk)
 {
+	struct lc_dilithium_ctx *dilithium_ctx;
+	struct lc_hash_ctx *hash_ctx;
 	uint8_t digest[LC_SHA512_SIZE_DIGEST];
-	struct lc_hash_ctx *ed25519_hash_ctx;
 	int retd, rete, ret = 0;
 
 	CKNULL(sig, -EINVAL);
 	CKNULL(pk, -EINVAL);
 	CKNULL(ctx, -EINVAL);
 
-	ed25519_hash_ctx = &ctx->ed25519_hash_ctx;
+	dilithium_ctx = &ctx->dilithium_ctx;
+	hash_ctx = &dilithium_ctx->dilithium_hash_ctx;
 
-	retd = lc_dilithium_verify_final(&sig->sig, &ctx->dilithium_ctx,
-					 &pk->pk);
+	CKINT(composite_hash_signature_domain_separation(hash_ctx, ctx));
 
-	lc_hash_final(ed25519_hash_ctx, digest);
-	rete = lc_ed25519ph_verify(&sig->sig_ed25519, digest, sizeof(digest),
-				   &pk->pk_ed25519);
-	lc_memset_secure(digest, 0, sizeof(digest));
+	/* Calculate M' */
+	lc_hash_set_digestsize(hash_ctx, sizeof(digest));
+	lc_hash_final(hash_ctx, digest);
+
+	/*
+	 * Now, re-initialize the hash context as SHAKE256 context to comply
+	 * with the LC_DILITHIUM_CTX_ON_STACK
+	 */
+	LC_DILITHIUM_CTX_INIT_HASH(&ctx->dilithium_ctx);
+
+	/* Verify M' */
+	retd = lc_dilithium_verify_ctx(&sig->sig, &ctx->dilithium_ctx, digest,
+				       sizeof(digest), &pk->pk);
+
+	/* Clear out the hash context */
+	lc_dilithium_ed25519_ctx_userctx(ctx, NULL, 0);
+
+	rete = lc_ed25519_verify(&sig->sig_ed25519, digest, sizeof(digest),
+				 &pk->pk_ed25519);
 
 out:
+	lc_memset_secure(digest, 0, sizeof(digest));
 	return ret ? ret : lc_dilithium_ed25519_verify_check(retd, rete);
 }
 
@@ -283,7 +416,6 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_ctx_alloc,
 		return -ret;
 
 	LC_SHAKE_256_CTX((&(out_ctx)->dilithium_ctx.dilithium_hash_ctx));
-	LC_SHA512_CTX((&(out_ctx)->ed25519_hash_ctx));
 
 	*ctx = out_ctx;
 
