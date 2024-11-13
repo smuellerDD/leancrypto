@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
 {
 	struct opts opts;
 	FILE *out = stdout;
-	int c = 0;
+	int c = 0, ret;
 
 	opts.bytecount = 1000;
 	opts.outfile = NULL;
@@ -183,5 +183,9 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	return kmac_drng(&opts, out);
+	ret = kmac_drng(&opts, out);
+
+	fclose(out);
+
+	return ret;
 }
