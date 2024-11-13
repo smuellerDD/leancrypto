@@ -245,7 +245,7 @@ int public_key_verify_signature_dilithium_ed25519(
 			       &dilithium_sig, sig->s, sig->s_size));
 
 	/*
-	 * Select hash-based signature if there was a hash
+	 * Verify using HashComposite-ML-DSA if there was a hash
 	 */
 	if (sig->digest_size) {
 		CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
@@ -264,7 +264,7 @@ int public_key_verify_signature_dilithium_ed25519(
 		CKNULL(sig->raw_data, -EOPNOTSUPP);
 
 		/*
-		 * Verify the signature
+		 * Verify the signature using Composite-ML-DSA
 		 */
 		CKINT(lc_dilithium_ed25519_verify_ctx(
 			&dilithium_sig, ctx, sig->raw_data, sig->raw_data_len,
@@ -295,7 +295,7 @@ int public_key_generate_signature_dilithium_ed25519(
 	LC_DILITHIUM_ED25519_CTX_ON_STACK(ctx);
 
 	/*
-	 * Select hash-based signature if there was a hash
+	 * Sign using HashComposite-ML-DSA if there was a hash
 	 */
 	if (sig->digest_size) {
 		CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
@@ -303,7 +303,7 @@ int public_key_generate_signature_dilithium_ed25519(
 		lc_dilithium_ed25519_ctx_hash(ctx, hash_algo);
 
 		/*
-		 * Sign the hash
+		 * Sign the hash using HashComposite-ML-DSA
 		 */
 		CKINT(lc_dilithium_ed25519_sign_init(ctx,
 						     dilithium_ed25519_sk));
@@ -316,7 +316,7 @@ int public_key_generate_signature_dilithium_ed25519(
 		CKNULL(sig->raw_data, -EOPNOTSUPP);
 
 		/*
-		 * Verify the signature
+		 * Sign the signature using Composite-ML-DSA
 		 */
 		CKINT(lc_dilithium_ed25519_sign_ctx(
 			&dilithium_ed25519_sig, ctx, sig->raw_data,
@@ -369,24 +369,25 @@ int public_key_signature_size_dilithium_ed25519(
 	size_t siglen, enc_len = 0;
 	int ret;
 
-	/* Encoding of the first sequence part */
+	/* Encoding of the first sequence part plus the BIT STRING prefix */
 	siglen = lc_dilithium_sig_size(dilithium_type);
+	siglen += 1;
 	CKINT(asn1_encode_length_size(siglen, &enc_len));
 	siglen += enc_len;
+	/* Tag */
 	siglen += 1;
 
-	/* Encoding of the first sequence part */
+	/* Encoding of the first sequence part plus the BIT STRING prefix */
 	siglen += LC_ED25519_SIGBYTES;
+	siglen += 1;
 	CKINT(asn1_encode_length_size(LC_ED25519_SIGBYTES, &enc_len));
 	siglen += enc_len;
+	/* Tag */
 	siglen += 1;
 
 	/* Encoding of the sequence */
 	CKINT(asn1_encode_length_size(siglen, &enc_len));
 	siglen += enc_len;
-	siglen += 1;
-
-	siglen += 1;
 
 	*size = siglen;
 

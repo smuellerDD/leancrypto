@@ -1047,6 +1047,9 @@ int lc_dilithium_ed25519_keypair(struct lc_dilithium_ed25519_pk *pk,
  * @ingroup HybridDilithium
  * @brief Computes signature in one shot
  *
+ * \note The one-shot API provides the algorithm of Composite-ML-DSA as outlined
+ * in https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-03.html
+ *
  * @param [out] sig pointer to output signature
  * @param [in] m pointer to message to be signed
  * @param [in] mlen length of message
@@ -1069,6 +1072,15 @@ int lc_dilithium_ed25519_sign(struct lc_dilithium_ed25519_sig *sig,
  * This API allows the caller to provide an arbitrary context buffer which
  * is hashed together with the message to form the message digest to be signed.
  *
+ * \note The one-shot API provides the algorithm of Composite-ML-DSA as outlined
+ * in https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-03.html
+ * If the caller specifies a hash algorithm as pre-hash algorithm in the context
+ * via \p lc_dilithium_ctx_hash then *only* the ML-DSA part is affected and
+ * changed into a HashML-DSA which implies that the resulting operation is still
+ * Composite-ML-DSA but with a HashML-DSA used internally - i.e. the resulting
+ * algorithm does not comply to any standard. Therefore, it is best to not
+ * use this method.
+ *
  * @param [out] sig pointer to output signature
  * @param [in] ctx reference to the allocated Dilithium context handle
  * @param [in] m pointer to message to be signed
@@ -1089,6 +1101,12 @@ int lc_dilithium_ed25519_sign_ctx(struct lc_dilithium_ed25519_sig *sig,
 /**
  * @ingroup HybridDilithium
  * @brief Initializes signature operation in stream mode
+ *
+ * \note The stream API provides the algorithm of HashComposite-ML-DSA as
+ * outlined in
+ * https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-03.html.
+ * The reason is that ED25519 cannot operate in stream mode and thus must be
+ * turned into using a pre-hashed message.
  *
  * @param [in] ctx Dilithium-ED25519 context pointer
  * @param [in] sk pointer to bit-packed secret key
@@ -1133,6 +1151,9 @@ int lc_dilithium_ed25519_sign_final(struct lc_dilithium_ed25519_sig *sig,
  * @ingroup HybridDilithium
  * @brief Verifies signature in one shot
  *
+ * \note The one-shot API provides the algorithm of Composite-ML-DSA as outlined
+ * in https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-03.html
+ *
  * @param [in] sig pointer to input signature
  * @param [in] m pointer to message
  * @param [in] mlen length of message
@@ -1152,6 +1173,15 @@ int lc_dilithium_ed25519_verify(const struct lc_dilithium_ed25519_sig *sig,
  * This API allows the caller to provide an arbitrary context buffer which
  * is hashed together with the message to form the message digest to be signed.
  *
+ * \note The one-shot API provides the algorithm of Composite-ML-DSA as outlined
+ * in https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-03.html
+ * If the caller specifies a hash algorithm as pre-hash algorithm in the context
+ * via \p lc_dilithium_ctx_hash then *only* the ML-DSA part is affected and
+ * changed into a HashML-DSA which implies that the resulting operation is still
+ * Composite-ML-DSA but with a HashML-DSA used internally - i.e. the resulting
+ * algorithm does not comply to any standard. Therefore, it is best to not
+ * use this method.
+ *
  * @param [in] sig pointer to input signature
  * @param [in] ctx reference to the allocated Dilithium context handle
  * @param [in] m pointer to message
@@ -1169,6 +1199,12 @@ int lc_dilithium_ed25519_verify_ctx(const struct lc_dilithium_ed25519_sig *sig,
 /**
  * @ingroup HybridDilithium
  * @brief Initializes signature verification operation in stream mode
+ *
+ * \note The stream API provides the algorithm of HashComposite-ML-DSA as
+ * outlined in
+ * https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-03.html.
+ * The reason is that ED25519 cannot operate in stream mode and thus must be
+ * turned into using a pre-hashed message.
  *
  * @param [in] ctx Dilithium-ED25519 context pointer
  * @param [in] pk pointer to bit-packed public key
