@@ -189,8 +189,8 @@ int lc_x509_sig_type_to_oid(enum lc_sig_types pkey_algo, enum OID *oid)
 	return -ENOPKG;
 }
 
-int lc_x509_sig_type_to_hash(enum lc_sig_types pkey_algo,
-			     const struct lc_hash **hash_algo)
+LC_INTERFACE_FUNCTION(int, lc_x509_sig_type_to_hash,enum lc_sig_types pkey_algo,
+		      const struct lc_hash **hash_algo)
 {
 	switch (pkey_algo) {
 	case LC_SIG_DILITHIUM_44:
@@ -269,7 +269,8 @@ int lc_x509_oid_to_sig_type(enum OID oid, enum lc_sig_types *pkey_algo)
 	return -ENOPKG;
 }
 
-const char *lc_x509_sig_type_to_name(enum lc_sig_types pkey_algo)
+LC_INTERFACE_FUNCTION(const char, *lc_x509_sig_type_to_name,
+		      enum lc_sig_types pkey_algo)
 {
 	unsigned int i;
 

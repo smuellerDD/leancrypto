@@ -276,6 +276,27 @@ struct lc_x509_certificate {
 };
 /// \endcond
 
+/**
+ * @brief Convert a leancrypto public key algorithm reference into human
+ *	  readable form
+ *
+ * @param [in] pkey_algo public key algorithm type
+ *
+ * @return character string with the name
+ */
+const char *lc_x509_sig_type_to_name(enum lc_sig_types pkey_algo);
+
+/**
+ * @brief Obtain the hash type to be used with a given public key algorithm
+ *
+ * @param [in] pkey_algo public key algorithm type
+ * @param [out] hash_algo Hash reference (or NULL if none is to be used)
+ *
+ * @return 0 on success, < 0 on error
+ */
+int lc_x509_sig_type_to_hash(enum lc_sig_types pkey_algo,
+			     const struct lc_hash **hash_algo);
+
 #ifdef __cplusplus
 }
 #endif
