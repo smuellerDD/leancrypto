@@ -281,6 +281,7 @@ struct lc_dilithium_ctx {
 	(name)->ml_dsa_internal = 0;                                           \
 	(name)->userctxlen = 0;                                                \
 	(name)->userctx = NULL;                                                \
+	(name)->composite_ml_dsa = 0;                                          \
 	(name)->ahat = NULL;                                                   \
 	(name)->ahat_size = 0
 #endif
