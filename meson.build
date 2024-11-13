@@ -195,6 +195,8 @@ doxygen = find_program('doxygen', required : false)
 pkgconfig = import('pkgconfig')
 
 include_dirs = include_directories([ 'aead/api',
+				     'apps/api',
+				     'asn1/src',
 				     'bike/api',
 				     'curve25519/api',
 				     'drng/api',
@@ -239,19 +241,19 @@ subdirs = [
 	    'asn1/src'
 	  ]
 
-testdirs = [ #'apps/tests',
-	     #'aead/tests',
-	     #'bike/tests',
-	     #'curve25519/tests',
-	     #'drng/tests',
-	     #'hash/tests',
-	     #'internal/tests',
-	     #'kdf/tests',
-	     #'ml-kem/tests',
-	     #'otp/tests',
-	     #'ml-dsa/tests',
-	     #'slh-dsa/tests',
-	     #'sym/tests',
+testdirs = [ 'apps/tests',
+	     'aead/tests',
+	     'bike/tests',
+	     'curve25519/tests',
+	     'drng/tests',
+	     'hash/tests',
+	     'internal/tests',
+	     'kdf/tests',
+	     'ml-kem/tests',
+	     'otp/tests',
+	     'ml-dsa/tests',
+	     'slh-dsa/tests',
+	     'sym/tests',
 	     'asn1/tests'
 	   ]
 
