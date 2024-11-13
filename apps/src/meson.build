@@ -103,7 +103,8 @@ if (host_machine.system() != 'windows') and get_option('apps').enabled()
 		lc_x509_generator_files = internal_src
 		lc_x509_generator_files += files([
 						'lc_x509_generator.c',
-						'lc_x509_generator_file_helper.c'
+						'lc_x509_generator_file_helper.c',
+						'lc_x509_generator_print.c'
 						])
 
 		lc_x509_generator = executable('lc_x509_generator',

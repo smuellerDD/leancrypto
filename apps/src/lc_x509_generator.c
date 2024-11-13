@@ -22,6 +22,7 @@
 #include <getopt.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <time.h>
 
 #include "binhexbin.h"
@@ -29,6 +30,7 @@
 #include "lc_x509_generator.h"
 #include "lc_x509_generator_file_helper.h"
 #include "lc_x509_parser.h"
+#include "x509_print.h"
 
 struct lc_x509_key_input_data {
 	enum lc_sig_types sig_type;
@@ -73,16 +75,40 @@ struct x509_generator_opts {
 
 	enum lc_sig_types create_keypair_algo;
 	enum lc_sig_types in_key_type;
+
+	unsigned int print_x509 : 1;
+	unsigned int noout : 1;
 };
+
+static int x509_check_file(const char *file)
+{
+	struct stat sb;
+
+	if (!file)
+		return -EINVAL;
+
+	if (!stat(file, &sb)) {
+		printf("File %s exists - reject to overwrite it\n", file);
+		return -EEXIST;
+	}
+
+	return 0;
+}
 
 static int x509_gen_file(struct x509_generator_opts *opts,
 			 const uint8_t *certdata, size_t certdata_len)
 {
+
 	FILE *f = NULL;
 	size_t written;
 	int ret = 0;
 
 	CKNULL(opts->outfile, -EINVAL);
+
+	if (opts->noout)
+		return 0;
+
+	CKINT(x509_check_file(opts->outfile));
 
 	f = fopen(opts->outfile, "w");
 	CKNULL(f, -errno);
@@ -101,9 +127,48 @@ out:
 	return ret;
 }
 
+static int x509_enc_dump(struct x509_generator_opts *opts,
+			 const uint8_t *x509_data, size_t x509_datalen)
+{
+	struct lc_x509_certificate pcert = { 0 };
+	int ret;
+
+	if (!opts->print_x509)
+		return 0;
+
+	CKINT(lc_x509_cert_parse(&pcert, x509_data, x509_datalen));
+	CKINT(print_x509_cert(&pcert));
+
+out:
+	lc_memset_secure(&pcert, 0, sizeof(pcert));
+	return ret;
+}
+
+static int x509_dump_file(const char *file)
+{
+	struct lc_x509_certificate pcert = { 0 };
+	uint8_t *x509_data = NULL;
+	size_t x509_datalen = 0;
+	int ret;
+
+	CKNULL(file, -EINVAL);
+
+	CKINT_LOG(get_data(file, &x509_data, &x509_datalen),
+		  "Loading of file %s failed\n", file);
+
+	CKINT_LOG(lc_x509_cert_parse(&pcert, x509_data, x509_datalen),
+		  "Parsing of input file %s failed\n", file);
+	CKINT(print_x509_cert(&pcert));
+
+out:
+	lc_memset_secure(&pcert, 0, sizeof(pcert));
+	release_data(x509_data, x509_datalen);
+	return ret;
+}
+
+
 static int x509_gen_cert(struct x509_generator_opts *opts)
 {
-	struct lc_x509_certificate parsed_x509;
 	struct lc_x509_certificate *gcert = &opts->cert;
 	uint8_t data[65536] = { 0 };
 	size_t avail_datalen = sizeof(data), datalen;
@@ -119,8 +184,9 @@ static int x509_gen_cert(struct x509_generator_opts *opts)
 
 	CKINT(x509_gen_file(opts, data, datalen));
 
+	CKINT(x509_enc_dump(opts, data, datalen));
+
 out:
-	lc_x509_cert_clear(&parsed_x509);
 	return ret;
 }
 
@@ -178,8 +244,7 @@ static int x509_enc_keyusage(struct x509_generator_opts *opts,
 
 	val = strtoul(opt_optarg, &string, 10);
 	if (val == 0) {
-		CKINT_LOG(lc_x509_cert_set_keyusage(cert, string),
-			  "Set key usage string %s\n", string);
+		CKINT(lc_x509_cert_set_keyusage(cert, string));
 	} else if (val < USHRT_MAX) {
 		CKINT_LOG(lc_x509_cert_set_keyusage_val(cert, (uint16_t)val),
 			  "Set key usage value %u\n", (uint16_t)val);
@@ -822,6 +887,8 @@ static void x509_generator_usage(void)
 	fprintf(stderr, "\nOptions:\n");
 	fprintf(stderr,
 		"\t-o --outfile <FILE>\t\tFile to write certificate to\n");
+
+	fprintf(stderr, "\n\tOptions for X.509 cryptographic aspects:\n");
 	fprintf(stderr,
 		"\t   --sk-file <FILE>\t\tFile with secret key used for signature\n");
 	fprintf(stderr, "\t\t\t\t\t\tInput when key is available,\n");
@@ -831,18 +898,21 @@ static void x509_generator_usage(void)
 	fprintf(stderr, "\t\t\t\t\t\tInput when key is available,\n");
 	fprintf(stderr, "\t\t\t\t\t\toutput with --create-keypair\n");
 	fprintf(stderr,
-		"\t   --key-type <TYPE>\tInput keys are of given type\n");
+		"\t   --key-type <TYPE>\t\tInput keys are of given type\n");
 	fprintf(stderr,
 		"\t   --create-keypair <TYPE>\tCreate key pair of given type\n");
+	fprintf(stderr, "\t\t\t\t\t\tNOTE: generated keys are written\n");
+	fprintf(stderr, "\t\t\t\t\t\tto file\n");
 	fprintf(stderr,
 		"\t   --x509-signer <FILE>\t\tX.509 certificate of signer\n");
-	fprintf(stderr,
-		"\t\t\t\t\t\tIf not set, create a self-signed certificate\n");
+	fprintf(stderr, "\t\t\t\t\t\tIf not set, create a self-signed\n");
+	fprintf(stderr, "\t\t\t\t\t\tcertificate\n");
 	fprintf(stderr,
 		"\t   --signer-sk-file <FILE>\t\tFile with signer secret\n");
 
+	fprintf(stderr, "\n\tOptions for X.509 meta data:\n");
 	fprintf(stderr,
-		"\n\t   --eku <FLAG>\t\t\tSet Extended Key Usage flag\n");
+		"\t   --eku <FLAG>\t\t\tSet Extended Key Usage flag\n");
 	fprintf(stderr, "\t\t\t\t\t\tQuery available flags with \"?\"\n");
 
 	fprintf(stderr, "\t   --keyusage <FLAG>\t\tSet Key Usage flag\n");
@@ -851,11 +921,11 @@ static void x509_generator_usage(void)
 	fprintf(stderr,
 		"\t   --ca\t\t\t\tSet CA basic constraint with criticality\n");
 	fprintf(stderr, "\t   --san-dns <NAME> \t\tSet SAN DNS name\n");
-	fprintf(stderr, "\t   --san-ip <IP> \t\tSet SAN IP name\n");
+	fprintf(stderr, "\t   --san-ip <IP> \t\tSet SAN IP address (IPv4 or IPv6)\n");
 	fprintf(stderr, "\t   --skid\t\t\tSet SKID (in hex form)\n");
 	fprintf(stderr, "\t   --akid\t\t\tSet AKID (in hex form)\n");
-	fprintf(stderr, "\t\t\t\t\t\tAKID only used without\n");
-	fprintf(stderr, "\t\t\t\t\t\tX.509 signer\n");
+	fprintf(stderr, "\t\t\t\t\t\tAKID only used without X.509\n");
+	fprintf(stderr, "\t\t\t\t\t\tsigner being specified\n");
 	fprintf(stderr, "\t   --valid-from\t\t\tSet start time\n");
 	fprintf(stderr, "\t   --valid-to\t\t\tSet end time\n");
 	fprintf(stderr,
@@ -877,6 +947,13 @@ static void x509_generator_usage(void)
 	fprintf(stderr, "\t   --issuer-o <VALUE>\t\tSet issuer O\n");
 	fprintf(stderr, "\t   --issuer-st <VALUE>\t\tSet issuer ST\n");
 	fprintf(stderr, "\t   --issuer-c <VALUE>\t\tSet issuer C\n");
+
+	fprintf(stderr, "\n\tOptions for analyzing generated X.509 certificate:\n");
+	fprintf(stderr, "\t   --print\t\t\tParse the generated X.509 and print its\n");
+	fprintf(stderr, "\t\t\t\t\tcontents\n");
+	fprintf(stderr, "\t   --print-x509 <FILE>\t\tParse the X.509 certificate and\n");
+	fprintf(stderr, "\t\t\t\t\tprint its contents\n");
+	fprintf(stderr, "\t   --noout\t\t\tNo generation of output files\n");
 
 	fprintf(stderr, "\n\t-h  --help\t\t\tPrint this help text\n");
 }
@@ -924,6 +1001,10 @@ int main(int argc, char *argv[])
 					      { "issuer-st", 1, 0, 0 },
 					      { "issuer-c", 1, 0, 0 },
 
+					      { "print", 0, 0, 0 },
+					      { "noout", 0, 0, 0 },
+					      { "print-x509", 1, 0, 0 },
+
 					      { 0, 0, 0, 0 } };
 
 	opterr = 0;
@@ -942,6 +1023,7 @@ int main(int argc, char *argv[])
 
 			/* outfile */
 			case 1:
+				CKINT(x509_check_file(optarg));
 				parsed_opts.outfile = optarg;
 				break;
 			/* sk-file */
@@ -974,14 +1056,11 @@ int main(int argc, char *argv[])
 
 			/* eku */
 			case 8:
-				CKINT_LOG(x509_enc_eku(&parsed_opts, optarg),
-					  "Set EKU\n");
+				CKINT(x509_enc_eku(&parsed_opts, optarg));
 				break;
 			/* keyusage */
 			case 9:
-				CKINT_LOG(x509_enc_keyusage(&parsed_opts,
-							    optarg),
-					  "Set key usage\n");
+				CKINT(x509_enc_keyusage(&parsed_opts, optarg));
 				break;
 			/* ca */
 			case 10:
@@ -1081,6 +1160,20 @@ int main(int argc, char *argv[])
 			/* issuer-c */
 			case 29:
 				CKINT(x509_enc_issuer_c(&parsed_opts, optarg));
+				break;
+
+			/* print */
+			case 30:
+				parsed_opts.print_x509 = 1;
+				break;
+			/* noout */
+			case 31:
+				parsed_opts.noout = 1;
+				break;
+			/* print-x509 */
+			case 32:
+				CKINT(x509_dump_file(optarg));
+				goto out;
 				break;
 			}
 			break;
