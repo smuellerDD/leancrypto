@@ -271,6 +271,15 @@ considered as API changes!
 The library offers an X.509 and PKCS#7 support with `lc_x509_parser.h`,
 `lc_x509_generator.h` and `lc_pkcs7_parser.h`.
 
+X.509 support includes:
+
+* X.509 parsing
+
+* X.509 generation
+
+The operations are offered via APIs as well as via the `lc_x509_generator`
+application.
+
 The following services are offered with the PKCS#7 support:
 
 * Signature verifiation: use cases are secure boot scenarios and others
