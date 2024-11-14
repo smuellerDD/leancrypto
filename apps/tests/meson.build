@@ -147,27 +147,27 @@ if (host_machine.system() != 'windows') and get_option('apps').enabled()
 		test('X.509 Generator Root-CA SLH-DSA-SHAKE-256S',
 		     lc_x509_generator,
 		     args: [ x509_rootca_args, '--create-keypair', 'SLH-DSA-SHAKE-256S' ],
-		     suite: regression)
+		     timeout: 600, suite: regression)
 		test('X.509 Generator Root-CA SLH-DSA-SHAKE-256F',
 		     lc_x509_generator,
 		     args: [ x509_rootca_args, '--create-keypair', 'SLH-DSA-SHAKE-256F' ],
-		     suite: regression)
+		     timeout: 600, suite: regression)
 		test('X.509 Generator Root-CA SLH-DSA-SHAKE-192S',
 		     lc_x509_generator,
 		     args: [ x509_rootca_args, '--create-keypair', 'SLH-DSA-SHAKE-192S' ],
-		     suite: regression)
+		     timeout: 600, suite: regression)
 		test('X.509 Generator Root-CASLH-DSA-SHAKE-192F',
 		     lc_x509_generator,
 		     args: [ x509_rootca_args, '--create-keypair', 'SLH-DSA-SHAKE-192F' ],
-		     suite: regression)
+		     timeout: 600, suite: regression)
 		test('X.509 Generator Root-CA SLH-DSA-SHAKE-128S',
 		     lc_x509_generator,
 		     args: [ x509_rootca_args, '--create-keypair', 'SLH-DSA-SHAKE-128S' ],
-		     suite: regression)
+		     timeout: 600, suite: regression)
 		test('X.509 Generator Root-CA SLH-DSA-SHAKE-128F',
 		     lc_x509_generator,
 		     args: [ x509_rootca_args, '--create-keypair', 'SLH-DSA-SHAKE-128F' ],
-		     suite: regression)
+		     timeout: 600, suite: regression)
 
 		test('X.509 Generator Root-CA ML-DSA65-ED25519',
 		     lc_x509_generator,

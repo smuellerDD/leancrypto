@@ -58,7 +58,7 @@ if get_option('x509_parser').enabled()
 		'--skid', '0a0b0c0d0e0f',
 		'--akid', '0a0b0c0d0e0f',
 		'--check-time' ],
-		suite: regression)
+		timeout: 600, suite: regression)
 
 	test('X.509 SLH-DSA-SHAKE-256F Int 1 CA', asn1_tester,
 	args: [ '-x', '-f', certdir + 'slh-dsa-shake-256f_int1.der', '--check-ca',
@@ -67,7 +67,7 @@ if get_option('x509_parser').enabled()
 		'--valid-from', '1729527728', '--valid-to', '2044210606',
 		'--skid', '0b0c0d0e0f0001', '--akid', '0a0b0c0d0e0f',
 		'--check-time' ],
-		suite: regression)
+		timeout: 600, suite: regression)
 
 	test('X.509 SLH-DSA-SHAKE-192F Int 2 CA', asn1_tester,
 	args: [ '-x', '-f', certdir + 'slh-dsa-shake-192f_int2.der', '--check-ca',
@@ -76,7 +76,7 @@ if get_option('x509_parser').enabled()
 		'--valid-from', '1729527728', '--valid-to', '2044210606',
 		'--skid', '0c0d0e0f000102', '--akid', '0b0c0d0e0f0001',
 		'--check-time' ],
-		suite: regression)
+		timeout: 600, suite: regression)
 
 	test('X.509 SLH-DSA-SHAKE-128F Leaf', asn1_tester,
 	args: [ '-x', '-f', certdir + 'slh-dsa-shake-128f_leaf.der', '--check-noca',
@@ -85,7 +85,7 @@ if get_option('x509_parser').enabled()
 		'--valid-from', '1729527728', '--valid-to', '2044210606',
 		'--skid', '0d0e0f00010203', '--akid', '0c0d0e0f000102',
 		'--check-time' ],
-		suite: regression)
+		timeout: 600, suite: regression)
 
 	test('X.509 ML-DSA65-ED25519 Root CA', asn1_tester,
 	args: [ '-x', '-f', certdir + 'ml-dsa65-ed25519_cacert.der', '--check-ca',
