@@ -5,6 +5,7 @@ if get_option('x509_parser').enabled()
 	asn1_tester = executable('asn1_tester',
 			 [ 'asn1_tester.c',
 			   'asn1_test_helper.c',
+			   '../../apps/src/lc_x509_generator_checker.c',
 			   '../../apps/src/lc_x509_generator_print.c',
 			   internal_src ],
 			 include_directories: [ include_internal_dirs ],

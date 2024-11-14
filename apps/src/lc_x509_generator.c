@@ -30,6 +30,7 @@
 #include "lc_x509_generator.h"
 #include "lc_x509_generator_file_helper.h"
 #include "lc_x509_parser.h"
+#include "x509_checker.h"
 #include "x509_print.h"
 
 struct lc_x509_key_input_data {
@@ -51,6 +52,7 @@ struct x509_generator_opts {
 	struct lc_x509_certificate signer_cert;
 	struct lc_x509_key_input_data key_input_data;
 	struct lc_x509_key_input_data signer_key_input_data;
+	struct x509_checker_options checker_opts;
 	uint8_t ipaddr[16];
 	uint8_t *raw_skid;
 	size_t raw_skid_size;
@@ -58,6 +60,7 @@ struct x509_generator_opts {
 	size_t raw_akid_size;
 	uint8_t *raw_serial;
 	size_t raw_serial_size;
+	const char *print_x509_cert;
 	const char *outfile;
 	const char *sk_file;
 	const char *pk_file;
@@ -78,6 +81,7 @@ struct x509_generator_opts {
 
 	unsigned int print_x509 : 1;
 	unsigned int noout : 1;
+	unsigned int checker : 1;
 };
 
 static int x509_check_file(const char *file)
@@ -133,32 +137,43 @@ static int x509_enc_dump(struct x509_generator_opts *opts,
 	struct lc_x509_certificate pcert = { 0 };
 	int ret;
 
-	if (!opts->print_x509)
+	if (!opts->print_x509 && !opts->checker)
 		return 0;
 
 	CKINT(lc_x509_cert_parse(&pcert, x509_data, x509_datalen));
-	CKINT(print_x509_cert(&pcert));
+
+	if (opts->checker)
+		CKINT(apply_checks_x509(&pcert, &opts->checker_opts));
+
+	if (opts->print_x509)
+		CKINT(print_x509_cert(&pcert));
 
 out:
 	lc_memset_secure(&pcert, 0, sizeof(pcert));
 	return ret;
 }
 
-static int x509_dump_file(const char *file)
+static int x509_dump_file(struct x509_generator_opts *opts)
 {
 	struct lc_x509_certificate pcert = { 0 };
 	uint8_t *x509_data = NULL;
 	size_t x509_datalen = 0;
 	int ret;
 
-	CKNULL(file, -EINVAL);
+	if (!opts->print_x509_cert)
+		return 0;
 
-	CKINT_LOG(get_data(file, &x509_data, &x509_datalen),
-		  "Loading of file %s failed\n", file);
+	CKINT_LOG(get_data(opts->print_x509_cert, &x509_data, &x509_datalen),
+		  "Loading of file %s failed\n", opts->print_x509_cert);
 
 	CKINT_LOG(lc_x509_cert_parse(&pcert, x509_data, x509_datalen),
-		  "Parsing of input file %s failed\n", file);
-	CKINT(print_x509_cert(&pcert));
+		  "Parsing of input file %s failed\n", opts->print_x509_cert);
+
+	if (opts->checker)
+		CKINT(apply_checks_x509(&pcert, &opts->checker_opts));
+
+	if (opts->print_x509_cert)
+		CKINT(print_x509_cert(&pcert));
 
 out:
 	lc_memset_secure(&pcert, 0, sizeof(pcert));
@@ -948,12 +963,40 @@ static void x509_generator_usage(void)
 	fprintf(stderr, "\t   --issuer-st <VALUE>\t\tSet issuer ST\n");
 	fprintf(stderr, "\t   --issuer-c <VALUE>\t\tSet issuer C\n");
 
-	fprintf(stderr, "\n\tOptions for analyzing generated X.509 certificate:\n");
+	fprintf(stderr, "\n\tOptions for analyzing generated / loaded X.509 certificate:\n");
 	fprintf(stderr, "\t   --print\t\t\tParse the generated X.509 and print its\n");
 	fprintf(stderr, "\t\t\t\t\tcontents\n");
 	fprintf(stderr, "\t   --print-x509 <FILE>\t\tParse the X.509 certificate and\n");
 	fprintf(stderr, "\t\t\t\t\tprint its contents\n");
 	fprintf(stderr, "\t   --noout\t\t\tNo generation of output files\n");
+
+	fprintf(stderr, "\n\tOptions for checking generated / loaded X.509 certificate:\n");
+	fprintf(stderr, "\t   --check-ca\t\t\tcheck presence of CA\n");
+	fprintf(stderr, "\t   --check-noca\t\t\tcheck absence of CA\n");
+	fprintf(stderr,
+		"\t   --check-ca-conformant\tcheck presence of RFC5280 conformant CA\n");
+	fprintf(stderr, "\t\t\t\t\tdefinition\n");
+	fprintf(stderr,
+		"\t   --check-time\t\t\tcheck time-validity of the certificate\n");
+	fprintf(stderr,
+		"\t   --check-selfsigned\t\tcheck cert is self-signed\n");
+	fprintf(stderr, "\t   --check-issuer-cn\t\tcheck issuer CN\n");
+	fprintf(stderr, "\t   --check-subject-cn\t\tcheck subject CN\n");
+	fprintf(stderr,
+		"\t   --check-selfsigned\t\tcheck that cert is self-signed\n");
+	fprintf(stderr,
+		"\t   --check-noselfsigned\t\tcheck that cert is not self-signed\n");
+	fprintf(stderr,
+		"\t   --check-valid-from <EPOCH time>\tcheck validity of time\n");
+	fprintf(stderr,
+		"\t   --check-valid-to <EPOCH time>\tcheck validity of time\n");
+	fprintf(stderr,
+		"\t   --check-eku <EKU>\t\tmatch estended key usage (use EKY_EKU_*\n");
+	fprintf(stderr, "\t\t\t\t\tflags)\n");
+	fprintf(stderr, "\t   --check-san-dns <NAME>\tmatch SAN DNS\n");
+	fprintf(stderr, "\t   --check-san-ip <IP-Hex>\tmatch SAN IP\n");
+	fprintf(stderr, "\t   --check-skid <HEX>\t\tmatch subject key ID\n");
+	fprintf(stderr, "\t   --check-akid <HEX>\t\tmatch authority key ID\n");
 
 	fprintf(stderr, "\n\t-h  --help\t\t\tPrint this help text\n");
 }
@@ -961,6 +1004,7 @@ static void x509_generator_usage(void)
 int main(int argc, char *argv[])
 {
 	struct x509_generator_opts parsed_opts = { 0 };
+	struct x509_checker_options *checker_opts = &parsed_opts.checker_opts;
 	int ret = 0, opt_index = 0;
 
 	static const char *opts_short = "ho:";
@@ -1004,6 +1048,22 @@ int main(int argc, char *argv[])
 					      { "print", 0, 0, 0 },
 					      { "noout", 0, 0, 0 },
 					      { "print-x509", 1, 0, 0 },
+
+					      { "check-ca", 0, 0, 0 },
+					      { "check-ca-conformant", 0, 0, 0 },
+					      { "check-time", 0, 0, 0 },
+					      { "check-issuer-cn", 1, 0, 0 },
+					      { "check-subject-cn", 1, 0, 0 },
+					      { "check-noselfsigned", 0, 0, 0 },
+					      { "check-valid-from", 1, 0, 0 },
+					      { "check-valid-to", 1, 0, 0 },
+					      { "check-eku", 1, 0, 0 },
+					      { "check-san-dns", 1, 0, 0 },
+					      { "check-san-ip", 1, 0, 0 },
+					      { "check-skid", 1, 0, 0 },
+					      { "check-akid", 1, 0, 0 },
+					      { "check-noca", 0, 0, 0 },
+					      { "check-selfsigned", 0, 0, 0 },
 
 					      { 0, 0, 0, 0 } };
 
@@ -1172,8 +1232,86 @@ int main(int argc, char *argv[])
 				break;
 			/* print-x509 */
 			case 32:
-				CKINT(x509_dump_file(optarg));
-				goto out;
+				parsed_opts.print_x509_cert = optarg;
+				break;
+
+			/* check-ca */
+			case 33:
+				checker_opts->check_ca = 1;
+				parsed_opts.checker = 1;
+				break;
+			/* check-ca-conformant */
+			case 34:
+				checker_opts->check_ca_conformant = 1;
+				parsed_opts.checker = 1;
+				break;
+			/* check-time */
+			case 35:
+				checker_opts->check_time = 1;
+				parsed_opts.checker = 1;
+				break;
+			/* check-issuer-cn */
+			case 36:
+				checker_opts->issuer_cn = optarg;
+				parsed_opts.checker = 1;
+				break;
+			/* check-subject-cn */
+			case 37:
+				checker_opts->subject_cn = optarg;
+				parsed_opts.checker = 1;
+				break;
+			/* check-noselfsigned */
+			case 38:
+				checker_opts->check_no_selfsigned = 1;
+				parsed_opts.checker = 1;
+				break;
+			/* valid-from */
+			case 39:
+				checker_opts->valid_from =
+					strtoull(optarg, NULL, 10);
+				parsed_opts.checker = 1;
+				break;
+			/* valid-to */
+			case 40:
+				checker_opts->valid_to =
+					strtoull(optarg, NULL, 10);
+				parsed_opts.checker = 1;
+				break;
+			/* eku */
+			case 41:
+				checker_opts->eku =
+					(unsigned int)strtoul(optarg, NULL, 10);
+				parsed_opts.checker = 1;
+				break;
+			/* san-dns */
+			case 42:
+				checker_opts->san_dns = optarg;
+				parsed_opts.checker = 1;
+				break;
+			/* san-ip */
+			case 43:
+				checker_opts->san_ip = optarg;
+				parsed_opts.checker = 1;
+				break;
+			/* skid */
+			case 44:
+				checker_opts->skid = optarg;
+				parsed_opts.checker = 1;
+				break;
+			/* akid */
+			case 45:
+				checker_opts->akid = optarg;
+				parsed_opts.checker = 1;
+				break;
+			/* check-noca */
+			case 46:
+				checker_opts->check_no_ca = 1;
+				parsed_opts.checker = 1;
+				break;
+			/* check-selfsigned */
+			case 47:
+				checker_opts->check_selfsigned = 1;
+				parsed_opts.checker = 1;
 				break;
 			}
 			break;
@@ -1190,6 +1328,11 @@ int main(int argc, char *argv[])
 			ret = -1;
 			goto out;
 		}
+	}
+
+	if (parsed_opts.print_x509_cert) {
+		CKINT(x509_dump_file(&parsed_opts));
+		goto out;
 	}
 
 	CKINT(x509_enc_crypto_algo(&parsed_opts));

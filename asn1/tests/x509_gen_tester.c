@@ -29,7 +29,7 @@
 #include "lc_x509_generator.h"
 #include "lc_x509_parser.h"
 
-struct pkcs7_options {
+struct x509_checker_options {
 	struct lc_x509_certificate cert;
 	struct lc_dilithium_sk sk;
 	struct lc_dilithium_pk pk;
@@ -375,7 +375,7 @@ static const uint8_t dilithium44_sk[] = {
 	0x7a, 0x20, 0x3c, 0x7f,
 };
 
-static int x509_gen_cert(struct pkcs7_options *opts)
+static int x509_gen_cert(struct x509_checker_options *opts)
 {
 	struct lc_x509_certificate parsed_x509;
 	struct lc_x509_certificate *gcert = &opts->cert;
@@ -415,7 +415,7 @@ out:
 	return ret;
 }
 
-static int x509_enc_eku(struct pkcs7_options *opts, const char *opt_optarg)
+static int x509_enc_eku(struct x509_checker_options *opts, const char *opt_optarg)
 {
 	unsigned long val;
 
@@ -428,7 +428,7 @@ static int x509_enc_eku(struct pkcs7_options *opts, const char *opt_optarg)
 	return 0;
 }
 
-static int x509_enc_keyusage(struct pkcs7_options *opts, const char *opt_optarg)
+static int x509_enc_keyusage(struct x509_checker_options *opts, const char *opt_optarg)
 {
 	unsigned long val;
 
@@ -441,14 +441,14 @@ static int x509_enc_keyusage(struct pkcs7_options *opts, const char *opt_optarg)
 	return 0;
 }
 
-static int x509_enc_ca(struct pkcs7_options *opts)
+static int x509_enc_ca(struct x509_checker_options *opts)
 {
 	opts->cert.pub.ca_pathlen = LC_KEY_CA_CRITICAL | LC_KEY_CA_MAXLEN;
 
 	return 0;
 }
 
-static int x509_enc_san_dns(struct pkcs7_options *opts, const char *opt_optarg)
+static int x509_enc_san_dns(struct x509_checker_options *opts, const char *opt_optarg)
 {
 	if (!opt_optarg)
 		return -EINVAL;
@@ -459,7 +459,7 @@ static int x509_enc_san_dns(struct pkcs7_options *opts, const char *opt_optarg)
 	return 0;
 }
 
-static int x509_enc_skid(struct pkcs7_options *opts, const char *opt_optarg)
+static int x509_enc_skid(struct x509_checker_options *opts, const char *opt_optarg)
 {
 	int ret;
 
@@ -476,7 +476,7 @@ out:
 	return ret;
 }
 
-static int x509_enc_akid(struct pkcs7_options *opts, const char *opt_optarg)
+static int x509_enc_akid(struct x509_checker_options *opts, const char *opt_optarg)
 {
 	int ret;
 
@@ -493,7 +493,7 @@ out:
 	return ret;
 }
 
-static void x509_clean_opts(struct pkcs7_options *opts)
+static void x509_clean_opts(struct x509_checker_options *opts)
 {
 	if (!opts)
 		return;
@@ -508,7 +508,7 @@ static void x509_clean_opts(struct pkcs7_options *opts)
 	memset(opts, 0, sizeof(*opts));
 }
 
-static int x509_enc_san_ip(struct pkcs7_options *opts, char *opt_optarg)
+static int x509_enc_san_ip(struct x509_checker_options *opts, char *opt_optarg)
 {
 	unsigned long val;
 	char *saveptr = NULL;
@@ -544,7 +544,7 @@ out:
 	return ret;
 }
 
-static int x509_enc_valid_from(struct pkcs7_options *opts,
+static int x509_enc_valid_from(struct x509_checker_options *opts,
 			       const char *opt_optarg)
 {
 	unsigned long long val;
@@ -558,7 +558,7 @@ static int x509_enc_valid_from(struct pkcs7_options *opts,
 	return 0;
 }
 
-static int x509_enc_valid_to(struct pkcs7_options *opts, const char *opt_optarg)
+static int x509_enc_valid_to(struct x509_checker_options *opts, const char *opt_optarg)
 {
 	unsigned long long val;
 
@@ -571,7 +571,7 @@ static int x509_enc_valid_to(struct pkcs7_options *opts, const char *opt_optarg)
 	return 0;
 }
 
-static int x509_enc_subject_cn(struct pkcs7_options *opts,
+static int x509_enc_subject_cn(struct x509_checker_options *opts,
 			       const char *opt_optarg)
 {
 	size_t len = strlen(opt_optarg);
@@ -584,7 +584,7 @@ static int x509_enc_subject_cn(struct pkcs7_options *opts,
 	return 0;
 }
 
-static int x509_enc_issuer_cn(struct pkcs7_options *opts,
+static int x509_enc_issuer_cn(struct x509_checker_options *opts,
 			      const char *opt_optarg)
 {
 	size_t len = strlen(opt_optarg);
@@ -597,7 +597,7 @@ static int x509_enc_issuer_cn(struct pkcs7_options *opts,
 	return 0;
 }
 
-static int x509_enc_serial(struct pkcs7_options *opts, const char *opt_optarg)
+static int x509_enc_serial(struct x509_checker_options *opts, const char *opt_optarg)
 {
 	int ret;
 
@@ -614,7 +614,7 @@ out:
 	return ret;
 }
 
-static int x509_enc_crypto_algo(struct pkcs7_options *opts)
+static int x509_enc_crypto_algo(struct x509_checker_options *opts)
 {
 	struct lc_x509_certificate *gcert = &opts->cert;
 	int ret;
@@ -667,7 +667,7 @@ static void asn1_usage(void)
 
 int main(int argc, char *argv[])
 {
-	struct pkcs7_options parsed_opts = { 0 };
+	struct x509_checker_options parsed_opts = { 0 };
 	int ret = 0, opt_index = 0;
 
 	static const char *opts_short = "h";

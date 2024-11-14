@@ -34,7 +34,7 @@
 #include "x509_cert_generator.h"
 #include "x509_cert_parser.h"
 
-struct pkcs7_options {
+struct x509_checker_options {
 	struct lc_x509_certificate cert;
 	uint8_t ipaddr[16];
 	uint8_t *raw_skid;
@@ -45,7 +45,7 @@ struct pkcs7_options {
 	size_t raw_serial_size;
 };
 
-static int x509_gen_cert_eku(struct pkcs7_options *opts)
+static int x509_gen_cert_eku(struct x509_checker_options *opts)
 {
 	struct lc_x509_certificate pcert = { 0 };
 	struct lc_x509_certificate *gcert = &opts->cert;
@@ -84,7 +84,7 @@ out:
 	return ret;
 }
 
-static int x509_enc_eku(struct pkcs7_options *opts, const char *opt_optarg)
+static int x509_enc_eku(struct x509_checker_options *opts, const char *opt_optarg)
 {
 	unsigned long val;
 
@@ -114,7 +114,7 @@ static void asn1_usage(void)
 
 int main(int argc, char *argv[])
 {
-	struct pkcs7_options parsed_opts = { 0 };
+	struct x509_checker_options parsed_opts = { 0 };
 	int ret = 0, opt_index = 0;
 
 	static const char *opts_short = "h";
