@@ -185,13 +185,15 @@ LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_match_key_usage,
 		      uint16_t required_key_usage)
 {
 	const struct lc_public_key *pub;
+	uint16_t set_keyusage;
 
 	if (!cert)
 		return -EINVAL;
 
 	pub = &cert->pub;
+	set_keyusage = pub->key_usage & (uint16_t)~LC_KEY_USAGE_EXTENSION_PRESENT;
 
-	if ((pub->key_usage & required_key_usage) == required_key_usage)
+	if ((set_keyusage & required_key_usage) == required_key_usage)
 		return LC_X509_POL_TRUE;
 
 	return LC_X509_POL_FALSE;

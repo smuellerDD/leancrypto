@@ -58,7 +58,18 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 			printf("Certificate is not marked as an RFC5280 conformant CA\n");
 			return -EINVAL;
 		} else {
-			printf("Certificate is marked as an RFC5280 as CA\n");
+			printf("Certificate is marked as an RFC5280 conformant CA\n");
+		}
+	}
+
+	if (parsed_opts->check_root_ca) {
+		CKINT(lc_x509_policy_is_root_ca(x509));
+
+		if (ret == LC_X509_POL_FALSE) {
+			printf("Certificate is not marked as an RFC5280 conformant root CA\n");
+			return -EINVAL;
+		} else {
+			printf("Certificate is marked as an RFC5280 conformant root CA\n");
 		}
 	}
 
@@ -195,6 +206,19 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 		} else {
 			printf("EKU field mismatches (expected %u, actual %u)\n",
 			       parsed_opts->eku, pub->key_eku);
+			return -EINVAL;
+		}
+	}
+
+	if (parsed_opts->keyusage) {
+		CKINT(lc_x509_policy_match_key_usage(
+			x509, (uint16_t)parsed_opts->keyusage));
+
+		if (ret == LC_X509_POL_TRUE) {
+			printf("Key usage field matches\n");
+		} else {
+			printf("Key usage field mismatches (expected %u, actual %u)\n",
+			       parsed_opts->keyusage, pub->key_usage & (uint16_t)~LC_KEY_USAGE_EXTENSION_PRESENT);
 			return -EINVAL;
 		}
 	}

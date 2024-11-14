@@ -42,6 +42,7 @@ struct x509_checker_options {
 
 	unsigned int check_ca : 1;
 	unsigned int check_ca_conformant : 1;
+	unsigned int check_root_ca : 1;
 	unsigned int check_time : 1;
 	unsigned int check_no_ca : 1;
 	unsigned int check_selfsigned : 1;
@@ -49,6 +50,7 @@ struct x509_checker_options {
 	unsigned int unsupported_sig : 1;
 	unsigned int print_cert_details : 1;
 	unsigned int eku;
+	unsigned int keyusage;
 	const char *issuer_cn;
 	const char *subject_cn;
 	const char *san_dns;

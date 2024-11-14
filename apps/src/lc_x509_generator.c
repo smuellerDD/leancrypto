@@ -107,10 +107,10 @@ static int x509_gen_file(struct x509_generator_opts *opts,
 	size_t written;
 	int ret = 0;
 
-	CKNULL(opts->outfile, -EINVAL);
-
 	if (opts->noout)
 		return 0;
+
+	CKNULL(opts->outfile, -EINVAL);
 
 	CKINT(x509_check_file(opts->outfile));
 
@@ -160,7 +160,7 @@ static int x509_dump_file(struct x509_generator_opts *opts)
 	size_t x509_datalen = 0;
 	int ret;
 
-	if (!opts->print_x509_cert)
+	if (!opts->print_x509_cert && !opts->checker)
 		return 0;
 
 	CKINT_LOG(get_data(opts->print_x509_cert, &x509_data, &x509_datalen),
@@ -192,12 +192,11 @@ static int x509_gen_cert(struct x509_generator_opts *opts)
 	CKINT(lc_x509_cert_gen(gcert, data, &avail_datalen));
 	datalen = sizeof(data) - avail_datalen;
 
-	if (!opts->outfile) {
+	if (!opts->outfile)
 		bin2print(data, datalen, stdout, "X.509 Certificate");
-		goto out;
-	}
 
-	CKINT(x509_gen_file(opts, data, datalen));
+	CKINT_LOG(x509_gen_file(opts, data, datalen),
+		  "Writing of X.509 certificate failed\n");
 
 	CKINT(x509_enc_dump(opts, data, datalen));
 
@@ -765,7 +764,8 @@ static int x509_enc_set_pubkey(struct x509_generator_opts *opts)
 			return -ENOPKG;
 		}
 
-		CKINT(write_data(opts->sk_file, sk_ptr, sk_len));
+		if (!opts->noout)
+			CKINT(write_data(opts->sk_file, sk_ptr, sk_len));
 
 	} else {
 		CKNULL_LOG(!opts->in_key_type, -EINVAL,
@@ -864,7 +864,7 @@ static int x509_enc_crypto_algo(struct x509_generator_opts *opts)
 {
 	int ret;
 
-	if (!opts->sk_file) {
+	if (!opts->noout && !opts->sk_file) {
 		printf("A secret key file for the generation the signature is missing!\n");
 		return -EINVAL;
 	}
@@ -972,6 +972,7 @@ static void x509_generator_usage(void)
 
 	fprintf(stderr, "\n\tOptions for checking generated / loaded X.509 certificate:\n");
 	fprintf(stderr, "\t   --check-ca\t\t\tcheck presence of CA\n");
+	fprintf(stderr, "\t   --check-rootca\t\t\tcheck if root CA\n");
 	fprintf(stderr, "\t   --check-noca\t\t\tcheck absence of CA\n");
 	fprintf(stderr,
 		"\t   --check-ca-conformant\tcheck presence of RFC5280 conformant CA\n");
@@ -991,7 +992,9 @@ static void x509_generator_usage(void)
 	fprintf(stderr,
 		"\t   --check-valid-to <EPOCH time>\tcheck validity of time\n");
 	fprintf(stderr,
-		"\t   --check-eku <EKU>\t\tmatch estended key usage (use EKY_EKU_*\n");
+		"\t   --check-eku <EKU>\t\tmatch extended key usage (use KEY_EKU_*\n");
+	fprintf(stderr,
+		"\t   --check-keyusage <EKU>\tmatch key usage (use KEY_USAGE_*\n");
 	fprintf(stderr, "\t\t\t\t\tflags)\n");
 	fprintf(stderr, "\t   --check-san-dns <NAME>\tmatch SAN DNS\n");
 	fprintf(stderr, "\t   --check-san-ip <IP-Hex>\tmatch SAN IP\n");
@@ -1064,6 +1067,8 @@ int main(int argc, char *argv[])
 					      { "check-akid", 1, 0, 0 },
 					      { "check-noca", 0, 0, 0 },
 					      { "check-selfsigned", 0, 0, 0 },
+					      { "check-rootca", 0, 0, 0 },
+					      { "check-keyusage", 1, 0, 0 },
 
 					      { 0, 0, 0, 0 } };
 
@@ -1265,40 +1270,40 @@ int main(int argc, char *argv[])
 				checker_opts->check_no_selfsigned = 1;
 				parsed_opts.checker = 1;
 				break;
-			/* valid-from */
+			/* check-valid-from */
 			case 39:
 				checker_opts->valid_from =
 					strtoull(optarg, NULL, 10);
 				parsed_opts.checker = 1;
 				break;
-			/* valid-to */
+			/* check-valid-to */
 			case 40:
 				checker_opts->valid_to =
 					strtoull(optarg, NULL, 10);
 				parsed_opts.checker = 1;
 				break;
-			/* eku */
+			/* check-eku */
 			case 41:
 				checker_opts->eku =
 					(unsigned int)strtoul(optarg, NULL, 10);
 				parsed_opts.checker = 1;
 				break;
-			/* san-dns */
+			/* check-san-dns */
 			case 42:
 				checker_opts->san_dns = optarg;
 				parsed_opts.checker = 1;
 				break;
-			/* san-ip */
+			/* check-san-ip */
 			case 43:
 				checker_opts->san_ip = optarg;
 				parsed_opts.checker = 1;
 				break;
-			/* skid */
+			/* check-skid */
 			case 44:
 				checker_opts->skid = optarg;
 				parsed_opts.checker = 1;
 				break;
-			/* akid */
+			/* check-akid */
 			case 45:
 				checker_opts->akid = optarg;
 				parsed_opts.checker = 1;
@@ -1311,6 +1316,17 @@ int main(int argc, char *argv[])
 			/* check-selfsigned */
 			case 47:
 				checker_opts->check_selfsigned = 1;
+				parsed_opts.checker = 1;
+				break;
+			/* check-rootca */
+			case 48:
+				checker_opts->check_root_ca = 1;
+				parsed_opts.checker = 1;
+				break;
+			/* check-keyusage */
+			case 49:
+				checker_opts->keyusage =
+					(unsigned int)strtoul(optarg, NULL, 10);
 				parsed_opts.checker = 1;
 				break;
 			}
