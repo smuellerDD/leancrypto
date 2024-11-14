@@ -77,108 +77,108 @@ if get_option('sphincs_shake_256s').enabled()
 				dependencies: leancrypto
 				)
 
-	test('Sphincs SHAKE 256s Accel', sphincs_tester_256s, timeout: 600, suite: regression)
-	test('Sphincs SHAKE 256f Accel', sphincs_tester_256f, timeout: 600, suite: regression)
-	test('Sphincs SHAKE 192s Accel', sphincs_tester_192s, timeout: 600, suite: regression)
-	test('Sphincs SHAKE 192f Accel', sphincs_tester_192f, timeout: 600, suite: regression)
-	test('Sphincs SHAKE 128s Accel', sphincs_tester_128s, timeout: 600, suite: regression)
-	test('Sphincs SHAKE 128f Accel', sphincs_tester_128f, timeout: 600, suite: regression)
+	test('Sphincs+ SHAKE 256s Accel', sphincs_tester_256s, timeout: 600, suite: regression)
+	test('Sphincs+ SHAKE 256f Accel', sphincs_tester_256f, timeout: 600, suite: regression)
+	test('Sphincs+ SHAKE 192s Accel', sphincs_tester_192s, timeout: 600, suite: regression)
+	test('Sphincs+ SHAKE 192f Accel', sphincs_tester_192f, timeout: 600, suite: regression)
+	test('Sphincs+ SHAKE 128s Accel', sphincs_tester_128s, timeout: 600, suite: regression)
+	test('Sphincs+ SHAKE 128f Accel', sphincs_tester_128f, timeout: 600, suite: regression)
 
-	test('Sphincs SHAKE 256s Keygen 100 Accel', sphincs_tester_256s,
+	test('Sphincs+ SHAKE 256s Keygen 100 Accel', sphincs_tester_256s,
 	     args : [ 'k' ], timeout: 1000, is_parallel: false, suite: performance)
-	test('Sphincs SHAKE 256f Keygen 100 Accel', sphincs_tester_256f,
+	test('Sphincs+ SHAKE 256f Keygen 100 Accel', sphincs_tester_256f,
 	     args : [ 'k' ], timeout: 1000, is_parallel: false, suite: performance)
-	test('Sphincs SHAKE 192s Keygen 100 Accel', sphincs_tester_192s,
+	test('Sphincs+ SHAKE 192s Keygen 100 Accel', sphincs_tester_192s,
 	     args : [ 'k' ], timeout: 1000, is_parallel: false, suite: performance)
-	test('Sphincs SHAKE 192f Keygen 100 Accel', sphincs_tester_192f,
+	test('Sphincs+ SHAKE 192f Keygen 100 Accel', sphincs_tester_192f,
 	     args : [ 'k' ], timeout: 1000, is_parallel: false, suite: performance)
-	test('Sphincs SHAKE 128s Keygen 100 Accel', sphincs_tester_128s,
+	test('Sphincs+ SHAKE 128s Keygen 100 Accel', sphincs_tester_128s,
 	     args : [ 'k' ], timeout: 1000, is_parallel: false, suite: performance)
-	test('Sphincs SHAKE 128f Keygen 100 Accel', sphincs_tester_128f,
+	test('Sphincs+ SHAKE 128f Keygen 100 Accel', sphincs_tester_128f,
 	     args : [ 'k' ], timeout: 1000, is_parallel: false, suite: performance)
 
-	test('Sphincs SHAKE 256s Sign 10 Accel', sphincs_tester_256s,
+	test('Sphincs+ SHAKE 256s Sign 10 Accel', sphincs_tester_256s,
 	     args : [ 's' ], timeout: 1000, is_parallel: false, suite: performance)
-	test('Sphincs SHAKE 256f Sign 10 Accel', sphincs_tester_256f,
+	test('Sphincs+ SHAKE 256f Sign 10 Accel', sphincs_tester_256f,
 	     args : [ 's' ], timeout: 1000, is_parallel: false, suite: performance)
-	test('Sphincs SHAKE 192s Sign 10 Accel', sphincs_tester_192s,
+	test('Sphincs+ SHAKE 192s Sign 10 Accel', sphincs_tester_192s,
 	     args : [ 's' ], timeout: 1000, is_parallel: false, suite: performance)
-	test('Sphincs SHAKE 192f Sign 10 Accel', sphincs_tester_192f,
+	test('Sphincs+ SHAKE 192f Sign 10 Accel', sphincs_tester_192f,
 	     args : [ 's' ], timeout: 1000, is_parallel: false, suite: performance)
-	test('Sphincs SHAKE 128s Sign 10 Accel', sphincs_tester_128s,
+	test('Sphincs+ SHAKE 128s Sign 10 Accel', sphincs_tester_128s,
 	     args : [ 's' ], timeout: 1000, is_parallel: false, suite: performance)
-	test('Sphincs SHAKE 128f Sign 10 Accel', sphincs_tester_128f,
+	test('Sphincs+ SHAKE 128f Sign 10 Accel', sphincs_tester_128f,
 	     args : [ 's' ], timeout: 1000, is_parallel: false, suite: performance)
 
-	test('Sphincs SHAKE 256s Verify 1000 Accel', sphincs_tester_256s,
+	test('Sphincs+ SHAKE 256s Verify 1000 Accel', sphincs_tester_256s,
 	     args : [ 'v' ], timeout: 1000, is_parallel: false, suite: performance)
-	test('Sphincs SHAKE 256f Verify 1000 Accel', sphincs_tester_256f,
+	test('Sphincs+ SHAKE 256f Verify 1000 Accel', sphincs_tester_256f,
 	     args : [ 'v' ], timeout: 1000, is_parallel: false, suite: performance)
-	test('Sphincs SHAKE 192s Verify 1000 Accel', sphincs_tester_192s,
+	test('Sphincs+ SHAKE 192s Verify 1000 Accel', sphincs_tester_192s,
 	     args : [ 'v' ], timeout: 1000, is_parallel: false, suite: performance)
-	test('Sphincs SHAKE 192f Verify 1000 Accel', sphincs_tester_192f,
+	test('Sphincs+ SHAKE 192f Verify 1000 Accel', sphincs_tester_192f,
 	     args : [ 'v' ], timeout: 1000, is_parallel: false, suite: performance)
-	test('Sphincs SHAKE 128s Verify 1000 Accel', sphincs_tester_128s,
+	test('Sphincs+ SHAKE 128s Verify 1000 Accel', sphincs_tester_128s,
 	     args : [ 'v' ], timeout: 1000, is_parallel: false, suite: performance)
-	test('Sphincs SHAKE 128f Verify 1000 Accel', sphincs_tester_128f,
+	test('Sphincs+ SHAKE 128f Verify 1000 Accel', sphincs_tester_128f,
 	     args : [ 'v' ], timeout: 1000, is_parallel: false, suite: performance)
 
 	# Disable parallel execution as accelerations are disabled
-	test('Sphincs SHAKE 256s C', sphincs_tester_256s, args : [ 'c' ],
+	test('Sphincs+ SHAKE 256s C', sphincs_tester_256s, args : [ 'c' ],
 	     timeout: 600, is_parallel: false, suite: regression)
-	test('Sphincs SHAKE 256f C', sphincs_tester_256f, args : [ 'c' ],
+	test('Sphincs+ SHAKE 256f C', sphincs_tester_256f, args : [ 'c' ],
 	     timeout: 600, is_parallel: false, suite: regression)
-	test('Sphincs SHAKE 192s C', sphincs_tester_192s, args : [ 'c' ],
+	test('Sphincs+ SHAKE 192s C', sphincs_tester_192s, args : [ 'c' ],
 	     timeout: 600, is_parallel: false, suite: regression)
-	test('Sphincs SHAKE 192f C', sphincs_tester_192f, args : [ 'c' ],
+	test('Sphincs+ SHAKE 192f C', sphincs_tester_192f, args : [ 'c' ],
 	     timeout: 600, is_parallel: false, suite: regression)
-	test('Sphincs SHAKE 128s C', sphincs_tester_128s, args : [ 'c' ],
+	test('Sphincs+ SHAKE 128s C', sphincs_tester_128s, args : [ 'c' ],
 	     timeout: 600, is_parallel: false, suite: regression)
-	test('Sphincs SHAKE 128f C', sphincs_tester_128f, args : [ 'c' ],
+	test('Sphincs+ SHAKE 128f C', sphincs_tester_128f, args : [ 'c' ],
 	     timeout: 600, is_parallel: false, suite: regression)
 
-	test('Sphincs SHAKE 256s Keygen 100 C', sphincs_tester_256s,
+	test('Sphincs+ SHAKE 256s Keygen 100 C', sphincs_tester_256s,
 	     args : [ 'k', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
-	test('Sphincs SHAKE 256f Keygen 100 C', sphincs_tester_256f,
+	test('Sphincs+ SHAKE 256f Keygen 100 C', sphincs_tester_256f,
 	     args : [ 'k', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
-	test('Sphincs SHAKE 192s Keygen 100 C', sphincs_tester_192s,
+	test('Sphincs+ SHAKE 192s Keygen 100 C', sphincs_tester_192s,
 	     args : [ 'k', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
-	test('Sphincs SHAKE 192f Keygen 100 C', sphincs_tester_192f,
+	test('Sphincs+ SHAKE 192f Keygen 100 C', sphincs_tester_192f,
 	     args : [ 'k', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
-	test('Sphincs SHAKE 128s Keygen 100 C', sphincs_tester_128s,
+	test('Sphincs+ SHAKE 128s Keygen 100 C', sphincs_tester_128s,
 	     args : [ 'k', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
-	test('Sphincs SHAKE 128f Keygen 100 C', sphincs_tester_128f,
+	test('Sphincs+ SHAKE 128f Keygen 100 C', sphincs_tester_128f,
 	     args : [ 'k', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
 
-	test('Sphincs SHAKE 256s Sign 10 C', sphincs_tester_256s,
+	test('Sphincs+ SHAKE 256s Sign 10 C', sphincs_tester_256s,
 	     args : [ 's', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
-	test('Sphincs SHAKE 256f Sign 10 C', sphincs_tester_256f,
+	test('Sphincs+ SHAKE 256f Sign 10 C', sphincs_tester_256f,
 	     args : [ 's', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
-	test('Sphincs SHAKE 192s Sign 10 C', sphincs_tester_192s,
+	test('Sphincs+ SHAKE 192s Sign 10 C', sphincs_tester_192s,
 	     args : [ 's', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
-	test('Sphincs SHAKE 192f Sign 10 C', sphincs_tester_192f,
+	test('Sphincs+ SHAKE 192f Sign 10 C', sphincs_tester_192f,
 	     args : [ 's', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
-	test('Sphincs SHAKE 128s Sign 10 C', sphincs_tester_128s,
+	test('Sphincs+ SHAKE 128s Sign 10 C', sphincs_tester_128s,
 	     args : [ 's', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
-	test('Sphincs SHAKE 128f Sign 10 C', sphincs_tester_128f,
+	test('Sphincs+ SHAKE 128f Sign 10 C', sphincs_tester_128f,
 	     args : [ 's', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
 
-	test('Sphincs SHAKE 256s Verify 1000 C', sphincs_tester_256s,
+	test('Sphincs+ SHAKE 256s Verify 1000 C', sphincs_tester_256s,
 	     args : [ 'v', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
-	test('Sphincs SHAKE 256f Verify 1000 C', sphincs_tester_256f,
+	test('Sphincs+ SHAKE 256f Verify 1000 C', sphincs_tester_256f,
 	     args : [ 'v', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
-	test('Sphincs SHAKE 192s Verify 1000 C', sphincs_tester_192s,
+	test('Sphincs+ SHAKE 192s Verify 1000 C', sphincs_tester_192s,
 	     args : [ 'v', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
-	test('Sphincs SHAKE 192f Verify 1000 C', sphincs_tester_192f,
+	test('Sphincs+ SHAKE 192f Verify 1000 C', sphincs_tester_192f,
 	     args : [ 'v', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
-	test('Sphincs SHAKE 128s Verify 1000 C', sphincs_tester_128s,
+	test('Sphincs+ SHAKE 128s Verify 1000 C', sphincs_tester_128s,
 	     args : [ 'v', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
-	test('Sphincs SHAKE 128f Verify 1000 C', sphincs_tester_128f,
+	test('Sphincs+ SHAKE 128f Verify 1000 C', sphincs_tester_128f,
 	     args : [ 'v', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
 
-	test('Sphincs SHAKE Official', sphincs_official_tester,
+	test('Sphincs+ SHAKE Official', sphincs_official_tester,
 	     timeout: 600, suite: regression)
 
-	test('Sphincs SHAKE IUF', sphincs_official_tester,
+	test('Sphincs+ SHAKE IUF', sphincs_official_tester,
 	     timeout: 600, suite: regression)
 endif
