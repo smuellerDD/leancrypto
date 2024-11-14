@@ -282,7 +282,7 @@ application.
 
 The following services are offered with the PKCS#7 support:
 
-* Signature verifiation: use cases are secure boot scenarios and others
+* Signature verification: use cases are secure boot scenarios and others
 
 # Testing
 
