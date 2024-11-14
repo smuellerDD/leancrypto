@@ -571,12 +571,10 @@ int apply_checks_pkcs7(const struct pkcs7_message *pkcs7_msg,
 			printf("EKU field matches\n");
 		} else {
 			printf("EKU field mismatches (expected %u, actual %u)\n",
-			       parsed_opts->eku, x509->pub.key_eku);
+			       parsed_opts->eku, x509 ? x509->pub.key_eku : 0);
 			return -EINVAL;
 		}
 	}
 
-	ret = 0;
-
-	return ret;
+	return 0;
 }
