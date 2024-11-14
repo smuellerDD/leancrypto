@@ -226,8 +226,8 @@ int public_key_verify_signature_dilithium_ed25519(
 	const struct lc_public_key *pkey,
 	const struct lc_public_key_signature *sig)
 {
-	struct lc_dilithium_ed25519_pk dilithium_pk;
-	struct lc_dilithium_ed25519_sig dilithium_sig;
+	struct lc_dilithium_ed25519_pk dilithium_pk = { 0 };
+	struct lc_dilithium_ed25519_sig dilithium_sig = { 0 };
 	const struct lc_hash *hash_algo;
 	int ret;
 	LC_DILITHIUM_ED25519_CTX_ON_STACK(ctx);
