@@ -102,7 +102,6 @@ static int x509_check_file(const char *file)
 static int x509_gen_file(struct x509_generator_opts *opts,
 			 const uint8_t *certdata, size_t certdata_len)
 {
-
 	FILE *f = NULL;
 	size_t written;
 	int ret = 0;
@@ -180,7 +179,6 @@ out:
 	release_data(x509_data, x509_datalen);
 	return ret;
 }
-
 
 static int x509_gen_cert(struct x509_generator_opts *opts)
 {
@@ -926,8 +924,7 @@ static void x509_generator_usage(void)
 		"\t   --signer-sk-file <FILE>\t\tFile with signer secret\n");
 
 	fprintf(stderr, "\n\tOptions for X.509 meta data:\n");
-	fprintf(stderr,
-		"\t   --eku <FLAG>\t\t\tSet Extended Key Usage flag\n");
+	fprintf(stderr, "\t   --eku <FLAG>\t\t\tSet Extended Key Usage flag\n");
 	fprintf(stderr, "\t\t\t\t\t\tQuery available flags with \"?\"\n");
 
 	fprintf(stderr, "\t   --keyusage <FLAG>\t\tSet Key Usage flag\n");
@@ -936,7 +933,8 @@ static void x509_generator_usage(void)
 	fprintf(stderr,
 		"\t   --ca\t\t\t\tSet CA basic constraint with criticality\n");
 	fprintf(stderr, "\t   --san-dns <NAME> \t\tSet SAN DNS name\n");
-	fprintf(stderr, "\t   --san-ip <IP> \t\tSet SAN IP address (IPv4 or IPv6)\n");
+	fprintf(stderr,
+		"\t   --san-ip <IP> \t\tSet SAN IP address (IPv4 or IPv6)\n");
 	fprintf(stderr, "\t   --skid\t\t\tSet SKID (in hex form)\n");
 	fprintf(stderr, "\t   --akid\t\t\tSet AKID (in hex form)\n");
 	fprintf(stderr, "\t\t\t\t\t\tAKID only used without X.509\n");
@@ -963,14 +961,18 @@ static void x509_generator_usage(void)
 	fprintf(stderr, "\t   --issuer-st <VALUE>\t\tSet issuer ST\n");
 	fprintf(stderr, "\t   --issuer-c <VALUE>\t\tSet issuer C\n");
 
-	fprintf(stderr, "\n\tOptions for analyzing generated / loaded X.509 certificate:\n");
-	fprintf(stderr, "\t   --print\t\t\tParse the generated X.509 and print its\n");
+	fprintf(stderr,
+		"\n\tOptions for analyzing generated / loaded X.509 certificate:\n");
+	fprintf(stderr,
+		"\t   --print\t\t\tParse the generated X.509 and print its\n");
 	fprintf(stderr, "\t\t\t\t\tcontents\n");
-	fprintf(stderr, "\t   --print-x509 <FILE>\t\tParse the X.509 certificate and\n");
+	fprintf(stderr,
+		"\t   --print-x509 <FILE>\t\tParse the X.509 certificate and\n");
 	fprintf(stderr, "\t\t\t\t\tprint its contents\n");
 	fprintf(stderr, "\t   --noout\t\t\tNo generation of output files\n");
 
-	fprintf(stderr, "\n\tOptions for checking generated / loaded X.509 certificate:\n");
+	fprintf(stderr,
+		"\n\tOptions for checking generated / loaded X.509 certificate:\n");
 	fprintf(stderr, "\t   --check-ca\t\t\tcheck presence of CA\n");
 	fprintf(stderr, "\t   --check-rootca\t\t\tcheck if root CA\n");
 	fprintf(stderr, "\t   --check-noca\t\t\tcheck absence of CA\n");
@@ -1053,7 +1055,8 @@ int main(int argc, char *argv[])
 					      { "print-x509", 1, 0, 0 },
 
 					      { "check-ca", 0, 0, 0 },
-					      { "check-ca-conformant", 0, 0, 0 },
+					      { "check-ca-conformant", 0, 0,
+						0 },
 					      { "check-time", 0, 0, 0 },
 					      { "check-issuer-cn", 1, 0, 0 },
 					      { "check-subject-cn", 1, 0, 0 },

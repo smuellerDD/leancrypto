@@ -218,7 +218,9 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 			printf("Key usage field matches\n");
 		} else {
 			printf("Key usage field mismatches (expected %u, actual %u)\n",
-			       parsed_opts->keyusage, pub->key_usage & (uint16_t)~LC_KEY_USAGE_EXTENSION_PRESENT);
+			       parsed_opts->keyusage,
+			       pub->key_usage &
+				       (uint16_t)~LC_KEY_USAGE_EXTENSION_PRESENT);
 			return -EINVAL;
 		}
 	}

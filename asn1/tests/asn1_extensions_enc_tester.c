@@ -193,7 +193,8 @@ out:
 	return ret;
 }
 
-static int x509_enc_eku(struct x509_checker_options *opts, const char *opt_optarg)
+static int x509_enc_eku(struct x509_checker_options *opts,
+			const char *opt_optarg)
 {
 	unsigned long val;
 
@@ -206,7 +207,8 @@ static int x509_enc_eku(struct x509_checker_options *opts, const char *opt_optar
 	return 0;
 }
 
-static int x509_enc_keyusage(struct x509_checker_options *opts, const char *opt_optarg)
+static int x509_enc_keyusage(struct x509_checker_options *opts,
+			     const char *opt_optarg)
 {
 	unsigned long val;
 
@@ -226,7 +228,8 @@ static int x509_enc_ca(struct x509_checker_options *opts)
 	return 0;
 }
 
-static int x509_enc_san_dns(struct x509_checker_options *opts, const char *opt_optarg)
+static int x509_enc_san_dns(struct x509_checker_options *opts,
+			    const char *opt_optarg)
 {
 	if (!opt_optarg)
 		return -EINVAL;
@@ -237,7 +240,8 @@ static int x509_enc_san_dns(struct x509_checker_options *opts, const char *opt_o
 	return 0;
 }
 
-static int x509_enc_skid(struct x509_checker_options *opts, const char *opt_optarg)
+static int x509_enc_skid(struct x509_checker_options *opts,
+			 const char *opt_optarg)
 {
 	int ret;
 
@@ -254,7 +258,8 @@ out:
 	return ret;
 }
 
-static int x509_enc_akid(struct x509_checker_options *opts, const char *opt_optarg)
+static int x509_enc_akid(struct x509_checker_options *opts,
+			 const char *opt_optarg)
 {
 	int ret;
 
@@ -336,7 +341,8 @@ static int x509_enc_valid_from(struct x509_checker_options *opts,
 	return 0;
 }
 
-static int x509_enc_valid_to(struct x509_checker_options *opts, const char *opt_optarg)
+static int x509_enc_valid_to(struct x509_checker_options *opts,
+			     const char *opt_optarg)
 {
 	unsigned long long val;
 
@@ -375,7 +381,8 @@ static int x509_enc_issuer_cn(struct x509_checker_options *opts,
 	return 0;
 }
 
-static int x509_enc_serial(struct x509_checker_options *opts, const char *opt_optarg)
+static int x509_enc_serial(struct x509_checker_options *opts,
+			   const char *opt_optarg)
 {
 	int ret;
 

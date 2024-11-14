@@ -84,7 +84,8 @@ out:
 	return ret;
 }
 
-static int x509_enc_eku(struct x509_checker_options *opts, const char *opt_optarg)
+static int x509_enc_eku(struct x509_checker_options *opts,
+			const char *opt_optarg)
 {
 	unsigned long val;
 

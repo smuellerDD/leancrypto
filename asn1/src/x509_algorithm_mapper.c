@@ -189,7 +189,8 @@ int lc_x509_sig_type_to_oid(enum lc_sig_types pkey_algo, enum OID *oid)
 	return -ENOPKG;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_x509_sig_type_to_hash,enum lc_sig_types pkey_algo,
+LC_INTERFACE_FUNCTION(int, lc_x509_sig_type_to_hash,
+		      enum lc_sig_types pkey_algo,
 		      const struct lc_hash **hash_algo)
 {
 	switch (pkey_algo) {
