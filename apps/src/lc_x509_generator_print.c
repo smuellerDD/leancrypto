@@ -273,7 +273,7 @@ int print_x509_cert(const struct lc_x509_certificate *x509)
 	return 0;
 }
 
-void print_pkcs7_data(const struct pkcs7_message *pkcs7_msg)
+int print_pkcs7_data(const struct pkcs7_message *pkcs7_msg)
 {
 	struct lc_x509_certificate *cert = pkcs7_msg->certs;
 	struct pkcs7_signed_info *sinfos = pkcs7_msg->signed_infos;
@@ -310,4 +310,6 @@ void print_pkcs7_data(const struct pkcs7_message *pkcs7_msg)
 
 		sinfos = sinfos->next;
 	}
+
+	return 0;
 }

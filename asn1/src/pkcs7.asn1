@@ -10,7 +10,7 @@ PKCS7ContentInfo ::= SEQUENCE {
 	content		[0] EXPLICIT SignedData OPTIONAL
 }
 
-ContentType ::= OBJECT IDENTIFIER ({ pkcs7_note_OID })
+ContentType ::= OBJECT IDENTIFIER ({ pkcs7_check_content_type_OID })
 
 SignedData ::= SEQUENCE {
 	version			INTEGER ({ pkcs7_note_signeddata_version }),
@@ -28,9 +28,11 @@ SignedData ::= SEQUENCE {
 }
 
 ContentInfo ::= SEQUENCE {
-	contentType	ContentType ({ pkcs7_note_OID }),
+	contentType	ContentTypeData,
 	content		[0] EXPLICIT Data OPTIONAL
 }
+
+ContentTypeData ::= OBJECT IDENTIFIER ({ pkcs7_data_OID })
 
 Data ::= ANY ({ pkcs7_note_data })
 
@@ -40,31 +42,33 @@ DigestAlgorithmIdentifiers ::= CHOICE {
 }
 
 DigestAlgorithmIdentifier ::= SEQUENCE {
-	algorithm   OBJECT IDENTIFIER ({ pkcs7_note_OID }),
+	algorithm   OBJECT IDENTIFIER ({ pkcs7_digest_algorithm_OID }),
 	parameters  ANY OPTIONAL
 }
 
 --
 -- Certificates and certificate lists
 --
-ExtendedCertificatesAndCertificates ::= SET OF ExtendedCertificateOrCertificate
+ExtendedCertificatesAndCertificates ::= SET OF ExtendedCertificateOrCertificate ({ pkcs7_extract_cert_continue })
 
 ExtendedCertificateOrCertificate ::= CHOICE {
-  certificate		Certificate,				-- X.509
-  extendedCertificate	[0] IMPLICIT ExtendedCertificate	-- PKCS#6
+  certificate		ExtCertificate
 }
 
-ExtendedCertificate ::= Certificate -- cheating
-
-Certificates ::= SEQUENCE OF Certificate
+Certificates ::= SEQUENCE OF Certificate ({ pkcs7_extract_cert_continue })
 
 CertificateRevocationLists ::= SET OF CertificateList
 
-CertificateList ::= SEQUENCE OF Certificate -- This may be defined incorrectly
+ -- This may be defined incorrectly
+CertificateList ::= SEQUENCE OF CRLCertificate
 
 CRLSequence ::= SEQUENCE OF CertificateList
 
+ExtCertificate ::= ANY ({ pkcs7_extract_extended_cert })
+
 Certificate ::= ANY ({ pkcs7_extract_cert }) -- X.509
+
+CRLCertificate ::= ANY ({ pkcs7_extract_crl_cert }) -- X.509
 
 --
 -- Signer information
@@ -110,10 +114,10 @@ CertificateSerialNumber ::= INTEGER
 
 SubjectKeyIdentifier ::= OCTET STRING ({ pkcs7_sig_note_skid })
 
-SetOfAuthenticatedAttribute ::= SET OF AuthenticatedAttribute
+SetOfAuthenticatedAttribute ::= SET OF AuthenticatedAttribute ({ pkcs7_sig_note_authenticated_attr_continue })
 
 AuthenticatedAttribute ::= SEQUENCE {
-	type			OBJECT IDENTIFIER ({ pkcs7_note_OID }),
+	type			OBJECT IDENTIFIER ({ pkcs7_authenticated_attr_OID }),
 	values			SET OF ANY ({ pkcs7_sig_note_authenticated_attr })
 }
 
@@ -123,7 +127,7 @@ UnauthenticatedAttribute ::= SEQUENCE {
 }
 
 DigestEncryptionAlgorithmIdentifier ::= SEQUENCE {
-	algorithm		OBJECT IDENTIFIER ({ pkcs7_note_OID }),
+	algorithm		OBJECT IDENTIFIER ({ pkcs7_sig_note_pkey_algo_OID }),
 	parameters		ANY OPTIONAL
 }
 
@@ -137,6 +141,6 @@ Name ::= SEQUENCE OF RelativeDistinguishedName
 RelativeDistinguishedName ::= SET OF AttributeValueAssertion
 
 AttributeValueAssertion ::= SEQUENCE {
-	attributeType		OBJECT IDENTIFIER ({ pkcs7_note_OID }),
-	attributeValue		ANY
-}
+	attributeType		OBJECT IDENTIFIER ({ pkcs7_note_attribute_type_OID }),
+	attributeValue		ANY ({ pkcs7_extract_attribute_name_segment })
+} ({ pkcs7_attribute_value_continue })

@@ -20,6 +20,7 @@
 #include "asn1_debug.h"
 #include "helper.h"
 #include "ret_checkers.h"
+#include "lc_sha256.h"
 #include "lc_x509_generator.h"
 #include "visibility.h"
 #include "x509_algorithm_mapper.h"
@@ -252,6 +253,26 @@ LC_INTERFACE_FUNCTION(int, lc_x509_sig_type_to_hash,
 		return -ENOPKG;
 #endif
 	}
+}
+
+int lc_x509_hash_to_oid(const struct lc_hash *hash_algo, enum OID *oid)
+{
+	if (hash_algo == lc_sha256)
+		*oid = OID_sha256;
+	else if (hash_algo == lc_sha384)
+		*oid = OID_sha384;
+	else if (hash_algo == lc_sha512)
+		*oid = OID_sha512;
+	else if (hash_algo == lc_sha3_256)
+		*oid = OID_sha3_256;
+	else if (hash_algo == lc_sha3_384)
+		*oid = OID_sha3_384;
+	else if (hash_algo == lc_sha3_512)
+		*oid = OID_sha3_512;
+	else
+		*oid = OID__NR;
+
+	return 0;
 }
 
 int lc_x509_oid_to_sig_type(enum OID oid, enum lc_sig_types *pkey_algo)

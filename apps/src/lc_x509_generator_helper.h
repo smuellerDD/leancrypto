@@ -17,26 +17,39 @@
  * DAMAGE.
  */
 
-#ifndef PUBLIC_KEY_DILITHIUM_H
-#define PUBLIC_KEY_DILITHIUM_H
+#ifndef LC_X509_GENERATOR_HELPER_H
+#define LC_X509_GENERATOR_HELPER_H
 
-#include "public_key.h"
+#include "lc_dilithium.h"
+#include "lc_sphincs.h"
+#include "lc_x509_common.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int public_key_verify_signature_dilithium(
-	const struct lc_public_key *pkey,
-	const struct lc_public_key_signature *sig);
+struct lc_x509_key_input_data {
+	struct lc_x509_key_input_data *next;
+	enum lc_sig_types sig_type;
+	union {
+		struct lc_dilithium_pk dilithium_pk;
+		struct lc_dilithium_ed25519_pk dilithium_ed25519_pk;
+		struct lc_sphincs_pk sphincs_pk;
+	} pk;
+	union {
+		struct lc_dilithium_sk dilithium_sk;
+		struct lc_dilithium_ed25519_sk dilithium_ed25519_sk;
+		struct lc_sphincs_sk sphincs_sk;
+	} sk;
+};
 
-int public_key_generate_signature_dilithium(
-	const struct lc_x509_generate_data *gen_data,
-	const struct lc_public_key_signature *sig, uint8_t *sig_data,
-	size_t *available_len);
+int lc_x509_cert_set_signer(struct lc_x509_certificate *signed_x509,
+			    struct lc_x509_key_input_data *signer_key_input_data,
+			    struct lc_x509_certificate *signer_x509,
+			    const uint8_t *sk_data, size_t sk_data_len);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* PUBLIC_KEY_DILITHIUM_H */
+#endif /* LC_X509_GENERATOR_HELPER_H */

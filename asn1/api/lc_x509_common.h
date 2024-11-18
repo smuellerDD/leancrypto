@@ -167,33 +167,38 @@ struct lc_public_key {
  * Public key cryptography signature data
  */
 struct lc_public_key_signature {
-	const uint8_t *s; /* Signature */
-	size_t s_size; /* Number of bytes in signature */
+	/*
+	  * Signature
+	  */
+	const uint8_t *s;
 
 	/*
-	 * Digest size (0 if no digest was calculaated). This implies that the
-	 * signature algorithm must calculate the message digest.
-	 *
-	 * TODO remove when PKCS7 is updated?
+	  * Number of bytes in signature
+	  */
+	size_t s_size;
+
+	/*
+	 * Digest size (0 if no digest was calculated and in this case the
+	 * raw_data is used for signature). In case of having no digest, the
+	 * signature algorithm must calculate the signature over the full
+	 * ->raw_data.
 	 */
 	size_t digest_size;
-	//TODO replace with x509_algorithm_mapper
+	uint8_t digest[LC_SHA_MAX_SIZE_DIGEST];
 	const struct lc_hash *hash_algo;
 
 	enum lc_sig_types pkey_algo;
 
 	/*
-	 * Message digest
-	 * TODO - remove with digest_size?
+	 * Pointers to raw daa to be signed in case no message digest is
+	 * calculated. This pointer is set if no message digest is calculated.
 	 */
-	uint8_t digest[LC_SHA_MAX_SIZE_DIGEST];
+	const uint8_t *raw_data;
+	size_t raw_data_len;
 
 	/*
-	 * Pointers to raw daa to be signed in case no message digest is
-	 * calculated.
+	 * Auth IDs of the signer
 	 */
-	const uint8_t *raw_data; /* Set if no hash was set */
-	size_t raw_data_len;
 	struct lc_asymmetric_key_id auth_ids[3];
 };
 
@@ -242,6 +247,14 @@ struct lc_x509_certificate {
 	struct lc_x509_certificate_name issuer_segments;
 	struct lc_x509_certificate_name subject_segments;
 	struct lc_x509_certificate_name san_directory_name_segments;
+
+	/*
+	 * Pointer to encoded certificate data. This is used when parsing
+	 * a certificate.
+	 */
+	const uint8_t *raw_cert;
+	size_t raw_cert_size;
+
 	const char *san_dns; /* Subject Alternative Name DNS */
 	size_t san_dns_len;
 	const uint8_t *san_ip; /* Subject Alternative Name IP */

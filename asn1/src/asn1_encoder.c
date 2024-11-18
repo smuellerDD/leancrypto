@@ -50,6 +50,7 @@
 		return -EOVERFLOW;                                             \
 	}                                                                      \
 	dstbuffer[0] = tmp_tag[dsp];                                           \
+	printf_debug("Set tag %x\n", tmp_tag[dsp]);                            \
 	dstbuffer++;                                                           \
 	available_datalength--;                                                \
                                                                                \
@@ -70,9 +71,7 @@
 	available_datalength -= len;                                           \
                                                                                \
 	tmp_data_p[dsp] = tmp_data[dsp];                                       \
-	tmp_data_len[dsp] = maxlen;                                            \
-	printf_debug("available len %zu, consumed len %zu (D=main)\n",         \
-		     available_datalength, maxlen - available_datalength)
+	tmp_data_len[dsp] = maxlen
 
 /**
  * @brief Encode BER/DER/CER ASN.1 according to pattern
@@ -110,6 +109,7 @@ int asn1_ber_encoder(const struct asn1_encoder *encoder, void *context,
 #define FLAG_MATCHED 0x01
 #define FLAG_LAST_MATCHED 0x02 /* Last tag matched */
 #define FLAG_OF_CONTINUE 0x04
+#define FLAG_SET_ZERO_CONTENT 0x08
 
 	/*
 	 * Concept of the data stack:
@@ -135,7 +135,7 @@ int asn1_ber_encoder(const struct asn1_encoder *encoder, void *context,
 	 *
 	 * TODO: reduce amount of temporary data that is retained.
 	 */
-#define NR_DATA_STACK 7
+#define NR_DATA_STACK 10
 	uint8_t tmp_data[NR_DATA_STACK][65536];
 	uint8_t *tmp_data_p[NR_DATA_STACK];
 	size_t tmp_data_len[NR_DATA_STACK] = { 0 };
@@ -204,9 +204,13 @@ next_op:
 				act = machine[pc + 2];
 
 			ret = actions[act](context, tmp_data_p[dsp],
-					   &tmp_data_len[dsp]);
+					   &tmp_data_len[dsp], &tmp_tag[dsp]);
 			if (ret < 0)
 				return ret;
+			if (ret == LC_ASN1_RET_CONTINUE)
+				flags |= FLAG_OF_CONTINUE;
+			if (ret == LC_ASN1_RET_SET_ZERO_CONTENT)
+				flags |= FLAG_SET_ZERO_CONTENT;
 
 			/*
 			 * Track the consumed data size.
@@ -244,9 +248,17 @@ next_op:
 		pc += asn1_op_lengths[op];
 		goto next_op;
 
+	case ASN1_OP_COND_MATCH_JUMP_OR_SKIP:
+		if ((flags & FLAG_LAST_MATCHED)) {
+			flags &= (unsigned char)~FLAG_LAST_MATCHED;
+			printf_debug(
+				"Skippking conditional JUMP as last JUMP yielded data\n");
+			pc += asn1_op_lengths[op];
+			goto next_op;
+		}
+		fallthrough;
 	case ASN1_OP_MATCH_JUMP:
 	case ASN1_OP_MATCH_JUMP_OR_SKIP:
-	case ASN1_OP_COND_MATCH_JUMP_OR_SKIP:
 		printf_debug("- MATCH_JUMP\n");
 		if (unlikely(jsp == NR_JUMP_STACK))
 			goto jump_stack_overflow;
@@ -307,12 +319,14 @@ next_op:
 				act = machine[pc + 1];
 
 			ret = actions[act](context, tmp_data_p[dsp],
-					   &tmp_data_len[dsp]);
+					   &tmp_data_len[dsp], &tmp_tag[dsp]);
 			if (ret < 0)
 				return ret;
 
-			if (ret > 0)
+			if (ret == LC_ASN1_RET_CONTINUE)
 				flags |= FLAG_OF_CONTINUE;
+			if (ret == LC_ASN1_RET_SET_ZERO_CONTENT)
+				flags |= FLAG_SET_ZERO_CONTENT;
 
 			/*
 			 * Track the consumed data size.
@@ -330,11 +344,16 @@ next_op:
 	write_data_out:
 		len = maxlen - tmp_data_len[dsp];
 
-		if (!len) {
+		if (!len && !(flags & FLAG_SET_ZERO_CONTENT)) {
 			printf_debug("Skiping zero-length data encoding\n");
 			pc += asn1_op_lengths[op];
 			goto next_op;
 		}
+		if (flags & FLAG_SET_ZERO_CONTENT)
+			printf_debug("Zero-length requested to be created\n");
+
+		/* Unset the flag */
+		flags &= (unsigned char)~FLAG_SET_ZERO_CONTENT;
 
 		printf_debug("encoded len %zu (D=%u)\n", len, dsp);
 		if (!dsp) {
@@ -344,6 +363,9 @@ next_op:
 			 */
 			ASN1_BER_ENCODE_WRITE_DATA(data, avail_datalen,
 						   tmp_data[dsp]);
+			printf_debug(
+				"available len %zu, consumed len %zu (D=main)\n",
+				avail_datalen, maxlen - avail_datalen);
 		} else {
 			/*
 			 * Copy data to the hierarchically higher stack buffer
@@ -352,6 +374,10 @@ next_op:
 			ASN1_BER_ENCODE_WRITE_DATA(tmp_data_p[dsp - 1],
 						   tmp_data_len[dsp - 1],
 						   tmp_data[dsp]);
+			printf_debug(
+				"available len %zu, consumed len %zu (D=%u)\n",
+				avail_datalen, maxlen - tmp_data_len[dsp - 1],
+				dsp - 1);
 		}
 
 		pc += asn1_op_lengths[op];
@@ -366,9 +392,14 @@ next_op:
 
 	case ASN1_OP_ACT:
 		ret = actions[machine[pc + 1]](context, tmp_data_p[dsp],
-					       &tmp_data_len[dsp]);
+					       &tmp_data_len[dsp],
+					       &tmp_tag[dsp]);
 		if (ret < 0)
 			return ret;
+		if (ret == LC_ASN1_RET_CONTINUE)
+			flags |= FLAG_OF_CONTINUE;
+		if (ret == LC_ASN1_RET_SET_ZERO_CONTENT)
+			flags |= FLAG_SET_ZERO_CONTENT;
 
 		len = maxlen - tmp_data_len[dsp];
 		printf_debug("action act consumed = %zu\n", len);
@@ -381,11 +412,24 @@ next_op:
 	case ASN1_OP_RETURN:
 		printf_debug("- RETURN_JUMP\n");
 
+		if (dsp)
+			len = maxlen - tmp_data_len[dsp - 1];
+		else
+			len = maxlen - avail_datalen;
+
+		/*
+		 * TODO This matches all entries in the current hierarchy level
+		 * whether they have added data. But the conditional actually
+		 * only matches the previous one.
+		 */
+		if (len)
+			flags |= FLAG_LAST_MATCHED;
+
 		if (unlikely(jsp <= 0))
 			goto jump_stack_underflow;
 
 		pc = jump_stack[--jsp];
-		flags |= FLAG_MATCHED | FLAG_LAST_MATCHED;
+		flags |= FLAG_MATCHED;
 		goto next_op;
 
 	case ASN1_OP__NR:

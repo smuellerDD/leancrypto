@@ -4,41 +4,67 @@
  * ASN.1 parser for pkcs7
  */
 #pragma once
+#include "asn1_encoder.h"
 #include "asn1_decoder.h"
 
+// clang-format off
+extern const struct asn1_encoder pkcs7_encoder;
 extern const struct asn1_decoder pkcs7_decoder;
 
-extern int pkcs7_check_content_type(void *, size_t, unsigned char,
-				    const uint8_t *, size_t);
-extern int pkcs7_extract_cert(void *, size_t, unsigned char, const uint8_t *,
-			      size_t);
-extern int pkcs7_note_OID(void *, size_t, unsigned char, const uint8_t *,
-			  size_t);
-extern int pkcs7_note_certificate_list(void *, size_t, unsigned char,
-				       const uint8_t *, size_t);
-extern int pkcs7_note_content(void *, size_t, unsigned char, const uint8_t *,
-			      size_t);
-extern int pkcs7_note_data(void *, size_t, unsigned char, const uint8_t *,
-			   size_t);
-extern int pkcs7_note_signed_info(void *, size_t, unsigned char,
-				  const uint8_t *, size_t);
-extern int pkcs7_note_signeddata_version(void *, size_t, unsigned char,
-					 const uint8_t *, size_t);
-extern int pkcs7_note_signerinfo_version(void *, size_t, unsigned char,
-					 const uint8_t *, size_t);
-extern int pkcs7_sig_note_authenticated_attr(void *, size_t, unsigned char,
-					     const uint8_t *, size_t);
-extern int pkcs7_sig_note_digest_algo(void *, size_t, unsigned char,
-				      const uint8_t *, size_t);
-extern int pkcs7_sig_note_issuer(void *, size_t, unsigned char, const uint8_t *,
-				 size_t);
-extern int pkcs7_sig_note_pkey_algo(void *, size_t, unsigned char,
-				    const uint8_t *, size_t);
-extern int pkcs7_sig_note_serial(void *, size_t, unsigned char, const uint8_t *,
-				 size_t);
-extern int pkcs7_sig_note_set_of_authattrs(void *, size_t, unsigned char,
-					   const uint8_t *, size_t);
-extern int pkcs7_sig_note_signature(void *, size_t, unsigned char,
-				    const uint8_t *, size_t);
-extern int pkcs7_sig_note_skid(void *, size_t, unsigned char, const uint8_t *,
-			       size_t);
+extern int pkcs7_attribute_value_continue_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_attribute_value_continue(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int pkcs7_authenticated_attr_OID_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_authenticated_attr_OID(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int pkcs7_check_content_type_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_check_content_type(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int pkcs7_check_content_type_OID_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_check_content_type_OID(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int pkcs7_data_OID_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_data_OID(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int pkcs7_digest_algorithm_OID_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_digest_algorithm_OID(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int pkcs7_extract_attribute_name_segment_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_extract_attribute_name_segment(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int pkcs7_extract_cert_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_extract_cert(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int pkcs7_extract_cert_continue_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_extract_cert_continue(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int pkcs7_extract_crl_cert_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_extract_crl_cert(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int pkcs7_extract_extended_cert_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_extract_extended_cert(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int pkcs7_note_attribute_type_OID_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_note_attribute_type_OID(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int pkcs7_note_certificate_list_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_note_certificate_list(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int pkcs7_note_content_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_note_content(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int pkcs7_note_data_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_note_data(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int pkcs7_note_signed_info_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_note_signed_info(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int pkcs7_note_signeddata_version_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_note_signeddata_version(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int pkcs7_note_signerinfo_version_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_note_signerinfo_version(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int pkcs7_sig_note_authenticated_attr_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_sig_note_authenticated_attr(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int pkcs7_sig_note_authenticated_attr_continue_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_sig_note_authenticated_attr_continue(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int pkcs7_sig_note_digest_algo_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_sig_note_digest_algo(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int pkcs7_sig_note_issuer_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_sig_note_issuer(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int pkcs7_sig_note_pkey_algo_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_sig_note_pkey_algo(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int pkcs7_sig_note_pkey_algo_OID_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_sig_note_pkey_algo_OID(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int pkcs7_sig_note_serial_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_sig_note_serial(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int pkcs7_sig_note_set_of_authattrs_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_sig_note_set_of_authattrs(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int pkcs7_sig_note_signature_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_sig_note_signature(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int pkcs7_sig_note_skid_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_sig_note_skid(void *, size_t, unsigned char, const uint8_t *, size_t);
+// clang-format on

@@ -11,8 +11,8 @@
 extern const struct asn1_encoder x509_composite_mldsa_pubkey_encoder;
 extern const struct asn1_decoder x509_composite_mldsa_pubkey_decoder;
 
-extern int x509_ed25519_public_key_enc(void *, uint8_t *, size_t *);
+extern int x509_ed25519_public_key_enc(void *, uint8_t *, size_t *, uint8_t *);
 extern int x509_ed25519_public_key(void *, size_t, unsigned char, const uint8_t *, size_t);
-extern int x509_mldsa_public_key_enc(void *, uint8_t *, size_t *);
+extern int x509_mldsa_public_key_enc(void *, uint8_t *, size_t *, uint8_t *);
 extern int x509_mldsa_public_key(void *, size_t, unsigned char, const uint8_t *, size_t);
 // clang-format on

@@ -77,13 +77,13 @@ out:
 
 int public_key_generate_signature_dilithium(
 	const struct lc_x509_generate_data *gen_data,
-	struct lc_x509_certificate *x509)
+	const struct lc_public_key_signature *sig, uint8_t *sig_data,
+	size_t *available_len)
 {
 	struct lc_dilithium_sig dilithium_sig;
 	struct lc_dilithium_sk *dilithium_sk = gen_data->sk.dilithium_sk;
-	struct lc_public_key_signature *sig = &x509->sig;
 	const struct lc_hash *hash_algo;
-	uint8_t *sigptr, *sigdstptr;
+	uint8_t *sigptr;
 	size_t siglen;
 	int ret;
 	LC_DILITHIUM_CTX_ON_STACK(ctx);
@@ -92,8 +92,15 @@ int public_key_generate_signature_dilithium(
 	 * Select hash-based signature if there was a hash
 	 */
 	if (sig->digest_size) {
-		CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
+		if (sig->hash_algo)
+			hash_algo = sig->hash_algo;
+		else
+			CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo,
+						       &hash_algo));
+
 		CKNULL(hash_algo, -EOPNOTSUPP);
+		CKNULL(sig->digest_size, -EOPNOTSUPP);
+
 		lc_dilithium_ctx_hash(ctx, hash_algo);
 
 		/*
@@ -119,15 +126,11 @@ int public_key_generate_signature_dilithium(
 	CKINT(lc_dilithium_sig_ptr(&sigptr, &siglen, &dilithium_sig));
 
 	/*
-	 * Consistency check
-	 *
-	 * We have to add one to the actual size, because the original buffer is
-	 * a BIT STRING which has a zero as prefix
+	 * Ensure that sufficient size is present
 	 */
-	if (x509->raw_sig_size != siglen) {
-		printf_debug(
-			"Signature length mismatch: expected %zu, actual %zu\n",
-			x509->raw_sig_size, siglen);
+	if (*available_len < siglen) {
+		printf_debug("Signature too long: expected %zu, actual %zu\n",
+			     siglen, *available_len);
 		ret = -ENOPKG;
 		goto out;
 	}
@@ -136,11 +139,9 @@ int public_key_generate_signature_dilithium(
 	 * Copy the signature to its destination
 	 * We can unconstify the raw_sig pointer here, because we know the
 	 * data buffer is in the just parsed data.
-	 *
-	 * We also skip the leading BIT STRING prefix byte
 	 */
-	sigdstptr = (uint8_t *)x509->raw_sig;
-	memcpy(sigdstptr, sigptr, siglen);
+	memcpy(sig_data, sigptr, siglen);
+	*available_len -= siglen;
 
 out:
 	lc_dilithium_ctx_zero(ctx);

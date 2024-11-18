@@ -108,6 +108,17 @@ if get_option('pkcs7_parser').enabled()
 	])
 endif
 
+if get_option('pkcs7_generator').enabled()
+	include_files += files([
+		'../api/lc_pkcs7_generator.h',
+	])
+
+	src += files([
+		'pkcs7_generator.c',
+		'pkcs7_generator_set_data.c',
+	])
+endif
+
 # Enable the ASN.1 compiler if one or more of the *.asn1 files were
 # changed and need to be converted into C / H files
 asn1_compiler_enabled = true

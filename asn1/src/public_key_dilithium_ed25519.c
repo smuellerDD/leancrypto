@@ -77,12 +77,14 @@ out:
 }
 
 int x509_ed25519_signature_enc(void *context, uint8_t *data,
-			       size_t *avail_datalen)
+			       size_t *avail_datalen, uint8_t *tag)
 {
 	struct lc_dilithium_ed25519_sig *dilithium_ed25519_sig = context;
 	size_t ml_dsa_siglen, ed25519_siglen;
 	uint8_t *ml_dsa_ptr, *ed25519_ptr;
 	int ret;
+
+	(void)tag;
 
 	CKINT(lc_dilithium_ed25519_sig_ptr(&ml_dsa_ptr, &ml_dsa_siglen,
 					   &ed25519_ptr, &ed25519_siglen,
@@ -98,12 +100,14 @@ out:
 }
 
 int x509_mldsa_signature_enc(void *context, uint8_t *data,
-			     size_t *avail_datalen)
+			     size_t *avail_datalen, uint8_t *tag)
 {
 	struct lc_dilithium_ed25519_sig *dilithium_ed25519_sig = context;
 	size_t ml_dsa_siglen, ed25519_siglen;
 	uint8_t *ml_dsa_ptr, *ed25519_ptr;
 	int ret;
+
+	(void)tag;
 
 	CKINT(lc_dilithium_ed25519_sig_ptr(&ml_dsa_ptr, &ml_dsa_siglen,
 					   &ed25519_ptr, &ed25519_siglen,
@@ -165,7 +169,7 @@ out:
 }
 
 int x509_ed25519_public_key_enc(void *context, uint8_t *data,
-				size_t *avail_datalen)
+				size_t *avail_datalen, uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
@@ -173,6 +177,8 @@ int x509_ed25519_public_key_enc(void *context, uint8_t *data,
 	size_t ml_dsa_pklen, ed25519_pklen;
 	uint8_t *ml_dsa_ptr, *ed25519_ptr;
 	int ret;
+
+	(void)tag;
 
 	CKINT(lc_dilithium_ed25519_pk_ptr(&ml_dsa_ptr, &ml_dsa_pklen,
 					  &ed25519_ptr, &ed25519_pklen,
@@ -188,7 +194,7 @@ out:
 }
 
 int x509_mldsa_public_key_enc(void *context, uint8_t *data,
-			      size_t *avail_datalen)
+			      size_t *avail_datalen, uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
@@ -196,6 +202,8 @@ int x509_mldsa_public_key_enc(void *context, uint8_t *data,
 	size_t ml_dsa_pklen, ed25519_pklen;
 	uint8_t *ml_dsa_ptr, *ed25519_ptr;
 	int ret;
+
+	(void)tag;
 
 	CKINT(lc_dilithium_ed25519_pk_ptr(&ml_dsa_ptr, &ml_dsa_pklen,
 					  &ed25519_ptr, &ed25519_pklen,
@@ -248,8 +256,15 @@ int public_key_verify_signature_dilithium_ed25519(
 	 * Verify using HashComposite-ML-DSA if there was a hash
 	 */
 	if (sig->digest_size) {
-		CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
+		if (sig->hash_algo)
+			hash_algo = sig->hash_algo;
+		else
+			CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo,
+						       &hash_algo));
+
 		CKNULL(hash_algo, -EOPNOTSUPP);
+		CKNULL(sig->digest_size, -EOPNOTSUPP);
+
 		lc_dilithium_ed25519_ctx_hash(ctx, hash_algo);
 
 		/*
@@ -280,17 +295,16 @@ out:
 
 int public_key_generate_signature_dilithium_ed25519(
 	const struct lc_x509_generate_data *gen_data,
-	struct lc_x509_certificate *x509)
+	const struct lc_public_key_signature *sig, uint8_t *sig_data,
+	size_t *available_len)
 {
 	//TODO reduce buffer size
 	uint8_t sigbuf[8192];
 	struct lc_dilithium_ed25519_sig dilithium_ed25519_sig;
 	struct lc_dilithium_ed25519_sk *dilithium_ed25519_sk =
 		gen_data->sk.dilithium_ed25519_sk;
-	struct lc_public_key_signature *sig = &x509->sig;
 	const struct lc_hash *hash_algo;
 	size_t siglen = sizeof(sigbuf);
-	uint8_t *sigdstptr;
 	int ret;
 	LC_DILITHIUM_ED25519_CTX_ON_STACK(ctx);
 
@@ -337,10 +351,9 @@ int public_key_generate_signature_dilithium_ed25519(
 	 * We have to add one to the actual size, because the original buffer is
 	 * a BIT STRING which has a zero as prefix
 	 */
-	if (x509->raw_sig_size != siglen) {
-		printf_debug(
-			"Signature length mismatch: expected %zu, actual %zu\n",
-			x509->raw_sig_size, siglen);
+	if (*available_len < siglen) {
+		printf_debug("Signature too long: expected %zu, actual %zu\n",
+			     siglen, *available_len);
 		ret = -ENOPKG;
 		goto out;
 	}
@@ -349,11 +362,9 @@ int public_key_generate_signature_dilithium_ed25519(
 	 * Copy the signature to its destination
 	 * We can unconstify the raw_sig pointer here, because we know the
 	 * data buffer is in the just parsed data.
-	 *
-	 * We also skip the leading BIT STRING prefix byte
 	 */
-	sigdstptr = (uint8_t *)x509->raw_sig;
-	memcpy(sigdstptr, sigbuf, siglen);
+	memcpy(sig_data, sigbuf, siglen);
+	*available_len -= siglen;
 
 out:
 	lc_dilithium_ed25519_ctx_zero(ctx);

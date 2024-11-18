@@ -100,8 +100,8 @@ inconsistent:
  * Note an OID when we find one for later processing when we know how
  * to interpret it.
  */
-int pkcs7_note_OID(void *context, size_t hdrlen, unsigned char tag,
-		   const uint8_t *value, size_t vlen)
+static int pkcs7_note_OID(void *context, size_t hdrlen, unsigned char tag,
+			  const uint8_t *value, size_t vlen)
 {
 	struct pkcs7_parse_context *ctx = context;
 
@@ -109,6 +109,7 @@ int pkcs7_note_OID(void *context, size_t hdrlen, unsigned char tag,
 	(void)tag;
 
 	ctx->last_oid = look_up_OID(value, vlen);
+
 	if (ctx->last_oid == OID__NR) {
 		char buffer[50];
 
@@ -116,6 +117,70 @@ int pkcs7_note_OID(void *context, size_t hdrlen, unsigned char tag,
 		printf_debug("PKCS7: Unknown OID: [%lu] %s\n",
 			     value - ctx->data, buffer);
 	}
+	return 0;
+}
+
+int pkcs7_sig_note_pkey_algo_OID(void *context, size_t hdrlen,
+				 unsigned char tag, const uint8_t *value,
+				 size_t vlen)
+{
+	return pkcs7_note_OID(context, hdrlen, tag, value, vlen);
+}
+
+int pkcs7_digest_algorithm_OID(void *context, size_t hdrlen, unsigned char tag,
+			       const uint8_t *value, size_t vlen)
+{
+	return pkcs7_note_OID(context, hdrlen, tag, value, vlen);
+}
+
+int pkcs7_authenticated_attr_OID(void *context, size_t hdrlen,
+				 unsigned char tag, const uint8_t *value,
+				 size_t vlen)
+{
+	return pkcs7_note_OID(context, hdrlen, tag, value, vlen);
+}
+
+int pkcs7_data_OID(void *context, size_t hdrlen, unsigned char tag,
+		   const uint8_t *value, size_t vlen)
+{
+	return pkcs7_note_OID(context, hdrlen, tag, value, vlen);
+}
+
+int pkcs7_check_content_type_OID(void *context, size_t hdrlen,
+				 unsigned char tag, const uint8_t *value,
+				 size_t vlen)
+{
+	return pkcs7_note_OID(context, hdrlen, tag, value, vlen);
+}
+
+int pkcs7_note_attribute_type_OID(void *context, size_t hdrlen,
+				  unsigned char tag, const uint8_t *value,
+				  size_t vlen)
+{
+	return pkcs7_note_OID(context, hdrlen, tag, value, vlen);
+}
+
+int pkcs7_extract_attribute_name_segment(void *context, size_t hdrlen,
+					 unsigned char tag,
+					 const uint8_t *value, size_t vlen)
+{
+	(void)context;
+	(void)hdrlen;
+	(void)tag;
+	(void)value;
+	(void)vlen;
+	return 0;
+}
+
+int pkcs7_attribute_value_continue(void *context, size_t hdrlen,
+				   unsigned char tag, const uint8_t *value,
+				   size_t vlen)
+{
+	(void)context;
+	(void)hdrlen;
+	(void)tag;
+	(void)value;
+	(void)vlen;
 	return 0;
 }
 
@@ -360,6 +425,17 @@ version_mismatch:
 	return -EBADMSG;
 }
 
+int pkcs7_extract_cert_continue(void *context, size_t hdrlen, unsigned char tag,
+				const uint8_t *value, size_t vlen)
+{
+	(void)context;
+	(void)hdrlen;
+	(void)tag;
+	(void)value;
+	(void)vlen;
+	return 0;
+}
+
 /*
  * Extract a certificate and store it in the context.
  */
@@ -404,6 +480,18 @@ int pkcs7_extract_cert(void *context, size_t hdrlen, unsigned char tag,
 
 out:
 	return ret;
+}
+
+int pkcs7_extract_crl_cert(void *context, size_t hdrlen, unsigned char tag,
+			   const uint8_t *value, size_t vlen)
+{
+	return pkcs7_extract_cert(context, hdrlen, tag, value, vlen);
+}
+
+int pkcs7_extract_extended_cert(void *context, size_t hdrlen, unsigned char tag,
+				const uint8_t *value, size_t vlen)
+{
+	return pkcs7_extract_cert(context, hdrlen, tag, value, vlen);
 }
 
 /*
@@ -459,13 +547,26 @@ int pkcs7_note_data(void *context, size_t hdrlen, unsigned char tag,
 {
 	struct pkcs7_parse_context *ctx = context;
 
+	(void)hdrlen;
 	(void)tag;
 
 	printf_debug("Got data\n");
 
 	ctx->msg->data = value;
 	ctx->msg->data_len = vlen;
-	ctx->msg->data_hdrlen = hdrlen;
+	return 0;
+}
+
+int pkcs7_sig_note_authenticated_attr_continue(void *context, size_t hdrlen,
+					       unsigned char tag,
+					       const uint8_t *value,
+					       size_t vlen)
+{
+	(void)context;
+	(void)hdrlen;
+	(void)tag;
+	(void)value;
+	(void)vlen;
 	return 0;
 }
 
@@ -481,7 +582,7 @@ int pkcs7_sig_note_authenticated_attr(void *context, size_t hdrlen,
 	enum OID content_type;
 
 	printf_debug("AuthAttr: %02x %zu", tag, vlen);
-	bin2print_debug(value, vlen, stdout, " ");
+	bin2print_debug(value, vlen, stdout, "");
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wswitch-enum"
@@ -493,8 +594,8 @@ int pkcs7_sig_note_authenticated_attr(void *context, size_t hdrlen,
 		if (content_type != ctx->msg->data_type) {
 			printf_debug(
 				"Mismatch between global data type (%d) and sinfo %u (%d)\n",
-				ctx->msg->data_type, sinfo->index,
-				content_type);
+				ctx->msg->data_type, content_type,
+				sinfo->index);
 			return -EBADMSG;
 		}
 		return 0;
@@ -728,7 +829,7 @@ static void pkcs7_free_signed_info(struct pkcs7_signed_info *sinfo)
 
 LC_INTERFACE_FUNCTION(int, lc_pkcs7_get_content_data,
 		      const struct pkcs7_message *pkcs7, const uint8_t **data,
-		      size_t *data_len, size_t *headerlen)
+		      size_t *data_len)
 {
 	if (!pkcs7 || !data || !data_len)
 		return -EINVAL;
@@ -738,8 +839,6 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_get_content_data,
 
 	*data = pkcs7->data;
 	*data_len = pkcs7->data_len;
-	if (headerlen)
-		*headerlen = pkcs7->data_hdrlen;
 
 	return 0;
 }

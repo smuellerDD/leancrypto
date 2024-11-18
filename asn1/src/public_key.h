@@ -56,7 +56,8 @@ int public_key_verify_signature(const struct lc_public_key *pkey,
 				const struct lc_public_key_signature *sig);
 
 int public_key_generate_signature(const struct lc_x509_generate_data *gen_data,
-				  struct lc_x509_certificate *x509);
+				  const struct lc_public_key_signature *sig,
+				  uint8_t *sig_data, size_t *available_len);
 
 #ifdef __cplusplus
 }

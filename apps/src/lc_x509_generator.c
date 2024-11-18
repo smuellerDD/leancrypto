@@ -29,23 +29,10 @@
 #include "ret_checkers.h"
 #include "lc_x509_generator.h"
 #include "lc_x509_generator_file_helper.h"
+#include "lc_x509_generator_helper.h"
 #include "lc_x509_parser.h"
 #include "x509_checker.h"
 #include "x509_print.h"
-
-struct lc_x509_key_input_data {
-	enum lc_sig_types sig_type;
-	union {
-		struct lc_dilithium_pk dilithium_pk;
-		struct lc_dilithium_ed25519_pk dilithium_ed25519_pk;
-		struct lc_sphincs_pk sphincs_pk;
-	} pk;
-	union {
-		struct lc_dilithium_sk dilithium_sk;
-		struct lc_dilithium_ed25519_sk dilithium_ed25519_sk;
-		struct lc_sphincs_sk sphincs_sk;
-	} sk;
-};
 
 struct x509_generator_opts {
 	struct lc_x509_certificate cert;
@@ -66,9 +53,9 @@ struct x509_generator_opts {
 	const char *pk_file;
 	const char *x509_signer_file;
 	const char *signer_sk_file;
+
 	uint8_t *signer_data;
 	size_t signer_data_len;
-
 	uint8_t *pk_data;
 	size_t pk_len;
 	uint8_t *sk_data;
@@ -484,9 +471,8 @@ static int x509_enc_set_signer(struct x509_generator_opts *opts)
 	struct lc_x509_certificate *gcert = &opts->cert;
 	struct lc_x509_key_input_data *signer_key_input_data =
 		&opts->signer_key_input_data;
-	size_t paramlen = 0, pk_len;
-	enum lc_sig_types pkey_type;
-	const uint8_t *dparam, *pk_ptr;
+	size_t paramlen = 0;
+	const uint8_t *dparam;
 	const char *param;
 	int ret;
 
@@ -536,83 +522,9 @@ static int x509_enc_set_signer(struct x509_generator_opts *opts)
 			   &opts->signer_sk_len),
 		  "Signer SK mmap failure\n");
 
-	/* Get the signature type based on the signer key */
-	CKINT_LOG(lc_x509_cert_get_pubkey(&opts->signer_cert, &pk_ptr, &pk_len,
-					  &pkey_type),
-		  "Find X.509 signer public key\n");
-	switch (pkey_type) {
-	case LC_SIG_DILITHIUM_44:
-	case LC_SIG_DILITHIUM_65:
-	case LC_SIG_DILITHIUM_87:
-		CKINT_LOG(lc_dilithium_pk_load(
-				  &signer_key_input_data->pk.dilithium_pk,
-				  pk_ptr, pk_len),
-			  "Loading X.509 signer public key from certificate\n");
-		CKINT_LOG(lc_dilithium_sk_load(
-				  &signer_key_input_data->sk.dilithium_sk,
-				  opts->signer_sk_data, opts->signer_sk_len),
-			  "Loading X.509 signer private key from file\n");
-		CKINT_LOG(lc_x509_cert_set_signer_keypair_dilithium(
-				  gcert,
-				  &signer_key_input_data->pk.dilithium_pk,
-				  &signer_key_input_data->sk.dilithium_sk),
-			  "Setting X.509 key pair for signing\n");
-		break;
-
-	case LC_SIG_SPINCS_SHAKE_128F:
-	case LC_SIG_SPINCS_SHAKE_128S:
-	case LC_SIG_SPINCS_SHAKE_192F:
-	case LC_SIG_SPINCS_SHAKE_192S:
-	case LC_SIG_SPINCS_SHAKE_256F:
-	case LC_SIG_SPINCS_SHAKE_256S:
-		CKINT_LOG(lc_sphincs_pk_load(
-				  &signer_key_input_data->pk.sphincs_pk, pk_ptr,
-				  pk_len),
-			  "Loading X.509 signer public key from certificate\n");
-		CKINT_LOG(lc_sphincs_sk_load(
-				  &signer_key_input_data->sk.sphincs_sk,
-				  opts->signer_sk_data, opts->signer_sk_len),
-			  "Loading X.509 signer private key from file\n");
-		CKINT_LOG(lc_x509_cert_set_signer_keypair_sphincs(
-				  gcert, &signer_key_input_data->pk.sphincs_pk,
-				  &signer_key_input_data->sk.sphincs_sk),
-			  "Setting X.509 key pair for signing\n");
-		break;
-
-	case LC_SIG_DILITHIUM_44_ED25519:
-	case LC_SIG_DILITHIUM_65_ED25519:
-	case LC_SIG_DILITHIUM_87_ED25519:
-		CKINT_LOG(
-			lc_x509_cert_load_pk_dilithium_ed25519(
-				&signer_key_input_data->pk.dilithium_ed25519_pk,
-				pk_ptr, pk_len),
-			"Loading X.509 signer public key from certificate\n");
-		CKINT_LOG(
-			lc_dilithium_ed25519_sk_load(
-				&signer_key_input_data->sk.dilithium_ed25519_sk,
-				opts->signer_sk_data,
-				opts->signer_sk_len - LC_ED25519_SECRETKEYBYTES,
-				opts->signer_sk_data +
-					LC_ED25519_SECRETKEYBYTES,
-				LC_ED25519_SECRETKEYBYTES),
-			"Loading X.509 signer private key from file\n");
-		CKINT_LOG(
-			lc_x509_cert_set_signer_keypair_dilithium_ed25519(
-				gcert,
-				&signer_key_input_data->pk.dilithium_ed25519_pk,
-				&signer_key_input_data->sk.dilithium_ed25519_sk),
-			"Setting X.509 key pair for signing\n");
-		break;
-
-	case LC_SIG_DILITHIUM_87_ED448:
-	case LC_SIG_ECDSA_X963:
-	case LC_SIG_ECRDSA_PKCS1:
-	case LC_SIG_RSA_PKCS1:
-	case LC_SIG_SM2:
-	case LC_SIG_UNKNOWN:
-	default:
-		return -ENOPKG;
-	}
+	CKINT(lc_x509_cert_set_signer(gcert, signer_key_input_data,
+				      &opts->signer_cert, opts->signer_sk_data,
+				      opts->signer_sk_len));
 
 out:
 	return ret;
@@ -974,7 +886,7 @@ static void x509_generator_usage(void)
 	fprintf(stderr,
 		"\n\tOptions for checking generated / loaded X.509 certificate:\n");
 	fprintf(stderr, "\t   --check-ca\t\t\tcheck presence of CA\n");
-	fprintf(stderr, "\t   --check-rootca\t\t\tcheck if root CA\n");
+	fprintf(stderr, "\t   --check-rootca\t\tcheck if root CA\n");
 	fprintf(stderr, "\t   --check-noca\t\t\tcheck absence of CA\n");
 	fprintf(stderr,
 		"\t   --check-ca-conformant\tcheck presence of RFC5280 conformant CA\n");
@@ -1336,6 +1248,7 @@ int main(int argc, char *argv[])
 			break;
 
 		case 'o':
+			CKINT(x509_check_file(optarg));
 			parsed_opts.outfile = optarg;
 			break;
 		case 'h':

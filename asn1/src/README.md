@@ -88,7 +88,7 @@ The generated result looks like:
 
 ```
 Serial Number: 01:02:03:04:05:06:07:08
-Signature Algorithm: ML-DSA 87 SHA3-512
+Signature Algorithm: ML-DSA 87 <builtin>
 Issuer: C = DE, ST = Saxony, O = leancrypto, OU = leancrypto test OU, CN = leancrypto test CA
 Subject: C = DE, ST = Saxony, O = leancrypto, OU = leancrypto test OU, CN = leancrypto test CA
 Valid From: 2024-10-21 18:22:08
@@ -143,7 +143,7 @@ The generated result looks like:
 
 ```
 Serial Number: 02:03:03:04:05:06:07:08
-Signature Algorithm: ML-DSA 87 SHA3-512
+Signature Algorithm: ML-DSA 87 <builtin>
 Issuer: C = DE, ST = Saxony, O = leancrypto, OU = leancrypto test OU, CN = leancrypto test CA
 Subject: C = DE, ST = Saxony, O = leancrypto, OU = leancrypto test OU, CN = leancrypto test int1
 Valid From: 2024-10-21 18:22:08
@@ -199,7 +199,7 @@ The generated result looks like:
 
 ```
 Serial Number: 03:03:04:05:06:07:08:09
-Signature Algorithm: ML-DSA 65 SHA3-384
+Signature Algorithm: ML-DSA 65 <builtin>
 Issuer: C = DE, ST = Saxony, O = leancrypto, OU = leancrypto test OU, CN = leancrypto test int1
 Subject: C = DE, ST = Saxony, O = leancrypto, OU = leancrypto test OU, CN = leancrypto test int2
 Valid From: 2024-10-21 18:22:08
@@ -256,7 +256,7 @@ The generated result looks like:
 
 ```
 Serial Number: 04:05:06:07:08:09:00:01
-Signature Algorithm: ML-DSA 44 SHA3-256
+Signature Algorithm: ML-DSA 44 <builtin>
 Issuer: C = DE, ST = Saxony, O = leancrypto, OU = leancrypto test OU, CN = leancrypto test int2
 Subject: C = DE, ST = Saxony, O = leancrypto, OU = leancrypto test OU, CN = leancrypto test leaf
 Valid From: 2024-10-21 18:22:08

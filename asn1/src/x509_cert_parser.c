@@ -1131,6 +1131,9 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_parse, struct lc_x509_certificate *x509,
 	ctx.cert = x509;
 	ctx.data = data;
 
+	x509->raw_cert = data;
+	x509->raw_cert_size = datalen;
+
 	/* Attempt to decode the certificate */
 	CKINT(asn1_ber_decoder(&x509_decoder, &ctx, data, datalen));
 

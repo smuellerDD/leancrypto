@@ -29,6 +29,9 @@ extern "C" {
 
 struct asn1_encoder;
 
+#define LC_ASN1_RET_CONTINUE 1
+#define LC_ASN1_RET_SET_ZERO_CONTENT 2
+
 int asn1_ber_encoder(const struct asn1_encoder *encoder, void *context,
 		     uint8_t *data, size_t *in_out_avail_datalen);
 

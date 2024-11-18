@@ -221,14 +221,6 @@ enabled asymmetric algorithms.
 Note: The X.509 generator requires the availability of the X.509 parser.
 ''')
 
-option('disable-asm', type: 'boolean', value: false,
-       description: '''Disable all acceleration code
-
-When this option is enabled, only C implementation and no assembler code is
-compiled.
-''')
-
-
 option('pkcs7_parser', type: 'feature', value: 'enabled',
        description: '''Enable PKCS#7 / CMS Parser Support
 
@@ -243,6 +235,16 @@ for secure boot as part of UEFI and others.
 
 The PKCS#7 support operates on caller-provided memory, but performs a memory
 allocation for each X.509 certificate and for each signer.
+''')
+
+option('pkcs7_generator', type: 'feature', value: 'enabled',
+       description: '''Enable PKCS#7 / CMS Generator Support
+
+The PKCS#7 / CMS generator allows the generation of PKCS#7 / CMS messages using
+the enabled asymmetric algorithms.
+
+Note: The PKCS#7 / CMS generator requires the availability of the
+PKCS#7 / CMS parser.
 ''')
 
 option('disable-asm', type: 'boolean', value: false,

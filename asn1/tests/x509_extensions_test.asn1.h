@@ -11,12 +11,12 @@
 extern const struct asn1_encoder x509_extensions_test_encoder;
 extern const struct asn1_decoder x509_extensions_test_decoder;
 
-extern int x509_extension_OID_enc(void *, uint8_t *, size_t *);
+extern int x509_extension_OID_enc(void *, uint8_t *, size_t *, uint8_t *);
 extern int x509_extension_OID(void *, size_t, unsigned char, const uint8_t *, size_t);
-extern int x509_extension_continue_enc(void *, uint8_t *, size_t *);
+extern int x509_extension_continue_enc(void *, uint8_t *, size_t *, uint8_t *);
 extern int x509_extension_continue(void *, size_t, unsigned char, const uint8_t *, size_t);
-extern int x509_extension_critical_enc(void *, uint8_t *, size_t *);
+extern int x509_extension_critical_enc(void *, uint8_t *, size_t *, uint8_t *);
 extern int x509_extension_critical(void *, size_t, unsigned char, const uint8_t *, size_t);
-extern int x509_process_extension_enc(void *, uint8_t *, size_t *);
+extern int x509_process_extension_enc(void *, uint8_t *, size_t *, uint8_t *);
 extern int x509_process_extension(void *, size_t, unsigned char, const uint8_t *, size_t);
 // clang-format on

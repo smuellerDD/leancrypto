@@ -82,13 +82,13 @@ out:
 
 int public_key_generate_signature_sphincs(
 	const struct lc_x509_generate_data *gen_data,
-	struct lc_x509_certificate *x509, unsigned int fast)
+	const struct lc_public_key_signature *sig, uint8_t *sig_data,
+	size_t *available_len, unsigned int fast)
 {
 	struct lc_sphincs_sig sphincs_sig;
 	struct lc_sphincs_sk *sphincs_sk = gen_data->sk.sphincs_sk;
-	struct lc_public_key_signature *sig = &x509->sig;
 	const struct lc_hash *hash_algo;
-	uint8_t *sigptr, *sigdstptr;
+	uint8_t *sigptr;
 	size_t siglen;
 	int ret;
 	LC_SPHINCS_CTX_ON_STACK(ctx);
@@ -103,8 +103,15 @@ int public_key_generate_signature_sphincs(
 	 * Select hash-based signature if there was a hash
 	 */
 	if (sig->digest_size) {
-		CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
+		if (sig->hash_algo)
+			hash_algo = sig->hash_algo;
+		else
+			CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo,
+						       &hash_algo));
+
 		CKNULL(hash_algo, -EOPNOTSUPP);
+		CKNULL(sig->digest_size, -EOPNOTSUPP);
+
 		lc_sphincs_ctx_hash(ctx, hash_algo);
 
 		/*
@@ -135,10 +142,9 @@ int public_key_generate_signature_sphincs(
 	 * We have to add one to the actual size, because the original buffer is
 	 * a BIT STRING which has a zero as prefix
 	 */
-	if (x509->raw_sig_size != siglen) {
-		printf_debug(
-			"Signature length mismatch: expected %zu, actual %zu\n",
-			x509->raw_sig_size, siglen);
+	if (*available_len < siglen) {
+		printf_debug("Signature too long: expected %zu, actual %zu\n",
+			     siglen, *available_len);
 		ret = -ENOPKG;
 		goto out;
 	}
@@ -147,11 +153,9 @@ int public_key_generate_signature_sphincs(
 	 * Copy the signature to its destination
 	 * We can unconstify the raw_sig pointer here, because we know the
 	 * data buffer is in the just parsed data.
-	 *
-	 * We also skip the leading BIT STRING prefix byte
 	 */
-	sigdstptr = (uint8_t *)x509->raw_sig;
-	memcpy(sigdstptr, sigptr, siglen);
+	memcpy(sig_data, sigptr, siglen);
+	*available_len -= siglen;
 
 out:
 	lc_sphincs_ctx_zero(ctx);

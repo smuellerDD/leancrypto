@@ -36,7 +36,8 @@ int public_key_verify_signature_dilithium_ed25519(
 
 int public_key_generate_signature_dilithium_ed25519(
 	const struct lc_x509_generate_data *gen_data,
-	struct lc_x509_certificate *x509);
+	const struct lc_public_key_signature *sig, uint8_t *sig_data,
+	size_t *available_len);
 
 int public_key_signature_size_dilithium_ed25519(
 	enum lc_dilithium_type dilithium_type, size_t *size);

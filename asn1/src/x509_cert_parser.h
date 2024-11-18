@@ -32,9 +32,9 @@ extern "C" {
 
 struct x509_parse_context {
 	struct lc_x509_certificate *cert; /* Certificate being constructed */
-	const uint8_t *data; /* Start of data */
-	const uint8_t *key; /* Key data */
-	size_t key_size; /* Size of key data */
+	const uint8_t *key; /* Public key data */
+	size_t key_size; /* Size of public key data */
+	const uint8_t *data; /* TODO remove Start of data */
 	const uint8_t *params; /* Key parameters */
 	size_t params_size; /* Size of key parameters */
 	size_t raw_akid_size;

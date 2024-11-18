@@ -374,6 +374,10 @@ if get_option('x509_parser').disabled() and get_option('x509_generator').enabled
 	error('X.509 generator support requires X.509 parser support')
 endif
 
+if get_option('pkcs7_parser').disabled() and get_option('pkcs7_generator').enabled()
+	error('PKCS#7 / CMS generator support requires PKCS#7 / CMS parser support')
+endif
+
 ################################################################################
 # Enable assembler support
 ################################################################################

@@ -22,66 +22,8 @@
 
 #include "ext_headers.h"
 #include "lc_hash.h"
+#include "lc_pkcs7_common.h"
 #include "lc_x509_parser.h"
-
-/// \cond DO_NOT_DOCUMENT
-struct pkcs7_trust_store {
-	struct lc_x509_certificate *anchor_cert;
-};
-
-struct pkcs7_signed_info {
-	struct pkcs7_signed_info *next;
-
-	/* Message signature.
-	 *
-	 * This contains the generated digest of _either_ the Content Data or
-	 * the Authenticated Attributes [RFC2315 9.3].  If the latter, one of
-	 * the attributes contains the digest of the Content Data within it.
-	 *
-	 * This also contains the issuing cert serial number and issuer's name
-	 * [PKCS#7 or CMS ver 1] or issuing cert's SKID [CMS ver 3].
-	 */
-	struct lc_public_key_signature sig;
-	struct lc_x509_certificate
-		*signer; /* Signing certificate (in msg->certs) */
-	time64_t signing_time;
-
-	unsigned int index;
-	unsigned int
-		unsupported_crypto : 1; /* T if not usable due to missing crypto */
-	unsigned int blacklisted : 1;
-
-	/* Message digest - the digest of the Content Data (or NULL) */
-	const uint8_t *msgdigest;
-	size_t msgdigest_len;
-
-	/* Authenticated Attribute data (or NULL) */
-	const uint8_t *authattrs;
-	size_t authattrs_len;
-
-	unsigned long aa_set;
-#define sinfo_has_content_type (1 << 0)
-#define sinfo_has_signing_time (1 << 1)
-#define sinfo_has_message_digest (1 << 2)
-#define sinfo_has_smime_caps (1 << 3)
-#define sinfo_has_ms_opus_info (1 << 4)
-#define sinfo_has_ms_statement_type (1 << 5)
-};
-
-struct pkcs7_message {
-	struct lc_x509_certificate *certs; /* Certificate list */
-	struct lc_x509_certificate *crl; /* Revocation list */
-	struct pkcs7_signed_info *signed_infos;
-	uint8_t version; /* Version of cert (1 -> PKCS#7 or CMS; 3 -> CMS) */
-	unsigned int have_authattrs : 1; /* T if have authattrs */
-
-	/* Content Data (or NULL) */
-	enum OID data_type; /* Type of Data */
-	size_t data_len; /* Length of Data */
-	size_t data_hdrlen; /* Length of Data ASN.1 header */
-	const uint8_t *data; /* Content Data (or 0) */
-};
-/// \endcond
 
 /** @defgroup PKCS7 PKCS#7 Message Handling
  *
@@ -187,14 +129,12 @@ void lc_pkcs7_message_clear(struct pkcs7_message *pkcs7);
  * @param [in] pkcs7 The preparsed PKCS#7 message to access
  * @param [out] data Place to return a pointer to the data
  * @param [out] datalen Place to return the data length
- * @param [out] headerlen Size of ASN.1 header not included in \p data
  *
  * @return 0 on success or < 0 on error (returns -ENODATA if the data object was
  * missing from the message)
  */
 int lc_pkcs7_get_content_data(const struct pkcs7_message *pkcs7,
-			      const uint8_t **data, size_t *datalen,
-			      size_t *headerlen);
+			      const uint8_t **data, size_t *datalen);
 
 /**
  * @ingroup PKCS7

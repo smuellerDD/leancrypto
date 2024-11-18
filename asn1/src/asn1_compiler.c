@@ -1373,7 +1373,7 @@ static void render(FILE *out, FILE *hdr)
 	for (action = action_list; action; action = action->next) {
 		action->index = (unsigned char)index++;
 		fprintf(hdr,
-			"extern int %s_enc(void *, uint8_t *, size_t *);\n",
+			"extern int %s_enc(void *, uint8_t *, size_t *, uint8_t *);\n",
 			action->name);
 		fprintf(hdr,
 			"extern int %s(void *, size_t, unsigned char,"

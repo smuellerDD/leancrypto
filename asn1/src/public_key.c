@@ -118,36 +118,42 @@ out:
  * Generate a signature using a secret key.
  */
 int public_key_generate_signature(const struct lc_x509_generate_data *gen_data,
-				  struct lc_x509_certificate *x509)
+				  const struct lc_public_key_signature *sig,
+				  uint8_t *sig_data, size_t *available_len)
 {
 	int ret;
 
 	printf_debug("==>%s()\n", __func__);
 
 	CKNULL(gen_data, -EFAULT);
-	CKNULL(x509, -EFAULT);
+	CKNULL(sig, -EFAULT);
+	CKNULL(sig_data, -EFAULT);
+	CKNULL(available_len, -EFAULT);
 
 	switch (gen_data->sig_type) {
 	case LC_SIG_DILITHIUM_44:
 	case LC_SIG_DILITHIUM_65:
 	case LC_SIG_DILITHIUM_87:
-		CKINT(public_key_generate_signature_dilithium(gen_data, x509));
+		CKINT(public_key_generate_signature_dilithium(
+			gen_data, sig, sig_data, available_len));
 		break;
 	case LC_SIG_DILITHIUM_44_ED25519:
 	case LC_SIG_DILITHIUM_65_ED25519:
 	case LC_SIG_DILITHIUM_87_ED25519:
-		CKINT(public_key_generate_signature_dilithium_ed25519(gen_data,
-								      x509));
+		CKINT(public_key_generate_signature_dilithium_ed25519(
+			gen_data, sig, sig_data, available_len));
 		break;
 	case LC_SIG_SPINCS_SHAKE_128F:
 	case LC_SIG_SPINCS_SHAKE_192F:
 	case LC_SIG_SPINCS_SHAKE_256F:
-		CKINT(public_key_generate_signature_sphincs(gen_data, x509, 1));
+		CKINT(public_key_generate_signature_sphincs(
+			gen_data, sig, sig_data, available_len, 1));
 		break;
 	case LC_SIG_SPINCS_SHAKE_128S:
 	case LC_SIG_SPINCS_SHAKE_192S:
 	case LC_SIG_SPINCS_SHAKE_256S:
-		CKINT(public_key_generate_signature_sphincs(gen_data, x509, 0));
+		CKINT(public_key_generate_signature_sphincs(
+			gen_data, sig, sig_data, available_len, 0));
 		break;
 
 	case LC_SIG_DILITHIUM_87_ED448:

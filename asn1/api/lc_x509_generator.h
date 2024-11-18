@@ -68,7 +68,7 @@ extern "C" {
  *
  * @return 0 on success or < 0 on error
  */
-int lc_x509_cert_gen(struct lc_x509_certificate *x509, uint8_t *data,
+int lc_x509_cert_gen(const struct lc_x509_certificate *x509, uint8_t *data,
 		     size_t *avail_datalen);
 
 /**

@@ -41,10 +41,11 @@ typedef int (*asn1_action_t)(void *context,
 
 typedef int (*asn1_action_enc_t)(void *context,
 				 uint8_t *data, /* Data buffer to fill */
-				 size_t *avail_datalen); /* Available data
-							    length - upon
-							    return, reduce by
-							    generated data */
+				 size_t *avail_datalen, /* Available data
+							   length - upon
+							   return, reduce by
+							   generated data */
+				 uint8_t *tag);
 
 struct asn1_encoder {
 	const unsigned char *machine;
