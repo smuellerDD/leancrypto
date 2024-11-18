@@ -331,7 +331,6 @@ asn1/src/oid_registry.h
 asn1/src/pkcs7_parser.c
 asn1/src/pkcs7_trust.c
 asn1/src/pkcs7_verify.c
-asn1/src/verification.h
 asn1/src/x509_cert_parser.c
 asn1/src/x509_parser.h
 asn1/src/x509_public_key.c
@@ -349,8 +348,9 @@ The following files are affected:
 asn1/src/asn1_encoder_helper.c
 
 
-The associated asn1/src/*.asn1 files are derived from RFC5280 or RFC5652
-as marked in the header of those files and subject to the following license:
+The associated asn1/src/*.asn1 files are derived from different RFCs and draft
+RFCs as marked in the header of those files and subject to the following
+license:
 
 BSD-3-Clause
 
