@@ -231,8 +231,8 @@ static int pkcs7_dump_file(struct pkcs7_generator_opts *opts)
 	CKINT_LOG(lc_pkcs7_verify(&ppkcs7, &opts->trust_store),
 		  "Verification of PKCS#7 message failed\n");
 
-//	if (opts->checker)
-//		CKINT(apply_checks_pkcs7(&ppkcs7, &opts->checker_opts));
+	//	if (opts->checker)
+	//		CKINT(apply_checks_pkcs7(&ppkcs7, &opts->checker_opts));
 
 	if (opts->print_pkcs7_msg)
 		CKINT(print_pkcs7_data(&ppkcs7));
@@ -298,8 +298,7 @@ static int pkcs7_load_signer(struct pkcs7_generator_opts *opts)
 	CKNULL_LOG(opts->signer_sk_file, -EINVAL,
 		   "A X.509 signer secret key is required\n");
 
-	CKINT(lc_alloc_aligned((void **)&x509, 8,
-			       sizeof(struct pkcs7_x509)));
+	CKINT(lc_alloc_aligned((void **)&x509, 8, sizeof(struct pkcs7_x509)));
 
 	pkcs7_add_x509(opts, x509);
 
@@ -320,8 +319,8 @@ static int pkcs7_load_signer(struct pkcs7_generator_opts *opts)
 				 x509->signer_data_len));
 
 	/* Set the private key to the newly create certificate */
-	CKINT(lc_x509_cert_set_signer(newcert, signer_key_input_data,
-				      newcert, x509->signer_sk_data,
+	CKINT(lc_x509_cert_set_signer(newcert, signer_key_input_data, newcert,
+				      x509->signer_sk_data,
 				      x509->signer_sk_data_len));
 
 	CKINT(lc_pkcs7_set_signer(pkcs7, newcert));
@@ -342,8 +341,7 @@ static int pkcs7_load_cert(struct pkcs7_generator_opts *opts)
 
 	CKNULL(opts->x509_file, 0);
 
-	CKINT(lc_alloc_aligned((void **)&x509, 8,
-			       sizeof(struct pkcs7_x509)));
+	CKINT(lc_alloc_aligned((void **)&x509, 8, sizeof(struct pkcs7_x509)));
 
 	pkcs7_add_x509(opts, x509);
 

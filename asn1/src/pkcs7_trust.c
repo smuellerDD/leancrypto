@@ -32,11 +32,10 @@
 #include "ret_checkers.h"
 #include "visibility.h"
 
-int
-pkcs7_find_asymmetric_key(struct lc_x509_certificate **anchor_cert,
-			  const struct lc_pkcs7_trust_store *trust_store,
-			  const struct lc_asymmetric_key_id *auth0,
-			  const struct lc_asymmetric_key_id *auth1)
+int pkcs7_find_asymmetric_key(struct lc_x509_certificate **anchor_cert,
+			      const struct lc_pkcs7_trust_store *trust_store,
+			      const struct lc_asymmetric_key_id *auth0,
+			      const struct lc_asymmetric_key_id *auth1)
 {
 	struct lc_x509_certificate *p;
 
@@ -215,7 +214,8 @@ out:
 	return -EKEYREJECTED;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_pkcs7_trust_validate, struct lc_pkcs7_message *pkcs7,
+LC_INTERFACE_FUNCTION(int, lc_pkcs7_trust_validate,
+		      struct lc_pkcs7_message *pkcs7,
 		      struct lc_pkcs7_trust_store *trust_store)
 {
 	struct lc_pkcs7_signed_info *sinfo;

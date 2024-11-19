@@ -51,11 +51,10 @@ int pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 			   struct lc_x509_certificate *x509,
 			   struct lc_pkcs7_signed_info *sinfo);
 
-int
-pkcs7_find_asymmetric_key(struct lc_x509_certificate **anchor_cert,
-			  const struct lc_pkcs7_trust_store *trust_store,
-			  const struct lc_asymmetric_key_id *auth0,
-			  const struct lc_asymmetric_key_id *auth1);
+int pkcs7_find_asymmetric_key(struct lc_x509_certificate **anchor_cert,
+			      const struct lc_pkcs7_trust_store *trust_store,
+			      const struct lc_asymmetric_key_id *auth0,
+			      const struct lc_asymmetric_key_id *auth1);
 
 #ifdef __cplusplus
 }

@@ -797,8 +797,8 @@ static void pkcs7_free_signed_info(struct lc_pkcs7_signed_info *sinfo)
  ******************************************************************************/
 
 LC_INTERFACE_FUNCTION(int, lc_pkcs7_get_content_data,
-		      const struct lc_pkcs7_message *pkcs7, const uint8_t **data,
-		      size_t *data_len)
+		      const struct lc_pkcs7_message *pkcs7,
+		      const uint8_t **data, size_t *data_len)
 {
 	if (!pkcs7 || !data || !data_len)
 		return -EINVAL;
@@ -812,7 +812,8 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_get_content_data,
 	return 0;
 }
 
-LC_INTERFACE_FUNCTION(void, lc_pkcs7_message_clear, struct lc_pkcs7_message *pkcs7)
+LC_INTERFACE_FUNCTION(void, lc_pkcs7_message_clear,
+		      struct lc_pkcs7_message *pkcs7)
 {
 	struct lc_x509_certificate *cert;
 	struct lc_pkcs7_signed_info *sinfo;
@@ -839,8 +840,9 @@ LC_INTERFACE_FUNCTION(void, lc_pkcs7_message_clear, struct lc_pkcs7_message *pkc
 	}
 }
 
-LC_INTERFACE_FUNCTION(int, lc_pkcs7_message_parse, struct lc_pkcs7_message *pkcs7,
-		      const uint8_t *data, size_t datalen)
+LC_INTERFACE_FUNCTION(int, lc_pkcs7_message_parse,
+		      struct lc_pkcs7_message *pkcs7, const uint8_t *data,
+		      size_t datalen)
 {
 	struct pkcs7_parse_context ctx = { 0 };
 	int ret;

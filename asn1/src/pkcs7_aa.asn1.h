@@ -11,10 +11,10 @@
 extern const struct asn1_encoder pkcs7_aa_encoder;
 extern const struct asn1_decoder pkcs7_aa_decoder;
 
-extern int pkcs7_separate_aa_enc(void *, uint8_t *, size_t *, uint8_t *);
-extern int pkcs7_separate_aa(void *, size_t, unsigned char, const uint8_t *, size_t);
-extern int pkcs7_separate_aa_OID_enc(void *, uint8_t *, size_t *, uint8_t *);
-extern int pkcs7_separate_aa_OID(void *, size_t, unsigned char, const uint8_t *, size_t);
-extern int pkcs7_separate_aa_continue_enc(void *, uint8_t *, size_t *, uint8_t *);
-extern int pkcs7_separate_aa_continue(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int pkcs7_external_aa_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_external_aa(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int pkcs7_external_aa_OID_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_external_aa_OID(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int pkcs7_external_aa_continue_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int pkcs7_external_aa_continue(void *, size_t, unsigned char, const uint8_t *, size_t);
 // clang-format on

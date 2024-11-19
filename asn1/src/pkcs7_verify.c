@@ -316,9 +316,9 @@ int pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 				auth0 = &p->id;
 				auth1 = &p->skid;
 
-				printf_debug("- searching root CA in trust store\n");
-				CKINT(pkcs7_find_asymmetric_key(&p,
-								trust_store,
+				printf_debug(
+					"- searching root CA in trust store\n");
+				CKINT(pkcs7_find_asymmetric_key(&p, trust_store,
 								auth0, auth1));
 				CKINT(lc_x509_policy_cert_verify(&p->pub, x509,
 								 0));
@@ -330,7 +330,6 @@ int pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 
 		CKINT(lc_x509_policy_cert_verify(&p->pub, x509, 0));
 		x509->signer = p;
-
 
 		x509 = p;
 	}
