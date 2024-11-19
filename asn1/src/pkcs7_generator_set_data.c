@@ -117,9 +117,12 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_set_signer, struct lc_pkcs7_message *pkcs7,
 	 */
 	sinfo->sig.hash_algo = lc_sha3_512;
 
-	if ((x509_with_sk->sig_gen_data.sig_type == LC_SIG_DILITHIUM_44_ED25519 ||
-	     x509_with_sk->sig_gen_data.sig_type == LC_SIG_DILITHIUM_65_ED25519 ||
-	     x509_with_sk->sig_gen_data.sig_type == LC_SIG_DILITHIUM_87_ED25519) &&
+	if ((x509_with_sk->sig_gen_data.sig_type ==
+		     LC_SIG_DILITHIUM_44_ED25519 ||
+	     x509_with_sk->sig_gen_data.sig_type ==
+		     LC_SIG_DILITHIUM_65_ED25519 ||
+	     x509_with_sk->sig_gen_data.sig_type ==
+		     LC_SIG_DILITHIUM_87_ED25519) &&
 	    ((sinfo->sig.hash_algo != lc_sha3_512) &&
 	     (sinfo->sig.hash_algo != lc_sha512) &&
 	     (sinfo->sig.hash_algo != lc_shake256))) {

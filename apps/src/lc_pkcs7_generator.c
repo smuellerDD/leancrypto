@@ -196,7 +196,9 @@ static int pkcs7_enc_dump(struct pkcs7_generator_opts *opts,
 	}
 
 	CKINT(pkcs_add_trust(opts));
-	CKINT_LOG(lc_pkcs7_verify(&ppkcs7, opts->use_trust_store ? &opts->trust_store : NULL),
+	CKINT_LOG(lc_pkcs7_verify(&ppkcs7, opts->use_trust_store ?
+						   &opts->trust_store :
+						   NULL),
 		  "Verification of PKCS#7 message failed\n");
 
 	//if (opts->checker)
@@ -232,7 +234,9 @@ static int pkcs7_dump_file(struct pkcs7_generator_opts *opts)
 	}
 
 	CKINT(pkcs_add_trust(opts));
-	CKINT_LOG(lc_pkcs7_verify(&ppkcs7, opts->use_trust_store ? &opts->trust_store : NULL),
+	CKINT_LOG(lc_pkcs7_verify(&ppkcs7, opts->use_trust_store ?
+						   &opts->trust_store :
+						   NULL),
 		  "Verification of PKCS#7 message failed\n");
 
 	//	if (opts->checker)
@@ -383,7 +387,7 @@ static int pkcs7_set_data(struct pkcs7_generator_opts *opts)
 		   "Data file to be protected missing\n");
 
 	CKINT_LOG(get_data(opts->infile, &opts->data, &opts->datalen),
-			  "Loading of file %s failed\n", opts->infile);
+		  "Loading of file %s failed\n", opts->infile);
 
 	CKINT(lc_pkcs7_set_data(pkcs7, opts->data, opts->datalen, 0));
 

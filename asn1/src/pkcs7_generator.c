@@ -486,8 +486,7 @@ pkcs7_authenticated_attr_unprocessed(const struct pkcs7_generate_context *ctx,
 }
 
 int pkcs7_external_aa_continue_enc(void *context, uint8_t *data,
-						   size_t *avail_datalen,
-						   uint8_t *tag)
+				   size_t *avail_datalen, uint8_t *tag)
 {
 	struct pkcs7_generate_context *ctx = context;
 	const struct lc_pkcs7_signed_info *sinfo = ctx->current_sinfo;
@@ -503,7 +502,7 @@ int pkcs7_external_aa_continue_enc(void *context, uint8_t *data,
 }
 
 int pkcs7_external_aa_OID_enc(void *context, uint8_t *data,
-				     size_t *avail_datalen, uint8_t *tag)
+			      size_t *avail_datalen, uint8_t *tag)
 {
 	struct pkcs7_generate_context *ctx = context;
 	const struct lc_pkcs7_signed_info *sinfo = ctx->current_sinfo;
@@ -632,8 +631,8 @@ static int pkcs7_hash_data(uint8_t *digest, size_t *digest_size,
 /*
  * Parse authenticated attributes.
  */
-int pkcs7_external_aa_enc(void *context, uint8_t *data,
-					  size_t *avail_datalen, uint8_t *tag)
+int pkcs7_external_aa_enc(void *context, uint8_t *data, size_t *avail_datalen,
+			  uint8_t *tag)
 {
 	struct pkcs7_generate_context *ctx = context;
 	const struct lc_pkcs7_message *pkcs7 = ctx->pkcs7;
@@ -804,7 +803,7 @@ int pkcs7_sig_note_set_of_authattrs_enc(void *context, uint8_t *data,
 	bin2print_debug(ctx->authattrs_digest, ctx->authattrs_digest_size,
 			stdout, "Generated signerInfos AADigest");
 
-bin2print_debug(aap, aalen, stdout, "AA");
+	bin2print_debug(aap, aalen, stdout, "AA");
 
 	/*
 	 * The following code throws away the outer tag and message size which
@@ -878,7 +877,7 @@ int pkcs7_sig_note_issuer_enc(void *context, uint8_t *data,
 }
 
 int pkcs7_sig_note_authenticated_attr_enc(void *context, uint8_t *data,
-			      size_t *avail_datalen, uint8_t *tag)
+					  size_t *avail_datalen, uint8_t *tag)
 {
 	(void)context;
 	(void)data;
@@ -891,7 +890,7 @@ int pkcs7_sig_note_authenticated_attr_enc(void *context, uint8_t *data,
  * Note the issuer's name
  */
 int pkcs7_authenticated_attr_OID_enc(void *context, uint8_t *data,
-			      size_t *avail_datalen, uint8_t *tag)
+				     size_t *avail_datalen, uint8_t *tag)
 {
 	(void)context;
 	(void)data;
@@ -1032,8 +1031,9 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_pkcs7_generate, const struct lc_pkcs7_message *pkcs7,
-		      uint8_t *data, size_t *avail_datalen)
+LC_INTERFACE_FUNCTION(int, lc_pkcs7_generate,
+		      const struct lc_pkcs7_message *pkcs7, uint8_t *data,
+		      size_t *avail_datalen)
 {
 	struct pkcs7_generate_context ctx = { 0 };
 	int ret;

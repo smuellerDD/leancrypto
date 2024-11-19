@@ -332,17 +332,20 @@ int public_key_generate_signature_dilithium_ed25519(
 						      ctx, dilithium_ed25519_sk,
 						      lc_seeded_rng));
 
-LC_DILITHIUM_ED25519_CTX_ON_STACK(ctx1);
-lc_dilithium_ed25519_ctx_hash(ctx1, hash_algo);
-struct lc_dilithium_ed25519_pk *dilithium_ed25519_pk =
-		gen_data->pk.dilithium_ed25519_pk;
-bin2print_debug(dilithium_ed25519_pk->key.pk_44.pk_ed25519.pk, 32, stdout, "p");
-bin2print_debug(dilithium_ed25519_sk->key.sk_44.sk_ed25519.sk, 64, stdout, "s");
-CKINT(lc_dilithium_ed25519_verify_init(ctx1, dilithium_ed25519_pk));
+		LC_DILITHIUM_ED25519_CTX_ON_STACK(ctx1);
+		lc_dilithium_ed25519_ctx_hash(ctx1, hash_algo);
+		struct lc_dilithium_ed25519_pk *dilithium_ed25519_pk =
+			gen_data->pk.dilithium_ed25519_pk;
+		bin2print_debug(dilithium_ed25519_pk->key.pk_44.pk_ed25519.pk,
+				32, stdout, "p");
+		bin2print_debug(dilithium_ed25519_sk->key.sk_44.sk_ed25519.sk,
+				64, stdout, "s");
+		CKINT(lc_dilithium_ed25519_verify_init(ctx1,
+						       dilithium_ed25519_pk));
 		CKINT(lc_dilithium_ed25519_verify_update(ctx1, sig->digest,
 							 sig->digest_size));
-		CKINT(lc_dilithium_ed25519_verify_final(&dilithium_ed25519_sig, ctx1,
-							dilithium_ed25519_pk));
+		CKINT(lc_dilithium_ed25519_verify_final(
+			&dilithium_ed25519_sig, ctx1, dilithium_ed25519_pk));
 
 	} else {
 		CKNULL(sig->raw_data, -EOPNOTSUPP);
