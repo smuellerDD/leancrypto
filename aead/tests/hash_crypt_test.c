@@ -159,7 +159,8 @@ static int hc_tester_sha512(void)
 		0x7c, 0xca, 0x3e, 0xb8
 	};
 
-	printf("hash crypt ctx len %lu\n", LC_HC_CTX_SIZE(lc_sha512));
+	printf("hash crypt ctx len %lu\n",
+	       (unsigned long)LC_HC_CTX_SIZE(lc_sha512));
 	return hc_tester_sha512_one(in, sizeof(in), in, sizeof(in), in,
 				    sizeof(in), exp_ct, exp_tag,
 				    sizeof(exp_tag));
