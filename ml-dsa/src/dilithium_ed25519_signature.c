@@ -207,6 +207,7 @@ lc_dilithium_ed25519_common_init(struct lc_dilithium_ed25519_ctx *ctx)
 		 */
 	} else {
 		if ((dilithium_ctx->dilithium_prehash_type != lc_shake256) &&
+		    (dilithium_ctx->dilithium_prehash_type != lc_sha3_512) &&
 		    (dilithium_ctx->dilithium_prehash_type != lc_sha512))
 			return -EOPNOTSUPP;
 
