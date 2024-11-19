@@ -709,13 +709,21 @@ static int x509_enc_set_pubkey(struct x509_generator_opts *opts)
 			}
 			break;
 		case LC_SIG_SPINCS_SHAKE_128F:
-		case LC_SIG_SPINCS_SHAKE_128S:
 		case LC_SIG_SPINCS_SHAKE_192F:
-		case LC_SIG_SPINCS_SHAKE_192S:
 		case LC_SIG_SPINCS_SHAKE_256F:
+			CKINT(lc_sphincs_pk_load(&key_input_data->pk.sphincs_pk,
+						 opts->pk_data, opts->pk_len));
+			CKINT(lc_sphincs_pk_set_keytype_fast(&key_input_data->pk.sphincs_pk));
+			goto load_sphincs_pk;
+			break;
+
+		case LC_SIG_SPINCS_SHAKE_128S:
+		case LC_SIG_SPINCS_SHAKE_192S:
 		case LC_SIG_SPINCS_SHAKE_256S:
 			CKINT(lc_sphincs_pk_load(&key_input_data->pk.sphincs_pk,
 						 opts->pk_data, opts->pk_len));
+			CKINT(lc_sphincs_pk_set_keytype_small(&key_input_data->pk.sphincs_pk));
+		load_sphincs_pk:
 			CKINT(lc_x509_cert_set_pubkey_sphincs(
 				gcert, &key_input_data->pk.sphincs_pk));
 			if (self_signed) {

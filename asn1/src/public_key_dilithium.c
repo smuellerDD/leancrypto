@@ -55,7 +55,6 @@ int public_key_verify_signature_dilithium(
 						       &hash_algo));
 
 		CKNULL(hash_algo, -EOPNOTSUPP);
-		CKNULL(sig->digest_size, -EOPNOTSUPP);
 
 		lc_dilithium_ctx_hash(ctx, hash_algo);
 
@@ -106,7 +105,6 @@ int public_key_generate_signature_dilithium(
 						       &hash_algo));
 
 		CKNULL(hash_algo, -EOPNOTSUPP);
-		CKNULL(sig->digest_size, -EOPNOTSUPP);
 
 		lc_dilithium_ctx_hash(ctx, hash_algo);
 

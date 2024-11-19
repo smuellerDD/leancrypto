@@ -658,6 +658,7 @@ int pkcs7_sig_note_set_of_authattrs(void *context, size_t hdrlen,
 	/* We need to switch the 'CONT 0' to a 'SET OF' when we digest */
 	sinfo->authattrs = value - (hdrlen - 1);
 	sinfo->authattrs_len = vlen + (hdrlen - 1);
+
 	return 0;
 }
 

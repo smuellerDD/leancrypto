@@ -92,6 +92,7 @@ next_tag:
 		goto length_too_long;
 	if (unlikely(n > datalen - dp))
 		goto data_overrun_error;
+
 	len = 0;
 	for (; n > 0; n--) {
 		len <<= 8;
@@ -170,13 +171,13 @@ int asn1_ber_decoder(const struct asn1_decoder *decoder, void *context,
 				      */
 
 #define NR_CONS_STACK 10
-	unsigned short cons_dp_stack[NR_CONS_STACK];
-	unsigned short cons_datalen_stack[NR_CONS_STACK];
+	size_t cons_dp_stack[NR_CONS_STACK];
+	size_t cons_datalen_stack[NR_CONS_STACK];
 	unsigned char cons_hdrlen_stack[NR_CONS_STACK];
 #define NR_JUMP_STACK 10
 	unsigned char jump_stack[NR_JUMP_STACK];
 
-	if (datalen > 65535)
+	if (datalen > ASN1_MAX_DATASIZE)
 		return -EMSGSIZE;
 
 next_op:
@@ -253,7 +254,7 @@ next_op:
 			} else {
 				size_t n = len - 0x80;
 
-				if (unlikely(n > 2))
+				if (unlikely(n > 3))
 					goto length_too_long;
 				if (unlikely(n > datalen - dp))
 					goto data_overrun_error;
@@ -262,6 +263,7 @@ next_op:
 					len <<= 8;
 					len |= data[dp++];
 				}
+
 				if (unlikely(len > datalen - dp))
 					goto data_overrun_error;
 			}
@@ -276,11 +278,10 @@ next_op:
 			 */
 			if (unlikely(csp >= NR_CONS_STACK))
 				goto cons_stack_overflow;
-			cons_dp_stack[csp] = (unsigned short)dp;
+			cons_dp_stack[csp] = dp;
 			cons_hdrlen_stack[csp] = hdr;
 			if (!(flags & FLAG_INDEFINITE_LENGTH)) {
-				cons_datalen_stack[csp] =
-					(unsigned short)datalen;
+				cons_datalen_stack[csp] = datalen;
 				datalen = dp + len;
 			} else {
 				cons_datalen_stack[csp] = 0;

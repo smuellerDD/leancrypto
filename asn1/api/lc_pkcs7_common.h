@@ -88,12 +88,14 @@ struct lc_pkcs7_message {
 	 */
 	struct lc_pkcs7_signed_info *signed_infos;
 	uint8_t version; /* Version of cert (1 -> PKCS#7 or CMS; 3 -> CMS) */
-	unsigned int have_authattrs : 1; /* T if have authattrs */
 
 	/* Content Data (or NULL) */
 	enum OID data_type; /* Type of Data */
 	size_t data_len; /* Length of Data */
 	const uint8_t *data; /* Content Data (or 0) */
+
+	unsigned int have_authattrs : 1; /* T if have authattrs */
+	unsigned int embed_data : 1; /* Embed data into message */
 };
 /// \endcond
 

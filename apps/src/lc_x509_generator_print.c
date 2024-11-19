@@ -306,6 +306,13 @@ int print_pkcs7_data(const struct lc_pkcs7_message *pkcs7_msg)
 		bin2print(sig->digest, sig->digest_size, stdout,
 			  "signerInfos messageDigest");
 
+		if (pkcs7_msg->data) {
+			printf("Size of protected data: %zu\n",
+			       pkcs7_msg->data_len);
+		} else {
+			printf("No protected input data!\n");
+		}
+
 		printf("====== End one PKCS7 signed info listing ==========\n");
 
 		sinfos = sinfos->next;

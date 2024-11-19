@@ -115,6 +115,13 @@ int lc_pkcs7_set_certificate(struct lc_pkcs7_message *pkcs7,
 int lc_pkcs7_set_signer(struct lc_pkcs7_message *pkcs7,
 			struct lc_x509_certificate *x509_with_sk);
 
+enum lc_pkcs7_set_data_flags {
+	/** Define no flags */
+	lc_pkcs7_set_data_noflag,
+	/** Embed data into PKCS#7 message */
+	lc_pkcs7_set_data_embed,
+};
+
 /**
  * @ingroup PKCS7Gen
  * @brief Set the data to be signed with PKCS#7
@@ -125,11 +132,12 @@ int lc_pkcs7_set_signer(struct lc_pkcs7_message *pkcs7,
  * @param [in] pkcs7 PKCS#7 data structure to be filled
  * @param [in] data Pointer to the data to be signed
  * @param [in] data_len Size of the data buffer
+ * @param [in] flags Flags to be set
  *
  * @return 0 on success, < 0 on error
  */
 int lc_pkcs7_set_data(struct lc_pkcs7_message *pkcs7, const uint8_t *data,
-		      size_t data_len);
+		      size_t data_len, enum lc_pkcs7_set_data_flags flags);
 
 #ifdef __cplusplus
 }

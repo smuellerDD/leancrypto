@@ -61,7 +61,6 @@ int public_key_verify_signature_sphincs(
 						       &hash_algo));
 
 		CKNULL(hash_algo, -EOPNOTSUPP);
-		CKNULL(sig->digest_size, -EOPNOTSUPP);
 
 		lc_sphincs_ctx_hash(ctx, hash_algo);
 
@@ -117,7 +116,6 @@ int public_key_generate_signature_sphincs(
 						       &hash_algo));
 
 		CKNULL(hash_algo, -EOPNOTSUPP);
-		CKNULL(sig->digest_size, -EOPNOTSUPP);
 
 		lc_sphincs_ctx_hash(ctx, hash_algo);
 

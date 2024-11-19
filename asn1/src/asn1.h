@@ -87,6 +87,8 @@ enum asn1_tag {
 #define ASN1_TRUE 0xff
 #define ASN1_FALSE 0x00
 
+#define ASN1_MAX_DATASIZE (1 << 18)
+
 #ifdef __cplusplus
 }
 #endif

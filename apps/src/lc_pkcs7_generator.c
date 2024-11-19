@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <sys/stat.h>
 
+#include "asn1.h"
 #include "binhexbin.h"
 #include "lc_pkcs7_generator.h"
 #include "lc_pkcs7_parser.h"
@@ -29,9 +30,6 @@
 #include "lc_x509_generator_file_helper.h"
 #include "ret_checkers.h"
 #include "x509_print.h"
-
-//TODO
-static const uint8_t signed_data[] = { 0x01, 0x02, 0x03 };
 
 struct pkcs7_x509 {
 	struct pkcs7_x509 *next;
@@ -52,6 +50,7 @@ struct pkcs7_generator_opts {
 	enum lc_sig_types in_key_type;
 
 	const char *outfile;
+	const char *infile;
 	const char *print_pkcs7_msg;
 
 	const char *x509_file;
@@ -60,7 +59,7 @@ struct pkcs7_generator_opts {
 
 	const char *trust_anchor;
 
-	const uint8_t *data;
+	uint8_t *data;
 	size_t datalen;
 
 	struct lc_pkcs7_trust_store trust_store;
@@ -96,6 +95,8 @@ static void pkcs7_clean_opts(struct pkcs7_generator_opts *opts)
 	}
 
 	opts->x509 = NULL;
+
+	release_data(opts->data, opts->datalen);
 
 	release_data(opts->trust_anchor_data, opts->trust_anchor_data_len);
 	lc_pkcs7_trust_store_clear(&opts->trust_store);
@@ -188,7 +189,7 @@ static int pkcs7_enc_dump(struct pkcs7_generator_opts *opts,
 	CKINT(lc_pkcs7_message_parse(&ppkcs7, pkcs7_data, pkcs7_datalen));
 
 	if (opts->data) {
-		CKINT(lc_pkcs7_set_data(&ppkcs7, opts->data, opts->datalen));
+		CKINT(lc_pkcs7_set_data(&ppkcs7, opts->data, opts->datalen, 0));
 	}
 
 	CKINT(pkcs_add_trust(opts));
@@ -224,7 +225,7 @@ static int pkcs7_dump_file(struct pkcs7_generator_opts *opts)
 		  "Parsing of input file %s failed\n", opts->print_pkcs7_msg);
 
 	if (opts->data) {
-		CKINT(lc_pkcs7_set_data(&ppkcs7, opts->data, opts->datalen));
+		CKINT(lc_pkcs7_set_data(&ppkcs7, opts->data, opts->datalen, 0));
 	}
 
 	CKINT(pkcs_add_trust(opts));
@@ -246,7 +247,7 @@ out:
 static int pkcs7_gen_message(struct pkcs7_generator_opts *opts)
 {
 	struct lc_pkcs7_message *pkcs7 = &opts->pkcs7;
-	uint8_t data[65536] = { 0 };
+	uint8_t data[ASN1_MAX_DATASIZE] = { 0 };
 	size_t avail_datalen = sizeof(data), datalen;
 	int ret;
 
@@ -356,66 +357,6 @@ static int pkcs7_load_cert(struct pkcs7_generator_opts *opts)
 				     x509->x509_data_len),
 		  "Loading of X.509 certificate failed\n");
 
-#if 0
-	/* Get the signature type based on the signer key */
-	CKINT_LOG(lc_x509_cert_get_pubkey(newcert, &pk_ptr, &pk_len, &pkey_type),
-		  "Retrieving public key from certificate failed\n");
-
-	switch (pkey_type) {
-	case LC_SIG_DILITHIUM_44:
-	case LC_SIG_DILITHIUM_65:
-	case LC_SIG_DILITHIUM_87:
-		CKINT_LOG(lc_dilithium_pk_load(
-				  &key_input_data->pk.dilithium_pk,
-				  pk_ptr, pk_len),
-			  "Loading X.509 signer public key from certificate\n");
-		CKINT_LOG(lc_x509_cert_set_pubkey_dilithium(
-				  newcert,
-				  &key_input_data->pk.dilithium_pk),
-			  "Setting X.509 key pair for signing\n");
-		break;
-
-	case LC_SIG_SPINCS_SHAKE_128F:
-	case LC_SIG_SPINCS_SHAKE_128S:
-	case LC_SIG_SPINCS_SHAKE_192F:
-	case LC_SIG_SPINCS_SHAKE_192S:
-	case LC_SIG_SPINCS_SHAKE_256F:
-	case LC_SIG_SPINCS_SHAKE_256S:
-		CKINT_LOG(lc_sphincs_pk_load(
-				  &key_input_data->pk.sphincs_pk, pk_ptr,
-				  pk_len),
-			  "Loading X.509 signer public key from certificate\n");
-		CKINT_LOG(lc_x509_cert_set_pubkey_sphincs(
-				  newcert, &key_input_data->pk.sphincs_pk),
-			  "Setting X.509 key pair for signing\n");
-		break;
-
-	case LC_SIG_DILITHIUM_44_ED25519:
-	case LC_SIG_DILITHIUM_65_ED25519:
-	case LC_SIG_DILITHIUM_87_ED25519:
-		CKINT_LOG(
-			lc_x509_cert_load_pk_dilithium_ed25519(
-				&key_input_data->pk.dilithium_ed25519_pk,
-				pk_ptr, pk_len),
-			"Loading X.509 signer public key from certificate\n");
-		CKINT_LOG(
-			lc_x509_cert_set_pubkey_dilithium_ed25519(
-				newcert,
-				&key_input_data->pk.dilithium_ed25519_pk),
-			"Setting X.509 key pair for signing\n");
-		break;
-
-	case LC_SIG_DILITHIUM_87_ED448:
-	case LC_SIG_ECDSA_X963:
-	case LC_SIG_ECRDSA_PKCS1:
-	case LC_SIG_RSA_PKCS1:
-	case LC_SIG_SM2:
-	case LC_SIG_UNKNOWN:
-	default:
-		return -ENOPKG;
-	}
-#endif
-
 	/*
 	 * Add the certificate to the PKCS#7 structure for being added to the
 	 * PKCS#7 message to be generated.
@@ -433,8 +374,18 @@ out:
 static int pkcs7_set_data(struct pkcs7_generator_opts *opts)
 {
 	struct lc_pkcs7_message *pkcs7 = &opts->pkcs7;
+	int ret;
 
-	return lc_pkcs7_set_data(pkcs7, signed_data, sizeof(signed_data));
+	CKNULL_LOG(opts->infile, -EINVAL,
+		   "Data file to be protected missing\n");
+
+	CKINT_LOG(get_data(opts->infile, &opts->data, &opts->datalen),
+			  "Loading of file %s failed\n", opts->infile);
+
+	CKINT(lc_pkcs7_set_data(pkcs7, opts->data, opts->datalen, 0));
+
+out:
+	return ret;
 }
 
 static void pkcs7_generator_usage(void)
@@ -447,6 +398,8 @@ static void pkcs7_generator_usage(void)
 	fprintf(stderr, "\nOptions:\n");
 	fprintf(stderr,
 		"\t-o --outfile <FILE>\t\tFile to write certificate to\n");
+	fprintf(stderr,
+		"\t-i --infile <FILE>\t\tFile with data to be protected\n");
 
 	fprintf(stderr, "\n\tOptions for X.509 signer:\n");
 	fprintf(stderr,
@@ -510,10 +463,11 @@ int main(int argc, char *argv[])
 	struct pkcs7_generator_opts parsed_opts = { 0 };
 	int ret = 0, opt_index = 0;
 
-	static const char *opts_short = "ho:";
+	static const char *opts_short = "ho:i:";
 	static const struct option opts[] = { { "help", 0, 0, 'h' },
 
 					      { "outfile", 1, 0, 'o' },
+					      { "infile", 1, 0, 'i' },
 
 					      { "x509-signer", 1, 0, 0 },
 					      { "signer-sk-file", 1, 0, 0 },
@@ -545,45 +499,53 @@ int main(int argc, char *argv[])
 				CKINT(pkcs7_check_file(optarg));
 				parsed_opts.outfile = optarg;
 				break;
+			/* outfile */
+			case 2:
+				parsed_opts.infile = optarg;
+				break;
 
 			/* x509-signer */
-			case 2:
+			case 3:
 				parsed_opts.x509_signer_file = optarg;
 				CKINT(pkcs7_collect_signer(&parsed_opts));
 				break;
 			/* signer-sk-file */
-			case 3:
+			case 4:
 				parsed_opts.signer_sk_file = optarg;
 				CKINT(pkcs7_collect_signer(&parsed_opts));
 				break;
 
 			/* x509-cert */
-			case 4:
+			case 5:
 				parsed_opts.x509_file = optarg;
 				CKINT(pkcs7_collect_x509(&parsed_opts));
 				break;
 
 			/* print */
-			case 5:
+			case 6:
 				parsed_opts.print_pkcs7 = 1;
 				break;
 			/* noout */
-			case 6:
+			case 7:
 				parsed_opts.noout = 1;
 				break;
 			/* print-pkcs7 */
-			case 7:
+			case 8:
 				parsed_opts.print_pkcs7_msg = optarg;
 				break;
 			/* trust-anchor */
-			case 8:
+			case 9:
 				parsed_opts.trust_anchor = optarg;
 				break;
 			}
 			break;
 
 		case 'o':
+			CKINT(pkcs7_check_file(optarg));
 			parsed_opts.outfile = optarg;
+			break;
+		case 'i':
+			parsed_opts.infile = optarg;
 			break;
 		case 'h':
 			pkcs7_generator_usage();

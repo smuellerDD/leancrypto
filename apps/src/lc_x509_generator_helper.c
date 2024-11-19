@@ -70,19 +70,34 @@ int lc_x509_cert_set_signer(struct lc_x509_certificate *signed_x509,
 		break;
 
 	case LC_SIG_SPINCS_SHAKE_128F:
-	case LC_SIG_SPINCS_SHAKE_128S:
 	case LC_SIG_SPINCS_SHAKE_192F:
-	case LC_SIG_SPINCS_SHAKE_192S:
 	case LC_SIG_SPINCS_SHAKE_256F:
+		CKINT_LOG(lc_sphincs_pk_load(
+				  &signer_key_input_data->pk.sphincs_pk, pk_ptr,
+				  pk_len),
+			  "Loading X.509 signer public key from certificate\n");
+		CKINT(lc_sphincs_pk_set_keytype_fast(&signer_key_input_data->pk.sphincs_pk));
+		CKINT_LOG(lc_sphincs_sk_load(
+				  &signer_key_input_data->sk.sphincs_sk,
+				  sk_data, sk_data_len),
+			  "Loading X.509 signer private key from file\n");
+		CKINT(lc_sphincs_sk_set_keytype_fast(&signer_key_input_data->sk.sphincs_sk));
+		goto load_sphincs;
+		break;
+	case LC_SIG_SPINCS_SHAKE_128S:
+	case LC_SIG_SPINCS_SHAKE_192S:
 	case LC_SIG_SPINCS_SHAKE_256S:
 		CKINT_LOG(lc_sphincs_pk_load(
 				  &signer_key_input_data->pk.sphincs_pk, pk_ptr,
 				  pk_len),
 			  "Loading X.509 signer public key from certificate\n");
+		CKINT(lc_sphincs_pk_set_keytype_small(&signer_key_input_data->pk.sphincs_pk));
 		CKINT_LOG(lc_sphincs_sk_load(
 				  &signer_key_input_data->sk.sphincs_sk,
 				  sk_data, sk_data_len),
 			  "Loading X.509 signer private key from file\n");
+		CKINT(lc_sphincs_sk_set_keytype_small(&signer_key_input_data->sk.sphincs_sk));
+	load_sphincs:
 		CKINT_LOG(lc_x509_cert_set_signer_keypair_sphincs(
 				  signed_x509,
 				  &signer_key_input_data->pk.sphincs_pk,
@@ -103,7 +118,7 @@ int lc_x509_cert_set_signer(struct lc_x509_certificate *signed_x509,
 				&signer_key_input_data->sk.dilithium_ed25519_sk,
 				sk_data,
 				sk_data_len - LC_ED25519_SECRETKEYBYTES,
-				sk_data + LC_ED25519_SECRETKEYBYTES,
+				sk_data + sk_data_len - LC_ED25519_SECRETKEYBYTES,
 				LC_ED25519_SECRETKEYBYTES),
 			"Loading X.509 signer private key from file\n");
 		CKINT_LOG(

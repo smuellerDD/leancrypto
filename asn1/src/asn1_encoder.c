@@ -61,7 +61,7 @@
 	if (available_datalength < len) {                                      \
 		printf_debug(                                                  \
 			"Insufficient space (wanted %zu, available %zu)\n",    \
-			available_datalength, len);                            \
+			len, available_datalength);                            \
 		return -EOVERFLOW;                                             \
 	}                                                                      \
                                                                                \
@@ -136,7 +136,7 @@ int asn1_ber_encoder(const struct asn1_encoder *encoder, void *context,
 	 * TODO: reduce amount of temporary data that is retained.
 	 */
 #define NR_DATA_STACK 10
-	uint8_t tmp_data[NR_DATA_STACK][65536];
+	uint8_t tmp_data[NR_DATA_STACK][ASN1_MAX_DATASIZE];
 	uint8_t *tmp_data_p[NR_DATA_STACK];
 	size_t tmp_data_len[NR_DATA_STACK] = { 0 };
 	unsigned char tmp_tag[NR_DATA_STACK] = { 0 };

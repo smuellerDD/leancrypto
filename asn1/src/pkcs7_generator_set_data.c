@@ -18,6 +18,7 @@
  */
 
 #include "lc_sha3.h"
+#include "lc_sha512.h"
 #include "lc_memory_support.h"
 #include "lc_pkcs7_generator.h"
 #include "lc_x509_parser.h"
@@ -109,8 +110,22 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_set_signer, struct lc_pkcs7_message *pkcs7,
 	sinfo->aa_set = sinfo_has_content_type | sinfo_has_signing_time |
 			sinfo_has_message_digest;
 
-	/* Set the hash algorithm to be used */
+	/*
+	 * Set the hash algorithm to be used
+	 *
+	 * Note: for ML-DSA-ED25519 a 512 bit digest is important!
+	 */
 	sinfo->sig.hash_algo = lc_sha3_512;
+
+	if ((x509_with_sk->sig_gen_data.sig_type == LC_SIG_DILITHIUM_44_ED25519 ||
+	     x509_with_sk->sig_gen_data.sig_type == LC_SIG_DILITHIUM_65_ED25519 ||
+	     x509_with_sk->sig_gen_data.sig_type == LC_SIG_DILITHIUM_87_ED25519) &&
+	    ((sinfo->sig.hash_algo != lc_sha3_512) &&
+	     (sinfo->sig.hash_algo != lc_sha512) &&
+	     (sinfo->sig.hash_algo != lc_shake256))) {
+		printf("Inappropriate message digest for hybrid algorithm: use 512 bit message digest!\n");
+		return -EINVAL;
+	}
 
 	/*
 	 * Add the certificate to the PKCS#7 structure for being added to the
@@ -129,7 +144,8 @@ out:
 }
 
 LC_INTERFACE_FUNCTION(int, lc_pkcs7_set_data, struct lc_pkcs7_message *pkcs7,
-		      const uint8_t *data, size_t data_len)
+		      const uint8_t *data, size_t data_len,
+		      enum lc_pkcs7_set_data_flags flags)
 {
 	int ret = 0;
 
@@ -139,6 +155,16 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_set_data, struct lc_pkcs7_message *pkcs7,
 	pkcs7->data = data;
 	pkcs7->data_len = data_len;
 	pkcs7->data_type = OID_data;
+
+	switch (flags) {
+	case lc_pkcs7_set_data_embed:
+		pkcs7->embed_data = 1;
+		break;
+	case lc_pkcs7_set_data_noflag:
+	default:
+		/* Do nothing */
+		break;
+	}
 
 out:
 	return ret;

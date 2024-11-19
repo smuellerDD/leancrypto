@@ -14,14 +14,14 @@ then
 	exit 1
 fi
 
-if [ x"$1" = x"SLH-DSA" ]
+if [ x"$1" = x"ML-DSA" ]
 then
 # Full ML-DSA-based certificate chain
 	CA_KEYTYPE="ML-DSA87"
 	INT1_KEYTYPE="ML-DSA65"
 	INT2_KEYTYPE="ML-DSA44"
 	LEAF_KEYTYPE="ML-DSA87"
-elif [ x"$1" = x"ML-DSA" ]
+elif [ x"$1" = x"SLH-DSA" ]
 then
 	# Full SLH-DSA-based certificate chain
 	CA_KEYTYPE="SLH-DSA-SHAKE-256S"
@@ -43,7 +43,8 @@ else
 	exit 1
 fi
 
-CMD="$(dirname $0)/../../../build/apps/src/lc_x509_generator"
+X509_CMD="$(dirname $0)/../../../build/apps/src/lc_x509_generator"
+PKCS7_CMD="$(dirname $0)/../../../build/apps/src/lc_pkcs7_generator"
 
 ################################################################################
 # No further configurations below this line
@@ -51,7 +52,7 @@ CMD="$(dirname $0)/../../../build/apps/src/lc_x509_generator"
 
 # Generate CA certificate
 CA_FILENAME="$(echo $CA_KEYTYPE | tr '[:upper:]' '[:lower:]' )"
-${CMD}								\
+${X509_CMD}							\
   --keyusage digitalSignature					\
   --keyusage keyEncipherment					\
   --keyusage keyCertSign					\
@@ -86,7 +87,7 @@ fi
 
 # Generate Intermediate 1 certificate
 INT1_FILENAME="$(echo $INT1_KEYTYPE | tr '[:upper:]' '[:lower:]' )"
-${CMD}								\
+${X509_CMD}							\
   --keyusage digitalSignature					\
   --keyusage keyEncipherment					\
   --keyusage keyCertSign					\
@@ -117,7 +118,7 @@ fi
 
 # Generate Intermediate 2 certificate
 INT2_FILENAME="$(echo $INT2_KEYTYPE | tr '[:upper:]' '[:lower:]' )"
-${CMD}								\
+${X509_CMD}							\
   --keyusage digitalSignature					\
   --keyusage keyEncipherment					\
   --keyusage keyCertSign					\
@@ -148,7 +149,7 @@ fi
 
 # Generate Leaf certificate
 LEAF_FILENAME="$(echo $LEAF_KEYTYPE | tr '[:upper:]' '[:lower:]' )"
-${CMD}								\
+${X509_CMD}							\
   --keyusage dataEncipherment					\
   --keyusage critical						\
   --eku critical						\
@@ -177,3 +178,14 @@ else
 	exit 1
 fi
 
+PKCS7_FILENAME="$(echo $1 | tr '[:upper:]' '[:lower:]' )"
+${PKCS7_CMD}							\
+  --print							\
+  -o ${TARGETDIR}/${PKCS7_FILENAME}.p7b				\
+  -i ${TARGETDIR}/${CA_FILENAME}_cacert.der			\
+  --x509-signer ${TARGETDIR}/${LEAF_FILENAME}_leaf.der		\
+  --signer-sk-file ${TARGETDIR}/${LEAF_FILENAME}_leaf.privkey	\
+  --x509-cert ${TARGETDIR}/${INT2_FILENAME}_int2.der		\
+  --x509-cert ${TARGETDIR}/${INT1_FILENAME}_int1.der		\
+  --x509-cert ${TARGETDIR}/${CA_FILENAME}_cacert.der		\
+  --trust-anchor ${TARGETDIR}/${CA_FILENAME}_cacert.der
