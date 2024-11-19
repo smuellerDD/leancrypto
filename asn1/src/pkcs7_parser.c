@@ -33,6 +33,7 @@
 #include "oid_registry.h"
 #include "pkcs7_internal.h"
 #include "pkcs7.asn1.h"
+#include "pkcs7_aa.asn1.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 #include "x509_cert_parser.h"
@@ -49,6 +50,39 @@ static __always_inline int test_and_set_bit(unsigned long nr,
 
 	*p = old | nr;
 	return (old & nr) != 0;
+}
+
+int pkcs7_external_aa(void *context, size_t hdrlen, unsigned char tag,
+		      const uint8_t *value, size_t vlen)
+{
+	(void)context;
+	(void)hdrlen;
+	(void)tag;
+	(void)value;
+	(void)vlen;
+	return 0;
+}
+
+int pkcs7_external_aa_OID(void *context, size_t hdrlen, unsigned char tag,
+			  const uint8_t *value, size_t vlen)
+{
+	(void)context;
+	(void)hdrlen;
+	(void)tag;
+	(void)value;
+	(void)vlen;
+	return 0;
+}
+
+int pkcs7_external_aa_continue(void *context, size_t hdrlen, unsigned char tag,
+			       const uint8_t *value, size_t vlen)
+{
+	(void)context;
+	(void)hdrlen;
+	(void)tag;
+	(void)value;
+	(void)vlen;
+	return 0;
 }
 
 /*
