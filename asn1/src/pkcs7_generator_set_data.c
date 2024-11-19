@@ -24,7 +24,7 @@
 #include "ret_checkers.h"
 #include "visibility.h"
 
-static int pkcs7_add_cert(struct pkcs7_message *pkcs7,
+static int pkcs7_add_cert(struct lc_pkcs7_message *pkcs7,
 			  struct lc_x509_certificate *x509)
 {
 	struct lc_x509_certificate *tmpcert;
@@ -43,10 +43,10 @@ static int pkcs7_add_cert(struct pkcs7_message *pkcs7,
 	return 0;
 }
 
-static int pkcs7_add_signer(struct pkcs7_message *pkcs7,
-			    struct pkcs7_signed_info *sinfo)
+static int pkcs7_add_signer(struct lc_pkcs7_message *pkcs7,
+			    struct lc_pkcs7_signed_info *sinfo)
 {
-	struct pkcs7_signed_info *tmpsinfo;
+	struct lc_pkcs7_signed_info *tmpsinfo;
 
 	if (!pkcs7->signed_infos) {
 		pkcs7->signed_infos = sinfo;
@@ -64,7 +64,7 @@ static int pkcs7_add_signer(struct pkcs7_message *pkcs7,
 }
 
 LC_INTERFACE_FUNCTION(int, lc_pkcs7_set_certificate,
-		      struct pkcs7_message *pkcs7,
+		      struct lc_pkcs7_message *pkcs7,
 		      struct lc_x509_certificate *x509)
 {
 	int ret;
@@ -82,10 +82,10 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_pkcs7_set_signer, struct pkcs7_message *pkcs7,
+LC_INTERFACE_FUNCTION(int, lc_pkcs7_set_signer, struct lc_pkcs7_message *pkcs7,
 		      struct lc_x509_certificate *x509_with_sk)
 {
-	struct pkcs7_signed_info *sinfo = NULL;
+	struct lc_pkcs7_signed_info *sinfo = NULL;
 	int ret;
 
 	CKNULL(pkcs7, -EINVAL);
@@ -100,7 +100,7 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_set_signer, struct pkcs7_message *pkcs7,
 	CKNULL(x509_with_sk->sig_gen_data.sk.dilithium_sk, -EINVAL);
 
 	CKINT(lc_alloc_aligned((void **)&sinfo, 8,
-			       sizeof(struct pkcs7_signed_info)));
+			       sizeof(struct lc_pkcs7_signed_info)));
 
 	/* Also set the certificate as signer */
 	sinfo->signer = x509_with_sk;
@@ -128,7 +128,7 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_pkcs7_set_data, struct pkcs7_message *pkcs7,
+LC_INTERFACE_FUNCTION(int, lc_pkcs7_set_data, struct lc_pkcs7_message *pkcs7,
 		      const uint8_t *data, size_t data_len)
 {
 	int ret = 0;

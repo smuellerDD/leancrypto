@@ -298,7 +298,7 @@ int asn1_encode_length(uint8_t **data, size_t *data_len, size_t len)
 	}
 
 	if (len > 0xffffff) {
-		printf("ASN.1 length can't be > 0xffffff");
+		printf("ASN.1 length can't be > 0xffffff\n");
 		return -EINVAL;
 	}
 

@@ -49,8 +49,6 @@ extern int pkcs7_note_signerinfo_version_enc(void *, uint8_t *, size_t *, uint8_
 extern int pkcs7_note_signerinfo_version(void *, size_t, unsigned char, const uint8_t *, size_t);
 extern int pkcs7_sig_note_authenticated_attr_enc(void *, uint8_t *, size_t *, uint8_t *);
 extern int pkcs7_sig_note_authenticated_attr(void *, size_t, unsigned char, const uint8_t *, size_t);
-extern int pkcs7_sig_note_authenticated_attr_continue_enc(void *, uint8_t *, size_t *, uint8_t *);
-extern int pkcs7_sig_note_authenticated_attr_continue(void *, size_t, unsigned char, const uint8_t *, size_t);
 extern int pkcs7_sig_note_digest_algo_enc(void *, uint8_t *, size_t *, uint8_t *);
 extern int pkcs7_sig_note_digest_algo(void *, size_t, unsigned char, const uint8_t *, size_t);
 extern int pkcs7_sig_note_issuer_enc(void *, uint8_t *, size_t *, uint8_t *);

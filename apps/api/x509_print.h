@@ -28,7 +28,7 @@ extern "C" {
 #endif
 
 int print_x509_cert(const struct lc_x509_certificate *x509);
-int print_pkcs7_data(const struct pkcs7_message *pkcs7_msg);
+int print_pkcs7_data(const struct lc_pkcs7_message *pkcs7_msg);
 
 #ifdef __cplusplus
 }

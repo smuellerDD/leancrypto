@@ -1085,7 +1085,7 @@ int x509_set_uct_time_enc(void *context, uint8_t *data, size_t *avail_datalen,
 	/*
 	 * NOTE: The caller is assumed to have set the time in UTC time.
 	 */
-	time_detail = gmtime(&ctx->time_to_set);
+	time_detail = gmtime((time_t *)&ctx->time_to_set);
 	snprintf(datestr, sizeof(datestr), "%02d%02d%02d%02d%02d%02dZ",
 		 time_detail->tm_year % 100, time_detail->tm_mon + 1,
 		 time_detail->tm_mday, time_detail->tm_hour,
@@ -1143,7 +1143,7 @@ int x509_set_gen_time_enc(void *context, uint8_t *data, size_t *avail_datalen,
 	/*
 	 * NOTE: The caller is assumed to have set the time in UTC time.
 	 */
-	time_detail = gmtime(&ctx->time_to_set);
+	time_detail = gmtime((time_t *)&ctx->time_to_set);
 	snprintf(datestr, sizeof(datestr), "%.4d%.2d%.2d%.2d%.2d%.2dZ",
 		 time_detail->tm_year + 1900, time_detail->tm_mon + 1,
 		 time_detail->tm_mday, time_detail->tm_hour,

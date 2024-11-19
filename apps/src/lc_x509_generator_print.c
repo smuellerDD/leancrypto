@@ -226,7 +226,7 @@ static void print_x509_validity(const char *prefix, time64_t valid)
 	struct tm *time_detail;
 
 	//localtime_r(&valid, &time_detail);
-	time_detail = localtime(&valid);
+	time_detail = localtime((time_t *)&valid);
 	printf("%s: %d-%.2d-%.2d %.2d:%.2d:%.2d\n", prefix,
 	       time_detail->tm_year + 1900, time_detail->tm_mon + 1,
 	       time_detail->tm_mday, time_detail->tm_hour, time_detail->tm_min,
@@ -273,10 +273,10 @@ int print_x509_cert(const struct lc_x509_certificate *x509)
 	return 0;
 }
 
-int print_pkcs7_data(const struct pkcs7_message *pkcs7_msg)
+int print_pkcs7_data(const struct lc_pkcs7_message *pkcs7_msg)
 {
 	struct lc_x509_certificate *cert = pkcs7_msg->certs;
-	struct pkcs7_signed_info *sinfos = pkcs7_msg->signed_infos;
+	struct lc_pkcs7_signed_info *sinfos = pkcs7_msg->signed_infos;
 
 	printf("======= X.509 certificate listing ==========\n");
 	while (cert) {

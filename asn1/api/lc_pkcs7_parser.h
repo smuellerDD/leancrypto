@@ -107,7 +107,7 @@
  *
  * @return 0 on success or < 0 on error
  */
-int lc_pkcs7_message_parse(struct pkcs7_message *pkcs7, const uint8_t *data,
+int lc_pkcs7_message_parse(struct lc_pkcs7_message *pkcs7, const uint8_t *data,
 			   size_t datalen);
 
 /**
@@ -116,7 +116,7 @@ int lc_pkcs7_message_parse(struct pkcs7_message *pkcs7, const uint8_t *data,
  *
  * @param [in] pkcs7 Certificate structure to be cleared
  */
-void lc_pkcs7_message_clear(struct pkcs7_message *pkcs7);
+void lc_pkcs7_message_clear(struct lc_pkcs7_message *pkcs7);
 
 /**
  * @ingroup PKCS7
@@ -133,7 +133,7 @@ void lc_pkcs7_message_clear(struct pkcs7_message *pkcs7);
  * @return 0 on success or < 0 on error (returns -ENODATA if the data object was
  * missing from the message)
  */
-int lc_pkcs7_get_content_data(const struct pkcs7_message *pkcs7,
+int lc_pkcs7_get_content_data(const struct lc_pkcs7_message *pkcs7,
 			      const uint8_t **data, size_t *datalen);
 
 /**
@@ -145,8 +145,25 @@ int lc_pkcs7_get_content_data(const struct pkcs7_message *pkcs7,
  * of the X.509 certificates it carries that matches another X.509 cert in the
  * message can be verified.
  *
- * This does not look to match the contents of the PKCS#7 message against any
- * external public keys.
+ * If a \p trust_store is provided, perform the certificate validation also
+ * against this trust store to find intermediate or root CA certificates. The
+ * final certificate of a certificate chain must end in a root CA certificate
+ * which must also be present in the \p trust_store.
+ *
+ * \note The PKCS7 message block MAY be a detached signature, i.e. the data to
+ * be integrity-protected and authentiated is not embedded into the PKCS7 block.
+ * In this case, the caller MUST use \p lc_pkcs7_supply_detached_data to refer
+ * to this detached data before the \p lc_pkcs7_verify can be executed.
+ *
+ * @param [in] pkcs7 The PKCS#7 message to be verified
+ * @param [in] trust_store Trust store with trust anchor certificates - it MAY
+ * 			   be NULL which implies that no check against the
+ *			   a trust anchor store is performed. In this case,
+ * 			   the presence of a root certificate is considered
+ * 			   sufficient.
+ *
+ * @return 0 on success or < 0 on error (-ENODATA refers to the case when no
+ * the detached data was not provided)
  *
  * Returns, in order of descending priority:
  *
@@ -165,35 +182,28 @@ int lc_pkcs7_get_content_data(const struct pkcs7_message *pkcs7,
  *  (*) -ENOPKG if none of the signature chains are verifiable because suitable
  *	crypto modules couldn't be found.
  *
- * \note The PKCS7 message block MAY be a detached signature, i.e. the data to
- * be integrity-protected and authentiated is not embedded into the PKCS7 block.
- * In this case, the caller MUST use \p lc_pkcs7_supply_detached_data to refer
- * to this detached data before the \p lc_pkcs7_verify can be executed.
- *
- * @param [in] pkcs7 The PKCS#7 message to be verified
- *
- * @return 0 on success or < 0 on error (-ENODATA refers to the case when no
- * the detached data was not provided)
  */
-int lc_pkcs7_verify(struct pkcs7_message *pkcs7);
+int lc_pkcs7_verify(struct lc_pkcs7_message *pkcs7,
+		    const struct lc_pkcs7_trust_store *trust_store);
 
 /**
  * @ingroup PKCS7
  * @brief Supply the data needed to verify a PKCS#7 message
- *
- * @param [in] pkcs7 The PKCS#7 message
- * @param [in] data The data to be verified
- * @param [in] datalen The amount of data
  *
  * Supply the detached data needed to verify a PKCS#7 message.  Note that no
  * attempt to retain/pin the data is made.  That is left to the caller.  The
  * data will not be modified by pkcs7_verify() and will not be freed when the
  * PKCS#7 message is freed.
  *
+ * @param [in] pkcs7 The PKCS#7 message
+ * @param [in] data The data to be verified
+ * @param [in] datalen The amount of data
+ *
+ *
  * @return 0 on success or < 0 on error (-EEXIST refers to the case if data is
  * already supplied in the message)
  */
-int lc_pkcs7_supply_detached_data(struct pkcs7_message *pkcs7,
+int lc_pkcs7_supply_detached_data(struct lc_pkcs7_message *pkcs7,
 				  const uint8_t *data, size_t datalen);
 
 /**
@@ -219,7 +229,7 @@ int lc_pkcs7_supply_detached_data(struct pkcs7_message *pkcs7,
  *
  * @return 0 on success or < 0 on error
  */
-int lc_pkcs7_get_digest(struct pkcs7_message *pkcs7,
+int lc_pkcs7_get_digest(struct lc_pkcs7_message *pkcs7,
 			const uint8_t **message_digest,
 			size_t *message_digest_len,
 			const struct lc_hash **hash_algo);
@@ -230,6 +240,10 @@ int lc_pkcs7_get_digest(struct pkcs7_message *pkcs7,
  *
  * Validate that the certificate chain inside the PKCS#7 message intersects
  * keys we already know and trust.
+ *
+ * \note This call DOES NOT check the internal consistency of the PKCS#7 message
+ * such as that the signature of the protected data is verified. This check
+ * is performed by \p lc_pkcs7_verify.
  *
  * @param [in] pkcs7 The PKCS#7 certificate to validate
  * @param [in] trust_store Signing certificates to use as starting points
@@ -250,8 +264,8 @@ int lc_pkcs7_get_digest(struct pkcs7_message *pkcs7,
  *  (*) -ENOKEY if we couldn't find a match for any of the signature chains in
  *	the message.
  */
-int lc_pkcs7_trust_validate(struct pkcs7_message *pkcs7,
-			    struct pkcs7_trust_store *trust_store);
+int lc_pkcs7_trust_validate(struct lc_pkcs7_message *pkcs7,
+			    struct lc_pkcs7_trust_store *trust_store);
 
 /**
  * @ingroup PKCS7
@@ -271,16 +285,21 @@ int lc_pkcs7_trust_validate(struct pkcs7_message *pkcs7,
  * intermediate certificate requires the presence of the certificate chain
  * leading to the associated root CA.
  *
+ * @param [in] trust_store Trust store to add the certificate to
+ * @param [in] x509 Certificate to be added to trust store
+ *
  * @return 0 on success or < 0 on error (-EKEYREJECTED implies that the
  * provided certificate does not have a chain to a root CA in the trust store)
  */
-int lc_pkcs7_trust_store_add(struct pkcs7_trust_store *trust_store,
+int lc_pkcs7_trust_store_add(struct lc_pkcs7_trust_store *trust_store,
 			     struct lc_x509_certificate *x509);
 
 /**
  * @ingroup PKCS7
  * @brief Release and clear the trust store
+ *
+ * @param [in] trust_store Trust store be released
  */
-void lc_pkcs7_trust_store_clear(struct pkcs7_trust_store *trust_store);
+void lc_pkcs7_trust_store_clear(struct lc_pkcs7_trust_store *trust_store);
 
 #endif /* _CRYPTO_PKCS7_H */

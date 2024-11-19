@@ -37,9 +37,9 @@ struct pkcs7_trust_options {
 
 static int pkcs7_trust_store(struct pkcs7_trust_options *opts)
 {
-	struct pkcs7_trust_store trust_store = { 0 };
+	struct lc_pkcs7_trust_store trust_store = { 0 };
 	struct lc_x509_certificate x509[MAX_FILES];
-	struct pkcs7_message pkcs7 = { 0 };
+	struct lc_pkcs7_message pkcs7 = { 0 };
 	uint8_t *data[MAX_FILES] = { 0 };
 	size_t datalen[MAX_FILES] = { 0 };
 	uint8_t *pkcs7_data = NULL;
@@ -72,7 +72,7 @@ static int pkcs7_trust_store(struct pkcs7_trust_options *opts)
 		CKINT(lc_pkcs7_supply_detached_data(&pkcs7, verified_data,
 						    verified_datalen));
 
-		CKINT_LOG(lc_pkcs7_verify(&pkcs7), "PKCS#7 verification\n");
+		CKINT_LOG(lc_pkcs7_verify(&pkcs7, NULL), "PKCS#7 verification\n");
 		CKINT_LOG(lc_pkcs7_trust_validate(&pkcs7, &trust_store),
 			  "PKCS#7 trust verification\n");
 	}

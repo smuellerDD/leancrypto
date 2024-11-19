@@ -312,8 +312,15 @@ int public_key_generate_signature_dilithium_ed25519(
 	 * Sign using HashComposite-ML-DSA if there was a hash
 	 */
 	if (sig->digest_size) {
-		CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
+		if (sig->hash_algo)
+			hash_algo = sig->hash_algo;
+		else
+			CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo,
+						       &hash_algo));
+
 		CKNULL(hash_algo, -EOPNOTSUPP);
+		CKNULL(sig->digest_size, -EOPNOTSUPP);
+
 		lc_dilithium_ed25519_ctx_hash(ctx, hash_algo);
 
 		/*

@@ -37,8 +37,8 @@
 /*
  * Digest the relevant parts of the PKCS#7 data
  */
-static int pkcs7_digest(struct pkcs7_message *pkcs7,
-			struct pkcs7_signed_info *sinfo)
+static int pkcs7_digest(struct lc_pkcs7_message *pkcs7,
+			struct lc_pkcs7_signed_info *sinfo)
 {
 	struct lc_public_key_signature *sig = &sinfo->sig;
 	int ret = 0;
@@ -114,7 +114,7 @@ static int pkcs7_digest(struct pkcs7_message *pkcs7,
 		lc_hash_final(hash_ctx, sig->digest);
 		lc_hash_zero(hash_ctx);
 
-		bin2print_debug(sinfo->msgdigest, sinfo->msgdigest_len, stdout,
+		bin2print_debug(sig->digest, sig->digest_size, stdout,
 				"signerInfos AADigest");
 	}
 
@@ -129,27 +129,26 @@ out:
  * matching purposes.  These must match the certificate issuer's name (not
  * subject's name) and the certificate serial number [RFC 2315 6.7].
  */
-static int pkcs7_find_key(struct pkcs7_message *pkcs7,
-			  struct pkcs7_signed_info *sinfo)
+static int pkcs7_find_key(struct lc_pkcs7_message *pkcs7,
+			  const struct lc_pkcs7_trust_store *trust_store,
+			  struct lc_pkcs7_signed_info *sinfo)
 {
 	struct lc_x509_certificate *x509;
 	struct lc_public_key_signature *sig = &sinfo->sig;
 	struct lc_asymmetric_key_id *sig_auth_id = &sig->auth_ids[0];
-	struct lc_asymmetric_key_id *cert_auth_id;
 
 	unsigned int certix = 1;
 
 	printf_debug("==> %s(), %u\n", __func__, sinfo->index);
 
 	for (x509 = pkcs7->certs; x509; x509 = x509->next, certix++) {
-		cert_auth_id = &x509->id;
-
 		/* I'm _assuming_ that the generator of the PKCS#7 message will
 		 * encode the fields from the X.509 cert in the same way in the
 		 * PKCS#7 message - but I can't be 100% sure of that.  It's
 		 * possible this will need element-by-element comparison.
 		 */
-		if (!asymmetric_key_id_same(cert_auth_id, sig_auth_id))
+		if (!asymmetric_key_id_same(&x509->id, sig_auth_id) &&
+		    !asymmetric_key_id_same(&x509->skid, sig_auth_id))
 			continue;
 		printf_debug("Sig %u: Found cert serial match X.509[%u]\n",
 			     sinfo->index, certix);
@@ -157,22 +156,24 @@ static int pkcs7_find_key(struct pkcs7_message *pkcs7,
 		sinfo->signer = x509;
 		return 0;
 	}
-
 	/*
 	 * The relevant X.509 cert isn't found here, but it might be found in
 	 * the trust database.
 	 */
-	printf_debug("Sig %u: Issuing X.509 cert not found (#%*phN)\n",
-		     sinfo->index, sig_auth_id->len, sig_auth_id->data);
-	return 0;
+	bin2print_debug(sig_auth_id->data, sig_auth_id->len, stdout,
+			"Sig: Issuing X.509 cert not found in local keyring");
+
+	return pkcs7_find_asymmetric_key(&sinfo->signer, trust_store,
+					 sig_auth_id, NULL);
 }
 
 /*
  * Verify the internal certificate chain as best we can.
  */
 int pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
+			   const struct lc_pkcs7_trust_store *trust_store,
 			   struct lc_x509_certificate *x509,
-			   struct pkcs7_signed_info *sinfo)
+			   struct lc_pkcs7_signed_info *sinfo)
 {
 	struct lc_public_key_signature *sig;
 	struct lc_x509_certificate *p;
@@ -260,6 +261,14 @@ int pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 			}
 		}
 
+		/*
+		 * The certificate is not in our local certificate chain, check
+		 * the trust store as a last effort.
+		 */
+		ret = pkcs7_find_asymmetric_key(&p, trust_store, auth0, auth1);
+		if (!ret)
+			goto found_issuer;
+
 		/* We didn't find the root of this chain */
 		printf_debug(
 			"- top of the certificate reached without match\n");
@@ -291,13 +300,37 @@ int pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 #endif
 		}
 
-		CKINT(lc_x509_policy_cert_verify(&p->pub, x509, 0));
-		x509->signer = p;
 		CKINT(lc_x509_policy_is_root_ca(p));
 		if (ret == LC_X509_POL_TRUE) {
 			printf_debug("- root CA\n");
+			p->signer = x509;
+
+			/*
+			 * If we have a trust store, the CA certificate must be
+			 * in the trust store to establish full trust. Thus,
+			 * search for it in the trust store and use THAT
+			 * certificate for the signature verification of the
+			 * checked certificate.
+			 */
+			if (trust_store) {
+				auth0 = &p->id;
+				auth1 = &p->skid;
+
+				printf_debug("- searching root CA in trust store\n");
+				CKINT(pkcs7_find_asymmetric_key(&p,
+								trust_store,
+								auth0, auth1));
+				CKINT(lc_x509_policy_cert_verify(&p->pub, x509,
+								 0));
+
+				return 0;
+			}
 			return 0;
 		}
+
+		CKINT(lc_x509_policy_cert_verify(&p->pub, x509, 0));
+		x509->signer = p;
+
 
 		x509 = p;
 	}
@@ -309,8 +342,9 @@ out:
 /*
  * Verify one signed information block from a PKCS#7 message.
  */
-static int pkcs7_verify_one(struct pkcs7_message *pkcs7,
-			    struct pkcs7_signed_info *sinfo)
+static int pkcs7_verify_one(struct lc_pkcs7_message *pkcs7,
+			    const struct lc_pkcs7_trust_store *trust_store,
+			    struct lc_pkcs7_signed_info *sinfo)
 {
 	int ret;
 
@@ -322,9 +356,9 @@ static int pkcs7_verify_one(struct pkcs7_message *pkcs7,
 	CKINT(pkcs7_digest(pkcs7, sinfo));
 
 	/* Find the key for the signature if there is one */
-	CKINT(pkcs7_find_key(pkcs7, sinfo));
+	CKINT(pkcs7_find_key(pkcs7, trust_store, sinfo));
 
-	CKNULL(sinfo->signer, 0);
+	CKNULL(sinfo->signer, -EKEYREJECTED);
 
 	printf_debug("Using X.509[%u] for sig %u\n", sinfo->signer->index,
 		     sinfo->index);
@@ -348,8 +382,9 @@ static int pkcs7_verify_one(struct pkcs7_message *pkcs7,
 
 	printf_debug("Verified signature %u\n", sinfo->index);
 
-	/* Verify the internal certificate chain */
-	CKINT(pkcs7_verify_sig_chain(pkcs7->certs, sinfo->signer, sinfo));
+	/* Verify the certificate chain */
+	CKINT(pkcs7_verify_sig_chain(pkcs7->certs, trust_store, sinfo->signer,
+				     sinfo));
 
 out:
 	return ret;
@@ -359,12 +394,12 @@ out:
  * API functions
  ******************************************************************************/
 
-LC_INTERFACE_FUNCTION(int, lc_pkcs7_get_digest, struct pkcs7_message *pkcs7,
+LC_INTERFACE_FUNCTION(int, lc_pkcs7_get_digest, struct lc_pkcs7_message *pkcs7,
 		      const uint8_t **message_digest,
 		      size_t *message_digest_len,
 		      const struct lc_hash **hash_algo)
 {
-	struct pkcs7_signed_info *sinfo = pkcs7->signed_infos;
+	struct lc_pkcs7_signed_info *sinfo = pkcs7->signed_infos;
 	int ret;
 
 	CKNULL(message_digest, -EBADMSG);
@@ -389,9 +424,10 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_pkcs7_verify, struct pkcs7_message *pkcs7)
+LC_INTERFACE_FUNCTION(int, lc_pkcs7_verify, struct lc_pkcs7_message *pkcs7,
+		      const struct lc_pkcs7_trust_store *trust_store)
 {
-	struct pkcs7_signed_info *sinfo;
+	struct lc_pkcs7_signed_info *sinfo;
 	int actual_ret = -ENOPKG;
 	int ret;
 
@@ -411,7 +447,7 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_verify, struct pkcs7_message *pkcs7)
 	}
 
 	for (sinfo = pkcs7->signed_infos; sinfo; sinfo = sinfo->next) {
-		ret = pkcs7_verify_one(pkcs7, sinfo);
+		ret = pkcs7_verify_one(pkcs7, trust_store, sinfo);
 		if (sinfo->blacklisted) {
 			if (actual_ret == -ENOPKG)
 				actual_ret = -EKEYREJECTED;
@@ -433,7 +469,7 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_verify, struct pkcs7_message *pkcs7)
 }
 
 LC_INTERFACE_FUNCTION(int, lc_pkcs7_supply_detached_data,
-		      struct pkcs7_message *pkcs7, const uint8_t *data,
+		      struct lc_pkcs7_message *pkcs7, const uint8_t *data,
 		      size_t datalen)
 {
 	if (!pkcs7)

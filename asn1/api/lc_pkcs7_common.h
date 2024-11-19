@@ -27,12 +27,12 @@ extern "C" {
 #endif
 
 /// \cond DO_NOT_DOCUMENT
-struct pkcs7_trust_store {
+struct lc_pkcs7_trust_store {
 	struct lc_x509_certificate *anchor_cert;
 };
 
-struct pkcs7_signed_info {
-	struct pkcs7_signed_info *next;
+struct lc_pkcs7_signed_info {
+	struct lc_pkcs7_signed_info *next;
 
 	/* Message signature.
 	 *
@@ -74,7 +74,7 @@ struct pkcs7_signed_info {
 #define sinfo_has_ms_statement_type (1 << 5)
 };
 
-struct pkcs7_message {
+struct lc_pkcs7_message {
 	/*
 	 * List of all certificates encapsulated by the PKCS#7 message. This
 	 * includes both, the auxiliary certificates as well as the signer
@@ -86,7 +86,7 @@ struct pkcs7_message {
 	/*
 	 * Signed information
 	 */
-	struct pkcs7_signed_info *signed_infos;
+	struct lc_pkcs7_signed_info *signed_infos;
 	uint8_t version; /* Version of cert (1 -> PKCS#7 or CMS; 3 -> CMS) */
 	unsigned int have_authattrs : 1; /* T if have authattrs */
 

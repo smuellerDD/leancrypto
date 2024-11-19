@@ -1,0 +1,13 @@
+-- SPDX-License-Identifier: BSD-3-Clause
+--
+-- Copyright (C) 2009 IETF Trust and the persons identified as authors
+-- of the code
+--
+-- https://www.rfc-editor.org/rfc/rfc5652#section-3
+
+SetOfAuthenticatedAttribute ::= SET OF AuthenticatedAttribute
+
+AuthenticatedAttribute ::= SEQUENCE {
+	type			OBJECT IDENTIFIER ({ pkcs7_separate_aa_OID }),
+	values			SET OF ANY ({ pkcs7_separate_aa })
+} ({ pkcs7_separate_aa_continue })

@@ -58,7 +58,7 @@ out:
 
 static int pkcs7_load(const struct x509_checker_options *parsed_opts)
 {
-	struct pkcs7_message pkcs7_msg;
+	struct lc_pkcs7_message pkcs7_msg;
 	size_t datalen = 0;
 	uint8_t *data = NULL;
 	int ret;
@@ -85,7 +85,7 @@ out:
 
 static int pkcs7_load_and_verify(const struct x509_checker_options *parsed_opts)
 {
-	struct pkcs7_message pkcs7_msg;
+	struct lc_pkcs7_message pkcs7_msg;
 	size_t datalen = 0, verified_datalen = 0;
 	uint8_t *data = NULL, *verified_data = NULL;
 	int ret;
@@ -109,7 +109,7 @@ static int pkcs7_load_and_verify(const struct x509_checker_options *parsed_opts)
 					    verified_datalen));
 
 	/* Verify data */
-	CKINT_LOG(lc_pkcs7_verify(&pkcs7_msg), "Verification failure\n");
+	CKINT_LOG(lc_pkcs7_verify(&pkcs7_msg, NULL), "Verification failure\n");
 
 out:
 	release_data(data, datalen);

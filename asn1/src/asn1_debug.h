@@ -30,7 +30,7 @@ extern "C" {
 #ifdef LC_PKCS7_DEBUG
 #define LC_ASN1_DEBUG
 #else
-#undef LC_ASN1_DEBUG
+#define LC_ASN1_DEBUG
 #endif
 
 #ifdef LC_ASN1_DEBUG

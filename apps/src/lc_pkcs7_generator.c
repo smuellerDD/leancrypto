@@ -33,48 +33,73 @@
 //TODO
 static const uint8_t signed_data[] = { 0x01, 0x02, 0x03 };
 
-struct pkcs7_generator_opts {
-	struct pkcs7_message pkcs7;
+struct pkcs7_x509 {
+	struct pkcs7_x509 *next;
 
-	enum lc_sig_types in_key_type;
-
-	const char *outfile;
-	const char *print_x509_cert;
-
-	unsigned int print_pkcs7 : 1;
-	unsigned int noout : 1;
-	unsigned int checker : 1;
-
-	/******************/
 	struct lc_x509_key_input_data signer_key_input_data;
-
-	const char *x509_file;
-	const char *x509_signer_file;
-	const char *signer_sk_file;
 
 	uint8_t *x509_data;
 	size_t x509_data_len;
-
 	uint8_t *signer_data;
 	size_t signer_data_len;
 	uint8_t *signer_sk_data;
 	size_t signer_sk_data_len;
 };
 
+struct pkcs7_generator_opts {
+	struct lc_pkcs7_message pkcs7;
+
+	enum lc_sig_types in_key_type;
+
+	const char *outfile;
+	const char *print_pkcs7_msg;
+
+	const char *x509_file;
+	const char *x509_signer_file;
+	const char *signer_sk_file;
+
+	const char *trust_anchor;
+
+	const uint8_t *data;
+	size_t datalen;
+
+	struct lc_pkcs7_trust_store trust_store;
+	struct lc_x509_certificate trust_anchor_x509;
+	uint8_t *trust_anchor_data;
+	size_t trust_anchor_data_len;
+
+	unsigned int print_pkcs7 : 1;
+	unsigned int noout : 1;
+	unsigned int checker : 1;
+
+	struct pkcs7_x509 *x509;
+};
+
 static void pkcs7_clean_opts(struct pkcs7_generator_opts *opts)
 {
+	struct pkcs7_x509 *x509;
+
 	if (!opts)
 		return;
 
-	//if (opts->raw_skid)
-	//	free(opts->raw_skid);
+	x509 = opts->x509;
+	while (x509) {
+		struct pkcs7_x509 *tmp_x509 = x509->next;
 
-	//lc_x509_cert_clear(&opts->cert);
-	//lc_x509_cert_clear(&opts->signer_cert);
+		release_data(x509->x509_data, x509->x509_data_len);
+		release_data(x509->signer_sk_data, x509->signer_sk_data_len);
+		release_data(x509->signer_data, x509->signer_data_len);
 
-	release_data(opts->x509_data, opts->x509_data_len);
-	release_data(opts->signer_sk_data, opts->signer_sk_data_len);
-	release_data(opts->signer_data, opts->signer_data_len);
+		lc_free(x509);
+
+		x509 = tmp_x509;
+	}
+
+	opts->x509 = NULL;
+
+	release_data(opts->trust_anchor_data, opts->trust_anchor_data_len);
+	lc_pkcs7_trust_store_clear(&opts->trust_store);
+	lc_x509_cert_clear(&opts->trust_anchor_x509);
 
 	lc_pkcs7_message_clear(&opts->pkcs7);
 	lc_memset_secure(opts, 0, sizeof(*opts));
@@ -126,16 +151,49 @@ out:
 	return ret;
 }
 
+static int pkcs_add_trust(struct pkcs7_generator_opts *opts)
+{
+	int ret = 0;
+
+	/* If we have no trust anchor, ignore */
+	CKNULL(opts->trust_anchor, 0);
+
+	if (!opts->trust_anchor_data) {
+		CKINT_LOG(get_data(opts->trust_anchor, &opts->trust_anchor_data,
+				   &opts->trust_anchor_data_len),
+			  "Loading of file %s failed\n", opts->trust_anchor);
+
+		CKINT_LOG(lc_x509_cert_parse(&opts->trust_anchor_x509,
+					     opts->trust_anchor_data,
+					     opts->trust_anchor_data_len),
+			  "Loading of X.509 trust anchor certificate failed\n");
+
+		CKINT(lc_pkcs7_trust_store_add(&opts->trust_store,
+					       &opts->trust_anchor_x509));
+	}
+
+out:
+	return ret;
+}
+
 static int pkcs7_enc_dump(struct pkcs7_generator_opts *opts,
 			  const uint8_t *pkcs7_data, size_t pkcs7_datalen)
 {
-	struct pkcs7_message ppkcs7 = { 0 };
+	struct lc_pkcs7_message ppkcs7 = { 0 };
 	int ret;
 
 	if (!opts->print_pkcs7 && !opts->checker)
 		return 0;
 
 	CKINT(lc_pkcs7_message_parse(&ppkcs7, pkcs7_data, pkcs7_datalen));
+
+	if (opts->data) {
+		CKINT(lc_pkcs7_set_data(&ppkcs7, opts->data, opts->datalen));
+	}
+
+	CKINT(pkcs_add_trust(opts));
+	CKINT_LOG(lc_pkcs7_verify(&ppkcs7, &opts->trust_store),
+		  "Verification of PKCS#7 message failed\n");
 
 	//if (opts->checker)
 	//	CKINT(apply_checks_pkcs7(&ppkcs7, &opts->checker_opts));
@@ -149,9 +207,45 @@ out:
 	return ret;
 }
 
+static int pkcs7_dump_file(struct pkcs7_generator_opts *opts)
+{
+	struct lc_pkcs7_message ppkcs7 = { 0 };
+	uint8_t *pkcs7_data = NULL;
+	size_t pkcs7_datalen = 0;
+	int ret;
+
+	if (!opts->print_pkcs7_msg && !opts->checker)
+		return 0;
+
+	CKINT_LOG(get_data(opts->print_pkcs7_msg, &pkcs7_data, &pkcs7_datalen),
+		  "Loading of file %s failed\n", opts->print_pkcs7_msg);
+
+	CKINT_LOG(lc_pkcs7_message_parse(&ppkcs7, pkcs7_data, pkcs7_datalen),
+		  "Parsing of input file %s failed\n", opts->print_pkcs7_msg);
+
+	if (opts->data) {
+		CKINT(lc_pkcs7_set_data(&ppkcs7, opts->data, opts->datalen));
+	}
+
+	CKINT(pkcs_add_trust(opts));
+	CKINT_LOG(lc_pkcs7_verify(&ppkcs7, &opts->trust_store),
+		  "Verification of PKCS#7 message failed\n");
+
+//	if (opts->checker)
+//		CKINT(apply_checks_pkcs7(&ppkcs7, &opts->checker_opts));
+
+	if (opts->print_pkcs7_msg)
+		CKINT(print_pkcs7_data(&ppkcs7));
+
+out:
+	lc_memset_secure(&ppkcs7, 0, sizeof(ppkcs7));
+	release_data(pkcs7_data, pkcs7_datalen);
+	return ret;
+}
+
 static int pkcs7_gen_message(struct pkcs7_generator_opts *opts)
 {
-	struct pkcs7_message *pkcs7 = &opts->pkcs7;
+	struct lc_pkcs7_message *pkcs7 = &opts->pkcs7;
 	uint8_t data[65536] = { 0 };
 	size_t avail_datalen = sizeof(data), datalen;
 	int ret;
@@ -171,11 +265,31 @@ out:
 	return ret;
 }
 
+static void pkcs7_add_x509(struct pkcs7_generator_opts *opts,
+			   struct pkcs7_x509 *x509)
+{
+	struct pkcs7_x509 *tmp_x509;
+
+	x509->next = NULL;
+
+	if (!opts->x509) {
+		opts->x509 = x509;
+		return;
+	}
+
+	for (tmp_x509 = opts->x509; tmp_x509; tmp_x509 = tmp_x509->next) {
+		if (!tmp_x509->next) {
+			tmp_x509->next = x509;
+			return;
+		}
+	}
+}
+
 static int pkcs7_load_signer(struct pkcs7_generator_opts *opts)
 {
-	struct pkcs7_message *pkcs7 = &opts->pkcs7;
-	struct lc_x509_key_input_data *signer_key_input_data =
-		&opts->signer_key_input_data;
+	struct lc_pkcs7_message *pkcs7 = &opts->pkcs7;
+	struct pkcs7_x509 *x509;
+	struct lc_x509_key_input_data *signer_key_input_data;
 	struct lc_x509_certificate *newcert = NULL;
 	int ret;
 
@@ -184,24 +298,31 @@ static int pkcs7_load_signer(struct pkcs7_generator_opts *opts)
 	CKNULL_LOG(opts->signer_sk_file, -EINVAL,
 		   "A X.509 signer secret key is required\n");
 
-	CKINT_LOG(get_data(opts->x509_signer_file, &opts->signer_data,
-			   &opts->signer_data_len),
+	CKINT(lc_alloc_aligned((void **)&x509, 8,
+			       sizeof(struct pkcs7_x509)));
+
+	pkcs7_add_x509(opts, x509);
+
+	signer_key_input_data = &x509->signer_key_input_data;
+
+	CKINT_LOG(get_data(opts->x509_signer_file, &x509->signer_data,
+			   &x509->signer_data_len),
 		  "mmap failure\n");
-	CKINT_LOG(get_data(opts->signer_sk_file, &opts->signer_sk_data,
-			   &opts->signer_sk_data_len),
+	CKINT_LOG(get_data(opts->signer_sk_file, &x509->signer_sk_data,
+			   &x509->signer_sk_data_len),
 		  "Signer SK mmap failure\n");
 
 	CKINT(lc_alloc_aligned((void **)&newcert, 8,
 			       sizeof(struct lc_x509_certificate)));
 
 	/* Parse the X.509 certificate */
-	CKINT(lc_x509_cert_parse(newcert, opts->signer_data,
-				 opts->signer_data_len));
+	CKINT(lc_x509_cert_parse(newcert, x509->signer_data,
+				 x509->signer_data_len));
 
 	/* Set the private key to the newly create certificate */
-	CKINT(lc_x509_cert_set_signer(newcert, signer_key_input_data, newcert,
-				      opts->signer_sk_data,
-				      opts->signer_sk_data_len));
+	CKINT(lc_x509_cert_set_signer(newcert, signer_key_input_data,
+				      newcert, x509->signer_sk_data,
+				      x509->signer_sk_data_len));
 
 	CKINT(lc_pkcs7_set_signer(pkcs7, newcert));
 
@@ -214,25 +335,27 @@ out:
 
 static int pkcs7_load_cert(struct pkcs7_generator_opts *opts)
 {
-	struct pkcs7_message *pkcs7 = &opts->pkcs7;
-	//	struct lc_x509_key_input_data *key_input_data = &opts->key_input_data;
+	struct lc_pkcs7_message *pkcs7 = &opts->pkcs7;
 	struct lc_x509_certificate *newcert = NULL;
-	//	enum lc_sig_types pkey_type;
-	//	size_t pk_len;
-	//	const uint8_t *pk_ptr;
+	struct pkcs7_x509 *x509;
 	int ret;
 
 	CKNULL(opts->x509_file, 0);
 
-	CKINT(get_data(opts->x509_file, &opts->x509_data,
-		       &opts->x509_data_len));
+	CKINT(lc_alloc_aligned((void **)&x509, 8,
+			       sizeof(struct pkcs7_x509)));
+
+	pkcs7_add_x509(opts, x509);
+
+	CKINT(get_data(opts->x509_file, &x509->x509_data,
+		       &x509->x509_data_len));
 
 	CKINT(lc_alloc_aligned((void **)&newcert, 8,
 			       sizeof(struct lc_x509_certificate)));
 
 	/* Parse the X.509 certificate */
-	CKINT_LOG(lc_x509_cert_parse(newcert, opts->x509_data,
-				     opts->x509_data_len),
+	CKINT_LOG(lc_x509_cert_parse(newcert, x509->x509_data,
+				     x509->x509_data_len),
 		  "Loading of X.509 certificate failed\n");
 
 #if 0
@@ -311,7 +434,7 @@ out:
 
 static int pkcs7_set_data(struct pkcs7_generator_opts *opts)
 {
-	struct pkcs7_message *pkcs7 = &opts->pkcs7;
+	struct lc_pkcs7_message *pkcs7 = &opts->pkcs7;
 
 	return lc_pkcs7_set_data(pkcs7, signed_data, sizeof(signed_data));
 }
@@ -344,9 +467,44 @@ static void pkcs7_generator_usage(void)
 	fprintf(stderr,
 		"\t   --print\t\t\tParse the generated PKCS#7 message and\n");
 	fprintf(stderr, "\t\t\t\t\t print its contents\n");
+	fprintf(stderr,
+		"\t   --print-pkcs7 <FILE>\t\tParse the PKCS#7 message and\n");
+	fprintf(stderr, "\t\t\t\t\tprint its contents\n");
 	fprintf(stderr, "\t   --noout\t\t\tNo generation of output files\n");
+	fprintf(stderr,
+		"\t   --trust-anchor <FILE>\t\tTrust anchor X.509 certificate\n");
 
 	fprintf(stderr, "\n\t-h  --help\t\t\tPrint this help text\n");
+}
+
+static int pkcs7_collect_signer(struct pkcs7_generator_opts *opts)
+{
+	int ret;
+
+	CKNULL(opts->x509_signer_file, 0);
+	CKNULL(opts->signer_sk_file, 0);
+
+	CKINT(pkcs7_load_signer(opts));
+
+	opts->x509_signer_file = NULL;
+	opts->signer_sk_file = NULL;
+
+out:
+	return ret;
+}
+
+static int pkcs7_collect_x509(struct pkcs7_generator_opts *opts)
+{
+	int ret;
+
+	CKNULL(opts->x509_file, 0);
+
+	CKINT(pkcs7_load_cert(opts));
+
+	opts->x509_file = NULL;
+
+out:
+	return ret;
 }
 
 int main(int argc, char *argv[])
@@ -365,6 +523,8 @@ int main(int argc, char *argv[])
 
 					      { "print", 0, 0, 0 },
 					      { "noout", 0, 0, 0 },
+					      { "print-x509", 1, 0, 0 },
+					      { "trust-anchor", 1, 0, 0 },
 
 					      { 0, 0, 0, 0 } };
 
@@ -391,15 +551,18 @@ int main(int argc, char *argv[])
 			/* x509-signer */
 			case 2:
 				parsed_opts.x509_signer_file = optarg;
+				CKINT(pkcs7_collect_signer(&parsed_opts));
 				break;
 			/* signer-sk-file */
 			case 3:
 				parsed_opts.signer_sk_file = optarg;
+				CKINT(pkcs7_collect_signer(&parsed_opts));
 				break;
 
 			/* x509-cert */
 			case 4:
 				parsed_opts.x509_file = optarg;
+				CKINT(pkcs7_collect_x509(&parsed_opts));
 				break;
 
 			/* print */
@@ -409,6 +572,14 @@ int main(int argc, char *argv[])
 			/* noout */
 			case 6:
 				parsed_opts.noout = 1;
+				break;
+			/* print-pkcs7 */
+			case 7:
+				parsed_opts.print_pkcs7_msg = optarg;
+				break;
+			/* trust-anchor */
+			case 8:
+				parsed_opts.trust_anchor = optarg;
 				break;
 			}
 			break;
@@ -427,14 +598,12 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	// if (parsed_opts.print_x509_cert) {
-	// 	CKINT(x509_dump_file(&parsed_opts));
-	// 	goto out;
-	// }
+	if (parsed_opts.print_pkcs7_msg) {
+		CKINT(pkcs7_dump_file(&parsed_opts));
+		goto out;
+	}
 
 	CKINT(pkcs7_set_data(&parsed_opts));
-	CKINT(pkcs7_load_cert(&parsed_opts));
-	CKINT(pkcs7_load_signer(&parsed_opts));
 	CKINT(pkcs7_gen_message(&parsed_opts));
 
 out:

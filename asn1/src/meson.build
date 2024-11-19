@@ -105,6 +105,7 @@ if get_option('pkcs7_parser').enabled()
 		'pkcs7_verify.c',
 
 		'pkcs7.asn1.c',
+		'pkcs7_aa.asn1.c',
 	])
 endif
 

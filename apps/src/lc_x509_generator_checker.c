@@ -122,9 +122,9 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 			// localtime_r(&x509->valid_from, &act_detail);
 			// localtime_r((int64_t *)&parsed_opts->valid_from,
 			// 	    &exp_detail);
-			act_detail = localtime(&x509->valid_from);
+			act_detail = localtime((time_t *)&x509->valid_from);
 			exp_detail =
-				localtime((int64_t *)&parsed_opts->valid_from);
+				localtime((time_t *)&parsed_opts->valid_from);
 			printf("Certificate valid_from time mismatch, expected %d-%.2d-%.2d %.2d:%.2d:%.2d (%" PRIu64
 			       "), actual %d-%.2d-%.2d %.2d:%.2d:%.2d (%" PRId64
 			       ")\n",
@@ -149,9 +149,9 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 			// localtime_r(&x509->valid_to, &act_detail);
 			// localtime_r((int64_t *)&parsed_opts->valid_to,
 			// 	    &exp_detail);
-			act_detail = localtime(&x509->valid_to);
+			act_detail = localtime((time_t *)&x509->valid_to);
 			exp_detail =
-				localtime((int64_t *)&parsed_opts->valid_to);
+				localtime((time_t *)&parsed_opts->valid_to);
 			printf("Certificate valid_to time mismatch, expected %d-%.2d-%.2d %.2d:%.2d:%.2d (%" PRIu64
 			       "), actual %d-%.2d-%.2d %.2d:%.2d:%.2d (%" PRId64
 			       ")\n",
@@ -376,7 +376,7 @@ out:
  * PKCS7 load tests
  ******************************************************************************/
 
-int apply_checks_pkcs7(const struct pkcs7_message *pkcs7_msg,
+int apply_checks_pkcs7(const struct lc_pkcs7_message *pkcs7_msg,
 		       const struct x509_checker_options *parsed_opts)
 {
 	int ret = 0;

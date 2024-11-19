@@ -64,7 +64,7 @@ struct x509_checker_options {
 int apply_checks_x509(const struct lc_x509_certificate *x509,
 		      const struct x509_checker_options *parsed_opts);
 
-int apply_checks_pkcs7(const struct pkcs7_message *pkcs7_msg,
+int apply_checks_pkcs7(const struct lc_pkcs7_message *pkcs7_msg,
 		       const struct x509_checker_options *parsed_opts);
 
 #ifdef __cplusplus

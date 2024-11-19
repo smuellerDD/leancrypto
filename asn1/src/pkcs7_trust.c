@@ -32,17 +32,21 @@
 #include "ret_checkers.h"
 #include "visibility.h"
 
-static int
+int
 pkcs7_find_asymmetric_key(struct lc_x509_certificate **anchor_cert,
-			  const struct pkcs7_trust_store *trust_store,
+			  const struct lc_pkcs7_trust_store *trust_store,
 			  const struct lc_asymmetric_key_id *auth0,
 			  const struct lc_asymmetric_key_id *auth1)
 {
 	struct lc_x509_certificate *p;
 
-	/* Look through the X.509 certificates in the PKCS#7 message's
-		* list to see if the next one is there.
-		*/
+	if (!trust_store)
+		return -ENOKEY;
+
+	/*
+	 * Look through the X.509 certificates in the PKCS#7 message's
+	 * list to see if the next one is there.
+	 */
 	if (auth0 && auth0->len) {
 		bin2print_debug(auth0->data, auth0->len, stdout, "- want");
 		for (p = trust_store->anchor_cert; p; p = p->next) {
@@ -97,8 +101,8 @@ found_issuer:
 /*
  * Check the trust on one PKCS#7 SignedInfo block.
  */
-static int pkcs7_validate_trust_one(struct pkcs7_signed_info *sinfo,
-				    struct pkcs7_trust_store *trust_store)
+static int pkcs7_validate_trust_one(struct lc_pkcs7_signed_info *sinfo,
+				    struct lc_pkcs7_trust_store *trust_store)
 {
 	struct lc_x509_certificate *x509, *last = NULL, *p, *anchor_cert;
 	int ret;
@@ -106,7 +110,7 @@ static int pkcs7_validate_trust_one(struct pkcs7_signed_info *sinfo,
 	printf_debug("Validating signer at index %u\n", sinfo->index);
 
 	if (sinfo->unsupported_crypto) {
-		printf_debug(" = -ENOPKG [cached]");
+		printf_debug(" = -ENOPKG [cached]\n");
 		return -ENOPKG;
 	}
 
@@ -114,7 +118,7 @@ static int pkcs7_validate_trust_one(struct pkcs7_signed_info *sinfo,
 		if (x509->seen) {
 			if (x509->verified)
 				goto verified;
-			printf_debug(" = -ENOKEY [cached]");
+			printf_debug(" = -ENOKEY [cached]\n");
 			return -ENOKEY;
 		}
 		x509->seen = 1;
@@ -146,7 +150,7 @@ static int pkcs7_validate_trust_one(struct pkcs7_signed_info *sinfo,
 		  * don't know them, then we can't accept them.
 		  */
 		if (x509->signer == x509) {
-			printf_debug(" = -ENOKEY [unknown self-signed]");
+			printf_debug(" = -ENOKEY [unknown self-signed]\n");
 			return -ENOKEY;
 		}
 
@@ -194,7 +198,7 @@ static int pkcs7_validate_trust_one(struct pkcs7_signed_info *sinfo,
 	if (ret != -ENOKEY)
 		return ret;
 
-	printf_debug(" = -ENOKEY [no backref]");
+	printf_debug(" = -ENOKEY [no backref]\n");
 	return -ENOKEY;
 
 verified:
@@ -211,10 +215,10 @@ out:
 	return -EKEYREJECTED;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_pkcs7_trust_validate, struct pkcs7_message *pkcs7,
-		      struct pkcs7_trust_store *trust_store)
+LC_INTERFACE_FUNCTION(int, lc_pkcs7_trust_validate, struct lc_pkcs7_message *pkcs7,
+		      struct lc_pkcs7_trust_store *trust_store)
 {
-	struct pkcs7_signed_info *sinfo;
+	struct lc_pkcs7_signed_info *sinfo;
 	struct lc_x509_certificate *p;
 	int cached_ret = -ENOKEY;
 	int ret;
@@ -248,7 +252,7 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_trust_validate, struct pkcs7_message *pkcs7,
 }
 
 LC_INTERFACE_FUNCTION(int, lc_pkcs7_trust_store_add,
-		      struct pkcs7_trust_store *trust_store,
+		      struct lc_pkcs7_trust_store *trust_store,
 		      struct lc_x509_certificate *x509)
 {
 	struct lc_x509_certificate *anchor_cert;
@@ -270,8 +274,8 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_trust_store_add,
 			goto out;
 		}
 
-		CKINT(pkcs7_verify_sig_chain(trust_store->anchor_cert, x509,
-					     NULL));
+		CKINT(pkcs7_verify_sig_chain(trust_store->anchor_cert, NULL,
+					     x509, NULL));
 	}
 
 	x509->next = NULL;
@@ -299,7 +303,7 @@ out:
 }
 
 LC_INTERFACE_FUNCTION(void, lc_pkcs7_trust_store_clear,
-		      struct pkcs7_trust_store *trust_store)
+		      struct lc_pkcs7_trust_store *trust_store)
 {
 	struct lc_x509_certificate *anchor_cert;
 

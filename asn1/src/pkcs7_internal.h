@@ -27,9 +27,35 @@
 extern "C" {
 #endif
 
+struct pkcs7_parse_context {
+	struct lc_pkcs7_message *msg; /* Message being constructed */
+	struct lc_pkcs7_signed_info *sinfo; /* SignedInfo being constructed */
+	struct lc_pkcs7_signed_info **ppsinfo; /* linked list of signer info */
+	struct lc_x509_certificate *certs; /* Certificate cache */
+	struct lc_x509_certificate **ppcerts; /* linked list of certs */
+	const uint8_t *data; /* Start of data */
+	enum OID last_oid; /* Last OID encountered */
+	unsigned int x509_index;
+	unsigned int sinfo_index;
+	size_t raw_serial_size;
+	size_t raw_issuer_size;
+	size_t raw_skid_size;
+	const uint8_t *raw_serial;
+	const uint8_t *raw_issuer;
+	const uint8_t *raw_skid;
+	unsigned int expect_skid : 1; /* Subject key ID */
+};
+
 int pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
+			   const struct lc_pkcs7_trust_store *trust_store,
 			   struct lc_x509_certificate *x509,
-			   struct pkcs7_signed_info *sinfo);
+			   struct lc_pkcs7_signed_info *sinfo);
+
+int
+pkcs7_find_asymmetric_key(struct lc_x509_certificate **anchor_cert,
+			  const struct lc_pkcs7_trust_store *trust_store,
+			  const struct lc_asymmetric_key_id *auth0,
+			  const struct lc_asymmetric_key_id *auth1);
 
 #ifdef __cplusplus
 }

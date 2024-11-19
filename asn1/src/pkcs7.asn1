@@ -114,7 +114,7 @@ CertificateSerialNumber ::= INTEGER
 
 SubjectKeyIdentifier ::= OCTET STRING ({ pkcs7_sig_note_skid })
 
-SetOfAuthenticatedAttribute ::= SET OF AuthenticatedAttribute ({ pkcs7_sig_note_authenticated_attr_continue })
+SetOfAuthenticatedAttribute ::= SET OF AuthenticatedAttribute
 
 AuthenticatedAttribute ::= SEQUENCE {
 	type			OBJECT IDENTIFIER ({ pkcs7_authenticated_attr_OID }),

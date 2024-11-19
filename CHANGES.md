@@ -3,7 +3,7 @@ Changes 1.2.0
 
 * Addition of ASN.1 decoder, X.509 parser, PKCS#7 / CMS parser
 
-* Addition of ASN.1 encoder, X.509 generator for ML-DSA, SLH-DSA, ML-DSA-ED25519
+* Addition of ASN.1 encoder, X.509 generator, PKCS#7 / CMS generator for ML-DSA, SLH-DSA, ML-DSA-ED25519
 
 * ML-DSA-ED25519: Hybrid implementation changed to match definition https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-03.html
 

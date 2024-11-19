@@ -26,36 +26,101 @@
 extern "C" {
 #endif
 
-int lc_pkcs7_generate(const struct pkcs7_message *pkcs7, uint8_t *data,
+/** @defgroup PKCS7Gen PKCS#7 Message Generate Handling
+ *
+ * Concept of PKCS#7 message generation handling in leancrypto
+ *
+ * The leancrypto library provides an PKCS#7 generator which can create
+ * PKCS#7 messages. The generator does not enforce any PKCS#7 limitations and
+ * thus allows the caller to generate any combination of field offered by the
+ * PKCS#7 specification. To appropriately use the PKCS#7 parser, please consider
+ * the following rules:
+ *
+ * 1. The generated PKCS#7 data blob is independent of the original PKCS#7
+ *    certificate data structure.
+ *
+ * 2. The generator does not allocate any memory. All memory MUST be provided
+ *    by the caller. Thus, if the caller provides insufficient memory, the
+ *    generator will return -EOVERFLOW.
+ *
+ * 3. Before invoking the PKCS#7 generator, the caller must allocate an
+ *    \p pkcs7_message data structure (e.g. on stack) and fill it with the
+ *    numerous setter functions to add data.
+ *
+ * 4. The \p pkcs7_message data structure should be released at the end of the
+ *    operation with \p lc_pkcs7_message_clear.
+ */
+
+/**
+ * @ingroup PKCS7Gen
+ * @brief Generate a PKCS#7 message
+ *
+ * The function generates a PKCS#7 data blob from the filled PKCS#7 data
+ * structure.
+ *
+ * @param [in] pkcs7 The data structure that is filled by the caller before this
+ *		     invocation using the various setter functions.
+ * @param [in,out] data Raw PKCS#7 data blob in DER / BER format - the caller
+ *			must provide the memory
+ * @param [in,out] avail_datalen Length of the raw PKCS#7 certificate buffer that
+ *				 is free (the input value must be equal to the
+ * 				 \p data buffer size, the output refers to how
+ *				 many bytes are unused)
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_pkcs7_generate(const struct lc_pkcs7_message *pkcs7, uint8_t *data,
 		      size_t *avail_datalen);
 
 /**
- * @brief Set an X.509 certificate to be added to a PKCS#7 message
+ * @ingroup PKCS7Gen
+ * @brief Set an PKCS#7 certificate to be added to a PKCS#7 message
+ *
+ * With this call, additional certificates can be supplied that shall be added
+ * to the PKCS#7 message.
+ *
+ * The X.509 certificate associated with the signer is automatically be added as
+ * it is registered with \p lc_pkcs7_set_signer. Therefore, it SHALL NOT be
+ * added with this call.
+ *
+ * \note The caller must retain the \p x509 structure for the lifetime of the
+ * \p pkcs7 structure.
  *
  * @param [out] pkcs7 PKCS#7 structure that shall receive the signer
- * @param [in] x509 X.509 certificate
+ * @param [in] x509 PKCS#7 certificate
  *
  * @return 0 on success, < 0 on error
  */
-int lc_pkcs7_set_certificate(struct pkcs7_message *pkcs7,
+int lc_pkcs7_set_certificate(struct lc_pkcs7_message *pkcs7,
 			     struct lc_x509_certificate *x509);
 
 /**
- * @brief Set an X.509 certificate as signer for a PKCS#7 message
+ * @ingroup PKCS7Gen
+ * @brief Set an PKCS#7 certificate as signer for a PKCS#7 message
  *
- * The certificate MUST have a public and secret key set to be added.
+ * The certificate MUST have a public and secret key set to be added. This
+ * function implies that the data to be protected is signed with the private
+ * key supplied by this call. Furthermore, the associated X.509 certificate is
+ * added to the PKCS#7 message.
+ *
+ * \note The caller must retain the \p x509_with_sk structure for the lifetime
+ * of the \p pkcs7 structure.
  *
  * @param [out] pkcs7 PKCS#7 structure that shall receive the signer
- * @param [in] x509_with_sk X.509 certificate with secret key to be used as
+ * @param [in] x509_with_sk PKCS#7 certificate with secret key to be used as
  *			    signer
  *
  * @return 0 on success, < 0 on error
  */
-int lc_pkcs7_set_signer(struct pkcs7_message *pkcs7,
+int lc_pkcs7_set_signer(struct lc_pkcs7_message *pkcs7,
 			struct lc_x509_certificate *x509_with_sk);
 
 /**
+ * @ingroup PKCS7Gen
  * @brief Set the data to be signed with PKCS#7
+ *
+ * \note The caller must retain the \p data for the lifetime of the \p pkcs7
+ * structure.
  *
  * @param [in] pkcs7 PKCS#7 data structure to be filled
  * @param [in] data Pointer to the data to be signed
@@ -63,7 +128,7 @@ int lc_pkcs7_set_signer(struct pkcs7_message *pkcs7,
  *
  * @return 0 on success, < 0 on error
  */
-int lc_pkcs7_set_data(struct pkcs7_message *pkcs7, const uint8_t *data,
+int lc_pkcs7_set_data(struct lc_pkcs7_message *pkcs7, const uint8_t *data,
 		      size_t data_len);
 
 #ifdef __cplusplus

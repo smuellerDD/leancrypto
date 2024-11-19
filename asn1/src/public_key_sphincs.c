@@ -54,8 +54,15 @@ int public_key_verify_signature_sphincs(
 	 * Select hash-based signature if there was a hash
 	 */
 	if (sig->digest_size) {
-		CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
+		if (sig->hash_algo)
+			hash_algo = sig->hash_algo;
+		else
+			CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo,
+						       &hash_algo));
+
 		CKNULL(hash_algo, -EOPNOTSUPP);
+		CKNULL(sig->digest_size, -EOPNOTSUPP);
+
 		lc_sphincs_ctx_hash(ctx, hash_algo);
 
 		/*

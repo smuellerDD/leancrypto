@@ -31,29 +31,11 @@
 #include "lc_memory_support.h"
 #include "lc_pkcs7_parser.h"
 #include "oid_registry.h"
+#include "pkcs7_internal.h"
 #include "pkcs7.asn1.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 #include "x509_cert_parser.h"
-
-struct pkcs7_parse_context {
-	struct pkcs7_message *msg; /* Message being constructed */
-	struct pkcs7_signed_info *sinfo; /* SignedInfo being constructed */
-	struct pkcs7_signed_info **ppsinfo; /* linked list of signer info */
-	struct lc_x509_certificate *certs; /* Certificate cache */
-	struct lc_x509_certificate **ppcerts; /* linked list of certs */
-	const uint8_t *data; /* Start of data */
-	enum OID last_oid; /* Last OID encountered */
-	unsigned int x509_index;
-	unsigned int sinfo_index;
-	size_t raw_serial_size;
-	size_t raw_issuer_size;
-	size_t raw_skid_size;
-	const uint8_t *raw_serial;
-	const uint8_t *raw_issuer;
-	const uint8_t *raw_skid;
-	unsigned int expect_skid : 1; /* Subject key ID */
-};
 
 /******************************************************************************
  * ASN.1 parser support functions
@@ -72,9 +54,9 @@ static __always_inline int test_and_set_bit(unsigned long nr,
 /*
  * Check authenticatedAttributes are provided or not provided consistently.
  */
-static int pkcs7_check_authattrs(struct pkcs7_message *msg)
+static int pkcs7_check_authattrs(struct lc_pkcs7_message *msg)
 {
-	struct pkcs7_signed_info *sinfo;
+	struct lc_pkcs7_signed_info *sinfo;
 	unsigned int want = 0;
 
 	sinfo = msg->signed_infos;
@@ -191,7 +173,7 @@ int pkcs7_sig_note_digest_algo(void *context, size_t hdrlen, unsigned char tag,
 			       const uint8_t *value, size_t vlen)
 {
 	struct pkcs7_parse_context *ctx = context;
-	struct pkcs7_signed_info *sinfo = ctx->sinfo;
+	struct lc_pkcs7_signed_info *sinfo = ctx->sinfo;
 	struct lc_public_key_signature *sig = &sinfo->sig;
 
 	(void)hdrlen;
@@ -242,7 +224,7 @@ int pkcs7_sig_note_pkey_algo(void *context, size_t hdrlen, unsigned char tag,
 			     const uint8_t *value, size_t vlen)
 {
 	struct pkcs7_parse_context *ctx = context;
-	struct pkcs7_signed_info *sinfo = ctx->sinfo;
+	struct lc_pkcs7_signed_info *sinfo = ctx->sinfo;
 	struct lc_public_key_signature *sig = &sinfo->sig;
 
 	(void)hdrlen;
@@ -557,19 +539,6 @@ int pkcs7_note_data(void *context, size_t hdrlen, unsigned char tag,
 	return 0;
 }
 
-int pkcs7_sig_note_authenticated_attr_continue(void *context, size_t hdrlen,
-					       unsigned char tag,
-					       const uint8_t *value,
-					       size_t vlen)
-{
-	(void)context;
-	(void)hdrlen;
-	(void)tag;
-	(void)value;
-	(void)vlen;
-	return 0;
-}
-
 /*
  * Parse authenticated attributes.
  */
@@ -578,7 +547,7 @@ int pkcs7_sig_note_authenticated_attr(void *context, size_t hdrlen,
 				      size_t vlen)
 {
 	struct pkcs7_parse_context *ctx = context;
-	struct pkcs7_signed_info *sinfo = ctx->sinfo;
+	struct lc_pkcs7_signed_info *sinfo = ctx->sinfo;
 	enum OID content_type;
 
 	printf_debug("AuthAttr: %02x %zu", tag, vlen);
@@ -670,7 +639,7 @@ int pkcs7_sig_note_set_of_authattrs(void *context, size_t hdrlen,
 				    size_t vlen)
 {
 	struct pkcs7_parse_context *ctx = context;
-	struct pkcs7_signed_info *sinfo = ctx->sinfo;
+	struct lc_pkcs7_signed_info *sinfo = ctx->sinfo;
 
 	(void)tag;
 
@@ -770,7 +739,7 @@ int pkcs7_note_signed_info(void *context, size_t hdrlen, unsigned char tag,
 			   const uint8_t *value, size_t vlen)
 {
 	struct pkcs7_parse_context *ctx = context;
-	struct pkcs7_signed_info *sinfo = ctx->sinfo;
+	struct lc_pkcs7_signed_info *sinfo = ctx->sinfo;
 	int ret;
 
 	(void)hdrlen;
@@ -802,7 +771,7 @@ int pkcs7_note_signed_info(void *context, size_t hdrlen, unsigned char tag,
 	*ctx->ppsinfo = sinfo;
 	ctx->ppsinfo = &sinfo->next;
 	CKINT(lc_alloc_aligned((void **)&ctx->sinfo, 8,
-			       sizeof(struct pkcs7_signed_info)));
+			       sizeof(struct lc_pkcs7_signed_info)));
 
 out:
 	return ret;
@@ -815,7 +784,7 @@ out:
 /*
  * Free a signed information block.
  */
-static void pkcs7_free_signed_info(struct pkcs7_signed_info *sinfo)
+static void pkcs7_free_signed_info(struct lc_pkcs7_signed_info *sinfo)
 {
 	if (sinfo) {
 		public_key_signature_clear(&sinfo->sig);
@@ -828,7 +797,7 @@ static void pkcs7_free_signed_info(struct pkcs7_signed_info *sinfo)
  ******************************************************************************/
 
 LC_INTERFACE_FUNCTION(int, lc_pkcs7_get_content_data,
-		      const struct pkcs7_message *pkcs7, const uint8_t **data,
+		      const struct lc_pkcs7_message *pkcs7, const uint8_t **data,
 		      size_t *data_len)
 {
 	if (!pkcs7 || !data || !data_len)
@@ -843,10 +812,10 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_get_content_data,
 	return 0;
 }
 
-LC_INTERFACE_FUNCTION(void, lc_pkcs7_message_clear, struct pkcs7_message *pkcs7)
+LC_INTERFACE_FUNCTION(void, lc_pkcs7_message_clear, struct lc_pkcs7_message *pkcs7)
 {
 	struct lc_x509_certificate *cert;
-	struct pkcs7_signed_info *sinfo;
+	struct lc_pkcs7_signed_info *sinfo;
 
 	if (pkcs7) {
 		while (pkcs7->certs) {
@@ -866,11 +835,11 @@ LC_INTERFACE_FUNCTION(void, lc_pkcs7_message_clear, struct pkcs7_message *pkcs7)
 			pkcs7_free_signed_info(sinfo);
 		}
 
-		lc_memset_secure(pkcs7, 0, sizeof(struct pkcs7_message));
+		lc_memset_secure(pkcs7, 0, sizeof(struct lc_pkcs7_message));
 	}
 }
 
-LC_INTERFACE_FUNCTION(int, lc_pkcs7_message_parse, struct pkcs7_message *pkcs7,
+LC_INTERFACE_FUNCTION(int, lc_pkcs7_message_parse, struct lc_pkcs7_message *pkcs7,
 		      const uint8_t *data, size_t datalen)
 {
 	struct pkcs7_parse_context ctx = { 0 };
@@ -879,10 +848,10 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_message_parse, struct pkcs7_message *pkcs7,
 	CKNULL(pkcs7, -EINVAL);
 	CKNULL(data, -EINVAL);
 
-	lc_memset_secure(pkcs7, 0, sizeof(struct pkcs7_message));
+	lc_memset_secure(pkcs7, 0, sizeof(struct lc_pkcs7_message));
 
 	CKINT(lc_alloc_aligned((void **)&ctx.sinfo, 8,
-			       sizeof(struct pkcs7_signed_info)));
+			       sizeof(struct lc_pkcs7_signed_info)));
 
 	ctx.msg = pkcs7;
 
