@@ -22,6 +22,8 @@
 #include "asn1_ber_bytecode.h"
 #include "helper.h"
 #include "math_helper.h"
+#include "lc_memory_support.h"
+#include "ret_checkers.h"
 
 /*
  * Constructed data implies a new collection which we track with  a new data
@@ -34,8 +36,8 @@
 		if (unlikely(dsp == NR_DATA_STACK))                            \
 			goto data_stack_overflow;                              \
 		dsp++;                                                         \
-		tmp_data_p[dsp] = tmp_data[dsp];                               \
-		tmp_data_len[dsp] = maxlen;                                    \
+		ws->data_p[dsp] = ws->data[dsp];                               \
+		ws->data_len[dsp] = maxlen;                                    \
 	}
 
 /*
@@ -47,22 +49,22 @@
 		printf_debug(                                                  \
 			"Insufficient space (wanted %zu, available %u)\n",     \
 			available_datalength, 1);                              \
-		return -EOVERFLOW;                                             \
+		ret = -EOVERFLOW;                                              \
+		goto out;                                                      \
 	}                                                                      \
-	dstbuffer[0] = tmp_tag[dsp];                                           \
-	printf_debug("Set tag %x\n", tmp_tag[dsp]);                            \
+	dstbuffer[0] = ws->tag[dsp];                                           \
+	printf_debug("Set tag %x\n", ws->tag[dsp]);                            \
 	dstbuffer++;                                                           \
 	available_datalength--;                                                \
                                                                                \
-	ret = asn1_encode_length(&dstbuffer, &available_datalength, len);      \
-	if (ret)                                                               \
-		return ret;                                                    \
+	CKINT(asn1_encode_length(&dstbuffer, &available_datalength, len));     \
                                                                                \
 	if (available_datalength < len) {                                      \
 		printf_debug(                                                  \
 			"Insufficient space (wanted %zu, available %zu)\n",    \
 			len, available_datalength);                            \
-		return -EOVERFLOW;                                             \
+		ret = -EOVERFLOW;                                              \
+		goto out;                                                      \
 	}                                                                      \
                                                                                \
 	memcpy(dstbuffer, srcbuffer, len);                                     \
@@ -70,8 +72,8 @@
 	dstbuffer += len;                                                      \
 	available_datalength -= len;                                           \
                                                                                \
-	tmp_data_p[dsp] = tmp_data[dsp];                                       \
-	tmp_data_len[dsp] = maxlen
+	ws->data_p[dsp] = ws->data[dsp];                                       \
+	ws->data_len[dsp] = maxlen
 
 /**
  * @brief Encode BER/DER/CER ASN.1 according to pattern
@@ -132,32 +134,32 @@ int asn1_ber_encoder(const struct asn1_encoder *encoder, void *context,
 	 * rules. This allows the caller a great degree of freedom when
 	 * generating an ASN.1 sequence, but also requires the caller to ensure
 	 * that all required data fields are present.
-	 *
-	 * TODO: reduce amount of temporary data that is retained.
 	 */
+	struct stackspace {
 #define NR_DATA_STACK 10
-	uint8_t tmp_data[NR_DATA_STACK][ASN1_MAX_DATASIZE];
-	uint8_t *tmp_data_p[NR_DATA_STACK];
-	size_t tmp_data_len[NR_DATA_STACK] = { 0 };
-	unsigned char tmp_tag[NR_DATA_STACK] = { 0 };
+		uint8_t data[NR_DATA_STACK][ASN1_MAX_DATASIZE];
+		uint8_t *data_p[NR_DATA_STACK];
+		size_t data_len[NR_DATA_STACK];
+		unsigned char tag[NR_DATA_STACK];
 
 #define NR_JUMP_STACK 10
-	unsigned char jump_stack[NR_JUMP_STACK];
+		unsigned char jump_stack[NR_JUMP_STACK];
+	};
+	struct stackspace *ws;
 
-	size_t maxlen = min_size(sizeof(tmp_data[0]), *in_out_avail_datalen);
+	size_t maxlen = min_size(ASN1_MAX_DATASIZE, *in_out_avail_datalen);
 	size_t avail_datalen = maxlen;
 	size_t in_out_unused_len = *in_out_avail_datalen - avail_datalen;
 
 	(void)errmsg;
 
-	for (len = 0; len < NR_DATA_STACK; len++)
-		tmp_data_p[len] = tmp_data[len];
+	CKINT(lc_alloc_aligned((void **)&ws, 8, sizeof(struct stackspace)));
 
 	printf_debug("---- Start encoder\n");
 
 next_op:
 	printf_debug("next_op: pc=\x1B[32m%zu\x1B[m/%zu t=%zu J=%u D=%u\n", pc,
-		     machlen, tmp_data_len[dsp], jsp, dsp);
+		     machlen, data_len[dsp], jsp, dsp);
 	if (unlikely(pc >= machlen))
 		goto machine_overrun_error;
 	op = machine[pc];
@@ -184,14 +186,14 @@ next_op:
 		 * Starting fresh for a match target: Either the previous
 		 * match target completed, or we see the first match target.
 		 */
-		tmp_data_p[dsp] = tmp_data[dsp];
-		tmp_data_len[dsp] = maxlen;
+		ws->data_p[dsp] = ws->data[dsp];
+		ws->data_len[dsp] = maxlen;
 
 		/*
 		 * Retain the current tag - it will be written out if there is
 		 * data found to be written.
 		 */
-		tmp_tag[dsp] = machine[pc + 1];
+		ws->tag[dsp] = machine[pc + 1];
 
 		ASN1_BER_ENCODE_CHECK_FOR_SEQUENCE
 
@@ -203,10 +205,8 @@ next_op:
 			else
 				act = machine[pc + 2];
 
-			ret = actions[act](context, tmp_data_p[dsp],
-					   &tmp_data_len[dsp], &tmp_tag[dsp]);
-			if (ret < 0)
-				return ret;
+			CKINT(actions[act](context, ws->data_p[dsp],
+					   &ws->data_len[dsp], &ws->tag[dsp]));
 			if (ret == LC_ASN1_RET_CONTINUE)
 				flags |= FLAG_OF_CONTINUE;
 			if (ret == LC_ASN1_RET_SET_ZERO_CONTENT)
@@ -215,9 +215,9 @@ next_op:
 			/*
 			 * Track the consumed data size.
 			 */
-			len = maxlen - tmp_data_len[dsp];
+			len = maxlen - ws->data_len[dsp];
 			printf_debug("action match consumed = %zu\n", len);
-			tmp_data_p[dsp] = tmp_data[dsp] + len;
+			ws->data_p[dsp] = ws->data[dsp] + len;
 
 			/*
 			 * Any match is written out here except the
@@ -262,13 +262,14 @@ next_op:
 		printf_debug("- MATCH_JUMP\n");
 		if (unlikely(jsp == NR_JUMP_STACK))
 			goto jump_stack_overflow;
-		jump_stack[jsp++] = (unsigned char)(pc + asn1_op_lengths[op]);
+		ws->jump_stack[jsp++] =
+			(unsigned char)(pc + asn1_op_lengths[op]);
 
 		/*
 		 * Retain the current tag - it will be written out if there is
 		 * data found to be written.
 		 */
-		tmp_tag[dsp] = machine[pc + 1];
+		ws->tag[dsp] = machine[pc + 1];
 
 		ASN1_BER_ENCODE_CHECK_FOR_SEQUENCE
 
@@ -290,7 +291,8 @@ next_op:
 		*in_out_avail_datalen = avail_datalen + in_out_unused_len;
 
 		printf_debug("---- End encoder\n");
-		return 0;
+		ret = 0;
+		goto out;
 
 	case ASN1_OP_END_SET:
 	case ASN1_OP_END_SET_ACT:
@@ -318,11 +320,8 @@ next_op:
 			else
 				act = machine[pc + 1];
 
-			ret = actions[act](context, tmp_data_p[dsp],
-					   &tmp_data_len[dsp], &tmp_tag[dsp]);
-			if (ret < 0)
-				return ret;
-
+			CKINT(actions[act](context, ws->data_p[dsp],
+					   &ws->data_len[dsp], &ws->tag[dsp]));
 			if (ret == LC_ASN1_RET_CONTINUE)
 				flags |= FLAG_OF_CONTINUE;
 			if (ret == LC_ASN1_RET_SET_ZERO_CONTENT)
@@ -331,9 +330,9 @@ next_op:
 			/*
 			 * Track the consumed data size.
 			 */
-			len = maxlen - tmp_data_len[dsp];
+			len = maxlen - ws->data_len[dsp];
 			printf_debug("action end consumed = %zu\n", len);
-			tmp_data_p[dsp] = tmp_data[dsp] + len;
+			ws->data_p[dsp] = ws->data[dsp] + len;
 		}
 
 		if (unlikely(dsp <= 0))
@@ -342,7 +341,7 @@ next_op:
 		dsp--;
 
 	write_data_out:
-		len = maxlen - tmp_data_len[dsp];
+		len = maxlen - ws->data_len[dsp];
 
 		if (!len && !(flags & FLAG_SET_ZERO_CONTENT)) {
 			printf_debug("Skiping zero-length data encoding\n");
@@ -362,7 +361,7 @@ next_op:
 			 * the end of the outermost sequence / set.
 			 */
 			ASN1_BER_ENCODE_WRITE_DATA(data, avail_datalen,
-						   tmp_data[dsp]);
+						   ws->data[dsp]);
 			printf_debug(
 				"available len %zu, consumed len %zu (D=main)\n",
 				avail_datalen, maxlen - avail_datalen);
@@ -371,12 +370,12 @@ next_op:
 			 * Copy data to the hierarchically higher stack buffer
 			 * as we reached the end of an inner sequence / set.
 			 */
-			ASN1_BER_ENCODE_WRITE_DATA(tmp_data_p[dsp - 1],
-						   tmp_data_len[dsp - 1],
-						   tmp_data[dsp]);
+			ASN1_BER_ENCODE_WRITE_DATA(ws->data_p[dsp - 1],
+						   ws->data_len[dsp - 1],
+						   ws->data[dsp]);
 			printf_debug(
 				"available len %zu, consumed len %zu (D=%u)\n",
-				avail_datalen, maxlen - tmp_data_len[dsp - 1],
+				avail_datalen, maxlen - ws->data_len[dsp - 1],
 				dsp - 1);
 		}
 
@@ -391,20 +390,18 @@ next_op:
 		fallthrough;
 
 	case ASN1_OP_ACT:
-		ret = actions[machine[pc + 1]](context, tmp_data_p[dsp],
-					       &tmp_data_len[dsp],
-					       &tmp_tag[dsp]);
-		if (ret < 0)
-			return ret;
+		CKINT(actions[machine[pc + 1]](context, ws->data_p[dsp],
+					       &ws->data_len[dsp],
+					       &ws->tag[dsp]));
 		if (ret == LC_ASN1_RET_CONTINUE)
 			flags |= FLAG_OF_CONTINUE;
 		if (ret == LC_ASN1_RET_SET_ZERO_CONTENT)
 			flags |= FLAG_SET_ZERO_CONTENT;
 
-		len = maxlen - tmp_data_len[dsp];
+		len = maxlen - ws->data_len[dsp];
 		printf_debug("action act consumed = %zu\n", len);
 
-		tmp_data_p[dsp] = tmp_data[dsp] + len;
+		ws->data_p[dsp] = ws->data[dsp] + len;
 
 		/* Write out the data */
 		goto write_data_out;
@@ -413,7 +410,7 @@ next_op:
 		printf_debug("- RETURN_JUMP\n");
 
 		if (dsp)
-			len = maxlen - tmp_data_len[dsp - 1];
+			len = maxlen - ws->data_len[dsp - 1];
 		else
 			len = maxlen - avail_datalen;
 
@@ -428,7 +425,7 @@ next_op:
 		if (unlikely(jsp <= 0))
 			goto jump_stack_underflow;
 
-		pc = jump_stack[--jsp];
+		pc = ws->jump_stack[--jsp];
 		flags |= FLAG_MATCHED;
 		goto next_op;
 
@@ -440,7 +437,7 @@ next_op:
 	/* Shouldn't reach here */
 	printf_debug("ASN.1 encoder error: Found reserved opcode (%u) pc=%zu\n",
 		     op, pc);
-	return -EBADMSG;
+	goto errout;
 
 jump_stack_not_empty:
 	errmsg = "ASN.1 encoder error: Jump stacks not empty at completion";
@@ -470,5 +467,9 @@ error:
 	(void)errmsg;
 	printf_debug("\nASN1: %s [m=%zu] [D=%u] [J=%u]\n", errmsg, pc, dsp,
 		     jsp);
-	return -EBADMSG;
+errout:
+	ret = -EBADMSG;
+out:
+	lc_free(ws);
+	return ret;
 }
