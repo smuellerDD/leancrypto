@@ -160,58 +160,58 @@ if (host_machine.system() != 'windows') and get_option('apps').enabled()
 		test('X.509 Gen Root-CA ML-DSA87',
 		     lc_x509_generator,
 		     args: [ x509_rootca_args, '--create-keypair', 'ML-DSA87' ],
-		     suite: regression)
+		     timeout: 300, suite: regression)
 		test('X.509 Gen Root-CA ML-DSA65',
 		     lc_x509_generator,
 		     args: [ x509_rootca_args, '--create-keypair', 'ML-DSA65' ],
-		     suite: regression)
+		     timeout: 300, suite: regression)
 		test('X.509 Gen Root-CA ML-DSA44',
 		     lc_x509_generator,
 		     args: [ x509_rootca_args, '--create-keypair', 'ML-DSA44' ],
-		     suite: regression)
+		     timeout: 300, suite: regression)
 
 		test('X.509 Gen Root-CA SLH-DSA-SHAKE-256S',
 		     lc_x509_generator,
 		     args: [ x509_rootca_args, '--create-keypair', 'SLH-DSA-SHAKE-256S' ],
-		     timeout: 600, suite: regression)
+		     is_parallel: false, timeout: 600, suite: regression)
 		test('X.509 Gen Root-CA SLH-DSA-SHAKE-256F',
 		     lc_x509_generator,
 		     args: [ x509_rootca_args, '--create-keypair', 'SLH-DSA-SHAKE-256F' ],
-		     timeout: 600, suite: regression)
+		     is_parallel: false, timeout: 600, suite: regression)
 		test('X.509 Gen Root-CA SLH-DSA-SHAKE-192S',
 		     lc_x509_generator,
 		     args: [ x509_rootca_args, '--create-keypair', 'SLH-DSA-SHAKE-192S' ],
-		     timeout: 600, suite: regression)
-		test('X.509 Gen Root-CASLH-DSA-SHAKE-192F',
+		     is_parallel: false, timeout: 600, suite: regression)
+		test('X.509 Gen Root-CA SLH-DSA-SHAKE-192F',
 		     lc_x509_generator,
 		     args: [ x509_rootca_args, '--create-keypair', 'SLH-DSA-SHAKE-192F' ],
-		     timeout: 600, suite: regression)
+		     is_parallel: false, timeout: 600, suite: regression)
 		test('X.509 Gen Root-CA SLH-DSA-SHAKE-128S',
 		     lc_x509_generator,
 		     args: [ x509_rootca_args, '--create-keypair', 'SLH-DSA-SHAKE-128S' ],
-		     timeout: 600, suite: regression)
+		     is_parallel: false, timeout: 600, suite: regression)
 		test('X.509 Gen Root-CA SLH-DSA-SHAKE-128F',
 		     lc_x509_generator,
 		     args: [ x509_rootca_args, '--create-keypair', 'SLH-DSA-SHAKE-128F' ],
-		     timeout: 600, suite: regression)
+		     is_parallel: false, timeout: 600, suite: regression)
 
 		test('X.509 Gen Root-CA ML-DSA65-ED25519',
 		     lc_x509_generator,
 		     args: [ x509_rootca_args, '--create-keypair', 'ML-DSA65-ED25519' ],
-		     suite: regression)
+		     timeout: 300, suite: regression)
 		test('X.509 Gen Root-CA ML-DSA44-ED25519',
 		     lc_x509_generator,
 		     args: [ x509_rootca_args, '--create-keypair', 'ML-DSA44-ED25519' ],
-		     suite: regression)
+		     timeout: 300, suite: regression)
 
 		test('X.509 Gen Int-CA ML-DSA87',
 		     lc_x509_generator,
 		     args: [ x509_int1_ca_args, '--create-keypair', 'ML-DSA87' ],
-		     suite: regression)
+		     timeout: 300, suite: regression)
 		test('X.509 Gen Leaf ML-DSA87',
 		     lc_x509_generator,
 		     args: [ x509_leaf_args, '--create-keypair', 'ML-DSA87' ],
-		     suite: regression)
+		     timeout: 300, suite: regression)
 
 	endif
 
@@ -228,7 +228,7 @@ if (host_machine.system() != 'windows') and get_option('apps').enabled()
 			     '--x509-cert', meson.project_source_root() + '/asn1/tests/testcerts/slh-dsa-shake-192f_int2.der',
 			     '--x509-cert', meson.project_source_root() + '/asn1/tests/testcerts/slh-dsa-shake-256s_cacert.der',
 			     '--trust-anchor', meson.project_source_root() + '/asn1/tests/testcerts/slh-dsa-shake-256s_cacert.der' ],
-		     suite: regression)
+		     is_parallel: false, timeout: 300, suite: regression)
 
 		test('PKCS7 Gen with ML-DSA 4-way cert chain',
 		     lc_pkcs7_generator,
@@ -241,7 +241,7 @@ if (host_machine.system() != 'windows') and get_option('apps').enabled()
 			     '--x509-cert', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa44_int2.der',
 			     '--x509-cert', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_cacert.der',
 			     '--trust-anchor', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_cacert.der' ],
-		     suite: regression)
+		     is_parallel: false, timeout: 300, suite: regression)
 
 		test('PKCS7 Gen with ML-DSA-ED25519 4-way cert chain',
 		     lc_pkcs7_generator,
@@ -254,7 +254,7 @@ if (host_machine.system() != 'windows') and get_option('apps').enabled()
 			     '--x509-cert', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_int2.der',
 			     '--x509-cert', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa65-ed25519_cacert.der',
 			     '--trust-anchor', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa65-ed25519_cacert.der' ],
-		     suite: regression)
+		     is_parallel: false, timeout: 300, suite: regression)
 
 		# Trust-Store enabled with cert chain leading to CA
 		test('PKCS7 Gen with valid Trust-Store',
@@ -264,7 +264,7 @@ if (host_machine.system() != 'windows') and get_option('apps').enabled()
 			     pkcs7_arg_int2,
 			     pkcs7_arg_ca,
 			     pkcs7_arg_trust ],
-		     suite: regression)
+		     is_parallel: false, timeout: 300, suite: regression)
 
 		# Trust-Store enabled with cert chain leading to CA
 		# Although certificate chain has no root CA, it is taken from
@@ -275,7 +275,7 @@ if (host_machine.system() != 'windows') and get_option('apps').enabled()
 			     pkcs7_arg_int1,
 			     pkcs7_arg_int2,
 			     pkcs7_arg_trust ],
-		     suite: regression)
+		     is_parallel: false, timeout: 300, suite: regression)
 
 		# Trust-Store enabled with cert chain not leading to CA
 		test('PKCS7 Gen with broken chain to Trust-Store',
@@ -285,7 +285,7 @@ if (host_machine.system() != 'windows') and get_option('apps').enabled()
 			     pkcs7_arg_int2,
 			     pkcs7_arg_ca,
 			     pkcs7_arg_other_trust ],
-		     should_fail: true, suite: regression)
+		     is_parallel: false, timeout: 300, should_fail: true, suite: regression)
 
 		# Trust-Store disabled but with root CA cert
 		test('PKCS7 Gen no Trust-Store',
@@ -294,7 +294,7 @@ if (host_machine.system() != 'windows') and get_option('apps').enabled()
 			     pkcs7_arg_int1,
 			     pkcs7_arg_int2,
 			     pkcs7_arg_ca, ],
-		     suite: regression)
+		     is_parallel: false, timeout: 300, suite: regression)
 
 		# Trust-Store disabled but with root CA cert
 		test('PKCS7 Gen no root CA',
@@ -302,7 +302,7 @@ if (host_machine.system() != 'windows') and get_option('apps').enabled()
 		     args: [ pkcs7_arg_signer,
 			     pkcs7_arg_int1,
 			     pkcs7_arg_int2 ],
-		     should_fail: true, suite: regression)
+		     is_parallel: false, timeout: 300, should_fail: true, suite: regression)
 
 		# Missing intermediate
 		test('PKCS7 Gen with missing intermediate',
@@ -311,6 +311,6 @@ if (host_machine.system() != 'windows') and get_option('apps').enabled()
 			     pkcs7_arg_int2,
 			     pkcs7_arg_ca,
 			     pkcs7_arg_other_trust ],
-		     should_fail: true, suite: regression)
+		     is_parallel: false, timeout: 300, should_fail: true, suite: regression)
 	endif
 endif
