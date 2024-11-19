@@ -70,6 +70,7 @@ struct pkcs7_generator_opts {
 	unsigned int print_pkcs7 : 1;
 	unsigned int noout : 1;
 	unsigned int checker : 1;
+	unsigned int use_trust_store : 1;
 
 	struct pkcs7_x509 *x509;
 };
@@ -171,6 +172,8 @@ static int pkcs_add_trust(struct pkcs7_generator_opts *opts)
 
 		CKINT(lc_pkcs7_trust_store_add(&opts->trust_store,
 					       &opts->trust_anchor_x509));
+
+		opts->use_trust_store = 1;
 	}
 
 out:
@@ -193,7 +196,7 @@ static int pkcs7_enc_dump(struct pkcs7_generator_opts *opts,
 	}
 
 	CKINT(pkcs_add_trust(opts));
-	CKINT_LOG(lc_pkcs7_verify(&ppkcs7, &opts->trust_store),
+	CKINT_LOG(lc_pkcs7_verify(&ppkcs7, opts->use_trust_store ? &opts->trust_store : NULL),
 		  "Verification of PKCS#7 message failed\n");
 
 	//if (opts->checker)
@@ -229,7 +232,7 @@ static int pkcs7_dump_file(struct pkcs7_generator_opts *opts)
 	}
 
 	CKINT(pkcs_add_trust(opts));
-	CKINT_LOG(lc_pkcs7_verify(&ppkcs7, &opts->trust_store),
+	CKINT_LOG(lc_pkcs7_verify(&ppkcs7, opts->use_trust_store ? &opts->trust_store : NULL),
 		  "Verification of PKCS#7 message failed\n");
 
 	//	if (opts->checker)
