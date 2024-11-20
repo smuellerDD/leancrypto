@@ -506,7 +506,13 @@ int main(int argc, char *argv[])
 			     sinfo_has_message_digest;
 
 	/* Set default algoritm */
+#ifdef LC_SHA3
 	parsed_opts.hash = lc_sha3_512;
+#elif defined LC_SHA2_512
+	parsed_opts.hash = lc_sha512;
+#else
+#error "No default hash algorithm defined"
+#endif
 
 	opterr = 0;
 	while (1) {

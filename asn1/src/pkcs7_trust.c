@@ -32,12 +32,12 @@
 #include "ret_checkers.h"
 #include "visibility.h"
 
-int pkcs7_find_asymmetric_key(struct lc_x509_certificate **anchor_cert,
+int pkcs7_find_asymmetric_key(const struct lc_x509_certificate **anchor_cert,
 			      const struct lc_pkcs7_trust_store *trust_store,
 			      const struct lc_asymmetric_key_id *auth0,
 			      const struct lc_asymmetric_key_id *auth1)
 {
-	struct lc_x509_certificate *p;
+	const struct lc_x509_certificate *p;
 
 	if (!trust_store)
 		return -ENOKEY;
@@ -103,7 +103,8 @@ found_issuer:
 static int pkcs7_validate_trust_one(struct lc_pkcs7_signed_info *sinfo,
 				    struct lc_pkcs7_trust_store *trust_store)
 {
-	struct lc_x509_certificate *x509, *last = NULL, *p, *anchor_cert;
+	struct lc_x509_certificate *x509, *last = NULL, *p;
+	const struct lc_x509_certificate *anchor_cert;
 	int ret;
 
 	printf_debug("Validating signer at index %u\n", sinfo->index);

@@ -266,14 +266,14 @@ LC_INTERFACE_FUNCTION(int, lc_x509_name_to_hash, const char *hash_name,
 	namelen = strlen(hash_name);
 
 #ifdef LC_SHA2_256
-	if (namelen == 7 && !strncmp(hash_name, "SHA-256", namelen))
+	if (namelen == 8 && !strncmp(hash_name, "SHA2-256", namelen))
 		*hash_algo = lc_sha256;
 	else
 #endif
 #ifdef LC_SHA2_512
-		if (namelen == 7 && !strncmp(hash_name, "SHA-384", namelen))
+		if (namelen == 8 && !strncmp(hash_name, "SHA2-384", namelen))
 		*hash_algo = lc_sha384;
-	else if (namelen == 7 && !strncmp(hash_name, "SHA-512", namelen))
+	else if (namelen == 8 && !strncmp(hash_name, "SHA2-512", namelen))
 		*hash_algo = lc_sha512;
 	else
 #endif
@@ -293,10 +293,10 @@ LC_INTERFACE_FUNCTION(int, lc_x509_name_to_hash, const char *hash_name,
 	{
 		printf("Allowed message digest algorithms: ");
 #ifdef LC_SHA2_256
-		printf("SHA-256 ");
+		printf("SHA2-256 ");
 #endif
 #ifdef LC_SHA2_512
-		printf("SHA-384 SHA-512 ");
+		printf("SHA2-384 SHA2-512 ");
 #endif
 #ifdef LC_SHA3
 		printf("SHA3-256 SHA3-384 SHA3-512 SHAKE128 SHAKE256");
@@ -313,14 +313,14 @@ LC_INTERFACE_FUNCTION(int, lc_x509_hash_to_name,
 {
 #ifdef LC_SHA2_256
 	if (hash_algo == lc_sha256)
-		*hash_name = "SHA-256";
+		*hash_name = "SHA2-256";
 	else
 #endif
 #ifdef LC_SHA2_512
 		if (hash_algo == lc_sha384)
-		*hash_name = "SHA-384";
+		*hash_name = "SHA2-384";
 	else if (hash_algo == lc_sha512)
-		*hash_name = "SHA-512";
+		*hash_name = "SHA2-512";
 	else
 #endif
 #ifdef LC_SHA3

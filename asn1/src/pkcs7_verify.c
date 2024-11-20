@@ -130,7 +130,6 @@ out:
  * subject's name) and the certificate serial number [RFC 2315 6.7].
  */
 static int pkcs7_find_key(struct lc_pkcs7_message *pkcs7,
-			  const struct lc_pkcs7_trust_store *trust_store,
 			  struct lc_pkcs7_signed_info *sinfo)
 {
 	struct lc_x509_certificate *x509;
@@ -163,8 +162,7 @@ static int pkcs7_find_key(struct lc_pkcs7_message *pkcs7,
 	bin2print_debug(sig_auth_id->data, sig_auth_id->len, stdout,
 			"Sig: Issuing X.509 cert not found in local keyring");
 
-	return pkcs7_find_asymmetric_key(&sinfo->signer, trust_store,
-					 sig_auth_id, NULL);
+	return -ENOKEY;
 }
 
 /*
@@ -177,6 +175,7 @@ int pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 {
 	struct lc_public_key_signature *sig;
 	struct lc_x509_certificate *p;
+	const struct lc_x509_certificate *trusted;
 	struct lc_asymmetric_key_id *auth0, *auth1;
 	int ret = 0;
 
@@ -263,11 +262,21 @@ int pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 
 		/*
 		 * The certificate is not in our local certificate chain, check
-		 * the trust store as a last effort.
+		 * the trust store as a last effort. If it is in the trust store
+		 * we do not need to check further as we know a-priori that
+		 * the found certificate will lead to the root in the trust
+		 * store, because the trust store requires that even in case of
+		 * intermediate certificates being find, their root must be
+		 * in the trust store.
 		 */
-		ret = pkcs7_find_asymmetric_key(&p, trust_store, auth0, auth1);
-		if (!ret)
-			goto found_issuer;
+		printf_debug("- searching certificate in trust store\n");
+		ret = pkcs7_find_asymmetric_key(&trusted, trust_store, auth0,
+						auth1);
+		if (!ret) {
+			CKINT(lc_x509_policy_cert_verify(&trusted->pub, x509,
+							 0));
+			return 0;
+		}
 
 		/* We didn't find the root of this chain */
 		printf_debug(
@@ -318,10 +327,11 @@ int pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 
 				printf_debug(
 					"- searching root CA in trust store\n");
-				CKINT(pkcs7_find_asymmetric_key(&p, trust_store,
+				CKINT(pkcs7_find_asymmetric_key(&trusted,
+								trust_store,
 								auth0, auth1));
-				CKINT(lc_x509_policy_cert_verify(&p->pub, x509,
-								 0));
+				CKINT(lc_x509_policy_cert_verify(&trusted->pub,
+								 x509, 0));
 
 				return 0;
 			}
@@ -354,9 +364,17 @@ static int pkcs7_verify_one(struct lc_pkcs7_message *pkcs7,
 	 */
 	CKINT(pkcs7_digest(pkcs7, sinfo));
 
-	/* Find the key for the signature if there is one */
-	CKINT(pkcs7_find_key(pkcs7, trust_store, sinfo));
+	/*
+	 * Find the key for the signature if there is one. If the resolution
+	 * does not find a signer, it will return and error which will be
+	 * returned to the caller.
+	 */
+	CKINT(pkcs7_find_key(pkcs7, sinfo));
 
+	/*
+	 * Insist on a signer being present in the PKCS#7 message to ensure
+	 * message's signature can be verified.
+	 */
 	CKNULL(sinfo->signer, -EKEYREJECTED);
 
 	printf_debug("Using X.509[%u] for sig %u\n", sinfo->signer->index,
