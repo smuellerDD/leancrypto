@@ -36,6 +36,7 @@
 #include "pkcs7_aa.asn1.h"
 #include "ret_checkers.h"
 #include "visibility.h"
+#include "x509_algorithm_mapper.h"
 #include "x509_cert_parser.h"
 
 /******************************************************************************
@@ -215,40 +216,7 @@ int pkcs7_sig_note_digest_algo(void *context, size_t hdrlen, unsigned char tag,
 	(void)value;
 	(void)vlen;
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wswitch-enum"
-	switch (ctx->last_oid) {
-#ifdef LC_SHA2_256
-	case OID_sha256:
-		sig->hash_algo = lc_sha256;
-		break;
-#endif
-#ifdef LC_SHA2_512
-	case OID_sha384:
-		sig->hash_algo = lc_sha384;
-		break;
-	case OID_sha512:
-		sig->hash_algo = lc_sha512;
-		break;
-#endif
-#ifdef LC_SHA3
-	case OID_sha3_256:
-		sig->hash_algo = lc_sha3_256;
-		break;
-	case OID_sha3_384:
-		sig->hash_algo = lc_sha3_384;
-		break;
-	case OID_sha3_512:
-		sig->hash_algo = lc_sha3_512;
-		break;
-#endif
-	default:
-		printf_debug("Unsupported digest algo: %u\n", ctx->last_oid);
-		return -ENOPKG;
-	}
-#pragma GCC diagnostic pop
-
-	return 0;
+	return lc_x509_oid_to_hash(ctx->last_oid, &sig->hash_algo);
 }
 
 /*
@@ -266,74 +234,7 @@ int pkcs7_sig_note_pkey_algo(void *context, size_t hdrlen, unsigned char tag,
 	(void)value;
 	(void)vlen;
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wswitch-enum"
-	switch (ctx->last_oid) {
-	case OID_id_MLDSA44:
-		sig->pkey_algo = LC_SIG_DILITHIUM_44;
-		break;
-	case OID_id_MLDSA65:
-		sig->pkey_algo = LC_SIG_DILITHIUM_65;
-		break;
-	case OID_id_MLDSA87:
-		sig->pkey_algo = LC_SIG_DILITHIUM_87;
-		break;
-	case OID_id_MLDSA44_Ed25519:
-		sig->pkey_algo = LC_SIG_DILITHIUM_44_ED25519;
-		break;
-	case OID_id_MLDSA65_Ed25519:
-		sig->pkey_algo = LC_SIG_DILITHIUM_65_ED25519;
-		break;
-	case OID_id_MLDSA87_Ed448:
-		sig->pkey_algo = LC_SIG_DILITHIUM_87_ED448;
-		break;
-
-	case OID_id_SLHDSA_SHAKE_128F:
-		sig->pkey_algo = LC_SIG_SPINCS_SHAKE_128F;
-		break;
-	case OID_id_SLHDSA_SHAKE_128S:
-		sig->pkey_algo = LC_SIG_SPINCS_SHAKE_128S;
-		break;
-	case OID_id_SLHDSA_SHAKE_192F:
-		sig->pkey_algo = LC_SIG_SPINCS_SHAKE_192F;
-		break;
-	case OID_id_SLHDSA_SHAKE_192S:
-		sig->pkey_algo = LC_SIG_SPINCS_SHAKE_192S;
-		break;
-	case OID_id_SLHDSA_SHAKE_256F:
-		sig->pkey_algo = LC_SIG_SPINCS_SHAKE_256F;
-		break;
-	case OID_id_SLHDSA_SHAKE_256S:
-		sig->pkey_algo = LC_SIG_SPINCS_SHAKE_256S;
-		break;
-
-	case OID_rsaEncryption:
-		sig->pkey_algo = LC_SIG_RSA_PKCS1;
-		break;
-	case OID_id_ecdsa_with_sha1:
-	case OID_id_ecdsa_with_sha224:
-	case OID_id_ecdsa_with_sha256:
-	case OID_id_ecdsa_with_sha384:
-	case OID_id_ecdsa_with_sha512:
-	case OID_id_ecdsa_with_sha3_256:
-	case OID_id_ecdsa_with_sha3_384:
-	case OID_id_ecdsa_with_sha3_512:
-		sig->pkey_algo = LC_SIG_ECDSA_X963;
-		break;
-	case OID_SM2_with_SM3:
-		sig->pkey_algo = LC_SIG_SM2;
-		break;
-	case OID_gost2012PKey256:
-	case OID_gost2012PKey512:
-		sig->pkey_algo = LC_SIG_ECRDSA_PKCS1;
-		break;
-	default:
-		printf_debug("Unsupported pkey algo: %u\n", ctx->last_oid);
-		return -ENOPKG;
-	}
-#pragma GCC diagnostic pop
-
-	return 0;
+	return lc_x509_oid_to_sig_type(ctx->last_oid, &sig->pkey_algo);
 }
 
 /*
@@ -482,6 +383,7 @@ int pkcs7_extract_cert(void *context, size_t hdrlen, unsigned char tag,
 
 	CKINT(lc_alloc_aligned((void **)&x509, 8,
 			       sizeof(struct lc_x509_certificate)));
+
 	CKINT(lc_x509_cert_parse(x509, value, vlen));
 
 	x509->index = ++ctx->x509_index;

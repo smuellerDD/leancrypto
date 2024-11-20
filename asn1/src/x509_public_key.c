@@ -31,6 +31,23 @@
 #include "x509_algorithm_mapper.h"
 #include "x509_cert_parser.h"
 
+int x509_set_digestsize(size_t *digestsize, struct lc_hash_ctx *hash_ctx)
+{
+	size_t found_digestsize = lc_hash_digestsize(hash_ctx);
+
+	/* This can happen for a SHAKE-algorithm */
+	if (!found_digestsize) {
+		lc_hash_set_digestsize(hash_ctx, LC_SHA_MAX_SIZE_DIGEST);
+		found_digestsize = LC_SHA_MAX_SIZE_DIGEST;
+	}
+	if (*digestsize < found_digestsize)
+		return -ENOMEM;
+
+	*digestsize = found_digestsize;
+
+	return 0;
+}
+
 /*
  * Set up the signature parameters in an X.509 certificate.  This involves
  * digesting the signed data and extracting the signature.
@@ -45,11 +62,8 @@ static int _x509_get_sig_params(struct lc_x509_certificate *cert,
 	printf_debug("==>%s()\n", __func__);
 
 	lc_hash_init(hash_ctx);
-	sig->digest_size = lc_hash_digestsize(hash_ctx);
-	if (sig->digest_size > sizeof(sig->digest)) {
-		ret = -ENOMEM;
-		goto out;
-	}
+	sig->digest_size = sizeof(sig->digest);
+	CKINT(x509_set_digestsize(&sig->digest_size, hash_ctx));
 	printf_debug("Digest size %zu\n", sig->digest_size);
 
 	lc_hash_update(hash_ctx, cert->tbs, cert->tbs_size);

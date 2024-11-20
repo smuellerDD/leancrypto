@@ -255,22 +255,164 @@ LC_INTERFACE_FUNCTION(int, lc_x509_sig_type_to_hash,
 	}
 }
 
+LC_INTERFACE_FUNCTION(int, lc_x509_name_to_hash, const char *hash_name,
+		      const struct lc_hash **hash_algo)
+{
+	size_t namelen;
+
+	if (!hash_name)
+		return -EINVAL;
+
+	namelen = strlen(hash_name);
+
+#ifdef LC_SHA2_256
+	if (namelen == 7 && !strncmp(hash_name, "SHA-256", namelen))
+		*hash_algo = lc_sha256;
+	else
+#endif
+#ifdef LC_SHA2_512
+		if (namelen == 7 && !strncmp(hash_name, "SHA-384", namelen))
+		*hash_algo = lc_sha384;
+	else if (namelen == 7 && !strncmp(hash_name, "SHA-512", namelen))
+		*hash_algo = lc_sha512;
+	else
+#endif
+#ifdef LC_SHA3
+		if (namelen == 8 && !strncmp(hash_name, "SHA3-256", namelen))
+		*hash_algo = lc_sha3_256;
+	else if (namelen == 8 && !strncmp(hash_name, "SHA3-384", namelen))
+		*hash_algo = lc_sha3_384;
+	else if (namelen == 8 && !strncmp(hash_name, "SHA3-512", namelen))
+		*hash_algo = lc_sha3_512;
+	else if (namelen == 8 && !strncmp(hash_name, "SHAKE128", namelen))
+		*hash_algo = lc_shake128;
+	else if (namelen == 8 && !strncmp(hash_name, "SHAKE256", namelen))
+		*hash_algo = lc_shake256;
+	else
+#endif
+	{
+		printf("Allowed message digest algorithms: ");
+#ifdef LC_SHA2_256
+		printf("SHA-256 ");
+#endif
+#ifdef LC_SHA2_512
+		printf("SHA-384 SHA-512 ");
+#endif
+#ifdef LC_SHA3
+		printf("SHA3-256 SHA3-384 SHA3-512 SHAKE128 SHAKE256");
+#endif
+		printf("\n");
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x509_hash_to_name,
+		      const struct lc_hash *hash_algo, const char **hash_name)
+{
+#ifdef LC_SHA2_256
+	if (hash_algo == lc_sha256)
+		*hash_name = "SHA-256";
+	else
+#endif
+#ifdef LC_SHA2_512
+		if (hash_algo == lc_sha384)
+		*hash_name = "SHA-384";
+	else if (hash_algo == lc_sha512)
+		*hash_name = "SHA-512";
+	else
+#endif
+#ifdef LC_SHA3
+		if (hash_algo == lc_sha3_256)
+		*hash_name = "SHA3-256";
+	else if (hash_algo == lc_sha3_384)
+		*hash_name = "SHA3-384";
+	else if (hash_algo == lc_sha3_512)
+		*hash_name = "SHA3-512";
+	else if (hash_algo == lc_shake128)
+		*hash_name = "SHAKE128";
+	else if (hash_algo == lc_shake256)
+		*hash_name = "SHAKE256";
+	else
+#endif
+		*hash_name = "<unknown>";
+
+	return 0;
+}
+
 int lc_x509_hash_to_oid(const struct lc_hash *hash_algo, enum OID *oid)
 {
+#ifdef LC_SHA2_256
 	if (hash_algo == lc_sha256)
 		*oid = OID_sha256;
-	else if (hash_algo == lc_sha384)
+	else
+#endif
+#ifdef LC_SHA2_512
+		if (hash_algo == lc_sha384)
 		*oid = OID_sha384;
 	else if (hash_algo == lc_sha512)
 		*oid = OID_sha512;
-	else if (hash_algo == lc_sha3_256)
+	else
+#endif
+#ifdef LC_SHA3
+		if (hash_algo == lc_sha3_256)
 		*oid = OID_sha3_256;
 	else if (hash_algo == lc_sha3_384)
 		*oid = OID_sha3_384;
 	else if (hash_algo == lc_sha3_512)
 		*oid = OID_sha3_512;
+	else if (hash_algo == lc_shake128)
+		*oid = OID_shake128;
+	else if (hash_algo == lc_shake256)
+		*oid = OID_shake256;
 	else
+#endif
 		*oid = OID__NR;
+
+	return 0;
+}
+
+int lc_x509_oid_to_hash(enum OID oid, const struct lc_hash **hash_algo)
+{
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-enum"
+	switch (oid) {
+#ifdef LC_SHA2_256
+	case OID_sha256:
+		*hash_algo = lc_sha256;
+		break;
+#endif
+#ifdef LC_SHA2_512
+	case OID_sha384:
+		*hash_algo = lc_sha384;
+		break;
+	case OID_sha512:
+		*hash_algo = lc_sha512;
+		break;
+#endif
+#ifdef LC_SHA3
+	case OID_sha3_256:
+		*hash_algo = lc_sha3_256;
+		break;
+	case OID_sha3_384:
+		*hash_algo = lc_sha3_384;
+		break;
+	case OID_sha3_512:
+		*hash_algo = lc_sha3_512;
+		break;
+	case OID_shake128:
+		*hash_algo = lc_shake128;
+		break;
+	case OID_shake256:
+		*hash_algo = lc_shake256;
+		break;
+#endif
+	default:
+		printf_debug("Unsupported digest algo: %u\n", oid);
+		return -ENOPKG;
+	}
+#pragma GCC diagnostic pop
 
 	return 0;
 }

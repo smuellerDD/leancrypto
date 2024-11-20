@@ -90,6 +90,10 @@ int x509_decode_time(time64_t *_t, size_t hdrlen, unsigned char tag,
 /*
  * x509_public_key.c
  */
+/*
+ * Set the proper digest size for the hashes used in X.509 / PKCS7
+ */
+int x509_set_digestsize(size_t *digestsize, struct lc_hash_ctx *hash_ctx);
 int x509_get_sig_params(struct lc_x509_certificate *cert);
 int x509_check_for_self_signed(struct lc_x509_certificate *cert);
 

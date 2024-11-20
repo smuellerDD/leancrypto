@@ -109,11 +109,31 @@ int lc_pkcs7_set_certificate(struct lc_pkcs7_message *pkcs7,
  * @param [out] pkcs7 PKCS#7 structure that shall receive the signer
  * @param [in] x509_with_sk PKCS#7 certificate with secret key to be used as
  *			    signer
+ * @param [in] signing_hash With this parameter, the signing hash must can be
+ *			    specified by the caller. When using the
+ *			    \p signing_hash, HashML-DSA, HashSLH-DSA or
+ *			    HashComposite-ML-DSA is applied. For
+ *			    Composite-ML-DSA a hash algorithm with 512 bit
+ *			    message digest size must be specified (\p lc_sha512,
+ *			    \p lc_sha3_512 or \p lc_shake256).
+ * @param [in] auth_attribute Specify which authenticated attributes are to be
+ *			      generated. When set to 0, no authenticated
+ *			      attributes are generated.
+ *			      \note When authenticated attributes are to be
+ *			      generated, the caller MUST provide a
+ *			      \p signing_hash as RFC5652 section 5.3 requres
+ *			      the presence of the message digest attribute.
+ *			      The following attributes are allowed:
+ *			      \p sinfo_has_content_type - set content type
+ *			      \p sinfo_has_signing_time - set signing time
+ *			      \p sinfo_has_message_digest - set message digest
  *
  * @return 0 on success, < 0 on error
  */
 int lc_pkcs7_set_signer(struct lc_pkcs7_message *pkcs7,
-			struct lc_x509_certificate *x509_with_sk);
+			struct lc_x509_certificate *x509_with_sk,
+			const struct lc_hash *signing_hash,
+			unsigned long auth_attribute);
 
 enum lc_pkcs7_set_data_flags {
 	/** Define no flags */

@@ -29,6 +29,7 @@
 #include "visibility.h"
 #include "x509_algorithm_mapper.h"
 #include "x509_cert_generator.h"
+#include "x509_cert_parser.h"
 
 struct pkcs7_generate_context {
 	/*
@@ -102,15 +103,30 @@ out:
 static int pkcs7_get_digest(const struct lc_hash **hash_algo,
 			    const struct lc_pkcs7_signed_info *sinfo)
 {
+	const struct lc_x509_certificate *x509 = sinfo->signer;
+	const struct lc_public_key *pub;
 	const struct lc_public_key_signature *sig = &sinfo->sig;
-	const struct lc_hash *tmp_algo = sig->hash_algo;
+	const struct lc_hash *tmp_algo;
 	int ret = 0;
+
+	CKNULL(x509, -EINVAL);
+	CKNULL(sig, -EINVAL);
+
+	pub = &x509->pub;
+	tmp_algo = sig->hash_algo;
 
 	/*
 	 * If we have no hash algorithm set externally, try the pubkey algo.
 	 */
-	if (!tmp_algo)
-		CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &tmp_algo));
+	if (!tmp_algo) {
+		if (sig->pkey_algo) {
+			CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo,
+						       &tmp_algo));
+		} else {
+			CKINT(lc_x509_sig_type_to_hash(pub->pkey_algo,
+						       &tmp_algo));
+		}
+	}
 	*hash_algo = tmp_algo;
 
 out:
@@ -616,16 +632,18 @@ static int pkcs7_hash_data(uint8_t *digest, size_t *digest_size,
 			   const struct lc_pkcs7_message *pkcs7)
 {
 	LC_HASH_CTX_ON_STACK(hash_ctx, hash_algo);
+	int ret;
 
 	/* Digest the message [RFC5652 5.4] */
 	lc_hash_init(hash_ctx);
-	*digest_size = lc_hash_digestsize(hash_ctx);
+	CKINT(x509_set_digestsize(digest_size, hash_ctx));
 
 	lc_hash_update(hash_ctx, pkcs7->data, pkcs7->data_len);
 	lc_hash_final(hash_ctx, digest);
 	lc_hash_zero(hash_ctx);
 
-	return 0;
+out:
+	return ret;
 }
 
 /*
@@ -638,7 +656,7 @@ int pkcs7_external_aa_enc(void *context, uint8_t *data, size_t *avail_datalen,
 	const struct lc_pkcs7_message *pkcs7 = ctx->pkcs7;
 	const struct lc_pkcs7_signed_info *sinfo = ctx->current_sinfo;
 	uint8_t digest[LC_SHA_MAX_SIZE_DIGEST];
-	size_t digest_size = 0;
+	size_t digest_size = sizeof(digest);
 	int ret = 0;
 
 	(void)tag;
@@ -769,6 +787,10 @@ int pkcs7_sig_note_set_of_authattrs_enc(void *context, uint8_t *data,
 	uint8_t aa[500], *aap = aa, len;
 	size_t aalen = sizeof(aa);
 	int ret;
+
+	if (!ctx->authattr_hash)
+		return 0;
+
 	LC_HASH_CTX_ON_STACK(hash_ctx, ctx->authattr_hash);
 
 	(void)tag;
@@ -794,7 +816,8 @@ int pkcs7_sig_note_set_of_authattrs_enc(void *context, uint8_t *data,
 	}
 
 	lc_hash_init(hash_ctx);
-	ctx->authattrs_digest_size = lc_hash_digestsize(hash_ctx);
+	ctx->authattrs_digest_size = sizeof(ctx->authattrs_digest);
+	CKINT(x509_set_digestsize(&ctx->authattrs_digest_size, hash_ctx));
 
 	aa[0] = ASN1_CONS_BIT | ASN1_SET;
 	lc_hash_update(hash_ctx, aap, aalen);
@@ -959,12 +982,18 @@ int pkcs7_sig_note_signature_enc(void *context, uint8_t *data,
 	 * have a digest algorithm.
 	 */
 	if (sig.hash_algo) {
-		if (!ctx->authattrs_digest_size)
-			return -EINVAL;
+		if (ctx->authattrs_digest_size) {
+			memcpy(sig.digest, ctx->authattrs_digest,
+			       ctx->authattrs_digest_size);
+		} else {
+			ctx->authattrs_digest_size = sizeof(sig.digest);
+			CKINT(pkcs7_hash_data(sig.digest,
+					      &ctx->authattrs_digest_size,
+					      sig.hash_algo, pkcs7));
+		}
 
-		memcpy(sig.digest, ctx->authattrs_digest,
-		       ctx->authattrs_digest_size);
 		sig.digest_size = ctx->authattrs_digest_size;
+
 	} else {
 		if (ctx->authattrs_digest_size)
 			return -EINVAL;
@@ -1016,6 +1045,8 @@ int pkcs7_note_signed_info_enc(void *context, uint8_t *data,
 static inline int pkcs7_initialize_ctx(struct pkcs7_generate_context *ctx,
 				       const struct lc_pkcs7_message *pkcs7)
 {
+	struct lc_pkcs7_signed_info *sinfo;
+
 	int ret = 0;
 
 	CKNULL(pkcs7->certs, -EINVAL);
@@ -1025,7 +1056,35 @@ static inline int pkcs7_initialize_ctx(struct pkcs7_generate_context *ctx,
 	ctx->current_x509 = pkcs7->certs;
 	ctx->current_sinfo = pkcs7->signed_infos;
 
-	CKINT(pkcs7_get_digest(&ctx->authattr_hash, ctx->current_sinfo));
+	for (sinfo = pkcs7->signed_infos; sinfo; sinfo = sinfo->next) {
+		const struct lc_hash *hash;
+
+		if (!ctx->authattr_hash) {
+			/* No auth attribute hash set, try to find one. */
+			CKINT(pkcs7_get_digest(&ctx->authattr_hash,
+					       ctx->current_sinfo));
+		} else {
+			/* Auth attribute set, check that we only have one. */
+			CKINT(pkcs7_get_digest(&hash, ctx->current_sinfo));
+
+			if (hash && hash != ctx->authattr_hash) {
+				printf_debug(
+					"Currently only one hash algorithm supported for all signers\n");
+				return -EINVAL;
+			}
+		}
+
+		/*
+		 * When we have no hash, we cannot handle authenticated
+		 * attributes, because if they are present, they must contain
+		 * the message digest of the message.
+		 */
+		if (!ctx->authattr_hash && sinfo->aa_set) {
+			printf_debug(
+				"The generation of authenticated attributes requires the presence of a hash algorithm\n");
+			return -EINVAL;
+		}
+	}
 
 out:
 	return ret;

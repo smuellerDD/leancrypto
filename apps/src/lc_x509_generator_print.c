@@ -24,7 +24,9 @@
 #include "lc_sha3.h"
 #include "lc_sha512.h"
 #include "lc_x509_common.h"
+#include "lc_x509_generator.h"
 #include "math_helper.h"
+#include "ret_checkers.h"
 #include "visibility.h"
 #include "x509_print.h"
 
@@ -277,6 +279,8 @@ int print_pkcs7_data(const struct lc_pkcs7_message *pkcs7_msg)
 {
 	struct lc_x509_certificate *cert = pkcs7_msg->certs;
 	struct lc_pkcs7_signed_info *sinfos = pkcs7_msg->signed_infos;
+	const char *hash_name;
+	int ret = 0;
 
 	printf("======= X.509 certificate listing ==========\n");
 	while (cert) {
@@ -306,6 +310,9 @@ int print_pkcs7_data(const struct lc_pkcs7_message *pkcs7_msg)
 		bin2print(sig->digest, sig->digest_size, stdout,
 			  "signerInfos messageDigest");
 
+		CKINT(lc_x509_hash_to_name(sig->hash_algo, &hash_name));
+		printf("Message digest algorithm: %s\n", hash_name);
+
 		if (pkcs7_msg->data) {
 			printf("Size of protected data: %zu\n",
 			       pkcs7_msg->data_len);
@@ -318,5 +325,6 @@ int print_pkcs7_data(const struct lc_pkcs7_message *pkcs7_msg)
 		sinfos = sinfos->next;
 	}
 
-	return 0;
+out:
+	return ret;
 }

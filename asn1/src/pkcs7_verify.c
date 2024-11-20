@@ -33,6 +33,7 @@
 #include "public_key.h"
 #include "ret_checkers.h"
 #include "visibility.h"
+#include "x509_cert_parser.h"
 
 /*
  * Digest the relevant parts of the PKCS#7 data
@@ -55,12 +56,8 @@ static int pkcs7_digest(struct lc_pkcs7_message *pkcs7,
 
 	/* Digest the message [RFC5652 5.4] */
 	lc_hash_init(hash_ctx);
-	sig->digest_size = lc_hash_digestsize(hash_ctx);
-	if (sig->digest_size > sizeof(sig->digest)) {
-		ret = -ENOMEM;
-		goto out;
-	}
-
+	sig->digest_size = sizeof(sig->digest);
+	CKINT(x509_set_digestsize(&sig->digest_size, hash_ctx));
 	lc_hash_update(hash_ctx, pkcs7->data, pkcs7->data_len);
 	lc_hash_final(hash_ctx, sig->digest);
 	lc_hash_zero(hash_ctx);
@@ -107,6 +104,9 @@ static int pkcs7_digest(struct lc_pkcs7_message *pkcs7,
 		 */
 		memset(sig->digest, 0, sig->digest_size);
 		lc_hash_init(hash_ctx);
+		sig->digest_size = sizeof(sig->digest);
+		CKINT(x509_set_digestsize(&sig->digest_size, hash_ctx));
+
 		tag = ASN1_CONS_BIT | ASN1_SET;
 		lc_hash_update(hash_ctx, &tag, 1);
 		lc_hash_update(hash_ctx, sinfo->authattrs,

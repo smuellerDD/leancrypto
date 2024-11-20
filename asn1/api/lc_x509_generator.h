@@ -621,6 +621,34 @@ int lc_x509_cert_set_serial(struct lc_x509_certificate *cert,
 int lc_x509_pkey_name_to_algorithm(const char *name,
 				   enum lc_sig_types *pkey_algo);
 
+/**
+ * @ingroup X509Gen
+ * @brief Helper to convert the human readable name of a hash algorithm to
+ *	  its internal representation
+ *
+ * If there is no match, the function prints out the allowed strings.
+ *
+ * @param [in] hash_name hash algorithm in human readable form
+ * @param [out] hash_algo leancrypto algorithm reference
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_name_to_hash(const char *hash_name,
+			 const struct lc_hash **hash_algo);
+
+/**
+ * @ingroup X509Gen
+ * @brief Helper to convert the internal representation of a hash algorithm to
+ *	  its human readable form
+ *
+ * @param [in] hash_algo leancrypto algorithm reference
+ * @param [out] hash_name hash algorithm in human readable form
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_hash_to_name(const struct lc_hash *hash_algo,
+			 const char **hash_name);
+
 #ifdef __cplusplus
 }
 #endif

@@ -230,9 +230,38 @@ if (host_machine.system() != 'windows') and get_option('apps').enabled()
 			     '--trust-anchor', meson.project_source_root() + '/asn1/tests/testcerts/slh-dsa-shake-256s_cacert.der' ],
 		     is_parallel: false, timeout: 300, suite: regression)
 
-		test('PKCS7 Gen with ML-DSA 4-way cert chain',
+		# SHA3-512 is default
+		test('PKCS7 Gen with ML-DSA 4-way cert chain SHA3-512',
 		     lc_pkcs7_generator,
 		     args: [ '--x509-signer', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_leaf.der',
+			     '--signer-sk-file', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_leaf.privkey',
+			     '-i', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_cacert.der',
+			     '--print',
+			     '--noout',
+			     '--x509-cert',  meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa65_int1.der',
+			     '--x509-cert', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa44_int2.der',
+			     '--x509-cert', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_cacert.der',
+			     '--trust-anchor', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_cacert.der' ],
+		     is_parallel: false, timeout: 300, suite: regression)
+
+		test('PKCS7 Gen with ML-DSA 4-way cert chain SHA-512',
+		     lc_pkcs7_generator,
+		     args: [ '--md', 'SHA-512',
+			     '--x509-signer', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_leaf.der',
+			     '--signer-sk-file', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_leaf.privkey',
+			     '-i', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_cacert.der',
+			     '--print',
+			     '--noout',
+			     '--x509-cert',  meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa65_int1.der',
+			     '--x509-cert', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa44_int2.der',
+			     '--x509-cert', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_cacert.der',
+			     '--trust-anchor', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_cacert.der' ],
+		     is_parallel: false, timeout: 300, suite: regression)
+
+		test('PKCS7 Gen with ML-DSA 4-way cert chain SHAKE256',
+		     lc_pkcs7_generator,
+		     args: [ '--md', 'SHAKE256',
+			     '--x509-signer', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_leaf.der',
 			     '--signer-sk-file', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_leaf.privkey',
 			     '-i', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_cacert.der',
 			     '--print',

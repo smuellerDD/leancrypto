@@ -159,7 +159,7 @@ int asn1_ber_encoder(const struct asn1_encoder *encoder, void *context,
 
 next_op:
 	printf_debug("next_op: pc=\x1B[32m%zu\x1B[m/%zu t=%zu J=%u D=%u\n", pc,
-		     machlen, data_len[dsp], jsp, dsp);
+		     machlen, ws->data_len[dsp], jsp, dsp);
 	if (unlikely(pc >= machlen))
 		goto machine_overrun_error;
 	op = machine[pc];

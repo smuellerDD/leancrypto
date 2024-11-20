@@ -47,6 +47,9 @@ struct pkcs7_x509 {
 struct pkcs7_generator_opts {
 	struct lc_pkcs7_message pkcs7;
 
+	const struct lc_hash *hash;
+	unsigned long aa_set;
+
 	enum lc_sig_types in_key_type;
 
 	const char *outfile;
@@ -71,6 +74,7 @@ struct pkcs7_generator_opts {
 	unsigned int noout : 1;
 	unsigned int checker : 1;
 	unsigned int use_trust_store : 1;
+	unsigned int signer_set : 1;
 
 	struct pkcs7_x509 *x509;
 };
@@ -258,7 +262,8 @@ static int pkcs7_gen_message(struct pkcs7_generator_opts *opts)
 	size_t avail_datalen = sizeof(data), datalen;
 	int ret;
 
-	CKINT(lc_pkcs7_generate(pkcs7, data, &avail_datalen));
+	CKINT_LOG(lc_pkcs7_generate(pkcs7, data, &avail_datalen),
+		  "Message generation failed\n");
 	datalen = sizeof(data) - avail_datalen;
 
 	if (!opts->outfile)
@@ -267,7 +272,8 @@ static int pkcs7_gen_message(struct pkcs7_generator_opts *opts)
 	CKINT_LOG(pkcs7_gen_file(opts, data, datalen),
 		  "Writing of X.509 certificate failed\n");
 
-	CKINT(pkcs7_enc_dump(opts, data, datalen));
+	CKINT_LOG(pkcs7_enc_dump(opts, data, datalen),
+		  "Printing of message failed\n");
 
 out:
 	return ret;
@@ -331,8 +337,9 @@ static int pkcs7_load_signer(struct pkcs7_generator_opts *opts)
 				      x509->signer_sk_data,
 				      x509->signer_sk_data_len));
 
-	CKINT(lc_pkcs7_set_signer(pkcs7, newcert));
+	CKINT(lc_pkcs7_set_signer(pkcs7, newcert, opts->hash, opts->aa_set));
 
+	opts->signer_set = 1;
 	newcert = NULL;
 
 out:
@@ -407,14 +414,19 @@ static void pkcs7_generator_usage(void)
 		"\t-o --outfile <FILE>\t\tFile to write certificate to\n");
 	fprintf(stderr,
 		"\t-i --infile <FILE>\t\tFile with data to be protected\n");
+	fprintf(stderr, "\t\t\t\t\t\tNOTE: Only detached signatures\n");
+	fprintf(stderr, "\t\t\t\t\t\tare created\n");
 
 	fprintf(stderr, "\n\tOptions for X.509 signer:\n");
+	fprintf(stderr,
+		"\t   --md <DIGEST>\t\tMessage digest to use (default SHA3-512)\n");
+	fprintf(stderr, "\t\t\t\t\t\tQuery algorithms with \"?\"\n");
 	fprintf(stderr,
 		"\t   --x509-signer <FILE>\t\tX.509 certificate of signer\n");
 	fprintf(stderr, "\t\t\t\t\t\tIf not set, create a self-signed\n");
 	fprintf(stderr, "\t\t\t\t\t\tcertificate\n");
 	fprintf(stderr,
-		"\t   --signer-sk-file <FILE>\t\tFile with signer secret\n");
+		"\t   --signer-sk-file <FILE>\tFile with signer secret\n");
 
 	fprintf(stderr, "\n\tOptions for additional X.509:\n");
 	fprintf(stderr,
@@ -430,7 +442,7 @@ static void pkcs7_generator_usage(void)
 	fprintf(stderr, "\t\t\t\t\tprint its contents\n");
 	fprintf(stderr, "\t   --noout\t\t\tNo generation of output files\n");
 	fprintf(stderr,
-		"\t   --trust-anchor <FILE>\t\tTrust anchor X.509 certificate\n");
+		"\t   --trust-anchor <FILE>\tTrust anchor X.509 certificate\n");
 
 	fprintf(stderr, "\n\t-h  --help\t\t\tPrint this help text\n");
 }
@@ -442,7 +454,8 @@ static int pkcs7_collect_signer(struct pkcs7_generator_opts *opts)
 	CKNULL(opts->x509_signer_file, 0);
 	CKNULL(opts->signer_sk_file, 0);
 
-	CKINT(pkcs7_load_signer(opts));
+	CKINT_LOG(pkcs7_load_signer(opts),
+		  "Loading signer key/certificate failed\n");
 
 	opts->x509_signer_file = NULL;
 	opts->signer_sk_file = NULL;
@@ -457,7 +470,7 @@ static int pkcs7_collect_x509(struct pkcs7_generator_opts *opts)
 
 	CKNULL(opts->x509_file, 0);
 
-	CKINT(pkcs7_load_cert(opts));
+	CKINT_LOG(pkcs7_load_cert(opts), "Loading certificate failed\n");
 
 	opts->x509_file = NULL;
 
@@ -476,6 +489,7 @@ int main(int argc, char *argv[])
 					      { "outfile", 1, 0, 'o' },
 					      { "infile", 1, 0, 'i' },
 
+					      { "md", 1, 0, 0 },
 					      { "x509-signer", 1, 0, 0 },
 					      { "signer-sk-file", 1, 0, 0 },
 					      { "x509-cert", 1, 0, 0 },
@@ -486,6 +500,13 @@ int main(int argc, char *argv[])
 					      { "trust-anchor", 1, 0, 0 },
 
 					      { 0, 0, 0, 0 } };
+
+	/* Should that be turned into an option? */
+	parsed_opts.aa_set = sinfo_has_content_type | sinfo_has_signing_time |
+			     sinfo_has_message_digest;
+
+	/* Set default algoritm */
+	parsed_opts.hash = lc_sha3_512;
 
 	opterr = 0;
 	while (1) {
@@ -511,37 +532,48 @@ int main(int argc, char *argv[])
 				parsed_opts.infile = optarg;
 				break;
 
-			/* x509-signer */
+			/* md */
 			case 3:
+				if (parsed_opts.signer_set) {
+					printf("The option --md must be set before the first signer to take effect\n");
+					ret = -EINVAL;
+					goto out;
+				}
+				CKINT(lc_x509_name_to_hash(optarg,
+							   &parsed_opts.hash));
+				break;
+
+			/* x509-signer */
+			case 4:
 				parsed_opts.x509_signer_file = optarg;
 				CKINT(pkcs7_collect_signer(&parsed_opts));
 				break;
 			/* signer-sk-file */
-			case 4:
+			case 5:
 				parsed_opts.signer_sk_file = optarg;
 				CKINT(pkcs7_collect_signer(&parsed_opts));
 				break;
 
 			/* x509-cert */
-			case 5:
+			case 6:
 				parsed_opts.x509_file = optarg;
 				CKINT(pkcs7_collect_x509(&parsed_opts));
 				break;
 
 			/* print */
-			case 6:
+			case 7:
 				parsed_opts.print_pkcs7 = 1;
 				break;
 			/* noout */
-			case 7:
+			case 8:
 				parsed_opts.noout = 1;
 				break;
 			/* print-pkcs7 */
-			case 8:
+			case 9:
 				parsed_opts.print_pkcs7_msg = optarg;
 				break;
 			/* trust-anchor */
-			case 9:
+			case 10:
 				parsed_opts.trust_anchor = optarg;
 				break;
 			}
