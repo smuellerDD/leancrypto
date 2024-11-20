@@ -26,6 +26,7 @@
 
 #include "asn1.h"
 #include "asn1_debug.h"
+#include "lc_memcmp_secure.h"
 #include "lc_sha256.h"
 #include "lc_sha3.h"
 #include "lc_sha512.h"
@@ -86,8 +87,9 @@ static int pkcs7_digest(struct lc_pkcs7_message *pkcs7,
 			goto out;
 		}
 
-		if (memcmp(sig->digest, sinfo->msgdigest,
-			   sinfo->msgdigest_len) != 0) {
+		if (lc_memcmp_secure(sig->digest, sig->digest_size,
+				     sinfo->msgdigest,
+				     sinfo->msgdigest_len) != 0) {
 			printf_debug("Sig %u: Message digest doesn't match\n",
 				     sinfo->index);
 			bin2print_debug(sinfo->msgdigest, sinfo->msgdigest_len,

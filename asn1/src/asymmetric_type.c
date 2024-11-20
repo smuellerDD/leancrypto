@@ -27,6 +27,7 @@
 #include "asymmetric_type.h"
 #include "build_bug_on.h"
 #include "ext_headers.h"
+#include "lc_memcmp_secure.h"
 #include "lc_memory_support.h"
 #include "ret_checkers.h"
 
@@ -65,15 +66,13 @@ int asymmetric_key_generate_id(struct lc_asymmetric_key_id *kid,
  * @kid1: The key ID to compare
  * @kid2: The key ID to compare
  */
-#include "binhexbin.h"
 int asymmetric_key_id_same(const struct lc_asymmetric_key_id *kid1,
 			   const struct lc_asymmetric_key_id *kid2)
 {
 	if (!kid1 || !kid2)
 		return 0;
-	if (kid1->len != kid2->len)
-		return 0;
-	return memcmp(kid1->data, kid2->data, kid1->len) == 0;
+	return lc_memcmp_secure(kid1->data, kid2->len, kid2->data,
+				kid2->len) == 0;
 }
 
 /**
@@ -89,6 +88,6 @@ int asymmetric_key_id_partial(const struct lc_asymmetric_key_id *kid1,
 		return 0;
 	if (kid1->len < kid2->len)
 		return 0;
-	return memcmp(kid1->data + (kid1->len - kid2->len), kid2->data,
-		      kid2->len) == 0;
+	return lc_memcmp_secure(kid1->data + (kid1->len - kid2->len), kid2->len,
+				kid2->data, kid2->len) == 0;
 }
