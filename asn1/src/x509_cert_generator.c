@@ -819,7 +819,7 @@ int x509_signature_reserve_room(uint8_t *data, size_t *avail_datalen,
 		*avail_datalen -= datalen;
 	}
 
-	printf_debug("Set signature length %u\n", siglen);
+	printf_debug("Set signature length %zu\n", siglen);
 
 out:
 	return ret;
