@@ -1,4 +1,5 @@
 hasher_test_script = find_program('hasher-test.sh', required: true)
+certdir = meson.project_source_root() + '/asn1/tests/testcerts/'
 
 x509_rootca_args = [
 	'--keyusage', 'digitalSignature',
@@ -53,8 +54,8 @@ x509_int1_ca_args = [
 	'--skid', '0b0c0d0e0f0001',
 	'--noout',
 	'--print',
-	'--x509-signer', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_cacert.der',
-	'--signer-sk-file', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_cacert.privkey',
+	'--x509-signer', certdir + 'ml-dsa87_cacert.der',
+	'--signer-sk-file', certdir + 'ml-dsa87_cacert.privkey',
 	'--noout',
 	'--print',
 
@@ -86,8 +87,8 @@ x509_leaf_args = [
 	'--skid', '0d0e0f00010203',
 	'--noout',
 	'--print',
-	'--x509-signer', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_int2.der',
-	'--signer-sk-file', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_int2.privkey',
+	'--x509-signer', certdir + 'ml-dsa87_int2.der',
+	'--signer-sk-file', certdir + 'ml-dsa87_int2.privkey',
 	'--noout',
 	'--print',
 
@@ -104,52 +105,52 @@ x509_leaf_args = [
 	]
 
 pkcs7_arg_signer = [
-	'--x509-signer', meson.project_source_root() + '/asn1/tests/testcerts/slh-dsa-shake-128f_leaf.der',
-	'--signer-sk-file', meson.project_source_root() + '/asn1/tests/testcerts/slh-dsa-shake-128f_leaf.privkey',
-	'-i', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_cacert.der',
+	'--x509-signer', certdir + 'slh-dsa-shake-128f_leaf.der',
+	'--signer-sk-file', certdir + 'slh-dsa-shake-128f_leaf.privkey',
+	'-i', certdir + 'ml-dsa87_cacert.der',
 	'--print',
 	'--noout'
 	]
 
 pkcs7_arg_int1 = [
-	'--x509-cert',  meson.project_source_root() + '/asn1/tests/testcerts/slh-dsa-shake-256f_int1.der'
+	'--x509-cert',  certdir + 'slh-dsa-shake-256f_int1.der'
 	]
 
 pkcs7_arg_int2 = [
-	'--x509-cert', meson.project_source_root() + '/asn1/tests/testcerts/slh-dsa-shake-192f_int2.der'
+	'--x509-cert', certdir + 'slh-dsa-shake-192f_int2.der'
 	]
 
 pkcs7_arg_ca = [
-	'--x509-cert', meson.project_source_root() + '/asn1/tests/testcerts/slh-dsa-shake-256s_cacert.der'
+	'--x509-cert', certdir + 'slh-dsa-shake-256s_cacert.der'
 	]
 
 pkcs7_arg_trust = [
-	'--trust-anchor', meson.project_source_root() + '/asn1/tests/testcerts/slh-dsa-shake-256s_cacert.der'
+	'--trust-anchor', certdir + 'slh-dsa-shake-256s_cacert.der'
 	]
 
 pkcs7_arg_other_trust = [
-	'--trust-anchor', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_cacert.der'
+	'--trust-anchor', certdir + 'ml-dsa87_cacert.der'
 	]
 
 # Trust Store tests
 pkcs7_arg_trust_signer = [
-	'--x509-signer', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_leaf.der',
-	'--signer-sk-file', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_leaf.privkey',
-	'-i', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_cacert.der',
+	'--x509-signer', certdir + 'ml-dsa87_leaf.der',
+	'--signer-sk-file', certdir + 'ml-dsa87_leaf.privkey',
+	'-i', certdir + 'ml-dsa87_cacert.der',
 	'--print',
 	'--noout'
 	]
 
 pkcs7_arg_trust_ca = [
-	'--trust-anchor', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_cacert.der'
+	'--trust-anchor', certdir + 'ml-dsa87_cacert.der'
 	]
 
 pkcs7_arg_trust_int1 = [
-	'--trust-anchor', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa65_int1.der'
+	'--trust-anchor', certdir + 'ml-dsa65_int1.der'
 	]
 
 pkcs7_arg_trust_int2 = [
-	'--trust-anchor', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa44_int2.der'
+	'--trust-anchor', certdir + 'ml-dsa44_int2.der'
 	]
 
 # Apps use POSIX API that is not available on regular Windows
@@ -241,44 +242,44 @@ if (host_machine.system() != 'windows') and get_option('apps').enabled()
 
 		test('PKCS7 Gen with SLH-DSA 4-way cert chain',
 			lc_pkcs7_generator,
-			args: [ '--x509-signer', meson.project_source_root() + '/asn1/tests/testcerts/slh-dsa-shake-128f_leaf.der',
-				'--signer-sk-file', meson.project_source_root() + '/asn1/tests/testcerts/slh-dsa-shake-128f_leaf.privkey',
-				'-i', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_cacert.der',
+			args: [ '--x509-signer', certdir + 'slh-dsa-shake-128f_leaf.der',
+				'--signer-sk-file', certdir + 'slh-dsa-shake-128f_leaf.privkey',
+				'-i', certdir + 'ml-dsa87_cacert.der',
 				'--print',
 				'--noout',
-				'--x509-cert',  meson.project_source_root() + '/asn1/tests/testcerts/slh-dsa-shake-256f_int1.der',
-				'--x509-cert', meson.project_source_root() + '/asn1/tests/testcerts/slh-dsa-shake-192f_int2.der',
-				'--x509-cert', meson.project_source_root() + '/asn1/tests/testcerts/slh-dsa-shake-256s_cacert.der',
-				'--trust-anchor', meson.project_source_root() + '/asn1/tests/testcerts/slh-dsa-shake-256s_cacert.der' ],
+				'--x509-cert',  certdir + 'slh-dsa-shake-256f_int1.der',
+				'--x509-cert', certdir + 'slh-dsa-shake-192f_int2.der',
+				'--x509-cert', certdir + 'slh-dsa-shake-256s_cacert.der',
+				'--trust-anchor', certdir + 'slh-dsa-shake-256s_cacert.der' ],
 			is_parallel: false, timeout: 300, suite: regression)
 
 		# SHA3-512 is default
 		test('PKCS7 Gen with ML-DSA 4-way cert chain SHA3-512',
 			lc_pkcs7_generator,
-			args: [ '--x509-signer', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_leaf.der',
-				'--signer-sk-file', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_leaf.privkey',
-				'-i', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_cacert.der',
+			args: [ '--x509-signer', certdir + 'ml-dsa87_leaf.der',
+				'--signer-sk-file', certdir + 'ml-dsa87_leaf.privkey',
+				'-i', certdir + 'ml-dsa87_cacert.der',
 				'--print',
 				'--noout',
-				'--x509-cert',  meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa65_int1.der',
-				'--x509-cert', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa44_int2.der',
-				'--x509-cert', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_cacert.der',
-				'--trust-anchor', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_cacert.der' ],
+				'--x509-cert',  certdir + 'ml-dsa65_int1.der',
+				'--x509-cert', certdir + 'ml-dsa44_int2.der',
+				'--x509-cert', certdir + 'ml-dsa87_cacert.der',
+				'--trust-anchor', certdir + 'ml-dsa87_cacert.der' ],
 			is_parallel: false, timeout: 300, suite: regression)
 
 		if get_option('sha3').enabled()
 			test('PKCS7 Gen with ML-DSA 4-way cert chain SHAKE256',
 				lc_pkcs7_generator,
 				args: [ '--md', 'SHAKE256',
-					'--x509-signer', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_leaf.der',
-					'--signer-sk-file', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_leaf.privkey',
-					'-i', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_cacert.der',
+					'--x509-signer', certdir + 'ml-dsa87_leaf.der',
+					'--signer-sk-file', certdir + 'ml-dsa87_leaf.privkey',
+					'-i', certdir + 'ml-dsa87_cacert.der',
 					'--print',
 					'--noout',
-					'--x509-cert',  meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa65_int1.der',
-					'--x509-cert', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa44_int2.der',
-					'--x509-cert', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_cacert.der',
-					'--trust-anchor', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_cacert.der' ],
+					'--x509-cert',  certdir + 'ml-dsa65_int1.der',
+					'--x509-cert', certdir + 'ml-dsa44_int2.der',
+					'--x509-cert', certdir + 'ml-dsa87_cacert.der',
+					'--trust-anchor', certdir + 'ml-dsa87_cacert.der' ],
 				is_parallel: false, timeout: 300,
 				suite: regression)
 		endif
@@ -287,30 +288,30 @@ if (host_machine.system() != 'windows') and get_option('apps').enabled()
 			test('PKCS7 Gen with ML-DSA 4-way cert chain SHA2-512',
 			lc_pkcs7_generator,
 				args: [ '--md', 'SHA2-512',
-					'--x509-signer', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_leaf.der',
-					'--signer-sk-file', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_leaf.privkey',
-					'-i', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_cacert.der',
+					'--x509-signer', certdir + 'ml-dsa87_leaf.der',
+					'--signer-sk-file', certdir + 'ml-dsa87_leaf.privkey',
+					'-i', certdir + 'ml-dsa87_cacert.der',
 					'--print',
 					'--noout',
-					'--x509-cert',  meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa65_int1.der',
-					'--x509-cert', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa44_int2.der',
-					'--x509-cert', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_cacert.der',
-					'--trust-anchor', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_cacert.der' ],
+					'--x509-cert',  certdir + 'ml-dsa65_int1.der',
+					'--x509-cert', certdir + 'ml-dsa44_int2.der',
+					'--x509-cert', certdir + 'ml-dsa87_cacert.der',
+					'--trust-anchor', certdir + 'ml-dsa87_cacert.der' ],
 				is_parallel: false, timeout: 300,
 				suite: regression)
 		endif
 
 		test('PKCS7 Gen with ML-DSA-ED25519 4-way cert chain',
 		     lc_pkcs7_generator,
-		     args: [ '--x509-signer', meson.project_source_root() + '/asn1/tests/testcerts/slh-dsa-shake-128s_leaf.der',
-			     '--signer-sk-file', meson.project_source_root() + '/asn1/tests/testcerts/slh-dsa-shake-128s_leaf.privkey',
-			     '-i', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_cacert.der',
+		     args: [ '--x509-signer', certdir + 'slh-dsa-shake-128s_leaf.der',
+			     '--signer-sk-file', certdir + 'slh-dsa-shake-128s_leaf.privkey',
+			     '-i', certdir + 'ml-dsa87_cacert.der',
 			     '--print',
 			     '--noout',
-			     '--x509-cert',  meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa44-ed25519_int1.der',
-			     '--x509-cert', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_int2.der',
-			     '--x509-cert', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa65-ed25519_cacert.der',
-			     '--trust-anchor', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa65-ed25519_cacert.der' ],
+			     '--x509-cert',  certdir + 'ml-dsa44-ed25519_int1.der',
+			     '--x509-cert', certdir + 'ml-dsa87_int2.der',
+			     '--x509-cert', certdir + 'ml-dsa65-ed25519_cacert.der',
+			     '--trust-anchor', certdir + 'ml-dsa65-ed25519_cacert.der' ],
 		     is_parallel: false, timeout: 300, suite: regression)
 
 		# Trust-Store enabled with cert chain leading to CA that is in
