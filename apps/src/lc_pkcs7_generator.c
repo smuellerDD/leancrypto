@@ -35,6 +35,7 @@ struct pkcs7_x509 {
 	struct pkcs7_x509 *next;
 
 	struct lc_x509_key_input_data signer_key_input_data;
+	struct lc_x509_certificate *x509;
 
 	uint8_t *x509_data;
 	size_t x509_data_len;
@@ -66,9 +67,6 @@ struct pkcs7_generator_opts {
 	size_t datalen;
 
 	struct lc_pkcs7_trust_store trust_store;
-	struct lc_x509_certificate trust_anchor_x509;
-	uint8_t *trust_anchor_data;
-	size_t trust_anchor_data_len;
 
 	unsigned int print_pkcs7 : 1;
 	unsigned int noout : 1;
@@ -86,6 +84,8 @@ static void pkcs7_clean_opts(struct pkcs7_generator_opts *opts)
 	if (!opts)
 		return;
 
+	lc_pkcs7_trust_store_clear(&opts->trust_store);
+
 	x509 = opts->x509;
 	while (x509) {
 		struct pkcs7_x509 *tmp_x509 = x509->next;
@@ -93,6 +93,9 @@ static void pkcs7_clean_opts(struct pkcs7_generator_opts *opts)
 		release_data(x509->x509_data, x509->x509_data_len);
 		release_data(x509->signer_sk_data, x509->signer_sk_data_len);
 		release_data(x509->signer_data, x509->signer_data_len);
+
+		lc_x509_cert_clear(x509->x509);
+		lc_free(x509->x509);
 
 		lc_free(x509);
 
@@ -102,10 +105,6 @@ static void pkcs7_clean_opts(struct pkcs7_generator_opts *opts)
 	opts->x509 = NULL;
 
 	release_data(opts->data, opts->datalen);
-
-	release_data(opts->trust_anchor_data, opts->trust_anchor_data_len);
-	lc_pkcs7_trust_store_clear(&opts->trust_store);
-	lc_x509_cert_clear(&opts->trust_anchor_x509);
 
 	lc_pkcs7_message_clear(&opts->pkcs7);
 	lc_memset_secure(opts, 0, sizeof(*opts));
@@ -157,33 +156,6 @@ out:
 	return ret;
 }
 
-static int pkcs_add_trust(struct pkcs7_generator_opts *opts)
-{
-	int ret = 0;
-
-	/* If we have no trust anchor, ignore */
-	CKNULL(opts->trust_anchor, 0);
-
-	if (!opts->trust_anchor_data) {
-		CKINT_LOG(get_data(opts->trust_anchor, &opts->trust_anchor_data,
-				   &opts->trust_anchor_data_len),
-			  "Loading of file %s failed\n", opts->trust_anchor);
-
-		CKINT_LOG(lc_x509_cert_parse(&opts->trust_anchor_x509,
-					     opts->trust_anchor_data,
-					     opts->trust_anchor_data_len),
-			  "Loading of X.509 trust anchor certificate failed\n");
-
-		CKINT(lc_pkcs7_trust_store_add(&opts->trust_store,
-					       &opts->trust_anchor_x509));
-
-		opts->use_trust_store = 1;
-	}
-
-out:
-	return ret;
-}
-
 static int pkcs7_enc_dump(struct pkcs7_generator_opts *opts,
 			  const uint8_t *pkcs7_data, size_t pkcs7_datalen)
 {
@@ -199,7 +171,6 @@ static int pkcs7_enc_dump(struct pkcs7_generator_opts *opts,
 		CKINT(lc_pkcs7_set_data(&ppkcs7, opts->data, opts->datalen, 0));
 	}
 
-	CKINT(pkcs_add_trust(opts));
 	CKINT_LOG(lc_pkcs7_verify(&ppkcs7, opts->use_trust_store ?
 						   &opts->trust_store :
 						   NULL),
@@ -237,7 +208,6 @@ static int pkcs7_dump_file(struct pkcs7_generator_opts *opts)
 		CKINT(lc_pkcs7_set_data(&ppkcs7, opts->data, opts->datalen, 0));
 	}
 
-	CKINT(pkcs_add_trust(opts));
 	CKINT_LOG(lc_pkcs7_verify(&ppkcs7, opts->use_trust_store ?
 						   &opts->trust_store :
 						   NULL),
@@ -385,6 +355,41 @@ out:
 	return ret;
 }
 
+static int pkcs7_load_trust(struct pkcs7_generator_opts *opts)
+{
+	struct lc_x509_certificate *newcert = NULL;
+	struct pkcs7_x509 *x509;
+	int ret = 0;
+
+	/* If we have no trust anchor, ignore */
+	CKNULL(opts->trust_anchor, 0);
+
+	CKINT(lc_alloc_aligned((void **)&x509, 8, sizeof(struct pkcs7_x509)));
+
+	pkcs7_add_x509(opts, x509);
+
+	CKINT_LOG(get_data(opts->trust_anchor, &x509->x509_data,
+			   &x509->x509_data_len),
+		  "Loading of file %s failed\n", opts->trust_anchor);
+
+	CKINT(lc_alloc_aligned((void **)&newcert, 8,
+			       sizeof(struct lc_x509_certificate)));
+
+	CKINT_LOG(lc_x509_cert_parse(newcert, x509->x509_data,
+				     x509->x509_data_len),
+		  "Loading of X.509 trust anchor certificate failed\n");
+
+	CKINT(lc_pkcs7_trust_store_add(&opts->trust_store, newcert));
+
+	x509->x509 = newcert;
+	newcert = NULL;
+	opts->use_trust_store = 1;
+
+out:
+	lc_free(newcert);
+	return ret;
+}
+
 static int pkcs7_set_data(struct pkcs7_generator_opts *opts)
 {
 	struct lc_pkcs7_message *pkcs7 = &opts->pkcs7;
@@ -473,6 +478,21 @@ static int pkcs7_collect_x509(struct pkcs7_generator_opts *opts)
 	CKINT_LOG(pkcs7_load_cert(opts), "Loading certificate failed\n");
 
 	opts->x509_file = NULL;
+
+out:
+	return ret;
+}
+
+static int pkcs7_collect_trust(struct pkcs7_generator_opts *opts)
+{
+	int ret;
+
+	CKNULL(opts->trust_anchor, 0);
+
+	CKINT_LOG(pkcs7_load_trust(opts),
+		  "Loading trusted certificate failed\n");
+
+	opts->trust_anchor = NULL;
 
 out:
 	return ret;
@@ -581,6 +601,7 @@ int main(int argc, char *argv[])
 			/* trust-anchor */
 			case 10:
 				parsed_opts.trust_anchor = optarg;
+				CKINT(pkcs7_collect_trust(&parsed_opts));
 				break;
 			}
 			break;

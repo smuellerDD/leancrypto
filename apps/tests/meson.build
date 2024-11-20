@@ -126,8 +126,30 @@ pkcs7_arg_ca = [
 pkcs7_arg_trust = [
 	'--trust-anchor', meson.project_source_root() + '/asn1/tests/testcerts/slh-dsa-shake-256s_cacert.der'
 	]
+
 pkcs7_arg_other_trust = [
 	'--trust-anchor', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_cacert.der'
+	]
+
+# Trust Store tests
+pkcs7_arg_trust_signer = [
+	'--x509-signer', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_leaf.der',
+	'--signer-sk-file', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_leaf.privkey',
+	'-i', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_cacert.der',
+	'--print',
+	'--noout'
+	]
+
+pkcs7_arg_trust_ca = [
+	'--trust-anchor', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa87_cacert.der'
+	]
+
+pkcs7_arg_trust_int1 = [
+	'--trust-anchor', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa65_int1.der'
+	]
+
+pkcs7_arg_trust_int2 = [
+	'--trust-anchor', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa44_int2.der'
 	]
 
 # Apps use POSIX API that is not available on regular Windows
@@ -291,7 +313,8 @@ if (host_machine.system() != 'windows') and get_option('apps').enabled()
 			     '--trust-anchor', meson.project_source_root() + '/asn1/tests/testcerts/ml-dsa65-ed25519_cacert.der' ],
 		     is_parallel: false, timeout: 300, suite: regression)
 
-		# Trust-Store enabled with cert chain leading to CA
+		# Trust-Store enabled with cert chain leading to CA that is in
+		# trust store
 		test('PKCS7 Gen with valid Trust-Store',
 		     lc_pkcs7_generator,
 		     args: [ pkcs7_arg_signer,
@@ -312,7 +335,9 @@ if (host_machine.system() != 'windows') and get_option('apps').enabled()
 			     pkcs7_arg_trust ],
 		     is_parallel: false, timeout: 300, suite: regression)
 
-		# Trust-Store enabled with cert chain not leading to CA
+		# Trust-Store enabled with cert chain not leading to the CA
+		# signing the intermediate 1
+		# -> failure in certificate chain validation
 		test('PKCS7 Gen with broken chain to Trust-Store',
 		     lc_pkcs7_generator,
 		     args: [ pkcs7_arg_signer,
@@ -331,7 +356,8 @@ if (host_machine.system() != 'windows') and get_option('apps').enabled()
 			     pkcs7_arg_ca, ],
 		     is_parallel: false, timeout: 300, suite: regression)
 
-		# Trust-Store disabled but with root CA cert
+		# Trust-Store disabled but without root CA cert
+		# -> failure in certificate chain validation
 		test('PKCS7 Gen no root CA',
 		     lc_pkcs7_generator,
 		     args: [ pkcs7_arg_signer,
@@ -339,7 +365,7 @@ if (host_machine.system() != 'windows') and get_option('apps').enabled()
 			     pkcs7_arg_int2 ],
 		     is_parallel: false, timeout: 300, should_fail: true, suite: regression)
 
-		# Missing intermediate
+		# Missing intermediate 1 in PKCS#7
 		test('PKCS7 Gen with missing intermediate',
 		     lc_pkcs7_generator,
 		     args: [ pkcs7_arg_signer,
@@ -347,5 +373,48 @@ if (host_machine.system() != 'windows') and get_option('apps').enabled()
 			     pkcs7_arg_ca,
 			     pkcs7_arg_other_trust ],
 		     is_parallel: false, timeout: 300, should_fail: true, suite: regression)
+
+		# CA, intermediate 1, intermediate 2 in trust store
+		test('PKCS7 Gen Trust Store 1',
+		     lc_pkcs7_generator,
+		     args: [ pkcs7_arg_trust_signer,
+			     pkcs7_arg_trust_ca,
+			     pkcs7_arg_trust_int1,
+			     pkcs7_arg_trust_int2
+			   ],
+		     is_parallel: false, timeout: 300, suite: regression)
+
+		# CA, intermediate 1, in trust store -> intermediate 2 missing
+		# -> fails during certificate chain validation
+		test('PKCS7 Gen Trust Store 2',
+		     lc_pkcs7_generator,
+		     args: [ pkcs7_arg_trust_signer,
+			     pkcs7_arg_trust_ca,
+			     pkcs7_arg_trust_int1
+			   ],
+		     is_parallel: false, timeout: 300, should_fail: true, suite: regression)
+
+		# CA, intermediate 2, in trust store -> intermediate 1 missing
+		# -> fails during loading of certificate 2
+		test('PKCS7 Gen Trust Store 3',
+		     lc_pkcs7_generator,
+		     args: [ pkcs7_arg_trust_signer,
+			     pkcs7_arg_trust_ca,
+			     pkcs7_arg_trust_int2
+			   ],
+		     is_parallel: false, timeout: 300, should_fail: true, suite: regression)
+
+		# CA, intermediate 1 and intermediate 2 in trust store, but
+		# loaded CA is not the CA signing intermediate 1
+		# -> fails during loading of certificate 1
+		test('PKCS7 Gen Trust Store 4',
+		     lc_pkcs7_generator,
+		     args: [ pkcs7_arg_trust_signer,
+			     pkcs7_arg_ca,
+			     pkcs7_arg_trust_int1,
+			     pkcs7_arg_trust_int2
+			   ],
+		     is_parallel: false, timeout: 300, should_fail: true, suite: regression)
+
 	endif
 endif
