@@ -74,23 +74,16 @@ static void _print_x509_sinature_algo(const struct lc_public_key_signature *sig)
 		return;
 	}
 
-	if (hash_algo == lc_sha256)
-		printf(" SHA2-256");
-	else if (hash_algo == lc_sha384)
-		printf(" SHA2-384");
-	else if (hash_algo == lc_sha512)
-		printf(" SHA2-512");
-	else if (hash_algo == lc_sha3_256)
-		printf(" SHA3-256");
-	else if (hash_algo == lc_sha3_384)
-		printf(" SHA3-384");
-	else if (hash_algo == lc_sha3_512)
-		printf(" SHA3-512");
-	else if (hash_algo == NULL)
-		printf(" <builtin hash>");
-	else
-		printf(" <unknown hash>");
-	printf("\n");
+	if (hash_algo) {
+		const char *hash_name;
+
+		if (lc_x509_hash_to_name(hash_algo, &hash_name))
+			printf(" <unknown hash>\n");
+		else
+			printf(" %s\n", hash_name);
+	} else {
+		printf(" <builtin hash>\n");
+	}
 }
 
 static void print_x509_sinature_algo(const struct lc_x509_certificate *x509)
