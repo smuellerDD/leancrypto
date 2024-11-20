@@ -479,37 +479,37 @@ if get_option('pkcs7_parser').enabled()
 			args: [ '-v', certdir + 'cacert.der',
 				'-f', certdir + 'cacert.der.p7b' ],
 			suite: regression)
-
-		test('PKCS7 Trust Validation - 1 CA Cert', pkcs7_trust_tester,
-			args: [ '-f', certdir + 'cacert.der' ],
-			suite: regression)
-		test('PKCS7 Trust Validation - 2 CA Certs', pkcs7_trust_tester,
-			args: [ '-f', certdir + 'cacert.der',
-				'-f', certdir + 'int-1-cert-rsa.der' ],
-			suite: regression)
-		test('PKCS7 Trust Validation - 2 CA Certs no root', pkcs7_trust_tester,
-			args: [ '-f', certdir + 'int-1-cert-rsa.der',
-				'-f', certdir + 'cacert.der', '-e', '250' ],
-			suite: regression)
-		test('PKCS7 Trust Validation - 2 CA Certs broken chain', pkcs7_trust_tester,
-			args: [ '-f', certdir + 'cacert.der',
-				'-f', certdir + 'int-2-cert-rsa.der',
-				'-e', '250' ],
-			suite: regression)
-		test('PKCS7 Trust Validation - 2 CA Certs no chain', pkcs7_trust_tester,
-			args: [ '-f', certdir + 'int-1-cert-rsa.der',
-				'-e', '250' ],
-			suite: regression)
-
-		test('PKCS7 Trust Validation - PKCS#7 with trust chain', pkcs7_trust_tester,
-			args: [ '-f', certdir + 'cacert.der',
-				'-p', certdir + 'cacert.der.p7b',
-				'-v', certdir + 'cacert.der' ],
-			suite: regression)
-		test('PKCS7 Trust Validation - PKCS#7 without trust chain', pkcs7_trust_tester,
-			args: [ '-p', certdir + 'cacert.der.p7b',
-				'-v', certdir + 'cacert.der',
-				'-e', '249' ],
-			suite: regression)
 	endif
+
+	test('PKCS7 Trust Validation - 1 CA Cert', pkcs7_trust_tester,
+		args: [ '-f', certdir + 'ml-dsa87_cacert.der' ],
+		suite: regression)
+	test('PKCS7 Trust Validation - 2 CA Certs', pkcs7_trust_tester,
+		args: [ '-f', certdir + 'ml-dsa87_cacert.der',
+			'-f', certdir + 'ml-dsa65_int1.der' ],
+		suite: regression)
+	test('PKCS7 Trust Validation - 2 CA Certs no root', pkcs7_trust_tester,
+		args: [ '-f', certdir + 'ml-dsa65_int1.der',
+			'-f', certdir + 'ml-dsa87_cacert.der', '-e', '250' ],
+		suite: regression)
+	test('PKCS7 Trust Validation - 2 CA Certs broken chain', pkcs7_trust_tester,
+		args: [ '-f', certdir + 'ml-dsa87_cacert.der',
+			'-f', certdir + 'ml-dsa44_int2.der',
+			'-e', '250' ],
+		suite: regression)
+	test('PKCS7 Trust Validation - 2 CA Certs no chain', pkcs7_trust_tester,
+		args: [ '-f', certdir + 'ml-dsa65_int1.der',
+			'-e', '250' ],
+		suite: regression)
+
+	test('PKCS7 Trust Validation - PKCS#7 with trust chain', pkcs7_trust_tester,
+		args: [ '-f', certdir + 'ml-dsa87_cacert.der',
+			'-p', certdir + 'ml-dsa.p7b',
+			'-v', certdir + 'ml-dsa87_cacert.der' ],
+		suite: regression)
+	test('PKCS7 Trust Validation - PKCS#7 without trust chain', pkcs7_trust_tester,
+		args: [ '-p', certdir + 'ml-dsa.p7b',
+			'-v', certdir + 'ml-dsa87_cacert.der',
+			'-e', '249' ],
+		suite: regression)
 endif

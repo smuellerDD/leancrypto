@@ -97,6 +97,7 @@ found_issuer:
 	return 0;
 }
 
+#if 0
 /*
  * Check the trust on one PKCS#7 SignedInfo block.
  */
@@ -215,6 +216,36 @@ out:
 	return -EKEYREJECTED;
 }
 
+/**
+ * @ingroup PKCS7
+ * @brief Validate PKCS#7 trust chain
+ *
+ * Validate that the certificate chain inside the PKCS#7 message intersects
+ * keys we already know and trust.
+ *
+ * \note This call DOES NOT check the internal consistency of the PKCS#7 message
+ * such as that the signature of the protected data is verified. This check
+ * is performed by \p lc_pkcs7_verify.
+ *
+ * @param [in] pkcs7 The PKCS#7 certificate to validate
+ * @param [in] trust_store Signing certificates to use as starting points
+ *
+ * @return 0 on success or < 0 on error
+ *
+ * Returns, in order of descending priority:
+ *
+ *  (*) -EKEYREJECTED if a signature failed to match for which we have a valid
+ *	key, or
+ *
+ *  (*) 0 if at least one signature chain intersects with the keys in the trust
+ *	\p trust_store, or
+ *
+ *  (*) -ENOPKG if a suitable crypto module couldn't be found for a check on a
+ *	chain.
+ *
+ *  (*) -ENOKEY if we couldn't find a match for any of the signature chains in
+ *	the message.
+ */
 LC_INTERFACE_FUNCTION(int, lc_pkcs7_trust_validate,
 		      struct lc_pkcs7_message *pkcs7,
 		      struct lc_pkcs7_trust_store *trust_store)
@@ -251,6 +282,7 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_trust_validate,
 
 	return cached_ret;
 }
+#endif
 
 LC_INTERFACE_FUNCTION(int, lc_pkcs7_trust_store_add,
 		      struct lc_pkcs7_trust_store *trust_store,

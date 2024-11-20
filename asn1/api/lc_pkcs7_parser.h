@@ -74,9 +74,6 @@
  *
  * 3. Validate the PKCS#7 message which verifies the encapsulated data and the
  *    certificate chain using \p lc_pkcs7_verify.
- *
- * 4. Validate the PKCS#7 certificate and/or its certificate chain traces back
- *    to the trust anchor using \p lc_pkcs7_trust_validate.
  */
 
 /**
@@ -149,6 +146,10 @@ int lc_pkcs7_get_content_data(const struct lc_pkcs7_message *pkcs7,
  * against this trust store to find intermediate or root CA certificates. The
  * final certificate of a certificate chain must end in a root CA certificate
  * which must also be present in the \p trust_store.
+ *
+ * The validation against the \p trust_store checks that the certificate chains
+ * inside the PKCS#7 message intersects keys we already know and trust. I.e. at
+ * least one certificate chain must lead to the \p trust_store.
  *
  * \note The PKCS7 message block MAY be a detached signature, i.e. the data to
  * be integrity-protected and authentiated is not embedded into the PKCS7 block.
@@ -233,39 +234,6 @@ int lc_pkcs7_get_digest(struct lc_pkcs7_message *pkcs7,
 			const uint8_t **message_digest,
 			size_t *message_digest_len,
 			const struct lc_hash **hash_algo);
-
-/**
- * @ingroup PKCS7
- * @brief Validate PKCS#7 trust chain
- *
- * Validate that the certificate chain inside the PKCS#7 message intersects
- * keys we already know and trust.
- *
- * \note This call DOES NOT check the internal consistency of the PKCS#7 message
- * such as that the signature of the protected data is verified. This check
- * is performed by \p lc_pkcs7_verify.
- *
- * @param [in] pkcs7 The PKCS#7 certificate to validate
- * @param [in] trust_store Signing certificates to use as starting points
- *
- * @return 0 on success or < 0 on error
- *
- * Returns, in order of descending priority:
- *
- *  (*) -EKEYREJECTED if a signature failed to match for which we have a valid
- *	key, or
- *
- *  (*) 0 if at least one signature chain intersects with the keys in the trust
- *	\p trust_store, or
- *
- *  (*) -ENOPKG if a suitable crypto module couldn't be found for a check on a
- *	chain.
- *
- *  (*) -ENOKEY if we couldn't find a match for any of the signature chains in
- *	the message.
- */
-int lc_pkcs7_trust_validate(struct lc_pkcs7_message *pkcs7,
-			    struct lc_pkcs7_trust_store *trust_store);
 
 /**
  * @ingroup PKCS7

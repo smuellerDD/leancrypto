@@ -447,8 +447,7 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_verify, struct lc_pkcs7_message *pkcs7,
 		      const struct lc_pkcs7_trust_store *trust_store)
 {
 	struct lc_pkcs7_signed_info *sinfo;
-	int actual_ret = -ENOPKG;
-	int ret;
+	int ret, cached_ret = -ENOKEY;
 
 	if (!pkcs7)
 		return -EINVAL;
@@ -467,24 +466,24 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_verify, struct lc_pkcs7_message *pkcs7,
 
 	for (sinfo = pkcs7->signed_infos; sinfo; sinfo = sinfo->next) {
 		ret = pkcs7_verify_one(pkcs7, trust_store, sinfo);
-		if (sinfo->blacklisted) {
-			if (actual_ret == -ENOPKG)
-				actual_ret = -EKEYREJECTED;
+		switch (ret) {
+		case -ENOKEY:
 			continue;
-		}
-		if (ret < 0) {
-			if (ret == -ENOPKG) {
-				sinfo->unsupported_crypto = 1;
-				continue;
-			}
+		case -ENOPKG:
+			if (cached_ret == -ENOKEY)
+				cached_ret = -ENOPKG;
+			continue;
+		case 0:
+			cached_ret = 0;
+			continue;
+		default:
 			printf_debug("<== %s() = %d\n", __func__, ret);
 			return ret;
 		}
-		actual_ret = 0;
 	}
 
-	printf_debug("<== %s() = %d\n", __func__, actual_ret);
-	return actual_ret;
+	printf_debug("<== %s() = %d\n", __func__, cached_ret);
+	return cached_ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_pkcs7_supply_detached_data,

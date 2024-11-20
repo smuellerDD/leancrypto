@@ -72,10 +72,8 @@ static int pkcs7_trust_store(struct pkcs7_trust_options *opts)
 		CKINT(lc_pkcs7_supply_detached_data(&pkcs7, verified_data,
 						    verified_datalen));
 
-		CKINT_LOG(lc_pkcs7_verify(&pkcs7, NULL),
+		CKINT_LOG(lc_pkcs7_verify(&pkcs7, &trust_store),
 			  "PKCS#7 verification\n");
-		CKINT_LOG(lc_pkcs7_trust_validate(&pkcs7, &trust_store),
-			  "PKCS#7 trust verification\n");
 	}
 
 out:
