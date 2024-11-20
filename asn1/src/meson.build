@@ -28,6 +28,7 @@ if get_option('x509_generator').enabled()
 	src += files([
 		'asn1_encoder.c',
 		'asn1_encoder_helper.c',
+		'asn1_encoder_small.c',
 		'x509_algorithm_mapper.c',
 		'x509_cert_generator.c',
 		'x509_cert_generator_set_data.c'

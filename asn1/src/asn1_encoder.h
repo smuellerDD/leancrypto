@@ -34,6 +34,8 @@ struct asn1_encoder;
 
 int asn1_ber_encoder(const struct asn1_encoder *encoder, void *context,
 		     uint8_t *data, size_t *in_out_avail_datalen);
+int asn1_ber_encoder_small(const struct asn1_encoder *encoder, void *context,
+			   uint8_t *data, size_t *in_out_avail_datalen);
 
 #define asn1_oid_len(oid) (sizeof(oid) / sizeof(uint32_t))
 int asn1_encode_integer(uint8_t *data, size_t *datalen, int64_t integer,

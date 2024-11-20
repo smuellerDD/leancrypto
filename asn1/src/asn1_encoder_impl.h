@@ -110,9 +110,9 @@ extern "C" {
 	if (!(op & ASN1_OP_MATCH__ANY) &&                                      \
 	    (machine[pc + 1] & (ASN1_CONS << 5)) == (ASN1_CONS << 5)) {        \
 		printf_debug("Start constructed data\n");                      \
+		dsp++;                                                         \
 		if (unlikely(dsp == ws->max_level))                            \
 			goto data_stack_overflow;                              \
-		dsp++;                                                         \
 		ws->data_p[dsp] = ws->data[dsp];                               \
 		ws->data_len[dsp] = maxlen;                                    \
 	}

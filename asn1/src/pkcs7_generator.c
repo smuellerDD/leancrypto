@@ -800,7 +800,7 @@ int pkcs7_sig_note_set_of_authattrs_enc(void *context, uint8_t *data,
 		return 0;
 
 	/* Encode the authenticated attributes */
-	CKINT(asn1_ber_encoder(&pkcs7_aa_encoder, ctx, aa, &aalen));
+	CKINT(asn1_ber_encoder_small(&pkcs7_aa_encoder, ctx, aa, &aalen));
 	aalen = sizeof(aa) - aalen;
 
 	if (!(sinfo->aa_set & sinfo_has_content_type) ||
