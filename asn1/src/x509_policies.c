@@ -190,9 +190,20 @@ LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_match_key_usage,
 	if (!cert)
 		return -EINVAL;
 
+	/* If the caller does not requests the checking, return true */
+	if (!required_key_usage)
+		return LC_X509_POL_TRUE;
+
 	pub = &cert->pub;
 	set_keyusage =
 		pub->key_usage & (uint16_t)~LC_KEY_USAGE_EXTENSION_PRESENT;
+
+	/* If extension is not present at all, we do not match any EKU */
+	if (!(pub->key_usage & LC_KEY_USAGE_EXTENSION_PRESENT)) {
+		if (required_key_usage)
+			return LC_X509_POL_FALSE;
+		return LC_X509_POL_TRUE;
+	}
 
 	if ((set_keyusage & required_key_usage) == required_key_usage)
 		return LC_X509_POL_TRUE;
@@ -210,15 +221,23 @@ LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_match_extended_key_usage,
 	if (!cert)
 		return -EINVAL;
 
+	/* If the caller does not requests the checking, return true */
+	if (!required_eku)
+		return LC_X509_POL_TRUE;
+
 	pub = &cert->pub;
 
-	eku = pub->key_eku;
+	eku = pub->key_eku & (uint16_t)~LC_KEY_EKU_EXTENSION_PRESENT;
 
 	/* If extension is not present at all, we do not match any EKU */
-	if (!(eku & LC_KEY_EKU_EXTENSION_PRESENT))
-		return LC_X509_POL_FALSE;
+	if (!(pub->key_eku & LC_KEY_EKU_EXTENSION_PRESENT)) {
+		if (required_eku)
+			return LC_X509_POL_FALSE;
+		return LC_X509_POL_TRUE;
+	}
 
-	if ((pub->key_eku & required_eku) == required_eku)
+	/* The required EKU must be a subset of all EKU flags */
+	if ((eku & required_eku) == required_eku)
 		return LC_X509_POL_TRUE;
 
 	return LC_X509_POL_FALSE;

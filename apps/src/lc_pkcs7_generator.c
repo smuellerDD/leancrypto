@@ -49,6 +49,7 @@ struct pkcs7_x509 {
 struct pkcs7_generator_opts {
 	struct x509_checker_options checker_opts;
 	struct lc_pkcs7_message pkcs7;
+	struct lc_verify_rules verify_rules;
 
 	const struct lc_hash *hash;
 	unsigned long aa_set;
@@ -75,6 +76,7 @@ struct pkcs7_generator_opts {
 	unsigned int checker : 1;
 	unsigned int use_trust_store : 1;
 	unsigned int signer_set : 1;
+	unsigned int verify_rules_set : 1;
 
 	struct pkcs7_x509 *x509;
 };
@@ -175,7 +177,9 @@ static int pkcs7_enc_dump(struct pkcs7_generator_opts *opts,
 
 	CKINT_LOG(lc_pkcs7_verify(&ppkcs7, opts->use_trust_store ?
 						   &opts->trust_store :
-						   NULL),
+						   NULL,
+				  opts->verify_rules_set ? &opts->verify_rules :
+							   NULL),
 		  "Verification of PKCS#7 message failed\n");
 
 	if (opts->checker)
@@ -210,7 +214,9 @@ static int pkcs7_dump_file(struct pkcs7_generator_opts *opts)
 		CKINT(lc_pkcs7_set_data(&ppkcs7, opts->data, opts->datalen, 0));
 		CKINT_LOG(lc_pkcs7_verify(&ppkcs7, opts->use_trust_store ?
 						   &opts->trust_store :
-						   NULL),
+						   NULL,
+					  opts->verify_rules_set ?
+						&opts->verify_rules : NULL),
 			  "Verification of PKCS#7 message failed\n");
 	}
 
@@ -449,6 +455,12 @@ static void pkcs7_generator_usage(void)
 	fprintf(stderr, "\t   --noout\t\t\tNo generation of output files\n");
 	fprintf(stderr,
 		"\t   --trust-anchor <FILE>\tTrust anchor X.509 certificate\n");
+	fprintf(stderr,
+		"\t   --expected-keyusage <KU>\tKey Usage flag signer must have\n");
+	fprintf(stderr, "\t\t\t\t\t\tQuery flags with \"?\"\n");
+	fprintf(stderr,
+		"\t   --expected-eku <EKU>\t\tExetended Key Usage flag signer\n");
+	fprintf(stderr, "\t\t\t\t\t\tmust have - Query flags with \"?\"\n");
 
 	fprintf(stderr,
 		"\n\tOptions for checking generated / loaded X.509 certificate:\n");
@@ -523,6 +535,7 @@ int main(int argc, char *argv[])
 {
 	struct pkcs7_generator_opts parsed_opts = { 0 };
 	struct x509_checker_options *checker_opts = &parsed_opts.checker_opts;
+	struct lc_verify_rules *verify_rules = &parsed_opts.verify_rules;
 
 	int ret = 0, opt_index = 0;
 
@@ -541,6 +554,9 @@ int main(int argc, char *argv[])
 					      { "noout", 0, 0, 0 },
 					      { "print-pkcs7", 1, 0, 0 },
 					      { "trust-anchor", 1, 0, 0 },
+
+					      { "expected-keyusage", 1, 0, 0 },
+					      { "expected-eku", 1, 0, 0 },
 
 					      { "check-ca", 0, 0, 0 },
 					      { "check-ca-conformant", 0, 0,
@@ -639,54 +655,69 @@ int main(int argc, char *argv[])
 				CKINT(pkcs7_collect_trust(&parsed_opts));
 				break;
 
-			/* check-ca */
+			/* expected-keyusage */
 			case 11:
+				CKINT(lc_x509_name_to_keyusage(
+					optarg,
+					&verify_rules->required_keyusage));
+				parsed_opts.verify_rules_set = 1;
+				break;
+			/* expected-eku */
+			case 12:
+				CKINT(lc_x509_name_to_eku(
+					optarg,
+					&verify_rules->required_eku));
+				parsed_opts.verify_rules_set = 1;
+				break;
+
+			/* check-ca */
+			case 13:
 				checker_opts->check_ca = 1;
 				parsed_opts.checker = 1;
 				break;
 			/* check-ca-conformant */
-			case 12:
+			case 14:
 				checker_opts->check_ca_conformant = 1;
 				parsed_opts.checker = 1;
 				break;
 			/* check-issuer-cn */
-			case 13:
+			case 15:
 				checker_opts->issuer_cn = optarg;
 				parsed_opts.checker = 1;
 				break;
 			/* check-subject-cn */
-			case 14:
+			case 16:
 				checker_opts->subject_cn = optarg;
 				parsed_opts.checker = 1;
 				break;
 			/* check-noselfsigned */
-			case 15:
+			case 17:
 				checker_opts->check_no_selfsigned = 1;
 				parsed_opts.checker = 1;
 				break;
 			/* check-eku */
-			case 16:
+			case 18:
 				checker_opts->eku =
 					(unsigned int)strtoul(optarg, NULL, 10);
 				parsed_opts.checker = 1;
 				break;
 			/* check-noca */
-			case 17:
+			case 19:
 				checker_opts->check_no_ca = 1;
 				parsed_opts.checker = 1;
 				break;
 			/* check-selfsigned */
-			case 18:
+			case 20:
 				checker_opts->check_selfsigned = 1;
 				parsed_opts.checker = 1;
 				break;
 			/* check-rootca */
-			case 19:
+			case 21:
 				checker_opts->check_root_ca = 1;
 				parsed_opts.checker = 1;
 				break;
 			/* check-keyusage */
-			case 20:
+			case 22:
 				checker_opts->keyusage =
 					(unsigned int)strtoul(optarg, NULL, 10);
 				parsed_opts.checker = 1;

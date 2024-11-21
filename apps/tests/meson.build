@@ -301,6 +301,8 @@ if (host_machine.system() != 'windows') and get_option('apps').enabled()
 				suite: regression)
 		endif
 
+		# Generate the PKCS#7 message, verify it and check the key usage
+		# and EKU of the signer
 		test('PKCS7 Gen with ML-DSA-ED25519 4-way cert chain',
 		     lc_pkcs7_generator,
 		     args: [ '--x509-signer', certdir + 'slh-dsa-shake-128s_leaf.der',
@@ -311,8 +313,32 @@ if (host_machine.system() != 'windows') and get_option('apps').enabled()
 			     '--x509-cert',  certdir + 'ml-dsa44-ed25519_int1.der',
 			     '--x509-cert', certdir + 'ml-dsa87_int2.der',
 			     '--x509-cert', certdir + 'ml-dsa65-ed25519_cacert.der',
-			     '--trust-anchor', certdir + 'ml-dsa65-ed25519_cacert.der' ],
+			     '--trust-anchor', certdir + 'ml-dsa65-ed25519_cacert.der',
+			     '--expected-eku', 'ServerAuthentication',
+			     '--expected-eku', 'CodeSigning',
+			     '--expected-keyusage', 'dataEncipherment'
+			     ],
 		     is_parallel: false, timeout: 300, suite: regression)
+
+		# Generate the PKCS#7 message, verify it and check the key usage
+		# and EKU of the signer where the EKU will be not matched
+		test('PKCS7 Gen with ML-DSA-ED25519 4-way cert chain',
+		     lc_pkcs7_generator,
+		     args: [ '--x509-signer', certdir + 'slh-dsa-shake-128s_leaf.der',
+			     '--signer-sk-file', certdir + 'slh-dsa-shake-128s_leaf.privkey',
+			     '-i', certdir + 'ml-dsa87_cacert.der',
+			     '--print',
+			     '--noout',
+			     '--x509-cert',  certdir + 'ml-dsa44-ed25519_int1.der',
+			     '--x509-cert', certdir + 'ml-dsa87_int2.der',
+			     '--x509-cert', certdir + 'ml-dsa65-ed25519_cacert.der',
+			     '--trust-anchor', certdir + 'ml-dsa65-ed25519_cacert.der',
+			     '--expected-eku', 'ServerAuthentication',
+			     '--expected-eku', 'ClientAuthentication',
+			     '--expected-eku', 'CodeSigning',
+			     '--expected-keyusage', 'dataEncipherment'
+			     ],
+		     is_parallel: false, should_fail: true, timeout: 300, suite: regression)
 
 		# Trust-Store enabled with cert chain leading to CA that is in
 		# trust store

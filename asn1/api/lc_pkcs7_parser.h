@@ -133,6 +133,27 @@ void lc_pkcs7_message_clear(struct lc_pkcs7_message *pkcs7);
 int lc_pkcs7_get_content_data(const struct lc_pkcs7_message *pkcs7,
 			      const uint8_t **data, size_t *datalen);
 
+struct lc_verify_rules {
+	/**
+	 * Specify the key usage flags a signer certificate must possess.
+	 *
+	 * The allowed flags are documented as part of struct lc_public_key.
+	 * If any key usage flag should match (e.g. the key usage field is
+	 * irrelevant, use 0).
+	 */
+	uint16_t required_keyusage;
+
+	/**
+	 * Specify the extended key usage flags a signer certificate must
+	 * possess.
+	 *
+	 * The allowed flags are documented as part of struct lc_public_key.
+	 * If any key usage flag should match (e.g. the key usage field is
+	 * irrelevant, use 0).
+	 */
+	uint16_t required_eku;
+};
+
 /**
  * @ingroup PKCS7
  * @brief Verify a PKCS#7 message
@@ -162,6 +183,8 @@ int lc_pkcs7_get_content_data(const struct lc_pkcs7_message *pkcs7,
  *			   a trust anchor store is performed. In this case,
  * 			   the presence of a root certificate is considered
  * 			   sufficient.
+ * @param [in] verify_rules If non-NULL, the given rules are applied during
+ *			    certificate verification.
  *
  * @return 0 on success or < 0 on error (-ENODATA refers to the case when no
  * the detached data was not provided)
@@ -185,7 +208,8 @@ int lc_pkcs7_get_content_data(const struct lc_pkcs7_message *pkcs7,
  *
  */
 int lc_pkcs7_verify(struct lc_pkcs7_message *pkcs7,
-		    const struct lc_pkcs7_trust_store *trust_store);
+		    const struct lc_pkcs7_trust_store *trust_store,
+		    const struct lc_verify_rules *rules);
 
 /**
  * @ingroup PKCS7

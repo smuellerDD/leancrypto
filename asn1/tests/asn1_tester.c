@@ -109,7 +109,8 @@ static int pkcs7_load_and_verify(const struct x509_checker_options *parsed_opts)
 					    verified_datalen));
 
 	/* Verify data */
-	CKINT_LOG(lc_pkcs7_verify(&pkcs7_msg, NULL), "Verification failure\n");
+	CKINT_LOG(lc_pkcs7_verify(&pkcs7_msg, NULL, NULL),
+		  "Verification failure\n");
 
 out:
 	release_data(data, datalen);

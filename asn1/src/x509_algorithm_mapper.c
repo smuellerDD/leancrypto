@@ -459,3 +459,98 @@ const char *lc_x509_oid_to_name(enum OID oid)
 
 	return "<not found>";
 }
+
+struct lc_keyusage_names {
+	uint16_t keyusage;
+	const char *name;
+	size_t namelen;
+};
+
+static const struct lc_keyusage_names keyusage_names[] = {
+	{ .keyusage = LC_KEY_USAGE_CRITICAL, .name = "critical", .namelen = 8 },
+	{ .keyusage = LC_KEY_USAGE_DIGITALSIG, .name = "digitalSignature", .namelen = 16 },
+	{ .keyusage = LC_KEY_USAGE_CONTENT_COMMITMENT, .name = "contentCommitment", .namelen = 17 },
+	{ .keyusage = LC_KEY_USAGE_KEY_ENCIPHERMENT, .name = "keyEncipherment", .namelen = 15 },
+	{ .keyusage = LC_KEY_USAGE_DATA_ENCIPHERMENT, .name = "dataEncipherment", .namelen = 16 },
+	{ .keyusage = LC_KEY_USAGE_KEYCERTSIGN, .name = "keyCertSign", .namelen = 11 },
+	{ .keyusage = LC_KEY_USAGE_CRLSIGN, .name = "cRLSign", .namelen = 7 },
+	{ .keyusage = LC_KEY_USAGE_ENCIPHER_ONLY, .name = "encipherOnly", .namelen = 12 },
+	{ .keyusage = LC_KEY_USAGE_DECIPHER_ONLY, .name = "decipherOnly", .namelen = 12 }
+};
+
+LC_INTERFACE_FUNCTION(int, lc_x509_name_to_keyusage, const char *name,
+		      uint16_t *keyusage)
+{
+	size_t namelen;
+	unsigned int i, found = 0;
+	int ret = 0;
+
+	CKNULL(name, -EINVAL);
+	CKNULL(keyusage, -EINVAL);
+
+	namelen = strlen(name);
+
+	for (i = 0; i < ARRAY_SIZE(keyusage_names); i++) {
+		if (namelen == keyusage_names[i].namelen &&
+		    !strncmp(name, keyusage_names[i].name, namelen)) {
+			*keyusage |= keyusage_names[i].keyusage;
+			found = 1;
+		}
+	}
+
+	if (found)
+		goto out;
+
+	printf("Allowed Key Usage flags:\n");
+	for (i = 0; i < ARRAY_SIZE(keyusage_names); i++)
+		printf(" %s\n", keyusage_names[i].name);
+
+	return -ENOPKG;
+
+out:
+	return ret;
+}
+
+static const struct lc_keyusage_names eku_names[] = {
+	{ .keyusage = LC_KEY_EKU_CRITICAL, .name = "critical", .namelen = 8 },
+	{ .keyusage = LC_KEY_EKU_ANY, .name = "anyExtendedKeyUsage", .namelen = 19 },
+	{ .keyusage = LC_KEY_EKU_SERVER_AUTH, .name = "ServerAuthentication", .namelen = 20 },
+	{ .keyusage = LC_KEY_EKU_CLIENT_AUTH, .name = "ClientAuthentication", .namelen = 20 },
+	{ .keyusage = LC_KEY_EKU_CODE_SIGNING, .name = "CodeSigning", .namelen = 11 },
+	{ .keyusage = LC_KEY_EKU_EMAIL_PROTECTION, .name = "EmailProtection", .namelen = 15 },
+	{ .keyusage = LC_KEY_EKU_TIME_STAMPING, .name = "TImeStamping", .namelen = 12 },
+	{ .keyusage = LC_KEY_EKU_OCSP_SIGNING, .name = "OCSPSignign", .namelen = 11 }
+};
+
+LC_INTERFACE_FUNCTION(int, lc_x509_name_to_eku, const char *name,
+		      uint16_t *eku)
+{
+	size_t namelen;
+	unsigned int i, found = 0;
+	int ret = 0;
+
+	CKNULL(name, -EINVAL);
+	CKNULL(eku, -EINVAL);
+
+	namelen = strlen(name);
+
+	for (i = 0; i < ARRAY_SIZE(eku_names); i++) {
+		if (namelen == eku_names[i].namelen &&
+		    !strncmp(name, eku_names[i].name, namelen)) {
+			*eku |= eku_names[i].keyusage;
+			found = 1;
+		}
+	}
+
+	if (found)
+		goto out;
+
+	printf("Allowed Extended Key Usage flags:\n");
+	for (i = 0; i < ARRAY_SIZE(eku_names); i++)
+		printf(" %s\n", eku_names[i].name);
+
+	return -ENOPKG;
+
+out:
+	return ret;
+}

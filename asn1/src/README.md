@@ -478,3 +478,6 @@ It applies the following approach:
   applied. If such certificate chain validation is successful, the
   PKCS#7 message verification succeeds.
   
+* A root CA or intermediate CA certificate are required to possess the key
+  usage flag of keyCertSign for successful validation.
+  

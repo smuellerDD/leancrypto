@@ -52,11 +52,6 @@ struct lc_pkcs7_signed_info {
 	struct lc_x509_certificate *signer;
 	time64_t signing_time;
 
-	unsigned int index;
-	unsigned int
-		unsupported_crypto : 1; /* T if not usable due to missing crypto */
-	unsigned int blacklisted : 1;
-
 	/* Message digest - the digest of the Content Data (or NULL) */
 	const uint8_t *msgdigest;
 	size_t msgdigest_len;
@@ -72,6 +67,13 @@ struct lc_pkcs7_signed_info {
 #define sinfo_has_smime_caps (1 << 3)
 #define sinfo_has_ms_opus_info (1 << 4)
 #define sinfo_has_ms_statement_type (1 << 5)
+
+	unsigned int index;
+
+	unsigned int
+		unsupported_crypto : 1; /* T if not usable due to missing crypto */
+	unsigned int blacklisted : 1;
+
 };
 
 struct lc_pkcs7_message {

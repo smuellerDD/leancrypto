@@ -311,6 +311,12 @@ int pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 #endif
 		}
 
+		/* Check the key usage contains keyCertSign */
+		CKINT(lc_x509_policy_match_key_usage(p,
+						     LC_KEY_USAGE_KEYCERTSIGN));
+		if (ret != LC_X509_POL_TRUE)
+			return -EKEYREJECTED;
+
 		CKINT(lc_x509_policy_is_root_ca(p));
 		if (ret == LC_X509_POL_TRUE) {
 			printf_debug("- root CA\n");
@@ -355,7 +361,8 @@ out:
  */
 static int pkcs7_verify_one(struct lc_pkcs7_message *pkcs7,
 			    const struct lc_pkcs7_trust_store *trust_store,
-			    struct lc_pkcs7_signed_info *sinfo)
+			    struct lc_pkcs7_signed_info *sinfo,
+			    const struct lc_verify_rules *rules)
 {
 	int ret;
 
@@ -393,6 +400,19 @@ static int pkcs7_verify_one(struct lc_pkcs7_message *pkcs7,
 				"Message signed outside of X.509 validity window\n");
 			return -EKEYREJECTED;
 		}
+	}
+
+	if (rules) {
+		/* Validate the required key usage and EKU flags */
+		CKINT(lc_x509_policy_match_key_usage(sinfo->signer,
+						     rules->required_keyusage));
+		if (ret != LC_X509_POL_TRUE)
+			return -EKEYREJECTED;
+
+		CKINT(lc_x509_policy_match_extended_key_usage(
+			sinfo->signer, rules->required_eku));
+		if (ret != LC_X509_POL_TRUE)
+			return -EKEYREJECTED;
 	}
 
 	/* Verify the PKCS#7 binary against the key */
@@ -444,7 +464,8 @@ out:
 }
 
 LC_INTERFACE_FUNCTION(int, lc_pkcs7_verify, struct lc_pkcs7_message *pkcs7,
-		      const struct lc_pkcs7_trust_store *trust_store)
+		      const struct lc_pkcs7_trust_store *trust_store,
+		      const struct lc_verify_rules *rules)
 {
 	struct lc_pkcs7_signed_info *sinfo;
 	int ret, cached_ret = -ENOKEY;
@@ -465,7 +486,7 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_verify, struct lc_pkcs7_message *pkcs7,
 	}
 
 	for (sinfo = pkcs7->signed_infos; sinfo; sinfo = sinfo->next) {
-		ret = pkcs7_verify_one(pkcs7, trust_store, sinfo);
+		ret = pkcs7_verify_one(pkcs7, trust_store, sinfo, rules);
 		switch (ret) {
 		case -ENOKEY:
 			continue;

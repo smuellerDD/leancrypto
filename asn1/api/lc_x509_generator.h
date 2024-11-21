@@ -648,6 +648,35 @@ int lc_x509_name_to_hash(const char *hash_name,
  */
 int lc_x509_hash_to_name(const struct lc_hash *hash_algo,
 			 const char **hash_name);
+/**
+ * @ingroup X509Gen
+ * @brief Helper to convert the human readable name of a keyusage to
+ *	  its internal representation
+ *
+ * If there is no match, the function prints out the allowed strings.
+ *
+ * @param [in] name hash algorithm in human readable form
+ * @param [out] keyusage leancrypto keyusage (note, the function ORs the value
+ *			 into \p keyusage)
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_name_to_keyusage(const char *name, uint16_t *keyusage);
+
+/**
+ * @ingroup X509Gen
+ * @brief Helper to convert the human readable name of a EKU to
+ *	  its internal representation
+ *
+ * If there is no match, the function prints out the allowed strings.
+ *
+ * @param [in] name hash algorithm in human readable form
+ * @param [out] eku leancrypto eku (note, the function ORs the value
+ *			 into \p eku)
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_name_to_eku(const char *name, uint16_t *eku);
 
 #ifdef __cplusplus
 }
