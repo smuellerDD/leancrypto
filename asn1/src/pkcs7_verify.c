@@ -362,7 +362,7 @@ out:
 static int pkcs7_verify_one(struct lc_pkcs7_message *pkcs7,
 			    const struct lc_pkcs7_trust_store *trust_store,
 			    struct lc_pkcs7_signed_info *sinfo,
-			    const struct lc_verify_rules *rules)
+			    const struct lc_verify_rules *verify_rules)
 {
 	int ret;
 
@@ -402,15 +402,15 @@ static int pkcs7_verify_one(struct lc_pkcs7_message *pkcs7,
 		}
 	}
 
-	if (rules) {
+	if (verify_rules) {
 		/* Validate the required key usage and EKU flags */
-		CKINT(lc_x509_policy_match_key_usage(sinfo->signer,
-						     rules->required_keyusage));
+		CKINT(lc_x509_policy_match_key_usage(
+			sinfo->signer, verify_rules->required_keyusage));
 		if (ret != LC_X509_POL_TRUE)
 			return -EKEYREJECTED;
 
 		CKINT(lc_x509_policy_match_extended_key_usage(
-			sinfo->signer, rules->required_eku));
+			sinfo->signer, verify_rules->required_eku));
 		if (ret != LC_X509_POL_TRUE)
 			return -EKEYREJECTED;
 	}
@@ -465,7 +465,7 @@ out:
 
 LC_INTERFACE_FUNCTION(int, lc_pkcs7_verify, struct lc_pkcs7_message *pkcs7,
 		      const struct lc_pkcs7_trust_store *trust_store,
-		      const struct lc_verify_rules *rules)
+		      const struct lc_verify_rules *verify_rules)
 {
 	struct lc_pkcs7_signed_info *sinfo;
 	int ret, cached_ret = -ENOKEY;
@@ -486,7 +486,7 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_verify, struct lc_pkcs7_message *pkcs7,
 	}
 
 	for (sinfo = pkcs7->signed_infos; sinfo; sinfo = sinfo->next) {
-		ret = pkcs7_verify_one(pkcs7, trust_store, sinfo, rules);
+		ret = pkcs7_verify_one(pkcs7, trust_store, sinfo, verify_rules);
 		switch (ret) {
 		case -ENOKEY:
 			continue;

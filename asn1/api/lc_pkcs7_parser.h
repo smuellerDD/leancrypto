@@ -209,7 +209,7 @@ struct lc_verify_rules {
  */
 int lc_pkcs7_verify(struct lc_pkcs7_message *pkcs7,
 		    const struct lc_pkcs7_trust_store *trust_store,
-		    const struct lc_verify_rules *rules);
+		    const struct lc_verify_rules *verify_rules);
 
 /**
  * @ingroup PKCS7
