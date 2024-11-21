@@ -454,7 +454,7 @@ Size of protected data: 7606
 ====== End one PKCS7 signed info listing ==========
 ```
 
-## PKCS#7 Trust Verificattion
+## PKCS#7 Trust Verification
 
 The trust verification is implemented with the API call of `lc_pkcs7_verify`.
 It applies the following approach:
