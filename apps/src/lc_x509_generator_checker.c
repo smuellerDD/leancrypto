@@ -414,7 +414,7 @@ int apply_checks_pkcs7(const struct lc_pkcs7_message *pkcs7_msg,
 
 		while (x509) {
 			ret = lc_x509_policy_is_ca(x509);
-			if (ret >= 0)
+			if (ret == LC_X509_POL_TRUE)
 				break;
 
 			x509 = x509->next;
@@ -425,6 +425,25 @@ int apply_checks_pkcs7(const struct lc_pkcs7_message *pkcs7_msg,
 			return -EINVAL;
 		} else {
 			printf("Certificate is marked as an RFC5280 as CA\n");
+		}
+	}
+
+	if (parsed_opts->check_root_ca) {
+		const struct lc_x509_certificate *x509 = pkcs7_msg->certs;
+
+		while (x509) {
+			ret = lc_x509_policy_is_root_ca(x509);
+			if (ret == LC_X509_POL_TRUE)
+				break;
+
+			x509 = x509->next;
+		}
+
+		if (ret == LC_X509_POL_FALSE) {
+			printf("Certificate is not marked as an RFC5280 conformant root CA\n");
+			return -EINVAL;
+		} else {
+			printf("Certificate is marked as an RFC5280 conformant root CA\n");
 		}
 	}
 
@@ -527,8 +546,7 @@ int apply_checks_pkcs7(const struct lc_pkcs7_message *pkcs7_msg,
 		}
 
 		if (!found) {
-			printf("Issuers mismatch, expected %s, actual %s\n",
-			       parsed_opts->issuer_cn, x509->issuer);
+			printf("Issuers mismatch\n");
 			return -EINVAL;
 		} else {
 			printf("Issuer matches expected value\n");
@@ -549,8 +567,7 @@ int apply_checks_pkcs7(const struct lc_pkcs7_message *pkcs7_msg,
 		}
 
 		if (!found) {
-			printf("Subject mismatch, expected %s, actual %s\n",
-			       parsed_opts->subject_cn, x509->subject);
+			printf("Subject mismatch\n");
 			return -EINVAL;
 		} else {
 			printf("Subject matches expected value\n");
@@ -572,8 +589,27 @@ int apply_checks_pkcs7(const struct lc_pkcs7_message *pkcs7_msg,
 		if (ret == LC_X509_POL_TRUE) {
 			printf("EKU field matches\n");
 		} else {
-			printf("EKU field mismatches (expected %u, actual %u)\n",
-			       parsed_opts->eku, x509 ? x509->pub.key_eku : 0);
+			printf("EKU field mismatches\n");
+			return -EINVAL;
+		}
+	}
+
+	if (parsed_opts->keyusage) {
+		const struct lc_x509_certificate *x509 = pkcs7_msg->certs;
+
+		while (x509) {
+			ret = lc_x509_policy_match_key_usage(
+				x509, (uint16_t)parsed_opts->keyusage);
+			if (ret == LC_X509_POL_TRUE)
+				break;
+
+			x509 = x509->next;
+		}
+
+		if (ret == LC_X509_POL_TRUE) {
+			printf("Key usage field matches\n");
+		} else {
+			printf("Key usage field mismatches\n");
 			return -EINVAL;
 		}
 	}

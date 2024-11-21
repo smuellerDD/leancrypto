@@ -903,8 +903,6 @@ static void x509_generator_usage(void)
 	fprintf(stderr, "\t\t\t\t\tdefinition\n");
 	fprintf(stderr,
 		"\t   --check-time\t\t\tcheck time-validity of the certificate\n");
-	fprintf(stderr,
-		"\t   --check-selfsigned\t\tcheck cert is self-signed\n");
 	fprintf(stderr, "\t   --check-issuer-cn\t\tcheck issuer CN\n");
 	fprintf(stderr, "\t   --check-subject-cn\t\tcheck subject CN\n");
 	fprintf(stderr,

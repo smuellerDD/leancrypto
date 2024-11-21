@@ -29,6 +29,7 @@
 #include "lc_x509_generator_helper.h"
 #include "lc_x509_generator_file_helper.h"
 #include "ret_checkers.h"
+#include "x509_checker.h"
 #include "x509_print.h"
 
 struct pkcs7_x509 {
@@ -46,6 +47,7 @@ struct pkcs7_x509 {
 };
 
 struct pkcs7_generator_opts {
+	struct x509_checker_options checker_opts;
 	struct lc_pkcs7_message pkcs7;
 
 	const struct lc_hash *hash;
@@ -176,8 +178,8 @@ static int pkcs7_enc_dump(struct pkcs7_generator_opts *opts,
 						   NULL),
 		  "Verification of PKCS#7 message failed\n");
 
-	//if (opts->checker)
-	//	CKINT(apply_checks_pkcs7(&ppkcs7, &opts->checker_opts));
+	if (opts->checker)
+		CKINT(apply_checks_pkcs7(&ppkcs7, &opts->checker_opts));
 
 	if (opts->print_pkcs7) {
 		CKINT(print_pkcs7_data(&ppkcs7));
@@ -206,21 +208,20 @@ static int pkcs7_dump_file(struct pkcs7_generator_opts *opts)
 
 	if (opts->data) {
 		CKINT(lc_pkcs7_set_data(&ppkcs7, opts->data, opts->datalen, 0));
-	}
-
-	CKINT_LOG(lc_pkcs7_verify(&ppkcs7, opts->use_trust_store ?
+		CKINT_LOG(lc_pkcs7_verify(&ppkcs7, opts->use_trust_store ?
 						   &opts->trust_store :
 						   NULL),
-		  "Verification of PKCS#7 message failed\n");
+			  "Verification of PKCS#7 message failed\n");
+	}
 
-	//	if (opts->checker)
-	//		CKINT(apply_checks_pkcs7(&ppkcs7, &opts->checker_opts));
+	if (opts->checker)
+		CKINT(apply_checks_pkcs7(&ppkcs7, &opts->checker_opts));
 
 	if (opts->print_pkcs7_msg)
 		CKINT(print_pkcs7_data(&ppkcs7));
 
 out:
-	lc_memset_secure(&ppkcs7, 0, sizeof(ppkcs7));
+	lc_pkcs7_message_clear(&ppkcs7);
 	release_data(pkcs7_data, pkcs7_datalen);
 	return ret;
 }
@@ -449,6 +450,26 @@ static void pkcs7_generator_usage(void)
 	fprintf(stderr,
 		"\t   --trust-anchor <FILE>\tTrust anchor X.509 certificate\n");
 
+	fprintf(stderr,
+		"\n\tOptions for checking generated / loaded X.509 certificate:\n");
+	fprintf(stderr, "\t   --check-ca\t\t\tcheck presence of CA\n");
+	fprintf(stderr, "\t   --check-rootca\t\tcheck if root CA\n");
+	fprintf(stderr, "\t   --check-noca\t\t\tcheck absence of CA\n");
+	fprintf(stderr,
+		"\t   --check-ca-conformant\tcheck presence of RFC5280 conformant CA\n");
+	fprintf(stderr, "\t\t\t\t\tdefinition\n");
+	fprintf(stderr, "\t   --check-issuer-cn\t\tcheck issuer CN\n");
+	fprintf(stderr, "\t   --check-subject-cn\t\tcheck subject CN\n");
+	fprintf(stderr,
+		"\t   --check-selfsigned\t\tcheck that cert is self-signed\n");
+	fprintf(stderr,
+		"\t   --check-noselfsigned\t\tcheck that cert is not self-signed\n");
+	fprintf(stderr,
+		"\t   --check-eku <EKU>\t\tmatch extended key usage (use KEY_EKU_*\n");
+	fprintf(stderr,
+		"\t   --check-keyusage <EKU>\tmatch key usage (use KEY_USAGE_*\n");
+	fprintf(stderr, "\t\t\t\t\tflags)\n");
+
 	fprintf(stderr, "\n\t-h  --help\t\t\tPrint this help text\n");
 }
 
@@ -501,6 +522,8 @@ out:
 int main(int argc, char *argv[])
 {
 	struct pkcs7_generator_opts parsed_opts = { 0 };
+	struct x509_checker_options *checker_opts = &parsed_opts.checker_opts;
+
 	int ret = 0, opt_index = 0;
 
 	static const char *opts_short = "ho:i:";
@@ -516,8 +539,20 @@ int main(int argc, char *argv[])
 
 					      { "print", 0, 0, 0 },
 					      { "noout", 0, 0, 0 },
-					      { "print-x509", 1, 0, 0 },
+					      { "print-pkcs7", 1, 0, 0 },
 					      { "trust-anchor", 1, 0, 0 },
+
+					      { "check-ca", 0, 0, 0 },
+					      { "check-ca-conformant", 0, 0,
+						0 },
+					      { "check-issuer-cn", 1, 0, 0 },
+					      { "check-subject-cn", 1, 0, 0 },
+					      { "check-noselfsigned", 0, 0, 0 },
+					      { "check-eku", 1, 0, 0 },
+					      { "check-noca", 0, 0, 0 },
+					      { "check-selfsigned", 0, 0, 0 },
+					      { "check-rootca", 0, 0, 0 },
+					      { "check-keyusage", 1, 0, 0 },
 
 					      { 0, 0, 0, 0 } };
 
@@ -602,6 +637,59 @@ int main(int argc, char *argv[])
 			case 10:
 				parsed_opts.trust_anchor = optarg;
 				CKINT(pkcs7_collect_trust(&parsed_opts));
+				break;
+
+			/* check-ca */
+			case 11:
+				checker_opts->check_ca = 1;
+				parsed_opts.checker = 1;
+				break;
+			/* check-ca-conformant */
+			case 12:
+				checker_opts->check_ca_conformant = 1;
+				parsed_opts.checker = 1;
+				break;
+			/* check-issuer-cn */
+			case 13:
+				checker_opts->issuer_cn = optarg;
+				parsed_opts.checker = 1;
+				break;
+			/* check-subject-cn */
+			case 14:
+				checker_opts->subject_cn = optarg;
+				parsed_opts.checker = 1;
+				break;
+			/* check-noselfsigned */
+			case 15:
+				checker_opts->check_no_selfsigned = 1;
+				parsed_opts.checker = 1;
+				break;
+			/* check-eku */
+			case 16:
+				checker_opts->eku =
+					(unsigned int)strtoul(optarg, NULL, 10);
+				parsed_opts.checker = 1;
+				break;
+			/* check-noca */
+			case 17:
+				checker_opts->check_no_ca = 1;
+				parsed_opts.checker = 1;
+				break;
+			/* check-selfsigned */
+			case 18:
+				checker_opts->check_selfsigned = 1;
+				parsed_opts.checker = 1;
+				break;
+			/* check-rootca */
+			case 19:
+				checker_opts->check_root_ca = 1;
+				parsed_opts.checker = 1;
+				break;
+			/* check-keyusage */
+			case 20:
+				checker_opts->keyusage =
+					(unsigned int)strtoul(optarg, NULL, 10);
+				parsed_opts.checker = 1;
 				break;
 			}
 			break;

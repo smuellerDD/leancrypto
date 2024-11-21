@@ -417,5 +417,18 @@ if (host_machine.system() != 'windows') and get_option('apps').enabled()
 			   ],
 		     is_parallel: false, timeout: 300, should_fail: true, suite: regression)
 
+		test('PKCS7 Check message',
+			lc_pkcs7_generator,
+			args: [ '--print-pkcs7',  certdir + 'ml-dsa.p7b',
+				'--check-rootca',
+				'--check-ca',
+				'--check-selfsigned',
+				'--check-issuer-cn', 'leancrypto test CA',
+				'--check-subject-cn', 'leancrypto test int1',
+				'--check-keyusage', '16548'
+
+			],
+			is_parallel: false, timeout: 300, suite: regression)
+
 	endif
 endif
