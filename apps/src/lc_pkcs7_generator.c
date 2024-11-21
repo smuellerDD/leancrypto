@@ -713,6 +713,9 @@ int main(int argc, char *argv[])
 	}
 
 	if (parsed_opts.print_pkcs7_msg) {
+		if (parsed_opts.infile)
+			CKINT(pkcs7_set_data(&parsed_opts));
+
 		CKINT(pkcs7_dump_file(&parsed_opts));
 		goto out;
 	}

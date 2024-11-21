@@ -426,14 +426,31 @@ Public key size 2592
 Self-signed: yes
 ====== End one certificate ==========
 ======= PKCS7 signed info listing ==========
+Serial Number: 04:05:06:07:08:09:00:01
+Signature Algorithm: ML-DSA44 <builtin hash>
+Issuer: C = DE, ST = Saxony, O = leancrypto, OU = leancrypto test OU, CN = leancrypto test int2
+Subject: C = DE, ST = Saxony, O = leancrypto, OU = leancrypto test OU, CN = leancrypto test leaf
+Valid From: 2024-10-21 18:22:08
+Valid To: 2034-10-11 22:16:46
+Public Key Algorithm: ML-DSA87
+X509v3 Subject Key Identifier: 0d:0e:0f:00:01:02:03
+X509v3 Authority Key Identifier: 0c:0d:0e:0f:00:01:02
+X509v3 Key Usage: (critical) dataEncipherment 
+X509v3 Extended Key Usage: (critical) ServerAuthentication CodeSigning 
+AuthID[0] = 
+AuthID[1] = 0c0d0e0f000102
+AuthID[2] = 3165301b060355040304146c65616e63727970746f207465737420696e74323011060355040a040a6c65616e63727970746f3009060355040604024445300d060355040804065361786f6e793019060355040b04126c65616e63727970746f2074657374204f55
+X.509 ID = 04050607080900013165301b060355040304146c65616e63727970746f207465737420696e74323011060355040a040a6c65616e63727970746f3009060355040604024445300d060355040804065361786f6e793019060355040b04126c65616e63727970746f2074657374204f55
+Public key size 2592
+Self-signed: no
 Signed Authinfo = 8189304f06092a864886f70d0109043142044016cc53131266f12f8dbb5b10de31c1868a44c1b1a4eadb0d1ea43e36802cf5fe7aa2c22659be36ea3f8d4462a66eb2500533b1ac8378f8f96ae6e91031779878301806092a864886f70d010903310b00092a864886f70d010701301c06092a864886f70d010905310f170d3234313132313038313833385a
 Signature Algorithm: ML-DSA87 <builtin hash>
 AuthID[0] = 0d0e0f00010203
 AuthID[1] = 
 AuthID[2] = 
-signerInfos messageDigest = 
+signerInfos messageDigest = 7f155a4b8be3f85994060b90c3ec0e6a2e4dc5dac44d904940289bf3006b421b8b7613825368d6c451676acd5b03df307f8921171fff4261fd0584ac0653160a
 Message digest algorithm: SHA3-512
-No protected input data!
+Size of protected data: 7606
 ====== End one PKCS7 signed info listing ==========
 ```
 
