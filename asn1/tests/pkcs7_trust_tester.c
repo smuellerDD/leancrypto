@@ -93,6 +93,7 @@ out:
 	if (ret == -ENOKEY)
 		ret = -249;
 
+	lc_pkcs7_message_clear(&pkcs7);
 	lc_pkcs7_trust_store_clear(&trust_store);
 	return ret;
 }
