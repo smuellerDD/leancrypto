@@ -218,9 +218,9 @@ int main(int argc, char *argv[])
 out:
 	/* See comment in get_data why this is necessary */
 	if (ret == -77)
-		return ret;
+		return -ret;
 	if (parsed_opts.expected) {
-		if (parsed_opts.expected == (unsigned int)ret)
+		if (-parsed_opts.expected == (unsigned int)ret)
 			ret = 0;
 		else
 			ret = -EFAULT;
