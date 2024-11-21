@@ -216,7 +216,9 @@ int main(int argc, char *argv[])
 	CKINT(pkcs7_trust_store(&parsed_opts));
 
 out:
-	ret = -ret;
+	/* See comment in get_data why this is necessary */
+	if (ret == -77)
+		return ret;
 	if (parsed_opts.expected) {
 		if (parsed_opts.expected == (unsigned int)ret)
 			ret = 0;
