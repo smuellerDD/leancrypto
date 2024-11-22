@@ -236,7 +236,6 @@ int public_key_verify_signature_dilithium_ed25519(
 {
 	struct lc_dilithium_ed25519_pk dilithium_pk = { 0 };
 	struct lc_dilithium_ed25519_sig dilithium_sig = { 0 };
-	const struct lc_hash *hash_algo;
 	int ret;
 	LC_DILITHIUM_ED25519_CTX_ON_STACK(ctx);
 
@@ -253,9 +252,17 @@ int public_key_verify_signature_dilithium_ed25519(
 			       &dilithium_sig, sig->s, sig->s_size));
 
 	/*
-	 * Verify using HashComposite-ML-DSA if there was a hash
+	 * Select the data to be signed
 	 */
 	if (sig->digest_size) {
+		/*
+		 * https://datatracker.ietf.org/doc/html/draft-ietf-lamps-cms-sphincs-plus#name-signed-data-conventions
+		 * suggests to always use the pure signature schema.
+		 * Therefore, do not apply the HashML-DSA step here.
+		 */
+#if 0
+		const struct lc_hash *hash_algo;
+
 		if (sig->hash_algo)
 			hash_algo = sig->hash_algo;
 		else
@@ -274,6 +281,15 @@ int public_key_verify_signature_dilithium_ed25519(
 							 sig->digest_size));
 		CKINT(lc_dilithium_ed25519_verify_final(&dilithium_sig, ctx,
 							&dilithium_pk));
+#else
+		/*
+		 * Verify the signature using Composite-ML-DSA
+		 */
+		CKINT(lc_dilithium_ed25519_verify_ctx(
+			&dilithium_sig, ctx, sig->digest, sig->digest_size,
+			&dilithium_pk));
+
+#endif
 	} else {
 		CKNULL(sig->raw_data, -EOPNOTSUPP);
 
@@ -302,15 +318,18 @@ int public_key_generate_signature_dilithium_ed25519(
 	struct lc_dilithium_ed25519_sig dilithium_ed25519_sig;
 	struct lc_dilithium_ed25519_sk *dilithium_ed25519_sk =
 		gen_data->sk.dilithium_ed25519_sk;
-	const struct lc_hash *hash_algo;
 	size_t siglen = sizeof(sigbuf);
 	int ret;
 	LC_DILITHIUM_ED25519_CTX_ON_STACK(ctx);
 
 	/*
-	 * Sign using HashComposite-ML-DSA if there was a hash
+	 * Select the data to be signed
 	 */
 	if (sig->digest_size) {
+		/* See above for the reason */
+#if 0
+		const struct lc_hash *hash_algo;
+
 		if (sig->hash_algo)
 			hash_algo = sig->hash_algo;
 		else
@@ -331,22 +350,14 @@ int public_key_generate_signature_dilithium_ed25519(
 		CKINT(lc_dilithium_ed25519_sign_final(&dilithium_ed25519_sig,
 						      ctx, dilithium_ed25519_sk,
 						      lc_seeded_rng));
-
-		LC_DILITHIUM_ED25519_CTX_ON_STACK(ctx1);
-		lc_dilithium_ed25519_ctx_hash(ctx1, hash_algo);
-		struct lc_dilithium_ed25519_pk *dilithium_ed25519_pk =
-			gen_data->pk.dilithium_ed25519_pk;
-		bin2print_debug(dilithium_ed25519_pk->key.pk_44.pk_ed25519.pk,
-				32, stdout, "p");
-		bin2print_debug(dilithium_ed25519_sk->key.sk_44.sk_ed25519.sk,
-				64, stdout, "s");
-		CKINT(lc_dilithium_ed25519_verify_init(ctx1,
-						       dilithium_ed25519_pk));
-		CKINT(lc_dilithium_ed25519_verify_update(ctx1, sig->digest,
-							 sig->digest_size));
-		CKINT(lc_dilithium_ed25519_verify_final(
-			&dilithium_ed25519_sig, ctx1, dilithium_ed25519_pk));
-
+#else
+		/*
+		 * Sign the signature using Composite-ML-DSA
+		 */
+		CKINT(lc_dilithium_ed25519_sign_ctx(
+			&dilithium_ed25519_sig, ctx, sig->digest,
+			sig->digest_size, dilithium_ed25519_sk, lc_seeded_rng));
+#endif
 	} else {
 		CKNULL(sig->raw_data, -EOPNOTSUPP);
 

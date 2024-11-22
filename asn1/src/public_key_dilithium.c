@@ -33,7 +33,6 @@ int public_key_verify_signature_dilithium(
 {
 	struct lc_dilithium_pk dilithium_pk;
 	struct lc_dilithium_sig dilithium_sig;
-	const struct lc_hash *hash_algo;
 	int ret;
 	LC_DILITHIUM_CTX_ON_STACK(ctx);
 
@@ -45,9 +44,17 @@ int public_key_verify_signature_dilithium(
 	CKINT(lc_dilithium_sig_load(&dilithium_sig, sig->s, sig->s_size));
 
 	/*
-	 * Select hash-based signature if there was a hash
+	 * Select the data to be signed
 	 */
 	if (sig->digest_size) {
+		/*
+		 * https://datatracker.ietf.org/doc/html/draft-ietf-lamps-cms-sphincs-plus#name-signed-data-conventions
+		 * suggests to always use the pure signature schema.
+		 * Therefore, do not apply the HashML-DSA step here.
+		 */
+#if 0
+		const struct lc_hash *hash_algo;
+
 		if (sig->hash_algo)
 			hash_algo = sig->hash_algo;
 		else
@@ -57,6 +64,7 @@ int public_key_verify_signature_dilithium(
 		CKNULL(hash_algo, -EOPNOTSUPP);
 
 		lc_dilithium_ctx_hash(ctx, hash_algo);
+#endif
 
 		/*
 		 * Verify the signature
@@ -88,16 +96,19 @@ int public_key_generate_signature_dilithium(
 {
 	struct lc_dilithium_sig dilithium_sig;
 	struct lc_dilithium_sk *dilithium_sk = gen_data->sk.dilithium_sk;
-	const struct lc_hash *hash_algo;
 	uint8_t *sigptr;
 	size_t siglen;
 	int ret;
 	LC_DILITHIUM_CTX_ON_STACK(ctx);
 
 	/*
-	 * Select hash-based signature if there was a hash
+	 * Select the data to be signed
 	 */
 	if (sig->digest_size) {
+		/* See above for the reason */
+#if 0
+		const struct lc_hash *hash_algo;
+
 		if (sig->hash_algo)
 			hash_algo = sig->hash_algo;
 		else
@@ -107,7 +118,7 @@ int public_key_generate_signature_dilithium(
 		CKNULL(hash_algo, -EOPNOTSUPP);
 
 		lc_dilithium_ctx_hash(ctx, hash_algo);
-
+#endif
 		/*
 		 * Sign the hash
 		 */

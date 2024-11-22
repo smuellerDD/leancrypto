@@ -33,7 +33,6 @@ int public_key_verify_signature_sphincs(
 {
 	struct lc_sphincs_pk sphincs_pk;
 	struct lc_sphincs_sig sphincs_sig;
-	const struct lc_hash *hash_algo;
 	int ret;
 	LC_SPHINCS_CTX_ON_STACK(ctx);
 
@@ -51,9 +50,17 @@ int public_key_verify_signature_sphincs(
 	CKINT(lc_sphincs_sig_load(&sphincs_sig, sig->s, sig->s_size));
 
 	/*
-	 * Select hash-based signature if there was a hash
+	 * Select the data to be signed
 	 */
 	if (sig->digest_size) {
+		/*
+		 * https://datatracker.ietf.org/doc/html/draft-ietf-lamps-cms-sphincs-plus#name-signed-data-conventions
+		 * suggests to always use the pure signature schema.
+		 * Therefore, do not apply the HashML-DSA step here.
+		 */
+#if 0
+		const struct lc_hash *hash_algo;
+
 		if (sig->hash_algo)
 			hash_algo = sig->hash_algo;
 		else
@@ -63,7 +70,7 @@ int public_key_verify_signature_sphincs(
 		CKNULL(hash_algo, -EOPNOTSUPP);
 
 		lc_sphincs_ctx_hash(ctx, hash_algo);
-
+#endif
 		/*
 		 * Verify the signature
 		 */
@@ -93,7 +100,6 @@ int public_key_generate_signature_sphincs(
 {
 	struct lc_sphincs_sig sphincs_sig;
 	struct lc_sphincs_sk *sphincs_sk = gen_data->sk.sphincs_sk;
-	const struct lc_hash *hash_algo;
 	uint8_t *sigptr;
 	size_t siglen;
 	int ret;
@@ -106,9 +112,13 @@ int public_key_generate_signature_sphincs(
 	}
 
 	/*
-	 * Select hash-based signature if there was a hash
+	 * Select the data to be signed
 	 */
 	if (sig->digest_size) {
+		/* See above for the reason */
+#if 0
+		const struct lc_hash *hash_algo;
+
 		if (sig->hash_algo)
 			hash_algo = sig->hash_algo;
 		else
@@ -118,6 +128,7 @@ int public_key_generate_signature_sphincs(
 		CKNULL(hash_algo, -EOPNOTSUPP);
 
 		lc_sphincs_ctx_hash(ctx, hash_algo);
+#endif
 
 		/*
 		 * Sign the hash
