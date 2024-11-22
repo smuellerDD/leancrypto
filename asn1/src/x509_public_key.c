@@ -48,6 +48,8 @@ int x509_set_digestsize(size_t *digestsize, struct lc_hash_ctx *hash_ctx)
 	return 0;
 }
 
+/* No pre-hashed signatures */
+#if 0
 /*
  * Set up the signature parameters in an X.509 certificate.  This involves
  * digesting the signed data and extracting the signature.
@@ -100,6 +102,20 @@ int x509_get_sig_params(struct lc_x509_certificate *cert)
 
 out:
 	return ret;
+}
+#endif
+
+int x509_get_sig_params(struct lc_x509_certificate *cert)
+{
+	struct lc_public_key_signature *sig = &cert->sig;
+
+	sig->s = cert->raw_sig;
+	sig->s_size = cert->raw_sig_size;
+
+	sig->raw_data = cert->tbs;
+	sig->raw_data_len = cert->tbs_size;
+
+	return 0;
 }
 
 /*

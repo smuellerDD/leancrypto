@@ -27,6 +27,8 @@ extern "C" {
 #endif
 
 int lc_x509_sig_type_to_oid(enum lc_sig_types pkey_algo, enum OID *oid);
+int lc_x509_sig_check_hash(enum lc_sig_types pkey_algo,
+			   const struct lc_hash *hash_algo);
 int lc_x509_oid_to_sig_type(enum OID oid, enum lc_sig_types *pkey_algo);
 const char *lc_x509_oid_to_name(enum OID oid);
 int lc_x509_hash_to_oid(const struct lc_hash *hash_algo, enum OID *oid);

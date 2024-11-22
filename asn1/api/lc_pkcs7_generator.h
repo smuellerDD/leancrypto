@@ -109,13 +109,14 @@ int lc_pkcs7_set_certificate(struct lc_pkcs7_message *pkcs7,
  * @param [out] pkcs7 PKCS#7 structure that shall receive the signer
  * @param [in] x509_with_sk PKCS#7 certificate with secret key to be used as
  *			    signer
- * @param [in] signing_hash With this parameter, the signing hash must can be
- *			    specified by the caller. When using the
- *			    \p signing_hash, HashML-DSA, HashSLH-DSA or
- *			    HashComposite-ML-DSA is applied. For
- *			    Composite-ML-DSA a hash algorithm with 512 bit
- *			    message digest size must be specified (\p lc_sha512,
- *			    \p lc_sha3_512 or \p lc_shake256).
+ * @param [in] signing_hash With this parameter, the signing hash MAY be
+ *			    specified by the caller. If this is NULL, the
+ *			    default message digest is used. Note, the message
+ *			    digest algorithm must be capable of delivering at
+ *			    least twice the classic security strength of the
+ *			    signature algorithm. This is checked with this
+ *			    function and returns -ENOPKG if the requirement is
+ *			    not met.
  * @param [in] auth_attribute Specify which authenticated attributes are to be
  *			      generated. When set to 0, no authenticated
  *			      attributes are generated.

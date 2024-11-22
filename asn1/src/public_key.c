@@ -27,6 +27,7 @@
 #include "public_key_dilithium_ed25519.h"
 #include "public_key_sphincs.h"
 #include "ret_checkers.h"
+#include "x509_algorithm_mapper.h"
 
 /*
  * Zeroize a public key signature.
@@ -72,6 +73,13 @@ int public_key_verify_signature(const struct lc_public_key *pkey,
 	if (sig->pkey_algo > LC_SIG_UNKNOWN &&
 	    (pkey->pkey_algo != sig->pkey_algo))
 		return -EKEYREJECTED;
+
+	/*
+	 * Check that the used hashing algorithm is of sufficient size.
+	 * But that check is only needed if we received a hash algorithm.
+	 */
+	if (sig->hash_algo)
+		CKINT(lc_x509_sig_check_hash(pkey->pkey_algo, sig->hash_algo));
 
 	switch (pkey->pkey_algo) {
 	case LC_SIG_DILITHIUM_44:

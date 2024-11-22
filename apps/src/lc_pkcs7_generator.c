@@ -576,15 +576,6 @@ int main(int argc, char *argv[])
 	parsed_opts.aa_set = sinfo_has_content_type | sinfo_has_signing_time |
 			     sinfo_has_message_digest;
 
-	/* Set default algoritm */
-#ifdef LC_SHA3
-	parsed_opts.hash = lc_sha3_512;
-#elif defined LC_SHA2_512
-	parsed_opts.hash = lc_sha512;
-#else
-#error "No default hash algorithm defined"
-#endif
-
 	opterr = 0;
 	while (1) {
 		int c = getopt_long(argc, argv, opts_short, opts, &opt_index);

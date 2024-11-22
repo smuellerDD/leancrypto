@@ -30,45 +30,55 @@ struct lc_x509_algorithms {
 	const char *name_algo;
 	size_t namelen;
 	enum lc_sig_types pkey_algo;
+	enum OID std_hash;
 };
 
 static struct lc_x509_algorithms x509_algo_table[] = {
 	{ .oid = OID_id_MLDSA44,
 	  .name_algo = "ML-DSA44",
 	  .namelen = 8,
-	  .pkey_algo = LC_SIG_DILITHIUM_44 },
+	  .pkey_algo = LC_SIG_DILITHIUM_44,
+	  .std_hash = OID_shake256 },
 	{ .oid = OID_id_MLDSA65,
 	  .name_algo = "ML-DSA65",
 	  .namelen = 8,
-	  .pkey_algo = LC_SIG_DILITHIUM_65 },
+	  .pkey_algo = LC_SIG_DILITHIUM_65,
+	  .std_hash = OID_shake256 },
 	{ .oid = OID_id_MLDSA87,
 	  .name_algo = "ML-DSA87",
 	  .namelen = 8,
-	  .pkey_algo = LC_SIG_DILITHIUM_87 },
+	  .pkey_algo = LC_SIG_DILITHIUM_87,
+	  .std_hash = OID_shake256 },
 	{ .oid = OID_id_SLHDSA_SHAKE_128F,
 	  .name_algo = "SLH-DSA-SHAKE-128F",
 	  .namelen = 18,
-	  .pkey_algo = LC_SIG_SPINCS_SHAKE_128F },
+	  .pkey_algo = LC_SIG_SPINCS_SHAKE_128F,
+	  .std_hash = OID_shake256 },
 	{ .oid = OID_id_SLHDSA_SHAKE_128S,
 	  .name_algo = "SLH-DSA-SHAKE-128S",
 	  .namelen = 18,
-	  .pkey_algo = LC_SIG_SPINCS_SHAKE_128S },
+	  .pkey_algo = LC_SIG_SPINCS_SHAKE_128S,
+	  .std_hash = OID_shake256 },
 	{ .oid = OID_id_SLHDSA_SHAKE_192F,
 	  .name_algo = "SLH-DSA-SHAKE-192F",
 	  .namelen = 18,
-	  .pkey_algo = LC_SIG_SPINCS_SHAKE_192F },
+	  .pkey_algo = LC_SIG_SPINCS_SHAKE_192F,
+	  .std_hash = OID_shake256 },
 	{ .oid = OID_id_SLHDSA_SHAKE_192S,
 	  .name_algo = "SLH-DSA-SHAKE-192S",
 	  .namelen = 18,
-	  .pkey_algo = LC_SIG_SPINCS_SHAKE_192S },
+	  .pkey_algo = LC_SIG_SPINCS_SHAKE_192S,
+	  .std_hash = OID_shake256 },
 	{ .oid = OID_id_SLHDSA_SHAKE_256F,
 	  .name_algo = "SLH-DSA-SHAKE-256F",
 	  .namelen = 18,
-	  .pkey_algo = LC_SIG_SPINCS_SHAKE_256F },
+	  .pkey_algo = LC_SIG_SPINCS_SHAKE_256F,
+	  .std_hash = OID_shake256 },
 	{ .oid = OID_id_SLHDSA_SHAKE_256S,
 	  .name_algo = "SLH-DSA-SHAKE-256S",
 	  .namelen = 18,
-	  .pkey_algo = LC_SIG_SPINCS_SHAKE_256S },
+	  .pkey_algo = LC_SIG_SPINCS_SHAKE_256S,
+	  .std_hash = OID_shake256 },
 
 	{ .oid = OID_id_rsassa_pkcs1_v1_5_with_sha3_256,
 	  .name_algo = "RSASSA-PKCS1-v1.5-SHA3-256",
@@ -112,15 +122,19 @@ static struct lc_x509_algorithms x509_algo_table[] = {
 	{ .oid = OID_id_MLDSA44_Ed25519,
 	  .name_algo = "ML-DSA44-ED25519",
 	  .namelen = 16,
-	  .pkey_algo = LC_SIG_DILITHIUM_44_ED25519 },
+	  .pkey_algo = LC_SIG_DILITHIUM_44_ED25519,
+	  .std_hash = OID_sha3_512 },
 	{ .oid = OID_id_MLDSA65_Ed25519,
 	  .name_algo = "ML-DSA65-ED25519",
 	  .namelen = 16,
-	  .pkey_algo = LC_SIG_DILITHIUM_65_ED25519 },
+	  .pkey_algo = LC_SIG_DILITHIUM_65_ED25519,
+	  .std_hash = OID_sha3_512 },
 	{ .oid = OID_id_MLDSA87_Ed448,
 	  .name_algo = "ML-DSA44-ED448",
 	  .namelen = 14,
-	  .pkey_algo = LC_SIG_DILITHIUM_87_ED448 },
+	  .pkey_algo = LC_SIG_DILITHIUM_87_ED448,
+	  .std_hash = OID_sha3_512 },
+
 	{ .oid = OID_sha384WithRSAEncryption,
 	  .name_algo = "RSASSA-PKCS1-v1.5-SHA2-384",
 	  .namelen = 26,
@@ -194,66 +208,130 @@ LC_INTERFACE_FUNCTION(int, lc_x509_sig_type_to_hash,
 		      enum lc_sig_types pkey_algo,
 		      const struct lc_hash **hash_algo)
 {
+	unsigned int i;
+	enum OID hash_oid = OID__NR;
+
+	for (i = 0; i < ARRAY_SIZE(x509_algo_table); i++) {
+		if (pkey_algo == x509_algo_table[i].pkey_algo) {
+			hash_oid = x509_algo_table[i].std_hash;
+			break;
+		}
+	}
+
+	if (hash_oid == OID__NR) {
+		printf_debug("Public Key algo %u not found\n", pkey_algo);
+
+		return -ENOPKG;
+	}
+
+	return lc_x509_oid_to_hash(hash_oid, hash_algo);
+}
+
+int lc_x509_sig_check_hash(enum lc_sig_types pkey_algo,
+			   const struct lc_hash *hash_algo)
+{
+	unsigned int found = 0;
+
+	if (!hash_algo)
+		return -ENOPKG;
+
 	switch (pkey_algo) {
+	case LC_SIG_SPINCS_SHAKE_128F:
+	case LC_SIG_SPINCS_SHAKE_128S:
 	case LC_SIG_DILITHIUM_44:
-	case LC_SIG_DILITHIUM_65:
-	case LC_SIG_DILITHIUM_87:
-		/* They are using the builtin hash type */
-		*hash_algo = NULL;
-		return 0;
+#ifdef LC_SHA2_256
+		if (hash_algo == lc_sha256) {
+			found = 1;
+			break;
+		} else
+#endif
 #ifdef LC_SHA3
-	case LC_SIG_SPINCS_SHAKE_128F:
-	case LC_SIG_SPINCS_SHAKE_128S:
+		if (hash_algo == lc_sha3_256) {
+			found = 1;
+			break;
+		} else if (hash_algo == lc_shake128) {
+			found = 1;
+			break;
+		}
+#endif
+		fallthrough;
 	case LC_SIG_SPINCS_SHAKE_192F:
 	case LC_SIG_SPINCS_SHAKE_192S:
-	case LC_SIG_SPINCS_SHAKE_256F:
-	case LC_SIG_SPINCS_SHAKE_256S:
-		/* They are using the builtin hash type */
-		*hash_algo = NULL;
-		return 0;
-#else
-	case LC_SIG_DILITHIUM_44:
 	case LC_SIG_DILITHIUM_65:
-	case LC_SIG_DILITHIUM_87:
-	case LC_SIG_SPINCS_SHAKE_128F:
-	case LC_SIG_SPINCS_SHAKE_128S:
-	case LC_SIG_SPINCS_SHAKE_192F:
-	case LC_SIG_SPINCS_SHAKE_192S:
+#ifdef LC_SHA2_512
+		if (hash_algo == lc_sha384) {
+			found = 1;
+			break;
+		} else
+#endif
+#ifdef LC_SHA3
+		if (hash_algo == lc_sha3_384) {
+			found = 1;
+			break;
+		}
+#endif
+		fallthrough;
 	case LC_SIG_SPINCS_SHAKE_256F:
 	case LC_SIG_SPINCS_SHAKE_256S:
-		return -ENOPKG;
-#endif
+	case LC_SIG_DILITHIUM_87:
 #ifdef LC_SHA2_512
-	case LC_SIG_DILITHIUM_44_ED25519:
-	case LC_SIG_DILITHIUM_65_ED25519:
-	case LC_SIG_DILITHIUM_87_ED25519:
-	case LC_SIG_DILITHIUM_87_ED448:
-		/* They are using the builtin hash type */
-		*hash_algo = NULL;
-		return 0;
-#else
-	case LC_SIG_DILITHIUM_44_ED25519:
-	case LC_SIG_DILITHIUM_65_ED25519:
-	case LC_SIG_DILITHIUM_87_ED25519:
-	case LC_SIG_DILITHIUM_87_ED448:
-		return -ENOPKG;
+		if (hash_algo == lc_sha512) {
+			found = 1;
+			break;
+		} else
 #endif
+#ifdef LC_SHA3
+		if (hash_algo == lc_sha3_512) {
+			found = 1;
+			break;
+		} else if (hash_algo == lc_shake256) {
+			found = 1;
+			break;
+		}
+#endif
+		break;
+
+	case LC_SIG_DILITHIUM_44_ED25519:
+	case LC_SIG_DILITHIUM_65_ED25519:
+	case LC_SIG_DILITHIUM_87_ED25519:
+#ifdef LC_SHA2_512
+		if (hash_algo == lc_sha512) {
+			found = 1;
+			break;
+		} else
+#endif
+#ifdef LC_SHA3
+		if (hash_algo == lc_sha3_512) {
+			found = 1;
+			break;
+		} else if (hash_algo == lc_shake256) {
+			found = 1;
+			break;
+		}
+#endif
+		break;
+
+	case LC_SIG_DILITHIUM_87_ED448:
 	case LC_SIG_RSA_PKCS1:
 	case LC_SIG_ECDSA_X963:
 	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_SM2:
 	case LC_SIG_UNKNOWN:
+		printf_debug("Unimplemented asymmetric algorithm %u\n",
+			     pkey_algo);
+		fallthrough;
 	default:
-#ifdef LC_PKCS7_DEBUG
-#warning                                                                       \
-	"LC_PKCS7_DEBUG enabled - code MUST ONLY BE USED FOR TESTING - NEVER IN PRODUCTION!"
-		*hash_algo = lc_sha512;
-		return 0;
-#else
+		/* Unknown public key algorithm */
 		return -ENOPKG;
-#endif
 	}
+
+	if (found)
+		return 0;
+
+	printf_debug("Message digest for signature algorithm too weak\n");
+	return -ENOPKG;
 }
+
 
 LC_INTERFACE_FUNCTION(int, lc_x509_name_to_hash, const char *hash_name,
 		      const struct lc_hash **hash_algo)

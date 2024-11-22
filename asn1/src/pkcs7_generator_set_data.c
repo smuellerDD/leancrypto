@@ -25,6 +25,7 @@
 #include "lc_x509_parser.h"
 #include "ret_checkers.h"
 #include "visibility.h"
+#include "x509_algorithm_mapper.h"
 
 static int pkcs7_add_cert(struct lc_pkcs7_message *pkcs7,
 			  struct lc_x509_certificate *x509)
@@ -94,7 +95,6 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_set_signer, struct lc_pkcs7_message *pkcs7,
 
 	CKNULL(pkcs7, -EINVAL);
 	CKNULL(x509_with_sk, -EINVAL);
-	CKNULL(signing_hash, -EINVAL);
 
 	/* Check that keys were set */
 	CKNULL(x509_with_sk->sig_gen_data.sig_type, -EINVAL);
@@ -110,25 +110,14 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_set_signer, struct lc_pkcs7_message *pkcs7,
 	/* Set the authenticated attributes to be generated */
 	sinfo->aa_set = auth_attribute;
 
-	/*
-	 * Set the hash algorithm to be used
-	 *
-	 * Note: for ML-DSA-ED25519 a 512 bit digest is important!
-	 */
-	sinfo->sig.hash_algo = signing_hash;
-
-	if ((x509_with_sk->sig_gen_data.sig_type ==
-		     LC_SIG_DILITHIUM_44_ED25519 ||
-	     x509_with_sk->sig_gen_data.sig_type ==
-		     LC_SIG_DILITHIUM_65_ED25519 ||
-	     x509_with_sk->sig_gen_data.sig_type ==
-		     LC_SIG_DILITHIUM_87_ED25519) &&
-	    ((sinfo->sig.hash_algo != lc_sha3_512) &&
-	     (sinfo->sig.hash_algo != lc_sha512) &&
-	     (sinfo->sig.hash_algo != lc_shake256))) {
-		printf_debug(
-			"Inappropriate message digest for hybrid algorithm: use 512 bit message digest!\n");
-		return -EINVAL;
+	if (!signing_hash) {
+		CKINT(lc_x509_sig_type_to_hash(
+			x509_with_sk->sig_gen_data.sig_type,
+			&sinfo->sig.hash_algo));
+	} else {
+		CKINT(lc_x509_sig_check_hash(
+			x509_with_sk->sig_gen_data.sig_type, signing_hash));
+		sinfo->sig.hash_algo = signing_hash;
 	}
 
 	/*
