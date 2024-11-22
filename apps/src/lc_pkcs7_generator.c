@@ -448,7 +448,7 @@ static void pkcs7_generator_usage(void)
 		"\n\tOptions for analyzing generated / loaded PKCS#7 messages:\n");
 	fprintf(stderr,
 		"\t   --print\t\t\tParse the generated PKCS#7 message and\n");
-	fprintf(stderr, "\t\t\t\t\t print its contents\n");
+	fprintf(stderr, "\t\t\t\t\tprint its contents\n");
 	fprintf(stderr,
 		"\t   --print-pkcs7 <FILE>\t\tParse the PKCS#7 message and\n");
 	fprintf(stderr, "\t\t\t\t\tprint its contents\n");
@@ -604,7 +604,7 @@ int main(int argc, char *argv[])
 				CKINT(pkcs7_check_file(optarg));
 				parsed_opts.outfile = optarg;
 				break;
-			/* outfile */
+			/* infile */
 			case 2:
 				parsed_opts.infile = optarg;
 				break;
