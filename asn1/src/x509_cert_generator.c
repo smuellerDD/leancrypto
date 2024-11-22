@@ -702,12 +702,13 @@ int x509_process_extension_enc(void *context, uint8_t *data,
 
 	/* extended key usage */
 	if (x509_eku_unprocessed(ctx, LC_KEY_EKU_MASK)) {
-		CKINT(asn1_ber_encoder(&x509_eku_encoder, ctx, data, &avail));
+		CKINT(asn1_ber_encoder_small(&x509_eku_encoder, ctx, data,
+					     &avail));
 
 		/* basic constraints */
 	} else if (x509_pathlen_unprocessed(ctx)) {
-		CKINT(asn1_ber_encoder(&x509_basic_constraints_encoder, ctx,
-				       data, &avail));
+		CKINT(asn1_ber_encoder_small(&x509_basic_constraints_encoder,
+					     ctx, data, &avail));
 
 		/* subject alternative name */
 	} else if (x509_san_unprocessed(ctx)) {
@@ -715,12 +716,13 @@ int x509_process_extension_enc(void *context, uint8_t *data,
 
 		/* key usage */
 	} else if (x509_keyusage_unprocessed(ctx, LC_KEY_USAGE_MASK)) {
-		CKINT(asn1_ber_encoder(&x509_keyusage_encoder, ctx, data,
-				       &avail));
+		CKINT(asn1_ber_encoder_small(&x509_keyusage_encoder, ctx, data,
+					     &avail));
 
 		/* SKID */
 	} else if (x509_skid_unprocessed(ctx)) {
-		CKINT(asn1_ber_encoder(&x509_skid_encoder, ctx, data, &avail));
+		CKINT(asn1_ber_encoder_small(&x509_skid_encoder, ctx, data,
+					     &avail));
 
 		/* authority key identifier */
 	} else if (x509_akid_unprocessed(ctx)) {
