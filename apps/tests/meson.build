@@ -282,6 +282,23 @@ if (host_machine.system() != 'windows') and get_option('apps').enabled()
 					'--trust-anchor', certdir + 'ml-dsa87_cacert.der' ],
 				is_parallel: false, timeout: 300,
 				suite: regression)
+
+			#This should fail as the requested message digest is
+			#too weak for the signer
+			test('PKCS7 Gen with ML-DSA 4-way cert chain SHA3-256',
+				lc_pkcs7_generator,
+				args: [ '--md', 'SHA3-256',
+					'--x509-signer', certdir + 'ml-dsa87_leaf.der',
+					'--signer-sk-file', certdir + 'ml-dsa87_leaf.privkey',
+					'-i', certdir + 'ml-dsa87_cacert.der',
+					'--print',
+					'--noout',
+					'--x509-cert',  certdir + 'ml-dsa65_int1.der',
+					'--x509-cert', certdir + 'ml-dsa44_int2.der',
+					'--x509-cert', certdir + 'ml-dsa87_cacert.der',
+					'--trust-anchor', certdir + 'ml-dsa87_cacert.der' ],
+				is_parallel: false, timeout: 300,
+				should_fail: true, suite: regression)
 		endif
 
 		if get_option('sha2-512').enabled()
