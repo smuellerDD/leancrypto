@@ -481,3 +481,6 @@ It applies the following approach:
 * A root CA or intermediate CA certificate are required to possess the key
   usage flag of keyCertSign for successful validation.
   
+* A caller can provide the required key usage or EKU flags that a signer must
+  bear for successful validation to `lc_pkcs7_verify` or via
+  `lc_pkcs7_generator`.
