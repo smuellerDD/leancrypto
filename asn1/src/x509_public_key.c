@@ -37,8 +37,16 @@ int x509_set_digestsize(size_t *digestsize, struct lc_hash_ctx *hash_ctx)
 
 	/* This can happen for a SHAKE-algorithm */
 	if (!found_digestsize) {
-		lc_hash_set_digestsize(hash_ctx, LC_SHA_MAX_SIZE_DIGEST);
-		found_digestsize = LC_SHA_MAX_SIZE_DIGEST;
+		/*
+		 * For SHAKE algorithms use twice the implied security strength
+		 * to also counter the collision problem.
+		 */
+		if (hash_ctx->hash == lc_shake128)
+			found_digestsize = 32;
+		else
+			found_digestsize = LC_SHA_MAX_SIZE_DIGEST;
+
+		lc_hash_set_digestsize(hash_ctx, found_digestsize);
 	}
 	if (*digestsize < found_digestsize)
 		return -ENOMEM;
