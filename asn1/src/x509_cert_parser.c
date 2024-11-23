@@ -1096,11 +1096,20 @@ int x509_akid_note_OID(void *context, size_t hdrlen, unsigned char tag,
 int x509_version(void *context, size_t hdrlen, unsigned char tag,
 		 const uint8_t *value, size_t vlen)
 {
-	(void)context;
+	struct x509_parse_context *ctx = context;
+	struct lc_x509_certificate *cert = ctx->cert;
+
 	(void)hdrlen;
 	(void)tag;
-	(void)value;
-	(void)vlen;
+
+	if (vlen != 1)
+		return -EBADMSG;
+
+	cert->x509_version = value[0];
+
+	/* Certificate versions start with zero as version 1 */
+	cert->x509_version++;
+
 	return 0;
 }
 

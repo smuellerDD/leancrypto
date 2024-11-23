@@ -24,15 +24,54 @@
 #include "ret_checkers.h"
 #include "visibility.h"
 
-LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_is_ca,
-		      const struct lc_x509_certificate *cert)
+static x509_pol_ret_t lc_509_policy_cert_contains_signature(
+	const struct lc_x509_certificate *cert)
 {
-	const struct lc_public_key *pub;
+	const struct lc_public_key_signature *sig;
 
 	if (!cert)
 		return -EINVAL;
 
+	sig = &cert->sig;
+	if (sig->s && sig->s_size)
+		return LC_X509_POL_TRUE;
+
+	return LC_X509_POL_FALSE;
+}
+
+static x509_pol_ret_t lc_x509_policy_version_ge(
+	const struct lc_x509_certificate *cert, uint8_t requested_version)
+{
+	if (!cert)
+		return -EINVAL;
+
+	if (cert->x509_version >= requested_version)
+		return LC_X509_POL_TRUE;
+
+	return LC_X509_POL_FALSE;
+}
+
+LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_is_ca,
+		      const struct lc_x509_certificate *cert)
+{
+	const struct lc_public_key *pub;
+	int ret;
+
+	if (!cert)
+		return -EINVAL;
+
+	CKINT(lc_x509_policy_cert_valid(cert))
+	if (ret != LC_X509_POL_TRUE)
+		return ret;
+
 	pub = &cert->pub;
+
+	/* RFC5280 section 4.2.1.2: CA must have SKID */
+	if (!cert->raw_skid_size) {
+		printf_debug("X509 Policy %s: CA does not have an SKID\n",
+			     __func__);
+		return LC_X509_POL_FALSE;
+	}
 
 	/*
 	 * RFC 5280 section 4.2.1.3: when key usage is present, the
@@ -48,16 +87,32 @@ LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_is_ca,
 	    !(pub->ca_pathlen & LC_KEY_CA_CRITICAL))
 		return LC_X509_POL_FALSE;
 
+	/* BSI TR02102-3 chapter 3 */
+	CKINT(lc_x509_policy_version_ge(cert, 3));
+	if (ret != LC_X509_POL_TRUE)
+		return ret;
+
+	/* BSI TR02102-3 chapter 3 */
+	CKINT(lc_509_policy_cert_contains_signature(cert));
+	if (ret != LC_X509_POL_TRUE)
+		return ret;
+
 	/* Check whether it is a CA */
 	if (pub->ca_pathlen & LC_KEY_CA_MASK)
 		return LC_X509_POL_TRUE;
 
-	return LC_X509_POL_FALSE;
+	ret = LC_X509_POL_FALSE;
+
+out:
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_is_selfsigned,
 		      const struct lc_x509_certificate *cert)
 {
+	if (!cert)
+		return -EINVAL;
+
 	if (!cert->self_signed)
 		return LC_X509_POL_FALSE;
 
@@ -69,12 +124,28 @@ LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_is_root_ca,
 {
 	x509_pol_ret_t ret;
 
-	CKINT(lc_x509_policy_is_ca(cert));
+	if (!cert)
+		return -EINVAL;
 
+	if (cert->raw_akid) {
+		CKINT(lc_x509_policy_match_akid(cert, cert->raw_skid,
+						cert->raw_skid_size));
+		if (ret != LC_X509_POL_TRUE) {
+			printf_debug(
+				"X509 Policy %s: root CA does not have matching SKID and AKID\n",
+				__func__);
+			return ret;
+		}
+	}
+
+
+	CKINT(lc_x509_policy_is_ca(cert));
 	if (ret != LC_X509_POL_TRUE)
 		return ret;
 
 	CKINT(lc_x509_policy_is_selfsigned(cert));
+	if (ret != LC_X509_POL_TRUE)
+		return ret;
 
 out:
 	return ret;
@@ -281,34 +352,8 @@ LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_time_valid,
 LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_cert_valid,
 		      const struct lc_x509_certificate *cert)
 {
-	const struct lc_public_key *pub;
-	x509_pol_ret_t ret;
-
 	if (!cert)
 		return -EINVAL;
-
-	pub = &cert->pub;
-
-	/* RFC5280 section 4.2.1.2: CA must have SKID */
-	if ((pub->ca_pathlen & LC_KEY_CA_MASK) && !cert->raw_skid_size) {
-		printf_debug("X509 Policy %s: CA does not have an SKID\n",
-			     __func__);
-		return LC_X509_POL_FALSE;
-	}
-
-	/* RFC5280 section 4.2.1.2: match AKID and SKID for root CA */
-	CKINT(lc_x509_policy_is_root_ca(cert));
-	if ((ret == LC_X509_POL_TRUE) && cert->raw_akid) {
-		CKINT(lc_x509_policy_match_akid(cert, cert->raw_skid,
-						cert->raw_skid_size));
-
-		if (ret != LC_X509_POL_TRUE) {
-			printf_debug(
-				"X509 Policy %s: root CA does not have matching SKID and AKID\n",
-				__func__);
-			return ret;
-		}
-	}
 
 	/*
 	 * RFC5280 section 4.2.1.3: SKID must always be present.
@@ -331,10 +376,9 @@ LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_cert_valid,
 		return LC_X509_POL_FALSE;
 	}
 
-	return LC_X509_POL_TRUE;
 
-out:
-	return ret;
+
+	return LC_X509_POL_TRUE;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_x509_policy_cert_verify,
