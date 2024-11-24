@@ -157,6 +157,7 @@ static int shake256_tester(void)
 	LC_EXEC_ONE_TEST(lc_shake256_avx2);
 	LC_EXEC_ONE_TEST(lc_shake256_avx512);
 	LC_EXEC_ONE_TEST(lc_shake256_riscv_asm);
+	LC_EXEC_ONE_TEST(lc_shake256_riscv_asm_zbb);
 
 	return ret;
 }

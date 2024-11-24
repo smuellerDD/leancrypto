@@ -19,4 +19,5 @@
 
 - lc_x509_helper: remove duplication between asn1/tests/asn1_test_helper.c and apps/src/lc_x509_generator_file_helper.c
 
-- asn1_encoder.c: reduce memory footprint
+- RISCV64: update internal/src/cpufeatures_riscv_auxv.c once kernels report ZBB correctly
+

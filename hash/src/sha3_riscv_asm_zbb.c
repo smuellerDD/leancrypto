@@ -25,75 +25,75 @@
 #include "sha3_selftest.h"
 #include "visibility.h"
 
-static void sha3_224_riscv_asm_init(void *_state)
+static void sha3_224_riscv_asm_zbb_init(void *_state)
 {
 	static int tested = 0;
 
-	sha3_224_selftest_common(lc_sha3_224_riscv_asm, &tested,
-				 "SHA3-224 RISC-V ASM");
+	sha3_224_selftest_common(lc_sha3_224_riscv_asm_zbb, &tested,
+				 "SHA3-224 RISC-V ASM ZBB");
 	sha3_224_init_common(_state);
 }
 
-static void sha3_256_riscv_asm_init(void *_state)
+static void sha3_256_riscv_asm_zbb_init(void *_state)
 {
 	static int tested = 0;
 
-	sha3_256_selftest_common(lc_sha3_256_riscv_asm, &tested,
-				 "SHA3-256 RISC-V ASM");
+	sha3_256_selftest_common(lc_sha3_256_riscv_asm_zbb, &tested,
+				 "SHA3-256 RISC-V ASM ZBB");
 	sha3_256_init_common(_state);
 }
 
-static void sha3_384_riscv_asm_init(void *_state)
+static void sha3_384_riscv_asm_zbb_init(void *_state)
 {
 	static int tested = 0;
 
-	sha3_384_selftest_common(lc_sha3_384_riscv_asm, &tested,
-				 "SHA3-384 RISC-V ASM");
+	sha3_384_selftest_common(lc_sha3_384_riscv_asm_zbb, &tested,
+				 "SHA3-384 RISC-V ASM ZBB");
 	sha3_384_init_common(_state);
 }
 
-static void sha3_512_riscv_asm_init(void *_state)
+static void sha3_512_riscv_asm_zbb_init(void *_state)
 {
 	static int tested = 0;
 
-	sha3_512_selftest_common(lc_sha3_512_riscv_asm, &tested,
-				 "SHA3-512 RISC-V ASM");
+	sha3_512_selftest_common(lc_sha3_512_riscv_asm_zbb, &tested,
+				 "SHA3-512 RISC-V ASM ZBB");
 	sha3_512_init_common(_state);
 }
 
-static void shake_128_riscv_asm_init(void *_state)
+static void shake_128_riscv_asm_zbb_init(void *_state)
 {
 	static int tested = 0;
 
-	shake128_selftest_common(lc_shake128_riscv_asm, &tested,
-				 "SHAKE128 RISC-V ASM");
+	shake128_selftest_common(lc_shake128_riscv_asm_zbb, &tested,
+				 "SHAKE128 RISC-V ASM ZBB");
 	shake_128_init_common(_state);
 }
 
-static void shake_256_riscv_asm_init(void *_state)
+static void shake_256_riscv_asm_zbb_init(void *_state)
 {
 	static int tested = 0;
 
-	shake256_selftest_common(lc_shake256_riscv_asm, &tested,
-				 "SHAKE256 RISC-V ASM");
+	shake256_selftest_common(lc_shake256_riscv_asm_zbb, &tested,
+				 "SHAKE256 RISC-V ASM ZBB");
 	shake_256_init_common(_state);
 }
 
-static void cshake_128_riscv_asm_init(void *_state)
+static void cshake_128_riscv_asm_zbb_init(void *_state)
 {
 	static int tested = 0;
 
-	cshake128_selftest_common(lc_cshake128_riscv_asm, &tested,
-				  "cSHAKE128 RISC-V ASM");
+	cshake128_selftest_common(lc_cshake128_riscv_asm_zbb, &tested,
+				  "cSHAKE128 RISC-V ZBB ASM");
 	cshake_128_init_common(_state);
 }
 
-static void cshake_256_riscv_asm_init(void *_state)
+static void cshake_256_riscv_asm_zbb_init(void *_state)
 {
 	static int tested = 0;
 
-	cshake256_selftest_common(lc_cshake256_riscv_asm, &tested,
-				  "cSHAKE256 RISC-V ASM");
+	cshake256_selftest_common(lc_cshake256_riscv_asm_zbb, &tested,
+				  "cSHAKE256 RISC-V ASM ZBB");
 	cshake_256_init_common(_state);
 }
 
@@ -118,7 +118,7 @@ static inline void keccakf1600_permute(void *state, unsigned int rounds)
 	uint32_t *lanes = state;
 
 	(void)rounds;
-	KeccakF1600_StatePermute_RV64ASM(lanes);
+	KeccakF1600_StatePermute_RV64ZBB(lanes);
 }
 
 static inline void keccakf1600_extract_bytes(const void *state,
@@ -136,17 +136,17 @@ static inline void keccakf1600_extract_bytes(const void *state,
 	}
 }
 
-static void keccak_riscv_asm_absorb(void *_state, const uint8_t *in,
-				    size_t inlen)
+static void keccak_riscv_asm_zbb_absorb(void *_state, const uint8_t *in,
+					size_t inlen)
 {
 	keccak_asm_absorb(_state, in, inlen, keccakf1600_add_bytes,
-			  KeccakF1600_StatePermute_RV64ASM, NULL);
+			  KeccakF1600_StatePermute_RV64ZBB, NULL);
 }
 
-static void keccak_riscv_asm_squeeze(void *_state, uint8_t *digest)
+static void keccak_riscv_asm_zbb_squeeze(void *_state, uint8_t *digest)
 {
 	keccak_asm_squeeze(_state, digest, keccakf1600_add_byte,
-			   KeccakF1600_StatePermute_RV64ASM,
+			   KeccakF1600_StatePermute_RV64ZBB,
 			   keccakf1600_extract_bytes);
 }
 
@@ -168,10 +168,10 @@ static void keccak_riscv_newstate(void *state, const uint8_t *data,
 	memcpy((uint8_t *)state + offset, data, length);
 }
 
-static const struct lc_hash _sha3_224_riscv_asm = {
-	.init = sha3_224_riscv_asm_init,
-	.update = keccak_riscv_asm_absorb,
-	.final = keccak_riscv_asm_squeeze,
+static const struct lc_hash _sha3_224_riscv_asm_zbb = {
+	.init = sha3_224_riscv_asm_zbb_init,
+	.update = keccak_riscv_asm_zbb_absorb,
+	.final = keccak_riscv_asm_zbb_squeeze,
 	.set_digestsize = NULL,
 	.get_digestsize = sha3_224_digestsize,
 	.sponge_permutation = keccakf1600_permute,
@@ -182,12 +182,12 @@ static const struct lc_hash _sha3_224_riscv_asm = {
 	.statesize = sizeof(struct lc_sha3_224_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,
-		    lc_sha3_224_riscv_asm) = &_sha3_224_riscv_asm;
+		    lc_sha3_224_riscv_asm_zbb) = &_sha3_224_riscv_asm_zbb;
 
-static const struct lc_hash _sha3_256_riscv_asm = {
-	.init = sha3_256_riscv_asm_init,
-	.update = keccak_riscv_asm_absorb,
-	.final = keccak_riscv_asm_squeeze,
+static const struct lc_hash _sha3_256_riscv_asm_zbb = {
+	.init = sha3_256_riscv_asm_zbb_init,
+	.update = keccak_riscv_asm_zbb_absorb,
+	.final = keccak_riscv_asm_zbb_squeeze,
 	.set_digestsize = NULL,
 	.get_digestsize = sha3_256_digestsize,
 	.sponge_permutation = keccakf1600_permute,
@@ -198,12 +198,12 @@ static const struct lc_hash _sha3_256_riscv_asm = {
 	.statesize = sizeof(struct lc_sha3_256_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,
-		    lc_sha3_256_riscv_asm) = &_sha3_256_riscv_asm;
+		    lc_sha3_256_riscv_asm_zbb) = &_sha3_256_riscv_asm_zbb;
 
-static const struct lc_hash _sha3_384_riscv_asm = {
-	.init = sha3_384_riscv_asm_init,
-	.update = keccak_riscv_asm_absorb,
-	.final = keccak_riscv_asm_squeeze,
+static const struct lc_hash _sha3_384_riscv_asm_zbb = {
+	.init = sha3_384_riscv_asm_zbb_init,
+	.update = keccak_riscv_asm_zbb_absorb,
+	.final = keccak_riscv_asm_zbb_squeeze,
 	.set_digestsize = NULL,
 	.get_digestsize = sha3_384_digestsize,
 	.sponge_permutation = keccakf1600_permute,
@@ -214,12 +214,12 @@ static const struct lc_hash _sha3_384_riscv_asm = {
 	.statesize = sizeof(struct lc_sha3_384_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,
-		    lc_sha3_384_riscv_asm) = &_sha3_384_riscv_asm;
+		    lc_sha3_384_riscv_asm_zbb) = &_sha3_384_riscv_asm_zbb;
 
-static const struct lc_hash _sha3_512_riscv_asm = {
-	.init = sha3_512_riscv_asm_init,
-	.update = keccak_riscv_asm_absorb,
-	.final = keccak_riscv_asm_squeeze,
+static const struct lc_hash _sha3_512_riscv_asm_zbb = {
+	.init = sha3_512_riscv_asm_zbb_init,
+	.update = keccak_riscv_asm_zbb_absorb,
+	.final = keccak_riscv_asm_zbb_squeeze,
 	.set_digestsize = NULL,
 	.get_digestsize = sha3_512_digestsize,
 	.sponge_permutation = keccakf1600_permute,
@@ -230,12 +230,12 @@ static const struct lc_hash _sha3_512_riscv_asm = {
 	.statesize = sizeof(struct lc_sha3_512_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,
-		    lc_sha3_512_riscv_asm) = &_sha3_512_riscv_asm;
+		    lc_sha3_512_riscv_asm_zbb) = &_sha3_512_riscv_asm_zbb;
 
-static const struct lc_hash _shake128_riscv_asm = {
-	.init = shake_128_riscv_asm_init,
-	.update = keccak_riscv_asm_absorb,
-	.final = keccak_riscv_asm_squeeze,
+static const struct lc_hash _shake128_riscv_asm_zbb = {
+	.init = shake_128_riscv_asm_zbb_init,
+	.update = keccak_riscv_asm_zbb_absorb,
+	.final = keccak_riscv_asm_zbb_squeeze,
 	.set_digestsize = shake_set_digestsize,
 	.get_digestsize = shake_get_digestsize,
 	.sponge_permutation = keccakf1600_permute,
@@ -246,12 +246,12 @@ static const struct lc_hash _shake128_riscv_asm = {
 	.statesize = sizeof(struct lc_shake_128_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,
-		    lc_shake128_riscv_asm) = &_shake128_riscv_asm;
+		    lc_shake128_riscv_asm_zbb) = &_shake128_riscv_asm_zbb;
 
-static const struct lc_hash _shake256_riscv_asm = {
-	.init = shake_256_riscv_asm_init,
-	.update = keccak_riscv_asm_absorb,
-	.final = keccak_riscv_asm_squeeze,
+static const struct lc_hash _shake256_riscv_asm_zbb = {
+	.init = shake_256_riscv_asm_zbb_init,
+	.update = keccak_riscv_asm_zbb_absorb,
+	.final = keccak_riscv_asm_zbb_squeeze,
 	.set_digestsize = shake_set_digestsize,
 	.get_digestsize = shake_get_digestsize,
 	.sponge_permutation = keccakf1600_permute,
@@ -262,12 +262,12 @@ static const struct lc_hash _shake256_riscv_asm = {
 	.statesize = sizeof(struct lc_sha3_256_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,
-		    lc_shake256_riscv_asm) = &_shake256_riscv_asm;
+		    lc_shake256_riscv_asm_zbb) = &_shake256_riscv_asm_zbb;
 
-static const struct lc_hash _cshake128_riscv_asm = {
-	.init = cshake_128_riscv_asm_init,
-	.update = keccak_riscv_asm_absorb,
-	.final = keccak_riscv_asm_squeeze,
+static const struct lc_hash _cshake128_riscv_asm_zbb = {
+	.init = cshake_128_riscv_asm_zbb_init,
+	.update = keccak_riscv_asm_zbb_absorb,
+	.final = keccak_riscv_asm_zbb_squeeze,
 	.set_digestsize = shake_set_digestsize,
 	.get_digestsize = shake_get_digestsize,
 	.sponge_permutation = keccakf1600_permute,
@@ -278,12 +278,12 @@ static const struct lc_hash _cshake128_riscv_asm = {
 	.statesize = sizeof(struct lc_shake_128_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,
-		    lc_cshake128_riscv_asm) = &_cshake128_riscv_asm;
+		    lc_cshake128_riscv_asm_zbb) = &_cshake128_riscv_asm_zbb;
 
-static const struct lc_hash _cshake256_riscv_asm = {
-	.init = cshake_256_riscv_asm_init,
-	.update = keccak_riscv_asm_absorb,
-	.final = keccak_riscv_asm_squeeze,
+static const struct lc_hash _cshake256_riscv_asm_zbb = {
+	.init = cshake_256_riscv_asm_zbb_init,
+	.update = keccak_riscv_asm_zbb_absorb,
+	.final = keccak_riscv_asm_zbb_squeeze,
 	.set_digestsize = shake_set_digestsize,
 	.get_digestsize = shake_get_digestsize,
 	.sponge_permutation = keccakf1600_permute,
@@ -294,4 +294,4 @@ static const struct lc_hash _cshake256_riscv_asm = {
 	.statesize = sizeof(struct lc_sha3_256_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,
-		    lc_cshake256_riscv_asm) = &_cshake256_riscv_asm;
+		    lc_cshake256_riscv_asm_zbb) = &_cshake256_riscv_asm_zbb;

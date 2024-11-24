@@ -44,6 +44,8 @@ enum lc_cpu_features {
 
 	/* RISC-V-specific */
 	LC_CPU_FEATURE_RISCV_ASM = 1 << 16,
+	LC_CPU_FEATURE_RISCV_ASM_ZBB = 1 << 17,
+	LC_CPU_FEATURE_RISCV_ASM_RVV = 1 << 18,
 
 	LC_CPU_FEATURE_UNSET = (1U) << 30
 };

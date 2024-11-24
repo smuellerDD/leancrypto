@@ -58,6 +58,7 @@ LC_CONSTRUCTOR(sha3_fastest_impl)
 	LC_FILL_ACCEL_NULL(avx512)
 	LC_FILL_ACCEL_NULL(avx2)
 	LC_FILL_ACCEL_NULL(riscv_asm)
+	LC_FILL_ACCEL_NULL(riscv_asm_zbb)
 
 #define LC_FILL_DFLT_IMPL(accel)                                               \
 	lc_sha3_224 = lc_sha3_224_##accel;                                     \
@@ -90,6 +91,8 @@ LC_CONSTRUCTOR(sha3_fastest_impl)
 		}
 	} else if (feat & LC_CPU_FEATURE_ARM) {
 		LC_FILL_DFLT_IMPL(arm_asm)
+	} else if (feat & LC_CPU_FEATURE_RISCV_ASM_ZBB) {
+		LC_FILL_DFLT_IMPL(riscv_asm_zbb)
 	} else if (feat & LC_CPU_FEATURE_RISCV_ASM) {
 		LC_FILL_DFLT_IMPL(riscv_asm)
 	} else {
@@ -111,6 +114,9 @@ LC_CONSTRUCTOR(sha3_fastest_impl)
 	}
 	if (!(feat & LC_CPU_FEATURE_ARM)) {
 		LC_FILL_ACCEL_WITH_C(arm_asm)
+	}
+	if (!(feat & LC_CPU_FEATURE_RISCV_ASM_ZBB)) {
+		LC_FILL_ACCEL_WITH_C(riscv_asm_zbb)
 	}
 	if (!(feat & LC_CPU_FEATURE_RISCV_ASM)) {
 		LC_FILL_ACCEL_WITH_C(riscv_asm)
