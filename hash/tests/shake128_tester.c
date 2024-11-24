@@ -152,7 +152,7 @@ static int shake128_tester(void)
 	LC_EXEC_ONE_TEST(lc_shake128_avx2);
 	LC_EXEC_ONE_TEST(lc_shake128_avx512);
 	LC_EXEC_ONE_TEST(lc_shake128_riscv_asm);
-	LC_EXEC_ONE_TEST(lc_shake256_riscv_asm_zbb);
+	LC_EXEC_ONE_TEST(lc_shake128_riscv_asm_zbb);
 
 	return ret;
 }
