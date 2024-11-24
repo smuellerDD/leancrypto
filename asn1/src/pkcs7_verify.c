@@ -335,9 +335,8 @@ int pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 
 				printf_debug(
 					"- searching root CA in trust store\n");
-				CKINT(pkcs7_find_asymmetric_key(&trusted,
-								trust_store,
-								auth0, auth1));
+				CKINT(pkcs7_find_asymmetric_key(
+					&trusted, trust_store, auth0, auth1));
 				CKINT(lc_x509_policy_cert_verify(&trusted->pub,
 								 x509, 0));
 

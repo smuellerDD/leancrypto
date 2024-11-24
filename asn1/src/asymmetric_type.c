@@ -71,8 +71,8 @@ int asymmetric_key_id_same(const struct lc_asymmetric_key_id *kid1,
 {
 	if (!kid1 || !kid2)
 		return 0;
-	return lc_memcmp_secure(kid1->data, kid2->len, kid2->data,
-				kid2->len) == 0;
+	return lc_memcmp_secure(kid1->data, kid2->len, kid2->data, kid2->len) ==
+	       0;
 }
 
 /**

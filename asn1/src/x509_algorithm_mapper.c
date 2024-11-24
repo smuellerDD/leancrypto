@@ -246,7 +246,7 @@ int lc_x509_sig_check_hash(enum lc_sig_types pkey_algo,
 		} else
 #endif
 #ifdef LC_SHA3
-		if (hash_algo == lc_sha3_256) {
+			if (hash_algo == lc_sha3_256) {
 			found = 1;
 			break;
 		} else if (hash_algo == lc_shake128) {
@@ -265,7 +265,7 @@ int lc_x509_sig_check_hash(enum lc_sig_types pkey_algo,
 		} else
 #endif
 #ifdef LC_SHA3
-		if (hash_algo == lc_sha3_384) {
+			if (hash_algo == lc_sha3_384) {
 			found = 1;
 			break;
 		}
@@ -281,7 +281,7 @@ int lc_x509_sig_check_hash(enum lc_sig_types pkey_algo,
 		} else
 #endif
 #ifdef LC_SHA3
-		if (hash_algo == lc_sha3_512) {
+			if (hash_algo == lc_sha3_512) {
 			found = 1;
 			break;
 		} else if (hash_algo == lc_shake256) {
@@ -301,7 +301,7 @@ int lc_x509_sig_check_hash(enum lc_sig_types pkey_algo,
 		} else
 #endif
 #ifdef LC_SHA3
-		if (hash_algo == lc_sha3_512) {
+			if (hash_algo == lc_sha3_512) {
 			found = 1;
 			break;
 		} else if (hash_algo == lc_shake256) {
@@ -331,7 +331,6 @@ int lc_x509_sig_check_hash(enum lc_sig_types pkey_algo,
 	printf_debug("Message digest for signature algorithm too weak\n");
 	return -ENOPKG;
 }
-
 
 LC_INTERFACE_FUNCTION(int, lc_x509_name_to_hash, const char *hash_name,
 		      const struct lc_hash **hash_algo)
@@ -546,14 +545,28 @@ struct lc_keyusage_names {
 
 static const struct lc_keyusage_names keyusage_names[] = {
 	{ .keyusage = LC_KEY_USAGE_CRITICAL, .name = "critical", .namelen = 8 },
-	{ .keyusage = LC_KEY_USAGE_DIGITALSIG, .name = "digitalSignature", .namelen = 16 },
-	{ .keyusage = LC_KEY_USAGE_CONTENT_COMMITMENT, .name = "contentCommitment", .namelen = 17 },
-	{ .keyusage = LC_KEY_USAGE_KEY_ENCIPHERMENT, .name = "keyEncipherment", .namelen = 15 },
-	{ .keyusage = LC_KEY_USAGE_DATA_ENCIPHERMENT, .name = "dataEncipherment", .namelen = 16 },
-	{ .keyusage = LC_KEY_USAGE_KEYCERTSIGN, .name = "keyCertSign", .namelen = 11 },
+	{ .keyusage = LC_KEY_USAGE_DIGITALSIG,
+	  .name = "digitalSignature",
+	  .namelen = 16 },
+	{ .keyusage = LC_KEY_USAGE_CONTENT_COMMITMENT,
+	  .name = "contentCommitment",
+	  .namelen = 17 },
+	{ .keyusage = LC_KEY_USAGE_KEY_ENCIPHERMENT,
+	  .name = "keyEncipherment",
+	  .namelen = 15 },
+	{ .keyusage = LC_KEY_USAGE_DATA_ENCIPHERMENT,
+	  .name = "dataEncipherment",
+	  .namelen = 16 },
+	{ .keyusage = LC_KEY_USAGE_KEYCERTSIGN,
+	  .name = "keyCertSign",
+	  .namelen = 11 },
 	{ .keyusage = LC_KEY_USAGE_CRLSIGN, .name = "cRLSign", .namelen = 7 },
-	{ .keyusage = LC_KEY_USAGE_ENCIPHER_ONLY, .name = "encipherOnly", .namelen = 12 },
-	{ .keyusage = LC_KEY_USAGE_DECIPHER_ONLY, .name = "decipherOnly", .namelen = 12 }
+	{ .keyusage = LC_KEY_USAGE_ENCIPHER_ONLY,
+	  .name = "encipherOnly",
+	  .namelen = 12 },
+	{ .keyusage = LC_KEY_USAGE_DECIPHER_ONLY,
+	  .name = "decipherOnly",
+	  .namelen = 12 }
 };
 
 LC_INTERFACE_FUNCTION(int, lc_x509_name_to_keyusage, const char *name,
@@ -591,17 +604,30 @@ out:
 
 static const struct lc_keyusage_names eku_names[] = {
 	{ .keyusage = LC_KEY_EKU_CRITICAL, .name = "critical", .namelen = 8 },
-	{ .keyusage = LC_KEY_EKU_ANY, .name = "anyExtendedKeyUsage", .namelen = 19 },
-	{ .keyusage = LC_KEY_EKU_SERVER_AUTH, .name = "ServerAuthentication", .namelen = 20 },
-	{ .keyusage = LC_KEY_EKU_CLIENT_AUTH, .name = "ClientAuthentication", .namelen = 20 },
-	{ .keyusage = LC_KEY_EKU_CODE_SIGNING, .name = "CodeSigning", .namelen = 11 },
-	{ .keyusage = LC_KEY_EKU_EMAIL_PROTECTION, .name = "EmailProtection", .namelen = 15 },
-	{ .keyusage = LC_KEY_EKU_TIME_STAMPING, .name = "TImeStamping", .namelen = 12 },
-	{ .keyusage = LC_KEY_EKU_OCSP_SIGNING, .name = "OCSPSignign", .namelen = 11 }
+	{ .keyusage = LC_KEY_EKU_ANY,
+	  .name = "anyExtendedKeyUsage",
+	  .namelen = 19 },
+	{ .keyusage = LC_KEY_EKU_SERVER_AUTH,
+	  .name = "ServerAuthentication",
+	  .namelen = 20 },
+	{ .keyusage = LC_KEY_EKU_CLIENT_AUTH,
+	  .name = "ClientAuthentication",
+	  .namelen = 20 },
+	{ .keyusage = LC_KEY_EKU_CODE_SIGNING,
+	  .name = "CodeSigning",
+	  .namelen = 11 },
+	{ .keyusage = LC_KEY_EKU_EMAIL_PROTECTION,
+	  .name = "EmailProtection",
+	  .namelen = 15 },
+	{ .keyusage = LC_KEY_EKU_TIME_STAMPING,
+	  .name = "TImeStamping",
+	  .namelen = 12 },
+	{ .keyusage = LC_KEY_EKU_OCSP_SIGNING,
+	  .name = "OCSPSignign",
+	  .namelen = 11 }
 };
 
-LC_INTERFACE_FUNCTION(int, lc_x509_name_to_eku, const char *name,
-		      uint16_t *eku)
+LC_INTERFACE_FUNCTION(int, lc_x509_name_to_eku, const char *name, uint16_t *eku)
 {
 	size_t namelen;
 	unsigned int i, found = 0;

@@ -46,8 +46,8 @@ int asn1_ber_encoder(const struct asn1_encoder *encoder, void *context,
 	ws->max_level = MAX_LEVEL_STACK_HIERARCHY;
 	ws->max_stack = MAX_STACK_MEM_PER_HIERARCHY;
 
-	CKINT(asn1_ber_encoder_ws(encoder, context, data,
-				  in_out_avail_datalen, ws));
+	CKINT(asn1_ber_encoder_ws(encoder, context, data, in_out_avail_datalen,
+				  ws));
 
 out:
 	lc_free(ws);

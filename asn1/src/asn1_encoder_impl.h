@@ -173,8 +173,7 @@ extern "C" {
  * @return 0 on success, < 0 on error
  */
 static inline int asn1_ber_encoder_ws(const struct asn1_encoder *encoder,
-				      void *context,
-				      uint8_t *data,
+				      void *context, uint8_t *data,
 				      size_t *in_out_avail_datalen,
 				      struct lc_asn1_enc_stack *ws)
 {

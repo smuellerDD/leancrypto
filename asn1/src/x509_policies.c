@@ -24,8 +24,8 @@
 #include "ret_checkers.h"
 #include "visibility.h"
 
-static x509_pol_ret_t lc_509_policy_cert_contains_signature(
-	const struct lc_x509_certificate *cert)
+static x509_pol_ret_t
+lc_509_policy_cert_contains_signature(const struct lc_x509_certificate *cert)
 {
 	const struct lc_public_key_signature *sig;
 
@@ -39,8 +39,9 @@ static x509_pol_ret_t lc_509_policy_cert_contains_signature(
 	return LC_X509_POL_FALSE;
 }
 
-static x509_pol_ret_t lc_x509_policy_version_ge(
-	const struct lc_x509_certificate *cert, uint8_t requested_version)
+static x509_pol_ret_t
+lc_x509_policy_version_ge(const struct lc_x509_certificate *cert,
+			  uint8_t requested_version)
 {
 	if (!cert)
 		return -EINVAL;
@@ -137,7 +138,6 @@ LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_is_root_ca,
 			return ret;
 		}
 	}
-
 
 	CKINT(lc_x509_policy_is_ca(cert));
 	if (ret != LC_X509_POL_TRUE)
@@ -375,8 +375,6 @@ LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_cert_valid,
 			__func__);
 		return LC_X509_POL_FALSE;
 	}
-
-
 
 	return LC_X509_POL_TRUE;
 }
