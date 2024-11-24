@@ -143,7 +143,7 @@ if get_option('sha3').enabled()
 		)
 		leancrypto_support_libs += leancrypto_keccak_riscv_zbb_lib
  	else
-		src += files([ 'sha3_riscv_asm_null.c', 'sha3_riscv_asm_zbb.c' ])
+		src += files([ 'sha3_riscv_asm_null.c', 'sha3_riscv_asm_zbb_null.c' ])
 	endif
 endif
 
