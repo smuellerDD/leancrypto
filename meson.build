@@ -456,6 +456,19 @@ if (not get_option('disable-asm'))
 	elif (host_machine.cpu_family() == 'riscv64')
 		riscv64_asm = true
 		add_global_arguments([ '-DLC_HOST_RISCV64' ], language: 'c')
+
+		cc_riscv64_asm_args = [
+			'-march=rv64gcv',
+			'-mabi=lp64d',
+			'-mcmodel=medany'
+		]
+
+		cc_riscv64_asm_zbb_args = [
+			'-march=rv64imadc_zba_zbb',
+			'-mabi=lp64d',
+			'-mcmodel=medany'
+		]
+
 	# elif (host_machine.cpu_family() == 'riscv' and
 	#       cc.get_id() == 'gcc')
 	#

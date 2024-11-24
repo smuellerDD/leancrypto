@@ -117,12 +117,8 @@ if get_option('sha3').enabled()
 	if (riscv64_asm)
 		leancrypto_keccak_riscv_asm_lib = static_library(
 			'leancrypto_keccak_riscv_asm_lib',
-                        [ 'asm/riscv64/fips202_rv64im.S', 'sha3_riscv_asm.c' ],
-			c_args: [
-				'-march=rv64gcv',
-				'-mabi=lp64d',
-				'-mcmodel=medany'
-			],
+			[ 'asm/riscv64/fips202_rv64im.S', 'sha3_riscv_asm.c' ],
+			c_args: cc_riscv64_asm_args,
 			include_directories: [
 				include_dirs,
 				include_internal_dirs ],
@@ -131,12 +127,8 @@ if get_option('sha3').enabled()
 
 		leancrypto_keccak_riscv_zbb_lib = static_library(
 			'leancrypto_keccak_riscv_zbb_lib',
-                        [ 'asm/riscv64/fips202_rv64imb.S', 'sha3_riscv_asm_zbb.c' ],
-			c_args: [
-				'-march=rv64imadc_zba_zbb',
-				'-mabi=lp64d',
-				'-mcmodel=medany'
-			],
+			[ 'asm/riscv64/fips202_rv64imb.S', 'sha3_riscv_asm_zbb.c' ],
+			c_args: cc_riscv64_asm_zbb_args,
 			include_directories: [
 				include_dirs,
 				include_internal_dirs ],
