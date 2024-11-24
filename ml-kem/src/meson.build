@@ -9,7 +9,7 @@ if (get_option('kyber_1024').enabled() or get_option('kyber_768').enabled() or g
 		'kyber_zetas.c',
 	])
 
-	if (not arm32_neon_asm)
+	if (not arm32_neon_asm and not riscv64_asm)
 		src += files([ 'kyber_ntt.c' ])
 	endif
 endif
@@ -44,6 +44,8 @@ elif (arm64_asm)
 	subdir('armv8')
 elif (arm32_neon_asm)
 	subdir('armv7')
+elif (riscv64_asm)
+	subdir('riscv64')
 endif
 
 if get_option('kyber_1024').enabled()

@@ -7,7 +7,9 @@ Changes 1.2.0
 
 * ML-DSA-ED25519: Hybrid implementation changed to match definition https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-03.html
 
-* RISCV64: Keccack - add assembler and ZBB implementation
+* RISCV64: Keccak - add assembler and ZBB implementation
+
+* RISCV64: ML-KEM - add assembler implementation
 
 Changes 1.1.0
 * ML-KEM remove modulus check of decapsulation key (not required by FIPS 203)

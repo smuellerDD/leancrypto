@@ -28,12 +28,17 @@
 #include "kyber_debug.h"
 #include "kyber_indcpa.h"
 #include "kyber_poly.h"
-#include "kyber_polyvec.h"
 #include "kyber_kem_input_validation.h"
 #include "small_stack_support.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
 #include "timecop.h"
+
+#ifdef LC_HOST_RISCV64
+#include "riscv64/kyber_indcpa_riscv.h"
+#else
+#include "kyber_indcpa_c.h"
+#endif
 
 /**
  * @brief pack_pk - Serialize the public key as concatenation of the
@@ -284,11 +289,7 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 
 	// matrix-vector multiplication
 	BUILD_BUG_ON(sizeof(poly) > sizeof(ws->tmp.a));
-	for (i = 0; i < LC_KYBER_K; i++) {
-		polyvec_basemul_acc_montgomery(&ws->pkpv.vec[i], &ws->tmp.a[i],
-					       &ws->skpv, &ws->tmp.a);
-		poly_tomont(&ws->pkpv.vec[i]);
-	}
+	KYBER_INDCPA_KEYGEN_MATRIX_VECTOR_MULTIPLICATION
 	kyber_print_polyvec(&ws->pkpv, "Keygen: tHat = (AHat * sHat)");
 
 	polyvec_add(&ws->pkpv, &ws->pkpv, &ws->e);
@@ -361,14 +362,7 @@ int indcpa_enc(uint8_t c[LC_KYBER_INDCPA_BYTES],
 	kyber_print_polyvec(&ws->sp, "K-PKE Encrypt: rHat = NTT(r)");
 
 	// matrix-vector multiplication
-	for (i = 0; i < LC_KYBER_K; i++)
-		polyvec_basemul_acc_montgomery(&ws->b.vec[i], &ws->at[i],
-					       &ws->sp, &ws->v);
-	kyber_print_polyvec(&ws->b, "K-PKE Encrypt: u = BHat * rHat");
-
-	BUILD_BUG_ON(sizeof(poly) > sizeof(ws->at));
-	polyvec_basemul_acc_montgomery(&ws->v, &ws->pkpv, &ws->sp, ws->at);
-	kyber_print_poly(&ws->v, "K-PKE Encrypt: v = tHat^T * rHat");
+	KYBER_INDCPA_ENC_MATRIX_VECTOR_MULTIPLICATION
 
 	polyvec_invntt_tomont(&ws->b);
 	kyber_print_polyvec(&ws->b, "K-PKE Encrypt: u = NTT-1(BHat * rHat)");

@@ -118,31 +118,6 @@ static inline void polyvec_invntt_tomont(polyvec *r)
 }
 
 /**
- * @brief polyvec_basemul_acc_montgomery - Multiply elements of a and b in NTT
- *					   domain, accumulate into r,
- *					   and multiply by 2^-16.
- *
- * @param [out] r pointer to output polynomial
- * @param [in] a pointer to first input vector of polynomials
- * @param [in] b pointer to second input vector of polynomials
- */
-static inline void polyvec_basemul_acc_montgomery(poly *r, const polyvec *a,
-						  const polyvec *b,
-						  void *ws_buf)
-{
-	unsigned int i;
-	poly *t = (poly *)ws_buf;
-
-	poly_basemul_montgomery(r, &a->vec[0], &b->vec[0]);
-	for (i = 1; i < LC_KYBER_K; i++) {
-		poly_basemul_montgomery(t, &a->vec[i], &b->vec[i]);
-		poly_add(r, r, t);
-	}
-
-	poly_reduce(r);
-}
-
-/**
  * @brief polyvec_reduce - Applies Barrett reduction to each coefficient
  *			   of each element of a vector of polynomials;
  *			   for details of the Barrett reduction see comments in
