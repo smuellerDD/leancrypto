@@ -102,4 +102,5 @@ leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
 endif
 
 leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
-				+= ../hash/src/sha3_riscv_asm_null.o
+				+= ../hash/src/sha3_riscv_asm_null.o	       \
+				   ../hash/src/sha3_riscv_asm_zbb_null.o

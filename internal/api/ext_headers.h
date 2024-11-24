@@ -35,16 +35,6 @@
  */
 #define lc_member_size(struct, member) (sizeof(((struct *)0)->member))
 
-#ifndef ENOPKG
-#define ENOPKG 254 /* Package not installed */
-#endif
-#ifndef EKEYREJECTED
-#define EKEYREJECTED 253 /* Key was rejected by service */
-#endif
-#ifndef ENOKEY
-#define ENOKEY 252 /* Key not found */
-#endif
-
 #ifdef LINUX_KERNEL
 /******************************************************************************
  * Linux Kernel
@@ -250,5 +240,19 @@ static inline int lc_get_time(time64_t *time_since_epoch)
 }
 
 #endif /* LINUX_KERNEL */
+
+/******************************************************************************
+ * Generic Definitions after all includes are present
+ ******************************************************************************/
+
+#ifndef ENOPKG
+#define ENOPKG 254 /* Package not installed */
+#endif
+#ifndef EKEYREJECTED
+#define EKEYREJECTED 253 /* Key was rejected by service */
+#endif
+#ifndef ENOKEY
+#define ENOKEY 252 /* Key not found */
+#endif
 
 #endif /* EXT_HEADERS_H */
