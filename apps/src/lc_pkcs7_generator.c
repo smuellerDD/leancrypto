@@ -175,11 +175,10 @@ static int pkcs7_enc_dump(struct pkcs7_generator_opts *opts,
 		CKINT(lc_pkcs7_set_data(&ppkcs7, opts->data, opts->datalen, 0));
 	}
 
-	CKINT_LOG(lc_pkcs7_verify(&ppkcs7, opts->use_trust_store ?
-						   &opts->trust_store :
-						   NULL,
-				  opts->verify_rules_set ? &opts->verify_rules :
-							   NULL),
+	CKINT_LOG(lc_pkcs7_verify(
+			  &ppkcs7,
+			  opts->use_trust_store ? &opts->trust_store : NULL,
+			  opts->verify_rules_set ? &opts->verify_rules : NULL),
 		  "Verification of PKCS#7 message failed\n");
 
 	if (opts->checker)
@@ -212,11 +211,12 @@ static int pkcs7_dump_file(struct pkcs7_generator_opts *opts)
 
 	if (opts->data) {
 		CKINT(lc_pkcs7_set_data(&ppkcs7, opts->data, opts->datalen, 0));
-		CKINT_LOG(lc_pkcs7_verify(&ppkcs7, opts->use_trust_store ?
-						   &opts->trust_store :
-						   NULL,
-					  opts->verify_rules_set ?
-						&opts->verify_rules : NULL),
+		CKINT_LOG(lc_pkcs7_verify(
+				  &ppkcs7,
+				  opts->use_trust_store ? &opts->trust_store :
+							  NULL,
+				  opts->verify_rules_set ? &opts->verify_rules :
+							   NULL),
 			  "Verification of PKCS#7 message failed\n");
 	}
 
@@ -656,8 +656,7 @@ int main(int argc, char *argv[])
 			/* expected-eku */
 			case 12:
 				CKINT(lc_x509_name_to_eku(
-					optarg,
-					&verify_rules->required_eku));
+					optarg, &verify_rules->required_eku));
 				parsed_opts.verify_rules_set = 1;
 				break;
 
