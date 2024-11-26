@@ -94,22 +94,15 @@ static inline void polyvec_basemul_acc_montgomery(poly *r, const polyvec *a,
 						  void *ws_buf)
 {
 	unsigned int i;
-	struct workspace {
-		poly_double r_double;
-		/*
-         * TODO why is this buffer needed - without it, a stack smasher
-         * is recorded in the kyber_poly_basemul_acc function.
-         */
-		int32_t buffer[128];
-	};
-	struct workspace ws = { 0 };
+	poly_double r_double = { 0 };
 
 	(void)ws_buf;
 
 	for (i = 0; i < LC_KYBER_K - 1; i++) {
-		kyber_poly_basemul_acc(&ws.r_double, &a->vec[i], &b->vec[i]);
+		kyber_poly_basemul_acc(&r_double, &a->vec[i], &b->vec[i]);
 	}
-	kyber_poly_basemul_acc_end(r, &a->vec[i], &b->vec[i], &ws.r_double);
+	kyber_poly_basemul_acc_end(r, &a->vec[i], &b->vec[i], &r_double);
+	lc_memset_secure(&r_double, 0, sizeof(r_double));
 }
 
 #ifdef __cplusplus
