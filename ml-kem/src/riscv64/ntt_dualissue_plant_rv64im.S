@@ -1030,6 +1030,7 @@ poly_basemul_acc_rv64im_loop:
     bne a6, zero, poly_basemul_acc_rv64im_loop
     restore_regs
     addi sp, sp, 8*15
+    RET
 SYM_FUNC_END(kyber_poly_basemul_acc_rv64im)
 
 // void poly_basemul_acc_end_rv64im(int16_t *r, const int16_t *a, const int16_t *b, uint32_t *zetas, int32_t *r_double)
