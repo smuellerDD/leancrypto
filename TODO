@@ -22,3 +22,5 @@
 - RISCV64: update internal/src/cpufeatures_riscv_auxv.c once kernels report ZBB correctly
 
 - RISCV64 ASM / ZBB / ML-KEM: add to Linux kernel
+
+- X.509/PKCS7 parser: add to the Linux kernel

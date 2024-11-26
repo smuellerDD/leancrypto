@@ -11,6 +11,8 @@ Changes 1.2.0
 
 * RISCV64: ML-KEM - add assembler implementation
 
+* RISCV64: ML-DSA - add assembler implementation
+
 Changes 1.1.0
 * ML-KEM remove modulus check of decapsulation key (not required by FIPS 203)
 

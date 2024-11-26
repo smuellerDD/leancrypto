@@ -458,7 +458,7 @@ if (not get_option('disable-asm'))
 		add_global_arguments([ '-DLC_HOST_RISCV64' ], language: 'c')
 
 		cc_riscv64_asm_args = [
-			'-march=rv64gcv',
+			'-march=rv64gc',
 			'-mabi=lp64d',
 			'-mcmodel=medany'
 		]

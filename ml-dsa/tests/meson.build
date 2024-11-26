@@ -225,7 +225,7 @@ if get_option('dilithium_87').enabled()
 					include_directories: [
 						include_dirs,
 						include_internal_dirs,
-						include_kyber_internal
+						include_dilithium_internal
 					], link_with: leancrypto_static_lib
 					)
 		dilithium_ed25519_iuf_tester = executable('dilithium_ed25519_iuf_tester',
@@ -234,7 +234,7 @@ if get_option('dilithium_87').enabled()
 					include_directories: [
 						include_dirs,
 						include_internal_dirs,
-						include_kyber_internal
+						include_dilithium_internal
 					], link_with: leancrypto_static_lib
 					)
 		dilithium_ed25519_tester_official = executable('dilithium_ed25519_tester_official',
@@ -507,7 +507,7 @@ if get_option('dilithium_65').enabled()
 					include_directories: [
 						include_dirs,
 						include_internal_dirs,
-						include_kyber_internal
+						include_dilithium_internal
 					], link_with: leancrypto_static_lib,
 					c_args : '-DLC_DILITHIUM_TYPE_65'
 					)
@@ -517,7 +517,7 @@ if get_option('dilithium_65').enabled()
 					include_directories: [
 						include_dirs,
 						include_internal_dirs,
-						include_kyber_internal
+						include_dilithium_internal
 					], link_with: leancrypto_static_lib,
 					c_args : '-DLC_DILITHIUM_TYPE_65'
 					)
@@ -705,7 +705,7 @@ if get_option('dilithium_44').enabled()
 					include_directories: [
 						include_dirs,
 						include_internal_dirs,
-						include_kyber_internal
+						include_dilithium_internal
 					], link_with: leancrypto_static_lib,
 					c_args : '-DLC_DILITHIUM_TYPE_44'
 					)
@@ -715,7 +715,7 @@ if get_option('dilithium_44').enabled()
 					include_directories: [
 						include_dirs,
 						include_internal_dirs,
-						include_kyber_internal
+						include_dilithium_internal
 					], link_with: leancrypto_static_lib,
 					c_args : '-DLC_DILITHIUM_TYPE_44'
 					)

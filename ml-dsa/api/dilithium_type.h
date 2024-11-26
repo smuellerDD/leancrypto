@@ -263,6 +263,31 @@ extern "C" {
 #define lc_dilithium_verify_update_armv7 DILITHIUM_F(verify_update_armv7)
 #define lc_dilithium_verify_final_armv7 DILITHIUM_F(verify_final_armv7)
 
+/* RISCV 64 Implementation */
+#define lc_dilithium_keypair_riscv64 DILITHIUM_F(keypair_riscv64)
+#define lc_dilithium_keypair_from_seed_riscv64                                 \
+	DILITHIUM_F(keypair_from_seed_riscv64)
+#define lc_dilithium_sign_riscv64 DILITHIUM_F(sign_riscv64)
+#define lc_dilithium_sign_ctx_riscv64 DILITHIUM_F(sign_ctx_riscv64)
+#define lc_dilithium_sign_init_riscv64 DILITHIUM_F(sign_init_riscv64)
+#define lc_dilithium_sign_update_riscv64 DILITHIUM_F(sign_update_riscv64)
+#define lc_dilithium_sign_final_riscv64 DILITHIUM_F(sign_final_riscv64)
+#define lc_dilithium_verify_riscv64 DILITHIUM_F(verify_riscv64)
+#define lc_dilithium_verify_ctx_riscv64 DILITHIUM_F(verify_ctx_riscv64)
+#define lc_dilithium_verify_init_riscv64 DILITHIUM_F(verify_init_riscv64)
+#define lc_dilithium_verify_update_riscv64 DILITHIUM_F(verify_update_riscv64)
+#define lc_dilithium_verify_final_riscv64 DILITHIUM_F(verify_final_riscv64)
+#define dilithium_ntt_8l_rv64im DILITHIUM_F(ntt_8l_rv64im)
+#define dilithium_intt_8l_rv64im DILITHIUM_F(intt_8l_rv64im)
+#define dilithium_poly_basemul_8l_init_rv64im                                  \
+	DILITHIUM_F(poly_basemul_8l_init_rv64im)
+#define dilithium_poly_basemul_8l_acc_rv64im                                   \
+	DILITHIUM_F(poly_basemul_8l_acc_rv64im)
+#define dilithium_poly_basemul_8l_acc_end_rv64im                               \
+	DILITHIUM_F(poly_basemul_8l_acc_end_rv64im)
+#define dilithium_poly_basemul_8l_rv64im DILITHIUM_F(poly_basemul_8l_rv64im)
+#define dilithium_poly_reduce_rv64im DILITHIUM_F(poly_reduce_rv64im)
+
 #ifdef __cplusplus
 }
 #endif

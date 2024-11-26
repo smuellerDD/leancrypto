@@ -359,12 +359,16 @@ of the code
 
 ================================================================================
 
-The following file is licensed under the following license. The original files
+The following files are licensed under the following license. The original files
 are obtained from https://github.com/Ji-Peng/PQRV
 
 hash/src/asm/riscv64/fips202_rv64im.S
 hash/src/asm/riscv64/fips202_rv64imb.S
 ml-kem/src/riscv64/*
+ml-dsa/src/riscv64/dilithium_ntt_rv64im.h
+ml-dsa/src/riscv64/ntt_8l_dualissue_plant_rv64im.S
+ml-dsa/src/riscv64/dilithium_poly_riscv64.h
+ml-dsa/src/riscv64/dilithium_polyvec_riscv64.h
 
 The MIT license, the text of which is below, applies to PQRV in general.
 
