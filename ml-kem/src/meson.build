@@ -1,8 +1,10 @@
 # for i in $(ls *.c | sort); do echo "'$i',"; done
 
 # Files compiled only once
-if (get_option('kyber_1024').enabled() or get_option('kyber_768').enabled() or get_option('kyber_512').enabled())
-	src += files([
+if (get_option('kyber_1024').enabled() or
+    get_option('kyber_768').enabled() or
+    get_option('kyber_512').enabled())
+	src_fips += files([
 		'kyber_api.c',
 		'kyber_cbd.c',
 		'kyber_pct.c',
@@ -10,7 +12,7 @@ if (get_option('kyber_1024').enabled() or get_option('kyber_768').enabled() or g
 	])
 
 	if (not arm32_neon_asm and not riscv64_asm)
-		src += files([ 'kyber_ntt.c' ])
+		src_fips += files([ 'kyber_ntt.c' ])
 	endif
 endif
 
@@ -62,7 +64,7 @@ if get_option('kyber_1024').enabled()
 			include_internal_dirs
 		],
 	)
-	leancrypto_support_libs += leancrypto_kyber_1024_c_lib
+	leancrypto_support_libs_fips += leancrypto_kyber_1024_c_lib
 endif
 
 if get_option('kyber_768').enabled()
@@ -81,7 +83,7 @@ if get_option('kyber_768').enabled()
 		],
 		c_args : '-DLC_KYBER_TYPE_768'
 	)
-	leancrypto_support_libs += leancrypto_kyber_768_c_lib
+	leancrypto_support_libs_fips += leancrypto_kyber_768_c_lib
 endif
 
 if get_option('kyber_512').enabled()
@@ -98,6 +100,6 @@ if get_option('kyber_512').enabled()
 		],
 		c_args : '-DLC_KYBER_TYPE_512'
 	)
-	leancrypto_support_libs += leancrypto_kyber_512_c_lib
+	leancrypto_support_libs_fips += leancrypto_kyber_512_c_lib
 endif
 

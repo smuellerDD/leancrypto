@@ -19,7 +19,7 @@ if get_option('chacha20_drng').enabled()
 endif
 
 if get_option('kmac_drng').enabled()
-	src += files([ 'kmac_drng.c' ])
+	src_fips += files([ 'kmac_drng.c' ])
 	include_files += files([ '../api/lc_kmac256_drng.h' ])
 	conf_data.set('LC_DRNG_KMAC', 1)
 	seeded_rng = 1
@@ -27,7 +27,7 @@ if get_option('kmac_drng').enabled()
 endif
 
 if get_option('cshake_drng').enabled()
-	src += files([ 'cshake_drng.c' ])
+	src_fips += files([ 'cshake_drng.c' ])
 	include_files += files([ '../api/lc_cshake256_drng.h' ])
 	conf_data.set('LC_DRNG_CSHAKE', 1)
 	seeded_rng = 1
@@ -35,13 +35,13 @@ if get_option('cshake_drng').enabled()
 endif
 
 if get_option('xdrbg').enabled()
-	src += files([ 'xdrbg.c' ])
+	src_fips += files([ 'xdrbg.c' ])
 	if get_option('sha3').enabled()
-		src += files([ 'xdrbg256.c' ])
+		src_fips += files([ 'xdrbg256.c' ])
 		conf_data.set('LC_DRNG_XDRBG256', 1)
 	endif
 	if get_option('ascon').enabled()
-		src += files([ 'xdrbg128.c' ])
+		src_fips += files([ 'xdrbg128.c' ])
 		conf_data.set('LC_DRNG_XDRBG128', 1)
 	endif
 	include_files += files([ '../api/lc_xdrbg.h' ])
@@ -51,7 +51,7 @@ if get_option('xdrbg').enabled()
 endif
 
 if get_option('drbg_hash').enabled()
-	src += files([ 'hash_drbg.c' ])
+	src_fips += files([ 'hash_drbg.c' ])
 	include_files += files([ '../api/lc_hash_drbg.h' ])
 	conf_data.set('LC_DRNG_HASH_DRBG', 1)
 	seeded_rng = 1
@@ -59,7 +59,7 @@ if get_option('drbg_hash').enabled()
 endif
 
 if get_option('drbg_hmac').enabled()
-	src += files([ 'hmac_drbg.c' ])
+	src_fips += files([ 'hmac_drbg.c' ])
 	include_files += files([ '../api/lc_hmac_drbg.h',
 				 '../api/lc_hmac_drbg_sha512.h' ])
 	conf_data.set('LC_DRNG_HMAC_DRBG', 1)
@@ -74,34 +74,34 @@ endif
 
 if (lc_rng_header == 1)
 	include_files += files([ '../api/lc_rng.h' ])
-	src += files([ 'rng_api.c' ])
+	src_fips += files([ 'rng_api.c' ])
 endif
 
 if (seeded_rng == 1)
-	src += files([ 'seeded_rng.c' ])
+	src_fips += files([ 'seeded_rng.c' ])
 
 	if get_option('seedsource') == 'esdm'
-		src += files([ 'seeded_rng_esdm.c' ])
+		src_fips += files([ 'seeded_rng_esdm.c' ])
 		#Not required due to runtime linking
 		#leancrypto_link += cc.find_library( 'esdm_rpc_client',
 		#				    required: true)
 	else
 		if (host_machine.system() == 'linux')
-			src += files([ 'seeded_rng_linux.c' ])
+			src_fips += files([ 'seeded_rng_linux.c' ])
 		endif
 
 		if ((host_machine.system() == 'dragonfly') or
 		    (host_machine.system() == 'freebsd') or
 		    (host_machine.system() == 'openbsd'))
-			src += files([ 'seeded_rng_bsd.c' ])
+			src_fips += files([ 'seeded_rng_bsd.c' ])
 		endif
 
 		if (host_machine.system() == 'darwin')
-			src += files([ 'seeded_rng_darwin.c' ])
+			src_fips += files([ 'seeded_rng_darwin.c' ])
 		endif
 
 		if (host_machine.system() == 'windows')
-			src += files([ 'seeded_rng_windows.c' ])
+			src_fips += files([ 'seeded_rng_windows.c' ])
 			leancrypto_link += cc.find_library( 'bcrypt',
 							    required: true)
 		endif

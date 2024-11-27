@@ -1,7 +1,9 @@
 # for i in $(ls *.c | sort); do echo "'$i',"; done
 
 compile_hash_crypt = 0
-aead_src_files = files([ 'aead_api.c' ])
+aead_src_files = [ ]
+
+src_fips = files([ 'aead_api.c' ])
 
 if get_option('hash_crypt').enabled()
 	src += files([
@@ -85,7 +87,7 @@ endif
 # We need HMAC and a symmetric algo
 if (get_option('aes_cbc').enabled() or get_option('aes_ctr').enabled())
 	if get_option('sha2-512').enabled()
-		src += files([
+		src_fips += files([
 			'symhmac.c'
 		])
 
@@ -95,7 +97,7 @@ if (get_option('aes_cbc').enabled() or get_option('aes_ctr').enabled())
 	endif
 
 	if get_option('kmac').enabled()
-		src += files([
+		src_fips += files([
 			'symkmac.c'
 		])
 

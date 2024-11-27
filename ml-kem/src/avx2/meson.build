@@ -31,7 +31,7 @@ if (get_option('kyber_1024').enabled() or get_option('kyber_768').enabled())
 			],
 			c_args: cc_avx2_args
 		)
-	leancrypto_support_libs += leancrypto_kyber_common_avx2_lib
+	leancrypto_support_libs_fips += leancrypto_kyber_common_avx2_lib
 endif
 
 if get_option('kyber_1024').enabled()
@@ -45,7 +45,7 @@ if get_option('kyber_1024').enabled()
 			],
 			c_args: cc_avx2_args
 		)
-	leancrypto_support_libs += leancrypto_kyber_1024_avx2_lib
+	leancrypto_support_libs_fips += leancrypto_kyber_1024_avx2_lib
 endif
 
 if get_option('kyber_768').enabled()
@@ -59,7 +59,7 @@ if get_option('kyber_768').enabled()
 			],
 			c_args: [ cc_avx2_args, '-DLC_KYBER_TYPE_768' ]
 		)
-	leancrypto_support_libs += leancrypto_kyber_768_avx2_lib
+	leancrypto_support_libs_fips += leancrypto_kyber_768_avx2_lib
 endif
 
 # Support for Kyber-512 is not implemented

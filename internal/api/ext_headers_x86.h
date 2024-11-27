@@ -20,6 +20,8 @@
 #ifndef EXT_HEADERS_X86_H
 #define EXT_HEADERS_X86_H
 
+void lc_cpu_feature_get_cpuid(unsigned int cpuid[4]);
+
 /*
  * When this define is enabled, the locally-provided x86intrin code is
  * used instead of the code from the compiler.

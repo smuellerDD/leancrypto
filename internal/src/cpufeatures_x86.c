@@ -19,6 +19,7 @@
 
 #include "cpufeatures.h"
 #include "ext_headers.h"
+#include "ext_headers_x86.h"
 #include "visibility.h"
 
 #define cpuid_eax(level, a, b, c, d)                                           \
@@ -43,7 +44,15 @@
 #define LC_INTEL_PCLMUL_ECX (1 << 1)
 
 /* This is required by aes_aesni_x86_64.S */
-unsigned int lc_x86_64_cpuid[4] __attribute__((used));
+static unsigned int x86_64_cpuid[4] __attribute__((used));
+
+LC_INTERFACE_FUNCTION(void, lc_cpu_feature_get_cpuid, unsigned int cpuid[4])
+{
+	cpuid[0] = x86_64_cpuid[0];
+	cpuid[1] = x86_64_cpuid[1];
+	cpuid[2] = x86_64_cpuid[2];
+	cpuid[3] = x86_64_cpuid[3];
+}
 
 static enum lc_cpu_features feat = LC_CPU_FEATURE_UNSET;
 
@@ -66,12 +75,12 @@ LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 
 	feat = LC_CPU_FEATURE_NONE;
 
-	cpuid_eax(1, lc_x86_64_cpuid[0], lc_x86_64_cpuid[1], lc_x86_64_cpuid[2],
-		  lc_x86_64_cpuid[3]);
+	cpuid_eax(1, x86_64_cpuid[0], x86_64_cpuid[1], x86_64_cpuid[2],
+		  x86_64_cpuid[3]);
 
-	if (lc_x86_64_cpuid[2] & LC_INTEL_AESNI_ECX)
+	if (x86_64_cpuid[2] & LC_INTEL_AESNI_ECX)
 		feat |= LC_CPU_FEATURE_INTEL_AESNI;
-	if (lc_x86_64_cpuid[2] & LC_INTEL_AVX_ECX)
+	if (x86_64_cpuid[2] & LC_INTEL_AVX_ECX)
 		feat |= LC_CPU_FEATURE_INTEL_AVX;
 
 	/* Read the maximum leaf */

@@ -1,5 +1,5 @@
 if get_option('kyber_x25519').enabled() or get_option('dilithium_ed25519').enabled()
-	src += files([
+	src_fips += files([
 		'ed25519.c',
 		'ed25519_ref10.c',
 		'x25519.c',
@@ -18,7 +18,7 @@ if get_option('kyber_x25519').enabled() or get_option('dilithium_ed25519').enabl
 	elif (arm32_neon_asm)
 		subdir('armv7')
 	else
-		src += files([
+		src_fips += files([
 			'x25519_scalarmult.c',
 		])
 	endif

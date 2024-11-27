@@ -254,6 +254,23 @@ When this option is enabled, only C implementation and no assembler code is
 compiled.
 ''')
 
+option('fips140', type: 'feature', value: 'disabled',
+       description: '''Enable FIPS 140 Support
+
+With this option enabled, all requirements pertaining to FIPS 140 are enabled
+and active. This option causes 2 libraries to be created libleancrypto.so and
+libleancrypt-fips.so. Only the latter is fully compliant to FIPS 140. The
+difference between both, however, is only that libleancrypto-fips.so contains
+all approved algorithms whereas libleancrypto.so may contain some non-approved
+algorithms. This approach is chosen as leancrypto does not implement the broken
+concept of a service indicator. The fully compliant libleancrypto-fips.so
+applies a global service indicator which is always approved. Thus, if such
+service indicator hint is of importance to you, feel free to use
+libleancrypto-fips.so which has the identical API as libleancrypto.so. Apart
+from this service indicator and thus the addition of non-approved algorithms,
+both libraries are identical and implement all other FIPS 140 requirements.
+''')
+
 ################################################################################
 # DEBUGGING OPTIONS - NONE OF THEM ARE TO BE ENABLED IN PRODUCTION CODE!!
 ################################################################################

@@ -9,7 +9,7 @@ if get_option('x509_parser').enabled()
 		'../api/lc_x509_parser.h'
 	])
 
-	src += files([
+	src_fips += files([
 		'asn1_decoder.c',
 		'x509_cert_parser.c',
 		'x509_cert_parser_get_data.c',
@@ -25,7 +25,7 @@ if get_option('x509_generator').enabled()
 		'../api/lc_x509_generator.h'
 	])
 
-	src += files([
+	src_fips += files([
 		'asn1_encoder.c',
 		'asn1_encoder_helper.c',
 		'asn1_encoder_small.c',
@@ -43,7 +43,7 @@ if x509_common_support == 1
 		'../api/lc_x509_common.h'
 	])
 
-	src += files([
+	src_fips += files([
 		'asn1_common.c',
 		'asymmetric_type.c',
 		'oid_registry.c',
@@ -64,30 +64,30 @@ if x509_common_support == 1
 	    get_option('sphincs_shake_192f').enabled() or
 	    get_option('sphincs_shake_128s').enabled() or
 	    get_option('sphincs_shake_128f').enabled())
-		src += files([ 'public_key_sphincs.c' ])
+		src_fips += files([ 'public_key_sphincs.c' ])
 		asymmetric_algo += 1
 	else
-		src += files([ 'public_key_sphincs_null.c' ])
+		src_fips += files([ 'public_key_sphincs_null.c' ])
 	endif
 
 	if (get_option('dilithium_87').enabled() or
 	    get_option('dilithium_65').enabled() or
 	    get_option('dilithium_44').enabled())
-		src += files([ 'public_key_dilithium.c' ])
+		src_fips += files([ 'public_key_dilithium.c' ])
 		asymmetric_algo += 1
 	else
-		src += files([ 'public_key_dilithium_null.c' ])
+		src_fips += files([ 'public_key_dilithium_null.c' ])
 	endif
 
 	if get_option('dilithium_ed25519').enabled()
-		src += files([
+		src_fips += files([
 			'public_key_dilithium_ed25519.c',
 			'x509_composite_mldsa_pubkey.asn1.c',
 			'x509_composite_mldsa_signature.asn1.c'
 			])
 		asymmetric_algo += 1
 	else
-		src += files([ 'public_key_dilithium_ed25519_null.c' ])
+		src_fips += files([ 'public_key_dilithium_ed25519_null.c' ])
 	endif
 
 	if (asymmetric_algo == 0)
@@ -100,7 +100,7 @@ if get_option('pkcs7_parser').enabled()
 		'../api/lc_pkcs7_parser.h',
 	])
 
-	src += files([
+	src_fips += files([
 		'pkcs7_parser.c',
 		'pkcs7_trust.c',
 		'pkcs7_verify.c',
@@ -115,7 +115,7 @@ if get_option('pkcs7_generator').enabled()
 		'../api/lc_pkcs7_generator.h',
 	])
 
-	src += files([
+	src_fips += files([
 		'pkcs7_generator.c',
 		'pkcs7_generator_set_data.c',
 	])

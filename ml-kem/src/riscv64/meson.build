@@ -19,5 +19,5 @@ if (get_option('kyber_1024').enabled() or
 				include_internal_dirs
 			],
 		)
-	leancrypto_support_libs += leancrypto_kyber_common_riscv_lib
+	leancrypto_support_libs_fips += leancrypto_kyber_common_riscv_lib
 endif

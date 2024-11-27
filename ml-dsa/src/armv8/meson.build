@@ -2,7 +2,7 @@
 
 # Files compiled only once
 if (get_option('dilithium_87').enabled() or get_option('dilithium_65').enabled())
-	src += files([
+	src_fips += files([
 		'NTT_params.c'
 	])
 endif
@@ -32,7 +32,7 @@ if get_option('dilithium_87').enabled()
 			]
 		)
 
-	leancrypto_support_libs += leancrypto_dilithium_87_armv8_lib
+	leancrypto_support_libs_fips += leancrypto_dilithium_87_armv8_lib
 endif
 
 if get_option('dilithium_65').enabled()
@@ -49,5 +49,5 @@ if get_option('dilithium_65').enabled()
 			]
 		)
 
-	leancrypto_support_libs += leancrypto_dilithium_65_armv8_lib
+	leancrypto_support_libs_fips += leancrypto_dilithium_65_armv8_lib
 endif

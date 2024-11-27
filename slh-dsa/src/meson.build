@@ -7,7 +7,7 @@ if (get_option('sphincs_shake_256s').enabled() or
     get_option('sphincs_shake_192f').enabled() or
     get_option('sphincs_shake_128s').enabled() or
     get_option('sphincs_shake_128f').enabled())
-	src += files([
+	src_fips += files([
 		'sphincs_api.c',
 		'sphincs_pct.c',
 	])
@@ -65,7 +65,7 @@ if get_option('sphincs_shake_256s').enabled()
 			],
 			c_args : [ cc_avx2_args ]
 		)
-		leancrypto_support_libs += leancrypto_sphincs_shake_256s_avx2_lib
+		leancrypto_support_libs_fips += leancrypto_sphincs_shake_256s_avx2_lib
 	endif
 
 	if arm64_asm
@@ -79,7 +79,7 @@ if get_option('sphincs_shake_256s').enabled()
 			],
 			c_args : [ cc_armv8_neon_simd_args ]
 		)
-		leancrypto_support_libs += leancrypto_sphincs_shake_256s_armv8_lib
+		leancrypto_support_libs_fips += leancrypto_sphincs_shake_256s_armv8_lib
 	endif
 
 	leancrypto_sphincs_shake_256s_c_lib = static_library(
@@ -91,7 +91,7 @@ if get_option('sphincs_shake_256s').enabled()
 			include_internal_dirs
 		],
 	)
-	leancrypto_support_libs += leancrypto_sphincs_shake_256s_c_lib
+	leancrypto_support_libs_fips += leancrypto_sphincs_shake_256s_c_lib
 endif
 
 if get_option('sphincs_shake_256f').enabled()
@@ -106,7 +106,7 @@ if get_option('sphincs_shake_256f').enabled()
 			],
 			c_args : [ cc_avx2_args, '-DLC_SPHINCS_TYPE_256F' ]
 		)
-		leancrypto_support_libs += leancrypto_sphincs_shake_256f_avx2_lib
+		leancrypto_support_libs_fips += leancrypto_sphincs_shake_256f_avx2_lib
 	endif
 
 	if arm64_asm
@@ -121,7 +121,7 @@ if get_option('sphincs_shake_256f').enabled()
 			c_args : [ cc_armv8_neon_simd_args,
 				   '-DLC_SPHINCS_TYPE_256F' ]
 		)
-		leancrypto_support_libs += leancrypto_sphincs_shake_256f_armv8_lib
+		leancrypto_support_libs_fips += leancrypto_sphincs_shake_256f_armv8_lib
 	endif
 
 	leancrypto_sphincs_shake_256f_c_lib = static_library(
@@ -134,7 +134,7 @@ if get_option('sphincs_shake_256f').enabled()
 		],
 		c_args : [ '-DLC_SPHINCS_TYPE_256F' ]
 	)
-	leancrypto_support_libs += leancrypto_sphincs_shake_256f_c_lib
+	leancrypto_support_libs_fips += leancrypto_sphincs_shake_256f_c_lib
 endif
 
 if get_option('sphincs_shake_192s').enabled()
@@ -149,7 +149,7 @@ if get_option('sphincs_shake_192s').enabled()
 			],
 			c_args : [ cc_avx2_args, '-DLC_SPHINCS_TYPE_192S' ]
 		)
-		leancrypto_support_libs += leancrypto_sphincs_shake_192s_avx2_lib
+		leancrypto_support_libs_fips += leancrypto_sphincs_shake_192s_avx2_lib
 	endif
 
 	if arm64_asm
@@ -164,7 +164,7 @@ if get_option('sphincs_shake_192s').enabled()
 			c_args : [ cc_armv8_neon_simd_args,
 				   '-DLC_SPHINCS_TYPE_192S' ]
 		)
-		leancrypto_support_libs += leancrypto_sphincs_shake_192s_armv8_lib
+		leancrypto_support_libs_fips += leancrypto_sphincs_shake_192s_armv8_lib
 	endif
 
 	leancrypto_sphincs_shake_192s_c_lib = static_library(
@@ -177,7 +177,7 @@ if get_option('sphincs_shake_192s').enabled()
 		],
 		c_args : [ '-DLC_SPHINCS_TYPE_192S' ]
 	)
-	leancrypto_support_libs += leancrypto_sphincs_shake_192s_c_lib
+	leancrypto_support_libs_fips += leancrypto_sphincs_shake_192s_c_lib
 endif
 
 if get_option('sphincs_shake_192f').enabled()
@@ -192,7 +192,7 @@ if get_option('sphincs_shake_192f').enabled()
 			],
 			c_args : [ cc_avx2_args, '-DLC_SPHINCS_TYPE_192F' ]
 		)
-		leancrypto_support_libs += leancrypto_sphincs_shake_192f_avx2_lib
+		leancrypto_support_libs_fips += leancrypto_sphincs_shake_192f_avx2_lib
 	endif
 
 	if arm64_asm
@@ -207,7 +207,7 @@ if get_option('sphincs_shake_192f').enabled()
 			c_args : [ cc_armv8_neon_simd_args,
 				   '-DLC_SPHINCS_TYPE_192F' ]
 		)
-		leancrypto_support_libs += leancrypto_sphincs_shake_192f_armv8_lib
+		leancrypto_support_libs_fips += leancrypto_sphincs_shake_192f_armv8_lib
 	endif
 
 	leancrypto_sphincs_shake_192f_c_lib = static_library(
@@ -220,7 +220,7 @@ if get_option('sphincs_shake_192f').enabled()
 		],
 		c_args : [ '-DLC_SPHINCS_TYPE_192F' ]
 	)
-	leancrypto_support_libs += leancrypto_sphincs_shake_192f_c_lib
+	leancrypto_support_libs_fips += leancrypto_sphincs_shake_192f_c_lib
 endif
 
 if get_option('sphincs_shake_128s').enabled()
@@ -235,7 +235,7 @@ if get_option('sphincs_shake_128s').enabled()
 			],
 			c_args : [ cc_avx2_args, '-DLC_SPHINCS_TYPE_128S' ]
 		)
-		leancrypto_support_libs += leancrypto_sphincs_shake_128s_avx2_lib
+		leancrypto_support_libs_fips += leancrypto_sphincs_shake_128s_avx2_lib
 	endif
 
 	if arm64_asm
@@ -250,7 +250,7 @@ if get_option('sphincs_shake_128s').enabled()
 			c_args : [ cc_armv8_neon_simd_args,
 				   '-DLC_SPHINCS_TYPE_128S' ]
 		)
-		leancrypto_support_libs += leancrypto_sphincs_shake_128s_armv8_lib
+		leancrypto_support_libs_fips += leancrypto_sphincs_shake_128s_armv8_lib
 	endif
 
 	leancrypto_sphincs_shake_128s_c_lib = static_library(
@@ -263,7 +263,7 @@ if get_option('sphincs_shake_128s').enabled()
 		],
 		c_args : [ '-DLC_SPHINCS_TYPE_128S' ]
 	)
-	leancrypto_support_libs += leancrypto_sphincs_shake_128s_c_lib
+	leancrypto_support_libs_fips += leancrypto_sphincs_shake_128s_c_lib
 endif
 
 if get_option('sphincs_shake_128f').enabled()
@@ -278,7 +278,7 @@ if get_option('sphincs_shake_128f').enabled()
 			],
 			c_args : [ cc_avx2_args, '-DLC_SPHINCS_TYPE_128F' ]
 		)
-		leancrypto_support_libs += leancrypto_sphincs_shake_128f_avx2_lib
+		leancrypto_support_libs_fips += leancrypto_sphincs_shake_128f_avx2_lib
 	endif
 
 	if arm64_asm
@@ -293,7 +293,7 @@ if get_option('sphincs_shake_128f').enabled()
 			c_args : [ cc_armv8_neon_simd_args,
 				   '-DLC_SPHINCS_TYPE_128F' ]
 		)
-		leancrypto_support_libs += leancrypto_sphincs_shake_128f_armv8_lib
+		leancrypto_support_libs_fips += leancrypto_sphincs_shake_128f_armv8_lib
 	endif
 
 	leancrypto_sphincs_shake_128f_c_lib = static_library(
@@ -306,5 +306,5 @@ if get_option('sphincs_shake_128f').enabled()
 		],
 		c_args : [ '-DLC_SPHINCS_TYPE_128F' ]
 	)
-	leancrypto_support_libs += leancrypto_sphincs_shake_128f_c_lib
+	leancrypto_support_libs_fips += leancrypto_sphincs_shake_128f_c_lib
 endif

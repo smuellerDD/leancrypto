@@ -35,7 +35,7 @@ if get_option('kyber_1024').enabled()
 				'-Wno-unused-result',
 			]
 		)
-	leancrypto_support_libs += leancrypto_kyber_1024_armv8_lib
+	leancrypto_support_libs_fips += leancrypto_kyber_1024_armv8_lib
 endif
 
 if get_option('kyber_768').enabled()
@@ -51,7 +51,7 @@ if get_option('kyber_768').enabled()
 				'-Wno-unused-result', '-DLC_KYBER_TYPE_768'
 			]
 		)
-	leancrypto_support_libs += leancrypto_kyber_768_armv8_lib
+	leancrypto_support_libs_fips += leancrypto_kyber_768_armv8_lib
 endif
 
 # Support for Kyber-512 is not implemented

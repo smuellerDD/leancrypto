@@ -15,4 +15,4 @@ leancrypto_curve25519_armv7_lib = static_library(
 		c_args: cc_armv7_neon_simd_args
 	)
 
-leancrypto_support_libs += leancrypto_curve25519_armv7_lib
+leancrypto_support_libs_fips += leancrypto_curve25519_armv7_lib

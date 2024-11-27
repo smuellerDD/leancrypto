@@ -1,5 +1,5 @@
 # for i in $(ls *.c | sort); do echo "'$i',"; done
-src += files([
+src_fips += files([
 	'dilithium_zetas_riscv64.c'
 	])
 
@@ -12,45 +12,45 @@ dilithium_riscv64 = files([
 
 if get_option('dilithium_87').enabled()
 	leancrypto_dilithium_87_riscv64_lib = static_library(
-			'leancrypto_dilithium_87_riscv64_lib',
-			[ dilithium_riscv64 ],
-			include_directories: [
-				'../',
-				include_dirs,
-				include_internal_dirs
-			],
-	 		c_args: cc_riscv64_asm_args,
-		)
+		'leancrypto_dilithium_87_riscv64_lib',
+		[ dilithium_riscv64 ],
+		include_directories: [
+			'../',
+			include_dirs,
+			include_internal_dirs
+		],
+		c_args: cc_riscv64_asm_args,
+	)
 
-	leancrypto_support_libs += leancrypto_dilithium_87_riscv64_lib
+	leancrypto_support_libs_fips += leancrypto_dilithium_87_riscv64_lib
 endif
 
 if get_option('dilithium_65').enabled()
 	leancrypto_dilithium_65_riscv64_lib = static_library(
-			'leancrypto_dilithium_65_riscv64_lib',
-			[ dilithium_riscv64 ],
-			include_directories: [
-				'../',
-				include_dirs,
-				include_internal_dirs
-			],
-			c_args: [ cc_riscv64_asm_args, '-DLC_DILITHIUM_TYPE_65' ]
-		)
+		'leancrypto_dilithium_65_riscv64_lib',
+		[ dilithium_riscv64 ],
+		include_directories: [
+			'../',
+			include_dirs,
+			include_internal_dirs
+		],
+		c_args: [ cc_riscv64_asm_args, '-DLC_DILITHIUM_TYPE_65' ]
+	)
 
-	leancrypto_support_libs += leancrypto_dilithium_65_riscv64_lib
+	leancrypto_support_libs_fips += leancrypto_dilithium_65_riscv64_lib
 endif
 
 if get_option('dilithium_44').enabled()
 	leancrypto_dilithium_44_riscv64_lib = static_library(
-			'leancrypto_dilithium_44_riscv64_lib',
-			[ dilithium_riscv64 ],
-			include_directories: [
-				'../',
-				include_dirs,
-				include_internal_dirs
-			],
-			c_args: [ cc_riscv64_asm_args, '-DLC_DILITHIUM_TYPE_44' ]
-		)
+		'leancrypto_dilithium_44_riscv64_lib',
+		[ dilithium_riscv64 ],
+		include_directories: [
+			'../',
+			include_dirs,
+			include_internal_dirs
+		],
+		c_args: [ cc_riscv64_asm_args, '-DLC_DILITHIUM_TYPE_44' ]
+	)
 
-	leancrypto_support_libs += leancrypto_dilithium_44_riscv64_lib
+	leancrypto_support_libs_fips += leancrypto_dilithium_44_riscv64_lib
 endif

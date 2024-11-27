@@ -13,6 +13,8 @@ Changes 1.2.0
 
 * RISCV64: ML-DSA - add assembler implementation
 
+* Add FIPS 140 mode (as of now, it does not yet implement full FIPS 140 compliance)
+
 Changes 1.1.0
 * ML-KEM remove modulus check of decapsulation key (not required by FIPS 203)
 

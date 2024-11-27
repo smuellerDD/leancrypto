@@ -483,11 +483,19 @@ endif
 # Execute compilation
 ################################################################################
 
+# FIPS non-approved crypto sources
 src = [ ]
+# FIPS approved crypto sources
+src_fips = [ ]
+# Internal non-cryptographic helper code
 internal_src = [ ]
 
-# Internal support libs that need to be linked in as a whole
+# Internal FIPS non-approved cryptographic support libs that need to be linked
+# in as a whole
 leancrypto_support_libs = [ ]
+# Internal FIPS approved cryptographic support libs that need to be linked in
+# as a whole
+leancrypto_support_libs_fips = [ ]
 
 # External libraries leancrypto should link to
 leancrypto_link = [ ]
@@ -511,9 +519,37 @@ if (host_machine.system() != 'windows')
 		    check: true)
 endif
 
+if (get_option('fips140').enabled())
+	# Create the official static FIPS library
+	leancrypto_static_lib_fips = static_library('leancrypto-fips',
+		[ src_fips, internal_src ],
+		include_directories: [ include_dirs, include_internal_dirs ],
+		dependencies: [ leancrypto_link ],
+		link_whole: [ leancrypto_support_libs_fips ],
+		install: true
+		)
+	leancrypto_support_libs += leancrypto_static_lib_fips
+
+	# Create the official shared FIPS library
+	leancrypto_lib_fips = library('leancrypto-fips',
+		[ src_fips, internal_src ],
+		include_directories: [ include_dirs, include_internal_dirs ],
+		soversion: version_array[0],
+		dependencies: [ leancrypto_link ],
+		link_whole: [ leancrypto_support_libs_fips ],
+		install: true
+		)
+	leancrypto_fips = declare_dependency(link_with: leancrypto_lib_fips,
+					     include_directories: include_dirs)
+else
+	src += src_fips
+	src += internal_src
+	leancrypto_support_libs += leancrypto_support_libs_fips
+endif
+
 # Create the official static library
 leancrypto_static_lib = static_library('leancrypto',
-	[ src, internal_src ],
+	[ src ],
 	include_directories: [ include_dirs, include_internal_dirs ],
 	dependencies: [ leancrypto_link ],
 	link_whole: [ leancrypto_support_libs ],
@@ -522,7 +558,7 @@ leancrypto_static_lib = static_library('leancrypto',
 
 # Create the official shared library
 leancrypto_lib = library('leancrypto',
-	[ src, internal_src ],
+	[ src ],
 	include_directories: [ include_dirs, include_internal_dirs ],
 	soversion: version_array[0],
 	dependencies: [ leancrypto_link ],

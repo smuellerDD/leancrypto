@@ -50,121 +50,121 @@ if get_option('chacha20').enabled()
 endif
 
 if get_option('aes_ecb').enabled()
-	src += files([ 'aes_ecb.c' ])
+	src_fips += files([ 'aes_ecb.c' ])
 	lc_aes = 1
 endif
 
 if get_option('aes_cbc').enabled()
-	src += files([ 'aes_cbc.c', 'mode_cbc.c' ])
+	src_fips += files([ 'aes_cbc.c', 'mode_cbc.c' ])
 	lc_aes = 1
 
 	# AES-NI
 	if (x86_64_asm)
 		lc_aesni_asm = 1
-		src += files([ 'aes_cbc_aesni.c', ])
+		src_fips += files([ 'aes_cbc_aesni.c', ])
 	else
-		src += files([ 'aes_cbc_aesni_null.c' ])
+		src_fips += files([ 'aes_cbc_aesni_null.c' ])
 	endif
 
 	if (arm64_asm)
 		lc_armce_v8_asm = 1
-		src += files([ 'aes_cbc_armce_v8.c' ])
+		src_fips += files([ 'aes_cbc_armce_v8.c' ])
 	else
-		src += files([ 'aes_cbc_armce_v8_null.c' ])
+		src_fips += files([ 'aes_cbc_armce_v8_null.c' ])
 	endif
 
 	if (riscv64_asm)
 		lc_riscv64_asm = 1
-		src += files([ 'aes_cbc_riscv64.c' ])
+		src_fips += files([ 'aes_cbc_riscv64.c' ])
 	else
-		src += files([ 'aes_cbc_riscv64_null.c' ])
+		src_fips += files([ 'aes_cbc_riscv64_null.c' ])
 	endif
 endif
 
 if get_option('aes_ctr').enabled()
-	src += files([ 'aes_ctr.c', 'mode_ctr.c' ])
+	src_fips += files([ 'aes_ctr.c', 'mode_ctr.c' ])
 	lc_aes = 1
 
 	# AES-NI
 	if (x86_64_asm)
 		lc_aesni_asm = 1
-		src += files([ 'aes_ctr_aesni.c' ])
+		src_fips += files([ 'aes_ctr_aesni.c' ])
 	else
-		src += files([ 'aes_ctr_aesni_null.c' ])
+		src_fips += files([ 'aes_ctr_aesni_null.c' ])
 	endif
 
 	if (arm64_asm)
 		lc_armce_v8_asm = 1
-		src += files([ 'aes_ctr_armce_v8.c' ])
+		src_fips += files([ 'aes_ctr_armce_v8.c' ])
 	else
-		src += files([ 'aes_ctr_armce_v8_null.c' ])
+		src_fips += files([ 'aes_ctr_armce_v8_null.c' ])
 	endif
 
 	if (riscv64_asm)
 		lc_riscv64_asm = 1
-		src += files([ 'aes_ctr_riscv64.c' ])
+		src_fips += files([ 'aes_ctr_riscv64.c' ])
 	else
-		src += files([ 'aes_ctr_riscv64_null.c' ])
+		src_fips += files([ 'aes_ctr_riscv64_null.c' ])
 	endif
 endif
 
 if get_option('aes_kw').enabled()
-	src += files([ 'aes_kw.c', 'mode_kw.c'])
+	src_fips += files([ 'aes_kw.c', 'mode_kw.c'])
 	lc_aes = 1
 	lc_block = 1
 
 	# AES-NI
 	if (x86_64_asm)
 		lc_aesni_asm = 1
-		src += files([ 'aes_kw_aesni.c' ])
+		src_fips += files([ 'aes_kw_aesni.c' ])
 	else
-		src += files([ 'aes_kw_aesni_null.c' ])
+		src_fips += files([ 'aes_kw_aesni_null.c' ])
 	endif
 
 	if (arm64_asm)
 		lc_armce_v8_asm = 1
-		src += files([ 'aes_kw_armce_v8.c' ])
+		src_fips += files([ 'aes_kw_armce_v8.c' ])
 	else
-		src += files([ 'aes_kw_armce_v8_null.c' ])
+		src_fips += files([ 'aes_kw_armce_v8_null.c' ])
 	endif
 
 	if (riscv64_asm)
 		lc_riscv64_asm = 1
-		src += files([ 'aes_kw_riscv64.c' ])
+		src_fips += files([ 'aes_kw_riscv64.c' ])
 	else
-		src += files([ 'aes_kw_riscv64_null.c' ])
+		src_fips += files([ 'aes_kw_riscv64_null.c' ])
 	endif
 endif
 
 if (lc_block == 1)
-	src += files([ 'aes_block.c' ])
+	src_fips += files([ 'aes_block.c' ])
 	lc_aes = 1
 
 	# AES-NI
 	if (x86_64_asm)
 		lc_aesni_asm = 1
-		src += files([ 'aes_block_aesni.c' ])
+		src_fips += files([ 'aes_block_aesni.c' ])
 	else
-		src += files([ 'aes_block_aesni_null.c' ])
+		src_fips += files([ 'aes_block_aesni_null.c' ])
 	endif
 
 	if (arm64_asm)
 		lc_armce_v8_asm = 1
-		src += files([ 'aes_block_armce_v8.c' ])
+		src_fips += files([ 'aes_block_armce_v8.c' ])
 	else
-		src += files([ 'aes_block_armce_v8_null.c' ])
+		src_fips += files([ 'aes_block_armce_v8_null.c' ])
 	endif
 
 	if (riscv64_asm)
 		lc_riscv64_asm = 1
-		src += files([ 'aes_block_riscv64.c' ])
+		src_fips += files([ 'aes_block_riscv64.c' ])
 	else
-		src += files([ 'aes_block_riscv64_null.c' ])
+		src_fips += files([ 'aes_block_riscv64_null.c' ])
 	endif
 endif
 
 if (lc_aesni_asm == 1)
-	src += files([ 'asm/AESNI_x86_64/aes_aesni_x86_64.S' ])
+	src_fips += files([ 'asm/AESNI_x86_64/aes_aesni_x86_64.S' ])
 endif
 
 if (lc_armce_v8_asm == 1)
@@ -181,34 +181,32 @@ if (lc_armce_v8_asm == 1)
 			include_dirs,
 			include_internal_dirs ],
 	)
-	leancrypto_support_libs += leancrypto_aes_arm8a_ce_lib
+	leancrypto_support_libs_fips += leancrypto_aes_arm8a_ce_lib
 endif
 
 if (lc_riscv64_asm == 1)
 	leancrypto_aes_riscv64_asm_lib = static_library(
 		'leancrypto_aes_riscv64_asm_lib',
 		[ 'asm/riscv64/riscv64_aes_asm.S' ],
-		c_args: [
-			'-march=rv64gc',
-			'-mabi=lp64d',
-		],
+		c_args: [ cc_riscv64_asm_args ],
 		include_directories: [
 			include_directories(['asm/riscv64/']),
 			include_dirs,
 			include_internal_dirs ],
 	)
-	leancrypto_support_libs += leancrypto_aes_riscv64_asm_lib
+	leancrypto_support_libs_fips += leancrypto_aes_riscv64_asm_lib
 endif
 
 if (lc_aes == 1)
-	src += files([ 'aes_sbox.c',
-		       'aes_selector.c'
+	src_fips += files([
+			'aes_sbox.c',
+			'aes_selector.c'
 		     ])
 	include_files += files([ '../api/lc_aes.h' ])
 	lc_sym = 1
 endif
 
 if (lc_sym == 1)
-	src += files([ 'sym.c' ])
+	src_fips += files([ 'sym.c' ])
 	include_files += files([ '../api/lc_sym.h' ])
 endif
