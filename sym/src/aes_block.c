@@ -29,7 +29,6 @@
 #include "aes_c.h"
 #include "aes_internal.h"
 #include "ext_headers.h"
-#include "ext_headers_x86.h"
 #include "lc_aes.h"
 #include "lc_sym.h"
 #include "timecop.h"
@@ -40,8 +39,6 @@ struct lc_sym_state {
 };
 
 #define LC_AES_BLOCK_SIZE sizeof(struct lc_sym_state)
-
-unsigned int lc_x86_64_cpuid[4] __attribute__((used)) = { 0 };
 
 static void aes_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 			uint8_t *out, size_t len)
@@ -90,9 +87,6 @@ static void aes_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 static void aes_init(struct lc_sym_state *ctx)
 {
 	(void)ctx;
-
-	if (!lc_x86_64_cpuid[0])
-		lc_cpu_feature_get_cpuid(lc_x86_64_cpuid);
 }
 
 static int aes_setkey(struct lc_sym_state *ctx, const uint8_t *key,

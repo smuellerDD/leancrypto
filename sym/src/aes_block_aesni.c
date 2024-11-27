@@ -40,6 +40,8 @@ struct lc_sym_state {
 
 #define LC_AES_BLOCK_SIZE sizeof(struct lc_sym_state)
 
+unsigned int lc_x86_64_cpuid[4] __attribute__((used)) = { 0 };
+
 static void aes_aesni_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 			      uint8_t *out, size_t len)
 {
@@ -71,6 +73,9 @@ static void aes_aesni_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 static void aes_aesni_init(struct lc_sym_state *ctx)
 {
 	(void)ctx;
+
+	if (!lc_x86_64_cpuid[0])
+		lc_cpu_feature_get_cpuid(lc_x86_64_cpuid);
 }
 
 static int aes_aesni_setkey(struct lc_sym_state *ctx, const uint8_t *key,
