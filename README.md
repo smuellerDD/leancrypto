@@ -269,7 +269,7 @@ considered as API changes!
 ## X.509 and PKCS#7 Support
 
 The library offers an X.509 and PKCS#7 support with `lc_x509_parser.h`,
-`lc_x509_generator.h` and `lc_pkcs7_parser.h`.
+`lc_x509_generator.h`, `lc_pkcs7_parser.h`, and `lc_pkcs7_generator.h`.
 
 X.509 support includes:
 
@@ -282,7 +282,24 @@ application.
 
 The following services are offered with the PKCS#7 support:
 
-* Signature verification: use cases are secure boot scenarios and others
+* Parsing PKCS#7 messages:
+
+    - Signature verification
+
+    - Enforcement of key usage / EKU, time stamps
+
+    - Certificate chain validation
+
+    - Trust store handling
+
+* Generating PKCS#7 messages:
+
+    - Signature generation
+
+    - Certificate chain
+
+The operations are offered via APIs as well as via the `lc_pkcs7_generator`
+application.
 
 # Testing
 
