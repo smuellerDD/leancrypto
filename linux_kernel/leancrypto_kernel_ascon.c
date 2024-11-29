@@ -27,21 +27,11 @@
 
 #include "leancrypto_kernel.h"
 
-static int lc_kernel_ascon_128_init(struct shash_desc *desc)
+static int lc_kernel_ascon_256_init(struct shash_desc *desc)
 {
 	struct lc_hash_ctx *sctx = shash_desc_ctx(desc);
 
-	LC_ASCON_CTX(sctx, lc_ascon_128);
-	lc_hash_init(sctx);
-
-	return 0;
-}
-
-static int lc_kernel_ascon_128a_init(struct shash_desc *desc)
-{
-	struct lc_hash_ctx *sctx = shash_desc_ctx(desc);
-
-	LC_ASCON_CTX(sctx, lc_ascon_128a);
+	LC_ASCON_CTX(sctx, lc_ascon_256);
 	lc_hash_init(sctx);
 
 	return 0;
@@ -69,24 +59,12 @@ static int lc_kernel_ascon_final(struct shash_desc *desc, u8 *out)
 static struct shash_alg lc_ascon_algs[] = {
 	{
 		.digestsize = LC_ASCON_HASH_DIGESTSIZE,
-		.init = lc_kernel_ascon_128_init,
+		.init = lc_kernel_ascon_256_init,
 		.update = lc_kernel_ascon_update,
 		.final = lc_kernel_ascon_final,
 		.descsize = LC_ASCON_CTX_SIZE,
-		.base.cra_name = "ascon-128",
-		.base.cra_driver_name = "ascon-128-leancrypto",
-		.base.cra_blocksize = LC_ASCON_HASH_RATE,
-		.base.cra_module = THIS_MODULE,
-		.base.cra_priority = LC_KERNEL_DEFAULT_PRIO,
-	},
-	{
-		.digestsize = LC_ASCON_HASH_DIGESTSIZE,
-		.init = lc_kernel_ascon_128a_init,
-		.update = lc_kernel_ascon_update,
-		.final = lc_kernel_ascon_final,
-		.descsize = LC_ASCON_CTX_SIZE,
-		.base.cra_name = "ascon-128a",
-		.base.cra_driver_name = "ascon-128a-leancrypto",
+		.base.cra_name = "ascon-256",
+		.base.cra_driver_name = "ascon-256-leancrypto",
 		.base.cra_blocksize = LC_ASCON_HASH_RATE,
 		.base.cra_module = THIS_MODULE,
 		.base.cra_priority = LC_KERNEL_DEFAULT_PRIO,

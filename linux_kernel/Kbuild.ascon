@@ -38,13 +38,9 @@ ccflags-y			+= -DCONFIG_LEANCRYPTO_ASCON_HASH
 obj-m				+= leancrypto_kernel_ascon_tester.o
 leancrypto_kernel_ascon_tester-y+= ../hash/tests/leancrypto_kernel_ascon_tester.o
 
-obj-m				+= ascon_128a_tester.o
-obj-m				+= ascon_128_tester.o
-obj-m				+= ascon_xofa_tester.o
+obj-m				+= ascon_256_tester.o
 obj-m				+= ascon_xof_tester.o
 
-ascon_128a_tester-y		+= ../hash/tests/ascon_128a_tester.o
-ascon_128_tester-y		+= ../hash/tests/ascon_128_tester.o
-ascon_xofa_tester-y		+= ../hash/tests/ascon_xofa_tester.o
+ascon_256_tester-y		+= ../hash/tests/ascon_256_tester.o
 ascon_xof_tester-y		+= ../hash/tests/ascon_xof_tester.o
 endif

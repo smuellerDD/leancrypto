@@ -242,19 +242,6 @@ static int lc_aead_init_ascon128(struct crypto_aead *aead)
 	struct lc_aead_ctx *ctx = crypto_aead_ctx(aead);
 	struct lc_ascon_cryptor *ascon_crypto;
 
-	LC_ASCON_SET_CTX(ctx, lc_ascon_128);
-	ascon_crypto = ctx->aead_state;
-	ascon_crypto->statesize = LC_ASCON_HASH_STATE_SIZE;
-	ascon_crypto->taglen = crypto_aead_maxauthsize(aead);
-
-	return 0;
-}
-
-static int lc_aead_init_ascon128a(struct crypto_aead *aead)
-{
-	struct lc_aead_ctx *ctx = crypto_aead_ctx(aead);
-	struct lc_ascon_cryptor *ascon_crypto;
-
 	LC_ASCON_SET_CTX(ctx, lc_ascon_128a);
 	ascon_crypto = ctx->aead_state;
 	ascon_crypto->statesize = LC_ASCON_HASH_STATE_SIZE;
@@ -262,6 +249,7 @@ static int lc_aead_init_ascon128a(struct crypto_aead *aead)
 
 	return 0;
 }
+
 #endif
 
 #ifdef LC_ASCON_KECCAK
@@ -304,7 +292,7 @@ static struct aead_alg lc_aead_algs[] = {
 			.cra_driver_name = "ascon-aead-128-leancrypto",
 			.cra_priority = LC_KERNEL_DEFAULT_PRIO,
 			.cra_blocksize = 1,
-			.cra_ctxsize = LC_AL_CTX_SIZE(lc_ascon_128),
+			.cra_ctxsize = LC_AL_CTX_SIZE,
 			.cra_alignmask = LC_ASCON_ALIGNMENT - 1,
 			.cra_module = THIS_MODULE,
 		},
@@ -313,24 +301,6 @@ static struct aead_alg lc_aead_algs[] = {
 		.encrypt = lc_aead_ascon_enc,
 		.decrypt = lc_aead_ascon_dec,
 		.init = lc_aead_init_ascon128,
-		.exit = lc_aead_exit,
-		.ivsize = 16,
-		.maxauthsize = 16,
-	}, {
-		.base = {
-			.cra_name = "ascon-aead-128a",
-			.cra_driver_name = "ascon-aead-128a-leancrypto",
-			.cra_priority = LC_KERNEL_DEFAULT_PRIO,
-			.cra_blocksize = 1,
-			.cra_ctxsize = LC_AL_CTX_SIZE(lc_ascon_128a),
-			.cra_alignmask = LC_ASCON_ALIGNMENT - 1,
-			.cra_module = THIS_MODULE,
-		},
-		.setkey = lc_aead_ascon_setkey,
-		.setauthsize = lc_aead_setauthsize,
-		.encrypt = lc_aead_ascon_enc,
-		.decrypt = lc_aead_ascon_dec,
-		.init = lc_aead_init_ascon128a,
 		.exit = lc_aead_exit,
 		.ivsize = 16,
 		.maxauthsize = 16,

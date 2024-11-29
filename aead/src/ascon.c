@@ -144,7 +144,6 @@ static int lc_ascon_setkey(void *state, const uint8_t *key, size_t keylen,
 	return 0;
 }
 
-#include "binhexbin.h"
 /* Insert the AAD into the sponge state. */
 static void lc_ascon_aad(struct lc_ascon_cryptor *ascon, const uint8_t *aad,
 			 size_t aadlen)

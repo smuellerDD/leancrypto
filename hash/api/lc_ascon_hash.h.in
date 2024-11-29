@@ -59,10 +59,6 @@ struct lc_ascon_hash {
 	LC_HASH_SET_CTX(name, ascon);                                          \
 	lc_hash_zero(name)
 
-#ifndef LINUX_KERNEL
-#define BUILD_BUG_ON(condition) ((void)sizeof(char[1 - 2 * !!(condition)]))
-#endif
-
 #define LC_ASCON_CTX_ON_STACK(name, ascon)                                          \
 	_Pragma("GCC diagnostic push")                                              \
 		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
@@ -70,7 +66,6 @@ struct lc_ascon_hash {
 			LC_ALIGNED_BUFFER(name##_ctx_buf, LC_ASCON_CTX_SIZE,        \
 					  LC_HASH_COMMON_ALIGNMENT);                \
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name##_ctx_buf;            \
-	BUILD_BUG_ON(ascon == lc_ascon_128a); \
 	LC_ASCON_CTX(name, ascon);                                                  \
 	_Pragma("GCC diagnostic pop")
 /// \endcond
