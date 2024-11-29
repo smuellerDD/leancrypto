@@ -15,6 +15,8 @@ Changes 1.2.0
 
 * Add FIPS 140 mode (as of now, it does not yet implement full FIPS 140 compliance)
 
+* Ascon AEAD, Hash, XOF, Ascon-Keccak: Update to comply with SP800-232
+
 Changes 1.1.0
 * ML-KEM remove modulus check of decapsulation key (not required by FIPS 203)
 

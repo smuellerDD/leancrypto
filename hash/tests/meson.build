@@ -138,23 +138,13 @@ else
 endif
 
 if get_option('ascon').enabled()
-	ascon_128_tester = executable('ascon_128_tester',
-				   [ 'ascon_128_tester.c', internal_src ],
-				   include_directories: [ include_internal_dirs ],
-				   dependencies: leancrypto
-				   )
-	ascon_128a_tester = executable('ascon_128a_tester',
-				   [ 'ascon_128a_tester.c', internal_src ],
+	ascon_256_tester = executable('ascon_256_tester',
+				   [ 'ascon_256_tester.c', internal_src ],
 				   include_directories: [ include_internal_dirs ],
 				   dependencies: leancrypto
 				   )
 	ascon_xof_tester = executable('ascon_xof_tester',
 				   [ 'ascon_xof_tester.c', internal_src ],
-				   include_directories: [ include_internal_dirs ],
-				   dependencies: leancrypto
-				   )
-	ascon_xofa_tester = executable('ascon_xofa_tester',
-				   [ 'ascon_xofa_tester.c', internal_src ],
 				   include_directories: [ include_internal_dirs ],
 				   dependencies: leancrypto
 				   )
@@ -164,10 +154,8 @@ if get_option('ascon').enabled()
 				   dependencies: leancrypto
 				   )
 
-	test('Hash Ascon 128', ascon_128_tester, suite: regression)
-	test('Hash Ascon 128a', ascon_128a_tester, suite: regression)
+	test('Hash Ascon 256', ascon_256_tester, suite: regression)
 	test('Hash Ascon XOF', ascon_xof_tester, suite: regression)
-	test('Hash Ascon XOFa', ascon_xofa_tester, suite: regression)
 	test('Hash Ascon XOF Squeeze More', ascon_xof_squeeze_more_tester,
 	     suite: regression)
 endif

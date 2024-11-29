@@ -203,20 +203,8 @@ if (get_option('hash_crypt').enabled() and get_option('ascon').enabled())
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto
 				)
-	ascon_crypt_large_test_128a = executable('ascon_crypt_large_test_128a',
-				[ 'ascon_crypt_large_test_128a.c',
-				  internal_src ],
-				include_directories: [ include_internal_dirs ],
-				dependencies: leancrypto
-				)
 	ascon_crypt_large_test_128_c = executable('ascon_crypt_large_test_128_c',
 				[ 'ascon_crypt_large_test_128_c.c',
-				  internal_src ],
-				include_directories: [ include_internal_dirs ],
-				dependencies: leancrypto
-				)
-	ascon_crypt_large_test_128a_c = executable('ascon_crypt_large_test_128a_c',
-				[ 'ascon_crypt_large_test_128a_c.c',
 				  internal_src ],
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto
@@ -226,13 +214,7 @@ if (get_option('hash_crypt').enabled() and get_option('ascon').enabled())
 	test('AEAD Ascon 128 Accel large',
 	     ascon_crypt_large_test_128,
 	     timeout: 2500, is_parallel: false, suite: performance)
-	test('AEAD Ascon 128a Accel large',
-	     ascon_crypt_large_test_128a,
-	     timeout: 2500, is_parallel: false, suite: performance)
 	test('AEAD Ascon 128 C large',
 	     ascon_crypt_large_test_128_c,
-	     timeout: 2500, is_parallel: false, suite: performance)
-	test('AEAD Ascon 128a C large',
-	     ascon_crypt_large_test_128a_c,
 	     timeout: 2500, is_parallel: false, suite: performance)
 endif

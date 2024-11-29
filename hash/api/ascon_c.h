@@ -24,10 +24,9 @@
 extern "C" {
 #endif
 
-extern const struct lc_hash *lc_ascon_128_c;
+extern const struct lc_hash *lc_ascon_256_c;
 extern const struct lc_hash *lc_ascon_128a_c;
 extern const struct lc_hash *lc_ascon_xof_c;
-extern const struct lc_hash *lc_ascon_xofa_c;
 
 #ifdef __cplusplus
 }

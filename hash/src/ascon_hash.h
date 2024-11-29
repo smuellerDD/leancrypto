@@ -32,19 +32,19 @@ extern "C" {
 
 /************************ Raw Ascon Sponge Operations *************************/
 
-#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 
 /*
  * This function works on both endianesses, but since it has more code than
- * the little endian code base, there is a special case for little endian.
+ * the little endian code base, there is a special case for big endian.
  */
 static inline void ascon_fill_state_bytes(uint64_t *state, const uint8_t *in,
 					  size_t byte_offset, size_t inlen)
 {
-	sponge_fill_state_bytes(state, in, byte_offset, inlen, be_bswap64);
+	sponge_fill_state_bytes(state, in, byte_offset, inlen, le_bswap64);
 }
 
-#elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 
 static inline void ascon_fill_state_bytes(uint64_t *state, const uint8_t *in,
 					  size_t byte_offset, size_t inlen)
@@ -68,14 +68,14 @@ static void ascon_c_extract_bytes(const void *state, uint8_t *data,
 				  size_t offset, size_t length)
 {
 	sponge_extract_bytes(state, data, offset, length,
-			     LC_ASCON_HASH_STATE_WORDS, be_bswap64, be_bswap32,
-			     be64_to_ptr, be32_to_ptr);
+			     LC_ASCON_HASH_STATE_WORDS, le_bswap64, le_bswap32,
+			     le64_to_ptr, le32_to_ptr);
 }
 
 static void ascon_c_newstate(void *state, const uint8_t *data, size_t offset,
 			     size_t length)
 {
-	sponge_newstate(state, data, offset, length, be_bswap64);
+	sponge_newstate(state, data, offset, length, le_bswap64);
 }
 
 /********************************* Ascon Hash *********************************/
@@ -86,7 +86,7 @@ static inline void ascon_fill_state_aligned(struct lc_ascon_hash *ctx,
 	unsigned int i;
 
 	for (i = 0; i < LC_ASCON_HASH_RATE_WORDS; i++) {
-		ctx->state[i] ^= be_bswap64(*in);
+		ctx->state[i] ^= le_bswap64(*in);
 		in++;
 	}
 }
@@ -97,7 +97,7 @@ static inline void ascon_fill_state(struct lc_ascon_hash *ctx,
 	unsigned int i;
 
 	for (i = 0; i < LC_ASCON_HASH_RATE_WORDS; i++) {
-		ctx->state[i] ^= ptr_to_be64(in);
+		ctx->state[i] ^= ptr_to_le64(in);
 		in += 8;
 	}
 }
@@ -186,7 +186,18 @@ static inline void ascon_squeeze_common(
 
 	if (!ctx->squeeze_more) {
 		uint8_t partial = ctx->msg_len % LC_ASCON_HASH_RATE;
-		static const uint8_t pad_data = 0x80;
+		/*
+		 * Based on the specification in SP800-232 section 2.1, this
+		 * padding byte would be 0x80.
+		 *
+		 * However the bitstring is indexed from LSB to MSB, i.e.,
+		 * appending byte 0x01 appends the abstract bitstring
+		 * 1,0,0,0,0,0,0,0. Thus, the specification does in fact change
+		 * not only the byte ordering (as expected for little endian),
+		 * but also the bit indexing (and thus the bit ordering in the
+		 * abstract bitstring notation used to define the mode).
+		 */
+		static const uint8_t pad_data = 0x01;
 
 		/* Add the padding bits and the 01 bits for the suffix. */
 		ascon_fill_state_bytes(ctx->state, &pad_data, partial, 1);
@@ -205,8 +216,8 @@ static inline void ascon_squeeze_common(
 		todo = (uint8_t)((digest_len > todo) ? todo : digest_len);
 
 		sponge_extract_bytes(ctx->state, digest, ctx->offset, todo,
-				     LC_ASCON_HASH_STATE_WORDS, be_bswap64,
-				     be_bswap32, be64_to_ptr, be32_to_ptr);
+				     LC_ASCON_HASH_STATE_WORDS, le_bswap64,
+				     le_bswap32, le64_to_ptr, le32_to_ptr);
 
 		digest += todo;
 		digest_len -= todo;

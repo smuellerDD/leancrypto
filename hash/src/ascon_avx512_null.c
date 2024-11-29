@@ -21,7 +21,6 @@
 #include "ext_headers.h"
 #include "visibility.h"
 
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_128_avx512) = NULL;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_256_avx512) = NULL;
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_128a_avx512) = NULL;
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_xof_avx512) = NULL;
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_xofa_avx512) = NULL;

@@ -22,5 +22,5 @@
 
 int main(int argc, char *argv[])
 {
-	return hasher_main(argc, argv, lc_ascon_128a);
+	return hasher_main(argc, argv, lc_ascon_256);
 }

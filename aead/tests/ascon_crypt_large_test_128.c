@@ -27,7 +27,7 @@
 
 static int al_128_tester_large(void)
 {
-	LC_AL_CTX_ON_STACK(al, lc_ascon_128);
+	LC_AL_CTX_ON_STACK(al);
 	uint8_t tag[16];
 	uint8_t *pt;
 	size_t len;

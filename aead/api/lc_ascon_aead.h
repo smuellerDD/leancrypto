@@ -76,7 +76,8 @@ static inline void lc_ascon_add_padbyte(struct lc_ascon_cryptor *ascon,
 					size_t offset)
 {
 	const struct lc_hash *hash = ascon->hash;
-	static const uint8_t pad_data = 0x80;
+	/* Rationale for pad byte: see ascon_squeeze_common */
+	static const uint8_t pad_data = 0x01;
 
 	/*
 	 * The data was exactly a multiple of the rate -> permute before adding

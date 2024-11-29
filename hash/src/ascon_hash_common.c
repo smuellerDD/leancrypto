@@ -27,7 +27,7 @@ static inline void ascon_ctx_init(struct lc_ascon_hash *ctx)
 	ctx->offset = 0;
 }
 
-static void ascon_128_init_common(struct lc_ascon_hash *ctx)
+static void ascon_256_init_common(struct lc_ascon_hash *ctx)
 {
 	if (!ctx)
 		return;
@@ -36,14 +36,24 @@ static void ascon_128_init_common(struct lc_ascon_hash *ctx)
 	ctx->roundb = 12;
 	ctx->digestsize = LC_ASCON_HASH_DIGESTSIZE;
 
-	ctx->state[0] = 0xee9398aadb67f03d;
-	ctx->state[1] = 0x8bb21831c60f1002;
-	ctx->state[2] = 0xb48a92db98d5da62;
-	ctx->state[3] = 0x43189921b8f8e3e8;
-	ctx->state[4] = 0x348fa5c9d525e140;
+	/*
+	 * Values are generated with:
+	 *
+	 * ctx->state[0] = 0x0000080100cc0002;
+	 * ctx->state[1] = 0;
+	 * ctx->state[2] = 0;
+	 * ctx->state[3] = 0;
+	 * ctx->state[4] = 0;
+	 * ascon_c_permutation(ctx->state, 12);
+	 */
+	ctx->state[0] = 0x9b1e5494e934d681;
+	ctx->state[1] = 0x4bc3a01e333751d2;
+	ctx->state[2] = 0xae65396c6b34b81a;
+	ctx->state[3] = 0x3c7fd4a4d56a4db3;
+	ctx->state[4] = 0x1a5c464906c5976d;
 }
 
-void ascon_128_init(void *_state)
+void ascon_256_init(void *_state)
 {
 	struct lc_ascon_hash *ctx = _state;
 	static int tested = 0;
@@ -51,8 +61,8 @@ void ascon_128_init(void *_state)
 	if (!ctx)
 		return;
 
-	ascon_128_selftest_common(lc_ascon_128, &tested, "Ascon 128 C");
-	ascon_128_init_common(ctx);
+	ascon_256_selftest_common(lc_ascon_256, &tested, "Ascon 256 C");
+	ascon_256_init_common(ctx);
 }
 
 static void ascon_128a_init_common(struct lc_ascon_hash *ctx)
@@ -64,11 +74,16 @@ static void ascon_128a_init_common(struct lc_ascon_hash *ctx)
 	ctx->roundb = 8;
 	ctx->digestsize = LC_ASCON_HASH_DIGESTSIZE;
 
-	ctx->state[0] = 0x01470194fc6528a6;
-	ctx->state[1] = 0x738ec38ac0adffa7;
-	ctx->state[2] = 0x2ec8e3296c76384c;
-	ctx->state[3] = 0xd6f6a54d7f52377d;
-	ctx->state[4] = 0xa13c42a223be8d87;
+	/*
+	 * This hash function is not defined and should never be used directly!
+	 *
+	 * Its only purpose is the use in the Ascon AEAD algorithm.
+	 */
+	ctx->state[0] = 0;
+	ctx->state[1] = 0;
+	ctx->state[2] = 0;
+	ctx->state[3] = 0;
+	ctx->state[4] = 0;
 }
 
 void ascon_128a_init(void *_state)
@@ -92,11 +107,21 @@ static void ascon_xof_init_common(struct lc_ascon_hash *ctx)
 	ctx->roundb = 12;
 	ctx->digestsize = 0;
 
-	ctx->state[0] = 0xb57e273b814cd416;
-	ctx->state[1] = 0x2b51042562ae2420;
-	ctx->state[2] = 0x66a3a7768ddf2218;
-	ctx->state[3] = 0x5aad0a7a8153650c;
-	ctx->state[4] = 0x4f3e0e32539493b6;
+	/*
+	 * Values are generated with:
+	 *
+	 * ctx->state[0] = 0x0000080000cc0003;
+	 * ctx->state[1] = 0;
+	 * ctx->state[2] = 0;
+	 * ctx->state[3] = 0;
+	 * ctx->state[4] = 0;
+	 * ascon_c_permutation(ctx->state, 12);
+	 */
+	ctx->state[0] = 0xda82ce768d9447eb;
+	ctx->state[1] = 0xcc7ce6c75f1ef969;
+	ctx->state[2] = 0xe7508fd780085631;
+	ctx->state[3] = 0x0ee0ea53416b58cc;
+	ctx->state[4] = 0xe0547524db6f0bde;
 }
 
 void ascon_xof_init(void *_state)
@@ -111,23 +136,33 @@ void ascon_xof_init(void *_state)
 	ascon_xof_init_common(ctx);
 }
 
-static void ascon_xofa_init_common(struct lc_ascon_hash *ctx)
+static void ascon_cxof_init_common(struct lc_ascon_hash *ctx)
 {
 	if (!ctx)
 		return;
 
 	ascon_ctx_init(ctx);
-	ctx->roundb = 8;
+	ctx->roundb = 12;
 	ctx->digestsize = 0;
 
-	ctx->state[0] = 0x44906568b77b9832;
-	ctx->state[1] = 0xcd8d6cae53455532;
-	ctx->state[2] = 0xf7b5212756422129;
-	ctx->state[3] = 0x246885e1de0d225b;
-	ctx->state[4] = 0xa8cb5ce33449973f;
+	/*
+	 * Values are generated with:
+	 *
+	 * ctx->state[0] = 0x0000080000cc0004;
+	 * ctx->state[1] = 0;
+	 * ctx->state[2] = 0;
+	 * ctx->state[3] = 0;
+	 * ctx->state[4] = 0;
+	 * ascon_c_permutation(ctx->state, 12);
+	 */
+	ctx->state[0] = 0x675527c2a0e8de03;
+	ctx->state[1] = 0x43d12d7dc0377bbc;
+	ctx->state[2] = 0xe9901dec426e81b5;
+	ctx->state[3] = 0x2ab14907720780b6;
+	ctx->state[4] = 0x8f3f1d02d432bc46;
 }
 
-void ascon_xofa_init(void *_state)
+void ascon_cxof_init(void *_state)
 {
 	struct lc_ascon_hash *ctx = _state;
 	static int tested = 0;
@@ -135,8 +170,8 @@ void ascon_xofa_init(void *_state)
 	if (!ctx)
 		return;
 
-	ascon_xofa_selftest_common(lc_ascon_xofa, &tested, "Ascon XOFa C");
-	ascon_xofa_init_common(ctx);
+	ascon_cxof_selftest_common(lc_ascon_xof, &tested, "Ascon XOF C");
+	ascon_cxof_init_common(ctx);
 }
 
 size_t ascon_digestsize(void *_state)

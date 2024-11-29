@@ -29,7 +29,7 @@ extern "C" {
 
 /// \cond DO_NOT_DOCUMENT
 #define LC_AL_STATE_SIZE (LC_ASCON_HASH_STATE_SIZE + LC_ASCON_ALIGNMENT)
-#define LC_AL_CTX_SIZE(x)                                                      \
+#define LC_AL_CTX_SIZE                                                      \
 	(sizeof(struct lc_aead) + sizeof(struct lc_ascon_cryptor) +            \
 	 LC_AL_STATE_SIZE)
 /// \endcond
@@ -37,15 +37,13 @@ extern "C" {
 /**
  * @brief Allocate Ascon Lightweight cryptor context on heap
  *
- * NOTE: This is defined for lc_ascon_128*.
- *
  * @param [in] hash Hash implementation of type struct hash used for the
  *		    Ascon-Keccak algorithm
  * @param [out] ctx Allocated Ascon lightweight cryptor context
  *
  * @return 0 on success, < 0 on error
  */
-int lc_al_alloc(const struct lc_hash *hash, struct lc_aead_ctx **ctx);
+int lc_al_alloc(struct lc_aead_ctx **ctx);
 
 /**
  * @brief Allocate stack memory for the Ascon lightweight cryptor context
@@ -53,18 +51,16 @@ int lc_al_alloc(const struct lc_hash *hash, struct lc_aead_ctx **ctx);
  * NOTE: This is defined for lc_ascon_128* as of now.
  *
  * @param [in] name Name of the stack variable
- * @param [in] hash Hash implementation of type struct hash used for the
- *		    Ascon lightweight algorithm
  */
-#define LC_AL_CTX_ON_STACK(name, hash)                                              \
+#define LC_AL_CTX_ON_STACK(name)                                              \
 	_Pragma("GCC diagnostic push")                                              \
 		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
 			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
 			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
-					  LC_AL_CTX_SIZE(hash),                     \
+					  LC_AL_CTX_SIZE,                     \
 					  LC_ASCON_ALIGNMENT);                      \
 	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;            \
-	LC_ASCON_SET_CTX(name, hash);                                               \
+	LC_ASCON_SET_CTX(name, lc_ascon_128a);                                               \
 	struct lc_ascon_cryptor *__name_ascon_crypto = name->aead_state;            \
 	__name_ascon_crypto->statesize = LC_ASCON_HASH_STATE_SIZE;                  \
 	__name_ascon_crypto->taglen = 16;                                           \

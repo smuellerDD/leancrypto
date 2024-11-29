@@ -162,8 +162,8 @@ static void ascon_squeeze(void *state, uint8_t *digest)
 			     ascon_c_permutation);
 }
 
-static const struct lc_hash _ascon_128_c = {
-	.init = ascon_128_init,
+static const struct lc_hash _ascon_256_c = {
+	.init = ascon_256_init,
 	.update = ascon_absorb,
 	.final = ascon_squeeze,
 	.set_digestsize = NULL,
@@ -175,7 +175,7 @@ static const struct lc_hash _ascon_128_c = {
 	.sponge_rate = 64 / 8,
 	.statesize = sizeof(struct lc_ascon_hash),
 };
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_128_c) = &_ascon_128_c;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_256_c) = &_ascon_256_c;
 
 static const struct lc_hash _ascon_128a_c = {
 	.init = ascon_128a_init,
@@ -207,22 +207,6 @@ static const struct lc_hash _ascon_xof_c = {
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_xof_c) = &_ascon_xof_c;
 
-static const struct lc_hash _ascon_xofa_c = {
-	.init = ascon_xofa_init,
-	.update = ascon_absorb,
-	.final = ascon_squeeze,
-	.set_digestsize = ascon_xof_set_digestsize,
-	.get_digestsize = ascon_xof_get_digestsize,
-	.sponge_permutation = ascon_c_permutation,
-	.sponge_add_bytes = ascon_c_add_bytes,
-	.sponge_extract_bytes = ascon_c_extract_bytes,
-	.sponge_newstate = ascon_c_newstate,
-	.sponge_rate = 64 / 8,
-	.statesize = sizeof(struct lc_ascon_hash),
-};
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_xofa_c) = &_ascon_xofa_c;
-
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_128) = &_ascon_128_c;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_256) = &_ascon_256_c;
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_128a) = &_ascon_128a_c;
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_xof) = &_ascon_xof_c;
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_xofa) = &_ascon_xofa_c;

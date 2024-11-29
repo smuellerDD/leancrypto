@@ -30,15 +30,14 @@ LC_CONSTRUCTOR(ascon_fastest_impl)
 	enum lc_cpu_features feat = lc_cpu_feature_available();
 
 #define LC_FILL_ACCEL_WITH_DEFAULT(accel, dflt)                                \
-	lc_ascon_128_##accel = lc_ascon_128_##dflt;                            \
+	lc_ascon_256_##accel = lc_ascon_256_##dflt;                            \
 	lc_ascon_128a_##accel = lc_ascon_128a_##dflt;                          \
-	lc_ascon_xof_##accel = lc_ascon_xof_##dflt;                            \
-	lc_ascon_xofa_##accel = lc_ascon_xofa_##dflt;
+	lc_ascon_xof_##accel = lc_ascon_xof_##dflt;
 
 #define LC_FILL_ACCEL_WITH_C(accel) LC_FILL_ACCEL_WITH_DEFAULT(accel, c)
 
 #define LC_FILL_ACCEL_NULL(accel)                                              \
-	if (!lc_ascon_128_##accel) {                                           \
+	if (!lc_ascon_256_##accel) {                                           \
 		LC_FILL_ACCEL_WITH_C(accel)                                    \
 	}
 
@@ -47,10 +46,9 @@ LC_CONSTRUCTOR(ascon_fastest_impl)
 	LC_FILL_ACCEL_NULL(arm_neon)
 
 #define LC_FILL_DFLT_IMPL(accel)                                               \
-	lc_ascon_128 = lc_ascon_128_##accel;                                   \
+	lc_ascon_256 = lc_ascon_256_##accel;                                   \
 	lc_ascon_128a = lc_ascon_128a_##accel;                                 \
-	lc_ascon_xof = lc_ascon_xof_##accel;                                   \
-	lc_ascon_xofa = lc_ascon_xofa_##accel;
+	lc_ascon_xof = lc_ascon_xof_##accel;
 
 	/*
 	 * Set accelerated modes: The fastest implementations are at the top

@@ -28,7 +28,7 @@
 
 static int al_128_tester_large(void)
 {
-	LC_AL_CTX_ON_STACK(al, lc_ascon_128_c);
+	LC_AL_CTX_ON_STACK(al);
 	uint8_t tag[16];
 	uint8_t *pt;
 	size_t len;
@@ -44,6 +44,8 @@ static int al_128_tester_large(void)
 					 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B,
 					 0x0C, 0x0D, 0x0E, 0x0F };
 	int ret;
+
+	LC_ASCON_SET_CTX(al, lc_ascon_128a_c);
 
 	CKINT(test_mem(&pt, &len));
 

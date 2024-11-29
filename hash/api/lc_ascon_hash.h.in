@@ -59,6 +59,10 @@ struct lc_ascon_hash {
 	LC_HASH_SET_CTX(name, ascon);                                          \
 	lc_hash_zero(name)
 
+#ifndef LINUX_KERNEL
+#define BUILD_BUG_ON(condition) ((void)sizeof(char[1 - 2 * !!(condition)]))
+#endif
+
 #define LC_ASCON_CTX_ON_STACK(name, ascon)                                          \
 	_Pragma("GCC diagnostic push")                                              \
 		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
@@ -66,6 +70,7 @@ struct lc_ascon_hash {
 			LC_ALIGNED_BUFFER(name##_ctx_buf, LC_ASCON_CTX_SIZE,        \
 					  LC_HASH_COMMON_ALIGNMENT);                \
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name##_ctx_buf;            \
+	BUILD_BUG_ON(ascon == lc_ascon_128a); \
 	LC_ASCON_CTX(name, ascon);                                                  \
 	_Pragma("GCC diagnostic pop")
 /// \endcond
@@ -74,7 +79,7 @@ struct lc_ascon_hash {
  * @var lc_ascon_128
  * @brief Ascon 128 message digest algorithm
  */
-extern const struct lc_hash *lc_ascon_128;
+extern const struct lc_hash *lc_ascon_256;
 
 /**
  * @var lc_ascon_128a
@@ -89,26 +94,12 @@ extern const struct lc_hash *lc_ascon_128a;
 extern const struct lc_hash *lc_ascon_xof;
 
 /**
- * @var lc_ascon_xofa
- * @brief Ascon XOFa extended output function
- */
-extern const struct lc_hash *lc_ascon_xofa;
-
-/**
- * @brief Allocate stack memory for the Ascon 128 context without VLA
+ * @brief Allocate stack memory for the Ascon 256 context without VLA
  *
  * @param [in] name Name of the stack variable
  */
-#define LC_ASCON_128_CTX_ON_STACK(name)                                        \
-	LC_ASCON_CTX_ON_STACK(name, lc_ascon_128)
-
-/**
- * @brief Allocate stack memory for the Ascon 128a context without VLA
- *
- * @param [in] name Name of the stack variable
- */
-#define LC_ASCON_128A_CTX_ON_STACK(name)                                       \
-	LC_ASCON_CTX_ON_STACK(name, lc_ascon_128a)
+#define LC_ASCON_256_CTX_ON_STACK(name)                                        \
+	LC_ASCON_CTX_ON_STACK(name, lc_ascon_256)
 
 /**
  * @brief Allocate stack memory for the Ascon XOF context without VLA
@@ -117,14 +108,6 @@ extern const struct lc_hash *lc_ascon_xofa;
  */
 #define LC_ASCON_XOF_CTX_ON_STACK(name)                                        \
 	LC_ASCON_CTX_ON_STACK(name, lc_ascon_xof)
-
-/**
- * @brief Allocate stack memory for the Ascon XOFa context without VLA
- *
- * @param [in] name Name of the stack variable
- */
-#define LC_ASCON_XOFA_CTX_ON_STACK(name)                                       \
-	LC_ASCON_CTX_ON_STACK(name, lc_ascon_xofa)
 
 #ifdef __cplusplus
 }

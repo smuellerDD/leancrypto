@@ -26,13 +26,13 @@
 extern "C" {
 #endif
 
-void ascon_128_selftest_common(const struct lc_hash *ascon, int *tested,
+void ascon_256_selftest_common(const struct lc_hash *ascon, int *tested,
 			       const char *impl);
 void ascon_128a_selftest_common(const struct lc_hash *ascon, int *tested,
 				const char *impl);
 void ascon_xof_selftest_common(const struct lc_hash *ascon, int *tested,
 			       const char *impl);
-void ascon_xofa_selftest_common(const struct lc_hash *ascon, int *tested,
+void ascon_cxof_selftest_common(const struct lc_hash *ascon, int *tested,
 				const char *impl);
 
 #ifdef __cplusplus

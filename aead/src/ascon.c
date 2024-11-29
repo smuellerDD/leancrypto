@@ -144,13 +144,15 @@ static int lc_ascon_setkey(void *state, const uint8_t *key, size_t keylen,
 	return 0;
 }
 
+#include "binhexbin.h"
 /* Insert the AAD into the sponge state. */
 static void lc_ascon_aad(struct lc_ascon_cryptor *ascon, const uint8_t *aad,
 			 size_t aadlen)
 {
 	const struct lc_hash *hash = ascon->hash;
 	uint64_t *state_mem = ascon->state;
-	static const uint8_t pad_trail = 0x01;
+	/* Rationale for pad byte: see ascon_squeeze_common */
+	static const uint8_t pad_trail = 0x80;
 
 	if (!aadlen)
 		return;
@@ -171,8 +173,9 @@ static void lc_ascon_aad(struct lc_ascon_cryptor *ascon, const uint8_t *aad,
 	lc_sponge(hash, state_mem, ascon->roundb);
 
 	/* Add pad_trail bit */
-	lc_sponge_add_bytes(hash, state_mem, &pad_trail, ascon->statesize - 1,
-			    1);
+	lc_sponge_add_bytes(hash, state_mem, &pad_trail,
+			    ascon->statesize - 1,
+			    sizeof(pad_trail));
 }
 
 /* Handle the finalization phase of the Ascon algorithm. */
