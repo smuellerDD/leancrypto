@@ -38,7 +38,7 @@ static void lc_aead_ascon_aad(struct aead_request *areq)
 	struct lc_ascon_cryptor *ascon = ctx->aead_state;
 	const struct lc_hash *hash = ascon->hash;
 	uint64_t *state_mem = ascon->state;
-	static const uint8_t pad_trail = 0x01;
+	static const uint8_t pad_trail = 0x80;
 	size_t nbytes = areq->assoclen, sponge_offset = 0;
 
 	if (!areq->assoclen)
@@ -75,7 +75,7 @@ static void lc_aead_ascon_aad(struct aead_request *areq)
 
 	/* Add pad_trail bit */
 	lc_sponge_add_bytes(hash, state_mem, &pad_trail, ascon->statesize - 1,
-			    1);
+			    sizeof(pad_trail));
 }
 
 static int lc_aead_ascon_update(struct aead_request *areq,
