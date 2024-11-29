@@ -76,8 +76,8 @@ struct lc_ascon_hash {
 /// \endcond
 
 /**
- * @var lc_ascon_128
- * @brief Ascon 128 message digest algorithm
+ * @var lc_ascon_256
+ * @brief Ascon 256 message digest algorithm
  */
 extern const struct lc_hash *lc_ascon_256;
 

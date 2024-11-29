@@ -37,8 +37,6 @@ extern "C" {
 /**
  * @brief Allocate Ascon Lightweight cryptor context on heap
  *
- * @param [in] hash Hash implementation of type struct hash used for the
- *		    Ascon-Keccak algorithm
  * @param [out] ctx Allocated Ascon lightweight cryptor context
  *
  * @return 0 on success, < 0 on error
@@ -47,8 +45,6 @@ int lc_al_alloc(struct lc_aead_ctx **ctx);
 
 /**
  * @brief Allocate stack memory for the Ascon lightweight cryptor context
- *
- * NOTE: This is defined for lc_ascon_128* as of now.
  *
  * @param [in] name Name of the stack variable
  */
