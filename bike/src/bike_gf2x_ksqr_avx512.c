@@ -52,6 +52,7 @@
 #define MAP_WORDS_IN_ZMM LC_BIKE_WORDS_IN_ZMM
 
 #define map_word_t uint16_t
+#define map_wordi_t int16_t
 #define mmask_t __mmask32
 #define SET1(x) SET1_I16(x)
 #define ADD(x, y) ADD_I16(x, y)
@@ -63,6 +64,7 @@
 #define MAP_WORDS_IN_ZMM LC_BIKE_DWORDS_IN_ZMM
 
 #define map_word_t uint32_t
+#define map_wordi_t int32_t
 #define mmask_t __mmask16
 #define SET1(x) SET1_I32(x)
 #define ADD(x, y) ADD_I32(x, y)
@@ -108,8 +110,8 @@ static inline void generate_map(map_word_t *map, const map_word_t l_param)
 
 	// Set the increment vector such that by adding it to vmap vectors
 	// we will obtain the next NUM_OF_VALS elements of the map.
-	inc = SET1((short)((l_param * NUM_OF_VALS) % LC_BIKE_R_BITS));
-	vr = SET1((short)LC_BIKE_R_BITS);
+	inc = SET1((map_wordi_t)((l_param * NUM_OF_VALS) % LC_BIKE_R_BITS));
+	vr = SET1(LC_BIKE_R_BITS);
 
 	// Load the first NUM_OF_VALS elements in the vmap vectors
 	for (i = 0; i < NUM_ZMMS; i++) {
