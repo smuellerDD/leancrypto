@@ -108,6 +108,8 @@ int lc_x509_cert_parse(struct lc_x509_certificate *cert, const uint8_t *data,
  *
  * @param [out] key_input_data The data structure that is filled with the
  *			       private key.
+ * @param [in] key_type Type of the private key - prevent the deduction of the
+ *			the private key from the key file
  * @param [in] data Raw DER data blob in DER format
  * @param [in] datalen Length of the raw DER buffer
  *
