@@ -73,6 +73,25 @@ int lc_x509_cert_gen(const struct lc_x509_certificate *x509, uint8_t *data,
 
 /**
  * @ingroup X509Gen
+ * @brief Generate a private key DER structure
+ *
+ * The function generates a DER data blob from the private keys
+ *
+ * @param [in] gendata The data structure holding the private keys
+ * @param [in,out] data Raw X.509 data blob in DER / BER format - the caller
+ *			must provide the memory
+ * @param [in,out] avail_datalen Length of the raw DER structure buffer that
+ *				 is free (the input value must be equal to the
+ * 				 \p data buffer size, the output refers to how
+ *				 many bytes are unused)
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_privkey_gen(const struct lc_x509_generate_data *gendata,
+			uint8_t *data, size_t *avail_datalen);
+
+/**
+ * @ingroup X509Gen
  * @brief Set the signer Dilithium key pair for certificate generation
  *
  * The referenced keys are used to perform the signature generation operation

@@ -96,6 +96,29 @@ int lc_x509_cert_parse(struct lc_x509_certificate *cert, const uint8_t *data,
 
 /**
  * @ingroup X509
+ * @brief Parse a private key in DER format
+ *
+ * The function parses a private data buffer into a data structure that allows
+ * immediate use of the parsed key data with the cryptographic primitives.
+ *
+ * \note The \p key_input_data data structure will contain the data of the
+ * secret keys. I.e. the key material is loaded into the databuffer as during
+ * load time, various checks are applied. The caller MUST ensure proper disposal
+ * of the buffer holding sensitive data.
+ *
+ * @param [out] key_input_data The data structure that is filled with the
+ *			       private key.
+ * @param [in] data Raw DER data blob in DER format
+ * @param [in] datalen Length of the raw DER buffer
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_privkey_parse(struct lc_x509_key_input_data *key_input_data,
+			  enum lc_sig_types key_type, const uint8_t *data,
+			  size_t datalen);
+
+/**
+ * @ingroup X509
  * @brief Parse a Composite ML-DSA ASN.1 structure into a public key structure
  *
  * @param [out] dilithium_ed25519_pk Public key to be filled

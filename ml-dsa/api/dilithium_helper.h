@@ -38,6 +38,12 @@ int lc_dilithium_ed25519_pk_load_partial(struct lc_dilithium_ed25519_pk *pk,
 					 const uint8_t *ed25519_src_key,
 					 size_t ed25519_src_key_len);
 
+int lc_dilithium_ed25519_sk_load_partial(struct lc_dilithium_ed25519_sk *sk,
+					 const uint8_t *dilithium_src_key,
+					 size_t dilithium_src_key_len,
+					 const uint8_t *ed25519_src_key,
+					 size_t ed25519_src_key_len);
+
 #ifdef __cplusplus
 }
 #endif

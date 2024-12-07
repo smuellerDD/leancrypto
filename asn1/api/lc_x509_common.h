@@ -22,7 +22,9 @@
 
 #include "ext_headers.h"
 #include "lc_asn1.h"
+#include "lc_dilithium.h"
 #include "lc_hash.h"
+#include "lc_sphincs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -289,6 +291,22 @@ struct lc_x509_certificate {
 		unsupported_sig : 1; /* T if signature uses unsupported crypto */
 	unsigned int blacklisted : 1;
 };
+
+struct lc_x509_key_input_data {
+	struct lc_x509_key_input_data *next;
+	enum lc_sig_types sig_type;
+	union {
+		struct lc_dilithium_pk dilithium_pk;
+		struct lc_dilithium_ed25519_pk dilithium_ed25519_pk;
+		struct lc_sphincs_pk sphincs_pk;
+	} pk;
+	union {
+		struct lc_dilithium_sk dilithium_sk;
+		struct lc_dilithium_ed25519_sk dilithium_ed25519_sk;
+		struct lc_sphincs_sk sphincs_sk;
+	} sk;
+};
+
 /// \endcond
 
 /**

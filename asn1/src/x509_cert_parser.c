@@ -35,6 +35,9 @@
 #include "conv_be_le.h"
 #include "math_helper.h"
 #include "oid_registry.h"
+#include "public_key_dilithium.h"
+#include "public_key_dilithium_ed25519.h"
+#include "public_key_sphincs.h"
 #include "visibility.h"
 #include "x509_cert_parser.h"
 #include "x509_algorithm_mapper.h"
@@ -1176,5 +1179,59 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_parse, struct lc_x509_certificate *x509,
 out:
 	if (ret)
 		lc_x509_cert_clear(x509);
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x509_privkey_parse,
+		      struct lc_x509_key_input_data *key_input_data,
+		      enum lc_sig_types key_type,
+		      const uint8_t *data, size_t datalen)
+{
+	int ret = 0;
+
+	CKNULL(key_input_data, -EINVAL);
+	CKNULL(data, -EINVAL);
+
+	switch (key_type) {
+	case LC_SIG_DILITHIUM_44:
+	case LC_SIG_DILITHIUM_65:
+	case LC_SIG_DILITHIUM_87:
+		CKINT(private_key_decode_dilithium(key_input_data, data,
+						   datalen));
+		break;
+	case LC_SIG_DILITHIUM_44_ED25519:
+	case LC_SIG_DILITHIUM_65_ED25519:
+	case LC_SIG_DILITHIUM_87_ED25519:
+		CKINT(private_key_decode_dilithium_ed25519(key_input_data,
+							   data, datalen));
+		break;
+	case LC_SIG_SPINCS_SHAKE_256S:
+	case LC_SIG_SPINCS_SHAKE_192S:
+	case LC_SIG_SPINCS_SHAKE_128S:
+		CKINT(private_key_decode_sphincs(key_input_data, data,
+						 datalen));
+		CKINT(lc_sphincs_sk_set_keytype_small(
+			&key_input_data->sk.sphincs_sk));
+		break;
+	case LC_SIG_SPINCS_SHAKE_256F:
+	case LC_SIG_SPINCS_SHAKE_192F:
+	case LC_SIG_SPINCS_SHAKE_128F:
+		CKINT(private_key_decode_sphincs(key_input_data, data,
+						 datalen));
+		CKINT(lc_sphincs_sk_set_keytype_fast(
+			&key_input_data->sk.sphincs_sk));
+		break;
+
+	case LC_SIG_DILITHIUM_87_ED448:
+	case LC_SIG_RSA_PKCS1:
+	case LC_SIG_ECDSA_X963:
+	case LC_SIG_SM2:
+	case LC_SIG_ECRDSA_PKCS1:
+	case LC_SIG_UNKNOWN:
+		ret = -EOPNOTSUPP;
+		goto out;
+	}
+
+out:
 	return ret;
 }

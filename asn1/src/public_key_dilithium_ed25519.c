@@ -27,6 +27,7 @@
 #include "public_key_dilithium_ed25519.h"
 #include "ret_checkers.h"
 #include "x509_algorithm_mapper.h"
+#include "x509_composite_mldsa_privkey.asn1.h"
 #include "x509_composite_mldsa_pubkey.asn1.h"
 #include "x509_composite_mldsa_signature.asn1.h"
 
@@ -90,8 +91,8 @@ int x509_ed25519_signature_enc(void *context, uint8_t *data,
 					   &ed25519_ptr, &ed25519_siglen,
 					   dilithium_ed25519_sig));
 
-	CKINT(x509_set_bit_sting(data, avail_datalen, ed25519_ptr,
-				 ed25519_siglen));
+	CKINT(x509_set_bit_string(data, avail_datalen, ed25519_ptr,
+				  ed25519_siglen));
 
 	printf_debug("Set ED25519 signature of size %zu\n", ed25519_siglen);
 
@@ -113,8 +114,8 @@ int x509_mldsa_signature_enc(void *context, uint8_t *data,
 					   &ed25519_ptr, &ed25519_siglen,
 					   dilithium_ed25519_sig));
 
-	CKINT(x509_set_bit_sting(data, avail_datalen, ml_dsa_ptr,
-				 ml_dsa_siglen));
+	CKINT(x509_set_bit_string(data, avail_datalen, ml_dsa_ptr,
+				  ml_dsa_siglen));
 
 	printf_debug("Set ML-DSA signature of size %zu\n", ml_dsa_siglen);
 
@@ -184,8 +185,8 @@ int x509_ed25519_public_key_enc(void *context, uint8_t *data,
 					  &ed25519_ptr, &ed25519_pklen,
 					  gen_data->pk.dilithium_ed25519_pk));
 
-	CKINT(x509_set_bit_sting(data, avail_datalen, ed25519_ptr,
-				 ed25519_pklen));
+	CKINT(x509_set_bit_string(data, avail_datalen, ed25519_ptr,
+				  ed25519_pklen));
 
 	printf_debug("Set ED25519 public key of size %zu\n", ed25519_pklen);
 
@@ -209,8 +210,8 @@ int x509_mldsa_public_key_enc(void *context, uint8_t *data,
 					  &ed25519_ptr, &ed25519_pklen,
 					  gen_data->pk.dilithium_ed25519_pk));
 
-	CKINT(x509_set_bit_sting(data, avail_datalen, ml_dsa_ptr,
-				 ml_dsa_pklen));
+	CKINT(x509_set_bit_string(data, avail_datalen, ml_dsa_ptr,
+				  ml_dsa_pklen));
 
 	printf_debug("Set ML-DSA public key of size %zu\n", ml_dsa_pklen);
 
@@ -225,6 +226,124 @@ int public_key_encode_dilithium_ed25519(uint8_t *data, size_t *avail_datalen,
 
 	CKINT(asn1_ber_encoder(&x509_composite_mldsa_pubkey_encoder, ctx, data,
 			       avail_datalen));
+
+out:
+	return ret;
+}
+
+int x509_mldsa_composite_private_key_enc(void *context, uint8_t *data,
+					 size_t *avail_datalen, uint8_t *tag)
+{
+	struct x509_generate_privkey_context *ctx = context;
+	const struct lc_x509_generate_data *gen_data = ctx->gendata;
+	size_t ml_dsa_pklen, ed25519_pklen;
+	uint8_t *ml_dsa_ptr, *ed25519_ptr;
+	int ret;
+
+	(void)tag;
+
+	CKINT(lc_dilithium_ed25519_sk_ptr(&ml_dsa_ptr, &ml_dsa_pklen,
+					  &ed25519_ptr, &ed25519_pklen,
+					  gen_data->sk.dilithium_ed25519_sk));
+
+	CKINT(x509_set_bit_string(data, avail_datalen, ml_dsa_ptr,
+				  ml_dsa_pklen));
+
+	printf_debug("Set ML-DSA private key of size %zu\n", ml_dsa_pklen);
+
+out:
+	return ret;
+}
+
+int x509_ed25519_private_key_enc(void *context, uint8_t *data,
+				 size_t *avail_datalen, uint8_t *tag)
+{
+	struct x509_generate_privkey_context *ctx = context;
+	const struct lc_x509_generate_data *gen_data = ctx->gendata;
+	size_t ml_dsa_pklen, ed25519_pklen;
+	uint8_t *ml_dsa_ptr, *ed25519_ptr;
+	int ret;
+
+	(void)tag;
+
+	CKINT(lc_dilithium_ed25519_sk_ptr(&ml_dsa_ptr, &ml_dsa_pklen,
+					  &ed25519_ptr, &ed25519_pklen,
+					  gen_data->sk.dilithium_ed25519_sk));
+
+	CKINT(x509_set_bit_string(data, avail_datalen, ed25519_ptr,
+				  ed25519_pklen));
+
+	printf_debug("Set ED25519 public key of size %zu\n", ed25519_pklen);
+
+out:
+	return ret;
+}
+
+int private_key_encode_dilithium_ed25519(uint8_t *data, size_t *avail_datalen,
+					 struct x509_generate_privkey_context *ctx)
+{
+	int ret;
+
+	CKINT(asn1_ber_encoder(&x509_composite_mldsa_privkey_encoder, ctx, data,
+			       avail_datalen));
+
+out:
+	return ret;
+}
+
+int x509_mldsa_composite_private_key(void *context, size_t hdrlen,
+				     unsigned char tag, const uint8_t *value,
+				     size_t vlen)
+{
+	struct lc_x509_key_input_data *key_input_data = context;
+	struct lc_dilithium_ed25519_sk *dilithium_sk =
+		&key_input_data->sk.dilithium_ed25519_sk;
+	int ret;
+
+	(void)hdrlen;
+	(void)tag;
+
+	/*
+	 * Account for the BIT STRING
+	 */
+	if (vlen < 1)
+		return -EBADMSG;
+	CKINT(lc_dilithium_ed25519_sk_load_partial(dilithium_sk, value + 1,
+						   vlen - 1, NULL, 0));
+
+	printf_debug("Loaded ML-DSA secret key of size %zu\n", vlen - 1);
+
+out:
+	return ret;
+}
+
+int x509_ed25519_private_key(void *context, size_t hdrlen, unsigned char tag,
+			     const uint8_t *value, size_t vlen)
+{
+	struct lc_x509_key_input_data *key_input_data = context;
+	struct lc_dilithium_ed25519_sk *dilithium_sk =
+		&key_input_data->sk.dilithium_ed25519_sk;
+	int ret;
+
+	(void)hdrlen;
+	(void)tag;
+
+	CKINT(lc_dilithium_ed25519_sk_load_partial(dilithium_sk, NULL, 0,
+						   value + 1, vlen - 1));
+
+	printf_debug("Loaded ED25519 secret key of size %zu\n", vlen - 1);
+
+out:
+	return ret;
+}
+
+int private_key_decode_dilithium_ed25519(struct lc_x509_key_input_data *key_input_data,
+					 const uint8_t *data, size_t datalen)
+{
+	int ret;
+
+	CKINT(asn1_ber_decoder(&x509_composite_mldsa_privkey_decoder,
+			       key_input_data, data, datalen));
 
 out:
 	return ret;

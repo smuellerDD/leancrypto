@@ -50,6 +50,11 @@ int lc_x509_cert_set_signer(struct lc_x509_certificate *signed_x509,
 	CKINT(lc_x509_cert_get_pubkey(signer_x509, &pk_ptr, &pk_len,
 				      &pkey_type));
 
+	CKINT_LOG(lc_x509_privkey_parse(signer_key_input_data, pkey_type,
+					sk_data, sk_data_len),
+		  "Loading X.509 signer private key from file failed: %d\n",
+		  ret);
+
 	switch (pkey_type) {
 	case LC_SIG_DILITHIUM_44:
 	case LC_SIG_DILITHIUM_65:
@@ -57,16 +62,12 @@ int lc_x509_cert_set_signer(struct lc_x509_certificate *signed_x509,
 		CKINT_LOG(lc_dilithium_pk_load(
 				  &signer_key_input_data->pk.dilithium_pk,
 				  pk_ptr, pk_len),
-			  "Loading X.509 signer public key from certificate\n");
-		CKINT_LOG(lc_dilithium_sk_load(
-				  &signer_key_input_data->sk.dilithium_sk,
-				  sk_data, sk_data_len),
-			  "Loading X.509 signer private key from file\n");
+			  "Loading X.509 signer public key from certificate failed: %d\n", ret);
 		CKINT_LOG(lc_x509_cert_set_signer_keypair_dilithium(
 				  signed_x509,
 				  &signer_key_input_data->pk.dilithium_pk,
 				  &signer_key_input_data->sk.dilithium_sk),
-			  "Setting X.509 key pair for signing\n");
+			  "Setting X.509 key pair for signing failed: %d\n", ret);
 		break;
 
 	case LC_SIG_SPINCS_SHAKE_128F:
@@ -75,15 +76,9 @@ int lc_x509_cert_set_signer(struct lc_x509_certificate *signed_x509,
 		CKINT_LOG(lc_sphincs_pk_load(
 				  &signer_key_input_data->pk.sphincs_pk, pk_ptr,
 				  pk_len),
-			  "Loading X.509 signer public key from certificate\n");
+			  "Loading X.509 signer public key from certificate failed: %d\n", ret);
 		CKINT(lc_sphincs_pk_set_keytype_fast(
 			&signer_key_input_data->pk.sphincs_pk));
-		CKINT_LOG(lc_sphincs_sk_load(
-				  &signer_key_input_data->sk.sphincs_sk,
-				  sk_data, sk_data_len),
-			  "Loading X.509 signer private key from file\n");
-		CKINT(lc_sphincs_sk_set_keytype_fast(
-			&signer_key_input_data->sk.sphincs_sk));
 		goto load_sphincs;
 		break;
 	case LC_SIG_SPINCS_SHAKE_128S:
@@ -92,15 +87,9 @@ int lc_x509_cert_set_signer(struct lc_x509_certificate *signed_x509,
 		CKINT_LOG(lc_sphincs_pk_load(
 				  &signer_key_input_data->pk.sphincs_pk, pk_ptr,
 				  pk_len),
-			  "Loading X.509 signer public key from certificate\n");
+			  "Loading X.509 signer public key from certificate failed: %d\n", ret);
 		CKINT(lc_sphincs_pk_set_keytype_small(
 			&signer_key_input_data->pk.sphincs_pk));
-		CKINT_LOG(lc_sphincs_sk_load(
-				  &signer_key_input_data->sk.sphincs_sk,
-				  sk_data, sk_data_len),
-			  "Loading X.509 signer private key from file\n");
-		CKINT(lc_sphincs_sk_set_keytype_small(
-			&signer_key_input_data->sk.sphincs_sk));
 	load_sphincs:
 		CKINT_LOG(lc_x509_cert_set_signer_keypair_sphincs(
 				  signed_x509,
@@ -116,16 +105,7 @@ int lc_x509_cert_set_signer(struct lc_x509_certificate *signed_x509,
 			lc_x509_cert_load_pk_dilithium_ed25519(
 				&signer_key_input_data->pk.dilithium_ed25519_pk,
 				pk_ptr, pk_len),
-			"Loading X.509 signer public key from certificate\n");
-		CKINT_LOG(
-			lc_dilithium_ed25519_sk_load(
-				&signer_key_input_data->sk.dilithium_ed25519_sk,
-				sk_data,
-				sk_data_len - LC_ED25519_SECRETKEYBYTES,
-				sk_data + sk_data_len -
-					LC_ED25519_SECRETKEYBYTES,
-				LC_ED25519_SECRETKEYBYTES),
-			"Loading X.509 signer private key from file\n");
+			"Loading X.509 signer public key from certificate failed: %d\n", ret);
 		CKINT_LOG(
 			lc_x509_cert_set_signer_keypair_dilithium_ed25519(
 				signed_x509,

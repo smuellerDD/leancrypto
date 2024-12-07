@@ -39,3 +39,21 @@ int public_key_generate_signature_dilithium(
 	(void)available_len;
 	return -ENOPKG;
 }
+
+int private_key_encode_dilithium(uint8_t *data, size_t *avail_datalen,
+				 struct x509_generate_privkey_context *ctx)
+{
+	(void)data;
+	(void)datalen;
+	(void)ctx;
+	return -ENOPKG;
+}
+
+int private_key_decode_dilithium(struct lc_x509_key_input_data *key_input_data,
+				 const uint8_t *data, size_t datalen)
+{
+	(void)key_input_data;
+	(void)data;
+	(void)datalen;
+	return -ENOPKG;
+}

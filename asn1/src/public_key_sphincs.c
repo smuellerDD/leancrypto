@@ -19,6 +19,7 @@
 
 #include "asn1.h"
 #include "asn1_debug.h"
+#include "asn1_encoder.h"
 #include "ext_headers.h"
 #include "lc_dilithium.h"
 #include "lc_hash.h"
@@ -26,6 +27,7 @@
 #include "public_key_sphincs.h"
 #include "ret_checkers.h"
 #include "x509_algorithm_mapper.h"
+#include "x509_slhdsa_privkey.asn1.h"
 
 int public_key_verify_signature_sphincs(
 	const struct lc_public_key *pkey,
@@ -176,5 +178,74 @@ int public_key_generate_signature_sphincs(
 out:
 	lc_sphincs_ctx_zero(ctx);
 	lc_memset_secure(&sphincs_sig, 0, sizeof(sphincs_sig));
+	return ret;
+}
+
+int x509_slhdsa_private_key_enc(void *context, uint8_t *data, size_t *avail_datalen,
+				uint8_t *tag)
+{
+	struct x509_generate_privkey_context *ctx = context;
+	const struct lc_x509_generate_data *gen_data = ctx->gendata;
+	size_t pqc_pklen;
+	uint8_t *pqc_ptr;
+	int ret;
+
+	(void)tag;
+
+	CKINT(lc_sphincs_sk_ptr(&pqc_ptr, &pqc_pklen, gen_data->sk.sphincs_sk));
+
+	CKINT(x509_set_bit_string(data, avail_datalen, pqc_ptr, pqc_pklen));
+
+	printf_debug("Set SLH-DSA private key of size %zu\n", pqc_pklen);
+
+out:
+	return ret;
+}
+
+int private_key_encode_sphincs(uint8_t *data, size_t *avail_datalen,
+			       struct x509_generate_privkey_context *ctx)
+{
+	int ret;
+
+	CKINT(asn1_ber_encoder(&x509_slhdsa_privkey_encoder, ctx, data,
+			       avail_datalen));
+
+out:
+	return ret;
+}
+
+int x509_slhdsa_private_key(void *context, size_t hdrlen,
+			    unsigned char tag, const uint8_t *value,
+			    size_t vlen)
+{
+	struct lc_x509_key_input_data *key_input_data = context;
+	struct lc_sphincs_sk *sphincs_sk = &key_input_data->sk.sphincs_sk;
+	int ret;
+
+	(void)hdrlen;
+	(void)tag;
+
+	/*
+	 * Account for the BIT STRING
+	 */
+	if (vlen < 1)
+		return -EBADMSG;
+	CKINT(lc_sphincs_sk_load(sphincs_sk, value + 1, vlen - 1));
+
+	printf_debug("Loaded SLH-DSA secret key of size %zu\n", vlen - 1);
+
+out:
+	return ret;
+}
+
+int private_key_decode_sphincs(struct lc_x509_key_input_data *key_input_data,
+				 const uint8_t *data, size_t datalen)
+{
+	int ret;
+
+	CKINT(asn1_ber_decoder(&x509_slhdsa_privkey_decoder, key_input_data,
+			       data, datalen));
+
+out:
 	return ret;
 }

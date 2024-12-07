@@ -50,12 +50,15 @@ if x509_common_support == 1
 		'public_key.c',
 
 		'x509.asn1.c',
-		'x509_basic_constraints.asn1.c',
 		'x509_akid.asn1.c',
+		'x509_basic_constraints.asn1.c',
+		'x509_composite_mldsa_privkey.asn1.c',
 		'x509_eku.asn1.c',
 		'x509_keyusage.asn1.c',
+		'x509_mldsa_privkey.asn1.c',
 		'x509_san.asn1.c',
 		'x509_skid.asn1.c',
+		'x509_slhdsa_privkey.asn1.c'
 	])
 
 	if (get_option('sphincs_shake_256s').enabled() or

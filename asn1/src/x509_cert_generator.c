@@ -29,7 +29,9 @@
 #include "lc_x509_generator.h"
 #include "math_helper.h"
 #include "oid_registry.h"
+#include "public_key_dilithium.h"
 #include "public_key_dilithium_ed25519.h"
+#include "public_key_sphincs.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 #include "x509_algorithm_mapper.h"
@@ -44,8 +46,8 @@
 #include "x509_san.asn1.h"
 #include "x509_skid.asn1.h"
 
-int x509_set_bit_sting(uint8_t *dst_data, size_t *dst_avail_datalen,
-		       const uint8_t *src_data, size_t src_datalen)
+int x509_set_bit_string(uint8_t *dst_data, size_t *dst_avail_datalen,
+			const uint8_t *src_data, size_t src_datalen)
 {
 	int ret;
 
@@ -571,6 +573,7 @@ int x509_akid_note_OID_enc(void *context, uint8_t *data, size_t *avail_datalen,
 	(void)tag;
 	return 0;
 }
+
 /******************************************************************************
  * Common extension code base
  ******************************************************************************/
@@ -1255,7 +1258,7 @@ int x509_extract_key_data_enc(void *context, uint8_t *data,
 		return -ENOPKG;
 	}
 
-	CKINT(x509_set_bit_sting(data, avail_datalen, ptr, pklen));
+	CKINT(x509_set_bit_string(data, avail_datalen, ptr, pklen));
 
 	printf_debug("Set public key of size %zu\n", pklen);
 
@@ -1347,5 +1350,53 @@ out:
 	lc_memset_secure(&gctx, 0, sizeof(gctx));
 	lc_memset_secure(&pctx, 0, sizeof(pctx));
 	lc_memset_secure(&parsed_x509, 0, sizeof(parsed_x509));
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x509_privkey_gen,
+		      const struct lc_x509_generate_data *gendata,
+		      uint8_t *data, size_t *avail_datalen)
+{
+	struct x509_generate_privkey_context ctx = { 0 };
+	int ret = 0;
+
+	CKNULL(gendata, -EINVAL);
+	CKNULL(data, -EINVAL);
+
+	ctx.gendata = gendata;
+
+	switch (gendata->sig_type) {
+	case LC_SIG_DILITHIUM_44:
+	case LC_SIG_DILITHIUM_65:
+	case LC_SIG_DILITHIUM_87:
+		CKINT(private_key_encode_dilithium(data, avail_datalen, &ctx));
+		break;
+	case LC_SIG_DILITHIUM_44_ED25519:
+	case LC_SIG_DILITHIUM_65_ED25519:
+	case LC_SIG_DILITHIUM_87_ED25519:
+		CKINT(private_key_encode_dilithium_ed25519(data, avail_datalen,
+							   &ctx));
+		break;
+	case LC_SIG_SPINCS_SHAKE_256S:
+	case LC_SIG_SPINCS_SHAKE_256F:
+	case LC_SIG_SPINCS_SHAKE_192S:
+	case LC_SIG_SPINCS_SHAKE_192F:
+	case LC_SIG_SPINCS_SHAKE_128S:
+	case LC_SIG_SPINCS_SHAKE_128F:
+		CKINT(private_key_encode_sphincs(data, avail_datalen, &ctx));
+		break;
+
+	case LC_SIG_DILITHIUM_87_ED448:
+	case LC_SIG_RSA_PKCS1:
+	case LC_SIG_ECDSA_X963:
+	case LC_SIG_SM2:
+	case LC_SIG_ECRDSA_PKCS1:
+	case LC_SIG_UNKNOWN:
+		ret = -EOPNOTSUPP;
+		goto out;
+	}
+
+out:
+	lc_memset_secure(&ctx, 0, sizeof(ctx));
 	return ret;
 }
