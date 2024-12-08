@@ -234,6 +234,7 @@ struct lc_x509_generate_data {
 		struct lc_dilithium_ed25519_sk *dilithium_ed25519_sk;
 		struct lc_sphincs_sk *sphincs_sk;
 	} sk;
+	uint8_t pk_digest[LC_SHA3_256_SIZE_DIGEST];
 };
 
 struct lc_x509_certificate {

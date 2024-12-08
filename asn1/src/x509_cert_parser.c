@@ -87,7 +87,7 @@ int x509_note_tbs_certificate(void *context, size_t hdrlen, unsigned char tag,
 
 	(void)tag;
 
-	printf_debug("x509_note_tbs_certificate(,%zu,%02x,%ld,%zu)!\n", hdrlen,
+	printf_debug("x509_note_tbs_certificate(%zu,%02x,%ld,%zu)!\n", hdrlen,
 		     tag, value - ctx->data, vlen);
 
 	cert->tbs = value - hdrlen;

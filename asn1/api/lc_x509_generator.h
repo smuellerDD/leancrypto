@@ -320,6 +320,9 @@ int lc_x509_enc_san_ip(struct lc_x509_certificate *cert, char *ip_name,
  * \note The caller must keep the input data available for the lifetime of
  * \p cert.
  *
+ * \note If no SKID is set by the caller, leancrypto generates the SHA3-256
+ * hash of the public key as an SKID.
+ *
  * @param [in] cert Certificate data structure to be filled with the data
  * @param [in] skid Binary representation of SKID
  * @param [in] skidlen length of the SKID buffer

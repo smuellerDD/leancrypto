@@ -459,8 +459,6 @@ static inline int x509_skid_unprocessed(struct x509_generate_context *ctx)
 {
 	const struct lc_x509_certificate *cert = ctx->cert;
 
-	if (!cert->raw_skid_size)
-		return 0;
 	if (ctx->skid_processed)
 		return 0;
 	return 1;
@@ -478,11 +476,24 @@ int x509_skid_enc(void *context, uint8_t *data, size_t *avail_datalen,
 
 	(void)tag;
 
-	CKINT(x509_sufficient_size(avail_datalen, cert->raw_skid_size));
+	if (cert->raw_skid_size) {
+		CKINT(x509_sufficient_size(avail_datalen, cert->raw_skid_size));
 
-	memcpy(data, cert->raw_skid, cert->raw_skid_size);
-	*avail_datalen -= cert->raw_skid_size;
-	bin2print_debug(cert->raw_skid, cert->raw_skid_size, stdout, "SKID");
+		memcpy(data, cert->raw_skid, cert->raw_skid_size);
+		*avail_datalen -= cert->raw_skid_size;
+		bin2print_debug(cert->raw_skid, cert->raw_skid_size, stdout,
+				"SKID");
+	} else {
+		const struct lc_x509_generate_data *gendata =
+			&cert->pub_gen_data;
+
+		CKINT(x509_sufficient_size(avail_datalen,
+					   sizeof(gendata->pk_digest)));
+		memcpy(data, gendata->pk_digest, sizeof(gendata->pk_digest));
+		*avail_datalen -= sizeof(gendata->pk_digest);
+		bin2print_debug(gendata->pk_digest, sizeof(gendata->pk_digest),
+				stdout, "SKID");
+	}
 
 	ctx->skid_processed = 1;
 

@@ -30,6 +30,8 @@ lc_x509_cert_set_dilithium_keypair(struct lc_x509_generate_data *gen_data,
 				   struct lc_dilithium_pk *pk,
 				   struct lc_dilithium_sk *sk)
 {
+	uint8_t *pk_ptr;
+	size_t pk_len;
 	enum lc_dilithium_type dilithium_type;
 
 	int ret = 0;
@@ -56,6 +58,9 @@ lc_x509_cert_set_dilithium_keypair(struct lc_x509_generate_data *gen_data,
 
 	gen_data->pk.dilithium_pk = pk;
 	gen_data->sk.dilithium_sk = sk;
+
+	CKINT(lc_dilithium_pk_ptr(&pk_ptr, &pk_len, pk));
+	lc_hash(lc_sha3_256, pk_ptr, pk_len, gen_data->pk_digest);
 
 out:
 	return ret;
@@ -99,6 +104,8 @@ lc_x509_cert_set_sphincs_keypair(struct lc_x509_generate_data *gen_data,
 				 struct lc_sphincs_pk *pk,
 				 struct lc_sphincs_sk *sk)
 {
+	uint8_t *pk_ptr;
+	size_t pk_len;
 	enum lc_sphincs_type sphincs_type;
 
 	int ret = 0;
@@ -134,6 +141,9 @@ lc_x509_cert_set_sphincs_keypair(struct lc_x509_generate_data *gen_data,
 
 	gen_data->pk.sphincs_pk = pk;
 	gen_data->sk.sphincs_sk = sk;
+
+	CKINT(lc_sphincs_pk_ptr(&pk_ptr, &pk_len, pk));
+	lc_hash(lc_sha3_256, pk_ptr, pk_len, gen_data->pk_digest);
 
 out:
 	return ret;
@@ -175,9 +185,11 @@ static int lc_x509_cert_set_dilithium_ed25519_keypair(
 	struct lc_x509_generate_data *gen_data,
 	struct lc_dilithium_ed25519_pk *pk, struct lc_dilithium_ed25519_sk *sk)
 {
+	uint8_t *dilithium_pk_ptr, *ed25519_pk_ptr;
+	size_t dilithium_pk_len, ed25519_pk_len;
 	enum lc_dilithium_type dilithium_ed25519_type;
-
 	int ret = 0;
+	LC_HASH_CTX_ON_STACK(hash_ctx, lc_sha3_256);
 
 	CKNULL(gen_data, -EINVAL);
 	CKNULL(pk, -EINVAL);
@@ -201,6 +213,16 @@ static int lc_x509_cert_set_dilithium_ed25519_keypair(
 
 	gen_data->pk.dilithium_ed25519_pk = pk;
 	gen_data->sk.dilithium_ed25519_sk = sk;
+
+	CKINT(lc_dilithium_ed25519_pk_ptr(&dilithium_pk_ptr, &dilithium_pk_len,
+					  &ed25519_pk_ptr, &ed25519_pk_len,
+					  pk));
+
+	lc_hash_init(hash_ctx);
+	lc_hash_update(hash_ctx, dilithium_pk_ptr, dilithium_pk_len);
+	lc_hash_update(hash_ctx, ed25519_pk_ptr, ed25519_pk_len);
+	lc_hash_final(hash_ctx, gen_data->pk_digest);
+	lc_hash_zero(hash_ctx);
 
 out:
 	return ret;
