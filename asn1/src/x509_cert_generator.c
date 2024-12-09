@@ -457,8 +457,6 @@ out:
 
 static inline int x509_skid_unprocessed(struct x509_generate_context *ctx)
 {
-	const struct lc_x509_certificate *cert = ctx->cert;
-
 	if (ctx->skid_processed)
 		return 0;
 	return 1;

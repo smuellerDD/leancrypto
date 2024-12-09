@@ -155,7 +155,10 @@ static int x509_gen_cert_extensions(struct x509_checker_options *opts)
 		}
 	}
 
-	if (pcert.raw_skid_size != gcert->raw_skid_size) {
+	if (gcert->raw_skid_size == 0 &&
+	    pcert.raw_skid_size == LC_SHA3_256_SIZE_DIGEST) {
+		printf("New SKID created\n");
+	} else if (pcert.raw_skid_size != gcert->raw_skid_size) {
 		printf("SKID name length mismatch (original %zu, received %zu)\n",
 		       gcert->raw_skid_size, pcert.raw_skid_size);
 		ret = -EINVAL;
