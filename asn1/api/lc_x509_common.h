@@ -33,6 +33,13 @@ extern "C" {
 /// \cond DO_NOT_DOCUMENT
 
 /*
+ * Default hash type used to generate the SKID / AKID from the public key.
+ * The algorithm is only used if the caller does not set an SKID/AKID.
+ */
+#define LC_X509_SKID_DEFAULT_HASH lc_sha3_256
+#define LC_X509_SKID_DEFAULT_HASHSIZE LC_SHA3_256_SIZE_DIGEST
+
+/*
  * Identifiers for an asymmetric key ID.  We have three ways of looking up a
  * key derived from an X.509 certificate:
  *
@@ -234,7 +241,7 @@ struct lc_x509_generate_data {
 		struct lc_dilithium_ed25519_sk *dilithium_ed25519_sk;
 		struct lc_sphincs_sk *sphincs_sk;
 	} sk;
-	uint8_t pk_digest[LC_SHA3_256_SIZE_DIGEST];
+	uint8_t pk_digest[LC_X509_SKID_DEFAULT_HASHSIZE];
 };
 
 struct lc_x509_certificate {

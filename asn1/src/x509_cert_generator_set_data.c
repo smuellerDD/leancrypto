@@ -23,6 +23,7 @@
 #include "ret_checkers.h"
 #include "visibility.h"
 #include "lc_x509_generator.h"
+#include "x509_cert_generator.h"
 #include "x509_cert_parser.h"
 
 static int
@@ -60,7 +61,7 @@ lc_x509_cert_set_dilithium_keypair(struct lc_x509_generate_data *gen_data,
 	gen_data->sk.dilithium_sk = sk;
 
 	CKINT(lc_dilithium_pk_ptr(&pk_ptr, &pk_len, pk));
-	lc_hash(lc_sha3_256, pk_ptr, pk_len, gen_data->pk_digest);
+	lc_hash(LC_X509_SKID_DEFAULT_HASH, pk_ptr, pk_len, gen_data->pk_digest);
 
 out:
 	return ret;
@@ -143,7 +144,7 @@ lc_x509_cert_set_sphincs_keypair(struct lc_x509_generate_data *gen_data,
 	gen_data->sk.sphincs_sk = sk;
 
 	CKINT(lc_sphincs_pk_ptr(&pk_ptr, &pk_len, pk));
-	lc_hash(lc_sha3_256, pk_ptr, pk_len, gen_data->pk_digest);
+	lc_hash(LC_X509_SKID_DEFAULT_HASH, pk_ptr, pk_len, gen_data->pk_digest);
 
 out:
 	return ret;
@@ -189,7 +190,7 @@ static int lc_x509_cert_set_dilithium_ed25519_keypair(
 	size_t dilithium_pk_len, ed25519_pk_len;
 	enum lc_dilithium_type dilithium_ed25519_type;
 	int ret = 0;
-	LC_HASH_CTX_ON_STACK(hash_ctx, lc_sha3_256);
+	LC_HASH_CTX_ON_STACK(hash_ctx, LC_X509_SKID_DEFAULT_HASH);
 
 	CKNULL(gen_data, -EINVAL);
 	CKNULL(pk, -EINVAL);
@@ -378,6 +379,22 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_ca,
 	pub = &cert->pub;
 	pub->ca_pathlen = LC_KEY_CA_CRITICAL | LC_KEY_CA_MAXLEN;
 
+	/* Set AKID by pointing to the SKID */
+	if (!cert->raw_akid) {
+		if (cert->raw_skid) {
+			/* If SKID was already set, point to it */
+			CKINT(lc_x509_cert_set_akid(cert, cert->raw_skid,
+						    cert->raw_skid_size));
+		} else {
+			/* Otherwise point to the default SKID */
+			const struct lc_x509_generate_data *gendata =
+				&cert->pub_gen_data;
+
+			CKINT(lc_x509_cert_set_akid(cert, gendata->pk_digest,
+						    sizeof(gendata->pk_digest)));
+		}
+	}
+
 out:
 	return ret;
 }
@@ -459,6 +476,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_skid,
 		      struct lc_x509_certificate *cert, const uint8_t *skid,
 		      size_t skidlen)
 {
+	const struct lc_x509_generate_data *gendata = &cert->pub_gen_data;
 	int ret = 0;
 
 	CKNULL(cert, -EINVAL);
@@ -466,6 +484,16 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_skid,
 
 	cert->raw_skid = skid;
 	cert->raw_skid_size = skidlen;
+
+	/*
+	 * In case AKID was set to the default SKID, then we implicitly have a
+	 * CA certificate. Thus, if a separate SKID was set, change it to the
+	 * newly set SKID.
+	 */
+	if (cert->raw_akid == gendata->pk_digest) {
+		CKINT(lc_x509_cert_set_akid(cert, cert->raw_skid,
+					    cert->raw_skid_size));
+	}
 
 out:
 	return ret;
