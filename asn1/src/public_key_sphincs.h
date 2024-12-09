@@ -31,7 +31,7 @@ extern "C" {
 int private_key_encode_sphincs(uint8_t *data, size_t *avail_datalen,
 			       struct x509_generate_privkey_context *ctx);
 int private_key_decode_sphincs(struct lc_x509_key_input_data *key_input_data,
-				 const uint8_t *data, size_t datalen);
+			       const uint8_t *data, size_t datalen);
 
 int public_key_verify_signature_sphincs(
 	const struct lc_public_key *pkey,

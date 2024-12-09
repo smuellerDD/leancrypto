@@ -339,6 +339,11 @@ int lc_x509_cert_set_skid(struct lc_x509_certificate *cert, const uint8_t *skid,
  * \note The caller must keep the input data available for the lifetime of
  * \p cert.
  *
+ * \note If the certificate to be generated is marked as a CA certificate and
+ * no AKID is set, the AKID is set to be identical to the SKID.
+ *
+ * \note If a signer of a certificate is set, its SKID is used as AKID.
+ *
  * @param [in] cert Certificate data structure to be filled with the data
  * @param [in] akid Binary representation of AKID
  * @param [in] akidlen length of the AKID buffer

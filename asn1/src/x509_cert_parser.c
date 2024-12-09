@@ -1184,8 +1184,8 @@ out:
 
 LC_INTERFACE_FUNCTION(int, lc_x509_privkey_parse,
 		      struct lc_x509_key_input_data *key_input_data,
-		      enum lc_sig_types key_type,
-		      const uint8_t *data, size_t datalen)
+		      enum lc_sig_types key_type, const uint8_t *data,
+		      size_t datalen)
 {
 	int ret = 0;
 
@@ -1202,8 +1202,8 @@ LC_INTERFACE_FUNCTION(int, lc_x509_privkey_parse,
 	case LC_SIG_DILITHIUM_44_ED25519:
 	case LC_SIG_DILITHIUM_65_ED25519:
 	case LC_SIG_DILITHIUM_87_ED25519:
-		CKINT(private_key_decode_dilithium_ed25519(key_input_data,
-							   data, datalen));
+		CKINT(private_key_decode_dilithium_ed25519(key_input_data, data,
+							   datalen));
 		break;
 	case LC_SIG_SPINCS_SHAKE_256S:
 	case LC_SIG_SPINCS_SHAKE_192S:

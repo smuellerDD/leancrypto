@@ -22,8 +22,8 @@
 #include "lc_ascon_lightweight.h"
 #include "visibility.h"
 
-static int ascon_tester_one(const uint8_t *pt,
-			    size_t ptlen, const uint8_t *nonce, size_t noncelen,
+static int ascon_tester_one(const uint8_t *pt, size_t ptlen,
+			    const uint8_t *nonce, size_t noncelen,
 			    const uint8_t *aad, size_t aadlen,
 			    const uint8_t *key, size_t keylen,
 			    const uint8_t *exp_ct, const uint8_t *exp_tag,
@@ -132,8 +132,7 @@ static int ascon_tester_128(void)
 					   0xB4, 0x16, 0x03, 0x97 };
 
 	printf("Ascon lightweight 128 crypt ctx len %u, state len %u\n",
-	       (unsigned int)LC_AL_CTX_SIZE,
-	       (unsigned int)LC_AL_STATE_SIZE);
+	       (unsigned int)LC_AL_CTX_SIZE, (unsigned int)LC_AL_STATE_SIZE);
 	return ascon_tester_one(pt, sizeof(pt), nonce, sizeof(nonce), aad,
 				sizeof(aad), key, sizeof(key), exp_ct, exp_tag,
 				sizeof(exp_tag));

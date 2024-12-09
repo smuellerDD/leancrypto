@@ -29,7 +29,7 @@ extern "C" {
 
 /// \cond DO_NOT_DOCUMENT
 #define LC_AL_STATE_SIZE (LC_ASCON_HASH_STATE_SIZE + LC_ASCON_ALIGNMENT)
-#define LC_AL_CTX_SIZE                                                      \
+#define LC_AL_CTX_SIZE                                                         \
 	(sizeof(struct lc_aead) + sizeof(struct lc_ascon_cryptor) +            \
 	 LC_AL_STATE_SIZE)
 /// \endcond
@@ -48,15 +48,14 @@ int lc_al_alloc(struct lc_aead_ctx **ctx);
  *
  * @param [in] name Name of the stack variable
  */
-#define LC_AL_CTX_ON_STACK(name)                                              \
+#define LC_AL_CTX_ON_STACK(name)                                                    \
 	_Pragma("GCC diagnostic push")                                              \
 		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
 			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
-			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
-					  LC_AL_CTX_SIZE,                     \
+			LC_ALIGNED_BUFFER(name##_ctx_buf, LC_AL_CTX_SIZE,           \
 					  LC_ASCON_ALIGNMENT);                      \
 	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;            \
-	LC_ASCON_SET_CTX(name, lc_ascon_128a);                                               \
+	LC_ASCON_SET_CTX(name, lc_ascon_128a);                                      \
 	struct lc_ascon_cryptor *__name_ascon_crypto = name->aead_state;            \
 	__name_ascon_crypto->statesize = LC_ASCON_HASH_STATE_SIZE;                  \
 	__name_ascon_crypto->taglen = 16;                                           \

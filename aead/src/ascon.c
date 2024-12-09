@@ -172,8 +172,7 @@ static void lc_ascon_aad(struct lc_ascon_cryptor *ascon, const uint8_t *aad,
 	lc_sponge(hash, state_mem, ascon->roundb);
 
 	/* Add pad_trail bit */
-	lc_sponge_add_bytes(hash, state_mem, &pad_trail,
-			    ascon->statesize - 1,
+	lc_sponge_add_bytes(hash, state_mem, &pad_trail, ascon->statesize - 1,
 			    sizeof(pad_trail));
 }
 

@@ -60,8 +60,8 @@ static void ak_tester_dec(struct lc_aead_ctx *ak, const uint8_t *ct,
 		ptlen -= todo;
 	}
 }
-static int ascon_tester_one(const uint8_t *pt,
-			    size_t ptlen, const uint8_t *nonce, size_t noncelen,
+static int ascon_tester_one(const uint8_t *pt, size_t ptlen,
+			    const uint8_t *nonce, size_t noncelen,
 			    const uint8_t *aad, size_t aadlen,
 			    const uint8_t *key, size_t keylen,
 			    const uint8_t *exp_ct, const uint8_t *exp_tag,

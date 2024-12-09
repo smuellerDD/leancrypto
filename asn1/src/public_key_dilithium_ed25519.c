@@ -279,8 +279,9 @@ out:
 	return ret;
 }
 
-int private_key_encode_dilithium_ed25519(uint8_t *data, size_t *avail_datalen,
-					 struct x509_generate_privkey_context *ctx)
+int private_key_encode_dilithium_ed25519(
+	uint8_t *data, size_t *avail_datalen,
+	struct x509_generate_privkey_context *ctx)
 {
 	int ret;
 
@@ -337,8 +338,9 @@ out:
 	return ret;
 }
 
-int private_key_decode_dilithium_ed25519(struct lc_x509_key_input_data *key_input_data,
-					 const uint8_t *data, size_t datalen)
+int private_key_decode_dilithium_ed25519(
+	struct lc_x509_key_input_data *key_input_data, const uint8_t *data,
+	size_t datalen)
 {
 	int ret;
 

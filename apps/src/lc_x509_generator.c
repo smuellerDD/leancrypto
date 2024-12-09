@@ -664,7 +664,8 @@ static int x509_enc_set_pubkey(struct x509_generator_opts *opts)
 		if (!opts->noout) {
 			struct lc_x509_generate_data gendata = {
 				.sig_type = key_input_data->sig_type,
-				.sk.dilithium_sk = &key_input_data->sk.dilithium_sk,
+				.sk.dilithium_sk =
+					&key_input_data->sk.dilithium_sk,
 			};
 
 			CKINT_LOG(lc_x509_privkey_gen(&gendata, der_sk,
@@ -685,10 +686,9 @@ static int x509_enc_set_pubkey(struct x509_generator_opts *opts)
 			CKINT_LOG(get_data(opts->sk_file, &opts->sk_data,
 					   &opts->sk_len),
 				  "SK mmap failure\n");
-			CKINT(lc_x509_privkey_parse(key_input_data,
-						    opts->in_key_type,
-						    opts->sk_data,
-						    opts->sk_len));
+			CKINT(lc_x509_privkey_parse(
+				key_input_data, opts->in_key_type,
+				opts->sk_data, opts->sk_len));
 
 			/* TODO pubkey_parse */
 		}
@@ -816,11 +816,13 @@ static void x509_generator_usage(void)
 	fprintf(stderr, "\n\tOptions for X.509 cryptographic aspects:\n");
 	fprintf(stderr,
 		"\t   --sk-file <FILE>\t\tFile with secret key used for signature\n");
-	fprintf(stderr, "\t\t\t\t\t\tInput when key is available (MUST be DER),\n");
+	fprintf(stderr,
+		"\t\t\t\t\t\tInput when key is available (MUST be DER),\n");
 	fprintf(stderr, "\t\t\t\t\t\toutput with --create-keypair\n");
 	fprintf(stderr,
 		"\t   --pk-file <FILE>\t\tFile with public key used for signature\n");
-	fprintf(stderr, "\t\t\t\t\t\tInput when key is available (MUST be plain),\n");
+	fprintf(stderr,
+		"\t\t\t\t\t\tInput when key is available (MUST be plain),\n");
 	fprintf(stderr, "\t\t\t\t\t\toutput with --create-keypair\n");
 	fprintf(stderr,
 		"\t   --key-type <TYPE>\t\tInput keys are of given type\n");

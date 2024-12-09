@@ -167,8 +167,8 @@ out:
 	return ret;
 }
 
-int x509_mldsa_private_key_enc(void *context, uint8_t *data, size_t *avail_datalen,
-			       uint8_t *tag)
+int x509_mldsa_private_key_enc(void *context, uint8_t *data,
+			       size_t *avail_datalen, uint8_t *tag)
 {
 	struct x509_generate_privkey_context *ctx = context;
 	const struct lc_x509_generate_data *gen_data = ctx->gendata;
@@ -201,9 +201,8 @@ out:
 	return ret;
 }
 
-int x509_mldsa_private_key(void *context, size_t hdrlen,
-			   unsigned char tag, const uint8_t *value,
-			   size_t vlen)
+int x509_mldsa_private_key(void *context, size_t hdrlen, unsigned char tag,
+			   const uint8_t *value, size_t vlen)
 {
 	struct lc_x509_key_input_data *key_input_data = context;
 	struct lc_dilithium_sk *dilithium_sk = &key_input_data->sk.dilithium_sk;
