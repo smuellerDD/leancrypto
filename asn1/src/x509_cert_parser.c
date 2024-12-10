@@ -166,18 +166,15 @@ int x509_note_signature(void *context, size_t hdrlen, unsigned char tag,
 	case LC_SIG_SPINCS_SHAKE_192S:
 	case LC_SIG_SPINCS_SHAKE_256F:
 	case LC_SIG_SPINCS_SHAKE_256S:
+	case LC_SIG_DILITHIUM_44_ED25519:
+	case LC_SIG_DILITHIUM_65_ED25519:
+	case LC_SIG_DILITHIUM_87_ED25519:
 		/* Discard the BIT STRING metadata */
 		if (vlen < 1 || *(const uint8_t *)value != 0)
 			return -EBADMSG;
 
 		value++;
 		vlen--;
-		break;
-
-	case LC_SIG_DILITHIUM_44_ED25519:
-	case LC_SIG_DILITHIUM_65_ED25519:
-	case LC_SIG_DILITHIUM_87_ED25519:
-		/* No BIT STRING */
 		break;
 
 	case LC_SIG_UNKNOWN:

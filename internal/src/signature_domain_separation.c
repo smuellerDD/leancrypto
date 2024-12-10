@@ -51,6 +51,27 @@ static const uint8_t shake128_oid_der[] = { 0x06, 0x09, 0x60, 0x86, 0x48, 0x01,
 static const uint8_t shake256_oid_der[] = { 0x06, 0x09, 0x60, 0x86, 0x48, 0x01,
 					    0x65, 0x03, 0x04, 0x02, 0x0C };
 
+
+/* OIDs from https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-03.html */
+/* id-HashMLDSA44-Ed25519-SHA512 */
+static const uint8_t mldsa44_ed25519_sha512_oid_der[] __maybe_unused = {
+	0x06, 0x0B, 0x60, 0x86, 0x48, 0x01, 0x86, 0xFA, 0x6B, 0x50, 0x08, 0x01,
+	0x17
+};
+
+/* id-HashMLDSA65-Ed25519-SHA512 */
+static const uint8_t mldsa65_ed25519_sha512_oid_der[] __maybe_unused = {
+	0x06, 0x0B, 0x60, 0x86, 0x48, 0x01, 0x86, 0xFA, 0x6B, 0x50, 0x08, 0x01,
+	0x1E
+};
+
+/* id-HashMLDSA87-Ed448-SHA512 */
+static const uint8_t mldsa87_ed448_sha512_oid_der[] __maybe_unused = {
+	0x06, 0x0B, 0x60, 0x86, 0x48, 0x01, 0x86, 0xFA, 0x6B, 0x50, 0x08, 0x01,
+	0x21
+};
+
+
 int signature_ph_oids(struct lc_hash_ctx *hash_ctx,
 		      const struct lc_hash *signature_prehash_type, size_t mlen,
 		      unsigned int nist_category)
@@ -151,36 +172,45 @@ int signature_ph_oids(struct lc_hash_ctx *hash_ctx,
 	return -EOPNOTSUPP;
 }
 
+static int composite_signature_set_domain(struct lc_hash_ctx *hash_ctx,
+					  unsigned int nist_category)
+{
+	/* Set Domain */
+	switch (nist_category) {
+	case 1:
+		lc_hash_update(hash_ctx, mldsa44_ed25519_sha512_oid_der,
+			       sizeof(mldsa44_ed25519_sha512_oid_der));
+		break;
+	case 3:
+		lc_hash_update(hash_ctx, mldsa65_ed25519_sha512_oid_der,
+			       sizeof(mldsa65_ed25519_sha512_oid_der));
+		break;
+	case 5:
+		/* See above for the rationale */
+		lc_hash_update(hash_ctx, mldsa87_ed448_sha512_oid_der,
+			       sizeof(mldsa87_ed448_sha512_oid_der));
+		break;
+	default:
+		return -EOPNOTSUPP;
+	}
+
+	return 0;
+}
+
 int composite_signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 					  const uint8_t *userctx,
 					  size_t userctxlen,
 					  unsigned int nist_category)
 {
+	int ret;
+
 	if (userctxlen > 255)
 		return -EINVAL;
 
 	/*
 	 * Create M'
 	 */
-
-	/* Set Domain */
-	switch (nist_category) {
-	case 1:
-		lc_hash_update(hash_ctx, hashmldsa44_ed25519_sha512_oid_der,
-			       sizeof(hashmldsa44_ed25519_sha512_oid_der));
-		break;
-	case 3:
-		lc_hash_update(hash_ctx, hashmldsa65_ed25519_sha512_oid_der,
-			       sizeof(hashmldsa65_ed25519_sha512_oid_der));
-		break;
-	case 5:
-		/* See above for the rationale */
-		lc_hash_update(hash_ctx, hashmldsa87_ed448_sha512_oid_der,
-			       sizeof(hashmldsa87_ed448_sha512_oid_der));
-		break;
-	default:
-		return -EOPNOTSUPP;
-	}
+	CKINT(composite_signature_set_domain(hash_ctx, nist_category));
 
 	/* Set len(ctx) */
 	lc_hash_update(hash_ctx, (uint8_t *)&userctxlen, 1);
@@ -188,7 +218,8 @@ int composite_signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 	/* Set ctx */
 	lc_hash_update(hash_ctx, userctx, userctxlen);
 
-	return 0;
+out:
+	return ret;
 }
 
 int signature_domain_separation(struct lc_hash_ctx *hash_ctx,
@@ -210,21 +241,35 @@ int signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 		return -EINVAL;
 
 	domainseparation[0] = signature_prehash_type ? 1 : 0;
-	domainseparation[1] = (uint8_t)userctxlen;
 
-	lc_hash_update(hash_ctx, domainseparation, sizeof(domainseparation));
-	lc_hash_update(hash_ctx, userctx, userctxlen);
+	/* If Composite ML-DSA is requested, use domain as userctx */
+	if (composte_signature) {
+		/* All domains have the same length */
+		domainseparation[1] =
+			(uint8_t)sizeof(mldsa44_ed25519_sha512_oid_der);
+
+		lc_hash_update(hash_ctx, domainseparation,
+			       sizeof(domainseparation));
+		CKINT(composite_signature_set_domain(hash_ctx, nist_category));
+
+	} else {
+		domainseparation[1] = (uint8_t)userctxlen;
+
+		lc_hash_update(hash_ctx, domainseparation,
+			       sizeof(domainseparation));
+		lc_hash_update(hash_ctx, userctx, userctxlen);
+	}
 
 	CKINT(signature_ph_oids(hash_ctx, signature_prehash_type, mlen,
 				nist_category));
 
-out:
 	/* If Composite ML-DSA is requested, apply domain separation */
 	if (composte_signature) {
 		ret = composite_signature_domain_separation(
 			hash_ctx, userctx, userctxlen, nist_category);
 	}
 
+out:
 	lc_hash_update(hash_ctx, m, mlen);
 	return ret;
 }

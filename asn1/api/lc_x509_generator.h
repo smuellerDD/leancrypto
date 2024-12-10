@@ -212,7 +212,7 @@ int lc_x509_cert_set_pubkey_sphincs(struct lc_x509_certificate *x509,
  * flags.
  *
  * @param [in] cert Certificate data structure to be filled with the data
- * @param [in] name Human readable string (any wrong string will craete the
+ * @param [in] name Human readable string (any wrong string will create the
  *		    list of allowed strings on stdout)
  *
  * @return 0 on success or < 0 on error

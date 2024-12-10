@@ -409,7 +409,6 @@ int public_key_verify_signature_dilithium_ed25519(
 		CKINT(lc_dilithium_ed25519_verify_ctx(
 			&dilithium_sig, ctx, sig->digest, sig->digest_size,
 			&dilithium_pk));
-
 #endif
 	} else {
 		CKNULL(sig->raw_data, -EOPNOTSUPP);
@@ -530,6 +529,25 @@ out:
 int public_key_signature_size_dilithium_ed25519(
 	enum lc_dilithium_type dilithium_type, size_t *size)
 {
+	switch (dilithium_type) {
+	case LC_DILITHIUM_87:
+		*size = 4703;
+		break;
+	case LC_DILITHIUM_65:
+		*size = 3385;
+		break;
+	case LC_DILITHIUM_44:
+		*size = 2496;
+		break;
+	case LC_DILITHIUM_UNKNOWN:
+	default:
+		return -ENOPKG;
+	}
+
+	return 0;
+
+	/* The values above are generated with the following code */
+#if 0
 	size_t siglen, enc_len = 0;
 	int ret;
 
@@ -552,9 +570,12 @@ int public_key_signature_size_dilithium_ed25519(
 	/* Encoding of the sequence */
 	CKINT(asn1_encode_length_size(siglen, &enc_len));
 	siglen += enc_len;
+	/* Tag */
+	siglen += 1;
 
 	*size = siglen;
 
 out:
 	return ret;
+#endif
 }

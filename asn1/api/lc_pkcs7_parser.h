@@ -25,9 +25,9 @@
 #include "lc_pkcs7_common.h"
 #include "lc_x509_parser.h"
 
-/** @defgroup PKCS7 PKCS#7 Message Handling
+/** @defgroup PKCS7 PKCS#7 Message Parsing
  *
- * Concept of PKCS#7 certificate handling in leancrypto
+ * Concept of PKCS#7 parsing in leancrypto
  *
  * The leancrypto library provides a PKCS#7 parser which can read and understand
  * PKCS#7 messages. To appropriately use the PKCS#7 parser, please consider
