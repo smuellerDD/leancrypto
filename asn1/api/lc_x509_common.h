@@ -35,6 +35,9 @@ extern "C" {
 /*
  * Default hash type used to generate the SKID / AKID from the public key.
  * The algorithm is only used if the caller does not set an SKID/AKID.
+ *
+ * NOTE: X.509 support requires asymmetric algorithms. All asymmetric algorithms
+ * require the presence of SHA-3 which means the use of SHA-3 is a safe choice.
  */
 #define LC_X509_SKID_DEFAULT_HASH lc_sha3_256
 #define LC_X509_SKID_DEFAULT_HASHSIZE LC_SHA3_256_SIZE_DIGEST
