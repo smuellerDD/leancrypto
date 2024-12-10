@@ -238,7 +238,7 @@ seventhsense_test() {
 leancrypto_test() {
 	local subdir="artifacts_certs_r4"
 	local slh_dsa_files="$subdir/SLH-DSA-SHAKE-128F-2.16.840.1.101.3.4.3.27_ta.der $subdir/SLH-DSA-SHAKE-128S-2.16.840.1.101.3.4.3.26_ta.der $subdir/SLH-DSA-SHAKE-192F-2.16.840.1.101.3.4.3.29_ta.der $subdir/SLH-DSA-SHAKE-192S-2.16.840.1.101.3.4.3.28_ta.der $subdir/SLH-DSA-SHAKE-256F-2.16.840.1.101.3.4.3.31_ta.der $subdir/SLH-DSA-SHAKE-256S-2.16.840.1.101.3.4.3.30_ta.der"
-	local composite_ml_dsa_files="$subdir/id-MLDSA44-ED25519-2.16.840.1.114027.80.8.1.23_ta.der $subdir/id-MLDSA65-ED25519-2.16.840.1.114027.80.8.1.30_ta.der"
+	local composite_ml_dsa_files="$subdir/ML-DSA44-ED25519-SHA512-2.16.840.1.114027.80.8.1.23_ta.der $subdir/ML-DSA65-ED25519-SHA512-2.16.840.1.114027.80.8.1.30_ta.der"
 	local ml_dsa_files="$subdir/ML-DSA44-2.16.840.1.101.3.4.3.17_ta.der $subdir/ML-DSA65-2.16.840.1.101.3.4.3.18_ta.der $subdir/ML-DSA87-2.16.840.1.101.3.4.3.19_ta.der"
 
 	local files="$slh_dsa_files $composite_ml_dsa_files $ml_dsa_files"
