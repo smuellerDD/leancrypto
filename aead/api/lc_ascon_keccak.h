@@ -37,7 +37,9 @@ extern "C" {
 /**
  * @brief Allocate Ascon Keccak cryptor context on heap
  *
- * NOTE: This is defined for lc_sha3_512 and lc_sha3_256.
+ * This allocation ensures the tag length to be 128 bits.
+ *
+ * \note This is defined for lc_sha3_512 and lc_sha3_256.
  *
  * @param [in] hash Hash implementation of type struct hash used for the
  *		    Ascon-Keccak algorithm
@@ -50,7 +52,9 @@ int lc_ak_alloc(const struct lc_hash *hash, struct lc_aead_ctx **ctx);
 /**
  * @brief Allocate Ascon Keccak cryptor context on heap
  *
- * NOTE: This is defined for lc_sha3_512 and lc_sha3_256.
+ * This allocation ensures the tag length requested by the caller.
+ *
+ * \note This is defined for lc_sha3_512 and lc_sha3_256.
  *
  * @param [in] hash Hash implementation of type struct hash used for the
  *		    Ascon-Keccak algorithm
@@ -66,7 +70,7 @@ int lc_ak_alloc_taglen(const struct lc_hash *hash, uint8_t taglen,
  * @brief Allocate stack memory for the Ascon-Keccak cryptor context using
  *        a 128 bit tag
  *
- * NOTE: This is defined for lc_sha3_512 and lc_sha3_256.
+ * \note This is defined for lc_sha3_512 and lc_sha3_256.
  *
  * @param [in] name Name of the stack variable
  * @param [in] hash Hash implementation of type struct hash used for the
@@ -90,7 +94,7 @@ int lc_ak_alloc_taglen(const struct lc_hash *hash, uint8_t taglen,
  * @brief Allocate stack memory for the Ascon-Keccak cryptor context using
  *        a configured taglen
  *
- * NOTE: This is defined for lc_sha3_512 and lc_sha3_256.
+ * \note This is defined for lc_sha3_512 and lc_sha3_256.
  *
  * @param [in] name Name of the stack variable
  * @param [in] hash Hash implementation of type struct hash used for the
