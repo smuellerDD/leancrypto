@@ -747,7 +747,7 @@ int pkcs7_extract_attribute_name_segment_enc(void *context, uint8_t *data,
 	const struct lc_x509_certificate_name *name = &x509->subject_segments;
 	uint8_t *processed = &ctx->subject_attrib_processed;
 
-	(void)tag;
+	*tag = ASN1_UTF8STR;
 
 	if (x509->raw_skid)
 		return 0;

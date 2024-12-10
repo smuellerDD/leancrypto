@@ -345,7 +345,7 @@ int x509_extract_name_segment_enc(void *context, uint8_t *data,
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
 
-	(void)tag;
+	*tag = ASN1_UTF8STR;
 
 	return x509_name_segment_enc(&cert->san_directory_name_segments,
 				     &ctx->san_processed, data, avail_datalen);
@@ -1010,7 +1010,7 @@ int x509_extract_attribute_name_segment_enc(void *context, uint8_t *data,
 	const struct lc_x509_certificate_name *name = &cert->issuer_segments;
 	uint8_t *processed = &ctx->issuer_attrib_processed;
 
-	(void)tag;
+	*tag = ASN1_UTF8STR;
 
 	if (ctx->subject_attribute_processing) {
 		name = &cert->subject_segments;
