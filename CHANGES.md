@@ -17,6 +17,8 @@ Changes 1.2.0
 
 * Ascon AEAD, Hash, XOF, Ascon-Keccak: Update to comply with SP800-232
 
+* Dilithium AVX2: Add side channel analysis
+
 Changes 1.1.0
 * ML-KEM remove modulus check of decapsulation key (not required by FIPS 203)
 

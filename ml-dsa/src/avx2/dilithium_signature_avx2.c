@@ -44,6 +44,7 @@
 #include "shake_4x_avx2.h"
 #include "small_stack_support.h"
 #include "static_rng.h"
+#include "timecop.h"
 #include "visibility.h"
 
 static inline void
@@ -148,6 +149,9 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_avx2,
 	rhoprime = rho + LC_DILITHIUM_SEEDBYTES;
 	key = rhoprime + LC_DILITHIUM_CRHBYTES;
 
+	/* Timecop: key goes into the secret key */
+	poison(key, LC_DILITHIUM_SEEDBYTES);
+
 	/* Store rho, key */
 	memcpy(pk->pk, rho, LC_DILITHIUM_SEEDBYTES);
 	memcpy(sk->sk, rho, LC_DILITHIUM_SEEDBYTES);
@@ -186,6 +190,10 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_avx2,
 #else
 #error "Undefined LC_DILITHIUM_K"
 #endif
+
+	/* Timecop: s1 and s2 are secret */
+	poison(&ws->s1, sizeof(polyvecl));
+	poison(&ws->s2, sizeof(polyveck));
 
 	/* Pack secret vectors */
 	for (i = 0; i < LC_DILITHIUM_L; i++)
@@ -242,6 +250,10 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_avx2,
 	/* Compute H(rho, t1) and store in secret key */
 	lc_xof(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES,
 	       sk->sk + 2 * LC_DILITHIUM_SEEDBYTES, LC_DILITHIUM_TRBYTES);
+
+	/* Timecop: pk and sk are not relevant for side-channels any more. */
+	unpoison(pk->pk, sizeof(pk->pk));
+	unpoison(sk->sk, sizeof(sk->sk));
 
 out:
 	LC_RELEASE_MEM(ws);
@@ -323,10 +335,22 @@ static int lc_dilithium_sign_avx2_internal(struct lc_dilithium_sig *sig,
 	}
 
 	unpack_sk_key_avx2(key, sk);
+
+	/* Timecop: key is secret */
+	poison(key, LC_DILITHIUM_SEEDBYTES);
+
 	lc_xof(lc_shake256, key,
 	       LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_RNDBYTES +
 		       LC_DILITHIUM_CRHBYTES,
 	       rhoprime, LC_DILITHIUM_CRHBYTES);
+
+	/*
+	 * Timecop: RHO' is the hash of the secret value of key which is
+	 * enlarged to sample the intermediate vector y from. Due to the hashing
+	 * any side channel on RHO' cannot allow the deduction of the original
+	 * key.
+	 */
+	unpoison(rhoprime, LC_DILITHIUM_CRHBYTES);
 
 	/* Expand matrix and transform vectors */
 	rho = ws->seedbuf;
@@ -334,7 +358,15 @@ static int lc_dilithium_sign_avx2_internal(struct lc_dilithium_sig *sig,
 	polyvec_matrix_expand(ws->mat, rho, ws->buf.poly_uniform_4x_buf,
 			      &ws->keccak_state, &ws->z);
 	unpack_sk_s1_avx2(&ws->s1, sk);
+
+	/* Timecop: s1 is secret */
+	poison(&ws->s1, sizeof(polyvecl));
+
 	unpack_sk_s2_avx2(&ws->s2, sk);
+
+	/* Timecop: s2 is secret */
+	poison(&ws->s2, sizeof(polyveck));
+
 	unpack_sk_t0_avx2(&ws->t0, sk);
 	polyvecl_ntt_avx(&ws->s1);
 	polyveck_ntt_avx(&ws->s2);
@@ -369,8 +401,12 @@ rej:
 #error "Undefined LC_DILITHIUM_K"
 #endif
 
+	/* Timecop: s2 is secret */
+	poison(&ws->tmpv.y, sizeof(polyvecl));
+
 	/* Matrix-vector product */
 	ws->tmpv.y = ws->z;
+
 	polyvecl_ntt_avx(&ws->tmpv.y);
 	polyvec_matrix_pointwise_montgomery_avx(&ws->w1, ws->mat, &ws->tmpv.y);
 	polyveck_invntt_tomont_avx(&ws->w1);
@@ -378,6 +414,7 @@ rej:
 	/* Decompose w and call the random oracle */
 	polyveck_caddq_avx(&ws->w1);
 	polyveck_decompose_avx(&ws->w1, &ws->tmpv.w0, &ws->w1);
+
 	polyveck_pack_w1_avx(sig->sig, &ws->w1);
 
 	lc_hash_init(hash_ctx);
@@ -397,6 +434,13 @@ rej:
 		poly_invntt_tomont_avx(&ws->tmp);
 		poly_add_avx(&ws->z.vec[i], &ws->z.vec[i], &ws->tmp);
 		poly_reduce_avx(&ws->z.vec[i]);
+
+		/*
+		 * Timecop: the signature component z is not sensitive any
+		 * more.
+		 */
+		unpoison(&ws->z.vec[i], sizeof(poly));
+
 		if (poly_chknorm_avx(&ws->z.vec[i],
 				     LC_DILITHIUM_GAMMA1 - LC_DILITHIUM_BETA))
 			goto rej;
@@ -416,6 +460,10 @@ rej:
 		poly_sub_avx(&ws->tmpv.w0.vec[i], &ws->tmpv.w0.vec[i],
 			     &ws->tmp);
 		poly_reduce_avx(&ws->tmpv.w0.vec[i]);
+
+		/* Timecop: verification data w0 is not sensitive any more. */
+		unpoison(&ws->tmpv.w0.vec[i], sizeof(poly));
+
 		if (poly_chknorm_avx(&ws->tmpv.w0.vec[i],
 				     LC_DILITHIUM_GAMMA2 - LC_DILITHIUM_BETA))
 			goto rej;
@@ -424,6 +472,10 @@ rej:
 		poly_pointwise_montgomery_avx(&ws->tmp, &ws->c, &ws->t0.vec[i]);
 		poly_invntt_tomont_avx(&ws->tmp);
 		poly_reduce_avx(&ws->tmp);
+
+		/* Timecop: the hint information is not sensitive any more. */
+		unpoison(&ws->tmp, sizeof(poly));
+
 		if (poly_chknorm_avx(&ws->tmp, LC_DILITHIUM_GAMMA2))
 			goto rej;
 
