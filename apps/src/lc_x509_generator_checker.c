@@ -33,7 +33,7 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 		      const struct x509_checker_options *parsed_opts)
 {
 	const struct lc_public_key *pub = &x509->pub;
-	x509_pol_ret_t ret;
+	lc_x509_pol_ret_t ret;
 
 	CKINT(lc_x509_policy_cert_valid(x509));
 	if (ret == LC_X509_POL_FALSE) {

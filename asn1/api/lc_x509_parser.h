@@ -565,7 +565,7 @@ int lc_x509_cert_get_serial(const struct lc_x509_certificate *cert,
  ******************************************************************************/
 
 /** X.509 Policy checks: returns True or False, or a POSIX error */
-typedef int x509_pol_ret_t /* __attribute__((warn_unused_result)) */;
+typedef int lc_x509_pol_ret_t /* __attribute__((warn_unused_result)) */;
 
 /** X.509 Policy checks: "True" result */
 #define LC_X509_POL_TRUE 1
@@ -581,7 +581,7 @@ typedef int x509_pol_ret_t /* __attribute__((warn_unused_result)) */;
  *
  * @return < 0 on error, LC_X509_POL_TRUE or LC_X509_POL_FALSE
  */
-x509_pol_ret_t lc_x509_policy_is_ca(const struct lc_x509_certificate *cert);
+lc_x509_pol_ret_t lc_x509_policy_is_ca(const struct lc_x509_certificate *cert);
 
 /**
  * @ingroup X509
@@ -591,7 +591,7 @@ x509_pol_ret_t lc_x509_policy_is_ca(const struct lc_x509_certificate *cert);
  *
  * @return < 0 on error, LC_X509_POL_TRUE or LC_X509_POL_FALSE
  */
-x509_pol_ret_t
+lc_x509_pol_ret_t
 lc_x509_policy_can_validate_crls(const struct lc_x509_certificate *cert);
 
 /**
@@ -603,7 +603,7 @@ lc_x509_policy_can_validate_crls(const struct lc_x509_certificate *cert);
  * @return < 0 on error, LC_X509_POL_TRUE or LC_X509_POL_FALSE
  */
 
-x509_pol_ret_t
+lc_x509_pol_ret_t
 lc_x509_policy_is_selfsigned(const struct lc_x509_certificate *cert);
 
 /**
@@ -614,7 +614,7 @@ lc_x509_policy_is_selfsigned(const struct lc_x509_certificate *cert);
  *
  * @return < 0 on error, LC_X509_POL_TRUE or LC_X509_POL_FALSE
  */
-x509_pol_ret_t
+lc_x509_pol_ret_t
 lc_x509_policy_is_root_ca(const struct lc_x509_certificate *cert);
 
 /**
@@ -627,9 +627,10 @@ lc_x509_policy_is_root_ca(const struct lc_x509_certificate *cert);
  *
  * @return < 0 on error, LC_X509_POL_TRUE or LC_X509_POL_FALSE
  */
-x509_pol_ret_t lc_x509_policy_match_akid(const struct lc_x509_certificate *cert,
-					 const uint8_t *reference_akid,
-					 size_t reference_akid_len);
+lc_x509_pol_ret_t
+lc_x509_policy_match_akid(const struct lc_x509_certificate *cert,
+			  const uint8_t *reference_akid,
+			  size_t reference_akid_len);
 
 /**
  * @ingroup X509
@@ -641,9 +642,10 @@ x509_pol_ret_t lc_x509_policy_match_akid(const struct lc_x509_certificate *cert,
  *
  * @return < 0 on error, LC_X509_POL_TRUE or LC_X509_POL_FALSE
  */
-x509_pol_ret_t lc_x509_policy_match_skid(const struct lc_x509_certificate *cert,
-					 const uint8_t *reference_skid,
-					 size_t reference_skid_len);
+lc_x509_pol_ret_t
+lc_x509_policy_match_skid(const struct lc_x509_certificate *cert,
+			  const uint8_t *reference_skid,
+			  size_t reference_skid_len);
 
 /**
  * @ingroup X509
@@ -655,7 +657,7 @@ x509_pol_ret_t lc_x509_policy_match_skid(const struct lc_x509_certificate *cert,
  *
  * @return < 0 on error, LC_X509_POL_TRUE or LC_X509_POL_FALSE
  */
-x509_pol_ret_t
+lc_x509_pol_ret_t
 lc_x509_policy_match_key_usage(const struct lc_x509_certificate *cert,
 			       uint16_t required_key_usage);
 
@@ -669,7 +671,7 @@ lc_x509_policy_match_key_usage(const struct lc_x509_certificate *cert,
  *
  * @return < 0 on error, LC_X509_POL_TRUE or LC_X509_POL_FALSE
  */
-x509_pol_ret_t
+lc_x509_pol_ret_t
 lc_x509_policy_match_extended_key_usage(const struct lc_x509_certificate *cert,
 					uint16_t required_eku);
 
@@ -686,8 +688,9 @@ lc_x509_policy_match_extended_key_usage(const struct lc_x509_certificate *cert,
  * @return < 0 on error, LC_X509_POL_TRUE or LC_X509_POL_FALSE
  */
 
-x509_pol_ret_t lc_x509_policy_time_valid(const struct lc_x509_certificate *cert,
-					 time64_t current_time);
+lc_x509_pol_ret_t
+lc_x509_policy_time_valid(const struct lc_x509_certificate *cert,
+			  time64_t current_time);
 
 /**
  * @ingroup X509
@@ -699,7 +702,7 @@ x509_pol_ret_t lc_x509_policy_time_valid(const struct lc_x509_certificate *cert,
  *
  * @return < 0 on error, LC_X509_POL_TRUE or LC_X509_POL_FALSE
  */
-x509_pol_ret_t
+lc_x509_pol_ret_t
 lc_x509_policy_cert_valid(const struct lc_x509_certificate *cert);
 
 /**

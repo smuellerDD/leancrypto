@@ -24,7 +24,7 @@
 #include "ret_checkers.h"
 #include "visibility.h"
 
-static x509_pol_ret_t
+static lc_x509_pol_ret_t
 lc_509_policy_cert_contains_signature(const struct lc_x509_certificate *cert)
 {
 	const struct lc_public_key_signature *sig;
@@ -39,7 +39,7 @@ lc_509_policy_cert_contains_signature(const struct lc_x509_certificate *cert)
 	return LC_X509_POL_FALSE;
 }
 
-static x509_pol_ret_t
+static lc_x509_pol_ret_t
 lc_x509_policy_version_ge(const struct lc_x509_certificate *cert,
 			  uint8_t requested_version)
 {
@@ -52,7 +52,7 @@ lc_x509_policy_version_ge(const struct lc_x509_certificate *cert,
 	return LC_X509_POL_FALSE;
 }
 
-LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_is_ca,
+LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_is_ca,
 		      const struct lc_x509_certificate *cert)
 {
 	const struct lc_public_key *pub;
@@ -108,7 +108,7 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_is_selfsigned,
+LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_is_selfsigned,
 		      const struct lc_x509_certificate *cert)
 {
 	if (!cert)
@@ -120,10 +120,10 @@ LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_is_selfsigned,
 	return LC_X509_POL_TRUE;
 }
 
-LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_is_root_ca,
+LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_is_root_ca,
 		      const struct lc_x509_certificate *cert)
 {
-	x509_pol_ret_t ret;
+	lc_x509_pol_ret_t ret;
 
 	if (!cert)
 		return -EINVAL;
@@ -151,7 +151,7 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_can_validate_crls,
+LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_can_validate_crls,
 		      const struct lc_x509_certificate *cert)
 {
 	const struct lc_public_key *pub;
@@ -173,13 +173,13 @@ LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_can_validate_crls,
 	return LC_X509_POL_TRUE;
 }
 
-LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_match_akid,
+LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_match_akid,
 		      const struct lc_x509_certificate *cert,
 		      const uint8_t *reference_akid, size_t reference_akid_len)
 {
 	const uint8_t *akid;
 	size_t akid_len;
-	x509_pol_ret_t ret;
+	lc_x509_pol_ret_t ret;
 
 	CKNULL(cert, -EINVAL);
 
@@ -212,13 +212,13 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_match_skid,
+LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_match_skid,
 		      const struct lc_x509_certificate *cert,
 		      const uint8_t *reference_skid, size_t reference_skid_len)
 {
 	const uint8_t *skid;
 	size_t skid_len;
-	x509_pol_ret_t ret;
+	lc_x509_pol_ret_t ret;
 
 	CKNULL(cert, -EINVAL);
 
@@ -251,7 +251,7 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_match_key_usage,
+LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_match_key_usage,
 		      const struct lc_x509_certificate *cert,
 		      uint16_t required_key_usage)
 {
@@ -282,7 +282,8 @@ LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_match_key_usage,
 	return LC_X509_POL_FALSE;
 }
 
-LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_match_extended_key_usage,
+LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t,
+		      lc_x509_policy_match_extended_key_usage,
 		      const struct lc_x509_certificate *cert,
 		      uint16_t required_eku)
 {
@@ -314,7 +315,7 @@ LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_match_extended_key_usage,
 	return LC_X509_POL_FALSE;
 }
 
-LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_time_valid,
+LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_time_valid,
 		      const struct lc_x509_certificate *cert,
 		      time64_t current_time)
 {
@@ -349,7 +350,7 @@ LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_time_valid,
 	return LC_X509_POL_TRUE;
 }
 
-LC_INTERFACE_FUNCTION(x509_pol_ret_t, lc_x509_policy_cert_valid,
+LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_cert_valid,
 		      const struct lc_x509_certificate *cert)
 {
 	if (!cert)
