@@ -1253,6 +1253,11 @@ int x509_extract_key_data_enc(void *context, uint8_t *data,
 	case LC_SIG_DILITHIUM_44_ED25519:
 	case LC_SIG_DILITHIUM_65_ED25519:
 	case LC_SIG_DILITHIUM_87_ED25519:
+		/* Account for the BIT STRING prefix */
+		CKINT(x509_sufficient_size(avail_datalen, 1));
+		data[0] = 0;
+		data++;
+		*avail_datalen -= 1;
 		CKINT(public_key_encode_dilithium_ed25519(data, avail_datalen,
 							  ctx));
 		goto out;
