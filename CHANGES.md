@@ -19,6 +19,8 @@ Changes 1.2.0
 
 * Dilithium AVX2: Add side channel analysis
 
+* leancrypto passes X.509 IETF-Hackathon tests: https://ietf-hackathon.github.io/pqc-certificates/pqc_hackathon_results_certs_r4_automated_tests.html
+
 Changes 1.1.0
 * ML-KEM remove modulus check of decapsulation key (not required by FIPS 203)
 
