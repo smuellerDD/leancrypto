@@ -853,57 +853,8 @@ int x509_note_signature_enc(void *context, uint8_t *data, size_t *avail_datalen,
 
 	(void)tag;
 
-	switch (sig->pkey_algo) {
-	case LC_SIG_DILITHIUM_44:
-		siglen = lc_dilithium_sig_size(LC_DILITHIUM_44);
-		break;
-	case LC_SIG_DILITHIUM_65:
-		siglen = lc_dilithium_sig_size(LC_DILITHIUM_65);
-		break;
-	case LC_SIG_DILITHIUM_87:
-		siglen = lc_dilithium_sig_size(LC_DILITHIUM_87);
-		break;
-
-	case LC_SIG_SPINCS_SHAKE_128F:
-		siglen = lc_sphincs_sig_size(LC_SPHINCS_SHAKE_128f);
-		break;
-	case LC_SIG_SPINCS_SHAKE_128S:
-		siglen = lc_sphincs_sig_size(LC_SPHINCS_SHAKE_128s);
-		break;
-	case LC_SIG_SPINCS_SHAKE_192F:
-		siglen = lc_sphincs_sig_size(LC_SPHINCS_SHAKE_192f);
-		break;
-	case LC_SIG_SPINCS_SHAKE_192S:
-		siglen = lc_sphincs_sig_size(LC_SPHINCS_SHAKE_192s);
-		break;
-	case LC_SIG_SPINCS_SHAKE_256F:
-		siglen = lc_sphincs_sig_size(LC_SPHINCS_SHAKE_256f);
-		break;
-	case LC_SIG_SPINCS_SHAKE_256S:
-		siglen = lc_sphincs_sig_size(LC_SPHINCS_SHAKE_256s);
-		break;
-
-	case LC_SIG_DILITHIUM_44_ED25519:
-		CKINT(public_key_signature_size_dilithium_ed25519(
-			LC_DILITHIUM_44, &siglen));
-		break;
-	case LC_SIG_DILITHIUM_65_ED25519:
-		CKINT(public_key_signature_size_dilithium_ed25519(
-			LC_DILITHIUM_65, &siglen));
-		break;
-	case LC_SIG_DILITHIUM_87_ED25519:
-		CKINT(public_key_signature_size_dilithium_ed25519(
-			LC_DILITHIUM_87, &siglen));
-		break;
-	case LC_SIG_DILITHIUM_87_ED448:
-	case LC_SIG_ECDSA_X963:
-	case LC_SIG_ECRDSA_PKCS1:
-	case LC_SIG_RSA_PKCS1:
-	case LC_SIG_SM2:
-	case LC_SIG_UNKNOWN:
-	default:
-		return -ENOPKG;
-	}
+	/* Get the signature length */
+	CKINT(public_key_signature_size(&siglen, sig->pkey_algo));
 
 	CKINT(x509_signature_reserve_room(data, avail_datalen, siglen));
 
@@ -1227,52 +1178,17 @@ int x509_extract_key_data_enc(void *context, uint8_t *data,
 			      size_t *avail_datalen, uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
-	const struct lc_x509_certificate *cert = ctx->cert;
-	const struct lc_x509_generate_data *gen_data = &cert->pub_gen_data;
-	size_t pklen = 0;
-	uint8_t *ptr;
 	int ret;
 
 	(void)tag;
 
-	switch (gen_data->sig_type) {
-	case LC_SIG_DILITHIUM_44:
-	case LC_SIG_DILITHIUM_65:
-	case LC_SIG_DILITHIUM_87:
-		CKINT(lc_dilithium_pk_ptr(&ptr, &pklen,
-					  gen_data->pk.dilithium_pk));
-		break;
-	case LC_SIG_SPINCS_SHAKE_128F:
-	case LC_SIG_SPINCS_SHAKE_128S:
-	case LC_SIG_SPINCS_SHAKE_192F:
-	case LC_SIG_SPINCS_SHAKE_192S:
-	case LC_SIG_SPINCS_SHAKE_256F:
-	case LC_SIG_SPINCS_SHAKE_256S:
-		CKINT(lc_sphincs_pk_ptr(&ptr, &pklen, gen_data->pk.sphincs_pk));
-		break;
-	case LC_SIG_DILITHIUM_44_ED25519:
-	case LC_SIG_DILITHIUM_65_ED25519:
-	case LC_SIG_DILITHIUM_87_ED25519:
-		/* Account for the BIT STRING prefix */
-		CKINT(x509_sufficient_size(avail_datalen, 1));
-		data[0] = 0;
-		data++;
-		*avail_datalen -= 1;
-		CKINT(public_key_encode_dilithium_ed25519(data, avail_datalen,
-							  ctx));
-		goto out;
-		break;
-	case LC_SIG_DILITHIUM_87_ED448:
-	case LC_SIG_ECDSA_X963:
-	case LC_SIG_ECRDSA_PKCS1:
-	case LC_SIG_RSA_PKCS1:
-	case LC_SIG_SM2:
-	case LC_SIG_UNKNOWN:
-	default:
-		return -ENOPKG;
-	}
+	/* Account for the BIT STRING prefix */
+	CKINT(x509_sufficient_size(avail_datalen, 1));
+	data[0] = 0;
+	data++;
+	*avail_datalen -= 1;
 
-	CKINT(x509_set_bit_string(data, avail_datalen, ptr, pklen));
+	CKINT(public_key_extract(ctx, data, avail_datalen));
 
 	printf_debug("Set public key of size %zu\n", pklen);
 
@@ -1293,8 +1209,6 @@ int x509_version_enc(void *context, uint8_t *data, size_t *avail_datalen,
 	int ret;
 
 	(void)context;
-	(void)data;
-	(void)avail_datalen;
 	(void)tag;
 
 	CKINT(x509_sufficient_size(avail_datalen, 1));
@@ -1379,36 +1293,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_privkey_gen,
 
 	ctx.gendata = gendata;
 
-	switch (gendata->sig_type) {
-	case LC_SIG_DILITHIUM_44:
-	case LC_SIG_DILITHIUM_65:
-	case LC_SIG_DILITHIUM_87:
-		CKINT(private_key_encode_dilithium(data, avail_datalen, &ctx));
-		break;
-	case LC_SIG_DILITHIUM_44_ED25519:
-	case LC_SIG_DILITHIUM_65_ED25519:
-	case LC_SIG_DILITHIUM_87_ED25519:
-		CKINT(private_key_encode_dilithium_ed25519(data, avail_datalen,
-							   &ctx));
-		break;
-	case LC_SIG_SPINCS_SHAKE_256S:
-	case LC_SIG_SPINCS_SHAKE_256F:
-	case LC_SIG_SPINCS_SHAKE_192S:
-	case LC_SIG_SPINCS_SHAKE_192F:
-	case LC_SIG_SPINCS_SHAKE_128S:
-	case LC_SIG_SPINCS_SHAKE_128F:
-		CKINT(private_key_encode_sphincs(data, avail_datalen, &ctx));
-		break;
-
-	case LC_SIG_DILITHIUM_87_ED448:
-	case LC_SIG_RSA_PKCS1:
-	case LC_SIG_ECDSA_X963:
-	case LC_SIG_SM2:
-	case LC_SIG_ECRDSA_PKCS1:
-	case LC_SIG_UNKNOWN:
-		ret = -EOPNOTSUPP;
-		goto out;
-	}
+	CKINT(privkey_key_generate(&ctx, data, avail_datalen));
 
 out:
 	lc_memset_secure(&ctx, 0, sizeof(ctx));

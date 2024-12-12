@@ -74,20 +74,3 @@ int asymmetric_key_id_same(const struct lc_asymmetric_key_id *kid1,
 	return lc_memcmp_secure(kid1->data, kid2->len, kid2->data, kid2->len) ==
 	       0;
 }
-
-/**
- * asymmetric_key_id_partial - Return true if two asymmetric keys IDs
- * partially match
- * @kid1: The key ID to compare
- * @kid2: The key ID to compare
- */
-int asymmetric_key_id_partial(const struct lc_asymmetric_key_id *kid1,
-			      const struct lc_asymmetric_key_id *kid2)
-{
-	if (!kid1 || !kid2)
-		return 0;
-	if (kid1->len < kid2->len)
-		return 0;
-	return lc_memcmp_secure(kid1->data + (kid1->len - kid2->len), kid2->len,
-				kid2->data, kid2->len) == 0;
-}

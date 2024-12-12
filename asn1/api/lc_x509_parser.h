@@ -721,7 +721,7 @@ lc_x509_policy_cert_valid(const struct lc_x509_certificate *cert);
  *
  * @return 0 on success, < 0 on error
  */
-int lc_x509_policy_cert_verify(const struct lc_public_key *pkey,
+int lc_x509_policy_verify_cert(const struct lc_public_key *pkey,
 			       const struct lc_x509_certificate *cert,
 			       uint64_t flags);
 

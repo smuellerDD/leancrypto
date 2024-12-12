@@ -54,23 +54,9 @@ struct asymmetric_key_ids {
 extern int asymmetric_key_id_same(const struct lc_asymmetric_key_id *kid1,
 				  const struct lc_asymmetric_key_id *kid2);
 
-extern int asymmetric_key_id_partial(const struct lc_asymmetric_key_id *kid1,
-				     const struct lc_asymmetric_key_id *kid2);
-
 extern int asymmetric_key_generate_id(struct lc_asymmetric_key_id *,
 				      const uint8_t *val_1, size_t len_1,
 				      const uint8_t *val_2, size_t len_2);
-// static inline
-// const struct asymmetric_key_ids *asymmetric_key_ids(const struct key *key)
-// {
-// 	return key->payload.data[asym_key_ids];
-// }
-//
-// static inline
-// const struct public_key *asymmetric_key_public_key(const struct key *key)
-// {
-// 	return key->payload.data[asym_crypto];
-// }
 
 extern struct key *find_asymmetric_key(struct key *keyring,
 				       const struct lc_asymmetric_key_id *id_0,

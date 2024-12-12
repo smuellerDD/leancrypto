@@ -132,7 +132,6 @@ int x509_note_signature(void *context, size_t hdrlen, unsigned char tag,
 {
 	struct x509_parse_context *ctx = context;
 	struct lc_x509_certificate *cert = ctx->cert;
-	struct lc_public_key_signature *sig = &cert->sig;
 
 	(void)hdrlen;
 	(void)tag;
@@ -151,37 +150,12 @@ int x509_note_signature(void *context, size_t hdrlen, unsigned char tag,
 		return -EINVAL;
 	}
 
-	switch (sig->pkey_algo) {
-	case LC_SIG_RSA_PKCS1:
-	case LC_SIG_ECDSA_X963:
-	case LC_SIG_ECRDSA_PKCS1:
-	case LC_SIG_SM2:
-	case LC_SIG_DILITHIUM_44:
-	case LC_SIG_DILITHIUM_65:
-	case LC_SIG_DILITHIUM_87:
-	case LC_SIG_DILITHIUM_87_ED448:
-	case LC_SIG_SPINCS_SHAKE_128F:
-	case LC_SIG_SPINCS_SHAKE_128S:
-	case LC_SIG_SPINCS_SHAKE_192F:
-	case LC_SIG_SPINCS_SHAKE_192S:
-	case LC_SIG_SPINCS_SHAKE_256F:
-	case LC_SIG_SPINCS_SHAKE_256S:
-	case LC_SIG_DILITHIUM_44_ED25519:
-	case LC_SIG_DILITHIUM_65_ED25519:
-	case LC_SIG_DILITHIUM_87_ED25519:
-		/* Discard the BIT STRING metadata */
-		if (vlen < 1 || *(const uint8_t *)value != 0)
-			return -EBADMSG;
+	/* Discard the BIT STRING metadata */
+	if (vlen < 1 || *(const uint8_t *)value != 0)
+		return -EBADMSG;
 
-		value++;
-		vlen--;
-		break;
-
-	case LC_SIG_UNKNOWN:
-	default:
-		/* Do nothing */
-		break;
-	}
+	value++;
+	vlen--;
 
 	cert->raw_sig = value;
 	cert->raw_sig_size = vlen;
@@ -1189,45 +1163,9 @@ LC_INTERFACE_FUNCTION(int, lc_x509_privkey_parse,
 	CKNULL(key_input_data, -EINVAL);
 	CKNULL(data, -EINVAL);
 
-	switch (key_type) {
-	case LC_SIG_DILITHIUM_44:
-	case LC_SIG_DILITHIUM_65:
-	case LC_SIG_DILITHIUM_87:
-		CKINT(private_key_decode_dilithium(key_input_data, data,
-						   datalen));
-		break;
-	case LC_SIG_DILITHIUM_44_ED25519:
-	case LC_SIG_DILITHIUM_65_ED25519:
-	case LC_SIG_DILITHIUM_87_ED25519:
-		CKINT(private_key_decode_dilithium_ed25519(key_input_data, data,
-							   datalen));
-		break;
-	case LC_SIG_SPINCS_SHAKE_256S:
-	case LC_SIG_SPINCS_SHAKE_192S:
-	case LC_SIG_SPINCS_SHAKE_128S:
-		CKINT(private_key_decode_sphincs(key_input_data, data,
-						 datalen));
-		CKINT(lc_sphincs_sk_set_keytype_small(
-			&key_input_data->sk.sphincs_sk));
-		break;
-	case LC_SIG_SPINCS_SHAKE_256F:
-	case LC_SIG_SPINCS_SHAKE_192F:
-	case LC_SIG_SPINCS_SHAKE_128F:
-		CKINT(private_key_decode_sphincs(key_input_data, data,
-						 datalen));
-		CKINT(lc_sphincs_sk_set_keytype_fast(
-			&key_input_data->sk.sphincs_sk));
-		break;
+	key_input_data->sig_type = key_type;
 
-	case LC_SIG_DILITHIUM_87_ED448:
-	case LC_SIG_RSA_PKCS1:
-	case LC_SIG_ECDSA_X963:
-	case LC_SIG_SM2:
-	case LC_SIG_ECRDSA_PKCS1:
-	case LC_SIG_UNKNOWN:
-		ret = -EOPNOTSUPP;
-		goto out;
-	}
+	CKINT(privkey_key_parse(key_input_data, data, datalen));
 
 out:
 	return ret;
