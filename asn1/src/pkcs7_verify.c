@@ -71,7 +71,7 @@ static int pkcs7_digest(struct lc_pkcs7_message *pkcs7,
 	 * digest we just calculated.
 	 */
 	if (sinfo->authattrs) {
-		uint8_t tag;
+		static const uint8_t tag = ASN1_CONS_BIT | ASN1_SET;
 
 		if (!sinfo->msgdigest) {
 			printf_debug("Sig %u: No messageDigest\n",
@@ -108,8 +108,6 @@ static int pkcs7_digest(struct lc_pkcs7_message *pkcs7,
 		lc_hash_init(hash_ctx);
 		sig->digest_size = sizeof(sig->digest);
 		CKINT(x509_set_digestsize(&sig->digest_size, hash_ctx));
-
-		tag = ASN1_CONS_BIT | ASN1_SET;
 		lc_hash_update(hash_ctx, &tag, 1);
 		lc_hash_update(hash_ctx, sinfo->authattrs,
 			       sinfo->authattrs_len);
@@ -275,7 +273,7 @@ int pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 		ret = pkcs7_find_asymmetric_key(&trusted, trust_store, auth0,
 						auth1);
 		if (!ret) {
-			CKINT(lc_x509_policy_cert_verify(&trusted->pub, x509,
+			CKINT(lc_x509_policy_verify_cert(&trusted->pub, x509,
 							 0));
 			return 0;
 		}
@@ -286,7 +284,8 @@ int pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 		return -EKEYREJECTED;
 
 	found_issuer_check_skid:
-		/* We matched issuer + serialNumber, but if there's an
+		/*
+		 * We matched issuer + serialNumber, but if there's an
 		 * authKeyId.keyId, that must match the CA subjKeyId also.
 		 */
 		if (auth1->len && !asymmetric_key_id_same(&p->skid, auth1)) {
@@ -337,7 +336,7 @@ int pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 					"- searching root CA in trust store\n");
 				CKINT(pkcs7_find_asymmetric_key(
 					&trusted, trust_store, auth0, auth1));
-				CKINT(lc_x509_policy_cert_verify(&trusted->pub,
+				CKINT(lc_x509_policy_verify_cert(&trusted->pub,
 								 x509, 0));
 
 				return 0;
@@ -345,7 +344,7 @@ int pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 			return 0;
 		}
 
-		CKINT(lc_x509_policy_cert_verify(&p->pub, x509, 0));
+		CKINT(lc_x509_policy_verify_cert(&p->pub, x509, 0));
 		x509->signer = p;
 
 		x509 = p;
@@ -367,7 +366,8 @@ static int pkcs7_verify_one(struct lc_pkcs7_message *pkcs7,
 
 	printf_debug("==> %s(), %u\n", __func__, sinfo->index);
 
-	/* First of all, digest the data in the PKCS#7 message and the
+	/*
+	 * First of all, digest the data in the PKCS#7 message and the
 	 * signed information block
 	 */
 	CKINT(pkcs7_digest(pkcs7, sinfo));
@@ -388,7 +388,8 @@ static int pkcs7_verify_one(struct lc_pkcs7_message *pkcs7,
 	printf_debug("Using X.509[%u] for sig %u\n", sinfo->signer->index,
 		     sinfo->index);
 
-	/* Check that the PKCS#7 signing time is valid according to the X.509
+	/*
+	 * Check that the PKCS#7 signing time is valid according to the X.509
 	 * certificate.  We can't, however, check against the system clock
 	 * since that may not have been set yet and may be wrong.
 	 */

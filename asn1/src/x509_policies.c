@@ -24,6 +24,18 @@
 #include "ret_checkers.h"
 #include "visibility.h"
 
+#define CKINT_POL(x)                                                           \
+	{                                                                      \
+		ret_pol = x;                                                   \
+		if (ret_pol < 0) {                                             \
+			ret = ret_pol;                                         \
+			goto out;                                              \
+		} else if (ret_pol == LC_X509_POL_FALSE) {                     \
+			ret = -EKEYREJECTED;                                   \
+			goto out;                                              \
+		}                                                              \
+	}
+
 static lc_x509_pol_ret_t
 lc_509_policy_cert_contains_signature(const struct lc_x509_certificate *cert)
 {
@@ -251,21 +263,18 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_match_key_usage,
-		      const struct lc_x509_certificate *cert,
-		      uint16_t required_key_usage)
+static lc_x509_pol_ret_t lc_x509_policy_match_key_usage_pub(
+	const struct lc_public_key *pub, uint16_t required_key_usage)
 {
-	const struct lc_public_key *pub;
 	uint16_t set_keyusage;
 
-	if (!cert)
+	if (!pub)
 		return -EINVAL;
 
 	/* If the caller does not requests the checking, return true */
 	if (!required_key_usage)
 		return LC_X509_POL_TRUE;
 
-	pub = &cert->pub;
 	set_keyusage =
 		pub->key_usage & (uint16_t)~LC_KEY_USAGE_EXTENSION_PRESENT;
 
@@ -280,6 +289,17 @@ LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_match_key_usage,
 		return LC_X509_POL_TRUE;
 
 	return LC_X509_POL_FALSE;
+}
+
+LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_match_key_usage,
+		      const struct lc_x509_certificate *cert,
+		      uint16_t required_key_usage)
+{
+	if (!cert)
+		return -EINVAL;
+
+	return lc_x509_policy_match_key_usage_pub(&cert->pub,
+						  required_key_usage);
 }
 
 LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t,
@@ -380,9 +400,9 @@ LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_cert_valid,
 	return LC_X509_POL_TRUE;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_x509_policy_cert_verify,
-		      const struct lc_public_key *pkey,
-		      const struct lc_x509_certificate *cert, uint64_t flags)
+static int lc_x509_policy_verify_general(const struct lc_public_key *pkey,
+					 const struct lc_x509_certificate *cert,
+					 uint64_t flags)
 {
 	time64_t time_since_epoch = 0;
 	int ret;
@@ -416,6 +436,27 @@ LC_INTERFACE_FUNCTION(int, lc_x509_policy_cert_verify,
 	 * Certificate validation: Check signature
 	 */
 	CKINT_SIGCHECK(public_key_verify_signature(pkey, &cert->sig));
+
+out:
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x509_policy_verify_cert,
+		      const struct lc_public_key *pkey,
+		      const struct lc_x509_certificate *cert, uint64_t flags)
+{
+	lc_x509_pol_ret_t ret_pol;
+	int ret;
+
+	CKINT(lc_x509_policy_verify_general(pkey, cert, flags));
+
+	/*
+	 * A certificate must be allowed for key sign for successfully
+	 * validating a certificate. Also, the key usage must be critical.
+	 */
+	CKINT_POL(lc_x509_policy_match_key_usage_pub(pkey,
+						     LC_KEY_USAGE_CRITICAL |
+						     LC_KEY_USAGE_KEYCERTSIGN));
 
 out:
 	return ret;
