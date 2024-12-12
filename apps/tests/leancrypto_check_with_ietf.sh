@@ -20,6 +20,22 @@
 
 LC_X509_CHECKER="lc_x509_generator"
 
+if [ -n "$1" ]
+then
+	LC_X509_CHECKER=$1
+fi
+
+if [ ! -x "$LC_X509_CHECKER" ]
+then
+	exit 77
+fi
+
+SRCDIR="."
+if [ -n "$2" ]
+then
+	SRCDIR=$2
+fi
+
 TMPDIR="./tmp"
 
 global_failure_count=0
@@ -99,7 +115,7 @@ report_result() {
 }
 
 extract_files() {
-	local zipfile=$1
+	local zipfile="${SRCDIR}/$1"
 
 	if [ ! -f "$zipfile" ]
 	then

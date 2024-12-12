@@ -236,6 +236,15 @@ if (host_machine.system() != 'windows') and get_option('apps').enabled()
 		     args: [ x509_leaf_args, '--create-keypair', 'ML-DSA87' ],
 		     timeout: 300, suite: regression)
 
+		x509_parser_test_script = find_program('leancrypto_check_with_ietf.sh',
+						       required: true)
+		test('X.509 Parsing other cryptoproviders',
+		     x509_parser_test_script,
+		     args: [ lc_x509_generator.full_path(),
+			     meson.project_source_root() + '/apps/tests/'
+			   ],
+		     timeout: 300, suite: regression)
+
 	endif
 
 	if get_option('pkcs7_generator').enabled()
