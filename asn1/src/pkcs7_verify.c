@@ -26,12 +26,12 @@
 
 #include "asn1.h"
 #include "asn1_debug.h"
+#include "asym_key.h"
 #include "lc_memcmp_secure.h"
 #include "lc_sha256.h"
 #include "lc_sha3.h"
 #include "lc_sha512.h"
 #include "pkcs7_internal.h"
-#include "public_key.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 #include "x509_cert_parser.h"

@@ -25,10 +25,10 @@
  */
 
 #include "asn1_debug.h"
+#include "asym_key.h"
 #include "asymmetric_type.h"
 #include "lc_pkcs7_parser.h"
 #include "pkcs7_internal.h"
-#include "public_key.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 

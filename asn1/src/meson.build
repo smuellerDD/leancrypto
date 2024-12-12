@@ -45,9 +45,9 @@ if x509_common_support == 1
 
 	src_fips += files([
 		'asn1_common.c',
+		'asym_key.c',
 		'asymmetric_type.c',
 		'oid_registry.c',
-		'public_key.c',
 
 		'x509.asn1.c',
 		'x509_akid.asn1.c',
@@ -67,30 +67,30 @@ if x509_common_support == 1
 	    get_option('sphincs_shake_192f').enabled() or
 	    get_option('sphincs_shake_128s').enabled() or
 	    get_option('sphincs_shake_128f').enabled())
-		src_fips += files([ 'public_key_sphincs.c' ])
+		src_fips += files([ 'asym_key_sphincs.c' ])
 		asymmetric_algo += 1
 	else
-		src_fips += files([ 'public_key_sphincs_null.c' ])
+		src_fips += files([ 'asym_key_sphincs_null.c' ])
 	endif
 
 	if (get_option('dilithium_87').enabled() or
 	    get_option('dilithium_65').enabled() or
 	    get_option('dilithium_44').enabled())
-		src_fips += files([ 'public_key_dilithium.c' ])
+		src_fips += files([ 'asym_key_dilithium.c' ])
 		asymmetric_algo += 1
 	else
-		src_fips += files([ 'public_key_dilithium_null.c' ])
+		src_fips += files([ 'asym_key_dilithium_null.c' ])
 	endif
 
 	if get_option('dilithium_ed25519').enabled()
 		src_fips += files([
-			'public_key_dilithium_ed25519.c',
+			'asym_key_dilithium_ed25519.c',
 			'x509_composite_mldsa_pubkey.asn1.c',
 			'x509_composite_mldsa_signature.asn1.c'
 			])
 		asymmetric_algo += 1
 	else
-		src_fips += files([ 'public_key_dilithium_ed25519_null.c' ])
+		src_fips += files([ 'asym_key_dilithium_ed25519_null.c' ])
 	endif
 
 	if (asymmetric_algo == 0)

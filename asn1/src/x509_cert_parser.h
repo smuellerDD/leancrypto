@@ -22,9 +22,9 @@
 
 #include "ext_headers.h"
 
+#include "asym_key.h"
 #include "asymmetric_type.h"
 #include "lc_x509_parser.h"
-#include "public_key.h"
 
 #ifdef __cplusplus
 extern "C" {

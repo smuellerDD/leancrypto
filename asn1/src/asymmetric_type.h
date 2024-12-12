@@ -34,39 +34,12 @@
 extern "C" {
 #endif
 
-extern struct key_type key_type_asymmetric;
-
-/*
- * The key payload is four words.  The asymmetric-type key uses them as
- * follows:
- */
-enum asymmetric_payload_bits {
-	asym_crypto, /* The data representing the key */
-	asym_subtype, /* Pointer to an asymmetric_key_subtype struct */
-	asym_key_ids, /* Pointer to an asymmetric_key_ids struct */
-	asym_auth /* The key's authorisation (signature, parent key ID) */
-};
-
-struct asymmetric_key_ids {
-	void *id[3];
-};
-
 extern int asymmetric_key_id_same(const struct lc_asymmetric_key_id *kid1,
 				  const struct lc_asymmetric_key_id *kid2);
 
 extern int asymmetric_key_generate_id(struct lc_asymmetric_key_id *,
 				      const uint8_t *val_1, size_t len_1,
 				      const uint8_t *val_2, size_t len_2);
-
-extern struct key *find_asymmetric_key(struct key *keyring,
-				       const struct lc_asymmetric_key_id *id_0,
-				       const struct lc_asymmetric_key_id *id_1,
-				       const struct lc_asymmetric_key_id *id_2,
-				       unsigned int partial);
-
-int x509_load_certificate_list(const uint8_t cert_list[],
-			       const unsigned long list_size,
-			       const struct key *keyring);
 
 /*
  * The payload is at the discretion of the subtype.

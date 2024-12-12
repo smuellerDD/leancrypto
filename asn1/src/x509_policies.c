@@ -18,9 +18,9 @@
  */
 
 #include "asn1_debug.h"
+#include "asym_key.h"
 #include "lc_x509_parser.h"
 #include "lc_memcmp_secure.h"
-#include "public_key.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 

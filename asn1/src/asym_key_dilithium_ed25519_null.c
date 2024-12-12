@@ -17,44 +17,62 @@
  * DAMAGE.
  */
 
-#include "public_key_sphincs.h"
+#include "asym_key_dilithium_ed25519.h"
 
-int public_key_verify_signature_sphincs(
-	const struct lc_public_key *pkey,
-	const struct lc_public_key_signature *sig, unsigned int fast)
+int private_key_encode_dilithium_ed25519(
+	uint8_t *data, size_t *avail_datalen,
+	struct x509_generate_privkey_context *ctx)
 {
-	(void)pkey;
-	(void)sig;
-	(void)fast;
+	(void)data;
+	(void)avail_datalen;
+	(void)ctx;
 	return -ENOPKG;
 }
 
-int public_key_generate_signature_sphincs(
+int private_key_decode_dilithium_ed25519(
+	struct lc_x509_key_input_data *key_input_data, const uint8_t *data,
+	size_t datalen)
+{
+	(void)key_input_data;
+	(void)data;
+	(void)datalen;
+	return -ENOPKG;
+}
+
+int public_key_encode_dilithium_ed25519(uint8_t *data, size_t *avail_datalen,
+					struct x509_generate_context *ctx)
+{
+	(void)data;
+	(void)avail_datalen;
+	(void)ctx;
+	return -ENOPKG;
+}
+
+int public_key_verify_signature_dilithium_ed25519(
+	const struct lc_public_key *pkey,
+	const struct lc_public_key_signature *sig)
+{
+	(void)pkey;
+	(void)sig;
+	return -ENOPKG;
+}
+
+int public_key_generate_signature_dilithium_ed25519(
 	const struct lc_x509_generate_data *gen_data,
 	const struct lc_public_key_signature *sig, uint8_t *sig_data,
-	size_t *available_len, unsigned int fast)
+	size_t *available_len)
 {
 	(void)gen_data;
 	(void)sig;
 	(void)sig_data;
 	(void)available_len;
-	(void)fast;
 	return -ENOPKG;
 }
 
-int private_key_encode_sphincs(uint8_t *data, size_t *avail_datalen,
-			       struct x509_generate_privkey_context *ctx)
+int public_key_signature_size_dilithium_ed25519(
+	enum lc_dilithium_type dilithium_type, size_t *size)
 {
-	(void)data;
-	(void)datalen;
-	(void)ctx;
+	void)dilithium_type;
+	(void)size;
 	return -ENOPKG;
-}
-
-int private_key_decode_sphincs(struct lc_x509_key_input_data *key_input_data,
-			       const uint8_t *data, size_t datalen)
-{
-	(void)key_input_data;
-	(void)data;
-	(void)datalen;
 }

@@ -18,13 +18,13 @@
  */
 
 #include "asn1_encoder.h"
+#include "asym_key.h"
 #include "ext_headers.h"
 #include "lc_pkcs7_generator.h"
 #include "lc_x509_generator.h"
 #include "pkcs7.asn1.h"
 #include "pkcs7_aa.asn1.h"
 #include "oid_registry.h"
-#include "public_key.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 #include "x509_algorithm_mapper.h"

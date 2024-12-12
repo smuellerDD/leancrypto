@@ -20,36 +20,30 @@
 #include "asn1.h"
 #include "asn1_debug.h"
 #include "asn1_encoder.h"
+#include "asym_key_dilithium.h"
 #include "ext_headers.h"
 #include "lc_dilithium.h"
 #include "lc_hash.h"
 #include "lc_sphincs.h"
-#include "public_key_sphincs.h"
 #include "ret_checkers.h"
 #include "x509_algorithm_mapper.h"
-#include "x509_slhdsa_privkey.asn1.h"
+#include "x509_mldsa_privkey.asn1.h"
 
-int public_key_verify_signature_sphincs(
+int public_key_verify_signature_dilithium(
 	const struct lc_public_key *pkey,
-	const struct lc_public_key_signature *sig, unsigned int fast)
+	const struct lc_public_key_signature *sig)
 {
-	struct lc_sphincs_pk sphincs_pk;
-	struct lc_sphincs_sig sphincs_sig;
+	struct lc_dilithium_pk dilithium_pk;
+	struct lc_dilithium_sig dilithium_sig;
 	int ret;
-	LC_SPHINCS_CTX_ON_STACK(ctx);
+	LC_DILITHIUM_CTX_ON_STACK(ctx);
 
 	/* A signature verification does not work with a private key */
 	if (pkey->key_is_private)
 		return -EKEYREJECTED;
 
-	CKINT(lc_sphincs_pk_load(&sphincs_pk, pkey->key, pkey->keylen));
-	if (fast) {
-		CKINT(lc_sphincs_pk_set_keytype_fast(&sphincs_pk));
-	} else {
-		CKINT(lc_sphincs_pk_set_keytype_small(&sphincs_pk));
-	}
-
-	CKINT(lc_sphincs_sig_load(&sphincs_sig, sig->s, sig->s_size));
+	CKINT(lc_dilithium_pk_load(&dilithium_pk, pkey->key, pkey->keylen));
+	CKINT(lc_dilithium_sig_load(&dilithium_sig, sig->s, sig->s_size));
 
 	/*
 	 * Select the data to be signed
@@ -71,47 +65,43 @@ int public_key_verify_signature_sphincs(
 
 		CKNULL(hash_algo, -EOPNOTSUPP);
 
-		lc_sphincs_ctx_hash(ctx, hash_algo);
+		lc_dilithium_ctx_hash(ctx, hash_algo);
 #endif
+
 		/*
 		 * Verify the signature
 		 */
-		CKINT(lc_sphincs_verify_ctx(&sphincs_sig, ctx, sig->digest,
-					    sig->digest_size, &sphincs_pk));
+		CKINT(lc_dilithium_verify_ctx(&dilithium_sig, ctx, sig->digest,
+					      sig->digest_size, &dilithium_pk));
 	} else {
 		CKNULL(sig->raw_data, -EOPNOTSUPP);
 
 		/*
 		 * Verify the signature
 		 */
-		CKINT(lc_sphincs_verify_ctx(&sphincs_sig, ctx, sig->raw_data,
-					    sig->raw_data_len, &sphincs_pk));
+		CKINT(lc_dilithium_verify_ctx(&dilithium_sig, ctx,
+					      sig->raw_data, sig->raw_data_len,
+					      &dilithium_pk));
 	}
 
 out:
-	lc_sphincs_ctx_zero(ctx);
-	lc_memset_secure(&sphincs_pk, 0, sizeof(sphincs_pk));
-	lc_memset_secure(&sphincs_sig, 0, sizeof(sphincs_sig));
+	lc_dilithium_ctx_zero(ctx);
+	lc_memset_secure(&dilithium_pk, 0, sizeof(dilithium_pk));
+	lc_memset_secure(&dilithium_sig, 0, sizeof(dilithium_sig));
 	return ret;
 }
 
-int public_key_generate_signature_sphincs(
+int public_key_generate_signature_dilithium(
 	const struct lc_x509_generate_data *gen_data,
 	const struct lc_public_key_signature *sig, uint8_t *sig_data,
-	size_t *available_len, unsigned int fast)
+	size_t *available_len)
 {
-	struct lc_sphincs_sig sphincs_sig;
-	struct lc_sphincs_sk *sphincs_sk = gen_data->sk.sphincs_sk;
+	struct lc_dilithium_sig dilithium_sig;
+	struct lc_dilithium_sk *dilithium_sk = gen_data->sk.dilithium_sk;
 	uint8_t *sigptr;
 	size_t siglen;
 	int ret;
-	LC_SPHINCS_CTX_ON_STACK(ctx);
-
-	if (fast) {
-		CKINT(lc_sphincs_sk_set_keytype_fast(sphincs_sk));
-	} else {
-		CKINT(lc_sphincs_sk_set_keytype_small(sphincs_sk));
-	}
+	LC_DILITHIUM_CTX_ON_STACK(ctx);
 
 	/*
 	 * Select the data to be signed
@@ -129,36 +119,32 @@ int public_key_generate_signature_sphincs(
 
 		CKNULL(hash_algo, -EOPNOTSUPP);
 
-		lc_sphincs_ctx_hash(ctx, hash_algo);
+		lc_dilithium_ctx_hash(ctx, hash_algo);
 #endif
-
 		/*
 		 * Sign the hash
 		 */
-		CKINT(lc_sphincs_sign_ctx(&sphincs_sig, ctx, sig->digest,
-					  sig->digest_size, sphincs_sk,
-					  lc_seeded_rng));
+		CKINT(lc_dilithium_sign_ctx(&dilithium_sig, ctx, sig->digest,
+					    sig->digest_size, dilithium_sk,
+					    lc_seeded_rng));
 	} else {
 		CKNULL(sig->raw_data, -EOPNOTSUPP);
 
 		/*
 		 * Verify the signature
 		 */
-		CKINT(lc_sphincs_sign_ctx(&sphincs_sig, ctx, sig->raw_data,
-					  sig->raw_data_len, sphincs_sk,
-					  lc_seeded_rng));
+		CKINT(lc_dilithium_sign_ctx(&dilithium_sig, ctx, sig->raw_data,
+					    sig->raw_data_len, dilithium_sk,
+					    lc_seeded_rng));
 	}
 
 	/*
 	 * Extract the signature
 	 */
-	CKINT(lc_sphincs_sig_ptr(&sigptr, &siglen, &sphincs_sig));
+	CKINT(lc_dilithium_sig_ptr(&sigptr, &siglen, &dilithium_sig));
 
 	/*
-	 * Consistency check
-	 *
-	 * We have to add one to the actual size, because the original buffer is
-	 * a BIT STRING which has a zero as prefix
+	 * Ensure that sufficient size is present
 	 */
 	if (*available_len < siglen) {
 		printf_debug("Signature too long: expected %zu, actual %zu\n",
@@ -176,13 +162,13 @@ int public_key_generate_signature_sphincs(
 	*available_len -= siglen;
 
 out:
-	lc_sphincs_ctx_zero(ctx);
-	lc_memset_secure(&sphincs_sig, 0, sizeof(sphincs_sig));
+	lc_dilithium_ctx_zero(ctx);
+	lc_memset_secure(&dilithium_sig, 0, sizeof(dilithium_sig));
 	return ret;
 }
 
-int x509_slhdsa_private_key_enc(void *context, uint8_t *data,
-				size_t *avail_datalen, uint8_t *tag)
+int x509_mldsa_private_key_enc(void *context, uint8_t *data,
+			       size_t *avail_datalen, uint8_t *tag)
 {
 	struct x509_generate_privkey_context *ctx = context;
 	const struct lc_x509_generate_data *gen_data = ctx->gendata;
@@ -192,33 +178,34 @@ int x509_slhdsa_private_key_enc(void *context, uint8_t *data,
 
 	(void)tag;
 
-	CKINT(lc_sphincs_sk_ptr(&pqc_ptr, &pqc_pklen, gen_data->sk.sphincs_sk));
+	CKINT(lc_dilithium_sk_ptr(&pqc_ptr, &pqc_pklen,
+				  gen_data->sk.dilithium_sk));
 
 	CKINT(x509_set_bit_string(data, avail_datalen, pqc_ptr, pqc_pklen));
 
-	printf_debug("Set SLH-DSA private key of size %zu\n", pqc_pklen);
+	printf_debug("Set ML-DSA private key of size %zu\n", pqc_pklen);
 
 out:
 	return ret;
 }
 
-int private_key_encode_sphincs(uint8_t *data, size_t *avail_datalen,
-			       struct x509_generate_privkey_context *ctx)
+int private_key_encode_dilithium(uint8_t *data, size_t *avail_datalen,
+				 struct x509_generate_privkey_context *ctx)
 {
 	int ret;
 
-	CKINT(asn1_ber_encoder(&x509_slhdsa_privkey_encoder, ctx, data,
+	CKINT(asn1_ber_encoder(&x509_mldsa_privkey_encoder, ctx, data,
 			       avail_datalen));
 
 out:
 	return ret;
 }
 
-int x509_slhdsa_private_key(void *context, size_t hdrlen, unsigned char tag,
-			    const uint8_t *value, size_t vlen)
+int x509_mldsa_private_key(void *context, size_t hdrlen, unsigned char tag,
+			   const uint8_t *value, size_t vlen)
 {
 	struct lc_x509_key_input_data *key_input_data = context;
-	struct lc_sphincs_sk *sphincs_sk = &key_input_data->sk.sphincs_sk;
+	struct lc_dilithium_sk *dilithium_sk = &key_input_data->sk.dilithium_sk;
 	int ret;
 
 	(void)hdrlen;
@@ -229,20 +216,20 @@ int x509_slhdsa_private_key(void *context, size_t hdrlen, unsigned char tag,
 	 */
 	if (vlen < 1)
 		return -EBADMSG;
-	CKINT(lc_sphincs_sk_load(sphincs_sk, value + 1, vlen - 1));
+	CKINT(lc_dilithium_sk_load(dilithium_sk, value + 1, vlen - 1));
 
-	printf_debug("Loaded SLH-DSA secret key of size %zu\n", vlen - 1);
+	printf_debug("Loaded ML-DSA secret key of size %zu\n", vlen - 1);
 
 out:
 	return ret;
 }
 
-int private_key_decode_sphincs(struct lc_x509_key_input_data *key_input_data,
-			       const uint8_t *data, size_t datalen)
+int private_key_decode_dilithium(struct lc_x509_key_input_data *key_input_data,
+				 const uint8_t *data, size_t datalen)
 {
 	int ret;
 
-	CKINT(asn1_ber_decoder(&x509_slhdsa_privkey_decoder, key_input_data,
+	CKINT(asn1_ber_decoder(&x509_mldsa_privkey_decoder, key_input_data,
 			       data, datalen));
 
 out:

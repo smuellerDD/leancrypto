@@ -17,31 +17,33 @@
  * DAMAGE.
  */
 
-#include "public_key_dilithium.h"
+#include "asym_key_sphincs.h"
 
-int public_key_verify_signature_dilithium(
+int public_key_verify_signature_sphincs(
 	const struct lc_public_key *pkey,
-	const struct lc_public_key_signature *sig)
+	const struct lc_public_key_signature *sig, unsigned int fast)
 {
 	(void)pkey;
 	(void)sig;
+	(void)fast;
 	return -ENOPKG;
 }
 
-int public_key_generate_signature_dilithium(
+int public_key_generate_signature_sphincs(
 	const struct lc_x509_generate_data *gen_data,
 	const struct lc_public_key_signature *sig, uint8_t *sig_data,
-	size_t *available_len)
+	size_t *available_len, unsigned int fast)
 {
 	(void)gen_data;
 	(void)sig;
 	(void)sig_data;
 	(void)available_len;
+	(void)fast;
 	return -ENOPKG;
 }
 
-int private_key_encode_dilithium(uint8_t *data, size_t *avail_datalen,
-				 struct x509_generate_privkey_context *ctx)
+int private_key_encode_sphincs(uint8_t *data, size_t *avail_datalen,
+			       struct x509_generate_privkey_context *ctx)
 {
 	(void)data;
 	(void)datalen;
@@ -49,11 +51,10 @@ int private_key_encode_dilithium(uint8_t *data, size_t *avail_datalen,
 	return -ENOPKG;
 }
 
-int private_key_decode_dilithium(struct lc_x509_key_input_data *key_input_data,
-				 const uint8_t *data, size_t datalen)
+int private_key_decode_sphincs(struct lc_x509_key_input_data *key_input_data,
+			       const uint8_t *data, size_t datalen)
 {
 	(void)key_input_data;
 	(void)data;
 	(void)datalen;
-	return -ENOPKG;
 }

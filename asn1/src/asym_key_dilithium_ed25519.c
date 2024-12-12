@@ -19,12 +19,12 @@
 
 #include "asn1.h"
 #include "asn1_debug.h"
+#include "asym_key_dilithium_ed25519.h"
 #include "dilithium_helper.h"
 #include "ext_headers.h"
 #include "lc_dilithium.h"
 #include "lc_hash.h"
 #include "lc_sphincs.h"
-#include "public_key_dilithium_ed25519.h"
 #include "ret_checkers.h"
 #include "x509_algorithm_mapper.h"
 #include "x509_composite_mldsa_privkey.asn1.h"

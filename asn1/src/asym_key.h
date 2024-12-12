@@ -17,8 +17,8 @@
  * DAMAGE.
  */
 
-#ifndef PUBLIC_KEY_H
-#define PUBLIC_KEY_H
+#ifndef ASYM_KEY_H
+#define ASYM_KEY_H
 
 #include "asymmetric_type.h"
 #include "lc_x509_parser.h"
@@ -71,4 +71,4 @@ int privkey_key_parse(struct lc_x509_key_input_data *key_input_data,
 }
 #endif
 
-#endif /* PUBLIC_KEY_H */
+#endif /* ASYM_KEY_H */
