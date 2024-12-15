@@ -446,8 +446,18 @@ if get_option('x509_generator').enabled()
 			 dependencies: leancrypto
 			 )
 	test('X.509 ML-DSA87 Leaf Signature', x509_siggen_sigver_tester,
-	args: [ '--sk-file', certdir + 'ml-dsa87_leaf.privkey',
-		'--x509-cert', certdir + 'ml-dsa87_leaf.der' ],
+		args: [ '--sk-file', certdir + 'ml-dsa87_leaf.privkey',
+			'--x509-cert', certdir + 'ml-dsa87_leaf.der' ],
+			suite: regression)
+	test('X.509 SLH-DSA-SHAKE-128f Leaf Signature',
+		x509_siggen_sigver_tester,
+		args: [ '--sk-file', certdir + 'slh-dsa-shake-128f_leaf.privkey',
+			'--x509-cert', certdir + 'slh-dsa-shake-128f_leaf.der' ],
+		suite: regression)
+	test('X.509 Composite-ML-DSA44 Signature',
+		x509_siggen_sigver_tester,
+		args: [ '--sk-file', certdir + 'ml-dsa44-ed25519_int1.privkey',
+			'--x509-cert', certdir + 'ml-dsa44-ed25519_int1.der' ],
 		suite: regression)
 endif
 
