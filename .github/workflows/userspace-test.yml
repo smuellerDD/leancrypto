@@ -23,10 +23,10 @@ jobs:
       run: meson compile -C build
     - name: Meson test
       run: meson test -C build
-    - name: Generate test coverage report
-      run: ninja coverage-html -C build
-    - name: Archive code coverage results
-      uses: actions/upload-artifact@v4
-      with:
-        name: code-coverage-report
-        path: build/meson-logs/coveragereport
+    #- name: Generate test coverage report
+    #  run: ninja coverage-html -C build
+    #- name: Archive code coverage results
+    #  uses: actions/upload-artifact@v4
+    #  with:
+    #    name: code-coverage-report
+    #    path: build/meson-logs/coveragereport
