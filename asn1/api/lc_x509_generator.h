@@ -68,7 +68,7 @@ extern "C" {
  *
  * @return 0 on success or < 0 on error
  */
-int lc_x509_cert_gen(const struct lc_x509_certificate *x509, uint8_t *data,
+int lc_x509_gen_cert(const struct lc_x509_certificate *x509, uint8_t *data,
 		     size_t *avail_datalen);
 
 /**
@@ -87,8 +87,59 @@ int lc_x509_cert_gen(const struct lc_x509_certificate *x509, uint8_t *data,
  *
  * @return 0 on success or < 0 on error
  */
-int lc_x509_privkey_gen(const struct lc_x509_generate_data *gendata,
+int lc_x509_gen_privkey(const struct lc_x509_key_data *gendata,
 			uint8_t *data, size_t *avail_datalen);
+
+/**
+ * @ingroup X509Gen
+ * @brief Return signature size derived from private key information
+ *
+ * @param [out] siglen Signature size
+ * @param [in] keys The data structure holding the private keys
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_get_signature_size_from_sk(
+	size_t *siglen, const struct lc_x509_key_data *keys);
+
+/**
+ * @ingroup X509Gen
+ * @brief Return signature size derived from certificate information
+ *
+ * @param [out] siglen Signature size
+ * @param [in] cert The certificate data structure with the available public key
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_get_signature_size_from_cert(
+	size_t *siglen, const struct lc_x509_certificate *cert);
+
+/**
+ * @ingroup X509Gen
+ * @brief Generate signature over user-supplied data
+ *
+ * @param [out] sig_data Caller-supplied buffer with signature (it needs to be
+ * 			 at least as large as reported by
+ * 			 \p lc_x509_get_signature_size_from_sk or
+ *			 \p lc_x509_get_signature_size_from_cert)
+ * @param [in,out] siglen Length of the \p sig_data buffer, the value will be
+ *			  updated such that it reflects the length of the
+ *			  signature.
+ * @param [in] keys The data structure holding the private keys
+ * @param [in] m Message to be signed
+ * @param [in] mlen Length of message
+ * @param [in] prehash_algo It is permissible that the message is prehashed. If
+ *			    so, it is indicated by this parameter which points
+ *			    to the used message digest the caller used to
+ *			    generate the prehashed message digest. This
+ *			    forces the use of the Hash[ML|SLH|Composite]-DSA.
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_gen_signature(uint8_t *sig_data, size_t *siglen,
+			  const struct lc_x509_key_data *keys,
+			  const uint8_t *m, size_t mlen,
+			  const struct lc_hash *prehash_algo);
 
 /**
  * @ingroup X509Gen

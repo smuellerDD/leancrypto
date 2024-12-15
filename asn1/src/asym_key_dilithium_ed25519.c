@@ -31,6 +31,34 @@
 #include "x509_composite_mldsa_pubkey.asn1.h"
 #include "x509_composite_mldsa_signature.asn1.h"
 
+static int public_key_set_prehash_dilithium_ed25519(
+	const struct lc_public_key_signature *sig,
+	struct lc_dilithium_ed25519_ctx *ctx)
+{
+	const struct lc_hash *hash_algo;
+	int ret = 0;
+
+	/*
+	 * https://datatracker.ietf.org/doc/html/draft-ietf-lamps-cms-sphincs-plus#name-signed-data-conventions
+	 * suggests to always use the pure signature schema. Therefore, do not
+	 * apply the HashML-DSA step here unless explicitly requested.
+	 */
+	if (!sig->request_prehash)
+		return 0;
+
+	if (sig->hash_algo)
+		hash_algo = sig->hash_algo;
+	else
+		CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
+
+	CKNULL(hash_algo, -EOPNOTSUPP);
+
+	lc_dilithium_ed25519_ctx_hash(ctx, hash_algo);
+
+out:
+	return ret;
+}
+
 int x509_ed25519_signature(void *context, size_t hdrlen, unsigned char tag,
 			   const uint8_t *value, size_t vlen)
 {
@@ -174,7 +202,7 @@ int x509_ed25519_public_key_enc(void *context, uint8_t *data,
 {
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
-	const struct lc_x509_generate_data *gen_data = &cert->pub_gen_data;
+	const struct lc_x509_key_data *gen_data = &cert->pub_gen_data;
 	size_t ml_dsa_pklen, ed25519_pklen;
 	uint8_t *ml_dsa_ptr, *ed25519_ptr;
 	int ret;
@@ -199,7 +227,7 @@ int x509_mldsa_public_key_enc(void *context, uint8_t *data,
 {
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
-	const struct lc_x509_generate_data *gen_data = &cert->pub_gen_data;
+	const struct lc_x509_key_data *gen_data = &cert->pub_gen_data;
 	size_t ml_dsa_pklen, ed25519_pklen;
 	uint8_t *ml_dsa_ptr, *ed25519_ptr;
 	int ret;
@@ -235,7 +263,7 @@ int x509_mldsa_composite_private_key_enc(void *context, uint8_t *data,
 					 size_t *avail_datalen, uint8_t *tag)
 {
 	struct x509_generate_privkey_context *ctx = context;
-	const struct lc_x509_generate_data *gen_data = ctx->gendata;
+	const struct lc_x509_key_data *keys = ctx->keys;
 	size_t ml_dsa_pklen, ed25519_pklen;
 	uint8_t *ml_dsa_ptr, *ed25519_ptr;
 	int ret;
@@ -244,7 +272,7 @@ int x509_mldsa_composite_private_key_enc(void *context, uint8_t *data,
 
 	CKINT(lc_dilithium_ed25519_sk_ptr(&ml_dsa_ptr, &ml_dsa_pklen,
 					  &ed25519_ptr, &ed25519_pklen,
-					  gen_data->sk.dilithium_ed25519_sk));
+					  keys->sk.dilithium_ed25519_sk));
 
 	CKINT(x509_set_bit_string(data, avail_datalen, ml_dsa_ptr,
 				  ml_dsa_pklen));
@@ -259,7 +287,7 @@ int x509_ed25519_private_key_enc(void *context, uint8_t *data,
 				 size_t *avail_datalen, uint8_t *tag)
 {
 	struct x509_generate_privkey_context *ctx = context;
-	const struct lc_x509_generate_data *gen_data = ctx->gendata;
+	const struct lc_x509_key_data *keys = ctx->keys;
 	size_t ml_dsa_pklen, ed25519_pklen;
 	uint8_t *ml_dsa_ptr, *ed25519_ptr;
 	int ret;
@@ -268,7 +296,7 @@ int x509_ed25519_private_key_enc(void *context, uint8_t *data,
 
 	CKINT(lc_dilithium_ed25519_sk_ptr(&ml_dsa_ptr, &ml_dsa_pklen,
 					  &ed25519_ptr, &ed25519_pklen,
-					  gen_data->sk.dilithium_ed25519_sk));
+					  keys->sk.dilithium_ed25519_sk));
 
 	CKINT(x509_set_bit_string(data, avail_datalen, ed25519_ptr,
 				  ed25519_pklen));
@@ -296,9 +324,9 @@ int x509_mldsa_composite_private_key(void *context, size_t hdrlen,
 				     unsigned char tag, const uint8_t *value,
 				     size_t vlen)
 {
-	struct lc_x509_key_input_data *key_input_data = context;
+	struct lc_x509_key_data *keys = context;
 	struct lc_dilithium_ed25519_sk *dilithium_sk =
-		&key_input_data->sk.dilithium_ed25519_sk;
+		keys->sk.dilithium_ed25519_sk;
 	int ret;
 
 	(void)hdrlen;
@@ -321,9 +349,9 @@ out:
 int x509_ed25519_private_key(void *context, size_t hdrlen, unsigned char tag,
 			     const uint8_t *value, size_t vlen)
 {
-	struct lc_x509_key_input_data *key_input_data = context;
+	struct lc_x509_key_data *keys = context;
 	struct lc_dilithium_ed25519_sk *dilithium_sk =
-		&key_input_data->sk.dilithium_ed25519_sk;
+		keys->sk.dilithium_ed25519_sk;
 	int ret;
 
 	(void)hdrlen;
@@ -338,14 +366,13 @@ out:
 	return ret;
 }
 
-int private_key_decode_dilithium_ed25519(
-	struct lc_x509_key_input_data *key_input_data, const uint8_t *data,
-	size_t datalen)
+int private_key_decode_dilithium_ed25519(struct lc_x509_key_data *keys,
+					 const uint8_t *data, size_t datalen)
 {
 	int ret;
 
 	CKINT(asn1_ber_decoder(&x509_composite_mldsa_privkey_decoder,
-			       key_input_data, data, datalen));
+			       keys, data, datalen));
 
 out:
 	return ret;
@@ -376,40 +403,26 @@ int public_key_verify_signature_dilithium_ed25519(
 	 * Select the data to be signed
 	 */
 	if (sig->digest_size) {
-		/*
-		 * https://datatracker.ietf.org/doc/html/draft-ietf-lamps-cms-sphincs-plus#name-signed-data-conventions
-		 * suggests to always use the pure signature schema.
-		 * Therefore, do not apply the HashML-DSA step here.
-		 */
-#if 0
-		const struct lc_hash *hash_algo;
+		CKINT(public_key_set_prehash_dilithium_ed25519(sig, ctx));
 
-		if (sig->hash_algo)
-			hash_algo = sig->hash_algo;
-		else
-			CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo,
-						       &hash_algo));
-
-		CKNULL(hash_algo, -EOPNOTSUPP);
-
-		lc_dilithium_ed25519_ctx_hash(ctx, hash_algo);
-
-		/*
-		 * Verify the signature
-		 */
-		CKINT(lc_dilithium_ed25519_verify_init(ctx, &dilithium_pk));
-		CKINT(lc_dilithium_ed25519_verify_update(ctx, sig->digest,
-							 sig->digest_size));
-		CKINT(lc_dilithium_ed25519_verify_final(&dilithium_sig, ctx,
-							&dilithium_pk));
-#else
-		/*
-		 * Verify the signature using Composite-ML-DSA
-		 */
-		CKINT(lc_dilithium_ed25519_verify_ctx(
-			&dilithium_sig, ctx, sig->digest, sig->digest_size,
-			&dilithium_pk));
-#endif
+		if (sig->request_prehash) {
+			/*
+			 * Verify the signature using HashComposite-ML-DSA
+			 */
+			CKINT(lc_dilithium_ed25519_verify_init(ctx,
+							       &dilithium_pk));
+			CKINT(lc_dilithium_ed25519_verify_update(
+				ctx, sig->digest, sig->digest_size));
+			CKINT(lc_dilithium_ed25519_verify_final(
+				&dilithium_sig, ctx, &dilithium_pk));
+		} else {
+			/*
+			 * Verify the signature using Composite-ML-DSA
+			 */
+			CKINT(lc_dilithium_ed25519_verify_ctx(
+				&dilithium_sig, ctx, sig->digest,
+				sig->digest_size, &dilithium_pk));
+		}
 	} else {
 		CKNULL(sig->raw_data, -EOPNOTSUPP);
 
@@ -429,7 +442,7 @@ out:
 }
 
 int public_key_generate_signature_dilithium_ed25519(
-	const struct lc_x509_generate_data *gen_data,
+	const struct lc_x509_key_data *keys,
 	const struct lc_public_key_signature *sig, uint8_t *sig_data,
 	size_t *available_len)
 {
@@ -437,7 +450,7 @@ int public_key_generate_signature_dilithium_ed25519(
 	uint8_t sigbuf[8192];
 	struct lc_dilithium_ed25519_sig dilithium_ed25519_sig;
 	struct lc_dilithium_ed25519_sk *dilithium_ed25519_sk =
-		gen_data->sk.dilithium_ed25519_sk;
+		keys->sk.dilithium_ed25519_sk;
 	size_t siglen = sizeof(sigbuf);
 	int ret;
 	LC_DILITHIUM_ED25519_CTX_ON_STACK(ctx);
@@ -446,38 +459,28 @@ int public_key_generate_signature_dilithium_ed25519(
 	 * Select the data to be signed
 	 */
 	if (sig->digest_size) {
-		/* See above for the reason */
-#if 0
-		const struct lc_hash *hash_algo;
+		CKINT(public_key_set_prehash_dilithium_ed25519(sig, ctx));
 
-		if (sig->hash_algo)
-			hash_algo = sig->hash_algo;
-		else
-			CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo,
-						       &hash_algo));
-
-		CKNULL(hash_algo, -EOPNOTSUPP);
-
-		lc_dilithium_ed25519_ctx_hash(ctx, hash_algo);
-
-		/*
-		 * Sign the hash using HashComposite-ML-DSA
-		 */
-		CKINT(lc_dilithium_ed25519_sign_init(ctx,
-						     dilithium_ed25519_sk));
-		CKINT(lc_dilithium_ed25519_sign_update(ctx, sig->digest,
-						       sig->digest_size));
-		CKINT(lc_dilithium_ed25519_sign_final(&dilithium_ed25519_sig,
-						      ctx, dilithium_ed25519_sk,
-						      lc_seeded_rng));
-#else
-		/*
-		 * Sign the signature using Composite-ML-DSA
-		 */
-		CKINT(lc_dilithium_ed25519_sign_ctx(
-			&dilithium_ed25519_sig, ctx, sig->digest,
-			sig->digest_size, dilithium_ed25519_sk, lc_seeded_rng));
-#endif
+		if (sig->request_prehash) {
+			/*
+			 * Sign the hash using HashComposite-ML-DSA
+			 */
+			CKINT(lc_dilithium_ed25519_sign_init(
+				ctx, dilithium_ed25519_sk));
+			CKINT(lc_dilithium_ed25519_sign_update(
+				ctx, sig->digest, sig->digest_size));
+			CKINT(lc_dilithium_ed25519_sign_final(
+				&dilithium_ed25519_sig,
+				ctx, dilithium_ed25519_sk, lc_seeded_rng));
+		} else {
+			/*
+			 * Sign the signature using Composite-ML-DSA
+			 */
+			CKINT(lc_dilithium_ed25519_sign_ctx(
+				&dilithium_ed25519_sig, ctx, sig->digest,
+				sig->digest_size, dilithium_ed25519_sk,
+				lc_seeded_rng));
+		}
 	} else {
 		CKNULL(sig->raw_data, -EOPNOTSUPP);
 

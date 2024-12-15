@@ -36,6 +36,7 @@ struct pkcs7_x509 {
 	struct pkcs7_x509 *next;
 
 	struct lc_x509_key_input_data signer_key_input_data;
+	struct lc_x509_key_data signer_key_data;
 	struct lc_x509_certificate *x509;
 
 	uint8_t *x509_data;
@@ -281,6 +282,7 @@ static int pkcs7_load_signer(struct pkcs7_generator_opts *opts)
 	struct lc_pkcs7_message *pkcs7 = &opts->pkcs7;
 	struct pkcs7_x509 *x509;
 	struct lc_x509_key_input_data *signer_key_input_data;
+	struct lc_x509_key_data *signer_key_data;
 	struct lc_x509_certificate *newcert = NULL;
 	int ret;
 
@@ -294,6 +296,7 @@ static int pkcs7_load_signer(struct pkcs7_generator_opts *opts)
 	pkcs7_add_x509(opts, x509);
 
 	signer_key_input_data = &x509->signer_key_input_data;
+	signer_key_data = &x509->signer_key_data;
 
 	CKINT_LOG(get_data(opts->x509_signer_file, &x509->signer_data,
 			   &x509->signer_data_len),
@@ -310,7 +313,8 @@ static int pkcs7_load_signer(struct pkcs7_generator_opts *opts)
 				 x509->signer_data_len));
 
 	/* Set the private key to the newly create certificate */
-	CKINT(lc_x509_cert_set_signer(newcert, signer_key_input_data, newcert,
+	LC_X509_LINK_INPUT_DATA(signer_key_data, signer_key_input_data);
+	CKINT(lc_x509_cert_set_signer(newcert, signer_key_data, newcert,
 				      x509->signer_sk_data,
 				      x509->signer_sk_data_len));
 

@@ -30,7 +30,7 @@ extern "C" {
 
 int private_key_encode_dilithium(uint8_t *data, size_t *avail_datalen,
 				 struct x509_generate_privkey_context *ctx);
-int private_key_decode_dilithium(struct lc_x509_key_input_data *key_input_data,
+int private_key_decode_dilithium(struct lc_x509_key_data *keys,
 				 const uint8_t *data, size_t datalen);
 
 int public_key_verify_signature_dilithium(
@@ -38,7 +38,7 @@ int public_key_verify_signature_dilithium(
 	const struct lc_public_key_signature *sig);
 
 int public_key_generate_signature_dilithium(
-	const struct lc_x509_generate_data *gen_data,
+	const struct lc_x509_key_data *gen_data,
 	const struct lc_public_key_signature *sig, uint8_t *sig_data,
 	size_t *available_len);
 

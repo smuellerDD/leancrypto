@@ -49,10 +49,10 @@ int private_key_encode_dilithium(uint8_t *data, size_t *avail_datalen,
 	return -ENOPKG;
 }
 
-int private_key_decode_dilithium(struct lc_x509_key_input_data *key_input_data,
+int private_key_decode_dilithium(struct lc_x509_key_data *keys,
 				 const uint8_t *data, size_t datalen)
 {
-	(void)key_input_data;
+	(void)keys;
 	(void)data;
 	(void)datalen;
 	return -ENOPKG;

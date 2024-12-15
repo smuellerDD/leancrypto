@@ -35,7 +35,7 @@ enum sig_algo_settings {
 };
 
 struct x509_generate_privkey_context {
-	const struct lc_x509_generate_data *gendata;
+	const struct lc_x509_key_data *keys;
 };
 
 struct x509_generate_context {

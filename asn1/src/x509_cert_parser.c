@@ -1153,19 +1153,18 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_x509_privkey_parse,
-		      struct lc_x509_key_input_data *key_input_data,
+LC_INTERFACE_FUNCTION(int, lc_x509_sk_parse, struct lc_x509_key_data *key,
 		      enum lc_sig_types key_type, const uint8_t *data,
 		      size_t datalen)
 {
 	int ret = 0;
 
-	CKNULL(key_input_data, -EINVAL);
+	CKNULL(key, -EINVAL);
 	CKNULL(data, -EINVAL);
 
-	key_input_data->sig_type = key_type;
+	key->sig_type = key_type;
 
-	CKINT(privkey_key_parse(key_input_data, data, datalen));
+	CKINT(privkey_key_parse(key, data, datalen));
 
 out:
 	return ret;

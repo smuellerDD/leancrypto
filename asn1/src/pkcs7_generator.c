@@ -959,7 +959,7 @@ int pkcs7_sig_note_signature_enc(void *context, uint8_t *data,
 	const struct lc_pkcs7_message *pkcs7 = ctx->pkcs7;
 	const struct lc_pkcs7_signed_info *sinfo = ctx->current_sinfo;
 	const struct lc_x509_certificate *x509 = sinfo->signer;
-	const struct lc_x509_generate_data *sig_gen_data = &x509->sig_gen_data;
+	const struct lc_x509_key_data *sig_gen_data = &x509->sig_gen_data;
 	int ret;
 
 	(void)tag;

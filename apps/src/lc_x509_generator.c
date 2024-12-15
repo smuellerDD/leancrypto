@@ -38,7 +38,9 @@ struct x509_generator_opts {
 	struct lc_x509_certificate cert;
 	struct lc_x509_certificate signer_cert;
 	struct lc_x509_key_input_data key_input_data;
+	struct lc_x509_key_data key_data;
 	struct lc_x509_key_input_data signer_key_input_data;
+	struct lc_x509_key_data signer_key_data;
 	struct x509_checker_options checker_opts;
 	uint8_t ipaddr[16];
 	uint8_t *raw_skid;
@@ -53,6 +55,8 @@ struct x509_generator_opts {
 	const char *pk_file;
 	const char *x509_signer_file;
 	const char *signer_sk_file;
+	const char *data_file;
+	const char *x509_cert_file;
 
 	uint8_t *signer_data;
 	size_t signer_data_len;
@@ -62,6 +66,10 @@ struct x509_generator_opts {
 	size_t sk_len;
 	uint8_t *signer_sk_data;
 	size_t signer_sk_len;
+	uint8_t *data;
+	size_t data_len;
+	uint8_t *x509_cert_data;
+	size_t x509_cert_data_len;
 
 	enum lc_sig_types create_keypair_algo;
 	enum lc_sig_types in_key_type;
@@ -69,6 +77,7 @@ struct x509_generator_opts {
 	unsigned int print_x509 : 1;
 	unsigned int noout : 1;
 	unsigned int checker : 1;
+	unsigned int cert_present : 1;
 };
 
 static int x509_check_file(const char *file)
@@ -174,7 +183,10 @@ static int x509_gen_cert(struct x509_generator_opts *opts)
 	size_t avail_datalen = sizeof(data), datalen;
 	int ret;
 
-	CKINT(lc_x509_cert_gen(gcert, data, &avail_datalen));
+	if (opts->cert_present)
+		return 0;
+
+	CKINT(lc_x509_gen_cert(gcert, data, &avail_datalen));
 	datalen = sizeof(data) - avail_datalen;
 
 	if (!opts->outfile)
@@ -208,6 +220,8 @@ static void x509_clean_opts(struct x509_generator_opts *opts)
 	release_data(opts->pk_data, opts->pk_len);
 	release_data(opts->sk_data, opts->sk_len);
 	release_data(opts->signer_sk_data, opts->signer_sk_len);
+	release_data(opts->data, opts->data_len);
+	release_data(opts->x509_cert_data, opts->x509_cert_data_len);
 
 	lc_memset_secure(opts, 0, sizeof(*opts));
 }
@@ -469,6 +483,7 @@ out:
 static int x509_enc_set_signer(struct x509_generator_opts *opts)
 {
 	struct lc_x509_certificate *gcert = &opts->cert;
+	struct lc_x509_key_data *signer_key_data = &opts->signer_key_data;
 	struct lc_x509_key_input_data *signer_key_input_data =
 		&opts->signer_key_input_data;
 	size_t paramlen = 0;
@@ -522,7 +537,8 @@ static int x509_enc_set_signer(struct x509_generator_opts *opts)
 			   &opts->signer_sk_len),
 		  "Signer SK mmap failure\n");
 
-	CKINT(lc_x509_cert_set_signer(gcert, signer_key_input_data,
+	LC_X509_LINK_INPUT_DATA(signer_key_data, signer_key_input_data);
+	CKINT(lc_x509_cert_set_signer(gcert, signer_key_data,
 				      &opts->signer_cert, opts->signer_sk_data,
 				      opts->signer_sk_len));
 
@@ -530,124 +546,126 @@ out:
 	return ret;
 }
 
-static int x509_enc_set_pubkey(struct x509_generator_opts *opts)
+static int x509_enc_set_key(struct x509_generator_opts *opts)
 {
 	struct lc_x509_certificate *gcert = &opts->cert;
 	struct lc_x509_key_input_data *key_input_data = &opts->key_input_data;
+	struct lc_x509_key_data *keys = &opts->key_data;
 	uint8_t der_sk[65536];
 	size_t der_sk_len = sizeof(der_sk);
 	unsigned int self_signed = !(opts->x509_signer_file);
 	int ret = 0;
 
+	LC_X509_LINK_INPUT_DATA(keys, key_input_data);
+
 	if (opts->create_keypair_algo) {
 		switch (opts->create_keypair_algo) {
 		case LC_SIG_DILITHIUM_44:
-			CKINT(lc_dilithium_keypair(
-				&key_input_data->pk.dilithium_pk,
-				&key_input_data->sk.dilithium_sk, lc_seeded_rng,
-				LC_DILITHIUM_44));
+			CKINT(lc_dilithium_keypair(keys->pk.dilithium_pk,
+						   keys->sk.dilithium_sk,
+						   lc_seeded_rng,
+						   LC_DILITHIUM_44));
 			goto load_dilithium;
 			break;
 		case LC_SIG_DILITHIUM_65:
 			CKINT(lc_dilithium_keypair(
-				&key_input_data->pk.dilithium_pk,
-				&key_input_data->sk.dilithium_sk, lc_seeded_rng,
+				keys->pk.dilithium_pk,
+				keys->sk.dilithium_sk, lc_seeded_rng,
 				LC_DILITHIUM_65));
 			goto load_dilithium;
 			break;
 		case LC_SIG_DILITHIUM_87:
 			CKINT(lc_dilithium_keypair(
-				&key_input_data->pk.dilithium_pk,
-				&key_input_data->sk.dilithium_sk, lc_seeded_rng,
+				keys->pk.dilithium_pk,
+				keys->sk.dilithium_sk, lc_seeded_rng,
 				LC_DILITHIUM_87));
 		load_dilithium:
 			if (self_signed) {
 				CKINT(lc_x509_cert_set_signer_keypair_dilithium(
-					gcert, &key_input_data->pk.dilithium_pk,
-					&key_input_data->sk.dilithium_sk));
+					gcert, keys->pk.dilithium_pk,
+					keys->sk.dilithium_sk));
 			}
 			CKINT(lc_x509_cert_set_pubkey_dilithium(
-				gcert, &key_input_data->pk.dilithium_pk));
+				gcert, keys->pk.dilithium_pk));
 			break;
 		case LC_SIG_SPINCS_SHAKE_128F:
-			CKINT(lc_sphincs_keypair(&key_input_data->pk.sphincs_pk,
-						 &key_input_data->sk.sphincs_sk,
+			CKINT(lc_sphincs_keypair(keys->pk.sphincs_pk,
+						 keys->sk.sphincs_sk,
 						 lc_seeded_rng,
 						 LC_SPHINCS_SHAKE_128f));
 			goto load_sphincs;
 			break;
 		case LC_SIG_SPINCS_SHAKE_128S:
-			CKINT(lc_sphincs_keypair(&key_input_data->pk.sphincs_pk,
-						 &key_input_data->sk.sphincs_sk,
+			CKINT(lc_sphincs_keypair(keys->pk.sphincs_pk,
+						 keys->sk.sphincs_sk,
 						 lc_seeded_rng,
 						 LC_SPHINCS_SHAKE_128s));
 			goto load_sphincs;
 			break;
 		case LC_SIG_SPINCS_SHAKE_192F:
-			CKINT(lc_sphincs_keypair(&key_input_data->pk.sphincs_pk,
-						 &key_input_data->sk.sphincs_sk,
+			CKINT(lc_sphincs_keypair(keys->pk.sphincs_pk,
+						 keys->sk.sphincs_sk,
 						 lc_seeded_rng,
 						 LC_SPHINCS_SHAKE_192f));
 			goto load_sphincs;
 			break;
 		case LC_SIG_SPINCS_SHAKE_192S:
-			CKINT(lc_sphincs_keypair(&key_input_data->pk.sphincs_pk,
-						 &key_input_data->sk.sphincs_sk,
+			CKINT(lc_sphincs_keypair(keys->pk.sphincs_pk,
+						 keys->sk.sphincs_sk,
 						 lc_seeded_rng,
 						 LC_SPHINCS_SHAKE_192s));
 			goto load_sphincs;
 			break;
 		case LC_SIG_SPINCS_SHAKE_256F:
-			CKINT(lc_sphincs_keypair(&key_input_data->pk.sphincs_pk,
-						 &key_input_data->sk.sphincs_sk,
+			CKINT(lc_sphincs_keypair(keys->pk.sphincs_pk,
+						 keys->sk.sphincs_sk,
 						 lc_seeded_rng,
 						 LC_SPHINCS_SHAKE_256f));
 			goto load_sphincs;
 			break;
 		case LC_SIG_SPINCS_SHAKE_256S:
-			CKINT(lc_sphincs_keypair(&key_input_data->pk.sphincs_pk,
-						 &key_input_data->sk.sphincs_sk,
+			CKINT(lc_sphincs_keypair(keys->pk.sphincs_pk,
+						 keys->sk.sphincs_sk,
 						 lc_seeded_rng,
 						 LC_SPHINCS_SHAKE_256s));
 		load_sphincs:
 			if (self_signed) {
 				CKINT(lc_x509_cert_set_signer_keypair_sphincs(
-					gcert, &key_input_data->pk.sphincs_pk,
-					&key_input_data->sk.sphincs_sk));
+					gcert, keys->pk.sphincs_pk,
+					keys->sk.sphincs_sk));
 			}
 			CKINT(lc_x509_cert_set_pubkey_sphincs(
-				gcert, &key_input_data->pk.sphincs_pk));
+				gcert, keys->pk.sphincs_pk));
 			break;
 		case LC_SIG_DILITHIUM_44_ED25519:
 			CKINT(lc_dilithium_ed25519_keypair(
-				&key_input_data->pk.dilithium_ed25519_pk,
-				&key_input_data->sk.dilithium_ed25519_sk,
+				keys->pk.dilithium_ed25519_pk,
+				keys->sk.dilithium_ed25519_sk,
 				lc_seeded_rng, LC_DILITHIUM_44));
 			goto load_dilithium_ed25519;
 			break;
 		case LC_SIG_DILITHIUM_65_ED25519:
 			CKINT(lc_dilithium_ed25519_keypair(
-				&key_input_data->pk.dilithium_ed25519_pk,
-				&key_input_data->sk.dilithium_ed25519_sk,
+				keys->pk.dilithium_ed25519_pk,
+				keys->sk.dilithium_ed25519_sk,
 				lc_seeded_rng, LC_DILITHIUM_65));
 			goto load_dilithium_ed25519;
 			break;
 		case LC_SIG_DILITHIUM_87_ED25519:
 			CKINT(lc_dilithium_ed25519_keypair(
-				&key_input_data->pk.dilithium_ed25519_pk,
-				&key_input_data->sk.dilithium_ed25519_sk,
+				keys->pk.dilithium_ed25519_pk,
+				keys->sk.dilithium_ed25519_sk,
 				lc_seeded_rng, LC_DILITHIUM_87));
 		load_dilithium_ed25519:
 			if (self_signed) {
 				CKINT(lc_x509_cert_set_signer_keypair_dilithium_ed25519(
 					gcert,
-					&key_input_data->pk.dilithium_ed25519_pk,
-					&key_input_data->sk
-						 .dilithium_ed25519_sk));
+					keys->pk.dilithium_ed25519_pk,
+					keys->sk.dilithium_ed25519_sk));
 			}
 			CKINT(lc_x509_cert_set_pubkey_dilithium_ed25519(
 				gcert,
-				&key_input_data->pk.dilithium_ed25519_pk));
+				keys->pk.dilithium_ed25519_pk));
 			break;
 		case LC_SIG_DILITHIUM_87_ED448:
 		case LC_SIG_ECDSA_X963:
@@ -662,19 +680,39 @@ static int x509_enc_set_pubkey(struct x509_generator_opts *opts)
 		key_input_data->sig_type = opts->create_keypair_algo;
 
 		if (!opts->noout) {
-			struct lc_x509_generate_data gendata = {
-				.sig_type = key_input_data->sig_type,
-				.sk.dilithium_sk =
-					&key_input_data->sk.dilithium_sk,
-			};
-
-			CKINT_LOG(lc_x509_privkey_gen(&gendata, der_sk,
+			CKINT_LOG(lc_x509_gen_privkey(keys, der_sk,
 						      &der_sk_len),
 				  "Generation of private key file failed\n");
 			CKINT(write_data(opts->sk_file, der_sk,
 					 sizeof(der_sk) - der_sk_len));
 		}
 
+	} else if (opts->x509_cert_file) {
+		/* Caller set X.509 certificate, perhaps for signing. */
+
+		/* Secret key must be present */
+		CKNULL_LOG(opts->sk_file, -EINVAL,
+			   "Secret key corresponding to certificate missing\n");
+
+		/* Access the X.509 certificate file */
+		CKINT_LOG(get_data(opts->x509_cert_file, &opts->x509_cert_data,
+				   &opts->x509_cert_data_len),
+			  "X.509 certificate mmap failure\n");
+		/* Parse the X.509 certificate */
+		CKINT_LOG(lc_x509_cert_parse(gcert, opts->x509_cert_data,
+					     opts->x509_cert_data_len),
+			  "Loading of X.509 certificate failed\n");
+
+		/* Access the X.509 certificate file */
+		CKINT_LOG(get_data(opts->sk_file, &opts->sk_data,
+				   &opts->sk_len),
+			  "Secret key mmap failure\n");
+		/* Parse the X.509 secret key */
+		CKINT_LOG(lc_x509_sk_parse(keys, gcert->pub.pkey_algo,
+					   opts->sk_data, opts->sk_len),
+			  "Parsing of secret key failed\n");
+
+		opts->cert_present = 1;
 	} else {
 		CKNULL_LOG(!opts->in_key_type, -EINVAL,
 			   "Input key files must be specified with key type\n");
@@ -686,9 +724,8 @@ static int x509_enc_set_pubkey(struct x509_generator_opts *opts)
 			CKINT_LOG(get_data(opts->sk_file, &opts->sk_data,
 					   &opts->sk_len),
 				  "SK mmap failure\n");
-			CKINT(lc_x509_privkey_parse(
-				key_input_data, opts->in_key_type,
-				opts->sk_data, opts->sk_len));
+			CKINT(lc_x509_sk_parse(keys, opts->in_key_type,
+					       opts->sk_data, opts->sk_len));
 
 			/* TODO pubkey_parse */
 		}
@@ -779,7 +816,8 @@ static int x509_enc_crypto_algo(struct x509_generator_opts *opts)
 		return -EINVAL;
 	}
 
-	if (!opts->create_keypair_algo && !opts->pk_file) {
+	if (!opts->x509_cert_file && !opts->create_keypair_algo &&
+	    !opts->pk_file) {
 		printf("A public key file for the generation the X.509 certificate is missing as no key pair shall be generated!\n");
 		return -EINVAL;
 	}
@@ -787,8 +825,8 @@ static int x509_enc_crypto_algo(struct x509_generator_opts *opts)
 	/*
 	 * Set the public key
 	 */
-	CKINT_LOG(x509_enc_set_pubkey(opts),
-		  "Setting X.509 public key failed\n");
+	CKINT_LOG(x509_enc_set_key(opts),
+		  "Setting X.509 public key / secret key failed\n");
 
 	/*
 	 * Set the signer information
@@ -799,6 +837,33 @@ static int x509_enc_crypto_algo(struct x509_generator_opts *opts)
 	}
 
 out:
+	return ret;
+}
+
+static int x509_sign_data(struct x509_generator_opts *opts)
+{
+	const struct lc_x509_key_data *key_data = &opts->key_data;
+	size_t siglen;
+	uint8_t *sigptr = NULL;
+	int ret;
+
+	if (!opts->data_file)
+		return 0;
+
+	CKINT(lc_x509_get_signature_size_from_sk(&siglen, key_data));
+
+	CKINT(lc_alloc_aligned((void **)&sigptr, 8, siglen));
+
+	CKINT_LOG(get_data(opts->data_file, &opts->data, &opts->data_len),
+		  "Failure of getting data to be signed\n");
+
+	CKINT(lc_x509_gen_signature(sigptr, &siglen, key_data, opts->data,
+				    opts->data_len, NULL));
+
+	bin2print(sigptr, siglen, stdout, "Signature");
+
+out:
+	lc_free(sigptr);
 	return ret;
 }
 
@@ -817,12 +882,14 @@ static void x509_generator_usage(void)
 	fprintf(stderr,
 		"\t   --sk-file <FILE>\t\tFile with secret key used for signature\n");
 	fprintf(stderr,
-		"\t\t\t\t\t\tInput when key is available (MUST be DER),\n");
+		"\t\t\t\t\t\tInput when key is available\n"),
+	fprintf(stderr, "\t\t\t\t\t\t(MUST be DER),\n");
 	fprintf(stderr, "\t\t\t\t\t\toutput with --create-keypair\n");
 	fprintf(stderr,
 		"\t   --pk-file <FILE>\t\tFile with public key used for signature\n");
 	fprintf(stderr,
-		"\t\t\t\t\t\tInput when key is available (MUST be plain),\n");
+		"\t\t\t\t\t\tInput when key is available\n"),
+	fprintf(stderr, "\t\t\t\t\t\tto generate cert (MUST be plain),\n");
 	fprintf(stderr, "\t\t\t\t\t\toutput with --create-keypair\n");
 	fprintf(stderr,
 		"\t   --key-type <TYPE>\t\tInput keys are of given type\n");
@@ -836,6 +903,8 @@ static void x509_generator_usage(void)
 	fprintf(stderr, "\t\t\t\t\t\tcertificate\n");
 	fprintf(stderr,
 		"\t   --signer-sk-file <FILE>\t\tFile with signer secret\n");
+	fprintf(stderr,
+		"\t   --x509-cert <FILE>\t\tCertificate for signing\n");
 
 	fprintf(stderr, "\n\tOptions for X.509 meta data:\n");
 	fprintf(stderr, "\t   --eku <FLAG>\t\t\tSet Extended Key Usage flag\n");
@@ -915,6 +984,8 @@ static void x509_generator_usage(void)
 	fprintf(stderr, "\t   --check-skid <HEX>\t\tmatch subject key ID\n");
 	fprintf(stderr, "\t   --check-akid <HEX>\t\tmatch authority key ID\n");
 
+	fprintf(stderr, "\t   --data-file <FILE>\tFile with data to sign\n");
+
 	fprintf(stderr, "\n\t-h  --help\t\t\tPrint this help text\n");
 }
 
@@ -984,6 +1055,9 @@ int main(int argc, char *argv[])
 					      { "check-selfsigned", 0, 0, 0 },
 					      { "check-rootca", 0, 0, 0 },
 					      { "check-keyusage", 1, 0, 0 },
+
+					      { "data-file", 1, 0, 0 },
+					      { "x509-cert", 1, 0, 0 },
 
 					      { 0, 0, 0, 0 } };
 
@@ -1244,6 +1318,15 @@ int main(int argc, char *argv[])
 					(unsigned int)strtoul(optarg, NULL, 10);
 				parsed_opts.checker = 1;
 				break;
+
+			/* data-file */
+			case 50:
+				parsed_opts.data_file = optarg;
+				break;
+			/* x509-cert */
+			case 51:
+				parsed_opts.x509_cert_file = optarg;
+				break;
 			}
 			break;
 
@@ -1270,6 +1353,8 @@ int main(int argc, char *argv[])
 	CKINT(x509_enc_crypto_algo(&parsed_opts));
 
 	CKINT(x509_gen_cert(&parsed_opts));
+
+	CKINT(x509_sign_data(&parsed_opts));
 
 out:
 	x509_clean_opts(&parsed_opts);

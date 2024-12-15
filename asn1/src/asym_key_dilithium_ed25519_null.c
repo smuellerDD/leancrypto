@@ -30,10 +30,10 @@ int private_key_encode_dilithium_ed25519(
 }
 
 int private_key_decode_dilithium_ed25519(
-	struct lc_x509_key_input_data *key_input_data, const uint8_t *data,
+	struct lc_x509_key_data *keys, const uint8_t *data,
 	size_t datalen)
 {
-	(void)key_input_data;
+	(void)keys;
 	(void)data;
 	(void)datalen;
 	return -ENOPKG;
@@ -58,11 +58,11 @@ int public_key_verify_signature_dilithium_ed25519(
 }
 
 int public_key_generate_signature_dilithium_ed25519(
-	const struct lc_x509_generate_data *gen_data,
+	const struct lc_x509_key_data *keys,
 	const struct lc_public_key_signature *sig, uint8_t *sig_data,
 	size_t *available_len)
 {
-	(void)gen_data;
+	(void)keys;
 	(void)sig;
 	(void)sig_data;
 	(void)available_len;

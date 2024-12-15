@@ -56,7 +56,7 @@ void public_key_signature_clear(struct lc_public_key_signature *sig);
 int public_key_verify_signature(const struct lc_public_key *pkey,
 				const struct lc_public_key_signature *sig);
 
-int public_key_generate_signature(const struct lc_x509_generate_data *gen_data,
+int public_key_generate_signature(const struct lc_x509_key_data *gen_data,
 				  const struct lc_public_key_signature *sig,
 				  uint8_t *sig_data, size_t *available_len);
 int public_key_extract(struct x509_generate_context *ctx, uint8_t *dst_data,
@@ -64,7 +64,7 @@ int public_key_extract(struct x509_generate_context *ctx, uint8_t *dst_data,
 int public_key_signature_size(size_t *siglen, enum lc_sig_types sig_type);
 int privkey_key_generate(struct x509_generate_privkey_context *ctx,
 			 uint8_t *dst_data, size_t *available_len);
-int privkey_key_parse(struct lc_x509_key_input_data *key_input_data,
+int privkey_key_parse(struct lc_x509_key_data *keys,
 		      const uint8_t *data, size_t datalen);
 
 #ifdef __cplusplus

@@ -26,7 +26,7 @@
 #include "x509_cert_parser.h"
 
 static int
-lc_x509_cert_set_dilithium_keypair(struct lc_x509_generate_data *gen_data,
+lc_x509_cert_set_dilithium_keypair(struct lc_x509_key_data *gen_data,
 				   struct lc_dilithium_pk *pk,
 				   struct lc_dilithium_sk *sk)
 {
@@ -100,7 +100,7 @@ out:
 }
 
 static int
-lc_x509_cert_set_sphincs_keypair(struct lc_x509_generate_data *gen_data,
+lc_x509_cert_set_sphincs_keypair(struct lc_x509_key_data *gen_data,
 				 struct lc_sphincs_pk *pk,
 				 struct lc_sphincs_sk *sk)
 {
@@ -182,7 +182,7 @@ out:
 }
 
 static int lc_x509_cert_set_dilithium_ed25519_keypair(
-	struct lc_x509_generate_data *gen_data,
+	struct lc_x509_key_data *gen_data,
 	struct lc_dilithium_ed25519_pk *pk, struct lc_dilithium_ed25519_sk *sk)
 {
 	uint8_t *dilithium_pk_ptr, *ed25519_pk_ptr;
@@ -386,7 +386,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_ca,
 						    cert->raw_skid_size));
 		} else {
 			/* Otherwise point to the default SKID */
-			const struct lc_x509_generate_data *gendata =
+			const struct lc_x509_key_data *gendata =
 				&cert->pub_gen_data;
 
 			CKINT(lc_x509_cert_set_akid(cert, gendata->pk_digest,
@@ -475,7 +475,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_skid,
 		      struct lc_x509_certificate *cert, const uint8_t *skid,
 		      size_t skidlen)
 {
-	const struct lc_x509_generate_data *gendata = &cert->pub_gen_data;
+	const struct lc_x509_key_data *gendata = &cert->pub_gen_data;
 	int ret = 0;
 
 	CKNULL(cert, -EINVAL);

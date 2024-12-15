@@ -27,8 +27,26 @@
 extern "C" {
 #endif
 
+struct lc_x509_key_input_data {
+	enum lc_sig_types sig_type;
+	union {
+		struct lc_dilithium_pk dilithium_pk;
+		struct lc_dilithium_ed25519_pk dilithium_ed25519_pk;
+		struct lc_sphincs_pk sphincs_pk;
+	} pk;
+	union {
+		struct lc_dilithium_sk dilithium_sk;
+		struct lc_dilithium_ed25519_sk dilithium_ed25519_sk;
+		struct lc_sphincs_sk sphincs_sk;
+	} sk;
+};
+
+#define LC_X509_LINK_INPUT_DATA(key_data, key_input_data)                      \
+	key_data->pk.dilithium_pk = &key_input_data->pk.dilithium_pk;          \
+	key_data->sk.dilithium_sk = &key_input_data->sk.dilithium_sk;
+
 int lc_x509_cert_set_signer(struct lc_x509_certificate *signed_x509,
-			    struct lc_x509_key_input_data *signer_key_input_data,
+			    struct lc_x509_key_data *signer_key_data,
 			    struct lc_x509_certificate *signer_x509,
 			    const uint8_t *sk_data, size_t sk_data_len);
 

@@ -198,6 +198,7 @@ struct lc_public_key_signature {
 	size_t digest_size;
 	uint8_t digest[LC_SHA_MAX_SIZE_DIGEST];
 	const struct lc_hash *hash_algo;
+	unsigned int request_prehash : 1;
 
 	enum lc_sig_types pkey_algo;
 
@@ -232,7 +233,7 @@ struct lc_x509_certificate_name {
  * The X.509 Generator also uses the parser for final operations. This
  * data structure encapsulates the information only required during generation.
  */
-struct lc_x509_generate_data {
+struct lc_x509_key_data {
 	enum lc_sig_types sig_type;
 	union {
 		struct lc_dilithium_pk *dilithium_pk;
@@ -250,8 +251,8 @@ struct lc_x509_generate_data {
 struct lc_x509_certificate {
 	struct lc_x509_certificate *next;
 	struct lc_x509_certificate *signer; /* Certificate that signed this one */
-	struct lc_x509_generate_data sig_gen_data;
-	struct lc_x509_generate_data pub_gen_data;
+	struct lc_x509_key_data sig_gen_data;
+	struct lc_x509_key_data pub_gen_data;
 	struct lc_public_key pub; /* Public key details */
 	struct lc_public_key_signature sig; /* Signature parameters */
 	struct lc_asymmetric_key_id id; /* Issuer + Serial number */
@@ -301,21 +302,6 @@ struct lc_x509_certificate {
 	unsigned int
 		unsupported_sig : 1; /* T if signature uses unsupported crypto */
 	unsigned int blacklisted : 1;
-};
-
-struct lc_x509_key_input_data {
-	struct lc_x509_key_input_data *next;
-	enum lc_sig_types sig_type;
-	union {
-		struct lc_dilithium_pk dilithium_pk;
-		struct lc_dilithium_ed25519_pk dilithium_ed25519_pk;
-		struct lc_sphincs_pk sphincs_pk;
-	} pk;
-	union {
-		struct lc_dilithium_sk dilithium_sk;
-		struct lc_dilithium_ed25519_sk dilithium_ed25519_sk;
-		struct lc_sphincs_sk sphincs_sk;
-	} sk;
 };
 
 /// \endcond

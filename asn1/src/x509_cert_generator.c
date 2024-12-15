@@ -482,7 +482,7 @@ int x509_skid_enc(void *context, uint8_t *data, size_t *avail_datalen,
 		bin2print_debug(cert->raw_skid, cert->raw_skid_size, stdout,
 				"SKID");
 	} else {
-		const struct lc_x509_generate_data *gendata =
+		const struct lc_x509_key_data *gendata =
 			&cert->pub_gen_data;
 
 		CKINT(x509_sufficient_size(avail_datalen,
@@ -1178,6 +1178,7 @@ int x509_extract_key_data_enc(void *context, uint8_t *data,
 			      size_t *avail_datalen, uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
+	size_t orig = *avail_datalen;
 	int ret;
 
 	(void)tag;
@@ -1190,7 +1191,8 @@ int x509_extract_key_data_enc(void *context, uint8_t *data,
 
 	CKINT(public_key_extract(ctx, data, avail_datalen));
 
-	printf_debug("Set public key of size %zu\n", pklen);
+	(void)orig;
+	printf_debug("Set public key of size %zu\n", orig - *avail_datalen);
 
 out:
 	return ret;
@@ -1224,7 +1226,7 @@ out:
  * API functions
  ******************************************************************************/
 
-LC_INTERFACE_FUNCTION(int, lc_x509_cert_gen,
+LC_INTERFACE_FUNCTION(int, lc_x509_gen_cert,
 		      const struct lc_x509_certificate *x509, uint8_t *data,
 		      size_t *avail_datalen)
 {
@@ -1281,21 +1283,78 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_x509_privkey_gen,
-		      const struct lc_x509_generate_data *gendata,
+LC_INTERFACE_FUNCTION(int, lc_x509_gen_privkey,
+		      const struct lc_x509_key_data *keys,
 		      uint8_t *data, size_t *avail_datalen)
 {
 	struct x509_generate_privkey_context ctx = { 0 };
 	int ret = 0;
 
-	CKNULL(gendata, -EINVAL);
+	CKNULL(keys, -EINVAL);
 	CKNULL(data, -EINVAL);
 
-	ctx.gendata = gendata;
+	ctx.keys = keys;
 
 	CKINT(privkey_key_generate(&ctx, data, avail_datalen));
 
 out:
 	lc_memset_secure(&ctx, 0, sizeof(ctx));
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x509_get_signature_size_from_sk,
+		      size_t *siglen, const struct lc_x509_key_data *keys)
+{
+	if (!siglen || !keys)
+		return -EINVAL;
+	return public_key_signature_size(siglen, keys->sig_type);
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x509_get_signature_size_from_cert,
+		      size_t *siglen,
+		      const struct lc_x509_certificate *cert)
+{
+	const struct lc_public_key *pub;
+
+	if (!siglen || !cert)
+		return -EINVAL;
+
+	pub = &cert->pub;
+	return public_key_signature_size(siglen, pub->pkey_algo);
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x509_gen_signature,
+		      uint8_t *sig_data, size_t *siglen,
+		      const struct lc_x509_key_data *keys,
+		      const uint8_t *m, size_t mlen,
+		      const struct lc_hash *prehash_algo)
+{
+	struct lc_public_key_signature sig;
+	size_t available_siglen = *siglen;
+	int ret = 0;
+
+	CKNULL(keys, -EINVAL);
+	CKNULL(sig_data, -EINVAL);
+
+	if (prehash_algo) {
+		if (mlen > LC_SHA_MAX_SIZE_DIGEST)
+			return -EOVERFLOW;
+
+		memcpy(sig.digest, m, mlen);
+		sig.digest_size = mlen;
+		sig.hash_algo = prehash_algo;
+		sig.request_prehash = 1;
+	} else {
+		sig.raw_data = m;
+		sig.raw_data_len = mlen;
+	}
+
+	CKINT(public_key_generate_signature(keys, &sig, sig_data,
+					    &available_siglen));
+
+	*siglen -= available_siglen;
+
+out:
+	lc_memset_secure(&sig, 0, sizeof(sig));
 	return ret;
 }

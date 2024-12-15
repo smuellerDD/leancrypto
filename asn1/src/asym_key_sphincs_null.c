@@ -30,11 +30,11 @@ int public_key_verify_signature_sphincs(
 }
 
 int public_key_generate_signature_sphincs(
-	const struct lc_x509_generate_data *gen_data,
+	const struct lc_x509_key_data *keys,
 	const struct lc_public_key_signature *sig, uint8_t *sig_data,
 	size_t *available_len, unsigned int fast)
 {
-	(void)gen_data;
+	(void)keys;
 	(void)sig;
 	(void)sig_data;
 	(void)available_len;
@@ -51,10 +51,11 @@ int private_key_encode_sphincs(uint8_t *data, size_t *avail_datalen,
 	return -ENOPKG;
 }
 
-int private_key_decode_sphincs(struct lc_x509_key_input_data *key_input_data,
+int private_key_decode_sphincs(struct lc_x509_key_data *keys,
 			       const uint8_t *data, size_t datalen)
 {
-	(void)key_input_data;
+	(void)keys;
 	(void)data;
 	(void)datalen;
+	return -ENOPKG;
 }

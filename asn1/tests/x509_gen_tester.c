@@ -383,7 +383,7 @@ static int x509_gen_cert(struct x509_checker_options *opts)
 	size_t avail_datalen = sizeof(data), datalen;
 	int ret;
 
-	CKINT(lc_x509_cert_gen(gcert, data, &avail_datalen));
+	CKINT(lc_x509_gen_cert(gcert, data, &avail_datalen));
 	datalen = sizeof(data) - avail_datalen;
 
 	bin2print(data, datalen, stdout, "X.509 Certificate");
