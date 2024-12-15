@@ -54,11 +54,11 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ctx_alloc_ahat,
 		return -EINVAL;
 
 #ifdef LC_DILITHIUM_87_ENABLED
-	return lc_dilithium_87_ctx_alloc(ctx);
+	return lc_dilithium_87_ctx_alloc_ahat(ctx);
 #elif defined(LC_DILITHIUM_65_ENABLED)
-	return lc_dilithium_65_ctx_alloc(ctx);
+	return lc_dilithium_65_ctx_alloc_ahat(ctx);
 #elif defined(LC_DILITHIUM_44_ENABLED)
-	return lc_dilithium_44_ctx_alloc(ctx);
+	return lc_dilithium_44_ctx_alloc_ahat(ctx);
 #else
 	return -EOPNOTSUPP;
 #endif
