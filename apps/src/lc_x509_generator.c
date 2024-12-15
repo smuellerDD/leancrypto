@@ -677,7 +677,7 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 			return -ENOPKG;
 		}
 
-		key_input_data->sig_type = opts->create_keypair_algo;
+		keys->sig_type = opts->create_keypair_algo;
 
 		if (!opts->noout) {
 			CKINT_LOG(lc_x509_gen_privkey(keys, der_sk,
