@@ -59,7 +59,7 @@ struct pkcs7_generator_opts {
 
 	const char *outfile;
 	const char *infile;
-	const char *print_pkcs7_msg;
+	const char *pkcs7_msg;
 
 	const char *x509_file;
 	const char *x509_signer_file;
@@ -201,14 +201,14 @@ static int pkcs7_dump_file(struct pkcs7_generator_opts *opts)
 	size_t pkcs7_datalen = 0;
 	int ret;
 
-	if (!opts->print_pkcs7_msg && !opts->checker)
+	if (!opts->pkcs7_msg && !opts->checker)
 		return 0;
 
-	CKINT_LOG(get_data(opts->print_pkcs7_msg, &pkcs7_data, &pkcs7_datalen),
-		  "Loading of file %s failed\n", opts->print_pkcs7_msg);
+	CKINT_LOG(get_data(opts->pkcs7_msg, &pkcs7_data, &pkcs7_datalen),
+		  "Loading of file %s failed\n", opts->pkcs7_msg);
 
 	CKINT_LOG(lc_pkcs7_message_parse(&ppkcs7, pkcs7_data, pkcs7_datalen),
-		  "Parsing of input file %s failed\n", opts->print_pkcs7_msg);
+		  "Parsing of input file %s failed\n", opts->pkcs7_msg);
 
 	if (opts->data) {
 		CKINT(lc_pkcs7_set_data(&ppkcs7, opts->data, opts->datalen, 0));
@@ -224,7 +224,7 @@ static int pkcs7_dump_file(struct pkcs7_generator_opts *opts)
 	if (opts->checker)
 		CKINT(apply_checks_pkcs7(&ppkcs7, &opts->checker_opts));
 
-	if (opts->print_pkcs7_msg)
+	if (opts->print_pkcs7)
 		CKINT(print_pkcs7_data(&ppkcs7));
 
 out:
@@ -451,10 +451,14 @@ static void pkcs7_generator_usage(void)
 	fprintf(stderr,
 		"\n\tOptions for analyzing generated / loaded PKCS#7 messages:\n");
 	fprintf(stderr,
-		"\t   --print\t\t\tParse the generated PKCS#7 message and\n");
+		"\t   --print\t\t\tParse the generated PKCS#7 message,\n");
+	fprintf(stderr, "\t\t\t\t\tverify protected data, and\n");
 	fprintf(stderr, "\t\t\t\t\tprint its contents\n");
 	fprintf(stderr,
 		"\t   --print-pkcs7 <FILE>\t\tParse the PKCS#7 message and\n");
+	fprintf(stderr, "\t\t\t\t\tverify protected data\n");
+	fprintf(stderr,
+		"\t   --verify-pkcs7 <FILE>\t\tParse the PKCS#7 message and\n");
 	fprintf(stderr, "\t\t\t\t\tprint its contents\n");
 	fprintf(stderr, "\t   --noout\t\t\tNo generation of output files\n");
 	fprintf(stderr,
@@ -574,6 +578,8 @@ int main(int argc, char *argv[])
 					      { "check-rootca", 0, 0, 0 },
 					      { "check-keyusage", 1, 0, 0 },
 
+					      { "verify-pkcs7", 1, 0, 0 },
+
 					      { 0, 0, 0, 0 } };
 
 	/* Should that be turned into an option? */
@@ -642,7 +648,8 @@ int main(int argc, char *argv[])
 				break;
 			/* print-pkcs7 */
 			case 9:
-				parsed_opts.print_pkcs7_msg = optarg;
+				parsed_opts.pkcs7_msg = optarg;
+				parsed_opts.print_pkcs7 = 1;
 				break;
 			/* trust-anchor */
 			case 10:
@@ -716,6 +723,10 @@ int main(int argc, char *argv[])
 					(unsigned int)strtoul(optarg, NULL, 10);
 				parsed_opts.checker = 1;
 				break;
+			/* verify-pkcs7 */
+			case 23:
+				parsed_opts.pkcs7_msg = optarg;
+				break;
 			}
 			break;
 
@@ -737,7 +748,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if (parsed_opts.print_pkcs7_msg) {
+	if (parsed_opts.pkcs7_msg) {
 		if (parsed_opts.infile)
 			CKINT(pkcs7_set_data(&parsed_opts));
 
