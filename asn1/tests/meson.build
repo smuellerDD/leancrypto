@@ -437,6 +437,18 @@ if get_option('x509_generator').enabled()
 	     suite: regression)
 	test('X.509 EKU 512', asn1_eku_enc_tester, args: [ '--eku', '512' ],
 	     suite: regression)
+
+	x509_siggen_sigver_tester = executable('x509_siggen_sigver_tester',
+			 [ 'x509_siggen_sigver_tester.c',
+			   'asn1_test_helper.c',
+			   internal_src ],
+			 include_directories: [ include_internal_dirs ],
+			 dependencies: leancrypto
+			 )
+	test('X.509 ML-DSA87 Leaf Signature', x509_siggen_sigver_tester,
+	args: [ '--sk-file', certdir + 'ml-dsa87_leaf.privkey',
+		'--x509-cert', certdir + 'ml-dsa87_leaf.der' ],
+		suite: regression)
 endif
 
 if get_option('pkcs7_parser').enabled()
