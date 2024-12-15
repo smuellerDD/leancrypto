@@ -29,9 +29,9 @@
 #include "x509_algorithm_mapper.h"
 #include "x509_mldsa_privkey.asn1.h"
 
-static int public_key_set_prehash_dilithium(
-	const struct lc_public_key_signature *sig,
-	struct lc_dilithium_ctx *ctx)
+static int
+public_key_set_prehash_dilithium(const struct lc_public_key_signature *sig,
+				 struct lc_dilithium_ctx *ctx)
 {
 	const struct lc_hash *hash_algo;
 	int ret = 0;
@@ -177,8 +177,7 @@ int x509_mldsa_private_key_enc(void *context, uint8_t *data,
 
 	(void)tag;
 
-	CKINT(lc_dilithium_sk_ptr(&pqc_ptr, &pqc_pklen,
-				  keys->sk.dilithium_sk));
+	CKINT(lc_dilithium_sk_ptr(&pqc_ptr, &pqc_pklen, keys->sk.dilithium_sk));
 
 	CKINT(x509_set_bit_string(data, avail_datalen, pqc_ptr, pqc_pklen));
 
@@ -228,8 +227,8 @@ int private_key_decode_dilithium(struct lc_x509_key_data *keys,
 {
 	int ret;
 
-	CKINT(asn1_ber_decoder(&x509_mldsa_privkey_decoder, keys,
-			       data, datalen));
+	CKINT(asn1_ber_decoder(&x509_mldsa_privkey_decoder, keys, data,
+			       datalen));
 
 out:
 	return ret;

@@ -561,24 +561,21 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 	if (opts->create_keypair_algo) {
 		switch (opts->create_keypair_algo) {
 		case LC_SIG_DILITHIUM_44:
-			CKINT(lc_dilithium_keypair(keys->pk.dilithium_pk,
-						   keys->sk.dilithium_sk,
-						   lc_seeded_rng,
-						   LC_DILITHIUM_44));
+			CKINT(lc_dilithium_keypair(
+				keys->pk.dilithium_pk, keys->sk.dilithium_sk,
+				lc_seeded_rng, LC_DILITHIUM_44));
 			goto load_dilithium;
 			break;
 		case LC_SIG_DILITHIUM_65:
 			CKINT(lc_dilithium_keypair(
-				keys->pk.dilithium_pk,
-				keys->sk.dilithium_sk, lc_seeded_rng,
-				LC_DILITHIUM_65));
+				keys->pk.dilithium_pk, keys->sk.dilithium_sk,
+				lc_seeded_rng, LC_DILITHIUM_65));
 			goto load_dilithium;
 			break;
 		case LC_SIG_DILITHIUM_87:
 			CKINT(lc_dilithium_keypair(
-				keys->pk.dilithium_pk,
-				keys->sk.dilithium_sk, lc_seeded_rng,
-				LC_DILITHIUM_87));
+				keys->pk.dilithium_pk, keys->sk.dilithium_sk,
+				lc_seeded_rng, LC_DILITHIUM_87));
 		load_dilithium:
 			if (self_signed) {
 				CKINT(lc_x509_cert_set_signer_keypair_dilithium(
@@ -589,45 +586,39 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 				gcert, keys->pk.dilithium_pk));
 			break;
 		case LC_SIG_SPINCS_SHAKE_128F:
-			CKINT(lc_sphincs_keypair(keys->pk.sphincs_pk,
-						 keys->sk.sphincs_sk,
-						 lc_seeded_rng,
-						 LC_SPHINCS_SHAKE_128f));
+			CKINT(lc_sphincs_keypair(
+				keys->pk.sphincs_pk, keys->sk.sphincs_sk,
+				lc_seeded_rng, LC_SPHINCS_SHAKE_128f));
 			goto load_sphincs;
 			break;
 		case LC_SIG_SPINCS_SHAKE_128S:
-			CKINT(lc_sphincs_keypair(keys->pk.sphincs_pk,
-						 keys->sk.sphincs_sk,
-						 lc_seeded_rng,
-						 LC_SPHINCS_SHAKE_128s));
+			CKINT(lc_sphincs_keypair(
+				keys->pk.sphincs_pk, keys->sk.sphincs_sk,
+				lc_seeded_rng, LC_SPHINCS_SHAKE_128s));
 			goto load_sphincs;
 			break;
 		case LC_SIG_SPINCS_SHAKE_192F:
-			CKINT(lc_sphincs_keypair(keys->pk.sphincs_pk,
-						 keys->sk.sphincs_sk,
-						 lc_seeded_rng,
-						 LC_SPHINCS_SHAKE_192f));
+			CKINT(lc_sphincs_keypair(
+				keys->pk.sphincs_pk, keys->sk.sphincs_sk,
+				lc_seeded_rng, LC_SPHINCS_SHAKE_192f));
 			goto load_sphincs;
 			break;
 		case LC_SIG_SPINCS_SHAKE_192S:
-			CKINT(lc_sphincs_keypair(keys->pk.sphincs_pk,
-						 keys->sk.sphincs_sk,
-						 lc_seeded_rng,
-						 LC_SPHINCS_SHAKE_192s));
+			CKINT(lc_sphincs_keypair(
+				keys->pk.sphincs_pk, keys->sk.sphincs_sk,
+				lc_seeded_rng, LC_SPHINCS_SHAKE_192s));
 			goto load_sphincs;
 			break;
 		case LC_SIG_SPINCS_SHAKE_256F:
-			CKINT(lc_sphincs_keypair(keys->pk.sphincs_pk,
-						 keys->sk.sphincs_sk,
-						 lc_seeded_rng,
-						 LC_SPHINCS_SHAKE_256f));
+			CKINT(lc_sphincs_keypair(
+				keys->pk.sphincs_pk, keys->sk.sphincs_sk,
+				lc_seeded_rng, LC_SPHINCS_SHAKE_256f));
 			goto load_sphincs;
 			break;
 		case LC_SIG_SPINCS_SHAKE_256S:
-			CKINT(lc_sphincs_keypair(keys->pk.sphincs_pk,
-						 keys->sk.sphincs_sk,
-						 lc_seeded_rng,
-						 LC_SPHINCS_SHAKE_256s));
+			CKINT(lc_sphincs_keypair(
+				keys->pk.sphincs_pk, keys->sk.sphincs_sk,
+				lc_seeded_rng, LC_SPHINCS_SHAKE_256s));
 		load_sphincs:
 			if (self_signed) {
 				CKINT(lc_x509_cert_set_signer_keypair_sphincs(
@@ -640,32 +631,30 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 		case LC_SIG_DILITHIUM_44_ED25519:
 			CKINT(lc_dilithium_ed25519_keypair(
 				keys->pk.dilithium_ed25519_pk,
-				keys->sk.dilithium_ed25519_sk,
-				lc_seeded_rng, LC_DILITHIUM_44));
+				keys->sk.dilithium_ed25519_sk, lc_seeded_rng,
+				LC_DILITHIUM_44));
 			goto load_dilithium_ed25519;
 			break;
 		case LC_SIG_DILITHIUM_65_ED25519:
 			CKINT(lc_dilithium_ed25519_keypair(
 				keys->pk.dilithium_ed25519_pk,
-				keys->sk.dilithium_ed25519_sk,
-				lc_seeded_rng, LC_DILITHIUM_65));
+				keys->sk.dilithium_ed25519_sk, lc_seeded_rng,
+				LC_DILITHIUM_65));
 			goto load_dilithium_ed25519;
 			break;
 		case LC_SIG_DILITHIUM_87_ED25519:
 			CKINT(lc_dilithium_ed25519_keypair(
 				keys->pk.dilithium_ed25519_pk,
-				keys->sk.dilithium_ed25519_sk,
-				lc_seeded_rng, LC_DILITHIUM_87));
+				keys->sk.dilithium_ed25519_sk, lc_seeded_rng,
+				LC_DILITHIUM_87));
 		load_dilithium_ed25519:
 			if (self_signed) {
 				CKINT(lc_x509_cert_set_signer_keypair_dilithium_ed25519(
-					gcert,
-					keys->pk.dilithium_ed25519_pk,
+					gcert, keys->pk.dilithium_ed25519_pk,
 					keys->sk.dilithium_ed25519_sk));
 			}
 			CKINT(lc_x509_cert_set_pubkey_dilithium_ed25519(
-				gcert,
-				keys->pk.dilithium_ed25519_pk));
+				gcert, keys->pk.dilithium_ed25519_pk));
 			break;
 		case LC_SIG_DILITHIUM_87_ED448:
 		case LC_SIG_ECDSA_X963:
@@ -892,15 +881,14 @@ static void x509_generator_usage(void)
 	fprintf(stderr, "\n\tOptions for X.509 cryptographic aspects:\n");
 	fprintf(stderr,
 		"\t   --sk-file <FILE>\t\tFile with secret key used for signature\n");
-	fprintf(stderr,
-		"\t\t\t\t\t\tInput when key is available\n"),
-	fprintf(stderr, "\t\t\t\t\t\t(MUST be DER),\n");
+	fprintf(stderr, "\t\t\t\t\t\tInput when key is available\n"),
+		fprintf(stderr, "\t\t\t\t\t\t(MUST be DER),\n");
 	fprintf(stderr, "\t\t\t\t\t\toutput with --create-keypair\n");
 	fprintf(stderr,
 		"\t   --pk-file <FILE>\t\tFile with public key used for signature\n");
-	fprintf(stderr,
-		"\t\t\t\t\t\tInput when key is available\n"),
-	fprintf(stderr, "\t\t\t\t\t\tto generate cert (MUST be plain),\n");
+	fprintf(stderr, "\t\t\t\t\t\tInput when key is available\n"),
+		fprintf(stderr,
+			"\t\t\t\t\t\tto generate cert (MUST be plain),\n");
 	fprintf(stderr, "\t\t\t\t\t\toutput with --create-keypair\n");
 	fprintf(stderr,
 		"\t   --key-type <TYPE>\t\tInput keys are of given type\n");
@@ -914,8 +902,7 @@ static void x509_generator_usage(void)
 	fprintf(stderr, "\t\t\t\t\t\tcertificate\n");
 	fprintf(stderr,
 		"\t   --signer-sk-file <FILE>\t\tFile with signer secret\n");
-	fprintf(stderr,
-		"\t   --x509-cert <FILE>\t\tCertificate for signing\n");
+	fprintf(stderr, "\t   --x509-cert <FILE>\t\tCertificate for signing\n");
 
 	fprintf(stderr, "\n\tOptions for X.509 meta data:\n");
 	fprintf(stderr, "\t   --eku <FLAG>\t\t\tSet Extended Key Usage flag\n");

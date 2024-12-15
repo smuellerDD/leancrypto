@@ -60,14 +60,12 @@ int lc_x509_cert_set_signer(struct lc_x509_certificate *signed_x509,
 	case LC_SIG_DILITHIUM_65:
 	case LC_SIG_DILITHIUM_87:
 		CKINT_LOG(
-			lc_dilithium_pk_load(
-				signer_key_data->pk.dilithium_pk, pk_ptr,
-				pk_len),
+			lc_dilithium_pk_load(signer_key_data->pk.dilithium_pk,
+					     pk_ptr, pk_len),
 			"Loading X.509 signer public key from certificate failed: %d\n",
 			ret);
 		CKINT_LOG(lc_x509_cert_set_signer_keypair_dilithium(
-				  signed_x509,
-				  signer_key_data->pk.dilithium_pk,
+				  signed_x509, signer_key_data->pk.dilithium_pk,
 				  signer_key_data->sk.dilithium_sk),
 			  "Setting X.509 key pair for signing failed: %d\n",
 			  ret);
@@ -97,8 +95,7 @@ int lc_x509_cert_set_signer(struct lc_x509_certificate *signed_x509,
 			signer_key_data->pk.sphincs_pk));
 	load_sphincs:
 		CKINT_LOG(lc_x509_cert_set_signer_keypair_sphincs(
-				  signed_x509,
-				  signer_key_data->pk.sphincs_pk,
+				  signed_x509, signer_key_data->pk.sphincs_pk,
 				  signer_key_data->sk.sphincs_sk),
 			  "Setting X.509 key pair for signing\n");
 		break;
@@ -112,12 +109,11 @@ int lc_x509_cert_set_signer(struct lc_x509_certificate *signed_x509,
 				pk_ptr, pk_len),
 			"Loading X.509 signer public key from certificate failed: %d\n",
 			ret);
-		CKINT_LOG(
-			lc_x509_cert_set_signer_keypair_dilithium_ed25519(
-				signed_x509,
-				signer_key_data->pk.dilithium_ed25519_pk,
-				signer_key_data->sk.dilithium_ed25519_sk),
-			"Setting X.509 key pair for signing\n");
+		CKINT_LOG(lc_x509_cert_set_signer_keypair_dilithium_ed25519(
+				  signed_x509,
+				  signer_key_data->pk.dilithium_ed25519_pk,
+				  signer_key_data->sk.dilithium_ed25519_sk),
+			  "Setting X.509 key pair for signing\n");
 		break;
 
 	case LC_SIG_DILITHIUM_87_ED448:

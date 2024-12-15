@@ -263,8 +263,9 @@ out:
 	return ret;
 }
 
-static lc_x509_pol_ret_t lc_x509_policy_match_key_usage_pub(
-	const struct lc_public_key *pub, uint16_t required_key_usage)
+static lc_x509_pol_ret_t
+lc_x509_policy_match_key_usage_pub(const struct lc_public_key *pub,
+				   uint16_t required_key_usage)
 {
 	uint16_t set_keyusage;
 
@@ -454,9 +455,8 @@ LC_INTERFACE_FUNCTION(int, lc_x509_policy_verify_cert,
 	 * A certificate must be allowed for key sign for successfully
 	 * validating a certificate. Also, the key usage must be critical.
 	 */
-	CKINT_POL(lc_x509_policy_match_key_usage_pub(pkey,
-						     LC_KEY_USAGE_CRITICAL |
-						     LC_KEY_USAGE_KEYCERTSIGN));
+	CKINT_POL(lc_x509_policy_match_key_usage_pub(
+		pkey, LC_KEY_USAGE_CRITICAL | LC_KEY_USAGE_KEYCERTSIGN));
 
 out:
 	return ret;

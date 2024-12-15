@@ -371,8 +371,8 @@ int private_key_decode_dilithium_ed25519(struct lc_x509_key_data *keys,
 {
 	int ret;
 
-	CKINT(asn1_ber_decoder(&x509_composite_mldsa_privkey_decoder,
-			       keys, data, datalen));
+	CKINT(asn1_ber_decoder(&x509_composite_mldsa_privkey_decoder, keys,
+			       data, datalen));
 
 out:
 	return ret;
@@ -470,8 +470,8 @@ int public_key_generate_signature_dilithium_ed25519(
 			CKINT(lc_dilithium_ed25519_sign_update(
 				ctx, sig->digest, sig->digest_size));
 			CKINT(lc_dilithium_ed25519_sign_final(
-				&dilithium_ed25519_sig,
-				ctx, dilithium_ed25519_sk, lc_seeded_rng));
+				&dilithium_ed25519_sig, ctx,
+				dilithium_ed25519_sk, lc_seeded_rng));
 		} else {
 			/*
 			 * Sign the signature using Composite-ML-DSA

@@ -155,14 +155,14 @@ int public_key_generate_signature(const struct lc_x509_key_data *key,
 	case LC_SIG_SPINCS_SHAKE_128F:
 	case LC_SIG_SPINCS_SHAKE_192F:
 	case LC_SIG_SPINCS_SHAKE_256F:
-		CKINT(public_key_generate_signature_sphincs(
-			key, sig, sig_data, available_len, 1));
+		CKINT(public_key_generate_signature_sphincs(key, sig, sig_data,
+							    available_len, 1));
 		break;
 	case LC_SIG_SPINCS_SHAKE_128S:
 	case LC_SIG_SPINCS_SHAKE_192S:
 	case LC_SIG_SPINCS_SHAKE_256S:
-		CKINT(public_key_generate_signature_sphincs(
-			key, sig, sig_data, available_len, 0));
+		CKINT(public_key_generate_signature_sphincs(key, sig, sig_data,
+							    available_len, 0));
 		break;
 
 	case LC_SIG_DILITHIUM_87_ED448:
@@ -212,8 +212,7 @@ int public_key_extract(struct x509_generate_context *ctx, uint8_t *dst_data,
 	case LC_SIG_DILITHIUM_65_ED25519:
 	case LC_SIG_DILITHIUM_87_ED25519:
 		CKINT(public_key_encode_dilithium_ed25519(dst_data,
-							  available_len,
-							  ctx));
+							  available_len, ctx));
 		goto out;
 		break;
 	case LC_SIG_DILITHIUM_87_ED448:
@@ -340,8 +339,8 @@ out:
 	return ret;
 }
 
-int privkey_key_parse(struct lc_x509_key_data *keys,
-		      const uint8_t *data, size_t datalen)
+int privkey_key_parse(struct lc_x509_key_data *keys, const uint8_t *data,
+		      size_t datalen)
 {
 	int ret;
 
@@ -349,8 +348,7 @@ int privkey_key_parse(struct lc_x509_key_data *keys,
 	case LC_SIG_DILITHIUM_44:
 	case LC_SIG_DILITHIUM_65:
 	case LC_SIG_DILITHIUM_87:
-		CKINT(private_key_decode_dilithium(keys, data,
-						   datalen));
+		CKINT(private_key_decode_dilithium(keys, data, datalen));
 		break;
 	case LC_SIG_DILITHIUM_44_ED25519:
 	case LC_SIG_DILITHIUM_65_ED25519:
@@ -361,15 +359,13 @@ int privkey_key_parse(struct lc_x509_key_data *keys,
 	case LC_SIG_SPINCS_SHAKE_256S:
 	case LC_SIG_SPINCS_SHAKE_192S:
 	case LC_SIG_SPINCS_SHAKE_128S:
-		CKINT(private_key_decode_sphincs(keys, data,
-						 datalen));
+		CKINT(private_key_decode_sphincs(keys, data, datalen));
 		CKINT(lc_sphincs_sk_set_keytype_small(keys->sk.sphincs_sk));
 		break;
 	case LC_SIG_SPINCS_SHAKE_256F:
 	case LC_SIG_SPINCS_SHAKE_192F:
 	case LC_SIG_SPINCS_SHAKE_128F:
-		CKINT(private_key_decode_sphincs(keys, data,
-						 datalen));
+		CKINT(private_key_decode_sphincs(keys, data, datalen));
 		CKINT(lc_sphincs_sk_set_keytype_fast(keys->sk.sphincs_sk));
 		break;
 

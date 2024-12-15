@@ -29,9 +29,8 @@ int private_key_encode_dilithium_ed25519(
 	return -ENOPKG;
 }
 
-int private_key_decode_dilithium_ed25519(
-	struct lc_x509_key_data *keys, const uint8_t *data,
-	size_t datalen)
+int private_key_decode_dilithium_ed25519(struct lc_x509_key_data *keys,
+					 const uint8_t *data, size_t datalen)
 {
 	(void)keys;
 	(void)data;

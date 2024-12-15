@@ -29,9 +29,9 @@
 #include "x509_algorithm_mapper.h"
 #include "x509_slhdsa_privkey.asn1.h"
 
-static int public_key_set_prehash_sphincs(
-	const struct lc_public_key_signature *sig,
-	struct lc_sphincs_ctx *ctx)
+static int
+public_key_set_prehash_sphincs(const struct lc_public_key_signature *sig,
+			       struct lc_sphincs_ctx *ctx)
 {
 	const struct lc_hash *hash_algo;
 	int ret = 0;

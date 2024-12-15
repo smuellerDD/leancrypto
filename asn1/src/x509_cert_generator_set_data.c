@@ -25,10 +25,9 @@
 #include "lc_x509_generator.h"
 #include "x509_cert_parser.h"
 
-static int
-lc_x509_cert_set_dilithium_keypair(struct lc_x509_key_data *gen_data,
-				   struct lc_dilithium_pk *pk,
-				   struct lc_dilithium_sk *sk)
+static int lc_x509_cert_set_dilithium_keypair(struct lc_x509_key_data *gen_data,
+					      struct lc_dilithium_pk *pk,
+					      struct lc_dilithium_sk *sk)
 {
 	uint8_t *pk_ptr;
 	size_t pk_len;
@@ -99,10 +98,9 @@ out:
 	return ret;
 }
 
-static int
-lc_x509_cert_set_sphincs_keypair(struct lc_x509_key_data *gen_data,
-				 struct lc_sphincs_pk *pk,
-				 struct lc_sphincs_sk *sk)
+static int lc_x509_cert_set_sphincs_keypair(struct lc_x509_key_data *gen_data,
+					    struct lc_sphincs_pk *pk,
+					    struct lc_sphincs_sk *sk)
 {
 	uint8_t *pk_ptr;
 	size_t pk_len;
@@ -181,9 +179,10 @@ out:
 	return ret;
 }
 
-static int lc_x509_cert_set_dilithium_ed25519_keypair(
-	struct lc_x509_key_data *gen_data,
-	struct lc_dilithium_ed25519_pk *pk, struct lc_dilithium_ed25519_sk *sk)
+static int
+lc_x509_cert_set_dilithium_ed25519_keypair(struct lc_x509_key_data *gen_data,
+					   struct lc_dilithium_ed25519_pk *pk,
+					   struct lc_dilithium_ed25519_sk *sk)
 {
 	uint8_t *dilithium_pk_ptr, *ed25519_pk_ptr;
 	size_t dilithium_pk_len, ed25519_pk_len;
