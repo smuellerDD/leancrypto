@@ -1169,3 +1169,42 @@ LC_INTERFACE_FUNCTION(int, lc_x509_sk_parse, struct lc_x509_key_data *key,
 out:
 	return ret;
 }
+
+LC_INTERFACE_FUNCTION(int, lc_x509_verify_signature,
+		      const uint8_t *sig_data, size_t siglen,
+		      const struct lc_x509_certificate *cert,
+		      const uint8_t *m, size_t mlen,
+		      const struct lc_hash *prehash_algo)
+{
+	const struct lc_public_key *pub;
+	struct lc_public_key_signature sig = { 0 };
+	int ret = 0;
+
+	CKNULL(cert, -EINVAL);
+	CKNULL(sig_data, -EINVAL);
+	CKNULL(m, -EINVAL);
+
+	pub = &cert->pub;
+
+	sig.s = sig_data;
+	sig.s_size = siglen;
+
+	if (prehash_algo) {
+		if (mlen > LC_SHA_MAX_SIZE_DIGEST)
+			return -EOVERFLOW;
+
+		memcpy(sig.digest, m, mlen);
+		sig.digest_size = mlen;
+		sig.hash_algo = prehash_algo;
+		sig.request_prehash = 1;
+	} else {
+		sig.raw_data = m;
+		sig.raw_data_len = mlen;
+	}
+
+	CKINT(public_key_verify_signature(pub, &sig));
+
+out:
+	lc_memset_secure(&sig, 0, sizeof(sig));
+	return ret;
+}

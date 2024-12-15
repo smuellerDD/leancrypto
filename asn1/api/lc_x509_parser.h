@@ -206,6 +206,31 @@ int lc_x509_sk_parse(struct lc_x509_key_data *key,
 
 /**
  * @ingroup X509
+ * @brief Verify signature over user-supplied data
+ *
+ * \note This function only performs the signature verification. It does not
+ * enforce any key usage or EKU definition present in the X.509 certificate.
+ *
+ * @param [in] sig_data Caller-supplied buffer with signature
+ * @param [in] siglen Length of the \p sig_data buffer
+ * @param [in] cert The certificate to be used to verify signature
+ * @param [in] m Message to be verified
+ * @param [in] mlen Length of message
+ * @param [in] prehash_algo It is permissible that the message is prehashed. If
+ *			    so, it is indicated by this parameter which points
+ *			    to the used message digest the caller used to
+ *			    generate the prehashed message digest. This
+ *			    forces the use of the Hash[ML|SLH|Composite]-DSA.
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_verify_signature(const uint8_t *sig_data, size_t siglen,
+			     const struct lc_x509_certificate *cert,
+			     const uint8_t *m, size_t mlen,
+			     const struct lc_hash *prehash_algo);
+
+/**
+ * @ingroup X509
  * @brief Parse a Composite ML-DSA ASN.1 structure into a public key structure
  *
  * @param [out] dilithium_ed25519_pk Public key to be filled

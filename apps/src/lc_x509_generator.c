@@ -860,7 +860,18 @@ static int x509_sign_data(struct x509_generator_opts *opts)
 	CKINT(lc_x509_gen_signature(sigptr, &siglen, key_data, opts->data,
 				    opts->data_len, NULL));
 
-	bin2print(sigptr, siglen, stdout, "Signature");
+#if 0
+	const struct lc_x509_certificate *cert = &opts->cert;
+	CKINT_LOG(lc_x509_verify_signature(sigptr, siglen, cert, opts->data,
+					   opts->data_len, NULL),
+		  "Verification of data failed\n");
+#endif
+
+	if (opts->outfile) {
+		CKINT(write_data(opts->outfile, sigptr, siglen));
+	} else {
+		bin2print(sigptr, siglen, stdout, "Signature");
+	}
 
 out:
 	lc_free(sigptr);
