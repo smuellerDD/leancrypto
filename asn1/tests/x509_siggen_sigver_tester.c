@@ -26,15 +26,13 @@
 #include <time.h>
 
 #include "asn1_test_helper.h"
+#include "binhexbin.h"
 #include "lc_x509_generator.h"
 #include "lc_x509_parser.h"
-#include "../../apps/src/lc_x509_generator_helper.h"
 #include "ret_checkers.h"
 
 struct x509_generator_opts {
 	struct lc_x509_certificate cert;
-	struct lc_x509_key_data key_data;
-	struct lc_x509_key_input_data key_input_data;
 
 	const char *sk_file;
 	const char *x509_cert_file;
@@ -60,12 +58,12 @@ static void x509_clean_opts(struct x509_generator_opts *opts)
 
 static int x509_enc_set_key(struct x509_generator_opts *opts)
 {
-	struct lc_x509_certificate *gcert = &opts->cert;
-	struct lc_x509_key_input_data *key_input_data = &opts->key_input_data;
-	struct lc_x509_key_data *keys = &opts->key_data;
+	struct lc_x509_certificate *cert = &opts->cert;
+	static const uint8_t data[] = { 0x01, 0x02, 0x03 };
+	size_t siglen;
+	uint8_t *sigptr = NULL;
 	int ret = 0;
-
-	LC_X509_LINK_INPUT_DATA(keys, key_input_data);
+	LC_X509_KEYS_ON_STACK(keys);
 
 	/* Caller set X.509 certificate, perhaps for signing. */
 
@@ -78,21 +76,48 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 			   &opts->x509_cert_data_len),
 		  "X.509 certificate mmap failure\n");
 	/* Parse the X.509 certificate */
-	CKINT_LOG(lc_x509_cert_parse(gcert, opts->x509_cert_data,
+	CKINT_LOG(lc_x509_cert_parse(cert, opts->x509_cert_data,
 				     opts->x509_cert_data_len),
 		  "Loading of X.509 certificate failed\n");
 
 	/* Access the X.509 certificate file */
-	CKINT_LOG(get_data(opts->sk_file, &opts->sk_data,
-				&opts->sk_len),
-			"Secret key mmap failure\n");
+	CKINT_LOG(get_data(opts->sk_file, &opts->sk_data, &opts->sk_len),
+		  "Secret key mmap failure\n");
 	/* Parse the X.509 secret key */
-	CKINT_LOG(lc_x509_sk_parse(keys, gcert->pub.pkey_algo,
-					opts->sk_data, opts->sk_len),
-			"Parsing of secret key failed\n");
+	CKINT_LOG(lc_x509_sk_parse(keys, cert->pub.pkey_algo, opts->sk_data,
+				   opts->sk_len),
+		  "Parsing of secret key failed\n");
 
+	CKINT_LOG(lc_x509_get_signature_size_from_sk(&siglen, keys),
+		  "Signature size gathering failed\n");
+
+	CKINT(lc_alloc_aligned((void **)&sigptr, 8, siglen));
+
+	CKINT_LOG(lc_x509_gen_signature(sigptr, &siglen, keys, data,
+					sizeof(data), NULL),
+		  "Signature generation failed\n");
+
+	/* Successful verification */
+	CKINT_LOG(lc_x509_verify_signature(sigptr, siglen, cert, data,
+					   sizeof(data), NULL),
+		  "Verification of data failed\n");
+
+	/* Failure */
+	sigptr[0] ^= 0x01;
+	ret = lc_x509_verify_signature(sigptr, siglen, cert, data, sizeof(data),
+				       NULL);
+	if (ret != -EBADMSG) {
+		printf("Modification in data not detected\n");
+		ret = -EFAULT;
+		goto out;
+	}
+	ret = 0;
+
+	bin2print(sigptr, siglen, stdout, "Signature");
 
 out:
+	lc_x509_keys_zero(keys);
+	lc_free(sigptr);
 	return ret;
 }
 
@@ -120,45 +145,6 @@ out:
 	return ret;
 }
 
-static int x509_sign_data(struct x509_generator_opts *opts)
-{
-	const struct lc_x509_certificate *cert = &opts->cert;
-	const struct lc_x509_key_data *key_data = &opts->key_data;
-	static const uint8_t data[] = { 0x01, 0x02, 0x03 };
-	size_t siglen;
-	uint8_t *sigptr = NULL;
-	int ret;
-
-	CKINT(lc_x509_get_signature_size_from_sk(&siglen, key_data));
-
-	CKINT(lc_alloc_aligned((void **)&sigptr, 8, siglen));
-
-	CKINT(lc_x509_gen_signature(sigptr, &siglen, key_data, data,
-				    sizeof(data), NULL));
-
-	/* Successful verification */
-	CKINT_LOG(lc_x509_verify_signature(sigptr, siglen, cert, data,
-					   sizeof(data), NULL),
-		  "Verification of data failed\n");
-
-	/* Failure */
-	sigptr[0] ^= 0x01;
-	ret = lc_x509_verify_signature(sigptr, siglen, cert, data, sizeof(data),
-				       NULL);
-	if (ret != -EBADMSG) {
-		  printf("Modification in data not detected\n");
-		  ret = -EFAULT;
-		  goto out;
-	}
-	ret = 0;
-
-	bin2print(sigptr, siglen, stdout, "Signature");
-
-out:
-	lc_free(sigptr);
-	return ret;
-}
-
 static void x509_generator_usage(void)
 {
 	fprintf(stderr, "\nLeancrypto X.509 Siggen Sigver Tester\n");
@@ -169,8 +155,7 @@ static void x509_generator_usage(void)
 	fprintf(stderr, "\nOptions:\n");
 	fprintf(stderr,
 		"\t   --sk-file <FILE>\t\tFile with secret key used for signature\n");
-	fprintf(stderr,
-		"\t   --x509-cert <FILE>\t\tCertificate for signing\n");
+	fprintf(stderr, "\t   --x509-cert <FILE>\t\tCertificate for signing\n");
 
 	fprintf(stderr, "\n\t-h  --help\t\t\tPrint this help text\n");
 }
@@ -225,8 +210,6 @@ int main(int argc, char *argv[])
 	}
 
 	CKINT(x509_enc_crypto_algo(&parsed_opts));
-
-	CKINT(x509_sign_data(&parsed_opts));
 
 out:
 	x509_clean_opts(&parsed_opts);

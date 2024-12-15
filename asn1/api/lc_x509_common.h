@@ -235,6 +235,7 @@ struct lc_x509_certificate_name {
  */
 struct lc_x509_key_data {
 	enum lc_sig_types sig_type;
+	unsigned int data_struct_size;
 	union {
 		struct lc_dilithium_pk *dilithium_pk;
 		struct lc_dilithium_ed25519_pk *dilithium_ed25519_pk;

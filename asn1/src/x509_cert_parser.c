@@ -1170,9 +1170,8 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_x509_verify_signature,
-		      const uint8_t *sig_data, size_t siglen,
-		      const struct lc_x509_certificate *cert,
+LC_INTERFACE_FUNCTION(int, lc_x509_verify_signature, const uint8_t *sig_data,
+		      size_t siglen, const struct lc_x509_certificate *cert,
 		      const uint8_t *m, size_t mlen,
 		      const struct lc_hash *prehash_algo)
 {
@@ -1207,4 +1206,67 @@ LC_INTERFACE_FUNCTION(int, lc_x509_verify_signature,
 out:
 	lc_memset_secure(&sig, 0, sizeof(sig));
 	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x509_keys_dilithium_ed25519_alloc,
+		      struct lc_x509_key_data **keys)
+{
+	struct lc_x509_key_data *out_keys;
+	int ret;
+
+	CKINT(lc_alloc_aligned((void **)&out_keys, LC_HASH_COMMON_ALIGNMENT,
+			       LC_X509_KEYS_DILITHIUM_ED25519_SIZE));
+
+	LC_X509_KEYS_DILITHIUM_ED25519_SET(out_keys);
+
+	*keys = out_keys;
+
+out:
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x509_keys_dilithium_alloc,
+		      struct lc_x509_key_data **keys)
+{
+	struct lc_x509_key_data *out_keys;
+	int ret;
+
+	CKINT(lc_alloc_aligned((void **)&out_keys, LC_HASH_COMMON_ALIGNMENT,
+			       LC_X509_KEYS_DILITHIUM_SIZE));
+
+	LC_X509_KEYS_DILITHIUM_SET(out_keys);
+
+	*keys = out_keys;
+
+out:
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x509_keys_sphincs_alloc,
+		      struct lc_x509_key_data **keys)
+{
+	struct lc_x509_key_data *out_keys;
+	int ret;
+
+	CKINT(lc_alloc_aligned((void **)&out_keys, LC_HASH_COMMON_ALIGNMENT,
+			       LC_X509_KEYS_SPHINCS_SIZE));
+
+	LC_X509_KEYS_SPHINCS_SET(out_keys);
+
+	*keys = out_keys;
+
+out:
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x509_keys_alloc, struct lc_x509_key_data **keys)
+{
+	return lc_x509_keys_dilithium_ed25519_alloc(keys);
+}
+
+LC_INTERFACE_FUNCTION(void, lc_x509_keys_zero_free,
+		      struct lc_x509_key_data *keys)
+{
+	lc_x509_keys_zero(keys);
+	lc_free(keys);
 }

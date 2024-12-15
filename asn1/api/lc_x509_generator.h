@@ -87,8 +87,8 @@ int lc_x509_gen_cert(const struct lc_x509_certificate *x509, uint8_t *data,
  *
  * @return 0 on success or < 0 on error
  */
-int lc_x509_gen_privkey(const struct lc_x509_key_data *gendata,
-			uint8_t *data, size_t *avail_datalen);
+int lc_x509_gen_privkey(const struct lc_x509_key_data *gendata, uint8_t *data,
+			size_t *avail_datalen);
 
 /**
  * @ingroup X509Gen
@@ -99,8 +99,8 @@ int lc_x509_gen_privkey(const struct lc_x509_key_data *gendata,
  *
  * @return 0 on success or < 0 on error
  */
-int lc_x509_get_signature_size_from_sk(
-	size_t *siglen, const struct lc_x509_key_data *keys);
+int lc_x509_get_signature_size_from_sk(size_t *siglen,
+				       const struct lc_x509_key_data *keys);
 
 /**
  * @ingroup X509Gen
@@ -137,9 +137,8 @@ int lc_x509_get_signature_size_from_cert(
  * @return 0 on success or < 0 on error
  */
 int lc_x509_gen_signature(uint8_t *sig_data, size_t *siglen,
-			  const struct lc_x509_key_data *keys,
-			  const uint8_t *m, size_t mlen,
-			  const struct lc_hash *prehash_algo);
+			  const struct lc_x509_key_data *keys, const uint8_t *m,
+			  size_t mlen, const struct lc_hash *prehash_algo);
 
 /**
  * @ingroup X509Gen

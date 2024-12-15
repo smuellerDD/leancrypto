@@ -94,89 +94,190 @@ void lc_x509_cert_clear(struct lc_x509_certificate *cert);
 int lc_x509_cert_parse(struct lc_x509_certificate *cert, const uint8_t *data,
 		       size_t datalen);
 
+/// \cond DO_NOT_DOCUMENT
 #define LC_X509_KEYS_SPHINCS_SIZE                                              \
 	(sizeof(struct lc_sphincs_pk) + sizeof(struct lc_sphincs_sk) +         \
 	 sizeof(struct lc_x509_key_data))
+#define LC_X509_KEYS_SPHINCS_SET(name)                                         \
+	_Pragma("GCC diagnostic push")                                         \
+		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")(name)       \
+			->pk.sphincs_pk =                                      \
+		(struct lc_sphincs_pk *)((uint8_t *)(name) +                   \
+					 sizeof(struct lc_x509_key_data));     \
+	(name)->sk.sphincs_sk =                                                \
+		(struct lc_sphincs_sk *)((uint8_t *)(name) +                   \
+					 sizeof(struct lc_x509_key_data) +     \
+					 sizeof(struct lc_sphincs_pk));        \
+	(name)->data_struct_size = LC_X509_KEYS_SPHINCS_SIZE;                  \
+	_Pragma("GCC diagnostic pop")
+/// \endcond
 
 /**
  * @ingroup X509
- * @brief Allocate memory for struct lc_x509_keys_data holding Sphincs keys
+ * @brief Allocate memory for struct lc_x509_keys_data holding Sphincs Plus keys
+ *	   on stack
  *
  * @param [in] name Name of stack variable
  */
 #define LC_X509_KEYS_SPHINCS_ON_STACK(name)                                    \
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-		LC_ALIGNED_BUFFER(                                             \
-			name##_ctx_buf, LC_X509_KEYS_SPHINCS_SIZE,             \
-			LC_HASH_COMMON_ALIGNMENT);                             \
+		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_X509_KEYS_SPHINCS_SIZE,   \
+				  LC_HASH_COMMON_ALIGNMENT);                   \
 	struct lc_x509_key_data *name =                                        \
 		(struct lc_x509_key_data *)name##_ctx_buf;                     \
-	(name)->pk.sphincs_pk = (uint8_t *)(name) +                            \
-				sizeof(struct lc_x509_key_data);               \
-	(name)->sk.sphincs_sk = (uint8_t *)(name) +                            \
-				sizeof(struct lc_x509_key_data) +              \
-				sizeof(struct lc_sphincs_pk);                  \
+	LC_X509_KEYS_SPHINCS_SET(name);                                        \
 	_Pragma("GCC diagnostic pop")
 
+/// \cond DO_NOT_DOCUMENT
 #define LC_X509_KEYS_DILITHIUM_SIZE                                            \
-	(sizeof(struct lc_sphincs_pk) + sizeof(struct lc_sphincs_sk) +         \
+	(sizeof(struct lc_dilithium_pk) + sizeof(struct lc_dilithium_sk) +     \
 	 sizeof(struct lc_x509_key_data))
+#define LC_X509_KEYS_DILITHIUM_SET(name)                                       \
+	_Pragma("GCC diagnostic push")                                         \
+		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")(name)       \
+			->pk.dilithium_pk =                                    \
+		(struct lc_dilithium_pk *)((uint8_t *)(name) +                 \
+					   sizeof(struct lc_x509_key_data));   \
+	(name)->sk.dilithium_sk =                                              \
+		(struct lc_dilithium_sk *)((uint8_t *)(name) +                 \
+					   sizeof(struct lc_x509_key_data) +   \
+					   sizeof(struct lc_dilithium_pk));    \
+	(name)->data_struct_size = LC_X509_KEYS_DILITHIUM_SIZE;                \
+	_Pragma("GCC diagnostic pop")
+/// \endcond
+
 /**
  * @ingroup X509
  * @brief Allocate memory for struct lc_x509_keys_data holding Dilithium keys
+ *	   on stack
  *
  * @param [in] name Name of stack variable
  */
 #define LC_X509_KEYS_DILITHIUM_ON_STACK(name)                                  \
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-		LC_ALIGNED_BUFFER(                                             \
-			name##_ctx_buf, LC_X509_KEYS_DILITHIUM_SIZE,           \
-			LC_HASH_COMMON_ALIGNMENT);                             \
+		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_X509_KEYS_DILITHIUM_SIZE, \
+				  LC_HASH_COMMON_ALIGNMENT);                   \
 	struct lc_x509_key_data *name =                                        \
 		(struct lc_x509_key_data *)name##_ctx_buf;                     \
-	(name)->pk.dilithium_pk = (uint8_t *)(name) +                          \
-				sizeof(struct lc_x509_key_data);               \
-	(name)->sk.dilithium_sk = (uint8_t *)(name) +                          \
-				sizeof(struct lc_x509_key_data) +              \
-				sizeof(struct lc_dilithium_pk);                \
+	LC_X509_KEYS_DILITHIUM_SET(name);                                      \
 	_Pragma("GCC diagnostic pop")
 
+/// \cond DO_NOT_DOCUMENT
 #define LC_X509_KEYS_DILITHIUM_ED25519_SIZE                                    \
-	(sizeof(struct lc_sphincs_pk) + sizeof(struct lc_sphincs_sk) +         \
+	(sizeof(struct lc_dilithium_ed25519_pk) +                              \
+	 sizeof(struct lc_dilithium_ed25519_sk) +                              \
 	 sizeof(struct lc_x509_key_data))
+#define LC_X509_KEYS_DILITHIUM_ED25519_SET(name)                               \
+	_Pragma("GCC diagnostic push")                                         \
+		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")(name)       \
+			->pk.dilithium_ed25519_pk =                            \
+		(struct lc_dilithium_ed25519_pk                                \
+			 *)((uint8_t *)(name) +                                \
+			    sizeof(struct lc_x509_key_data));                  \
+	(name)->sk.dilithium_ed25519_sk =                                      \
+		(struct lc_dilithium_ed25519_sk                                \
+			 *)((uint8_t *)(name) +                                \
+			    sizeof(struct lc_x509_key_data) +                  \
+			    sizeof(struct lc_dilithium_ed25519_pk));           \
+	(name)->data_struct_size = LC_X509_KEYS_DILITHIUM_ED25519_SIZE;        \
+	_Pragma("GCC diagnostic pop")
+/// \endcond
+
 /**
  * @ingroup X509
  * @brief Allocate memory for struct lc_x509_keys_data holding Dilithium-ED25519
- *	  keys
+ *	  keys on stack
  *
  * @param [in] name Name of stack variable
  */
 #define LC_X509_KEYS_DILITHIUM_ED25519_ON_STACK(name)                          \
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-		LC_ALIGNED_BUFFER(                                             \
-			name##_ctx_buf, LC_X509_KEYS_DILITHIUM_ED25519_SIZE,   \
-			LC_HASH_COMMON_ALIGNMENT);                             \
+		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")             \
+			LC_ALIGNED_BUFFER(name##_ctx_buf,                      \
+					  LC_X509_KEYS_DILITHIUM_ED25519_SIZE, \
+					  LC_HASH_COMMON_ALIGNMENT);           \
 	struct lc_x509_key_data *name =                                        \
 		(struct lc_x509_key_data *)name##_ctx_buf;                     \
-	(name)->pk.dilithium_ed25519_pk = (uint8_t *)(name) +                  \
-				sizeof(struct lc_x509_key_data);               \
-	(name)->sk.dilithium_ed25519_sk = (uint8_t *)(name) +                  \
-				sizeof(struct lc_x509_key_data) +              \
-				sizeof(struct lc_dilithium_ed25519_pk);        \
+	LC_X509_KEYS_DILITHIUM_ED25519_SET(name);                              \
 	_Pragma("GCC diagnostic pop")
 
 /**
  * @ingroup X509
  * @brief Allocate memory for struct lc_x509_keys_data holding any kind of key
- *	  type
+ *	  type on stack
  *
  * @param [in] name Name of stack variable
  */
+
 #define LC_X509_KEYS_ON_STACK(name)                                            \
 	LC_X509_KEYS_DILITHIUM_ED25519_ON_STACK(name)
+/**
+ * @brief Zeroize Dilithium context allocated with
+ *	  LC_X509_KEYS*_ON_STACK
+ *
+ * @param [in] keys Keys to be zeroized
+ */
+static inline void lc_x509_keys_zero(struct lc_x509_key_data *keys)
+{
+	if (!keys)
+		return;
+	lc_memset_secure(keys, 0, keys->data_struct_size);
+}
+
+/**
+ * @ingroup X509
+ * @brief Allocate memory for struct lc_x509_keys_data holding Dilithium-ED25519
+ *	  keys on heap
+ *
+ * @param [in] keys Variable to allocate
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_keys_dilithium_ed25519_alloc(struct lc_x509_key_data **keys);
+
+/**
+ * @ingroup X509
+ * @brief Allocate memory for struct lc_x509_keys_data holding Dilithium
+ *	  keys on heap
+ *
+ * @param [in] keys Variable to allocate
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_keys_dilithium_alloc(struct lc_x509_key_data **keys);
+
+/**
+ * @ingroup X509
+ * @brief Allocate memory for struct lc_x509_keys_data holding Sphincs Plus
+ *	  keys on heap
+ *
+ * @param [in] keys Variable to allocate
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_keys_sphincs_alloc(struct lc_x509_key_data **keys);
+
+/**
+ * @ingroup X509
+ * @brief Allocate memory for struct lc_x509_keys_data holding holding any kind
+ *	  of key type on heap
+ *
+ * @param [in] keys Variable to allocate
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_keys_alloc(struct lc_x509_key_data **keys);
+
+/**
+ * @ingroup X509
+ * @brief Zeroize and free keys buffer
+ *
+ * @param [in] keys Variable to zeroize and free
+ */
+void lc_x509_keys_zero_free(struct lc_x509_key_data *keys);
 
 /**
  * @ingroup X509
@@ -190,9 +291,9 @@ int lc_x509_cert_parse(struct lc_x509_certificate *cert, const uint8_t *data,
  * load time, various checks are applied. The caller MUST ensure proper disposal
  * of the buffer holding sensitive data.
  *
- * @param [out] key The data structure that is filled with the privSphincsate key. The
+ * @param [out] key The data structure that is filled with the private key. The
  *		    caller must have allocated sufficient space with one of
- *		    \p LC_X509_KEYS_*_ON_STACK
+ *		    \p LC_X509_KEYS*_ON_STACK or \p lc_x509_keys*_alloc
  * @param [in] key_type Type of the private key - prevent the deduction of the
  *			the private key from the key file
  * @param [in] data Raw DER data blob in DER format
@@ -200,9 +301,8 @@ int lc_x509_cert_parse(struct lc_x509_certificate *cert, const uint8_t *data,
  *
  * @return 0 on success or < 0 on error
  */
-int lc_x509_sk_parse(struct lc_x509_key_data *key,
-			  enum lc_sig_types key_type, const uint8_t *data,
-			  size_t datalen);
+int lc_x509_sk_parse(struct lc_x509_key_data *key, enum lc_sig_types key_type,
+		     const uint8_t *data, size_t datalen);
 
 /**
  * @ingroup X509
