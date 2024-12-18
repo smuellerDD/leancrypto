@@ -32,14 +32,14 @@ AlgorithmIdentifier ::= SEQUENCE {
 	parameters		ANY OPTIONAL ({ x509_note_params })
 }
 
-Name ::= SEQUENCE OF RelativeDistinguishedName
+Name ::= SEQUENCE OF RelativeDistinguishedName ({ x509_attribute_value_continue })
 
 RelativeDistinguishedName ::= SET OF AttributeValueAssertion
 
 AttributeValueAssertion ::= SEQUENCE {
 	attributeType		OBJECT IDENTIFIER ({ x509_note_attribute_type_OID }),
 	attributeValue		ANY ({ x509_extract_attribute_name_segment })
-	} ({ x509_attribute_value_continue })
+	}
 
 Validity ::= SEQUENCE {
 	notBefore		Time ({ x509_note_not_before }),
