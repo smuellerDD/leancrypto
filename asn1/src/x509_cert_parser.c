@@ -1164,7 +1164,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_sk_parse, struct lc_x509_key_data *key,
 
 	key->sig_type = key_type;
 
-	CKINT(privkey_key_parse(key, data, datalen));
+	CKINT(privkey_key_decode(key, data, datalen));
 
 out:
 	return ret;

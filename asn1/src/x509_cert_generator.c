@@ -285,22 +285,8 @@ int x509_name_segment_enc(const struct lc_x509_certificate_name *name,
 	int ret = 0;
 
 	printf_debug("Set name component");
-	if (name->cn.size && !(*processed & X509_CN_PROCESSED)) {
-		name_data = name->cn.value;
-		name_datalen = name->cn.size;
-		*processed |= X509_CN_PROCESSED;
-		printf_debug(" CN ");
-	} else if (name->o.size && !(*processed & X509_O_PROCESSED)) {
-		name_data = name->o.value;
-		name_datalen = name->o.size;
-		*processed |= X509_O_PROCESSED;
-		printf_debug(" O ");
-	} else if (name->email.size && !(*processed & X509_EMAIL_PROCESSED)) {
-		name_data = name->email.value;
-		name_datalen = name->email.size;
-		*processed |= X509_EMAIL_PROCESSED;
-		printf_debug(" Email ");
-	} else if (name->c.size && !(*processed & X509_C_PROCESSED)) {
+#if 1
+	if (name->c.size && !(*processed & X509_C_PROCESSED)) {
 		name_data = name->c.value;
 		name_datalen = name->c.size;
 		*processed |= X509_C_PROCESSED;
@@ -310,12 +296,60 @@ int x509_name_segment_enc(const struct lc_x509_certificate_name *name,
 		name_datalen = name->st.size;
 		*processed |= X509_ST_PROCESSED;
 		printf_debug(" ST ");
+	} else if (name->o.size && !(*processed & X509_O_PROCESSED)) {
+		name_data = name->o.value;
+		name_datalen = name->o.size;
+		*processed |= X509_O_PROCESSED;
+		printf_debug(" O ");
 	} else if (name->ou.size && !(*processed & X509_OU_PROCESSED)) {
 		name_data = name->ou.value;
 		name_datalen = name->ou.size;
 		*processed |= X509_OU_PROCESSED;
 		printf_debug(" OU ");
+	} else if (name->cn.size && !(*processed & X509_CN_PROCESSED)) {
+		name_data = name->cn.value;
+		name_datalen = name->cn.size;
+		*processed |= X509_CN_PROCESSED;
+		printf_debug(" CN ");
+	} else if (name->email.size && !(*processed & X509_EMAIL_PROCESSED)) {
+		name_data = name->email.value;
+		name_datalen = name->email.size;
+		*processed |= X509_EMAIL_PROCESSED;
+		printf_debug(" Email ");
 	}
+#else
+	if (name->email.size && !(*processed & X509_EMAIL_PROCESSED)) {
+		name_data = name->email.value;
+		name_datalen = name->email.size;
+		*processed |= X509_EMAIL_PROCESSED;
+		printf_debug(" Email ");
+	} else if (name->cn.size && !(*processed & X509_CN_PROCESSED)) {
+		name_data = name->cn.value;
+		name_datalen = name->cn.size;
+		*processed |= X509_CN_PROCESSED;
+		printf_debug(" CN ");
+	} else if (name->ou.size && !(*processed & X509_OU_PROCESSED)) {
+		name_data = name->ou.value;
+		name_datalen = name->ou.size;
+		*processed |= X509_OU_PROCESSED;
+		printf_debug(" OU ");
+	} else if (name->o.size && !(*processed & X509_O_PROCESSED)) {
+		name_data = name->o.value;
+		name_datalen = name->o.size;
+		*processed |= X509_O_PROCESSED;
+		printf_debug(" O ");
+	} else if (name->st.size && !(*processed & X509_ST_PROCESSED)) {
+		name_data = name->st.value;
+		name_datalen = name->st.size;
+		*processed |= X509_ST_PROCESSED;
+		printf_debug(" ST ");
+	} else if (name->c.size && !(*processed & X509_C_PROCESSED)) {
+		name_data = name->c.value;
+		name_datalen = name->c.size;
+		*processed |= X509_C_PROCESSED;
+		printf_debug(" C ");
+	}
+#endif
 
 	if (name_datalen) {
 		CKINT(x509_sufficient_size(avail_datalen, name_datalen));
@@ -482,8 +516,7 @@ int x509_skid_enc(void *context, uint8_t *data, size_t *avail_datalen,
 		bin2print_debug(cert->raw_skid, cert->raw_skid_size, stdout,
 				"SKID");
 	} else {
-		const struct lc_x509_key_data *gendata =
-			&cert->pub_gen_data;
+		const struct lc_x509_key_data *gendata = &cert->pub_gen_data;
 
 		CKINT(x509_sufficient_size(avail_datalen,
 					   sizeof(gendata->pk_digest)));
@@ -1284,8 +1317,8 @@ out:
 }
 
 LC_INTERFACE_FUNCTION(int, lc_x509_gen_privkey,
-		      const struct lc_x509_key_data *keys,
-		      uint8_t *data, size_t *avail_datalen)
+		      const struct lc_x509_key_data *keys, uint8_t *data,
+		      size_t *avail_datalen)
 {
 	struct x509_generate_privkey_context ctx = { 0 };
 	int ret = 0;
@@ -1295,23 +1328,22 @@ LC_INTERFACE_FUNCTION(int, lc_x509_gen_privkey,
 
 	ctx.keys = keys;
 
-	CKINT(privkey_key_generate(&ctx, data, avail_datalen));
+	CKINT(privkey_key_encode(&ctx, data, avail_datalen));
 
 out:
 	lc_memset_secure(&ctx, 0, sizeof(ctx));
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_x509_get_signature_size_from_sk,
-		      size_t *siglen, const struct lc_x509_key_data *keys)
+LC_INTERFACE_FUNCTION(int, lc_x509_get_signature_size_from_sk, size_t *siglen,
+		      const struct lc_x509_key_data *keys)
 {
 	if (!siglen || !keys)
 		return -EINVAL;
 	return public_key_signature_size(siglen, keys->sig_type);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_x509_get_signature_size_from_cert,
-		      size_t *siglen,
+LC_INTERFACE_FUNCTION(int, lc_x509_get_signature_size_from_cert, size_t *siglen,
 		      const struct lc_x509_certificate *cert)
 {
 	const struct lc_public_key *pub;
@@ -1323,18 +1355,18 @@ LC_INTERFACE_FUNCTION(int, lc_x509_get_signature_size_from_cert,
 	return public_key_signature_size(siglen, pub->pkey_algo);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_x509_gen_signature,
-		      uint8_t *sig_data, size_t *siglen,
-		      const struct lc_x509_key_data *keys,
+LC_INTERFACE_FUNCTION(int, lc_x509_gen_signature, uint8_t *sig_data,
+		      size_t *siglen, const struct lc_x509_key_data *keys,
 		      const uint8_t *m, size_t mlen,
 		      const struct lc_hash *prehash_algo)
 {
-	struct lc_public_key_signature sig;
+	struct lc_public_key_signature sig = { 0 };
 	size_t available_siglen = *siglen;
 	int ret = 0;
 
 	CKNULL(keys, -EINVAL);
 	CKNULL(sig_data, -EINVAL);
+	CKNULL(m, -EINVAL);
 
 	if (prehash_algo) {
 		if (mlen > LC_SHA_MAX_SIZE_DIGEST)

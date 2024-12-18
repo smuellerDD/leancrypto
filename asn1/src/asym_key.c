@@ -297,8 +297,8 @@ out:
 	return ret;
 }
 
-int privkey_key_generate(struct x509_generate_privkey_context *ctx,
-			 uint8_t *dst_data, size_t *available_len)
+int privkey_key_encode(struct x509_generate_privkey_context *ctx,
+		       uint8_t *dst_data, size_t *available_len)
 {
 	const struct lc_x509_key_data *keys = ctx->keys;
 	int ret;
@@ -339,8 +339,8 @@ out:
 	return ret;
 }
 
-int privkey_key_parse(struct lc_x509_key_data *keys, const uint8_t *data,
-		      size_t datalen)
+int privkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
+		       size_t datalen)
 {
 	int ret;
 
