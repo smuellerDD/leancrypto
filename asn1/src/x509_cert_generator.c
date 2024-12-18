@@ -230,27 +230,31 @@ int x509_name_OID_enc(const struct lc_x509_certificate_name *name,
 	size_t oid_datalen = 0;
 	int ret = 0;
 
-	if (name->cn.size && !(processed & X509_CN_PROCESSED)) {
-		CKINT(OID_to_data(OID_commonName, &oid_data, &oid_datalen));
-		bin2print_debug(oid_data, oid_datalen, stdout, "OID CN");
-	} else if (name->o.size && !(processed & X509_O_PROCESSED)) {
-		CKINT(OID_to_data(OID_organizationName, &oid_data,
-				  &oid_datalen));
-		bin2print_debug(oid_data, oid_datalen, stdout, "OID O");
-	} else if (name->email.size && !(processed & X509_EMAIL_PROCESSED)) {
-		CKINT(OID_to_data(OID_email_address, &oid_data, &oid_datalen));
-		bin2print_debug(oid_data, oid_datalen, stdout, "OID Email");
-	} else if (name->c.size && !(processed & X509_C_PROCESSED)) {
+	/*
+	 * Note, the order of entries MUST match the order in
+	 * x509_name_segment_enc
+	 */
+	if (name->c.size && !(processed & X509_C_PROCESSED)) {
 		CKINT(OID_to_data(OID_countryName, &oid_data, &oid_datalen));
 		bin2print_debug(oid_data, oid_datalen, stdout, "OID C");
 	} else if (name->st.size && !(processed & X509_ST_PROCESSED)) {
 		CKINT(OID_to_data(OID_stateOrProvinceName, &oid_data,
 				  &oid_datalen));
 		bin2print_debug(oid_data, oid_datalen, stdout, "OID ST");
+	} else if (name->o.size && !(processed & X509_O_PROCESSED)) {
+		CKINT(OID_to_data(OID_organizationName, &oid_data,
+				  &oid_datalen));
+		bin2print_debug(oid_data, oid_datalen, stdout, "OID O");
 	} else if (name->ou.size && !(processed & X509_OU_PROCESSED)) {
 		CKINT(OID_to_data(OID_organizationUnitName, &oid_data,
 				  &oid_datalen));
 		bin2print_debug(oid_data, oid_datalen, stdout, "OID OU");
+	} else if (name->cn.size && !(processed & X509_CN_PROCESSED)) {
+		CKINT(OID_to_data(OID_commonName, &oid_data, &oid_datalen));
+		bin2print_debug(oid_data, oid_datalen, stdout, "OID CN");
+	} else if (name->email.size && !(processed & X509_EMAIL_PROCESSED)) {
+		CKINT(OID_to_data(OID_email_address, &oid_data, &oid_datalen));
+		bin2print_debug(oid_data, oid_datalen, stdout, "OID Email");
 	}
 
 	if (oid_datalen) {
@@ -285,7 +289,11 @@ int x509_name_segment_enc(const struct lc_x509_certificate_name *name,
 	int ret = 0;
 
 	printf_debug("Set name component");
-#if 1
+
+	/*
+	 * Note, the order of entries MUST match the order in
+	 * x509_name_OID_enc
+	 */
 	if (name->c.size && !(*processed & X509_C_PROCESSED)) {
 		name_data = name->c.value;
 		name_datalen = name->c.size;
@@ -317,39 +325,6 @@ int x509_name_segment_enc(const struct lc_x509_certificate_name *name,
 		*processed |= X509_EMAIL_PROCESSED;
 		printf_debug(" Email ");
 	}
-#else
-	if (name->email.size && !(*processed & X509_EMAIL_PROCESSED)) {
-		name_data = name->email.value;
-		name_datalen = name->email.size;
-		*processed |= X509_EMAIL_PROCESSED;
-		printf_debug(" Email ");
-	} else if (name->cn.size && !(*processed & X509_CN_PROCESSED)) {
-		name_data = name->cn.value;
-		name_datalen = name->cn.size;
-		*processed |= X509_CN_PROCESSED;
-		printf_debug(" CN ");
-	} else if (name->ou.size && !(*processed & X509_OU_PROCESSED)) {
-		name_data = name->ou.value;
-		name_datalen = name->ou.size;
-		*processed |= X509_OU_PROCESSED;
-		printf_debug(" OU ");
-	} else if (name->o.size && !(*processed & X509_O_PROCESSED)) {
-		name_data = name->o.value;
-		name_datalen = name->o.size;
-		*processed |= X509_O_PROCESSED;
-		printf_debug(" O ");
-	} else if (name->st.size && !(*processed & X509_ST_PROCESSED)) {
-		name_data = name->st.value;
-		name_datalen = name->st.size;
-		*processed |= X509_ST_PROCESSED;
-		printf_debug(" ST ");
-	} else if (name->c.size && !(*processed & X509_C_PROCESSED)) {
-		name_data = name->c.value;
-		name_datalen = name->c.size;
-		*processed |= X509_C_PROCESSED;
-		printf_debug(" C ");
-	}
-#endif
 
 	if (name_datalen) {
 		CKINT(x509_sufficient_size(avail_datalen, name_datalen));
