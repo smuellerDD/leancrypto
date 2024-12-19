@@ -173,8 +173,8 @@ int lc_x509_gen_keypair(struct lc_x509_certificate *cert,
  * @return 0 on success, < 0 on error
  */
 int lc_x509_load_keypair(struct lc_x509_certificate *cert,
-		      struct lc_x509_key_data *keys,
-		      enum lc_sig_types keypair_algo);
+			 struct lc_x509_key_data *keys,
+			 enum lc_sig_types keypair_algo);
 
 /**
  * @ingroup X509Gen

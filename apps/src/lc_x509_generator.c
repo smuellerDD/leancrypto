@@ -624,8 +624,8 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 		CKINT_LOG(get_data(opts->pk_file, &opts->pk_data,
 				   &opts->pk_len),
 			  "PK mmap failure\n");
-		CKINT(lc_x509_pk_parse(keys, opts->in_key_type,
-				       opts->pk_data, opts->pk_len));
+		CKINT(lc_x509_pk_parse(keys, opts->in_key_type, opts->pk_data,
+				       opts->pk_len));
 		if (self_signed) {
 			CKINT_LOG(get_data(opts->sk_file, &opts->sk_data,
 					   &opts->sk_len),

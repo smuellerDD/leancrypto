@@ -326,9 +326,8 @@ int lc_x509_sk_parse(struct lc_x509_key_data *key, enum lc_sig_types key_type,
  *
  * @return 0 on success or < 0 on error
  */
-int lc_x509_pk_parse(struct lc_x509_key_data *key,
-		     enum lc_sig_types key_type, const uint8_t *data,
-		     size_t datalen);
+int lc_x509_pk_parse(struct lc_x509_key_data *key, enum lc_sig_types key_type,
+		     const uint8_t *data, size_t datalen);
 
 /**
  * @ingroup X509
