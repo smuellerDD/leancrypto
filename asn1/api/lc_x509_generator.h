@@ -148,8 +148,8 @@ int lc_x509_gen_signature(uint8_t *sig_data, size_t *siglen,
  * certificate. IF another signer is to be used, use \p lc_x509_cert_set_signer.
  *
  * @param [out] cert X.509 certificate data structure to be filled
- * @param [out] keys Buffer that holds the loaded key data where the buffer must
- *		     have the same lifetime as \p cert
+ * @param [out] keys Buffer that is filled with the newly generated key data
+ *		     where the buffer must have the same lifetime as \p cert
  * @param [in] create_keypair_algo Algorithm to generate the key pair for
  *
  * @return 0 on success, < 0 on error
@@ -157,6 +157,24 @@ int lc_x509_gen_signature(uint8_t *sig_data, size_t *siglen,
 int lc_x509_gen_keypair(struct lc_x509_certificate *cert,
 			struct lc_x509_key_data *keys,
 			enum lc_sig_types create_keypair_algo);
+
+/**
+ * @ingroup X509Gen
+ * @brief Load key pair it to the X.509 certificate
+ *
+ * \note After this call, the X.509 certificate acts as a self-signed
+ * certificate. IF another signer is to be used, use \p lc_x509_cert_set_signer.
+ *
+ * @param [out] cert X.509 certificate data structure to be filled
+ * @param [in] keys Buffer that holds the loaded key data where the buffer must
+ *		     have the same lifetime as \p cert
+ * @param [in] keypair_algo Algorithm to generate the key pair for
+ *
+ * @return 0 on success, < 0 on error
+ */
+int lc_x509_load_keypair(struct lc_x509_certificate *cert,
+		      struct lc_x509_key_data *keys,
+		      enum lc_sig_types keypair_algo);
 
 /**
  * @ingroup X509Gen

@@ -286,7 +286,7 @@ void lc_x509_keys_zero_free(struct lc_x509_key_data *keys);
  * The function parses a private data buffer into a data structure that allows
  * immediate use of the parsed key data with the cryptographic primitives.
  *
- * \note The \p key_input_data data structure will contain the data of the
+ * \note The \p key data structure will contain the data of the
  * secret keys. I.e. the key material is loaded into the databuffer as during
  * load time, various checks are applied. The caller MUST ensure proper disposal
  * of the buffer holding sensitive data.
@@ -303,6 +303,32 @@ void lc_x509_keys_zero_free(struct lc_x509_key_data *keys);
  */
 int lc_x509_sk_parse(struct lc_x509_key_data *key, enum lc_sig_types key_type,
 		     const uint8_t *data, size_t datalen);
+
+/**
+ * @ingroup X509
+ * @brief Parse a public key in raw format
+ *
+ * The function parses a private data buffer into a data structure that allows
+ * immediate use of the parsed key data with the cryptographic primitives.
+ *
+ * \note The \p key data structure will contain the data of the
+ * public keys. I.e. the key material is loaded into the databuffer as during
+ * load time, various checks are applied. The caller MUST ensure proper disposal
+ * of the buffer holding sensitive data.
+ *
+ * @param [out] key The data structure that is filled with the public key. The
+ *		    caller must have allocated sufficient space with one of
+ *		    \p LC_X509_KEYS*_ON_STACK or \p lc_x509_keys*_alloc
+ * @param [in] key_type Type of the private key - prevent the deduction of the
+ *			the private key from the key file
+ * @param [in] data Raw data blob
+ * @param [in] datalen Length of the raw buffer
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_pk_parse(struct lc_x509_key_data *key,
+		     enum lc_sig_types key_type, const uint8_t *data,
+		     size_t datalen);
 
 /**
  * @ingroup X509

@@ -1170,6 +1170,23 @@ out:
 	return ret;
 }
 
+LC_INTERFACE_FUNCTION(int, lc_x509_pk_parse, struct lc_x509_key_data *key,
+		      enum lc_sig_types key_type, const uint8_t *data,
+		      size_t datalen)
+{
+	int ret = 0;
+
+	CKNULL(key, -EINVAL);
+	CKNULL(data, -EINVAL);
+
+	key->sig_type = key_type;
+
+	CKINT(pubkey_key_decode(key, data, datalen));
+
+out:
+	return ret;
+}
+
 LC_INTERFACE_FUNCTION(int, lc_x509_verify_signature, const uint8_t *sig_data,
 		      size_t siglen, const struct lc_x509_certificate *cert,
 		      const uint8_t *m, size_t mlen,
