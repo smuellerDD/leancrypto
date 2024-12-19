@@ -1373,3 +1373,11 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_signer,
 {
 	return asym_set_signer(signed_x509, signer_key_data, signer_x509);
 }
+
+LC_INTERFACE_FUNCTION(int, lc_x509_gen_keypair,
+		      struct lc_x509_certificate *cert,
+		      struct lc_x509_key_data *keys,
+		      enum lc_sig_types create_keypair_algo)
+{
+	return asym_gen_keypair(cert, keys, create_keypair_algo);
+}

@@ -520,8 +520,9 @@ static int x509_enc_set_signer(struct x509_generator_opts *opts)
 			   &opts->signer_data_len),
 		  "mmap failure\n");
 
-	CKINT(lc_x509_cert_parse(&opts->signer_cert, opts->signer_data,
-				 opts->signer_data_len));
+	CKINT_LOG(lc_x509_cert_parse(&opts->signer_cert, opts->signer_data,
+				     opts->signer_data_len),
+		  "Failure to parse certificate\n");
 
 	CKINT(lc_x509_policy_is_ca(&opts->signer_cert));
 	if (ret != LC_X509_POL_TRUE)
@@ -559,7 +560,6 @@ static int x509_enc_set_signer(struct x509_generator_opts *opts)
 	CKINT(lc_x509_cert_set_issuer_email(&opts->cert, param, paramlen));
 
 	CKINT(x509_load_sk(opts));
-
 	CKINT(lc_x509_cert_set_signer(gcert, signer_key_data,
 				      &opts->signer_cert));
 
@@ -580,114 +580,8 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 	LC_X509_LINK_INPUT_DATA(keys, key_input_data);
 
 	if (opts->create_keypair_algo) {
-		switch (opts->create_keypair_algo) {
-		case LC_SIG_DILITHIUM_44:
-			CKINT(lc_dilithium_keypair(
-				keys->pk.dilithium_pk, keys->sk.dilithium_sk,
-				lc_seeded_rng, LC_DILITHIUM_44));
-			goto load_dilithium;
-			break;
-		case LC_SIG_DILITHIUM_65:
-			CKINT(lc_dilithium_keypair(
-				keys->pk.dilithium_pk, keys->sk.dilithium_sk,
-				lc_seeded_rng, LC_DILITHIUM_65));
-			goto load_dilithium;
-			break;
-		case LC_SIG_DILITHIUM_87:
-			CKINT(lc_dilithium_keypair(
-				keys->pk.dilithium_pk, keys->sk.dilithium_sk,
-				lc_seeded_rng, LC_DILITHIUM_87));
-		load_dilithium:
-			if (self_signed) {
-				CKINT(lc_x509_cert_set_signer_keypair_dilithium(
-					gcert, keys->pk.dilithium_pk,
-					keys->sk.dilithium_sk));
-			}
-			CKINT(lc_x509_cert_set_pubkey_dilithium(
-				gcert, keys->pk.dilithium_pk));
-			break;
-		case LC_SIG_SPINCS_SHAKE_128F:
-			CKINT(lc_sphincs_keypair(
-				keys->pk.sphincs_pk, keys->sk.sphincs_sk,
-				lc_seeded_rng, LC_SPHINCS_SHAKE_128f));
-			goto load_sphincs;
-			break;
-		case LC_SIG_SPINCS_SHAKE_128S:
-			CKINT(lc_sphincs_keypair(
-				keys->pk.sphincs_pk, keys->sk.sphincs_sk,
-				lc_seeded_rng, LC_SPHINCS_SHAKE_128s));
-			goto load_sphincs;
-			break;
-		case LC_SIG_SPINCS_SHAKE_192F:
-			CKINT(lc_sphincs_keypair(
-				keys->pk.sphincs_pk, keys->sk.sphincs_sk,
-				lc_seeded_rng, LC_SPHINCS_SHAKE_192f));
-			goto load_sphincs;
-			break;
-		case LC_SIG_SPINCS_SHAKE_192S:
-			CKINT(lc_sphincs_keypair(
-				keys->pk.sphincs_pk, keys->sk.sphincs_sk,
-				lc_seeded_rng, LC_SPHINCS_SHAKE_192s));
-			goto load_sphincs;
-			break;
-		case LC_SIG_SPINCS_SHAKE_256F:
-			CKINT(lc_sphincs_keypair(
-				keys->pk.sphincs_pk, keys->sk.sphincs_sk,
-				lc_seeded_rng, LC_SPHINCS_SHAKE_256f));
-			goto load_sphincs;
-			break;
-		case LC_SIG_SPINCS_SHAKE_256S:
-			CKINT(lc_sphincs_keypair(
-				keys->pk.sphincs_pk, keys->sk.sphincs_sk,
-				lc_seeded_rng, LC_SPHINCS_SHAKE_256s));
-		load_sphincs:
-			if (self_signed) {
-				CKINT(lc_x509_cert_set_signer_keypair_sphincs(
-					gcert, keys->pk.sphincs_pk,
-					keys->sk.sphincs_sk));
-			}
-			CKINT(lc_x509_cert_set_pubkey_sphincs(
-				gcert, keys->pk.sphincs_pk));
-			break;
-		case LC_SIG_DILITHIUM_44_ED25519:
-			CKINT(lc_dilithium_ed25519_keypair(
-				keys->pk.dilithium_ed25519_pk,
-				keys->sk.dilithium_ed25519_sk, lc_seeded_rng,
-				LC_DILITHIUM_44));
-			goto load_dilithium_ed25519;
-			break;
-		case LC_SIG_DILITHIUM_65_ED25519:
-			CKINT(lc_dilithium_ed25519_keypair(
-				keys->pk.dilithium_ed25519_pk,
-				keys->sk.dilithium_ed25519_sk, lc_seeded_rng,
-				LC_DILITHIUM_65));
-			goto load_dilithium_ed25519;
-			break;
-		case LC_SIG_DILITHIUM_87_ED25519:
-			CKINT(lc_dilithium_ed25519_keypair(
-				keys->pk.dilithium_ed25519_pk,
-				keys->sk.dilithium_ed25519_sk, lc_seeded_rng,
-				LC_DILITHIUM_87));
-		load_dilithium_ed25519:
-			if (self_signed) {
-				CKINT(lc_x509_cert_set_signer_keypair_dilithium_ed25519(
-					gcert, keys->pk.dilithium_ed25519_pk,
-					keys->sk.dilithium_ed25519_sk));
-			}
-			CKINT(lc_x509_cert_set_pubkey_dilithium_ed25519(
-				gcert, keys->pk.dilithium_ed25519_pk));
-			break;
-		case LC_SIG_DILITHIUM_87_ED448:
-		case LC_SIG_ECDSA_X963:
-		case LC_SIG_ECRDSA_PKCS1:
-		case LC_SIG_RSA_PKCS1:
-		case LC_SIG_SM2:
-		case LC_SIG_UNKNOWN:
-		default:
-			return -ENOPKG;
-		}
-
-		keys->sig_type = opts->create_keypair_algo;
+		CKINT(lc_x509_gen_keypair(gcert, keys,
+					  opts->create_keypair_algo));
 
 		if (!opts->noout) {
 			CKINT_LOG(lc_x509_gen_privkey(keys, der_sk,
