@@ -45,11 +45,6 @@ struct lc_x509_key_input_data {
 	key_data->pk.dilithium_pk = &key_input_data->pk.dilithium_pk;          \
 	key_data->sk.dilithium_sk = &key_input_data->sk.dilithium_sk;
 
-int lc_x509_cert_set_signer(struct lc_x509_certificate *signed_x509,
-			    struct lc_x509_key_data *signer_key_data,
-			    struct lc_x509_certificate *signer_x509,
-			    const uint8_t *sk_data, size_t sk_data_len);
-
 #ifdef __cplusplus
 }
 #endif

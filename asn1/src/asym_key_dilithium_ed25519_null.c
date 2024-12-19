@@ -75,3 +75,13 @@ int public_key_signature_size_dilithium_ed25519(
 	(void)size;
 	return -ENOPKG;
 }
+
+int asym_set_dilithium_ed25519_keypair(struct lc_x509_key_data *gen_data,
+				       struct lc_dilithium_ed25519_pk *pk,
+				       struct lc_dilithium_ed25519_sk *sk)
+{
+	(void)gen_data;
+	(void)pk;
+	(void)sk;
+	return -ENOPKG;
+}

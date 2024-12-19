@@ -41,6 +41,9 @@ int public_key_generate_signature_sphincs(
 	const struct lc_x509_key_data *keys,
 	const struct lc_public_key_signature *sig, uint8_t *sig_data,
 	size_t *available_len, unsigned int fast);
+int asym_set_sphincs_keypair(struct lc_x509_key_data *gen_data,
+			     struct lc_sphincs_pk *pk,
+			     struct lc_sphincs_sk *sk);
 
 #ifdef __cplusplus
 }

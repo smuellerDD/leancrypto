@@ -284,6 +284,7 @@ static int pkcs7_load_signer(struct pkcs7_generator_opts *opts)
 	struct lc_x509_key_input_data *signer_key_input_data;
 	struct lc_x509_key_data *signer_key_data;
 	struct lc_x509_certificate *newcert = NULL;
+	enum lc_sig_types pkey_type;
 	int ret;
 
 	CKNULL_LOG(opts->x509_signer_file, -EINVAL,
@@ -314,9 +315,13 @@ static int pkcs7_load_signer(struct pkcs7_generator_opts *opts)
 
 	/* Set the private key to the newly create certificate */
 	LC_X509_LINK_INPUT_DATA(signer_key_data, signer_key_input_data);
-	CKINT(lc_x509_cert_set_signer(newcert, signer_key_data, newcert,
-				      x509->signer_sk_data,
-				      x509->signer_sk_data_len));
+	CKINT(lc_x509_cert_get_pubkey(newcert, NULL, NULL, &pkey_type));
+	CKINT_LOG(lc_x509_sk_parse(signer_key_data, pkey_type,
+				   x509->signer_sk_data,
+				   x509->signer_sk_data_len),
+		  "Loading X.509 signer private key from file failed: %d\n",
+		  ret);
+	CKINT(lc_x509_cert_set_signer(newcert, signer_key_data, newcert));
 
 	CKINT(lc_pkcs7_set_signer(pkcs7, newcert, opts->hash, opts->aa_set));
 

@@ -382,3 +382,93 @@ int privkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
 out:
 	return ret;
 }
+
+int asym_set_signer(struct lc_x509_certificate *signed_x509,
+		    struct lc_x509_key_data *signer_key_data,
+		    struct lc_x509_certificate *signer_x509)
+{
+	size_t pk_len;
+	const uint8_t *pk_ptr;
+	enum lc_sig_types pkey_type;
+	int ret;
+
+	/* Get the signature type based on the signer key */
+	CKINT(lc_x509_cert_get_pubkey(signer_x509, &pk_ptr, &pk_len,
+				      &pkey_type));
+
+	signed_x509->sig.pkey_algo = signer_key_data->sig_type;
+
+	switch (pkey_type) {
+	case LC_SIG_DILITHIUM_44:
+	case LC_SIG_DILITHIUM_65:
+	case LC_SIG_DILITHIUM_87:
+		CKINT_LOG(
+			lc_dilithium_pk_load(signer_key_data->pk.dilithium_pk,
+					     pk_ptr, pk_len),
+			"Loading X.509 signer public key from certificate failed: %d\n",
+			ret);
+		CKINT_LOG(asym_set_dilithium_keypair(
+				  &signed_x509->sig_gen_data, signer_key_data->pk.dilithium_pk,
+				  signer_key_data->sk.dilithium_sk),
+			  "Setting X.509 key pair for signing failed: %d\n",
+			  ret);
+		break;
+
+	case LC_SIG_SPINCS_SHAKE_128F:
+	case LC_SIG_SPINCS_SHAKE_192F:
+	case LC_SIG_SPINCS_SHAKE_256F:
+		CKINT_LOG(
+			lc_sphincs_pk_load(signer_key_data->pk.sphincs_pk,
+					   pk_ptr, pk_len),
+			"Loading X.509 signer public key from certificate failed: %d\n",
+			ret);
+		CKINT(lc_sphincs_pk_set_keytype_fast(
+			signer_key_data->pk.sphincs_pk));
+		goto load_sphincs;
+		break;
+	case LC_SIG_SPINCS_SHAKE_128S:
+	case LC_SIG_SPINCS_SHAKE_192S:
+	case LC_SIG_SPINCS_SHAKE_256S:
+		CKINT_LOG(
+			lc_sphincs_pk_load(signer_key_data->pk.sphincs_pk,
+					   pk_ptr, pk_len),
+			"Loading X.509 signer public key from certificate failed: %d\n",
+			ret);
+		CKINT(lc_sphincs_pk_set_keytype_small(
+			signer_key_data->pk.sphincs_pk));
+	load_sphincs:
+		CKINT_LOG(asym_set_sphincs_keypair(
+				  &signed_x509->sig_gen_data, signer_key_data->pk.sphincs_pk,
+				  signer_key_data->sk.sphincs_sk),
+			  "Setting X.509 key pair for signing\n");
+		break;
+
+	case LC_SIG_DILITHIUM_44_ED25519:
+	case LC_SIG_DILITHIUM_65_ED25519:
+	case LC_SIG_DILITHIUM_87_ED25519:
+		CKINT_LOG(
+			lc_x509_cert_load_pk_dilithium_ed25519(
+				signer_key_data->pk.dilithium_ed25519_pk,
+				pk_ptr, pk_len),
+			"Loading X.509 signer public key from certificate failed: %d\n",
+			ret);
+		CKINT_LOG(asym_set_dilithium_ed25519_keypair(
+				  &signed_x509->sig_gen_data,
+				  signer_key_data->pk.dilithium_ed25519_pk,
+				  signer_key_data->sk.dilithium_ed25519_sk),
+			  "Setting X.509 key pair for signing\n");
+		break;
+
+	case LC_SIG_DILITHIUM_87_ED448:
+	case LC_SIG_ECDSA_X963:
+	case LC_SIG_ECRDSA_PKCS1:
+	case LC_SIG_RSA_PKCS1:
+	case LC_SIG_SM2:
+	case LC_SIG_UNKNOWN:
+	default:
+		return -ENOPKG;
+	}
+
+out:
+	return ret;
+}

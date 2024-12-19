@@ -142,6 +142,23 @@ int lc_x509_gen_signature(uint8_t *sig_data, size_t *siglen,
 
 /**
  * @ingroup X509Gen
+ * @brief Set the signer X.509 certificate for a X.509 certificate
+ *
+ * @param [out] signed_x509 Signed X.509 certificate data structure to be filled
+ * @param [out] signer_key_input_data Buffer that holds the loaded key data
+ *				      where the buffer must have the same
+ *				      lifetime as \p x509
+ * @param [in] signer_x509 Signer X.509 certificate data that shall sign the
+ *			   \p signed_x509
+ *
+ * @return 0 on success, < 0 on error
+ */
+int lc_x509_cert_set_signer(struct lc_x509_certificate *signed_x509,
+			    struct lc_x509_key_data *signer_key_data,
+			    struct lc_x509_certificate *signer_x509);
+
+/**
+ * @ingroup X509Gen
  * @brief Set the signer Dilithium key pair for certificate generation
  *
  * The referenced keys are used to perform the signature generation operation

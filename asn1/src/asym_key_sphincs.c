@@ -247,3 +247,51 @@ int private_key_decode_sphincs(struct lc_x509_key_data *keys,
 out:
 	return ret;
 }
+
+int asym_set_sphincs_keypair(struct lc_x509_key_data *gen_data,
+			     struct lc_sphincs_pk *pk, struct lc_sphincs_sk *sk)
+{
+	uint8_t *pk_ptr;
+	size_t pk_len;
+	enum lc_sphincs_type sphincs_type;
+
+	int ret = 0;
+
+	CKNULL(gen_data, -EINVAL);
+	CKNULL(pk, -EINVAL);
+
+	sphincs_type = lc_sphincs_pk_type(pk);
+	switch (sphincs_type) {
+	case LC_SPHINCS_SHAKE_128f:
+		gen_data->sig_type = LC_SIG_SPINCS_SHAKE_128F;
+		break;
+	case LC_SPHINCS_SHAKE_128s:
+		gen_data->sig_type = LC_SIG_SPINCS_SHAKE_128S;
+		break;
+	case LC_SPHINCS_SHAKE_192f:
+		gen_data->sig_type = LC_SIG_SPINCS_SHAKE_192F;
+		break;
+	case LC_SPHINCS_SHAKE_192s:
+		gen_data->sig_type = LC_SIG_SPINCS_SHAKE_192S;
+		break;
+	case LC_SPHINCS_SHAKE_256f:
+		gen_data->sig_type = LC_SIG_SPINCS_SHAKE_256F;
+		break;
+	case LC_SPHINCS_SHAKE_256s:
+		gen_data->sig_type = LC_SIG_SPINCS_SHAKE_256S;
+		break;
+	case LC_SPHINCS_UNKNOWN:
+	default:
+		printf_debug("Unknown Dilithium type\n");
+		return -ENOPKG;
+	}
+
+	gen_data->pk.sphincs_pk = pk;
+	gen_data->sk.sphincs_sk = sk;
+
+	CKINT(lc_sphincs_pk_ptr(&pk_ptr, &pk_len, pk));
+	lc_hash(LC_X509_SKID_DEFAULT_HASH, pk_ptr, pk_len, gen_data->pk_digest);
+
+out:
+	return ret;
+}

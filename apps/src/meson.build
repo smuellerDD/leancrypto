@@ -95,7 +95,6 @@ if (host_machine.system() != 'windows') and get_option('apps').enabled()
 						'lc_x509_generator.c',
 						'lc_x509_generator_checker.c',
 						'lc_x509_generator_file_helper.c',
-						'lc_x509_generator_helper.c',
 						'lc_x509_generator_print.c',
 						])
 
@@ -113,7 +112,6 @@ if (host_machine.system() != 'windows') and get_option('apps').enabled()
 		lc_pkcs7_generator_files += files([
 						'lc_pkcs7_generator.c',
 						'lc_x509_generator_checker.c',
-						'lc_x509_generator_helper.c',
 						'lc_x509_generator_file_helper.c',
 						'lc_x509_generator_print.c',
 						])

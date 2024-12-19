@@ -57,3 +57,13 @@ int private_key_decode_dilithium(struct lc_x509_key_data *keys,
 	(void)datalen;
 	return -ENOPKG;
 }
+
+int asym_set_dilithium_keypair(struct lc_x509_key_data *gen_data,
+			       struct lc_dilithium_pk *pk,
+			       struct lc_dilithium_sk *sk)
+{
+	(void)gen_data;
+	(void)pk;
+	(void)sk;
+	return -ENOPKG;
+}

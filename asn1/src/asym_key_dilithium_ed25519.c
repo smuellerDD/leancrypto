@@ -582,3 +582,50 @@ out:
 	return ret;
 #endif
 }
+
+int asym_set_dilithium_ed25519_keypair(struct lc_x509_key_data *gen_data,
+				       struct lc_dilithium_ed25519_pk *pk,
+				       struct lc_dilithium_ed25519_sk *sk)
+{
+	uint8_t *dilithium_pk_ptr, *ed25519_pk_ptr;
+	size_t dilithium_pk_len, ed25519_pk_len;
+	enum lc_dilithium_type dilithium_ed25519_type;
+	int ret = 0;
+	LC_HASH_CTX_ON_STACK(hash_ctx, LC_X509_SKID_DEFAULT_HASH);
+
+	CKNULL(gen_data, -EINVAL);
+	CKNULL(pk, -EINVAL);
+
+	dilithium_ed25519_type = lc_dilithium_ed25519_pk_type(pk);
+	switch (dilithium_ed25519_type) {
+	case LC_DILITHIUM_44:
+		gen_data->sig_type = LC_SIG_DILITHIUM_44_ED25519;
+		break;
+	case LC_DILITHIUM_65:
+		gen_data->sig_type = LC_SIG_DILITHIUM_65_ED25519;
+		break;
+	case LC_DILITHIUM_87:
+		gen_data->sig_type = LC_SIG_DILITHIUM_87_ED25519;
+		break;
+	case LC_DILITHIUM_UNKNOWN:
+	default:
+		printf_debug("Unknown Dilithium ED25519 type\n");
+		return -ENOPKG;
+	}
+
+	gen_data->pk.dilithium_ed25519_pk = pk;
+	gen_data->sk.dilithium_ed25519_sk = sk;
+
+	CKINT(lc_dilithium_ed25519_pk_ptr(&dilithium_pk_ptr, &dilithium_pk_len,
+					  &ed25519_pk_ptr, &ed25519_pk_len,
+					  pk));
+
+	lc_hash_init(hash_ctx);
+	lc_hash_update(hash_ctx, dilithium_pk_ptr, dilithium_pk_len);
+	lc_hash_update(hash_ctx, ed25519_pk_ptr, ed25519_pk_len);
+	lc_hash_final(hash_ctx, gen_data->pk_digest);
+	lc_hash_zero(hash_ctx);
+
+out:
+	return ret;
+}

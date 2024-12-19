@@ -49,9 +49,6 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_get_pubkey,
 	int ret = 0;
 
 	CKNULL(cert, -EINVAL);
-	CKNULL(pk, -EINVAL);
-	CKNULL(pk_size, -EINVAL);
-	CKNULL(key_type, -EINVAL);
 
 	pub = &cert->pub;
 

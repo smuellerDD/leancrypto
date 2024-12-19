@@ -18,52 +18,15 @@
  */
 
 #include "asn1_debug.h"
+#include "asym_key_dilithium.h"
+#include "asym_key_dilithium_ed25519.h"
+#include "asym_key_sphincs.h"
 #include "ext_headers.h"
 #include "helper.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 #include "lc_x509_generator.h"
 #include "x509_cert_parser.h"
-
-static int lc_x509_cert_set_dilithium_keypair(struct lc_x509_key_data *gen_data,
-					      struct lc_dilithium_pk *pk,
-					      struct lc_dilithium_sk *sk)
-{
-	uint8_t *pk_ptr;
-	size_t pk_len;
-	enum lc_dilithium_type dilithium_type;
-
-	int ret = 0;
-
-	CKNULL(gen_data, -EINVAL);
-	CKNULL(pk, -EINVAL);
-
-	dilithium_type = lc_dilithium_pk_type(pk);
-	switch (dilithium_type) {
-	case LC_DILITHIUM_44:
-		gen_data->sig_type = LC_SIG_DILITHIUM_44;
-		break;
-	case LC_DILITHIUM_65:
-		gen_data->sig_type = LC_SIG_DILITHIUM_65;
-		break;
-	case LC_DILITHIUM_87:
-		gen_data->sig_type = LC_SIG_DILITHIUM_87;
-		break;
-	case LC_DILITHIUM_UNKNOWN:
-	default:
-		printf_debug("Unknown Dilithium type\n");
-		return -ENOPKG;
-	}
-
-	gen_data->pk.dilithium_pk = pk;
-	gen_data->sk.dilithium_sk = sk;
-
-	CKINT(lc_dilithium_pk_ptr(&pk_ptr, &pk_len, pk));
-	lc_hash(LC_X509_SKID_DEFAULT_HASH, pk_ptr, pk_len, gen_data->pk_digest);
-
-out:
-	return ret;
-}
 
 LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_signer_keypair_dilithium,
 		      struct lc_x509_certificate *x509,
@@ -74,7 +37,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_signer_keypair_dilithium,
 	if (!x509)
 		return -EINVAL;
 
-	CKINT(lc_x509_cert_set_dilithium_keypair(&x509->sig_gen_data, pk, sk));
+	CKINT(asym_set_dilithium_keypair(&x509->sig_gen_data, pk, sk));
 	x509->sig.pkey_algo = x509->sig_gen_data.sig_type;
 
 out:
@@ -90,58 +53,8 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_pubkey_dilithium,
 	if (!x509)
 		return -EINVAL;
 
-	CKINT(lc_x509_cert_set_dilithium_keypair(&x509->pub_gen_data, pk,
-						 NULL));
+	CKINT(asym_set_dilithium_keypair(&x509->pub_gen_data, pk, NULL));
 	x509->pub.pkey_algo = x509->pub_gen_data.sig_type;
-
-out:
-	return ret;
-}
-
-static int lc_x509_cert_set_sphincs_keypair(struct lc_x509_key_data *gen_data,
-					    struct lc_sphincs_pk *pk,
-					    struct lc_sphincs_sk *sk)
-{
-	uint8_t *pk_ptr;
-	size_t pk_len;
-	enum lc_sphincs_type sphincs_type;
-
-	int ret = 0;
-
-	CKNULL(gen_data, -EINVAL);
-	CKNULL(pk, -EINVAL);
-
-	sphincs_type = lc_sphincs_pk_type(pk);
-	switch (sphincs_type) {
-	case LC_SPHINCS_SHAKE_128f:
-		gen_data->sig_type = LC_SIG_SPINCS_SHAKE_128F;
-		break;
-	case LC_SPHINCS_SHAKE_128s:
-		gen_data->sig_type = LC_SIG_SPINCS_SHAKE_128S;
-		break;
-	case LC_SPHINCS_SHAKE_192f:
-		gen_data->sig_type = LC_SIG_SPINCS_SHAKE_192F;
-		break;
-	case LC_SPHINCS_SHAKE_192s:
-		gen_data->sig_type = LC_SIG_SPINCS_SHAKE_192S;
-		break;
-	case LC_SPHINCS_SHAKE_256f:
-		gen_data->sig_type = LC_SIG_SPINCS_SHAKE_256F;
-		break;
-	case LC_SPHINCS_SHAKE_256s:
-		gen_data->sig_type = LC_SIG_SPINCS_SHAKE_256S;
-		break;
-	case LC_SPHINCS_UNKNOWN:
-	default:
-		printf_debug("Unknown Dilithium type\n");
-		return -ENOPKG;
-	}
-
-	gen_data->pk.sphincs_pk = pk;
-	gen_data->sk.sphincs_sk = sk;
-
-	CKINT(lc_sphincs_pk_ptr(&pk_ptr, &pk_len, pk));
-	lc_hash(LC_X509_SKID_DEFAULT_HASH, pk_ptr, pk_len, gen_data->pk_digest);
 
 out:
 	return ret;
@@ -156,7 +69,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_signer_keypair_sphincs,
 	if (!x509)
 		return -EINVAL;
 
-	CKINT(lc_x509_cert_set_sphincs_keypair(&x509->sig_gen_data, pk, sk));
+	CKINT(asym_set_sphincs_keypair(&x509->sig_gen_data, pk, sk));
 	x509->sig.pkey_algo = x509->sig_gen_data.sig_type;
 
 out:
@@ -172,56 +85,8 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_pubkey_sphincs,
 	if (!x509)
 		return -EINVAL;
 
-	CKINT(lc_x509_cert_set_sphincs_keypair(&x509->pub_gen_data, pk, NULL));
+	CKINT(asym_set_sphincs_keypair(&x509->pub_gen_data, pk, NULL));
 	x509->pub.pkey_algo = x509->pub_gen_data.sig_type;
-
-out:
-	return ret;
-}
-
-static int
-lc_x509_cert_set_dilithium_ed25519_keypair(struct lc_x509_key_data *gen_data,
-					   struct lc_dilithium_ed25519_pk *pk,
-					   struct lc_dilithium_ed25519_sk *sk)
-{
-	uint8_t *dilithium_pk_ptr, *ed25519_pk_ptr;
-	size_t dilithium_pk_len, ed25519_pk_len;
-	enum lc_dilithium_type dilithium_ed25519_type;
-	int ret = 0;
-	LC_HASH_CTX_ON_STACK(hash_ctx, LC_X509_SKID_DEFAULT_HASH);
-
-	CKNULL(gen_data, -EINVAL);
-	CKNULL(pk, -EINVAL);
-
-	dilithium_ed25519_type = lc_dilithium_ed25519_pk_type(pk);
-	switch (dilithium_ed25519_type) {
-	case LC_DILITHIUM_44:
-		gen_data->sig_type = LC_SIG_DILITHIUM_44_ED25519;
-		break;
-	case LC_DILITHIUM_65:
-		gen_data->sig_type = LC_SIG_DILITHIUM_65_ED25519;
-		break;
-	case LC_DILITHIUM_87:
-		gen_data->sig_type = LC_SIG_DILITHIUM_87_ED25519;
-		break;
-	case LC_DILITHIUM_UNKNOWN:
-	default:
-		printf_debug("Unknown Dilithium ED25519 type\n");
-		return -ENOPKG;
-	}
-
-	gen_data->pk.dilithium_ed25519_pk = pk;
-	gen_data->sk.dilithium_ed25519_sk = sk;
-
-	CKINT(lc_dilithium_ed25519_pk_ptr(&dilithium_pk_ptr, &dilithium_pk_len,
-					  &ed25519_pk_ptr, &ed25519_pk_len,
-					  pk));
-
-	lc_hash_init(hash_ctx);
-	lc_hash_update(hash_ctx, dilithium_pk_ptr, dilithium_pk_len);
-	lc_hash_update(hash_ctx, ed25519_pk_ptr, ed25519_pk_len);
-	lc_hash_final(hash_ctx, gen_data->pk_digest);
-	lc_hash_zero(hash_ctx);
 
 out:
 	return ret;
@@ -237,8 +102,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_signer_keypair_dilithium_ed25519,
 	if (!x509)
 		return -EINVAL;
 
-	CKINT(lc_x509_cert_set_dilithium_ed25519_keypair(&x509->sig_gen_data,
-							 pk, sk));
+	CKINT(asym_set_dilithium_ed25519_keypair(&x509->sig_gen_data, pk, sk));
 	x509->sig.pkey_algo = x509->sig_gen_data.sig_type;
 
 out:
@@ -254,8 +118,8 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_pubkey_dilithium_ed25519,
 	if (!x509)
 		return -EINVAL;
 
-	CKINT(lc_x509_cert_set_dilithium_ed25519_keypair(&x509->pub_gen_data,
-							 pk, NULL));
+	CKINT(asym_set_dilithium_ed25519_keypair(&x509->pub_gen_data, pk,
+						 NULL));
 	x509->pub.pkey_algo = x509->pub_gen_data.sig_type;
 
 out:

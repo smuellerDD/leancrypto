@@ -66,6 +66,9 @@ int privkey_key_encode(struct x509_generate_privkey_context *ctx,
 		       uint8_t *dst_data, size_t *available_len);
 int privkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
 		       size_t datalen);
+int asym_set_signer(struct lc_x509_certificate *signed_x509,
+		    struct lc_x509_key_data *signer_key_data,
+		    struct lc_x509_certificate *signer_x509);
 
 #ifdef __cplusplus
 }

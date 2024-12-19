@@ -1365,3 +1365,11 @@ out:
 	lc_memset_secure(&sig, 0, sizeof(sig));
 	return ret;
 }
+
+LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_signer,
+		      struct lc_x509_certificate *signed_x509,
+		      struct lc_x509_key_data *signer_key_data,
+		      struct lc_x509_certificate *signer_x509)
+{
+	return asym_set_signer(signed_x509, signer_key_data, signer_x509);
+}

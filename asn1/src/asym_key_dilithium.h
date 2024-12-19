@@ -41,6 +41,9 @@ int public_key_generate_signature_dilithium(
 	const struct lc_x509_key_data *gen_data,
 	const struct lc_public_key_signature *sig, uint8_t *sig_data,
 	size_t *available_len);
+int asym_set_dilithium_keypair(struct lc_x509_key_data *gen_data,
+			       struct lc_dilithium_pk *pk,
+			       struct lc_dilithium_sk *sk);
 
 #ifdef __cplusplus
 }

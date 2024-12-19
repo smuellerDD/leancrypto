@@ -480,12 +480,37 @@ out:
 	return ret;
 }
 
+static int x509_load_sk(struct x509_generator_opts *opts)
+{
+	struct lc_x509_key_data *signer_key_data = &opts->signer_key_data;
+	struct lc_x509_key_input_data *signer_key_input_data =
+		&opts->signer_key_input_data;
+	enum lc_sig_types pkey_type;
+	int ret;
+
+	CKINT_LOG(get_data(opts->signer_sk_file, &opts->signer_sk_data,
+			   &opts->signer_sk_len),
+		  "Signer SK mmap failure\n");
+
+	LC_X509_LINK_INPUT_DATA(signer_key_data, signer_key_input_data);
+
+	/* Get the signature type based on the signer key */
+	CKINT(lc_x509_cert_get_pubkey(&opts->signer_cert, NULL, NULL,
+				      &pkey_type));
+
+	CKINT_LOG(lc_x509_sk_parse(signer_key_data, pkey_type,
+				   opts->signer_sk_data, opts->signer_sk_len),
+		  "Loading X.509 signer private key from file failed: %d\n",
+		  ret);
+
+out:
+	return ret;
+}
+
 static int x509_enc_set_signer(struct x509_generator_opts *opts)
 {
 	struct lc_x509_certificate *gcert = &opts->cert;
 	struct lc_x509_key_data *signer_key_data = &opts->signer_key_data;
-	struct lc_x509_key_input_data *signer_key_input_data =
-		&opts->signer_key_input_data;
 	size_t paramlen = 0;
 	const uint8_t *dparam;
 	const char *param;
@@ -533,14 +558,10 @@ static int x509_enc_set_signer(struct x509_generator_opts *opts)
 					     &paramlen));
 	CKINT(lc_x509_cert_set_issuer_email(&opts->cert, param, paramlen));
 
-	CKINT_LOG(get_data(opts->signer_sk_file, &opts->signer_sk_data,
-			   &opts->signer_sk_len),
-		  "Signer SK mmap failure\n");
+	CKINT(x509_load_sk(opts));
 
-	LC_X509_LINK_INPUT_DATA(signer_key_data, signer_key_input_data);
 	CKINT(lc_x509_cert_set_signer(gcert, signer_key_data,
-				      &opts->signer_cert, opts->signer_sk_data,
-				      opts->signer_sk_len));
+				      &opts->signer_cert));
 
 out:
 	return ret;
