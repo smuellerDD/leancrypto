@@ -184,6 +184,12 @@ out:
 	return ret;
 }
 
+/*
+ * Find the location of the public key in the X.509 data stream and store them
+ * in the context.
+ *
+ * NOTE, only pointers to the DER data stream are set.
+ */
 int public_key_extract(struct x509_generate_context *ctx, uint8_t *dst_data,
 		       size_t *available_len)
 {
@@ -236,6 +242,9 @@ out:
 	return ret;
 }
 
+/*
+ * Return the signature size of a given signature type
+ */
 int public_key_signature_size(size_t *siglen, enum lc_sig_types sig_type)
 {
 	int ret = 0;
@@ -296,6 +305,9 @@ out:
 	return ret;
 }
 
+/*
+ * Encode a private key into DER
+ */
 int privkey_key_encode(struct x509_generate_privkey_context *ctx,
 		       uint8_t *dst_data, size_t *available_len)
 {
@@ -338,6 +350,11 @@ out:
 	return ret;
 }
 
+/*
+ * Decode a private key from DER into the internal data buffer
+ *
+ * NOTE, only pointers to the DER data stream are set.
+ */
 int privkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
 		       size_t datalen)
 {
@@ -382,6 +399,11 @@ out:
 	return ret;
 }
 
+/*
+ * Decode a public key from DER into the internal data buffer
+ *
+ * NOTE, only pointers to the DER data stream are set.
+ */
 int pubkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
 		      size_t datalen)
 {
@@ -430,9 +452,17 @@ out:
 	return ret;
 }
 
+/*
+ * Set a signer to a certificate
+ *
+ * @param [out] signed_x509 X.509 certificate that shall be signed by the
+ *		signer
+ * @param [in] signer_key_data Private key of the signer
+ * @param [in] signer_x509 X.509 certificate of the signer
+ */
 int asym_set_signer(struct lc_x509_certificate *signed_x509,
-		    struct lc_x509_key_data *signer_key_data,
-		    struct lc_x509_certificate *signer_x509)
+		    const struct lc_x509_key_data *signer_key_data,
+		    const struct lc_x509_certificate *signer_x509)
 {
 	size_t pk_len;
 	const uint8_t *pk_ptr;
@@ -522,7 +552,11 @@ out:
 	return ret;
 }
 
-int asym_gen_keypair(struct lc_x509_certificate *cert,
+/*
+ * Generate key pair and set it to the X.509 certificate structure. This implies
+ * that when generating a signature, the certificate would be self-signed.
+ */
+int asym_keypair_gen(struct lc_x509_certificate *cert,
 		     struct lc_x509_key_data *keys,
 		     enum lc_sig_types create_keypair_algo)
 {
@@ -638,8 +672,12 @@ out:
 	return ret;
 }
 
-int asym_load_keypair(struct lc_x509_certificate *cert,
-		      struct lc_x509_key_data *keys,
+/*
+ * Load an externally provided key pair into the certificate. This implies
+ * that when generating a signature, the certificate would be self-signed.
+ */
+int asym_keypair_load(struct lc_x509_certificate *cert,
+		      const struct lc_x509_key_data *keys,
 		      enum lc_sig_types keypair_algo)
 {
 	int ret;

@@ -1234,7 +1234,7 @@ out:
  * API functions
  ******************************************************************************/
 
-LC_INTERFACE_FUNCTION(int, lc_x509_gen_cert,
+LC_INTERFACE_FUNCTION(int, lc_x509_cert_encode,
 		      const struct lc_x509_certificate *x509, uint8_t *data,
 		      size_t *avail_datalen)
 {
@@ -1291,7 +1291,7 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_x509_gen_privkey,
+LC_INTERFACE_FUNCTION(int, lc_x509_sk_encode,
 		      const struct lc_x509_key_data *keys, uint8_t *data,
 		      size_t *avail_datalen)
 {
@@ -1330,7 +1330,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_get_signature_size_from_cert, size_t *siglen,
 	return public_key_signature_size(siglen, pub->pkey_algo);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_x509_gen_signature, uint8_t *sig_data,
+LC_INTERFACE_FUNCTION(int, lc_x509_signature_gen, uint8_t *sig_data,
 		      size_t *siglen, const struct lc_x509_key_data *keys,
 		      const uint8_t *m, size_t mlen,
 		      const struct lc_hash *prehash_algo)
@@ -1368,24 +1368,24 @@ out:
 
 LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_signer,
 		      struct lc_x509_certificate *signed_x509,
-		      struct lc_x509_key_data *signer_key_data,
-		      struct lc_x509_certificate *signer_x509)
+		      const struct lc_x509_key_data *signer_key_data,
+		      const struct lc_x509_certificate *signer_x509)
 {
 	return asym_set_signer(signed_x509, signer_key_data, signer_x509);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_x509_gen_keypair,
+LC_INTERFACE_FUNCTION(int, lc_x509_keypair_gen,
 		      struct lc_x509_certificate *cert,
 		      struct lc_x509_key_data *keys,
 		      enum lc_sig_types create_keypair_algo)
 {
-	return asym_gen_keypair(cert, keys, create_keypair_algo);
+	return asym_keypair_gen(cert, keys, create_keypair_algo);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_x509_load_keypair,
+LC_INTERFACE_FUNCTION(int, lc_x509_keypair_load,
 		      struct lc_x509_certificate *cert,
-		      struct lc_x509_key_data *keys,
+		      const struct lc_x509_key_data *keys,
 		      enum lc_sig_types keypair_algo)
 {
-	return asym_load_keypair(cert, keys, keypair_algo);
+	return asym_keypair_load(cert, keys, keypair_algo);
 }

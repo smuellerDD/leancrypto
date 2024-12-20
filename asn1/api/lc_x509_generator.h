@@ -52,7 +52,7 @@ extern "C" {
 
 /**
  * @ingroup X509Gen
- * @brief Generate an X.509 certificate
+ * @brief Encode an X.509 certificate
  *
  * The function generates an X.509 data blob from the filled X.509 data
  * structure.
@@ -68,12 +68,12 @@ extern "C" {
  *
  * @return 0 on success or < 0 on error
  */
-int lc_x509_gen_cert(const struct lc_x509_certificate *x509, uint8_t *data,
-		     size_t *avail_datalen);
+int lc_x509_cert_encode(const struct lc_x509_certificate *x509, uint8_t *data,
+			size_t *avail_datalen);
 
 /**
  * @ingroup X509Gen
- * @brief Generate a private key DER structure
+ * @brief Encode a private key DER structure
  *
  * The function generates a DER data blob from the private keys
  *
@@ -87,8 +87,8 @@ int lc_x509_gen_cert(const struct lc_x509_certificate *x509, uint8_t *data,
  *
  * @return 0 on success or < 0 on error
  */
-int lc_x509_gen_privkey(const struct lc_x509_key_data *gendata, uint8_t *data,
-			size_t *avail_datalen);
+int lc_x509_sk_encode(const struct lc_x509_key_data *gendata, uint8_t *data,
+		      size_t *avail_datalen);
 
 /**
  * @ingroup X509Gen
@@ -136,7 +136,7 @@ int lc_x509_get_signature_size_from_cert(
  *
  * @return 0 on success or < 0 on error
  */
-int lc_x509_gen_signature(uint8_t *sig_data, size_t *siglen,
+int lc_x509_signature_gen(uint8_t *sig_data, size_t *siglen,
 			  const struct lc_x509_key_data *keys, const uint8_t *m,
 			  size_t mlen, const struct lc_hash *prehash_algo);
 
@@ -154,7 +154,7 @@ int lc_x509_gen_signature(uint8_t *sig_data, size_t *siglen,
  *
  * @return 0 on success, < 0 on error
  */
-int lc_x509_gen_keypair(struct lc_x509_certificate *cert,
+int lc_x509_keypair_gen(struct lc_x509_certificate *cert,
 			struct lc_x509_key_data *keys,
 			enum lc_sig_types create_keypair_algo);
 
@@ -172,8 +172,8 @@ int lc_x509_gen_keypair(struct lc_x509_certificate *cert,
  *
  * @return 0 on success, < 0 on error
  */
-int lc_x509_load_keypair(struct lc_x509_certificate *cert,
-			 struct lc_x509_key_data *keys,
+int lc_x509_keypair_load(struct lc_x509_certificate *cert,
+			 const struct lc_x509_key_data *keys,
 			 enum lc_sig_types keypair_algo);
 
 /**
@@ -181,7 +181,7 @@ int lc_x509_load_keypair(struct lc_x509_certificate *cert,
  * @brief Set the signer X.509 certificate for a X.509 certificate
  *
  * @param [out] signed_x509 Signed X.509 certificate data structure to be filled
- * @param [out] signer_key_data Buffer that holds the loaded key data
+ * @param [in] signer_key_data Buffer that holds the loaded key data
  *				where the buffer must have the same
  *				lifetime as \p signed_x509
  * @param [in] signer_x509 Signer X.509 certificate data that shall sign the
@@ -190,122 +190,8 @@ int lc_x509_load_keypair(struct lc_x509_certificate *cert,
  * @return 0 on success, < 0 on error
  */
 int lc_x509_cert_set_signer(struct lc_x509_certificate *signed_x509,
-			    struct lc_x509_key_data *signer_key_data,
-			    struct lc_x509_certificate *signer_x509);
-
-/**
- * @ingroup X509Gen
- * @brief Set the signer Dilithium key pair for certificate generation
- *
- * The referenced keys are used to perform the signature generation operation
- * and to obtain information from the signer.
- *
- * \note The caller must keep the input data available for the lifetime of
- * \p x509.
- *
- * @param [in] x509 Certificate data structure to be filled with the data.
- * @param [in] pk Dilithium public key
- * @param [in] sk Dilithium secret key
- *
- * @return 0 on success or < 0 on error
- */
-int lc_x509_cert_set_signer_keypair_dilithium(struct lc_x509_certificate *x509,
-					      struct lc_dilithium_pk *pk,
-					      struct lc_dilithium_sk *sk);
-
-/**
- * @ingroup X509Gen
- * @brief Set the Dilithium public key to be embedded into the certificate
- *
- * The referenced key is stored in the certificate and protected by the
- * signature.
- *
- * \note The caller must keep the input data available for the lifetime of
- * \p x509.
- *
- * @param [in] x509 Certificate data structure to be filled with the data.
- * @param [in] pk Dilithium public key
- *
- * @return 0 on success or < 0 on error
- */
-int lc_x509_cert_set_pubkey_dilithium(struct lc_x509_certificate *x509,
-				      struct lc_dilithium_pk *pk);
-
-/**
- * @ingroup X509Gen
- * @brief Set the signer Dilithium-ED25519 key pair for certificate generation
- *
- * The referenced keys are used to perform the signature generation operation
- * and to obtain information from the signer.
- *
- * \note The caller must keep the input data available for the lifetime of
- * \p x509.
- *
- * @param [in] x509 Certificate data structure to be filled with the data.
- * @param [in] pk Dilithium-ED25519 public key
- * @param [in] sk Dilithium-ED25519 secret key
- *
- * @return 0 on success or < 0 on error
- */
-int lc_x509_cert_set_signer_keypair_dilithium_ed25519(
-	struct lc_x509_certificate *x509, struct lc_dilithium_ed25519_pk *pk,
-	struct lc_dilithium_ed25519_sk *sk);
-
-/**
- * @ingroup X509Gen
- * @brief Set the Dilithium-ED25519 public key to be embedded into the certificate
- *
- * The referenced key is stored in the certificate and protected by the
- * signature.
- *
- * \note The caller must keep the input data available for the lifetime of
- * \p x509.
- *
- * @param [in] x509 Certificate data structure to be filled with the data.
- * @param [in] pk Dilithium-ED25519 public key
- *
- * @return 0 on success or < 0 on error
- */
-int lc_x509_cert_set_pubkey_dilithium_ed25519(
-	struct lc_x509_certificate *x509, struct lc_dilithium_ed25519_pk *pk);
-
-/**
- * @ingroup X509Gen
- * @brief Set the signer Sphincs Plus key pair for certificate generation
- *
- * The referenced keys are used to perform the signature generation operation
- * and to obtain information from the signer.
- *
- * \note The caller must keep the input data available for the lifetime of
- * \p x509.
- *
- * @param [in] x509 Certificate data structure to be filled with the data.
- * @param [in] pk Sphincs Plus public key
- * @param [in] sk Sphincs Plus secret key
- *
- * @return 0 on success or < 0 on error
- */
-int lc_x509_cert_set_signer_keypair_sphincs(struct lc_x509_certificate *x509,
-					    struct lc_sphincs_pk *pk,
-					    struct lc_sphincs_sk *sk);
-
-/**
- * @ingroup X509Gen
- * @brief Set the Sphincs Plus public key to be embedded into the certificate
- *
- * The referenced key is stored in the certificate and protected by the
- * signature.
- *
- * \note The caller must keep the input data available for the lifetime of
- * \p x509.
- *
- * @param [in] x509 Certificate data structure to be filled with the data.
- * @param [in] pk Sphincs Plus public key
- *
- * @return 0 on success or < 0 on error
- */
-int lc_x509_cert_set_pubkey_sphincs(struct lc_x509_certificate *x509,
-				    struct lc_sphincs_pk *pk);
+			    const struct lc_x509_key_data *signer_key_data,
+			    const struct lc_x509_certificate *signer_x509);
 
 /**
  * @ingroup X509Gen

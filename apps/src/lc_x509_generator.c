@@ -135,7 +135,7 @@ static int x509_enc_dump(struct x509_generator_opts *opts,
 	if (!opts->print_x509 && !opts->checker)
 		return 0;
 
-	CKINT(lc_x509_cert_parse(&pcert, x509_data, x509_datalen));
+	CKINT(lc_x509_cert_decode(&pcert, x509_data, x509_datalen));
 
 	if (opts->checker)
 		CKINT(apply_checks_x509(&pcert, &opts->checker_opts));
@@ -161,7 +161,7 @@ static int x509_dump_file(struct x509_generator_opts *opts)
 	CKINT_LOG(get_data(opts->print_x509_cert, &x509_data, &x509_datalen),
 		  "Loading of file %s failed\n", opts->print_x509_cert);
 
-	CKINT_LOG(lc_x509_cert_parse(&pcert, x509_data, x509_datalen),
+	CKINT_LOG(lc_x509_cert_decode(&pcert, x509_data, x509_datalen),
 		  "Parsing of input file %s failed\n", opts->print_x509_cert);
 
 	if (opts->checker)
@@ -186,7 +186,7 @@ static int x509_gen_cert(struct x509_generator_opts *opts)
 	if (opts->cert_present)
 		return 0;
 
-	CKINT(lc_x509_gen_cert(gcert, data, &avail_datalen));
+	CKINT(lc_x509_cert_encode(gcert, data, &avail_datalen));
 	datalen = sizeof(data) - avail_datalen;
 
 	if (!opts->outfile)
@@ -498,8 +498,8 @@ static int x509_load_sk(struct x509_generator_opts *opts)
 	CKINT(lc_x509_cert_get_pubkey(&opts->signer_cert, NULL, NULL,
 				      &pkey_type));
 
-	CKINT_LOG(lc_x509_sk_parse(signer_key_data, pkey_type,
-				   opts->signer_sk_data, opts->signer_sk_len),
+	CKINT_LOG(lc_x509_sk_decode(signer_key_data, pkey_type,
+				    opts->signer_sk_data, opts->signer_sk_len),
 		  "Loading X.509 signer private key from file failed: %d\n",
 		  ret);
 
@@ -520,8 +520,8 @@ static int x509_enc_set_signer(struct x509_generator_opts *opts)
 			   &opts->signer_data_len),
 		  "mmap failure\n");
 
-	CKINT_LOG(lc_x509_cert_parse(&opts->signer_cert, opts->signer_data,
-				     opts->signer_data_len),
+	CKINT_LOG(lc_x509_cert_decode(&opts->signer_cert, opts->signer_data,
+				      opts->signer_data_len),
 		  "Failure to parse certificate\n");
 
 	CKINT(lc_x509_policy_is_ca(&opts->signer_cert));
@@ -580,12 +580,11 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 	LC_X509_LINK_INPUT_DATA(keys, key_input_data);
 
 	if (opts->create_keypair_algo) {
-		CKINT(lc_x509_gen_keypair(gcert, keys,
+		CKINT(lc_x509_keypair_gen(gcert, keys,
 					  opts->create_keypair_algo));
 
 		if (!opts->noout) {
-			CKINT_LOG(lc_x509_gen_privkey(keys, der_sk,
-						      &der_sk_len),
+			CKINT_LOG(lc_x509_sk_encode(keys, der_sk, &der_sk_len),
 				  "Generation of private key file failed\n");
 			CKINT(write_data(opts->sk_file, der_sk,
 					 sizeof(der_sk) - der_sk_len));
@@ -603,8 +602,8 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 				   &opts->x509_cert_data_len),
 			  "X.509 certificate mmap failure\n");
 		/* Parse the X.509 certificate */
-		CKINT_LOG(lc_x509_cert_parse(gcert, opts->x509_cert_data,
-					     opts->x509_cert_data_len),
+		CKINT_LOG(lc_x509_cert_decode(gcert, opts->x509_cert_data,
+					      opts->x509_cert_data_len),
 			  "Loading of X.509 certificate failed\n");
 
 		/* Access the X.509 certificate file */
@@ -612,8 +611,8 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 				   &opts->sk_len),
 			  "Secret key mmap failure\n");
 		/* Parse the X.509 secret key */
-		CKINT_LOG(lc_x509_sk_parse(keys, gcert->pub.pkey_algo,
-					   opts->sk_data, opts->sk_len),
+		CKINT_LOG(lc_x509_sk_decode(keys, gcert->pub.pkey_algo,
+					    opts->sk_data, opts->sk_len),
 			  "Parsing of secret key failed\n");
 
 		opts->cert_present = 1;
@@ -624,17 +623,17 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 		CKINT_LOG(get_data(opts->pk_file, &opts->pk_data,
 				   &opts->pk_len),
 			  "PK mmap failure\n");
-		CKINT(lc_x509_pk_parse(keys, opts->in_key_type, opts->pk_data,
-				       opts->pk_len));
+		CKINT(lc_x509_pk_decode(keys, opts->in_key_type, opts->pk_data,
+					opts->pk_len));
 		if (self_signed) {
 			CKINT_LOG(get_data(opts->sk_file, &opts->sk_data,
 					   &opts->sk_len),
 				  "SK mmap failure\n");
-			CKINT(lc_x509_sk_parse(keys, opts->in_key_type,
-					       opts->sk_data, opts->sk_len));
+			CKINT(lc_x509_sk_decode(keys, opts->in_key_type,
+						opts->sk_data, opts->sk_len));
 		}
 
-		CKINT(lc_x509_load_keypair(gcert, keys, opts->in_key_type));
+		CKINT(lc_x509_keypair_load(gcert, keys, opts->in_key_type));
 	}
 
 out:
@@ -692,7 +691,7 @@ static int x509_sign_data(struct x509_generator_opts *opts)
 	CKINT_LOG(get_data(opts->data_file, &opts->data, &opts->data_len),
 		  "Failure of getting data to be signed\n");
 
-	CKINT(lc_x509_gen_signature(sigptr, &siglen, key_data, opts->data,
+	CKINT(lc_x509_signature_gen(sigptr, &siglen, key_data, opts->data,
 				    opts->data_len, NULL));
 
 #if 0

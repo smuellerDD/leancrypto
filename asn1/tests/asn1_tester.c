@@ -45,7 +45,7 @@ static int x509_load(const struct x509_checker_options *parsed_opts)
 	CKINT_LOG(get_data(parsed_opts->file, &data, &datalen),
 		  "mmap failure\n");
 
-	CKINT_LOG(lc_x509_cert_parse(&x509_msg, data, datalen),
+	CKINT_LOG(lc_x509_cert_decode(&x509_msg, data, datalen),
 		  "Parsing of message failed\n");
 
 	CKINT(apply_checks_x509(&x509_msg, parsed_opts));

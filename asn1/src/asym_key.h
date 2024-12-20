@@ -69,13 +69,13 @@ int privkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
 int pubkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
 		      size_t datalen);
 int asym_set_signer(struct lc_x509_certificate *signed_x509,
-		    struct lc_x509_key_data *signer_key_data,
-		    struct lc_x509_certificate *signer_x509);
-int asym_gen_keypair(struct lc_x509_certificate *cert,
+		    const struct lc_x509_key_data *signer_key_data,
+		    const struct lc_x509_certificate *signer_x509);
+int asym_keypair_gen(struct lc_x509_certificate *cert,
 		     struct lc_x509_key_data *keys,
 		     enum lc_sig_types create_keypair_algo);
-int asym_load_keypair(struct lc_x509_certificate *cert,
-		      struct lc_x509_key_data *keys,
+int asym_keypair_load(struct lc_x509_certificate *cert,
+		      const struct lc_x509_key_data *keys,
 		      enum lc_sig_types keypair_algo);
 
 #ifdef __cplusplus

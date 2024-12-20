@@ -384,7 +384,7 @@ int pkcs7_extract_cert(void *context, size_t hdrlen, unsigned char tag,
 	CKINT(lc_alloc_aligned((void **)&x509, 8,
 			       sizeof(struct lc_x509_certificate)));
 
-	CKINT(lc_x509_cert_parse(x509, value, vlen));
+	CKINT(lc_x509_cert_decode(x509, value, vlen));
 
 	x509->index = ++ctx->x509_index;
 	printf_debug("Got cert %u for %s\n", x509->index, x509->subject);

@@ -310,15 +310,15 @@ static int pkcs7_load_signer(struct pkcs7_generator_opts *opts)
 			       sizeof(struct lc_x509_certificate)));
 
 	/* Parse the X.509 certificate */
-	CKINT(lc_x509_cert_parse(newcert, x509->signer_data,
-				 x509->signer_data_len));
+	CKINT(lc_x509_cert_decode(newcert, x509->signer_data,
+				  x509->signer_data_len));
 
 	/* Set the private key to the newly create certificate */
 	LC_X509_LINK_INPUT_DATA(signer_key_data, signer_key_input_data);
 	CKINT(lc_x509_cert_get_pubkey(newcert, NULL, NULL, &pkey_type));
-	CKINT_LOG(lc_x509_sk_parse(signer_key_data, pkey_type,
-				   x509->signer_sk_data,
-				   x509->signer_sk_data_len),
+	CKINT_LOG(lc_x509_sk_decode(signer_key_data, pkey_type,
+				    x509->signer_sk_data,
+				    x509->signer_sk_data_len),
 		  "Loading X.509 signer private key from file failed: %d\n",
 		  ret);
 	CKINT(lc_x509_cert_set_signer(newcert, signer_key_data, newcert));
@@ -353,8 +353,8 @@ static int pkcs7_load_cert(struct pkcs7_generator_opts *opts)
 			       sizeof(struct lc_x509_certificate)));
 
 	/* Parse the X.509 certificate */
-	CKINT_LOG(lc_x509_cert_parse(newcert, x509->x509_data,
-				     x509->x509_data_len),
+	CKINT_LOG(lc_x509_cert_decode(newcert, x509->x509_data,
+				      x509->x509_data_len),
 		  "Loading of X.509 certificate failed\n");
 
 	/*
@@ -391,8 +391,8 @@ static int pkcs7_load_trust(struct pkcs7_generator_opts *opts)
 	CKINT(lc_alloc_aligned((void **)&newcert, 8,
 			       sizeof(struct lc_x509_certificate)));
 
-	CKINT_LOG(lc_x509_cert_parse(newcert, x509->x509_data,
-				     x509->x509_data_len),
+	CKINT_LOG(lc_x509_cert_decode(newcert, x509->x509_data,
+				      x509->x509_data_len),
 		  "Loading of X.509 trust anchor certificate failed\n");
 
 	CKINT(lc_pkcs7_trust_store_add(&opts->trust_store, newcert));

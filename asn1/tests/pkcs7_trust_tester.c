@@ -52,7 +52,7 @@ static int pkcs7_trust_store(struct pkcs7_trust_options *opts)
 	for (i = 0; i < opts->num_files; i++) {
 		CKINT_LOG(get_data(opts->file[i], &data[i], &datalen[i]),
 			  "Loading of file %s\n", opts->file[i]);
-		CKINT_LOG(lc_x509_cert_parse(&x509[i], data[i], datalen[i]),
+		CKINT_LOG(lc_x509_cert_decode(&x509[i], data[i], datalen[i]),
 			  "Parsing of certificate %u\n", i);
 		CKINT_LOG(lc_pkcs7_trust_store_add(&trust_store, &x509[i]),
 			  "Loading certificate %u into trust store\n", i);

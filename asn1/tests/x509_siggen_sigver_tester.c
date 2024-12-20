@@ -76,16 +76,16 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 			   &opts->x509_cert_data_len),
 		  "X.509 certificate mmap failure\n");
 	/* Parse the X.509 certificate */
-	CKINT_LOG(lc_x509_cert_parse(cert, opts->x509_cert_data,
-				     opts->x509_cert_data_len),
+	CKINT_LOG(lc_x509_cert_decode(cert, opts->x509_cert_data,
+				      opts->x509_cert_data_len),
 		  "Loading of X.509 certificate failed\n");
 
 	/* Access the X.509 certificate file */
 	CKINT_LOG(get_data(opts->sk_file, &opts->sk_data, &opts->sk_len),
 		  "Secret key mmap failure\n");
 	/* Parse the X.509 secret key */
-	CKINT_LOG(lc_x509_sk_parse(keys, cert->pub.pkey_algo, opts->sk_data,
-				   opts->sk_len),
+	CKINT_LOG(lc_x509_sk_decode(keys, cert->pub.pkey_algo, opts->sk_data,
+				    opts->sk_len),
 		  "Parsing of secret key failed\n");
 
 	CKINT_LOG(lc_x509_get_signature_size_from_sk(&siglen, keys),
@@ -93,18 +93,18 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 
 	CKINT(lc_alloc_aligned((void **)&sigptr, 8, siglen));
 
-	CKINT_LOG(lc_x509_gen_signature(sigptr, &siglen, keys, data,
+	CKINT_LOG(lc_x509_signature_gen(sigptr, &siglen, keys, data,
 					sizeof(data), NULL),
 		  "Signature generation failed\n");
 
 	/* Successful verification */
-	CKINT_LOG(lc_x509_verify_signature(sigptr, siglen, cert, data,
+	CKINT_LOG(lc_x509_signature_verify(sigptr, siglen, cert, data,
 					   sizeof(data), NULL),
 		  "Verification of data failed\n");
 
 	/* Failure */
 	sigptr[0] ^= 0x01;
-	ret = lc_x509_verify_signature(sigptr, siglen, cert, data, sizeof(data),
+	ret = lc_x509_signature_verify(sigptr, siglen, cert, data, sizeof(data),
 				       NULL);
 	if (ret != -EBADMSG) {
 		printf("Modification in data not detected\n");

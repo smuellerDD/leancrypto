@@ -1101,8 +1101,9 @@ LC_INTERFACE_FUNCTION(void, lc_x509_cert_clear,
 	public_key_signature_clear(&cert->sig);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_x509_cert_parse, struct lc_x509_certificate *x509,
-		      const uint8_t *data, size_t datalen)
+LC_INTERFACE_FUNCTION(int, lc_x509_cert_decode,
+		      struct lc_x509_certificate *x509, const uint8_t *data,
+		      size_t datalen)
 {
 	struct x509_parse_context ctx = { 0 };
 	int ret;
@@ -1153,7 +1154,7 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_x509_sk_parse, struct lc_x509_key_data *key,
+LC_INTERFACE_FUNCTION(int, lc_x509_sk_decode, struct lc_x509_key_data *key,
 		      enum lc_sig_types key_type, const uint8_t *data,
 		      size_t datalen)
 {
@@ -1170,7 +1171,7 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_x509_pk_parse, struct lc_x509_key_data *key,
+LC_INTERFACE_FUNCTION(int, lc_x509_pk_decode, struct lc_x509_key_data *key,
 		      enum lc_sig_types key_type, const uint8_t *data,
 		      size_t datalen)
 {
@@ -1187,7 +1188,7 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_x509_verify_signature, const uint8_t *sig_data,
+LC_INTERFACE_FUNCTION(int, lc_x509_signature_verify, const uint8_t *sig_data,
 		      size_t siglen, const struct lc_x509_certificate *cert,
 		      const uint8_t *m, size_t mlen,
 		      const struct lc_hash *prehash_algo)

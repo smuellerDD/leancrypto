@@ -65,7 +65,7 @@ void lc_x509_cert_clear(struct lc_x509_certificate *cert);
 
 /**
  * @ingroup X509
- * @brief Parse an X.509 certificate
+ * @brief Decode an X.509 certificate
  *
  * The function parses an X.509 data buffer into a data structure that allows
  * accessing the various data points of the certificate.
@@ -91,8 +91,8 @@ void lc_x509_cert_clear(struct lc_x509_certificate *cert);
  *
  * @return 0 on success or < 0 on error
  */
-int lc_x509_cert_parse(struct lc_x509_certificate *cert, const uint8_t *data,
-		       size_t datalen);
+int lc_x509_cert_decode(struct lc_x509_certificate *cert, const uint8_t *data,
+			size_t datalen);
 
 /// \cond DO_NOT_DOCUMENT
 #define LC_X509_KEYS_SPHINCS_SIZE                                              \
@@ -214,6 +214,7 @@ int lc_x509_cert_parse(struct lc_x509_certificate *cert, const uint8_t *data,
 
 #define LC_X509_KEYS_ON_STACK(name)                                            \
 	LC_X509_KEYS_DILITHIUM_ED25519_ON_STACK(name)
+
 /**
  * @brief Zeroize Dilithium context allocated with
  *	  LC_X509_KEYS*_ON_STACK
@@ -281,7 +282,7 @@ void lc_x509_keys_zero_free(struct lc_x509_key_data *keys);
 
 /**
  * @ingroup X509
- * @brief Parse a private key in DER format
+ * @brief Decode a private key in DER format
  *
  * The function parses a private data buffer into a data structure that allows
  * immediate use of the parsed key data with the cryptographic primitives.
@@ -301,12 +302,12 @@ void lc_x509_keys_zero_free(struct lc_x509_key_data *keys);
  *
  * @return 0 on success or < 0 on error
  */
-int lc_x509_sk_parse(struct lc_x509_key_data *key, enum lc_sig_types key_type,
-		     const uint8_t *data, size_t datalen);
+int lc_x509_sk_decode(struct lc_x509_key_data *key, enum lc_sig_types key_type,
+		      const uint8_t *data, size_t datalen);
 
 /**
  * @ingroup X509
- * @brief Parse a public key in raw format
+ * @brief Decode a public key in raw format
  *
  * The function parses a private data buffer into a data structure that allows
  * immediate use of the parsed key data with the cryptographic primitives.
@@ -326,8 +327,8 @@ int lc_x509_sk_parse(struct lc_x509_key_data *key, enum lc_sig_types key_type,
  *
  * @return 0 on success or < 0 on error
  */
-int lc_x509_pk_parse(struct lc_x509_key_data *key, enum lc_sig_types key_type,
-		     const uint8_t *data, size_t datalen);
+int lc_x509_pk_decode(struct lc_x509_key_data *key, enum lc_sig_types key_type,
+		      const uint8_t *data, size_t datalen);
 
 /**
  * @ingroup X509
@@ -349,7 +350,7 @@ int lc_x509_pk_parse(struct lc_x509_key_data *key, enum lc_sig_types key_type,
  *
  * @return 0 on success or < 0 on error
  */
-int lc_x509_verify_signature(const uint8_t *sig_data, size_t siglen,
+int lc_x509_signature_verify(const uint8_t *sig_data, size_t siglen,
 			     const struct lc_x509_certificate *cert,
 			     const uint8_t *m, size_t mlen,
 			     const struct lc_hash *prehash_algo);
