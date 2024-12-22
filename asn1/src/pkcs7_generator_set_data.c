@@ -108,12 +108,9 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_set_signer, struct lc_pkcs7_message *pkcs7,
 	CKINT(pkcs7_add_cert(pkcs7, sinfo->signer));
 
 	/* Now add the filled signed info to the PKCS7 */
-	CKINT(pkcs7_sinfo_add(pkcs7, sinfo));
-
-	sinfo = NULL;
+	CKINT(pkcs7_sinfo_add(pkcs7));
 
 out:
-	pkcs7_sinfo_free(pkcs7, sinfo);
 	return ret;
 }
 

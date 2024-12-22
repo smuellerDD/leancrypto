@@ -438,7 +438,7 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_get_digest, struct lc_pkcs7_message *pkcs7,
 		      size_t *message_digest_len,
 		      const struct lc_hash **hash_algo)
 {
-	struct lc_pkcs7_signed_info *sinfo = pkcs7->signed_infos;
+	struct lc_pkcs7_signed_info *sinfo = pkcs7->list_head_signed_infos;
 	int ret;
 
 	CKNULL(message_digest, -EBADMSG);
@@ -485,7 +485,8 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_verify, struct lc_pkcs7_message *pkcs7,
 		return -ENODATA;
 	}
 
-	for (sinfo = pkcs7->signed_infos; sinfo; sinfo = sinfo->next) {
+	for (sinfo = pkcs7->list_head_signed_infos; sinfo;
+	     sinfo = sinfo->next) {
 		ret = pkcs7_verify_one(pkcs7, trust_store, sinfo, verify_rules);
 		switch (ret) {
 		case -ENOKEY:

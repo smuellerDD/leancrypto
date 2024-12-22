@@ -94,7 +94,7 @@ static int pkcs7_check_authattrs(struct lc_pkcs7_message *msg)
 	struct lc_pkcs7_signed_info *sinfo;
 	unsigned int want = 0;
 
-	sinfo = msg->signed_infos;
+	sinfo = msg->list_head_signed_infos;
 	if (!sinfo)
 		goto inconsistent;
 
@@ -208,15 +208,23 @@ int pkcs7_sig_note_digest_algo(void *context, size_t hdrlen, unsigned char tag,
 			       const uint8_t *value, size_t vlen)
 {
 	struct pkcs7_parse_context *ctx = context;
-	struct lc_pkcs7_signed_info *sinfo = ctx->sinfo;
-	struct lc_public_key_signature *sig = &sinfo->sig;
+	struct lc_pkcs7_message *pkcs7 = ctx->msg;
+	struct lc_pkcs7_signed_info *sinfo;
+	struct lc_public_key_signature *sig;
+	int ret;
 
 	(void)hdrlen;
 	(void)tag;
 	(void)value;
 	(void)vlen;
 
-	return lc_x509_oid_to_hash(ctx->last_oid, &sig->hash_algo);
+	CKINT(pkcs7_sinfo_get(&sinfo, pkcs7));
+
+	sig = &sinfo->sig;
+	CKINT(lc_x509_oid_to_hash(ctx->last_oid, &sig->hash_algo));
+
+out:
+	return ret;
 }
 
 /*
@@ -226,15 +234,23 @@ int pkcs7_sig_note_pkey_algo(void *context, size_t hdrlen, unsigned char tag,
 			     const uint8_t *value, size_t vlen)
 {
 	struct pkcs7_parse_context *ctx = context;
-	struct lc_pkcs7_signed_info *sinfo = ctx->sinfo;
-	struct lc_public_key_signature *sig = &sinfo->sig;
+	struct lc_pkcs7_message *pkcs7 = ctx->msg;
+	struct lc_pkcs7_signed_info *sinfo;
+	struct lc_public_key_signature *sig;
+	int ret;
 
 	(void)hdrlen;
 	(void)tag;
 	(void)value;
 	(void)vlen;
 
-	return lc_x509_oid_to_sig_type(ctx->last_oid, &sig->pkey_algo);
+	CKINT(pkcs7_sinfo_get(&sinfo, pkcs7));
+
+	sig = &sinfo->sig;
+	CKINT(lc_x509_oid_to_sig_type(ctx->last_oid, &sig->pkey_algo));
+
+out:
+	return ret;
 }
 
 /*
@@ -483,11 +499,15 @@ int pkcs7_sig_note_authenticated_attr(void *context, size_t hdrlen,
 				      size_t vlen)
 {
 	struct pkcs7_parse_context *ctx = context;
-	struct lc_pkcs7_signed_info *sinfo = ctx->sinfo;
+	struct lc_pkcs7_message *pkcs7 = ctx->msg;
+	struct lc_pkcs7_signed_info *sinfo;
 	enum OID content_type;
+	int ret;
 
 	printf_debug("AuthAttr: %02x %zu", tag, vlen);
 	bin2print_debug(value, vlen, stdout, "");
+
+	CKINT(pkcs7_sinfo_get(&sinfo, pkcs7));
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wswitch-enum"
@@ -565,6 +585,9 @@ repeated:
 	/* We permit max one item per AuthenticatedAttribute and no repeats */
 	printf_debug("Repeated/multivalue AuthAttrs not permitted\n");
 	return -EKEYREJECTED;
+
+out:
+	return ret;
 }
 
 /*
@@ -575,9 +598,13 @@ int pkcs7_sig_note_set_of_authattrs(void *context, size_t hdrlen,
 				    size_t vlen)
 {
 	struct pkcs7_parse_context *ctx = context;
-	struct lc_pkcs7_signed_info *sinfo = ctx->sinfo;
+	struct lc_pkcs7_message *pkcs7 = ctx->msg;
+	struct lc_pkcs7_signed_info *sinfo;
+	int ret;
 
 	(void)tag;
+
+	CKINT(pkcs7_sinfo_get(&sinfo, pkcs7));
 
 	if (!(sinfo->aa_set & sinfo_has_content_type) ||
 	    !(sinfo->aa_set & sinfo_has_message_digest)) {
@@ -595,7 +622,8 @@ int pkcs7_sig_note_set_of_authattrs(void *context, size_t hdrlen,
 	sinfo->authattrs = value - (hdrlen - 1);
 	sinfo->authattrs_len = vlen + (hdrlen - 1);
 
-	return 0;
+out:
+	return ret;
 }
 
 /*
@@ -655,18 +683,24 @@ int pkcs7_sig_note_signature(void *context, size_t hdrlen, unsigned char tag,
 			     const uint8_t *value, size_t vlen)
 {
 	struct pkcs7_parse_context *ctx = context;
+	struct lc_pkcs7_message *pkcs7 = ctx->msg;
+	struct lc_pkcs7_signed_info *sinfo;
+	int ret;
 
 	(void)hdrlen;
 	(void)tag;
 
+	CKINT(pkcs7_sinfo_get(&sinfo, pkcs7));
+
 	/* Do not allocate twice */
-	if (ctx->sinfo->sig.s)
+	if (sinfo->sig.s)
 		return -EOVERFLOW;
 
-	ctx->sinfo->sig.s = value;
-	ctx->sinfo->sig.s_size = vlen;
+	sinfo->sig.s = value;
+	sinfo->sig.s_size = vlen;
 
-	return 0;
+out:
+	return ret;
 }
 
 /*
@@ -677,7 +711,7 @@ int pkcs7_note_signed_info(void *context, size_t hdrlen, unsigned char tag,
 {
 	struct pkcs7_parse_context *ctx = context;
 	struct lc_pkcs7_message *pkcs7 = ctx->msg;
-	struct lc_pkcs7_signed_info *sinfo = ctx->sinfo;
+	struct lc_pkcs7_signed_info *sinfo;
 	int ret;
 
 	(void)hdrlen;
@@ -685,10 +719,14 @@ int pkcs7_note_signed_info(void *context, size_t hdrlen, unsigned char tag,
 	(void)value;
 	(void)vlen;
 
+	CKINT(pkcs7_sinfo_get(&sinfo, pkcs7));
+
 	if (ctx->msg->data_type == OID_msIndirectData && !sinfo->authattrs) {
 		printf_debug("Authenticode requires AuthAttrs\n");
 		return -EBADMSG;
 	}
+
+	CKINT(pkcs7_sinfo_get(&sinfo, pkcs7));
 
 	/* Generate cert issuer + serial number key ID */
 	if (!ctx->expect_skid) {
@@ -708,10 +746,7 @@ int pkcs7_note_signed_info(void *context, size_t hdrlen, unsigned char tag,
 	sinfo->index = ++ctx->sinfo_index;
 
 	/* Now add the filled signed info to the PKCS7 */
-	CKINT(pkcs7_sinfo_add(pkcs7, sinfo));
-
-	CKINT(pkcs7_sinfo_get(&ctx->sinfo, pkcs7));
-
+	CKINT(pkcs7_sinfo_add(pkcs7));
 
 out:
 	return ret;
@@ -741,7 +776,6 @@ LC_INTERFACE_FUNCTION(void, lc_pkcs7_message_clear,
 		      struct lc_pkcs7_message *pkcs7)
 {
 	struct lc_x509_certificate *cert;
-	struct lc_pkcs7_signed_info *sinfo;
 
 	if (pkcs7) {
 		while (pkcs7->certs) {
@@ -755,11 +789,7 @@ LC_INTERFACE_FUNCTION(void, lc_pkcs7_message_clear,
 			pkcs7->crl = cert->next;
 			lc_x509_cert_clear(cert);
 		}
-		while (pkcs7->signed_infos) {
-			sinfo = pkcs7->signed_infos;
-			pkcs7->signed_infos = sinfo->next;
-			pkcs7_sinfo_free(pkcs7, sinfo);
-		}
+		pkcs7_sinfo_free(pkcs7);
 
 		lc_memset_secure(pkcs7, 0, sizeof(struct lc_pkcs7_message));
 	}
@@ -777,13 +807,10 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_message_parse,
 
 	lc_memset_secure(pkcs7, 0, sizeof(struct lc_pkcs7_message));
 
-	CKINT(pkcs7_sinfo_get(&ctx.sinfo, pkcs7));
-
 	ctx.msg = pkcs7;
 
 	ctx.data = data;
 	ctx.ppcerts = &ctx.certs;
-	ctx.ppsinfo = &ctx.msg->signed_infos;
 
 	/* Attempt to decode the signature */
 	CKINT(asn1_ber_decoder(&pkcs7_decoder, &ctx, data, datalen));
@@ -799,7 +826,6 @@ out:
 		lc_free(cert);
 	}
 
-	pkcs7_sinfo_free(pkcs7, ctx.sinfo);
 	if (ret)
 		lc_pkcs7_message_clear(ctx.msg);
 

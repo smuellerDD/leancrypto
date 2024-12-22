@@ -87,7 +87,8 @@ struct lc_pkcs7_message {
 	/*
 	 * Signed information
 	 */
-	struct lc_pkcs7_signed_info *signed_infos;
+	struct lc_pkcs7_signed_info *curr_signed_infos;
+	struct lc_pkcs7_signed_info *list_head_signed_infos;
 	struct lc_pkcs7_signed_info **list_tail_signed_infos;
 	uint8_t version; /* Version of cert (1 -> PKCS#7 or CMS; 3 -> CMS) */
 

@@ -271,7 +271,7 @@ int print_x509_cert(const struct lc_x509_certificate *x509)
 int print_pkcs7_data(const struct lc_pkcs7_message *pkcs7_msg)
 {
 	struct lc_x509_certificate *cert = pkcs7_msg->certs;
-	struct lc_pkcs7_signed_info *sinfos = pkcs7_msg->signed_infos;
+	struct lc_pkcs7_signed_info *sinfos = pkcs7_msg->list_head_signed_infos;
 	const char *hash_name;
 	int ret = 0;
 

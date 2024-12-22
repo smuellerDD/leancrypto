@@ -1050,13 +1050,14 @@ static inline int pkcs7_initialize_ctx(struct pkcs7_generate_context *ctx,
 	int ret = 0;
 
 	CKNULL(pkcs7->certs, -EINVAL);
-	CKNULL(pkcs7->signed_infos, -EINVAL);
+	CKNULL(pkcs7->list_head_signed_infos, -EINVAL);
 
 	ctx->pkcs7 = pkcs7;
 	ctx->current_x509 = pkcs7->certs;
-	ctx->current_sinfo = pkcs7->signed_infos;
+	ctx->current_sinfo = pkcs7->list_head_signed_infos;
 
-	for (sinfo = pkcs7->signed_infos; sinfo; sinfo = sinfo->next) {
+	for (sinfo = pkcs7->list_head_signed_infos; sinfo;
+	     sinfo = sinfo->next) {
 		const struct lc_hash *hash;
 
 		if (!ctx->authattr_hash) {

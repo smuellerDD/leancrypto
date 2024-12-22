@@ -21,26 +21,34 @@
 #include "lc_memory_support.h"
 #include "pkcs7_internal.h"
 
-void pkcs7_sinfo_free(struct lc_pkcs7_message *pkcs7,
-		      struct lc_pkcs7_signed_info *sinfo)
+void pkcs7_sinfo_free(struct lc_pkcs7_message *pkcs7)
 {
-	(void)pkcs7;
-	if (!sinfo)
-		return;
-	public_key_signature_clear(&sinfo->sig);
-	lc_free(sinfo);
-}
+	struct lc_pkcs7_signed_info *sinfo;
 
-int pkcs7_sinfo_add(struct lc_pkcs7_message *pkcs7,
-		    struct lc_pkcs7_signed_info *sinfo)
-{
-	if (!pkcs7->signed_infos) {
-		pkcs7->signed_infos = sinfo;
-	} else {
-		*pkcs7->list_tail_signed_infos = sinfo;
+	while (pkcs7->list_head_signed_infos) {
+		sinfo = pkcs7->list_head_signed_infos;
+		pkcs7->list_head_signed_infos = sinfo->next;
+		public_key_signature_clear(&sinfo->sig);
+		lc_free(sinfo);
 	}
 
-	pkcs7->list_tail_signed_infos = &sinfo->next;
+	if (pkcs7->curr_signed_infos) {
+		sinfo = pkcs7->curr_signed_infos;
+		public_key_signature_clear(&sinfo->sig);
+		lc_free(sinfo);
+	}
+}
+
+int pkcs7_sinfo_add(struct lc_pkcs7_message *pkcs7)
+{
+	if (!pkcs7->list_head_signed_infos) {
+		pkcs7->list_head_signed_infos = pkcs7->curr_signed_infos;
+	} else {
+		*pkcs7->list_tail_signed_infos = pkcs7->curr_signed_infos;
+	}
+
+	pkcs7->list_tail_signed_infos = &pkcs7->curr_signed_infos->next;
+	pkcs7->curr_signed_infos = NULL;
 
 	return 0;
 }
@@ -48,22 +56,17 @@ int pkcs7_sinfo_add(struct lc_pkcs7_message *pkcs7,
 int pkcs7_sinfo_get(struct lc_pkcs7_signed_info **sinfo,
 		    struct lc_pkcs7_message *pkcs7)
 {
-	struct lc_pkcs7_signed_info *sinfo_tmp = NULL;
-	int ret;
-
-	(void)pkcs7;
+	int ret = 0;
 
 	CKNULL(sinfo, -EINVAL);
 
-	CKINT(lc_alloc_aligned((void **)&sinfo_tmp, 8,
-			       sizeof(struct lc_pkcs7_signed_info)));
+	if (!pkcs7->curr_signed_infos) {
+		CKINT(lc_alloc_aligned((void **)&pkcs7->curr_signed_infos, 8,
+				       sizeof(struct lc_pkcs7_signed_info)));
+	}
 
-	/* Return the signer info */
-	*sinfo = sinfo_tmp;
-
-	sinfo_tmp = NULL;
+	*sinfo = pkcs7->curr_signed_infos;
 
 out:
-	lc_free(sinfo_tmp);
 	return ret;
 }

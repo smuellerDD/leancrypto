@@ -29,8 +29,8 @@ extern "C" {
 
 struct pkcs7_parse_context {
 	struct lc_pkcs7_message *msg; /* Message being constructed */
-	struct lc_pkcs7_signed_info *sinfo; /* SignedInfo being constructed */
-	struct lc_pkcs7_signed_info **ppsinfo; /* linked list of signer info */
+	//struct lc_pkcs7_signed_info *sinfo; /* SignedInfo being constructed */
+	//struct lc_pkcs7_signed_info **ppsinfo; /* linked list of signer info */
 	struct lc_x509_certificate *certs; /* Certificate cache */
 	struct lc_x509_certificate **ppcerts; /* linked list of certs */
 	const uint8_t *data; /* Start of data */
@@ -56,12 +56,10 @@ int pkcs7_find_asymmetric_key(const struct lc_x509_certificate **anchor_cert,
 			      const struct lc_asymmetric_key_id *auth0,
 			      const struct lc_asymmetric_key_id *auth1);
 
-int pkcs7_sinfo_add(struct lc_pkcs7_message *pkcs7,
-		    struct lc_pkcs7_signed_info *sinfo);
+int pkcs7_sinfo_add(struct lc_pkcs7_message *pkcs7);
 int pkcs7_sinfo_get(struct lc_pkcs7_signed_info **sinfo,
 		    struct lc_pkcs7_message *pkcs7);
-void pkcs7_sinfo_free(struct lc_pkcs7_message *pkcs7,
-		      struct lc_pkcs7_signed_info *sinfo);
+void pkcs7_sinfo_free(struct lc_pkcs7_message *pkcs7);
 
 #ifdef __cplusplus
 }
