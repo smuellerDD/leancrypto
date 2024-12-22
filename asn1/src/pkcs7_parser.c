@@ -676,6 +676,7 @@ int pkcs7_note_signed_info(void *context, size_t hdrlen, unsigned char tag,
 			   const uint8_t *value, size_t vlen)
 {
 	struct pkcs7_parse_context *ctx = context;
+	struct lc_pkcs7_message *pkcs7 = ctx->msg;
 	struct lc_pkcs7_signed_info *sinfo = ctx->sinfo;
 	int ret;
 
@@ -705,28 +706,15 @@ int pkcs7_note_signed_info(void *context, size_t hdrlen, unsigned char tag,
 			stdout, "SINFO KID");
 
 	sinfo->index = ++ctx->sinfo_index;
-	*ctx->ppsinfo = sinfo;
-	ctx->ppsinfo = &sinfo->next;
-	CKINT(lc_alloc_aligned((void **)&ctx->sinfo, 8,
-			       sizeof(struct lc_pkcs7_signed_info)));
+
+	/* Now add the filled signed info to the PKCS7 */
+	CKINT(pkcs7_sinfo_add(pkcs7, sinfo));
+
+	CKINT(pkcs7_sinfo_get(&ctx->sinfo, pkcs7));
+
 
 out:
 	return ret;
-}
-
-/******************************************************************************
- * Helper functions
- ******************************************************************************/
-
-/*
- * Free a signed information block.
- */
-static void pkcs7_free_signed_info(struct lc_pkcs7_signed_info *sinfo)
-{
-	if (sinfo) {
-		public_key_signature_clear(&sinfo->sig);
-		lc_free(sinfo);
-	}
 }
 
 /******************************************************************************
@@ -770,7 +758,7 @@ LC_INTERFACE_FUNCTION(void, lc_pkcs7_message_clear,
 		while (pkcs7->signed_infos) {
 			sinfo = pkcs7->signed_infos;
 			pkcs7->signed_infos = sinfo->next;
-			pkcs7_free_signed_info(sinfo);
+			pkcs7_sinfo_free(pkcs7, sinfo);
 		}
 
 		lc_memset_secure(pkcs7, 0, sizeof(struct lc_pkcs7_message));
@@ -789,8 +777,7 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_message_parse,
 
 	lc_memset_secure(pkcs7, 0, sizeof(struct lc_pkcs7_message));
 
-	CKINT(lc_alloc_aligned((void **)&ctx.sinfo, 8,
-			       sizeof(struct lc_pkcs7_signed_info)));
+	CKINT(pkcs7_sinfo_get(&ctx.sinfo, pkcs7));
 
 	ctx.msg = pkcs7;
 
@@ -811,8 +798,8 @@ out:
 		lc_x509_cert_clear(cert);
 		lc_free(cert);
 	}
-	pkcs7_free_signed_info(ctx.sinfo);
 
+	pkcs7_sinfo_free(pkcs7, ctx.sinfo);
 	if (ret)
 		lc_pkcs7_message_clear(ctx.msg);
 

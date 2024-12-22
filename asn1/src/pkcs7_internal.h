@@ -56,6 +56,13 @@ int pkcs7_find_asymmetric_key(const struct lc_x509_certificate **anchor_cert,
 			      const struct lc_asymmetric_key_id *auth0,
 			      const struct lc_asymmetric_key_id *auth1);
 
+int pkcs7_sinfo_add(struct lc_pkcs7_message *pkcs7,
+		    struct lc_pkcs7_signed_info *sinfo);
+int pkcs7_sinfo_get(struct lc_pkcs7_signed_info **sinfo,
+		    struct lc_pkcs7_message *pkcs7);
+void pkcs7_sinfo_free(struct lc_pkcs7_message *pkcs7,
+		      struct lc_pkcs7_signed_info *sinfo);
+
 #ifdef __cplusplus
 }
 #endif

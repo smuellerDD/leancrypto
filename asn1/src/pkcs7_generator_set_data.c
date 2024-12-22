@@ -20,9 +20,9 @@
 #include "asn1_debug.h"
 #include "lc_sha3.h"
 #include "lc_sha512.h"
-#include "lc_memory_support.h"
 #include "lc_pkcs7_generator.h"
 #include "lc_x509_parser.h"
+#include "pkcs7_internal.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 #include "x509_algorithm_mapper.h"
@@ -38,26 +38,6 @@ static int pkcs7_add_cert(struct lc_pkcs7_message *pkcs7,
 		for (tmpcert = pkcs7->certs; tmpcert; tmpcert = tmpcert->next) {
 			if (!tmpcert->next) {
 				tmpcert->next = x509;
-				break;
-			}
-		}
-	}
-
-	return 0;
-}
-
-static int pkcs7_add_signer(struct lc_pkcs7_message *pkcs7,
-			    struct lc_pkcs7_signed_info *sinfo)
-{
-	struct lc_pkcs7_signed_info *tmpsinfo;
-
-	if (!pkcs7->signed_infos) {
-		pkcs7->signed_infos = sinfo;
-	} else {
-		for (tmpsinfo = pkcs7->signed_infos; tmpsinfo;
-		     tmpsinfo = tmpsinfo->next) {
-			if (!tmpsinfo->next) {
-				tmpsinfo->next = sinfo;
 				break;
 			}
 		}
@@ -90,19 +70,21 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_set_signer, struct lc_pkcs7_message *pkcs7,
 		      const struct lc_hash *signing_hash,
 		      unsigned long auth_attribute)
 {
+	const struct lc_x509_key_data *sig_gen_data;
 	struct lc_pkcs7_signed_info *sinfo = NULL;
 	int ret;
 
 	CKNULL(pkcs7, -EINVAL);
 	CKNULL(x509_with_sk, -EINVAL);
 
-	/* Check that keys were set */
-	CKNULL(x509_with_sk->sig_gen_data.sig_type, -EINVAL);
-	CKNULL(x509_with_sk->sig_gen_data.pk.dilithium_pk, -EINVAL);
-	CKNULL(x509_with_sk->sig_gen_data.sk.dilithium_sk, -EINVAL);
+	sig_gen_data = &x509_with_sk->sig_gen_data;
 
-	CKINT(lc_alloc_aligned((void **)&sinfo, 8,
-			       sizeof(struct lc_pkcs7_signed_info)));
+	/* Check that keys were set */
+	CKNULL(sig_gen_data->sig_type, -EINVAL);
+	CKNULL(sig_gen_data->pk.dilithium_pk, -EINVAL);
+	CKNULL(sig_gen_data->sk.dilithium_sk, -EINVAL);
+
+	CKINT(pkcs7_sinfo_get(&sinfo, pkcs7));
 
 	/* Also set the certificate as signer */
 	sinfo->signer = x509_with_sk;
@@ -111,12 +93,11 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_set_signer, struct lc_pkcs7_message *pkcs7,
 	sinfo->aa_set = auth_attribute;
 
 	if (!signing_hash) {
-		CKINT(lc_x509_sig_type_to_hash(
-			x509_with_sk->sig_gen_data.sig_type,
-			&sinfo->sig.hash_algo));
+		CKINT(lc_x509_sig_type_to_hash(sig_gen_data->sig_type,
+					       &sinfo->sig.hash_algo));
 	} else {
-		CKINT(lc_x509_sig_check_hash(
-			x509_with_sk->sig_gen_data.sig_type, signing_hash));
+		CKINT(lc_x509_sig_check_hash(sig_gen_data->sig_type,
+					     signing_hash));
 		sinfo->sig.hash_algo = signing_hash;
 	}
 
@@ -126,13 +107,13 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_set_signer, struct lc_pkcs7_message *pkcs7,
 	 */
 	CKINT(pkcs7_add_cert(pkcs7, sinfo->signer));
 
-	/* Add the signer information to the PKCS#7 message */
-	CKINT(pkcs7_add_signer(pkcs7, sinfo));
+	/* Now add the filled signed info to the PKCS7 */
+	CKINT(pkcs7_sinfo_add(pkcs7, sinfo));
 
 	sinfo = NULL;
 
 out:
-	lc_free(sinfo);
+	pkcs7_sinfo_free(pkcs7, sinfo);
 	return ret;
 }
 

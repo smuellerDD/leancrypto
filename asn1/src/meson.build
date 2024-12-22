@@ -104,6 +104,7 @@ if get_option('pkcs7_parser').enabled()
 	])
 
 	src_fips += files([
+		'pkcs7_memory.c',
 		'pkcs7_parser.c',
 		'pkcs7_trust.c',
 		'pkcs7_verify.c',
