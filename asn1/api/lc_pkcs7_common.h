@@ -97,10 +97,43 @@ struct lc_pkcs7_message {
 	size_t data_len; /* Length of Data */
 	const uint8_t *data; /* Content Data (or 0) */
 
+	uint8_t avail_preallocated_sinfo;
+	uint8_t consumed_preallocated_sinfo;
+	struct lc_pkcs7_signed_info *preallocated_sinfo;
+
 	unsigned int have_authattrs : 1; /* T if have authattrs */
 	unsigned int embed_data : 1; /* Embed data into message */
 };
+
+#define LC_PKCS7_MSG_SIZE(num_sinfo)                                           \
+	sizeof(struct lc_pkcs7_message) +                                      \
+	num_sinfo * sizeof(struct lc_pkcs7_signed_info)
+
 /// \endcond
+
+
+/**
+ * @ingroup PKCS7
+ * @brief Allocate memory for struct lc_pkcs7_message holding given number of
+ *	  preallocated sinfo members
+ *
+ * @param [in] name Name of stack variable
+ * @param [in] num_sinfo Number of preallocated sinfo members (must be less than
+ *			 256)
+ */
+#define LC_PKCS7_MSG_ON_STACK(name, num_sinfo)                                 \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")             \
+		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_PKCS7_MSG_SIZE(num_sinfo),\
+				  8);                                          \
+	struct lc_pkcs7_message *name =                                        \
+		(struct lc_pkcs7_message *)name##_ctx_buf;                     \
+	(name)->avail_preallocated_sinfo = num_sinfo;                          \
+	(name)->preallocated_sinfo =                                           \
+		(struct lc_pkcs7_signed_info *)((uint8_t *)(name) +            \
+		 sizeof(struct lc_pkcs7_message));                             \
+	_Pragma("GCC diagnostic pop")
 
 #ifdef __cplusplus
 }

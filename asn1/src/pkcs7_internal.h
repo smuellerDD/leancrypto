@@ -29,8 +29,6 @@ extern "C" {
 
 struct pkcs7_parse_context {
 	struct lc_pkcs7_message *msg; /* Message being constructed */
-	//struct lc_pkcs7_signed_info *sinfo; /* SignedInfo being constructed */
-	//struct lc_pkcs7_signed_info **ppsinfo; /* linked list of signer info */
 	struct lc_x509_certificate *certs; /* Certificate cache */
 	struct lc_x509_certificate **ppcerts; /* linked list of certs */
 	const uint8_t *data; /* Start of data */

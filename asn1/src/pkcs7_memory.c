@@ -24,18 +24,25 @@
 void pkcs7_sinfo_free(struct lc_pkcs7_message *pkcs7)
 {
 	struct lc_pkcs7_signed_info *sinfo;
+	uint8_t idx = 0;
 
 	while (pkcs7->list_head_signed_infos) {
 		sinfo = pkcs7->list_head_signed_infos;
 		pkcs7->list_head_signed_infos = sinfo->next;
 		public_key_signature_clear(&sinfo->sig);
-		lc_free(sinfo);
+		if (idx < pkcs7->consumed_preallocated_sinfo) {
+			idx++;
+		} else {
+			lc_free(sinfo);
+		}
 	}
 
 	if (pkcs7->curr_signed_infos) {
 		sinfo = pkcs7->curr_signed_infos;
 		public_key_signature_clear(&sinfo->sig);
-		lc_free(sinfo);
+
+		if (idx >= pkcs7->consumed_preallocated_sinfo)
+			lc_free(sinfo);
 	}
 }
 
@@ -61,8 +68,16 @@ int pkcs7_sinfo_get(struct lc_pkcs7_signed_info **sinfo,
 	CKNULL(sinfo, -EINVAL);
 
 	if (!pkcs7->curr_signed_infos) {
-		CKINT(lc_alloc_aligned((void **)&pkcs7->curr_signed_infos, 8,
-				       sizeof(struct lc_pkcs7_signed_info)));
+		if (pkcs7->consumed_preallocated_sinfo <
+		    pkcs7->avail_preallocated_sinfo) {
+			pkcs7->curr_signed_infos = pkcs7->preallocated_sinfo;
+			pkcs7->consumed_preallocated_sinfo++;
+			pkcs7->preallocated_sinfo++;
+		} else {
+			CKINT(lc_alloc_aligned(
+				(void **)&pkcs7->curr_signed_infos, 8,
+				sizeof(struct lc_pkcs7_signed_info)));
+		}
 	}
 
 	*sinfo = pkcs7->curr_signed_infos;

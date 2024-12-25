@@ -49,7 +49,7 @@ struct pkcs7_x509 {
 
 struct pkcs7_generator_opts {
 	struct x509_checker_options checker_opts;
-	struct lc_pkcs7_message pkcs7;
+	struct lc_pkcs7_message *pkcs7;
 	struct lc_verify_rules verify_rules;
 
 	const struct lc_hash *hash;
@@ -111,7 +111,7 @@ static void pkcs7_clean_opts(struct pkcs7_generator_opts *opts)
 
 	release_data(opts->data, opts->datalen);
 
-	lc_pkcs7_message_clear(&opts->pkcs7);
+	lc_pkcs7_message_clear(opts->pkcs7);
 	lc_memset_secure(opts, 0, sizeof(*opts));
 }
 
@@ -235,7 +235,7 @@ out:
 
 static int pkcs7_gen_message(struct pkcs7_generator_opts *opts)
 {
-	struct lc_pkcs7_message *pkcs7 = &opts->pkcs7;
+	struct lc_pkcs7_message *pkcs7 = opts->pkcs7;
 	uint8_t data[ASN1_MAX_DATASIZE] = { 0 };
 	size_t avail_datalen = sizeof(data), datalen;
 	int ret;
@@ -279,7 +279,7 @@ static void pkcs7_add_x509(struct pkcs7_generator_opts *opts,
 
 static int pkcs7_load_signer(struct pkcs7_generator_opts *opts)
 {
-	struct lc_pkcs7_message *pkcs7 = &opts->pkcs7;
+	struct lc_pkcs7_message *pkcs7 = opts->pkcs7;
 	struct pkcs7_x509 *x509;
 	struct lc_x509_key_input_data *signer_key_input_data;
 	struct lc_x509_key_data *signer_key_data;
@@ -335,7 +335,7 @@ out:
 
 static int pkcs7_load_cert(struct pkcs7_generator_opts *opts)
 {
-	struct lc_pkcs7_message *pkcs7 = &opts->pkcs7;
+	struct lc_pkcs7_message *pkcs7 = opts->pkcs7;
 	struct lc_x509_certificate *newcert = NULL;
 	struct pkcs7_x509 *x509;
 	int ret;
@@ -408,7 +408,7 @@ out:
 
 static int pkcs7_set_data(struct pkcs7_generator_opts *opts)
 {
-	struct lc_pkcs7_message *pkcs7 = &opts->pkcs7;
+	struct lc_pkcs7_message *pkcs7 = opts->pkcs7;
 	int ret;
 
 	CKNULL_LOG(opts->infile, -EINVAL,
@@ -549,7 +549,7 @@ int main(int argc, char *argv[])
 	struct pkcs7_generator_opts parsed_opts = { 0 };
 	struct x509_checker_options *checker_opts = &parsed_opts.checker_opts;
 	struct lc_verify_rules *verify_rules = &parsed_opts.verify_rules;
-
+	LC_PKCS7_MSG_ON_STACK(pkcs7_msg, 2);
 	int ret = 0, opt_index = 0;
 
 	static const char *opts_short = "ho:i:";
@@ -586,6 +586,8 @@ int main(int argc, char *argv[])
 					      { "verify-pkcs7", 1, 0, 0 },
 
 					      { 0, 0, 0, 0 } };
+
+	parsed_opts.pkcs7 = pkcs7_msg;
 
 	/* Should that be turned into an option? */
 	parsed_opts.aa_set = sinfo_has_content_type | sinfo_has_signing_time |
