@@ -68,7 +68,7 @@ static int pkcs7_load(const struct x509_checker_options *parsed_opts)
 	CKINT_LOG(get_data(parsed_opts->file, &data, &datalen),
 		  "mmap failure\n");
 
-	CKINT_LOG(lc_pkcs7_message_parse(&pkcs7_msg, data, datalen),
+	CKINT_LOG(lc_pkcs7_decode(&pkcs7_msg, data, datalen),
 		  "Parsing of message failed\n");
 
 	CKINT(apply_checks_pkcs7(&pkcs7_msg, parsed_opts));
@@ -101,7 +101,7 @@ static int pkcs7_load_and_verify(const struct x509_checker_options *parsed_opts)
 		  "mmap failure\n");
 
 	/* Parse message */
-	CKINT_LOG(lc_pkcs7_message_parse(&pkcs7_msg, data, datalen),
+	CKINT_LOG(lc_pkcs7_decode(&pkcs7_msg, data, datalen),
 		  "Parsing of message failed\n");
 
 	/* Supply detached data */

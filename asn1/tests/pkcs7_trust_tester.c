@@ -65,7 +65,7 @@ static int pkcs7_trust_store(struct pkcs7_trust_options *opts)
 		CKINT_LOG(get_data(opts->verified_file, &verified_data,
 				   &verified_datalen),
 			  "Reading verification data\n");
-		CKINT_LOG(lc_pkcs7_message_parse(&pkcs7, pkcs7_data,
+		CKINT_LOG(lc_pkcs7_decode(&pkcs7, pkcs7_data,
 						 pkcs7_datalen),
 			  "Parsing of PKCS#7 message\n");
 		/* Supply detached data */

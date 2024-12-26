@@ -794,7 +794,7 @@ LC_INTERFACE_FUNCTION(void, lc_pkcs7_message_clear,
 	}
 }
 
-LC_INTERFACE_FUNCTION(int, lc_pkcs7_message_parse,
+LC_INTERFACE_FUNCTION(int, lc_pkcs7_decode,
 		      struct lc_pkcs7_message *pkcs7, const uint8_t *data,
 		      size_t datalen)
 {

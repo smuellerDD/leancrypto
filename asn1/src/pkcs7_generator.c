@@ -1091,7 +1091,7 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_pkcs7_generate,
+LC_INTERFACE_FUNCTION(int, lc_pkcs7_encode,
 		      const struct lc_pkcs7_message *pkcs7, uint8_t *data,
 		      size_t *avail_datalen)
 {

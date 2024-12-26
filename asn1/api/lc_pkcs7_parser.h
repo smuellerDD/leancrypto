@@ -78,7 +78,7 @@
 
 /**
  * @ingroup PKCS7
- * @brief Parse a PKCS#7 message
+ * @brief Decode a PKCS#7 message
  *
  * The function parses a PKCS#7 data buffer into a data structure that allows
  * accessing the various data points of the PKCS#7 message.
@@ -104,8 +104,8 @@
  *
  * @return 0 on success or < 0 on error
  */
-int lc_pkcs7_message_parse(struct lc_pkcs7_message *pkcs7, const uint8_t *data,
-			   size_t datalen);
+int lc_pkcs7_decode(struct lc_pkcs7_message *pkcs7, const uint8_t *data,
+		    size_t datalen);
 
 /**
  * @ingroup PKCS7

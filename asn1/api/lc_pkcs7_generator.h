@@ -53,7 +53,7 @@ extern "C" {
 
 /**
  * @ingroup PKCS7Gen
- * @brief Generate a PKCS#7 message
+ * @brief Encode a PKCS#7 message
  *
  * The function generates a PKCS#7 data blob from the filled PKCS#7 data
  * structure.
@@ -69,8 +69,8 @@ extern "C" {
  *
  * @return 0 on success or < 0 on error
  */
-int lc_pkcs7_generate(const struct lc_pkcs7_message *pkcs7, uint8_t *data,
-		      size_t *avail_datalen);
+int lc_pkcs7_encode(const struct lc_pkcs7_message *pkcs7, uint8_t *data,
+		    size_t *avail_datalen);
 
 /**
  * @ingroup PKCS7Gen

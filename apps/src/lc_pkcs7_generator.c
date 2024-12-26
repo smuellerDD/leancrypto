@@ -170,7 +170,7 @@ static int pkcs7_enc_dump(struct pkcs7_generator_opts *opts,
 	if (!opts->print_pkcs7 && !opts->checker)
 		return 0;
 
-	CKINT(lc_pkcs7_message_parse(ppkcs7, pkcs7_data, pkcs7_datalen));
+	CKINT(lc_pkcs7_decode(ppkcs7, pkcs7_data, pkcs7_datalen));
 
 	if (opts->data) {
 		CKINT(lc_pkcs7_set_data(ppkcs7, opts->data, opts->datalen, 0));
@@ -207,7 +207,7 @@ static int pkcs7_dump_file(struct pkcs7_generator_opts *opts)
 	CKINT_LOG(get_data(opts->pkcs7_msg, &pkcs7_data, &pkcs7_datalen),
 		  "Loading of file %s failed\n", opts->pkcs7_msg);
 
-	CKINT_LOG(lc_pkcs7_message_parse(ppkcs7, pkcs7_data, pkcs7_datalen),
+	CKINT_LOG(lc_pkcs7_decode(ppkcs7, pkcs7_data, pkcs7_datalen),
 		  "Parsing of input file %s failed\n", opts->pkcs7_msg);
 
 	if (opts->data) {
@@ -240,7 +240,7 @@ static int pkcs7_gen_message(struct pkcs7_generator_opts *opts)
 	size_t avail_datalen = sizeof(data), datalen;
 	int ret;
 
-	CKINT_LOG(lc_pkcs7_generate(pkcs7, data, &avail_datalen),
+	CKINT_LOG(lc_pkcs7_encode(pkcs7, data, &avail_datalen),
 		  "Message generation failed\n");
 	datalen = sizeof(data) - avail_datalen;
 
