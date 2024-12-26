@@ -303,6 +303,7 @@ struct lc_x509_certificate {
 	unsigned int
 		unsupported_sig : 1; /* T if signature uses unsupported crypto */
 	unsigned int blacklisted : 1;
+	unsigned int preallocated : 1;
 };
 
 /// \endcond

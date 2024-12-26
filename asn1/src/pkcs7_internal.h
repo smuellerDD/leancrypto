@@ -59,6 +59,10 @@ int pkcs7_sinfo_get(struct lc_pkcs7_signed_info **sinfo,
 		    struct lc_pkcs7_message *pkcs7);
 void pkcs7_sinfo_free(struct lc_pkcs7_message *pkcs7);
 
+int pkcs7_x509_get(struct lc_x509_certificate **x509,
+		   struct lc_pkcs7_message *pkcs7);
+void pkcs7_x509_free(struct lc_x509_certificate *x509);
+
 #ifdef __cplusplus
 }
 #endif

@@ -26,9 +26,9 @@ void pkcs7_sinfo_free(struct lc_pkcs7_message *pkcs7)
 	struct lc_pkcs7_signed_info *sinfo;
 	uint8_t idx = 0;
 
-	while (pkcs7->list_head_signed_infos) {
-		sinfo = pkcs7->list_head_signed_infos;
-		pkcs7->list_head_signed_infos = sinfo->next;
+	while (pkcs7->list_head_sinfo) {
+		sinfo = pkcs7->list_head_sinfo;
+		pkcs7->list_head_sinfo = sinfo->next;
 		public_key_signature_clear(&sinfo->sig);
 		if (idx < pkcs7->consumed_preallocated_sinfo) {
 			idx++;
@@ -37,8 +37,8 @@ void pkcs7_sinfo_free(struct lc_pkcs7_message *pkcs7)
 		}
 	}
 
-	if (pkcs7->curr_signed_infos) {
-		sinfo = pkcs7->curr_signed_infos;
+	if (pkcs7->curr_sinfo) {
+		sinfo = pkcs7->curr_sinfo;
 		public_key_signature_clear(&sinfo->sig);
 
 		if (idx >= pkcs7->consumed_preallocated_sinfo)
@@ -48,14 +48,14 @@ void pkcs7_sinfo_free(struct lc_pkcs7_message *pkcs7)
 
 int pkcs7_sinfo_add(struct lc_pkcs7_message *pkcs7)
 {
-	if (!pkcs7->list_head_signed_infos) {
-		pkcs7->list_head_signed_infos = pkcs7->curr_signed_infos;
+	if (!pkcs7->list_head_sinfo) {
+		pkcs7->list_head_sinfo = pkcs7->curr_sinfo;
 	} else {
-		*pkcs7->list_tail_signed_infos = pkcs7->curr_signed_infos;
+		*pkcs7->list_tail_sinfo = pkcs7->curr_sinfo;
 	}
 
-	pkcs7->list_tail_signed_infos = &pkcs7->curr_signed_infos->next;
-	pkcs7->curr_signed_infos = NULL;
+	pkcs7->list_tail_sinfo = &pkcs7->curr_sinfo->next;
+	pkcs7->curr_sinfo = NULL;
 
 	return 0;
 }
@@ -67,20 +67,55 @@ int pkcs7_sinfo_get(struct lc_pkcs7_signed_info **sinfo,
 
 	CKNULL(sinfo, -EINVAL);
 
-	if (!pkcs7->curr_signed_infos) {
+	if (!pkcs7->curr_sinfo) {
 		if (pkcs7->consumed_preallocated_sinfo <
 		    pkcs7->avail_preallocated_sinfo) {
-			pkcs7->curr_signed_infos = pkcs7->preallocated_sinfo;
+			pkcs7->curr_sinfo = pkcs7->preallocated_sinfo;
 			pkcs7->consumed_preallocated_sinfo++;
 			pkcs7->preallocated_sinfo++;
 		} else {
 			CKINT(lc_alloc_aligned(
-				(void **)&pkcs7->curr_signed_infos, 8,
+				(void **)&pkcs7->curr_sinfo, 8,
 				sizeof(struct lc_pkcs7_signed_info)));
 		}
 	}
 
-	*sinfo = pkcs7->curr_signed_infos;
+	*sinfo = pkcs7->curr_sinfo;
+
+out:
+	return ret;
+}
+
+void pkcs7_x509_free(struct lc_x509_certificate *x509)
+{
+	if (x509->preallocated) {
+		lc_x509_cert_clear(x509);
+	} else {
+		lc_x509_cert_clear(x509);
+		lc_free(x509);
+	}
+}
+
+int pkcs7_x509_get(struct lc_x509_certificate **x509,
+		   struct lc_pkcs7_message *pkcs7)
+{
+	struct lc_x509_certificate *tmp_x509;
+	int ret = 0;
+
+	CKNULL(x509, -EINVAL);
+
+	if (pkcs7->consumed_preallocated_x509 <
+	    pkcs7->avail_preallocated_x509) {
+		tmp_x509 = pkcs7->preallocated_x509;
+		pkcs7->consumed_preallocated_x509++;
+		pkcs7->preallocated_x509++;
+		tmp_x509->preallocated = 1;
+	} else {
+		CKINT(lc_alloc_aligned((void **)&tmp_x509, 8,
+				       sizeof(struct lc_x509_certificate)));
+	}
+
+	*x509 = tmp_x509;
 
 out:
 	return ret;

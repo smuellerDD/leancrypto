@@ -87,9 +87,13 @@ struct lc_pkcs7_message {
 	/*
 	 * Signed information
 	 */
-	struct lc_pkcs7_signed_info *curr_signed_infos;
-	struct lc_pkcs7_signed_info *list_head_signed_infos;
-	struct lc_pkcs7_signed_info **list_tail_signed_infos;
+	struct lc_pkcs7_signed_info *curr_sinfo;
+	struct lc_pkcs7_signed_info *list_head_sinfo;
+	struct lc_pkcs7_signed_info **list_tail_sinfo;
+	uint8_t avail_preallocated_sinfo;
+	uint8_t consumed_preallocated_sinfo;
+	struct lc_pkcs7_signed_info *preallocated_sinfo;
+
 	uint8_t version; /* Version of cert (1 -> PKCS#7 or CMS; 3 -> CMS) */
 
 	/* Content Data (or NULL) */
@@ -97,17 +101,18 @@ struct lc_pkcs7_message {
 	size_t data_len; /* Length of Data */
 	const uint8_t *data; /* Content Data (or 0) */
 
-	uint8_t avail_preallocated_sinfo;
-	uint8_t consumed_preallocated_sinfo;
-	struct lc_pkcs7_signed_info *preallocated_sinfo;
+	uint8_t avail_preallocated_x509;
+	uint8_t consumed_preallocated_x509;
+	struct lc_x509_certificate *preallocated_x509;
 
 	unsigned int have_authattrs : 1; /* T if have authattrs */
 	unsigned int embed_data : 1; /* Embed data into message */
 };
 
-#define LC_PKCS7_MSG_SIZE(num_sinfo)                                           \
+#define LC_PKCS7_MSG_SIZE(num_sinfo, num_x509)                                 \
 	sizeof(struct lc_pkcs7_message) +                                      \
-	num_sinfo * sizeof(struct lc_pkcs7_signed_info)
+	num_sinfo * sizeof(struct lc_pkcs7_signed_info) +                      \
+	num_x509 * sizeof(struct lc_x509_certificate)
 
 /// \endcond
 
@@ -117,22 +122,39 @@ struct lc_pkcs7_message {
  * @brief Allocate memory for struct lc_pkcs7_message holding given number of
  *	  preallocated sinfo members
  *
+ * This allocation allows the PKCS7 parsing to avoid allocate memory and keep
+ * all operations on stack. In case more signers than \p num_sinfo or more
+ * X.509 certificates than \p num_x509 are parsed from the PKCS7 message,
+ * then first all pre-allocated structures are used and then new ones are
+ * allocated.
+ *
+ * When not using this macro, which is perfectly legal, an simply allocating
+ * \p struct lc_pkcs7_message on stack, then for all parsed signers and
+ * X.509 certificates, a new memory entry is allocated.
+ *
  * @param [in] name Name of stack variable
  * @param [in] num_sinfo Number of preallocated sinfo members (must be less than
  *			 256)
+ * @param [in] num_x509 Number of preallocated X.509 certificate structures
+ *			(must be less than 256)
  */
-#define LC_PKCS7_MSG_ON_STACK(name, num_sinfo)                                 \
+#define LC_PKCS7_MSG_ON_STACK(name, num_sinfo, num_x509)                       \
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")             \
-		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_PKCS7_MSG_SIZE(num_sinfo),\
-				  8);                                          \
+		LC_ALIGNED_BUFFER(name##_ctx_buf,                              \
+				  LC_PKCS7_MSG_SIZE(num_sinfo, num_x509), 8);  \
 	struct lc_pkcs7_message *name =                                        \
 		(struct lc_pkcs7_message *)name##_ctx_buf;                     \
 	(name)->avail_preallocated_sinfo = num_sinfo;                          \
 	(name)->preallocated_sinfo =                                           \
 		(struct lc_pkcs7_signed_info *)((uint8_t *)(name) +            \
 		 sizeof(struct lc_pkcs7_message));                             \
+	(name)->avail_preallocated_x509 = num_x509;                            \
+	(name)->preallocated_x509 =                                            \
+		(struct lc_x509_certificate *)((uint8_t *)(name) +             \
+		 sizeof(struct lc_pkcs7_message) +                             \
+		 num_sinfo * sizeof(struct lc_pkcs7_signed_info));             \
 	_Pragma("GCC diagnostic pop")
 
 #ifdef __cplusplus

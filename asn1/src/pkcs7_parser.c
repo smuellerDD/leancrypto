@@ -94,7 +94,7 @@ static int pkcs7_check_authattrs(struct lc_pkcs7_message *msg)
 	struct lc_pkcs7_signed_info *sinfo;
 	unsigned int want = 0;
 
-	sinfo = msg->list_head_signed_infos;
+	sinfo = msg->list_head_sinfo;
 	if (!sinfo)
 		goto inconsistent;
 
@@ -376,6 +376,7 @@ int pkcs7_extract_cert(void *context, size_t hdrlen, unsigned char tag,
 		       const uint8_t *value, size_t vlen)
 {
 	struct pkcs7_parse_context *ctx = context;
+	struct lc_pkcs7_message *pkcs7 = ctx->msg;
 	struct lc_x509_certificate *x509;
 	struct lc_asymmetric_key_id *id;
 	int ret;
@@ -397,8 +398,7 @@ int pkcs7_extract_cert(void *context, size_t hdrlen, unsigned char tag,
 	if (((uint8_t *)value)[1] == 0x80)
 		vlen += 2; /* Indefinite length - there should be an EOC */
 
-	CKINT(lc_alloc_aligned((void **)&x509, 8,
-			       sizeof(struct lc_x509_certificate)));
+	CKINT(pkcs7_x509_get(&x509, pkcs7));
 
 	CKINT(lc_x509_cert_decode(x509, value, vlen));
 
@@ -781,8 +781,7 @@ LC_INTERFACE_FUNCTION(void, lc_pkcs7_message_clear,
 		while (pkcs7->certs) {
 			cert = pkcs7->certs;
 			pkcs7->certs = cert->next;
-			lc_x509_cert_clear(cert);
-			lc_free(cert);
+			pkcs7_x509_free(cert);
 		}
 		while (pkcs7->crl) {
 			cert = pkcs7->crl;
@@ -805,10 +804,7 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_message_parse,
 	CKNULL(pkcs7, -EINVAL);
 	CKNULL(data, -EINVAL);
 
-	lc_memset_secure(pkcs7, 0, sizeof(struct lc_pkcs7_message));
-
 	ctx.msg = pkcs7;
-
 	ctx.data = data;
 	ctx.ppcerts = &ctx.certs;
 
@@ -822,8 +818,7 @@ out:
 		struct lc_x509_certificate *cert = ctx.certs;
 
 		ctx.certs = cert->next;
-		lc_x509_cert_clear(cert);
-		lc_free(cert);
+		pkcs7_x509_free(cert);
 	}
 
 	if (ret)

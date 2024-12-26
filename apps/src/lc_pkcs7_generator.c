@@ -164,41 +164,41 @@ out:
 static int pkcs7_enc_dump(struct pkcs7_generator_opts *opts,
 			  const uint8_t *pkcs7_data, size_t pkcs7_datalen)
 {
-	struct lc_pkcs7_message ppkcs7 = { 0 };
+	LC_PKCS7_MSG_ON_STACK(ppkcs7, 1, 4);
 	int ret;
 
 	if (!opts->print_pkcs7 && !opts->checker)
 		return 0;
 
-	CKINT(lc_pkcs7_message_parse(&ppkcs7, pkcs7_data, pkcs7_datalen));
+	CKINT(lc_pkcs7_message_parse(ppkcs7, pkcs7_data, pkcs7_datalen));
 
 	if (opts->data) {
-		CKINT(lc_pkcs7_set_data(&ppkcs7, opts->data, opts->datalen, 0));
+		CKINT(lc_pkcs7_set_data(ppkcs7, opts->data, opts->datalen, 0));
 	}
 
 	CKINT_LOG(lc_pkcs7_verify(
-			  &ppkcs7,
+			  ppkcs7,
 			  opts->use_trust_store ? &opts->trust_store : NULL,
 			  opts->verify_rules_set ? &opts->verify_rules : NULL),
 		  "Verification of PKCS#7 message failed\n");
 
 	if (opts->checker)
-		CKINT(apply_checks_pkcs7(&ppkcs7, &opts->checker_opts));
+		CKINT(apply_checks_pkcs7(ppkcs7, &opts->checker_opts));
 
 	if (opts->print_pkcs7) {
-		CKINT(print_pkcs7_data(&ppkcs7));
+		CKINT(print_pkcs7_data(ppkcs7));
 	}
 
 out:
-	lc_pkcs7_message_clear(&ppkcs7);
+	lc_pkcs7_message_clear(ppkcs7);
 	return ret;
 }
 
 static int pkcs7_dump_file(struct pkcs7_generator_opts *opts)
 {
-	struct lc_pkcs7_message ppkcs7 = { 0 };
 	uint8_t *pkcs7_data = NULL;
 	size_t pkcs7_datalen = 0;
+	LC_PKCS7_MSG_ON_STACK(ppkcs7, 1, 4);
 	int ret;
 
 	if (!opts->pkcs7_msg && !opts->checker)
@@ -207,13 +207,13 @@ static int pkcs7_dump_file(struct pkcs7_generator_opts *opts)
 	CKINT_LOG(get_data(opts->pkcs7_msg, &pkcs7_data, &pkcs7_datalen),
 		  "Loading of file %s failed\n", opts->pkcs7_msg);
 
-	CKINT_LOG(lc_pkcs7_message_parse(&ppkcs7, pkcs7_data, pkcs7_datalen),
+	CKINT_LOG(lc_pkcs7_message_parse(ppkcs7, pkcs7_data, pkcs7_datalen),
 		  "Parsing of input file %s failed\n", opts->pkcs7_msg);
 
 	if (opts->data) {
-		CKINT(lc_pkcs7_set_data(&ppkcs7, opts->data, opts->datalen, 0));
+		CKINT(lc_pkcs7_set_data(ppkcs7, opts->data, opts->datalen, 0));
 		CKINT_LOG(lc_pkcs7_verify(
-				  &ppkcs7,
+				  ppkcs7,
 				  opts->use_trust_store ? &opts->trust_store :
 							  NULL,
 				  opts->verify_rules_set ? &opts->verify_rules :
@@ -222,13 +222,13 @@ static int pkcs7_dump_file(struct pkcs7_generator_opts *opts)
 	}
 
 	if (opts->checker)
-		CKINT(apply_checks_pkcs7(&ppkcs7, &opts->checker_opts));
+		CKINT(apply_checks_pkcs7(ppkcs7, &opts->checker_opts));
 
 	if (opts->print_pkcs7)
-		CKINT(print_pkcs7_data(&ppkcs7));
+		CKINT(print_pkcs7_data(ppkcs7));
 
 out:
-	lc_pkcs7_message_clear(&ppkcs7);
+	lc_pkcs7_message_clear(ppkcs7);
 	release_data(pkcs7_data, pkcs7_datalen);
 	return ret;
 }
@@ -549,7 +549,7 @@ int main(int argc, char *argv[])
 	struct pkcs7_generator_opts parsed_opts = { 0 };
 	struct x509_checker_options *checker_opts = &parsed_opts.checker_opts;
 	struct lc_verify_rules *verify_rules = &parsed_opts.verify_rules;
-	LC_PKCS7_MSG_ON_STACK(pkcs7_msg, 2);
+	LC_PKCS7_MSG_ON_STACK(pkcs7_msg, 1, 4);
 	int ret = 0, opt_index = 0;
 
 	static const char *opts_short = "ho:i:";

@@ -1111,7 +1111,6 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_decode,
 	CKNULL(x509, -EINVAL);
 	CKNULL(data, -EINVAL);
 
-	lc_memset_secure(x509, 0, sizeof(struct lc_x509_certificate));
 	ctx.cert = x509;
 	ctx.data = data;
 
