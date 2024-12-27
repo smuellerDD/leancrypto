@@ -598,8 +598,14 @@ static int pkcs7_set_time(uint8_t *data, size_t *avail_datalen, uint8_t *tag)
 	 * Use `date -d "2050-01-01" -u "+%s"` to verify
 	 *
 	 * UCTTIM is only applicable for times before 2050
+	 *
+	 * The pragma is added for 32 bit systems where time_t is 32 bit and
+	 * the check will always evaluate to false.
 	 */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtype-limits"
 	if (timeval >= 2524608000) {
+#pragma GCC diagnostic pop
 		CKINT(x509_sufficient_size(avail_datalen, X509_GENTIM_SIZE));
 		snprintf(datestr, sizeof(datestr), "%.4d%.2d%.2d%.2d%.2d%.2dZ",
 			 time_detail->tm_year + 1900, time_detail->tm_mon + 1,

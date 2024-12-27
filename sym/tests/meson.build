@@ -26,7 +26,7 @@ if get_option('chacha20').enabled()
 	test('Symmetric ChaCha20 stream', chacha20_stream_tester,
 	     suite: regression)
 	test('Symmetric ChaCha20 large', chacha20_stream_large_tester,
-	     timeout: 600, suite: performance)
+	     timeout: 600, is_parallel: false, suite: performance)
 endif
 
 if get_option('aes_block').enabled()
@@ -140,9 +140,9 @@ if get_option('aes_cbc').enabled()
 	test('Symmetric AES CBC decryption', aes_cbc_dec_tester,
 	     suite: regression)
 	test('AES CBC C large', aes_cbc_c_large_tester, timeout: 2000,
-	     suite: performance)
+	     is_parallel: false, suite: performance)
 	test('AES CBC Accel large', aes_cbc_large_tester, timeout: 2000,
-	     suite: performance)
+	     is_parallel: false, suite: performance)
 #	test('AES CBC OpenSSL large', aes_cbc_openssl_large_tester, timeout: 300)
 endif
 

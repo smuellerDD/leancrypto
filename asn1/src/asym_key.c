@@ -312,7 +312,7 @@ int privkey_key_encode(struct x509_generate_privkey_context *ctx,
 		       uint8_t *dst_data, size_t *available_len)
 {
 	const struct lc_x509_key_data *keys = ctx->keys;
-	int ret;
+	int ret = 0;
 
 	switch (keys->sig_type) {
 	case LC_SIG_DILITHIUM_44:
@@ -358,7 +358,7 @@ out:
 int privkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
 		       size_t datalen)
 {
-	int ret;
+	int ret = 0;
 
 	switch (keys->sig_type) {
 	case LC_SIG_DILITHIUM_44:
@@ -407,7 +407,7 @@ out:
 int pubkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
 		      size_t datalen)
 {
-	int ret;
+	int ret = 0;
 
 	switch (keys->sig_type) {
 	case LC_SIG_DILITHIUM_44:

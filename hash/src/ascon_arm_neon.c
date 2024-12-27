@@ -57,7 +57,7 @@ static void ascon_squeeze(void *state, uint8_t *digest)
 }
 
 static const struct lc_hash _ascon_256_arm_neon = {
-	.init = ascon_128_init,
+	.init = ascon_256_init,
 	.update = ascon_absorb,
 	.final = ascon_squeeze,
 	.set_digestsize = NULL,

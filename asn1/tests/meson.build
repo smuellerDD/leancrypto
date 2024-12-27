@@ -304,15 +304,18 @@ if get_option('x509_generator').enabled()
 	     suite: regression)
 
 	# This tests the different times: valid-from is UCTTime, valid-to is
-	# General Time
-	test('X.509 Generator 13', asn1_enc_tester,
-	     args: [ '--eku', '50', '--ca', '--san-dns', 'leancrypto',
-		     '--san-ip', '1.1.1.1', '--keyusage', '64',
-		     '--skid', '0102030405', '--akid', '08090a0b',
-		     '--valid-from', '1729527728', '--valid-to', '2524608000',
-		     '--subject-cn', 'subject', '--issuer-cn', 'issuer',
-		     '--serial', '0102030405060708' ],
-	     suite: regression)
+	# General Time - only applicable on 64 bit systems as 32 bit systems
+	# cannot represent time beyond 2038
+	if not arm32_neon_asm
+		test('X.509 Generator 13', asn1_enc_tester,
+			args: [ '--eku', '50', '--ca', '--san-dns', 'leancrypto',
+				'--san-ip', '1.1.1.1', '--keyusage', '64',
+				'--skid', '0102030405', '--akid', '08090a0b',
+				'--valid-from', '1729527728', '--valid-to', '2524608000',
+				'--subject-cn', 'subject', '--issuer-cn', 'issuer',
+				'--serial', '0102030405060708' ],
+			suite: regression)
+	endif
 
 	asn1_extensions_enc_tester = executable('asn1_extensions_enc_tester',
 			 [ 'asn1_extensions_enc_tester.c',
