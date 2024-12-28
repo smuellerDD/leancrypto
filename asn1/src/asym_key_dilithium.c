@@ -130,9 +130,9 @@ int public_key_generate_signature_dilithium(
 		/*
 		 * Sign the hash
 		 */
-		CKINT(lc_dilithium_sign_ctx(&ws->dilithium_sig, ctx, sig->digest,
-					    sig->digest_size, dilithium_sk,
-					    lc_seeded_rng));
+		CKINT(lc_dilithium_sign_ctx(&ws->dilithium_sig, ctx,
+					    sig->digest, sig->digest_size,
+					    dilithium_sk, lc_seeded_rng));
 	} else {
 		CKNULL(sig->raw_data, -EOPNOTSUPP);
 

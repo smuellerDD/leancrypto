@@ -93,8 +93,8 @@ static int x509_gen_cert_extensions(struct x509_checker_options *opts)
 			       ws->data, datalen));
 
 	if (gcert->raw_akid_size) {
-		CKINT(asn1_ber_decoder(&x509_akid_decoder,
-				       &ws->pctx, ws->pctx.raw_akid,
+		CKINT(asn1_ber_decoder(&x509_akid_decoder, &ws->pctx,
+				       ws->pctx.raw_akid,
 				       ws->pctx.raw_akid_size));
 	}
 
@@ -151,7 +151,8 @@ static int x509_gen_cert_extensions(struct x509_checker_options *opts)
 		       gcert->san_ip_len, ws->pcert.san_ip_len);
 		ret = -EINVAL;
 	} else {
-		if (memcmp(ws->pcert.san_ip, gcert->san_ip, gcert->san_ip_len)) {
+		if (memcmp(ws->pcert.san_ip, gcert->san_ip,
+			   gcert->san_ip_len)) {
 			bin2print(gcert->san_ip, gcert->san_ip_len, stdout,
 				  "SAN IP mismatch original");
 			bin2print(ws->pcert.san_ip, ws->pcert.san_ip_len,
@@ -507,8 +508,7 @@ int main(int argc, char *argv[])
 				break;
 			/* skid */
 			case 6:
-				CKINT(x509_enc_skid(&ws->parsed_opts,
-						    optarg));
+				CKINT(x509_enc_skid(&ws->parsed_opts, optarg));
 				break;
 			/* akid */
 			case 7:

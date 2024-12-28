@@ -158,7 +158,8 @@ static int x509_gen_cert(struct x509_checker_options *opts)
 		       gcert->san_ip_len, ws->pcert.san_ip_len);
 		ret = -EINVAL;
 	} else {
-		if (memcmp(ws->pcert.san_ip, gcert->san_ip, gcert->san_ip_len)) {
+		if (memcmp(ws->pcert.san_ip, gcert->san_ip,
+			   gcert->san_ip_len)) {
 			bin2print(gcert->san_ip, gcert->san_ip_len, stdout,
 				  "SAN IP mismatch original");
 			bin2print(ws->pcert.san_ip, ws->pcert.san_ip_len,
@@ -288,8 +289,8 @@ static int x509_gen_cert(struct x509_checker_options *opts)
 			bin2print(gcert->raw_serial, gcert->raw_serial_size,
 				  stdout, "Serial mismatch original");
 			bin2print(ws->pcert.raw_serial,
-				  ws->pcert.raw_serial_size,
-				  stdout, "Serial mismatch received");
+				  ws->pcert.raw_serial_size, stdout,
+				  "Serial mismatch received");
 			ret = -EINVAL;
 		} else {
 			printf("Serial number matches\n");
@@ -613,13 +614,11 @@ int main(int argc, char *argv[])
 				break;
 			/* skid */
 			case 6:
-				CKINT(x509_enc_skid(&ws->parsed_opts,
-						    optarg));
+				CKINT(x509_enc_skid(&ws->parsed_opts, optarg));
 				break;
 			/* akid */
 			case 7:
-				CKINT(x509_enc_akid(&ws->parsed_opts,
-						    optarg));
+				CKINT(x509_enc_akid(&ws->parsed_opts, optarg));
 				break;
 			/* valid-from */
 			case 8:

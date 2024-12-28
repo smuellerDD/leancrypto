@@ -413,13 +413,11 @@ int main(int argc, char *argv[])
 				break;
 			/* skid */
 			case 6:
-				CKINT(x509_enc_skid(&ws->parsed_opts,
-						    optarg));
+				CKINT(x509_enc_skid(&ws->parsed_opts, optarg));
 				break;
 			/* akid */
 			case 7:
-				CKINT(x509_enc_akid(&ws->parsed_opts,
-						    optarg));
+				CKINT(x509_enc_akid(&ws->parsed_opts, optarg));
 				break;
 			/* valid-from */
 			case 8:

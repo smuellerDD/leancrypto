@@ -122,8 +122,8 @@ struct lc_pkcs7_message {
  */
 #define LC_PKCS7_MSG_SIZE(num_sinfo, num_x509)                                 \
 	sizeof(struct lc_pkcs7_message) +                                      \
-	num_sinfo * sizeof(struct lc_pkcs7_signed_info) +                      \
-	num_x509 * sizeof(struct lc_x509_certificate)
+		num_sinfo * sizeof(struct lc_pkcs7_signed_info) +              \
+		num_x509 * sizeof(struct lc_x509_certificate)
 
 /**
  * @ingroup PKCS7
@@ -152,19 +152,22 @@ struct lc_pkcs7_message {
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")             \
-		LC_ALIGNED_BUFFER(name##_ctx_buf,                              \
-				  LC_PKCS7_MSG_SIZE(num_sinfo, num_x509), 8);  \
+			LC_ALIGNED_BUFFER(                                     \
+				name##_ctx_buf,                                \
+				LC_PKCS7_MSG_SIZE(num_sinfo, num_x509), 8);    \
 	struct lc_pkcs7_message *name =                                        \
 		(struct lc_pkcs7_message *)name##_ctx_buf;                     \
 	(name)->avail_preallocated_sinfo = num_sinfo;                          \
 	(name)->preallocated_sinfo =                                           \
-		(struct lc_pkcs7_signed_info *)((uint8_t *)(name) +            \
-		 sizeof(struct lc_pkcs7_message));                             \
+		(struct lc_pkcs7_signed_info                                   \
+			 *)((uint8_t *)(name) +                                \
+			    sizeof(struct lc_pkcs7_message));                  \
 	(name)->avail_preallocated_x509 = num_x509;                            \
 	(name)->preallocated_x509 =                                            \
-		(struct lc_x509_certificate *)((uint8_t *)(name) +             \
-		 sizeof(struct lc_pkcs7_message) +                             \
-		 num_sinfo * sizeof(struct lc_pkcs7_signed_info));             \
+		(struct lc_x509_certificate                                    \
+			 *)((uint8_t *)(name) +                                \
+			    sizeof(struct lc_pkcs7_message) +                  \
+			    num_sinfo * sizeof(struct lc_pkcs7_signed_info));  \
 	_Pragma("GCC diagnostic pop")
 
 #ifdef __cplusplus

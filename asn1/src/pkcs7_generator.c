@@ -1062,8 +1062,7 @@ static inline int pkcs7_initialize_ctx(struct pkcs7_generate_context *ctx,
 	ctx->current_x509 = pkcs7->certs;
 	ctx->current_sinfo = pkcs7->list_head_sinfo;
 
-	for (sinfo = pkcs7->list_head_sinfo; sinfo;
-	     sinfo = sinfo->next) {
+	for (sinfo = pkcs7->list_head_sinfo; sinfo; sinfo = sinfo->next) {
 		const struct lc_hash *hash;
 
 		if (!ctx->authattr_hash) {

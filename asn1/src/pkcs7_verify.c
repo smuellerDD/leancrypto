@@ -485,8 +485,7 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_verify, struct lc_pkcs7_message *pkcs7,
 		return -ENODATA;
 	}
 
-	for (sinfo = pkcs7->list_head_sinfo; sinfo;
-	     sinfo = sinfo->next) {
+	for (sinfo = pkcs7->list_head_sinfo; sinfo; sinfo = sinfo->next) {
 		ret = pkcs7_verify_one(pkcs7, trust_store, sinfo, verify_rules);
 		switch (ret) {
 		case -ENOKEY:
