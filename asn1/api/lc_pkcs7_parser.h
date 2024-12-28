@@ -40,10 +40,11 @@
  *    API. I.e. member variables or the structure format may change between
  *    versions of leancrypto without announcement. The reason for providing the
  *    data structure in the official header file is to support stack-only
- *    clients. As of now, this is not fully achieved as a PKCS#7 message may
- *    contain an arbitrary amount of X.509 certificates and signer information
- *    sections. Each is covered with a separate instance of the associated
- *    data structures allocated on the heap.
+ *    clients. Aas a PKCS#7 message may contain an arbitrary amount of X.509
+ *    certificates and signer information sections, the macro
+ *    \p LC_PKCS7_MSG_ON_STACK is provided to allocate stack memory for a given
+ *    number of signers and X.509 certificates. If more certificates or signers
+ *    are found, heap is transparently allocated.
  *
  * 2. The parser fills the data structure with pointers into the original PKCS#7
  *    data blob. The caller MUST keep the original PKCS#7 data blob at the same

@@ -27,6 +27,7 @@
 #include "lc_pkcs7_parser.h"
 #include "lc_x509_parser.h"
 #include "ret_checkers.h"
+#include "small_stack_support.h"
 #include "x509_checker.h"
 #include "x509_print.h"
 
@@ -35,24 +36,28 @@
 
 static int x509_load(const struct x509_checker_options *parsed_opts)
 {
-	struct lc_x509_certificate x509_msg;
+	struct workspace {
+		struct lc_x509_certificate x509_msg;
+	};
 	size_t datalen = 0;
 	uint8_t *data = NULL;
 	int ret;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	CKNULL_LOG(parsed_opts->file, -EINVAL, "Pathname missing\n");
 
 	CKINT_LOG(get_data(parsed_opts->file, &data, &datalen),
 		  "mmap failure\n");
 
-	CKINT_LOG(lc_x509_cert_decode(&x509_msg, data, datalen),
+	CKINT_LOG(lc_x509_cert_decode(&ws->x509_msg, data, datalen),
 		  "Parsing of message failed\n");
 
-	CKINT(apply_checks_x509(&x509_msg, parsed_opts));
+	CKINT(apply_checks_x509(&ws->x509_msg, parsed_opts));
 
 out:
 	release_data(data, datalen);
-	lc_x509_cert_clear(&x509_msg);
+	lc_x509_cert_clear(&ws->x509_msg);
+	LC_RELEASE_MEM(ws);
 	return ret;
 }
 

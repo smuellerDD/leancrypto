@@ -26,6 +26,7 @@
 #include "lc_hash.h"
 #include "lc_sphincs.h"
 #include "ret_checkers.h"
+#include "small_stack_support.h"
 #include "x509_algorithm_mapper.h"
 #include "x509_slhdsa_privkey.asn1.h"
 
@@ -61,23 +62,26 @@ int public_key_verify_signature_sphincs(
 	const struct lc_public_key *pkey,
 	const struct lc_public_key_signature *sig, unsigned int fast)
 {
-	struct lc_sphincs_pk sphincs_pk;
-	struct lc_sphincs_sig sphincs_sig;
+	struct workspace {
+		struct lc_sphincs_pk sphincs_pk;
+		struct lc_sphincs_sig sphincs_sig;
+	};
 	int ret;
 	LC_SPHINCS_CTX_ON_STACK(ctx);
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	/* A signature verification does not work with a private key */
 	if (pkey->key_is_private)
 		return -EKEYREJECTED;
 
-	CKINT(lc_sphincs_pk_load(&sphincs_pk, pkey->key, pkey->keylen));
+	CKINT(lc_sphincs_pk_load(&ws->sphincs_pk, pkey->key, pkey->keylen));
 	if (fast) {
-		CKINT(lc_sphincs_pk_set_keytype_fast(&sphincs_pk));
+		CKINT(lc_sphincs_pk_set_keytype_fast(&ws->sphincs_pk));
 	} else {
-		CKINT(lc_sphincs_pk_set_keytype_small(&sphincs_pk));
+		CKINT(lc_sphincs_pk_set_keytype_small(&ws->sphincs_pk));
 	}
 
-	CKINT(lc_sphincs_sig_load(&sphincs_sig, sig->s, sig->s_size));
+	CKINT(lc_sphincs_sig_load(&ws->sphincs_sig, sig->s, sig->s_size));
 
 	/*
 	 * Select the data to be signed
@@ -88,22 +92,22 @@ int public_key_verify_signature_sphincs(
 		/*
 		 * Verify the signature
 		 */
-		CKINT(lc_sphincs_verify_ctx(&sphincs_sig, ctx, sig->digest,
-					    sig->digest_size, &sphincs_pk));
+		CKINT(lc_sphincs_verify_ctx(&ws->sphincs_sig, ctx, sig->digest,
+					    sig->digest_size, &ws->sphincs_pk));
 	} else {
 		CKNULL(sig->raw_data, -EOPNOTSUPP);
 
 		/*
 		 * Verify the signature
 		 */
-		CKINT(lc_sphincs_verify_ctx(&sphincs_sig, ctx, sig->raw_data,
-					    sig->raw_data_len, &sphincs_pk));
+		CKINT(lc_sphincs_verify_ctx(&ws->sphincs_sig, ctx,
+					    sig->raw_data, sig->raw_data_len,
+					    &ws->sphincs_pk));
 	}
 
 out:
 	lc_sphincs_ctx_zero(ctx);
-	lc_memset_secure(&sphincs_pk, 0, sizeof(sphincs_pk));
-	lc_memset_secure(&sphincs_sig, 0, sizeof(sphincs_sig));
+	LC_RELEASE_MEM(ws);
 	return ret;
 }
 
@@ -112,12 +116,15 @@ int public_key_generate_signature_sphincs(
 	const struct lc_public_key_signature *sig, uint8_t *sig_data,
 	size_t *available_len, unsigned int fast)
 {
-	struct lc_sphincs_sig sphincs_sig;
+	struct workspace {
+		struct lc_sphincs_sig sphincs_sig;
+	};
 	struct lc_sphincs_sk *sphincs_sk = keys->sk.sphincs_sk;
 	uint8_t *sigptr;
 	size_t siglen;
 	int ret;
 	LC_SPHINCS_CTX_ON_STACK(ctx);
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	if (fast) {
 		CKINT(lc_sphincs_sk_set_keytype_fast(sphincs_sk));
@@ -134,7 +141,7 @@ int public_key_generate_signature_sphincs(
 		/*
 		 * Sign the hash
 		 */
-		CKINT(lc_sphincs_sign_ctx(&sphincs_sig, ctx, sig->digest,
+		CKINT(lc_sphincs_sign_ctx(&ws->sphincs_sig, ctx, sig->digest,
 					  sig->digest_size, sphincs_sk,
 					  lc_seeded_rng));
 	} else {
@@ -143,7 +150,7 @@ int public_key_generate_signature_sphincs(
 		/*
 		 * Verify the signature
 		 */
-		CKINT(lc_sphincs_sign_ctx(&sphincs_sig, ctx, sig->raw_data,
+		CKINT(lc_sphincs_sign_ctx(&ws->sphincs_sig, ctx, sig->raw_data,
 					  sig->raw_data_len, sphincs_sk,
 					  lc_seeded_rng));
 	}
@@ -151,7 +158,7 @@ int public_key_generate_signature_sphincs(
 	/*
 	 * Extract the signature
 	 */
-	CKINT(lc_sphincs_sig_ptr(&sigptr, &siglen, &sphincs_sig));
+	CKINT(lc_sphincs_sig_ptr(&sigptr, &siglen, &ws->sphincs_sig));
 
 	/*
 	 * Consistency check
@@ -176,7 +183,7 @@ int public_key_generate_signature_sphincs(
 
 out:
 	lc_sphincs_ctx_zero(ctx);
-	lc_memset_secure(&sphincs_sig, 0, sizeof(sphincs_sig));
+	LC_RELEASE_MEM(ws);
 	return ret;
 }
 

@@ -25,6 +25,7 @@
 #include "asn1_test_helper.h"
 #include "lc_pkcs7_parser.h"
 #include "ret_checkers.h"
+#include "small_stack_support.h"
 
 struct pkcs7_trust_options {
 #define MAX_FILES 10
@@ -37,9 +38,11 @@ struct pkcs7_trust_options {
 
 static int pkcs7_trust_store(struct pkcs7_trust_options *opts)
 {
-	struct lc_pkcs7_trust_store trust_store = { 0 };
-	struct lc_x509_certificate x509[MAX_FILES];
-	struct lc_pkcs7_message pkcs7 = { 0 };
+	struct workspace {
+		struct lc_pkcs7_trust_store trust_store;
+		struct lc_x509_certificate x509[MAX_FILES];
+		struct lc_pkcs7_message pkcs7;
+	};
 	uint8_t *data[MAX_FILES] = { 0 };
 	size_t datalen[MAX_FILES] = { 0 };
 	uint8_t *pkcs7_data = NULL;
@@ -48,13 +51,16 @@ static int pkcs7_trust_store(struct pkcs7_trust_options *opts)
 	size_t verified_datalen = 0;
 	unsigned int i;
 	int ret = 0;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	for (i = 0; i < opts->num_files; i++) {
 		CKINT_LOG(get_data(opts->file[i], &data[i], &datalen[i]),
 			  "Loading of file %s\n", opts->file[i]);
-		CKINT_LOG(lc_x509_cert_decode(&x509[i], data[i], datalen[i]),
+		CKINT_LOG(lc_x509_cert_decode(&ws->x509[i], data[i],
+					      datalen[i]),
 			  "Parsing of certificate %u\n", i);
-		CKINT_LOG(lc_pkcs7_trust_store_add(&trust_store, &x509[i]),
+		CKINT_LOG(lc_pkcs7_trust_store_add(&ws->trust_store,
+						   &ws->x509[i]),
 			  "Loading certificate %u into trust store\n", i);
 	}
 
@@ -65,21 +71,21 @@ static int pkcs7_trust_store(struct pkcs7_trust_options *opts)
 		CKINT_LOG(get_data(opts->verified_file, &verified_data,
 				   &verified_datalen),
 			  "Reading verification data\n");
-		CKINT_LOG(lc_pkcs7_decode(&pkcs7, pkcs7_data,
-						 pkcs7_datalen),
+		CKINT_LOG(lc_pkcs7_decode(&ws->pkcs7, pkcs7_data,
+					  pkcs7_datalen),
 			  "Parsing of PKCS#7 message\n");
 		/* Supply detached data */
-		CKINT(lc_pkcs7_supply_detached_data(&pkcs7, verified_data,
+		CKINT(lc_pkcs7_supply_detached_data(&ws->pkcs7, verified_data,
 						    verified_datalen));
 
-		CKINT_LOG(lc_pkcs7_verify(&pkcs7, &trust_store, NULL),
+		CKINT_LOG(lc_pkcs7_verify(&ws->pkcs7, &ws->trust_store, NULL),
 			  "PKCS#7 verification\n");
 	}
 
 out:
 	for (i = 0; i < opts->num_files; i++) {
 		release_data(data[i], datalen[i]);
-		lc_x509_cert_clear(&x509[i]);
+		lc_x509_cert_clear(&ws->x509[i]);
 	}
 	release_data(pkcs7_data, pkcs7_datalen);
 	release_data(verified_data, verified_datalen);
@@ -93,8 +99,9 @@ out:
 	if (ret == -ENOKEY)
 		ret = -249;
 
-	lc_pkcs7_message_clear(&pkcs7);
-	lc_pkcs7_trust_store_clear(&trust_store);
+	lc_pkcs7_message_clear(&ws->pkcs7);
+	lc_pkcs7_trust_store_clear(&ws->trust_store);
+	LC_RELEASE_MEM(ws);
 	return ret;
 }
 

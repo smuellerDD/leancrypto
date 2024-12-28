@@ -26,6 +26,7 @@
 #include "lc_hash.h"
 #include "lc_sphincs.h"
 #include "ret_checkers.h"
+#include "small_stack_support.h"
 #include "x509_algorithm_mapper.h"
 #include "x509_mldsa_privkey.asn1.h"
 
@@ -61,17 +62,20 @@ int public_key_verify_signature_dilithium(
 	const struct lc_public_key *pkey,
 	const struct lc_public_key_signature *sig)
 {
-	struct lc_dilithium_pk dilithium_pk;
-	struct lc_dilithium_sig dilithium_sig;
+	struct workspace {
+		struct lc_dilithium_pk dilithium_pk;
+		struct lc_dilithium_sig dilithium_sig;
+	};
 	int ret;
 	LC_DILITHIUM_CTX_ON_STACK(ctx);
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	/* A signature verification does not work with a private key */
 	if (pkey->key_is_private)
 		return -EKEYREJECTED;
 
-	CKINT(lc_dilithium_pk_load(&dilithium_pk, pkey->key, pkey->keylen));
-	CKINT(lc_dilithium_sig_load(&dilithium_sig, sig->s, sig->s_size));
+	CKINT(lc_dilithium_pk_load(&ws->dilithium_pk, pkey->key, pkey->keylen));
+	CKINT(lc_dilithium_sig_load(&ws->dilithium_sig, sig->s, sig->s_size));
 
 	/*
 	 * Select the data to be signed
@@ -82,23 +86,23 @@ int public_key_verify_signature_dilithium(
 		/*
 		 * Verify the signature
 		 */
-		CKINT(lc_dilithium_verify_ctx(&dilithium_sig, ctx, sig->digest,
-					      sig->digest_size, &dilithium_pk));
+		CKINT(lc_dilithium_verify_ctx(&ws->dilithium_sig, ctx,
+					      sig->digest, sig->digest_size,
+					      &ws->dilithium_pk));
 	} else {
 		CKNULL(sig->raw_data, -EOPNOTSUPP);
 
 		/*
 		 * Verify the signature
 		 */
-		CKINT(lc_dilithium_verify_ctx(&dilithium_sig, ctx,
+		CKINT(lc_dilithium_verify_ctx(&ws->dilithium_sig, ctx,
 					      sig->raw_data, sig->raw_data_len,
-					      &dilithium_pk));
+					      &ws->dilithium_pk));
 	}
 
 out:
 	lc_dilithium_ctx_zero(ctx);
-	lc_memset_secure(&dilithium_pk, 0, sizeof(dilithium_pk));
-	lc_memset_secure(&dilithium_sig, 0, sizeof(dilithium_sig));
+	LC_RELEASE_MEM(ws);
 	return ret;
 }
 
@@ -107,12 +111,15 @@ int public_key_generate_signature_dilithium(
 	const struct lc_public_key_signature *sig, uint8_t *sig_data,
 	size_t *available_len)
 {
-	struct lc_dilithium_sig dilithium_sig;
+	struct workspace {
+		struct lc_dilithium_sig dilithium_sig;
+	};
 	struct lc_dilithium_sk *dilithium_sk = keys->sk.dilithium_sk;
 	uint8_t *sigptr;
 	size_t siglen;
 	int ret;
 	LC_DILITHIUM_CTX_ON_STACK(ctx);
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	/*
 	 * Select the data to be signed
@@ -123,7 +130,7 @@ int public_key_generate_signature_dilithium(
 		/*
 		 * Sign the hash
 		 */
-		CKINT(lc_dilithium_sign_ctx(&dilithium_sig, ctx, sig->digest,
+		CKINT(lc_dilithium_sign_ctx(&ws->dilithium_sig, ctx, sig->digest,
 					    sig->digest_size, dilithium_sk,
 					    lc_seeded_rng));
 	} else {
@@ -132,15 +139,15 @@ int public_key_generate_signature_dilithium(
 		/*
 		 * Verify the signature
 		 */
-		CKINT(lc_dilithium_sign_ctx(&dilithium_sig, ctx, sig->raw_data,
-					    sig->raw_data_len, dilithium_sk,
-					    lc_seeded_rng));
+		CKINT(lc_dilithium_sign_ctx(&ws->dilithium_sig, ctx,
+					    sig->raw_data, sig->raw_data_len,
+					    dilithium_sk, lc_seeded_rng));
 	}
 
 	/*
 	 * Extract the signature
 	 */
-	CKINT(lc_dilithium_sig_ptr(&sigptr, &siglen, &dilithium_sig));
+	CKINT(lc_dilithium_sig_ptr(&sigptr, &siglen, &ws->dilithium_sig));
 
 	/*
 	 * Ensure that sufficient size is present
@@ -162,7 +169,7 @@ int public_key_generate_signature_dilithium(
 
 out:
 	lc_dilithium_ctx_zero(ctx);
-	lc_memset_secure(&dilithium_sig, 0, sizeof(dilithium_sig));
+	LC_RELEASE_MEM(ws);
 	return ret;
 }
 

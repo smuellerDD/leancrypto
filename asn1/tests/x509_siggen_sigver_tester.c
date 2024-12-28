@@ -30,6 +30,7 @@
 #include "lc_x509_generator.h"
 #include "lc_x509_parser.h"
 #include "ret_checkers.h"
+#include "small_stack_support.h"
 
 struct x509_generator_opts {
 	struct lc_x509_certificate cert;
@@ -52,8 +53,6 @@ static void x509_clean_opts(struct x509_generator_opts *opts)
 
 	release_data(opts->sk_data, opts->sk_len);
 	release_data(opts->x509_cert_data, opts->x509_cert_data_len);
-
-	lc_memset_secure(opts, 0, sizeof(*opts));
 }
 
 static int x509_enc_set_key(struct x509_generator_opts *opts)
@@ -63,7 +62,13 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 	size_t siglen;
 	uint8_t *sigptr = NULL;
 	int ret = 0;
+#ifdef LC_MEM_ON_HEAP
+	struct lc_x509_key_data *keys;
+
+	CKINT(lc_x509_keys_alloc(&keys));
+#else
 	LC_X509_KEYS_ON_STACK(keys);
+#endif
 
 	/* Caller set X.509 certificate, perhaps for signing. */
 
@@ -116,7 +121,11 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 	bin2print(sigptr, siglen, stdout, "Signature");
 
 out:
+#ifdef LC_MEM_ON_HEAP
+	lc_x509_keys_zero_free(keys);
+#else
 	lc_x509_keys_zero(keys);
+#endif
 	lc_free(sigptr);
 	return ret;
 }
@@ -162,7 +171,9 @@ static void x509_generator_usage(void)
 
 int main(int argc, char *argv[])
 {
-	struct x509_generator_opts parsed_opts = { 0 };
+	struct workspace {
+		struct x509_generator_opts parsed_opts;
+	};
 	int ret = 0, opt_index = 0;
 
 	static const char *opts_short = "h";
@@ -172,6 +183,8 @@ int main(int argc, char *argv[])
 					      { "x509-cert", 1, 0, 0 },
 
 					      { 0, 0, 0, 0 } };
+
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	opterr = 0;
 	while (1) {
@@ -189,11 +202,11 @@ int main(int argc, char *argv[])
 
 			/* sk-file */
 			case 1:
-				parsed_opts.sk_file = optarg;
+				ws->parsed_opts.sk_file = optarg;
 				break;
 			/* x509-cert */
 			case 2:
-				parsed_opts.x509_cert_file = optarg;
+				ws->parsed_opts.x509_cert_file = optarg;
 				break;
 			}
 			break;
@@ -209,9 +222,10 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	CKINT(x509_enc_crypto_algo(&parsed_opts));
+	CKINT(x509_enc_crypto_algo(&ws->parsed_opts));
 
 out:
-	x509_clean_opts(&parsed_opts);
+	x509_clean_opts(&ws->parsed_opts);
+	LC_RELEASE_MEM(ws);
 	return -ret;
 }

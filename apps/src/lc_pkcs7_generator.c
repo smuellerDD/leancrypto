@@ -29,8 +29,17 @@
 #include "lc_x509_generator_helper.h"
 #include "lc_x509_generator_file_helper.h"
 #include "ret_checkers.h"
+#include "small_stack_support.h"
 #include "x509_checker.h"
 #include "x509_print.h"
+
+#ifdef LC_MEM_ON_HEAP
+#define PKCS7_ALLOC struct lc_pkcs7_message pkcs7, *pkcs7_msg = &pkcs7;
+#define PKCS7_FREE
+#else
+#define PKCS7_ALLOC LC_PKCS7_MSG_ON_STACK(pkcs7_msg, 1, 4);
+#define PKCS7_FREE lc_memset_secure(pkcs7_msg, 0, LC_PKCS7_MSG_SIZE(1, 4));
+#endif
 
 struct pkcs7_x509 {
 	struct pkcs7_x509 *next;
@@ -164,33 +173,35 @@ out:
 static int pkcs7_enc_dump(struct pkcs7_generator_opts *opts,
 			  const uint8_t *pkcs7_data, size_t pkcs7_datalen)
 {
-	LC_PKCS7_MSG_ON_STACK(ppkcs7, 1, 4);
+	PKCS7_ALLOC
 	int ret;
 
 	if (!opts->print_pkcs7 && !opts->checker)
 		return 0;
 
-	CKINT(lc_pkcs7_decode(ppkcs7, pkcs7_data, pkcs7_datalen));
+	CKINT(lc_pkcs7_decode(pkcs7_msg, pkcs7_data, pkcs7_datalen));
 
 	if (opts->data) {
-		CKINT(lc_pkcs7_set_data(ppkcs7, opts->data, opts->datalen, 0));
+		CKINT(lc_pkcs7_set_data(pkcs7_msg, opts->data, opts->datalen,
+					0));
 	}
 
 	CKINT_LOG(lc_pkcs7_verify(
-			  ppkcs7,
+			  pkcs7_msg,
 			  opts->use_trust_store ? &opts->trust_store : NULL,
 			  opts->verify_rules_set ? &opts->verify_rules : NULL),
 		  "Verification of PKCS#7 message failed\n");
 
 	if (opts->checker)
-		CKINT(apply_checks_pkcs7(ppkcs7, &opts->checker_opts));
+		CKINT(apply_checks_pkcs7(pkcs7_msg, &opts->checker_opts));
 
 	if (opts->print_pkcs7) {
-		CKINT(print_pkcs7_data(ppkcs7));
+		CKINT(print_pkcs7_data(pkcs7_msg));
 	}
 
 out:
-	lc_pkcs7_message_clear(ppkcs7);
+	lc_pkcs7_message_clear(pkcs7_msg);
+	PKCS7_FREE
 	return ret;
 }
 
@@ -198,7 +209,7 @@ static int pkcs7_dump_file(struct pkcs7_generator_opts *opts)
 {
 	uint8_t *pkcs7_data = NULL;
 	size_t pkcs7_datalen = 0;
-	LC_PKCS7_MSG_ON_STACK(ppkcs7, 1, 4);
+	PKCS7_ALLOC
 	int ret;
 
 	if (!opts->pkcs7_msg && !opts->checker)
@@ -207,13 +218,14 @@ static int pkcs7_dump_file(struct pkcs7_generator_opts *opts)
 	CKINT_LOG(get_data(opts->pkcs7_msg, &pkcs7_data, &pkcs7_datalen),
 		  "Loading of file %s failed\n", opts->pkcs7_msg);
 
-	CKINT_LOG(lc_pkcs7_decode(ppkcs7, pkcs7_data, pkcs7_datalen),
+	CKINT_LOG(lc_pkcs7_decode(pkcs7_msg, pkcs7_data, pkcs7_datalen),
 		  "Parsing of input file %s failed\n", opts->pkcs7_msg);
 
 	if (opts->data) {
-		CKINT(lc_pkcs7_set_data(ppkcs7, opts->data, opts->datalen, 0));
+		CKINT(lc_pkcs7_set_data(pkcs7_msg, opts->data, opts->datalen,
+					0));
 		CKINT_LOG(lc_pkcs7_verify(
-				  ppkcs7,
+				  pkcs7_msg,
 				  opts->use_trust_store ? &opts->trust_store :
 							  NULL,
 				  opts->verify_rules_set ? &opts->verify_rules :
@@ -222,38 +234,43 @@ static int pkcs7_dump_file(struct pkcs7_generator_opts *opts)
 	}
 
 	if (opts->checker)
-		CKINT(apply_checks_pkcs7(ppkcs7, &opts->checker_opts));
+		CKINT(apply_checks_pkcs7(pkcs7_msg, &opts->checker_opts));
 
 	if (opts->print_pkcs7)
-		CKINT(print_pkcs7_data(ppkcs7));
+		CKINT(print_pkcs7_data(pkcs7_msg));
 
 out:
-	lc_pkcs7_message_clear(ppkcs7);
+	lc_pkcs7_message_clear(pkcs7_msg);
 	release_data(pkcs7_data, pkcs7_datalen);
+	PKCS7_FREE
 	return ret;
 }
 
 static int pkcs7_gen_message(struct pkcs7_generator_opts *opts)
 {
+	struct workspace {
+		uint8_t data[ASN1_MAX_DATASIZE];
+	};
 	struct lc_pkcs7_message *pkcs7 = opts->pkcs7;
-	uint8_t data[ASN1_MAX_DATASIZE] = { 0 };
-	size_t avail_datalen = sizeof(data), datalen;
+	size_t avail_datalen = ASN1_MAX_DATASIZE, datalen;
 	int ret;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	CKINT_LOG(lc_pkcs7_encode(pkcs7, data, &avail_datalen),
+	CKINT_LOG(lc_pkcs7_encode(pkcs7, ws->data, &avail_datalen),
 		  "Message generation failed\n");
-	datalen = sizeof(data) - avail_datalen;
+	datalen = ASN1_MAX_DATASIZE - avail_datalen;
 
 	if (!opts->outfile)
-		bin2print(data, datalen, stdout, "PKCS7 Message");
+		bin2print(ws->data, datalen, stdout, "PKCS7 Message");
 
-	CKINT_LOG(pkcs7_gen_file(opts, data, datalen),
+	CKINT_LOG(pkcs7_gen_file(opts, ws->data, datalen),
 		  "Writing of X.509 certificate failed\n");
 
-	CKINT_LOG(pkcs7_enc_dump(opts, data, datalen),
+	CKINT_LOG(pkcs7_enc_dump(opts, ws->data, datalen),
 		  "Printing of message failed\n");
 
 out:
+	LC_RELEASE_MEM(ws);
 	return ret;
 }
 
@@ -549,7 +566,7 @@ int main(int argc, char *argv[])
 	struct pkcs7_generator_opts parsed_opts = { 0 };
 	struct x509_checker_options *checker_opts = &parsed_opts.checker_opts;
 	struct lc_verify_rules *verify_rules = &parsed_opts.verify_rules;
-	LC_PKCS7_MSG_ON_STACK(pkcs7_msg, 1, 4);
+	PKCS7_ALLOC
 	int ret = 0, opt_index = 0;
 
 	static const char *opts_short = "ho:i:";
@@ -768,5 +785,6 @@ int main(int argc, char *argv[])
 
 out:
 	pkcs7_clean_opts(&parsed_opts);
+	PKCS7_FREE
 	return -ret;
 }

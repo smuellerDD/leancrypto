@@ -31,8 +31,11 @@
 #include "lc_x509_generator_file_helper.h"
 #include "lc_x509_generator_helper.h"
 #include "lc_x509_parser.h"
+#include "small_stack_support.h"
 #include "x509_checker.h"
 #include "x509_print.h"
+
+#define DATASIZE 65536
 
 struct x509_generator_opts {
 	struct lc_x509_certificate cert;
@@ -129,31 +132,37 @@ out:
 static int x509_enc_dump(struct x509_generator_opts *opts,
 			 const uint8_t *x509_data, size_t x509_datalen)
 {
-	struct lc_x509_certificate pcert = { 0 };
+	struct workspace {
+		struct lc_x509_certificate pcert;
+	};
 	int ret;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	if (!opts->print_x509 && !opts->checker)
 		return 0;
 
-	CKINT(lc_x509_cert_decode(&pcert, x509_data, x509_datalen));
+	CKINT(lc_x509_cert_decode(&ws->pcert, x509_data, x509_datalen));
 
 	if (opts->checker)
-		CKINT(apply_checks_x509(&pcert, &opts->checker_opts));
+		CKINT(apply_checks_x509(&ws->pcert, &opts->checker_opts));
 
 	if (opts->print_x509)
-		CKINT(print_x509_cert(&pcert));
+		CKINT(print_x509_cert(&ws->pcert));
 
 out:
-	lc_memset_secure(&pcert, 0, sizeof(pcert));
+	LC_RELEASE_MEM(ws);
 	return ret;
 }
 
 static int x509_dump_file(struct x509_generator_opts *opts)
 {
-	struct lc_x509_certificate pcert = { 0 };
+	struct workspace {
+		struct lc_x509_certificate pcert;
+	};
 	uint8_t *x509_data = NULL;
 	size_t x509_datalen = 0;
 	int ret;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	if (!opts->print_x509_cert && !opts->checker)
 		return 0;
@@ -161,43 +170,47 @@ static int x509_dump_file(struct x509_generator_opts *opts)
 	CKINT_LOG(get_data(opts->print_x509_cert, &x509_data, &x509_datalen),
 		  "Loading of file %s failed\n", opts->print_x509_cert);
 
-	CKINT_LOG(lc_x509_cert_decode(&pcert, x509_data, x509_datalen),
+	CKINT_LOG(lc_x509_cert_decode(&ws->pcert, x509_data, x509_datalen),
 		  "Parsing of input file %s failed\n", opts->print_x509_cert);
 
 	if (opts->checker)
-		CKINT(apply_checks_x509(&pcert, &opts->checker_opts));
+		CKINT(apply_checks_x509(&ws->pcert, &opts->checker_opts));
 
 	if (opts->print_x509_cert)
-		CKINT(print_x509_cert(&pcert));
+		CKINT(print_x509_cert(&ws->pcert));
 
 out:
-	lc_memset_secure(&pcert, 0, sizeof(pcert));
+	LC_RELEASE_MEM(ws);
 	release_data(x509_data, x509_datalen);
 	return ret;
 }
 
 static int x509_gen_cert(struct x509_generator_opts *opts)
 {
+	struct workspace {
+		uint8_t data[DATASIZE];
+	};
 	struct lc_x509_certificate *gcert = &opts->cert;
-	uint8_t data[65536] = { 0 };
-	size_t avail_datalen = sizeof(data), datalen;
+	size_t avail_datalen = DATASIZE, datalen;
 	int ret;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	if (opts->cert_present)
 		return 0;
 
-	CKINT(lc_x509_cert_encode(gcert, data, &avail_datalen));
-	datalen = sizeof(data) - avail_datalen;
+	CKINT(lc_x509_cert_encode(gcert, ws->data, &avail_datalen));
+	datalen = DATASIZE - avail_datalen;
 
 	if (!opts->outfile)
-		bin2print(data, datalen, stdout, "X.509 Certificate");
+		bin2print(ws->data, datalen, stdout, "X.509 Certificate");
 
-	CKINT_LOG(x509_gen_file(opts, data, datalen),
+	CKINT_LOG(x509_gen_file(opts, ws->data, datalen),
 		  "Writing of X.509 certificate failed\n");
 
-	CKINT(x509_enc_dump(opts, data, datalen));
+	CKINT(x509_enc_dump(opts, ws->data, datalen));
 
 out:
+	LC_RELEASE_MEM(ws);
 	return ret;
 }
 
@@ -222,8 +235,6 @@ static void x509_clean_opts(struct x509_generator_opts *opts)
 	release_data(opts->signer_sk_data, opts->signer_sk_len);
 	release_data(opts->data, opts->data_len);
 	release_data(opts->x509_cert_data, opts->x509_cert_data_len);
-
-	lc_memset_secure(opts, 0, sizeof(*opts));
 }
 
 static int x509_enc_eku(struct x509_generator_opts *opts,
@@ -569,13 +580,16 @@ out:
 
 static int x509_enc_set_key(struct x509_generator_opts *opts)
 {
+	struct workspace {
+		uint8_t der_sk[DATASIZE];
+	};
 	struct lc_x509_certificate *gcert = &opts->cert;
 	struct lc_x509_key_input_data *key_input_data = &opts->key_input_data;
 	struct lc_x509_key_data *keys = &opts->key_data;
-	uint8_t der_sk[65536];
-	size_t der_sk_len = sizeof(der_sk);
+	size_t der_sk_len = DATASIZE;
 	unsigned int self_signed = !(opts->x509_signer_file);
 	int ret = 0;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	LC_X509_LINK_INPUT_DATA(keys, key_input_data);
 
@@ -584,10 +598,11 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 					  opts->create_keypair_algo));
 
 		if (!opts->noout) {
-			CKINT_LOG(lc_x509_sk_encode(keys, der_sk, &der_sk_len),
+			CKINT_LOG(lc_x509_sk_encode(keys, ws->der_sk,
+						    &der_sk_len),
 				  "Generation of private key file failed\n");
-			CKINT(write_data(opts->sk_file, der_sk,
-					 sizeof(der_sk) - der_sk_len));
+			CKINT(write_data(opts->sk_file, ws->der_sk,
+					 DATASIZE - der_sk_len));
 		}
 
 	} else if (opts->x509_cert_file) {
@@ -637,7 +652,7 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 	}
 
 out:
-	lc_memset_secure(der_sk, 0, sizeof(der_sk) - der_sk_len);
+	LC_RELEASE_MEM(ws);
 	return ret;
 }
 
@@ -834,8 +849,10 @@ static void x509_generator_usage(void)
 
 int main(int argc, char *argv[])
 {
-	struct x509_generator_opts parsed_opts = { 0 };
-	struct x509_checker_options *checker_opts = &parsed_opts.checker_opts;
+	struct workspace {
+		struct x509_generator_opts parsed_opts;
+	};
+	struct x509_checker_options *checker_opts;
 	int ret = 0, opt_index = 0;
 
 	static const char *opts_short = "ho:";
@@ -904,6 +921,10 @@ int main(int argc, char *argv[])
 
 					      { 0, 0, 0, 0 } };
 
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+
+	checker_opts = &ws->parsed_opts.checker_opts;
+
 	opterr = 0;
 	while (1) {
 		int c = getopt_long(argc, argv, opts_short, opts, &opt_index);
@@ -921,261 +942,273 @@ int main(int argc, char *argv[])
 			/* outfile */
 			case 1:
 				CKINT(x509_check_file(optarg));
-				parsed_opts.outfile = optarg;
+				ws->parsed_opts.outfile = optarg;
 				break;
 			/* sk-file */
 			case 2:
-				parsed_opts.sk_file = optarg;
+				ws->parsed_opts.sk_file = optarg;
 				break;
 			/* pk-file */
 			case 3:
-				parsed_opts.pk_file = optarg;
+				ws->parsed_opts.pk_file = optarg;
 				break;
 			/* key-type */
 			case 4:
 				CKINT(lc_x509_pkey_name_to_algorithm(
-					optarg, &parsed_opts.in_key_type));
+					optarg, &ws->parsed_opts.in_key_type));
 				break;
 			/* create-keypair */
 			case 5:
 				CKINT(lc_x509_pkey_name_to_algorithm(
 					optarg,
-					&parsed_opts.create_keypair_algo));
+					&ws->parsed_opts.create_keypair_algo));
 				break;
 			/* x509-signer */
 			case 6:
-				parsed_opts.x509_signer_file = optarg;
+				ws->parsed_opts.x509_signer_file = optarg;
 				break;
 			/* signer-sk-file */
 			case 7:
-				parsed_opts.signer_sk_file = optarg;
+				ws->parsed_opts.signer_sk_file = optarg;
 				break;
 
 			/* eku */
 			case 8:
-				CKINT(x509_enc_eku(&parsed_opts, optarg));
+				CKINT(x509_enc_eku(&ws->parsed_opts, optarg));
 				break;
 			/* keyusage */
 			case 9:
-				CKINT(x509_enc_keyusage(&parsed_opts, optarg));
+				CKINT(x509_enc_keyusage(&ws->parsed_opts,
+							optarg));
 				break;
 			/* ca */
 			case 10:
-				CKINT_LOG(x509_enc_ca(&parsed_opts),
+				CKINT_LOG(x509_enc_ca(&ws->parsed_opts),
 					  "Set CA\n");
 				break;
 			/* san-dns */
 			case 11:
-				CKINT_LOG(x509_enc_san_dns(&parsed_opts,
+				CKINT_LOG(x509_enc_san_dns(&ws->parsed_opts,
 							   optarg),
 					  "Set SAN DNS\n");
 				break;
 			/* san-ip */
 			case 12:
-				CKINT_LOG(x509_enc_san_ip(&parsed_opts, optarg),
+				CKINT_LOG(x509_enc_san_ip(&ws->parsed_opts,
+							  optarg),
 					  "Set SAN IP\n");
 				break;
 
 			/* skid */
 			case 13:
-				CKINT_LOG(x509_enc_skid(&parsed_opts, optarg),
+				CKINT_LOG(x509_enc_skid(&ws->parsed_opts,
+							optarg),
 					  "Set SKID\n");
 				break;
 			/* akid */
 			case 14:
-				CKINT_LOG(x509_enc_akid(&parsed_opts, optarg),
+				CKINT_LOG(x509_enc_akid(&ws->parsed_opts,
+							optarg),
 					  "Set AKID\n");
 				break;
 			/* valid-from */
 			case 15:
-				CKINT_LOG(x509_enc_valid_from(&parsed_opts,
+				CKINT_LOG(x509_enc_valid_from(&ws->parsed_opts,
 							      optarg),
 					  "Set valid from\n");
 				break;
 			/* valid-to */
 			case 16:
-				CKINT_LOG(x509_enc_valid_to(&parsed_opts,
+				CKINT_LOG(x509_enc_valid_to(&ws->parsed_opts,
 							    optarg),
 					  "Set valid to\n");
 				break;
 			/* serial */
 			case 17:
-				CKINT_LOG(x509_enc_serial(&parsed_opts, optarg),
+				CKINT_LOG(x509_enc_serial(&ws->parsed_opts,
+							  optarg),
 					  "Set serial\n");
 				break;
 
 			/* subject-cn */
 			case 18:
-				CKINT(x509_enc_subject_cn(&parsed_opts,
+				CKINT(x509_enc_subject_cn(&ws->parsed_opts,
 							  optarg));
 				break;
 			/* subject-email */
 			case 19:
-				CKINT(x509_enc_subject_email(&parsed_opts,
+				CKINT(x509_enc_subject_email(&ws->parsed_opts,
 							     optarg));
 				break;
 			/* subject-ou */
 			case 20:
-				CKINT(x509_enc_subject_ou(&parsed_opts,
+				CKINT(x509_enc_subject_ou(&ws->parsed_opts,
 							  optarg));
 				break;
 			/* subject-o */
 			case 21:
-				CKINT(x509_enc_subject_o(&parsed_opts, optarg));
+				CKINT(x509_enc_subject_o(&ws->parsed_opts,
+							 optarg));
 				break;
 			/* subject-st */
 			case 22:
-				CKINT(x509_enc_subject_st(&parsed_opts,
+				CKINT(x509_enc_subject_st(&ws->parsed_opts,
 							  optarg));
 				break;
 			/* subject-c */
 			case 23:
-				CKINT(x509_enc_subject_c(&parsed_opts, optarg));
+				CKINT(x509_enc_subject_c(&ws->parsed_opts,
+							 optarg));
 				break;
 
 			/* issuer-cn */
 			case 24:
-				CKINT(x509_enc_issuer_cn(&parsed_opts, optarg));
+				CKINT(x509_enc_issuer_cn(&ws->parsed_opts,
+							 optarg));
 				break;
 			/* issuer-email */
 			case 25:
-				CKINT(x509_enc_issuer_email(&parsed_opts,
+				CKINT(x509_enc_issuer_email(&ws->parsed_opts,
 							    optarg));
 				break;
 			/* issuer-ou */
 			case 26:
-				CKINT(x509_enc_issuer_ou(&parsed_opts, optarg));
+				CKINT(x509_enc_issuer_ou(&ws->parsed_opts,
+							 optarg));
 				break;
 			/* issuer-o */
 			case 27:
-				CKINT(x509_enc_issuer_o(&parsed_opts, optarg));
+				CKINT(x509_enc_issuer_o(&ws->parsed_opts,
+							optarg));
 				break;
 			/* issuer-st */
 			case 28:
-				CKINT(x509_enc_issuer_st(&parsed_opts, optarg));
+				CKINT(x509_enc_issuer_st(&ws->parsed_opts,
+							 optarg));
 				break;
 			/* issuer-c */
 			case 29:
-				CKINT(x509_enc_issuer_c(&parsed_opts, optarg));
+				CKINT(x509_enc_issuer_c(&ws->parsed_opts,
+							optarg));
 				break;
 
 			/* print */
 			case 30:
-				parsed_opts.print_x509 = 1;
+				ws->parsed_opts.print_x509 = 1;
 				break;
 			/* noout */
 			case 31:
-				parsed_opts.noout = 1;
+				ws->parsed_opts.noout = 1;
 				break;
 			/* print-x509 */
 			case 32:
-				parsed_opts.print_x509_cert = optarg;
+				ws->parsed_opts.print_x509_cert = optarg;
 				break;
 
 			/* check-ca */
 			case 33:
 				checker_opts->check_ca = 1;
-				parsed_opts.checker = 1;
+				ws->parsed_opts.checker = 1;
 				break;
 			/* check-ca-conformant */
 			case 34:
 				checker_opts->check_ca_conformant = 1;
-				parsed_opts.checker = 1;
+				ws->parsed_opts.checker = 1;
 				break;
 			/* check-time */
 			case 35:
 				checker_opts->check_time = 1;
-				parsed_opts.checker = 1;
+				ws->parsed_opts.checker = 1;
 				break;
 			/* check-issuer-cn */
 			case 36:
 				checker_opts->issuer_cn = optarg;
-				parsed_opts.checker = 1;
+				ws->parsed_opts.checker = 1;
 				break;
 			/* check-subject-cn */
 			case 37:
 				checker_opts->subject_cn = optarg;
-				parsed_opts.checker = 1;
+				ws->parsed_opts.checker = 1;
 				break;
 			/* check-noselfsigned */
 			case 38:
 				checker_opts->check_no_selfsigned = 1;
-				parsed_opts.checker = 1;
+				ws->parsed_opts.checker = 1;
 				break;
 			/* check-valid-from */
 			case 39:
 				checker_opts->valid_from =
 					strtoull(optarg, NULL, 10);
-				parsed_opts.checker = 1;
+				ws->parsed_opts.checker = 1;
 				break;
 			/* check-valid-to */
 			case 40:
 				checker_opts->valid_to =
 					strtoull(optarg, NULL, 10);
-				parsed_opts.checker = 1;
+				ws->parsed_opts.checker = 1;
 				break;
 			/* check-eku */
 			case 41:
 				checker_opts->eku =
 					(unsigned int)strtoul(optarg, NULL, 10);
-				parsed_opts.checker = 1;
+				ws->parsed_opts.checker = 1;
 				break;
 			/* check-san-dns */
 			case 42:
 				checker_opts->san_dns = optarg;
-				parsed_opts.checker = 1;
+				ws->parsed_opts.checker = 1;
 				break;
 			/* check-san-ip */
 			case 43:
 				checker_opts->san_ip = optarg;
-				parsed_opts.checker = 1;
+				ws->parsed_opts.checker = 1;
 				break;
 			/* check-skid */
 			case 44:
 				checker_opts->skid = optarg;
-				parsed_opts.checker = 1;
+				ws->parsed_opts.checker = 1;
 				break;
 			/* check-akid */
 			case 45:
 				checker_opts->akid = optarg;
-				parsed_opts.checker = 1;
+				ws->parsed_opts.checker = 1;
 				break;
 			/* check-noca */
 			case 46:
 				checker_opts->check_no_ca = 1;
-				parsed_opts.checker = 1;
+				ws->parsed_opts.checker = 1;
 				break;
 			/* check-selfsigned */
 			case 47:
 				checker_opts->check_selfsigned = 1;
-				parsed_opts.checker = 1;
+				ws->parsed_opts.checker = 1;
 				break;
 			/* check-rootca */
 			case 48:
 				checker_opts->check_root_ca = 1;
-				parsed_opts.checker = 1;
+				ws->parsed_opts.checker = 1;
 				break;
 			/* check-keyusage */
 			case 49:
 				checker_opts->keyusage =
 					(unsigned int)strtoul(optarg, NULL, 10);
-				parsed_opts.checker = 1;
+				ws->parsed_opts.checker = 1;
 				break;
 
 			/* data-file */
 			case 50:
-				parsed_opts.data_file = optarg;
+				ws->parsed_opts.data_file = optarg;
 				break;
 			/* x509-cert */
 			case 51:
-				parsed_opts.x509_cert_file = optarg;
+				ws->parsed_opts.x509_cert_file = optarg;
 				break;
 			}
 			break;
 
 		case 'o':
 			CKINT(x509_check_file(optarg));
-			parsed_opts.outfile = optarg;
+			ws->parsed_opts.outfile = optarg;
 			break;
 		case 'h':
 			x509_generator_usage();
@@ -1188,18 +1221,19 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if (parsed_opts.print_x509_cert) {
-		CKINT(x509_dump_file(&parsed_opts));
+	if (ws->parsed_opts.print_x509_cert) {
+		CKINT(x509_dump_file(&ws->parsed_opts));
 		goto out;
 	}
 
-	CKINT(x509_enc_crypto_algo(&parsed_opts));
+	CKINT(x509_enc_crypto_algo(&ws->parsed_opts));
 
-	CKINT(x509_gen_cert(&parsed_opts));
+	CKINT(x509_gen_cert(&ws->parsed_opts));
 
-	CKINT(x509_sign_data(&parsed_opts));
+	CKINT(x509_sign_data(&ws->parsed_opts));
 
 out:
-	x509_clean_opts(&parsed_opts);
+	x509_clean_opts(&ws->parsed_opts);
+	LC_RELEASE_MEM(ws);
 	return -ret;
 }

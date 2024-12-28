@@ -34,6 +34,7 @@
 #include "lc_x509_parser.h"
 #include "math_helper.h"
 #include "ret_checkers.h"
+#include "small_stack_support.h"
 #include "x509.asn1.h"
 #include "x509_akid.asn1.h"
 #include "x509_basic_constraints.asn1.h"
@@ -60,13 +61,17 @@ struct x509_checker_options {
 
 static int x509_gen_cert(struct x509_checker_options *opts)
 {
-	struct lc_x509_certificate pcert = { 0 };
+#define DATASIZE 65536
+	struct workspace {
+		struct lc_x509_certificate pcert;
+		struct x509_parse_context pctx;
+		struct x509_generate_context gctx;
+		uint8_t data[DATASIZE];
+	};
 	struct lc_x509_certificate *gcert = &opts->cert;
-	struct x509_parse_context pctx = { 0 };
-	struct x509_generate_context gctx = { 0 };
-	uint8_t data[65536] = { 0 };
-	size_t avail_datalen = sizeof(data), datalen;
+	size_t avail_datalen = DATASIZE, datalen;
 	int ret;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	printf("In-Key Usage: %u\n", gcert->pub.key_usage);
 	printf("In-EKU: %u\n", gcert->pub.key_eku);
@@ -82,32 +87,34 @@ static int x509_gen_cert(struct x509_checker_options *opts)
 	}
 
 	/* Encode the input data */
-	gctx.cert = &opts->cert;
-	CKINT(asn1_ber_encoder(&x509_encoder, &gctx, data, &avail_datalen));
-	datalen = sizeof(data) - avail_datalen;
+	ws->gctx.cert = &opts->cert;
+	CKINT(asn1_ber_encoder(&x509_encoder, &ws->gctx, ws->data,
+			       &avail_datalen));
+	datalen = DATASIZE - avail_datalen;
 
-	bin2print(data, datalen, stdout, "X.509 Encoding");
+	bin2print(ws->data, datalen, stdout, "X.509 Encoding");
 
 	/* Decode the just encoded data into new output structure */
-	pctx.cert = &pcert;
-	pctx.data = data;
-	CKINT(asn1_ber_decoder(&x509_decoder, &pctx, data, datalen));
+	ws->pctx.cert = &ws->pcert;
+	ws->pctx.data = ws->data;
+	CKINT(asn1_ber_decoder(&x509_decoder, &ws->pctx, ws->data, datalen));
 
 	if (gcert->raw_akid_size) {
-		CKINT(asn1_ber_decoder(&x509_akid_decoder, &pctx, pctx.raw_akid,
-				       pctx.raw_akid_size));
+		CKINT(asn1_ber_decoder(&x509_akid_decoder, &ws->pctx,
+				       ws->pctx.raw_akid,
+				       ws->pctx.raw_akid_size));
 	}
 
 	/*
 	 * Remove the present flag for the comparison as this is artificially
 	 * added by the parser.
 	 */
-	pcert.pub.key_usage &= (uint16_t)~(LC_KEY_USAGE_EXTENSION_PRESENT);
-	printf("Out-Key Usage: %u\n", pcert.pub.key_usage);
+	ws->pcert.pub.key_usage &= (uint16_t)~(LC_KEY_USAGE_EXTENSION_PRESENT);
+	printf("Out-Key Usage: %u\n", ws->pcert.pub.key_usage);
 
-	if (gcert->pub.key_usage != pcert.pub.key_usage) {
+	if (gcert->pub.key_usage != ws->pcert.pub.key_usage) {
 		printf("Key Usage mismatch: original %u, parsed %u\n",
-		       gcert->pub.key_usage, pcert.pub.key_usage);
+		       gcert->pub.key_usage, ws->pcert.pub.key_usage);
 		ret = -EINVAL;
 	}
 
@@ -115,46 +122,47 @@ static int x509_gen_cert(struct x509_checker_options *opts)
 	 * Remove the present flag for the comparison as this is artificially
 	 * added by the parser.
 	 */
-	pcert.pub.key_eku &= (uint16_t)~LC_KEY_EKU_EXTENSION_PRESENT;
-	printf("Out-EKU: %u\n", pcert.pub.key_eku);
+	ws->pcert.pub.key_eku &= (uint16_t)~LC_KEY_EKU_EXTENSION_PRESENT;
+	printf("Out-EKU: %u\n", ws->pcert.pub.key_eku);
 
-	if (gcert->pub.key_eku != pcert.pub.key_eku) {
+	if (gcert->pub.key_eku != ws->pcert.pub.key_eku) {
 		printf("EKU mismatch: original EKU %u, parsed EKU %u\n",
-		       gcert->pub.key_eku, pcert.pub.key_eku);
+		       gcert->pub.key_eku, ws->pcert.pub.key_eku);
 		ret = -EINVAL;
 	}
 
-	printf("Out-CA: %u\n", pcert.pub.ca_pathlen);
-	if (gcert->pub.ca_pathlen != pcert.pub.ca_pathlen) {
+	printf("Out-CA: %u\n", ws->pcert.pub.ca_pathlen);
+	if (gcert->pub.ca_pathlen != ws->pcert.pub.ca_pathlen) {
 		printf("CA mismatch: original CA %u, parsed CA %u\n",
-		       gcert->pub.ca_pathlen, pcert.pub.ca_pathlen);
+		       gcert->pub.ca_pathlen, ws->pcert.pub.ca_pathlen);
 		ret = -EINVAL;
 	}
 
-	if (pcert.san_dns_len != gcert->san_dns_len) {
+	if (ws->pcert.san_dns_len != gcert->san_dns_len) {
 		printf("SAN DNS name length mismatch (original %zu, received %zu)\n",
-		       gcert->san_dns_len, pcert.san_dns_len);
+		       gcert->san_dns_len, ws->pcert.san_dns_len);
 		ret = -EINVAL;
 	} else {
-		if (memcmp(pcert.san_dns, gcert->san_dns, gcert->san_dns_len)) {
+		if (memcmp(ws->pcert.san_dns, gcert->san_dns,
+			   gcert->san_dns_len)) {
 			printf("SAN DNS name mismatch (original %s, received %s)\n",
-			       gcert->san_dns, pcert.san_dns);
+			       gcert->san_dns, ws->pcert.san_dns);
 			ret = -EINVAL;
 		} else {
 			printf("SAN DNS name matches\n");
 		}
 	}
 
-	if (pcert.san_ip_len != gcert->san_ip_len) {
+	if (ws->pcert.san_ip_len != gcert->san_ip_len) {
 		printf("SAN IP name length mismatch (original %zu, received %zu)\n",
-		       gcert->san_ip_len, pcert.san_ip_len);
+		       gcert->san_ip_len, ws->pcert.san_ip_len);
 		ret = -EINVAL;
 	} else {
-		if (memcmp(pcert.san_ip, gcert->san_ip, gcert->san_ip_len)) {
+		if (memcmp(ws->pcert.san_ip, gcert->san_ip, gcert->san_ip_len)) {
 			bin2print(gcert->san_ip, gcert->san_ip_len, stdout,
 				  "SAN IP mismatch original");
-			bin2print(pcert.san_ip, pcert.san_ip_len, stdout,
-				  "SAN IP mismatch received");
+			bin2print(ws->pcert.san_ip, ws->pcert.san_ip_len,
+				  stdout, "SAN IP mismatch received");
 			ret = -EINVAL;
 		} else {
 			printf("SAN DNS name matches\n");
@@ -162,67 +170,68 @@ static int x509_gen_cert(struct x509_checker_options *opts)
 	}
 
 	if (gcert->raw_skid_size == 0 &&
-	    pcert.raw_skid_size == LC_X509_SKID_DEFAULT_HASHSIZE) {
+	    ws->pcert.raw_skid_size == LC_X509_SKID_DEFAULT_HASHSIZE) {
 		printf("New SKID created\n");
-	} else if (pcert.raw_skid_size != gcert->raw_skid_size) {
+	} else if (ws->pcert.raw_skid_size != gcert->raw_skid_size) {
 		printf("SKID name length mismatch (original %zu, received %zu)\n",
-		       gcert->raw_skid_size, pcert.raw_skid_size);
+		       gcert->raw_skid_size, ws->pcert.raw_skid_size);
 		ret = -EINVAL;
 	} else {
-		if (memcmp(pcert.raw_skid, gcert->raw_skid,
+		if (memcmp(ws->pcert.raw_skid, gcert->raw_skid,
 			   gcert->raw_skid_size)) {
 			bin2print(gcert->raw_skid, gcert->raw_skid_size, stdout,
 				  "SKID mismatch original");
-			bin2print(pcert.raw_skid, pcert.raw_skid_size, stdout,
-				  "SKID mismatch received");
+			bin2print(ws->pcert.raw_skid, ws->pcert.raw_skid_size,
+				  stdout, "SKID mismatch received");
 			ret = -EINVAL;
 		} else {
 			printf("SKID name matches\n");
 		}
 	}
 
-	if (pcert.raw_akid_size != gcert->raw_akid_size) {
+	if (ws->pcert.raw_akid_size != gcert->raw_akid_size) {
 		printf("AKID name length mismatch (original %zu, received %zu)\n",
-		       gcert->raw_akid_size, pcert.raw_akid_size);
+		       gcert->raw_akid_size, ws->pcert.raw_akid_size);
 		ret = -EINVAL;
 	} else {
-		if (memcmp(pcert.raw_akid, gcert->raw_akid,
+		if (memcmp(ws->pcert.raw_akid, gcert->raw_akid,
 			   gcert->raw_akid_size)) {
 			bin2print(gcert->raw_akid, gcert->raw_akid_size, stdout,
 				  "AKID mismatch original");
-			bin2print(pcert.raw_akid, pcert.raw_akid_size, stdout,
-				  "AKID mismatch received");
+			bin2print(ws->pcert.raw_akid, ws->pcert.raw_akid_size,
+				  stdout, "AKID mismatch received");
 			ret = -EINVAL;
 		} else {
 			printf("AKID name matches\n");
 		}
 	}
 
-	if (pcert.valid_from != gcert->valid_from) {
+	if (ws->pcert.valid_from != gcert->valid_from) {
 		printf("Valid From mismatch (original %llu, received %llu)\n",
 		       (unsigned long long)gcert->valid_from,
-		       (unsigned long long)pcert.valid_from);
+		       (unsigned long long)ws->pcert.valid_from);
 		ret = -EINVAL;
 	} else {
 		printf("Valid From matches\n");
 	}
 
-	if (pcert.valid_to != gcert->valid_to) {
+	if (ws->pcert.valid_to != gcert->valid_to) {
 		printf("Valid To mismatch (original %llu, received %llu)\n",
 		       (unsigned long long)gcert->valid_to,
-		       (unsigned long long)pcert.valid_to);
+		       (unsigned long long)ws->pcert.valid_to);
 		ret = -EINVAL;
 	} else {
 		printf("Valid To matches\n");
 	}
 
-	if (gcert->issuer_segments.cn.size != pcert.issuer_segments.cn.size) {
+	if (gcert->issuer_segments.cn.size !=
+	    ws->pcert.issuer_segments.cn.size) {
 		printf("Issuer name length mismatch (original %u, received %u)\n",
 		       gcert->issuer_segments.cn.size,
-		       pcert.issuer_segments.cn.size);
+		       ws->pcert.issuer_segments.cn.size);
 		ret = -EINVAL;
 	} else {
-		if (memcmp(pcert.issuer_segments.cn.value,
+		if (memcmp(ws->pcert.issuer_segments.cn.value,
 			   gcert->issuer_segments.cn.value,
 			   gcert->issuer_segments.cn.size)) {
 			char buf[20];
@@ -232,8 +241,8 @@ static int x509_gen_cert(struct x509_checker_options *opts)
 					sizeof(buf) - 1));
 			printf("Issuer mismatch original %s\n", buf);
 
-			memcpy(buf, pcert.issuer_segments.cn.value,
-			       min_size(pcert.issuer_segments.cn.size,
+			memcpy(buf, ws->pcert.issuer_segments.cn.value,
+			       min_size(ws->pcert.issuer_segments.cn.size,
 					sizeof(buf) - 1));
 			printf("Issuer mismatch received %s\n", buf);
 			ret = -EINVAL;
@@ -242,13 +251,14 @@ static int x509_gen_cert(struct x509_checker_options *opts)
 		}
 	}
 
-	if (gcert->subject_segments.cn.size != pcert.subject_segments.cn.size) {
+	if (gcert->subject_segments.cn.size !=
+	    ws->pcert.subject_segments.cn.size) {
 		printf("Subject name length mismatch (original %u, received %u)\n",
 		       gcert->subject_segments.cn.size,
-		       pcert.subject_segments.cn.size);
+		       ws->pcert.subject_segments.cn.size);
 		ret = -EINVAL;
 	} else {
-		if (memcmp(pcert.subject_segments.cn.value,
+		if (memcmp(ws->pcert.subject_segments.cn.value,
 			   gcert->subject_segments.cn.value,
 			   gcert->subject_segments.cn.size)) {
 			char buf[20];
@@ -258,8 +268,8 @@ static int x509_gen_cert(struct x509_checker_options *opts)
 					sizeof(buf) - 1));
 			printf("Subject mismatch original %s\n", buf);
 
-			memcpy(buf, pcert.subject_segments.cn.value,
-			       min_size(pcert.subject_segments.cn.size,
+			memcpy(buf, ws->pcert.subject_segments.cn.value,
+			       min_size(ws->pcert.subject_segments.cn.size,
 					sizeof(buf) - 1));
 			printf("Subject mismatch received %s\n", buf);
 			ret = -EINVAL;
@@ -268,16 +278,17 @@ static int x509_gen_cert(struct x509_checker_options *opts)
 		}
 	}
 
-	if (pcert.raw_serial_size != gcert->raw_serial_size) {
+	if (ws->pcert.raw_serial_size != gcert->raw_serial_size) {
 		printf("Serial number length mismatch (original %zu, received %zu)\n",
-		       gcert->raw_serial_size, pcert.raw_serial_size);
+		       gcert->raw_serial_size, ws->pcert.raw_serial_size);
 		ret = -EINVAL;
 	} else {
-		if (memcmp(pcert.raw_serial, gcert->raw_serial,
+		if (memcmp(ws->pcert.raw_serial, gcert->raw_serial,
 			   gcert->raw_serial_size)) {
 			bin2print(gcert->raw_serial, gcert->raw_serial_size,
 				  stdout, "Serial mismatch original");
-			bin2print(pcert.raw_serial, pcert.raw_serial_size,
+			bin2print(ws->pcert.raw_serial,
+				  ws->pcert.raw_serial_size,
 				  stdout, "Serial mismatch received");
 			ret = -EINVAL;
 		} else {
@@ -286,6 +297,7 @@ static int x509_gen_cert(struct x509_checker_options *opts)
 	}
 
 out:
+	LC_RELEASE_MEM(ws);
 	return ret;
 }
 
@@ -383,8 +395,6 @@ static void x509_clean_opts(struct x509_checker_options *opts)
 		free(opts->raw_akid);
 	if (opts->raw_serial)
 		free(opts->raw_serial);
-
-	memset(opts, 0, sizeof(*opts));
 }
 
 static int x509_enc_san_ip(struct x509_checker_options *opts, char *opt_optarg)
@@ -539,7 +549,9 @@ static void asn1_usage(void)
 
 int main(int argc, char *argv[])
 {
-	struct x509_checker_options parsed_opts = { 0 };
+	struct workspace {
+		struct x509_checker_options parsed_opts;
+	};
 	int ret = 0, opt_index = 0;
 
 	static const char *opts_short = "h";
@@ -560,6 +572,8 @@ int main(int argc, char *argv[])
 
 					      { 0, 0, 0, 0 } };
 
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+
 	opterr = 0;
 	while (1) {
 		int c = getopt_long(argc, argv, opts_short, opts, &opt_index);
@@ -576,53 +590,61 @@ int main(int argc, char *argv[])
 
 			/* eku */
 			case 1:
-				CKINT(x509_enc_eku(&parsed_opts, optarg));
+				CKINT(x509_enc_eku(&ws->parsed_opts, optarg));
 				break;
 			/* ca */
 			case 2:
-				CKINT(x509_enc_ca(&parsed_opts));
+				CKINT(x509_enc_ca(&ws->parsed_opts));
 				break;
 			/* san-dns */
 			case 3:
-				CKINT(x509_enc_san_dns(&parsed_opts, optarg));
+				CKINT(x509_enc_san_dns(&ws->parsed_opts,
+						       optarg));
 				break;
 			/* san-ip */
 			case 4:
-				CKINT(x509_enc_san_ip(&parsed_opts, optarg));
+				CKINT(x509_enc_san_ip(&ws->parsed_opts,
+						      optarg));
 				break;
 			/* keyusage */
 			case 5:
-				CKINT(x509_enc_keyusage(&parsed_opts, optarg));
+				CKINT(x509_enc_keyusage(&ws->parsed_opts,
+							optarg));
 				break;
 			/* skid */
 			case 6:
-				CKINT(x509_enc_skid(&parsed_opts, optarg));
+				CKINT(x509_enc_skid(&ws->parsed_opts,
+						    optarg));
 				break;
 			/* akid */
 			case 7:
-				CKINT(x509_enc_akid(&parsed_opts, optarg));
+				CKINT(x509_enc_akid(&ws->parsed_opts,
+						    optarg));
 				break;
 			/* valid-from */
 			case 8:
-				CKINT(x509_enc_valid_from(&parsed_opts,
+				CKINT(x509_enc_valid_from(&ws->parsed_opts,
 							  optarg));
 				break;
 			/* valid-to */
 			case 9:
-				CKINT(x509_enc_valid_to(&parsed_opts, optarg));
+				CKINT(x509_enc_valid_to(&ws->parsed_opts,
+							optarg));
 				break;
 			/* subject-cn */
 			case 10:
-				CKINT(x509_enc_subject_cn(&parsed_opts,
+				CKINT(x509_enc_subject_cn(&ws->parsed_opts,
 							  optarg));
 				break;
 			/* issuer-cn */
 			case 11:
-				CKINT(x509_enc_issuer_cn(&parsed_opts, optarg));
+				CKINT(x509_enc_issuer_cn(&ws->parsed_opts,
+							 optarg));
 				break;
 			/* serial */
 			case 12:
-				CKINT(x509_enc_serial(&parsed_opts, optarg));
+				CKINT(x509_enc_serial(&ws->parsed_opts,
+						      optarg));
 				break;
 			}
 			break;
@@ -638,13 +660,14 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	CKINT(x509_enc_crypto_algo(&parsed_opts));
+	CKINT(x509_enc_crypto_algo(&ws->parsed_opts));
 
-	CKINT(x509_gen_cert(&parsed_opts));
-	//CKINT(x509_gen_cert_extensions(&parsed_opts));
-	//CKINT(x509_gen_cert_eku(&parsed_opts));
+	CKINT(x509_gen_cert(&ws->parsed_opts));
+	//CKINT(x509_gen_cert_extensions(&ws->parsed_opts));
+	//CKINT(x509_gen_cert_eku(&ws->parsed_opts));
 
 out:
-	x509_clean_opts(&parsed_opts);
+	x509_clean_opts(&ws->parsed_opts);
+	LC_RELEASE_MEM(ws);
 	return -ret;
 }

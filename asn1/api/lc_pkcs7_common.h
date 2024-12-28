@@ -109,13 +109,21 @@ struct lc_pkcs7_message {
 	unsigned int embed_data : 1; /* Embed data into message */
 };
 
+/// \endcond
+
+/**
+ * @ingroup PKCS7
+ * @brief Size of pre-allocated PKCS7 message
+ *
+ * @param [in] num_sinfo Number of preallocated sinfo members (must be less than
+ *			 256)
+ * @param [in] num_x509 Number of preallocated X.509 certificate structures
+ *			(must be less than 256)
+ */
 #define LC_PKCS7_MSG_SIZE(num_sinfo, num_x509)                                 \
 	sizeof(struct lc_pkcs7_message) +                                      \
 	num_sinfo * sizeof(struct lc_pkcs7_signed_info) +                      \
 	num_x509 * sizeof(struct lc_x509_certificate)
-
-/// \endcond
-
 
 /**
  * @ingroup PKCS7
@@ -131,6 +139,8 @@ struct lc_pkcs7_message {
  * When not using this macro, which is perfectly legal, an simply allocating
  * \p struct lc_pkcs7_message on stack, then for all parsed signers and
  * X.509 certificates, a new memory entry is allocated.
+ *
+ * Zeroize the data structure with the size provided by \p LC_PKCS7_MSG_SIZE.
  *
  * @param [in] name Name of stack variable
  * @param [in] num_sinfo Number of preallocated sinfo members (must be less than

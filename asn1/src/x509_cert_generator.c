@@ -33,6 +33,7 @@
 #include "math_helper.h"
 #include "oid_registry.h"
 #include "ret_checkers.h"
+#include "small_stack_support.h"
 #include "visibility.h"
 #include "x509_algorithm_mapper.h"
 #include "x509_cert_generator.h"
@@ -1238,56 +1239,57 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_encode,
 		      const struct lc_x509_certificate *x509, uint8_t *data,
 		      size_t *avail_datalen)
 {
-	struct x509_generate_context gctx = { 0 };
-	struct x509_parse_context pctx = { 0 };
-	struct lc_x509_certificate parsed_x509 = { 0 };
+	struct workspace {
+		struct x509_generate_context gctx;
+		struct x509_parse_context pctx;
+		struct lc_x509_certificate parsed_x509;
+	};
 	size_t datalen = *avail_datalen;
 	uint8_t *sigdstptr;
 	int ret;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	CKNULL(x509, -EINVAL);
 	CKNULL(data, -EINVAL);
 
-	gctx.cert = x509;
+	ws->gctx.cert = x509;
 
 	/*
 	 * Attempt to encode the certificate
 	 */
-	CKINT(asn1_ber_encoder(&x509_encoder, &gctx, data, avail_datalen));
+	CKINT(asn1_ber_encoder(&x509_encoder, &ws->gctx, data, avail_datalen));
 
 	datalen -= *avail_datalen;
 
 	/*
 	 * Parse the encoded signature to detect the TBSCertificate
 	 */
-	pctx.cert = &parsed_x509;
-	pctx.data = data;
-	CKINT(asn1_ber_decoder(&x509_decoder, &pctx, data, datalen));
+	ws->pctx.cert = &ws->parsed_x509;
+	ws->pctx.data = data;
+	CKINT(asn1_ber_decoder(&x509_decoder, &ws->pctx, data, datalen));
 
 	/*
 	 * Grab the signature bits
 	 */
-	CKINT(x509_get_sig_params(&parsed_x509));
+	CKINT(x509_get_sig_params(&ws->parsed_x509));
 
 	/*
 	 * Copy the signature to its destination
 	 * We can unconstify the raw_sig pointer here, because we know the
 	 * data buffer is in the just parsed data.
 	 */
-	sigdstptr = (uint8_t *)parsed_x509.raw_sig;
+	sigdstptr = (uint8_t *)ws->parsed_x509.raw_sig;
 
 	/*
 	 * Generate the signature over the TBSCertificate and place it
 	 * into the signature location of the certificate.
 	 */
 	CKINT(public_key_generate_signature(&x509->sig_gen_data,
-					    &parsed_x509.sig, sigdstptr,
-					    &parsed_x509.raw_sig_size));
+					    &ws->parsed_x509.sig, sigdstptr,
+					    &ws->parsed_x509.raw_sig_size));
 
 out:
-	lc_memset_secure(&gctx, 0, sizeof(gctx));
-	lc_memset_secure(&pctx, 0, sizeof(pctx));
-	lc_memset_secure(&parsed_x509, 0, sizeof(parsed_x509));
+	LC_RELEASE_MEM(ws);
 	return ret;
 }
 

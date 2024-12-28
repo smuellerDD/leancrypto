@@ -30,6 +30,7 @@
 #include "lc_x509_generator.h"
 #include "lc_x509_parser.h"
 #include "ret_checkers.h"
+#include "small_stack_support.h"
 #include "x509_eku.asn1.h"
 #include "x509_cert_generator.h"
 #include "x509_cert_parser.h"
@@ -47,40 +48,47 @@ struct x509_checker_options {
 
 static int x509_gen_cert_eku(struct x509_checker_options *opts)
 {
-	struct lc_x509_certificate pcert = { 0 };
+#define DATASIZE 1024
+	struct workspace {
+		struct lc_x509_certificate pcert;
+		struct x509_parse_context pctx;
+		struct x509_generate_context gctx;
+		uint8_t data[DATASIZE];
+	};
 	struct lc_x509_certificate *gcert = &opts->cert;
-	struct x509_parse_context pctx = { 0 };
-	struct x509_generate_context gctx = { 0 };
-	uint8_t data[1024] = { 0 };
-	size_t avail_datalen = sizeof(data), datalen;
+	size_t avail_datalen = DATASIZE, datalen;
 	int ret;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	printf("In-EKU: %u\n", gcert->pub.key_eku);
-	gctx.cert = gcert;
-	CKINT(asn1_ber_encoder(&x509_eku_encoder, &gctx, data, &avail_datalen));
-	datalen = sizeof(data) - avail_datalen;
+	ws->gctx.cert = gcert;
+	CKINT(asn1_ber_encoder(&x509_eku_encoder, &ws->gctx, ws->data,
+			       &avail_datalen));
+	datalen = DATASIZE - avail_datalen;
 
 	/* 300a06082b06010505070301 */
-	bin2print(data, datalen, stdout, "EKU");
+	bin2print(ws->data, datalen, stdout, "EKU");
 
 	/* Decode the just encoded data into new output structure */
-	pctx.cert = &pcert;
-	CKINT(asn1_ber_decoder(&x509_eku_decoder, &pctx, data, datalen));
+	ws->pctx.cert = &ws->pcert;
+	CKINT(asn1_ber_decoder(&x509_eku_decoder, &ws->pctx, ws->data,
+			       datalen));
 
 	/*
 	 * Remove the present flag for the comparison as this is artificially
 	 * added by the parser.
 	 */
-	pcert.pub.key_eku &= (uint16_t)~LC_KEY_EKU_EXTENSION_PRESENT;
-	printf("Out-EKU: %u\n", pcert.pub.key_eku);
+	ws->pcert.pub.key_eku &= (uint16_t)~LC_KEY_EKU_EXTENSION_PRESENT;
+	printf("Out-EKU: %u\n", ws->pcert.pub.key_eku);
 
-	if (gcert->pub.key_eku != pcert.pub.key_eku) {
+	if (gcert->pub.key_eku != ws->pcert.pub.key_eku) {
 		printf("EKU mismatch: original EKU %u, parsed EKU %u\n",
-		       gcert->pub.key_eku, pcert.pub.key_eku);
+		       gcert->pub.key_eku, ws->pcert.pub.key_eku);
 		ret = -EINVAL;
 	}
 
 out:
+	LC_RELEASE_MEM(ws);
 	return ret;
 }
 
@@ -115,7 +123,9 @@ static void asn1_usage(void)
 
 int main(int argc, char *argv[])
 {
-	struct x509_checker_options parsed_opts = { 0 };
+	struct workspace {
+		struct x509_checker_options parsed_opts;
+	};
 	int ret = 0, opt_index = 0;
 
 	static const char *opts_short = "h";
@@ -124,6 +134,8 @@ int main(int argc, char *argv[])
 					      { "eku", 1, 0, 0 },
 
 					      { 0, 0, 0, 0 } };
+
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	opterr = 0;
 	while (1) {
@@ -141,7 +153,7 @@ int main(int argc, char *argv[])
 
 			/* eku */
 			case 1:
-				CKINT(x509_enc_eku(&parsed_opts, optarg));
+				CKINT(x509_enc_eku(&ws->parsed_opts, optarg));
 				break;
 			}
 			break;
@@ -157,8 +169,9 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	CKINT(x509_gen_cert_eku(&parsed_opts));
+	CKINT(x509_gen_cert_eku(&ws->parsed_opts));
 
 out:
+	LC_RELEASE_MEM(ws);
 	return -ret;
 }
