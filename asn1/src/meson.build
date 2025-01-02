@@ -100,6 +100,7 @@ endif
 
 if get_option('pkcs7_parser').enabled()
 	include_files += files([
+		'../api/lc_pkcs7_common.h',
 		'../api/lc_pkcs7_parser.h',
 	])
 
