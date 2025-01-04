@@ -31,16 +31,17 @@ LC_INTERFACE_FUNCTION(int, lc_totp, const uint8_t *hmac_key,
 		      size_t hmac_key_len, uint32_t step, uint32_t digits,
 		      uint32_t *totp_val)
 {
-	time_t now;
+	time64_t now;
 	uint64_t counter;
+	int ret;
 
 	if (!totp_val)
 		return -EINVAL;
 
 	/* Get time in seconds since Epoch */
-	now = time(NULL);
-	if (now == (time_t)-1)
-		return -errno;
+	ret = lc_get_time(&now);
+	if (ret)
+		return ret;
 
 	counter = (uint64_t)now;
 	counter /= step;

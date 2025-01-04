@@ -81,8 +81,12 @@ typedef s64 time64_t;
 
 static inline int lc_get_time(time64_t *time_since_epoch)
 {
-	(void)time_since_epoch;
-	return -EOPNOTSUPP;
+	if (!time_since_epoch)
+		return -EINVAL;
+
+	*time_since_epoch = (time64_t)(jiffies / HZ);
+
+	return 0;
 }
 
 #elif (defined(LC_EFI_ENVIRONMENT))
@@ -303,15 +307,18 @@ typedef int64_t time64_t;
 
 static inline int lc_get_time(time64_t *time_since_epoch)
 {
+	struct timespec tp = { 0 };
+
 	if (!time_since_epoch)
 		return -EINVAL;
 
-	*time_since_epoch = time(NULL);
+	if (clock_gettime(CLOCK_REALTIME, &tp) == 0) {
+		*time_since_epoch = tp.tv_sec;
+		return 0;
+	}
 
-	if (*time_since_epoch == (time_t)-1)
-		return -errno;
-
-	return 0;
+	*time_since_epoch = (time64_t)-1;
+	return -errno;
 }
 
 #else /* LINUX_KERNEL */
@@ -377,15 +384,18 @@ typedef int64_t time64_t;
 
 static inline int lc_get_time(time64_t *time_since_epoch)
 {
+	struct timespec tp = { 0 };
+
 	if (!time_since_epoch)
 		return -EINVAL;
 
-	*time_since_epoch = time(NULL);
+	if (clock_gettime(CLOCK_REALTIME, &tp) == 0) {
+		*time_since_epoch = tp.tv_sec;
+		return 0;
+	}
 
-	if (*time_since_epoch == (time_t)-1)
-		return -errno;
-
-	return 0;
+	*time_since_epoch = (time64_t)-1;
+	return -errno;
 }
 
 #endif /* LINUX_KERNEL */

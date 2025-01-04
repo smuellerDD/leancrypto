@@ -169,6 +169,9 @@ if (get_option('fips140').enabled())
 	add_global_arguments([ '-DLC_FIPS140' ], language: 'c')
 endif
 
+# 64 bit time to not suffer from Y2038 problem
+add_global_arguments([ '-D_TIME_BITS=64' ], language: 'c')
+
 # Header generation
 header_script = find_program('addon/generate_header.sh', required: true)
 
@@ -398,6 +401,12 @@ endif
 
 if get_option('pkcs7_parser').disabled() and get_option('pkcs7_generator').enabled()
 	error('PKCS#7 / CMS generator support requires PKCS#7 / CMS parser support')
+endif
+
+if (get_option('efi').enabled() and
+    (get_option('pkcs7_generator').enabled() or
+     get_option('x509_generator').enabled()))
+	error('EFI compilation support for PKCS#7 message generator / X.509 certificate generator not provided')
 endif
 
 ################################################################################

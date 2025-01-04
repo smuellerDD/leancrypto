@@ -583,14 +583,13 @@ static int pkcs7_set_time(uint8_t *data, size_t *avail_datalen, uint8_t *tag)
 	 */
 	char datestr[X509_GENTIM_SIZE + 2];
 	struct tm *time_detail;
-	time_t timeval = time(NULL);
+	time64_t timeval;
 	int ret;
 
-	if (timeval == (time_t)-1)
-		return -EFAULT;
+	CKINT(lc_get_time(&timeval));
 
 	/* UTC time */
-	time_detail = gmtime(&timeval);
+	time_detail = gmtime((const time_t *)&timeval);
 
 	/*
 	 * The value is the time since EPOCH for 2050-01-01
