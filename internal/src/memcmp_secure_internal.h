@@ -59,16 +59,16 @@ static inline int memcmp_secure_32_aligned(const void *s1, const void *s2,
 	 */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
-	uint32_t *s1_word = (uint32_t *)s1;
-	uint32_t *s2_word = (uint32_t *)s2;
+	const uint32_t *s1_word = (const uint32_t *)s1;
+	const uint32_t *s2_word = (const uint32_t *)s2;
 #pragma GCC diagnostic pop
 	uint32_t ret = 0;
 
 	for (; n >= sizeof(*s1_word); n -= sizeof(*s2_word))
 		ret |= (*s1_word++ ^ *s2_word++);
 
-	ret |= (uint32_t)memcmp_secure_8((uint8_t *)s1_word, (uint8_t *)s2_word,
-					 n);
+	ret |= (uint32_t)memcmp_secure_8((const uint8_t *)s1_word,
+					 (const uint8_t *)s2_word, n);
 
 	return !!ret;
 }
@@ -108,16 +108,16 @@ static inline int memcmp_secure_64_aligned(const void *s1, const void *s2,
 	 */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
-	uint64_t *s1_dword = (uint64_t *)s1;
-	uint64_t *s2_dword = (uint64_t *)s2;
+	const uint64_t *s1_dword = (const uint64_t *)s1;
+	const uint64_t *s2_dword = (const uint64_t *)s2;
 #pragma GCC diagnostic pop
 	uint64_t ret = 0;
 
 	for (; n >= sizeof(*s1_dword); n -= sizeof(*s1_dword))
 		ret |= (*s2_dword++ ^ *s1_dword++);
 
-	ret |= (uint64_t)memcmp_secure_32_aligned((uint8_t *)s1_dword,
-						  (uint8_t *)s2_dword, n);
+	ret |= (uint64_t)memcmp_secure_32_aligned((const uint8_t *)s1_dword,
+						  (const uint8_t *)s2_dword, n);
 
 	return !!ret;
 }
@@ -140,9 +140,9 @@ static inline int memcmp_secure_64(const void *s1, const void *s2, size_t n)
 	if (memcmp_secure_aligned(s1, sizeof(uint64_t) - 1) &&
 	    memcmp_secure_aligned(s2, sizeof(uint64_t) - 1))
 		return memcmp_secure_64_aligned(s1, s2, n);
-	else
 #endif
-		s1p = s1;
+
+	s1p = s1;
 	s2p = s2;
 	ret = 0;
 

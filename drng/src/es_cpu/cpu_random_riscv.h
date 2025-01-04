@@ -17,45 +17,46 @@
  * DAMAGE.
  */
 
-#ifndef EXT_HEADERS_X86_H
-#define EXT_HEADERS_X86_H
+#ifndef _CPU_RANDOM_RISCV
+#define _CPU_RANDOM_RISCV
 
-void lc_cpu_feature_get_cpuid(unsigned int cpuid[4]);
+#if defined(__riscv)
 
-/*
- * When this define is enabled, the locally-provided x86intrin code is
- * used instead of the code from the compiler.
- */
-//#undef LC_FORCE_LOCAL_X86_INTRINSICS
+#include <stdint.h>
 
-#if (defined(LINUX_KERNEL) || defined(LC_FORCE_LOCAL_X86_INTRINSICS))
+#include "bool.h"
 
-#ifdef LINUX_KERNEL
+#define ESDM_CPU_ES_IMPLEMENTED
 
-/* Disable the restrict keyword */
-#if __GNUC__ < 13
-#define restrict
+static inline uint32_t riscv_seed(void)
+{
+	uint32_t data;
+
+	__asm__ __volatile__("csrrw %0, 0x015, x0" : "=r"(data));
+
+	return data;
+}
+
+static inline bool cpu_es_get(unsigned long *buf)
+{
+	unsigned int i = 0;
+
+	for (i = 0; i < sizeof(unsigned long);
+	     i += sizeof(uint32_t), buf += sizeof(uint32_t))
+		*buf = riscv_seed();
+
+	return true;
+}
+
+static inline unsigned int cpu_es_multiplier(void)
+{
+	/*
+	 * riscv-crypto-spec-scalar-1.0.0-rc6.pdf section 4.2 defines
+	 * this requirement.
+	 */
+	return 2;
+}
+
 #endif
 
-#include <linux/types.h>
-#include <asm/fpu/api.h>
-
-#define LC_FPU_ENABLE kernel_fpu_begin()
-#define LC_FPU_DISABLE kernel_fpu_end()
-#else
-#define LC_FPU_ENABLE
-#define LC_FPU_DISABLE
-#endif /* LINUX_KERNEL */
-
-#include "ext_x86_immintrin.h"
-
-#else /* LINUX_KERNEL */
-
-#include <immintrin.h>
-
-#define LC_FPU_ENABLE
-#define LC_FPU_DISABLE
-
-#endif /* LINUX_KERNEL */
-
-#endif /* EXT_HEADERS_X86_H */
+#endif /* _CPU_RANDOM_RISCV */

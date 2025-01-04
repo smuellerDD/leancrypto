@@ -20,7 +20,6 @@
 #ifndef ASN1_DEBUG_H
 #define ASN1_DEBUG_H
 
-#include "binhexbin.h"
 #include "ext_headers.h"
 
 #ifdef __cplusplus
@@ -28,12 +27,14 @@ extern "C" {
 #endif
 
 #ifdef LC_PKCS7_DEBUG
-#define LC_ASN1_DEBUG
+#undef LC_ASN1_DEBUG
 #else
 #undef LC_ASN1_DEBUG
 #endif
 
 #ifdef LC_ASN1_DEBUG
+
+#include "binhexbin.h"
 
 #define bin2print_debug(a, b, c, d) bin2print((a), (b), (c), (d))
 #define printf_debug(...) printf(__VA_ARGS__)

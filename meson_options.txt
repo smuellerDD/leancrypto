@@ -271,6 +271,12 @@ from this service indicator and thus the addition of non-approved algorithms,
 both libraries are identical and implement all other FIPS 140 requirements.
 ''')
 
+option('efi', type: 'feature', value: 'disabled',
+       description: '''Enable EFI Support
+
+foo
+''')
+
 ################################################################################
 # DEBUGGING OPTIONS - NONE OF THEM ARE TO BE ENABLED IN PRODUCTION CODE!!
 ################################################################################

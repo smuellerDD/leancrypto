@@ -34,7 +34,6 @@
 #include "asym_key_dilithium_ed25519.h"
 #include "asym_key_sphincs.h"
 #include "asymmetric_type.h"
-#include "binhexbin.h"
 #include "conv_be_le.h"
 #include "math_helper.h"
 #include "oid_registry.h"
@@ -48,6 +47,43 @@
 #include "x509_keyusage.asn1.h"
 #include "x509_san.asn1.h"
 #include "x509_skid.asn1.h"
+
+/******************************************************************************
+ * Duplication of code from binhexbin.c for EFI compilation to avoid compiling
+ * binhexbin.c
+ ******************************************************************************/
+
+static const char hex_char_map_l[] = { '0', '1', '2', '3', '4', '5', '6', '7',
+				       '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+static const char hex_char_map_u[] = { '0', '1', '2', '3', '4', '5', '6', '7',
+				       '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+static char hex_char(unsigned int bin, int u)
+{
+	if (bin < sizeof(hex_char_map_l))
+		return (u) ? hex_char_map_u[bin] : hex_char_map_l[bin];
+	return 'X';
+}
+
+/*
+ * Convert binary string into hex representation
+ * @bin input buffer with binary data
+ * @binlen length of bin
+ * @hex output buffer to store hex data
+ * @hexlen length of already allocated hex buffer (should be at least
+ *	   twice binlen -- if not, only a fraction of binlen is converted)
+ * @u case of hex characters (0=>lower case, 1=>upper case)
+ */
+static void bin2hex(const uint8_t *bin, const size_t binlen, char *hex,
+		    const size_t hexlen, const int u)
+{
+	size_t i = 0;
+	size_t chars = (binlen > (hexlen / 2)) ? (hexlen / 2) : binlen;
+
+	for (i = 0; i < chars; i++) {
+		hex[(i * 2)] = hex_char((bin[i] >> 4), u);
+		hex[((i * 2) + 1)] = hex_char((bin[i] & 0x0f), u);
+	}
+}
 
 /******************************************************************************
  * ASN.1 parser support functions
@@ -362,7 +398,8 @@ static int x509_fabricate_name(struct x509_parse_context *ctx, size_t hdrlen,
 				     data + ctx->o_offset, ctx->o_size) == 0)
 			goto single_component;
 		if (ctx->cn_size >= 7 && ctx->o_size >= 7 &&
-		    memcmp(data + ctx->cn_offset, data + ctx->o_offset, 7) == 0)
+		    lc_memcmp_secure(data + ctx->cn_offset, 7,
+				     data + ctx->o_offset, 7) == 0)
 			goto single_component;
 
 		if (ctx->o_size + 2 + ctx->cn_size + 1 >

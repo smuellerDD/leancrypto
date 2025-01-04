@@ -37,7 +37,8 @@ extern "C" {
 #if defined(__GNUC__)
 #define __align(x) __attribute__((aligned(x)))
 #elif defined(_MSC_VER)
-#define __align(x) __declspec(align(x))
+//#define __align(x) __declspec(align(x))
+#define __align(x) __attribute__((aligned(x)))
 #elif defined(__ARMCC_VERSION)
 /* Nothing, the used macro is known to the compiler */
 #else

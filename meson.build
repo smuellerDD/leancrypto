@@ -48,20 +48,6 @@ add_global_arguments([ '-fstack-protector-strong',
 		        ],
 		       language : 'c')
 
-# Options for compiling for UEFI
-# see https://github.com/yoppeh/efi-clang/blob/master/Makefile
-#add_global_arguments([
-#	'--target=x86_64-pc-win32-coff',
-#	'-fno-stack-protector',
-#	'-fshort-wchar',
-#	'-mno-red-zone'],
-#	language: 'c')
-#add_project_link_arguments([
-#	'-subsystem:efi_application',
-#	'-nodefaultlib',
-#	'-dll'],
-#	language : 'c')
-
 # More hardening
 if cc.has_argument('-fzero-call-used-regs=used-gpr')
 	add_global_arguments([ '-fzero-call-used-regs=used-gpr' ],
@@ -96,13 +82,14 @@ if (cc.has_argument('-flto') and
 endif
 
 if (cc.has_argument('-ffat-lto-objects') and
-    host_machine.system() != 'windows')
+    host_machine.system() != 'windows' and
+    get_option('efi').disabled())
 	add_global_arguments([ '-ffat-lto-objects' ], language: 'c')
 endif
 
 if get_option('optimization') == '0'
 	add_global_arguments([ '-DDEBUG' ], language: 'c')
-else
+elif get_option('efi').disabled()
 	add_global_arguments([ '-U_FORTIFY_SOURCE' ], language: 'c')
 	add_global_arguments([ '-D_FORTIFY_SOURCE=3' ], language: 'c')
 endif
@@ -178,6 +165,10 @@ if get_option('pkcs7_debug').enabled()
 	add_global_arguments([ '-DLC_PKCS7_DEBUG' ], language: 'c')
 endif
 
+if (get_option('fips140').enabled())
+	add_global_arguments([ '-DLC_FIPS140' ], language: 'c')
+endif
+
 # Header generation
 header_script = find_program('addon/generate_header.sh', required: true)
 
@@ -187,6 +178,35 @@ meson.add_dist_script(dist_script, meson.project_version())
 
 # Find Doxygen program
 doxygen = find_program('doxygen', required : false)
+
+################################################################################
+# EFI-specific defines
+################################################################################
+
+if get_option('efi').enabled()
+	# https://wiki.osdev.org/GNU-EFI
+	add_global_arguments([
+		'-fno-stack-protector',
+		'-fno-stack-check',
+		'-ffreestanding',
+		'-fshort-wchar',
+		'-mno-red-zone',
+		'-DLC_EFI_ENVIRONMENT',
+		],
+		language: 'c')
+	add_project_link_arguments([
+		'-shared',
+		'-Wl,-Bsymbolic',
+		'-T/usr/lib64/elf_x86_64_efi.lds',
+		'/usr/lib64/crt0-efi-x86_64.o',
+		],
+		language : 'c')
+
+	if cc.has_argument('-maccumulate-outgoing-args')
+		add_global_arguments([ '-maccumulate-outgoing-args' ],
+				       language: 'c')
+	endif
+endif
 
 ################################################################################
 # Project-specific defines
@@ -238,7 +258,8 @@ subdirs = [
 	    'slh-dsa/api',
 	    'slh-dsa/src',
 	    'sym/src',
-	    'asn1/src'
+	    'asn1/src',
+	    'efi/src'
 	  ]
 
 testdirs = [ 'apps/tests',
@@ -254,7 +275,8 @@ testdirs = [ 'apps/tests',
 	     'ml-dsa/tests',
 	     'slh-dsa/tests',
 	     'sym/tests',
-	     'asn1/tests'
+	     'asn1/tests',
+	     'efi/tests'
 	   ]
 
 appdirs = [ 'apps/src' ]
@@ -530,15 +552,23 @@ if (get_option('fips140').enabled())
 		)
 	leancrypto_support_libs += leancrypto_static_lib_fips
 
-	# Create the official shared FIPS library
-	leancrypto_lib_fips = library('leancrypto-fips',
-		[ src_fips, internal_src ],
-		include_directories: [ include_dirs, include_internal_dirs ],
-		soversion: version_array[0],
-		dependencies: [ leancrypto_link ],
-		link_whole: [ leancrypto_support_libs_fips ],
-		install: true
-		)
+	if get_option('efi').disabled()
+		# Create the official shared FIPS library
+		leancrypto_lib_fips = library('leancrypto-fips',
+			[ src_fips, internal_src ],
+			include_directories: [ include_dirs,
+					       include_internal_dirs ],
+			soversion: version_array[0],
+			dependencies: [ leancrypto_link ],
+			link_whole: [ leancrypto_support_libs_fips ],
+			install: true
+			)
+		pkgconfig.generate(leancrypto_lib_fips,
+			   description: 'PQC-resistant cryptographic library with FIPS -140 compliance')
+	else
+		leancrypto_lib_fips = leancrypto_static_lib_fips
+	endif
+
 	leancrypto_fips = declare_dependency(link_with: leancrypto_lib_fips,
 					     include_directories: include_dirs)
 else
@@ -556,20 +586,26 @@ leancrypto_static_lib = static_library('leancrypto',
 	install: true
 	)
 
-# Create the official shared library
-leancrypto_lib = library('leancrypto',
-	[ src ],
-	include_directories: [ include_dirs, include_internal_dirs ],
-	soversion: version_array[0],
-	dependencies: [ leancrypto_link ],
-	link_whole: [ leancrypto_support_libs ],
-	install: true
-	)
+if get_option('efi').disabled()
+	# Create the official shared library
+	leancrypto_lib = library('leancrypto',
+		[ src ],
+		include_directories: [ include_dirs, include_internal_dirs ],
+		soversion: version_array[0],
+		dependencies: [ leancrypto_link ],
+		link_whole: [ leancrypto_support_libs ],
+		install: true
+		)
+
+	pkgconfig.generate(leancrypto_lib,
+			   description: 'PQC-resistant cryptographic library')
+
+else
+	leancrypto_lib = leancrypto_static_lib
+endif
+
 leancrypto = declare_dependency(link_with: leancrypto_lib,
 				include_directories: include_dirs)
-
-pkgconfig.generate(leancrypto_lib,
-		   description: 'PQC-resistant cryptographic library')
 
 install_headers(include_files, subdir: leancrypto_header_subdir)
 if (host_machine.system() != 'windows')
@@ -599,6 +635,10 @@ endif
 performance = 'performance'
 regression = 'regression'
 
-foreach n : testdirs
-	subdir(n)
-endforeach
+if get_option('efi').disabled()
+	foreach n : testdirs
+		subdir(n)
+	endforeach
+else
+	subdir('efi/tests')
+endif

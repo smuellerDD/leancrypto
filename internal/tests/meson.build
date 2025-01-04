@@ -6,16 +6,23 @@ conversion_be_le = executable('conversion_be_le',
 
 test('Conversion LE<->BE', conversion_be_le, suite: regression)
 
-if get_option('drbg_hash').enabled()
-	memcmp_secure_test = executable('memcmp_secure_test',
-					[ 'memcmp_secure_test.c', internal_src ],
-					include_directories: [ include_internal_dirs ],
-					dependencies: leancrypto
-					)
+memcmp_secure_test = executable('memcmp_secure_test',
+				[ 'memcmp_secure_test.c', internal_src ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto
+				)
 
-	test('memcmp secure', memcmp_secure_test, timeout: 600,
-	     suite: regression)
-endif
+test('memcmp secure', memcmp_secure_test, timeout: 600,
+	suite: regression)
+
+memcpy_secure_test = executable('memcpy_secure_test',
+				[ 'memcpy_secure_test.c', internal_src ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto
+				)
+
+test('memcpy secure', memcpy_secure_test, timeout: 600,
+	suite: regression)
 
 status_tester = executable('status_tester',
 			   [ 'status_tester.c', internal_src ],

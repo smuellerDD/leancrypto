@@ -392,3 +392,14 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+================================================================================
+
+The error code definitions used for the EFI compilation are licensed as:
+SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note.
+
+This affects the following files:
+
+internal/api/errno_private.h
+internal/api/errno_private_base.h
+

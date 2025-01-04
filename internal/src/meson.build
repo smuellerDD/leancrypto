@@ -1,14 +1,21 @@
 # for i in $(ls *.c | sort); do echo "'$i',"; done
 internal_src += files([
-	'binhexbin.c',
 	'compare.c',
 	'left_encode.c',
+	'memcpy_secure_c.c',
 	'null_buffer.c',
 	'signature_domain_separation.c',
-	'status.c'
 ])
 
-if (host_machine.system() == 'linux')
+if get_option('efi').disabled()
+	internal_src += files([
+		'binhexbin.c',
+		'status.c'
+	])
+endif
+
+if (host_machine.system() == 'linux' and
+    get_option('efi').disabled())
 	internal_src += files([ 'memory_support_linux.c' ])
 else
 	internal_src += files([ 'memory_support.c' ])
@@ -33,6 +40,7 @@ endif
 include_files += files([
 	'../api/ext_headers.h',
 	'../api/lc_memcmp_secure.h',
+	'../api/lc_memcpy_secure.h',
 	'../api/lc_memset_secure.h',
 	'../api/lc_status.h'
 	])

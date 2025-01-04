@@ -17,45 +17,48 @@
  * DAMAGE.
  */
 
-#ifndef EXT_HEADERS_X86_H
-#define EXT_HEADERS_X86_H
+#ifndef _CPU_RANDOM_POWERPC
+#define _CPU_RANDOM_POWERPC
 
-void lc_cpu_feature_get_cpuid(unsigned int cpuid[4]);
+#if defined(__powerpc__)
 
-/*
- * When this define is enabled, the locally-provided x86intrin code is
- * used instead of the code from the compiler.
- */
-//#undef LC_FORCE_LOCAL_X86_INTRINSICS
+#include "bool.h"
 
-#if (defined(LINUX_KERNEL) || defined(LC_FORCE_LOCAL_X86_INTRINSICS))
+#define ESDM_CPU_ES_IMPLEMENTED
 
-#ifdef LINUX_KERNEL
+#define PPC_DARN_ERR 0xFFFFFFFFFFFFFFFFul
+static inline bool cpu_es_get(unsigned long *buf)
+{
+	unsigned long val;
+	unsigned int i;
 
-/* Disable the restrict keyword */
-#if __GNUC__ < 13
-#define restrict
+	/*
+	 * Using DARN with
+	 * L=0 - 32-bit conditioned random number
+	 * L=1 - 64-bit conditioned random number
+	 * L=2 - 64-bit unconditioned random number
+	 */
+	for (i = 0; i < 10; i++) {
+		__asm__ __volatile__("darn %0, 1" : "=r"(val));
+
+		if (val != PPC_DARN_ERR) {
+			*buf = val;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+static inline unsigned int cpu_es_multiplier(void)
+{
+	/*
+	 * PowerISA defines DARN to deliver at least 0.5 bits of
+	 * entropy per data bit.
+	 */
+	return 2;
+}
+
 #endif
 
-#include <linux/types.h>
-#include <asm/fpu/api.h>
-
-#define LC_FPU_ENABLE kernel_fpu_begin()
-#define LC_FPU_DISABLE kernel_fpu_end()
-#else
-#define LC_FPU_ENABLE
-#define LC_FPU_DISABLE
-#endif /* LINUX_KERNEL */
-
-#include "ext_x86_immintrin.h"
-
-#else /* LINUX_KERNEL */
-
-#include <immintrin.h>
-
-#define LC_FPU_ENABLE
-#define LC_FPU_DISABLE
-
-#endif /* LINUX_KERNEL */
-
-#endif /* EXT_HEADERS_X86_H */
+#endif /* _CPU_RANDOM_POWERPC */

@@ -19,9 +19,10 @@
 
 #include "asn1_debug.h"
 #include "helper.h"
-#include "ret_checkers.h"
+#include "lc_memcmp_secure.h"
 #include "lc_sha256.h"
 #include "lc_x509_generator.h"
+#include "ret_checkers.h"
 #include "visibility.h"
 #include "x509_algorithm_mapper.h"
 
@@ -172,8 +173,9 @@ LC_INTERFACE_FUNCTION(int, lc_x509_pkey_name_to_algorithm, const char *name,
 	namelen = strlen(name);
 
 	for (i = 0; i < ARRAY_SIZE(x509_algo_table); i++) {
-		if (namelen == x509_algo_table[i].namelen &&
-		    !strncmp(name, x509_algo_table[i].name_algo, namelen)) {
+		if (!lc_memcmp_secure(name, namelen,
+				      x509_algo_table[i].name_algo,
+				      x509_algo_table[i].namelen)) {
 			*pkey_algo = x509_algo_table[i].pkey_algo;
 			goto out;
 		}
@@ -343,27 +345,27 @@ LC_INTERFACE_FUNCTION(int, lc_x509_name_to_hash, const char *hash_name,
 	namelen = strlen(hash_name);
 
 #ifdef LC_SHA2_256
-	if (namelen == 8 && !strncmp(hash_name, "SHA2-256", namelen))
+	if (!lc_memcmp_secure(hash_name, namelen, "SHA2-256", 8))
 		*hash_algo = lc_sha256;
 	else
 #endif
 #ifdef LC_SHA2_512
-		if (namelen == 8 && !strncmp(hash_name, "SHA2-384", namelen))
+		if (!lc_memcmp_secure(hash_name, namelen, "SHA2-384", 8))
 		*hash_algo = lc_sha384;
-	else if (namelen == 8 && !strncmp(hash_name, "SHA2-512", namelen))
+	else if (!lc_memcmp_secure(hash_name, namelen, "SHA2-512", 8))
 		*hash_algo = lc_sha512;
 	else
 #endif
 #ifdef LC_SHA3
-		if (namelen == 8 && !strncmp(hash_name, "SHA3-256", namelen))
+		if (!lc_memcmp_secure(hash_name, namelen, "SHA3-256", 8))
 		*hash_algo = lc_sha3_256;
-	else if (namelen == 8 && !strncmp(hash_name, "SHA3-384", namelen))
+	else if (!lc_memcmp_secure(hash_name, namelen, "SHA3-384", 8))
 		*hash_algo = lc_sha3_384;
-	else if (namelen == 8 && !strncmp(hash_name, "SHA3-512", namelen))
+	else if (!lc_memcmp_secure(hash_name, namelen, "SHA3-512", 8))
 		*hash_algo = lc_sha3_512;
-	else if (namelen == 8 && !strncmp(hash_name, "SHAKE128", namelen))
+	else if (!lc_memcmp_secure(hash_name, namelen, "SHAKE128", 8))
 		*hash_algo = lc_shake128;
-	else if (namelen == 8 && !strncmp(hash_name, "SHAKE256", namelen))
+	else if (!lc_memcmp_secure(hash_name, namelen, "SHAKE256", 8))
 		*hash_algo = lc_shake256;
 	else
 #endif
@@ -582,8 +584,8 @@ LC_INTERFACE_FUNCTION(int, lc_x509_name_to_keyusage, const char *name,
 	namelen = strlen(name);
 
 	for (i = 0; i < ARRAY_SIZE(keyusage_names); i++) {
-		if (namelen == keyusage_names[i].namelen &&
-		    !strncmp(name, keyusage_names[i].name, namelen)) {
+		if (!lc_memcmp_secure(name, namelen, keyusage_names[i].name,
+				      keyusage_names[i].namelen)) {
 			*keyusage |= keyusage_names[i].keyusage;
 			found = 1;
 		}
@@ -639,8 +641,8 @@ LC_INTERFACE_FUNCTION(int, lc_x509_name_to_eku, const char *name, uint16_t *eku)
 	namelen = strlen(name);
 
 	for (i = 0; i < ARRAY_SIZE(eku_names); i++) {
-		if (namelen == eku_names[i].namelen &&
-		    !strncmp(name, eku_names[i].name, namelen)) {
+		if (!lc_memcmp_secure(name, namelen, eku_names[i].name,
+				      eku_names[i].namelen)) {
 			*eku |= eku_names[i].keyusage;
 			found = 1;
 		}

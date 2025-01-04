@@ -17,45 +17,16 @@
  * DAMAGE.
  */
 
-#ifndef EXT_HEADERS_X86_H
-#define EXT_HEADERS_X86_H
+#include "memcpy_secure_internal.h"
+#include "visibility.h"
 
-void lc_cpu_feature_get_cpuid(unsigned int cpuid[4]);
+LC_INTERFACE_FUNCTION(void *, lc_memcpy_secure, void *d, size_t dn,
+		      const void *s, size_t sn)
+{
+	size_t n = dn;
 
-/*
- * When this define is enabled, the locally-provided x86intrin code is
- * used instead of the code from the compiler.
- */
-//#undef LC_FORCE_LOCAL_X86_INTRINSICS
+	if (dn != sn)
+		n = (dn > sn) ? sn : dn;
 
-#if (defined(LINUX_KERNEL) || defined(LC_FORCE_LOCAL_X86_INTRINSICS))
-
-#ifdef LINUX_KERNEL
-
-/* Disable the restrict keyword */
-#if __GNUC__ < 13
-#define restrict
-#endif
-
-#include <linux/types.h>
-#include <asm/fpu/api.h>
-
-#define LC_FPU_ENABLE kernel_fpu_begin()
-#define LC_FPU_DISABLE kernel_fpu_end()
-#else
-#define LC_FPU_ENABLE
-#define LC_FPU_DISABLE
-#endif /* LINUX_KERNEL */
-
-#include "ext_x86_immintrin.h"
-
-#else /* LINUX_KERNEL */
-
-#include <immintrin.h>
-
-#define LC_FPU_ENABLE
-#define LC_FPU_DISABLE
-
-#endif /* LINUX_KERNEL */
-
-#endif /* EXT_HEADERS_X86_H */
+	return memcpy_secure_64(d, s, n);
+}

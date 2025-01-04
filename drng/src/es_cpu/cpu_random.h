@@ -17,45 +17,30 @@
  * DAMAGE.
  */
 
-#ifndef EXT_HEADERS_X86_H
-#define EXT_HEADERS_X86_H
+#ifndef _CPU_RANDOM
+#define _CPU_RANDOM
 
-void lc_cpu_feature_get_cpuid(unsigned int cpuid[4]);
+#include "cpu_random_arm.h"
+#include "cpu_random_powerpc.h"
+#include "cpu_random_riscv.h"
+#include "cpu_random_s390.h"
+#include "cpu_random_x86.h"
 
-/*
- * When this define is enabled, the locally-provided x86intrin code is
- * used instead of the code from the compiler.
- */
-//#undef LC_FORCE_LOCAL_X86_INTRINSICS
+#ifndef ESDM_CPU_ES_IMPLEMENTED
 
-#if (defined(LINUX_KERNEL) || defined(LC_FORCE_LOCAL_X86_INTRINSICS))
+#include "bool.h"
 
-#ifdef LINUX_KERNEL
+static inline bool cpu_es_get(unsigned long *buf)
+{
+	(void)buf;
+	return false;
+}
 
-/* Disable the restrict keyword */
-#if __GNUC__ < 13
-#define restrict
+static inline unsigned int cpu_es_multiplier(void)
+{
+	return 1;
+}
+
 #endif
 
-#include <linux/types.h>
-#include <asm/fpu/api.h>
-
-#define LC_FPU_ENABLE kernel_fpu_begin()
-#define LC_FPU_DISABLE kernel_fpu_end()
-#else
-#define LC_FPU_ENABLE
-#define LC_FPU_DISABLE
-#endif /* LINUX_KERNEL */
-
-#include "ext_x86_immintrin.h"
-
-#else /* LINUX_KERNEL */
-
-#include <immintrin.h>
-
-#define LC_FPU_ENABLE
-#define LC_FPU_DISABLE
-
-#endif /* LINUX_KERNEL */
-
-#endif /* EXT_HEADERS_X86_H */
+#endif /* _CPU_RANDOM */

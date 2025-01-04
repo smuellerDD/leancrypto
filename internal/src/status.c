@@ -52,6 +52,12 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 #else
 		"";
 #endif
+	static const char riscv64[] =
+#if defined(LC_HOST_RISCV64) || defined(CONFIG_RISCV)
+		"RISCV64 ";
+#else
+		"";
+#endif
 
 	size_t len;
 
@@ -60,11 +66,18 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 
 	len = strlen(outbuf);
 	snprintf(outbuf + len, outlen - len,
+		 "FIPS 140 Mode: %s\n"
 		 "AES Acceleration support: %s%s%s\n"
-		 "SHA Acceleration support: %s%s%s%s%s\n"
-		 "Kyber Acceleration support: %s%s%s\n"
-		 "Dilithium Acceleration support: %s%s%s\n"
+		 "SHA Acceleration support: %s%s%s%s%s%s%s\n"
+		 "Kyber Acceleration support: %s%s%s%s\n"
+		 "Dilithium Acceleration support: %s%s%s%s\n"
 		 "Curve25519 Acceleration support: %s\n",
+
+#ifdef LC_FIPS140
+		 "yes",
+#else
+		 "no",
+#endif
 
 		 /* AES */
 		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AESNI) ?
@@ -91,18 +104,22 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 		 (lc_cpu_feature_available() & LC_CPU_FEATURE_ARM_SHA3) ?
 			 "ARMv8 CE " :
 			 "",
+		 riscv64,
+		 (lc_cpu_feature_available() & LC_CPU_FEATURE_ARM_SHA3) ?
+			 "RISCV64 ZBB " :
+			 "",
 
 		 /* Kyber */
 		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
 			 "AVX2" :
 			 "",
-		 armv7, armv8,
+		 armv7, armv8, riscv64,
 
 		 /* Dilithium */
 		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
 			 "AVX2" :
 			 "",
-		 armv7, armv8,
+		 armv7, armv8, riscv64,
 
 		 /* Curve25519 */
 		 avx);

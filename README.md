@@ -92,6 +92,45 @@ needs to be set.
 
 For more details, see `linux_kernel/README.md`.
 
+## Library Build for EFI Environment
+
+The `leancrypto` library is designed to run without any dependencies and thus
+can be used in environments like (U)EFI. To compile it for the EFI environment,
+configure the compilation with the following command:
+
+```
+meson setup build -Defi=enabled -Dpkcs7_generator=disabled -Dx509_generator=disabled
+meson compile -C build
+meson compile -C build pkcs7_trust_tester.efi
+```
+
+The PKCS#7 message generator and X.509 certificate generator are assumed to be
+not required and thus use POSIX service functions that are not available in EFI.
+
+The compilation uses the [GNU-EFI](https://wiki.osdev.org/GNU-EFI) environment
+and generates:
+
+1. The static library `leancrypto.a` that could be bound into an EFI
+   application compiled externally to the build environment.
+
+2. A test application in `build/efi/tests/pkcs7_trust_tester.efi` which is
+   statically linked with `leancrypto.a` and implements the test
+   "PKCS7 Trust Validation - PKCS#7 with trust chain" from
+   `asn1/tests/meson.build`. This application is a UEFI application:
+   
+   ```
+   $ file ./build/efi/tests/pkcs7_trust_tester.efi
+   ./build/efi/tests/pkcs7_trust_tester.efi: PE32+ executable for EFI (application), x86-64 (stripped to external PDB), 7 sections
+   ```
+   
+When programming with `leancrypto` in the EFI environment, the following
+considerations must be applied:
+
+* Only stack support is currently provided. All memory allocations using heap
+  will fail with `ENOMEM` as an appropriate implementation of `free` and
+  `posix_memalign` is not available in `internal/api/ext_headers.h`. If you want
+  heap support, feel free to provide patches for these functions.
+
 ## Library Build for Windows
 
 The `leancrypto` library can be built on Windows using

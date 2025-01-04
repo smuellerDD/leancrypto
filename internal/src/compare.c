@@ -20,6 +20,7 @@
 #include "compare.h"
 #include "ext_headers.h"
 #include "lc_status.h"
+#include "lc_memcmp_secure.h"
 #include "visibility.h"
 
 /*
@@ -49,7 +50,10 @@ LC_INTERFACE_FUNCTION(void, lc_rerun_selftests, void)
 LC_INTERFACE_FUNCTION(int, lc_compare, const uint8_t *act, const uint8_t *exp,
 		      const size_t len, const char *info)
 {
-	if (memcmp(act, exp, len)) {
+	/* In EFI-compilation, printf is not defined */
+	(void)info;
+
+	if (lc_memcmp_secure(act, len, exp, len)) {
 		unsigned int i;
 
 		printf("Expected %s ", info);
@@ -73,6 +77,12 @@ LC_INTERFACE_FUNCTION(int, lc_compare, const uint8_t *act, const uint8_t *exp,
 void lc_compare_selftest(const uint8_t *act, const uint8_t *exp,
 			 const size_t len, const char *info)
 {
+	/* In EFI-compilation, assert is not defined */
+	(void)act;
+	(void)exp;
+	(void)len;
+	(void)info;
+
 	assert(!lc_compare(act, exp, len, info));
 }
 

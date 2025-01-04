@@ -221,13 +221,11 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_x509_dec_san_ip,
-		      const struct lc_x509_certificate *cert, const uint8_t *ip,
-		      size_t ip_len, char *ip_name, size_t ip_name_len)
+LC_INTERFACE_FUNCTION(int, lc_x509_dec_san_ip, const uint8_t *ip, size_t ip_len,
+		      char *ip_name, size_t ip_name_len)
 {
 	int ret = 0;
 
-	CKNULL(cert, -EINVAL);
 	CKNULL(ip, -EINVAL);
 	CKNULL(ip_name, -EINVAL);
 

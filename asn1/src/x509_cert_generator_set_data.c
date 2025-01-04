@@ -23,9 +23,10 @@
 #include "asym_key_sphincs.h"
 #include "ext_headers.h"
 #include "helper.h"
+#include "lc_memcmp_secure.h"
+#include "lc_x509_generator.h"
 #include "ret_checkers.h"
 #include "visibility.h"
-#include "lc_x509_generator.h"
 #include "x509_cert_parser.h"
 
 /******************************************************************************
@@ -48,8 +49,8 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_eku,
 	namelen = strlen(name);
 
 	for (i = 0; i < x509_eku_to_name_size; i++) {
-		if (namelen == x509_eku_to_name[i].namelen &&
-		    !strncmp(name, x509_eku_to_name[i].name, namelen)) {
+		if (!lc_memcmp_secure(name, namelen, x509_eku_to_name[i].name,
+				      x509_eku_to_name[i].namelen)) {
 			pub->key_eku |= x509_eku_to_name[i].val;
 			goto out;
 		}
@@ -100,8 +101,9 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_keyusage,
 	namelen = strlen(name);
 
 	for (i = 0; i < x509_keyusage_to_name_size; i++) {
-		if (namelen == x509_keyusage_to_name[i].namelen &&
-		    !strncmp(name, x509_keyusage_to_name[i].name, namelen)) {
+		if (!lc_memcmp_secure(name, namelen,
+				      x509_keyusage_to_name[i].name,
+				      x509_keyusage_to_name[i].namelen)) {
 			pub->key_usage |= x509_keyusage_to_name[i].val;
 			goto out;
 		}

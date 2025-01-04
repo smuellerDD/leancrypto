@@ -85,6 +85,155 @@ static inline int lc_get_time(time64_t *time_since_epoch)
 	return -EOPNOTSUPP;
 }
 
+#elif (defined(LC_EFI_ENVIRONMENT))
+/******************************************************************************
+ * UEFI support
+ ******************************************************************************/
+
+/* POSIX Support */
+#include "efi/efi.h"
+
+#include "errno_private.h"
+#include "lc_memcpy_secure.h"
+
+#define LC_DEFINE_CONSTRUCTOR(_func)                                           \
+	void __attribute__((constructor)) _func(void)
+#define LC_DEFINE_DESTRUCTOR(_func) void __attribute__((destructor)) _func(void)
+
+#if defined __x86_64__ && !defined __ILP32__
+#define __WORDSIZE 64
+#else
+#define __WORDSIZE 32
+#endif
+
+typedef int pid_t;
+typedef long time_t;
+typedef long long time64_t;
+
+#if __WORDSIZE == 64
+
+typedef unsigned long uintptr_t;
+
+#ifndef _SIZE_T
+typedef unsigned long size_t;
+#endif
+
+#ifndef _SSIZE_T
+typedef long ssize_t;
+#endif
+
+#elif __WORDSIZE == 32
+
+typedef unsigned int uintptr_t;
+
+#error
+#ifndef _SIZE_T
+typedef unsigned int size_t;
+#endif
+
+#ifndef _SSIZE_T
+typedef int ssize_t;
+#endif
+
+#endif
+
+void *memset(void *d, int c, unsigned long long n);
+
+static inline int mlock(const void *ptr, size_t len)
+{
+	(void)ptr;
+	(void)len;
+	return 0;
+}
+
+static inline pid_t getpid(void)
+{
+	return 0;
+}
+
+static inline int snprintf(char *restrict str, size_t size,
+			   const char *restrict format, ...)
+{
+	(void)format;
+	if (size) {
+		memset(str, 0, size);
+		return (int)size - 1;
+	}
+	return 0;
+}
+
+static inline void *memcpy(void *d, const void *s, size_t n)
+{
+	return lc_memcpy_secure(d, n, s, n);
+}
+
+static inline size_t strlen(const char *str)
+{
+	size_t len = 0;
+
+	while (*str != '\0') {
+		str++;
+		len++;
+	}
+
+	return len;
+}
+
+static inline int lc_get_time(time64_t *time_since_epoch)
+{
+	if (!time_since_epoch)
+		return -EINVAL;
+
+	*time_since_epoch = -1;
+
+	return -EOPNOTSUPP;
+}
+
+static inline int posix_memalign(void **memptr, size_t alignment, size_t size)
+{
+	(void)memptr;
+	(void)alignment;
+	(void)size;
+	return ENOMEM;
+}
+
+static inline void free(void *ptr)
+{
+	(void)ptr;
+}
+
+#define SYSV_ABI __attribute__((sysv_abi))
+
+/*
+ * See https://gcc.gnu.org/onlinedocs/gcc/Statement-Attributes.html#Statement-Attributes
+ */
+#if __has_attribute(__fallthrough__)
+#define fallthrough __attribute__((__fallthrough__))
+#else
+#define fallthrough                                                            \
+	do {                                                                   \
+	} while (0)
+#endif
+
+//TODO: what is the assert macro in EFI?
+#ifndef assert
+#define assert(x)                                                              \
+	if (x)                                                                 \
+		;
+#endif
+
+#ifndef INT_MAX
+#define INT_MAX 2147483647
+#endif
+
+#define stdout NULL
+
+#define printf(...)
+
+#undef errno
+#define errno errno_private
+static const int errno_private = 0;
+
 #elif (defined(__CYGWIN__) || defined(_WIN32))
 /******************************************************************************
  * Windows

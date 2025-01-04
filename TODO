@@ -22,3 +22,5 @@
 - RISCV64 ASM / ZBB / ML-KEM: add to Linux kernel
 
 - X.509/PKCS7 parser: add to the Linux kernel
+
+- replace use of time() with clock_gettime(CLOCK_REALTIME)

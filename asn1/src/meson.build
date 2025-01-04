@@ -29,7 +29,6 @@ if get_option('x509_generator').enabled()
 		'asn1_encoder.c',
 		'asn1_encoder_helper.c',
 		'asn1_encoder_small.c',
-		'x509_algorithm_mapper.c',
 		'x509_cert_generator.c',
 		'x509_cert_generator_set_data.c'
 	])
@@ -48,6 +47,7 @@ if x509_common_support == 1
 		'asym_key.c',
 		'asymmetric_type.c',
 		'oid_registry.c',
+		'x509_algorithm_mapper.c',
 
 		'x509.asn1.c',
 		'x509_akid.asn1.c',
@@ -128,7 +128,12 @@ endif
 
 # Enable the ASN.1 compiler if one or more of the *.asn1 files were
 # changed and need to be converted into C / H files
-asn1_compiler_enabled = true
+if get_option('efi').disabled()
+	asn1_compiler_enabled = true
+else
+	asn1_compiler_enabled = false
+endif
+
 if (asn1_compiler_enabled)
 	asn1_compiler_files = files([
 		'asn1_compiler.c'

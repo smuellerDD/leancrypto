@@ -483,7 +483,6 @@ int lc_x509_cert_get_san_ip(const struct lc_x509_certificate *cert,
  * @ingroup X509
  * @brief Helper to convert the binary IP address value into human-readable form
  *
- * @param [in] cert X.509 certificate from which the data is to be obtained
  * @param [in] ip Binary representation of IP address
  * @param [in] ip_len Length of the IP address
  * @param [out] ip_name Caller-provided buffer to fill with human-readable form
@@ -491,8 +490,7 @@ int lc_x509_cert_get_san_ip(const struct lc_x509_certificate *cert,
  *
  * @return 0 on success or < 0 on error
  */
-int lc_x509_dec_san_ip(const struct lc_x509_certificate *cert,
-		       const uint8_t *ip, size_t ip_len, char *ip_name,
+int lc_x509_dec_san_ip(const uint8_t *ip, size_t ip_len, char *ip_name,
 		       size_t ip_name_len);
 
 /**

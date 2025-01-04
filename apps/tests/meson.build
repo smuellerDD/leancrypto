@@ -154,7 +154,9 @@ pkcs7_arg_trust_int2 = [
 	]
 
 # Apps use POSIX API that is not available on regular Windows
-if (host_machine.system() != 'windows') and get_option('apps').enabled()
+if (host_machine.system() != 'windows' and
+    get_option('efi').disabled() and
+    get_option('apps').enabled())
 	if get_option('sha2-256').enabled()
 		test('sha256sum', hasher_test_script,
 		     args: [ sha256sum.full_path(), '/usr/bin/sha256sum' ],
