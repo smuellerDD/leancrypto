@@ -274,7 +274,13 @@ both libraries are identical and implement all other FIPS 140 requirements.
 option('efi', type: 'feature', value: 'disabled',
        description: '''Enable EFI Support
 
-foo
+This option enables the EFI support in leancrypto. I.e. leancrypto is compiled
+completely without any POSIX environmental support, but linked with GNU-EFI. A
+test application is provided which statically binds to leancrypto.a that is an
+EFI application.
+
+This option currently only works without PKCS#7 generator and X.509 generator
+support.
 ''')
 
 ################################################################################
