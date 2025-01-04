@@ -14,8 +14,9 @@ if get_option('efi').disabled()
 	])
 endif
 
-if (host_machine.system() == 'linux' and
-    get_option('efi').disabled())
+if get_option('efi').enabled()
+	internal_src += files([ 'memory_support_efi.c' ])
+elif host_machine.system() == 'linux'
 	internal_src += files([ 'memory_support_linux.c' ])
 else
 	internal_src += files([ 'memory_support.c' ])
