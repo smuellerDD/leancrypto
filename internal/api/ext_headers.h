@@ -207,11 +207,10 @@ static inline int lc_get_time(time64_t *time_since_epoch)
 	} while (0)
 #endif
 
-//TODO: what is the assert macro in EFI?
 #ifndef assert
 #define assert(x)                                                              \
 	if (x) {                                                               \
-		;                                                              \
+		Exit(EFI_ABORTED, 0, NULL);                                    \
 	}
 #endif
 
