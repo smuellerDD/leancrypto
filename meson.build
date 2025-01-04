@@ -145,6 +145,9 @@ endif
 if (host_machine.system() == 'linux' and not get_option('efi').enabled())
 	add_project_link_arguments('-Wl,-z,relro', language : 'c')
 	add_project_link_arguments('-Wl,-z,now', language : 'c')
+endif
+
+if (host_machine.system() == 'linux')
 	add_project_link_arguments('-Wl,-z,noexecstack', language : 'c')
 	add_project_link_arguments('-Wl,-z,nodlopen', language : 'c')
 endif
