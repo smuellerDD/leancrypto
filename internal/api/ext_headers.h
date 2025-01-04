@@ -95,7 +95,8 @@ static inline int lc_get_time(time64_t *time_since_epoch)
  ******************************************************************************/
 
 /* POSIX Support */
-#include "efi/efi.h"
+#include <efi/efi.h>
+#include <efi/efilib.h>
 
 #include "errno_private.h"
 #include "lc_memcpy_secure.h"
@@ -220,7 +221,7 @@ static inline int lc_get_time(time64_t *time_since_epoch)
 
 #define stdout NULL
 
-#define printf(...)
+#define printf(...) Print(L ## __VA_ARGS__)
 
 #undef errno
 #define errno errno_private

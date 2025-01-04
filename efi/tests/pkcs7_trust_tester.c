@@ -3203,8 +3203,6 @@ out:
 
 #ifdef LC_EFI_ENVIRONMENT
 
-#include <efi/efilib.h>
-
 /* Declaration needed for GCC */
 EFI_STATUS
 EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable);
