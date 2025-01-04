@@ -142,7 +142,7 @@ else
 endif
 
 # Link for full RELRO
-if (host_machine.system() == 'linux')
+if (host_machine.system() == 'linux' and not get_option('efi').enabled())
 	add_project_link_arguments('-Wl,-z,relro', language : 'c')
 	add_project_link_arguments('-Wl,-z,now', language : 'c')
 	add_project_link_arguments('-Wl,-z,noexecstack', language : 'c')
