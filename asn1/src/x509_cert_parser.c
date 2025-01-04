@@ -53,6 +53,7 @@
  * binhexbin.c
  ******************************************************************************/
 
+#ifndef LC_ASN1_DEBUG
 static const char hex_char_map_l[] = { '0', '1', '2', '3', '4', '5', '6', '7',
 				       '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 static const char hex_char_map_u[] = { '0', '1', '2', '3', '4', '5', '6', '7',
@@ -84,6 +85,7 @@ static void bin2hex(const uint8_t *bin, const size_t binlen, char *hex,
 		hex[((i * 2) + 1)] = hex_char((bin[i] & 0x0f), u);
 	}
 }
+#endif
 
 /******************************************************************************
  * ASN.1 parser support functions
