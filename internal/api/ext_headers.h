@@ -193,19 +193,6 @@ static inline int lc_get_time(time64_t *time_since_epoch)
 	return -EOPNOTSUPP;
 }
 
-static inline int posix_memalign(void **memptr, size_t alignment, size_t size)
-{
-	(void)memptr;
-	(void)alignment;
-	(void)size;
-	return ENOMEM;
-}
-
-static inline void free(void *ptr)
-{
-	(void)ptr;
-}
-
 #define SYSV_ABI __attribute__((sysv_abi))
 
 /*
@@ -222,8 +209,9 @@ static inline void free(void *ptr)
 //TODO: what is the assert macro in EFI?
 #ifndef assert
 #define assert(x)                                                              \
-	if (x)                                                                 \
-		;
+	if (x) {                                                               \
+		;                                                              \
+	}
 #endif
 
 #ifndef INT_MAX

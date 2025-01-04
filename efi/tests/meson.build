@@ -3,7 +3,6 @@ pkcs7_trust_tester = executable('pkcs7_trust_tester',
 	  include_directories: [ include_internal_dirs ],
 				 dependencies: leancrypto,
 	  link_with: leancrypto_static_lib,
-	  pie: false,
 	)
 
 if get_option('efi').enabled()

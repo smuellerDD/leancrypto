@@ -49,6 +49,25 @@ int posix_memalign(void **ptr, size_t align, size_t size)
 
 	return 0;
 }
+
+#elif defined(LC_EFI_ENVIRONMENT)
+
+int posix_memalign(void **ptr, size_t align, size_t size);
+int posix_memalign(void **memptr, size_t alignment, size_t size)
+{
+	(void)memptr;
+	(void)alignment;
+	(void)size;
+	return ENOMEM;
+}
+
+void free(void *ptr);
+void free(void *ptr)
+{
+	(void)ptr;
+}
+
+
 #endif
 
 LC_INTERFACE_FUNCTION(int, lc_alloc_aligned, void **memptr, size_t alignment,
