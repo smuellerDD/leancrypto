@@ -134,6 +134,10 @@ considerations must be applied:
   will fail with `ENOMEM` as an appropriate implementation of `free` and
   `posix_memalign` is not available in `internal/api/ext_headers.h`. If you want
   heap support, feel free to provide patches for these functions.
+  
+* The API specified by the header files installed as part of the
+  `meson install -C build` command for the user space library is applicable to
+  the EFI environment as well.
 
 ## Library Build for Windows
 
