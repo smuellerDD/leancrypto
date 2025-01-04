@@ -3202,14 +3202,20 @@ out:
 }
 
 #ifdef LC_EFI_ENVIRONMENT
+
+#include <efi/efilib.h>
+
+/* Declaration needed for GCC */
+EFI_STATUS
+EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable);
+
 /* Follow https://wiki.osdev.org/GNU-EFI */
 EFI_STATUS
 EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 {
 	int ret;
 
-	(void)ImageHandle;
-	(void)SystemTable;
+	InitializeLib(ImageHandle, SystemTable);
 	CKINT(pkcs7_trust_store());
 
 out:
