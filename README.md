@@ -123,6 +123,10 @@ and generates:
    ./build/efi/tests/pkcs7_trust_tester.efi: PE32+ executable for EFI (application), x86-64 (stripped to external PDB), 7 sections
    ```
    
+Naturally, all other options offered by the meson build enviornment can be
+toggled for EFI support as well allowing `leancrypto` to be configured to
+implement the exact algorithms required.
+
 When programming with `leancrypto` in the EFI environment, the following
 considerations must be applied:
 
