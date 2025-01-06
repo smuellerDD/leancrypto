@@ -52,9 +52,9 @@
 extern void dilithium_ntt_8l_rvv(int32_t *r, const int32_t *qdata);
 extern void dilithium_intt_8l_rvv(int32_t *r, const int32_t *qdata);
 extern void dilithium_poly_basemul_8l_rvv(int32_t *r, const int32_t *a,
-                                const int32_t *b);
+					  const int32_t *b);
 extern void dilithium_poly_basemul_acc_8l_rvv(int32_t *r, const int32_t *a,
-                                    const int32_t *b);
+					      const int32_t *b);
 extern void dilithium_ntt2normal_order_8l_rvv(int32_t *r, const int32_t *qdata);
 extern void dilithium_normal2ntt_order_8l_rvv(int32_t *r, const int32_t *qdata);
 extern void dilithium_poly_reduce_rvv(int32_t *r);

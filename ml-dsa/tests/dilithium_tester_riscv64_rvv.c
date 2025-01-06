@@ -26,8 +26,9 @@
 
 #include "riscv64/dilithium_signature_riscv64_rvv.h"
 
-static int _dilithium_tester_riscv64_rvv(unsigned int rounds, unsigned int internal,
-			       unsigned int prehashed)
+static int _dilithium_tester_riscv64_rvv(unsigned int rounds,
+					 unsigned int internal,
+					 unsigned int prehashed)
 {
 	return _dilithium_tester(rounds, 1, internal, prehashed,
 				 lc_dilithium_keypair_riscv64_rvv,

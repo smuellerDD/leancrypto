@@ -28,43 +28,45 @@ extern "C" {
 #endif
 
 int lc_dilithium_keypair_riscv64_rvv(struct lc_dilithium_pk *pk,
-				 struct lc_dilithium_sk *sk,
-				 struct lc_rng_ctx *rng_ctx);
+				     struct lc_dilithium_sk *sk,
+				     struct lc_rng_ctx *rng_ctx);
 int lc_dilithium_keypair_from_seed_riscv64_rvv(struct lc_dilithium_pk *pk,
-					   struct lc_dilithium_sk *sk,
-					   const uint8_t *seed, size_t seedlen);
+					       struct lc_dilithium_sk *sk,
+					       const uint8_t *seed,
+					       size_t seedlen);
 
-int lc_dilithium_sign_riscv64_rvv(struct lc_dilithium_sig *sig, const uint8_t *m,
-			      size_t mlen, const struct lc_dilithium_sk *sk,
-			      struct lc_rng_ctx *rng_ctx);
-int lc_dilithium_sign_ctx_riscv64_rvv(struct lc_dilithium_sig *sig,
-				  struct lc_dilithium_ctx *ctx,
+int lc_dilithium_sign_riscv64_rvv(struct lc_dilithium_sig *sig,
 				  const uint8_t *m, size_t mlen,
 				  const struct lc_dilithium_sk *sk,
 				  struct lc_rng_ctx *rng_ctx);
+int lc_dilithium_sign_ctx_riscv64_rvv(struct lc_dilithium_sig *sig,
+				      struct lc_dilithium_ctx *ctx,
+				      const uint8_t *m, size_t mlen,
+				      const struct lc_dilithium_sk *sk,
+				      struct lc_rng_ctx *rng_ctx);
 int lc_dilithium_sign_init_riscv64_rvv(struct lc_dilithium_ctx *ctx,
-				   const struct lc_dilithium_sk *sk);
+				       const struct lc_dilithium_sk *sk);
 int lc_dilithium_sign_update_riscv64_rvv(struct lc_dilithium_ctx *ctx,
-				     const uint8_t *m, size_t mlen);
+					 const uint8_t *m, size_t mlen);
 int lc_dilithium_sign_final_riscv64_rvv(struct lc_dilithium_sig *sig,
-				    struct lc_dilithium_ctx *ctx,
-				    const struct lc_dilithium_sk *sk,
-				    struct lc_rng_ctx *rng_ctx);
+					struct lc_dilithium_ctx *ctx,
+					const struct lc_dilithium_sk *sk,
+					struct lc_rng_ctx *rng_ctx);
 
 int lc_dilithium_verify_riscv64_rvv(const struct lc_dilithium_sig *sig,
-				const uint8_t *m, size_t mlen,
-				const struct lc_dilithium_pk *pk);
-int lc_dilithium_verify_ctx_riscv64_rvv(const struct lc_dilithium_sig *sig,
-				    struct lc_dilithium_ctx *ctx,
 				    const uint8_t *m, size_t mlen,
 				    const struct lc_dilithium_pk *pk);
+int lc_dilithium_verify_ctx_riscv64_rvv(const struct lc_dilithium_sig *sig,
+					struct lc_dilithium_ctx *ctx,
+					const uint8_t *m, size_t mlen,
+					const struct lc_dilithium_pk *pk);
 int lc_dilithium_verify_init_riscv64_rvv(struct lc_dilithium_ctx *ctx,
-				     const struct lc_dilithium_pk *pk);
+					 const struct lc_dilithium_pk *pk);
 int lc_dilithium_verify_update_riscv64_rvv(struct lc_dilithium_ctx *ctx,
-				       const uint8_t *m, size_t mlen);
+					   const uint8_t *m, size_t mlen);
 int lc_dilithium_verify_final_riscv64_rvv(const struct lc_dilithium_sig *sig,
-				      struct lc_dilithium_ctx *ctx,
-				      const struct lc_dilithium_pk *pk);
+					  struct lc_dilithium_ctx *ctx,
+					  const struct lc_dilithium_pk *pk);
 
 #ifdef __cplusplus
 }

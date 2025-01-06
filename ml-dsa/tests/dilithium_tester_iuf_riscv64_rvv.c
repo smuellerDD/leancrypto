@@ -27,13 +27,14 @@
 #include "riscv64/dilithium_signature_riscv64_rvv.h"
 
 static int _dilithium_tester_iuf_riscv64_rvv(unsigned int rounds,
-				       unsigned int internal,
-				       unsigned int prehashed)
+					     unsigned int internal,
+					     unsigned int prehashed)
 {
 	return _dilithium_init_update_final_tester(
 		rounds, internal, prehashed, lc_dilithium_keypair_riscv64_rvv,
 
-		lc_dilithium_sign_init_riscv64_rvv, lc_dilithium_sign_update_riscv64_rvv,
+		lc_dilithium_sign_init_riscv64_rvv,
+		lc_dilithium_sign_update_riscv64_rvv,
 		lc_dilithium_sign_final_riscv64_rvv,
 
 		lc_dilithium_verify_init_riscv64_rvv,

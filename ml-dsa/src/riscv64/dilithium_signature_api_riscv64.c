@@ -28,7 +28,8 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_from_seed,
 		      const uint8_t *seed, size_t seedlen)
 {
 	if (lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV_ASM_RVV)
-		return lc_dilithium_keypair_from_seed_riscv64_rvv(pk, sk, seed, seedlen);
+		return lc_dilithium_keypair_from_seed_riscv64_rvv(pk, sk, seed,
+								  seedlen);
 	return lc_dilithium_keypair_from_seed_riscv64(pk, sk, seed, seedlen);
 }
 
@@ -56,7 +57,8 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_ctx, struct lc_dilithium_sig *sig,
 		      struct lc_rng_ctx *rng_ctx)
 {
 	if (lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV_ASM_RVV)
-		return lc_dilithium_sign_ctx_riscv64_rvv(sig, ctx, m, mlen, sk, rng_ctx);
+		return lc_dilithium_sign_ctx_riscv64_rvv(sig, ctx, m, mlen, sk,
+							 rng_ctx);
 	return lc_dilithium_sign_ctx_riscv64(sig, ctx, m, mlen, sk, rng_ctx);
 }
 
@@ -84,7 +86,8 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_final,
 		      struct lc_rng_ctx *rng_ctx)
 {
 	if (lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV_ASM_RVV)
-		return lc_dilithium_sign_final_riscv64_rvv(sig, ctx, sk, rng_ctx);
+		return lc_dilithium_sign_final_riscv64_rvv(sig, ctx, sk,
+							   rng_ctx);
 	return lc_dilithium_sign_final_riscv64(sig, ctx, sk, rng_ctx);
 }
 
@@ -103,7 +106,8 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_ctx,
 		      size_t mlen, const struct lc_dilithium_pk *pk)
 {
 	if (lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV_ASM_RVV)
-		return lc_dilithium_verify_ctx_riscv64_rvv(sig, ctx, m, mlen, pk);
+		return lc_dilithium_verify_ctx_riscv64_rvv(sig, ctx, m, mlen,
+							   pk);
 	return lc_dilithium_verify_ctx_riscv64(sig, ctx, m, mlen, pk);
 }
 

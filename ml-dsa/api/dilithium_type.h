@@ -290,18 +290,22 @@ extern "C" {
 
 /* RISCV 64 RVV Implementation */
 #define lc_dilithium_keypair_riscv64_rvv DILITHIUM_F(keypair_riscv64_rvv)
-#define lc_dilithium_keypair_from_seed_riscv64_rvv                                 \
+#define lc_dilithium_keypair_from_seed_riscv64_rvv                             \
 	DILITHIUM_F(keypair_from_seed_riscv64_rvv)
 #define lc_dilithium_sign_riscv64_rvv DILITHIUM_F(sign_riscv64_rvv)
 #define lc_dilithium_sign_ctx_riscv64_rvv DILITHIUM_F(sign_ctx_riscv64_rvv)
 #define lc_dilithium_sign_init_riscv64_rvv DILITHIUM_F(sign_init_riscv64_rvv)
-#define lc_dilithium_sign_update_riscv64_rvv DILITHIUM_F(sign_update_riscv64_rvv)
+#define lc_dilithium_sign_update_riscv64_rvv                                   \
+	DILITHIUM_F(sign_update_riscv64_rvv)
 #define lc_dilithium_sign_final_riscv64_rvv DILITHIUM_F(sign_final_riscv64_rvv)
 #define lc_dilithium_verify_riscv64_rvv DILITHIUM_F(verify_riscv64_rvv)
 #define lc_dilithium_verify_ctx_riscv64_rvv DILITHIUM_F(verify_ctx_riscv64_rvv)
-#define lc_dilithium_verify_init_riscv64_rvv DILITHIUM_F(verify_init_riscv64_rvv)
-#define lc_dilithium_verify_update_riscv64_rvv DILITHIUM_F(verify_update_riscv64_rvv)
-#define lc_dilithium_verify_final_riscv64_rvv DILITHIUM_F(verify_final_riscv64_rvv)
+#define lc_dilithium_verify_init_riscv64_rvv                                   \
+	DILITHIUM_F(verify_init_riscv64_rvv)
+#define lc_dilithium_verify_update_riscv64_rvv                                 \
+	DILITHIUM_F(verify_update_riscv64_rvv)
+#define lc_dilithium_verify_final_riscv64_rvv                                  \
+	DILITHIUM_F(verify_final_riscv64_rvv)
 #define dilithium_ntt_8l_rvv DILITHIUM_F(ntt_8l_rvv)
 #define dilithium_intt_8l_rvv DILITHIUM_F(intt_8l_rvv)
 #define dilithium_poly_basemul_8l_rvv DILITHIUM_F(poly_basemul_8l_rvv)
