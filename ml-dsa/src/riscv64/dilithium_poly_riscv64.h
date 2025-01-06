@@ -49,6 +49,7 @@
 
 #include "dilithium_type.h"
 #include "dilithium_ntt_rv64im.h"
+#include "dilithium_ntt_rvv.h"
 #include "dilithium_zetas_riscv64.h"
 
 #ifdef __cplusplus
@@ -65,7 +66,11 @@ typedef struct {
 
 static inline void poly_reduce(poly *a)
 {
+#ifdef LC_DILITHIUM_RISCV64_RVV
+	dilithium_poly_reduce_rvv(a->coeffs);
+#else
 	dilithium_poly_reduce_rv64im(a->coeffs);
+#endif
 }
 
 static inline void poly_basemul_init(poly_double *r, const poly *a,
@@ -87,20 +92,37 @@ static inline void poly_basemul_acc_end(poly *r, const poly *a, const poly *b,
 						 b->coeffs, r_double->coeffs);
 }
 
+static inline void poly_basemul_acc_rvv(poly *c, const poly *a, const poly *b)
+{
+	dilithium_poly_basemul_acc_8l_rvv(c->coeffs, a->coeffs, b->coeffs);
+}
+
 static inline void poly_pointwise_montgomery(poly *c, const poly *a,
 					     const poly *b)
 {
+#ifdef LC_DILITHIUM_RISCV64_RVV
+	dilithium_poly_basemul_8l_rvv(c->coeffs, a->coeffs, b->coeffs);
+#else
 	dilithium_poly_basemul_8l_rv64im(c->coeffs, a->coeffs, b->coeffs);
+#endif
 }
 
 static inline void poly_ntt(poly *a)
 {
+#ifdef LC_DILITHIUM_RISCV64_RVV
+	dilithium_ntt_8l_rvv(a->coeffs, dilithium_qdata_rvv);
+#else
 	dilithium_ntt_8l_rv64im(a->coeffs, zetas_ntt_8l_rv64im);
+#endif
 }
 
 static inline void poly_invntt_tomont(poly *a)
 {
+#ifdef LC_DILITHIUM_RISCV64_RVV
+	dilithium_intt_8l_rvv(a->coeffs, dilithium_qdata_rvv);
+#else
 	dilithium_intt_8l_rv64im(a->coeffs, zetas_intt_8l_rv64im);
+#endif
 }
 
 /**

@@ -102,12 +102,35 @@ polyvec_matrix_expand(polyvecl mat[LC_DILITHIUM_K],
 	unsigned int i, j;
 
 	for (i = 0; i < LC_DILITHIUM_K; ++i)
-		for (j = 0; j < LC_DILITHIUM_L; ++j)
+		for (j = 0; j < LC_DILITHIUM_L; ++j) {
 			poly_uniform(
 				&mat[i].vec[j], rho,
 				le_bswap16((uint16_t)(i << 8) + (uint16_t)j),
 				ws_buf);
+#ifdef LC_DILITHIUM_RISCV64_RVV
+			dilithium_normal2ntt_order_8l_rvv(mat[i].vec[j].coeffs,
+							  dilithium_qdata_rvv);
+#endif
+		}
 }
+
+#ifdef LC_DILITHIUM_RISCV64_RVV
+
+static inline void polyvecl_pointwise_acc_montgomery(poly *w, const polyvecl *u,
+						     const polyvecl *v,
+						     void *ws_buf)
+{
+	unsigned int i;
+
+	(void)ws_buf;
+
+	poly_pointwise_montgomery(w, &u->vec[0], &v->vec[0]);
+	for (i = 1; i < LC_DILITHIUM_L; ++i) {
+		poly_basemul_acc_rvv(w, &u->vec[i], &v->vec[i]);
+	}
+}
+
+#else /* LC_DILITHIUM_RISCV64_RVV */
 
 static inline void polyvecl_pointwise_acc_montgomery(poly *w, const polyvecl *u,
 						     const polyvecl *v,
@@ -122,7 +145,10 @@ static inline void polyvecl_pointwise_acc_montgomery(poly *w, const polyvecl *u,
 	for (i = 1; i < LC_DILITHIUM_L - 1; ++i)
 		poly_basemul_acc(&w_double, &u->vec[i], &v->vec[i]);
 	poly_basemul_acc_end(w, &u->vec[i], &v->vec[i], &w_double);
+	lc_memset_secure(&w_double, 0, sizeof(w_double));
 }
+
+#endif /* LC_DILITHIUM_RISCV64_RVV */
 
 static inline void
 polyvec_matrix_pointwise_montgomery(polyveck *t,

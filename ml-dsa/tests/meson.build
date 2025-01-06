@@ -216,6 +216,76 @@ if get_option('dilithium_87').enabled()
 		     dilithium_tester_iuf_armv7,
 		     args : [ 'c' ], timeout: 1000, is_parallel: false,
 		     suite: performance)
+	elif (riscv64_asm)
+		dilithium_tester_riscv64 = executable('dilithium_tester_riscv64',
+				[ 'dilithium_tester_riscv64.c',
+				  'dilithium_tester.c',
+				  internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_dilithium_internal
+				],
+				dependencies: leancrypto
+				)
+		dilithium_tester_iuf_riscv64 = executable('dilithium_tester_iuf_riscv64',
+				[ 'dilithium_tester_iuf_riscv64.c',
+				  'dilithium_tester.c',
+				  internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_dilithium_internal
+				],
+				dependencies: leancrypto
+				)
+
+		test('Dilithium signature RISCV64', dilithium_tester_riscv64,
+		     suite: regression)
+		test('Dilithium init update final RISCV64',
+		     dilithium_tester_iuf_riscv64, suite: regression)
+		test('Dilithium signature RISCV64 10000', dilithium_tester_riscv64,
+		     args : [ 'c' ], timeout: 1000, is_parallel: false,
+		     suite: performance)
+		test('Dilithium init update final RISCV64 10000',
+		     dilithium_tester_iuf_riscv64,
+		     args : [ 'c' ], timeout: 1000, is_parallel: false,
+		     suite: performance)
+
+		dilithium_tester_riscv64_rvv = executable('dilithium_tester_riscv64_rvv',
+				[ 'dilithium_tester_riscv64_rvv.c',
+				  'dilithium_tester.c',
+				  internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_dilithium_internal
+				],
+				dependencies: leancrypto
+				)
+		dilithium_tester_iuf_riscv64_rvv = executable('dilithium_tester_iuf_riscv64_rvv',
+				[ 'dilithium_tester_iuf_riscv64_rvv.c',
+				  'dilithium_tester.c',
+				  internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_dilithium_internal
+				],
+				dependencies: leancrypto
+				)
+
+		test('Dilithium signature RISCV64 RVV', dilithium_tester_riscv64_rvv,
+		     suite: regression)
+		test('Dilithium init update final RISCV64 RVV',
+		     dilithium_tester_iuf_riscv64_rvv, suite: regression)
+		test('Dilithium signature RISCV64 RVV 10000', dilithium_tester_riscv64_rvv,
+		     args : [ 'c' ], timeout: 1000, is_parallel: false,
+		     suite: performance)
+		test('Dilithium init update final RISCV64 RVV 10000',
+		     dilithium_tester_iuf_riscv64_rvv,
+		     args : [ 'c' ], timeout: 1000, is_parallel: false,
+		     suite: performance)
 	endif
 
 	if get_option('dilithium_ed25519').enabled()
@@ -498,6 +568,80 @@ if get_option('dilithium_65').enabled()
 		     dilithium_65_tester_iuf_armv7,
 		     args : [ 'c' ], timeout: 1000, is_parallel: false,
 		     suite: performance)
+	elif (riscv64_asm)
+		dilithium_65_tester_riscv64 = executable('dilithium_65_tester_riscv64',
+				[ 'dilithium_tester_riscv64.c',
+				  'dilithium_tester.c',
+				  internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_dilithium_65_internal
+				],
+				dependencies: leancrypto,
+				c_args : '-DLC_DILITHIUM_TYPE_65'
+				)
+		dilithium_65_tester_iuf_riscv64 = executable('dilithium_65_tester_iuf_riscv64',
+				[ 'dilithium_tester_iuf_riscv64.c',
+				  'dilithium_tester.c',
+				  internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_dilithium_65_internal
+				],
+				dependencies: leancrypto,
+				c_args : '-DLC_DILITHIUM_TYPE_65'
+				)
+
+		test('Dilithium 65 signature RISCV64', dilithium_65_tester_riscv64,
+		     suite: regression)
+		test('Dilithium 65 init update final RISCV64',
+		     dilithium_65_tester_iuf_riscv64, suite: regression)
+		test('Dilithium 65 signature RISCV64 10000', dilithium_65_tester_riscv64,
+		     args : [ 'c' ], timeout: 1000, is_parallel: false,
+		     suite: performance)
+		test('Dilithium 65 init update final RISCV64 10000',
+		     dilithium_65_tester_iuf_riscv64,
+		     args : [ 'c' ], timeout: 1000, is_parallel: false,
+		     suite: performance)
+
+		dilithium_65_tester_riscv64_rvv = executable('dilithium_65_tester_riscv64_rvv',
+				[ 'dilithium_tester_riscv64_rvv.c',
+				  'dilithium_tester.c',
+				  internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_dilithium_65_internal
+				],
+				dependencies: leancrypto,
+				c_args : '-DLC_DILITHIUM_TYPE_65'
+				)
+		dilithium_65_tester_iuf_riscv64_rvv = executable('dilithium_65_tester_iuf_riscv64_rvv',
+				[ 'dilithium_tester_iuf_riscv64_rvv.c',
+				  'dilithium_tester.c',
+				  internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_dilithium_65_internal
+				],
+				dependencies: leancrypto,
+				c_args : '-DLC_DILITHIUM_TYPE_65'
+				)
+
+		test('Dilithium 65 signature RISCV64 RVV', dilithium_65_tester_riscv64_rvv,
+		     suite: regression)
+		test('Dilithium 65 init update final RISCV64 RVV',
+		     dilithium_65_tester_iuf_riscv64_rvv, suite: regression)
+		test('Dilithium 65 signature RISCV64 RVV 10000', dilithium_65_tester_riscv64_rvv,
+		     args : [ 'c' ], timeout: 1000, is_parallel: false,
+		     suite: performance)
+		test('Dilithium 65 init update final RISCV64 RVV 10000',
+		     dilithium_65_tester_iuf_riscv64_rvv,
+		     args : [ 'c' ], timeout: 1000, is_parallel: false,
+		     suite: performance)
 	endif
 
 	if get_option('dilithium_ed25519').enabled()
@@ -740,6 +884,82 @@ if get_option('dilithium_44').enabled()
 		     args : [ 'c' ], timeout: 1000, is_parallel: false,
 		     suite: performance)
 		test('Dilithium44-ED25519 IUF signature Common 10000', dilithium_44_ed25519_iuf_tester,
+		     args : [ 'c' ], timeout: 1000, is_parallel: false,
+		     suite: performance)
+	endif
+
+	if (riscv64_asm)
+		dilithium_44_tester_riscv64 = executable('dilithium_44_tester_riscv64',
+				[ 'dilithium_tester_riscv64.c',
+				  'dilithium_tester.c',
+				  internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_dilithium_44_internal
+				],
+				dependencies: leancrypto,
+				c_args : '-DLC_DILITHIUM_TYPE_44'
+				)
+		dilithium_44_tester_iuf_riscv64 = executable('dilithium_44_tester_iuf_riscv64',
+				[ 'dilithium_tester_iuf_riscv64.c',
+				  'dilithium_tester.c',
+				  internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_dilithium_44_internal
+				],
+				dependencies: leancrypto,
+				c_args : '-DLC_DILITHIUM_TYPE_44'
+				)
+
+		test('Dilithium 44 signature RISCV64', dilithium_44_tester_riscv64,
+		     suite: regression)
+		test('Dilithium 44 init update final RISCV64',
+		     dilithium_44_tester_iuf_riscv64, suite: regression)
+		test('Dilithium 44 signature RISCV64 10000', dilithium_44_tester_riscv64,
+		     args : [ 'c' ], timeout: 1000, is_parallel: false,
+		     suite: performance)
+		test('Dilithium 44 init update final RISCV64 10000',
+		     dilithium_44_tester_iuf_riscv64,
+		     args : [ 'c' ], timeout: 1000, is_parallel: false,
+		     suite: performance)
+
+		dilithium_44_tester_riscv64_rvv = executable('dilithium_44_tester_riscv64_rvv',
+				[ 'dilithium_tester_riscv64_rvv.c',
+				  'dilithium_tester.c',
+				  internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_dilithium_44_internal
+				],
+				dependencies: leancrypto,
+				c_args : '-DLC_DILITHIUM_TYPE_44'
+				)
+		dilithium_44_tester_iuf_riscv64_rvv = executable('dilithium_44_tester_iuf_riscv64_rvv',
+				[ 'dilithium_tester_iuf_riscv64_rvv.c',
+				  'dilithium_tester.c',
+				  internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_dilithium_44_internal
+				],
+				dependencies: leancrypto,
+				c_args : '-DLC_DILITHIUM_TYPE_44'
+				)
+
+		test('Dilithium 44 signature RISCV64 RVV', dilithium_44_tester_riscv64_rvv,
+		     suite: regression)
+		test('Dilithium 44 init update final RISCV64 RVV',
+		     dilithium_44_tester_iuf_riscv64_rvv, suite: regression)
+		test('Dilithium 44 signature RISCV64 RVV 10000', dilithium_44_tester_riscv64_rvv,
+		     args : [ 'c' ], timeout: 1000, is_parallel: false,
+		     suite: performance)
+		test('Dilithium 44 init update final RISCV64 RVV 10000',
+		     dilithium_44_tester_iuf_riscv64_rvv,
 		     args : [ 'c' ], timeout: 1000, is_parallel: false,
 		     suite: performance)
 	endif

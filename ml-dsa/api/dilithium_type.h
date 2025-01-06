@@ -263,7 +263,7 @@ extern "C" {
 #define lc_dilithium_verify_update_armv7 DILITHIUM_F(verify_update_armv7)
 #define lc_dilithium_verify_final_armv7 DILITHIUM_F(verify_final_armv7)
 
-/* RISCV 64 Implementation */
+/* RISCV 64 ASM Implementation */
 #define lc_dilithium_keypair_riscv64 DILITHIUM_F(keypair_riscv64)
 #define lc_dilithium_keypair_from_seed_riscv64                                 \
 	DILITHIUM_F(keypair_from_seed_riscv64)
@@ -287,6 +287,28 @@ extern "C" {
 	DILITHIUM_F(poly_basemul_8l_acc_end_rv64im)
 #define dilithium_poly_basemul_8l_rv64im DILITHIUM_F(poly_basemul_8l_rv64im)
 #define dilithium_poly_reduce_rv64im DILITHIUM_F(poly_reduce_rv64im)
+
+/* RISCV 64 RVV Implementation */
+#define lc_dilithium_keypair_riscv64_rvv DILITHIUM_F(keypair_riscv64_rvv)
+#define lc_dilithium_keypair_from_seed_riscv64_rvv                                 \
+	DILITHIUM_F(keypair_from_seed_riscv64_rvv)
+#define lc_dilithium_sign_riscv64_rvv DILITHIUM_F(sign_riscv64_rvv)
+#define lc_dilithium_sign_ctx_riscv64_rvv DILITHIUM_F(sign_ctx_riscv64_rvv)
+#define lc_dilithium_sign_init_riscv64_rvv DILITHIUM_F(sign_init_riscv64_rvv)
+#define lc_dilithium_sign_update_riscv64_rvv DILITHIUM_F(sign_update_riscv64_rvv)
+#define lc_dilithium_sign_final_riscv64_rvv DILITHIUM_F(sign_final_riscv64_rvv)
+#define lc_dilithium_verify_riscv64_rvv DILITHIUM_F(verify_riscv64_rvv)
+#define lc_dilithium_verify_ctx_riscv64_rvv DILITHIUM_F(verify_ctx_riscv64_rvv)
+#define lc_dilithium_verify_init_riscv64_rvv DILITHIUM_F(verify_init_riscv64_rvv)
+#define lc_dilithium_verify_update_riscv64_rvv DILITHIUM_F(verify_update_riscv64_rvv)
+#define lc_dilithium_verify_final_riscv64_rvv DILITHIUM_F(verify_final_riscv64_rvv)
+#define dilithium_ntt_8l_rvv DILITHIUM_F(ntt_8l_rvv)
+#define dilithium_intt_8l_rvv DILITHIUM_F(intt_8l_rvv)
+#define dilithium_poly_basemul_8l_rvv DILITHIUM_F(poly_basemul_8l_rvv)
+#define dilithium_poly_basemul_acc_8l_rvv DILITHIUM_F(poly_basemul_acc_8l_rvv)
+#define dilithium_ntt2normal_order_8l_rvv DILITHIUM_F(ntt2normal_order_8l_rvv)
+#define dilithium_normal2ntt_order_8l_rvv DILITHIUM_F(normal2ntt_order_8l_rvv)
+#define dilithium_poly_reduce_rvv DILITHIUM_F(poly_reduce_rvv)
 
 #ifdef __cplusplus
 }

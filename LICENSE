@@ -369,6 +369,10 @@ ml-dsa/src/riscv64/dilithium_ntt_rv64im.h
 ml-dsa/src/riscv64/ntt_8l_dualissue_plant_rv64im.S
 ml-dsa/src/riscv64/dilithium_poly_riscv64.h
 ml-dsa/src/riscv64/dilithium_polyvec_riscv64.h
+ml-dsa/src/riscv64/dilithium_consts_rvv.c
+ml-dsa/src/riscv64/dilithium_consts_rvv.h
+ml-dsa/src/riscv64/dilithium_ntt_rvv.h
+ml-dsa/src/riscv64/ntt_rvv.S
 
 The MIT license, the text of which is below, applies to PQRV in general.
 

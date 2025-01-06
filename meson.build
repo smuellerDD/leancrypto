@@ -503,6 +503,18 @@ if (not get_option('disable-asm'))
 			'-mcmodel=medany'
 		]
 
+		cc_riscv64_asm_rvv_args = [
+			'-march=rv64imadcv',
+			'-mabi=lp64d',
+			'-mcmodel=medany'
+		]
+
+		cc_riscv64_asm_rvv_zbb_args = [
+			'-march=rv64imadcv_zba_zbb',
+			'-mabi=lp64d',
+			'-mcmodel=medany'
+		]
+
 	# elif (host_machine.cpu_family() == 'riscv' and
 	#       cc.get_id() == 'gcc')
 	#

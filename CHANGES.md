@@ -21,6 +21,10 @@ Changes 1.2.0
 
 * leancrypto passes X.509 IETF-Hackathon tests: https://ietf-hackathon.github.io/pqc-certificates/pqc_hackathon_results_certs_r4_automated_tests.html
 
+* Add compilation support for (U)EFI environment
+
+* RISCV64 RVV: ML-DSA - add assembler implementation using RVV support
+
 Changes 1.1.0
 * ML-KEM remove modulus check of decapsulation key (not required by FIPS 203)
 
