@@ -91,6 +91,8 @@ LC_CONSTRUCTOR(sha3_fastest_impl)
 		}
 	} else if (feat & LC_CPU_FEATURE_ARM) {
 		LC_FILL_DFLT_IMPL(arm_asm)
+	} else if (feat & LC_CPU_FEATURE_RISCV_ASM_RVV) {
+		LC_FILL_DFLT_IMPL(riscv_asm_rvv)
 	} else if (feat & LC_CPU_FEATURE_RISCV_ASM_ZBB) {
 		LC_FILL_DFLT_IMPL(riscv_asm_zbb)
 	} else if (feat & LC_CPU_FEATURE_RISCV_ASM) {
@@ -114,6 +116,9 @@ LC_CONSTRUCTOR(sha3_fastest_impl)
 	}
 	if (!(feat & LC_CPU_FEATURE_ARM)) {
 		LC_FILL_ACCEL_WITH_C(arm_asm)
+	}
+	if (!(feat & LC_CPU_FEATURE_RISCV_ASM_RVV)) {
+		LC_FILL_ACCEL_WITH_C(riscv_asm_rvv)
 	}
 	if (!(feat & LC_CPU_FEATURE_RISCV_ASM_ZBB)) {
 		LC_FILL_ACCEL_WITH_C(riscv_asm_zbb)

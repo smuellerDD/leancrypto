@@ -90,6 +90,7 @@ static int sha3_256_tester(void)
 	LC_EXEC_ONE_TEST(lc_sha3_256_avx512);
 	LC_EXEC_ONE_TEST(lc_sha3_256_riscv_asm);
 	LC_EXEC_ONE_TEST(lc_sha3_256_riscv_asm_zbb);
+	LC_EXEC_ONE_TEST(lc_sha3_256_riscv_asm_rvv);
 
 	return ret;
 }

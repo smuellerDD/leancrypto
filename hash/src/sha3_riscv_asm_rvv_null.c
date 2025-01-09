@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2022 - 2024, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *
@@ -17,33 +17,15 @@
  * DAMAGE.
  */
 
-#ifndef KECCAK_RISCV64_H
-#define KECCAK_RISCV64_H
+#include "ext_headers.h"
+#include "sha3_riscv_asm.h"
+#include "visibility.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/*
- * RISC-V ASM implementation of Keccak.
- */
-void KeccakF1600_StatePermute_RV64ASM(void *state);
-
-/*
- * RISC-V ASM implementation of Keccak using the bitmanip
- * extensions (Zba, Zbb). The state must be aligned to
- * 64 bits.
- */
-void KeccakF1600_StatePermute_RV64ZBB(void *state);
-
-/*
- * RISC-V ASM implementation of Keccak using the vector
- * instructions. The state must be aligned to 256 bits.
- */
-void KeccakF1600_StatePermute_RV64RVV(void *state);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* KECCAK_RISCV64_H */
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_224_riscv_asm_rvv) = NULL;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_256_riscv_asm_rvv) = NULL;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_384_riscv_asm_rvv) = NULL;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_512_riscv_asm_rvv) = NULL;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake128_riscv_asm_rvv) = NULL;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake256_riscv_asm_rvv) = NULL;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_cshake128_riscv_asm_rvv) = NULL;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_cshake256_riscv_asm_rvv) = NULL;

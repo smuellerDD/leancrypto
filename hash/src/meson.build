@@ -134,9 +134,20 @@ if get_option('sha3').enabled()
 				include_internal_dirs ],
 		)
 		leancrypto_support_libs_fips += leancrypto_keccak_riscv_zbb_lib
+
+		leancrypto_keccak_riscv_rvv_lib = static_library(
+			'leancrypto_keccak_riscv_rvv_lib',
+			[ 'asm/riscv64/fips202_rv64v.S', 'sha3_riscv_asm_rvv.c' ],
+			c_args: cc_riscv64_asm_rvv_args,
+			include_directories: [
+				include_dirs,
+				include_internal_dirs ],
+		)
+		leancrypto_support_libs_fips += leancrypto_keccak_riscv_rvv_lib
  	else
 		src_fips += files([ 'sha3_riscv_asm_null.c',
-				    'sha3_riscv_asm_zbb_null.c' ])
+				    'sha3_riscv_asm_zbb_null.c',
+				    'sha3_riscv_asm_rvv_null.c'])
 	endif
 endif
 
