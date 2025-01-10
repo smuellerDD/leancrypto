@@ -98,7 +98,12 @@
 
 struct lc_seeded_rng_ctx {
 	struct lc_rng_ctx *rng_ctx;
-#define LC_SEEDED_RNG_MAX_BYTES (1 << 20) /* Max bytes without reseed */
+	/*
+	 * The chosen value is derived from AIS 20/31 3.0 for DRG.4 compliance
+	 * as well as the discussion with NIST planning to change SP800-90A
+	 * to lower the reseed requirement to 2**17 bits.
+	 */
+#define LC_SEEDED_RNG_MAX_BYTES (1 << 14) /* Max bytes without reseed */
 	size_t bytes;
 #define LC_SEEDED_RNG_MAX_TIME 60 /* Max seconds without reseed */
 	time64_t last_seeded;
