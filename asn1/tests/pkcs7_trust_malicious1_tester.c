@@ -59,6 +59,8 @@ static int pkcs7_malicious_set_cert(struct lc_x509_certificate *cert)
 
 	CKINT(lc_x509_cert_set_ca(cert));
 
+	cert->preallocated = 1;
+
 out:
 	return ret;
 }
@@ -140,6 +142,10 @@ static int pkcs7_maclious_gen_certs(struct workspace *ws, int set_ca3_akid_null)
 				      sizeof(ws->ca3_blob) - blob_len),
 		  "X.509 decode CA3\n");
 	CKINT(lc_x509_cert_set_signer(&ws->ca3_dec, &ws->keys3, &ws->ca2_dec));
+
+	ws->ca1_dec.preallocated = 1;
+	ws->ca2_dec.preallocated = 1;
+	ws->ca3_dec.preallocated = 1;
 
 out:
 	return ret;
@@ -451,24 +457,21 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	if (ret != -EBADMSG) {
 		printf("Test 1: Expected failure of EBADMSG not received, received return code: %d\n", ret);
 		ret = -EFAULT;
-	} else {
-		ret = 0;
+		goto out;
 	}
 
 	ret = pkcs7_maclious_certs4();
 	if (ret != -EBADMSG) {
 		printf("Test 3: Expected failure of EBADMSG not received, received return code: %d\n", ret);
 		ret = -EFAULT;
-	} else {
-		ret = 0;
+		goto out;
 	}
 
 	ret = pkcs7_maclious_certs5();
 	if (ret != -EBADMSG) {
 		printf("Test 4: Expected failure of EBADMSG not received, received return code: %d\n", ret);
 		ret = -EFAULT;
-	} else {
-		ret = 0;
+		goto out;
 	}
 
 	CKINT_LOG(pkcs7_maclious_certs6(),
@@ -478,17 +481,17 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	if (ret != -EBADMSG) {
 		printf("Test 6: Expected failure of EBADMSG not received, received return code: %d\n", ret);
 		ret = -EFAULT;
-	} else {
-		ret = 0;
+		goto out;
 	}
 
 	ret = pkcs7_maclious_certs8();
 	if (ret != -EKEYREJECTED) {
 		printf("Test 6: Expected failure of EKEYREJECTED not received, received return code: %d\n", ret);
 		ret = -EFAULT;
-	} else {
-		ret = 0;
+		goto out;
 	}
+
+	ret = 0;
 
 out:
 	return -ret;
