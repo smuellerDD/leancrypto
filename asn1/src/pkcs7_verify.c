@@ -217,21 +217,6 @@ int pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 					"- authkeyid.skid");
 		}
 
-		CKINT(lc_x509_policy_is_root_ca(x509));
-		if (ret == LC_X509_POL_TRUE) {
-			/*
-			 * If there's no authority certificate specified, then
-			 * the certificate must be self-signed and is the root
-			 * of the chain. Likewise if the cert is its own
-			 * authority.
-			 */
-			if (x509->unsupported_sig)
-				return -ENOPKG;
-			x509->signer = x509;
-			printf_debug("- self-signed\n");
-			return 0;
-		}
-
 		/* Look through the X.509 certificates in the PKCS#7 message's
 		 * list to see if the next one is there.
 		 */
@@ -296,19 +281,6 @@ int pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 		}
 	found_issuer:
 		printf_debug("- subject %s\n", p->subject);
-		if (p->seen) {
-			printf_debug(
-				"SignatureInfo: X.509 chain contains loop\n");
-#ifdef LC_PKCS7_DEBUG
-			/*
-			 * The root CA detection below will not work in debug
-			 * mode.
-			 */
-			return 0;
-#else
-			return -EKEYREJECTED;
-#endif
-		}
 
 		/* Check the key usage contains keyCertSign */
 		CKINT(lc_x509_policy_match_key_usage(p,
@@ -338,10 +310,26 @@ int pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 					&trusted, trust_store, auth0, auth1));
 				CKINT(lc_x509_policy_verify_cert(&trusted->pub,
 								 x509, 0));
-
 				return 0;
 			}
+
+			/*
+			 * If we have a root CA, but no trust store, use the
+			 * provided root certificate to verify and accept it
+			 * as trust anchor.
+			 */
+			CKINT(lc_x509_policy_verify_cert(&p->pub, x509, 0));
 			return 0;
+		}
+
+		/*
+		 * If at this stage we have seen the certificate, we have a
+		 * loop.
+		 */
+		if (p->seen) {
+			printf_debug(
+				"SignatureInfo: X.509 chain contains loop\n");
+			return -EKEYREJECTED;
 		}
 
 		CKINT(lc_x509_policy_verify_cert(&p->pub, x509, 0));
@@ -349,6 +337,11 @@ int pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 
 		x509 = p;
 	}
+
+	/*
+	 * By default, we reject everything.
+	 */
+	ret = -EKEYREJECTED;
 
 out:
 	return ret;

@@ -58,6 +58,8 @@ extern "C" {
  * The function generates a PKCS#7 data blob from the filled PKCS#7 data
  * structure.
  *
+ * The signature of the data using the signer is created within this call.
+ *
  * @param [in] pkcs7 The data structure that is filled by the caller before this
  *		     invocation using the various setter functions.
  * @param [in,out] data Raw PKCS#7 data blob in DER / BER format - the caller

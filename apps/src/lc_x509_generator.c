@@ -522,9 +522,6 @@ static int x509_enc_set_signer(struct x509_generator_opts *opts)
 {
 	struct lc_x509_certificate *gcert = &opts->cert;
 	struct lc_x509_key_data *signer_key_data = &opts->signer_key_data;
-	size_t paramlen = 0;
-	const uint8_t *dparam;
-	const char *param;
 	int ret;
 
 	CKINT_LOG(get_data(opts->x509_signer_file, &opts->signer_data,
@@ -538,37 +535,6 @@ static int x509_enc_set_signer(struct x509_generator_opts *opts)
 	CKINT(lc_x509_policy_is_ca(&opts->signer_cert));
 	if (ret != LC_X509_POL_TRUE)
 		printf("WARNING: X.509 signer is no CA!\n");
-
-	/* Set AKID */
-	CKINT(lc_x509_cert_get_skid(&opts->signer_cert, &dparam, &paramlen));
-	if (!dparam)
-		printf("WARNING: X.509 signer has no SKID\n");
-	CKINT(lc_x509_cert_set_akid(&opts->cert, dparam, paramlen));
-
-	/* Set issuer */
-	CKINT(lc_x509_cert_get_subject_c(&opts->signer_cert, &param,
-					 &paramlen));
-	CKINT(lc_x509_cert_set_issuer_c(&opts->cert, param, paramlen));
-
-	CKINT(lc_x509_cert_get_subject_st(&opts->signer_cert, &param,
-					  &paramlen));
-	CKINT(lc_x509_cert_set_issuer_st(&opts->cert, param, paramlen));
-
-	CKINT(lc_x509_cert_get_subject_o(&opts->signer_cert, &param,
-					 &paramlen));
-	CKINT(lc_x509_cert_set_issuer_o(&opts->cert, param, paramlen));
-
-	CKINT(lc_x509_cert_get_subject_ou(&opts->signer_cert, &param,
-					  &paramlen));
-	CKINT(lc_x509_cert_set_issuer_ou(&opts->cert, param, paramlen));
-
-	CKINT(lc_x509_cert_get_subject_cn(&opts->signer_cert, &param,
-					  &paramlen));
-	CKINT(lc_x509_cert_set_issuer_cn(&opts->cert, param, paramlen));
-
-	CKINT(lc_x509_cert_get_subject_email(&opts->signer_cert, &param,
-					     &paramlen));
-	CKINT(lc_x509_cert_set_issuer_email(&opts->cert, param, paramlen));
 
 	CKINT(x509_load_sk(opts));
 	CKINT(lc_x509_cert_set_signer(gcert, signer_key_data,

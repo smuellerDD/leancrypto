@@ -1373,7 +1373,45 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_signer,
 		      const struct lc_x509_key_data *signer_key_data,
 		      const struct lc_x509_certificate *signer_x509)
 {
-	return asym_set_signer(signed_x509, signer_key_data, signer_x509);
+	size_t paramlen = 0;
+	const char *param;
+	const uint8_t *dparam;
+	int ret;
+
+	/* Set issuer */
+	CKINT(lc_x509_cert_get_subject_c(signer_x509, &param,
+					 &paramlen));
+	CKINT(lc_x509_cert_set_issuer_c(signed_x509, param, paramlen));
+
+	CKINT(lc_x509_cert_get_subject_st(signer_x509, &param,
+					  &paramlen));
+	CKINT(lc_x509_cert_set_issuer_st(signed_x509, param, paramlen));
+
+	CKINT(lc_x509_cert_get_subject_o(signer_x509, &param,
+					 &paramlen));
+	CKINT(lc_x509_cert_set_issuer_o(signed_x509, param, paramlen));
+
+	CKINT(lc_x509_cert_get_subject_ou(signer_x509, &param,
+					  &paramlen));
+	CKINT(lc_x509_cert_set_issuer_ou(signed_x509, param, paramlen));
+
+	CKINT(lc_x509_cert_get_subject_cn(signer_x509, &param,
+					  &paramlen));
+	CKINT(lc_x509_cert_set_issuer_cn(signed_x509, param, paramlen));
+
+	CKINT(lc_x509_cert_get_subject_email(signer_x509, &param,
+					     &paramlen));
+	CKINT(lc_x509_cert_set_issuer_email(signed_x509, param, paramlen));
+
+	/* Set AKID */
+	CKINT(lc_x509_cert_get_skid(signer_x509, &dparam, &paramlen));
+	CKNULL(dparam, -EINVAL);
+	CKINT(lc_x509_cert_set_akid(signed_x509, dparam, paramlen));
+
+	CKINT(asym_set_signer(signed_x509, signer_key_data, signer_x509));
+
+out:
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_x509_keypair_gen,

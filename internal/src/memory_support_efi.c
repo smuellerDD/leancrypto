@@ -60,9 +60,9 @@ LC_INTERFACE_FUNCTION(int, lc_alloc_high_aligned, void **memptr,
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
-	efi_status = uefi_call_wrapper(BS->AllocatePages, 4, AllocateAnyPages,
-				       EfiBootServicesData, pages,
-				       &PhysicalBuffer);
+	efi_status =
+		uefi_call_wrapper(BS->AllocatePages, 4, AllocateAnyPages,
+				  EfiBootServicesData, pages, &PhysicalBuffer);
 #pragma GCC diagnostic pop
 	if (EFI_ERROR(efi_status))
 		return -ENOMEM;

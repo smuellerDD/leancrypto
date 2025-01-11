@@ -138,6 +138,8 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_ca,
 		      struct lc_x509_certificate *cert)
 {
 	struct lc_public_key *pub;
+	size_t paramlen = 0;
+	const char *param;
 	int ret = 0;
 
 	CKNULL(cert, -EINVAL);
@@ -160,6 +162,25 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_ca,
 						    sizeof(gendata->pk_digest)));
 		}
 	}
+
+	/* Set issuer */
+	CKINT(lc_x509_cert_get_subject_c(cert, &param, &paramlen));
+	CKINT(lc_x509_cert_set_issuer_c(cert, param, paramlen));
+
+	CKINT(lc_x509_cert_get_subject_st(cert, &param, &paramlen));
+	CKINT(lc_x509_cert_set_issuer_st(cert, param, paramlen));
+
+	CKINT(lc_x509_cert_get_subject_o(cert, &param, &paramlen));
+	CKINT(lc_x509_cert_set_issuer_o(cert, param, paramlen));
+
+	CKINT(lc_x509_cert_get_subject_ou(cert, &param, &paramlen));
+	CKINT(lc_x509_cert_set_issuer_ou(cert, param, paramlen));
+
+	CKINT(lc_x509_cert_get_subject_cn(cert, &param, &paramlen));
+	CKINT(lc_x509_cert_set_issuer_cn(cert, param, paramlen));
+
+	CKINT(lc_x509_cert_get_subject_email(cert, &param, &paramlen));
+	CKINT(lc_x509_cert_set_issuer_email(cert, param, paramlen));
 
 out:
 	return ret;

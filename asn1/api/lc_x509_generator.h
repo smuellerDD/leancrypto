@@ -57,6 +57,9 @@ extern "C" {
  * The function generates an X.509 data blob from the filled X.509 data
  * structure.
  *
+ * This function also performs the signature generation to sign the X.509
+ * data with the provided signer.
+ *
  * @param [in] x509 The data structure that is filled by the caller before this
  *		    invocation using the various setter functions.
  * @param [in,out] data Raw X.509 data blob in DER / BER format - the caller
@@ -145,7 +148,7 @@ int lc_x509_signature_gen(uint8_t *sig_data, size_t *siglen,
  * @brief Generate keypair and set it to the X.509 certificate
  *
  * \note After this call, the X.509 certificate acts as a self-signed
- * certificate. IF another signer is to be used, use \p lc_x509_cert_set_signer.
+ * certificate. If another signer is to be used, use \p lc_x509_cert_set_signer.
  *
  * @param [out] cert X.509 certificate data structure to be filled
  * @param [out] keys Buffer that is filled with the newly generated key data
@@ -180,10 +183,17 @@ int lc_x509_keypair_load(struct lc_x509_certificate *cert,
  * @ingroup X509Gen
  * @brief Set the signer X.509 certificate for a X.509 certificate
  *
+ * \note This call also sets the issuer name components in the \p signed_x509
+ * from the \p signer_x509. Thus, when invoking this call, ensure that
+ * all name components in \p signer_x509 are properly set. If this cannot be
+ * guaranteed, the issuer information needs to be set with a sequence of
+ * \p lc_x509_cert_get_subject_*(signer_x509) and
+ * \p lc_x509_cert_set_issuer_*(signed_x509).
+ *
  * @param [out] signed_x509 Signed X.509 certificate data structure to be filled
  * @param [in] signer_key_data Buffer that holds the loaded key data
  *				where the buffer must have the same
- *				lifetime as \p signed_x509
+ *				lifetime as \p signer_x509
  * @param [in] signer_x509 Signer X.509 certificate data that shall sign the
  *			   \p signed_x509
  *
@@ -250,6 +260,12 @@ int lc_x509_cert_set_keyusage_val(struct lc_x509_certificate *cert,
 /**
  * @ingroup X509Gen
  * @brief Mark the certificate to bear the basicConstraint CA
+ *
+ * \note This call also sets the issuer name components in the \p cert based
+ * on the subject data. Thus, when invoking this call, ensure that
+ * all name components in \p cert are properly set. If this cannot be
+ * guaranteed, the issuer information needs to be set with a sequence of
+ * \p lc_x509_cert_set_issuer_*(cert).
  *
  * @param [in] cert Certificate data structure to be filled with the data
  *

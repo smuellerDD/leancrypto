@@ -27,7 +27,7 @@ extern "C" {
 #endif
 
 #ifdef LC_PKCS7_DEBUG
-#undef LC_ASN1_DEBUG
+#define LC_ASN1_DEBUG
 #else
 #undef LC_ASN1_DEBUG
 #endif

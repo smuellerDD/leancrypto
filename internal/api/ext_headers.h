@@ -220,7 +220,7 @@ static inline int lc_get_time(time64_t *time_since_epoch)
 
 #define stdout NULL
 
-#define printf(...) Print(L ## __VA_ARGS__)
+#define printf(...) Print(L##__VA_ARGS__)
 
 #undef errno
 #define errno errno_private
