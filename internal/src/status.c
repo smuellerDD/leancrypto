@@ -58,6 +58,12 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 #else
 		"";
 #endif
+	static const char fips140[] =
+#ifdef LC_FIPS140
+		 "yes";
+#else
+		 "no";
+#endif
 
 	size_t len;
 
@@ -73,11 +79,7 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 		 "Dilithium Acceleration support: %s%s%s%s\n"
 		 "Curve25519 Acceleration support: %s\n",
 
-#ifdef LC_FIPS140
-		 "yes",
-#else
-		 "no",
-#endif
+		 fips140,
 
 		 /* AES */
 		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AESNI) ?
