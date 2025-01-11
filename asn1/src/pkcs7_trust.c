@@ -338,7 +338,7 @@ out:
 LC_INTERFACE_FUNCTION(void, lc_pkcs7_trust_store_clear,
 		      struct lc_pkcs7_trust_store *trust_store)
 {
-	struct lc_x509_certificate *anchor_cert;
+	struct lc_x509_certificate *anchor_cert, *tmp;
 
 	if (!trust_store) {
 		/* Trust store is empty, nothing to do */
@@ -348,8 +348,8 @@ LC_INTERFACE_FUNCTION(void, lc_pkcs7_trust_store_clear,
 	anchor_cert = trust_store->anchor_cert;
 
 	while (anchor_cert) {
-		lc_x509_cert_clear(anchor_cert);
-
+		tmp = anchor_cert;
 		anchor_cert = anchor_cert->next;
+		lc_x509_cert_clear(tmp);
 	}
 }
