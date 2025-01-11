@@ -812,15 +812,5 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_decode, struct lc_pkcs7_message *pkcs7,
 	CKINT(pkcs7_check_authattrs(ctx.msg));
 
 out:
-	while (ctx.certs) {
-		struct lc_x509_certificate *cert = ctx.certs;
-
-		ctx.certs = cert->next;
-		pkcs7_x509_free(cert);
-	}
-
-	if (ret)
-		lc_pkcs7_message_clear(ctx.msg);
-
 	return ret;
 }

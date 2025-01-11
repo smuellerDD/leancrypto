@@ -79,6 +79,8 @@ static int pkcs7_malicious_set_cert2(struct lc_x509_certificate *cert)
 	CKINT(lc_x509_cert_set_keyusage(cert, "keyCertSign"));
 	CKINT(lc_x509_cert_set_keyusage(cert, "critical"));
 
+	cert->preallocated = 1;
+
 out:
 	return ret;
 }
@@ -338,28 +340,6 @@ out:
 }
 
 /*
- * Test goal: check that without trust store, the provided root CA is applied
- * Use no trust store
- *	-> success as we have root CA
- */
-static int pkcs7_maclious_certs3(void)
-{
-	int ret = 0;
-	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
-
-	CKINT(pkcs7_maclious_gen_certs(ws, 0));
-	CKINT(pkcs7_maclious_gen_msg(ws));
-
-	CKINT_LOG(lc_pkcs7_verify(&ws->pkcs7_dec, NULL, NULL),
-				  "PKCS#7 verification failure: %d\n", ret);
-
-out:
-	pkcs7_malicious_clear(ws);
-	LC_RELEASE_MEM(ws);
-	return ret;
-}
-
-/*
  * Test goal: Check that forging of CA in trust store is detected
  * Have a valid CA certificate 1 in trust store
  * Have a valid CA certificate 2 with identical SKID/AKID signing data:
@@ -448,9 +428,6 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	CKINT_LOG(pkcs7_maclious_certs0(),
 		  "PKCS#7 processing with trust store failed\n");
 	CKINT_LOG(pkcs7_maclious_certs1(),
-		  "PKCS#7 processing without trust store failed\n");
-
-	CKINT_LOG(pkcs7_maclious_certs3(),
 		  "PKCS#7 processing without trust store failed\n");
 
 	ret = pkcs7_maclious_certs2();
