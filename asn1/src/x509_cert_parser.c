@@ -1133,11 +1133,16 @@ int x509_version(void *context, size_t hdrlen, unsigned char tag,
 LC_INTERFACE_FUNCTION(void, lc_x509_cert_clear,
 		      struct lc_x509_certificate *cert)
 {
+	unsigned int prealloc;
+
 	if (!cert)
 		return;
 
+	prealloc = cert->preallocated;
 	public_key_clear(&cert->pub);
 	public_key_signature_clear(&cert->sig);
+	lc_memset_secure(cert, 0, sizeof(struct lc_x509_certificate));
+	cert->preallocated = prealloc;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_x509_cert_decode,
