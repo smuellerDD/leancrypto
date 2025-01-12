@@ -404,7 +404,7 @@ static int x509_fabricate_name(struct x509_parse_context *ctx, size_t hdrlen,
 				     data + ctx->o_offset, 7) == 0)
 			goto single_component;
 
-		if (ctx->o_size + 2 + ctx->cn_size + 1 >
+		if (ctx->o_size + 2 + ctx->cn_size + 1 >=
 		    LC_ASN1_MAX_ISSUER_NAME) {
 			ret = -EOVERFLOW;
 			goto out;
@@ -431,7 +431,7 @@ static int x509_fabricate_name(struct x509_parse_context *ctx, size_t hdrlen,
 	}
 
 single_component:
-	if (namesize > LC_ASN1_MAX_ISSUER_NAME) {
+	if (namesize >= LC_ASN1_MAX_ISSUER_NAME) {
 		ret = -EOVERFLOW;
 		goto out;
 	}
@@ -1133,16 +1133,20 @@ int x509_version(void *context, size_t hdrlen, unsigned char tag,
 LC_INTERFACE_FUNCTION(void, lc_x509_cert_clear,
 		      struct lc_x509_certificate *cert)
 {
-	unsigned int prealloc;
+	unsigned char alloc;
 
 	if (!cert)
 		return;
 
-	prealloc = cert->preallocated;
+	alloc = cert->allocated;
 	public_key_clear(&cert->pub);
 	public_key_signature_clear(&cert->sig);
 	lc_memset_secure(cert, 0, sizeof(struct lc_x509_certificate));
-	cert->preallocated = prealloc;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+	cert->allocated = alloc;
+#pragma GCC diagnostic pop
 }
 
 LC_INTERFACE_FUNCTION(int, lc_x509_cert_decode,

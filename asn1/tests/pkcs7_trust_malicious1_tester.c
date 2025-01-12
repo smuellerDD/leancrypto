@@ -27,6 +27,10 @@
 
 #include "../../apps/src/lc_x509_generator_helper.h"
 
+/*
+ * This is a large memory buffer - use heap to allocate it as stack may
+ * explode on some platforms like macOS.
+ */
 struct workspace {
 	struct lc_pkcs7_trust_store trust_store;
 	struct lc_x509_certificate ca1, ca2, ca3, ca1_dec, ca2_dec, ca3_dec;
@@ -59,8 +63,6 @@ static int pkcs7_malicious_set_cert(struct lc_x509_certificate *cert)
 
 	CKINT(lc_x509_cert_set_ca(cert));
 
-	cert->preallocated = 1;
-
 out:
 	return ret;
 }
@@ -78,8 +80,6 @@ static int pkcs7_malicious_set_cert2(struct lc_x509_certificate *cert)
 	CKINT(lc_x509_cert_set_keyusage(cert, "keyEncipherment"));
 	CKINT(lc_x509_cert_set_keyusage(cert, "keyCertSign"));
 	CKINT(lc_x509_cert_set_keyusage(cert, "critical"));
-
-	cert->preallocated = 1;
 
 out:
 	return ret;
@@ -145,10 +145,6 @@ static int pkcs7_maclious_gen_certs(struct workspace *ws, int set_ca3_akid_null)
 		  "X.509 decode CA3\n");
 	CKINT(lc_x509_cert_set_signer(&ws->ca3_dec, &ws->keys3, &ws->ca2_dec));
 
-	ws->ca1_dec.preallocated = 1;
-	ws->ca2_dec.preallocated = 1;
-	ws->ca3_dec.preallocated = 1;
-
 out:
 	return ret;
 }
@@ -199,7 +195,9 @@ static void pkcs7_malicious_clear(struct workspace *ws)
 	lc_x509_cert_clear(&ws->ca3_dec);
 	lc_pkcs7_message_clear(&ws->pkcs7);
 	lc_pkcs7_message_clear(&ws->pkcs7_dec);
-	lc_pkcs7_trust_store_clear(&ws->trust_store);
+
+	/* Do not clear trust store all all its certs are cleared before */
+	//lc_pkcs7_trust_store_clear(&ws->trust_store);
 }
 
 /*
@@ -208,7 +206,7 @@ static void pkcs7_malicious_clear(struct workspace *ws)
 static int pkcs7_maclious_certs8(void)
 {
 	int ret = 0;
-	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+	__LC_DECLARE_MEM_HEAP(ws, struct workspace, sizeof(uint64_t));
 
 	CKINT(pkcs7_maclious_gen_certs(ws, 1));
 	CKINT(pkcs7_maclious_gen_msg(ws));
@@ -222,7 +220,7 @@ static int pkcs7_maclious_certs8(void)
 
 out:
 	pkcs7_malicious_clear(ws);
-	LC_RELEASE_MEM(ws);
+	__LC_RELEASE_MEM_HEAP(ws);
 	return ret;
 }
 
@@ -234,7 +232,7 @@ static int pkcs7_maclious_certs7(void)
 {
 	uint8_t *pk;
 	int ret = 0;
-	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+	__LC_DECLARE_MEM_HEAP(ws, struct workspace, sizeof(uint64_t));
 
 	CKINT(pkcs7_maclious_gen_certs(ws, 0));
 	CKINT(pkcs7_maclious_gen_msg(ws));
@@ -248,7 +246,7 @@ static int pkcs7_maclious_certs7(void)
 
 out:
 	pkcs7_malicious_clear(ws);
-	LC_RELEASE_MEM(ws);
+	__LC_RELEASE_MEM_HEAP(ws);
 	return ret;
 }
 
@@ -261,7 +259,7 @@ static int pkcs7_maclious_certs6(void)
 {
 	uint8_t *pk;
 	int ret = 0;
-	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+	__LC_DECLARE_MEM_HEAP(ws, struct workspace, sizeof(uint64_t));
 
 	CKINT(pkcs7_maclious_gen_certs(ws, 0));
 	CKINT(pkcs7_maclious_gen_msg(ws));
@@ -279,7 +277,7 @@ static int pkcs7_maclious_certs6(void)
 
 out:
 	pkcs7_malicious_clear(ws);
-	LC_RELEASE_MEM(ws);
+	__LC_RELEASE_MEM_HEAP(ws);
 	return ret;
 }
 
@@ -293,7 +291,7 @@ static int pkcs7_maclious_certs5(void)
 {
 	uint8_t *pk;
 	int ret = 0;
-	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+	__LC_DECLARE_MEM_HEAP(ws, struct workspace, sizeof(uint64_t));
 
 	CKINT(pkcs7_maclious_gen_certs(ws, 0));
 	CKINT(pkcs7_maclious_gen_msg(ws));
@@ -307,7 +305,7 @@ static int pkcs7_maclious_certs5(void)
 
 out:
 	pkcs7_malicious_clear(ws);
-	LC_RELEASE_MEM(ws);
+	__LC_RELEASE_MEM_HEAP(ws);
 	return ret;
 }
 
@@ -321,7 +319,7 @@ static int pkcs7_maclious_certs4(void)
 {
 	uint8_t *sig;
 	int ret = 0;
-	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+	__LC_DECLARE_MEM_HEAP(ws, struct workspace, sizeof(uint64_t));
 
 	CKINT(pkcs7_maclious_gen_certs(ws, 0));
 	CKINT(pkcs7_maclious_gen_msg(ws));
@@ -335,7 +333,7 @@ static int pkcs7_maclious_certs4(void)
 
 out:
 	pkcs7_malicious_clear(ws);
-	LC_RELEASE_MEM(ws);
+	__LC_RELEASE_MEM_HEAP(ws);
 	return ret;
 }
 
@@ -351,7 +349,7 @@ out:
 static int pkcs7_maclious_certs2(void)
 {
 	int ret = 0;
-	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+	__LC_DECLARE_MEM_HEAP(ws, struct workspace, sizeof(uint64_t));
 
 	CKINT(pkcs7_maclious_gen_certs(ws, 0));
 	CKINT(pkcs7_maclious_gen_msg(ws));
@@ -368,7 +366,7 @@ static int pkcs7_maclious_certs2(void)
 
 out:
 	pkcs7_malicious_clear(ws);
-	LC_RELEASE_MEM(ws);
+	__LC_RELEASE_MEM_HEAP(ws);
 	return ret;
 }
 
@@ -378,7 +376,7 @@ out:
 static int pkcs7_maclious_certs1(void)
 {
 	int ret = 0;
-	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+	__LC_DECLARE_MEM_HEAP(ws, struct workspace, sizeof(uint64_t));
 
 	CKINT(pkcs7_maclious_gen_certs(ws, 0));
 	CKINT(pkcs7_maclious_gen_msg(ws));
@@ -388,7 +386,7 @@ static int pkcs7_maclious_certs1(void)
 
 out:
 	pkcs7_malicious_clear(ws);
-	LC_RELEASE_MEM(ws);
+	__LC_RELEASE_MEM_HEAP(ws);
 	return ret;
 }
 
@@ -400,7 +398,7 @@ out:
 static int pkcs7_maclious_certs0(void)
 {
 	int ret = 0;
-	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+	__LC_DECLARE_MEM_HEAP(ws, struct workspace, sizeof(uint64_t));
 
 	CKINT(pkcs7_maclious_gen_certs(ws, 0));
 	CKINT(pkcs7_maclious_gen_msg(ws));
@@ -414,7 +412,7 @@ static int pkcs7_maclious_certs0(void)
 
 out:
 	pkcs7_malicious_clear(ws);
-	LC_RELEASE_MEM(ws);
+	__LC_RELEASE_MEM_HEAP(ws);
 	return ret;
 }
 

@@ -88,11 +88,11 @@ out:
 
 void pkcs7_x509_free(struct lc_x509_certificate *x509)
 {
-	if (x509->preallocated) {
-		lc_x509_cert_clear(x509);
-	} else {
+	if (x509->allocated) {
 		lc_x509_cert_clear(x509);
 		lc_free(x509);
+	} else {
+		lc_x509_cert_clear(x509);
 	}
 }
 
@@ -109,10 +109,10 @@ int pkcs7_x509_get(struct lc_x509_certificate **x509,
 		tmp_x509 = pkcs7->preallocated_x509;
 		pkcs7->consumed_preallocated_x509++;
 		pkcs7->preallocated_x509++;
-		tmp_x509->preallocated = 1;
 	} else {
 		CKINT(lc_alloc_aligned((void **)&tmp_x509, 8,
 				       sizeof(struct lc_x509_certificate)));
+		tmp_x509->allocated = 1;
 	}
 
 	*x509 = tmp_x509;
