@@ -677,20 +677,17 @@ out:
  * that when generating a signature, the certificate would be self-signed.
  */
 int asym_keypair_load(struct lc_x509_certificate *cert,
-		      const struct lc_x509_key_data *keys,
-		      enum lc_sig_types keypair_algo)
+		      const struct lc_x509_key_data *keys)
 {
 	int ret;
 
-	switch (keypair_algo) {
+	switch (keys->sig_type) {
 	case LC_SIG_DILITHIUM_44:
 	case LC_SIG_DILITHIUM_65:
 	case LC_SIG_DILITHIUM_87:
 		CKINT(asym_set_dilithium_keypair(&cert->sig_gen_data,
 						 keys->pk.dilithium_pk,
 						 keys->sk.dilithium_sk));
-		CKINT(asym_set_dilithium_keypair(&cert->pub_gen_data,
-						 keys->pk.dilithium_pk, NULL));
 		break;
 	case LC_SIG_SPINCS_SHAKE_128F:
 	case LC_SIG_SPINCS_SHAKE_192F:
@@ -701,8 +698,6 @@ int asym_keypair_load(struct lc_x509_certificate *cert,
 		CKINT(asym_set_sphincs_keypair(&cert->sig_gen_data,
 					       keys->pk.sphincs_pk,
 					       keys->sk.sphincs_sk));
-		CKINT(asym_set_sphincs_keypair(&cert->pub_gen_data,
-					       keys->pk.sphincs_pk, NULL));
 		break;
 	case LC_SIG_DILITHIUM_44_ED25519:
 	case LC_SIG_DILITHIUM_65_ED25519:
@@ -710,9 +705,6 @@ int asym_keypair_load(struct lc_x509_certificate *cert,
 		CKINT(asym_set_dilithium_ed25519_keypair(
 			&cert->sig_gen_data, keys->pk.dilithium_ed25519_pk,
 			keys->sk.dilithium_ed25519_sk));
-		CKINT(asym_set_dilithium_ed25519_keypair(
-			&cert->pub_gen_data, keys->pk.dilithium_ed25519_pk,
-			NULL));
 		break;
 	case LC_SIG_DILITHIUM_87_ED448:
 	case LC_SIG_ECDSA_X963:
@@ -724,8 +716,8 @@ int asym_keypair_load(struct lc_x509_certificate *cert,
 		return -ENOPKG;
 	}
 
-	cert->sig.pkey_algo = keypair_algo;
-	cert->pub.pkey_algo = keypair_algo;
+	cert->sig.pkey_algo = keys->sig_type;
+	cert->pub.pkey_algo = keys->sig_type;
 
 out:
 	return ret;

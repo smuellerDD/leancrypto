@@ -165,19 +165,23 @@ int lc_x509_keypair_gen(struct lc_x509_certificate *cert,
  * @ingroup X509Gen
  * @brief Load key pair it to the X.509 certificate
  *
- * \note After this call, the X.509 certificate acts as a self-signed
- * certificate. IF another signer is to be used, use \p lc_x509_cert_set_signer.
+ * This call allows secret and / or public keys to be loaded. If only one of
+ * the types is loaded, the respective other type is not touched. For example,
+ * such freedom is needed when decoding an X.509 certificate and wanting to
+ * add the associated private key.
+ *
+ * \note If this call is used to load a full key pair, the X.509 certificate
+ * acts as a self-signed certificate. If another signer is to be used,
+ * use \p lc_x509_cert_set_signer.
  *
  * @param [out] cert X.509 certificate data structure to be filled
  * @param [in] keys Buffer that holds the loaded key data where the buffer must
  *		     have the same lifetime as \p cert
- * @param [in] keypair_algo Algorithm to generate the key pair for
  *
  * @return 0 on success, < 0 on error
  */
 int lc_x509_keypair_load(struct lc_x509_certificate *cert,
-			 const struct lc_x509_key_data *keys,
-			 enum lc_sig_types keypair_algo);
+			 const struct lc_x509_key_data *keys);
 
 /**
  * @ingroup X509Gen

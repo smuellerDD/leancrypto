@@ -119,7 +119,8 @@ static int pkcs7_maclious_gen_certs(struct workspace *ws, int set_ca3_akid_null)
 	CKINT_LOG(lc_x509_cert_decode(&ws->ca1_dec, ws->ca1_blob,
 				      sizeof(ws->ca2_blob) - blob_len),
 		  "X.509 decode CA1\n");
-	CKINT(lc_x509_cert_set_signer(&ws->ca1_dec, &ws->keys1, &ws->ca1_dec));
+	/* Set the full key pair again to the parsed certificate */
+	CKINT(lc_x509_keypair_load(&ws->ca1_dec, &ws->keys1));
 
 	blob_len = sizeof(ws->ca2_blob);
 	CKINT_LOG(lc_x509_cert_encode(&ws->ca2, ws->ca2_blob, &blob_len),
@@ -127,7 +128,8 @@ static int pkcs7_maclious_gen_certs(struct workspace *ws, int set_ca3_akid_null)
 	CKINT_LOG(lc_x509_cert_decode(&ws->ca2_dec, ws->ca2_blob,
 				      sizeof(ws->ca2_blob) - blob_len),
 		  "X.509 decode CA2\n");
-	CKINT(lc_x509_cert_set_signer(&ws->ca2_dec, &ws->keys2, &ws->ca2_dec));
+	/* Set the full key pair again to the parsed certificate */
+	CKINT(lc_x509_keypair_load(&ws->ca2_dec, &ws->keys2));
 
 	/* Set signer for CA3 */
 	CKINT(lc_x509_cert_set_signer(&ws->ca3, &ws->keys2, &ws->ca2_dec));

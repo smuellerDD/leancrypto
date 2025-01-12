@@ -1424,8 +1424,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_keypair_gen,
 
 LC_INTERFACE_FUNCTION(int, lc_x509_keypair_load,
 		      struct lc_x509_certificate *cert,
-		      const struct lc_x509_key_data *keys,
-		      enum lc_sig_types keypair_algo)
+		      const struct lc_x509_key_data *keys)
 {
-	return asym_keypair_load(cert, keys, keypair_algo);
+	return asym_keypair_load(cert, keys);
 }

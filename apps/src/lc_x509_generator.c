@@ -614,7 +614,7 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 						opts->sk_data, opts->sk_len));
 		}
 
-		CKINT(lc_x509_keypair_load(gcert, keys, opts->in_key_type));
+		CKINT(lc_x509_keypair_load(gcert, keys));
 	}
 
 out:

@@ -247,14 +247,31 @@ int asym_set_dilithium_keypair(struct lc_x509_key_data *gen_data,
 {
 	uint8_t *pk_ptr;
 	size_t pk_len;
-	enum lc_dilithium_type dilithium_type;
+	enum lc_dilithium_type dilithium_type = LC_DILITHIUM_UNKNOWN;
 
 	int ret = 0;
 
 	CKNULL(gen_data, -EINVAL);
-	CKNULL(pk, -EINVAL);
 
-	dilithium_type = lc_dilithium_pk_type(pk);
+	if (!pk && !sk)
+		return -EINVAL;
+
+	if (pk) {
+		dilithium_type = lc_dilithium_pk_type(pk);
+
+		gen_data->pk.dilithium_pk = pk;
+
+		CKINT(lc_dilithium_pk_ptr(&pk_ptr, &pk_len, pk));
+		lc_hash(LC_X509_SKID_DEFAULT_HASH, pk_ptr, pk_len,
+			gen_data->pk_digest);
+	}
+
+	if (sk) {
+		dilithium_type = lc_dilithium_sk_type(sk);
+
+		gen_data->sk.dilithium_sk = sk;
+	}
+
 	switch (dilithium_type) {
 	case LC_DILITHIUM_44:
 		gen_data->sig_type = LC_SIG_DILITHIUM_44;
@@ -270,12 +287,6 @@ int asym_set_dilithium_keypair(struct lc_x509_key_data *gen_data,
 		printf_debug("Unknown Dilithium type\n");
 		return -ENOPKG;
 	}
-
-	gen_data->pk.dilithium_pk = pk;
-	gen_data->sk.dilithium_sk = sk;
-
-	CKINT(lc_dilithium_pk_ptr(&pk_ptr, &pk_len, pk));
-	lc_hash(LC_X509_SKID_DEFAULT_HASH, pk_ptr, pk_len, gen_data->pk_digest);
 
 out:
 	return ret;

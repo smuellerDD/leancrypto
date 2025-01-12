@@ -75,8 +75,7 @@ int asym_keypair_gen(struct lc_x509_certificate *cert,
 		     struct lc_x509_key_data *keys,
 		     enum lc_sig_types create_keypair_algo);
 int asym_keypair_load(struct lc_x509_certificate *cert,
-		      const struct lc_x509_key_data *keys,
-		      enum lc_sig_types keypair_algo);
+		      const struct lc_x509_key_data *keys);
 
 #ifdef __cplusplus
 }
