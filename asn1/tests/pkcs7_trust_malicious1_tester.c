@@ -187,14 +187,17 @@ out:
 
 static void pkcs7_malicious_clear(struct workspace *ws)
 {
+	/* Clear the PKCS#7 messages first as they may use the certs */
+	lc_pkcs7_message_clear(&ws->pkcs7);
+	lc_pkcs7_message_clear(&ws->pkcs7_dec);
+
+	/* Now clean the certificates */
 	lc_x509_cert_clear(&ws->ca1);
 	lc_x509_cert_clear(&ws->ca2);
 	lc_x509_cert_clear(&ws->ca3);
 	lc_x509_cert_clear(&ws->ca1_dec);
 	lc_x509_cert_clear(&ws->ca2_dec);
 	lc_x509_cert_clear(&ws->ca3_dec);
-	lc_pkcs7_message_clear(&ws->pkcs7);
-	lc_pkcs7_message_clear(&ws->pkcs7_dec);
 
 	/* Do not clear trust store all all its certs are cleared before */
 	//lc_pkcs7_trust_store_clear(&ws->trust_store);
