@@ -325,6 +325,7 @@ static int pkcs7_load_signer(struct pkcs7_generator_opts *opts)
 
 	CKINT(lc_alloc_aligned((void **)&newcert, 8,
 			       sizeof(struct lc_x509_certificate)));
+	newcert->allocated = 1;
 
 	/* Parse the X.509 certificate */
 	CKINT(lc_x509_cert_decode(newcert, x509->signer_data,
@@ -368,6 +369,7 @@ static int pkcs7_load_cert(struct pkcs7_generator_opts *opts)
 
 	CKINT(lc_alloc_aligned((void **)&newcert, 8,
 			       sizeof(struct lc_x509_certificate)));
+	newcert->allocated = 1;
 
 	/* Parse the X.509 certificate */
 	CKINT_LOG(lc_x509_cert_decode(newcert, x509->x509_data,
@@ -407,6 +409,7 @@ static int pkcs7_load_trust(struct pkcs7_generator_opts *opts)
 
 	CKINT(lc_alloc_aligned((void **)&newcert, 8,
 			       sizeof(struct lc_x509_certificate)));
+	newcert->allocated = 1;
 
 	CKINT_LOG(lc_x509_cert_decode(newcert, x509->x509_data,
 				      x509->x509_data_len),
