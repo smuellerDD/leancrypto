@@ -44,6 +44,8 @@ LC_CONSTRUCTOR(aes_fastest_impl)
 
 	/* Check if NULL pointers are present */
 	LC_FILL_ACCEL_NULL(aesni)
+	LC_FILL_ACCEL_NULL(armce)
+	LC_FILL_ACCEL_NULL(riscv64)
 
 #define LC_FILL_DFLT_IMPL(accel)                                               \
 	lc_aes_cbc = lc_aes_cbc_##accel;                                       \
