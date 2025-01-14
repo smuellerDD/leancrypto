@@ -62,7 +62,7 @@ static int _sha384_tester(const struct lc_hash *sha384, const char *name)
 	lc_hash_init(ctx384);
 	lc_hash_update(ctx384, msg_384, sizeof(msg_384));
 	lc_hash_final(ctx384, act);
-	ret = lc_compare(act, exp_384, LC_SHA384_SIZE_DIGEST, "SHA-384");
+	ret += lc_compare(act, exp_384, LC_SHA384_SIZE_DIGEST, "SHA-384");
 	lc_hash_zero_free(ctx384);
 
 	lc_hash_init(sha384_stack);
