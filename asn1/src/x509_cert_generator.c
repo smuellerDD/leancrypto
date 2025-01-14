@@ -1379,28 +1379,22 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_signer,
 	int ret;
 
 	/* Set issuer */
-	CKINT(lc_x509_cert_get_subject_c(signer_x509, &param,
-					 &paramlen));
+	CKINT(lc_x509_cert_get_subject_c(signer_x509, &param, &paramlen));
 	CKINT(lc_x509_cert_set_issuer_c(signed_x509, param, paramlen));
 
-	CKINT(lc_x509_cert_get_subject_st(signer_x509, &param,
-					  &paramlen));
+	CKINT(lc_x509_cert_get_subject_st(signer_x509, &param, &paramlen));
 	CKINT(lc_x509_cert_set_issuer_st(signed_x509, param, paramlen));
 
-	CKINT(lc_x509_cert_get_subject_o(signer_x509, &param,
-					 &paramlen));
+	CKINT(lc_x509_cert_get_subject_o(signer_x509, &param, &paramlen));
 	CKINT(lc_x509_cert_set_issuer_o(signed_x509, param, paramlen));
 
-	CKINT(lc_x509_cert_get_subject_ou(signer_x509, &param,
-					  &paramlen));
+	CKINT(lc_x509_cert_get_subject_ou(signer_x509, &param, &paramlen));
 	CKINT(lc_x509_cert_set_issuer_ou(signed_x509, param, paramlen));
 
-	CKINT(lc_x509_cert_get_subject_cn(signer_x509, &param,
-					  &paramlen));
+	CKINT(lc_x509_cert_get_subject_cn(signer_x509, &param, &paramlen));
 	CKINT(lc_x509_cert_set_issuer_cn(signed_x509, param, paramlen));
 
-	CKINT(lc_x509_cert_get_subject_email(signer_x509, &param,
-					     &paramlen));
+	CKINT(lc_x509_cert_get_subject_email(signer_x509, &param, &paramlen));
 	CKINT(lc_x509_cert_set_issuer_email(signed_x509, param, paramlen));
 
 	/* Set AKID */

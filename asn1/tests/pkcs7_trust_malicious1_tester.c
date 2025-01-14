@@ -36,7 +36,7 @@ struct workspace {
 	struct lc_x509_certificate ca1, ca2, ca3, ca1_dec, ca2_dec, ca3_dec;
 	struct lc_pkcs7_message pkcs7, pkcs7_dec;
 	struct lc_x509_key_input_data key_input_data1, key_input_data2,
-				      key_input_data3;
+		key_input_data3;
 	uint8_t pkcs7_blob[65536], ca1_blob[65536], ca2_blob[65536],
 		ca3_blob[65536];
 	struct lc_x509_key_data keys1, keys2, keys3;
@@ -221,7 +221,7 @@ static int pkcs7_maclious_certs8(void)
 		  "Loading certificate CA2 into trust store\n");
 
 	CKINT_LOG(lc_pkcs7_verify(&ws->pkcs7_dec, &ws->trust_store, NULL),
-				  "PKCS#7 verification failure: %d\n", ret);
+		  "PKCS#7 verification failure: %d\n", ret);
 
 out:
 	pkcs7_malicious_clear(ws);
@@ -247,7 +247,7 @@ static int pkcs7_maclious_certs7(void)
 	pk[0] ^= 0x01;
 
 	CKINT_LOG(lc_pkcs7_verify(&ws->pkcs7_dec, NULL, NULL),
-				  "PKCS#7 verification failure: %d\n", ret);
+		  "PKCS#7 verification failure: %d\n", ret);
 
 out:
 	pkcs7_malicious_clear(ws);
@@ -278,7 +278,7 @@ static int pkcs7_maclious_certs6(void)
 	pk[0] ^= 0x01;
 
 	CKINT_LOG(lc_pkcs7_verify(&ws->pkcs7_dec, &ws->trust_store, NULL),
-				  "PKCS#7 verification failure: %d\n", ret);
+		  "PKCS#7 verification failure: %d\n", ret);
 
 out:
 	pkcs7_malicious_clear(ws);
@@ -306,7 +306,7 @@ static int pkcs7_maclious_certs5(void)
 	pk[0] ^= 0x01;
 
 	CKINT_LOG(lc_pkcs7_verify(&ws->pkcs7_dec, NULL, NULL),
-				  "PKCS#7 verification failure: %d\n", ret);
+		  "PKCS#7 verification failure: %d\n", ret);
 
 out:
 	pkcs7_malicious_clear(ws);
@@ -334,7 +334,7 @@ static int pkcs7_maclious_certs4(void)
 	sig[0] ^= 0x01;
 
 	CKINT_LOG(lc_pkcs7_verify(&ws->pkcs7_dec, NULL, NULL),
-				  "PKCS#7 verification failure: %d\n", ret);
+		  "PKCS#7 verification failure: %d\n", ret);
 
 out:
 	pkcs7_malicious_clear(ws);
@@ -367,7 +367,7 @@ static int pkcs7_maclious_certs2(void)
 		  "Loading certificate CA2 into trust store\n");
 
 	CKINT_LOG(lc_pkcs7_verify(&ws->pkcs7_dec, &ws->trust_store, NULL),
-				  "PKCS#7 verification failure: %d\n", ret);
+		  "PKCS#7 verification failure: %d\n", ret);
 
 out:
 	pkcs7_malicious_clear(ws);
@@ -387,7 +387,7 @@ static int pkcs7_maclious_certs1(void)
 	CKINT(pkcs7_maclious_gen_msg(ws));
 
 	CKINT_LOG(lc_pkcs7_verify(&ws->pkcs7_dec, NULL, NULL),
-				  "PKCS#7 verification failure: %d\n", ret);
+		  "PKCS#7 verification failure: %d\n", ret);
 
 out:
 	pkcs7_malicious_clear(ws);
@@ -413,7 +413,7 @@ static int pkcs7_maclious_certs0(void)
 		  "Loading certificate CA2 into trust store\n");
 
 	CKINT_LOG(lc_pkcs7_verify(&ws->pkcs7_dec, &ws->trust_store, NULL),
-				  "PKCS#7 verification failure: %d\n", ret);
+		  "PKCS#7 verification failure: %d\n", ret);
 
 out:
 	pkcs7_malicious_clear(ws);
@@ -435,38 +435,44 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = pkcs7_maclious_certs2();
 	if (ret != -EBADMSG) {
-		printf("Test 1: Expected failure of EBADMSG not received, received return code: %d\n", ret);
+		printf("Test 1: Expected failure of EBADMSG not received, received return code: %d\n",
+		       ret);
 		ret = -EFAULT;
 		goto out;
 	}
 
 	ret = pkcs7_maclious_certs4();
 	if (ret != -EBADMSG) {
-		printf("Test 3: Expected failure of EBADMSG not received, received return code: %d\n", ret);
+		printf("Test 3: Expected failure of EBADMSG not received, received return code: %d\n",
+		       ret);
 		ret = -EFAULT;
 		goto out;
 	}
 
 	ret = pkcs7_maclious_certs5();
 	if (ret != -EBADMSG) {
-		printf("Test 4: Expected failure of EBADMSG not received, received return code: %d\n", ret);
+		printf("Test 4: Expected failure of EBADMSG not received, received return code: %d\n",
+		       ret);
 		ret = -EFAULT;
 		goto out;
 	}
 
-	CKINT_LOG(pkcs7_maclious_certs6(),
-		  "PKCS#7 processing modified PK but with trust store failed\n");
+	CKINT_LOG(
+		pkcs7_maclious_certs6(),
+		"PKCS#7 processing modified PK but with trust store failed\n");
 
 	ret = pkcs7_maclious_certs7();
 	if (ret != -EBADMSG) {
-		printf("Test 6: Expected failure of EBADMSG not received, received return code: %d\n", ret);
+		printf("Test 6: Expected failure of EBADMSG not received, received return code: %d\n",
+		       ret);
 		ret = -EFAULT;
 		goto out;
 	}
 
 	ret = pkcs7_maclious_certs8();
 	if (ret != -EKEYREJECTED) {
-		printf("Test 6: Expected failure of EKEYREJECTED not received, received return code: %d\n", ret);
+		printf("Test 6: Expected failure of EKEYREJECTED not received, received return code: %d\n",
+		       ret);
 		ret = -EFAULT;
 		goto out;
 	}

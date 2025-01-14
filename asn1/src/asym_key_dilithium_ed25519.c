@@ -609,11 +609,9 @@ int asym_set_dilithium_ed25519_keypair(struct lc_x509_key_data *gen_data,
 
 		gen_data->pk.dilithium_ed25519_pk = pk;
 
-		CKINT(lc_dilithium_ed25519_pk_ptr(&dilithium_pk_ptr,
-						  &dilithium_pk_len,
-						  &ed25519_pk_ptr,
-						  &ed25519_pk_len,
-						  pk));
+		CKINT(lc_dilithium_ed25519_pk_ptr(
+			&dilithium_pk_ptr, &dilithium_pk_len, &ed25519_pk_ptr,
+			&ed25519_pk_len, pk));
 		lc_hash_init(hash_ctx);
 		lc_hash_update(hash_ctx, dilithium_pk_ptr, dilithium_pk_len);
 		lc_hash_update(hash_ctx, ed25519_pk_ptr, ed25519_pk_len);
