@@ -19,9 +19,20 @@
 
 #include "compare.h"
 #include "lc_sha512.h"
+#include "sha512_arm_ce.h"
+#include "sha512_arm_neon.h"
+#include "sha512_avx2.h"
+#include "sha512_c.h"
+#include "sha512_riscv.h"
+#include "sha512_riscv_zbb.h"
+#include "sha512_shani.h"
 #include "visibility.h"
 
-static int sha512_tester(void)
+#define LC_EXEC_ONE_TEST(sha512_impl)                                          \
+	if (sha512_impl)                                                       \
+	ret += _sha512_tester(sha512_impl, #sha512_impl)
+
+static int _sha512_tester(const struct lc_hash *sha512, const char *name)
 {
 	struct lc_hash_ctx *ctx512 = NULL;
 	static const uint8_t msg_512[] = { 0x7F, 0xAD, 0x12 };
@@ -36,16 +47,24 @@ static int sha512_tester(void)
 	};
 	uint8_t act[LC_SHA512_SIZE_DIGEST];
 	int ret;
+	LC_HASH_CTX_ON_STACK(ctx512_stack, sha512);
 	LC_SHA512_CTX_ON_STACK(sha512_stack);
 
-	printf("hash ctx len %u\n", (unsigned int)LC_HASH_CTX_SIZE(lc_sha512));
+	printf("hash ctx %s (%s implementation) len %u\n", name,
+	       sha512 == lc_sha512_c ? "C" : "accelerated",
+	       (unsigned int)LC_HASH_CTX_SIZE(sha512));
+	lc_hash_init(ctx512_stack);
+	lc_hash_update(ctx512_stack, msg_512, sizeof(msg_512));
+	lc_hash_final(ctx512_stack, act);
+	ret = lc_compare(act, exp_512, LC_SHA512_SIZE_DIGEST, "SHA-512");
+	lc_hash_zero(ctx512_stack);
 
 	if (lc_hash_alloc(lc_sha512, &ctx512))
 		return 1;
 	lc_hash_init(ctx512);
 	lc_hash_update(ctx512, msg_512, 3);
 	lc_hash_final(ctx512, act);
-	ret = lc_compare(act, exp_512, LC_SHA512_SIZE_DIGEST, "SHA-512");
+	ret += lc_compare(act, exp_512, LC_SHA512_SIZE_DIGEST, "SHA-512");
 	lc_hash_zero_free(ctx512);
 
 	lc_hash_init(sha512_stack);
@@ -60,6 +79,22 @@ static int sha512_tester(void)
 			  "SHA-512 extact data");
 
 	lc_hash_zero(sha512_stack);
+
+	return ret;
+}
+
+static int sha512_tester(void)
+{
+	int ret = 0;
+
+	LC_EXEC_ONE_TEST(lc_sha512);
+	LC_EXEC_ONE_TEST(lc_sha512_c);
+	LC_EXEC_ONE_TEST(lc_sha512_avx2);
+	LC_EXEC_ONE_TEST(lc_sha512_shani);
+	LC_EXEC_ONE_TEST(lc_sha512_arm_ce);
+	LC_EXEC_ONE_TEST(lc_sha512_arm_neon);
+	LC_EXEC_ONE_TEST(lc_sha512_riscv);
+	LC_EXEC_ONE_TEST(lc_sha512_riscv_zbb);
 
 	return ret;
 }

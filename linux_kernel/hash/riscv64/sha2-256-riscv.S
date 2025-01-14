@@ -1,0 +1,1 @@
+../../../hash/src/asm/riscv64/sha2-256-riscv.S

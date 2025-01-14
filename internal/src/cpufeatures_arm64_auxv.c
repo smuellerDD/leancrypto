@@ -48,7 +48,7 @@ LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 	if (features == LC_CPU_FEATURE_UNSET) {
 		unsigned long c = getauxval(AT_HWCAP);
 
-		features = LC_CPU_FEATURE_ARM;
+		features = LC_CPU_FEATURE_ARM | LC_CPU_FEATURE_ARM_NEON;
 
 		if (c & HWCAP_ASIMD)
 			features |= LC_CPU_FEATURE_ARM_NEON;
@@ -57,7 +57,7 @@ LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 		if (c & HWCAP_SHA2)
 			features |= LC_CPU_FEATURE_ARM_SHA2;
 		if (c & HWCAP_SHA512)
-			features |= LC_CPU_FEATURE_ARM_SHA2;
+			features |= LC_CPU_FEATURE_ARM_SHA2_512;
 		if (c & HWCAP_SHA3)
 			features |= LC_CPU_FEATURE_ARM_SHA3;
 	}

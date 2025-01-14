@@ -60,9 +60,9 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 #endif
 	static const char fips140[] =
 #ifdef LC_FIPS140
-		 "yes";
+		"yes";
 #else
-		 "no";
+		"no";
 #endif
 
 	size_t len;

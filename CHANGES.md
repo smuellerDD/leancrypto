@@ -27,6 +27,8 @@ Changes 1.2.0
 
 * Seeded DRNG: Require a reseed after 2**14 bytes to comply with AIS20/31 3.0 DRG.4 and the discussed upcoming changes to SP800-90A.
 
+* SHA-512 / 384 / 256: Addition of AVX2, SHA_NI, SHA_NI-512, ARMv8 Neon, ARMv8 CE, RISCV ASM, RISCV ZBB acceleration
+
 Changes 1.1.0
 * ML-KEM remove modulus check of decapsulation key (not required by FIPS 203)
 

@@ -17,8 +17,8 @@
  * DAMAGE.
  */
 
-#ifndef SHA3_RISCV_ASM
-#define SHA3_RISCV_ASM
+#ifndef SHA3_RISCV_ASM_H
+#define SHA3_RISCV_ASM_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,4 +48,4 @@ extern const struct lc_hash *lc_cshake256_riscv_asm_zbb;
 }
 #endif
 
-#endif /* SHA3_RISCV_ASM */
+#endif /* SHA3_RISCV_ASM_H */

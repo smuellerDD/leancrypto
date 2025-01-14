@@ -1,0 +1,39 @@
+/*
+ * Copyright (C) 2025, Stephan Mueller <smueller@chronox.de>
+ *
+ * License: see LICENSE file in root directory
+ *
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, ALL OF
+ * WHICH ARE HEREBY DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+ * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ */
+
+#ifndef SHA2_256_AVX2_H
+#define SHA2_256_AVX2_H
+
+#include "ext_headers.h"
+#include "lc_sha256.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void SYSV_ABI sha256_block_data_order_avx2(struct lc_sha256_state *c,
+					   const uint8_t *p, size_t num);
+void SYSV_ABI sha256_block_data_order_shaext(struct lc_sha256_state *c,
+					     const uint8_t *p, size_t num);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* SHA2_256_AVX2_H */

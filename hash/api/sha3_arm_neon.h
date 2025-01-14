@@ -17,8 +17,8 @@
  * DAMAGE.
  */
 
-#ifndef SHA3_ARM_NEON
-#define SHA3_ARM_NEON
+#ifndef SHA3_ARM_NEON_H
+#define SHA3_ARM_NEON_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,4 +38,4 @@ extern const struct lc_hash *lc_cshake256_arm_neon;
 }
 #endif
 
-#endif /* SHA3_ARM_NEON */
+#endif /* SHA3_ARM_NEON_H */

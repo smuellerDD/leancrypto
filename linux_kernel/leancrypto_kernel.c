@@ -43,20 +43,46 @@ EXPORT_SYMBOL(crypto_scalarmult_curve25519_c);
 #endif
 
 void ascon_fastest_impl(void);
+void sha256_fastest_impl(void);
+void sha512_fastest_impl(void);
 void sha3_fastest_impl(void);
 void aes_fastest_impl(void);
 static int __init leancrypto_init(void)
 {
 	int ret;
 
+#ifdef CONFIG_LEANCRYPTO_ASCON_HASH
 	ascon_fastest_impl();
+#endif
+
+#ifdef CONFIG_LEANCRYPTO_SHA2_256
+	sha256_fastest_impl();
+#endif
+
+#ifdef CONFIG_LEANCRYPTO_SHA2_512
+	sha512_fastest_impl();
+#endif
+
+#ifdef CONFIG_LEANCRYPTO_SHA3
 	sha3_fastest_impl();
+#endif
+
+#ifdef CONFIG_LEANCRYPTO_AES
 	aes_fastest_impl();
+#endif
 
 	/* Register crypto algorithms */
-	ret = lc_kernel_sha3_init();
+	ret = lc_kernel_sha256_init();
 	if (ret)
 		goto out;
+
+	ret = lc_kernel_sha512_init();
+	if (ret)
+		goto free_sha256;
+
+	ret = lc_kernel_sha3_init();
+	if (ret)
+		goto free_sha512;
 
 	ret = lc_kernel_kmac256_init();
 	if (ret)
@@ -236,6 +262,12 @@ free_kmac:
 free_sha3:
 	lc_kernel_sha3_exit();
 
+free_sha512:
+	lc_kernel_sha512_exit();
+
+free_sha256:
+	lc_kernel_sha256_exit();
+
 	goto out;
 }
 
@@ -243,6 +275,8 @@ static void __exit leancrypto_exit(void)
 {
 	lc_seeded_rng_zero_state();
 
+	lc_kernel_sha256_exit();
+	lc_kernel_sha512_exit();
 	lc_kernel_sha3_exit();
 	lc_kernel_kmac256_exit();
 	lc_kernel_rng_exit();

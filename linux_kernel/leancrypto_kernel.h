@@ -40,6 +40,34 @@ extern "C" {
 #define free_zero(x) kzfree(x)
 #endif
 
+#ifdef CONFIG_LEANCRYPTO_SHA2_256
+int __init lc_kernel_sha256_init(void);
+void lc_kernel_sha256_exit(void);
+#else
+static inline int __init lc_kernel_sha256_init(void)
+{
+	return 0;
+}
+
+static inline void lc_kernel_sha256_exit(void)
+{
+}
+#endif
+
+#ifdef CONFIG_LEANCRYPTO_SHA2_512
+int __init lc_kernel_sha512_init(void);
+void lc_kernel_sha512_exit(void);
+#else
+static inline int __init lc_kernel_sha512_init(void)
+{
+	return 0;
+}
+
+static inline void lc_kernel_sha512_exit(void)
+{
+}
+#endif
+
 #ifdef CONFIG_LEANCRYPTO_SHA3
 int __init lc_kernel_sha3_init(void);
 void lc_kernel_sha3_exit(void);

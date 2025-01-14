@@ -1,15 +1,133 @@
 lc_hash = 0
 
 if get_option('sha2-256').enabled()
-	src_fips += files([ 'sha256.c' ])
+	src_fips += files([ 'sha256.c', 'sha256_selector.c' ])
 	include_files += files([ '../api/lc_sha256.h' ])
 	lc_hash = 1
+
+	# SHA2-256: Intel AVX2 implementation
+	if (x86_64_asm)
+		src_fips += files([ 'sha256_avx2.c', 'sha256_shani.c',
+				    'asm/AVX2/sha2-256-AVX2.S' ])
+	else
+		src_fips += files([ 'sha256_avx2_null.c',
+				    'sha256_shani_null.c' ])
+	endif
+
+	# 64 bit ARM processor and GCC
+	if (arm64_asm)
+		leancrypto_keccak_arm8a_neon_sha256_lib = static_library(
+			'leancrypto_keccak_arm8a_neon_sha256_lib',
+			[ 'sha256_arm_neon.c',
+			  'sha256_arm_ce.c',
+			  'asm/ARMv8A/sha2-256-ARMv8.S' ],
+			c_args: cc_armv8_neon_simd_args,
+			include_directories: [
+				include_dirs,
+				include_internal_dirs ],
+		)
+		leancrypto_support_libs_fips += leancrypto_keccak_arm8a_neon_sha256_lib
+	else
+		src_fips += files([ 'sha256_arm_neon_null.c',
+				    'sha256_arm_ce_null.c' ])
+	endif
+
+	# 64 bit RISCV straight assembler
+	if (riscv64_asm)
+		leancrypto_keccak_riscv_sha256_lib = static_library(
+			'leancrypto_keccak_riscv_sha256_lib',
+			[ 'sha256_riscv.c',
+			  'asm/riscv64/sha2-256-riscv.S' ],
+			c_args: cc_riscv64_asm_args,
+			include_directories: [
+				include_dirs,
+				include_internal_dirs ],
+		)
+		leancrypto_support_libs_fips += leancrypto_keccak_riscv_sha256_lib
+	else
+		src_fips += files([ 'sha256_riscv_null.c' ])
+	endif
+
+	# 64 bit RISCV ZBB assembler
+	if (riscv64_asm)
+		leancrypto_keccak_riscv_zbb_sha256_lib = static_library(
+			'leancrypto_keccak_riscv_zbb_sha256_lib',
+			[ 'sha256_riscv_zbb.c',
+			  'asm/riscv64/sha2-256-riscv.S' ],
+			c_args: cc_riscv64_asm_zbb_args,
+			include_directories: [
+				include_dirs,
+				include_internal_dirs ],
+		)
+		leancrypto_support_libs_fips += leancrypto_keccak_riscv_zbb_sha256_lib
+	else
+		src_fips += files([ 'sha256_riscv_zbb_null.c' ])
+	endif
 endif
 
 if get_option('sha2-512').enabled()
-	src_fips += files([ 'sha512.c' ])
+	src_fips += files([ 'sha512.c', 'sha512_selector.c' ])
 	include_files += files([ '../api/lc_sha512.h' ])
 	lc_hash = 1
+
+	# SHA2-512: Intel AVX2 implementation
+	if (x86_64_asm)
+		src_fips += files([ 'sha512_avx2.c', 'sha512_shani.c',
+				    'asm/AVX2/sha2-512-AVX2.S' ])
+	else
+		src_fips += files([ 'sha512_avx2_null.c',
+				    'sha512_shani_null.c' ])
+	endif
+
+	# 64 bit ARM processor and GCC
+	if (arm64_asm)
+		leancrypto_keccak_arm_neon_sha512_lib = static_library(
+			'leancrypto_keccak_arm_neon_sha512_lib',
+			[ 'sha512_arm_neon.c',
+			  'sha512_arm_ce.c',
+			  'asm/ARMv8A/sha2-512-ARMv8.S' ],
+			c_args: cc_armv8_neon_simd_args,
+			include_directories: [
+				include_dirs,
+				include_internal_dirs ],
+		)
+		leancrypto_support_libs_fips += leancrypto_keccak_arm_neon_sha512_lib
+	else
+		src_fips += files([ 'sha512_arm_neon_null.c',
+				    'sha512_arm_ce_null.c' ])
+	endif
+
+	# 64 bit RISCV straight assembler
+	if (riscv64_asm)
+		leancrypto_keccak_riscv_sha512_lib = static_library(
+			'leancrypto_keccak_riscv_sha512_lib',
+			[ 'sha512_riscv.c',
+			  'asm/riscv64/sha2-512-riscv.S' ],
+			c_args: cc_riscv64_asm_args,
+			include_directories: [
+				include_dirs,
+				include_internal_dirs ],
+		)
+		leancrypto_support_libs_fips += leancrypto_keccak_riscv_sha512_lib
+	else
+		src_fips += files([ 'sha512_riscv_null.c' ])
+	endif
+
+	# 64 bit RISCV ZBB assembler
+	if (riscv64_asm)
+		leancrypto_keccak_riscv_zbb_sha512_lib = static_library(
+			'leancrypto_keccak_riscv_zbb_sha512_lib',
+			[ 'sha512_riscv_zbb.c',
+			  'asm/riscv64/sha2-512-riscv.S' ],
+			c_args: cc_riscv64_asm_zbb_args,
+			include_directories: [
+				include_dirs,
+				include_internal_dirs ],
+		)
+		leancrypto_support_libs_fips += leancrypto_keccak_riscv_zbb_sha512_lib
+	else
+		src_fips += files([ 'sha512_riscv_zbb_null.c' ])
+	endif
 endif
 
 if get_option('sha3').enabled()

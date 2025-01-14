@@ -61,7 +61,6 @@ static inline unsigned long arm_id_aa64isar0_el1_feature(void)
 	 * There is no corresponding code in leancrypto to warrant those
 	 * queries.
 	 */
-#if 0
 	ret = 0;
 	if (!sysctlbyname("hw.optional.arm.FEAT_SHA256", &ret, &size, NULL,
 			  0)) {
@@ -75,7 +74,6 @@ static inline unsigned long arm_id_aa64isar0_el1_feature(void)
 		if (ret)
 			id_aa64isar0_el1_val |= ARM8_SHA256512_FEATURE;
 	}
-#endif
 
 	ret = 0;
 	if (!sysctlbyname("hw.optional.arm.FEAT_AES", &ret, &size, NULL, 0)) {
@@ -114,14 +112,16 @@ LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 		unsigned long id_aa64isar0_el1_val =
 			arm_id_aa64isar0_el1_feature();
 
-		features = LC_CPU_FEATURE_ARM;
+		features = LC_CPU_FEATURE_ARM | LC_CPU_FEATURE_ARM_NEON;
 
 		if (id_aa64isar0_el1_val & ARM8_AES_FEATURE)
 			features |= LC_CPU_FEATURE_ARM_AES;
 
-		// TODO This check does not detect SAH2-256 only support
-		if (id_aa64isar0_el1_val & ARM8_SHA256512_FEATURE)
+		if (id_aa64isar0_el1_val & ARM8_SHA256_FEATURE)
 			features |= LC_CPU_FEATURE_ARM_SHA2;
+
+		if (id_aa64isar0_el1_val & ARM8_SHA256512_FEATURE)
+			features |= LC_CPU_FEATURE_ARM_SHA2_512;
 
 		if (id_aa64isar0_el1_val & ARM8_SHA3_FEATURE)
 			features |= LC_CPU_FEATURE_ARM_SHA3;

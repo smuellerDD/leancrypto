@@ -23,6 +23,8 @@
 #include "ext_headers.h"
 #include "lc_sha256.h"
 #include "lc_memset_secure.h"
+#include "sha2_common.h"
+#include "sha256_c.h"
 #include "visibility.h"
 
 static const uint32_t sha256_K[] = {
@@ -57,7 +59,7 @@ static void sha256_selftest(const struct lc_hash *sha256, int *tested,
 	lc_compare_selftest(act, exp_256, LC_SHA256_SIZE_DIGEST, impl);
 }
 
-static void sha256_init(void *_state)
+void sha256_init(void *_state)
 {
 	struct lc_sha256_state *ctx = _state;
 	static int tested = 0;
@@ -143,9 +145,21 @@ static inline void sha256_transform(struct lc_sha256_state *ctx,
 		W[i] = 0;
 }
 
-static void sha256_update(void *_state, const uint8_t *in, size_t inlen)
+static inline void sha256_transform_block_c(struct lc_sha256_state *ctx,
+					    const uint8_t *in, size_t blocks)
 {
-	struct lc_sha256_state *ctx = _state;
+	size_t i;
+
+	for (i = 0; i < blocks; i++, in += LC_SHA256_SIZE_BLOCK)
+		sha256_transform(ctx, in);
+}
+
+void sha256_update(struct lc_sha256_state *ctx, const uint8_t *in, size_t inlen,
+		   void (*sha256_transform_block)(struct lc_sha256_state *ctx,
+						  const uint8_t *in,
+						  size_t blocks))
+{
+	size_t blocks;
 	unsigned int partial;
 
 	if (!ctx)
@@ -175,21 +189,36 @@ static void sha256_update(void *_state, const uint8_t *in, size_t inlen)
 		inlen -= todo;
 		in += todo;
 
-		sha256_transform(ctx, ctx->partial);
+		sha256_transform_block(ctx, ctx->partial, 1);
 	}
 
 	/* Perform a transformation of full block-size messages */
-	for (; inlen >= LC_SHA256_SIZE_BLOCK;
-	     inlen -= LC_SHA256_SIZE_BLOCK, in += LC_SHA256_SIZE_BLOCK)
-		sha256_transform(ctx, in);
+	blocks = inlen / LC_SHA256_SIZE_BLOCK;
+	if (blocks) {
+		sha256_transform_block(ctx, in, blocks);
+
+		/* Update length / data pointer for consumed data */
+		blocks *= LC_SHA256_SIZE_BLOCK;
+		inlen -= blocks;
+		in += blocks;
+	}
 
 	/* If we have data left, copy it into the partial block buffer */
 	memcpy(ctx->partial, in, inlen);
 }
 
-static void sha256_final(void *_state, uint8_t *digest)
+static void sha256_update_c(void *_state, const uint8_t *in, size_t inlen)
 {
 	struct lc_sha256_state *ctx = _state;
+
+	sha256_update(ctx, in, inlen, sha256_transform_block_c);
+}
+
+void sha256_final(struct lc_sha256_state *ctx, uint8_t *digest,
+		  void (*sha256_transform_block)(struct lc_sha256_state *ctx,
+						 const uint8_t *in,
+						 size_t blocks))
+{
 	unsigned int i, partial;
 
 	if (!ctx || !digest)
@@ -213,7 +242,7 @@ static void sha256_final(void *_state, uint8_t *digest)
 		memset(ctx->partial + partial, 0,
 		       LC_SHA256_SIZE_BLOCK - partial);
 		partial = 0;
-		sha256_transform(ctx, ctx->partial);
+		sha256_transform_block(ctx, ctx->partial, 1);
 	}
 
 	/* Fill the unused part of the partial buffer with zeros */
@@ -224,7 +253,7 @@ static void sha256_final(void *_state, uint8_t *digest)
 	be64_to_ptr(ctx->partial + (LC_SHA256_SIZE_BLOCK - 8), ctx->msg_len);
 
 	/* Final transformation */
-	sha256_transform(ctx, ctx->partial);
+	sha256_transform_block(ctx, ctx->partial, 1);
 
 	lc_memset_secure(ctx->partial, 0, LC_SHA256_SIZE_BLOCK);
 
@@ -237,16 +266,26 @@ static void sha256_final(void *_state, uint8_t *digest)
 	}
 }
 
-static size_t sha256_get_digestsize(void *_state)
+static void sha256_final_c(void *_state, uint8_t *digest)
+{
+	struct lc_sha256_state *ctx = _state;
+
+	if (!ctx)
+		return;
+
+	sha256_final(_state, digest, sha256_transform_block_c);
+}
+
+size_t sha256_get_digestsize(void *_state)
 {
 	(void)_state;
 	return LC_SHA256_SIZE_DIGEST;
 }
 
-static const struct lc_hash _sha256 = {
+static const struct lc_hash _sha256_c = {
 	.init = sha256_init,
-	.update = sha256_update,
-	.final = sha256_final,
+	.update = sha256_update_c,
+	.final = sha256_final_c,
 	.set_digestsize = NULL,
 	.get_digestsize = sha256_get_digestsize,
 	.sponge_permutation = NULL,
@@ -256,5 +295,6 @@ static const struct lc_hash _sha256 = {
 	.sponge_rate = LC_SHA256_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha256_state),
 };
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha256_c) = &_sha256_c;
 
-LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha256) = &_sha256;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha256) = &_sha256_c;

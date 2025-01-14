@@ -38,6 +38,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_AES)					       \
 endif
 
 ifdef CONFIG_LEANCRYPTO_AES
+ccflags-y			+= -DCONFIG_LEANCRYPTO_AES
 obj-m				+= aes_dec_tester.o
 obj-m				+= aes_enc_tester.o
 aes_dec_tester-y		+= ../sym/tests/aes_dec_tester.o

@@ -59,6 +59,12 @@ code is:
 For hash/src/asm/AVX2/KeccakP-1600-AVX2.S,
 hash/src/asm/AVX512/KeccakP-1600-AVX512.S,
 hash/src/asm/ARMv8A/KeccakP-1600-armv8a-ce.S,
+hash/src/asm/ARMv8A/sha2-512-ARMv8.S,
+hash/src/asm/ARMv8A/sha2-256-ARMv8.S,
+hash/src/asm/AVX2/sha2-512-AVX2.S,
+hash/src/asm/AVX2/sha2-256-AVX2.S,
+hash/src/asm/riscv64/sha2-512-riscv.S,
+hash/src/asm/riscv64/sha2-256-riscv.S,
 sym/src/asm/ARMv8/aes_armv8_ce.S,
 sym/src/asm/AESNI_x86_64/aes_aesni_x86_64.S:
 

@@ -42,6 +42,9 @@
 #define LC_INTEL_AVX512F_EBX (1 << 16)
 #define LC_INTEL_VPCLMUL_ECX (1 << 10)
 #define LC_INTEL_PCLMUL_ECX (1 << 1)
+#define LC_INTEL_SHANI_EBX (1 << 29)
+#define LC_INTEL_SHANI_EBX (1 << 29)
+#define LC_INTEL_SHANI512_EAX (1 << 0)
 
 /* This is required by aes_aesni_x86_64.S */
 static unsigned int x86_64_cpuid[4] __attribute__((used));
@@ -97,6 +100,11 @@ LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 	if (eax < 7)
 		return feat;
 
+	/* read advanced features eax = 7, ecx = 1 */
+	cpuid_eax_ecx(7, 1, eax, ebx, ecx, edx);
+	if (eax & LC_INTEL_SHANI512_EAX)
+		feat |= LC_CPU_FEATURE_INTEL_SHANI512;
+
 	/* read advanced features eax = 7, ecx = 0 */
 	cpuid_eax_ecx(7, 0, eax, ebx, ecx, edx);
 	if (ebx & LC_INTEL_AVX2_EBX)
@@ -107,6 +115,9 @@ LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 
 	if (ecx & LC_INTEL_VPCLMUL_ECX)
 		feat |= LC_CPU_FEATURE_INTEL_VPCLMUL;
+
+	if (ebx & LC_INTEL_SHANI_EBX)
+		feat |= LC_CPU_FEATURE_INTEL_SHANI;
 
 	return feat;
 }

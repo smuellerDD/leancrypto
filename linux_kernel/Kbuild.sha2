@@ -1,22 +1,138 @@
 ################################################################################
 # Hash implementation: SHA-256
 ccflags-y	 		+= -I$(PWD)/../hash/api
+
 leancrypto-y	  		+= ../hash/src/hash.o
 
 leancrypto-$(CONFIG_LEANCRYPTO_SHA2_256)				       \
-				+= ../hash/src/sha256.o
+				+= ../hash/src/sha256.o			       \
+				   ../hash/src/sha256_selector.o	       \
+				   leancrypto_kernel_sha256.o
+
+ifdef CONFIG_X86_64
+leancrypto-$(CONFIG_LEANCRYPTO_SHA2_256)				       \
+				+= ../hash/src/sha256_avx2.o		       \
+				   ../hash/src/sha256_shani.o		       \
+				   ../hash/src/asm/AVX2/sha2-256-AVX2.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_SHA2_256)				       \
+				+= ../hash/src/sha256_avx2_null.o	       \
+				   ../hash/src/sha256_shani_null.o
+endif
+
+# ARM Neon and CE support
+ifdef CONFIG_ARM64
+asflags-$(CONFIG_LEANCRYPTO_SHA2_256)					       \
+				+= -march=armv8-a+simd			       \
+				   -funsafe-math-optimizations
+leancrypto-$(CONFIG_LEANCRYPTO_SHA2_256)				       \
+				+= ../hash/src/sha256_arm_neon.o	       \
+				   ../hash/src/sha256_arm_ce.o		       \
+				   ../hash/src/asm/ARMv8A/sha2-256-ARMv8.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_SHA2_256)				       \
+				+= ../hash/src/sha256_arm_neon_null.o	       \
+				   ../hash/src/sha256_arm_ce_null.o
+endif
+
+# RISCV64 support
+ifneq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
+asflags-$(CONFIG_LEANCRYPTO_SHA2_256)					       \
+				+= -march=rv64gc			       \
+				   -mabi=lp64d				       \
+				   -mcmodel=medany
+leancrypto-$(CONFIG_LEANCRYPTO_SHA2_256)				       \
+				+= ../hash/src/sha256_riscv.o		       \
+				   ../hash/src/sha256_riscv_zbb.o	       \
+				   ../hash/src/asm/riscv64/sha2-256-riscv.o    \
+				   hash/riscv64/sha2-256-riscv.o
+ASFLAGS../hash/src/asm/riscv64/sha2-256-riscv.o := -march=rv64gc	       \
+						   -mabi=lp64d		       \
+						   -mcmodel=medany
+ASFLAGS_hash/riscv64/sha2-256-riscv.o := -march=rv64imadc_zba_zbb	       \
+					 -mabi=lp64d			       \
+					 -mcmodel=medany
+else
+leancrypto-$(CONFIG_LEANCRYPTO_SHA2_256)				       \
+				+= ../hash/src/sha256_riscv_null.o	       \
+				   ../hash/src/sha256_riscv_zbb_null.o
+endif
+
 ifdef CONFIG_LEANCRYPTO_SHA2_256
-ccflags-y			+= -DLC_SHA2_256
+ccflags-y			+= -DCONFIG_LEANCRYPTO_SHA2_256 -DLC_SHA2_256
 obj-m				+= sha256_tester.o
 sha256_tester-y			+= ../hash/tests/sha256_tester.o
+
+obj-m				+= leancrypto_kernel_sha256_tester.o
+leancrypto_kernel_sha256_tester-y += ../hash/tests/leancrypto_kernel_sha256_tester.o
+
 endif
 
 ################################################################################
 # Hash implementation: SHA-512
+
 leancrypto-$(CONFIG_LEANCRYPTO_SHA2_512)				       \
-				+= ../hash/src/sha512.o
+				+= ../hash/src/sha512.o			       \
+				   ../hash/src/sha512_selector.o	       \
+				   leancrypto_kernel_sha512.o
+
+ifdef CONFIG_X86_64
+leancrypto-$(CONFIG_LEANCRYPTO_SHA2_512)				       \
+				+= ../hash/src/sha512_avx2.o		       \
+				   ../hash/src/sha512_shani.o		       \
+				   ../hash/src/asm/AVX2/sha2-512-AVX2.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_SHA2_512)				       \
+				+= ../hash/src/sha512_avx2_null.o	       \
+				   ../hash/src/sha512_shani_null.o
+endif
+
+# ARM Neon and CE support
+ifdef CONFIG_ARM64
+asflags-$(CONFIG_LEANCRYPTO_SHA2_512)					       \
+				+= -march=armv8-a+simd			       \
+				   -funsafe-math-optimizations
+leancrypto-$(CONFIG_LEANCRYPTO_SHA2_512)				       \
+				+= ../hash/src/sha512_arm_neon.o	       \
+				   ../hash/src/sha512_arm_ce.o		       \
+				   ../hash/src/asm/ARMv8A/sha2-512-ARMv8.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_SHA2_512)				       \
+				+= ../hash/src/sha512_arm_neon_null.o	       \
+				   ../hash/src/sha512_arm_ce_null.o
+endif
+
+# RISCV64 support
+ifneq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
+asflags-$(CONFIG_LEANCRYPTO_SHA2_512)					       \
+				+= -march=rv64gc			       \
+				   -mabi=lp64d				       \
+				   -mcmodel=medany
+leancrypto-$(CONFIG_LEANCRYPTO_SHA2_512)				       \
+				+= ../hash/src/sha512_riscv.o		       \
+				   ../hash/src/sha512_riscv_zbb.o	       \
+				   ../hash/src/asm/riscv64/sha2-512-riscv.o    \
+				   hash/riscv64/sha2-512-riscv.o
+ASFLAGS../hash/src/asm/riscv64/sha2-512-riscv.o := -march=rv64gc	       \
+						   -mabi=lp64d		       \
+						   -mcmodel=medany
+ASFLAGS_hash/riscv64/sha2-512-riscv.o := -march=rv64imadc_zba_zbb	       \
+					 -mabi=lp64d			       \
+					 -mcmodel=medany
+else
+leancrypto-$(CONFIG_LEANCRYPTO_SHA2_512)				       \
+				+= ../hash/src/sha512_riscv_null.o	       \
+				   ../hash/src/sha512_riscv_zbb_null.o
+endif
+
 ifdef CONFIG_LEANCRYPTO_SHA2_512
-ccflags-y			+= -DLC_SHA2_512
+ccflags-y			+= -DCONFIG_LEANCRYPTO_SHA2_512 -DLC_SHA2_512
+obj-m				+= sha384_tester.o
+sha384_tester-y			+= ../hash/tests/sha384_tester.o
 obj-m				+= sha512_tester.o
 sha512_tester-y			+= ../hash/tests/sha512_tester.o
+
+obj-m				+= leancrypto_kernel_sha512_tester.o
+leancrypto_kernel_sha512_tester-y += ../hash/tests/leancrypto_kernel_sha512_tester.o
+
 endif

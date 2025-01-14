@@ -17,8 +17,8 @@
  * DAMAGE.
  */
 
-#ifndef SHA3_AVX512
-#define SHA3_AVX512
+#ifndef SHA3_AVX512_H
+#define SHA3_AVX512_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,4 +38,4 @@ extern const struct lc_hash *lc_cshake256_avx512;
 }
 #endif
 
-#endif /* SHA3_AVX512 */
+#endif /* SHA3_AVX512_H */
