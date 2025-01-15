@@ -108,8 +108,8 @@ static int lc_hash_sha256(void)
 	u8 digest[sizeof(exp_256)];
 	int ret;
 
-	ret = lc_test_hash("sha256-leancrypto", msg_256, sizeof(msg_256),
-			   NULL, 0, digest, sizeof(digest));
+	ret = lc_test_hash("sha256-leancrypto", msg_256, sizeof(msg_256), NULL,
+			   0, digest, sizeof(digest));
 	if (ret)
 		return ret;
 

@@ -49,7 +49,7 @@ static int lc_kernel_sha512_hash_init(struct shash_desc *desc)
 }
 
 static int lc_kernel_sha512_update(struct shash_desc *desc, const u8 *data,
-				 unsigned int len)
+				   unsigned int len)
 {
 	struct lc_hash_ctx *sctx = shash_desc_ctx(desc);
 
@@ -79,7 +79,8 @@ static struct shash_alg lc_sha512_algs[] = {
 		.base.cra_blocksize = LC_SHA512_SIZE_BLOCK,
 		.base.cra_module = THIS_MODULE,
 		.base.cra_priority = LC_KERNEL_DEFAULT_PRIO,
-	}, {
+	},
+	{
 		.digestsize = LC_SHA384_SIZE_DIGEST,
 		.init = lc_kernel_sha384_init,
 		.update = lc_kernel_sha512_update,
@@ -101,6 +102,5 @@ int __init lc_kernel_sha512_init(void)
 
 void lc_kernel_sha512_exit(void)
 {
-	crypto_unregister_shashes(lc_sha512_algs,
-				  ARRAY_SIZE(lc_sha512_algs));
+	crypto_unregister_shashes(lc_sha512_algs, ARRAY_SIZE(lc_sha512_algs));
 }

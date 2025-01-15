@@ -39,7 +39,7 @@ static int lc_kernel_sha256_hash_init(struct shash_desc *desc)
 }
 
 static int lc_kernel_sha256_update(struct shash_desc *desc, const u8 *data,
-				 unsigned int len)
+				   unsigned int len)
 {
 	struct lc_hash_ctx *sctx = shash_desc_ctx(desc);
 
@@ -57,20 +57,18 @@ static int lc_kernel_sha256_final(struct shash_desc *desc, u8 *out)
 	return 0;
 }
 
-static struct shash_alg lc_sha256_algs[] = {
-	{
-		.digestsize = LC_SHA256_SIZE_DIGEST,
-		.init = lc_kernel_sha256_hash_init,
-		.update = lc_kernel_sha256_update,
-		.final = lc_kernel_sha256_final,
-		.descsize = LC_SHA3_STATE_SIZE_ALIGN(LC_SHA256_CTX_SIZE),
-		.base.cra_name = "sha256",
-		.base.cra_driver_name = "sha256-leancrypto",
-		.base.cra_blocksize = LC_SHA256_SIZE_BLOCK,
-		.base.cra_module = THIS_MODULE,
-		.base.cra_priority = LC_KERNEL_DEFAULT_PRIO,
-	}
-};
+static struct shash_alg lc_sha256_algs[] = { {
+	.digestsize = LC_SHA256_SIZE_DIGEST,
+	.init = lc_kernel_sha256_hash_init,
+	.update = lc_kernel_sha256_update,
+	.final = lc_kernel_sha256_final,
+	.descsize = LC_SHA3_STATE_SIZE_ALIGN(LC_SHA256_CTX_SIZE),
+	.base.cra_name = "sha256",
+	.base.cra_driver_name = "sha256-leancrypto",
+	.base.cra_blocksize = LC_SHA256_SIZE_BLOCK,
+	.base.cra_module = THIS_MODULE,
+	.base.cra_priority = LC_KERNEL_DEFAULT_PRIO,
+} };
 
 int __init lc_kernel_sha256_init(void)
 {
@@ -80,6 +78,5 @@ int __init lc_kernel_sha256_init(void)
 
 void lc_kernel_sha256_exit(void)
 {
-	crypto_unregister_shashes(lc_sha256_algs,
-				  ARRAY_SIZE(lc_sha256_algs));
+	crypto_unregister_shashes(lc_sha256_algs, ARRAY_SIZE(lc_sha256_algs));
 }

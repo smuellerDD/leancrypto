@@ -111,8 +111,8 @@ static int lc_hash_sha512(void)
 	u8 digest[sizeof(exp_512)];
 	int ret;
 
-	ret = lc_test_hash("sha512-leancrypto", msg_512, sizeof(msg_512),
-			   NULL, 0, digest, sizeof(digest));
+	ret = lc_test_hash("sha512-leancrypto", msg_512, sizeof(msg_512), NULL,
+			   0, digest, sizeof(digest));
 	if (ret)
 		return ret;
 
