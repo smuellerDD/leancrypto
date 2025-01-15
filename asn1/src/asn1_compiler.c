@@ -408,7 +408,7 @@ static void tokenise(char *buffer, char *end)
 		p = line;
 		while (p < nl) {
 			/* Skip white space */
-			while (p < nl && isspace(*p))
+			while (p < nl && isspace((int)*p))
 				*(p++) = 0;
 			if (p >= nl)
 				break;
@@ -417,15 +417,15 @@ static void tokenise(char *buffer, char *end)
 			start = p;
 
 			/* Handle string tokens */
-			if (isalpha(*p)) {
+			if (isalpha((int)*p)) {
 				const char **dir;
 
 				/* Can be a directive, type name or element
 				 * name.  Find the end of the name.
 				 */
 				q = p + 1;
-				while (q < nl &&
-				       (isalnum(*q) || *q == '-' || *q == '_'))
+				while (q < nl && (isalnum((int)*q) ||
+						  *q == '-' || *q == '_'))
 					q++;
 				tokens[tix].size = (unsigned char)(q - p);
 				p = q;
@@ -443,7 +443,7 @@ static void tokenise(char *buffer, char *end)
 				/* If it begins with a lowercase letter then
 				 * it's an element name
 				 */
-				if (islower(tokens[tix].content[0])) {
+				if (islower((int)tokens[tix].content[0])) {
 					tokens[tix++].token_type =
 						TOKEN_ELEMENT_NAME;
 					continue;
@@ -469,10 +469,10 @@ static void tokenise(char *buffer, char *end)
 			}
 
 			/* Handle numbers */
-			if (isdigit(*p)) {
+			if (isdigit((int)*p)) {
 				/* Find the end of the number */
 				q = p + 1;
-				while (q < nl && (isdigit(*q)))
+				while (q < nl && (isdigit((int)*q)))
 					q++;
 				tokens[tix].size = (unsigned char)(q - p);
 				p = q;

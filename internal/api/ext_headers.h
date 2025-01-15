@@ -256,7 +256,9 @@ static const int errno_private = 0;
 #define __volatile__ volatile
 #endif
 
+#ifndef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE 200112L
+#endif
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>

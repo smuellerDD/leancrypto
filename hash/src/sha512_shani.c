@@ -21,6 +21,7 @@
 #include "asm/AVX2/sha2-512-AVX2.h"
 
 #include "bitshift.h"
+#include "ext_headers_x86.h"
 #include "sha512_shani.h"
 #include "sha2_common.h"
 #include "visibility.h"
@@ -29,7 +30,15 @@ static void sha512_update_shani(void *_state, const uint8_t *in, size_t inlen)
 {
 	struct lc_sha512_state *ctx = _state;
 
+	LC_FPU_ENABLE;
+
+/* On windows the SYSV_ABI flag causes a warning */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 	sha512_update(ctx, in, inlen, sha512_block_data_order_shaext);
+#pragma GCC diagnostic pop
+
+	LC_FPU_DISABLE;
 }
 
 static void sha384_final_shani(void *_state, uint8_t *digest)
@@ -40,7 +49,15 @@ static void sha384_final_shani(void *_state, uint8_t *digest)
 	if (!ctx)
 		return;
 
+	LC_FPU_ENABLE;
+
+/* On windows the SYSV_ABI flag causes a warning */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 	sha512_final(_state, sha512_block_data_order_shaext);
+#pragma GCC diagnostic pop
+
+	LC_FPU_DISABLE;
 
 	/* Output digest */
 	for (i = 0; i < 6; i++, digest += 8)
@@ -55,7 +72,15 @@ static void sha512_final_shani(void *_state, uint8_t *digest)
 	if (!ctx)
 		return;
 
+	LC_FPU_ENABLE;
+
+/* On windows the SYSV_ABI flag causes a warning */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 	sha512_final(_state, sha512_block_data_order_shaext);
+#pragma GCC diagnostic pop
+
+	LC_FPU_DISABLE;
 
 	/* Output digest */
 	for (i = 0; i < 8; i++, digest += 8)
