@@ -31,13 +31,7 @@ static void sha256_update_shani(void *_state, const uint8_t *in, size_t inlen)
 	struct lc_sha256_state *ctx = _state;
 
 	LC_FPU_ENABLE;
-
-	/* On windows the SYSV_ABI flag causes a warning */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 	sha256_update(ctx, in, inlen, sha256_block_data_order_shaext);
-#pragma GCC diagnostic pop
-
 	LC_FPU_DISABLE;
 }
 
@@ -49,13 +43,7 @@ static void sha256_final_shani(void *_state, uint8_t *digest)
 		return;
 
 	LC_FPU_ENABLE;
-
-	/* On windows the SYSV_ABI flag causes a warning */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 	sha256_final(_state, digest, sha256_block_data_order_shaext);
-#pragma GCC diagnostic pop
-
 	LC_FPU_DISABLE;
 }
 

@@ -27,10 +27,10 @@
 extern "C" {
 #endif
 
-void SYSV_ABI sha256_block_data_order_avx2(struct lc_sha256_state *c,
-					   const uint8_t *p, size_t num);
-void SYSV_ABI sha256_block_data_order_shaext(struct lc_sha256_state *c,
-					     const uint8_t *p, size_t num);
+void sha256_block_data_order_avx2(struct lc_sha256_state *c, const uint8_t *p,
+				  size_t num);
+void sha256_block_data_order_shaext(struct lc_sha256_state *c, const uint8_t *p,
+				    size_t num);
 
 #ifdef __cplusplus
 }

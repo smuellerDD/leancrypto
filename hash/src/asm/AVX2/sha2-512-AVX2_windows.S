@@ -27,26 +27,28 @@
  * For further details see http://www.openssl.org/~appro/cryptogams/.
  */
 
-#include "assembler_support.h"
-
-.text	
+.text
 
 #if 0
-
-.extern lc_x86_64_cpuid
-
-SYM_FUNC_START(sha512_block_data_order)
-SYM_FUNC_ENTER(sha512_block_data_order)
-.align	16
-.cfi_startproc
+.globl	sha512_block_data_order
+.def	sha512_block_data_order;	.scl 2;	.type 32;	.endef
+.p2align	4
+sha512_block_data_order:
 	.byte	0xf3,0x0f,0x1e,0xfa
+	movq	%rdi,8(%rsp)
+	movq	%rsi,16(%rsp)
+	movq	%rsp,%r11
+.LSEH_begin_sha512_block_data_order:
+
 
 	pushq	%rbp
-.cfi_adjust_cfa_offset	8
-.cfi_offset	%rbp,-16
+
 	movq	%rsp,%rbp
-.cfi_def_cfa_register	%rbp
-	leaq	lc_x86_64_cpuid(%rip),%rax
+
+	movq	%rcx,%rdi
+	movq	%rdx,%rsi
+	movq	%r8,%rdx
+	leaq	OPENSSL_ia32cap_P(%rip),%rax
 	movl	0(%rax),%r9d
 	movl	4(%rax),%r10d
 	movl	8(%rax),%eax
@@ -61,19 +63,20 @@ SYM_FUNC_ENTER(sha512_block_data_order)
 	cmpl	$1342177792,%r10d
 	je	.Lavx_shortcut
 	pushq	%rbx
-.cfi_offset	%rbx,-24
+
 	pushq	%r12
-.cfi_offset	%r12,-32
+
 	pushq	%r13
-.cfi_offset	%r13,-40
+
 	pushq	%r14
-.cfi_offset	%r14,-48
+
 	pushq	%r15
-.cfi_offset	%r15,-56
+
 	shlq	$4,%rdx
 	subq	$128+24,%rsp
 
-.cfi_def_cfa	%rsp,208
+
+.LSEH_body_sha512_block_data_order:
 
 	leaq	(%rsi,%rdx,8),%rdx
 	movq	%rdi,128+0(%rsp)
@@ -90,7 +93,7 @@ SYM_FUNC_ENTER(sha512_block_data_order)
 	movq	56(%rdi),%r11
 	jmp	.Lloop
 
-.align	16
+.p2align	4
 .Lloop:
 	movq	%rbx,%rdi
 	leaq	K512(%rip),%rbp
@@ -751,7 +754,7 @@ SYM_FUNC_ENTER(sha512_block_data_order)
 
 	leaq	24(%rbp),%rbp
 	jmp	.Lrounds_16_xx
-.align	16
+.p2align	4
 .Lrounds_16_xx:
 	movq	8(%rsp),%r13
 	movq	112(%rsp),%r15
@@ -1742,39 +1745,181 @@ SYM_FUNC_ENTER(sha512_block_data_order)
 	jb	.Lloop
 
 	leaq	128+24+48(%rsp),%r11
-.cfi_def_cfa	%r11,8
+
 	movq	128+24(%rsp),%r15
 	movq	-40(%r11),%r14
 	movq	-32(%r11),%r13
 	movq	-24(%r11),%r12
 	movq	-16(%r11),%rbx
 	movq	-8(%r11),%rbp
-.cfi_restore	%r12
-.cfi_restore	%r13
-.cfi_restore	%r14
-.cfi_restore	%r15
-.cfi_restore	%rbp
-.cfi_restore	%rbx
+.LSEH_epilogue_sha512_block_data_order:
+	mov	8(%r11),%rdi
+	mov	16(%r11),%rsi
+
 	leaq	(%r11),%rsp
 	.byte	0xf3,0xc3
-.cfi_endproc
-SYM_FUNC_END(sha512_block_data_order)
+
+.LSEH_end_sha512_block_data_order:
 #endif
 
-.byte	83,72,65,53,49,50,32,98,108,111,99,107,32,116,114,97,110,115,102,111,114,109,32,102,111,114,32,120,56,54,95,54,52,44,32,67,82,89,80,84,79,71,65,77,83,32,98,121,32,64,100,111,116,45,97,115,109,0
+.p2align	6
 
-SYM_FUNC_START(sha512_block_data_order_shaext)
-SYM_FUNC_ENTER(sha512_block_data_order_shaext)
-.align	64
-.cfi_startproc
+K512:
+.quad	0x428a2f98d728ae22,0x7137449123ef65cd
+.quad	0x428a2f98d728ae22,0x7137449123ef65cd
+.quad	0xb5c0fbcfec4d3b2f,0xe9b5dba58189dbbc
+.quad	0xb5c0fbcfec4d3b2f,0xe9b5dba58189dbbc
+.quad	0x3956c25bf348b538,0x59f111f1b605d019
+.quad	0x3956c25bf348b538,0x59f111f1b605d019
+.quad	0x923f82a4af194f9b,0xab1c5ed5da6d8118
+.quad	0x923f82a4af194f9b,0xab1c5ed5da6d8118
+.quad	0xd807aa98a3030242,0x12835b0145706fbe
+.quad	0xd807aa98a3030242,0x12835b0145706fbe
+.quad	0x243185be4ee4b28c,0x550c7dc3d5ffb4e2
+.quad	0x243185be4ee4b28c,0x550c7dc3d5ffb4e2
+.quad	0x72be5d74f27b896f,0x80deb1fe3b1696b1
+.quad	0x72be5d74f27b896f,0x80deb1fe3b1696b1
+.quad	0x9bdc06a725c71235,0xc19bf174cf692694
+.quad	0x9bdc06a725c71235,0xc19bf174cf692694
+.quad	0xe49b69c19ef14ad2,0xefbe4786384f25e3
+.quad	0xe49b69c19ef14ad2,0xefbe4786384f25e3
+.quad	0x0fc19dc68b8cd5b5,0x240ca1cc77ac9c65
+.quad	0x0fc19dc68b8cd5b5,0x240ca1cc77ac9c65
+.quad	0x2de92c6f592b0275,0x4a7484aa6ea6e483
+.quad	0x2de92c6f592b0275,0x4a7484aa6ea6e483
+.quad	0x5cb0a9dcbd41fbd4,0x76f988da831153b5
+.quad	0x5cb0a9dcbd41fbd4,0x76f988da831153b5
+.quad	0x983e5152ee66dfab,0xa831c66d2db43210
+.quad	0x983e5152ee66dfab,0xa831c66d2db43210
+.quad	0xb00327c898fb213f,0xbf597fc7beef0ee4
+.quad	0xb00327c898fb213f,0xbf597fc7beef0ee4
+.quad	0xc6e00bf33da88fc2,0xd5a79147930aa725
+.quad	0xc6e00bf33da88fc2,0xd5a79147930aa725
+.quad	0x06ca6351e003826f,0x142929670a0e6e70
+.quad	0x06ca6351e003826f,0x142929670a0e6e70
+.quad	0x27b70a8546d22ffc,0x2e1b21385c26c926
+.quad	0x27b70a8546d22ffc,0x2e1b21385c26c926
+.quad	0x4d2c6dfc5ac42aed,0x53380d139d95b3df
+.quad	0x4d2c6dfc5ac42aed,0x53380d139d95b3df
+.quad	0x650a73548baf63de,0x766a0abb3c77b2a8
+.quad	0x650a73548baf63de,0x766a0abb3c77b2a8
+.quad	0x81c2c92e47edaee6,0x92722c851482353b
+.quad	0x81c2c92e47edaee6,0x92722c851482353b
+.quad	0xa2bfe8a14cf10364,0xa81a664bbc423001
+.quad	0xa2bfe8a14cf10364,0xa81a664bbc423001
+.quad	0xc24b8b70d0f89791,0xc76c51a30654be30
+.quad	0xc24b8b70d0f89791,0xc76c51a30654be30
+.quad	0xd192e819d6ef5218,0xd69906245565a910
+.quad	0xd192e819d6ef5218,0xd69906245565a910
+.quad	0xf40e35855771202a,0x106aa07032bbd1b8
+.quad	0xf40e35855771202a,0x106aa07032bbd1b8
+.quad	0x19a4c116b8d2d0c8,0x1e376c085141ab53
+.quad	0x19a4c116b8d2d0c8,0x1e376c085141ab53
+.quad	0x2748774cdf8eeb99,0x34b0bcb5e19b48a8
+.quad	0x2748774cdf8eeb99,0x34b0bcb5e19b48a8
+.quad	0x391c0cb3c5c95a63,0x4ed8aa4ae3418acb
+.quad	0x391c0cb3c5c95a63,0x4ed8aa4ae3418acb
+.quad	0x5b9cca4f7763e373,0x682e6ff3d6b2b8a3
+.quad	0x5b9cca4f7763e373,0x682e6ff3d6b2b8a3
+.quad	0x748f82ee5defb2fc,0x78a5636f43172f60
+.quad	0x748f82ee5defb2fc,0x78a5636f43172f60
+.quad	0x84c87814a1f0ab72,0x8cc702081a6439ec
+.quad	0x84c87814a1f0ab72,0x8cc702081a6439ec
+.quad	0x90befffa23631e28,0xa4506cebde82bde9
+.quad	0x90befffa23631e28,0xa4506cebde82bde9
+.quad	0xbef9a3f7b2c67915,0xc67178f2e372532b
+.quad	0xbef9a3f7b2c67915,0xc67178f2e372532b
+.quad	0xca273eceea26619c,0xd186b8c721c0c207
+.quad	0xca273eceea26619c,0xd186b8c721c0c207
+.quad	0xeada7dd6cde0eb1e,0xf57d4f7fee6ed178
+.quad	0xeada7dd6cde0eb1e,0xf57d4f7fee6ed178
+.quad	0x06f067aa72176fba,0x0a637dc5a2c898a6
+.quad	0x06f067aa72176fba,0x0a637dc5a2c898a6
+.quad	0x113f9804bef90dae,0x1b710b35131c471b
+.quad	0x113f9804bef90dae,0x1b710b35131c471b
+.quad	0x28db77f523047d84,0x32caab7b40c72493
+.quad	0x28db77f523047d84,0x32caab7b40c72493
+.quad	0x3c9ebe0a15c9bebc,0x431d67c49c100d4c
+.quad	0x3c9ebe0a15c9bebc,0x431d67c49c100d4c
+.quad	0x4cc5d4becb3e42b6,0x597f299cfc657e2a
+.quad	0x4cc5d4becb3e42b6,0x597f299cfc657e2a
+.quad	0x5fcb6fab3ad6faec,0x6c44198c4a475817
+.quad	0x5fcb6fab3ad6faec,0x6c44198c4a475817
+
+.quad	0x0001020304050607,0x08090a0b0c0d0e0f
+.quad	0x0001020304050607,0x08090a0b0c0d0e0f
+
+K512_nodup:
+.quad	0x428a2f98d728ae22,0x7137449123ef65cd
+.quad	0xb5c0fbcfec4d3b2f,0xe9b5dba58189dbbc
+.quad	0x3956c25bf348b538,0x59f111f1b605d019
+.quad	0x923f82a4af194f9b,0xab1c5ed5da6d8118
+.quad	0xd807aa98a3030242,0x12835b0145706fbe
+.quad	0x243185be4ee4b28c,0x550c7dc3d5ffb4e2
+.quad	0x72be5d74f27b896f,0x80deb1fe3b1696b1
+.quad	0x9bdc06a725c71235,0xc19bf174cf692694
+.quad	0xe49b69c19ef14ad2,0xefbe4786384f25e3
+.quad	0x0fc19dc68b8cd5b5,0x240ca1cc77ac9c65
+.quad	0x2de92c6f592b0275,0x4a7484aa6ea6e483
+.quad	0x5cb0a9dcbd41fbd4,0x76f988da831153b5
+.quad	0x983e5152ee66dfab,0xa831c66d2db43210
+.quad	0xb00327c898fb213f,0xbf597fc7beef0ee4
+.quad	0xc6e00bf33da88fc2,0xd5a79147930aa725
+.quad	0x06ca6351e003826f,0x142929670a0e6e70
+.quad	0x27b70a8546d22ffc,0x2e1b21385c26c926
+.quad	0x4d2c6dfc5ac42aed,0x53380d139d95b3df
+.quad	0x650a73548baf63de,0x766a0abb3c77b2a8
+.quad	0x81c2c92e47edaee6,0x92722c851482353b
+.quad	0xa2bfe8a14cf10364,0xa81a664bbc423001
+.quad	0xc24b8b70d0f89791,0xc76c51a30654be30
+.quad	0xd192e819d6ef5218,0xd69906245565a910
+.quad	0xf40e35855771202a,0x106aa07032bbd1b8
+.quad	0x19a4c116b8d2d0c8,0x1e376c085141ab53
+.quad	0x2748774cdf8eeb99,0x34b0bcb5e19b48a8
+.quad	0x391c0cb3c5c95a63,0x4ed8aa4ae3418acb
+.quad	0x5b9cca4f7763e373,0x682e6ff3d6b2b8a3
+.quad	0x748f82ee5defb2fc,0x78a5636f43172f60
+.quad	0x84c87814a1f0ab72,0x8cc702081a6439ec
+.quad	0x90befffa23631e28,0xa4506cebde82bde9
+.quad	0xbef9a3f7b2c67915,0xc67178f2e372532b
+.quad	0xca273eceea26619c,0xd186b8c721c0c207
+.quad	0xeada7dd6cde0eb1e,0xf57d4f7fee6ed178
+.quad	0x06f067aa72176fba,0x0a637dc5a2c898a6
+.quad	0x113f9804bef90dae,0x1b710b35131c471b
+.quad	0x28db77f523047d84,0x32caab7b40c72493
+.quad	0x3c9ebe0a15c9bebc,0x431d67c49c100d4c
+.quad	0x4cc5d4becb3e42b6,0x597f299cfc657e2a
+.quad	0x5fcb6fab3ad6faec,0x6c44198c4a475817
+
+.byte	83,72,65,53,49,50,32,98,108,111,99,107,32,116,114,97,110,115,102,111,114,109,32,102,111,114,32,120,56,54,95,54,52,44,32,67,82,89,80,84,79,71,65,77,83,32,98,121,32,64,100,111,116,45,97,115,109,0
+.globl	sha512_block_data_order_shaext
+.def	sha512_block_data_order_shaext;	.scl 2;	.type 32;	.endef
+.p2align	6
+sha512_block_data_order_shaext:
 	.byte	0xf3,0x0f,0x1e,0xfa
+	movq	%rdi,8(%rsp)
+	movq	%rsi,16(%rsp)
+	movq	%rsp,%r11
+.LSEH_begin_sha512_block_data_order_shaext:
+
 
 	pushq	%rbp
-.cfi_adjust_cfa_offset	8
-.cfi_offset	%rbp,-16
+
 	movq	%rsp,%rbp
-.cfi_def_cfa_register	%rbp
+
+	movq	%rcx,%rdi
+	movq	%rdx,%rsi
+	movq	%r8,%rdx
 .Lshaext_shortcut:
+	subq	$0x50,%rsp
+
+	movaps	%xmm6,-80(%rbp)
+	movaps	%xmm7,-64(%rbp)
+	movaps	%xmm8,-48(%rbp)
+	movaps	%xmm9,-32(%rbp)
+	movaps	%xmm10,-16(%rbp)
+
+.LSEH_body_sha512_block_data_order_shaext:
 
 	leaq	K512_nodup+128(%rip),%rcx
 	vmovdqu	(%rdi),%ymm0
@@ -1788,7 +1933,7 @@ SYM_FUNC_ENTER(sha512_block_data_order_shaext)
 	vpermq	$75,%ymm6,%ymm6
 	jmp	.Loop_shaext
 
-.align	16
+.p2align	4
 .Loop_shaext:
 	vmovdqu	(%rsi),%ymm0
 	vmovdqu	32(%rsi),%ymm1
@@ -1983,46 +2128,68 @@ SYM_FUNC_ENTER(sha512_block_data_order_shaext)
 	vmovdqu	%ymm2,32(%rdi)
 
 	vzeroupper
-.cfi_def_cfa_register	%rsp
+	movaps	-80(%rbp),%xmm6
+	movaps	-64(%rbp),%xmm7
+	movaps	-48(%rbp),%xmm8
+	movaps	-32(%rbp),%xmm9
+	movaps	-16(%rbp),%xmm10
+	movq	%rbp,%rsp
+
 	popq	%rbp
-.cfi_adjust_cfa_offset	-8
-.cfi_restore	%rbp
+
+.LSEH_epilogue_sha512_block_data_order_shaext:
+	mov	8(%rsp),%rdi
+	mov	16(%rsp),%rsi
 
 	.byte	0xf3,0xc3
-.cfi_endproc
-SYM_FUNC_END(sha512_block_data_order_shaext)
+
+.LSEH_end_sha512_block_data_order_shaext:
 
 #if 0
-SYM_FUNC_START(sha512_block_data_order_xop)
-SYM_FUNC_ENTER(sha512_block_data_order_xop)
-.align	64
-.cfi_startproc
+.def	sha512_block_data_order_xop;	.scl 3;	.type 32;	.endef
+.p2align	6
+sha512_block_data_order_xop:
 	.byte	0xf3,0x0f,0x1e,0xfa
+	movq	%rdi,8(%rsp)
+	movq	%rsi,16(%rsp)
+	movq	%rsp,%r11
+.LSEH_begin_sha512_block_data_order_xop:
 
 
 	pushq	%rbp
-.cfi_adjust_cfa_offset	8
-.cfi_offset	%rbp,-16
+
 	movq	%rsp,%rbp
-.cfi_def_cfa_register	%rbp
+
+	movq	%rcx,%rdi
+	movq	%rdx,%rsi
+	movq	%r8,%rdx
 .Lxop_shortcut:
 	pushq	%rbx
-.cfi_offset	%rbx,-24
+
 	pushq	%r12
-.cfi_offset	%r12,-32
+
 	pushq	%r13
-.cfi_offset	%r13,-40
+
 	pushq	%r14
-.cfi_offset	%r14,-48
+
 	pushq	%r15
-.cfi_offset	%r15,-56
+
 	shlq	$4,%rdx
-	subq	$24,%rsp
+	subq	$120,%rsp
 
 	leaq	(%rsi,%rdx,8),%rdx
 	movq	%rdi,-64(%rbp)
 
 	movq	%rdx,-48(%rbp)
+	movaps	%xmm6,-160(%rbp)
+	movaps	%xmm7,-144(%rbp)
+	movaps	%xmm8,-128(%rbp)
+	movaps	%xmm9,-112(%rbp)
+
+	movaps	%xmm10,-96(%rbp)
+	movaps	%xmm11,-80(%rbp)
+
+.LSEH_body_sha512_block_data_order_xop:
 
 
 	leaq	-128(%rsp),%rsp
@@ -2037,7 +2204,7 @@ SYM_FUNC_ENTER(sha512_block_data_order_xop)
 	movq	48(%rdi),%r10
 	movq	56(%rdi),%r11
 	jmp	.Lloop_xop
-.align	16
+.p2align	4
 .Lloop_xop:
 	vmovdqa	K512+1280(%rip),%xmm11
 	movq	%rsi,-56(%rbp)
@@ -2080,7 +2247,7 @@ SYM_FUNC_ENTER(sha512_block_data_order_xop)
 	movq	%r8,%r13
 	jmp	.Lxop_00_47
 
-.align	16
+.p2align	4
 .Lxop_00_47:
 	addq	$256,%rsi
 	vpalignr	$8,%xmm0,%xmm1,%xmm8
@@ -3080,56 +3247,75 @@ SYM_FUNC_ENTER(sha512_block_data_order_xop)
 	jb	.Lloop_xop
 
 	vzeroupper
+	movaps	-160(%rbp),%xmm6
+	movaps	-144(%rbp),%xmm7
+	movaps	-128(%rbp),%xmm8
+	movaps	-112(%rbp),%xmm9
+	movaps	-96(%rbp),%xmm10
+	movaps	-80(%rbp),%xmm11
 	movq	-40(%rbp),%r15
 	movq	-32(%rbp),%r14
 	movq	-24(%rbp),%r13
 	movq	-16(%rbp),%r12
 	movq	-8(%rbp),%rbx
 	movq	%rbp,%rsp
-.cfi_def_cfa_register	%rsp
+
 	popq	%rbp
-.cfi_adjust_cfa_offset	-8
-.cfi_restore	%rbp
-.cfi_restore	%r12
-.cfi_restore	%r13
-.cfi_restore	%r14
-.cfi_restore	%r15
-.cfi_restore	%rbx
+
+.LSEH_epilogue_sha512_block_data_order_xop:
+	mov	8(%rsp),%rdi
+	mov	16(%rsp),%rsi
+
 	.byte	0xf3,0xc3
-.cfi_endproc
-SYM_FUNC_END(sha512_block_data_order_xop)
+
+.LSEH_end_sha512_block_data_order_xop:
 #endif
 
 #if 0
-SYM_FUNC_START(sha512_block_data_order_avx)
-SYM_FUNC_ENTER(sha512_block_data_order_avx)
-.align	64
-.cfi_startproc
+.def	sha512_block_data_order_avx;	.scl 3;	.type 32;	.endef
+.p2align	6
+sha512_block_data_order_avx:
 	.byte	0xf3,0x0f,0x1e,0xfa
+	movq	%rdi,8(%rsp)
+	movq	%rsi,16(%rsp)
+	movq	%rsp,%r11
+.LSEH_begin_sha512_block_data_order_avx:
+
 
 	pushq	%rbp
-.cfi_adjust_cfa_offset	8
-.cfi_offset	%rbp,-16
+
 	movq	%rsp,%rbp
-.cfi_def_cfa_register	%rbp
+
+	movq	%rcx,%rdi
+	movq	%rdx,%rsi
+	movq	%r8,%rdx
 .Lavx_shortcut:
 	pushq	%rbx
-.cfi_offset	%rbx,-24
+
 	pushq	%r12
-.cfi_offset	%r12,-32
+
 	pushq	%r13
-.cfi_offset	%r13,-40
+
 	pushq	%r14
-.cfi_offset	%r14,-48
+
 	pushq	%r15
-.cfi_offset	%r15,-56
+
 	shlq	$4,%rdx
-	subq	$24,%rsp
+	subq	$120,%rsp
 
 	leaq	(%rsi,%rdx,8),%rdx
 	movq	%rdi,-64(%rbp)
 
 	movq	%rdx,-48(%rbp)
+	movaps	%xmm6,-160(%rbp)
+	movaps	%xmm7,-144(%rbp)
+	movaps	%xmm8,-128(%rbp)
+	movaps	%xmm9,-112(%rbp)
+
+	movaps	%xmm10,-96(%rbp)
+	movaps	%xmm11,-80(%rbp)
+
+.LSEH_body_sha512_block_data_order_avx:
 
 
 	leaq	-128(%rsp),%rsp
@@ -3144,7 +3330,7 @@ SYM_FUNC_ENTER(sha512_block_data_order_avx)
 	movq	48(%rdi),%r10
 	movq	56(%rdi),%r11
 	jmp	.Lloop_avx
-.align	16
+.p2align	4
 .Lloop_avx:
 	vmovdqa	K512+1280(%rip),%xmm11
 	movq	%rsi,-56(%rbp)
@@ -3187,7 +3373,7 @@ SYM_FUNC_ENTER(sha512_block_data_order_avx)
 	movq	%r8,%r13
 	jmp	.Lavx_00_47
 
-.align	16
+.p2align	4
 .Lavx_00_47:
 	addq	$256,%rsi
 	vpalignr	$8,%xmm0,%xmm1,%xmm8
@@ -4251,55 +4437,75 @@ SYM_FUNC_ENTER(sha512_block_data_order_avx)
 	jb	.Lloop_avx
 
 	vzeroupper
+	movaps	-160(%rbp),%xmm6
+	movaps	-144(%rbp),%xmm7
+	movaps	-128(%rbp),%xmm8
+	movaps	-112(%rbp),%xmm9
+	movaps	-96(%rbp),%xmm10
+	movaps	-80(%rbp),%xmm11
 	movq	-40(%rbp),%r15
 	movq	-32(%rbp),%r14
 	movq	-24(%rbp),%r13
 	movq	-16(%rbp),%r12
 	movq	-8(%rbp),%rbx
 	movq	%rbp,%rsp
-.cfi_def_cfa_register	%rsp
+
 	popq	%rbp
-.cfi_adjust_cfa_offset	-8
-.cfi_restore	%rbp
-.cfi_restore	%r12
-.cfi_restore	%r13
-.cfi_restore	%r14
-.cfi_restore	%r15
-.cfi_restore	%rbx
+
+.LSEH_epilogue_sha512_block_data_order_avx:
+	mov	8(%rsp),%rdi
+	mov	16(%rsp),%rsi
+
 	.byte	0xf3,0xc3
-.cfi_endproc
-SYM_FUNC_END(sha512_block_data_order_avx)
+
+.LSEH_end_sha512_block_data_order_avx:
 #endif
 
-SYM_FUNC_START(sha512_block_data_order_avx2)
-SYM_FUNC_ENTER(sha512_block_data_order_avx2)
-.align	64
-.cfi_startproc
+.globl  sha512_block_data_order_avx2
+.def	sha512_block_data_order_avx2;	.scl 3;	.type 32;	.endef
+.p2align	6
+sha512_block_data_order_avx2:
 	.byte	0xf3,0x0f,0x1e,0xfa
+	movq	%rdi,8(%rsp)
+	movq	%rsi,16(%rsp)
+	movq	%rsp,%r11
+.LSEH_begin_sha512_block_data_order_avx2:
+
 
 	pushq	%rbp
-.cfi_adjust_cfa_offset	8
-.cfi_offset	%rbp,-16
+
 	movq	%rsp,%rbp
-.cfi_def_cfa_register	%rbp
+
+	movq	%rcx,%rdi
+	movq	%rdx,%rsi
+	movq	%r8,%rdx
 .Lavx2_shortcut:
 	pushq	%rbx
-.cfi_offset	%rbx,-24
+
 	pushq	%r12
-.cfi_offset	%r12,-32
+
 	pushq	%r13
-.cfi_offset	%r13,-40
+
 	pushq	%r14
-.cfi_offset	%r14,-48
+
 	pushq	%r15
-.cfi_offset	%r15,-56
+
 	shlq	$4,%rdx
-	subq	$24,%rsp
+	subq	$120,%rsp
 
 	leaq	(%rsi,%rdx,8),%rdx
 	movq	%rdi,-64(%rbp)
 
 	movq	%rdx,-48(%rbp)
+	movaps	%xmm6,-160(%rbp)
+	movaps	%xmm7,-144(%rbp)
+	movaps	%xmm8,-128(%rbp)
+	movaps	%xmm9,-112(%rbp)
+
+	movaps	%xmm10,-96(%rbp)
+	movaps	%xmm11,-80(%rbp)
+
+.LSEH_body_sha512_block_data_order_avx2:
 
 
 	leaq	-128(%rsp),%rsp
@@ -4318,7 +4524,7 @@ SYM_FUNC_ENTER(sha512_block_data_order_avx2)
 	movq	48(%rdi),%r10
 	movq	56(%rdi),%r11
 	jmp	.Loop_avx2
-.align	16
+.p2align	4
 .Loop_avx2:
 	vmovdqa	K512+1280(%rip),%ymm10
 	movq	%rsi,-56(%rbp)
@@ -4372,7 +4578,7 @@ SYM_FUNC_ENTER(sha512_block_data_order_avx2)
 	addq	$32*8,%rsi
 	jmp	.Lavx2_00_47
 
-.align	16
+.p2align	4
 .Lavx2_00_47:
 	leaq	-128(%rsp),%rsp
 	vpalignr	$8,%ymm0,%ymm1,%ymm8
@@ -5378,7 +5584,7 @@ SYM_FUNC_ENTER(sha512_block_data_order_avx2)
 	xorq	%rcx,%rdi
 	movq	%r9,%r12
 	jmp	.Lower_avx2
-.align	16
+.p2align	4
 .Lower_avx2:
 	addq	0+16(%rsi),%r11
 	andq	%r8,%r12
@@ -5607,151 +5813,255 @@ SYM_FUNC_ENTER(sha512_block_data_order_avx2)
 
 .Ldone_avx2:
 	vzeroupper
+	movaps	-160(%rbp),%xmm6
+	movaps	-144(%rbp),%xmm7
+	movaps	-128(%rbp),%xmm8
+	movaps	-112(%rbp),%xmm9
+	movaps	-96(%rbp),%xmm10
+	movaps	-80(%rbp),%xmm11
 	movq	-40(%rbp),%r15
 	movq	-32(%rbp),%r14
 	movq	-24(%rbp),%r13
 	movq	-16(%rbp),%r12
 	movq	-8(%rbp),%rbx
 	movq	%rbp,%rsp
-.cfi_def_cfa_register	%rsp
+
 	popq	%rbp
-.cfi_adjust_cfa_offset	-8
-.cfi_restore	%rbp
-.cfi_restore	%r12
-.cfi_restore	%r13
-.cfi_restore	%r14
-.cfi_restore	%r15
-.cfi_restore	%rbx
+
+.LSEH_epilogue_sha512_block_data_order_avx2:
+	mov	8(%rsp),%rdi
+	mov	16(%rsp),%rsi
+
 	.byte	0xf3,0xc3
-.cfi_endproc
-SYM_FUNC_END(sha512_block_data_order_avx2)
 
-.data
+.LSEH_end_sha512_block_data_order_avx2:
+.section	.pdata
+.p2align	2
+#if 0
+.rva	.LSEH_begin_sha512_block_data_order
+.rva	.LSEH_body_sha512_block_data_order
+.rva	.LSEH_info_sha512_block_data_order_prologue
 
-.align	64
-K512:
-.quad	0x428a2f98d728ae22,0x7137449123ef65cd
-.quad	0x428a2f98d728ae22,0x7137449123ef65cd
-.quad	0xb5c0fbcfec4d3b2f,0xe9b5dba58189dbbc
-.quad	0xb5c0fbcfec4d3b2f,0xe9b5dba58189dbbc
-.quad	0x3956c25bf348b538,0x59f111f1b605d019
-.quad	0x3956c25bf348b538,0x59f111f1b605d019
-.quad	0x923f82a4af194f9b,0xab1c5ed5da6d8118
-.quad	0x923f82a4af194f9b,0xab1c5ed5da6d8118
-.quad	0xd807aa98a3030242,0x12835b0145706fbe
-.quad	0xd807aa98a3030242,0x12835b0145706fbe
-.quad	0x243185be4ee4b28c,0x550c7dc3d5ffb4e2
-.quad	0x243185be4ee4b28c,0x550c7dc3d5ffb4e2
-.quad	0x72be5d74f27b896f,0x80deb1fe3b1696b1
-.quad	0x72be5d74f27b896f,0x80deb1fe3b1696b1
-.quad	0x9bdc06a725c71235,0xc19bf174cf692694
-.quad	0x9bdc06a725c71235,0xc19bf174cf692694
-.quad	0xe49b69c19ef14ad2,0xefbe4786384f25e3
-.quad	0xe49b69c19ef14ad2,0xefbe4786384f25e3
-.quad	0x0fc19dc68b8cd5b5,0x240ca1cc77ac9c65
-.quad	0x0fc19dc68b8cd5b5,0x240ca1cc77ac9c65
-.quad	0x2de92c6f592b0275,0x4a7484aa6ea6e483
-.quad	0x2de92c6f592b0275,0x4a7484aa6ea6e483
-.quad	0x5cb0a9dcbd41fbd4,0x76f988da831153b5
-.quad	0x5cb0a9dcbd41fbd4,0x76f988da831153b5
-.quad	0x983e5152ee66dfab,0xa831c66d2db43210
-.quad	0x983e5152ee66dfab,0xa831c66d2db43210
-.quad	0xb00327c898fb213f,0xbf597fc7beef0ee4
-.quad	0xb00327c898fb213f,0xbf597fc7beef0ee4
-.quad	0xc6e00bf33da88fc2,0xd5a79147930aa725
-.quad	0xc6e00bf33da88fc2,0xd5a79147930aa725
-.quad	0x06ca6351e003826f,0x142929670a0e6e70
-.quad	0x06ca6351e003826f,0x142929670a0e6e70
-.quad	0x27b70a8546d22ffc,0x2e1b21385c26c926
-.quad	0x27b70a8546d22ffc,0x2e1b21385c26c926
-.quad	0x4d2c6dfc5ac42aed,0x53380d139d95b3df
-.quad	0x4d2c6dfc5ac42aed,0x53380d139d95b3df
-.quad	0x650a73548baf63de,0x766a0abb3c77b2a8
-.quad	0x650a73548baf63de,0x766a0abb3c77b2a8
-.quad	0x81c2c92e47edaee6,0x92722c851482353b
-.quad	0x81c2c92e47edaee6,0x92722c851482353b
-.quad	0xa2bfe8a14cf10364,0xa81a664bbc423001
-.quad	0xa2bfe8a14cf10364,0xa81a664bbc423001
-.quad	0xc24b8b70d0f89791,0xc76c51a30654be30
-.quad	0xc24b8b70d0f89791,0xc76c51a30654be30
-.quad	0xd192e819d6ef5218,0xd69906245565a910
-.quad	0xd192e819d6ef5218,0xd69906245565a910
-.quad	0xf40e35855771202a,0x106aa07032bbd1b8
-.quad	0xf40e35855771202a,0x106aa07032bbd1b8
-.quad	0x19a4c116b8d2d0c8,0x1e376c085141ab53
-.quad	0x19a4c116b8d2d0c8,0x1e376c085141ab53
-.quad	0x2748774cdf8eeb99,0x34b0bcb5e19b48a8
-.quad	0x2748774cdf8eeb99,0x34b0bcb5e19b48a8
-.quad	0x391c0cb3c5c95a63,0x4ed8aa4ae3418acb
-.quad	0x391c0cb3c5c95a63,0x4ed8aa4ae3418acb
-.quad	0x5b9cca4f7763e373,0x682e6ff3d6b2b8a3
-.quad	0x5b9cca4f7763e373,0x682e6ff3d6b2b8a3
-.quad	0x748f82ee5defb2fc,0x78a5636f43172f60
-.quad	0x748f82ee5defb2fc,0x78a5636f43172f60
-.quad	0x84c87814a1f0ab72,0x8cc702081a6439ec
-.quad	0x84c87814a1f0ab72,0x8cc702081a6439ec
-.quad	0x90befffa23631e28,0xa4506cebde82bde9
-.quad	0x90befffa23631e28,0xa4506cebde82bde9
-.quad	0xbef9a3f7b2c67915,0xc67178f2e372532b
-.quad	0xbef9a3f7b2c67915,0xc67178f2e372532b
-.quad	0xca273eceea26619c,0xd186b8c721c0c207
-.quad	0xca273eceea26619c,0xd186b8c721c0c207
-.quad	0xeada7dd6cde0eb1e,0xf57d4f7fee6ed178
-.quad	0xeada7dd6cde0eb1e,0xf57d4f7fee6ed178
-.quad	0x06f067aa72176fba,0x0a637dc5a2c898a6
-.quad	0x06f067aa72176fba,0x0a637dc5a2c898a6
-.quad	0x113f9804bef90dae,0x1b710b35131c471b
-.quad	0x113f9804bef90dae,0x1b710b35131c471b
-.quad	0x28db77f523047d84,0x32caab7b40c72493
-.quad	0x28db77f523047d84,0x32caab7b40c72493
-.quad	0x3c9ebe0a15c9bebc,0x431d67c49c100d4c
-.quad	0x3c9ebe0a15c9bebc,0x431d67c49c100d4c
-.quad	0x4cc5d4becb3e42b6,0x597f299cfc657e2a
-.quad	0x4cc5d4becb3e42b6,0x597f299cfc657e2a
-.quad	0x5fcb6fab3ad6faec,0x6c44198c4a475817
-.quad	0x5fcb6fab3ad6faec,0x6c44198c4a475817
+.rva	.LSEH_body_sha512_block_data_order
+.rva	.LSEH_epilogue_sha512_block_data_order
+.rva	.LSEH_info_sha512_block_data_order_body
 
-.quad	0x0001020304050607,0x08090a0b0c0d0e0f
-.quad	0x0001020304050607,0x08090a0b0c0d0e0f
+.rva	.LSEH_epilogue_sha512_block_data_order
+.rva	.LSEH_end_sha512_block_data_order
+.rva	.LSEH_info_sha512_block_data_order_epilogue
+#endif
 
-K512_nodup:
-.quad	0x428a2f98d728ae22,0x7137449123ef65cd
-.quad	0xb5c0fbcfec4d3b2f,0xe9b5dba58189dbbc
-.quad	0x3956c25bf348b538,0x59f111f1b605d019
-.quad	0x923f82a4af194f9b,0xab1c5ed5da6d8118
-.quad	0xd807aa98a3030242,0x12835b0145706fbe
-.quad	0x243185be4ee4b28c,0x550c7dc3d5ffb4e2
-.quad	0x72be5d74f27b896f,0x80deb1fe3b1696b1
-.quad	0x9bdc06a725c71235,0xc19bf174cf692694
-.quad	0xe49b69c19ef14ad2,0xefbe4786384f25e3
-.quad	0x0fc19dc68b8cd5b5,0x240ca1cc77ac9c65
-.quad	0x2de92c6f592b0275,0x4a7484aa6ea6e483
-.quad	0x5cb0a9dcbd41fbd4,0x76f988da831153b5
-.quad	0x983e5152ee66dfab,0xa831c66d2db43210
-.quad	0xb00327c898fb213f,0xbf597fc7beef0ee4
-.quad	0xc6e00bf33da88fc2,0xd5a79147930aa725
-.quad	0x06ca6351e003826f,0x142929670a0e6e70
-.quad	0x27b70a8546d22ffc,0x2e1b21385c26c926
-.quad	0x4d2c6dfc5ac42aed,0x53380d139d95b3df
-.quad	0x650a73548baf63de,0x766a0abb3c77b2a8
-.quad	0x81c2c92e47edaee6,0x92722c851482353b
-.quad	0xa2bfe8a14cf10364,0xa81a664bbc423001
-.quad	0xc24b8b70d0f89791,0xc76c51a30654be30
-.quad	0xd192e819d6ef5218,0xd69906245565a910
-.quad	0xf40e35855771202a,0x106aa07032bbd1b8
-.quad	0x19a4c116b8d2d0c8,0x1e376c085141ab53
-.quad	0x2748774cdf8eeb99,0x34b0bcb5e19b48a8
-.quad	0x391c0cb3c5c95a63,0x4ed8aa4ae3418acb
-.quad	0x5b9cca4f7763e373,0x682e6ff3d6b2b8a3
-.quad	0x748f82ee5defb2fc,0x78a5636f43172f60
-.quad	0x84c87814a1f0ab72,0x8cc702081a6439ec
-.quad	0x90befffa23631e28,0xa4506cebde82bde9
-.quad	0xbef9a3f7b2c67915,0xc67178f2e372532b
-.quad	0xca273eceea26619c,0xd186b8c721c0c207
-.quad	0xeada7dd6cde0eb1e,0xf57d4f7fee6ed178
-.quad	0x06f067aa72176fba,0x0a637dc5a2c898a6
-.quad	0x113f9804bef90dae,0x1b710b35131c471b
-.quad	0x28db77f523047d84,0x32caab7b40c72493
-.quad	0x3c9ebe0a15c9bebc,0x431d67c49c100d4c
-.quad	0x4cc5d4becb3e42b6,0x597f299cfc657e2a
-.quad	0x5fcb6fab3ad6faec,0x6c44198c4a475817
+.rva	.LSEH_begin_sha512_block_data_order_shaext
+.rva	.LSEH_body_sha512_block_data_order_shaext
+.rva	.LSEH_info_sha512_block_data_order_shaext_prologue
+
+.rva	.LSEH_body_sha512_block_data_order_shaext
+.rva	.LSEH_epilogue_sha512_block_data_order_shaext
+.rva	.LSEH_info_sha512_block_data_order_shaext_body
+
+.rva	.LSEH_epilogue_sha512_block_data_order_shaext
+.rva	.LSEH_end_sha512_block_data_order_shaext
+.rva	.LSEH_info_sha512_block_data_order_shaext_epilogue
+
+#if 0
+.rva	.LSEH_begin_sha512_block_data_order_xop
+.rva	.LSEH_body_sha512_block_data_order_xop
+.rva	.LSEH_info_sha512_block_data_order_xop_prologue
+
+.rva	.LSEH_body_sha512_block_data_order_xop
+.rva	.LSEH_epilogue_sha512_block_data_order_xop
+.rva	.LSEH_info_sha512_block_data_order_xop_body
+
+.rva	.LSEH_epilogue_sha512_block_data_order_xop
+.rva	.LSEH_end_sha512_block_data_order_xop
+.rva	.LSEH_info_sha512_block_data_order_xop_epilogue
+#endif
+
+#if 0
+.rva	.LSEH_begin_sha512_block_data_order_avx
+.rva	.LSEH_body_sha512_block_data_order_avx
+.rva	.LSEH_info_sha512_block_data_order_avx_prologue
+
+.rva	.LSEH_body_sha512_block_data_order_avx
+.rva	.LSEH_epilogue_sha512_block_data_order_avx
+.rva	.LSEH_info_sha512_block_data_order_avx_body
+
+.rva	.LSEH_epilogue_sha512_block_data_order_avx
+.rva	.LSEH_end_sha512_block_data_order_avx
+.rva	.LSEH_info_sha512_block_data_order_avx_epilogue
+#endif
+
+.rva	.LSEH_begin_sha512_block_data_order_avx2
+.rva	.LSEH_body_sha512_block_data_order_avx2
+.rva	.LSEH_info_sha512_block_data_order_avx2_prologue
+
+.rva	.LSEH_body_sha512_block_data_order_avx2
+.rva	.LSEH_epilogue_sha512_block_data_order_avx2
+.rva	.LSEH_info_sha512_block_data_order_avx2_body
+
+.rva	.LSEH_epilogue_sha512_block_data_order_avx2
+.rva	.LSEH_end_sha512_block_data_order_avx2
+.rva	.LSEH_info_sha512_block_data_order_avx2_epilogue
+
+.section	.xdata
+.p2align	3
+#if 0
+.LSEH_info_sha512_block_data_order_prologue:
+.byte	1,4,6,0x05
+.byte	4,0x74,2,0
+.byte	4,0x64,3,0
+.byte	4,0x53
+.byte	1,0x50
+.long	0,0
+.LSEH_info_sha512_block_data_order_body:
+.byte	1,0,18,0
+.byte	0x00,0xf4,0x13,0x00
+.byte	0x00,0xe4,0x14,0x00
+.byte	0x00,0xd4,0x15,0x00
+.byte	0x00,0xc4,0x16,0x00
+.byte	0x00,0x34,0x17,0x00
+.byte	0x00,0x54,0x18,0x00
+.byte	0x00,0x74,0x1a,0x00
+.byte	0x00,0x64,0x1b,0x00
+.byte	0x00,0x01,0x19,0x00
+.byte	0x00,0x00,0x00,0x00
+.byte	0x00,0x00,0x00,0x00
+.LSEH_info_sha512_block_data_order_epilogue:
+.byte	1,0,5,11
+.byte	0x00,0x74,0x01,0x00
+.byte	0x00,0x64,0x02,0x00
+.byte	0x00,0xb3
+.byte	0x00,0x00,0x00,0x00,0x00,0x00
+.byte	0x00,0x00,0x00,0x00
+#endif
+
+.LSEH_info_sha512_block_data_order_shaext_prologue:
+.byte	1,4,6,0x05
+.byte	4,0x74,2,0
+.byte	4,0x64,3,0
+.byte	4,0x53
+.byte	1,0x50
+.long	0,0
+.LSEH_info_sha512_block_data_order_shaext_body:
+.byte	1,0,17,85
+.byte	0x00,0x68,0x00,0x00
+.byte	0x00,0x78,0x01,0x00
+.byte	0x00,0x88,0x02,0x00
+.byte	0x00,0x98,0x03,0x00
+.byte	0x00,0xa8,0x04,0x00
+.byte	0x00,0x74,0x0c,0x00
+.byte	0x00,0x64,0x0d,0x00
+.byte	0x00,0x53
+.byte	0x00,0x92
+.byte	0x00,0x50
+.byte	0x00,0x00,0x00,0x00,0x00,0x00
+.byte	0x00,0x00,0x00,0x00
+.LSEH_info_sha512_block_data_order_shaext_epilogue:
+.byte	1,0,4,0
+.byte	0x00,0x74,0x01,0x00
+.byte	0x00,0x64,0x02,0x00
+.byte	0x00,0x00,0x00,0x00
+
+#if 0
+.LSEH_info_sha512_block_data_order_xop_prologue:
+.byte	1,4,6,0x05
+.byte	4,0x74,2,0
+.byte	4,0x64,3,0
+.byte	4,0x53
+.byte	1,0x50
+.long	0,0
+.LSEH_info_sha512_block_data_order_xop_body:
+.byte	1,0,30,165
+.byte	0x00,0x68,0x00,0x00
+.byte	0x00,0x78,0x01,0x00
+.byte	0x00,0x88,0x02,0x00
+.byte	0x00,0x98,0x03,0x00
+.byte	0x00,0xa8,0x04,0x00
+.byte	0x00,0xb8,0x05,0x00
+.byte	0x00,0xf4,0x0f,0x00
+.byte	0x00,0xe4,0x10,0x00
+.byte	0x00,0xd4,0x11,0x00
+.byte	0x00,0xc4,0x12,0x00
+.byte	0x00,0x34,0x13,0x00
+.byte	0x00,0x74,0x16,0x00
+.byte	0x00,0x64,0x17,0x00
+.byte	0x00,0x53
+.byte	0x00,0x01,0x14,0x00
+.byte	0x00,0x50
+.byte	0x00,0x00,0x00,0x00
+.byte	0x00,0x00,0x00,0x00
+.LSEH_info_sha512_block_data_order_xop_epilogue:
+.byte	1,0,4,0
+.byte	0x00,0x74,0x01,0x00
+.byte	0x00,0x64,0x02,0x00
+.byte	0x00,0x00,0x00,0x00
+#endif
+
+#if 0
+.LSEH_info_sha512_block_data_order_avx_prologue:
+.byte	1,4,6,0x05
+.byte	4,0x74,2,0
+.byte	4,0x64,3,0
+.byte	4,0x53
+.byte	1,0x50
+.long	0,0
+.LSEH_info_sha512_block_data_order_avx_body:
+.byte	1,0,30,165
+.byte	0x00,0x68,0x00,0x00
+.byte	0x00,0x78,0x01,0x00
+.byte	0x00,0x88,0x02,0x00
+.byte	0x00,0x98,0x03,0x00
+.byte	0x00,0xa8,0x04,0x00
+.byte	0x00,0xb8,0x05,0x00
+.byte	0x00,0xf4,0x0f,0x00
+.byte	0x00,0xe4,0x10,0x00
+.byte	0x00,0xd4,0x11,0x00
+.byte	0x00,0xc4,0x12,0x00
+.byte	0x00,0x34,0x13,0x00
+.byte	0x00,0x74,0x16,0x00
+.byte	0x00,0x64,0x17,0x00
+.byte	0x00,0x53
+.byte	0x00,0x01,0x14,0x00
+.byte	0x00,0x50
+.byte	0x00,0x00,0x00,0x00
+.byte	0x00,0x00,0x00,0x00
+.LSEH_info_sha512_block_data_order_avx_epilogue:
+.byte	1,0,4,0
+.byte	0x00,0x74,0x01,0x00
+.byte	0x00,0x64,0x02,0x00
+.byte	0x00,0x00,0x00,0x00
+#endif
+
+.LSEH_info_sha512_block_data_order_avx2_prologue:
+.byte	1,4,6,0x05
+.byte	4,0x74,2,0
+.byte	4,0x64,3,0
+.byte	4,0x53
+.byte	1,0x50
+.long	0,0
+.LSEH_info_sha512_block_data_order_avx2_body:
+.byte	1,0,30,165
+.byte	0x00,0x68,0x00,0x00
+.byte	0x00,0x78,0x01,0x00
+.byte	0x00,0x88,0x02,0x00
+.byte	0x00,0x98,0x03,0x00
+.byte	0x00,0xa8,0x04,0x00
+.byte	0x00,0xb8,0x05,0x00
+.byte	0x00,0xf4,0x0f,0x00
+.byte	0x00,0xe4,0x10,0x00
+.byte	0x00,0xd4,0x11,0x00
+.byte	0x00,0xc4,0x12,0x00
+.byte	0x00,0x34,0x13,0x00
+.byte	0x00,0x74,0x16,0x00
+.byte	0x00,0x64,0x17,0x00
+.byte	0x00,0x53
+.byte	0x00,0x01,0x14,0x00
+.byte	0x00,0x50
+.byte	0x00,0x00,0x00,0x00
+.byte	0x00,0x00,0x00,0x00
+.LSEH_info_sha512_block_data_order_avx2_epilogue:
+.byte	1,0,4,0
+.byte	0x00,0x74,0x01,0x00
+.byte	0x00,0x64,0x02,0x00
+.byte	0x00,0x00,0x00,0x00
+

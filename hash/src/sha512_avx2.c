@@ -31,10 +31,6 @@ static void sha512_update_avx2(void *_state, const uint8_t *in, size_t inlen)
 	struct lc_sha512_state *ctx = _state;
 
 	LC_FPU_ENABLE;
-
-	/* On windows the SYSV_ABI flag causes a warning */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 	sha512_update(ctx, in, inlen, sha512_block_data_order_avx2);
 	LC_FPU_DISABLE;
 }
@@ -48,13 +44,7 @@ static void sha384_final_avx2(void *_state, uint8_t *digest)
 		return;
 
 	LC_FPU_ENABLE;
-
-	/* On windows the SYSV_ABI flag causes a warning */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 	sha512_final(_state, sha512_block_data_order_avx2);
-#pragma GCC diagnostic pop
-
 	LC_FPU_DISABLE;
 
 	/* Output digest */
@@ -71,13 +61,7 @@ static void sha512_final_avx2(void *_state, uint8_t *digest)
 		return;
 
 	LC_FPU_ENABLE;
-
-	/* On windows the SYSV_ABI flag causes a warning */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 	sha512_final(_state, sha512_block_data_order_avx2);
-#pragma GCC diagnostic pop
-
 	LC_FPU_DISABLE;
 
 	/* Output digest */

@@ -27,26 +27,28 @@
  * For further details see http://www.openssl.org/~appro/cryptogams/.
  */
 
-#include "assembler_support.h"
-
 .text
 
 #if 0
-
-.extern lc_x86_64_cpuid
-
-SYM_FUNC_START(sha256_block_data_order)
-SYM_FUNC_ENTER(sha256_block_data_order)
-.align	16
-.cfi_startproc
+.globl	sha256_block_data_order
+.def	sha256_block_data_order;	.scl 2;	.type 32;	.endef
+.p2align	4
+sha256_block_data_order:
 	.byte	0xf3,0x0f,0x1e,0xfa
+	movq	%rdi,8(%rsp)
+	movq	%rsi,16(%rsp)
+	movq	%rsp,%r11
+.LSEH_begin_sha256_block_data_order:
+
 
 	pushq	%rbp
-.cfi_adjust_cfa_offset	8
-.cfi_offset	%rbp,-16
+
 	movq	%rsp,%rbp
-.cfi_def_cfa_register	%rbp
-	leaq	lc_x86_64_cpuid(%rip),%rax
+
+	movq	%rcx,%rdi
+	movq	%rdx,%rsi
+	movq	%r8,%rdx
+	leaq	OPENSSL_ia32cap_P(%rip),%rax
 	movl	0(%rax),%r9d
 	movl	4(%rax),%r10d
 	movl	8(%rax),%eax
@@ -63,19 +65,20 @@ SYM_FUNC_ENTER(sha256_block_data_order)
 	testl	$512,%r10d
 	jnz	.Lssse3_shortcut
 	pushq	%rbx
-.cfi_offset	%rbx,-24
+
 	pushq	%r12
-.cfi_offset	%r12,-32
+
 	pushq	%r13
-.cfi_offset	%r13,-40
+
 	pushq	%r14
-.cfi_offset	%r14,-48
+
 	pushq	%r15
-.cfi_offset	%r15,-56
+
 	shlq	$4,%rdx
 	subq	$64+24,%rsp
 
-.cfi_def_cfa	%rsp,144
+
+.LSEH_body_sha256_block_data_order:
 
 	leaq	(%rsi,%rdx,4),%rdx
 	movq	%rdi,64+0(%rsp)
@@ -92,7 +95,7 @@ SYM_FUNC_ENTER(sha256_block_data_order)
 	movl	28(%rdi),%r11d
 	jmp	.Lloop
 
-.align	16
+.p2align	4
 .Lloop:
 	movl	%ebx,%edi
 	leaq	K256(%rip),%rbp
@@ -753,7 +756,7 @@ SYM_FUNC_ENTER(sha256_block_data_order)
 
 	leaq	20(%rbp),%rbp
 	jmp	.Lrounds_16_xx
-.align	16
+.p2align	4
 .Lrounds_16_xx:
 	movl	4(%rsp),%r13d
 	movl	56(%rsp),%r15d
@@ -1744,39 +1747,94 @@ SYM_FUNC_ENTER(sha256_block_data_order)
 	jb	.Lloop
 
 	leaq	64+24+48(%rsp),%r11
-.cfi_def_cfa	%r11,8
+
 	movq	64+24(%rsp),%r15
 	movq	-40(%r11),%r14
 	movq	-32(%r11),%r13
 	movq	-24(%r11),%r12
 	movq	-16(%r11),%rbx
 	movq	-8(%r11),%rbp
-.cfi_restore	%r12
-.cfi_restore	%r13
-.cfi_restore	%r14
-.cfi_restore	%r15
-.cfi_restore	%rbp
-.cfi_restore	%rbx
+.LSEH_epilogue_sha256_block_data_order:
+	mov	8(%r11),%rdi
+	mov	16(%r11),%rsi
+
 	leaq	(%r11),%rsp
 	.byte	0xf3,0xc3
-.cfi_endproc	
-SYM_FUNC_END(sha256_block_data_order)
+
+.LSEH_end_sha256_block_data_order:
 #endif
 
-.byte	83,72,65,50,53,54,32,98,108,111,99,107,32,116,114,97,110,115,102,111,114,109,32,102,111,114,32,120,56,54,95,54,52,44,32,67,82,89,80,84,79,71,65,77,83,32,98,121,32,64,100,111,116,45,97,115,109,0
+.p2align	6
 
-SYM_FUNC_START(sha256_block_data_order_shaext)
-SYM_FUNC_ENTER(sha256_block_data_order_shaext)
-.align	64
-.cfi_startproc
+K256:
+.long	0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5
+.long	0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5
+.long	0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5
+.long	0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5
+.long	0xd807aa98,0x12835b01,0x243185be,0x550c7dc3
+.long	0xd807aa98,0x12835b01,0x243185be,0x550c7dc3
+.long	0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174
+.long	0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174
+.long	0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc
+.long	0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc
+.long	0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da
+.long	0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da
+.long	0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7
+.long	0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7
+.long	0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967
+.long	0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967
+.long	0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13
+.long	0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13
+.long	0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85
+.long	0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85
+.long	0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3
+.long	0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3
+.long	0xd192e819,0xd6990624,0xf40e3585,0x106aa070
+.long	0xd192e819,0xd6990624,0xf40e3585,0x106aa070
+.long	0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5
+.long	0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5
+.long	0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3
+.long	0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3
+.long	0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208
+.long	0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208
+.long	0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2
+.long	0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2
+
+.long	0x00010203,0x04050607,0x08090a0b,0x0c0d0e0f
+.long	0x00010203,0x04050607,0x08090a0b,0x0c0d0e0f
+.long	0x03020100,0x0b0a0908,0xffffffff,0xffffffff
+.long	0x03020100,0x0b0a0908,0xffffffff,0xffffffff
+.long	0xffffffff,0xffffffff,0x03020100,0x0b0a0908
+.long	0xffffffff,0xffffffff,0x03020100,0x0b0a0908
+.byte	83,72,65,50,53,54,32,98,108,111,99,107,32,116,114,97,110,115,102,111,114,109,32,102,111,114,32,120,56,54,95,54,52,44,32,67,82,89,80,84,79,71,65,77,83,32,98,121,32,64,100,111,116,45,97,115,109,0
+.globl  sha256_block_data_order_shaext
+.def	sha256_block_data_order_shaext;	.scl 3;	.type 32;	.endef
+.p2align	6
+sha256_block_data_order_shaext:
 	.byte	0xf3,0x0f,0x1e,0xfa
+	movq	%rdi,8(%rsp)
+	movq	%rsi,16(%rsp)
+	movq	%rsp,%r11
+.LSEH_begin_sha256_block_data_order_shaext:
+
 
 	pushq	%rbp
-.cfi_adjust_cfa_offset	8
-.cfi_offset	%rbp,-16
+
 	movq	%rsp,%rbp
-.cfi_def_cfa_register	%rbp
+
+	movq	%rcx,%rdi
+	movq	%rdx,%rsi
+	movq	%r8,%rdx
 .Lshaext_shortcut:
+	subq	$0x50,%rsp
+
+	movaps	%xmm6,-80(%rbp)
+	movaps	%xmm7,-64(%rbp)
+	movaps	%xmm8,-48(%rbp)
+	movaps	%xmm9,-32(%rbp)
+	movaps	%xmm10,-16(%rbp)
+
+.LSEH_body_sha256_block_data_order_shaext:
 
 	leaq	K256+128(%rip),%rcx
 	movdqu	(%rdi),%xmm1
@@ -1791,7 +1849,7 @@ SYM_FUNC_ENTER(sha256_block_data_order_shaext)
 	punpcklqdq	%xmm0,%xmm2
 	jmp	.Loop_shaext
 
-.align	16
+.p2align	4
 .Loop_shaext:
 	movdqu	(%rsi),%xmm3
 	movdqu	16(%rsi),%xmm4
@@ -1979,45 +2037,65 @@ SYM_FUNC_ENTER(sha256_block_data_order_shaext)
 
 	movdqu	%xmm1,(%rdi)
 	movdqu	%xmm2,16(%rdi)
-.cfi_def_cfa_register	%rsp
+	movaps	-80(%rbp),%xmm6
+	movaps	-64(%rbp),%xmm7
+	movaps	-48(%rbp),%xmm8
+	movaps	-32(%rbp),%xmm9
+	movaps	-16(%rbp),%xmm10
+	movq	%rbp,%rsp
+
 	popq	%rbp
-.cfi_adjust_cfa_offset	-8
-.cfi_restore	%rbp
+
+.LSEH_epilogue_sha256_block_data_order_shaext:
+	mov	8(%rsp),%rdi
+	mov	16(%rsp),%rsi
 
 	.byte	0xf3,0xc3
-.cfi_endproc
-SYM_FUNC_END(sha256_block_data_order_shaext)
+
+.LSEH_end_sha256_block_data_order_shaext:
 
 #if 0
-SYM_FUNC_START(sha256_block_data_order_ssse3)
-SYM_FUNC_ENTER(sha256_block_data_order_ssse3)
-.align	64
-.cfi_startproc
+.def	sha256_block_data_order_ssse3;	.scl 3;	.type 32;	.endef
+.p2align	6
+sha256_block_data_order_ssse3:
 	.byte	0xf3,0x0f,0x1e,0xfa
+	movq	%rdi,8(%rsp)
+	movq	%rsi,16(%rsp)
+	movq	%rsp,%r11
+.LSEH_begin_sha256_block_data_order_ssse3:
+
 
 	pushq	%rbp
-.cfi_adjust_cfa_offset	8
-.cfi_offset	%rbp,-16
+
 	movq	%rsp,%rbp
-.cfi_def_cfa_register	%rbp
+
+	movq	%rcx,%rdi
+	movq	%rdx,%rsi
+	movq	%r8,%rdx
 .Lssse3_shortcut:
 	pushq	%rbx
-.cfi_offset	%rbx,-24
+
 	pushq	%r12
-.cfi_offset	%r12,-32
+
 	pushq	%r13
-.cfi_offset	%r13,-40
+
 	pushq	%r14
-.cfi_offset	%r14,-48
+
 	pushq	%r15
-.cfi_offset	%r15,-56
+
 	shlq	$4,%rdx
-	subq	$24,%rsp
+	subq	$88,%rsp
 
 	leaq	(%rsi,%rdx,4),%rdx
 	movq	%rdi,-64(%rbp)
 
 	movq	%rdx,-48(%rbp)
+	movaps	%xmm6,-128(%rbp)
+	movaps	%xmm7,-112(%rbp)
+	movaps	%xmm8,-96(%rbp)
+	movaps	%xmm9,-80(%rbp)
+
+.LSEH_body_sha256_block_data_order_ssse3:
 
 
 	leaq	-64(%rsp),%rsp
@@ -2033,7 +2111,7 @@ SYM_FUNC_ENTER(sha256_block_data_order_ssse3)
 
 
 	jmp	.Lloop_ssse3
-.align	16
+.p2align	4
 .Lloop_ssse3:
 	movdqa	K256+512(%rip),%xmm7
 	movq	%rsi,-56(%rbp)
@@ -2064,7 +2142,7 @@ SYM_FUNC_ENTER(sha256_block_data_order_ssse3)
 	movl	%r8d,%r13d
 	jmp	.Lssse3_00_47
 
-.align	16
+.p2align	4
 .Lssse3_00_47:
 	subq	$-128,%rsi
 	rorl	$14,%r13d
@@ -3087,57 +3165,70 @@ SYM_FUNC_ENTER(sha256_block_data_order_ssse3)
 	movl	%r11d,28(%rdi)
 	jb	.Lloop_ssse3
 
+	movaps	-128(%rbp),%xmm6
+	movaps	-112(%rbp),%xmm7
+	movaps	-96(%rbp),%xmm8
+	movaps	-80(%rbp),%xmm9
 	movq	-40(%rbp),%r15
 	movq	-32(%rbp),%r14
 	movq	-24(%rbp),%r13
 	movq	-16(%rbp),%r12
 	movq	-8(%rbp),%rbx
 	movq	%rbp,%rsp
-.cfi_def_cfa_register	%rsp
+
 	popq	%rbp
-.cfi_adjust_cfa_offset	-8
-.cfi_restore	%rbp
-.cfi_restore	%r12
-.cfi_restore	%r13
-.cfi_restore	%r14
-.cfi_restore	%r15
-.cfi_restore	%rbx
+
+.LSEH_epilogue_sha256_block_data_order_ssse3:
+	mov	8(%rsp),%rdi
+	mov	16(%rsp),%rsi
+
 	.byte	0xf3,0xc3
-.cfi_endproc
-SYM_FUNC_END(sha256_block_data_order_ssse3)
+
+.LSEH_end_sha256_block_data_order_ssse3:
 #endif
 
 #if 0
-SYM_FUNC_START(sha256_block_data_order_avx)
-SYM_FUNC_ENTER(sha256_block_data_order_avx)
-.align	64
-.cfi_startproc
+.def	sha256_block_data_order_avx;	.scl 3;	.type 32;	.endef
+.p2align	6
+sha256_block_data_order_avx:
 	.byte	0xf3,0x0f,0x1e,0xfa
+	movq	%rdi,8(%rsp)
+	movq	%rsi,16(%rsp)
+	movq	%rsp,%r11
+.LSEH_begin_sha256_block_data_order_avx:
 
 
 	pushq	%rbp
-.cfi_adjust_cfa_offset	8
-.cfi_offset	%rbp,-16
+
 	movq	%rsp,%rbp
-.cfi_def_cfa_register	%rbp
+
+	movq	%rcx,%rdi
+	movq	%rdx,%rsi
+	movq	%r8,%rdx
 .Lavx_shortcut:
 	pushq	%rbx
-.cfi_offset	%rbx,-24
+
 	pushq	%r12
-.cfi_offset	%r12,-32
+
 	pushq	%r13
-.cfi_offset	%r13,-40
+
 	pushq	%r14
-.cfi_offset	%r14,-48
+
 	pushq	%r15
-.cfi_offset	%r15,-56
+
 	shlq	$4,%rdx
-	subq	$24,%rsp
+	subq	$120,%rsp
 
 	leaq	(%rsi,%rdx,4),%rdx
 	movq	%rdi,-64(%rbp)
 
 	movq	%rdx,-48(%rbp)
+	movaps	%xmm6,-160(%rbp)
+	movaps	%xmm7,-144(%rbp)
+	movaps	%xmm8,-128(%rbp)
+	movaps	%xmm9,-112(%rbp)
+
+.LSEH_body_sha256_block_data_order_avx:
 
 
 	leaq	-64(%rsp),%rsp
@@ -3154,7 +3245,7 @@ SYM_FUNC_ENTER(sha256_block_data_order_avx)
 	vmovdqa	K256+512+32(%rip),%xmm8
 	vmovdqa	K256+512+64(%rip),%xmm9
 	jmp	.Lloop_avx
-.align	16
+.p2align	4
 .Lloop_avx:
 	vmovdqa	K256+512(%rip),%xmm7
 	movq	%rsi,-56(%rbp)
@@ -3181,7 +3272,7 @@ SYM_FUNC_ENTER(sha256_block_data_order_avx)
 	movl	%r8d,%r13d
 	jmp	.Lavx_00_47
 
-.align	16
+.p2align	4
 .Lavx_00_47:
 	subq	$-128,%rsi
 	vpalignr	$4,%xmm0,%xmm1,%xmm4
@@ -4169,55 +4260,70 @@ SYM_FUNC_ENTER(sha256_block_data_order_avx)
 	jb	.Lloop_avx
 
 	vzeroupper
+	movaps	-160(%rbp),%xmm6
+	movaps	-144(%rbp),%xmm7
+	movaps	-128(%rbp),%xmm8
+	movaps	-112(%rbp),%xmm9
 	movq	-40(%rbp),%r15
 	movq	-32(%rbp),%r14
 	movq	-24(%rbp),%r13
 	movq	-16(%rbp),%r12
 	movq	-8(%rbp),%rbx
 	movq	%rbp,%rsp
-.cfi_def_cfa_register	%rsp
+
 	popq	%rbp
-.cfi_adjust_cfa_offset	-8
-.cfi_restore	%rbp
-.cfi_restore	%r12
-.cfi_restore	%r13
-.cfi_restore	%r14
-.cfi_restore	%r15
-.cfi_restore	%rbx
+
+.LSEH_epilogue_sha256_block_data_order_avx:
+	mov	8(%rsp),%rdi
+	mov	16(%rsp),%rsi
+
 	.byte	0xf3,0xc3
-.cfi_endproc
-SYM_FUNC_END(sha256_block_data_order_avx)
+
+.LSEH_end_sha256_block_data_order_avx:
 #endif
 
-SYM_FUNC_START(sha256_block_data_order_avx2)
-SYM_FUNC_ENTER(sha256_block_data_order_avx2)
-.align	64
-.cfi_startproc
+.globl  sha256_block_data_order_avx2
+.def	sha256_block_data_order_avx2;	.scl 3;	.type 32;	.endef
+.p2align	6
+sha256_block_data_order_avx2:
 	.byte	0xf3,0x0f,0x1e,0xfa
+	movq	%rdi,8(%rsp)
+	movq	%rsi,16(%rsp)
+	movq	%rsp,%r11
+.LSEH_begin_sha256_block_data_order_avx2:
+
 
 	pushq	%rbp
-.cfi_adjust_cfa_offset	8
-.cfi_offset	%rbp,-16
+
 	movq	%rsp,%rbp
-.cfi_def_cfa_register	%rbp
+
+	movq	%rcx,%rdi
+	movq	%rdx,%rsi
+	movq	%r8,%rdx
 .Lavx2_shortcut:
 	pushq	%rbx
-.cfi_offset	%rbx,-24
+
 	pushq	%r12
-.cfi_offset	%r12,-32
+
 	pushq	%r13
-.cfi_offset	%r13,-40
+
 	pushq	%r14
-.cfi_offset	%r14,-48
+
 	pushq	%r15
-.cfi_offset	%r15,-56
+
 	shlq	$4,%rdx
-	subq	$24,%rsp
+	subq	$120,%rsp
 
 	leaq	(%rsi,%rdx,4),%rdx
 	movq	%rdi,-64(%rbp)
 
 	movq	%rdx,-48(%rbp)
+	movaps	%xmm6,-160(%rbp)
+	movaps	%xmm7,-144(%rbp)
+	movaps	%xmm8,-128(%rbp)
+	movaps	%xmm9,-112(%rbp)
+
+.LSEH_body_sha256_block_data_order_avx2:
 
 
 	leaq	-64(%rsp),%rsp
@@ -4238,7 +4344,7 @@ SYM_FUNC_ENTER(sha256_block_data_order_avx2)
 	vmovdqa	K256+512+32(%rip),%ymm8
 	vmovdqa	K256+512+64(%rip),%ymm9
 	jmp	.Loop_avx2
-.align	16
+.p2align	4
 .Loop_avx2:
 	vmovdqa	K256+512(%rip),%ymm7
 	movq	%rsi,-56(%rbp)
@@ -4272,7 +4378,7 @@ SYM_FUNC_ENTER(sha256_block_data_order_avx2)
 	subq	$-32*4,%rsi
 	jmp	.Lavx2_00_47
 
-.align	16
+.p2align	4
 .Lavx2_00_47:
 	leaq	-64(%rsp),%rsp
 	vpalignr	$4,%ymm0,%ymm1,%ymm4
@@ -5202,7 +5308,7 @@ SYM_FUNC_ENTER(sha256_block_data_order_avx2)
 	xorl	%ecx,%edi
 	movl	%r9d,%r12d
 	jmp	.Lower_avx2
-.align	16
+.p2align	4
 .Lower_avx2:
 	addl	0+16(%rsi),%r11d
 	andl	%r8d,%r12d
@@ -5431,65 +5537,247 @@ SYM_FUNC_ENTER(sha256_block_data_order_avx2)
 
 .Ldone_avx2:
 	vzeroupper
+	movaps	-160(%rbp),%xmm6
+	movaps	-144(%rbp),%xmm7
+	movaps	-128(%rbp),%xmm8
+	movaps	-112(%rbp),%xmm9
 	movq	-40(%rbp),%r15
 	movq	-32(%rbp),%r14
 	movq	-24(%rbp),%r13
 	movq	-16(%rbp),%r12
 	movq	-8(%rbp),%rbx
 	movq	%rbp,%rsp
-.cfi_def_cfa_register	%rsp
+
 	popq	%rbp
-.cfi_adjust_cfa_offset	-8
-.cfi_restore	%rbp
-.cfi_restore	%r12
-.cfi_restore	%r13
-.cfi_restore	%r14
-.cfi_restore	%r15
-.cfi_restore	%rbx
+
+.LSEH_epilogue_sha256_block_data_order_avx2:
+	mov	8(%rsp),%rdi
+	mov	16(%rsp),%rsi
+
 	.byte	0xf3,0xc3
-.cfi_endproc
-SYM_FUNC_END(sha256_block_data_order_avx2)
 
-.data
+.LSEH_end_sha256_block_data_order_avx2:
+.section	.pdata
+.p2align	2
+#if 0
+.rva	.LSEH_begin_sha256_block_data_order
+.rva	.LSEH_body_sha256_block_data_order
+.rva	.LSEH_info_sha256_block_data_order_prologue
 
-.align	64
-K256:
-.long	0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5
-.long	0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5
-.long	0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5
-.long	0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5
-.long	0xd807aa98,0x12835b01,0x243185be,0x550c7dc3
-.long	0xd807aa98,0x12835b01,0x243185be,0x550c7dc3
-.long	0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174
-.long	0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174
-.long	0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc
-.long	0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc
-.long	0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da
-.long	0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da
-.long	0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7
-.long	0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7
-.long	0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967
-.long	0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967
-.long	0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13
-.long	0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13
-.long	0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85
-.long	0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85
-.long	0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3
-.long	0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3
-.long	0xd192e819,0xd6990624,0xf40e3585,0x106aa070
-.long	0xd192e819,0xd6990624,0xf40e3585,0x106aa070
-.long	0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5
-.long	0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5
-.long	0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3
-.long	0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3
-.long	0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208
-.long	0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208
-.long	0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2
-.long	0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2
+.rva	.LSEH_body_sha256_block_data_order
+.rva	.LSEH_epilogue_sha256_block_data_order
+.rva	.LSEH_info_sha256_block_data_order_body
 
-.long	0x00010203,0x04050607,0x08090a0b,0x0c0d0e0f
-.long	0x00010203,0x04050607,0x08090a0b,0x0c0d0e0f
-.long	0x03020100,0x0b0a0908,0xffffffff,0xffffffff
-.long	0x03020100,0x0b0a0908,0xffffffff,0xffffffff
-.long	0xffffffff,0xffffffff,0x03020100,0x0b0a0908
-.long	0xffffffff,0xffffffff,0x03020100,0x0b0a0908
+.rva	.LSEH_epilogue_sha256_block_data_order
+.rva	.LSEH_end_sha256_block_data_order
+.rva	.LSEH_info_sha256_block_data_order_epilogue
+#endif
+
+.rva	.LSEH_begin_sha256_block_data_order_shaext
+.rva	.LSEH_body_sha256_block_data_order_shaext
+.rva	.LSEH_info_sha256_block_data_order_shaext_prologue
+
+.rva	.LSEH_body_sha256_block_data_order_shaext
+.rva	.LSEH_epilogue_sha256_block_data_order_shaext
+.rva	.LSEH_info_sha256_block_data_order_shaext_body
+
+.rva	.LSEH_epilogue_sha256_block_data_order_shaext
+.rva	.LSEH_end_sha256_block_data_order_shaext
+.rva	.LSEH_info_sha256_block_data_order_shaext_epilogue
+
+#if 0
+.rva	.LSEH_begin_sha256_block_data_order_ssse3
+.rva	.LSEH_body_sha256_block_data_order_ssse3
+.rva	.LSEH_info_sha256_block_data_order_ssse3_prologue
+
+.rva	.LSEH_body_sha256_block_data_order_ssse3
+.rva	.LSEH_epilogue_sha256_block_data_order_ssse3
+.rva	.LSEH_info_sha256_block_data_order_ssse3_body
+
+.rva	.LSEH_epilogue_sha256_block_data_order_ssse3
+.rva	.LSEH_end_sha256_block_data_order_ssse3
+.rva	.LSEH_info_sha256_block_data_order_ssse3_epilogue
+#endif
+
+#if 0
+.rva	.LSEH_begin_sha256_block_data_order_avx
+.rva	.LSEH_body_sha256_block_data_order_avx
+.rva	.LSEH_info_sha256_block_data_order_avx_prologue
+
+.rva	.LSEH_body_sha256_block_data_order_avx
+.rva	.LSEH_epilogue_sha256_block_data_order_avx
+.rva	.LSEH_info_sha256_block_data_order_avx_body
+
+.rva	.LSEH_epilogue_sha256_block_data_order_avx
+.rva	.LSEH_end_sha256_block_data_order_avx
+.rva	.LSEH_info_sha256_block_data_order_avx_epilogue
+#endif
+
+.rva	.LSEH_begin_sha256_block_data_order_avx2
+.rva	.LSEH_body_sha256_block_data_order_avx2
+.rva	.LSEH_info_sha256_block_data_order_avx2_prologue
+
+.rva	.LSEH_body_sha256_block_data_order_avx2
+.rva	.LSEH_epilogue_sha256_block_data_order_avx2
+.rva	.LSEH_info_sha256_block_data_order_avx2_body
+
+.rva	.LSEH_epilogue_sha256_block_data_order_avx2
+.rva	.LSEH_end_sha256_block_data_order_avx2
+.rva	.LSEH_info_sha256_block_data_order_avx2_epilogue
+
+.section	.xdata
+.p2align	3
+#if 0
+.LSEH_info_sha256_block_data_order_prologue:
+.byte	1,4,6,0x05
+.byte	4,0x74,2,0
+.byte	4,0x64,3,0
+.byte	4,0x53
+.byte	1,0x50
+.long	0,0
+.LSEH_info_sha256_block_data_order_body:
+.byte	1,0,18,0
+.byte	0x00,0xf4,0x0b,0x00
+.byte	0x00,0xe4,0x0c,0x00
+.byte	0x00,0xd4,0x0d,0x00
+.byte	0x00,0xc4,0x0e,0x00
+.byte	0x00,0x34,0x0f,0x00
+.byte	0x00,0x54,0x10,0x00
+.byte	0x00,0x74,0x12,0x00
+.byte	0x00,0x64,0x13,0x00
+.byte	0x00,0x01,0x11,0x00
+.byte	0x00,0x00,0x00,0x00
+.byte	0x00,0x00,0x00,0x00
+.LSEH_info_sha256_block_data_order_epilogue:
+.byte	1,0,5,11
+.byte	0x00,0x74,0x01,0x00
+.byte	0x00,0x64,0x02,0x00
+.byte	0x00,0xb3
+.byte	0x00,0x00,0x00,0x00,0x00,0x00
+.byte	0x00,0x00,0x00,0x00
+#endif
+
+.LSEH_info_sha256_block_data_order_shaext_prologue:
+.byte	1,4,6,0x05
+.byte	4,0x74,2,0
+.byte	4,0x64,3,0
+.byte	4,0x53
+.byte	1,0x50
+.long	0,0
+.LSEH_info_sha256_block_data_order_shaext_body:
+.byte	1,0,17,85
+.byte	0x00,0x68,0x00,0x00
+.byte	0x00,0x78,0x01,0x00
+.byte	0x00,0x88,0x02,0x00
+.byte	0x00,0x98,0x03,0x00
+.byte	0x00,0xa8,0x04,0x00
+.byte	0x00,0x74,0x0c,0x00
+.byte	0x00,0x64,0x0d,0x00
+.byte	0x00,0x53
+.byte	0x00,0x92
+.byte	0x00,0x50
+.byte	0x00,0x00,0x00,0x00,0x00,0x00
+.byte	0x00,0x00,0x00,0x00
+.LSEH_info_sha256_block_data_order_shaext_epilogue:
+.byte	1,0,4,0
+.byte	0x00,0x74,0x01,0x00
+.byte	0x00,0x64,0x02,0x00
+.byte	0x00,0x00,0x00,0x00
+
+#if 0
+.LSEH_info_sha256_block_data_order_ssse3_prologue:
+.byte	1,4,6,0x05
+.byte	4,0x74,2,0
+.byte	4,0x64,3,0
+.byte	4,0x53
+.byte	1,0x50
+.long	0,0
+.LSEH_info_sha256_block_data_order_ssse3_body:
+.byte	1,0,25,133
+.byte	0x00,0x68,0x00,0x00
+.byte	0x00,0x78,0x01,0x00
+.byte	0x00,0x88,0x02,0x00
+.byte	0x00,0x98,0x03,0x00
+.byte	0x00,0xf4,0x0b,0x00
+.byte	0x00,0xe4,0x0c,0x00
+.byte	0x00,0xd4,0x0d,0x00
+.byte	0x00,0xc4,0x0e,0x00
+.byte	0x00,0x34,0x0f,0x00
+.byte	0x00,0x74,0x12,0x00
+.byte	0x00,0x64,0x13,0x00
+.byte	0x00,0x53
+.byte	0x00,0xf2
+.byte	0x00,0x50
+.byte	0x00,0x00,0x00,0x00,0x00,0x00
+.byte	0x00,0x00,0x00,0x00
+.LSEH_info_sha256_block_data_order_ssse3_epilogue:
+.byte	1,0,4,0
+.byte	0x00,0x74,0x01,0x00
+.byte	0x00,0x64,0x02,0x00
+.byte	0x00,0x00,0x00,0x00
+#endif
+
+#if 0
+.LSEH_info_sha256_block_data_order_avx_prologue:
+.byte	1,4,6,0x05
+.byte	4,0x74,2,0
+.byte	4,0x64,3,0
+.byte	4,0x53
+.byte	1,0x50
+.long	0,0
+.LSEH_info_sha256_block_data_order_avx_body:
+.byte	1,0,26,165
+.byte	0x00,0x68,0x00,0x00
+.byte	0x00,0x78,0x01,0x00
+.byte	0x00,0x88,0x02,0x00
+.byte	0x00,0x98,0x03,0x00
+.byte	0x00,0xf4,0x0f,0x00
+.byte	0x00,0xe4,0x10,0x00
+.byte	0x00,0xd4,0x11,0x00
+.byte	0x00,0xc4,0x12,0x00
+.byte	0x00,0x34,0x13,0x00
+.byte	0x00,0x74,0x16,0x00
+.byte	0x00,0x64,0x17,0x00
+.byte	0x00,0x53
+.byte	0x00,0x01,0x14,0x00
+.byte	0x00,0x50
+.byte	0x00,0x00,0x00,0x00
+.byte	0x00,0x00,0x00,0x00
+.LSEH_info_sha256_block_data_order_avx_epilogue:
+.byte	1,0,4,0
+.byte	0x00,0x74,0x01,0x00
+.byte	0x00,0x64,0x02,0x00
+.byte	0x00,0x00,0x00,0x00
+#endif
+
+.LSEH_info_sha256_block_data_order_avx2_prologue:
+.byte	1,4,6,0x05
+.byte	4,0x74,2,0
+.byte	4,0x64,3,0
+.byte	4,0x53
+.byte	1,0x50
+.long	0,0
+.LSEH_info_sha256_block_data_order_avx2_body:
+.byte	1,0,26,165
+.byte	0x00,0x68,0x00,0x00
+.byte	0x00,0x78,0x01,0x00
+.byte	0x00,0x88,0x02,0x00
+.byte	0x00,0x98,0x03,0x00
+.byte	0x00,0xf4,0x0f,0x00
+.byte	0x00,0xe4,0x10,0x00
+.byte	0x00,0xd4,0x11,0x00
+.byte	0x00,0xc4,0x12,0x00
+.byte	0x00,0x34,0x13,0x00
+.byte	0x00,0x74,0x16,0x00
+.byte	0x00,0x64,0x17,0x00
+.byte	0x00,0x53
+.byte	0x00,0x01,0x14,0x00
+.byte	0x00,0x50
+.byte	0x00,0x00,0x00,0x00
+.byte	0x00,0x00,0x00,0x00
+.LSEH_info_sha256_block_data_order_avx2_epilogue:
+.byte	1,0,4,0
+.byte	0x00,0x74,0x01,0x00
+.byte	0x00,0x64,0x02,0x00
+.byte	0x00,0x00,0x00,0x00
+
