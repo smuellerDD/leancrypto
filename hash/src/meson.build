@@ -20,8 +20,8 @@ if get_option('sha2-256').enabled()
 
 	# 64 bit ARM processor and GCC
 	if (arm64_asm)
-		leancrypto_keccak_arm8a_neon_sha256_lib = static_library(
-			'leancrypto_keccak_arm8a_neon_sha256_lib',
+		leancrypto_arm8a_neon_sha256_lib = static_library(
+			'leancrypto_arm8a_neon_sha256_lib',
 			[ 'sha256_arm_neon.c',
 			  'sha256_arm_ce.c',
 			  'asm/ARMv8A/sha2-256-ARMv8.S' ],
@@ -30,7 +30,7 @@ if get_option('sha2-256').enabled()
 				include_dirs,
 				include_internal_dirs ],
 		)
-		leancrypto_support_libs_fips += leancrypto_keccak_arm8a_neon_sha256_lib
+		leancrypto_support_libs_fips += leancrypto_arm8a_neon_sha256_lib
 	else
 		src_fips += files([ 'sha256_arm_neon_null.c',
 				    'sha256_arm_ce_null.c' ])
@@ -38,8 +38,8 @@ if get_option('sha2-256').enabled()
 
 	# 64 bit RISCV straight assembler
 	if (riscv64_asm)
-		leancrypto_keccak_riscv_sha256_lib = static_library(
-			'leancrypto_keccak_riscv_sha256_lib',
+		leancrypto_riscv_sha256_lib = static_library(
+			'leancrypto_riscv_sha256_lib',
 			[ 'sha256_riscv.c',
 			  'asm/riscv64/sha2-256-riscv.S' ],
 			c_args: cc_riscv64_asm_args,
@@ -47,15 +47,15 @@ if get_option('sha2-256').enabled()
 				include_dirs,
 				include_internal_dirs ],
 		)
-		leancrypto_support_libs_fips += leancrypto_keccak_riscv_sha256_lib
+		leancrypto_support_libs_fips += leancrypto_riscv_sha256_lib
 	else
 		src_fips += files([ 'sha256_riscv_null.c' ])
 	endif
 
 	# 64 bit RISCV ZBB assembler
 	if (riscv64_asm)
-		leancrypto_keccak_riscv_zbb_sha256_lib = static_library(
-			'leancrypto_keccak_riscv_zbb_sha256_lib',
+		leancrypto_riscv_zbb_sha256_lib = static_library(
+			'leancrypto_riscv_zbb_sha256_lib',
 			[ 'sha256_riscv_zbb.c',
 			  'asm/riscv64/sha2-256-riscv.S' ],
 			c_args: cc_riscv64_asm_zbb_args,
@@ -63,7 +63,7 @@ if get_option('sha2-256').enabled()
 				include_dirs,
 				include_internal_dirs ],
 		)
-		leancrypto_support_libs_fips += leancrypto_keccak_riscv_zbb_sha256_lib
+		leancrypto_support_libs_fips += leancrypto_riscv_zbb_sha256_lib
 	else
 		src_fips += files([ 'sha256_riscv_zbb_null.c' ])
 	endif
@@ -89,8 +89,8 @@ if get_option('sha2-512').enabled()
 
 	# 64 bit ARM processor and GCC
 	if (arm64_asm)
-		leancrypto_keccak_arm_neon_sha512_lib = static_library(
-			'leancrypto_keccak_arm_neon_sha512_lib',
+		leancrypto_arm_neon_sha512_lib = static_library(
+			'leancrypto_arm_neon_sha512_lib',
 			[ 'sha512_arm_neon.c',
 			  'sha512_arm_ce.c',
 			  'asm/ARMv8A/sha2-512-ARMv8.S' ],
@@ -99,7 +99,7 @@ if get_option('sha2-512').enabled()
 				include_dirs,
 				include_internal_dirs ],
 		)
-		leancrypto_support_libs_fips += leancrypto_keccak_arm_neon_sha512_lib
+		leancrypto_support_libs_fips += leancrypto_arm_neon_sha512_lib
 	else
 		src_fips += files([ 'sha512_arm_neon_null.c',
 				    'sha512_arm_ce_null.c' ])
@@ -107,8 +107,8 @@ if get_option('sha2-512').enabled()
 
 	# 64 bit RISCV straight assembler
 	if (riscv64_asm)
-		leancrypto_keccak_riscv_sha512_lib = static_library(
-			'leancrypto_keccak_riscv_sha512_lib',
+		leancrypto_riscv_sha512_lib = static_library(
+			'leancrypto_riscv_sha512_lib',
 			[ 'sha512_riscv.c',
 			  'asm/riscv64/sha2-512-riscv.S' ],
 			c_args: cc_riscv64_asm_args,
@@ -116,15 +116,15 @@ if get_option('sha2-512').enabled()
 				include_dirs,
 				include_internal_dirs ],
 		)
-		leancrypto_support_libs_fips += leancrypto_keccak_riscv_sha512_lib
+		leancrypto_support_libs_fips += leancrypto_riscv_sha512_lib
 	else
 		src_fips += files([ 'sha512_riscv_null.c' ])
 	endif
 
 	# 64 bit RISCV ZBB assembler
 	if (riscv64_asm)
-		leancrypto_keccak_riscv_zbb_sha512_lib = static_library(
-			'leancrypto_keccak_riscv_zbb_sha512_lib',
+		leancrypto_riscv_zbb_sha512_lib = static_library(
+			'leancrypto_riscv_zbb_sha512_lib',
 			[ 'sha512_riscv_zbb.c',
 			  'asm/riscv64/sha2-512-riscv.S' ],
 			c_args: cc_riscv64_asm_zbb_args,
@@ -132,7 +132,7 @@ if get_option('sha2-512').enabled()
 				include_dirs,
 				include_internal_dirs ],
 		)
-		leancrypto_support_libs_fips += leancrypto_keccak_riscv_zbb_sha512_lib
+		leancrypto_support_libs_fips += leancrypto_riscv_zbb_sha512_lib
 	else
 		src_fips += files([ 'sha512_riscv_zbb_null.c' ])
 	endif
