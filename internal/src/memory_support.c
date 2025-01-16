@@ -45,8 +45,6 @@ int posix_memalign(void **ptr, size_t align, size_t size)
 
 	*ptr = p;
 
-	memset(p, 0, size);
-
 	return 0;
 }
 
@@ -59,6 +57,8 @@ LC_INTERFACE_FUNCTION(int, lc_alloc_aligned, void **memptr, size_t alignment,
 
 	if (ret)
 		return ret;
+
+	memset(*memptr, 0, size);
 
 	return 0;
 }

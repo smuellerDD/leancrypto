@@ -73,6 +73,8 @@ int pkcs7_sinfo_get(struct lc_pkcs7_signed_info **sinfo,
 			pkcs7->curr_sinfo = pkcs7->preallocated_sinfo;
 			pkcs7->consumed_preallocated_sinfo++;
 			pkcs7->preallocated_sinfo++;
+			memset(pkcs7->curr_sinfo, 0,
+			       sizeof(struct lc_pkcs7_signed_info));
 		} else {
 			CKINT(lc_alloc_aligned(
 				(void **)&pkcs7->curr_sinfo, 8,
@@ -109,6 +111,7 @@ int pkcs7_x509_get(struct lc_x509_certificate **x509,
 		tmp_x509 = pkcs7->preallocated_x509;
 		pkcs7->consumed_preallocated_x509++;
 		pkcs7->preallocated_x509++;
+		memset(tmp_x509, 0, sizeof(struct lc_x509_certificate));
 	} else {
 		CKINT(lc_alloc_aligned((void **)&tmp_x509, 8,
 				       sizeof(struct lc_x509_certificate)));

@@ -131,6 +131,8 @@ LC_INTERFACE_FUNCTION(int, lc_alloc_aligned_secure, void **memptr,
 	mem->size = full_size;
 	*memptr = ((uint8_t *)mem) + LC_MEM_DEF_ALIGNED_OFFSET;
 
+	memset(*memptr, 0, size);
+
 	return 0;
 
 err:

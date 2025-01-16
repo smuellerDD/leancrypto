@@ -39,6 +39,8 @@ LC_INTERFACE_FUNCTION(int, lc_alloc_aligned, void **memptr, size_t alignment,
 	if (!*memptr)
 		return -ENOMEM;
 
+	memset(*memptr, 0, size);
+
 	return 0;
 }
 
@@ -68,6 +70,8 @@ LC_INTERFACE_FUNCTION(int, lc_alloc_high_aligned, void **memptr,
 		return -ENOMEM;
 
 	*memptr = (VOID *)(UINTN)PhysicalBuffer;
+
+	memset(*memptr, 0, size);
 
 	return 0;
 }
