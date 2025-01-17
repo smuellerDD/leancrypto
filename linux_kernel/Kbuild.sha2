@@ -81,7 +81,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_SHA2_512)				       \
 # an issue. To reenable it, turn shani_null into shani below and remove the
 # define.
 ifdef CONFIG_X86_64
-ccflags-y			+= -DCONFIG_LEANCRYPTO_SHA2_512_DISABLE_SHANI
+asflags-y			+= -DCONFIG_LEANCRYPTO_SHA2_512_DISABLE_SHANI
 leancrypto-$(CONFIG_LEANCRYPTO_SHA2_512)				       \
 				+= ../hash/src/sha512_avx2.o		       \
 				   ../hash/src/sha512_shani_null.o	       \
