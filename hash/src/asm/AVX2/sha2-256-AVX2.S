@@ -1761,9 +1761,9 @@ SYM_FUNC_ENTER(sha256_block_data_order)
 	.byte	0xf3,0xc3
 .cfi_endproc	
 SYM_FUNC_END(sha256_block_data_order)
-#endif
 
 .byte	83,72,65,50,53,54,32,98,108,111,99,107,32,116,114,97,110,115,102,111,114,109,32,102,111,114,32,120,56,54,95,54,52,44,32,67,82,89,80,84,79,71,65,77,83,32,98,121,32,64,100,111,116,45,97,115,109,0
+#endif
 
 SYM_FUNC_START(sha256_block_data_order_shaext)
 SYM_FUNC_ENTER(sha256_block_data_order_shaext)
@@ -1984,7 +1984,8 @@ SYM_FUNC_ENTER(sha256_block_data_order_shaext)
 .cfi_adjust_cfa_offset	-8
 .cfi_restore	%rbp
 
-	.byte	0xf3,0xc3
+	//.byte	0xf3,0xc3
+	RET
 .cfi_endproc
 SYM_FUNC_END(sha256_block_data_order_shaext)
 
@@ -5446,7 +5447,8 @@ SYM_FUNC_ENTER(sha256_block_data_order_avx2)
 .cfi_restore	%r14
 .cfi_restore	%r15
 .cfi_restore	%rbx
-	.byte	0xf3,0xc3
+	//.byte	0xf3,0xc3
+	RET
 .cfi_endproc
 SYM_FUNC_END(sha256_block_data_order_avx2)
 
