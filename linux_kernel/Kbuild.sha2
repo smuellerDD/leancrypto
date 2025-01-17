@@ -78,17 +78,17 @@ leancrypto-$(CONFIG_LEANCRYPTO_SHA2_512)				       \
 
 # Disable this support, because objtool cannot handle SHANI-512 instructions
 # in kernels < 6.10. If you have a newer kernel, you can enable it without
-# an issue.
-#ifdef CONFIG_X86_64
-#leancrypto-$(CONFIG_LEANCRYPTO_SHA2_512)				       \
-#				+= ../hash/src/sha512_avx2.o		       \
-#				   ../hash/src/sha512_shani.o		       \
-#				   ../hash/src/asm/AVX2/sha2-512-AVX2.o
-#else
+# an issue. To reenable it, turn shani_null into shani below.
+ifdef CONFIG_X86_64
+leancrypto-$(CONFIG_LEANCRYPTO_SHA2_512)				       \
+				+= ../hash/src/sha512_avx2.o		       \
+				   ../hash/src/sha512_shani_null.o	       \
+				   ../hash/src/asm/AVX2/sha2-512-AVX2.o
+else
 leancrypto-$(CONFIG_LEANCRYPTO_SHA2_512)				       \
 				+= ../hash/src/sha512_avx2_null.o	       \
 				   ../hash/src/sha512_shani_null.o
-#endif
+endif
 
 # ARM Neon and CE support
 ifdef CONFIG_ARM64
