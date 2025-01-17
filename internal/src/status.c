@@ -24,12 +24,27 @@
 #include "cpufeatures.h"
 #include "ext_headers.h"
 #include "lc_status.h"
+#include "sha256_arm_ce.h"
+#include "sha256_arm_neon.h"
+#include "sha256_avx2.h"
+#include "sha256_c.h"
+#include "sha256_riscv.h"
+#include "sha256_riscv_zbb.h"
+#include "sha256_shani.h"
 #include "sha3_c.h"
 #include "sha3_arm_asm.h"
 #include "sha3_arm_ce.h"
 #include "sha3_arm_neon.h"
 #include "sha3_avx2.h"
 #include "sha3_avx512.h"
+#include "sha3_riscv_asm.h"
+#include "sha512_arm_ce.h"
+#include "sha512_arm_neon.h"
+#include "sha512_avx2.h"
+#include "sha512_c.h"
+#include "sha512_riscv.h"
+#include "sha512_riscv_zbb.h"
+#include "sha512_shani.h"
 #include "visibility.h"
 
 LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
@@ -74,41 +89,88 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 	snprintf(outbuf + len, outlen - len,
 		 "FIPS 140 Mode: %s\n"
 		 "AES Acceleration support: %s%s%s\n"
-		 "SHA Acceleration support: %s%s%s%s%s%s%s\n"
+		 "SHA2-256 Acceleration support: %s%s%s%s%s%s\n"
+		 "SHA2-512 Acceleration support: %s%s%s%s%s%s\n"
+		 "SHA3 Acceleration support: %s%s%s%s%s%s%s\n"
 		 "Kyber Acceleration support: %s%s%s%s\n"
-		 "Dilithium Acceleration support: %s%s%s%s\n"
-		 "Curve25519 Acceleration support: %s\n",
+		 "Dilithium Acceleration support: %s%s%s%s%s\n"
+		 "Curve25519 Acceleration support: %s%s%s\n",
 
 		 fips140,
 
 		 /* AES */
-		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AESNI) ?
+		 (lc_aes_cbc_aesni && lc_aes_cbc_aesni != lc_aes_cbc_c) ?
 			 "AESNI " :
 			 "",
-		 (lc_cpu_feature_available() & LC_CPU_FEATURE_ARM_AES) ?
-			 "ARMv8 CE " :
+		 (lc_aes_cbc_armce && lc_aes_cbc_armce != lc_aes_cbc_c) ?
+			 "ARMv8-CE " :
 			 "",
-		 (lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV_ASM) ?
-			 "RISC-V 64 " :
+		 (lc_aes_cbc_riscv64 && lc_aes_cbc_riscv64 != lc_aes_cbc_c) ?
+			 "RISCV64 " :
+			 "",
+
+		 /* SHA2-256 */
+		 (lc_sha256_shani && lc_sha256_shani != lc_sha256_c) ?
+			 "SHANI " :
+			 "",
+		 (lc_sha256_avx2 && lc_sha256_avx2 != lc_sha256_c) ? "AVX2 " :
+								     "",
+		 (lc_sha256_arm_ce && lc_sha256_arm_ce != lc_sha256_c) ?
+			 "ARM-CE " :
+			 "",
+		 (lc_sha256_arm_neon && lc_sha256_arm_neon != lc_sha256_c) ?
+			 "ARM-Neon " :
+			 "",
+		 (lc_sha256_riscv && lc_sha256_riscv != lc_sha256_c) ?
+			 "RISCV64 " :
+			 "",
+		 (lc_sha256_riscv_zbb && lc_sha256_riscv_zbb != lc_sha256_c) ?
+			 "RISCV64-Zbb " :
+			 "",
+
+		 /* SHA2-256 */
+		 (lc_sha512_shani && lc_sha512_shani != lc_sha512_c) ?
+			 "SHANI-512 " :
+			 "",
+		 (lc_sha512_avx2 && lc_sha512_avx2 != lc_sha512_c) ? "AVX2 " :
+								     "",
+		 (lc_sha512_arm_ce && lc_sha512_arm_ce != lc_sha512_c) ?
+			 "ARM-CE " :
+			 "",
+		 (lc_sha512_arm_neon && lc_sha512_arm_neon != lc_sha512_c) ?
+			 "ARM-Neon " :
+			 "",
+		 (lc_sha512_riscv && lc_sha512_riscv != lc_sha512_c) ?
+			 "RISCV64 " :
+			 "",
+		 (lc_sha512_riscv_zbb && lc_sha512_riscv_zbb != lc_sha512_c) ?
+			 "RISCV64-Zbb " :
 			 "",
 
 		 /* SHA3 */
-		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX512) ?
+		 (lc_sha3_256_avx512 && lc_sha3_256_avx512 != lc_sha3_256_c) ?
 			 "AVX512 " :
 			 "",
-		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
+		 (lc_sha3_256_avx2 && lc_sha3_256_avx2 != lc_sha3_256_c) ?
 			 "AVX2 " :
 			 "",
-		 (lc_cpu_feature_available() & LC_CPU_FEATURE_ARM_NEON) ?
-			 "ARMv7 Neon " :
+		 (lc_sha3_256_arm_neon &&
+		  lc_sha3_256_arm_neon != lc_sha3_256_c) ?
+			 "ARMv7-Neon " :
 			 "",
-		 armv8,
-		 (lc_cpu_feature_available() & LC_CPU_FEATURE_ARM_SHA3) ?
-			 "ARMv8 CE " :
+		 (lc_sha3_256_arm_asm && lc_sha3_256_arm_asm != lc_sha3_256_c) ?
+			 "ARMv8 " :
 			 "",
-		 riscv64,
-		 (lc_cpu_feature_available() & LC_CPU_FEATURE_ARM_SHA3) ?
-			 "RISCV64 ZBB " :
+		 (lc_sha3_256_arm_ce && lc_sha3_256_arm_ce != lc_sha3_256_c) ?
+			 "ARMv8-CE " :
+			 "",
+		 (lc_sha3_256_riscv_asm &&
+		  lc_sha3_256_riscv_asm != lc_sha3_256_c) ?
+			 "RISCV64 " :
+			 "",
+		 (lc_sha3_256_riscv_asm_zbb &&
+		  lc_sha3_256_riscv_asm_zbb != lc_sha3_256_c) ?
+			 "RISCV64-Zbb " :
 			 "",
 
 		 /* Kyber */
@@ -122,7 +184,10 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 			 "AVX2" :
 			 "",
 		 armv7, armv8, riscv64,
+		 (lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV_ASM_RVV) ?
+			 "RISCV64 RVV " :
+			 "",
 
 		 /* Curve25519 */
-		 avx);
+		 avx, armv7, armv8);
 }

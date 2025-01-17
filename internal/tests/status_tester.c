@@ -23,7 +23,7 @@
 
 static int status_tester(void)
 {
-	char status[512];
+	char status[900];
 	int ret = 0;
 
 	memset(status, 0, sizeof(status));
