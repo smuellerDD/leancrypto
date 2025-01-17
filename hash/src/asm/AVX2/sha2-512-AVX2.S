@@ -1764,6 +1764,7 @@ SYM_FUNC_END(sha512_block_data_order)
 
 #endif
 
+#ifndef CONFIG_LEANCRYPTO_SHA2_512_DISABLE_SHANI
 SYM_FUNC_START(sha512_block_data_order_shaext)
 SYM_FUNC_ENTER(sha512_block_data_order_shaext)
 .align	64
@@ -1993,6 +1994,7 @@ SYM_FUNC_ENTER(sha512_block_data_order_shaext)
 	RET
 .cfi_endproc
 SYM_FUNC_END(sha512_block_data_order_shaext)
+#endif
 
 #if 0
 SYM_FUNC_START(sha512_block_data_order_xop)
