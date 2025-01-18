@@ -18,7 +18,10 @@
  */
 
 #include "cpufeatures.h"
+#include "ext_headers.h"
 #include "visibility.h"
+
+static enum lc_cpu_features features = LC_CPU_FEATURE_UNSET;
 
 LC_INTERFACE_FUNCTION(void, lc_cpu_feature_disable, void)
 {
@@ -30,5 +33,16 @@ LC_INTERFACE_FUNCTION(void, lc_cpu_feature_enable, void)
 
 LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 {
-	return LC_CPU_FEATURE_RISCV_ASM;
+	if (features == LC_CPU_FEATURE_UNSET) {
+		features = LC_CPU_FEATURE_RISCV_ASM;
+
+#ifdef LINUX_KERNEL
+		if (riscv_isa_extension_available(NULL, ZBB))
+			features |= LC_CPU_FEATURE_RISCV_ASM_ZBB;
+		if (riscv_isa_extension_available(NULL, ZVBB))
+			features |= LC_CPU_FEATURE_RISCV_ASM_RVV;
+#endif
+	}
+
+	return features;
 }

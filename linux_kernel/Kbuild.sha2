@@ -37,21 +37,15 @@ endif
 
 # RISCV64 support
 ifneq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
-asflags-$(CONFIG_LEANCRYPTO_SHA2_256)					       \
-				+= -march=rv64gc			       \
-				   -mabi=lp64d				       \
-				   -mcmodel=medany
 leancrypto-$(CONFIG_LEANCRYPTO_SHA2_256)				       \
 				+= ../hash/src/sha256_riscv.o		       \
 				   ../hash/src/sha256_riscv_zbb.o	       \
 				   ../hash/src/asm/riscv64/sha2-256-riscv.o    \
 				   hash/riscv64/sha2-256-riscv.o
-ASFLAGS../hash/src/asm/riscv64/sha2-256-riscv.o := -march=rv64gc	       \
-						   -mabi=lp64d		       \
-						   -mcmodel=medany
-ASFLAGS_hash/riscv64/sha2-256-riscv.o := -march=rv64imadc_zba_zbb	       \
-					 -mabi=lp64d			       \
-					 -mcmodel=medany
+AFLAGS../hash/src/asm/riscv64/sha2-256-riscv.o := -march=rv64gc		       \
+						  -mcmodel=medany
+AFLAGS_hash/riscv64/sha2-256-riscv.o := -march=rv64imadc_zba_zbb	       \
+					-mcmodel=medany
 else
 leancrypto-$(CONFIG_LEANCRYPTO_SHA2_256)				       \
 				+= ../hash/src/sha256_riscv_null.o	       \
@@ -109,21 +103,15 @@ endif
 
 # RISCV64 support
 ifneq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
-asflags-$(CONFIG_LEANCRYPTO_SHA2_512)					       \
-				+= -march=rv64gc			       \
-				   -mabi=lp64d				       \
-				   -mcmodel=medany
 leancrypto-$(CONFIG_LEANCRYPTO_SHA2_512)				       \
 				+= ../hash/src/sha512_riscv.o		       \
 				   ../hash/src/sha512_riscv_zbb.o	       \
 				   ../hash/src/asm/riscv64/sha2-512-riscv.o    \
 				   hash/riscv64/sha2-512-riscv.o
-ASFLAGS../hash/src/asm/riscv64/sha2-512-riscv.o := -march=rv64gc	       \
-						   -mabi=lp64d		       \
-						   -mcmodel=medany
-ASFLAGS_hash/riscv64/sha2-512-riscv.o := -march=rv64imadc_zba_zbb	       \
-					 -mabi=lp64d			       \
-					 -mcmodel=medany
+AFLAGS../hash/src/asm/riscv64/sha2-512-riscv.o := -march=rv64gc		       \
+						  -mcmodel=medany
+AFLAGS_hash/riscv64/sha2-512-riscv.o := -march=rv64imadc_zba_zbb	       \
+					-mcmodel=medany
 else
 leancrypto-$(CONFIG_LEANCRYPTO_SHA2_512)				       \
 				+= ../hash/src/sha512_riscv_null.o	       \

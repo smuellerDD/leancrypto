@@ -19,6 +19,10 @@
 	EXPORT_SYMBOL(symbol);                                                 \
 	ret symbol(param)
 
+#define LC_INIT_FUNCTION(ret, symbol, param...)                                \
+	ret __init symbol(param);                                              \
+	ret __init symbol(param)
+
 #define LC_TEST_FUNC(ret, symbol, param...)                                    \
 	static ret symbol(param);                                              \
 	static int __init symbol##_init(void)                                  \
@@ -63,6 +67,9 @@
 #define LC_INTERFACE_FUNCTION(ret, symbol, param...)                           \
 	DSO_PUBLIC ret symbol(param)
 
+#define LC_INIT_FUNCTION(ret, symbol, param...)                           \
+	DSO_PUBLIC ret symbol(param)
+
 #define LC_TEST_FUNC(ret, symbol, param...) ret symbol(param)
 
 #pragma GCC diagnostic pop
@@ -74,14 +81,14 @@
 #define LC_CONSTRUCTOR(_func)                                                  \
 	void _func(void);                                                      \
 	void _func(void)
-#else
+#else /* LC_EFI */
 
 #define LC_CONSTRUCTOR_AUTOMATIC_AVAILABLE
 
 #define LC_CONSTRUCTOR(_func)                                                  \
 	static void __attribute__((constructor)) _func(void);                  \
 	static void _func(void)
-#endif
+#endif /* LC_EFI */
 
 #endif /* LINUX_KERNEL */
 

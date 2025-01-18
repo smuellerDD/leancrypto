@@ -78,8 +78,10 @@ CFLAGS_kyber512/kyber_selftest_kdf.o		:= -DLC_KYBER_TYPE_512
 CFLAGS_kyber512/leancrypto_kernel_kyber.o	:= -DLC_KYBER_TYPE_512
 
 ifndef CONFIG_ARM
+ifeq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
 leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER)				       \
 				+= ../ml-kem/src/kyber_ntt.o
+endif
 endif
 
 ################################################################################
@@ -248,6 +250,29 @@ CFLAGS_kyber768/armv8/kyber_poly_armv8.o	:= -DLC_KYBER_TYPE_768
 AFLAGS_kyber768/armv8/kyber_poly_armv8_asm.o	:= -DLC_KYBER_TYPE_768
 AFLAGS_kyber768/armv8/kyber_reduce_armv8.o	:= -DLC_KYBER_TYPE_768
 
+
+################################################################################
+# RISCV64 Implementation
+################################################################################
+else ifneq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
+asflags-$(CONFIG_LEANCRYPTO_KEM_KYBER)					       \
+				+= -I$(PWD)/../ml-kem/src/riscv64
+
+# Kyber Common
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER)				       \
+				+= ../ml-kem/src/riscv64/kyber_zetas_riscv.o   \
+				   ../ml-kem/src/riscv64/ntt_dualissue_plant_rv64im.o
+
+# Kyber 1024
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER_1024)				       \
+				+= ../ml-kem/src/kyber_kem_api_c.o
+
+# Kyber 768
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER_768)				       \
+				+= kyber768/kyber_kem_api_c.o
+CFLAGS_kyber768/kyber_kem_api_c.o		:= -DLC_KYBER_TYPE_768
+
+# Kyber 512 - kyber_kem_api_c.c is already compiled as part of C
 
 ################################################################################
 # Interfaces for any non-accelerated implementation

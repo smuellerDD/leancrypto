@@ -22,7 +22,7 @@
 #include "lc_init.h"
 #include "visibility.h"
 
-LC_INTERFACE_FUNCTION(int, lc_init, unsigned int flags)
+LC_INIT_FUNCTION(int, lc_init, unsigned int flags)
 {
 	(void)flags;
 

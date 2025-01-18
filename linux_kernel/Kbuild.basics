@@ -55,7 +55,7 @@ else ifdef CONFIG_ARM
 leancrypto-y	  		+= cpufeatures_arm32_linux_kernel.o
 else ifdef CONFIG_ARM64
 leancrypto-y	  		+= ../internal/src/cpufeatures_arm64_native.o
-else ifeq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
+else ifneq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
 leancrypto-y	  		+= ../internal/src/cpufeatures_riscv_native.o
 else
 leancrypto-y	 		+= ../internal/src/cpufeatures_none.o
