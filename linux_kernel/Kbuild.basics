@@ -40,6 +40,7 @@ leancrypto-y			+= posix_support.o			       \
 # Internal helper code
 ccflags-y			+= -I$(PWD)/../internal/api
 leancrypto-y			+= ../internal/src/left_encode.o	       \
+				   ../internal/src/leancrypto_init.o	       \
 				   ../internal/src/compare.o		       \
 				   ../internal/src/null_buffer.o	       \
 				   ../internal/src/status.o

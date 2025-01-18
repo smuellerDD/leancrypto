@@ -125,6 +125,24 @@ if get_option('sha3').enabled()
 	add_global_arguments([ '-DLC_SHA3' ], language: 'c')
 endif
 
+if get_option('ascon').enabled()
+	add_global_arguments([ '-DLC_ASCON_HASH' ], language: 'c')
+endif
+
+if get_option('ascon').enabled()
+	add_global_arguments([ '-DLC_ASCON_HASH' ], language: 'c')
+endif
+
+if get_option('efi').enabled()
+	add_global_arguments([ '-DLC_EFI' ], language: 'c')
+endif
+
+if (get_option('aes_cbc').enabled() or
+    get_option('aes_ctr').enabled() or
+    get_option('aes_kw').enabled())
+	add_global_arguments([ '-DLC_AES' ], language: 'c')
+endif
+
 # Versioning information
 version_array = meson.project_version().split('.')
 add_global_arguments(['-DMAJVERSION=' + version_array[0],

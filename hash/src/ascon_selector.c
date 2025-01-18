@@ -23,6 +23,7 @@
 #include "ascon_arm_neon.h"
 #include "ascon_avx512.h"
 #include "ascon_c.h"
+#include "initialization.h"
 #include "visibility.h"
 
 LC_CONSTRUCTOR(ascon_fastest_impl)

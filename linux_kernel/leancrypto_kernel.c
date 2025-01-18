@@ -23,6 +23,7 @@
 #include "compare.h"
 #include "kyber_type.h"
 #include "lc_ed25519.h"
+#include "lc_init.h"
 #include "kyber_internal.h"
 #include "kyber_kem.h"
 #include "seeded_rng.h"
@@ -42,34 +43,13 @@ EXPORT_SYMBOL(lc_x25519_keypair);
 EXPORT_SYMBOL(crypto_scalarmult_curve25519_c);
 #endif
 
-void ascon_fastest_impl(void);
-void sha256_fastest_impl(void);
-void sha512_fastest_impl(void);
-void sha3_fastest_impl(void);
-void aes_fastest_impl(void);
 static int __init leancrypto_init(void)
 {
 	int ret;
 
-#ifdef CONFIG_LEANCRYPTO_ASCON_HASH
-	ascon_fastest_impl();
-#endif
-
-#ifdef CONFIG_LEANCRYPTO_SHA2_256
-	sha256_fastest_impl();
-#endif
-
-#ifdef CONFIG_LEANCRYPTO_SHA2_512
-	sha512_fastest_impl();
-#endif
-
-#ifdef CONFIG_LEANCRYPTO_SHA3
-	sha3_fastest_impl();
-#endif
-
-#ifdef CONFIG_LEANCRYPTO_AES
-	aes_fastest_impl();
-#endif
+	ret = lc_init(0);
+	if (ret)
+		return ret;
 
 	/* Register crypto algorithms */
 	ret = lc_kernel_sha256_init();

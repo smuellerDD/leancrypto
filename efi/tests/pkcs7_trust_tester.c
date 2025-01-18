@@ -19,6 +19,7 @@
 
 #include "ext_headers.h"
 
+#include "lc_init.h"
 #include "lc_pkcs7_parser.h"
 #include "ret_checkers.h"
 #include "visibility.h"
@@ -3214,6 +3215,13 @@ EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 	int ret;
 
 	InitializeLib(ImageHandle, SystemTable);
+
+	/*
+	 * Initialize leancrypto considering that EFI does not have a
+	 * constructor mechanism.
+	 */
+	CKINT(lc_init(0));
+
 	CKINT(pkcs7_trust_store());
 
 out:

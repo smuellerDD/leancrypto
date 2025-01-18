@@ -19,6 +19,7 @@
 
 #include "cpufeatures.h"
 #include "ext_headers.h"
+#include "initialization.h"
 #include "lc_sha3.h"
 #include "sha3_c.h"
 #include "sha3_arm_asm.h"

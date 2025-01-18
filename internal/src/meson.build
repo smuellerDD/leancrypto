@@ -12,6 +12,10 @@ if get_option('efi').disabled()
 		'binhexbin.c',
 		'status.c'
 	])
+else
+	internal_src += files([
+		'leancrypto_init.c',
+	])
 endif
 
 if get_option('efi').enabled()
@@ -40,6 +44,7 @@ endif
 
 include_files += files([
 	'../api/ext_headers.h',
+	'../api/lc_init.h',
 	'../api/lc_memcmp_secure.h',
 	'../api/lc_memcpy_secure.h',
 	'../api/lc_memset_secure.h',

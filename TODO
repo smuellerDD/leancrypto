@@ -23,8 +23,6 @@
 
 - X.509/PKCS7 parser: add to the Linux kernel
 
-- add init call to invoke constructors -> invoke in Linux kernel, EFI
-
 - SHA2 Neon: check whether it works on ARMv7
 
 - RISCV asm: check whether it works for RISCV32

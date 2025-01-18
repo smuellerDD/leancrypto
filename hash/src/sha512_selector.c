@@ -19,6 +19,7 @@
 
 #include "cpufeatures.h"
 #include "ext_headers.h"
+#include "initialization.h"
 #include "lc_sha512.h"
 #include "sha512_arm_ce.h"
 #include "sha512_arm_neon.h"

@@ -133,6 +133,10 @@ considerations must be applied:
   `meson install -C build` command for the user space library is applicable to
   the EFI environment as well.
 
+* As the EFI environment does not offer an automatic constructor functionality
+  the leancrypto initalization function of `lc_init` must be called as the very
+  first API call before calling any other leancrypto service function.
+
 ## Library Build for Windows
 
 The `leancrypto` library can be built on Windows using

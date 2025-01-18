@@ -22,6 +22,7 @@
 #include "aes_c.h"
 #include "aes_riscv64.h"
 #include "cpufeatures.h"
+#include "initialization.h"
 #include "lc_aes.h"
 #include "visibility.h"
 

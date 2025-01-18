@@ -69,9 +69,19 @@
 
 #define LC_INTERFACE_SYMBOL(ret, symbol) DSO_PUBLIC ret symbol
 
+#ifdef LC_EFI
+
+#define LC_CONSTRUCTOR(_func)                                                  \
+	void _func(void);                                                      \
+	void _func(void)
+#else
+
+#define LC_CONSTRUCTOR_AUTOMATIC_AVAILABLE
+
 #define LC_CONSTRUCTOR(_func)                                                  \
 	static void __attribute__((constructor)) _func(void);                  \
 	static void _func(void)
+#endif
 
 #endif /* LINUX_KERNEL */
 
