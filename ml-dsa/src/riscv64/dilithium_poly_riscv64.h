@@ -52,6 +52,8 @@
 #include "dilithium_ntt_rvv.h"
 #include "dilithium_zetas_riscv64.h"
 
+#include "ext_headers_riscv.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -67,7 +69,9 @@ typedef struct {
 static inline void poly_reduce(poly *a)
 {
 #ifdef LC_DILITHIUM_RISCV64_RVV
+	LC_VECTOR_ENABLE;
 	dilithium_poly_reduce_rvv(a->coeffs);
+	LC_VECTOR_DISABLE;
 #else
 	dilithium_poly_reduce_rv64im(a->coeffs);
 #endif
@@ -94,14 +98,18 @@ static inline void poly_basemul_acc_end(poly *r, const poly *a, const poly *b,
 
 static inline void poly_basemul_acc_rvv(poly *c, const poly *a, const poly *b)
 {
+	LC_VECTOR_ENABLE;
 	dilithium_poly_basemul_acc_8l_rvv(c->coeffs, a->coeffs, b->coeffs);
+	LC_VECTOR_DISABLE;
 }
 
 static inline void poly_pointwise_montgomery(poly *c, const poly *a,
 					     const poly *b)
 {
 #ifdef LC_DILITHIUM_RISCV64_RVV
+	LC_VECTOR_ENABLE;
 	dilithium_poly_basemul_8l_rvv(c->coeffs, a->coeffs, b->coeffs);
+	LC_VECTOR_DISABLE;
 #else
 	dilithium_poly_basemul_8l_rv64im(c->coeffs, a->coeffs, b->coeffs);
 #endif
@@ -110,7 +118,9 @@ static inline void poly_pointwise_montgomery(poly *c, const poly *a,
 static inline void poly_ntt(poly *a)
 {
 #ifdef LC_DILITHIUM_RISCV64_RVV
+	LC_VECTOR_ENABLE;
 	dilithium_ntt_8l_rvv(a->coeffs, dilithium_qdata_rvv);
+	LC_VECTOR_DISABLE;
 #else
 	dilithium_ntt_8l_rv64im(a->coeffs, zetas_ntt_8l_rv64im);
 #endif
@@ -119,7 +129,9 @@ static inline void poly_ntt(poly *a)
 static inline void poly_invntt_tomont(poly *a)
 {
 #ifdef LC_DILITHIUM_RISCV64_RVV
+	LC_VECTOR_ENABLE;
 	dilithium_intt_8l_rvv(a->coeffs, dilithium_qdata_rvv);
+	LC_VECTOR_DISABLE;
 #else
 	dilithium_intt_8l_rv64im(a->coeffs, zetas_intt_8l_rv64im);
 #endif

@@ -185,7 +185,7 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 			 "",
 		 armv7, armv8, riscv64,
 		 (lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV_ASM_RVV) ?
-			 "RISCV64 RVV " :
+			 "RISCV64-RVV " :
 			 "",
 
 		 /* Curve25519 */

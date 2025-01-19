@@ -1,0 +1,1 @@
+../../../ml-dsa/src/riscv64/ntt_rvv.S

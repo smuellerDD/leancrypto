@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2024, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2023 - 2024, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *
@@ -17,34 +17,22 @@
  * DAMAGE.
  */
 
-#include "cpufeatures.h"
-#include "ext_headers.h"
-#include "ext_headers_riscv.h"
-#include "visibility.h"
-
-static enum lc_cpu_features features = LC_CPU_FEATURE_UNSET;
-
-LC_INTERFACE_FUNCTION(void, lc_cpu_feature_disable, void)
-{
-}
-
-LC_INTERFACE_FUNCTION(void, lc_cpu_feature_enable, void)
-{
-}
-
-LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
-{
-	if (features == LC_CPU_FEATURE_UNSET) {
-		features = LC_CPU_FEATURE_RISCV_ASM;
+#ifndef EXT_HEADERS_RISCV_H
+#define EXT_HEADERS_RISCV_H
 
 #ifdef LINUX_KERNEL
-		if (riscv_isa_extension_available(NULL, ZBB))
-			features |= LC_CPU_FEATURE_RISCV_ASM_ZBB;
-		if (riscv_isa_extension_available(NULL, ZVE64D) &&
-		    may_use_simd())
-			features |= LC_CPU_FEATURE_RISCV_ASM_RVV;
-#endif
-	}
 
-	return features;
-}
+#include <asm/vector.h>
+#include <asm/simd.h>
+
+#define LC_VECTOR_ENABLE kernel_vector_begin()
+#define LC_VECTOR_DISABLE kernel_vector_end()
+
+#else /* LINUX_KERNEL */
+
+#define LC_VECTOR_ENABLE
+#define LC_VECTOR_DISABLE
+
+#endif /* LINUX_KERNEL */
+
+#endif /* EXT_HEADERS_RISCV_H */

@@ -1,0 +1,1 @@
+../../../ml-dsa/src/riscv64/dilithium_ntt_rvv.h

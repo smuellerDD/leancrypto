@@ -29,6 +29,8 @@ Changes 1.2.0
 
 * SHA-512 / 384 / 256: Addition of AVX2, SHA_NI, SHA_NI-512, ARMv8 Neon, ARMv8 CE, RISCV ASM, RISCV ZBB acceleration
 
+* Add lc_init API
+
 Changes 1.1.0
 * ML-KEM remove modulus check of decapsulation key (not required by FIPS 203)
 

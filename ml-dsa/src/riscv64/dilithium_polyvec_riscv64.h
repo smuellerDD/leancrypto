@@ -49,6 +49,8 @@
 
 #include "dilithium_poly_riscv64.h"
 
+#include "ext_headers_riscv.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -108,8 +110,10 @@ polyvec_matrix_expand(polyvecl mat[LC_DILITHIUM_K],
 				le_bswap16((uint16_t)(i << 8) + (uint16_t)j),
 				ws_buf);
 #ifdef LC_DILITHIUM_RISCV64_RVV
+			LC_VECTOR_ENABLE;
 			dilithium_normal2ntt_order_8l_rvv(mat[i].vec[j].coeffs,
 							  dilithium_qdata_rvv);
+			LC_VECTOR_DISABLE;
 #endif
 		}
 }

@@ -46,16 +46,21 @@ leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_44)				       \
 				   dilithium44/dilithium_poly.o		       \
 				   dilithium44/dilithium_rounding.o	       \
 				   dilithium44/dilithium_selftest.o	       \
-				   dilithium44/dilithium_signature_api_c.o     \
 				   dilithium44/dilithium_signature_c.o         \
 				   dilithium44/dilithium_signature_helper.o
 CFLAGS_dilithium44/dilithium_ntt.o			:= -DLC_DILITHIUM_TYPE_44
 CFLAGS_dilithium44/dilithium_poly.o			:= -DLC_DILITHIUM_TYPE_44
 CFLAGS_dilithium44/dilithium_rounding.o			:= -DLC_DILITHIUM_TYPE_44
 CFLAGS_dilithium44/dilithium_selftest.o			:= -DLC_DILITHIUM_TYPE_44
-CFLAGS_dilithium44/dilithium_signature_api_c.o		:= -DLC_DILITHIUM_TYPE_44
 CFLAGS_dilithium44/dilithium_signature_c.o		:= -DLC_DILITHIUM_TYPE_44
 CFLAGS_dilithium44/dilithium_signature_helper.o		:= -DLC_DILITHIUM_TYPE_44
+
+# RISCV64 has its own Dilithium 44 API
+ifeq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
+leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_44)				       \
+				+= dilithium44/dilithium_signature_api_c.o
+CFLAGS_dilithium44/dilithium_signature_api_c.o		:= -DLC_DILITHIUM_TYPE_44
+endif
 
 # Dilithium-87-ED25519 implementation
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_ED25519)			       \
@@ -188,6 +193,77 @@ AFLAGS_dilithium65/armv8/dilithium_ntt_armv8.o		:= -DLC_DILITHIUM_TYPE_65
 AFLAGS_dilithium65/armv8/dilithium_poly_armv8.o		:= -DLC_DILITHIUM_TYPE_65
 CFLAGS_dilithium65/armv8/dilithium_signature_api_armv8.o:= -DLC_DILITHIUM_TYPE_65
 CFLAGS_dilithium65/armv8/dilithium_signature_armv8.o	:= -DLC_DILITHIUM_TYPE_65
+
+else ifneq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
+################################################################################
+# RISCV64 assembler and RVV implementations
+################################################################################
+# Dilithium Common
+leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
+			+= ../ml-dsa/src/riscv64/dilithium_consts_rvv.o	       \
+			   ../ml-dsa/src/riscv64/dilithium_zetas_riscv64.o
+
+# Dilithium 87 RISCV64 ASM
+leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_87)				       \
+			+= ../ml-dsa/src/riscv64/dilithium_signature_api_riscv64.o\
+			   ../ml-dsa/src/riscv64/dilithium_signature_riscv64.o \
+			   ../ml-dsa/src/riscv64/ntt_8l_dualissue_plant_rv64im.o
+AFLAGS../ml-dsa/src/riscv64/ntt_8l_dualissue_plant_rv64im.o := -march=rv64gc   \
+							       -mcmodel=medany
+
+# Dilithium 65 RISCV64 ASM
+leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_65)				       \
+			+= dilithium65/riscv64/dilithium_signature_api_riscv64.o\
+			   dilithium65/riscv64/dilithium_signature_riscv64.o   \
+			   dilithium65/riscv64/ntt_8l_dualissue_plant_rv64im.o
+CFLAGS_dilithium65/riscv64/dilithium_signature_api_riscv64.o	:= -DLC_DILITHIUM_TYPE_65
+CFLAGS_dilithium65/riscv64/dilithium_signature_riscv64.o	:= -DLC_DILITHIUM_TYPE_65
+AFLAGS_dilithium65/riscv64/ntt_8l_dualissue_plant_rv64im.o := -march=rv64gc   \
+							      -mcmodel=medany \
+							      -DLC_DILITHIUM_TYPE_65
+
+# Dilithium 44 RISCV64 ASM
+leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_44)				       \
+			+= dilithium44/riscv64/dilithium_signature_api_riscv64.o\
+			   dilithium44/riscv64/dilithium_signature_riscv64.o   \
+			   dilithium44/riscv64/ntt_8l_dualissue_plant_rv64im.o
+CFLAGS_dilithium44/riscv64/dilithium_signature_api_riscv64.o	:= -DLC_DILITHIUM_TYPE_44
+CFLAGS_dilithium44/riscv64/dilithium_signature_riscv64.o	:= -DLC_DILITHIUM_TYPE_44
+AFLAGS_dilithium44/riscv64/ntt_8l_dualissue_plant_rv64im.o := -march=rv64gc   \
+							      -mcmodel=medany \
+							      -DLC_DILITHIUM_TYPE_44
+
+# Dilithium 87 RISCV64 RVV
+leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_87)				       \
+			+= dilithium87/riscv64_rvv/dilithium_signature_riscv64_rvv.o\
+			   dilithium87/riscv64_rvv/ntt_rvv.o
+CFLAGS_dilithium87/riscv64_rvv/dilithium_signature_riscv64_rvv.o :=	       \
+			-march=rv64imadcv -mcmodel=medany		       \
+			-DLC_DILITHIUM_RISCV64_RVV
+AFLAGS_dilithium87/riscv64_rvv/ntt_rvv.o := -march=rv64imadcv -mcmodel=medany  \
+					    -DLC_DILITHIUM_RISCV64_RVV
+
+# Dilithium 65 RISCV64 RVV
+leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_65)				       \
+			+= dilithium65/riscv64_rvv/dilithium_signature_riscv64_rvv.o\
+			   dilithium65/riscv64_rvv/ntt_rvv.o
+CFLAGS_dilithium65/riscv64_rvv/dilithium_signature_riscv64_rvv.o :=	       \
+			-march=rv64imadcv -mcmodel=medany -DLC_DILITHIUM_TYPE_65\
+			-DLC_DILITHIUM_RISCV64_RVV
+AFLAGS_dilithium65/riscv64_rvv/ntt_rvv.o := -march=rv64imadcv -mcmodel=medany  \
+					    -DLC_DILITHIUM_TYPE_65	       \
+					    -DLC_DILITHIUM_RISCV64_RVV
+
+# Dilithium 44 RISCV64 RVV
+leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_44)				       \
+			+= dilithium44/riscv64_rvv/dilithium_signature_riscv64_rvv.o\
+			   dilithium44/riscv64_rvv/ntt_rvv.o
+CFLAGS_dilithium44/riscv64_rvv/dilithium_signature_riscv64_rvv.o :=	       \
+			-march=rv64imadcv -mcmodel=medany -DLC_DILITHIUM_TYPE_44\
+			-DLC_DILITHIUM_RISCV64_RVV
+AFLAGS_dilithium44/riscv64_rvv/ntt_rvv.o := -march=rv64imadcv -mcmodel=medany  \
+					    -DLC_DILITHIUM_TYPE_44	       \
+					    -DLC_DILITHIUM_RISCV64_RVV
 
 
 ################################################################################

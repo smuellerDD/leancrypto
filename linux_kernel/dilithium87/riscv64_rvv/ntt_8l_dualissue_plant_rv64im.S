@@ -1,0 +1,1 @@
+../../../ml-dsa/src/riscv64/ntt_8l_dualissue_plant_rv64im.S
