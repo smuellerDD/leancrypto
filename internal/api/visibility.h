@@ -67,7 +67,7 @@
 #define LC_INTERFACE_FUNCTION(ret, symbol, param...)                           \
 	DSO_PUBLIC ret symbol(param)
 
-#define LC_INIT_FUNCTION(ret, symbol, param...)                           \
+#define LC_INIT_FUNCTION(ret, symbol, param...)                                \
 	DSO_PUBLIC ret symbol(param)
 
 #define LC_TEST_FUNC(ret, symbol, param...) ret symbol(param)
@@ -77,7 +77,10 @@
 #define LC_INTERFACE_SYMBOL(ret, symbol) DSO_PUBLIC ret symbol
 
 #ifdef LC_EFI
-
+/*
+ * EFI does not have the constructor logic. Thus, mark the constructor functions
+ * as regular non-static functions as they are intended to be called by lc_init.
+ */
 #define LC_CONSTRUCTOR(_func)                                                  \
 	void _func(void);                                                      \
 	void _func(void)
