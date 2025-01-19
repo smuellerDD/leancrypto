@@ -26,7 +26,3 @@
 - SHA2 Neon: check whether it works on ARMv7
 
 - RISCV asm: check whether it works for RISCV32
-
-- SLH-DSA: use external interface for self tests
-
-- SLH-DSA: add tests for external interface / pre-hash

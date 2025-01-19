@@ -27,22 +27,22 @@
 
 #ifdef LC_SPHINCS_TYPE_128F
 #include "lc_sphincs_shake_128f.h"
-#include "sphincs_tester_vectors_shake_128f.h"
+#include "sphincs_tester_prehash_vectors_shake_128f.h"
 #elif defined(LC_SPHINCS_TYPE_128S)
 #include "lc_sphincs_shake_128s.h"
-#include "sphincs_tester_vectors_shake_128s.h"
+#include "sphincs_tester_prehash_vectors_shake_128s.h"
 #elif defined(LC_SPHINCS_TYPE_192F)
 #include "lc_sphincs_shake_192f.h"
-#include "sphincs_tester_vectors_shake_192f.h"
+#include "sphincs_tester_prehash_vectors_shake_192f.h"
 #elif defined(LC_SPHINCS_TYPE_192S)
 #include "lc_sphincs_shake_192s.h"
-#include "sphincs_tester_vectors_shake_192s.h"
+#include "sphincs_tester_prehash_vectors_shake_192s.h"
 #elif defined(LC_SPHINCS_TYPE_256F)
 #include "lc_sphincs_shake_256f.h"
-#include "sphincs_tester_vectors_shake_256f.h"
+#include "sphincs_tester_prehash_vectors_shake_256f.h"
 #else
 #include "lc_sphincs_shake_256s.h"
-#include "sphincs_tester_vectors_shake_256s.h"
+#include "sphincs_tester_prehash_vectors_shake_256s.h"
 #endif
 
 enum lc_sphincs_test_type {
@@ -59,11 +59,21 @@ static int lc_sphincs_test(struct lc_sphincs_test *tc,
 		struct lc_sphincs_pk pk;
 		struct lc_sphincs_sk sk;
 		struct lc_sphincs_sig sig;
+		uint8_t digest[LC_SHA_MAX_SIZE_DIGEST];
 	};
 	unsigned int rounds, i;
 	int ret = 0;
 	LC_SPHINCS_CTX_ON_STACK(ctx);
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+
+	/*
+	 * The entire test data derived from the upstream reference
+	 * implementation covers the internal testing only.
+	 */
+	ctx->sphincs_prehash_type = lc_shake256;
+
+	lc_xof(lc_shake256, tc->msg, sizeof(tc->msg), ws->digest,
+	       sizeof(ws->digest));
 
 	if (t == LC_SPHINCS_REGRESSION || t == LC_SPHINCS_PERF_KEYGEN) {
 		struct lc_static_rng_data s_rng_state;
@@ -89,7 +99,7 @@ static int lc_sphincs_test(struct lc_sphincs_test *tc,
 
 		for (i = 0; i < rounds; i++) {
 			CKINT(lc_sphincs_sign_ctx(
-				&ws->sig, ctx, tc->msg, sizeof(tc->msg),
+				&ws->sig, ctx, ws->digest, sizeof(ws->digest),
 				(struct lc_sphincs_sk *)tc->sk, NULL));
 		}
 		lc_compare((uint8_t *)&ws->sig, tc->sig, sizeof(tc->sig),
@@ -101,8 +111,8 @@ static int lc_sphincs_test(struct lc_sphincs_test *tc,
 
 		for (i = 0; i < rounds; i++) {
 			CKINT(lc_sphincs_verify_ctx(
-				(struct lc_sphincs_sig *)tc->sig, ctx, tc->msg,
-				sizeof(tc->msg),
+				(struct lc_sphincs_sig *)tc->sig, ctx,
+				ws->digest, sizeof(ws->digest),
 				(struct lc_sphincs_pk *)tc->pk));
 		}
 	}

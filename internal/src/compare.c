@@ -57,14 +57,20 @@ LC_INTERFACE_FUNCTION(int, lc_compare, const uint8_t *act, const uint8_t *exp,
 		unsigned int i;
 
 		printf("Expected %s ", info);
-		for (i = 0; i < len; i++)
+		for (i = 0; i < len; i++) {
 			printf("0x%.2x ", *(exp + i));
+			if (!((i + 1) % 8))
+				printf("\n");
+		}
 
 		printf("\n");
 
 		printf("Actual %s ", info);
-		for (i = 0; i < len; i++)
+		for (i = 0; i < len; i++) {
 			printf("0x%.2x ", *(act + i));
+			if (!((i + 1) % 8))
+				printf("\n");
+		}
 
 		printf("\n");
 

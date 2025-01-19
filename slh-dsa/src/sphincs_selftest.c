@@ -94,12 +94,6 @@ static inline int _sphincs_selftest_siggen(void)
 	LC_SPHINCS_CTX_ON_STACK(ctx);
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	/*
-	 * The entire test data derived from the upstream reference
-	 * implementation covers the internal testing only.
-	 */
-	ctx->slh_dsa_internal = 1;
-
 	CKINT(lc_sphincs_sign_ctx(&ws->sig, ctx, tc->msg, sizeof(tc->msg),
 				  (struct lc_sphincs_sk *)tc->sk, NULL));
 	lc_compare((uint8_t *)&ws->sig, tc->sig, sizeof(tc->sig), "SIG");
@@ -129,12 +123,6 @@ static inline int _sphincs_selftest_sigver(void)
 	const struct lc_sphincs_test *tc = &tests[0];
 	int ret;
 	LC_SPHINCS_CTX_ON_STACK(ctx);
-
-	/*
-	 * The entire test data derived from the upstream reference
-	 * implementation covers the internal testing only.
-	 */
-	ctx->slh_dsa_internal = 1;
 
 	CKINT(lc_sphincs_verify_ctx((struct lc_sphincs_sig *)tc->sig, ctx,
 				    tc->msg, sizeof(tc->msg),

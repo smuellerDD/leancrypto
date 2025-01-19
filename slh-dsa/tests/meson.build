@@ -60,6 +60,127 @@ if get_option('sphincs_shake_256s').enabled()
 				c_args : '-DLC_SPHINCS_TYPE_128F',
 				link_with: leancrypto_static_lib
 				)
+
+	sphincs_internal_tester_256s = executable('sphincs_internal_tester_256s',
+				[ 'sphincs_internal_tester.c' ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_sphincs_internal
+				],
+				link_with: leancrypto_static_lib
+				)
+	sphincs_internal_tester_256f = executable('sphincs_internal_tester_256f',
+				[ 'sphincs_internal_tester.c' ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_sphincs_internal
+				],
+				c_args : '-DLC_SPHINCS_TYPE_256F',
+				link_with: leancrypto_static_lib
+				)
+	sphincs_internal_tester_192s = executable('sphincs_internal_tester_192s',
+				[ 'sphincs_internal_tester.c' ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_sphincs_internal
+				],
+				c_args : '-DLC_SPHINCS_TYPE_192S',
+				link_with: leancrypto_static_lib
+				)
+	sphincs_internal_tester_192f = executable('sphincs_internal_tester_192f',
+				[ 'sphincs_internal_tester.c' ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_sphincs_internal
+				],
+				c_args : '-DLC_SPHINCS_TYPE_192F',
+				link_with: leancrypto_static_lib
+				)
+	sphincs_internal_tester_128s = executable('sphincs_internal_tester_128s',
+				[ 'sphincs_internal_tester.c' ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_sphincs_internal
+				],
+				c_args : '-DLC_SPHINCS_TYPE_128S',
+				link_with: leancrypto_static_lib
+				)
+	sphincs_internal_tester_128f = executable('sphincs_internal_tester_128f',
+				[ 'sphincs_internal_tester.c' ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_sphincs_internal
+				],
+				c_args : '-DLC_SPHINCS_TYPE_128F',
+				link_with: leancrypto_static_lib
+				)
+
+	sphincs_prehash_tester_256s = executable('sphincs_prehash_tester_256s',
+				[ 'sphincs_prehash_tester.c' ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_sphincs_internal
+				],
+				link_with: leancrypto_static_lib
+				)
+	sphincs_prehash_tester_256f = executable('sphincs_prehash_tester_256f',
+				[ 'sphincs_prehash_tester.c' ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_sphincs_internal
+				],
+				c_args : '-DLC_SPHINCS_TYPE_256F',
+				link_with: leancrypto_static_lib
+				)
+	sphincs_prehash_tester_192s = executable('sphincs_prehash_tester_192s',
+				[ 'sphincs_prehash_tester.c' ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_sphincs_internal
+				],
+				c_args : '-DLC_SPHINCS_TYPE_192S',
+				link_with: leancrypto_static_lib
+				)
+	sphincs_prehash_tester_192f = executable('sphincs_prehash_tester_192f',
+				[ 'sphincs_prehash_tester.c' ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_sphincs_internal
+				],
+				c_args : '-DLC_SPHINCS_TYPE_192F',
+				link_with: leancrypto_static_lib
+				)
+	sphincs_prehash_tester_128s = executable('sphincs_prehash_tester_128s',
+				[ 'sphincs_prehash_tester.c' ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_sphincs_internal
+				],
+				c_args : '-DLC_SPHINCS_TYPE_128S',
+				link_with: leancrypto_static_lib
+				)
+	sphincs_prehash_tester_128f = executable('sphincs_prehash_tester_128f',
+				[ 'sphincs_prehash_tester.c' ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_sphincs_internal
+				],
+				c_args : '-DLC_SPHINCS_TYPE_128F',
+				link_with: leancrypto_static_lib
+				)
+
 	sphincs_official_tester = executable('sphincs_official_tester',
 				[ 'sphincs_official_tester.c' ],
 				include_directories: [
@@ -77,12 +198,44 @@ if get_option('sphincs_shake_256s').enabled()
 				dependencies: leancrypto
 				)
 
-	test('Sphincs+ SHAKE 256s Accel', sphincs_tester_256s, timeout: 600, suite: regression)
-	test('Sphincs+ SHAKE 256f Accel', sphincs_tester_256f, timeout: 600, suite: regression)
-	test('Sphincs+ SHAKE 192s Accel', sphincs_tester_192s, timeout: 600, suite: regression)
-	test('Sphincs+ SHAKE 192f Accel', sphincs_tester_192f, timeout: 600, suite: regression)
-	test('Sphincs+ SHAKE 128s Accel', sphincs_tester_128s, timeout: 600, suite: regression)
-	test('Sphincs+ SHAKE 128f Accel', sphincs_tester_128f, timeout: 600, suite: regression)
+	test('Sphincs+ SHAKE 256s Accel', sphincs_tester_256s, timeout: 600,
+	     suite: regression)
+	test('Sphincs+ SHAKE 256f Accel', sphincs_tester_256f, timeout: 600,
+	     suite: regression)
+	test('Sphincs+ SHAKE 192s Accel', sphincs_tester_192s, timeout: 600,
+	     suite: regression)
+	test('Sphincs+ SHAKE 192f Accel', sphincs_tester_192f, timeout: 600,
+	     suite: regression)
+	test('Sphincs+ SHAKE 128s Accel', sphincs_tester_128s, timeout: 600,
+	     suite: regression)
+	test('Sphincs+ SHAKE 128f Accel', sphincs_tester_128f, timeout: 600,
+	     suite: regression)
+
+	test('Sphincs+ SHAKE 256s internal Accel', sphincs_internal_tester_256s,
+	     timeout: 600, suite: regression)
+	test('Sphincs+ SHAKE 256f internal Accel', sphincs_internal_tester_256f,
+	     timeout: 600, suite: regression)
+	test('Sphincs+ SHAKE 192s internal Accel', sphincs_internal_tester_192s,
+	     timeout: 600, suite: regression)
+	test('Sphincs+ SHAKE 192f internal Accel', sphincs_internal_tester_192f,
+	     timeout: 600, suite: regression)
+	test('Sphincs+ SHAKE 128s internal Accel', sphincs_internal_tester_128s,
+	     timeout: 600, suite: regression)
+	test('Sphincs+ SHAKE 128f internal Accel', sphincs_internal_tester_128f,
+	     timeout: 600, suite: regression)
+
+	test('Sphincs+ SHAKE 256s prehash Accel', sphincs_prehash_tester_256s,
+	     timeout: 600, suite: regression)
+	test('Sphincs+ SHAKE 256f prehash Accel', sphincs_prehash_tester_256f,
+	     timeout: 600, suite: regression)
+	test('Sphincs+ SHAKE 192s prehash Accel', sphincs_prehash_tester_192s,
+	     timeout: 600, suite: regression)
+	test('Sphincs+ SHAKE 192f prehash Accel', sphincs_prehash_tester_192f,
+	     timeout: 600, suite: regression)
+	test('Sphincs+ SHAKE 128s prehash Accel', sphincs_prehash_tester_128s,
+	     timeout: 600, suite: regression)
+	test('Sphincs+ SHAKE 128f prehash Accel', sphincs_prehash_tester_128f,
+	     timeout: 600, suite: regression)
 
 	test('Sphincs+ SHAKE 256s Keygen 100 Accel', sphincs_tester_256s,
 	     args : [ 'k' ], timeout: 1000, is_parallel: false, suite: performance)

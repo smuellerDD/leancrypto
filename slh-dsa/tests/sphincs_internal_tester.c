@@ -27,22 +27,22 @@
 
 #ifdef LC_SPHINCS_TYPE_128F
 #include "lc_sphincs_shake_128f.h"
-#include "sphincs_tester_vectors_shake_128f.h"
+#include "sphincs_tester_internal_vectors_shake_128f.h"
 #elif defined(LC_SPHINCS_TYPE_128S)
 #include "lc_sphincs_shake_128s.h"
-#include "sphincs_tester_vectors_shake_128s.h"
+#include "sphincs_tester_internal_vectors_shake_128s.h"
 #elif defined(LC_SPHINCS_TYPE_192F)
 #include "lc_sphincs_shake_192f.h"
-#include "sphincs_tester_vectors_shake_192f.h"
+#include "sphincs_tester_internal_vectors_shake_192f.h"
 #elif defined(LC_SPHINCS_TYPE_192S)
 #include "lc_sphincs_shake_192s.h"
-#include "sphincs_tester_vectors_shake_192s.h"
+#include "sphincs_tester_internal_vectors_shake_192s.h"
 #elif defined(LC_SPHINCS_TYPE_256F)
 #include "lc_sphincs_shake_256f.h"
-#include "sphincs_tester_vectors_shake_256f.h"
+#include "sphincs_tester_internal_vectors_shake_256f.h"
 #else
 #include "lc_sphincs_shake_256s.h"
-#include "sphincs_tester_vectors_shake_256s.h"
+#include "sphincs_tester_internal_vectors_shake_256s.h"
 #endif
 
 enum lc_sphincs_test_type {
@@ -64,6 +64,12 @@ static int lc_sphincs_test(struct lc_sphincs_test *tc,
 	int ret = 0;
 	LC_SPHINCS_CTX_ON_STACK(ctx);
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+
+	/*
+	 * The entire test data derived from the upstream reference
+	 * implementation covers the internal testing only.
+	 */
+	ctx->slh_dsa_internal = 1;
 
 	if (t == LC_SPHINCS_REGRESSION || t == LC_SPHINCS_PERF_KEYGEN) {
 		struct lc_static_rng_data s_rng_state;

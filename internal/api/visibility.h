@@ -67,8 +67,7 @@
 #define LC_INTERFACE_FUNCTION(ret, symbol, param...)                           \
 	DSO_PUBLIC ret symbol(param)
 
-#define LC_INIT_FUNCTION(ret, symbol, param...)                                \
-	DSO_PUBLIC ret symbol(param)
+#define LC_INIT_FUNCTION(ret, symbol, param...) DSO_PUBLIC ret symbol(param)
 
 #define LC_TEST_FUNC(ret, symbol, param...) ret symbol(param)
 
