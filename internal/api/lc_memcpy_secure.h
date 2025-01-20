@@ -33,8 +33,6 @@ extern "C" {
  * @param dn Size of destination buffer
  * @param s Source buffer
  * @param sn Size of source buffer
- *
- * @return 0 on string match, != 0 when strings do not match
  */
 void *lc_memcpy_secure(void *d, size_t dn, const void *s, size_t sn);
 
