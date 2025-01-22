@@ -26,7 +26,7 @@ extern "C" {
 
 #ifndef LINUX_KERNEL
 
-#ifndef false
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ < 202311L && !defined(false)
 /* Boolean variable */
 enum { false, true };
 typedef _Bool bool;
