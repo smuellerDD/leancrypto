@@ -129,8 +129,29 @@ if get_option('ascon').enabled()
 	add_global_arguments([ '-DLC_ASCON_HASH' ], language: 'c')
 endif
 
-if get_option('ascon').enabled()
-	add_global_arguments([ '-DLC_ASCON_HASH' ], language: 'c')
+if (get_option('kyber_1024').enabled() or
+    get_option('kyber_768').enabled() or
+    get_option('kyber_512').enabled())
+	add_global_arguments([ '-DLC_KYBER' ], language: 'c')
+endif
+
+if (get_option('dilithium_87').enabled() or
+    get_option('dilithium_65').enabled() or
+    get_option('dilithium_44').enabled())
+	add_global_arguments([ '-DLC_DILITHIUM' ], language: 'c')
+endif
+
+if (get_option('sphincs_shake_256s').enabled() or
+    get_option('sphincs_shake_256f').enabled() or
+    get_option('sphincs_shake_192s').enabled() or
+    get_option('sphincs_shake_192f').enabled() or
+    get_option('sphincs_shake_128s').enabled() or
+    get_option('sphincs_shake_128f').enabled())
+	add_global_arguments([ '-DLC_SPHINCS' ], language: 'c')
+endif
+
+if get_option('kyber_x25519').enabled() or get_option('dilithium_ed25519').enabled()
+	add_global_arguments([ '-DLC_CURVE25519' ], language: 'c')
 endif
 
 if get_option('efi').enabled()

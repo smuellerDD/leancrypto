@@ -1,9 +1,12 @@
-pkcs7_trust_tester = executable('pkcs7_trust_tester',
-	[ 'pkcs7_trust_tester.c' ],
-	  include_directories: [ include_internal_dirs ],
-				 dependencies: leancrypto,
-	  link_with: leancrypto_static_lib,
-	)
+
+if get_option('pkcs7_parser').enabled()
+	pkcs7_trust_tester = executable('pkcs7_trust_tester',
+		[ 'pkcs7_trust_tester.c' ],
+		include_directories: [ include_internal_dirs ],
+					dependencies: leancrypto,
+		link_with: leancrypto_static_lib,
+		)
+endif
 
 if get_option('efi').enabled()
 	objcopy = find_program('objcopy', required: true)

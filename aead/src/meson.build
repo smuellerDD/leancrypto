@@ -1,9 +1,8 @@
 # for i in $(ls *.c | sort); do echo "'$i',"; done
 
 compile_hash_crypt = 0
+compile_aead = 0
 aead_src_files = [ ]
-
-src_fips = files([ 'aead_api.c' ])
 
 if get_option('hash_crypt').enabled()
 	src += files([
@@ -23,10 +22,12 @@ if get_option('hash_crypt').enabled()
 			       ])
 
 	compile_hash_crypt = 1
+	compile_aead = 1
 endif
 
 if get_option('ascon').enabled() or get_option('ascon_keccak').enabled()
 	aead_src_files += files([ 'ascon.c', ])
+	compile_aead = 1
 endif
 
 if get_option('ascon').enabled()
@@ -35,6 +36,7 @@ if get_option('ascon').enabled()
 	add_global_arguments([ '-DLC_ASCON' ], language: 'c')
 
 	compile_hash_crypt = 1
+	compile_aead = 1
 endif
 
 if get_option('ascon_keccak').enabled()
@@ -43,6 +45,7 @@ if get_option('ascon_keccak').enabled()
 	add_global_arguments([ '-DLC_ASCON_KECCAK' ], language: 'c')
 
 	compile_hash_crypt = 1
+	compile_aead = 1
 endif
 
 if (compile_hash_crypt == 1)
@@ -94,6 +97,8 @@ if (get_option('aes_cbc').enabled() or get_option('aes_ctr').enabled())
 		include_files += files([
 			'../api/lc_symhmac.h'
 		])
+
+		compile_aead = 1
 	endif
 
 	if get_option('kmac').enabled()
@@ -104,5 +109,11 @@ if (get_option('aes_cbc').enabled() or get_option('aes_ctr').enabled())
 		include_files += files([
 			'../api/lc_symkmac.h'
 		])
+
+		compile_aead = 1
 	endif
+endif
+
+if (compile_aead == 1)
+	src_fips += files([ 'aead_api.c' ])
 endif

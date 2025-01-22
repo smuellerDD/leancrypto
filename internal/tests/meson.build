@@ -6,23 +6,25 @@ conversion_be_le = executable('conversion_be_le',
 
 test('Conversion LE<->BE', conversion_be_le, suite: regression)
 
-memcmp_secure_test = executable('memcmp_secure_test',
-				[ 'memcmp_secure_test.c', internal_src ],
-				include_directories: [ include_internal_dirs ],
-				dependencies: leancrypto
-				)
+if seeded_rng != 0
+	memcmp_secure_test = executable('memcmp_secure_test',
+					[ 'memcmp_secure_test.c', internal_src ],
+					include_directories: [ include_internal_dirs ],
+					dependencies: leancrypto
+					)
 
-test('memcmp secure', memcmp_secure_test, timeout: 600,
-	suite: regression)
+	test('memcmp secure', memcmp_secure_test, timeout: 600,
+		suite: regression)
 
-memcpy_secure_test = executable('memcpy_secure_test',
-				[ 'memcpy_secure_test.c', internal_src ],
-				include_directories: [ include_internal_dirs ],
-				dependencies: leancrypto
-				)
+	memcpy_secure_test = executable('memcpy_secure_test',
+					[ 'memcpy_secure_test.c', internal_src ],
+					include_directories: [ include_internal_dirs ],
+					dependencies: leancrypto
+					)
 
-test('memcpy secure', memcpy_secure_test, timeout: 600,
-	suite: regression)
+	test('memcpy secure', memcpy_secure_test, timeout: 600,
+		suite: regression)
+endif
 
 status_tester = executable('status_tester',
 			   [ 'status_tester.c', internal_src ],
@@ -40,10 +42,14 @@ if get_option('sha3').enabled() and get_option('enable_selftests').enabled()
 	test('Rerun selftests', rerun_selftests_tester, suite: regression)
 endif
 
-tester_kat = executable('tester_kat',
-		[ 'tester_kat.c', internal_src ],
-		include_directories: [
-			include_dirs,
-			include_internal_dirs
-		], link_with: leancrypto_lib
-		)
+if (get_option('dilithium_87').enabled() or
+    get_option('dilithium_65').enabled() or
+    get_option('dilithium_44').enabled())
+	tester_kat = executable('tester_kat',
+			[ 'tester_kat.c', internal_src ],
+			include_directories: [
+				include_dirs,
+				include_internal_dirs
+			], link_with: leancrypto_lib
+			)
+endif

@@ -4,7 +4,6 @@ internal_src += files([
 	'left_encode.c',
 	'memcpy_secure_c.c',
 	'null_buffer.c',
-	'signature_domain_separation.c',
 ])
 
 if get_option('efi').disabled()
@@ -24,6 +23,20 @@ elif host_machine.system() == 'linux'
 	internal_src += files([ 'memory_support_linux.c' ])
 else
 	internal_src += files([ 'memory_support.c' ])
+endif
+
+if (get_option('dilithium_87').enabled() or
+    get_option('dilithium_65').enabled() or
+    get_option('dilithium_44').enabled() or
+    get_option('sphincs_shake_256s').enabled() or
+    get_option('sphincs_shake_256f').enabled() or
+    get_option('sphincs_shake_192s').enabled() or
+    get_option('sphincs_shake_192f').enabled() or
+    get_option('sphincs_shake_128s').enabled() or
+    get_option('sphincs_shake_128f').enabled())
+	internal_src += files([
+		'signature_domain_separation.c',
+	])
 endif
 
 if (x86_64_asm)

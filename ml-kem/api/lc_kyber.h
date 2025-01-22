@@ -64,7 +64,7 @@ enum lc_kyber_type {
  *   All remaining APIs take the information about the Kyber type from the
  *   provided input data.
  *
- *   This header file only provides inline functions which selectively call
+ *   This header file only provides wrapper functions which selectively call
  *   the API provided with the header files below.
  *
  * * lc_kyber_1024.h: Direct access to Kyber 1024.
