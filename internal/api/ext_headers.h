@@ -264,6 +264,7 @@ static const int errno_private = 0;
 #include <fcntl.h>
 #include <inttypes.h>
 #include <limits.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -346,6 +347,7 @@ static inline int lc_get_time(time64_t *time_since_epoch)
 #include <fcntl.h>
 #include <inttypes.h>
 #include <limits.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
