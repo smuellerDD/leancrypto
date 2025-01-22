@@ -583,6 +583,9 @@ if (host_machine.system() != 'windows')
 		    check: true)
 endif
 
+# Whether to build the shared library alongside the static library
+build_shared = get_option('default_library') != 'static' and get_option('efi').disabled()
+
 if (get_option('fips140').enabled())
 	# Create the official static FIPS library
 	leancrypto_static_lib_fips = static_library('leancrypto-fips',
@@ -594,9 +597,9 @@ if (get_option('fips140').enabled())
 		)
 	leancrypto_support_libs += leancrypto_static_lib_fips
 
-	if get_option('efi').disabled()
+	if build_shared
 		# Create the official shared FIPS library
-		leancrypto_lib_fips = library('leancrypto-fips',
+		leancrypto_lib_fips = shared_library('leancrypto-fips',
 			[ src_fips, internal_src ],
 			include_directories: [ include_dirs,
 					       include_internal_dirs ],
@@ -605,10 +608,13 @@ if (get_option('fips140').enabled())
 			link_whole: [ leancrypto_support_libs_fips ],
 			install: true
 			)
-		pkgconfig.generate(leancrypto_lib_fips,
-			   description: 'PQC-resistant cryptographic library with FIPS -140 compliance')
 	else
 		leancrypto_lib_fips = leancrypto_static_lib_fips
+	endif
+
+	if get_option('efi').disabled()
+		pkgconfig.generate(leancrypto_lib_fips,
+			   description: 'PQC-resistant cryptographic library with FIPS -140 compliance')
 	endif
 
 	leancrypto_fips = declare_dependency(link_with: leancrypto_lib_fips,
@@ -628,9 +634,9 @@ leancrypto_static_lib = static_library('leancrypto',
 	install: true
 	)
 
-if get_option('efi').disabled()
+if build_shared
 	# Create the official shared library
-	leancrypto_lib = library('leancrypto',
+	leancrypto_lib = shared_library('leancrypto',
 		[ src ],
 		include_directories: [ include_dirs, include_internal_dirs ],
 		soversion: version_array[0],
@@ -638,12 +644,13 @@ if get_option('efi').disabled()
 		link_whole: [ leancrypto_support_libs ],
 		install: true
 		)
-
-	pkgconfig.generate(leancrypto_lib,
-			   description: 'PQC-resistant cryptographic library')
-
 else
 	leancrypto_lib = leancrypto_static_lib
+endif
+
+if get_option('efi').disabled()
+	pkgconfig.generate(leancrypto_lib,
+			   description: 'PQC-resistant cryptographic library')
 endif
 
 leancrypto = declare_dependency(link_with: leancrypto_lib,
