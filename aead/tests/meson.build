@@ -122,7 +122,7 @@ if get_option('aes_cbc').enabled()
 	endif
 endif
 
-if get_option('hash_crypt').enabled()
+if get_option('hash_crypt').enabled() and get_option('ascon_keccak').enabled()
 
 	ascon_keccak_crypt_test = executable('ascon_keccak_crypt_test',
 				[ 'ascon_keccak_crypt_test.c', internal_src ],
@@ -162,11 +162,6 @@ if get_option('hash_crypt').enabled()
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto
 				)
-	ascon_crypt_wrong_algo = executable('ascon_crypt_wrong_algo',
-				[ 'ascon_crypt_wrong_algo.c', internal_src ],
-				include_directories: [ include_internal_dirs ],
-				dependencies: leancrypto
-				)
 	test('AEAD Ascon Keccak', ascon_keccak_crypt_test, suite: regression)
 	test('AEAD Ascon Keccak IUF', ascon_keccak_crypt_iuf_test, suite: regression)
 	test('AEAD Ascon Keccak 512 Accel large',
@@ -181,8 +176,6 @@ if get_option('hash_crypt').enabled()
 	test('AEAD Ascon Keccak 256 C large',
 	     ascon_keccak_crypt_large_test_256_c,
 	     timeout: 2500, is_parallel: false, suite: performance)
-	test('AEAD Ascon Error Handling', ascon_crypt_wrong_algo,
-	     suite: regression)
 endif
 
 if (get_option('hash_crypt').enabled() and get_option('ascon').enabled())
@@ -209,6 +202,11 @@ if (get_option('hash_crypt').enabled() and get_option('ascon').enabled())
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto
 				)
+	ascon_crypt_wrong_algo = executable('ascon_crypt_wrong_algo',
+				[ 'ascon_crypt_wrong_algo.c', internal_src ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto
+				)
 	test('AEAD Ascon C', ascon_crypt_test, suite: regression)
 	test('AEAD Ascon IUF C', ascon_crypt_iuf_test, suite: regression)
 	test('AEAD Ascon 128 Accel large',
@@ -217,4 +215,6 @@ if (get_option('hash_crypt').enabled() and get_option('ascon').enabled())
 	test('AEAD Ascon 128 C large',
 	     ascon_crypt_large_test_128_c,
 	     timeout: 2500, is_parallel: false, suite: performance)
+	test('AEAD Ascon Error Handling', ascon_crypt_wrong_algo,
+	     suite: regression)
 endif
