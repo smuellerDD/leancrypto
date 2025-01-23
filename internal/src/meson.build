@@ -39,21 +39,24 @@ if (get_option('dilithium_87').enabled() or
 	])
 endif
 
-if (x86_64_asm)
-	memcmp_secure_avx2 = files([ 'memcmp_secure_avx2.c' ])
-	leancrypto_memcmp_secure_avx2_lib = static_library(
-		'leancrypto_memcmp_secure_avx2_lib',
-		[ memcmp_secure_avx2 ],
-		include_directories: [
-			include_dirs,
-			include_internal_dirs
-		],
-		c_args: cc_avx2_args
-	)
-	leancrypto_support_libs_fips += leancrypto_memcmp_secure_avx2_lib
-else
-	src_fips += files([ 'memcmp_secure_c.c' ])
-endif
+# The memcmp_secure_avx2 code is disabled, because the compilation with AVX2
+# flags causes the code to SIGILL on non-AVX2 environments. Considering that
+# memcmp is not used in time critical code paths, we do not actually need
+# the performance kick from AVX2.
+# if (x86_64_asm)
+# 	memcmp_secure_avx2 = files([ 'memcmp_secure_avx2.c' ])
+# 	leancrypto_memcmp_secure_avx2_lib = static_library(
+# 		'leancrypto_memcmp_secure_avx2_lib',
+# 		[ memcmp_secure_avx2 ],
+# 		include_directories: [
+# 			include_dirs,
+# 			include_internal_dirs
+# 		],
+# 		c_args: cc_avx2_args
+# 	)
+# 	leancrypto_support_libs_fips += leancrypto_memcmp_secure_avx2_lib
+# endif
+src_fips += files([ 'memcmp_secure_c.c' ])
 
 include_files += files([
 	'../api/ext_headers.h',
