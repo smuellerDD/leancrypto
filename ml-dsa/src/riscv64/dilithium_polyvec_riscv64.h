@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2024 - 2025, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *
@@ -22,7 +22,7 @@
  *
  * The MIT license, the text of which is below, applies to PQRV in general.
  *
- * Copyright (c) 2024 Jipeng Zhang (jp-zhang@outlook.com)
+ * Copyright (c) 2024 - 2025 Jipeng Zhang (jp-zhang@outlook.com)
  * SPDX-License-Identifier: MIT
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy

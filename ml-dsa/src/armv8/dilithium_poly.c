@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 - 2024, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2023 - 2025, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *
@@ -29,7 +29,7 @@
  *
  * MIT License
  *
- * Copyright (c) 2023 - 2024: Hanno Becker, Vincent Hwang, Matthias J. Kannwischer, Bo-Yin Yang, and Shang-Yi Yang
+ * Copyright (c) 2023 - 2025: Hanno Becker, Vincent Hwang, Matthias J. Kannwischer, Bo-Yin Yang, and Shang-Yi Yang
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal

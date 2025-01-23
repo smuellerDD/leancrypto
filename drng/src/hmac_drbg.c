@@ -1,6 +1,6 @@
 /* SP800-90A HMAC DRBG generic code
  *
- * Copyright Stephan Mueller <smueller@chronox.de>, 2022 - 2024
+ * Copyright Stephan Mueller <smueller@chronox.de>, 2022 - 2025
  *
  * License: see LICENSE file in root directory
  *

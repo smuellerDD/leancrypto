@@ -1,4 +1,4 @@
-Copyright (C) 2022 - 2024, Stephan Mueller <smueller@chronox.de>
+Copyright (C) 2022 - 2025, Stephan Mueller <smueller@chronox.de>
 
 See LICENSE.* for the applicable license.
 
@@ -185,7 +185,7 @@ signature/src/armv7/dilithium_ntt_consts.h
 The following files are licensed under the ISC license. The original files are
 obtained from https://github.com/jedisct1/libsodium.git
 
-Copyright (c) 2013-2024
+Copyright (c) 2013-2025
 Frank Denis <j at pureftpd dot org>
 
 curve25519/src/ed25519.c
@@ -384,7 +384,7 @@ ml-dsa/src/riscv64/ntt_rvv.S
 
 The MIT license, the text of which is below, applies to PQRV in general.
 
-Copyright (c) 2024 Jipeng Zhang (jp-zhang@outlook.com)
+Copyright (c) 2025 Jipeng Zhang (jp-zhang@outlook.com)
 SPDX-License-Identifier: MIT
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

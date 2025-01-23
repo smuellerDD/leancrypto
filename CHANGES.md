@@ -1,4 +1,4 @@
-Changes 1.2.0
+Changes 1.2.0-prerelease
 * Locking für seeded_rng added to avoid requiring the caller providing a lock
 
 * Addition of ASN.1 decoder, X.509 parser, PKCS#7 / CMS parser

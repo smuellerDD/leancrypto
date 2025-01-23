@@ -1,6 +1,6 @@
 /* Feedback-Mode KDF - SP800-108
  *
- * Copyright (C) 2016 - 2024, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2016 - 2025, Stephan Mueller <smueller@chronox.de>
  *
  * License: see COPYING file in root directory
  *

@@ -1,6 +1,6 @@
 /* Ascon-128 and Ascon-128a specific code
  *
- * Copyright (C) 2024, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2024 - 2025, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *

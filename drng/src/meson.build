@@ -75,6 +75,7 @@ endif
 if (lc_rng_header == 1)
 	include_files += files([ '../api/lc_rng.h' ])
 	src_fips += files([ 'rng_api.c' ])
+	src += files([ 'rng_api_non_fips.c' ])
 endif
 
 if (seeded_rng == 1)

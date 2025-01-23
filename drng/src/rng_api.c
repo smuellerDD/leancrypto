@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2024, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2022 - 2025, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *
@@ -86,13 +86,3 @@ LC_INTERFACE_FUNCTION(int, lc_rng_seed, struct lc_rng_ctx *ctx,
 	return rng->seed(rng_state, seed, seedlen, persbuf, perslen);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_rng_set_seeded, struct lc_rng_ctx *new_ctx)
-{
-	if (!new_ctx)
-		return -EINVAL;
-
-	mb();
-	lc_seeded_rng = new_ctx;
-	mb();
-	return 0;
-}
