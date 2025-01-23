@@ -134,6 +134,25 @@ int lc_rng_generate(struct lc_rng_ctx *ctx, const uint8_t *addtl_input,
 int lc_rng_seed(struct lc_rng_ctx *ctx, const uint8_t *seed, size_t seedlen,
 		const uint8_t *persbuf, size_t perslen);
 
+/**
+ * @ingroup RNGs
+ * @brief Set an externally defined RNG as the seeded RNG
+ *
+ * This call can be performed at any time and any subsequent operation
+ * of the leancrypto library service function will use this RNG when drawing
+ * new random numbers.
+ *
+ * \note Leancrypto expects the externally defined RNG instance to be fully
+ * seeded at all times. The external RNG is responsible for its initialization,
+ * initial seed, and reseed. Also, that RNG is responsible for selecting and
+ * managing the entropy source(s).
+ *
+ * @param [in] ctx externally defined RNG cipher handle
+ *
+ * @return 0 upon success; < 0 on error
+ */
+int lc_rng_set_seeded(struct lc_rng_ctx *new_ctx);
+
 #ifdef __cplusplus
 }
 #endif

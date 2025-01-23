@@ -35,6 +35,9 @@ static int seeded_rng_selftest(void)
 	CKINT_LOG(lc_rng_generate(lc_seeded_rng, NULL, 0, act1, sizeof(act1)),
 		  "Cannot generate random numbers using seeded DRNG: %d\n",
 		  ret);
+
+	CKINT_LOG(lc_rng_set_seeded(lc_seeded_rng), "Cannot set seeded RNG\n");
+
 	CKINT_LOG(lc_rng_generate(lc_seeded_rng, NULL, 0, act2, sizeof(act2)),
 		  "Cannot generate random numbers using seeded DRNG: %d\n",
 		  ret);

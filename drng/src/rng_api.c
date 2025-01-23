@@ -17,6 +17,7 @@
  * DAMAGE.
  */
 
+#include "atomic.h"
 #include "lc_memory_support.h"
 #include "lc_rng.h"
 #include "visibility.h"
@@ -83,4 +84,15 @@ LC_INTERFACE_FUNCTION(int, lc_rng_seed, struct lc_rng_ctx *ctx,
 	rng_state = ctx->rng_state;
 
 	return rng->seed(rng_state, seed, seedlen, persbuf, perslen);
+}
+
+LC_INTERFACE_FUNCTION(int, lc_rng_set_seeded, struct lc_rng_ctx *new_ctx)
+{
+	if (!new_ctx)
+		return -EINVAL;
+
+	mb();
+	lc_seeded_rng = new_ctx;
+	mb();
+	return 0;
 }
