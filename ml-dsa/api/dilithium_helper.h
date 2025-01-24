@@ -26,6 +26,8 @@
 extern "C" {
 #endif
 
+#ifdef LC_DILITHIUM_ED25519_SIG
+
 int lc_dilithium_ed25519_sig_load_partial(struct lc_dilithium_ed25519_sig *sig,
 					  const uint8_t *dilithium_src_sig,
 					  size_t dilithium_src_sig_len,
@@ -43,6 +45,7 @@ int lc_dilithium_ed25519_sk_load_partial(struct lc_dilithium_ed25519_sk *sk,
 					 size_t dilithium_src_key_len,
 					 const uint8_t *ed25519_src_key,
 					 size_t ed25519_src_key_len);
+#endif
 
 #ifdef __cplusplus
 }
