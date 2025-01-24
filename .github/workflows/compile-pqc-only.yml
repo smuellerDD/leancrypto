@@ -1,0 +1,25 @@
+name: Compile PQC Only
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install meson
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y meson
+    - name: Meson setup
+      run: meson setup build -Dascon=disabled -Dascon_keccak=disabled -Dbike_5=disabled -Dbike_3=disabled -Dbike_1=disabled -Dkyber_x25519=disabled -Ddilithium_ed25519=disabled -Dx509_parser=disabled -Dx509_generator=disabled -Dpkcs7_parser=disabled -Dpkcs7_generator=disabled -Dsha2-256=disabled -Dsha2-512=disabled -Dchacha20=disabled -Dchacha20_drng=disabled -Ddrbg_hash=disabled -Ddrbg_hmac=disabled -Dhash_crypt=disabled -Dhmac=disabled -Dhkdf=disabled -Dkdf_ctr=disabled -Dkdf_fb=disabled -Dkdf_dpi=disabled -Dpbkdf2=disabled -Dkmac_drng=disabled -Dcshake_drng=disabled -Dhotp=disabled -Dtotp=disabled -Daes_block=disabled -Daes_cbc=disabled -Daes_ctr=disabled -Daes_kw=disabled -Dapps=disabled
+    - name: Meson compile
+      run: meson compile -C build
+    - name: Meson test
+      run: meson test -C build --suite=regression
