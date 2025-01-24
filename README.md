@@ -44,7 +44,8 @@ ASAN Address Check    | GitHub                | [![Build Status ASAN Address](ht
 Codacy Scan           | GitHub                | [![Codacy](https://github.com/smuellerDD/leancrypto/actions/workflows/codacy.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/codacy.yml)
 Windows User Space    | GitHub                | [![Windows user space CI](https://github.com/smuellerDD/leancrypto/actions/workflows/windows-test.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/windows-test.yml)
 Side-Channel Analysis | GitHub                | [![Side-Channels](https://github.com/smuellerDD/leancrypto/actions/workflows/timecop.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/timecop.yml)
-Static Code Analysis | GitHub                | [![Static Code Analysis](https://github.com/smuellerDD/leancrypto/actions/workflows/clang-scan.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/clang-scan.yml)
+Static Code Analysis  | GitHub                | [![Static Code Analysis](https://github.com/smuellerDD/leancrypto/actions/workflows/clang-scan.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/clang-scan.yml)
+Compile PQC only      | GitHub                | [![PQC Only](https://github.com/smuellerDD/leancrypto/actions/workflows/compile-pqc-only.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/compile-pqc-only.yml)
 
 ## Library Build
 
