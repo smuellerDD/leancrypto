@@ -110,9 +110,10 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 #ifdef LC_CURVE25519
 		 "Curve25519 Acceleration support: %s%s%s\n"
 #endif
-		 , fips140
+		 ,
+		 fips140
 
-		 /* AES */
+	/* AES */
 #ifdef LC_AES
 		 ,
 		 (lc_aes_cbc_aesni && lc_aes_cbc_aesni != lc_aes_cbc_c) ?
@@ -126,7 +127,7 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 			 ""
 #endif
 
-		 /* SHA2-256 */
+	/* SHA2-256 */
 #ifdef LC_SHA2_256
 		 ,
 		 (lc_sha256_shani && lc_sha256_shani != lc_sha256_c) ?
@@ -148,7 +149,7 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 			 ""
 #endif
 
-		 /* SHA2-512 */
+	/* SHA2-512 */
 #ifdef LC_SHA2_512
 		 ,
 		 (lc_sha512_shani && lc_sha512_shani != lc_sha512_c) ?
@@ -170,7 +171,7 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 			 ""
 #endif
 
-		 /* SHA3 */
+	/* SHA3 */
 #ifdef LC_SHA3
 		 ,
 		 (lc_sha3_256_avx512 && lc_sha3_256_avx512 != lc_sha3_256_c) ?
@@ -199,7 +200,7 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 			 ""
 #endif
 
-		 /* Kyber */
+	/* Kyber */
 #ifdef LC_KYBER
 		 ,
 		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
@@ -208,7 +209,7 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 		 armv7, armv8, riscv64
 #endif
 
-		 /* Dilithium */
+	/* Dilithium */
 #ifdef LC_DILITHIUM
 		 ,
 		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
@@ -220,10 +221,10 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 			 ""
 #endif
 
-		 /* Curve25519 */
+	/* Curve25519 */
 #ifdef LC_CURVE25519
 		 ,
 		 avx, armv7, armv8
 #endif
-		 );
+	);
 }
