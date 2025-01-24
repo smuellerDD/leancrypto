@@ -34,6 +34,7 @@
 #include "lc_hash.h"
 #include "lc_rng.h"
 #include "lc_sha3.h"
+#include "lc_sha512.h"
 
 #endif /* __ASSEMBLER__ */
 
@@ -652,7 +653,6 @@ int @dilithium_name@_verify_final(const struct @dilithium_name@_sig *sig,
 #ifdef LC_DILITHIUM_ED25519_SIG
 
 #include "lc_ed25519.h"
-#include "lc_sha512.h"
 
 /**
  * @brief Dilithium secret key
