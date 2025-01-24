@@ -85,4 +85,3 @@ LC_INTERFACE_FUNCTION(int, lc_rng_seed, struct lc_rng_ctx *ctx,
 
 	return rng->seed(rng_state, seed, seedlen, persbuf, perslen);
 }
-

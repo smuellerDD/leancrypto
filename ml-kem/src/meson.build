@@ -18,7 +18,6 @@ endif
 
 # Files which are compiled for each Kyber implementation separately
 kyber_c = files([
-	'kyber_ies.c',
 	'kyber_kem.c',
 	'kyber_kem_c.c',
 	'kyber_kex.c',
@@ -28,16 +27,26 @@ kyber_c = files([
 	'kyber_selftest.c',
 	'kyber_selftest_kdf.c',
 ])
+if (aead_support_enabled == 1)
+	kyber_c += files ([
+		'kyber_ies.c',
+	])
+endif
 if get_option('kyber_debug').enabled()
 	kyber_c += files ([ 'kyber_debug.c', ])
 endif
 
 if get_option('kyber_x25519').enabled()
 	kyber_c += files ([
-		'kyber_x25519_ies.c',
 		'kyber_x25519_kem.c',
 		'kyber_x25519_kex.c',
 	])
+
+	if (aead_support_enabled == 1)
+		kyber_c += files ([
+			'kyber_x25519_ies.c',
+		])
+	endif
 endif
 
 if (x86_64_asm)

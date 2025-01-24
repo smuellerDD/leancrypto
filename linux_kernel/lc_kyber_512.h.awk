@@ -4,8 +4,9 @@
  gsub("@kex_name@", "lc_kex_512", $0) ;
  gsub("@kyber_header@", "512_", $0) ;
 
- # Define LC_KYBER_X25519_KEM
- # Comment out if CONFIG_LEANCRYPTO_KEM_X25519 is unset
+ # Define LC_KYBER_X25519_KEM and LC_KYBER_IES
+ # Comment out if CONFIG_LEANCRYPTO_KEM_X25519 or if all AEAD algorithms
+ # are unset
  gsub("mesondefine", "define", $0) ;
 
  print $0}

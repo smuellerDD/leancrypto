@@ -738,6 +738,8 @@ int lc_kex_ake_initiator_ss(uint8_t *shared_secret, size_t shared_secret_len,
 
 /************************************* IES ************************************/
 
+#ifdef LC_KYBER_IES
+
 /** @defgroup KyberIES ML-KEM / CRYSTALS-Kyber used in Integrated Encryption Schema
  *
  * Kyber Integrated Encryption Schema
@@ -966,6 +968,8 @@ int lc_kyber_ies_dec_update(struct lc_aead_ctx *aead, const uint8_t *ciphertext,
  */
 int lc_kyber_ies_dec_final(struct lc_aead_ctx *aead, const uint8_t *tag,
 			   size_t taglen);
+
+#endif /* LC_KYBER_IES */
 
 /****************************** Kyber X25510 KEM ******************************/
 
@@ -1473,6 +1477,9 @@ int lc_kex_x25519_ake_initiator_ss(uint8_t *shared_secret,
 				   const struct lc_kyber_x25519_sk *sk_i);
 
 /****************************** Kyber X25519 IES ******************************/
+
+#ifdef LC_KYBER_IES
+
 /**
  * @ingroup HybridKyber
  * @brief KyberIES encryption oneshot
@@ -1699,7 +1706,9 @@ int lc_kyber_x25519_ies_dec_update(struct lc_aead_ctx *aead,
 int lc_kyber_x25519_ies_dec_final(struct lc_aead_ctx *aead, const uint8_t *tag,
 				  size_t taglen);
 
-#endif
+#endif /* LC_KYBER_IES */
+
+#endif /* LC_KYBER_X25519_KEM */
 
 #ifdef __cplusplus
 }

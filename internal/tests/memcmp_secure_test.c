@@ -31,21 +31,14 @@ static int memcmp_secure_tester(void)
 	struct workspace {
 		uint8_t a[65536], b[65536];
 	};
-	LC_DRBG_HASH_CTX_ON_STACK(drbg);
 	uint8_t *ap, *bp;
-	time64_t now;
 	unsigned int i;
 	int ret = 1;
 	unsigned short rnd = 0, add = 0;
 	LC_DECLARE_MEM(ws, struct workspace, 32);
 
-	CKINT(lc_get_time(&now));
-
-	if (lc_rng_seed(drbg, (uint8_t *)&now, sizeof(now), NULL, 0))
-		return 1;
-
 	for (i = 0; i < 1000; i++) {
-		if (lc_rng_generate(drbg, NULL, 0, (uint8_t *)&rnd,
+		if (lc_rng_generate(lc_seeded_rng, NULL, 0, (uint8_t *)&rnd,
 				    sizeof(rnd)) < 0) {
 			printf("error in generating random number\n");
 			goto out;
@@ -62,10 +55,10 @@ static int memcmp_secure_tester(void)
 		ap = ws->a + add;
 		bp = ws->b + add;
 
-		if (lc_rng_generate(drbg, NULL, 0, ap, rnd) < 0)
+		if (lc_rng_generate(lc_seeded_rng, NULL, 0, ap, rnd) < 0)
 			goto out;
 
-		if (lc_rng_generate(drbg, NULL, 0, bp, rnd) < 0)
+		if (lc_rng_generate(lc_seeded_rng, NULL, 0, bp, rnd) < 0)
 			goto out;
 
 		if (lc_memcmp_secure(ap, rnd, ap, rnd)) {
@@ -99,7 +92,6 @@ static int memcmp_secure_tester(void)
 	ret = 0;
 
 out:
-	lc_rng_zero(drbg);
 	LC_RELEASE_MEM(ws);
 	return ret;
 }

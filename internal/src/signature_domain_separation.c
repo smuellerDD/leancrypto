@@ -24,32 +24,40 @@
 #include "ret_checkers.h"
 
 /* RFC4055 2.16.840.1.101.3.4.2.1 */
-static const uint8_t sha256_oid_der[] = { 0x06, 0x09, 0x60, 0x86, 0x48, 0x01,
-					  0x65, 0x03, 0x04, 0x02, 0x01 };
+static const uint8_t sha256_oid_der[] __maybe_unused = { 0x06, 0x09, 0x60, 0x86,
+							 0x48, 0x01, 0x65, 0x03,
+							 0x04, 0x02, 0x01 };
 /* RFC4055 2.16.840.1.101.3.4.2.2 */
-static const uint8_t sha384_oid_der[] = { 0x06, 0x09, 0x60, 0x86, 0x48, 0x01,
-					  0x65, 0x03, 0x04, 0x02, 0x02 };
+static const uint8_t sha384_oid_der[] __maybe_unused = { 0x06, 0x09, 0x60, 0x86,
+							 0x48, 0x01, 0x65, 0x03,
+							 0x04, 0x02, 0x02 };
 /* RFC4055 2.16.840.1.101.3.4.2.3 */
-static const uint8_t sha512_oid_der[] = { 0x06, 0x09, 0x60, 0x86, 0x48, 0x01,
-					  0x65, 0x03, 0x04, 0x02, 0x03 };
+static const uint8_t sha512_oid_der[] __maybe_unused = { 0x06, 0x09, 0x60, 0x86,
+							 0x48, 0x01, 0x65, 0x03,
+							 0x04, 0x02, 0x03 };
 
 /*
  *https://csrc.nist.gov/projects/computer-security-objects-register/algorithm-registration
  */
-static const uint8_t sha3_256_oid_der[] = { 0x06, 0x09, 0x60, 0x86, 0x48, 0x01,
-					    0x65, 0x03, 0x04, 0x02, 0x08 };
-static const uint8_t sha3_384_oid_der[] = { 0x06, 0x09, 0x60, 0x86, 0x48, 0x01,
-					    0x65, 0x03, 0x04, 0x02, 0x09 };
-static const uint8_t sha3_512_oid_der[] = { 0x06, 0x09, 0x60, 0x86, 0x48, 0x01,
-					    0x65, 0x03, 0x04, 0x02, 0x0a };
+static const uint8_t sha3_256_oid_der[] __maybe_unused = {
+	0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x08
+};
+static const uint8_t sha3_384_oid_der[] __maybe_unused = {
+	0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x09
+};
+static const uint8_t sha3_512_oid_der[] __maybe_unused = {
+	0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x0a
+};
 
 /* RFC8692 2.16.840.1.101.3.4.2.11 */
-static const uint8_t shake128_oid_der[] = { 0x06, 0x09, 0x60, 0x86, 0x48, 0x01,
-					    0x65, 0x03, 0x04, 0x02, 0x0B };
+static const uint8_t shake128_oid_der[] __maybe_unused = {
+	0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x0B
+};
 
 /* RFC8692 2.16.840.1.101.3.4.2.11 */
-static const uint8_t shake256_oid_der[] = { 0x06, 0x09, 0x60, 0x86, 0x48, 0x01,
-					    0x65, 0x03, 0x04, 0x02, 0x0C };
+static const uint8_t shake256_oid_der[] __maybe_unused = {
+	0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x0C
+};
 
 /* OIDs from https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-03.html */
 /* id-HashMLDSA44-Ed25519-SHA512 */
@@ -96,19 +104,24 @@ int signature_ph_oids(struct lc_hash_ctx *hash_ctx,
 
 	switch (nist_category) {
 	case 1:
+#ifdef LC_SHA2_256
 		if (signature_prehash_type == lc_sha256) {
 			// if (mlen != LC_SHA256_SIZE_DIGEST)
 			// 	return -EOPNOTSUPP;
 			lc_hash_update(hash_ctx, sha256_oid_der,
 				       sizeof(sha256_oid_der));
 			return 0;
-		} else if (signature_prehash_type == lc_sha3_256) {
+		}
+#endif
+#ifdef LC_SHA3
+		if (signature_prehash_type == lc_sha3_256) {
 			// if (mlen != LC_SHA3_256_SIZE_DIGEST)
 			// 	return -EOPNOTSUPP;
 			lc_hash_update(hash_ctx, sha3_256_oid_der,
 				       sizeof(sha3_256_oid_der));
 			return 0;
-		} else if (signature_prehash_type == lc_shake128) {
+		}
+		if (signature_prehash_type == lc_shake128) {
 			/* FIPS 204 section 5.4.1 */
 			// if (mlen != 32)
 			// 	return -EOPNOTSUPP;
@@ -116,9 +129,11 @@ int signature_ph_oids(struct lc_hash_ctx *hash_ctx,
 				       sizeof(shake128_oid_der));
 			return 0;
 		}
+#endif
 		/* FALLTHROUGH - Dilithium44 allows the following, too */
 		fallthrough;
 	case 3:
+#ifdef LC_SHA3
 		if (signature_prehash_type == lc_sha3_384) {
 			// if (mlen != LC_SHA3_384_SIZE_DIGEST)
 			// 	return -EOPNOTSUPP;
@@ -126,6 +141,8 @@ int signature_ph_oids(struct lc_hash_ctx *hash_ctx,
 				       sizeof(sha3_384_oid_der));
 			return 0;
 		}
+#endif
+#ifdef LC_SHA2_512
 		if (signature_prehash_type == lc_sha384) {
 			// if (mlen != LC_SHA384_SIZE_DIGEST)
 			// 	return -EOPNOTSUPP;
@@ -133,16 +150,21 @@ int signature_ph_oids(struct lc_hash_ctx *hash_ctx,
 				       sizeof(sha384_oid_der));
 			return 0;
 		}
+#endif
 		/* FALLTHROUGH - Dilithium[44|65] allows the following, too  */
 		fallthrough;
 	case 5:
+#ifdef LC_SHA2_512
 		if (signature_prehash_type == lc_sha512) {
 			// if (mlen != LC_SHA512_SIZE_DIGEST)
 			// 	return -EOPNOTSUPP;
 			lc_hash_update(hash_ctx, sha512_oid_der,
 				       sizeof(sha512_oid_der));
 			return 0;
-		} else if (signature_prehash_type == lc_sha3_512) {
+		}
+#endif
+#ifdef LC_SHA3
+		if (signature_prehash_type == lc_sha3_512) {
 			// if (mlen != LC_SHA3_512_SIZE_DIGEST)
 			// 	return -EOPNOTSUPP;
 			lc_hash_update(hash_ctx, sha3_512_oid_der,
@@ -162,6 +184,7 @@ int signature_ph_oids(struct lc_hash_ctx *hash_ctx,
 				       sizeof(shake256_oid_der));
 			return 0;
 		}
+#endif
 		break;
 	default:
 		break;

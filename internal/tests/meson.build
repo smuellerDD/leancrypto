@@ -42,9 +42,11 @@ if get_option('sha3').enabled() and get_option('enable_selftests').enabled()
 	test('Rerun selftests', rerun_selftests_tester, suite: regression)
 endif
 
-if (get_option('dilithium_87').enabled() or
-    get_option('dilithium_65').enabled() or
-    get_option('dilithium_44').enabled())
+if ((get_option('dilithium_87').enabled() or
+     get_option('dilithium_65').enabled() or
+     get_option('dilithium_44').enabled()) and
+    (get_option('sha2-256').enabled() and
+     get_option('sha2-512').enabled()))
 	tester_kat = executable('tester_kat',
 			[ 'tester_kat.c', internal_src ],
 			include_directories: [

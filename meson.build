@@ -164,6 +164,17 @@ if (get_option('aes_cbc').enabled() or
 	add_global_arguments([ '-DLC_AES' ], language: 'c')
 endif
 
+# Determine if AEAD support is enabled
+aead_support_enabled = 0
+if (get_option('hash_crypt').enabled() or
+    get_option('ascon').enabled() or
+    get_option('ascon_keccak').enabled() or
+    ((get_option('aes_cbc').enabled() or get_option('aes_ctr').enabled()) and
+     (get_option('sha2-512').enabled() or get_option('kmac').enabled())))
+	add_global_arguments([ '-DLC_AEAD' ], language: 'c')
+	aead_support_enabled = 1
+endif
+
 # Versioning information
 version_array = meson.project_version().split('.')
 add_global_arguments(['-DMAJVERSION=' + version_array[0],

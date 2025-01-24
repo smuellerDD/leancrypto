@@ -63,6 +63,7 @@ int lc_kex_ake_responder_ss_internal(
 	const struct lc_kyber_sk *sk_i, const struct lc_kyber_pk *pk_r,
 	struct lc_rng_ctx *rng_ctx);
 
+#ifdef LC_KYBER_IES
 int lc_kyber_ies_enc_internal(const struct lc_kyber_pk *pk,
 			      struct lc_kyber_ct *ct, const uint8_t *plaintext,
 			      uint8_t *ciphertext, size_t datalen,
@@ -74,6 +75,7 @@ int lc_kyber_ies_enc_init_internal(struct lc_aead_ctx *aead,
 				   const struct lc_kyber_pk *pk,
 				   struct lc_kyber_ct *ct, const uint8_t *aad,
 				   size_t aadlen, struct lc_rng_ctx *rng_ctx);
+#endif /* LC_KYBER_IES */
 
 #ifdef __cplusplus
 }

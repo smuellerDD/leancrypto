@@ -30,7 +30,6 @@
 #ifndef __ASSEMBLER__
 
 #include "ext_headers.h"
-#include "lc_aead.h"
 #include "lc_rng.h"
 
 #endif /* __ASSEMBLER__ */
@@ -533,6 +532,11 @@ int @kex_name@_ake_initiator_ss(uint8_t *shared_secret, size_t shared_secret_len
 			    const struct @kyber_name@_sk *sk_i);
 
 /************************************* IES ************************************/
+/* Macro set during leancrypto compile time for target platform */
+#mesondefine LC_KYBER_IES
+#ifdef LC_KYBER_IES
+
+#include "lc_aead.h"
 
 /**
  * @brief lc_kyber_ies_enc - KyberIES encryption oneshot
@@ -765,6 +769,8 @@ static inline int @kyber_name@_ies_dec_final(struct lc_aead_ctx *aead,
 {
 	return lc_aead_dec_final(aead, tag, taglen);
 }
+
+#endif /* LC_KYBER_IES */
 
 /****************************** Kyber X25510 KEM ******************************/
 
@@ -1036,6 +1042,9 @@ int @kex_name@_x25519_ake_initiator_ss(uint8_t *shared_secret,
 				   const struct @kyber_name@_x25519_sk *sk_i);
 
 /****************************** Kyber X25519 IES ******************************/
+
+#ifdef LC_KYBER_IES
+
 /**
  * @brief lc_kyber_x25519_ies_enc - KyberIES encryption oneshot
  *
@@ -1274,6 +1283,8 @@ static inline int @kyber_name@_x25519_ies_dec_final(struct lc_aead_ctx *aead,
 {
 	return lc_aead_dec_final(aead, tag, taglen);
 }
+
+#endif /* LC_KYBER_IES */
 
 #endif /* LC_KYBER_X25519_KEM */
 

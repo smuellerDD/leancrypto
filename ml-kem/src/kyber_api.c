@@ -987,6 +987,8 @@ LC_INTERFACE_FUNCTION(int, lc_kex_ake_initiator_ss, uint8_t *shared_secret,
 
 /************************************* IES ************************************/
 
+#ifdef LC_KYBER_IES
+
 LC_INTERFACE_FUNCTION(int, lc_kyber_ies_enc, const struct lc_kyber_pk *pk,
 		      struct lc_kyber_ct *ct, const uint8_t *plaintext,
 		      uint8_t *ciphertext, size_t datalen, const uint8_t *aad,
@@ -1170,6 +1172,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_ies_dec_final, struct lc_aead_ctx *aead,
 	return lc_aead_dec_final(aead, tag, taglen);
 }
 
+#endif /* LC_KYBER_IES */
 /****************************** Kyber X25510 KEM ******************************/
 
 #ifdef LC_KYBER_X25519_KEM
@@ -2091,6 +2094,8 @@ LC_INTERFACE_FUNCTION(int, lc_kex_x25519_ake_initiator_ss,
 
 /****************************** Kyber X25519 IES ******************************/
 
+#ifdef LC_KYBER_IES
+
 LC_INTERFACE_FUNCTION(int, lc_kyber_x25519_ies_enc,
 		      const struct lc_kyber_x25519_pk *pk,
 		      struct lc_kyber_x25519_ct *ct, const uint8_t *plaintext,
@@ -2285,5 +2290,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x25519_ies_dec_final,
 {
 	return lc_aead_dec_final(aead, tag, taglen);
 }
+
+#endif /* LC_KYBER_IES */
 
 #endif /* LC_KYBER_X25519_KEM */
