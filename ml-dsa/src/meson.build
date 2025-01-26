@@ -30,20 +30,24 @@ if get_option('dilithium_ed25519').enabled()
 endif
 
 dilithium_api_c = 0
-if (x86_64_asm)
-	subdir('avx2')
-elif (arm64_asm)
-	subdir('armv8')
-# 32 bit ARM processor and GCC
-elif (arm32_neon_asm)
-	subdir('armv7')
-elif (riscv64_asm)
-	subdir('riscv64')
-else
-	dilithium_api_c = 1
-	dilithium_c += files([
-		'dilithium_signature_api_c.c'
-	])
+if (get_option('dilithium_87').enabled() or
+    get_option('dilithium_65').enabled() or
+    get_option('dilithium_44').enabled())
+	if (x86_64_asm)
+		subdir('avx2')
+	elif (arm64_asm)
+		subdir('armv8')
+	# 32 bit ARM processor and GCC
+	elif (arm32_neon_asm)
+		subdir('armv7')
+	elif (riscv64_asm)
+		subdir('riscv64')
+	else
+		dilithium_api_c = 1
+		dilithium_c += files([
+			'dilithium_signature_api_c.c'
+		])
+	endif
 endif
 
 if get_option('dilithium_87').enabled()
