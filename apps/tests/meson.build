@@ -182,61 +182,92 @@ if (host_machine.system() != 'windows' and
 	endif
 
 	if get_option('x509_generator').enabled()
-		test('X.509 Gen Root-CA ML-DSA87',
-		     lc_x509_generator,
-		     args: [ x509_rootca_args, '--create-keypair', 'ML-DSA87' ],
-		     timeout: 300, suite: regression)
-		test('X.509 Gen Root-CA ML-DSA65',
-		     lc_x509_generator,
-		     args: [ x509_rootca_args, '--create-keypair', 'ML-DSA65' ],
-		     timeout: 300, suite: regression)
-		test('X.509 Gen Root-CA ML-DSA44',
-		     lc_x509_generator,
-		     args: [ x509_rootca_args, '--create-keypair', 'ML-DSA44' ],
-		     timeout: 300, suite: regression)
+		if (get_option('dilithium_87').enabled() or
+		    get_option('dilithium_65').enabled() or
+		    get_option('dilithium_44').enabled())
+			test('X.509 Gen Root-CA ML-DSA87',
+				lc_x509_generator,
+				args: [ x509_rootca_args, '--create-keypair',
+					'ML-DSA87' ],
+				timeout: 300, suite: regression)
+			test('X.509 Gen Root-CA ML-DSA65',
+				lc_x509_generator,
+				args: [ x509_rootca_args, '--create-keypair',
+					'ML-DSA65' ],
+				timeout: 300, suite: regression)
+			test('X.509 Gen Root-CA ML-DSA44',
+				lc_x509_generator,
+				args: [ x509_rootca_args, '--create-keypair',
+					'ML-DSA44' ],
+				timeout: 300, suite: regression)
 
-		test('X.509 Gen Root-CA SLH-DSA-SHAKE-256S',
-		     lc_x509_generator,
-		     args: [ x509_rootca_args, '--create-keypair', 'SLH-DSA-SHAKE-256S' ],
-		     is_parallel: false, timeout: 600, suite: regression)
-		test('X.509 Gen Root-CA SLH-DSA-SHAKE-256F',
-		     lc_x509_generator,
-		     args: [ x509_rootca_args, '--create-keypair', 'SLH-DSA-SHAKE-256F' ],
-		     is_parallel: false, timeout: 600, suite: regression)
-		test('X.509 Gen Root-CA SLH-DSA-SHAKE-192S',
-		     lc_x509_generator,
-		     args: [ x509_rootca_args, '--create-keypair', 'SLH-DSA-SHAKE-192S' ],
-		     is_parallel: false, timeout: 600, suite: regression)
-		test('X.509 Gen Root-CA SLH-DSA-SHAKE-192F',
-		     lc_x509_generator,
-		     args: [ x509_rootca_args, '--create-keypair', 'SLH-DSA-SHAKE-192F' ],
-		     is_parallel: false, timeout: 600, suite: regression)
-		test('X.509 Gen Root-CA SLH-DSA-SHAKE-128S',
-		     lc_x509_generator,
-		     args: [ x509_rootca_args, '--create-keypair', 'SLH-DSA-SHAKE-128S' ],
-		     is_parallel: false, timeout: 600, suite: regression)
-		test('X.509 Gen Root-CA SLH-DSA-SHAKE-128F',
-		     lc_x509_generator,
-		     args: [ x509_rootca_args, '--create-keypair', 'SLH-DSA-SHAKE-128F' ],
-		     is_parallel: false, timeout: 600, suite: regression)
+			test('X.509 Gen Int-CA ML-DSA87',
+				lc_x509_generator,
+				args: [ x509_int1_ca_args, '--create-keypair',
+					'ML-DSA87' ],
+				timeout: 300, suite: regression)
+			test('X.509 Gen Leaf ML-DSA87',
+				lc_x509_generator,
+				args: [ x509_leaf_args, '--create-keypair',
+					'ML-DSA87' ],
+				timeout: 300, suite: regression)
+		endif
 
-		test('X.509 Gen Root-CA ML-DSA65-ED25519',
-		     lc_x509_generator,
-		     args: [ x509_rootca_args, '--create-keypair', 'ML-DSA65-ED25519' ],
-		     timeout: 300, suite: regression)
-		test('X.509 Gen Root-CA ML-DSA44-ED25519',
-		     lc_x509_generator,
-		     args: [ x509_rootca_args, '--create-keypair', 'ML-DSA44-ED25519' ],
-		     timeout: 300, suite: regression)
+		if (get_option('sphincs_shake_256s').enabled() or
+		    get_option('sphincs_shake_256f').enabled() or
+		    get_option('sphincs_shake_192s').enabled() or
+		    get_option('sphincs_shake_192f').enabled() or
+		    get_option('sphincs_shake_128s').enabled() or
+		    get_option('sphincs_shake_128f').enabled())
+			test('X.509 Gen Root-CA SLH-DSA-SHAKE-256S',
+				lc_x509_generator,
+				args: [ x509_rootca_args, '--create-keypair',
+					'SLH-DSA-SHAKE-256S' ],
+			is_parallel: false, timeout: 600, suite: regression)
+			test('X.509 Gen Root-CA SLH-DSA-SHAKE-256F',
+				lc_x509_generator,
+				args: [ x509_rootca_args, '--create-keypair',
+					'SLH-DSA-SHAKE-256F' ],
+				is_parallel: false, timeout: 600,
+				suite: regression)
+			test('X.509 Gen Root-CA SLH-DSA-SHAKE-192S',
+				lc_x509_generator,
+				args: [ x509_rootca_args, '--create-keypair',
+				'SLH-DSA-SHAKE-192S' ],
+				is_parallel: false, timeout: 600,
+				suite: regression)
+			test('X.509 Gen Root-CA SLH-DSA-SHAKE-192F',
+				lc_x509_generator,
+				args: [ x509_rootca_args, '--create-keypair',
+				'SLH-DSA-SHAKE-192F' ],
+				is_parallel: false, timeout: 600,
+				suite: regression)
+			test('X.509 Gen Root-CA SLH-DSA-SHAKE-128S',
+				lc_x509_generator,
+				args: [ x509_rootca_args, '--create-keypair',
+					'SLH-DSA-SHAKE-128S' ],
+				is_parallel: false, timeout: 600,
+				suite: regression)
+			test('X.509 Gen Root-CA SLH-DSA-SHAKE-128F',
+				lc_x509_generator,
+				args: [ x509_rootca_args, '--create-keypair',
+					'SLH-DSA-SHAKE-128F' ],
+				is_parallel: false, timeout: 600,
+				suite: regression)
+		endif
 
-		test('X.509 Gen Int-CA ML-DSA87',
-		     lc_x509_generator,
-		     args: [ x509_int1_ca_args, '--create-keypair', 'ML-DSA87' ],
-		     timeout: 300, suite: regression)
-		test('X.509 Gen Leaf ML-DSA87',
-		     lc_x509_generator,
-		     args: [ x509_leaf_args, '--create-keypair', 'ML-DSA87' ],
-		     timeout: 300, suite: regression)
+		if get_option('dilithium_ed25519').enabled()
+			test('X.509 Gen Root-CA ML-DSA65-ED25519',
+				lc_x509_generator,
+				args: [ x509_rootca_args, '--create-keypair',
+					'ML-DSA65-ED25519' ],
+				timeout: 300, suite: regression)
+			test('X.509 Gen Root-CA ML-DSA44-ED25519',
+				lc_x509_generator,
+				args: [ x509_rootca_args, '--create-keypair',
+					'ML-DSA44-ED25519' ],
+				timeout: 300, suite: regression)
+		endif
 
 		x509_parser_test_script = find_program('leancrypto_check_with_ietf.sh',
 						       required: true)
@@ -331,42 +362,44 @@ if (host_machine.system() != 'windows' and
 
 		# Generate the PKCS#7 message, verify it and check the key usage
 		# and EKU of the signer
-		test('PKCS7 Gen with ML-DSA-ED25519 4-way cert chain',
-		     lc_pkcs7_generator,
-		     args: [ '--x509-signer', certdir + 'slh-dsa-shake-128s_leaf.der',
-			     '--signer-sk-file', certdir + 'slh-dsa-shake-128s_leaf.privkey',
-			     '-i', certdir + 'ml-dsa87_cacert.der',
-			     '--print',
-			     '--noout',
-			     '--x509-cert',  certdir + 'ml-dsa44-ed25519_int1.der',
-			     '--x509-cert', certdir + 'ml-dsa87_int2.der',
-			     '--x509-cert', certdir + 'ml-dsa65-ed25519_cacert.der',
-			     '--trust-anchor', certdir + 'ml-dsa65-ed25519_cacert.der',
-			     '--expected-eku', 'ServerAuthentication',
-			     '--expected-eku', 'CodeSigning',
-			     '--expected-keyusage', 'dataEncipherment'
-			     ],
-		     is_parallel: false, timeout: 300, suite: regression)
+		if get_option('dilithium_ed25519').enabled()
+			test('PKCS7 Gen with ML-DSA-ED25519 4-way cert chain',
+			lc_pkcs7_generator,
+			args: [ '--x509-signer', certdir + 'slh-dsa-shake-128s_leaf.der',
+				'--signer-sk-file', certdir + 'slh-dsa-shake-128s_leaf.privkey',
+				'-i', certdir + 'ml-dsa87_cacert.der',
+				'--print',
+				'--noout',
+				'--x509-cert',  certdir + 'ml-dsa44-ed25519_int1.der',
+				'--x509-cert', certdir + 'ml-dsa87_int2.der',
+				'--x509-cert', certdir + 'ml-dsa65-ed25519_cacert.der',
+				'--trust-anchor', certdir + 'ml-dsa65-ed25519_cacert.der',
+				'--expected-eku', 'ServerAuthentication',
+				'--expected-eku', 'CodeSigning',
+				'--expected-keyusage', 'dataEncipherment'
+				],
+			is_parallel: false, timeout: 300, suite: regression)
 
-		# Generate the PKCS#7 message, verify it and check the key usage
-		# and EKU of the signer where the EKU will be not matched
-		test('PKCS7 Gen with ML-DSA-ED25519 4-way cert chain',
-		     lc_pkcs7_generator,
-		     args: [ '--x509-signer', certdir + 'slh-dsa-shake-128s_leaf.der',
-			     '--signer-sk-file', certdir + 'slh-dsa-shake-128s_leaf.privkey',
-			     '-i', certdir + 'ml-dsa87_cacert.der',
-			     '--print',
-			     '--noout',
-			     '--x509-cert',  certdir + 'ml-dsa44-ed25519_int1.der',
-			     '--x509-cert', certdir + 'ml-dsa87_int2.der',
-			     '--x509-cert', certdir + 'ml-dsa65-ed25519_cacert.der',
-			     '--trust-anchor', certdir + 'ml-dsa65-ed25519_cacert.der',
-			     '--expected-eku', 'ServerAuthentication',
-			     '--expected-eku', 'ClientAuthentication',
-			     '--expected-eku', 'CodeSigning',
-			     '--expected-keyusage', 'dataEncipherment'
-			     ],
-		     is_parallel: false, should_fail: true, timeout: 300, suite: regression)
+			# Generate the PKCS#7 message, verify it and check the key usage
+			# and EKU of the signer where the EKU will be not matched
+			test('PKCS7 Gen with ML-DSA-ED25519 4-way cert chain',
+			lc_pkcs7_generator,
+			args: [ '--x509-signer', certdir + 'slh-dsa-shake-128s_leaf.der',
+				'--signer-sk-file', certdir + 'slh-dsa-shake-128s_leaf.privkey',
+				'-i', certdir + 'ml-dsa87_cacert.der',
+				'--print',
+				'--noout',
+				'--x509-cert',  certdir + 'ml-dsa44-ed25519_int1.der',
+				'--x509-cert', certdir + 'ml-dsa87_int2.der',
+				'--x509-cert', certdir + 'ml-dsa65-ed25519_cacert.der',
+				'--trust-anchor', certdir + 'ml-dsa65-ed25519_cacert.der',
+				'--expected-eku', 'ServerAuthentication',
+				'--expected-eku', 'ClientAuthentication',
+				'--expected-eku', 'CodeSigning',
+				'--expected-keyusage', 'dataEncipherment'
+				],
+			is_parallel: false, should_fail: true, timeout: 300, suite: regression)
+		endif
 
 		# Trust-Store enabled with cert chain leading to CA that is in
 		# trust store

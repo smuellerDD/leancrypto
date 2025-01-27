@@ -71,7 +71,7 @@ int public_key_generate_signature_dilithium_ed25519(
 int public_key_signature_size_dilithium_ed25519(
 	enum lc_dilithium_type dilithium_type, size_t *size)
 {
-	void)dilithium_type;
+	(void)dilithium_type;
 	(void)size;
 	return -ENOPKG;
 }

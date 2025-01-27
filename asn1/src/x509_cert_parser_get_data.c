@@ -27,6 +27,7 @@
 #include "x509_cert_parser.h"
 #include "x509_composite_mldsa_pubkey.asn1.h"
 
+#ifdef LC_DILITHIUM_ED25519
 LC_INTERFACE_FUNCTION(int, lc_x509_cert_load_pk_dilithium_ed25519,
 		      struct lc_dilithium_ed25519_pk *dilithium_ed25519_pk,
 		      const uint8_t *pk_ptr, size_t pk_len)
@@ -39,6 +40,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_load_pk_dilithium_ed25519,
 out:
 	return ret;
 }
+#endif
 
 LC_INTERFACE_FUNCTION(int, lc_x509_cert_get_pubkey,
 		      const struct lc_x509_certificate *cert,

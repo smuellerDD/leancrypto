@@ -30,14 +30,26 @@ extern "C" {
 struct lc_x509_key_input_data {
 	enum lc_sig_types sig_type;
 	union {
+#ifdef LC_DILITHIUM
 		struct lc_dilithium_pk dilithium_pk;
+#endif
+#ifdef LC_DILITHIUM_ED25519
 		struct lc_dilithium_ed25519_pk dilithium_ed25519_pk;
+#endif
+#ifdef LC_SPHINCS
 		struct lc_sphincs_pk sphincs_pk;
+#endif
 	} pk;
 	union {
+#ifdef LC_DILITHIUM
 		struct lc_dilithium_sk dilithium_sk;
+#endif
+#ifdef LC_DILITHIUM_ED25519
 		struct lc_dilithium_ed25519_sk dilithium_ed25519_sk;
+#endif
+#ifdef LC_SPHINCS
 		struct lc_sphincs_sk sphincs_sk;
+#endif
 	} sk;
 };
 

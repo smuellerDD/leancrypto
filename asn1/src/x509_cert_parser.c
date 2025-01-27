@@ -1276,6 +1276,7 @@ out:
 LC_INTERFACE_FUNCTION(int, lc_x509_keys_dilithium_ed25519_alloc,
 		      struct lc_x509_key_data **keys)
 {
+#ifdef LC_DILITHIUM_ED25519
 	struct lc_x509_key_data *out_keys;
 	int ret;
 
@@ -1288,11 +1289,16 @@ LC_INTERFACE_FUNCTION(int, lc_x509_keys_dilithium_ed25519_alloc,
 
 out:
 	return ret;
+#else
+	(void)keys;
+	return -ENOPKG;
+#endif
 }
 
 LC_INTERFACE_FUNCTION(int, lc_x509_keys_dilithium_alloc,
 		      struct lc_x509_key_data **keys)
 {
+#ifdef LC_DILITHIUM
 	struct lc_x509_key_data *out_keys;
 	int ret;
 
@@ -1305,11 +1311,16 @@ LC_INTERFACE_FUNCTION(int, lc_x509_keys_dilithium_alloc,
 
 out:
 	return ret;
+#else
+	(void)keys;
+	return -ENOPKG;
+#endif
 }
 
 LC_INTERFACE_FUNCTION(int, lc_x509_keys_sphincs_alloc,
 		      struct lc_x509_key_data **keys)
 {
+#ifdef LC_SPHINCS
 	struct lc_x509_key_data *out_keys;
 	int ret;
 
@@ -1322,6 +1333,10 @@ LC_INTERFACE_FUNCTION(int, lc_x509_keys_sphincs_alloc,
 
 out:
 	return ret;
+#else
+	(void)keys;
+	return -ENOPKG;
+#endif
 }
 
 LC_INTERFACE_FUNCTION(int, lc_x509_keys_alloc, struct lc_x509_key_data **keys)

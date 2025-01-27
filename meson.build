@@ -150,8 +150,12 @@ if (get_option('sphincs_shake_256s').enabled() or
 	add_global_arguments([ '-DLC_SPHINCS' ], language: 'c')
 endif
 
-if get_option('kyber_x25519').enabled() or get_option('dilithium_ed25519').enabled()
+if get_option('kyber_x25519').enabled()
 	add_global_arguments([ '-DLC_CURVE25519' ], language: 'c')
+endif
+
+if get_option('dilithium_ed25519').enabled()
+	add_global_arguments([ '-DLC_DILITHIUM_ED25519' ], language: 'c')
 endif
 
 if get_option('efi').enabled()

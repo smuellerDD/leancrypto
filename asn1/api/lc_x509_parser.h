@@ -165,6 +165,7 @@ int lc_x509_cert_decode(struct lc_x509_certificate *cert, const uint8_t *data,
 	_Pragma("GCC diagnostic pop")
 
 /// \cond DO_NOT_DOCUMENT
+#ifdef LC_DILITHIUM_ED25519_SIG
 #define LC_X509_KEYS_DILITHIUM_ED25519_SIZE                                    \
 	(sizeof(struct lc_dilithium_ed25519_pk) +                              \
 	 sizeof(struct lc_dilithium_ed25519_sk) +                              \
@@ -183,6 +184,7 @@ int lc_x509_cert_decode(struct lc_x509_certificate *cert, const uint8_t *data,
 			    sizeof(struct lc_dilithium_ed25519_pk));           \
 	(name)->data_struct_size = LC_X509_KEYS_DILITHIUM_ED25519_SIZE;        \
 	_Pragma("GCC diagnostic pop")
+#endif
 /// \endcond
 
 /**
@@ -211,9 +213,18 @@ int lc_x509_cert_decode(struct lc_x509_certificate *cert, const uint8_t *data,
  *
  * @param [in] name Name of stack variable
  */
-
+#ifdef LC_DILITHIUM_ED25519_SIG
 #define LC_X509_KEYS_ON_STACK(name)                                            \
 	LC_X509_KEYS_DILITHIUM_ED25519_ON_STACK(name)
+#elif defined(LC_SPHNCS_ENABLED)
+#define LC_X509_KEYS_ON_STACK(name)                                            \
+	LC_X509_KEYS_SPHINCS_ON_STACK(name)
+#elif defined(LC_DILITHIUM_ENABLED)
+#define LC_X509_KEYS_ON_STACK(name)                                            \
+	LC_X509_KEYS_DILITHIUM_ON_STACK(name)
+#else
+#error "No known signature schemas enabled"
+#endif
 
 /**
  * @brief Zeroize Dilithium context allocated with

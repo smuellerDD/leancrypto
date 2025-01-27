@@ -1,13 +1,12 @@
-if get_option('kyber_x25519').enabled() or get_option('dilithium_ed25519').enabled()
+curve25519_base = 0
+
+if get_option('kyber_x25519').enabled()
 	src_fips += files([
-		'ed25519.c',
-		'ed25519_ref10.c',
 		'x25519.c',
 		'x25519_scalarmult_c.c',
 	])
 
 	include_files += files([
-		'../api/lc_ed25519.h',
 		'../api/lc_x25519.h',
 	])
 
@@ -23,4 +22,23 @@ if get_option('kyber_x25519').enabled() or get_option('dilithium_ed25519').enabl
 		])
 	endif
 
+	curve25519_base = 1
+endif
+
+if get_option('dilithium_ed25519').enabled()
+	src_fips += files([
+		'ed25519.c',
+	])
+
+	include_files += files([
+		'../api/lc_ed25519.h',
+	])
+
+	curve25519_base = 1
+endif
+
+if (curve25519_base == 1)
+	src_fips += files([
+		'ed25519_ref10.c'
+	])
 endif

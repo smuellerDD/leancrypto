@@ -22,9 +22,20 @@
 
 #include "ext_headers.h"
 #include "lc_asn1.h"
-#include "lc_dilithium.h"
 #include "lc_hash.h"
+
+#if defined __has_include
+#if __has_include("lc_dilithium.h")
+#include "lc_dilithium.h"
+#define LC_DILITHIUM_ENABLED
+#endif
+#if __has_include("lc_sphincs.h")
 #include "lc_sphincs.h"
+#define LC_SPHINCS_ENABLED
+#endif
+#else
+#error "Compiler misses __has_include"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
