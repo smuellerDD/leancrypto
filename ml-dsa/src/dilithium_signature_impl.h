@@ -273,7 +273,7 @@ static int lc_dilithium_sign_internal_ahat(struct lc_dilithium_sig *sig,
 	 * sets the value. The BUILD_BUG_ON is to check that the SHA-512
 	 * output size is identical to the expected length.
 	 */
-	BUILD_BUG_ON(LC_DILITHIUM_CRHBYTES != LC_SHA512_SIZE_DIGEST);
+	BUILD_BUG_ON(LC_DILITHIUM_CRHBYTES != LC_SHA3_512_SIZE_DIGEST);
 	lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_CRHBYTES);
 	lc_hash_final(hash_ctx, mu);
 	dilithium_print_buffer(mu, LC_DILITHIUM_CRHBYTES, "Siggen - MU:");
