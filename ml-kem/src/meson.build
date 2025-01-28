@@ -1,9 +1,7 @@
 # for i in $(ls *.c | sort); do echo "'$i',"; done
 
 # Files compiled only once
-if (get_option('kyber_1024').enabled() or
-    get_option('kyber_768').enabled() or
-    get_option('kyber_512').enabled())
+if (kyber_enabled)
 	src_fips += files([
 		'kyber_api.c',
 		'kyber_cbd.c',
@@ -27,7 +25,7 @@ kyber_c = files([
 	'kyber_selftest.c',
 	'kyber_selftest_kdf.c',
 ])
-if (aead_support_enabled == 1)
+if (aead_support_enabled)
 	kyber_c += files ([
 		'kyber_ies.c',
 	])
@@ -42,7 +40,7 @@ if get_option('kyber_x25519').enabled()
 		'kyber_x25519_kex.c',
 	])
 
-	if (aead_support_enabled == 1)
+	if (aead_support_enabled)
 		kyber_c += files ([
 			'kyber_x25519_ies.c',
 		])

@@ -129,18 +129,23 @@ if get_option('ascon').enabled()
 	add_global_arguments([ '-DLC_ASCON_HASH' ], language: 'c')
 endif
 
+kyber_enabled = false
 if (get_option('kyber_1024').enabled() or
     get_option('kyber_768').enabled() or
     get_option('kyber_512').enabled())
 	add_global_arguments([ '-DLC_KYBER' ], language: 'c')
+	kyber_enabled = true
 endif
 
+dilithium_enabled = false
 if (get_option('dilithium_87').enabled() or
     get_option('dilithium_65').enabled() or
     get_option('dilithium_44').enabled())
 	add_global_arguments([ '-DLC_DILITHIUM' ], language: 'c')
+	dilithium_enabled = true
 endif
 
+sphincs_enabled = false
 if (get_option('sphincs_shake_256s').enabled() or
     get_option('sphincs_shake_256f').enabled() or
     get_option('sphincs_shake_192s').enabled() or
@@ -148,6 +153,7 @@ if (get_option('sphincs_shake_256s').enabled() or
     get_option('sphincs_shake_128s').enabled() or
     get_option('sphincs_shake_128f').enabled())
 	add_global_arguments([ '-DLC_SPHINCS' ], language: 'c')
+	sphincs_enabled = true
 endif
 
 if get_option('kyber_x25519').enabled()
@@ -169,14 +175,14 @@ if (get_option('aes_cbc').enabled() or
 endif
 
 # Determine if AEAD support is enabled
-aead_support_enabled = 0
+aead_support_enabled = false
 if (get_option('hash_crypt').enabled() or
     get_option('ascon').enabled() or
     get_option('ascon_keccak').enabled() or
     ((get_option('aes_cbc').enabled() or get_option('aes_ctr').enabled()) and
      (get_option('sha2-512').enabled() or get_option('kmac').enabled())))
 	add_global_arguments([ '-DLC_AEAD' ], language: 'c')
-	aead_support_enabled = 1
+	aead_support_enabled = true
 endif
 
 # Versioning information

@@ -1,9 +1,7 @@
 # for i in $(ls *.c | sort); do echo "'$i',"; done
 
 # Files compiled only once
-if (get_option('dilithium_87').enabled() or
-    get_option('dilithium_65').enabled() or
-    get_option('dilithium_44').enabled())
+if (dilithium_enabled)
 	src_fips += files([
 		'dilithium_api.c',
 		'dilithium_pct.c',
@@ -30,9 +28,7 @@ if get_option('dilithium_ed25519').enabled()
 endif
 
 dilithium_api_c = 0
-if (get_option('dilithium_87').enabled() or
-    get_option('dilithium_65').enabled() or
-    get_option('dilithium_44').enabled())
+if (dilithium_enabled)
 	if (x86_64_asm)
 		subdir('avx2')
 	elif (arm64_asm)

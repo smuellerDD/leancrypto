@@ -1,12 +1,7 @@
 # for i in $(ls *.c | sort); do echo "'$i',"; done
 
 # Files compiled only once
-if (get_option('sphincs_shake_256s').enabled() or
-    get_option('sphincs_shake_256f').enabled() or
-    get_option('sphincs_shake_192s').enabled() or
-    get_option('sphincs_shake_192f').enabled() or
-    get_option('sphincs_shake_128s').enabled() or
-    get_option('sphincs_shake_128f').enabled())
+if (sphincs_enabled)
 	src_fips += files([
 		'sphincs_api.c',
 		'sphincs_pct.c',

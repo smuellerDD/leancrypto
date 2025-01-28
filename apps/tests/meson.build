@@ -182,9 +182,7 @@ if (host_machine.system() != 'windows' and
 	endif
 
 	if get_option('x509_generator').enabled()
-		if (get_option('dilithium_87').enabled() or
-		    get_option('dilithium_65').enabled() or
-		    get_option('dilithium_44').enabled())
+		if (dilithium_enabled)
 			test('X.509 Gen Root-CA ML-DSA87',
 				lc_x509_generator,
 				args: [ x509_rootca_args, '--create-keypair',
@@ -213,12 +211,7 @@ if (host_machine.system() != 'windows' and
 				timeout: 300, suite: regression)
 		endif
 
-		if (get_option('sphincs_shake_256s').enabled() or
-		    get_option('sphincs_shake_256f').enabled() or
-		    get_option('sphincs_shake_192s').enabled() or
-		    get_option('sphincs_shake_192f').enabled() or
-		    get_option('sphincs_shake_128s').enabled() or
-		    get_option('sphincs_shake_128f').enabled())
+		if (sphincs_enabled)
 			test('X.509 Gen Root-CA SLH-DSA-SHAKE-256S',
 				lc_x509_generator,
 				args: [ x509_rootca_args, '--create-keypair',
@@ -364,8 +357,8 @@ if (host_machine.system() != 'windows' and
 		# and EKU of the signer
 		if get_option('dilithium_ed25519').enabled()
 			test('PKCS7 Gen with ML-DSA-ED25519 4-way cert chain',
-			lc_pkcs7_generator,
-			args: [ '--x509-signer', certdir + 'slh-dsa-shake-128s_leaf.der',
+			     lc_pkcs7_generator,
+			     args: [ '--x509-signer', certdir + 'slh-dsa-shake-128s_leaf.der',
 				'--signer-sk-file', certdir + 'slh-dsa-shake-128s_leaf.privkey',
 				'-i', certdir + 'ml-dsa87_cacert.der',
 				'--print',
@@ -383,8 +376,8 @@ if (host_machine.system() != 'windows' and
 			# Generate the PKCS#7 message, verify it and check the key usage
 			# and EKU of the signer where the EKU will be not matched
 			test('PKCS7 Gen with ML-DSA-ED25519 4-way cert chain',
-			lc_pkcs7_generator,
-			args: [ '--x509-signer', certdir + 'slh-dsa-shake-128s_leaf.der',
+			     lc_pkcs7_generator,
+			     args: [ '--x509-signer', certdir + 'slh-dsa-shake-128s_leaf.der',
 				'--signer-sk-file', certdir + 'slh-dsa-shake-128s_leaf.privkey',
 				'-i', certdir + 'ml-dsa87_cacert.der',
 				'--print',

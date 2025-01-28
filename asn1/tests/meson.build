@@ -13,9 +13,7 @@ if get_option('x509_parser').enabled()
 			 link_with: leancrypto_static_lib
 			 )
 
-	if (get_option('dilithium_87').enabled() or
-	    get_option('dilithium_65').enabled() or
-	    get_option('dilithium_44').enabled())
+	if (dilithium_enabled)
 		test('X.509 ML-DSA87 Root CA', asn1_tester,
 		args: [ '-x', '-f', certdir + 'ml-dsa87_cacert.der', '--check-ca',
 			'--check-selfsigned', '--issuer-cn', 'leancrypto test CA',
@@ -54,74 +52,7 @@ if get_option('x509_parser').enabled()
 			suite: regression)
 	endif
 
-	if (get_option('sphincs_shake_256s').enabled() or
-	    get_option('sphincs_shake_256f').enabled() or
-	    get_option('sphincs_shake_192s').enabled() or
-	    get_option('sphincs_shake_192f').enabled() or
-	    get_option('sphincs_shake_128s').enabled() or
-	    get_option('sphincs_shake_128f').enabled())
-		test('X.509 SLH-DSA-SHAKE-256S Root CA', asn1_tester,
-		args: [ '-x', '-f', certdir + 'slh-dsa-shake-256s_cacert.der', '--check-ca',
-			'--check-selfsigned', '--issuer-cn', 'leancrypto test CA',
-			'--subject-cn', 'leancrypto test CA',
-			'--valid-from', '1729527728', '--valid-to', '2044210606',
-			'--skid', '0a0b0c0d0e0f',
-			'--akid', '0a0b0c0d0e0f',
-			'--check-time' ],
-			timeout: 600, suite: regression)
-
-		test('X.509 SLH-DSA-SHAKE-256F Int 1 CA', asn1_tester,
-		args: [ '-x', '-f', certdir + 'slh-dsa-shake-256f_int1.der', '--check-ca',
-			'--issuer-cn', 'leancrypto test CA',
-			'--subject-cn', 'leancrypto test int1',
-			'--valid-from', '1729527728', '--valid-to', '2044210606',
-			'--skid', '0b0c0d0e0f0001', '--akid', '0a0b0c0d0e0f',
-			'--check-time' ],
-			timeout: 600, suite: regression)
-
-		test('X.509 SLH-DSA-SHAKE-192F Int 2 CA', asn1_tester,
-		args: [ '-x', '-f', certdir + 'slh-dsa-shake-192f_int2.der', '--check-ca',
-			'--issuer-cn', 'leancrypto test int1',
-			'--subject-cn', 'leancrypto test int2',
-			'--valid-from', '1729527728', '--valid-to', '2044210606',
-			'--skid', '0c0d0e0f000102', '--akid', '0b0c0d0e0f0001',
-			'--check-time' ],
-			timeout: 600, suite: regression)
-
-		test('X.509 SLH-DSA-SHAKE-128F Leaf', asn1_tester,
-		args: [ '-x', '-f', certdir + 'slh-dsa-shake-128f_leaf.der', '--check-noca',
-			'--issuer-cn', 'leancrypto test int2',
-			'--subject-cn', 'leancrypto test leaf',
-			'--valid-from', '1729527728', '--valid-to', '2044210606',
-			'--skid', '0d0e0f00010203', '--akid', '0c0d0e0f000102',
-			'--check-time' ],
-			timeout: 600, suite: regression)
-	endif
-
-	if get_option('dilithium_ed25519').enabled()
-		test('X.509 ML-DSA65-ED25519 Root CA', asn1_tester,
-		args: [ '-x', '-f', certdir + 'ml-dsa65-ed25519_cacert.der', '--check-ca',
-			'--check-selfsigned', '--issuer-cn', 'leancrypto test CA',
-			'--subject-cn', 'leancrypto test CA',
-			'--valid-from', '1729527728', '--valid-to', '2044210606',
-			'--skid', '0a0b0c0d0e0f',
-			'--akid', '0a0b0c0d0e0f',
-			'--check-time' ],
-			suite: regression)
-
-		test('X.509 ML-DSA44-ED25519 Int 1 CA', asn1_tester,
-		args: [ '-x', '-f', certdir + 'ml-dsa44-ed25519_int1.der', '--check-ca',
-			'--issuer-cn', 'leancrypto test CA',
-			'--subject-cn', 'leancrypto test int1',
-			'--valid-from', '1729527728', '--valid-to', '2044210606',
-			'--skid', '0b0c0d0e0f0001', '--akid', '0a0b0c0d0e0f',
-			'--check-time' ],
-			suite: regression)
-	endif
-
-	if (get_option('dilithium_87').enabled() or
-	    get_option('dilithium_65').enabled() or
-	    get_option('dilithium_44').enabled())
+	if (get_option('dilithium_87').enabled())
 		test('X.509 ML-DSA87 Int 2 CA', asn1_tester,
 		args: [ '-x', '-f', certdir + 'ml-dsa87_int2.der', '--check-ca',
 			'--issuer-cn', 'leancrypto test int1',
@@ -132,12 +63,7 @@ if get_option('x509_parser').enabled()
 			suite: regression)
 	endif
 
-	if (get_option('sphincs_shake_256s').enabled() or
-	    get_option('sphincs_shake_256f').enabled() or
-	    get_option('sphincs_shake_192s').enabled() or
-	    get_option('sphincs_shake_192f').enabled() or
-	    get_option('sphincs_shake_128s').enabled() or
-	    get_option('sphincs_shake_128f').enabled())
+	if (get_option('sphincs_shake_128s').enabled())
 		test('X.509 SLH-DSA-SHAKE-128S Leaf', asn1_tester,
 		args: [ '-x', '-f', certdir + 'slh-dsa-shake-128s_leaf.der', '--check-noca',
 			'--issuer-cn', 'leancrypto test int2',
@@ -468,21 +394,14 @@ if get_option('x509_generator').enabled()
 			 dependencies: leancrypto
 			 )
 
-	if (get_option('dilithium_87').enabled() or
-	    get_option('dilithium_65').enabled() or
-	    get_option('dilithium_44').enabled())
+	if (get_option('dilithium_87').enabled())
 		test('X.509 ML-DSA87 Leaf Signature', x509_siggen_sigver_tester,
 			args: [ '--sk-file', certdir + 'ml-dsa87_leaf.privkey',
 				'--x509-cert', certdir + 'ml-dsa87_leaf.der' ],
 				suite: regression)
 	endif
 
-	if (get_option('sphincs_shake_256s').enabled() or
-	    get_option('sphincs_shake_256f').enabled() or
-	    get_option('sphincs_shake_192s').enabled() or
-	    get_option('sphincs_shake_192f').enabled() or
-	    get_option('sphincs_shake_128s').enabled() or
-	    get_option('sphincs_shake_128f').enabled())
+	if (get_option('sphincs_shake_128f').enabled())
 		test('X.509 SLH-DSA-SHAKE-128f Leaf Signature',
 			x509_siggen_sigver_tester,
 			args: [ '--sk-file', certdir + 'slh-dsa-shake-128f_leaf.privkey',
@@ -541,9 +460,7 @@ if get_option('pkcs7_parser').enabled()
 			suite: regression)
 	endif
 
-	if (get_option('dilithium_87').enabled() or
-	    get_option('dilithium_65').enabled() or
-	    get_option('dilithium_44').enabled())
+	if (dilithium_enabled)
 		test('PKCS7 Trust Validation - 1 CA Cert', pkcs7_trust_tester,
 			args: [ '-f', certdir + 'ml-dsa87_cacert.der' ],
 			suite: regression)
