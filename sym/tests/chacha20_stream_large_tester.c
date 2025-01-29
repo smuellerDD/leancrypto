@@ -62,8 +62,12 @@ out:
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	int ret;
 	(void)argc;
 	(void)argv;
 
-	return chacha20_large_tester();
+	ret = chacha20_large_tester();
+	if (ret == -EOPNOTSUPP)
+		ret = 77;
+	return ret;
 }

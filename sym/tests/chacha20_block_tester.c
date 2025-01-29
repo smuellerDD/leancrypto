@@ -89,8 +89,13 @@ out:
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	int ret;
+
 	(void)argc;
 	(void)argv;
 
-	return chacha20_block_selftest();
+	ret = chacha20_block_selftest();
+	if (ret == -EOPNOTSUPP)
+		ret = 77;
+	return ret;
 }

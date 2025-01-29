@@ -61,7 +61,7 @@ static enum lc_cpu_features feat = LC_CPU_FEATURE_UNSET;
 
 LC_INTERFACE_FUNCTION(void, lc_cpu_feature_disable, void)
 {
-	feat = LC_CPU_FEATURE_NONE;
+	feat = LC_CPU_FEATURE_INTEL;
 }
 
 LC_INTERFACE_FUNCTION(void, lc_cpu_feature_enable, void)
@@ -76,7 +76,7 @@ LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 	if (!(feat & LC_CPU_FEATURE_UNSET))
 		return feat;
 
-	feat = LC_CPU_FEATURE_NONE;
+	feat = LC_CPU_FEATURE_INTEL;
 
 	cpuid_eax(1, x86_64_cpuid[0], x86_64_cpuid[1], x86_64_cpuid[2],
 		  x86_64_cpuid[3]);

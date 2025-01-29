@@ -60,7 +60,7 @@ LC_CONSTRUCTOR(aes_fastest_impl)
 		LC_FILL_DFLT_IMPL(aesni)
 	} else if (feat & LC_CPU_FEATURE_ARM_AES) {
 		LC_FILL_DFLT_IMPL(armce)
-	} else if (feat & LC_CPU_FEATURE_RISCV_ASM) {
+	} else if (feat & LC_CPU_FEATURE_RISCV) {
 		LC_FILL_DFLT_IMPL(riscv64)
 	} else {
 		/* do nothing as the C definitions are used automatically */
@@ -73,7 +73,7 @@ LC_CONSTRUCTOR(aes_fastest_impl)
 	if (!(feat & LC_CPU_FEATURE_ARM_AES)) {
 		LC_FILL_ACCEL_WITH_C(armce)
 	}
-	if (!(feat & LC_CPU_FEATURE_RISCV_ASM)) {
+	if (!(feat & LC_CPU_FEATURE_RISCV)) {
 		LC_FILL_ACCEL_WITH_C(riscv64)
 	}
 }

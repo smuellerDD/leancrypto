@@ -215,11 +215,22 @@ static int kc_tester_kmac(void)
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
-	int ret;
+	int ret, ret2;
 	(void)argc;
 	(void)argv;
 
 	ret = kc_tester_kmac();
-	ret += kc_tester_kmac_validate();
+	if (ret == -EOPNOTSUPP) {
+		ret = 77;
+		goto out;
+	}
+	ret2 = kc_tester_kmac_validate();
+	if (ret2 == -EOPNOTSUPP) {
+		ret = 77;
+		goto out;
+	}
+	ret += ret2;
+
+out:
 	return ret;
 }

@@ -18,12 +18,9 @@ bike_src = files([
 	'bike_gf2x_mul.c',
 	'bike_gf2x_mul_base_portable.c',
 	'bike_gf2x_mul_portable.c',
+	'bike_kem.c',
 	'bike_sampling.c',
 	'bike_sampling_portable.c'
-])
-
-bike_src_xor = files([
-	'bike_kem.c',
 ])
 
 bike_avx2_src = [
@@ -57,8 +54,6 @@ endif
 
 if get_option('bike_5').enabled()
 	if x86_64_asm
-		bike_avx2_src += bike_src_xor
-
 		leancrypto_bike_5_avx2_lib = static_library(
 			'leancrypto_bike_5_avx2_lib',
 			[ bike_avx2_src ],
@@ -104,30 +99,6 @@ if get_option('bike_5').enabled()
 				   '-mvpclmulqdq' ]
 		)
 		leancrypto_support_libs += leancrypto_bike_5_vpclmul_lib
-	elif arm64_asm
-		leancrypto_bike_5_armv8_lib = static_library(
-			'leancrypto_bike_5_armv8_lib',
-			[ bike_src_xor ],
-			include_directories: [
-				include_dirs,
-				include_internal_dirs
-			],
-			c_args : [ bike_args, cc_armv8_neon_simd_args ]
-		)
-		leancrypto_support_libs += leancrypto_bike_5_armv8_lib
-	elif arm32_neon_asm
-		leancrypto_bike_5_armv7_lib = static_library(
-			'leancrypto_bike_5_armv7_lib',
-			[ bike_src_xor ],
-			include_directories: [
-				include_dirs,
-				include_internal_dirs
-			],
-			c_args : [ bike_args, cc_armv7_neon_simd_args ]
-		)
-		leancrypto_support_libs += leancrypto_bike_5_armv7_lib
-	else
-		bike_src += bike_src_xor
 	endif
 
 	leancrypto_bike_5_c_lib = static_library(
@@ -190,32 +161,6 @@ if get_option('bike_3').enabled()
 				   '-DLC_BIKE_TYPE_3', '-mvpclmulqdq' ]
 		)
 		leancrypto_support_libs += leancrypto_bike_3_vpclmul_lib
-	elif arm64_asm
-		leancrypto_bike_3_armv8_lib = static_library(
-			'leancrypto_bike_3_armv8_lib',
-			[ bike_src_xor ],
-			include_directories: [
-				include_dirs,
-				include_internal_dirs
-			],
-			c_args : [ bike_args, cc_armv8_neon_simd_args,
-				   '-DLC_BIKE_TYPE_3' ]
-		)
-		leancrypto_support_libs += leancrypto_bike_3_armv8_lib
-	elif arm32_neon_asm
-		leancrypto_bike_3_armv7_lib = static_library(
-			'leancrypto_bike_3_armv7_lib',
-			[ bike_src_xor ],
-			include_directories: [
-				include_dirs,
-				include_internal_dirs
-			],
-			c_args : [ bike_args, cc_armv7_neon_simd_args,
-				   '-DLC_BIKE_TYPE_3' ]
-		)
-		leancrypto_support_libs += leancrypto_bike_3_armv7_lib
-	else
-		bike_src += bike_src_xor
 	endif
 
 	leancrypto_bike_3_c_lib = static_library(
@@ -278,32 +223,6 @@ if get_option('bike_1').enabled()
 				   '-DLC_BIKE_TYPE_1', '-mvpclmulqdq' ]
 		)
 		leancrypto_support_libs += leancrypto_bike_1_vpclmul_lib
-	elif arm64_asm
-		leancrypto_bike_1_armv8_lib = static_library(
-			'leancrypto_bike_1_armv8_lib',
-			[ bike_src_xor ],
-			include_directories: [
-				include_dirs,
-				include_internal_dirs
-			],
-			c_args : [ bike_args, cc_armv8_neon_simd_args,
-				   '-DLC_BIKE_TYPE_1']
-		)
-		leancrypto_support_libs += leancrypto_bike_1_armv8_lib
-	elif arm32_neon_asm
-		leancrypto_bike_1_armv7_lib = static_library(
-			'leancrypto_bike_1_armv7_lib',
-			[ bike_src_xor ],
-			include_directories: [
-				include_dirs,
-				include_internal_dirs
-			],
-			c_args : [ bike_args, cc_armv7_neon_simd_args,
-				   '-DLC_BIKE_TYPE_1' ]
-		)
-		leancrypto_support_libs += leancrypto_bike_1_armv7_lib
-	else
-		bike_src += bike_src_xor
 	endif
 
 	leancrypto_bike_1_c_lib = static_library(

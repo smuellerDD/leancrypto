@@ -94,7 +94,7 @@ LC_CONSTRUCTOR(sha3_fastest_impl)
 		LC_FILL_DFLT_IMPL(arm_asm)
 	} else if (feat & LC_CPU_FEATURE_RISCV_ASM_ZBB) {
 		LC_FILL_DFLT_IMPL(riscv_asm_zbb)
-	} else if (feat & LC_CPU_FEATURE_RISCV_ASM) {
+	} else if (feat & LC_CPU_FEATURE_RISCV) {
 		LC_FILL_DFLT_IMPL(riscv_asm)
 	} else {
 		/* do nothing as the C definitions are used automatically */
@@ -119,7 +119,7 @@ LC_CONSTRUCTOR(sha3_fastest_impl)
 	if (!(feat & LC_CPU_FEATURE_RISCV_ASM_ZBB)) {
 		LC_FILL_ACCEL_WITH_C(riscv_asm_zbb)
 	}
-	if (!(feat & LC_CPU_FEATURE_RISCV_ASM)) {
+	if (!(feat & LC_CPU_FEATURE_RISCV)) {
 		LC_FILL_ACCEL_WITH_C(riscv_asm)
 	}
 }

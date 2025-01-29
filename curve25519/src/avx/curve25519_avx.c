@@ -46,8 +46,8 @@
 #define x2 var[1]
 #define z2 var[2]
 
-int crypto_scalarmult_curve25519_avx(unsigned char *q, const unsigned char *n,
-				     const unsigned char *p)
+int crypto_scalarmult_curve25519_avx2(unsigned char *q, const unsigned char *n,
+				      const unsigned char *p)
 {
 	unsigned char t[32];
 	fe var[3];
@@ -90,7 +90,7 @@ int crypto_scalarmult_curve25519_avx(unsigned char *q, const unsigned char *n,
 int crypto_scalarmult_curve25519(unsigned char *q, const unsigned char *n,
 				 const unsigned char *p)
 {
-	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX)
-		return crypto_scalarmult_curve25519_avx(q, n, p);
+	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
+		return crypto_scalarmult_curve25519_avx2(q, n, p);
 	return crypto_scalarmult_curve25519_c(q, n, p);
 }

@@ -21,6 +21,7 @@
 #include "bitshift.h"
 #include "compare.h"
 #include "conv_be_le.h"
+#include "cpufeatures.h"
 #include "ext_headers.h"
 #include "lc_chacha20.h"
 #include "lc_chacha20_private.h"
@@ -203,8 +204,19 @@ static void cc20_init(struct lc_sym_state *ctx)
 static int cc20_setkey(struct lc_sym_state *ctx, const uint8_t *key,
 		       size_t keylen)
 {
+	enum lc_cpu_features feat;
+
 	if (!ctx || keylen != 32)
 		return -EINVAL;
+
+	/* The XOR operation in cc20_crypt requires acceleration */
+	feat = lc_cpu_feature_available();
+	if ((feat & LC_CPU_FEATURE_INTEL) &&
+	    !(feat & LC_CPU_FEATURE_INTEL_AVX2))
+		return -EOPNOTSUPP;
+	if ((feat & LC_CPU_FEATURE_ARM) &&
+	    !(feat & LC_CPU_FEATURE_ARM_NEON))
+		return -EOPNOTSUPP;
 
 	/* Timecop: key is sensitive. */
 	poison(key, keylen);

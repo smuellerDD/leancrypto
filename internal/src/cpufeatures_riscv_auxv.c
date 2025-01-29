@@ -26,7 +26,7 @@ static enum lc_cpu_features features = LC_CPU_FEATURE_UNSET;
 
 LC_INTERFACE_FUNCTION(void, lc_cpu_feature_disable, void)
 {
-	features = LC_CPU_FEATURE_NONE;
+	features = LC_CPU_FEATURE_RISCV;
 }
 
 LC_INTERFACE_FUNCTION(void, lc_cpu_feature_enable, void)
@@ -39,7 +39,7 @@ LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 	if (features == LC_CPU_FEATURE_UNSET) {
 		unsigned long c = getauxval(AT_HWCAP);
 
-		features = LC_CPU_FEATURE_RISCV_ASM;
+		features = LC_CPU_FEATURE_RISCV;
 
 		if (c & (1 << ('v' - 'a'))) {
 			/*

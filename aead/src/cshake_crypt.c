@@ -317,6 +317,7 @@
 #include "alignment.h"
 #include "build_bug_on.h"
 #include "compare.h"
+#include "cpufeatures.h"
 #include "lc_cshake_crypt.h"
 #include "lc_memcmp_secure.h"
 #include "math_helper.h"
@@ -409,6 +410,16 @@ static int lc_cc_setkey(void *state, const uint8_t *key, size_t keylen,
 	struct lc_hash_ctx *cshake = &cc->cshake;
 	struct lc_cshake_ctx *auth_ctx = &cc->auth_ctx;
 	static int tested = 0;
+	enum lc_cpu_features feat;
+
+	/* The XOR operation in cc20_crypt requires acceleration */
+	feat = lc_cpu_feature_available();
+	if ((feat & LC_CPU_FEATURE_INTEL) &&
+	    !(feat & LC_CPU_FEATURE_INTEL_AVX2))
+		return -EOPNOTSUPP;
+	if ((feat & LC_CPU_FEATURE_ARM) &&
+	    !(feat & LC_CPU_FEATURE_ARM_NEON))
+		return -EOPNOTSUPP;
 
 	/* Timecop: The key is sentitive. */
 	poison(key, keylen);

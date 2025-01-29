@@ -70,7 +70,7 @@ LC_CONSTRUCTOR(sha512_fastest_impl)
 		LC_FILL_DFLT_IMPL(arm_neon)
 	} else if (feat & LC_CPU_FEATURE_RISCV_ASM_ZBB) {
 		LC_FILL_DFLT_IMPL(riscv_zbb)
-	} else if (feat & LC_CPU_FEATURE_RISCV_ASM) {
+	} else if (feat & LC_CPU_FEATURE_RISCV) {
 		LC_FILL_DFLT_IMPL(riscv)
 	} else {
 		/* do nothing as the C definitions are used automatically */
@@ -92,7 +92,7 @@ LC_CONSTRUCTOR(sha512_fastest_impl)
 	if (!(feat & LC_CPU_FEATURE_RISCV_ASM_ZBB)) {
 		LC_FILL_ACCEL_WITH_C(riscv_zbb)
 	}
-	if (!(feat & LC_CPU_FEATURE_RISCV_ASM)) {
+	if (!(feat & LC_CPU_FEATURE_RISCV)) {
 		LC_FILL_ACCEL_WITH_C(riscv)
 	}
 }

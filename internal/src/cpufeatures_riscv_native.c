@@ -35,7 +35,7 @@ LC_INTERFACE_FUNCTION(void, lc_cpu_feature_enable, void)
 LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 {
 	if (features == LC_CPU_FEATURE_UNSET) {
-		features = LC_CPU_FEATURE_RISCV_ASM;
+		features = LC_CPU_FEATURE_RISCV;
 
 #ifdef LINUX_KERNEL
 		if (riscv_isa_extension_available(NULL, ZBB))

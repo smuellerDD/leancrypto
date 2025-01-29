@@ -224,12 +224,23 @@ static int cc_tester_cshake(void)
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
-	int ret = 0;
+	int ret, ret2;
 
 	(void)argc;
 	(void)argv;
-	ret += cc_tester_cshake();
-	ret += cc_tester_cshake_validate();
 
+	ret = cc_tester_cshake();
+	if (ret == -EOPNOTSUPP) {
+		ret = 77;
+		goto out;
+	}
+	ret2 = cc_tester_cshake_validate();
+	if (ret2 == -EOPNOTSUPP) {
+		ret = 77;
+		goto out;
+	}
+	ret += ret2;
+
+out:
 	return ret;
 }

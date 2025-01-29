@@ -26,26 +26,23 @@ if get_option('hash_crypt').enabled()
 endif
 
 if get_option('ascon').enabled() or get_option('ascon_keccak').enabled()
-	aead_src_files += files([ 'ascon.c', ])
-	compile_aead = 1
+	src += files([ 'ascon.c', ])
 endif
 
 if get_option('ascon').enabled()
-	aead_src_files += files([ 'ascon_lightweight.c', ])
+	src += files([ 'ascon_lightweight.c', ])
 		include_files += files([ '../api/lc_ascon_aead.h' ])
 	add_global_arguments([ '-DLC_ASCON' ], language: 'c')
 
 	compile_hash_crypt = 1
-	compile_aead = 1
 endif
 
 if get_option('ascon_keccak').enabled()
-	aead_src_files += files([ 'ascon_keccak.c' ])
+	src += files([ 'ascon_keccak.c' ])
 	include_files += files([ '../api/lc_ascon_keccak.h' ])
 	add_global_arguments([ '-DLC_ASCON_KECCAK' ], language: 'c')
 
 	compile_hash_crypt = 1
-	compile_aead = 1
 endif
 
 if (compile_hash_crypt == 1)

@@ -18,6 +18,7 @@
  */
 
 #include "compare.h"
+#include "cpufeatures.h"
 #include "lc_cshake.h"
 #include "lc_sha3.h"
 #include "visibility.h"
@@ -55,6 +56,14 @@ static int shake128_2x_tester(void)
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	enum lc_cpu_features feat;
+
+	/* The XOR operation in cc20_crypt requires acceleration */
+	feat = lc_cpu_feature_available();
+	if ((feat & LC_CPU_FEATURE_ARM) &&
+	    !(feat & LC_CPU_FEATURE_ARM_NEON))
+		return 77;
+
 	(void)argc;
 	(void)argv;
 	return shake128_2x_tester();

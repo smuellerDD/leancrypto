@@ -50,7 +50,7 @@ static int x25519_scalarmult_avx_tester(void)
 	uint8_t out[sizeof(exp)];
 	int ret;
 
-	CKINT(crypto_scalarmult_curve25519_avx(out, scalar, p1));
+	CKINT(crypto_scalarmult_curve25519_avx2(out, scalar, p1));
 	lc_compare(out, exp, sizeof(exp), "X25519 AVX scalar multiplication\n");
 
 out:
@@ -64,7 +64,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	(void)argv;
 	(void)argc;
 
-	if (!(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX))
+	if (!(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2))
 		return 77;
 
 	ret += x25519_scalarmult_avx_tester();

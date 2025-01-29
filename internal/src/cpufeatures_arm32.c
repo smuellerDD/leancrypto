@@ -35,7 +35,7 @@ static enum lc_cpu_features features = LC_CPU_FEATURE_UNSET;
 
 LC_INTERFACE_FUNCTION(void, lc_cpu_feature_disable, void)
 {
-	features = LC_CPU_FEATURE_NONE;
+	features = LC_CPU_FEATURE_ARM;
 }
 
 LC_INTERFACE_FUNCTION(void, lc_cpu_feature_enable, void)

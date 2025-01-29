@@ -60,10 +60,6 @@ build system:
 
 4. Install: `meson install -C build`
 
-Note: For x86, the library requires the presence of AVX2, because some files
-are compiled with a flag that enables the AVX2 intrinsics. As x86 systems without
-AVX2 are vintage, this library will not support it any more.
-
 ## Library Build for Linux Kernel
 
 The leancrypto library can also be built as an independent Linux kernel module.

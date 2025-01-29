@@ -56,7 +56,13 @@ out:
 
 int main(int argc, char *argv[])
 {
+	int ret;
+
 	(void)argc;
 	(void)argv;
-	return kc_tester_kmac_large();
+
+	ret = kc_tester_kmac_large();
+	if (ret == -EOPNOTSUPP)
+		return 77;
+	return ret;
 }
