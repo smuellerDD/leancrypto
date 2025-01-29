@@ -25,15 +25,8 @@ else
 	internal_src += files([ 'memory_support.c' ])
 endif
 
-if (get_option('dilithium_87').enabled() or
-    get_option('dilithium_65').enabled() or
-    get_option('dilithium_44').enabled() or
-    get_option('sphincs_shake_256s').enabled() or
-    get_option('sphincs_shake_256f').enabled() or
-    get_option('sphincs_shake_192s').enabled() or
-    get_option('sphincs_shake_192f').enabled() or
-    get_option('sphincs_shake_128s').enabled() or
-    get_option('sphincs_shake_128f').enabled())
+if (dilithium_enabled or
+    sphincs_enabled)
 	internal_src += files([
 		'signature_domain_separation.c',
 	])
