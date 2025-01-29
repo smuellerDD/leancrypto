@@ -44,7 +44,7 @@
 #include "small_stack_support.h"
 #include "static_rng.h"
 #include "visibility.h"
-#include "xor256.h"
+#include "xor.h"
 
 // m_t and seed_t have the same size and thus can be considered
 // to be of the same type. However, for security reasons we distinguish
@@ -179,7 +179,7 @@ static inline void reencrypt(m_t *m, const pad_e_t *e,
 	function_l(m, e);
 
 	// m' = c1 ^ L(e')
-	xor_256(m->raw, l_ct->c1.raw, sizeof(*m));
+	xor_64(m->raw, l_ct->c1.raw, sizeof(*m));
 }
 
 /**
