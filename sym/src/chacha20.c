@@ -31,7 +31,6 @@
 #include "rotate.h"
 #include "timecop.h"
 #include "visibility.h"
-#include "xor256.h"
 
 static void cc20_selftest(int *tested, const char *impl)
 {
@@ -67,7 +66,15 @@ static void cc20_selftest(int *tested, const char *impl)
 
 	/* Encrypt */
 	lc_sym_init(chacha20);
-	lc_sym_setkey(chacha20, (uint8_t *)key, sizeof(key));
+
+	/*
+	 * Stop the self test when it is not supported - this error here is
+	 * triggered when no AVX2 support is present. Thus, the algorithm
+	 * is not available.
+	 */
+	if (lc_sym_setkey(chacha20, (uint8_t *)key, sizeof(key)) == -EOPNOTSUPP)
+		return;
+
 	lc_sym_setiv(chacha20, (uint8_t *)iv, sizeof(iv));
 	lc_sym_encrypt(chacha20, (uint8_t *)string, res, sizeof(res));
 	snprintf(str, sizeof(str), "%s enc", impl);

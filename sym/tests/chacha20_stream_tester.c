@@ -22,7 +22,6 @@
 #include "lc_chacha20.h"
 #include "ret_checkers.h"
 #include "visibility.h"
-#include "xor256.h"
 
 static int chacha20_enc_selftest(void)
 {
