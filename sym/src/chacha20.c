@@ -19,6 +19,7 @@
 
 #include "alignment.h"
 #include "bitshift.h"
+#include "chacha20.h"
 #include "compare.h"
 #include "conv_be_le.h"
 #include "cpufeatures.h"
@@ -244,33 +245,6 @@ static int cc20_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen)
 	ctx->nonce[2] = ptr_to_le32(iv + sizeof(uint32_t) * 2);
 
 	return 0;
-}
-
-static void cc20_crypt(struct lc_sym_state *ctx, const uint8_t *in,
-		       uint8_t *out, size_t len)
-{
-	uint32_t keystream[LC_CC20_BLOCK_SIZE_WORDS] __align(
-		LC_XOR_ALIGNMENT(sizeof(uint64_t)));
-
-	if (!ctx)
-		return;
-
-	while (len) {
-		size_t todo = min_size(len, sizeof(keystream));
-
-		cc20_block(ctx, keystream);
-
-		if (in != out)
-			memcpy(out, in, todo);
-
-		xor_256(out, (uint8_t *)keystream, todo);
-
-		len -= todo;
-		in += todo;
-		out += todo;
-	}
-
-	lc_memset_secure(keystream, 0, sizeof(keystream));
 }
 
 static struct lc_sym _lc_chacha20 = {
