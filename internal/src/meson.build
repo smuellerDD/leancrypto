@@ -19,7 +19,8 @@ endif
 
 if get_option('efi').enabled()
 	internal_src += files([ 'memory_support_efi.c' ])
-elif host_machine.system() == 'linux'
+elif ((host_machine.system() == 'linux') and
+      (host_machine.cpu_family() != 'x86'))
 	internal_src += files([ 'memory_support_linux.c' ])
 else
 	internal_src += files([ 'memory_support.c' ])
