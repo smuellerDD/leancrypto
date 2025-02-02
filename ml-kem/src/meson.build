@@ -60,7 +60,7 @@ endif
 if get_option('kyber_1024').enabled()
 	kyber_1024_files = kyber_c
 
-	if (not x86_64_asm and not arm64_asm)
+	if (not x86_64_asm and not arm64_asm and not riscv64_asm)
 		kyber_1024_files += files([ 'kyber_kem_api_c.c' ])
 	endif
 	leancrypto_kyber_1024_c_lib = static_library(
@@ -77,7 +77,7 @@ endif
 if get_option('kyber_768').enabled()
 	kyber_768_files = kyber_c
 
-	if (not x86_64_asm and not arm64_asm)
+	if (not x86_64_asm and not arm64_asm and not riscv64_asm)
 		kyber_768_files += files([ 'kyber_kem_api_c.c' ])
 	endif
 
@@ -96,7 +96,9 @@ endif
 if get_option('kyber_512').enabled()
 	kyber_512_files = kyber_c
 
-	kyber_512_files += files([ 'kyber_kem_api_c.c' ])
+	if (not riscv64_asm)
+		kyber_512_files += files([ 'kyber_kem_api_c.c' ])
+	endif
 
 	leancrypto_kyber_512_c_lib = static_library(
 		'leancrypto_kyber_512_c_lib',
@@ -109,4 +111,3 @@ if get_option('kyber_512').enabled()
 	)
 	leancrypto_support_libs_fips += leancrypto_kyber_512_c_lib
 endif
-

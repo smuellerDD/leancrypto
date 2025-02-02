@@ -1,0 +1,1 @@
+../../../ml-kem/src/riscv64/kyber_kem_api_riscv.c

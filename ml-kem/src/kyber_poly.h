@@ -58,7 +58,7 @@ void basemul(int16_t r[2], const int16_t a[2], const int16_t b[2],
 
 #ifdef LC_HOST_ARM32_NEON
 #include "armv7/kyber_poly_armv7.h"
-#else
+#elif (!defined(LC_KYBER_POLY_C_NOT_INCLUDE))
 #include "kyber_poly_c.h"
 #endif
 
@@ -140,27 +140,6 @@ static inline void poly_tobytes(uint8_t r[LC_KYBER_POLYBYTES], const poly *a)
 		r[3 * i + 0] = (uint8_t)(t0 >> 0);
 		r[3 * i + 1] = (uint8_t)((t0 >> 8) | (t1 << 4));
 		r[3 * i + 2] = (uint8_t)(t1 >> 4);
-	}
-}
-
-/**
- * @brief poly_frombytes - De-serialization of a polynomial;
- *			   inverse of poly_tobytes
- *
- * @param [out] r pointer to output polynomial
- * @param [in] a pointer to input byte array
- */
-static inline void poly_frombytes(poly *r, const uint8_t a[LC_KYBER_POLYBYTES])
-{
-	unsigned int i;
-
-	for (i = 0; i < LC_KYBER_N / 2; i++) {
-		r->coeffs[2 * i] =
-			((a[3 * i + 0] >> 0) | ((uint16_t)a[3 * i + 1] << 8)) &
-			0xFFF;
-		r->coeffs[2 * i + 1] =
-			((a[3 * i + 1] >> 4) | ((uint16_t)a[3 * i + 2] << 4)) &
-			0xFFF;
 	}
 }
 
@@ -284,47 +263,6 @@ void poly_getnoise_eta1(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
 #define POLY_GETNOISE_ETA2_BUFSIZE (LC_KYBER_ETA2 * LC_KYBER_N / 4)
 void poly_getnoise_eta2(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
 			uint8_t nonce, void *ws_buf);
-
-/**
- * @brief poly_ntt - Computes negacyclic number-theoretic transform (NTT) of
- *		     a polynomial in place; inputs assumed to be in normal
- *		     order, output in bitreversed order
- *
- * @param [in,out] r pointer to in/output polynomial
- */
-static inline void poly_ntt(poly *r)
-{
-	kyber_ntt(r->coeffs);
-	poly_reduce(r);
-}
-
-/**
- * @brief poly_invntt_tomont - Computes inverse of negacyclic number-theoretic
- *			       transform (NTT) of a polynomial in place;
- *			       inputs assumed to be in bitreversed order, output
- *			       in normal order
- *
- * @param [in,out] r pointer to in/output polynomial
- */
-static inline void poly_invntt_tomont(poly *r)
-{
-	kyber_invntt(r->coeffs);
-}
-
-/**
- * @brief poly_tomont - Inplace conversion of all coefficients of a polynomial
- *			from normal domain to Montgomery domain
- *
- * @param [in,out] r pointer to input/output polynomial
- */
-static inline void poly_tomont(poly *r)
-{
-	unsigned int i;
-	const int16_t f = (1ULL << 32) % LC_KYBER_Q;
-
-	for (i = 0; i < LC_KYBER_N; i++)
-		r->coeffs[i] = montgomery_reduce((int32_t)r->coeffs[i] * f);
-}
 
 #ifdef __cplusplus
 }

@@ -45,8 +45,8 @@
  * @param [in] pk pointer to the input public-key polyvec
  * @param [in] seed pointer to the input public seed
  */
-static void pack_pk(uint8_t r[LC_KYBER_INDCPA_PUBLICKEYBYTES],
-		    const polyvec *pk, const uint8_t seed[LC_KYBER_SYMBYTES])
+static void pack_pk(uint8_t r[LC_KYBER_INDCPA_PUBLICKEYBYTES], polyvec *pk,
+		    const uint8_t seed[LC_KYBER_SYMBYTES])
 {
 	polyvec_tobytes(r, pk);
 	memcpy(&r[LC_KYBER_POLYVECBYTES], seed, LC_KYBER_SYMBYTES);

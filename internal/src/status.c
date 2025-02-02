@@ -48,6 +48,8 @@
 #include "sha512_shani.h"
 #include "visibility.h"
 
+#include "../src/riscv64/kyber_rvv_vlen_selector.h"
+
 LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 {
 	static const char __maybe_unused armv8[] =
@@ -102,7 +104,7 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 		 "SHA3 Acceleration support: %s%s%s%s%s%s%s\n"
 #endif
 #ifdef LC_KYBER
-		 "Kyber Acceleration support: %s%s%s%s\n"
+		 "Kyber Acceleration support: %s%s%s%s%s\n"
 #endif
 #ifdef LC_DILITHIUM
 		 "Dilithium Acceleration support: %s%s%s%s%s\n"
@@ -206,8 +208,16 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
 			 "AVX2" :
 			 "",
-		 armv7, armv8, riscv64
+		 armv7, armv8, riscv64,
+#if defined(LC_HOST_RISCV64) || defined(CONFIG_RISCV)
+		 lc_riscv_rvv_is_vlen128() ? "RISV64-RVV128" :
+		 lc_riscv_rvv_is_vlen256() ? "RISV64-RVV256" :
+					     ""
+#else
+		 ""
 #endif
+
+#endif /* LC_KYBER */
 
 	/* Dilithium */
 #ifdef LC_DILITHIUM

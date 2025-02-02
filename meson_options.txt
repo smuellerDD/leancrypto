@@ -194,6 +194,23 @@ These include the known sha*sum applications.
 ''')
 
 ################################################################################
+# Architecture-specific options
+################################################################################
+option('riscv_rvv_vlen128', type: 'feature', value: 'enabled',
+       description: '''RISCV: Support RVV with length 128 bits
+
+This option allows the disabling of any RISCV RVV support with bit length of
+128 bits
+''')
+
+option('riscv_rvv_vlen256', type: 'feature', value: 'enabled',
+       description: '''RISCV: Support RVV with length 256 bits
+
+This option allows the disabling of any RISCV RVV support with bit length of
+256 bits
+''')
+
+################################################################################
 # Auxiliary options
 ################################################################################
 option('x509_parser', type: 'feature', value: 'enabled',

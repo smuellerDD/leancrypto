@@ -23,7 +23,7 @@ Changes 1.2.0-prerelease
 
 * Add compilation support for (U)EFI environment
 
-* RISCV64 RVV: ML-DSA - add assembler implementation using RVV support
+* RISCV64 RVV: ML-KEM, ML-DSA - add assembler implementation using RVV support
 
 * Seeded DRNG: Require a reseed after 2**14 bytes to comply with AIS20/31 3.0 DRG.4 and the discussed upcoming changes to SP800-90A.
 

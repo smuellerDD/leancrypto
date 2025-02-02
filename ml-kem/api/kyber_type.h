@@ -249,6 +249,28 @@ extern "C" {
 #define kyber_barrett_reduce_armv7 KYBER_F(barrett_reduce_armv7)
 #define kyber_basemul_armv7 KYBER_F(basemul_armv7)
 
+/* RISCV64 Implementation */
+#define lc_kyber_keypair_rvv_vlen256 KYBER_F(keypair_rvv_vlen256)
+#define lc_kyber_keypair_from_seed_rvv_vlen256                                 \
+	KYBER_F(keypair_from_seed_rvv_vlen256)
+#define lc_kyber_enc_rvv_vlen256 KYBER_F(enc_rvv_vlen256)
+#define lc_kyber_dec_rvv_vlen256 KYBER_F(dec_rvv_vlen256)
+#define lc_kyber_enc_kdf_rvv_vlen256 KYBER_F(enc_kdf_rvv_vlen256)
+#define lc_kyber_dec_kdf_rvv_vlen256 KYBER_F(dec_kdf_rvv_vlen256)
+#define indcpa_dec_rvv_vlen256 KYBER_F(indcpa_dec_rvv_vlen256)
+#define indcpa_enc_rvv_vlen256 KYBER_F(indcpa_enc_rvv_vlen256)
+#define indcpa_keypair_rvv_vlen256 KYBER_F(indcpa_keypair_rvv_vlen256)
+#define lc_kyber_keypair_rvv_vlen128 KYBER_F(keypair_rvv_vlen128)
+#define lc_kyber_keypair_from_seed_rvv_vlen128                                 \
+	KYBER_F(keypair_from_seed_rvv_vlen128)
+#define lc_kyber_enc_rvv_vlen128 KYBER_F(enc_rvv_vlen128)
+#define lc_kyber_dec_rvv_vlen128 KYBER_F(dec_rvv_vlen128)
+#define lc_kyber_enc_kdf_rvv_vlen128 KYBER_F(enc_kdf_rvv_vlen128)
+#define lc_kyber_dec_kdf_rvv_vlen128 KYBER_F(dec_kdf_rvv_vlen128)
+#define indcpa_dec_rvv_vlen128 KYBER_F(indcpa_dec_rvv_vlen128)
+#define indcpa_enc_rvv_vlen128 KYBER_F(indcpa_enc_rvv_vlen128)
+#define indcpa_keypair_rvv_vlen128 KYBER_F(indcpa_keypair_rvv_vlen128)
+
 #ifdef __cplusplus
 }
 #endif

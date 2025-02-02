@@ -58,18 +58,6 @@ static inline void poly_add(poly *r, const poly *a, const poly *b)
 }
 
 /**
- * @brief poly_sub - Subtract two polynomials; no modular reduction is performed
- *
- * @param [out] r pointer to output polynomial
- * @param [in] a pointer to first input polynomial
- * @param [in] b pointer to second input polynomial
- */
-static inline void poly_sub(poly *r, const poly *a, const poly *b)
-{
-	kyber_poly_sub_armv7(r->coeffs, a->coeffs, b->coeffs);
-}
-
-/**
  * @brief poly_basemul_montgomery - Multiplication of two polynomials in NTT
  *				    domain
  *
@@ -82,6 +70,12 @@ static inline void poly_basemul_montgomery(poly *r, const poly *a,
 {
 	kyber_basemul_armv7(r->coeffs, a->coeffs, b->coeffs, zetas_armv7);
 }
+
+#include "common/kyber_poly_sub.h"
+#include "common/kyber_poly_frombytes.h"
+#include "common/kyber_poly_tomont.h"
+#include "common/kyber_poly_ntt.h"
+#include "common/kyber_poly_intt.h"
 
 #ifdef __cplusplus
 }

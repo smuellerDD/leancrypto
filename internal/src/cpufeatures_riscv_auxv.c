@@ -36,24 +36,26 @@ LC_INTERFACE_FUNCTION(void, lc_cpu_feature_enable, void)
 
 LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 {
-	if (features == LC_CPU_FEATURE_UNSET) {
-		unsigned long c = getauxval(AT_HWCAP);
+	unsigned long c;
 
-		features = LC_CPU_FEATURE_RISCV;
+	if (features != LC_CPU_FEATURE_UNSET)
+		return features;
 
-		if (c & (1 << ('v' - 'a'))) {
-			/*
-			 * TODO older kernels do not report the B
-			 * extensions properly. It is assumed that
-			 * the B extensions are present along with
-			 * the V extensions.
-			 */
-			features |= LC_CPU_FEATURE_RISCV_ASM_ZBB;
-			features |= LC_CPU_FEATURE_RISCV_ASM_RVV;
-		}
-		if (c & (1 << ('b' - 'a')))
-			features |= LC_CPU_FEATURE_RISCV_ASM_ZBB;
+	c = getauxval(AT_HWCAP);
+	features = LC_CPU_FEATURE_RISCV;
+
+	if (c & (1 << ('v' - 'a'))) {
+		/*
+		 * TODO older kernels do not report the B
+		 * extensions properly. It is assumed that
+		 * the B extensions are present along with
+		 * the V extensions.
+		 */
+		features |= LC_CPU_FEATURE_RISCV_ASM_ZBB;
+		features |= LC_CPU_FEATURE_RISCV_ASM_RVV;
 	}
+	if (c & (1 << ('b' - 'a')))
+		features |= LC_CPU_FEATURE_RISCV_ASM_ZBB;
 
 	return features;
 }

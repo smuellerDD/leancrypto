@@ -85,20 +85,7 @@ static inline void poly_add(poly *r, const poly *a, const poly *b)
 	kyber_add_armv8(r->coeffs, a->coeffs, b->coeffs);
 }
 
-/**
- * @brief poly_sub - Subtract two polynomials; no modular reduction is performed
- *
- * @param [out] r pointer to output polynomial
- * @param [in] a pointer to first input polynomial
- * @param [in] b pointer to second input polynomial
- */
-static inline void poly_sub(poly *r, const poly *a, const poly *b)
-{
-	unsigned int i;
-
-	for (i = 0; i < LC_KYBER_N; i++)
-		r->coeffs[i] = a->coeffs[i] - b->coeffs[i];
-}
+#include "common/kyber_poly_sub.h"
 
 /**
  * @brief poly_sub_reduce - Combination of

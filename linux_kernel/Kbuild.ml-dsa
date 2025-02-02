@@ -208,8 +208,8 @@ leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_87)				       \
 			+= ../ml-dsa/src/riscv64/dilithium_signature_api_riscv64.o\
 			   ../ml-dsa/src/riscv64/dilithium_signature_riscv64.o \
 			   ../ml-dsa/src/riscv64/ntt_8l_dualissue_plant_rv64im.o
-AFLAGS../ml-dsa/src/riscv64/ntt_8l_dualissue_plant_rv64im.o := -march=rv64gc   \
-							       -mcmodel=medany
+AFLAGS_../ml-dsa/src/riscv64/ntt_8l_dualissue_plant_rv64im.o := -march=rv64gc  \
+							        -mcmodel=medany
 
 # Dilithium 65 RISCV64 ASM
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_65)				       \

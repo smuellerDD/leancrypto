@@ -44,7 +44,7 @@ static int _kyber_kem_keygen_selftest(
 		struct lc_kyber_pk pk;
 		struct lc_kyber_sk sk;
 	};
-	char str[25];
+	char str[35];
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 

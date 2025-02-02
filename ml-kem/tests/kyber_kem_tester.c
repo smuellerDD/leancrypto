@@ -378,7 +378,7 @@ int _kyber_kem_kdf_tester(
 	       "{\n");
 	nvectors = NTESTS;
 #else
-	nvectors = ARRAY_SIZE(kyber_testvectors);
+	nvectors = ARRAY_SIZE(kyber_kdf_testvectors);
 #endif
 
 	if (!rounds)

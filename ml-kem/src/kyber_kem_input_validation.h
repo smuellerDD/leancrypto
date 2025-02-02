@@ -59,10 +59,9 @@ static inline int kyber_kem_iv_type(const struct lc_kyber_pk *pk)
  * @return 0 on success, < 0 on error
  */
 static inline int kyber_kem_iv_pk_modulus(
-	const uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES], const polyvec *pkpv,
+	const uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES], polyvec *pkpv,
 	uint8_t seed[LC_KYBER_SYMBYTES], void *ws,
-	void (*pack_pk)(uint8_t r[LC_KYBER_INDCPA_PUBLICKEYBYTES],
-			const polyvec *pk,
+	void (*pack_pk)(uint8_t r[LC_KYBER_INDCPA_PUBLICKEYBYTES], polyvec *pk,
 			const uint8_t seed[LC_KYBER_SYMBYTES]))
 {
 	int ret = 0;

@@ -26,25 +26,27 @@ static enum lc_cpu_features features = LC_CPU_FEATURE_UNSET;
 
 LC_INTERFACE_FUNCTION(void, lc_cpu_feature_disable, void)
 {
+	features = LC_CPU_FEATURE_NONE;
 }
 
 LC_INTERFACE_FUNCTION(void, lc_cpu_feature_enable, void)
 {
+	features = LC_CPU_FEATURE_UNSET;
 }
 
 LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 {
-	if (features == LC_CPU_FEATURE_UNSET) {
-		features = LC_CPU_FEATURE_RISCV;
+	if (features != LC_CPU_FEATURE_UNSET)
+		return features;
+
+	features = LC_CPU_FEATURE_RISCV;
 
 #ifdef LINUX_KERNEL
-		if (riscv_isa_extension_available(NULL, ZBB))
-			features |= LC_CPU_FEATURE_RISCV_ASM_ZBB;
-		if (riscv_isa_extension_available(NULL, ZVE64D) &&
-		    may_use_simd())
-			features |= LC_CPU_FEATURE_RISCV_ASM_RVV;
+	if (riscv_isa_extension_available(NULL, ZBB))
+		features |= LC_CPU_FEATURE_RISCV_ASM_ZBB;
+	if (riscv_isa_extension_available(NULL, ZVE64D) && may_use_simd())
+		features |= LC_CPU_FEATURE_RISCV_ASM_RVV;
 #endif
-	}
 
 	return features;
 }

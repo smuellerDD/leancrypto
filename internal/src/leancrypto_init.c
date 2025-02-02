@@ -46,5 +46,9 @@ LC_INIT_FUNCTION(int, lc_init, unsigned int flags)
 	aes_fastest_impl();
 #endif
 
+#if ((defined(LC_KYBER) || defined(CONFIG_LEANCRYPTO_KEM)) &&                  \
+     defined(LC_HOST_RISCV64))
+	kyber_riscv_rvv_selector();
+#endif
 	return 0;
 }

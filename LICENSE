@@ -372,7 +372,19 @@ are obtained from https://github.com/Ji-Peng/PQRV
 
 hash/src/asm/riscv64/fips202_rv64im.S
 hash/src/asm/riscv64/fips202_rv64imb.S
-ml-kem/src/riscv64/*
+ml-kem/src/riscv64/kyber_cbd_rvv.h
+ml-kem/src/riscv64/kyber_consts_rvv_vlen128.*
+ml-kem/src/riscv64/kyber_consts_rvv_vlen256.*
+ml-kem/src/riscv64/kyber_indcpa_riscv.h
+ml-kem/src/riscv64/kyber_indcpa_rvv.h
+ml-kem/src/riscv64/kyber_indcpa_rvv_vlen128.*
+ml-kem/src/riscv64/kyber_indcpa_rvv_vlen256.*
+ml-kem/src/riscv64/kyber_poly_rvv.h
+ml-kem/src/riscv64/kyber_polyvec_rvv.h
+ml-kem/src/riscv64/kyber_zetas_riscv.c
+ml-kem/src/riscv64/ntt_dualissue_plant_rv64im.S
+ml-kem/src/riscv64/ntt_rvv_vlen128.*
+ml-kem/src/riscv64/ntt_rvv_vlen256.*
 ml-dsa/src/riscv64/dilithium_ntt_rv64im.h
 ml-dsa/src/riscv64/ntt_8l_dualissue_plant_rv64im.S
 ml-dsa/src/riscv64/dilithium_poly_riscv64.h

@@ -56,7 +56,6 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER_512)				       \
 				+= kyber512/kyber_ies.o			       \
 				   kyber512/kyber_indcpa.o		       \
 				   kyber512/kyber_kem.o			       \
-				   kyber512/kyber_kem_api_c.o		       \
 				   kyber512/kyber_kem_c.o		       \
 				   kyber512/kyber_kex.o			       \
 				   kyber512/kyber_poly.o		       \
@@ -68,7 +67,6 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER_512)				       \
 CFLAGS_kyber512/kyber_ies.o			:= -DLC_KYBER_TYPE_512
 CFLAGS_kyber512/kyber_indcpa.o			:= -DLC_KYBER_TYPE_512
 CFLAGS_kyber512/kyber_kem.o			:= -DLC_KYBER_TYPE_512
-CFLAGS_kyber512/kyber_kem_api_c.o		:= -DLC_KYBER_TYPE_512
 CFLAGS_kyber512/kyber_kem_c.o			:= -DLC_KYBER_TYPE_512
 CFLAGS_kyber512/kyber_kex.o			:= -DLC_KYBER_TYPE_512
 CFLAGS_kyber512/kyber_poly.o			:= -DLC_KYBER_TYPE_512
@@ -82,6 +80,12 @@ ifeq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
 leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER)				       \
 				+= ../ml-kem/src/kyber_ntt.o
 endif
+endif
+
+ifeq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER)				       \
+				+= kyber512/kyber_kem_api_c.o
+CFLAGS_kyber512/kyber_kem_api_c.o		:= -DLC_KYBER_TYPE_512
 endif
 
 ################################################################################
@@ -177,9 +181,9 @@ asflags-$(CONFIG_LEANCRYPTO_KEM_KYBER)					       \
 
 # Kyber Common
 leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER)				       \
-				+= ../ml-kem/src/armv7/kyber_consts_armv7.o       \
-				   ../ml-kem/src/armv7/kyber_fastinvntt_armv7.o   \
-				   ../ml-kem/src/armv7/kyber_fastntt_armv7.o      \
+				+= ../ml-kem/src/armv7/kyber_consts_armv7.o    \
+				   ../ml-kem/src/armv7/kyber_fastinvntt_armv7.o\
+				   ../ml-kem/src/armv7/kyber_fastntt_armv7.o   \
 				   ../ml-kem/src/armv7/kyber_ntt_armv7.o
 
 # Kyber 1024
@@ -252,12 +256,16 @@ AFLAGS_kyber768/armv8/kyber_reduce_armv8.o	:= -DLC_KYBER_TYPE_768
 
 
 ################################################################################
-# RISCV64 Implementation
+# RISCV64 assembler and RVV implementations
 ################################################################################
 else ifneq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
 asflags-$(CONFIG_LEANCRYPTO_KEM_KYBER)					       \
 				+= -I$(PWD)/../ml-kem/src/riscv64
+ccflags-$(CONFIG_LEANCRYPTO_KEM_KYBER)					       \
+				+= -DLC_KYBER_RISCV_RVV_VLEN128		       \
+				   -DLC_KYBER_RISCV_RVV_VLEN256
 
+#--- RISCV64 assembler ---------------------------------------------------------
 # Kyber Common
 leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER)				       \
 				+= ../ml-kem/src/riscv64/kyber_zetas_riscv.o   \
@@ -265,14 +273,93 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER)				       \
 
 # Kyber 1024
 leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER_1024)				       \
-				+= ../ml-kem/src/kyber_kem_api_c.o
+				+= ../ml-kem/src/riscv64/kyber_kem_api_riscv.o
 
 # Kyber 768
 leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER_768)				       \
-				+= kyber768/kyber_kem_api_c.o
-CFLAGS_kyber768/kyber_kem_api_c.o		:= -DLC_KYBER_TYPE_768
+				+= kyber768/riscv64_rvv/kyber_kem_api_riscv.o
+CFLAGS_kyber768/riscv64_rvv/kyber_kem_api_riscv.o	:= -DLC_KYBER_TYPE_768
 
-# Kyber 512 - kyber_kem_api_c.c is already compiled as part of C
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER_512)				       \
+				+= kyber512/riscv64_rvv/kyber_kem_api_riscv.o
+CFLAGS_kyber512/riscv64_rvv/kyber_kem_api_riscv.o	:= -DLC_KYBER_TYPE_512
+
+#--- RISCV64 RVV Common --------------------------------------------------------
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER)				       \
+				+= ../ml-kem/src/riscv64/kyber_rvv_vlen_selector.o\
+				   ../ml-kem/src/riscv64/ntt_rvv_vlen128.o     \
+				   ../ml-kem/src/riscv64/ntt_rvv_vlen256.o     \
+				   ../ml-kem/src/riscv64/riscv_rvv_selector_test.o\
+				   ../ml-kem/src/riscv64/kyber_consts_rvv_vlen128.o\
+				   ../ml-kem/src/riscv64/kyber_consts_rvv_vlen256.o
+CFLAGS_../ml-kem/src/riscv64/kyber_rvv_vlen_selector.o :=		       \
+	-march=rv64imadcv -mcmodel=medany
+AFLAGS_../ml-kem/src/riscv64/ntt_rvv_vlen128.o :=			       \
+	-march=rv64imadcv -mcmodel=medany
+AFLAGS_../ml-kem/src/riscv64/ntt_rvv_vlen256.o :=			       \
+	-march=rv64imadcv -mcmodel=medany
+AFLAGS_../ml-kem/src/riscv64/riscv_rvv_selector_test.o :=		       \
+	-march=rv64imadcv -mcmodel=medany
+CFLAGS_../ml-kem/src/riscv64/kyber_consts_rvv_vlen128.o :=		       \
+	-march=rv64imadcv -mcmodel=medany
+CFLAGS_../ml-kem/src/riscv64/kyber_consts_rvv_vlen256.o :=		       \
+	-march=rv64imadcv -mcmodel=medany
+
+#--- RISCV64 RVV VLEN128 -------------------------------------------------------
+# Kyber 1024
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER)				       \
+				+= ../ml-kem/src/riscv64/kyber_indcpa_rvv_vlen128.o\
+				   ../ml-kem/src/riscv64/kyber_kem_rvv_vlen128.o
+CFLAGS_../ml-kem/src/riscv64/kyber_indcpa_rvv_vlen128.o :=		       \
+	-march=rv64imadcv -mcmodel=medany
+CFLAGS_../ml-kem/src/riscv64/kyber_kem_rvv_vlen128.o :=			       \
+	-march=rv64imadcv -mcmodel=medany
+
+# Kyber 768
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER)				       \
+				+= kyber768/riscv64_rvv/kyber_indcpa_rvv_vlen128.o\
+				   kyber768/riscv64_rvv/kyber_kem_rvv_vlen128.o
+CFLAGS_kyber768/riscv64_rvv/kyber_indcpa_rvv_vlen128.o :=		       \
+	-march=rv64imadcv -mcmodel=medany -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/riscv64_rvv/kyber_kem_rvv_vlen128.o :=			       \
+	-march=rv64imadcv -mcmodel=medany -DLC_KYBER_TYPE_768
+
+# Kyber 512
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER)				       \
+				+= kyber512/riscv64_rvv/kyber_indcpa_rvv_vlen128.o\
+				   kyber512/riscv64_rvv/kyber_kem_rvv_vlen128.o
+CFLAGS_kyber512/riscv64_rvv/kyber_indcpa_rvv_vlen128.o :=		       \
+	-march=rv64imadcv -mcmodel=medany -DLC_KYBER_TYPE_512
+CFLAGS_kyber512/riscv64_rvv/kyber_kem_rvv_vlen128.o :=			       \
+	-march=rv64imadcv -mcmodel=medany -DLC_KYBER_TYPE_512
+
+#--- RISCV64 RVV VLEN256 -------------------------------------------------------
+# Kyber 1024
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER)				       \
+				+= ../ml-kem/src/riscv64/kyber_indcpa_rvv_vlen256.o\
+				   ../ml-kem/src/riscv64/kyber_kem_rvv_vlen256.o
+CFLAGS_../ml-kem/src/riscv64/kyber_indcpa_rvv_vlen256.o :=		       \
+	-march=rv64imadcv -mcmodel=medany
+CFLAGS_../ml-kem/src/riscv64/kyber_kem_rvv_vlen256.o :=			       \
+	-march=rv64imadcv -mcmodel=medany
+
+# Kyber 768
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER)				       \
+				+= kyber768/riscv64_rvv/kyber_indcpa_rvv_vlen256.o\
+				   kyber768/riscv64_rvv/kyber_kem_rvv_vlen256.o
+CFLAGS_kyber768/riscv64_rvv/kyber_indcpa_rvv_vlen256.o :=		       \
+	-march=rv64imadcv -mcmodel=medany -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/riscv64_rvv/kyber_kem_rvv_vlen256.o :=			       \
+	-march=rv64imadcv -mcmodel=medany -DLC_KYBER_TYPE_768
+
+# Kyber 512
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER)				       \
+				+= kyber512/riscv64_rvv/kyber_indcpa_rvv_vlen256.o\
+				   kyber512/riscv64_rvv/kyber_kem_rvv_vlen256.o
+CFLAGS_kyber512/riscv64_rvv/kyber_indcpa_rvv_vlen256.o :=		       \
+	-march=rv64imadcv -mcmodel=medany -DLC_KYBER_TYPE_512
+CFLAGS_kyber512/riscv64_rvv/kyber_kem_rvv_vlen256.o :=			       \
+	-march=rv64imadcv -mcmodel=medany -DLC_KYBER_TYPE_512
 
 ################################################################################
 # Interfaces for any non-accelerated implementation

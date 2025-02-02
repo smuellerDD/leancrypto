@@ -8,7 +8,9 @@ internal_src += files([
 
 if get_option('efi').disabled()
 	internal_src += files([
-		'binhexbin.c',
+		'binhexbin.c'
+	])
+	src_fips += files([
 		'status.c'
 	])
 else
