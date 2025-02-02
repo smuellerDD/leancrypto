@@ -31,6 +31,8 @@ Changes 1.2.0-prerelease
 
 * Add lc_init API
 
+* Intel non-AVX2 systems: remove all SIGILL causes by ensuring no AVX2 code is executed
+
 Changes 1.1.0
 * ML-KEM remove modulus check of decapsulation key (not required by FIPS 203)
 
