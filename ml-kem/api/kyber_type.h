@@ -270,6 +270,7 @@ extern "C" {
 #define indcpa_dec_rvv_vlen128 KYBER_F(indcpa_dec_rvv_vlen128)
 #define indcpa_enc_rvv_vlen128 KYBER_F(indcpa_enc_rvv_vlen128)
 #define indcpa_keypair_rvv_vlen128 KYBER_F(indcpa_keypair_rvv_vlen128)
+#define lc_kyber_enc_riscv KYBER_F(enc_riscv)
 
 #ifdef __cplusplus
 }

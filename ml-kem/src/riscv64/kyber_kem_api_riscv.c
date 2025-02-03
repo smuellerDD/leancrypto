@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2025, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2025, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *
@@ -22,6 +22,7 @@
 #include "cpufeatures.h"
 #include "kyber_internal.h"
 #include "kyber_kem_c.h"
+#include "kyber_kem_riscv.h"
 #include "kyber_kem_rvv_vlen128.h"
 #include "kyber_kem_rvv_vlen256.h"
 #include "kyber_rvv_vlen_selector.h"
@@ -71,6 +72,18 @@ int lc_kyber_enc_internal(struct lc_kyber_ct *ct, struct lc_kyber_ss *ss,
 	}
 
 	return lc_kyber_enc_c(ct, ss, pk, rng_ctx);
+}
+
+/*
+ * This is a pure test interface and not further to be used as regular
+ * interface. This is the reason why it is not documented or even exported in
+ * a header file.
+ */
+LC_INTERFACE_FUNCTION(int, lc_kyber_enc_riscv, struct lc_kyber_ct *ct,
+		      struct lc_kyber_ss *ss, const struct lc_kyber_pk *pk,
+		      struct lc_rng_ctx *rng_ctx)
+{
+	return lc_kyber_enc_internal(ct, ss, pk, rng_ctx);
 }
 
 int lc_kyber_enc_kdf_internal(struct lc_kyber_ct *ct, uint8_t *ss,
