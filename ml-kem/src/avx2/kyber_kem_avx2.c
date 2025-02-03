@@ -29,9 +29,9 @@
 #include "ret_checkers.h"
 #include "visibility.h"
 
-LC_INTERFACE_FUNCTION(int, lc_kyber_keypair_from_seed_avx,
-		      struct lc_kyber_pk *pk, struct lc_kyber_sk *sk,
-		      const uint8_t *seed, size_t seedlen)
+int lc_kyber_keypair_from_seed_avx(struct lc_kyber_pk *pk,
+				   struct lc_kyber_sk *sk, const uint8_t *seed,
+				   size_t seedlen)
 {
 	static int tester = LC_KYBER_TEST_INIT;
 
@@ -41,8 +41,8 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_keypair_from_seed_avx,
 					   indcpa_keypair_avx);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_kyber_keypair_avx, struct lc_kyber_pk *pk,
-		      struct lc_kyber_sk *sk, struct lc_rng_ctx *rng_ctx)
+int lc_kyber_keypair_avx(struct lc_kyber_pk *pk, struct lc_kyber_sk *sk,
+			 struct lc_rng_ctx *rng_ctx)
 {
 	static int tester = LC_KYBER_TEST_INIT;
 
@@ -51,9 +51,8 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_keypair_avx, struct lc_kyber_pk *pk,
 	return _lc_kyber_keypair(pk, sk, rng_ctx, indcpa_keypair_avx);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_kyber_enc_avx, struct lc_kyber_ct *ct,
-		      struct lc_kyber_ss *ss, const struct lc_kyber_pk *pk,
-		      struct lc_rng_ctx *rng_ctx)
+int lc_kyber_enc_avx(struct lc_kyber_ct *ct, struct lc_kyber_ss *ss,
+		     const struct lc_kyber_pk *pk, struct lc_rng_ctx *rng_ctx)
 {
 	static int tester = LC_KYBER_TEST_INIT;
 
@@ -61,9 +60,9 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_enc_avx, struct lc_kyber_ct *ct,
 	return _lc_kyber_enc(ct, ss, pk, rng_ctx, indcpa_enc_avx);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_kyber_enc_kdf_avx, struct lc_kyber_ct *ct,
-		      uint8_t *ss, size_t ss_len, const struct lc_kyber_pk *pk,
-		      struct lc_rng_ctx *rng_ctx)
+int lc_kyber_enc_kdf_avx(struct lc_kyber_ct *ct, uint8_t *ss, size_t ss_len,
+			 const struct lc_kyber_pk *pk,
+			 struct lc_rng_ctx *rng_ctx)
 {
 	static int tester = LC_KYBER_TEST_INIT;
 
@@ -72,9 +71,8 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_enc_kdf_avx, struct lc_kyber_ct *ct,
 	return _lc_kyber_enc_kdf(ct, ss, ss_len, pk, rng_ctx, indcpa_enc_avx);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_kyber_dec_avx, struct lc_kyber_ss *ss,
-		      const struct lc_kyber_ct *ct,
-		      const struct lc_kyber_sk *sk)
+int lc_kyber_dec_avx(struct lc_kyber_ss *ss, const struct lc_kyber_ct *ct,
+		     const struct lc_kyber_sk *sk)
 {
 	static int tester = LC_KYBER_TEST_INIT;
 
@@ -82,9 +80,9 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_dec_avx, struct lc_kyber_ss *ss,
 	return _lc_kyber_dec(ss, ct, sk, indcpa_dec_avx, indcpa_enc_avx);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_kyber_dec_kdf_avx, uint8_t *ss, size_t ss_len,
-		      const struct lc_kyber_ct *ct,
-		      const struct lc_kyber_sk *sk)
+int lc_kyber_dec_kdf_avx(uint8_t *ss, size_t ss_len,
+			 const struct lc_kyber_ct *ct,
+		         const struct lc_kyber_sk *sk)
 {
 	static int tester = LC_KYBER_TEST_INIT;
 

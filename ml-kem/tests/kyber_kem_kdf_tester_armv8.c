@@ -17,8 +17,9 @@
  * DAMAGE.
  */
 
+#include "cpufeatures.h"
 #include "ext_headers.h"
-#include "kyber_type.h"
+#include "kyber_internal.h"
 #include "kyber_kem_tester.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
@@ -28,9 +29,15 @@
 
 static int _kyber_kem_tester_armv8(unsigned int rounds)
 {
-	return _kyber_kem_kdf_tester(rounds, lc_kyber_keypair_armv8,
-				     lc_kyber_enc_kdf_armv8,
-				     lc_kyber_dec_kdf_armv8);
+	int ret;
+
+	/* Force ARMv8 asm only */
+	lc_cpu_feature_set(LC_CPU_FEATURE_ARM | LC_CPU_FEATURE_ARM_NEON);
+	ret = _kyber_kem_kdf_tester(rounds, lc_kyber_keypair,
+				    lc_kyber_enc_kdf_internal,
+				    lc_kyber_dec_kdf);
+	lc_cpu_feature_enable();
+	return ret;
 }
 
 static int kyber_kem_tester_armv8(void)
