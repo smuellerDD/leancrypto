@@ -1,10 +1,7 @@
 ################################################################################
 # Signature implementation: Sphincs
 
-ccflags-$(CONFIG_LEANCRYPTO_SPHINCS)					       \
-				+= -I$(PWD)/../slh-dsa/api -I$(PWD)/../slh-dsa/src
-asflags-$(CONFIG_LEANCRYPTO_SPHINCS)					       \
-				+= -I$(PWD)
+ccflags-$(CONFIG_LEANCRYPTO_SPHINCS) += -I$(src)/../slh-dsa/src
 
 ################################################################################
 # C Implementation
@@ -360,7 +357,7 @@ endif
 # Sphincs Test Cases
 ################################################################################
 ccflags-$(CONFIG_LEANCRYPTO_SPHINCS)					       \
-				+= -I$(PWD)/../slh-dsa/tests
+				+= -I$(src)/../slh-dsa/tests
 ifdef CONFIG_LEANCRYPTO_SPHINCS
 ccflags-y			+= -DCONFIG_LEANCRYPTO_SPHINCS
 

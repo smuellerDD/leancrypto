@@ -106,7 +106,7 @@ for flavor in %flavors_to_build; do
 	KERNELRELEASE=`make -s -C /%{_prefix}/src/linux-obj/%{_target_cpu}/$flavor kernelrelease`
 	rm -rf obj/$flavor
 	cp -r source obj/$flavor
-	make -C obj/$flavor/linux_kernel modules M=$PWD/obj/$flavor KERNELRELEASE=$KERNELRELEASE
+	make -C $PWD/obj/$flavor/linux_kernel KERNELRELEASE=$KERNELRELEASE
 done
 
 %check

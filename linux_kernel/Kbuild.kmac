@@ -1,7 +1,5 @@
 ################################################################################
 # KMAC implementation
-ccflags-$(CONFIG_LEANCRYPTO_KMAC)					       \
-				+= -I$(PWD)/../kmac/api
 leancrypto-$(CONFIG_LEANCRYPTO_KMAC)					       \
 				+= ../kmac/src/kmac.o			       \
 				   leancrypto_kernel_kmac.o

@@ -1,23 +1,19 @@
-ifeq ($(kbuild-dir),)
-kbuild-dir = $(if $(filter /%,$(src)),$(src),$(srctree)/$(src))
-endif
-
-include $(kbuild-dir)/Kbuild.config
-include $(kbuild-dir)/Kbuild.autoconfig
-include $(kbuild-dir)/Kbuild.version
-include $(kbuild-dir)/Kbuild.basics
-include $(kbuild-dir)/Kbuild.sha2
-include $(kbuild-dir)/Kbuild.sha3
-include $(kbuild-dir)/Kbuild.ascon
-include $(kbuild-dir)/Kbuild.aead
-include $(kbuild-dir)/Kbuild.drng
-include $(kbuild-dir)/Kbuild.hmac
-include $(kbuild-dir)/Kbuild.kdf
-include $(kbuild-dir)/Kbuild.curve25519
-include $(kbuild-dir)/Kbuild.ml-kem
-include $(kbuild-dir)/Kbuild.kmac
-include $(kbuild-dir)/Kbuild.ml-dsa
-include $(kbuild-dir)/Kbuild.aes
-include $(kbuild-dir)/Kbuild.chacha20
-include $(kbuild-dir)/Kbuild.bike
-include $(kbuild-dir)/Kbuild.slh-dsa
+include $(src)/Kbuild.config
+include $(src)/Kbuild.autoconfig
+include $(src)/Kbuild.version
+include $(src)/Kbuild.basics
+include $(src)/Kbuild.sha2
+include $(src)/Kbuild.sha3
+include $(src)/Kbuild.ascon
+include $(src)/Kbuild.aead
+include $(src)/Kbuild.drng
+include $(src)/Kbuild.hmac
+include $(src)/Kbuild.kdf
+include $(src)/Kbuild.curve25519
+include $(src)/Kbuild.ml-kem
+include $(src)/Kbuild.kmac
+include $(src)/Kbuild.ml-dsa
+include $(src)/Kbuild.aes
+include $(src)/Kbuild.chacha20
+include $(src)/Kbuild.bike
+include $(src)/Kbuild.slh-dsa

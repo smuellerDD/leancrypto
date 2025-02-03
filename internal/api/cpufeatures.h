@@ -54,6 +54,7 @@ enum lc_cpu_features {
 	LC_CPU_FEATURE_UNSET = (1U) << 30
 };
 
+void lc_cpu_feature_set(enum lc_cpu_features feature);
 void lc_cpu_feature_disable(void);
 void lc_cpu_feature_enable(void);
 enum lc_cpu_features lc_cpu_feature_available(void);

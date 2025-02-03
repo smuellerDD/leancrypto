@@ -1,7 +1,7 @@
 ################################################################################
 # BIKE implementation
-ccflags-$(CONFIG_LEANCRYPTO_KEM_BIKE)					       \
-				+= -I$(PWD)/../bike/api -I$(PWD)/../bike/src
+
+ccflags-$(CONFIG_LEANCRYPTO_KEM_BIKE) += -I$(src)/../bike/src
 
 leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE)				       \
 				+= ../bike/src/bike_api.o

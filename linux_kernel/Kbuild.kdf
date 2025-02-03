@@ -1,6 +1,5 @@
 ################################################################################
 # KDF implementation
-ccflags-y	 		+= -I$(PWD)/../kdf/api
 leancrypto-$(CONFIG_LEANCRYPTO_HKDF)					       \
 				+= ../kdf/src/hkdf.o
 ifdef CONFIG_LEANCRYPTO_HKDF

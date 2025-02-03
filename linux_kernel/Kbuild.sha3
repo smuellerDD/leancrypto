@@ -64,7 +64,7 @@ endif
 
 # ARM Neon support
 ifdef CONFIG_ARM64
-ccflags-y	  		+= -I$(PWD)/../hash/src/asm/ARMv8A/
+ccflags-y	  		+= -I$(src)/../hash/src/asm/ARMv8A/
 asflags-$(CONFIG_LEANCRYPTO_SHA3)					       \
 				+= -march=armv8-a+simd			       \
 				   -funsafe-math-optimizations
@@ -72,7 +72,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
 				+= ../hash/src/sha3_arm_neon.o		       \
 				   ../hash/src/asm/ARMv8A/KeccakP-1600-armv8a-neon.o
 else ifdef CONFIG_ARM
-ccflags-y	  		+= -I$(PWD)/../hash/src/asm/ARMv7A-NEON
+ccflags-y	  		+= -I$(src)/../hash/src/asm/ARMv7A-NEON
 asflags-$(CONFIG_LEANCRYPTO_SHA3)					       \
 				+= -mfpu=neon-vfpv4			       \
 				   -mthumb				       \
@@ -90,7 +90,7 @@ endif
 # Generic ARM assembler and ARM CE support
 ifdef CONFIG_ARM64
 asflags-$(CONFIG_LEANCRYPTO_SHA3)					       \
-				+= -I$(PWD)/../internal/api -DLINUX_KERNEL
+				+= -I$(src)/../internal/api -DLINUX_KERNEL
 leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
 				+= ../hash/src/sha3_arm_asm.o		       \
 				   ../hash/src/sha3_arm_ce.o		       \

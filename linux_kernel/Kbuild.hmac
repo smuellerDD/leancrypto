@@ -1,7 +1,6 @@
 ################################################################################
 # HMAC implementation
-ccflags-$(CONFIG_LEANCRYPTO_HMAC)					       \
-				+= -I$(PWD)/../hmac/api
+
 leancrypto-$(CONFIG_LEANCRYPTO_HMAC)					       \
 				+= ../hmac/src/hmac.o
 

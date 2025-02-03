@@ -9,7 +9,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_ASCON_HASH)				       \
 
 ifdef CONFIG_X86_64
 ccflags-$(CONFIG_LEANCRYPTO_ASCON_HASH)					       \
-				+= -I$(PWD)/../hash/src -DLINUX_KERNEL
+				+= -I$(src)/../hash/src -DLINUX_KERNEL
 leancrypto-$(CONFIG_LEANCRYPTO_ASCON_HASH)				       \
 				+= ../hash/src/ascon_avx512.o
 CFLAGS_../hash/src/ascon_avx512.o					       \

@@ -1,18 +1,56 @@
 obj-m		 		:= leancrypto.o
 
 # Kernel module framework
-ccflags-y			+= -I$(PWD) -DLINUX_KERNEL
+ccflags-y			+= -DLINUX_KERNEL
 ccflags-y			+= -DLC_MEM_ON_HEAP -Wframe-larger-than=2048
+asflags-y			+= -DLINUX_KERNEL
 
 # Shut up some annoying warnings
 ccflags-y	  		+= -Wno-declaration-after-statement -Wno-main
 
-# Required for leancrypto_kernel.c
-ccflags-y			+= -I$(PWD)/../curve25519/api		       \
-				   -I$(PWD)/../curve25519/src
-asflags-y			+= -I$(PWD)/../internal/api -DLINUX_KERNEL     \
-				   -I$(PWD)/../ml-kem/api		       \
-				   -I$(PWD)/../ml-dsa/api
+# General includes
+ccflags-y			+= -I$(src)				       \
+				   -I$(src)/../internal/api		       \
+				   -I$(src)/../curve25519/src		       \
+				   -I$(src)/../aead/api			       \
+				   -I$(src)/../apps/api			       \
+				   -I$(src)/../asn1/src			       \
+				   -I$(src)/../bike/api			       \
+				   -I$(src)/../curve25519/api		       \
+				   -I$(src)/../drng/api			       \
+				   -I$(src)/../drng/src			       \
+				   -I$(src)/../hash/api			       \
+				   -I$(src)/../hmac/api			       \
+				   -I$(src)/../ml-kem/api		       \
+				   -I$(src)/../kdf/api			       \
+				   -I$(src)/../kmac/api			       \
+				   -I$(src)/../otp/api			       \
+				   -I$(src)/../ml-dsa/api		       \
+				   -I$(src)/../slh-dsa/api		       \
+				   -I$(src)/../sym/api			       \
+				   -I$(src)/../asn1/api
+asflags-y			+= -I$(src)				       \
+				   -I$(src)/../internal/api		       \
+				   -I$(src)/../ml-kem/api		       \
+				   -I$(src)/../ml-dsa/api		       \
+				   -I$(src)/../curve25519/src		       \
+				   -I$(src)/../aead/api			       \
+				   -I$(src)/../apps/api			       \
+				   -I$(src)/../asn1/src			       \
+				   -I$(src)/../bike/api			       \
+				   -I$(src)/../curve25519/api		       \
+				   -I$(src)/../drng/api			       \
+				   -I$(src)/../drng/src			       \
+				   -I$(src)/../hash/api			       \
+				   -I$(src)/../hmac/api			       \
+				   -I$(src)/../ml-kem/api		       \
+				   -I$(src)/../kdf/api			       \
+				   -I$(src)/../kmac/api			       \
+				   -I$(src)/../otp/api			       \
+				   -I$(src)/../ml-dsa/api		       \
+				   -I$(src)/../slh-dsa/api		       \
+				   -I$(src)/../sym/api			       \
+				   -I$(src)/../asn1/api
 
 ifdef CONFIG_X86_64
 ccflags-y			+= -DLC_HOST_X86_64
@@ -38,7 +76,6 @@ leancrypto-y			+= posix_support.o			       \
 				   leancrypto_kernel.o
 
 # Internal helper code
-ccflags-y			+= -I$(PWD)/../internal/api
 leancrypto-y			+= ../internal/src/left_encode.o	       \
 				   ../internal/src/leancrypto_init.o	       \
 				   ../internal/src/compare.o		       \

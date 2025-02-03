@@ -1,6 +1,5 @@
 ################################################################################
 # AEAD implementation
-ccflags-y	  		+= -I$(PWD)/../aead/api
 
 leancrypto-$(CONFIG_LEANCRYPTO_AEAD)					       \
 				+= ../aead/src/aead_api.o

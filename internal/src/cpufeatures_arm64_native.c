@@ -106,6 +106,11 @@ LC_INTERFACE_FUNCTION(void, lc_cpu_feature_enable, void)
 	features = LC_CPU_FEATURE_UNSET;
 }
 
+LC_INTERFACE_FUNCTION(void, lc_cpu_feature_set, enum lc_cpu_features feature)
+{
+	features = feature;
+}
+
 LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 {
 	if (features == LC_CPU_FEATURE_UNSET) {

@@ -1,7 +1,5 @@
 ################################################################################
 # Hash implementation: SHA-256
-ccflags-y	 		+= -I$(PWD)/../hash/api
-
 leancrypto-y	  		+= ../hash/src/hash.o
 
 leancrypto-$(CONFIG_LEANCRYPTO_SHA2_256)				       \

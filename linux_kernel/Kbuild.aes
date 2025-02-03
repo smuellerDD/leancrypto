@@ -1,6 +1,8 @@
 ################################################################################
 # Symmetric implementation: AES
-ccflags-y	 		+= -I$(PWD)/../sym/api -I$(PWD)/../sym/src
+
+ccflags-y 			+= -I$(src)/../sym/src
+
 leancrypto-y	 		+= ../sym/src/sym.o
 
 leancrypto-$(CONFIG_LEANCRYPTO_AES)					       \

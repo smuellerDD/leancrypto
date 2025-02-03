@@ -1,11 +1,6 @@
 ################################################################################
 # Signature implementation: Dilithium
 
-ccflags-$(CONFIG_LEANCRYPTO_DILITHIUM)					       \
-				+= -I$(PWD)/../ml-dsa/api
-asflags-$(CONFIG_LEANCRYPTO_DILITHIUM)					       \
-				+= -I$(PWD)
-
 ################################################################################
 # C Implementation
 ################################################################################
@@ -288,7 +283,7 @@ endif
 # Dilithium Test Cases
 ################################################################################
 ccflags-$(CONFIG_LEANCRYPTO_DILITHIUM)					       \
-				+= -I$(PWD)/../ml-dsa/src
+				+= -I$(src)/../ml-dsa/src
 ifdef CONFIG_LEANCRYPTO_DILITHIUM
 ccflags-y			+= -DCONFIG_LEANCRYPTO_DILITHIUM
 

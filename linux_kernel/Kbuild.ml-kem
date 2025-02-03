@@ -1,9 +1,7 @@
 ################################################################################
 # KEM implementation: Kyber
 
-ccflags-$(CONFIG_LEANCRYPTO_KEM_KYBER)					       \
-				+= -I$(PWD)/../ml-kem/api -I$(PWD)/../ml-kem/src
-
+ccflags-$(CONFIG_LEANCRYPTO_KEM_KYBER) += -I$(src)/../ml-kem/src
 ################################################################################
 # C Implementation
 ################################################################################
@@ -177,7 +175,7 @@ AFLAGS_kyber768/avx2/kyber_shuffle_avx2.o	:= -DLC_KYBER_TYPE_768
 ################################################################################
 else ifdef CONFIG_ARM
 asflags-$(CONFIG_LEANCRYPTO_KEM_KYBER)					       \
-				+= -I$(PWD)/../ml-kem/src/armv7
+				+= -I$(src)/../ml-kem/src/armv7
 
 # Kyber Common
 leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER)				       \
@@ -209,7 +207,7 @@ AFLAGS_kyber512/armv7/kyber_poly_armv7.o	:= -DLC_KYBER_TYPE_512
 ################################################################################
 else ifdef CONFIG_ARM64
 asflags-$(CONFIG_LEANCRYPTO_KEM_KYBER)					       \
-				+= -I$(PWD)/../ml-kem/src/armv8
+				+= -I$(src)/../ml-kem/src/armv8
 
 # Kyber Common
 leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER)				       \
@@ -260,7 +258,7 @@ AFLAGS_kyber768/armv8/kyber_reduce_armv8.o	:= -DLC_KYBER_TYPE_768
 ################################################################################
 else ifneq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
 asflags-$(CONFIG_LEANCRYPTO_KEM_KYBER)					       \
-				+= -I$(PWD)/../ml-kem/src/riscv64
+				+= -I$(src)/../ml-kem/src/riscv64
 ccflags-$(CONFIG_LEANCRYPTO_KEM_KYBER)					       \
 				+= -DLC_KYBER_RISCV_RVV_VLEN128		       \
 				   -DLC_KYBER_RISCV_RVV_VLEN256
