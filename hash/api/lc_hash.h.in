@@ -86,10 +86,10 @@ struct lc_hash_ctx {
  *    LC_HASH_CTX_ON_STACK call.
  * 3. Do not use stack-allocation function.
  * 4. Ignore the warning by using
- * #pragma GCC diagnostic ignored "-Wvla"
  * #pragma GCC diagnostic push
+ * #pragma GCC diagnostic ignored "-Wvla"
  * LC_HASH_CTX_ON_STACK()
- * #pragma pop
+ * #pragma GCC diagnostic pop
  */
 #define LC_HASH_STATE_SIZE_NONALIGNED(x) ((unsigned long)(x->statesize))
 #define LC_HASH_STATE_SIZE(x)                                                  \
