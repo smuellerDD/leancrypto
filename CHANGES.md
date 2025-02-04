@@ -1,4 +1,4 @@
-Changes 1.2.0-prerelease
+Changes 1.2.0
 * Locking für seeded_rng added to avoid requiring the caller providing a lock
 
 * Addition of ASN.1 decoder, X.509 parser, PKCS#7 / CMS parser
@@ -34,6 +34,8 @@ Changes 1.2.0-prerelease
 * Intel non-AVX2 systems: remove all SIGILL causes by ensuring no AVX2 code is executed
 
 * Linux kernel: support version 6.13 kernel crypto signature API
+
+* Allow switching the central leancrypto seeded RNG instance with a caller-provided RNG
 
 Changes 1.1.0
 * ML-KEM remove modulus check of decapsulation key (not required by FIPS 203)
