@@ -83,8 +83,10 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 		"no";
 #endif
 
+#ifdef __clang__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wembedded-directive"
+#endif
 
 	size_t len;
 
@@ -241,6 +243,8 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 #endif
 	);
 
+#ifdef __clang__
 #pragma GCC diagnostic pop
+#endif
 
 }
