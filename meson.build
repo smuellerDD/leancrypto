@@ -290,6 +290,7 @@ include_dirs = include_directories([ 'aead/api',
 				     'hash/api',
 				     'hmac/api',
 				     'ml-kem/api',
+				     'ml-kem/src', # For "common/" directory
 				     'kdf/api',
 				     'kmac/api',
 				     'otp/api',
