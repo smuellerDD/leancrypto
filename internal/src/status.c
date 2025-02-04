@@ -83,6 +83,9 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 		"no";
 #endif
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wembedded-directive"
+
 	size_t len;
 
 	snprintf(outbuf, outlen, "leancrypto %u.%u.%u\n", MAJVERSION,
@@ -237,4 +240,7 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 		 avx, armv7, armv8
 #endif
 	);
+
+#pragma GCC diagnostic pop
+
 }
