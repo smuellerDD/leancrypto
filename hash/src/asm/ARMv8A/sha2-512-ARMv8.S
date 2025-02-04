@@ -999,7 +999,6 @@ SYM_FUNC_ENTER(sha512_block_neon)
 	RET
 SYM_FUNC_END(sha512_block_neon)
 
-SYM_TYPE_OBJ(LK512)
 .align	6
 .LK512:
 .quad	0x428a2f98d728ae22,0x7137449123ef65cd

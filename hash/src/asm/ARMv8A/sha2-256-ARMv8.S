@@ -1010,7 +1010,6 @@ sha256_block_data_order:
 .size	sha256_block_data_order,.-sha256_block_data_order
 #endif
 
-SYM_TYPE_OBJ(LK256)
 .align	6
 .LK256:
 .long	0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5
