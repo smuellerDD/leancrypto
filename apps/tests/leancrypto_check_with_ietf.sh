@@ -36,6 +36,13 @@ then
 	SRCDIR=$2
 fi
 
+#check presence of unzip
+unzip > /dev/null 2>&1
+if [ $? -ne 0 ]
+then
+	exit 0
+fi
+
 TMPDIR="./tmp"
 
 global_failure_count=0
