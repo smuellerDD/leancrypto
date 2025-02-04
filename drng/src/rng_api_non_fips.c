@@ -19,15 +19,18 @@
 
 #include "atomic.h"
 #include "lc_rng.h"
+#include "seeded_rng.h"
 #include "visibility.h"
 
 LC_INTERFACE_FUNCTION(int, lc_rng_set_seeded, struct lc_rng_ctx *new_ctx)
 {
-	if (!new_ctx)
-		return -EINVAL;
-
 	mb();
-	lc_seeded_rng = new_ctx;
+
+	if (!new_ctx)
+		lc_seeded_rng = lc_seeded_rng_internal;
+	else
+		lc_seeded_rng = new_ctx;
+
 	mb();
 	return 0;
 }

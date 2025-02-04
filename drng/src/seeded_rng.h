@@ -32,6 +32,8 @@ void seeded_rng_noise_fini(void);
 
 void lc_seeded_rng_zero_state(void);
 
+extern struct lc_rng_ctx *lc_seeded_rng_internal;
+
 #ifdef __cplusplus
 }
 #endif

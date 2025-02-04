@@ -147,7 +147,9 @@ int lc_rng_seed(struct lc_rng_ctx *ctx, const uint8_t *seed, size_t seedlen,
  * initial seed, and reseed. Also, that RNG is responsible for selecting and
  * managing the entropy source(s).
  *
- * @param [in] new_ctx externally defined RNG cipher handle
+ * @param [in] new_ctx externally defined RNG cipher handle - when using NULL
+ *		       then the leancrypto-internal fully seeded RNG used
+ *		       (again).
  *
  * @return 0 upon success; < 0 on error
  */
