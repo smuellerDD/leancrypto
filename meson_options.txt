@@ -176,6 +176,7 @@ option('enable_selftests', type: 'feature', value: 'enabled',
 
 option('seedsource', type: 'combo', value: 'builtin',
 	choices: ['builtin',
+		  'cpu',
 		  'esdm',
 		 ],
 	description: '''Select the seed source for leancrypto
