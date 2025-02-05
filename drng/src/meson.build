@@ -87,7 +87,7 @@ if (seeded_rng == 1)
 		#leancrypto_link += cc.find_library( 'esdm_rpc_client',
 		#				    required: true)
 	elif (get_option('efi').enabled() or
-	      get_option('cpu').enabled())
+	      get_option('seedsource') == 'cpu')
 		src_fips += files([ 'seeded_rng_cpu.c' ])
 	else
 		if (host_machine.system() == 'linux')
