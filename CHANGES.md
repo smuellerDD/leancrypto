@@ -1,3 +1,5 @@
+Changes 1.2.1-prerelease
+
 Changes 1.2.0
 * Locking für seeded_rng added to avoid requiring the caller providing a lock
 
