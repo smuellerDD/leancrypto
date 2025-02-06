@@ -22,6 +22,14 @@ Leancrypto allows the de-selection of algorithms at compile time with the variou
 
 When de-selecting algorithms at compile time, the respective services are reduced by this set of services.
 
+## List of Cryptographic Algorithms
+
+Leancrypto offers approved cryptographic algorithms as defined by the [ACVP-Proxy definition](https://github.com/smuellerDD/acvpproxy/blob/master/lib/module_implementations/definition_impl_leancrypto.c). This definition also covers all implementations of the cryptographic algorithm.
+
+NOTE: The reference of "C" implementations in the ACVP Proxy may be a bit deceiving for ML-KEM and ML-DSA as for some platforms, assembler accelerations are natively used by the C code (ARMv7 and RISCV). Yet, the reference is correct as the caller interacts with the implementation that does not require specific CPU instructions.
+
+NOTE2: The referenced ACVP proxy definitions explicitly exclude SHA LDT tests. This is *only* due to the fact that for the release testing of leancrypto, some test systems do not have more than 1GB of RAM which means that a linear buffer of 1GB or more cannot be allocated. There is *no* cryptographic limitation in leancrypto preventing the testing of LDT test vectors. Thus, if your platform has more RAM, you SHOULD enable the LDT testing.
+
 ## Service Indicator
 
 The `leancrypto-fips` FIPS module implements a global service indicator. This implies that all algorithms are FIPS-approved and the fact that the FIPS module is active is the indicator that FIPS-approved services are available.
@@ -52,9 +60,9 @@ For environments where no constructor is offered, such as the EFI environment or
 
 ## Random Number Generator and Entropy Source
 
-Leancrypto offers a fully seeded RNG instance that can readily be used everywhere where a FIPS-approved random number generator is
+Leancrypto offers a fully seeded RNG instance that can readily be used everywhere where a FIPS-approved random number generator is required by using `lc_seeded_rng`.
 
-Leancrypto does not provide any entropy source. Yet, it implements support for several entropy sources that can be selected at compile time:
+Leancrypto does not implement any entropy source. Yet, it implements support for several entropy sources that can be selected at compile time:
 
 * `builtin`: This option uses the underlying operating system's default entropy sources as implemented in `drng/src/seeded_rng_*.c` such as the `getrandom` system call on Linux or `getentropy` system call on BSD / macOS.
 
@@ -73,3 +81,7 @@ The documentation of the API as well as the usage of leancrypto, including the F
 ACVP-Testing is provided with the [ACVP-Parser](https://github.com/smuellerDD/acvpparser). This parser offers the testing of the user space as well as the kernel space variant of leancrypto.
 
 The mentioned ACVP-Parser was used to obtain all certificates listed on the [leancrypto CAVP website](https://leancrypto.org/leancrypto/cavp_certificates).
+
+## Random Notes
+
+ECDH 25519 is compiled as part of the FIPS module, but is non-approved. This is considered acceptable because the algorithm is not available via an API. Instead, the algorithm is used as part of the hybrid ML-KEM which use it as follows: Hybrid ML-KEM performs an SP800-108 KDF (KMAC256) using the concatenated output of ML-KEM and ECDH 25519 to generate the final shared secret. This is approved as per SP800-56C rev 2 chapter 2.
