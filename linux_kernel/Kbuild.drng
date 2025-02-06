@@ -6,6 +6,7 @@ leancrypto-y			+= ../drng/src/selftest_rng.o		       \
 ################################################################################
 # DRNG implementation: ChaCha20 DRNG
 leancrypto-y			+= ../drng/src/rng_api.o		       \
+				   ../drng/src/rng_api_non_fips.o	       \
 				   ../drng/src/seeded_rng.o		       \
 				   ../drng/src/seeded_rng_linux_kernel.o
 
