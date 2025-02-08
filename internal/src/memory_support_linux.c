@@ -98,34 +98,23 @@ LC_INTERFACE_FUNCTION(int, lc_alloc_aligned_secure, void **memptr,
 {
 	struct lc_mem_def *mem = NULL;
 	size_t full_size = LC_MEM_DEF_ALIGNED_OFFSET + size;
-	int ret, fd;
+	int fd;
 
 	if (!lc_alloc_have_memfd_secret)
 		return alloc_aligned_secure_internal(memptr, alignment, size,
 						     1);
 
 	fd = (int)syscall(SYS_memfd_secret, O_CLOEXEC);
-	if (fd == -1) {
-		ret = -errno;
-		if (ret == -ENOSYS) {
-			lc_alloc_have_memfd_secret = 0;
-			return alloc_aligned_secure_internal(memptr, alignment,
-							     size, 1);
-		}
+	if (fd == -1)
 		goto err;
-	}
 
-	if (ftruncate(fd, (off_t)full_size) == -1) {
-		ret = -errno;
+	if (ftruncate(fd, (off_t)full_size) == -1)
 		goto err;
-	}
 
 	/* Memory is aligned on page boundary */
 	mem = mmap(NULL, full_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-	if (mem == MAP_FAILED) {
-		ret = -errno;
+	if (mem == MAP_FAILED)
 		goto err;
-	}
 
 	mem->fd = fd;
 	mem->size = full_size;
@@ -136,12 +125,11 @@ LC_INTERFACE_FUNCTION(int, lc_alloc_aligned_secure, void **memptr,
 	return 0;
 
 err:
-	if (mem)
-		munmap(mem, size);
 	if (fd != -1)
 		close(fd);
 
-	return ret;
+	lc_alloc_have_memfd_secret = 0;
+	return alloc_aligned_secure_internal(memptr, alignment, size, 1);
 }
 
 #else /* LC_USE_MEMFD_SECURE */
