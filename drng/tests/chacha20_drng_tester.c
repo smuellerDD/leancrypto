@@ -21,6 +21,7 @@
 #include "conv_be_le.h"
 #include "lc_chacha20_drng.h"
 #include "lc_chacha20_private.h"
+#include "ret_checkers.h"
 #include "visibility.h"
 
 static inline void chacha20_bswap32(uint32_t *ptr, uint32_t words)
@@ -166,14 +167,17 @@ static int chacha20_tester(void)
 	int ret;
 	LC_CC20_DRNG_CTX_ON_STACK(cc20_ctx);
 
-	ret = chacha20_drng_selftest(cc20_ctx);
+	CKINT_LOG(chacha20_drng_selftest(cc20_ctx),
+		  "ChaCha20 DRNG self test failure: %d\n", ret);
+
 	lc_cc20_drng_zero(cc20_ctx);
 
-	if (lc_cc20_drng_alloc(&cc20_ctx_heap))
-		return 1;
+	CKINT_LOG(lc_cc20_drng_alloc(&cc20_ctx_heap),
+		  "ChaCha20 DRNG heap allocation failure: %d\n", ret);
 
-	ret += chacha20_drng_selftest(cc20_ctx_heap);
+	ret = chacha20_drng_selftest(cc20_ctx_heap);
 
+out:
 	lc_cc20_drng_zero_free(cc20_ctx_heap);
 	return ret;
 }

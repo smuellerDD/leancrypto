@@ -22,6 +22,7 @@
 #include "compare.h"
 #include "lc_xdrbg.h"
 #include "timecop.h"
+#include "ret_checkers.h"
 #include "visibility.h"
 
 static int xdrbg256_drng_selftest(struct lc_rng_ctx *xdrbg256_ctx)
@@ -203,13 +204,15 @@ static int xdrbg256_drng_test(void)
 	int ret;
 	LC_XDRBG256_DRNG_CTX_ON_STACK(xdrbg256_ctx);
 
-	ret = xdrbg256_drng_selftest(xdrbg256_ctx);
+	CKINT_LOG(xdrbg256_drng_selftest(xdrbg256_ctx),
+		  "XDRBG256 DRNG self test failure: %d\n", ret);
 
-	if (lc_xdrbg256_drng_alloc(&xdrbg256_ctx_heap))
-		return 1;
+	CKINT_LOG(lc_xdrbg256_drng_alloc(&xdrbg256_ctx_heap),
+		  "XDRBG256 DRNG heap allocation failure: %d\n", ret);
 
-	ret += xdrbg256_drng_selftest(xdrbg256_ctx_heap);
+	ret = xdrbg256_drng_selftest(xdrbg256_ctx_heap);
 
+out:
 	lc_rng_zero_free(xdrbg256_ctx_heap);
 	return ret;
 }

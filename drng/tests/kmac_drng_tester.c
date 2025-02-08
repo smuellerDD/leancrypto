@@ -21,6 +21,7 @@
 #include "build_bug_on.h"
 #include "compare.h"
 #include "lc_kmac256_drng.h"
+#include "ret_checkers.h"
 #include "visibility.h"
 
 #define LC_KMAC_DRNG_SEED_CUSTOMIZATION_STRING "KMAC-DRNG seed"
@@ -117,13 +118,15 @@ static int kmac_test(void)
 	int ret;
 	LC_KMAC256_DRNG_CTX_ON_STACK(kmac_ctx);
 
-	ret = kmac_drng_selftest(kmac_ctx);
+	CKINT_LOG(kmac_drng_selftest(kmac_ctx),
+		  "KMAC DRNG self test failure: %d\n", ret);
 
-	if (lc_kmac256_drng_alloc(&kmac_ctx_heap))
-		return 1;
+	CKINT_LOG(lc_kmac256_drng_alloc(&kmac_ctx_heap),
+		  "KMAC DRNG heap allocation failure: %d\n", ret);
 
 	ret += kmac_drng_selftest(kmac_ctx_heap);
 
+out:
 	lc_rng_zero_free(kmac_ctx_heap);
 	return ret;
 }

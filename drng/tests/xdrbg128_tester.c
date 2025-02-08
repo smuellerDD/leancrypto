@@ -22,6 +22,7 @@
 #include "compare.h"
 #include "lc_xdrbg.h"
 #include "timecop.h"
+#include "ret_checkers.h"
 #include "visibility.h"
 
 static int xdrbg128_drng_selftest(struct lc_rng_ctx *xdrbg128_ctx)
@@ -181,13 +182,15 @@ static int xdrbg128_drng_test(void)
 	int ret;
 	LC_XDRBG128_DRNG_CTX_ON_STACK(xdrbg128_ctx);
 
-	ret = xdrbg128_drng_selftest(xdrbg128_ctx);
+	CKINT_LOG(xdrbg128_drng_selftest(xdrbg128_ctx),
+		  "XDRBG128 DRNG self test failure: %d\n", ret);
 
-	if (lc_xdrbg128_drng_alloc(&xdrbg128_ctx_heap))
-		return 1;
+	CKINT_LOG(lc_xdrbg128_drng_alloc(&xdrbg128_ctx_heap),
+		  "XDRBG128 DRNG heap allocation failure: %d\n", ret);
 
-	ret += xdrbg128_drng_selftest(xdrbg128_ctx_heap);
+	ret = xdrbg128_drng_selftest(xdrbg128_ctx_heap);
 
+out:
 	lc_rng_zero_free(xdrbg128_ctx_heap);
 	return ret;
 }

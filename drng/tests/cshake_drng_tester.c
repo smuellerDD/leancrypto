@@ -21,6 +21,7 @@
 #include "build_bug_on.h"
 #include "compare.h"
 #include "lc_cshake256_drng.h"
+#include "ret_checkers.h"
 #include "visibility.h"
 
 #define LC_CSHAKE_DRNG_SEED_CUSTOMIZATION_STRING "cSHAKE-DRNG seed"
@@ -120,13 +121,15 @@ static int cshake_drng_test(void)
 	int ret;
 	LC_CSHAKE256_DRNG_CTX_ON_STACK(cshake_ctx);
 
-	ret = cshake_drng_selftest(cshake_ctx);
+	CKINT_LOG(cshake_drng_selftest(cshake_ctx),
+		  "cSHAKE DRNG self test failure: %d\n", ret);
 
-	if (lc_cshake256_drng_alloc(&cshake_ctx_heap))
-		return 1;
+	CKINT_LOG(lc_cshake256_drng_alloc(&cshake_ctx_heap),
+		  "cSHAKE DRNG heap allocation failure: %d\n", ret);
 
-	ret += cshake_drng_selftest(cshake_ctx_heap);
+	ret = cshake_drng_selftest(cshake_ctx_heap);
 
+out:
 	lc_rng_zero_free(cshake_ctx_heap);
 	return ret;
 }
