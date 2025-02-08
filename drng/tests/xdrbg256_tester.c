@@ -200,7 +200,7 @@ static int xdrbg256_drng_selftest(struct lc_rng_ctx *xdrbg256_ctx)
 
 static int xdrbg256_drng_test(void)
 {
-	struct lc_rng_ctx *xdrbg256_ctx_heap;
+	struct lc_rng_ctx *xdrbg256_ctx_heap = NULL;
 	int ret;
 	LC_XDRBG256_DRNG_CTX_ON_STACK(xdrbg256_ctx);
 

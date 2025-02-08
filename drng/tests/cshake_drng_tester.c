@@ -117,7 +117,7 @@ static int cshake_drng_selftest(struct lc_rng_ctx *cshake_ctx)
 
 static int cshake_drng_test(void)
 {
-	struct lc_rng_ctx *cshake_ctx_heap;
+	struct lc_rng_ctx *cshake_ctx_heap = NULL;
 	int ret;
 	LC_CSHAKE256_DRNG_CTX_ON_STACK(cshake_ctx);
 

@@ -178,7 +178,7 @@ static int xdrbg128_drng_selftest(struct lc_rng_ctx *xdrbg128_ctx)
 
 static int xdrbg128_drng_test(void)
 {
-	struct lc_rng_ctx *xdrbg128_ctx_heap;
+	struct lc_rng_ctx *xdrbg128_ctx_heap = NULL;
 	int ret;
 	LC_XDRBG128_DRNG_CTX_ON_STACK(xdrbg128_ctx);
 

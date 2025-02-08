@@ -114,7 +114,7 @@ static int kmac_drng_selftest(struct lc_rng_ctx *kmac_ctx)
 
 static int kmac_test(void)
 {
-	struct lc_rng_ctx *kmac_ctx_heap;
+	struct lc_rng_ctx *kmac_ctx_heap = NULL;
 	int ret;
 	LC_KMAC256_DRNG_CTX_ON_STACK(kmac_ctx);
 
