@@ -163,7 +163,7 @@ static int chacha20_drng_selftest(struct lc_chacha20_drng_ctx *cc20_ctx)
 
 static int chacha20_tester(void)
 {
-	struct lc_chacha20_drng_ctx *cc20_ctx_heap;
+	struct lc_chacha20_drng_ctx *cc20_ctx_heap = NULL;
 	int ret;
 	LC_CC20_DRNG_CTX_ON_STACK(cc20_ctx);
 
