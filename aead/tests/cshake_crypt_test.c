@@ -41,8 +41,9 @@ static int cc_tester_cshake_one(const uint8_t *pt, size_t ptlen,
 	LC_CC_CTX_ON_STACK(cc, lc_cshake256);
 
 	/* One shot encryption with pt ptr != ct ptr */
-	if (lc_aead_setkey(cc, key, keylen, NULL, 0))
-		return 1;
+	ret_checked = lc_aead_setkey(cc, key, keylen, NULL, 0);
+	if (ret_checked)
+		return ret_checked;
 
 	lc_aead_encrypt(cc, pt, out_enc, ptlen, aad, aadlen, tag, exp_tag_len);
 

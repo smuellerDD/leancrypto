@@ -1,6 +1,8 @@
 Changes 1.2.1-prerelease
 * Allow CPU entropy sources to be used as seed sources with meson option "seedsource=cpu"
 
+* Ensure full clean run on vintage system without AVX2 (thanks to "David C. Rankin" <drankinatty@gmail.com>)
+
 Changes 1.2.0
 * Locking für seeded_rng added to avoid requiring the caller providing a lock
 

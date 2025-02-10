@@ -42,7 +42,9 @@ static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
 	LC_KC_CTX_ON_STACK(kc, lc_cshake256);
 
 	/* One shot encryption with pt ptr != ct ptr */
-	lc_aead_setkey(kc, key, keylen, NULL, 0);
+	ret_checked = lc_aead_setkey(kc, key, keylen, NULL, 0);
+	if (ret_checked)
+		return ret_checked;
 
 	lc_aead_encrypt(kc, pt, out_enc, ptlen, aad, aadlen, tag, exp_tag_len);
 
