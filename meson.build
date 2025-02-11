@@ -262,8 +262,8 @@ if get_option('efi').enabled()
 	add_project_link_arguments([
 		'-shared',
 		'-Wl,-Bsymbolic',
-		'-T/usr/lib64/elf_x86_64_efi.lds',
-		'/usr/lib64/crt0-efi-x86_64.o',
+		'-T/usr/lib64/elf_' + host_machine.cpu_family() + '_efi.lds',
+		'/usr/lib64/crt0-efi-' + host_machine.cpu_family() + '.o',
 		],
 		language : 'c')
 
@@ -626,7 +626,8 @@ if (host_machine.system() != 'windows')
 endif
 
 # Whether to build the shared library alongside the static library
-build_shared = get_option('default_library') != 'static' and get_option('efi').disabled()
+build_shared = (get_option('default_library') != 'static' and
+		get_option('efi').disabled())
 
 if (get_option('fips140').enabled())
 
@@ -648,7 +649,8 @@ if (get_option('fips140').enabled())
 		# Create the official static FIPS library
 		leancrypto_static_lib_fips = static_library('leancrypto-fips',
 			[ src_fips, internal_src ],
-			include_directories: [ include_dirs, include_internal_dirs ],
+			include_directories: [ include_dirs,
+					       include_internal_dirs ],
 			dependencies: [ leancrypto_link ],
 			link_whole: [ leancrypto_support_libs_fips ],
 			install: true

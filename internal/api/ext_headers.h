@@ -105,7 +105,7 @@ static inline int lc_get_time(time64_t *time_since_epoch)
 	void __attribute__((constructor)) _func(void)
 #define LC_DEFINE_DESTRUCTOR(_func) void __attribute__((destructor)) _func(void)
 
-#if defined __x86_64__ && !defined __ILP32__
+#if !defined __ILP32__
 #define __WORDSIZE 64
 #else
 #define __WORDSIZE 32
@@ -121,23 +121,30 @@ typedef unsigned long uintptr_t;
 
 #ifndef _SIZE_T
 typedef unsigned long size_t;
+#define _SIZE_T
 #endif
 
 #ifndef _SSIZE_T
 typedef long ssize_t;
+#define _SSIZE_T
 #endif
 
 #elif __WORDSIZE == 32
 
+#ifndef _UINTPTR_T
 typedef unsigned int uintptr_t;
+#define _UINTPTR_T
+#endif
 
 #error
 #ifndef _SIZE_T
 typedef unsigned int size_t;
+#define _SIZE_T
 #endif
 
 #ifndef _SSIZE_T
 typedef int ssize_t;
+#define _SSIZE_T
 #endif
 
 #endif
