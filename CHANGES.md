@@ -3,6 +3,10 @@ Changes 1.2.1-prerelease
 
 * Ensure full clean run on vintage system without AVX2 (thanks to "David C. Rankin" <drankinatty@gmail.com>)
 
+* EFI: compilation support on AARCH64 
+
+* Meson: reduce number of object files to speed up compilation process
+
 Changes 1.2.0
 * Locking für seeded_rng added to avoid requiring the caller providing a lock
 
