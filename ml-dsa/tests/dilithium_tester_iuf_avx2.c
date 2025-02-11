@@ -47,6 +47,11 @@ static int dilithium_tester_iuf_avx2(void)
 	int ret = 0;
 
 	ret += _dilithium_tester_iuf_avx2(0, 0, 0);
+
+	/* if AVX2 not available, return skip */
+	if (ret == 77)
+		return ret;
+
 	ret += _dilithium_tester_iuf_avx2(0, 1, 0);
 	ret += _dilithium_tester_iuf_avx2(0, 0, 1);
 
