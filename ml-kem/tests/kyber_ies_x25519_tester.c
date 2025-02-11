@@ -273,7 +273,14 @@ out:
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	int ret;
+
 	(void)argc;
 	(void)argv;
-	return kyber_ies_tester();
+
+	ret = kyber_ies_tester();
+	if (ret == -EOPNOTSUPP)
+		ret = 77;
+
+	return ret;
 }
