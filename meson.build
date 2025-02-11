@@ -209,7 +209,6 @@ endif
 
 if (host_machine.system() == 'linux')
 	add_project_link_arguments('-Wl,-z,noexecstack', language : 'c')
-	add_project_link_arguments('-Wl,-z,nodlopen', language : 'c')
 endif
 
 # Check for the endianess of the target
