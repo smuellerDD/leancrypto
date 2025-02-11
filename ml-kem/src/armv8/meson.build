@@ -2,7 +2,7 @@
 
 # Files compiled only once
 if (get_option('kyber_1024').enabled() or get_option('kyber_768').enabled())
-	src += files([
+	src_fips += files([
 		'kyber_ntt_armv8.c',
 	])
 endif
