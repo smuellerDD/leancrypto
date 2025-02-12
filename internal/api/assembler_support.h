@@ -20,6 +20,14 @@
 #ifndef ASSEMBLER_SUPPORT_H
 #define ASSEMBLER_SUPPORT_H
 
+#ifdef __x86_64__
+#define LC_ENDBR "endbr64"
+#elif defined(__i386__)
+#define LC_ENDBR "endbr32"
+#else
+#define LC_ENDBR
+#endif
+
 #ifdef LINUX_KERNEL
 
 #include <linux/linkage.h>
@@ -121,7 +129,8 @@
 #  define SYM_FUNC_START(name)						       \
 	.hidden SYM_FUNC(name) ;					       \
 	.global SYM_FUNC(name) ;					       \
-	SYM_FUNC(name):
+	SYM_FUNC(name):							       \
+	LC_ENDBR
 
 #  define SYM_FUNC_ENTER(name)
 

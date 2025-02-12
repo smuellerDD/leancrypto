@@ -7,6 +7,8 @@ Changes 1.2.1-prerelease
 
 * Meson: reduce number of object files to speed up compilation process
 
+* Intel assembler: add endbr[64|32] to every function and ensure IBT is enabled
+
 Changes 1.2.0
 * Locking für seeded_rng added to avoid requiring the caller providing a lock
 
