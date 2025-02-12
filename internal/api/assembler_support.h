@@ -21,9 +21,9 @@
 #define ASSEMBLER_SUPPORT_H
 
 #ifdef __x86_64__
-#define LC_ENDBR "endbr64"
+#define LC_ENDBR endbr64
 #elif defined(__i386__)
-#define LC_ENDBR "endbr32"
+#define LC_ENDBR endbr32
 #else
 #define LC_ENDBR
 #endif
