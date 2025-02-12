@@ -143,3 +143,5 @@ SYM_FUNC_ENTER(kyber_poly_frombytes_armv8)
 
 	RET
 SYM_FUNC_END(kyber_poly_frombytes_armv8)
+
+ASM_END

@@ -194,4 +194,6 @@ loop:
 
 SYM_FUNC_END(keccak_f1600x2_armce)
 
+ASM_END
+
 #endif

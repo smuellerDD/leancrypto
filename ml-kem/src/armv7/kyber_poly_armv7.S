@@ -283,3 +283,5 @@ SYM_FUNC_ENTER(kyber_basemul_armv7)
 
 .unreq qinv
 SYM_FUNC_END(kyber_basemul_armv7)
+
+ASM_END

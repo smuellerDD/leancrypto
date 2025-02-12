@@ -3215,3 +3215,5 @@ Lxts_dec_abort:
 Lxts_dec_final_abort:
 	RET
 SYM_FUNC_END(aes_v8_xts_decrypt)
+
+ASM_END

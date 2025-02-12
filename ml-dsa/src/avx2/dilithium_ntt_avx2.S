@@ -196,3 +196,5 @@ levels2t7	3
 
 RET
 SYM_FUNC_END(dilithium_ntt_avx)
+
+ASM_END

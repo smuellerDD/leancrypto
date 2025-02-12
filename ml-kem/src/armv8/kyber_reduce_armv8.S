@@ -261,3 +261,5 @@ SYM_FUNC_ENTER(kyber_add_add_reduce_armv8)
 	
 	RET
 SYM_FUNC_END(kyber_add_add_reduce_armv8)
+
+ASM_END

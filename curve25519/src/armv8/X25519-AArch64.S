@@ -1641,3 +1641,5 @@ invtable:
 	.hword	 50|       (2<<9)
 	.hword	  5|       (1<<9)
 	.hword	  0|       (0<<9)
+
+ASM_END

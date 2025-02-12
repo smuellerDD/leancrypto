@@ -1032,3 +1032,5 @@ mask6_17:
     .quad    ALLON, ALLON,     0,     0
 
 .asciz  "Keccak-1600 for AVX2, CRYPTOGAMS by <appro@openssl.org>"
+
+ASM_END

@@ -451,3 +451,5 @@ loop:
     addi sp, sp, 8*19
     RET
 SYM_FUNC_END(KeccakF1600_StatePermute_RV64ASM)
+
+ASM_END

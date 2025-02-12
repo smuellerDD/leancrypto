@@ -2016,3 +2016,5 @@ SYM_FUNC_ENTER(sha256_block_neon)
 	add	sp,sp,#16*4+2*__SIZEOF_POINTER__
 	RET
 SYM_FUNC_END(sha256_block_neon)
+
+ASM_END

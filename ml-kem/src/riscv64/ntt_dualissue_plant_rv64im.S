@@ -1969,3 +1969,5 @@ SYM_FUNC_START(kyber_poly_toplant_rv64im)
   addi sp, sp, 8*1
   RET
 SYM_FUNC_END(kyber_poly_toplant_rv64im)
+
+ASM_END

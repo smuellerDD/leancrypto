@@ -355,3 +355,5 @@ rounds1_loop_start:
     addi sp, sp, 8*18
     RET
 SYM_FUNC_END(KeccakF1600_StatePermute_RV64ZBB)
+
+ASM_END

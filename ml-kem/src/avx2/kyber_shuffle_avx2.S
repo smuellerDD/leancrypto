@@ -252,3 +252,5 @@ add		$192,%rsi
 kyber_nttfrombytes128_avx
 RET
 SYM_FUNC_END(kyber_nttfrombytes_avx)
+
+ASM_END

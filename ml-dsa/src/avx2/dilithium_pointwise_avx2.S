@@ -208,3 +208,5 @@ jb _looptop2
 
 RET
 SYM_FUNC_END(dilithium_pointwise_acc_avx)
+
+ASM_END

@@ -106,3 +106,5 @@ mov		%r8,%rsp
 RET
 SYM_FUNC_END(kyber_basemul_avx)
 STACK_FRAME_NON_STANDARD kyber_basemul_avx
+
+ASM_END

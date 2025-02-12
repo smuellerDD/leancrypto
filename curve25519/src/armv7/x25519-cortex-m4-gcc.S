@@ -1040,3 +1040,5 @@ SYM_FUNC_ENTER(crypto_scalarmult_curve25519_armv7)
 	// in total for whole function 548 873 cycles
 
 SYM_FUNC_END(crypto_scalarmult_curve25519_armv7)
+
+ASM_END

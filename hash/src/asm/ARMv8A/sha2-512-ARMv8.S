@@ -1565,3 +1565,5 @@ SYM_FUNC_ENTER(sha512_block_armv8ce)
 	RET
 SYM_FUNC_END(sha512_block_armv8ce)
 
+
+ASM_END

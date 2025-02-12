@@ -31,6 +31,8 @@
 // This implementation comes with KeccakP-1600-SnP.h in the same folder.
 // Please refer to LowLevel.build for the exact list of other files it must be combined with.
 
+#include "assembler_support.h"
+
 // INFO: Tested on Cortex-A53(odroid-c2), using gcc.
 // WARNING: These functions work only on little endian CPU with ARMv8a + NEON architecture
 // WARNING: State must be 512 bit (64 bytes) aligned.
@@ -560,3 +562,5 @@ KeccakP1600_Permute_RoundLoop:
 KeccakP1600_Permute_Exit:
     StoreState
     ret
+
+ASM_END
