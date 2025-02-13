@@ -263,3 +263,5 @@ SYM_FUNC_ENTER(kyber_cbd3_armv8)
 	//
 	RET
 SYM_FUNC_END(kyber_cbd3_armv8)
+
+LC_ASM_END

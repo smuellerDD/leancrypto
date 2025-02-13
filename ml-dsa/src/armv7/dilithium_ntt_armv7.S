@@ -589,3 +589,5 @@ inv_ntt_asm_smull_q:
 .align 2
 inv_ntt_asm_smull_64:
 .word 64
+
+LC_ASM_END

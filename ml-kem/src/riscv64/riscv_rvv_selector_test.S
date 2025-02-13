@@ -24,3 +24,5 @@ SYM_FUNC_START(kyber_rvv_selector)
    sext.w  a0,a0
    RET
 SYM_FUNC_END(kyber_rvv_selector)
+
+LC_ASM_END

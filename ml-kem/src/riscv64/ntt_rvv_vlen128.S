@@ -1196,3 +1196,5 @@ cbd3_rvv_vlen128_loop:
     bnez a4, cbd3_rvv_vlen128_loop
     RET
 SYM_FUNC_END(kyber_cbd3_rvv_vlen128)
+
+LC_ASM_END

@@ -189,3 +189,5 @@ levels1t6	1
 
 RET
 SYM_FUNC_END(kyber_ntt_avx)
+
+LC_ASM_END

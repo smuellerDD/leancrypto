@@ -1168,3 +1168,5 @@ poly_reduce_rv64im_loop:
     bne a3, a0, poly_reduce_rv64im_loop
     RET
 SYM_FUNC_END(dilithium_poly_reduce_rv64im)
+
+LC_ASM_END

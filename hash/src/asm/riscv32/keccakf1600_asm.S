@@ -540,3 +540,5 @@ SYM_FUNC_START(lc_keccakf1600_riscv)
 
     RET
 SYM_FUNC_END(lc_keccakf1600_riscv)
+
+LC_ASM_END

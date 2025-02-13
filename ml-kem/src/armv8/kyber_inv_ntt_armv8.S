@@ -239,3 +239,5 @@ SYM_FUNC_ENTER(kyber_inv_ntt_armv8)
 
 	RET
 SYM_FUNC_END(kyber_inv_ntt_armv8)
+
+LC_ASM_END

@@ -44,6 +44,8 @@
 # define FRAME_END
 #endif
 
+# define LC_ASM_END
+
 # define SYM_FUNC_ENTER(name)
 
 # define SYM_FUNC(name)	name
@@ -73,6 +75,7 @@
 # define ANNOTATE_INTRA_FUNCTION_CALL
 
 # ifdef __APPLE__
+#  define LC_ASM_END
 #  define SYM_FUNC(name)	_##name
 #  define SYM_TYPE_OBJ(name)
 #  define SYM_TYPE_FUNC(name)
@@ -90,6 +93,8 @@
 	SYM_SIZE(name)
 
 # elif (defined(__CYGWIN__) || defined(_WIN32))
+
+#  define LC_ASM_END
 
 #  define SYM_FUNC(name)	name
 
@@ -114,6 +119,34 @@
 #  define FRAME_END
 
 # else /* __APPLE__ */
+
+#  if defined __ELF__ && defined __CET__
+#   ifdef __x86_64__
+#    define ASM_X86_MARK_CET_ALIGN 3
+#   else
+#    define ASM_X86_MARK_CET_ALIGN 2
+#   endif
+#   define LC_ASM_END				\
+	.pushsection ".note.gnu.property", "a";	\
+	.p2align ASM_X86_MARK_CET_ALIGN;	\
+	.long 1f - 0f;				\
+	.long 4f - 1f;				\
+	.long 5;				\
+0:						\
+	.asciz "GNU";				\
+1:						\
+	.p2align ASM_X86_MARK_CET_ALIGN;	\
+	.long 0xc0000002;			\
+	.long 3f - 2f;				\
+2:						\
+	.long 3;				\
+3:						\
+	.p2align ASM_X86_MARK_CET_ALIGN;	\
+4:						\
+	.popsection
+#  else
+#   define LC_ASM_END
+#  endif
 
 #  define SYM_FUNC(name)	name
 

@@ -193,3 +193,5 @@ intt_level6	0
 intt_level6	1
 RET
 SYM_FUNC_END(kyber_invntt_avx)
+
+LC_ASM_END

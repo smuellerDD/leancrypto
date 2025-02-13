@@ -545,3 +545,5 @@ SYM_FUNC_ENTER(intt_SIMD_bot_armv8)
     br lr
 
 SYM_FUNC_END(intt_SIMD_bot_armv8)
+
+LC_ASM_END

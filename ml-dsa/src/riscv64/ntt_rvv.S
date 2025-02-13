@@ -1588,3 +1588,5 @@ poly_reduce_rvv_loop:
     bnez a3, poly_reduce_rvv_loop
     RET
 SYM_FUNC_END(dilithium_poly_reduce_rvv)
+
+LC_ASM_END

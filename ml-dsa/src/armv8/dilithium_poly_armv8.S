@@ -918,3 +918,5 @@ SYM_FUNC_ENTER(polyvecl_pointwise_acc_montgomery_armv8)
     br lr
 
 SYM_FUNC_END(polyvecl_pointwise_acc_montgomery_armv8)
+
+LC_ASM_END

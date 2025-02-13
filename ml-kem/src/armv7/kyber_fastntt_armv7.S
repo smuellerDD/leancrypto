@@ -243,3 +243,5 @@ SYM_FUNC_ENTER(kyber_ntt_armv7)
   pop.w {r4-r11, pc}
 
 SYM_FUNC_END(kyber_ntt_armv7)
+
+LC_ASM_END

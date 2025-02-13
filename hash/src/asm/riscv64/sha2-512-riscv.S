@@ -3143,3 +3143,5 @@ K512:
 	.dword	0x5fcb6fab3ad6faec, 0x6c44198c4a475817
 .string	"SHA512 for RISC-V, CRYPTOGAMS by @dot-asm"
 .align	5
+
+LC_ASM_END

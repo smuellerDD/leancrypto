@@ -2927,3 +2927,5 @@ K256:
 	.word	0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 .string	"SHA256 for RISC-V, CRYPTOGAMS by @dot-asm"
 .align	5
+
+LC_ASM_END

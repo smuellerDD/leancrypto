@@ -732,3 +732,5 @@ rv64i_zknd_set_decrypt_key:
     ld      x8,0(sp)
     addi    sp,sp,16
     RET
+
+LC_ASM_END

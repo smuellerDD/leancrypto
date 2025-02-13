@@ -50,3 +50,5 @@ add		$256,%rdi
 nttunpack128_avx
 RET
 SYM_FUNC_END(dilithium_nttunpack_avx)
+
+LC_ASM_END

@@ -86,3 +86,5 @@ add		$256,%rdi
 tomont128_avx
 RET
 SYM_FUNC_END(tomont_avx)
+
+LC_ASM_END

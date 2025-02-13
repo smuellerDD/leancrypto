@@ -166,3 +166,5 @@ SYM_FUNC_ENTER(armv7_poly_pointwise_acc_invmontgomery_asm_smull)
     pop.w {r4-r11, pc}
 
 SYM_FUNC_END(armv7_poly_pointwise_acc_invmontgomery_asm_smull)
+
+LC_ASM_END

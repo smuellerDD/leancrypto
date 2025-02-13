@@ -131,3 +131,5 @@ end:
     bx lr
 
 SYM_FUNC_END(armv7_rej_uniform_asm)
+
+LC_ASM_END

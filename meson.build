@@ -66,12 +66,6 @@ endif
 if cc.has_argument('-fcf-protection=full')
 	add_global_arguments([ '-fcf-protection=full' ],
 			     language: 'c')
-	# The object files of such assembly miss .note.gnu.property section
-	# and thus the final output files miss it too.
-	if (host_machine.system() != 'windows')
-		add_project_link_arguments('-Wl,-zibt', '-Wl,-zshstk',
-					   language : 'c')
-	endif
 endif
 
 # ARM64 hardening
