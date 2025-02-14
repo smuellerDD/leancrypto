@@ -120,6 +120,7 @@ SYM_FUNC_ENTER(armv8_10_to_32)
     sub x7, x7, #1
     cbnz x7, _10_to_32_loop
 
+    LC_ASM_LEAVE_HARDENING
     br lr
 SYM_FUNC_END(armv8_10_to_32)
 
@@ -212,6 +213,7 @@ SYM_FUNC_ENTER(poly_reduce_armv8)
     st1 { v6.4S}, [x0], #16
     st1 { v7.4S}, [x0], #16
 
+    LC_ASM_LEAVE_HARDENING
     br lr
 SYM_FUNC_END(poly_reduce_armv8)
 
@@ -304,6 +306,7 @@ SYM_FUNC_ENTER(poly_caddq_armv8)
     st1 { v6.4S}, [x0], #16
     st1 { v7.4S}, [x0], #16
 
+    LC_ASM_LEAVE_HARDENING
     br lr
 SYM_FUNC_END(poly_caddq_armv8)
 
@@ -449,6 +452,7 @@ SYM_FUNC_ENTER(poly_power2round_armv8)
     st1 {v30.4S}, [x1], #16
     st1 {v31.4S}, [x1], #16
 
+    LC_ASM_LEAVE_HARDENING
     br lr
 SYM_FUNC_END(poly_power2round_armv8)
 
@@ -566,6 +570,7 @@ SYM_FUNC_ENTER(poly_pointwise_montgomery_armv8)
 
     pop_all
 
+    LC_ASM_LEAVE_HARDENING
     br lr
 SYM_FUNC_END(poly_pointwise_montgomery_armv8)
 
@@ -915,8 +920,8 @@ SYM_FUNC_ENTER(polyvecl_pointwise_acc_montgomery_armv8)
 
     pop_all
 
+    LC_ASM_LEAVE_HARDENING
     br lr
-
 SYM_FUNC_END(polyvecl_pointwise_acc_montgomery_armv8)
 
 LC_ASM_END

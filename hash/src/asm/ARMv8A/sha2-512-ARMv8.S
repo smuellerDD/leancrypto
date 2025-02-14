@@ -34,7 +34,6 @@
 SYM_FUNC_START(sha512_block_neon)
 SYM_FUNC_ENTER(sha512_block_neon)
 .align	6
-.inst	0xd503233f				// paciasp
 	stp	x29,x30,[sp,#-16*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 
@@ -995,7 +994,6 @@ SYM_FUNC_ENTER(sha512_block_neon)
 	ldp	x25,x26,[x29,#8*__SIZEOF_POINTER__]
 	ldp	x27,x28,[x29,#10*__SIZEOF_POINTER__]
 	ldp	x29,x30,[sp],#16*__SIZEOF_POINTER__
-.inst	0xd50323bf				// autiasp
 	RET
 SYM_FUNC_END(sha512_block_neon)
 
@@ -1564,6 +1562,5 @@ SYM_FUNC_ENTER(sha512_block_armv8ce)
 	ldr	x29,[sp],#2*__SIZEOF_POINTER__
 	RET
 SYM_FUNC_END(sha512_block_armv8ce)
-
 
 LC_ASM_END

@@ -9,6 +9,8 @@ Changes 1.2.1-prerelease
 
 * Intel assembler: add endbr[64|32] to every function and ensure IBT is enabled
 
+* ARMv8 assembler / ELF: add BTI and PAC support
+
 Changes 1.2.0
 * Locking für seeded_rng added to avoid requiring the caller providing a lock
 

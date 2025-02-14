@@ -298,7 +298,7 @@ KeccakP1600_Initialize:
     st4     { v0.2d, v1.2d, v2.2d, v3.2d }, [x0], #64
     st4     { v0.2d, v1.2d, v2.2d, v3.2d }, [x0], #64
     st1     { v0.d }[0], [x0], #8
-    ret
+    RET
 
 
 // ----------------------------------------------------------------------------
@@ -311,7 +311,7 @@ KeccakP1600_AddByte:
     ldrb    w3, [x0, x2]
     eor     w3, w3, w1
     strb    w3, [x0, x2]
-    ret
+    RET
 
 
 // ----------------------------------------------------------------------------
@@ -356,7 +356,7 @@ KeccakP1600_AddBytes_BytesLoop: // Same thing but go 1 byte at a time
     strb    w4, [x0], #1
     b       KeccakP1600_AddBytes_BytesLoop
 KeccakP1600_AddBytes_Exit:
-    ret
+    RET
 
 // ----------------------------------------------------------------------------
 //
@@ -391,7 +391,7 @@ KeccakP1600_OverwriteBytes_BytesLoop:
     strb    w4, [x0], #1
     b       KeccakP1600_OverwriteBytes_BytesLoop
 KeccakP1600_OverwriteBytes_Exit:
-    ret
+    RET
 
 
 //----------------------------------------------------------------------------
@@ -428,7 +428,7 @@ KeccakP1600_OverwriteWithZeroes_LoopBytes:
     strb    w2, [x0], #1
     b       KeccakP1600_OverwriteWithZeroes_LoopBytes
 KeccakP1600_OverwriteWithZeroes_Exit:
-    ret
+    RET
 
 
 // ----------------------------------------------------------------------------
@@ -464,7 +464,7 @@ KeccakP1600_ExtractBytes_BytesLoop:
     strb    w4, [x1], #1
     b       KeccakP1600_ExtractBytes_BytesLoop
 KeccakP1600_ExtractBytes_Exit:
-    ret
+    RET
 
 
 // ----------------------------------------------------------------------------
@@ -509,7 +509,7 @@ KeccakP1600_ExtractAndAddBytes_BytesLoop:
     strb    w5, [x2], #1
     b       KeccakP1600_ExtractAndAddBytes_BytesLoop
 KeccakP1600_ExtractAndAddBytes_Exit:
-    ret
+    RET
 
 // ----------------------------------------------------------------------------
 //
@@ -561,6 +561,6 @@ KeccakP1600_Permute_RoundLoop:
     bne     KeccakP1600_Permute_RoundLoop
 KeccakP1600_Permute_Exit:
     StoreState
-    ret
+    RET
 
 LC_ASM_END

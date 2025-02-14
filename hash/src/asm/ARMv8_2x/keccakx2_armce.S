@@ -45,6 +45,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include "assembler_support.h"
+
 #ifndef __APPLE__
 #define __APPLE__ 0
 #endif
@@ -52,8 +54,6 @@ SOFTWARE.
 #define __ARM_FEATURE_SHA3 0
 #endif
 #if (__APPLE__ && __ARM_FEATURE_CRYPTO) || (__ARM_FEATURE_SHA3)
-
-#include "assembler_support.h"
 
 .macro round
     ; Execute theta, but without xoring into the state yet.
@@ -190,10 +190,10 @@ loop:
     ldp d10, d11, [sp], #16
     ldp d8,  d9,  [sp], #16
 
-    ret lr
+    RET lr
 
 SYM_FUNC_END(keccak_f1600x2_armce)
 
-LC_ASM_END
-
 #endif
+
+LC_ASM_END

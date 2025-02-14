@@ -27,9 +27,6 @@
 
 #include "assembler_support.h"
 
-#define AARCH64_SIGN_LINK_REGISTER
-#define AARCH64_VALIDATE_LINK_REGISTER
-
 .text
 
 .align	8	// strategic alignment and padding that allows to use
@@ -66,7 +63,7 @@ SYM_SIZE(iotas)
 
 .align	5
 KeccakF1600_int:
-	AARCH64_SIGN_LINK_REGISTER
+	LC_ASM_ENTER_HARDENING
 	adr	x28,iotas
 	stp	x28,x30,[sp,#16]		// 32 bytes on top are mine
 	b	.Loop
@@ -231,14 +228,12 @@ KeccakF1600_int:
 	bne	.Loop
 
 	ldr	x30,[sp,#24]
-	AARCH64_VALIDATE_LINK_REGISTER
 	RET
 SYM_FUNC_END(KeccakF1600_int)
 
 SYM_FUNC_START(lc_keccakf1600_arm_asm)
 SYM_FUNC_ENTER(lc_keccakf1600_arm_asm)
 .align 5
-	AARCH64_SIGN_LINK_REGISTER
 	stp	x29,x30,[sp,#-128]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#16]
@@ -288,14 +283,12 @@ SYM_FUNC_ENTER(lc_keccakf1600_arm_asm)
 	ldp	x25,x26,[x29,#64]
 	ldp	x27,x28,[x29,#80]
 	ldp	x29,x30,[sp],#128
-	AARCH64_VALIDATE_LINK_REGISTER
 	RET
 SYM_FUNC_END(lc_keccakf1600_arm_asm)
 
 SYM_FUNC_START(lc_keccak_absorb_arm_asm)
 SYM_FUNC_ENTER(lc_keccak_absorb_arm_asm)
 .align 5
-	AARCH64_SIGN_LINK_REGISTER
 	stp	x29,x30,[sp,#-128]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#16]
@@ -529,14 +522,12 @@ SYM_FUNC_ENTER(lc_keccak_absorb_arm_asm)
 	ldp	x25,x26,[x29,#64]
 	ldp	x27,x28,[x29,#80]
 	ldp	x29,x30,[sp],#128
-	AARCH64_VALIDATE_LINK_REGISTER
 	RET
 SYM_FUNC_END(lc_keccak_absorb_arm_asm)
 
 SYM_FUNC_START(lc_keccak_squeeze_arm_asm)
 SYM_FUNC_ENTER(lc_keccak_squeeze_arm_asm)
 .align 5
-	AARCH64_SIGN_LINK_REGISTER
 	stp	x29,x30,[sp,#-48]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#16]
@@ -599,12 +590,12 @@ SYM_FUNC_ENTER(lc_keccak_squeeze_arm_asm)
 	ldp	x19,x20,[sp,#16]
 	ldp	x21,x22,[sp,#32]
 	ldp	x29,x30,[sp],#48
-	AARCH64_VALIDATE_LINK_REGISTER
 	RET
 SYM_FUNC_END(lc_keccak_squeeze_arm_asm)
 
 .align	5
 KeccakF1600_ce:
+	LC_ASM_ENTER_HARDENING
 	mov	x9,#24
 	adr	x10,iotas
 	b	.Loop_ce
@@ -707,7 +698,6 @@ SYM_FUNC_END(KeccakF1600_ce)
 SYM_FUNC_START(lc_keccakf1600_arm_ce)
 SYM_FUNC_ENTER(lc_keccakf1600_arm_ce)
 .align 5
-	AARCH64_SIGN_LINK_REGISTER
 	stp	x29,x30,[sp,#-80]!
 	add	x29,sp,#0
 	stp	d8,d9,[sp,#16]		// per ABI requirement
@@ -748,14 +738,12 @@ SYM_FUNC_ENTER(lc_keccakf1600_arm_ce)
 	ldp	d12,d13,[sp,#48]
 	ldp	d14,d15,[sp,#64]
 	ldr	x29,[sp],#80
-	AARCH64_VALIDATE_LINK_REGISTER
 	RET
 SYM_FUNC_END(lc_keccakf1600_arm_ce)
 
 SYM_FUNC_START(lc_keccak_absorb_arm_ce)
 SYM_FUNC_ENTER(lc_keccak_absorb_arm_ce)
 .align 5
-	AARCH64_SIGN_LINK_REGISTER
 	stp	x29,x30,[sp,#-80]!
 	add	x29,sp,#0
 	stp	d8,d9,[sp,#16]		// per ABI requirement
@@ -971,14 +959,12 @@ SYM_FUNC_ENTER(lc_keccak_absorb_arm_ce)
 	ldp	d12,d13,[sp,#48]
 	ldp	d14,d15,[sp,#64]
 	ldp	x29,x30,[sp],#80
-	AARCH64_VALIDATE_LINK_REGISTER
 	RET
 SYM_FUNC_END(lc_keccak_absorb_arm_ce)
 
 SYM_FUNC_START(lc_keccak_squeeze_arm_ce)
 SYM_FUNC_ENTER(lc_keccak_squeeze_arm_ce)
 .align 5
-	AARCH64_SIGN_LINK_REGISTER
 	stp	x29,x30,[sp,#-16]!
 	add	x29,sp,#0
 	mov	x9,x0
@@ -1034,7 +1020,6 @@ SYM_FUNC_ENTER(lc_keccak_squeeze_arm_ce)
 
 .Lsqueeze_done_ce:
 	ldr	x29,[sp],#16
-	AARCH64_VALIDATE_LINK_REGISTER
 	RET
 SYM_FUNC_END(lc_keccak_squeeze_arm_ce)
 .byte	75,101,99,99,97,107,45,49,54,48,48,32,97,98,115,111,114,98,32,97,110,100,32,115,113,117,101,101,122,101,32,102,111,114,32,65,82,77,118,56,44,32,67,82,89,80,84,79,71,65,77,83,32,98,121,32,60,97,112,112,114,111,64,111,112,101,110,115,115,108,46,111,114,103,62,0

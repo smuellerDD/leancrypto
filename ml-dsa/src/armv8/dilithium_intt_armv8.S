@@ -454,8 +454,8 @@ SYM_FUNC_ENTER(intt_SIMD_top_armv8)
     .unreq    counter
     pop_all
 
+    LC_ASM_LEAVE_HARDENING
     br lr
-
 SYM_FUNC_END(intt_SIMD_top_armv8)
 
 SYM_FUNC_START(intt_SIMD_bot_armv8)
@@ -542,8 +542,8 @@ SYM_FUNC_ENTER(intt_SIMD_bot_armv8)
     .unreq    counter
     pop_all
 
+    LC_ASM_LEAVE_HARDENING
     br lr
-
 SYM_FUNC_END(intt_SIMD_bot_armv8)
 
 LC_ASM_END

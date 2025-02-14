@@ -43,14 +43,22 @@
 
  #include "assembler_support.h"
 
+#ifdef __APPLE__
+#define load64unaligned_macro _load64unaligned
+#define load256unaligned_macro _load256unaligned
+#else
+#define load64unaligned_macro load64unaligned
+#define load256unaligned_macro load256unaligned
+#endif
+
 .cpu generic+fp+simd
 	.text
 	.align	2
 	
 	// in: x0: pointer
 	// out: x0: loaded value
-.global load64unaligned
-load64unaligned:
+SYM_FUNC_START(load64unaligned)
+SYM_FUNC_ENTER(load64unaligned)
 	ldrb w1, [x0]
 	ldrb w2, [x0, #1]
 	ldrb w3, [x0, #2]
@@ -71,27 +79,28 @@ load64unaligned:
 	orr	x0, x1, x5, lsl #32
 	
 	RET
+SYM_FUNC_END(load64unaligned)
 
 	// in: x0: pointer
 	// out: x0-x3: loaded value
-.global load256unaligned
-load256unaligned:
+SYM_FUNC_START(load256unaligned)
+SYM_FUNC_ENTER(load256unaligned)
 	stp	x29, x30, [sp, #-64]!
 	mov	x29, sp
 	stp	x19, x20, [sp, #16]
 	stp	x21, x22, [sp, #32]
 	
 	mov	x19, x0
-	bl	load64unaligned
+	bl	load64unaligned_macro
 	mov	x20, x0
 	add	x0, x19, #8
-	bl	load64unaligned
+	bl	load64unaligned_macro
 	mov	x21, x0
 	add	x0, x19, #16
-	bl	load64unaligned
+	bl	load64unaligned_macro
 	mov	x22, x0
 	add	x0, x19, #24
-	bl	load64unaligned
+	bl	load64unaligned_macro
 	mov	x3, x0
 	
 	mov	x0, x20
@@ -102,6 +111,7 @@ load256unaligned:
 	ldp	x21, x22, [sp, #32]
 	ldp	x29, x30, [sp], #64
 	RET
+SYM_FUNC_END(load256unaligned)
 
 	// in: x1: scalar pointer, x2: base point pointer
 	// out: x0: result pointer
@@ -126,7 +136,7 @@ SYM_FUNC_ENTER(crypto_scalarmult_curve25519_armv8)
 	mov	x19, x2 // point
 	
 	mov	x0, x1 // scalar
-	bl	load256unaligned
+	bl	load256unaligned_macro
 	
 	and	x3, x3, #0x7fffffffffffffff
 	and	x0, x0, #0xfffffffffffffff8
@@ -136,7 +146,7 @@ SYM_FUNC_ENTER(crypto_scalarmult_curve25519_armv8)
 	stp	x2, x3, [sp, #104+16]
 	
 	mov	x0, x19 // point
-	bl	load256unaligned
+	bl	load256unaligned_macro
 	
 	// Unpack point (discard most significant bit)
 	lsr	x12, x0, #51

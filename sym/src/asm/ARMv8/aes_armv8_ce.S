@@ -28,8 +28,6 @@
 #include "assembler_support.h"
 
 #define AARCH64_VALID_CALL_TARGET
-#define AARCH64_SIGN_LINK_REGISTER
-#define AARCH64_VALIDATE_LINK_REGISTER
 
 .text
 .align	5
@@ -38,10 +36,8 @@ Lrcon:
 .long	0x0c0f0e0d,0x0c0f0e0d,0x0c0f0e0d,0x0c0f0e0d	// rotate-n-splat
 .long	0x1b,0x1b,0x1b,0x1b
 
-SYM_FUNC_START(aes_v8_set_encrypt_key)
-SYM_FUNC_ENTER(aes_v8_set_encrypt_key)
-.align	5
 Lenc_key:
+.align	5
 	AARCH64_VALID_CALL_TARGET
 	// Armv8.3-A PAuth: even though x30 is pushed to stack it is not popped later.
 	stp	x29,x30,[sp,#-16]!
@@ -208,13 +204,20 @@ Ldone:
 Lenc_key_abort:
 	mov	x0,x3			// return value
 	ldr	x29,[sp],#16
+	ret
+
+SYM_FUNC_START(aes_v8_set_encrypt_key)
+SYM_FUNC_ENTER(aes_v8_set_encrypt_key)
+	stp	x29,x30,[sp,#-16]!
+	add	x29,sp,#0
+	bl	Lenc_key
+	ldp	x29,x30,[sp],#16
 	RET
 SYM_FUNC_END(aes_v8_set_encrypt_key)
 
 SYM_FUNC_START(aes_v8_set_decrypt_key)
 SYM_FUNC_ENTER(aes_v8_set_decrypt_key)
 .align	5
-	AARCH64_SIGN_LINK_REGISTER
 	stp	x29,x30,[sp,#-16]!
 	add	x29,sp,#0
 	bl	Lenc_key
@@ -248,7 +251,6 @@ Loop_imc:
 	eor	x0,x0,x0		// return value
 Ldec_key_abort:
 	ldp	x29,x30,[sp],#16
-	AARCH64_VALIDATE_LINK_REGISTER
 	RET
 SYM_FUNC_END(aes_v8_set_decrypt_key)
 

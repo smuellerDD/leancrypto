@@ -70,8 +70,7 @@ endif
 
 # ARM64 hardening
 if cc.has_argument('-mbranch-protection=standard')
-	add_global_arguments([ '-mbranch-protection=standard' ],
-			     language: 'c')
+	add_global_arguments([ '-mbranch-protection=standard' ], language: 'c')
 endif
 
 # MINGW64 cannot handle lto properly at the moment

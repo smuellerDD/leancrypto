@@ -1006,7 +1006,7 @@ sha256_block_data_order:
 	ldp	x27,x28,[x29,#10*__SIZEOF_POINTER__]
 	ldp	x29,x30,[sp],#16*__SIZEOF_POINTER__
 .inst	0xd50323bf				// autiasp
-	ret
+	RET
 .size	sha256_block_data_order,.-sha256_block_data_order
 #endif
 
