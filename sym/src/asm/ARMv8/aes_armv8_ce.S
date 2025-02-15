@@ -29,6 +29,12 @@
 
 #define AARCH64_VALID_CALL_TARGET
 
+#ifdef __APPLE__
+#define aes_v8_key_schedule_macro _aes_v8_key_schedule
+#else
+#define aes_v8_key_schedule_macro aes_v8_key_schedule
+#endif
+
 .text
 .align	5
 Lrcon:
@@ -36,7 +42,8 @@ Lrcon:
 .long	0x0c0f0e0d,0x0c0f0e0d,0x0c0f0e0d,0x0c0f0e0d	// rotate-n-splat
 .long	0x1b,0x1b,0x1b,0x1b
 
-Lenc_key:
+SYM_FUNC_START(aes_v8_key_schedule)
+SYM_FUNC_ENTER(aes_v8_key_schedule)
 .align	5
 	AARCH64_VALID_CALL_TARGET
 	// Armv8.3-A PAuth: even though x30 is pushed to stack it is not popped later.
@@ -204,13 +211,14 @@ Ldone:
 Lenc_key_abort:
 	mov	x0,x3			// return value
 	ldr	x29,[sp],#16
-	ret
+	RET
+SYM_FUNC_END(aes_v8_key_schedule)
 
 SYM_FUNC_START(aes_v8_set_encrypt_key)
 SYM_FUNC_ENTER(aes_v8_set_encrypt_key)
 	stp	x29,x30,[sp,#-16]!
 	add	x29,sp,#0
-	bl	Lenc_key
+	bl	aes_v8_key_schedule_macro
 	ldp	x29,x30,[sp],#16
 	RET
 SYM_FUNC_END(aes_v8_set_encrypt_key)
@@ -220,7 +228,7 @@ SYM_FUNC_ENTER(aes_v8_set_decrypt_key)
 .align	5
 	stp	x29,x30,[sp,#-16]!
 	add	x29,sp,#0
-	bl	Lenc_key
+	bl	aes_v8_key_schedule_macro
 
 	cmp	x0,#0
 	b.ne	Ldec_key_abort
