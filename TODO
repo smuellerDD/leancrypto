@@ -25,6 +25,4 @@
 
 - RISCV asm: check whether it works for RISCV32
 
-- Apple: enable ARM PAC in assembler_support.h
-
 - ARMv8: enable BTI in assembly code (I need to learn where it is place it)

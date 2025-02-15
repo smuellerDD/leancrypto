@@ -29,28 +29,12 @@
 /***************************** X86 64 CET Support *****************************/
 #if defined __ELF__ && defined __CET__
 # ifdef __x86_64__
-#  define ASM_X86_MARK_CET_ALIGN 3
+#  define LC_GNU_PROPERTY_ALIGN 3
 # else
-#  define ASM_X86_MARK_CET_ALIGN 2
+#  define LC_GNU_PROPERTY_ALIGN 2
 # endif
-# define LC_ASM_END							       \
-	.pushsection ".note.gnu.property", "a";				       \
-	.p2align ASM_X86_MARK_CET_ALIGN;				       \
-	.long 1f - 0f;							       \
-	.long 4f - 1f;							       \
-	.long 5;							       \
-0:									       \
-	.asciz "GNU";							       \
-1:									       \
-	.p2align ASM_X86_MARK_CET_ALIGN;				       \
-	.long 0xc0000002;						       \
-	.long 3f - 2f;							       \
-2:									       \
-	.long 3;							       \
-3:									       \
-	.p2align ASM_X86_MARK_CET_ALIGN;				       \
-4:									       \
-	.popsection
+# define LC_GNU_PROPERTY_TYPE 0xc0000002
+# define LC_GNU_PROPERTY_DATA 3
 #endif
 
 /*************************** ARM BTI / PAC Supprt *****************************/
@@ -60,7 +44,6 @@
  *  - https://developer.arm.com/documentation/101028/0012/5--Feature-test-macros
  *  - https://github.com/ARM-software/abi-aa/blob/main/aaelf64/aaelf64.rst
  */
-//TODO enable for Apple
 #if (defined(__ELF__) && defined(__aarch64__))
 
 /* BTI Support */
@@ -92,22 +75,34 @@
 
 /* Add the BTI / PAC support to GNU Notes section */
 # if GNU_PROPERTY_AARCH64_BTI != 0 || GNU_PROPERTY_AARCH64_POINTER_AUTH != 0
-#  define LC_ASM_END							       \
-	.pushsection ".note.gnu.property", "a";				       \
-	.balign 8;							       \
-	.long 4;							       \
-	.long 0x10;							       \
-	.long 0x5;							       \
-	.asciz "GNU";							       \
-	.long 0xc0000000;						       \
-	.long 4;							       \
-	.long (GNU_PROPERTY_AARCH64_BTI|GNU_PROPERTY_AARCH64_POINTER_AUTH);    \
-	.long 0;							       \
-	.popsection
+#  define LC_GNU_PROPERTY_ALIGN 3 /* 2 on 32 bit systems, which we do not cover here */
+#  define LC_GNU_PROPERTY_TYPE 0xc0000000
+#  define LC_GNU_PROPERTY_DATA (GNU_PROPERTY_AARCH64_BTI|GNU_PROPERTY_AARCH64_POINTER_AUTH)
 # endif
 #endif
 
 /****************************** Generic Helpers *******************************/
+
+#ifdef LC_GNU_PROPERTY_ALIGN
+# define LC_ASM_END							       \
+	.pushsection ".note.gnu.property", "a";				       \
+	.p2align LC_GNU_PROPERTY_ALIGN;					       \
+	.long 1f - 0f;							       \
+	.long 4f - 1f;							       \
+	.long 5;							       \
+0:									       \
+	.asciz "GNU";							       \
+1:									       \
+	.p2align LC_GNU_PROPERTY_ALIGN;					       \
+	.long LC_GNU_PROPERTY_TYPE;					       \
+	.long 3f - 2f;							       \
+2:									       \
+	.long LC_GNU_PROPERTY_DATA;					       \
+3:									       \
+	.p2align LC_GNU_PROPERTY_ALIGN;					       \
+4:									       \
+	.popsection
+#endif
 
 #ifdef LC_ASM_END
 # ifdef __x86_64__
