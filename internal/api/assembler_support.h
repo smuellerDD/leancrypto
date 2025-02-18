@@ -48,8 +48,8 @@
 
 /* BTI Support */
 # if defined(__ARM_FEATURE_BTI_DEFAULT) && __ARM_FEATURE_BTI_DEFAULT == 1
-#  define BTI_J bti j /* for jumps, IE br instructions */
-#  define BTI_C bti c  /* for calls, IE bl instructions */
+#  define BTI_J hint 36 /* bti j for jumps, IE br instructions */
+#  define BTI_C hint 34  /* bti c for calls, IE bl instructions */
 #  define GNU_PROPERTY_AARCH64_BTI 1 /* bit 0 GNU Notes is for BTI support */
 # else
 #  define BTI_J
@@ -60,15 +60,15 @@
 /* PAC Support */
 # if defined(__ARM_FEATURE_PAC_DEFAULT)
 #  if __ARM_FEATURE_PAC_DEFAULT & 1
-#   define SIGN_LR paciasp /* sign with the A key */
-#   define VERIFY_LR autiasp /* verify with the A key */
+#   define SIGN_LR hint 25 /* paciasp sign with the A key */
+#   define VERIFY_LR hint 29 /* autiasp verify with the A key */
 #  elif __ARM_FEATURE_PAC_DEFAULT & 2
-#   define SIGN_LR pacibsp /* sign with the b key */
-#   define VERIFY_LR autibsp /* verify with the b key */
+#   define SIGN_LR hint 27 /* pacibsp sign with the b key */
+#   define VERIFY_LR hint 32 /* autibsp verify with the b key */
 #  endif
 #  define GNU_PROPERTY_AARCH64_POINTER_AUTH 2 /* bit 1 GNU Notes is for PAC support */
 # else
-#  define SIGN_LR
+#  define SIGN_LR BTI_C
 #  define VERIFY_LR
 #  define GNU_PROPERTY_AARCH64_POINTER_AUTH 0
 # endif
