@@ -20,7 +20,6 @@
 #ifndef SPHINCS_PCT_H
 #define SPHINCS_PCT_H
 
-#include "sphincs_type.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
 #include "visibility.h"

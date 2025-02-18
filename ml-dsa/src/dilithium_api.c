@@ -28,8 +28,7 @@
 #include "ext_headers.h"
 #include "dilithium_helper.h"
 #include "lc_dilithium.h"
-#include "small_stack_support.h"
-#include "ret_checkers.h"
+#include "dilithium_pct.h"
 #include "visibility.h"
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_ctx_alloc,
@@ -524,20 +523,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_from_seed,
 LC_INTERFACE_FUNCTION(int, lc_dilithium_pct, const struct lc_dilithium_pk *pk,
 		      const struct lc_dilithium_sk *sk)
 {
-	struct workspace {
-		uint8_t m[32];
-		struct lc_dilithium_sig sig;
-	};
-	int ret;
-	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
-
-	CKINT(lc_dilithium_sign(&ws->sig, ws->m, sizeof(ws->m), sk,
-				lc_seeded_rng));
-	CKINT(lc_dilithium_verify(&ws->sig, ws->m, sizeof(ws->m), pk));
-
-out:
-	LC_RELEASE_MEM(ws);
-	return ret;
+	return _lc_dilithium_pct_fips(pk, sk);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_sign, struct lc_dilithium_sig *sig,

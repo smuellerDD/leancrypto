@@ -17,12 +17,18 @@
  * DAMAGE.
  */
 
-#include "kyber_type.h"
+#ifndef KYBER_PCT_H
+#define KYBER_PCT_H
+
 #include "lc_memcmp_secure.h"
 #include "small_stack_support.h"
 #include "ret_checkers.h"
 #include "timecop.h"
 #include "visibility.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 static inline int _lc_kyber_pct_fips(const struct lc_kyber_pk *pk,
 				     const struct lc_kyber_sk *sk)
@@ -73,3 +79,9 @@ static inline int lc_kyber_pct_fips(const struct lc_kyber_pk *pk,
 	return 0;
 #endif
 }
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* KYBER_PCT_H */

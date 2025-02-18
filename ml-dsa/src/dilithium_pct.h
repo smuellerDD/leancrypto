@@ -20,7 +20,6 @@
 #ifndef DILITHIUM_PCT_H
 #define DILITHIUM_PCT_H
 
-#include "dilithium_type.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
 #include "visibility.h"
