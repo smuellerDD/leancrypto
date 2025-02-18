@@ -4,7 +4,6 @@
 if (sphincs_enabled)
 	src_fips += files([
 		'sphincs_api.c',
-		'sphincs_pct.c',
 	])
 endif
 

@@ -4,7 +4,6 @@
 if (dilithium_enabled)
 	src_fips += files([
 		'dilithium_api.c',
-		'dilithium_pct.c',
 		'dilithium_zetas.c'
 	])
 endif

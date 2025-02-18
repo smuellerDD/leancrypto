@@ -7,7 +7,6 @@
 # Dilithium Common
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
 				+= ../ml-dsa/src/dilithium_api.o	       \
-				   ../ml-dsa/src/dilithium_pct.o	       \
 				   ../ml-dsa/src/dilithium_zetas.o	       \
 				   leancrypto_kernel_dilithium.o
 

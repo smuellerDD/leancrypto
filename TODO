@@ -24,5 +24,3 @@
 - SHA2 Neon: check whether it works on ARMv7
 
 - RISCV asm: check whether it works for RISCV32
-
-- ARMv8: enable BTI in assembly code (I need to learn where it is place it)

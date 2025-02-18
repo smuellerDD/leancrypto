@@ -5,7 +5,6 @@ if (kyber_enabled)
 	src_fips += files([
 		'kyber_api.c',
 		'kyber_cbd.c',
-		'kyber_pct.c',
 		'kyber_zetas.c',
 	])
 

@@ -9,7 +9,6 @@ ccflags-$(CONFIG_LEANCRYPTO_SPHINCS) += -I$(src)/../slh-dsa/src
 # Sphincs Common
 leancrypto-$(CONFIG_LEANCRYPTO_SPHINCS)					       \
 				+= ../slh-dsa/src/sphincs_api.o		       \
-				   ../slh-dsa/src/sphincs_pct.o		       \
 				   leancrypto_kernel_sphincs.o
 
 # Sphincs SHAKE 256s

@@ -17,29 +17,59 @@
  * DAMAGE.
  */
 
-#include "lc_dilithium.h"
+#include "kyber_type.h"
 #include "lc_memcmp_secure.h"
-#include "lc_memset_secure.h"
-#include "ret_checkers.h"
 #include "small_stack_support.h"
+#include "ret_checkers.h"
 #include "timecop.h"
 #include "visibility.h"
 
-LC_INTERFACE_FUNCTION(int, lc_dilithium_pct, const struct lc_dilithium_pk *pk,
-		      const struct lc_dilithium_sk *sk)
+static inline int _lc_kyber_pct_fips(const struct lc_kyber_pk *pk,
+				     const struct lc_kyber_sk *sk)
 {
 	struct workspace {
 		uint8_t m[32];
-		struct lc_dilithium_sig sig;
+		struct lc_kyber_ct ct;
+		struct lc_kyber_ss ss1, ss2;
 	};
+	uint8_t *ss1_p, *ss2_p;
+	size_t ss1_size, ss2_size;
 	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	CKINT(lc_dilithium_sign(&ws->sig, ws->m, sizeof(ws->m), sk,
-				lc_seeded_rng));
-	CKINT(lc_dilithium_verify(&ws->sig, ws->m, sizeof(ws->m), pk));
+	CKINT(lc_rng_generate(lc_seeded_rng, NULL, 0, ws->m, sizeof(ws->m)));
+
+	CKINT(lc_kyber_enc(&ws->ct, &ws->ss1, pk));
+	CKINT(lc_kyber_dec(&ws->ss2, &ws->ct, sk));
+
+	ss1_p = ws->ss1.ss;
+	ss1_size = sizeof(ws->ss1.ss);
+	ss2_p = ws->ss2.ss;
+	ss2_size = sizeof(ws->ss2.ss);
+
+	/*
+	 * Timecop: the Kyber SS will not reveal anything about the SK or PK.
+	 * Further, it is not a secret here, as it is generated for testing.
+	 * Thus, we can ignore side channels here.
+	 */
+	unpoison(ss1_p, ss1_size);
+	unpoison(ss2_p, ss2_size);
+
+	CKINT(lc_memcmp_secure(ss1_p, ss1_size, ss2_p, ss2_size));
 
 out:
 	LC_RELEASE_MEM(ws);
 	return ret;
+}
+
+static inline int lc_kyber_pct_fips(const struct lc_kyber_pk *pk,
+				    const struct lc_kyber_sk *sk)
+{
+#ifdef LC_FIPS140
+	return _lc_kyber_pct_fips(pk, sk);
+#else
+	(void)pk;
+	(void)sk;
+	return 0;
+#endif
 }

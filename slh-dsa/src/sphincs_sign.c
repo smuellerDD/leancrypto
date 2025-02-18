@@ -36,6 +36,7 @@
 #include "sphincs_hash.h"
 #include "sphincs_internal.h"
 #include "sphincs_merkle.h"
+#include "sphincs_pct.h"
 #include "sphincs_selftest.h"
 #include "sphincs_thash.h"
 #include "sphincs_utils.h"
@@ -132,13 +133,15 @@ static int lc_sphincs_keypair_from_seed_internal(struct lc_sphincs_pk *pk,
 
 	memcpy(pk->pk + LC_SPX_N, sk->pk + LC_SPX_N, LC_SPX_N);
 
-out:
 	/*
 	 * Timecop: Unmark the generated keys
 	 */
 	unpoison(sk, sizeof(*sk));
 	unpoison(pk, sizeof(*pk));
 
+	CKINT(lc_sphincs_pct_fips(pk, sk));
+
+out:
 	return ret;
 }
 

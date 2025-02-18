@@ -19,6 +19,10 @@
 
 #include "ext_headers.h"
 #include "lc_kyber.h"
+#include "lc_memcmp_secure.h"
+#include "ret_checkers.h"
+#include "small_stack_support.h"
+#include "timecop.h"
 #include "visibility.h"
 
 LC_INTERFACE_FUNCTION(enum lc_kyber_type, lc_kyber_sk_type,
@@ -521,6 +525,42 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_keypair_from_seed, struct lc_kyber_pk *pk,
 	default:
 		return -EOPNOTSUPP;
 	}
+}
+
+LC_INTERFACE_FUNCTION(int, lc_kyber_pct, const struct lc_kyber_pk *pk,
+		      const struct lc_kyber_sk *sk)
+{
+	struct workspace {
+		uint8_t m[32];
+		struct lc_kyber_ct ct;
+		struct lc_kyber_ss ss1, ss2;
+	};
+	uint8_t *ss1_p, *ss2_p;
+	size_t ss1_size, ss2_size;
+	int ret;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+
+	CKINT(lc_rng_generate(lc_seeded_rng, NULL, 0, ws->m, sizeof(ws->m)));
+
+	CKINT(lc_kyber_enc(&ws->ct, &ws->ss1, pk));
+	CKINT(lc_kyber_dec(&ws->ss2, &ws->ct, sk));
+
+	CKINT(lc_kyber_ss_ptr(&ss1_p, &ss1_size, &ws->ss1));
+	CKINT(lc_kyber_ss_ptr(&ss2_p, &ss2_size, &ws->ss2));
+
+	/*
+	 * Timecop: the Kyber SS will not reveal anything about the SK or PK.
+	 * Further, it is not a secret here, as it is generated for testing.
+	 * Thus, we can ignore side channels here.
+	 */
+	unpoison(ss1_p, ss1_size);
+	unpoison(ss2_p, ss2_size);
+
+	CKINT(lc_memcmp_secure(ss1_p, ss1_size, ss2_p, ss2_size));
+
+out:
+	LC_RELEASE_MEM(ws);
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_kyber_enc, struct lc_kyber_ct *ct,

@@ -17,46 +17,51 @@
  * DAMAGE.
  */
 
-#include "lc_kyber.h"
-#include "lc_memcmp_secure.h"
-#include "lc_memset_secure.h"
-#include "small_stack_support.h"
+#ifndef SPHINCS_PCT_H
+#define SPHINCS_PCT_H
+
+#include "sphincs_type.h"
 #include "ret_checkers.h"
-#include "timecop.h"
+#include "small_stack_support.h"
 #include "visibility.h"
 
-LC_INTERFACE_FUNCTION(int, lc_kyber_pct, const struct lc_kyber_pk *pk,
-		      const struct lc_kyber_sk *sk)
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+static inline int _lc_sphincs_pct_fips(const struct lc_sphincs_pk *pk,
+				       const struct lc_sphincs_sk *sk)
 {
 	struct workspace {
 		uint8_t m[32];
-		struct lc_kyber_ct ct;
-		struct lc_kyber_ss ss1, ss2;
+		struct lc_sphincs_sig sig;
 	};
-	uint8_t *ss1_p, *ss2_p;
-	size_t ss1_size, ss2_size;
 	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	CKINT(lc_rng_generate(lc_seeded_rng, NULL, 0, ws->m, sizeof(ws->m)));
-
-	CKINT(lc_kyber_enc(&ws->ct, &ws->ss1, pk));
-	CKINT(lc_kyber_dec(&ws->ss2, &ws->ct, sk));
-
-	CKINT(lc_kyber_ss_ptr(&ss1_p, &ss1_size, &ws->ss1));
-	CKINT(lc_kyber_ss_ptr(&ss2_p, &ss2_size, &ws->ss2));
-
-	/*
-	 * Timecop: the Kyber SS will not reveal anything about the SK or PK.
-	 * Further, it is not a secret here, as it is generated for testing.
-	 * Thus, we can ignore side channels here.
-	 */
-	unpoison(ss1_p, ss1_size);
-	unpoison(ss2_p, ss2_size);
-
-	CKINT(lc_memcmp_secure(ss1_p, ss1_size, ss2_p, ss2_size));
+	CKINT(lc_sphincs_sign(&ws->sig, ws->m, sizeof(ws->m), sk,
+			      lc_seeded_rng));
+	CKINT(lc_sphincs_verify(&ws->sig, ws->m, sizeof(ws->m), pk));
 
 out:
 	LC_RELEASE_MEM(ws);
 	return ret;
 }
+
+static inline int lc_sphincs_pct_fips(const struct lc_sphincs_pk *pk,
+				      const struct lc_sphincs_sk *sk)
+{
+#ifdef LC_FIPS140
+	return _lc_sphincs_pct_fips(pk, sk);
+#else
+	(void)pk;
+	(void)sk;
+	return 0;
+#endif
+}
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* SPHINCS_PCT_H */

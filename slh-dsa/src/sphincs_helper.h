@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 - 2025, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2025, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *
@@ -17,29 +17,18 @@
  * DAMAGE.
  */
 
-#include "lc_sphincs.h"
-#include "lc_memcmp_secure.h"
-#include "lc_memset_secure.h"
-#include "ret_checkers.h"
-#include "small_stack_support.h"
-#include "timecop.h"
-#include "visibility.h"
+#ifndef SPHINCS_HELPER_H
+#define SPHINCS_HELPER_H
 
-LC_INTERFACE_FUNCTION(int, lc_sphincs_pct, const struct lc_sphincs_pk *pk,
-		      const struct lc_sphincs_sk *sk)
-{
-	struct workspace {
-		uint8_t m[32];
-		struct lc_sphincs_sig sig;
-	};
-	int ret;
-	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-	CKINT(lc_sphincs_sign(&ws->sig, ws->m, sizeof(ws->m), sk,
-			      lc_seeded_rng));
-	CKINT(lc_sphincs_verify(&ws->sig, ws->m, sizeof(ws->m), pk));
+int lc_sphincs_pct_fips(const struct lc_sphincs_pk *pk,
+			const struct lc_sphincs_sk *sk);
 
-out:
-	LC_RELEASE_MEM(ws);
-	return ret;
+#ifdef __cplusplus
 }
+#endif
+
+#endif /* SPHINCS_HELPER_H */

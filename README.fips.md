@@ -50,7 +50,17 @@ Leancrypto provides multiple implementations of one algorithm. Furthermore, it c
 
 ## Pairwise Consistency Test
 
-<OPEN>
+The PCT is automatically enabled for the following algorithms:
+
+* ML-KEM
+
+* hybrid ML-KEM - only the ML-KEM key pair generation
+
+* ML-DSA
+
+* hybrid ML-DSA - only the ML-DSA key pair generation
+
+* SLH-DSA
 
 ## Initialization
 

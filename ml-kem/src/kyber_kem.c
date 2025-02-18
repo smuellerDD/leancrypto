@@ -29,6 +29,7 @@
 #include "kyber_debug.h"
 #include "kyber_kdf.h"
 #include "kyber_kem.h"
+#include "kyber_pct.h"
 #include "lc_hash.h"
 #include "lc_memcmp_secure.h"
 #include "lc_sha3.h"
@@ -36,6 +37,7 @@
 #include "sidechannel_resistantce.h"
 #include "small_stack_support.h"
 #include "static_rng.h"
+#include "ret_checkers.h"
 #include "timecop.h"
 #include "visibility.h"
 
@@ -56,9 +58,7 @@ int _lc_kyber_keypair_from_seed(
 	s_rng_state.seed = seed;
 	s_rng_state.seedlen = seedlen;
 
-	ret = indcpa_keypair_f(pk->pk, sk->sk, &s_drng);
-	if (ret)
-		return ret;
+	CKINT(indcpa_keypair_f(pk->pk, sk->sk, &s_drng));
 
 	memcpy(&sk->sk[LC_KYBER_INDCPA_SECRETKEYBYTES], pk->pk,
 	       LC_KYBER_INDCPA_PUBLICKEYBYTES);
@@ -67,10 +67,10 @@ int _lc_kyber_keypair_from_seed(
 		sk->sk + LC_KYBER_SECRETKEYBYTES - 2 * LC_KYBER_SYMBYTES);
 
 	/* Value z for pseudo-random output on reject */
-	ret = lc_rng_generate(&s_drng, NULL, 0,
+	CKINT(lc_rng_generate(&s_drng, NULL, 0,
 			      sk->sk + LC_KYBER_SECRETKEYBYTES -
 				      LC_KYBER_SYMBYTES,
-			      LC_KYBER_SYMBYTES);
+			      LC_KYBER_SYMBYTES));
 	kyber_print_buffer(sk->sk + LC_KYBER_SECRETKEYBYTES - LC_KYBER_SYMBYTES,
 			   LC_KYBER_SYMBYTES, "Keygen: z");
 	kyber_print_buffer(pk->pk, LC_KYBER_PUBLICKEYBYTES,
@@ -78,6 +78,9 @@ int _lc_kyber_keypair_from_seed(
 	kyber_print_buffer(sk->sk, LC_KYBER_SECRETKEYBYTES,
 			   "======Keygen output: sk");
 
+	CKINT(lc_kyber_pct_fips(pk, sk));
+
+out:
 	return ret;
 }
 

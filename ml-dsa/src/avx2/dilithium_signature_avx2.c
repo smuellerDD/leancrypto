@@ -33,6 +33,7 @@
 #include "dilithium_poly_common.h"
 #include "dilithium_polyvec_avx2.h"
 #include "dilithium_debug.h"
+#include "dilithium_pct.h"
 #include "dilithium_selftest.h"
 #include "dilithium_signature_avx2.h"
 #include "lc_rng.h"
@@ -254,6 +255,8 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_avx2,
 	/* Timecop: pk and sk are not relevant for side-channels any more. */
 	unpoison(pk->pk, sizeof(pk->pk));
 	unpoison(sk->sk, sizeof(sk->sk));
+
+	CKINT(lc_dilithium_pct_fips(pk, sk));
 
 out:
 	LC_RELEASE_MEM(ws);

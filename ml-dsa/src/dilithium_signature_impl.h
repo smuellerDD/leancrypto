@@ -33,6 +33,7 @@
 #include "dilithium_type.h"
 #include "dilithium_debug.h"
 #include "dilithium_pack.h"
+#include "dilithium_pct.h"
 #include "dilithium_selftest.h"
 #include "dilithium_signature_impl.h"
 #include "lc_hash.h"
@@ -208,6 +209,8 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 	/* Timecop: pk and sk are not relevant for side-channels any more. */
 	unpoison(pk->pk, sizeof(pk->pk));
 	unpoison(sk->sk, sizeof(sk->sk));
+
+	CKINT(lc_dilithium_pct_fips(pk, sk));
 
 out:
 	LC_RELEASE_MEM(ws);
