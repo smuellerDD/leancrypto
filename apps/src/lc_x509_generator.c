@@ -27,6 +27,7 @@
 
 #include "binhexbin.h"
 #include "ret_checkers.h"
+#include "lc_status.h"
 #include "lc_x509_generator.h"
 #include "lc_x509_generator_file_helper.h"
 #include "lc_x509_generator_helper.h"
@@ -813,6 +814,17 @@ static void x509_generator_usage(void)
 	fprintf(stderr, "\n\t-h  --help\t\t\tPrint this help text\n");
 }
 
+static void x509_generator_version(void)
+{
+	char version[500];
+
+	memset(version, 0, sizeof(version));
+	lc_status(version, sizeof(version));
+
+	fprintf(stderr, "Leancrypto X.509 Certificate Generator\n");
+	fprintf(stderr, "%s", version);
+}
+
 int main(int argc, char *argv[])
 {
 	struct workspace {
@@ -821,8 +833,9 @@ int main(int argc, char *argv[])
 	struct x509_checker_options *checker_opts;
 	int ret = 0, opt_index = 0;
 
-	static const char *opts_short = "ho:";
+	static const char *opts_short = "ho:v";
 	static const struct option opts[] = { { "help", 0, 0, 'h' },
+					      { "version", 0, 0, 'v' },
 
 					      { "outfile", 1, 0, 'o' },
 					      { "sk-file", 1, 0, 0 },
@@ -904,269 +917,273 @@ int main(int argc, char *argv[])
 			case 0:
 				x509_generator_usage();
 				goto out;
+			/* version */
+			case 1:
+				x509_generator_version();
+				goto out;
 
 			/* outfile */
-			case 1:
+			case 2:
 				CKINT(x509_check_file(optarg));
 				ws->parsed_opts.outfile = optarg;
 				break;
 			/* sk-file */
-			case 2:
+			case 3:
 				ws->parsed_opts.sk_file = optarg;
 				break;
 			/* pk-file */
-			case 3:
+			case 4:
 				ws->parsed_opts.pk_file = optarg;
 				break;
 			/* key-type */
-			case 4:
+			case 5:
 				CKINT(lc_x509_pkey_name_to_algorithm(
 					optarg, &ws->parsed_opts.in_key_type));
 				break;
 			/* create-keypair */
-			case 5:
+			case 6:
 				CKINT(lc_x509_pkey_name_to_algorithm(
 					optarg,
 					&ws->parsed_opts.create_keypair_algo));
 				break;
 			/* x509-signer */
-			case 6:
+			case 7:
 				ws->parsed_opts.x509_signer_file = optarg;
 				break;
 			/* signer-sk-file */
-			case 7:
+			case 8:
 				ws->parsed_opts.signer_sk_file = optarg;
 				break;
 
 			/* eku */
-			case 8:
+			case 9:
 				CKINT(x509_enc_eku(&ws->parsed_opts, optarg));
 				break;
 			/* keyusage */
-			case 9:
+			case 10:
 				CKINT(x509_enc_keyusage(&ws->parsed_opts,
 							optarg));
 				break;
 			/* ca */
-			case 10:
+			case 11:
 				CKINT_LOG(x509_enc_ca(&ws->parsed_opts),
 					  "Set CA\n");
 				break;
 			/* san-dns */
-			case 11:
+			case 12:
 				CKINT_LOG(x509_enc_san_dns(&ws->parsed_opts,
 							   optarg),
 					  "Set SAN DNS\n");
 				break;
 			/* san-ip */
-			case 12:
+			case 13:
 				CKINT_LOG(x509_enc_san_ip(&ws->parsed_opts,
 							  optarg),
 					  "Set SAN IP\n");
 				break;
 
 			/* skid */
-			case 13:
+			case 14:
 				CKINT_LOG(x509_enc_skid(&ws->parsed_opts,
 							optarg),
 					  "Set SKID\n");
 				break;
 			/* akid */
-			case 14:
+			case 15:
 				CKINT_LOG(x509_enc_akid(&ws->parsed_opts,
 							optarg),
 					  "Set AKID\n");
 				break;
 			/* valid-from */
-			case 15:
+			case 16:
 				CKINT_LOG(x509_enc_valid_from(&ws->parsed_opts,
 							      optarg),
 					  "Set valid from\n");
 				break;
 			/* valid-to */
-			case 16:
+			case 17:
 				CKINT_LOG(x509_enc_valid_to(&ws->parsed_opts,
 							    optarg),
 					  "Set valid to\n");
 				break;
 			/* serial */
-			case 17:
+			case 18:
 				CKINT_LOG(x509_enc_serial(&ws->parsed_opts,
 							  optarg),
 					  "Set serial\n");
 				break;
 
 			/* subject-cn */
-			case 18:
+			case 19:
 				CKINT(x509_enc_subject_cn(&ws->parsed_opts,
 							  optarg));
 				break;
 			/* subject-email */
-			case 19:
+			case 20:
 				CKINT(x509_enc_subject_email(&ws->parsed_opts,
 							     optarg));
 				break;
 			/* subject-ou */
-			case 20:
+			case 21:
 				CKINT(x509_enc_subject_ou(&ws->parsed_opts,
 							  optarg));
 				break;
 			/* subject-o */
-			case 21:
+			case 22:
 				CKINT(x509_enc_subject_o(&ws->parsed_opts,
 							 optarg));
 				break;
 			/* subject-st */
-			case 22:
+			case 23:
 				CKINT(x509_enc_subject_st(&ws->parsed_opts,
 							  optarg));
 				break;
 			/* subject-c */
-			case 23:
+			case 24:
 				CKINT(x509_enc_subject_c(&ws->parsed_opts,
 							 optarg));
 				break;
 
 			/* issuer-cn */
-			case 24:
+			case 25:
 				CKINT(x509_enc_issuer_cn(&ws->parsed_opts,
 							 optarg));
 				break;
 			/* issuer-email */
-			case 25:
+			case 26:
 				CKINT(x509_enc_issuer_email(&ws->parsed_opts,
 							    optarg));
 				break;
 			/* issuer-ou */
-			case 26:
+			case 27:
 				CKINT(x509_enc_issuer_ou(&ws->parsed_opts,
 							 optarg));
 				break;
 			/* issuer-o */
-			case 27:
+			case 28:
 				CKINT(x509_enc_issuer_o(&ws->parsed_opts,
 							optarg));
 				break;
 			/* issuer-st */
-			case 28:
+			case 29:
 				CKINT(x509_enc_issuer_st(&ws->parsed_opts,
 							 optarg));
 				break;
 			/* issuer-c */
-			case 29:
+			case 30:
 				CKINT(x509_enc_issuer_c(&ws->parsed_opts,
 							optarg));
 				break;
 
 			/* print */
-			case 30:
+			case 31:
 				ws->parsed_opts.print_x509 = 1;
 				break;
 			/* noout */
-			case 31:
+			case 32:
 				ws->parsed_opts.noout = 1;
 				break;
 			/* print-x509 */
-			case 32:
+			case 33:
 				ws->parsed_opts.print_x509_cert = optarg;
 				break;
 
 			/* check-ca */
-			case 33:
+			case 34:
 				checker_opts->check_ca = 1;
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-ca-conformant */
-			case 34:
+			case 35:
 				checker_opts->check_ca_conformant = 1;
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-time */
-			case 35:
+			case 36:
 				checker_opts->check_time = 1;
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-issuer-cn */
-			case 36:
+			case 37:
 				checker_opts->issuer_cn = optarg;
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-subject-cn */
-			case 37:
+			case 38:
 				checker_opts->subject_cn = optarg;
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-noselfsigned */
-			case 38:
+			case 39:
 				checker_opts->check_no_selfsigned = 1;
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-valid-from */
-			case 39:
+			case 40:
 				checker_opts->valid_from =
 					strtoull(optarg, NULL, 10);
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-valid-to */
-			case 40:
+			case 41:
 				checker_opts->valid_to =
 					strtoull(optarg, NULL, 10);
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-eku */
-			case 41:
+			case 42:
 				checker_opts->eku =
 					(unsigned int)strtoul(optarg, NULL, 10);
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-san-dns */
-			case 42:
+			case 43:
 				checker_opts->san_dns = optarg;
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-san-ip */
-			case 43:
+			case 44:
 				checker_opts->san_ip = optarg;
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-skid */
-			case 44:
+			case 45:
 				checker_opts->skid = optarg;
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-akid */
-			case 45:
+			case 46:
 				checker_opts->akid = optarg;
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-noca */
-			case 46:
+			case 47:
 				checker_opts->check_no_ca = 1;
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-selfsigned */
-			case 47:
+			case 48:
 				checker_opts->check_selfsigned = 1;
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-rootca */
-			case 48:
+			case 49:
 				checker_opts->check_root_ca = 1;
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-keyusage */
-			case 49:
+			case 50:
 				checker_opts->keyusage =
 					(unsigned int)strtoul(optarg, NULL, 10);
 				ws->parsed_opts.checker = 1;
 				break;
 
 			/* data-file */
-			case 50:
+			case 51:
 				ws->parsed_opts.data_file = optarg;
 				break;
 			/* x509-cert */
-			case 51:
+			case 52:
 				ws->parsed_opts.x509_cert_file = optarg;
 				break;
 			}
@@ -1178,6 +1195,9 @@ int main(int argc, char *argv[])
 			break;
 		case 'h':
 			x509_generator_usage();
+			goto out;
+		case 'v':
+			x509_generator_version();
 			goto out;
 
 		default:

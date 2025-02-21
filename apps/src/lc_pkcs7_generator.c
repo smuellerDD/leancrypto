@@ -25,6 +25,7 @@
 #include "binhexbin.h"
 #include "lc_pkcs7_generator.h"
 #include "lc_pkcs7_parser.h"
+#include "lc_status.h"
 #include "lc_x509_generator.h"
 #include "lc_x509_generator_helper.h"
 #include "lc_x509_generator_file_helper.h"
@@ -445,7 +446,7 @@ out:
 
 static void pkcs7_generator_usage(void)
 {
-	fprintf(stderr, "\nLeancrypto X.509 Certificate Generator\n");
+	fprintf(stderr, "\nLeancrypto PKCS#7 / CMS Message Generator\n");
 
 	fprintf(stderr, "\nUsage:\n");
 	fprintf(stderr, "\t[OPTION]\n");
@@ -518,6 +519,17 @@ static void pkcs7_generator_usage(void)
 	fprintf(stderr, "\n\t-h  --help\t\t\tPrint this help text\n");
 }
 
+static void pkcs7_generator_version(void)
+{
+	char version[500];
+
+	memset(version, 0, sizeof(version));
+	lc_status(version, sizeof(version));
+
+	fprintf(stderr, "Leancrypto PKCS#7 / CMS Message Generator\n");
+	fprintf(stderr, "%s", version);
+}
+
 static int pkcs7_collect_signer(struct pkcs7_generator_opts *opts)
 {
 	int ret;
@@ -572,8 +584,9 @@ int main(int argc, char *argv[])
 	PKCS7_ALLOC
 	int ret = 0, opt_index = 0;
 
-	static const char *opts_short = "ho:i:";
+	static const char *opts_short = "ho:i:v";
 	static const struct option opts[] = { { "help", 0, 0, 'h' },
+					      { "version", 0, 0, 'v' },
 
 					      { "outfile", 1, 0, 'o' },
 					      { "infile", 1, 0, 'i' },
@@ -626,19 +639,23 @@ int main(int argc, char *argv[])
 			case 0:
 				pkcs7_generator_usage();
 				goto out;
+			/* version */
+			case 1:
+				pkcs7_generator_version();
+				goto out;
 
 			/* outfile */
-			case 1:
+			case 2:
 				CKINT(pkcs7_check_file(optarg));
 				parsed_opts.outfile = optarg;
 				break;
 			/* infile */
-			case 2:
+			case 3:
 				parsed_opts.infile = optarg;
 				break;
 
 			/* md */
-			case 3:
+			case 4:
 				if (parsed_opts.signer_set) {
 					printf("The option --md must be set before the first signer to take effect\n");
 					ret = -EINVAL;
@@ -649,109 +666,109 @@ int main(int argc, char *argv[])
 				break;
 
 			/* x509-signer */
-			case 4:
+			case 5:
 				parsed_opts.x509_signer_file = optarg;
 				CKINT(pkcs7_collect_signer(&parsed_opts));
 				break;
 			/* signer-sk-file */
-			case 5:
+			case 6:
 				parsed_opts.signer_sk_file = optarg;
 				CKINT(pkcs7_collect_signer(&parsed_opts));
 				break;
 
 			/* x509-cert */
-			case 6:
+			case 7:
 				parsed_opts.x509_file = optarg;
 				CKINT(pkcs7_collect_x509(&parsed_opts));
 				break;
 
 			/* print */
-			case 7:
+			case 8:
 				parsed_opts.print_pkcs7 = 1;
 				break;
 			/* noout */
-			case 8:
+			case 9:
 				parsed_opts.noout = 1;
 				break;
 			/* print-pkcs7 */
-			case 9:
+			case 10:
 				parsed_opts.pkcs7_msg = optarg;
 				parsed_opts.print_pkcs7 = 1;
 				break;
 			/* trust-anchor */
-			case 10:
+			case 11:
 				parsed_opts.trust_anchor = optarg;
 				CKINT(pkcs7_collect_trust(&parsed_opts));
 				break;
 
 			/* expected-keyusage */
-			case 11:
+			case 12:
 				CKINT(lc_x509_name_to_keyusage(
 					optarg,
 					&verify_rules->required_keyusage));
 				parsed_opts.verify_rules_set = 1;
 				break;
 			/* expected-eku */
-			case 12:
+			case 13:
 				CKINT(lc_x509_name_to_eku(
 					optarg, &verify_rules->required_eku));
 				parsed_opts.verify_rules_set = 1;
 				break;
 
 			/* check-ca */
-			case 13:
+			case 14:
 				checker_opts->check_ca = 1;
 				parsed_opts.checker = 1;
 				break;
 			/* check-ca-conformant */
-			case 14:
+			case 15:
 				checker_opts->check_ca_conformant = 1;
 				parsed_opts.checker = 1;
 				break;
 			/* check-issuer-cn */
-			case 15:
+			case 16:
 				checker_opts->issuer_cn = optarg;
 				parsed_opts.checker = 1;
 				break;
 			/* check-subject-cn */
-			case 16:
+			case 17:
 				checker_opts->subject_cn = optarg;
 				parsed_opts.checker = 1;
 				break;
 			/* check-noselfsigned */
-			case 17:
+			case 18:
 				checker_opts->check_no_selfsigned = 1;
 				parsed_opts.checker = 1;
 				break;
 			/* check-eku */
-			case 18:
+			case 19:
 				checker_opts->eku =
 					(unsigned int)strtoul(optarg, NULL, 10);
 				parsed_opts.checker = 1;
 				break;
 			/* check-noca */
-			case 19:
+			case 20:
 				checker_opts->check_no_ca = 1;
 				parsed_opts.checker = 1;
 				break;
 			/* check-selfsigned */
-			case 20:
+			case 21:
 				checker_opts->check_selfsigned = 1;
 				parsed_opts.checker = 1;
 				break;
 			/* check-rootca */
-			case 21:
+			case 22:
 				checker_opts->check_root_ca = 1;
 				parsed_opts.checker = 1;
 				break;
 			/* check-keyusage */
-			case 22:
+			case 23:
 				checker_opts->keyusage =
 					(unsigned int)strtoul(optarg, NULL, 10);
 				parsed_opts.checker = 1;
 				break;
 			/* verify-pkcs7 */
-			case 23:
+			case 24:
 				parsed_opts.pkcs7_msg = optarg;
 				break;
 			}
@@ -766,6 +783,9 @@ int main(int argc, char *argv[])
 			break;
 		case 'h':
 			pkcs7_generator_usage();
+			goto out;
+		case 'v':
+			pkcs7_generator_version();
 			goto out;
 
 		default:

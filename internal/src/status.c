@@ -64,12 +64,6 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 #else
 		"";
 #endif
-	static const char __maybe_unused avx[] =
-#if defined(LC_HOST_X86_64) || defined(CONFIG_X86_64)
-		"AVX ";
-#else
-		"";
-#endif
 	static const char __maybe_unused riscv64[] =
 #if defined(LC_HOST_RISCV64) || defined(CONFIG_RISCV)
 		"RISCV64 ";
@@ -96,26 +90,33 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 	len = strlen(outbuf);
 	snprintf(outbuf + len, outlen - len,
 		 "FIPS 140 Mode: %s\n"
+		 "Acceleration support:\n"
 #ifdef LC_AES
-		 "AES Acceleration support: %s%s%s\n"
+		 " AES: %s%s%s\n"
 #endif
 #ifdef LC_SHA2_256
-		 "SHA2-256 Acceleration support: %s%s%s%s%s%s\n"
+		 " SHA2-256: %s%s%s%s%s%s\n"
 #endif
 #ifdef LC_SHA2_512
-		 "SHA2-512 Acceleration support: %s%s%s%s%s%s\n"
+		 " SHA2-512: %s%s%s%s%s%s\n"
 #endif
 #ifdef LC_SHA3
-		 "SHA3 Acceleration support: %s%s%s%s%s%s%s\n"
+		 " SHA3 family: %s%s%s%s%s%s%s\n"
 #endif
 #ifdef LC_KYBER
-		 "Kyber Acceleration support: %s%s%s%s%s\n"
+		 " ML-KEM: %s%s%s%s%s\n"
 #endif
 #ifdef LC_DILITHIUM
-		 "Dilithium Acceleration support: %s%s%s%s%s\n"
+		 " ML-DSA: %s%s%s%s%s\n"
+#endif
+#ifdef LC_SPHINCS
+		 " SLH-DSA: %s%s\n"
+#endif
+#ifdef LC_BIKE
+		 " BIKE: %s%s\n"
 #endif
 #ifdef LC_CURVE25519
-		 "Curve25519 Acceleration support: %s%s%s\n"
+		 " Curve25519: %s%s%s\n"
 #endif
 		 ,
 		 fips140
@@ -185,14 +186,14 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 			 "AVX512 " :
 			 "",
 		 (lc_sha3_256_avx2 && lc_sha3_256_avx2 != lc_sha3_256_c) ?
-			 "AVX2 " :
+			 "AVX2, AVX2-4x " :
 			 "",
 		 (lc_sha3_256_arm_neon &&
 		  lc_sha3_256_arm_neon != lc_sha3_256_c) ?
 			 "ARMv7-Neon " :
 			 "",
 		 (lc_sha3_256_arm_asm && lc_sha3_256_arm_asm != lc_sha3_256_c) ?
-			 "ARMv8 " :
+			 "ARMv8, ARMv8-2x " :
 			 "",
 		 (lc_sha3_256_arm_ce && lc_sha3_256_arm_ce != lc_sha3_256_c) ?
 			 "ARMv8-CE " :
@@ -234,13 +235,36 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 		 (lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV_ASM_RVV) ?
 			 "RISCV64-RVV " :
 			 ""
-#endif
+#endif /* LC_DILITHIUM */
+
+	/* Sphincs+ */
+#ifdef LC_SPHINCS
+		 ,
+		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
+			 "AVX2" :
+			 "",
+		 armv8
+#endif /* LC_DILITHIUM */
+
+	/* Bike */
+#ifdef LC_BIKE
+		 ,
+		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
+			 "AVX2" :
+			 "",
+		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX512) ?
+			 "AVX512" :
+			 ""
+#endif /* LC_BIKE */
 
 	/* Curve25519 */
 #ifdef LC_CURVE25519
 		 ,
-		 avx, armv7, armv8
-#endif
+		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
+			 "AVX2" :
+			 "",
+		 armv7, armv8
+#endif /* LC_CURVE25519 */
 	);
 
 #ifdef __clang__

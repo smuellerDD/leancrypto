@@ -163,6 +163,12 @@ if get_option('dilithium_ed25519').enabled()
 	add_global_arguments([ '-DLC_DILITHIUM_ED25519' ], language: 'c')
 endif
 
+if (get_option('bike_5').enabled() or
+    get_option('bike_3').enabled() or
+    get_option('bike_1').enabled())
+	add_global_arguments([ '-DLC_BIKE' ], language: 'c')
+endif
+
 if get_option('efi').enabled()
 	add_global_arguments([ '-DLC_EFI' ], language: 'c')
 endif

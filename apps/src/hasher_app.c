@@ -85,7 +85,7 @@ static int hasher_get_trailing(const char *string, const char **found)
 static void hasher_version(const char *name)
 {
 	const char *base;
-	char version[100];
+	char version[500];
 
 	memset(version, 0, sizeof(version));
 	lc_status(version, sizeof(version));
