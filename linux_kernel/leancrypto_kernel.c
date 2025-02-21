@@ -24,6 +24,7 @@
 #include "kyber_type.h"
 #include "lc_ed25519.h"
 #include "lc_init.h"
+#include "lc_status.h"
 #include "kyber_internal.h"
 #include "kyber_kem.h"
 #include "seeded_rng.h"
@@ -43,6 +44,16 @@ EXPORT_SYMBOL(lc_x25519_keypair);
 EXPORT_SYMBOL(crypto_scalarmult_curve25519_c);
 #endif
 
+static void __init leancrypto_version(void)
+{
+	char version[500];
+
+	memset(version, 0, sizeof(version));
+	lc_status(version, sizeof(version));
+
+	pr_info("%s", version);
+}
+
 static int __init leancrypto_init(void)
 {
 	int ret;
@@ -50,6 +61,8 @@ static int __init leancrypto_init(void)
 	ret = lc_init(0);
 	if (ret)
 		return ret;
+
+	leancrypto_version();
 
 	/* Register crypto algorithms */
 	ret = lc_kernel_sha256_init();
