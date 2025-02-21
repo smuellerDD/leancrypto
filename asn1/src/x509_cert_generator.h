@@ -47,6 +47,7 @@ struct x509_generate_context {
 	uint16_t key_eku_processed;
 	uint16_t key_usage_processed;
 	uint8_t pathlen_processed;
+	uint8_t basic_constraint_processed;
 
 	uint8_t san_processed;
 #define X509_CN_PROCESSED (1 << 0)

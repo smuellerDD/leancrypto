@@ -95,11 +95,6 @@ LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_is_ca,
 	    !(pub->key_usage & LC_KEY_USAGE_KEYCERTSIGN))
 		return LC_X509_POL_FALSE;
 
-	/* RFC 5280 section 4.2.1.9 */
-	if ((pub->ca_pathlen & LC_KEY_CA_MASK) &&
-	    !(pub->ca_pathlen & LC_KEY_CA_CRITICAL))
-		return LC_X509_POL_FALSE;
-
 	/* BSI TR02102-3 chapter 3 */
 	CKINT(lc_x509_policy_version_ge(cert, 3));
 	if (ret != LC_X509_POL_TRUE)
@@ -110,8 +105,8 @@ LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_is_ca,
 	if (ret != LC_X509_POL_TRUE)
 		return ret;
 
-	/* Check whether it is a CA */
-	if (pub->ca_pathlen & LC_KEY_CA_MASK)
+	/* RFC 5280 section 4.2.1.9 - check whether it is a CA */
+	if ((pub->basic_constraint & LC_KEY_IS_CA) == LC_KEY_IS_CA)
 		return LC_X509_POL_TRUE;
 
 	ret = LC_X509_POL_FALSE;

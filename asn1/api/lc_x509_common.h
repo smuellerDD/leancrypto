@@ -178,8 +178,13 @@ struct lc_public_key {
 #define LC_KEY_EKU_MASK                                                        \
 	((uint16_t)~LC_KEY_EKU_CRITICAL | LC_KEY_EKU_EXTENSION_PRESENT)
 
+	uint8_t basic_constraint;
+#define LC_KEY_CA (1 << 2)
+#define LC_KEY_NOCA (1 << 1)
+#define LC_KEY_BASIC_CONSTRAINT_CRITICAL (1 << 0)
+#define LC_KEY_IS_CA (LC_KEY_CA | LC_KEY_BASIC_CONSTRAINT_CRITICAL)
+
 	uint8_t ca_pathlen;
-#define LC_KEY_CA_CRITICAL 0x80
 #define LC_KEY_CA_MAXLEN 16
 #define LC_KEY_CA_MASK ((LC_KEY_CA_MAXLEN << 1) - 1)
 

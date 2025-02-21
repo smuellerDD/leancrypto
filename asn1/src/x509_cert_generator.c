@@ -142,7 +142,11 @@ static inline int x509_pathlen_unprocessed(struct x509_generate_context *ctx)
 {
 	const struct lc_x509_certificate *cert = ctx->cert;
 	const struct lc_public_key *pub = &cert->pub;
-	uint8_t pathlen = pub->ca_pathlen & (uint8_t)~LC_KEY_CA_CRITICAL;
+	uint8_t pathlen = pub->ca_pathlen;
+	uint8_t basic_constraint = pub->basic_constraint;
+
+	if (basic_constraint != ctx->basic_constraint_processed)
+		return 1;
 
 	if (pathlen != ctx->pathlen_processed)
 		return 1;
@@ -165,14 +169,14 @@ int x509_basic_constraints_ca_enc(void *context, uint8_t *data,
 		if (*avail_datalen < 1)
 			return -EOVERFLOW;
 
-		if (pub->ca_pathlen & (uint8_t)~LC_KEY_CA_CRITICAL)
+		if (pub->basic_constraint & LC_KEY_CA)
 			*data = ASN1_TRUE;
 		else
 			*data = ASN1_FALSE;
 
 		*avail_datalen -= 1;
 
-		ctx->pathlen_processed = LC_KEY_CA_MAXLEN;
+		ctx->basic_constraint_processed = pub->basic_constraint;
 
 		printf_debug("Setting CA: %u\n", *data);
 	}
@@ -196,7 +200,7 @@ int x509_basic_constraints_pathlen_enc(void *context, uint8_t *data,
 		if (*avail_datalen < 1)
 			return -EOVERFLOW;
 
-		*data = pub->ca_pathlen & (uint8_t)~LC_KEY_CA_CRITICAL;
+		*data = pub->ca_pathlen;
 		*avail_datalen -= 1;
 
 		ctx->pathlen_processed = *data;
@@ -594,6 +598,9 @@ int x509_akid_note_OID_enc(void *context, uint8_t *data, size_t *avail_datalen,
 
 /******************************************************************************
  * Common extension code base
+ *
+ * The order of the extension processing in the following functions must
+ * be identical!
  ******************************************************************************/
 
 int x509_extension_continue_enc(void *context, uint8_t *data,
@@ -679,7 +686,7 @@ int x509_extension_critical_enc(void *context, uint8_t *data,
 	if (x509_eku_unprocessed(ctx, LC_KEY_EKU_MASK)) {
 		val = pub->key_eku & LC_KEY_EKU_CRITICAL;
 	} else if (x509_pathlen_unprocessed(ctx)) {
-		val = pub->ca_pathlen & LC_KEY_CA_CRITICAL;
+		val = pub->basic_constraint & LC_KEY_BASIC_CONSTRAINT_CRITICAL;
 	} else if (x509_san_unprocessed(ctx)) {
 		return 0; /* SAN does not have criticality */
 	} else if (x509_keyusage_unprocessed(ctx, LC_KEY_USAGE_MASK)) {

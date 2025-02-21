@@ -43,7 +43,7 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 
 	if (parsed_opts->check_ca) {
 		/* Check whether CA basic constraint is present */
-		if (!(pub->ca_pathlen & LC_KEY_CA_MASK)) {
+		if ((pub->basic_constraint & LC_KEY_IS_CA) != LC_KEY_IS_CA) {
 			printf("Certificate is not marked as CA\n");
 			return -EINVAL;
 		} else {
@@ -395,7 +395,8 @@ int apply_checks_pkcs7(const struct lc_pkcs7_message *pkcs7_msg,
 		while (x509) {
 			const struct lc_public_key *pub = &x509->pub;
 
-			if (pub->ca_pathlen & LC_KEY_CA_MASK) {
+			if ((pub->basic_constraint & LC_KEY_IS_CA) ==
+			    LC_KEY_IS_CA) {
 				found = 1;
 				break;
 			}

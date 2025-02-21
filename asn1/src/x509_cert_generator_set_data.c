@@ -145,7 +145,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_ca,
 	CKNULL(cert, -EINVAL);
 
 	pub = &cert->pub;
-	pub->ca_pathlen = LC_KEY_CA_CRITICAL | LC_KEY_CA_MAXLEN;
+	pub->basic_constraint = LC_KEY_CA | LC_KEY_BASIC_CONSTRAINT_CRITICAL;
 
 	/* Set AKID by pointing to the SKID */
 	if (!cert->raw_akid) {
@@ -345,6 +345,21 @@ x509_cert_set_string(struct lc_x509_certificate_name_component *component,
 	return 0;
 }
 
+static void x509_set_leaf_certificate(struct lc_x509_certificate *cert)
+{
+	struct lc_public_key *pub;
+
+	pub = &cert->pub;
+
+	/*
+	 * Ensure that the basic constraint is set with CA false but do not
+	 * override an already set definition (e.g. when a CA certificate
+	 * shall be generated).
+	 */
+	if (!pub->basic_constraint)
+		pub->basic_constraint = LC_KEY_NOCA;
+}
+
 LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_subject_cn,
 		      struct lc_x509_certificate *cert, const char *string,
 		      size_t len)
@@ -353,6 +368,8 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_subject_cn,
 
 	CKNULL(cert, -EINVAL);
 	CKINT(x509_cert_set_string(&cert->subject_segments.cn, string, len));
+
+	x509_set_leaf_certificate(cert);
 
 out:
 	return ret;
@@ -367,6 +384,8 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_subject_email,
 	CKNULL(cert, -EINVAL);
 	CKINT(x509_cert_set_string(&cert->subject_segments.email, string, len));
 
+	x509_set_leaf_certificate(cert);
+
 out:
 	return ret;
 }
@@ -379,6 +398,8 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_subject_ou,
 
 	CKNULL(cert, -EINVAL);
 	CKINT(x509_cert_set_string(&cert->subject_segments.ou, string, len));
+
+	x509_set_leaf_certificate(cert);
 
 out:
 	return ret;
@@ -393,6 +414,8 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_subject_o,
 	CKNULL(cert, -EINVAL);
 	CKINT(x509_cert_set_string(&cert->subject_segments.o, string, len));
 
+	x509_set_leaf_certificate(cert);
+
 out:
 	return ret;
 }
@@ -406,6 +429,8 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_subject_st,
 	CKNULL(cert, -EINVAL);
 	CKINT(x509_cert_set_string(&cert->subject_segments.st, string, len));
 
+	x509_set_leaf_certificate(cert);
+
 out:
 	return ret;
 }
@@ -418,6 +443,8 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_subject_c,
 
 	CKNULL(cert, -EINVAL);
 	CKINT(x509_cert_set_string(&cert->subject_segments.c, string, len));
+
+	x509_set_leaf_certificate(cert);
 
 out:
 	return ret;

@@ -133,11 +133,16 @@ static void print_x509_extensions(const struct lc_x509_certificate *x509)
 	print_x509_bindata("X509v3 Authority Key Identifier", x509->raw_akid,
 			   x509->raw_akid_size);
 
-	if (pub->ca_pathlen) {
-		printf("X509v3 Basic Constraints: CA");
-		if (pub->ca_pathlen & LC_KEY_CA_CRITICAL)
+	if (pub->basic_constraint) {
+		printf("X509v3 Basic Constraints: ");
+		if (pub->basic_constraint & (uint8_t)LC_KEY_CA)
+			printf("CA");
+		if (pub->basic_constraint & (uint8_t)LC_KEY_NOCA)
+			printf("No CA");
+		if (pub->basic_constraint &
+		    (uint8_t)LC_KEY_BASIC_CONSTRAINT_CRITICAL)
 			printf(" (critical)");
-		if (pub->ca_pathlen < LC_KEY_CA_MAXLEN)
+		if (pub->ca_pathlen)
 			printf(" (pathlen %u)", pub->ca_pathlen);
 
 		printf("\n");
