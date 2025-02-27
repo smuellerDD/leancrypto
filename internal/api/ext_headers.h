@@ -99,7 +99,6 @@ static inline int lc_get_time(time64_t *time_since_epoch)
 #include <efi/efilib.h>
 
 #include "errno_private.h"
-#include "lc_memcpy_secure.h"
 
 #define LC_DEFINE_CONSTRUCTOR(_func)                                           \
 	void __attribute__((constructor)) _func(void)
@@ -148,6 +147,8 @@ typedef int ssize_t;
 #endif
 
 #endif
+
+#include "lc_memcpy_secure.h"
 
 void *memset(void *d, int c, unsigned long long n);
 
