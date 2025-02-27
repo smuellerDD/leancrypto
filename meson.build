@@ -264,6 +264,11 @@ if get_option('efi').enabled()
 		efi_crt0_file = '/usr/lib64/crt0-efi-' + host_machine.cpu_family() + '.o'
 	endif
 
+	efi_lds_file = '/usr/lib/elf_' + host_machine.cpu_family() + '_efi.lds'
+	if (not fs.is_file(efi_lds_file))
+		efi_lds_file = '/usr/lib64/elf_' + host_machine.cpu_family() + '_efi.lds'
+	endif
+
 	# https://wiki.osdev.org/GNU-EFI
 	add_global_arguments([
 		'-fno-stack-protector',
@@ -277,7 +282,7 @@ if get_option('efi').enabled()
 	add_project_link_arguments([
 		'-shared',
 		'-Wl,-Bsymbolic',
-		'-T/usr/lib64/elf_' + host_machine.cpu_family() + '_efi.lds',
+		'-T' + efi_lds_file,
 		efi_crt0_file,
 		],
 		language : 'c')
