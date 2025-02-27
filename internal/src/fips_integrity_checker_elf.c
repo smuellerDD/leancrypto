@@ -83,13 +83,13 @@ fips_integrity_checker_build(struct lc_fips_integrity_section_actual *act)
 	BUILD_BUG_ON(ARRAY_SIZE(secs) != 3);
 
 	printf("Init segment: start (0x%lx), end (0x%lx), length (0x%lx)\n",
-	       &_start_init, &_end_init,
+	       (unsigned long)&_start_init, (unsigned long)&_end_init,
 	       (unsigned long)((uint8_t *)&_end_init - (uint8_t *)&_start_init));
 	printf("Text segment: start (0x%lx), end (0x%lx), length (0x%lx)\n",
-	       &_start_text, &_end_text,
+	       (unsigned long)&_start_text, (unsigned long)&_end_text,
 	       (unsigned long)((uint8_t *)&_end_text - (uint8_t *)&_start_text));
 	printf("ROData segment: start (0x%lx), end (0x%lx), length (0x%lx)\n",
-	       &_start_rodata, &_end_rodata,
+	       (unsigned long)&_start_rodata, (unsigned long)&_end_rodata,
 	       (unsigned long)((uint8_t *)&_end_rodata - (uint8_t *)&_start_rodata));
 
 	fprintf(stderr, "__attribute__ ((section(\"fips_integrity_data\")))\n");

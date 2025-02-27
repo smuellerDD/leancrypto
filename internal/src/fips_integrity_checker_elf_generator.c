@@ -17,7 +17,8 @@
  * DAMAGE.
  */
 
-#include "leancrypto.h"
+#include "ext_headers.h"
+#include "lc_status.h"
 
 static int status_tester(void)
 {
