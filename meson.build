@@ -257,6 +257,13 @@ objcopy = find_program('objcopy', required : false)
 ################################################################################
 
 if get_option('efi').enabled()
+	fs = import('fs')
+
+	efi_crt0_file = '/usr/lib/crt0-efi-' + host_machine.cpu_family() + '.o'
+	if (not fs.is_file(efi_crt0_file))
+		efi_crt0_file = '/usr/lib64/crt0-efi-' + host_machine.cpu_family() + '.o'
+	endif
+
 	# https://wiki.osdev.org/GNU-EFI
 	add_global_arguments([
 		'-fno-stack-protector',
@@ -271,7 +278,7 @@ if get_option('efi').enabled()
 		'-shared',
 		'-Wl,-Bsymbolic',
 		'-T/usr/lib64/elf_' + host_machine.cpu_family() + '_efi.lds',
-		'/usr/lib64/crt0-efi-' + host_machine.cpu_family() + '.o',
+		efi_crt0_file,
 		],
 		language : 'c')
 
