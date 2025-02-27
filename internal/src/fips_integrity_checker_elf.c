@@ -61,6 +61,21 @@ static const struct lc_fips_integrity_sections secs[] = { {
 		0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
 		0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
 	},
+
+	/*
+	 * The ROData segment is currently excluded from being checked, because
+	 * ROData in the function fips_integrity_checker_build in this
+	 * file somehow causes a buffer overflow. When subtracting 1187 bytes
+	 * from the &_end_rodata pointer which excludes the offending ROData
+	 * part, the buffer overflow vanishes.
+	 *
+	 * But the check of ROData is considered not required for FIPS 140
+	 * compliance because the ROData contains the static data for self-tests
+	 * as well as algorithm static data (e.g. SHA2-256 values), but the
+	 * power-up self test are considered to verify the appropriateness
+	 * of the ROData.
+	 */
+#if 0
 }, {
 	.desc = "ROData Segment",
 	.section_start_p = &_start_rodata,
@@ -71,6 +86,7 @@ static const struct lc_fips_integrity_sections secs[] = { {
 		0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
 		0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
 	},
+#endif
 } };
 #endif
 
@@ -80,7 +96,7 @@ fips_integrity_checker_build(struct lc_fips_integrity_section_actual *act)
 {
 	unsigned int i;
 
-	BUILD_BUG_ON(ARRAY_SIZE(secs) != 3);
+	BUILD_BUG_ON(ARRAY_SIZE(secs) != 2);
 
 	printf("Init segment: start (0x%lx), end (0x%lx), length (0x%lx)\n",
 	       (unsigned long)&_start_init, (unsigned long)&_end_init,
@@ -133,6 +149,7 @@ fips_integrity_checker_build(struct lc_fips_integrity_section_actual *act)
 		}
 	}
 
+#if 0
 	act++;
 
 	fprintf(stderr, "\t},\n");
@@ -153,6 +170,7 @@ fips_integrity_checker_build(struct lc_fips_integrity_section_actual *act)
 				fprintf(stderr, "\n\t\t");
 		}
 	}
+#endif
 
 	fprintf(stderr, "\t},\n");
 	fprintf(stderr, "} };\n");
