@@ -1,0 +1,23 @@
+name: EFI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install meson
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y meson gnu-efi
+    - name: Meson setup
+      run: meson setup build -Defi=enabled -Dpkcs7_generator=disabled -Dx509_generator=disabled
+    - name: Meson compile
+      run: meson compile -C build
