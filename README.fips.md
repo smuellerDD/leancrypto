@@ -86,6 +86,8 @@ The PCT is automatically enabled for the following algorithms:
 
 * SLH-DSA
 
+* ED25519
+
 ## Initialization
 
 Leancrypto utilizes the "constructor" functionality from the underlying platform to automatically perform initialization operations at startup time before the consuming application can interact with leancrypto. This constructor usage is defined with the macro `LC_CONSTRUCTOR`.

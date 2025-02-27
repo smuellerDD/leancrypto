@@ -28,6 +28,7 @@
 
 #include "compare.h"
 #include "ed25519_composite.h"
+#include "ed25519_pct.h"
 #include "lc_ed25519.h"
 #include "ed25519_ref10.h"
 #include "ext_headers.h"
@@ -103,6 +104,8 @@ LC_INTERFACE_FUNCTION(int, lc_ed25519_keypair, struct lc_ed25519_pk *pk,
 	/* Timecop: pk and sk are not relevant for side-channels any more. */
 	unpoison(sk->sk, sizeof(sk->sk));
 	unpoison(pk->pk, sizeof(pk->pk));
+
+	CKINT(lc_ed25519_pct_fips(pk, sk));
 
 out:
 	lc_memset_secure(&A, 0, sizeof(A));
