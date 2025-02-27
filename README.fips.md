@@ -4,7 +4,7 @@ Leancrypto intends to implement all FIPS 140 requirements, albeit sometimes in i
 
 ## General Approach
 
-To make leancrypto FIPS 140 compliant, it must be compiled with the `meson` option `fips140` enabled. This compiles leancrypto into two binaries:
+The `leancrypto` library always is compiled as a FIPS 140 module. To achieve that, it is compiled into two binaries:
 
 1. `leancrypto-fips.[so|a]` contains the FIPS 140 compliant code, all FIPS-approved algorithms and defines the FIPS 140 physical / logical boundary. This means that this library forms the "FIPS module".
 
@@ -46,7 +46,31 @@ Leancrypto provides multiple implementations of one algorithm. Furthermore, it c
 
 ## Integrity Test
 
-<OPEN>
+NOTE: The integrity test is only supported for ELF binaries only so far. To change that, perform the folloiwng steps:
+
+* Create a suitable replacement for `fips_integrity_checker.c` and compile it (search for "FIPS 140 Integrity check" in the `internal/src/meson.build`).
+
+* If applicable, add the required compilation options for `libleancrypto-fips` in the main meson.build (search for "FIPS 140 Integrity check").
+
+The integrity test uses SHA3-256. Due to the architecture of leancrypto, the selected message digest is executed after its self test is performed.
+
+### ELF Binary Integrity Test
+
+The FIPS 140 integrity test on the `leancrypto-fips` library instance is implemented as follows but only for the `libleancrypto-fips.[so|a]` variants.
+
+First, a `libleancrypto-real.a` is compiled which contains all FIPS approved algorithm code, the self tests and auxiliary code required to comply with all FIPS requirements. The only exception is the file `fips_integrity_checker.c` which contains the constructor starting up the integrity test and the integrity check control values.
+
+The `libleancrypto-real.a` is linked together with `fips_integrity_checker_elf.c` into `libleancrypto-fips.[so|a]` using the linker script `fips_integrity_check.ld`. This linker script adds a start and end pointers for the text and rodata ELF segments. Both segments contains all code and readonly data (e.g. self test data) from `libleancrypto-real.a` and the `fips_integrity_checker_elf.c`, i.e. all FIPS module code / data. The only exception is the integrity check control value which are placed into a different section. This approach now allows to calculate the integrity of the text and rodata segments by the start/end pointers added by the linker script and adjust the integrity control values after compilation.
+
+The following ELF sections are covered by the integrity check in their entirety:
+
+* .init section (covering the constructors)
+
+* .text section (covering the entire code)
+
+* .rodata section (covering the constant data)
+
+The sizes of the sections covered by the integrity check can be shown by invoking the command `leancrypto-fips-raw-generator` that is created during compile time. When invoking it, it reports that the used integrity check values are wrong followed by the used start/end pointers of the sections and their length. The lengths can be compared to the sizes reported by `readelf -WS libleancrypto-fips.so`. The sizes reported by the `leancrypto-fips-raw-generator` tool may be a bit larger than the real segment sizes because the start/end markers of the sections encapsulate the section meta data.
 
 ## Pairwise Consistency Test
 

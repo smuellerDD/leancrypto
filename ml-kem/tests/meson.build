@@ -85,6 +85,18 @@ if get_option('kyber_1024').enabled()
 				], link_with: leancrypto_static_lib
 				)
 
+	# Testing of ML-KEM keygen in FIPS mode (power up integrity test and
+	# PCT)
+	kyber_keygen_fips_tester = executable('kyber_keygen_fips_tester',
+				[ 'kyber_keygen_fips_tester.c', internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_kyber_internal
+				],
+				dependencies: leancrypto_fips
+				)
+
 	test('Kyber KEX', kyber_kex_tester, suite: regression)
 	if get_option('cshake_drng').enabled()
 		test('Kyber IES', kyber_ies_tester, suite: regression)
@@ -108,6 +120,7 @@ if get_option('kyber_1024').enabled()
 	     suite: regression)
 	test('Kyber Keygen Performance', kyber_keygen_tester, timeout: 1000,
 	     is_parallel: false, suite: performance)
+	test('Kyber Keygen FIPS', kyber_keygen_fips_tester, suite: regression)
 
 	if (x86_64_asm)
 		kyber_kem_tester_avx2 = executable('kyber_kem_tester_avx2',

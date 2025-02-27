@@ -232,15 +232,15 @@ if get_option('pkcs7_debug').enabled()
 	add_global_arguments([ '-DLC_PKCS7_DEBUG' ], language: 'c')
 endif
 
-if (get_option('fips140').enabled())
-	add_global_arguments([ '-DLC_FIPS140' ], language: 'c')
-endif
-
 # 64 bit time to not suffer from Y2038 problem
 add_global_arguments([ '-D_TIME_BITS=64' ], language: 'c')
 
 # Header generation
 header_script = find_program('addon/generate_header.sh', required: true)
+
+# FIPS Header generation
+fips_header_script = find_program('addon/fips_generate_header.sh',
+				  required: true)
 
 # Prepare distribution
 dist_script = find_program('addon/sanity_checks.sh', required: true)
@@ -248,6 +248,9 @@ meson.add_dist_script(dist_script, meson.project_version())
 
 # Find Doxygen program
 doxygen = find_program('doxygen', required : false)
+
+# Find objcopy
+objcopy = find_program('objcopy', required : false)
 
 ################################################################################
 # EFI-specific defines
@@ -596,8 +599,16 @@ endif
 
 # FIPS non-approved crypto sources
 src = [ ]
+
 # FIPS approved crypto sources
 src_fips = [ ]
+
+# FIPS-only code that shall not be compiled for the non-FIPS version
+src_fips_wrapper = [ ]
+
+# FIPS integrity check value generator code
+src_fips_wrapper_generator = [ ]
+
 # Internal non-cryptographic helper code
 internal_src = [ ]
 
@@ -634,50 +645,106 @@ endif
 build_shared = (get_option('default_library') != 'static' and
 		get_option('efi').disabled())
 
-if (get_option('fips140').enabled())
+# Compile the "raw" FIPS 140 library part which can be linked into
+# the libleancrypto-fips.[so|a] with the integrity test as well as
+# non-FIPS libleancrypto.[so|a] without the integrity test.
+leancrypto_libs_fips_raw = static_library('leancrypto-fips-raw',
+	[ src_fips, internal_src ],
+	include_directories: [ include_dirs,
+				include_internal_dirs ],
+	dependencies: [ leancrypto_link ],
+	link_whole: [ leancrypto_support_libs_fips ],
+	install: false
+	)
 
-	if build_shared
-		# Create the official shared FIPS library
-		leancrypto_both_libs_fips = both_libraries('leancrypto-fips',
-			[ src_fips, internal_src ],
-			include_directories: [ include_dirs,
-					       include_internal_dirs ],
-			soversion: version_array[0],
-			dependencies: [ leancrypto_link ],
-			link_whole: [ leancrypto_support_libs_fips ],
-			install: true
-			)
+# Variables that drive the compilation of the FIPS library
+fips_integrity_checker_values_h = []
+link_args_fips140 = []
 
-		leancrypto_lib_fips = leancrypto_both_libs_fips.get_shared_lib()
-		leancrypto_static_lib_fips = leancrypto_both_libs_fips.get_static_lib()
-	else
-		# Create the official static FIPS library
-		leancrypto_static_lib_fips = static_library('leancrypto-fips',
-			[ src_fips, internal_src ],
-			include_directories: [ include_dirs,
-					       include_internal_dirs ],
-			dependencies: [ leancrypto_link ],
-			link_whole: [ leancrypto_support_libs_fips ],
-			install: true
-			)
-		leancrypto_lib_fips = leancrypto_static_lib_fips
-	endif
+# FIPS 140 Integrity check: The integrity checker is adopted for ELF.
+if (host_machine.system() == 'linux' and get_option('efi').disabled())
+	link_args_fips140 = [
+		'-T' + meson.project_source_root() + '/internal/src/fips_integrity_check.ld'
+	]
 
-	leancrypto_support_libs += leancrypto_static_lib_fips
+	# Generate shared library identical to the real one without the correct
+	# integrity check values
+	# NOTE: We must the same file name length as the FIPS library file
+	# as otherwise offsets are changing and thus the integrity value.
+	leancrypto_libs_fips_raw_gen = shared_library('leancrypto-real',
+		[ src_fips_wrapper ],
+		include_directories: [ include_dirs,
+					include_internal_dirs ],
+		soversion: version_array[0],
+		link_whole: [ leancrypto_libs_fips_raw ],
+		link_args: link_args_fips140,
+		install: false
+		)
 
-	if get_option('efi').disabled()
-		pkgconfig.generate(leancrypto_lib_fips,
-			   description: 'PQC-resistant cryptographic library with FIPS -140 compliance')
-	endif
+	# Generate a tool linking with the library to stimulate its constructor
+	# to output the correct integrity values
+	integrity_generator = executable('leancrypto-fips-raw-generator',
+		[ src_fips_wrapper_generator ],
+		include_directories: [ include_dirs,
+				       include_internal_dirs ],
+		link_with: [ leancrypto_libs_fips_raw_gen ],
+		install: false
+		)
 
-	leancrypto_fips = declare_dependency(link_with: leancrypto_lib_fips,
-					     include_directories: include_dirs)
-else
-	src += src_fips
-	src += internal_src
-	leancrypto_support_libs += leancrypto_support_libs_fips
+	# Execute generate tool to create proper header file for inclusion
+	fips_integrity_checker_values_h = custom_target(
+		'fips_integrity_checker_values.h',
+		input: integrity_generator,
+		output: 'fips_integrity_checker_values.h',
+		command: [
+			fips_header_script.full_path(),
+			integrity_generator.full_path(),
+			'@OUTPUT@']
+		)
 endif
 
+# Build FIPS 140 library
+if build_shared
+	# Create the official shared FIPS library
+	leancrypto_both_libs_fips = both_libraries('leancrypto-fips',
+		[ fips_integrity_checker_values_h, src_fips_wrapper ],
+		include_directories: [ include_dirs,
+					include_internal_dirs ],
+		soversion: version_array[0],
+		c_args: [ '-DLC_FIPS_VALUES_GENERATED' ],
+		link_whole: [ leancrypto_libs_fips_raw ],
+		link_args: link_args_fips140,
+		install: true
+		)
+
+	leancrypto_lib_fips = leancrypto_both_libs_fips.get_shared_lib()
+	leancrypto_static_lib_fips = leancrypto_both_libs_fips.get_static_lib()
+else
+	# Create the official static FIPS library
+	leancrypto_static_lib_fips = static_library('leancrypto-fips',
+		[ src_fips_wrapper ],
+		include_directories: [ include_dirs,
+					include_internal_dirs ],
+		dependencies: [ leancrypto_link ],
+		c_args: [ '-DLC_FIPS_VALUES_GENERATED' ],
+		link_whole: [ leancrypto_libs_fips_raw ],
+		link_args: link_args_fips140,
+		install: true
+		)
+	leancrypto_lib_fips = leancrypto_static_lib_fips
+endif
+
+leancrypto_support_libs += leancrypto_libs_fips_raw
+
+if get_option('efi').disabled()
+	pkgconfig.generate(leancrypto_lib_fips,
+			description: 'PQC-resistant cryptographic library with FIPS -140 compliance')
+endif
+
+leancrypto_fips = declare_dependency(link_with: leancrypto_lib_fips,
+				     include_directories: include_dirs)
+
+# Build non-FIPS 140 library
 if build_shared
 	# Create the official shared library
 	leancrypto_both_libs = both_libraries('leancrypto',

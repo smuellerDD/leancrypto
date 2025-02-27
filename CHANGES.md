@@ -11,7 +11,7 @@ Changes 1.2.1-prerelease
 
 * ARMv8 assembler / ELF: add BTI and PAC support
 
-* FIPS 140: Invoke PCT
+* *Full FIPS 140 compliance*: Invoke PCT, add integrity test for ELF compilations, enable FIPS compilation by default
 
 Changes 1.2.0
 * Locking für seeded_rng added to avoid requiring the caller providing a lock

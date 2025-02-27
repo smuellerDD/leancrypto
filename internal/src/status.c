@@ -23,6 +23,7 @@
 #include "aes_riscv64.h"
 #include "cpufeatures.h"
 #include "ext_headers.h"
+#include "fips_mode.h"
 #include "helper.h"
 #include "lc_status.h"
 #include "sha256_arm_ce.h"
@@ -70,12 +71,6 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 #else
 		"";
 #endif
-	static const char fips140[] =
-#ifdef LC_FIPS140
-		"yes";
-#else
-		"no";
-#endif
 
 #ifdef __clang__
 #pragma GCC diagnostic push
@@ -119,7 +114,7 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 		 " Curve25519: %s%s%s\n"
 #endif
 		 ,
-		 fips140
+		 fips140_mode_enabled() ? "yes" : "no"
 
 	/* AES */
 #ifdef LC_AES

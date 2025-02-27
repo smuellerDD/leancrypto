@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 - 2025, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2022 - 2025, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *
@@ -17,47 +17,42 @@
  * DAMAGE.
  */
 
-#ifndef DILITHIUM_PCT_H
-#define DILITHIUM_PCT_H
-
-#include "fips_mode.h"
+#include "ext_headers.h"
+#include "lc_dilithium.h"
+#include "lc_sha3.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
 #include "visibility.h"
 
-#ifdef __cplusplus
-extern "C" {
+#ifdef LC_DILITHIUM_TYPE_65
+#define DILITHIUM_TYPE LC_DILITHIUM_65
+#elif defined(LC_DILITHIUM_TYPE_44)
+#define DILITHIUM_TYPE LC_DILITHIUM_44
+#else
+#define DILITHIUM_TYPE LC_DILITHIUM_87
 #endif
 
-static inline int _lc_dilithium_pct_fips(const struct lc_dilithium_pk *pk,
-					 const struct lc_dilithium_sk *sk)
+static int dilithium_keygen_fips_tester(void)
 {
 	struct workspace {
-		uint8_t m[32];
-		struct lc_dilithium_sig sig;
+		struct lc_dilithium_sk sk;
+		struct lc_dilithium_pk pk;
 	};
-	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+	int ret = 0;
 
-	CKINT(lc_dilithium_sign(&ws->sig, ws->m, sizeof(ws->m), sk,
-				lc_seeded_rng));
-	CKINT(lc_dilithium_verify(&ws->sig, ws->m, sizeof(ws->m), pk));
+	CKINT(lc_dilithium_keypair(&ws->pk, &ws->sk, lc_seeded_rng,
+				   DILITHIUM_TYPE));
 
 out:
 	LC_RELEASE_MEM(ws);
 	return ret;
 }
 
-static inline int lc_dilithium_pct_fips(const struct lc_dilithium_pk *pk,
-					const struct lc_dilithium_sk *sk)
+LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
-	if (fips140_mode_enabled())
-		return _lc_dilithium_pct_fips(pk, sk);
-	return 0;
-}
+	(void)argc;
+	(void)argv;
 
-#ifdef __cplusplus
+	return dilithium_keygen_fips_tester();
 }
-#endif
-
-#endif /* DILITHIUM_PCT_H */

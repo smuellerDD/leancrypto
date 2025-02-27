@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 - 2025, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2022 - 2025, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *
@@ -17,47 +17,41 @@
  * DAMAGE.
  */
 
-#ifndef DILITHIUM_PCT_H
-#define DILITHIUM_PCT_H
-
-#include "fips_mode.h"
+#include "lc_kyber.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
 #include "visibility.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-static inline int _lc_dilithium_pct_fips(const struct lc_dilithium_pk *pk,
-					 const struct lc_dilithium_sk *sk)
+static int kyber_keygen(void)
 {
 	struct workspace {
-		uint8_t m[32];
-		struct lc_dilithium_sig sig;
+		struct lc_kyber_pk pk;
+		struct lc_kyber_sk sk;
 	};
+	enum lc_kyber_type kyber_type;
 	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	CKINT(lc_dilithium_sign(&ws->sig, ws->m, sizeof(ws->m), sk,
-				lc_seeded_rng));
-	CKINT(lc_dilithium_verify(&ws->sig, ws->m, sizeof(ws->m), pk));
+#ifdef LC_KYBER_1024_ENABLED
+	kyber_type = LC_KYBER_1024;
+#elif defined(LC_KYBER_768_ENABLED)
+	kyber_type = LC_KYBER_768;
+#elif defined(LC_KYBER_512_ENABLED)
+	kyber_type = LC_KYBER_512;
+#else
+#error
+#endif
+
+	CKINT(lc_kyber_keypair(&ws->pk, &ws->sk, lc_seeded_rng, kyber_type));
 
 out:
 	LC_RELEASE_MEM(ws);
 	return ret;
 }
 
-static inline int lc_dilithium_pct_fips(const struct lc_dilithium_pk *pk,
-					const struct lc_dilithium_sk *sk)
+LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
-	if (fips140_mode_enabled())
-		return _lc_dilithium_pct_fips(pk, sk);
-	return 0;
+	(void)argc;
+	(void)argv;
+	return kyber_keygen();
 }
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* DILITHIUM_PCT_H */

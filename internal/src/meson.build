@@ -6,6 +6,10 @@ internal_src += files([
 	'null_buffer.c',
 ])
 
+src_fips += files([
+	'fips_integrity_check.c'
+])
+
 if get_option('efi').disabled()
 	internal_src += files([
 		'binhexbin.c'
@@ -26,6 +30,17 @@ elif ((host_machine.system() == 'linux') and
 	internal_src += files([ 'memory_support_linux.c' ])
 else
 	internal_src += files([ 'memory_support.c' ])
+endif
+
+# FIPS 140 Integrity check: The integrity checker is adopted for ELF.
+if (host_machine.system() == 'linux' and get_option('efi').disabled())
+	src_fips_wrapper += files([
+		'fips_integrity_checker_elf.c'
+	])
+
+	src_fips_wrapper_generator += files([
+		'fips_integrity_checker_elf_generator.c'
+	])
 endif
 
 if (dilithium_enabled or

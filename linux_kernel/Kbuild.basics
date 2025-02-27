@@ -79,6 +79,7 @@ leancrypto-y			+= posix_support.o			       \
 leancrypto-y			+= ../internal/src/left_encode.o	       \
 				   ../internal/src/leancrypto_init.o	       \
 				   ../internal/src/compare.o		       \
+				   ../internal/src/fips_integrity_check.o      \
 				   ../internal/src/null_buffer.o	       \
 				   ../internal/src/status.o
 

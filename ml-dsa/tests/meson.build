@@ -84,6 +84,19 @@ if get_option('dilithium_87').enabled()
 				dependencies: leancrypto
 				)
 
+	# Testing of ML-DSA keygen in FIPS mode (power up integrity test and
+	# PCT)
+	dilithium_keygen_fips_tester = executable('dilithium_keygen_fips_tester',
+				[ 'dilithium_keygen_fips_tester.c',
+				  internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_dilithium_internal
+				],
+				dependencies: leancrypto_fips
+				)
+
 	test('Dilithium signature C', dilithium_tester_c, suite: regression)
 	test('Dilithium init update final C', dilithium_tester_iuf_c,
 	     suite: regression)
@@ -110,6 +123,9 @@ if get_option('dilithium_87').enabled()
 	     timeout: 1000, is_parallel: false, suite: performance)
 	test('Dilithium C discard AHat API 10000', dilithium_tester_ahat,
 	     args : [ 'd' ], timeout: 1000, is_parallel: false, suite: performance)
+
+	test('Dilithium FIPS keygen', dilithium_keygen_fips_tester,
+	     suite: regression)
 
 	if (x86_64_asm)
 		dilithium_tester_avx2 = executable('dilithium_tester_avx2',

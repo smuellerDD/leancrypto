@@ -198,6 +198,17 @@ if get_option('sphincs_shake_256s').enabled()
 				dependencies: leancrypto
 				)
 
+	# Testing of SLH-DSA keygen in FIPS mode (power up integrity test and
+	# PCT)
+	sphincs_keygen_fips_tester = executable('sphincs_keygen_fips_tester',
+				[ 'sphincs_keygen_fips_tester.c' ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+				],
+				dependencies: leancrypto_fips
+				)
+
 	test('Sphincs+ SHAKE 256s Accel', sphincs_tester_256s, timeout: 600,
 	     suite: regression)
 	test('Sphincs+ SHAKE 256f Accel', sphincs_tester_256f, timeout: 600,
@@ -333,5 +344,8 @@ if get_option('sphincs_shake_256s').enabled()
 	     timeout: 600, suite: regression)
 
 	test('Sphincs+ SHAKE IUF', sphincs_official_tester,
+	     timeout: 600, suite: regression)
+
+	test('Sphincs+ SHAKE FIPS keygen', sphincs_keygen_fips_tester,
 	     timeout: 600, suite: regression)
 endif

@@ -17,47 +17,48 @@
  * DAMAGE.
  */
 
-#ifndef DILITHIUM_PCT_H
-#define DILITHIUM_PCT_H
-
-#include "fips_mode.h"
-#include "ret_checkers.h"
+#include "compare.h"
+#include "cpufeatures.h"
+#include "lc_sphincs.h"
 #include "small_stack_support.h"
+#include "ret_checkers.h"
 #include "visibility.h"
 
-#ifdef __cplusplus
-extern "C" {
+#ifdef LC_SPHINCS_SHAKE_256s_ENABLED
+static const unsigned int lc_sphincs_type = LC_SPHINCS_SHAKE_256s;
+#elif defined(LC_SPHINCS_SHAKE_256f_ENABLED)
+static const unsigned int lc_sphincs_type = LC_SPHINCS_SHAKE_256f;
+#elif defined(LC_SPHINCS_SHAKE_192s_ENABLED)
+static const unsigned int lc_sphincs_type = LC_SPHINCS_SHAKE_192s;
+#elif defined(LC_SPHINCS_SHAKE_192f_ENABLED)
+static const unsigned int lc_sphincs_type = LC_SPHINCS_SHAKE_192f;
+#elif defined(LC_SPHINCS_SHAKE_128s_ENABLED)
+static const unsigned int lc_sphincs_type = LC_SPHINCS_SHAKE_128s;
+#elif defined(LC_SPHINCS_SHAKE_128f_ENABLED)
+static const unsigned int lc_sphincs_type = LC_SPHINCS_SHAKE_128f;
 #endif
 
-static inline int _lc_dilithium_pct_fips(const struct lc_dilithium_pk *pk,
-					 const struct lc_dilithium_sk *sk)
+static int lc_sphincs_fips_keygen_test(void)
 {
 	struct workspace {
-		uint8_t m[32];
-		struct lc_dilithium_sig sig;
+		struct lc_sphincs_pk pk;
+		struct lc_sphincs_sk sk;
 	};
 	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	CKINT(lc_dilithium_sign(&ws->sig, ws->m, sizeof(ws->m), sk,
-				lc_seeded_rng));
-	CKINT(lc_dilithium_verify(&ws->sig, ws->m, sizeof(ws->m), pk));
+	CKINT(lc_sphincs_keypair(&ws->pk, &ws->sk, lc_seeded_rng,
+				 lc_sphincs_type));
 
 out:
 	LC_RELEASE_MEM(ws);
 	return ret;
 }
 
-static inline int lc_dilithium_pct_fips(const struct lc_dilithium_pk *pk,
-					const struct lc_dilithium_sk *sk)
+LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
-	if (fips140_mode_enabled())
-		return _lc_dilithium_pct_fips(pk, sk);
-	return 0;
-}
+	(void)argc;
+	(void)argv;
 
-#ifdef __cplusplus
+	return lc_sphincs_fips_keygen_test();
 }
-#endif
-
-#endif /* DILITHIUM_PCT_H */

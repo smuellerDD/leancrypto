@@ -20,6 +20,7 @@
 #ifndef KYBER_PCT_H
 #define KYBER_PCT_H
 
+#include "fips_mode.h"
 #include "lc_memcmp_secure.h"
 #include "small_stack_support.h"
 #include "ret_checkers.h"
@@ -71,13 +72,9 @@ out:
 static inline int lc_kyber_pct_fips(const struct lc_kyber_pk *pk,
 				    const struct lc_kyber_sk *sk)
 {
-#ifdef LC_FIPS140
-	return _lc_kyber_pct_fips(pk, sk);
-#else
-	(void)pk;
-	(void)sk;
+	if (fips140_mode_enabled())
+		return _lc_kyber_pct_fips(pk, sk);
 	return 0;
-#endif
 }
 
 #ifdef __cplusplus

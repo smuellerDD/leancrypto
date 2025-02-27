@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 - 2025, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2025, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *
@@ -17,47 +17,33 @@
  * DAMAGE.
  */
 
-#ifndef SPHINCS_PCT_H
-#define SPHINCS_PCT_H
+#ifndef FIPS_INTEGRITY_CHECK_H
+#define FIPS_INTEGRITY_CHECK_H
 
-#include "fips_mode.h"
-#include "ret_checkers.h"
-#include "small_stack_support.h"
-#include "visibility.h"
+#include "lc_sha3.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-static inline int _lc_sphincs_pct_fips(const struct lc_sphincs_pk *pk,
-				       const struct lc_sphincs_sk *sk)
-{
-	struct workspace {
-		uint8_t m[32];
-		struct lc_sphincs_sig sig;
-	};
-	int ret;
-	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+struct lc_fips_integrity_sections {
+	const char *desc;
+	const uint8_t expected_digest[LC_SHA3_256_SIZE_DIGEST];
+	const void *section_start_p;
+	const void *section_end_p;
+};
+struct lc_fips_integrity_section_actual {
+	uint8_t digest[LC_SHA3_256_SIZE_DIGEST];
+};
 
-	CKINT(lc_sphincs_sign(&ws->sig, ws->m, sizeof(ws->m), sk,
-			      lc_seeded_rng));
-	CKINT(lc_sphincs_verify(&ws->sig, ws->m, sizeof(ws->m), pk));
+void fips140_mode_enable(void);
 
-out:
-	LC_RELEASE_MEM(ws);
-	return ret;
-}
-
-static inline int lc_sphincs_pct_fips(const struct lc_sphincs_pk *pk,
-				      const struct lc_sphincs_sk *sk)
-{
-	if (fips140_mode_enabled())
-		return _lc_sphincs_pct_fips(pk, sk);
-	return 0;
-}
+int fips_integrity_check(const struct lc_fips_integrity_sections *secs,
+			 struct lc_fips_integrity_section_actual *act,
+			 size_t n_secs);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* SPHINCS_PCT_H */
+#endif /* FIPS_INTEGRITY_CHECK_H */

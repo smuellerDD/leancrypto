@@ -63,6 +63,19 @@ enabled if possible.
 This subpackage contains the static version of the library
 used for development.
 
+%package -n lib%{name}-fips1
+Summary:        Cryptographic library with stack-only support and PQC-safe algorithms
+Provides:       %{name} = %{version}-%{release}
+Obsoletes:      %{name} < %{version}-%{release}
+
+%description -n lib%{name}-fips1
+Leancrypto provides a general-purpose cryptographic library with PQC-safe
+algorithms. Further it only has POSIX dependencies, and allows all algorithms
+to be used on stack as well as on heap. Accelerated algorithms are transparently
+enabled if possible.
+
+This subpackage contains the FIPS 140 compliant version of the library.
+
 %package -n %{name}-tools
 Summary:        Applications provided by leancrypto
 Requires:       glibc-devel
@@ -134,9 +147,15 @@ done
 %{_includedir}/%{name}.h
 %{_includedir}/%{name}
 %{_libdir}/lib%{name}.so
+%{_libdir}/lib%{name}-fips.so.*
 
 %files devel-static
 %{_libdir}/lib%{name}.a
+%{_libdir}/lib%{name}-fips.a
+
+%files -n lib%{name}-fips1
+%{_libdir}/lib%{name}-fips.so.*
+%{_libdir}/pkgconfig/%{name}-fips.pc
 
 %files -n %{name}-tools
 %{_libexecdir}/%{name}
