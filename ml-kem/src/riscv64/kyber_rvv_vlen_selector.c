@@ -17,6 +17,7 @@
  * DAMAGE.
  */
 
+#include "cpufeatures.h"
 #include "ext_headers_riscv.h"
 #include "initialization.h"
 #include "kyber_rvv_vlen_selector.h"
@@ -28,9 +29,11 @@ static int lc_riscv_rvv_vlen = 0;
 
 LC_CONSTRUCTOR(kyber_riscv_rvv_selector)
 {
-	LC_VECTOR_ENABLE;
-	lc_riscv_rvv_vlen = kyber_rvv_selector();
-	LC_VECTOR_DISABLE;
+	if (lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV_ASM_RVV) {
+		LC_VECTOR_ENABLE;
+		lc_riscv_rvv_vlen = kyber_rvv_selector();
+		LC_VECTOR_DISABLE;
+	}
 }
 
 int lc_riscv_rvv_is_vlen128(void)
