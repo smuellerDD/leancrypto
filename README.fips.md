@@ -2,6 +2,14 @@
 
 Leancrypto intends to implement all FIPS 140 requirements, albeit sometimes in its own ways. This document gives an overview of the FIPS 140 compliance.
 
+## Status
+
+The following status regarding FIPS 140 compliance is achieved:
+
+* leancrypto compiled as ELF binary (e.g. Linux): fully FIPS 140 compliant
+
+* other binary types (e.g. Apple, Windows, EFI): FIPS 140 compliance achieved for all aspects except the integrity test. See section [Integrity Test](#Integrity-Test) for details.
+
 ## General Approach
 
 The `leancrypto` library always is compiled as a FIPS 140 module. To achieve that, it is compiled into two binaries:
