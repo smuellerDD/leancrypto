@@ -76,7 +76,7 @@ The following ELF sections are covered by the integrity check in their entirety:
 
 * .text section (covering the entire code)
 
-* .rodata section (covering the constant data)
+* .rodata section (covering the constant data) is currently not covered due to technical limitations - it is not required to be covered as this section contains the self-test values as well as the static data for the algorithms. Considering that each algorithm is subject to a power-on test before first use and the fact that the .text section is covered by an integrity test, the consistency of the .rodata section is implicitly verified by the self-tests.
 
 The sizes of the sections covered by the integrity check can be shown by invoking the command `leancrypto-fips-raw-generator` that is created during compile time. When invoking it, it reports that the used integrity check values are wrong followed by the used start/end pointers of the sections and their length. The lengths can be compared to the sizes reported by `readelf -WS libleancrypto-fips.so`. The sizes reported by the `leancrypto-fips-raw-generator` tool may be a bit larger than the real segment sizes because the start/end markers of the sections encapsulate the section meta data.
 
