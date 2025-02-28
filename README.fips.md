@@ -54,7 +54,7 @@ Leancrypto provides multiple implementations of one algorithm. Furthermore, it c
 
 ## Integrity Test
 
-NOTE: The integrity test is only supported for ELF binaries only so far. To change that, perform the folloiwng steps:
+NOTE: The integrity test is only supported for ELF binaries only so far. To change that, perform the following steps:
 
 * Create a suitable replacement for `fips_integrity_checker.c` and compile it (search for "FIPS 140 Integrity check" in the `internal/src/meson.build`).
 

@@ -203,7 +203,7 @@ Leancrypto offers various cryptographic algorithms:
 
 * Authenticated Encryption with Associated Data
 
-  * Ascon 128 AEAD and Ascon 128a AEAD
+  * Ascon-AEAD128 (SP800-232)
 
   * Ascon Keccak 256, and 512 AEAD, full specification provided with `aead/doc/Ascon-Keccak.pdf`
 
@@ -246,9 +246,9 @@ Leancrypto offers various cryptographic algorithms:
 
   * cSHAKE-128, cSHAKE-256
 
-  * Ascon 128 / 128a
+  * Ascon-Hash256 (SP800-232)
 
-  * Ascon XOF / XOFa
+  * Ascon-XOF128 (SP800-232)
 
 * Keyed Message Digest algorithms
 
