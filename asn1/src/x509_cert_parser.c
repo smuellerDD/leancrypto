@@ -693,10 +693,10 @@ int x509_basic_constraints_ca(void *context, size_t hdrlen, unsigned char tag,
 		return -EBADMSG;
 
 	ctx->extension_critical = (value[0] == ASN1_TRUE);
-	pub->basic_constraint = (value[0] == ASN1_TRUE) ? LC_KEY_CA :
-							  LC_KEY_NOCA;
-	pub->basic_constraint |= ctx->extension_critical ?
-				 LC_KEY_BASIC_CONSTRAINT_CRITICAL : 0;
+	pub->basic_constraint =
+		(value[0] == ASN1_TRUE) ? LC_KEY_CA : LC_KEY_NOCA;
+	pub->basic_constraint |=
+		ctx->extension_critical ? LC_KEY_BASIC_CONSTRAINT_CRITICAL : 0;
 
 	return 0;
 }

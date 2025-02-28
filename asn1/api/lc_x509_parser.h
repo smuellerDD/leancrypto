@@ -217,11 +217,9 @@ int lc_x509_cert_decode(struct lc_x509_certificate *cert, const uint8_t *data,
 #define LC_X509_KEYS_ON_STACK(name)                                            \
 	LC_X509_KEYS_DILITHIUM_ED25519_ON_STACK(name)
 #elif defined(LC_SPHNCS_ENABLED)
-#define LC_X509_KEYS_ON_STACK(name)                                            \
-	LC_X509_KEYS_SPHINCS_ON_STACK(name)
+#define LC_X509_KEYS_ON_STACK(name) LC_X509_KEYS_SPHINCS_ON_STACK(name)
 #elif defined(LC_DILITHIUM_ENABLED)
-#define LC_X509_KEYS_ON_STACK(name)                                            \
-	LC_X509_KEYS_DILITHIUM_ON_STACK(name)
+#define LC_X509_KEYS_ON_STACK(name) LC_X509_KEYS_DILITHIUM_ON_STACK(name)
 #else
 #error "No known signature schemas enabled"
 #endif

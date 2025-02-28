@@ -222,8 +222,7 @@ static int cc20_setkey(struct lc_sym_state *ctx, const uint8_t *key,
 	if ((feat & LC_CPU_FEATURE_INTEL) &&
 	    !(feat & LC_CPU_FEATURE_INTEL_AVX2))
 		return -EOPNOTSUPP;
-	if ((feat & LC_CPU_FEATURE_ARM) &&
-	    !(feat & LC_CPU_FEATURE_ARM_NEON))
+	if ((feat & LC_CPU_FEATURE_ARM) && !(feat & LC_CPU_FEATURE_ARM_NEON))
 		return -EOPNOTSUPP;
 
 	/* Timecop: key is sensitive. */

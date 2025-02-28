@@ -38,7 +38,6 @@ static int _kyber_kem_tester_armv8(unsigned int rounds)
 				lc_kyber_enc_internal, lc_kyber_dec);
 	lc_cpu_feature_enable();
 	return ret;
-
 }
 
 static int kyber_kem_tester_armv8(void)

@@ -115,7 +115,7 @@ typedef long time_t;
 typedef long long time64_t;
 
 #ifndef offsetof
-#define offsetof(TYPE, MEMBER)  __builtin_offsetof(TYPE, MEMBER)
+#define offsetof(TYPE, MEMBER) __builtin_offsetof(TYPE, MEMBER)
 #endif
 
 #if __WORDSIZE == 64

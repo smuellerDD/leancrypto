@@ -62,7 +62,7 @@ static const struct lc_fips_integrity_sections secs[] = { {
 		0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
 	},
 
-	/*
+/*
 	 * The ROData segment is currently excluded from being checked, because
 	 * ROData in the function fips_integrity_checker_build in this
 	 * file somehow causes a buffer overflow. When subtracting 1187 bytes
@@ -100,13 +100,16 @@ fips_integrity_checker_build(struct lc_fips_integrity_section_actual *act)
 
 	printf("Init segment: start (0x%lx), end (0x%lx), length (0x%lx)\n",
 	       (unsigned long)&_start_init, (unsigned long)&_end_init,
-	       (unsigned long)((uint8_t *)&_end_init - (uint8_t *)&_start_init));
+	       (unsigned long)((uint8_t *)&_end_init -
+			       (uint8_t *)&_start_init));
 	printf("Text segment: start (0x%lx), end (0x%lx), length (0x%lx)\n",
 	       (unsigned long)&_start_text, (unsigned long)&_end_text,
-	       (unsigned long)((uint8_t *)&_end_text - (uint8_t *)&_start_text));
+	       (unsigned long)((uint8_t *)&_end_text -
+			       (uint8_t *)&_start_text));
 	printf("ROData segment: start (0x%lx), end (0x%lx), length (0x%lx)\n",
 	       (unsigned long)&_start_rodata, (unsigned long)&_end_rodata,
-	       (unsigned long)((uint8_t *)&_end_rodata - (uint8_t *)&_start_rodata));
+	       (unsigned long)((uint8_t *)&_end_rodata -
+			       (uint8_t *)&_start_rodata));
 
 	fprintf(stderr, "__attribute__ ((section(\"fips_integrity_data\")))\n");
 	fprintf(stderr,
@@ -180,8 +183,7 @@ fips_integrity_checker_build(struct lc_fips_integrity_section_actual *act)
  * This constructor is part of the regular "text" section and thus subject to
  * the integrity test.
  */
-__attribute__ ((constructor))
-static void fips_integrity_checker(void)
+__attribute__((constructor)) static void fips_integrity_checker(void)
 {
 	struct lc_fips_integrity_section_actual act[ARRAY_SIZE(secs)];
 

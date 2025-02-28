@@ -235,8 +235,8 @@ static int x509_enc_keyusage(struct x509_checker_options *opts,
 
 static int x509_enc_ca(struct x509_checker_options *opts)
 {
-	opts->cert.pub.basic_constraint = LC_KEY_CA |
-					  LC_KEY_BASIC_CONSTRAINT_CRITICAL;
+	opts->cert.pub.basic_constraint =
+		LC_KEY_CA | LC_KEY_BASIC_CONSTRAINT_CRITICAL;
 
 	return 0;
 }

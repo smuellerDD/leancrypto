@@ -82,7 +82,7 @@ int lc_kyber_dec_avx(struct lc_kyber_ss *ss, const struct lc_kyber_ct *ct,
 
 int lc_kyber_dec_kdf_avx(uint8_t *ss, size_t ss_len,
 			 const struct lc_kyber_ct *ct,
-		         const struct lc_kyber_sk *sk)
+			 const struct lc_kyber_sk *sk)
 {
 	static int tester = LC_KYBER_TEST_INIT;
 

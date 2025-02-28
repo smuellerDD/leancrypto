@@ -52,8 +52,8 @@ static int lc_test_sigver(const char *algname,
 
 	tfm = crypto_alloc_sig(algname, 0, 0);
 	if (IS_ERR(tfm)) {
-		pr_info("could not allocate sig handle for %s %ld\n",
-			algname, PTR_ERR(tfm));
+		pr_info("could not allocate sig handle for %s %ld\n", algname,
+			PTR_ERR(tfm));
 		return PTR_ERR(tfm);
 	}
 
@@ -80,8 +80,8 @@ static int lc_test_siggen(const char *algname,
 
 	tfm = crypto_alloc_sig(algname, 0, 0);
 	if (IS_ERR(tfm)) {
-		pr_info("could not allocate sig handle for %s %ld\n",
-			algname, PTR_ERR(tfm));
+		pr_info("could not allocate sig handle for %s %ld\n", algname,
+			PTR_ERR(tfm));
 		return PTR_ERR(tfm);
 	}
 

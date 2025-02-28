@@ -42,8 +42,7 @@ int lc_kyber_keypair_from_seed_rvv_vlen256(struct lc_kyber_pk *pk,
 					   indcpa_keypair_rvv_vlen256);
 }
 
-int lc_kyber_keypair_rvv_vlen256(struct lc_kyber_pk *pk,
-				 struct lc_kyber_sk *sk,
+int lc_kyber_keypair_rvv_vlen256(struct lc_kyber_pk *pk, struct lc_kyber_sk *sk,
 				 struct lc_rng_ctx *rng_ctx)
 {
 	static int tester = LC_KYBER_TEST_INIT;

@@ -31,8 +31,7 @@
 
 int lc_kyber_keypair_from_seed_rvv_vlen128(struct lc_kyber_pk *pk,
 					   struct lc_kyber_sk *sk,
-					   const uint8_t *seed,
-					   size_t seedlen)
+					   const uint8_t *seed, size_t seedlen)
 {
 	static int tester = LC_KYBER_TEST_INIT;
 

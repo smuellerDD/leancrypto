@@ -265,5 +265,4 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 #ifdef __clang__
 #pragma GCC diagnostic pop
 #endif
-
 }

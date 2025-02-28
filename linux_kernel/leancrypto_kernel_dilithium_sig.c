@@ -46,9 +46,9 @@ struct lc_kernel_dilithium_ctx {
 
 /* src -> message */
 /* dst -> signature */
-static int lc_kernel_dilithium_sign(struct crypto_sig *tfm,
-				    const void *src, unsigned int slen,
-				    void *dst, unsigned int dlen)
+static int lc_kernel_dilithium_sign(struct crypto_sig *tfm, const void *src,
+				    unsigned int slen, void *dst,
+				    unsigned int dlen)
 {
 	struct lc_kernel_dilithium_ctx *ctx = crypto_sig_ctx(tfm);
 	struct lc_dilithium_sig *sig;
@@ -85,9 +85,9 @@ out:
 
 /* src -> signature */
 /* msg -> message */
-static int lc_kernel_dilithium_verify(struct crypto_sig *tfm,
-				      const void *src, unsigned int slen,
-				      const void *msg, unsigned int msg_len)
+static int lc_kernel_dilithium_verify(struct crypto_sig *tfm, const void *src,
+				      unsigned int slen, const void *msg,
+				      unsigned int msg_len)
 {
 	struct lc_kernel_dilithium_ctx *ctx = crypto_sig_ctx(tfm);
 	struct lc_dilithium_sig *sig;

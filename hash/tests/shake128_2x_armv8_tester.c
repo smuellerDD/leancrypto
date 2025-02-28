@@ -60,8 +60,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	/* The XOR operation in cc20_crypt requires acceleration */
 	feat = lc_cpu_feature_available();
-	if ((feat & LC_CPU_FEATURE_ARM) &&
-	    !(feat & LC_CPU_FEATURE_ARM_NEON))
+	if ((feat & LC_CPU_FEATURE_ARM) && !(feat & LC_CPU_FEATURE_ARM_NEON))
 		return 77;
 
 	(void)argc;

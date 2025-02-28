@@ -48,8 +48,8 @@ fips_integrity_check_one(const struct lc_fips_integrity_sections *secs,
 
 	lc_hash(lc_sha3_256, start, section_length, act->digest);
 
-	return lc_compare(act->digest, secs->expected_digest, sizeof(act->digest),
-			  secs->desc);
+	return lc_compare(act->digest, secs->expected_digest,
+			  sizeof(act->digest), secs->desc);
 }
 
 int fips_integrity_check(const struct lc_fips_integrity_sections *secs,

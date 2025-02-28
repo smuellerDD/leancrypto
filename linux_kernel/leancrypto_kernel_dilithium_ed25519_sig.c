@@ -68,7 +68,6 @@ static int lc_kernel_dilithium_ed25519_sign(struct crypto_sig *tfm,
 	if (!sig)
 		return -ENOMEM;
 
-
 	ret = lc_dilithium_ed25519_sign(sig, src, slen, &ctx->sk,
 					lc_seeded_rng);
 	if (ret)
@@ -135,9 +134,8 @@ static int lc_kernel_dilithium_ed25519_verify(struct crypto_sig *tfm,
 	if (ret)
 		goto out;
 
-	ret = lc_dilithium_ed25519_sig_load(sig, src, sig_len,
-					    (uint8_t *)src + sig_len,
-					    sig_ed25519_len);
+	ret = lc_dilithium_ed25519_sig_load(
+		sig, src, sig_len, (uint8_t *)src + sig_len, sig_ed25519_len);
 	if (ret)
 		goto out;
 
@@ -227,25 +225,25 @@ lc_kernel_dilithium_ed25519_44_key_size(struct crypto_sig *tfm)
 	}
 }
 
-static int
-lc_kernel_dilithium_ed25519_44_set_pub_key(struct crypto_sig *tfm,
-					   const void *key, unsigned int keylen)
+static int lc_kernel_dilithium_ed25519_44_set_pub_key(struct crypto_sig *tfm,
+						      const void *key,
+						      unsigned int keylen)
 {
 	return lc_kernel_dilithium_ed25519_set_pub_key_int(tfm, key, keylen,
 							   LC_DILITHIUM_44);
 }
 
-static int
-lc_kernel_dilithium_ed25519_65_set_pub_key(struct crypto_sig *tfm,
-					   const void *key, unsigned int keylen)
+static int lc_kernel_dilithium_ed25519_65_set_pub_key(struct crypto_sig *tfm,
+						      const void *key,
+						      unsigned int keylen)
 {
 	return lc_kernel_dilithium_ed25519_set_pub_key_int(tfm, key, keylen,
 							   LC_DILITHIUM_65);
 }
 
-static int
-lc_kernel_dilithium_ed25519_87_set_pub_key(struct crypto_sig *tfm,
-					   const void *key, unsigned int keylen)
+static int lc_kernel_dilithium_ed25519_87_set_pub_key(struct crypto_sig *tfm,
+						      const void *key,
+						      unsigned int keylen)
 {
 	return lc_kernel_dilithium_ed25519_set_pub_key_int(tfm, key, keylen,
 							   LC_DILITHIUM_87);
@@ -282,29 +280,31 @@ static int lc_kernel_dilithium_ed25519_set_priv_key_int(
 	return ret;
 }
 
-static int lc_kernel_dilithium_ed25519_44_set_priv_key(
-	struct crypto_sig *tfm, const void *key, unsigned int keylen)
+static int lc_kernel_dilithium_ed25519_44_set_priv_key(struct crypto_sig *tfm,
+						       const void *key,
+						       unsigned int keylen)
 {
 	return lc_kernel_dilithium_ed25519_set_priv_key_int(tfm, key, keylen,
 							    LC_DILITHIUM_44);
 }
 
-static int lc_kernel_dilithium_ed25519_65_set_priv_key(
-	struct crypto_sig *tfm, const void *key, unsigned int keylen)
+static int lc_kernel_dilithium_ed25519_65_set_priv_key(struct crypto_sig *tfm,
+						       const void *key,
+						       unsigned int keylen)
 {
 	return lc_kernel_dilithium_ed25519_set_priv_key_int(tfm, key, keylen,
 							    LC_DILITHIUM_65);
 }
 
-static int lc_kernel_dilithium_ed25519_87_set_priv_key(
-	struct crypto_sig *tfm, const void *key, unsigned int keylen)
+static int lc_kernel_dilithium_ed25519_87_set_priv_key(struct crypto_sig *tfm,
+						       const void *key,
+						       unsigned int keylen)
 {
 	return lc_kernel_dilithium_ed25519_set_priv_key_int(tfm, key, keylen,
 							    LC_DILITHIUM_87);
 }
 
-static unsigned int
-lc_kernel_dilithium_ed25519_max_size(struct crypto_sig *tfm)
+static unsigned int lc_kernel_dilithium_ed25519_max_size(struct crypto_sig *tfm)
 {
 	struct lc_kernel_dilithium_ed25519_ctx *ctx = crypto_sig_ctx(tfm);
 	enum lc_dilithium_type type;

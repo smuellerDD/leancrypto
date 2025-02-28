@@ -353,8 +353,7 @@ static int lc_kc_setkey(void *state, const uint8_t *key, size_t keylen,
 	if ((feat & LC_CPU_FEATURE_INTEL) &&
 	    !(feat & LC_CPU_FEATURE_INTEL_AVX2))
 		return -EOPNOTSUPP;
-	if ((feat & LC_CPU_FEATURE_ARM) &&
-	    !(feat & LC_CPU_FEATURE_ARM_NEON))
+	if ((feat & LC_CPU_FEATURE_ARM) && !(feat & LC_CPU_FEATURE_ARM_NEON))
 		return -EOPNOTSUPP;
 
 	/* Timecop: The key is sentitive. */

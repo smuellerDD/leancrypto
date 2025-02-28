@@ -46,9 +46,9 @@ struct lc_kernel_sphincs_ctx {
 
 /* src -> message */
 /* dst -> signature */
-static int lc_kernel_sphincs_sign(struct crypto_sig *tfm,
-				  const void *src, unsigned int slen,
-				  void *dst, unsigned int dlen)
+static int lc_kernel_sphincs_sign(struct crypto_sig *tfm, const void *src,
+				  unsigned int slen, void *dst,
+				  unsigned int dlen)
 {
 	struct lc_kernel_sphincs_ctx *ctx = crypto_sig_ctx(tfm);
 	struct lc_sphincs_sig *sig;
@@ -85,9 +85,9 @@ out:
 
 /* src -> signature */
 /* msg -> message */
-static int lc_kernel_sphincs_verify(struct crypto_sig *tfm,
-				    const void *src, unsigned int slen,
-				    const void *msg, unsigned int msg_len)
+static int lc_kernel_sphincs_verify(struct crypto_sig *tfm, const void *src,
+				    unsigned int slen, const void *msg,
+				    unsigned int msg_len)
 {
 	struct lc_kernel_sphincs_ctx *ctx = crypto_sig_ctx(tfm);
 	struct lc_sphincs_sig *sig;
@@ -326,54 +326,54 @@ static int lc_kernel_sphincs_set_priv_key_int(
 	return ret;
 }
 
-static int
-lc_kernel_sphincs_shake_128f_set_priv_key(struct crypto_sig *tfm,
-					  const void *key, unsigned int keylen)
+static int lc_kernel_sphincs_shake_128f_set_priv_key(struct crypto_sig *tfm,
+						     const void *key,
+						     unsigned int keylen)
 {
 	return lc_kernel_sphincs_set_priv_key_int(tfm, key, keylen,
 						  LC_SPHINCS_SHAKE_128f,
 						  LC_SPHINCS_SHAKE_128s, 1);
 }
 
-static int
-lc_kernel_sphincs_shake_128s_set_priv_key(struct crypto_sig *tfm,
-					  const void *key, unsigned int keylen)
+static int lc_kernel_sphincs_shake_128s_set_priv_key(struct crypto_sig *tfm,
+						     const void *key,
+						     unsigned int keylen)
 {
 	return lc_kernel_sphincs_set_priv_key_int(tfm, key, keylen,
 						  LC_SPHINCS_SHAKE_128s,
 						  LC_SPHINCS_SHAKE_128f, 0);
 }
 
-static int
-lc_kernel_sphincs_shake_192f_set_priv_key(struct crypto_sig *tfm,
-					  const void *key, unsigned int keylen)
+static int lc_kernel_sphincs_shake_192f_set_priv_key(struct crypto_sig *tfm,
+						     const void *key,
+						     unsigned int keylen)
 {
 	return lc_kernel_sphincs_set_priv_key_int(tfm, key, keylen,
 						  LC_SPHINCS_SHAKE_192f,
 						  LC_SPHINCS_SHAKE_192s, 1);
 }
 
-static int
-lc_kernel_sphincs_shake_192s_set_priv_key(struct crypto_sig *tfm,
-					  const void *key, unsigned int keylen)
+static int lc_kernel_sphincs_shake_192s_set_priv_key(struct crypto_sig *tfm,
+						     const void *key,
+						     unsigned int keylen)
 {
 	return lc_kernel_sphincs_set_priv_key_int(tfm, key, keylen,
 						  LC_SPHINCS_SHAKE_192s,
 						  LC_SPHINCS_SHAKE_192f, 0);
 }
 
-static int
-lc_kernel_sphincs_shake_256f_set_priv_key(struct crypto_sig *tfm,
-					  const void *key, unsigned int keylen)
+static int lc_kernel_sphincs_shake_256f_set_priv_key(struct crypto_sig *tfm,
+						     const void *key,
+						     unsigned int keylen)
 {
 	return lc_kernel_sphincs_set_priv_key_int(tfm, key, keylen,
 						  LC_SPHINCS_SHAKE_256f,
 						  LC_SPHINCS_SHAKE_256s, 1);
 }
 
-static int
-lc_kernel_sphincs_shake_256s_set_priv_key(struct crypto_sig *tfm,
-					  const void *key, unsigned int keylen)
+static int lc_kernel_sphincs_shake_256s_set_priv_key(struct crypto_sig *tfm,
+						     const void *key,
+						     unsigned int keylen)
 {
 	return lc_kernel_sphincs_set_priv_key_int(tfm, key, keylen,
 						  LC_SPHINCS_SHAKE_256s,
