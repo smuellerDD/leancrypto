@@ -33,6 +33,13 @@ extern "C" {
 void lc_rerun_selftests(void);
 
 /**
+ * @brief Re-run the FIPS 140 integrity test
+ *
+ * \note This API is only present in the FIPS module instance of leancrypto.
+ */
+void lc_fips_integrity_checker(void);
+
+/**
  * @brief Status information about leancrypto
  *
  * @param [in] outbuf Buffer to be filled with status information, allocated by

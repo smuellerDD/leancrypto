@@ -20,6 +20,7 @@
 #include "ext_headers.h"
 #include "lc_dilithium.h"
 #include "lc_sha3.h"
+#include "lc_status.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
 #include "visibility.h"
@@ -40,6 +41,9 @@ static int dilithium_keygen_fips_tester(void)
 	};
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	int ret = 0;
+
+	/* Rerun power up integrity test */
+	lc_fips_integrity_checker();
 
 	CKINT(lc_dilithium_keypair(&ws->pk, &ws->sk, lc_seeded_rng,
 				   DILITHIUM_TYPE));

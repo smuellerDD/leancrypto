@@ -42,11 +42,13 @@ NOTE2: The referenced ACVP proxy definitions explicitly exclude SHA LDT tests. T
 
 The `leancrypto-fips` FIPS module implements a global service indicator. This implies that all algorithms are FIPS-approved and the fact that the FIPS module is active is the indicator that FIPS-approved services are available.
 
+The API of `lc_status` provides the version information along with the status whether the FIPS mode is active.
+
 ## Cryptographic Algorithm Self Test
 
 Each cryptographic algorithm has its own power-up self test which is executed before this algorithm is used for the first time.
 
-The caller may trigger a complete new round of self tests, i.e. all algorithms will perform a new self test before the next use, when using the API of `lc_rerun_selftests`.
+The caller may trigger a complete new round of self tests, i.e. all algorithms will perform a new self test before the next use, when using the API of `lc_rerun_selftests`. To reperform the integrity test, the API `lc_fips_integrity_checker` is provided.
 
 When a self-test fails, `leancrypto-fips` aborts and terminates itself as well as the calling application.
 

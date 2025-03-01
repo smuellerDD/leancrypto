@@ -18,6 +18,7 @@
  */
 
 #include "lc_kyber.h"
+#include "lc_status.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
 #include "visibility.h"
@@ -41,6 +42,9 @@ static int kyber_keygen(void)
 #else
 #error
 #endif
+
+	/* Rerun power up integrity test */
+	lc_fips_integrity_checker();
 
 	CKINT(lc_kyber_keypair(&ws->pk, &ws->sk, lc_seeded_rng, kyber_type));
 

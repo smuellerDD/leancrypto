@@ -20,6 +20,8 @@
 #include "build_bug_on.h"
 #include "fips_integrity_check.h"
 #include "helper.h"
+#include "lc_status.h"
+#include "visibility.h"
 
 /*
  * The GNU linker creates these variables as start and endpoint of ELF sections
@@ -179,17 +181,22 @@ fips_integrity_checker_build(struct lc_fips_integrity_section_actual *act)
 	fprintf(stderr, "} };\n");
 }
 
-/*
- * This constructor is part of the regular "text" section and thus subject to
- * the integrity test.
- */
-__attribute__((constructor)) static void fips_integrity_checker(void)
+LC_INTERFACE_FUNCTION(void, lc_fips_integrity_checker, void)
 {
 	struct lc_fips_integrity_section_actual act[ARRAY_SIZE(secs)];
 
-	fips140_mode_enable();
 	if (fips_integrity_check(secs, act, ARRAY_SIZE(secs))) {
 		fips_integrity_checker_build(act);
 		exit(1);
 	}
+}
+
+/*
+ * This constructor is part of the regular "text" section and thus subject to
+ * the integrity test.
+ */
+__attribute__((constructor)) static void fips_integrity_checker_dep(void)
+{
+	fips140_mode_enable();
+	lc_fips_integrity_checker();
 }

@@ -20,6 +20,7 @@
 #include "compare.h"
 #include "cpufeatures.h"
 #include "lc_sphincs.h"
+#include "lc_status.h"
 #include "small_stack_support.h"
 #include "ret_checkers.h"
 #include "visibility.h"
@@ -46,6 +47,9 @@ static int lc_sphincs_fips_keygen_test(void)
 	};
 	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+
+	/* Rerun power up integrity test */
+	lc_fips_integrity_checker();
 
 	CKINT(lc_sphincs_keypair(&ws->pk, &ws->sk, lc_seeded_rng,
 				 lc_sphincs_type));

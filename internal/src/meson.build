@@ -41,6 +41,11 @@ if (host_machine.system() == 'linux' and get_option('efi').disabled())
 	src_fips_wrapper_generator += files([
 		'fips_integrity_checker_elf_generator.c'
 	])
+else
+	# Catchall for all other environments
+	src_fips_wrapper += files([
+		'fips_integrity_checker_none.c'
+	])
 endif
 
 if (dilithium_enabled or

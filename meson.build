@@ -249,9 +249,6 @@ meson.add_dist_script(dist_script, meson.project_version())
 # Find Doxygen program
 doxygen = find_program('doxygen', required : false)
 
-# Find objcopy
-objcopy = find_program('objcopy', required : false)
-
 ################################################################################
 # EFI-specific defines
 ################################################################################
