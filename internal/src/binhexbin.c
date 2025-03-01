@@ -99,6 +99,7 @@ int hex2bin_alloc(const char *hex, const size_t hexlen, uint8_t **bin,
 	return 0;
 }
 
+#if 0
 static const char hex_char_map_l[] = { '0', '1', '2', '3', '4', '5', '6', '7',
 				       '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 static const char hex_char_map_u[] = { '0', '1', '2', '3', '4', '5', '6', '7',
@@ -109,6 +110,17 @@ static char hex_char(unsigned int bin, int u)
 		return (u) ? hex_char_map_u[bin] : hex_char_map_l[bin];
 	return 'X';
 }
+#else
+static char hex_char(unsigned int bin, const int u)
+{
+	if (bin < 10)
+		return (char)(bin + 0x30);
+	else if (bin < 16)
+		return (char)(bin + 0x57 - (unsigned int)(!!u * 0x20));
+
+	return 0x78;
+}
+#endif
 
 /*
  * Convert binary string into hex representation

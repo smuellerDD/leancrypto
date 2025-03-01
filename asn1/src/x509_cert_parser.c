@@ -54,15 +54,14 @@
  ******************************************************************************/
 
 #ifndef LC_ASN1_DEBUG
-static const char hex_char_map_l[] = { '0', '1', '2', '3', '4', '5', '6', '7',
-				       '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
-static const char hex_char_map_u[] = { '0', '1', '2', '3', '4', '5', '6', '7',
-				       '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-static char hex_char(unsigned int bin, int u)
+static char hex_char(unsigned int bin, const int u)
 {
-	if (bin < sizeof(hex_char_map_l))
-		return (u) ? hex_char_map_u[bin] : hex_char_map_l[bin];
-	return 'X';
+	if (bin < 10)
+		return (char)(bin + 0x30);
+	else if (bin < 16)
+		return (char)(bin + 0x57 - (unsigned int)(!!u * 0x20));
+
+	return 0x78;
 }
 
 /*
