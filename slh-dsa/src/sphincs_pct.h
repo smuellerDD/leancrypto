@@ -51,8 +51,8 @@ out:
 static inline int lc_sphincs_pct_fips(const struct lc_sphincs_pk *pk,
 				      const struct lc_sphincs_sk *sk)
 {
-	if (fips140_mode_enabled())
-		return _lc_sphincs_pct_fips(pk, sk);
+	FIPS140_PCT_LOOP(_lc_sphincs_pct_fips(pk, sk))
+
 	return 0;
 }
 

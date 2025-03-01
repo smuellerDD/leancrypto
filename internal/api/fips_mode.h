@@ -31,6 +31,19 @@ extern "C" {
  */
 int fips140_mode_enabled(void);
 
+#define FIPS140_PCT_LOOP(func)                                                 \
+	if (fips140_mode_enabled()) {                                          \
+		unsigned int __i;                                              \
+		int __ret;                                                     \
+                                                                               \
+		for (__i = 0; __i < 5; __i++) {                                \
+			__ret = func;                                          \
+			if (!__ret)                                            \
+				return __ret;                                  \
+		}                                                              \
+		assert(0);                                                     \
+	}
+
 #ifdef __cplusplus
 }
 #endif
