@@ -74,7 +74,9 @@ The `libleancrypto-real.a` is linked together with `fips_integrity_checker_elf.c
 
 The following ELF sections are covered by the integrity check in their entirety:
 
-* .init section (covering the constructors)
+* .init section (covering the initialization steps)
+
+* .ctors section (covering constructors)
 
 * .text section (covering the entire code)
 

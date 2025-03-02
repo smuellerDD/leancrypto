@@ -14,6 +14,20 @@ INSERT AFTER .init;
 
 SECTIONS
 {
+	_start_ctors = .;
+	PROVIDE(start_ctors = .);
+}
+INSERT BEFORE .init;
+
+SECTIONS
+{
+	_end_ctors = .;
+	PROVIDE(end_ctors = .);
+}
+INSERT AFTER .init;
+
+SECTIONS
+{
 	_start_text = .;
 	PROVIDE(start_text = .);
 }

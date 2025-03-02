@@ -5,8 +5,12 @@ shift
 OUTFILE=$1
 shift
 
-$CMD > /dev/null 2>$OUTFILE.$$
-if [ $? -eq 1 ]
+echo "__attribute__ ((section(\"fips_integrity_data\")))" > $OUTFILE.$$
+echo "static const uint8_t expected_digest[] = {" >> $OUTFILE.$$
+$CMD > /dev/null 2>>$OUTFILE.$$
+ret=$?
+echo "};" >> $OUTFILE.$$
+if [ $ret -eq 1 ]
 then
 	mv -f $OUTFILE.$$ $OUTFILE
 else

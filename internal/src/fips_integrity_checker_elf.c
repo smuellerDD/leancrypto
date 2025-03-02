@@ -17,6 +17,7 @@
  * DAMAGE.
  */
 
+#include "alignment.h"
 #include "build_bug_on.h"
 #include "fips_integrity_check.h"
 #include "helper.h"
@@ -28,6 +29,8 @@
  */
 extern const void _start_init;
 extern const void _end_init;
+extern const void _start_ctors;
+extern const void _end_ctors;
 extern const void _start_text;
 extern const void _end_text;
 extern const void _start_rodata;
@@ -39,30 +42,16 @@ extern const void _end_rodata;
  * them into a separate section which is not part of the rodata that the
  * variables above wrap.
  */
-#ifdef LC_FIPS_VALUES_GENERATED
-#include "fips_integrity_checker_values.h"
-#else
 __attribute__ ((section("fips_integrity_data")))
 static const struct lc_fips_integrity_sections secs[] = { {
-	.desc = "Text Segment",
 	.section_start_p = &_start_text,
 	.section_end_p = &_end_text,
-	.expected_digest = {
-		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-		0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
-		0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
-		0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
-	},
 }, {
-	.desc = "Init Segment",
 	.section_start_p = &_start_init,
 	.section_end_p = &_end_init,
-	.expected_digest = {
-		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-		0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
-		0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
-		0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
-	},
+}, {
+	.section_start_p = &_start_ctors,
+	.section_end_p = &_end_ctors,
 
 /*
 	 * The ROData segment is currently excluded from being checked, because
@@ -79,113 +68,56 @@ static const struct lc_fips_integrity_sections secs[] = { {
 	 */
 #if 0
 }, {
-	.desc = "ROData Segment",
 	.section_start_p = &_start_rodata,
 	.section_end_p = &_end_rodata,
-	.expected_digest = {
-		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-		0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
-		0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
-		0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
-	},
 #endif
 } };
+
+#ifdef LC_FIPS_VALUES_GENERATED
+#include "fips_integrity_checker_values.h"
+#else
+__attribute__ ((section("fips_integrity_data")))
+static const uint8_t expected_digest[] = {
+	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+	0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+	0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+	0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
+};
 #endif
 
 /* Generator for the header file above */
 static void
-fips_integrity_checker_build(struct lc_fips_integrity_section_actual *act)
+fips_integrity_checker_build(const uint8_t act[LC_SHA3_256_SIZE_DIGEST])
 {
 	unsigned int i;
 
-	BUILD_BUG_ON(ARRAY_SIZE(secs) != 2);
-
-	printf("Init segment: start (0x%lx), end (0x%lx), length (0x%lx)\n",
+	fprintf(stderr, "//Init section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
 	       (unsigned long)&_start_init, (unsigned long)&_end_init,
 	       (unsigned long)((uint8_t *)&_end_init -
 			       (uint8_t *)&_start_init));
-	printf("Text segment: start (0x%lx), end (0x%lx), length (0x%lx)\n",
+	fprintf(stderr, "//Ctors section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
+	       (unsigned long)&_start_ctors, (unsigned long)&_end_ctors,
+	       (unsigned long)((uint8_t *)&_end_ctors -
+			       (uint8_t *)&_start_ctors));
+	fprintf(stderr, "//Text section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
 	       (unsigned long)&_start_text, (unsigned long)&_end_text,
 	       (unsigned long)((uint8_t *)&_end_text -
 			       (uint8_t *)&_start_text));
-	printf("ROData segment: start (0x%lx), end (0x%lx), length (0x%lx)\n",
+	fprintf(stderr, "//ROData section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
 	       (unsigned long)&_start_rodata, (unsigned long)&_end_rodata,
 	       (unsigned long)((uint8_t *)&_end_rodata -
 			       (uint8_t *)&_start_rodata));
 
-	fprintf(stderr, "__attribute__ ((section(\"fips_integrity_data\")))\n");
-	fprintf(stderr,
-		"static const struct lc_fips_integrity_sections secs[] = { {\n");
-
-	/* Text segment */
-	fprintf(stderr, "\t.desc = \"%s\",\n", secs[0].desc);
-	fprintf(stderr, "\t.section_start_p = &_start_text,\n");
-	fprintf(stderr, "\t.section_end_p = &_end_text,\n");
-	fprintf(stderr, "\t.expected_digest = {\n\t\t");
-
-	for (i = 0; i < LC_SHA3_256_SIZE_DIGEST; i++) {
-		fprintf(stderr, "0x%.2x, ", *(act->digest + i));
-		if (!((i + 1) % 8)) {
-			if (i == LC_SHA3_256_SIZE_DIGEST - 1)
-				fprintf(stderr, "\n");
-			else
-				fprintf(stderr, "\n\t\t");
-		}
-	}
-
-	act++;
-
-	fprintf(stderr, "\t},\n");
-	fprintf(stderr, "}, {\n");
-
-	/* Init segment */
-	fprintf(stderr, "\t.desc = \"%s\",\n", secs[1].desc);
-	fprintf(stderr, "\t.section_start_p = &_start_init,\n");
-	fprintf(stderr, "\t.section_end_p = &_end_init,\n");
-	fprintf(stderr, "\t.expected_digest = {\n\t\t");
-
-	for (i = 0; i < LC_SHA3_256_SIZE_DIGEST; i++) {
-		fprintf(stderr, "0x%.2x, ", *(act->digest + i));
-		if (!((i + 1) % 8)) {
-			if (i == LC_SHA3_256_SIZE_DIGEST - 1)
-				fprintf(stderr, "\n");
-			else
-				fprintf(stderr, "\n\t\t");
-		}
-	}
-
-#if 0
-	act++;
-
-	fprintf(stderr, "\t},\n");
-	fprintf(stderr, "}, {\n");
-
-	/* ROData segment */
-	fprintf(stderr, "\t.desc = \"%s\",\n", secs[2].desc);
-	fprintf(stderr, "\t.section_start_p = &_start_rodata,\n");
-	fprintf(stderr, "\t.section_end_p = &_end_rodata,\n");
-	fprintf(stderr, "\t.expected_digest = {\n\t\t");
-
-	for (i = 0; i < LC_SHA3_256_SIZE_DIGEST; i++) {
-		fprintf(stderr, "0x%.2x, ", *(act->digest + i));
-		if (!((i + 1) % 8)) {
-			if (i == LC_SHA3_256_SIZE_DIGEST - 1)
-				fprintf(stderr, "\n");
-			else
-				fprintf(stderr, "\n\t\t");
-		}
-	}
-#endif
-
-	fprintf(stderr, "\t},\n");
-	fprintf(stderr, "} };\n");
+	for (i = 0; i < LC_SHA3_256_SIZE_DIGEST; i++)
+		fprintf(stderr, "0x%.2x, ", *(act + i));
 }
 
 LC_INTERFACE_FUNCTION(void, lc_fips_integrity_checker, void)
 {
-	struct lc_fips_integrity_section_actual act[ARRAY_SIZE(secs)];
+	uint8_t act[LC_SHA3_256_SIZE_DIGEST] __align(8) = { 0 };
 
-	if (fips_integrity_check(secs, act, ARRAY_SIZE(secs))) {
+	if (fips_integrity_check(secs, ARRAY_SIZE(secs), expected_digest,
+				 act)) {
 		fips_integrity_checker_build(act);
 		exit(1);
 	}

@@ -27,20 +27,16 @@ extern "C" {
 #endif
 
 struct lc_fips_integrity_sections {
-	const char *desc;
-	const uint8_t expected_digest[LC_SHA3_256_SIZE_DIGEST];
 	const void *section_start_p;
 	const void *section_end_p;
-};
-struct lc_fips_integrity_section_actual {
-	uint8_t digest[LC_SHA3_256_SIZE_DIGEST];
 };
 
 void fips140_mode_enable(void);
 
 int fips_integrity_check(const struct lc_fips_integrity_sections *secs,
-			 struct lc_fips_integrity_section_actual *act,
-			 size_t n_secs);
+			 size_t n_secs,
+			 const uint8_t exp[LC_SHA3_256_SIZE_DIGEST],
+			 uint8_t act[LC_SHA3_256_SIZE_DIGEST]);
 
 #ifdef __cplusplus
 }

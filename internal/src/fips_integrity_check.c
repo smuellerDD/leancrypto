@@ -38,29 +38,26 @@ int fips140_mode_enabled(void)
 	return lc_fips140_enabled;
 }
 
-static int
-fips_integrity_check_one(const struct lc_fips_integrity_sections *secs,
-			 struct lc_fips_integrity_section_actual *act)
-{
-	const uint8_t *start = secs->section_start_p,
-		      *end = secs->section_end_p;
-	size_t section_length = (size_t)(end - start);
-
-	lc_hash(lc_sha3_256, start, section_length, act->digest);
-
-	return lc_compare(act->digest, secs->expected_digest,
-			  sizeof(act->digest), secs->desc);
-}
-
 int fips_integrity_check(const struct lc_fips_integrity_sections *secs,
-			 struct lc_fips_integrity_section_actual *act,
-			 size_t n_secs)
+			 size_t n_secs,
+			 const uint8_t exp[LC_SHA3_256_SIZE_DIGEST],
+			 uint8_t act[LC_SHA3_256_SIZE_DIGEST])
 {
 	size_t i;
-	int ret = 0;
+	LC_HASH_CTX_ON_STACK(hash_ctx, lc_sha3_256);
 
-	for (i = 0; i < n_secs; i++, secs++, act++)
-		ret |= fips_integrity_check_one(secs, act);
+	lc_hash_init(hash_ctx);
 
-	return ret;
+	for (i = 0; i < n_secs; i++, secs++) {
+		const uint8_t *start = secs->section_start_p,
+			      *end = secs->section_end_p;
+		size_t section_length = (size_t)(end - start);
+
+		lc_hash_update(hash_ctx, start, section_length);
+	}
+
+	lc_hash_final(hash_ctx, act);
+	lc_hash_zero(hash_ctx);
+
+	return lc_compare(act, exp, LC_SHA3_256_SIZE_DIGEST, "Sections");
 }
