@@ -51,13 +51,13 @@ static inline void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b)
 	uint8_t opt_blocker;
 
 	/*
-	 * Goal: increment variable only depending on a given condition without
+	 * Goal: copy data only depending on a given condition without
 	 * the use of a branching operation which alters the timing behavior
 	 * depending on the condition. As the condition here depends on
-	 * secret data (the buf variable), the code has to ensure that no
-	 * branching is used to have time-invariant code. This solution
-	 * below also shall ensure that the compiler cannot optimize this code
-	 * such that it brings back the branching.
+	 * secret data, the code has to ensure that no branching is used to have
+	 * time-invariant code. This solution below also shall ensure that the
+	 * compiler cannot optimize this code such that it brings back the
+	 * branching.
 	 *
 	 * (condition ^ opt_blocker) can be any value at run-time to the
 	 * compiler, making it impossible to skip the computation (except the
@@ -65,6 +65,10 @@ static inline void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b)
 	 * 0 or 1, which would be extremely unlikely). Yet the volatile
 	 * variable has to be loaded only once at the beginning of the function
 	 * call.
+	 *
+	 * Note, the opt_blocker is not required in most instances, but in the
+	 * ARMv8 Neon implementation of SLH-DSA the compiler managed to still
+	 * create time-variant code without the optimization blocker.
 	 */
 	opt_blocker = (uint8_t)optimization_blocker_int8;
 
