@@ -99,7 +99,7 @@ static const struct lc_sphincs_func_ctx *lc_sphincs_get_ctx(void)
 		 * TODO See issue in Kbuild.slh-dsa - enable NEON intrinsics
 		 * for the Linux kernel.
 		 */
-		if (feat & LC_CPU_FEATURE_ARM) {
+		if (feat & LC_CPU_FEATURE_ARM_NEON) {
 			return &f_ctx_armv8;
 		}
 #endif /* LC_HOST_AARCH64 */
