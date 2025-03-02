@@ -28,6 +28,7 @@
 #define SIDECHANNEL_RESISTANCE_H
 
 #include "ext_headers.h"
+#include "null_buffer.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,10 +48,29 @@ extern "C" {
 static inline void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b)
 {
 	size_t i;
+	uint8_t opt_blocker;
+
+	/*
+	 * Goal: increment variable only depending on a given condition without
+	 * the use of a branching operation which alters the timing behavior
+	 * depending on the condition. As the condition here depends on
+	 * secret data (the buf variable), the code has to ensure that no
+	 * branching is used to have time-invariant code. This solution
+	 * below also shall ensure that the compiler cannot optimize this code
+	 * such that it brings back the branching.
+	 *
+	 * (condition ^ opt_blocker) can be any value at run-time to the
+	 * compiler, making it impossible to skip the computation (except the
+	 * compiler would care to create a branch for opt_blocker to be either
+	 * 0 or 1, which would be extremely unlikely). Yet the volatile
+	 * variable has to be loaded only once at the beginning of the function
+	 * call.
+	 */
+	opt_blocker = (uint8_t)optimization_blocker_int8;
 
 	b = -b;
 	for (i = 0; i < len; i++)
-		r[i] ^= b & (r[i] ^ x[i]);
+		r[i] ^= (b & (r[i] ^ x[i])) ^ opt_blocker;
 }
 
 /**

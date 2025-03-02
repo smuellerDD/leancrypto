@@ -30,6 +30,7 @@ extern "C" {
 extern const uint8_t null_buffer[];
 
 extern volatile int16_t optimization_blocker_int16;
+extern volatile int8_t optimization_blocker_int8;
 
 #ifdef __cplusplus
 }

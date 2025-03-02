@@ -22,3 +22,4 @@
 const uint8_t null_buffer[LC_NULL_BUFFER_SIZE] = { 0 };
 
 volatile int16_t optimization_blocker_int16 = 0;
+volatile int8_t optimization_blocker_int8 = 0;
