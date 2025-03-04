@@ -85,10 +85,25 @@ void wots_gen_leafx1(unsigned char *dest, const spx_ctx *ctx, uint32_t leaf_idx,
 
 		/* Iterate down the WOTS chain */
 		for (k = 0;; k++) {
-			/* Check if this is the value that needs to be saved as a */
-			/* part of the WOTS signature */
+			/*
+			 *Check if this is the value that needs to be saved as
+			 * a part of the WOTS signature.
+			 */
+
+			/*
+			 * The memcpy code path is from upstream but it is not
+			 * side-channel-free - it has side channels on the
+			 * ws->root (see lc_sphincs_sign_ctx).
+			 */
+#if 0
+			if (k == wots_k) {
+				memcpy(info->wots_sig + i * LC_SPX_N,
+				       buffer, LC_SPX_N);
+			}
+#else
 			cmov(info->wots_sig + i * LC_SPX_N, buffer, LC_SPX_N,
 			     k == wots_k);
+#endif
 
 			/* Check if we hit the top of the chain */
 			if (k == LC_SPX_WOTS_W - 1)

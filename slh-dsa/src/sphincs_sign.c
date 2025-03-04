@@ -276,6 +276,19 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign_ctx, struct lc_sphincs_sig *sig,
 	CKINT(f_ctx->fors_sign(sig->sigfors, ws->root, ws->mhash, &ctx_int,
 			       ws->wots_addr));
 
+	/*
+	 * Timecop:
+	 *
+	 * According to the original authors of the Sphincs+ code, ws->root
+	 * is a public information (see
+	 * https://github.com/sphincs/sphincsplus/issues/63#issuecomment-2694902727). This would imply we could call
+	 * unpoison(ws->root, sizeof(ws->root)); at this point which would
+	 * remove the Valgrind side channel complaints in the wots_gen_leaf
+	 * functions. However, we try to err on the conservative side and
+	 * do want to have as little side channels as possible. This implies
+	 * that conditional code dependent on the ws->root is replaced.
+	 */
+
 	for (i = 0; i < LC_SPX_D; i++) {
 		set_layer_addr(ws->tree_addr, i);
 		set_tree_addr(ws->tree_addr, ws->tree);
