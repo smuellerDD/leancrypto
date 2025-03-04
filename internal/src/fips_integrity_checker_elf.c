@@ -42,7 +42,6 @@ extern const void _end_rodata;
  * them into a separate section which is not part of the rodata that the
  * variables above wrap.
  */
-__attribute__ ((section("fips_integrity_data")))
 static const struct lc_fips_integrity_sections secs[] = { {
 	.section_start_p = &_start_text,
 	.section_end_p = &_end_text,
@@ -119,8 +118,11 @@ LC_INTERFACE_FUNCTION(void, lc_fips_integrity_checker, void)
 	if (fips_integrity_check(secs, ARRAY_SIZE(secs), expected_digest,
 				 act)) {
 		fips_integrity_checker_build(act);
+		lc_memset_secure(act, 0, sizeof(act));
 		exit(1);
 	}
+
+	lc_memset_secure(act, 0, sizeof(act));
 }
 
 /*
