@@ -276,6 +276,25 @@ void lc_dilithium_ctx_userctx(struct lc_dilithium_ctx *ctx,
 
 /**
  * @ingroup Dilithium
+ * @brief Specify the optional external mu value.
+ *
+ * \note If the external mu is specified, the signature generation /
+ * verification APIs do not require a message. In this case, the message buffer
+ * can be set to NULL.
+ *
+ * \note If both a message and an external mu are provided, the external mu
+ * takes precedence.
+ *
+ * @param [in] ctx Dilithium context
+ * @param [in] external_mu User context string
+ * @param [in] external_mu_len Size of the user context string
+ */
+void lc_dilithium_ctx_external_mu(struct lc_dilithium_ctx *ctx,
+				  const uint8_t *external_mu,
+				  size_t external_mu_len);
+
+/**
+ * @ingroup Dilithium
  * @brief Invalidate the expanded key that potentially is stored in the context.
  *
  * This call can be executed on a context irrespective it was allocated with

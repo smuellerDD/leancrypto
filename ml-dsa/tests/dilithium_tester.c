@@ -28,6 +28,7 @@
 //#include "dilithium_pack.h"
 //#include "dilithium_poly.h"
 //#include "dilithium_polyvec.h"
+#include "build_bug_on.h"
 #include "dilithium_tester.h"
 #include "ext_headers.h"
 #include "lc_hash.h"
@@ -62,14 +63,17 @@
 #include "dilithium_tester_vectors_44.h"
 #include "dilithium_internal_vectors_44.h"
 #include "dilithium_prehashed_vectors_44.h"
+#include "dilithium_externalmu_vectors_44.h"
 #elif LC_DILITHIUM_MODE == 3
 #include "dilithium_tester_vectors_65.h"
 #include "dilithium_internal_vectors_65.h"
 #include "dilithium_prehashed_vectors_65.h"
+#include "dilithium_externalmu_vectors_65.h"
 #elif LC_DILITHIUM_MODE == 5
 #include "dilithium_tester_vectors_87.h"
 #include "dilithium_internal_vectors_87.h"
 #include "dilithium_prehashed_vectors_87.h"
+#include "dilithium_externalmu_vectors_87.h"
 #endif
 #endif
 
@@ -79,7 +83,7 @@
 
 int _dilithium_tester(
 	unsigned int rounds, int verify_calculation, unsigned int internal_test,
-	unsigned int prehashed,
+	unsigned int prehashed, unsigned int external_mu,
 	int (*_lc_dilithium_keypair)(struct lc_dilithium_pk *pk,
 				     struct lc_dilithium_sk *sk,
 				     struct lc_rng_ctx *rng_ctx),
@@ -117,6 +121,7 @@ int _dilithium_tester(
 	const struct dilithium_testvector *vec_p =
 		internal_test ? dilithium_internal_testvectors :
 		prehashed     ? dilithium_prehashed_testvectors :
+		external_mu   ? dilithium_externalmu_testvectors :
 				dilithium_testvectors;
 #endif
 	int ret = 0;
@@ -150,6 +155,12 @@ int _dilithium_tester(
 		       "#include \"dilithium_type.h\"\n"
 		       "static const struct dilithium_testvector dilithium_prehashed_testvectors[] =\n"
 		       "{\n");
+	} else if (external_mu) {
+		printf("#ifndef DILITHIUM_EXTERNALMU_TESTVECTORS_H\n"
+		       "#define DILITHIUM_EXTERNALMU_TESTVECTORS_H\n"
+		       "#include \"dilithium_type.h\"\n"
+		       "static const struct dilithium_testvector dilithium_externalmu_testvectors[] =\n"
+		       "{\n");
 	} else {
 		printf("#ifndef DILITHIUM_TESTVECTORS_H\n"
 		       "#define DILITHIUM_TESTVECTORS_H\n"
@@ -173,6 +184,8 @@ int _dilithium_tester(
 		printf("ML-DSA.Sign_internal / ML-DSA.Verify_internal test\n");
 	else if (ctx->dilithium_prehash_type)
 		printf("HashML-DSA test\n");
+	else if (external_mu)
+		printf("ML-DSA External Mu test\n");
 	else
 		printf("ML-DSA test\n");
 #endif
@@ -211,6 +224,13 @@ int _dilithium_tester(
 	for (i = 0; i < rounds; ++i) {
 		lc_rng_generate(selftest_rng, NULL, 0, ws->m, MLEN);
 		_lc_dilithium_keypair(&ws->pk, &ws->sk, selftest_rng);
+
+		if (external_mu) {
+			BUILD_BUG_ON(MLEN != LC_DILITHIUM_CRHBYTES);
+			ctx->external_mu = ws->m;
+			ctx->external_mu_len = MLEN;
+		}
+
 		CKINT(_lc_dilithium_sign(&ws->sig, ctx, ws->m, MLEN, &ws->sk,
 					 NULL /*selftest_rng*/));
 

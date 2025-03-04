@@ -326,9 +326,26 @@ static int lc_dilithium_sign_avx2_internal(struct lc_dilithium_sig *sig,
 	mu = rnd + LC_DILITHIUM_RNDBYTES;
 	rhoprime = mu + LC_DILITHIUM_CRHBYTES;
 
-	/* Compute CRH(tr, msg) */
-	lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_CRHBYTES);
-	lc_hash_final(hash_ctx, mu);
+	/*
+	 * If the external mu is provided, use this verbatim, otherwise
+	 * calculate the mu value.
+	 */
+	if (ctx->external_mu) {
+		if (ctx->external_mu_len != LC_DILITHIUM_CRHBYTES)
+			return -EINVAL;
+		memcpy(mu, ctx->external_mu, LC_DILITHIUM_CRHBYTES);
+	} else {
+		/*
+		 * Set the digestsize - for SHA512 this is a noop, for SHAKE256,
+		 * it sets the value. The BUILD_BUG_ON is to check that the
+		 * SHA-512 output size is identical to the expected length.
+		 */
+		BUILD_BUG_ON(LC_DILITHIUM_CRHBYTES != LC_SHA3_512_SIZE_DIGEST);
+
+		/* Compute CRH(tr, msg) */
+		lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_CRHBYTES);
+		lc_hash_final(hash_ctx, mu);
+	}
 
 	if (rng_ctx) {
 		CKINT(lc_rng_generate(rng_ctx, NULL, 0, rnd,
@@ -515,10 +532,12 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_ctx_avx2,
 	uint8_t tr[LC_DILITHIUM_TRBYTES];
 	int ret = 0;
 	static int tested = 0;
-	struct lc_hash_ctx *hash_ctx;
 
 	/* rng_ctx is allowed to be NULL as handled below */
-	if (!sig || !m || !sk || !ctx)
+	if (!sig || !sk || !ctx)
+		return -EINVAL;
+	/* Either the message or the external mu must be provided */
+	if (!m && !ctx->external_mu)
 		return -EINVAL;
 
 	dilithium_siggen_tester(&tested, "Dilithium Siggen AVX2",
@@ -526,14 +545,18 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_ctx_avx2,
 
 	unpack_sk_tr_avx2(tr, sk);
 
-	/* Compute mu = CRH(tr, msg) */
-	hash_ctx = &ctx->dilithium_hash_ctx;
-	lc_hash_init(hash_ctx);
-	lc_hash_update(hash_ctx, tr, LC_DILITHIUM_TRBYTES);
-	CKINT(signature_domain_separation(
-		&ctx->dilithium_hash_ctx, ctx->ml_dsa_internal,
-		ctx->dilithium_prehash_type, ctx->userctx, ctx->userctxlen, m,
-		mlen, LC_DILITHIUM_NIST_CATEGORY, !!ctx->composite_ml_dsa));
+	if (m) {
+		/* Compute mu = CRH(tr, msg) */
+		struct lc_hash_ctx *hash_ctx = &ctx->dilithium_hash_ctx;
+
+		lc_hash_init(hash_ctx);
+		lc_hash_update(hash_ctx, tr, LC_DILITHIUM_TRBYTES);
+		CKINT(signature_domain_separation(
+			&ctx->dilithium_hash_ctx, ctx->ml_dsa_internal,
+			ctx->dilithium_prehash_type, ctx->userctx,
+			ctx->userctxlen, m, mlen, LC_DILITHIUM_NIST_CATEGORY,
+			!!ctx->composite_ml_dsa));
+	}
 
 	ret = lc_dilithium_sign_avx2_internal(sig, ctx, sk, rng_ctx);
 
@@ -653,9 +676,6 @@ static int lc_dilithium_verify_avx2_internal(const struct lc_dilithium_sig *sig,
 
 	row = ws->rowbuf;
 
-	lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_CRHBYTES);
-	lc_hash_final(hash_ctx, ws->mu);
-
 	/* Expand challenge */
 	poly_challenge_avx(&ws->c, sig->sig);
 	poly_ntt_avx(&ws->c);
@@ -720,9 +740,23 @@ static int lc_dilithium_verify_avx2_internal(const struct lc_dilithium_sig *sig,
 		}
 	}
 
-	/* Call random oracle and verify challenge */
-	lc_hash_init(hash_ctx);
-	lc_hash_update(hash_ctx, ws->mu, LC_DILITHIUM_CRHBYTES);
+	if (ctx->external_mu) {
+		if (ctx->external_mu_len != LC_DILITHIUM_CRHBYTES)
+			return -EINVAL;
+
+		/* Call random oracle and verify challenge */
+		lc_hash_init(hash_ctx);
+		lc_hash_update(hash_ctx, ctx->external_mu,
+			       LC_DILITHIUM_CRHBYTES);
+	} else {
+		lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_CRHBYTES);
+		lc_hash_final(hash_ctx, ws->mu);
+
+		/* Call random oracle and verify challenge */
+		lc_hash_init(hash_ctx);
+		lc_hash_update(hash_ctx, ws->mu, LC_DILITHIUM_CRHBYTES);
+	}
+
 	lc_hash_update(hash_ctx, ws->buf.coeffs,
 		       LC_DILITHIUM_K * LC_DILITHIUM_POLYW1_PACKEDBYTES);
 	lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_CTILDE_BYTES);
@@ -747,9 +781,11 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_ctx_avx2,
 	uint8_t tr[LC_DILITHIUM_TRBYTES];
 	int ret = 0;
 	static int tested = 0;
-	struct lc_hash_ctx *hash_ctx;
 
-	if (!sig || !m || !pk || !ctx)
+	if (!sig || !pk || !ctx)
+		return -EINVAL;
+	/* Either the message or the external mu must be provided */
+	if (!m && !ctx->external_mu)
 		return -EINVAL;
 
 	dilithium_sigver_tester(&tested, "Dilithium Sigver AVX2",
@@ -759,13 +795,16 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_ctx_avx2,
 	lc_xof(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES, tr,
 	       LC_DILITHIUM_TRBYTES);
 
-	hash_ctx = &ctx->dilithium_hash_ctx;
-	lc_hash_init(hash_ctx);
-	lc_hash_update(hash_ctx, tr, LC_DILITHIUM_TRBYTES);
-	CKINT(signature_domain_separation(
-		&ctx->dilithium_hash_ctx, ctx->ml_dsa_internal,
-		ctx->dilithium_prehash_type, ctx->userctx, ctx->userctxlen, m,
-		mlen, LC_DILITHIUM_NIST_CATEGORY, !!ctx->composite_ml_dsa));
+	if (m) {
+		struct lc_hash_ctx *hash_ctx = &ctx->dilithium_hash_ctx;
+		lc_hash_init(hash_ctx);
+		lc_hash_update(hash_ctx, tr, LC_DILITHIUM_TRBYTES);
+		CKINT(signature_domain_separation(
+			&ctx->dilithium_hash_ctx, ctx->ml_dsa_internal,
+			ctx->dilithium_prehash_type, ctx->userctx,
+			ctx->userctxlen, m, mlen, LC_DILITHIUM_NIST_CATEGORY,
+			!!ctx->composite_ml_dsa));
+	}
 
 	ret = lc_dilithium_verify_avx2_internal(sig, pk, ctx);
 

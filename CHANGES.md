@@ -1,4 +1,4 @@
-Changes 1.2.1-prerelease
+Changes 1.3.0-prerelease
 * Allow CPU entropy sources to be used as seed sources with meson option "seedsource=cpu"
 
 * Ensure full clean run on vintage system without AVX2 (thanks to "David C. Rankin" <drankinatty@gmail.com>)
@@ -12,6 +12,8 @@ Changes 1.2.1-prerelease
 * ARMv8 assembler / ELF: add BTI and PAC support
 
 * *Full FIPS 140 compliance*: Invoke PCT, add integrity test for ELF compilations, enable FIPS compilation by default
+
+* ML-DSA: add external-mu support; new API: lc_dilithium_ctx_external_mu
 
 Changes 1.2.0
 * Locking für seeded_rng added to avoid requiring the caller providing a lock

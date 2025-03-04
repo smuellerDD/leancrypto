@@ -28,7 +28,7 @@ extern "C" {
 
 int _dilithium_tester(
 	unsigned int rounds, int verify_calculation, unsigned int internal_test,
-	unsigned int prehashed,
+	unsigned int prehashed, unsigned int external_mu,
 	int (*_lc_dilithium_keypair)(struct lc_dilithium_pk *pk,
 				     struct lc_dilithium_sk *sk,
 				     struct lc_rng_ctx *rng_ctx),

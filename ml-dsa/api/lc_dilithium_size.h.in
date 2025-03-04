@@ -222,6 +222,16 @@ struct lc_dilithium_ctx {
 	unsigned short ahat_size;
 
 	/**
+	 * @brief Pointer to the external mu.
+	 *
+	 * If set, the signature operation will use the provided mu instead of
+	 * the message. In this case, the message pointer to the signature
+	 * generation or verification can be NULL.
+	 */
+	const uint8_t *external_mu;
+	size_t external_mu_len;
+
+	/**
 	 * @brief Is the Composite-ML-DSA operation wanted? If yes, set the
 	 * NIST category here
 	 * https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-03.html
@@ -284,7 +294,9 @@ struct lc_dilithium_ctx {
 	(name)->userctx = NULL;                                                \
 	(name)->composite_ml_dsa = 0;                                          \
 	(name)->ahat = NULL;                                                   \
-	(name)->ahat_size = 0
+	(name)->ahat_size = 0;                                                 \
+	(name)->external_mu = NULL;                                            \
+	(name)->external_mu_len = 0;
 #endif
 /// \endcond
 

@@ -118,6 +118,16 @@ LC_INTERFACE_FUNCTION(void, lc_dilithium_ctx_userctx,
 	}
 }
 
+LC_INTERFACE_FUNCTION(void, lc_dilithium_ctx_external_mu,
+		      struct lc_dilithium_ctx *ctx, const uint8_t *external_mu,
+		      size_t external_mu_len)
+{
+	if (ctx) {
+		ctx->external_mu = external_mu;
+		ctx->external_mu_len = external_mu_len;
+	}
+}
+
 LC_INTERFACE_FUNCTION(void, lc_dilithium_ctx_drop_ahat,
 		      struct lc_dilithium_ctx *ctx)
 {
