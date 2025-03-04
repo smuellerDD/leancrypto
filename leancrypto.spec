@@ -165,3 +165,4 @@ done
 %{_libexecdir}/%{name}/sha3-256sum
 %{_libexecdir}/%{name}/sha3-384sum
 %{_libexecdir}/%{name}/sha3-512sum
+%{_libexecdir}/%{name}/ascon256-sum
