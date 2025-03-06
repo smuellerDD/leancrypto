@@ -56,7 +56,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	(void)argv;
 
 	if (!(lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV_ASM_RVV))
-		return -77;
+		return 77;
 
 	if (argc != 2)
 		return dilithium_tester_riscv64_rvv();
