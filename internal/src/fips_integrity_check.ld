@@ -40,16 +40,16 @@ SECTIONS
 }
 INSERT AFTER .text;
 
-SECTIONS
-{
-	_start_rodata = .;
-	PROVIDE(start_rodata = .);
-}
-INSERT BEFORE .rodata;
-
-SECTIONS
-{
-	_end_rodata = .;
-	PROVIDE(end_rodata = .);
-}
-INSERT AFTER .rodata;
+#SECTIONS
+#{
+#	_start_rodata = .;
+#	PROVIDE(start_rodata = .);
+#}
+#INSERT BEFORE .rodata;
+#
+#SECTIONS
+#{
+#	_end_rodata = .;
+#	PROVIDE(end_rodata = .);
+#}
+#INSERT AFTER .rodata;

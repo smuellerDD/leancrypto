@@ -27,12 +27,14 @@
 
 #include "dilithium_consts_avx2.h"
 #include "dilithium_type.h"
+#include "ext_headers.h"
 
 #define QINV 58728449 // q^(-1) mod 2^32
 #define MONT -4186625 // 2^32 mod q
 #define DIV 41978 // mont^2/256
 #define DIV_QINV -8395782
 
+LC_FIPS_RODATA_SECTION
 const dilithium_qdata_t dilithium_qdata = { {
 #define _8XQ 0
 	LC_DILITHIUM_Q,

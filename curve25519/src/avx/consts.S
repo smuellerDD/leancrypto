@@ -30,7 +30,7 @@
    REDMASK51 is from amd64-51/consts.s.
 */
 
-.data
+.rodata
 .p2align 4
 v0_0: .quad 0, 0
 v1_0: .quad 1, 0

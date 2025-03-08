@@ -19,6 +19,7 @@
 
 #include "alignment.h"
 #include "build_bug_on.h"
+#include "ext_headers.h"
 #include "fips_integrity_check.h"
 #include "helper.h"
 #include "lc_status.h"
@@ -33,8 +34,8 @@ extern const void _start_ctors;
 extern const void _end_ctors;
 extern const void _start_text;
 extern const void _end_text;
-extern const void _start_rodata;
-extern const void _end_rodata;
+extern const void LC_FIPS_RODATA_SECTION_NAME_START;
+extern const void LC_FIPS_RODATA_SECTION_NAME_STOP;
 
 /*
  * Integrity check compare values - they cannot be part of the regular rodata
@@ -51,19 +52,19 @@ static const struct lc_fips_integrity_sections secs[] = { {
 }, {
 	.section_start_p = &_start_ctors,
 	.section_end_p = &_end_ctors,
+}, {
+	.section_start_p = &LC_FIPS_RODATA_SECTION_NAME_START,
+	.section_end_p = &LC_FIPS_RODATA_SECTION_NAME_STOP,
 
 /*
 	 * The ROData segment is currently excluded from being checked, because
 	 * ROData in the function fips_integrity_checker_build in this
-	 * file somehow causes a buffer overflow. When subtracting 1187 bytes
-	 * from the &_end_rodata pointer which excludes the offending ROData
-	 * part, the buffer overflow vanishes.
+	 * file seems to read unallocated memory on ARMv8.
 	 *
 	 * But the check of ROData is considered not required for FIPS 140
-	 * compliance because the ROData contains the static data for self-tests
-	 * as well as algorithm static data (e.g. SHA2-256 values), but the
-	 * power-up self test are considered to verify the appropriateness
-	 * of the ROData.
+	 * compliance because the ROData contains the static data for
+	 * self-tests, but the power-up self test are considered to verify the
+	 * appropriateness of the ROData.
 	 */
 #if 0
 }, {
@@ -102,10 +103,16 @@ fips_integrity_checker_build(const uint8_t act[LC_SHA3_256_SIZE_DIGEST])
 	       (unsigned long)&_start_text, (unsigned long)&_end_text,
 	       (unsigned long)((uint8_t *)&_end_text -
 			       (uint8_t *)&_start_text));
-	fprintf(stderr, "//ROData section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
-	       (unsigned long)&_start_rodata, (unsigned long)&_end_rodata,
-	       (unsigned long)((uint8_t *)&_end_rodata -
-			       (uint8_t *)&_start_rodata));
+	// fprintf(stderr, "//ROData section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
+	//        (unsigned long)&_start_rodata, (unsigned long)&_end_rodata,
+	//        (unsigned long)((uint8_t *)&_end_rodata -
+	// 		       (uint8_t *)&_start_rodata));
+
+	fprintf(stderr, "//ROData1 section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
+	       (unsigned long)&LC_FIPS_RODATA_SECTION_NAME_START,
+	       (unsigned long)&LC_FIPS_RODATA_SECTION_NAME_STOP,
+	       (unsigned long)((uint8_t *)&LC_FIPS_RODATA_SECTION_NAME_STOP -
+			       (uint8_t *)&LC_FIPS_RODATA_SECTION_NAME_START));
 
 	for (i = 0; i < LC_SHA3_256_SIZE_DIGEST; i++)
 		fprintf(stderr, "0x%.2x, ", *(act + i));

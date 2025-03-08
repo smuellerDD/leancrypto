@@ -256,6 +256,21 @@
 
 #endif /* LINUX_KERNEL */
 
+/*
+ * FIPS 140 integrity check support
+ */
+#ifdef LINUX_KERNEL
+#define LC_FIPS_RODATA_SECTION_ASM .section .rodata
+#elif (defined(LC_EFI_ENVIRONMENT))
+#define LC_FIPS_RODATA_SECTION_ASM .section .rodata
+#elif (defined(__CYGWIN__) || defined(_WIN32))
+#define LC_FIPS_RODATA_SECTION_ASM .section .rodata
+#elif defined __ELF__
+#define LC_FIPS_RODATA_SECTION_ASM .section fips_rodata
+#else
+#define LC_FIPS_RODATA_SECTION_ASM .section .rodata
+#endif
+
 // clang-format on
 
 #endif /* ASSEMBLER_SUPPORT_H */

@@ -18,7 +18,9 @@
  */
 
 #include "kyber_consts_armv7.h"
+#include "ext_headers.h"
 
+LC_FIPS_RODATA_SECTION
 const int16_t zetas_armv7[64] = {
 	2226, 430,  555,  843,	2078, 871,  1550, 105,	422,  587,  177,
 	3094, 3038, 2869, 1574, 1653, 3083, 778,  1159, 3182, 2552, 1483,
@@ -28,6 +30,7 @@ const int16_t zetas_armv7[64] = {
 	478,  3221, 3021, 996,	991,  958,  1869, 1522, 1628
 };
 
+LC_FIPS_RODATA_SECTION
 const int16_t kyber_zetas_asm[128] = {
 	// 7 & 6 & 5 layers
 	2571,
@@ -168,6 +171,7 @@ const int16_t kyber_zetas_asm[128] = {
 	1628,
 };
 
+LC_FIPS_RODATA_SECTION
 const int16_t kyber_zetas_inv_asm[128] = {
 	// 1 layer
 	1701, 1807, 1460, 2371, 2338, 2333, 308, 108, 2851, 870, 854, 1510,

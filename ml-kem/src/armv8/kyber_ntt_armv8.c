@@ -23,6 +23,7 @@
  * That code is released under MIT license.
  */
 
+#include "ext_headers.h"
 #include "kyber_ntt_armv8.h"
 
 #if 0
@@ -58,6 +59,7 @@ const int16_t zetas_inv[128] = {
 #endif
 
 // zetas for ntt_arm
+LC_FIPS_RODATA_SECTION
 const int16_t kyber_zetas_armv8[287] = {
 	-758,  -359,  1493,  1422,  -171,  622,	  1577,	 182,	573,   -1325,
 	264,   383,   -829,  1458,  -1602, -130,
@@ -98,6 +100,7 @@ const int16_t kyber_zetas_armv8[287] = {
 	1522,  1522,  1628,  1628
 };
 
+LC_FIPS_RODATA_SECTION
 const int16_t kyber_zetas_inv_armv8[287] = {
 	1628,  1628,  1522,  1522,  -1460, -1460, 958,	 958,	991,   991,
 	996,   996,   -308,  -308,  -108,  -108,  478,	 478,	-870,  -870,
