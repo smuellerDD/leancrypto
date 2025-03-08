@@ -178,6 +178,7 @@ option('seedsource', type: 'combo', value: 'builtin',
 	choices: ['builtin',
 		  'cpu',
 		  'esdm',
+		  'jent',
 		 ],
 	description: '''Select the seed source for leancrypto
 

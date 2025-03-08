@@ -86,6 +86,10 @@ if (seeded_rng == 1)
 		#Not required due to runtime linking
 		#leancrypto_link += cc.find_library( 'esdm_rpc_client',
 		#				    required: true)
+	elif get_option('seedsource') == 'jent'
+		src_fips += files([ 'seeded_rng_jent.c' ])
+		leancrypto_link += cc.find_library( 'jitterentropy',
+						    required: true)
 	elif (get_option('efi').enabled() or
 	      get_option('seedsource') == 'cpu')
 		src_fips += files([ 'seeded_rng_cpu.c' ])

@@ -120,6 +120,8 @@ Leancrypto does not implement any entropy source. Yet, it implements support for
 
 * `esdm`: This option uses the [ESDM](http://chronox.de/esdm/index.html) as entropy source.
 
+* `jent`: This option uses the [Jitter RNG](http://chronox.de/jent/index.html) as entropy source.
+
 NOTE: The default RNG used by leancrypto is the XDRBG. At the time of writing (beginning 2025), it is not yet FIPS-approved. However, SP800-90A is subject to revision at the time of writing and it is planned to add the XDRBG as an approved algorithm. Therefore, leancrypto selects XDRBG as default. If that shall be changed, the macros `LC_SEEDED_RNG_CTX_SIZE` and `LC_SEEDED_RNG_CTX` found in `drng/src/seeded_rng.c` must be set to either the Hash DRBG or HMAC DRBG at compile time.
 
 ## API and Usage Documentation

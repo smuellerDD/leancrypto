@@ -15,6 +15,8 @@ Changes 1.3.0-prerelease
 
 * ML-DSA: add external-mu support; new API: lc_dilithium_ctx_external_mu
 
+* Add optional Jitter RNG entropy source
+
 Changes 1.2.0
 * Locking für seeded_rng added to avoid requiring the caller providing a lock
 
