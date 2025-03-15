@@ -96,6 +96,15 @@ if get_option('kyber_1024').enabled()
 				],
 				dependencies: leancrypto_fips
 				)
+	kyber_modulus_tester = executable('kyber_modulus_tester',
+				[ 'kyber_modulus_tester.c', internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_kyber_internal
+				],
+				dependencies: leancrypto
+				)
 
 	test('Kyber KEX', kyber_kex_tester, suite: regression)
 	if get_option('cshake_drng').enabled()
@@ -121,6 +130,10 @@ if get_option('kyber_1024').enabled()
 	test('Kyber Keygen Performance', kyber_keygen_tester, timeout: 1000,
 	     is_parallel: false, suite: performance)
 	test('Kyber Keygen FIPS', kyber_keygen_fips_tester, suite: regression)
+	test('Kyber Modulus Test Accel', kyber_modulus_tester,
+	     suite: regression)
+	test('Kyber Modulus Test C', kyber_modulus_tester,
+	     args : [ 'c' ], suite: regression)
 
 	if (x86_64_asm)
 		kyber_kem_tester_avx2 = executable('kyber_kem_tester_avx2',
@@ -325,6 +338,17 @@ if get_option('kyber_768').enabled()
 				c_args : '-DLC_KYBER_TYPE_768'
 				)
 
+	kyber_768_modulus_tester = executable('kyber_768_modulus_tester',
+				[ 'kyber_modulus_tester.c', internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_kyber_internal
+				],
+				dependencies: leancrypto,
+				c_args : '-DLC_KYBER_TYPE_768'
+				)
+
 	test('Kyber 768 KEX', kyber_768_kex_tester, suite: regression)
 	if get_option('cshake_drng').enabled()
 		test('Kyber 768 IES', kyber_768_ies_tester, suite: regression)
@@ -354,7 +378,10 @@ if get_option('kyber_768').enabled()
 	     suite: regression)
 	test('Kyber 768 Keygen Performance', kyber_768_keygen_tester,
 	     timeout: 1000, is_parallel: false, suite: performance)
-
+	test('Kyber 768 Modulus Test Accel', kyber_768_modulus_tester,
+	     suite: regression)
+	test('Kyber 768 Modulus Test C', kyber_768_modulus_tester,
+	     args : [ 'c' ], suite: regression)
 
 	if (x86_64_asm)
 		kyber_768_kem_tester_avx2 = executable('kyber_768_kem_tester_avx2',
@@ -566,6 +593,16 @@ if get_option('kyber_512').enabled()
 				], link_with: leancrypto_static_lib,
 				c_args : '-DLC_KYBER_TYPE_512'
 				)
+	kyber_512_modulus_tester = executable('kyber_512_modulus_tester',
+				[ 'kyber_modulus_tester.c', internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_kyber_internal
+				],
+				dependencies: leancrypto,
+				c_args : '-DLC_KYBER_TYPE_512'
+				)
 
 	test('Kyber 512 KEX', kyber_512_kex_tester, suite: regression)
 	if get_option('cshake_drng').enabled()
@@ -596,6 +633,10 @@ if get_option('kyber_512').enabled()
 	     suite: regression)
 	test('Kyber 512 Keygen Performance', kyber_512_keygen_tester,
 	     timeout: 1000, is_parallel: false, suite: performance)
+	test('Kyber 512 Modulus Test Accel', kyber_512_modulus_tester,
+	     suite: regression)
+	test('Kyber 512 Modulus Test C', kyber_512_modulus_tester,
+	     args : [ 'c' ], suite: regression)
 
 	if get_option('kyber_x25519').enabled()
 		if get_option('cshake_drng').enabled()

@@ -11,8 +11,8 @@
 **************************************************/
 .macro mbarret a
 	sqdmulh 	v10.8h, v\a\().8h, v15.h[2]   	// v10 = (2 * a * const v)_HI
-	sshr 		v10.8h, v10.8h, 11				// t: v10 <- v10 >> 11 (right shift)
-	mls			v\a\().8h, v10.8h, v15.h[0]		// a <- a - q * t
+	sshr 		v10.8h, v10.8h, 11		// t: v10 <- v10 >> 11 (right shift)
+	mls		v\a\().8h, v10.8h, v15.h[0]	// a <- a - q * t
 .endm
 
 /*************************************************	
@@ -25,11 +25,11 @@
 *					v10, v11, v12, v13
 **************************************************/
 .macro mtomont a
-	mul			v10.8h, v\a\().8h, v15.h[2]		// af_LO = (a * f)_LO
-	sqdmulh     v11.8h, v\a\().8h, v15.h[2]		// 2af_HI = (2 * a * f)_HI
-	mul			v12.8h, v10.8h, v15.h[1]       	// qiaf_L = (QINV * af_LO)_LO 
-	sqdmulh     v13.8h, v12.8h, v15.h[0]		// 2t = (2 * Q * qiaf_L)_HI
-	shsub		v\a\().8h, v11.8h, v13.8h		// a = (2af_HI - 2t) / 2 = af_HI - t 
+	mul		v10.8h, v\a\().8h, v15.h[2]	// af_LO = (a * f)_LO
+	sqdmulh		v11.8h, v\a\().8h, v15.h[2]	// 2af_HI = (2 * a * f)_HI
+	mul		v12.8h, v10.8h, v15.h[1]       	// qiaf_L = (QINV * af_LO)_LO
+	sqdmulh		v13.8h, v12.8h, v15.h[0]	// 2t = (2 * Q * qiaf_L)_HI
+	shsub		v\a\().8h, v11.8h, v13.8h	// a = (2af_HI - 2t) / 2 = af_HI - t
 .endm
 
 /*************************************************	
@@ -47,11 +47,11 @@
 *					v13 as vg,
 **************************************************/
 .macro fqmul c, a, b
-  sqdmulh   v10.8h, v\a\().8h, v\b\().8h    // 2ab_H = (2 * a * b)_HI
-  mul 		v11.8h, v\a\().8h, v\b\().8h    // ab_L = (a * b)_LO
+  sqdmulh	v10.8h, v\a\().8h, v\b\().8h    // 2ab_H = (2 * a * b)_HI
+  mul		v11.8h, v\a\().8h, v\b\().8h    // ab_L = (a * b)_LO
   mul 		v12.8h, v11.8h, v15.h[1]      	// qiab_L = (QINV * ab_L)_LO
-  sqdmulh   v13.8h, v12.8h, v15.h[0]  		// 2u = (2 * Q * qiab_L)_HI
-  shsub 	v\c\().8h, v10.8h, v13.8h     	// t = (2ab_H - 2u) / 2 = ab_H - u 
+  sqdmulh	v13.8h, v12.8h, v15.h[0]  	// 2u = (2 * Q * qiab_L)_HI
+  shsub		v\c\().8h, v10.8h, v13.8h     	// t = (2ab_H - 2u) / 2 = ab_H - u
 .endm
 
 

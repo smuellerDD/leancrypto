@@ -40,12 +40,29 @@
 	zip2  v\f\().16b, v\a\().16b, v\b\().16b
 	zip1  v\e\().16b, v\b\().16b, v\c\().16b	// r[2i+1] = c|b
 	zip2  v\g\().16b, v\b\().16b, v\c\().16b
-	ushr  v\e\().8h, v\e\().8h, #4				// r[2i+1]c|b >> 4
+	ushr  v\e\().8h, v\e\().8h, #4		// r[2i+1]c|b >> 4
 	ushr  v\g\().8h, v\g\().8h, #4
-	and	  v\d\().16b, v\d\().16b, v0.16b		// & FFF
-	and	  v\e\().16b, v\e\().16b, v0.16b
-	and	  v\f\().16b, v\f\().16b, v0.16b
-	and	  v\g\().16b, v\g\().16b, v0.16b
+
+	and  v\d\().16b, v\d\().16b, v0.16b	// & FFF
+	and  v\e\().16b, v\e\().16b, v0.16b
+	and  v\f\().16b, v\f\().16b, v0.16b
+	and  v\g\().16b, v\g\().16b, v0.16b
+
+	//and  v\c\().16b, v\d\().16b, v0.16b		// & FFF
+	//udiv v\d\().16b, v\c\().16b, #3329		// division by 3329
+	//mls  v\d\().16b, v\d\().16b, #3329, v\c\().16b	// udiv and mls form modulo operation
+
+	//and  v\c\().16b, v\e\().16b, v0.16b
+	//udiv v\e\().16b, v\c\().16b, #3329
+	//mls  v\e\().16b, v\e\().16b, #3329, v\c\().16b
+
+	//and  v\c\().16b, v\f\().16b, v0.16b
+	//udiv v\f\().16b, v\c\().16b, #3329
+	//mls  v\f\().16b, v\f\().16b, #3329, v\c\().16b
+
+	//and  v\c\().16b, v\g\().16b, v0.16b
+	//udiv v\g\().16b, v\c\().16b, #3329
+	//mls  v\g\().16b, v\g\().16b, #3329, v\c\().16b
 .endm
 
 SYM_FUNC_START(kyber_poly_tobytes_armv8)

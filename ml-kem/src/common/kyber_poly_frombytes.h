@@ -39,9 +39,11 @@ static inline void poly_frombytes(poly *r, const uint8_t a[LC_KYBER_POLYBYTES])
 		r->coeffs[2 * i] =
 			((a[3 * i + 0] >> 0) | ((uint16_t)a[3 * i + 1] << 8)) &
 			0xFFF;
+		r->coeffs[2 * i] %= LC_KYBER_Q;
 		r->coeffs[2 * i + 1] =
 			((a[3 * i + 1] >> 4) | ((uint16_t)a[3 * i + 2] << 4)) &
 			0xFFF;
+		r->coeffs[2 * i + 1] %= LC_KYBER_Q;
 	}
 }
 

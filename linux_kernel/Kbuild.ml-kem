@@ -398,6 +398,7 @@ obj-m		 		+= kyber_kem_kdf_tester_common.o
 obj-m		 		+= kyber_kex_tester.o
 obj-m		 		+= kyber_ies_tester.o
 obj-m		 		+= kyber_invalid_tester.o
+obj-m		 		+= kyber_modulus_tester.o
 
 kyber_kem_tester_c-y		+= ../ml-kem/tests/kyber_kem_tester.o	       \
 				   ../ml-kem/tests/kyber_kem_tester_c.o	       \
@@ -415,6 +416,7 @@ kyber_kex_tester-y  		+= ../ml-kem/tests/kyber_kex_tester.o
 kyber_ies_tester-y  		+= ../ml-kem/tests/kyber_ies_tester.o	       \
 				   ../drng/src/selftest_rng.o
 kyber_invalid_tester-y  	+= ../ml-kem/tests/kyber_invalid_tester.o
+kyber_modulus_tester-y  	+= ../ml-kem/tests/kyber_modulus_tester.o
 endif
 
 # Kyber 768
@@ -434,6 +436,7 @@ obj-m		 		+= kyber_768_kem_kdf_tester_common.o
 obj-m		 		+= kyber_768_kex_tester.o
 obj-m		 		+= kyber_768_ies_tester.o
 obj-m		 		+= kyber_768_invalid_tester.o
+obj-m		 		+= kyber_768_modulus_tester.o
 
 kyber_768_kem_tester_c-y	+= kyber768/tests/kyber_kem_tester.o	       \
 				   kyber768/tests/kyber_kem_tester_c.o	       \
@@ -451,6 +454,7 @@ kyber_768_kex_tester-y 		+= kyber768/tests/kyber_kex_tester.o
 kyber_768_ies_tester-y  	+= kyber768/tests/kyber_ies_tester.o	       \
 				   ../drng/src/selftest_rng.o
 kyber_768_invalid_tester-y  	+= kyber768/tests/kyber_invalid_tester.o
+kyber_768_modulus_tester-y  	+= kyber768/tests/kyber_modulus_tester.o
 
 CFLAGS_leancrypto_kernel_kyber_768_tester.o	:= -DLC_KYBER_TYPE_768
 CFLAGS_kyber768/tests/kyber_kem_tester.o	:= -DLC_KYBER_TYPE_768
@@ -461,6 +465,7 @@ CFLAGS_kyber768/tests/kyber_kem_kdf_tester_common.o:= -DLC_KYBER_TYPE_768
 CFLAGS_kyber768/tests/kyber_kex_tester.o	:= -DLC_KYBER_TYPE_768
 CFLAGS_kyber768/tests/kyber_ies_tester.o	:= -DLC_KYBER_TYPE_768
 CFLAGS_kyber768/tests/kyber_invalid_tester.o	:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/tests/kyber_modulus_tester.o	:= -DLC_KYBER_TYPE_768
 
 endif
 
@@ -481,6 +486,7 @@ obj-m		 		+= kyber_512_kem_kdf_tester_common.o
 obj-m		 		+= kyber_512_kex_tester.o
 obj-m		 		+= kyber_512_ies_tester.o
 obj-m		 		+= kyber_512_invalid_tester.o
+obj-m		 		+= kyber_512_modulus_tester.o
 
 kyber_512_kem_tester_c-y	+= kyber512/tests/kyber_kem_tester.o	       \
 				   kyber512/tests/kyber_kem_tester_c.o	       \
@@ -498,6 +504,7 @@ kyber_512_kex_tester-y 		+= kyber512/tests/kyber_kex_tester.o
 kyber_512_ies_tester-y  	+= kyber512/tests/kyber_ies_tester.o	       \
 				   ../drng/src/selftest_rng.o
 kyber_512_invalid_tester-y  	+= kyber512/tests/kyber_invalid_tester.o
+kyber_512_modulus_tester-y  	+= kyber512/tests/kyber_modulus_tester.o
 
 CFLAGS_leancrypto_kernel_kyber_512_tester.o	:= -DLC_KYBER_TYPE_512
 CFLAGS_kyber512/tests/kyber_kem_tester.o	:= -DLC_KYBER_TYPE_512
@@ -508,6 +515,7 @@ CFLAGS_kyber512/tests/kyber_kem_kdf_tester_common.o:= -DLC_KYBER_TYPE_512
 CFLAGS_kyber512/tests/kyber_kex_tester.o	:= -DLC_KYBER_TYPE_512
 CFLAGS_kyber512/tests/kyber_ies_tester.o	:= -DLC_KYBER_TYPE_512
 CFLAGS_kyber512/tests/kyber_invalid_tester.o	:= -DLC_KYBER_TYPE_512
+CFLAGS_kyber512/tests/kyber_modulus_tester.o	:= -DLC_KYBER_TYPE_512
 endif
 
 endif

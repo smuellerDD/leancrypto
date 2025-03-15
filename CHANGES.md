@@ -56,6 +56,8 @@ Changes 1.2.0
 
 * Allow switching the central leancrypto seeded RNG instance with a caller-provided RNG
 
+* ML-KEM: fix poly_frombytes to perform the loading operation modulo 3329 (instead of modulo 4096) - thanks to Daiki Ueno for reporting it
+
 Changes 1.1.0
 * ML-KEM remove modulus check of decapsulation key (not required by FIPS 203)
 
