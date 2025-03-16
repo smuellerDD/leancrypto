@@ -182,13 +182,10 @@ static inline void poly_tobytes(uint8_t r[LC_KYBER_POLYBYTES], const poly *a)
  */
 static inline void poly_frombytes(poly *r, const uint8_t a[LC_KYBER_POLYBYTES])
 {
-	unsigned int i;
-
 	kyber_poly_frombytes_armv8(r, a);
 
-	//TODO move it to assembler code?
-	for (i = 0; i < LC_KYBER_N; i++)
-		r->coeffs[i] %= LC_KYBER_Q;
+	/* Reduce to ensure loaded data is within interval [0, q - 1] */
+	poly_reduce(r);
 }
 
 /**
