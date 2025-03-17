@@ -631,6 +631,10 @@ leancrypto_support_libs_fips = [ ]
 # External libraries leancrypto should link to
 leancrypto_link = [ ]
 
+# Whether to build the shared library alongside the static library
+build_shared = (get_option('default_library') != 'static' and
+		get_option('efi').disabled())
+
 foreach n : subdirs
 	subdir(n)
 endforeach
@@ -650,10 +654,6 @@ if (host_machine.system() != 'windows')
 		    check: true)
 endif
 
-# Whether to build the shared library alongside the static library
-build_shared = (get_option('default_library') != 'static' and
-		get_option('efi').disabled())
-
 # Compile the "raw" FIPS 140 library part which can be linked into
 # the libleancrypto-fips.[so|a] with the integrity test as well as
 # non-FIPS libleancrypto.[so|a] without the integrity test.
@@ -671,7 +671,7 @@ fips_integrity_checker_values_h = []
 link_args_fips140 = []
 
 # FIPS 140 Integrity check: The integrity checker is adopted for ELF.
-if (host_machine.system() == 'linux' and get_option('efi').disabled())
+if (host_machine.system() == 'linux' and get_option('efi').disabled() and build_shared)
 	link_args_fips140 = [
 		'-T' + meson.project_source_root() + '/internal/src/fips_integrity_check.ld'
 	]
