@@ -147,6 +147,12 @@ header='/*
  * variables is desired, proper accessor functions are available. This implies
  * that changes to the data structures in newer versions of the library are not
  * considered as API changes!
+ *
+ * \note The leancrypto library performs an automated initialization during
+ * its startup using constructors. If your execution environment does not offer
+ * such constructors, or the library is compiled statically, the function
+ * `lc_init` must be called by the consuming application before any leancrypto
+ * API is invoked.
  */
 '
 

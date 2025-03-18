@@ -232,6 +232,13 @@ if get_option('pkcs7_debug').enabled()
 	add_global_arguments([ '-DLC_PKCS7_DEBUG' ], language: 'c')
 endif
 
+# Whether to build the shared library alongside the static library
+build_shared = (get_option('default_library') != 'static' and
+		get_option('efi').disabled())
+if (not build_shared)
+	add_global_arguments([ '-DLC_STATIC' ], language: 'c')
+endif
+
 # 64 bit time to not suffer from Y2038 problem
 add_global_arguments([ '-D_TIME_BITS=64' ], language: 'c')
 
@@ -630,10 +637,6 @@ leancrypto_support_libs_fips = [ ]
 
 # External libraries leancrypto should link to
 leancrypto_link = [ ]
-
-# Whether to build the shared library alongside the static library
-build_shared = (get_option('default_library') != 'static' and
-		get_option('efi').disabled())
 
 foreach n : subdirs
 	subdir(n)

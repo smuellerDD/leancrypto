@@ -69,7 +69,15 @@
 
 #define LC_INIT_FUNCTION(ret, symbol, param...) DSO_PUBLIC ret symbol(param)
 
+#ifdef LC_STATIC
+#define LC_TEST_FUNC(ret, symbol, param...)                                    \
+	int lc_init(unsigned int flags);                                       \
+	static ret __ ## symbol(param);                                        \
+	ret symbol(param) { lc_init(0); return __ ## symbol(argc, argv); }     \
+	static ret __ ## symbol(param)
+#else
 #define LC_TEST_FUNC(ret, symbol, param...) ret symbol(param)
+#endif
 
 #pragma GCC diagnostic pop
 
@@ -85,11 +93,9 @@
 	void _func(void)
 #else /* LC_EFI */
 
-#define LC_CONSTRUCTOR_AUTOMATIC_AVAILABLE
-
 #define LC_CONSTRUCTOR(_func)                                                  \
-	static void __attribute__((constructor)) _func(void);                  \
-	static void _func(void)
+	void __attribute__((constructor)) _func(void);                         \
+	void _func(void)
 #endif /* LC_EFI */
 
 #endif /* LINUX_KERNEL */

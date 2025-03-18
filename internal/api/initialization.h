@@ -26,15 +26,12 @@
 extern "C" {
 #endif
 
-/* Enable these declarations only if there is no automatic constructor */
-#ifndef LC_CONSTRUCTOR_AUTOMATIC_AVAILABLE
 void ascon_fastest_impl(void);
 void sha256_fastest_impl(void);
 void sha512_fastest_impl(void);
 void sha3_fastest_impl(void);
 void aes_fastest_impl(void);
 void kyber_riscv_rvv_selector(void);
-#endif /* LC_CONSTRUCTOR_AUTOMATIC_AVAILABLE */
 
 #ifdef __cplusplus
 }

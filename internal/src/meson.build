@@ -7,7 +7,8 @@ internal_src += files([
 ])
 
 src_fips += files([
-	'fips_integrity_check.c'
+	'fips_integrity_check.c',
+	'leancrypto_init.c',
 ])
 
 if get_option('efi').disabled()
@@ -16,10 +17,6 @@ if get_option('efi').disabled()
 	])
 	src_fips += files([
 		'status.c'
-	])
-else
-	internal_src += files([
-		'leancrypto_init.c',
 	])
 endif
 
