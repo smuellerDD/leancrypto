@@ -4102,6 +4102,7 @@ SYM_FUNC_ENTER(aesni_cbc_encrypt)
 .cfi_endproc
 SYM_FUNC_END(aesni_cbc_encrypt)
 
+STACK_FRAME_NON_STANDARD(aesni_set_decrypt_key);
 SYM_FUNC_START(aesni_set_decrypt_key)
 SYM_FUNC_ENTER(aesni_set_decrypt_key)
 .align	16
