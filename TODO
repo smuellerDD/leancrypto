@@ -25,4 +25,3 @@
 
 - RISCV asm: check whether it works for RISCV32
 
-- FIPS: ELF section fips_integrity_data is RW - change to RO
