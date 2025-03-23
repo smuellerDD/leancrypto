@@ -289,7 +289,7 @@ Leancrypto offers various cryptographic algorithms:
 
   * ML-DSA (Dilithium) hybrid signature operation with Curve25519
 
-  * SLH-DSA (Sphincs Plus)
+  * SLH-DSA (Sphincs Plus) with SHAKE and Ascon
 
 * Symmetric algorithms
 

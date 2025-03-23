@@ -27,7 +27,7 @@ jobs:
         update: true
         install: git meson mingw-w64-${{matrix.env}}-meson mingw-w64-${{matrix.env}}-gcc
     - name: Meson setup
-      run: msys2 -c 'meson setup build'
+      run: msys2 -c 'meson setup build -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled'
     - name: Meson compile
       run: msys2 -c 'meson compile -C build'
     - name: Meson test

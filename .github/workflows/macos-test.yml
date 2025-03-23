@@ -16,7 +16,7 @@ jobs:
     - name: Install meson
       run: brew install meson
     - name: Meson setup
-      run: meson setup build
+      run: meson setup build -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled
     - name: Meson compile
       run: meson compile -C build
     - name: Meson test
