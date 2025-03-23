@@ -40,7 +40,7 @@ extern "C" {
 static inline void prf_addr(uint8_t out[LC_SPX_N], const spx_ctx *ctx,
 			    const uint32_t addr[8])
 {
-	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
+	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
 
 	lc_hash_init(hash_ctx);
 	lc_hash_update(hash_ctx, ctx->pub_seed, LC_SPX_N);

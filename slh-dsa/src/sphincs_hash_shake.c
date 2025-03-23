@@ -40,7 +40,7 @@ int gen_message_random(uint8_t R[LC_SPX_N], const uint8_t sk_prf[LC_SPX_N],
 		       const uint8_t optrand[LC_SPX_N], const uint8_t *m,
 		       size_t mlen, struct lc_sphincs_ctx *ctx)
 {
-	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
+	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
 	int ret;
 
 	lc_hash_init(hash_ctx);
@@ -78,7 +78,7 @@ int hash_message(uint8_t *digest, uint64_t *tree, uint32_t *leaf_idx,
 	uint8_t buf[LC_SPX_DGST_BYTES];
 	uint8_t *bufp = buf;
 	int ret;
-	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
+	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
 
 	lc_hash_init(hash_ctx);
 	lc_hash_update(hash_ctx, R, LC_SPX_N);

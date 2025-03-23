@@ -38,8 +38,8 @@ void thash(uint8_t out[LC_SPX_N], const uint8_t *in, unsigned int inblocks,
 {
 	uint8_t bitmask[LC_SPX_N], buf[LC_SPX_N];
 	unsigned int i, j;
-	LC_HASH_CTX_ON_STACK(bitmask_ctx, lc_shake256);
-	LC_HASH_CTX_ON_STACK(buf_ctx, lc_shake256);
+	LC_HASH_CTX_ON_STACK(bitmask_ctx, LC_SPHINCS_HASH_TYPE);
+	LC_HASH_CTX_ON_STACK(buf_ctx, LC_SPHINCS_HASH_TYPE);
 
 	lc_hash_init(buf_ctx);
 	lc_hash_update(buf_ctx, pub_seed, LC_SPX_N);

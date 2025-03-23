@@ -55,6 +55,7 @@ extern "C" {
 #if LC_SPHINCS_MODE == 7856
 
 #define LC_SPHINCS_NIST_CATEGORY 1
+#define LC_SPHINCS_HASH_TYPE lc_shake256
 
 /* Hash output length in bytes. */
 #define LC_SPX_N 16
@@ -131,6 +132,7 @@ extern "C" {
 #elif LC_SPHINCS_MODE == 17088
 
 #define LC_SPHINCS_NIST_CATEGORY 1
+#define LC_SPHINCS_HASH_TYPE lc_shake256
 
 /* Hash output length in bytes. */
 #define LC_SPX_N 16
@@ -207,6 +209,7 @@ extern "C" {
 #elif LC_SPHINCS_MODE == 16224
 
 #define LC_SPHINCS_NIST_CATEGORY 3
+#define LC_SPHINCS_HASH_TYPE lc_shake256
 
 /* Hash output length in bytes. */
 #define LC_SPX_N 24
@@ -283,6 +286,7 @@ extern "C" {
 #elif LC_SPHINCS_MODE == 35664
 
 #define LC_SPHINCS_NIST_CATEGORY 3
+#define LC_SPHINCS_HASH_TYPE lc_shake256
 
 /* Hash output length in bytes. */
 #define LC_SPX_N 24
@@ -359,6 +363,7 @@ extern "C" {
 #elif LC_SPHINCS_MODE == 29792
 
 #define LC_SPHINCS_NIST_CATEGORY 5
+#define LC_SPHINCS_HASH_TYPE lc_shake256
 
 /* Hash output length in bytes. */
 #define LC_SPX_N 32
@@ -437,6 +442,7 @@ extern "C" {
 #elif LC_SPHINCS_MODE == 49856
 
 #define LC_SPHINCS_NIST_CATEGORY 5
+#define LC_SPHINCS_HASH_TYPE lc_shake256
 
 /* Hash output length in bytes. */
 #define LC_SPX_N 32
@@ -938,6 +944,7 @@ int @sphincs_name@_verify_final(const struct @sphincs_name@_sig *sig,
  */
 #ifndef LC_SPHINCS_INTERNAL
 #undef LC_SPHINCS_NIST_CATEGORY
+#undef LC_SPHINCS_HASH_TYPE
 #undef LC_SPHINCS_MODE
 #undef LC_SPX_N
 #undef LC_SPX_FULL_HEIGHT

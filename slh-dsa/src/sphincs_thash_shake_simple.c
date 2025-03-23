@@ -36,7 +36,7 @@
 void thash(uint8_t out[LC_SPX_N], const uint8_t *in, unsigned int inblocks,
 	   const uint8_t pub_seed[LC_SPX_N], uint32_t addr[8])
 {
-	LC_HASH_CTX_ON_STACK(buf_ctx, lc_shake256);
+	LC_HASH_CTX_ON_STACK(buf_ctx, LC_SPHINCS_HASH_TYPE);
 
 	lc_hash_init(buf_ctx);
 	lc_hash_update(buf_ctx, pub_seed, LC_SPX_N);
