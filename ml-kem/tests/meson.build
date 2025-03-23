@@ -74,7 +74,7 @@ if get_option('kyber_1024').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_kyber_internal
-				], link_with: leancrypto_static_lib
+				], dependencies: leancrypto
 				)
 	kyber_keygen_tester = executable('kyber_keygen_tester',
 				[ 'kyber_keygen_tester.c', internal_src ],
@@ -82,7 +82,7 @@ if get_option('kyber_1024').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_kyber_internal
-				], link_with: leancrypto_static_lib
+				], dependencies: leancrypto
 				)
 
 	# Testing of ML-KEM keygen in FIPS mode (power up integrity test and
@@ -325,7 +325,7 @@ if get_option('kyber_768').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_kyber_internal
-				], link_with: leancrypto_static_lib,
+				], dependencies: leancrypto,
 				c_args : '-DLC_KYBER_TYPE_768'
 				)
 	kyber_768_keygen_tester = executable('kyber_768_keygen_tester',
@@ -334,7 +334,7 @@ if get_option('kyber_768').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_kyber_internal
-				], link_with: leancrypto_static_lib,
+				], dependencies: leancrypto,
 				c_args : '-DLC_KYBER_TYPE_768'
 				)
 
@@ -581,7 +581,7 @@ if get_option('kyber_512').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_kyber_internal
-				], link_with: leancrypto_static_lib,
+				], dependencies: leancrypto,
 				c_args : '-DLC_KYBER_TYPE_512'
 				)
 	kyber_512_keygen_tester = executable('kyber_512_keygen_tester',
@@ -590,7 +590,7 @@ if get_option('kyber_512').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_kyber_internal
-				], link_with: leancrypto_static_lib,
+				], dependencies: leancrypto,
 				c_args : '-DLC_KYBER_TYPE_512'
 				)
 	kyber_512_modulus_tester = executable('kyber_512_modulus_tester',
