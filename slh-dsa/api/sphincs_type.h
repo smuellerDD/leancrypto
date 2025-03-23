@@ -49,6 +49,15 @@ extern "C" {
 
 #include "lc_sphincs_shake_128f.h"
 
+#elif defined(LC_SPHINCS_TYPE_128F_ASCON)
+
+#define SPHINCS_F(name) lc_sphincs_ascon_128f_##name
+#define lc_sphincs_pk lc_sphincs_ascon_128f_pk
+#define lc_sphincs_sk lc_sphincs_ascon_128f_sk
+#define lc_sphincs_sig lc_sphincs_ascon_128f_sig
+
+#include "lc_sphincs_ascon_128f.h"
+
 #elif defined(LC_SPHINCS_TYPE_128S)
 
 #define SPHINCS_F(name) lc_sphincs_shake_128s_##name
@@ -57,6 +66,15 @@ extern "C" {
 #define lc_sphincs_sig lc_sphincs_shake_128s_sig
 
 #include "lc_sphincs_shake_128s.h"
+
+#elif defined(LC_SPHINCS_TYPE_128S_ASCON)
+
+#define SPHINCS_F(name) lc_sphincs_ascon_128s_##name
+#define lc_sphincs_pk lc_sphincs_ascon_128s_pk
+#define lc_sphincs_sk lc_sphincs_ascon_128s_sk
+#define lc_sphincs_sig lc_sphincs_ascon_128s_sig
+
+#include "lc_sphincs_ascon_128s.h"
 
 #elif defined(LC_SPHINCS_TYPE_192F)
 
@@ -123,6 +141,7 @@ extern "C" {
 #define sphincs_merkle_sign_c SPHINCS_F(sphincs_merkle_sign_c)
 #define sphincs_merkle_gen_root_c SPHINCS_F(sphincs_merkle_gen_root_c)
 #define thash SPHINCS_F(thash)
+#define thash_ascon SPHINCS_F(thash_ascon)
 #define ull_to_bytes SPHINCS_F(ull_to_bytes)
 #define bytes_to_ull SPHINCS_F(bytes_to_ull)
 #define compute_root SPHINCS_F(compute_root)

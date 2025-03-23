@@ -128,6 +128,12 @@ int fors_sign_c(uint8_t sig[LC_SPX_FORS_BYTES], uint8_t pk[LC_SPX_N],
 		sig += LC_SPX_N;
 
 		/* Compute the authentication path for this leaf node. */
+		/*
+		 * The Ascon performance enhancement applied for thash could be
+		 * applied here as well, but that causes the treehashx1 to take
+		 * the additional parameters as thash_ascon which would
+		 * seem to convolute the code.
+		 */
 		treehashx1(ws->roots + i * LC_SPX_N, sig, ctx, ws->indices[i],
 			   idx_offset, LC_SPX_FORS_HEIGHT,
 			   ws->treehash_stack_sp, fors_gen_leafx1,

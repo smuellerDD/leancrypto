@@ -25,3 +25,4 @@
 
 - RISCV asm: check whether it works for RISCV32
 
+- Add SLH-DSA-Ascon to Linux kernel

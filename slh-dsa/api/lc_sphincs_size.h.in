@@ -28,6 +28,7 @@
 #define LC_SPHINCS_@sphincs_header@H
 
 #include "ext_headers.h"
+#include "lc_ascon_hash.h"
 #include "lc_hash.h"
 #include "lc_rng.h"
 #include "lc_sha3.h"
@@ -51,11 +52,11 @@ extern "C" {
  * 49856 -> Sphincs Plus SHAKE 256f
  */
 #define LC_SPHINCS_MODE @sphincs_strength@
+#define LC_SPHINCS_HASH_TYPE @sphincs_hash@
 
 #if LC_SPHINCS_MODE == 7856
 
 #define LC_SPHINCS_NIST_CATEGORY 1
-#define LC_SPHINCS_HASH_TYPE lc_shake256
 
 /* Hash output length in bytes. */
 #define LC_SPX_N 16
@@ -132,7 +133,6 @@ extern "C" {
 #elif LC_SPHINCS_MODE == 17088
 
 #define LC_SPHINCS_NIST_CATEGORY 1
-#define LC_SPHINCS_HASH_TYPE lc_shake256
 
 /* Hash output length in bytes. */
 #define LC_SPX_N 16
@@ -209,7 +209,6 @@ extern "C" {
 #elif LC_SPHINCS_MODE == 16224
 
 #define LC_SPHINCS_NIST_CATEGORY 3
-#define LC_SPHINCS_HASH_TYPE lc_shake256
 
 /* Hash output length in bytes. */
 #define LC_SPX_N 24
@@ -286,7 +285,6 @@ extern "C" {
 #elif LC_SPHINCS_MODE == 35664
 
 #define LC_SPHINCS_NIST_CATEGORY 3
-#define LC_SPHINCS_HASH_TYPE lc_shake256
 
 /* Hash output length in bytes. */
 #define LC_SPX_N 24
@@ -363,7 +361,6 @@ extern "C" {
 #elif LC_SPHINCS_MODE == 29792
 
 #define LC_SPHINCS_NIST_CATEGORY 5
-#define LC_SPHINCS_HASH_TYPE lc_shake256
 
 /* Hash output length in bytes. */
 #define LC_SPX_N 32
@@ -442,7 +439,6 @@ extern "C" {
 #elif LC_SPHINCS_MODE == 49856
 
 #define LC_SPHINCS_NIST_CATEGORY 5
-#define LC_SPHINCS_HASH_TYPE lc_shake256
 
 /* Hash output length in bytes. */
 #define LC_SPX_N 32

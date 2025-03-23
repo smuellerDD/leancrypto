@@ -28,9 +28,15 @@
 #ifdef LC_SPHINCS_TYPE_128F
 #include "lc_sphincs_shake_128f.h"
 #include "sphincs_tester_vectors_shake_128f.h"
+#elif defined(LC_SPHINCS_TYPE_128F_ASCON)
+#include "lc_sphincs_ascon_128f.h"
+#include "sphincs_tester_vectors_ascon_128f.h"
 #elif defined(LC_SPHINCS_TYPE_128S)
 #include "lc_sphincs_shake_128s.h"
 #include "sphincs_tester_vectors_shake_128s.h"
+#elif defined(LC_SPHINCS_TYPE_128S_ASCON)
+#include "lc_sphincs_ascon_128s.h"
+#include "sphincs_tester_vectors_ascon_128s.h"
 #elif defined(LC_SPHINCS_TYPE_192F)
 #include "lc_sphincs_shake_192f.h"
 #include "sphincs_tester_vectors_shake_192f.h"

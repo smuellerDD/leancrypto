@@ -60,7 +60,6 @@ if get_option('sphincs_shake_256s').enabled()
 				c_args : '-DLC_SPHINCS_TYPE_128F',
 				link_with: leancrypto_static_lib
 				)
-
 	sphincs_internal_tester_256s = executable('sphincs_internal_tester_256s',
 				[ 'sphincs_internal_tester.c' ],
 				include_directories: [
@@ -209,6 +208,32 @@ if get_option('sphincs_shake_256s').enabled()
 				dependencies: leancrypto_fips
 				)
 
+	if get_option('slh_dsa_ascon_128s').enabled()
+		sphincs_ascon_tester_128s = executable('sphincs_ascon_tester_128s',
+					[ 'sphincs_tester.c' ],
+					include_directories: [
+						include_dirs,
+						include_internal_dirs,
+						include_sphincs_internal
+					],
+					c_args : '-DLC_SPHINCS_TYPE_128S_ASCON',
+					link_with: leancrypto_static_lib
+					)
+	endif
+
+	if get_option('slh_dsa_ascon_128f').enabled()
+		sphincs_ascon_tester_128f = executable('sphincs_ascon_tester_128f',
+					[ 'sphincs_tester.c' ],
+					include_directories: [
+						include_dirs,
+						include_internal_dirs,
+						include_sphincs_internal
+					],
+					c_args : '-DLC_SPHINCS_TYPE_128F_ASCON',
+					link_with: leancrypto_static_lib
+					)
+	endif
+
 	test('Sphincs+ SHAKE 256s Accel', sphincs_tester_256s, timeout: 600,
 	     suite: regression)
 	test('Sphincs+ SHAKE 256f Accel', sphincs_tester_256f, timeout: 600,
@@ -221,6 +246,14 @@ if get_option('sphincs_shake_256s').enabled()
 	     suite: regression)
 	test('Sphincs+ SHAKE 128f Accel', sphincs_tester_128f, timeout: 600,
 	     suite: regression)
+	if get_option('slh_dsa_ascon_128s').enabled()
+		test('SLH-DSA Ascon 128s Accel', sphincs_ascon_tester_128s,
+		     timeout: 600, suite: regression)
+	endif
+	if get_option('slh_dsa_ascon_128f').enabled()
+		test('SLH-DSA Ascon 128f Accel', sphincs_ascon_tester_128f,
+		     timeout: 600, suite: regression)
+	endif
 
 	test('Sphincs+ SHAKE 256s internal Accel', sphincs_internal_tester_256s,
 	     timeout: 600, suite: regression)
@@ -260,6 +293,14 @@ if get_option('sphincs_shake_256s').enabled()
 	     args : [ 'k' ], timeout: 1000, is_parallel: false, suite: performance)
 	test('Sphincs+ SHAKE 128f Keygen 100 Accel', sphincs_tester_128f,
 	     args : [ 'k' ], timeout: 1000, is_parallel: false, suite: performance)
+	if get_option('slh_dsa_ascon_128s').enabled()
+		test('SLH-DSA Ascon 128s Keygen 100 Accel', sphincs_ascon_tester_128s,
+		     args : [ 'k' ], timeout: 1000, is_parallel: false, suite: performance)
+	endif
+	if get_option('slh_dsa_ascon_128f').enabled()
+		test('SLH-DSA Ascon 128f Keygen 100 Accel', sphincs_ascon_tester_128f,
+		     args : [ 'k' ], timeout: 1000, is_parallel: false, suite: performance)
+	endif
 
 	test('Sphincs+ SHAKE 256s Sign 10 Accel', sphincs_tester_256s,
 	     args : [ 's' ], timeout: 1000, is_parallel: false, suite: performance)
@@ -273,6 +314,14 @@ if get_option('sphincs_shake_256s').enabled()
 	     args : [ 's' ], timeout: 1000, is_parallel: false, suite: performance)
 	test('Sphincs+ SHAKE 128f Sign 10 Accel', sphincs_tester_128f,
 	     args : [ 's' ], timeout: 1000, is_parallel: false, suite: performance)
+	if get_option('slh_dsa_ascon_128s').enabled()
+		test('SLH-DSA Ascon 128s Sign 10 Accel', sphincs_ascon_tester_128s,
+		     args : [ 's' ], timeout: 1000, is_parallel: false, suite: performance)
+	endif
+	if get_option('slh_dsa_ascon_128f').enabled()
+		test('SLH-DSA Ascon 128f Sign 10 Accel', sphincs_ascon_tester_128f,
+		     args : [ 's' ], timeout: 1000, is_parallel: false, suite: performance)
+	endif
 
 	test('Sphincs+ SHAKE 256s Verify 1000 Accel', sphincs_tester_256s,
 	     args : [ 'v' ], timeout: 1000, is_parallel: false, suite: performance)
@@ -286,6 +335,14 @@ if get_option('sphincs_shake_256s').enabled()
 	     args : [ 'v' ], timeout: 1000, is_parallel: false, suite: performance)
 	test('Sphincs+ SHAKE 128f Verify 1000 Accel', sphincs_tester_128f,
 	     args : [ 'v' ], timeout: 1000, is_parallel: false, suite: performance)
+	if get_option('slh_dsa_ascon_128s').enabled()
+		test('SLH-DSA Ascon 128s Verify 1000 Accel', sphincs_ascon_tester_128s,
+		     args : [ 'v' ], timeout: 1000, is_parallel: false, suite: performance)
+	endif
+	if get_option('slh_dsa_ascon_128f').enabled()
+		test('SLH-DSA Ascon 128f Verify 1000 Accel', sphincs_ascon_tester_128f,
+		     args : [ 'v' ], timeout: 1000, is_parallel: false, suite: performance)
+	endif
 
 	# Disable parallel execution as accelerations are disabled
 	test('Sphincs+ SHAKE 256s C', sphincs_tester_256s, args : [ 'c' ],
@@ -300,6 +357,14 @@ if get_option('sphincs_shake_256s').enabled()
 	     timeout: 600, is_parallel: false, suite: regression)
 	test('Sphincs+ SHAKE 128f C', sphincs_tester_128f, args : [ 'c' ],
 	     timeout: 600, is_parallel: false, suite: regression)
+	if get_option('slh_dsa_ascon_128s').enabled()
+		test('SLH-DSA Ascon 128s C', sphincs_ascon_tester_128s,
+		     args : [ 'c' ], timeout: 600, suite: regression)
+	endif
+	if get_option('slh_dsa_ascon_128f').enabled()
+		test('SLH-DSA Ascon 128f C', sphincs_ascon_tester_128f,
+		     args : [ 'c' ], timeout: 600, suite: regression)
+	endif
 
 	test('Sphincs+ SHAKE 256s Keygen 100 C', sphincs_tester_256s,
 	     args : [ 'k', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
@@ -313,6 +378,14 @@ if get_option('sphincs_shake_256s').enabled()
 	     args : [ 'k', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
 	test('Sphincs+ SHAKE 128f Keygen 100 C', sphincs_tester_128f,
 	     args : [ 'k', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
+	if get_option('slh_dsa_ascon_128s').enabled()
+		test('SLH-DSA Ascon 128s Keygen 100 C', sphincs_ascon_tester_128s,
+		     args : [ 'k', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
+	endif
+	if get_option('slh_dsa_ascon_128f').enabled()
+		test('SLH-DSA Ascon 128f Keygen 100 C', sphincs_ascon_tester_128f,
+		     args : [ 'k', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
+	endif
 
 	test('Sphincs+ SHAKE 256s Sign 10 C', sphincs_tester_256s,
 	     args : [ 's', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
@@ -326,6 +399,14 @@ if get_option('sphincs_shake_256s').enabled()
 	     args : [ 's', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
 	test('Sphincs+ SHAKE 128f Sign 10 C', sphincs_tester_128f,
 	     args : [ 's', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
+	if get_option('slh_dsa_ascon_128s').enabled()
+		test('SLH-DSA Ascon 128s Sign 10 C', sphincs_ascon_tester_128s,
+		     args : [ 's', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
+	endif
+	if get_option('slh_dsa_ascon_128f').enabled()
+		test('SLH-DSA Ascon 128f Sign 10 C', sphincs_ascon_tester_128f,
+		     args : [ 's', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
+	endif
 
 	test('Sphincs+ SHAKE 256s Verify 1000 C', sphincs_tester_256s,
 	     args : [ 'v', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
@@ -339,6 +420,14 @@ if get_option('sphincs_shake_256s').enabled()
 	     args : [ 'v', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
 	test('Sphincs+ SHAKE 128f Verify 1000 C', sphincs_tester_128f,
 	     args : [ 'v', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
+	if get_option('slh_dsa_ascon_128s').enabled()
+		test('SLH-DSA Ascon 128s Verify 1000 C', sphincs_ascon_tester_128s,
+		     args : [ 'v', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
+	endif
+	if get_option('slh_dsa_ascon_128f').enabled()
+		test('SLH-DSA Ascon 128f Verify 1000 C', sphincs_ascon_tester_128f,
+		     args : [ 'v', 'c' ], timeout: 1000, is_parallel: false, suite: performance)
+	endif
 
 	test('Sphincs+ SHAKE Official', sphincs_official_tester,
 	     timeout: 600, suite: regression)

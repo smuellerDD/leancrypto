@@ -35,6 +35,10 @@ extern "C" {
 
 void thash(uint8_t out[LC_SPX_N], const uint8_t *in, unsigned int inblocks,
 	   const uint8_t pub_seed[LC_SPX_N], uint32_t addr[8]);
+void thash_ascon(uint8_t out[LC_SPX_N], const uint8_t *in,
+		 unsigned int inblocks, const uint8_t pub_seed[LC_SPX_N],
+		 uint32_t addr[8], unsigned int addr_static,
+		 uint8_t *ascon_state, int first);
 
 #ifdef __cplusplus
 }

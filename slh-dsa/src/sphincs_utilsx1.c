@@ -61,8 +61,11 @@ void treehashx1(
 	uint8_t stack_sp[LC_SPX_TREE_HEIGHT * LC_SPX_N];
 #endif
 #endif
+	uint64_t ascon_state[LC_ASCON_HASH_STATE_WORDS];
 	uint32_t idx;
 	uint32_t max_idx = (uint32_t)((1 << tree_height) - 1);
+
+	(void)ascon_state;
 
 	for (idx = 0;; idx++) {
 		/* Current logical node is at */
@@ -114,9 +117,18 @@ void treehashx1(
 
 			unsigned char *left = &stack_sp[h * LC_SPX_N];
 			memcpy(&current_idx[0], left, LC_SPX_N);
+
+#if defined(LC_SPHINCS_TYPE_128F_ASCON) || defined(LC_SPHINCS_TYPE_128S_ASCON)
+			thash_ascon(&current_idx[1 * LC_SPX_N],
+				    &current_idx[0 * LC_SPX_N], 2,
+				    ctx->pub_seed, tree_addr,
+				    LC_SPX_ADDR_BYTES - LC_ASCON_HASH_RATE,
+				    (uint8_t *)ascon_state, h == 0);
+#else
 			thash(&current_idx[1 * LC_SPX_N],
 			      &current_idx[0 * LC_SPX_N], 2, ctx->pub_seed,
 			      tree_addr);
+#endif
 		}
 
 		/* We've hit a left child; save the current for when we get the */
@@ -124,4 +136,8 @@ void treehashx1(
 		memcpy(&stack_sp[h * LC_SPX_N], &current_idx[LC_SPX_N],
 		       LC_SPX_N);
 	}
+
+#if defined(LC_SPHINCS_TYPE_128F_ASCON) || defined(LC_SPHINCS_TYPE_128S_ASCON)
+	lc_memset_secure(ascon_state, 0, sizeof(ascon_state));
+#endif
 }

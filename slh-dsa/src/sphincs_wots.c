@@ -48,16 +48,30 @@
 static void gen_chain(uint8_t *out, const uint8_t *in, unsigned int start,
 		      unsigned int steps, const spx_ctx *ctx, uint32_t addr[8])
 {
+	uint64_t ascon_state[LC_ASCON_HASH_STATE_WORDS];
 	uint32_t i;
+
+	(void)ascon_state;
 
 	/* Initialize out with the value at position 'start'. */
 	memcpy(out, in, LC_SPX_N);
 
 	/* Iterate 'steps' calls to the hash function. */
 	for (i = start; i < (start + steps) && i < LC_SPX_WOTS_W; i++) {
+		/* only last word changes */
 		set_hash_addr(addr, i);
+#if defined(LC_SPHINCS_TYPE_128F_ASCON) || defined(LC_SPHINCS_TYPE_128S_ASCON)
+		thash_ascon(out, out, 1, ctx->pub_seed, addr,
+			    LC_SPX_ADDR_BYTES - LC_ASCON_HASH_RATE,
+			    (uint8_t *)ascon_state, i == start);
+#else
 		thash(out, out, 1, ctx->pub_seed, addr);
+#endif
 	}
+
+#if defined(LC_SPHINCS_TYPE_128F_ASCON) || defined(LC_SPHINCS_TYPE_128S_ASCON)
+	lc_memset_secure(ascon_state, 0, sizeof(ascon_state));
+#endif
 }
 
 /**

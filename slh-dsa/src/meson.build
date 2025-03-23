@@ -260,6 +260,20 @@ if get_option('sphincs_shake_128s').enabled()
 	leancrypto_support_libs_fips += leancrypto_sphincs_shake_128s_c_lib
 endif
 
+if get_option('slh_dsa_ascon_128s').enabled()
+	leancrypto_sphincs_ascon_128s_c_lib = static_library(
+		'leancrypto_sphincs_ascon_128s_c_lib',
+		[ sphincs_src ],
+		include_directories: [
+			sphincs_include_dirs,
+			include_dirs,
+			include_internal_dirs
+		],
+		c_args : [ '-DLC_SPHINCS_TYPE_128S_ASCON' ]
+	)
+	leancrypto_support_libs_fips += leancrypto_sphincs_ascon_128s_c_lib
+endif
+
 if get_option('sphincs_shake_128f').enabled()
 	if x86_64_asm
 		leancrypto_sphincs_shake_128f_avx2_lib = static_library(
@@ -301,4 +315,18 @@ if get_option('sphincs_shake_128f').enabled()
 		c_args : [ '-DLC_SPHINCS_TYPE_128F' ]
 	)
 	leancrypto_support_libs_fips += leancrypto_sphincs_shake_128f_c_lib
+endif
+
+if get_option('slh_dsa_ascon_128f').enabled()
+	leancrypto_sphincs_ascon_128f_c_lib = static_library(
+		'leancrypto_sphincs_ascon_128f_c_lib',
+		[ sphincs_src ],
+		include_directories: [
+			sphincs_include_dirs,
+			include_dirs,
+			include_internal_dirs
+		],
+		c_args : [ '-DLC_SPHINCS_TYPE_128F_ASCON' ]
+	)
+	leancrypto_support_libs_fips += leancrypto_sphincs_ascon_128f_c_lib
 endif

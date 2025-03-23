@@ -17,6 +17,8 @@ Changes 1.3.0-prerelease
 
 * Add optional Jitter RNG entropy source
 
+* Add SLH-DSA-Ascon-128[s|f]
+
 Changes 1.2.0
 * Locking für seeded_rng added to avoid requiring the caller providing a lock
 

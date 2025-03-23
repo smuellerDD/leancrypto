@@ -66,8 +66,11 @@ void compute_root(uint8_t *root, const uint8_t *leaf, uint32_t leaf_idx,
 		  uint32_t tree_height, const uint8_t pub_seed[LC_SPX_N],
 		  uint32_t addr[8])
 {
+	uint64_t ascon_state[LC_ASCON_HASH_STATE_WORDS];
 	uint32_t i;
 	uint8_t buffer[2 * LC_SPX_N];
+
+	(void)ascon_state;
 
 	/* If leaf_idx is odd (last bit = 1), current path element is a right child
 	 *       and auth_path has to go left. Otherwise it is the other way around. */
@@ -89,10 +92,23 @@ void compute_root(uint8_t *root, const uint8_t *leaf, uint32_t leaf_idx,
 
 		/* Pick the right or left neighbor, depending on parity of the node. */
 		if (leaf_idx & 1) {
+#if defined(LC_SPHINCS_TYPE_128F_ASCON) || defined(LC_SPHINCS_TYPE_128S_ASCON)
+			thash_ascon(buffer + LC_SPX_N, buffer, 2, pub_seed,
+				    addr,
+				    LC_SPX_ADDR_BYTES - LC_ASCON_HASH_RATE,
+				    (uint8_t *)ascon_state, i == 0);
+#else
 			thash(buffer + LC_SPX_N, buffer, 2, pub_seed, addr);
+#endif
 			memcpy(buffer, auth_path, LC_SPX_N);
 		} else {
+#if defined(LC_SPHINCS_TYPE_128F_ASCON) || defined(LC_SPHINCS_TYPE_128S_ASCON)
+			thash_ascon(buffer, buffer, 2, pub_seed, addr,
+				    LC_SPX_ADDR_BYTES - LC_ASCON_HASH_RATE,
+				    (uint8_t *)ascon_state, i == 0);
+#else
 			thash(buffer, buffer, 2, pub_seed, addr);
+#endif
 			memcpy(buffer + LC_SPX_N, auth_path, LC_SPX_N);
 		}
 		auth_path += LC_SPX_N;
@@ -104,6 +120,10 @@ void compute_root(uint8_t *root, const uint8_t *leaf, uint32_t leaf_idx,
 	set_tree_height(addr, tree_height);
 	set_tree_index(addr, leaf_idx + idx_offset);
 	thash(root, buffer, 2, pub_seed, addr);
+
+#if defined(LC_SPHINCS_TYPE_128F_ASCON) || defined(LC_SPHINCS_TYPE_128S_ASCON)
+	lc_memset_secure(ascon_state, 0, sizeof(ascon_state));
+#endif
 }
 
 #if 0

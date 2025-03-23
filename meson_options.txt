@@ -19,6 +19,20 @@ This option enables the Ascon-Keccak 256, and Ascon-Keccak 512 AEAD. Note, this
 requires also SHA-3 being enabled.
 ''')
 
+option('slh_dsa_ascon_128s', type: 'feature', value: 'enabled',
+       description: '''SLH-DSA-Ascon-128s support
+
+This option enables the SLH-DSA-Ascon-128s support with the same parameters
+as SLH-DSA-SHAKE-128s. Note, this requires Ascon being enabled.
+''')
+
+option('slh_dsa_ascon_128f', type: 'feature', value: 'enabled',
+       description: '''SLH-DSA-Ascon-128f support
+
+This option enables the SLH-DSA-Ascon-128f support with the same parameters
+as SLH-DSA-SHAKE-128f. Note, this requires Ascon being enabled.
+''')
+
 option('chacha20', type: 'feature', value: 'enabled',
        description: 'ChaCha20 support')
 option('chacha20_drng', type: 'feature', value: 'enabled',

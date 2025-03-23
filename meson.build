@@ -150,7 +150,9 @@ if (get_option('sphincs_shake_256s').enabled() or
     get_option('sphincs_shake_192s').enabled() or
     get_option('sphincs_shake_192f').enabled() or
     get_option('sphincs_shake_128s').enabled() or
-    get_option('sphincs_shake_128f').enabled())
+    get_option('sphincs_shake_128f').enabled() or
+    get_option('slh_dsa_ascon_128s').enabled() or
+    get_option('slh_dsa_ascon_128f').enabled())
 	add_global_arguments([ '-DLC_SPHINCS' ], language: 'c')
 	sphincs_enabled = true
 endif
@@ -476,6 +478,16 @@ endif
 
 if get_option('sha3').disabled() and get_option('ascon_keccak').enabled()
 	error('Ascon-Keccak support requires SHA-3')
+endif
+
+if (get_option('slh_dsa_ascon_128s').enabled() and
+    get_option('ascon').disabled())
+	error('SLH-DSA-Ascon-128s support requires Ascon')
+endif
+
+if (get_option('slh_dsa_ascon_128f').enabled() and
+    get_option('ascon').disabled())
+	error('SLH-DSA-Ascon-128f support requires Ascon')
 endif
 
 if get_option('x509_parser').disabled() and get_option('pkcs7_parser').enabled()

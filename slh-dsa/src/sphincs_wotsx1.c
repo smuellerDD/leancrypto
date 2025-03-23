@@ -49,12 +49,17 @@ void wots_gen_leafx1(unsigned char *dest, const spx_ctx *ctx, uint32_t leaf_idx,
 		     void *v_info)
 {
 	struct leaf_info_x1 *info = v_info;
+	uint64_t ascon_state[LC_ASCON_HASH_STATE_WORDS];
+	uint64_t ascon_state_prf[LC_ASCON_HASH_STATE_WORDS];
 	uint32_t *leaf_addr = info->leaf_addr;
 	uint32_t *pk_addr = info->pk_addr;
 	unsigned int i, k;
 	unsigned char pk_buffer[LC_SPX_WOTS_BYTES];
 	unsigned char *buffer;
 	uint32_t wots_k_mask;
+
+	(void)ascon_state;
+	(void)ascon_state_prf;
 
 	if (leaf_idx == info->wots_sign_leaf) {
 		/* We're traversing the leaf that's signing; generate the WOTS */
@@ -79,7 +84,13 @@ void wots_gen_leafx1(unsigned char *dest, const spx_ctx *ctx, uint32_t leaf_idx,
 		set_hash_addr(leaf_addr, 0);
 		set_type(leaf_addr, LC_SPX_ADDR_TYPE_WOTSPRF);
 
+#if defined(LC_SPHINCS_TYPE_128F_ASCON) || defined(LC_SPHINCS_TYPE_128S_ASCON)
+		prf_addr_ascon(buffer, ctx, leaf_addr,
+			       LC_SPX_ADDR_BYTES - LC_ASCON_HASH_RATE,
+			       (uint8_t *)ascon_state_prf, i == 0);
+#else
 		prf_addr(buffer, ctx, leaf_addr);
+#endif
 
 		set_type(leaf_addr, LC_SPX_ADDR_TYPE_WOTS);
 
@@ -112,11 +123,22 @@ void wots_gen_leafx1(unsigned char *dest, const spx_ctx *ctx, uint32_t leaf_idx,
 			/* Iterate one step on the chain */
 			set_hash_addr(leaf_addr, k);
 
+#if defined(LC_SPHINCS_TYPE_128F_ASCON) || defined(LC_SPHINCS_TYPE_128S_ASCON)
+			thash_ascon(buffer, buffer, 1, ctx->pub_seed, leaf_addr,
+				    LC_SPX_ADDR_BYTES - LC_ASCON_HASH_RATE,
+				    (uint8_t *)ascon_state, i == 0);
+#else
 			thash(buffer, buffer, 1, ctx->pub_seed, leaf_addr);
+#endif
 		}
 	}
 
 	/* Do the final thash to generate the public keys */
 	thash(dest, pk_buffer, LC_SPX_WOTS_LEN, ctx->pub_seed, pk_addr);
+
+#if defined(LC_SPHINCS_TYPE_128F_ASCON) || defined(LC_SPHINCS_TYPE_128S_ASCON)
+	lc_memset_secure(ascon_state, 0, sizeof(ascon_state));
+	lc_memset_secure(ascon_state_prf, 0, sizeof(ascon_state_prf));
+#endif
 }
 #pragma GCC diagnostic pop
