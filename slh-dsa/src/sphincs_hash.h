@@ -37,28 +37,23 @@ extern "C" {
 /*
  * Computes PRF(pk_seed, sk_seed, addr)
  */
-static inline void prf_addr(uint8_t out[LC_SPX_N], const spx_ctx *ctx,
-			    const uint32_t addr[8])
+static inline void prf_addr(struct lc_hash_ctx *hash_ctx, uint8_t out[LC_SPX_N],
+			    const spx_ctx *ctx, const uint32_t addr[8])
 {
-	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
-
 	lc_hash_init(hash_ctx);
 	lc_hash_update(hash_ctx, ctx->pub_seed, LC_SPX_N);
 	lc_hash_update(hash_ctx, (uint8_t *)addr, LC_SPX_ADDR_BYTES);
 	lc_hash_update(hash_ctx, ctx->sk_seed, LC_SPX_N);
 	lc_hash_set_digestsize(hash_ctx, LC_SPX_N);
 	lc_hash_final(hash_ctx, out);
-
-	lc_hash_zero(hash_ctx);
 }
 
-static inline void prf_addr_ascon(uint8_t out[LC_SPX_N], const spx_ctx *ctx,
+static inline void prf_addr_ascon(struct lc_hash_ctx *hash_ctx,
+				  uint8_t out[LC_SPX_N], const spx_ctx *ctx,
 				  const uint32_t addr[8],
 				  unsigned int addr_static,
 				  uint8_t *ascon_state, int first)
 {
-	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
-
 	lc_hash_init(hash_ctx);
 	if (first) {
 		lc_hash_update(hash_ctx, ctx->pub_seed, LC_SPX_N);
@@ -74,8 +69,6 @@ static inline void prf_addr_ascon(uint8_t out[LC_SPX_N], const spx_ctx *ctx,
 	lc_hash_update(hash_ctx, ctx->sk_seed, LC_SPX_N);
 	lc_hash_set_digestsize(hash_ctx, LC_SPX_N);
 	lc_hash_final(hash_ctx, out);
-
-	lc_hash_zero(hash_ctx);
 }
 
 int gen_message_random(uint8_t R[LC_SPX_N], const uint8_t sk_prf[LC_SPX_N],

@@ -48,6 +48,7 @@
 void wots_gen_leafx1(unsigned char *dest, const spx_ctx *ctx, uint32_t leaf_idx,
 		     void *v_info)
 {
+	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
 	struct leaf_info_x1 *info = v_info;
 	uint64_t ascon_state[LC_ASCON_HASH_STATE_WORDS];
 	uint64_t ascon_state_prf[LC_ASCON_HASH_STATE_WORDS];
@@ -85,11 +86,11 @@ void wots_gen_leafx1(unsigned char *dest, const spx_ctx *ctx, uint32_t leaf_idx,
 		set_type(leaf_addr, LC_SPX_ADDR_TYPE_WOTSPRF);
 
 #if defined(LC_SPHINCS_TYPE_128F_ASCON) || defined(LC_SPHINCS_TYPE_128S_ASCON)
-		prf_addr_ascon(buffer, ctx, leaf_addr,
+		prf_addr_ascon(hash_ctx, buffer, ctx, leaf_addr,
 			       LC_SPX_ADDR_BYTES - LC_ASCON_HASH_RATE,
 			       (uint8_t *)ascon_state_prf, i == 0);
 #else
-		prf_addr(buffer, ctx, leaf_addr);
+		prf_addr(hash_ctx, buffer, ctx, leaf_addr);
 #endif
 
 		set_type(leaf_addr, LC_SPX_ADDR_TYPE_WOTS);
@@ -124,17 +125,22 @@ void wots_gen_leafx1(unsigned char *dest, const spx_ctx *ctx, uint32_t leaf_idx,
 			set_hash_addr(leaf_addr, k);
 
 #if defined(LC_SPHINCS_TYPE_128F_ASCON) || defined(LC_SPHINCS_TYPE_128S_ASCON)
-			thash_ascon(buffer, buffer, 1, ctx->pub_seed, leaf_addr,
+			thash_ascon(hash_ctx, buffer, buffer, 1, ctx->pub_seed,
+				    leaf_addr,
 				    LC_SPX_ADDR_BYTES - LC_ASCON_HASH_RATE,
 				    (uint8_t *)ascon_state, i == 0);
 #else
-			thash(buffer, buffer, 1, ctx->pub_seed, leaf_addr);
+			thash(hash_ctx, buffer, buffer, 1, ctx->pub_seed,
+			      leaf_addr);
 #endif
 		}
 	}
 
 	/* Do the final thash to generate the public keys */
-	thash(dest, pk_buffer, LC_SPX_WOTS_LEN, ctx->pub_seed, pk_addr);
+	thash(hash_ctx, dest, pk_buffer, LC_SPX_WOTS_LEN, ctx->pub_seed,
+	      pk_addr);
+
+	lc_hash_zero(hash_ctx);
 
 #if defined(LC_SPHINCS_TYPE_128F_ASCON) || defined(LC_SPHINCS_TYPE_128S_ASCON)
 	lc_memset_secure(ascon_state, 0, sizeof(ascon_state));

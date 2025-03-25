@@ -31,21 +31,22 @@
 /**
  * Takes an array of inblocks concatenated arrays of LC_SPX_N bytes.
  */
-void thash(uint8_t out[LC_SPX_N], const uint8_t *in, unsigned int inblocks,
+void thash(struct lc_hash_ctx *hash_ctx, uint8_t out[LC_SPX_N],
+	   const uint8_t *in, unsigned int inblocks,
 	   const uint8_t pub_seed[LC_SPX_N], uint32_t addr[8])
 {
-	LC_HASH_CTX_ON_STACK(buf_ctx, LC_SPHINCS_HASH_TYPE);
+//	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
 
-	lc_hash_init(buf_ctx);
-	lc_hash_update(buf_ctx, pub_seed, LC_SPX_N);
-	lc_hash_update(buf_ctx, (uint8_t *)addr, LC_SPX_ADDR_BYTES);
-	lc_hash_update(buf_ctx, in, LC_SPX_N * inblocks);
+	lc_hash_init(hash_ctx);
+	lc_hash_update(hash_ctx, pub_seed, LC_SPX_N);
+	lc_hash_update(hash_ctx, (uint8_t *)addr, LC_SPX_ADDR_BYTES);
+	lc_hash_update(hash_ctx, in, LC_SPX_N * inblocks);
 
 	/* Squeeze out the final data point */
-	lc_hash_set_digestsize(buf_ctx, LC_SPX_N);
-	lc_hash_final(buf_ctx, out);
+	lc_hash_set_digestsize(hash_ctx, LC_SPX_N);
+	lc_hash_final(hash_ctx, out);
 
-	lc_hash_zero(buf_ctx);
+//	lc_hash_zero(hash_ctx);
 }
 
 /*
@@ -53,30 +54,30 @@ void thash(uint8_t out[LC_SPX_N], const uint8_t *in, unsigned int inblocks,
  * rate is only 8 bytes, cache the Ascon state for the static part of the
  * operation to avoid reruning Ascon permutations on already known data.
  */
-void thash_ascon(uint8_t out[LC_SPX_N], const uint8_t *in,
-		 unsigned int inblocks, const uint8_t pub_seed[LC_SPX_N],
-		 uint32_t addr[8], unsigned int addr_static,
-		 uint8_t *ascon_state, int first)
+void thash_ascon(struct lc_hash_ctx *hash_ctx, uint8_t out[LC_SPX_N],
+		 const uint8_t *in, unsigned int inblocks,
+		 const uint8_t pub_seed[LC_SPX_N], uint32_t addr[8],
+		 unsigned int addr_static, uint8_t *ascon_state, int first)
 {
-	LC_HASH_CTX_ON_STACK(buf_ctx, LC_SPHINCS_HASH_TYPE);
+//	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
 
-	lc_hash_init(buf_ctx);
+	lc_hash_init(hash_ctx);
 	if (first) {
-		lc_hash_update(buf_ctx, pub_seed, LC_SPX_N);
-		lc_hash_update(buf_ctx, (uint8_t *)addr, addr_static);
-		memcpy(ascon_state, buf_ctx->hash_state,
+		lc_hash_update(hash_ctx, pub_seed, LC_SPX_N);
+		lc_hash_update(hash_ctx, (uint8_t *)addr, addr_static);
+		memcpy(ascon_state, hash_ctx->hash_state,
 		       LC_ASCON_HASH_STATE_SIZE);
 	} else {
-		memcpy(buf_ctx->hash_state, ascon_state,
+		memcpy(hash_ctx->hash_state, ascon_state,
 		       LC_ASCON_HASH_STATE_SIZE);
 	}
-	lc_hash_update(buf_ctx, (uint8_t *)addr + addr_static,
+	lc_hash_update(hash_ctx, (uint8_t *)addr + addr_static,
 		       LC_SPX_ADDR_BYTES - addr_static);
-	lc_hash_update(buf_ctx, in, LC_SPX_N * inblocks);
+	lc_hash_update(hash_ctx, in, LC_SPX_N * inblocks);
 
 	/* Squeeze out the final data point */
-	lc_hash_set_digestsize(buf_ctx, LC_SPX_N);
-	lc_hash_final(buf_ctx, out);
+	lc_hash_set_digestsize(hash_ctx, LC_SPX_N);
+	lc_hash_final(hash_ctx, out);
 
-	lc_hash_zero(buf_ctx);
+//	lc_hash_zero(hash_ctx);
 }

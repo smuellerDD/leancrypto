@@ -37,7 +37,10 @@
 static void fors_gen_sk(unsigned char *sk, const spx_ctx *ctx,
 			uint32_t fors_leaf_addr[8])
 {
-	prf_addr(sk, ctx, fors_leaf_addr);
+	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
+
+	prf_addr(hash_ctx, sk, ctx, fors_leaf_addr);
+	lc_hash_zero(hash_ctx);
 }
 
 static void fors_gen_skx4(unsigned char *sk0, unsigned char *sk1,
@@ -50,7 +53,10 @@ static void fors_gen_skx4(unsigned char *sk0, unsigned char *sk1,
 static void fors_sk_to_leaf(unsigned char *leaf, const unsigned char *sk,
 			    const spx_ctx *ctx, uint32_t fors_leaf_addr[8])
 {
-	thash(leaf, sk, 1, ctx->pub_seed, fors_leaf_addr);
+	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
+
+	thash(hash_ctx, leaf, sk, 1, ctx->pub_seed, fors_leaf_addr);
+	lc_hash_zero(hash_ctx);
 }
 
 static void fors_sk_to_leafx4(unsigned char *leaf0, unsigned char *leaf1,
@@ -139,6 +145,7 @@ int fors_sign_avx2(uint8_t sig[LC_SPX_FORS_BYTES], uint8_t pk[LC_SPX_N],
 		uint8_t roots[LC_SPX_FORS_TREES * LC_SPX_N];
 		uint8_t stackx4[LC_SPX_FORS_HEIGHT * 4 * LC_SPX_N];
 	};
+	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
 	uint32_t *fors_leaf_addr;
 	uint32_t idx_offset;
 	unsigned int i;
@@ -178,10 +185,11 @@ int fors_sign_avx2(uint8_t sig[LC_SPX_FORS_BYTES], uint8_t pk[LC_SPX_N],
 	}
 
 	/* Hash horizontally across all tree roots to derive the public key. */
-	thash(pk, ws->roots, LC_SPX_FORS_TREES, ctx->pub_seed,
+	thash(hash_ctx, pk, ws->roots, LC_SPX_FORS_TREES, ctx->pub_seed,
 	      ws->fors_pk_addr);
 
 	LC_RELEASE_MEM(ws);
+	lc_hash_zero(hash_ctx);
 	return 0;
 }
 
@@ -204,6 +212,7 @@ int fors_pk_from_sig_avx2(uint8_t pk[LC_SPX_N],
 		uint8_t roots[LC_SPX_FORS_TREES * LC_SPX_N];
 		uint8_t leaf[LC_SPX_N];
 	};
+	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
 	uint32_t idx_offset;
 	unsigned int i;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
@@ -234,9 +243,10 @@ int fors_pk_from_sig_avx2(uint8_t pk[LC_SPX_N],
 	}
 
 	/* Hash horizontally across all tree roots to derive the public key. */
-	thash(pk, ws->roots, LC_SPX_FORS_TREES, ctx->pub_seed,
+	thash(hash_ctx, pk, ws->roots, LC_SPX_FORS_TREES, ctx->pub_seed,
 	      ws->fors_pk_addr);
 
 	LC_RELEASE_MEM(ws);
+	lc_hash_zero(hash_ctx);
 	return 0;
 }

@@ -35,13 +35,19 @@
 static void fors_gen_sk(uint8_t *sk, const spx_ctx *ctx,
 			uint32_t fors_leaf_addr[8])
 {
-	prf_addr(sk, ctx, fors_leaf_addr);
+	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
+
+	prf_addr(hash_ctx, sk, ctx, fors_leaf_addr);
+	lc_hash_zero(hash_ctx);
 }
 
 static void fors_sk_to_leaf(uint8_t *leaf, const uint8_t *sk,
 			    const spx_ctx *ctx, uint32_t fors_leaf_addr[8])
 {
-	thash(leaf, sk, 1, ctx->pub_seed, fors_leaf_addr);
+	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
+
+	thash(hash_ctx, leaf, sk, 1, ctx->pub_seed, fors_leaf_addr);
+	lc_hash_zero(hash_ctx);
 }
 
 struct fors_gen_leaf_info {
@@ -103,6 +109,7 @@ int fors_sign_c(uint8_t sig[LC_SPX_FORS_BYTES], uint8_t pk[LC_SPX_N],
 	uint32_t *fors_leaf_addr;
 	uint32_t idx_offset;
 	unsigned int i;
+	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	fors_leaf_addr = ws->fors_info.leaf_addrx;
@@ -143,9 +150,10 @@ int fors_sign_c(uint8_t sig[LC_SPX_FORS_BYTES], uint8_t pk[LC_SPX_N],
 	}
 
 	/* Hash horizontally across all tree roots to derive the public key. */
-	thash(pk, ws->roots, LC_SPX_FORS_TREES, ctx->pub_seed,
+	thash(hash_ctx, pk, ws->roots, LC_SPX_FORS_TREES, ctx->pub_seed,
 	      ws->fors_pk_addr);
 
+	lc_hash_zero(hash_ctx);
 	LC_RELEASE_MEM(ws);
 	return 0;
 }
@@ -171,6 +179,7 @@ int fors_pk_from_sig_c(uint8_t pk[LC_SPX_N],
 	};
 	uint32_t idx_offset;
 	unsigned int i;
+	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	copy_keypair_addr(ws->fors_tree_addr, fors_addr);
@@ -199,9 +208,10 @@ int fors_pk_from_sig_c(uint8_t pk[LC_SPX_N],
 	}
 
 	/* Hash horizontally across all tree roots to derive the public key. */
-	thash(pk, ws->roots, LC_SPX_FORS_TREES, ctx->pub_seed,
+	thash(hash_ctx, pk, ws->roots, LC_SPX_FORS_TREES, ctx->pub_seed,
 	      ws->fors_pk_addr);
 
+	lc_hash_zero(hash_ctx);
 	LC_RELEASE_MEM(ws);
 	return 0;
 }

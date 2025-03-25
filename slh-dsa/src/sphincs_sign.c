@@ -448,6 +448,7 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify_ctx,
 		uint8_t wots_pk[LC_SPX_WOTS_BYTES];
 		uint8_t mhash[LC_SPX_FORS_MSG_BYTES];
 	};
+	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
 	unsigned int i;
 	const struct lc_sphincs_func_ctx *f_ctx = lc_sphincs_get_ctx();
 	spx_ctx ctx_int;
@@ -501,7 +502,7 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify_ctx,
 		wots_sig += LC_SPX_WOTS_BYTES;
 
 		/* Compute the leaf node using the WOTS public key. */
-		thash(ws->leaf, ws->wots_pk, LC_SPX_WOTS_LEN, pk->pk,
+		thash(hash_ctx, ws->leaf, ws->wots_pk, LC_SPX_WOTS_LEN, pk->pk,
 		      ws->wots_pk_addr);
 
 		/* Compute the root node of this subtree. */
@@ -520,6 +521,7 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify_ctx,
 
 out:
 	LC_RELEASE_MEM(ws);
+	lc_hash_zero(hash_ctx);
 	return ret;
 }
 

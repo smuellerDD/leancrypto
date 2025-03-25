@@ -61,6 +61,7 @@ void treehashx1(
 	uint8_t stack_sp[LC_SPX_TREE_HEIGHT * LC_SPX_N];
 #endif
 #endif
+	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
 	uint64_t ascon_state[LC_ASCON_HASH_STATE_WORDS];
 	uint32_t idx;
 	uint32_t max_idx = (uint32_t)((1 << tree_height) - 1);
@@ -119,13 +120,13 @@ void treehashx1(
 			memcpy(&current_idx[0], left, LC_SPX_N);
 
 #if defined(LC_SPHINCS_TYPE_128F_ASCON) || defined(LC_SPHINCS_TYPE_128S_ASCON)
-			thash_ascon(&current_idx[1 * LC_SPX_N],
+			thash_ascon(hash_ctx, &current_idx[1 * LC_SPX_N],
 				    &current_idx[0 * LC_SPX_N], 2,
 				    ctx->pub_seed, tree_addr,
 				    LC_SPX_ADDR_BYTES - LC_ASCON_HASH_RATE,
 				    (uint8_t *)ascon_state, h == 0);
 #else
-			thash(&current_idx[1 * LC_SPX_N],
+			thash(hash_ctx, &current_idx[1 * LC_SPX_N],
 			      &current_idx[0 * LC_SPX_N], 2, ctx->pub_seed,
 			      tree_addr);
 #endif
@@ -140,4 +141,6 @@ void treehashx1(
 #if defined(LC_SPHINCS_TYPE_128F_ASCON) || defined(LC_SPHINCS_TYPE_128S_ASCON)
 	lc_memset_secure(ascon_state, 0, sizeof(ascon_state));
 #endif
+
+	lc_hash_zero(hash_ctx);
 }
