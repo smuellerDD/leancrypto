@@ -216,28 +216,7 @@ static inline void poly_frommsg(poly *r,
 	}
 }
 
-/**
- * @brief poly_tomsg - Convert polynomial to 32-byte message
- *
- * @param [out] msg pointer to output message
- * @param [in] a pointer to input polynomial
- */
-static inline void poly_tomsg(uint8_t msg[LC_KYBER_INDCPA_MSGBYTES],
-			      const poly *a)
-{
-	unsigned int i, j;
-	uint16_t t;
-
-	for (i = 0; i < LC_KYBER_N / 8; i++) {
-		msg[i] = 0;
-		for (j = 0; j < 8; j++) {
-			t = (uint16_t)a->coeffs[8 * i + j];
-			t += ((int16_t)t >> 15) & LC_KYBER_Q;
-			t = (((t << 1) + LC_KYBER_Q / 2) / LC_KYBER_Q) & 1;
-			msg[i] |= (uint8_t)(t << j);
-		}
-	}
-}
+#include "common/kyber_poly_tomsg.h"
 
 #define POLY_GETNOISE_ETA1_BUFSIZE (LC_KYBER_ETA1 * LC_KYBER_N / 4)
 static inline void
