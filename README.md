@@ -107,6 +107,7 @@ meson compile -C build pkcs7_trust_tester.efi
 
 The PKCS#7 message generator and X.509 certificate generator are assumed to be
 not required and thus use POSIX service functions that are not available in EFI.
+These functions include heap memory allocation and `printf`-like data export.
 
 The compilation uses the [GNU-EFI](https://wiki.osdev.org/GNU-EFI) environment
 and generates:
