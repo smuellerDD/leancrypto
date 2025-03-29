@@ -19,6 +19,8 @@ Changes 1.3.0-prerelease
 
 * Add SLH-DSA-Ascon-128[s|f]  (by default they are disabled, enable with meson configuration options `slh_dsa_ascon_128s` and `slh_dsa_ascon_128f`)
 
+* ML-KEM: use common poly_tobytes including fix for kyberslash for ARMv8 (thus all ML-KEM implementations have proper protections against it)
+
 Changes 1.2.0
 * Locking für seeded_rng added to avoid requiring the caller providing a lock
 
