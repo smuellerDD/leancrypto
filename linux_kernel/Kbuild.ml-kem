@@ -222,7 +222,6 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER_1024)				       \
 				   ../ml-kem/src/armv8/kyber_kem_api_armv8.o   \
 				   ../ml-kem/src/armv8/kyber_kem_armv8.o       \
 				   ../ml-kem/src/armv8/kyber_ntt_armv8_asm.o   \
-				   ../ml-kem/src/armv8/kyber_poly_armv8.o      \
 				   ../ml-kem/src/armv8/kyber_poly_armv8_asm.o  \
 				   ../ml-kem/src/armv8/kyber_reduce_armv8.o
 

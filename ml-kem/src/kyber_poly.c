@@ -109,3 +109,50 @@ void poly_compress(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES], const poly *a)
 #error "LC_KYBER_POLYCOMPRESSEDBYTES needs to be in {128, 160}"
 #endif
 }
+
+/**
+ * @brief poly_decompress - De-serialization and subsequent decompression of a
+ *			    polynomial;
+ *			    approximate inverse of poly_compress
+ *
+ * @param [out] r pointer to output polynomial
+ * @param [in] a pointer to input byte array
+ */
+void poly_decompress(poly *r, const uint8_t a[LC_KYBER_POLYCOMPRESSEDBYTES])
+{
+	unsigned int i;
+
+#if (LC_KYBER_POLYCOMPRESSEDBYTES == 128)
+	for (i = 0; i < LC_KYBER_N / 2; i++) {
+		r->coeffs[2 * i + 0] =
+			(int16_t)((((uint16_t)(a[0] & 15) * LC_KYBER_Q) + 8) >>
+				  4);
+		r->coeffs[2 * i + 1] =
+			(int16_t)((((uint16_t)(a[0] >> 4) * LC_KYBER_Q) + 8) >>
+				  4);
+		a += 1;
+	}
+#elif (LC_KYBER_POLYCOMPRESSEDBYTES == 160)
+	unsigned int j;
+	uint8_t t[8];
+	for (i = 0; i < LC_KYBER_N / 8; i++) {
+		t[0] = (uint8_t)(a[0] >> 0);
+		t[1] = (uint8_t)((a[0] >> 5) | (a[1] << 3));
+		t[2] = (uint8_t)(a[1] >> 2);
+		t[3] = (uint8_t)((a[1] >> 7) | (a[2] << 1));
+		t[4] = (uint8_t)((a[2] >> 4) | (a[3] << 4));
+		t[5] = (uint8_t)(a[3] >> 1);
+		t[6] = (uint8_t)((a[3] >> 6) | (a[4] << 2));
+		t[7] = (uint8_t)(a[4] >> 3);
+		a += 5;
+
+		for (j = 0; j < 8; j++)
+			r->coeffs[8 * i + j] =
+				(int16_t)(((uint32_t)(t[j] & 31) * LC_KYBER_Q +
+					   16) >>
+					  5);
+	}
+#else
+#error "LC_KYBER_POLYCOMPRESSEDBYTES needs to be in {128, 160}"
+#endif
+}

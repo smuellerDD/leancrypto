@@ -57,96 +57,12 @@ void polyvec_compress(uint8_t r[LC_KYBER_POLYVECCOMPRESSEDBYTES],
 void polyvec_decompress(polyvec *r,
 			const uint8_t a[LC_KYBER_POLYVECCOMPRESSEDBYTES]);
 
-/**
- * @brief polyvec_tobytes - Serialize vector of polynomials
- *
- * @param [out] r pointer to output byte array
- * @param [in] a pointer to input vector of polynomials
- */
-static inline void polyvec_tobytes(uint8_t r[LC_KYBER_POLYVECBYTES],
-				   const polyvec *a)
-{
-	unsigned int i;
-
-	for (i = 0; i < LC_KYBER_K; i++)
-		poly_tobytes(r + i * LC_KYBER_POLYBYTES, &a->vec[i]);
-}
-
-/**
- * @brief polyvec_frombytes - De-serialize vector of polynomials;
- *			      inverse of polyvec_tobytes
- *
- * @param [out] r pointer to output byte array
- * @param [in] a pointer to input vector of polynomials
- */
-static inline void polyvec_frombytes(polyvec *r,
-				     const uint8_t a[LC_KYBER_POLYVECBYTES])
-{
-	unsigned int i;
-
-	for (i = 0; i < LC_KYBER_K; i++)
-		poly_frombytes(&r->vec[i], a + i * LC_KYBER_POLYBYTES);
-}
-
-/**
- * @brief polyvec_ntt - Apply forward NTT to all elements of a vector of
- *			polynomials
- *
- * @param [in,out] r pointer to in/output vector of polynomials
- */
-static inline void polyvec_ntt(polyvec *r)
-{
-	unsigned int i;
-
-	for (i = 0; i < LC_KYBER_K; i++)
-		poly_ntt(&r->vec[i]);
-}
-
-/**
- * @brief polyvec_invntt_tomont - Apply inverse NTT to all elements of a vector
- *				  of polynomials and multiply by Montgomery
- *				  factor 2^16
- *
- * @param [in,out] r pointer to in/output vector of polynomials
- */
-static inline void polyvec_invntt_tomont(polyvec *r)
-{
-	unsigned int i;
-
-	for (i = 0; i < LC_KYBER_K; i++)
-		poly_invntt_tomont(&r->vec[i]);
-}
-
-/**
- * @brief polyvec_reduce - Applies Barrett reduction to each coefficient
- *			   of each element of a vector of polynomials;
- *			   for details of the Barrett reduction see comments in
- *			   kyber_reduce.c
- *
- * @param [in,out] r pointer to input/output polynomial
- */
-static inline void polyvec_reduce(polyvec *r)
-{
-	unsigned int i;
-
-	for (i = 0; i < LC_KYBER_K; i++)
-		poly_reduce(&r->vec[i]);
-}
-
-/**
- * @brief polyvec_add - Add vectors of polynomials
- *
- * @param [out] r pointer to output vector of polynomials
- * @param [in] a pointer to first input vector of polynomials
- * @param [in] b pointer to second input vector of polynomials
- */
-static inline void polyvec_add(polyvec *r, const polyvec *a, const polyvec *b)
-{
-	unsigned int i;
-
-	for (i = 0; i < LC_KYBER_K; i++)
-		poly_add(&r->vec[i], &a->vec[i], &b->vec[i]);
-}
+#include "common/kyber_polyvec_tobytes.h"
+#include "common/kyber_polyvec_frombytes.h"
+#include "common/kyber_polyvec_ntt.h"
+#include "common/kyber_polyvec_invntt.h"
+#include "common/kyber_polyvec_reduce.h"
+#include "common/kyber_polyvec_add.h"
 
 #ifdef __cplusplus
 }

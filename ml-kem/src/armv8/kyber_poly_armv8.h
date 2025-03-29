@@ -145,8 +145,7 @@ static inline void poly_add_add_reduce(poly *r, const poly *a, const poly *b,
  * @param [out] r pointer to output byte array
  * @param [in] a pointer to input polynomial
  */
-void poly_compress_armv8(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES],
-			 const poly *a);
+void poly_compress(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES], const poly *a);
 
 /**
  * @brief poly_decompress_armv8 - De-serialization and subsequent decompression
@@ -156,8 +155,7 @@ void poly_compress_armv8(uint8_t r[LC_KYBER_POLYCOMPRESSEDBYTES],
  * @param [out] r pointer to output polynomial
  * @param [in] a pointer to input byte array
  */
-void poly_decompress_armv8(poly *r,
-			   const uint8_t a[LC_KYBER_POLYCOMPRESSEDBYTES]);
+void poly_decompress(poly *r, const uint8_t a[LC_KYBER_POLYCOMPRESSEDBYTES]);
 
 void kyber_poly_tobytes_armv8(uint8_t r[LC_KYBER_POLYBYTES], const poly *a);
 void kyber_poly_frombytes_armv8(poly *r, const uint8_t a[LC_KYBER_POLYBYTES]);
@@ -188,34 +186,7 @@ static inline void poly_frombytes(poly *r, const uint8_t a[LC_KYBER_POLYBYTES])
 	poly_reduce(r);
 }
 
-/**
- * @brief poly_frommsg - Convert 32-byte message to polynomial
- *
- * @param [out] r pointer to output polynomial
- * @param [in] msg pointer to input message
- */
-static inline void poly_frommsg(poly *r,
-				const uint8_t msg[LC_KYBER_INDCPA_MSGBYTES])
-{
-	unsigned int i, j;
-	int16_t mask, opt_blocker;
-
-	/* See kyber_poly.h:poly_frommsg for a rationale */
-	opt_blocker = optimization_blocker_int16;
-
-#if (LC_KYBER_INDCPA_MSGBYTES != LC_KYBER_N / 8)
-#error "LC_KYBER_INDCPA_MSGBYTES must be equal to LC_KYBER_N/8 bytes!"
-#endif
-
-	for (i = 0; i < LC_KYBER_N / 8; i++) {
-		for (j = 0; j < 8; j++) {
-			mask = -(int16_t)((msg[i] >> j) & 1);
-			r->coeffs[8 * i + j] =
-				(mask ^ opt_blocker) & ((LC_KYBER_Q + 1) / 2);
-		}
-	}
-}
-
+#include "common/kyber_poly_frommsg.h"
 #include "common/kyber_poly_tomsg.h"
 
 #define POLY_GETNOISE_ETA1_BUFSIZE (LC_KYBER_ETA1 * LC_KYBER_N / 4)

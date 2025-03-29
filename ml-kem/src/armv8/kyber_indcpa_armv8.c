@@ -101,7 +101,7 @@ static void pack_ciphertext(uint8_t r[LC_KYBER_INDCPA_BYTES], polyvec *b,
 			    poly *v)
 {
 	polyvec_compress(r, b);
-	poly_compress_armv8(r + LC_KYBER_POLYVECCOMPRESSEDBYTES, v);
+	poly_compress(r + LC_KYBER_POLYVECCOMPRESSEDBYTES, v);
 }
 
 /**
@@ -116,7 +116,7 @@ static void unpack_ciphertext(polyvec *b, poly *v,
 			      const uint8_t c[LC_KYBER_INDCPA_BYTES])
 {
 	polyvec_decompress(b, c);
-	poly_decompress_armv8(v, c + LC_KYBER_POLYVECCOMPRESSEDBYTES);
+	poly_decompress(v, c + LC_KYBER_POLYVECCOMPRESSEDBYTES);
 }
 
 /**
