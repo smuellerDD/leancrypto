@@ -55,15 +55,9 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	 * Trigger the modulus test to fail by setting the first 16 bytes to
 	 * 3329 and thus outside of the required interval of [0, q - 1].
 	 */
-#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-	ptr[1] = 0x01;
-	ptr[0] &= 0xf0;
-	ptr[0] |= 0x0d;
-#else
 	ptr[0] = 0x01;
 	ptr[1] &= 0xf0;
 	ptr[1] |= 0x0d;
-#endif
 
 	if (argc >= 2)
 		lc_cpu_feature_disable();

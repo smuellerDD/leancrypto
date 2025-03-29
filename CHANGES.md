@@ -23,6 +23,8 @@ Changes 1.3.0-prerelease
 
 * ML-KEM: reduce code duplication
 
+* Big-Endian: fixes on X.509 key usage processing, ML-KEM modulus tester
+
 Changes 1.2.0
 * Locking für seeded_rng added to avoid requiring the caller providing a lock
 

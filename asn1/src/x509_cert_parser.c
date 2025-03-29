@@ -747,16 +747,14 @@ int x509_keyusage(void *context, size_t hdrlen, unsigned char tag,
 	if (vlen > 2 || vlen == 0)
 		return -EBADMSG;
 
-	pub->key_usage = value[0];
-
-	if (vlen == 2)
-		pub->key_usage |= (uint16_t)(value[1] << 8);
-
 	/*
 	 * BIT STRING is handled as a big-endian value which implies that we
 	 * need to convert it here.
 	 */
-	pub->key_usage = be_bswap16(pub->key_usage);
+	if (vlen == 2)
+		pub->key_usage = (uint16_t)(value[0] << 8) | value[1];
+	else
+		pub->key_usage = value[0];
 
 	pub->key_usage |= ctx->extension_critical ? LC_KEY_USAGE_CRITICAL : 0;
 	pub->key_usage |= LC_KEY_USAGE_EXTENSION_PRESENT;
