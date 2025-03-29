@@ -147,7 +147,7 @@ done
 %{_includedir}/%{name}.h
 %{_includedir}/%{name}
 %{_libdir}/lib%{name}.so
-%{_libdir}/lib%{name}-fips.so.*
+%{_libdir}/lib%{name}-fips.so
 
 %files devel-static
 %{_libdir}/lib%{name}.a
