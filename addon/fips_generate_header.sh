@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+
 CMD=$1
 shift
 OUTFILE=$1
