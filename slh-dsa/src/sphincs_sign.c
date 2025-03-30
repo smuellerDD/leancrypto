@@ -89,15 +89,13 @@ static const struct lc_sphincs_func_ctx *lc_sphincs_get_ctx(void)
 {
 	enum lc_cpu_features feat __maybe_unused = lc_cpu_feature_available();
 
-#if (defined(LC_HOST_X86_64) &&                                                \
-     !defined(LC_SPHINCS_TYPE_128F_ASCON) &&                                   \
+#if (defined(LC_HOST_X86_64) && !defined(LC_SPHINCS_TYPE_128F_ASCON) &&        \
      !defined(LC_SPHINCS_TYPE_128S_ASCON))
 	if (feat & LC_CPU_FEATURE_INTEL_AVX2) {
 		return &f_ctx_avx2;
 	} else
 #endif /* LC_HOST_X86_64 */
-#if (defined(LC_HOST_AARCH64) &&                                               \
-     !defined(LINUX_KERNEL) &&                                                 \
+#if (defined(LC_HOST_AARCH64) && !defined(LINUX_KERNEL) &&                     \
      !defined(LC_SPHINCS_TYPE_128F_ASCON) &&                                   \
      !defined(LC_SPHINCS_TYPE_128S_ASCON))
 		/*

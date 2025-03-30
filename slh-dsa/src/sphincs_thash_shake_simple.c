@@ -35,8 +35,6 @@ void thash(struct lc_hash_ctx *hash_ctx, uint8_t out[LC_SPX_N],
 	   const uint8_t *in, unsigned int inblocks,
 	   const uint8_t pub_seed[LC_SPX_N], uint32_t addr[8])
 {
-//	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
-
 	lc_hash_init(hash_ctx);
 	lc_hash_update(hash_ctx, pub_seed, LC_SPX_N);
 	lc_hash_update(hash_ctx, (uint8_t *)addr, LC_SPX_ADDR_BYTES);
@@ -45,8 +43,6 @@ void thash(struct lc_hash_ctx *hash_ctx, uint8_t out[LC_SPX_N],
 	/* Squeeze out the final data point */
 	lc_hash_set_digestsize(hash_ctx, LC_SPX_N);
 	lc_hash_final(hash_ctx, out);
-
-//	lc_hash_zero(hash_ctx);
 }
 
 /*
@@ -59,8 +55,6 @@ void thash_ascon(struct lc_hash_ctx *hash_ctx, uint8_t out[LC_SPX_N],
 		 const uint8_t pub_seed[LC_SPX_N], uint32_t addr[8],
 		 unsigned int addr_static, uint8_t *ascon_state, int first)
 {
-//	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
-
 	lc_hash_init(hash_ctx);
 	if (first) {
 		lc_hash_update(hash_ctx, pub_seed, LC_SPX_N);
@@ -78,6 +72,4 @@ void thash_ascon(struct lc_hash_ctx *hash_ctx, uint8_t out[LC_SPX_N],
 	/* Squeeze out the final data point */
 	lc_hash_set_digestsize(hash_ctx, LC_SPX_N);
 	lc_hash_final(hash_ctx, out);
-
-//	lc_hash_zero(hash_ctx);
 }

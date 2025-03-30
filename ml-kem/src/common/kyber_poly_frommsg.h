@@ -90,7 +90,6 @@ static inline void poly_frommsg(poly *r,
 	}
 }
 
-
 #ifdef __cplusplus
 }
 #endif

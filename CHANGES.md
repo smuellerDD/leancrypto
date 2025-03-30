@@ -1,4 +1,4 @@
-Changes 1.3.0-prerelease
+Changes 1.3.0
 * Allow CPU entropy sources to be used as seed sources with meson option "seedsource=cpu"
 
 * Ensure full clean run on vintage system without AVX2 (thanks to "David C. Rankin" <drankinatty@gmail.com>)

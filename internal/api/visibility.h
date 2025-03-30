@@ -72,9 +72,13 @@
 #ifdef LC_STATIC
 #define LC_TEST_FUNC(ret, symbol, param...)                                    \
 	int lc_init(unsigned int flags);                                       \
-	static ret __ ## symbol(param);                                        \
-	ret symbol(param) { lc_init(0); return __ ## symbol(argc, argv); }     \
-	static ret __ ## symbol(param)
+	static ret __##symbol(param);                                          \
+	ret symbol(param)                                                      \
+	{                                                                      \
+		lc_init(0);                                                    \
+		return __##symbol(argc, argv);                                 \
+	}                                                                      \
+	static ret __##symbol(param)
 #else
 #define LC_TEST_FUNC(ret, symbol, param...) ret symbol(param)
 #endif

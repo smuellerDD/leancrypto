@@ -43,18 +43,22 @@ extern const void LC_FIPS_RODATA_SECTION_NAME_STOP;
  * them into a separate section which is not part of the rodata that the
  * variables above wrap.
  */
-static const struct lc_fips_integrity_sections secs[] = { {
-	.section_start_p = &_start_text,
-	.section_end_p = &_end_text,
-}, {
-	.section_start_p = &_start_init,
-	.section_end_p = &_end_init,
-}, {
-	.section_start_p = &_start_ctors,
-	.section_end_p = &_end_ctors,
-}, {
-	.section_start_p = &LC_FIPS_RODATA_SECTION_NAME_START,
-	.section_end_p = &LC_FIPS_RODATA_SECTION_NAME_STOP,
+static const struct lc_fips_integrity_sections secs[] = {
+	{
+		.section_start_p = &_start_text,
+		.section_end_p = &_end_text,
+	},
+	{
+		.section_start_p = &_start_init,
+		.section_end_p = &_end_init,
+	},
+	{
+		.section_start_p = &_start_ctors,
+		.section_end_p = &_end_ctors,
+	},
+	{
+		.section_start_p = &LC_FIPS_RODATA_SECTION_NAME_START,
+		.section_end_p = &LC_FIPS_RODATA_SECTION_NAME_STOP,
 
 /*
 	 * The ROData segment is currently excluded from being checked, because
@@ -71,17 +75,17 @@ static const struct lc_fips_integrity_sections secs[] = { {
 	.section_start_p = &_start_rodata,
 	.section_end_p = &_end_rodata,
 #endif
-} };
+	}
+};
 
 #ifdef LC_FIPS_VALUES_GENERATED
 #include "fips_integrity_checker_values.h"
 #else
-__attribute__ ((section("fips_integrity_data")))
-static const uint8_t expected_digest[] = {
-	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-	0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
-	0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
-	0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
+__attribute__((section(
+	"fips_integrity_data"))) static const uint8_t expected_digest[] = {
+	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a,
+	0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15,
+	0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
 };
 #endif
 
@@ -91,28 +95,32 @@ fips_integrity_checker_build(const uint8_t act[LC_SHA3_256_SIZE_DIGEST])
 {
 	unsigned int i;
 
-	fprintf(stderr, "//Init section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
-	       (unsigned long)&_start_init, (unsigned long)&_end_init,
-	       (unsigned long)((uint8_t *)&_end_init -
-			       (uint8_t *)&_start_init));
-	fprintf(stderr, "//Ctors section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
-	       (unsigned long)&_start_ctors, (unsigned long)&_end_ctors,
-	       (unsigned long)((uint8_t *)&_end_ctors -
-			       (uint8_t *)&_start_ctors));
-	fprintf(stderr, "//Text section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
-	       (unsigned long)&_start_text, (unsigned long)&_end_text,
-	       (unsigned long)((uint8_t *)&_end_text -
-			       (uint8_t *)&_start_text));
+	fprintf(stderr,
+		"//Init section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
+		(unsigned long)&_start_init, (unsigned long)&_end_init,
+		(unsigned long)((uint8_t *)&_end_init -
+				(uint8_t *)&_start_init));
+	fprintf(stderr,
+		"//Ctors section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
+		(unsigned long)&_start_ctors, (unsigned long)&_end_ctors,
+		(unsigned long)((uint8_t *)&_end_ctors -
+				(uint8_t *)&_start_ctors));
+	fprintf(stderr,
+		"//Text section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
+		(unsigned long)&_start_text, (unsigned long)&_end_text,
+		(unsigned long)((uint8_t *)&_end_text -
+				(uint8_t *)&_start_text));
 	// fprintf(stderr, "//ROData section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
 	//        (unsigned long)&_start_rodata, (unsigned long)&_end_rodata,
 	//        (unsigned long)((uint8_t *)&_end_rodata -
 	// 		       (uint8_t *)&_start_rodata));
 
-	fprintf(stderr, "//ROData1 section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
-	       (unsigned long)&LC_FIPS_RODATA_SECTION_NAME_START,
-	       (unsigned long)&LC_FIPS_RODATA_SECTION_NAME_STOP,
-	       (unsigned long)((uint8_t *)&LC_FIPS_RODATA_SECTION_NAME_STOP -
-			       (uint8_t *)&LC_FIPS_RODATA_SECTION_NAME_START));
+	fprintf(stderr,
+		"//ROData1 section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
+		(unsigned long)&LC_FIPS_RODATA_SECTION_NAME_START,
+		(unsigned long)&LC_FIPS_RODATA_SECTION_NAME_STOP,
+		(unsigned long)((uint8_t *)&LC_FIPS_RODATA_SECTION_NAME_STOP -
+				(uint8_t *)&LC_FIPS_RODATA_SECTION_NAME_START));
 
 	for (i = 0; i < LC_SHA3_256_SIZE_DIGEST; i++)
 		fprintf(stderr, "0x%.2x, ", *(act + i));

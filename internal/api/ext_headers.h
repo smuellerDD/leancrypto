@@ -417,7 +417,7 @@ static inline int lc_get_time(time64_t *time_since_epoch)
 #define LC_FIPS_RODATA_SECTION_NAME_STOP __stop_fips_rodata
 #define LC_FIPS_RODATA_SECTION_NAME "fips_rodata"
 #define LC_FIPS_RODATA_SECTION                                                 \
-	__attribute__ ((section(LC_FIPS_RODATA_SECTION_NAME)))
+	__attribute__((section(LC_FIPS_RODATA_SECTION_NAME)))
 #else
 #define LC_FIPS_RODATA_SECTION
 #endif

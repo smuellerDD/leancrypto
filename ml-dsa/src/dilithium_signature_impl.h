@@ -594,8 +594,7 @@ static int lc_dilithium_sign_ctx_impl(struct lc_dilithium_sig *sig,
 		CKINT(signature_domain_separation(
 			&ctx->dilithium_hash_ctx, ctx->ml_dsa_internal,
 			ctx->dilithium_prehash_type, ctx->userctx,
-			ctx->userctxlen, m,
-			mlen, LC_DILITHIUM_NIST_CATEGORY,
+			ctx->userctxlen, m, mlen, LC_DILITHIUM_NIST_CATEGORY,
 			!!ctx->composite_ml_dsa));
 	}
 
@@ -916,8 +915,7 @@ static int lc_dilithium_verify_ctx_impl(const struct lc_dilithium_sig *sig,
 		CKINT(signature_domain_separation(
 			&ctx->dilithium_hash_ctx, ctx->ml_dsa_internal,
 			ctx->dilithium_prehash_type, ctx->userctx,
-			ctx->userctxlen, m,
-			mlen, LC_DILITHIUM_NIST_CATEGORY,
+			ctx->userctxlen, m, mlen, LC_DILITHIUM_NIST_CATEGORY,
 			!!ctx->composite_ml_dsa));
 	}
 

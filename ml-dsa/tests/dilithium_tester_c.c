@@ -26,8 +26,7 @@
 #include "dilithium_signature_c.h"
 
 static int _dilithium_tester_c(unsigned int rounds, unsigned int internal,
-			       unsigned int prehashed,
-			       unsigned int external_mu)
+			       unsigned int prehashed, unsigned int external_mu)
 {
 	return _dilithium_tester(rounds, 1, internal, prehashed, external_mu,
 				 lc_dilithium_keypair_c,
