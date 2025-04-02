@@ -304,6 +304,38 @@ if get_option('dilithium_87').enabled()
 		     suite: performance)
 	endif
 
+	if (get_option('sha2-256').enabled())
+		dilithium_edge_case_tester_c = executable('dilithium_edge_case_tester_c',
+					[ 'dilithium_edge_case_tester.c',
+					'dilithium_edge_case_tester_c.c',
+					internal_src ],
+					include_directories: [
+						include_dirs,
+						include_internal_dirs,
+						include_dilithium_internal
+					],
+					dependencies: leancrypto,
+					c_args : '-DLC_DILITHIUM_TYPE'
+					)
+		dilithium_edge_case_tester_common = executable('dilithium_edge_case_tester_common',
+					[ 'dilithium_edge_case_tester.c',
+					'dilithium_edge_case_tester_common.c',
+					internal_src ],
+					include_directories: [
+						include_dirs,
+						include_internal_dirs,
+						include_dilithium_internal
+					],
+					dependencies: leancrypto,
+					c_args : '-DLC_DILITHIUM_TYPE'
+					)
+
+		test('Dilithium 65 Edge Cases C',
+		     dilithium_edge_case_tester_c, suite: regression)
+		test('Dilithium 65 Edge Cases Common',
+		     dilithium_edge_case_tester_common, suite: regression)
+	endif
+
 	if get_option('dilithium_ed25519').enabled()
 		dilithium_ed25519_tester = executable('dilithium_ed25519_tester',
 					[ 'dilithium_ed25519_tester.c',
@@ -658,6 +690,38 @@ if get_option('dilithium_65').enabled()
 		     dilithium_65_tester_iuf_riscv64_rvv,
 		     args : [ 'c' ], timeout: 1000, is_parallel: false,
 		     suite: performance)
+	endif
+
+	if (get_option('sha2-256').enabled())
+		dilithium_65_edge_case_tester_c = executable('dilithium_65_edge_case_tester_c',
+					[ 'dilithium_edge_case_tester.c',
+					'dilithium_edge_case_tester_c.c',
+					internal_src ],
+					include_directories: [
+						include_dirs,
+						include_internal_dirs,
+						include_dilithium_internal
+					],
+					dependencies: leancrypto,
+					c_args : '-DLC_DILITHIUM_TYPE_65'
+					)
+		dilithium_65_edge_case_tester_common = executable('dilithium_65_edge_case_tester_common',
+					[ 'dilithium_edge_case_tester.c',
+					'dilithium_edge_case_tester_common.c',
+					internal_src ],
+					include_directories: [
+						include_dirs,
+						include_internal_dirs,
+						include_dilithium_internal
+					],
+					dependencies: leancrypto,
+					c_args : '-DLC_DILITHIUM_TYPE_65'
+					)
+
+		test('Dilithium 65 Edge Cases C',
+		     dilithium_65_edge_case_tester_c, suite: regression)
+		test('Dilithium 65 Edge Cases Common',
+		     dilithium_65_edge_case_tester_common, suite: regression)
 	endif
 
 	if get_option('dilithium_ed25519').enabled()
