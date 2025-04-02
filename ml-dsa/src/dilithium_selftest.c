@@ -19,6 +19,7 @@
 
 #include "compare.h"
 #include "dilithium_selftest.h"
+#include "fips_mode.h"
 #include "selftest_rng.h"
 #include "small_stack_support.h"
 
@@ -28,6 +29,14 @@
 #include "dilithium_selftest_vector_65.h"
 #else
 #include "dilithium_selftest_vector_87.h"
+#endif
+
+#if LC_DILITHIUM_MODE == 2
+#include "../tests/dilithium_rejection_vectors_44.h"
+#elif LC_DILITHIUM_MODE == 3
+#include "../tests/dilithium_rejection_vectors_65.h"
+#elif LC_DILITHIUM_MODE == 5
+#include "../tests/dilithium_rejection_vectors_87.h"
 #endif
 
 static int _dilithium_keypair_tester(
@@ -92,6 +101,21 @@ static int _dilithium_siggen_tester(
 			   &vector.sk, NULL);
 	lc_compare_selftest(ws->sig.sig, vector.sig.sig,
 			    LC_DILITHIUM_CRYPTO_BYTES, impl);
+
+	/* Rejection test case */
+	if (fips140_mode_enabled()) {
+		ctx->ml_dsa_internal = 1;
+		_lc_dilithium_sign(
+			&ws->sig, ctx, dilithium_rejection_testvectors[0].msg,
+			sizeof(dilithium_rejection_testvectors[0].msg),
+			(struct lc_dilithium_sk *)
+				dilithium_rejection_testvectors[0]
+					.sk,
+			NULL);
+		lc_compare_selftest(ws->sig.sig,
+				    dilithium_rejection_testvectors[0].sig,
+				    LC_DILITHIUM_CRYPTO_BYTES, impl);
+	}
 
 	LC_RELEASE_MEM(ws);
 	lc_dilithium_ctx_zero(ctx);

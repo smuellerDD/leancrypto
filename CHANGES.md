@@ -1,4 +1,5 @@
 Changes 1.3.1-prerelease
+* ML-DSA: add signature generation rejection test cases and enable them during self tests
 
 Changes 1.3.0
 * Allow CPU entropy sources to be used as seed sources with meson option "seedsource=cpu"

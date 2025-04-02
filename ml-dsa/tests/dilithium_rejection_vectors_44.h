@@ -1,6 +1,7 @@
 #ifndef DILITHIUM_REJECTION_VECTORS_H
 #define DILITHIUM_REJECTION_VECTORS_H
 #include "dilithium_type.h"
+#include "lc_sha256.h"
 struct dilithium_rejection_testvector {
 	uint8_t seed[LC_DILITHIUM_SEEDBYTES];
 	uint8_t pk[LC_DILITHIUM_PUBLICKEYBYTES];

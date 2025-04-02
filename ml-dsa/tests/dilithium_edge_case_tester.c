@@ -169,6 +169,7 @@ int dilithium_edge_tester(int (*_lc_dilithium_sign_ctx)(
 	printf("#ifndef DILITHIUM_REJECTION_VECTORS_H\n"
 	       "#define DILITHIUM_REJECTION_VECTORS_H\n"
 	       "#include \"dilithium_type.h\"\n"
+	       "#include \"lc_sha256.h\"\n"
 	       "struct dilithium_rejection_testvector {\n"
 	       "\tuint8_t seed[LC_DILITHIUM_SEEDBYTES];\n"
 	       "\tuint8_t pk[LC_DILITHIUM_PUBLICKEYBYTES];\n"
