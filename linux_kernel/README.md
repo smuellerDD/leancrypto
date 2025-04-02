@@ -37,22 +37,25 @@ In addition to the standard leancrypto test code, the following test modules
 are provided to validate the leancrypto integration into the kernel crypto API:
 
 * `leancrypto_kernel_aead_ascon_tester.ko` invokes the Linux kernel crypto API
-  of type `skcipher` to perform a Ascon and Ascon-Keccak encryption / decryption
+  of type `aead` to perform a Ascon and Ascon-Keccak encryption / decryption
   operation.
 
 * `leancrypto_kernel_ascon_tester.ko` invokes the Linux kernel crypto API
-  of type `shash` to perform a Ascon 128 and Ascon 128a message digest
-  calculation.
+  of type `shash` to perform a Ascon-Hash256 message digest calculation.
 
 * `leancrypto_kernel_dilithium_tester.ko` invokes the Linux kernel crypto API
   of type `akcipher` to perform a FIPS 204 (CRYSTALS Dilithium) signature
+  generation and verification.
+
+* `leancrypto_kernel_sphincs_shake_*_tester.ko` invokes the Linux kernel crypto
+  API of type `akcipher` to perform a FIPS 205 (Sphincs Plus) signature
   generation and verification.
 
 * `leancrypto_kernel_kmac_tester.ko` invokes the Linux kernel crypto API type
   `shash` to invoke KMAC256 XOF, a keyed message digest using FIPS 202 defined
   in SP800-185.
 
-* `leancrypto_kernel_kyber_tester.ko` tests the Linux kernel crypto API type
+* `leancrypto_kernel_kyber*_tester.ko` tests the Linux kernel crypto API type
   `kpp` to invoke FIPS 203 (CRYSTALS Kyber) key generation, encapsulation and
   decapsulation.
 
@@ -61,6 +64,12 @@ are provided to validate the leancrypto integration into the kernel crypto API:
 
 * `leancrypto_kernel_sha3_tester.ko` performs the testing of leancrypto's
   SHA-3 implementation which is registered as a `shash`.
+
+* `leancrypto_kernel_sha256_tester.ko` performs the testing of leancrypto's
+  SHA2-256 implementation which is registered as a `shash`.
+
+* `leancrypto_kernel_sha512_tester.ko` performs the testing of leancrypto's
+  SHA2-512 implementation which is registered as a `shash`.
 
 ## Leancrypto Registered with the Linux Kernel Crypto API
 
