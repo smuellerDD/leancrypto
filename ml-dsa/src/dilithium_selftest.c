@@ -23,62 +23,58 @@
 #include "selftest_rng.h"
 #include "small_stack_support.h"
 
+/*
+ * Use rejection test vector which will cover all rejection code paths
+ * as generated with the dilithium_edge_case_tester.
+ *
+ * For FIPS 140: The test vectors cover the requirements of IG 10.3.A.
+ */
 #if LC_DILITHIUM_MODE == 2
-#include "dilithium_selftest_vector_44.h"
+#include "../tests/dilithium_pure_rejection_vectors_44.h"
 #elif LC_DILITHIUM_MODE == 3
-#include "dilithium_selftest_vector_65.h"
-#else
-#include "dilithium_selftest_vector_87.h"
-#endif
-
-#if LC_DILITHIUM_MODE == 2
-#include "../tests/dilithium_rejection_vectors_44.h"
-#elif LC_DILITHIUM_MODE == 3
-#include "../tests/dilithium_rejection_vectors_65.h"
+#include "../tests/dilithium_pure_rejection_vectors_65.h"
 #elif LC_DILITHIUM_MODE == 5
-#include "../tests/dilithium_rejection_vectors_87.h"
+#include "../tests/dilithium_pure_rejection_vectors_87.h"
 #endif
 
 static int _dilithium_keypair_tester(
 	const char *impl,
-	int (*_lc_dilithium_keypair)(struct lc_dilithium_pk *pk,
-				     struct lc_dilithium_sk *sk,
-				     struct lc_rng_ctx *rng_ctx))
+	int (*_lc_dilithium_keypair_from_seed)(struct lc_dilithium_pk *pk,
+					       struct lc_dilithium_sk *sk,
+					       const uint8_t *seed,
+					       size_t seedlen))
 {
 	struct workspace {
 		struct lc_dilithium_pk pk;
 		struct lc_dilithium_sk sk;
 	};
 	char str[25];
-	uint8_t discard[64];
+	const struct dilithium_rejection_testvector *tc =
+		&dilithium_rejection_testvectors[0];
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
-	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 
-	/* The test vector RNG state served a message gen before keygen */
-	lc_rng_generate(selftest_rng, NULL, 0, discard, sizeof(discard));
-
-	_lc_dilithium_keypair(&ws->pk, &ws->sk, selftest_rng);
+	_lc_dilithium_keypair_from_seed(&ws->pk, &ws->sk, tc->seed,
+					sizeof(tc->seed));
 	snprintf(str, sizeof(str), "%s PK", impl);
-	lc_compare_selftest(ws->pk.pk, vector.pk.pk,
-			    LC_DILITHIUM_PUBLICKEYBYTES, str);
+	lc_compare_selftest(ws->pk.pk, tc->pk, LC_DILITHIUM_PUBLICKEYBYTES,
+			    str);
 	snprintf(str, sizeof(str), "%s SK", impl);
-	lc_compare_selftest(ws->sk.sk, vector.sk.sk,
-			    LC_DILITHIUM_PUBLICKEYBYTES, str);
+	lc_compare_selftest(ws->sk.sk, tc->sk, LC_DILITHIUM_PUBLICKEYBYTES,
+			    str);
 
 	LC_RELEASE_MEM(ws);
-	lc_rng_zero(selftest_rng);
 	return 0;
 }
 
-void dilithium_keypair_tester(
-	int *tested, const char *impl,
-	int (*_lc_dilithium_keypair)(struct lc_dilithium_pk *pk,
-				     struct lc_dilithium_sk *sk,
-				     struct lc_rng_ctx *rng_ctx))
+void dilithium_keypair_tester(int *tested, const char *impl,
+			      int (*_lc_dilithium_keypair_from_seed)(
+				      struct lc_dilithium_pk *pk,
+				      struct lc_dilithium_sk *sk,
+				      const uint8_t *seed, size_t seedlen))
 {
 	LC_SELFTEST_RUN(tested);
 
-	if (_dilithium_keypair_tester(impl, _lc_dilithium_keypair))
+	if (_dilithium_keypair_tester(impl, _lc_dilithium_keypair_from_seed))
 		lc_compare_selftest((uint8_t *)"test", (uint8_t *)"fail", 4,
 				    impl);
 }
@@ -95,27 +91,14 @@ static int _dilithium_siggen_tester(
 		struct lc_dilithium_sig sig;
 	};
 	LC_DILITHIUM_CTX_ON_STACK(ctx);
+	const struct dilithium_rejection_testvector *tc =
+		&dilithium_rejection_testvectors[0];
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	_lc_dilithium_sign(&ws->sig, ctx, vector.m, sizeof(vector.m),
-			   &vector.sk, NULL);
-	lc_compare_selftest(ws->sig.sig, vector.sig.sig,
-			    LC_DILITHIUM_CRYPTO_BYTES, impl);
-
-	/* Rejection test case */
-	if (fips140_mode_enabled()) {
-		ctx->ml_dsa_internal = 1;
-		_lc_dilithium_sign(
-			&ws->sig, ctx, dilithium_rejection_testvectors[0].msg,
-			sizeof(dilithium_rejection_testvectors[0].msg),
-			(struct lc_dilithium_sk *)
-				dilithium_rejection_testvectors[0]
-					.sk,
-			NULL);
-		lc_compare_selftest(ws->sig.sig,
-				    dilithium_rejection_testvectors[0].sig,
-				    LC_DILITHIUM_CRYPTO_BYTES, impl);
-	}
+	_lc_dilithium_sign(&ws->sig, ctx, tc->msg, sizeof(tc->msg),
+			   (struct lc_dilithium_sk *)tc->sk, NULL);
+	lc_compare_selftest(ws->sig.sig, tc->sig, LC_DILITHIUM_CRYPTO_BYTES,
+			    impl);
 
 	LC_RELEASE_MEM(ws);
 	lc_dilithium_ctx_zero(ctx);
@@ -146,11 +129,14 @@ void dilithium_sigver_tester(
 {
 	int ret, exp;
 	LC_DILITHIUM_CTX_ON_STACK(ctx);
+	const struct dilithium_rejection_testvector *tc =
+		&dilithium_rejection_testvectors[0];
 	LC_SELFTEST_RUN(tested);
 
 	exp = 0;
-	ret = _lc_dilithium_verify(&vector.sig, ctx, vector.m, sizeof(vector.m),
-				   &vector.pk);
+	ret = _lc_dilithium_verify((struct lc_dilithium_sig *)tc->sig, ctx,
+				   tc->msg, sizeof(tc->msg),
+				   (struct lc_dilithium_pk *)tc->pk);
 	lc_dilithium_ctx_zero(ctx);
 
 	lc_compare_selftest((uint8_t *)&ret, (uint8_t *)&exp, sizeof(ret),

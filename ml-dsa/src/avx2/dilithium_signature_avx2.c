@@ -132,7 +132,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_avx2,
 	}
 
 	dilithium_keypair_tester(&tested, "Dilithium Keygen AVX2",
-				 lc_dilithium_keypair_avx2);
+				 lc_dilithium_keypair_from_seed_avx2);
 
 	row = ws->rowbuf;
 
@@ -462,8 +462,11 @@ rej:
 		unpoison(&ws->z.vec[i], sizeof(poly));
 
 		if (poly_chknorm_avx(&ws->z.vec[i],
-				     LC_DILITHIUM_GAMMA1 - LC_DILITHIUM_BETA))
+				     LC_DILITHIUM_GAMMA1 - LC_DILITHIUM_BETA)) {
+			dilithium_print_polyvecl(&ws->z,
+						 "Siggen - z rejection");
 			goto rej;
+		}
 	}
 
 	/* Zero hint vector in signature */
@@ -485,8 +488,11 @@ rej:
 		unpoison(&ws->tmpv.w0.vec[i], sizeof(poly));
 
 		if (poly_chknorm_avx(&ws->tmpv.w0.vec[i],
-				     LC_DILITHIUM_GAMMA2 - LC_DILITHIUM_BETA))
+				     LC_DILITHIUM_GAMMA2 - LC_DILITHIUM_BETA)) {
+			dilithium_print_polyveck(&ws->tmpv.w0,
+						 "Siggen - r0 rejection");
 			goto rej;
+		}
 
 		/* Compute hints */
 		poly_pointwise_montgomery_avx(&ws->tmp, &ws->c, &ws->t0.vec[i]);
@@ -496,15 +502,21 @@ rej:
 		/* Timecop: the hint information is not sensitive any more. */
 		unpoison(&ws->tmp, sizeof(poly));
 
-		if (poly_chknorm_avx(&ws->tmp, LC_DILITHIUM_GAMMA2))
+		if (poly_chknorm_avx(&ws->tmp, LC_DILITHIUM_GAMMA2)) {
+			dilithium_print_poly(&ws->tmp,
+					     "Siggen - ct0 rejection");
 			goto rej;
+		}
 
 		poly_add_avx(&ws->tmpv.w0.vec[i], &ws->tmpv.w0.vec[i],
 			     &ws->tmp);
 		n = poly_make_hint_avx(ws->hintbuf, &ws->tmpv.w0.vec[i],
 				       &ws->w1.vec[i]);
-		if (pos + n > LC_DILITHIUM_OMEGA)
+		if (pos + n > LC_DILITHIUM_OMEGA) {
+			dilithium_print_polyveck(&ws->tmpv.w0,
+						 "Siggen - h rejection");
 			goto rej;
+		}
 
 		/* Store hints in signature */
 		memcpy(&hint[pos], ws->hintbuf, n);

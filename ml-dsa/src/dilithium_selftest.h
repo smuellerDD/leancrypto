@@ -33,11 +33,11 @@ struct dilithium_testvector {
 	struct lc_dilithium_sig sig;
 };
 
-void dilithium_keypair_tester(
-	int *tested, const char *impl,
-	int (*_lc_dilithium_keypair)(struct lc_dilithium_pk *pk,
-				     struct lc_dilithium_sk *sk,
-				     struct lc_rng_ctx *rng_ctx));
+void dilithium_keypair_tester(int *tested, const char *impl,
+			      int (*_lc_dilithium_keypair_from_seed)(
+				      struct lc_dilithium_pk *pk,
+				      struct lc_dilithium_sk *sk,
+				      const uint8_t *seed, size_t seedlen));
 
 void dilithium_siggen_tester(
 	int *tested, const char *impl,

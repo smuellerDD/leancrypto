@@ -50,6 +50,13 @@
 extern "C" {
 #endif
 
+/*
+ * Enable this macro to report the rejection code paths taken with the
+ * signature generation operation. When disabled, the compiler should
+ * eliminate this code which means that the counting code is folded away.
+ */
+#undef REJECTION_TEST_SAMPLING
+
 #define _WS_POLY_UNIFORM_BUF_SIZE                                              \
 	(POLY_UNIFORM_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK + 2)
 
@@ -59,6 +66,11 @@ extern "C" {
 
 #define WS_POLY_UNIFORM_BUF_SIZE                                               \
 	(_WS_POLY_UNIFORM_BUF_SIZE * LC_POLY_UNIFOR_BUF_SIZE_MULTIPLIER)
+
+static int lc_dilithium_keypair_from_seed_impl(struct lc_dilithium_pk *pk,
+					       struct lc_dilithium_sk *sk,
+					       const uint8_t *seed,
+					       size_t seedlen);
 
 static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 				     struct lc_dilithium_sk *sk,
@@ -95,7 +107,7 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 	lc_rng_check(&rng_ctx);
 
 	dilithium_keypair_tester(&tested, "Dilithium Keygen C",
-				 lc_dilithium_keypair_impl);
+				 lc_dilithium_keypair_from_seed_impl);
 
 	/* Get randomness for rho, rhoprime and key */
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, ws->seedbuf,
@@ -262,6 +274,7 @@ static int lc_dilithium_sign_internal_ahat(struct lc_dilithium_sig *sig,
 	uint16_t nonce = 0;
 	int ret = 0;
 	struct lc_hash_ctx *hash_ctx = &ctx->dilithium_hash_ctx;
+	uint8_t __maybe_unused rej_total = 0;
 	LC_DECLARE_MEM(ws, struct workspace_sign, sizeof(uint64_t));
 
 	/* AHat must be present at this time */
@@ -407,8 +420,11 @@ rej:
 	/* Timecop: the signature component z is not sensitive any more. */
 	unpoison(&ws->z, sizeof(polyvecl));
 
-	if (polyvecl_chknorm(&ws->z, LC_DILITHIUM_GAMMA1 - LC_DILITHIUM_BETA))
+	if (polyvecl_chknorm(&ws->z, LC_DILITHIUM_GAMMA1 - LC_DILITHIUM_BETA)) {
+		dilithium_print_polyvecl(&ws->z, "Siggen - z rejection");
+		rej_total |= 1 << 0;
 		goto rej;
+	}
 
 	/*
 	 * Check that subtracting cs2 does not change high bits of w and low
@@ -422,8 +438,12 @@ rej:
 	/* Timecop: verification data w0 is not sensitive any more. */
 	unpoison(&ws->w0, sizeof(polyveck));
 
-	if (polyveck_chknorm(&ws->w0, LC_DILITHIUM_GAMMA2 - LC_DILITHIUM_BETA))
+	if (polyveck_chknorm(&ws->w0,
+			     LC_DILITHIUM_GAMMA2 - LC_DILITHIUM_BETA)) {
+		dilithium_print_polyveck(&ws->w0, "Siggen - r0 rejection");
+		rej_total |= 1 << 1;
 		goto rej;
+	}
 
 	/* Compute hints for w1 */
 	polyveck_pointwise_poly_montgomery(&ws->h, &ws->cp, &ws->t0);
@@ -433,14 +453,20 @@ rej:
 	/* Timecop: the signature component h is not sensitive any more. */
 	unpoison(&ws->h, sizeof(polyveck));
 
-	if (polyveck_chknorm(&ws->h, LC_DILITHIUM_GAMMA2))
+	if (polyveck_chknorm(&ws->h, LC_DILITHIUM_GAMMA2)) {
+		dilithium_print_polyveck(&ws->w0, "Siggen - ct0 rejection");
+		rej_total |= 1 << 2;
 		goto rej;
+	}
 
 	polyveck_add(&ws->w0, &ws->w0, &ws->h);
 
 	n = polyveck_make_hint(&ws->h, &ws->w0, &ws->w1);
-	if (n > LC_DILITHIUM_OMEGA)
+	if (n > LC_DILITHIUM_OMEGA) {
+		dilithium_print_polyveck(&ws->w0, "Siggen - h rejection");
+		rej_total |= 1 << 3;
 		goto rej;
+	}
 
 	/* Write signature */
 	dilithium_print_buffer(sig->sig, LC_DILITHIUM_CTILDE_BYTES,
@@ -455,7 +481,11 @@ rej:
 
 out:
 	LC_RELEASE_MEM(ws);
+#ifdef REJECTION_TEST_SAMPLING
+	return ret ? ret : rej_total;
+#else
 	return ret;
+#endif
 }
 
 static int lc_dilithium_sign_internal_noahat(struct lc_dilithium_sig *sig,
