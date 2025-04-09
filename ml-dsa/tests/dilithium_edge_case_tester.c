@@ -177,18 +177,19 @@ static int dilithium_edge_tester_internal(
 		CKINT(_lc_dilithium_sign_ctx(&ws->sig, ctx, ws->msg,
 					     sizeof(ws->msg), &ws->sk, NULL));
 
-#if 0 //TODO to be clarified with NIST
-		/* For ML-DSA44, ct0 can be rejected, for 65/87 not */
+		/*
+		 * Select the rejection code paths that shall be present.
+		 *
+		 * For ML-DSA44, ct0 can be rejected, for 65/87 not which
+		 * implies that at most 4 rejection code paths can be present
+		 * for ML-DSA44 and at most 3 for 65/87.
+		 */
 #if LC_DILITHIUM_MODE == 2
 		if (ret != 0xf)
 #else
 		if (ret != 0xb)
 #endif
 			continue;
-#else
-		if (ret != 0xb)
-			continue;
-#endif
 
 #if LC_DILITHIUM_MODE == 2
 		fprintf(stderr,

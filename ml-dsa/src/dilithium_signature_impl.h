@@ -454,7 +454,7 @@ rej:
 	unpoison(&ws->h, sizeof(polyveck));
 
 	if (polyveck_chknorm(&ws->h, LC_DILITHIUM_GAMMA2)) {
-		dilithium_print_polyveck(&ws->w0, "Siggen - ct0 rejection");
+		dilithium_print_polyveck(&ws->h, "Siggen - ct0 rejection");
 		rej_total |= 1 << 2;
 		goto rej;
 	}
