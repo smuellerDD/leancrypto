@@ -27,11 +27,12 @@ endif
 
 if get_option('ascon').enabled() or get_option('ascon_keccak').enabled()
 	src += files([ 'ascon.c', ])
+	include_files += files([ '../api/lc_ascon_aead.h' ])
 endif
 
 if get_option('ascon').enabled()
 	src += files([ 'ascon_lightweight.c', ])
-		include_files += files([ '../api/lc_ascon_aead.h' ])
+	include_files += files([ '../api/lc_ascon_lightweight.h' ])
 	add_global_arguments([ '-DLC_ASCON' ], language: 'c')
 
 	compile_hash_crypt = 1
