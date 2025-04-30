@@ -30,13 +30,15 @@
 #ifndef GF2X_H
 #define GF2X_H
 
+#include "hqc_internal.h"
 #include "hqc_type.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void vect_mul(uint64_t *o, const uint64_t *v1, const uint64_t *v2);
+void vect_mul(uint64_t *o, const uint64_t *v1, const uint64_t *v2,
+	      struct vect_mul_ws *ws);
 
 #ifdef __cplusplus
 }

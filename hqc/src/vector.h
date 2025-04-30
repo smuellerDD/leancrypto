@@ -30,6 +30,7 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
+#include "hqc_internal.h"
 #include "hqc_type.h"
 #include "shake_prng.h"
 
@@ -38,9 +39,11 @@ extern "C" {
 #endif
 
 void vect_set_random_fixed_weight(struct lc_hash_ctx *shake256, uint64_t *v,
-				  uint16_t weight);
+				  uint16_t weight,
+				  struct vect_set_random_fixed_weight_ws *ws);
 
-void vect_set_random(struct lc_hash_ctx *shake256, uint64_t *v);
+void vect_set_random(struct lc_hash_ctx *shake256, uint64_t *v,
+		     struct vect_set_random_ws *ws);
 
 void vect_add(uint64_t *o, const uint64_t *v1, const uint64_t *v2, size_t size);
 

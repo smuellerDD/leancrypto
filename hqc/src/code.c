@@ -59,12 +59,10 @@ void code_encode(uint64_t *em, const uint8_t *m)
  * @param[out] m Pointer to an array that is the message
  * @param[in] em Pointer to an array that is the code word
  */
-void code_decode(uint8_t *m, const uint64_t *em)
+void code_decode(uint8_t *m, const uint64_t *em,
+		 struct reed_solomon_decode_ws *ws)
 {
-	uint8_t tmp[LC_HQC_VEC_N1_SIZE_BYTES] = { 0 };
 
-	reed_muller_decode(tmp, em);
-	reed_solomon_decode(m, tmp);
-
-	lc_memset_secure(tmp, 0, sizeof(tmp));
+	reed_muller_decode(ws->code_decode_tmp, em);
+	reed_solomon_decode(m, ws->code_decode_tmp, ws);
 }

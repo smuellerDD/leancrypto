@@ -30,6 +30,7 @@
 #ifndef REED_SOLOMON_H
 #define REED_SOLOMON_H
 
+#include "hqc_internal.h"
 #include "hqc_type.h"
 
 #ifdef __cplusplus
@@ -701,7 +702,8 @@ static const uint16_t alpha_ij_pow[58][89] = {
 
 void reed_solomon_encode(uint8_t *cdw, const uint8_t *msg);
 
-void reed_solomon_decode(uint8_t *msg, uint8_t *cdw);
+void reed_solomon_decode(uint8_t *msg, uint8_t *cdw,
+			 struct reed_solomon_decode_ws *ws);
 
 #ifdef __cplusplus
 }

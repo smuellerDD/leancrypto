@@ -30,7 +30,10 @@
 #include "hqc_type.h"
 #include "fft.h"
 #include "gf.h"
+#include "small_stack_support.h"
 #include "reed_solomon.h"
+
+static const uint16_t PARAM_RS_POLY[] = { LC_HQC_RS_POLY_COEFS };
 
 /**
  * @brief Encodes a message message of PARAM_K bits to a Reed-Solomon codeword
@@ -48,9 +51,7 @@ void reed_solomon_encode(uint8_t *cdw, const uint8_t *msg)
 {
 	size_t i, j, k;
 	uint8_t gate_value = 0;
-
 	uint16_t tmp[LC_HQC_PARAM_G] = { 0 };
-	uint16_t PARAM_RS_POLY[] = { LC_HQC_RS_POLY_COEFS };
 
 	memset(cdw, 0, LC_HQC_PARAM_N1);
 
@@ -187,12 +188,11 @@ static uint16_t compute_elp(uint16_t *sigma, const uint16_t *syndromes)
  * @param[in] sigma Array of 2^LC_HQC_PARAM_FFT elements storing the error
  *		    locator polynomial
  */
-static void compute_roots(uint8_t *error, uint16_t *sigma)
+static void compute_roots(uint8_t *error, uint16_t *sigma,
+			  struct reed_solomon_decode_ws *ws)
 {
-	uint16_t w[1 << LC_HQC_PARAM_M] = { 0 };
-
-	fft(w, sigma, LC_HQC_PARAM_DELTA + 1);
-	fft_retrieve_error_poly(error, w);
+	fft(ws->compute_roots_w, sigma, LC_HQC_PARAM_DELTA + 1);
+	fft_retrieve_error_poly(error, ws->compute_roots_w);
 }
 
 /**
@@ -360,36 +360,33 @@ static void correct_errors(uint8_t *cdw, const uint16_t *error_values)
  * @param[out] msg Array of size VEC_K_SIZE_64 receiving the decoded message
  * @param[in] cdw Array of size VEC_N1_SIZE_64 storing the received word
  */
-void reed_solomon_decode(uint8_t *msg, uint8_t *cdw)
+void reed_solomon_decode(uint8_t *msg, uint8_t *cdw,
+			 struct reed_solomon_decode_ws *ws)
 {
-	uint16_t syndromes[2 * LC_HQC_PARAM_DELTA] = { 0 };
-	uint16_t sigma[1 << LC_HQC_PARAM_FFT] = { 0 };
-	uint8_t error[1 << LC_HQC_PARAM_M] = { 0 };
-	uint16_t z[LC_HQC_PARAM_N1] = { 0 };
-	uint16_t error_values[LC_HQC_PARAM_N1] = { 0 };
+
 	uint16_t deg;
 
 	/* Calculate the 2*LC_HQC_PARAM_DELTA syndromes */
-	compute_syndromes(syndromes, cdw);
+	compute_syndromes(ws->syndromes, cdw);
 
 	/*
 	 * Compute the error locator polynomial sigma
 	 * Sigma's degree is at most LC_HQC_PARAM_DELTA but the FFT requires the
 	 * extra room.
 	 */
-	deg = compute_elp(sigma, syndromes);
+	deg = compute_elp(ws->sigma, ws->syndromes);
 
 	/* Compute the error polynomial error */
-	compute_roots(error, sigma);
+	compute_roots(ws->error, ws->sigma, ws);
 
 	/* Compute the polynomial z(x) */
-	compute_z_poly(z, sigma, deg, syndromes);
+	compute_z_poly(ws->z, ws->sigma, deg, ws->syndromes);
 
 	/* Compute the error values */
-	compute_error_values(error_values, z, error);
+	compute_error_values(ws->error_values, ws->z, ws->error);
 
 	/* Correct the errors */
-	correct_errors(cdw, error_values);
+	correct_errors(cdw, ws->error_values);
 
 	/* Retrieve the message from the decoded codeword */
 	memcpy(msg, cdw + (LC_HQC_PARAM_G - 1), LC_HQC_PARAM_K);

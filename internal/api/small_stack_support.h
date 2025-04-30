@@ -54,6 +54,8 @@ extern "C" {
 /* Define macro LC_MEM_ON_HEAP if stack is less than 256KiB in size */
 #ifdef LC_MEM_ON_HEAP
 
+#define noinline_stack __attribute__((noinline))
+
 #define LC_DECLARE_MEM(name, type, alignment)                                  \
 	_Pragma("GCC diagnostic push")                                         \
 		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")             \
@@ -62,6 +64,8 @@ extern "C" {
 #define LC_RELEASE_MEM(name) __LC_RELEASE_MEM_HEAP(name)
 
 #else
+
+#define noinline_stack
 
 #define LC_DECLARE_MEM(name, type, alignment)                                  \
 	_Pragma("GCC diagnostic push")                                         \

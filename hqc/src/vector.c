@@ -146,49 +146,45 @@ static inline uint32_t reduce(uint32_t a, size_t i)
  * @param[in] weight Integer that is the Hamming weight
  */
 void vect_set_random_fixed_weight(struct lc_hash_ctx *shake256, uint64_t *v,
-				  uint16_t weight)
+				  uint16_t weight,
+				  struct vect_set_random_fixed_weight_ws *ws)
 {
-	/* to be interpreted as LC_HQC_PARAM_OMEGA_R 32-bit unsigned ints */
-	uint8_t rand_bytes[4 * LC_HQC_PARAM_OMEGA_R] = { 0 };
-	uint32_t support[LC_HQC_PARAM_OMEGA_R] = { 0 };
-	uint32_t index_tab[LC_HQC_PARAM_OMEGA_R] = { 0 };
-	uint64_t bit_tab[LC_HQC_PARAM_OMEGA_R] = { 0 };
 	uint32_t pos, found, mask32, tmp;
 	uint64_t mask64, val;
 	size_t i, j;
 
-	seedexpander(shake256, rand_bytes, 4 * weight);
+	seedexpander(shake256, ws->rand_bytes, 4 * weight);
 
 	for (i = 0; i < weight; ++i) {
-		support[i] = ptr_to_le32(&rand_bytes[4 * i]);
+		ws->support[i] = ptr_to_le32(&ws->rand_bytes[4 * i]);
 
 		// use constant-time reduction
-		support[i] = (uint32_t)(i + reduce(support[i], i));
+		ws->support[i] = (uint32_t)(i + reduce(ws->support[i], i));
 	}
 
 	for (i = (weight - 1); i-- > 0;) {
 		found = 0;
 
 		for (j = i + 1; j < weight; ++j)
-			found |= compare_u32(support[j], support[i]);
+			found |= compare_u32(ws->support[j], ws->support[i]);
 
 		mask32 = 0 - found;
-		support[i] = (mask32 & i) ^ (~mask32 & support[i]);
+		ws->support[i] = (mask32 & i) ^ (~mask32 & ws->support[i]);
 	}
 
 	for (i = 0; i < weight; ++i) {
-		index_tab[i] = support[i] >> 6;
-		pos = support[i] & 0x3f;
-		bit_tab[i] = single_bit_mask(pos); // avoid secret shift
+		ws->index_tab[i] = ws->support[i] >> 6;
+		pos = ws->support[i] & 0x3f;
+		ws->bit_tab[i] = single_bit_mask(pos); // avoid secret shift
 	}
 
 	for (i = 0; i < LC_HQC_VEC_N_SIZE_64; ++i) {
 		val = 0;
 		for (j = 0; j < weight; ++j) {
-			tmp = (uint32_t)(i - index_tab[j]);
+			tmp = (uint32_t)(i - ws->index_tab[j]);
 			tmp = 1 ^ ((uint32_t)(tmp | (0 - tmp)) >> 31);
 			mask64 = 0 - (uint64_t)tmp;
-			val |= (bit_tab[j] & mask64);
+			val |= (ws->bit_tab[j] & mask64);
 		}
 		v[i] |= val;
 	}
@@ -204,13 +200,13 @@ void vect_set_random_fixed_weight(struct lc_hash_ctx *shake256, uint64_t *v,
  * @param[in] v Pointer to an array
  * @param[in] ctx Pointer to the context of the seed expander
  */
-void vect_set_random(struct lc_hash_ctx *shake256, uint64_t *v)
+void vect_set_random(struct lc_hash_ctx *shake256, uint64_t *v,
+		     struct vect_set_random_ws *ws)
 {
-	uint8_t rand_bytes[LC_HQC_VEC_N_SIZE_BYTES] = { 0 };
+	seedexpander(shake256, ws->rand_bytes, LC_HQC_VEC_N_SIZE_BYTES);
 
-	seedexpander(shake256, rand_bytes, LC_HQC_VEC_N_SIZE_BYTES);
-
-	load8_arr(v, LC_HQC_VEC_N_SIZE_64, rand_bytes, LC_HQC_VEC_N_SIZE_BYTES);
+	load8_arr(v, LC_HQC_VEC_N_SIZE_64, ws->rand_bytes,
+		  LC_HQC_VEC_N_SIZE_BYTES);
 	v[LC_HQC_VEC_N_SIZE_64 - 1] &= LC_HQC_RED_MASK;
 }
 

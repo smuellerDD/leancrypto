@@ -122,14 +122,16 @@ void hqc_secret_key_to_string(uint8_t *sk, const uint8_t *sk_seed,
  * @param[in] sk String containing the secret key
  */
 void hqc_secret_key_from_string(uint64_t *y, uint8_t *sigma, uint8_t *pk,
-				const uint8_t *sk)
+				const uint8_t *sk,
+				struct vect_set_random_fixed_weight_ws *ws)
 {
 	LC_SHAKE_256_CTX_ON_STACK(sk_seedexpander);
 
 	memcpy(sigma, sk + LC_HQC_SEED_BYTES, LC_HQC_VEC_K_SIZE_BYTES);
 	seedexpander_init(sk_seedexpander, sk, LC_HQC_SEED_BYTES);
 
-	vect_set_random_fixed_weight(sk_seedexpander, y, LC_HQC_PARAM_OMEGA);
+	vect_set_random_fixed_weight(sk_seedexpander, y, LC_HQC_PARAM_OMEGA,
+				     ws);
 	memcpy(pk, sk + LC_HQC_SEED_BYTES + LC_HQC_VEC_K_SIZE_BYTES,
 	       LC_HQC_PUBLIC_KEY_BYTES);
 
@@ -164,12 +166,13 @@ void hqc_public_key_to_string(uint8_t *pk, const uint8_t *pk_seed,
  * @param[out] s uint64_t representation of vector s
  * @param[in] pk String containing the public key
  */
-void hqc_public_key_from_string(uint64_t *h, uint64_t *s, const uint8_t *pk)
+void hqc_public_key_from_string(uint64_t *h, uint64_t *s, const uint8_t *pk,
+				struct vect_set_random_ws *ws)
 {
 	LC_SHAKE_256_CTX_ON_STACK(pk_seedexpander);
 
 	seedexpander_init(pk_seedexpander, pk, LC_HQC_SEED_BYTES);
-	vect_set_random(pk_seedexpander, h);
+	vect_set_random(pk_seedexpander, h, ws);
 
 	load8_arr(s, LC_HQC_VEC_N_SIZE_64, pk + LC_HQC_SEED_BYTES,
 		  LC_HQC_VEC_N_SIZE_BYTES);

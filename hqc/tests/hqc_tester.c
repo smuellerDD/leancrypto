@@ -224,6 +224,8 @@ out:
 	return ret ? ret : rc;
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wframe-larger-than="
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	unsigned int i, count = ARRAY_SIZE(hqc_test);
@@ -268,3 +270,4 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_RELEASE_MEM(ws);
 	return ret;
 }
+#pragma GCC diagnostic pop

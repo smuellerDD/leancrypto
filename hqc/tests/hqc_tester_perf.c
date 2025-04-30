@@ -51,6 +51,8 @@ out:
 	return ret;
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wframe-larger-than="
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	unsigned int i;
@@ -76,3 +78,4 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_RELEASE_MEM(ws);
 	return ret;
 }
+#pragma GCC diagnostic pop

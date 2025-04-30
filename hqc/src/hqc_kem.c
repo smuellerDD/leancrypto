@@ -30,6 +30,7 @@
 #include "lc_sha3.h"
 #include "parsing.h"
 #include "ret_checkers.h"
+#include "small_stack_support.h"
 #include "static_rng.h"
 #include "vector.h"
 #include "visibility.h"
@@ -108,20 +109,28 @@ static inline void hqc_shake256_512(struct lc_hash_ctx *shake256,
 int lc_hqc_enc_internal(struct lc_hqc_ct *ct, struct lc_hqc_ss *ss,
 			const struct lc_hqc_pk *pk, struct lc_rng_ctx *rng_ctx)
 {
-	uint8_t theta[LC_HQC_SHAKE256_512_BYTES] = { 0 };
-	uint64_t u[LC_HQC_VEC_N_SIZE_64] = { 0 };
-	uint64_t v[LC_HQC_VEC_N1N2_SIZE_64] = { 0 };
-	uint8_t mc[LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_VEC_N_SIZE_BYTES +
-		   LC_HQC_VEC_N1N2_SIZE_BYTES] = { 0 };
-	uint8_t tmp[LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_PUBLIC_KEY_BYTES +
-		    LC_HQC_SALT_SIZE_BYTES] = { 0 };
-	uint8_t *m = tmp;
-	//TODO PQClean vs reference inconsistency: take full PK vs 2*LC_HQC_SALT_SIZE_BYTES from PK
-	//uint8_t *salt = tmp + LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_PUBLIC_KEY_BYTES;
-	uint8_t *salt =
-		tmp + LC_HQC_VEC_K_SIZE_BYTES + 2 * LC_HQC_SALT_SIZE_BYTES;
+	struct workspace {
+		uint8_t theta[LC_HQC_SHAKE256_512_BYTES];
+		uint64_t u[LC_HQC_VEC_N_SIZE_64];
+		uint64_t v[LC_HQC_VEC_N1N2_SIZE_64];
+		uint8_t mc[LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_VEC_N_SIZE_BYTES +
+			   LC_HQC_VEC_N1N2_SIZE_BYTES];
+		uint8_t tmp[LC_HQC_VEC_K_SIZE_BYTES +
+			    2 * LC_HQC_SALT_SIZE_BYTES +
+			    LC_HQC_SALT_SIZE_BYTES];
+		//uint8_t tmp[LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_PUBLIC_KEY_BYTES +
+		//	    LC_HQC_SALT_SIZE_BYTES];
+		struct hqc_pke_encrypt_ws hqc_pke_ws;
+	};
+	uint8_t *m, *salt;
 	int ret;
 	LC_SHAKE_256_CTX_ON_STACK(shake256);
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+
+	m = ws->tmp;
+	//TODO PQClean vs reference inconsistency: take full PK vs 2*LC_HQC_SALT_SIZE_BYTES from PK
+	//salt = ws->tmp + LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_PUBLIC_KEY_BYTES;
+	salt = ws->tmp + LC_HQC_VEC_K_SIZE_BYTES + 2 * LC_HQC_SALT_SIZE_BYTES;
 
 	// Computing m
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, m, LC_HQC_VEC_K_SIZE_BYTES));
@@ -129,37 +138,37 @@ int lc_hqc_enc_internal(struct lc_hqc_ct *ct, struct lc_hqc_ss *ss,
 	// Computing theta
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, salt, LC_HQC_SALT_SIZE_BYTES));
 	//memcpy(tmp + LC_HQC_VEC_K_SIZE_BYTES, pk->pk, LC_HQC_PUBLIC_KEY_BYTES);
-	memcpy(tmp + LC_HQC_VEC_K_SIZE_BYTES, pk->pk,
+	memcpy(ws->tmp + LC_HQC_VEC_K_SIZE_BYTES, pk->pk,
 	       2 * LC_HQC_SALT_SIZE_BYTES);
 	// hqc_shake256_512(shake256, theta, tmp,
 	// 		 LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_PUBLIC_KEY_BYTES +
 	// 			 LC_HQC_SALT_SIZE_BYTES,
 	// 		 LC_HQC_G_FCT_DOMAIN);
-	hqc_shake256_512(shake256, theta, tmp,
+	hqc_shake256_512(shake256, ws->theta, ws->tmp,
 			 LC_HQC_VEC_K_SIZE_BYTES + 2 * LC_HQC_SALT_SIZE_BYTES +
 				 LC_HQC_SALT_SIZE_BYTES,
 			 LC_HQC_G_FCT_DOMAIN);
 
 	// Encrypting m
-	hqc_pke_encrypt(u, v, m, theta, pk->pk);
+	hqc_pke_encrypt(ws->u, ws->v, m, ws->theta, pk->pk, &ws->hqc_pke_ws);
 
 	// Computing shared secret
-	memcpy(mc, m, LC_HQC_VEC_K_SIZE_BYTES);
-	store8_arr(mc + LC_HQC_VEC_K_SIZE_BYTES, LC_HQC_VEC_N_SIZE_BYTES, u,
-		   LC_HQC_VEC_N_SIZE_64);
-	store8_arr(mc + LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_VEC_N_SIZE_BYTES,
-		   LC_HQC_VEC_N1N2_SIZE_BYTES, v, LC_HQC_VEC_N1N2_SIZE_64);
-	hqc_shake256_512(shake256, ss->ss, mc,
+	memcpy(ws->mc, m, LC_HQC_VEC_K_SIZE_BYTES);
+	store8_arr(ws->mc + LC_HQC_VEC_K_SIZE_BYTES, LC_HQC_VEC_N_SIZE_BYTES,
+		   ws->u, LC_HQC_VEC_N_SIZE_64);
+	store8_arr(ws->mc + LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_VEC_N_SIZE_BYTES,
+		   LC_HQC_VEC_N1N2_SIZE_BYTES, ws->v, LC_HQC_VEC_N1N2_SIZE_64);
+	hqc_shake256_512(shake256, ss->ss, ws->mc,
 			 LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_VEC_N_SIZE_BYTES +
 				 LC_HQC_VEC_N1N2_SIZE_BYTES,
 			 LC_HQC_K_FCT_DOMAIN);
 
 	// Computing ciphertext
-	hqc_ciphertext_to_string(ct->ct, u, v, salt);
+	hqc_ciphertext_to_string(ct->ct, ws->u, ws->v, salt);
 
 out:
 	lc_hash_zero(shake256);
-
+	LC_RELEASE_MEM(ws);
 	return ret;
 }
 
@@ -195,68 +204,85 @@ out:
 LC_INTERFACE_FUNCTION(int, lc_hqc_dec, struct lc_hqc_ss *ss,
 		      const struct lc_hqc_ct *ct, const struct lc_hqc_sk *sk)
 {
-	uint8_t result;
-	uint64_t u[LC_HQC_VEC_N_SIZE_64] = { 0 };
-	uint64_t v[LC_HQC_VEC_N1N2_SIZE_64] = { 0 };
+	struct workspace {
+		uint64_t u[LC_HQC_VEC_N_SIZE_64];
+		uint64_t v[LC_HQC_VEC_N1N2_SIZE_64];
+		uint64_t u2[LC_HQC_VEC_N_SIZE_64];
+		uint64_t v2[LC_HQC_VEC_N1N2_SIZE_64];
+		uint8_t sigma[LC_HQC_VEC_K_SIZE_BYTES];
+		uint8_t theta[LC_HQC_SHAKE256_512_BYTES];
+		uint8_t mc[LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_VEC_N_SIZE_BYTES +
+			   LC_HQC_VEC_N1N2_SIZE_BYTES];
+		uint8_t tmp[LC_HQC_VEC_K_SIZE_BYTES +
+			    2 * LC_HQC_SALT_SIZE_BYTES +
+			    LC_HQC_SALT_SIZE_BYTES];
+		//uint8_t tmp[LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_PUBLIC_KEY_BYTES +
+		//	    LC_HQC_SALT_SIZE_BYTES];
+		union {
+			struct hqc_pke_decrypt_ws hqc_decrypt_pke_ws;
+			struct hqc_pke_encrypt_ws hqc_encrypt_pke_ws;
+		} wsu;
+	};
 	const uint8_t *pk =
-		sk->sk + LC_HQC_SEED_BYTES + LC_HQC_VEC_K_SIZE_BYTES;
-	uint8_t sigma[LC_HQC_VEC_K_SIZE_BYTES] = { 0 };
-	uint8_t theta[LC_HQC_SHAKE256_512_BYTES] = { 0 };
-	uint64_t u2[LC_HQC_VEC_N_SIZE_64] = { 0 };
-	uint64_t v2[LC_HQC_VEC_N1N2_SIZE_64] = { 0 };
-	uint8_t mc[LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_VEC_N_SIZE_BYTES +
-		   LC_HQC_VEC_N1N2_SIZE_BYTES] = { 0 };
-	uint8_t tmp[LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_PUBLIC_KEY_BYTES +
-		    LC_HQC_SALT_SIZE_BYTES] = { 0 };
-	uint8_t *m = tmp;
-	//TODO PQClean vs reference inconsistency: take full PK vs 2*LC_HQC_SALT_SIZE_BYTES from PK
-	uint8_t *salt =
-		tmp + LC_HQC_VEC_K_SIZE_BYTES + 2 * LC_HQC_SALT_SIZE_BYTES;
-	//uint8_t *salt = tmp + LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_PUBLIC_KEY_BYTES;
+			sk->sk + LC_HQC_SEED_BYTES + LC_HQC_VEC_K_SIZE_BYTES;
+	uint8_t *m, *salt;
+	uint8_t result;
 	LC_SHAKE_256_CTX_ON_STACK(shake256);
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+
+	m = ws->tmp;
+	//TODO PQClean vs reference inconsistency: take full PK vs 2*LC_HQC_SALT_SIZE_BYTES from PK
+	//salt = ws->tmp + LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_PUBLIC_KEY_BYTES;
+	salt = ws->tmp + LC_HQC_VEC_K_SIZE_BYTES + 2 * LC_HQC_SALT_SIZE_BYTES;
 
 	// Retrieving u, v and d from ciphertext
-	hqc_ciphertext_from_string(u, v, salt, ct->ct);
+	hqc_ciphertext_from_string(ws->u, ws->v, salt, ct->ct);
 
 	// Decrypting
-	result = hqc_pke_decrypt(m, sigma, u, v, sk->sk);
+	result = hqc_pke_decrypt(m, ws->sigma, ws->u, ws->v, sk->sk,
+				 &ws->wsu.hqc_decrypt_pke_ws);
 
 	// Computing theta
 	//memcpy(tmp + LC_HQC_VEC_K_SIZE_BYTES, pk, LC_HQC_PUBLIC_KEY_BYTES);
-	memcpy(tmp + LC_HQC_VEC_K_SIZE_BYTES, pk, 2 * LC_HQC_SALT_SIZE_BYTES);
-	// hqc_shake256_512(shake256, theta, tmp,
+	memcpy(ws->tmp + LC_HQC_VEC_K_SIZE_BYTES, pk,
+	       2 * LC_HQC_SALT_SIZE_BYTES);
+	// hqc_shake256_512(shake256, ws->theta, ws->tmp,
 	// 		 LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_PUBLIC_KEY_BYTES +
 	// 			 LC_HQC_SALT_SIZE_BYTES,
 	// 		 LC_HQC_G_FCT_DOMAIN);
-	hqc_shake256_512(shake256, theta, tmp,
+	hqc_shake256_512(shake256, ws->theta, ws->tmp,
 			 LC_HQC_VEC_K_SIZE_BYTES + 2 * LC_HQC_SALT_SIZE_BYTES +
 				 LC_HQC_SALT_SIZE_BYTES,
 			 LC_HQC_G_FCT_DOMAIN);
 
 	// Encrypting m'
-	hqc_pke_encrypt(u2, v2, m, theta, pk);
+	memset(&ws->wsu.hqc_encrypt_pke_ws, 0,
+	       sizeof(struct hqc_pke_encrypt_ws));
+	hqc_pke_encrypt(ws->u2, ws->v2, m, ws->theta, pk,
+			&ws->wsu.hqc_encrypt_pke_ws);
 
 	// Check if c != c'
-	result |= vect_compare((uint8_t *)u, (uint8_t *)u2,
+	result |= vect_compare((uint8_t *)ws->u, (uint8_t *)ws->u2,
 			       LC_HQC_VEC_N_SIZE_BYTES);
-	result |= vect_compare((uint8_t *)v, (uint8_t *)v2,
+	result |= vect_compare((uint8_t *)ws->v, (uint8_t *)ws->v2,
 			       LC_HQC_VEC_N1N2_SIZE_BYTES);
 
 	result -= 1;
 
 	for (size_t i = 0; i < LC_HQC_VEC_K_SIZE_BYTES; ++i)
-		mc[i] = (m[i] & result) ^ (sigma[i] & ~result);
+		ws->mc[i] = (m[i] & result) ^ (ws->sigma[i] & ~result);
 
 	// Computing shared secret
-	store8_arr(mc + LC_HQC_VEC_K_SIZE_BYTES, LC_HQC_VEC_N_SIZE_BYTES, u,
-		   LC_HQC_VEC_N_SIZE_64);
-	store8_arr(mc + LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_VEC_N_SIZE_BYTES,
-		   LC_HQC_VEC_N1N2_SIZE_BYTES, v, LC_HQC_VEC_N1N2_SIZE_64);
-	hqc_shake256_512(shake256, ss->ss, mc,
+	store8_arr(ws->mc + LC_HQC_VEC_K_SIZE_BYTES, LC_HQC_VEC_N_SIZE_BYTES,
+		   ws->u, LC_HQC_VEC_N_SIZE_64);
+	store8_arr(ws->mc + LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_VEC_N_SIZE_BYTES,
+		   LC_HQC_VEC_N1N2_SIZE_BYTES, ws->v, LC_HQC_VEC_N1N2_SIZE_64);
+	hqc_shake256_512(shake256, ss->ss, ws->mc,
 			 LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_VEC_N_SIZE_BYTES +
 				 LC_HQC_VEC_N1N2_SIZE_BYTES,
 			 LC_HQC_K_FCT_DOMAIN);
 
+	LC_RELEASE_MEM(ws);
 	return (result & 1) - 1;
 }
 

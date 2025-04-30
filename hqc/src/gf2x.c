@@ -228,11 +228,9 @@ static void reduce(uint64_t *o, const uint64_t *a)
  * @param[in] v1 Pointer to the first polynomial
  * @param[in] v2 Pointer to the second polynomial
  */
-void vect_mul(uint64_t *o, const uint64_t *v1, const uint64_t *v2)
+void vect_mul(uint64_t *o, const uint64_t *v1, const uint64_t *v2,
+	      struct vect_mul_ws *ws)
 {
-	uint64_t stack[LC_HQC_VEC_N_SIZE_64 << 3] = { 0 };
-	uint64_t o_karat[LC_HQC_VEC_N_SIZE_64 << 1] = { 0 };
-
-	karatsuba(o_karat, v1, v2, LC_HQC_VEC_N_SIZE_64, stack);
-	reduce(o, o_karat);
+	karatsuba(ws->o_karat, v1, v2, LC_HQC_VEC_N_SIZE_64, ws->stack);
+	reduce(o, ws->o_karat);
 }

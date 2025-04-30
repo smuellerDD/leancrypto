@@ -30,6 +30,7 @@
 #ifndef HQC_H
 #define HQC_H
 
+#include "hqc_internal.h"
 #include "hqc_type.h"
 #include "lc_rng.h"
 
@@ -41,10 +42,11 @@ int hqc_pke_keygen(struct lc_hqc_pk *pk, struct lc_hqc_sk *sk,
 		   struct lc_rng_ctx *rng_ctx);
 
 void hqc_pke_encrypt(uint64_t *u, uint64_t *v, uint8_t *m, uint8_t *theta,
-		     const uint8_t *pk);
+		     const uint8_t *pk, struct hqc_pke_encrypt_ws *ws);
 
 uint8_t hqc_pke_decrypt(uint8_t *m, uint8_t *sigma, const uint64_t *u,
-			const uint64_t *v, const uint8_t *sk);
+			const uint64_t *v, const uint8_t *sk,
+			struct hqc_pke_decrypt_ws *ws);
 
 #ifdef __cplusplus
 }

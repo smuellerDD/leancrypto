@@ -30,6 +30,7 @@
 #ifndef CODE_H
 #define CODE_H
 
+#include "hqc_internal.h"
 #include "hqc_type.h"
 
 #ifdef __cplusplus
@@ -38,7 +39,8 @@ extern "C" {
 
 void code_encode(uint64_t *em, const uint8_t *message);
 
-void code_decode(uint8_t *m, const uint64_t *em);
+void code_decode(uint8_t *m, const uint64_t *em,
+		 struct reed_solomon_decode_ws *ws);
 
 #ifdef __cplusplus
 }
