@@ -110,6 +110,9 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 #ifdef LC_BIKE
 		 " BIKE: %s%s\n"
 #endif
+#ifdef LC_HQC
+		 " HQC: %s\n"
+#endif
 #ifdef LC_CURVE25519
 		 " Curve25519: %s%s%s\n"
 #endif
@@ -251,6 +254,11 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 			 "AVX512" :
 			 ""
 #endif /* LC_BIKE */
+	/* HQC */
+#ifdef LC_HQC
+		 ,
+		 "none"
+#endif /* LC_HQC */
 
 	/* Curve25519 */
 #ifdef LC_CURVE25519

@@ -1,0 +1,443 @@
+/*
+ * Copyright (C) 2024 - 2025, Stephan Mueller <smueller@chronox.de>
+ *
+ * License: see LICENSE file in root directory
+ *
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, ALL OF
+ * WHICH ARE HEREBY DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+ * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ */
+/*
+ * This code is derived in parts from the code distribution provided with
+ * https://github.com/PQClean/PQClean/
+ *
+ * The code is referenced as Public Domain
+ */
+
+#ifndef LC_HQC_@hqc_header@H
+#define LC_HQC_@hqc_header@H
+
+#include "ext_headers.h"
+#include "lc_rng.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/// \cond DO_NOT_DOCUMENT
+
+/*******************************************************************************
+ *             HQC Parameters
+ ******************************************************************************/
+/*
+  #define PARAM_N                               Define the parameter n of the scheme
+  #define PARAM_N1                              Define the parameter n1 of the scheme (length of Reed-Solomon code)
+  #define PARAM_N2                              Define the parameter n2 of the scheme (length of Duplicated Reed-Muller code)
+  #define PARAM_N1N2                            Define the length in bits of the Concatenated code
+  #define PARAM_OMEGA                           Define the parameter omega of the scheme
+  #define PARAM_OMEGA_E                         Define the parameter omega_e of the scheme
+  #define PARAM_OMEGA_R                         Define the parameter omega_r of the scheme
+
+  #define SECRET_KEY_BYTES                      Define the size of the secret key in bytes
+  #define PUBLIC_KEY_BYTES                      Define the size of the public key in bytes
+  #define SHARED_SECRET_BYTES                   Define the size of the shared secret in bytes
+  #define CIPHERTEXT_BYTES                      Define the size of the ciphertext in bytes
+
+  #define VEC_N_SIZE_BYTES                      Define the size of the array used to store a PARAM_N sized vector in bytes
+  #define VEC_K_SIZE_BYTES                      Define the size of the array used to store a PARAM_K sized vector in bytes
+  #define VEC_N1_SIZE_BYTES                     Define the size of the array used to store a PARAM_N1 sized vector in bytes
+  #define VEC_N1N2_SIZE_BYTES                   Define the size of the array used to store a PARAM_N1N2 sized vector in bytes
+
+  #define VEC_N_SIZE_64                         Define the size of the array used to store a PARAM_N sized vector in 64 bits
+  #define VEC_K_SIZE_64                         Define the size of the array used to store a PARAM_K sized vector in 64 bits
+  #define VEC_N1_SIZE_64                        Define the size of the array used to store a PARAM_N1 sized vector in 64 bits
+  #define VEC_N1N2_SIZE_64                      Define the size of the array used to store a PARAM_N1N2 sized vector in 64 bits
+
+  #define PARAM_DELTA                           Define the parameter delta of the scheme (correcting capacity of the Reed-Solomon code)
+  #define PARAM_M                               Define a positive integer
+  #define PARAM_GF_POLY                         Generator polynomial of galois field GF(2^PARAM_M), represented in hexadecimial form
+  #define PARAM_GF_POLY_WT                      Hamming weight of PARAM_GF_POLY
+  #define PARAM_GF_POLY_M2                      Distance between the primitive polynomial first two set bits
+  #define PARAM_GF_MUL_ORDER                    Define the size of the multiplicative group of GF(2^PARAM_M),  i.e 2^PARAM_M -1
+  #define PARAM_K                               Define the size of the information bits of the Reed-Solomon code
+  #define PARAM_G                               Define the size of the generator polynomial of Reed-Solomon code
+  #define PARAM_FFT                             The additive FFT takes a 2^PARAM_FFT polynomial as input
+                                                We use the FFT to compute the roots of sigma, whose degree if PARAM_DELTA=24
+                                                The smallest power of 2 greater than 24+1 is 32=2^5
+  #define RS_POLY_COEFS                         Coefficients of the generator polynomial of the Reed-Solomon code
+
+  #define RED_MASK                              A mask for the higher bits of a vector
+  #define SHAKE256_512_BYTES                    Define the size of SHAKE-256 output in bytes
+  #define SEED_BYTES                            Define the size of the seed in bytes
+  #define SALT_SIZE_BYTES                       Define the size of a salt in bytes
+*/
+
+/* Divide a by b and ceil the result */
+#define LC_HQC_CEIL_DIVIDE(a, b) (((a) + (b) - 1) / (b))
+
+#define LC_HQC_PRNG_DOMAIN 1
+#define LC_HQC_SEEDEXPANDER_DOMAIN 2
+#define LC_HQC_G_FCT_DOMAIN 3
+#define LC_HQC_K_FCT_DOMAIN 4
+
+#define LC_HQC_TYPE @hqc_strength@
+
+#if (LC_HQC_TYPE == 128)
+
+#define LC_HQC_CRYPTO_SECRETKEYBYTES 2305
+#define LC_HQC_CRYPTO_PUBLICKEYBYTES 2249
+#define LC_HQC_CRYPTO_BYTES 64
+#define LC_HQC_CRYPTO_CIPHERTEXTBYTES 4433
+
+#define LC_HQC_PARAM_N 17669
+#define LC_HQC_PARAM_N1 46
+#define LC_HQC_PARAM_N2 384
+#define LC_HQC_PARAM_N1N2 17664
+#define LC_HQC_PARAM_OMEGA 66
+#define LC_HQC_PARAM_OMEGA_E 75
+#define LC_HQC_PARAM_OMEGA_R 75
+
+#define LC_HQC_VEC_N_SIZE_BYTES LC_HQC_CEIL_DIVIDE(LC_HQC_PARAM_N, 8)
+#define LC_HQC_VEC_K_SIZE_BYTES LC_HQC_PARAM_K
+#define LC_HQC_VEC_N1_SIZE_BYTES LC_HQC_PARAM_N1
+#define LC_HQC_VEC_N1N2_SIZE_BYTES LC_HQC_CEIL_DIVIDE(LC_HQC_PARAM_N1N2, 8)
+
+#define LC_HQC_VEC_N_SIZE_64 LC_HQC_CEIL_DIVIDE(LC_HQC_PARAM_N, 64)
+#define LC_HQC_VEC_K_SIZE_64 LC_HQC_CEIL_DIVIDE(LC_HQC_PARAM_K, 8)
+#define LC_HQC_VEC_N1_SIZE_64 LC_HQC_CEIL_DIVIDE(LC_HQC_PARAM_N1, 8)
+#define LC_HQC_VEC_N1N2_SIZE_64 LC_HQC_CEIL_DIVIDE(LC_HQC_PARAM_N1N2, 64)
+
+#define LC_HQC_PARAM_DELTA 15
+#define LC_HQC_PARAM_M 8
+#define LC_HQC_PARAM_GF_POLY 0x11D
+#define LC_HQC_PARAM_GF_POLY_WT 5
+#define LC_HQC_PARAM_GF_POLY_M2 4
+#define LC_HQC_PARAM_GF_MUL_ORDER 255
+#define LC_HQC_PARAM_K 16
+#define LC_HQC_PARAM_G 31
+#define LC_HQC_PARAM_FFT 4
+#define LC_HQC_RS_POLY_COEFS                                                   \
+	89, 69, 153, 116, 176, 117, 111, 75, 73, 233, 242, 233, 65, 210, 21,   \
+		139, 103, 173, 67, 118, 105, 210, 174, 110, 74, 69, 228, 82,   \
+		255, 181, 1
+
+#define LC_HQC_RED_MASK 0x1f
+#define LC_HQC_SHAKE256_512_BYTES 64
+#define LC_HQC_SEED_BYTES 40
+#define LC_HQC_SALT_SIZE_BYTES 16
+
+#elif (LC_HQC_TYPE == 192)
+
+#define LC_HQC_CRYPTO_SECRETKEYBYTES 4586
+#define LC_HQC_CRYPTO_PUBLICKEYBYTES 4522
+#define LC_HQC_CRYPTO_BYTES 64
+#define LC_HQC_CRYPTO_CIPHERTEXTBYTES 8978
+
+#define LC_HQC_PARAM_N 35851
+#define LC_HQC_PARAM_N1 56
+#define LC_HQC_PARAM_N2 640
+#define LC_HQC_PARAM_N1N2 35840
+#define LC_HQC_PARAM_OMEGA 100
+#define LC_HQC_PARAM_OMEGA_E 114
+#define LC_HQC_PARAM_OMEGA_R 114
+
+#define LC_HQC_VEC_N_SIZE_BYTES LC_HQC_CEIL_DIVIDE(LC_HQC_PARAM_N, 8)
+#define LC_HQC_VEC_K_SIZE_BYTES LC_HQC_PARAM_K
+#define LC_HQC_VEC_N1_SIZE_BYTES LC_HQC_PARAM_N1
+#define LC_HQC_VEC_N1N2_SIZE_BYTES LC_HQC_CEIL_DIVIDE(LC_HQC_PARAM_N1N2, 8)
+
+#define LC_HQC_VEC_N_SIZE_64 LC_HQC_CEIL_DIVIDE(LC_HQC_PARAM_N, 64)
+#define LC_HQC_VEC_K_SIZE_64 LC_HQC_LC_HQC_CEIL_DIVIDE(LC_HQC_PARAM_K, 8)
+#define LC_HQC_VEC_N1_SIZE_64 LC_HQC_CEIL_DIVIDE(LC_HQC_PARAM_N1, 8)
+#define LC_HQC_VEC_N1N2_SIZE_64 LC_HQC_CEIL_DIVIDE(LC_HQC_PARAM_N1N2, 64)
+
+#define LC_HQC_PARAM_DELTA 16
+#define LC_HQC_PARAM_M 8
+#define LC_HQC_PARAM_GF_POLY 0x11D
+#define LC_HQC_PARAM_GF_POLY_WT 5
+#define LC_HQC_PARAM_GF_POLY_M2 4
+#define LC_HQC_PARAM_GF_MUL_ORDER 255
+#define LC_HQC_PARAM_K 24
+#define LC_HQC_PARAM_G 33
+#define LC_HQC_PARAM_FFT 5
+#define LC_HQC_RS_POLY_COEFS                                                   \
+	45, 216, 239, 24, 253, 104, 27, 40, 107, 50, 163, 210, 227, 134, 224,  \
+		158, 119, 13, 158, 1, 238, 164, 82, 43, 15, 232, 246, 142, 50, \
+		189, 29, 232, 1
+
+#define LC_HQC_RED_MASK 0x7ff
+#define LC_HQC_SHAKE256_512_BYTES 64
+#define LC_HQC_SEED_BYTES 40
+#define LC_HQC_SALT_SIZE_BYTES 16
+
+#elif (LC_HQC_TYPE == 256)
+
+#define LC_HQC_CRYPTO_SECRETKEYBYTES 7317
+#define LC_HQC_CRYPTO_PUBLICKEYBYTES 7245
+#define LC_HQC_CRYPTO_BYTES 64
+#define LC_HQC_CRYPTO_CIPHERTEXTBYTES 14421
+
+#define LC_HQC_PARAM_N 57637
+#define LC_HQC_PARAM_N1 90
+#define LC_HQC_PARAM_N2 640
+#define LC_HQC_PARAM_N1N2 57600
+#define LC_HQC_PARAM_OMEGA 131
+#define LC_HQC_PARAM_OMEGA_E 149
+#define LC_HQC_PARAM_OMEGA_R 149
+
+#define LC_HQC_VEC_N_SIZE_BYTES LC_HQC_CEIL_DIVIDE(LC_HQC_PARAM_N, 8)
+#define LC_HQC_VEC_K_SIZE_BYTES LC_HQC_PARAM_K
+#define LC_HQC_VEC_N1_SIZE_BYTES LC_HQC_PARAM_N1
+#define LC_HQC_VEC_N1N2_SIZE_BYTES LC_HQC_CEIL_DIVIDE(LC_HQC_PARAM_N1N2, 8)
+
+#define LC_HQC_VEC_N_SIZE_64 LC_HQC_CEIL_DIVIDE(LC_HQC_PARAM_N, 64)
+#define LC_HQC_VEC_K_SIZE_64 LC_HQC_CEIL_DIVIDE(LC_HQC_PARAM_K, 8)
+#define LC_HQC_VEC_N1_SIZE_64 LC_HQC_CEIL_DIVIDE(LC_HQC_PARAM_N1, 8)
+#define LC_HQC_VEC_N1N2_SIZE_64 LC_HQC_CEIL_DIVIDE(LC_HQC_PARAM_N1N2, 64)
+
+#define LC_HQC_PARAM_DELTA 29
+#define LC_HQC_PARAM_M 8
+#define LC_HQC_PARAM_GF_POLY 0x11D
+#define LC_HQC_PARAM_GF_POLY_WT 5
+#define LC_HQC_PARAM_GF_POLY_M2 4
+#define LC_HQC_PARAM_GF_MUL_ORDER 255
+#define LC_HQC_PARAM_K 32
+#define LC_HQC_PARAM_G 59
+#define LC_HQC_PARAM_FFT 5
+#define LC_HQC_RS_POLY_COEFS                                                   \
+	49, 167, 49, 39, 200, 121, 124, 91, 240, 63, 148, 71, 150, 123, 87,    \
+		101, 32, 215, 159, 71, 201, 115, 97, 210, 186, 183, 141, 217,  \
+		123, 12, 31, 243, 180, 219, 152, 239, 99, 141, 4, 246, 191,    \
+		144, 8, 232, 47, 27, 141, 178, 130, 64, 124, 47, 39, 188, 216, \
+		48, 199, 187, 1
+
+#define LC_HQC_RED_MASK 0x1fffffffff
+#define LC_HQC_SHAKE256_512_BYTES 64
+#define LC_HQC_SEED_BYTES 40
+#define LC_HQC_SALT_SIZE_BYTES 16
+
+#else
+#error "Unknown HQC type"
+#endif
+
+#define LC_HQC_SECRET_KEY_BYTES LC_HQC_CRYPTO_SECRETKEYBYTES
+#define LC_HQC_PUBLIC_KEY_BYTES LC_HQC_CRYPTO_PUBLICKEYBYTES
+#define LC_HQC_SHARED_SECRET_BYTES LC_HQC_CRYPTO_BYTES
+#define LC_HQC_CIPHERTEXT_BYTES LC_HQC_CRYPTO_CIPHERTEXTBYTES
+
+#define LC_HQC_ALIGN_BYTES (sizeof(uint64_t))
+
+/// \endcond
+
+/**
+ * @brief Bike public key
+ */
+struct @hqc_name@_pk
+{
+	uint8_t pk[LC_HQC_PUBLIC_KEY_BYTES];
+};
+
+/**
+ * @brief Bike secret key
+ */
+struct @hqc_name@_sk
+{
+	uint8_t sk[LC_HQC_SECRET_KEY_BYTES];
+};
+
+/**
+ * @brief Bike ciphertext
+ */
+struct @hqc_name@_ct
+{
+	uint8_t ct[LC_HQC_CIPHERTEXT_BYTES];
+};
+
+/**
+ * @brief Bike shared secret
+ */
+struct @hqc_name@_ss
+{
+	uint8_t ss[LC_HQC_SHARED_SECRET_BYTES];
+};
+
+/**
+ * @brief Generates public and private key for IND-CCA2-secure HQC key
+ *	  encapsulation mechanism
+ *
+ * @param [out] pk pointer to already allocated output public key
+ * @param [out] sk pointer to already allocated output private key
+ * @param [in] rng_ctx pointer to seeded random number generator context
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int @hqc_name@_keypair(struct @hqc_name@_pk *pk, struct @hqc_name@_sk *sk,
+		       struct lc_rng_ctx *rng_ctx);
+
+/**
+ * @brief Generates public and private key for IND-CCA2-secure HQC key
+ *	  encapsulation mechanism from a given seed.
+ *
+ * The idea of the function is the allowance of FIPS 203 to maintain the seed
+ * used to generate a key pair in lieu of maintaining a private key or the
+ * key pair (which used much more memory). The seed must be treated equally
+ * sensitive as a private key.
+ *
+ * The seed is generated by simply obtaining 64 bytes from a properly seeded
+ * DRNG, i.e. the same way as a symmetric key would be generated.
+ *
+ * @param [out] pk pointer to allocated output public key
+ * @param [out] sk pointer to allocated output private key
+ * @param [in] seed buffer with the seed data which must be exactly 64 bytes
+ *		    in size
+ * @param [in] seedlen length of the seed buffer
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int @hqc_name@_keypair_from_seed(struct @hqc_name@_pk *pk,
+				 struct @hqc_name@_sk *sk,
+				 const uint8_t *seed, size_t seedlen);
+
+/**
+ * @brief HQC Key encapsulation
+ *
+ * Generates cipher text and shared secret for given public key.
+ *
+ * @param [out] ct pointer to output cipher text to used for decapsulation
+ * @param [out] ss pointer to output shared secret that will be also produced
+ *		   during decapsulation
+ * @param [in] pk pointer to input public key
+ *
+ * Returns 0 (success) or < 0 on error
+ */
+int @hqc_name@_enc(struct @hqc_name@_ct *ct, struct @hqc_name@_ss *ss,
+		   const struct @hqc_name@_pk *pk);
+
+/**
+ * @brief @hqc_name@_enc_kdf - Key encapsulation with KDF applied to shared
+ * secret
+ *
+ * Generates cipher text and shared secret for given public key. The shared
+ * secret is derived from the HQC SS using the KDF identically to the one used
+ * for Kyber.
+ *
+ *	SS <- KMAC256(K = HQC-SS, X = HQC-CT, L = requested SS length,
+ *		      S = "HQC KEM SS")
+ *
+ * @param [out] ct pointer to output cipher text to used for decapsulation
+ * @param [out] ss pointer to output shared secret that will be also produced
+ *		   during decapsulation
+ * @param [in] ss_len length of shared secret to be generated
+ * @param [in] pk pointer to input public key
+ *
+ * Returns 0 (success) or < 0 on error
+ */
+int @hqc_name@_enc_kdf(struct @hqc_name@_ct *ct, uint8_t *ss, size_t ss_len,
+		       const struct @hqc_name@_pk *pk);
+
+/**
+ * @brief HQC Key decapsulation
+ *
+ * Generates shared secret for given cipher text and private key
+ *
+ * @param [out] ss pointer to output shared secret that is the same as produced
+ *		   during encapsulation
+ * @param [in] ct pointer to input cipher text generated during encapsulation
+ * @param [in] sk pointer to input private key
+ *
+ * @return 0
+ *
+ * On failure, ss will contain a pseudo-random value.
+ */
+int @hqc_name@_dec(struct @hqc_name@_ss *ss, const struct @hqc_name@_ct *ct,
+		   const struct @hqc_name@_sk *sk);
+
+/**
+ * @brief lc_hqc_dec_kdf - Key decapsulation with KDF applied to shared secret
+ *
+ * Generates cipher text and shared secret for given private key. The shared
+ * secret is derived from the HQC SS using the KDF identically to the one used
+ * for Kyber.
+ *
+ *	SS <- KMAC256(K = HQC-SS, X = HQC-CT, L = requested SS length,
+ *		      S = "HQC KEM SS")
+ *
+ * @param [out] ss pointer to output shared secret that is the same as produced
+ *		   during encapsulation
+ * @param [in] ss_len length of shared secret to be generated
+ * @param [in] ct pointer to input cipher text generated during encapsulation
+ * @param [in] sk pointer to input private key
+ *
+ * @return 0
+ *
+ * On failure, ss will contain a pseudo-random value.
+ */
+int @hqc_name@_dec_kdf(uint8_t *ss, size_t ss_len,
+		       const struct @hqc_name@_ct *ct,
+		       const struct @hqc_name@_sk *sk);
+
+/*
+ * To allow including the different lc_hqc_*.h files, these macros need to be
+ * undefined. Only during compilation of leancrypto, these macros remain defined
+ * as this header file is not included multiple times.
+ */
+#ifndef LC_HQC_INTERNAL
+#undef LC_HQC_CEIL_DIVIDE
+#undef LC_HQC_PRNG_DOMAIN
+#undef LC_HQC_SEEDEXPANDER_DOMAIN
+#undef LC_HQC_G_FCT_DOMAIN
+#undef LC_HQC_K_FCT_DOMAIN
+#undef LC_HQC_TYPE
+#undef LC_HQC_SECRET_KEY_BYTES
+#undef LC_HQC_PUBLIC_KEY_BYTES
+#undef LC_HQC_SHARED_SECRET_BYTES
+#undef LC_HQC_CIPHERTEXT_BYTES
+#undef LC_HQC_CRYPTO_SECRETKEYBYTES
+#undef LC_HQC_CRYPTO_PUBLICKEYBYTES
+#undef LC_HQC_CRYPTO_BYTES
+#undef LC_HQC_CRYPTO_CIPHERTEXTBYTES
+#undef LC_HQC_PARAM_N
+#undef LC_HQC_PARAM_N1
+#undef LC_HQC_PARAM_N2
+#undef LC_HQC_PARAM_N1N2
+#undef LC_HQC_PARAM_OMEGA
+#undef LC_HQC_PARAM_OMEGA_E
+#undef LC_HQC_PARAM_OMEGA_R
+#undef LC_HQC_VEC_N_SIZE_BYTES
+#undef LC_HQC_VEC_K_SIZE_BYTES
+#undef LC_HQC_VEC_N1_SIZE_BYTES
+#undef LC_HQC_VEC_N1N2_SIZE_BYTES
+#undef LC_HQC_VEC_N_SIZE_64
+#undef LC_HQC_VEC_K_SIZE_64
+#undef LC_HQC_VEC_N1_SIZE_64
+#undef LC_HQC_VEC_N1N2_SIZE_64
+#undef LC_HQC_PARAM_DELTA
+#undef LC_HQC_PARAM_M
+#undef LC_HQC_PARAM_GF_POLY
+#undef LC_HQC_PARAM_GF_POLY
+#undef LC_HQC_PARAM_GF_POLY
+#undef LC_HQC_PARAM_GF_MUL_ORDER
+#undef LC_HQC_PARAM_K
+#undef LC_HQC_PARAM_G
+#undef LC_HQC_PARAM_FFT
+#undef LC_HQC_RS_POLY_COEFS
+#undef LC_HQC_RED_MASK
+#undef LC_HQC_SHAKE256_512_BYTES
+#undef LC_HQC_SEED_BYTES
+#undef LC_HQC_SALT_SIZE_BYTES
+#endif /* LC_HQC_INTERNAL */
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* LC_HQC_@hqc_header@H */

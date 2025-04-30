@@ -11,7 +11,7 @@
 # Patchlevel Version: API / ABI compatible, no functional changes, no
 #		      enhancements, bug fixes only.
 project('leancrypto', 'c',
-	version: '1.3.1',
+	version: '1.4.0',
 	default_options: [
 		'warning_level=3',
 		'optimization=3',
@@ -171,6 +171,12 @@ if (get_option('bike_5').enabled() or
 	add_global_arguments([ '-DLC_BIKE' ], language: 'c')
 endif
 
+if (get_option('hqc_256').enabled() or
+    get_option('hqc_192').enabled() or
+    get_option('hqc_128').enabled())
+	add_global_arguments([ '-DLC_HQC' ], language: 'c')
+endif
+
 if get_option('efi').enabled()
 	add_global_arguments([ '-DLC_EFI' ], language: 'c')
 endif
@@ -314,6 +320,7 @@ include_dirs = include_directories([ 'aead/api',
 				     'drng/src',
 				     'hash/api',
 				     'hmac/api',
+				     'hqc/api',
 				     'ml-kem/api',
 				     'ml-kem/src', # For "common/" directory
 				     'kdf/api',
@@ -340,6 +347,8 @@ subdirs = [
 	    'curve25519/src',
 	    'drng/src',
 	    'hash/src',
+	    'hqc/api',
+	    'hqc/src',
 	    'internal/src',
 	    'kdf/src',
 	    'ml-kem/api',
@@ -360,6 +369,7 @@ testdirs = [ 'apps/tests',
 	     'curve25519/tests',
 	     'drng/tests',
 	     'hash/tests',
+	     'hqc/tests',
 	     'internal/tests',
 	     'kdf/tests',
 	     'ml-kem/tests',
@@ -468,6 +478,13 @@ if (get_option('sha3').disabled() and
      get_option('bike_3').enabled() or
      get_option('bike_1').enabled()))
 	error('BIKE support requires SHA-3')
+endif
+
+if (get_option('sha3').disabled() and
+    (get_option('hqc_256').enabled() or
+     get_option('hqc_192').enabled() or
+     get_option('hqc_128').enabled()))
+	error('HQC support requires SHA-3')
 endif
 
 if ((get_option('dilithium_ed25519').enabled() or

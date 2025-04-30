@@ -183,7 +183,7 @@ static inline void reencrypt(m_t *m, const pad_e_t *e,
 }
 
 /**
- * @brief kyber_ss_kdf - KDF to derive arbitrary sized SS from BIKE SS
+ * @brief bike_ss_kdf - KDF to derive arbitrary sized SS from BIKE SS
  *
  *	SS <- KMAC256(K = BIKE-SS, X = BIKE-CT, L = requested SS length,
  *		      S = "BIKE KEM SS")
@@ -194,10 +194,10 @@ static inline void bike_ss_kdf(uint8_t *ss, size_t ss_len,
 			       const struct lc_bike_ct *ct,
 			       const uint8_t bike_ss[LC_BIKE_SS_BYTES])
 {
-	static const uint8_t kyber_ss_label[] = "BIKE KEM SS";
+	static const uint8_t bike_ss_label[] = "BIKE KEM SS";
 
-	lc_kmac(lc_cshake256, bike_ss, LC_BIKE_SS_BYTES, kyber_ss_label,
-		sizeof(kyber_ss_label) - 1, (uint8_t *)ct,
+	lc_kmac(lc_cshake256, bike_ss, LC_BIKE_SS_BYTES, bike_ss_label,
+		sizeof(bike_ss_label) - 1, (uint8_t *)ct,
 		sizeof(struct lc_bike_ct), ss, ss_len);
 }
 

@@ -305,6 +305,13 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 
 ================================================================================
 
+The HQC KEM code is derived in parts from the code distribution provided with
+https://github.com/PQClean/PQClean/. The license for the original code is:
+
+Public Domain
+
+================================================================================
+
 The Sphincs+ / SLH-DSA code is derived in parts from the code distribution
 provided with https://github.com/sphincs/sphincsplus. The license for the
 original code is:

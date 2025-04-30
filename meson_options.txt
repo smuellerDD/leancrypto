@@ -145,6 +145,29 @@ same API, but instead of the prefix lc_bike_5, all APIs use lc_bike_1. This
 algorithm has 128 bits of security strength.
 ''')
 
+option('hqc_256', type: 'feature', value: 'enabled',
+       description: '''HQC-256 Category 5 Support
+
+Per default, HQC with NIST category 5 is enabled and accessible with the
+regular API.
+''')
+option('hqc_192', type: 'feature', value: 'enabled',
+       description: '''HQC-192 Category 3 Support
+
+Per default, HQC category 5 is enabled and accessible with the regular API.
+When enabling this option, HQC category 3 is also made available which has the
+same API, but instead of the prefix lc_hqc_5, all APIs use lc_hqc_3. This
+algorithm has 192 bits of security strength.
+''')
+option('hqc_128', type: 'feature', value: 'enabled',
+       description: '''HQC-128 Category 1 Support
+
+Per default, HQC category 5 is enabled and accessible with the regular API.
+When enabling this option, HQC category 1 is also made available which has the
+same API, but instead of the prefix lc_hqc_5, all APIs use lc_hqc_1. This
+algorithm has 128 bits of security strength.
+''')
+
 option('sphincs_shake_256s', type: 'feature', value: 'enabled',
        description: '''Sphincs Plus 256 small signature (SLH-DSA-SHAKE-256s)
 
