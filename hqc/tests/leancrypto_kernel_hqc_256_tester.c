@@ -23,10 +23,10 @@
 #include <linux/module.h>
 #include <linux/scatterlist.h>
 
-#ifdef LC_HQC_TYPE_3
+#ifdef LC_HQC_TYPE_192
 #include "../hqc/tests/hqc_tester_vectors_192.h"
 #define LC_HQC_IMPL_NAME "hqc192-leancrypto"
-#elif defined LC_HQC_TYPE_1
+#elif defined LC_HQC_TYPE_128
 #include "../hqc/tests/hqc_tester_vectors_128.h"
 #define LC_HQC_IMPL_NAME "hqc128-leancrypto"
 #else
