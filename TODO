@@ -9,10 +9,6 @@
 
 - provide version numbers in one place (currently found in meson.build, leancrypto.spec and Kbuild.version)
 
-- BIKE: add self tests
-
-- BIKE: add timecop
-
 - ARMv8: enable ARMv8 intrinsics in the kernel (SHAKE2x and by extension SLH-DSA)
 
 - lc_x509_helper: remove duplication between asn1/tests/asn1_test_helper.c and apps/src/lc_x509_generator_file_helper.c

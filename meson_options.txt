@@ -122,13 +122,13 @@ algorithm has 128 bits of security strength.
 option('kyber_x25519', type: 'feature', value: 'enabled',
        description: 'Kyber-X25519 KEM')
 
-option('bike_5', type: 'feature', value: 'enabled',
+option('bike_5', type: 'feature', value: 'disabled', deprecated:true,
        description: '''BIKE Category 5 Support
 
 Per default, BIKE with NIST category 5 is enabled and accessible with the
 regular API.
 ''')
-option('bike_3', type: 'feature', value: 'enabled',
+option('bike_3', type: 'feature', value: 'disabled', deprecated:true,
        description: '''BIKE Category 3 Support
 
 Per default, BIKE category 5 is enabled and accessible with the regular API.
@@ -136,7 +136,7 @@ When enabling this option, BIKE category 3 is also made available which has the
 same API, but instead of the prefix lc_bike_5, all APIs use lc_bike_3. This
 algorithm has 192 bits of security strength.
 ''')
-option('bike_1', type: 'feature', value: 'enabled',
+option('bike_1', type: 'feature', value: 'disabled', deprecated:true,
        description: '''BIKE Category 1 Support
 
 Per default, BIKE category 5 is enabled and accessible with the regular API.

@@ -3,6 +3,8 @@ Changes 1.4.0-prerelease
 
 * add HQC following reference implementation (https://pqc-hqc.org/implementation.html (versions from 2025-02-19)) but derived from PQClean implementation
 
+* deprecate BIKE and disable it by default (the BIKE authors officially announced on the PQC forum to support the HQC development and deprecate the BIKE code base)
+
 Changes 1.3.0
 * Allow CPU entropy sources to be used as seed sources with meson option "seedsource=cpu"
 
