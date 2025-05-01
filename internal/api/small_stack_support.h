@@ -20,6 +20,7 @@
 #ifndef SMALL_STACK_SUPPORT_H
 #define SMALL_STACK_SUPPORT_H
 
+#include "ext_headers.h"
 #include "lc_memory_support.h"
 #include "lc_memset_secure.h"
 
@@ -54,7 +55,7 @@ extern "C" {
 /* Define macro LC_MEM_ON_HEAP if stack is less than 256KiB in size */
 #ifdef LC_MEM_ON_HEAP
 
-#define noinline_stack __attribute__((noinline))
+#define noinline_stack noinline
 
 #define LC_DECLARE_MEM(name, type, alignment)                                  \
 	_Pragma("GCC diagnostic push")                                         \

@@ -242,6 +242,8 @@ static const int errno_private = 0;
 
 #define LC_FIPS_RODATA_SECTION
 
+#define noinline __attribute__((__noinline__))
+
 #elif (defined(__CYGWIN__) || defined(_WIN32))
 /******************************************************************************
  * Windows
@@ -329,6 +331,8 @@ static inline int lc_get_time(time64_t *time_since_epoch)
 }
 
 #define LC_FIPS_RODATA_SECTION
+
+#define noinline __attribute__((__noinline__))
 
 #else /* LINUX_KERNEL */
 /******************************************************************************
@@ -421,6 +425,8 @@ static inline int lc_get_time(time64_t *time_since_epoch)
 #else
 #define LC_FIPS_RODATA_SECTION
 #endif
+
+#define noinline __attribute__((__noinline__))
 
 #endif /* LINUX_KERNEL */
 

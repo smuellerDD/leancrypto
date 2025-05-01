@@ -177,8 +177,29 @@ static int __init leancrypto_init(void)
 	if (ret)
 		goto free_sphincs_shake_128s;
 
+	ret = lc_kernel_hqc_init();
+	if (ret)
+		goto free_sphincs_shake_128f;
+
+	ret = lc_kernel_hqc_192_init();
+	if (ret)
+		goto free_hqc_256;
+
+	ret = lc_kernel_hqc_128_init();
+	if (ret)
+		goto free_hqc_192;
+
 out:
 	return ret;
+
+free_hqc_192:
+	lc_kernel_hqc_192_exit();
+
+free_hqc_256:
+	lc_kernel_hqc_exit();
+
+free_sphincs_shake_128f:
+	lc_kernel_sphincs_shake_128f_exit();
 
 free_sphincs_shake_128s:
 	lc_kernel_sphincs_shake_128s_exit();
@@ -296,6 +317,9 @@ static void __exit leancrypto_exit(void)
 	lc_kernel_sphincs_shake_192f_exit();
 	lc_kernel_sphincs_shake_128s_exit();
 	lc_kernel_sphincs_shake_128f_exit();
+	lc_kernel_hqc_exit();
+	lc_kernel_hqc_192_exit();
+	lc_kernel_hqc_128_exit();
 }
 
 module_init(leancrypto_init);

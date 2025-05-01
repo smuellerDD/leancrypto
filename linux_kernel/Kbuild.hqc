@@ -1,0 +1,108 @@
+################################################################################
+# HQC implementation
+
+ccflags-$(CONFIG_LEANCRYPTO_KEM_HQC) += -I$(src)/../hqc/src
+
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_HQC)					       \
+				+= ../hqc/src/hqc_api.o			       \
+				   ../hqc/src/shake_prng.o
+
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_HQC_256)				       \
+				+= ../hqc/src/code.o			       \
+				   ../hqc/src/fft.o			       \
+				   ../hqc/src/gf.o			       \
+				   ../hqc/src/gf2x.o			       \
+				   ../hqc/src/hqc.o			       \
+				   ../hqc/src/hqc_kem.o			       \
+				   ../hqc/src/parsing.o			       \
+				   ../hqc/src/reed_muller.o		       \
+				   ../hqc/src/reed_solomon.o		       \
+				   ../hqc/src/vector.o			       \
+				   leancrypto_kernel_hqc.o
+
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_HQC_192)				       \
+				+= hqc192/code.o			       \
+				   hqc192/fft.o				       \
+				   hqc192/gf.o				       \
+				   hqc192/gf2x.o			       \
+				   hqc192/hqc.o				       \
+				   hqc192/hqc_kem.o			       \
+				   hqc192/parsing.o			       \
+				   hqc192/reed_muller.o			       \
+				   hqc192/reed_solomon.o		       \
+				   hqc192/vector.o			       \
+				   hqc192/leancrypto_kernel_hqc.o
+
+hqc192_c_args = -DLC_HQC_TYPE_192
+CFLAGS_hqc192/code.o			= $(hqc192_c_args)
+CFLAGS_hqc192/fft.o			= $(hqc192_c_args)
+CFLAGS_hqc192/gf.o			= $(hqc192_c_args)
+CFLAGS_hqc192/gf2x.o			= $(hqc192_c_args)
+CFLAGS_hqc192/hqc.o			= $(hqc192_c_args)
+CFLAGS_hqc192/hqc_kem.o			= $(hqc192_c_args)
+CFLAGS_hqc192/parsing.o			= $(hqc192_c_args)
+CFLAGS_hqc192/reed_muller.o		= $(hqc192_c_args)
+CFLAGS_hqc192/reed_solomon.o		= $(hqc192_c_args)
+CFLAGS_hqc192/vector.o			= $(hqc192_c_args)
+CFLAGS_hqc192/leancrypto_kernel_hqc.o	= $(hqc192_c_args)
+
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_HQC_128)				       \
+				+= hqc128/code.o			       \
+				   hqc128/fft.o				       \
+				   hqc128/gf.o				       \
+				   hqc128/gf2x.o			       \
+				   hqc128/hqc.o				       \
+				   hqc128/hqc_kem.o			       \
+				   hqc128/parsing.o			       \
+				   hqc128/reed_muller.o			       \
+				   hqc128/reed_solomon.o		       \
+				   hqc128/vector.o			       \
+				   hqc128/leancrypto_kernel_hqc.o
+
+hqc128_c_args = -DLC_HQC_TYPE_128
+CFLAGS_hqc128/code.o			= $(hqc128_c_args)
+CFLAGS_hqc128/fft.o			= $(hqc128_c_args)
+CFLAGS_hqc128/gf.o			= $(hqc128_c_args)
+CFLAGS_hqc128/gf2x.o			= $(hqc128_c_args)
+CFLAGS_hqc128/hqc.o			= $(hqc128_c_args)
+CFLAGS_hqc128/hqc_kem.o			= $(hqc128_c_args)
+CFLAGS_hqc128/parsing.o			= $(hqc128_c_args)
+CFLAGS_hqc128/reed_muller.o		= $(hqc128_c_args)
+CFLAGS_hqc128/reed_solomon.o		= $(hqc128_c_args)
+CFLAGS_hqc128/vector.o			= $(hqc128_c_args)
+CFLAGS_hqc128/leancrypto_kernel_hqc.o	= $(hqc128_c_args)
+
+################################################################################
+# Testing Code
+################################################################################
+
+ifdef CONFIG_LEANCRYPTO_KEM_HQC_256
+obj-m		 		+= hqc_256_tester.o
+ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM_HQC_256
+obj-m				+= leancrypto_kernel_hqc_256_tester.o
+leancrypto_kernel_hqc_256_tester-y	+= ../hqc/tests/leancrypto_kernel_hqc_256_tester.o
+
+hqc_256_tester-y		+= ../hqc/tests/hqc_tester.o
+endif
+
+ifdef CONFIG_LEANCRYPTO_KEM_HQC_192
+obj-m		 		+= hqc_192_tester.o
+ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM_HQC_192
+obj-m				+= leancrypto_kernel_hqc_192_tester.o
+leancrypto_kernel_hqc_192_tester-y	+= hqc192/tests/leancrypto_kernel_hqc_192_tester.o
+
+hqc_192_tester-y			+= hqc192/tests/hqc_tester.o
+CFLAGS_hqc192/tests/leancrypto_kernel_hqc_192_tester.o	= -DLC_HQC_TYPE_192
+CFLAGS_hqc192/tests/hqc_tester.o			= -DLC_HQC_TYPE_192
+endif
+
+ifdef CONFIG_LEANCRYPTO_KEM_HQC_128
+obj-m		 		+= hqc_128_tester.o
+ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM_HQC_128
+obj-m				+= leancrypto_kernel_hqc_128_tester.o
+leancrypto_kernel_hqc_128_tester-y	+= hqc128/tests/leancrypto_kernel_hqc_128_tester.o
+
+hqc_128_tester-y		+= hqc128/tests/hqc_tester.o
+CFLAGS_hqc128/tests/leancrypto_kernel_hqc_128_tester.o	= -DLC_HQC_TYPE_128
+CFLAGS_hqc128/tests/hqc_tester.o			= -DLC_HQC_TYPE_128
+endif

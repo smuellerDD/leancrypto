@@ -58,6 +58,19 @@ CONFIG_LEANCRYPTO_KEM_BIKE=y
 endif
 
 #
+# Automatically select the common HQC code
+#
+ifdef CONFIG_LEANCRYPTO_KEM_HQC_256
+CONFIG_LEANCRYPTO_KEM_HQC=y
+endif
+ifdef CONFIG_LEANCRYPTO_KEM_HQC_192
+CONFIG_LEANCRYPTO_KEM_HQC=y
+endif
+ifdef CONFIG_LEANCRYPTO_KEM_HQC_128
+CONFIG_LEANCRYPTO_KEM_HQC=y
+endif
+
+#
 # Automatically select the common Dilithium code
 #
 ifdef CONFIG_LEANCRYPTO_SPHINCS_256s

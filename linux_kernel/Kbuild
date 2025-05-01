@@ -17,3 +17,4 @@ include $(src)/Kbuild.aes
 include $(src)/Kbuild.chacha20
 include $(src)/Kbuild.bike
 include $(src)/Kbuild.slh-dsa
+include $(src)/Kbuild.hqc

@@ -144,14 +144,14 @@ static int lc_hqc_ss(const char *algname)
 		goto out;
 	}
 
-	ss1 = kmalloc(LC_HQC_SS_BYTES, GFP_KERNEL);
+	ss1 = kmalloc(LC_HQC_SHARED_SECRET_BYTES, GFP_KERNEL);
 	if (!ss1) {
 		err = -ENOMEM;
 		pr_err("Cannot allocate HQC PK\n");
 		goto out;
 	}
 
-	ss2 = kmalloc(LC_HQC_SS_BYTES, GFP_KERNEL);
+	ss2 = kmalloc(LC_HQC_SHARED_SECRET_BYTES, GFP_KERNEL);
 	if (!ss2) {
 		err = -ENOMEM;
 		pr_err("Cannot allocate HQC PK\n");
@@ -190,9 +190,9 @@ static int lc_hqc_ss(const char *algname)
 		goto out;
 
 	/* Responder: Obtain the local shared secret */
-	sg_init_one(&dst, ss1, LC_HQC_SS_BYTES);
+	sg_init_one(&dst, ss1, LC_HQC_SHARED_SECRET_BYTES);
 	kpp_request_set_input(req, NULL, 0);
-	kpp_request_set_output(req, &dst, LC_HQC_SS_BYTES);
+	kpp_request_set_output(req, &dst, LC_HQC_SHARED_SECRET_BYTES);
 	err = lc_kpp_op(&kpp, 1);
 	pr_info("Responder: HQC SS gathering result %d\n", err);
 	if (err)
@@ -200,9 +200,9 @@ static int lc_hqc_ss(const char *algname)
 
 	/* Initiator: Generate the SS. */
 	sg_init_one(&src, ct, crypto_kpp_maxsize(tfm));
-	sg_init_one(&dst, ss2, LC_HQC_SS_BYTES);
+	sg_init_one(&dst, ss2, LC_HQC_SHARED_SECRET_BYTES);
 	kpp_request_set_input(req, &src, crypto_kpp_maxsize(tfm));
-	kpp_request_set_output(req, &dst, LC_HQC_SS_BYTES);
+	kpp_request_set_output(req, &dst, LC_HQC_SHARED_SECRET_BYTES);
 	kpp_request_set_callback(req, CRYPTO_TFM_REQ_MAY_BACKLOG, lc_kpp_cb,
 				 &kpp.result);
 
@@ -212,7 +212,7 @@ static int lc_hqc_ss(const char *algname)
 		goto out;
 
 	/* Check that both shared secrets are identical */
-	if (memcmp(ss1, ss2, LC_HQC_SS_BYTES)) {
+	if (memcmp(ss1, ss2, LC_HQC_SHARED_SECRET_BYTES)) {
 		pr_err("Shared secrets mismatch\n");
 		err = -EFAULT;
 		goto out;

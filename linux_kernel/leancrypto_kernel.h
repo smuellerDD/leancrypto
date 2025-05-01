@@ -438,6 +438,48 @@ static inline void lc_kernel_sphincs_shake_128f_exit(void)
 }
 #endif
 
+#ifdef CONFIG_LEANCRYPTO_KEM_HQC_256
+int __init lc_kernel_hqc_init(void);
+void lc_kernel_hqc_exit(void);
+#else
+static inline int __init lc_kernel_hqc_init(void)
+{
+	return 0;
+}
+
+static inline void lc_kernel_hqc_exit(void)
+{
+}
+#endif
+
+#ifdef CONFIG_LEANCRYPTO_KEM_HQC_192
+int __init lc_kernel_hqc_192_init(void);
+void lc_kernel_hqc_192_exit(void);
+#else
+static inline int __init lc_kernel_hqc_192_init(void)
+{
+	return 0;
+}
+
+static inline void lc_kernel_hqc_192_exit(void)
+{
+}
+#endif
+
+#ifdef CONFIG_LEANCRYPTO_KEM_HQC_128
+int __init lc_kernel_hqc_128_init(void);
+void lc_kernel_hqc_128_exit(void);
+#else
+static inline int __init lc_kernel_hqc_128_init(void)
+{
+	return 0;
+}
+
+static inline void lc_kernel_hqc_128_exit(void)
+{
+}
+#endif
+
 #ifdef __cplusplus
 }
 #endif

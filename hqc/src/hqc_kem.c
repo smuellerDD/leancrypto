@@ -106,8 +106,9 @@ static inline void hqc_shake256_512(struct lc_hash_ctx *shake256,
  * @param[in] pk String containing the public key
  * @returns 0 if encapsulation is successful
  */
-int lc_hqc_enc_internal(struct lc_hqc_ct *ct, struct lc_hqc_ss *ss,
-			const struct lc_hqc_pk *pk, struct lc_rng_ctx *rng_ctx)
+LC_INTERFACE_FUNCTION(int, lc_hqc_enc_internal, struct lc_hqc_ct *ct,
+		      struct lc_hqc_ss *ss, const struct lc_hqc_pk *pk,
+		      struct lc_rng_ctx *rng_ctx)
 {
 	struct workspace {
 		uint8_t theta[LC_HQC_SHAKE256_512_BYTES];
