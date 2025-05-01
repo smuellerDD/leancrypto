@@ -119,3 +119,37 @@ endif
 ifdef CONFIG_LEANCRYPTO_ASCON_CRYPT
 CONFIG_LEANCRYPTO_AEAD=y
 endif
+
+#
+# Enabled ciphers
+#
+ifdef CONFIG_LEANCRYPTO_AES
+ccflags-y	+= -DLC_AES
+endif
+ifdef CONFIG_LEANCRYPTO_SHA2_256
+ccflags-y	+= -DLC_SHA2_256
+endif
+ifdef CONFIG_LEANCRYPTO_SHA2_512
+ccflags-y	+= -DLC_SHA2_512
+endif
+ifdef CONFIG_LEANCRYPTO_SHA3
+ccflags-y	+= -DLC_SHA3
+endif
+ifdef CONFIG_LEANCRYPTO_KEM_KYBER
+ccflags-y	+= -DLC_KYBER
+endif
+ifdef CONFIG_LEANCRYPTO_DILITHIUM
+ccflags-y	+= -DLC_DILITHIUM
+endif
+ifdef CONFIG_LEANCRYPTO_SPHINCS
+ccflags-y	+= -DLC_SPHINCS
+endif
+ifdef CONFIG_LEANCRYPTO_KEM_BIKE
+ccflags-y	+= -DLC_BIKE
+endif
+ifdef CONFIG_LEANCRYPTO_KEM_HQC
+ccflags-y	+= -DLC_HQC
+endif
+ifdef CONFIG_LEANCRYPTO_CURVE25519
+ccflags-y	+= -DLC_CURVE25519
+endif
