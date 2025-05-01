@@ -235,7 +235,6 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER_768)				       \
 				   kyber768/armv8/kyber_kem_api_armv8.o	       \
 				   kyber768/armv8/kyber_kem_armv8.o	       \
 				   kyber768/armv8/kyber_ntt_armv8_asm.o	       \
-				   kyber768/armv8/kyber_poly_armv8.o	       \
 				   kyber768/armv8/kyber_poly_armv8_asm.o       \
 				   kyber768/armv8/kyber_reduce_armv8.o
 AFLAGS_kyber768/armv8/kyber_add_armv8.o		:= -DLC_KYBER_TYPE_768
@@ -246,7 +245,6 @@ AFLAGS_kyber768/armv8/kyber_inv_ntt_armv8.o	:= -DLC_KYBER_TYPE_768
 CFLAGS_kyber768/armv8/kyber_kem_api_armv8.o	:= -DLC_KYBER_TYPE_768
 CFLAGS_kyber768/armv8/kyber_kem_armv8.o		:= -DLC_KYBER_TYPE_768
 AFLAGS_kyber768/armv8/kyber_ntt_armv8_asm.o	:= -DLC_KYBER_TYPE_768
-CFLAGS_kyber768/armv8/kyber_poly_armv8.o	:= -DLC_KYBER_TYPE_768
 AFLAGS_kyber768/armv8/kyber_poly_armv8_asm.o	:= -DLC_KYBER_TYPE_768
 AFLAGS_kyber768/armv8/kyber_reduce_armv8.o	:= -DLC_KYBER_TYPE_768
 
