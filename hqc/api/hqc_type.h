@@ -79,6 +79,10 @@ extern "C" {
 #define lc_hqc_enc_internal HQC_F(enc_internal)
 #define lc_hqc_dec HQC_F(dec)
 #define lc_hqc_dec_kdf HQC_F(dec_kdf)
+#define hqc_kem_keygen_selftest HQC_F(hqc_kem_keygen_selftest)
+#define hqc_kem_enc_selftest HQC_F(hqc_kem_enc_selftest)
+#define hqc_kem_dec_selftest HQC_F(hqc_kem_dec_selftest)
+
 #define fft HQC_F(fft)
 #define fft_retrieve_error_poly HQC_F(fft_retrieve_error_poly)
 #define gf_mul HQC_F(gf_mul)

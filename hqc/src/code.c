@@ -62,7 +62,6 @@ void code_encode(uint64_t *em, const uint8_t *m)
 void code_decode(uint8_t *m, const uint64_t *em,
 		 struct reed_solomon_decode_ws *ws)
 {
-
 	reed_muller_decode(ws->code_decode_tmp, em);
 	reed_solomon_decode(m, ws->code_decode_tmp, ws);
 }

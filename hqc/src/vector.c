@@ -129,7 +129,7 @@ static inline uint32_t reduce(uint32_t a, size_t i)
 {
 	uint32_t q, n, r;
 
-	q = ((uint64_t)a * m_val[i]) >> 32;
+	q = (uint32_t)(((uint64_t)a * m_val[i]) >> 32);
 	n = (uint32_t)(LC_HQC_PARAM_N - i);
 	r = a - q * n;
 
@@ -242,7 +242,7 @@ uint8_t vect_compare(const uint8_t *v1, const uint8_t *v2, size_t size)
 	for (i = 0; i < size; i++)
 		r |= v1[i] ^ v2[i];
 
-	return (r - 1) >> 8;
+	return (uint8_t)((r - 1) >> 8);
 }
 
 /**
@@ -256,7 +256,7 @@ uint8_t vect_compare(const uint8_t *v1, const uint8_t *v2, size_t size)
 void vect_resize(uint64_t *o, uint32_t size_o, const uint64_t *v,
 		 uint32_t size_v)
 {
-	uint64_t mask = 0x7FFFFFFFFFFFFFFF;
+	static const uint64_t mask = 0x7FFFFFFFFFFFFFFF;
 	size_t i, val = 0;
 
 	if (size_o < size_v) {

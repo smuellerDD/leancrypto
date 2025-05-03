@@ -23,8 +23,10 @@
  * The code is referenced as Public Domain
  */
 
+#include "build_bug_on.h"
 #include "hqc_internal.h"
 #include "hqc.h"
+#include "hqc_selftest.h"
 #include "lc_kmac.h"
 #include "lc_rng.h"
 #include "lc_sha3.h"
@@ -72,6 +74,9 @@ static inline void hqc_ss_kdf(uint8_t *ss, size_t ss_len,
 LC_INTERFACE_FUNCTION(int, lc_hqc_keypair, struct lc_hqc_pk *pk,
 		      struct lc_hqc_sk *sk, struct lc_rng_ctx *rng_ctx)
 {
+	static int tester = 0;
+
+	hqc_kem_keygen_selftest(&tester, "HQC KEM keypair C", lc_hqc_keypair);
 	return hqc_pke_keygen(pk, sk, rng_ctx);
 }
 
@@ -117,10 +122,7 @@ LC_INTERFACE_FUNCTION(int, lc_hqc_enc_internal, struct lc_hqc_ct *ct,
 		uint8_t mc[LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_VEC_N_SIZE_BYTES +
 			   LC_HQC_VEC_N1N2_SIZE_BYTES];
 		uint8_t tmp[LC_HQC_VEC_K_SIZE_BYTES +
-			    2 * LC_HQC_SALT_SIZE_BYTES +
-			    LC_HQC_SALT_SIZE_BYTES];
-		//uint8_t tmp[LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_PUBLIC_KEY_BYTES +
-		//	    LC_HQC_SALT_SIZE_BYTES];
+			    2 * LC_HQC_SALT_SIZE_BYTES + LC_HQC_SALT_SIZE_BYTES];
 		struct hqc_pke_encrypt_ws hqc_pke_ws;
 	};
 	uint8_t *m, *salt;
@@ -129,8 +131,6 @@ LC_INTERFACE_FUNCTION(int, lc_hqc_enc_internal, struct lc_hqc_ct *ct,
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	m = ws->tmp;
-	//TODO PQClean vs reference inconsistency: take full PK vs 2*LC_HQC_SALT_SIZE_BYTES from PK
-	//salt = ws->tmp + LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_PUBLIC_KEY_BYTES;
 	salt = ws->tmp + LC_HQC_VEC_K_SIZE_BYTES + 2 * LC_HQC_SALT_SIZE_BYTES;
 
 	// Computing m
@@ -138,13 +138,8 @@ LC_INTERFACE_FUNCTION(int, lc_hqc_enc_internal, struct lc_hqc_ct *ct,
 
 	// Computing theta
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, salt, LC_HQC_SALT_SIZE_BYTES));
-	//memcpy(tmp + LC_HQC_VEC_K_SIZE_BYTES, pk->pk, LC_HQC_PUBLIC_KEY_BYTES);
 	memcpy(ws->tmp + LC_HQC_VEC_K_SIZE_BYTES, pk->pk,
 	       2 * LC_HQC_SALT_SIZE_BYTES);
-	// hqc_shake256_512(shake256, theta, tmp,
-	// 		 LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_PUBLIC_KEY_BYTES +
-	// 			 LC_HQC_SALT_SIZE_BYTES,
-	// 		 LC_HQC_G_FCT_DOMAIN);
 	hqc_shake256_512(shake256, ws->theta, ws->tmp,
 			 LC_HQC_VEC_K_SIZE_BYTES + 2 * LC_HQC_SALT_SIZE_BYTES +
 				 LC_HQC_SALT_SIZE_BYTES,
@@ -176,6 +171,9 @@ out:
 LC_INTERFACE_FUNCTION(int, lc_hqc_enc, struct lc_hqc_ct *ct,
 		      struct lc_hqc_ss *ss, const struct lc_hqc_pk *pk)
 {
+	static int tester = 0;
+
+	hqc_kem_enc_selftest(&tester, "HQC KEM enc C", lc_hqc_enc_internal);
 	return lc_hqc_enc_internal(ct, ss, pk, lc_seeded_rng);
 }
 
@@ -212,28 +210,27 @@ LC_INTERFACE_FUNCTION(int, lc_hqc_dec, struct lc_hqc_ss *ss,
 		uint64_t v2[LC_HQC_VEC_N1N2_SIZE_64];
 		uint8_t sigma[LC_HQC_VEC_K_SIZE_BYTES];
 		uint8_t theta[LC_HQC_SHAKE256_512_BYTES];
-		uint8_t mc[LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_VEC_N_SIZE_BYTES +
-			   LC_HQC_VEC_N1N2_SIZE_BYTES];
 		uint8_t tmp[LC_HQC_VEC_K_SIZE_BYTES +
-			    2 * LC_HQC_SALT_SIZE_BYTES +
-			    LC_HQC_SALT_SIZE_BYTES];
-		//uint8_t tmp[LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_PUBLIC_KEY_BYTES +
-		//	    LC_HQC_SALT_SIZE_BYTES];
+			    2 * LC_HQC_SALT_SIZE_BYTES + LC_HQC_SALT_SIZE_BYTES];
 		union {
+			uint8_t mc[LC_HQC_VEC_K_SIZE_BYTES +
+				   LC_HQC_VEC_N_SIZE_BYTES +
+				   LC_HQC_VEC_N1N2_SIZE_BYTES];
 			struct hqc_pke_decrypt_ws hqc_decrypt_pke_ws;
 			struct hqc_pke_encrypt_ws hqc_encrypt_pke_ws;
 		} wsu;
 	};
+	static int tester = 0;
 	const uint8_t *pk =
-			sk->sk + LC_HQC_SEED_BYTES + LC_HQC_VEC_K_SIZE_BYTES;
+		sk->sk + LC_HQC_SEED_BYTES + LC_HQC_VEC_K_SIZE_BYTES;
 	uint8_t *m, *salt;
 	uint8_t result;
 	LC_SHAKE_256_CTX_ON_STACK(shake256);
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
+	hqc_kem_dec_selftest(&tester, "HQC KEM dec C", lc_hqc_dec);
+
 	m = ws->tmp;
-	//TODO PQClean vs reference inconsistency: take full PK vs 2*LC_HQC_SALT_SIZE_BYTES from PK
-	//salt = ws->tmp + LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_PUBLIC_KEY_BYTES;
 	salt = ws->tmp + LC_HQC_VEC_K_SIZE_BYTES + 2 * LC_HQC_SALT_SIZE_BYTES;
 
 	// Retrieving u, v and d from ciphertext
@@ -244,13 +241,8 @@ LC_INTERFACE_FUNCTION(int, lc_hqc_dec, struct lc_hqc_ss *ss,
 				 &ws->wsu.hqc_decrypt_pke_ws);
 
 	// Computing theta
-	//memcpy(tmp + LC_HQC_VEC_K_SIZE_BYTES, pk, LC_HQC_PUBLIC_KEY_BYTES);
 	memcpy(ws->tmp + LC_HQC_VEC_K_SIZE_BYTES, pk,
 	       2 * LC_HQC_SALT_SIZE_BYTES);
-	// hqc_shake256_512(shake256, ws->theta, ws->tmp,
-	// 		 LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_PUBLIC_KEY_BYTES +
-	// 			 LC_HQC_SALT_SIZE_BYTES,
-	// 		 LC_HQC_G_FCT_DOMAIN);
 	hqc_shake256_512(shake256, ws->theta, ws->tmp,
 			 LC_HQC_VEC_K_SIZE_BYTES + 2 * LC_HQC_SALT_SIZE_BYTES +
 				 LC_HQC_SALT_SIZE_BYTES,
@@ -271,14 +263,16 @@ LC_INTERFACE_FUNCTION(int, lc_hqc_dec, struct lc_hqc_ss *ss,
 	result -= 1;
 
 	for (size_t i = 0; i < LC_HQC_VEC_K_SIZE_BYTES; ++i)
-		ws->mc[i] = (m[i] & result) ^ (ws->sigma[i] & ~result);
+		ws->wsu.mc[i] = (m[i] & result) ^ (ws->sigma[i] & ~result);
 
 	// Computing shared secret
-	store8_arr(ws->mc + LC_HQC_VEC_K_SIZE_BYTES, LC_HQC_VEC_N_SIZE_BYTES,
-		   ws->u, LC_HQC_VEC_N_SIZE_64);
-	store8_arr(ws->mc + LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_VEC_N_SIZE_BYTES,
+	store8_arr(ws->wsu.mc + LC_HQC_VEC_K_SIZE_BYTES,
+		   LC_HQC_VEC_N_SIZE_BYTES, ws->u, LC_HQC_VEC_N_SIZE_64);
+	store8_arr(ws->wsu.mc + LC_HQC_VEC_K_SIZE_BYTES +
+			   LC_HQC_VEC_N_SIZE_BYTES,
 		   LC_HQC_VEC_N1N2_SIZE_BYTES, ws->v, LC_HQC_VEC_N1N2_SIZE_64);
-	hqc_shake256_512(shake256, ss->ss, ws->mc,
+	BUILD_BUG_ON(LC_HQC_SHAKE256_512_BYTES != LC_HQC_SHARED_SECRET_BYTES);
+	hqc_shake256_512(shake256, ss->ss, ws->wsu.mc,
 			 LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_VEC_N_SIZE_BYTES +
 				 LC_HQC_VEC_N1N2_SIZE_BYTES,
 			 LC_HQC_K_FCT_DOMAIN);

@@ -34,6 +34,7 @@
 #include "cpufeatures.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
+#include "selftest_shake256_rng.h"
 #include "small_stack_support.h"
 #include "visibility.h"
 
@@ -57,91 +58,6 @@ struct workspace {
 };
 
 /********************************* Test DRNG **********************************/
-
-#define LC_SELFTEST_SHAKE256_DRNG_STATE_SIZE (LC_SHAKE_256_CTX_SIZE)
-#define LC_SELFTEST_SHAKE256_DRNG_CTX_SIZE                                     \
-	(sizeof(struct lc_rng) + LC_SELFTEST_SHAKE256_DRNG_STATE_SIZE)
-
-extern const struct lc_rng *lc_selftest_shake256_drng;
-
-#define LC_SELFTEST_SHAKE256_HASH_SET_CTX(name) LC_SHAKE_256_CTX((name))
-
-#define LC_SELFTEST_SHAKE256_RNG_CTX(name)                                     \
-	LC_RNG_CTX(name, lc_selftest_shake256_drng);                           \
-	LC_SELFTEST_SHAKE256_HASH_SET_CTX(                                     \
-		(struct lc_hash_ctx *)name->rng_state);                        \
-	lc_rng_zero(name);                                                     \
-	lc_hash_init(name->rng_state)
-
-/*
- * The testing is based on the fact that,
- * - this "RNG" produces identical output
- *
- * WARNING: This RNG state is NOT meant to be used for any other purpose than
- * self tests!
- */
-#define LC_SELFTEST_SHAKE256_DRNG_CTX_ON_STACK(name)                           \
-	_Pragma("GCC diagnostic push") _Pragma(                                \
-		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-		LC_ALIGNED_BUFFER(name##_ctx_buf,                              \
-				  LC_SELFTEST_SHAKE256_DRNG_CTX_SIZE,          \
-				  LC_HASH_COMMON_ALIGNMENT);                   \
-	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name##_ctx_buf;         \
-	LC_SELFTEST_SHAKE256_RNG_CTX(name);                                    \
-	_Pragma("GCC diagnostic pop")
-
-/*
- * The selftest DRNG is a SHAKE256 state that is initialized to a zero state.
- * The Keccak squeeze operation generates data from the SHAKE state.
- */
-
-static int selftest_rng_gen(void *_state, const uint8_t *addtl_input,
-			    size_t addtl_input_len, uint8_t *out, size_t outlen)
-{
-	struct lc_hash_ctx *state = _state;
-
-	(void)addtl_input;
-	(void)addtl_input_len;
-
-	lc_hash_set_digestsize(state, outlen);
-	lc_hash_final(state, out);
-
-	return 0;
-}
-
-static int selftest_rng_seed(void *_state, const uint8_t *seed, size_t seedlen,
-			     const uint8_t *persbuf, size_t perslen)
-{
-	static const uint8_t domain = LC_HQC_PRNG_DOMAIN;
-	struct lc_hash_ctx *state = _state;
-
-	if (!state)
-		return -EINVAL;
-
-	lc_hash_init(state);
-	lc_hash_update(state, seed, seedlen);
-	lc_hash_update(state, persbuf, perslen);
-	lc_hash_update(state, &domain, sizeof(domain));
-
-	return 0;
-}
-
-static void selftest_rng_zero(void *_state)
-{
-	struct lc_hash_ctx *state = _state;
-
-	if (!state)
-		return;
-
-	lc_hash_zero(state);
-}
-
-static const struct lc_rng _lc_selftest_shake256_drng = {
-	.generate = selftest_rng_gen,
-	.seed = selftest_rng_seed,
-	.zero = selftest_rng_zero,
-};
-const struct lc_rng *lc_selftest_shake256_drng = &_lc_selftest_shake256_drng;
 
 static int hqc_tester_one(const struct lc_hqc_testvector *vector,
 			  struct workspace *ws)

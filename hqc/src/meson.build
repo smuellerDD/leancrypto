@@ -17,6 +17,7 @@ hqc_src = files([
 	'gf2x.c',
 	'hqc.c',
 	'hqc_kem.c',
+	'hqc_selftest.c',
 	'parsing.c',
 	'reed_muller.c',
 	'reed_solomon.c',
