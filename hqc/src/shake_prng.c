@@ -40,7 +40,7 @@
 void seedexpander_init(struct lc_hash_ctx *shake256, const uint8_t *seed,
 		       size_t seedlen)
 {
-	uint8_t domain = LC_HQC_SEEDEXPANDER_DOMAIN;
+	static const uint8_t domain = LC_HQC_SEEDEXPANDER_DOMAIN;
 
 	lc_hash_init(shake256);
 	lc_hash_update(shake256, seed, seedlen);

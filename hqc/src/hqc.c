@@ -84,12 +84,9 @@ int hqc_pke_keygen(struct lc_hqc_pk *pk, struct lc_hqc_sk *sk,
 	seedexpander_init(pk_seedexpander, ws->pk_seed, LC_HQC_SEED_BYTES);
 
 	// Compute secret key
-	//TODO PQClean vs reference inconsistency: x and y calls are swapped
-	vect_set_random_fixed_weight(sk_seedexpander, ws->y,
-				     LC_HQC_PARAM_OMEGA,
+	vect_set_random_fixed_weight(sk_seedexpander, ws->y, LC_HQC_PARAM_OMEGA,
 				     &ws->wsu.vect_set_f_ws);
-	vect_set_random_fixed_weight(sk_seedexpander, ws->x,
-				     LC_HQC_PARAM_OMEGA,
+	vect_set_random_fixed_weight(sk_seedexpander, ws->x, LC_HQC_PARAM_OMEGA,
 				     &ws->wsu.vect_set_f_ws);
 
 	// Compute public key
@@ -131,7 +128,6 @@ void hqc_pke_encrypt(uint64_t *u, uint64_t *v, uint8_t *m, uint8_t *theta,
 	hqc_public_key_from_string(ws->h, ws->s, pk, &ws->wsu.vect_set_r_ws);
 
 	// Generate r1, r2 and e
-	//TODO PQClean vs reference inconsistency: r1 moved to the end of the generation
 	vect_set_random_fixed_weight(vec_seedexpander, ws->r2,
 				     LC_HQC_PARAM_OMEGA_R,
 				     &ws->wsu.vect_set_f_ws);
@@ -169,19 +165,18 @@ void hqc_pke_encrypt(uint64_t *u, uint64_t *v, uint8_t *m, uint8_t *theta,
  *
  * @returns 0
  */
-noinline_stack
-uint8_t hqc_pke_decrypt(uint8_t *m, uint8_t *sigma, const uint64_t *u,
-			const uint64_t *v, const uint8_t *sk,
-			struct hqc_pke_decrypt_ws *ws)
+noinline_stack uint8_t hqc_pke_decrypt(uint8_t *m, uint8_t *sigma,
+				       const uint64_t *u, const uint64_t *v,
+				       const uint8_t *sk,
+				       struct hqc_pke_decrypt_ws *ws)
 {
 	// Retrieve x, y, pk from secret
-	//TODO PQClean vs reference inconsistency: x not required (changes how y is computed)
 	hqc_secret_key_from_string(ws->y, sigma, ws->pk, sk,
 				   &ws->wsu.vect_set_f_ws);
 
 	// Compute v - u.y
 	vect_resize(ws->tmp1, LC_HQC_PARAM_N, v, LC_HQC_PARAM_N1N2);
-	vect_mul(ws->tmp2, ws->y, u, &ws-> wsu.vect_mul_ws);
+	vect_mul(ws->tmp2, ws->y, u, &ws->wsu.vect_mul_ws);
 	vect_add(ws->tmp2, ws->tmp1, ws->tmp2, LC_HQC_VEC_N_SIZE_64);
 
 	// Compute m by decoding v - u.y

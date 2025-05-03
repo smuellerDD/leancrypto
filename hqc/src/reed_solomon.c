@@ -338,7 +338,7 @@ static void compute_error_values(uint16_t *error_values, const uint16_t *z,
 static void correct_errors(uint8_t *cdw, const uint16_t *error_values)
 {
 	for (size_t i = 0; i < LC_HQC_PARAM_N1; ++i)
-		cdw[i] ^= error_values[i];
+		cdw[i] ^= (uint8_t)error_values[i];
 }
 
 /**
@@ -363,7 +363,6 @@ static void correct_errors(uint8_t *cdw, const uint16_t *error_values)
 void reed_solomon_decode(uint8_t *msg, uint8_t *cdw,
 			 struct reed_solomon_decode_ws *ws)
 {
-
 	uint16_t deg;
 
 	/* Calculate the 2*LC_HQC_PARAM_DELTA syndromes */

@@ -115,9 +115,10 @@ static void gf_carryless_mul(uint8_t c[2], uint8_t a, uint8_t b)
 
 	for (i = 0; i < 4; i++) {
 		tmp2 = (uint32_t)(tmp1 - i);
-		g ^= (u[i] &
-		      (uint32_t)(0 -
-				 (1 - ((uint32_t)(tmp2 | (0 - tmp2)) >> 31))));
+		g ^= (uint16_t)((
+			u[i] &
+			(uint32_t)(0 - (1 - ((uint32_t)(tmp2 | (0 - tmp2)) >>
+					     31)))));
 	}
 
 	l = g;
@@ -128,10 +129,11 @@ static void gf_carryless_mul(uint8_t c[2], uint8_t a, uint8_t b)
 		tmp1 = (a >> i) & 3;
 		for (j = 0; j < 4; ++j) {
 			tmp2 = (uint32_t)(tmp1 - j);
-			g ^= (u[j] &
-			      (uint32_t)(0 -
-					 (1 - ((uint32_t)(tmp2 | (0 - tmp2)) >>
-					       31))));
+			g ^= (uint16_t)((
+				u[j] &
+				(uint32_t)(0 - (1 - ((uint32_t)(tmp2 |
+								(0 - tmp2)) >>
+						     31)))));
 		}
 
 		l ^= g << i;
