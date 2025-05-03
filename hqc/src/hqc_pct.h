@@ -1,0 +1,80 @@
+/*
+ * Copyright (C) 2025, Stephan Mueller <smueller@chronox.de>
+ *
+ * License: see LICENSE file in root directory
+ *
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, ALL OF
+ * WHICH ARE HEREBY DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+ * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ */
+
+#ifndef HQC_PCT_H
+#define HQC_PCT_H
+
+#include "fips_mode.h"
+#include "lc_memcmp_secure.h"
+#include "small_stack_support.h"
+#include "ret_checkers.h"
+#include "timecop.h"
+#include "visibility.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+static inline int _lc_hqc_pct_fips(const struct lc_hqc_pk *pk,
+				     const struct lc_hqc_sk *sk)
+{
+	struct workspace {
+		struct lc_hqc_ct ct;
+		struct lc_hqc_ss ss1, ss2;
+	};
+	uint8_t *ss1_p, *ss2_p;
+	size_t ss1_size, ss2_size;
+	int ret;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+
+	CKINT(lc_hqc_enc(&ws->ct, &ws->ss1, pk));
+	CKINT(lc_hqc_dec(&ws->ss2, &ws->ct, sk));
+
+	ss1_p = ws->ss1.ss;
+	ss1_size = sizeof(ws->ss1.ss);
+	ss2_p = ws->ss2.ss;
+	ss2_size = sizeof(ws->ss2.ss);
+
+	/*
+	 * Timecop: the Kyber SS will not reveal anything about the SK or PK.
+	 * Further, it is not a secret here, as it is generated for testing.
+	 * Thus, we can ignore side channels here.
+	 */
+	unpoison(ss1_p, ss1_size);
+	unpoison(ss2_p, ss2_size);
+
+	CKINT(lc_memcmp_secure(ss1_p, ss1_size, ss2_p, ss2_size));
+
+out:
+	LC_RELEASE_MEM(ws);
+	return ret;
+}
+
+static inline int lc_hqc_pct_fips(const struct lc_hqc_pk *pk,
+				    const struct lc_hqc_sk *sk)
+{
+	FIPS140_PCT_LOOP(_lc_hqc_pct_fips(pk, sk))
+	return 0;
+}
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* HQC_PCT_H */

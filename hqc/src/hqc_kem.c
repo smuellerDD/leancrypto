@@ -26,6 +26,7 @@
 #include "build_bug_on.h"
 #include "hqc_internal.h"
 #include "hqc.h"
+#include "hqc_pct.h"
 #include "hqc_selftest.h"
 #include "lc_kmac.h"
 #include "lc_rng.h"
@@ -75,9 +76,14 @@ LC_INTERFACE_FUNCTION(int, lc_hqc_keypair, struct lc_hqc_pk *pk,
 		      struct lc_hqc_sk *sk, struct lc_rng_ctx *rng_ctx)
 {
 	static int tester = 0;
+	int ret;
 
 	hqc_kem_keygen_selftest(&tester, "HQC KEM keypair C", lc_hqc_keypair);
-	return hqc_pke_keygen(pk, sk, rng_ctx);
+	CKINT(hqc_pke_keygen(pk, sk, rng_ctx));
+
+	CKINT(lc_hqc_pct_fips(pk, sk));
+out:
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_hqc_keypair_from_seed, struct lc_hqc_pk *pk,
