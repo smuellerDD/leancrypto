@@ -35,7 +35,6 @@ static inline int _lc_kyber_pct_fips(const struct lc_kyber_pk *pk,
 				     const struct lc_kyber_sk *sk)
 {
 	struct workspace {
-		uint8_t m[32];
 		struct lc_kyber_ct ct;
 		struct lc_kyber_ss ss1, ss2;
 	};
@@ -43,8 +42,6 @@ static inline int _lc_kyber_pct_fips(const struct lc_kyber_pk *pk,
 	size_t ss1_size, ss2_size;
 	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
-
-	CKINT(lc_rng_generate(lc_seeded_rng, NULL, 0, ws->m, sizeof(ws->m)));
 
 	CKINT(lc_kyber_enc(&ws->ct, &ws->ss1, pk));
 	CKINT(lc_kyber_dec(&ws->ss2, &ws->ct, sk));
