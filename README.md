@@ -276,7 +276,9 @@ Leancrypto offers various cryptographic algorithms:
 
   * ML-KEM (Kyber) hybrid KEM / KEX with Curve25519
 
-  * BIKE Key Encapsulation Mechanism (KEM)
+  * BIKE Key Encapsulation Mechanism (KEM) (deprecated as specified by original authors)
+
+  * HQC Key Encapsulation Mechanism (KEM) (NIST round 4 winner)
 
 * One-Time Password (OTP) algorithms
 
