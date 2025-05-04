@@ -19,7 +19,6 @@
 
 use leancrypto::lcr_hash::lcr_hash;
 
-#[test]
 fn lc_rust_hash_sha3_512_alloc()
 {
 	let msg_512: [u8; 3] = [0x82, 0xD9, 0x19];
@@ -46,7 +45,6 @@ fn lc_rust_hash_sha3_512_alloc()
 	assert_eq!(act.as_slice(), &exp_512[..]);
 }
 
-#[test]
 fn lc_rust_hash_sha3_512_stack()
 {
 	let msg_512: [u8; 3] = [0x82, 0xD9, 0x19];
@@ -65,4 +63,10 @@ fn lc_rust_hash_sha3_512_stack()
 	assert_eq!(result, Ok(0));
 
 	assert_eq!(act.as_slice(), &exp_512[..]);
+}
+
+fn main()
+{
+	lc_rust_hash_sha3_512_stack();
+	lc_rust_hash_sha3_512_alloc();
 }

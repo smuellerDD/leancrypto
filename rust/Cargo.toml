@@ -1,17 +1,14 @@
-workspace = { members = ["examples/hash_example"] }
-[profile.release]
-lto = "thin"
-opt-level = 'z'     # Optimize for size
-codegen-units = 1   # Reduce number of codegen units to increase optimizations
-panic = 'abort'     # Abort on panic
-strip = true        # Strip symbols from binary
-
 [package]
 name = "leancrypto"
-version = "1.1.0"
+version = "1.4.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+authors = ["Stephan Mueller <smueller@chronox.de"]
+description = "Cryptographic library with stack-only support and PQC-safe algorithms"
+license = "BSD3"
+repository = "https://github.com/smuellerDD/leancrypto"
+readme = "README.md"
+keywords = ["leancrypto", "PQC", "cryptography", "c", "bindings"]
+categories = ["development-tools", "external-ffi-bindings"]
 
 [dependencies]
 
