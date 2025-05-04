@@ -32,7 +32,7 @@ extern "C" {
 #endif
 
 static inline int _lc_hqc_pct_fips(const struct lc_hqc_pk *pk,
-				     const struct lc_hqc_sk *sk)
+				   const struct lc_hqc_sk *sk)
 {
 	struct workspace {
 		struct lc_hqc_ct ct;
@@ -67,7 +67,7 @@ out:
 }
 
 static inline int lc_hqc_pct_fips(const struct lc_hqc_pk *pk,
-				    const struct lc_hqc_sk *sk)
+				  const struct lc_hqc_sk *sk)
 {
 	FIPS140_PCT_LOOP(_lc_hqc_pct_fips(pk, sk))
 	return 0;

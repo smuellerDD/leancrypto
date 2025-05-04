@@ -169,7 +169,8 @@ void vect_set_random_fixed_weight(struct lc_hash_ctx *shake256, uint64_t *v,
 			found |= compare_u32(ws->support[j], ws->support[i]);
 
 		mask32 = 0 - found;
-		ws->support[i] = (mask32 & i) ^ (~mask32 & ws->support[i]);
+		ws->support[i] =
+			(mask32 & (uint32_t)i) ^ (~mask32 & ws->support[i]);
 	}
 
 	for (i = 0; i < weight; ++i) {

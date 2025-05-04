@@ -40,7 +40,7 @@
 static int _hqc_kem_keygen_selftest(
 	const char *impl,
 	int (*_lc_hqc_keypair)(struct lc_hqc_pk *pk, struct lc_hqc_sk *sk,
-				 struct lc_rng_ctx *rng_ctx))
+			       struct lc_rng_ctx *rng_ctx))
 {
 	struct workspace {
 		struct lc_hqc_pk pk;
@@ -55,14 +55,14 @@ static int _hqc_kem_keygen_selftest(
 
 	_lc_hqc_keypair(&ws->pk, &ws->sk, selftest_rng);
 	snprintf(str, sizeof(str), "%s PK", impl);
-	lc_compare_selftest(ws->pk.pk, hqc_test[0].pk,
-			    LC_HQC_PUBLIC_KEY_BYTES, str);
+	lc_compare_selftest(ws->pk.pk, hqc_test[0].pk, LC_HQC_PUBLIC_KEY_BYTES,
+			    str);
 	snprintf(str, sizeof(str), "%s SK", impl);
 
 	/* Timecop: Selftest does not contain secrets */
 	unpoison(&ws->sk.sk, LC_HQC_SECRET_KEY_BYTES);
-	lc_compare_selftest(ws->sk.sk, hqc_test[0].sk,
-			    LC_HQC_SECRET_KEY_BYTES, str);
+	lc_compare_selftest(ws->sk.sk, hqc_test[0].sk, LC_HQC_SECRET_KEY_BYTES,
+			    str);
 
 	LC_RELEASE_MEM(ws);
 	lc_rng_zero(selftest_rng);
@@ -70,10 +70,10 @@ static int _hqc_kem_keygen_selftest(
 	return 0;
 }
 
-void hqc_kem_keygen_selftest(
-	int *tested, const char *impl,
-	int (*_lc_hqc_keypair)(struct lc_hqc_pk *pk, struct lc_hqc_sk *sk,
-				 struct lc_rng_ctx *rng_ctx))
+void hqc_kem_keygen_selftest(int *tested, const char *impl,
+			     int (*_lc_hqc_keypair)(struct lc_hqc_pk *pk,
+						    struct lc_hqc_sk *sk,
+						    struct lc_rng_ctx *rng_ctx))
 {
 	LC_SELFTEST_RUN(tested);
 
@@ -81,11 +81,11 @@ void hqc_kem_keygen_selftest(
 		*tested = 0;
 }
 
-static int _hqc_kem_enc_selftest(
-	const char *impl,
-	int (*_lc_hqc_enc)(struct lc_hqc_ct *ct, struct lc_hqc_ss *ss,
-			     const struct lc_hqc_pk *pk,
-			     struct lc_rng_ctx *rng_ctx))
+static int _hqc_kem_enc_selftest(const char *impl,
+				 int (*_lc_hqc_enc)(struct lc_hqc_ct *ct,
+						    struct lc_hqc_ss *ss,
+						    const struct lc_hqc_pk *pk,
+						    struct lc_rng_ctx *rng_ctx))
 {
 	struct workspace {
 		struct lc_hqc_ct ct;
@@ -104,13 +104,13 @@ static int _hqc_kem_enc_selftest(
 
 	// Encapsulation
 	_lc_hqc_enc(&ws->ct, &ws->key_b, (struct lc_hqc_pk *)&hqc_test[0].pk,
-		      selftest_rng);
+		    selftest_rng);
 	snprintf(str, sizeof(str), "%s CT", impl);
 
 	/* Timecop: Selftest does not contain secrets */
 	unpoison(&ws->ct.ct, LC_HQC_CIPHERTEXT_BYTES);
-	lc_compare_selftest(ws->ct.ct, hqc_test[0].ct,
-			    LC_HQC_CIPHERTEXT_BYTES, str);
+	lc_compare_selftest(ws->ct.ct, hqc_test[0].ct, LC_HQC_CIPHERTEXT_BYTES,
+			    str);
 	snprintf(str, sizeof(str), "%s SS", impl);
 
 	/* Timecop: Selftest does not contain secrets */
@@ -125,10 +125,10 @@ static int _hqc_kem_enc_selftest(
 }
 
 void hqc_kem_enc_selftest(int *tested, const char *impl,
-			    int (*_lc_hqc_enc)(struct lc_hqc_ct *ct,
-						 struct lc_hqc_ss *ss,
-						 const struct lc_hqc_pk *pk,
-						 struct lc_rng_ctx *rng_ctx))
+			  int (*_lc_hqc_enc)(struct lc_hqc_ct *ct,
+					     struct lc_hqc_ss *ss,
+					     const struct lc_hqc_pk *pk,
+					     struct lc_rng_ctx *rng_ctx))
 {
 	LC_SELFTEST_RUN(tested);
 
@@ -136,18 +136,17 @@ void hqc_kem_enc_selftest(int *tested, const char *impl,
 		*tested = 0;
 }
 
-static void
-_hqc_kem_dec_selftest(const char *impl,
-			int (*_lc_hqc_dec)(struct lc_hqc_ss *ss,
-					     const struct lc_hqc_ct *ct,
-					     const struct lc_hqc_sk *sk))
+static void _hqc_kem_dec_selftest(
+	const char *impl,
+	int (*_lc_hqc_dec)(struct lc_hqc_ss *ss, const struct lc_hqc_ct *ct,
+			   const struct lc_hqc_sk *sk))
 {
 	struct lc_hqc_ss key_a;
 	char str[25];
 
 	// Decapsulation
 	_lc_hqc_dec(&key_a, (struct lc_hqc_ct *)&hqc_test[0].ct,
-	(struct lc_hqc_sk *)&hqc_test[0].sk);
+		    (struct lc_hqc_sk *)&hqc_test[0].sk);
 	snprintf(str, sizeof(str), "%s SS", impl);
 
 	/* Timecop: Selftest does not contain secrets */
@@ -157,9 +156,9 @@ _hqc_kem_dec_selftest(const char *impl,
 }
 
 void hqc_kem_dec_selftest(int *tested, const char *impl,
-			    int (*_lc_hqc_dec)(struct lc_hqc_ss *ss,
-						 const struct lc_hqc_ct *ct,
-						 const struct lc_hqc_sk *sk))
+			  int (*_lc_hqc_dec)(struct lc_hqc_ss *ss,
+					     const struct lc_hqc_ct *ct,
+					     const struct lc_hqc_sk *sk))
 {
 	LC_SELFTEST_RUN(tested);
 

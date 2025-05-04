@@ -44,8 +44,8 @@ static uint16_t trailing_zero_bits_count(uint16_t a)
 	uint16_t mask = 0xFFFF;
 
 	for (i = 0; i < 14; ++i) {
-		tmp += ((1 - ((a >> i) & 0x0001)) & mask);
-		mask &= -(1 - ((a >> i) & 0x0001));
+		tmp += (uint16_t)((1 - ((a >> i) & 0x0001)) & mask);
+		mask &= (uint16_t)(-(1 - ((a >> i) & 0x0001)));
 	}
 
 	return tmp;
