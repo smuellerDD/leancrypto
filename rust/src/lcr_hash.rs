@@ -98,7 +98,7 @@ impl lcr_hash
 	{
 		let mut result = 0;
 
-		if self.hash_ctx == ptr::null_mut() {
+		if self.hash_ctx.is_null() {
 			/* Allocate the hash context */
 			result = unsafe {
 				leancrypto::lc_hash_alloc(
@@ -120,7 +120,7 @@ impl lcr_hash
 	/// Hash Update: Insert data into message digest handle
 	pub fn update(&mut self, msg:&[u8]) -> Result<i32, String>
 	{
-		if self.hash_ctx == ptr::null_mut() {
+		if self.hash_ctx.is_null() {
 			return Err("Context is not allocated".to_string());
 		}
 
@@ -135,7 +135,7 @@ impl lcr_hash
 	/// Hash Final: Calculate message digest from message digest handle
 	pub fn fini(&mut self) -> Result<i32, String>
 	{
-		if self.hash_ctx == ptr::null_mut() {
+		if self.hash_ctx.is_null() {
 			return Err("Context is not allocated".to_string());
 		}
 
