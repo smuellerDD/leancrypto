@@ -41,7 +41,8 @@ pub enum lcr_hash_type {
 }
 
 /// Leancrypto wrapper for lc_hash
-pub struct lcr_hash {
+pub struct lcr_hash
+{
 	/// Output digest
 	digest: [u8; leancrypto::LC_SHA3_512_SIZE_DIGEST as _],
 
@@ -53,7 +54,8 @@ pub struct lcr_hash {
 }
 
 #[allow(dead_code)]
-impl lcr_hash {
+impl lcr_hash
+{
 	pub fn new(hash_type: lcr_hash_type) -> Self
 	{
 		lcr_hash {
@@ -63,23 +65,29 @@ impl lcr_hash {
 		}
 	}
 
+	fn lcr_type_mapping(&mut self) -> *const leancrypto::lc_hash
+	{
+		unsafe {
+			return match self.hash {
+				lcr_hash_type::lcr_sha2_256 => leancrypto::lc_sha256,
+				lcr_hash_type::lcr_sha2_384 => leancrypto::lc_sha384,
+				lcr_hash_type::lcr_sha2_512 => leancrypto::lc_sha512,
+				lcr_hash_type::lcr_sha3_256 => leancrypto::lc_sha3_256,
+				lcr_hash_type::lcr_sha3_384 => leancrypto::lc_sha3_384,
+				lcr_hash_type::lcr_sha3_512 => leancrypto::lc_sha3_512,
+			}
+		};
+	}
+
 	/// Create message digest
 	///
 	/// [msg] holds the message to be digested
 	pub fn digest(&mut self, msg:&[u8]) -> Result<i32, String>
 	{
 		unsafe {
-			leancrypto::lc_hash(
-				match self.hash {
-					lcr_hash_type::lcr_sha2_256 => leancrypto::lc_sha256,
-					lcr_hash_type::lcr_sha2_384 => leancrypto::lc_sha384,
-					lcr_hash_type::lcr_sha2_512 => leancrypto::lc_sha512,
-					lcr_hash_type::lcr_sha3_256 => leancrypto::lc_sha3_256,
-					lcr_hash_type::lcr_sha3_384 => leancrypto::lc_sha3_384,
-					lcr_hash_type::lcr_sha3_512 => leancrypto::lc_sha3_512,
-				},
-				msg.as_ptr(), msg.len(),
-				self.digest.as_mut_ptr());
+			leancrypto::lc_hash(self.lcr_type_mapping(),
+					    msg.as_ptr(), msg.len(),
+					    self.digest.as_mut_ptr());
 		}
 
 		return Ok(0);
@@ -96,14 +104,8 @@ impl lcr_hash {
 			/* Allocate the hash context */
 			result = unsafe {
 				leancrypto::lc_hash_alloc(
-					match self.hash {
-						lcr_hash_type::lcr_sha2_256 => leancrypto::lc_sha256,
-						lcr_hash_type::lcr_sha2_384 => leancrypto::lc_sha384,
-						lcr_hash_type::lcr_sha2_512 => leancrypto::lc_sha512,
-						lcr_hash_type::lcr_sha3_256 => leancrypto::lc_sha3_256,
-						lcr_hash_type::lcr_sha3_384 => leancrypto::lc_sha3_384,
-						lcr_hash_type::lcr_sha3_512 => leancrypto::lc_sha3_512,
-					}, &mut self.hash_ctx)
+					self.lcr_type_mapping(),
+					&mut self.hash_ctx)
 			};
 		}
 		// Error handle
