@@ -68,7 +68,7 @@ impl lcr_hash
 	fn lcr_type_mapping(&mut self) -> *const leancrypto::lc_hash
 	{
 		unsafe {
-			return match self.hash {
+			match self.hash {
 				lcr_hash_type::lcr_sha2_256 => leancrypto::lc_sha256,
 				lcr_hash_type::lcr_sha2_384 => leancrypto::lc_sha384,
 				lcr_hash_type::lcr_sha2_512 => leancrypto::lc_sha512,
@@ -76,7 +76,7 @@ impl lcr_hash
 				lcr_hash_type::lcr_sha3_384 => leancrypto::lc_sha3_384,
 				lcr_hash_type::lcr_sha3_512 => leancrypto::lc_sha3_512,
 			}
-		};
+		}
 	}
 
 	/// Create message digest
@@ -90,7 +90,7 @@ impl lcr_hash
 					    self.digest.as_mut_ptr());
 		}
 
-		return Ok(0);
+		Ok(0)
 	}
 
 	/// Hash Init: Initializes message digest handle
@@ -129,7 +129,7 @@ impl lcr_hash
 						   msg.as_ptr(), msg.len());
 		}
 
-		return Ok(0);
+		Ok(0)
 	}
 
 	/// Hash Final: Calculate message digest from message digest handle
@@ -147,7 +147,7 @@ impl lcr_hash
 
 		self.hash_ctx = ptr::null_mut();
 
-		return Ok(0);
+		Ok(0)
 	}
 
 	/// Method for safe immutable access to buffer
