@@ -88,24 +88,24 @@ impl lcr_hash {
 	/// Hash Init: Initializes message digest handle
 	pub fn init(&mut self) -> Result<i32, String>
 	{
-		if self.hash_ctx != ptr::null_mut() {
-			unsafe {
-				leancrypto::lc_hash_zero_free(self.hash_ctx);
-			}
-		}
+		let mut result = 0;
 
-		/* Allocate the hash context */
-		let result = unsafe {
-			leancrypto::lc_hash_alloc(
-				match self.hash {
-					lcr_hash_type::lcr_sha2_256 => leancrypto::lc_sha256,
-					lcr_hash_type::lcr_sha2_384 => leancrypto::lc_sha384,
-					lcr_hash_type::lcr_sha2_512 => leancrypto::lc_sha512,
-					lcr_hash_type::lcr_sha3_256 => leancrypto::lc_sha3_256,
-					lcr_hash_type::lcr_sha3_384 => leancrypto::lc_sha3_384,
-					lcr_hash_type::lcr_sha3_512 => leancrypto::lc_sha3_512,
-				}, &mut self.hash_ctx)
-		};
+		if self.hash_ctx != ptr::null_mut() {
+			unsafe { leancrypto::lc_hash_zero_free(self.hash_ctx); }
+		} else {
+			/* Allocate the hash context */
+			result = unsafe {
+				leancrypto::lc_hash_alloc(
+					match self.hash {
+						lcr_hash_type::lcr_sha2_256 => leancrypto::lc_sha256,
+						lcr_hash_type::lcr_sha2_384 => leancrypto::lc_sha384,
+						lcr_hash_type::lcr_sha2_512 => leancrypto::lc_sha512,
+						lcr_hash_type::lcr_sha3_256 => leancrypto::lc_sha3_256,
+						lcr_hash_type::lcr_sha3_384 => leancrypto::lc_sha3_384,
+						lcr_hash_type::lcr_sha3_512 => leancrypto::lc_sha3_512,
+					}, &mut self.hash_ctx)
+			};
+		}
 		// Error handle
 		if result >= 0 {
 			unsafe { leancrypto::lc_hash_init(self.hash_ctx) };
@@ -158,5 +158,15 @@ impl lcr_hash {
 	/// Method for safe mutable access to buffer
 	pub fn as_mut_slice(&mut self) -> &mut [u8] {
 		&mut self.digest
+	}
+}
+
+/// This ensures the buffer is always freed
+/// regardless of when it goes out of scope
+impl Drop for lcr_hash {
+	fn drop(&mut self) {
+		if self.hash_ctx != ptr::null_mut() {
+			unsafe { leancrypto::lc_hash_zero_free(self.hash_ctx); }
+		}
 	}
 }
