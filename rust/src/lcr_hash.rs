@@ -98,9 +98,7 @@ impl lcr_hash
 	{
 		let mut result = 0;
 
-		if self.hash_ctx != ptr::null_mut() {
-			unsafe { leancrypto::lc_hash_zero_free(self.hash_ctx); }
-		} else {
+		if self.hash_ctx == ptr::null_mut() {
 			/* Allocate the hash context */
 			result = unsafe {
 				leancrypto::lc_hash_alloc(
