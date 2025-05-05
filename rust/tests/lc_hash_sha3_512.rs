@@ -18,6 +18,7 @@
  */
 
 use leancrypto::lcr_hash::lcr_hash;
+use leancrypto::lcr_hash::lcr_hash_type;
 
 #[test]
 fn lc_rust_hash_sha3_512_alloc() {
@@ -32,7 +33,7 @@ fn lc_rust_hash_sha3_512_alloc() {
 		0xC8, 0xFD, 0x07, 0xA9, 0x4C, 0x29, 0xD7, 0x46,
 		0xCC, 0xEF, 0xB1, 0x09, 0x6E, 0xDE, 0x42, 0x91,
     ];
-	let mut act = lcr_hash::new(leancrypto::lcr_hash::lcr_hash_type::lcr_sha3_512);
+	let mut act = lcr_hash::new(lcr_hash_type::lcr_sha3_512);
 
 	let result = act.init();
 	assert_eq!(result, Ok(0));
@@ -59,7 +60,7 @@ fn lc_rust_hash_sha3_512_stack() {
 		0xC8, 0xFD, 0x07, 0xA9, 0x4C, 0x29, 0xD7, 0x46,
 		0xCC, 0xEF, 0xB1, 0x09, 0x6E, 0xDE, 0x42, 0x91,
     ];
-	let mut act = lcr_hash::new(leancrypto::lcr_hash::lcr_hash_type::lcr_sha3_512);
+	let mut act = lcr_hash::new(lcr_hash_type::lcr_sha3_512);
 
 	let result = act.digest(&msg_512);
 	assert_eq!(result, Ok(0));
