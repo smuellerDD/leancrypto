@@ -41,8 +41,7 @@ pub enum lcr_hash_type {
 }
 
 /// Leancrypto wrapper for lc_hash
-pub struct lcr_hash
-{
+pub struct lcr_hash {
 	/// Output digest
 	digest: [u8; leancrypto::LC_SHA3_512_SIZE_DIGEST as _],
 
@@ -54,10 +53,8 @@ pub struct lcr_hash
 }
 
 #[allow(dead_code)]
-impl lcr_hash
-{
-	pub fn new(hash_type: lcr_hash_type) -> Self
-	{
+impl lcr_hash {
+	pub fn new(hash_type: lcr_hash_type) -> Self {
 		lcr_hash {
 			digest: [0; leancrypto::LC_SHA3_512_SIZE_DIGEST as _],
 			hash_ctx: ptr::null_mut(),
@@ -65,8 +62,7 @@ impl lcr_hash
 		}
 	}
 
-	fn lcr_type_mapping(&mut self) -> *const leancrypto::lc_hash
-	{
+	fn lcr_type_mapping(&mut self) -> *const leancrypto::lc_hash {
 		unsafe {
 			match self.hash {
 				lcr_hash_type::lcr_sha2_256 => leancrypto::lc_sha256,
@@ -82,8 +78,7 @@ impl lcr_hash
 	/// Create message digest
 	///
 	/// [msg] holds the message to be digested
-	pub fn digest(&mut self, msg:&[u8]) -> Result<i32, String>
-	{
+	pub fn digest(&mut self, msg: &[u8]) -> Result<i32, String> {
 		unsafe {
 			leancrypto::lc_hash(self.lcr_type_mapping(),
 					    msg.as_ptr(), msg.len(),
@@ -94,8 +89,7 @@ impl lcr_hash
 	}
 
 	/// Hash Init: Initializes message digest handle
-	pub fn init(&mut self) -> Result<i32, String>
-	{
+	pub fn init(&mut self) -> Result<i32, String> {
 		let mut result = 0;
 
 		if self.hash_ctx.is_null() {
@@ -118,8 +112,7 @@ impl lcr_hash
 	}
 
 	/// Hash Update: Insert data into message digest handle
-	pub fn update(&mut self, msg:&[u8]) -> Result<i32, String>
-	{
+	pub fn update(&mut self, msg: &[u8]) -> Result<i32, String> {
 		if self.hash_ctx.is_null() {
 			return Err("Context is not allocated".to_string());
 		}
@@ -133,8 +126,7 @@ impl lcr_hash
 	}
 
 	/// Hash Final: Calculate message digest from message digest handle
-	pub fn fini(&mut self) -> Result<i32, String>
-	{
+	pub fn fini(&mut self) -> Result<i32, String> {
 		if self.hash_ctx.is_null() {
 			return Err("Context is not allocated".to_string());
 		}
