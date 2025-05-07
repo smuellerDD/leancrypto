@@ -30,6 +30,7 @@ mod leancrypto {
 }
 
 use std::ptr;
+use crate::error::HashError;
 
 pub enum lcr_hash_type {
 	lcr_sha2_256,
@@ -78,18 +79,18 @@ impl lcr_hash {
 	/// Create message digest
 	///
 	/// [msg] holds the message to be digested
-	pub fn digest(&mut self, msg: &[u8]) -> Result<i32, String> {
+	pub fn digest(&mut self, msg: &[u8]) -> Result<(), HashError> {
 		unsafe {
 			leancrypto::lc_hash(self.lcr_type_mapping(),
 					    msg.as_ptr(), msg.len(),
 					    self.digest.as_mut_ptr());
 		}
 
-		Ok(0)
+		Ok(())
 	}
 
 	/// Hash Init: Initializes message digest handle
-	pub fn init(&mut self) -> Result<i32, String> {
+	pub fn init(&mut self) -> Result<(), HashError> {
 		let mut result = 0;
 
 		if self.hash_ctx.is_null() {
@@ -100,21 +101,20 @@ impl lcr_hash {
 					&mut self.hash_ctx)
 			};
 		}
+
 		// Error handle
 		if result >= 0 {
 			unsafe { leancrypto::lc_hash_init(self.hash_ctx) };
-		}
-
-		match result {
-			n if n >= 0 => Ok(0),
-			_ => Err("Failed to allocate context".to_string()),
-		}
+            Ok(())
+		} else {
+            Err(HashError::AllocationError)    
+        }
 	}
 
 	/// Hash Update: Insert data into message digest handle
-	pub fn update(&mut self, msg: &[u8]) -> Result<i32, String> {
+	pub fn update(&mut self, msg: &[u8]) -> Result<(), HashError> {
 		if self.hash_ctx.is_null() {
-			return Err("Context is not allocated".to_string());
+            return Err(HashError::UninitializedContext);
 		}
 
 		unsafe {
@@ -122,13 +122,13 @@ impl lcr_hash {
 						   msg.as_ptr(), msg.len());
 		}
 
-		Ok(0)
+		Ok(())
 	}
 
 	/// Hash Final: Calculate message digest from message digest handle
-	pub fn fini(&mut self) -> Result<i32, String> {
+	pub fn fini(&mut self) -> Result<(), HashError> {
 		if self.hash_ctx.is_null() {
-			return Err("Context is not allocated".to_string());
+            return Err(HashError::UninitializedContext);
 		}
 
 		unsafe {
@@ -139,7 +139,7 @@ impl lcr_hash {
 
 		self.hash_ctx = ptr::null_mut();
 
-		Ok(0)
+		Ok(())
 	}
 
 	/// Method for safe immutable access to buffer
