@@ -5,6 +5,8 @@ Changes 1.4.0-prerelease
 
 * deprecate BIKE and disable it by default (the BIKE authors officially announced on the PQC forum to support the HQC development and deprecate the BIKE code base)
 
+* ARMv8: properly save/restore SIMD registers v8 through v15 for ML-DSA/ML-KEM (reported by Alexander Sosedkin)
+
 Changes 1.3.0
 * Allow CPU entropy sources to be used as seed sources with meson option "seedsource=cpu"
 

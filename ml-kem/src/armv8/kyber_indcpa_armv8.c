@@ -23,6 +23,7 @@
  * That code is released under MIT license.
  */
 
+#include "armv8_helper.h"
 #include "build_bug_on.h"
 #include "kyber_indcpa_armv8.h"
 #include "kyber_poly_armv8.h"
@@ -229,6 +230,7 @@ int indcpa_keypair_armv8(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 		uint8_t buf[2 * LC_KYBER_SYMBYTES];
 		uint8_t poly_getnoise_eta1_buf[POLY_GETNOISE_ETA1_BUFSIZE];
 		polyvec a[LC_KYBER_K], e, pkpv, skpv;
+		uint64_t saved_regs[8];
 	};
 	static const uint8_t kval = LC_KYBER_K;
 	unsigned int i;
@@ -238,6 +240,8 @@ int indcpa_keypair_armv8(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 	int ret;
 	LC_HASH_CTX_ON_STACK(sha3_512_ctx, lc_sha3_512);
 	LC_DECLARE_MEM(ws, struct workspace, 32);
+
+	store_fp_regs(ws->saved_regs);
 
 	buf = ws->buf;
 	publicseed = ws->buf;
@@ -282,6 +286,7 @@ int indcpa_keypair_armv8(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 	unpoison(pk, LC_KYBER_INDCPA_PUBLICKEYBYTES);
 
 out:
+	reload_fp_regs(ws->saved_regs);
 	LC_RELEASE_MEM(ws);
 	return ret;
 }
@@ -299,11 +304,14 @@ int indcpa_enc_armv8(uint8_t c[LC_KYBER_INDCPA_BYTES],
 		//uint8_t poly_getnoise_eta2_buf[POLY_GETNOISE_ETA2_BUFSIZE];
 		polyvec sp, pkpv, ep, at[LC_KYBER_K], b;
 		poly v, k, epp;
+		uint64_t saved_regs[8];
 	};
 	unsigned int i;
 	uint8_t nonce = 0, nonce2 = LC_KYBER_K;
 	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+
+	store_fp_regs(ws->saved_regs);
 
 	/*
 	 * Use the poly_getnoise_eta1_buf for this operation as seed is smaller
@@ -354,6 +362,7 @@ int indcpa_enc_armv8(uint8_t c[LC_KYBER_INDCPA_BYTES],
 	pack_ciphertext(c, &ws->b, &ws->v);
 
 out:
+	reload_fp_regs(ws->saved_regs);
 	LC_RELEASE_MEM(ws);
 	return ret;
 }
@@ -365,8 +374,11 @@ int indcpa_dec_armv8(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
 	struct workspace {
 		polyvec b, skpv;
 		poly v, mp;
+		uint64_t saved_regs[8];
 	};
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+
+	store_fp_regs(ws->saved_regs);
 
 	unpack_sk(&ws->skpv, sk);
 
@@ -386,6 +398,7 @@ int indcpa_dec_armv8(uint8_t m[LC_KYBER_INDCPA_MSGBYTES],
 
 	poly_tomsg(m, &ws->mp);
 
+	reload_fp_regs(ws->saved_regs);
 	LC_RELEASE_MEM(ws);
 	return 0;
 }

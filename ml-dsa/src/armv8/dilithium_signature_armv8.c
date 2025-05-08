@@ -17,6 +17,7 @@
  * DAMAGE.
  */
 
+#include "armv8_helper.h"
 #include "dilithium_type.h"
 #include "dilithium_signature_armv8.h"
 #include "visibility.h"
@@ -36,14 +37,30 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_from_seed_armv8,
 		      struct lc_dilithium_pk *pk, struct lc_dilithium_sk *sk,
 		      const uint8_t *seed, size_t seedlen)
 {
-	return lc_dilithium_keypair_from_seed_impl(pk, sk, seed, seedlen);
+	uint64_t saved_regs[8];
+	int ret;
+
+	store_fp_regs(saved_regs);
+	ret = lc_dilithium_keypair_from_seed_impl(pk, sk, seed, seedlen);
+	reload_fp_regs(saved_regs);
+	lc_memset_secure(saved_regs, 0, sizeof(saved_regs));
+
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_armv8,
 		      struct lc_dilithium_pk *pk, struct lc_dilithium_sk *sk,
 		      struct lc_rng_ctx *rng_ctx)
 {
-	return lc_dilithium_keypair_impl(pk, sk, rng_ctx);
+	uint64_t saved_regs[8];
+	int ret;
+
+	store_fp_regs(saved_regs);
+	ret = lc_dilithium_keypair_impl(pk, sk, rng_ctx);
+	reload_fp_regs(saved_regs);
+	lc_memset_secure(saved_regs, 0, sizeof(saved_regs));
+
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_armv8,
@@ -51,7 +68,15 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_armv8,
 		      size_t mlen, const struct lc_dilithium_sk *sk,
 		      struct lc_rng_ctx *rng_ctx)
 {
-	return lc_dilithium_sign_impl(sig, m, mlen, sk, rng_ctx);
+	uint64_t saved_regs[8];
+	int ret;
+
+	store_fp_regs(saved_regs);
+	ret = lc_dilithium_sign_impl(sig, m, mlen, sk, rng_ctx);
+	reload_fp_regs(saved_regs);
+	lc_memset_secure(saved_regs, 0, sizeof(saved_regs));
+
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_ctx_armv8,
@@ -60,14 +85,30 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_ctx_armv8,
 		      size_t mlen, const struct lc_dilithium_sk *sk,
 		      struct lc_rng_ctx *rng_ctx)
 {
-	return lc_dilithium_sign_ctx_impl(sig, ctx, m, mlen, sk, rng_ctx);
+	uint64_t saved_regs[8];
+	int ret;
+
+	store_fp_regs(saved_regs);
+	ret = lc_dilithium_sign_ctx_impl(sig, ctx, m, mlen, sk, rng_ctx);
+	reload_fp_regs(saved_regs);
+	lc_memset_secure(saved_regs, 0, sizeof(saved_regs));
+
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_init_armv8,
 		      struct lc_dilithium_ctx *ctx,
 		      const struct lc_dilithium_sk *sk)
 {
-	return lc_dilithium_sign_init_impl(ctx, sk);
+	uint64_t saved_regs[8];
+	int ret;
+
+	store_fp_regs(saved_regs);
+	ret = lc_dilithium_sign_init_impl(ctx, sk);
+	reload_fp_regs(saved_regs);
+	lc_memset_secure(saved_regs, 0, sizeof(saved_regs));
+
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_update_armv8,
@@ -83,14 +124,30 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_final_armv8,
 		      const struct lc_dilithium_sk *sk,
 		      struct lc_rng_ctx *rng_ctx)
 {
-	return lc_dilithium_sign_final_impl(sig, ctx, sk, rng_ctx);
+	uint64_t saved_regs[8];
+	int ret;
+
+	store_fp_regs(saved_regs);
+	ret = lc_dilithium_sign_final_impl(sig, ctx, sk, rng_ctx);
+	reload_fp_regs(saved_regs);
+	lc_memset_secure(saved_regs, 0, sizeof(saved_regs));
+
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_armv8,
 		      const struct lc_dilithium_sig *sig, const uint8_t *m,
 		      size_t mlen, const struct lc_dilithium_pk *pk)
 {
-	return lc_dilithium_verify_impl(sig, m, mlen, pk);
+	uint64_t saved_regs[8];
+	int ret;
+
+	store_fp_regs(saved_regs);
+	ret = lc_dilithium_verify_impl(sig, m, mlen, pk);
+	reload_fp_regs(saved_regs);
+	lc_memset_secure(saved_regs, 0, sizeof(saved_regs));
+
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_ctx_armv8,
@@ -98,14 +155,30 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_ctx_armv8,
 		      struct lc_dilithium_ctx *ctx, const uint8_t *m,
 		      size_t mlen, const struct lc_dilithium_pk *pk)
 {
-	return lc_dilithium_verify_ctx_impl(sig, ctx, m, mlen, pk);
+	uint64_t saved_regs[8];
+	int ret;
+
+	store_fp_regs(saved_regs);
+	ret = lc_dilithium_verify_ctx_impl(sig, ctx, m, mlen, pk);
+	reload_fp_regs(saved_regs);
+	lc_memset_secure(saved_regs, 0, sizeof(saved_regs));
+
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_init_armv8,
 		      struct lc_dilithium_ctx *ctx,
 		      const struct lc_dilithium_pk *pk)
 {
-	return lc_dilithium_verify_init_impl(ctx, pk);
+	uint64_t saved_regs[8];
+	int ret;
+
+	store_fp_regs(saved_regs);
+	ret = lc_dilithium_verify_init_impl(ctx, pk);
+	reload_fp_regs(saved_regs);
+	lc_memset_secure(saved_regs, 0, sizeof(saved_regs));
+
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_update_armv8,
@@ -120,5 +193,13 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_final_armv8,
 		      struct lc_dilithium_ctx *ctx,
 		      const struct lc_dilithium_pk *pk)
 {
-	return lc_dilithium_verify_final_impl(sig, ctx, pk);
+	uint64_t saved_regs[8];
+	int ret;
+
+	store_fp_regs(saved_regs);
+	ret = lc_dilithium_verify_final_impl(sig, ctx, pk);
+	reload_fp_regs(saved_regs);
+	lc_memset_secure(saved_regs, 0, sizeof(saved_regs));
+
+	return ret;
 }
