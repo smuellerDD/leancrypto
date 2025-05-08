@@ -43,7 +43,7 @@ pub enum lcr_hash_type {
 /// Leancrypto wrapper for lc_hash
 pub struct lcr_hash {
 	/// Output digest
-	digest: [u8; leancrypto::LC_SHA3_512_SIZE_DIGEST as _],
+	digest: [u8; leancrypto::LC_SHA_MAX_SIZE_DIGEST as _],
 
 	/// Context for init/update/final
 	hash_ctx: *mut leancrypto::lc_hash_ctx,
@@ -157,7 +157,7 @@ impl lcr_hash {
 /// regardless of when it goes out of scope
 impl Drop for lcr_hash {
 	fn drop(&mut self) {
-		if self.hash_ctx != ptr::null_mut() {
+		if !self.hash_ctx.is_null() {
 			unsafe { leancrypto::lc_hash_zero_free(self.hash_ctx); }
 		}
 	}
