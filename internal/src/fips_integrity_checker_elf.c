@@ -28,17 +28,12 @@
 /*
  * The GNU linker creates these variables as start and endpoint of ELF sections
  */
-extern const void fips_start_init;
-extern const void fips_end_init;
-extern const void fips_data_end;
-extern const void fips_data_base;
-extern const void fips_data_end;
-extern const void fips_rodata_base;
-extern const void fips_rodata_end;
-extern const void fips_datarelro_base;
-extern const void fips_datarelro_end;
-extern const void fips_start_text;
-extern const void fips_end_text;
+extern const void _start_init;
+extern const void _end_init;
+extern const void _start_ctors;
+extern const void _end_ctors;
+extern const void _start_text;
+extern const void _end_text;
 extern const void LC_FIPS_RODATA_SECTION_NAME_START;
 extern const void LC_FIPS_RODATA_SECTION_NAME_STOP;
 
@@ -50,25 +45,17 @@ extern const void LC_FIPS_RODATA_SECTION_NAME_STOP;
  */
 static const struct lc_fips_integrity_sections secs[] = {
 	{
-		.section_start_p = &fips_start_init,
-		.section_end_p = &fips_end_init,
+		.section_start_p = &_start_text,
+		.section_end_p = &_end_text,
 	},
 	{
-		.section_start_p = &fips_start_text,
-		.section_end_p = &fips_end_text,
+		.section_start_p = &_start_init,
+		.section_end_p = &_end_init,
 	},
-	// {
-	// 	.section_start_p = &fips_data_base,
-	// 	.section_end_p = &fips_data_end,
-	// },
 	{
-		.section_start_p = &fips_rodata_base,
-		.section_end_p = &fips_rodata_end,
+		.section_start_p = &_start_ctors,
+		.section_end_p = &_end_ctors,
 	},
-	// {
-	// 	.section_start_p = &fips_datarelro_base,
-	// 	.section_end_p = &fips_datarelro_end,
-	// },
 	{
 		.section_start_p = &LC_FIPS_RODATA_SECTION_NAME_START,
 		.section_end_p = &LC_FIPS_RODATA_SECTION_NAME_STOP,
@@ -110,29 +97,23 @@ fips_integrity_checker_build(const uint8_t act[LC_SHA3_256_SIZE_DIGEST])
 
 	fprintf(stderr,
 		"//Init section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
-		(unsigned long)&fips_start_init, (unsigned long)&fips_end_init,
-		(unsigned long)((uint8_t *)&fips_end_init -
-				(uint8_t *)&fips_start_init));
+		(unsigned long)&_start_init, (unsigned long)&_end_init,
+		(unsigned long)((uint8_t *)&_end_init -
+				(uint8_t *)&_start_init));
+	fprintf(stderr,
+		"//Ctors section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
+		(unsigned long)&_start_ctors, (unsigned long)&_end_ctors,
+		(unsigned long)((uint8_t *)&_end_ctors -
+				(uint8_t *)&_start_ctors));
 	fprintf(stderr,
 		"//Text section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
-		(unsigned long)&fips_start_text, (unsigned long)&fips_end_text,
-		(unsigned long)((uint8_t *)&fips_end_text -
-				(uint8_t *)&fips_start_text));
-	fprintf(stderr,
-		"//Data section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
-		(unsigned long)&fips_data_base, (unsigned long)&fips_data_end,
-		(unsigned long)((uint8_t *)&fips_data_end -
-				(uint8_t *)&fips_data_base));
-	fprintf(stderr, "//ROData section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
-		(unsigned long)&fips_rodata_base,
-		(unsigned long)&fips_rodata_end,
-		(unsigned long)((uint8_t *)&fips_rodata_end -
-			       (uint8_t *)&fips_rodata_base));
-	fprintf(stderr, "//RelRo section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
-		(unsigned long)&fips_datarelro_base,
-		(unsigned long)&fips_datarelro_end,
-		(unsigned long)((uint8_t *)&fips_datarelro_end -
-			       (uint8_t *)&fips_datarelro_base));
+		(unsigned long)&_start_text, (unsigned long)&_end_text,
+		(unsigned long)((uint8_t *)&_end_text -
+				(uint8_t *)&_start_text));
+	// fprintf(stderr, "//ROData section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
+	//        (unsigned long)&_start_rodata, (unsigned long)&_end_rodata,
+	//        (unsigned long)((uint8_t *)&_end_rodata -
+	// 		       (uint8_t *)&_start_rodata));
 
 	fprintf(stderr,
 		"//ROData1 section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
