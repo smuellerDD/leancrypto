@@ -1,4 +1,5 @@
 #[derive(Debug)]
+#[derive(PartialEq)]
 pub enum HashError {
     AllocationError,
     UninitializedContext,
