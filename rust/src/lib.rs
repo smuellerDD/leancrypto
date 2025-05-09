@@ -21,7 +21,7 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
-// Module defining error types
+/// Module defining error types
 pub mod error;
 
 /// Leancrypto wrapper for lc_hash

@@ -105,16 +105,16 @@ impl lcr_hash {
 		// Error handle
 		if result >= 0 {
 			unsafe { leancrypto::lc_hash_init(self.hash_ctx) };
-            Ok(())
+			Ok(())
 		} else {
-            Err(HashError::AllocationError)    
-        }
+			Err(HashError::AllocationError)
+		}
 	}
 
 	/// Hash Update: Insert data into message digest handle
 	pub fn update(&mut self, msg: &[u8]) -> Result<(), HashError> {
 		if self.hash_ctx.is_null() {
-            return Err(HashError::UninitializedContext);
+			return Err(HashError::UninitializedContext);
 		}
 
 		unsafe {
@@ -128,7 +128,7 @@ impl lcr_hash {
 	/// Hash Final: Calculate message digest from message digest handle
 	pub fn fini(&mut self) -> Result<(), HashError> {
 		if self.hash_ctx.is_null() {
-            return Err(HashError::UninitializedContext);
+			return Err(HashError::UninitializedContext);
 		}
 
 		unsafe {
