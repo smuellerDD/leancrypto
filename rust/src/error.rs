@@ -18,6 +18,7 @@
  */
 
 #[derive(Debug)]
+#[derive(PartialEq)]
 pub enum HashError {
 	AllocationError,
 	UninitializedContext,
@@ -37,6 +38,7 @@ impl std::fmt::Display for HashError {
 }
 
 #[derive(Debug)]
+#[derive(PartialEq)]
 pub enum SignatureError {
 	AllocationError,
 	UninitializedContext,
