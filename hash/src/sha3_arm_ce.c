@@ -19,9 +19,11 @@
 
 #include "asm/ARMv8A/KeccakP-1600-armv8a-ce.h"
 
+#include "armv8_helper.h"
 #include "bitshift.h"
 #include "conv_be_le.h"
 #include "ext_headers_arm.h"
+#include "lc_memset_secure.h"
 #include "lc_sha3.h"
 #include "sha3_arm_ce.h"
 #include "sha3_common.h"
@@ -104,24 +106,45 @@ static void cshake_256_arm_ce_init(void *_state)
 
 static void keccak_arm_ce_absorb(void *_state, const uint8_t *in, size_t inlen)
 {
+	uint64_t saved_regs[8];
+
+	store_fp_regs(saved_regs);
+
 	keccak_arm_asm_absorb_internal(_state, in, inlen,
 				       lc_keccak_absorb_arm_ce,
 				       lc_keccakf1600_arm_ce);
+
+	reload_fp_regs(saved_regs);
+	lc_memset_secure(saved_regs, 0, sizeof(saved_regs));
 }
 static void keccak_arm_ce_squeeze(void *_state, uint8_t *digest)
 {
+	uint64_t saved_regs[8];
+
+	store_fp_regs(saved_regs);
+
 	keccak_arm_asm_squeeze_internal(_state, digest,
 					lc_keccak_squeeze_arm_ce,
 					lc_keccakf1600_arm_ce);
+
+	reload_fp_regs(saved_regs);
+	lc_memset_secure(saved_regs, 0, sizeof(saved_regs));
 }
 
 static void keccak_arm_ce_permutation(void *state, unsigned int rounds)
 {
+	uint64_t saved_regs[8];
+
 	(void)rounds;
+
+	store_fp_regs(saved_regs);
 
 	LC_NEON_ENABLE;
 	lc_keccakf1600_arm_ce((uint64_t *)state);
 	LC_NEON_DISABLE;
+
+	reload_fp_regs(saved_regs);
+	lc_memset_secure(saved_regs, 0, sizeof(saved_regs));
 }
 
 static void keccak_arm_ce_add_bytes(void *state, const unsigned char *data,
