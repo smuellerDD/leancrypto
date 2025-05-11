@@ -26,3 +26,6 @@ pub mod error;
 
 /// Leancrypto wrapper for lc_hash
 pub mod lcr_hash;
+
+/// Leancrypto wrapper for lc_dilithium
+pub mod lcr_dilithium;

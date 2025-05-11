@@ -39,20 +39,22 @@ impl std::fmt::Display for HashError {
 
 #[derive(Debug)]
 #[derive(PartialEq)]
-pub enum SignatureError {
+pub enum DilithiumError {
 	AllocationError,
 	UninitializedContext,
 	ProcessingError,
+	VerificationError,
 }
 
-impl std::error::Error for SignatureError {}
+impl std::error::Error for DilithiumError {}
 
-impl std::fmt::Display for SignatureError {
+impl std::fmt::Display for DilithiumError {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		match self {
-			SignatureError::AllocationError => write!(f, "failed to allocate signature context"),
-			SignatureError::UninitializedContext => write!(f, "signature context is not initialized"),
-			SignatureError::ProcessingError => write!(f, "signature processing error occurred"),
+			DilithiumError::AllocationError => write!(f, "failed to allocate dilithium context"),
+			DilithiumError::UninitializedContext => write!(f, "Dilithium context is not initialized"),
+			DilithiumError::ProcessingError => write!(f, "Dilithium processing error occurred"),
+			DilithiumError::VerificationError => write!(f, "Dilithium signature verification failed"),
 		}
 	}
 }
