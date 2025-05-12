@@ -29,3 +29,17 @@ do
 done
 
 $CLANGFORMAT -i $files
+
+# cd rust
+#
+# files="$(find ./src -name *.rs -type f)"
+# files="$files $(find ./examples -name *.rs -type f)"
+# files="$files $(find ./tests -name *.rs -type f)"
+#
+# if [ ! -f "$CLANGCONF" ]
+# then
+# 	echo "clang-format configuration file $CLANGCONF not found"
+# 	exit 1
+# fi
+#
+# $CLANGFORMAT -i $files
