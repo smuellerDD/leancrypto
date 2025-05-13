@@ -100,3 +100,8 @@ fn lc_rust_hash_sha2_512() {
 fn lc_rust_hash_sha2_256() {
 	lc_rust_hash_stack_one(lcr_hash_type::lcr_sha2_256)
 }
+
+#[test]
+fn lc_rust_hash_ascon_256() {
+	lc_rust_hash_stack_one(lcr_hash_type::lcr_ascon_256)
+}

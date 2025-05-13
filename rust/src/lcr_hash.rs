@@ -28,6 +28,7 @@ pub enum lcr_hash_type {
 	lcr_sha3_256,
 	lcr_sha3_384,
 	lcr_sha3_512,
+	lcr_ascon_256,
 }
 
 /// Leancrypto wrapper for lc_hash
@@ -61,6 +62,7 @@ impl lcr_hash {
 				lcr_hash_type::lcr_sha3_256 => leancrypto::lc_sha3_256,
 				lcr_hash_type::lcr_sha3_384 => leancrypto::lc_sha3_384,
 				lcr_hash_type::lcr_sha3_512 => leancrypto::lc_sha3_512,
+				lcr_hash_type::lcr_ascon_256 => leancrypto::lc_ascon_256,
 			}
 		}
 	}
