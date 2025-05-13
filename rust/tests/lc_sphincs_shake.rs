@@ -21,7 +21,7 @@ use leancrypto::lcr_sphincs::lcr_sphincs;
 use leancrypto::lcr_sphincs::lcr_sphincs_type;
 
 #[test]
-fn lc_rust_sphincs_shake_128f_cast() {
+fn lc_rust_sphincs_shake_128f_kat() {
 	let pk: [u8; 32] = [
 		0xB5, 0x05, 0xD7, 0xCF, 0xAD, 0x1B, 0x49, 0x74,
 		0x99, 0x32, 0x3C, 0x86, 0x86, 0x32, 0x5E, 0x47,

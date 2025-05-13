@@ -21,7 +21,7 @@ use leancrypto::lcr_dilithium::lcr_dilithium;
 use leancrypto::lcr_dilithium::lcr_dilithium_type;
 
 #[test]
-fn lc_rust_dilithium_87_cast() {
+fn lc_rust_dilithium_87_kat() {
 	let pk: [u8; 2592] = [
 		0x4d, 0xf6, 0x98, 0xe3, 0x17, 0x87, 0xb0, 0xfc,
 		0x24, 0x85, 0xc7, 0x8f, 0xfc, 0x87, 0x1f, 0xe8,
