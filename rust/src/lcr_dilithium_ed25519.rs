@@ -146,7 +146,7 @@ impl lcr_dilithium_ed25519 {
 		}
 	}
 
-	/// Generate dilithium_ed25519 key
+	/// Generate hybrid Dilithium/ML-DSA Ed25519 key pair
 	///
 	/// [dilithium_ed25519_type] key type
 	pub fn keypair(&mut self,

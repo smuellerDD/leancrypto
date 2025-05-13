@@ -87,7 +87,7 @@ impl lcr_sphincs {
 
 	/// Load public key for using with leancrypto
 	///
-	/// [pk_buf] buffer with raw secret key
+	/// [pk_buf] buffer with raw public key
 	pub fn pk_load(&mut self, pk_buf: &[u8]) -> Result<(), SignatureError> {
 		// No check for self.pk_set == false as we allow overwriting
 		// of existing key.
@@ -106,6 +106,7 @@ impl lcr_sphincs {
 		Ok(())
 	}
 
+	/// Define that the public key is to be used for small signature type
 	pub fn pk_set_keytype_small(&mut self) -> Result<(), SignatureError> {
 		if self.pk_set == false {
 			return Err(SignatureError::UninitializedContext);
@@ -121,6 +122,7 @@ impl lcr_sphincs {
 		Ok(())
 	}
 
+	/// Define that the public key is to be used for fast signature type
 	pub fn pk_set_keytype_fast(&mut self) -> Result<(), SignatureError> {
 		if self.pk_set == false {
 			return Err(SignatureError::UninitializedContext);
@@ -136,6 +138,7 @@ impl lcr_sphincs {
 		Ok(())
 	}
 
+	/// Define that the secret key is to be used for small signature type
 	pub fn sk_set_keytype_small(&mut self) -> Result<(), SignatureError> {
 		if self.sk_set == false {
 			return Err(SignatureError::UninitializedContext);
@@ -151,6 +154,7 @@ impl lcr_sphincs {
 		Ok(())
 	}
 
+	/// Define that the secret key is to be used for fast signature type
 	pub fn sk_set_keytype_fast(&mut self) -> Result<(), SignatureError> {
 		if self.sk_set == false {
 			return Err(SignatureError::UninitializedContext);
@@ -168,7 +172,7 @@ impl lcr_sphincs {
 
 	/// Load signature using with leancrypto
 	///
-	/// [sig_buf] buffer with raw secret key
+	/// [sig_buf] buffer with raw signature
 	pub fn sig_load(&mut self, sig_buf: &[u8]) ->
 		Result<(), SignatureError> {
 		// No check for self.sig_set == false as we allow overwriting
@@ -207,7 +211,7 @@ impl lcr_sphincs {
 		}
 	}
 
-	/// Generate sphincs key
+	/// Generate Sphincs+ / SLH-DSA key pair
 	///
 	/// [sphincs_type] key type
 	pub fn keypair(&mut self, sphincs_type: lcr_sphincs_type) ->

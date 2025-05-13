@@ -84,7 +84,7 @@ impl lcr_dilithium {
 
 	/// Load public key for using with leancrypto
 	///
-	/// [pk_buf] buffer with raw secret key
+	/// [pk_buf] buffer with raw public key
 	pub fn pk_load(&mut self, pk_buf: &[u8]) -> Result<(), SignatureError> {
 		// No check for self.pk_set == false as we allow overwriting
 		// of existing key.
@@ -105,7 +105,7 @@ impl lcr_dilithium {
 
 	/// Load signature using with leancrypto
 	///
-	/// [sig_buf] buffer with raw secret key
+	/// [sig_buf] buffer with raw signature
 	pub fn sig_load(&mut self, sig_buf: &[u8]) ->
 		Result<(), SignatureError> {
 		// No check for self.sig_set == false as we allow overwriting
@@ -134,7 +134,7 @@ impl lcr_dilithium {
 		}
 	}
 
-	/// Generate dilithium key
+	/// Generate Dilithium / ML-DSA key pair
 	///
 	/// [dilithium_type] key type
 	pub fn keypair(&mut self, dilithium_type: lcr_dilithium_type) ->
