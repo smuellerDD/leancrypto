@@ -40,23 +40,29 @@ fn lc_rust_sphincs_shake_128f() {
 	let result = sphincs.verify(&msg);
 	assert_eq!(result, Ok(()));
 
-	//TODO make this work
-	// let pk = sphincs.pk_as_slice();
-	// let sk = sphincs.sk_as_slice();
- //
-	// let mut sphincs2 = lcr_sphincs::new();
-	// let result = sphincs2.sk_load(&sk);
-	// assert_eq!(result, Ok(()));
-	// assert_eq!(sphincs2.sk_as_slice(), &sk[..]);
- //
-	// let result = sphincs2.pk_load(&pk);
-	// assert_eq!(result, Ok(()));
-	// assert_eq!(sphincs2.pk_as_slice(), &pk[..]);
- //
-	// let result = sphincs2.sign_deterministic(&msg);
-	// assert_eq!(result, Ok(()));
-	// assert_eq!(sphincs.sig_as_slice(), sphincs2.sig_as_slice());
- //
-	// let result = sphincs2.verify(&msg);
-	// assert_eq!(result, Ok(()));
+	let pk = sphincs.pk_as_slice().to_vec();
+	let sk = sphincs.sk_as_slice().to_vec();
+
+	let mut sphincs2 = lcr_sphincs::new();
+	let result = sphincs2.sk_load(&sk);
+	assert_eq!(result, Ok(()));
+	assert_eq!(sphincs.sk_as_slice(), sphincs2.sk_as_slice());
+
+	let result = sphincs2.sk_set_keytype_fast();
+	assert_eq!(result, Ok(()));
+
+	let result = sphincs2.pk_load(&pk);
+	assert_eq!(result, Ok(()));
+	assert_eq!(sphincs.pk_as_slice(), sphincs2.pk_as_slice());
+
+	let result = sphincs2.pk_set_keytype_fast();
+	assert_eq!(result, Ok(()));
+
+	let result = sphincs2.sign_deterministic(&msg);
+	assert_eq!(result, Ok(()));
+	assert_eq!(sphincs.sig_as_slice(), sphincs2.sig_as_slice());
+	//println!("sig {:x?}",  sphincs2.sig_as_slice().to_vec().chunks(10).next());
+
+	let result = sphincs2.verify(&msg);
+	assert_eq!(result, Ok(()));
 }

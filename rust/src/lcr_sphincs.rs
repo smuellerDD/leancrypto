@@ -73,8 +73,8 @@ impl lcr_sphincs {
 
 		let result = unsafe {
 			leancrypto::lc_sphincs_sk_load(&mut self.sk,
-							 sk_buf.as_ptr(),
-							 sk_buf.len())
+						       sk_buf.as_ptr(),
+						       sk_buf.len())
 		};
 		if result < 0 {
 			return Err(SignatureError::ProcessingError);
@@ -94,14 +94,74 @@ impl lcr_sphincs {
 
 		let result = unsafe {
 			leancrypto::lc_sphincs_pk_load(&mut self.pk,
-							 pk_buf.as_ptr(),
-							 pk_buf.len())
+						       pk_buf.as_ptr(),
+						       pk_buf.len())
 		};
 		if result < 0 {
 			return Err(SignatureError::ProcessingError);
 		}
 
 		self.pk_set = true;
+
+		Ok(())
+	}
+
+	pub fn pk_set_keytype_small(&mut self) -> Result<(), SignatureError> {
+		if self.pk_set == false {
+			return Err(SignatureError::UninitializedContext);
+		}
+
+		let result = unsafe {
+			leancrypto::lc_sphincs_pk_set_keytype_small(&mut self.pk)
+		};
+		if result < 0 {
+			return Err(SignatureError::ProcessingError);
+		}
+
+		Ok(())
+	}
+
+	pub fn pk_set_keytype_fast(&mut self) -> Result<(), SignatureError> {
+		if self.pk_set == false {
+			return Err(SignatureError::UninitializedContext);
+		}
+
+		let result = unsafe {
+			leancrypto::lc_sphincs_pk_set_keytype_fast(&mut self.pk)
+		};
+		if result < 0 {
+			return Err(SignatureError::ProcessingError);
+		}
+
+		Ok(())
+	}
+
+	pub fn sk_set_keytype_small(&mut self) -> Result<(), SignatureError> {
+		if self.sk_set == false {
+			return Err(SignatureError::UninitializedContext);
+		}
+
+		let result = unsafe {
+			leancrypto::lc_sphincs_sk_set_keytype_small(&mut self.sk)
+		};
+		if result < 0 {
+			return Err(SignatureError::ProcessingError);
+		}
+
+		Ok(())
+	}
+
+	pub fn sk_set_keytype_fast(&mut self) -> Result<(), SignatureError> {
+		if self.sk_set == false {
+			return Err(SignatureError::UninitializedContext);
+		}
+
+		let result = unsafe {
+			leancrypto::lc_sphincs_sk_set_keytype_fast(&mut self.sk)
+		};
+		if result < 0 {
+			return Err(SignatureError::ProcessingError);
+		}
 
 		Ok(())
 	}
@@ -116,8 +176,8 @@ impl lcr_sphincs {
 
 		let result = unsafe {
 			leancrypto::lc_sphincs_sig_load(&mut self.sig,
-							  sig_buf.as_ptr(),
-							  sig_buf.len())
+						        sig_buf.as_ptr(),
+						        sig_buf.len())
 		};
 		if result < 0 {
 			return Err(SignatureError::ProcessingError);
@@ -250,7 +310,7 @@ impl lcr_sphincs {
 		//let result =
 		unsafe {
 			leancrypto::lc_sphincs_sig_ptr(&mut ptr, &mut len,
-							 &mut self.sig)
+						       &mut self.sig)
 		};
 		// if result < 0 {
 		// 	return Err(SignatureError::ProcessingError);
