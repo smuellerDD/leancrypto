@@ -21,7 +21,7 @@ use leancrypto::lcr_dilithium::lcr_dilithium;
 use leancrypto::lcr_dilithium::lcr_dilithium_type;
 
 #[test]
-fn lc_rust_dilithium_87() {
+fn lc_rust_dilithium_87_cast() {
 	let pk: [u8; 2592] = [
 		0x4d, 0xf6, 0x98, 0xe3, 0x17, 0x87, 0xb0, 0xfc,
 		0x24, 0x85, 0xc7, 0x8f, 0xfc, 0x87, 0x1f, 0xe8,
@@ -1574,4 +1574,59 @@ fn lc_rust_dilithium_87() {
 	assert_eq!(result, Ok(()));
 	assert_ne!(dilithium.sk_as_slice(), &sk[..]);
 	assert_ne!(dilithium.pk_as_slice(), &pk[..]);
+}
+
+fn lc_rust_dilithium_one(dilithium_type: lcr_dilithium_type) {
+	let msg: [u8; 33] = [
+		0xD8, 0x1C, 0x4D, 0x8D, 0x73, 0x4F, 0xCB, 0xFB,
+		0xEA, 0xDE, 0x3D, 0x3F, 0x8A, 0x03, 0x9F, 0xAA,
+		0x2A, 0x2C, 0x99, 0x57, 0xE8, 0x35, 0xAD, 0x55,
+		0xB2, 0x2E, 0x75, 0xBF, 0x57, 0xBB, 0x55, 0x6A,
+		0xC8
+	];
+	let mut dilithium = lcr_dilithium::new();
+
+	let result = dilithium.keypair(dilithium_type);
+	assert_eq!(result, Ok(()));
+
+	let result = dilithium.sign_deterministic(&msg);
+	assert_eq!(result, Ok(()));
+
+	let result = dilithium.verify(&msg);
+	assert_eq!(result, Ok(()));
+
+	let pk = dilithium.pk_as_slice().to_vec();
+	let sk = dilithium.sk_as_slice().to_vec();
+
+	let mut dilithium2 = lcr_dilithium::new();
+	let result = dilithium2.sk_load(&sk);
+	assert_eq!(result, Ok(()));
+	assert_eq!(dilithium.sk_as_slice(), dilithium2.sk_as_slice());
+
+	let result = dilithium2.pk_load(&pk);
+	assert_eq!(result, Ok(()));
+	assert_eq!(dilithium.pk_as_slice(), dilithium2.pk_as_slice());
+
+	let result = dilithium2.sign_deterministic(&msg);
+	assert_eq!(result, Ok(()));
+	assert_eq!(dilithium.sig_as_slice(), dilithium2.sig_as_slice());
+	//println!("sig {:x?}",  dilithium2.sig_as_slice().to_vec().chunks(10).next());
+
+	let result = dilithium2.verify(&msg);
+	assert_eq!(result, Ok(()));
+}
+
+#[test]
+fn lc_rust_dilithium_87() {
+	lc_rust_dilithium_one(lcr_dilithium_type::lcr_dilithium_87);
+}
+
+#[test]
+fn lc_rust_dilithium_65() {
+	lc_rust_dilithium_one(lcr_dilithium_type::lcr_dilithium_65);
+}
+
+#[test]
+fn lc_rust_dilithium_44() {
+	lc_rust_dilithium_one(lcr_dilithium_type::lcr_dilithium_44);
 }
