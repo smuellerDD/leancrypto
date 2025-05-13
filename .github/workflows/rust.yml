@@ -31,4 +31,4 @@ jobs:
       - name: Meson install
         run: sudo meson install -C build
       - run: cd rust && cargo build --verbose
-      - run: cargo -C rust test --verbose
+      - run: cd rust && cargo test --verbose
