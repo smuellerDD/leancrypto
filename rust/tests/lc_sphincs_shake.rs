@@ -20,8 +20,7 @@
 use leancrypto::lcr_sphincs::lcr_sphincs;
 use leancrypto::lcr_sphincs::lcr_sphincs_type;
 
-#[test]
-fn lc_rust_sphincs_shake_128f() {
+fn lc_rust_sphincs_shake_one(sphincs_type: lcr_sphincs_type, fast: bool) {
 	let msg: [u8; 33] = [
 		0xD8, 0x1C, 0x4D, 0x8D, 0x73, 0x4F, 0xCB, 0xFB,
 		0xEA, 0xDE, 0x3D, 0x3F, 0x8A, 0x03, 0x9F, 0xAA,
@@ -31,7 +30,7 @@ fn lc_rust_sphincs_shake_128f() {
 	];
 	let mut sphincs = lcr_sphincs::new();
 
-	let result = sphincs.keypair(lcr_sphincs_type::lcr_sphincs_shake_128f);
+	let result = sphincs.keypair(sphincs_type);
 	assert_eq!(result, Ok(()));
 
 	let result = sphincs.sign_deterministic(&msg);
@@ -48,15 +47,21 @@ fn lc_rust_sphincs_shake_128f() {
 	assert_eq!(result, Ok(()));
 	assert_eq!(sphincs.sk_as_slice(), sphincs2.sk_as_slice());
 
-	let result = sphincs2.sk_set_keytype_fast();
-	assert_eq!(result, Ok(()));
-
 	let result = sphincs2.pk_load(&pk);
 	assert_eq!(result, Ok(()));
 	assert_eq!(sphincs.pk_as_slice(), sphincs2.pk_as_slice());
 
-	let result = sphincs2.pk_set_keytype_fast();
-	assert_eq!(result, Ok(()));
+	if fast {
+		let result = sphincs2.pk_set_keytype_fast();
+		assert_eq!(result, Ok(()));
+		let result = sphincs2.sk_set_keytype_fast();
+		assert_eq!(result, Ok(()));
+	} else {
+		let result = sphincs2.pk_set_keytype_small();
+		assert_eq!(result, Ok(()));
+		let result = sphincs2.sk_set_keytype_small();
+		assert_eq!(result, Ok(()));
+	}
 
 	let result = sphincs2.sign_deterministic(&msg);
 	assert_eq!(result, Ok(()));
@@ -65,4 +70,34 @@ fn lc_rust_sphincs_shake_128f() {
 
 	let result = sphincs2.verify(&msg);
 	assert_eq!(result, Ok(()));
+}
+
+#[test]
+fn lc_rust_sphincs_shake_128f() {
+	lc_rust_sphincs_shake_one(lcr_sphincs_type::lcr_sphincs_shake_128f, true);
+}
+
+#[test]
+fn lc_rust_sphincs_shake_128s() {
+	lc_rust_sphincs_shake_one(lcr_sphincs_type::lcr_sphincs_shake_128s, false);
+}
+
+#[test]
+fn lc_rust_sphincs_shake_192f() {
+	lc_rust_sphincs_shake_one(lcr_sphincs_type::lcr_sphincs_shake_192f, true);
+}
+
+#[test]
+fn lc_rust_sphincs_shake_192s() {
+	lc_rust_sphincs_shake_one(lcr_sphincs_type::lcr_sphincs_shake_192s, false);
+}
+
+#[test]
+fn lc_rust_sphincs_shake_256f() {
+	lc_rust_sphincs_shake_one(lcr_sphincs_type::lcr_sphincs_shake_256f, true);
+}
+
+#[test]
+fn lc_rust_sphincs_shake_256s() {
+	lc_rust_sphincs_shake_one(lcr_sphincs_type::lcr_sphincs_shake_256s, false);
 }
