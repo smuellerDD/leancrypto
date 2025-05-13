@@ -21,26 +21,29 @@ use std::ptr;
 use crate::ffi::leancrypto;
 use crate::error::SignatureError;
 
-pub enum lcr_dilithium_type {
-	lcr_dilithium_44,
-	lcr_dilithium_65,
-	lcr_dilithium_87,
+pub enum lcr_sphincs_type {
+	lcr_sphincs_shake_256s,
+	lcr_sphincs_shake_256f,
+	lcr_sphincs_shake_192s,
+	lcr_sphincs_shake_192f,
+	lcr_sphincs_shake_128s,
+	lcr_sphincs_shake_128f,
 }
 
-/// Leancrypto wrapper for lc_dilithium
-pub struct lcr_dilithium {
+/// Leancrypto wrapper for lc_sphincs
+pub struct lcr_sphincs {
 	// Context
-	//dilithium_ctx: *mut leancrypto::lc_dilithium_ctx,
+	//sphincs_ctx: *mut leancrypto::lc_sphincs_ctx,
 
 	/// Dilithium public key
-	pk: leancrypto::lc_dilithium_pk,
+	pk: leancrypto::lc_sphincs_pk,
 
 	// TODO how to secure delete this buffer?
 	/// Dilithium secret key
-	sk: leancrypto::lc_dilithium_sk,
+	sk: leancrypto::lc_sphincs_sk,
 
 	/// Dilithium signature
-	sig: leancrypto::lc_dilithium_sig,
+	sig: leancrypto::lc_sphincs_sig,
 
 	pk_set: bool,
 	sk_set: bool,
@@ -48,10 +51,10 @@ pub struct lcr_dilithium {
 }
 
 #[allow(dead_code)]
-impl lcr_dilithium {
+impl lcr_sphincs {
 	pub fn new() -> Self {
-		lcr_dilithium {
-			//dilithium_ctx: ptr::null_mut(),
+		lcr_sphincs {
+			//sphincs_ctx: ptr::null_mut(),
 			pk: unsafe { std::mem::zeroed() },
 			sk: unsafe { std::mem::zeroed() },
 			sig: unsafe { std::mem::zeroed() },
@@ -69,7 +72,7 @@ impl lcr_dilithium {
 		// of existing key.
 
 		let result = unsafe {
-			leancrypto::lc_dilithium_sk_load(&mut self.sk,
+			leancrypto::lc_sphincs_sk_load(&mut self.sk,
 							 sk_buf.as_ptr(),
 							 sk_buf.len())
 		};
@@ -90,7 +93,7 @@ impl lcr_dilithium {
 		// of existing key.
 
 		let result = unsafe {
-			leancrypto::lc_dilithium_pk_load(&mut self.pk,
+			leancrypto::lc_sphincs_pk_load(&mut self.pk,
 							 pk_buf.as_ptr(),
 							 pk_buf.len())
 		};
@@ -112,7 +115,7 @@ impl lcr_dilithium {
 		// of existing key.
 
 		let result = unsafe {
-			leancrypto::lc_dilithium_sig_load(&mut self.sig,
+			leancrypto::lc_sphincs_sig_load(&mut self.sig,
 							  sig_buf.as_ptr(),
 							  sig_buf.len())
 		};
@@ -125,25 +128,35 @@ impl lcr_dilithium {
 		Ok(())
 	}
 
-	fn lcr_dilithium_type_mapping(dilithium_type: lcr_dilithium_type) ->
+	fn lcr_sphincs_type_mapping(sphincs_type: lcr_sphincs_type) ->
 		u32 {
-		match dilithium_type {
-			lcr_dilithium_type::lcr_dilithium_44 => leancrypto::lc_dilithium_type_LC_DILITHIUM_44,
-			lcr_dilithium_type::lcr_dilithium_65 => leancrypto::lc_dilithium_type_LC_DILITHIUM_65,
-			lcr_dilithium_type::lcr_dilithium_87 => leancrypto::lc_dilithium_type_LC_DILITHIUM_87,
+		match sphincs_type {
+			lcr_sphincs_type::lcr_sphincs_shake_256s =>
+				leancrypto::lc_sphincs_type_LC_SPHINCS_SHAKE_256s,
+			lcr_sphincs_type::lcr_sphincs_shake_256f =>
+				leancrypto::lc_sphincs_type_LC_SPHINCS_SHAKE_256f,
+			lcr_sphincs_type::lcr_sphincs_shake_192s =>
+				leancrypto::lc_sphincs_type_LC_SPHINCS_SHAKE_192s,
+			lcr_sphincs_type::lcr_sphincs_shake_192f =>
+				leancrypto::lc_sphincs_type_LC_SPHINCS_SHAKE_192f,
+			lcr_sphincs_type::lcr_sphincs_shake_128s =>
+				leancrypto::lc_sphincs_type_LC_SPHINCS_SHAKE_128s,
+			lcr_sphincs_type::lcr_sphincs_shake_128f =>
+				leancrypto::lc_sphincs_type_LC_SPHINCS_SHAKE_128f,
+
 		}
 	}
 
-	/// Generate dilithium key
+	/// Generate sphincs key
 	///
-	/// [dilithium_type] key type
-	pub fn keypair(&mut self, dilithium_type: lcr_dilithium_type) ->
+	/// [sphincs_type] key type
+	pub fn keypair(&mut self, sphincs_type: lcr_sphincs_type) ->
 		Result<(), SignatureError> {
 		let result = unsafe {
-			leancrypto::lc_dilithium_keypair(
+			leancrypto::lc_sphincs_keypair(
 				&mut self.pk, &mut self.sk,
 				leancrypto::lc_seeded_rng,
-				Self::lcr_dilithium_type_mapping(dilithium_type))
+				Self::lcr_sphincs_type_mapping(sphincs_type))
 		};
 		if result < 0 {
 			return Err(SignatureError::ProcessingError);
@@ -164,7 +177,7 @@ impl lcr_dilithium {
 		}
 
 		let result = unsafe {
-			leancrypto::lc_dilithium_sign(
+			leancrypto::lc_sphincs_sign(
 				&mut self.sig, msg.as_ptr(), msg.len(),
 				&self.sk, leancrypto::lc_seeded_rng)
 		};
@@ -187,7 +200,7 @@ impl lcr_dilithium {
 		}
 
 		let result = unsafe {
-			leancrypto::lc_dilithium_sign(
+			leancrypto::lc_sphincs_sign(
 				&mut self.sig, msg.as_ptr(), msg.len(),
 				&self.sk, ptr::null_mut())
 		};
@@ -209,7 +222,7 @@ impl lcr_dilithium {
 		}
 
 		let result = unsafe {
-			leancrypto::lc_dilithium_verify(
+			leancrypto::lc_sphincs_verify(
 				&mut self.sig, msg.as_ptr(), msg.len(),
 				&self.pk)
 		};
@@ -236,7 +249,7 @@ impl lcr_dilithium {
 		//TODO handle error
 		//let result =
 		unsafe {
-			leancrypto::lc_dilithium_sig_ptr(&mut ptr, &mut len,
+			leancrypto::lc_sphincs_sig_ptr(&mut ptr, &mut len,
 							 &mut self.sig)
 		};
 		// if result < 0 {
@@ -261,8 +274,8 @@ impl lcr_dilithium {
 		//TODO handle error
 		//let result =
 		unsafe {
-			leancrypto::lc_dilithium_sk_ptr(&mut ptr, &mut len,
-							&mut self.sk)
+			leancrypto::lc_sphincs_sk_ptr(&mut ptr, &mut len,
+						      &mut self.sk)
 		};
 		// if result < 0 {
 		// 	return Err(SignatureError::ProcessingError);
@@ -286,8 +299,8 @@ impl lcr_dilithium {
 		//TODO handle error
 		//let result =
 		unsafe {
-			leancrypto::lc_dilithium_pk_ptr(&mut ptr, &mut len,
-							&mut self.pk)
+			leancrypto::lc_sphincs_pk_ptr(&mut ptr, &mut len,
+						      &mut self.pk)
 		};
 		// if result < 0 {
 		// 	return Err(SignatureError::ProcessingError);

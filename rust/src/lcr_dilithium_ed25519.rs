@@ -21,26 +21,26 @@ use std::ptr;
 use crate::ffi::leancrypto;
 use crate::error::SignatureError;
 
-pub enum lcr_dilithium_type {
+pub enum lcr_dilithium_ed25519_type {
 	lcr_dilithium_44,
 	lcr_dilithium_65,
 	lcr_dilithium_87,
 }
 
-/// Leancrypto wrapper for lc_dilithium
-pub struct lcr_dilithium {
+/// Leancrypto wrapper for lc_dilithium_ed25519
+pub struct lcr_dilithium_ed25519 {
 	// Context
-	//dilithium_ctx: *mut leancrypto::lc_dilithium_ctx,
+	//dilithium_ed25519_ctx: *mut leancrypto::lc_dilithium_ed25519_ctx,
 
 	/// Dilithium public key
-	pk: leancrypto::lc_dilithium_pk,
+	pk: leancrypto::lc_dilithium_ed25519_pk,
 
 	// TODO how to secure delete this buffer?
 	/// Dilithium secret key
-	sk: leancrypto::lc_dilithium_sk,
+	sk: leancrypto::lc_dilithium_ed25519_sk,
 
 	/// Dilithium signature
-	sig: leancrypto::lc_dilithium_sig,
+	sig: leancrypto::lc_dilithium_ed25519_sig,
 
 	pk_set: bool,
 	sk_set: bool,
@@ -48,10 +48,10 @@ pub struct lcr_dilithium {
 }
 
 #[allow(dead_code)]
-impl lcr_dilithium {
+impl lcr_dilithium_ed25519 {
 	pub fn new() -> Self {
-		lcr_dilithium {
-			//dilithium_ctx: ptr::null_mut(),
+		lcr_dilithium_ed25519 {
+			//dilithium_ed25519_ctx: ptr::null_mut(),
 			pk: unsafe { std::mem::zeroed() },
 			sk: unsafe { std::mem::zeroed() },
 			sig: unsafe { std::mem::zeroed() },
@@ -63,15 +63,18 @@ impl lcr_dilithium {
 
 	/// Load secret key for using with leancrypto
 	///
-	/// [sk_buf] buffer with raw secret key
-	pub fn sk_load(&mut self, sk_buf: &[u8]) -> Result<(), SignatureError> {
+	/// [sk_dilithium_buf] buffer with Dilithium raw secret key
+	/// [sk_ed25519_buf] buffer with ED25519 raw secret key
+	pub fn sk_load(&mut self, sk_dilithium_buf: &[u8], sk_ed25519_buf: &[u8]) ->
+		Result<(), SignatureError> {
 		// No check for self.sk_set == false as we allow overwriting
 		// of existing key.
 
 		let result = unsafe {
-			leancrypto::lc_dilithium_sk_load(&mut self.sk,
-							 sk_buf.as_ptr(),
-							 sk_buf.len())
+			leancrypto::lc_dilithium_ed25519_sk_load(
+				&mut self.sk, sk_dilithium_buf.as_ptr(),
+				sk_dilithium_buf.len(), sk_ed25519_buf.as_ptr(),
+				sk_ed25519_buf.len())
 		};
 		if result < 0 {
 			return Err(SignatureError::ProcessingError);
@@ -84,15 +87,18 @@ impl lcr_dilithium {
 
 	/// Load public key for using with leancrypto
 	///
-	/// [pk_buf] buffer with raw secret key
-	pub fn pk_load(&mut self, pk_buf: &[u8]) -> Result<(), SignatureError> {
+	/// [pk_dilithium_buf] buffer with Dilithium raw public key
+	/// [pk_ed25519_buf] buffer with ED25519 raw public key
+	pub fn pk_load(&mut self, pk_dilithium_buf: &[u8], pk_ed25519_buf: &[u8]) ->
+		Result<(), SignatureError> {
 		// No check for self.pk_set == false as we allow overwriting
 		// of existing key.
 
 		let result = unsafe {
-			leancrypto::lc_dilithium_pk_load(&mut self.pk,
-							 pk_buf.as_ptr(),
-							 pk_buf.len())
+			leancrypto::lc_dilithium_ed25519_pk_load(
+				&mut self.pk, pk_dilithium_buf.as_ptr(),
+				pk_dilithium_buf.len(), pk_ed25519_buf.as_ptr(),
+				pk_ed25519_buf.len())
 		};
 		if result < 0 {
 			return Err(SignatureError::ProcessingError);
@@ -105,16 +111,19 @@ impl lcr_dilithium {
 
 	/// Load signature using with leancrypto
 	///
-	/// [sig_buf] buffer with raw secret key
-	pub fn sig_load(&mut self, sig_buf: &[u8]) ->
+	/// [sig_dilithium_buf] buffer with Dilithium raw secret key
+	/// [sig_ed25519_buf] buffer with ED25519 raw secret key
+	pub fn sig_load(&mut self, sig_dilithium_buf: &[u8], sig_ed25519_buf: &[u8]) ->
 		Result<(), SignatureError> {
 		// No check for self.sig_set == false as we allow overwriting
 		// of existing key.
 
 		let result = unsafe {
-			leancrypto::lc_dilithium_sig_load(&mut self.sig,
-							  sig_buf.as_ptr(),
-							  sig_buf.len())
+			leancrypto::lc_dilithium_ed25519_sig_load(
+				&mut self.sig, sig_dilithium_buf.as_ptr(),
+				sig_dilithium_buf.len(),
+				sig_ed25519_buf.as_ptr(),
+				sig_ed25519_buf.len())
 		};
 		if result < 0 {
 			return Err(SignatureError::ProcessingError);
@@ -125,25 +134,29 @@ impl lcr_dilithium {
 		Ok(())
 	}
 
-	fn lcr_dilithium_type_mapping(dilithium_type: lcr_dilithium_type) ->
+	fn lcr_dilithium_ed25519_type_mapping(dilithium_ed25519_type: lcr_dilithium_ed25519_type) ->
 		u32 {
-		match dilithium_type {
-			lcr_dilithium_type::lcr_dilithium_44 => leancrypto::lc_dilithium_type_LC_DILITHIUM_44,
-			lcr_dilithium_type::lcr_dilithium_65 => leancrypto::lc_dilithium_type_LC_DILITHIUM_65,
-			lcr_dilithium_type::lcr_dilithium_87 => leancrypto::lc_dilithium_type_LC_DILITHIUM_87,
+		match dilithium_ed25519_type {
+			lcr_dilithium_ed25519_type::lcr_dilithium_44 =>
+				leancrypto::lc_dilithium_type_LC_DILITHIUM_44,
+			lcr_dilithium_ed25519_type::lcr_dilithium_65 =>
+				leancrypto::lc_dilithium_type_LC_DILITHIUM_65,
+			lcr_dilithium_ed25519_type::lcr_dilithium_87 =>
+				leancrypto::lc_dilithium_type_LC_DILITHIUM_87,
 		}
 	}
 
-	/// Generate dilithium key
+	/// Generate dilithium_ed25519 key
 	///
-	/// [dilithium_type] key type
-	pub fn keypair(&mut self, dilithium_type: lcr_dilithium_type) ->
+	/// [dilithium_ed25519_type] key type
+	pub fn keypair(&mut self,
+		       dilithium_ed25519_type: lcr_dilithium_ed25519_type) ->
 		Result<(), SignatureError> {
 		let result = unsafe {
-			leancrypto::lc_dilithium_keypair(
+			leancrypto::lc_dilithium_ed25519_keypair(
 				&mut self.pk, &mut self.sk,
 				leancrypto::lc_seeded_rng,
-				Self::lcr_dilithium_type_mapping(dilithium_type))
+				Self::lcr_dilithium_ed25519_type_mapping(dilithium_ed25519_type))
 		};
 		if result < 0 {
 			return Err(SignatureError::ProcessingError);
@@ -164,7 +177,7 @@ impl lcr_dilithium {
 		}
 
 		let result = unsafe {
-			leancrypto::lc_dilithium_sign(
+			leancrypto::lc_dilithium_ed25519_sign(
 				&mut self.sig, msg.as_ptr(), msg.len(),
 				&self.sk, leancrypto::lc_seeded_rng)
 		};
@@ -187,7 +200,7 @@ impl lcr_dilithium {
 		}
 
 		let result = unsafe {
-			leancrypto::lc_dilithium_sign(
+			leancrypto::lc_dilithium_ed25519_sign(
 				&mut self.sig, msg.as_ptr(), msg.len(),
 				&self.sk, ptr::null_mut())
 		};
@@ -209,7 +222,7 @@ impl lcr_dilithium {
 		}
 
 		let result = unsafe {
-			leancrypto::lc_dilithium_verify(
+			leancrypto::lc_dilithium_ed25519_verify(
 				&mut self.sig, msg.as_ptr(), msg.len(),
 				&self.pk)
 		};
@@ -230,20 +243,28 @@ impl lcr_dilithium {
 		// 	return Err(SignatureError::UninitializedContext);
 		// }
 
-		let mut ptr: *mut u8 = ptr::null_mut();
-		let mut len: usize = 0;
+		let mut dilithium_ptr: *mut u8 = ptr::null_mut();
+		let mut dilithium_len: usize = 0;
+		let mut ed25519_ptr: *mut u8 = ptr::null_mut();
+		let mut ed25519_len: usize = 0;
 
 		//TODO handle error
 		//let result =
 		unsafe {
-			leancrypto::lc_dilithium_sig_ptr(&mut ptr, &mut len,
-							 &mut self.sig)
+			leancrypto::lc_dilithium_ed25519_sig_ptr(
+				&mut dilithium_ptr, &mut dilithium_len,
+				&mut ed25519_ptr, &mut ed25519_len,
+				&mut self.sig)
 		};
 		// if result < 0 {
 		// 	return Err(SignatureError::ProcessingError);
 		// }
 
-		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
+		let slice = unsafe {
+			std::slice::from_raw_parts(dilithium_ptr, dilithium_len)
+		};
+
+		//TODO return ED25519 part
 
 		&slice
 	}
@@ -255,20 +276,28 @@ impl lcr_dilithium {
 		// 	return Err(SignatureError::UninitializedContext);
 		// }
 
-		let mut ptr: *mut u8 = ptr::null_mut();
-		let mut len: usize = 0;
+		let mut dilithium_ptr: *mut u8 = ptr::null_mut();
+		let mut dilithium_len: usize = 0;
+		let mut ed25519_ptr: *mut u8 = ptr::null_mut();
+		let mut ed25519_len: usize = 0;
 
 		//TODO handle error
 		//let result =
 		unsafe {
-			leancrypto::lc_dilithium_sk_ptr(&mut ptr, &mut len,
-							&mut self.sk)
+			leancrypto::lc_dilithium_ed25519_sk_ptr(
+				&mut dilithium_ptr, &mut dilithium_len,
+				&mut ed25519_ptr, &mut ed25519_len,
+				&mut self.sk)
 		};
 		// if result < 0 {
 		// 	return Err(SignatureError::ProcessingError);
 		// }
 
-		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
+		let slice = unsafe {
+			std::slice::from_raw_parts(dilithium_ptr, dilithium_len)
+		};
+
+		//TODO return ED25519 part
 
 		&slice
 	}
@@ -280,20 +309,28 @@ impl lcr_dilithium {
 		// 	return Err(SignatureError::UninitializedContext);
 		// }
 
-		let mut ptr: *mut u8 = ptr::null_mut();
-		let mut len: usize = 0;
+		let mut dilithium_ptr: *mut u8 = ptr::null_mut();
+		let mut dilithium_len: usize = 0;
+		let mut ed25519_ptr: *mut u8 = ptr::null_mut();
+		let mut ed25519_len: usize = 0;
 
 		//TODO handle error
 		//let result =
 		unsafe {
-			leancrypto::lc_dilithium_pk_ptr(&mut ptr, &mut len,
-							&mut self.pk)
+			leancrypto::lc_dilithium_ed25519_pk_ptr(
+				&mut dilithium_ptr, &mut dilithium_len,
+				&mut ed25519_ptr, &mut ed25519_len,
+				&mut self.pk)
 		};
 		// if result < 0 {
 		// 	return Err(SignatureError::ProcessingError);
 		// }
 
-		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
+		let slice = unsafe {
+			std::slice::from_raw_parts(dilithium_ptr, dilithium_len)
+		};
+
+		//TODO return ED25519 part
 
 		&slice
 	}
