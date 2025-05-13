@@ -325,6 +325,8 @@ support.
 ################################################################################
 # DEBUGGING OPTIONS - NONE OF THEM ARE TO BE ENABLED IN PRODUCTION CODE!!
 ################################################################################
+option('tests', type: 'feature', value: 'enabled',
+       description: 'Disable compilation of tests')
 
 option('kyber_debug', type: 'feature', value: 'disabled',
        description: 'DEBUGGING: Kyber debug printout - DO NOT ENABLE IN PRODUCTION SYSTEMS!')

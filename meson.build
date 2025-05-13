@@ -847,7 +847,8 @@ endif
 performance = 'performance'
 regression = 'regression'
 
-if get_option('efi').disabled()
+if (get_option('efi').disabled() and
+    get_option('tests').enabled())
 	foreach n : testdirs
 		subdir(n)
 	endforeach

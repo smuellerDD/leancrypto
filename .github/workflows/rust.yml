@@ -23,12 +23,12 @@ jobs:
       - name: Install meson
         run: |
           sudo apt-get update
-          sudo apt-get install -y meson gcovr doxygen graphviz
+          sudo apt-get install -y meson
       - name: Meson setup
-        run: meson setup build -Db_coverage=true -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled
+        run: meson setup build -Dtests=disabled -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled
       - name: Meson compile
         run: meson compile -C build
       - name: Meson install
         run: sudo meson install -C build
       - run: cd rust && cargo build --verbose
-      - run: cd rust && cargo -C rust test --verbose
+      - run: cargo -C rust test --verbose
