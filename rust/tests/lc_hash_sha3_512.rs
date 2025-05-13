@@ -67,3 +67,36 @@ fn lc_rust_hash_sha3_512_stack() {
 
 	assert_eq!(act.as_slice(), &exp_512[..]);
 }
+
+fn lc_rust_hash_stack_one(hash_type: lcr_hash_type) {
+	let msg_512: [u8; 3] = [0x82, 0xD9, 0x19];
+	let mut act = lcr_hash::new(hash_type);
+
+	let result = act.digest(&msg_512);
+	assert_eq!(result, Ok(()))
+}
+
+#[test]
+fn lc_rust_hash_sha3_512() {
+	lc_rust_hash_stack_one(lcr_hash_type::lcr_sha3_512)
+}
+
+#[test]
+fn lc_rust_hash_sha3_384() {
+	lc_rust_hash_stack_one(lcr_hash_type::lcr_sha3_384)
+}
+
+#[test]
+fn lc_rust_hash_sha3_256() {
+	lc_rust_hash_stack_one(lcr_hash_type::lcr_sha3_256)
+}
+
+#[test]
+fn lc_rust_hash_sha2_512() {
+	lc_rust_hash_stack_one(lcr_hash_type::lcr_sha2_512)
+}
+
+#[test]
+fn lc_rust_hash_sha2_256() {
+	lc_rust_hash_stack_one(lcr_hash_type::lcr_sha2_256)
+}
