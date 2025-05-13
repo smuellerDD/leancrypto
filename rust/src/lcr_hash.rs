@@ -56,13 +56,20 @@ impl lcr_hash {
 	fn lcr_type_mapping(&mut self) -> *const leancrypto::lc_hash {
 		unsafe {
 			match self.hash {
-				lcr_hash_type::lcr_sha2_256 => leancrypto::lc_sha256,
-				lcr_hash_type::lcr_sha2_384 => leancrypto::lc_sha384,
-				lcr_hash_type::lcr_sha2_512 => leancrypto::lc_sha512,
-				lcr_hash_type::lcr_sha3_256 => leancrypto::lc_sha3_256,
-				lcr_hash_type::lcr_sha3_384 => leancrypto::lc_sha3_384,
-				lcr_hash_type::lcr_sha3_512 => leancrypto::lc_sha3_512,
-				lcr_hash_type::lcr_ascon_256 => leancrypto::lc_ascon_256,
+				lcr_hash_type::lcr_sha2_256 =>
+					leancrypto::lc_sha256,
+				lcr_hash_type::lcr_sha2_384 =>
+					leancrypto::lc_sha384,
+				lcr_hash_type::lcr_sha2_512 =>
+					leancrypto::lc_sha512,
+				lcr_hash_type::lcr_sha3_256 =>
+					leancrypto::lc_sha3_256,
+				lcr_hash_type::lcr_sha3_384 =>
+					leancrypto::lc_sha3_384,
+				lcr_hash_type::lcr_sha3_512 =>
+					leancrypto::lc_sha3_512,
+				lcr_hash_type::lcr_ascon_256 =>
+					leancrypto::lc_ascon_256,
 			}
 		}
 	}
