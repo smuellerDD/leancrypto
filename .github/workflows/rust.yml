@@ -29,6 +29,8 @@ jobs:
       - name: Meson compile
         run: meson compile -C build
       - name: Meson install
-        run: sudo meson install -C build
+        run: |
+          sudo meson install -C build
+          sudo ldconfig
       - run: cd rust && cargo build --verbose
       - run: cd rust && cargo test --verbose
