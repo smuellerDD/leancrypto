@@ -47,6 +47,7 @@ Side-Channel Analysis | GitHub                | [![Side-Channels](https://github
 Static Code Analysis  | GitHub                | [![Static Code Analysis](https://github.com/smuellerDD/leancrypto/actions/workflows/clang-scan.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/clang-scan.yml)
 Compile PQC only      | GitHub                | [![PQC Only](https://github.com/smuellerDD/leancrypto/actions/workflows/compile-pqc-only.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/compile-pqc-only.yml)
 EFI compilation       | GitHub                | [![EFI](https://github.com/smuellerDD/leancrypto/actions/workflows/efi.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/efi.yml)
+Rust                  | GitHub                | [![EFI](https://github.com/smuellerDD/leancrypto/actions/workflows/rust.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/rust.yml)
 
 ## Library Build
 
