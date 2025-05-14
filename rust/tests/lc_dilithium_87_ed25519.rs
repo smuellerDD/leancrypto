@@ -36,23 +36,50 @@ fn lc_rust_dilithium_87_ed25519() {
 	let result = dilithium_ed25519.verify(&msg);
 	assert_eq!(result, Ok(()));
 
-	// let pk = dilithium_ed25519.pk_as_slice().to_vec();
-	// let sk = dilithium_ed25519.sk_as_slice().to_vec();
- //
-	// let mut dilithium_ed255192 = lcr_dilithium_ed25519::new();
-	// let result = dilithium_ed255192.sk_load(&sk);
-	// assert_eq!(result, Ok(()));
-	// assert_eq!(dilithium_ed25519.sk_as_slice(), dilithium_ed255192.sk_as_slice());
- //
-	// let result = dilithium_ed255192.pk_load(&pk);
-	// assert_eq!(result, Ok(()));
-	// assert_eq!(dilithium_ed25519.pk_as_slice(), dilithium_ed255192.pk_as_slice());
- //
-	// let result = dilithium_ed255192.sign_deterministic(&msg);
-	// assert_eq!(result, Ok(()));
-	// assert_eq!(dilithium_ed25519.sig_as_slice(), dilithium_ed255192.sig_as_slice());
-	// //println!("sig {:x?}",  dilithium_ed255192.sig_as_slice().to_vec().chunks(10).next());
- //
-	// let result = dilithium_ed255192.verify(&msg);
-	// assert_eq!(result, Ok(()));
+	// Get both PKs
+	let (dilithium_pk_slice, ed25519_pk_slice, result) =
+		dilithium_ed25519.pk_as_slice();
+	assert_eq!(result, Ok(()));
+	let dilithium_pk = dilithium_pk_slice.to_vec();
+	let ed25519_pk = ed25519_pk_slice.to_vec();
+
+	// Get both SKs
+	let (dilithium_sk_slice, ed25519_sk_slice, result) =
+		dilithium_ed25519.sk_as_slice();
+	assert_eq!(result, Ok(()));
+	let dilithium_sk = dilithium_sk_slice.to_vec();
+	let ed25519_sk = ed25519_sk_slice.to_vec();
+
+	let mut dilithium_ed255192 = lcr_dilithium_ed25519::new();
+
+	let result = dilithium_ed255192.sk_load(&dilithium_sk, &ed25519_sk);
+	assert_eq!(result, Ok(()));
+	// Check Dilithium SK
+	assert_eq!(dilithium_ed25519.sk_as_slice().0,
+		   dilithium_ed255192.sk_as_slice().0);
+	// Check ED25519 SK
+	assert_eq!(dilithium_ed25519.sk_as_slice().1,
+		   dilithium_ed255192.sk_as_slice().1);
+
+	let result = dilithium_ed255192.pk_load(&dilithium_pk, &ed25519_pk);
+	assert_eq!(result, Ok(()));
+	// Check Dilithium SK
+	assert_eq!(dilithium_ed25519.pk_as_slice().0,
+		   dilithium_ed255192.pk_as_slice().0);
+	// Check ED25519 SK
+	assert_eq!(dilithium_ed25519.pk_as_slice().1,
+		   dilithium_ed255192.pk_as_slice().1);
+
+	let result = dilithium_ed255192.sign_deterministic(&msg);
+	assert_eq!(result, Ok(()));
+	// Check Dilithium Sig
+	assert_eq!(dilithium_ed25519.sig_as_slice().0,
+		   dilithium_ed255192.sig_as_slice().0);
+	// Check ED25519 Sig
+	assert_eq!(dilithium_ed25519.sig_as_slice().1,
+		   dilithium_ed255192.sig_as_slice().1);
+	//println!("sig {:x?}",  dilithium_ed255192.sig_as_slice().to_vec().chunks(10).next());
+
+	let result = dilithium_ed255192.verify(&msg);
+	assert_eq!(result, Ok(()));
 }

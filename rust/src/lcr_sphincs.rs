@@ -301,77 +301,68 @@ impl lcr_sphincs {
 	}
 
 	/// Method for safe immutable access to signature buffer
-	pub fn sig_as_slice(&mut self) -> &[u8] {
-		//TODO enable
-		// if self.sig_set == false {
-		// 	return Err(SignatureError::UninitializedContext);
-		// }
+	pub fn sig_as_slice(&mut self) -> (&[u8], Result<(), SignatureError>) {
+		if self.sig_set == false {
+			return (&[], Err(SignatureError::UninitializedContext));
+		}
 
 		let mut ptr: *mut u8 = ptr::null_mut();
 		let mut len: usize = 0;
 
-		//TODO handle error
-		//let result =
-		unsafe {
+		let result = unsafe {
 			leancrypto::lc_sphincs_sig_ptr(&mut ptr, &mut len,
 						       &mut self.sig)
 		};
-		// if result < 0 {
-		// 	return Err(SignatureError::ProcessingError);
-		// }
+		if result < 0 {
+			return (&[], Err(SignatureError::ProcessingError));
+		}
 
 		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-		&slice
+		(&slice, Ok(()))
 	}
 
 	/// Method for safe immutable access to secret key buffer
-	pub fn sk_as_slice(&mut self) -> &[u8] {
-		//TODO enable
-		// if self.sk_set == false {
-		// 	return Err(SignatureError::UninitializedContext);
-		// }
+	pub fn sk_as_slice(&mut self) -> (&[u8], Result<(), SignatureError>) {
+		if self.sk_set == false {
+			return (&[], Err(SignatureError::UninitializedContext));
+		}
 
 		let mut ptr: *mut u8 = ptr::null_mut();
 		let mut len: usize = 0;
 
-		//TODO handle error
-		//let result =
-		unsafe {
+		let result = unsafe {
 			leancrypto::lc_sphincs_sk_ptr(&mut ptr, &mut len,
 						      &mut self.sk)
 		};
-		// if result < 0 {
-		// 	return Err(SignatureError::ProcessingError);
-		// }
+		if result < 0 {
+			return (&[], Err(SignatureError::ProcessingError));
+		}
 
 		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-		&slice
+		(&slice, Ok(()))
 	}
 
 	/// Method for safe immutable access to public key buffer
-	pub fn pk_as_slice(&mut self) -> &[u8] {
-		//TODO enable
-		// if self.pk_set == false {
-		// 	return Err(SignatureError::UninitializedContext);
-		// }
+	pub fn pk_as_slice(&mut self) -> (&[u8], Result<(), SignatureError>) {
+		if self.pk_set == false {
+			return (&[], Err(SignatureError::UninitializedContext));
+		}
 
 		let mut ptr: *mut u8 = ptr::null_mut();
 		let mut len: usize = 0;
 
-		//TODO handle error
-		//let result =
-		unsafe {
+		let result = unsafe {
 			leancrypto::lc_sphincs_pk_ptr(&mut ptr, &mut len,
 						      &mut self.pk)
 		};
-		// if result < 0 {
-		// 	return Err(SignatureError::ProcessingError);
-		// }
+		if result < 0 {
+			return (&[], Err(SignatureError::ProcessingError));
+		}
 
 		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-		&slice
+		(&slice, Ok(()))
 	}
 }

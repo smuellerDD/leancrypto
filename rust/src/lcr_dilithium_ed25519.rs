@@ -237,101 +237,101 @@ impl lcr_dilithium_ed25519 {
 	}
 
 	/// Method for safe immutable access to signature buffer
-	pub fn sig_as_slice(&mut self) -> &[u8] {
-		//TODO enable
-		// if self.sig_set == false {
-		// 	return Err(SignatureError::UninitializedContext);
-		// }
+	pub fn sig_as_slice(&mut self) ->
+		(&[u8], &[u8], Result<(), SignatureError>) {
+		if self.sig_set == false {
+			return (&[], &[],
+				Err(SignatureError::UninitializedContext));
+		}
 
 		let mut dilithium_ptr: *mut u8 = ptr::null_mut();
 		let mut dilithium_len: usize = 0;
 		let mut ed25519_ptr: *mut u8 = ptr::null_mut();
 		let mut ed25519_len: usize = 0;
 
-		//TODO handle error
-		//let result =
-		unsafe {
+		let result = unsafe {
 			leancrypto::lc_dilithium_ed25519_sig_ptr(
 				&mut dilithium_ptr, &mut dilithium_len,
 				&mut ed25519_ptr, &mut ed25519_len,
 				&mut self.sig)
 		};
-		// if result < 0 {
-		// 	return Err(SignatureError::ProcessingError);
-		// }
+		if result < 0 {
+			return (&[], &[], Err(SignatureError::ProcessingError));
+		}
 
-		let slice = unsafe {
+		let slice_dilithium = unsafe {
 			std::slice::from_raw_parts(dilithium_ptr, dilithium_len)
 		};
+		let slice_ed25519 = unsafe {
+			std::slice::from_raw_parts(ed25519_ptr, ed25519_len)
+		};
 
-		//TODO return ED25519 part
-
-		&slice
+		(&slice_dilithium, &slice_ed25519, Ok(()))
 	}
 
 	/// Method for safe immutable access to secret key buffer
-	pub fn sk_as_slice(&mut self) -> &[u8] {
-		//TODO enable
-		// if self.sk_set == false {
-		// 	return Err(SignatureError::UninitializedContext);
-		// }
+	pub fn sk_as_slice(&mut self) ->
+		(&[u8], &[u8], Result<(), SignatureError>) {
+		if self.sk_set == false {
+			return (&[], &[],
+				Err(SignatureError::UninitializedContext));
+		}
 
 		let mut dilithium_ptr: *mut u8 = ptr::null_mut();
 		let mut dilithium_len: usize = 0;
 		let mut ed25519_ptr: *mut u8 = ptr::null_mut();
 		let mut ed25519_len: usize = 0;
 
-		//TODO handle error
-		//let result =
-		unsafe {
+		let result = unsafe {
 			leancrypto::lc_dilithium_ed25519_sk_ptr(
 				&mut dilithium_ptr, &mut dilithium_len,
 				&mut ed25519_ptr, &mut ed25519_len,
 				&mut self.sk)
 		};
-		// if result < 0 {
-		// 	return Err(SignatureError::ProcessingError);
-		// }
+		if result < 0 {
+			return (&[], &[], Err(SignatureError::ProcessingError));
+		}
 
-		let slice = unsafe {
+		let slice_dilithium = unsafe {
 			std::slice::from_raw_parts(dilithium_ptr, dilithium_len)
 		};
+		let slice_ed25519 = unsafe {
+			std::slice::from_raw_parts(ed25519_ptr, ed25519_len)
+		};
 
-		//TODO return ED25519 part
-
-		&slice
+		(&slice_dilithium, &slice_ed25519, Ok(()))
 	}
 
 	/// Method for safe immutable access to public key buffer
-	pub fn pk_as_slice(&mut self) -> &[u8] {
-		//TODO enable
-		// if self.pk_set == false {
-		// 	return Err(SignatureError::UninitializedContext);
-		// }
+	pub fn pk_as_slice(&mut self) ->
+		(&[u8], &[u8], Result<(), SignatureError>) {
+		if self.pk_set == false {
+			return (&[], &[],
+				Err(SignatureError::UninitializedContext));
+		}
 
 		let mut dilithium_ptr: *mut u8 = ptr::null_mut();
 		let mut dilithium_len: usize = 0;
 		let mut ed25519_ptr: *mut u8 = ptr::null_mut();
 		let mut ed25519_len: usize = 0;
 
-		//TODO handle error
-		//let result =
-		unsafe {
+		let result = unsafe {
 			leancrypto::lc_dilithium_ed25519_pk_ptr(
 				&mut dilithium_ptr, &mut dilithium_len,
 				&mut ed25519_ptr, &mut ed25519_len,
 				&mut self.pk)
 		};
-		// if result < 0 {
-		// 	return Err(SignatureError::ProcessingError);
-		// }
+		if result < 0 {
+			return (&[], &[], Err(SignatureError::ProcessingError));
+		}
 
-		let slice = unsafe {
+		let slice_dilithium = unsafe {
 			std::slice::from_raw_parts(dilithium_ptr, dilithium_len)
 		};
+		let slice_ed25519 = unsafe {
+			std::slice::from_raw_parts(ed25519_ptr, ed25519_len)
+		};
 
-		//TODO return ED25519 part
-
-		&slice
+		(&slice_dilithium, &slice_ed25519, Ok(()))
 	}
 }
