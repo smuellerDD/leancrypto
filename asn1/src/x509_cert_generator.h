@@ -88,7 +88,9 @@ static inline int x509_sufficient_size(size_t *avail_datalen,
 	return 0;
 }
 
-int x509_set_bit_string(uint8_t *dst_data, size_t *dst_avail_datalen,
+int x509_concatenate_bit_string(uint8_t **dst_data, size_t *dst_avail_datalen,
+				const uint8_t *src_data, size_t src_datalen);
+int x509_set_bit_string(uint8_t **dst_data, size_t *dst_avail_datalen,
 			const uint8_t *src_data, size_t src_datalen);
 
 int x509_name_segment_enc(const struct lc_x509_certificate_name *name,

@@ -142,13 +142,18 @@ static int x509_enc_dump(struct x509_generator_opts *opts,
 	if (!opts->print_x509 && !opts->checker)
 		return 0;
 
-	CKINT(lc_x509_cert_decode(&ws->pcert, x509_data, x509_datalen));
+	CKINT_LOG(lc_x509_cert_decode(&ws->pcert, x509_data, x509_datalen),
+		  "X.509 decoding failed\n");
 
-	if (opts->checker)
-		CKINT(apply_checks_x509(&ws->pcert, &opts->checker_opts));
+	if (opts->checker) {
+		CKINT_LOG(apply_checks_x509(&ws->pcert, &opts->checker_opts),
+			  "X.509 checks failed\n");
+	}
 
-	if (opts->print_x509)
-		CKINT(print_x509_cert(&ws->pcert));
+	if (opts->print_x509) {
+		CKINT_LOG(print_x509_cert(&ws->pcert),
+			  "X.509 certificate printing failed\n");
+	}
 
 out:
 	LC_RELEASE_MEM(ws);

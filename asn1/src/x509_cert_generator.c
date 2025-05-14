@@ -47,7 +47,28 @@
 #include "x509_san.asn1.h"
 #include "x509_skid.asn1.h"
 
-int x509_set_bit_string(uint8_t *dst_data, size_t *dst_avail_datalen,
+int x509_concatenate_bit_string(uint8_t **dst_data, size_t *dst_avail_datalen,
+				const uint8_t *src_data, size_t src_datalen)
+{
+	int ret;
+
+	/* No BIT prefix */
+
+	CKINT(x509_sufficient_size(dst_avail_datalen, src_datalen));
+
+	/* Set the bit string data without the prefix */
+	if (src_datalen) {
+		memcpy(*dst_data, src_data, src_datalen);
+		*dst_avail_datalen -= src_datalen;
+		*dst_data += src_datalen;
+	}
+
+out:
+	return ret;
+}
+
+
+int x509_set_bit_string(uint8_t **dst_data, size_t *dst_avail_datalen,
 			const uint8_t *src_data, size_t src_datalen)
 {
 	int ret;
@@ -60,9 +81,10 @@ int x509_set_bit_string(uint8_t *dst_data, size_t *dst_avail_datalen,
 
 	/* Set the BIT STRING metadata */
 	if (src_datalen) {
-		dst_data[0] = 0;
-		memcpy(dst_data + 1, src_data, src_datalen - 1);
+		*dst_data[0] = 0;
+		memcpy(*dst_data + 1, src_data, src_datalen - 1);
 		*dst_avail_datalen -= src_datalen;
+		*dst_data += src_datalen;
 	}
 
 out:

@@ -52,7 +52,6 @@ if x509_common_support == 1
 		'x509.asn1.c',
 		'x509_akid.asn1.c',
 		'x509_basic_constraints.asn1.c',
-		'x509_composite_mldsa_privkey.asn1.c',
 		'x509_eku.asn1.c',
 		'x509_keyusage.asn1.c',
 		'x509_mldsa_privkey.asn1.c',
@@ -85,8 +84,6 @@ if x509_common_support == 1
 	if get_option('dilithium_ed25519').enabled()
 		src_fips += files([
 			'asym_key_dilithium_ed25519.c',
-			'x509_composite_mldsa_pubkey.asn1.c',
-			'x509_composite_mldsa_signature.asn1.c'
 			])
 		asymmetric_algo += 1
 	else

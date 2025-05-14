@@ -24,3 +24,5 @@
 - Add SLH-DSA-Ascon to Linux kernel
 
 - HQC: reed_solomon_decode has too large stack frame (3k)
+
+- PQC Hackathon: reenable Composite-ML-DSA tests after other library vendors moved to new draft version 5

@@ -186,7 +186,7 @@ int x509_mldsa_private_key_enc(void *context, uint8_t *data,
 
 	CKINT(lc_dilithium_sk_ptr(&pqc_ptr, &pqc_pklen, keys->sk.dilithium_sk));
 
-	CKINT(x509_set_bit_string(data, avail_datalen, pqc_ptr, pqc_pklen));
+	CKINT(x509_set_bit_string(&data, avail_datalen, pqc_ptr, pqc_pklen));
 
 	printf_debug("Set ML-DSA private key of size %zu\n", pqc_pklen);
 

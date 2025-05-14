@@ -35,6 +35,9 @@ int private_key_encode_dilithium_ed25519(
 	struct x509_generate_privkey_context *ctx);
 int private_key_decode_dilithium_ed25519(struct lc_x509_key_data *keys,
 					 const uint8_t *data, size_t datalen);
+int public_key_decode_dilithium_ed25519(
+	struct lc_dilithium_ed25519_pk *dilithium_ed25519_pk,
+	const uint8_t *data, size_t datalen);
 
 int public_key_verify_signature_dilithium_ed25519(
 	const struct lc_public_key *pkey,

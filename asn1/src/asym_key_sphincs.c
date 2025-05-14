@@ -200,7 +200,7 @@ int x509_slhdsa_private_key_enc(void *context, uint8_t *data,
 
 	CKINT(lc_sphincs_sk_ptr(&pqc_ptr, &pqc_pklen, keys->sk.sphincs_sk));
 
-	CKINT(x509_set_bit_string(data, avail_datalen, pqc_ptr, pqc_pklen));
+	CKINT(x509_set_bit_string(&data, avail_datalen, pqc_ptr, pqc_pklen));
 
 	printf_debug("Set SLH-DSA private key of size %zu\n", pqc_pklen);
 

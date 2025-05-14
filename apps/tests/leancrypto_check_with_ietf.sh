@@ -140,7 +140,8 @@ bc_test() {
 	local composite_ml_dsa_files="MLDSA44-Ed25519-SHA512-2.16.840.1.114027.80.8.1.23_ta.der MLDSA65-Ed25519-SHA512-2.16.840.1.114027.80.8.1.30_ta.der"
 	local ml_dsa_files="ml-dsa-44-2.16.840.1.101.3.4.3.17_ta.der ml-dsa-65-2.16.840.1.101.3.4.3.18_ta.der ml-dsa-87-2.16.840.1.101.3.4.3.19_ta.der"
 
-	local files="$slh_dsa_files $composite_ml_dsa_files $ml_dsa_files"
+	local files="$slh_dsa_files $ml_dsa_files"
+	#local files="$slh_dsa_files $composite_ml_dsa_files $ml_dsa_files"
 
 	extract_files "bc/artifacts_certs_r4.zip"
 	for i in $files
@@ -169,7 +170,8 @@ cht_test() {
 	local composite_ml_dsa_files="$subdir/id-MLDSA44-Ed25519-2.16.840.1.114027.80.8.1.23_ta.der $subdir/id-MLDSA65-Ed25519-2.16.840.1.114027.80.8.1.30_ta.der"
 	local ml_dsa_files="$subdir/ML-DSA-44-2.16.840.1.101.3.4.3.17_ta.der $subdir/ML-DSA-65-2.16.840.1.101.3.4.3.18_ta.der $subdir/ML-DSA-87-2.16.840.1.101.3.4.3.19_ta.der"
 
-	local files="$slh_dsa_files $composite_ml_dsa_files $ml_dsa_files"
+	local files="$slh_dsa_files $ml_dsa_files"
+	#local files="$slh_dsa_files $composite_ml_dsa_files $ml_dsa_files"
 
 	extract_files "cht/artifacts_certs_r4.zip"
 	for i in $files
@@ -249,7 +251,8 @@ seventhsense_test() {
 	local composite_ml_dsa_files="MlDsa44Ed25519-2.16.840.1.114027.80.8.1.23_ta.der MlDsa65Ed25519-2.16.840.1.114027.80.8.1.30_ta.der"
 	local ml_dsa_files="MlDsa44-2.16.840.1.101.3.4.3.17_ta.der MlDsa65-2.16.840.1.101.3.4.3.18_ta.der MlDsa87-2.16.840.1.101.3.4.3.19_ta.der"
 
-	local files="$slh_dsa_files $composite_ml_dsa_files $ml_dsa_files"
+	local files="$slh_dsa_files $ml_dsa_files"
+	#local files="$slh_dsa_files $composite_ml_dsa_files $ml_dsa_files"
 
 	extract_files "seventhsense.ai/artifact_certs_r4.zip"
 	for i in $files
@@ -264,7 +267,8 @@ leancrypto_test() {
 	local composite_ml_dsa_files="$subdir/ML-DSA44-ED25519-SHA512-2.16.840.1.114027.80.8.1.23_ta.der $subdir/ML-DSA65-ED25519-SHA512-2.16.840.1.114027.80.8.1.30_ta.der"
 	local ml_dsa_files="$subdir/ML-DSA44-2.16.840.1.101.3.4.3.17_ta.der $subdir/ML-DSA65-2.16.840.1.101.3.4.3.18_ta.der $subdir/ML-DSA87-2.16.840.1.101.3.4.3.19_ta.der"
 
-	local files="$slh_dsa_files $composite_ml_dsa_files $ml_dsa_files"
+	local files="$slh_dsa_files $ml_dsa_files"
+	#local files="$slh_dsa_files $composite_ml_dsa_files $ml_dsa_files"
 
 	extract_files "leancrypto/artifacts_certs_r4.zip"
 	for i in $files
