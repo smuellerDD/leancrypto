@@ -27,6 +27,9 @@ pub mod ffi;
 /// Module defining error types
 pub mod error;
 
+/// Leancrypto wrapper for lc_bike
+pub mod lcr_bike;
+
 /// Leancrypto wrapper for lc_hash
 pub mod lcr_hash;
 
@@ -35,6 +38,12 @@ pub mod lcr_dilithium;
 
 /// Leancrypto wrapper for lc_dilithium_ed25519
 pub mod lcr_dilithium_ed25519;
+
+/// Leancrypto wrapper for lc_hqc
+pub mod lcr_hqc;
+
+/// Leancrypto wrapper for lc_kyber
+pub mod lcr_kyber;
 
 /// Leancrypto wrapper for lc_sphincs
 pub mod lcr_sphincs;

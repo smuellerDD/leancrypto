@@ -58,3 +58,23 @@ impl std::fmt::Display for SignatureError {
 		}
 	}
 }
+
+#[derive(Debug)]
+#[derive(PartialEq)]
+pub enum KemError {
+	AllocationError,
+	UninitializedContext,
+	ProcessingError,
+}
+
+impl std::error::Error for KemError {}
+
+impl std::fmt::Display for KemError {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		match self {
+			KemError::AllocationError => write!(f, "failed to allocate KEM context"),
+			KemError::UninitializedContext => write!(f, "KEM context is not initialized"),
+			KemError::ProcessingError => write!(f, "KEM processing error occurred"),
+		}
+	}
+}

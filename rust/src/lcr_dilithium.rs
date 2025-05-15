@@ -128,9 +128,12 @@ impl lcr_dilithium {
 	fn lcr_dilithium_type_mapping(dilithium_type: lcr_dilithium_type) ->
 		u32 {
 		match dilithium_type {
-			lcr_dilithium_type::lcr_dilithium_44 => leancrypto::lc_dilithium_type_LC_DILITHIUM_44,
-			lcr_dilithium_type::lcr_dilithium_65 => leancrypto::lc_dilithium_type_LC_DILITHIUM_65,
-			lcr_dilithium_type::lcr_dilithium_87 => leancrypto::lc_dilithium_type_LC_DILITHIUM_87,
+			lcr_dilithium_type::lcr_dilithium_44 =>
+				leancrypto::lc_dilithium_type_LC_DILITHIUM_44,
+			lcr_dilithium_type::lcr_dilithium_65 =>
+				leancrypto::lc_dilithium_type_LC_DILITHIUM_65,
+			lcr_dilithium_type::lcr_dilithium_87 =>
+				leancrypto::lc_dilithium_type_LC_DILITHIUM_87,
 		}
 	}
 
