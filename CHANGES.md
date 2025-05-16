@@ -1,11 +1,11 @@
 Changes 1.4.0-prerelease
 * ML-DSA: add signature generation rejection test cases and enable them during self tests
 
-* add HQC following reference implementation (https://pqc-hqc.org/implementation.html (versions from 2025-02-19)) but derived from PQClean implementation. NOTE: HQC is not yet considered stable as the implementation currently does not exhibit the IND-CCA2 property. Moreover, the FIPS standardization of HQC is pending. Changes to the HQC algorithm until standardization will need to be expected.
+* add HQC following reference implementation (https://pqc-hqc.org/implementation.html (versions from 2025-02-19)) but derived from PQClean implementation. NOTE: HQC is not yet considered stable as the implementation currently does not exhibit the IND-CCA2 property. Moreover, the FIPS standardization of HQC is pending. Changes to the HQC algorithm until standardization will need to be expected. I.e. the versioning rules of the library do not apply to the HQC algorithm until being announced in the CHANGES.md file.
 
 * ARMv8: properly save/restore SIMD registers v8 through v15 for ML-DSA/ML-KEM, X25519 and SHA3-CE (reported by Alexander Sosedkin)
 
-* Rust: add wrapper allowing a native interaction with the leancrypto library
+* Rust: add wrapper allowing a native interaction with the leancrypto library - the API offered by the Rust wrappers is not yet defined to be stable and may change to the next version - i.e. the versioning rules of the library do not apply to the Rust API until being announced in the CHANGES.md file.
 
 Changes 1.3.0
 * Allow CPU entropy sources to be used as seed sources with meson option "seedsource=cpu"
