@@ -18,6 +18,7 @@
  */
 
 use std::ptr;
+use std::sync::atomic;
 use crate::ffi::leancrypto;
 use crate::error::SignatureError;
 
@@ -38,7 +39,6 @@ pub struct lcr_sphincs {
 	/// Dilithium public key
 	pk: leancrypto::lc_sphincs_pk,
 
-	// TODO how to secure delete this buffer?
 	/// Dilithium secret key
 	sk: leancrypto::lc_sphincs_sk,
 
@@ -364,5 +364,18 @@ impl lcr_sphincs {
 		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
 		(&slice, Ok(()))
+	}
+}
+
+/// This ensures the sensitive buffers are always zeroized
+/// regardless of when it goes out of scope
+impl Drop for lcr_sphincs {
+	fn drop(&mut self) {
+		let sk: leancrypto::lc_sphincs_sk = unsafe {
+			std::mem::zeroed()
+		};
+
+		unsafe { std::ptr::write_volatile(&mut self.sk, sk) };
+		atomic::compiler_fence(atomic::Ordering::SeqCst);
 	}
 }

@@ -18,6 +18,7 @@
  */
 
 use std::ptr;
+use std::sync::atomic;
 use crate::ffi::leancrypto;
 use crate::error::KemError;
 
@@ -38,7 +39,6 @@ pub struct lcr_kyber {
 	/// Kyber public key
 	pk: leancrypto::lc_kyber_pk,
 
-	// TODO how to secure delete this buffer?
 	/// Kyber secret key
 	sk: leancrypto::lc_kyber_sk,
 
@@ -311,5 +311,32 @@ impl lcr_kyber {
 		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
 		(&slice, Ok(()))
+	}
+}
+
+/// This ensures the sensitive buffers are always zeroized
+/// regardless of when it goes out of scope
+impl Drop for lcr_kyber {
+	fn drop(&mut self) {
+		let sk: leancrypto::lc_kyber_sk = unsafe {
+			std::mem::zeroed()
+		};
+
+		unsafe { std::ptr::write_volatile(&mut self.sk, sk) };
+		atomic::compiler_fence(atomic::Ordering::SeqCst);
+
+		let ct: leancrypto::lc_kyber_ct = unsafe {
+			std::mem::zeroed()
+		};
+
+		unsafe { std::ptr::write_volatile(&mut self.ct, ct) };
+		atomic::compiler_fence(atomic::Ordering::SeqCst);
+
+		let ss: leancrypto::lc_kyber_ss = unsafe {
+			std::mem::zeroed()
+		};
+
+		unsafe { std::ptr::write_volatile(&mut self.ss, ss) };
+		atomic::compiler_fence(atomic::Ordering::SeqCst);
 	}
 }

@@ -18,6 +18,7 @@
  */
 
 use std::ptr;
+use std::sync::atomic;
 use crate::ffi::leancrypto;
 use crate::error::SignatureError;
 
@@ -35,7 +36,6 @@ pub struct lcr_dilithium {
 	/// Dilithium public key
 	pk: leancrypto::lc_dilithium_pk,
 
-	// TODO how to secure delete this buffer?
 	/// Dilithium secret key
 	sk: leancrypto::lc_dilithium_sk,
 
@@ -290,5 +290,33 @@ impl lcr_dilithium {
 		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
 		(&slice, Ok(()))
+	}
+
+	/// This is a test function verifying whether the zeroization succeeds
+	fn zeroize_check(&mut self, sk: &mut leancrypto::lc_dilithium_sk)
+	{
+		let mut ptr: *mut u8 = ptr::null_mut();
+		let mut len: usize = 0;
+		unsafe {
+			leancrypto::lc_dilithium_sk_ptr(&mut ptr, &mut len, sk)
+		};
+
+		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
+
+		assert_eq!(Self::sk_as_slice(self).0, slice);
+	}
+}
+
+/// This ensures the sensitive buffers are always zeroized
+/// regardless of when it goes out of scope
+impl Drop for lcr_dilithium {
+	fn drop(&mut self) {
+		let /*mut*/ sk: leancrypto::lc_dilithium_sk = unsafe {
+			std::mem::zeroed()
+		};
+
+		unsafe { std::ptr::write_volatile(&mut self.sk, sk) };
+		atomic::compiler_fence(atomic::Ordering::SeqCst);
+		//Self::zeroize_check(self, &mut sk);
 	}
 }

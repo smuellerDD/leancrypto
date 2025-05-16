@@ -18,6 +18,7 @@
  */
 
 use std::ptr;
+use std::sync::atomic;
 use crate::ffi::leancrypto;
 use crate::error::HashError;
 
@@ -155,6 +156,13 @@ impl lcr_hash {
 /// regardless of when it goes out of scope
 impl Drop for lcr_hash {
 	fn drop(&mut self) {
+		let digest: [u8; leancrypto::LC_SHA_MAX_SIZE_DIGEST as _] =
+			[0; leancrypto::LC_SHA3_512_SIZE_DIGEST as _];
+
+		// Zeroize digest buffer
+		unsafe { std::ptr::write_volatile(&mut self.digest, digest) };
+		atomic::compiler_fence(atomic::Ordering::SeqCst);
+
 		if !self.hash_ctx.is_null() {
 			unsafe { leancrypto::lc_hash_zero_free(self.hash_ctx); }
 		}
