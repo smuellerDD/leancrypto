@@ -45,5 +45,8 @@ pub mod lcr_hqc;
 /// Leancrypto wrapper for lc_kyber
 pub mod lcr_kyber;
 
+/// Leancrypto wrapper for lc_rng
+pub mod lcr_rng;
+
 /// Leancrypto wrapper for lc_sphincs
 pub mod lcr_sphincs;

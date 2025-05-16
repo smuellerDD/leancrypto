@@ -30,9 +30,12 @@ impl std::error::Error for HashError {}
 impl std::fmt::Display for HashError {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		match self {
-			HashError::AllocationError => write!(f, "failed to allocate hash context"),
-			HashError::UninitializedContext => write!(f, "hash context is not initialized"),
-			HashError::ProcessingError => write!(f, "hash processing error occurred"),
+			HashError::AllocationError =>
+				write!(f, "failed to allocate hash context"),
+			HashError::UninitializedContext =>
+				write!(f, "hash context is not initialized"),
+			HashError::ProcessingError =>
+				write!(f, "hash processing error occurred"),
 		}
 	}
 }
@@ -51,10 +54,14 @@ impl std::error::Error for SignatureError {}
 impl std::fmt::Display for SignatureError {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		match self {
-			SignatureError::AllocationError => write!(f, "failed to allocate signature context"),
-			SignatureError::UninitializedContext => write!(f, "Signature context is not initialized"),
-			SignatureError::ProcessingError => write!(f, "Signature processing error occurred"),
-			SignatureError::VerificationError => write!(f, "Signature signature verification failed"),
+			SignatureError::AllocationError =>
+				write!(f, "failed to allocate signature context"),
+			SignatureError::UninitializedContext =>
+				write!(f, "Signature context is not initialized"),
+			SignatureError::ProcessingError =>
+				write!(f, "Signature processing error occurred"),
+			SignatureError::VerificationError =>
+				write!(f, "Signature signature verification failed"),
 		}
 	}
 }
@@ -72,9 +79,38 @@ impl std::error::Error for KemError {}
 impl std::fmt::Display for KemError {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		match self {
-			KemError::AllocationError => write!(f, "failed to allocate KEM context"),
-			KemError::UninitializedContext => write!(f, "KEM context is not initialized"),
-			KemError::ProcessingError => write!(f, "KEM processing error occurred"),
+			KemError::AllocationError =>
+				write!(f, "failed to allocate KEM context"),
+			KemError::UninitializedContext =>
+				write!(f, "KEM context is not initialized"),
+			KemError::ProcessingError =>
+				write!(f, "KEM processing error occurred"),
+		}
+	}
+}
+
+#[derive(Debug)]
+#[derive(PartialEq)]
+pub enum RngError {
+	AllocationError,
+	UninitializedContext,
+	ProcessingError,
+	NotSeeded,
+}
+
+impl std::error::Error for RngError {}
+
+impl std::fmt::Display for RngError {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		match self {
+			RngError::AllocationError =>
+				write!(f, "failed to allocate RNG context"),
+			RngError::UninitializedContext =>
+				write!(f, "RNG context is not initialized"),
+			RngError::ProcessingError =>
+				write!(f, "RNG processing error occurred"),
+			RngError::NotSeeded =>
+				write!(f, "RNG context is not seeded"),
 		}
 	}
 }
