@@ -40,10 +40,10 @@ fn lc_rust_hash_sha3_512_alloc() {
 	let result = act.update(&msg_512);
 	assert_eq!(result, Ok(()));
 
-	let result = act.fini();
+	let (digest, result) = act.fini();
 	assert_eq!(result, Ok(()));
 
-	assert_eq!(act.as_slice(), &exp_512[..]);
+	assert_eq!(digest, &exp_512[..]);
 }
 
 fn lc_rust_hash_sha3_512_stack() {
@@ -60,10 +60,10 @@ fn lc_rust_hash_sha3_512_stack() {
 	];
 	let mut act = lcr_hash::new(lcr_hash_type::lcr_sha3_512);
 
-	let result = act.digest(&msg_512);
+	let (digest, result) = act.digest(&msg_512);
 	assert_eq!(result, Ok(()));
 
-	assert_eq!(act.as_slice(), &exp_512[..]);
+	assert_eq!(digest, &exp_512[..]);
 }
 
 fn main() {

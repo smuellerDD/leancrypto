@@ -18,7 +18,6 @@
  */
 
 use std::ptr;
-use std::sync::atomic;
 use crate::ffi::leancrypto;
 use crate::error::HashError;
 
@@ -30,13 +29,14 @@ pub enum lcr_hash_type {
 	lcr_sha3_384,
 	lcr_sha3_512,
 	lcr_ascon_256,
+	lcr_shake_128,
+	lcr_shake_256,
+	lcr_cshake_128,
+	lcr_cshake_256,
 }
 
 /// Leancrypto wrapper for lc_hash
 pub struct lcr_hash {
-	/// Output digest
-	digest: [u8; leancrypto::LC_SHA_MAX_SIZE_DIGEST as _],
-
 	/// Context for init/update/final
 	hash_ctx: *mut leancrypto::lc_hash_ctx,
 
@@ -48,7 +48,6 @@ pub struct lcr_hash {
 impl lcr_hash {
 	pub fn new(hash_type: lcr_hash_type) -> Self {
 		lcr_hash {
-			digest: [0; leancrypto::LC_SHA3_512_SIZE_DIGEST as _],
 			hash_ctx: ptr::null_mut(),
 			hash: hash_type
 		}
@@ -71,21 +70,94 @@ impl lcr_hash {
 					leancrypto::lc_sha3_512,
 				lcr_hash_type::lcr_ascon_256 =>
 					leancrypto::lc_ascon_256,
+				lcr_hash_type::lcr_shake_128 =>
+					leancrypto::lc_shake128,
+				lcr_hash_type::lcr_shake_256 =>
+					leancrypto::lc_shake256,
+				lcr_hash_type::lcr_cshake_128 =>
+					leancrypto::lc_cshake128,
+				lcr_hash_type::lcr_cshake_256 =>
+					leancrypto::lc_cshake256,
 			}
+		}
+	}
+
+	fn lcr_digestsize_mapping(&mut self) -> usize {
+		match self.hash {
+			lcr_hash_type::lcr_sha2_256 => 32,
+			lcr_hash_type::lcr_sha2_384 => 48,
+			lcr_hash_type::lcr_sha2_512 => 64,
+			lcr_hash_type::lcr_sha3_256 => 32,
+			lcr_hash_type::lcr_sha3_384 => 48,
+			lcr_hash_type::lcr_sha3_512 => 64,
+			lcr_hash_type::lcr_ascon_256 => 32,
+			_ => 0,
 		}
 	}
 
 	/// Create message digest
 	///
 	/// [msg] holds the message to be digested
-	pub fn digest(&mut self, msg: &[u8]) -> Result<(), HashError> {
+	pub fn digest(&mut self, msg: &[u8]) ->
+		(Vec<u8>, Result<(), HashError>) {
+		let mut digest = vec!(0u8; Self::lcr_digestsize_mapping(self));
+
 		unsafe {
 			leancrypto::lc_hash(self.lcr_type_mapping(),
 					    msg.as_ptr(), msg.len(),
-					    self.digest.as_mut_ptr());
+					    digest.as_mut_ptr())
+		};
+
+		(digest, Ok(()))
+	}
+
+	/// Create XOF message digest
+	///
+	/// [msg] holds the message to be digested
+	/// [digestsize] size of the digest
+	pub fn xof(&mut self, msg: &[u8], digestsize: usize) ->
+		(Vec<u8>, Result<(), HashError>) {
+		let mut digest = vec!(0u8; digestsize);
+
+		unsafe {
+			leancrypto::lc_xof(self.lcr_type_mapping(),
+					   msg.as_ptr(), msg.len(),
+					   digest.as_mut_ptr(), digestsize)
+		};
+
+		(digest, Ok(()))
+	}
+
+	/// cSHAKE Init: Initializes message digest handle
+	///
+	/// [n] N is a function-name bit string, used by NIST to define
+	///	 functions based on cSHAKE. When no function other than cSHAKE
+	///	 is desired, N is set to the empty string.
+	/// [s] S is a customization bit string. The user selects this string
+	///	 to define a variant of the function. When no customization is
+	///	 desired, S is set to the empty string.
+	pub fn cshake_init(&mut self, n: &[u8], s: &[u8]) ->
+		Result<(), HashError> {
+		let mut result = 0;
+
+		if self.hash_ctx.is_null() {
+			/* Allocate the hash context */
+			result = unsafe {
+				leancrypto::lc_hash_alloc(
+					self.lcr_type_mapping(),
+					&mut self.hash_ctx)
+			};
 		}
 
-		Ok(())
+		// Error handle
+		if result >= 0 {
+			unsafe { leancrypto::lc_cshake_init(
+				self.hash_ctx, n.as_ptr(), n.len(), s.as_ptr(),
+				s.len()) };
+			Ok(())
+		} else {
+			Err(HashError::AllocationError)
+		}
 	}
 
 	/// Hash Init: Initializes message digest handle
@@ -118,37 +190,48 @@ impl lcr_hash {
 
 		unsafe {
 			leancrypto::lc_hash_update(self.hash_ctx,
-						   msg.as_ptr(), msg.len());
-		}
+						   msg.as_ptr(), msg.len())
+		};
 
 		Ok(())
 	}
 
-	/// Hash Final: Calculate message digest from message digest handle
-	pub fn fini(&mut self) -> Result<(), HashError> {
+	/// Set the size of the message digest - this call is intended for SHAKE
+	///
+	/// [digestsize] Size of the digest to calculate
+	pub fn set_digestsize(&mut self, digestsize: usize) ->
+		Result<(), HashError> {
 		if self.hash_ctx.is_null() {
 			return Err(HashError::UninitializedContext);
 		}
 
 		unsafe {
-			leancrypto::lc_hash_final(self.hash_ctx,
-						  self.digest.as_mut_ptr());
-			leancrypto::lc_hash_zero_free(self.hash_ctx);
-		}
-
-		self.hash_ctx = ptr::null_mut();
+			leancrypto::lc_hash_set_digestsize(self.hash_ctx,
+							   digestsize)
+		};
 
 		Ok(())
 	}
 
-	/// Method for safe immutable access to buffer
-	pub fn as_slice(&self) -> &[u8] {
-		&self.digest
-	}
+	/// Hash Final: Calculate message digest from message digest handle
+	pub fn fini(&mut self) ->(Vec<u8>, Result<(), HashError>) {
+		if self.hash_ctx.is_null() {
+			return (vec![], Err(HashError::UninitializedContext));
+		}
 
-	/// Method for safe mutable access to buffer
-	pub fn as_mut_slice(&mut self) -> &mut [u8] {
-		&mut self.digest
+		let digestsize = unsafe {
+			leancrypto::lc_hash_digestsize(self.hash_ctx)
+		};
+
+		let mut digest = vec!(0u8; digestsize);
+
+		unsafe {
+			leancrypto::lc_hash_final(self.hash_ctx,
+						  digest.as_mut_ptr());
+			// No zeroization to allow multiple squeezes
+		};
+
+		(digest, Ok(()))
 	}
 }
 
@@ -156,13 +239,6 @@ impl lcr_hash {
 /// regardless of when it goes out of scope
 impl Drop for lcr_hash {
 	fn drop(&mut self) {
-		let digest: [u8; leancrypto::LC_SHA_MAX_SIZE_DIGEST as _] =
-			[0; leancrypto::LC_SHA3_512_SIZE_DIGEST as _];
-
-		// Zeroize digest buffer
-		unsafe { std::ptr::write_volatile(&mut self.digest, digest) };
-		atomic::compiler_fence(atomic::Ordering::SeqCst);
-
 		if !self.hash_ctx.is_null() {
 			unsafe { leancrypto::lc_hash_zero_free(self.hash_ctx); }
 		}
