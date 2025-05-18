@@ -59,3 +59,6 @@ pub mod lcr_rng;
 
 /// Leancrypto wrapper for lc_sphincs
 pub mod lcr_sphincs;
+
+/// Leancrypto wrapper for lc_sym
+pub mod lcr_sym;

@@ -140,3 +140,29 @@ impl std::fmt::Display for AeadError {
 		}
 	}
 }
+
+#[derive(Debug)]
+#[derive(PartialEq)]
+pub enum SymError {
+	AllocationError,
+	UninitializedContext,
+	ProcessingError,
+	AuthenticationError
+}
+
+impl std::error::Error for SymError {}
+
+impl std::fmt::Display for SymError {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		match self {
+			SymError::AllocationError =>
+				write!(f, "failed to allocate Symmetric context"),
+			SymError::UninitializedContext =>
+				write!(f, "Symmetric context is not initialized"),
+			SymError::ProcessingError =>
+				write!(f, "Symmetric processing error occurred"),
+			SymError::AuthenticationError =>
+				write!(f, "Symmetric decryption authentication error"),
+		}
+	}
+}
