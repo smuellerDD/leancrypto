@@ -80,8 +80,8 @@ impl lcr_aead {
 
 	/// Set key and IV for AEAD context
 	///
-	/// [key] key used for KMAC
-	/// [iv] Optional customization string
+	/// [key] key used for AEAD
+	/// [iv] IV
 	pub fn setkey(&mut self, key: &[u8], iv: &[u8]) ->
 		Result<(), AeadError> {
 		if self.aead_ctx.is_null() {
@@ -234,7 +234,6 @@ impl lcr_aead {
 				tag.len())
 		};
 
-println!("{:?}", result);
 		if result == -1*(leancrypto::EBADMSG as i32) {
 			return Err(AeadError::AuthenticationError)
 		}
