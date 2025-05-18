@@ -114,3 +114,29 @@ impl std::fmt::Display for RngError {
 		}
 	}
 }
+
+#[derive(Debug)]
+#[derive(PartialEq)]
+pub enum AeadError {
+	AllocationError,
+	UninitializedContext,
+	ProcessingError,
+	AuthenticationError,
+}
+
+impl std::error::Error for AeadError {}
+
+impl std::fmt::Display for AeadError {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		match self {
+			AeadError::AllocationError =>
+				write!(f, "failed to allocate AEAD context"),
+			AeadError::UninitializedContext =>
+				write!(f, "AEAD context is not initialized"),
+			AeadError::ProcessingError =>
+				write!(f, "AEAD processing error occurred"),
+			AeadError::AuthenticationError =>
+				write!(f, "AEAD decryption authentication error"),
+		}
+	}
+}

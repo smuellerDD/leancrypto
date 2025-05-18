@@ -27,6 +27,9 @@ pub mod ffi;
 /// Module defining error types
 pub mod error;
 
+/// Leancrypto wrapper for lc_aead
+pub mod lcr_aead;
+
 /// Leancrypto wrapper for lc_bike
 pub mod lcr_bike;
 
