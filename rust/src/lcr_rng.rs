@@ -137,15 +137,14 @@ impl lcr_rng {
 	/// [rng_len] size of the random number
 	pub fn generate(&mut self, additional_info: &[u8], rng_len: usize) ->
 		(Vec<u8>, Result<(), RngError>) {
-		let mut rng = vec![0u8; rng_len];
-
 		if self.rng_ctx.is_null() {
-			return (rng, Err(RngError::UninitializedContext));
+			return (vec![], Err(RngError::UninitializedContext));
 		}
 		if !self.seeded {
-			return (rng, Err(RngError::NotSeeded));
+			return (vec![], Err(RngError::NotSeeded));
 		}
 
+		let mut rng = vec![0u8; rng_len];
 		let result = unsafe {
 			leancrypto::lc_rng_generate(
 				self.rng_ctx, additional_info.as_ptr(),
@@ -153,7 +152,7 @@ impl lcr_rng {
 		};
 
 		if result < 0 {
-			return (rng, Err(RngError::ProcessingError));
+			return (vec![], Err(RngError::ProcessingError));
 		}
 
 		(rng, Ok(()))
