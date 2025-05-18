@@ -1,6 +1,6 @@
 # Leancrypto Rust Binding
 
-The leancrypto Rust binings offer a native Rust API. The the offered interfaces follow the same concepts as provided with the general C API. Nonetheless, not all C APIs are yet provided via the Rust bindings which is purely due to lack of time. Adding the missing interfaces, however, is straight forward. If a Rust API binding is missing, either please open an issue at Github or provide a patch.
+The leancrypto Rust bindings offer a native Rust API. The the offered interfaces follow the same concepts as provided with the general C API. Nonetheless, not all C APIs are yet provided via the Rust bindings which is purely due to lack of time. Adding the missing interfaces, however, is straight forward. If a Rust API binding is missing, either please open an issue at Github or provide a patch.
 
 ## Compile example code
 
