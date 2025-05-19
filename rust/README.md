@@ -1,10 +1,12 @@
 # Leancrypto Rust Binding
 
-The leancrypto Rust bindings offer a native Rust API. The the offered interfaces follow the same concepts as provided with the general C API. Nonetheless, not all C APIs are yet provided via the Rust bindings which is purely due to lack of time. Adding the missing interfaces, however, is straight forward. If a Rust API binding is missing, either please open an issue at Github or provide a patch.
+The leancrypto Rust bindings offer a native Rust API. It allows Rust-native access to all leancrypto algorithms including their accelerations.
+
+The the offered interfaces follow the same concepts as provided with the general C API. Nonetheless, not all C APIs are yet provided via the Rust bindings which is purely due to lack of time. Adding the missing interfaces, however, is straight forward. If a Rust API binding is missing, either please open an issue at Github or provide a patch.
 
 ## Compile example code
 
-1. Build leancrypto with meson directory `build` and install header files to `/usr/local/include` (if it is a different target, update build.rs)
+1. Install leancrypto by either building it from the source code tree or install it via the distribution. The installation must include the development header files.
 
 2. Build test code: `cargo build --release`
 

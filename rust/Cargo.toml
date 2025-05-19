@@ -1,8 +1,8 @@
 [package]
 name = "leancrypto"
-version = "1.4.0"
+version = "0.1.0"
 edition = "2021"
-authors = ["Stephan Mueller <smueller@chronox.de"]
+authors = ["Stephan Mueller <smueller@chronox.de>"]
 description = "Cryptographic library with stack-only support and PQC-safe algorithms"
 license = "BSD3"
 repository = "https://github.com/smuellerDD/leancrypto"
