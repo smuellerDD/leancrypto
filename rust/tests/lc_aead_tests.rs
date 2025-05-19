@@ -57,7 +57,7 @@ fn lc_rust_aead_one(aead_type: lcr_aead_type, key: &[u8], iv: &[u8], pt: &[u8],
 	assert_eq!(result, Ok(()));
 	assert_eq!(tag, exp_tag);
 
-	// String decrypt
+	// Stream decrypt
 	let result = aead.setkey(key, iv);
 	assert_eq!(result, Ok(()));
 
@@ -72,7 +72,7 @@ fn lc_rust_aead_one(aead_type: lcr_aead_type, key: &[u8], iv: &[u8], pt: &[u8],
 	let result = aead.dec_final(tag);
 	assert_eq!(result, Ok(()));
 
-	// authentication failure
+	// Test authentication failure detection
 	new_pt[0] ^= 0x01;
 
 	let result = aead.setkey(key, iv);

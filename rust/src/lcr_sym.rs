@@ -197,7 +197,7 @@ impl lcr_sym {
 		Ok(())
 	}
 
-	/// Symmetric decrypt
+	/// AES KW decrypt
 	///
 	/// [ciphertext] ciphertext to be decrypted
 	/// [plaintext] buffer to be filled with plaintext (can be the same

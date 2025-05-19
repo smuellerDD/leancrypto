@@ -29,9 +29,6 @@ fn lc_rust_sym_one(sym_type: lcr_sym_type, key: &[u8], iv: &[u8], pt: &[u8],
 	assert_eq!(result, Ok(()));
 	let result = sym.setiv(iv);
 	assert_eq!(result, Ok(()));
-
-	let result = sym.setiv(iv);
-	assert_eq!(result, Ok(()));
 	let result = sym.encrypt(pt, ct);
 	assert_eq!(result, Ok(()));
 	assert_eq!(ct, exp_ct);
