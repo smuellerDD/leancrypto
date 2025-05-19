@@ -2,6 +2,12 @@ use std::env;
 use std::path::PathBuf;
 
 fn main() {
+	println!("cargo:rustc-link-search=../build");
+	println!("cargo:rustc-link-search=/usr/lib");
+	println!("cargo:rustc-link-search=/usr/local/lib");
+	println!("cargo:rustc-link-search=/usr/lib64");
+	println!("cargo:rustc-link-search=/usr/local/lib64");
+
 	println!("cargo:rustc-link-lib=leancrypto");
 
 	// Update location of header file as necessary
