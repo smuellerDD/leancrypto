@@ -23,7 +23,8 @@ use leancrypto_sys::lcr_hmac::lcr_hmac_type;
 fn lc_rust_hmac_one(hmac_type: lcr_hmac_type, key: &[u8], msg: &[u8], exp: &[u8]) {
 	let mut hmac = lcr_hmac::new(hmac_type);
 
-	let (mac, result) = hmac.hmac(key, msg);
+	let mut mac = vec![0u8; hmac.digestsize()];
+	let result = hmac.hmac(key, msg, &mut mac);
 	assert_eq!(result, Ok(()));
 	assert_eq!(mac, exp);
 
@@ -31,7 +32,7 @@ fn lc_rust_hmac_one(hmac_type: lcr_hmac_type, key: &[u8], msg: &[u8], exp: &[u8]
 	assert_eq!(result, Ok(()));
 	let result = hmac.update(msg);
 	assert_eq!(result, Ok(()));
-	let (mac, result) = hmac.fini();
+	let result = hmac.fini(&mut mac);
 	assert_eq!(result, Ok(()));
 	assert_eq!(mac, exp);
 }

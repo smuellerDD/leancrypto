@@ -134,28 +134,28 @@ impl lcr_rng {
 	/// Generate random numbers
 	///
 	/// [additional_info] holds the additional information (may be null)
-	/// [rng_len] size of the random number
-	pub fn generate(&mut self, additional_info: &[u8], rng_len: usize) ->
-		(Vec<u8>, Result<(), RngError>) {
+	/// [rng] Allocated buffer that is filled completely with random data
+	pub fn generate(&mut self, additional_info: &[u8], rng: &mut [u8]) ->
+		Result<(), RngError> {
 		if self.rng_ctx.is_null() {
-			return (vec![], Err(RngError::UninitializedContext));
+			return Err(RngError::UninitializedContext);
 		}
 		if !self.seeded {
-			return (vec![], Err(RngError::NotSeeded));
+			return Err(RngError::NotSeeded);
 		}
 
-		let mut rng = vec![0u8; rng_len];
 		let result = unsafe {
 			leancrypto::lc_rng_generate(
 				self.rng_ctx, additional_info.as_ptr(),
-				additional_info.len(), rng.as_mut_ptr(), rng.len())
+				additional_info.len(), rng.as_mut_ptr(),
+				rng.len())
 		};
 
 		if result < 0 {
-			return (vec![], Err(RngError::ProcessingError));
+			return Err(RngError::ProcessingError);
 		}
 
-		(rng, Ok(()))
+		Ok(())
 	}
 }
 

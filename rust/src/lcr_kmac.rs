@@ -60,23 +60,22 @@ impl lcr_kmac {
 	/// [key] key used for KMAC
 	/// [s] Optional customization string
 	/// [msg] holds the message to be digested
-	/// [maclen] MAC size to generate
-	pub fn kmac(&mut self, key: &[u8], s: &[u8], msg: &[u8], maclen: usize) ->
-		(Vec<u8>, Result<(), HashError>) {
-		if maclen < 4 {
-			return (vec![], Err(HashError::ProcessingError))
+	/// [mac] Buffer to be filled with digest
+	pub fn kmac(&mut self, key: &[u8], s: &[u8], msg: &[u8], mac: &mut [u8]) ->
+		Result<(), HashError> {
+		if mac.len() < 4 {
+			return Err(HashError::ProcessingError)
 		}
 
-		let mut mac = vec![0u8; maclen];
 		unsafe {
 			leancrypto::lc_kmac(self.lcr_type_mapping(),
 					    key.as_ptr(), key.len(),
 					    s.as_ptr(), s.len(),
 					    msg.as_ptr(), msg.len(),
-					    mac.as_mut_ptr(), maclen);
+					    mac.as_mut_ptr(), mac.len());
 		}
 
-		(mac, Ok(()))
+		Ok(())
 	}
 
 	/// Create KMAC XOF
@@ -84,23 +83,22 @@ impl lcr_kmac {
 	/// [key] key used for KMAC
 	/// [s] Optional customization string
 	/// [msg] holds the message to be digested
-	/// [maclen] MAC size to generate
-	pub fn kmac_xof(&mut self, key: &[u8], s: &[u8], msg: &[u8], maclen: usize) ->
-		(Vec<u8>, Result<(), HashError>) {
-		if maclen < 4 {
-			return (vec![], Err(HashError::ProcessingError))
+	/// [mac] Buffer to be filled with digest
+	pub fn kmac_xof(&mut self, key: &[u8], s: &[u8], msg: &[u8], mac: &mut [u8]) ->
+		Result<(), HashError> {
+		if mac.len() < 4 {
+			return Err(HashError::ProcessingError)
 		}
 
-		let mut mac = vec![0u8; maclen];
 		unsafe {
 			leancrypto::lc_kmac_xof(self.lcr_type_mapping(),
 						key.as_ptr(), key.len(),
 						s.as_ptr(), s.len(),
 						msg.as_ptr(), msg.len(),
-						mac.as_mut_ptr(), maclen);
+						mac.as_mut_ptr(), mac.len());
 		}
 
-		(mac, Ok(()))
+		Ok(())
 	}
 
 	/// KMAC Init: Initializes message digest handle
@@ -149,50 +147,44 @@ impl lcr_kmac {
 
 	/// KMAC Final: Calculate message digest from message digest handle
 	///
-	/// [maclen] MAC size to generate
-	pub fn fini(&mut self, maclen: usize) ->
-		(Vec<u8>, Result<(), HashError>) {
+	/// [mac] Buffer to be filled with digest
+	pub fn fini(&mut self, mac: &mut [u8]) -> Result<(), HashError> {
 		if self.kmac_ctx.is_null() {
-			return (vec![], Err(HashError::UninitializedContext));
+			return Err(HashError::UninitializedContext);
 		}
 
-		if maclen < 4 {
-			return (vec![], Err(HashError::ProcessingError))
+		if mac.len() < 4 {
+			return Err(HashError::ProcessingError)
 		}
-
-		let mut mac = vec![0u8; maclen];
 
 		unsafe {
 			leancrypto::lc_kmac_final(self.kmac_ctx,
 						  mac.as_mut_ptr(),
-						  maclen);
+						  mac.len());
 			leancrypto::lc_kmac_zero_free(self.kmac_ctx);
 		}
 
 		self.kmac_ctx = ptr::null_mut();
 
-		(mac, Ok(()))
+		Ok(())
 	}
 
 	/// KMAC XOF Final: Calculate message digest from message digest handle
 	///
-	/// [maclen] MAC size to generate
-	pub fn fini_xof(&mut self, maclen: usize) ->
-		(Vec<u8>, Result<(), HashError>) {
+	/// [mac] Buffer to be filled with digest
+	pub fn fini_xof(&mut self, mac: &mut [u8]) -> Result<(), HashError> {
 		if self.kmac_ctx.is_null() {
-			return (vec![], Err(HashError::UninitializedContext));
+			return Err(HashError::UninitializedContext);
 		}
-
-		let mut mac = vec![0u8; maclen];
 
 		unsafe {
 			leancrypto::lc_kmac_final_xof(self.kmac_ctx,
 						      mac.as_mut_ptr(),
-						      maclen);
+						      mac.len());
 			// Do not free the handle as we may squeeze more
 		}
 
-		(mac, Ok(()))
+		Ok(())
 	}
 }
 

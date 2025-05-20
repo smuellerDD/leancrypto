@@ -86,9 +86,13 @@ impl lcr_hmac {
 	///
 	/// [key] key used for HMAC
 	/// [msg] holds the message to be digested
-	pub fn hmac(&mut self, key: &[u8], msg: &[u8]) ->
-		(Vec<u8>, Result<(), HashError>) {
-		let mut mac = vec![0u8; Self::lcr_digestsize_mapping(self)];
+	/// [mac] Buffer to be filled with digest
+	pub fn hmac(&mut self, key: &[u8], msg: &[u8], mac: &mut [u8]) ->
+		Result<(), HashError> {
+		if mac.len() < Self::lcr_digestsize_mapping(self) {
+			return Err(HashError::ProcessingError)
+		}
+
 		unsafe {
 			leancrypto::lc_hmac(self.lcr_type_mapping(),
 					    key.as_ptr(), key.len(),
@@ -96,7 +100,7 @@ impl lcr_hmac {
 					    mac.as_mut_ptr());
 		}
 
-		(mac, Ok(()))
+		Ok(())
 	}
 
 	/// HMAC Init: Initializes message digest handle
@@ -143,13 +147,15 @@ impl lcr_hmac {
 
 	/// HMAC Final: Calculate message digest from message digest handle
 	///
-	pub fn fini(&mut self) ->
-		(Vec<u8>, Result<(), HashError>) {
+	/// [mac] Buffer to be filled with digest
+	pub fn fini(&mut self, mac: &mut [u8]) -> Result<(), HashError> {
 		if self.hmac_ctx.is_null() {
-			return (vec![], Err(HashError::UninitializedContext));
+			return Err(HashError::UninitializedContext);
 		}
 
-		let mut mac = vec![0u8; Self::lcr_digestsize_mapping(self)];
+		if mac.len() < Self::lcr_digestsize_mapping(self) {
+			return Err(HashError::ProcessingError)
+		}
 
 		unsafe {
 			leancrypto::lc_hmac_final(self.hmac_ctx,
@@ -159,7 +165,14 @@ impl lcr_hmac {
 
 		self.hmac_ctx = ptr::null_mut();
 
-		(mac, Ok(()))
+		Ok(())
+	}
+
+	/// Get the size of the message digest
+	///
+	/// [digestsize] Size of digest
+	pub fn digestsize(&mut self) -> usize {
+		Self::lcr_digestsize_mapping(self)
 	}
 }
 

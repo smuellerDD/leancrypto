@@ -226,7 +226,7 @@ impl lcr_hqc {
 	}
 
 	/// Method for safe immutable access to HQC ciphertext buffer
-	pub fn ct_as_slice(&mut self) -> (&[u8], Result<(), KemError>) {
+	pub fn ct(&mut self) -> (&[u8], Result<(), KemError>) {
 		if self.ct_set == false {
 			return (&[], Err(KemError::UninitializedContext));
 		}
@@ -248,7 +248,7 @@ impl lcr_hqc {
 	}
 
 	/// Method for safe immutable access to secret key buffer
-	pub fn sk_as_slice(&mut self) -> (&[u8], Result<(), KemError>) {
+	pub fn sk(&mut self) -> (&[u8], Result<(), KemError>) {
 		if self.sk_set == false {
 			return (&[], Err(KemError::UninitializedContext));
 		}
@@ -270,7 +270,7 @@ impl lcr_hqc {
 	}
 
 	/// Method for safe immutable access to public key buffer
-	pub fn pk_as_slice(&mut self) -> (&[u8], Result<(), KemError>) {
+	pub fn pk(&mut self) -> (&[u8], Result<(), KemError>) {
 		if self.pk_set == false {
 			return (&[], Err(KemError::UninitializedContext));
 		}
@@ -292,7 +292,7 @@ impl lcr_hqc {
 	}
 
 	/// Method for safe immutable access to shared secret buffer
-	pub fn ss_as_slice(&mut self) -> (&[u8], Result<(), KemError>) {
+	pub fn ss(&mut self) -> (&[u8], Result<(), KemError>) {
 		if self.ss_set == false {
 			return (&[], Err(KemError::UninitializedContext));
 		}

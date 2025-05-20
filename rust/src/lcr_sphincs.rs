@@ -301,7 +301,7 @@ impl lcr_sphincs {
 	}
 
 	/// Method for safe immutable access to signature buffer
-	pub fn sig_as_slice(&mut self) -> (&[u8], Result<(), SignatureError>) {
+	pub fn sig(&mut self) -> (&[u8], Result<(), SignatureError>) {
 		if self.sig_set == false {
 			return (&[], Err(SignatureError::UninitializedContext));
 		}
@@ -323,7 +323,7 @@ impl lcr_sphincs {
 	}
 
 	/// Method for safe immutable access to secret key buffer
-	pub fn sk_as_slice(&mut self) -> (&[u8], Result<(), SignatureError>) {
+	pub fn sk(&mut self) -> (&[u8], Result<(), SignatureError>) {
 		if self.sk_set == false {
 			return (&[], Err(SignatureError::UninitializedContext));
 		}
@@ -345,7 +345,7 @@ impl lcr_sphincs {
 	}
 
 	/// Method for safe immutable access to public key buffer
-	pub fn pk_as_slice(&mut self) -> (&[u8], Result<(), SignatureError>) {
+	pub fn pk(&mut self) -> (&[u8], Result<(), SignatureError>) {
 		if self.pk_set == false {
 			return (&[], Err(SignatureError::UninitializedContext));
 		}

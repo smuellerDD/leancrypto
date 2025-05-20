@@ -41,7 +41,8 @@ fn lc_rust_hash_sha3_512_alloc() {
 	let result = act.update(&msg_512);
 	assert_eq!(result, Ok(()));
 
-	let (digest, result) = act.fini();
+	let mut digest = vec![0u8; act.digestsize()];
+	let result = act.fini(&mut digest);
 	assert_eq!(result, Ok(()));
 
 	assert_eq!(digest, &exp_512[..]);
@@ -62,7 +63,8 @@ fn lc_rust_hash_sha3_512_stack() {
 	];
 	let mut act = lcr_hash::new(lcr_hash_type::lcr_sha3_512);
 
-	let (digest, result) = act.digest(&msg_512);
+	let mut digest = vec![0u8; act.digestsize()];
+	let result = act.digest(&msg_512, &mut digest);
 	assert_eq!(result, Ok(()));
 
 	assert_eq!(digest, &exp_512[..]);
@@ -72,7 +74,8 @@ fn lc_rust_hash_stack_one(hash_type: lcr_hash_type) {
 	let msg_512: [u8; 3] = [0x82, 0xD9, 0x19];
 	let mut act = lcr_hash::new(hash_type);
 
-	let (_digest, result) = act.digest(&msg_512);
+	let mut digest = vec![0u8; act.digestsize()];
+	let result = act.digest(&msg_512, &mut digest);
 	assert_eq!(result, Ok(()))
 }
 
@@ -88,7 +91,8 @@ fn lc_rust_cshake_one(hash_type: lcr_hash_type, s: &[u8], msg: &[u8], exp: &[u8]
 	let result = act.set_digestsize(exp.len());
 	assert_eq!(result, Ok(()));
 
-	let (digest, result) = act.fini();
+	let mut digest = vec![0u8; exp.len()];
+	let result = act.fini(&mut digest);
 	assert_eq!(result, Ok(()));
 	assert_eq!(digest, exp);
 }
@@ -96,7 +100,8 @@ fn lc_rust_cshake_one(hash_type: lcr_hash_type, s: &[u8], msg: &[u8], exp: &[u8]
 fn lc_rust_shake_one(hash_type: lcr_hash_type, msg: &[u8], exp: &[u8]) {
 	let mut act = lcr_hash::new(hash_type);
 
-	let (digest, result) = act.xof(msg, exp.len());
+	let mut digest = vec![0u8; exp.len()];
+	let result = act.xof(msg, &mut digest);
 	assert_eq!(result, Ok(()));
 	assert_eq!(digest, exp);
 }

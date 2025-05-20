@@ -40,7 +40,8 @@ fn lc_rust_hash_sha3_512_alloc() {
 	let result = act.update(&msg_512);
 	assert_eq!(result, Ok(()));
 
-	let (digest, result) = act.fini();
+	let mut digest = vec![0u8; 64];
+	let result = act.fini(&mut digest);
 	assert_eq!(result, Ok(()));
 
 	assert_eq!(digest, &exp_512[..]);
@@ -60,7 +61,8 @@ fn lc_rust_hash_sha3_512_stack() {
 	];
 	let mut act = lcr_hash::new(lcr_hash_type::lcr_sha3_512);
 
-	let (digest, result) = act.digest(&msg_512);
+	let mut digest: [u8; 64] = [0; 64];
+	let result = act.digest(&msg_512, &mut digest);
 	assert_eq!(result, Ok(()));
 
 	assert_eq!(digest, &exp_512[..]);

@@ -98,9 +98,13 @@ impl lcr_hash {
 	/// Create message digest
 	///
 	/// [msg] holds the message to be digested
-	pub fn digest(&mut self, msg: &[u8]) ->
-		(Vec<u8>, Result<(), HashError>) {
-		let mut digest = vec!(0u8; Self::lcr_digestsize_mapping(self));
+	/// [digest] Buffer to be filled with digest
+	pub fn digest(&mut self, msg: &[u8], digest: &mut [u8]) ->
+		Result<(), HashError> {
+
+		if digest.len() < Self::lcr_digestsize_mapping(self) {
+			return Err(HashError::ProcessingError)
+		}
 
 		unsafe {
 			leancrypto::lc_hash(self.lcr_type_mapping(),
@@ -108,24 +112,22 @@ impl lcr_hash {
 					    digest.as_mut_ptr())
 		};
 
-		(digest, Ok(()))
+		Ok(())
 	}
 
 	/// Create XOF message digest
 	///
 	/// [msg] holds the message to be digested
-	/// [digestsize] size of the digest
-	pub fn xof(&mut self, msg: &[u8], digestsize: usize) ->
-		(Vec<u8>, Result<(), HashError>) {
-		let mut digest = vec!(0u8; digestsize);
-
+	/// [digest] Buffer to be filled with digest
+	pub fn xof(&mut self, msg: &[u8], digest: &mut [u8]) ->
+		Result<(), HashError> {
 		unsafe {
 			leancrypto::lc_xof(self.lcr_type_mapping(),
 					   msg.as_ptr(), msg.len(),
-					   digest.as_mut_ptr(), digestsize)
+					   digest.as_mut_ptr(), digest.len())
 		};
 
-		(digest, Ok(()))
+		Ok(())
 	}
 
 	/// cSHAKE Init: Initializes message digest handle
@@ -198,7 +200,7 @@ impl lcr_hash {
 
 	/// Set the size of the message digest - this call is intended for SHAKE
 	///
-	/// [digestsize] Size of the digest to calculate
+	/// [digestsize] Size of digest
 	pub fn set_digestsize(&mut self, digestsize: usize) ->
 		Result<(), HashError> {
 		if self.hash_ctx.is_null() {
@@ -213,17 +215,35 @@ impl lcr_hash {
 		Ok(())
 	}
 
+	/// Get the size of the message digest
+	///
+	/// [digestsize] Size of digest
+	pub fn digestsize(&mut self) -> usize {
+		if !self.hash_ctx.is_null() {
+			let digestsize = unsafe {
+				leancrypto::lc_hash_digestsize(self.hash_ctx)
+			};
+			return digestsize;
+		}
+
+		Self::lcr_digestsize_mapping(self)
+	}
+
 	/// Hash Final: Calculate message digest from message digest handle
-	pub fn fini(&mut self) ->(Vec<u8>, Result<(), HashError>) {
+	///
+	/// [digest] Buffer to be filled with digest
+	pub fn fini(&mut self, digest: &mut [u8]) -> Result<(), HashError> {
 		if self.hash_ctx.is_null() {
-			return (vec![], Err(HashError::UninitializedContext));
+			return Err(HashError::UninitializedContext);
 		}
 
 		let digestsize = unsafe {
 			leancrypto::lc_hash_digestsize(self.hash_ctx)
 		};
 
-		let mut digest = vec!(0u8; digestsize);
+		if digest.len() < digestsize {
+			return Err(HashError::ProcessingError)
+		}
 
 		unsafe {
 			leancrypto::lc_hash_final(self.hash_ctx,
@@ -231,7 +251,7 @@ impl lcr_hash {
 			// No zeroization to allow multiple squeezes
 		};
 
-		(digest, Ok(()))
+		Ok(())
 	}
 }
 

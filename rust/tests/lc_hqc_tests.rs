@@ -29,26 +29,26 @@ fn lc_rust_hqc_one(hqc_type: lcr_hqc_type) {
 	let result = hqc.encapsulate();
 	assert_eq!(result, Ok(()));
 
-	let (ct_slice, result) = hqc.ct_as_slice();
+	let (ct_slice, result) = hqc.ct();
 	assert_eq!(result, Ok(()));
 	let ct = ct_slice.to_vec();
-	let (sk_slice, result) = hqc.sk_as_slice();
+	let (sk_slice, result) = hqc.sk();
 	assert_eq!(result, Ok(()));
 	let sk = sk_slice.to_vec();
 
 	let mut hqc2 = lcr_hqc::new();
 	let result = hqc2.sk_load(&sk);
 	assert_eq!(result, Ok(()));
-	assert_eq!(hqc.sk_as_slice().0, hqc2.sk_as_slice().0);
+	assert_eq!(hqc.sk().0, hqc2.sk().0);
 
 	let result = hqc2.ct_load(&ct);
 	assert_eq!(result, Ok(()));
-	assert_eq!(hqc.ct_as_slice().0, hqc2.ct_as_slice().0);
+	assert_eq!(hqc.ct().0, hqc2.ct().0);
 
 	let result = hqc2.decapsulate();
 	assert_eq!(result, Ok(()));
-	assert_eq!(hqc.ss_as_slice().0, hqc2.ss_as_slice().0);
-	//println!("ct {:x?}",  hqc2.ct_as_slice().to_vec().chunks(10).next());
+	assert_eq!(hqc.ss().0, hqc2.ss().0);
+	//println!("ct {:x?}",  hqc2.ct().to_vec().chunks(10).next());
 }
 
 #[test]

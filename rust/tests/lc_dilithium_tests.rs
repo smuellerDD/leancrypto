@@ -1557,23 +1557,23 @@ fn lc_rust_dilithium_87_kat() {
 
 	let result = dilithium.sk_load(&sk);
 	assert_eq!(result, Ok(()));
-	assert_eq!(dilithium.sk_as_slice().0, &sk[..]);
+	assert_eq!(dilithium.sk().0, &sk[..]);
 
 	let result = dilithium.pk_load(&pk);
 	assert_eq!(result, Ok(()));
-	assert_eq!(dilithium.pk_as_slice().0, &pk[..]);
+	assert_eq!(dilithium.pk().0, &pk[..]);
 
 	let result = dilithium.sign_deterministic(&msg);
 	assert_eq!(result, Ok(()));
-	assert_eq!(dilithium.sig_as_slice().0, &sig[..]);
+	assert_eq!(dilithium.sig().0, &sig[..]);
 
 	let result = dilithium.verify(&msg);
 	assert_eq!(result, Ok(()));
 
 	let result = dilithium.keypair(lcr_dilithium_type::lcr_dilithium_87);
 	assert_eq!(result, Ok(()));
-	assert_ne!(dilithium.sk_as_slice().0, &sk[..]);
-	assert_ne!(dilithium.pk_as_slice().0, &pk[..]);
+	assert_ne!(dilithium.sk().0, &sk[..]);
+	assert_ne!(dilithium.pk().0, &pk[..]);
 }
 
 fn lc_rust_dilithium_one(dilithium_type: lcr_dilithium_type) {
@@ -1595,26 +1595,26 @@ fn lc_rust_dilithium_one(dilithium_type: lcr_dilithium_type) {
 	let result = dilithium.verify(&msg);
 	assert_eq!(result, Ok(()));
 
-	let (pk_slice, result) = dilithium.pk_as_slice();
+	let (pk_slice, result) = dilithium.pk();
 	assert_eq!(result, Ok(()));
 	let pk = pk_slice.to_vec();
-	let (sk_slice, result) = dilithium.sk_as_slice();
+	let (sk_slice, result) = dilithium.sk();
 	assert_eq!(result, Ok(()));
 	let sk = sk_slice.to_vec();
 
 	let mut dilithium2 = lcr_dilithium::new();
 	let result = dilithium2.sk_load(&sk);
 	assert_eq!(result, Ok(()));
-	assert_eq!(dilithium.sk_as_slice().0, dilithium2.sk_as_slice().0);
+	assert_eq!(dilithium.sk().0, dilithium2.sk().0);
 
 	let result = dilithium2.pk_load(&pk);
 	assert_eq!(result, Ok(()));
-	assert_eq!(dilithium.pk_as_slice().0, dilithium2.pk_as_slice().0);
+	assert_eq!(dilithium.pk().0, dilithium2.pk().0);
 
 	let result = dilithium2.sign_deterministic(&msg);
 	assert_eq!(result, Ok(()));
-	assert_eq!(dilithium.sig_as_slice().0, dilithium2.sig_as_slice().0);
-	//println!("sig {:x?}",  dilithium2.sig_as_slice().to_vec().chunks(10).next());
+	assert_eq!(dilithium.sig().0, dilithium2.sig().0);
+	//println!("sig {:x?}",  dilithium2.sig().to_vec().chunks(10).next());
 
 	let result = dilithium2.verify(&msg);
 	assert_eq!(result, Ok(()));

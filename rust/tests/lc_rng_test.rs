@@ -27,7 +27,8 @@ fn lc_rust_rng_seeded() {
 
 	let not_exp: [u8; 15] = [0; 15];
 
-	let (rngdata, result) = rng.generate(&[], not_exp.len());
+	let mut rngdata = vec!(0u8; not_exp.len());
+	let result = rng.generate(&[], &mut rngdata);
 	assert_eq!(result, Ok(()));
 	assert_eq!(rngdata.len(), not_exp.len());
 	assert_ne!(rngdata, not_exp);
@@ -40,13 +41,14 @@ fn lc_rust_rng_one(rng_type: lcr_rng_type, seed: &[u8], exp: &[u8]) {
 	assert_eq!(result, Ok(()));
 
 	// This should fail as we are not seeded
-	let (_rngdata, result) = rng.generate(&[], exp.len());
+	let mut rngdata = vec!(0u8; exp.len());
+	let result = rng.generate(&[], &mut rngdata);
 	assert_eq!(result, Err(RngError::NotSeeded));
 
 	let result = rng.seed(seed, &[]);
 	assert_eq!(result, Ok(()));
 
-	let (rngdata, result) = rng.generate(&[], exp.len());
+	let result = rng.generate(&[], &mut rngdata);
 	assert_eq!(result, Ok(()));
 	assert_eq!(rngdata.len(), exp.len());
 	assert_eq!(rngdata, exp);
@@ -59,18 +61,20 @@ fn lc_rust_drbg_one(rng_type: lcr_rng_type, ent_nonce: &[u8], pers: &[u8],
 	let result = rng.set_type(rng_type);
 	assert_eq!(result, Ok(()));
 
+	let mut rngdata = vec!(0u8; exp.len());
+
 	// This should fail as we are not seeded
-	let (_rngdata, result) = rng.generate(&[], exp.len());
+	let result = rng.generate(&[], &mut rngdata);
 	assert_eq!(result, Err(RngError::NotSeeded));
 
 	let result = rng.seed(ent_nonce, pers);
 	assert_eq!(result, Ok(()));
 
-	let (rngdata, result) = rng.generate(addtl1, exp.len());
+	let result = rng.generate(addtl1, &mut rngdata);
 	assert_eq!(result, Ok(()));
 	assert_eq!(rngdata.len(), exp.len());
 
-	let (rngdata, result) = rng.generate(addtl2, exp.len());
+	let result = rng.generate(addtl2, &mut rngdata);
 	assert_eq!(result, Ok(()));
 	assert_eq!(rngdata.len(), exp.len());
 	assert_eq!(rngdata, exp);

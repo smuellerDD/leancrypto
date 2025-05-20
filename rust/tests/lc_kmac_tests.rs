@@ -24,17 +24,20 @@ fn lc_rust_kmac_xof_squeeze_more(kmac_type: lcr_kmac_type) {
 	let data: [u8; 3] = [ 0x00, 0x01, 0x02 ];
 	let mut kmac = lcr_kmac::new(kmac_type);
 
-	let (out_full, result) = kmac.kmac_xof(&data, &data, &data, 20);
+	let mut out_full = vec![0u8; 20];
+	let result = kmac.kmac_xof(&data, &data, &data, &mut out_full);
 	assert_eq!(result, Ok(()));
 
 	let result = kmac.init(&data, &data);
 	assert_eq!(result, Ok(()));
 	let result = kmac.update(&data);
 	assert_eq!(result, Ok(()));
-	let (out_small1, result) = kmac.fini_xof(5);
+	let mut out_small1 = vec![0u8; 5];
+	let result = kmac.fini_xof(&mut out_small1);
 	assert_eq!(result, Ok(()));
 
-	let (out_small2, result) = kmac.fini_xof(15);
+	let mut out_small2 = vec![0u8; 15];
+	let result = kmac.fini_xof(&mut out_small2);
 	assert_eq!(result, Ok(()));
 
 	// Concatenate both values
@@ -49,7 +52,8 @@ fn lc_rust_kmac_xof_squeeze_more(kmac_type: lcr_kmac_type) {
 fn lc_rust_kmac_one(kmac_type: lcr_kmac_type, key: &[u8], s: &[u8], msg: &[u8], exp: &[u8]) {
 	let mut kmac = lcr_kmac::new(kmac_type);
 
-	let (mac, result) = kmac.kmac(key, s, msg, exp.len());
+	let mut mac = vec![0u8; exp.len()];
+	let result = kmac.kmac(key, s, msg, &mut mac);
 	assert_eq!(result, Ok(()));
 	assert_eq!(mac, exp);
 
@@ -57,7 +61,7 @@ fn lc_rust_kmac_one(kmac_type: lcr_kmac_type, key: &[u8], s: &[u8], msg: &[u8], 
 	assert_eq!(result, Ok(()));
 	let result = kmac.update(msg);
 	assert_eq!(result, Ok(()));
-	let (mac, result) = kmac.fini(exp.len());
+	let result = kmac.fini(&mut mac);
 	assert_eq!(result, Ok(()));
 	assert_eq!(mac, exp);
 }
