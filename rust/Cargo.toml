@@ -8,7 +8,7 @@ license = "BSD-3-Clause"
 repository = "https://github.com/smuellerDD/leancrypto"
 homepage = "https://leancrypto.org"
 readme = "README.md"
-keywords = ["post-quantum-cryptograpy", "ML-KEM", "ML-DSA", "SLH-DSA", "HQC"]
+keywords = ["PQC", "ML-KEM", "ML-DSA", "SLH-DSA", "HQC"]
 categories = ["cryptography", "external-ffi-bindings"]
 
 [dependencies]
