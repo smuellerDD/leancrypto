@@ -13,8 +13,8 @@ fn main() {
 	// Update location of header file as necessary
 	let header="leancrypto-include.h";
 
-        // Enable if pkg_config crate is available
-	//pkg_config::Config::new().probe("leancrypto").unwrap();
+	#[cfg(feature = "pkg-config")]
+	pkg_config::Config::new().probe("leancrypto").unwrap();
 
 	println!("cargo:rerun-if-changed={}", header);
 

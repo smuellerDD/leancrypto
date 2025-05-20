@@ -11,7 +11,11 @@ readme = "README.md"
 keywords = ["PQC", "ML-KEM", "ML-DSA", "SLH-DSA", "HQC"]
 categories = ["cryptography", "external-ffi-bindings"]
 
+[features]
+pkg-config = ["dep:pkg-config"]
+
 [dependencies]
 
 [build-dependencies]
 bindgen = { version = "0.69.1", features = ["experimental"] }
+pkg-config = { version = "0.3.30", optional = true }
