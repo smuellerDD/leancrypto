@@ -17,8 +17,8 @@
  * DAMAGE.
  */
 
-use leancrypto::lcr_dilithium_ed25519::lcr_dilithium_ed25519;
-use leancrypto::lcr_dilithium_ed25519::lcr_dilithium_ed25519_type;
+use leancrypto_sys::lcr_dilithium_ed25519::lcr_dilithium_ed25519;
+use leancrypto_sys::lcr_dilithium_ed25519::lcr_dilithium_ed25519_type;
 
 #[test]
 fn lc_rust_dilithium_87_ed25519() {

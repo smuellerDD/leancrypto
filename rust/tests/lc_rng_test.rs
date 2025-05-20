@@ -17,9 +17,9 @@
  * DAMAGE.
  */
 
-use leancrypto::lcr_rng::lcr_rng;
-use leancrypto::lcr_rng::lcr_rng_type;
-use leancrypto::error::RngError;
+use leancrypto_sys::lcr_rng::lcr_rng;
+use leancrypto_sys::lcr_rng::lcr_rng_type;
+use leancrypto_sys::error::RngError;
 
 #[test]
 fn lc_rust_rng_seeded() {

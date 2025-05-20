@@ -17,8 +17,8 @@
  * DAMAGE.
  */
 
-use leancrypto::lcr_hmac::lcr_hmac;
-use leancrypto::lcr_hmac::lcr_hmac_type;
+use leancrypto_sys::lcr_hmac::lcr_hmac;
+use leancrypto_sys::lcr_hmac::lcr_hmac_type;
 
 fn lc_rust_hmac_one(hmac_type: lcr_hmac_type, key: &[u8], msg: &[u8], exp: &[u8]) {
 	let mut hmac = lcr_hmac::new(hmac_type);

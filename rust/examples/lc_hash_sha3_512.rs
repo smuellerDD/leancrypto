@@ -17,8 +17,8 @@
  * DAMAGE.
  */
 
-use leancrypto::lcr_hash::lcr_hash;
-use leancrypto::lcr_hash::lcr_hash_type;
+use leancrypto_sys::lcr_hash::lcr_hash;
+use leancrypto_sys::lcr_hash::lcr_hash_type;
 
 fn lc_rust_hash_sha3_512_alloc() {
 	let msg_512: [u8; 3] = [0x82, 0xD9, 0x19];

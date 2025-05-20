@@ -17,8 +17,8 @@
  * DAMAGE.
  */
 
-use leancrypto::lcr_dilithium::lcr_dilithium;
-use leancrypto::lcr_dilithium::lcr_dilithium_type;
+use leancrypto_sys::lcr_dilithium::lcr_dilithium;
+use leancrypto_sys::lcr_dilithium::lcr_dilithium_type;
 
 #[test]
 fn lc_rust_dilithium_87_kat() {

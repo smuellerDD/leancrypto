@@ -17,8 +17,8 @@
  * DAMAGE.
  */
 
-use leancrypto::lcr_kyber::lcr_kyber;
-use leancrypto::lcr_kyber::lcr_kyber_type;
+use leancrypto_sys::lcr_kyber::lcr_kyber;
+use leancrypto_sys::lcr_kyber::lcr_kyber_type;
 
 fn lc_rust_kyber_one(kyber_type: lcr_kyber_type) {
 	let mut kyber = lcr_kyber::new();

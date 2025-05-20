@@ -1,14 +1,15 @@
 [package]
-name = "leancrypto"
+name = "leancrypto-sys"
 version = "0.1.0"
 edition = "2021"
 authors = ["Stephan Mueller <smueller@chronox.de>"]
-description = "Cryptographic library with stack-only support and PQC-safe algorithms"
-license = "BSD3"
+description = "Rust language binding for leancrypto, a cryptographic library with stack-only support and PQC-safe algorithms"
+license = "BSD-3-Clause"
 repository = "https://github.com/smuellerDD/leancrypto"
+homepage = "https://leancrypto.org"
 readme = "README.md"
-keywords = ["leancrypto", "PQC", "cryptography", "c", "bindings"]
-categories = ["development-tools", "external-ffi-bindings"]
+keywords = ["leancrypto", "post-quantum-cryptograpy", "PQC", "cryptography", "aes", "AEAD", "HMAC", "SHA-256", "SHA-512", "Ascon", "SHA3", "KMAC", "DRBG", "ML-KEM", "ML-DSA", "SLH-DSA", "Bike", "HQC", "c", "bindings"]
+categories = ["cryptography", "external-ffi-bindings"]
 
 [dependencies]
 

@@ -17,8 +17,8 @@
  * DAMAGE.
  */
 
-use leancrypto::lcr_sym::lcr_sym;
-use leancrypto::lcr_sym::lcr_sym_type;
+use leancrypto_sys::lcr_sym::lcr_sym;
+use leancrypto_sys::lcr_sym::lcr_sym_type;
 
 fn lc_rust_sym_one(sym_type: lcr_sym_type, key: &[u8], iv: &[u8], pt: &[u8],
 		    ct: &mut [u8], exp_ct: &[u8]) {

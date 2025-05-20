@@ -17,8 +17,8 @@
  * DAMAGE.
  */
 
-use leancrypto::lcr_hash::lcr_hash;
-use leancrypto::lcr_hash::lcr_hash_type;
+use leancrypto_sys::lcr_hash::lcr_hash;
+use leancrypto_sys::lcr_hash::lcr_hash_type;
 
 #[test]
 fn lc_rust_hash_sha3_512_alloc() {

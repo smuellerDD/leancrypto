@@ -17,8 +17,8 @@
  * DAMAGE.
  */
 
-use leancrypto::lcr_bike::lcr_bike;
-use leancrypto::lcr_bike::lcr_bike_type;
+use leancrypto_sys::lcr_bike::lcr_bike;
+use leancrypto_sys::lcr_bike::lcr_bike_type;
 
 fn lc_rust_bike_one(bike_type: lcr_bike_type) {
 	let mut bike = lcr_bike::new();

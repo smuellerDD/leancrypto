@@ -17,8 +17,8 @@
  * DAMAGE.
  */
 
-use leancrypto::lcr_hqc::lcr_hqc;
-use leancrypto::lcr_hqc::lcr_hqc_type;
+use leancrypto_sys::lcr_hqc::lcr_hqc;
+use leancrypto_sys::lcr_hqc::lcr_hqc_type;
 
 fn lc_rust_hqc_one(hqc_type: lcr_hqc_type) {
 	let mut hqc = lcr_hqc::new();

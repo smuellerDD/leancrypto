@@ -17,8 +17,8 @@
  * DAMAGE.
  */
 
-use leancrypto::lcr_sphincs::lcr_sphincs;
-use leancrypto::lcr_sphincs::lcr_sphincs_type;
+use leancrypto_sys::lcr_sphincs::lcr_sphincs;
+use leancrypto_sys::lcr_sphincs::lcr_sphincs_type;
 
 #[test]
 fn lc_rust_sphincs_shake_128f_kat() {

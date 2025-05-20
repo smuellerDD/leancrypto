@@ -17,9 +17,9 @@
  * DAMAGE.
  */
 
-use leancrypto::lcr_aead::lcr_aead;
-use leancrypto::lcr_aead::lcr_aead_type;
-use leancrypto::error::AeadError;
+use leancrypto_sys::lcr_aead::lcr_aead;
+use leancrypto_sys::lcr_aead::lcr_aead_type;
+use leancrypto_sys::error::AeadError;
 
 fn lc_rust_aead_one(aead_type: lcr_aead_type, key: &[u8], iv: &[u8], pt: &[u8],
 		    ct: &mut [u8], aad: &[u8], tag: &mut [u8], exp_ct: &[u8],

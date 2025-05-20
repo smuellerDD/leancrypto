@@ -17,8 +17,8 @@
  * DAMAGE.
  */
 
-use leancrypto::lcr_kmac::lcr_kmac;
-use leancrypto::lcr_kmac::lcr_kmac_type;
+use leancrypto_sys::lcr_kmac::lcr_kmac;
+use leancrypto_sys::lcr_kmac::lcr_kmac_type;
 
 fn lc_rust_kmac_xof_squeeze_more(kmac_type: lcr_kmac_type) {
 	let data: [u8; 3] = [ 0x00, 0x01, 0x02 ];
