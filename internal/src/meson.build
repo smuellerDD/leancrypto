@@ -100,3 +100,7 @@ elif (riscv32_asm or riscv64_asm or riscv32_gcc_asm or riscv64_gcc_asm)
 else
 	src_fips += files([ 'cpufeatures_none.c' ])
 endif
+
+if secure_execution_linux
+	src_fips += files([ 'secure_execution_linux.c' ])
+endif

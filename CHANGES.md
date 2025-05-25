@@ -7,6 +7,8 @@ Changes 1.4.0-prerelease
 
 * Rust: add wrapper allowing a native interaction with the leancrypto library - the API offered by the Rust wrappers is not yet defined to be stable and may change to the next version - i.e. the versioning rules of the library do not apply to the Rust API until being announced in the CHANGES.md file.
 
+* Add "secure_execution" compile-time option
+
 Changes 1.3.0
 * Allow CPU entropy sources to be used as seed sources with meson option "seedsource=cpu"
 

@@ -17,42 +17,34 @@
  * DAMAGE.
  */
 
-#include "ext_headers.h"
+#include <linux/prctl.h>
+#include <sys/prctl.h>
+
 #include "initialization.h"
-#include "lc_init.h"
 #include "visibility.h"
 
-LC_INIT_FUNCTION(int, lc_init, unsigned int flags)
+LC_CONSTRUCTOR(secure_execution_linux)
 {
-	(void)flags;
-
-#if (defined(LC_ASCON_HASH) || defined(CONFIG_LEANCRYPTO_ASCON_HASH))
-	ascon_fastest_impl();
+	/*
+	 * Disable CPU speculation-related options: see the kernel
+	 * documentation: Documentation/userspace-api/spec_ctrl.rst
+	 *
+	 * - Speculative Store Bypass
+	 * - Indirect Branch Speculation
+	 * - Flush L1D Cache on context switch out of the task
+	 */
+#ifdef PR_SPEC_STORE_BYPASS
+	prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_STORE_BYPASS,
+	      PR_SPEC_FORCE_DISABLE, 0, 0);
 #endif
 
-#if (defined(LC_SHA2_256) || defined(CONFIG_LEANCRYPTO_SHA2_256))
-	sha256_fastest_impl();
+#ifdef PR_SPEC_INDIRECT_BRANCH
+	prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_INDIRECT_BRANCH,
+	      PR_SPEC_FORCE_DISABLE, 0, 0);
 #endif
 
-#if (defined(LC_SHA2_512) || defined(CONFIG_LEANCRYPTO_SHA2_512))
-	sha512_fastest_impl();
+#ifdef PR_SPEC_L1D_FLUSH
+	prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_L1D_FLUSH, PR_SPEC_FORCE_DISABLE,
+	      0, 0);
 #endif
-
-#if (defined(LC_SHA3) || defined(CONFIG_LEANCRYPTO_SHA3))
-	sha3_fastest_impl();
-#endif
-
-#if (defined(LC_AES) || defined(CONFIG_LEANCRYPTO_AES))
-	aes_fastest_impl();
-#endif
-
-#if ((defined(LC_KYBER) || defined(CONFIG_LEANCRYPTO_KEM)) &&                  \
-     defined(LC_HOST_RISCV64))
-	kyber_riscv_rvv_selector();
-#endif
-#if (defined(LC_SECEXEC_LINIX) && !defined(LINUX_KERNEL))
-	secure_execution_linux();
-#endif
-
-	return 0;
 }

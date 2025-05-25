@@ -322,6 +322,18 @@ This option currently only works without PKCS#7 generator and X.509 generator
 support.
 ''')
 
+option('secure_execution', type: 'feature', value: 'disabled',
+       description: '''Enable Secure Execution Support
+
+This option enables options in the host operating system that adds additional
+security features. However, most of those features will come with a performance
+penalty. The following options are supported:
+
+Linux user space: as documented in Documentation/userspace-api/spec_ctrl.rst,
+enable Speculative Store Bypass, Indirect Branch Speculation,
+Flush L1D Cache on context switch out of the task.
+''')
+
 ################################################################################
 # DEBUGGING OPTIONS - NONE OF THEM ARE TO BE ENABLED IN PRODUCTION CODE!!
 ################################################################################

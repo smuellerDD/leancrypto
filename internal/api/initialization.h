@@ -32,6 +32,7 @@ void sha512_fastest_impl(void);
 void sha3_fastest_impl(void);
 void aes_fastest_impl(void);
 void kyber_riscv_rvv_selector(void);
+void secure_execution_linux(void);
 
 #ifdef __cplusplus
 }

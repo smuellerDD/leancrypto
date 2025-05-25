@@ -198,6 +198,14 @@ if (get_option('hash_crypt').enabled() or
 	aead_support_enabled = true
 endif
 
+# Determine support for secure exeuction
+secure_execution_linux = false
+if (host_machine.system() == 'linux' and
+    get_option('secure_execution').enabled())
+	add_global_arguments([ '-DLC_SECEXEC_LINIX' ], language: 'c')
+	secure_execution_linux = true
+endif
+
 # Versioning information
 version_array = meson.project_version().split('.')
 add_global_arguments(['-DMAJVERSION=' + version_array[0],
