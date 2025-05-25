@@ -352,6 +352,24 @@ The following services are offered with the PKCS#7 support:
 The operations are offered via APIs as well as via the `lc_pkcs7_generator`
 application.
 
+# Compile-Time Options
+
+The following compile time options provide support for various features.
+
+## Secure Execution
+
+By enabling the compile-time option `secure_execution`, security features
+provided by the underlying OS are enabled. As these options are partially
+very costly, the option is disabled by default. Currently supported options:
+
+* Linux: enabling of the following
+
+    - Speculative Store Bypass
+    
+    - Indirect Branch Speculation
+    
+    - Flush L1D Cache on context switch out of the task
+
 # Testing
 
 ## Functional Testing
