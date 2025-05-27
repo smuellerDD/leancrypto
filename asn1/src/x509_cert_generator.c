@@ -67,7 +67,6 @@ out:
 	return ret;
 }
 
-
 int x509_set_bit_string(uint8_t **dst_data, size_t *dst_avail_datalen,
 			const uint8_t *src_data, size_t src_datalen)
 {

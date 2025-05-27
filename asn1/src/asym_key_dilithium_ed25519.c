@@ -73,8 +73,8 @@ int private_key_encode_dilithium_ed25519(
 	 */
 	CKINT(x509_concatenate_bit_string(&data, avail_datalen, ml_dsa_ptr,
 					  ml_dsa_sklen));
-	CKINT(x509_concatenate_bit_string(&data, avail_datalen,
-					  ed25519_ptr, ed25519_sklen));
+	CKINT(x509_concatenate_bit_string(&data, avail_datalen, ed25519_ptr,
+					  ed25519_sklen));
 
 	printf_debug("Set composite secret key of size %zu\n",
 		     ml_dsa_sklen + ed25519_sklen);
@@ -108,10 +108,9 @@ int private_key_decode_dilithium_ed25519(struct lc_x509_key_data *keys,
 	ed25519_src_key = dilithium_src_key + dilithium_src_key_len;
 	ed25519_src_key_len = LC_ED25519_SECRETKEYBYTES;
 
-	CKINT(lc_dilithium_ed25519_sk_load(dilithium_sk, dilithium_src_key,
-					   dilithium_src_key_len,
-					   ed25519_src_key,
-					   ed25519_src_key_len));
+	CKINT(lc_dilithium_ed25519_sk_load(
+		dilithium_sk, dilithium_src_key, dilithium_src_key_len,
+		ed25519_src_key, ed25519_src_key_len));
 
 	printf_debug("Loaded composite public key of size %zu\n", datalen);
 
@@ -138,8 +137,8 @@ int public_key_encode_dilithium_ed25519(uint8_t *data, size_t *avail_datalen,
 	 */
 	CKINT(x509_concatenate_bit_string(&data, avail_datalen, ml_dsa_ptr,
 					  ml_dsa_pklen));
-	CKINT(x509_concatenate_bit_string(&data, avail_datalen,
-					  ed25519_ptr, ed25519_pklen));
+	CKINT(x509_concatenate_bit_string(&data, avail_datalen, ed25519_ptr,
+					  ed25519_pklen));
 
 	printf_debug("Set composite public key of size %zu\n",
 		     ml_dsa_pklen + ed25519_pklen);
@@ -322,7 +321,6 @@ int public_key_generate_signature_dilithium_ed25519(
 			lc_seeded_rng));
 	}
 
-
 	CKINT(lc_dilithium_ed25519_sig_ptr(&ml_dsa_ptr, &ml_dsa_siglen,
 					   &ed25519_ptr, &ed25519_siglen,
 					   &ws->dilithium_ed25519_sig));
@@ -333,8 +331,8 @@ int public_key_generate_signature_dilithium_ed25519(
 	 */
 	CKINT(x509_concatenate_bit_string(&sig_data, available_len, ml_dsa_ptr,
 					  ml_dsa_siglen));
-	CKINT(x509_concatenate_bit_string(&sig_data, available_len,
-					  ed25519_ptr, ed25519_siglen));
+	CKINT(x509_concatenate_bit_string(&sig_data, available_len, ed25519_ptr,
+					  ed25519_siglen));
 
 	printf_debug("Set composite signature of size %zu\n",
 		     ml_dsa_siglen + ed25519_siglen);
