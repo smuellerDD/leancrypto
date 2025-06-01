@@ -14,6 +14,7 @@ hqc_src_avx2 = files([
         'vector_avx2.c'
 ])
 
+hqc_avx2_args = [ cc_avx2_args, '-mbmi', '-mpclmul' ]
 if get_option('hqc_256').enabled()
 	leancrypto_hqc_256_avx2_lib = static_library(
 		'leancrypto_hqc_256_avx2_lib',
@@ -22,7 +23,7 @@ if get_option('hqc_256').enabled()
 			include_dirs,
 			include_internal_dirs
 		],
-		c_args: [ cc_avx2_args, '-mpclmul' ]
+		c_args: hqc_avx2_args
 	)
 	leancrypto_support_libs += leancrypto_hqc_256_avx2_lib
 endif
@@ -35,7 +36,7 @@ if get_option('hqc_192').enabled()
 			include_dirs,
 			include_internal_dirs
 		],
-		c_args : [ cc_avx2_args, '-mpclmul', '-DLC_HQC_TYPE_192' ]
+		c_args : [ hqc_avx2_args, '-DLC_HQC_TYPE_192' ]
 	)
 	leancrypto_support_libs += leancrypto_hqc_192_avx2_lib
 endif
@@ -48,7 +49,7 @@ if get_option('hqc_128').enabled()
 			include_dirs,
 			include_internal_dirs
 		],
-		c_args : [ cc_avx2_args, '-mpclmul', '-DLC_HQC_TYPE_128' ]
+		c_args : [ hqc_avx2_args, '-DLC_HQC_TYPE_128' ]
 	)
 	leancrypto_support_libs += leancrypto_hqc_128_avx2_lib
 endif
