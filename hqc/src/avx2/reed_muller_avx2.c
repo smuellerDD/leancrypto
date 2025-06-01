@@ -220,7 +220,7 @@ static inline uint8_t find_peaks(struct reed_muller_decode_ws *ws)
 						       ws->bitmap) == 0)) >>
 			15;
 		message ^= (uint8_t)((uint8_t)message_mask &
-				(message ^ (unsigned)i << 4));
+				     (message ^ (unsigned)i << 4));
 	}
 	// we decided which row of the matrix contains the lowest match
 	// select proper row
@@ -253,8 +253,8 @@ static inline uint8_t find_peaks(struct reed_muller_decode_ws *ws)
 			_mm256_hadd_epi16(ws->peak_mask.mm, ws->peak_mask.mm);
 	}
 	// add low 4 bits of message
-	message |= (uint8_t)_bit_scan_forward((int)(ws->peak_mask.u16[0] +
-						    ws->peak_mask.u16[8]));
+	message |= (uint8_t)_bit_scan_forward(
+		(int)(ws->peak_mask.u16[0] + ws->peak_mask.u16[8]));
 
 	// set bit 7 if sign of biggest value is positive
 	ws->tmp = (__m256i){ 0ULL, 0ULL, 0ULL, 0ULL };
