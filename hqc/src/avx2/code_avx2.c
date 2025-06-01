@@ -35,8 +35,8 @@
  *
  * @brief Encoding the message m to a code word em using the concatenated code
  *
- * First we encode the message using the Reed-Solomon code, then with the duplicated Reed-Muller code we obtain
- * a concatenated code word.
+ * First we encode the message using the Reed-Solomon code, then with the
+ * duplicated Reed-Muller code we obtain a concatenated code word.
  *
  * @param[out] em Pointer to an array that is the tensor code word
  * @param[in] m Pointer to an array that is the message

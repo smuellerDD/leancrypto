@@ -35,8 +35,9 @@
 /**
  * @brief Parse a secret key from a string
  *
- * The secret key is composed of the seed used to generate vectors <b>x</b> and <b>y</b>.
- * As technicality, the public key is appended to the secret key in order to respect NIST API.
+ * The secret key is composed of the seed used to generate vectors <b>x</b> and
+ * <b>y</b>. As technicality, the public key is appended to the secret key in
+ * order to respect NIST API.
  *
  * @param[out] y uint64_t representation of vector y
  * @param[in] sigma String used in HHK transform

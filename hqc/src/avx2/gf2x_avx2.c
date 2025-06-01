@@ -1096,8 +1096,9 @@ static void toom_3_mult(__m256i *Out, const __m256i *A, const __m256i *B,
 /**
  * @brief Multiply two polynomials modulo \f$ X^n - 1\f$.
  *
- * This functions multiplies a dense polynomial <b>a1</b> (of Hamming weight equal to <b>weight</b>)
- * and a dense polynomial <b>a2</b>. The multiplication is done modulo \f$ X^n - 1\f$.
+ * This functions multiplies a dense polynomial <b>a1</b> (of Hamming weight
+ * equal to <b>weight</b>) and a dense polynomial <b>a2</b>. The multiplication
+ * is done modulo \f$ X^n - 1\f$.
  *
  * @param[out] o Pointer to the result
  * @param[in] a1 Pointer to a polynomial

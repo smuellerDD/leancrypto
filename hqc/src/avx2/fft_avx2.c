@@ -26,8 +26,8 @@
  * @file fft.c
  * @brief Implementation of the additive FFT and its transpose.
  * This implementation is based on the paper from Gao and Mateer: <br>
- * Shuhong Gao and Todd Mateer, Additive Fast Fourier Transforms over Finite Fields,
- * IEEE Transactions on Information Theory 56 (2010), 6265--6272.
+ * Shuhong Gao and Todd Mateer, Additive Fast Fourier Transforms over Finite
+ * Fields, IEEE Transactions on Information Theory 56 (2010), 6265--6272.
  * http://www.math.clemson.edu/~sgao/papers/GM10.pdf <br>
  * and includes improvements proposed by Bernstein, Chou and Schwabe here:
  * https://binary.cr.yp.to/mcbits-20130616.pdf
@@ -40,7 +40,8 @@ static void radix_big(uint16_t *f0, uint16_t *f1, const uint16_t *f,
 		      uint32_t m_f);
 
 /**
- * @brief Computes the basis of betas (omitting 1) used in the additive FFT and its transpose
+ * @brief Computes the basis of betas (omitting 1) used in the additive FFT and
+ * its transpose
  *
  * @param[out] betas Array of size PARAM_M-1
  */
@@ -84,7 +85,8 @@ static void compute_subset_sums(uint16_t *subset_sums, const uint16_t *set,
  * @param[out] f0 Array half the size of f
  * @param[out] f1 Array half the size of f
  * @param[in] f Array of size a power of 2
- * @param[in] m_f 2^{m_f} is the smallest power of 2 greater or equal to the number of coefficients of f
+ * @param[in] m_f 2^{m_f} is the smallest power of 2 greater or equal to the
+ *		  number of coefficients of f
  */
 static void radix(uint16_t *f0, uint16_t *f1, const uint16_t *f, uint32_t m_f)
 {
@@ -274,13 +276,14 @@ static void fft_rec(uint16_t *w, uint16_t *f, size_t f_coeffs, uint8_t m,
  * f_coeffs is the number of coefficients of f (one less than its degree). <br>
  * The FFT proceeds recursively to evaluate f at all subset sums of a basis B. <br>
  * This implementation is based on the paper from Gao and Mateer: <br>
- * Shuhong Gao and Todd Mateer, Additive Fast Fourier Transforms over Finite Fields,
- * IEEE Transactions on Information Theory 56 (2010), 6265--6272.
+ * Shuhong Gao and Todd Mateer, Additive Fast Fourier Transforms over Finite
+ * Fields, IEEE Transactions on Information Theory 56 (2010), 6265--6272.
  * http://www.math.clemson.edu/~sgao/papers/GM10.pdf <br>
  * and includes improvements proposed by Bernstein, Chou and Schwabe here:
  * https://binary.cr.yp.to/mcbits-20130616.pdf <br>
- * Note that on this first call (as opposed to the recursive calls to fft_rec), gammas are equal to betas,
- * meaning the first gammas subset sums are actually the subset sums of betas (except 1). <br>
+ * Note that on this first call (as opposed to the recursive calls to fft_rec),
+ * gammas are equal to betas, meaning the first gammas subset sums are actually
+ * the subset sums of betas (except 1). <br>
  * Also note that f is altered during computation (twisted at each level).
  *
  * @param[out] w Array
@@ -340,7 +343,8 @@ void fft_avx2(uint16_t *w, const uint16_t *f, size_t f_coeffs)
 }
 
 /**
- * @brief Retrieves the error polynomial error from the evaluations w of the ELP (Error Locator Polynomial) on all field elements.
+ * @brief Retrieves the error polynomial error from the evaluations w of the ELP
+ * (Error Locator Polynomial) on all field elements.
  *
  * @param[out] error Array with the error
  * @param[out] error_compact Array with the error in a compact form

@@ -204,7 +204,10 @@ static inline uint8_t find_peaks(struct reed_muller_decode_ws *ws)
 	ws->bound =
 		_mm256_broadcastw_epi16(_mm_cvtsi32_si128(lower + width - 1));
 
-	// find in which of the 8 groups a maximum occurs to compute bits 4, 5, 6 of message
+	/*
+	 * find in which of the 8 groups a maximum occurs to compute bits 4, 5,
+	 * 6 of message
+	 */
 	uint8_t message = 0x70;
 	for (int32_t i = 7; i >= 0; i--) {
 		ws->bitmap = _mm256_cmpgt_epi16(ws->abs_rows[i], ws->bound);
@@ -300,8 +303,10 @@ void reed_muller_encode_avx2(uint64_t *cdw, const uint64_t *msg)
 /**
  * @brief Decodes the received word
  *
- * Decoding uses fast hadamard transform, for a more complete picture on Reed-Muller decoding, see MacWilliams, Florence Jessie, and Neil James Alexander Sloane.
- * The theory of error-correcting codes codes @cite macwilliams1977theory
+ * Decoding uses fast hadamard transform, for a more complete picture on
+ * Reed-Muller decoding, see MacWilliams, Florence Jessie, and Neil James
+ * Alexander Sloane. The theory of error-correcting codes codes
+ * @cite macwilliams1977theory
  *
  * @param[out] msg Array of size VEC_N1_SIZE_64 receiving the decoded message
  * @param[in] cdw Array of size VEC_N1N2_SIZE_64 storing the received word

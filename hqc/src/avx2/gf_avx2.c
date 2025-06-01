@@ -24,7 +24,8 @@
  */
 /**
  * @file gf.c
- * @brief Galois field implementation with multiplication using the pclmulqdq instruction
+ * @brief Galois field implementation with multiplication using the pclmulqdq
+ *s instruction
  */
 
 #include "gf_avx2.h"
@@ -35,10 +36,13 @@
  * @brief Generates exp and log lookup tables of GF(2^m).
  *
  * The logarithm of 0 is defined as 2^PARAM_M by convention. <br>
- * The last two elements of the exp table are needed by the gf_mul function from gf_lutmul.c
+ * The last two elements of the exp table are needed by the gf_mul function from
+ * gf_lutmul.c
  * (for example if both elements to multiply are zero).
- * @param[out] exp Array of size 2^PARAM_M + 2 receiving the powers of the primitive element
- * @param[out] log Array of size 2^PARAM_M receiving the logarithms of the elements of GF(2^m)
+ * @param[out] exp Array of size 2^PARAM_M + 2 receiving the powers of the
+ *		   primitive element
+ * @param[out] log Array of size 2^PARAM_M receiving the logarithms of the
+ *		   s elements of GF(2^m)
  * @param[in] m Parameter of Galois field GF(2^m)
  */
 void gf_generate_avx2(uint16_t *exp, uint16_t *log, const int16_t m)

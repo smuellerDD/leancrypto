@@ -1356,15 +1356,18 @@ static void compute_syndromes(__m256i *syndromes256, uint8_t *cdw)
  * (see @cite lin1983error (Chapter 6 - BCH Codes). <br>
  * We use the letter p for rho which is initialized at -1. <br>
  * The array X_sigma_p represents the polynomial X^(mu-rho)*sigma_p(X). <br>
- * Instead of maintaining a list of sigmas, we update in place both sigma and X_sigma_p. <br>
- * sigma_copy serves as a temporary save of sigma in case X_sigma_p needs to be updated. <br>
- * We can properly correct only if the degree of sigma does not exceed PARAM_DELTA.
- * This means only the first PARAM_DELTA + 1 coefficients of sigma are of value
- * and we only need to save its first PARAM_DELTA - 1 coefficients.
+ * Instead of maintaining a list of sigmas, we update in place both sigma and
+ * X_sigma_p. <br>
+ * sigma_copy serves as a temporary save of sigma in case X_sigma_p needs to be
+ * updated. <br>
+ * We can properly correct only if the degree of sigma does not exceed
+ * PARAM_DELTA. This means only the first PARAM_DELTA + 1 coefficients of sigma
+ * are of value and we only need to save its first PARAM_DELTA - 1 coefficients.
  *
  * @returns the degree of the ELP sigma
  * @param[out] sigma Array of size (at least) PARAM_DELTA receiving the ELP
- * @param[in] syndromes Array of size (at least) 2*PARAM_DELTA storing the syndromes
+ * @param[in] syndromes Array of size (at least) 2*PARAM_DELTA storing the
+ *			syndromes
  */
 static uint16_t compute_elp(uint16_t *sigma, const uint16_t *syndromes)
 {
