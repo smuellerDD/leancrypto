@@ -433,6 +433,48 @@ extern __inline __m256i
 	return (__m256i)((__v4di)__A == (__v4di)__B);
 }
 
+extern __inline __m256i
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm256_cmpeq_epi16(__m256i __A, __m256i __B)
+{
+	return (__m256i)((__v16hi)__A == (__v16hi)__B);
+}
+
+extern __inline __m256i
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm256_hadd_epi16(__m256i __X, __m256i __Y)
+{
+	return (__m256i)__builtin_ia32_phaddw256((__v16hi)__X, (__v16hi)__Y);
+}
+
+extern __inline __m256i
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm256_broadcastw_epi16(__m128i __X)
+{
+	return (__m256i)__builtin_ia32_pbroadcastw256((__v8hi)__X);
+}
+
+extern __inline __m256i
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm256_max_epi16(__m256i __A, __m256i __B)
+{
+	return (__m256i)__builtin_ia32_pmaxsw256((__v16hi)__A, (__v16hi)__B);
+}
+
+extern __inline __m256i
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm256_abs_epi16(__m256i __A)
+{
+	return (__m256i)__builtin_ia32_pabsw256((__v16hi)__A);
+}
+
+extern __inline __m256i
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm256_hsub_epi16(__m256i __X, __m256i __Y)
+{
+	return (__m256i)__builtin_ia32_phsubw256((__v16hi)__X, (__v16hi)__Y);
+}
+
 #undef __DEFAULT_FN_ATTRS256
 
 #endif /* EXT_X86_AVX2INTRIN_H */

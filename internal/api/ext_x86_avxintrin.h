@@ -248,6 +248,22 @@ extern __inline long long
 	__m128i __Y = _mm256_extractf128_si256(__X, __N >> 1);
 	return _mm_extract_epi64(__Y, __N % 2);
 }
+
+extern __inline __m256i
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm256_insertf128_si256(__m256i __X, __m128i __Y, const int __O)
+{
+	return (__m256i)__builtin_ia32_vinsertf128_si256((__v8si)__X,
+							 (__v4si)__Y, __O);
+}
+
+extern __inline __m256i
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm256_lddqu_si256(__m256i const *__P)
+{
+	return (__m256i)__builtin_ia32_lddqu256((char const *)__P);
+}
+
 #endif
 
 #undef __DEFAULT_FN_ATTRS

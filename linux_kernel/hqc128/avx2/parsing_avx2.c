@@ -1,0 +1,1 @@
+../../../hqc/src/avx2/parsing_avx2.c

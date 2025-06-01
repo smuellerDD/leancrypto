@@ -1,9 +1,7 @@
 # for i in $(ls *.c | sort); do echo "'$i',"; done
 
 # Files compiled only once
-if (get_option('hqc_256').enabled() or
-    get_option('hqc_192').enabled() or
-    get_option('hqc_128').enabled())
+if hqc_enabled
 	src += files([
 		'hqc_api.c',
 		'shake_prng.c',
@@ -16,13 +14,23 @@ hqc_src = files([
 	'gf.c',
 	'gf2x.c',
 	'hqc.c',
-	'hqc_kem.c',
+	'hqc_kem_c.c',
 	'hqc_selftest.c',
 	'parsing.c',
 	'reed_muller.c',
 	'reed_solomon.c',
 	'vector.c'
 ])
+
+if (hqc_enabled)
+	if (x86_64_asm)
+		subdir('avx2')
+	else
+		hqc_src += files([
+			'hqc_kem_api_c.c'
+		])
+	endif
+endif
 
 if get_option('hqc_256').enabled()
 	leancrypto_hqc_256_c_lib = static_library(

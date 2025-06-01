@@ -41,9 +41,12 @@ static int hqc_tester_perf_one(struct workspace *ws)
 {
 	int ret;
 
-	CKINT(lc_hqc_keypair(&ws->pk, &ws->sk, lc_seeded_rng));
-	CKINT(lc_hqc_enc(&ws->ct, &ws->ss, &ws->pk));
-	CKINT(lc_hqc_dec(&ws->ss2, &ws->ct, &ws->sk));
+	CKINT_LOG(lc_hqc_keypair(&ws->pk, &ws->sk, lc_seeded_rng),
+		  "HQC keypair failed: %d\n", ret);
+	CKINT_LOG(lc_hqc_enc(&ws->ct, &ws->ss, &ws->pk),
+		  "HQC encapsulation failed: %d\n", ret);
+	CKINT_LOG(lc_hqc_dec(&ws->ss2, &ws->ct, &ws->sk),
+		  "HQC decapsulation failed: %d\n", ret);
 
 out:
 	if (ret == -EOPNOTSUPP)

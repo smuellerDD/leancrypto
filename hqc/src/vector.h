@@ -38,6 +38,20 @@
 extern "C" {
 #endif
 
+/**
+ * @brief Constant-time comparison of two integers v1 and v2
+ *
+ * Returns 1 if v1 is equal to v2 and 0 otherwise
+ * https://gist.github.com/sneves/10845247
+ *
+ * @param[in] v1 integer 1
+ * @param[in] v2 integer 2
+ */
+static inline uint32_t compare_u32(uint32_t v1, uint32_t v2)
+{
+	return 1 ^ ((uint32_t)((v1 - v2) | (v2 - v1)) >> 31);
+}
+
 void vect_set_random_fixed_weight(struct lc_hash_ctx *shake256, uint64_t *v,
 				  uint16_t weight,
 				  struct vect_set_random_fixed_weight_ws *ws);

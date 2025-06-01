@@ -1,0 +1,1 @@
+../../../hqc/src/avx2/reed_muller_avx2.c

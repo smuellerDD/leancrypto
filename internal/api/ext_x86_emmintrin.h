@@ -193,7 +193,7 @@ _mm_set_epi8(char __b15, char __b14, char __b13, char __b12, char __b11,
 						__b12, __b13, __b14, __b15 };
 }
 
-static __inline__ __m128i __DEFAULT_FN_ATTRS _mm_set_epi32(int __i3, int __i2,
+extern __inline__ __m128i __DEFAULT_FN_ATTRS _mm_set_epi32(int __i3, int __i2,
 							   int __i1, int __i0)
 {
 	return __extension__(__m128i)(__v4si){ __i0, __i1, __i2, __i3 };
@@ -227,6 +227,48 @@ extern __inline __m128i
 	_mm_bslli_si128(__m128i __A, const int __N)
 {
 	return (__m128i)__builtin_ia32_pslldqi128(__A, __N * 8);
+}
+
+extern __inline int
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm_cvtsi128_si32(__m128i __A)
+{
+	return __builtin_ia32_vec_ext_v4si((__v4si)__A, 0);
+}
+
+extern __inline __m128i
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm_xor_si128(__m128i __A, __m128i __B)
+{
+	return (__m128i)((__v2du)__A ^ (__v2du)__B);
+}
+
+/* Create a vector of zeros.  */
+extern __inline __m128i
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm_setzero_si128(void)
+{
+	return __extension__(__m128i)(__v4si){ 0, 0, 0, 0 };
+}
+
+extern __inline __m128i
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm_shuffle_epi32(__m128i __A, const int __mask)
+{
+	return (__m128i)__builtin_ia32_pshufd((__v4si)__A, __mask);
+}
+
+extern __inline __m128i
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm_cvtsi32_si128(int __A)
+{
+	return _mm_set_epi32(0, 0, 0, __A);
+}
+extern __inline void
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm_store_si128(__m128i *__P, __m128i __B)
+{
+	*__P = __B;
 }
 
 #undef __DEFAULT_FN_ATTRS

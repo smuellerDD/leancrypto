@@ -1,0 +1,1 @@
+../../../hqc/src/avx2/reed_solomon_avx2.c

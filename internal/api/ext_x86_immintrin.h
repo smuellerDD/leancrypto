@@ -58,6 +58,11 @@
 #include "ext_x86_avx2intrin.h"
 #endif
 
+/* No feature check desired due to internal checks */
+#if !(defined(_MSC_VER) || defined(__SCE__)) || defined(__BMI__)
+#include "ext_x86_bmiintrin.h"
+#endif
+
 #if !(defined(_MSC_VER) || defined(__SCE__)) || defined(__BMI2__)
 #include "ext_x86_bmi2intrin.h"
 #endif

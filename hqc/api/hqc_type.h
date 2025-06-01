@@ -79,6 +79,15 @@ extern "C" {
 #define lc_hqc_enc_internal HQC_F(enc_internal)
 #define lc_hqc_dec HQC_F(dec)
 #define lc_hqc_dec_kdf HQC_F(dec_kdf)
+
+#define lc_hqc_keypair_c HQC_F(keypair_c)
+#define lc_hqc_keypair_from_seed_c HQC_F(keypair_from_seed_c)
+#define lc_hqc_enc_c HQC_F(enc_c)
+#define lc_hqc_enc_kdf_c HQC_F(enc_kdf_c)
+#define lc_hqc_enc_internal_c HQC_F(enc_internal_c)
+#define lc_hqc_dec_c HQC_F(dec_c)
+#define lc_hqc_dec_kdf_c HQC_F(dec_kdf_c)
+
 #define hqc_kem_keygen_selftest HQC_F(hqc_kem_keygen_selftest)
 #define hqc_kem_enc_selftest HQC_F(hqc_kem_enc_selftest)
 #define hqc_kem_dec_selftest HQC_F(hqc_kem_dec_selftest)
@@ -111,6 +120,37 @@ extern "C" {
 #define vect_resize HQC_F(vect_resize)
 #define code_encode HQC_F(code_encode)
 #define code_decode HQC_F(code_decode)
+
+/* AVX2 */
+#define lc_hqc_keypair_avx2 HQC_F(keypair_avx2)
+#define lc_hqc_keypair_from_seed_avx2 HQC_F(keypair_from_seed_avx2)
+#define lc_hqc_enc_avx2 HQC_F(enc_avx2)
+#define lc_hqc_enc_kdf_avx2 HQC_F(enc_kdf_avx2)
+#define lc_hqc_enc_internal_avx2 HQC_F(enc_internal_avx2)
+#define lc_hqc_dec_avx2 HQC_F(dec_avx2)
+#define lc_hqc_dec_kdf_avx2 HQC_F(dec_kdf_avx2)
+
+#define hqc_pke_keygen_avx2 HQC_F(hqc_pke_keygen_avx2)
+#define hqc_pke_encrypt_avx2 HQC_F(hqc_pke_encrypt_avx2)
+#define hqc_pke_decrypt_avx2 HQC_F(hqc_pke_decrypt_avx2)
+#define code_encode_avx2 HQC_F(code_encode_avx2)
+#define code_decode_avx2 HQC_F(code_decode_avx2)
+#define fft_avx2 HQC_F(fft_avx2)
+#define fft_retrieve_error_poly_avx2 HQC_F(fft_retrieve_error_poly_avx2)
+#define vect_mul_avx2 HQC_F(vect_mul_avx2)
+#define hqc_secret_key_from_string_avx2 HQC_F(hqc_secret_key_from_string_avx2)
+#define reed_muller_encode_avx2 HQC_F(reed_muller_encode_avx2)
+#define reed_muller_decode_avx2 HQC_F(reed_muller_decode_avx2)
+#define reed_solomon_encode_avx2 HQC_F(reed_solomon_encode_avx2)
+#define reed_solomon_decode_avx2 HQC_F(reed_solomon_decode_avx2)
+#define vect_set_random_fixed_weight_avx2                                      \
+	HQC_F(vect_set_random_fixed_weight_avx2)
+#define gf_mul_avx2 HQC_F(gf_mul_avx2)
+#define gf_square_avx2 HQC_F(gf_square_avx2)
+#define gf_inverse_avx2 HQC_F(gf_inverse_avx2)
+#define gf_generate_avx2 HQC_F(gf_generate_avx2)
+#define gf_mul_vect_avx2 HQC_F(gf_mul_vect_avx2)
+#define gf_mod_avx2 HQC_F(gf_mod_avx2)
 
 #ifdef __cplusplus
 }

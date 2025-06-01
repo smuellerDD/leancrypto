@@ -257,7 +257,9 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 	/* HQC */
 #ifdef LC_HQC
 		 ,
-		 "none"
+		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
+			 "AVX2" :
+			 ""
 #endif /* LC_HQC */
 
 	/* Curve25519 */

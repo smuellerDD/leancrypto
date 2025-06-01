@@ -83,6 +83,8 @@ extern "C" {
 
 /* Divide a by b and ceil the result */
 #define LC_HQC_CEIL_DIVIDE(a, b) (((a) + (b) - 1) / (b))
+/* Create a mask */
+#define LC_HQC_BITMASK(a, size) ((1UL << (a % size)) - 1)
 
 #define LC_HQC_PRNG_DOMAIN 1
 #define LC_HQC_SEEDEXPANDER_DOMAIN 2
@@ -116,6 +118,13 @@ extern "C" {
 #define LC_HQC_VEC_N1_SIZE_64 LC_HQC_CEIL_DIVIDE(LC_HQC_PARAM_N1, 8)
 #define LC_HQC_VEC_N1N2_SIZE_64 LC_HQC_CEIL_DIVIDE(LC_HQC_PARAM_N1N2, 64)
 
+/* AVX2 */
+#define LC_HQC_PARAM_N_MULT 18048
+#define LC_HQC_VEC_N_256_SIZE_64                                               \
+	(LC_HQC_CEIL_DIVIDE(LC_HQC_PARAM_N_MULT, 256) << 2)
+#define LC_HQC_VEC_N1N2_256_SIZE_64                                            \
+	(LC_HQC_CEIL_DIVIDE(LC_HQC_PARAM_N1N2, 256) << 2)
+
 #define LC_HQC_PARAM_DELTA 15
 #define LC_HQC_PARAM_M 8
 #define LC_HQC_PARAM_GF_POLY 0x11D
@@ -129,6 +138,8 @@ extern "C" {
 	89, 69, 153, 116, 176, 117, 111, 75, 73, 233, 242, 233, 65, 210, 21,   \
 		139, 103, 173, 67, 118, 105, 210, 174, 110, 74, 69, 228, 82,   \
 		255, 181, 1
+#define LC_HQC_SYND_SIZE_256                                                   \
+	(LC_HQC_CEIL_DIVIDE(2*LC_HQC_PARAM_DELTA, 16))
 
 #define LC_HQC_RED_MASK 0x1f
 #define LC_HQC_SHAKE256_512_BYTES 64
@@ -160,6 +171,13 @@ extern "C" {
 #define LC_HQC_VEC_N1_SIZE_64 LC_HQC_CEIL_DIVIDE(LC_HQC_PARAM_N1, 8)
 #define LC_HQC_VEC_N1N2_SIZE_64 LC_HQC_CEIL_DIVIDE(LC_HQC_PARAM_N1N2, 64)
 
+/* AVX2 */
+#define LC_HQC_PARAM_N_MULT 36480
+#define LC_HQC_VEC_N_256_SIZE_64                                               \
+	(LC_HQC_CEIL_DIVIDE(LC_HQC_PARAM_N_MULT, 256) << 2)
+#define LC_HQC_VEC_N1N2_256_SIZE_64                                            \
+	(LC_HQC_CEIL_DIVIDE(LC_HQC_PARAM_N1N2, 256) << 2)
+
 #define LC_HQC_PARAM_DELTA 16
 #define LC_HQC_PARAM_M 8
 #define LC_HQC_PARAM_GF_POLY 0x11D
@@ -173,6 +191,8 @@ extern "C" {
 	45, 216, 239, 24, 253, 104, 27, 40, 107, 50, 163, 210, 227, 134, 224,  \
 		158, 119, 13, 158, 1, 238, 164, 82, 43, 15, 232, 246, 142, 50, \
 		189, 29, 232, 1
+#define LC_HQC_SYND_SIZE_256                                                   \
+	(LC_HQC_CEIL_DIVIDE(2*LC_HQC_PARAM_DELTA, 16))
 
 #define LC_HQC_RED_MASK 0x7ff
 #define LC_HQC_SHAKE256_512_BYTES 64
@@ -204,6 +224,13 @@ extern "C" {
 #define LC_HQC_VEC_N1_SIZE_64 LC_HQC_CEIL_DIVIDE(LC_HQC_PARAM_N1, 8)
 #define LC_HQC_VEC_N1N2_SIZE_64 LC_HQC_CEIL_DIVIDE(LC_HQC_PARAM_N1N2, 64)
 
+/* AVX2 */
+#define LC_HQC_PARAM_N_MULT 59904
+#define LC_HQC_VEC_N_256_SIZE_64                                               \
+	(LC_HQC_CEIL_DIVIDE(LC_HQC_PARAM_N_MULT, 256) << 2)
+#define LC_HQC_VEC_N1N2_256_SIZE_64                                            \
+	(LC_HQC_CEIL_DIVIDE(LC_HQC_PARAM_N1N2, 256) << 2)
+
 #define LC_HQC_PARAM_DELTA 29
 #define LC_HQC_PARAM_M 8
 #define LC_HQC_PARAM_GF_POLY 0x11D
@@ -219,6 +246,8 @@ extern "C" {
 		123, 12, 31, 243, 180, 219, 152, 239, 99, 141, 4, 246, 191,    \
 		144, 8, 232, 47, 27, 141, 178, 130, 64, 124, 47, 39, 188, 216, \
 		48, 199, 187, 1
+#define LC_HQC_SYND_SIZE_256                                                   \
+	(LC_HQC_CEIL_DIVIDE(2*LC_HQC_PARAM_DELTA, 16))
 
 #define LC_HQC_RED_MASK 0x1fffffffff
 #define LC_HQC_SHAKE256_512_BYTES 64
@@ -392,6 +421,7 @@ int @hqc_name@_dec_kdf(uint8_t *ss, size_t ss_len,
  */
 #ifndef LC_HQC_INTERNAL
 #undef LC_HQC_CEIL_DIVIDE
+#undef LC_HQC_BITMASK
 #undef LC_HQC_PRNG_DOMAIN
 #undef LC_HQC_SEEDEXPANDER_DOMAIN
 #undef LC_HQC_G_FCT_DOMAIN
@@ -434,6 +464,11 @@ int @hqc_name@_dec_kdf(uint8_t *ss, size_t ss_len,
 #undef LC_HQC_SHAKE256_512_BYTES
 #undef LC_HQC_SEED_BYTES
 #undef LC_HQC_SALT_SIZE_BYTES
+
+#undef LC_HQC_PARAM_N_MULT
+#undef LC_HQC_VEC_N_256_SIZE_64
+#undef LC_HQC_VEC_N1N2_256_SIZE_64
+#undef LC_HQC_SYND_SIZE_256
 #endif /* LC_HQC_INTERNAL */
 
 #ifdef __cplusplus

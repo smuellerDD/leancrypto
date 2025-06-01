@@ -63,7 +63,7 @@ int hqc_pke_keygen(struct lc_hqc_pk *pk, struct lc_hqc_sk *sk,
 		uint64_t s[LC_HQC_VEC_N_SIZE_64];
 		union {
 			struct vect_set_random_fixed_weight_ws vect_set_f_ws;
-			struct vect_set_random_ws vec_set_r_ws;
+			struct vect_set_random_ws vect_set_r_ws;
 			struct vect_mul_ws vect_mul_ws;
 		} wsu;
 	};
@@ -90,7 +90,7 @@ int hqc_pke_keygen(struct lc_hqc_pk *pk, struct lc_hqc_sk *sk,
 				     &ws->wsu.vect_set_f_ws);
 
 	// Compute public key
-	vect_set_random(pk_seedexpander, ws->h, &ws->wsu.vec_set_r_ws);
+	vect_set_random(pk_seedexpander, ws->h, &ws->wsu.vect_set_r_ws);
 	vect_mul(ws->s, ws->y, ws->h, &ws->wsu.vect_mul_ws);
 	vect_add(ws->s, ws->x, ws->s, LC_HQC_VEC_N_SIZE_64);
 
@@ -178,7 +178,6 @@ noinline_stack uint8_t hqc_pke_decrypt(uint8_t *m, uint8_t *sigma,
 	vect_resize(ws->tmp1, LC_HQC_PARAM_N, v, LC_HQC_PARAM_N1N2);
 	vect_mul(ws->tmp2, ws->y, u, &ws->wsu.vect_mul_ws);
 	vect_add(ws->tmp2, ws->tmp1, ws->tmp2, LC_HQC_VEC_N_SIZE_64);
-
 	// Compute m by decoding v - u.y
 	memset(&ws->wsu.reed_solomon_decode_ws, 0,
 	       sizeof(struct reed_solomon_decode_ws));

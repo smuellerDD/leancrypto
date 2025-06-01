@@ -305,8 +305,15 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 
 ================================================================================
 
-The HQC KEM code is derived in parts from the code distribution provided with
+The HQC KEM C code is derived in parts from the code distribution provided with
 https://github.com/PQClean/PQClean/. The license for the original code is:
+
+Public Domain
+
+================================================================================
+
+The HQC KEM AVX code is derived in parts from the code distribution provided
+with https://pqc-hqc.org/. The license for the original code is:
 
 Public Domain
 

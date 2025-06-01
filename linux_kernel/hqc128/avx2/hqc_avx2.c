@@ -1,0 +1,1 @@
+../../../hqc/src/avx2/hqc_avx2.c

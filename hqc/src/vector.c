@@ -84,20 +84,6 @@ static const uint32_t m_val[149] = {
 
 #endif
 
-/**
- * @brief Constant-time comparison of two integers v1 and v2
- *
- * Returns 1 if v1 is equal to v2 and 0 otherwise
- * https://gist.github.com/sneves/10845247
- *
- * @param[in] v1
- * @param[in] v2
- */
-static inline uint32_t compare_u32(uint32_t v1, uint32_t v2)
-{
-	return 1 ^ ((uint32_t)((v1 - v2) | (v2 - v1)) >> 31);
-}
-
 static uint64_t single_bit_mask(uint32_t pos)
 {
 	uint64_t ret = 0;

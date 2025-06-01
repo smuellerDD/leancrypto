@@ -9,6 +9,8 @@ Changes 1.4.0-prerelease
 
 * Add "secure_execution" compile-time option
 
+* Add HQC AVX2 implementation derived from https://pqc-hqc.org/
+
 Changes 1.3.0
 * Allow CPU entropy sources to be used as seed sources with meson option "seedsource=cpu"
 

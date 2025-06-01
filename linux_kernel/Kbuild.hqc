@@ -14,7 +14,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM_HQC_256)				       \
 				   ../hqc/src/gf.o			       \
 				   ../hqc/src/gf2x.o			       \
 				   ../hqc/src/hqc.o			       \
-				   ../hqc/src/hqc_kem.o			       \
+				   ../hqc/src/hqc_kem_c.o		       \
 				   ../hqc/src/hqc_selftest.o		       \
 				   ../hqc/src/parsing.o			       \
 				   ../hqc/src/reed_muller.o		       \
@@ -22,13 +22,18 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM_HQC_256)				       \
 				   ../hqc/src/vector.o			       \
 				   leancrypto_kernel_hqc.o
 
+ifndef CONFIG_X86_64
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_HQC_256)				       \
+				+= ../hqc/src/hqc_kem_api_c.o
+endif
+
 leancrypto-$(CONFIG_LEANCRYPTO_KEM_HQC_192)				       \
 				+= hqc192/code.o			       \
 				   hqc192/fft.o				       \
 				   hqc192/gf.o				       \
 				   hqc192/gf2x.o			       \
 				   hqc192/hqc.o				       \
-				   hqc192/hqc_kem.o			       \
+				   hqc192/hqc_kem_c.o			       \
 				   hqc192/hqc_selftest.o		       \
 				   hqc192/parsing.o			       \
 				   hqc192/reed_muller.o			       \
@@ -36,13 +41,19 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM_HQC_192)				       \
 				   hqc192/vector.o			       \
 				   hqc192/leancrypto_kernel_hqc.o
 
+ifndef CONFIG_X86_64
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_HQC_256)				       \
+				+= hqc192/hqc_kem_api_c.o
+endif
+
 hqc192_c_args = -DLC_HQC_TYPE_192
 CFLAGS_hqc192/code.o			= $(hqc192_c_args)
 CFLAGS_hqc192/fft.o			= $(hqc192_c_args)
 CFLAGS_hqc192/gf.o			= $(hqc192_c_args)
 CFLAGS_hqc192/gf2x.o			= $(hqc192_c_args)
 CFLAGS_hqc192/hqc.o			= $(hqc192_c_args)
-CFLAGS_hqc192/hqc_kem.o			= $(hqc192_c_args)
+CFLAGS_hqc192/hqc_kem_api_c.o		= $(hqc192_c_args)
+CFLAGS_hqc192/hqc_kem_c.o		= $(hqc192_c_args)
 CFLAGS_hqc192/hqc_selftest.o		= $(hqc192_c_args)
 CFLAGS_hqc192/parsing.o			= $(hqc192_c_args)
 CFLAGS_hqc192/reed_muller.o		= $(hqc192_c_args)
@@ -56,7 +67,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM_HQC_128)				       \
 				   hqc128/gf.o				       \
 				   hqc128/gf2x.o			       \
 				   hqc128/hqc.o				       \
-				   hqc128/hqc_kem.o			       \
+				   hqc128/hqc_kem_c.o			       \
 				   hqc128/hqc_selftest.o		       \
 				   hqc128/parsing.o			       \
 				   hqc128/reed_muller.o			       \
@@ -64,19 +75,110 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM_HQC_128)				       \
 				   hqc128/vector.o			       \
 				   hqc128/leancrypto_kernel_hqc.o
 
+ifndef CONFIG_X86_64
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_HQC_256)				       \
+				+= hqc128/hqc_kem_api_c.o
+endif
+
 hqc128_c_args = -DLC_HQC_TYPE_128
 CFLAGS_hqc128/code.o			= $(hqc128_c_args)
 CFLAGS_hqc128/fft.o			= $(hqc128_c_args)
 CFLAGS_hqc128/gf.o			= $(hqc128_c_args)
 CFLAGS_hqc128/gf2x.o			= $(hqc128_c_args)
 CFLAGS_hqc128/hqc.o			= $(hqc128_c_args)
-CFLAGS_hqc128/hqc_kem.o			= $(hqc128_c_args)
+CFLAGS_hqc128/hqc_kem_api_c.o		= $(hqc128_c_args)
+CFLAGS_hqc128/hqc_kem_c.o		= $(hqc128_c_args)
 CFLAGS_hqc128/hqc_selftest.o		= $(hqc128_c_args)
 CFLAGS_hqc128/parsing.o			= $(hqc128_c_args)
 CFLAGS_hqc128/reed_muller.o		= $(hqc128_c_args)
 CFLAGS_hqc128/reed_solomon.o		= $(hqc128_c_args)
 CFLAGS_hqc128/vector.o			= $(hqc128_c_args)
 CFLAGS_hqc128/leancrypto_kernel_hqc.o	= $(hqc128_c_args)
+
+################################################################################
+# AVX2 Implementation
+################################################################################
+ifdef CONFIG_X86_64
+
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_HQC_256)				       \
+				+= ../hqc/src/avx2/code_avx2.o		       \
+				   ../hqc/src/avx2/fft_avx2.o		       \
+				   ../hqc/src/avx2/gf_avx2.o		       \
+				   ../hqc/src/avx2/gf2x_avx2.o		       \
+				   ../hqc/src/avx2/hqc_avx2.o		       \
+				   ../hqc/src/avx2/hqc_kem_api_avx2.o	       \
+				   ../hqc/src/avx2/hqc_kem_avx2.o	       \
+				   ../hqc/src/avx2/parsing_avx2.o	       \
+				   ../hqc/src/avx2/reed_muller_avx2.o	       \
+				   ../hqc/src/avx2/reed_solomon_avx2.o	       \
+				   ../hqc/src/avx2/vector_avx2.o
+
+hqc256_avx2_args = -mavx -mavx2 -mbmi -mpclmul
+CFLAGS_../hqc/src/avx2/code_avx2.o		= $(hqc256_avx2_args)
+CFLAGS_../hqc/src/avx2/fft_avx2.o		= $(hqc256_avx2_args)
+CFLAGS_../hqc/src/avx2/gf_avx2.o		= $(hqc256_avx2_args)
+CFLAGS_../hqc/src/avx2/gf2x_avx2.o		= $(hqc256_avx2_args)
+CFLAGS_../hqc/src/avx2/hqc_avx2.o		= $(hqc256_avx2_args)
+CFLAGS_../hqc/src/avx2/hqc_kem_api_avx2.o	= $(hqc256_avx2_args)
+CFLAGS_../hqc/src/avx2/hqc_kem_avx2.o		= $(hqc256_avx2_args)
+CFLAGS_../hqc/src/avx2/parsing_avx2.o		= $(hqc256_avx2_args)
+CFLAGS_../hqc/src/avx2/reed_muller_avx2.o	= $(hqc256_avx2_args)
+CFLAGS_../hqc/src/avx2/reed_solomon_avx2.o	= $(hqc256_avx2_args)
+CFLAGS_../hqc/src/avx2/vector_avx2.o		= $(hqc256_avx2_args)
+
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_HQC_192)				       \
+				+= hqc192/avx2/code_avx2.o		       \
+				   hqc192/avx2/fft_avx2.o		       \
+				   hqc192/avx2/gf_avx2.o		       \
+				   hqc192/avx2/gf2x_avx2.o		       \
+				   hqc192/avx2/hqc_avx2.o		       \
+				   hqc192/avx2/hqc_kem_api_avx2.o	       \
+				   hqc192/avx2/hqc_kem_avx2.o		       \
+				   hqc192/avx2/parsing_avx2.o		       \
+				   hqc192/avx2/reed_muller_avx2.o	       \
+				   hqc192/avx2/reed_solomon_avx2.o	       \
+				   hqc192/avx2/vector_avx2.o
+
+hqc192_avx2_args = $(hqc192_c_args) -mavx -mavx2 -mbmi -mpclmul
+CFLAGS_hqc192/avx2/code_avx2.o		= $(hqc192_avx2_args)
+CFLAGS_hqc192/avx2/fft_avx2.o		= $(hqc192_avx2_args)
+CFLAGS_hqc192/avx2/gf_avx2.o		= $(hqc192_avx2_args)
+CFLAGS_hqc192/avx2/gf2x_avx2.o		= $(hqc192_avx2_args)
+CFLAGS_hqc192/avx2/hqc_avx2.o		= $(hqc192_avx2_args)
+CFLAGS_hqc192/avx2/hqc_kem_api_avx2.o	= $(hqc192_avx2_args)
+CFLAGS_hqc192/avx2/hqc_kem_avx2.o	= $(hqc192_avx2_args)
+CFLAGS_hqc192/avx2/parsing_avx2.o	= $(hqc192_avx2_args)
+CFLAGS_hqc192/avx2/reed_muller_avx2.o	= $(hqc192_avx2_args)
+CFLAGS_hqc192/avx2/reed_solomon_avx2.o	= $(hqc192_avx2_args)
+CFLAGS_hqc192/avx2/vector_avx2.o	= $(hqc192_avx2_args)
+
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_HQC_128)				       \
+				+= hqc128/avx2/code_avx2.o		       \
+				   hqc128/avx2/fft_avx2.o		       \
+				   hqc128/avx2/gf_avx2.o		       \
+				   hqc128/avx2/gf2x_avx2.o		       \
+				   hqc128/avx2/hqc_avx2.o		       \
+				   hqc128/avx2/hqc_kem_api_avx2.o	       \
+				   hqc128/avx2/hqc_kem_avx2.o		       \
+				   hqc128/avx2/parsing_avx2.o		       \
+				   hqc128/avx2/reed_muller_avx2.o	       \
+				   hqc128/avx2/reed_solomon_avx2.o	       \
+				   hqc128/avx2/vector_avx2.o
+
+hqc128_avx2_args = $(hqc128_c_args) -mavx -mavx2 -mbmi -mpclmul
+CFLAGS_hqc128/avx2/code_avx2.o		= $(hqc128_avx2_args)
+CFLAGS_hqc128/avx2/fft_avx2.o		= $(hqc128_avx2_args)
+CFLAGS_hqc128/avx2/gf_avx2.o		= $(hqc128_avx2_args)
+CFLAGS_hqc128/avx2/gf2x_avx2.o		= $(hqc128_avx2_args)
+CFLAGS_hqc128/avx2/hqc_avx2.o		= $(hqc128_avx2_args)
+CFLAGS_hqc128/avx2/hqc_kem_api_avx2.o	= $(hqc128_avx2_args)
+CFLAGS_hqc128/avx2/hqc_kem_avx2.o	= $(hqc128_avx2_args)
+CFLAGS_hqc128/avx2/parsing_avx2.o	= $(hqc128_avx2_args)
+CFLAGS_hqc128/avx2/reed_muller_avx2.o	= $(hqc128_avx2_args)
+CFLAGS_hqc128/avx2/reed_solomon_avx2.o	= $(hqc128_avx2_args)
+CFLAGS_hqc128/avx2/vector_avx2.o	= $(hqc128_avx2_args)
+
+endif
 
 ################################################################################
 # Testing Code
