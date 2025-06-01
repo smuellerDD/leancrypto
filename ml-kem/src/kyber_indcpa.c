@@ -101,7 +101,7 @@ static void unpack_sk(polyvec *sk,
  *			    and the compressed and serialized polynomial v
  *
  * @param [out] r pointer to the output serialized ciphertext
- * @param [in] pk pointer to the input vector of polynomials b
+ * @param [in] b pointer to the input vector of polynomials b
  * @param [in] v pointer to the input polynomial v
  */
 static void pack_ciphertext(uint8_t r[LC_KYBER_INDCPA_BYTES], polyvec *b,

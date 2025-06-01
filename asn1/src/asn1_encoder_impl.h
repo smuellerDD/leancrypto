@@ -162,7 +162,7 @@ extern "C" {
  * @param [in] encoder The encoder definition (produced by asn1_compiler)
  * @param [in] context The caller's context (to be passed to the action
  *		       functions)
- * @param [out] data: The encoded data - the caller must have sufficient space
+ * @param [out] data The encoded data - the caller must have sufficient space
  * @param [in,out] in_out_avail_datalen Size of the available data in the
  *					\p data buffer (the input would refer
  *					to the maxumum size this function can

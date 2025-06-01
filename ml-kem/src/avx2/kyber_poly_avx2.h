@@ -88,7 +88,7 @@ poly_cbd_eta2_avx(poly *r, const __m256i buf[LC_KYBER_ETA2 * LC_KYBER_N / 128])
  *
  * @param r pointer to output byte array (needs space for LC_KYBER_POLYBYTES
  *	    bytes)
- * @param a: pointer to input polynomial
+ * @param a pointer to input polynomial
  */
 static inline void poly_tobytes_avx(uint8_t r[LC_KYBER_POLYBYTES],
 				    const poly *a)
@@ -121,7 +121,7 @@ static inline void poly_frombytes_avx(poly *r,
  * polynomial close to centered binomial distribution with parameter KYBER_ETA1
  *
  * @param r pointer to output polynomial
- * @param seed: pointer to input seed (of length LC_KYBER_SYMBYTES bytes)
+ * @param seed pointer to input seed (of length LC_KYBER_SYMBYTES bytes)
  * @param nonce one-byte input nonce
  */
 static inline void poly_getnoise_eta1_avx(poly *r,
@@ -192,7 +192,7 @@ static inline void poly_ntt_avx(poly *r)
  * ntt, output in normal order. Input coefficients can be arbitrary 16-bit
  * integers, output coefficients are bounded by 14870 in absolute value.
  *
- * @param a pointer to in/output polynomial
+ * @param r pointer to in/output polynomial
  */
 static inline void poly_invntt_tomont_avx(poly *r)
 {

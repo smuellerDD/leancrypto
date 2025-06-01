@@ -75,7 +75,7 @@ static inline void unpack_sk_tr_avx2(uint8_t tr[LC_DILITHIUM_TRBYTES],
  * @brief unpack_sk - Unpack secret key sk = (rho, tr, key, t0, s1, s2).
  *
  * @param [out] s1 pointer to output vector s1
- * @param [in] sk byte array containing bit-packed sk
+ * @param [in] sk_in byte array containing bit-packed sk
  */
 static inline void unpack_sk_s1_avx2(polyvecl *s1,
 				     const struct lc_dilithium_sk *sk_in)
@@ -90,10 +90,10 @@ static inline void unpack_sk_s1_avx2(polyvecl *s1,
 }
 
 /**
- * @brief unpack_sk - Unpack secret key sk = (rho, tr, key, t0, s1, s2).
+ * @brief unpack_sk - Unpack secret key sk parts
  *
  * @param [out] s2 pointer to output vector s2
- * @param [in] sk byte array containing bit-packed sk
+ * @param [in] sk_in byte array containing bit-packed sk
  */
 static inline void unpack_sk_s2_avx2(polyveck *s2,
 				     const struct lc_dilithium_sk *sk_in)
@@ -109,15 +109,10 @@ static inline void unpack_sk_s2_avx2(polyveck *s2,
 }
 
 /**
- * @brief unpack_sk - Unpack secret key sk = (rho, tr, key, t0, s1, s2).
+ * @brief unpack_sk - Unpack secret key sk parts
  *
- * @param [out] rho output byte array for rho
- * @param [out] tr output byte array for tr
- * @param [out] key output byte array for key
  * @param [out] t0 pointer to output vector t0
- * @param [out] s1 pointer to output vector s1
- * @param [out] s2 pointer to output vector s2
- * @param [in] sk byte array containing bit-packed sk
+ * @param [in] sk_in byte array containing bit-packed sk
  */
 static inline void unpack_sk_t0_avx2(polyveck *t0,
 				     const struct lc_dilithium_sk *sk_in)

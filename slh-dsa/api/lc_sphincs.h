@@ -582,7 +582,6 @@ int lc_sphincs_sign_ctx(struct lc_sphincs_sig *sig, struct lc_sphincs_ctx *ctx,
  * places and even becomes available at different times. This call is to be
  * used together with the lc_sphincs_sign_update and lc_sphincs_sign_final.
  *
- * \note
  * \parblock
  * The use of the init/update/final API implies that automatically
  * HashSLH-DSA is used. This is due to the fact that SLH-DSA cannot be used
@@ -693,7 +692,6 @@ int lc_sphincs_verify_ctx(const struct lc_sphincs_sig *sig,
  * used together with the lc_sphincs_verify_update and
  * lc_sphincs_verify_final.
  *
- * \note
  * \parblock
  * The use of the init/update/final API implies that automatically
  * HashSLH-DSA is used. This is due to the fact that SLH-DSA cannot be used

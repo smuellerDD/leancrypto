@@ -88,7 +88,7 @@ void treehashx1(
 			if (h == tree_height) {
 				/* We hit the root; return it */
 				memcpy(root, &current_idx[LC_SPX_N], LC_SPX_N);
-				return;
+				goto out;
 			}
 
 			/*
@@ -142,5 +142,6 @@ void treehashx1(
 	lc_memset_secure(ascon_state, 0, sizeof(ascon_state));
 #endif
 
+out:
 	lc_hash_zero(hash_ctx);
 }

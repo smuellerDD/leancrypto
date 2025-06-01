@@ -465,10 +465,10 @@ out:
 
 /**
  * asn1_encode_sequence() - wrap a byte stream in an ASN.1 SEQUENCE
- * @data:	pointer to encode at
- * @end_data:	end of data pointer, points one beyond last usable byte in @data
- * @seq:	data to be encoded as a sequence
- * @len:	length of the data to be encoded as a sequence
+ * @param [in] data pointer to encode at
+ * @param [in] datalen length of data pointer
+ * @param [in] seq data to be encoded as a sequence
+ * @param [in] len length of the data to be encoded as a sequence
  * @param [out] retptr Pointer to the data buffer new data can be placed into
  *
  * Fill in a sequence.  To encode in place, pass NULL for @seq and -1
@@ -528,9 +528,9 @@ out:
 
 /**
  * asn1_encode_boolean() - encode a boolean value to ASN.1
- * @data:	pointer to encode at
- * @end_data:	end of data pointer, points one beyond last usable byte in @data
- * @val:	the boolean true/false value
+ * @param [in] data pointer to encode at
+ * @param [in] datalen length of data pointer
+ * @param [in] val the boolean true/false value
  * @param [out] retptr Pointer to the data buffer new data can be placed into
  */
 int asn1_encode_boolean(uint8_t *data, size_t *datalen, int val,

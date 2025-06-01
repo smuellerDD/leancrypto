@@ -113,7 +113,7 @@ static inline void polyvecl_pointwise_poly_montgomery(polyvecl *r,
  *			     polyvecl_reduce().
  *
  * @param [in] v pointer to vector
- * @param [in] B norm bound
+ * @param [in] bound norm bound
  *
  * @return 0 if norm of all polynomials is strictly smaller than B <= (Q-1)/8
  * and 1 otherwise.
@@ -259,7 +259,7 @@ static inline void polyveck_pointwise_poly_montgomery(polyveck *r,
  *			     polyveck_reduce().
  *
  * @param [in] v pointer to vector
- * @param [in] B norm bound
+ * @param [in] bound norm bound
  *
  * @return 0 if norm of all polynomials are strictly smaller than B <= (Q-1)/8
  * and 1 otherwise.

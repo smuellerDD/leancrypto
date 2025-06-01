@@ -152,16 +152,15 @@ static inline void kyber_shake256_prf(uint8_t *out, size_t outlen,
  *				 bytes of SHAKE256 output
  *
  * @param [out] out pointer to output
- * @param [in] outlen number of requested output bytes
  * @param [in] key pointer to the key
  * @param [in] nonce single-byte nonce (public PRF input)
  */
 static inline void
 kyber_shake256_rkprf(uint8_t out[LC_KYBER_SSBYTES],
 		     const uint8_t key[LC_KYBER_SYMBYTES],
-		     const uint8_t input[LC_KYBER_CIPHERTEXTBYTES])
+		     const uint8_t nonce[LC_KYBER_CIPHERTEXTBYTES])
 {
-	kyber_kdf2(key, LC_KYBER_SYMBYTES, input, LC_KYBER_CIPHERTEXTBYTES, out,
+	kyber_kdf2(key, LC_KYBER_SYMBYTES, nonce, LC_KYBER_CIPHERTEXTBYTES, out,
 		   LC_KYBER_SSBYTES);
 }
 

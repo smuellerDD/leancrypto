@@ -70,7 +70,7 @@ int lc_x509_cert_oid_to_eku(enum OID oid, uint16_t *eku);
 /**
  * @brief Decode an X.509 time ASN.1 object
  * @param [out] _t The time to fill in
- * @param [in] hdrlen: The length of the object header
+ * @param [in] hdrlen The length of the object header
  * @param [in] tag The object tag
  * @param [in] value The object value
  * @param [in] vlen The size of the object value

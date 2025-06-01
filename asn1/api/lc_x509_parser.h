@@ -949,7 +949,7 @@ lc_x509_pol_ret_t
 lc_x509_policy_cert_valid(const struct lc_x509_certificate *cert);
 
 /**
- * @brief X509
+ * @ingroup X509
  * @brief Verification of an X.509 certificate against a public key
  *
  * This function performs the signature verification of the signature associated

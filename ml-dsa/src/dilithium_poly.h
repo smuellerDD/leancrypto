@@ -110,7 +110,7 @@ static inline void poly_decompose(poly *a1, poly *a0, const poly *a)
 }
 
 /**
- * @param poly_make_hint - Compute hint polynomial. The coefficients of which
+ * @brief poly_make_hint - Compute hint polynomial. The coefficients of which
  *			   indicate whether the low bits of the corresponding
  *			   coefficient of the input polynomial overflow into the
  *			   high bits.

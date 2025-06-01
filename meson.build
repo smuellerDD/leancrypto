@@ -45,6 +45,10 @@ add_global_arguments([ '-fstack-protector-strong',
 		       '-fno-strict-aliasing',
 		       '-Wundef',
 		       '-Wvla',
+		       '-Wunused-function',
+		       '-Wunused-parameter',
+		       '-Wunreachable-code',
+		       '-Wdocumentation'
 		        ],
 		       language : 'c')
 
@@ -134,6 +138,14 @@ if (get_option('kyber_1024').enabled() or
     get_option('kyber_512').enabled())
 	add_global_arguments([ '-DLC_KYBER' ], language: 'c')
 	kyber_enabled = true
+endif
+
+hqc_enabled = false
+if (get_option('hqc_256').enabled() or
+    get_option('hqc_192').enabled() or
+    get_option('hqc_128').enabled())
+	add_global_arguments([ '-DLC_HQC' ], language: 'c')
+	hqc_enabled = true
 endif
 
 dilithium_enabled = false

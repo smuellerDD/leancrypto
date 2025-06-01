@@ -94,7 +94,7 @@ static void lc_sh_selftest(int *tested, const char *impl)
 /**
  * @brief Set the key for the encryption or decryption operation
  *
- * @param [in] sh symmetric/HMAC crypt cipher handle
+ * @param [in] state symmetric/HMAC crypt cipher handle
  * @param [in] key Buffer with key
  * @param [in] keylen Length of key buffer
  * @param [in] iv initialization vector to be used - only the IV size of the

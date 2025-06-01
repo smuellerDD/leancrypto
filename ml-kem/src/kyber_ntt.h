@@ -40,7 +40,7 @@ extern const int16_t kyber_zetas[128];
  * @brief ntt - Inplace number-theoretic transform (NTT) in Rq.
  *		input is in standard order, output is in bitreversed order
  *
- * @param [in,out] r pointer to input/output vector of elements of Zq
+ * @param [in,out] poly pointer to input/output vector of elements of Zq
  */
 void kyber_ntt(int16_t poly[LC_KYBER_N]);
 
@@ -50,7 +50,7 @@ void kyber_ntt(int16_t poly[LC_KYBER_N]);
  *			  Input is in bitreversed order, output is in standard
  *			  order
  *
- * @param r pointer to input/output vector of elements of Zq
+ * @param poly pointer to input/output vector of elements of Zq
  */
 void kyber_invntt(int16_t poly[LC_KYBER_N]);
 

@@ -394,7 +394,7 @@ static void lc_cc_selftest(int *tested, const char *impl)
 /**
  * @brief Set the key for the encyption or decryption operation
  *
- * @param [in] cc cSHAKE crypt cipher handle
+ * @param [in] state cSHAKE crypt cipher handle
  * @param [in] key Buffer with key
  * @param [in] keylen Length of key buffer
  * @param [in] iv initialization vector to be used

@@ -50,7 +50,7 @@ typedef BUF_ALIGNED_INT32_M256I(LC_DILITHIUM_N) poly;
  *
  * Inplace forward NTT. Coefficients can grow by up to 8*Q in absolute value.
  *
- * @brief a pointer to input/output polynomial
+ * @param a pointer to input/output polynomial
  */
 static inline void poly_ntt_avx(poly *a)
 {
@@ -66,7 +66,7 @@ static inline void poly_ntt_avx(poly *a)
  * be less than Q in absolute value and output coefficients are again bounded
  * by Q.
  *
- * @brief a pointer to input/output polynomial
+ * @param a pointer to input/output polynomial
  */
 static inline void poly_invntt_tomont_avx(poly *a)
 {
@@ -140,7 +140,7 @@ static inline void poly_decompose_avx(poly *a1, poly *a0, const poly *a)
  * coefficients of the input polynomial whose low bits overflow into the high
  * bits.
  *
- * @param h pointer to output hint array (preallocated of length N)
+ * @param hint pointer to output hint array (preallocated of length N)
  * @param a0 pointer to low part of input polynomial
  * @param a1 pointer to high part of input polynomial
  *
@@ -153,7 +153,7 @@ static inline unsigned int poly_make_hint_avx(uint8_t hint[LC_DILITHIUM_N],
 }
 
 /**
- * @param poly_use_hint_avx
+ * @brief poly_use_hint_avx
  *
  * Use hint polynomial to correct the high bits of a polynomial.
  *

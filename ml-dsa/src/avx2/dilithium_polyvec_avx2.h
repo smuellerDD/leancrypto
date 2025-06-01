@@ -124,7 +124,7 @@ static inline void polyvecl_pointwise_acc_montgomery_avx(poly *w,
  * polyvecl to be reduced by polyvecl_reduce().
  *
  * @param v pointer to vector
- * @param B norm bound
+ * @param bound norm bound
  *
  * @return 0 if norm of all polynomials is strictly smaller than B <= (Q-1)/8
  * and 1 otherwise.
@@ -207,7 +207,7 @@ static inline void polyveck_add_avx(polyveck *w, const polyveck *u,
  *
  * @param w pointer to output vector
  * @param u pointer to first input vector
- * @param v: pointer to second input vector to be subtracted from first input
+ * @param v pointer to second input vector to be subtracted from first input
  * vector
  */
 static inline void polyveck_sub_avx(polyveck *w, const polyveck *u,
@@ -284,7 +284,7 @@ static inline void polyveck_pointwise_poly_montgomery_avx(polyveck *r,
  * polyveck to be reduced by polyveck_reduce().
  *
  * @param v pointer to vector
- * @param B norm bound
+ * @param bound norm bound
  *
  * @return 0 if norm of all polynomials are strictly smaller than B <= (Q-1)/8
  * and 1 otherwise.

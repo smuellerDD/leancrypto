@@ -53,7 +53,7 @@ extern "C" {
  */
 /**
  * Initialize - Function to initialize the state to the logical value 0^width.
- * @param  state   Pointer to the state to initialize.
+ * @param _state   Pointer to the state to initialize.
  */
 static inline void sha3_224_asm_init(void *_state,
 				     void (*StaticInitialize)(void),
@@ -192,16 +192,16 @@ static inline void cshake_256_asm_init(void *_state,
  *
  * (The bit positions, the x,y,z coordinates and their link are defined in the
  * "Keccak reference".)
- * @param  state   Pointer to the state.
- * @param  data    Pointer to the input data.
- * @param  offset  Offset in bytes within the state.
- * @param  length  Number of bytes.
- * @pre    0 ≤ @a offset < (width in bytes)
- * @pre    0 ≤ @a offset + @a length ≤ (width in bytes)
+ * param  state   Pointer to the state.
+ * param  data    Pointer to the input data.
+ * param  offset  Offset in bytes within the state.
+ * param  length  Number of bytes.
+ * pre    0 ≤ @a offset < (width in bytes)
+ * pre    0 ≤ @a offset + @a length ≤ (width in bytes)
  */
 /**
  * Permute - Function to apply the permutation on the state.
- * @param  state   Pointer to the state.
+ * @param  _state   Pointer to the state.
  */
 /**
  * FastLoop_Absorb - Function that has the same behavior as repeatedly calling
@@ -210,13 +210,13 @@ static inline void cshake_256_asm_init(void *_state,
  * - and advancing @a data by @a laneCount lane sizes, until not enough data
  *   are available.
  * The function returns the number of bytes processed from @a data.
- * @param  state   Pointer to the state.
- * @param  laneCount   The number of lanes processed each time (i.e., the block
+ * param  state   Pointer to the state.
+ * param  laneCount   The number of lanes processed each time (i.e., the block
  * size in lanes).
- * @param  data    Pointer to the data to use as input.
- * @param  dataByteLen The length of the input data in bytes.
- * @returns    The number of bytes processed.
- * @pre    0 < @a laneCount < SnP_laneCount
+ * param  data    Pointer to the data to use as input.
+ * param  dataByteLen The length of the input data in bytes.
+ * return    The number of bytes processed.
+ * pre    0 < @a laneCount < SnP_laneCount
  */
 static inline void
 keccak_asm_absorb(void *_state, const uint8_t *in, size_t inlen,
@@ -328,10 +328,10 @@ static inline void keccak_asm_absorb_last_bits(
  * from @a offset*8 to @a offset*8 + 8.
  * (The bit positions, the x,y,z coordinates and their link are defined in the
  * "Keccak reference".)
- * @param  state   Pointer to the state.
- * @param  data    The input byte.
- * @param  offset  Offset in bytes within the state.
- * @pre    0 ≤ @a offset < (width in bytes)
+ * param  state   Pointer to the state.
+ * param  data    The input byte.
+ * param  offset  Offset in bytes within the state.
+ * pre    0 ≤ @a offset < (width in bytes)
  */
 /**
  * ExtractBytes - Function to retrieve data from the state.
@@ -339,12 +339,12 @@ static inline void keccak_asm_absorb_last_bits(
  * from @a offset*8 to @a offset*8 + @a length*8.
  * (The bit positions, the x,y,z coordinates and their link are defined in the
  * "Keccak reference".)
- * @param  state   Pointer to the state.
- * @param  data    Pointer to the area where to store output data.
- * @param  offset  Offset in bytes within the state.
- * @param  length  Number of bytes.
- * @pre    0 ≤ @a offset < (width in bytes)
- * @pre    0 ≤ @a offset + @a length ≤ (width in bytes)
+ * param  state   Pointer to the state.
+ * param  data    Pointer to the area where to store output data.
+ * param  offset  Offset in bytes within the state.
+ * param  length  Number of bytes.
+ * pre    0 ≤ @a offset < (width in bytes)
+ * pre    0 ≤ @a offset + @a length ≤ (width in bytes)
  */
 static inline void keccak_asm_squeeze(
 	void *_state, uint8_t *digest,
