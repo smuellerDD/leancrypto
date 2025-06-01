@@ -30,7 +30,6 @@
 #ifndef HQC_H
 #define HQC_H
 
-#include "hqc_internal.h"
 #include "hqc_type.h"
 #include "lc_rng.h"
 

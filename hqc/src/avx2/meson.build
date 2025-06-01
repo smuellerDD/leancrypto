@@ -14,7 +14,7 @@ hqc_src_avx2 = files([
         'vector_avx2.c'
 ])
 
-hqc_avx2_args = [ cc_avx2_args, '-mbmi', '-mpclmul' ]
+hqc_avx2_args = [ cc_avx2_args, '-mavx', '-mbmi', '-mpclmul' ]
 if get_option('hqc_256').enabled()
 	leancrypto_hqc_256_avx2_lib = static_library(
 		'leancrypto_hqc_256_avx2_lib',

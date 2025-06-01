@@ -361,14 +361,14 @@ void fft_retrieve_error_poly_avx2(uint8_t *error, const uint16_t *w)
 	compute_subset_sums(gammas_sums, gammas, LC_HQC_PARAM_M - 1);
 
 	k = 1 << (LC_HQC_PARAM_M - 1);
-	error[0] ^= 1 ^ ((uint16_t)-w[0] >> 15);
-	error[0] ^= 1 ^ ((uint16_t)-w[k] >> 15);
+	error[0] ^= (uint8_t)(1 ^ ((uint16_t)-w[0] >> 15));
+	error[0] ^= (uint8_t)(1 ^ ((uint16_t)-w[k] >> 15));
 
 	for (i = 1; i < k; ++i) {
 		index = LC_HQC_PARAM_GF_MUL_ORDER - gf_log[gammas_sums[i]];
-		error[index] ^= 1 ^ ((uint16_t)-w[i] >> 15);
+		error[index] ^= (uint8_t)(1 ^ ((uint16_t)-w[i] >> 15));
 
 		index = LC_HQC_PARAM_GF_MUL_ORDER - gf_log[gammas_sums[i] ^ 1];
-		error[index] ^= 1 ^ ((uint16_t)-w[k + i] >> 15);
+		error[index] ^= (uint8_t)(1 ^ ((uint16_t)-w[k + i] >> 15));
 	}
 }

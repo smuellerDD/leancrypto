@@ -125,7 +125,8 @@ static inline int lc_hqc_enc_internal_impl(
 	uint8_t *m, *salt;
 	int ret;
 	LC_SHAKE_256_CTX_ON_STACK(shake256);
-	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+	/* For AVX2, the alignment is set to sizeof(__m256i) */
+	LC_DECLARE_MEM(ws, struct workspace, 32);
 
 	m = ws->tmp;
 	salt = ws->tmp + LC_HQC_VEC_K_SIZE_BYTES + 2 * LC_HQC_SALT_SIZE_BYTES;
@@ -230,7 +231,7 @@ static inline int lc_hqc_dec_impl(
 	uint8_t *m, *salt;
 	uint8_t result;
 	LC_SHAKE_256_CTX_ON_STACK(shake256);
-	/* For AVX2, u is casted to __m256i */
+	/* For AVX2, the alignment is set to sizeof(__m256i) */
 	LC_DECLARE_MEM(ws, struct workspace, 32);
 
 	hqc_kem_dec_selftest(&tester, "HQC KEM dec C", lc_hqc_dec);

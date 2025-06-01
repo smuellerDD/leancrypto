@@ -226,7 +226,7 @@ uint16_t gf_mod_avx2(uint16_t i)
 	uint16_t tmp = i - LC_HQC_PARAM_GF_MUL_ORDER;
 
 	// mask = 0xffff if (i < GF_MUL_ORDER)
-	int16_t mask = -(tmp >> 15);
+	int16_t mask = (int16_t)(-(tmp >> 15));
 
 	return tmp + (mask & LC_HQC_PARAM_GF_MUL_ORDER);
 }

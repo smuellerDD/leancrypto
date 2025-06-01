@@ -17,8 +17,8 @@
  * DAMAGE.
  */
 
-#ifndef HQC_INTERNAL_H
-#define HQC_INTERNAL_H
+#ifndef HQC_INTERNAL_AVX2_H
+#define HQC_INTERNAL_AVX2_H
 
 #include "ext_headers_x86.h"
 #include "hqc_type.h"
@@ -207,25 +207,25 @@ struct hqc_pke_encrypt_ws {
 	__m256i tmp1_256[LC_HQC_VEC_N_256_SIZE_64 >> 2];
 	__m256i tmp2_256[LC_HQC_VEC_N_256_SIZE_64 >> 2];
 	__m256i tmp3_256[LC_HQC_VEC_N_256_SIZE_64 >> 2];
-	uint64_t tmp4[LC_HQC_VEC_N_256_SIZE_64];
 	union {
 		struct vect_set_random_fixed_weight_ws vect_set_f_ws;
 		struct vect_set_random_ws vect_set_r_ws;
 		struct vect_mul_ws vect_mul_ws;
 	} wsu;
+	uint64_t tmp4[LC_HQC_VEC_N_256_SIZE_64];
 };
 
 struct hqc_pke_decrypt_ws {
 	__m256i y_256[LC_HQC_VEC_N_256_SIZE_64 >> 2];
 	__m256i tmp3_256[LC_HQC_VEC_N_256_SIZE_64 >> 2];
-	uint64_t tmp1[LC_HQC_VEC_N_256_SIZE_64];
-	uint64_t tmp2[LC_HQC_VEC_N_256_SIZE_64];
-	uint8_t pk[LC_HQC_PUBLIC_KEY_BYTES];
 	union {
 		struct vect_set_random_fixed_weight_ws vect_set_f_ws;
 		struct vect_mul_ws vect_mul_ws;
 		struct reed_decode_ws reed_decode_ws;
 	} wsu;
+	uint64_t tmp1[LC_HQC_VEC_N_256_SIZE_64];
+	uint64_t tmp2[LC_HQC_VEC_N_256_SIZE_64];
+	uint8_t pk[LC_HQC_PUBLIC_KEY_BYTES];
 };
 
 int lc_hqc_enc_internal(struct lc_hqc_ct *ct, struct lc_hqc_ss *ss,
@@ -235,4 +235,4 @@ int lc_hqc_enc_internal(struct lc_hqc_ct *ct, struct lc_hqc_ss *ss,
 }
 #endif
 
-#endif /* HQC_INTERNAL_H */
+#endif /* HQC_INTERNAL_AVX2_H */

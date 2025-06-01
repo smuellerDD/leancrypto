@@ -31,7 +31,6 @@
 #include "hqc_type.h"
 #include "parsing_avx2.h"
 #include "vector_avx2.h"
-#include "../vector.h"
 
 #if (LC_HQC_TYPE == 128)
 
@@ -122,10 +121,24 @@ static inline uint16_t barrett_reduce(uint32_t a, uint16_t i)
 {
 	uint32_t t;
 
-	t = ((v_val[i] * a + v_val[i]) >> SHBIT32);
+	t = (uint32_t)((v_val[i] * a + v_val[i]) >> SHBIT32);
 	t *= (LC_HQC_PARAM_N - i);
 
 	return (uint16_t)(a - t);
+}
+
+/**
+ * @brief Constant-time comparison of two integers v1 and v2
+ *
+ * Returns 1 if v1 is equal to v2 and 0 otherwise
+ * https://gist.github.com/sneves/10845247
+ *
+ * @param[in] v1 integer 1
+ * @param[in] v2 integer 2
+ */
+static inline uint32_t compare_u32(uint32_t v1, uint32_t v2)
+{
+	return 1 ^ ((uint32_t)((v1 - v2) | (v2 - v1)) >> 31);
 }
 
 /**
@@ -143,7 +156,7 @@ void vect_set_random_fixed_weight_avx2(
 {
 	const __m256i posCmp256 = (__m256i){ 0UL, 1UL, 2UL, 3UL };
 
-	seedexpander(shake256, (uint8_t *)&ws->rand_u32, 4 * weight);
+	seedexpander(shake256, (uint8_t *)ws->rand_u32, 4 * weight);
 
 	for (uint16_t i = 0; i < weight; ++i)
 		ws->tmp[i] = i + barrett_reduce(ws->rand_u32[i], i);
@@ -164,7 +177,7 @@ void vect_set_random_fixed_weight_avx2(
 		// we store the bloc number and bit position of each vb[i]
 		uint64_t bloc = ws->tmp[i] >> 6;
 
-		ws->bloc256[i] = _mm256_set1_epi64x(bloc >> 2);
+		ws->bloc256[i] = _mm256_set1_epi64x((long long)(bloc >> 2));
 		uint64_t pos = (bloc & 0x3UL);
 		__m256i pos256 = _mm256_set1_epi64x((long long)pos);
 		__m256i mask256 = _mm256_cmpeq_epi64(pos256, posCmp256);

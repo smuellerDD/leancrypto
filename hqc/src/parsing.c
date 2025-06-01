@@ -30,6 +30,7 @@
 
 #include "ext_headers.h"
 #include "hqc_type.h"
+#include "hqc_internal.h"
 #include "lc_sha3.h"
 #include "parsing.h"
 #include "vector.h"

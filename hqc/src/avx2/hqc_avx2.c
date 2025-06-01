@@ -199,7 +199,8 @@ noinline_stack void hqc_pke_encrypt_avx2(uint64_t *u, uint64_t *v, uint8_t *m,
  * @param[in] sk String containing the secret key
  * @returns 0 
  */
-#include "../gf2x.h"
+void vect_mul(uint64_t *o, const uint64_t *v1, const uint64_t *v2,
+	      struct vect_mul_ws *ws);
 noinline_stack uint8_t hqc_pke_decrypt_avx2(uint8_t *m, uint8_t *sigma,
 					    const uint64_t *u,
 					    const uint64_t *v,

@@ -30,7 +30,6 @@
 #ifndef REED_SOLOMON_H
 #define REED_SOLOMON_H
 
-#include "hqc_internal.h"
 #include "hqc_type.h"
 
 #ifdef __cplusplus

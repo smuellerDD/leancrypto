@@ -37,7 +37,10 @@ static __inline__ int __bsfd(int __A)
 {
 	return __builtin_ctz((unsigned int)__A);
 }
+
+#if defined(__clang__) || defined(LINUX_KERNEL)
 #define _bit_scan_forward(A) __bsfd((A))
+#endif
 
 // copy bit 0 into all bits of a 64 bit value
 #define BIT0MASK(x) (int32_t)(-((x) & 1))
@@ -125,6 +128,7 @@ static inline void hadamard(expandedCodeword *src, expandedCodeword *dst)
 	// using p1 and p2 alternately
 	expandedCodeword *p1 = src;
 	expandedCodeword *p2 = dst;
+
 	for (size_t pass = 0; pass < 7; pass++) {
 		// warning: hadd works "within lanes" as Intel call it
 		// so you have to swap the middle 64 bit blocks of the result
@@ -215,11 +219,12 @@ static inline uint8_t find_peaks(struct reed_muller_decode_ws *ws)
 			(-(int16_t)(_mm256_testz_si256(ws->bitmap,
 						       ws->bitmap) == 0)) >>
 			15;
-		message ^= (uint8_t)message_mask & (message ^ (unsigned)i << 4);
+		message ^= (uint8_t)((uint8_t)message_mask &
+				(message ^ (unsigned)i << 4));
 	}
 	// we decided which row of the matrix contains the lowest match
 	// select proper row
-	int8_t index = message >> 4;
+	int8_t index = (int8_t)(message >> 4);
 	ws->tmp = (__m256i){ 0ULL, 0ULL, 0ULL, 0ULL };
 
 	for (int8_t i = 0; i < 8; i++) {
@@ -227,7 +232,7 @@ static inline uint8_t find_peaks(struct reed_muller_decode_ws *ws)
 		int8_t mask1 = abs_value >> 7;
 		abs_value ^= mask1;
 		abs_value -= mask1;
-		int8_t mask2 = ((uint8_t)-abs_value >> 7);
+		int8_t mask2 = (int8_t)((uint8_t)-abs_value >> 7);
 		int64_t mask3 = (int64_t)(-1ULL) + (int64_t)mask2;
 		ws->vect_mask = (__m256i){ mask3, mask3, mask3, mask3 };
 
@@ -248,8 +253,8 @@ static inline uint8_t find_peaks(struct reed_muller_decode_ws *ws)
 			_mm256_hadd_epi16(ws->peak_mask.mm, ws->peak_mask.mm);
 	}
 	// add low 4 bits of message
-	message |=
-		_bit_scan_forward(ws->peak_mask.u16[0] + ws->peak_mask.u16[8]);
+	message |= (uint8_t)_bit_scan_forward((int)(ws->peak_mask.u16[0] +
+						    ws->peak_mask.u16[8]));
 
 	// set bit 7 if sign of biggest value is positive
 	ws->tmp = (__m256i){ 0ULL, 0ULL, 0ULL, 0ULL };
@@ -266,9 +271,9 @@ static inline uint8_t find_peaks(struct reed_muller_decode_ws *ws)
 		uint16_t *ptr = (uint16_t *)&ws->tmp;
 		int32_t message_mask = (-(int32_t)(i == message % 16)) >>
 				       (sizeof(int32_t) * 8 - 1);
-		result |= message_mask & ptr[i];
+		result |= (uint16_t)(message_mask & ptr[i]);
 	}
-	message |= (0x8000 & ~result) >> 8;
+	message |= (uint8_t)((0x8000 & ~result) >> 8);
 	return message;
 }
 
@@ -285,6 +290,7 @@ void reed_muller_encode_avx2(uint64_t *cdw, const uint64_t *msg)
 {
 	uint8_t *message_array = (uint8_t *)msg;
 	codeword *codeArray = (codeword *)cdw;
+
 	for (size_t i = 0; i < LC_HQC_VEC_N1_SIZE_BYTES; i++) {
 		// fill entries i * MULTIPLICITY to (i+1) * MULTIPLICITY
 		size_t pos = i * MULTIPLICITY;

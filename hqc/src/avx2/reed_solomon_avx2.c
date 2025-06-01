@@ -1578,9 +1578,8 @@ static void compute_error_values(uint16_t *error_values, const uint16_t *z,
  */
 static void correct_errors(uint8_t *cdw, const uint16_t *error_values)
 {
-	for (size_t i = 0; i < LC_HQC_PARAM_N1; ++i) {
-		cdw[i] ^= error_values[i];
-	}
+	for (size_t i = 0; i < LC_HQC_PARAM_N1; ++i)
+		cdw[i] ^= (uint8_t)error_values[i];
 }
 
 /**

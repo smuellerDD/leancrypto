@@ -28,6 +28,7 @@
  */
 
 #include "hqc_type.h"
+#include "hqc_internal.h"
 #include "fft.h"
 #include "gf.h"
 #include "small_stack_support.h"

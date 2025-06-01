@@ -30,8 +30,8 @@
 #ifndef GF2X_H
 #define GF2X_H
 
-#include "hqc_internal.h"
 #include "hqc_type.h"
+#include "hqc_internal.h"
 
 #ifdef __cplusplus
 extern "C" {

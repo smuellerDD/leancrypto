@@ -29,6 +29,7 @@
 
 #include "gf2x.h"
 #include "hqc_type.h"
+#include "hqc_internal.h"
 
 /**
  * @brief Caryless multiplication of two words of 64 bits

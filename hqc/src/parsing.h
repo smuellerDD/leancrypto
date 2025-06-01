@@ -30,7 +30,6 @@
 #ifndef PARSING_H
 #define PARSING_H
 
-#include "hqc_internal.h"
 #include "hqc_type.h"
 
 #ifdef __cplusplus

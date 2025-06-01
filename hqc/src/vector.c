@@ -30,6 +30,7 @@
 
 #include "bitshift_le.h"
 #include "hqc_type.h"
+#include "hqc_internal.h"
 #include "parsing.h"
 #include "vector.h"
 
@@ -120,6 +121,20 @@ static inline uint32_t reduce(uint32_t a, size_t i)
 	r = a - q * n;
 
 	return cond_sub(r, n);
+}
+
+/**
+ * @brief Constant-time comparison of two integers v1 and v2
+ *
+ * Returns 1 if v1 is equal to v2 and 0 otherwise
+ * https://gist.github.com/sneves/10845247
+ *
+ * @param[in] v1 integer 1
+ * @param[in] v2 integer 2
+ */
+static inline uint32_t compare_u32(uint32_t v1, uint32_t v2)
+{
+	return 1 ^ ((uint32_t)((v1 - v2) | (v2 - v1)) >> 31);
 }
 
 /**
