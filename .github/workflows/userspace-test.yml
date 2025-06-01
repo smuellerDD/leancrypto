@@ -18,7 +18,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y meson gcovr doxygen graphviz
     - name: Meson setup
-      run: meson setup build -Db_coverage=true -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled
+      run: meson setup build -Db_coverage=true -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled -Dsecure_execution=enabled
     - name: Meson compile
       run: meson compile -C build
     - name: Meson test
