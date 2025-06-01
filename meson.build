@@ -47,10 +47,14 @@ add_global_arguments([ '-fstack-protector-strong',
 		       '-Wvla',
 		       '-Wunused-function',
 		       '-Wunused-parameter',
-		       '-Wunreachable-code',
-		       '-Wdocumentation'
+		       '-Wunreachable-code'
 		        ],
 		       language : 'c')
+
+if cc.has_argument('-Wdocumentation')
+	add_global_arguments([ '-Wdocumentation' ],
+			     language: 'c')
+endif
 
 # More hardening
 if cc.has_argument('-fzero-call-used-regs=used-gpr')
