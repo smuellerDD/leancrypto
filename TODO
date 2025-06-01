@@ -29,4 +29,6 @@
 
 - HQC: reed_solomon_decode has too large stack frame (3k)
 
+- HQC: add side channel analysis
+
 - PQC Hackathon: reenable Composite-ML-DSA tests after other library vendors moved to new draft version 5
