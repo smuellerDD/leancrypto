@@ -138,10 +138,9 @@ void treehashx1(
 		       LC_SPX_N);
 	}
 
+out:
 #if defined(LC_SPHINCS_TYPE_128F_ASCON) || defined(LC_SPHINCS_TYPE_128S_ASCON)
 	lc_memset_secure(ascon_state, 0, sizeof(ascon_state));
 #endif
-
-out:
 	lc_hash_zero(hash_ctx);
 }
