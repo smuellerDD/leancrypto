@@ -222,11 +222,13 @@ static const __m256i alpha_ij256_2[45] = {
  * Coefficients of polynomial G
  * stored in 256-bit values
  **/
-static const __m256i param256[2] = { { 0x0074009900450059, 0x004B006F007500B0,
-				       0x00E900F200E90049, 0x008B001500D20041 },
-				     { 0x0076004300AD0067, 0x006E00AE00D20069,
-				       0x005200E40045004A,
-				       0x0000000100B500FF } };
+static const union params256 {
+	__m256i param256[2];
+	uint16_t param16[sizeof(__m256i) / sizeof(uint16_t) * 2];
+} params256_u = { .param256 = { { 0x0074009900450059, 0x004B006F007500B0,
+				  0x00E900F200E90049, 0x008B001500D20041 },
+				{ 0x0076004300AD0067, 0x006E00AE00D20069,
+				  0x005200E40045004A, 0x0000000100B500FF } } };
 
 #elif (LC_HQC_TYPE == 192)
 
@@ -459,11 +461,13 @@ static const __m256i alpha_ij256_2[55] = {
  * Coefficients of polynomial G
  * stored in 256-bit values
  **/
-static const __m256i param256[2] = { { 0x001800EF00D8002D, 0x0028001B006800FD,
-				       0x00D200A30032006B, 0x009E00E0008600E3 },
-				     { 0x0001009E000D0077, 0x002B005200A400EE,
-				       0x008E00F600E8000F,
-				       0x00E8001D00BD0032 } };
+static const union params256 {
+	__m256i param256[2];
+	uint16_t param16[sizeof(__m256i) / sizeof(uint16_t) * 2];
+} params256_u = { .param256 = { { 0x001800EF00D8002D, 0x0028001B006800FD,
+				  0x00D200A30032006B, 0x009E00E0008600E3 },
+				{ 0x0001009E000D0077, 0x002B005200A400EE,
+				  0x008E00F600E8000F, 0x00E8001D00BD0032 } } };
 
 #elif (LC_HQC_TYPE == 256)
 
@@ -1192,15 +1196,17 @@ static const __m256i alpha_ij256_4[89] = {
  * Coefficients of polynomial G
  * stored in 256-bit values
  **/
-static const __m256i param256[4] = { { 0x0027003100a70031, 0x005b007c007900c8,
-				       0x00470094003f00f0, 0x00650057007b0096 },
-				     { 0x0047009f00d70020, 0x00d20061007300c9,
-				       0x00d9008d00b700ba, 0x00f3001f000c007b },
-				     { 0x00ef009800db00b4, 0x00f60004008d0063,
-				       0x00e80008009000bf, 0x00b2008d001b002f },
-				     { 0x002f007c00400082, 0x003000d800bc0027,
-				       0x0000000100bb00c7,
-				       0x0000000000000000 } };
+static const union params256 {
+	__m256i param256[4];
+	uint16_t param16[sizeof(__m256i) / sizeof(uint16_t) * 4];
+} params256_u = { .param256 = { { 0x0027003100a70031, 0x005b007c007900c8,
+				  0x00470094003f00f0, 0x00650057007b0096 },
+				{ 0x0047009f00d70020, 0x00d20061007300c9,
+				  0x00d9008d00b700ba, 0x00f3001f000c007b },
+				{ 0x00ef009800db00b4, 0x00f60004008d0063,
+				  0x00e80008009000bf, 0x00b2008d001b002f },
+				{ 0x002f007c00400082, 0x003000d800bc0027,
+				  0x0000000100bb00c7, 0x0000000000000000 } } };
 
 #endif
 
@@ -1231,29 +1237,25 @@ void reed_solomon_encode_avx2(uint64_t *cdw, const uint64_t *msg)
 
 	__m256i *tmp256 = (__m256i *)tmp.arr16;
 
-#if (LC_HQC_TYPE == 192)
-	uint16_t *PARAM_RS_POLY = (uint16_t *)param256;
-#endif
-
 	memcpy(msg_bytes, msg, LC_HQC_PARAM_K);
 
 	for (int32_t i = LC_HQC_PARAM_K - 1; i >= 0; --i) {
 		gate_value = msg_bytes[i] ^
 			     cdw_bytes[LC_HQC_PARAM_N1 - LC_HQC_PARAM_K - 1];
 		__m256i gate256 = _mm256_set1_epi16(gate_value);
-		tmp256[0] = gf_mul_vect_avx2(gate256, param256[0]);
-		tmp256[1] = gf_mul_vect_avx2(gate256, param256[1]);
+		tmp256[0] = gf_mul_vect_avx2(gate256, params256_u.param256[0]);
+		tmp256[1] = gf_mul_vect_avx2(gate256, params256_u.param256[1]);
 
 #if (LC_HQC_TYPE == 128)
 		/* Nothing */
 #elif (LC_HQC_TYPE == 192)
 		for (size_t j = 32; j < LC_HQC_PARAM_G; ++j) {
 			tmp.arr16[j] =
-				gf_mul_avx2(gate_value, PARAM_RS_POLY[j]);
+				gf_mul_avx2(gate_value, params256_u.param16[j]);
 		}
 #elif (LC_HQC_TYPE == 256)
-		tmp256[2] = gf_mul_vect_avx2(gate256, param256[2]);
-		tmp256[3] = gf_mul_vect_avx2(gate256, param256[3]);
+		tmp256[2] = gf_mul_vect_avx2(gate256, params256_u.param256[2]);
+		tmp256[3] = gf_mul_vect_avx2(gate256, params256_u.param256[3]);
 #endif
 
 		for (size_t k = LC_HQC_PARAM_N1 - LC_HQC_PARAM_K - 1; k; --k)
