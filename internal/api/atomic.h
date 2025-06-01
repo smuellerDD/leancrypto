@@ -139,7 +139,7 @@ static inline int atomic_sub_and_test(int i, atomic_t *v)
 
 /**
  * Atomic decrement by 1
- * @param v: atomic variable
+ * @param v atomic variable
  * @return variable content after operation
  */
 static inline int atomic_dec(atomic_t *v)

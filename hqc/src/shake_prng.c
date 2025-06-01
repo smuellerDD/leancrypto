@@ -33,7 +33,7 @@
 /**
  * @brief Initialise a SHAKE-256 based seed expander
  *
- * @param[out] state Keccak internal state and a counter
+ * @param[out] shake256 Keccak internal state and a counter
  * @param[in] seed A seed
  * @param[in] seedlen The seed bytes length
  */
@@ -52,7 +52,7 @@ void seedexpander_init(struct lc_hash_ctx *shake256, const uint8_t *seed,
  *
  * Squeezes Keccak state by 64-bit blocks (hardware version compatibility)
  *
- * @param[out] state Internal state of SHAKE
+ * @param[out] shake256 Internal state of SHAKE
  * @param[out] output The XOF data
  * @param[in] outlen Number of bytes to return
  */

@@ -183,10 +183,9 @@ static uint16_t compute_elp(uint16_t *sigma, const uint16_t *syndromes)
  * See function fft for more details.
  *
  * @param[out] error Array of 2^PARAM_M elements receiving the error polynomial
- * @param[out] error_compact Array of PARAM_DELTA + PARAM_N1 elements receiving
- *			     a compact representation of the vector error
  * @param[in] sigma Array of 2^LC_HQC_PARAM_FFT elements storing the error
  *		    locator polynomial
+ * @param[in] ws workspace
  */
 static void compute_roots(uint8_t *error, uint16_t *sigma,
 			  struct reed_solomon_decode_ws *ws)
@@ -240,9 +239,7 @@ static void compute_z_poly(uint16_t *z, const uint16_t *sigma, uint16_t degree,
  *			    error values
  * @param[in] z Array of LC_HQC_PARAM_DELTA + 1 elements storing the polynomial
  *		z(x)
- * @param[in] z_degree Integer that is the degree of polynomial z(x)
- * @param[in] error_compact Array of LC_HQC_PARAM_DELTA + LC_HQC_PARAM_N1
- *			    storing compact representation of the error
+ * @param[in] error Array of the error vector
  */
 static void compute_error_values(uint16_t *error_values, const uint16_t *z,
 				 const uint8_t *error)
@@ -331,7 +328,6 @@ static void compute_error_values(uint16_t *error_values, const uint16_t *z,
  * @brief Correct the errors
  *
  * @param[out] cdw Array of PARAM_N1 elements receiving the corrected vector
- * @param[in] error Array of the error vector
  * @param[in] error_values Array of LC_HQC_PARAM_DELTA elements storing the
  *			   error values
  */

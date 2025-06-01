@@ -35,14 +35,14 @@ extern "C" {
  */
 static inline void store_fp_regs(uint64_t tmp[8])
 {
-	__asm__ volatile("mov %0, v8.d[0]" : "=r"(tmp[0]) : : "memory" );
-	__asm__ volatile("mov %0, v9.d[0]" : "=r"(tmp[1]) : : "memory" );
-	__asm__ volatile("mov %0, v10.d[0]" : "=r"(tmp[2]) : : "memory" );
-	__asm__ volatile("mov %0, v11.d[0]" : "=r"(tmp[3]) : : "memory" );
-	__asm__ volatile("mov %0, v12.d[0]" : "=r"(tmp[4]) : : "memory" );
-	__asm__ volatile("mov %0, v13.d[0]" : "=r"(tmp[5]) : : "memory" );
-	__asm__ volatile("mov %0, v14.d[0]" : "=r"(tmp[6]) : : "memory" );
-	__asm__ volatile("mov %0, v15.d[0]" : "=r"(tmp[7]) : : "memory" );
+	__asm__ volatile("mov %0, v8.d[0]" : "=r"(tmp[0]) : : "memory");
+	__asm__ volatile("mov %0, v9.d[0]" : "=r"(tmp[1]) : : "memory");
+	__asm__ volatile("mov %0, v10.d[0]" : "=r"(tmp[2]) : : "memory");
+	__asm__ volatile("mov %0, v11.d[0]" : "=r"(tmp[3]) : : "memory");
+	__asm__ volatile("mov %0, v12.d[0]" : "=r"(tmp[4]) : : "memory");
+	__asm__ volatile("mov %0, v13.d[0]" : "=r"(tmp[5]) : : "memory");
+	__asm__ volatile("mov %0, v14.d[0]" : "=r"(tmp[6]) : : "memory");
+	__asm__ volatile("mov %0, v15.d[0]" : "=r"(tmp[7]) : : "memory");
 }
 
 /*
@@ -50,14 +50,14 @@ static inline void store_fp_regs(uint64_t tmp[8])
  */
 static inline void reload_fp_regs(uint64_t tmp[8])
 {
-	__asm__ volatile("mov v8.d[0], %0" : : "r"(tmp[0]) : "memory" );
-	__asm__ volatile("mov v9.d[0], %0" : : "r"(tmp[1]) : "memory" );
-	__asm__ volatile("mov v10.d[0], %0" : : "r"(tmp[2]) : "memory" );
-	__asm__ volatile("mov v11.d[0], %0" : : "r"(tmp[3]) : "memory" );
-	__asm__ volatile("mov v12.d[0], %0" : : "r"(tmp[4]) : "memory" );
-	__asm__ volatile("mov v13.d[0], %0" : : "r"(tmp[5]) : "memory" );
-	__asm__ volatile("mov v14.d[0], %0" : : "r"(tmp[6]) : "memory" );
-	__asm__ volatile("mov v15.d[0], %0" : : "r"(tmp[7]) : "memory" );
+	__asm__ volatile("mov v8.d[0], %0" : : "r"(tmp[0]) : "memory");
+	__asm__ volatile("mov v9.d[0], %0" : : "r"(tmp[1]) : "memory");
+	__asm__ volatile("mov v10.d[0], %0" : : "r"(tmp[2]) : "memory");
+	__asm__ volatile("mov v11.d[0], %0" : : "r"(tmp[3]) : "memory");
+	__asm__ volatile("mov v12.d[0], %0" : : "r"(tmp[4]) : "memory");
+	__asm__ volatile("mov v13.d[0], %0" : : "r"(tmp[5]) : "memory");
+	__asm__ volatile("mov v14.d[0], %0" : : "r"(tmp[6]) : "memory");
+	__asm__ volatile("mov v15.d[0], %0" : : "r"(tmp[7]) : "memory");
 }
 
 #ifdef __cplusplus

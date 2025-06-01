@@ -50,7 +50,7 @@
  * 6   ffffffff ffffffff 00000000 00000000
  * 7   ffffffff ffffffff ffffffff ffffffff
  *
- * @param[out] word An RM(1,7) codeword
+ * @param[out] cword An RM(1,7) codeword
  * @param[in] message A message
  */
 static void encode(uint64_t *cword, uint8_t message)

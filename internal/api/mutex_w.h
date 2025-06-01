@@ -26,8 +26,6 @@
 /**
  * @brief Writer mutex with a polling mechanism
  *
- * @param lock Mutex lock (if lock is true, the writer mutex is taken)
- *
  * This mutex and its implementation below is intended to cover the needs of
  * leancrypto and having no dependencies whatsoever. Thus, the implementation
  * is below is not intended for general-purpose use! Yet, it serves its purpose

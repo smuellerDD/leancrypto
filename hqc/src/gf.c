@@ -96,7 +96,7 @@ static uint16_t gf_reduce(uint64_t x, size_t deg_x)
  * Implementation of the algorithm mul1 in
  * https://hal.inria.fr/inria-00188261v4/document with s = 2 and w = 8
  *
- * @param[out] The polynomial c = a * b
+ * @param[out] c The polynomial c = a * b
  * @param[in] a The first polynomial
  * @param[in] b The second polynomial
  */
