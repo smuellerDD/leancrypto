@@ -18,7 +18,7 @@
  */
 /*
  * This code is derived in parts from the code distribution provided with
- * https://github.com/PQClean/PQClean/
+ * https://pqc-hqc.org/
  *
  * The code is referenced as Public Domain
  */
