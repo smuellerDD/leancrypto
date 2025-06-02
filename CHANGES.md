@@ -1,4 +1,4 @@
-Changes 1.4.0-prerelease
+Changes 1.4.0
 * ML-DSA: add signature generation rejection test cases and enable them during self tests
 
 * add HQC following reference implementation (https://pqc-hqc.org/implementation.html (versions from 2025-02-19)) but derived from PQClean implementation. NOTE: HQC is not yet considered stable as the implementation currently does not exhibit the IND-CCA2 property. Moreover, the FIPS standardization of HQC is pending. Changes to the HQC algorithm until standardization will need to be expected. I.e. the versioning rules of the library do not apply to the HQC algorithm until being announced in the CHANGES.md file.
