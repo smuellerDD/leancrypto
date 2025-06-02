@@ -510,7 +510,7 @@ static void keccakx2_absorb(v128 s[25], unsigned int r, const uint8_t *in0,
  * queeze step of Keccak. Squeezes full blocks of r bytes each. Modifies the
  * state. Can be called multiple times to keep squeezing, i.e., is incremental.
  *
- * @param [out] out pointer to output blocks
+ * @param [out] out0 pointer to output blocks
  * @param [in] nblocks number of blocks to be squeezed (written to h)
  * @param [in] r rate in bytes (e.g., 168 for SHAKE128)
  * @param [in] s pointer to input/output Keccak state
@@ -582,9 +582,9 @@ void shake128x2_armv8_absorb(keccakx2_state *state, const uint8_t *in0,
  * each. Modifies the state. Can be called multiple times to keep squeezing,
  * i.e., is incremental.
  *
- * @param [out] out pointer to output blocks
+ * @param [out] out0 pointer to output blocks
  * @param [in] nblocks number of blocks to be squeezed (written to output)
- * @param [in] s pointer to input/output Keccak state
+ * @param [in] state pointer to input/output Keccak state
  */
 void shake128x2_armv8_squeezeblocks(uint8_t *out0, uint8_t *out1,
 				    size_t nblocks, keccakx2_state *state)
@@ -616,9 +616,9 @@ void shake256x2_armv8_absorb(keccakx2_state *state, const uint8_t *in0,
  * each. Modifies the state. Can be called multiple times to keep squeezing,
  * i.e., is incremental.
  *
- * @param [out] out pointer to output blocks
+ * @param [out] out0 pointer to output blocks
  * @param [in] nblocks number of blocks to be squeezed (written to output)
- * @param [in] s pointer to input/output Keccak state
+ * @param [in] state pointer to input/output Keccak state
  */
 void shake256x2_armv8_squeezeblocks(uint8_t *out0, uint8_t *out1,
 				    size_t nblocks, keccakx2_state *state)
