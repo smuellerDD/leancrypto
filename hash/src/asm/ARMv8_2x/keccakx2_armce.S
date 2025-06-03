@@ -47,14 +47,6 @@ SOFTWARE.
 
 #include "assembler_support.h"
 
-#ifndef __APPLE__
-#define __APPLE__ 0
-#endif
-#ifndef __ARM_FEATURE_SHA3
-#define __ARM_FEATURE_SHA3 0
-#endif
-#if (__APPLE__ && __ARM_FEATURE_CRYPTO) || (__ARM_FEATURE_SHA3)
-
 .macro round
     // Execute theta, but without xoring into the state yet.
     // Compute parities p[i] = a[i] ^ a[5+i] ^ ... ^ a[20+i].
@@ -193,7 +185,5 @@ loop:
     RET lr
 
 SYM_FUNC_END(keccak_f1600x2_armce)
-
-#endif
 
 LC_ASM_END
