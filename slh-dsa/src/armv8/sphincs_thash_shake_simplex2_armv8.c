@@ -26,6 +26,7 @@
 
 #include "bitshift.h"
 #include "cpufeatures.h"
+#include "ext_headers_arm.h"
 #include "lc_memset_secure.h"
 #include "shake_2x_armv8.h"
 #include "sphincs_type.h"
@@ -82,15 +83,13 @@ void thashx2_12(unsigned char *out0, unsigned char *out1,
 	s.state[2 * ((LC_SPX_N / 8) * (1 + inblocks) + 4)] ^= 0x1f;
 	s.state[2 * ((LC_SPX_N / 8) * (1 + inblocks) + 4) + 1] ^= 0x1f;
 
-	// Enable when GCC learned mnemonics
-#ifndef LINUX_KERNEL
-	if (feat & LC_CPU_FEATURE_ARM_SHA3)
+	if (feat & LC_CPU_FEATURE_ARM_SHA3) {
+		LC_NEON_ENABLE;
 		f1600x2(s.state);
-	else
-#else
-	(void)feat;
-#endif
+		LC_NEON_DISABLE;
+	} else {
 		KeccakF1600_StatePermutex2(s.state128);
+	}
 
 	for (i = 0; i < LC_SPX_N / 8; i++) {
 		le64_to_ptr(out0 + 8 * i, s.state[2 * i]);

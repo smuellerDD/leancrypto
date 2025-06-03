@@ -54,6 +54,7 @@
  */
 
 #include "cpufeatures.h"
+#include "ext_headers_arm.h"
 #include "shake_2x_armv8.h"
 #include "visibility.h"
 
@@ -567,7 +568,9 @@ static void keccakx2_squeezeblocks(uint8_t *out0, uint8_t *out1, size_t nblocks,
 void shake128x2_armv8_absorb(keccakx2_state *state, const uint8_t *in0,
 			     const uint8_t *in1, size_t inlen)
 {
+	LC_NEON_ENABLE;
 	keccakx2_absorb(state->s, SHAKE128_RATE, in0, in1, inlen, 0x1F);
+	LC_NEON_DISABLE;
 }
 
 /**
@@ -584,7 +587,9 @@ void shake128x2_armv8_absorb(keccakx2_state *state, const uint8_t *in0,
 void shake128x2_armv8_squeezeblocks(uint8_t *out0, uint8_t *out1,
 				    size_t nblocks, keccakx2_state *state)
 {
+	LC_NEON_ENABLE;
 	keccakx2_squeezeblocks(out0, out1, nblocks, SHAKE128_RATE, state->s);
+	LC_NEON_DISABLE;
 }
 
 /**
@@ -601,7 +606,9 @@ void shake128x2_armv8_squeezeblocks(uint8_t *out0, uint8_t *out1,
 void shake256x2_armv8_absorb(keccakx2_state *state, const uint8_t *in0,
 			     const uint8_t *in1, size_t inlen)
 {
+	LC_NEON_ENABLE;
 	keccakx2_absorb(state->s, SHAKE256_RATE, in0, in1, inlen, 0x1F);
+	LC_NEON_DISABLE;
 }
 
 /**
@@ -618,7 +625,9 @@ void shake256x2_armv8_absorb(keccakx2_state *state, const uint8_t *in0,
 void shake256x2_armv8_squeezeblocks(uint8_t *out0, uint8_t *out1,
 				    size_t nblocks, keccakx2_state *state)
 {
+	LC_NEON_ENABLE;
 	keccakx2_squeezeblocks(out0, out1, nblocks, SHAKE256_RATE, state->s);
+	LC_NEON_DISABLE;
 }
 
 /**

@@ -26,6 +26,7 @@
 
 #include "bitshift.h"
 #include "cpufeatures.h"
+#include "ext_headers_arm.h"
 #include "shake_2x_armv8.h"
 #include "sphincs_type.h"
 #include "sphincs_address.h"
@@ -83,15 +84,13 @@ void prf_addrx2(unsigned char *out0, unsigned char *out1, const spx_ctx *ctx,
 	s.state[2 * 16] = 0x80ULL << 56;
 	s.state[2 * 16 + 1] = 0x80ULL << 56;
 
-// Enable when GCC learned mnemonics
-#ifndef LINUX_KERNEL
-	if (feat & LC_CPU_FEATURE_ARM_SHA3)
+	if (feat & LC_CPU_FEATURE_ARM_SHA3) {
+		LC_NEON_ENABLE;
 		f1600x2(s.state);
-	else
-#else
-	(void)feat;
-#endif
-	KeccakF1600_StatePermutex2(s.state128);
+		LC_NEON_DISABLE;
+	} else {
+		KeccakF1600_StatePermutex2(s.state128);
+	}
 
 	for (int i = 0; i < LC_SPX_N / 8; i++) {
 		le64_to_ptr(out0 + 8 * i, s.state[2 * i]);
