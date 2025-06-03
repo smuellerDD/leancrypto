@@ -97,11 +97,15 @@ void thashx2_12(unsigned char *out0, unsigned char *out1,
 	* the final output, as its input is almost identical. */
 	memcpy(state2, state, 400);
 
-	if (feat & LC_CPU_FEATURE_ARM_SHA3) {
+	// Enable when GCC learned mnemonics
+#ifndef LINUX_KERNEL
+	if (feat & LC_CPU_FEATURE_ARM_SHA3)
 		f1600x2(s.state);
-	} else {
+	else
+#else
+	(void)feat;
+#endif
 		KeccakF1600_StatePermutex2(s.state128);
-	}
 
 	/* By copying from state, state2 already contains the pub_seed
 	* and address.  We just need to copy in the input blocks xorred with
@@ -123,11 +127,15 @@ void thashx2_12(unsigned char *out0, unsigned char *out1,
 	state2[2 * ((LC_SPX_N / 8) * (1 + inblocks) + 4)] ^= 0x1f;
 	state2[2 * ((LC_SPX_N / 8) * (1 + inblocks) + 4) + 1] ^= 0x1f;
 
-	if (feat & LC_CPU_FEATURE_ARM_SHA3) {
+// Enable when GCC learned mnemonics
+#ifndef LINUX_KERNEL
+	if (feat & LC_CPU_FEATURE_ARM_SHA3)
 		f1600x2(s.state);
-	} else {
+	else
+#else
+	(void)feat;
+#endif
 		KeccakF1600_StatePermutex2(s.state128);
-	}
 
 	for (int i = 0; i < LC_SPX_N / 8; i++) {
 		store64(out0 + 8 * i, state2[2 * i]);

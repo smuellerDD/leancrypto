@@ -95,6 +95,12 @@ leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
 				+= ../hash/src/sha3_arm_asm.o		       \
 				   ../hash/src/sha3_arm_ce.o		       \
 				   ../hash/src/asm/ARMv8A/KeccakP-1600-armv8a-ce.o
+
+# Enable when compiler learned mnemonics
+#leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
+#				+= ../hash/src/asm/ARMv8_2x/keccakx2_armce.o
+#AFLAGS_../hash/src/asm/ARMv8_2x/keccakx2_armce.o += -march=armv8-a+simd+sha3
+
 else
 leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
 				+= ../hash/src/sha3_arm_asm_null.o	       \

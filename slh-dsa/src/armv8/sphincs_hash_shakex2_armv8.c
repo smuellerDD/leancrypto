@@ -25,6 +25,7 @@
  */
 
 #include "bitshift.h"
+#include "cpufeatures.h"
 #include "shake_2x_armv8.h"
 #include "sphincs_type.h"
 #include "sphincs_address.h"
@@ -45,6 +46,8 @@
 void prf_addrx2(unsigned char *out0, unsigned char *out1, const spx_ctx *ctx,
 		const uint32_t addrx2[2 * 8])
 {
+	enum lc_cpu_features feat = lc_cpu_feature_available();
+
 	/*
 	 * As we write and read only a few quadwords, it is more efficient to
 	 * build and extract from the fourway SHAKE256 state by hand.
@@ -80,8 +83,15 @@ void prf_addrx2(unsigned char *out0, unsigned char *out1, const spx_ctx *ctx,
 	s.state[2 * 16] = 0x80ULL << 56;
 	s.state[2 * 16 + 1] = 0x80ULL << 56;
 
+// Enable when GCC learned mnemonics
+#ifndef LINUX_KERNEL
+	if (feat & LC_CPU_FEATURE_ARM_SHA3)
+		f1600x2(s.state);
+	else
+#else
+	(void)feat;
+#endif
 	KeccakF1600_StatePermutex2(s.state128);
-	//f1600x2(s.state);
 
 	for (int i = 0; i < LC_SPX_N / 8; i++) {
 		le64_to_ptr(out0 + 8 * i, s.state[2 * i]);
