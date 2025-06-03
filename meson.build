@@ -11,7 +11,7 @@
 # Patchlevel Version: API / ABI compatible, no functional changes, no
 #		      enhancements, bug fixes only.
 project('leancrypto', 'c',
-	version: '1.4.0',
+	version: '1.4.1',
 	default_options: [
 		'warning_level=3',
 		'optimization=3',
@@ -609,6 +609,11 @@ if (not get_option('disable-asm'))
 
 		cc_armv8_neon_simd_args = [
 			'-march=armv8-a+simd',
+			'-Wno-unused-result',
+		]
+
+		cc_armv8_neon_sha3_args = [
+			'-march=armv8-a+simd+sha3',
 			'-Wno-unused-result',
 		]
 
