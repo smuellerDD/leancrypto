@@ -208,7 +208,7 @@ if get_option('sha3').enabled()
 		leancrypto_keccak_armv8_2x_ce_lib = static_library(
 			'leancrypto_keccak_armv8_2x_ce_lib',
 			[ 'asm/ARMv8_2x/keccakx2_armce.S' ],
-			c_args: cc_armv8_neon_simd_args,
+			c_args: cc_armv8_neon_sha3_args,
 			include_directories: [ include_dirs,
 					       include_internal_dirs ],
 		)

@@ -1,3 +1,6 @@
+Changes 1.4.1-prerelease
+* Enable SHA3 CE 2x implementation for SLH-DSA and ML-DSA (performance increases 2 to 3 fold) - NOTE: GCC <= 13.x does not yet know the mnemonics of SIMD instructions, use newer GCC or Clang.
+
 Changes 1.4.0
 * ML-DSA: add signature generation rejection test cases and enable them during self tests
 

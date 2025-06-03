@@ -24,6 +24,7 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
+#include "cpufeatures.h"
 #include "lc_memset_secure.h"
 #include "shake_2x_armv8.h"
 #include "sphincs_type.h"
@@ -62,6 +63,7 @@ void thashx2_12(unsigned char *out0, unsigned char *out1,
 		unsigned int inblocks, const spx_ctx *ctx,
 		uint32_t addrx2[2 * 8])
 {
+	enum lc_cpu_features feat = lc_cpu_feature_available();
 	unsigned int i;
 
 	/* As we write and read only a few quadwords, it is more efficient to
@@ -95,7 +97,11 @@ void thashx2_12(unsigned char *out0, unsigned char *out1,
 	* the final output, as its input is almost identical. */
 	memcpy(state2, state, 400);
 
-	f1600x2(state);
+	if (feat & LC_CPU_FEATURE_ARM_SHA3) {
+		f1600x2(s.state);
+	} else {
+		KeccakF1600_StatePermutex2(s.state128);
+	}
 
 	/* By copying from state, state2 already contains the pub_seed
 	* and address.  We just need to copy in the input blocks xorred with
@@ -117,7 +123,11 @@ void thashx2_12(unsigned char *out0, unsigned char *out1,
 	state2[2 * ((LC_SPX_N / 8) * (1 + inblocks) + 4)] ^= 0x1f;
 	state2[2 * ((LC_SPX_N / 8) * (1 + inblocks) + 4) + 1] ^= 0x1f;
 
-	f1600x2(state2);
+	if (feat & LC_CPU_FEATURE_ARM_SHA3) {
+		f1600x2(s.state);
+	} else {
+		KeccakF1600_StatePermutex2(s.state128);
+	}
 
 	for (int i = 0; i < LC_SPX_N / 8; i++) {
 		store64(out0 + 8 * i, state2[2 * i]);
