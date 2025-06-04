@@ -1,6 +1,8 @@
 Changes 1.4.1-prerelease
 * Enable SHA3 CE 2x implementation for SLH-DSA and ML-DSA (performance increases 2 to 3 fold)
 
+* Fix lookup of RDRAND support in CPUID
+
 Changes 1.4.0
 * ML-DSA: add signature generation rejection test cases and enable them during self tests
 

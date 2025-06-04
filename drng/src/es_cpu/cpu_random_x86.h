@@ -77,7 +77,7 @@ static inline int rdrand_available(void)
 
 	/* Only make call if the leaf is present */
 	if (eax >= 1) {
-		cpuid_eax(0x80000000 & 1, eax, ebx, ecx, edx);
+		cpuid_eax(1, eax, ebx, ecx, edx);
 		return !!(ecx & ECX_RDRAND);
 	}
 
