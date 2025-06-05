@@ -425,94 +425,24 @@ ACVP certificates covering all ciphers and their implementations testable by NIS
 
 The testing covered the following platforms:
 
-- x86_64 systems: Intel Tiger Lake i7, Intel Alder Lake i7, Intel Meteor Lake Ultra 7, AMD Ryzen 9 5950X
+- x86_64 systems: Intel Tiger Lake i7, Intel Alder Lake i7, Intel Meteor Lake Ultra 7
 
-- RISC-V system: SiFive Unmatched board with U74 SiFive Freedom U740 SoC
+- RISC-V system: Spacemit X60 K1
 
 - ARMv7: NXP Cortex-A7 i.MX6ULZ
 
-- ARMv8: Apple M2, Broadcom BCM2711, Broadcom BCM2712
+- ARMv8: Apple M4 Max, Broadcom BCM2711, Broadcom BCM2712
 
 The test harness is available at https://github.com/smuellerDD/acvpparser
 covering all algorithm implementations of algorithms that are testable.
 
-## Version 0.6.0
+The testing covers user space as well as Linux kernel space.
 
-- [A3770 non-accelerated C cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=36380)
+Only the current CAVP certificates are listed below. Older CAVP certificates are listed at the [CAVP leancrypto website](https://leancrypto.org/leancrypto/cavp_certificates/index.html).
 
-- [A3771 AVX2 accelerated cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=36381)
+## Version 1.4.0
 
-- [A3772 4-way SIMD accelerated cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=36382)
-
-- [A3773 AVX512 accelerated cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=36383)
-
-- [A3774 AES-NI accelerated cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=36384)
-
-- [A3775 RISC-V assembler cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=36385)
-
-- [A3776 ARMv8 assembler cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=36386)
-
-- [A3777 ARMv8 Crypto Extensions cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=36387)
-
-- [A3778 ARMv7 NEON cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=36388)
-
-## Version 0.7.0
-
-- [A4405 non-accelerated C cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37015)
-
-- [A4409 AVX2 accelerated cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37019)
-
-- [A4410 4-way SIMD accelerated cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37020)
-
-- [A4413 AVX512 accelerated cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37023)
-
-- [A4411 AES-NI accelerated cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37021)
-
-- [A4408 RISC-V assembler cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37018)
-
-- [A4407 ARMv8 assembler cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37017)
-
-- [A4412 ARMv8 Crypto Extensions cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37022)
-
-- [A4406 ARMv7 NEON cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37016)
-
-## Version 0.8.0
-
-- [A4850 non-accelerated C cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37460)
-
-- [A4866 AVX2 accelerated cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37476)
-
-- [A4867 Intel 4-way SIMD accelerated cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37477)
-
-- [A4864 AVX512 accelerated cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37474)
-
-- [A4865 AES-NI accelerated cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37475)
-
-- [A4851 RISC-V assembler cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37461)
-
-- [A4852 ARMv8 assembler cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37462)
-
-- [A4853 ARMv8 Crypto Extensions cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37463)
-
-- [A4854 ARMv8 2-way SIMD accelerated cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37464)
-
-- [A4860 ARMv7 NEON cipher implementations](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/details?validation=37470)
-
-## Version 1.0.0
-
-[CAVP Certificates](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/validation-search?searchMode=implementation&product=leancrypto&productType=-1&dateFrom=08%2F13%2F2024&ipp=25)
-
-## Version 1.0.1
-
-[CAVP certificates](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/validation-search?searchMode=implementation&product=leancrypto&productType=-1&dateFrom=08%2F15%2F2024&dateTo=08%2F17%2F2024&ipp=25)
-
-## Version 1.1.0
-
-[CAVP Certificates](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/validation-search?searchMode=implementation&product=leancrypto&productType=-1&dateFrom=10%2F15%2F2024&dateTo=10%2F24%2F2024&ipp=25)
-
-## Version 1.2.0
-
-[CAVP Certificates](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/validation-search?searchMode=implementation&product=leancrypto&productType=-1&dateFrom=02%2F06%2F2025&dateTo=02%2F08%2F2025&ipp=25)
+[CAVP Certificates](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/validation-search?searchMode=implementation&product=leancrypto&productType=-1&dateFrom=06%2F04%2F2025&dateTo=06%2F08%2F2025&ipp=25)
 
 # Author
 
