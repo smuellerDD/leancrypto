@@ -1144,7 +1144,17 @@ int x509_set_gen_time_enc(void *context, uint8_t *data, size_t *avail_datalen,
 
 	/*
 	 * NOTE: The caller is assumed to have set the time in UTC time.
+	 *
+	 * WARNING On 32 bit systems without support for 64-bit time, this will
+	 * wrap and set the wrong time as time_t is 32 bit on those systems.
+	 *
+	 * In this case, be safe than sorry and return an error.
 	 */
+#ifndef __LP64__
+	if (sizeof(time_t) != 8)
+		return -EOVERFLOW;
+#endif
+
 	time_detail = gmtime((time_t *)&ctx->time_to_set);
 	snprintf(datestr, sizeof(datestr), "%.4d%.2d%.2d%.2d%.2d%.2dZ",
 		 time_detail->tm_year + 1900, time_detail->tm_mon + 1,

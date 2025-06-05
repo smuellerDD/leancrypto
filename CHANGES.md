@@ -3,6 +3,8 @@ Changes 1.4.1-prerelease
 
 * Fix lookup of RDRAND support in CPUID
 
+* Catch Y2038 issue on 32-bit systems that do not have 64 bit time_t support
+
 Changes 1.4.0
 * ML-DSA: add signature generation rejection test cases and enable them during self tests
 
