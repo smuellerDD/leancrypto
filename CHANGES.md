@@ -5,6 +5,8 @@ Changes 1.4.1-prerelease
 
 * Catch Y2038 issue on 32-bit systems that do not have 64 bit time_t support
 
+* Start Python interface
+
 Changes 1.4.0
 * ML-DSA: add signature generation rejection test cases and enable them during self tests
 
