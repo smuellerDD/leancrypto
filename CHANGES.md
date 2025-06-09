@@ -7,6 +7,8 @@ Changes 1.4.1-prerelease
 
 * Start Python interface
 
+* Add ED448 / X448 for use in hybrid PQC constructions
+
 Changes 1.4.0
 * ML-DSA: add signature generation rejection test cases and enable them during self tests
 

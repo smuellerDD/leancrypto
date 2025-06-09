@@ -12,7 +12,7 @@ name = "leancrypto"
 name = "leancrypto"
 author = "Stephan Mueller"
 
-# Configure the building of the fib bindings.
+# Configure the building of the leancrypto bindings.
 [tool.sip.bindings.leancrypto]
 headers = ["leancrypto.h"]
 #include-dirs = ["/usr/local/include"]

@@ -95,8 +95,11 @@ enabling this option, Dilithium-44 is also made available which has the same API
 but instead of the prefix lc_dilithium, all APIs use lc_dilithium_44. This
 algorithm has 128 bits of security strength.
 ''')
+
 option('dilithium_ed25519', type: 'feature', value: 'enabled',
-       description: 'Dilithium-ED25519 KEM')
+       description: 'Dilithium-ED25519 Hybrid Signature')
+option('dilithium_ed448', type: 'feature', value: 'enabled',
+       description: 'Dilithium-ED448 Hybrid Signature')
 
 option('kyber_1024', type: 'feature', value: 'enabled',
        description: '''Kyber-1024 Support
@@ -121,6 +124,8 @@ algorithm has 128 bits of security strength.
 ''')
 option('kyber_x25519', type: 'feature', value: 'enabled',
        description: 'Kyber-X25519 KEM')
+option('kyber_x448', type: 'feature', value: 'enabled',
+       description: 'Kyber-X448 KEM')
 
 option('bike_5', type: 'feature', value: 'enabled',
        description: '''BIKE Category 5 Support

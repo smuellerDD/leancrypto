@@ -1,0 +1,498 @@
+From: <Saved by Blink>
+Snapshot-Content-Location: https://ed448goldilocks.sourceforge.net/spec/
+Subject: SourceForge.net: Ed448-Goldilocks: Specification
+Date: Wed, 4 Jun 2025 10:19:03 +0200
+MIME-Version: 1.0
+Content-Type: multipart/related;
+	type="text/html";
+	boundary="----MultipartBoundary--BYd8UiUSANyqeURwLomPGBBDavdiM6moaZVkTdyOgb----"
+
+
+------MultipartBoundary--BYd8UiUSANyqeURwLomPGBBDavdiM6moaZVkTdyOgb----
+Content-Type: text/html
+Content-ID: <frame-02372853199D3AFFD38672DF19F67537@mhtml.blink>
+Content-Transfer-Encoding: quoted-printable
+Content-Location: https://ed448goldilocks.sourceforge.net/spec/
+
+<html><head><meta http-equiv=3D"Content-Type" content=3D"text/html; charset=
+=3Dwindows-1252"><link rel=3D"stylesheet" type=3D"text/css" href=3D"cid:css=
+-26d2c30b-eae2-4903-bca8-15c4d0f390c4@mhtml.blink" />
+    <title>SourceForge.net: Ed448-Goldilocks: Specification</title>
+    <link rel=3D"stylesheet" type=3D"text/css" href=3D"https://ed448goldilo=
+cks.sourceforge.net/style.css">
+</head>
+<body>
+
+<h1><a href=3D"https://ed448goldilocks.sourceforge.net/">Ed448-Goldilocks</=
+a></h1>
+<h2>Fast, strong elliptic curve cryptography</h2>
+<div id=3D"nav">
+    <a href=3D"https://ed448goldilocks.sourceforge.net/">home</a>
+    <a href=3D"https://ed448goldilocks.sourceforge.net/get/">get</a>
+    <a href=3D"https://ed448goldilocks.sourceforge.net/spec/">spec</a>
+    <a href=3D"https://ed448goldilocks.sourceforge.net/thanks/">thanks</a>
+    <a href=3D"https://ed448goldilocks.sourceforge.net/legal/">legal</a>
+</div>
+
+<p>
+    This page aims to be a semi-formal specification of the Ed448-Goldilock=
+s curve and
+    its implementation.
+    Ed448-Goldilocks' specification consists of three components:
+    </p><ul>
+    <li>An elliptic curve group.</li>
+    <li>A wire format for numbers and points</li>
+    <li>A specification for signatures and elliptic-curve Diffie-Hellman.</=
+li>
+    </ul>
+<p></p>
+
+<h3>Notation</h3>
+
+<p>
+    Each number or variable in this specification is an element of a partic=
+ular ring or field.
+    Arithmetic operations are the operations in the appropriate field.
+</p>
+
+<p>
+    Let <b>Z</b> denote the ring of integers, and <b>Z</b>/<i>p</i><b>Z</b>=
+ denote the field of
+    integers modulo the prime number <i>p</i>.
+</p>
+
+<p>
+    For a group <b>G</b> and integer <i>n</i>, let <i>n</i><b>G</b> denote =
+the subgroup of
+    elements which are <i>n</i> times an element of <b>G</b>.
+</p>
+
+<p>
+    The symbol &#8730;<i>x</i> will only be applied to <i>x</i> which are e=
+lements of a field
+    <b>Z</b>/<i>p</i><b>Z</b>, where p &#8801; 3 mod 4.  It always means th=
+e principal square
+    root of <i>x</i>, namely <i>x</i><sup>(<i>p</i>+1)/4</sup>.  This princ=
+ipal square root
+    is always square (i.e. a quadratic residue).  It will be used only with=
+ a defense of why
+    <i>x</i> must be square, or what to do if it is not.
+</p>
+
+<p>
+   For an element <i>x</i> of <b>Z</b>/<i>p</i><b>Z</b>,
+   let L(<i>x</i>) denote the Legendre symbol of <i>x</i>, which is 0 if <i=
+>x</i> =3D 0,
+   1 if <i>x</i> is a nonzero square, and -1 otherwise.  This can be comput=
+ed as
+   </p><center>L(<i>x</i>) =3D <i>x</i><sup><i>(p-1)/2</i></sup></center>
+<p></p>
+
+<p>
+    Likewise, use of the field division operator / will be justified with a=
+n explanation of
+    why the divisor cannot be zero, or what to do if it is.
+</p>
+
+<p>The symbol || denotes concatenation of byte sequences.</p>
+
+<p> Let HASH(x) denote a hash function suitable for use as a random oracle.=
+  For example,
+    HASH() may be implemented as SHA512.
+    Let PRF(k,v) denote a pseudorandom function which takes as input a pseu=
+dorandom key and
+    an arbitrary-length value, and outputs 512 bits.
+    For example, PRF may be implemented as HMAC-SHA512.
+</p>
+
+<h3>The curve</h3>
+
+<p>The elliptic curve Ed448-Goldilocks is the set of pairs
+    </p><center>E : (<i>x</i>,<i>y</i>) &#8712; (<b>Z</b>/<i>p</i><b>Z</b>)=
+<sup>2</sup></center>
+    where
+    <center><i>p</i> :=3D 2<sup>448</sup> - 2<sup>224</sup> - 1</center>
+    satisfying
+    <center><i>y</i><sup>2</sup> + <i>x</i><sup>2</sup>
+        &#8801; 1 - 39081  <i>x</i><sup>2</sup> <i>y</i><sup>2</sup>
+    </center>
+<p></p>
+
+<p>
+    It supports a group operation
+    </p><center style=3D"">
+        <span style=3D"position: relative; top: -0.5em;">
+        (<i>x</i><sub>1</sub>,<i>y</i><sub>1</sub>)
+        + (<i>x</i><sub>1</sub>,<i>y</i><sub>1</sub>)
+        :=3D
+        </span>
+        <span class=3D"big">(</span>
+        <span class=3D"frac">
+            <span class=3D"frach">(</span>
+            <span class=3D"num">
+            <i>x</i><sub>1</sub><i>y</i><sub>2</sub> + <i>y</i><sub>1</sub>=
+<i>x</i><sub>2</sub>
+            </span>
+            <span class=3D"frach">) / (</span>
+            <span class=3D"denom">
+                1 - 39081 <i>x</i><sub>1</sub><i>x</i><sub>2</sub><i>y</i><=
+sub>1</sub><i>y</i><sub>2</sub>
+            </span>
+            <span class=3D"frach">)</span>
+        </span>,
+        <span class=3D"frac">
+            <span class=3D"frach">(</span>
+            <span class=3D"num">
+            <i>y</i><sub>1</sub><i>y</i><sub>2</sub> - <i>x</i><sub>1</sub>=
+<i>x</i><sub>2</sub>
+            </span>
+            <span class=3D"frach">) / (</span>
+            <span class=3D"denom">
+                1 + 39081 <i>x</i><sub>1</sub><i>x</i><sub>2</sub><i>y</i><=
+sub>1</sub><i>y</i><sub>2</sub>
+            </span>
+            <span class=3D"frach">)</span>
+        </span>
+        <span class=3D"big">)</span>
+    </center>
+    Because <i>d</i> =3D -39081 is not square, this is a complete addition =
+law.  In particular,
+    the denominators will never be zero.  Practical implementations will us=
+e some sort of projective
+    coordinates.  Because the curve supports a complete addition formula, t=
+hese formulas can be
+    arranged to never produce either 1/0 or 0/0.
+<p></p>
+<p>
+    The identity point for the group operation is (0,1).
+</p>
+<p>
+    The order of the curve E is 4<i>q</i>, where
+    </p><center>
+        <span style=3D"position: relative; top: -1.3em;">
+            <i>q</i> :=3D
+        </span>=20
+        <span style=3D"display: inline-block;">
+            <span style=3D"display:block">
+                181709681073901722637330951972001133588410340 \
+            </span>
+            <span style=3D"display:block">
+            171829515070372549795146003961539585716195755 \
+            </span>
+            <span style=3D"display:block">
+            291692375963310293709091662304773755859649779&nbsp;&nbsp;
+            </span>
+        </span>
+    </center>
+    is prime.
+<p></p>
+<p>
+    The base point <i>g</i> is the point in 4E with the least
+    <i>y</i>-coordinate, namely:
+
+    </p><center>
+        <span style=3D"position: relative; top: -1.3em;">
+            <i>g</i> :=3D
+        </span>=20
+
+        <span class=3D"big" style=3D"position: relative; top: -0.3em;">(</s=
+pan>
+        <span style=3D"display: inline-block;">
+            <span style=3D"display:block">
+                117812161263436946737282484343310064665180535 \
+            </span>
+            <span style=3D"display:block">
+                357016373416879082147939404277809514858788439 \
+            </span>
+            <span style=3D"display:block">
+                644911793978499419995990477371552926308078495&nbsp;&nbsp;
+            </span>
+        </span>
+        <span style=3D"position: relative; top: -1.3em;">
+            , 19
+        </span>
+        <span class=3D"big" style=3D"position: relative; top: -0.3em;">)</s=
+pan>
+    </center>
+   =20
+    I minimized the <i>y</i>-coordinate and not the <i>x</i>-coordinate bec=
+ause it is
+    the more significant coordinate on an Edwards curve.  For any point P &=
+#8712; E,
+    the <i>y</i>-coordinates of P and -P are the same.
+<p></p>
+<p>
+    Most ECC protocols use only the prime-order subgroup of the curve.  Tha=
+t is,
+    legitimate users should only compute elements of the <i>q</i>-order gro=
+up 4E.
+    However, it is computationally expensive to restrict inputs to this sub=
+group.
+    But as we will see, it is cheap to restrict them to 2E.  Therefore, all=
+ Goldilocks
+    input and output formats are restricted to elements of 2E, and internal=
+ routines
+    will generally only have to handle elements of 2E.  (Aside: this is als=
+o useful for
+    implementors who will use the isogenous twisted Edwards curve, because =
+the addition
+    formulas on that curve are complete for 2E, but not for all of E.)
+</p>
+<p>
+    Additional descriptions will be given to various sections for how to ke=
+ep points
+    within these subgroups.
+</p>
+
+<h3>Integer wire format</h3>
+
+<p>
+    An element <i>x</i> of the field=20
+    <b>Z</b>/<i>p</i><b>Z</b>
+    is to be serialized as the least positive representative in little-endi=
+an form,
+    that is, as a sequence of bytes SER<sub><i>p</i></sub>(<i>x</i>) :=3D [=
+b<sub><i>i</i></sub>],
+    </p><center>
+        for <i>i</i> from 0 to ceiling(log <i>p</i> / log 256) - 1
+    </center>
+    where
+    <center>
+        <i>x</i> =3D <span style=3D"font-size: 1.2em; font-family: 'compute=
+r modern';">&#8721;</span>
+             256<sup><i>i</i></sup> b<sub><i>i</i></sub>
+             &#8712; [0, <i>p</i>-1]
+    </center>
+    For any number <i>p</i>, the partial
+    function DESER<sub><i>p</i></sub>([b<sub><i>i</i></sub>]) deserializes
+    ceiling(log <i>p</i> / log 256) bytes [b<sub><i>i</i></sub>]
+    to produce <i>x</i> according to the above formula.  It must signal an =
+error and return no
+    result if the bytes encode a number greater or equal to <i>p</i>.
+<p></p>
+<p>
+    For any sequence of bytes, the function DESERMOD<sub><i>p</i></sub> des=
+erializes them to a
+    number <i>x</i> as above, and then returns <i>x</i> reduced modulo <i>p=
+</i>.
+</p>
+<p>
+    For Goldilocks' base field, and for elements modulo its group order, th=
+e size of a serialized
+    element is exactly 56 bytes.
+</p>
+
+<h3>Curve point wire format</h3>
+<p>
+    The wire format of a point is designed to be compatible with a Montgome=
+ry ladder for
+    simple and fast implementations of ECDH.  Furthermore, it is a single-c=
+oordinate format
+    in order to minimize the size of the public and private keys.
+</p>
+
+<p>
+   The wire format of a point (<i>x</i>,<i>y</i>) &#8712; 4E is
+   </p><center>
+       SERPT((<i>x</i>,<i>y</i>)) :=3D
+       SER<sub><i>p</i></sub>(
+          L(<i>x</i>) &#8901; &#8730;((<i>y</i>-1)/(<i>y</i>+1))
+   )</center>
+   The denominator cannot be zero because the only point (<i>x</i>,<i>y</i>=
+) &#8712; E
+   with <i>y</i> =3D -1 is the 2-torsion point (0,-1), and this point is no=
+t in 4E.
+   Furthermore (<i>y</i>-1)/(<i>y</i>+1) is a quadratic residue for every
+   point (<i>x</i>,<i>y</i>) &#8712; 2E except for (0,-1).  Therefore, this=
+ encoding
+   can encode any point in 2E.
+<p></p>
+
+<p>
+    To deserialize a point from binary form, let <i>t</i> :=3D DESER<sub><i=
+>p</i></sub>([b]),
+    and let
+    </p><center>
+        <i>m</i> :=3D (<i>d</i>-1) &#8901; (<i>t</i><sup>2</sup> + 1)<sup>2=
+</sup> + 4 &#8901; <i>t</i><sup>2</sup>
+    </center>
+    where <i>d</i> =3D -39081.
+    If <i>m</i> is not square, then the point
+    is invalid.  If <i>m</i> is square, then the decoded point is (<i>x</i>=
+,<i>y</i>)
+    where
+    <center><i>x</i> =3D 2<i>t</i>/&#8730;m
+        &nbsp;&nbsp;and&nbsp;&nbsp;
+        <i>y</i> =3D (1 + <i>t</i><sup>2</sup>) / (1 - <i>t</i><sup>2</sup>=
+)=20
+    </center>
+    It is algebraically impossible for <i>m</i> to be zero.  It is also not
+    possible for (1 - <i>t</i><sup>2</sup>) to be zero, because then <i>m</=
+i> would not
+    be square.
+<p></p>
+
+<h3>Public and private keys</h3>
+
+<p>
+    A Goldilocks private key consists of k||s, where:
+    </p><ul>
+    <li>k is a 32-byte random symmetric secret key.</li>
+    <li>s is a SER<sub><i>q</i></sub>(<i>s</i>), for a secret pseudorandom =
+element <i>s</i>
+            of <b>Z</b>/<i>q</i><b>Z</b>.
+        The Goldilocks reference implementation sets <i>s</i> as DESERMOD<i=
+>q</i>(PRF(k,"derivepk")),
+        but this is not required.  This derivation allows the private key t=
+o be compressed
+        to 32 bytes if desired.
+    </li>
+    </ul>
+<p></p>
+<p>
+    The corresponding public key is SERPT(<i>2sg</i>).
+    The 2 here is chosen for consistency with other operations, which will =
+need to clear
+    the cofactor 2 of 2E.
+</p>
+<p>
+    The implementation stores the public key along with the private key, be=
+cause it needs
+    to hash the public key sometimes.
+</p>
+
+<h3>Elliptic-curve Diffie-Hellman</h3>
+<p>To do</p>
+<h3>Schnorr signatures</h3>
+<p>To do</p>
+<h3>Elligator</h3>
+<p>To do?</p>
+<h3>Password-authenticated key exchange</h3>
+<p>To do?</p>
+
+
+
+</body></html>
+------MultipartBoundary--BYd8UiUSANyqeURwLomPGBBDavdiM6moaZVkTdyOgb----
+Content-Type: text/css
+Content-Transfer-Encoding: quoted-printable
+Content-Location: cid:css-26d2c30b-eae2-4903-bca8-15c4d0f390c4@mhtml.blink
+
+@charset "windows-1252";
+
+.ad-box:not(#ad-banner):not(:empty), #right_ads, .adWrap, .adshome, #ad-p3,=
+ .ad-current, .sidebar-ad:not(.adsbygoogle), .ad-text, .adcard, .adMiddle, =
+.ads-core-placer, .w-adsninja-video-player, a[href^=3D"https://ad.doublecli=
+ck.net/"], .cnx-player-wrapper, #ad-carousel, #header_ad, a[href^=3D"https:=
+//ndt5.net/"], .sidebar_advert, #adv-text, .adcenter, .ad-sidebar, ins.adsb=
+ygoogle[data-ad-slot], .vertical-ads, div[id^=3D"dfp-ad-"], [href^=3D"https=
+://noqreport.com/"] > img, .ad_bg, #ad_banner, .wps-player-wrap, .ad_bottom=
+, .boxAds, [href^=3D"https://www.mypatriotsupply.com/"] > img, .ad-bottom, =
+.c-ads, .ad-stickyhero-enable-mobile, .advert_list, #sidebar-ad, .ads1, .bl=
+ock-sponsor, [id^=3D"div-gpt-ad"], .ad-notice, .ad-enabled, .adhide, .ad-po=
+pup, .videos-ad, #ad-wrapper, .ad_box, .article-advert, #adbox, .header-ad-=
+row, .ad-zone, .home-ad, #banner-sterling, .body-top-ads, .ads_box, .adChoi=
+cesLogo, #headerAd, .sponsored-article, .ad-wrap:not(#google_ads_iframe_che=
+cktag), .sponsoredItem, [href^=3D"https://mypatriotsupply.com/"] > img, .ad=
+-stickyhero, #leftad, .region-ad-top, #prerollAd, #adtop, .content_ads, a[h=
+ref^=3D"https://www.sheetmusicplus.com/"][href*=3D"?aff_id=3D"], .advertise=
+r, .adActive, #adbar, [href^=3D"https://www.herbanomic.com/"] > img, .fixed=
+_ad, .custom-ad, .advert-container, .container-ads, .ad_btn, div[id^=3D"ezo=
+ic-pub-ad-"], .textad, .reklama, .ads-banner, .has-fixed-bottom-ad, .ads-mo=
+bile, .ad_item, #ad_2, .adwidget, [href^=3D"https://mystore.com/"] > img, .=
+ad_body, [href^=3D"http://mypillow.com/"] > img, .ad-center, .ads_wrapper, =
+[href^=3D"https://zstacklife.com/"] img, .module_ad, div[data-ad-targeting]=
+, .adv-banner, .advads-widget, .small_ad, .adsBlock, .ad-click, div[aria-la=
+bel=3D"Ads"], .adsninja-ad-zone, .product-ads, .is-sponsored, .after-post-a=
+d, .ads-title, .top-ad, .top-ads, .ad-outside, .ad_caption, .ad_spot, .adsl=
+ot, .ProductAd, .ad-section, .adwords, a[href^=3D"https://natour.naughtyame=
+rica.com/track/"], .ac-widget-placeholder, .ad_banner, .adImg, .ad-list-ite=
+m, #ads-menu, .ad-cover, #related_ads, .advertorial, .ad-stickyhero--standa=
+rd, .block-ad, .article_ad, .footer_ads, #ad_4, [href^=3D"https://www.mypil=
+low.com/"] > img, .ads_right, .ad-label, [data-adblockkey], .mntl-leaderboa=
+rd-spacer, .ads.widget, .ad-padding, .has-ad, .ad_global_header, .ad-button=
+, .ad_top, #outbrain_widget_0, .adsense_wrapper, .smallads, .m1-header-ad, =
+.gallery-ad, .adText, [href^=3D"https://mypillow.com/"] > img, .logo-ad, .g=
+reyAd, .ads-left, .ad_container, .ads-image, .ad-point, .adrect, a[data-lab=
+el=3D"avastjune"], #ads-left, #footer-ads, .ad-title, .bottom_ad, .display_=
+ad, .nav_ad, .column-ad, .adlink, [href^=3D"http://www.mypillow.com/"] > im=
+g, .adverttext, #adsensewide, .ad_title, .p-ad, .adLink, .adHolder, #advert=
+ise, [href^=3D"https://www.restoro.com/"], #ad_3, #ads-header, #article_ad,=
+ #page_ad, #mplayer-embed, .ads-header, .adverts, #ad-rotator, .advert-deta=
+il, #topbannerad, #stickyads, div[id^=3D"ad_position_"], .postad, .sterling=
+, .ad-area:not(.text-ad), .ad_main, .adplaceholder, .ad-root, .ads-inline, =
+#adsContainer, .advertSlider, #ad_1, #ad_top, .ad_block, .ad-content, .ad_f=
+rame, .ad-source, .video-ads, #ads-wrapper, .anyClipWrapper, .adtag, .foote=
+r-ad, #ad_link, .adthrive-content, #ad-top, #rightad, .topAd, .advert_area,=
+ ins.adsbygoogle[data-ad-client], .ad-hero, .ad-zone-container, .side-ad, .=
+advBox, .promoAd, .inline-ad, .publicidade, .ad-icon, .header_ad, .advertis=
+ement-block, .bottom_ad_block, .advert2, .top-banner-ad, .adsleft, #adconta=
+iner, .adsList, .ad-links, .adthrive-video-player, #topAd, .ad_middle, .ads=
+Text, .ad728x90, .adtable, .ad336, .page_ad, #centerads, .small-ads, .adtit=
+le, .adbutton, .nativead, .ads-row, .adscontainer, .large-advert, #side-ad,=
+ .sponsor_post, .adv-box, .middlead, .sidebar-ads, .product-ad, .ads_ad_box=
+, #banner-ad, .head_ad, #google-ads, #taboola-below-article-1, .adban, .top=
+ads, .mainAd, #adcontainer1, .ads-loaded, .ad-widget, .ad-160-600, .adsbott=
+ombox, [data-ad-name], .ad_div, .box_ads, .ad_left, .Adsense, .adResult, .a=
+dhesion:not(body), .adrow, .banner-ad-container, div[id^=3D"div-gpt-"], .co=
+ntentAds, .node-ad { display: none !important; }
+------MultipartBoundary--BYd8UiUSANyqeURwLomPGBBDavdiM6moaZVkTdyOgb----
+Content-Type: text/css
+Content-Transfer-Encoding: quoted-printable
+Content-Location: https://ed448goldilocks.sourceforge.net/style.css
+
+@charset "windows-1252";
+
+* { margin: 0px; padding: 0px; }
+
+html { background: rgb(153, 170, 221); font: 0.9em / 1.4 Verdana, Arial, sa=
+ns-serif; overflow: auto scroll; min-width: 800px; height: 100%; }
+
+h1 a:hover { text-decoration: none; }
+
+a { color: rgb(34, 51, 204); }
+
+a:visited { color: rgb(51, 68, 221); }
+
+a:hover { text-decoration: underline; }
+
+a:active { color: rgb(136, 136, 255); }
+
+a { text-decoration: none; outline: none; }
+
+body { width: 600px; padding: 0px 20px 20px; margin: 0px auto; position: re=
+lative; overflow: hidden; background: rgb(249, 249, 255); min-height: 100%;=
+ }
+
+h1 { font-size: 2.6em; font-weight: normal; padding: 6px; margin: 0px -20px=
+; background: rgb(221, 221, 255); text-align: center; }
+
+h2 { font-size: 1em; font-weight: normal; padding: 6px; margin: -10px -20px=
+ 0px; background: rgb(221, 221, 255); text-align: center; }
+
+p { margin-top: 15px; text-align: justify; }
+
+center { margin: 10px; }
+
+#nav { font-size: 0.8em; font-weight: normal; padding: 6px; margin: -6px -2=
+0px 0px; background: rgb(221, 221, 255); text-align: center; }
+
+#nav a { padding: 0em 0.3em; color: rgb(68, 68, 170); }
+
+center { vertical-align: middle; position: relative; }
+
+.big { font-size: 3em; font-weight: lighter; font-family: helvetica; }
+
+.frach { display: none; }
+
+.frac { display: inline-block; }
+
+.num { display: block; }
+
+.denom { margin-top: 0.1em; border-top: 1px solid black; display: block; }
+
+ul { padding: 0.7em 2em; }
+
+h3 { font-size: 1.2em; font-weight: normal; padding: 6px; margin: 10px -20p=
+x; background: rgb(221, 221, 255); text-align: center; }
+------MultipartBoundary--BYd8UiUSANyqeURwLomPGBBDavdiM6moaZVkTdyOgb------
