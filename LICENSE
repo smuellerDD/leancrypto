@@ -445,3 +445,35 @@ This affects the following files:
 internal/api/errno_private.h
 internal/api/errno_private_base.h
 
+================================================================================
+
+The Curve448 C-implementation is in parts from
+Copyright 2017-2020 The OpenSSL Project Authors. All Rights Reserved.
+Copyright 2015-2016 Cryptography Research, Inc.
+Modifications Copyright 2020 David Schatz
+
+Licensed under the Apache License 2.0 (the "License").  You may not use
+this file except in compliance with the License.  You can obtain a copy
+in the file LICENSE in the source distribution or at
+https://www.openssl.org/source/license.html
+
+Originally written by Mike Hamburg
+
+This affects the following files:
+
+curve448/api/lc_ed448.h
+curve448/api/lc_x448.h
+curve448/src/arch32_intrinsics.h
+curve448/src/constant_time.h
+curve448/src/curve448.c
+curve448/src/curve448_tables.c
+curve448/src/curve448utils.h
+curve448/src/ed448.c
+curve448/src/f_generic.c
+curve448/src/f_impl.c
+curve448/src/f_impl.h
+curve448/src/field.h
+curve448/src/point_448.h
+curve448/src/scalar.c
+curve448/src/word.h
+curve448/src/x448.c
