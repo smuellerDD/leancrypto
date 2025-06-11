@@ -181,11 +181,8 @@ int crypto_scalarmult_curve25519_base(uint8_t *q, const uint8_t *n)
 	unsigned char *t = q;
 	ge25519_p3 A;
 	fe25519 pk;
-	unsigned int i;
 
-	for (i = 0; i < 32; i++) {
-		t[i] = n[i];
-	}
+	memcpy(t, n, 32);
 	t[0] &= 248;
 	t[31] &= 127;
 	t[31] |= 64;

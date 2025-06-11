@@ -53,11 +53,8 @@ int crypto_scalarmult_curve25519_avx2(unsigned char *q, const unsigned char *n,
 	fe var[3];
 	fe51 x_51;
 	fe51 z_51;
-	unsigned int i;
 
-	for (i = 0; i < 32; i++) {
-		t[i] = n[i];
-	}
+	memcpy(t, n, sizeof(t));
 	t[0] &= 248;
 	t[31] &= 127;
 	t[31] |= 64;
