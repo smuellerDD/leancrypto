@@ -67,7 +67,7 @@ static void hash_init_with_dom(struct lc_hash_ctx *hash_ctx, uint8_t prehashed,
 	const uint8_t dom[2] = { (uint8_t)(2 + word_is_zero(prehashed) +
 					   word_is_zero(for_prehash)),
 				 context_len };
-	lc_hash_update(hash_ctx, (const unsigned char *)dom_s, strlen(dom_s));
+	lc_hash_update(hash_ctx, (const unsigned char *)dom_s, 8);
 	lc_hash_update(hash_ctx, dom, 2);
 	lc_hash_update(hash_ctx, context, context_len);
 }
