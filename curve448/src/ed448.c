@@ -30,6 +30,7 @@
  * Originally written by Mike Hamburg
  */
 
+#include "build_bug_on.h"
 #include "lc_ed448.h"
 #include "lc_memcmp_secure.h"
 #include "lc_sha3.h"
@@ -234,6 +235,7 @@ curveed448_sign_internal(uint8_t signature[LC_ED448_SIGBYTES],
 	curve448_scalar_add(challenge_scalar, challenge_scalar, nonce_scalar);
 
 	lc_memset_secure(signature, 0, LC_ED448_SIGBYTES);
+	BUILD_BUG_ON(LC_ED448_PUBLICKEYBYTES > LC_ED448_SIGBYTES);
 	memcpy(signature, nonce_point, sizeof(nonce_point));
 	curve448_scalar_encode(&signature[LC_ED448_PUBLICKEYBYTES],
 			       challenge_scalar);
