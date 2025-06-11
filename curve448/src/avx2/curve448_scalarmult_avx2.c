@@ -69,8 +69,9 @@
 
 static const uint8_t curve448_base_point[LC_X448_PUBLICKEYBYTES] = { 5 };
 
-extern void curve448_mladder_avx2(vec *, const vec *, const uint8_t *);
-extern void curve448_mladder_base_avx2(vec *, const vec, const uint8_t *);
+extern void SYSV_ABI curve448_mladder_avx2(vec *, const vec *, const uint8_t *);
+extern void SYSV_ABI curve448_mladder_base_avx2(vec *, const vec,
+						const uint8_t *);
 
 static int curve448_scalarmult_avx2(uint8_t *out, const uint8_t *base,
 				    const uint8_t *scalar)
@@ -99,7 +100,7 @@ static int curve448_scalarmult_avx2(uint8_t *out, const uint8_t *base,
 		ws->r[i][3] = ws->u.l[i];
 	}
 
-	curve448_mladder_avx2(ws->t, ws->r, ws->s);
+	curve448_mladder_avx2(ws->t, (const vec *)ws->r, ws->s);
 
 	for (i = 0; i < NLIMBS_VEC; ++i) {
 		ws->u.l[i] = ws->t[i][0];

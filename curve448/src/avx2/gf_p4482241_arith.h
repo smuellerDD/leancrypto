@@ -65,16 +65,16 @@
 #define gfp4482241sqr(x, y) gfp4482241nsqr(x, y, 1)
 #define gfp4482241sqrx(x, y) gfp4482241nsqrx(x, y, 1)
 
-extern void gfp4482241mulx(gfe_p4482241_7L *, const gfe_p4482241_7L *,
-			   const gfe_p4482241_7L *);
-extern void gfp4482241nsqrx(gfe_p4482241_7L *, const gfe_p4482241_7L *,
-			    const uint8_t);
-extern void gfp4482241mul(gfe_p4482241_8L *, const gfe_p4482241_8L *,
-			  const gfe_p4482241_8L *);
-extern void gfp4482241nsqr(gfe_p4482241_8L *, const gfe_p4482241_8L *,
-			   const uint8_t);
-extern void gfp4482241reduce(gfe_p4482241_8L *);
-extern void gfp4482241makeunique(gfe_p4482241_7L *);
+extern void SYSV_ABI gfp4482241mulx(gfe_p4482241_7L *, const gfe_p4482241_7L *,
+				    const gfe_p4482241_7L *);
+extern void SYSV_ABI gfp4482241nsqrx(gfe_p4482241_7L *, const gfe_p4482241_7L *,
+				     const uint8_t);
+extern void SYSV_ABI gfp4482241mul(gfe_p4482241_8L *, const gfe_p4482241_8L *,
+				   const gfe_p4482241_8L *);
+extern void SYSV_ABI gfp4482241nsqr(gfe_p4482241_8L *, const gfe_p4482241_8L *,
+				    const uint8_t);
+extern void SYSV_ABI gfp4482241reduce(gfe_p4482241_8L *);
+extern void SYSV_ABI gfp4482241makeunique(gfe_p4482241_7L *);
 
 void gfp4482241invx(gfe_p4482241_7L *, const gfe_p4482241_7L *);
 void gfp4482241inv(gfe_p4482241_8L *, const gfe_p4482241_8L *);
