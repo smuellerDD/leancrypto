@@ -31,5 +31,5 @@ int x448_scalarmult(uint8_t out[LC_X448_PUBLICKEYBYTES],
 		    const uint8_t base[LC_X448_PUBLICKEYBYTES],
 		    const uint8_t scalar[LC_X448_SECRETKEYBYTES])
 {
-	x448_scalarmult_c(out, base, scalar);
+	return x448_scalarmult_c(out, base, scalar);
 }

@@ -61,7 +61,7 @@ static int x448_ss_tester(unsigned int loops)
 
 	for (i = 0; i < loops; i++)
 		CKINT_LOG(lc_x448_ss(&act, &pk, &sk),
-			  "X448 scalar multiplication failed");
+			  "X448 scalar multiplication failed\n");
 	lc_compare(act.ss, ss.ss, sizeof(ss.ss),
 		   "X448 scalar multiplication\n");
 
