@@ -116,6 +116,9 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 #ifdef LC_CURVE25519
 		 " Curve25519: %s%s%s\n"
 #endif
+#ifdef LC_CURVE448
+		 " Curve448: %s\n"
+#endif
 		 ,
 		 fips140_mode_enabled() ? "yes" : "no"
 
@@ -270,6 +273,14 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 			 "",
 		 armv7, armv8
 #endif /* LC_CURVE25519 */
+
+	/* Curve448 */
+#ifdef LC_CURVE448
+		 ,
+		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
+			 "AVX2" :
+			 ""
+#endif /* LC_CURVE448 */
 	);
 
 #ifdef __clang__

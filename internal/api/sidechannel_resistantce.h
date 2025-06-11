@@ -105,6 +105,19 @@ static inline void cmov_uint32(uint32_t *r, uint32_t v, uint32_t b)
 	*r ^= (uint32_t)(b & ((*r) ^ v));
 }
 
+/**
+ * @brief cmov_int - Copy input v to *r if b is 1, don't modify *r if b is 0.
+ *		       Requires b to be in {0,1}; Runs in constant time.
+ *
+ * @param [out] r pointer to output int16_t
+ * @param [in] v input int16_t
+ * @param [in] b Condition bit; has to be in {0,1}
+ */
+static inline void cmov_int(int *r, int v, uint16_t b)
+{
+	b = -b;
+	*r ^= (int)(b & ((*r) ^ v));
+}
 #ifdef __cplusplus
 }
 #endif

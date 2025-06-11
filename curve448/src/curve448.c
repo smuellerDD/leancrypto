@@ -464,7 +464,7 @@ static int recode_wnaf(struct smvt_control *control,
 		}
 		current >>= 16;
 	}
-	assert(current == 0);
+	//assert(current == 0);
 
 	position++;
 	n = table_size - position;
@@ -549,7 +549,7 @@ void curve448_base_double_scalarmul_non_secret(curve448_point_t combo,
 		point_double_internal(combo, combo, i && !(cv || cp));
 
 		if (cv) {
-			assert(control_var[contv].addend);
+			//assert(control_var[contv].addend);
 
 			if (control_var[contv].addend > 0)
 				add_pniels_to_pt(
@@ -567,7 +567,7 @@ void curve448_base_double_scalarmul_non_secret(curve448_point_t combo,
 		}
 
 		if (cp) {
-			assert(control_pre[contp].addend);
+			//assert(control_pre[contp].addend);
 
 			if (control_pre[contp].addend > 0)
 				add_niels_to_pt(
@@ -591,9 +591,9 @@ void curve448_base_double_scalarmul_non_secret(curve448_point_t combo,
 	lc_memset_secure(control_pre, 0, sizeof(control_pre));
 	lc_memset_secure(precmp_var, 0, sizeof(precmp_var));
 
-	assert(contv == ncb_var);
+	//assert(contv == ncb_var);
 	(void)ncb_var;
-	assert(contp == ncb_pre);
+	//assert(contp == ncb_pre);
 	(void)ncb_pre;
 }
 

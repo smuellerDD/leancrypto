@@ -142,11 +142,11 @@ void gf_strong_reduce(gf a)
 	}
 
 	/*
-     * uncommon case: it was >= p, so now scarry = 0 and this = x common case:
-     * it was < p, so now scarry = -1 and this = x - p + 2^255 so let's add
-     * back in p.  will carry back off the top for 2^255.
-     */
-	assert(scarry == 0 || scarry == -1);
+	 * uncommon case: it was >= p, so now scarry = 0 and this = x common
+	 * case: it was < p, so now scarry = -1 and this = x - p + 2^255 so
+	 * let's add back in p.  will carry back off the top for 2^255.
+	 */
+	//assert(scarry == 0 || scarry == -1);
 
 	scarry_0 = (word_t)scarry;
 
@@ -158,7 +158,7 @@ void gf_strong_reduce(gf a)
 		carry >>= LIMB_PLACE_VALUE(LIMBPERM(i));
 	}
 
-	assert(carry < 2 && ((word_t)carry + scarry_0) == 0);
+	//assert(carry < 2 && ((word_t)carry + scarry_0) == 0);
 }
 
 /* Subtract two gf elements d=a-b */

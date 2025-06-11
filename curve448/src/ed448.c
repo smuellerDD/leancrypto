@@ -35,6 +35,7 @@
 #include "lc_sha3.h"
 #include "point_448.h"
 #include "ret_checkers.h"
+#include "timecop.h"
 #include "visibility.h"
 
 #define EDDSA_USE_SIGMA_ISOGENY 0
@@ -87,12 +88,14 @@ ed448_derive_public_key(uint8_t pubkey[LC_ED448_PUBLICKEYBYTES],
 	curve448_scalar_decode_long(secret_scalar, secret_scalar_ser,
 				    sizeof(secret_scalar_ser));
 
-	/* Since we are going to mul_by_cofactor during encoding, divide by it here.
-     * However, the EdDSA base point is not the same as the decaf base point if
-     * the sigma isogeny is in use: the EdDSA base point is on Etwist_d/(1-d) and
-     * the decaf base point is on Etwist_d, and when converted it effectively
-     * picks up a factor of 2 from the isogenies.  So we might start at 2 instead of 1. 
-     */
+	/*
+	 * Since we are going to mul_by_cofactor during encoding, divide by it
+	 * here. However, the EdDSA base point is not the same as the decaf base
+	 * point if the sigma isogeny is in use: the EdDSA base point is on
+	 * Etwist_d/(1-d) and the decaf base point is on Etwist_d, and when
+	 * converted it effectively picks up a factor of 2 from the isogenies.
+	 * So we might start at 2 instead of 1.
+	 */
 	for (unsigned int c = 1; c < DECAF_448_EDDSA_ENCODE_RATIO; c <<= 1)
 		curve448_scalar_halve(secret_scalar, secret_scalar);
 
@@ -116,7 +119,15 @@ LC_INTERFACE_FUNCTION(int, lc_ed448_keypair, struct lc_ed448_pk *pk,
 	lc_rng_check(&rng_ctx);
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, sk->sk,
 			      LC_ED448_SECRETKEYBYTES));
+
+	/* Timecop: the random number is the sentitive data */
+	poison(sk->sk, LC_ED448_SECRETKEYBYTES);
+
 	ed448_derive_public_key(pk->pk, sk->sk);
+
+	/* Timecop: pk and sk are not relevant for side-channels any more. */
+	unpoison(sk->sk, LC_ED448_SECRETKEYBYTES);
+	unpoison(pk->pk, LC_ED448_PUBLICKEYBYTES);
 
 out:
 	return ret;
@@ -140,6 +151,10 @@ curveed448_sign_internal(uint8_t signature[LC_ED448_SIGBYTES],
 {
 	curve448_scalar_t secret_scalar;
 	LC_SHAKE_256_CTX_ON_STACK(shake256_ctx);
+
+	/* Timecop: mark the secret key as sensitive */
+	poison(privkey, LC_ED448_SECRETKEYBYTES);
+
 	{
 		/* Schedule the secret key */
 		struct {
@@ -151,6 +166,12 @@ curveed448_sign_internal(uint8_t signature[LC_ED448_SIGBYTES],
 		lc_hash_update(shake256_ctx, privkey, LC_ED448_SECRETKEYBYTES);
 		lc_ed448_xof_final(shake256_ctx, (uint8_t *)&expanded,
 				   sizeof(expanded));
+
+		/*
+		 * Once the private key is hashed, you cannot deduct it from
+		 * the message digest, thus unpoison it.
+		 */
+		unpoison(&expanded, sizeof(expanded));
 
 		clamp(expanded.secret_scalar_ser);
 		curve448_scalar_decode_long(secret_scalar,
@@ -220,6 +241,10 @@ curveed448_sign_internal(uint8_t signature[LC_ED448_SIGBYTES],
 	curve448_scalar_destroy(secret_scalar);
 	curve448_scalar_destroy(nonce_scalar);
 	curve448_scalar_destroy(challenge_scalar);
+
+	/* Timecop: sig and sk are not relevant for side-channels any more. */
+	unpoison(signature, LC_ED448_SIGBYTES);
+	unpoison(privkey, LC_ED448_SECRETKEYBYTES);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_ed448_sign, struct lc_ed448_sig *sig,
@@ -227,12 +252,19 @@ LC_INTERFACE_FUNCTION(int, lc_ed448_sign, struct lc_ed448_sig *sig,
 		      const struct lc_ed448_sk *sk, struct lc_rng_ctx *rng_ctx)
 {
 	uint8_t rederived_pubkey[LC_ED448_PUBLICKEYBYTES];
+	int ret = 0;
 
 	(void)rng_ctx;
+
+	CKNULL(sig, -EINVAL);
+	CKNULL(sk, -EINVAL);
+
 	ed448_derive_public_key(rederived_pubkey, sk->sk);
 	curveed448_sign_internal(sig->sig, sk->sk, rederived_pubkey, msg, mlen,
 				 0, NULL, 0);
-	return 0;
+
+out:
+	return ret;
 }
 
 #if 0
@@ -292,8 +324,8 @@ static int curveed448_verify(const uint8_t signature[LC_ED448_SIGBYTES],
 			    challenge_scalar);
 
 	curve448_scalar_t response_scalar;
-	CKINT(curve448_scalar_decode(
-		response_scalar, &signature[LC_ED448_PUBLICKEYBYTES]));
+	CKINT(curve448_scalar_decode(response_scalar,
+				     &signature[LC_ED448_PUBLICKEYBYTES]));
 
 #if 0
 #if DECAF_448_SCALAR_BYTES < LC_ED448_SECRETKEYBYTES
@@ -325,10 +357,18 @@ LC_INTERFACE_FUNCTION(int, lc_ed448_verify, const struct lc_ed448_sig *sig,
 		      const uint8_t *msg, size_t mlen,
 		      const struct lc_ed448_pk *pk)
 {
+	int ret;
+
+	CKNULL(sig, -EINVAL);
+	CKNULL(pk, -EINVAL);
+
 	if (!curveed448_verify(sig->sig, pk->pk, msg, mlen, 0, NULL, 0))
 		return 0;
 
-	return -EBADMSG;
+	ret = -EBADMSG;
+
+out:
+	return ret;
 }
 
 #if 0

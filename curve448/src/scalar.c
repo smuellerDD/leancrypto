@@ -162,7 +162,7 @@ static inline void scalar_decode_short(curve448_scalar_t s,
 }
 
 int curve448_scalar_decode(curve448_scalar_t s,
-				    const unsigned char ser[C448_SCALAR_BYTES])
+			   const unsigned char ser[C448_SCALAR_BYTES])
 {
 	unsigned int i;
 	c448_dsword_t accum = 0;
@@ -200,8 +200,6 @@ void curve448_scalar_decode_long(curve448_scalar_t s, const unsigned char *ser,
 	scalar_decode_short(t1, &ser[i], ser_len - i);
 
 	if (ser_len == sizeof(curve448_scalar_t)) {
-		if (i == 0)
-			return;
 		/* ham-handed reduce */
 		curve448_scalar_mul(s, t1, curve448_scalar_one);
 		curve448_scalar_destroy(t1);

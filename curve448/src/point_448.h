@@ -118,7 +118,7 @@ extern const niels_t *curve448_wnaf_base;
  * modulo that modulus.
  */
 int curve448_scalar_decode(curve448_scalar_t out,
-				    const unsigned char ser[C448_SCALAR_BYTES]);
+			   const unsigned char ser[C448_SCALAR_BYTES]);
 
 /*
  * Read a scalar from wire format or from bytes.  Reduces mod scalar prime.
