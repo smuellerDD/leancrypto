@@ -59,7 +59,7 @@ static int _dilithium_keypair_tester(
 	lc_compare_selftest(ws->pk.pk, tc->pk, LC_DILITHIUM_PUBLICKEYBYTES,
 			    str);
 	snprintf(str, sizeof(str), "%s SK", impl);
-	lc_compare_selftest(ws->sk.sk, tc->sk, LC_DILITHIUM_PUBLICKEYBYTES,
+	lc_compare_selftest(ws->sk.sk, tc->sk, LC_DILITHIUM_SECRETKEYBYTES,
 			    str);
 
 	LC_RELEASE_MEM(ws);
