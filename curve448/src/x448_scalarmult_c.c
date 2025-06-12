@@ -98,14 +98,14 @@ int x448_scalarmult_c(uint8_t out[LC_X448_PUBLICKEYBYTES],
 		      const uint8_t base[LC_X448_PUBLICKEYBYTES],
 		      const uint8_t scalar[LC_X448_SECRETKEYBYTES])
 {
-	unsigned char scalar_tmp[LC_X448_SECRETKEYBYTES];
+	//uint8_t scalar_tmp[LC_X448_SECRETKEYBYTES];
 	gf x1, x2, z2, x3, z3, t1, t2;
-	int t, ret;
+	int t, ret = 0;
 	mask_t swap = 0;
 
-	memcpy(scalar_tmp, scalar, sizeof(scalar_tmp));
-	scalar_tmp[0] &= 252;
-	scalar_tmp[LC_X448_SECRETKEYBYTES - 1] |= 128;
+	//memcpy(scalar_tmp, scalar, sizeof(scalar_tmp));
+	//scalar_tmp[0] &= 252;
+	//scalar_tmp[LC_X448_SECRETKEYBYTES - 1] |= 128;
 
 	(void)gf_deserialize(x1, base, 1, 0);
 	gf_copy(x2, ONE);
@@ -114,13 +114,13 @@ int x448_scalarmult_c(uint8_t out[LC_X448_PUBLICKEYBYTES],
 	gf_copy(z3, ONE);
 
 	for (t = LC_X448_SECRETKEYBITS - 1; t >= 0; t--) {
-		uint8_t sb = scalar_tmp[t / 8];
+		uint8_t sb = scalar[t / 8];
 		mask_t k_t;
 
 		/* Scalar conditioning */
 		if (t / 8 == 0)
 			sb &= (uint8_t)-COFACTOR;
-		else if (t == LC_X448_SECRETKEYBYTES - 1)
+		else if (t == LC_X448_SECRETKEYBITS - 1)
 			sb = (uint8_t)-1;
 
 		k_t = (sb >> (t % 8)) & 1;
@@ -172,7 +172,7 @@ int x448_scalarmult_c(uint8_t out[LC_X448_PUBLICKEYBYTES],
 	cmov_int(&ret, -EFAULT, !!gf_eq(x1, ZERO));
 	unpoison(&ret, sizeof(ret));
 
-	lc_memset_secure(scalar_tmp, 0, sizeof(scalar_tmp));
+	//lc_memset_secure(scalar_tmp, 0, sizeof(scalar_tmp));
 	lc_memset_secure(x1, 0, sizeof(x1));
 	lc_memset_secure(x2, 0, sizeof(x2));
 	lc_memset_secure(z2, 0, sizeof(z2));
