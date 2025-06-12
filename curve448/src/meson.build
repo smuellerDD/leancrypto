@@ -4,12 +4,20 @@ if get_option('dilithium_ed448').enabled()
 		'ed448.c',
 	])
 
+	include_files += files([
+		'../api/lc_ed448.h',
+	])
+
 	curve448_base = 1
 endif
 if get_option('kyber_x448').enabled()
 	src_fips += files([
 		'x448_scalarmult_c.c',
 		'x448.c'
+	])
+
+	include_files += files([
+		'../api/lc_x448.h',
 	])
 
 	if (x86_64_asm)
@@ -30,9 +38,5 @@ if curve448_base == 1
 		'f_generic.c',
 		'f_impl.c',
 		'scalar.c',
-	])
-
-	include_files += files([
-		'../api/lc_ed448.h',
 	])
 endif
