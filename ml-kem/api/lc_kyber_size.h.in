@@ -772,7 +772,7 @@ static inline int @kyber_name@_ies_dec_final(struct lc_aead_ctx *aead,
 
 #endif /* LC_KYBER_IES */
 
-/****************************** Kyber X25510 KEM ******************************/
+/****************************** Kyber X25519 KEM ******************************/
 
 /*
  * The double KEM implements Kyber KEM together with the X25519 elliptic curve
@@ -884,7 +884,7 @@ int @kyber_name@_x25519_dec_kdf(uint8_t *ss, size_t ss_len,
 			    const struct @kyber_name@_x25519_ct *ct,
 			    const struct @kyber_name@_x25519_sk *sk);
 
-/****************************** Kyber X25510 KEX ******************************/
+/****************************** Kyber X25519 KEX ******************************/
 
 /**
  * @brief lc_kex_x25519_uake_initiator_init - Initialize unilaterally
@@ -1288,7 +1288,7 @@ static inline int @kyber_name@_x25519_ies_dec_final(struct lc_aead_ctx *aead,
 
 #endif /* LC_KYBER_X25519_KEM */
 
-/****************************** Kyber X25510 KEM ******************************/
+/****************************** Kyber X448 KEM ******************************/
 
 /*
  * The double KEM implements Kyber KEM together with the X448 elliptic curve
@@ -1400,7 +1400,7 @@ int @kyber_name@_x448_dec_kdf(uint8_t *ss, size_t ss_len,
 			    const struct @kyber_name@_x448_ct *ct,
 			    const struct @kyber_name@_x448_sk *sk);
 
-/****************************** Kyber X25510 KEX ******************************/
+/****************************** Kyber X448 KEX ******************************/
 
 /**
  * @brief lc_kex_x448_uake_initiator_init - Initialize unilaterally
