@@ -8,7 +8,7 @@ if get_option('kyber_x25519').enabled()
 				], link_with: leancrypto_static_lib
 				)
 	test('ECDH X25519 C', x25519_c_tester, suite: regression)
-	test('ECDH X25519 C Perf', x25519_c_tester, args : [ 'c' ],
+	test('ECDH X25519 C 100,000 scalar mult', x25519_c_tester, args : [ 'c' ],
 	     timeout: 1000, is_parallel: false, suite: performance)
 
 	x25519_common_tester = executable('x25519_common_tester',
@@ -19,7 +19,7 @@ if get_option('kyber_x25519').enabled()
 				], link_with: leancrypto_static_lib
 				)
 	test('ECDH X25519 Common', x25519_common_tester, suite: regression)
-	test('ECDH X25519 Common Perf', x25519_common_tester, args : [ 'c' ],
+	test('ECDH X25519 Common 100,000 scalar mult', x25519_common_tester, args : [ 'c' ],
 	     timeout: 1000, is_parallel: false, suite: performance)
 
 	if (x86_64_asm)

@@ -1710,6 +1710,738 @@ int lc_kyber_x25519_ies_dec_final(struct lc_aead_ctx *aead, const uint8_t *tag,
 
 #endif /* LC_KYBER_X25519_KEM */
 
+/****************************** Kyber X25510 KEM ******************************/
+
+#ifdef LC_KYBER_X448_KEM
+
+/** @defgroup HybridKyber ML-KEM / CRYSTALS-Kyber Hybrid Mechanism
+ *
+ * The hybrid KEM implements Kyber KEM together with the X448 elliptic curve
+ * KEX. The use is identical as the Kyber KEM. The only difference is that
+ * the transmitted pk and ct has a different content.
+ *
+ * The API offered for the hybrid Kyber support can be used as a drop-in
+ * replacement. The exception are the API calls to get the pointers to the
+ * key members, Kyber ciphertext or shared secret data.
+ *
+ * See also the [separate Hybrid Kyber](https://leancrypto.org/papers/HybridKEM_algorithm.pdf)
+ * documentation providing a mathematical specification.
+ */
+
+/**
+ * @brief Kyber secret key
+ */
+struct lc_kyber_x448_sk {
+	enum lc_kyber_type kyber_type;
+	union {
+#ifdef LC_KYBER_1024_ENABLED
+		struct lc_kyber_1024_x448_sk sk_1024;
+#endif
+#ifdef LC_KYBER_768_ENABLED
+		struct lc_kyber_768_x448_sk sk_768;
+#endif
+#ifdef LC_KYBER_512_ENABLED
+		struct lc_kyber_512_x448_sk sk_512;
+#endif
+	} key;
+};
+
+/**
+ * @brief Kyber public key
+ */
+struct lc_kyber_x448_pk {
+	enum lc_kyber_type kyber_type;
+	union {
+#ifdef LC_KYBER_1024_ENABLED
+		struct lc_kyber_1024_x448_pk pk_1024;
+#endif
+#ifdef LC_KYBER_768_ENABLED
+		struct lc_kyber_768_x448_pk pk_768;
+#endif
+#ifdef LC_KYBER_512_ENABLED
+		struct lc_kyber_512_x448_pk pk_512;
+#endif
+	} key;
+};
+
+/**
+ * @brief Kyber ciphertext
+ */
+struct lc_kyber_x448_ct {
+	enum lc_kyber_type kyber_type;
+	union {
+#ifdef LC_KYBER_1024_ENABLED
+		struct lc_kyber_1024_x448_ct ct_1024;
+#endif
+#ifdef LC_KYBER_768_ENABLED
+		struct lc_kyber_768_x448_ct ct_768;
+#endif
+#ifdef LC_KYBER_512_ENABLED
+		struct lc_kyber_512_x448_ct ct_512;
+#endif
+	} key;
+};
+
+/**
+ * @brief Kyber shared secret
+ */
+struct lc_kyber_x448_ss {
+	enum lc_kyber_type kyber_type;
+	union {
+#ifdef LC_KYBER_1024_ENABLED
+		struct lc_kyber_1024_x448_ss ss_1024;
+#endif
+#ifdef LC_KYBER_768_ENABLED
+		struct lc_kyber_768_x448_ss ss_768;
+#endif
+#ifdef LC_KYBER_512_ENABLED
+		struct lc_kyber_512_x448_ss ss_512;
+#endif
+	} key;
+};
+
+/**
+ * @ingroup HybridKyber
+ * @brief Obtain Kyber type from secret key
+ *
+ * @param [in] sk Secret key from which the type is to be obtained
+ *
+ * @return key type
+ */
+enum lc_kyber_type lc_kyber_x448_sk_type(const struct lc_kyber_x448_sk *sk);
+
+/**
+ * @ingroup HybridKyber
+ * @brief Obtain Kyber type from public key
+ *
+ * @param [in] pk Public key from which the type is to be obtained
+ *
+ * @return key type
+ */
+enum lc_kyber_type lc_kyber_x448_pk_type(const struct lc_kyber_x448_pk *pk);
+
+/**
+ * @ingroup HybridKyber
+ * @brief Obtain Kyber type from Kyber ciphertext
+ *
+ * @param [in] ct Ciphertext from which the type is to be obtained
+ *
+ * @return key type
+ */
+enum lc_kyber_type lc_kyber_x448_ct_type(const struct lc_kyber_x448_ct *ct);
+
+/**
+ * @ingroup HybridKyber
+ * @brief Obtain Kyber type from shared secret
+ *
+ * @param [in] ss Shared secret key from which the type is to be obtained
+ *
+ * @return key type
+ */
+enum lc_kyber_type lc_kyber_x448_ss_type(const struct lc_kyber_x448_ss *ss);
+
+/**
+ * @ingroup HybridKyber
+ * @brief Return the size of the Kyber secret key.
+ *
+ * @param [in] kyber_type Kyber type for which the size is requested
+ *
+ * @return requested size
+ */
+LC_PURE
+unsigned int lc_kyber_x448_sk_size(enum lc_kyber_type kyber_type);
+
+/**
+ * @ingroup HybridKyber
+ * @brief Return the size of the Kyber public key.
+ *
+ * @param [in] kyber_type Kyber type for which the size is requested
+ *
+ * @return requested size
+ */
+LC_PURE
+unsigned int lc_kyber_x448_pk_size(enum lc_kyber_type kyber_type);
+
+/**
+ * @ingroup HybridKyber
+ * @brief Return the size of the Kyber ciphertext.
+ *
+ * @param [in] kyber_type Kyber type for which the size is requested
+ *
+ * @return requested size
+ */
+LC_PURE
+unsigned int lc_kyber_x448_ct_size(enum lc_kyber_type kyber_type);
+
+/**
+ * @ingroup HybridKyber
+ * @brief Return the size of the Kyber shared secret.
+ *
+ * @param [in] kyber_type Kyber type for which the size is requested
+ *
+ * @return requested size
+ */
+LC_PURE
+unsigned int lc_kyber_x448_ss_size(enum lc_kyber_type kyber_type);
+
+int lc_kyber_x448_sk_load(struct lc_kyber_x448_sk *sk,
+			  const uint8_t *kyber_src_key,
+			  size_t kyber_src_key_len, const uint8_t *x448_src_key,
+			  size_t x448_src_key_len);
+
+int lc_kyber_x448_pk_load(struct lc_kyber_x448_pk *pk,
+			  const uint8_t *kyber_src_key,
+			  size_t kyber_src_key_len, const uint8_t *x448_src_key,
+			  size_t x448_src_key_len);
+
+int lc_kyber_x448_ct_load(struct lc_kyber_x448_ct *ct,
+			  const uint8_t *kyber_src_ct, size_t kyber_src_ct_len,
+			  const uint8_t *x448_rem_pub_key,
+			  size_t x448_rem_pub_len);
+
+int lc_kyber_x448_ss_load(struct lc_kyber_x448_ss *ss,
+			  const uint8_t *kyber_src_ss, size_t kyber_src_ss_len,
+			  const uint8_t *x448_ss, size_t x448_ss_len);
+
+/**
+ * @ingroup HybridKyber
+ * @brief Obtain the reference to the Kyber key and its length
+ *
+ * \note Only pointer references into the leancrypto data structure are returned
+ * which implies that any modification will modify the leancrypto key, too.
+ *
+ * @param [out] kyber_key Kyber key pointer
+ * @param [out] kyber_key_len Length of the key buffer
+ * @param [out] x448_key X448 key pointer
+ * @param [out] x448_key_len X448 of the key buffer
+ * @param [in] sk Hybrid secret key from which the references are obtained
+ *
+ * @return 0 on success, != 0 on error
+ */
+int lc_kyber_x448_sk_ptr(uint8_t **kyber_key, size_t *kyber_key_len,
+			 uint8_t **x448_key, size_t *x448_key_len,
+			 struct lc_kyber_x448_sk *sk);
+
+/**
+ * @ingroup HybridKyber
+ * @brief Obtain the reference to the Kyber key and its length
+ *
+ * \note Only pointer references into the leancrypto data structure are returned
+ * which implies that any modification will modify the leancrypto key, too.
+ *
+ * @param [out] kyber_key Kyber key pointer
+ * @param [out] kyber_key_len Length of the key buffer
+ * @param [out] x448_key X448 key pointer
+ * @param [out] x448_key_len X448 of the key buffer
+ * @param [in] pk Hybrid public key from which the references are obtained
+ *
+ * @return 0 on success, != 0 on error
+ */
+int lc_kyber_x448_pk_ptr(uint8_t **kyber_key, size_t *kyber_key_len,
+			 uint8_t **x448_key, size_t *x448_key_len,
+			 struct lc_kyber_x448_pk *pk);
+
+/**
+ * @ingroup HybridKyber
+ * @brief Obtain the reference to the Kyber ciphertext and its length
+ *
+ * \note Only pointer references into the leancrypto data structure are returned
+ * which implies that any modification will modify the leancrypto ciphertext,
+ * too.
+ *
+ * @param [out] kyber_ct Kyber ciphertext pointer
+ * @param [out] kyber_ct_len Length of the ciphertext buffer
+ * @param [out] x448_key X448 ephermeral public key pointer
+ * @param [out] x448_key_len X448 of the key buffer
+ * @param [in] ct Hybrid ciphertext from which the references are obtained
+ *
+ * @return 0 on success, != 0 on error
+ */
+int lc_kyber_x448_ct_ptr(uint8_t **kyber_ct, size_t *kyber_ct_len,
+			 uint8_t **x448_key, size_t *x448_key_len,
+			 struct lc_kyber_x448_ct *ct);
+
+/**
+ * @ingroup HybridKyber
+ * @brief Obtain the reference to the Kyber shared secret and its length
+ *
+ * \note Only pointer references into the leancrypto data structure are returned
+ * which implies that any modification will modify the leancrypto shared secret,
+ * too.
+ *
+ * @param [out] kyber_ss Kyber shared secret pointer
+ * @param [out] kyber_ss_len Length of the shared secret buffer
+ * @param [out] x448_ss X448 shared secret pointer
+ * @param [out] x448_ss_len X448 of the shared secret buffer
+ * @param [in] ss Hybrid shared secret from which the references are obtained
+ *
+ * @return 0 on success, != 0 on error
+ */
+int lc_kyber_x448_ss_ptr(uint8_t **kyber_ss, size_t *kyber_ss_len,
+			 uint8_t **x448_ss, size_t *x448_ss_len,
+			 struct lc_kyber_x448_ss *ss);
+
+/**
+ * @ingroup HybridKyber
+ * @brief Generates public and private key for IND-CCA2-secure Kyber key
+ *	  encapsulation mechanism
+ *
+ * @param [out] pk pointer to already allocated output public key
+ * @param [out] sk pointer to already allocated output private key
+ * @param [in] rng_ctx pointer to seeded random number generator context
+ * @param [in] kyber_type type of the Kyber key to generate
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int lc_kyber_x448_keypair(struct lc_kyber_x448_pk *pk,
+			  struct lc_kyber_x448_sk *sk,
+			  struct lc_rng_ctx *rng_ctx,
+			  enum lc_kyber_type kyber_type);
+
+/**
+ * @ingroup HybridKyber
+ * @brief Key encapsulation with KDF applied to shared secret
+ *
+ * Generates cipher text and shared secret for given public key. The shared
+ * secret is derived from the Kyber SS using the KDF derived from the round 3
+ * definition of Kyber:
+ *```
+ *	SS <- KMAC256(K = Kyber-SS || X448-SS, X = Kyber-CT,
+ *		      L = requested SS length, S = "Kyber KEM Double SS")
+ *```
+ * \note The concatenatino of Kyber-SS || ECC-SS complies with SP800-56C rev 2
+ * chapter 2 defining the hybrid shared secret of the form Z' = Z || T where
+ * Z is the "standard shared secret" from Kyber followed by the auxiliary
+ * shared secret T that has been generated by some other method.
+ *
+ * @param [out] ct pointer to output cipher text to used for decapsulation
+ * @param [out] ss pointer to output shared secret that will be also produced
+ *		   during decapsulation
+ * @param [in] ss_len length of shared secret to be generated
+ * @param [in] pk pointer to input public key
+ *
+ * Returns 0 (success) or < 0 on error
+ */
+int lc_kyber_x448_enc_kdf(struct lc_kyber_x448_ct *ct, uint8_t *ss,
+			  size_t ss_len, const struct lc_kyber_x448_pk *pk);
+
+/**
+ * @ingroup HybridKyber
+ * @brief Key decapsulation with KDF applied to shared secret
+ *
+ * Generates cipher text and shared secret for given private key. The shared
+ * secret is derived from the Kyber SS using the KDF derived from the round 3
+ * definition of Kyber:
+ *
+ *	SS <- KMAC256(K = Kyber-SS || X448-SS, X = Kyber-CT,
+ *		      L = requested SS length, S = "Kyber KEM Double SS")
+ *
+ * @param [out] ss pointer to output shared secret that is the same as produced
+ *		   during encapsulation
+ * @param [in] ss_len length of shared secret to be generated
+ * @param [in] ct pointer to input cipher text generated during encapsulation
+ * @param [in] sk pointer to input private key
+ *
+ * @return 0
+ *
+ * On failure, ss will contain a pseudo-random value.
+ */
+int lc_kyber_x448_dec_kdf(uint8_t *ss, size_t ss_len,
+			  const struct lc_kyber_x448_ct *ct,
+			  const struct lc_kyber_x448_sk *sk);
+
+/****************************** Kyber X25510 KEX ******************************/
+
+/**
+ * @ingroup HybridKyber
+ * @brief Initialize unilaterally authenticated key exchange
+ *
+ * @param [out] pk_e_i initiator's ephemeral public key to be sent to the
+ *		       responder
+ * @param [out] ct_e_i initiator's ephemeral cipher text to be sent to the
+ *		       responder
+ * @param [out] tk KEM shared secret data to be used for the initiator's shared
+ *		   secret generation
+ * @param [out] sk_e initiator's ephemeral secret key to be used for the
+ *		     initiator's shared secret generation
+ * @param [in] pk_r responder's public key
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int lc_kex_x448_uake_initiator_init(struct lc_kyber_x448_pk *pk_e_i,
+				    struct lc_kyber_x448_ct *ct_e_i,
+				    struct lc_kyber_x448_ss *tk,
+				    struct lc_kyber_x448_sk *sk_e,
+				    const struct lc_kyber_x448_pk *pk_r);
+
+/**
+ * @ingroup HybridKyber
+ * @brief Initiator's shared secret generation
+ *
+ * @param [out] ct_e_r responder's ephemeral cipher text to be sent to the
+ *		       initiator
+ * @param [out] shared_secret Shared secret between initiator and responder
+ * @param [in] shared_secret_len Requested size of the shared secret
+ * @param [in] kdf_nonce An optional nonce that is concatenated at the end of
+ *			 the Kyber KEX-generated data to be inserted into
+ *			 the KDF. If not required, use NULL.
+ * @param [in] kdf_nonce_len Length of the kdf_nonce.
+ * @param [in] pk_e_i initiator's ephemeral public key
+ * @param [in] ct_e_i initiator's ephemeral cipher text
+ * @param [in] sk_r responder's secret key
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int lc_kex_x448_uake_responder_ss(struct lc_kyber_x448_ct *ct_e_r,
+				  uint8_t *shared_secret,
+				  size_t shared_secret_len,
+				  const uint8_t *kdf_nonce,
+				  size_t kdf_nonce_len,
+				  const struct lc_kyber_x448_pk *pk_e_i,
+				  const struct lc_kyber_x448_ct *ct_e_i,
+				  const struct lc_kyber_x448_sk *sk_r);
+
+/**
+ * @ingroup HybridKyber
+ * @brief Responder's shared secret generation
+ *
+ * @param [out] shared_secret Shared secret between initiator and responder
+ * @param [in] shared_secret_len Requested size of the shared secret
+ * @param [in] kdf_nonce An optional nonce that is concatenated at the end of
+ *			 the Kyber KEX-generated data to be inserted into
+ *			 the KDF. If not required, use NULL.
+ * @param [in] kdf_nonce_len Length of the kdf_nonce.
+ * @param [in] ct_e_r responder's ephemeral cipher text
+ * @param [in] tk KEM shared secret data that was generated during the
+ *		  initiator's initialization
+ * @param [in] sk_e initiator's ephemeral secret that was generated during the
+ *		    initiator's initialization
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int lc_kex_x448_uake_initiator_ss(uint8_t *shared_secret,
+				  size_t shared_secret_len,
+				  const uint8_t *kdf_nonce,
+				  size_t kdf_nonce_len,
+				  const struct lc_kyber_x448_ct *ct_e_r,
+				  const struct lc_kyber_x448_ss *tk,
+				  const struct lc_kyber_x448_sk *sk_e);
+
+/**
+ * @ingroup HybridKyber
+ * @brief Initialize authenticated key exchange
+ *
+ * @param [out] pk_e_i initiator's ephemeral public key to be sent to the
+ *		       responder
+ * @param [out] ct_e_i initiator's ephemeral cipher text to be sent to the
+ *		       responder
+ * @param [out] tk KEM shared secret data to be used for the initiator's shared
+ *		   secret generation
+ * @param [out] sk_e initiator's ephemeral secret key to be used for the
+ *		     initiator's shared secret generation
+ * @param [in] pk_r responder's public key
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int lc_kex_x448_ake_initiator_init(struct lc_kyber_x448_pk *pk_e_i,
+				   struct lc_kyber_x448_ct *ct_e_i,
+				   struct lc_kyber_x448_ss *tk,
+				   struct lc_kyber_x448_sk *sk_e,
+				   const struct lc_kyber_x448_pk *pk_r);
+
+/**
+ * @ingroup HybridKyber
+ * @brief Initiator's shared secret generation
+ *
+ * @param [out] ct_e_r_1 responder's ephemeral cipher text to be sent to the
+ *			 initator
+ * @param [out] ct_e_r_2 responder's ephemeral cipher text to be sent to the
+ *			 initator
+ * @param [out] shared_secret Shared secret between initiator and responder
+ * @param [in] shared_secret_len Requested size of the shared secret
+ * @param [in] kdf_nonce An optional nonce that is concatenated at the end of
+ *			 the Kyber KEX-generated data to be inserted into
+ *			 the KDF. If not required, use NULL.
+ * @param [in] kdf_nonce_len Length of the kdf_nonce.
+ * @param [in] pk_e_i initator's ephemeral public key
+ * @param [in] ct_e_i initator's ephemeral cipher text
+ * @param [in] sk_r responder's secret key
+ * @param [in] pk_i initator's public key
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int lc_kex_x448_ake_responder_ss(struct lc_kyber_x448_ct *ct_e_r_1,
+				 struct lc_kyber_x448_ct *ct_e_r_2,
+				 uint8_t *shared_secret,
+				 size_t shared_secret_len,
+				 const uint8_t *kdf_nonce, size_t kdf_nonce_len,
+				 const struct lc_kyber_x448_pk *pk_e_i,
+				 const struct lc_kyber_x448_ct *ct_e_i,
+				 const struct lc_kyber_x448_sk *sk_r,
+				 const struct lc_kyber_x448_pk *pk_i);
+
+/**
+ * @ingroup HybridKyber
+ * @brief Responder's shared secret generation
+ *
+ * @param [out] shared_secret Shared secret between initiator and responder
+ * @param [in] shared_secret_len Requested size of the shared secret
+ * @param [in] kdf_nonce An optional nonce that is concatenated at the end of
+ *			 the Kyber KEX-generated data to be inserted into
+ *			 the KDF. If not required, use NULL.
+ * @param [in] kdf_nonce_len Length of the kdf_nonce.
+ * @param [in] ct_e_r_1 responder's ephemeral cipher text
+ * @param [in] ct_e_r_2 responder's ephemeral cipher text
+ * @param [in] tk KEM shared secret data that was generated during the
+ *		  initator's initialization
+ * @param [in] sk_e initator's ephemeral secret that was generated during the
+ *		    initator's initialization
+ * @param [in] sk_i initator's secret key
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int lc_kex_x448_ake_initiator_ss(uint8_t *shared_secret,
+				 size_t shared_secret_len,
+				 const uint8_t *kdf_nonce, size_t kdf_nonce_len,
+				 const struct lc_kyber_x448_ct *ct_e_r_1,
+				 const struct lc_kyber_x448_ct *ct_e_r_2,
+				 const struct lc_kyber_x448_ss *tk,
+				 const struct lc_kyber_x448_sk *sk_e,
+				 const struct lc_kyber_x448_sk *sk_i);
+
+/****************************** Kyber X448 IES ******************************/
+
+#ifdef LC_KYBER_IES
+
+/**
+ * @ingroup HybridKyber
+ * @brief KyberIES encryption oneshot
+ *
+ * The implementation supports an in-place data encryption where the
+ * plaintext and ciphertext buffer pointers refer to the same memory location.
+ *
+ * The function entirely operates on stack memory.
+ *
+ * @param [in] pk Kyber public key of data owner
+ * @param [out] ct Kyber ciphertext to be sent to the decryption operation
+ * @param [in] plaintext Plaintext data to be encrypted
+ * @param [out] ciphertext Buffer of equal size as plaintext that will be filled
+ *			   with the encryption result
+ * @param [in] datalen Length of the plaintext buffer
+ * @param [in] aad Additional authenticate data to be processed - this is data
+ *		   which is not encrypted, but considered as part of the
+ *		   authentication.
+ * @param [in] aadlen Length of the AAD buffer
+ * @param [out] tag Buffer that will be filled with the authentication tag
+ * @param [in] taglen Length of the tag buffer
+ * @param [in] aead Allocated AEAD algorithm - the caller only needs to provide
+ *		    an allocated but otherwise unused instance of an AEAD
+ *		    algorithm. This allows the caller to define the AEAD
+ *		    algorithm type. The caller must zeroize and release the
+ *		    context after completion.
+ *
+ * @return 0 on success, < 0 on error
+ */
+int lc_kyber_x448_ies_enc(const struct lc_kyber_x448_pk *pk,
+			  struct lc_kyber_x448_ct *ct, const uint8_t *plaintext,
+			  uint8_t *ciphertext, size_t datalen,
+			  const uint8_t *aad, size_t aadlen, uint8_t *tag,
+			  size_t taglen, struct lc_aead_ctx *aead);
+
+/**
+ * @ingroup HybridKyber
+ * @brief KyberIES encryption stream operation initialization
+ *
+ * The implementation supports an in-place data encryption where the
+ * plaintext and ciphertext buffer pointers refer to the same memory location.
+ *
+ * The function entirely operates on stack memory.
+ *
+ * The aead context is initialized such that it can be used with
+ * lc_kyber_x448_ies_enc_[update|final].
+ *
+ * @param [out] aead Allocated AEAD algorithm - the caller only needs to provide
+ *		     an allocated but otherwise unused instance of an AEAD
+ *		     algorithm. This allows the caller to define the AEAD
+ *		     algorithm type. The caller must zeroize and release the
+ *		     context after completion.
+ * @param [in] pk Kyber public key of data owner
+ * @param [out] ct Kyber ciphertext to be sent to the decryption operation
+ * @param [in] aad Additional authenticate data to be processed - this is data
+ *		   which is not encrypted, but considered as part of the
+ *		   authentication.
+ * @param [in] aadlen Length of the AAD buffer
+ *
+ * @return 0 on success, < 0 on error
+ */
+int lc_kyber_x448_ies_enc_init(struct lc_aead_ctx *aead,
+			       const struct lc_kyber_x448_pk *pk,
+			       struct lc_kyber_x448_ct *ct, const uint8_t *aad,
+			       size_t aadlen);
+
+/**
+ * @ingroup HybridKyber
+ * @brief KyberIES encryption stream operation add more data
+ *
+ * The implementation supports an in-place data encryption where the
+ * plaintext and ciphertext buffer pointers refer to the same memory location.
+ *
+ * The function entirely operates on stack memory.
+ *
+ * @param [in] aead Allocated AEAD algorithm - the caller only needs to provide
+ *		    an allocated but otherwise unused instance of an AEAD
+ *		    algorithm. This allows the caller to define the AEAD
+ *		    algorithm type. The caller must zeroize and release the
+ *		    context after completion.
+ * @param [in] plaintext Plaintext data to be encrypted
+ * @param [out] ciphertext Buffer of equal size as plaintext that will be filled
+ *			   with the encryption result
+ * @param [in] datalen Length of the plaintext buffer
+ */
+int lc_kyber_x448_ies_enc_update(struct lc_aead_ctx *aead,
+				 const uint8_t *plaintext, uint8_t *ciphertext,
+				 size_t datalen);
+
+/**
+ * @ingroup HybridKyber
+ * @brief KyberIES encryption stream operation finalization / integrity test
+ *
+ * The implementation supports an in-place data encryption where the
+ * plaintext and ciphertext buffer pointers refer to the same memory location.
+ *
+ * The function entirely operates on stack memory.
+ *
+ * @param [in] aead Allocated AEAD algorithm - the caller only needs to provide
+ *		    an allocated but otherwise unused instance of an AEAD
+ *		    algorithm. This allows the caller to define the AEAD
+ *		    algorithm type. The caller must zeroize and release the
+ *		    context after completion.
+ * @param [out] tag Buffer that will be filled with the authentication tag
+ * @param [in] taglen Length of the tag buffer
+ *
+ * @return 0 on success, < 0 on error
+ */
+int lc_kyber_x448_ies_enc_final(struct lc_aead_ctx *aead, uint8_t *tag,
+				size_t taglen);
+
+/**
+ * @ingroup HybridKyber
+ * @brief KyberIES decryption oneshot
+ *
+ * The implementation supports an in-place data decryption where the
+ * plaintext and ciphertext buffer pointers refer to the same memory location.
+ *
+ * The function entirely operates on stack memory.
+ *
+ * @param [in] sk Kyber secret key of data owner
+ * @param [in] ct Kyber ciphertext received from the encryption operation
+ * @param [in] ciphertext Ciphertext data to be encrypted
+ * @param [out] plaintext Buffer of equal size as ciphertext that will be
+ *			   filled with the decryption result
+ * @param [in] datalen Length of the ciphertext buffer
+ * @param [in] aad Additional authenticate data to be processed - this is data
+ *		   which is not encrypted, but considered as part of the
+ *		   authentication.
+ * @param [in] aadlen Length of the AAD buffer
+ * @param [in] tag Buffer with the authentication tag
+ * @param [in] taglen Length of the tag buffer
+ * @param [in] aead Allocated AEAD algorithm - the caller only needs to provide
+ *		    an allocated but otherwise unused instance of an AEAD
+ *		    algorithm. This allows the caller to define the AEAD
+ *		    algorithm type. The caller must zeroize and release the
+ *		    context after completion.
+ *
+ * @return 0 on success, < 0 on error (-EBADMSG on integrity error)
+ */
+int lc_kyber_x448_ies_dec(const struct lc_kyber_x448_sk *sk,
+			  const struct lc_kyber_x448_ct *ct,
+			  const uint8_t *ciphertext, uint8_t *plaintext,
+			  size_t datalen, const uint8_t *aad, size_t aadlen,
+			  const uint8_t *tag, size_t taglen,
+			  struct lc_aead_ctx *aead);
+
+/**
+ * @ingroup HybridKyber
+ * @brief KyberIES decryption stream operation initialization
+ *
+ * The implementation supports an in-place data decryption where the
+ * plaintext and ciphertext buffer pointers refer to the same memory location.
+ *
+ * The function entirely operates on stack memory.
+ *
+ * The aead context is initialized such that it can be used with
+ * lc_kyber_x448_ies_dec_[update|final].
+ *
+ * @param [out] aead Allocated AEAD algorithm - the caller only needs to provide
+ *		     an allocated but otherwise unused instance of an AEAD
+ *		     algorithm. This allows the caller to define the AEAD
+ *		     algorithm type. The caller must zeroize and release the
+ *		     context after completion.
+ * @param [in] sk Kyber secret key of data owner
+ * @param [in] ct Kyber ciphertext received from the encryption operation
+ * @param [in] aad Additional authenticate data to be processed - this is data
+ *		   which is not encrypted, but considered as part of the
+ *		   authentication.
+ * @param [in] aadlen Length of the AAD buffer
+ *
+ * @return 0 on success, < 0 on error
+ */
+int lc_kyber_x448_ies_dec_init(struct lc_aead_ctx *aead,
+			       const struct lc_kyber_x448_sk *sk,
+			       const struct lc_kyber_x448_ct *ct,
+			       const uint8_t *aad, size_t aadlen);
+
+/**
+ * @ingroup HybridKyber
+ * @brief KyberIES decryption stream operation add more data
+ *
+ * The implementation supports an in-place data decryption where the
+ * plaintext and ciphertext buffer pointers refer to the same memory location.
+ *
+ * The function entirely operates on stack memory.
+ *
+ * @param [in] aead Allocated AEAD algorithm - the caller only needs to provide
+ *		    an allocated but otherwise unused instance of an AEAD
+ *		    algorithm. This allows the caller to define the AEAD
+ *		    algorithm type. The caller must zeroize and release the
+ *		    context after completion.
+ * @param [in] ciphertext Ciphertext data to be encrypted
+ * @param [out] plaintext Buffer of equal size as ciphertext that will be
+ *			   filled with the decryption result
+ * @param [in] datalen Length of the ciphertext buffer
+ *
+ * @return 0 on success, < 0 on error
+ */
+int lc_kyber_x448_ies_dec_update(struct lc_aead_ctx *aead,
+				 const uint8_t *ciphertext, uint8_t *plaintext,
+				 size_t datalen);
+
+/**
+ * @ingroup HybridKyber
+ * @brief KyberIES decryption stream operation finalization / integrity test
+ *
+ * The implementation supports an in-place data decryption where the
+ * plaintext and ciphertext buffer pointers refer to the same memory location.
+ *
+ * The function entirely operates on stack memory.
+ *
+ * @param [in] aead Allocated AEAD algorithm - the caller only needs to provide
+ *		    an allocated but otherwise unused instance of an AEAD
+ *		    algorithm. This allows the caller to define the AEAD
+ *		    algorithm type. The caller must zeroize and release the
+ *		    context after completion.
+ * @param [in] tag Buffer with the authentication tag
+ * @param [in] taglen Length of the tag buffer
+ *
+ * @return 0 on success, < 0 on error (-EBADMSG on integrity error)
+ */
+int lc_kyber_x448_ies_dec_final(struct lc_aead_ctx *aead, const uint8_t *tag,
+				size_t taglen);
+
+#endif /* LC_KYBER_IES */
+
+#endif /* LC_KYBER_X448_KEM */
+
 #ifdef __cplusplus
 }
 #endif

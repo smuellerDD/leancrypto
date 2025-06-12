@@ -875,6 +875,222 @@ int @dilithium_name@_ed25519_verify_final(
 
 #endif /* LC_DILITHIUM_ED25519_SIG */
 
+/****************************** Dilithium ED25510 *****************************/
+/* Macro set during leancrypto compile time for target platform */
+#mesondefine LC_DILITHIUM_ED448_SIG
+#ifdef LC_DILITHIUM_ED448_SIG
+
+#include "lc_ed448.h"
+
+/**
+ * @brief Dilithium secret key
+ */
+struct @dilithium_name@_ed448_sk {
+	struct @dilithium_name@_sk sk;
+	struct lc_ed448_sk sk_ed448;
+};
+
+/**
+ * @brief Dilithium public key
+ */
+struct @dilithium_name@_ed448_pk {
+	struct @dilithium_name@_pk pk;
+	struct lc_ed448_pk pk_ed448;
+};
+
+/**
+ * @brief Dilithium signature
+ */
+struct @dilithium_name@_ed448_sig {
+	struct @dilithium_name@_sig sig;
+	struct lc_ed448_sig sig_ed448;
+};
+
+/**
+ * @brief Dilithium stream context
+ *
+ * This structure is used for the init/update/final operation of the
+ * Dilithium-ED448 hybrid.
+ */
+#ifndef LC_DILITHIUM_ED448_CTX_ON_STACK
+struct lc_dilithium_ed448_ctx {
+	struct lc_dilithium_ctx dilithium_ctx;
+};
+#endif
+
+/// \cond DO_NOT_DOCUMENT
+#ifndef LC_DILITHIUM_ED448_CTX_ON_STACK
+#define LC_DILITHIUM_ED448_CTX_SIZE                                          \
+	sizeof(struct lc_dilithium_ed448_ctx)
+#endif
+/// \endcond
+
+/**
+ * @brief Allocate stack memory for the Dilithium-ED448 stream context
+ *
+ * @param [in] name Name of the stack variable
+ */
+#ifndef LC_DILITHIUM_ED448_CTX_ON_STACK
+#define LC_DILITHIUM_ED448_CTX_ON_STACK(name)                                \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(                                             \
+			name##_ctx_buf, LC_DILITHIUM_ED448_CTX_SIZE,         \
+			LC_HASH_COMMON_ALIGNMENT);                             \
+	struct lc_dilithium_ed448_ctx *name =                                \
+		(struct lc_dilithium_ed448_ctx *)name##_ctx_buf;             \
+	LC_DILITHIUM_SET_CTX(&(name)->dilithium_ctx);                          \
+	_Pragma("GCC diagnostic pop")
+#endif
+
+/**
+ * @brief Zeroize Dilithium-ED448 context allocated with
+ *	  LC_DILITHIUM_ED448_CTX_ON_STACK lc_dilithium_ed448_alloc
+ *
+ * @param [in] ctx Dilithium-ED448 context to be zeroized
+ */
+static inline void @dilithium_name@_ed448_ctx_zero(
+	struct lc_dilithium_ed448_ctx *ctx)
+{
+	if (!ctx)
+		return;
+	@dilithium_name@_ctx_zero(&ctx->dilithium_ctx);
+}
+
+/**
+ * @brief Allocate Dilithium-ED448 stream context on heap
+ *
+ * @param [out] ctx Allocated  Dilithium-ED448 stream context
+ *
+ * @return: 0 on success, < 0 on error
+ */
+int @dilithium_name@_ed448_ctx_alloc(
+	struct lc_dilithium_ed448_ctx **ctx);
+
+/**
+ * @brief Zeroize and free Dilithium-ED448 stream context
+ *
+ * @param [in] ctx Dilithium-ED448 stream context to be zeroized and freed
+ */
+void @dilithium_name@_ed448_ctx_zero_free(
+	struct lc_dilithium_ed448_ctx *ctx);
+
+/**
+ * @brief Generates Dilithium public and private key.
+ *
+ * @param [out] pk pointer to allocated output public key
+ * @param [out] sk pointer to allocated output private key
+ * @param [in] rng_ctx pointer to seeded random number generator context
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int @dilithium_name@_ed448_keypair(struct @dilithium_name@_ed448_pk *pk,
+				 struct @dilithium_name@_ed448_sk *sk,
+				 struct lc_rng_ctx *rng_ctx);
+
+/**
+ * @brief Computes signature in one shot
+ *
+ * @param [out] sig pointer to output signature
+ * @param [in] m pointer to message to be signed
+ * @param [in] mlen length of message
+ * @param [in] sk pointer to bit-packed secret key
+ * @param [in] rng_ctx pointer to seeded random number generator context - when
+ *		       pointer is non-NULL, perform a randomized signing.
+ *		       Otherwise use deterministic signing.
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int @dilithium_name@_ed448_sign(struct @dilithium_name@_ed448_sig *sig,
+			      const uint8_t *m, size_t mlen,
+			      const struct @dilithium_name@_ed448_sk *sk,
+			      struct lc_rng_ctx *rng_ctx);
+
+/**
+ * @brief Computes signature with Dilithium context in one shot
+ *
+ * This API allows the caller to provide an arbitrary context buffer which
+ * is hashed together with the message to form the message digest to be signed.
+ *
+ * @param [out] sig pointer to output signature
+ * @param [in] ctx reference to the allocated Dilithium context handle
+ * @param [in] m pointer to message to be signed
+ * @param [in] mlen length of message
+ * @param [in] sk pointer to bit-packed secret key
+ * @param [in] rng_ctx pointer to seeded random number generator context - when
+ *		       pointer is non-NULL, perform a randomized signing.
+ *		       Otherwise use deterministic signing.
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int @dilithium_name@_ed448_sign_ctx(struct @dilithium_name@_ed448_sig *sig,
+				      struct lc_dilithium_ed448_ctx *ctx,
+			      const uint8_t *m, size_t mlen,
+			      const struct @dilithium_name@_ed448_sk *sk,
+			      struct lc_rng_ctx *rng_ctx);
+
+int @dilithium_name@_ed448_sign_init(
+	struct lc_dilithium_ed448_ctx *ctx,
+	const struct @dilithium_name@_ed448_sk *sk);
+
+int @dilithium_name@_ed448_sign_update(
+	struct lc_dilithium_ed448_ctx *ctx, const uint8_t *m,
+	size_t mlen);
+
+int  @dilithium_name@_ed448_sign_final(
+	struct @dilithium_name@_ed448_sig *sig,
+	struct lc_dilithium_ed448_ctx *ctx,
+	const struct @dilithium_name@_ed448_sk *sk,
+	struct lc_rng_ctx *rng_ctx);
+
+/**
+ * @brief Verifies signature in one shot
+ *
+ * @param [in] sig pointer to input signature
+ * @param [in] m pointer to message
+ * @param [in] mlen length of message
+ * @param [in] pk pointer to bit-packed public key
+ *
+ * @return 0 if signature could be verified correctly and -EBADMSG when
+ * signature cannot be verified, < 0 on other errors
+ */
+int @dilithium_name@_ed448_verify(const struct @dilithium_name@_ed448_sig *sig,
+				const uint8_t *m, size_t mlen,
+				const struct @dilithium_name@_ed448_pk *pk);
+
+/**
+ * @brief Verifies signature in one shot with Dilithium context
+ *
+ * This API allows the caller to provide an arbitrary context buffer which
+ * is hashed together with the message to form the message digest to be signed.
+ *
+ * @param [in] sig pointer to input signature
+ * @param [in] ctx reference to the allocated Dilithium context handle
+ * @param [in] m pointer to message
+ * @param [in] mlen length of message
+ * @param [in] pk pointer to bit-packed public key
+ *
+ * @return 0 if signature could be verified correctly and -EBADMSG when
+ * signature cannot be verified, < 0 on other errors
+ */
+int @dilithium_name@_ed448_verify_ctx(const struct @dilithium_name@_ed448_sig *sig,
+					struct lc_dilithium_ed448_ctx *ctx,
+				const uint8_t *m, size_t mlen,
+				const struct @dilithium_name@_ed448_pk *pk);
+
+int @dilithium_name@_ed448_verify_init(
+	struct lc_dilithium_ed448_ctx *ctx,
+	const struct @dilithium_name@_ed448_pk *pk);
+int @dilithium_name@_ed448_verify_update(
+	struct lc_dilithium_ed448_ctx *ctx, const uint8_t *m,
+	size_t mlen);
+int @dilithium_name@_ed448_verify_final(
+	const struct @dilithium_name@_ed448_sig *sig,
+	struct lc_dilithium_ed448_ctx *ctx,
+	const struct @dilithium_name@_ed448_pk *pk);
+
+#endif /* LC_DILITHIUM_ED448_SIG */
+
 #endif /* __ASSEMBLER__ */
 
 /*

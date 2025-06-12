@@ -31,6 +31,8 @@
  */
 
 #include "build_bug_on.h"
+#include "signature_domain_separation.h"
+#include "ed448_composite.h"
 #include "lc_ed448.h"
 #include "lc_memcmp_secure.h"
 #include "lc_sha3.h"
@@ -56,21 +58,6 @@ static void clamp(uint8_t secret_scalar_ser[LC_ED448_SECRETKEYBYTES])
 		secret_scalar_ser[LC_ED448_SECRETKEYBYTES - 1] &= hibit - 1;
 		secret_scalar_ser[LC_ED448_SECRETKEYBYTES - 1] |= hibit;
 	}
-}
-
-static void hash_init_with_dom(struct lc_hash_ctx *hash_ctx, uint8_t prehashed,
-			       uint8_t for_prehash, const uint8_t *context,
-			       uint8_t context_len)
-{
-	lc_hash_init(hash_ctx);
-
-	const char *dom_s = "SigEd448";
-	const uint8_t dom[2] = { (uint8_t)(2 + word_is_zero(prehashed) +
-					   word_is_zero(for_prehash)),
-				 context_len };
-	lc_hash_update(hash_ctx, (const unsigned char *)dom_s, 8);
-	lc_hash_update(hash_ctx, dom, 2);
-	lc_hash_update(hash_ctx, context, context_len);
 }
 
 #define DECAF_448_EDDSA_ENCODE_RATIO 4
@@ -109,6 +96,7 @@ ed448_derive_public_key(uint8_t pubkey[LC_ED448_PUBLICKEYBYTES],
 	/* Cleanup */
 	curve448_scalar_destroy(secret_scalar);
 	curve448_point_destroy(p);
+
 	lc_memset_secure(secret_scalar_ser, 0, sizeof(secret_scalar_ser));
 }
 
@@ -142,16 +130,43 @@ static inline void lc_ed448_xof_final(struct lc_hash_ctx *xof_ctx,
 	lc_hash_zero(xof_ctx);
 }
 
-static void
+static void curveed448_hash_init_with_dom(struct lc_hash_ctx *hash_ctx,
+					  uint8_t prehashed,
+					  uint8_t for_prehash,
+					  const uint8_t *context,
+					  uint8_t context_len)
+{
+	const char *dom_s = "SigEd448";
+	const uint8_t dom[2] = { (uint8_t)(2 + word_is_zero(prehashed) +
+					   word_is_zero(for_prehash)),
+				 context_len };
+
+	lc_hash_init(hash_ctx);
+	lc_hash_update(hash_ctx, (const unsigned char *)dom_s, 8);
+	lc_hash_update(hash_ctx, dom, 2);
+	lc_hash_update(hash_ctx, context, context_len);
+}
+
+static int
 curveed448_sign_internal(uint8_t signature[LC_ED448_SIGBYTES],
 			 const uint8_t privkey[LC_ED448_SECRETKEYBYTES],
 			 const uint8_t pubkey[LC_ED448_PUBLICKEYBYTES],
 			 const uint8_t *message, size_t message_len,
-			 uint8_t prehashed, const uint8_t *context,
-			 uint8_t context_len)
+			 uint8_t prehashed,
+			 struct lc_dilithium_ed448_ctx *composite_ml_dsa_ctx)
 {
-	curve448_scalar_t secret_scalar;
+	curve448_scalar_t secret_scalar, nonce_scalar, challenge_scalar;
+	struct lc_dilithium_ctx *dilithium_ctx = NULL;
+	uint8_t nonce_point[LC_ED448_PUBLICKEYBYTES] = { 0 };
+	int ret = 0;
 	LC_SHAKE_256_CTX_ON_STACK(shake256_ctx);
+
+	if (composite_ml_dsa_ctx) {
+		dilithium_ctx = &composite_ml_dsa_ctx->dilithium_ctx;
+
+		if (!dilithium_ctx->composite_ml_dsa)
+			dilithium_ctx = NULL;
+	}
 
 	/* Timecop: mark the secret key as sensitive */
 	poison(privkey, LC_ED448_SECRETKEYBYTES);
@@ -163,10 +178,8 @@ curveed448_sign_internal(uint8_t signature[LC_ED448_SIGBYTES],
 			uint8_t seed[LC_ED448_SECRETKEYBYTES];
 		} __attribute__((packed)) expanded;
 
-		lc_hash_init(shake256_ctx);
-		lc_hash_update(shake256_ctx, privkey, LC_ED448_SECRETKEYBYTES);
-		lc_ed448_xof_final(shake256_ctx, (uint8_t *)&expanded,
-				   sizeof(expanded));
+		lc_xof(lc_shake256, privkey, LC_ED448_SECRETKEYBYTES,
+		       (uint8_t *)&expanded, sizeof(expanded));
 
 		/*
 		 * Once the private key is hashed, you cannot deduct it from
@@ -180,27 +193,36 @@ curveed448_sign_internal(uint8_t signature[LC_ED448_SIGBYTES],
 					    sizeof(expanded.secret_scalar_ser));
 
 		/* Hash to create the nonce */
-		hash_init_with_dom(shake256_ctx, prehashed, 0, context,
-				   context_len);
+		curveed448_hash_init_with_dom(shake256_ctx, prehashed, 0, NULL,
+					      0);
 		lc_hash_update(shake256_ctx, expanded.seed,
 			       sizeof(expanded.seed));
-		lc_hash_update(shake256_ctx, message, message_len);
 		lc_memset_secure(&expanded, 0, sizeof(expanded));
+
+		/* If Composite ML-DSA is requested, apply domain separation */
+		if (dilithium_ctx) {
+			CKINT(composite_signature_domain_separation(
+				shake256_ctx, dilithium_ctx->userctx,
+				dilithium_ctx->userctxlen,
+				dilithium_ctx->composite_ml_dsa));
+		}
+
+		lc_hash_update(shake256_ctx, message, message_len);
 	}
 
 	/* Decode the nonce */
-	curve448_scalar_t nonce_scalar;
 	{
 		uint8_t nonce[2 * LC_ED448_SECRETKEYBYTES];
+
 		lc_ed448_xof_final(shake256_ctx, nonce, sizeof(nonce));
 		curve448_scalar_decode_long(nonce_scalar, nonce, sizeof(nonce));
 		lc_memset_secure(nonce, 0, sizeof(nonce));
 	}
 
-	uint8_t nonce_point[LC_ED448_PUBLICKEYBYTES] = { 0 };
 	{
 		/* Scalarmul to create the nonce-point */
 		curve448_scalar_t nonce_scalar_2;
+
 		curve448_scalar_halve(nonce_scalar_2, nonce_scalar);
 		for (unsigned int c = 2; c < DECAF_448_EDDSA_ENCODE_RATIO;
 		     c <<= 1) {
@@ -216,14 +238,23 @@ curveed448_sign_internal(uint8_t signature[LC_ED448_SIGBYTES],
 		curve448_scalar_destroy(nonce_scalar_2);
 	}
 
-	curve448_scalar_t challenge_scalar;
 	{
 		/* Compute the challenge */
-		hash_init_with_dom(shake256_ctx, prehashed, 0, context,
-				   context_len);
+		curveed448_hash_init_with_dom(shake256_ctx, prehashed, 0, NULL,
+					      0);
 		lc_hash_update(shake256_ctx, nonce_point, sizeof(nonce_point));
 		lc_hash_update(shake256_ctx, pubkey, LC_ED448_PUBLICKEYBYTES);
+
+		/* If Composite ML-DSA is requested, apply domain separation */
+		if (dilithium_ctx) {
+			CKINT(composite_signature_domain_separation(
+				shake256_ctx, dilithium_ctx->userctx,
+				dilithium_ctx->userctxlen,
+				dilithium_ctx->composite_ml_dsa));
+		}
+
 		lc_hash_update(shake256_ctx, message, message_len);
+
 		uint8_t challenge[2 * LC_ED448_SECRETKEYBYTES];
 		lc_ed448_xof_final(shake256_ctx, challenge, sizeof(challenge));
 		curve448_scalar_decode_long(challenge_scalar, challenge,
@@ -240,13 +271,17 @@ curveed448_sign_internal(uint8_t signature[LC_ED448_SIGBYTES],
 	curve448_scalar_encode(&signature[LC_ED448_PUBLICKEYBYTES],
 			       challenge_scalar);
 
-	curve448_scalar_destroy(secret_scalar);
-	curve448_scalar_destroy(nonce_scalar);
-	curve448_scalar_destroy(challenge_scalar);
-
 	/* Timecop: sig and sk are not relevant for side-channels any more. */
 	unpoison(signature, LC_ED448_SIGBYTES);
 	unpoison(privkey, LC_ED448_SECRETKEYBYTES);
+
+out:
+	curve448_scalar_destroy(secret_scalar);
+	curve448_scalar_destroy(nonce_scalar);
+	curve448_scalar_destroy(challenge_scalar);
+	lc_memset_secure(nonce_point, 0, sizeof(nonce_point));
+	lc_hash_zero(shake256_ctx);
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_ed448_sign, struct lc_ed448_sig *sig,
@@ -262,43 +297,75 @@ LC_INTERFACE_FUNCTION(int, lc_ed448_sign, struct lc_ed448_sig *sig,
 	CKNULL(sk, -EINVAL);
 
 	ed448_derive_public_key(rederived_pubkey, sk->sk);
-	curveed448_sign_internal(sig->sig, sk->sk, rederived_pubkey, msg, mlen,
-				 0, NULL, 0);
+	CKINT(curveed448_sign_internal(sig->sig, sk->sk, rederived_pubkey, msg,
+				       mlen, 0, NULL));
 
 out:
+	lc_memset_secure(rederived_pubkey, 0, sizeof(rederived_pubkey));
 	return ret;
 }
 
-#if 0
-void curveed448_keypair_sign_prehash (
-    uint8_t signature[LC_ED448_SIGBYTES],
-    const curveeddsa_448_keypair_t keypair,
-    const curveed448_prehash_ctx_t hash,
-    const uint8_t *context,
-    uint8_t context_len
-) {
-    uint8_t hash_output[EDDSA_PREHASH_BYTES];
-    {
-        curveed448_prehash_ctx_t hash_too;
-        memcpy(hash_too,hash,sizeof(hash_too));
-        hash_final(hash_too,hash_output,sizeof(hash_output));
-        hash_destroy(hash_too);
-    }
+LC_INTERFACE_FUNCTION(int, lc_ed448ph_sign, struct lc_ed448_sig *sig,
+		      const uint8_t *msg, size_t mlen,
+		      const struct lc_ed448_sk *sk, struct lc_rng_ctx *rng_ctx)
+{
+	uint8_t rederived_pubkey[LC_ED448_PUBLICKEYBYTES];
+	int ret = 0;
 
-    curveed448_sign_internal(signature,keypair->privkey,keypair->pubkey,hash_output,
-        sizeof(hash_output),1,context,context_len);
-    curvebzero(hash_output,sizeof(hash_output));
+	(void)rng_ctx;
+
+	CKNULL(sig, -EINVAL);
+	CKNULL(sk, -EINVAL);
+
+	ed448_derive_public_key(rederived_pubkey, sk->sk);
+	CKINT(curveed448_sign_internal(sig->sig, sk->sk, rederived_pubkey, msg,
+				       mlen, 1, NULL));
+
+out:
+	lc_memset_secure(rederived_pubkey, 0, sizeof(rederived_pubkey));
+	return ret;
 }
-#endif
 
-static int curveed448_verify(const uint8_t signature[LC_ED448_SIGBYTES],
-			     const uint8_t pubkey[LC_ED448_PUBLICKEYBYTES],
-			     const uint8_t *message, size_t message_len,
-			     uint8_t prehashed, const uint8_t *context,
-			     uint8_t context_len)
+int lc_ed448_sign_ctx(struct lc_ed448_sig *sig, const uint8_t *msg, size_t mlen,
+		      const struct lc_ed448_sk *sk, struct lc_rng_ctx *rng_ctx,
+		      struct lc_dilithium_ed448_ctx *composite_ml_dsa_ctx)
+{
+	uint8_t rederived_pubkey[LC_ED448_PUBLICKEYBYTES];
+	int ret;
+
+	(void)rng_ctx;
+
+	CKNULL(sig, -EINVAL);
+	CKNULL(sk, -EINVAL);
+
+	ed448_derive_public_key(rederived_pubkey, sk->sk);
+	CKINT(curveed448_sign_internal(sig->sig, sk->sk, rederived_pubkey, msg,
+				       mlen, 0, composite_ml_dsa_ctx));
+
+out:
+	lc_memset_secure(rederived_pubkey, 0, sizeof(rederived_pubkey));
+	return ret;
+}
+
+static int
+curveed448_verify(const uint8_t signature[LC_ED448_SIGBYTES],
+		  const uint8_t pubkey[LC_ED448_PUBLICKEYBYTES],
+		  const uint8_t *message, size_t message_len, uint8_t prehashed,
+		  struct lc_dilithium_ed448_ctx *composite_ml_dsa_ctx)
 {
 	curve448_point_t pk_point, r_point;
+	curve448_scalar_t challenge_scalar, response_scalar;
+	struct lc_dilithium_ctx *dilithium_ctx = NULL;
+	uint8_t challenge[2 * LC_ED448_SECRETKEYBYTES];
 	int ret;
+	LC_SHAKE_256_CTX_ON_STACK(shake256_ctx);
+
+	if (composite_ml_dsa_ctx) {
+		dilithium_ctx = &composite_ml_dsa_ctx->dilithium_ctx;
+
+		if (!dilithium_ctx->composite_ml_dsa)
+			dilithium_ctx = NULL;
+	}
 
 	CKINT(curve448_point_decode_like_eddsa_and_mul_by_ratio(pk_point,
 								pubkey));
@@ -306,52 +373,41 @@ static int curveed448_verify(const uint8_t signature[LC_ED448_SIGBYTES],
 	CKINT(curve448_point_decode_like_eddsa_and_mul_by_ratio(r_point,
 								signature));
 
-	curve448_scalar_t challenge_scalar;
-	{
-		/* Compute the challenge */
-		LC_SHAKE_256_CTX_ON_STACK(shake256_ctx);
-		hash_init_with_dom(shake256_ctx, prehashed, 0, context,
-				   context_len);
-		lc_hash_update(shake256_ctx, signature,
-			       LC_ED448_PUBLICKEYBYTES);
-		lc_hash_update(shake256_ctx, pubkey, LC_ED448_PUBLICKEYBYTES);
-		lc_hash_update(shake256_ctx, message, message_len);
-		uint8_t challenge[2 * LC_ED448_SECRETKEYBYTES];
-		lc_ed448_xof_final(shake256_ctx, challenge, sizeof(challenge));
-		curve448_scalar_decode_long(challenge_scalar, challenge,
-					    sizeof(challenge));
-		lc_memset_secure(challenge, 0, sizeof(challenge));
+	/* Compute the challenge */
+	curveed448_hash_init_with_dom(shake256_ctx, prehashed, 0, NULL, 0);
+
+	lc_hash_update(shake256_ctx, signature, LC_ED448_PUBLICKEYBYTES);
+	lc_hash_update(shake256_ctx, pubkey, LC_ED448_PUBLICKEYBYTES);
+
+	/* If Composite ML-DSA is requested, apply domain separation */
+	if (dilithium_ctx) {
+		CKINT(composite_signature_domain_separation(
+			shake256_ctx, dilithium_ctx->userctx,
+			dilithium_ctx->userctxlen,
+			dilithium_ctx->composite_ml_dsa));
 	}
+
+	lc_hash_update(shake256_ctx, message, message_len);
+
+	lc_ed448_xof_final(shake256_ctx, challenge, sizeof(challenge));
+	curve448_scalar_decode_long(challenge_scalar, challenge,
+				    sizeof(challenge));
+
 	curve448_scalar_sub(challenge_scalar, curve448_scalar_zero,
 			    challenge_scalar);
 
-	curve448_scalar_t response_scalar;
 	CKINT(curve448_scalar_decode(response_scalar,
 				     &signature[LC_ED448_PUBLICKEYBYTES]));
-
-#if 0
-#if DECAF_448_SCALAR_BYTES < LC_ED448_SECRETKEYBYTES
-	for (unsigned i = DECAF_448_SCALAR_BYTES; i < LC_ED448_SECRETKEYBYTES;
-	     i++) {
-		if (signature[LC_ED448_PUBLICKEYBYTES + i] != 0x00) {
-			return DECAF_FAILURE;
-		}
-	}
-#endif
-#endif
-#define DECAF_448_EDDSA_DECODE_RATIO (4 / 4)
-	for (unsigned c = 1; c < DECAF_448_EDDSA_DECODE_RATIO; c <<= 1) {
-		curve448_scalar_add(response_scalar, response_scalar,
-				    response_scalar);
-	}
 
 	/* pk_point = -c(x(P)) + (cx + k)G = kG */
 	curve448_base_double_scalarmul_non_secret(pk_point, response_scalar,
 						  pk_point, challenge_scalar);
 
-	ret = curve448_point_eq(pk_point, r_point) ? 0 : -EFAULT;
+	ret = curve448_point_eq(pk_point, r_point) ? 0 : -EBADMSG;
 
 out:
+	lc_memset_secure(challenge, 0, sizeof(challenge));
+	lc_hash_zero(shake256_ctx);
 	return ret;
 }
 
@@ -364,35 +420,39 @@ LC_INTERFACE_FUNCTION(int, lc_ed448_verify, const struct lc_ed448_sig *sig,
 	CKNULL(sig, -EINVAL);
 	CKNULL(pk, -EINVAL);
 
-	if (!curveed448_verify(sig->sig, pk->pk, msg, mlen, 0, NULL, 0))
-		return 0;
-
-	ret = -EBADMSG;
+	CKINT(curveed448_verify(sig->sig, pk->pk, msg, mlen, 0, NULL));
 
 out:
 	return ret;
 }
 
-#if 0
-curveerror_t curveed448_verify_prehash (
-    const uint8_t signature[LC_ED448_SIGBYTES],
-    const uint8_t pubkey[LC_ED448_PUBLICKEYBYTES],
-    const curveed448_prehash_ctx_t hash,
-    const uint8_t *context,
-    uint8_t context_len
-) {
-    curveerror_t ret;
+LC_INTERFACE_FUNCTION(int, lc_ed448ph_verify, const struct lc_ed448_sig *sig,
+		      const uint8_t *msg, size_t mlen,
+		      const struct lc_ed448_pk *pk)
+{
+	int ret;
 
-    uint8_t hash_output[EDDSA_PREHASH_BYTES];
-    {
-        curveed448_prehash_ctx_t hash_too;
-        memcpy(hash_too,hash,sizeof(hash_too));
-        hash_final(hash_too,hash_output,sizeof(hash_output));
-        hash_destroy(hash_too);
-    }
+	CKNULL(sig, -EINVAL);
+	CKNULL(pk, -EINVAL);
 
-    ret = curveed448_verify(signature,pubkey,hash_output,sizeof(hash_output),1,context,context_len);
+	CKINT(curveed448_verify(sig->sig, pk->pk, msg, mlen, 1, NULL));
 
-    return ret;
+out:
+	return ret;
 }
-#endif
+
+int lc_ed448_verify_ctx(const struct lc_ed448_sig *sig, const uint8_t *msg,
+			size_t mlen, const struct lc_ed448_pk *pk,
+			struct lc_dilithium_ed448_ctx *composite_ml_dsa_ctx)
+{
+	int ret;
+
+	CKNULL(sig, -EINVAL);
+	CKNULL(pk, -EINVAL);
+
+	CKINT(curveed448_verify(sig->sig, pk->pk, msg, mlen, 0,
+				composite_ml_dsa_ctx));
+
+out:
+	return ret;
+}

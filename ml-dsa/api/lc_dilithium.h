@@ -1263,6 +1263,557 @@ int lc_dilithium_ed25519_verify_final(const struct lc_dilithium_ed25519_sig *sig
 
 #endif /* LC_DILITHIUM_ED25519_SIG */
 
+/****************************** Dilithium ED25510 *****************************/
+
+#ifdef LC_DILITHIUM_ED448_SIG
+
+/** @defgroup HybridDilithium ML-DSA / CRYSTALS-Dilithium Hybrid Signature Mechanism
+ *
+ * The Dilithium hybrid API performs signature operations with Dilithium and
+ * the classic ED448 algorithm at the same time. The API is identical to
+ * the Dilithium API and can be used as a drop-in replacement.
+ *
+ * ED448ph is used for the hybrid signature operation compliant to
+ * RFC8032 using a NULL context. This approach is taken to support the
+ * stream mode operation with init / update / final.
+ *
+ * To support the stream mode of the Dilithium signature operation, a
+ * context structure is required. This context structure can be allocated either
+ * on the stack or heap with \p LC_DILITHIUM_ED448_CTX_ON_STACK or
+ * \p lc_dilithium_ed448_ctx_alloc. The context should be zeroized
+ * and freed (only for heap) with \p lc_dilithium_ed448_ctx_zero or
+ * \p lc_dilithium_ed448_ctx_zero_free.
+ */
+
+/**
+ * @brief Dilithium secret key
+ */
+struct lc_dilithium_ed448_sk {
+	enum lc_dilithium_type dilithium_type;
+	union {
+#ifdef LC_DILITHIUM_87_ENABLED
+		struct lc_dilithium_87_ed448_sk sk_87;
+#endif
+#ifdef LC_DILITHIUM_65_ENABLED
+		struct lc_dilithium_65_ed448_sk sk_65;
+#endif
+#ifdef LC_DILITHIUM_44_ENABLED
+		struct lc_dilithium_44_ed448_sk sk_44;
+#endif
+	} key;
+};
+
+/**
+ * @brief Dilithium public key
+ */
+struct lc_dilithium_ed448_pk {
+	enum lc_dilithium_type dilithium_type;
+	union {
+#ifdef LC_DILITHIUM_87_ENABLED
+		struct lc_dilithium_87_ed448_pk pk_87;
+#endif
+#ifdef LC_DILITHIUM_65_ENABLED
+		struct lc_dilithium_65_ed448_pk pk_65;
+#endif
+#ifdef LC_DILITHIUM_44_ENABLED
+		struct lc_dilithium_44_ed448_pk pk_44;
+#endif
+	} key;
+};
+
+/**
+ * @brief Dilithium signature
+ */
+struct lc_dilithium_ed448_sig {
+	enum lc_dilithium_type dilithium_type;
+	union {
+#ifdef LC_DILITHIUM_87_ENABLED
+		struct lc_dilithium_87_ed448_sig sig_87;
+#endif
+#ifdef LC_DILITHIUM_65_ENABLED
+		struct lc_dilithium_65_ed448_sig sig_65;
+#endif
+#ifdef LC_DILITHIUM_44_ENABLED
+		struct lc_dilithium_44_ed448_sig sig_44;
+#endif
+	} sig;
+};
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Allocates Dilithium-ED448 context on heap
+ *
+ * @param [out] ctx Dilithium-ED448 context pointer
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int lc_dilithium_ed448_ctx_alloc(struct lc_dilithium_ed448_ctx **ctx);
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Zeroizes and frees Dilithium-ED448 context on heap
+ *
+ * @param [out] ctx Dilithium-ED448 context pointer
+ */
+void lc_dilithium_ed448_ctx_zero_free(struct lc_dilithium_ed448_ctx *ctx);
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Zeroizes Dilithium-ED448 context either on heap or on stack
+ *
+ * @param [out] ctx Dilithium-ED448 context pointer
+ */
+void lc_dilithium_ed448_ctx_zero(struct lc_dilithium_ed448_ctx *ctx);
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Set the hash type that was used for pre-hashing the message. The
+ *	  message digest ist used with the HashML-DSA. The message digest
+ *	  is to be provided via the message pointer in the sign/verify APIs.
+ *
+ * @param [in] ctx Dilithium-ED448 context
+ * @param [in] hash Hash context referencing the used hash for pre-hashing the
+ *		    message
+ */
+void lc_dilithium_ed448_ctx_hash(struct lc_dilithium_ed448_ctx *ctx,
+				 const struct lc_hash *hash);
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Mark the Dilithium context to execute ML-DSA.Sign_internal /
+ *	  ML-DSA.Verify_internal.
+ *
+ * @param [in] ctx Dilithium-ED448 context
+ */
+void lc_dilithium_ed448_ctx_internal(struct lc_dilithium_ed448_ctx *ctx);
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Specify the optional user context string to be applied with the
+ *	  Dilithium-ED448 signature operation.
+ *
+ * \warning The operation of the HashComposite-ML-DSA operation clears out
+ * this context during processing. If this context is reused, the caller MUST
+ * set the cotext again.
+ *
+ * @param [in] ctx Dilithium-ED448 context
+ * @param [in] userctx User context string
+ * @param [in] userctxlen Size of the user context string
+ */
+void lc_dilithium_ed448_ctx_userctx(struct lc_dilithium_ed448_ctx *ctx,
+				    const uint8_t *userctx, size_t userctxlen);
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Obtain Dilithium type from secret key
+ *
+ * @param [in] sk Secret key from which the type is to be obtained
+ *
+ * @return key type
+ */
+enum lc_dilithium_type
+lc_dilithium_ed448_sk_type(const struct lc_dilithium_ed448_sk *sk);
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Obtain Dilithium type from public key
+ *
+ * @param [in] pk Public key from which the type is to be obtained
+ *
+ * @return key type
+ */
+enum lc_dilithium_type
+lc_dilithium_ed448_pk_type(const struct lc_dilithium_ed448_pk *pk);
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Obtain Dilithium type from signature
+ *
+ * @param [in] sig Signature from which the type is to be obtained
+ *
+ * @return key type
+ */
+enum lc_dilithium_type
+lc_dilithium_ed448_sig_type(const struct lc_dilithium_ed448_sig *sig);
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Return the size of the Dilithium secret key.
+ *
+ * @param [in] dilithium_type Dilithium type for which the size is requested
+ *
+ * @return requested size
+ */
+LC_PURE unsigned int
+lc_dilithium_ed448_sk_size(enum lc_dilithium_type dilithium_type);
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Return the size of the Dilithium public key.
+ *
+ * @param [in] dilithium_type Dilithium type for which the size is requested
+ *
+ * @return requested size
+ */
+LC_PURE unsigned int
+lc_dilithium_ed448_pk_size(enum lc_dilithium_type dilithium_type);
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Return the size of the Dilithium signature.
+ *
+ * @param [in] dilithium_type Dilithium type for which the size is requested
+ *
+ * @return requested size
+ */
+LC_PURE unsigned int
+lc_dilithium_ed448_sig_size(enum lc_dilithium_type dilithium_type);
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Load a Dilithium secret key provided with a buffer into the leancrypto
+ *	  data structure.
+ *
+ * @param [out] sk Secret key to be filled (the caller must have it allocated)
+ * @param [in] dilithium_src_key Buffer that holds the Dilithium key to be
+ *	       imported
+ * @param [in] dilithium_src_key_len Buffer length that holds the key to be
+ *	       imported
+ * @param [in] ed448_src_key Buffer that holds the ED448 key to be imported
+ * @param [in] ed448_src_key_len Buffer length that holds the key to be
+ *	       imported
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_dilithium_ed448_sk_load(struct lc_dilithium_ed448_sk *sk,
+			       const uint8_t *dilithium_src_key,
+			       size_t dilithium_src_key_len,
+			       const uint8_t *ed448_src_key,
+			       size_t ed448_src_key_len);
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Load a Dilithium public key provided with a buffer into the leancrypto
+ *	  data structure.
+ *
+ * @param [out] pk Secret key to be filled (the caller must have it allocated)
+ * @param [in] dilithium_src_key Buffer that holds the Dilithium key to be
+ *	       imported
+ * @param [in] dilithium_src_key_len Buffer length that holds the key to be
+ *	       imported
+ * @param [in] ed448_src_key Buffer that holds the ED448 key to be imported
+ * @param [in] ed448_src_key_len Buffer length that holds the key to be
+ *	       imported
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_dilithium_ed448_pk_load(struct lc_dilithium_ed448_pk *pk,
+			       const uint8_t *dilithium_src_key,
+			       size_t dilithium_src_key_len,
+			       const uint8_t *ed448_src_key,
+			       size_t ed448_src_key_len);
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Load a Dilithium signature provided with a buffer into the leancrypto
+ *	  data structure.
+ *
+ * @param [out] sig Secret key to be filled (the caller must have it allocated)
+ * @param [in] dilithium_src_sig Buffer that holds the Dilithium signature to be
+ *	       imported
+ * @param [in] dilithium_src_sig_len Buffer length that holds the Dilithium
+ *	       signature to be imported
+ * @param [in] ed448_src_sig Buffer that holds the ED448 signature to be
+ *	       imported
+ * @param [in] ed448_src_sig_len Buffer length that holds the ED448
+ *	       signature to be imported
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_dilithium_ed448_sig_load(struct lc_dilithium_ed448_sig *sig,
+				const uint8_t *dilithium_src_sig,
+				size_t dilithium_src_sig_len,
+				const uint8_t *ed448_src_sig,
+				size_t ed448_src_sig_len);
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Obtain the reference to the Dilithium key and its length
+ *
+ * \note Only pointer references into the leancrypto data structure are returned
+ * which implies that any modification will modify the leancrypto key, too.
+ *
+ * @param [out] dilithium_key Dilithium key pointer
+ * @param [out] dilithium_key_len Length of the key buffer
+ * @param [out] ed448_key ED448 key pointer
+ * @param [out] ed448_key_len ED448 of the key buffer
+ * @param [in] sk Dilithium secret key from which the references are obtained
+ *
+ * @return 0 on success, != 0 on error
+ */
+int lc_dilithium_ed448_sk_ptr(uint8_t **dilithium_key,
+			      size_t *dilithium_key_len, uint8_t **ed448_key,
+			      size_t *ed448_key_len,
+			      struct lc_dilithium_ed448_sk *sk);
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Obtain the reference to the Dilithium key and its length
+ *
+ * \note Only pointer references into the leancrypto data structure are returned
+ * which implies that any modification will modify the leancrypto key, too.
+ *
+ * @param [out] dilithium_key Dilithium key pointer
+ * @param [out] dilithium_key_len Length of the key buffer
+ * @param [out] ed448_key ED448 key pointer
+ * @param [out] ed448_key_len ED448 of the key buffer
+ * @param [in] pk Dilithium publi key from which the references are obtained
+ *
+ * @return 0 on success, != 0 on error
+ */
+int lc_dilithium_ed448_pk_ptr(uint8_t **dilithium_key,
+			      size_t *dilithium_key_len, uint8_t **ed448_key,
+			      size_t *ed448_key_len,
+			      struct lc_dilithium_ed448_pk *pk);
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Obtain the reference to the Dilithium signature and its length
+ *
+ * \note Only pointer references into the leancrypto data structure are returned
+ * which implies that any modification will modify the leancrypto signature,
+ * too.
+ *
+ * @param [out] dilithium_sig Dilithium signature pointer
+ * @param [out] dilithium_sig_len Length of the signature buffer
+ * @param [out] ed448_sig ED448 signature pointer
+ * @param [out] ed448_sig_len ED448 of the signature buffer
+ * @param [in] sig Dilithium signature from which the references are obtained
+ *
+ * @return 0 on success, != 0 on error
+ */
+int lc_dilithium_ed448_sig_ptr(uint8_t **dilithium_sig,
+			       size_t *dilithium_sig_len, uint8_t **ed448_sig,
+			       size_t *ed448_sig_len,
+			       struct lc_dilithium_ed448_sig *sig);
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Generates Dilithium public and private key.
+ *
+ * @param [out] pk pointer to allocated output public key
+ * @param [out] sk pointer to allocated output private key
+ * @param [in] rng_ctx pointer to seeded random number generator context
+ * @param [in] dilithium_type type of the Dilithium key to generate
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int lc_dilithium_ed448_keypair(struct lc_dilithium_ed448_pk *pk,
+			       struct lc_dilithium_ed448_sk *sk,
+			       struct lc_rng_ctx *rng_ctx,
+			       enum lc_dilithium_type dilithium_type);
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Computes signature in one shot
+ *
+ * \note The one-shot API provides the algorithm of Composite-ML-DSA as outlined
+ * in https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-03.html
+ *
+ * @param [out] sig pointer to output signature
+ * @param [in] m pointer to message to be signed
+ * @param [in] mlen length of message
+ * @param [in] sk pointer to bit-packed secret key
+ * @param [in] rng_ctx pointer to seeded random number generator context - when
+ *		       pointer is non-NULL, perform a randomized signing.
+ *		       Otherwise use deterministic signing.
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int lc_dilithium_ed448_sign(struct lc_dilithium_ed448_sig *sig,
+			    const uint8_t *m, size_t mlen,
+			    const struct lc_dilithium_ed448_sk *sk,
+			    struct lc_rng_ctx *rng_ctx);
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Computes signature with Dilithium context in one shot
+ *
+ * This API allows the caller to provide an arbitrary context buffer which
+ * is hashed together with the message to form the message digest to be signed.
+ *
+ * \note The one-shot API provides the algorithm of Composite-ML-DSA as outlined
+ * in https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-03.html
+ * If the caller specifies a hash algorithm as pre-hash algorithm in the context
+ * via \p lc_dilithium_ctx_hash then *only* the ML-DSA part is affected and
+ * changed into a HashML-DSA which implies that the resulting operation is still
+ * Composite-ML-DSA but with a HashML-DSA used internally - i.e. the resulting
+ * algorithm does not comply to any standard. Therefore, it is best to not
+ * use this method.
+ *
+ * @param [out] sig pointer to output signature
+ * @param [in] ctx reference to the allocated Dilithium context handle
+ * @param [in] m pointer to message to be signed
+ * @param [in] mlen length of message
+ * @param [in] sk pointer to bit-packed secret key
+ * @param [in] rng_ctx pointer to seeded random number generator context - when
+ *		       pointer is non-NULL, perform a randomized signing.
+ *		       Otherwise use deterministic signing.
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int lc_dilithium_ed448_sign_ctx(struct lc_dilithium_ed448_sig *sig,
+				struct lc_dilithium_ed448_ctx *ctx,
+				const uint8_t *m, size_t mlen,
+				const struct lc_dilithium_ed448_sk *sk,
+				struct lc_rng_ctx *rng_ctx);
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Initializes signature operation in stream mode
+ *
+ * \note The stream API provides the algorithm of HashComposite-ML-DSA as
+ * outlined in
+ * https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-03.html.
+ * The reason is that ED448 cannot operate in stream mode and thus must be
+ * turned into using a pre-hashed message.
+ *
+ * @param [in] ctx Dilithium-ED448 context pointer
+ * @param [in] sk pointer to bit-packed secret key
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int lc_dilithium_ed448_sign_init(struct lc_dilithium_ed448_ctx *ctx,
+				 const struct lc_dilithium_ed448_sk *sk);
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Updates signature in stream mode
+ *
+ * @param [in] ctx Dilithium-ED448 context pointer
+ * @param [in] m pointer to message to be signed
+ * @param [in] mlen length of message
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int lc_dilithium_ed448_sign_update(struct lc_dilithium_ed448_ctx *ctx,
+				   const uint8_t *m, size_t mlen);
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Computes signature in stream mode
+ *
+ * @param [out] sig pointer to output signature
+ * @param [in] ctx Dilithium-ED448 context pointer
+ * @param [in] sk pointer to bit-packed secret key
+ * @param [in] rng_ctx pointer to seeded random number generator context - when
+ *		       pointer is non-NULL, perform a randomized signing.
+ *		       Otherwise use deterministic signing.
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int lc_dilithium_ed448_sign_final(struct lc_dilithium_ed448_sig *sig,
+				  struct lc_dilithium_ed448_ctx *ctx,
+				  const struct lc_dilithium_ed448_sk *sk,
+				  struct lc_rng_ctx *rng_ctx);
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Verifies signature in one shot
+ *
+ * \note The one-shot API provides the algorithm of Composite-ML-DSA as outlined
+ * in https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-03.html
+ *
+ * @param [in] sig pointer to input signature
+ * @param [in] m pointer to message
+ * @param [in] mlen length of message
+ * @param [in] pk pointer to bit-packed public key
+ *
+ * @return 0 if signature could be verified correctly and -EBADMSG when
+ * signature cannot be verified, < 0 on other errors
+ */
+int lc_dilithium_ed448_verify(const struct lc_dilithium_ed448_sig *sig,
+			      const uint8_t *m, size_t mlen,
+			      const struct lc_dilithium_ed448_pk *pk);
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Verifies signature with Dilithium context in one shot
+ *
+ * This API allows the caller to provide an arbitrary context buffer which
+ * is hashed together with the message to form the message digest to be signed.
+ *
+ * \note The one-shot API provides the algorithm of Composite-ML-DSA as outlined
+ * in https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-03.html
+ * If the caller specifies a hash algorithm as pre-hash algorithm in the context
+ * via \p lc_dilithium_ctx_hash then *only* the ML-DSA part is affected and
+ * changed into a HashML-DSA which implies that the resulting operation is still
+ * Composite-ML-DSA but with a HashML-DSA used internally - i.e. the resulting
+ * algorithm does not comply to any standard. Therefore, it is best to not
+ * use this method.
+ *
+ * @param [in] sig pointer to input signature
+ * @param [in] ctx reference to the allocated Dilithium context handle
+ * @param [in] m pointer to message
+ * @param [in] mlen length of message
+ * @param [in] pk pointer to bit-packed public key
+ *
+ * @return 0 if signature could be verified correctly and -EBADMSG when
+ * signature cannot be verified, < 0 on other errors
+ */
+int lc_dilithium_ed448_verify_ctx(const struct lc_dilithium_ed448_sig *sig,
+				  struct lc_dilithium_ed448_ctx *ctx,
+				  const uint8_t *m, size_t mlen,
+				  const struct lc_dilithium_ed448_pk *pk);
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Initializes signature verification operation in stream mode
+ *
+ * \note The stream API provides the algorithm of HashComposite-ML-DSA as
+ * outlined in
+ * https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-03.html.
+ * The reason is that ED448 cannot operate in stream mode and thus must be
+ * turned into using a pre-hashed message.
+ *
+ * @param [in] ctx Dilithium-ED448 context pointer
+ * @param [in] pk pointer to bit-packed public key
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int lc_dilithium_ed448_verify_init(struct lc_dilithium_ed448_ctx *ctx,
+				   const struct lc_dilithium_ed448_pk *pk);
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Updates signature verification in stream mode
+ *
+ * @param [in] ctx Dilithium-ED448 context pointer
+ * @param [in] m pointer to message to be signed
+ * @param [in] mlen length of message
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int lc_dilithium_ed448_verify_update(struct lc_dilithium_ed448_ctx *ctx,
+				     const uint8_t *m, size_t mlen);
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Verifies signature in stream mode
+ *
+ * @param [in] sig pointer to input signatur
+ * @param [in] ctx Dilithium-ED448 context pointer
+ * @param [in] pk pointer to bit-packed public key
+ *
+ * @return 0 if signature could be verified correctly and -EBADMSG when
+ * signature cannot be verified, < 0 on other errors
+ */
+int lc_dilithium_ed448_verify_final(const struct lc_dilithium_ed448_sig *sig,
+				    struct lc_dilithium_ed448_ctx *ctx,
+				    const struct lc_dilithium_ed448_pk *pk);
+
+#endif /* LC_DILITHIUM_ED448_SIG */
+
 #ifdef __cplusplus
 }
 #endif

@@ -26,6 +26,10 @@ if get_option('dilithium_ed25519').enabled()
 	dilithium_c += files ([ 'dilithium_ed25519_signature.c' ])
 endif
 
+if get_option('dilithium_ed448').enabled()
+	dilithium_c += files ([ 'dilithium_ed448_signature.c' ])
+endif
+
 dilithium_api_c = 0
 if (dilithium_enabled)
 	if (x86_64_asm)

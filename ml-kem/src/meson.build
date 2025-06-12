@@ -46,6 +46,19 @@ if get_option('kyber_x25519').enabled()
 	endif
 endif
 
+if get_option('kyber_x448').enabled()
+	kyber_c += files ([
+		'kyber_x448_kem.c',
+		'kyber_x448_kex.c',
+	])
+
+	if (aead_support_enabled)
+		kyber_c += files ([
+			'kyber_x448_ies.c',
+		])
+	endif
+endif
+
 if (x86_64_asm)
 	subdir('avx2')
 elif (arm64_asm)

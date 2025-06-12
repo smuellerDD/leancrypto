@@ -50,6 +50,10 @@ extern "C" {
 #define lc_kyber_x25519_sk lc_kyber_768_x25519_sk
 #define lc_kyber_x25519_ct lc_kyber_768_x25519_ct
 #define lc_kyber_x25519_ss lc_kyber_768_x25519_ss
+#define lc_kyber_x448_pk lc_kyber_768_x448_pk
+#define lc_kyber_x448_sk lc_kyber_768_x448_sk
+#define lc_kyber_x448_ct lc_kyber_768_x448_ct
+#define lc_kyber_x448_ss lc_kyber_768_x448_ss
 
 #include "lc_kyber_768.h"
 
@@ -64,6 +68,10 @@ extern "C" {
 #define lc_kyber_x25519_sk lc_kyber_512_x25519_sk
 #define lc_kyber_x25519_ct lc_kyber_512_x25519_ct
 #define lc_kyber_x25519_ss lc_kyber_512_x25519_ss
+#define lc_kyber_x448_pk lc_kyber_512_x448_pk
+#define lc_kyber_x448_sk lc_kyber_512_x448_sk
+#define lc_kyber_x448_ct lc_kyber_512_x448_ct
+#define lc_kyber_x448_ss lc_kyber_512_x448_ss
 
 #include "lc_kyber_512.h"
 
@@ -78,6 +86,10 @@ extern "C" {
 #define lc_kyber_x25519_sk lc_kyber_1024_x25519_sk
 #define lc_kyber_x25519_ct lc_kyber_1024_x25519_ct
 #define lc_kyber_x25519_ss lc_kyber_1024_x25519_ss
+#define lc_kyber_x448_pk lc_kyber_1024_x448_pk
+#define lc_kyber_x448_sk lc_kyber_1024_x448_sk
+#define lc_kyber_x448_ct lc_kyber_1024_x448_ct
+#define lc_kyber_x448_ss lc_kyber_1024_x448_ss
 
 #include "lc_kyber_1024.h"
 
@@ -94,6 +106,13 @@ extern "C" {
 #define lc_kex_x25519_ake_responder_ss KEX_F(x25519_ake_responder_ss)
 #define lc_kex_x25519_ake_initiator_ss KEX_F(x25519_ake_initiator_ss)
 
+#define lc_kex_x448_uake_initiator_init KEX_F(x448_uake_initiator_init)
+#define lc_kex_x448_uake_responder_ss KEX_F(x448_uake_responder_ss)
+#define lc_kex_x448_uake_initiator_ss KEX_F(x448_uake_initiator_ss)
+#define lc_kex_x448_ake_initiator_init KEX_F(x448_ake_initiator_init)
+#define lc_kex_x448_ake_responder_ss KEX_F(x448_ake_responder_ss)
+#define lc_kex_x448_ake_initiator_ss KEX_F(x448_ake_initiator_ss)
+
 #define lc_kex_uake_initiator_init KEX_F(uake_initiator_init)
 #define lc_kex_uake_responder_ss KEX_F(uake_responder_ss)
 #define lc_kex_uake_initiator_ss KEX_F(uake_initiator_ss)
@@ -104,6 +123,10 @@ extern "C" {
 #define lc_kyber_x25519_keypair KYBER_F(x25519_keypair)
 #define lc_kyber_x25519_enc_kdf KYBER_F(x25519_enc_kdf)
 #define lc_kyber_x25519_dec_kdf KYBER_F(x25519_dec_kdf)
+
+#define lc_kyber_x448_keypair KYBER_F(x448_keypair)
+#define lc_kyber_x448_enc_kdf KYBER_F(x448_enc_kdf)
+#define lc_kyber_x448_dec_kdf KYBER_F(x448_dec_kdf)
 
 #define lc_kyber_keypair KYBER_F(keypair)
 #define lc_kyber_keypair_from_seed KYBER_F(keypair_from_seed)
@@ -135,6 +158,15 @@ extern "C" {
 #define lc_kyber_x25519_ies_dec_update KYBER_F(x25519_ies_dec_update)
 #define lc_kyber_x25519_ies_dec_final KYBER_F(x25519_ies_dec_final)
 
+#define lc_kyber_x448_ies_enc KYBER_F(x448_ies_enc)
+#define lc_kyber_x448_ies_dec KYBER_F(x448_ies_dec)
+#define lc_kyber_x448_ies_enc_init KYBER_F(x448_ies_enc_init)
+#define lc_kyber_x448_ies_enc_update KYBER_F(x448_ies_enc_update)
+#define lc_kyber_x448_ies_enc_final KYBER_F(x448_ies_enc_final)
+#define lc_kyber_x448_ies_dec_init KYBER_F(x448_ies_dec_init)
+#define lc_kyber_x448_ies_dec_update KYBER_F(x448_ies_dec_update)
+#define lc_kyber_x448_ies_dec_final KYBER_F(x448_ies_dec_final)
+
 #define lc_kyber_ies_enc KYBER_F(ies_enc)
 #define lc_kyber_ies_dec KYBER_F(ies_dec)
 #define lc_kyber_ies_enc_init KYBER_F(ies_enc_init)
@@ -147,25 +179,38 @@ extern "C" {
 #define lc_kyber_enc_internal KYBER_F(enc_internal)
 #define lc_kyber_x25519_enc_internal KYBER_F(x25519_enc_internal)
 #define lc_kyber_x25519_dec_internal KYBER_F(x25519_dec_internal)
+#define lc_kyber_x448_enc_internal KYBER_F(x448_enc_internal)
+#define lc_kyber_x448_dec_internal KYBER_F(x448_dec_internal)
 #define lc_kyber_enc_kdf_internal KYBER_F(enc_kdf_internal)
 #define lc_kyber_x25519_enc_kdf_internal KYBER_F(x25519_enc_kdf_internal)
+#define lc_kyber_x448_enc_kdf_internal KYBER_F(x448_enc_kdf_internal)
 #define lc_kex_uake_initiator_init_internal KEX_F(uake_initiator_init_internal)
 #define lc_kex_x25519_uake_initiator_init_internal                             \
 	KEX_F(x25519_uake_initiator_init_internal)
+#define lc_kex_x448_uake_initiator_init_internal                               \
+	KEX_F(x448_uake_initiator_init_internal)
 #define lc_kex_uake_responder_ss_internal KEX_F(uake_responder_ss_internal)
 #define lc_kex_x25519_uake_responder_ss_internal                               \
 	KEX_F(x25519_uake_responder_ss_internal)
+#define lc_kex_x448_uake_responder_ss_internal                                 \
+	KEX_F(x448_uake_responder_ss_internal)
 #define lc_kex_ake_initiator_init_internal KEX_F(ake_initiator_init_internal)
 #define lc_kex_x25519_ake_initiator_init_internal                              \
 	KEX_F(x25519_ake_initiator_init_internal)
+#define lc_kex_x448_ake_initiator_init_internal                                \
+	KEX_F(x448_ake_initiator_init_internal)
 #define lc_kex_ake_responder_ss_internal KEX_F(ake_responder_ss_internal)
 #define lc_kex_x25519_ake_responder_ss_internal                                \
 	KEX_F(x25519_ake_responder_ss_internal)
+#define lc_kex_x448_ake_responder_ss_internal                                  \
+	KEX_F(x448_ake_responder_ss_internal)
 #define lc_kyber_ies_enc_internal KYBER_F(ies_enc_internal)
 #define lc_kyber_x25519_ies_enc_internal KYBER_F(x25519_ies_enc_internal)
+#define lc_kyber_x448_ies_enc_internal KYBER_F(x448_ies_enc_internal)
 #define lc_kyber_ies_enc_init_internal KYBER_F(ies_enc_init_internal)
 #define lc_kyber_x25519_ies_enc_init_internal                                  \
 	KYBER_F(x25519_ies_enc_init_internal)
+#define lc_kyber_x448_ies_enc_init_internal KYBER_F(x448_ies_enc_init_internal)
 
 #define poly_cbd_eta1 KYBER_F(poly_cbd_eta1)
 #define poly_cbd_eta2 KYBER_F(poly_cbd_eta2)

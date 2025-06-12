@@ -6,6 +6,8 @@ if get_option('dilithium_87').enabled()
 	dilithium_conf_data.set('dilithium_header', '87_')
 	dilithium_conf_data.set('LC_DILITHIUM_ED25519_SIG',
 				get_option('dilithium_ed25519').enabled())
+	dilithium_conf_data.set('LC_DILITHIUM_ED448_SIG',
+				get_option('dilithium_ed448').enabled())
 	include_files += configure_file(input: 'lc_dilithium_size.h.in',
 					output: 'lc_dilithium_87.h',
 					configuration: dilithium_conf_data)
@@ -19,6 +21,8 @@ if get_option('dilithium_65').enabled()
 	dilithium_65_conf_data.set('dilithium_header', '65_')
 	dilithium_65_conf_data.set('LC_DILITHIUM_ED25519_SIG',
 				get_option('dilithium_ed25519').enabled())
+	dilithium_65_conf_data.set('LC_DILITHIUM_ED448_SIG',
+				get_option('dilithium_ed448').enabled())
 	include_files += configure_file(input: 'lc_dilithium_size.h.in',
 					output: 'lc_dilithium_65.h',
 					configuration: dilithium_65_conf_data)
@@ -33,6 +37,8 @@ if get_option('dilithium_44').enabled()
 	dilithium_44_conf_data.set('dilithium_header', '44_')
 	dilithium_44_conf_data.set('LC_DILITHIUM_ED25519_SIG',
 				get_option('dilithium_ed25519').enabled())
+	dilithium_44_conf_data.set('LC_DILITHIUM_ED448_SIG',
+				get_option('dilithium_ed448').enabled())
 	include_files += configure_file(input: 'lc_dilithium_size.h.in',
 					output: 'lc_dilithium_44.h',
 					configuration: dilithium_44_conf_data)

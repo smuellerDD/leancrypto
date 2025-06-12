@@ -18,39 +18,38 @@
  */
 
 #include "dilithium_type.h"
-#include "ed25519_composite.h"
+#include "ed448_composite.h"
 #include "helper.h"
-#include "lc_ed25519.h"
+#include "lc_ed448.h"
 #include "lc_sha512.h"
 #include "ret_checkers.h"
 #include "signature_domain_separation.h"
 #include "visibility.h"
 
 /* OIDs from https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-04.html */
-/* id-HashMLDSA44-Ed25519-SHA512 */
-static const uint8_t hashmldsa44_ed25519_sha512_oid_der[] __maybe_unused = {
+/* id-HashMLDSA44-Ed448-SHA512 */
+static const uint8_t hashmldsa44_ed448_sha512_oid_der[] __maybe_unused = {
 	0x06, 0x0B, 0x60, 0x86, 0x48, 0x01, 0x86,
-	0xFA, 0x6B, 0x50, 0x08, 0x01, 0x2A
+	0xFA, 0x6B, 0x50, 0x08, 0x01, 0x52
 };
 
-/* id-HashMLDSA65-Ed25519-SHA512 */
-static const uint8_t hashmldsa65_ed25519_sha512_oid_der[] __maybe_unused = {
+/* id-HashMLDSA65-Ed448-SHA512 */
+static const uint8_t hashmldsa65_ed448_sha512_oid_der[] __maybe_unused = {
 	0x06, 0x0B, 0x60, 0x86, 0x48, 0x01, 0x86,
-	0xFA, 0x6B, 0x50, 0x08, 0x01, 0x32
+	0xFA, 0x6B, 0x50, 0x08, 0x01, 0x5B
 };
 
 /* id-HashMLDSA87-Ed448-SHA512 */
 static const uint8_t hashmldsa87_ed448_sha512_oid_der[] __maybe_unused = {
 	0x06, 0x0B, 0x60, 0x86, 0x48, 0x01, 0x86,
-	0xFA, 0x6B, 0x50, 0x08, 0x01, 0x35
+	0xFA, 0x6B, 0x50, 0x08, 0x01, 0x5E
 };
 
 //TODO we cannot include lc_dilithium.h
-void lc_dilithium_ed25519_ctx_hash(struct lc_dilithium_ed25519_ctx *ctx,
-				   const struct lc_hash *hash);
-void lc_dilithium_ed25519_ctx_userctx(struct lc_dilithium_ed25519_ctx *ctx,
-				      const uint8_t *userctx,
-				      size_t userctxlen);
+void lc_dilithium_ed448_ctx_hash(struct lc_dilithium_ed448_ctx *ctx,
+				 const struct lc_hash *hash);
+void lc_dilithium_ed448_ctx_userctx(struct lc_dilithium_ed448_ctx *ctx,
+				    const uint8_t *userctx, size_t userctxlen);
 
 /*
  * https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-03.html
@@ -58,7 +57,7 @@ void lc_dilithium_ed25519_ctx_userctx(struct lc_dilithium_ed25519_ctx *ctx,
  */
 static int
 composite_hash_signature_domain_separation(struct lc_hash_ctx *hash_ctx,
-					   struct lc_dilithium_ed25519_ctx *ctx)
+					   struct lc_dilithium_ed448_ctx *ctx)
 {
 	uint8_t digest[LC_SHA512_SIZE_DIGEST];
 	struct lc_dilithium_ctx *dilithium_ctx = &ctx->dilithium_ctx;
@@ -83,9 +82,17 @@ composite_hash_signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 	lc_hash_init(hash_ctx);
 
 #if LC_DILITHIUM_MODE == 2
+	/*
+	 * Yes, this call is for HashML-DSA ED448 but it uses the OID
+	 * for HashML-DSA ED25519. As there is no definition for the used
+	 * signature type, this code applies the defined context.
+	 *
+	 * This is considered to be of no concern as the keys between 25519 and
+	 * 448 are different anyways.
+	 */
 	/* Set Domain */
-	lc_hash_update(hash_ctx, hashmldsa44_ed25519_sha512_oid_der,
-		       sizeof(hashmldsa44_ed25519_sha512_oid_der));
+	lc_hash_update(hash_ctx, hashmldsa44_ed448_sha512_oid_der,
+		       sizeof(hashmldsa44_ed448_sha512_oid_der));
 
 	/* Set len(ctx) */
 	lc_hash_update(hash_ctx, (uint8_t *)&dilithium_ctx->userctxlen, 1);
@@ -99,12 +106,20 @@ composite_hash_signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 				sizeof(digest), LC_DILITHIUM_NIST_CATEGORY));
 
 	/* Set context for ML-DSA */
-	lc_dilithium_ed25519_ctx_userctx(
-		ctx, hashmldsa44_ed25519_sha512_oid_der,
-		sizeof(hashmldsa44_ed25519_sha512_oid_der));
+	lc_dilithium_ed448_ctx_userctx(
+		ctx, hashmldsa44_ed448_sha512_oid_der,
+		sizeof(hashmldsa44_ed448_sha512_oid_der));
 #elif LC_DILITHIUM_MODE == 3
-	lc_hash_update(hash_ctx, hashmldsa65_ed25519_sha512_oid_der,
-		       sizeof(hashmldsa65_ed25519_sha512_oid_der));
+	/*
+	 * Yes, this call is for HashML-DSA ED448 but it uses the OID
+	 * for HashML-DSA ED25519. As there is no definition for the used
+	 * signature type, this code applies the defined context.
+	 *
+	 * This is considered to be of no concern as the keys between 25519 and
+	 * 448 are different anyways.
+	 */
+	lc_hash_update(hash_ctx, hashmldsa65_ed448_sha512_oid_der,
+		       sizeof(hashmldsa65_ed448_sha512_oid_der));
 	lc_hash_update(hash_ctx, (uint8_t *)&dilithium_ctx->userctxlen, 1);
 	lc_hash_update(hash_ctx, dilithium_ctx->userctx,
 		       dilithium_ctx->userctxlen);
@@ -113,15 +128,10 @@ composite_hash_signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 				sizeof(digest), LC_DILITHIUM_NIST_CATEGORY));
 
 	/* Set context for ML-DSA */
-	lc_dilithium_ed25519_ctx_userctx(
-		ctx, hashmldsa65_ed25519_sha512_oid_der,
-		sizeof(hashmldsa65_ed25519_sha512_oid_der));
+	lc_dilithium_ed448_ctx_userctx(
+		ctx, hashmldsa65_ed448_sha512_oid_der,
+		sizeof(hashmldsa65_ed448_sha512_oid_der));
 #elif LC_DILITHIUM_MODE == 5
-	/*
-	 * Yes, this call is for HashML-DSA ED25519 but it uses the OID
-	 * for HashML-DSA ED448. As there is no definition for the used
-	 * signature type, this code applies the defined context.
-	 */
 	lc_hash_update(hash_ctx, hashmldsa87_ed448_sha512_oid_der,
 		       sizeof(hashmldsa87_ed448_sha512_oid_der));
 	lc_hash_update(hash_ctx, (uint8_t *)&dilithium_ctx->userctxlen, 1);
@@ -132,7 +142,7 @@ composite_hash_signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 				sizeof(digest), LC_DILITHIUM_NIST_CATEGORY));
 
 	/* Set context for ML-DSA */
-	lc_dilithium_ed25519_ctx_userctx(
+	lc_dilithium_ed448_ctx_userctx(
 		ctx, hashmldsa87_ed448_sha512_oid_der,
 		sizeof(hashmldsa87_ed448_sha512_oid_der));
 #else
@@ -140,7 +150,7 @@ composite_hash_signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 #endif
 
 	/* Ensure the next call is ML-DSA */
-	lc_dilithium_ed25519_ctx_hash(ctx, NULL);
+	lc_dilithium_ed448_ctx_hash(ctx, NULL);
 
 	/* Set PH(M) */
 	lc_hash_update(hash_ctx, digest, sizeof(digest));
@@ -150,9 +160,9 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_keypair,
-		      struct lc_dilithium_ed25519_pk *pk,
-		      struct lc_dilithium_ed25519_sk *sk,
+LC_INTERFACE_FUNCTION(int, lc_dilithium_ed448_keypair,
+		      struct lc_dilithium_ed448_pk *pk,
+		      struct lc_dilithium_ed448_sk *sk,
 		      struct lc_rng_ctx *rng_ctx)
 {
 	int ret;
@@ -161,16 +171,16 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_keypair,
 	CKNULL(pk, -EINVAL);
 
 	CKINT(lc_dilithium_keypair(&pk->pk, &sk->sk, rng_ctx));
-	CKINT(lc_ed25519_keypair(&pk->pk_ed25519, &sk->sk_ed25519, rng_ctx));
+	CKINT(lc_ed448_keypair(&pk->pk_ed448, &sk->sk_ed448, rng_ctx));
 
 out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sign_ctx,
-		      struct lc_dilithium_ed25519_sig *sig,
-		      struct lc_dilithium_ed25519_ctx *ctx, const uint8_t *m,
-		      size_t mlen, const struct lc_dilithium_ed25519_sk *sk,
+LC_INTERFACE_FUNCTION(int, lc_dilithium_ed448_sign_ctx,
+		      struct lc_dilithium_ed448_sig *sig,
+		      struct lc_dilithium_ed448_ctx *ctx, const uint8_t *m,
+		      size_t mlen, const struct lc_dilithium_ed448_sk *sk,
 		      struct lc_rng_ctx *rng_ctx)
 {
 	struct lc_dilithium_ctx *dilithium_ctx;
@@ -186,27 +196,26 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sign_ctx,
 	CKINT(lc_dilithium_sign_ctx(&sig->sig, &ctx->dilithium_ctx, m, mlen,
 				    &sk->sk, rng_ctx));
 
-	CKINT(lc_ed25519_sign_ctx(&sig->sig_ed25519, m, mlen, &sk->sk_ed25519,
-				  rng_ctx, ctx));
+	CKINT(lc_ed448_sign_ctx(&sig->sig_ed448, m, mlen, &sk->sk_ed448,
+				rng_ctx, ctx));
 
 out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sign,
-		      struct lc_dilithium_ed25519_sig *sig, const uint8_t *m,
-		      size_t mlen, const struct lc_dilithium_ed25519_sk *sk,
+LC_INTERFACE_FUNCTION(int, lc_dilithium_ed448_sign,
+		      struct lc_dilithium_ed448_sig *sig, const uint8_t *m,
+		      size_t mlen, const struct lc_dilithium_ed448_sk *sk,
 		      struct lc_rng_ctx *rng_ctx)
 {
-	LC_DILITHIUM_ED25519_CTX_ON_STACK(ctx);
-	int ret = lc_dilithium_ed25519_sign_ctx(sig, ctx, m, mlen, sk, rng_ctx);
+	LC_DILITHIUM_ED448_CTX_ON_STACK(ctx);
+	int ret = lc_dilithium_ed448_sign_ctx(sig, ctx, m, mlen, sk, rng_ctx);
 
-	lc_dilithium_ed25519_ctx_zero(ctx);
+	lc_dilithium_ed448_ctx_zero(ctx);
 	return ret;
 }
 
-static int
-lc_dilithium_ed25519_common_init(struct lc_dilithium_ed25519_ctx *ctx)
+static int lc_dilithium_ed448_common_init(struct lc_dilithium_ed448_ctx *ctx)
 {
 	struct lc_dilithium_ctx *dilithium_ctx;
 	struct lc_hash_ctx *hash_ctx;
@@ -242,17 +251,17 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sign_init,
-		      struct lc_dilithium_ed25519_ctx *ctx,
-		      const struct lc_dilithium_ed25519_sk *sk)
+LC_INTERFACE_FUNCTION(int, lc_dilithium_ed448_sign_init,
+		      struct lc_dilithium_ed448_ctx *ctx,
+		      const struct lc_dilithium_ed448_sk *sk)
 {
 	(void)sk;
 
-	return lc_dilithium_ed25519_common_init(ctx);
+	return lc_dilithium_ed448_common_init(ctx);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sign_update,
-		      struct lc_dilithium_ed25519_ctx *ctx, const uint8_t *m,
+LC_INTERFACE_FUNCTION(int, lc_dilithium_ed448_sign_update,
+		      struct lc_dilithium_ed448_ctx *ctx, const uint8_t *m,
 		      size_t mlen)
 {
 	struct lc_dilithium_ctx *dilithium_ctx;
@@ -269,10 +278,10 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sign_final,
-		      struct lc_dilithium_ed25519_sig *sig,
-		      struct lc_dilithium_ed25519_ctx *ctx,
-		      const struct lc_dilithium_ed25519_sk *sk,
+LC_INTERFACE_FUNCTION(int, lc_dilithium_ed448_sign_final,
+		      struct lc_dilithium_ed448_sig *sig,
+		      struct lc_dilithium_ed448_ctx *ctx,
+		      const struct lc_dilithium_ed448_sk *sk,
 		      struct lc_rng_ctx *rng_ctx)
 {
 	struct lc_dilithium_ctx *dilithium_ctx;
@@ -304,17 +313,17 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sign_final,
 				    sizeof(digest), &sk->sk, rng_ctx));
 
 	/* Clear out the hash context */
-	lc_dilithium_ed25519_ctx_userctx(ctx, NULL, 0);
+	lc_dilithium_ed448_ctx_userctx(ctx, NULL, 0);
 
-	CKINT(lc_ed25519_sign(&sig->sig_ed25519, digest, sizeof(digest),
-			      &sk->sk_ed25519, rng_ctx));
+	CKINT(lc_ed448_sign(&sig->sig_ed448, digest, sizeof(digest),
+			    &sk->sk_ed448, rng_ctx));
 
 out:
 	lc_memset_secure(digest, 0, sizeof(digest));
 	return ret;
 }
 
-static inline int lc_dilithium_ed25519_verify_check(int retd, int rete)
+static inline int lc_dilithium_ed448_verify_check(int retd, int rete)
 {
 	if (rete == -EBADMSG || retd == -EBADMSG)
 		return -EBADMSG;
@@ -324,10 +333,10 @@ static inline int lc_dilithium_ed25519_verify_check(int retd, int rete)
 		return rete | retd;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_verify_ctx,
-		      const struct lc_dilithium_ed25519_sig *sig,
-		      struct lc_dilithium_ed25519_ctx *ctx, const uint8_t *m,
-		      size_t mlen, const struct lc_dilithium_ed25519_pk *pk)
+LC_INTERFACE_FUNCTION(int, lc_dilithium_ed448_verify_ctx,
+		      const struct lc_dilithium_ed448_sig *sig,
+		      struct lc_dilithium_ed448_ctx *ctx, const uint8_t *m,
+		      size_t mlen, const struct lc_dilithium_ed448_pk *pk)
 {
 	struct lc_dilithium_ctx *dilithium_ctx;
 	int retd, rete, ret = 0;
@@ -342,45 +351,45 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_verify_ctx,
 	retd = lc_dilithium_verify_ctx(&sig->sig, &ctx->dilithium_ctx, m, mlen,
 				       &pk->pk);
 
-	rete = lc_ed25519_verify_ctx(&sig->sig_ed25519, m, mlen,
-				     &pk->pk_ed25519, ctx);
+	rete = lc_ed448_verify_ctx(&sig->sig_ed448, m, mlen, &pk->pk_ed448,
+				   ctx);
 
 out:
-	return ret ? ret : lc_dilithium_ed25519_verify_check(retd, rete);
+	return ret ? ret : lc_dilithium_ed448_verify_check(retd, rete);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_verify,
-		      const struct lc_dilithium_ed25519_sig *sig,
+LC_INTERFACE_FUNCTION(int, lc_dilithium_ed448_verify,
+		      const struct lc_dilithium_ed448_sig *sig,
 		      const uint8_t *m, size_t mlen,
-		      const struct lc_dilithium_ed25519_pk *pk)
+		      const struct lc_dilithium_ed448_pk *pk)
 {
-	LC_DILITHIUM_ED25519_CTX_ON_STACK(ctx);
-	int ret = lc_dilithium_ed25519_verify_ctx(sig, ctx, m, mlen, pk);
+	LC_DILITHIUM_ED448_CTX_ON_STACK(ctx);
+	int ret = lc_dilithium_ed448_verify_ctx(sig, ctx, m, mlen, pk);
 
-	lc_dilithium_ed25519_ctx_zero(ctx);
+	lc_dilithium_ed448_ctx_zero(ctx);
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_verify_init,
-		      struct lc_dilithium_ed25519_ctx *ctx,
-		      const struct lc_dilithium_ed25519_pk *pk)
+LC_INTERFACE_FUNCTION(int, lc_dilithium_ed448_verify_init,
+		      struct lc_dilithium_ed448_ctx *ctx,
+		      const struct lc_dilithium_ed448_pk *pk)
 {
 	(void)pk;
 
-	return lc_dilithium_ed25519_common_init(ctx);
+	return lc_dilithium_ed448_common_init(ctx);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_verify_update,
-		      struct lc_dilithium_ed25519_ctx *ctx, const uint8_t *m,
+LC_INTERFACE_FUNCTION(int, lc_dilithium_ed448_verify_update,
+		      struct lc_dilithium_ed448_ctx *ctx, const uint8_t *m,
 		      size_t mlen)
 {
-	return lc_dilithium_ed25519_sign_update(ctx, m, mlen);
+	return lc_dilithium_ed448_sign_update(ctx, m, mlen);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_verify_final,
-		      const struct lc_dilithium_ed25519_sig *sig,
-		      struct lc_dilithium_ed25519_ctx *ctx,
-		      const struct lc_dilithium_ed25519_pk *pk)
+LC_INTERFACE_FUNCTION(int, lc_dilithium_ed448_verify_final,
+		      const struct lc_dilithium_ed448_sig *sig,
+		      struct lc_dilithium_ed448_ctx *ctx,
+		      const struct lc_dilithium_ed448_pk *pk)
 {
 	struct lc_dilithium_ctx *dilithium_ctx;
 	struct lc_hash_ctx *hash_ctx;
@@ -411,27 +420,27 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_verify_final,
 				       sizeof(digest), &pk->pk);
 
 	/* Clear out the hash context */
-	lc_dilithium_ed25519_ctx_userctx(ctx, NULL, 0);
+	lc_dilithium_ed448_ctx_userctx(ctx, NULL, 0);
 
-	rete = lc_ed25519_verify(&sig->sig_ed25519, digest, sizeof(digest),
-				 &pk->pk_ed25519);
+	rete = lc_ed448_verify(&sig->sig_ed448, digest, sizeof(digest),
+			       &pk->pk_ed448);
 
 out:
 	lc_memset_secure(digest, 0, sizeof(digest));
-	return ret ? ret : lc_dilithium_ed25519_verify_check(retd, rete);
+	return ret ? ret : lc_dilithium_ed448_verify_check(retd, rete);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_ctx_alloc,
-		      struct lc_dilithium_ed25519_ctx **ctx)
+LC_INTERFACE_FUNCTION(int, lc_dilithium_ed448_ctx_alloc,
+		      struct lc_dilithium_ed448_ctx **ctx)
 {
-	struct lc_dilithium_ed25519_ctx *out_ctx = NULL;
+	struct lc_dilithium_ed448_ctx *out_ctx = NULL;
 	int ret;
 
 	if (!ctx)
 		return -EINVAL;
 
 	ret = lc_alloc_aligned((void **)&out_ctx, LC_HASH_COMMON_ALIGNMENT,
-			       LC_DILITHIUM_ED25519_CTX_SIZE);
+			       LC_DILITHIUM_ED448_CTX_SIZE);
 	if (ret)
 		return -ret;
 
@@ -442,12 +451,12 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_ctx_alloc,
 	return 0;
 }
 
-LC_INTERFACE_FUNCTION(void, lc_dilithium_ed25519_ctx_zero_free,
-		      struct lc_dilithium_ed25519_ctx *ctx)
+LC_INTERFACE_FUNCTION(void, lc_dilithium_ed448_ctx_zero_free,
+		      struct lc_dilithium_ed448_ctx *ctx)
 {
 	if (!ctx)
 		return;
 
-	lc_dilithium_ed25519_ctx_zero(ctx);
+	lc_dilithium_ed448_ctx_zero(ctx);
 	lc_free(ctx);
 }

@@ -476,6 +476,51 @@ if get_option('dilithium_87').enabled()
 		     args : [ 'c' ], timeout: 1000, is_parallel: false,
 		     suite: performance)
 	endif
+
+	if get_option('dilithium_ed448').enabled()
+		dilithium_ed448_tester = executable('dilithium_ed448_tester',
+					[ 'dilithium_ed448_tester.c',
+					  internal_src ],
+					include_directories: [
+						include_dirs,
+						include_internal_dirs,
+						include_dilithium_internal
+					], link_with: leancrypto_static_lib
+					)
+		dilithium_ed448_iuf_tester = executable('dilithium_ed448_iuf_tester',
+					[ 'dilithium_ed448_iuf_tester.c',
+					  internal_src ],
+					include_directories: [
+						include_dirs,
+						include_internal_dirs,
+						include_dilithium_internal
+					], link_with: leancrypto_static_lib
+					)
+		dilithium_ed448_tester_official = executable('dilithium_ed448_tester_official',
+					[ 'dilithium_ed448_tester_official.c',
+					internal_src ],
+					include_directories: [
+						include_dirs,
+						include_internal_dirs,
+						include_dilithium_internal
+					],
+					dependencies: leancrypto
+					)
+		test('Dilithium-ED448 Signature', dilithium_ed448_tester,
+		     suite: regression)
+		test('Dilithium-ED448 IUF Signature', dilithium_ed448_iuf_tester,
+		     suite: regression)
+		test('Dilithium-ED448 official API', dilithium_ed448_tester_official,
+		     suite: regression)
+		test('Dilithium-ED448 signature Common 10000',
+		     dilithium_ed448_tester,
+		     args : [ 'c' ], timeout: 1000, is_parallel: false,
+		     suite: performance)
+		test('Dilithium-ED448 IUF signature Common 10000',
+		     dilithium_ed448_iuf_tester,
+		     args : [ 'c' ], timeout: 1000, is_parallel: false,
+		     suite: performance)
+	endif
 endif
 
 if get_option('dilithium_65').enabled()
@@ -962,6 +1007,52 @@ if get_option('dilithium_65').enabled()
 		     args : [ 'c' ], timeout: 1000, is_parallel: false,
 		     suite: performance)
 	endif
+
+	if get_option('dilithium_ed448').enabled()
+		dilithium_65_ed448_tester = executable('dilithium_65_ed448_tester',
+					[ 'dilithium_ed448_tester.c',
+					  internal_src ],
+					include_directories: [
+						include_dirs,
+						include_internal_dirs,
+						include_dilithium_internal
+					], link_with: leancrypto_static_lib,
+					c_args : '-DLC_DILITHIUM_TYPE_65'
+					)
+		dilithium_65_ed448_iuf_tester = executable('dilithium_65_ed448_iuf_tester',
+					[ 'dilithium_ed448_tester.c',
+					  internal_src ],
+					include_directories: [
+						include_dirs,
+						include_internal_dirs,
+						include_dilithium_internal
+					], link_with: leancrypto_static_lib,
+					c_args : '-DLC_DILITHIUM_TYPE_65'
+					)
+		dilithium_65_ed448_tester_official = executable('dilithium_65_ed448_tester_official',
+					[ 'dilithium_ed448_tester_official.c',
+					internal_src ],
+					include_directories: [
+						include_dirs,
+						include_internal_dirs,
+						include_dilithium_internal
+					],
+					dependencies: leancrypto,
+					c_args : '-DLC_DILITHIUM_TYPE_65'
+					)
+		test('Dilithium65-ED448 Signature', dilithium_65_ed448_tester,
+		     suite: regression)
+		test('Dilithium65-ED448 IUF Signature', dilithium_65_ed448_iuf_tester,
+		     suite: regression)
+		test('Dilithium65-ED448 official API', dilithium_65_ed448_tester_official,
+		     suite: regression)
+		test('Dilithium65-ED448 signature Common 10000', dilithium_65_ed448_tester,
+		     args : [ 'c' ], timeout: 1000, is_parallel: false,
+		     suite: performance)
+		test('Dilithium65-ED448 IUF signature Common 10000', dilithium_65_ed448_iuf_tester,
+		     args : [ 'c' ], timeout: 1000, is_parallel: false,
+		     suite: performance)
+	endif
 endif
 
 if get_option('dilithium_44').enabled()
@@ -1257,6 +1348,52 @@ if get_option('dilithium_44').enabled()
 		     args : [ 'c' ], timeout: 1000, is_parallel: false,
 		     suite: performance)
 		test('Dilithium44-ED25519 IUF signature Common 10000', dilithium_44_ed25519_iuf_tester,
+		     args : [ 'c' ], timeout: 1000, is_parallel: false,
+		     suite: performance)
+	endif
+
+	if get_option('dilithium_ed448').enabled()
+		dilithium_44_ed448_tester = executable('dilithium_44_ed448_tester',
+					[ 'dilithium_ed448_tester.c',
+					  internal_src ],
+					include_directories: [
+						include_dirs,
+						include_internal_dirs,
+						include_dilithium_internal
+					], link_with: leancrypto_static_lib,
+					c_args : '-DLC_DILITHIUM_TYPE_44'
+					)
+		dilithium_44_ed448_iuf_tester = executable('dilithium_44_ed448_iuf_tester',
+					[ 'dilithium_ed448_tester.c',
+					  internal_src ],
+					include_directories: [
+						include_dirs,
+						include_internal_dirs,
+						include_dilithium_internal
+					], link_with: leancrypto_static_lib,
+					c_args : '-DLC_DILITHIUM_TYPE_44'
+					)
+		dilithium_44_ed448_tester_official = executable('dilithium_44_ed448_tester_official',
+					[ 'dilithium_ed448_tester_official.c',
+					internal_src ],
+					include_directories: [
+						include_dirs,
+						include_internal_dirs,
+						include_dilithium_internal
+					],
+					dependencies: leancrypto,
+					c_args : '-DLC_DILITHIUM_TYPE_44'
+					)
+		test('Dilithium44-ED448 Signature', dilithium_44_ed448_tester,
+		     suite: regression)
+		test('Dilithium44-ED448 IUF Signature', dilithium_44_ed448_iuf_tester,
+		     suite: regression)
+		test('Dilithium44-ED448 official API', dilithium_44_ed448_tester_official,
+		     suite: regression)
+		test('Dilithium44-ED448 signature Common 10000', dilithium_44_ed448_tester,
+		     args : [ 'c' ], timeout: 1000, is_parallel: false,
+		     suite: performance)
+		test('Dilithium44-ED448 IUF signature Common 10000', dilithium_44_ed448_iuf_tester,
 		     args : [ 'c' ], timeout: 1000, is_parallel: false,
 		     suite: performance)
 	endif

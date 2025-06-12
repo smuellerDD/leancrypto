@@ -49,7 +49,7 @@ int lc_ed448_sign(struct lc_ed448_sig *sig, const uint8_t *msg, size_t mlen,
 int lc_ed448_verify(const struct lc_ed448_sig *sig, const uint8_t *msg,
 		    size_t mlen, const struct lc_ed448_pk *pk);
 
-/* Receive a message pre-hashed with SHA-512 */
+/* Receive a message pre-hashed with SHAKE-256 */
 int lc_ed448ph_sign(struct lc_ed448_sig *sig, const uint8_t *msg, size_t mlen,
 		    const struct lc_ed448_sk *sk, struct lc_rng_ctx *rng_ctx);
 int lc_ed448ph_verify(const struct lc_ed448_sig *sig, const uint8_t *msg,

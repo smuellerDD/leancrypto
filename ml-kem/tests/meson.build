@@ -243,6 +243,50 @@ if get_option('kyber_1024').enabled()
 		test('Kyber-X25519 KEX', kyber_kex_x25519_tester,
 		     suite: regression)
 	endif
+
+	if get_option('kyber_x448').enabled()
+		if get_option('cshake_drng').enabled()
+			kyber_ies_x448_tester = executable('kyber_ies_x448_tester',
+						[ 'kyber_ies_x448_tester.c',
+						internal_src ],
+						include_directories: [
+							include_dirs,
+							include_internal_dirs,
+							include_kyber_internal
+						], link_with: leancrypto_static_lib
+						)
+		endif
+		kyber_kem_x448_tester = executable('kyber_kem_x448_tester',
+					[ 'kyber_kem_x448_tester.c',
+					  internal_src ],
+					include_directories: [
+						include_dirs,
+						include_internal_dirs,
+						include_kyber_internal
+					], link_with: leancrypto_static_lib
+					)
+		kyber_kex_x448_tester = executable('kyber_kex_x448_tester',
+					[ 'kyber_kex_x448_tester.c',
+					  internal_src ],
+					include_directories: [
+						include_dirs,
+						include_internal_dirs,
+						include_kyber_internal
+					], link_with: leancrypto_static_lib
+					)
+
+		if get_option('cshake_drng').enabled()
+			test('Kyber-X448 IES', kyber_ies_x448_tester,
+			     suite: regression)
+		endif
+		test('Kyber-X448 KEM', kyber_kem_x448_tester,
+		     suite: regression)
+		test('Kyber-X448 KEM 50000', kyber_kem_x448_tester,
+		     args : [ 'c' ], timeout: 1000, is_parallel: false,
+		     suite: performance)
+		test('Kyber-X448 KEX', kyber_kex_x448_tester,
+		     suite: regression)
+	endif
 endif
 
 if get_option('kyber_768').enabled()
@@ -499,6 +543,53 @@ if get_option('kyber_768').enabled()
 		test('Kyber768-X25519 KEX', kyber_768_kex_x25519_tester,
 		     suite: regression)
 	endif
+
+	if get_option('kyber_x448').enabled()
+		if get_option('cshake_drng').enabled()
+			kyber_768_ies_x448_tester = executable('kyber_768_ies_x448_tester',
+						[ 'kyber_ies_x448_tester.c',
+						internal_src ],
+						include_directories: [
+							include_dirs,
+							include_internal_dirs,
+							include_kyber_internal
+						], link_with: leancrypto_static_lib,
+						c_args : '-DLC_KYBER_TYPE_768'
+						)
+		endif
+		kyber_768_kem_x448_tester = executable('kyber_768_kem_x448_tester',
+					[ 'kyber_kem_x448_tester.c',
+					internal_src ],
+					include_directories: [
+						include_dirs,
+						include_internal_dirs,
+						include_kyber_internal
+					], link_with: leancrypto_static_lib,
+					c_args : '-DLC_KYBER_TYPE_768'
+					)
+		kyber_768_kex_x448_tester = executable('kyber_768_kex_x448_tester',
+					[ 'kyber_kex_x448_tester.c',
+					internal_src ],
+					include_directories: [
+						include_dirs,
+						include_internal_dirs,
+						include_kyber_internal
+					], link_with: leancrypto_static_lib,
+					c_args : '-DLC_KYBER_TYPE_768'
+					)
+
+		if get_option('cshake_drng').enabled()
+			test('Kyber768-X448 IES', kyber_768_ies_x448_tester,
+			     suite: regression)
+		endif
+		test('Kyber768-X448 KEM', kyber_768_kem_x448_tester,
+		     suite: regression)
+		test('Kyber768-X448 KEM 50000', kyber_768_kem_x448_tester,
+		     args : [ 'c' ], timeout: 1000, is_parallel: false,
+		     suite: performance)
+		test('Kyber768-X448 KEX', kyber_768_kex_x448_tester,
+		     suite: regression)
+	endif
 endif
 
 if get_option('kyber_512').enabled()
@@ -682,6 +773,53 @@ if get_option('kyber_512').enabled()
 		     args : [ 'c' ], timeout: 1000, is_parallel: false,
 		     suite: performance)
 		test('Kyber512-X25519 KEX', kyber_512_kex_x25519_tester,
+		     suite: regression)
+	endif
+
+	if get_option('kyber_x448').enabled()
+		if get_option('cshake_drng').enabled()
+			kyber_512_ies_x448_tester = executable('kyber_512_ies_x448_tester',
+						[ 'kyber_ies_x448_tester.c',
+						internal_src ],
+						include_directories: [
+							include_dirs,
+							include_internal_dirs,
+							include_kyber_internal
+						], link_with: leancrypto_static_lib,
+						c_args : '-DLC_KYBER_TYPE_512'
+						)
+		endif
+		kyber_512_kem_x448_tester = executable('kyber_512_kem_x448_tester',
+					[ 'kyber_kem_x448_tester.c',
+					internal_src ],
+					include_directories: [
+						include_dirs,
+						include_internal_dirs,
+						include_kyber_internal
+					], link_with: leancrypto_static_lib,
+					c_args : '-DLC_KYBER_TYPE_512'
+					)
+		kyber_512_kex_x448_tester = executable('kyber_512_kex_x448_tester',
+					[ 'kyber_kex_x448_tester.c',
+					internal_src ],
+					include_directories: [
+						include_dirs,
+						include_internal_dirs,
+						include_kyber_internal
+					], link_with: leancrypto_static_lib,
+					c_args : '-DLC_KYBER_TYPE_512'
+					)
+
+		if get_option('cshake_drng').enabled()
+			test('Kyber512-X448 IES', kyber_512_ies_x448_tester,
+			     suite: regression)
+		endif
+		test('Kyber512-X448 KEM', kyber_512_kem_x448_tester,
+		     suite: regression)
+		test('Kyber512-X448 KEM 50000', kyber_512_kem_x448_tester,
+		     args : [ 'c' ], timeout: 1000, is_parallel: false,
+		     suite: performance)
+		test('Kyber512-X448 KEX', kyber_512_kex_x448_tester,
 		     suite: regression)
 	endif
 endif
