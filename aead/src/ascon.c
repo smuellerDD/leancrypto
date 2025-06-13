@@ -249,7 +249,8 @@ static void lc_ascon_enc_final(struct lc_ascon_cryptor *ascon, uint8_t *tag,
 	 * we can unconditionally call the last sponge operation closing the
 	 * plaintext injection.
 	 */
-	lc_sponge(hash, ascon->state, ascon->roundb);
+	if (ascon->rate_offset == hash->sponge_rate)
+		lc_sponge(hash, ascon->state, ascon->roundb);
 
 	/* Enforce the tag size */
 	if (taglen != ascon->taglen)
@@ -366,7 +367,8 @@ static int lc_ascon_dec_final(struct lc_ascon_cryptor *ascon,
 		return -EINVAL;
 
 	/* See enc_final for a rationale why this sponge call is here. */
-	lc_sponge(hash, ascon->state, ascon->roundb);
+	if (ascon->rate_offset == hash->sponge_rate)
+		lc_sponge(hash, ascon->state, ascon->roundb);
 
 	lc_ascon_add_padbyte(ascon, ascon->rate_offset);
 

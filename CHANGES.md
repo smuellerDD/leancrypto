@@ -17,6 +17,8 @@ Changes 1.5.0-prerelease
 
 * Linux kernel: Add ML-KEM-X448 and ML-DSA-ED448 support
 
+* Ascon AEAD: Bug fix when calculating the tag for plaintext that is not multiples of 128 bits
+
 Changes 1.4.0
 * ML-DSA: add signature generation rejection test cases and enable them during self tests
 
