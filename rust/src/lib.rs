@@ -42,6 +42,9 @@ pub mod lcr_dilithium;
 /// Leancrypto wrapper for lc_dilithium_ed25519
 pub mod lcr_dilithium_ed25519;
 
+/// Leancrypto wrapper for lc_dilithium_ed448
+pub mod lcr_dilithium_ed448;
+
 /// Leancrypto wrapper for lc_hmac
 pub mod lcr_hmac;
 

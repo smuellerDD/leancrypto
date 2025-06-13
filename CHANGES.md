@@ -13,6 +13,8 @@ Changes 1.5.0-prerelease
 
 * ASN.1: Add ML-DSA-ED448 certificate support
 
+* RUST: Add ML-DSA-ED448 support
+
 Changes 1.4.0
 * ML-DSA: add signature generation rejection test cases and enable them during self tests
 
