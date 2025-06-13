@@ -52,9 +52,9 @@ if get_option('x509_parser').enabled()
 			suite: regression)
 	endif
 
-	if (get_option('dilithium_87').enabled())
-		test('X.509 ML-DSA87 Int 2 CA', asn1_tester,
-		args: [ '-x', '-f', certdir + 'ml-dsa87_int2.der', '--check-ca',
+	if get_option('dilithium_ed25519').enabled()
+		test('X.509 ML-DSA44-ED25519 Int 2 CA', asn1_tester,
+		args: [ '-x', '-f', certdir + 'ml-dsa44-ed25519_int2.der', '--check-ca',
 			'--issuer-cn', 'leancrypto test int1',
 			'--subject-cn', 'leancrypto test int2',
 			'--valid-from', '1729527728', '--valid-to', '2044210606',
@@ -412,8 +412,15 @@ if get_option('x509_generator').enabled()
 	if get_option('dilithium_ed25519').enabled()
 		test('X.509 Composite-ML-DSA44 Signature',
 			x509_siggen_sigver_tester,
-			args: [ '--sk-file', certdir + 'ml-dsa44-ed25519_int1.privkey',
-				'--x509-cert', certdir + 'ml-dsa44-ed25519_int1.der' ],
+			args: [ '--sk-file', certdir + 'ml-dsa44-ed25519_int2.privkey',
+				'--x509-cert', certdir + 'ml-dsa44-ed25519_int2.der' ],
+			suite: regression)
+	endif
+	if get_option('dilithium_ed448').enabled()
+		test('X.509 Composite-ML-DSA87 Signature',
+			x509_siggen_sigver_tester,
+			args: [ '--sk-file', certdir + 'ml-dsa87-ed448_cacert.privkey',
+				'--x509-cert', certdir + 'ml-dsa87-ed448_cacert.der' ],
 			suite: regression)
 	endif
 endif

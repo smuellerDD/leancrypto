@@ -21,6 +21,7 @@
 #include "asn1_debug.h"
 #include "asym_key_dilithium.h"
 #include "asym_key_dilithium_ed25519.h"
+#include "asym_key_dilithium_ed448.h"
 #include "asym_key_sphincs.h"
 #include "ext_headers.h"
 #include "lc_dilithium.h"
@@ -93,6 +94,11 @@ int public_key_verify_signature(const struct lc_public_key *pkey,
 	case LC_SIG_DILITHIUM_87_ED25519:
 		CKINT(public_key_verify_signature_dilithium_ed25519(pkey, sig));
 		break;
+	case LC_SIG_DILITHIUM_44_ED448:
+	case LC_SIG_DILITHIUM_65_ED448:
+	case LC_SIG_DILITHIUM_87_ED448:
+		CKINT(public_key_verify_signature_dilithium_ed448(pkey, sig));
+		break;
 	case LC_SIG_SPINCS_SHAKE_128F:
 	case LC_SIG_SPINCS_SHAKE_192F:
 	case LC_SIG_SPINCS_SHAKE_256F:
@@ -104,7 +110,6 @@ int public_key_verify_signature(const struct lc_public_key *pkey,
 		CKINT(public_key_verify_signature_sphincs(pkey, sig, 0));
 		break;
 
-	case LC_SIG_DILITHIUM_87_ED448:
 	case LC_SIG_RSA_PKCS1:
 	case LC_SIG_ECDSA_X963:
 	case LC_SIG_ECRDSA_PKCS1:
@@ -152,6 +157,12 @@ int public_key_generate_signature(const struct lc_x509_key_data *key,
 		CKINT(public_key_generate_signature_dilithium_ed25519(
 			key, sig, sig_data, available_len));
 		break;
+	case LC_SIG_DILITHIUM_44_ED448:
+	case LC_SIG_DILITHIUM_65_ED448:
+	case LC_SIG_DILITHIUM_87_ED448:
+		CKINT(public_key_generate_signature_dilithium_ed448(
+			key, sig, sig_data, available_len));
+		break;
 	case LC_SIG_SPINCS_SHAKE_128F:
 	case LC_SIG_SPINCS_SHAKE_192F:
 	case LC_SIG_SPINCS_SHAKE_256F:
@@ -165,7 +176,6 @@ int public_key_generate_signature(const struct lc_x509_key_data *key,
 							    available_len, 0));
 		break;
 
-	case LC_SIG_DILITHIUM_87_ED448:
 	case LC_SIG_RSA_PKCS1:
 	case LC_SIG_ECDSA_X963:
 	case LC_SIG_ECRDSA_PKCS1:
@@ -220,7 +230,14 @@ int public_key_extract(struct x509_generate_context *ctx, uint8_t *dst_data,
 							  available_len, ctx));
 		goto out;
 		break;
+	case LC_SIG_DILITHIUM_44_ED448:
+	case LC_SIG_DILITHIUM_65_ED448:
 	case LC_SIG_DILITHIUM_87_ED448:
+		CKINT(public_key_encode_dilithium_ed448(dst_data,
+							  available_len, ctx));
+		goto out;
+		break;
+
 	case LC_SIG_ECDSA_X963:
 	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_RSA_PKCS1:
@@ -291,7 +308,19 @@ int public_key_signature_size(size_t *siglen, enum lc_sig_types sig_type)
 		CKINT(public_key_signature_size_dilithium_ed25519(
 			LC_DILITHIUM_87, siglen));
 		break;
+	case LC_SIG_DILITHIUM_44_ED448:
+		CKINT(public_key_signature_size_dilithium_ed448(
+			LC_DILITHIUM_44, siglen));
+		break;
+	case LC_SIG_DILITHIUM_65_ED448:
+		CKINT(public_key_signature_size_dilithium_ed448(
+			LC_DILITHIUM_65, siglen));
+		break;
 	case LC_SIG_DILITHIUM_87_ED448:
+		CKINT(public_key_signature_size_dilithium_ed448(
+			LC_DILITHIUM_87, siglen));
+		break;
+
 	case LC_SIG_ECDSA_X963:
 	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_RSA_PKCS1:
@@ -327,6 +356,12 @@ int privkey_key_encode(struct x509_generate_privkey_context *ctx,
 		CKINT(private_key_encode_dilithium_ed25519(dst_data,
 							   available_len, ctx));
 		break;
+	case LC_SIG_DILITHIUM_44_ED448:
+	case LC_SIG_DILITHIUM_65_ED448:
+	case LC_SIG_DILITHIUM_87_ED448:
+		CKINT(private_key_encode_dilithium_ed448(dst_data,
+							   available_len, ctx));
+		break;
 	case LC_SIG_SPINCS_SHAKE_256S:
 	case LC_SIG_SPINCS_SHAKE_256F:
 	case LC_SIG_SPINCS_SHAKE_192S:
@@ -336,7 +371,6 @@ int privkey_key_encode(struct x509_generate_privkey_context *ctx,
 		CKINT(private_key_encode_sphincs(dst_data, available_len, ctx));
 		break;
 
-	case LC_SIG_DILITHIUM_87_ED448:
 	case LC_SIG_RSA_PKCS1:
 	case LC_SIG_ECDSA_X963:
 	case LC_SIG_SM2:
@@ -372,6 +406,12 @@ int privkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
 		CKINT(private_key_decode_dilithium_ed25519(keys, data,
 							   datalen));
 		break;
+	case LC_SIG_DILITHIUM_44_ED448:
+	case LC_SIG_DILITHIUM_65_ED448:
+	case LC_SIG_DILITHIUM_87_ED448:
+		CKINT(private_key_decode_dilithium_ed448(keys, data,
+							   datalen));
+		break;
 	case LC_SIG_SPINCS_SHAKE_256S:
 	case LC_SIG_SPINCS_SHAKE_192S:
 	case LC_SIG_SPINCS_SHAKE_128S:
@@ -385,7 +425,6 @@ int privkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
 		CKINT(lc_sphincs_sk_set_keytype_fast(keys->sk.sphincs_sk));
 		break;
 
-	case LC_SIG_DILITHIUM_87_ED448:
 	case LC_SIG_RSA_PKCS1:
 	case LC_SIG_ECDSA_X963:
 	case LC_SIG_SM2:
@@ -433,6 +472,19 @@ int pubkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
 		ret = -ENOPKG;
 #endif
 		break;
+	case LC_SIG_DILITHIUM_44_ED448:
+	case LC_SIG_DILITHIUM_65_ED448:
+	case LC_SIG_DILITHIUM_87_ED448:
+#ifdef LC_DILITHIUM_ED448
+		CKINT(lc_dilithium_ed448_pk_load(
+			keys->pk.dilithium_ed448_pk, data,
+			datalen - LC_ED448_PUBLICKEYBYTES,
+			data + LC_ED448_PUBLICKEYBYTES,
+			LC_ED448_PUBLICKEYBYTES));
+#else
+		ret = -ENOPKG;
+#endif
+		break;
 	case LC_SIG_SPINCS_SHAKE_256S:
 	case LC_SIG_SPINCS_SHAKE_192S:
 	case LC_SIG_SPINCS_SHAKE_128S:
@@ -454,7 +506,6 @@ int pubkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
 #endif
 		break;
 
-	case LC_SIG_DILITHIUM_87_ED448:
 	case LC_SIG_RSA_PKCS1:
 	case LC_SIG_ECDSA_X963:
 	case LC_SIG_SM2:
@@ -570,7 +621,26 @@ int asym_set_signer(struct lc_x509_certificate *signed_x509,
 #endif
 		break;
 
+	case LC_SIG_DILITHIUM_44_ED448:
+	case LC_SIG_DILITHIUM_65_ED448:
 	case LC_SIG_DILITHIUM_87_ED448:
+#ifdef LC_DILITHIUM_ED448
+		CKINT_LOG(
+			lc_x509_cert_load_pk_dilithium_ed448(
+				signer_key_data->pk.dilithium_ed448_pk,
+				pk_ptr, pk_len),
+			"Loading X.509 signer public key from certificate failed: %d\n",
+			ret);
+		CKINT_LOG(asym_set_dilithium_ed448_keypair(
+				  &signed_x509->sig_gen_data,
+				  signer_key_data->pk.dilithium_ed448_pk,
+				  signer_key_data->sk.dilithium_ed448_sk),
+			  "Setting X.509 key pair for signing\n");
+#else
+		return -ENOPKG;
+#endif
+		break;
+
 	case LC_SIG_ECDSA_X963:
 	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_RSA_PKCS1:
@@ -711,7 +781,42 @@ int asym_keypair_gen(struct lc_x509_certificate *cert,
 	case LC_SIG_DILITHIUM_87_ED25519:
 		return -ENOPKG;
 #endif
+
+#ifdef LC_DILITHIUM_ED448
+	case LC_SIG_DILITHIUM_44_ED448:
+		CKINT(lc_dilithium_ed448_keypair(
+			keys->pk.dilithium_ed448_pk,
+			keys->sk.dilithium_ed448_sk, lc_seeded_rng,
+			LC_DILITHIUM_44));
+		goto load_dilithium_ed448;
+		break;
+	case LC_SIG_DILITHIUM_65_ED448:
+		CKINT(lc_dilithium_ed448_keypair(
+			keys->pk.dilithium_ed448_pk,
+			keys->sk.dilithium_ed448_sk, lc_seeded_rng,
+			LC_DILITHIUM_65));
+		goto load_dilithium_ed448;
+		break;
 	case LC_SIG_DILITHIUM_87_ED448:
+		CKINT(lc_dilithium_ed448_keypair(
+			keys->pk.dilithium_ed448_pk,
+			keys->sk.dilithium_ed448_sk, lc_seeded_rng,
+			LC_DILITHIUM_87));
+	load_dilithium_ed448:
+		CKINT(asym_set_dilithium_ed448_keypair(
+			&cert->sig_gen_data, keys->pk.dilithium_ed448_pk,
+			keys->sk.dilithium_ed448_sk));
+		CKINT(asym_set_dilithium_ed448_keypair(
+			&cert->pub_gen_data, keys->pk.dilithium_ed448_pk,
+			NULL));
+		break;
+#else
+	case LC_SIG_DILITHIUM_44_ED448:
+	case LC_SIG_DILITHIUM_65_ED448:
+	case LC_SIG_DILITHIUM_87_ED448:
+		return -ENOPKG;
+#endif
+
 	case LC_SIG_ECDSA_X963:
 	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_RSA_PKCS1:
@@ -763,7 +868,14 @@ int asym_keypair_load(struct lc_x509_certificate *cert,
 			&cert->sig_gen_data, keys->pk.dilithium_ed25519_pk,
 			keys->sk.dilithium_ed25519_sk));
 		break;
+	case LC_SIG_DILITHIUM_44_ED448:
+	case LC_SIG_DILITHIUM_65_ED448:
 	case LC_SIG_DILITHIUM_87_ED448:
+		CKINT(asym_set_dilithium_ed448_keypair(
+			&cert->sig_gen_data, keys->pk.dilithium_ed448_pk,
+			keys->sk.dilithium_ed448_sk));
+		break;
+
 	case LC_SIG_ECDSA_X963:
 	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_RSA_PKCS1:

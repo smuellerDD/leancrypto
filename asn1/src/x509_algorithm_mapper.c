@@ -131,7 +131,7 @@ static struct lc_x509_algorithms x509_algo_table[] = {
 	  .pkey_algo = LC_SIG_DILITHIUM_65_ED25519,
 	  .std_hash = OID_sha3_512 },
 	{ .oid = OID_id_MLDSA87_Ed448,
-	  .name_algo = "ML-DSA44-ED448",
+	  .name_algo = "ML-DSA87-ED448",
 	  .namelen = 14,
 	  .pkey_algo = LC_SIG_DILITHIUM_87_ED448,
 	  .std_hash = OID_sha3_512 },
@@ -296,6 +296,9 @@ int lc_x509_sig_check_hash(enum lc_sig_types pkey_algo,
 	case LC_SIG_DILITHIUM_44_ED25519:
 	case LC_SIG_DILITHIUM_65_ED25519:
 	case LC_SIG_DILITHIUM_87_ED25519:
+	case LC_SIG_DILITHIUM_44_ED448:
+	case LC_SIG_DILITHIUM_65_ED448:
+	case LC_SIG_DILITHIUM_87_ED448:
 #ifdef LC_SHA2_512
 		if (hash_algo == lc_sha512) {
 			found = 1;
@@ -313,7 +316,6 @@ int lc_x509_sig_check_hash(enum lc_sig_types pkey_algo,
 #endif
 		break;
 
-	case LC_SIG_DILITHIUM_87_ED448:
 	case LC_SIG_RSA_PKCS1:
 	case LC_SIG_ECDSA_X963:
 	case LC_SIG_ECRDSA_PKCS1:

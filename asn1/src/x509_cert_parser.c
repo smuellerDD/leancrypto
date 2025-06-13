@@ -32,6 +32,7 @@
 #include "asn1_debug.h"
 #include "asym_key_dilithium.h"
 #include "asym_key_dilithium_ed25519.h"
+#include "asym_key_dilithium_ed448.h"
 #include "asym_key_sphincs.h"
 #include "asymmetric_type.h"
 #include "conv_be_le.h"
@@ -1292,6 +1293,28 @@ out:
 #endif
 }
 
+LC_INTERFACE_FUNCTION(int, lc_x509_keys_dilithium_ed448_alloc,
+		      struct lc_x509_key_data **keys)
+{
+#ifdef LC_DILITHIUM_ED448
+	struct lc_x509_key_data *out_keys;
+	int ret;
+
+	CKINT(lc_alloc_aligned((void **)&out_keys, LC_HASH_COMMON_ALIGNMENT,
+			       LC_X509_KEYS_DILITHIUM_ED448_SIZE));
+
+	LC_X509_KEYS_DILITHIUM_ED448_SET(out_keys);
+
+	*keys = out_keys;
+
+out:
+	return ret;
+#else
+	(void)keys;
+	return -ENOPKG;
+#endif
+}
+
 LC_INTERFACE_FUNCTION(int, lc_x509_keys_dilithium_alloc,
 		      struct lc_x509_key_data **keys)
 {
@@ -1338,7 +1361,13 @@ out:
 
 LC_INTERFACE_FUNCTION(int, lc_x509_keys_alloc, struct lc_x509_key_data **keys)
 {
+#ifdef LC_DILITHIUM_ED448
+	return lc_x509_keys_dilithium_ed448_alloc(keys);
+#elif defined(LC_DILITHIUM_ED25519)
 	return lc_x509_keys_dilithium_ed25519_alloc(keys);
+#else
+	return lc_x509_keys_dilithium_alloc(keys);
+#endif
 }
 
 LC_INTERFACE_FUNCTION(void, lc_x509_keys_zero_free,

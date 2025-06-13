@@ -9,6 +9,10 @@ Changes 1.4.1-prerelease
 
 * Add ED448 / X448 for use in hybrid PQC constructions
 
+* Add ML-KEM-X448 and ML-DSA-ED448 support
+
+* ASN.1: Add ML-DSA-ED448 certificate support
+
 Changes 1.4.0
 * ML-DSA: add signature generation rejection test cases and enable them during self tests
 

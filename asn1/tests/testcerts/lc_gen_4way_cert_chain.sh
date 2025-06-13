@@ -31,9 +31,9 @@ then
 elif [ x"$1" = x"Composite-ML-DSA" ]
 then
 	# Full SLH-DSA-based certificate chain
-	CA_KEYTYPE="ML-DSA65-ED25519"
-	INT1_KEYTYPE="ML-DSA44-ED25519"
-	INT2_KEYTYPE="ML-DSA87"
+	CA_KEYTYPE="ML-DSA87-ED448"
+	INT1_KEYTYPE="ML-DSA65-ED25519"
+	INT2_KEYTYPE="ML-DSA44-ED25519"
 	LEAF_KEYTYPE="SLH-DSA-SHAKE-128S"
 else
 	echo "Invoke script to generate a 4-way certificate chain with one of the following options:"

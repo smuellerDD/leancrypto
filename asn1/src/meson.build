@@ -90,6 +90,15 @@ if x509_common_support == 1
 		src_fips += files([ 'asym_key_dilithium_ed25519_null.c' ])
 	endif
 
+	if get_option('dilithium_ed448').enabled()
+		src_fips += files([
+			'asym_key_dilithium_ed448.c',
+			])
+		asymmetric_algo += 1
+	else
+		src_fips += files([ 'asym_key_dilithium_ed448_null.c' ])
+	endif
+
 	if (asymmetric_algo == 0)
 		error('X.509 parser without the presence of any asymmetric signature schema is useless')
 	endif

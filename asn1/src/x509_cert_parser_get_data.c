@@ -19,6 +19,7 @@
 
 #include "asn1_debug.h"
 #include "asym_key_dilithium_ed25519.h"
+#include "asym_key_dilithium_ed448.h"
 #include "ext_headers.h"
 #include "helper.h"
 #include "ret_checkers.h"
@@ -34,6 +35,21 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_load_pk_dilithium_ed25519,
 	int ret;
 
 	CKINT(public_key_decode_dilithium_ed25519(dilithium_ed25519_pk, pk_ptr,
+						  pk_len));
+
+out:
+	return ret;
+}
+#endif
+
+#ifdef LC_DILITHIUM_ED448
+LC_INTERFACE_FUNCTION(int, lc_x509_cert_load_pk_dilithium_ed448,
+		      struct lc_dilithium_ed448_pk *dilithium_ed448_pk,
+		      const uint8_t *pk_ptr, size_t pk_len)
+{
+	int ret;
+
+	CKINT(public_key_decode_dilithium_ed448(dilithium_ed448_pk, pk_ptr,
 						  pk_len));
 
 out:

@@ -110,6 +110,10 @@ enum lc_sig_types {
 	LC_SIG_DILITHIUM_65_ED25519,
 	/** ML-DSA / Dilithium 87 hybrid with ED25519 */
 	LC_SIG_DILITHIUM_87_ED25519,
+	/** ML-DSA / Dilithium 44 hybrid with ED448 */
+	LC_SIG_DILITHIUM_44_ED448,
+	/** ML-DSA / Dilithium 65 hybrid with ED448 */
+	LC_SIG_DILITHIUM_65_ED448,
 	/** ML-DSA / Dilithium 87 hybrid with ED448 */
 	LC_SIG_DILITHIUM_87_ED448,
 	/** SLH-DSA / Sphincs Plus SHAKE 256s */
@@ -254,12 +258,22 @@ struct lc_x509_key_data {
 	unsigned int data_struct_size;
 	union {
 		struct lc_dilithium_pk *dilithium_pk;
+#ifdef LC_DILITHIUM_ED448_SIG
+		struct lc_dilithium_ed448_pk *dilithium_ed448_pk;
+#endif
+#ifdef LC_DILITHIUM_ED25519_SIG
 		struct lc_dilithium_ed25519_pk *dilithium_ed25519_pk;
+#endif
 		struct lc_sphincs_pk *sphincs_pk;
 	} pk;
 	union {
 		struct lc_dilithium_sk *dilithium_sk;
+#ifdef LC_DILITHIUM_ED448_SIG
+		struct lc_dilithium_ed448_sk *dilithium_ed448_sk;
+#endif
+#ifdef LC_DILITHIUM_ED25519_SIG
 		struct lc_dilithium_ed25519_sk *dilithium_ed25519_sk;
+#endif
 		struct lc_sphincs_sk *sphincs_sk;
 	} sk;
 	uint8_t pk_digest[LC_X509_SKID_DEFAULT_HASHSIZE];

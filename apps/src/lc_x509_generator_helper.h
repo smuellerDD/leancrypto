@@ -36,6 +36,9 @@ struct lc_x509_key_input_data {
 #ifdef LC_DILITHIUM_ED25519
 		struct lc_dilithium_ed25519_pk dilithium_ed25519_pk;
 #endif
+#ifdef LC_DILITHIUM_ED448
+		struct lc_dilithium_ed448_pk dilithium_ed448_pk;
+#endif
 #ifdef LC_SPHINCS
 		struct lc_sphincs_pk sphincs_pk;
 #endif
@@ -46,6 +49,9 @@ struct lc_x509_key_input_data {
 #endif
 #ifdef LC_DILITHIUM_ED25519
 		struct lc_dilithium_ed25519_sk dilithium_ed25519_sk;
+#endif
+#ifdef LC_DILITHIUM_ED448
+		struct lc_dilithium_ed448_sk dilithium_ed448_sk;
 #endif
 #ifdef LC_SPHINCS
 		struct lc_sphincs_sk sphincs_sk;

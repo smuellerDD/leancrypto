@@ -18,9 +18,6 @@
  */
 
 #include "asn1_debug.h"
-#include "asym_key_dilithium.h"
-#include "asym_key_dilithium_ed25519.h"
-#include "asym_key_sphincs.h"
 #include "ext_headers.h"
 #include "helper.h"
 #include "lc_memcmp_secure.h"
