@@ -400,8 +400,8 @@ curveed448_verify(const uint8_t signature[LC_ED448_SIGBYTES],
 				     &signature[LC_ED448_PUBLICKEYBYTES]));
 
 	/* pk_point = -c(x(P)) + (cx + k)G = kG */
-	CKINT(curve448_base_double_scalarmul_non_secret(pk_point, response_scalar,
-						  pk_point, challenge_scalar));
+	CKINT(curve448_base_double_scalarmul_non_secret(
+		pk_point, response_scalar, pk_point, challenge_scalar));
 
 	ret = curve448_point_eq(pk_point, r_point) ? 0 : -EBADMSG;
 

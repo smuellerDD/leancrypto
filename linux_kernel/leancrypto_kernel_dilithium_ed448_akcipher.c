@@ -81,20 +81,20 @@ static int lc_kernel_dilithium_ed448_sign(struct akcipher_request *req)
 	while ((offset < req->src_len) && sg_miter_next(&miter)) {
 		unsigned int len = min(miter.length, req->src_len - offset);
 
-		lc_dilithium_ed448_sign_update(dilithium_ed448_ctx,
-						 miter.addr, len);
+		lc_dilithium_ed448_sign_update(dilithium_ed448_ctx, miter.addr,
+					       len);
 		offset += len;
 	}
 
 	sg_miter_stop(&miter);
 
-	ret = lc_dilithium_ed448_sign_final(sig, dilithium_ed448_ctx,
-					      &ctx->sk, lc_seeded_rng);
+	ret = lc_dilithium_ed448_sign_final(sig, dilithium_ed448_ctx, &ctx->sk,
+					    lc_seeded_rng);
 	if (ret)
 		goto out;
 
 	ret = lc_dilithium_ed448_sig_ptr(&sig_ptr, &sig_len, &sig_ed448_ptr,
-					   &sig_ed448_len, sig);
+					 &sig_ed448_len, sig);
 	if (ret)
 		goto out;
 
@@ -117,9 +117,10 @@ static int lc_kernel_dilithium_ed448_sign(struct akcipher_request *req)
 	 * the Dilithium signature.
 	 */
 	ed448_dst = scatterwalk_ffwd(ed448_sg_dst, req->dst, sig_len);
-	copied = sg_pcopy_from_buffer(
-		ed448_dst, sg_nents_for_len(ed448_dst, sig_ed448_len),
-		sig_ed448_ptr, sig_ed448_len, 0);
+	copied =
+		sg_pcopy_from_buffer(ed448_dst,
+				     sg_nents_for_len(ed448_dst, sig_ed448_len),
+				     sig_ed448_ptr, sig_ed448_len, 0);
 	if (copied != sig_ed448_len)
 		ret = -EINVAL;
 
@@ -164,7 +165,7 @@ static int lc_kernel_dilithium_ed448_verify(struct akcipher_request *req)
 	 */
 	sig->dilithium_type = type;
 	ret = lc_dilithium_ed448_sig_ptr(&sig_ptr, &sig_len, &sig_ed448_ptr,
-					   &sig_ed448_len, sig);
+					 &sig_ed448_len, sig);
 	if (ret)
 		goto out;
 
@@ -180,8 +181,7 @@ static int lc_kernel_dilithium_ed448_verify(struct akcipher_request *req)
 
 	/* Copy ED25529 signature into local buffer */
 	ffwd_src = scatterwalk_ffwd(ffwd_sg_src, req->src, sig_len);
-	sg_pcopy_to_buffer(ffwd_src,
-			   sg_nents_for_len(ffwd_src, sig_ed448_len),
+	sg_pcopy_to_buffer(ffwd_src, sg_nents_for_len(ffwd_src, sig_ed448_len),
 			   sig_ed448_ptr, sig_ed448_len, 0);
 
 	/* Forward SGL to the message */
@@ -198,14 +198,14 @@ static int lc_kernel_dilithium_ed448_verify(struct akcipher_request *req)
 		unsigned int len = min(miter.length, msg_len - offset);
 
 		lc_dilithium_ed448_verify_update(dilithium_ed448_ctx,
-						   miter.addr, len);
+						 miter.addr, len);
 		offset += len;
 	}
 
 	sg_miter_stop(&miter);
 
 	ret = lc_dilithium_ed448_verify_final(sig, dilithium_ed448_ctx,
-						&ctx->pk);
+					      &ctx->pk);
 
 out:
 	lc_dilithium_ed448_ctx_zero(dilithium_ed448_ctx);
@@ -215,9 +215,10 @@ out:
 	return ret;
 }
 
-static int lc_kernel_dilithium_ed448_set_pub_key_int(
-	struct crypto_akcipher *tfm, const void *key, unsigned int keylen,
-	enum lc_dilithium_type type)
+static int
+lc_kernel_dilithium_ed448_set_pub_key_int(struct crypto_akcipher *tfm,
+					  const void *key, unsigned int keylen,
+					  enum lc_dilithium_type type)
 {
 	struct lc_kernel_dilithium_ed448_ctx *ctx = akcipher_tfm_ctx(tfm);
 	int ret;
@@ -231,10 +232,10 @@ static int lc_kernel_dilithium_ed448_set_pub_key_int(
 	 * Load the Dilithium and the ED448 keys - they are expected to be
 	 * concatenated in the linear buffer of key.
 	 */
-	ret = lc_dilithium_ed448_pk_load(
-		&ctx->pk, key, keylen - LC_ED448_PUBLICKEYBYTES,
-		key + keylen - LC_ED448_PUBLICKEYBYTES,
-		LC_ED448_PUBLICKEYBYTES);
+	ret = lc_dilithium_ed448_pk_load(&ctx->pk, key,
+					 keylen - LC_ED448_PUBLICKEYBYTES,
+					 key + keylen - LC_ED448_PUBLICKEYBYTES,
+					 LC_ED448_PUBLICKEYBYTES);
 
 	if (!ret) {
 		if (lc_dilithium_ed448_pk_type(&ctx->pk) != type)
@@ -246,33 +247,34 @@ static int lc_kernel_dilithium_ed448_set_pub_key_int(
 	return ret;
 }
 
-static int
-lc_kernel_dilithium_ed448_44_set_pub_key(struct crypto_akcipher *tfm,
-					   const void *key, unsigned int keylen)
+static int lc_kernel_dilithium_ed448_44_set_pub_key(struct crypto_akcipher *tfm,
+						    const void *key,
+						    unsigned int keylen)
 {
 	return lc_kernel_dilithium_ed448_set_pub_key_int(tfm, key, keylen,
-							   LC_DILITHIUM_44);
+							 LC_DILITHIUM_44);
+}
+
+static int lc_kernel_dilithium_ed448_65_set_pub_key(struct crypto_akcipher *tfm,
+						    const void *key,
+						    unsigned int keylen)
+{
+	return lc_kernel_dilithium_ed448_set_pub_key_int(tfm, key, keylen,
+							 LC_DILITHIUM_65);
+}
+
+static int lc_kernel_dilithium_ed448_87_set_pub_key(struct crypto_akcipher *tfm,
+						    const void *key,
+						    unsigned int keylen)
+{
+	return lc_kernel_dilithium_ed448_set_pub_key_int(tfm, key, keylen,
+							 LC_DILITHIUM_87);
 }
 
 static int
-lc_kernel_dilithium_ed448_65_set_pub_key(struct crypto_akcipher *tfm,
-					   const void *key, unsigned int keylen)
-{
-	return lc_kernel_dilithium_ed448_set_pub_key_int(tfm, key, keylen,
-							   LC_DILITHIUM_65);
-}
-
-static int
-lc_kernel_dilithium_ed448_87_set_pub_key(struct crypto_akcipher *tfm,
-					   const void *key, unsigned int keylen)
-{
-	return lc_kernel_dilithium_ed448_set_pub_key_int(tfm, key, keylen,
-							   LC_DILITHIUM_87);
-}
-
-static int lc_kernel_dilithium_ed448_set_priv_key_int(
-	struct crypto_akcipher *tfm, const void *key, unsigned int keylen,
-	enum lc_dilithium_type type)
+lc_kernel_dilithium_ed448_set_priv_key_int(struct crypto_akcipher *tfm,
+					   const void *key, unsigned int keylen,
+					   enum lc_dilithium_type type)
 {
 	struct lc_kernel_dilithium_ed448_ctx *ctx = akcipher_tfm_ctx(tfm);
 	int ret;
@@ -286,10 +288,10 @@ static int lc_kernel_dilithium_ed448_set_priv_key_int(
 	 * Load the Dilithium and the ED448 keys - they are expected to be
 	 * concatenated in the linear buffer of key.
 	 */
-	ret = lc_dilithium_ed448_sk_load(
-		&ctx->sk, key, keylen - LC_ED448_SECRETKEYBYTES,
-		key + keylen - LC_ED448_SECRETKEYBYTES,
-		LC_ED448_SECRETKEYBYTES);
+	ret = lc_dilithium_ed448_sk_load(&ctx->sk, key,
+					 keylen - LC_ED448_SECRETKEYBYTES,
+					 key + keylen - LC_ED448_SECRETKEYBYTES,
+					 LC_ED448_SECRETKEYBYTES);
 
 	if (!ret) {
 		if (lc_dilithium_ed448_sk_type(&ctx->sk) != type)
@@ -301,25 +303,28 @@ static int lc_kernel_dilithium_ed448_set_priv_key_int(
 	return ret;
 }
 
-static int lc_kernel_dilithium_ed448_44_set_priv_key(
-	struct crypto_akcipher *tfm, const void *key, unsigned int keylen)
+static int
+lc_kernel_dilithium_ed448_44_set_priv_key(struct crypto_akcipher *tfm,
+					  const void *key, unsigned int keylen)
 {
 	return lc_kernel_dilithium_ed448_set_priv_key_int(tfm, key, keylen,
-							    LC_DILITHIUM_44);
+							  LC_DILITHIUM_44);
 }
 
-static int lc_kernel_dilithium_ed448_65_set_priv_key(
-	struct crypto_akcipher *tfm, const void *key, unsigned int keylen)
+static int
+lc_kernel_dilithium_ed448_65_set_priv_key(struct crypto_akcipher *tfm,
+					  const void *key, unsigned int keylen)
 {
 	return lc_kernel_dilithium_ed448_set_priv_key_int(tfm, key, keylen,
-							    LC_DILITHIUM_65);
+							  LC_DILITHIUM_65);
 }
 
-static int lc_kernel_dilithium_ed448_87_set_priv_key(
-	struct crypto_akcipher *tfm, const void *key, unsigned int keylen)
+static int
+lc_kernel_dilithium_ed448_87_set_priv_key(struct crypto_akcipher *tfm,
+					  const void *key, unsigned int keylen)
 {
 	return lc_kernel_dilithium_ed448_set_priv_key_int(tfm, key, keylen,
-							    LC_DILITHIUM_87);
+							  LC_DILITHIUM_87);
 }
 
 static unsigned int

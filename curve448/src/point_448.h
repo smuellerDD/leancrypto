@@ -313,9 +313,9 @@ void curve448_precomputed_scalarmul(curve448_point_t scaled,
  * It is designed for signature verification.
  */
 int curve448_base_double_scalarmul_non_secret(curve448_point_t combo,
-					       const curve448_scalar_t scalar1,
-					       const curve448_point_t base2,
-					       const curve448_scalar_t scalar2);
+					      const curve448_scalar_t scalar1,
+					      const curve448_point_t base2,
+					      const curve448_scalar_t scalar2);
 
 /*
  * Test that a point is valid, for debugging purposes.

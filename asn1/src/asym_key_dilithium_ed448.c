@@ -54,18 +54,17 @@ out:
 	return ret;
 }
 
-int private_key_encode_dilithium_ed448(
-	uint8_t *data, size_t *avail_datalen,
-	struct x509_generate_privkey_context *ctx)
+int private_key_encode_dilithium_ed448(uint8_t *data, size_t *avail_datalen,
+				       struct x509_generate_privkey_context *ctx)
 {
 	const struct lc_x509_key_data *keys = ctx->keys;
 	size_t ml_dsa_sklen, ed448_sklen;
 	uint8_t *ml_dsa_ptr, *ed448_ptr;
 	int ret;
 
-	CKINT(lc_dilithium_ed448_sk_ptr(&ml_dsa_ptr, &ml_dsa_sklen,
-					  &ed448_ptr, &ed448_sklen,
-					  keys->sk.dilithium_ed448_sk));
+	CKINT(lc_dilithium_ed448_sk_ptr(&ml_dsa_ptr, &ml_dsa_sklen, &ed448_ptr,
+					&ed448_sklen,
+					keys->sk.dilithium_ed448_sk));
 
 	/*
 	 * Concatenate the signature data into the buffer according to
@@ -84,7 +83,7 @@ out:
 }
 
 int private_key_decode_dilithium_ed448(struct lc_x509_key_data *keys,
-					 const uint8_t *data, size_t datalen)
+				       const uint8_t *data, size_t datalen)
 {
 	struct lc_dilithium_ed448_sk *dilithium_sk =
 		keys->sk.dilithium_ed448_sk;
@@ -108,9 +107,9 @@ int private_key_decode_dilithium_ed448(struct lc_x509_key_data *keys,
 	ed448_src_key = dilithium_src_key + dilithium_src_key_len;
 	ed448_src_key_len = LC_ED448_SECRETKEYBYTES;
 
-	CKINT(lc_dilithium_ed448_sk_load(
-		dilithium_sk, dilithium_src_key, dilithium_src_key_len,
-		ed448_src_key, ed448_src_key_len));
+	CKINT(lc_dilithium_ed448_sk_load(dilithium_sk, dilithium_src_key,
+					 dilithium_src_key_len, ed448_src_key,
+					 ed448_src_key_len));
 
 	printf_debug("Loaded composite public key of size %zu\n", datalen);
 
@@ -119,7 +118,7 @@ out:
 }
 
 int public_key_encode_dilithium_ed448(uint8_t *data, size_t *avail_datalen,
-					struct x509_generate_context *ctx)
+				      struct x509_generate_context *ctx)
 {
 	const struct lc_x509_certificate *cert = ctx->cert;
 	const struct lc_x509_key_data *gen_data = &cert->pub_gen_data;
@@ -127,9 +126,9 @@ int public_key_encode_dilithium_ed448(uint8_t *data, size_t *avail_datalen,
 	uint8_t *ml_dsa_ptr, *ed448_ptr;
 	int ret;
 
-	CKINT(lc_dilithium_ed448_pk_ptr(&ml_dsa_ptr, &ml_dsa_pklen,
-					  &ed448_ptr, &ed448_pklen,
-					  gen_data->pk.dilithium_ed448_pk));
+	CKINT(lc_dilithium_ed448_pk_ptr(&ml_dsa_ptr, &ml_dsa_pklen, &ed448_ptr,
+					&ed448_pklen,
+					gen_data->pk.dilithium_ed448_pk));
 
 	/*
 	 * Concatenate the signature data into the buffer according to
@@ -148,8 +147,8 @@ out:
 }
 
 int public_key_decode_dilithium_ed448(
-	struct lc_dilithium_ed448_pk *dilithium_ed448_pk,
-	const uint8_t *data, size_t datalen)
+	struct lc_dilithium_ed448_pk *dilithium_ed448_pk, const uint8_t *data,
+	size_t datalen)
 {
 	const uint8_t *dilithium_src, *ed448_src;
 	size_t dilithium_src_len, ed448_src_len;
@@ -171,8 +170,8 @@ int public_key_decode_dilithium_ed448(
 	ed448_src = dilithium_src + dilithium_src_len;
 	ed448_src_len = LC_ED448_PUBLICKEYBYTES;
 	CKINT(lc_dilithium_ed448_pk_load(dilithium_ed448_pk, dilithium_src,
-					   dilithium_src_len, ed448_src,
-					   ed448_src_len));
+					 dilithium_src_len, ed448_src,
+					 ed448_src_len));
 
 	printf_debug("Loaded composite public key of size %zu\n", datalen);
 
@@ -202,7 +201,7 @@ int public_key_verify_signature_dilithium_ed448(
 		return -EINVAL;
 
 	CKINT(public_key_decode_dilithium_ed448(&ws->dilithium_pk, pkey->key,
-						  pkey->keylen));
+						pkey->keylen));
 
 	/*
 	 * See draft version 5:
@@ -218,8 +217,8 @@ int public_key_verify_signature_dilithium_ed448(
 	ed448_src = dilithium_src + dilithium_src_len;
 	ed448_src_len = LC_ED448_SIGBYTES;
 	CKINT(lc_dilithium_ed448_sig_load(&ws->dilithium_sig, dilithium_src,
-					    dilithium_src_len, ed448_src,
-					    ed448_src_len));
+					  dilithium_src_len, ed448_src,
+					  ed448_src_len));
 
 	printf_debug("Loaded composite signature of size %zu\n", sig->s_size);
 
@@ -293,10 +292,10 @@ int public_key_generate_signature_dilithium_ed448(
 			/*
 			 * Sign the hash using HashComposite-ML-DSA
 			 */
-			CKINT(lc_dilithium_ed448_sign_init(
-				ctx, dilithium_ed448_sk));
-			CKINT(lc_dilithium_ed448_sign_update(
-				ctx, sig->digest, sig->digest_size));
+			CKINT(lc_dilithium_ed448_sign_init(ctx,
+							   dilithium_ed448_sk));
+			CKINT(lc_dilithium_ed448_sign_update(ctx, sig->digest,
+							     sig->digest_size));
 			CKINT(lc_dilithium_ed448_sign_final(
 				&ws->dilithium_ed448_sig, ctx,
 				dilithium_ed448_sk, lc_seeded_rng));
@@ -317,13 +316,12 @@ int public_key_generate_signature_dilithium_ed448(
 		 */
 		CKINT(lc_dilithium_ed448_sign_ctx(
 			&ws->dilithium_ed448_sig, ctx, sig->raw_data,
-			sig->raw_data_len, dilithium_ed448_sk,
-			lc_seeded_rng));
+			sig->raw_data_len, dilithium_ed448_sk, lc_seeded_rng));
 	}
 
 	CKINT(lc_dilithium_ed448_sig_ptr(&ml_dsa_ptr, &ml_dsa_siglen,
-					   &ed448_ptr, &ed448_siglen,
-					   &ws->dilithium_ed448_sig));
+					 &ed448_ptr, &ed448_siglen,
+					 &ws->dilithium_ed448_sig));
 
 	/*
 	 * Concatenate the signature data into the buffer according to
@@ -352,8 +350,8 @@ int public_key_signature_size_dilithium_ed448(
 }
 
 int asym_set_dilithium_ed448_keypair(struct lc_x509_key_data *gen_data,
-				       struct lc_dilithium_ed448_pk *pk,
-				       struct lc_dilithium_ed448_sk *sk)
+				     struct lc_dilithium_ed448_pk *pk,
+				     struct lc_dilithium_ed448_sk *sk)
 {
 	uint8_t *dilithium_pk_ptr, *ed448_pk_ptr;
 	size_t dilithium_pk_len, ed448_pk_len;

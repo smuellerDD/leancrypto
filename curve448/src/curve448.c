@@ -446,7 +446,7 @@ static int recode_wnaf(struct smvt_control *control,
 			/* Refill the 16 high bits of current */
 			curr_val += (uint32_t)((scalar->limb[w / B_OVER_16] >>
 						(16 * (w % B_OVER_16)))
-					      << 16);
+					       << 16);
 		}
 
 		while (curr_val & 0xFFFF) {
@@ -502,18 +502,19 @@ static void prepare_wnaf_table(pniels_t *output, const curve448_point_t working,
 }
 
 int curve448_base_double_scalarmul_non_secret(curve448_point_t combo,
-					       const curve448_scalar_t scalar1,
-					       const curve448_point_t base2,
-					       const curve448_scalar_t scalar2)
+					      const curve448_scalar_t scalar1,
+					      const curve448_point_t base2,
+					      const curve448_scalar_t scalar2)
 {
 	static const int table_bits_var = C448_WNAF_VAR_TABLE_BITS;
 	static const int table_bits_pre = C448_WNAF_FIXED_TABLE_BITS;
 	struct workspace {
+		struct smvt_control control_var
+			[C448_SCALAR_BITS / (C448_WNAF_VAR_TABLE_BITS + 1) + 3];
 		struct smvt_control
-			control_var[C448_SCALAR_BITS / (C448_WNAF_VAR_TABLE_BITS + 1) +
-				3];
-		struct smvt_control control_pre
-			[C448_SCALAR_BITS / (C448_WNAF_FIXED_TABLE_BITS + 1) + 3];
+			control_pre[C448_SCALAR_BITS /
+					    (C448_WNAF_FIXED_TABLE_BITS + 1) +
+				    3];
 		pniels_t precmp_var[1 << C448_WNAF_VAR_TABLE_BITS];
 	};
 	int ncb_pre, ncb_var;
@@ -531,13 +532,15 @@ int curve448_base_double_scalarmul_non_secret(curve448_point_t combo,
 		return 0;
 	}
 	if (i > ws->control_pre[0].power) {
-		pniels_to_pt(combo, ws->precmp_var[ws->control_var[0].addend >> 1]);
+		pniels_to_pt(combo,
+			     ws->precmp_var[ws->control_var[0].addend >> 1]);
 		contv++;
 	} else if (i == ws->control_pre[0].power && i >= 0) {
-		pniels_to_pt(combo, ws->precmp_var[ws->control_var[0].addend >> 1]);
-		add_niels_to_pt(combo,
-				curve448_wnaf_base[ws->control_pre[0].addend >> 1],
-				i);
+		pniels_to_pt(combo,
+			     ws->precmp_var[ws->control_var[0].addend >> 1]);
+		add_niels_to_pt(
+			combo,
+			curve448_wnaf_base[ws->control_pre[0].addend >> 1], i);
 		contv++;
 		contp++;
 	} else {
@@ -559,14 +562,16 @@ int curve448_base_double_scalarmul_non_secret(curve448_point_t combo,
 			if (ws->control_var[contv].addend > 0)
 				add_pniels_to_pt(
 					combo,
-					ws->precmp_var[ws->control_var[contv].addend >>
-						   1],
+					ws->precmp_var[ws->control_var[contv]
+							       .addend >>
+						       1],
 					i && !cp);
 			else
 				sub_pniels_from_pt(
 					combo,
-					ws->precmp_var[(-ws->control_var[contv].addend) >>
-						   1],
+					ws->precmp_var[(-ws->control_var[contv]
+								 .addend) >>
+						       1],
 					i && !cp);
 			contv++;
 		}
@@ -577,8 +582,9 @@ int curve448_base_double_scalarmul_non_secret(curve448_point_t combo,
 			if (ws->control_pre[contp].addend > 0)
 				add_niels_to_pt(
 					combo,
-					curve448_wnaf_base
-						[ws->control_pre[contp].addend >> 1],
+					curve448_wnaf_base[ws->control_pre[contp]
+								   .addend >>
+							   1],
 					i);
 			else
 				sub_niels_from_pt(

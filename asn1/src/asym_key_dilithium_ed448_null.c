@@ -19,9 +19,8 @@
 
 #include "asym_key_dilithium_ed448.h"
 
-int private_key_encode_dilithium_ed448(
-	uint8_t *data, size_t *avail_datalen,
-	struct x509_generate_privkey_context *ctx)
+int private_key_encode_dilithium_ed448(uint8_t *data, size_t *avail_datalen,
+				       struct x509_generate_privkey_context *ctx)
 {
 	(void)data;
 	(void)avail_datalen;
@@ -30,7 +29,7 @@ int private_key_encode_dilithium_ed448(
 }
 
 int private_key_decode_dilithium_ed448(struct lc_x509_key_data *keys,
-					 const uint8_t *data, size_t datalen)
+				       const uint8_t *data, size_t datalen)
 {
 	(void)keys;
 	(void)data;
@@ -39,7 +38,7 @@ int private_key_decode_dilithium_ed448(struct lc_x509_key_data *keys,
 }
 
 int public_key_encode_dilithium_ed448(uint8_t *data, size_t *avail_datalen,
-					struct x509_generate_context *ctx)
+				      struct x509_generate_context *ctx)
 {
 	(void)data;
 	(void)avail_datalen;
@@ -77,8 +76,8 @@ int public_key_signature_size_dilithium_ed448(
 }
 
 int asym_set_dilithium_ed448_keypair(struct lc_x509_key_data *gen_data,
-				       struct lc_dilithium_ed448_pk *pk,
-				       struct lc_dilithium_ed448_sk *sk)
+				     struct lc_dilithium_ed448_pk *pk,
+				     struct lc_dilithium_ed448_sk *sk)
 {
 	(void)gen_data;
 	(void)pk;

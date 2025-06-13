@@ -50,7 +50,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_load_pk_dilithium_ed448,
 	int ret;
 
 	CKINT(public_key_decode_dilithium_ed448(dilithium_ed448_pk, pk_ptr,
-						  pk_len));
+						pk_len));
 
 out:
 	return ret;

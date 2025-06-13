@@ -47,8 +47,7 @@ struct lc_kernel_kyber_x448_ctx {
 };
 
 static int lc_kernel_kyber_x448_set_secret(struct crypto_kpp *tfm,
-					     const void *buffer,
-					     unsigned int len)
+					   const void *buffer, unsigned int len)
 {
 	struct lc_kernel_kyber_x448_ctx *ctx = kpp_tfm_ctx(tfm);
 
@@ -57,7 +56,7 @@ static int lc_kernel_kyber_x448_set_secret(struct crypto_kpp *tfm,
 	if (!buffer || !len) {
 		/* We do not need the pk at this point */
 		int ret = lc_kyber_x448_keypair(&ctx->pk, &ctx->sk,
-						  lc_seeded_rng);
+						lc_seeded_rng);
 
 		if (!ret)
 			ctx->pubkey_present = 1;
@@ -120,8 +119,7 @@ static int lc_kernel_kyber_x448_gen_ct(struct kpp_request *req)
 	 * req->dst is filled with either the local Kyber PK (if req->src is
 	 * NULL), or with the Kyber CT as a result of the encapsulation
 	 */
-	if (req->src_len !=
-	    LC_KYBER_PUBLICKEYBYTES + LC_X448_PUBLICKEYBYTES) {
+	if (req->src_len != LC_KYBER_PUBLICKEYBYTES + LC_X448_PUBLICKEYBYTES) {
 		struct lc_kyber_x448_pk *lpk = &ctx->pk;
 
 		if (!ctx->pubkey_present)
@@ -137,10 +135,9 @@ static int lc_kernel_kyber_x448_gen_ct(struct kpp_request *req)
 
 		/* Copy out the X448 public key */
 		x448 = scatterwalk_ffwd(x448_sg, req->dst,
-					  LC_KYBER_PUBLICKEYBYTES);
+					LC_KYBER_PUBLICKEYBYTES);
 		copied = sg_pcopy_from_buffer(
-			x448,
-			sg_nents_for_len(x448, LC_X448_PUBLICKEYBYTES),
+			x448, sg_nents_for_len(x448, LC_X448_PUBLICKEYBYTES),
 			lpk->pk_x448.pk, LC_X448_PUBLICKEYBYTES, 0);
 		if (copied != LC_X448_PUBLICKEYBYTES)
 			return -EINVAL;
@@ -161,14 +158,13 @@ static int lc_kernel_kyber_x448_gen_ct(struct kpp_request *req)
 
 	/* Copy in the X448 public key */
 	x448 = scatterwalk_ffwd(x448_sg, req->src, LC_KYBER_PUBLICKEYBYTES);
-	copied = sg_copy_to_buffer(x448,
-				   sg_nents_for_len(x448, req->src_len),
+	copied = sg_copy_to_buffer(x448, sg_nents_for_len(x448, req->src_len),
 				   rpk.pk_x448.pk, LC_X448_PUBLICKEYBYTES);
 	if (copied != LC_X448_PUBLICKEYBYTES)
 		return -EINVAL;
 
 	ret = lc_kyber_x448_enc_kdf(&ctx->ct, ctx->ss, LC_KYBER_X448_MAX_SS,
-				      &rpk);
+				    &rpk);
 	if (ret)
 		return ret;
 
@@ -182,8 +178,7 @@ static int lc_kernel_kyber_x448_gen_ct(struct kpp_request *req)
 		ret = -EINVAL;
 
 	/* .. and copy out the X448 PK */
-	x448 = scatterwalk_ffwd(x448_sg, req->dst,
-				  LC_CRYPTO_CIPHERTEXTBYTES);
+	x448 = scatterwalk_ffwd(x448_sg, req->dst, LC_CRYPTO_CIPHERTEXTBYTES);
 
 	copied = sg_copy_from_buffer(
 		x448, sg_nents_for_len(x448, LC_X448_PUBLICKEYBYTES),
@@ -255,8 +250,7 @@ static int lc_kernel_kyber_x448_ss(struct kpp_request *req)
 	if (!req->src_len)
 		return lc_kernel_kyber_x448_ss_local(req);
 
-	if (req->src_len !=
-	    LC_CRYPTO_CIPHERTEXTBYTES + LC_X448_PUBLICKEYBYTES)
+	if (req->src_len != LC_CRYPTO_CIPHERTEXTBYTES + LC_X448_PUBLICKEYBYTES)
 		return -EINVAL;
 
 	ct = kmalloc(sizeof(struct lc_kyber_x448_ct), GFP_KERNEL);
@@ -273,8 +267,7 @@ static int lc_kernel_kyber_x448_ss(struct kpp_request *req)
 	}
 
 	/* Copy in the remote X448 PK */
-	x448 = scatterwalk_ffwd(x448_sg, req->src,
-				  LC_CRYPTO_CIPHERTEXTBYTES);
+	x448 = scatterwalk_ffwd(x448_sg, req->src, LC_CRYPTO_CIPHERTEXTBYTES);
 	copied = sg_copy_to_buffer(
 		x448, sg_nents_for_len(x448, LC_X448_PUBLICKEYBYTES),
 		ct->pk_x448.pk, LC_X448_PUBLICKEYBYTES);

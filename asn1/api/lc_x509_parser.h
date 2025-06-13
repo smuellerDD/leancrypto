@@ -187,23 +187,23 @@ int lc_x509_cert_decode(struct lc_x509_certificate *cert, const uint8_t *data,
 #endif
 
 #ifdef LC_DILITHIUM_ED448_SIG
-#define LC_X509_KEYS_DILITHIUM_ED448_SIZE                                    \
-	(sizeof(struct lc_dilithium_ed448_pk) +                              \
-	 sizeof(struct lc_dilithium_ed448_sk) +                              \
+#define LC_X509_KEYS_DILITHIUM_ED448_SIZE                                      \
+	(sizeof(struct lc_dilithium_ed448_pk) +                                \
+	 sizeof(struct lc_dilithium_ed448_sk) +                                \
 	 sizeof(struct lc_x509_key_data))
-#define LC_X509_KEYS_DILITHIUM_ED448_SET(name)                               \
+#define LC_X509_KEYS_DILITHIUM_ED448_SET(name)                                 \
 	_Pragma("GCC diagnostic push")                                         \
 		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")(name)       \
-			->pk.dilithium_ed448_pk =                            \
-		(struct lc_dilithium_ed448_pk                                \
+			->pk.dilithium_ed448_pk =                              \
+		(struct lc_dilithium_ed448_pk                                  \
 			 *)((uint8_t *)(name) +                                \
 			    sizeof(struct lc_x509_key_data));                  \
-	(name)->sk.dilithium_ed448_sk =                                      \
-		(struct lc_dilithium_ed448_sk                                \
+	(name)->sk.dilithium_ed448_sk =                                        \
+		(struct lc_dilithium_ed448_sk                                  \
 			 *)((uint8_t *)(name) +                                \
 			    sizeof(struct lc_x509_key_data) +                  \
-			    sizeof(struct lc_dilithium_ed448_pk));           \
-	(name)->data_struct_size = LC_X509_KEYS_DILITHIUM_ED448_SIZE;        \
+			    sizeof(struct lc_dilithium_ed448_pk));             \
+	(name)->data_struct_size = LC_X509_KEYS_DILITHIUM_ED448_SIZE;          \
 	_Pragma("GCC diagnostic pop")
 #endif
 /// \endcond
@@ -234,16 +234,16 @@ int lc_x509_cert_decode(struct lc_x509_certificate *cert, const uint8_t *data,
  *
  * @param [in] name Name of stack variable
  */
-#define LC_X509_KEYS_DILITHIUM_ED448_ON_STACK(name)                          \
+#define LC_X509_KEYS_DILITHIUM_ED448_ON_STACK(name)                            \
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")             \
 			LC_ALIGNED_BUFFER(name##_ctx_buf,                      \
-					  LC_X509_KEYS_DILITHIUM_ED448_SIZE, \
+					  LC_X509_KEYS_DILITHIUM_ED448_SIZE,   \
 					  LC_HASH_COMMON_ALIGNMENT);           \
 	struct lc_x509_key_data *name =                                        \
 		(struct lc_x509_key_data *)name##_ctx_buf;                     \
-	LC_X509_KEYS_DILITHIUM_ED448_SET(name);                              \
+	LC_X509_KEYS_DILITHIUM_ED448_SET(name);                                \
 	_Pragma("GCC diagnostic pop")
 
 /**
@@ -254,8 +254,7 @@ int lc_x509_cert_decode(struct lc_x509_certificate *cert, const uint8_t *data,
  * @param [in] name Name of stack variable
  */
 #ifdef LC_DILITHIUM_ED448_SIG
-#define LC_X509_KEYS_ON_STACK(name)                                            \
-	LC_X509_KEYS_DILITHIUM_ED448_ON_STACK(name)
+#define LC_X509_KEYS_ON_STACK(name) LC_X509_KEYS_DILITHIUM_ED448_ON_STACK(name)
 #elif defined LC_DILITHIUM_ED25519_SIG
 #define LC_X509_KEYS_ON_STACK(name)                                            \
 	LC_X509_KEYS_DILITHIUM_ED25519_ON_STACK(name)
@@ -443,8 +442,8 @@ int lc_x509_cert_load_pk_dilithium_ed25519(
  * @return 0 on success or < 0 on error
  */
 int lc_x509_cert_load_pk_dilithium_ed448(
-	struct lc_dilithium_ed448_pk *dilithium_ed448_pk,
-	const uint8_t *pk_ptr, size_t pk_len);
+	struct lc_dilithium_ed448_pk *dilithium_ed448_pk, const uint8_t *pk_ptr,
+	size_t pk_len);
 
 /**
  * @ingroup X509

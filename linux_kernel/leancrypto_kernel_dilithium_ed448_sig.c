@@ -47,8 +47,8 @@ struct lc_kernel_dilithium_ed448_ctx {
 /* src -> message */
 /* dst -> signature */
 static int lc_kernel_dilithium_ed448_sign(struct crypto_sig *tfm,
-					    const void *src, unsigned int slen,
-					    void *dst, unsigned int dlen)
+					  const void *src, unsigned int slen,
+					  void *dst, unsigned int dlen)
 {
 	struct lc_kernel_dilithium_ed448_ctx *ctx = crypto_sig_ctx(tfm);
 	struct lc_dilithium_ed448_sig *sig;
@@ -68,13 +68,12 @@ static int lc_kernel_dilithium_ed448_sign(struct crypto_sig *tfm,
 	if (!sig)
 		return -ENOMEM;
 
-	ret = lc_dilithium_ed448_sign(sig, src, slen, &ctx->sk,
-					lc_seeded_rng);
+	ret = lc_dilithium_ed448_sign(sig, src, slen, &ctx->sk, lc_seeded_rng);
 	if (ret)
 		goto out;
 
 	ret = lc_dilithium_ed448_sig_ptr(&sig_ptr, &sig_len, &sig_ed448_ptr,
-					   &sig_ed448_len, sig);
+					 &sig_ed448_len, sig);
 	if (ret)
 		goto out;
 
@@ -100,10 +99,9 @@ out:
 /* src -> Dilithium signature || ED448 signature */
 /* msg -> message */
 static int lc_kernel_dilithium_ed448_verify(struct crypto_sig *tfm,
-					      const void *src,
-					      unsigned int slen,
-					      const void *msg,
-					      unsigned int msg_len)
+					    const void *src, unsigned int slen,
+					    const void *msg,
+					    unsigned int msg_len)
 {
 	struct lc_kernel_dilithium_ed448_ctx *ctx = crypto_sig_ctx(tfm);
 	struct lc_dilithium_ed448_sig *sig;
@@ -130,7 +128,7 @@ static int lc_kernel_dilithium_ed448_verify(struct crypto_sig *tfm,
 	 */
 	sig->dilithium_type = type;
 	ret = lc_dilithium_ed448_sig_ptr(&sig_ptr, &sig_len, &sig_ed448_ptr,
-					   &sig_ed448_len, sig);
+					 &sig_ed448_len, sig);
 	if (ret)
 		goto out;
 
@@ -146,9 +144,10 @@ out:
 	return ret;
 }
 
-static int lc_kernel_dilithium_ed448_set_pub_key_int(
-	struct crypto_sig *tfm, const void *key, unsigned int keylen,
-	enum lc_dilithium_type type)
+static int
+lc_kernel_dilithium_ed448_set_pub_key_int(struct crypto_sig *tfm,
+					  const void *key, unsigned int keylen,
+					  enum lc_dilithium_type type)
 {
 	struct lc_kernel_dilithium_ed448_ctx *ctx = crypto_sig_ctx(tfm);
 	int ret;
@@ -162,10 +161,10 @@ static int lc_kernel_dilithium_ed448_set_pub_key_int(
 	 * Load the Dilithium and the ED448 keys - they are expected to be
 	 * concatenated in the linear buffer of key.
 	 */
-	ret = lc_dilithium_ed448_pk_load(
-		&ctx->pk, key, keylen - LC_ED448_PUBLICKEYBYTES,
-		key + keylen - LC_ED448_PUBLICKEYBYTES,
-		LC_ED448_PUBLICKEYBYTES);
+	ret = lc_dilithium_ed448_pk_load(&ctx->pk, key,
+					 keylen - LC_ED448_PUBLICKEYBYTES,
+					 key + keylen - LC_ED448_PUBLICKEYBYTES,
+					 LC_ED448_PUBLICKEYBYTES);
 
 	if (!ret) {
 		if (lc_dilithium_ed448_pk_type(&ctx->pk) != type)
@@ -226,32 +225,33 @@ lc_kernel_dilithium_ed448_44_key_size(struct crypto_sig *tfm)
 }
 
 static int lc_kernel_dilithium_ed448_44_set_pub_key(struct crypto_sig *tfm,
-						      const void *key,
-						      unsigned int keylen)
+						    const void *key,
+						    unsigned int keylen)
 {
 	return lc_kernel_dilithium_ed448_set_pub_key_int(tfm, key, keylen,
-							   LC_DILITHIUM_44);
+							 LC_DILITHIUM_44);
 }
 
 static int lc_kernel_dilithium_ed448_65_set_pub_key(struct crypto_sig *tfm,
-						      const void *key,
-						      unsigned int keylen)
+						    const void *key,
+						    unsigned int keylen)
 {
 	return lc_kernel_dilithium_ed448_set_pub_key_int(tfm, key, keylen,
-							   LC_DILITHIUM_65);
+							 LC_DILITHIUM_65);
 }
 
 static int lc_kernel_dilithium_ed448_87_set_pub_key(struct crypto_sig *tfm,
-						      const void *key,
-						      unsigned int keylen)
+						    const void *key,
+						    unsigned int keylen)
 {
 	return lc_kernel_dilithium_ed448_set_pub_key_int(tfm, key, keylen,
-							   LC_DILITHIUM_87);
+							 LC_DILITHIUM_87);
 }
 
-static int lc_kernel_dilithium_ed448_set_priv_key_int(
-	struct crypto_sig *tfm, const void *key, unsigned int keylen,
-	enum lc_dilithium_type type)
+static int
+lc_kernel_dilithium_ed448_set_priv_key_int(struct crypto_sig *tfm,
+					   const void *key, unsigned int keylen,
+					   enum lc_dilithium_type type)
 {
 	struct lc_kernel_dilithium_ed448_ctx *ctx = crypto_sig_ctx(tfm);
 	int ret;
@@ -265,10 +265,10 @@ static int lc_kernel_dilithium_ed448_set_priv_key_int(
 	 * Load the Dilithium and the ED448 keys - they are expected to be
 	 * concatenated in the linear buffer of key.
 	 */
-	ret = lc_dilithium_ed448_sk_load(
-		&ctx->sk, key, keylen - LC_ED448_SECRETKEYBYTES,
-		key + keylen - LC_ED448_SECRETKEYBYTES,
-		LC_ED448_SECRETKEYBYTES);
+	ret = lc_dilithium_ed448_sk_load(&ctx->sk, key,
+					 keylen - LC_ED448_SECRETKEYBYTES,
+					 key + keylen - LC_ED448_SECRETKEYBYTES,
+					 LC_ED448_SECRETKEYBYTES);
 
 	if (!ret) {
 		if (lc_dilithium_ed448_sk_type(&ctx->sk) != type)
@@ -281,27 +281,27 @@ static int lc_kernel_dilithium_ed448_set_priv_key_int(
 }
 
 static int lc_kernel_dilithium_ed448_44_set_priv_key(struct crypto_sig *tfm,
-						       const void *key,
-						       unsigned int keylen)
+						     const void *key,
+						     unsigned int keylen)
 {
 	return lc_kernel_dilithium_ed448_set_priv_key_int(tfm, key, keylen,
-							    LC_DILITHIUM_44);
+							  LC_DILITHIUM_44);
 }
 
 static int lc_kernel_dilithium_ed448_65_set_priv_key(struct crypto_sig *tfm,
-						       const void *key,
-						       unsigned int keylen)
+						     const void *key,
+						     unsigned int keylen)
 {
 	return lc_kernel_dilithium_ed448_set_priv_key_int(tfm, key, keylen,
-							    LC_DILITHIUM_65);
+							  LC_DILITHIUM_65);
 }
 
 static int lc_kernel_dilithium_ed448_87_set_priv_key(struct crypto_sig *tfm,
-						       const void *key,
-						       unsigned int keylen)
+						     const void *key,
+						     unsigned int keylen)
 {
 	return lc_kernel_dilithium_ed448_set_priv_key_int(tfm, key, keylen,
-							    LC_DILITHIUM_87);
+							  LC_DILITHIUM_87);
 }
 
 static unsigned int lc_kernel_dilithium_ed448_max_size(struct crypto_sig *tfm)

@@ -329,7 +329,7 @@ static inline void lc_kernel_kyber_x25519_512_exit(void)
 }
 #endif
 
-#if (defined(CONFIG_LEANCRYPTO_KEM_X448) &&                                  \
+#if (defined(CONFIG_LEANCRYPTO_KEM_X448) &&                                    \
      defined(CONFIG_LEANCRYPTO_KEM_KYBER_1024))
 int __init lc_kernel_kyber_x448_init(void);
 void lc_kernel_kyber_x448_exit(void);
@@ -344,7 +344,7 @@ static inline void lc_kernel_kyber_x448_exit(void)
 }
 #endif
 
-#if (defined(CONFIG_LEANCRYPTO_KEM_X448) &&                                  \
+#if (defined(CONFIG_LEANCRYPTO_KEM_X448) &&                                    \
      defined(CONFIG_LEANCRYPTO_KEM_KYBER_768))
 int __init lc_kernel_kyber_x448_768_init(void);
 void lc_kernel_kyber_x448_768_exit(void);
@@ -359,7 +359,7 @@ static inline void lc_kernel_kyber_x448_768_exit(void)
 }
 #endif
 
-#if (defined(CONFIG_LEANCRYPTO_KEM_X448) &&                                  \
+#if (defined(CONFIG_LEANCRYPTO_KEM_X448) &&                                    \
      defined(CONFIG_LEANCRYPTO_KEM_KYBER_512))
 int __init lc_kernel_kyber_x448_512_init(void);
 void lc_kernel_kyber_x448_512_exit(void);

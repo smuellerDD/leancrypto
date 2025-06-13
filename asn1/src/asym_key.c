@@ -233,8 +233,8 @@ int public_key_extract(struct x509_generate_context *ctx, uint8_t *dst_data,
 	case LC_SIG_DILITHIUM_44_ED448:
 	case LC_SIG_DILITHIUM_65_ED448:
 	case LC_SIG_DILITHIUM_87_ED448:
-		CKINT(public_key_encode_dilithium_ed448(dst_data,
-							  available_len, ctx));
+		CKINT(public_key_encode_dilithium_ed448(dst_data, available_len,
+							ctx));
 		goto out;
 		break;
 
@@ -309,16 +309,16 @@ int public_key_signature_size(size_t *siglen, enum lc_sig_types sig_type)
 			LC_DILITHIUM_87, siglen));
 		break;
 	case LC_SIG_DILITHIUM_44_ED448:
-		CKINT(public_key_signature_size_dilithium_ed448(
-			LC_DILITHIUM_44, siglen));
+		CKINT(public_key_signature_size_dilithium_ed448(LC_DILITHIUM_44,
+								siglen));
 		break;
 	case LC_SIG_DILITHIUM_65_ED448:
-		CKINT(public_key_signature_size_dilithium_ed448(
-			LC_DILITHIUM_65, siglen));
+		CKINT(public_key_signature_size_dilithium_ed448(LC_DILITHIUM_65,
+								siglen));
 		break;
 	case LC_SIG_DILITHIUM_87_ED448:
-		CKINT(public_key_signature_size_dilithium_ed448(
-			LC_DILITHIUM_87, siglen));
+		CKINT(public_key_signature_size_dilithium_ed448(LC_DILITHIUM_87,
+								siglen));
 		break;
 
 	case LC_SIG_ECDSA_X963:
@@ -360,7 +360,7 @@ int privkey_key_encode(struct x509_generate_privkey_context *ctx,
 	case LC_SIG_DILITHIUM_65_ED448:
 	case LC_SIG_DILITHIUM_87_ED448:
 		CKINT(private_key_encode_dilithium_ed448(dst_data,
-							   available_len, ctx));
+							 available_len, ctx));
 		break;
 	case LC_SIG_SPINCS_SHAKE_256S:
 	case LC_SIG_SPINCS_SHAKE_256F:
@@ -409,8 +409,7 @@ int privkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
 	case LC_SIG_DILITHIUM_44_ED448:
 	case LC_SIG_DILITHIUM_65_ED448:
 	case LC_SIG_DILITHIUM_87_ED448:
-		CKINT(private_key_decode_dilithium_ed448(keys, data,
-							   datalen));
+		CKINT(private_key_decode_dilithium_ed448(keys, data, datalen));
 		break;
 	case LC_SIG_SPINCS_SHAKE_256S:
 	case LC_SIG_SPINCS_SHAKE_192S:
@@ -627,8 +626,8 @@ int asym_set_signer(struct lc_x509_certificate *signed_x509,
 #ifdef LC_DILITHIUM_ED448
 		CKINT_LOG(
 			lc_x509_cert_load_pk_dilithium_ed448(
-				signer_key_data->pk.dilithium_ed448_pk,
-				pk_ptr, pk_len),
+				signer_key_data->pk.dilithium_ed448_pk, pk_ptr,
+				pk_len),
 			"Loading X.509 signer public key from certificate failed: %d\n",
 			ret);
 		CKINT_LOG(asym_set_dilithium_ed448_keypair(
@@ -784,24 +783,24 @@ int asym_keypair_gen(struct lc_x509_certificate *cert,
 
 #ifdef LC_DILITHIUM_ED448
 	case LC_SIG_DILITHIUM_44_ED448:
-		CKINT(lc_dilithium_ed448_keypair(
-			keys->pk.dilithium_ed448_pk,
-			keys->sk.dilithium_ed448_sk, lc_seeded_rng,
-			LC_DILITHIUM_44));
+		CKINT(lc_dilithium_ed448_keypair(keys->pk.dilithium_ed448_pk,
+						 keys->sk.dilithium_ed448_sk,
+						 lc_seeded_rng,
+						 LC_DILITHIUM_44));
 		goto load_dilithium_ed448;
 		break;
 	case LC_SIG_DILITHIUM_65_ED448:
-		CKINT(lc_dilithium_ed448_keypair(
-			keys->pk.dilithium_ed448_pk,
-			keys->sk.dilithium_ed448_sk, lc_seeded_rng,
-			LC_DILITHIUM_65));
+		CKINT(lc_dilithium_ed448_keypair(keys->pk.dilithium_ed448_pk,
+						 keys->sk.dilithium_ed448_sk,
+						 lc_seeded_rng,
+						 LC_DILITHIUM_65));
 		goto load_dilithium_ed448;
 		break;
 	case LC_SIG_DILITHIUM_87_ED448:
-		CKINT(lc_dilithium_ed448_keypair(
-			keys->pk.dilithium_ed448_pk,
-			keys->sk.dilithium_ed448_sk, lc_seeded_rng,
-			LC_DILITHIUM_87));
+		CKINT(lc_dilithium_ed448_keypair(keys->pk.dilithium_ed448_pk,
+						 keys->sk.dilithium_ed448_sk,
+						 lc_seeded_rng,
+						 LC_DILITHIUM_87));
 	load_dilithium_ed448:
 		CKINT(asym_set_dilithium_ed448_keypair(
 			&cert->sig_gen_data, keys->pk.dilithium_ed448_pk,

@@ -36,9 +36,8 @@
 #define LC_DILITHIUM_IMPL_NAME "dilithium87-ed448-leancrypto"
 #endif
 
-static int lc_test_sigver(const char *algname,
-			  struct lc_dilithium_ed448_pk *pk, uint8_t *sig,
-			  uint8_t *msg, size_t msglen)
+static int lc_test_sigver(const char *algname, struct lc_dilithium_ed448_pk *pk,
+			  uint8_t *sig, uint8_t *msg, size_t msglen)
 {
 	struct crypto_sig *tfm = NULL;
 	uint8_t *dilithium_ptr, *ed448_ptr;
@@ -53,7 +52,7 @@ static int lc_test_sigver(const char *algname,
 	}
 
 	err = lc_dilithium_ed448_pk_ptr(&dilithium_ptr, &dilithium_len,
-					  &ed448_ptr, &ed448_len, pk);
+					&ed448_ptr, &ed448_len, pk);
 	if (err)
 		goto err;
 
@@ -87,9 +86,8 @@ err:
 	return err;
 }
 
-static int lc_test_siggen(const char *algname,
-			  struct lc_dilithium_ed448_sk *sk, uint8_t *sig,
-			  uint8_t *msg, size_t msglen)
+static int lc_test_siggen(const char *algname, struct lc_dilithium_ed448_sk *sk,
+			  uint8_t *sig, uint8_t *msg, size_t msglen)
 {
 	struct crypto_sig *tfm = NULL;
 	uint8_t *dilithium_ptr, *ed448_ptr;
@@ -104,7 +102,7 @@ static int lc_test_siggen(const char *algname,
 	}
 
 	err = lc_dilithium_ed448_sk_ptr(&dilithium_ptr, &dilithium_len,
-					  &ed448_ptr, &ed448_len, sk);
+					&ed448_ptr, &ed448_len, sk);
 	if (err)
 		goto err;
 
@@ -155,7 +153,7 @@ static int lc_dilithium_tester(void)
 		return -ENOMEM;
 
 	ret = lc_dilithium_ed448_keypair(&ws->pk, &ws->sk, lc_seeded_rng,
-					   DILITHIUM_TYPE);
+					 DILITHIUM_TYPE);
 	if (ret)
 		goto out;
 
