@@ -197,6 +197,51 @@ static inline void lc_kernel_dilithium_44_ed25519_exit(void)
 }
 #endif
 
+#if defined(CONFIG_LEANCRYPTO_DILITHIUM_87) &&                                 \
+	defined(CONFIG_LEANCRYPTO_DILITHIUM_ED448)
+int __init lc_kernel_dilithium_ed448_init(void);
+void lc_kernel_dilithium_ed448_exit(void);
+#else
+static inline int __init lc_kernel_dilithium_ed448_init(void)
+{
+	return 0;
+}
+
+static inline void lc_kernel_dilithium_ed448_exit(void)
+{
+}
+#endif
+
+#if defined(CONFIG_LEANCRYPTO_DILITHIUM_65) &&                                 \
+	defined(CONFIG_LEANCRYPTO_DILITHIUM_ED448)
+int __init lc_kernel_dilithium_65_ed448_init(void);
+void lc_kernel_dilithium_65_ed448_exit(void);
+#else
+static inline int __init lc_kernel_dilithium_65_ed448_init(void)
+{
+	return 0;
+}
+
+static inline void lc_kernel_dilithium_65_ed448_exit(void)
+{
+}
+#endif
+
+#if defined(CONFIG_LEANCRYPTO_DILITHIUM_44) &&                                 \
+	defined(CONFIG_LEANCRYPTO_DILITHIUM_ED448)
+int __init lc_kernel_dilithium_44_ed448_init(void);
+void lc_kernel_dilithium_44_ed448_exit(void);
+#else
+static inline int __init lc_kernel_dilithium_44_ed448_init(void)
+{
+	return 0;
+}
+
+static inline void lc_kernel_dilithium_44_ed448_exit(void)
+{
+}
+#endif
+
 #ifdef CONFIG_LEANCRYPTO_KEM_KYBER_1024
 int __init lc_kernel_kyber_init(void);
 void lc_kernel_kyber_exit(void);
@@ -280,6 +325,51 @@ static inline int __init lc_kernel_kyber_x25519_512_init(void)
 }
 
 static inline void lc_kernel_kyber_x25519_512_exit(void)
+{
+}
+#endif
+
+#if (defined(CONFIG_LEANCRYPTO_KEM_X448) &&                                  \
+     defined(CONFIG_LEANCRYPTO_KEM_KYBER_1024))
+int __init lc_kernel_kyber_x448_init(void);
+void lc_kernel_kyber_x448_exit(void);
+#else
+static inline int __init lc_kernel_kyber_x448_init(void)
+{
+	return 0;
+}
+
+static inline void lc_kernel_kyber_x448_exit(void)
+{
+}
+#endif
+
+#if (defined(CONFIG_LEANCRYPTO_KEM_X448) &&                                  \
+     defined(CONFIG_LEANCRYPTO_KEM_KYBER_768))
+int __init lc_kernel_kyber_x448_768_init(void);
+void lc_kernel_kyber_x448_768_exit(void);
+#else
+static inline int __init lc_kernel_kyber_x448_768_init(void)
+{
+	return 0;
+}
+
+static inline void lc_kernel_kyber_x448_768_exit(void)
+{
+}
+#endif
+
+#if (defined(CONFIG_LEANCRYPTO_KEM_X448) &&                                  \
+     defined(CONFIG_LEANCRYPTO_KEM_KYBER_512))
+int __init lc_kernel_kyber_x448_512_init(void);
+void lc_kernel_kyber_x448_512_exit(void);
+#else
+static inline int __init lc_kernel_kyber_x448_512_init(void)
+{
+	return 0;
+}
+
+static inline void lc_kernel_kyber_x448_512_exit(void)
 {
 }
 #endif

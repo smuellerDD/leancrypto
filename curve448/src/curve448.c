@@ -30,12 +30,12 @@
  * Originally written by Mike Hamburg
  */
 
-#include "word.h"
 #include "field.h"
-
 #include "point_448.h"
 #include "lc_ed448.h"
 #include "lc_memset_secure.h"
+#include "small_stack_support.h"
+#include "word.h"
 
 #define C448_WNAF_FIXED_TABLE_BITS 5
 #define C448_WNAF_VAR_TABLE_BITS 3
@@ -424,7 +424,7 @@ static int recode_wnaf(struct smvt_control *control,
 {
 	unsigned int table_size = C448_SCALAR_BITS / (table_bits + 1) + 3;
 	unsigned int position = table_size - 1; /* at the end */
-	uint64_t current = scalar->limb[0] & 0xFFFF;
+	uint64_t curr_val = scalar->limb[0] & 0xFFFF;
 	uint32_t mask = (uint32_t)((1 << (table_bits + 1)) - 1);
 	unsigned int w;
 	const unsigned int B_OVER_16 = sizeof(scalar->limb[0]) / 2;
@@ -444,25 +444,25 @@ static int recode_wnaf(struct smvt_control *control,
 	for (w = 1; w < (C448_SCALAR_BITS - 1) / 16 + 3; w++) {
 		if (w < (C448_SCALAR_BITS - 1) / 16 + 1) {
 			/* Refill the 16 high bits of current */
-			current += (uint32_t)((scalar->limb[w / B_OVER_16] >>
-					       (16 * (w % B_OVER_16)))
+			curr_val += (uint32_t)((scalar->limb[w / B_OVER_16] >>
+						(16 * (w % B_OVER_16)))
 					      << 16);
 		}
 
-		while (current & 0xFFFF) {
+		while (curr_val & 0xFFFF) {
 			uint32_t pos =
-				(uint32_t)NUMTRAILINGZEROS((uint32_t)current);
-			uint32_t odd = (uint32_t)current >> pos;
+				(uint32_t)NUMTRAILINGZEROS((uint32_t)curr_val);
+			uint32_t odd = (uint32_t)curr_val >> pos;
 			int32_t delta = (int32_t)(odd & mask);
 
 			if (odd & (1 << (table_bits + 1)))
 				delta -= (1 << (table_bits + 1));
-			current -= (uint64_t)(delta * (1 << pos));
+			curr_val -= (uint64_t)(delta * (1 << pos));
 			control[position].power = (int)(pos + 16 * (w - 1));
 			control[position].addend = (int)delta;
 			position--;
 		}
-		current >>= 16;
+		curr_val >>= 16;
 	}
 	//assert(current == 0);
 
@@ -501,66 +501,71 @@ static void prepare_wnaf_table(pniels_t *output, const curve448_point_t working,
 	lc_memset_secure(twop, 0, sizeof(twop));
 }
 
-void curve448_base_double_scalarmul_non_secret(curve448_point_t combo,
+int curve448_base_double_scalarmul_non_secret(curve448_point_t combo,
 					       const curve448_scalar_t scalar1,
 					       const curve448_point_t base2,
 					       const curve448_scalar_t scalar2)
 {
-	const int table_bits_var = C448_WNAF_VAR_TABLE_BITS;
-	const int table_bits_pre = C448_WNAF_FIXED_TABLE_BITS;
-	struct smvt_control
-		control_var[C448_SCALAR_BITS / (C448_WNAF_VAR_TABLE_BITS + 1) +
-			    3];
-	struct smvt_control control_pre
-		[C448_SCALAR_BITS / (C448_WNAF_FIXED_TABLE_BITS + 1) + 3];
-	int ncb_pre = recode_wnaf(control_pre, scalar1, table_bits_pre);
-	int ncb_var = recode_wnaf(control_var, scalar2, table_bits_var);
-	pniels_t precmp_var[1 << C448_WNAF_VAR_TABLE_BITS];
+	static const int table_bits_var = C448_WNAF_VAR_TABLE_BITS;
+	static const int table_bits_pre = C448_WNAF_FIXED_TABLE_BITS;
+	struct workspace {
+		struct smvt_control
+			control_var[C448_SCALAR_BITS / (C448_WNAF_VAR_TABLE_BITS + 1) +
+				3];
+		struct smvt_control control_pre
+			[C448_SCALAR_BITS / (C448_WNAF_FIXED_TABLE_BITS + 1) + 3];
+		pniels_t precmp_var[1 << C448_WNAF_VAR_TABLE_BITS];
+	};
+	int ncb_pre, ncb_var;
 	int contp = 0, contv = 0, i;
+	LC_DECLARE_MEM(ws, struct workspace, 8);
 
-	prepare_wnaf_table(precmp_var, base2, table_bits_var);
-	i = control_var[0].power;
+	ncb_pre = recode_wnaf(ws->control_pre, scalar1, table_bits_pre);
+	ncb_var = recode_wnaf(ws->control_var, scalar2, table_bits_var);
+
+	prepare_wnaf_table(ws->precmp_var, base2, table_bits_var);
+	i = ws->control_var[0].power;
 
 	if (i < 0) {
 		curve448_point_copy(combo, curve448_point_identity);
-		return;
+		return 0;
 	}
-	if (i > control_pre[0].power) {
-		pniels_to_pt(combo, precmp_var[control_var[0].addend >> 1]);
+	if (i > ws->control_pre[0].power) {
+		pniels_to_pt(combo, ws->precmp_var[ws->control_var[0].addend >> 1]);
 		contv++;
-	} else if (i == control_pre[0].power && i >= 0) {
-		pniels_to_pt(combo, precmp_var[control_var[0].addend >> 1]);
+	} else if (i == ws->control_pre[0].power && i >= 0) {
+		pniels_to_pt(combo, ws->precmp_var[ws->control_var[0].addend >> 1]);
 		add_niels_to_pt(combo,
-				curve448_wnaf_base[control_pre[0].addend >> 1],
+				curve448_wnaf_base[ws->control_pre[0].addend >> 1],
 				i);
 		contv++;
 		contp++;
 	} else {
-		i = control_pre[0].power;
+		i = ws->control_pre[0].power;
 		niels_to_pt(combo,
-			    curve448_wnaf_base[control_pre[0].addend >> 1]);
+			    curve448_wnaf_base[ws->control_pre[0].addend >> 1]);
 		contp++;
 	}
 
 	for (i--; i >= 0; i--) {
-		int cv = (i == control_var[contv].power);
-		int cp = (i == control_pre[contp].power);
+		int cv = (i == ws->control_var[contv].power);
+		int cp = (i == ws->control_pre[contp].power);
 
 		point_double_internal(combo, combo, i && !(cv || cp));
 
 		if (cv) {
 			//assert(control_var[contv].addend);
 
-			if (control_var[contv].addend > 0)
+			if (ws->control_var[contv].addend > 0)
 				add_pniels_to_pt(
 					combo,
-					precmp_var[control_var[contv].addend >>
+					ws->precmp_var[ws->control_var[contv].addend >>
 						   1],
 					i && !cp);
 			else
 				sub_pniels_from_pt(
 					combo,
-					precmp_var[(-control_var[contv].addend) >>
+					ws->precmp_var[(-ws->control_var[contv].addend) >>
 						   1],
 					i && !cp);
 			contv++;
@@ -569,16 +574,16 @@ void curve448_base_double_scalarmul_non_secret(curve448_point_t combo,
 		if (cp) {
 			//assert(control_pre[contp].addend);
 
-			if (control_pre[contp].addend > 0)
+			if (ws->control_pre[contp].addend > 0)
 				add_niels_to_pt(
 					combo,
 					curve448_wnaf_base
-						[control_pre[contp].addend >> 1],
+						[ws->control_pre[contp].addend >> 1],
 					i);
 			else
 				sub_niels_from_pt(
 					combo,
-					curve448_wnaf_base[(-control_pre[contp]
+					curve448_wnaf_base[(-ws->control_pre[contp]
 								     .addend) >>
 							   1],
 					i);
@@ -586,15 +591,13 @@ void curve448_base_double_scalarmul_non_secret(curve448_point_t combo,
 		}
 	}
 
-	/* This function is non-secret, but whatever this is cheap. */
-	lc_memset_secure(control_var, 0, sizeof(control_var));
-	lc_memset_secure(control_pre, 0, sizeof(control_pre));
-	lc_memset_secure(precmp_var, 0, sizeof(precmp_var));
-
 	//assert(contv == ncb_var);
 	(void)ncb_var;
 	//assert(contp == ncb_pre);
 	(void)ncb_pre;
+
+	LC_RELEASE_MEM(ws);
+	return 0;
 }
 
 void curve448_point_destroy(curve448_point_t point)

@@ -123,6 +123,41 @@ CFLAGS_kyber512/kyber_x25519_kex.o		:= -DLC_KYBER_TYPE_512
 CFLAGS_kyber512/leancrypto_kernel_kyber_x25519.o:= -DLC_KYBER_TYPE_512
 endif
 
+# Kyber 1024 KEM-X448 implementation
+ifdef CONFIG_LEANCRYPTO_KEM_KYBER_1024
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_X448)				       \
+				+= ../ml-kem/src/kyber_x448_ies.o	       \
+				   ../ml-kem/src/kyber_x448_kem.o	       \
+				   ../ml-kem/src/kyber_x448_kex.o	       \
+				   leancrypto_kernel_kyber_x448.o
+endif
+
+# Kyber 768 KEM-X448 implementation
+ifdef CONFIG_LEANCRYPTO_KEM_KYBER_768
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_X448)				       \
+				+= kyber768/kyber_x448_ies.o		       \
+				   kyber768/kyber_x448_kem.o		       \
+				   kyber768/kyber_x448_kex.o		       \
+				   kyber768/leancrypto_kernel_kyber_x448.o
+CFLAGS_kyber768/kyber_x448_ies.o		:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/kyber_x448_kem.o		:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/kyber_x448_kex.o		:= -DLC_KYBER_TYPE_768
+CFLAGS_kyber768/leancrypto_kernel_kyber_x448.o:= -DLC_KYBER_TYPE_768
+endif
+
+# Kyber 512 KEM-X448 implementation
+ifdef CONFIG_LEANCRYPTO_KEM_KYBER_512
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_X448)				       \
+				+= kyber512/kyber_x448_ies.o		       \
+				   kyber512/kyber_x448_kem.o		       \
+				   kyber512/kyber_x448_kex.o		       \
+				   kyber512/leancrypto_kernel_kyber_x448.o
+CFLAGS_kyber512/kyber_x448_ies.o		:= -DLC_KYBER_TYPE_512
+CFLAGS_kyber512/kyber_x448_kem.o		:= -DLC_KYBER_TYPE_512
+CFLAGS_kyber512/kyber_x448_kex.o		:= -DLC_KYBER_TYPE_512
+CFLAGS_kyber512/leancrypto_kernel_kyber_x448.o:= -DLC_KYBER_TYPE_512
+endif
+
 ################################################################################
 # AVX2 Implementation
 ################################################################################
@@ -387,6 +422,10 @@ ifdef CONFIG_LEANCRYPTO_KEM_X25519
 obj-m				+= leancrypto_kernel_kyber_1024_x25519_tester.o
 leancrypto_kernel_kyber_1024_x25519_tester-y += ../ml-kem/tests/leancrypto_kernel_kyber_1024_x25519_tester.o
 endif
+ifdef CONFIG_LEANCRYPTO_KEM_X448
+obj-m				+= leancrypto_kernel_kyber_1024_x448_tester.o
+leancrypto_kernel_kyber_1024_x448_tester-y += ../ml-kem/tests/leancrypto_kernel_kyber_1024_x448_tester.o
+endif
 
 obj-m		 		+= kyber_kem_tester_c.o
 obj-m		 		+= kyber_kem_tester_common.o
@@ -424,6 +463,10 @@ leancrypto_kernel_kyber_768_tester-y	+= kyber768/tests/leancrypto_kernel_kyber_7
 ifdef CONFIG_LEANCRYPTO_KEM_X25519
 obj-m				+= leancrypto_kernel_kyber_768_x25519_tester.o
 leancrypto_kernel_kyber_768_x25519_tester-y += kyber768/tests/leancrypto_kernel_kyber_768_x25519_tester.o
+endif
+ifdef CONFIG_LEANCRYPTO_KEM_X448
+obj-m				+= leancrypto_kernel_kyber_768_x448_tester.o
+leancrypto_kernel_kyber_768_x448_tester-y += kyber768/tests/leancrypto_kernel_kyber_768_x448_tester.o
 endif
 
 obj-m		 		+= kyber_768_kem_tester_c.o
@@ -474,6 +517,10 @@ leancrypto_kernel_kyber_512_tester-y	+= kyber512/tests/leancrypto_kernel_kyber_5
 ifdef CONFIG_LEANCRYPTO_KEM_X25519
 obj-m				+= leancrypto_kernel_kyber_512_x25519_tester.o
 leancrypto_kernel_kyber_512_x25519_tester-y += kyber512/tests/leancrypto_kernel_kyber_512_x25519_tester.o
+endif
+ifdef CONFIG_LEANCRYPTO_KEM_X448
+obj-m				+= leancrypto_kernel_kyber_512_x448_tester.o
+leancrypto_kernel_kyber_512_x448_tester-y += kyber512/tests/leancrypto_kernel_kyber_512_x448_tester.o
 endif
 
 obj-m		 		+= kyber_512_kem_tester_c.o
@@ -530,6 +577,23 @@ kyber_ies_x25519_tester-y	+= ../ml-kem/tests/kyber_ies_x25519_tester.o   \
 kyber_kem_x25519_tester-y	+= ../ml-kem/tests/kyber_kem_x25519_tester.o   \
 				   ../drng/src/selftest_rng.o
 kyber_kex_x25519_tester-y	+= ../ml-kem/tests/kyber_kex_x25519_tester.o   \
+				   ../drng/src/selftest_rng.o
+endif
+endif
+
+ifdef CONFIG_LEANCRYPTO_KEM_X448
+ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM_X448
+
+ifdef CONFIG_LEANCRYPTO_KEM_KYBER_1024
+obj-m				+= kyber_ies_x448_tester.o
+obj-m				+= kyber_kem_x448_tester.o
+obj-m				+= kyber_kex_x448_tester.o
+
+kyber_ies_x448_tester-y	+= ../ml-kem/tests/kyber_ies_x448_tester.o   \
+				   ../drng/src/selftest_rng.o
+kyber_kem_x448_tester-y	+= ../ml-kem/tests/kyber_kem_x448_tester.o   \
+				   ../drng/src/selftest_rng.o
+kyber_kex_x448_tester-y	+= ../ml-kem/tests/kyber_kex_x448_tester.o   \
 				   ../drng/src/selftest_rng.o
 endif
 endif

@@ -91,6 +91,12 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret |= x448_ss_tester(loops);
 
+#ifdef LINUX_KERNEL
+	lc_cpu_feature_disable();
+	cpu_feature_enable = 1;
+	ret |= x448_ss_tester(loops);
+#endif
+
 	if (cpu_feature_enable)
 		lc_cpu_feature_enable();
 

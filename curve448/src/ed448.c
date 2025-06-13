@@ -45,7 +45,7 @@
 #define COFACTOR 4
 #define EDDSA_PREHASH_BYTES 64
 
-static void clamp(uint8_t secret_scalar_ser[LC_ED448_SECRETKEYBYTES])
+static void curve448_clamp(uint8_t secret_scalar_ser[LC_ED448_SECRETKEYBYTES])
 {
 	/* Blarg */
 	secret_scalar_ser[0] &= (uint8_t)-COFACTOR;
@@ -70,7 +70,7 @@ ed448_derive_public_key(uint8_t pubkey[LC_ED448_PUBLICKEYBYTES],
 
 	lc_xof(lc_shake256, privkey, LC_ED448_SECRETKEYBYTES, secret_scalar_ser,
 	       sizeof(secret_scalar_ser));
-	clamp(secret_scalar_ser);
+	curve448_clamp(secret_scalar_ser);
 
 	curve448_scalar_t secret_scalar;
 	curve448_scalar_decode_long(secret_scalar, secret_scalar_ser,
@@ -187,7 +187,7 @@ curveed448_sign_internal(uint8_t signature[LC_ED448_SIGBYTES],
 		 */
 		unpoison(&expanded, sizeof(expanded));
 
-		clamp(expanded.secret_scalar_ser);
+		curve448_clamp(expanded.secret_scalar_ser);
 		curve448_scalar_decode_long(secret_scalar,
 					    expanded.secret_scalar_ser,
 					    sizeof(expanded.secret_scalar_ser));
@@ -400,8 +400,8 @@ curveed448_verify(const uint8_t signature[LC_ED448_SIGBYTES],
 				     &signature[LC_ED448_PUBLICKEYBYTES]));
 
 	/* pk_point = -c(x(P)) + (cx + k)G = kG */
-	curve448_base_double_scalarmul_non_secret(pk_point, response_scalar,
-						  pk_point, challenge_scalar);
+	CKINT(curve448_base_double_scalarmul_non_secret(pk_point, response_scalar,
+						  pk_point, challenge_scalar));
 
 	ret = curve448_point_eq(pk_point, r_point) ? 0 : -EBADMSG;
 

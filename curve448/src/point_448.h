@@ -312,7 +312,7 @@ void curve448_precomputed_scalarmul(curve448_point_t scaled,
  * Warning: This function takes variable time, and may leak the scalars used.
  * It is designed for signature verification.
  */
-void curve448_base_double_scalarmul_non_secret(curve448_point_t combo,
+int curve448_base_double_scalarmul_non_secret(curve448_point_t combo,
 					       const curve448_scalar_t scalar1,
 					       const curve448_point_t base2,
 					       const curve448_scalar_t scalar2);

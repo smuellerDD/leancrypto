@@ -12,11 +12,13 @@ ccflags-y	  		+= -Wno-declaration-after-statement -Wno-main
 ccflags-y			+= -I$(src)				       \
 				   -I$(src)/../internal/api		       \
 				   -I$(src)/../curve25519/src		       \
+				   -I$(src)/../curve448/src		       \
 				   -I$(src)/../aead/api			       \
 				   -I$(src)/../apps/api			       \
 				   -I$(src)/../asn1/src			       \
 				   -I$(src)/../bike/api			       \
 				   -I$(src)/../curve25519/api		       \
+				   -I$(src)/../curve448/api		       \
 				   -I$(src)/../drng/api			       \
 				   -I$(src)/../drng/src			       \
 				   -I$(src)/../hash/api			       \
@@ -35,11 +37,13 @@ asflags-y			+= -I$(src)				       \
 				   -I$(src)/../ml-kem/api		       \
 				   -I$(src)/../ml-dsa/api		       \
 				   -I$(src)/../curve25519/src		       \
+				   -I$(src)/../curve448/src		       \
 				   -I$(src)/../aead/api			       \
 				   -I$(src)/../apps/api			       \
 				   -I$(src)/../asn1/src			       \
 				   -I$(src)/../bike/api			       \
 				   -I$(src)/../curve25519/api		       \
+				   -I$(src)/../curve448/api		       \
 				   -I$(src)/../drng/api			       \
 				   -I$(src)/../drng/src			       \
 				   -I$(src)/../hash/api			       \

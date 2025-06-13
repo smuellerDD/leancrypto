@@ -16,6 +16,17 @@ CONFIG_LEANCRYPTO_CURVE25519=y
 endif
 
 #
+# The Curve448 is not defined to be configurable as this is not PQC-resistant.
+# It is only provided to allow a hybrid Dilithium / Kyber algorithm.
+#
+ifdef CONFIG_LEANCRYPTO_KEM_X448
+CONFIG_LEANCRYPTO_CURVE448=y
+endif
+ifdef CONFIG_LEANCRYPTO_DILITHIUM_ED448
+CONFIG_LEANCRYPTO_CURVE448=y
+endif
+
+#
 # Automatically select the common Kyber code
 #
 ifdef CONFIG_LEANCRYPTO_KEM_KYBER_1024
@@ -152,4 +163,7 @@ ccflags-y	+= -DLC_HQC
 endif
 ifdef CONFIG_LEANCRYPTO_CURVE25519
 ccflags-y	+= -DLC_CURVE25519
+endif
+ifdef CONFIG_LEANCRYPTO_CURVE448
+ccflags-y	+= -DLC_CURVE448
 endif

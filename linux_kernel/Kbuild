@@ -10,6 +10,7 @@ include $(src)/Kbuild.drng
 include $(src)/Kbuild.hmac
 include $(src)/Kbuild.kdf
 include $(src)/Kbuild.curve25519
+include $(src)/Kbuild.curve448
 include $(src)/Kbuild.ml-kem
 include $(src)/Kbuild.kmac
 include $(src)/Kbuild.ml-dsa

@@ -1,0 +1,44 @@
+################################################################################
+# Curve448 implementation: X448 and ED448
+
+leancrypto-$(CONFIG_LEANCRYPTO_CURVE448)				       \
+				+= ../curve448/src/curve448.o		       \
+				   ../curve448/src/curve448_tables.o	       \
+				   ../curve448/src/ed448.o		       \
+				   ../curve448/src/f_generic.o		       \
+				   ../curve448/src/f_impl.o		       \
+				   ../curve448/src/scalar.o		       \
+				   ../curve448/src/x448.o		       \
+				   ../curve448/src/x448_scalarmult_c.o
+
+ifdef CONFIG_X86_64
+leancrypto-$(CONFIG_LEANCRYPTO_CURVE448)				       \
+				+= ../curve448/src/avx2/curve448_mladder_base.o\
+				   ../curve448/src/avx2/curve448_mladder.o     \
+				   ../curve448/src/avx2/curve448_scalarmult_avx2.o\
+				   ../curve448/src/avx2/gf_p4482241_inv.o      \
+				   ../curve448/src/avx2/gf_p4482241_makeunique.o\
+				   ../curve448/src/avx2/gf_p4482241_mul.o      \
+				   ../curve448/src/avx2/gf_p4482241_mulx.o     \
+				   ../curve448/src/avx2/gf_p4482241_nsqr.o     \
+				   ../curve448/src/avx2/gf_p4482241_nsqrx.o    \
+				   ../curve448/src/avx2/gf_p4482241_pack.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_CURVE448)				       \
+				+= ../curve448/src/x448_scalarmult.o
+endif
+
+ifdef CONFIG_LEANCRYPTO_CURVE448
+ccflags-y			+= -DLC_CURVE448
+obj-m				+= ed448_tester.o
+obj-m				+= x448_tester.o
+obj-m				+= x448_keygen_tester.o
+
+ed448_tester-y			+= ../curve448/tests/ed448_tester.o	       \
+				   ../drng/src/selftest_rng.o
+x448_tester-y			+= ../curve448/tests/x448_tester.o	       \
+				   ../drng/src/selftest_rng.o
+x448_keygen_tester-y		+= ../curve448/tests/x448_keygen_tester.o      \
+				   ../drng/src/static_rng.o
+
+endif

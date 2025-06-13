@@ -79,6 +79,29 @@ leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_ED25519)			       \
 CFLAGS_dilithium44/dilithium_ed25519_signature.o	:= -DLC_DILITHIUM_TYPE_44
 endif
 
+# Dilithium-87-ED448 implementation
+leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_ED448)				       \
+				+= leancrypto_kernel_dilithium_ed448.o
+
+ifdef CONFIG_LEANCRYPTO_DILITHIUM_87
+leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_ED448)				       \
+				+= ../ml-dsa/src/dilithium_ed448_signature.o
+endif
+
+# Dilithium-65-ED448 implementation
+ifdef CONFIG_LEANCRYPTO_DILITHIUM_65
+leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_ED448)				       \
+				+= dilithium65/dilithium_ed448_signature.o
+CFLAGS_dilithium65/dilithium_ed448_signature.o	:= -DLC_DILITHIUM_TYPE_65
+endif
+
+# Dilithium-44-ED448 implementation
+ifdef CONFIG_LEANCRYPTO_DILITHIUM_44
+leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_ED448)				       \
+				+= dilithium44/dilithium_ed448_signature.o
+CFLAGS_dilithium44/dilithium_ed448_signature.o	:= -DLC_DILITHIUM_TYPE_44
+endif
+
 ifdef CONFIG_X86_64
 
 ################################################################################
@@ -485,6 +508,42 @@ dilithium_44_ed25519_tester-y	+= dilithium44/tests/dilithium_ed25519_tester.o\
 				   ../drng/src/selftest_rng.o
 CFLAGS_dilithium44/tests/leancrypto_kernel_dilithium_44_ed25519_tester.o := -DLC_DILITHIUM_TYPE_44
 CFLAGS_dilithium44/tests/dilithium_ed25519_tester.o	:= -DLC_DILITHIUM_TYPE_44
+endif
+
+endif
+
+ifdef CONFIG_LEANCRYPTO_DILITHIUM_ED448
+ccflags-y			+= -DCONFIG_LEANCRYPTO_DILITHIUM_ED448
+
+ifdef CONFIG_LEANCRYPTO_DILITHIUM_87
+obj-m		  		+= dilithium_ed448_tester.o
+obj-m		  		+= leancrypto_kernel_dilithium_87_ed448_tester.o
+leancrypto_kernel_dilithium_87_ed448_tester-y += ../ml-dsa/tests/leancrypto_kernel_dilithium_87_ed448_tester.o
+
+dilithium_ed448_tester-y	+= ../ml-dsa/tests/dilithium_ed448_tester.o  \
+				   ../drng/src/selftest_rng.o
+endif
+
+ifdef CONFIG_LEANCRYPTO_DILITHIUM_65
+obj-m		  		+= dilithium_65_ed448_tester.o
+obj-m		  		+= leancrypto_kernel_dilithium_65_ed448_tester.o
+leancrypto_kernel_dilithium_65_ed448_tester-y += dilithium65/tests/leancrypto_kernel_dilithium_65_ed448_tester.o
+
+dilithium_65_ed448_tester-y	+= dilithium65/tests/dilithium_ed448_tester.o\
+				   ../drng/src/selftest_rng.o
+CFLAGS_dilithium65/tests/leancrypto_kernel_dilithium_65_ed448_tester.o := -DLC_DILITHIUM_TYPE_65
+CFLAGS_dilithium65/tests/dilithium_ed448_tester.o	:= -DLC_DILITHIUM_TYPE_65
+endif
+
+ifdef CONFIG_LEANCRYPTO_DILITHIUM_44
+obj-m		  		+= dilithium_44_ed448_tester.o
+obj-m		  		+= leancrypto_kernel_dilithium_44_ed448_tester.o
+leancrypto_kernel_dilithium_44_ed448_tester-y += dilithium44/tests/leancrypto_kernel_dilithium_44_ed448_tester.o
+
+dilithium_44_ed448_tester-y	+= dilithium44/tests/dilithium_ed448_tester.o\
+				   ../drng/src/selftest_rng.o
+CFLAGS_dilithium44/tests/leancrypto_kernel_dilithium_44_ed448_tester.o := -DLC_DILITHIUM_TYPE_44
+CFLAGS_dilithium44/tests/dilithium_ed448_tester.o	:= -DLC_DILITHIUM_TYPE_44
 endif
 
 endif

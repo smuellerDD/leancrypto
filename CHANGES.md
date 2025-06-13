@@ -15,6 +15,8 @@ Changes 1.5.0-prerelease
 
 * RUST: Add ML-DSA-ED448 support
 
+* Linux kernel: Add ML-KEM-X448 and ML-DSA-ED448 support
+
 Changes 1.4.0
 * ML-DSA: add signature generation rejection test cases and enable them during self tests
 

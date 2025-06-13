@@ -1,1 +1,0 @@
-../../ml-dsa/src/dilithium_selftest_vector_87.h

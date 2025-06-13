@@ -109,9 +109,21 @@ static int __init leancrypto_init(void)
 	if (ret)
 		goto free_dilithium_65_ed25519;
 
-	ret = lc_kernel_kyber_init();
+	ret = lc_kernel_dilithium_ed448_init();
 	if (ret)
 		goto free_dilithium_44_ed25519;
+
+	ret = lc_kernel_dilithium_65_ed448_init();
+	if (ret)
+		goto free_dilithium_ed448;
+
+	ret = lc_kernel_dilithium_44_ed448_init();
+	if (ret)
+		goto free_dilithium_65_ed448;
+
+	ret = lc_kernel_kyber_init();
+	if (ret)
+		goto free_dilithium_44_ed448;
 
 	ret = lc_kernel_kyber_768_init();
 	if (ret)
@@ -133,9 +145,21 @@ static int __init leancrypto_init(void)
 	if (ret)
 		goto free_kyber_x25519_768;
 
-	ret = lc_kernel_ascon_init();
+	ret = lc_kernel_kyber_x448_init();
 	if (ret)
 		goto free_kyber_x25519_512;
+
+	ret = lc_kernel_kyber_x448_768_init();
+	if (ret)
+		goto free_kyber_x448;
+
+	ret = lc_kernel_kyber_x448_512_init();
+	if (ret)
+		goto free_kyber_x448_768;
+
+	ret = lc_kernel_ascon_init();
+	if (ret)
+		goto free_kyber_x448_512;
 
 	ret = lc_kernel_aead_ascon_init();
 	if (ret)
@@ -231,6 +255,15 @@ free_aead_ascon:
 free_ascon:
 	lc_kernel_ascon_exit();
 
+free_kyber_x448_512:
+	lc_kernel_kyber_x448_512_exit();
+
+free_kyber_x448_768:
+	lc_kernel_kyber_x448_768_exit();
+
+free_kyber_x448:
+	lc_kernel_kyber_x448_exit();
+
 free_kyber_x25519_512:
 	lc_kernel_kyber_x25519_512_exit();
 
@@ -249,14 +282,23 @@ free_kyber_768:
 free_kyber:
 	lc_kernel_kyber_exit();
 
+free_dilithium_44_ed448:
+	lc_kernel_dilithium_44_ed448_exit();
+
+free_dilithium_65_ed448:
+	lc_kernel_dilithium_65_ed448_exit();
+
+free_dilithium_ed448:
+	lc_kernel_dilithium_ed448_exit();
+
 free_dilithium_44_ed25519:
-	lc_kernel_dilithium_44_exit();
+	lc_kernel_dilithium_44_ed25519_exit();
 
 free_dilithium_65_ed25519:
-	lc_kernel_dilithium_65_exit();
+	lc_kernel_dilithium_65_ed25519_exit();
 
 free_dilithium_ed25519:
-	lc_kernel_dilithium_exit();
+	lc_kernel_dilithium_ed25519_exit();
 
 free_dilithium_44:
 	lc_kernel_dilithium_44_exit();
@@ -300,12 +342,18 @@ static void __exit leancrypto_exit(void)
 	lc_kernel_dilithium_ed25519_exit();
 	lc_kernel_dilithium_65_ed25519_exit();
 	lc_kernel_dilithium_44_ed25519_exit();
+	lc_kernel_dilithium_ed448_exit();
+	lc_kernel_dilithium_65_ed448_exit();
+	lc_kernel_dilithium_44_ed448_exit();
 	lc_kernel_kyber_exit();
 	lc_kernel_kyber_768_exit();
 	lc_kernel_kyber_512_exit();
 	lc_kernel_kyber_x25519_exit();
 	lc_kernel_kyber_x25519_768_exit();
 	lc_kernel_kyber_x25519_512_exit();
+	lc_kernel_kyber_x448_exit();
+	lc_kernel_kyber_x448_768_exit();
+	lc_kernel_kyber_x448_512_exit();
 	lc_kernel_ascon_exit();
 	lc_kernel_aead_ascon_exit();
 	lc_kernel_bike_exit();
