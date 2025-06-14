@@ -35,6 +35,7 @@
 
 #include "cpufeatures.h"
 #include "curve25519_avx.h"
+#include "ext_headers_x86.h"
 #include "fe.h"
 #include "fe51.h"
 #include "ladder.h"
@@ -59,6 +60,8 @@ int crypto_scalarmult_curve25519_avx2(unsigned char *q, const unsigned char *n,
 	t[31] &= 127;
 	t[31] |= 64;
 
+	LC_FPU_ENABLE;
+
 	curve25519_fe_frombytes_avx(x1, p);
 
 	curve25519_ladder_avx2(var, t);
@@ -78,6 +81,8 @@ int crypto_scalarmult_curve25519_avx2(unsigned char *q, const unsigned char *n,
 	curve25519_fe51_invert_avx(&z_51, &z_51);
 	curve25519_fe51_mul_avx(&x_51, &x_51, &z_51);
 	curve25519_fe51_pack_avx(q, &x_51);
+
+	LC_FPU_DISABLE;
 
 	lc_memset_secure(t, 0, sizeof(t));
 

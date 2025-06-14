@@ -57,6 +57,7 @@
 */
 
 #include "cpufeatures.h"
+#include "ext_headers_x86.h"
 #include "gf_p4482241_type.h"
 #include "gf_p4482241_pack.h"
 #include "gf_p4482241_arith.h"
@@ -91,6 +92,8 @@ static int curve448_scalarmult_avx2(uint8_t *out, const uint8_t *base,
 		ws->s[LC_X448_SECRETKEYBYTES - 1] | 0x80;
 	ws->s[0] = ws->s[0] & 0xFC;
 
+	LC_FPU_ENABLE;
+
 	gfp4482241pack(&ws->u, base);
 
 	ws->t[0][0] = ws->t[0][3] = ws->r[0][2] = 1;
@@ -119,6 +122,8 @@ static int curve448_scalarmult_avx2(uint8_t *out, const uint8_t *base,
 
 	gfp4482241makeunique(&ws->w);
 	gfp4482241unpack(out, &ws->w);
+
+	LC_FPU_DISABLE;
 
 	LC_RELEASE_MEM(ws);
 	return 0;
@@ -151,6 +156,8 @@ static int curve448_scalarmult_base_avx2(uint8_t *out, const uint8_t *base,
 		ws->s[LC_X448_SECRETKEYBYTES - 1] | 0x80;
 	ws->s[0] = ws->s[0] & 0xFC;
 
+	LC_FPU_ENABLE;
+
 	gfp4482241pack(&ws->u, base);
 
 	ws->t[0][0] = ws->t[0][3] = ws->r[0] = ws->r[1] = ws->r[2] = 1;
@@ -178,6 +185,8 @@ static int curve448_scalarmult_base_avx2(uint8_t *out, const uint8_t *base,
 
 	gfp4482241makeunique(&ws->w);
 	gfp4482241unpack(out, &ws->w);
+
+	LC_FPU_DISABLE;
 
 	LC_RELEASE_MEM(ws);
 	return 0;
