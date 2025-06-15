@@ -56,13 +56,7 @@
 +-----------------------------------------------------------------------------+
 */
 
-#ifdef LINUX_KERNEL
 .section .rodata
-#else
-/* Move data to text segment to cover them under FIPS integrity test */
-.text
-#endif
-
 .p2align 5
 
 hh1_p1 		: .long 0x0,0x0,0x1FFFFFFF,0x1FFFFFFD,0x1FFFFFFF,0x1FFFFFFD,0x0,0x0

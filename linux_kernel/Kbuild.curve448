@@ -11,22 +11,16 @@ leancrypto-$(CONFIG_LEANCRYPTO_CURVE448)				       \
 				   ../curve448/src/x448.o		       \
 				   ../curve448/src/x448_scalarmult_c.o
 
-#ifdef CONFIG_X86_64
-#leancrypto-$(CONFIG_LEANCRYPTO_CURVE448)				       \
-#				+= ../curve448/src/avx2/curve448_mladder_base.o\
-#				   ../curve448/src/avx2/curve448_mladder.o     \
-#				   ../curve448/src/avx2/curve448_scalarmult_avx2.o\
-#				   ../curve448/src/avx2/gf_p4482241_inv.o      \
-#				   ../curve448/src/avx2/gf_p4482241_makeunique.o\
-#				   ../curve448/src/avx2/gf_p4482241_mul.o      \
-#				   ../curve448/src/avx2/gf_p4482241_mulx.o     \
-#				   ../curve448/src/avx2/gf_p4482241_nsqr.o     \
-#				   ../curve448/src/avx2/gf_p4482241_nsqrx.o    \
-#				   ../curve448/src/avx2/gf_p4482241_pack.o
-#else
+ifdef CONFIG_X86_64
+leancrypto-$(CONFIG_LEANCRYPTO_CURVE448)				       \
+				+= ../curve448/src/avx2/curve448_scalarmult_avx2_asm.o\
+				   ../curve448/src/avx2/curve448_scalarmult_avx2.o\
+				   ../curve448/src/avx2/gf_p4482241_inv.o      \
+				   ../curve448/src/avx2/gf_p4482241_pack.o
+else
 leancrypto-$(CONFIG_LEANCRYPTO_CURVE448)				       \
 				+= ../curve448/src/x448_scalarmult.o
-#endif
+endif
 
 ifdef CONFIG_LEANCRYPTO_CURVE448
 ccflags-y			+= -DLC_CURVE448

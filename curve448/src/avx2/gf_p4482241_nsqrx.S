@@ -93,7 +93,7 @@ movq    %r14, 48(%rdi)
 
 movq    %rdx, %rbx
 
-.START:
+.START_nsqrx:
 
 decq    %rbx
 movq    %rbx, 96(%rsp)
@@ -363,7 +363,7 @@ movq    %r14, 48(%rdi)
 movq    96(%rsp), %rbx
 cmp     $0, %rbx
 
-jne     .START
+jne     .START_nsqrx
 
 movq    0(%rsp), %r11
 movq    8(%rsp), %r12
@@ -378,5 +378,3 @@ movq    %r11, %rsp
 RET
 
 SYM_FUNC_END(gfp4482241nsqrx)
-
-LC_ASM_END

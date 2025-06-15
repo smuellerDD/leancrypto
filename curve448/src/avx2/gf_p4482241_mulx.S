@@ -411,5 +411,3 @@ movq    %r11, %rsp
 RET
 
 SYM_FUNC_END(gfp4482241mulx)
-
-LC_ASM_END

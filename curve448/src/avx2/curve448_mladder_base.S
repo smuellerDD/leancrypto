@@ -57,10 +57,10 @@
 */
 
 #include "assembler_support.h"
-#include "curve448_const.S"
 
 .p2align 5
 
+STACK_FRAME_NON_STANDARD(curve448_mladder_base_avx2)
 SYM_FUNC_START(curve448_mladder_base_avx2)
 SYM_FUNC_ENTER(curve448_mladder_base_avx2)
 
@@ -118,12 +118,12 @@ movq	  $7,%rcx
 movb      $0, %r8b 
 movq      %rdx,%rax
 
-.L1:
+.L1_base:
 addq      %r15,%rax
 movb      0(%rax),%r14b
 movq      %rdx,%rax
 
-.L2:
+.L2_base:
 movb	  %r14b,%bl
 shrb      %cl,%bl
 andb      $1,%bl
@@ -137,8 +137,10 @@ movzbl    %bl,%ebx
 imul	  $4,%ebx,%ebx
 movl      %ebx,56(%rsp)
 vpbroadcastd 56(%rsp),%ymm1
-vpaddd	  swap_c(%rip),%ymm1,%ymm1
-vpand     swap_mask(%rip),%ymm1,%ymm1
+vmovdqa   swap_c(%rip), %ymm0
+vpaddd	  %ymm0,%ymm1,%ymm1
+vmovdqa   swap_mask(%rip), %ymm0
+vpand     %ymm0,%ymm1,%ymm1
 
 vpermd	  %ymm8,%ymm1,%ymm8
 vpermd	  %ymm9,%ymm1,%ymm9
@@ -152,79 +154,83 @@ vpermd	  %ymm15,%ymm1,%ymm15
 // <T1',T2',T4',T3'> ← Dense-H-H1(<X2',Z2',X3',Z3'>)
 vpshufd	  $68,%ymm8,%ymm1
 vpshufd	  $238,%ymm8,%ymm3
-vpaddd    hh1_p1(%rip),%ymm1,%ymm1
-vpxor     hh1_xor(%rip),%ymm3,%ymm3
+vmovdqa   hh1_p1(%rip), %ymm0
+vpaddd    %ymm0,%ymm1,%ymm1
+vmovdqa   hh1_xor(%rip), %ymm2
+vpxor     %ymm2,%ymm3,%ymm3
 vpaddd    %ymm1,%ymm3,%ymm8
 
 vpshufd	  $68,%ymm9,%ymm1
 vpshufd	  $238,%ymm9,%ymm3
-vpaddd    hh1_p2(%rip),%ymm1,%ymm1
-vpxor     hh1_xor(%rip),%ymm3,%ymm3
+vmovdqa   hh1_p2(%rip), %ymm0
+vpaddd    %ymm0,%ymm1,%ymm1
+vpxor     %ymm2,%ymm3,%ymm3
 vpaddd    %ymm1,%ymm3,%ymm9
 
 vpshufd	  $68,%ymm10,%ymm1
 vpshufd	  $238,%ymm10,%ymm3
-vpaddd    hh1_p2(%rip),%ymm1,%ymm1
-vpxor     hh1_xor(%rip),%ymm3,%ymm3
+vpaddd    %ymm0,%ymm1,%ymm1
+vpxor     %ymm2,%ymm3,%ymm3
 vpaddd    %ymm1,%ymm3,%ymm10
 
 vpshufd	  $68,%ymm11,%ymm1
 vpshufd	  $238,%ymm11,%ymm3
-vpaddd    hh1_p2(%rip),%ymm1,%ymm1
-vpxor     hh1_xor(%rip),%ymm3,%ymm3
+vpaddd    %ymm0,%ymm1,%ymm1
+vpxor     %ymm2,%ymm3,%ymm3
 vpaddd    %ymm1,%ymm3,%ymm11
 
 vpshufd	  $68,%ymm12,%ymm1
 vpshufd	  $238,%ymm12,%ymm3
-vpaddd    hh1_p2(%rip),%ymm1,%ymm1
-vpxor     hh1_xor(%rip),%ymm3,%ymm3
+vpaddd    %ymm0,%ymm1,%ymm1
+vpxor     %ymm2,%ymm3,%ymm3
 vpaddd    %ymm1,%ymm3,%ymm12
 
 vpshufd	  $68,%ymm13,%ymm1
 vpshufd	  $238,%ymm13,%ymm3
-vpaddd    hh1_p2(%rip),%ymm1,%ymm1
-vpxor     hh1_xor(%rip),%ymm3,%ymm3
+vpaddd    %ymm0,%ymm1,%ymm1
+vpxor     %ymm2,%ymm3,%ymm3
 vpaddd    %ymm1,%ymm3,%ymm13
 
 vpshufd	  $68,%ymm14,%ymm1
 vpshufd	  $238,%ymm14,%ymm3
-vpaddd    hh1_p2(%rip),%ymm1,%ymm1
-vpxor     hh1_xor(%rip),%ymm3,%ymm3
+vpaddd    %ymm0,%ymm1,%ymm1
+vpxor     %ymm2,%ymm3,%ymm3
 vpaddd    %ymm1,%ymm3,%ymm14
 
 vpshufd	  $68,%ymm15,%ymm1
 vpshufd	  $238,%ymm15,%ymm3
-vpaddd    hh1_p2(%rip),%ymm1,%ymm1
-vpxor     hh1_xor(%rip),%ymm3,%ymm3
+vpaddd    %ymm0,%ymm1,%ymm1
+vpxor     %ymm2,%ymm3,%ymm3
 vpaddd    %ymm1,%ymm3,%ymm15
 
 vpsrld    $28,%ymm8,%ymm1
 vpaddd    %ymm1,%ymm9,%ymm9
-vpand     vecmask28d(%rip),%ymm8,%ymm8
+vmovdqa   vecmask28d(%rip), %ymm0
+vpand     %ymm0,%ymm8,%ymm8
 
 vpsrld    $28,%ymm9,%ymm1
 vpaddd    %ymm1,%ymm10,%ymm10
-vpand     vecmask28d(%rip),%ymm9,%ymm9
+vpand     %ymm0,%ymm9,%ymm9
 
 vpsrld    $28,%ymm10,%ymm1
 vpaddd    %ymm1,%ymm11,%ymm11
-vpand     vecmask28d(%rip),%ymm10,%ymm10
+vpand     %ymm0,%ymm10,%ymm10
 
 vpsrld    $28,%ymm11,%ymm1
 vpaddd    %ymm1,%ymm12,%ymm12
-vpand     vecmask28d(%rip),%ymm11,%ymm11
+vpand     %ymm0,%ymm11,%ymm11
 
 vpsrld    $28,%ymm12,%ymm1
 vpaddd    %ymm1,%ymm13,%ymm13
-vpand     vecmask28d(%rip),%ymm12,%ymm12
+vpand     %ymm0,%ymm12,%ymm12
 
 vpsrld    $28,%ymm13,%ymm1
 vpaddd    %ymm1,%ymm14,%ymm14
-vpand     vecmask28d(%rip),%ymm13,%ymm13
+vpand     %ymm0,%ymm13,%ymm13
 
 vpsrld    $28,%ymm14,%ymm1
 vpaddd    %ymm1,%ymm15,%ymm15
-vpand     vecmask28d(%rip),%ymm14,%ymm14
+vpand     %ymm0,%ymm14,%ymm14
 
 // <T1',T2',T1',T2'> ← Dense-Dup(<T1',T2',T4',T3'>)
 vpermq	  $68,%ymm8,%ymm0
@@ -825,88 +831,95 @@ vmovdqa   %ymm8,64(%rsp)
 
 vpsrlq    $28,%ymm9,%ymm7
 vpaddq    %ymm7,%ymm10,%ymm10
-vpand     vecmask28(%rip),%ymm9,%ymm8
+vmovdqa   vecmask28(%rip), %ymm8
+vpand     %ymm8,%ymm9,%ymm8
+vmovdqa   %ymm8, 704(%rsp)	#Temorarily store ymm8 to load vecmask28
+vmovdqa   vecmask28(%rip), %ymm8
 
 vpsrlq    $28,%ymm0,%ymm7
 vpaddq    %ymm7,%ymm1,%ymm1
-vpand     vecmask28(%rip),%ymm0,%ymm0
+vpand     %ymm8,%ymm0,%ymm0
 
 vpsrlq    $28,%ymm10,%ymm7
 vpaddq    %ymm7,%ymm11,%ymm11
-vpand     vecmask28(%rip),%ymm10,%ymm9
+vpand     %ymm8,%ymm10,%ymm9
 
 vpsrlq    $28,%ymm1,%ymm7
 vpaddq    %ymm7,%ymm2,%ymm2
-vpand     vecmask28(%rip),%ymm1,%ymm1
+vpand     %ymm8,%ymm1,%ymm1
 
 vpsrlq    $28,%ymm11,%ymm7
 vpaddq    %ymm7,%ymm12,%ymm12
-vpand     vecmask28(%rip),%ymm11,%ymm10
+vpand     %ymm8,%ymm11,%ymm10
 
 vpsrlq    $28,%ymm2,%ymm7
 vpaddq    %ymm7,%ymm3,%ymm3
-vpand     vecmask28(%rip),%ymm2,%ymm2
+vpand     %ymm8,%ymm2,%ymm2
 
 vpsrlq    $28,%ymm12,%ymm7
 vpaddq    %ymm7,%ymm13,%ymm13
-vpand     vecmask28(%rip),%ymm12,%ymm11
+vpand     %ymm8,%ymm12,%ymm11
 
 vpsrlq    $28,%ymm3,%ymm7
 vpaddq    %ymm7,%ymm4,%ymm4
-vpand     vecmask28(%rip),%ymm3,%ymm3
+vpand     %ymm8,%ymm3,%ymm3
 
 vpsrlq    $28,%ymm13,%ymm7
 vpaddq    %ymm7,%ymm14,%ymm14
-vpand     vecmask28(%rip),%ymm13,%ymm12
+vpand     %ymm8,%ymm13,%ymm12
 
 vpsrlq    $28,%ymm4,%ymm7
 vpaddq    %ymm7,%ymm5,%ymm5
-vpand     vecmask28(%rip),%ymm4,%ymm4
+vpand     %ymm8,%ymm4,%ymm4
 
 vpsrlq    $28,%ymm14,%ymm7
 vpaddq    %ymm7,%ymm15,%ymm15
-vpand     vecmask28(%rip),%ymm14,%ymm13
+vpand     %ymm8,%ymm14,%ymm13
 
 vpsrlq    $28,%ymm5,%ymm7
 vpaddq    %ymm7,%ymm6,%ymm6
-vpand     vecmask28(%rip),%ymm5,%ymm5
+vpand     %ymm8,%ymm5,%ymm5
 
 vmovdqa   %ymm10,768(%rsp)
 vpsrlq    $28,%ymm15,%ymm10
 vpaddq    928(%rsp),%ymm10,%ymm10
-vpand     vecmask28(%rip),%ymm15,%ymm14
+vpand     %ymm8,%ymm15,%ymm14
 
 vpsrlq    $28,%ymm6,%ymm7
 vpaddq    64(%rsp),%ymm7,%ymm7
-vpand     vecmask28(%rip),%ymm6,%ymm6
+vpand     %ymm8,%ymm6,%ymm6
 
 vmovdqa   %ymm11,800(%rsp)
 vpsrlq    $28,%ymm10,%ymm11
 vpaddq    %ymm11,%ymm0,%ymm0
-vpand     vecmask28(%rip),%ymm10,%ymm15
+vpand     %ymm8,%ymm10,%ymm15
+vmovdqa   %ymm15,928(%rsp)	#Store %ymm15
 
 vpsrlq    $28,%ymm7,%ymm11
+vmovdqa   704(%rsp), %ymm8     # Restore
 vpaddq    %ymm11,%ymm8,%ymm8
 vpaddq    %ymm11,%ymm0,%ymm0
-vpand     vecmask28(%rip),%ymm7,%ymm7
+vmovdqa   vecmask28(%rip), %ymm15
+vpand     %ymm15,%ymm7,%ymm7
 
 vpsrlq    $28,%ymm8,%ymm11
 vpaddq    %ymm11,%ymm9,%ymm9
-vpand     vecmask28(%rip),%ymm8,%ymm8
+vpand     %ymm15,%ymm8,%ymm8
 
 vpsrlq    $28,%ymm0,%ymm11
 vpaddq    %ymm11,%ymm1,%ymm1
-vpand     vecmask28(%rip),%ymm0,%ymm0
+vpand     %ymm15,%ymm0,%ymm0
 
 vmovdqa   768(%rsp),%ymm10
 vmovdqa   800(%rsp),%ymm11
+vmovdqa   928(%rsp), %ymm15     # Restore
 
 vmovdqa   %ymm8, 704(%rsp)
 vmovdqa   %ymm9, 736(%rsp)
 vmovdqa   %ymm12,832(%rsp)
 vmovdqa   %ymm13,864(%rsp)
 vmovdqa   %ymm14,896(%rsp)
-vmovdqa   %ymm15,928(%rsp)
+#%ymm15 already stored above
 vmovdqa   %ymm0, 960(%rsp)
 vmovdqa   %ymm1, 992(%rsp)
 vmovdqa   %ymm2, 1024(%rsp)
@@ -935,89 +948,101 @@ vpsllq    $32,%ymm7,%ymm7
 vpor      %ymm7,%ymm15,%ymm15
 
 // <T9',T10',T11',T12'> ← Dense-H2-H(<T5',T6',T7',T8'>)
+vmovdqa   %ymm0,192(%rsp)      # Temprarily store ymm0
+vmovdqa   %ymm2,256(%rsp)      # Temprarily store ymm2
+vmovdqa   %ymm4,320(%rsp)      # Temprarily store ymm4
 vpshufd	  $68,%ymm8,%ymm1
-vpand     h2h_mask(%rip),%ymm1,%ymm1
+vmovdqa   h2h_mask(%rip), %ymm0
+vpand     %ymm0,%ymm1,%ymm1
 vpshufd	  $238,%ymm8,%ymm3
-vpaddd    h2h_p1(%rip),%ymm1,%ymm1
-vpxor     h2h_xor(%rip),%ymm3,%ymm3
+vmovdqa   h2h_p1(%rip), %ymm2
+vpaddd    %ymm2,%ymm1,%ymm1
+vmovdqa   h2h_xor(%rip), %ymm2
+vpxor     %ymm2,%ymm3,%ymm3
 vpaddd    %ymm1,%ymm3,%ymm8
 
 vpshufd	  $68,%ymm9,%ymm1
-vpand     h2h_mask(%rip),%ymm1,%ymm1
+vpand     %ymm0,%ymm1,%ymm1
 vpshufd	  $238,%ymm9,%ymm3
-vpaddd    h2h_p2(%rip),%ymm1,%ymm1
-vpxor     h2h_xor(%rip),%ymm3,%ymm3
+vmovdqa   h2h_p2(%rip), %ymm4
+vpaddd    %ymm4,%ymm1,%ymm1
+vpxor     %ymm2,%ymm3,%ymm3
 vpaddd    %ymm1,%ymm3,%ymm9
 
 vpshufd	  $68,%ymm10,%ymm1
-vpand     h2h_mask(%rip),%ymm1,%ymm1
+vpand     %ymm0,%ymm1,%ymm1
 vpshufd	  $238,%ymm10,%ymm3
-vpaddd    h2h_p2(%rip),%ymm1,%ymm1
-vpxor     h2h_xor(%rip),%ymm3,%ymm3
+vpaddd    %ymm4,%ymm1,%ymm1
+vpxor     %ymm2,%ymm3,%ymm3
 vpaddd    %ymm1,%ymm3,%ymm10
 
 vpshufd	  $68,%ymm11,%ymm1
-vpand     h2h_mask(%rip),%ymm1,%ymm1
+vpand     %ymm0,%ymm1,%ymm1
 vpshufd	  $238,%ymm11,%ymm3
-vpaddd    h2h_p2(%rip),%ymm1,%ymm1
-vpxor     h2h_xor(%rip),%ymm3,%ymm3
+vpaddd    %ymm4,%ymm1,%ymm1
+vpxor     %ymm2,%ymm3,%ymm3
 vpaddd    %ymm1,%ymm3,%ymm11
 
 vpshufd	  $68,%ymm12,%ymm1
-vpand     h2h_mask(%rip),%ymm1,%ymm1
+vpand     %ymm0,%ymm1,%ymm1
 vpshufd	  $238,%ymm12,%ymm3
-vpaddd    h2h_p2(%rip),%ymm1,%ymm1
-vpxor     h2h_xor(%rip),%ymm3,%ymm3
+vpaddd    %ymm4,%ymm1,%ymm1
+vpxor     %ymm2,%ymm3,%ymm3
 vpaddd    %ymm1,%ymm3,%ymm12
 
 vpshufd	  $68,%ymm13,%ymm1
-vpand     h2h_mask(%rip),%ymm1,%ymm1
+vpand     %ymm0,%ymm1,%ymm1
 vpshufd	  $238,%ymm13,%ymm3
-vpaddd    h2h_p2(%rip),%ymm1,%ymm1
-vpxor     h2h_xor(%rip),%ymm3,%ymm3
+vpaddd    %ymm4,%ymm1,%ymm1
+vpxor     %ymm2,%ymm3,%ymm3
 vpaddd    %ymm1,%ymm3,%ymm13
 
 vpshufd	  $68,%ymm14,%ymm1
-vpand     h2h_mask(%rip),%ymm1,%ymm1
+vpand     %ymm0,%ymm1,%ymm1
 vpshufd	  $238,%ymm14,%ymm3
-vpaddd    h2h_p2(%rip),%ymm1,%ymm1
-vpxor     h2h_xor(%rip),%ymm3,%ymm3
+vpaddd    %ymm4,%ymm1,%ymm1
+vpxor     %ymm2,%ymm3,%ymm3
 vpaddd    %ymm1,%ymm3,%ymm14
 
 vpshufd	  $68,%ymm15,%ymm1
-vpand     h2h_mask(%rip),%ymm1,%ymm1
+vpand     %ymm0,%ymm1,%ymm1
 vpshufd	  $238,%ymm15,%ymm3
-vpaddd    h2h_p2(%rip),%ymm1,%ymm1
-vpxor     h2h_xor(%rip),%ymm3,%ymm3
+vpaddd    %ymm4,%ymm1,%ymm1
+vpxor     %ymm2,%ymm3,%ymm3
 vpaddd    %ymm1,%ymm3,%ymm15
 
 vpsrld    $28,%ymm8,%ymm1
 vpaddd    %ymm1,%ymm9,%ymm9
-vpand     vecmask28d(%rip),%ymm8,%ymm8
+vmovdqa   vecmask28d(%rip), %ymm0
+vpand     %ymm0,%ymm8,%ymm8
 
 vpsrld    $28,%ymm9,%ymm1
 vpaddd    %ymm1,%ymm10,%ymm10
-vpand     vecmask28d(%rip),%ymm9,%ymm9
+vpand     %ymm0,%ymm9,%ymm9
 
 vpsrld    $28,%ymm10,%ymm1
 vpaddd    %ymm1,%ymm11,%ymm11
-vpand     vecmask28d(%rip),%ymm10,%ymm10
+vpand     %ymm0,%ymm10,%ymm10
 
 vpsrld    $28,%ymm11,%ymm1
 vpaddd    %ymm1,%ymm12,%ymm12
-vpand     vecmask28d(%rip),%ymm11,%ymm11
+vpand     %ymm0,%ymm11,%ymm11
 
 vpsrld    $28,%ymm12,%ymm1
 vpaddd    %ymm1,%ymm13,%ymm13
-vpand     vecmask28d(%rip),%ymm12,%ymm12
+vpand     %ymm0,%ymm12,%ymm12
 
 vpsrld    $28,%ymm13,%ymm1
 vpaddd    %ymm1,%ymm14,%ymm14
-vpand     vecmask28d(%rip),%ymm13,%ymm13
+vpand     %ymm0,%ymm13,%ymm13
 
 vpsrld    $28,%ymm14,%ymm1
 vpaddd    %ymm1,%ymm15,%ymm15
-vpand     vecmask28d(%rip),%ymm14,%ymm14
+vpand     %ymm0,%ymm14,%ymm14
+
+vmovdqa   192(%rsp),%ymm0      # Restore
+vmovdqa   256(%rsp),%ymm2      # Restore
+vmovdqa   320(%rsp),%ymm4      # Restore
 
 // <T9,T10,T11,T12> ← Pack-D2N(<T9',T10',T11',T12'>)
 vmovdqa   %ymm8,192(%rsp)
@@ -1054,108 +1079,119 @@ vmovdqa   %ymm7,672(%rsp)
 
 // <0,T13,0,0> ← Unreduced-Mulc(<T9,T10,T11,T12>,<0,a24(%rip),0,0>)
 // <T5,T14,T7,T8> ← Add(<0,T13,0,0>,<T5,T6,T7,T8>)
-vpmuludq  a24(%rip),%ymm8,%ymm8
+vmovdqa   a24(%rip),%ymm7
+vpmuludq  %ymm7,%ymm8,%ymm8
 vpaddq    704(%rsp),%ymm8,%ymm8
-vpmuludq  a24(%rip),%ymm9,%ymm9
+vpmuludq  %ymm7,%ymm9,%ymm9
 vpaddq    736(%rsp),%ymm9,%ymm9
-vpmuludq  a24(%rip),%ymm10,%ymm10
+vpmuludq  %ymm7,%ymm10,%ymm10
 vpaddq    768(%rsp),%ymm10,%ymm10
-vpmuludq  a24(%rip),%ymm11,%ymm11
+vpmuludq  %ymm7,%ymm11,%ymm11
 vpaddq    800(%rsp),%ymm11,%ymm11
-vpmuludq  a24(%rip),%ymm12,%ymm12
+vpmuludq  %ymm7,%ymm12,%ymm12
 vpaddq    832(%rsp),%ymm12,%ymm12
-vpmuludq  a24(%rip),%ymm13,%ymm13
+vpmuludq  %ymm7,%ymm13,%ymm13
 vpaddq    864(%rsp),%ymm13,%ymm13
-vpmuludq  a24(%rip),%ymm14,%ymm14
+vpmuludq  %ymm7,%ymm14,%ymm14
 vpaddq    896(%rsp),%ymm14,%ymm14
-vpmuludq  a24(%rip),%ymm0,%ymm0
+vpmuludq  %ymm7,%ymm0,%ymm0
 vpaddq    960(%rsp),%ymm0,%ymm0
-vpmuludq  a24(%rip),%ymm1,%ymm1
+vpmuludq  %ymm7,%ymm1,%ymm1
 vpaddq    992(%rsp),%ymm1,%ymm1
-vpmuludq  a24(%rip),%ymm2,%ymm2
+vpmuludq  %ymm7,%ymm2,%ymm2
 vpaddq    1024(%rsp),%ymm2,%ymm2
-vpmuludq  a24(%rip),%ymm3,%ymm3
+vpmuludq  %ymm7,%ymm3,%ymm3
 vpaddq    1056(%rsp),%ymm3,%ymm3
-vpmuludq  a24(%rip),%ymm4,%ymm4
+vpmuludq  %ymm7,%ymm4,%ymm4
 vpaddq    1088(%rsp),%ymm4,%ymm4
-vpmuludq  a24(%rip),%ymm5,%ymm5
+vpmuludq  %ymm7,%ymm5,%ymm5
 vpaddq    1120(%rsp),%ymm5,%ymm5
-vpmuludq  a24(%rip),%ymm6,%ymm6
+vpmuludq  %ymm7,%ymm6,%ymm6
 vpaddq    1152(%rsp),%ymm6,%ymm6
-vpmuludq  a24(%rip),%ymm7,%ymm7
+vmovdqa   %ymm6,64(%rsp)		# Temporarily store %ymm6
+vmovdqa   a24(%rip),%ymm6
+vmovdqa   672(%rsp),%ymm7		# Restore %ymm7
+vpmuludq  %ymm6,%ymm7,%ymm7
 vpaddq    1184(%rsp),%ymm7,%ymm7
 
 vpsrlq    $28,%ymm0,%ymm15
 vpaddq    %ymm15,%ymm1,%ymm1
-vpand     vecmask28(%rip),%ymm0,%ymm0
+vmovdqa   vecmask28(%rip),%ymm6
+vpand     %ymm6,%ymm0,%ymm0
 
 vpsrlq    $28,%ymm8,%ymm15
 vpaddq    %ymm15,%ymm9,%ymm9
-vpand     vecmask28(%rip),%ymm8,%ymm8
+vpand     %ymm6,%ymm8,%ymm8
 
 vpsrlq    $28,%ymm1,%ymm15
 vpaddq    %ymm15,%ymm2,%ymm2
-vpand     vecmask28(%rip),%ymm1,%ymm1
+vpand     %ymm6,%ymm1,%ymm1
 
 vpsrlq    $28,%ymm9,%ymm15
 vpaddq    %ymm15,%ymm10,%ymm10
-vpand     vecmask28(%rip),%ymm9,%ymm9
+vpand     %ymm6,%ymm9,%ymm9
 
 vpsrlq    $28,%ymm2,%ymm15
 vpaddq    %ymm15,%ymm3,%ymm3
-vpand     vecmask28(%rip),%ymm2,%ymm2
+vpand     %ymm6,%ymm2,%ymm2
 
 vpsrlq    $28,%ymm10,%ymm15
 vpaddq    %ymm15,%ymm11,%ymm11
-vpand     vecmask28(%rip),%ymm10,%ymm10
+vpand     %ymm6,%ymm10,%ymm10
 
 vpsrlq    $28,%ymm3,%ymm15
 vpaddq    %ymm15,%ymm4,%ymm4
-vpand     vecmask28(%rip),%ymm3,%ymm3
+vpand     %ymm6,%ymm3,%ymm3
 
 vpsrlq    $28,%ymm11,%ymm15
 vpaddq    %ymm15,%ymm12,%ymm12
-vpand     vecmask28(%rip),%ymm11,%ymm11
+vpand     %ymm6,%ymm11,%ymm11
 
 vpsrlq    $28,%ymm4,%ymm15
 vpaddq    %ymm15,%ymm5,%ymm5
-vpand     vecmask28(%rip),%ymm4,%ymm4
+vpand     %ymm6,%ymm4,%ymm4
 
 vpsrlq    $28,%ymm12,%ymm15
 vpaddq    %ymm15,%ymm13,%ymm13
-vpand     vecmask28(%rip),%ymm12,%ymm12
+vpand     %ymm6,%ymm12,%ymm12
 
+vmovdqa   %ymm12,96(%rsp)		# Temporarily store %ymm12
+vmovdqa   vecmask28(%rip),%ymm12
+vmovdqa   64(%rsp),%ymm6		# Restore
 vpsrlq    $28,%ymm5,%ymm15
 vpaddq    %ymm15,%ymm6,%ymm6
-vpand     vecmask28(%rip),%ymm5,%ymm5
+vpand     %ymm12,%ymm5,%ymm5
 
 vpsrlq    $28,%ymm13,%ymm15
 vpaddq    %ymm15,%ymm14,%ymm14
-vpand     vecmask28(%rip),%ymm13,%ymm13
+vpand     %ymm12,%ymm13,%ymm13
 
 vpsrlq    $28,%ymm6,%ymm15
 vpaddq    %ymm15,%ymm7,%ymm7
-vpand     vecmask28(%rip),%ymm6,%ymm6
+vpand     %ymm12,%ymm6,%ymm6
 
 vmovdqa   %ymm13,64(%rsp)
 vmovdqa   416(%rsp),%ymm15
-vpmuludq  a24(%rip),%ymm15,%ymm15
+vmovdqa   a24(%rip),%ymm12
+vpmuludq  %ymm12,%ymm15,%ymm15
 vpaddq    928(%rsp),%ymm15,%ymm15
 
+vmovdqa   vecmask28(%rip),%ymm12
 vpsrlq    $28,%ymm14,%ymm13
 vpaddq    %ymm13,%ymm15,%ymm15
-vpand     vecmask28(%rip),%ymm14,%ymm14
+vpand     %ymm12,%ymm14,%ymm14
 
 vpsrlq    $28,%ymm7,%ymm13
 vpaddq    %ymm13,%ymm8,%ymm8
 vpaddq    %ymm13,%ymm0,%ymm0
-vpand     vecmask28(%rip),%ymm7,%ymm7
+vpand     %ymm12,%ymm7,%ymm7
 
 vpsrlq    $28,%ymm15,%ymm13
 vpaddq    %ymm13,%ymm0,%ymm0
-vpand     vecmask28(%rip),%ymm15,%ymm15
+vpand     %ymm12,%ymm15,%ymm15
 
 vmovdqa   64(%rsp),%ymm13
+vmovdqa   96(%rsp),%ymm12		# Restore
 
 // <T5,T14,T11,T12> ← Blend(<T9,T10,T11,T12>,<T5,T14,T7,T8>,1100)
 vpblendd  $240,192(%rsp),%ymm8,%ymm8
@@ -1714,81 +1750,92 @@ vpaddq    864(%rsp),%ymm14,%ymm14
 vpaddq    896(%rsp),%ymm15,%ymm15
 
 vmovdqa   %ymm8,64(%rsp)
+vmovdqa   %ymm11,128(%rsp)		# Temporarily store %ymm11
 
 vpsrlq    $28,%ymm9,%ymm7
 vpaddq    %ymm7,%ymm10,%ymm10
-vpand     vecmask28(%rip),%ymm9,%ymm8
+vmovdqa   vecmask28(%rip),%ymm11
+vpand     %ymm11,%ymm9,%ymm8
 
 vpsrlq    $28,%ymm0,%ymm7
 vpaddq    %ymm7,%ymm1,%ymm1
-vpand     vecmask28(%rip),%ymm0,%ymm0
+vpand     %ymm11,%ymm0,%ymm0
+
+vmovdqa   128(%rsp),%ymm11		# Restore
+vmovdqa   %ymm0,128(%rsp)		# Temporarily store %ymm0
+vmovdqa   vecmask28(%rip),%ymm0
 
 vpsrlq    $28,%ymm10,%ymm7
 vpaddq    %ymm7,%ymm11,%ymm11
-vpand     vecmask28(%rip),%ymm10,%ymm9
+vpand     %ymm0,%ymm10,%ymm9
 
 vpsrlq    $28,%ymm1,%ymm7
 vpaddq    %ymm7,%ymm2,%ymm2
-vpand     vecmask28(%rip),%ymm1,%ymm1
+vpand     %ymm0,%ymm1,%ymm1
 
 vpsrlq    $28,%ymm11,%ymm7
 vpaddq    %ymm7,%ymm12,%ymm12
-vpand     vecmask28(%rip),%ymm11,%ymm10
+vpand     %ymm0,%ymm11,%ymm10
 
 vpsrlq    $28,%ymm2,%ymm7
 vpaddq    %ymm7,%ymm3,%ymm3
-vpand     vecmask28(%rip),%ymm2,%ymm2
+vpand     %ymm0,%ymm2,%ymm2
 
 vpsrlq    $28,%ymm12,%ymm7
 vpaddq    %ymm7,%ymm13,%ymm13
-vpand     vecmask28(%rip),%ymm12,%ymm11
+vpand     %ymm0,%ymm12,%ymm11
 
 vpsrlq    $28,%ymm3,%ymm7
 vpaddq    %ymm7,%ymm4,%ymm4
-vpand     vecmask28(%rip),%ymm3,%ymm3
+vpand     %ymm0,%ymm3,%ymm3
 
 vpsrlq    $28,%ymm13,%ymm7
 vpaddq    %ymm7,%ymm14,%ymm14
-vpand     vecmask28(%rip),%ymm13,%ymm12
+vpand     %ymm0,%ymm13,%ymm12
 
 vpsrlq    $28,%ymm4,%ymm7
 vpaddq    %ymm7,%ymm5,%ymm5
-vpand     vecmask28(%rip),%ymm4,%ymm4
+vpand     %ymm0,%ymm4,%ymm4
 
 vpsrlq    $28,%ymm14,%ymm7
 vpaddq    %ymm7,%ymm15,%ymm15
-vpand     vecmask28(%rip),%ymm14,%ymm13
+vpand     %ymm0,%ymm14,%ymm13
 
 vpsrlq    $28,%ymm5,%ymm7
 vpaddq    %ymm7,%ymm6,%ymm6
-vpand     vecmask28(%rip),%ymm5,%ymm5
+vpand     %ymm0,%ymm5,%ymm5
 
 vmovdqa   %ymm10,96(%rsp)
 vpsrlq    $28,%ymm15,%ymm10
 vpaddq    928(%rsp),%ymm10,%ymm10
-vpand     vecmask28(%rip),%ymm15,%ymm14
+vpand     %ymm0,%ymm15,%ymm14
 
 vpsrlq    $28,%ymm6,%ymm7
 vpaddq    64(%rsp),%ymm7,%ymm7
-vpand     vecmask28(%rip),%ymm6,%ymm6
+vpand     %ymm0,%ymm6,%ymm6
 
+vmovdqa   128(%rsp),%ymm0		# Restore
+vmovdqa   %ymm12,160(%rsp)		# Temporarily store %ymm12
 vmovdqa   %ymm11,128(%rsp)
 vpsrlq    $28,%ymm10,%ymm11
 vpaddq    %ymm11,%ymm0,%ymm0
-vpand     vecmask28(%rip),%ymm10,%ymm15
+vmovdqa   vecmask28(%rip),%ymm12
+vpand     %ymm12,%ymm10,%ymm15
 
 vpsrlq    $28,%ymm7,%ymm11
 vpaddq    %ymm11,%ymm8,%ymm8
 vpaddq    %ymm11,%ymm0,%ymm0
-vpand     vecmask28(%rip),%ymm7,%ymm7
+vpand     %ymm12,%ymm7,%ymm7
 
 vpsrlq    $28,%ymm8,%ymm11
 vpaddq    %ymm11,%ymm9,%ymm9
-vpand     vecmask28(%rip),%ymm8,%ymm8
+vpand     %ymm12,%ymm8,%ymm8
 
 vpsrlq    $28,%ymm0,%ymm11
 vpaddq    %ymm11,%ymm1,%ymm1
-vpand     vecmask28(%rip),%ymm0,%ymm0
+vpand     %ymm12,%ymm0,%ymm0
+
+vmovdqa   160(%rsp),%ymm12		# Restore
 
 // <X2,Z2,X3,Z3> ← Mulc(<T15,T16,T17,T18>,<1,1,1,X1>)
 vpmuludq  0(%rsi),%ymm8,%ymm8
@@ -1806,77 +1853,85 @@ vpmuludq  0(%rsi),%ymm5,%ymm5
 vpmuludq  0(%rsi),%ymm6,%ymm6
 vpmuludq  0(%rsi),%ymm7,%ymm7
 
+vmovdqa   %ymm15,160(%rsp)		# Temporarily store %ymm15
+vmovdqa   vecmask28(%rip),%ymm15
+
 vpsrlq    $28,%ymm0,%ymm10
 vpaddq    %ymm10,%ymm1,%ymm1
-vpand     vecmask28(%rip),%ymm0,%ymm0
+vpand     %ymm15,%ymm0,%ymm0
 
 vpsrlq    $28,%ymm8,%ymm10
 vpaddq    %ymm10,%ymm9,%ymm9
-vpand     vecmask28(%rip),%ymm8,%ymm8
+vpand     %ymm15,%ymm8,%ymm8
 
 vpsrlq    $28,%ymm1,%ymm10
 vpaddq    %ymm10,%ymm2,%ymm2
-vpand     vecmask28(%rip),%ymm1,%ymm1
+vpand     %ymm15,%ymm1,%ymm1
 
 vmovdqa   96(%rsp),%ymm10
 vpmuludq  0(%rsi),%ymm10,%ymm10
 vpsrlq    $28,%ymm9,%ymm11
 vpaddq    %ymm11,%ymm10,%ymm10
-vpand     vecmask28(%rip),%ymm9,%ymm9
+vpand     %ymm15,%ymm9,%ymm9
 
 vpsrlq    $28,%ymm2,%ymm11
 vpaddq    %ymm11,%ymm3,%ymm3
-vpand     vecmask28(%rip),%ymm2,%ymm2
+vpand     %ymm15,%ymm2,%ymm2
 
 vmovdqa   %ymm9,64(%rsp)
 vmovdqa   128(%rsp),%ymm11
 vpmuludq  0(%rsi),%ymm11,%ymm11
 vpsrlq    $28,%ymm10,%ymm9
 vpaddq    %ymm9,%ymm11,%ymm11
-vpand     vecmask28(%rip),%ymm10,%ymm10
+vpand     %ymm15,%ymm10,%ymm10
 
 vpsrlq    $28,%ymm3,%ymm9
 vpaddq    %ymm9,%ymm4,%ymm4
-vpand     vecmask28(%rip),%ymm3,%ymm3
+vpand     %ymm15,%ymm3,%ymm3
 
 vpsrlq    $28,%ymm11,%ymm9
 vpaddq    %ymm9,%ymm12,%ymm12
-vpand     vecmask28(%rip),%ymm11,%ymm11
+vpand     %ymm15,%ymm11,%ymm11
 
 vpsrlq    $28,%ymm4,%ymm9
 vpaddq    %ymm9,%ymm5,%ymm5
-vpand     vecmask28(%rip),%ymm4,%ymm4
+vpand     %ymm15,%ymm4,%ymm4
 
 vpsrlq    $28,%ymm12,%ymm9
 vpaddq    %ymm9,%ymm13,%ymm13
-vpand     vecmask28(%rip),%ymm12,%ymm12
+vpand     %ymm15,%ymm12,%ymm12
 
 vpsrlq    $28,%ymm5,%ymm9
 vpaddq    %ymm9,%ymm6,%ymm6
-vpand     vecmask28(%rip),%ymm5,%ymm5
+vpand     %ymm15,%ymm5,%ymm5
 
 vpsrlq    $28,%ymm13,%ymm9
 vpaddq    %ymm9,%ymm14,%ymm14
-vpand     vecmask28(%rip),%ymm13,%ymm13
+vpand     %ymm15,%ymm13,%ymm13
 
 vpsrlq    $28,%ymm6,%ymm9
 vpaddq    %ymm9,%ymm7,%ymm7
-vpand     vecmask28(%rip),%ymm6,%ymm6
+vpand     %ymm15,%ymm6,%ymm6
+
+vmovdqa   160(%rsp),%ymm15		# Restore
+vmovdqa   %ymm13,160(%rsp)		# Temporarily store %ymm13
+vmovdqa   vecmask28(%rip),%ymm13
 
 vpsrlq    $28,%ymm14,%ymm9
 vpaddq    %ymm9,%ymm15,%ymm15
-vpand     vecmask28(%rip),%ymm14,%ymm14
+vpand     %ymm13,%ymm14,%ymm14
 
 vpsrlq    $28,%ymm7,%ymm9
 vpaddq    %ymm9,%ymm8,%ymm8
 vpaddq    %ymm9,%ymm0,%ymm0
-vpand     vecmask28(%rip),%ymm7,%ymm7
+vpand     %ymm13,%ymm7,%ymm7
 
 vpsrlq    $28,%ymm15,%ymm9
 vpaddq    %ymm9,%ymm0,%ymm0
-vpand     vecmask28(%rip),%ymm15,%ymm15
+vpand     %ymm13,%ymm15,%ymm15
 
 vmovdqa   64(%rsp),%ymm9
+vmovdqa   160(%rsp),%ymm13		# Restore
 
 // <X2',Z2',X3',Z3'> ← Pack-N2D(<X2,Z2,X3,Z3>)
 vpsllq    $32,%ymm0,%ymm0
@@ -1898,99 +1953,106 @@ vpor      %ymm7,%ymm15,%ymm15
 
 subb      $1,%cl
 cmpb	  $0,%cl
-jge       .L2
+jge       .L2_base
 
 movb	  $7,%cl
 subq      $1,%r15
 cmpq	  $0,%r15
-jge       .L1
+jge       .L1_base
 
 // <X2,Z2,X3,Z3> ← Pack-D2N(<X2',Z2',X3',Z3'>)
 vpsrlq    $32,%ymm8,%ymm0
-vpand     vecmask32(%rip),%ymm8,%ymm8
+vmovdqa   %ymm0,192(%rsp)              #Temporarily store
+vmovdqa   vecmask32(%rip), %ymm0
+vpand     %ymm0,%ymm8,%ymm8
 vpsrlq    $32,%ymm9,%ymm1
-vpand     vecmask32(%rip),%ymm9,%ymm9
+vpand     %ymm0,%ymm9,%ymm9
 vpsrlq    $32,%ymm10,%ymm2
-vpand     vecmask32(%rip),%ymm10,%ymm10
+vpand     %ymm0,%ymm10,%ymm10
 vpsrlq    $32,%ymm11,%ymm3
-vpand     vecmask32(%rip),%ymm11,%ymm11
+vpand     %ymm0,%ymm11,%ymm11
 vpsrlq    $32,%ymm12,%ymm4
-vpand     vecmask32(%rip),%ymm12,%ymm12
+vpand     %ymm0,%ymm12,%ymm12
 vpsrlq    $32,%ymm13,%ymm5
-vpand     vecmask32(%rip),%ymm13,%ymm13
+vpand     %ymm0,%ymm13,%ymm13
 vpsrlq    $32,%ymm14,%ymm6
-vpand     vecmask32(%rip),%ymm14,%ymm14
+vpand     %ymm0,%ymm14,%ymm14
 vpsrlq    $32,%ymm15,%ymm7
-vpand     vecmask32(%rip),%ymm15,%ymm15
+vpand     %ymm0,%ymm15,%ymm15
 
 // <X2,Z2,X3,Z3> ← Reduce(<X2,Z2,X3,Z3>)
 vmovdqa   %ymm7,64(%rsp)
 
 vpsrlq    $28,%ymm8,%ymm7
 vpaddq    %ymm7,%ymm9,%ymm9
-vpand     vecmask28(%rip),%ymm8,%ymm8
+vmovdqa   vecmask28(%rip), %ymm0
+vpand     %ymm0,%ymm8,%ymm8
 
 vmovdqa   %ymm8,96(%rsp)
 
 vpsrlq    $28,%ymm9,%ymm7
 vpaddq    %ymm7,%ymm10,%ymm10
-vpand     vecmask28(%rip),%ymm9,%ymm9
+vpand     %ymm0,%ymm9,%ymm9
 
 vmovdqa   %ymm9,128(%rsp)
 
 vpsrlq    $28,%ymm10,%ymm7
 vpaddq    %ymm7,%ymm11,%ymm11
-vpand     vecmask28(%rip),%ymm10,%ymm10
+vpand     %ymm0,%ymm10,%ymm10
 
 vmovdqa   %ymm10,160(%rsp)
 
 vpsrlq    $28,%ymm11,%ymm7
 vpaddq    %ymm7,%ymm12,%ymm12
-vpand     vecmask28(%rip),%ymm11,%ymm11
+vpand     %ymm0,%ymm11,%ymm11
 
 vpsrlq    $28,%ymm12,%ymm7
 vpaddq    %ymm7,%ymm13,%ymm13
-vpand     vecmask28(%rip),%ymm12,%ymm12
+vpand     %ymm0,%ymm12,%ymm12
 
 vpsrlq    $28,%ymm13,%ymm7
 vpaddq    %ymm7,%ymm14,%ymm14
-vpand     vecmask28(%rip),%ymm13,%ymm13
+vpand     %ymm0,%ymm13,%ymm13
 
 vpsrlq    $28,%ymm14,%ymm7
 vpaddq    %ymm7,%ymm15,%ymm15
-vpand     vecmask28(%rip),%ymm14,%ymm14
+vpand     %ymm0,%ymm14,%ymm14
+
+vmovdqa   192(%rsp),%ymm0              #Reload
+vmovdqa   %ymm14,192(%rdi)             #Finally store to destination
+vmovdqa   vecmask28(%rip), %ymm14
 
 vpsrlq    $28,%ymm15,%ymm7
 vpaddq    %ymm7,%ymm0,%ymm0
-vpand     vecmask28(%rip),%ymm15,%ymm15
+vpand     %ymm14,%ymm15,%ymm15
 
 vpsrlq    $28,%ymm0,%ymm7
 vpaddq    %ymm7,%ymm1,%ymm1
-vpand     vecmask28(%rip),%ymm0,%ymm0
+vpand     %ymm14,%ymm0,%ymm0
 
 vpsrlq    $28,%ymm1,%ymm7
 vpaddq    %ymm7,%ymm2,%ymm2
-vpand     vecmask28(%rip),%ymm1,%ymm1
+vpand     %ymm14,%ymm1,%ymm1
 
 vpsrlq    $28,%ymm2,%ymm7
 vpaddq    %ymm7,%ymm3,%ymm3
-vpand     vecmask28(%rip),%ymm2,%ymm2
+vpand     %ymm14,%ymm2,%ymm2
 
 vpsrlq    $28,%ymm3,%ymm7
 vpaddq    %ymm7,%ymm4,%ymm4
-vpand     vecmask28(%rip),%ymm3,%ymm3
+vpand     %ymm14,%ymm3,%ymm3
 
 vpsrlq    $28,%ymm4,%ymm7
 vpaddq    %ymm7,%ymm5,%ymm5
-vpand     vecmask28(%rip),%ymm4,%ymm4
+vpand     %ymm14,%ymm4,%ymm4
 
 vpsrlq    $28,%ymm5,%ymm7
 vpaddq    %ymm7,%ymm6,%ymm6
-vpand     vecmask28(%rip),%ymm5,%ymm5
+vpand     %ymm14,%ymm5,%ymm5
 
 vpsrlq    $28,%ymm6,%ymm7
 vpaddq    64(%rsp),%ymm7,%ymm7
-vpand     vecmask28(%rip),%ymm6,%ymm6
+vpand     %ymm14,%ymm6,%ymm6
 
 vpsrlq    $28,%ymm7,%ymm8
 vpaddq    %ymm8,%ymm0,%ymm0
@@ -1999,11 +2061,11 @@ vpand     vecmask28(%rip),%ymm7,%ymm7
 
 vpsrlq    $28,%ymm8,%ymm9
 vpaddq    128(%rsp),%ymm9,%ymm9
-vpand     vecmask28(%rip),%ymm8,%ymm8
+vpand     %ymm14,%ymm8,%ymm8
 
 vpsrlq    $28,%ymm0,%ymm10
 vpaddq    %ymm10,%ymm1,%ymm1
-vpand     vecmask28(%rip),%ymm0,%ymm0
+vpand     %ymm14,%ymm0,%ymm0
 
 vmovdqa   160(%rsp),%ymm10
 
@@ -2014,7 +2076,7 @@ vmovdqa   %ymm10,64(%rdi)
 vmovdqa   %ymm11,96(%rdi)
 vmovdqa   %ymm12,128(%rdi)
 vmovdqa   %ymm13,160(%rdi)
-vmovdqa   %ymm14,192(%rdi)
+#%ymm14 was already stored to destination above
 vmovdqa   %ymm15,224(%rdi)
 vmovdqa   %ymm0, 256(%rdi)
 vmovdqa   %ymm1, 288(%rdi)
@@ -2037,5 +2099,3 @@ movq 	  %r11,%rsp
 
 RET
 SYM_FUNC_END(curve448_mladder_base_avx2)
-
-LC_ASM_END

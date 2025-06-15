@@ -57,7 +57,6 @@
 */
 
 #include "assembler_support.h"
-#include "curve448_const.S"
 
 .p2align 5
 
@@ -621,6 +620,7 @@ RET
 SYM_FUNC_END(gfp4482241mul)
 
 .p2align 5
+STACK_FRAME_NON_STANDARD(gfp4482241reduce)
 SYM_FUNC_START(gfp4482241reduce)
 SYM_FUNC_ENTER(gfp4482241reduce)
 
@@ -639,54 +639,56 @@ movq    40(%rdi), %rcx
 movq    48(%rdi), %rdx
 movq    56(%rdi), %rsi
 
+movq    mask56(%rip), %r15
+
 movq	%r8, %rdi
-andq	mask56(%rip), %r8
+andq	%r15, %r8
 shrq	$56, %rdi
 addq	%rdi, %r9
 
 movq	%r9, %rdi
-andq	mask56(%rip), %r9
+andq	%r15, %r9
 shrq	$56, %rdi
 addq	%rdi, %r10
 
 movq	%r10, %rdi
-andq	mask56(%rip), %r10
+andq	%r15, %r10
 shrq	$56, %rdi
 addq	%rdi, %r11
 
 movq	%r11, %rdi
-andq	mask56(%rip), %r11
+andq	%r15, %r11
 shrq	$56, %rdi
 addq	%rdi, %rax
 
 movq	%rax, %rdi
-andq	mask56(%rip), %rax
+andq	%r15, %rax
 shrq	$56, %rdi
 addq	%rdi, %rcx
 
 movq	%rcx, %rdi
-andq	mask56(%rip), %rcx
+andq	%r15, %rcx
 shrq	$56, %rdi
 addq	%rdi, %rdx
 
 movq	%rdx, %rdi
-andq	mask56(%rip), %rdx
+andq	%r15, %rdx
 shrq	$56, %rdi
 addq	%rdi, %rsi
 
 movq	%rsi, %rdi
-andq	mask56(%rip), %rsi
+andq	%r15, %rsi
 shrq	$56, %rdi
 addq	%rdi, %r8
 addq	%rdi, %rax
 
 movq	%r8, %rdi
-andq	mask56(%rip), %r8
+andq	%r15, %r8
 shrq	$56, %rdi
 addq	%rdi, %r9
 
 movq	%rax, %rdi
-andq	mask56(%rip), %rax
+andq	%r15, %rax
 shrq	$56, %rdi
 addq	%rdi, %rcx
 
@@ -705,5 +707,3 @@ movq 	 0(%rsp), %rsp
 
 RET
 SYM_FUNC_END(gfp4482241reduce)
-
-LC_ASM_END

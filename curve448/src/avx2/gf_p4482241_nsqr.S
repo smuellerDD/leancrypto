@@ -57,7 +57,6 @@
 */
 
 #include "assembler_support.h"
-#include "curve448_const.S"
 
 .p2align 5
 
@@ -394,46 +393,48 @@ addq  	%r11, %rbp
 addq  	%rbx, %rsi
 addq  	%rbx, %rcx
 
+movq    mask56(%rip), %r15
+
 movq	%rsi, %r11
 shrq	$56, %r11
 addq	%rax, %r11
-andq	mask56(%rip), %rsi
+andq	%r15, %rsi
 
 movq	%r11, %rax
 shrq	$56, %r11
 addq	%r8, %r11
-andq	mask56(%rip), %rax
+andq	%r15, %rax
 
 movq	%r11, %r8
 shrq	$56, %r11
 addq	%r12, %r11
-andq	mask56(%rip), %r8
+andq	%r15, %r8
 
 movq	%r11, %r12
 shrq	$56, %r11
 addq	%rcx, %r11
-andq	mask56(%rip), %r12
+andq	%r15, %r12
 
 movq	%r11, %rcx
 shrq	$56, %r11
 addq	%r14, %r11
-andq	mask56(%rip), %rcx
+andq	%r15, %rcx
 
 movq	%r11, %r14
 shrq	$56, %r11
 addq	%r10, %r11
-andq	mask56(%rip), %r14
+andq	%r15, %r14
 
 movq	%r11, %r10
 shrq	$56, %r11
 addq	%rbp, %r11
-andq	mask56(%rip), %r10
+andq	%r15, %r10
 
 movq	%r11, %rbp
 shrq	$56, %r11
 addq	%r11, %rsi
 addq	%r11, %rcx
-andq	mask56(%rip), %rbp
+andq	%r15, %rbp
 
 movq 	56(%rsp), %rdi
 
@@ -463,5 +464,3 @@ movq 	%r11, %rsp
 
 RET
 SYM_FUNC_END(gfp4482241nsqr)
-
-LC_ASM_END

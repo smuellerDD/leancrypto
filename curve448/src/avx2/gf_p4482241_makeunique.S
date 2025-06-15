@@ -57,10 +57,10 @@
 */
 
 #include "assembler_support.h"
-#include "curve448_const.S"
 
 .p2align 5
 
+STACK_FRAME_NON_STANDARD(gfp4482241makeunique)
 SYM_FUNC_START(gfp4482241makeunique)
 SYM_FUNC_ENTER(gfp4482241makeunique)
 
@@ -89,18 +89,26 @@ movq    %r10, %rcx
 movq    %r11, %rdx
 movq    %r12, %rbp
 movq    %r13, %rsi
-movq    %r14, %r15
+#%r15 uses as temporary buffer - filled below
 
-subq    p012456(%rip), %r8
-sbbq    p012456(%rip), %r9
-sbbq    p012456(%rip), %r10
-sbbq    p3(%rip), %r11
-sbbq    p012456(%rip), %r12
-sbbq    p012456(%rip), %r13
-sbbq    p012456(%rip), %r14
+movq    p012456(%rip), %r15
+subq    %r15, %r8
+
+sbbq    %r15, %r9
+cmovc   %rbx, %r9	# Finalize %r9 already here to make room for tmp space
+movq   	%r9,   8(%rdi)	# Finalize %r9
+
+sbbq    %r15, %r10
+movq    p3(%rip), %r9	# %r9 used as tmp buffer
+sbbq    %r9, %r11
+sbbq    %r15, %r12
+sbbq    %r15, %r13
+movq    p012456(%rip), %r9	# %r9 used as tmp buffer
+movq    %r14, %r15	# delayed filling
+sbbq    %r9, %r14
 
 cmovc   %rax, %r8
-cmovc   %rbx, %r9
+# %r9 already saved above
 cmovc   %rcx, %r10
 cmovc   %rdx, %r11
 cmovc   %rbp, %r12
@@ -108,7 +116,7 @@ cmovc   %rsi, %r13
 cmovc   %r15, %r14
 
 movq   	%r8,   0(%rdi)
-movq   	%r9,   8(%rdi)
+# %r9 already saved above
 movq   	%r10, 16(%rdi)
 movq   	%r11, 24(%rdi)
 movq   	%r12, 32(%rdi)
@@ -125,5 +133,3 @@ movq    0(%rsp),  %rsp
 
 RET
 SYM_FUNC_END(gfp4482241makeunique)
-
-LC_ASM_END

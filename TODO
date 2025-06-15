@@ -33,4 +33,3 @@
 
 - PQC Hackathon: reenable Composite-ML-DSA tests after other library vendors moved to new draft version 5
 
-- X448: Add x86_64 assembler support to Linux kernel
