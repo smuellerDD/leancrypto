@@ -77,8 +77,9 @@ extern void SYSV_ABI curve448_mladder_base_avx2(vec *, const vec,
 static int curve448_scalarmult_avx2(uint8_t *out, const uint8_t *base,
 				    const uint8_t *scalar)
 {
+	vec r[NLIMBS_VEC] ALIGN32 = { 0 };
+	vec t[NLIMBS_VEC] ALIGN32 = { 0 };
 	struct workspace {
-		vec r[NLIMBS_VEC], t[NLIMBS_VEC];
 		gfe_p4482241_16L u, v;
 		gfe_p4482241_7L w, x, z;
 		gfe_p4482241_8L a, b, c, binv;
@@ -96,18 +97,18 @@ static int curve448_scalarmult_avx2(uint8_t *out, const uint8_t *base,
 
 	gfp4482241pack(&ws->u, base);
 
-	ws->t[0][0] = ws->t[0][3] = ws->r[0][2] = 1;
+	t[0][0] = t[0][3] = r[0][2] = 1;
 
 	for (i = 0; i < NLIMBS_VEC; ++i) {
-		ws->t[i][2] = ws->u.l[i];
-		ws->r[i][3] = ws->u.l[i];
+		t[i][2] = ws->u.l[i];
+		r[i][3] = ws->u.l[i];
 	}
 
-	curve448_mladder_avx2(ws->t, (const vec *)ws->r, ws->s);
+	curve448_mladder_avx2(t, (const vec *)r, ws->s);
 
 	for (i = 0; i < NLIMBS_VEC; ++i) {
-		ws->u.l[i] = ws->t[i][0];
-		ws->v.l[i] = ws->t[i][1];
+		ws->u.l[i] = t[i][0];
+		ws->v.l[i] = t[i][1];
 	}
 
 	gfp4482241pack167(&ws->x, &ws->u);
@@ -141,8 +142,9 @@ int x448_scalarmult(uint8_t out[LC_X448_PUBLICKEYBYTES],
 static int curve448_scalarmult_base_avx2(uint8_t *out, const uint8_t *base,
 					 const uint8_t *scalar)
 {
+	vec r ALIGN32 = { 0 };
+	vec t[NLIMBS_VEC] ALIGN32 = { 0 };
 	struct workspace {
-		vec r, t[NLIMBS_VEC];
 		gfe_p4482241_16L u, v;
 		gfe_p4482241_7L w, x, z;
 		gfe_p4482241_8L a, b, c, binv;
@@ -160,17 +162,17 @@ static int curve448_scalarmult_base_avx2(uint8_t *out, const uint8_t *base,
 
 	gfp4482241pack(&ws->u, base);
 
-	ws->t[0][0] = ws->t[0][3] = ws->r[0] = ws->r[1] = ws->r[2] = 1;
-	ws->r[3] = ws->u.l[0];
+	t[0][0] = t[0][3] = r[0] = r[1] = r[2] = 1;
+	r[3] = ws->u.l[0];
 
 	for (i = 0; i < NLIMBS_VEC; ++i)
-		ws->t[i][2] = ws->u.l[i];
+		t[i][2] = ws->u.l[i];
 
-	curve448_mladder_base_avx2(ws->t, ws->r, ws->s);
+	curve448_mladder_base_avx2(t, r, ws->s);
 
 	for (i = 0; i < NLIMBS_VEC; ++i) {
-		ws->u.l[i] = ws->t[i][0];
-		ws->v.l[i] = ws->t[i][1];
+		ws->u.l[i] = t[i][0];
+		ws->v.l[i] = t[i][1];
 	}
 
 	gfp4482241pack167(&ws->x, &ws->u);
@@ -192,7 +194,6 @@ static int curve448_scalarmult_base_avx2(uint8_t *out, const uint8_t *base,
 	return 0;
 }
 
-#include "compare.h"
 int x448_derive_public_key(uint8_t out[LC_X448_PUBLICKEYBYTES],
 			   const uint8_t scalar[LC_X448_SECRETKEYBYTES])
 {

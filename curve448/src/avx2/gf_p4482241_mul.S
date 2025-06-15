@@ -639,56 +639,54 @@ movq    40(%rdi), %rcx
 movq    48(%rdi), %rdx
 movq    56(%rdi), %rsi
 
-movq    mask56(%rip), %r15
-
 movq	%r8, %rdi
-andq	%r15, %r8
+andq	mask56(%rip), %r8
 shrq	$56, %rdi
 addq	%rdi, %r9
 
 movq	%r9, %rdi
-andq	%r15, %r9
+andq	mask56(%rip), %r9
 shrq	$56, %rdi
 addq	%rdi, %r10
 
 movq	%r10, %rdi
-andq	%r15, %r10
+andq	mask56(%rip), %r10
 shrq	$56, %rdi
 addq	%rdi, %r11
 
 movq	%r11, %rdi
-andq	%r15, %r11
+andq	mask56(%rip), %r11
 shrq	$56, %rdi
 addq	%rdi, %rax
 
 movq	%rax, %rdi
-andq	%r15, %rax
+andq	mask56(%rip), %rax
 shrq	$56, %rdi
 addq	%rdi, %rcx
 
 movq	%rcx, %rdi
-andq	%r15, %rcx
+andq	mask56(%rip), %rcx
 shrq	$56, %rdi
 addq	%rdi, %rdx
 
 movq	%rdx, %rdi
-andq	%r15, %rdx
+andq	mask56(%rip), %rdx
 shrq	$56, %rdi
 addq	%rdi, %rsi
 
 movq	%rsi, %rdi
-andq	%r15, %rsi
+andq	mask56(%rip), %rsi
 shrq	$56, %rdi
 addq	%rdi, %r8
 addq	%rdi, %rax
 
 movq	%r8, %rdi
-andq	%r15, %r8
+andq	mask56(%rip), %r8
 shrq	$56, %rdi
 addq	%rdi, %r9
 
 movq	%rax, %rdi
-andq	%r15, %rax
+andq	mask56(%rip), %rax
 shrq	$56, %rdi
 addq	%rdi, %rcx
 
