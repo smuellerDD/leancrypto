@@ -262,6 +262,14 @@ if (host_machine.system() != 'windows' and
 				timeout: 300, suite: regression)
 		endif
 
+		if get_option('dilithium_ed448').enabled()
+			test('X.509 Gen Root-CA ML-DSA87-ED448',
+				lc_x509_generator,
+				args: [ x509_rootca_args, '--create-keypair',
+					'ML-DSA87-ED448' ],
+				timeout: 300, suite: regression)
+		endif
+
 		x509_parser_test_script = find_program('leancrypto_check_with_ietf.sh',
 						       required: true)
 		test('X.509 Parsing other cryptoproviders',
