@@ -33,6 +33,7 @@
 #include "build_bug_on.h"
 #include "signature_domain_separation.h"
 #include "ed448_composite.h"
+#include "ed448_pct.h"
 #include "lc_ed448.h"
 #include "lc_memcmp_secure.h"
 #include "lc_sha3.h"
@@ -117,6 +118,8 @@ LC_INTERFACE_FUNCTION(int, lc_ed448_keypair, struct lc_ed448_pk *pk,
 	/* Timecop: pk and sk are not relevant for side-channels any more. */
 	unpoison(sk->sk, LC_ED448_SECRETKEYBYTES);
 	unpoison(pk->pk, LC_ED448_PUBLICKEYBYTES);
+
+	CKINT(lc_ed448_pct_fips(pk, sk));
 
 out:
 	return ret;
