@@ -7,7 +7,7 @@ Changes 1.5.0-prerelease
 
 * Start Python interface
 
-* Add ED448 / X448 for use in hybrid PQC constructions
+* Add ED448 / X448 for use in hybrid PQC constructions, ED448 implementation verified with NIST ACVP
 
 * Add ML-KEM-X448 and ML-DSA-ED448 support
 

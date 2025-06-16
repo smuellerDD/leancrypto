@@ -275,7 +275,7 @@ Leancrypto offers various cryptographic algorithms:
   * ML-KEM (Kyber) Integrated Encryption Schema (IES) - algorithm devised with
     leancrypto, see `kyber_ies.c` for full specification
 
-  * ML-KEM (Kyber) hybrid KEM / KEX with Curve25519
+  * ML-KEM (Kyber) hybrid KEM / KEX with Curve25519 and Curve448
 
   * BIKE Key Encapsulation Mechanism (KEM) (deprecated as specified by original authors)
 
@@ -291,7 +291,7 @@ Leancrypto offers various cryptographic algorithms:
 
   * ML-DSA (Dilithium)
 
-  * ML-DSA (Dilithium) hybrid signature operation with Curve25519
+  * ML-DSA (Dilithium) hybrid signature operation with Curve25519 and Curve448
 
   * SLH-DSA (Sphincs Plus) with SHAKE and Ascon
 
