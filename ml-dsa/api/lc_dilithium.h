@@ -1283,6 +1283,9 @@ int lc_dilithium_ed25519_verify_final(const struct lc_dilithium_ed25519_sig *sig
  * \p lc_dilithium_ed448_ctx_alloc. The context should be zeroized
  * and freed (only for heap) with \p lc_dilithium_ed448_ctx_zero or
  * \p lc_dilithium_ed448_ctx_zero_free.
+ *
+ * \note The APIs for ML-DSA ED25519 and ED448 are identical. You can switch
+ * between both by simply applying a global search and replace of 25519 <-> 448.
  */
 
 /**

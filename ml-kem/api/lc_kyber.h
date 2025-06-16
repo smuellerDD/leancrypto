@@ -1726,6 +1726,9 @@ int lc_kyber_x25519_ies_dec_final(struct lc_aead_ctx *aead, const uint8_t *tag,
  *
  * See also the [separate Hybrid Kyber](https://leancrypto.org/papers/HybridKEM_algorithm.pdf)
  * documentation providing a mathematical specification.
+ *
+ * \note The APIs for ML-KEM X25519 and X448 are identical. You can switch
+ * between both by simply applying a global search and replace of 25519 <-> 448.
  */
 
 /**
