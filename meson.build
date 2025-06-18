@@ -743,7 +743,11 @@ fips_integrity_checker_values_h = []
 link_args_fips140 = []
 
 # FIPS 140 Integrity check: The integrity checker is adopted for ELF.
-if (host_machine.system() == 'linux' and get_option('efi').disabled() and build_shared)
+if (host_machine.system() == 'linux' and
+    get_option('efi').disabled() and
+    build_shared and
+    not meson.is_cross_build())
+    message('here')
 	link_args_fips140 = [
 		'-T' + meson.project_source_root() + '/internal/src/fips_integrity_check.ld'
 	]
@@ -769,8 +773,7 @@ if (host_machine.system() == 'linux' and get_option('efi').disabled() and build_
 		include_directories: [ include_dirs,
 				       include_internal_dirs ],
 		link_with: [ leancrypto_libs_fips_raw_gen ],
-		install: false,
-		native: true
+		install: false
 		)
 
 	# Execute generate tool to create proper header file for inclusion

@@ -33,3 +33,4 @@
 
 - PQC Hackathon: reenable Composite-ML-DSA tests after other library vendors moved to new draft version 5
 
+- FIPS 140 integrity check: fix for cross compilation (leancrypto-fips-raw-generator is to be executed on build host, but with a library that is compiled for target host) 
