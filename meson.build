@@ -747,7 +747,6 @@ if (host_machine.system() == 'linux' and
     get_option('efi').disabled() and
     build_shared and
     not meson.is_cross_build())
-    message('here')
 	link_args_fips140 = [
 		'-T' + meson.project_source_root() + '/internal/src/fips_integrity_check.ld'
 	]
