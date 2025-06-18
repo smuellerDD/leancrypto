@@ -769,7 +769,8 @@ if (host_machine.system() == 'linux' and get_option('efi').disabled() and build_
 		include_directories: [ include_dirs,
 				       include_internal_dirs ],
 		link_with: [ leancrypto_libs_fips_raw_gen ],
-		install: false
+		install: false,
+		native: true
 		)
 
 	# Execute generate tool to create proper header file for inclusion
