@@ -27,6 +27,8 @@
 
 #include "assembler_support.h"
 
+.arch  armv8-a+crypto
+
 #define AARCH64_VALID_CALL_TARGET
 
 #ifdef __APPLE__
