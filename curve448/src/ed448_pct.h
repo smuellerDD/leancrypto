@@ -39,8 +39,7 @@ static inline int _lc_ed448_pct_fips(const struct lc_ed448_pk *pk,
 	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	CKINT(lc_ed448_sign(&ws->sig, ws->m, sizeof(ws->m), sk,
-			      lc_seeded_rng));
+	CKINT(lc_ed448_sign(&ws->sig, ws->m, sizeof(ws->m), sk, lc_seeded_rng));
 	CKINT(lc_ed448_verify(&ws->sig, ws->m, sizeof(ws->m), pk));
 
 out:
