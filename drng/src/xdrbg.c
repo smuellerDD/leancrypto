@@ -129,7 +129,7 @@ static void lc_xdrbg_drng_fke_init_ctx(struct lc_xdrbg_drng_state *state,
 	lc_xdrbg_xof_final(xof_ctx, state->v, keysize);
 }
 
-/********************************** XDRB256 ***********************************/
+/*********************************** XDRBG ************************************/
 
 /*
  * Generating random bits is performed by initializing a transient XOF state
