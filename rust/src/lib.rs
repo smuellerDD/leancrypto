@@ -57,6 +57,12 @@ pub mod lcr_kmac;
 /// Leancrypto wrapper for lc_kyber
 pub mod lcr_kyber;
 
+/// Leancrypto wrapper for lc_kyber_x25519
+pub mod lcr_kyber_x25519;
+
+/// Leancrypto wrapper for lc_kyber_x448
+pub mod lcr_kyber_x448;
+
 /// Leancrypto wrapper for lc_rng
 pub mod lcr_rng;
 
