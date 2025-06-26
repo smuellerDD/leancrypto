@@ -191,7 +191,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed448_sign_ctx,
 	CKNULL(ctx, -EINVAL);
 
 	dilithium_ctx = &ctx->dilithium_ctx;
-	dilithium_ctx->composite_ml_dsa = LC_DILITHIUM_NIST_CATEGORY;
+	dilithium_ctx->nist_category = LC_DILITHIUM_NIST_CATEGORY;
 
 	CKINT(lc_dilithium_sign_ctx(&sig->sig, &ctx->dilithium_ctx, m, mlen,
 				    &sk->sk, rng_ctx));
@@ -349,7 +349,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed448_verify_ctx,
 	CKNULL(ctx, -EINVAL);
 
 	dilithium_ctx = &ctx->dilithium_ctx;
-	dilithium_ctx->composite_ml_dsa = LC_DILITHIUM_NIST_CATEGORY;
+	dilithium_ctx->nist_category = LC_DILITHIUM_NIST_CATEGORY;
 
 	retd = lc_dilithium_verify_ctx(&sig->sig, &ctx->dilithium_ctx, m, mlen,
 				       &pk->pk);

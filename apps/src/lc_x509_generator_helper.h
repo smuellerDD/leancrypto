@@ -59,9 +59,15 @@ struct lc_x509_key_input_data {
 	} sk;
 };
 
+#define LC_X509_LINK_PK_INPUT_DATA(key_data, key_input_data)                   \
+	(key_data)->pk.dilithium_pk = &(key_input_data)->pk.dilithium_pk
+
+#define LC_X509_LINK_SK_INPUT_DATA(key_data, key_input_data)                   \
+	(key_data)->sk.dilithium_sk = &(key_input_data)->sk.dilithium_sk
+
 #define LC_X509_LINK_INPUT_DATA(key_data, key_input_data)                      \
-	(key_data)->pk.dilithium_pk = &(key_input_data)->pk.dilithium_pk;      \
-	(key_data)->sk.dilithium_sk = &(key_input_data)->sk.dilithium_sk;
+	LC_X509_LINK_PK_INPUT_DATA(key_data, key_input_data);                  \
+	LC_X509_LINK_SK_INPUT_DATA(key_data, key_input_data)
 
 #ifdef __cplusplus
 }

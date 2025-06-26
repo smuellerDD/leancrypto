@@ -197,7 +197,7 @@ static int lc_ed25519_sign_internal(
 	if (composite_ml_dsa_ctx) {
 		dilithium_ctx = &composite_ml_dsa_ctx->dilithium_ctx;
 
-		if (!dilithium_ctx->composite_ml_dsa)
+		if (!dilithium_ctx->nist_category)
 			dilithium_ctx = NULL;
 	}
 
@@ -223,8 +223,9 @@ static int lc_ed25519_sign_internal(
 	if (dilithium_ctx) {
 		CKINT(composite_signature_domain_separation(
 			hash_ctx, dilithium_ctx->userctx,
-			dilithium_ctx->userctxlen,
-			dilithium_ctx->composite_ml_dsa));
+			dilithium_ctx->userctxlen, dilithium_ctx->randomizer,
+			dilithium_ctx->randomizerlen,
+			dilithium_ctx->nist_category));
 	}
 
 	lc_hash_update(hash_ctx, msg, mlen);
@@ -244,8 +245,9 @@ static int lc_ed25519_sign_internal(
 	if (dilithium_ctx) {
 		CKINT(composite_signature_domain_separation(
 			hash_ctx, dilithium_ctx->userctx,
-			dilithium_ctx->userctxlen,
-			dilithium_ctx->composite_ml_dsa));
+			dilithium_ctx->userctxlen, dilithium_ctx->randomizer,
+			dilithium_ctx->randomizerlen,
+			dilithium_ctx->nist_category));
 	}
 
 	lc_hash_update(hash_ctx, msg, mlen);
@@ -363,7 +365,7 @@ static int lc_ed25519_verify_internal(
 	if (composite_ml_dsa_ctx) {
 		dilithium_ctx = &composite_ml_dsa_ctx->dilithium_ctx;
 
-		if (!dilithium_ctx->composite_ml_dsa)
+		if (!dilithium_ctx->nist_category)
 			dilithium_ctx = NULL;
 	}
 
@@ -404,8 +406,9 @@ static int lc_ed25519_verify_internal(
 	if (dilithium_ctx) {
 		CKINT(composite_signature_domain_separation(
 			hash_ctx, dilithium_ctx->userctx,
-			dilithium_ctx->userctxlen,
-			dilithium_ctx->composite_ml_dsa));
+			dilithium_ctx->userctxlen, dilithium_ctx->randomizer,
+			dilithium_ctx->randomizerlen,
+			dilithium_ctx->nist_category));
 	}
 
 	lc_hash_update(hash_ctx, msg, mlen);

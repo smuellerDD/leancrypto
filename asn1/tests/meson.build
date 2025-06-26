@@ -423,6 +423,18 @@ if get_option('x509_generator').enabled()
 				'--x509-cert', certdir + 'ml-dsa87-ed448_cacert.der' ],
 			suite: regression)
 	endif
+
+	if get_option('dilithium_ed25519').enabled()
+		composite_sig_domsep = executable('composite_sig_domsep',
+			 [ 'composite_sig_domsep.c' ],
+			 include_directories: [ include_internal_dirs ],
+			 dependencies: leancrypto,
+			 link_with: leancrypto_static_lib
+			 )
+
+		test('X.509 Composite Domain Separation',
+			composite_sig_domsep, suite: regression)
+	endif
 endif
 
 if get_option('pkcs7_parser').enabled()

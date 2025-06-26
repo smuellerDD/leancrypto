@@ -190,7 +190,7 @@ out:
 int x509_slhdsa_private_key_enc(void *context, uint8_t *data,
 				size_t *avail_datalen, uint8_t *tag)
 {
-	struct x509_generate_privkey_context *ctx = context;
+	const struct x509_generate_privkey_context *ctx = context;
 	const struct lc_x509_key_data *keys = ctx->keys;
 	size_t pqc_pklen;
 	uint8_t *pqc_ptr;

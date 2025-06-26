@@ -60,22 +60,32 @@ static const uint8_t shake256_oid_der[] __maybe_unused = {
 };
 
 /* OIDs from https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-03.html */
+const uint8_t lc_x509_composite_sig_prefix[] = {
+	0x43, 0x6F, 0x6D, 0x70, 0x6F, 0x73, 0x69, 0x74, 0x65, 0x41, 0x6C,
+	0x67, 0x6F, 0x72, 0x69, 0x74, 0x68, 0x6D, 0x53, 0x69, 0x67, 0x6E,
+	0x61, 0x74, 0x75, 0x72, 0x65, 0x73, 0x32, 0x30, 0x32, 0x35
+};
+
+static const uint8_t lc_x509_test_dom_sep[] = { 0x06, 0x0b, 0x60, 0x86, 0x48,
+						0x01, 0x86, 0xfa, 0x6b, 0x50,
+						0x09, 0x01, 0x08 };
+
 /* id-HashMLDSA44-Ed25519-SHA512 */
-static const uint8_t mldsa44_ed25519_sha512_oid_der[] __maybe_unused = {
+static const uint8_t lc_x509_mldsa44_ed25519_sha512_dom_sep[] = {
 	0x06, 0x0B, 0x60, 0x86, 0x48, 0x01, 0x86,
-	0xFA, 0x6B, 0x50, 0x08, 0x01, 0x17
+	0xFA, 0x6B, 0x50, 0x09, 0x01, 0x02
 };
 
 /* id-HashMLDSA65-Ed25519-SHA512 */
-static const uint8_t mldsa65_ed25519_sha512_oid_der[] __maybe_unused = {
+static const uint8_t lc_x509_mldsa65_ed25519_sha512_dom_sep[] = {
 	0x06, 0x0B, 0x60, 0x86, 0x48, 0x01, 0x86,
-	0xFA, 0x6B, 0x50, 0x08, 0x01, 0x1E
+	0xFA, 0x6B, 0x50, 0x09, 0x01, 0x0B
 };
 
-/* id-HashMLDSA87-Ed448-SHA512 */
-static const uint8_t mldsa87_ed448_sha512_oid_der[] __maybe_unused = {
+/* id-HashMLDSA87-Ed448-SHAKE256 */
+static const uint8_t lc_x509_mldsa87_ed448_sha512_dom_sep[] = {
 	0x06, 0x0B, 0x60, 0x86, 0x48, 0x01, 0x86,
-	0xFA, 0x6B, 0x50, 0x08, 0x01, 0x21
+	0xFA, 0x6B, 0x50, 0x09, 0x01, 0x0E
 };
 
 int signature_ph_oids(struct lc_hash_ctx *hash_ctx,
@@ -198,18 +208,22 @@ static int composite_signature_set_domain(struct lc_hash_ctx *hash_ctx,
 {
 	/* Set Domain */
 	switch (nist_category) {
+	case 0:
+		lc_hash_update(hash_ctx, lc_x509_test_dom_sep,
+			       sizeof(lc_x509_test_dom_sep));
+		break;
 	case 1:
-		lc_hash_update(hash_ctx, mldsa44_ed25519_sha512_oid_der,
-			       sizeof(mldsa44_ed25519_sha512_oid_der));
+		lc_hash_update(hash_ctx, lc_x509_mldsa44_ed25519_sha512_dom_sep,
+			       sizeof(lc_x509_mldsa44_ed25519_sha512_dom_sep));
 		break;
 	case 3:
-		lc_hash_update(hash_ctx, mldsa65_ed25519_sha512_oid_der,
-			       sizeof(mldsa65_ed25519_sha512_oid_der));
+		lc_hash_update(hash_ctx, lc_x509_mldsa65_ed25519_sha512_dom_sep,
+			       sizeof(lc_x509_mldsa65_ed25519_sha512_dom_sep));
 		break;
 	case 5:
 		/* See above for the rationale */
-		lc_hash_update(hash_ctx, mldsa87_ed448_sha512_oid_der,
-			       sizeof(mldsa87_ed448_sha512_oid_der));
+		lc_hash_update(hash_ctx, lc_x509_mldsa87_ed448_sha512_dom_sep,
+			       sizeof(lc_x509_mldsa87_ed448_sha512_dom_sep));
 		break;
 	default:
 		return -EOPNOTSUPP;
@@ -221,26 +235,25 @@ static int composite_signature_set_domain(struct lc_hash_ctx *hash_ctx,
 int composite_signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 					  const uint8_t *userctx,
 					  size_t userctxlen,
+					  const uint8_t *randomizer,
+					  size_t randomizerlen,
 					  unsigned int nist_category)
 {
-	int ret;
-
-	if (userctxlen > 255)
-		return -EINVAL;
+	uint8_t userctxlen_small = (uint8_t)userctxlen;
 
 	/*
-	 * Create M'
+	 * M' = Prefix || Domain || len(ctx) || ctx || r
+	 *
+	 * See for details: https://lamps-wg.github.io/draft-composite-sigs/draft-ietf-lamps-pq-composite-sigs.html
 	 */
-	CKINT(composite_signature_set_domain(hash_ctx, nist_category));
-
-	/* Set len(ctx) */
-	lc_hash_update(hash_ctx, (uint8_t *)&userctxlen, 1);
-
-	/* Set ctx */
+	lc_hash_update(hash_ctx, lc_x509_composite_sig_prefix,
+		       sizeof(lc_x509_composite_sig_prefix));
+	composite_signature_set_domain(hash_ctx, nist_category);
+	lc_hash_update(hash_ctx, &userctxlen_small, sizeof(userctxlen_small));
 	lc_hash_update(hash_ctx, userctx, userctxlen);
+	lc_hash_update(hash_ctx, randomizer, randomizerlen);
 
-out:
-	return ret;
+	return 0;
 }
 
 int signature_domain_separation(struct lc_hash_ctx *hash_ctx,
@@ -248,10 +261,9 @@ int signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 				const struct lc_hash *signature_prehash_type,
 				const uint8_t *userctx, size_t userctxlen,
 				const uint8_t *m, size_t mlen,
-				unsigned int nist_category,
-				unsigned int composte_signature)
+				const uint8_t *randomizer, size_t randomizerlen,
+				unsigned int nist_category)
 {
-	uint8_t domainseparation[2];
 	int ret = 0;
 
 	/* The internal operation skips the domain separation code */
@@ -261,33 +273,24 @@ int signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 	if (userctxlen > 255)
 		return -EINVAL;
 
-	domainseparation[0] = signature_prehash_type ? 1 : 0;
-
 	/* If Composite ML-DSA is requested, use domain as userctx */
-	if (composte_signature) {
-		/* All domains have the same length */
-		domainseparation[1] =
-			(uint8_t)sizeof(mldsa44_ed25519_sha512_oid_der);
-
-		lc_hash_update(hash_ctx, domainseparation,
-			       sizeof(domainseparation));
-		CKINT(composite_signature_set_domain(hash_ctx, nist_category));
+	if (randomizer) {
+		CKINT(composite_signature_domain_separation(
+			hash_ctx, userctx, userctxlen, randomizer,
+			randomizerlen, nist_category));
 
 	} else {
+		uint8_t domainseparation[2];
+
+		domainseparation[0] = signature_prehash_type ? 1 : 0;
 		domainseparation[1] = (uint8_t)userctxlen;
 
 		lc_hash_update(hash_ctx, domainseparation,
 			       sizeof(domainseparation));
 		lc_hash_update(hash_ctx, userctx, userctxlen);
-	}
 
-	CKINT(signature_ph_oids(hash_ctx, signature_prehash_type, mlen,
-				nist_category));
-
-	/* If Composite ML-DSA is requested, apply domain separation */
-	if (composte_signature) {
-		ret = composite_signature_domain_separation(
-			hash_ctx, userctx, userctxlen, nist_category);
+		CKINT(signature_ph_oids(hash_ctx, signature_prehash_type, mlen,
+					nist_category));
 	}
 
 out:

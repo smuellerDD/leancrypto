@@ -1264,6 +1264,8 @@ LC_INTERFACE_FUNCTION(int, lc_x509_signature_verify, const uint8_t *sig_data,
 		sig.raw_data_len = mlen;
 	}
 
+	sig.pkey_algo = cert->pub.pkey_algo;
+
 	CKINT(public_key_verify_signature(pub, &sig));
 
 out:

@@ -25,30 +25,46 @@
 #include "ret_checkers.h"
 #include "small_stack_support.h"
 #include "x509_algorithm_mapper.h"
+#include "x509_mldsa_ed448_privkey.asn1.h"
 
-static int public_key_set_prehash_dilithium_ed448(
-	const struct lc_public_key_signature *sig,
-	struct lc_dilithium_ed448_ctx *ctx)
+/*
+ * Size of the hash of the message: see
+ * https://lamps-wg.github.io/draft-composite-sigs/draft-ietf-lamps-pq-composite-sigs.html
+ */
+#define LC_X509_COMP_ED448_MSG_SIZE 64
+
+int x509_mldsa_ed448_private_key_enc(void *context, uint8_t *data,
+				     size_t *avail_datalen, uint8_t *tag)
 {
-	const struct lc_hash *hash_algo;
-	int ret = 0;
+	const struct x509_generate_privkey_context *ctx = context;
+	const struct lc_x509_key_data *keys = ctx->keys;
+	size_t ml_dsa_sklen, ed448_sklen;
+	uint8_t *ml_dsa_ptr, *ed448_ptr;
+	int ret;
+
+	(void)tag;
+
+	CKINT(lc_dilithium_ed448_sk_ptr(&ml_dsa_ptr, &ml_dsa_sklen, &ed448_ptr,
+					&ed448_sklen,
+					keys->sk.dilithium_ed448_sk));
+
+	/* Pointers are not used */
+	(void)ml_dsa_ptr;
+	(void)ml_dsa_sklen;
 
 	/*
-	 * https://datatracker.ietf.org/doc/html/draft-ietf-lamps-cms-sphincs-plus#name-signed-data-conventions
-	 * suggests to always use the pure signature schema. Therefore, do not
-	 * apply the HashML-DSA step here unless explicitly requested.
+	 * See draft version 5:
+	 * Composite-ML-DSA.SerializePrivateKey(mldsaSeed, tradSK) -> bytes
+	 *
+	 * First the ML-DSA seed, then the traditional SK.
 	 */
-	if (!sig->request_prehash)
-		return 0;
+	CKINT(x509_set_bit_string(&data, avail_datalen, keys->sk_seed,
+				  LC_X509_PQC_SK_SEED_SIZE));
+	CKINT(x509_concatenate_bit_string(&data, avail_datalen, ed448_ptr,
+					  ed448_sklen));
 
-	if (sig->hash_algo)
-		hash_algo = sig->hash_algo;
-	else
-		CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
-
-	CKNULL(hash_algo, -EOPNOTSUPP);
-
-	lc_dilithium_ed448_ctx_hash(ctx, hash_algo);
+	printf_debug("Set composite secret key of size %zu\n",
+		     LC_X509_PQC_SK_SEED_SIZE + ed448_sklen);
 
 out:
 	return ret;
@@ -57,54 +73,96 @@ out:
 int private_key_encode_dilithium_ed448(uint8_t *data, size_t *avail_datalen,
 				       struct x509_generate_privkey_context *ctx)
 {
-	const struct lc_x509_key_data *keys = ctx->keys;
-	size_t ml_dsa_sklen, ed448_sklen;
-	uint8_t *ml_dsa_ptr, *ed448_ptr;
 	int ret;
 
-	CKINT(lc_dilithium_ed448_sk_ptr(&ml_dsa_ptr, &ml_dsa_sklen, &ed448_ptr,
-					&ed448_sklen,
-					keys->sk.dilithium_ed448_sk));
-
-	/*
-	 * Concatenate the signature data into the buffer according to
-	 * draft version 5.
-	 */
-	CKINT(x509_concatenate_bit_string(&data, avail_datalen, ml_dsa_ptr,
-					  ml_dsa_sklen));
-	CKINT(x509_concatenate_bit_string(&data, avail_datalen, ed448_ptr,
-					  ed448_sklen));
-
-	printf_debug("Set composite secret key of size %zu\n",
-		     ml_dsa_sklen + ed448_sklen);
+	CKINT(asn1_ber_encoder(&x509_mldsa_ed448_privkey_encoder, ctx, data,
+			       avail_datalen));
 
 out:
 	return ret;
 }
 
-int private_key_decode_dilithium_ed448(struct lc_x509_key_data *keys,
-				       const uint8_t *data, size_t datalen)
+int x509_mldsa_ed448_private_key(void *context, size_t hdrlen,
+				 unsigned char tag, const uint8_t *value,
+				 size_t vlen)
 {
+	struct lc_x509_key_data *keys = context;
+	struct lc_dilithium_pk pk;
+	struct lc_dilithium_sk sk;
 	struct lc_dilithium_ed448_sk *dilithium_sk =
 		keys->sk.dilithium_ed448_sk;
-	const uint8_t *dilithium_src_key, *ed448_src_key;
-	size_t dilithium_src_key_len, ed448_src_key_len;
+	const uint8_t *data, *ed448_src_key;
+	uint8_t *dilithium_src_key;
+	size_t datalen, dilithium_src_key_len, ed448_src_key_len;
+	enum lc_dilithium_type dilithium_type;
 	int ret;
 
-	if (datalen < LC_ED448_SECRETKEYBYTES)
+	(void)hdrlen;
+	(void)tag;
+
+	/*
+	 * Account for the BIT STRING
+	 */
+	if (vlen < 1)
+		return -EBADMSG;
+
+	datalen = vlen - 1;
+	data = value + 1;
+
+	if (datalen != LC_ED448_SECRETKEYBYTES + LC_X509_PQC_SK_SEED_SIZE)
 		return -EINVAL;
 
-	/* See draft version 5:
+	/*
+	 * See draft version 5:
 	 * Composite-ML-DSA.DeserializePrivateKey(bytes) -> (mldsaSeed, tradSK)
 	 *
-	 * First the ML-DSA PK, then the traditional PK. As we have ED448,
-	 * the code takes the ED448 PK size and the remainder is the
-	 * ML-DSA PK.
+	 * First the ML-DSA seed, then the traditional SK.
 	 */
-	dilithium_src_key = data;
-	dilithium_src_key_len = datalen - LC_ED448_SECRETKEYBYTES;
 
-	ed448_src_key = dilithium_src_key + dilithium_src_key_len;
+	switch (keys->sig_type) {
+	case LC_SIG_DILITHIUM_44_ED448:
+		dilithium_type = LC_DILITHIUM_44;
+		break;
+	case LC_SIG_DILITHIUM_65_ED448:
+		dilithium_type = LC_DILITHIUM_65;
+		break;
+	case LC_SIG_DILITHIUM_87_ED448:
+		dilithium_type = LC_DILITHIUM_87;
+		break;
+
+	case LC_SIG_DILITHIUM_44:
+	case LC_SIG_DILITHIUM_65:
+	case LC_SIG_DILITHIUM_87:
+	case LC_SIG_DILITHIUM_44_ED25519:
+	case LC_SIG_DILITHIUM_65_ED25519:
+	case LC_SIG_DILITHIUM_87_ED25519:
+	case LC_SIG_SPINCS_SHAKE_256S:
+	case LC_SIG_SPINCS_SHAKE_192S:
+	case LC_SIG_SPINCS_SHAKE_128S:
+	case LC_SIG_SPINCS_SHAKE_256F:
+	case LC_SIG_SPINCS_SHAKE_192F:
+	case LC_SIG_SPINCS_SHAKE_128F:
+	case LC_SIG_RSA_PKCS1:
+	case LC_SIG_ECDSA_X963:
+	case LC_SIG_SM2:
+	case LC_SIG_ECRDSA_PKCS1:
+	case LC_SIG_UNKNOWN:
+		ret = -ENOPKG;
+		goto out;
+	}
+
+	/*
+	 * See draft version 5:
+	 * Composite-ML-DSA.DeserializePrivateKey(bytes) -> (mldsaSeed, tradSK)
+	 *
+	 * First the ML-DSA seed, then the traditional SK.
+	 */
+	CKINT(lc_dilithium_keypair_from_seed(
+		&pk, &sk, data, LC_X509_PQC_SK_SEED_SIZE, dilithium_type));
+	CKINT(lc_dilithium_sk_ptr(&dilithium_src_key, &dilithium_src_key_len,
+				  &sk));
+
+	ed448_src_key = data + LC_X509_PQC_SK_SEED_SIZE;
 	ed448_src_key_len = LC_ED448_SECRETKEYBYTES;
 
 	CKINT(lc_dilithium_ed448_sk_load(dilithium_sk, dilithium_src_key,
@@ -112,6 +170,20 @@ int private_key_decode_dilithium_ed448(struct lc_x509_key_data *keys,
 					 ed448_src_key_len));
 
 	printf_debug("Loaded composite public key of size %zu\n", datalen);
+
+out:
+	lc_memset_secure(&pk, 0, sizeof(pk));
+	lc_memset_secure(&sk, 0, sizeof(sk));
+	return ret;
+}
+
+int private_key_decode_dilithium_ed448(struct lc_x509_key_data *keys,
+				       const uint8_t *data, size_t datalen)
+{
+	int ret;
+
+	CKINT(asn1_ber_decoder(&x509_mldsa_ed448_privkey_decoder, keys, data,
+			       datalen));
 
 out:
 	return ret;
@@ -186,8 +258,10 @@ int public_key_verify_signature_dilithium_ed448(
 	struct workspace {
 		struct lc_dilithium_ed448_pk dilithium_pk;
 		struct lc_dilithium_ed448_sig dilithium_sig;
+		uint8_t ph_message[LC_X509_COMP_ED448_MSG_SIZE];
 	};
-	const uint8_t *dilithium_src, *ed448_src;
+	const struct lc_hash *hash_algo;
+	const uint8_t *dilithium_src, *ed448_src, *randomizer;
 	size_t dilithium_src_len, ed448_src_len;
 	int ret;
 	LC_DILITHIUM_ED448_CTX_ON_STACK(ctx);
@@ -197,7 +271,10 @@ int public_key_verify_signature_dilithium_ed448(
 	if (pkey->key_is_private)
 		return -EKEYREJECTED;
 
-	if (sig->s_size < LC_ED448_SIGBYTES)
+	CKNULL(sig->raw_data, -EOPNOTSUPP);
+
+	if (sig->s_size <
+	    (LC_ED448_SIGBYTES + LC_X509_SIGNATURE_RANDOMIZER_SIZE))
 		return -EINVAL;
 
 	CKINT(public_key_decode_dilithium_ed448(&ws->dilithium_pk, pkey->key,
@@ -205,57 +282,46 @@ int public_key_verify_signature_dilithium_ed448(
 
 	/*
 	 * See draft version 5:
-	 * Composite-ML-DSA.DeserializeSignatureValue(bytes) ->
-	 * (mldsaSig, tradSig)
+	 * Composite-ML-DSA<OID>.DeserializeSignatureValue(bytes)
+	 *	-> (r, mldsaSig, tradSig)
 	 *
 	 * First the ML-DSA PK, then the traditional PK. As we have ED448,
 	 * the code takes the ED448 PK size and the remainder is the
 	 * ML-DSA PK.
 	 */
-	dilithium_src = sig->s;
-	dilithium_src_len = sig->s_size - LC_ED448_SIGBYTES;
+	randomizer = sig->s;
+	dilithium_src = sig->s + LC_X509_SIGNATURE_RANDOMIZER_SIZE;
+	dilithium_src_len = sig->s_size - LC_ED448_SIGBYTES -
+			    LC_X509_SIGNATURE_RANDOMIZER_SIZE;
 	ed448_src = dilithium_src + dilithium_src_len;
 	ed448_src_len = LC_ED448_SIGBYTES;
+
 	CKINT(lc_dilithium_ed448_sig_load(&ws->dilithium_sig, dilithium_src,
 					  dilithium_src_len, ed448_src,
 					  ed448_src_len));
 
 	printf_debug("Loaded composite signature of size %zu\n", sig->s_size);
 
+	CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
+	/* XOF works as digest size of 64 bytes is same as XOF size */
+	lc_xof(hash_algo, sig->raw_data, sig->raw_data_len, ws->ph_message,
+	       sizeof(ws->ph_message));
+
 	/*
-	 * Select the data to be signed
+	 * TODO currently no ctx is supported. This implies that ctx == NULL.
+	 * Yet, the ctx can be added to struct lc_public_key_signature.
 	 */
-	if (sig->digest_size) {
-		CKINT(public_key_set_prehash_dilithium_ed448(sig, ctx));
+	lc_dilithium_ed448_ctx_userctx(ctx, NULL, 0);
+	lc_dilithium_ed448_ctx_randomizer(ctx, randomizer,
+					  LC_X509_SIGNATURE_RANDOMIZER_SIZE);
 
-		if (sig->request_prehash) {
-			/*
-			 * Verify the signature using HashComposite-ML-DSA
-			 */
-			CKINT(lc_dilithium_ed448_verify_init(
-				ctx, &ws->dilithium_pk));
-			CKINT(lc_dilithium_ed448_verify_update(
-				ctx, sig->digest, sig->digest_size));
-			CKINT(lc_dilithium_ed448_verify_final(
-				&ws->dilithium_sig, ctx, &ws->dilithium_pk));
-		} else {
-			/*
-			 * Verify the signature using Composite-ML-DSA
-			 */
-			CKINT(lc_dilithium_ed448_verify_ctx(
-				&ws->dilithium_sig, ctx, sig->digest,
-				sig->digest_size, &ws->dilithium_pk));
-		}
-	} else {
-		CKNULL(sig->raw_data, -EOPNOTSUPP);
-
-		/*
-		 * Verify the signature using Composite-ML-DSA
-		 */
-		CKINT(lc_dilithium_ed448_verify_ctx(
-			&ws->dilithium_sig, ctx, sig->raw_data,
-			sig->raw_data_len, &ws->dilithium_pk));
-	}
+	/*
+	 * Verify the signature using Composite-ML-DSA
+	 */
+	CKINT(lc_dilithium_ed448_verify_ctx(&ws->dilithium_sig, ctx,
+					    ws->ph_message,
+					    sizeof(ws->ph_message),
+					    &ws->dilithium_pk));
 
 out:
 	lc_dilithium_ed448_ctx_zero(ctx);
@@ -272,8 +338,11 @@ int public_key_generate_signature_dilithium_ed448(
 #define LC_ASYM_DILITHIUM_ED448_SIGBUF_SIZE 8192
 	struct workspace {
 		uint8_t sigbuf[LC_ASYM_DILITHIUM_ED448_SIGBUF_SIZE];
+		uint8_t randomizer[LC_X509_SIGNATURE_RANDOMIZER_SIZE];
+		uint8_t ph_message[LC_X509_COMP_ED448_MSG_SIZE];
 		struct lc_dilithium_ed448_sig dilithium_ed448_sig;
 	};
+	const struct lc_hash *hash_algo;
 	struct lc_dilithium_ed448_sk *dilithium_ed448_sk =
 		keys->sk.dilithium_ed448_sk;
 	size_t ml_dsa_siglen, ed448_siglen;
@@ -282,42 +351,30 @@ int public_key_generate_signature_dilithium_ed448(
 	LC_DILITHIUM_ED448_CTX_ON_STACK(ctx);
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
+	CKNULL(sig->raw_data, -EOPNOTSUPP);
+
+	/* Generate the randomizer value */
+	CKINT(lc_rng_generate(lc_seeded_rng, (uint8_t *)"X509.Comp.Sig.448", 17,
+			      ws->randomizer, sizeof(ws->randomizer)));
+
+	CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
+	/* XOF works as digest size of 64 bytes is same as XOF size */
+	lc_xof(hash_algo, sig->raw_data, sig->raw_data_len, ws->ph_message,
+	       sizeof(ws->ph_message));
+
 	/*
-	 * Select the data to be signed
+	 * TODO currently no ctx is supported. This implies that ctx == NULL.
+	 * Yet, the ctx can be added to struct lc_public_key_signature.
 	 */
-	if (sig->digest_size) {
-		CKINT(public_key_set_prehash_dilithium_ed448(sig, ctx));
+	lc_dilithium_ed448_ctx_userctx(ctx, NULL, 0);
+	lc_dilithium_ed448_ctx_randomizer(ctx, ws->randomizer,
+					  sizeof(ws->randomizer));
 
-		if (sig->request_prehash) {
-			/*
-			 * Sign the hash using HashComposite-ML-DSA
-			 */
-			CKINT(lc_dilithium_ed448_sign_init(ctx,
-							   dilithium_ed448_sk));
-			CKINT(lc_dilithium_ed448_sign_update(ctx, sig->digest,
-							     sig->digest_size));
-			CKINT(lc_dilithium_ed448_sign_final(
-				&ws->dilithium_ed448_sig, ctx,
-				dilithium_ed448_sk, lc_seeded_rng));
-		} else {
-			/*
-			 * Sign the signature using Composite-ML-DSA
-			 */
-			CKINT(lc_dilithium_ed448_sign_ctx(
-				&ws->dilithium_ed448_sig, ctx, sig->digest,
-				sig->digest_size, dilithium_ed448_sk,
-				lc_seeded_rng));
-		}
-	} else {
-		CKNULL(sig->raw_data, -EOPNOTSUPP);
-
-		/*
-		 * Sign the signature using Composite-ML-DSA
-		 */
-		CKINT(lc_dilithium_ed448_sign_ctx(
-			&ws->dilithium_ed448_sig, ctx, sig->raw_data,
-			sig->raw_data_len, dilithium_ed448_sk, lc_seeded_rng));
-	}
+	/* Sign the signature using Composite-ML-DSA */
+	CKINT(lc_dilithium_ed448_sign_ctx(&ws->dilithium_ed448_sig, ctx,
+					  ws->ph_message,
+					  sizeof(ws->ph_message),
+					  dilithium_ed448_sk, lc_seeded_rng));
 
 	CKINT(lc_dilithium_ed448_sig_ptr(&ml_dsa_ptr, &ml_dsa_siglen,
 					 &ed448_ptr, &ed448_siglen,
@@ -327,13 +384,16 @@ int public_key_generate_signature_dilithium_ed448(
 	 * Concatenate the signature data into the buffer according to
 	 * draft version 5.
 	 */
+	CKINT(x509_concatenate_bit_string(&sig_data, available_len,
+					  ws->randomizer,
+					  sizeof(ws->randomizer)));
 	CKINT(x509_concatenate_bit_string(&sig_data, available_len, ml_dsa_ptr,
 					  ml_dsa_siglen));
 	CKINT(x509_concatenate_bit_string(&sig_data, available_len, ed448_ptr,
 					  ed448_siglen));
 
 	printf_debug("Set composite signature of size %zu\n",
-		     ml_dsa_siglen + ed448_siglen);
+		     sizeof(ws->randomizer) + ml_dsa_siglen + ed448_siglen);
 
 out:
 	lc_dilithium_ed448_ctx_zero(ctx);
@@ -344,8 +404,9 @@ out:
 int public_key_signature_size_dilithium_ed448(
 	enum lc_dilithium_type dilithium_type, size_t *size)
 {
-	/* sig sizes of both components */
-	*size = lc_dilithium_sig_size(dilithium_type) + LC_ED448_SIGBYTES;
+	/* sig sizes of all components */
+	*size = lc_dilithium_sig_size(dilithium_type) + LC_ED448_SIGBYTES +
+		LC_X509_SIGNATURE_RANDOMIZER_SIZE;
 	return 0;
 }
 

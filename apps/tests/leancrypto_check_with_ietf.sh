@@ -143,7 +143,7 @@ bc_test() {
 	local files="$slh_dsa_files $ml_dsa_files"
 	#local files="$slh_dsa_files $composite_ml_dsa_files $ml_dsa_files"
 
-	extract_files "bc/artifacts_certs_r4.zip"
+	extract_files "bc/artifacts_certs_r5.zip"
 	for i in $files
 	do
 		check_one "$TMPDIR/$i"
@@ -151,13 +151,13 @@ bc_test() {
 }
 
 redhound_test() {
-	local subdir="artifacts_certs_v4"
+	local subdir="artifacts_certs_r5"
 	local slh_dsa_files="$subdir/slh-dsa-shake-128f-2.16.840.1.101.3.4.3.27_ta.der $subdir/slh-dsa-shake-128s-2.16.840.1.101.3.4.3.26_ta.der $subdir/slh-dsa-shake-192f-2.16.840.1.101.3.4.3.29_ta.der $subdir/slh-dsa-shake-192s-2.16.840.1.101.3.4.3.28_ta.der $subdir/slh-dsa-shake-256f-2.16.840.1.101.3.4.3.31_ta.der $subdir/slh-dsa-shake-256s-2.16.840.1.101.3.4.3.30_ta.der"
 	local ml_dsa_files="$subdir/ml-dsa-44-2.16.840.1.101.3.4.3.17_ta.der $subdir/ml-dsa-65-2.16.840.1.101.3.4.3.18_ta.der $subdir/ml-dsa-87-2.16.840.1.101.3.4.3.19_ta.der"
 
 	local files="$slh_dsa_files $ml_dsa_files"
 
-	extract_files "carl-redhound/artifacts_certs_r4.zip"
+	extract_files "carl-redhound/artifacts_certs_r5.zip"
 	for i in $files
 	do
 		check_one "$TMPDIR/$i"
@@ -165,7 +165,7 @@ redhound_test() {
 }
 
 cht_test() {
-	local subdir="artifacts_certs_r4"
+	local subdir="./"
 	local slh_dsa_files="$subdir/SLH-DSA-SHAKE-128f-2.16.840.1.101.3.4.3.27_ta.der $subdir/SLH-DSA-SHAKE-128s-2.16.840.1.101.3.4.3.26_ta.der $subdir/SLH-DSA-SHAKE-192f-2.16.840.1.101.3.4.3.29_ta.der $subdir/SLH-DSA-SHAKE-192s-2.16.840.1.101.3.4.3.28_ta.der $subdir/SLH-DSA-SHAKE-256f-2.16.840.1.101.3.4.3.31_ta.der $subdir/SLH-DSA-SHAKE-256s-2.16.840.1.101.3.4.3.30_ta.der"
 	local composite_ml_dsa_files="$subdir/id-MLDSA44-Ed25519-2.16.840.1.114027.80.8.1.23_ta.der $subdir/id-MLDSA65-Ed25519-2.16.840.1.114027.80.8.1.30_ta.der"
 	local ml_dsa_files="$subdir/ML-DSA-44-2.16.840.1.101.3.4.3.17_ta.der $subdir/ML-DSA-65-2.16.840.1.101.3.4.3.18_ta.der $subdir/ML-DSA-87-2.16.840.1.101.3.4.3.19_ta.der"
@@ -173,7 +173,7 @@ cht_test() {
 	local files="$slh_dsa_files $ml_dsa_files"
 	#local files="$slh_dsa_files $composite_ml_dsa_files $ml_dsa_files"
 
-	extract_files "cht/artifacts_certs_r4.zip"
+	extract_files "cht/artifacts_certs_r5.zip"
 	for i in $files
 	do
 		check_one "$TMPDIR/$i"
@@ -185,17 +185,16 @@ corey_digicert_test() {
 
 	local files="$ml_dsa_files"
 
-	extract_files "corey-digicert/artifacts_certs_r4.zip"
+	extract_files "corey-digicert/artifacts_certs_r5.zip"
 	for i in $files
 	do
 		check_one "$TMPDIR/$i"
 	done
 }
 
-cryptonext_test() {
-	local subdir="artifacts_certs_r4"
-	local slh_dsa_files="$subdir/SLH-DSA-SHAKE-128f-2.16.840.1.101.3.4.3.27_ta.der $subdir/SLH-DSA-SHAKE-128s-2.16.840.1.101.3.4.3.26_ta.der $subdir/SLH-DSA-SHAKE-192f-2.16.840.1.101.3.4.3.29_ta.der $subdir/SLH-DSA-SHAKE-192s-2.16.840.1.101.3.4.3.28_ta.der $subdir/SLH-DSA-SHAKE-256f-2.16.840.1.101.3.4.3.31_ta.der $subdir/SLH-DSA-SHAKE-256s-2.16.840.1.101.3.4.3.30_ta.der"
-	local ml_dsa_files="$subdir/ML-DSA-44-2.16.840.1.101.3.4.3.17_ta.der $subdir/ML-DSA-65-2.16.840.1.101.3.4.3.18_ta.der $subdir/ML-DSA-87-2.16.840.1.101.3.4.3.19_ta.der"
+crypto4a_test() {
+	local subdir="artifacts_certs_r5"
+	local ml_dsa_files="$subdir/ml_dsa_44-2.16.840.1.101.3.4.3.17_ta.der $subdir/ml_dsa_65-2.16.840.1.101.3.4.3.18_ta.der $subdir/ml_dsa_87-2.16.840.1.101.3.4.3.19_ta.der"
 
 	local files="$slh_dsa_files $ml_dsa_files"
 
@@ -206,14 +205,14 @@ cryptonext_test() {
 	done
 }
 
-cryptonext_cnsprovider_test() {
-	local subdir="artifacts_certs_r4"
+cryptonext_test() {
+	local subdir="artifacts_certs_r5"
 	local slh_dsa_files="$subdir/SLH-DSA-SHAKE-128f-2.16.840.1.101.3.4.3.27_ta.der $subdir/SLH-DSA-SHAKE-128s-2.16.840.1.101.3.4.3.26_ta.der $subdir/SLH-DSA-SHAKE-192f-2.16.840.1.101.3.4.3.29_ta.der $subdir/SLH-DSA-SHAKE-192s-2.16.840.1.101.3.4.3.28_ta.der $subdir/SLH-DSA-SHAKE-256f-2.16.840.1.101.3.4.3.31_ta.der $subdir/SLH-DSA-SHAKE-256s-2.16.840.1.101.3.4.3.30_ta.der"
 	local ml_dsa_files="$subdir/ML-DSA-44-2.16.840.1.101.3.4.3.17_ta.der $subdir/ML-DSA-65-2.16.840.1.101.3.4.3.18_ta.der $subdir/ML-DSA-87-2.16.840.1.101.3.4.3.19_ta.der"
 
 	local files="$slh_dsa_files $ml_dsa_files"
 
-	extract_files "cryptonext-cnsprovider/artifacts_certs_r4.zip"
+	extract_files "cryptonext/artifacts_certs_r5.zip"
 	for i in $files
 	do
 		check_one "$TMPDIR/$i"
@@ -221,12 +220,12 @@ cryptonext_cnsprovider_test() {
 }
 
 entrust_test() {
-	local subdir="artifacts_certs_r4"
+	local subdir="artifacts"
 	local ml_dsa_files="$subdir/ML-DSA-44-2.16.840.1.101.3.4.3.17_ta.der $subdir/ML-DSA-44-2.16.840.1.101.3.4.3.18_ta.der $subdir/ML-DSA-44-2.16.840.1.101.3.4.3.19_ta.der"
 
 	local files="$ml_dsa_files"
 
-	extract_files "entrust/artifacts_certs_r4.zip"
+	extract_files "entrust/artifacts_certs_r5.zip"
 	for i in $files
 	do
 		check_one "$TMPDIR/$i"
@@ -240,6 +239,19 @@ kris_test() {
 	local files="$ml_dsa_files"
 
 	extract_files "kris/artifacts_certs_r4.zip"
+	for i in $files
+	do
+		check_one "$TMPDIR/$i"
+	done
+}
+
+openssl_test() {
+	local subdir="./"
+	local ml_dsa_files="$subdir/ml-dsa-44-2.16.840.1.101.3.4.3.17_ta.der $subdir/ml-dsa-65-2.16.840.1.101.3.4.3.18_ta.der $subdir/ml-dsa-87-2.16.840.1.101.3.4.3.19_ta.der"
+
+	local files="$ml_dsa_files"
+
+	extract_files "openssl/artifacts_certs_r5.zip"
 	for i in $files
 	do
 		check_one "$TMPDIR/$i"
@@ -262,15 +274,41 @@ seventhsense_test() {
 }
 
 leancrypto_test() {
-	local subdir="artifacts_certs_r4"
+	local subdir="artifacts_certs_r5"
 	local slh_dsa_files="$subdir/SLH-DSA-SHAKE-128F-2.16.840.1.101.3.4.3.27_ta.der $subdir/SLH-DSA-SHAKE-128S-2.16.840.1.101.3.4.3.26_ta.der $subdir/SLH-DSA-SHAKE-192F-2.16.840.1.101.3.4.3.29_ta.der $subdir/SLH-DSA-SHAKE-192S-2.16.840.1.101.3.4.3.28_ta.der $subdir/SLH-DSA-SHAKE-256F-2.16.840.1.101.3.4.3.31_ta.der $subdir/SLH-DSA-SHAKE-256S-2.16.840.1.101.3.4.3.30_ta.der"
-	local composite_ml_dsa_files="$subdir/ML-DSA44-ED25519-SHA512-2.16.840.1.114027.80.8.1.23_ta.der $subdir/ML-DSA65-ED25519-SHA512-2.16.840.1.114027.80.8.1.30_ta.der"
+	local composite_ml_dsa_files="$subdir/ML-DSA44-ED25519-SHA512-2.16.840.1.114027.80.9.1.2_ta.der $subdir/ML-DSA65-ED25519-SHA512-2.16.840.1.114027.80.9.1.11_ta.der $subdir/ML-DSA87-ED448-SHAKE256-2.16.840.1.114027.80.9.1.14_ta.der"
 	local ml_dsa_files="$subdir/ML-DSA44-2.16.840.1.101.3.4.3.17_ta.der $subdir/ML-DSA65-2.16.840.1.101.3.4.3.18_ta.der $subdir/ML-DSA87-2.16.840.1.101.3.4.3.19_ta.der"
 
-	local files="$slh_dsa_files $ml_dsa_files"
-	#local files="$slh_dsa_files $composite_ml_dsa_files $ml_dsa_files"
+	local files="$slh_dsa_files $composite_ml_dsa_files $ml_dsa_files"
 
-	extract_files "leancrypto/artifacts_certs_r4.zip"
+	extract_files "leancrypto/artifacts_certs_r5.zip"
+	for i in $files
+	do
+		check_one "$TMPDIR/$i"
+	done
+}
+
+python_ref_test() {
+	local composite_ml_dsa_files="id-MLDSA44-Ed25519-SHA512-2.16.840.1.114027.80.9.1.2_ta.der id-MLDSA65-Ed25519-SHA512-2.16.840.1.114027.80.9.1.11_ta.der id-MLDSA87-Ed448-SHAKE256-2.16.840.1.114027.80.9.1.14_ta.der"
+	local ml_dsa_files="id-ML-DSA-44-2.16.840.1.101.3.4.3.17_ta.der id-ML-DSA-65-2.16.840.1.101.3.4.3.18_ta.der id-ML-DSA-87-2.16.840.1.101.3.4.3.19_ta.der"
+
+	local files="$composite_ml_dsa_files $ml_dsa_files"
+
+	extract_files "python_reference/artifacts_certs_r5.zip"
+	for i in $files
+	do
+		check_one "$TMPDIR/$i"
+	done
+}
+
+composite_ref_imp_test() {
+	local composite_ml_dsa_files="id-MLDSA44-Ed25519-SHA512-2.16.840.1.114027.80.9.1.2_ta.der id-MLDSA65-Ed25519-SHA512-2.16.840.1.114027.80.9.1.11_ta.der id-MLDSA87-Ed448-SHAKE256-2.16.840.1.114027.80.9.1.14_ta.der"
+	local ml_dsa_files="id-ML-DSA-44-2.16.840.1.101.3.4.3.17_ta.der"
+
+	#local files="$composite_ml_dsa_files $ml_dsa_files"
+	local files="$ml_dsa_files"
+
+	extract_files "composite-ref-impl/artifacts_certs_r5.zip"
 	for i in $files
 	do
 		check_one "$TMPDIR/$i"
@@ -282,10 +320,12 @@ redhound_test
 cht_test
 corey_digicert_test
 cryptonext_test
-cryptonext_cnsprovider_test
 entrust_test
 kris_test
+openssl_test
 seventhsense_test
 leancrypto_test
+composite_ref_imp_test
+python_ref_test
 
 report_result

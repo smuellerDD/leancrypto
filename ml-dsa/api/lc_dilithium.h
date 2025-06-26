@@ -854,6 +854,19 @@ void lc_dilithium_ed25519_ctx_userctx(struct lc_dilithium_ed25519_ctx *ctx,
 
 /**
  * @ingroup HybridDilithium
+ * @brief Specify the optional randomizer to be applied with the
+ *	  Dilithium-ED25519 signature operation.
+ *
+ * @param [in] ctx Dilithium-ED25519 context
+ * @param [in] randomizer Randomizer
+ * @param [in] randomizerlen Size of randomizer
+ */
+void lc_dilithium_ed25519_ctx_randomizer(struct lc_dilithium_ed25519_ctx *ctx,
+					 const uint8_t *randomizer,
+					 size_t randomizerlen);
+
+/**
+ * @ingroup HybridDilithium
  * @brief Obtain Dilithium type from secret key
  *
  * @param [in] sk Secret key from which the type is to be obtained
@@ -1405,6 +1418,19 @@ void lc_dilithium_ed448_ctx_internal(struct lc_dilithium_ed448_ctx *ctx);
  */
 void lc_dilithium_ed448_ctx_userctx(struct lc_dilithium_ed448_ctx *ctx,
 				    const uint8_t *userctx, size_t userctxlen);
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Specify the optional randomizer to be applied with the
+ *	  Dilithium-ED25519 signature operation.
+ *
+ * @param [in] ctx Dilithium-ED25519 context
+ * @param [in] randomizer Randomizer
+ * @param [in] randomizerlen Size of randomizer
+ */
+void lc_dilithium_ed448_ctx_randomizer(struct lc_dilithium_ed448_ctx *ctx,
+				       const uint8_t *randomizer,
+				       size_t randomizerlen);
 
 /**
  * @ingroup HybridDilithium

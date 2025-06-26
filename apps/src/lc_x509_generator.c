@@ -509,7 +509,7 @@ static int x509_load_sk(struct x509_generator_opts *opts)
 			   &opts->signer_sk_len),
 		  "Signer SK mmap failure\n");
 
-	LC_X509_LINK_INPUT_DATA(signer_key_data, signer_key_input_data);
+	LC_X509_LINK_SK_INPUT_DATA(signer_key_data, signer_key_input_data);
 
 	/* Get the signature type based on the signer key */
 	CKINT(lc_x509_cert_get_pubkey(&opts->signer_cert, NULL, NULL,
@@ -528,7 +528,11 @@ static int x509_enc_set_signer(struct x509_generator_opts *opts)
 {
 	struct lc_x509_certificate *gcert = &opts->cert;
 	struct lc_x509_key_data *signer_key_data = &opts->signer_key_data;
+	struct lc_x509_key_input_data *signer_key_input_data =
+		&opts->signer_key_input_data;
 	int ret;
+
+	CKNULL(opts->x509_signer_file, -EINVAL);
 
 	CKINT_LOG(get_data(opts->x509_signer_file, &opts->signer_data,
 			   &opts->signer_data_len),
@@ -542,9 +546,16 @@ static int x509_enc_set_signer(struct x509_generator_opts *opts)
 	if (ret != LC_X509_POL_TRUE)
 		printf("WARNING: X.509 signer is no CA!\n");
 
-	CKINT(x509_load_sk(opts));
-	CKINT(lc_x509_cert_set_signer(gcert, signer_key_data,
-				      &opts->signer_cert));
+	LC_X509_LINK_PK_INPUT_DATA(signer_key_data, signer_key_input_data);
+
+	if (opts->signer_sk_file) {
+		CKINT_LOG(x509_load_sk(opts),
+			  "Loading of private key failed\n");
+	}
+
+	CKINT_LOG(lc_x509_cert_set_signer(gcert, signer_key_data,
+					  &opts->signer_cert),
+		  "Setting the signer of the certificate failed\n");
 
 out:
 	return ret;
@@ -610,17 +621,21 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 		CKINT_LOG(get_data(opts->pk_file, &opts->pk_data,
 				   &opts->pk_len),
 			  "PK mmap failure\n");
-		CKINT(lc_x509_pk_decode(keys, opts->in_key_type, opts->pk_data,
-					opts->pk_len));
+		CKINT_LOG(lc_x509_pk_decode(keys, opts->in_key_type,
+					    opts->pk_data, opts->pk_len),
+			  "Decoding of public key failed\n");
 		if (self_signed) {
 			CKINT_LOG(get_data(opts->sk_file, &opts->sk_data,
 					   &opts->sk_len),
 				  "SK mmap failure\n");
-			CKINT(lc_x509_sk_decode(keys, opts->in_key_type,
-						opts->sk_data, opts->sk_len));
+			CKINT_LOG(lc_x509_sk_decode(keys, opts->in_key_type,
+						    opts->sk_data,
+						    opts->sk_len),
+				  "Decoding of private key failed\n");
 		}
 
-		CKINT(lc_x509_keypair_load(gcert, keys));
+		CKINT_LOG(lc_x509_keypair_load(gcert, keys),
+			  "Loading of keypair failed\n");
 	}
 
 out:
@@ -814,7 +829,7 @@ static void x509_generator_usage(void)
 	fprintf(stderr, "\t   --check-skid <HEX>\t\tmatch subject key ID\n");
 	fprintf(stderr, "\t   --check-akid <HEX>\t\tmatch authority key ID\n");
 
-	fprintf(stderr, "\t   --data-file <FILE>\tFile with data to sign\n");
+	fprintf(stderr, "\t   --data-file <FILE>\t\tFile with data to sign\n");
 
 	fprintf(stderr, "\n\t-h  --help\t\t\tPrint this help text\n");
 }
@@ -929,7 +944,8 @@ int main(int argc, char *argv[])
 
 			/* outfile */
 			case 2:
-				CKINT(x509_check_file(optarg));
+				CKINT_LOG(x509_check_file(optarg),
+					  "Output file check failure\n");
 				ws->parsed_opts.outfile = optarg;
 				break;
 			/* sk-file */
@@ -942,14 +958,19 @@ int main(int argc, char *argv[])
 				break;
 			/* key-type */
 			case 5:
-				CKINT(lc_x509_pkey_name_to_algorithm(
-					optarg, &ws->parsed_opts.in_key_type));
+				CKINT_LOG(lc_x509_pkey_name_to_algorithm(
+						  optarg,
+						  &ws->parsed_opts.in_key_type),
+					  "Key type paring failure\n");
 				break;
 			/* create-keypair */
 			case 6:
-				CKINT(lc_x509_pkey_name_to_algorithm(
-					optarg,
-					&ws->parsed_opts.create_keypair_algo));
+				CKINT_LOG(
+					lc_x509_pkey_name_to_algorithm(
+						optarg,
+						&ws->parsed_opts
+							 .create_keypair_algo),
+					"Key type for key creation parsing failure\n");
 				break;
 			/* x509-signer */
 			case 7:
@@ -962,12 +983,15 @@ int main(int argc, char *argv[])
 
 			/* eku */
 			case 9:
-				CKINT(x509_enc_eku(&ws->parsed_opts, optarg));
+				CKINT_LOG(x509_enc_eku(&ws->parsed_opts,
+						       optarg),
+					  "EKU parsing error\n");
 				break;
 			/* keyusage */
 			case 10:
-				CKINT(x509_enc_keyusage(&ws->parsed_opts,
-							optarg));
+				CKINT_LOG(x509_enc_keyusage(&ws->parsed_opts,
+							    optarg),
+					  "Key usage parsing error\n");
 				break;
 			/* ca */
 			case 11:
@@ -1020,23 +1044,27 @@ int main(int argc, char *argv[])
 
 			/* subject-cn */
 			case 19:
-				CKINT(x509_enc_subject_cn(&ws->parsed_opts,
-							  optarg));
+				CKINT_LOG(x509_enc_subject_cn(&ws->parsed_opts,
+							      optarg),
+					  "Subject CN parsing error\n");
 				break;
 			/* subject-email */
 			case 20:
-				CKINT(x509_enc_subject_email(&ws->parsed_opts,
-							     optarg));
+				CKINT_LOG(x509_enc_subject_email(
+						  &ws->parsed_opts, optarg),
+					  "Subject email parsing error\n");
 				break;
 			/* subject-ou */
 			case 21:
-				CKINT(x509_enc_subject_ou(&ws->parsed_opts,
-							  optarg));
+				CKINT_LOG(x509_enc_subject_ou(&ws->parsed_opts,
+							      optarg),
+					  "Subject OU parsing error\n");
 				break;
 			/* subject-o */
 			case 22:
-				CKINT(x509_enc_subject_o(&ws->parsed_opts,
-							 optarg));
+				CKINT_LOG(x509_enc_subject_o(&ws->parsed_opts,
+							     optarg),
+					  "Subject O parsing error\n");
 				break;
 			/* subject-st */
 			case 23:
@@ -1195,7 +1223,8 @@ int main(int argc, char *argv[])
 			break;
 
 		case 'o':
-			CKINT(x509_check_file(optarg));
+			CKINT_LOG(x509_check_file(optarg),
+				  "Output file check failure\n");
 			ws->parsed_opts.outfile = optarg;
 			break;
 		case 'h':
@@ -1213,6 +1242,9 @@ int main(int argc, char *argv[])
 	}
 
 	if (ws->parsed_opts.print_x509_cert) {
+		if (ws->parsed_opts.x509_signer_file)
+			CKINT(x509_enc_set_signer(&ws->parsed_opts));
+
 		CKINT(x509_dump_file(&ws->parsed_opts));
 		goto out;
 	}

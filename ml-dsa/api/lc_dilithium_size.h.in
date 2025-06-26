@@ -232,11 +232,21 @@ struct lc_dilithium_ctx {
 	size_t external_mu_len;
 
 	/**
-	 * @brief Is the Composite-ML-DSA operation wanted? If yes, set the
-	 * NIST category here
-	 * https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-03.html
+	 * @brief Pointer to the randomizer
+	 *
+	 * This is used for the Composite signature: For the discussion of the
+	 * randomizer, see https://lamps-wg.github.io/draft-composite-sigs/draft-ietf-lamps-pq-composite-sigs.html
 	 */
-	unsigned char composite_ml_dsa;
+	const uint8_t *randomizer;
+	size_t randomizerlen;
+
+	/**
+	 * @brief NIST category required for composite signatures
+	 *
+	 * The domain separation logic depends on the selection of the right
+	 * OID for the "Domain" data.
+	 */
+	unsigned int nist_category;
 
 	/**
 	 * @brief When set to true, only the ML-DSA.Sign_internal or
@@ -292,11 +302,13 @@ struct lc_dilithium_ctx {
 	(name)->ml_dsa_internal = 0;                                           \
 	(name)->userctxlen = 0;                                                \
 	(name)->userctx = NULL;                                                \
-	(name)->composite_ml_dsa = 0;                                          \
 	(name)->ahat = NULL;                                                   \
 	(name)->ahat_size = 0;                                                 \
 	(name)->external_mu = NULL;                                            \
-	(name)->external_mu_len = 0;
+	(name)->external_mu_len = 0;                                           \
+	(name)->randomizer = NULL;                                             \
+	(name)->randomizerlen = 0;                                             \
+	(name)->nist_category;
 #endif
 /// \endcond
 

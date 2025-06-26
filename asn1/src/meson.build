@@ -84,6 +84,7 @@ if x509_common_support == 1
 	if get_option('dilithium_ed25519').enabled()
 		src_fips += files([
 			'asym_key_dilithium_ed25519.c',
+			'x509_mldsa_ed25519_privkey.asn1.c'
 			])
 		asymmetric_algo += 1
 	else
@@ -93,6 +94,7 @@ if x509_common_support == 1
 	if get_option('dilithium_ed448').enabled()
 		src_fips += files([
 			'asym_key_dilithium_ed448.c',
+			'x509_mldsa_ed448_privkey.asn1.c'
 			])
 		asymmetric_algo += 1
 	else

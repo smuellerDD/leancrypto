@@ -1388,6 +1388,8 @@ LC_INTERFACE_FUNCTION(int, lc_x509_signature_gen, uint8_t *sig_data,
 		sig.raw_data_len = mlen;
 	}
 
+	sig.pkey_algo = keys->sig_type;
+
 	CKINT(public_key_generate_signature(keys, &sig, sig_data,
 					    &available_siglen));
 

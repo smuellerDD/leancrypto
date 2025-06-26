@@ -661,27 +661,34 @@ int asym_keypair_gen(struct lc_x509_certificate *cert,
 		     struct lc_x509_key_data *keys,
 		     enum lc_sig_types create_keypair_algo)
 {
+	struct lc_dilithium_pk pk;
+	struct lc_dilithium_sk sk;
+	struct lc_ed25519_pk pk_ed25519;
+	struct lc_ed25519_sk sk_ed25519;
+	struct lc_ed448_pk pk_ed448;
+	struct lc_ed448_sk sk_ed448;
+	uint8_t *dilithium_pk_ptr, *dilithium_sk_ptr;
+	size_t dilithium_pk_len, dilithium_sk_len;
+	enum lc_dilithium_type dilithium_key_type;
+	enum lc_sphincs_type sphincs_key_type;
 	int ret;
 
 	switch (create_keypair_algo) {
 #ifdef LC_DILITHIUM
 	case LC_SIG_DILITHIUM_44:
-		CKINT(lc_dilithium_keypair(keys->pk.dilithium_pk,
-					   keys->sk.dilithium_sk, lc_seeded_rng,
-					   LC_DILITHIUM_44));
+		dilithium_key_type = LC_DILITHIUM_44;
 		goto load_dilithium;
 		break;
 	case LC_SIG_DILITHIUM_65:
-		CKINT(lc_dilithium_keypair(keys->pk.dilithium_pk,
-					   keys->sk.dilithium_sk, lc_seeded_rng,
-					   LC_DILITHIUM_65));
+		dilithium_key_type = LC_DILITHIUM_65;
 		goto load_dilithium;
 		break;
 	case LC_SIG_DILITHIUM_87:
+		dilithium_key_type = LC_DILITHIUM_87;
+	load_dilithium:
 		CKINT(lc_dilithium_keypair(keys->pk.dilithium_pk,
 					   keys->sk.dilithium_sk, lc_seeded_rng,
-					   LC_DILITHIUM_87));
-	load_dilithium:
+					   dilithium_key_type));
 		CKINT(asym_set_dilithium_keypair(&cert->sig_gen_data,
 						 keys->pk.dilithium_pk,
 						 keys->sk.dilithium_sk));
@@ -696,40 +703,31 @@ int asym_keypair_gen(struct lc_x509_certificate *cert,
 #endif
 #ifdef LC_SPHINCS
 	case LC_SIG_SPINCS_SHAKE_128F:
-		CKINT(lc_sphincs_keypair(keys->pk.sphincs_pk,
-					 keys->sk.sphincs_sk, lc_seeded_rng,
-					 LC_SPHINCS_SHAKE_128f));
+		sphincs_key_type = LC_SPHINCS_SHAKE_128f;
 		goto load_sphincs;
 		break;
 	case LC_SIG_SPINCS_SHAKE_128S:
-		CKINT(lc_sphincs_keypair(keys->pk.sphincs_pk,
-					 keys->sk.sphincs_sk, lc_seeded_rng,
-					 LC_SPHINCS_SHAKE_128s));
+		sphincs_key_type = LC_SPHINCS_SHAKE_128s;
 		goto load_sphincs;
 		break;
 	case LC_SIG_SPINCS_SHAKE_192F:
-		CKINT(lc_sphincs_keypair(keys->pk.sphincs_pk,
-					 keys->sk.sphincs_sk, lc_seeded_rng,
-					 LC_SPHINCS_SHAKE_192f));
+		sphincs_key_type = LC_SPHINCS_SHAKE_192f;
 		goto load_sphincs;
 		break;
 	case LC_SIG_SPINCS_SHAKE_192S:
-		CKINT(lc_sphincs_keypair(keys->pk.sphincs_pk,
-					 keys->sk.sphincs_sk, lc_seeded_rng,
-					 LC_SPHINCS_SHAKE_192s));
+		sphincs_key_type = LC_SPHINCS_SHAKE_192s;
 		goto load_sphincs;
 		break;
 	case LC_SIG_SPINCS_SHAKE_256F:
-		CKINT(lc_sphincs_keypair(keys->pk.sphincs_pk,
-					 keys->sk.sphincs_sk, lc_seeded_rng,
-					 LC_SPHINCS_SHAKE_256f));
+		sphincs_key_type = LC_SPHINCS_SHAKE_256f;
 		goto load_sphincs;
 		break;
 	case LC_SIG_SPINCS_SHAKE_256S:
+		sphincs_key_type = LC_SPHINCS_SHAKE_256s;
+	load_sphincs:
 		CKINT(lc_sphincs_keypair(keys->pk.sphincs_pk,
 					 keys->sk.sphincs_sk, lc_seeded_rng,
-					 LC_SPHINCS_SHAKE_256s));
-	load_sphincs:
+					 sphincs_key_type));
 		CKINT(asym_set_sphincs_keypair(&cert->sig_gen_data,
 					       keys->pk.sphincs_pk,
 					       keys->sk.sphincs_sk));
@@ -748,25 +746,40 @@ int asym_keypair_gen(struct lc_x509_certificate *cert,
 
 #ifdef LC_DILITHIUM_ED25519
 	case LC_SIG_DILITHIUM_44_ED25519:
-		CKINT(lc_dilithium_ed25519_keypair(
-			keys->pk.dilithium_ed25519_pk,
-			keys->sk.dilithium_ed25519_sk, lc_seeded_rng,
-			LC_DILITHIUM_44));
+		dilithium_key_type = LC_DILITHIUM_44;
 		goto load_dilithium_ed25519;
 		break;
 	case LC_SIG_DILITHIUM_65_ED25519:
-		CKINT(lc_dilithium_ed25519_keypair(
-			keys->pk.dilithium_ed25519_pk,
-			keys->sk.dilithium_ed25519_sk, lc_seeded_rng,
-			LC_DILITHIUM_65));
+		dilithium_key_type = LC_DILITHIUM_65;
 		goto load_dilithium_ed25519;
 		break;
 	case LC_SIG_DILITHIUM_87_ED25519:
-		CKINT(lc_dilithium_ed25519_keypair(
-			keys->pk.dilithium_ed25519_pk,
-			keys->sk.dilithium_ed25519_sk, lc_seeded_rng,
-			LC_DILITHIUM_87));
+		dilithium_key_type = LC_DILITHIUM_87;
 	load_dilithium_ed25519:
+		/* Generate key par with ML-DSA from seed */
+		CKINT(lc_rng_generate(lc_seeded_rng, NULL, 0, keys->sk_seed,
+				      LC_X509_PQC_SK_SEED_SIZE));
+
+		CKINT(lc_dilithium_keypair_from_seed(&pk, &sk, keys->sk_seed,
+						     LC_X509_PQC_SK_SEED_SIZE,
+						     dilithium_key_type));
+		CKINT(lc_dilithium_pk_ptr(&dilithium_pk_ptr, &dilithium_pk_len,
+					  &pk));
+		CKINT(lc_dilithium_sk_ptr(&dilithium_sk_ptr, &dilithium_sk_len,
+					  &sk));
+
+		CKINT(lc_ed25519_keypair(&pk_ed25519, &sk_ed25519,
+					 lc_seeded_rng));
+
+		CKINT(lc_dilithium_ed25519_sk_load(
+			keys->sk.dilithium_ed25519_sk, dilithium_sk_ptr,
+			dilithium_sk_len, sk_ed25519.sk,
+			LC_ED25519_SECRETKEYBYTES));
+		CKINT(lc_dilithium_ed25519_pk_load(
+			keys->pk.dilithium_ed25519_pk, dilithium_pk_ptr,
+			dilithium_pk_len, pk_ed25519.pk,
+			LC_ED25519_PUBLICKEYBYTES));
+
 		CKINT(asym_set_dilithium_ed25519_keypair(
 			&cert->sig_gen_data, keys->pk.dilithium_ed25519_pk,
 			keys->sk.dilithium_ed25519_sk));
@@ -783,25 +796,39 @@ int asym_keypair_gen(struct lc_x509_certificate *cert,
 
 #ifdef LC_DILITHIUM_ED448
 	case LC_SIG_DILITHIUM_44_ED448:
-		CKINT(lc_dilithium_ed448_keypair(keys->pk.dilithium_ed448_pk,
-						 keys->sk.dilithium_ed448_sk,
-						 lc_seeded_rng,
-						 LC_DILITHIUM_44));
+		dilithium_key_type = LC_DILITHIUM_44;
 		goto load_dilithium_ed448;
 		break;
 	case LC_SIG_DILITHIUM_65_ED448:
-		CKINT(lc_dilithium_ed448_keypair(keys->pk.dilithium_ed448_pk,
-						 keys->sk.dilithium_ed448_sk,
-						 lc_seeded_rng,
-						 LC_DILITHIUM_65));
+		dilithium_key_type = LC_DILITHIUM_65;
 		goto load_dilithium_ed448;
 		break;
 	case LC_SIG_DILITHIUM_87_ED448:
-		CKINT(lc_dilithium_ed448_keypair(keys->pk.dilithium_ed448_pk,
-						 keys->sk.dilithium_ed448_sk,
-						 lc_seeded_rng,
-						 LC_DILITHIUM_87));
+		dilithium_key_type = LC_DILITHIUM_87;
 	load_dilithium_ed448:
+		/* Generate key par with ML-DSA from seed */
+		CKINT(lc_rng_generate(lc_seeded_rng, NULL, 0, keys->sk_seed,
+				      LC_X509_PQC_SK_SEED_SIZE));
+
+		CKINT(lc_dilithium_keypair_from_seed(&pk, &sk, keys->sk_seed,
+						     LC_X509_PQC_SK_SEED_SIZE,
+						     dilithium_key_type));
+		CKINT(lc_dilithium_pk_ptr(&dilithium_pk_ptr, &dilithium_pk_len,
+					  &pk));
+		CKINT(lc_dilithium_sk_ptr(&dilithium_sk_ptr, &dilithium_sk_len,
+					  &sk));
+
+		CKINT(lc_ed448_keypair(&pk_ed448, &sk_ed448, lc_seeded_rng));
+
+		CKINT(lc_dilithium_ed448_sk_load(keys->sk.dilithium_ed448_sk,
+						 dilithium_sk_ptr,
+						 dilithium_sk_len, sk_ed448.sk,
+						 LC_ED448_SECRETKEYBYTES));
+		CKINT(lc_dilithium_ed448_pk_load(keys->pk.dilithium_ed448_pk,
+						 dilithium_pk_ptr,
+						 dilithium_pk_len, pk_ed448.pk,
+						 LC_ED448_PUBLICKEYBYTES));
+
 		CKINT(asym_set_dilithium_ed448_keypair(
 			&cert->sig_gen_data, keys->pk.dilithium_ed448_pk,
 			keys->sk.dilithium_ed448_sk));
@@ -830,6 +857,12 @@ int asym_keypair_gen(struct lc_x509_certificate *cert,
 	keys->sig_type = create_keypair_algo;
 
 out:
+	lc_memset_secure(&pk, 0, sizeof(pk));
+	lc_memset_secure(&sk, 0, sizeof(sk));
+	lc_memset_secure(&pk_ed25519, 0, sizeof(pk_ed25519));
+	lc_memset_secure(&sk_ed25519, 0, sizeof(sk_ed25519));
+	lc_memset_secure(&pk_ed448, 0, sizeof(pk_ed448));
+	lc_memset_secure(&sk_ed448, 0, sizeof(sk_ed448));
 	return ret;
 }
 

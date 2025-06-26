@@ -624,8 +624,8 @@ static int lc_dilithium_sign_ctx_impl(struct lc_dilithium_sig *sig,
 		CKINT(signature_domain_separation(
 			&ctx->dilithium_hash_ctx, ctx->ml_dsa_internal,
 			ctx->dilithium_prehash_type, ctx->userctx,
-			ctx->userctxlen, m, mlen, LC_DILITHIUM_NIST_CATEGORY,
-			!!ctx->composite_ml_dsa));
+			ctx->userctxlen, m, mlen, ctx->randomizer,
+			ctx->randomizerlen, LC_DILITHIUM_NIST_CATEGORY));
 	}
 
 	ret = lc_dilithium_sign_internal(sig, sk, ctx, rng_ctx);
@@ -678,7 +678,8 @@ static int lc_dilithium_sign_init_impl(struct lc_dilithium_ctx *ctx,
 	return signature_domain_separation(
 		&ctx->dilithium_hash_ctx, ctx->ml_dsa_internal,
 		ctx->dilithium_prehash_type, ctx->userctx, ctx->userctxlen,
-		NULL, 0, LC_DILITHIUM_NIST_CATEGORY, !!ctx->composite_ml_dsa);
+		NULL, 0, ctx->randomizer, ctx->randomizerlen,
+		LC_DILITHIUM_NIST_CATEGORY);
 }
 
 static int lc_dilithium_sign_update_impl(struct lc_dilithium_ctx *ctx,
@@ -945,8 +946,8 @@ static int lc_dilithium_verify_ctx_impl(const struct lc_dilithium_sig *sig,
 		CKINT(signature_domain_separation(
 			&ctx->dilithium_hash_ctx, ctx->ml_dsa_internal,
 			ctx->dilithium_prehash_type, ctx->userctx,
-			ctx->userctxlen, m, mlen, LC_DILITHIUM_NIST_CATEGORY,
-			!!ctx->composite_ml_dsa));
+			ctx->userctxlen, m, mlen, ctx->randomizer,
+			ctx->randomizerlen, LC_DILITHIUM_NIST_CATEGORY));
 	}
 
 	ret = lc_dilithium_verify_internal(sig, pk, ctx);
@@ -998,7 +999,8 @@ static int lc_dilithium_verify_init_impl(struct lc_dilithium_ctx *ctx,
 	return signature_domain_separation(
 		&ctx->dilithium_hash_ctx, ctx->ml_dsa_internal,
 		ctx->dilithium_prehash_type, ctx->userctx, ctx->userctxlen,
-		NULL, 0, LC_DILITHIUM_NIST_CATEGORY, !!ctx->composite_ml_dsa);
+		NULL, 0, ctx->randomizer, ctx->randomizerlen,
+		LC_DILITHIUM_NIST_CATEGORY);
 }
 
 static int lc_dilithium_verify_update_impl(struct lc_dilithium_ctx *ctx,

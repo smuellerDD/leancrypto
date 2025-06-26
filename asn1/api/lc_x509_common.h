@@ -52,6 +52,7 @@ extern "C" {
  */
 #define LC_X509_SKID_DEFAULT_HASH lc_sha3_256
 #define LC_X509_SKID_DEFAULT_HASHSIZE LC_SHA3_256_SIZE_DIGEST
+#define LC_X509_PQC_SK_SEED_SIZE 32
 
 /*
  * Identifiers for an asymmetric key ID.  We have three ways of looking up a
@@ -276,6 +277,7 @@ struct lc_x509_key_data {
 #endif
 		struct lc_sphincs_sk *sphincs_sk;
 	} sk;
+	uint8_t sk_seed[LC_X509_PQC_SK_SEED_SIZE];
 	uint8_t pk_digest[LC_X509_SKID_DEFAULT_HASHSIZE];
 };
 

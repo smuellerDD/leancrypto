@@ -929,6 +929,16 @@ LC_INTERFACE_FUNCTION(void, lc_dilithium_ed25519_ctx_userctx,
 	}
 }
 
+LC_INTERFACE_FUNCTION(void, lc_dilithium_ed25519_ctx_randomizer,
+		      struct lc_dilithium_ed25519_ctx *ctx,
+		      const uint8_t *randomizer, size_t randomizerlen)
+{
+	if (ctx) {
+		ctx->dilithium_ctx.randomizer = randomizer;
+		ctx->dilithium_ctx.randomizerlen = randomizerlen;
+	}
+}
+
 LC_INTERFACE_FUNCTION(enum lc_dilithium_type, lc_dilithium_ed25519_sk_type,
 		      const struct lc_dilithium_ed25519_sk *sk)
 {
@@ -1767,6 +1777,16 @@ LC_INTERFACE_FUNCTION(void, lc_dilithium_ed448_ctx_userctx,
 	if (ctx) {
 		ctx->dilithium_ctx.userctx = userctx;
 		ctx->dilithium_ctx.userctxlen = userctxlen;
+	}
+}
+
+LC_INTERFACE_FUNCTION(void, lc_dilithium_ed448_ctx_randomizer,
+		      struct lc_dilithium_ed448_ctx *ctx,
+		      const uint8_t *randomizer, size_t randomizerlen)
+{
+	if (ctx) {
+		ctx->dilithium_ctx.randomizer = randomizer;
+		ctx->dilithium_ctx.randomizerlen = randomizerlen;
 	}
 }
 

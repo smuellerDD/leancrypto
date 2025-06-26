@@ -176,6 +176,12 @@ int x509_check_for_self_signed(struct lc_x509_certificate *cert)
 			cert->self_signed = 1;
 #endif
 		}
+
+		/* Signature did not verify, no self-signed */
+		if (ret == -EBADMSG) {
+			cert->self_signed = 0;
+			ret = 0;
+		}
 		goto out;
 	}
 

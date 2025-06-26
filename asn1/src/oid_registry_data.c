@@ -247,9 +247,9 @@ static const unsigned char oid_data[919] = {
 	96, 134, 72, 1, 101, 3, 4, 3, 17, 	// id_MLDSA44
 	96, 134, 72, 1, 101, 3, 4, 3, 18, 	// id_MLDSA65
 	96, 134, 72, 1, 101, 3, 4, 3, 19, 	// id_MLDSA87
-	96, 134, 72, 1, 134, 250, 107, 80, 8, 1, 62, 	// id_MLDSA44_Ed25519
-	96, 134, 72, 1, 134, 250, 107, 80, 8, 1, 71, 	// id_MLDSA65_Ed25519
-	96, 134, 72, 1, 134, 250, 107, 80, 8, 1, 74, 	// id_MLDSA87_Ed448
+	96, 134, 72, 1, 134, 250, 107, 80, 9, 1, 2, 	// id_MLDSA44_Ed25519
+	96, 134, 72, 1, 134, 250, 107, 80, 9, 1, 11, 	// id_MLDSA65_Ed25519
+	96, 134, 72, 1, 134, 250, 107, 80, 9, 1, 14, 	// id_MLDSA87_Ed448
 	96, 134, 72, 1, 101, 3, 4, 3, 26, 	// id_SLHDSA_SHAKE_128S
 	96, 134, 72, 1, 101, 3, 4, 3, 27, 	// id_SLHDSA_SHAKE_128F
 	96, 134, 72, 1, 101, 3, 4, 3, 28, 	// id_SLHDSA_SHAKE_192S
@@ -272,7 +272,7 @@ static const struct {
 	[  7] = {  23, OID_issuerAltName                       }, // 551d12
 	[  8] = {  23, OID_initials                            }, // 55042b
 	[  9] = {  26, OID_id_SLHDSA_SHAKE_192F                }, // 60864801650304031d
-	[ 10] = {  28, OID_id_MLDSA87_Ed448                    }, // 6086480186fa6b5008014a
+	[ 10] = {  26, OID_id_MLDSA65_Ed25519                  }, // 6086480186fa6b5009010b
 	[ 11] = {  31, OID_id_kp_timeStamping                  }, // 2b06010505070308
 	[ 12] = {  32, OID_id_dsa_with_sha1                    }, // 2a8648ce2e0403
 	[ 13] = {  35, OID_contentType                         }, // 2a864886f70d010903
@@ -285,42 +285,42 @@ static const struct {
 	[ 20] = {  44, OID_PKU2U                               }, // 2b0501050207
 	[ 21] = {  44, OID_krb5u2u                             }, // 2a864886f71201020203
 	[ 22] = {  49, OID_id_ecdsa_with_sha224                }, // 2a8648ce3d040301
-	[ 23] = {  51, OID_msIndividualSPKeyPurpose            }, // 2b060104018237020115
-	[ 24] = {  52, OID_SM2_with_SM3                        }, // 2a811ccf55018375
-	[ 25] = {  54, OID_basicConstraints                    }, // 551d13
-	[ 26] = {  54, OID_generationalQualifier               }, // 55042c
-	[ 27] = {  59, OID_id_SLHDSA_SHAKE_192S                }, // 60864801650304031c
-	[ 28] = {  60, OID_gostCPSignA                         }, // 2a850302022301
-	[ 29] = {  60, OID_id_kp_OCSPSigning                   }, // 2b06010505070309
-	[ 30] = {  64, OID_TPMLoadableKey                      }, // 6781050a0103
-	[ 31] = {  64, OID_krb5                                }, // 2a864886f712010202
-	[ 32] = {  64, OID_signed_data                         }, // 2a864886f70d010702
-	[ 33] = {  65, OID_id_rsassa_pkcs1_v1_5_with_sha3_512  }, // 608648016503040310
-	[ 34] = {  70, OID_id_kp_clientAuth                    }, // 2b06010505070302
-	[ 35] = {  76, OID_id_prime192v1                       }, // 2a8648ce3d030101
-	[ 36] = {  77, OID_countryName                         }, // 550406
-	[ 37] = {  77, OID_id_ecdsa_with_sha1                  }, // 2a8648ce3d0401
-	[ 38] = {  83, OID_sha256                              }, // 608648016503040201
-	[ 39] = {  84, OID_sm2                                 }, // 2a811ccf5501822d
-	[ 40] = {  85, OID_smimeCapabilites                    }, // 2a864886f70d01090f
-	[ 41] = {  87, OID_sha1                                }, // 2b0e03021a
-	[ 42] = {  88, OID_sha3_384                            }, // 608648016503040209
-	[ 43] = {  92, OID_id_SLHDSA_SHAKE_256F                }, // 60864801650304031f
-	[ 44] = {  93, OID_gostCPSignB                         }, // 2a850302022302
-	[ 45] = {  97, OID_email_address                       }, // 2a864886f70d010901
-	[ 46] = {  98, OID_id_rsassa_pkcs1_v1_5_with_sha3_384  }, // 60864801650304030f
-	[ 47] = { 105, OID_anyExtendedKeyUsage                 }, // 551d2500
-	[ 48] = { 106, OID_extKeyUsage                         }, // 551d25
-	[ 49] = { 106, OID_msPeImageDataObjId                  }, // 2b06010401823702010f
-	[ 50] = { 110, OID_locality                            }, // 550407
-	[ 51] = { 120, OID_negoex                              }, // 2b06010401823702021e
-	[ 52] = { 121, OID_id_kp_codeSigning                   }, // 2b06010505070303
-	[ 53] = { 123, OID_sha3_256                            }, // 608648016503040208
-	[ 54] = { 124, OID_gost2012PKey256                     }, // 2a85030701010101
-	[ 55] = { 125, OID_id_SLHDSA_SHAKE_256S                }, // 60864801650304031e
-	[ 56] = { 126, OID_gostCPSignC                         }, // 2a850302022303
-	[ 57] = { 126, OID_rsaEncryption                       }, // 2a864886f70d010101
-	[ 58] = { 127, OID_id_MLDSA65_Ed25519                  }, // 6086480186fa6b50080147
+	[ 23] = {  50, OID_id_MLDSA44_Ed25519                  }, // 6086480186fa6b50090102
+	[ 24] = {  51, OID_msIndividualSPKeyPurpose            }, // 2b060104018237020115
+	[ 25] = {  52, OID_SM2_with_SM3                        }, // 2a811ccf55018375
+	[ 26] = {  54, OID_basicConstraints                    }, // 551d13
+	[ 27] = {  54, OID_generationalQualifier               }, // 55042c
+	[ 28] = {  59, OID_id_SLHDSA_SHAKE_192S                }, // 60864801650304031c
+	[ 29] = {  60, OID_gostCPSignA                         }, // 2a850302022301
+	[ 30] = {  60, OID_id_kp_OCSPSigning                   }, // 2b06010505070309
+	[ 31] = {  64, OID_TPMLoadableKey                      }, // 6781050a0103
+	[ 32] = {  64, OID_krb5                                }, // 2a864886f712010202
+	[ 33] = {  64, OID_signed_data                         }, // 2a864886f70d010702
+	[ 34] = {  65, OID_id_rsassa_pkcs1_v1_5_with_sha3_512  }, // 608648016503040310
+	[ 35] = {  70, OID_id_kp_clientAuth                    }, // 2b06010505070302
+	[ 36] = {  76, OID_id_prime192v1                       }, // 2a8648ce3d030101
+	[ 37] = {  77, OID_countryName                         }, // 550406
+	[ 38] = {  77, OID_id_ecdsa_with_sha1                  }, // 2a8648ce3d0401
+	[ 39] = {  83, OID_sha256                              }, // 608648016503040201
+	[ 40] = {  84, OID_sm2                                 }, // 2a811ccf5501822d
+	[ 41] = {  85, OID_smimeCapabilites                    }, // 2a864886f70d01090f
+	[ 42] = {  87, OID_sha1                                }, // 2b0e03021a
+	[ 43] = {  88, OID_sha3_384                            }, // 608648016503040209
+	[ 44] = {  92, OID_id_SLHDSA_SHAKE_256F                }, // 60864801650304031f
+	[ 45] = {  93, OID_gostCPSignB                         }, // 2a850302022302
+	[ 46] = {  97, OID_email_address                       }, // 2a864886f70d010901
+	[ 47] = {  98, OID_id_rsassa_pkcs1_v1_5_with_sha3_384  }, // 60864801650304030f
+	[ 48] = { 105, OID_anyExtendedKeyUsage                 }, // 551d2500
+	[ 49] = { 106, OID_extKeyUsage                         }, // 551d25
+	[ 50] = { 106, OID_msPeImageDataObjId                  }, // 2b06010401823702010f
+	[ 51] = { 110, OID_locality                            }, // 550407
+	[ 52] = { 120, OID_negoex                              }, // 2b06010401823702021e
+	[ 53] = { 121, OID_id_kp_codeSigning                   }, // 2b06010505070303
+	[ 54] = { 123, OID_sha3_256                            }, // 608648016503040208
+	[ 55] = { 124, OID_gost2012PKey256                     }, // 2a85030701010101
+	[ 56] = { 125, OID_id_SLHDSA_SHAKE_256S                }, // 60864801650304031e
+	[ 57] = { 126, OID_gostCPSignC                         }, // 2a850302022303
+	[ 58] = { 126, OID_rsaEncryption                       }, // 2a864886f70d010101
 	[ 59] = { 130, OID_TPMSealedData                       }, // 6781050a0105
 	[ 60] = { 132, OID_smimeAuthenticatedAttrs             }, // 2a864886f70d010910020b
 	[ 61] = { 134, OID_Scram                               }, // 2b060105050e
@@ -341,14 +341,14 @@ static const struct {
 	[ 76] = { 160, OID_id_MLDSA44                          }, // 608648016503040311
 	[ 77] = { 161, OID_crlDistributionPoints               }, // 551d1f
 	[ 78] = { 161, OID_TPMImportableKey                    }, // 6781050a0104
-	[ 79] = { 162, OID_id_MLDSA44_Ed25519                  }, // 6086480186fa6b5008013e
-	[ 80] = { 173, OID_msOutlookExpress                    }, // 2b0601040182371004
-	[ 81] = { 178, OID_sha384                              }, // 608648016503040202
-	[ 82] = { 179, OID_keyUsage                            }, // 551d0f
-	[ 83] = { 179, OID_NetlogonMechanism                   }, // 2a85702b0e02
-	[ 84] = { 185, OID_sha3_512                            }, // 60864801650304020a
-	[ 85] = { 190, OID_gost2012Digest256                   }, // 2a85030701010202
-	[ 86] = { 191, OID_gostTC26Sign256A                    }, // 2a8503070102010101
+	[ 79] = { 173, OID_msOutlookExpress                    }, // 2b0601040182371004
+	[ 80] = { 178, OID_sha384                              }, // 608648016503040202
+	[ 81] = { 179, OID_keyUsage                            }, // 551d0f
+	[ 82] = { 179, OID_NetlogonMechanism                   }, // 2a85702b0e02
+	[ 83] = { 185, OID_sha3_512                            }, // 60864801650304020a
+	[ 84] = { 190, OID_gost2012Digest256                   }, // 2a85030701010202
+	[ 85] = { 191, OID_gostTC26Sign256A                    }, // 2a8503070102010101
+	[ 86] = { 191, OID_id_MLDSA87_Ed448                    }, // 6086480186fa6b5009010e
 	[ 87] = { 195, OID_mskrb5                              }, // 2a864882f712010202
 	[ 88] = { 196, OID_id_ecdsa_with_sha3_512              }, // 60864801650304030c
 	[ 89] = { 198, OID_certPolicies                        }, // 551d20

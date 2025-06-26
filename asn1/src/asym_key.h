@@ -49,6 +49,11 @@ extern "C" {
 #define CKINT_SIGCHECK CKINT
 #endif
 
+/*
+ * Composite signature support
+ */
+#define LC_X509_SIGNATURE_RANDOMIZER_SIZE 32
+
 void public_key_clear(struct lc_public_key *key);
 
 void public_key_signature_clear(struct lc_public_key_signature *sig);
