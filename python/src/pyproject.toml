@@ -1,0 +1,20 @@
+# Specify sip v6 as the build system for the package.
+[build-system]
+requires = ["sip >=6, <7"]
+build-backend = "sipbuild.api"
+
+# Specify the PEP 621 metadata for the project.
+[project]
+name = "leancrypto"
+
+# Specify the PEP 566 metadata for the project.
+[tool.sip.metadata]
+name = "leancrypto"
+author = "Stephan Mueller"
+
+# Configure the building of the leancrypto bindings.
+[tool.sip.bindings.leancrypto]
+headers = ["leancrypto.h"]
+#include-dirs = ["/usr/local/include"]
+libraries = ["leancrypto"]
+#library-dirs = ["/usr/local/lib64"]
