@@ -19,6 +19,8 @@ Changes 1.5.0-prerelease
 
 * Ascon AEAD: Bug fix when calculating the tag for plaintext that is not multiples of 128 bits
 
+* Composite X.509 signatures: update implementation to match draft revision 5
+
 Changes 1.4.0
 * ML-DSA: add signature generation rejection test cases and enable them during self tests
 
