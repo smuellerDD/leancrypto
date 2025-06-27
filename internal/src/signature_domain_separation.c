@@ -203,27 +203,27 @@ int signature_ph_oids(struct lc_hash_ctx *hash_ctx,
 	return -EOPNOTSUPP;
 }
 
-static int composite_signature_set_domain(struct lc_hash_ctx *hash_ctx,
+static int composite_signature_set_domain(const uint8_t **domain,
+					  size_t *domainlen,
 					  unsigned int nist_category)
 {
 	/* Set Domain */
 	switch (nist_category) {
 	case 0:
-		lc_hash_update(hash_ctx, lc_x509_test_dom_sep,
-			       sizeof(lc_x509_test_dom_sep));
+		*domain = lc_x509_test_dom_sep;
+		*domainlen = sizeof(lc_x509_test_dom_sep);
 		break;
 	case 1:
-		lc_hash_update(hash_ctx, lc_x509_mldsa44_ed25519_sha512_dom_sep,
-			       sizeof(lc_x509_mldsa44_ed25519_sha512_dom_sep));
+		*domain = lc_x509_mldsa44_ed25519_sha512_dom_sep;
+		*domainlen = sizeof(lc_x509_mldsa44_ed25519_sha512_dom_sep);
 		break;
 	case 3:
-		lc_hash_update(hash_ctx, lc_x509_mldsa65_ed25519_sha512_dom_sep,
-			       sizeof(lc_x509_mldsa65_ed25519_sha512_dom_sep));
+		*domain = lc_x509_mldsa65_ed25519_sha512_dom_sep;
+		*domainlen = sizeof(lc_x509_mldsa65_ed25519_sha512_dom_sep);
 		break;
 	case 5:
-		/* See above for the rationale */
-		lc_hash_update(hash_ctx, lc_x509_mldsa87_ed448_sha512_dom_sep,
-			       sizeof(lc_x509_mldsa87_ed448_sha512_dom_sep));
+		*domain = lc_x509_mldsa87_ed448_sha512_dom_sep;
+		*domainlen = sizeof(lc_x509_mldsa87_ed448_sha512_dom_sep);
 		break;
 	default:
 		return -EOPNOTSUPP;
@@ -239,7 +239,13 @@ int composite_signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 					  size_t randomizerlen,
 					  unsigned int nist_category)
 {
+	const uint8_t *domain;
+	size_t domainlen;
 	uint8_t userctxlen_small = (uint8_t)userctxlen;
+	int ret;
+
+	CKINT(composite_signature_set_domain(&domain, &domainlen,
+					     nist_category));
 
 	/*
 	 * M' = Prefix || Domain || len(ctx) || ctx || r
@@ -248,12 +254,35 @@ int composite_signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 	 */
 	lc_hash_update(hash_ctx, lc_x509_composite_sig_prefix,
 		       sizeof(lc_x509_composite_sig_prefix));
-	composite_signature_set_domain(hash_ctx, nist_category);
+	lc_hash_update(hash_ctx, domain, domainlen);
 	lc_hash_update(hash_ctx, &userctxlen_small, sizeof(userctxlen_small));
 	lc_hash_update(hash_ctx, userctx, userctxlen);
 	lc_hash_update(hash_ctx, randomizer, randomizerlen);
 
-	return 0;
+out:
+	return ret;
+}
+
+static int standalone_signature_domain_separation(
+	struct lc_hash_ctx *hash_ctx,
+	const struct lc_hash *signature_prehash_type, const uint8_t *userctx,
+	size_t userctxlen, size_t mlen, unsigned int nist_category)
+{
+	int ret;
+	uint8_t domainseparation[2];
+
+	domainseparation[0] = signature_prehash_type ? 1 : 0;
+	domainseparation[1] = (uint8_t)userctxlen;
+
+	lc_hash_update(hash_ctx, domainseparation,
+			sizeof(domainseparation));
+	lc_hash_update(hash_ctx, userctx, userctxlen);
+
+	CKINT(signature_ph_oids(hash_ctx, signature_prehash_type, mlen,
+				nist_category));
+
+out:
+	return ret;
 }
 
 int signature_domain_separation(struct lc_hash_ctx *hash_ctx,
@@ -275,22 +304,24 @@ int signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 
 	/* If Composite ML-DSA is requested, use domain as userctx */
 	if (randomizer) {
+		const uint8_t *domain;
+		size_t domainlen;
+
+		CKINT(composite_signature_set_domain(&domain, &domainlen,
+					     nist_category));
+
+		/* Add the composite signature domain as context */
+		CKINT(standalone_signature_domain_separation(
+			hash_ctx, signature_prehash_type, domain, domainlen,
+			mlen, nist_category));
+
 		CKINT(composite_signature_domain_separation(
 			hash_ctx, userctx, userctxlen, randomizer,
 			randomizerlen, nist_category));
-
 	} else {
-		uint8_t domainseparation[2];
-
-		domainseparation[0] = signature_prehash_type ? 1 : 0;
-		domainseparation[1] = (uint8_t)userctxlen;
-
-		lc_hash_update(hash_ctx, domainseparation,
-			       sizeof(domainseparation));
-		lc_hash_update(hash_ctx, userctx, userctxlen);
-
-		CKINT(signature_ph_oids(hash_ctx, signature_prehash_type, mlen,
-					nist_category));
+		CKINT(standalone_signature_domain_separation(
+			hash_ctx, signature_prehash_type, userctx, userctxlen,
+			mlen, nist_category));
 	}
 
 out:
