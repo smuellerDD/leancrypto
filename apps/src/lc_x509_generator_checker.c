@@ -38,7 +38,8 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 	CKINT(lc_x509_policy_cert_valid(x509));
 	if (ret == LC_X509_POL_FALSE) {
 		printf("Invalid certificate detected\n");
-		return -EINVAL;
+		if (!parsed_opts->cert_may_be_invalid)
+			return -EINVAL;
 	}
 
 	if (parsed_opts->check_ca) {

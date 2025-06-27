@@ -49,6 +49,7 @@ struct x509_checker_options {
 	unsigned int check_no_selfsigned : 1;
 	unsigned int unsupported_sig : 1;
 	unsigned int print_cert_details : 1;
+	unsigned int cert_may_be_invalid : 1;
 	unsigned int eku;
 	unsigned int keyusage;
 	const char *issuer_cn;

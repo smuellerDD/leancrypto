@@ -99,7 +99,7 @@ check_one() {
 	fi
 
 	echo "=== File $inputfile ==="
-	$LC_X509_CHECKER --print-x509 $inputfile
+	$LC_X509_CHECKER --check-selfsigned --print-x509 $inputfile
 	if [ $? -ne 0 ]
 	then
 		echo_fail "Parsing of file $inputfile was unsuccessful"

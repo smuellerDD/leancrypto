@@ -179,8 +179,12 @@ static int x509_dump_file(struct x509_generator_opts *opts)
 	CKINT_LOG(lc_x509_cert_decode(&ws->pcert, x509_data, x509_datalen),
 		  "Parsing of input file %s failed\n", opts->print_x509_cert);
 
-	if (opts->checker)
+	if (opts->checker) {
+		/* Be lenient on received certificate */
+		opts->checker_opts.cert_may_be_invalid = 1;
 		CKINT(apply_checks_x509(&ws->pcert, &opts->checker_opts));
+		opts->checker_opts.cert_may_be_invalid = 0;
+	}
 
 	if (opts->print_x509_cert)
 		CKINT(print_x509_cert(&ws->pcert));
