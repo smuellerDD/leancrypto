@@ -441,7 +441,17 @@ int asym_set_dilithium_ed448_keypair(struct lc_x509_key_data *gen_data,
 	}
 
 	if (sk) {
-		dilithium_ed448_type = lc_dilithium_ed448_sk_type(sk);
+		if (dilithium_ed448_type != LC_DILITHIUM_UNKNOWN) {
+			enum lc_dilithium_type tmp =
+				lc_dilithium_ed448_sk_type(sk);
+			if (tmp != dilithium_ed448_type) {
+				printf_debug("Public and private key types mismatch\n");
+				ret = -EINVAL;
+				goto out;
+			}
+		} else {
+			dilithium_ed448_type = lc_dilithium_ed448_sk_type(sk);
+		}
 
 		gen_data->sk.dilithium_ed448_sk = sk;
 	}
