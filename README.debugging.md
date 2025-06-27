@@ -1,3 +1,7 @@
+# Debug Logging
+
+To enable debug logging which prints the file, function and line number of a failure, configure meson as follows: `meson configure build -Ddebug=true`
+
 # Timecop - Finding Side Channels
 
 Side channels is a recurring problem which can inadvertently leak sensitive data where the leak may be visible not just locally, but possibly also remotely. Thus, finding side channels based on sensitive data is important.
