@@ -89,7 +89,7 @@ int x509_mldsa_ed25519_private_key(void *context, size_t hdrlen,
 	const uint8_t *data, *ed25519_src_key;
 	uint8_t *dilithium_src_key;
 	size_t datalen, dilithium_src_key_len, ed25519_src_key_len;
-	enum lc_dilithium_type dilithium_type;
+	enum lc_dilithium_type dilithium_type = LC_DILITHIUM_UNKNOWN;
 	int ret;
 
 	(void)hdrlen;
