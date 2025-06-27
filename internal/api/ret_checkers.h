@@ -28,7 +28,10 @@ extern "C" {
 
 #ifdef LC_DEBUG
 #define CKERROR_LOG                                                            \
-	printf("Error %d at %s:%s:%u", ret, __FILE__, __FUNCTION__, __LINE__);
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+                "GCC diagnostic ignored \"-Wpedantic\"")    \
+	printf("Error %d at %s:%s:%u", ret, __FILE__, __FUNCTION__, __LINE__); \
+	_Pragma("GCC diagnostic pop")
 #else
 #define CKERROR_LOG
 #endif
