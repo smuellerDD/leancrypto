@@ -26,17 +26,27 @@ extern "C" {
 
 //#define ret_t int __attribute__((warn_unused_result))
 
+#ifdef LC_DEBUG
+#define CKERROR_LOG                                                            \
+	printf("Error %d at %s:%s:%u", ret, __FILE__, __FUNCTION__, __LINE__);
+#else
+#define CKERROR_LOG
+#endif
+
 #define CKINT(x)                                                               \
 	{                                                                      \
 		ret = x;                                                       \
-		if (ret < 0)                                                   \
+		if (ret < 0) {                                                 \
+			CKERROR_LOG                                            \
 			goto out;                                              \
+		}                                                              \
 	}
 
 #define CKINT_LOG(x, ...)                                                      \
 	{                                                                      \
 		ret = x;                                                       \
 		if (ret < 0) {                                                 \
+			CKERROR_LOG                                            \
 			printf(__VA_ARGS__);                                   \
 			goto out;                                              \
 		}                                                              \
@@ -46,6 +56,7 @@ extern "C" {
 	{                                                                      \
 		if (!v) {                                                      \
 			ret = r;                                               \
+			CKERROR_LOG                                            \
 			goto out;                                              \
 		}                                                              \
 	}
@@ -55,6 +66,7 @@ extern "C" {
 		if (!v) {                                                      \
 			printf(__VA_ARGS__);                                   \
 			ret = r;                                               \
+			CKERROR_LOG                                            \
 			goto out;                                              \
 		}                                                              \
 	}

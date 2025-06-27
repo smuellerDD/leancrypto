@@ -113,6 +113,9 @@ else
         add_global_arguments([ '-Wframe-larger-than=1048576' ], language: 'c')
 endif
 
+if get_option('debug')
+	add_global_arguments([ '-DLC_DEBUG' ], language: 'c')
+endif
 if get_option('dilithium_debug').enabled()
 	add_global_arguments([ '-DLC_DILITHIUM_DEBUG' ], language: 'c')
 endif
