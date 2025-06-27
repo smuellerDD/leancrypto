@@ -52,6 +52,9 @@ enum lc_kyber_type {
 
 /** @defgroup Kyber ML-KEM / CRYSTALS-Kyber Key Encapsulation Mechanism
  *
+ * \note Although the API uses the term "kyber", the implementation complies
+ * with FIPS 203. Thus, the term Kyber and ML-KEM are used interchangeably.
+ *
  * Kyber API concept
  *
  * The Kyber API is accessible via the following header files with the mentioned

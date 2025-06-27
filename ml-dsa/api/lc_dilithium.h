@@ -64,6 +64,9 @@ enum lc_dilithium_type {
 
 /** @defgroup Dilithium ML-DSA / CRYSTALS-Dilithium Signature Mechanism
  *
+ * \note Although the API uses the term "dilithium", the implementation complies
+ * with FIPS 204. Thus the terms Dilithium and ML-DSA are used interchangeably.
+ *
  * Dilithium API concept
  *
  * The Dilithium API is accessible via the following header files with the

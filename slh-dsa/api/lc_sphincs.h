@@ -82,8 +82,9 @@ enum lc_sphincs_type {
 
 /** @defgroup Sphincs SLH-DSA Signature Mechanism
  *
- * Leancrypto implements SLH-DSA (also known as Sphincs Plus). In the following
- * the term "Sphincs" is used to denote the reference to Sphincs Plus.
+ * \note Although the API uses the term "sphincs", the implementation provides
+ * Sphincs Plus and complies with FIPS 205. Thus the terms Sphincs and SLH-DSA
+ * are used interchangeably.
  *
  * Sphincs API concept
  *
