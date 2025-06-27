@@ -308,7 +308,7 @@ struct lc_dilithium_ctx {
 	(name)->external_mu_len = 0;                                           \
 	(name)->randomizer = NULL;                                             \
 	(name)->randomizerlen = 0;                                             \
-	(name)->nist_category;
+	(name)->nist_category = 0;
 #endif
 /// \endcond
 
