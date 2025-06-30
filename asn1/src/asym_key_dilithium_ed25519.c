@@ -288,7 +288,6 @@ int public_key_verify_signature_dilithium_ed25519(
 					    dilithium_src_len, ed25519_src,
 					    ed25519_src_len));
 
-
 	printf_debug("Loaded composite signature of size %zu\n", sig->s_size);
 
 	CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
@@ -307,10 +306,9 @@ int public_key_verify_signature_dilithium_ed25519(
 	/*
 	 * Verify the signature using Composite-ML-DSA
 	 */
-	CKINT(lc_dilithium_ed25519_verify_ctx(&ws->dilithium_sig, ctx,
-					      ws->ph_message,
-					      sizeof(ws->ph_message),
-					      &ws->dilithium_pk));
+	CKINT(lc_dilithium_ed25519_verify_ctx(
+		&ws->dilithium_sig, ctx, ws->ph_message, sizeof(ws->ph_message),
+		&ws->dilithium_pk));
 
 out:
 	lc_dilithium_ed25519_ctx_zero(ctx);
@@ -432,7 +430,8 @@ int asym_set_dilithium_ed25519_keypair(struct lc_x509_key_data *gen_data,
 			enum lc_dilithium_type tmp =
 				lc_dilithium_ed25519_sk_type(sk);
 			if (tmp != dilithium_ed25519_type) {
-				printf_debug("Public and private key types mismatch\n");
+				printf_debug(
+					"Public and private key types mismatch\n");
 				ret = -EINVAL;
 				goto out;
 			}

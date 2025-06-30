@@ -281,10 +281,10 @@ int asym_set_sphincs_keypair(struct lc_x509_key_data *gen_data,
 
 	if (sk) {
 		if (sphincs_type != LC_SPHINCS_UNKNOWN) {
-			enum lc_sphincs_type tmp =
-				lc_sphincs_sk_type(sk);
+			enum lc_sphincs_type tmp = lc_sphincs_sk_type(sk);
 			if (tmp != sphincs_type) {
-				printf_debug("Public and private key types mismatch\n");
+				printf_debug(
+					"Public and private key types mismatch\n");
 				ret = -EINVAL;
 				goto out;
 			}

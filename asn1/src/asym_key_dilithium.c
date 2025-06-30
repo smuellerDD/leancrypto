@@ -268,10 +268,10 @@ int asym_set_dilithium_keypair(struct lc_x509_key_data *gen_data,
 
 	if (sk) {
 		if (dilithium_type != LC_DILITHIUM_UNKNOWN) {
-			enum lc_dilithium_type tmp =
-				lc_dilithium_sk_type(sk);
+			enum lc_dilithium_type tmp = lc_dilithium_sk_type(sk);
 			if (tmp != dilithium_type) {
-				printf_debug("Public and private key types mismatch\n");
+				printf_debug(
+					"Public and private key types mismatch\n");
 				ret = -EINVAL;
 				goto out;
 			}

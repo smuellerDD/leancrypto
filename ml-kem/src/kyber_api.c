@@ -2487,8 +2487,7 @@ LC_INTERFACE_FUNCTION(unsigned int, lc_kyber_x448_ss_size,
 	}
 }
 
-LC_INTERFACE_FUNCTION(int, lc_kyber_x448_sk_load,
-		      struct lc_kyber_x448_sk *sk,
+LC_INTERFACE_FUNCTION(int, lc_kyber_x448_sk_load, struct lc_kyber_x448_sk *sk,
 		      const uint8_t *kyber_src_key, size_t kyber_src_key_len,
 		      const uint8_t *x448_src_key, size_t x448_src_key_len)
 {
@@ -2528,8 +2527,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_sk_load,
 	}
 }
 
-LC_INTERFACE_FUNCTION(int, lc_kyber_x448_pk_load,
-		      struct lc_kyber_x448_pk *pk,
+LC_INTERFACE_FUNCTION(int, lc_kyber_x448_pk_load, struct lc_kyber_x448_pk *pk,
 		      const uint8_t *kyber_src_key, size_t kyber_src_key_len,
 		      const uint8_t *x448_src_key, size_t x448_src_key_len)
 {
@@ -2569,11 +2567,9 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_pk_load,
 	}
 }
 
-LC_INTERFACE_FUNCTION(int, lc_kyber_x448_ct_load,
-		      struct lc_kyber_x448_ct *ct,
+LC_INTERFACE_FUNCTION(int, lc_kyber_x448_ct_load, struct lc_kyber_x448_ct *ct,
 		      const uint8_t *kyber_src_ct, size_t kyber_src_ct_len,
-		      const uint8_t *x448_rem_pub_key,
-		      size_t x448_rem_pub_len)
+		      const uint8_t *x448_rem_pub_key, size_t x448_rem_pub_len)
 {
 	if (!ct || !kyber_src_ct_len || !x448_rem_pub_len ||
 	    kyber_src_ct_len == 0 ||
@@ -2584,8 +2580,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_ct_load,
 		struct lc_kyber_1024_x448_ct *_ct = &ct->key.ct_1024;
 
 		memcpy(_ct->ct.ct, kyber_src_ct, kyber_src_ct_len);
-		memcpy(_ct->pk_x448.pk, x448_rem_pub_key,
-		       x448_rem_pub_len);
+		memcpy(_ct->pk_x448.pk, x448_rem_pub_key, x448_rem_pub_len);
 		ct->kyber_type = LC_KYBER_1024;
 		return 0;
 #endif
@@ -2594,8 +2589,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_ct_load,
 		struct lc_kyber_768_x448_ct *_ct = &ct->key.ct_768;
 
 		memcpy(_ct->ct.ct, kyber_src_ct, kyber_src_ct_len);
-		memcpy(_ct->pk_x448.pk, x448_rem_pub_key,
-		       x448_rem_pub_len);
+		memcpy(_ct->pk_x448.pk, x448_rem_pub_key, x448_rem_pub_len);
 		ct->kyber_type = LC_KYBER_768;
 		return 0;
 #endif
@@ -2604,8 +2598,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_ct_load,
 		struct lc_kyber_512_x448_ct *_ct = &ct->key.ct_512;
 
 		memcpy(_ct->ct.ct, kyber_src_ct, kyber_src_ct_len);
-		memcpy(_ct->pk_x448.pk, x448_rem_pub_key,
-		       x448_rem_pub_len);
+		memcpy(_ct->pk_x448.pk, x448_rem_pub_key, x448_rem_pub_len);
 		ct->kyber_type = LC_KYBER_512;
 		return 0;
 #endif
@@ -2614,13 +2607,12 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_ct_load,
 	}
 }
 
-LC_INTERFACE_FUNCTION(int, lc_kyber_x448_ss_load,
-		      struct lc_kyber_x448_ss *ss,
+LC_INTERFACE_FUNCTION(int, lc_kyber_x448_ss_load, struct lc_kyber_x448_ss *ss,
 		      const uint8_t *kyber_src_ss, size_t kyber_src_ss_len,
 		      const uint8_t *x448_ss, size_t x448_ss_len)
 {
-	if (!ss || !kyber_src_ss_len || !x448_ss_len ||
-	    kyber_src_ss_len == 0 || x448_ss_len != LC_X448_SSBYTES) {
+	if (!ss || !kyber_src_ss_len || !x448_ss_len || kyber_src_ss_len == 0 ||
+	    x448_ss_len != LC_X448_SSBYTES) {
 		return -EINVAL;
 #ifdef LC_KYBER_1024_ENABLED
 	} else if (kyber_src_ss_len == lc_kyber_ss_size(LC_KYBER_1024)) {
@@ -2658,8 +2650,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_sk_ptr, uint8_t **kyber_key,
 		      size_t *kyber_key_len, uint8_t **x448_key,
 		      size_t *x448_key_len, struct lc_kyber_x448_sk *sk)
 {
-	if (!sk || !kyber_key || !kyber_key_len || !x448_key ||
-	    !x448_key_len) {
+	if (!sk || !kyber_key || !kyber_key_len || !x448_key || !x448_key_len) {
 		return -EINVAL;
 #ifdef LC_KYBER_1024_ENABLED
 	} else if (sk->kyber_type == LC_KYBER_1024) {
@@ -2700,8 +2691,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_pk_ptr, uint8_t **kyber_key,
 		      size_t *kyber_key_len, uint8_t **x448_key,
 		      size_t *x448_key_len, struct lc_kyber_x448_pk *pk)
 {
-	if (!pk || !kyber_key || !kyber_key_len || !x448_key ||
-	    !x448_key_len) {
+	if (!pk || !kyber_key || !kyber_key_len || !x448_key || !x448_key_len) {
 		return -EINVAL;
 #ifdef LC_KYBER_1024_ENABLED
 	} else if (pk->kyber_type == LC_KYBER_1024) {
@@ -2742,8 +2732,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_ct_ptr, uint8_t **kyber_ct,
 		      size_t *kyber_ct_len, uint8_t **x448_key,
 		      size_t *x448_key_len, struct lc_kyber_x448_ct *ct)
 {
-	if (!ct || !kyber_ct || !kyber_ct_len || !x448_key ||
-	    !x448_key_len) {
+	if (!ct || !kyber_ct || !kyber_ct_len || !x448_key || !x448_key_len) {
 		return -EINVAL;
 #ifdef LC_KYBER_1024_ENABLED
 	} else if (ct->kyber_type == LC_KYBER_1024) {
@@ -2821,8 +2810,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_ss_ptr, uint8_t **kyber_ss,
 	}
 }
 
-LC_INTERFACE_FUNCTION(int, lc_kyber_x448_keypair,
-		      struct lc_kyber_x448_pk *pk,
+LC_INTERFACE_FUNCTION(int, lc_kyber_x448_keypair, struct lc_kyber_x448_pk *pk,
 		      struct lc_kyber_x448_sk *sk, struct lc_rng_ctx *rng_ctx,
 		      enum lc_kyber_type kyber_type)
 {
@@ -2835,7 +2823,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_keypair,
 		pk->kyber_type = kyber_type;
 		sk->kyber_type = kyber_type;
 		return lc_kyber_1024_x448_keypair(&pk->key.pk_1024,
-						    &sk->key.sk_1024, rng_ctx);
+						  &sk->key.sk_1024, rng_ctx);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -2844,7 +2832,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_keypair,
 		pk->kyber_type = kyber_type;
 		sk->kyber_type = kyber_type;
 		return lc_kyber_768_x448_keypair(&pk->key.pk_768,
-						   &sk->key.sk_768, rng_ctx);
+						 &sk->key.sk_768, rng_ctx);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -2853,7 +2841,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_keypair,
 		pk->kyber_type = kyber_type;
 		sk->kyber_type = kyber_type;
 		return lc_kyber_512_x448_keypair(&pk->key.pk_512,
-						   &sk->key.sk_512, rng_ctx);
+						 &sk->key.sk_512, rng_ctx);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -2863,8 +2851,8 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_keypair,
 	}
 }
 
-LC_INTERFACE_FUNCTION(int, lc_kyber_x448_enc_kdf,
-		      struct lc_kyber_x448_ct *ct, uint8_t *ss, size_t ss_len,
+LC_INTERFACE_FUNCTION(int, lc_kyber_x448_enc_kdf, struct lc_kyber_x448_ct *ct,
+		      uint8_t *ss, size_t ss_len,
 		      const struct lc_kyber_x448_pk *pk)
 {
 	if (!ct || !pk)
@@ -2874,8 +2862,8 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_enc_kdf,
 	case LC_KYBER_1024:
 #ifdef LC_KYBER_1024_ENABLED
 		ct->kyber_type = LC_KYBER_1024;
-		return lc_kyber_1024_x448_enc_kdf(&ct->key.ct_1024, ss,
-						    ss_len, &pk->key.pk_1024);
+		return lc_kyber_1024_x448_enc_kdf(&ct->key.ct_1024, ss, ss_len,
+						  &pk->key.pk_1024);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -2883,7 +2871,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_enc_kdf,
 #ifdef LC_KYBER_768_ENABLED
 		ct->kyber_type = LC_KYBER_768;
 		return lc_kyber_768_x448_enc_kdf(&ct->key.ct_768, ss, ss_len,
-						   &pk->key.pk_768);
+						 &pk->key.pk_768);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -2891,7 +2879,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_enc_kdf,
 #ifdef LC_KYBER_512_ENABLED
 		ct->kyber_type = LC_KYBER_512;
 		return lc_kyber_512_x448_enc_kdf(&ct->key.ct_512, ss, ss_len,
-						   &pk->key.pk_512);
+						 &pk->key.pk_512);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -2911,22 +2899,22 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_dec_kdf, uint8_t *ss, size_t ss_len,
 	switch (sk->kyber_type) {
 	case LC_KYBER_1024:
 #ifdef LC_KYBER_1024_ENABLED
-		return lc_kyber_1024_x448_dec_kdf(
-			ss, ss_len, &ct->key.ct_1024, &sk->key.sk_1024);
+		return lc_kyber_1024_x448_dec_kdf(ss, ss_len, &ct->key.ct_1024,
+						  &sk->key.sk_1024);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_KYBER_768:
 #ifdef LC_KYBER_768_ENABLED
 		return lc_kyber_768_x448_dec_kdf(ss, ss_len, &ct->key.ct_768,
-						   &sk->key.sk_768);
+						 &sk->key.sk_768);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_KYBER_512:
 #ifdef LC_KYBER_512_ENABLED
 		return lc_kyber_512_x448_dec_kdf(ss, ss_len, &ct->key.ct_512,
-						   &sk->key.sk_512);
+						 &sk->key.sk_512);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -3104,10 +3092,11 @@ LC_INTERFACE_FUNCTION(int, lc_kex_x448_ake_initiator_init,
 		ct_e_i->kyber_type = LC_KYBER_1024;
 		tk->kyber_type = LC_KYBER_1024;
 		sk_e->kyber_type = LC_KYBER_1024;
-		return lc_kex_1024_x448_ake_initiator_init(
-			&pk_e_i->key.pk_1024, &ct_e_i->key.ct_1024,
-			&tk->key.ss_1024, &sk_e->key.sk_1024,
-			&pk_r->key.pk_1024);
+		return lc_kex_1024_x448_ake_initiator_init(&pk_e_i->key.pk_1024,
+							   &ct_e_i->key.ct_1024,
+							   &tk->key.ss_1024,
+							   &sk_e->key.sk_1024,
+							   &pk_r->key.pk_1024);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -3143,9 +3132,9 @@ LC_INTERFACE_FUNCTION(int, lc_kex_x448_ake_initiator_init,
 
 LC_INTERFACE_FUNCTION(int, lc_kex_x448_ake_responder_ss,
 		      struct lc_kyber_x448_ct *ct_e_r_1,
-		      struct lc_kyber_x448_ct *ct_e_r_2,
-		      uint8_t *shared_secret, size_t shared_secret_len,
-		      const uint8_t *kdf_nonce, size_t kdf_nonce_len,
+		      struct lc_kyber_x448_ct *ct_e_r_2, uint8_t *shared_secret,
+		      size_t shared_secret_len, const uint8_t *kdf_nonce,
+		      size_t kdf_nonce_len,
 		      const struct lc_kyber_x448_pk *pk_e_i,
 		      const struct lc_kyber_x448_ct *ct_e_i,
 		      const struct lc_kyber_x448_sk *sk_r,
@@ -3201,9 +3190,9 @@ LC_INTERFACE_FUNCTION(int, lc_kex_x448_ake_responder_ss,
 	}
 }
 
-LC_INTERFACE_FUNCTION(int, lc_kex_x448_ake_initiator_ss,
-		      uint8_t *shared_secret, size_t shared_secret_len,
-		      const uint8_t *kdf_nonce, size_t kdf_nonce_len,
+LC_INTERFACE_FUNCTION(int, lc_kex_x448_ake_initiator_ss, uint8_t *shared_secret,
+		      size_t shared_secret_len, const uint8_t *kdf_nonce,
+		      size_t kdf_nonce_len,
 		      const struct lc_kyber_x448_ct *ct_e_r_1,
 		      const struct lc_kyber_x448_ct *ct_e_r_2,
 		      const struct lc_kyber_x448_ss *tk,
@@ -3273,9 +3262,9 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_ies_enc,
 #ifdef LC_KYBER_1024_ENABLED
 		ct->kyber_type = LC_KYBER_1024;
 		return lc_kyber_1024_x448_ies_enc(&pk->key.pk_1024,
-						    &ct->key.ct_1024, plaintext,
-						    ciphertext, datalen, aad,
-						    aadlen, tag, taglen, aead);
+						  &ct->key.ct_1024, plaintext,
+						  ciphertext, datalen, aad,
+						  aadlen, tag, taglen, aead);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -3283,9 +3272,9 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_ies_enc,
 #ifdef LC_KYBER_768_ENABLED
 		ct->kyber_type = LC_KYBER_768;
 		return lc_kyber_768_x448_ies_enc(&pk->key.pk_768,
-						   &ct->key.ct_768, plaintext,
-						   ciphertext, datalen, aad,
-						   aadlen, tag, taglen, aead);
+						 &ct->key.ct_768, plaintext,
+						 ciphertext, datalen, aad,
+						 aadlen, tag, taglen, aead);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -3293,9 +3282,9 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_ies_enc,
 #ifdef LC_KYBER_512_ENABLED
 		ct->kyber_type = LC_KYBER_512;
 		return lc_kyber_512_x448_ies_enc(&pk->key.pk_512,
-						   &ct->key.ct_512, plaintext,
-						   ciphertext, datalen, aad,
-						   aadlen, tag, taglen, aead);
+						 &ct->key.ct_512, plaintext,
+						 ciphertext, datalen, aad,
+						 aadlen, tag, taglen, aead);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -3305,8 +3294,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_ies_enc,
 	}
 }
 
-LC_INTERFACE_FUNCTION(int, lc_kyber_x448_ies_enc_init,
-		      struct lc_aead_ctx *aead,
+LC_INTERFACE_FUNCTION(int, lc_kyber_x448_ies_enc_init, struct lc_aead_ctx *aead,
 		      const struct lc_kyber_x448_pk *pk,
 		      struct lc_kyber_x448_ct *ct, const uint8_t *aad,
 		      size_t aadlen)
@@ -3372,27 +3360,28 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_ies_dec,
 	switch (sk->kyber_type) {
 	case LC_KYBER_1024:
 #ifdef LC_KYBER_1024_ENABLED
-		return lc_kyber_1024_x448_ies_dec(
-			&sk->key.sk_1024, &ct->key.ct_1024, ciphertext,
-			plaintext, datalen, aad, aadlen, tag, taglen, aead);
+		return lc_kyber_1024_x448_ies_dec(&sk->key.sk_1024,
+						  &ct->key.ct_1024, ciphertext,
+						  plaintext, datalen, aad,
+						  aadlen, tag, taglen, aead);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_KYBER_768:
 #ifdef LC_KYBER_768_ENABLED
 		return lc_kyber_768_x448_ies_dec(&sk->key.sk_768,
-						   &ct->key.ct_768, ciphertext,
-						   plaintext, datalen, aad,
-						   aadlen, tag, taglen, aead);
+						 &ct->key.ct_768, ciphertext,
+						 plaintext, datalen, aad,
+						 aadlen, tag, taglen, aead);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_KYBER_512:
 #ifdef LC_KYBER_512_ENABLED
 		return lc_kyber_512_x448_ies_dec(&sk->key.sk_512,
-						   &ct->key.ct_512, ciphertext,
-						   plaintext, datalen, aad,
-						   aadlen, tag, taglen, aead);
+						 &ct->key.ct_512, ciphertext,
+						 plaintext, datalen, aad,
+						 aadlen, tag, taglen, aead);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -3402,8 +3391,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_ies_dec,
 	}
 }
 
-LC_INTERFACE_FUNCTION(int, lc_kyber_x448_ies_dec_init,
-		      struct lc_aead_ctx *aead,
+LC_INTERFACE_FUNCTION(int, lc_kyber_x448_ies_dec_init, struct lc_aead_ctx *aead,
 		      const struct lc_kyber_x448_sk *sk,
 		      const struct lc_kyber_x448_ct *ct, const uint8_t *aad,
 		      size_t aadlen)

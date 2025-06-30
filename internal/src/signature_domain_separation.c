@@ -274,8 +274,7 @@ static int standalone_signature_domain_separation(
 	domainseparation[0] = signature_prehash_type ? 1 : 0;
 	domainseparation[1] = (uint8_t)userctxlen;
 
-	lc_hash_update(hash_ctx, domainseparation,
-			sizeof(domainseparation));
+	lc_hash_update(hash_ctx, domainseparation, sizeof(domainseparation));
 	lc_hash_update(hash_ctx, userctx, userctxlen);
 
 	CKINT(signature_ph_oids(hash_ctx, signature_prehash_type, mlen,
@@ -308,7 +307,7 @@ int signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 		size_t domainlen;
 
 		CKINT(composite_signature_set_domain(&domain, &domainlen,
-					     nist_category));
+						     nist_category));
 
 		/* Add the composite signature domain as context */
 		CKINT(standalone_signature_domain_separation(

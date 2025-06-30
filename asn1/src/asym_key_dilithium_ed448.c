@@ -318,10 +318,9 @@ int public_key_verify_signature_dilithium_ed448(
 	/*
 	 * Verify the signature using Composite-ML-DSA
 	 */
-	CKINT(lc_dilithium_ed448_verify_ctx(&ws->dilithium_sig, ctx,
-					    ws->ph_message,
-					    sizeof(ws->ph_message),
-					    &ws->dilithium_pk));
+	CKINT(lc_dilithium_ed448_verify_ctx(
+		&ws->dilithium_sig, ctx, ws->ph_message, sizeof(ws->ph_message),
+		&ws->dilithium_pk));
 
 out:
 	lc_dilithium_ed448_ctx_zero(ctx);
@@ -371,10 +370,9 @@ int public_key_generate_signature_dilithium_ed448(
 					  sizeof(ws->randomizer));
 
 	/* Sign the signature using Composite-ML-DSA */
-	CKINT(lc_dilithium_ed448_sign_ctx(&ws->dilithium_ed448_sig, ctx,
-					  ws->ph_message,
-					  sizeof(ws->ph_message),
-					  dilithium_ed448_sk, lc_seeded_rng));
+	CKINT(lc_dilithium_ed448_sign_ctx(
+		&ws->dilithium_ed448_sig, ctx, ws->ph_message,
+		sizeof(ws->ph_message), dilithium_ed448_sk, lc_seeded_rng));
 
 	CKINT(lc_dilithium_ed448_sig_ptr(&ml_dsa_ptr, &ml_dsa_siglen,
 					 &ed448_ptr, &ed448_siglen,
@@ -445,7 +443,8 @@ int asym_set_dilithium_ed448_keypair(struct lc_x509_key_data *gen_data,
 			enum lc_dilithium_type tmp =
 				lc_dilithium_ed448_sk_type(sk);
 			if (tmp != dilithium_ed448_type) {
-				printf_debug("Public and private key types mismatch\n");
+				printf_debug(
+					"Public and private key types mismatch\n");
 				ret = -EINVAL;
 				goto out;
 			}
