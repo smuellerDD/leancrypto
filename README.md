@@ -138,7 +138,7 @@ considerations must be applied:
   the EFI environment as well.
 
 * As the EFI environment does not offer an automatic constructor functionality
-  the leancrypto initalization function of `lc_init` must be called as the very
+  the leancrypto initialization function of `lc_init` must be called as the very
   first API call before calling any other leancrypto service function.
 
 ## Library Build for Windows
@@ -275,9 +275,9 @@ Leancrypto offers various cryptographic algorithms:
   * ML-KEM (Kyber) Integrated Encryption Schema (IES) - algorithm devised with
     leancrypto, see `kyber_ies.c` for full specification
 
-  * ML-KEM (Kyber) hybrid KEM / KEX with Curve25519 and Curve448
+  * ML-KEM (Kyber) composite KEM / KEX with Curve25519 and Curve448
 
-  * BIKE Key Encapsulation Mechanism (KEM) (deprecated as specified by original authors)
+  * BIKE Key Encapsulation Mechanism (KEM)
 
   * HQC Key Encapsulation Mechanism (KEM) (NIST round 4 winner)
 
@@ -291,7 +291,7 @@ Leancrypto offers various cryptographic algorithms:
 
   * ML-DSA (Dilithium)
 
-  * ML-DSA (Dilithium) hybrid signature operation with Curve25519 and Curve448
+  * ML-DSA (Dilithium) composite signature operation with Curve25519 and Curve448
 
   * SLH-DSA (Sphincs Plus) with SHAKE and Ascon
 
@@ -359,8 +359,9 @@ The following compile time options provide support for various features.
 ## Secure Execution
 
 By enabling the compile-time option `secure_execution`, security features
-provided by the underlying OS are enabled. As these options are partially
-very costly, the option is disabled by default. Currently supported options:
+provided by the underlying OS for the process leancrypto executes in are
+enabled. As these options are partially very costly, the option is disabled by
+default. Currently supported options:
 
 * Linux: enabling of the following
 
@@ -384,7 +385,7 @@ library are covered (the test code contains error code paths which are not
 all tested, naturally).
 
 To perform testing of the Linux kernel module of leancrypto, insmod the
-module `leancrypto.ko` followed by insmoding all remaining kernel modules found
+module `leancrypto.ko` followed by insmod'ing all remaining kernel modules found
 in the `linux_kernel` directory and review the kernel log via `dmesg`. After
 completion of testing, these modules can be removed.
 

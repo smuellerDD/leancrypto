@@ -37,7 +37,7 @@ static const uint8_t sha512_oid_der[] __maybe_unused = { 0x06, 0x09, 0x60, 0x86,
 							 0x04, 0x02, 0x03 };
 
 /*
- *https://csrc.nist.gov/projects/computer-security-objects-register/algorithm-registration
+ * https://lamps-wg.github.io/draft-composite-sigs/draft-ietf-lamps-pq-composite-sigs.html
  */
 static const uint8_t sha3_256_oid_der[] __maybe_unused = {
 	0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x08

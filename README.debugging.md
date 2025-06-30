@@ -1,6 +1,8 @@
 # Debug Logging
 
-To enable debug logging which prints the file, function and line number of a failure, configure meson as follows: `meson configure build -Ddebug=true`
+To enable debug logging which prints the file, function and line number of a failure, configure meson as follows: `meson configure build -Ddebug=true`.
+
+In order to read the error logs, the first listed error notification is the original place where the error occurred.
 
 # Timecop - Finding Side Channels
 

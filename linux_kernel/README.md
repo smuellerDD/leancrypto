@@ -80,16 +80,16 @@ purposes, to use the algorithms of the leancrypto library without further
 changes. All algorithms adhere to the kernel crypto API standards and should
 be usable out of the box.
 
-For the CRYSTALS Kyber support, some special precautions need to be applied
-considering that there are two modes of operation a user must be aware of:
-acting as an Initiator or a Responder of a Kyber key agreement. This
+For the ML-KEM (CRYSTALS Kyber) support, some special precautions need to be
+applied considering that there are two modes of operation a user must be aware
+of: acting as an Initiator or a Responder of a ML-KEM key agreement. This
 consideration is identical to the one that needs to be applied for
 (EC)Diffie-Hellman. The following listing enumerates the call sequence the
 user must apply for the given mode. The following sequences for both, the
 initiator and the responder is implemented in `leancrypto_kernel_kyber_tester.c`
 as a reference.
 
-* Acting as Initiator of a Kyber KEM operation:
+* Acting as Initiator of a ML-KEM operation:
 
 	1. Generate new keypair: `crypto_kpp_set_secret(tfm, NULL, 0);`
 	   Note, it is permissible to also set an externally-provided key here.
@@ -97,13 +97,13 @@ as a reference.
 	2. Get public key:
 		`crypto_kpp_generate_public_key(req->src = NULL, req->dst = PK)`
 
-	3. Send the Kyber PK to the responder and retrieve the Kyber CT from the
-	   responder.
+	3. Send the Kyber PK to the responder and retrieve the ML-KEM CT from
+	   the responder.
 
 	4. Calculate shared secret:
 		`crypto_kpp_compute_shared_secret(req->src = CT, req->dst = SS)`
 
-* Acting as Responder of a Kyber KEM operation:
+* Acting as Responder of a ML-KEM operation:
 
 	1. Generate new keypair: `crypto_kpp_set_secret(tfm, NULL, 0);`
 	   Note, it is permissible to also set an externally-provided key here.
@@ -116,7 +116,7 @@ as a reference.
 	4. Get the shared secret that was already calculated in step 2:
 		`crypto_kpp_compute_shared_secret(req->src = NULL, req->dst = SS)`
 
-Please note that the leancrypto Kyber support allows specifying arbitrary sizes
+Please note that the leancrypto ML-KEM support allows specifying arbitrary sizes
 of the shared secret (referenced as `SS` above). When the caller specifies a
 length that is not equal to 32 bytes, the leancrypto built-in KDF is applied to
 generate the shared secret of appropriate size.

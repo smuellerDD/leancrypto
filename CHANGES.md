@@ -21,6 +21,8 @@ Changes 1.5.0-prerelease
 
 * Composite X.509 signatures: update implementation to match draft revision 5
 
+* Add support for the Linux kernel updated scatterwalk API in 6.15 for leancrypto_kernel_aead_ascon.ko 
+
 Changes 1.4.0
 * ML-DSA: add signature generation rejection test cases and enable them during self tests
 
