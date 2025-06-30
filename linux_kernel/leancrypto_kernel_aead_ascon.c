@@ -48,20 +48,33 @@ static void lc_aead_ascon_aad(struct aead_request *areq)
 
 	/* Insert the associated data into the sponge */
 	while (nbytes) {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 15, 0)
+		unsigned int todo =
+			min_t(unsigned int, hash->sponge_rate - sponge_offset,
+			      scatterwalk_next(&src_walk, nbytes));
+
+		u8 *src_vaddr = src_walk.addr;
+#else
 		unsigned int todo =
 			min_t(unsigned int, hash->sponge_rate - sponge_offset,
 			      scatterwalk_clamp(&src_walk, nbytes));
 		u8 *src_vaddr = scatterwalk_map(&src_walk);
+#endif
 
 		lc_sponge_add_bytes(hash, state_mem, src_vaddr, sponge_offset,
 				    todo);
-		scatterwalk_unmap(src_vaddr);
-
-		scatterwalk_advance(&src_walk, todo);
 
 		sponge_offset += todo;
 		nbytes -= todo;
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 15, 0)
+		scatterwalk_done_src(&src_walk, todo);
+#else
+		scatterwalk_unmap(src_vaddr);
+
+		scatterwalk_advance(&src_walk, todo);
 		scatterwalk_pagedone(&src_walk, 0, nbytes);
+#endif
 
 		if (sponge_offset == hash->sponge_rate) {
 			lc_sponge(hash, state_mem, ascon->roundb);
@@ -104,16 +117,38 @@ static int lc_aead_ascon_update(struct aead_request *areq,
 	scatterwalk_start(&dst_walk, dst);
 
 	while (nbytes) {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 15, 0)
+
+		unsigned int stodo = scatterwalk_next(&src_walk, nbytes);
+		unsigned int dtodo = scatterwalk_next(&dst_walk, nbytes);
+		unsigned int todo = min(stodo, dtodo);
+
+		u8 *src_vaddr = src_walk.addr;
+		u8 *dst_vaddr = dst_walk.addr;
+
+		/* Perform the work */
+		ret = process(ctx, src_vaddr, dst_vaddr, todo);
+
+		scatterwalk_done_dst(&dst_walk, todo);
+		scatterwalk_done_src(&src_walk, todo);
+		if (ret)
+			return ret;
+
+		nbytes -= todo;
+
+#else
 		unsigned int todo =
 			min_t(unsigned int, scatterwalk_pagelen(&src_walk),
 			      scatterwalk_pagelen(&dst_walk));
 		u8 *src_vaddr, *dst_vaddr;
-
 		todo = min_t(unsigned int, nbytes, todo);
 
 		src_vaddr = scatterwalk_map(&src_walk);
 		dst_vaddr = scatterwalk_map(&dst_walk);
+
+		/* Perform the work */
 		ret = process(ctx, src_vaddr, dst_vaddr, todo);
+
 		scatterwalk_unmap(src_vaddr);
 		scatterwalk_unmap(dst_vaddr);
 
@@ -126,6 +161,8 @@ static int lc_aead_ascon_update(struct aead_request *areq,
 
 		scatterwalk_pagedone(&src_walk, 0, nbytes);
 		scatterwalk_pagedone(&dst_walk, 1, nbytes);
+
+#endif
 	}
 
 	return ret;
