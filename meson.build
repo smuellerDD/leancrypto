@@ -564,6 +564,10 @@ if (get_option('efi').enabled() and
 	error('EFI compilation support for PKCS#7 message generator / X.509 certificate generator not provided')
 endif
 
+if (get_option('chacha20poly1305').enabled() and
+    get_option('chacha20').disabled())
+	error('ChaCha20 Poly 1305 requires the presence of ChaCha20')
+endif
 ################################################################################
 # Enable assembler support
 ################################################################################
