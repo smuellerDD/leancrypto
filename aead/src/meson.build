@@ -113,6 +113,10 @@ if (get_option('aes_cbc').enabled() or get_option('aes_ctr').enabled())
 endif
 
 if get_option('chacha20poly1305').enabled()
+	include_files += files([
+		'../api/lc_chacha20_poly1305.h',
+	])
+
 	src += files([
 		'chacha20poly1305.c'
 		])

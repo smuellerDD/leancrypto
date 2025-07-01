@@ -171,6 +171,9 @@ static int lc_chacha20_poly1305_setkey(void *state, const uint8_t *key,
 	/* Initialize the Poly1305 algorithm */
 	lc_poly1305_init(poly1305, (uint8_t *)subkey);
 
+	cc20p1305->aadlen = 0;
+	cc20p1305->datalen = 0;
+
 out:
 	lc_memset_secure(subkey, 0, sizeof(subkey));
 	return ret;

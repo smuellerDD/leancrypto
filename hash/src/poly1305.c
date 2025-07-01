@@ -22,9 +22,9 @@
  */
 
 #include "compare.h"
-#include "poly1305.h"
 #include "lc_memcmp_secure.h"
 #include "lc_memset_secure.h"
+#include "lc_poly1305.h"
 
 /* auto detect between 32bit / 64bit */
 #define HAS_SIZEOF_INT128_64BIT                                                \

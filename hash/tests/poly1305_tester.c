@@ -17,7 +17,7 @@
  * DAMAGE.
  */
 
-#include "poly1305.h"
+#include "lc_poly1305.h"
 #include "visibility.h"
 
 /* test a few basic operations */

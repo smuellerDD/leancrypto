@@ -308,6 +308,9 @@ if get_option('ascon').enabled()
 endif
 
 if get_option('chacha20poly1305').enabled()
+	include_files += files([
+		'../api/lc_poly1305.h',
+	])
 	src += files([
 		'poly1305.c'
 		])
