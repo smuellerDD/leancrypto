@@ -11,7 +11,7 @@
 # Patchlevel Version: API / ABI compatible, no functional changes, no
 #		      enhancements, bug fixes only.
 project('leancrypto', 'c',
-	version: '1.5.0',
+	version: '1.5.1',
 	default_options: [
 		'warning_level=3',
 		'optimization=3',
@@ -219,6 +219,7 @@ aead_support_enabled = false
 if (get_option('hash_crypt').enabled() or
     get_option('ascon').enabled() or
     get_option('ascon_keccak').enabled() or
+    get_option('chacha20poly1305').enabled() or
     ((get_option('aes_cbc').enabled() or get_option('aes_ctr').enabled()) and
      (get_option('sha2-512').enabled() or get_option('kmac').enabled())))
 	add_global_arguments([ '-DLC_AEAD' ], language: 'c')

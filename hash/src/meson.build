@@ -307,6 +307,12 @@ if get_option('ascon').enabled()
 
 endif
 
+if get_option('chacha20poly1305').enabled()
+	src += files([
+		'poly1305.c'
+		])
+endif
+
 if (lc_hash == 1)
 	src_fips += files([ 'hash.c' ])
 endif

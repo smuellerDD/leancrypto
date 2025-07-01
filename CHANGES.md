@@ -1,3 +1,6 @@
+Changes 1.5.1-prerelease
+* add ChaCha20 Poly 1305 AEAD
+
 Changes 1.5.0
 * Enable SHA3 CE 2x implementation for SLH-DSA and ML-DSA (performance increases 2 to 3 fold)
 

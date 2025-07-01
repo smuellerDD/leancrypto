@@ -20,7 +20,6 @@
 #include "compare.h"
 #include "ascon_selftest.h"
 
-#include "conv_be_le.h"
 void ascon_256_selftest_common(const struct lc_hash *ascon, int *tested,
 			       const char *impl)
 {

@@ -162,8 +162,20 @@ endif
 
 if (hasher == 1 and host_machine.system() != 'windows')
 	hasher = executable('hasher',
-				     [ 'hasher.c', internal_src ],
-				     include_directories: [ include_internal_dirs ],
-				     dependencies: leancrypto
-				     )
+		[ 'hasher.c', internal_src ],
+			include_directories: [ include_internal_dirs, ],
+			dependencies: leancrypto
+		)
+endif
+
+if get_option('chacha20poly1305').enabled()
+	poly1305_tester = executable('poly1305_tester',
+		[ 'poly1305_tester.c', internal_src ],
+			include_directories: [
+				include_dirs,
+				include_internal_dirs ],
+			link_with: leancrypto_static_lib
+		)
+
+	test('Poly1305', poly1305_tester, suite: regression)
 endif

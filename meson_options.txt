@@ -35,6 +35,8 @@ as SLH-DSA-SHAKE-128f. Note, this requires Ascon being enabled.
 
 option('chacha20', type: 'feature', value: 'enabled',
        description: 'ChaCha20 support')
+option('chacha20poly1305', type: 'feature', value: 'enabled',
+       description: 'ChaCha20 Poly 1305 AEAD support')
 option('chacha20_drng', type: 'feature', value: 'enabled',
        description: 'ChaCha20 DRNG support')
 

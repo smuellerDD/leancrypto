@@ -218,3 +218,22 @@ if (get_option('hash_crypt').enabled() and get_option('ascon').enabled())
 	test('AEAD Ascon Error Handling', ascon_crypt_wrong_algo,
 	     suite: regression)
 endif
+
+if get_option('chacha20poly1305').enabled()
+	chacha20poly1305_tester = executable('chacha20poly1305_tester',
+				[ 'chacha20poly1305_tester.c', internal_src ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto
+				)
+	chacha20poly1305_large_tester = executable('chacha20poly1305_large_tester',
+				[ 'chacha20poly1305_large_tester.c',
+				  internal_src ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto
+				)
+	test('AEAD ChaCha20 Poly1305', chacha20poly1305_tester,
+	     suite: regression)
+	test('AEAD ChaCha20 Poly1305 large',
+	     chacha20poly1305_large_tester,
+	     timeout: 2500, is_parallel: false, suite: performance)
+endif

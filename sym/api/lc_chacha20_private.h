@@ -43,6 +43,19 @@ struct lc_sym_state {
 
 #define LC_CC20_BLOCK_SIZE sizeof(struct lc_sym_state)
 #define LC_CC20_BLOCK_SIZE_WORDS (LC_CC20_BLOCK_SIZE / sizeof(uint32_t))
+
+static inline void cc20_init_constants(struct lc_sym_state *ctx)
+{
+	if (!ctx)
+		return;
+
+	/* String "expand 32-byte k" */
+	ctx->constants[0] = 0x61707865;
+	ctx->constants[1] = 0x3320646e;
+	ctx->constants[2] = 0x79622d32;
+	ctx->constants[3] = 0x6b206574;
+}
+
 /// \endcond
 
 #ifdef __cplusplus

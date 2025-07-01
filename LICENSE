@@ -530,3 +530,22 @@ curve448/src/avx2/gf_p4482241_nsqr.S
 curve448/src/avx2/gf_p4482241_nsqrx.S
 curve448/src/avx2/curve448_scalarmult_avx2.c
 curve448/src/avx2/curve448_const.S
+
+================================================================================
+
+The Poly1305 implementation is in parts from
+https://github.com/floodyberry/poly1305-donna marked as "PUBLIC DOMAIN"
+
+This affects the following files:
+hash/api/poly1305.h
+hash/src/poly1305-32.h
+hash/src/poly1305-64.h
+hash/src/poly1305.c
+
+================================================================================
+
+The ChaCha20 accelerated implementation is in parts from
+https://github.com/vstakhov/libsodium-chacha20 marked as "PUBLIC DOMAIN"
+
+This affects the following files:
+sym/src/chacha20_crypt_accel.c

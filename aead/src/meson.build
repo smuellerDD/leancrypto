@@ -112,6 +112,13 @@ if (get_option('aes_cbc').enabled() or get_option('aes_ctr').enabled())
 	endif
 endif
 
+if get_option('chacha20poly1305').enabled()
+	src += files([
+		'chacha20poly1305.c'
+		])
+	compile_aead = 1
+endif
+
 if (compile_aead == 1)
 	src_fips += files([ 'aead_api.c' ])
 endif
