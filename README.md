@@ -208,6 +208,8 @@ Leancrypto offers various cryptographic algorithms:
   * Ascon-AEAD128 (SP800-232)
 
   * Ascon Keccak 256, and 512 AEAD, full specification provided with `aead/doc/Ascon-Keccak.pdf`
+  
+  * ChaCha20-Poly1305
 
   * cSHAKE-based AEAD algorithm - algorithm devised with leancrypto,
     full specification provided with `aead/doc/KMAC_cSHAKE_AEAD_algorithm.pdf`
