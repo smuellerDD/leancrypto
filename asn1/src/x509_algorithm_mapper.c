@@ -229,6 +229,10 @@ LC_INTERFACE_FUNCTION(int, lc_x509_sig_type_to_hash,
 	return lc_x509_oid_to_hash(hash_oid, hash_algo);
 }
 
+/*
+ * This function implements the requirement of FIPS204 section 5.4 footnote
+ * 6 and applies it to other signature algorithms.
+ */
 int lc_x509_sig_check_hash(enum lc_sig_types pkey_algo,
 			   const struct lc_hash *hash_algo)
 {
