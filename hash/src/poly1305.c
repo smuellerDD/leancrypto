@@ -21,10 +21,17 @@
  * https://github.com/floodyberry/poly1305-donna marked as "PUBLIC DOMAIN"
  */
 
+/*
+ * The Poly1305 keyed message digest is only provided to support the
+ * ChaCha20-Poly1305 AEAD algorithm. It is not meant to be used as a standalone
+ * algorithm. Therefore, it is not wrapped into the Hash-API. Furthermore,
+ * none of the functions are marked as exported to serve as official APIs.
+ */
+
 #include "compare.h"
 #include "lc_memcmp_secure.h"
 #include "lc_memset_secure.h"
-#include "lc_poly1305.h"
+#include "poly1305_internal.h"
 
 /* auto detect between 32bit / 64bit */
 #define HAS_SIZEOF_INT128_64BIT                                                \
@@ -80,7 +87,7 @@ void lc_poly1305_update(struct lc_poly1305_context *ctx, const uint8_t *m,
 }
 
 void lc_poly1305_auth(uint8_t mac[LC_POLY1305_TAGSIZE], const uint8_t *m,
-		      size_t bytes, const uint8_t key[32])
+		      size_t bytes, const uint8_t key[LC_POLY1305_KEYSIZE])
 {
 	struct lc_poly1305_context ctx;
 
@@ -98,6 +105,7 @@ int lc_poly1305_verify(const uint8_t mac1[LC_POLY1305_TAGSIZE],
 				LC_POLY1305_TAGSIZE);
 }
 
+#if 0
 /* test a few basic operations */
 void lc_poly1305_power_on_self_test(void)
 {
@@ -140,3 +148,4 @@ void lc_poly1305_power_on_self_test(void)
 	lc_poly1305_auth(mac, nacl_msg, sizeof(nacl_msg), nacl_key);
 	assert(lc_poly1305_verify(nacl_mac, mac));
 }
+#endif

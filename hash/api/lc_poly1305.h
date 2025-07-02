@@ -37,50 +37,7 @@ struct lc_poly1305_context {
 
 #define LC_POLY1305_STATE_SIZE (sizeof(struct lc_poly1305_context))
 #define LC_POLY1305_TAGSIZE (16)
-
-/*
- * @param key 32 byte key that is **only used for this message and is discarded
- *	      immediately after**
- */
-void lc_poly1305_init(struct lc_poly1305_context *ctx, const uint8_t key[32]);
-
-/*
- * @param m pointer to the message fragment to be processed
- * @param bytes length of the message fragment
- */
-void lc_poly1305_update(struct lc_poly1305_context *ctx, const uint8_t *m,
-			size_t bytes);
-
-/*
- * @param mac buffer which receives the 16 byte authenticator. After calling
- *	      finish, the underlying implementation will zero out `ctx`
- */
-void lc_poly1305_final(struct lc_poly1305_context *ctx,
-		       uint8_t mac[LC_POLY1305_TAGSIZE]);
-
-/*
- * @param mac the buffer which receives the 16 byte authenticator
- * @param m pointer to the message to be processed
- * @param bytes number of bytes in the message
- * @param key 32 byte key that is **only used for this message and is
- *	      discarded immediately after**
- */
-void lc_poly1305_auth(uint8_t mac[LC_POLY1305_TAGSIZE], const uint8_t *m,
-		      size_t bytes, const uint8_t key[32]);
-
-/*
- * @param mac1 is compared to @param mac2 in constant time and returns 0 if
- * they are equal and !0 if they are not
- */
-int lc_poly1305_verify(const uint8_t mac1[LC_POLY1305_TAGSIZE],
-		       const uint8_t mac2[LC_POLY1305_TAGSIZE]);
-
-/*
- * Tests the underlying implementation to verify it is working correctly.
- *
- * @return 0 if all tests pass, and !0 if any tests fail.
- */
-void lc_poly1305_power_on_self_test(void);
+#define LC_POLY1305_KEYSIZE (32)
 
 #ifdef __cplusplus
 }

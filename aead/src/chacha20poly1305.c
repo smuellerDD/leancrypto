@@ -1,6 +1,6 @@
-/* AEAD cipher based on arbitrary symmetric algorithm and HMAC
+/* RFC 7539: ChaCha20 Poly1305 AEAD cipher
  *
- * Copyright (C) 2022 - 2025, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2025, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *
@@ -26,6 +26,7 @@
 #include "lc_chacha20_private.h"
 #include "lc_chacha20_poly1305.h"
 #include "lc_memcmp_secure.h"
+#include "poly1305_internal.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 
