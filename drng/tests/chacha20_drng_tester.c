@@ -18,6 +18,7 @@
  */
 
 #include "alignment.h"
+#include "compare.h"
 #include "conv_be_le.h"
 #include "lc_chacha20_drng.h"
 #include "lc_chacha20_private.h"
@@ -53,6 +54,7 @@ static int chacha20_drng_selftest(struct lc_chacha20_drng_ctx *cc20_ctx)
 			   0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37,
 			   0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f,
 		   } };
+	int ret = 0;
 
 	/*
 	 * Expected result when ChaCha20 DRNG state is zero:
@@ -114,51 +116,35 @@ static int chacha20_drng_selftest(struct lc_chacha20_drng_ctx *cc20_ctx)
 	chacha20_bswap32(seed.u, sizeof(seed) / sizeof(uint32_t));
 
 	/* Generate with zero state */
-	chacha20_state->counter = 0;
+	chacha20_state->counter[0] = 0;
 
 	lc_cc20_drng_generate(cc20_ctx, outbuf, sizeof(expected_block));
-	if (memcmp(outbuf, expected_block, sizeof(expected_block))) {
-		//bin2print(expected_block, sizeof(expected_block), stdout,
-		//	  "expected - zero block");
-		//bin2print(outbuf, sizeof(expected_block), stdout,
-		//	  "obtained - zero block");
-		return EFAULT;
-	}
+	ret += lc_compare(outbuf, expected_block, sizeof(expected_block),
+			  "zero block");
 
 	/* Clear state of DRNG */
 	lc_cc20_drng_zero(cc20_ctx);
 
 	/* Reseed with 2 blocks */
-	chacha20_state->counter = 0;
+	chacha20_state->counter[0] = 0;
 	lc_cc20_drng_seed(cc20_ctx, seed.b, sizeof(expected_twoblocks));
 	lc_cc20_drng_generate(cc20_ctx, outbuf, sizeof(expected_twoblocks));
-	if (memcmp(outbuf, expected_twoblocks, sizeof(expected_twoblocks))) {
-		//bin2print(expected_twoblocks, sizeof(expected_twoblocks),
-		//	  stdout, "expected - twoblocks");
-		//bin2print(outbuf, sizeof(expected_twoblocks), stdout,
-		//	  "obtained - twoblocks");
-		return EFAULT;
-	}
+	ret += lc_compare(outbuf, expected_twoblocks,
+			  sizeof(expected_twoblocks), "twoblocks");
 
 	/* Clear state of DRNG */
 	lc_cc20_drng_zero(cc20_ctx);
 
 	/* Reseed with 1 block and one byte */
-	chacha20_state->counter = 0;
+	chacha20_state->counter[0] = 0;
 	lc_cc20_drng_seed(cc20_ctx, seed.b, sizeof(expected_block_nonaligned));
 	lc_cc20_drng_generate(cc20_ctx, outbuf,
 			      sizeof(expected_block_nonaligned));
-	if (memcmp(outbuf, expected_block_nonaligned,
-		   sizeof(expected_block_nonaligned))) {
-		//bin2print(expected_block_nonaligned,
-		//	  sizeof(expected_block_nonaligned),
-		//	  stdout, "expected - block nonaligned");
-		//bin2print(outbuf, sizeof(expected_block_nonaligned), stdout,
-		//	  "obtained - block nonaligned");
-		return EFAULT;
-	}
+	ret += lc_compare(outbuf, expected_block_nonaligned,
+			  sizeof(expected_block_nonaligned),
+			  "block nonaligned");
 
-	return 0;
+	return ret;
 }
 
 static int chacha20_tester(void)
