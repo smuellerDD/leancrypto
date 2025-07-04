@@ -25,6 +25,7 @@
 #include "conv_be_le.h"
 #include "cpufeatures.h"
 #include "ext_headers.h"
+#include "fips_mode.h"
 #include "lc_chacha20.h"
 #include "lc_chacha20_private.h"
 #include "lc_sym.h"
@@ -229,6 +230,10 @@ void cc20_init(struct lc_sym_state *ctx)
 
 int cc20_setkey(struct lc_sym_state *ctx, const uint8_t *key, size_t keylen)
 {
+	/* ChaCha20 is no FIPS-approved algorithm, thus it is disabled */
+	if (fips140_mode_enabled())
+		return -EOPNOTSUPP;
+
 	if (!ctx || keylen != 32)
 		return -EINVAL;
 

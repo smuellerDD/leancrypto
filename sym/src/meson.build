@@ -8,7 +8,9 @@ lc_riscv64_asm = 0
 lc_block = 0
 
 if get_option('chacha20').enabled()
-	src += files([
+	# Compiling Chacha20 in FIPS library is appropriate as the init function
+	# disables ChaCha20 in FIPS mode
+	src_fips += files([
 		'chacha20.c',
 		'chacha20_selector.c'
 	])
@@ -25,7 +27,7 @@ if get_option('chacha20').enabled()
 # 		leancrypto_support_libs += leancrypto_chacha20_avx2_lib
 
 	if (arm64_asm)
-		src += files([ 'chacha20_neon.c' ])
+		src_fips += files([ 'chacha20_neon.c' ])
 
 		# This is required for the XOR 128 bit NEON implementation
 		leancrypto_chacha20_neon_armv8_lib = static_library(
@@ -35,9 +37,9 @@ if get_option('chacha20').enabled()
 			include_directories: [ include_dirs,
 					       include_internal_dirs ],
 		)
-		leancrypto_support_libs += leancrypto_chacha20_neon_armv8_lib
+		leancrypto_support_libs_fips += leancrypto_chacha20_neon_armv8_lib
 	else
-		src += files([ 'chacha20_neon_null.c' ])
+		src_fips += files([ 'chacha20_neon_null.c' ])
 	endif
 
 #	elif (arm32_neon_asm)

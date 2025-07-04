@@ -55,8 +55,7 @@ LC_INIT_FUNCTION(int, lc_init, unsigned int flags)
 #endif
 
 #if (defined(LC_CHACHA20) || defined(CONFIG_LEANCRYPTO_CHACHA20))
-	//TODO: currently this does not compile due to FIPS
-	//chacha20_fastest_impl();
+	chacha20_fastest_impl();
 #endif
 
 	return 0;
