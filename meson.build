@@ -139,6 +139,10 @@ if get_option('ascon').enabled()
 	add_global_arguments([ '-DLC_ASCON_HASH' ], language: 'c')
 endif
 
+if get_option('chacha20').enabled()
+	add_global_arguments([ '-DLC_CHACHA20' ], language: 'c')
+endif
+
 kyber_enabled = false
 if (get_option('kyber_1024').enabled() or
     get_option('kyber_768').enabled() or

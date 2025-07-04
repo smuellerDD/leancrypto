@@ -50,7 +50,7 @@ static void cc20_drng_selftest_impl(const char *impl)
 	chacha20_state = sym_ctx->sym_state;
 
 	/* Generate with zero state */
-	chacha20_state->counter = 0;
+	chacha20_state->counter[0] = 0;
 
 	lc_cc20_drng_generate(cc20_ctx, outbuf, sizeof(expected_block));
 	lc_compare_selftest(outbuf, expected_block, sizeof(expected_block),
@@ -95,11 +95,11 @@ static inline void lc_cc20_drng_update(struct lc_chacha20_drng_ctx *cc20_ctx,
 	}
 
 	/* Deterministic increment of nonce as required in RFC 7539 chapter 4 */
-	chacha20_state->nonce[0]++;
-	if (chacha20_state->nonce[0] == 0) {
-		chacha20_state->nonce[1]++;
-		if (chacha20_state->nonce[1] == 0)
-			chacha20_state->nonce[2]++;
+	chacha20_state->counter[1]++;
+	if (chacha20_state->counter[1] == 0) {
+		chacha20_state->counter[2]++;
+		if (chacha20_state->counter[2] == 0)
+			chacha20_state->counter[3]++;
 	}
 
 	/* Leave counter untouched as it is start value is undefined in RFC */

@@ -108,6 +108,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	(void)argc;
 	(void)argv;
+
 	ret = lc_chacha20_poly1305_test();
 
 	return ret;

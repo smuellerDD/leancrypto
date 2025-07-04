@@ -49,8 +49,8 @@ struct lc_sym_ctx {
 };
 
 /*
- * Align the lc_sym_state structure to 8 bytes boundary irrespective where
- * it is embedded into. This is achieved by adding 7 more bytes than necessary
+ * Align the lc_sym_state structure to 16 bytes boundary irrespective where
+ * it is embedded into. This is achieved by adding 15 more bytes than necessary
  * to LC_ALIGNED_SYM_BUFFER and then adjusting the pointer offset in that range
  * accordingly.
  *
@@ -59,7 +59,7 @@ struct lc_sym_ctx {
  * LC_ALIGN_PTR_XX macro depending on lc_sym->alignment during compile time.
  */
 #ifndef LC_SYM_ALIGNMENT_COMMON
-#define LC_SYM_ALIGNMENT_COMMON (8)
+#define LC_SYM_ALIGNMENT_COMMON (16)
 #endif
 #define LC_SYM_ALIGNMENT(symname) LC_SYM_ALIGNMENT_COMMON
 #define LC_SYM_ALIGNMASK(symname) (LC_SYM_ALIGNMENT(symname) - 1)

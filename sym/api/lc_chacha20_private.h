@@ -37,8 +37,7 @@ struct lc_sym_state {
 		uint32_t u[LC_CC20_KEY_SIZE_WORDS];
 		uint8_t b[LC_CC20_KEY_SIZE];
 	} key;
-	uint32_t counter;
-	uint32_t nonce[3];
+	uint32_t counter[4];
 };
 
 #define LC_CC20_BLOCK_SIZE sizeof(struct lc_sym_state)
@@ -54,6 +53,24 @@ static inline void cc20_init_constants(struct lc_sym_state *ctx)
 	ctx->constants[1] = 0x3320646e;
 	ctx->constants[2] = 0x79622d32;
 	ctx->constants[3] = 0x6b206574;
+}
+
+static inline void cc20_counter_overflow(struct lc_sym_state *ctx)
+{
+	if (ctx->counter[0] == 0) {
+		ctx->counter[1]++;
+		if (ctx->counter[1] == 0) {
+			ctx->counter[2]++;
+			if (ctx->counter[2] == 0)
+				ctx->counter[3]++;
+		}
+	}
+}
+
+static inline void cc20_inc_counter(struct lc_sym_state *ctx)
+{
+	ctx->counter[0]++;
+	cc20_counter_overflow(ctx);
 }
 
 /// \endcond

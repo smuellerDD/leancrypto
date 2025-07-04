@@ -231,9 +231,13 @@ if get_option('chacha20poly1305').enabled()
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto
 				)
-	test('AEAD ChaCha20 Poly1305', chacha20poly1305_tester,
+	test('AEAD ChaCha20 Poly1305 Common', chacha20poly1305_tester,
 	     suite: regression)
-	test('AEAD ChaCha20 Poly1305 large',
+	test('AEAD ChaCha20 Poly1305 large Common',
 	     chacha20poly1305_large_tester,
 	     timeout: 2500, is_parallel: false, suite: performance)
+	test('AEAD ChaCha20 Poly1305 large C',
+	     chacha20poly1305_large_tester,
+	     timeout: 2500, is_parallel: false, suite: performance,
+	     args: [ 'c' ])
 endif

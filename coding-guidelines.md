@@ -18,15 +18,19 @@ The following modules are present:
 
 * `curve25519`: Curve25519 implementation including EdDSA and ECDH
 
+* `curve448`: Curve448 implementation including EdDSA and ECDH
+
 * `doc`: Doxygen generator
 
 * `drng`: Deterministic random number generator including the seeded_rng implemenation with its link code to entropy sources.
 
 * `efi`: Compilation support for EFI environment
 
-* `hash`: hash implemenations of SHA2, SHA3, Ascon
+* `hash`: hash implemenations of SHA2, SHA3, Ascon, Poly1305
 
 * `hmac`: HMAC implementation
+
+* `hqc`: Code-based PQC algorithm of HQC
 
 * `internal`: Support code
 

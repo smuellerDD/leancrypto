@@ -124,9 +124,9 @@ static int cc20p1305_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 	if (ivlen != 8)
 		return -EINVAL;
 
-	ctx->nonce[0] = ptr_to_le32(constant);
-	ctx->nonce[1] = ptr_to_le32(iv);
-	ctx->nonce[2] = ptr_to_le32(iv + sizeof(uint32_t));
+	ctx->counter[1] = ptr_to_le32(constant);
+	ctx->counter[2] = ptr_to_le32(iv);
+	ctx->counter[3] = ptr_to_le32(iv + sizeof(uint32_t));
 
 	return 0;
 }
@@ -162,7 +162,7 @@ static int lc_chacha20_poly1305_setkey(void *state, const uint8_t *key,
 
 	/* Derive the ChaCha20 and Poly1305 keys */
 	cc20_init_constants(chacha20_ctx);
-	chacha20_ctx->counter = 0;
+	chacha20_ctx->counter[0] = 0;
 	CKINT(lc_sym_setkey(chacha20, key, keylen));
 	CKINT(cc20p1305_setiv(chacha20->sym_state, iv, ivlen));
 	cc20_block(chacha20->sym_state, subkey);

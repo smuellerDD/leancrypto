@@ -19,7 +19,8 @@
 
 #include "alignment.h"
 #include "bitshift.h"
-#include "chacha20.h"
+#include "chacha20_c.h"
+#include "chacha20_internal.h"
 #include "compare.h"
 #include "conv_be_le.h"
 #include "cpufeatures.h"
@@ -31,8 +32,9 @@
 #include "rotate.h"
 #include "timecop.h"
 #include "visibility.h"
+#include "xor.h"
 
-static void cc20_selftest(int *tested, const char *impl)
+void cc20_selftest(int *tested, const char *impl)
 {
 	/* Test vector according to RFC 7539 section 2.4.2 */
 	static const uint8_t key[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
@@ -67,14 +69,7 @@ static void cc20_selftest(int *tested, const char *impl)
 	/* Encrypt */
 	lc_sym_init(chacha20);
 
-	/*
-	 * Stop the self test when it is not supported - this error here is
-	 * triggered when no AVX2 support is present. Thus, the algorithm
-	 * is not available.
-	 */
-	if (lc_sym_setkey(chacha20, (uint8_t *)key, sizeof(key)) == -EOPNOTSUPP)
-		return;
-
+	lc_sym_setkey(chacha20, (uint8_t *)key, sizeof(key));
 	lc_sym_setiv(chacha20, (uint8_t *)iv, sizeof(iv));
 	lc_sym_encrypt(chacha20, (uint8_t *)string, res, sizeof(res));
 	snprintf(str, sizeof(str), "%s enc", impl);
@@ -186,44 +181,56 @@ LC_INTERFACE_FUNCTION(void, cc20_block, struct lc_sym_state *state,
 	for (i = 0; i < LC_CC20_BLOCK_SIZE_WORDS; i++)
 		out[i] = le_bswap32(ws[i] + state_w[i]);
 
-	state_w[12]++;
+	cc20_inc_counter(state);
 
 	/* Timecop: output is not sensitive regarding side-channels. */
 	unpoison(stream, LC_CC20_BLOCK_SIZE);
 }
 
-static void cc20_init(struct lc_sym_state *ctx)
+static void cc20_crypt(struct lc_sym_state *ctx, const uint8_t *in,
+		       uint8_t *out, size_t len)
 {
-	static int tested = 0;
+	uint32_t keystream[LC_CC20_BLOCK_SIZE_WORDS] __align(
+		LC_XOR_ALIGNMENT(sizeof(uint64_t)));
 
 	if (!ctx)
 		return;
 
-	cc20_selftest(&tested, "ChaCha20");
+	if (!len)
+		return;
 
-	/* String "expand 32-byte k" */
-	ctx->constants[0] = 0x61707865;
-	ctx->constants[1] = 0x3320646e;
-	ctx->constants[2] = 0x79622d32;
-	ctx->constants[3] = 0x6b206574;
-	ctx->counter = 1;
+	while (len) {
+		size_t todo = min_size(len, sizeof(keystream));
+
+		cc20_block(ctx, keystream);
+
+		if (in != out)
+			memcpy(out, in, todo);
+
+		xor_64(out, (uint8_t *)keystream, todo);
+
+		len -= todo;
+		in += todo;
+		out += todo;
+	}
+
+	lc_memset_secure(keystream, 0, sizeof(keystream));
 }
 
-static int cc20_setkey(struct lc_sym_state *ctx, const uint8_t *key,
-		       size_t keylen)
+void cc20_init(struct lc_sym_state *ctx)
 {
-	enum lc_cpu_features feat;
+	static int tested = 0;
 
+	cc20_selftest(&tested, "ChaCha20 C");
+
+	/* String "expand 32-byte k" */
+	cc20_init_constants(ctx);
+}
+
+int cc20_setkey(struct lc_sym_state *ctx, const uint8_t *key, size_t keylen)
+{
 	if (!ctx || keylen != 32)
 		return -EINVAL;
-
-	/* The XOR operation in cc20_crypt requires acceleration */
-	feat = lc_cpu_feature_available();
-	if ((feat & LC_CPU_FEATURE_INTEL) &&
-	    !(feat & LC_CPU_FEATURE_INTEL_AVX2))
-		return -EOPNOTSUPP;
-	if ((feat & LC_CPU_FEATURE_ARM) && !(feat & LC_CPU_FEATURE_ARM_NEON))
-		return -EOPNOTSUPP;
 
 	/* Timecop: key is sensitive. */
 	poison(key, keylen);
@@ -240,15 +247,16 @@ static int cc20_setkey(struct lc_sym_state *ctx, const uint8_t *key,
 	return 0;
 }
 
-static int cc20_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen)
+int cc20_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen)
 {
 	/* IV is counter + nonce */
 	if (!ctx || ivlen != 12)
 		return -EINVAL;
 
-	ctx->nonce[0] = ptr_to_le32(iv);
-	ctx->nonce[1] = ptr_to_le32(iv + sizeof(uint32_t));
-	ctx->nonce[2] = ptr_to_le32(iv + sizeof(uint32_t) * 2);
+	ctx->counter[0] = 1;
+	ctx->counter[1] = ptr_to_le32(iv);
+	ctx->counter[2] = ptr_to_le32(iv + sizeof(uint32_t));
+	ctx->counter[3] = ptr_to_le32(iv + sizeof(uint32_t) * 2);
 
 	return 0;
 }
@@ -262,4 +270,6 @@ static struct lc_sym _lc_chacha20 = {
 	.statesize = LC_CC20_BLOCK_SIZE,
 	.blocksize = 1,
 };
+LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_chacha20_c) = &_lc_chacha20;
+
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_chacha20) = &_lc_chacha20;

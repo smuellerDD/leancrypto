@@ -20,12 +20,14 @@
 #include <errno.h>
 #include <stdlib.h>
 
-#include "compare.h"
 #include "binhexbin.h"
+#include "chacha20_c.h"
+#include "compare.h"
+#include "cpufeatures.h"
 #include "lc_chacha20_poly1305.h"
 #include "test_helper.h"
 
-static int ak_256512_tester_large(void)
+static int ak_256512_tester_large(int argc)
 {
 	uint8_t tag[16];
 	uint8_t *pt;
@@ -41,6 +43,11 @@ static int ak_256512_tester_large(void)
 	size_t len;
 	int ret;
 	LC_CHACHA20_POLY1305_CTX_ON_STACK(cc20p1305);
+
+	if (argc >= 2) {
+		struct lc_chacha20_poly1305_cryptor *c = cc20p1305->aead_state;
+		c->chacha20.sym = lc_chacha20_c;
+	}
 
 	CKINT(test_mem(&pt, &len));
 
@@ -67,7 +74,12 @@ out:
 
 int main(int argc, char *argv[])
 {
+	int ret;
+
 	(void)argc;
 	(void)argv;
-	return ak_256512_tester_large();
+
+	ret = ak_256512_tester_large(argc);
+
+	return ret;
 }

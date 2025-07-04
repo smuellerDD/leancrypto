@@ -31,4 +31,6 @@
 
 - HQC: add side channel analysis
 
-- FIPS 140 integrity check: fix for cross compilation (leancrypto-fips-raw-generator is to be executed on build host, but with a library that is compiled for target host) 
+- FIPS 140 integrity check: fix for cross compilation (leancrypto-fips-raw-generator is to be executed on build host, but with a library that is compiled for target host)
+
+- enable ChaCha20 init call in lc_init

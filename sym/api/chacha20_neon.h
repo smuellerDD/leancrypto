@@ -17,26 +17,17 @@
  * DAMAGE.
  */
 
-#ifndef INITIALIZATION_H
-#define INITIALIZATION_H
-
-#include "visibility.h"
+#ifndef CHACHA20_NEON_H
+#define CHACHA20_NEON_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void ascon_fastest_impl(void);
-void sha256_fastest_impl(void);
-void sha512_fastest_impl(void);
-void sha3_fastest_impl(void);
-void aes_fastest_impl(void);
-void kyber_riscv_rvv_selector(void);
-void secure_execution_linux(void);
-void chacha20_fastest_impl(void);
+extern const struct lc_sym *lc_chacha20_neon;
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* INITIALIZATION_H */
+#endif /* CHACHA20_NEON_H */

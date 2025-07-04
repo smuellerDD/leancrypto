@@ -17,20 +17,31 @@
  * DAMAGE.
  */
 
-#ifndef CHACHA20_H
-#define CHACHA20_H
+#ifndef CHACHA20_ASM_NEON_H
+#define CHACHA20_ASM_NEON_H
 
-#include "lc_sym.h"
+#include "ext_headers.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void cc20_crypt(struct lc_sym_state *ctx, const uint8_t *in, uint8_t *out,
-		size_t len);
+/**
+ * ChaCha20_neon - ChaCha20 encryption
+ *
+ * @param [out] out Output buffer of at least @param len size
+ * @param [in] in Input buffer of at least @param len size
+ * @param [in] len Length of the buffers to be encrypted
+ * @param [in] key key material collected into 8 32-bit elements array in
+ *		   host byte order
+ * @param [in] counter counter / nonce material collected into 4 32-bit elements
+ *		       array in host byte order
+ */
+void ChaCha20_neon(uint8_t *out, const uint8_t *in, size_t len,
+		   const uint32_t key[8], const uint32_t counter[4]);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* CHACHA20_H */
+#endif /* CHACHA20_ASM_NEON_H */

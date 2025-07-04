@@ -17,13 +17,16 @@
  * DAMAGE.
  */
 
+#include "chacha20_c.h"
+#include "chacha20_neon.h"
+
 #include "alignment.h"
 #include "conv_be_le.h"
 #include "lc_chacha20.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 
-static int chacha20_enc_selftest(void)
+static int chacha20_enc_selftest(const struct lc_sym *chacha20_sym)
 {
 	/* Test vector according to RFC 7539 section 2.4.2 */
 	static const uint8_t key[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
@@ -51,7 +54,7 @@ static int chacha20_enc_selftest(void)
 	};
 	uint8_t res[sizeof(exp)] __align(LC_XOR_ALIGNMENT(sizeof(uint64_t)));
 	int ret;
-	LC_SYM_CTX_ON_STACK(chacha20, lc_chacha20);
+	LC_SYM_CTX_ON_STACK(chacha20, chacha20_sym);
 
 	printf("ChaCha20 ctx size: %u\n",
 	       (unsigned int)LC_SYM_CTX_SIZE(lc_chacha20));
@@ -90,8 +93,9 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	(void)argc;
 	(void)argv;
 
-	ret = chacha20_enc_selftest();
-	if (ret == -EOPNOTSUPP)
-		ret = 77;
+	ret = chacha20_enc_selftest(lc_chacha20);
+	ret += chacha20_enc_selftest(lc_chacha20_c);
+	ret += chacha20_enc_selftest(lc_chacha20_neon);
+
 	return ret;
 }

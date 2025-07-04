@@ -1,9 +1,10 @@
 ################################################################################
 # Symmetric implementation: ChaCha20
 leancrypto-$(CONFIG_LEANCRYPTO_CHACHA20)				       \
-				+= ../sym/src/chacha20.o		       \
-				   ../sym/src/chacha20_crypt.o
+				+= ../sym/src/chacha20.o
+
 ifdef CONFIG_LEANCRYPTO_CHACHA20
+ccflags-y			+= -DCONFIG_LEANCRYPTO_CHACHA20
 obj-m				+= chacha20_block_tester.o
 obj-m				+= chacha20_stream_tester.o
 chacha20_block_tester-y		+= ../sym/tests/chacha20_block_tester.o

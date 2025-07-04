@@ -17,13 +17,15 @@
  * DAMAGE.
  */
 
+#include "chacha20_c.h"
 #include "conv_be_le.h"
+#include "cpufeatures.h"
 #include "lc_chacha20.h"
 #include "ret_checkers.h"
 #include "test_helper.h"
 #include "visibility.h"
 
-static int chacha20_large_tester(void)
+static int chacha20_large_tester(const struct lc_sym *chacha20_sym)
 {
 	/* Test vector according to RFC 7539 section 2.4.2 */
 	static const uint8_t key[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
@@ -36,7 +38,7 @@ static int chacha20_large_tester(void)
 	uint8_t *pt = NULL;
 	size_t len;
 	int ret;
-	LC_SYM_CTX_ON_STACK(chacha20, lc_chacha20);
+	LC_SYM_CTX_ON_STACK(chacha20, chacha20_sym);
 
 	CKINT(test_mem(&pt, &len));
 
@@ -62,11 +64,17 @@ out:
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	const struct lc_sym *chacha20 = lc_chacha20;
 	int ret;
+
 	(void)argc;
 	(void)argv;
 
-	ret = chacha20_large_tester();
+	if (argc >= 2)
+		chacha20 = lc_chacha20_c;
+
+	ret = chacha20_large_tester(chacha20);
+
 	if (ret == -EOPNOTSUPP)
 		ret = 77;
 	return ret;

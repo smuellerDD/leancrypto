@@ -23,10 +23,13 @@ if get_option('chacha20').enabled()
 
 	test('Symmetric ChaCha20 block', chacha20_block_tester,
 	     suite: regression)
-	test('Symmetric ChaCha20 stream', chacha20_stream_tester,
+	test('Symmetric ChaCha20 stream Common', chacha20_stream_tester,
 	     suite: regression)
-	test('Symmetric ChaCha20 large', chacha20_stream_large_tester,
+	test('Symmetric ChaCha20 large Common', chacha20_stream_large_tester,
 	     timeout: 600, is_parallel: false, suite: performance)
+	test('Symmetric ChaCha20 large C', chacha20_stream_large_tester,
+	     timeout: 600, is_parallel: false, suite: performance,
+	     args: [ 'c' ])
 endif
 
 if get_option('aes_block').enabled()
