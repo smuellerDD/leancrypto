@@ -17,8 +17,8 @@
  * DAMAGE.
  */
 
-#ifndef CHACHA20_ASM_NEON_H
-#define CHACHA20_ASM_NEON_H
+#ifndef CHACHA20_ASM_SSSE3_H
+#define CHACHA20_ASM_SSSE3_H
 
 #include "ext_headers.h"
 
@@ -37,11 +37,11 @@ extern "C" {
  * @param [in] counter counter / nonce material collected into 4 32-bit elements
  *		       array in host byte order
  */
-void ChaCha20_neon(uint8_t *out, const uint8_t *in, size_t len,
-		   const uint32_t key[8], const uint32_t counter[4]);
+void ChaCha20_ssse3(uint8_t *out, const uint8_t *in, size_t len,
+		    const uint32_t key[8], const uint32_t counter[4]);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* CHACHA20_ASM_NEON_H */
+#endif /* CHACHA20_ASM_SSSE3_H */

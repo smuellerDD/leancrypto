@@ -19,6 +19,7 @@
 
 #include "chacha20_c.h"
 #include "chacha20_neon.h"
+#include "chacha20_ssse3.h"
 
 #include "alignment.h"
 #include "conv_be_le.h"
@@ -96,6 +97,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	ret = chacha20_enc_selftest(lc_chacha20);
 	ret += chacha20_enc_selftest(lc_chacha20_c);
 	ret += chacha20_enc_selftest(lc_chacha20_neon);
+	ret += chacha20_enc_selftest(lc_chacha20_ssse3);
 
 	return ret;
 }

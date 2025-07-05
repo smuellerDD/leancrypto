@@ -19,6 +19,7 @@
 
 #include "chacha20_c.h"
 #include "chacha20_neon.h"
+#include "chacha20_ssse3.h"
 #include "cpufeatures.h"
 #include "initialization.h"
 #include "lc_chacha20.h"
@@ -49,6 +50,8 @@ LC_CONSTRUCTOR(chacha20_fastest_impl)
 	 */
 	if (feat & LC_CPU_FEATURE_ARM_NEON) {
 		LC_FILL_DFLT_IMPL(neon)
+	} else if (feat & LC_CPU_FEATURE_INTEL_AVX) {
+		LC_FILL_DFLT_IMPL(ssse3)
 	} else {
 		/* do nothing as the C definitions are used automatically */
 	}
@@ -56,5 +59,8 @@ LC_CONSTRUCTOR(chacha20_fastest_impl)
 	/* Unset accelerated modes to C if CPU does not provide support */
 	if (!(feat & LC_CPU_FEATURE_ARM_NEON)) {
 		LC_FILL_ACCEL_WITH_C(neon)
+	}
+	if (!(feat & LC_CPU_FEATURE_INTEL_AVX)) {
+		LC_FILL_ACCEL_WITH_C(ssse3)
 	}
 }

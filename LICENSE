@@ -70,6 +70,7 @@ hash/src/asm/riscv64/sha2-256-riscv.S,
 sym/src/asm/ARMv8/aes_armv8_ce.S,
 sym/src/asm/AESNI_x86_64/aes_aesni_x86_64.S,
 sym/src/asm/ARMv8/chacha20_neon.S,
+sym/src/asm/SSSE3/chacha20_ssse3.S,
 
     Copyright (c) 2006-2017, CRYPTOGAMS by <appro@openssl.org>
     All rights reserved.
