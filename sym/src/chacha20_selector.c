@@ -19,6 +19,7 @@
 
 #include "chacha20_c.h"
 #include "chacha20_neon.h"
+#include "chacha20_riscv64_v_zbb.h"
 #include "chacha20_ssse3.h"
 #include "cpufeatures.h"
 #include "initialization.h"
@@ -52,6 +53,8 @@ LC_CONSTRUCTOR(chacha20_fastest_impl)
 		LC_FILL_DFLT_IMPL(neon)
 	} else if (feat & LC_CPU_FEATURE_INTEL_AVX) {
 		LC_FILL_DFLT_IMPL(ssse3)
+	} else if (feat & LC_CPU_FEATURE_RISCV_ASM_RVV) {
+		LC_FILL_DFLT_IMPL(riscv64_v_zbb)
 	} else {
 		/* do nothing as the C definitions are used automatically */
 	}
@@ -62,5 +65,8 @@ LC_CONSTRUCTOR(chacha20_fastest_impl)
 	}
 	if (!(feat & LC_CPU_FEATURE_INTEL_AVX)) {
 		LC_FILL_ACCEL_WITH_C(ssse3)
+	}
+	if (!(feat & LC_CPU_FEATURE_RISCV_ASM_RVV)) {
+		LC_FILL_ACCEL_WITH_C(riscv64_v_zbb)
 	}
 }

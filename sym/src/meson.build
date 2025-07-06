@@ -47,17 +47,21 @@ if get_option('chacha20').enabled()
 		src_fips += files([ 'chacha20_neon_null.c' ])
 	endif
 
-#	elif (arm32_neon_asm)
-# 		# This is required for the XOR 128 bit NEON implementation
-# 		leancrypto_chacha20_neon_armv7_lib = static_library(
-# 			'leancrypto_chacha20_neon_armv7_lib',
-# 			[ 'chacha20_crypt.c' ],
-# 			c_args: cc_armv7_neon_simd_args,
-# 			include_directories: [ include_dirs,
-# 					       include_internal_dirs ],
-# 		)
-# 		leancrypto_support_libs += leancrypto_chacha20_neon_armv7_lib
-#	endif
+	if (riscv64_asm)
+		src_fips += files([ 'chacha20_riscv64_v_zbb.c' ])
+
+		# This is required for the XOR 128 bit NEON implementation
+		leancrypto_chacha20_riscv64_v_zbb_armv8_lib = static_library(
+			'leancrypto_chacha20_riscv64_v_zbb_armv8_lib',
+			[ 'asm/riscv64/chacha20_riscv64_v_zbb.S' ],
+			c_args: cc_riscv64_asm_rvv_zbb_args,
+			include_directories: [ include_dirs,
+					       include_internal_dirs ],
+		)
+		leancrypto_support_libs_fips += leancrypto_chacha20_riscv64_v_zbb_armv8_lib
+	else
+		src_fips += files([ 'chacha20_riscv64_v_zbb_null.c' ])
+	endif
 
 	include_files += files([ '../api/lc_chacha20.h' ])
 	lc_sym = 1

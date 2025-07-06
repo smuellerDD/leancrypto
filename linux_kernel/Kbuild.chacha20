@@ -4,6 +4,15 @@ leancrypto-$(CONFIG_LEANCRYPTO_CHACHA20)				       \
 				+= ../sym/src/chacha20.o		       \
 				   ../sym/src/chacha20_selector.o
 
+ifdef CONFIG_X86_64
+leancrypto-$(CONFIG_LEANCRYPTO_CHACHA20)				       \
+				+= ../sym/src/asm/ARMv8/chacha20_ssse3.o       \
+				   ../sym/src/chacha20_ssse3.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_CHACHA20)				       \
+				+= ../sym/src/chacha20_ssse3_null.o
+endif
+
 ifdef CONFIG_ARM64
 leancrypto-$(CONFIG_LEANCRYPTO_CHACHA20)				       \
 				+= ../sym/src/asm/ARMv8/chacha20_neon.o	       \
@@ -11,6 +20,15 @@ leancrypto-$(CONFIG_LEANCRYPTO_CHACHA20)				       \
 else
 leancrypto-$(CONFIG_LEANCRYPTO_CHACHA20)				       \
 				+= ../sym/src/chacha20_neon_null.o
+endif
+
+ifneq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
+leancrypto-$(CONFIG_LEANCRYPTO_CHACHA20)				       \
+				+= ../sym/src/asm/ARMv8/chacha20_riscv64_v_zbb.o\
+				   ../sym/src/chacha20_riscv64_v_zbb.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_CHACHA20)				       \
+				+= ../sym/src/chacha20_riscv64_v_zbb_null.o
 endif
 
 ifdef CONFIG_LEANCRYPTO_CHACHA20
