@@ -37,7 +37,7 @@ extern "C" {
  * @param [in] counter counter / nonce material collected into 4 32-bit elements
  *		       array in host byte order
  */
-void ChaCha20_riscv64_v_zbb(uint8_t *out, const uint8_t *in, size_t len,
+void SYSV_ABI ChaCha20_riscv64_v_zbb(uint8_t *out, const uint8_t *in, size_t len,
 		   const uint32_t key[8], const uint32_t counter[4]);
 
 #ifdef __cplusplus

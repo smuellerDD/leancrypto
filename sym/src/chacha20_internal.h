@@ -36,7 +36,7 @@ void cc20_init(struct lc_sym_state *ctx);
 
 static inline void cc20_crypt_asm(struct lc_sym_state *ctx, const uint8_t *in,
 				  uint8_t *out, size_t len,
-			   void (*chacha20_asm)(uint8_t *out,
+			   void SYSV_ABI (*chacha20_asm)(uint8_t *out,
 						const uint8_t *in, size_t len,
 						const uint32_t key[8],
 						const uint32_t counter[4]))
