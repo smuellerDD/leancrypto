@@ -6,11 +6,11 @@ leancrypto-$(CONFIG_LEANCRYPTO_CHACHA20)				       \
 
 ifdef CONFIG_X86_64
 leancrypto-$(CONFIG_LEANCRYPTO_CHACHA20)				       \
-				+= ../sym/src/asm/SSSE3/chacha20_ssse3.o       \
-				   ../sym/src/chacha20_ssse3.o
+				+= ../sym/src/asm/AVX2/chacha20_impl_avx2.o    \
+				   ../sym/src/chacha20_avx2.o
 else
 leancrypto-$(CONFIG_LEANCRYPTO_CHACHA20)				       \
-				+= ../sym/src/chacha20_ssse3_null.o
+				+= ../sym/src/chacha20_avx2_null.o
 endif
 
 ifdef CONFIG_ARM64

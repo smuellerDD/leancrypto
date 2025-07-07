@@ -17,17 +17,28 @@
  * DAMAGE.
  */
 
-#ifndef CHACHA20_SSSE3_H
-#define CHACHA20_SSSE3_H
+#ifndef CHACHA20_ASM_AVX2_H
+#define CHACHA20_ASM_AVX2_H
+
+#include "ext_headers.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern const struct lc_sym *lc_chacha20_ssse3;
+/**
+ * ChaCha20 AVX2- ChaCha20 encryption
+ *
+ * @param [in] state Context with key and nonce
+ * @param [in] in Input buffer of at least len size
+ * @param [out] out Output buffer of at least len size
+ * @param [in] len Length of the buffers to be encrypted
+ */
+void cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
+			   uint64_t len);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* CHACHA20_SSSE3_H */
+#endif /* CHACHA20_ASM_AVX2_H */

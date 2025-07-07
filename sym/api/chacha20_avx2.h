@@ -17,8 +17,17 @@
  * DAMAGE.
  */
 
-#include "chacha20_ssse3.h"
-#include "lc_chacha20.h"
-#include "visibility.h"
+#ifndef CHACHA20_AVX2_H
+#define CHACHA20_AVX2_H
 
-LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_chacha20_ssse3) = NULL;
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+extern const struct lc_sym *lc_chacha20_avx2;
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* CHACHA20_AVX2_H */

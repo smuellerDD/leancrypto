@@ -16,19 +16,19 @@ if get_option('chacha20').enabled()
 	])
 
 	if (x86_64_asm)
-		src_fips += files([ 'chacha20_ssse3.c' ])
+		src_fips += files([ 'chacha20_avx2.c' ])
 
 		# This is required for the XOR 256 bit implementation
 		leancrypto_chacha20_avx2_lib = static_library(
 			'leancrypto_chacha20_avx2_lib',
-			[ 'asm/SSSE3/chacha20_ssse3.S' ],
+			[ 'asm/AVX2/chacha20_impl_avx2.c' ],
 			c_args: cc_avx2_args,
 			include_directories: [ include_dirs,
 					       include_internal_dirs ],
 		)
 		leancrypto_support_libs_fips += leancrypto_chacha20_avx2_lib
 	else
-		src_fips += files([ 'chacha20_ssse3_null.c' ])
+		src_fips += files([ 'chacha20_avx2_null.c' ])
 	endif
 
 	if (arm64_asm)

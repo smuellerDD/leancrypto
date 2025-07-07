@@ -20,7 +20,7 @@
 #include "chacha20_c.h"
 #include "chacha20_neon.h"
 #include "chacha20_riscv64_v_zbb.h"
-#include "chacha20_ssse3.h"
+#include "chacha20_avx2.h"
 
 #include "alignment.h"
 #include "conv_be_le.h"
@@ -54,7 +54,7 @@ static int chacha20_enc_selftest(const struct lc_sym *chacha20_sym)
 		0x74, 0xa3, 0x5b, 0xe6, 0xb4, 0x0b, 0x8e, 0xed, 0xf2, 0x78,
 		0x5e, 0x42, 0x87, 0x4d
 	};
-	uint8_t res[sizeof(exp)] __align(LC_XOR_ALIGNMENT(sizeof(uint64_t)));
+	uint8_t res[sizeof(exp)];
 	int ret;
 	LC_SYM_CTX_ON_STACK(chacha20, chacha20_sym);
 
@@ -99,7 +99,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	ret += chacha20_enc_selftest(lc_chacha20_c);
 	ret += chacha20_enc_selftest(lc_chacha20_neon);
 	ret += chacha20_enc_selftest(lc_chacha20_riscv64_v_zbb);
-	ret += chacha20_enc_selftest(lc_chacha20_ssse3);
+	ret += chacha20_enc_selftest(lc_chacha20_avx2);
 
 	return ret;
 }

@@ -271,6 +271,13 @@ extern __inline void
 	*__P = __B;
 }
 
+extern __inline __m128i
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm_load_si128(__m128i const *__P)
+{
+	return *__P;
+}
+
 #undef __DEFAULT_FN_ATTRS
 
 #endif /* EXT_X86_EMMINTRIN_H */

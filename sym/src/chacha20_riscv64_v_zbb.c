@@ -19,6 +19,7 @@
 
 #include "chacha20_internal.h"
 #include "chacha20_riscv64_v_zbb.h"
+#include "ext_headers_riscv.h"
 #include "lc_chacha20.h"
 #include "lc_chacha20_private.h"
 #include "lc_sym.h"
@@ -30,7 +31,9 @@ static void cc20_crypt_riscv64_v_zbb(struct lc_sym_state *ctx,
 				     const uint8_t *in, uint8_t *out,
 				     size_t len)
 {
+	LC_VECTOR_ENABLE;
 	cc20_crypt_asm(ctx, in, out, len, ChaCha20_riscv64_v_zbb);
+	LC_VECTOR_DISABLE;
 }
 
 static struct lc_sym _lc_chacha20_riscv64_v_zbb = {

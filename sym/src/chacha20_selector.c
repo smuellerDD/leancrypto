@@ -20,7 +20,7 @@
 #include "chacha20_c.h"
 #include "chacha20_neon.h"
 #include "chacha20_riscv64_v_zbb.h"
-#include "chacha20_ssse3.h"
+#include "chacha20_avx2.h"
 #include "cpufeatures.h"
 #include "initialization.h"
 #include "lc_chacha20.h"
@@ -45,16 +45,13 @@ LC_CONSTRUCTOR(chacha20_fastest_impl)
 
 #define LC_FILL_DFLT_IMPL(accel) lc_chacha20 = lc_chacha20_##accel;
 
-	//TODO remove when issue in SSSE3 is fixed
-	LC_FILL_ACCEL_WITH_C(ssse3)
-
 	/*
 	 * Set accelerated modes: The fastest implementations are at the top
 	 */
 	if (feat & LC_CPU_FEATURE_ARM_NEON) {
 		LC_FILL_DFLT_IMPL(neon)
-	} else if (feat & LC_CPU_FEATURE_INTEL_AVX) {
-		LC_FILL_DFLT_IMPL(ssse3)
+	} else if (feat & LC_CPU_FEATURE_INTEL_AVX2) {
+		LC_FILL_DFLT_IMPL(avx2)
 	} else if (feat & LC_CPU_FEATURE_RISCV_ASM_RVV) {
 		LC_FILL_DFLT_IMPL(riscv64_v_zbb)
 	} else {
@@ -66,7 +63,7 @@ LC_CONSTRUCTOR(chacha20_fastest_impl)
 		LC_FILL_ACCEL_WITH_C(neon)
 	}
 	if (!(feat & LC_CPU_FEATURE_INTEL_AVX)) {
-		LC_FILL_ACCEL_WITH_C(ssse3)
+		LC_FILL_ACCEL_WITH_C(avx2)
 	}
 	if (!(feat & LC_CPU_FEATURE_RISCV_ASM_RVV)) {
 		LC_FILL_ACCEL_WITH_C(riscv64_v_zbb)

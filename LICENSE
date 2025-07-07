@@ -70,7 +70,6 @@ hash/src/asm/riscv64/sha2-256-riscv.S,
 sym/src/asm/ARMv8/aes_armv8_ce.S,
 sym/src/asm/AESNI_x86_64/aes_aesni_x86_64.S,
 sym/src/asm/ARMv8/chacha20_neon.S,
-sym/src/asm/SSSE3/chacha20_ssse3.S,
 sym/src/asm/riscv64/chacha20_riscv64_v_zbb.S
 
     Copyright (c) 2006-2017, CRYPTOGAMS by <appro@openssl.org>
@@ -547,8 +546,11 @@ hash/src/poly1305.c
 
 ================================================================================
 
-The ChaCha20 accelerated implementation is in parts from
-https://github.com/vstakhov/libsodium-chacha20 marked as "PUBLIC DOMAIN"
+The ChaCha20 AVX2 accelerated implementation is in parts from
+https://github.com/YuriMyakotin/ChaCha20-SIMD which uses the following license:
+
+MIT License
+Copyright (c) 2023 Yury Myakotin
 
 This affects the following files:
-sym/src/chacha20_crypt_accel.c
+sym/src/asm/AVX2/chacha20_impl_avx2.c
