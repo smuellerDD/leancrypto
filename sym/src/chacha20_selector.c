@@ -45,6 +45,9 @@ LC_CONSTRUCTOR(chacha20_fastest_impl)
 
 #define LC_FILL_DFLT_IMPL(accel) lc_chacha20 = lc_chacha20_##accel;
 
+	//TODO remove when issue in SSSE3 is fixed
+	LC_FILL_ACCEL_WITH_C(ssse3)
+
 	/*
 	 * Set accelerated modes: The fastest implementations are at the top
 	 */
