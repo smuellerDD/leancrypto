@@ -26,8 +26,9 @@
 
 #include "asm/ARMv8/chacha20_asm_riscv64_v_zbb.h"
 
-static void cc20_crypt_riscv64_v_zbb(struct lc_sym_state *ctx, const uint8_t *in,
-			   uint8_t *out, size_t len)
+static void cc20_crypt_riscv64_v_zbb(struct lc_sym_state *ctx,
+				     const uint8_t *in, uint8_t *out,
+				     size_t len)
 {
 	cc20_crypt_asm(ctx, in, out, len, ChaCha20_riscv64_v_zbb);
 }
@@ -41,5 +42,5 @@ static struct lc_sym _lc_chacha20_riscv64_v_zbb = {
 	.statesize = LC_CC20_BLOCK_SIZE,
 	.blocksize = 1,
 };
-LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_chacha20_riscv64_v_zbb) =
-	&_lc_chacha20_riscv64_v_zbb;
+LC_INTERFACE_SYMBOL(const struct lc_sym *,
+		    lc_chacha20_riscv64_v_zbb) = &_lc_chacha20_riscv64_v_zbb;

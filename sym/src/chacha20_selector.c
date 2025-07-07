@@ -43,8 +43,7 @@ LC_CONSTRUCTOR(chacha20_fastest_impl)
 	/* Check if NULL pointers are present */
 	LC_FILL_ACCEL_NULL(neon)
 
-#define LC_FILL_DFLT_IMPL(accel)                                               \
-	lc_chacha20 = lc_chacha20_##accel;                                     \
+#define LC_FILL_DFLT_IMPL(accel) lc_chacha20 = lc_chacha20_##accel;
 
 	/*
 	 * Set accelerated modes: The fastest implementations are at the top

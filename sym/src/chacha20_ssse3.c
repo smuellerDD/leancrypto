@@ -17,7 +17,6 @@
  * DAMAGE.
  */
 
-
 #include "chacha20_internal.h"
 #include "chacha20_ssse3.h"
 #include "lc_chacha20.h"
@@ -42,5 +41,5 @@ static struct lc_sym _lc_chacha20_ssse3 = {
 	.statesize = LC_CC20_BLOCK_SIZE,
 	.blocksize = 1,
 };
-LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_chacha20_ssse3) =
-	&_lc_chacha20_ssse3;
+LC_INTERFACE_SYMBOL(const struct lc_sym *,
+		    lc_chacha20_ssse3) = &_lc_chacha20_ssse3;

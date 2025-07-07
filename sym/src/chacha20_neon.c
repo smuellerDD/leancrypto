@@ -27,7 +27,7 @@
 #include "asm/ARMv8/chacha20_asm_neon.h"
 
 static void cc20_crypt_neon(struct lc_sym_state *ctx, const uint8_t *in,
-			   uint8_t *out, size_t len)
+			    uint8_t *out, size_t len)
 {
 	cc20_crypt_asm(ctx, in, out, len, ChaCha20_neon);
 }
@@ -41,5 +41,5 @@ static struct lc_sym _lc_chacha20_neon = {
 	.statesize = LC_CC20_BLOCK_SIZE,
 	.blocksize = 1,
 };
-LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_chacha20_neon) =
-	&_lc_chacha20_neon;
+LC_INTERFACE_SYMBOL(const struct lc_sym *,
+		    lc_chacha20_neon) = &_lc_chacha20_neon;

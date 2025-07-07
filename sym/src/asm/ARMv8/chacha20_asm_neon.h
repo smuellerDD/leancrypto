@@ -38,7 +38,7 @@ extern "C" {
  *		       array in host byte order
  */
 void SYSV_ABI ChaCha20_neon(uint8_t *out, const uint8_t *in, size_t len,
-		   const uint32_t key[8], const uint32_t counter[4]);
+			    const uint32_t key[8], const uint32_t counter[4]);
 
 #ifdef __cplusplus
 }

@@ -34,15 +34,15 @@ int cc20_setkey(struct lc_sym_state *ctx, const uint8_t *key, size_t keylen);
 int cc20_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen);
 void cc20_init(struct lc_sym_state *ctx);
 
-static inline void cc20_crypt_asm(struct lc_sym_state *ctx, const uint8_t *in,
-				  uint8_t *out, size_t len,
-			   void SYSV_ABI (*chacha20_asm)(uint8_t *out,
-						const uint8_t *in, size_t len,
-						const uint32_t key[8],
-						const uint32_t counter[4]))
+static inline void
+cc20_crypt_asm(struct lc_sym_state *ctx, const uint8_t *in, uint8_t *out,
+	       size_t len,
+	       void SYSV_ABI (*chacha20_asm)(uint8_t *out, const uint8_t *in,
+					     size_t len, const uint32_t key[8],
+					     const uint32_t counter[4]))
 {
 	while (len > LC_CC20_BLOCK_SIZE) {
-		size_t todo = len &~ (LC_CC20_BLOCK_SIZE - 1);
+		size_t todo = len & ~(LC_CC20_BLOCK_SIZE - 1);
 		size_t blocks = len / LC_CC20_BLOCK_SIZE;
 
 		/*
@@ -65,8 +65,8 @@ static inline void cc20_crypt_asm(struct lc_sym_state *ctx, const uint8_t *in,
 	}
 
 	if (len) {
-		uint8_t keystream[LC_CC20_BLOCK_SIZE]
-			__align(sizeof(uint64_t)) = { 0 };
+		uint8_t keystream[LC_CC20_BLOCK_SIZE] __align(
+			sizeof(uint64_t)) = { 0 };
 
 		chacha20_asm(keystream, keystream, sizeof(keystream),
 			     ctx->key.u, ctx->counter);
