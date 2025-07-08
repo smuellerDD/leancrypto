@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 - 2025, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2025, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *
@@ -33,7 +33,17 @@
 static inline void ChaCha20AddCounter(uint32_t *State32bits,
 				      const uint32_t value_to_add)
 {
+	unsigned int overflow = (0 - value_to_add) < State32bits[0];
+
 	State32bits[0] += value_to_add;
+	if (overflow) {
+		State32bits[1]++;
+		if (State32bits[1] == 0) {
+			State32bits[2]++;
+			if (State32bits[2] == 0)
+				State32bits[3]++;
+		}
+	}
 }
 
 static inline void PartialXor(const __m256i val, const uint8_t *Src,
