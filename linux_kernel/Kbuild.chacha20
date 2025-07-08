@@ -5,11 +5,14 @@ leancrypto-$(CONFIG_LEANCRYPTO_CHACHA20)				       \
 				   ../sym/src/chacha20_selector.o
 
 ifdef CONFIG_X86_64
+chacha2_avx512_args += -mavx512bw -mavx512dq -mavx512f -mbmi2
+
 leancrypto-$(CONFIG_LEANCRYPTO_CHACHA20)				       \
 				+= ../sym/src/asm/AVX2/chacha20_impl_avx2.o    \
 				   ../sym/src/asm/AVX512/chacha20_impl_avx512.o\
 				   ../sym/src/chacha20_avx2.o                  \
 				   ../sym/src/chacha20_avx512.o
+CFLAGS_../sym/src/asm/AVX512/chacha20_impl_avx512.o	= $(chacha2_avx512_args)
 else
 leancrypto-$(CONFIG_LEANCRYPTO_CHACHA20)				       \
 				+= ../sym/src/chacha20_avx2_null.o
