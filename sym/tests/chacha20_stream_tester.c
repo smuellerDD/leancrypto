@@ -476,7 +476,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	ret += chacha20_enc_selftest(lc_chacha20_avx2);
 	ret += chacha20_enc_selftest(lc_chacha20_avx512);
 
-	ret = chacha20_enc_large(lc_chacha20);
+	ret += chacha20_enc_large(lc_chacha20);
 	ret += chacha20_enc_large(lc_chacha20_c);
 	ret += chacha20_enc_large(lc_chacha20_neon);
 	ret += chacha20_enc_large(lc_chacha20_riscv64_v_zbb);
