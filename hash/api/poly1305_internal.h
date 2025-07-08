@@ -35,7 +35,7 @@ extern "C" {
  *	      immediately after**
  */
 void lc_poly1305_init(struct lc_poly1305_context *ctx,
-                      const uint8_t key[LC_POLY1305_KEYSIZE]);
+		      const uint8_t key[LC_POLY1305_KEYSIZE]);
 
 /*
  * @param m pointer to the message fragment to be processed

@@ -34,7 +34,8 @@
 static inline void ChaCha20AddCounter(uint32_t *State32bits,
 				      const uint32_t value_to_add)
 {
-	unsigned int overflow = (0 - value_to_add) < State32bits[LC_CC20_KEY_SIZE_WORDS + 0];
+	unsigned int overflow =
+		(0 - value_to_add) < State32bits[LC_CC20_KEY_SIZE_WORDS + 0];
 
 	State32bits[LC_CC20_KEY_SIZE_WORDS + 0] += value_to_add;
 	if (overflow) {
