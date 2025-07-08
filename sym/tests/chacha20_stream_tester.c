@@ -21,6 +21,7 @@
 #include "chacha20_neon.h"
 #include "chacha20_riscv64_v_zbb.h"
 #include "chacha20_avx2.h"
+#include "chacha20_avx512.h"
 
 #include "alignment.h"
 #include "conv_be_le.h"
@@ -100,6 +101,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	ret += chacha20_enc_selftest(lc_chacha20_neon);
 	ret += chacha20_enc_selftest(lc_chacha20_riscv64_v_zbb);
 	ret += chacha20_enc_selftest(lc_chacha20_avx2);
+	ret += chacha20_enc_selftest(lc_chacha20_avx512);
 
 	return ret;
 }

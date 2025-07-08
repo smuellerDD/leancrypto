@@ -554,3 +554,4 @@ Copyright (c) 2023 Yury Myakotin
 
 This affects the following files:
 sym/src/asm/AVX2/chacha20_impl_avx2.c
+sym/src/asm/AVX512/chacha20_impl_avx512.c
