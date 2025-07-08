@@ -22,6 +22,7 @@
 #include "ext_headers_x86.h"
 #include "lc_chacha20.h"
 #include "lc_chacha20_private.h"
+#include "lc_memset_secure.h"
 #include "lc_sym.h"
 #include "visibility.h"
 
@@ -30,9 +31,14 @@
 static void cc20_crypt_avx2(struct lc_sym_state *ctx, const uint8_t *in,
 			    uint8_t *out, size_t len)
 {
+	int ret;
+
 	LC_FPU_ENABLE;
-	cc20_crypt_bytes_avx2(ctx->key.u, in, out, len);
+	ret = cc20_crypt_bytes_avx2(ctx->key.u, in, out, len);
 	LC_FPU_DISABLE;
+
+	if (ret)
+		lc_memset_secure(out, 0, len);
 }
 
 static struct lc_sym _lc_chacha20_avx2 = {

@@ -34,8 +34,8 @@ extern "C" {
  * @param [out] out Output buffer of at least len size
  * @param [in] len Length of the buffers to be encrypted
  */
-void cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
-			     uint64_t len);
+int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
+			    uint64_t len);
 
 #ifdef __cplusplus
 }
