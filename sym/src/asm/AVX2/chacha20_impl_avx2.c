@@ -28,20 +28,21 @@
 #include "alignment.h"
 #include "chacha20_asm_avx2.h"
 #include "ext_headers_x86.h"
+#include "lc_chacha20_private.h"
 #include "timecop.h"
 
 static inline void ChaCha20AddCounter(uint32_t *State32bits,
 				      const uint32_t value_to_add)
 {
-	unsigned int overflow = (0 - value_to_add) < State32bits[0];
+	unsigned int overflow = (0 - value_to_add) < State32bits[LC_CC20_KEY_SIZE_WORDS + 0];
 
-	State32bits[0] += value_to_add;
+	State32bits[LC_CC20_KEY_SIZE_WORDS + 0] += value_to_add;
 	if (overflow) {
-		State32bits[1]++;
-		if (State32bits[1] == 0) {
-			State32bits[2]++;
-			if (State32bits[2] == 0)
-				State32bits[3]++;
+		State32bits[LC_CC20_KEY_SIZE_WORDS + 1]++;
+		if (State32bits[LC_CC20_KEY_SIZE_WORDS + 1] == 0) {
+			State32bits[LC_CC20_KEY_SIZE_WORDS + 2]++;
+			if (State32bits[LC_CC20_KEY_SIZE_WORDS + 2] == 0)
+				State32bits[LC_CC20_KEY_SIZE_WORDS + 3]++;
 		}
 	}
 }
