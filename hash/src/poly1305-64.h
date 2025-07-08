@@ -61,7 +61,10 @@ typedef struct uint128_t {
 
 #elif defined(__GNUC__)
 #if defined(__SIZEOF_INT128__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
 typedef unsigned __int128 uint128_t;
+#pragma GCC diagnostic pop
 #else
 typedef unsigned uint128_t __attribute__((mode(TI)));
 #endif
@@ -108,14 +111,14 @@ static unsigned long long U8TO64(const uint8_t *p)
  */
 static void U64TO8(uint8_t *p, unsigned long long v)
 {
-	p[0] = (v) & 0xff;
-	p[1] = (v >> 8) & 0xff;
-	p[2] = (v >> 16) & 0xff;
-	p[3] = (v >> 24) & 0xff;
-	p[4] = (v >> 32) & 0xff;
-	p[5] = (v >> 40) & 0xff;
-	p[6] = (v >> 48) & 0xff;
-	p[7] = (v >> 56) & 0xff;
+	p[0] = (uint8_t)((v) & 0xff);
+	p[1] = (uint8_t)((v >> 8) & 0xff);
+	p[2] = (uint8_t)((v >> 16) & 0xff);
+	p[3] = (uint8_t)((v >> 24) & 0xff);
+	p[4] = (uint8_t)((v >> 32) & 0xff);
+	p[5] = (uint8_t)((v >> 40) & 0xff);
+	p[6] = (uint8_t)((v >> 48) & 0xff);
+	p[7] = (uint8_t)((v >> 56) & 0xff);
 }
 
 void lc_poly1305_init(struct lc_poly1305_context *ctx, const uint8_t key[32])
