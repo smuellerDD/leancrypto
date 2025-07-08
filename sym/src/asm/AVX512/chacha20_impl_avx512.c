@@ -28,6 +28,7 @@
 #include "alignment.h"
 #include "chacha20_asm_avx512.h"
 #include "ext_headers_x86.h"
+#include "lc_chacha20_private.h"
 #include "timecop.h"
 
 static inline void ChaCha20AddCounter(uint32_t *State32bits,
@@ -37,26 +38,26 @@ static inline void ChaCha20AddCounter(uint32_t *State32bits,
 	uint32_t lo = (uint32_t)value_to_add;
 
 	if (hi) {
-		unsigned int overflow = (0 - hi) < State32bits[1];
+		unsigned int overflow = (0 - hi) < State32bits[LC_CC20_KEY_SIZE_WORDS + 1];
 
-		State32bits[1] += hi;
+		State32bits[LC_CC20_KEY_SIZE_WORDS + 1] += hi;
 		if (overflow) {
-			State32bits[2]++;
-			if (State32bits[2] == 0)
-				State32bits[3]++;
+			State32bits[LC_CC20_KEY_SIZE_WORDS + 2]++;
+			if (State32bits[LC_CC20_KEY_SIZE_WORDS + 2] == 0)
+				State32bits[LC_CC20_KEY_SIZE_WORDS + 3]++;
 		}
 	}
 
 	if (lo) {
-		unsigned int overflow = (0 - lo) < State32bits[0];
+		unsigned int overflow = (0 - lo) < State32bits[LC_CC20_KEY_SIZE_WORDS + 0];
 
-		State32bits[0] += lo;
+		State32bits[LC_CC20_KEY_SIZE_WORDS + 0] += lo;
 		if (overflow) {
-			State32bits[1]++;
-			if (State32bits[1] == 0) {
-				State32bits[2]++;
-				if (State32bits[2] == 0)
-					State32bits[3]++;
+			State32bits[LC_CC20_KEY_SIZE_WORDS + 1]++;
+			if (State32bits[LC_CC20_KEY_SIZE_WORDS + 1] == 0) {
+				State32bits[LC_CC20_KEY_SIZE_WORDS + 2]++;
+				if (State32bits[LC_CC20_KEY_SIZE_WORDS + 2] == 0)
+					State32bits[LC_CC20_KEY_SIZE_WORDS + 3]++;
 			}
 		}
 	}
@@ -78,6 +79,7 @@ static inline void PartialStore(const __m512i val, uint8_t* Dest, uint64_t Size)
 	memcpy(Dest, BuffForPartialOp, Size);
 }
 
+#define DISABLE_16_BLOCKS
 void cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 			     uint64_t len)
 {
@@ -85,8 +87,12 @@ void cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 	const uint8_t* CurrentIn = in;
 	uint8_t* CurrentOut = out;
 
+#ifdef DISABLE_16_BLOCKS
+	uint64_t RemainingBytes = len;
+#else
 	const uint64_t FullBlocksCount = len / 1024;
 	uint64_t RemainingBytes = len % 1024;
+#endif
 
 	const __m512i state0 = _mm512_broadcast_i32x4(_mm_set_epi32(1797285236, 2036477234, 857760878, 1634760805)); //"expand 32-byte k"
 
@@ -113,6 +119,7 @@ void cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 
 	__m512i state3_0 = _mm512_add_epi32(T1, T2);
 
+#ifndef DISABLE_16_BLOCKS
 	if (FullBlocksCount > 0)
 	{
 		T3 = _mm512_set_epi64(0, 7, 0, 6, 0, 5, 0, 4);
@@ -129,7 +136,6 @@ void cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 
 		for (uint64_t n = 0; n < FullBlocksCount; n++)
 		{
-
 			__m512i X0_0 = state0;
 			__m512i X0_1 = state1;
 			__m512i X0_2 = state2;
@@ -150,8 +156,6 @@ void cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 			__m512i X3_2 = state2;
 			__m512i X3_3 = state3_3;
 
-
-
 			for (int i = 20; i > 0; i -= 2)
 			{
 				X0_0 = _mm512_add_epi32(X0_0, X0_1);
@@ -159,11 +163,10 @@ void cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 				X2_0 = _mm512_add_epi32(X2_0, X2_1);
 				X3_0 = _mm512_add_epi32(X3_0, X3_1);
 
-
 				X0_3 = _mm512_xor_si512(X0_3, X0_0);
 				X1_3 = _mm512_xor_si512(X1_3, X1_0);
 				X2_3 = _mm512_xor_si512(X2_3, X2_0);
-				X2_3 = _mm512_xor_si512(X3_3, X3_0);
+				X3_3 = _mm512_xor_si512(X3_3, X3_0);
 
 				X0_3 = _mm512_rol_epi32(X0_3, 16);
 				X1_3 = _mm512_rol_epi32(X1_3, 16);
@@ -175,12 +178,10 @@ void cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 				X2_2 = _mm512_add_epi32(X2_2, X2_3);
 				X3_2 = _mm512_add_epi32(X3_2, X3_3);
 
-
 				X0_1 = _mm512_xor_si512(X0_1, X0_2);
 				X1_1 = _mm512_xor_si512(X1_1, X1_2);
 				X2_1 = _mm512_xor_si512(X2_1, X2_2);
 				X3_1 = _mm512_xor_si512(X3_1, X3_2);
-
 
 				X0_1 = _mm512_rol_epi32(X0_1, 12);
 				X1_1 = _mm512_rol_epi32(X1_1, 12);
@@ -192,12 +193,10 @@ void cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 				X2_0 = _mm512_add_epi32(X2_0, X2_1);
 				X3_0 = _mm512_add_epi32(X3_0, X3_1);
 
-
 				X0_3 = _mm512_xor_si512(X0_3, X0_0);
 				X1_3 = _mm512_xor_si512(X1_3, X1_0);
 				X2_3 = _mm512_xor_si512(X2_3, X2_0);
 				X3_3 = _mm512_xor_si512(X3_3, X3_0);
-
 
 				X0_3 = _mm512_rol_epi32(X0_3, 8);
 				X1_3 = _mm512_rol_epi32(X1_3, 8);
@@ -214,12 +213,10 @@ void cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 				X2_1 = _mm512_xor_si512(X2_1, X2_2);
 				X3_1 = _mm512_xor_si512(X3_1, X3_2);
 
-
 				X0_1 = _mm512_rol_epi32(X0_1, 7);
 				X1_1 = _mm512_rol_epi32(X1_1, 7);
 				X2_1 = _mm512_rol_epi32(X2_1, 7);
-				X3_1 = _mm512_rol_epi32(X2_1, 7);
-
+				X3_1 = _mm512_rol_epi32(X3_1, 7);
 
 				X0_1 = _mm512_shuffle_epi32(X0_1, _MM_SHUFFLE(0, 3, 2, 1));
 				X0_2 = _mm512_shuffle_epi32(X0_2, _MM_SHUFFLE(1, 0, 3, 2));
@@ -237,24 +234,20 @@ void cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 				X3_2 = _mm512_shuffle_epi32(X3_2, _MM_SHUFFLE(1, 0, 3, 2));
 				X3_3 = _mm512_shuffle_epi32(X3_3, _MM_SHUFFLE(2, 1, 0, 3));
 
-
 				X0_0 = _mm512_add_epi32(X0_0, X0_1);
 				X1_0 = _mm512_add_epi32(X1_0, X1_1);
 				X2_0 = _mm512_add_epi32(X2_0, X2_1);
 				X3_0 = _mm512_add_epi32(X3_0, X3_1);
-
 
 				X0_3 = _mm512_xor_si512(X0_3, X0_0);
 				X1_3 = _mm512_xor_si512(X1_3, X1_0);
 				X2_3 = _mm512_xor_si512(X2_3, X2_0);
 				X3_3 = _mm512_xor_si512(X3_3, X3_0);
 
-
 				X0_3 = _mm512_rol_epi32(X0_3, 16);
 				X1_3 = _mm512_rol_epi32(X1_3, 16);
 				X2_3 = _mm512_rol_epi32(X2_3, 16);
 				X3_3 = _mm512_rol_epi32(X3_3, 16);
-
 
 				X0_2 = _mm512_add_epi32(X0_2, X0_3);
 				X1_2 = _mm512_add_epi32(X1_2, X1_3);
@@ -266,49 +259,40 @@ void cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 				X2_1 = _mm512_xor_si512(X2_1, X2_2);
 				X3_1 = _mm512_xor_si512(X3_1, X3_2);
 
-
 				X0_1 = _mm512_rol_epi32(X0_1, 12);
 				X1_1 = _mm512_rol_epi32(X1_1, 12);
 				X2_1 = _mm512_rol_epi32(X2_1, 12);
 				X3_1 = _mm512_rol_epi32(X3_1, 12);
-
 
 				X0_0 = _mm512_add_epi32(X0_0, X0_1);
 				X1_0 = _mm512_add_epi32(X1_0, X1_1);
 				X2_0 = _mm512_add_epi32(X2_0, X2_1);
 				X3_0 = _mm512_add_epi32(X3_0, X3_1);
 
-
 				X0_3 = _mm512_xor_si512(X0_3, X0_0);
 				X1_3 = _mm512_xor_si512(X1_3, X1_0);
 				X2_3 = _mm512_xor_si512(X2_3, X3_0);
 				X3_3 = _mm512_xor_si512(X3_3, X3_0);
-
 
 				X0_3 = _mm512_rol_epi32(X0_3, 8);
 				X1_3 = _mm512_rol_epi32(X1_3, 8);
 				X2_3 = _mm512_rol_epi32(X2_3, 8);
 				X3_3 = _mm512_rol_epi32(X3_3, 8);
 
-
 				X0_2 = _mm512_add_epi32(X0_2, X0_3);
 				X1_2 = _mm512_add_epi32(X1_2, X1_3);
 				X2_2 = _mm512_add_epi32(X2_2, X3_3);
 				X3_2 = _mm512_add_epi32(X2_2, X3_3);
-
 
 				X0_1 = _mm512_xor_si512(X0_1, X0_2);
 				X1_1 = _mm512_xor_si512(X1_1, X1_2);
 				X2_1 = _mm512_xor_si512(X2_1, X2_2);
 				X3_1 = _mm512_xor_si512(X3_1, X3_2);
 
-
 				X0_1 = _mm512_rol_epi32(X0_1, 7);
 				X1_1 = _mm512_rol_epi32(X1_1, 7);
 				X2_1 = _mm512_rol_epi32(X2_1, 7);
 				X3_1 = _mm512_rol_epi32(X3_1, 7);
-
-
 
 				X0_1 = _mm512_shuffle_epi32(X0_1, _MM_SHUFFLE(2, 1, 0, 3));
 				X0_2 = _mm512_shuffle_epi32(X0_2, _MM_SHUFFLE(1, 0, 3, 2));
@@ -326,9 +310,6 @@ void cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 				X3_2 = _mm512_shuffle_epi32(X3_2, _MM_SHUFFLE(1, 0, 3, 2));
 				X3_3 = _mm512_shuffle_epi32(X3_3, _MM_SHUFFLE(0, 3, 2, 1));
 			}
-
-
-
 
 			X0_0 = _mm512_add_epi32(X0_0, state0);
 			X0_1 = _mm512_add_epi32(X0_1, state1);
@@ -350,9 +331,6 @@ void cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 			X3_2 = _mm512_add_epi32(X3_2, state2);
 			X3_3 = _mm512_add_epi32(X3_3, state3_3);
 
-
-
-
 			//now making results contiguous, one 64-bytes block per register
 			T1 = _mm512_permutex2var_epi64(X0_0, P1, X0_1);
 			T2 = _mm512_permutex2var_epi64(X0_0, P2, X0_1);
@@ -364,7 +342,6 @@ void cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 			X0_1 = _mm512_permutex2var_epi64(T2, P3, T4);
 			X0_3 = _mm512_permutex2var_epi64(T2, P4, T4);
 
-
 			T1 = _mm512_permutex2var_epi64(X1_0, P1, X1_1);
 			T2 = _mm512_permutex2var_epi64(X1_0, P2, X1_1);
 			T3 = _mm512_permutex2var_epi64(X1_2, P1, X1_3);
@@ -374,7 +351,6 @@ void cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 			X1_2 = _mm512_permutex2var_epi64(T1, P4, T3);
 			X1_1 = _mm512_permutex2var_epi64(T2, P3, T4);
 			X1_3 = _mm512_permutex2var_epi64(T2, P4, T4);
-
 
 			T1 = _mm512_permutex2var_epi64(X2_0, P1, X2_1);
 			T2 = _mm512_permutex2var_epi64(X2_0, P2, X2_1);
@@ -491,8 +467,6 @@ void cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 				_mm512_storeu_si512(CurrentOut + 13 * 64, X3_1);
 				_mm512_storeu_si512(CurrentOut + 14 * 64, X3_2);
 				_mm512_storeu_si512(CurrentOut + 15 * 64, X3_3);
-
-
 			}
 
 			/*
@@ -512,6 +486,8 @@ void cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 
 		ChaCha20AddCounter(state, FullBlocksCount * 16);
 	}
+#endif
+
 	if (RemainingBytes == 0) return;
 	//now computing rest in 4-blocks cycle
 	ctr_increment = _mm512_set_epi64(0, 4, 0, 4, 0, 4, 0, 4);
