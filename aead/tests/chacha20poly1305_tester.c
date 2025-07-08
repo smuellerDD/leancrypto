@@ -18,11 +18,13 @@
  */
 
 #include "alignment.h"
+#include "chacha20_c.h"
 #include "compare.h"
 #include "lc_chacha20_poly1305.h"
+#include "math_helper.h"
 #include "visibility.h"
 
-static int lc_chacha20_poly1305_test(void)
+static int lc_chacha20_poly1305_test(int argc)
 {
 	/* Test vector from RFC7539 */
 	static const uint8_t aad[] = { 0x50, 0x51, 0x52, 0x53, 0xc0, 0xc1,
@@ -67,8 +69,16 @@ static int lc_chacha20_poly1305_test(void)
 					   0xd0, 0x60, 0x06, 0x91 };
 	uint8_t act_ct[sizeof(exp_ct)] __align(sizeof(uint32_t));
 	uint8_t act_tag[sizeof(exp_tag)] __align(sizeof(uint32_t));
+	size_t len, i;
+	const uint8_t *in_p;
+	uint8_t *out_p;
 	int ret = 0, rc;
 	LC_CHACHA20_POLY1305_CTX_ON_STACK(cc20p1305);
+
+	if (argc >= 2) {
+		struct lc_chacha20_poly1305_cryptor *c = cc20p1305->aead_state;
+		c->chacha20.sym = lc_chacha20_c;
+	}
 
 	lc_aead_setkey(cc20p1305, key, sizeof(key), iv, sizeof(iv));
 	lc_aead_encrypt(cc20p1305, in, act_ct, sizeof(in), aad, sizeof(aad),
@@ -88,6 +98,34 @@ static int lc_chacha20_poly1305_test(void)
 			  "ChaCha20 Poly 1305 decrypt plaintext");
 	lc_aead_zero(cc20p1305);
 
+	/* Test the stream cipher API */
+	lc_aead_setkey(cc20p1305, key, sizeof(key), iv, sizeof(iv));
+
+	lc_aead_enc_init(cc20p1305, aad, sizeof(aad));
+
+	len = sizeof(in);
+	i = 1;
+	in_p = in;
+	out_p = act_ct;
+	while (len) {
+		size_t todo = min_size(len, i);
+
+		lc_aead_enc_update(cc20p1305, in_p, out_p, todo);
+
+		len -= todo;
+		in_p += todo;
+		out_p += todo;
+		i++;
+	}
+
+	lc_aead_enc_final(cc20p1305,act_tag, sizeof(act_tag));
+
+	ret += lc_compare(act_ct, exp_ct, sizeof(exp_ct),
+			  "ChaCha20 Poly 1305 encrypt ciphertext");
+	ret += lc_compare(act_tag, exp_tag, sizeof(exp_tag),
+			  "ChaCha20 Poly 1305 encrypt tag");
+	lc_aead_zero(cc20p1305);
+
 	return ret;
 }
 
@@ -98,7 +136,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	(void)argc;
 	(void)argv;
 
-	ret = lc_chacha20_poly1305_test();
+	ret = lc_chacha20_poly1305_test(argc);
 
 	return ret;
 }

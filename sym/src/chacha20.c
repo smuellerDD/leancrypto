@@ -188,34 +188,56 @@ LC_INTERFACE_FUNCTION(void, cc20_block, struct lc_sym_state *state,
 	unpoison(stream, LC_CC20_BLOCK_SIZE);
 }
 
+void cc20_crypt_remaining(struct lc_sym_state *ctx, const uint8_t **in,
+			  uint8_t **out, size_t *len)
+{
+	const uint8_t *inp = *in;
+	uint8_t *outp = *out;
+
+	if (ctx->keystream_ptr) {
+		size_t todo = min_size(*len,
+				       LC_CC20_BLOCK_SIZE - ctx->keystream_ptr);
+
+		if (inp != outp)
+			memcpy(outp, inp, todo);
+
+		xor_64(outp, ctx->keystream.b + ctx->keystream_ptr, todo);
+
+		ctx->keystream_ptr += todo;
+		*len -= todo;
+		*in += todo;
+		*out += todo;
+	}
+}
+
 static void cc20_crypt(struct lc_sym_state *ctx, const uint8_t *in,
 		       uint8_t *out, size_t len)
 {
-	uint32_t keystream[LC_CC20_BLOCK_SIZE_WORDS] __align(
-		LC_XOR_ALIGNMENT(sizeof(uint64_t)));
-
 	if (!ctx)
 		return;
 
 	if (!len)
 		return;
 
-	while (len) {
-		size_t todo = min_size(len, sizeof(keystream));
+	cc20_crypt_remaining(ctx, &in, &out, &len);
 
-		cc20_block(ctx, keystream);
+	while (len) {
+		size_t todo = min_size(len, LC_CC20_BLOCK_SIZE);
+
+		cc20_block(ctx, ctx->keystream.u);
 
 		if (in != out)
 			memcpy(out, in, todo);
 
-		xor_64(out, (uint8_t *)keystream, todo);
+		xor_64(out, ctx->keystream.b, todo);
 
 		len -= todo;
 		in += todo;
 		out += todo;
-	}
 
-	lc_memset_secure(keystream, 0, sizeof(keystream));
+		/* When we are in this loop, the keystream_ptr was zero */
+		ctx->keystream_ptr = (uint8_t)todo;
+	}
 }
 
 void cc20_init(struct lc_sym_state *ctx)
@@ -249,6 +271,8 @@ int cc20_setkey(struct lc_sym_state *ctx, const uint8_t *key, size_t keylen)
 	ctx->key.u[6] = ptr_to_le32(key + sizeof(uint32_t) * 6);
 	ctx->key.u[7] = ptr_to_le32(key + sizeof(uint32_t) * 7);
 
+	ctx->keystream_ptr = 0;
+
 	return 0;
 }
 
@@ -272,7 +296,7 @@ static struct lc_sym _lc_chacha20 = {
 	.setiv = cc20_setiv,
 	.encrypt = cc20_crypt,
 	.decrypt = cc20_crypt,
-	.statesize = LC_CC20_BLOCK_SIZE,
+	.statesize = LC_CC20_STATE_SIZE,
 	.blocksize = 1,
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_chacha20_c) = &_lc_chacha20;

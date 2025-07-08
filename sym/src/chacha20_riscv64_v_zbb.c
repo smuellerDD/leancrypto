@@ -42,7 +42,7 @@ static struct lc_sym _lc_chacha20_riscv64_v_zbb = {
 	.setiv = cc20_setiv,
 	.encrypt = cc20_crypt_riscv64_v_zbb,
 	.decrypt = cc20_crypt_riscv64_v_zbb,
-	.statesize = LC_CC20_BLOCK_SIZE,
+	.statesize = LC_CC20_STATE_SIZE,
 	.blocksize = 1,
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *,

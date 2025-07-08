@@ -83,6 +83,7 @@ static inline void PartialXor(const __m512i val, const uint8_t *Src,
 	memcpy(Dest, BuffForPartialOp, Size);
 	lc_memset_secure(BuffForPartialOp, 0, sizeof(BuffForPartialOp));
 }
+
 static inline void PartialStore(const __m512i val, uint8_t *Dest, uint64_t Size)
 {
 	uint8_t BuffForPartialOp[64] __align(64);

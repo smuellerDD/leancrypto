@@ -34,6 +34,8 @@ void cc20_selftest(int *tested, const char *impl);
 int cc20_setkey(struct lc_sym_state *ctx, const uint8_t *key, size_t keylen);
 int cc20_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen);
 void cc20_init(struct lc_sym_state *ctx);
+void cc20_crypt_remaining(struct lc_sym_state *ctx, const uint8_t **in,
+			  uint8_t **out, size_t *len);
 
 static inline void cc20_crypt_asm(
 	struct lc_sym_state *ctx, const uint8_t *in, uint8_t *out, size_t len,
@@ -41,6 +43,8 @@ static inline void cc20_crypt_asm(
 			     const uint32_t key[8], const uint32_t counter[4]))
 {
 	size_t origlen = len;
+
+	cc20_crypt_remaining(ctx, &in, &out, &len);
 
 	while (len > LC_CC20_BLOCK_SIZE) {
 		size_t todo = len & ~(LC_CC20_BLOCK_SIZE - 1);
@@ -66,19 +70,18 @@ static inline void cc20_crypt_asm(
 	}
 
 	if (len) {
-		uint8_t keystream[LC_CC20_BLOCK_SIZE] __align(
-			sizeof(uint64_t)) = { 0 };
-
-		chacha20_asm(keystream, keystream, sizeof(keystream),
-			     ctx->key.u, ctx->counter);
+		memset(ctx->keystream.b, 0, LC_CC20_BLOCK_SIZE);
+		chacha20_asm(ctx->keystream.b, ctx->keystream.b,
+			     LC_CC20_BLOCK_SIZE, ctx->key.u, ctx->counter);
 		cc20_inc_counter(ctx);
 
 		if (in != out)
 			memcpy(out, in, len);
 
-		xor_64(out, keystream, len);
+		xor_64(out, ctx->keystream.b, len);
 
-		lc_memset_secure(keystream, 0, sizeof(keystream));
+		/* When we are in this loop, the keystream_ptr was zero */
+		ctx->keystream_ptr = (uint8_t)len;
 	}
 
 	/* Timecop: output is not sensitive regarding side-channels. */

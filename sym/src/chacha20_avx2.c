@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 - 2025, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2025, Stephan Mueller <smueller@chronox.de>
  *
  * License: see COPYING file in root directory
  *
@@ -31,14 +31,53 @@
 static void cc20_crypt_avx2(struct lc_sym_state *ctx, const uint8_t *in,
 			    uint8_t *out, size_t len)
 {
+	size_t fullblock_bytes;
 	int ret;
 
-	LC_FPU_ENABLE;
-	ret = cc20_crypt_bytes_avx2(ctx->key.u, in, out, len);
-	LC_FPU_DISABLE;
+	/*
+	 * cc20_crypt_bytes_avx2 can handle the partial blocks, but we
+	 * deliberately handle partial blocks here as we want to keep the
+	 * unused keystream.
+	 */
 
-	if (ret)
-		lc_memset_secure(out, 0, len);
+	cc20_crypt_remaining(ctx, &in, &out, &len);
+
+	fullblock_bytes = len &~ (LC_CC20_BLOCK_SIZE - 1);
+
+	if (fullblock_bytes) {
+		LC_FPU_ENABLE;
+		ret = cc20_crypt_bytes_avx2(ctx->key.u, in, out,
+					    fullblock_bytes);
+		LC_FPU_DISABLE;
+
+		if (ret)
+			lc_memset_secure(out, 0, len);
+
+		in += fullblock_bytes;
+		out += fullblock_bytes;
+		len -= fullblock_bytes;
+	}
+
+	if (len) {
+		memset(ctx->keystream.b, 0, LC_CC20_BLOCK_SIZE);
+
+		LC_FPU_ENABLE;
+		ret = cc20_crypt_bytes_avx2(ctx->key.u, ctx->keystream.b,
+					      ctx->keystream.b,
+					      LC_CC20_BLOCK_SIZE);
+		LC_FPU_DISABLE;
+
+		if (ret)
+			lc_memset_secure(out, 0, len);
+
+		if (in != out)
+			memcpy(out, in, len);
+
+		xor_64(out, ctx->keystream.b, len);
+
+		/* When we are in this loop, the keystream_ptr was zero */
+		ctx->keystream_ptr = (uint8_t)len;
+	}
 }
 
 static struct lc_sym _lc_chacha20_avx2 = {
@@ -47,7 +86,7 @@ static struct lc_sym _lc_chacha20_avx2 = {
 	.setiv = cc20_setiv,
 	.encrypt = cc20_crypt_avx2,
 	.decrypt = cc20_crypt_avx2,
-	.statesize = LC_CC20_BLOCK_SIZE,
+	.statesize = LC_CC20_STATE_SIZE,
 	.blocksize = 1,
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *,

@@ -41,7 +41,7 @@ static struct lc_sym _lc_chacha20_neon = {
 	.setiv = cc20_setiv,
 	.encrypt = cc20_crypt_neon,
 	.decrypt = cc20_crypt_neon,
-	.statesize = LC_CC20_BLOCK_SIZE,
+	.statesize = LC_CC20_STATE_SIZE,
 	.blocksize = 1,
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *,

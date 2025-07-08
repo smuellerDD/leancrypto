@@ -30,6 +30,9 @@ extern "C" {
 #define LC_CC20_KEY_SIZE 32
 #define LC_CC20_KEY_SIZE_WORDS (LC_CC20_KEY_SIZE / sizeof(uint32_t))
 
+#define LC_CC20_BLOCK_SIZE ((4 + 8 + 4) * sizeof(uint32_t))
+#define LC_CC20_BLOCK_SIZE_WORDS (LC_CC20_BLOCK_SIZE / sizeof(uint32_t))
+
 /* State according to RFC 7539 section 2.3 */
 struct lc_sym_state {
 	uint32_t constants[4];
@@ -38,10 +41,14 @@ struct lc_sym_state {
 		uint8_t b[LC_CC20_KEY_SIZE];
 	} key;
 	uint32_t counter[4];
+	union {
+		uint32_t u[LC_CC20_BLOCK_SIZE_WORDS];
+		uint8_t b[LC_CC20_BLOCK_SIZE];
+	} keystream;
+	uint8_t keystream_ptr;
 };
 
-#define LC_CC20_BLOCK_SIZE sizeof(struct lc_sym_state)
-#define LC_CC20_BLOCK_SIZE_WORDS (LC_CC20_BLOCK_SIZE / sizeof(uint32_t))
+#define LC_CC20_STATE_SIZE (sizeof(struct lc_sym_state))
 
 static inline void cc20_init_constants(struct lc_sym_state *ctx)
 {
