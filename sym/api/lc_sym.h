@@ -74,15 +74,6 @@ struct lc_sym_ctx {
 	(sizeof(struct lc_sym_ctx) + LC_SYM_STATE_SIZE_NONALIGNED(x))
 #define LC_SYM_CTX_SIZE(x) (sizeof(struct lc_sym_ctx) + LC_SYM_STATE_SIZE(x))
 
-/**
- * Get aligned buffer with additional spare size of LC_SYM_ALIGNMASK to
- * ensure that the underlying symmetric algorithm implementation buffer is
- * aligned to proper size.
- */
-#define LC_ALIGNED_SYM_BUFFER(name, symname, size)                             \
-	uint64_t name[(size + sizeof(uint64_t) - 1) / sizeof(uint64_t)]        \
-		__attribute__((aligned(LC_SYM_ALIGNMENT(symname))))
-
 #define _LC_SYM_SET_CTX(name, symname, ctx, offset)                            \
 	name->sym_state = (struct lc_sym_state *)LC_ALIGN_SYM_MASK(            \
 		((uint8_t *)(ctx)) + (offset), symname);                       \
@@ -216,9 +207,9 @@ void lc_sym_zero_free(struct lc_sym_ctx *ctx);
 	_Pragma("GCC diagnostic push")                                              \
 		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
 			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
-			LC_ALIGNED_SYM_BUFFER(                                      \
-				name##_ctx_buf, symname,                            \
-				LC_SYM_CTX_SIZE_NONALIGNED(symname));               \
+			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
+					  LC_SYM_CTX_SIZE_NONALIGNED(symname),      \
+					  LC_SYM_ALIGNMENT_COMMON);                 \
 	struct lc_sym_ctx *name = (struct lc_sym_ctx *)name##_ctx_buf;              \
 	LC_SYM_SET_CTX(name, symname);                                              \
 	lc_sym_zero(name);                                                          \
