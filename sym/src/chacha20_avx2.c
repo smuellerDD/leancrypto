@@ -42,7 +42,7 @@ static void cc20_crypt_avx2(struct lc_sym_state *ctx, const uint8_t *in,
 
 	cc20_crypt_remaining(ctx, &in, &out, &len);
 
-	fullblock_bytes = len &~ (LC_CC20_BLOCK_SIZE - 1);
+	fullblock_bytes = len & ~(LC_CC20_BLOCK_SIZE - 1);
 
 	if (fullblock_bytes) {
 		LC_FPU_ENABLE;
@@ -61,7 +61,7 @@ static void cc20_crypt_avx2(struct lc_sym_state *ctx, const uint8_t *in,
 	if (len) {
 		LC_FPU_ENABLE;
 		ret = cc20_crypt_bytes_avx2(ctx->key.u, NULL, ctx->keystream.b,
-					      LC_CC20_BLOCK_SIZE);
+					    LC_CC20_BLOCK_SIZE);
 		LC_FPU_DISABLE;
 
 		if (ret)

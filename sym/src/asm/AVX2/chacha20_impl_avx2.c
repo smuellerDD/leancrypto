@@ -231,33 +231,33 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 			ws->X2_1 = RotateLeft7(ws->X2_1);
 			ws->X3_1 = RotateLeft7(ws->X3_1);
 
-			ws->X0_1 = _mm256_shuffle_epi32(ws->X0_1,
-						    _MM_SHUFFLE(0, 3, 2, 1));
-			ws->X0_2 = _mm256_shuffle_epi32(ws->X0_2,
-						    _MM_SHUFFLE(1, 0, 3, 2));
-			ws->X0_3 = _mm256_shuffle_epi32(ws->X0_3,
-						    _MM_SHUFFLE(2, 1, 0, 3));
+			ws->X0_1 = _mm256_shuffle_epi32(
+				ws->X0_1, _MM_SHUFFLE(0, 3, 2, 1));
+			ws->X0_2 = _mm256_shuffle_epi32(
+				ws->X0_2, _MM_SHUFFLE(1, 0, 3, 2));
+			ws->X0_3 = _mm256_shuffle_epi32(
+				ws->X0_3, _MM_SHUFFLE(2, 1, 0, 3));
 
-			ws->X1_1 = _mm256_shuffle_epi32(ws->X1_1,
-						    _MM_SHUFFLE(0, 3, 2, 1));
-			ws->X1_2 = _mm256_shuffle_epi32(ws->X1_2,
-						    _MM_SHUFFLE(1, 0, 3, 2));
-			ws->X1_3 = _mm256_shuffle_epi32(ws->X1_3,
-						    _MM_SHUFFLE(2, 1, 0, 3));
+			ws->X1_1 = _mm256_shuffle_epi32(
+				ws->X1_1, _MM_SHUFFLE(0, 3, 2, 1));
+			ws->X1_2 = _mm256_shuffle_epi32(
+				ws->X1_2, _MM_SHUFFLE(1, 0, 3, 2));
+			ws->X1_3 = _mm256_shuffle_epi32(
+				ws->X1_3, _MM_SHUFFLE(2, 1, 0, 3));
 
-			ws->X2_1 = _mm256_shuffle_epi32(ws->X2_1,
-						    _MM_SHUFFLE(0, 3, 2, 1));
-			ws->X2_2 = _mm256_shuffle_epi32(ws->X2_2,
-						    _MM_SHUFFLE(1, 0, 3, 2));
-			ws->X2_3 = _mm256_shuffle_epi32(ws->X2_3,
-						    _MM_SHUFFLE(2, 1, 0, 3));
+			ws->X2_1 = _mm256_shuffle_epi32(
+				ws->X2_1, _MM_SHUFFLE(0, 3, 2, 1));
+			ws->X2_2 = _mm256_shuffle_epi32(
+				ws->X2_2, _MM_SHUFFLE(1, 0, 3, 2));
+			ws->X2_3 = _mm256_shuffle_epi32(
+				ws->X2_3, _MM_SHUFFLE(2, 1, 0, 3));
 
-			ws->X3_1 = _mm256_shuffle_epi32(ws->X3_1,
-						    _MM_SHUFFLE(0, 3, 2, 1));
-			ws->X3_2 = _mm256_shuffle_epi32(ws->X3_2,
-						    _MM_SHUFFLE(1, 0, 3, 2));
-			ws->X3_3 = _mm256_shuffle_epi32(ws->X3_3,
-						    _MM_SHUFFLE(2, 1, 0, 3));
+			ws->X3_1 = _mm256_shuffle_epi32(
+				ws->X3_1, _MM_SHUFFLE(0, 3, 2, 1));
+			ws->X3_2 = _mm256_shuffle_epi32(
+				ws->X3_2, _MM_SHUFFLE(1, 0, 3, 2));
+			ws->X3_3 = _mm256_shuffle_epi32(
+				ws->X3_3, _MM_SHUFFLE(2, 1, 0, 3));
 
 			ws->X0_0 = _mm256_add_epi32(ws->X0_0, ws->X0_1);
 			ws->X1_0 = _mm256_add_epi32(ws->X1_0, ws->X1_1);
@@ -319,33 +319,33 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 			ws->X2_1 = RotateLeft7(ws->X2_1);
 			ws->X3_1 = RotateLeft7(ws->X3_1);
 
-			ws->X0_1 = _mm256_shuffle_epi32(ws->X0_1,
-						    _MM_SHUFFLE(2, 1, 0, 3));
-			ws->X0_2 = _mm256_shuffle_epi32(ws->X0_2,
-						    _MM_SHUFFLE(1, 0, 3, 2));
-			ws->X0_3 = _mm256_shuffle_epi32(ws->X0_3,
-						    _MM_SHUFFLE(0, 3, 2, 1));
+			ws->X0_1 = _mm256_shuffle_epi32(
+				ws->X0_1, _MM_SHUFFLE(2, 1, 0, 3));
+			ws->X0_2 = _mm256_shuffle_epi32(
+				ws->X0_2, _MM_SHUFFLE(1, 0, 3, 2));
+			ws->X0_3 = _mm256_shuffle_epi32(
+				ws->X0_3, _MM_SHUFFLE(0, 3, 2, 1));
 
-			ws->X1_1 = _mm256_shuffle_epi32(ws->X1_1,
-						    _MM_SHUFFLE(2, 1, 0, 3));
-			ws->X1_2 = _mm256_shuffle_epi32(ws->X1_2,
-						    _MM_SHUFFLE(1, 0, 3, 2));
-			ws->X1_3 = _mm256_shuffle_epi32(ws->X1_3,
-						    _MM_SHUFFLE(0, 3, 2, 1));
+			ws->X1_1 = _mm256_shuffle_epi32(
+				ws->X1_1, _MM_SHUFFLE(2, 1, 0, 3));
+			ws->X1_2 = _mm256_shuffle_epi32(
+				ws->X1_2, _MM_SHUFFLE(1, 0, 3, 2));
+			ws->X1_3 = _mm256_shuffle_epi32(
+				ws->X1_3, _MM_SHUFFLE(0, 3, 2, 1));
 
-			ws->X2_1 = _mm256_shuffle_epi32(ws->X2_1,
-						    _MM_SHUFFLE(2, 1, 0, 3));
-			ws->X2_2 = _mm256_shuffle_epi32(ws->X2_2,
-						    _MM_SHUFFLE(1, 0, 3, 2));
-			ws->X2_3 = _mm256_shuffle_epi32(ws->X2_3,
-						    _MM_SHUFFLE(0, 3, 2, 1));
+			ws->X2_1 = _mm256_shuffle_epi32(
+				ws->X2_1, _MM_SHUFFLE(2, 1, 0, 3));
+			ws->X2_2 = _mm256_shuffle_epi32(
+				ws->X2_2, _MM_SHUFFLE(1, 0, 3, 2));
+			ws->X2_3 = _mm256_shuffle_epi32(
+				ws->X2_3, _MM_SHUFFLE(0, 3, 2, 1));
 
-			ws->X3_1 = _mm256_shuffle_epi32(ws->X3_1,
-						    _MM_SHUFFLE(2, 1, 0, 3));
-			ws->X3_2 = _mm256_shuffle_epi32(ws->X3_2,
-						    _MM_SHUFFLE(1, 0, 3, 2));
-			ws->X3_3 = _mm256_shuffle_epi32(ws->X3_3,
-						    _MM_SHUFFLE(0, 3, 2, 1));
+			ws->X3_1 = _mm256_shuffle_epi32(
+				ws->X3_1, _MM_SHUFFLE(2, 1, 0, 3));
+			ws->X3_2 = _mm256_shuffle_epi32(
+				ws->X3_2, _MM_SHUFFLE(1, 0, 3, 2));
+			ws->X3_3 = _mm256_shuffle_epi32(
+				ws->X3_3, _MM_SHUFFLE(0, 3, 2, 1));
 		}
 
 		ws->X0_0 = _mm256_add_epi32(ws->X0_0, ws->state0);
@@ -377,16 +377,17 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 		if (in) {
 			_mm256_storeu_si256(
 				(__m256i *)(CurrentOut + 0 * 32),
-				_mm256_xor_si256(
-					_mm256_permute2x128_si256(ws->X0_0, ws->X0_1,
-								  1 + (3 << 4)),
-					_mm256_loadu_si256(
-						(__m256i *)(CurrentIn +
-							    0 * 32))));
+				_mm256_xor_si256(_mm256_permute2x128_si256(
+							 ws->X0_0, ws->X0_1,
+							 1 + (3 << 4)),
+						 _mm256_loadu_si256(
+							 (__m256i *)(CurrentIn +
+								     0 * 32))));
 			_mm256_storeu_si256(
 				(__m256i *)(CurrentOut + 1 * 32),
 				_mm256_xor_si256(
-					_mm256_permute2x128_si256(ws->X0_2, ws->X0_3,
+					_mm256_permute2x128_si256(ws->X0_2,
+								  ws->X0_3,
 								  1 + (3 << 4)),
 					_mm256_loadu_si256(
 						(const __m256i *)(CurrentIn +
@@ -394,7 +395,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 			_mm256_storeu_si256(
 				(__m256i *)(CurrentOut + 2 * 32),
 				_mm256_xor_si256(
-					_mm256_permute2x128_si256(ws->X1_0, ws->X1_1,
+					_mm256_permute2x128_si256(ws->X1_0,
+								  ws->X1_1,
 								  1 + (3 << 4)),
 					_mm256_loadu_si256(
 						((const __m256i *)(CurrentIn +
@@ -402,7 +404,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 			_mm256_storeu_si256(
 				(__m256i *)(CurrentOut + 3 * 32),
 				_mm256_xor_si256(
-					_mm256_permute2x128_si256(ws->X1_2, ws->X1_3,
+					_mm256_permute2x128_si256(ws->X1_2,
+								  ws->X1_3,
 								  1 + (3 << 4)),
 					_mm256_loadu_si256(
 						(const __m256i *)(CurrentIn +
@@ -411,7 +414,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 			_mm256_storeu_si256(
 				(__m256i *)(CurrentOut + 4 * 32),
 				_mm256_xor_si256(
-					_mm256_permute2x128_si256(ws->X2_0, ws->X2_1,
+					_mm256_permute2x128_si256(ws->X2_0,
+								  ws->X2_1,
 								  1 + (3 << 4)),
 					_mm256_loadu_si256(
 						(const __m256i *)(CurrentIn +
@@ -419,7 +423,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 			_mm256_storeu_si256(
 				(__m256i *)(CurrentOut + 5 * 32),
 				_mm256_xor_si256(
-					_mm256_permute2x128_si256(ws->X2_2, ws->X2_3,
+					_mm256_permute2x128_si256(ws->X2_2,
+								  ws->X2_3,
 								  1 + (3 << 4)),
 					_mm256_loadu_si256(
 						(const __m256i *)(CurrentIn +
@@ -427,7 +432,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 			_mm256_storeu_si256(
 				(__m256i *)(CurrentOut + 6 * 32),
 				_mm256_xor_si256(
-					_mm256_permute2x128_si256(ws->X3_0, ws->X3_1,
+					_mm256_permute2x128_si256(ws->X3_0,
+								  ws->X3_1,
 								  1 + (3 << 4)),
 					_mm256_loadu_si256(
 						(const __m256i *)(CurrentIn +
@@ -435,7 +441,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 			_mm256_storeu_si256(
 				(__m256i *)(CurrentOut + 7 * 32),
 				_mm256_xor_si256(
-					_mm256_permute2x128_si256(ws->X3_2, ws->X3_3,
+					_mm256_permute2x128_si256(ws->X3_2,
+								  ws->X3_3,
 								  1 + (3 << 4)),
 					_mm256_loadu_si256(
 						(const __m256i *)(CurrentIn +
@@ -444,7 +451,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 			_mm256_storeu_si256(
 				(__m256i *)(CurrentOut + 8 * 32),
 				_mm256_xor_si256(
-					_mm256_permute2x128_si256(ws->X0_0, ws->X0_1,
+					_mm256_permute2x128_si256(ws->X0_0,
+								  ws->X0_1,
 								  0 + (2 << 4)),
 					_mm256_loadu_si256(
 						(const __m256i *)(CurrentIn +
@@ -452,7 +460,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 			_mm256_storeu_si256(
 				(__m256i *)(CurrentOut + 9 * 32),
 				_mm256_xor_si256(
-					_mm256_permute2x128_si256(ws->X0_2, ws->X0_3,
+					_mm256_permute2x128_si256(ws->X0_2,
+								  ws->X0_3,
 								  0 + (2 << 4)),
 					_mm256_loadu_si256(
 						(const __m256i *)(CurrentIn +
@@ -460,7 +469,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 			_mm256_storeu_si256(
 				(__m256i *)(CurrentOut + 10 * 32),
 				_mm256_xor_si256(
-					_mm256_permute2x128_si256(ws->X1_0, ws->X1_1,
+					_mm256_permute2x128_si256(ws->X1_0,
+								  ws->X1_1,
 								  0 + (2 << 4)),
 					_mm256_loadu_si256(
 						(const __m256i *)(CurrentIn +
@@ -468,7 +478,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 			_mm256_storeu_si256(
 				(__m256i *)(CurrentOut + 11 * 32),
 				_mm256_xor_si256(
-					_mm256_permute2x128_si256(ws->X1_2, ws->X1_3,
+					_mm256_permute2x128_si256(ws->X1_2,
+								  ws->X1_3,
 								  0 + (2 << 4)),
 					_mm256_loadu_si256(
 						(const __m256i *)(CurrentIn +
@@ -477,7 +488,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 			_mm256_storeu_si256(
 				(__m256i *)(CurrentOut + 12 * 32),
 				_mm256_xor_si256(
-					_mm256_permute2x128_si256(ws->X2_0, ws->X2_1,
+					_mm256_permute2x128_si256(ws->X2_0,
+								  ws->X2_1,
 								  0 + (2 << 4)),
 					_mm256_loadu_si256(
 						(const __m256i *)(CurrentIn +
@@ -485,7 +497,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 			_mm256_storeu_si256(
 				(__m256i *)(CurrentOut + 13 * 32),
 				_mm256_xor_si256(
-					_mm256_permute2x128_si256(ws->X2_2, ws->X2_3,
+					_mm256_permute2x128_si256(ws->X2_2,
+								  ws->X2_3,
 								  0 + (2 << 4)),
 					_mm256_loadu_si256(
 						(const __m256i *)(CurrentIn +
@@ -493,7 +506,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 			_mm256_storeu_si256(
 				(__m256i *)(CurrentOut + 14 * 32),
 				_mm256_xor_si256(
-					_mm256_permute2x128_si256(ws->X3_0, ws->X3_1,
+					_mm256_permute2x128_si256(ws->X3_0,
+								  ws->X3_1,
 								  0 + (2 << 4)),
 					_mm256_loadu_si256(
 						(const __m256i *)(CurrentIn +
@@ -501,63 +515,80 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 			_mm256_storeu_si256(
 				(__m256i *)(CurrentOut + 15 * 32),
 				_mm256_xor_si256(
-					_mm256_permute2x128_si256(ws->X3_2, ws->X3_3,
+					_mm256_permute2x128_si256(ws->X3_2,
+								  ws->X3_3,
 								  0 + (2 << 4)),
 					_mm256_loadu_si256(
 						(const __m256i *)(CurrentIn +
 								  15 * 32))));
 		} else {
-			_mm256_storeu_si256((__m256i *)(CurrentOut + 0 * 32),
-					    _mm256_permute2x128_si256(
-						    ws->X0_0, ws->X0_1, 1 + (3 << 4)));
-			_mm256_storeu_si256((__m256i *)(CurrentOut + 1 * 32),
-					    _mm256_permute2x128_si256(
-						    ws->X0_2, ws->X0_3, 1 + (3 << 4)));
-			_mm256_storeu_si256((__m256i *)(CurrentOut + 2 * 32),
-					    _mm256_permute2x128_si256(
-						    ws->X1_0, ws->X1_1, 1 + (3 << 4)));
-			_mm256_storeu_si256((__m256i *)(CurrentOut + 3 * 32),
-					    _mm256_permute2x128_si256(
-						    ws->X1_2, ws->X1_3, 1 + (3 << 4)));
+			_mm256_storeu_si256(
+				(__m256i *)(CurrentOut + 0 * 32),
+				_mm256_permute2x128_si256(ws->X0_0, ws->X0_1,
+							  1 + (3 << 4)));
+			_mm256_storeu_si256(
+				(__m256i *)(CurrentOut + 1 * 32),
+				_mm256_permute2x128_si256(ws->X0_2, ws->X0_3,
+							  1 + (3 << 4)));
+			_mm256_storeu_si256(
+				(__m256i *)(CurrentOut + 2 * 32),
+				_mm256_permute2x128_si256(ws->X1_0, ws->X1_1,
+							  1 + (3 << 4)));
+			_mm256_storeu_si256(
+				(__m256i *)(CurrentOut + 3 * 32),
+				_mm256_permute2x128_si256(ws->X1_2, ws->X1_3,
+							  1 + (3 << 4)));
 
-			_mm256_storeu_si256((__m256i *)(CurrentOut + 4 * 32),
-					    _mm256_permute2x128_si256(
-						    ws->X2_0, ws->X2_1, 1 + (3 << 4)));
-			_mm256_storeu_si256((__m256i *)(CurrentOut + 5 * 32),
-					    _mm256_permute2x128_si256(
-						    ws->X2_2, ws->X2_3, 1 + (3 << 4)));
-			_mm256_storeu_si256((__m256i *)(CurrentOut + 6 * 32),
-					    _mm256_permute2x128_si256(
-						    ws->X3_0, ws->X3_1, 1 + (3 << 4)));
-			_mm256_storeu_si256((__m256i *)(CurrentOut + 7 * 32),
-					    _mm256_permute2x128_si256(
-						    ws->X3_2, ws->X3_3, 1 + (3 << 4)));
+			_mm256_storeu_si256(
+				(__m256i *)(CurrentOut + 4 * 32),
+				_mm256_permute2x128_si256(ws->X2_0, ws->X2_1,
+							  1 + (3 << 4)));
+			_mm256_storeu_si256(
+				(__m256i *)(CurrentOut + 5 * 32),
+				_mm256_permute2x128_si256(ws->X2_2, ws->X2_3,
+							  1 + (3 << 4)));
+			_mm256_storeu_si256(
+				(__m256i *)(CurrentOut + 6 * 32),
+				_mm256_permute2x128_si256(ws->X3_0, ws->X3_1,
+							  1 + (3 << 4)));
+			_mm256_storeu_si256(
+				(__m256i *)(CurrentOut + 7 * 32),
+				_mm256_permute2x128_si256(ws->X3_2, ws->X3_3,
+							  1 + (3 << 4)));
 
-			_mm256_storeu_si256((__m256i *)(CurrentOut + 8 * 32),
-					    _mm256_permute2x128_si256(
-						    ws->X0_0, ws->X0_1, 0 + (2 << 4)));
-			_mm256_storeu_si256((__m256i *)(CurrentOut + 9 * 32),
-					    _mm256_permute2x128_si256(
-						    ws->X0_2, ws->X0_3, 0 + (2 << 4)));
-			_mm256_storeu_si256((__m256i *)(CurrentOut + 10 * 32),
-					    _mm256_permute2x128_si256(
-						    ws->X1_0, ws->X1_1, 0 + (2 << 4)));
-			_mm256_storeu_si256((__m256i *)(CurrentOut + 11 * 32),
-					    _mm256_permute2x128_si256(
-						    ws->X1_2, ws->X1_3, 0 + (2 << 4)));
+			_mm256_storeu_si256(
+				(__m256i *)(CurrentOut + 8 * 32),
+				_mm256_permute2x128_si256(ws->X0_0, ws->X0_1,
+							  0 + (2 << 4)));
+			_mm256_storeu_si256(
+				(__m256i *)(CurrentOut + 9 * 32),
+				_mm256_permute2x128_si256(ws->X0_2, ws->X0_3,
+							  0 + (2 << 4)));
+			_mm256_storeu_si256(
+				(__m256i *)(CurrentOut + 10 * 32),
+				_mm256_permute2x128_si256(ws->X1_0, ws->X1_1,
+							  0 + (2 << 4)));
+			_mm256_storeu_si256(
+				(__m256i *)(CurrentOut + 11 * 32),
+				_mm256_permute2x128_si256(ws->X1_2, ws->X1_3,
+							  0 + (2 << 4)));
 
-			_mm256_storeu_si256((__m256i *)(CurrentOut + 12 * 32),
-					    _mm256_permute2x128_si256(
-						    ws->X2_0, ws->X2_1, 0 + (2 << 4)));
-			_mm256_storeu_si256((__m256i *)(CurrentOut + 13 * 32),
-					    _mm256_permute2x128_si256(
-						    ws->X2_2, ws->X2_3, 0 + (2 << 4)));
-			_mm256_storeu_si256((__m256i *)(CurrentOut + 14 * 32),
-					    _mm256_permute2x128_si256(
-						    ws->X3_0, ws->X3_1, 0 + (2 << 4)));
-			_mm256_storeu_si256((__m256i *)(CurrentOut + 15 * 32),
-					    _mm256_permute2x128_si256(
-						    ws->X3_2, ws->X3_3, 0 + (2 << 4)));
+			_mm256_storeu_si256(
+				(__m256i *)(CurrentOut + 12 * 32),
+				_mm256_permute2x128_si256(ws->X2_0, ws->X2_1,
+							  0 + (2 << 4)));
+			_mm256_storeu_si256(
+				(__m256i *)(CurrentOut + 13 * 32),
+				_mm256_permute2x128_si256(ws->X2_2, ws->X2_3,
+							  0 + (2 << 4)));
+			_mm256_storeu_si256(
+				(__m256i *)(CurrentOut + 14 * 32),
+				_mm256_permute2x128_si256(ws->X3_0, ws->X3_1,
+							  0 + (2 << 4)));
+			_mm256_storeu_si256(
+				(__m256i *)(CurrentOut + 15 * 32),
+				_mm256_permute2x128_si256(ws->X3_2, ws->X3_3,
+							  0 + (2 << 4)));
 		}
 #pragma GCC diagnostic pop
 
@@ -578,11 +609,9 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 	while (1) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
-		ws->state3 =
-			_mm256_broadcastsi128_si256(_mm_load_si128(
-				(const __m128i *)(state +
-						  LC_CC20_AVX2_STATE_OFFSET(
-							  32))));
+		ws->state3 = _mm256_broadcastsi128_si256(_mm_load_si128(
+			(const __m128i *)(state +
+					  LC_CC20_AVX2_STATE_OFFSET(32))));
 #pragma GCC diagnostic pop
 
 		ws->X0_0 = ws->state0;
@@ -615,12 +644,12 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 
 			ws->X0_1 = RotateLeft7(ws->X0_1);
 
-			ws->X0_1 = _mm256_shuffle_epi32(ws->X0_1,
-						    _MM_SHUFFLE(0, 3, 2, 1));
-			ws->X0_2 = _mm256_shuffle_epi32(ws->X0_2,
-						    _MM_SHUFFLE(1, 0, 3, 2));
-			ws->X0_3 = _mm256_shuffle_epi32(ws->X0_3,
-						    _MM_SHUFFLE(2, 1, 0, 3));
+			ws->X0_1 = _mm256_shuffle_epi32(
+				ws->X0_1, _MM_SHUFFLE(0, 3, 2, 1));
+			ws->X0_2 = _mm256_shuffle_epi32(
+				ws->X0_2, _MM_SHUFFLE(1, 0, 3, 2));
+			ws->X0_3 = _mm256_shuffle_epi32(
+				ws->X0_3, _MM_SHUFFLE(2, 1, 0, 3));
 
 			ws->X0_0 = _mm256_add_epi32(ws->X0_0, ws->X0_1);
 
@@ -646,12 +675,12 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 
 			ws->X0_1 = RotateLeft7(ws->X0_1);
 
-			ws->X0_1 = _mm256_shuffle_epi32(ws->X0_1,
-						    _MM_SHUFFLE(2, 1, 0, 3));
-			ws->X0_2 = _mm256_shuffle_epi32(ws->X0_2,
-						    _MM_SHUFFLE(1, 0, 3, 2));
-			ws->X0_3 = _mm256_shuffle_epi32(ws->X0_3,
-						    _MM_SHUFFLE(0, 3, 2, 1));
+			ws->X0_1 = _mm256_shuffle_epi32(
+				ws->X0_1, _MM_SHUFFLE(2, 1, 0, 3));
+			ws->X0_2 = _mm256_shuffle_epi32(
+				ws->X0_2, _MM_SHUFFLE(1, 0, 3, 2));
+			ws->X0_3 = _mm256_shuffle_epi32(
+				ws->X0_3, _MM_SHUFFLE(0, 3, 2, 1));
 		}
 
 		ws->X0_0 = _mm256_add_epi32(ws->X0_0, ws->state0);
@@ -708,19 +737,23 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 				_mm256_storeu_si256(
 					(__m256i *)(CurrentOut + 0 * 32),
 					_mm256_permute2x128_si256(
-						ws->X0_0, ws->X0_1, 1 + (3 << 4)));
+						ws->X0_0, ws->X0_1,
+						1 + (3 << 4)));
 				_mm256_storeu_si256(
 					(__m256i *)(CurrentOut + 1 * 32),
 					_mm256_permute2x128_si256(
-						ws->X0_2, ws->X0_3, 1 + (3 << 4)));
+						ws->X0_2, ws->X0_3,
+						1 + (3 << 4)));
 				_mm256_storeu_si256(
 					(__m256i *)(CurrentOut + 2 * 32),
 					_mm256_permute2x128_si256(
-						ws->X0_0, ws->X0_1, 0 + (2 << 4)));
+						ws->X0_0, ws->X0_1,
+						0 + (2 << 4)));
 				_mm256_storeu_si256(
 					(__m256i *)(CurrentOut + 3 * 32),
 					_mm256_permute2x128_si256(
-						ws->X0_2, ws->X0_3, 0 + (2 << 4)));
+						ws->X0_2, ws->X0_3,
+						0 + (2 << 4)));
 			}
 #pragma GCC diagnostic pop
 			ChaCha20AddCounter(state, 2);
@@ -740,8 +773,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 			__m256i tmp;
 			if (in) // encrypt
 			{
-				tmp = _mm256_permute2x128_si256(ws->X0_0, ws->X0_1,
-								1 + (3 << 4));
+				tmp = _mm256_permute2x128_si256(
+					ws->X0_0, ws->X0_1, 1 + (3 << 4));
 				if (RemainingBytes < 32) {
 					PartialXor(tmp, CurrentIn, CurrentOut,
 						   RemainingBytes);
@@ -780,8 +813,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 				CurrentIn += 32;
 				CurrentOut += 32;
 
-				tmp = _mm256_permute2x128_si256(ws->X0_2, ws->X0_3,
-								1 + (3 << 4));
+				tmp = _mm256_permute2x128_si256(
+					ws->X0_2, ws->X0_3, 1 + (3 << 4));
 				if (RemainingBytes < 32) {
 					PartialXor(tmp, CurrentIn, CurrentOut,
 						   RemainingBytes);
@@ -819,8 +852,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 				CurrentIn += 32;
 				CurrentOut += 32;
 
-				tmp = _mm256_permute2x128_si256(ws->X0_0, ws->X0_1,
-								0 + (2 << 4));
+				tmp = _mm256_permute2x128_si256(
+					ws->X0_0, ws->X0_1, 0 + (2 << 4));
 				if (RemainingBytes < 32) {
 					PartialXor(tmp, CurrentIn, CurrentOut,
 						   RemainingBytes);
@@ -858,8 +891,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 				CurrentIn += 32;
 				CurrentOut += 32;
 
-				tmp = _mm256_permute2x128_si256(ws->X0_2, ws->X0_3,
-								0 + (2 << 4));
+				tmp = _mm256_permute2x128_si256(
+					ws->X0_2, ws->X0_3, 0 + (2 << 4));
 				PartialXor(tmp, CurrentIn, CurrentOut,
 					   RemainingBytes);
 
@@ -872,8 +905,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 				ChaCha20AddCounter(state, 2);
 				goto out;
 			} else {
-				tmp = _mm256_permute2x128_si256(ws->X0_0, ws->X0_1,
-								1 + (3 << 4));
+				tmp = _mm256_permute2x128_si256(
+					ws->X0_0, ws->X0_1, 1 + (3 << 4));
 				if (RemainingBytes < 32) {
 					PartialStore(tmp, CurrentOut,
 						     RemainingBytes);
@@ -905,8 +938,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 				}
 				CurrentOut += 32;
 
-				tmp = _mm256_permute2x128_si256(ws->X0_2, ws->X0_3,
-								1 + (3 << 4));
+				tmp = _mm256_permute2x128_si256(
+					ws->X0_2, ws->X0_3, 1 + (3 << 4));
 
 				if (RemainingBytes < 32) {
 					PartialStore(tmp, CurrentOut,
@@ -939,8 +972,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 				}
 				CurrentOut += 32;
 
-				tmp = _mm256_permute2x128_si256(ws->X0_0, ws->X0_1,
-								0 + (2 << 4));
+				tmp = _mm256_permute2x128_si256(
+					ws->X0_0, ws->X0_1, 0 + (2 << 4));
 				if (RemainingBytes < 32) {
 					PartialStore(tmp, CurrentOut,
 						     RemainingBytes);
@@ -972,8 +1005,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 				}
 				CurrentOut += 32;
 
-				tmp = _mm256_permute2x128_si256(ws->X0_2, ws->X0_3,
-								0 + (2 << 4));
+				tmp = _mm256_permute2x128_si256(
+					ws->X0_2, ws->X0_3, 0 + (2 << 4));
 				PartialStore(tmp, CurrentOut, RemainingBytes);
 
 				/*

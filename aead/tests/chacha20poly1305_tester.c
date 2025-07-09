@@ -118,7 +118,7 @@ static int lc_chacha20_poly1305_test(int argc)
 		i++;
 	}
 
-	lc_aead_enc_final(cc20p1305,act_tag, sizeof(act_tag));
+	lc_aead_enc_final(cc20p1305, act_tag, sizeof(act_tag));
 
 	ret += lc_compare(act_ct, exp_ct, sizeof(exp_ct),
 			  "ChaCha20 Poly 1305 encrypt ciphertext");

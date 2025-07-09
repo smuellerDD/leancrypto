@@ -384,53 +384,77 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 			ws->X3_3 = _mm512_add_epi32(ws->X3_3, ws->state3_3);
 
 			//now making results contiguous, one 64-bytes block per register
-			ws->T1 = _mm512_permutex2var_epi64(ws->X0_0, ws->P1, ws->X0_1);
-			ws->T2 = _mm512_permutex2var_epi64(ws->X0_0, ws->P2, ws->X0_1);
-			ws->T3 = _mm512_permutex2var_epi64(ws->X0_2, ws->P1, ws->X0_3);
-			T4 = _mm512_permutex2var_epi64(ws->X0_2, ws->P2, ws->X0_3);
+			ws->T1 = _mm512_permutex2var_epi64(ws->X0_0, ws->P1,
+							   ws->X0_1);
+			ws->T2 = _mm512_permutex2var_epi64(ws->X0_0, ws->P2,
+							   ws->X0_1);
+			ws->T3 = _mm512_permutex2var_epi64(ws->X0_2, ws->P1,
+							   ws->X0_3);
+			ws->T4 = _mm512_permutex2var_epi64(ws->X0_2, ws->P2,
+							   ws->X0_3);
 
 			ws->X0_0 = _mm512_permutex2var_epi64(ws->T1, ws->P3,
-							 ws->T3);
+							     ws->T3);
 			ws->X0_2 = _mm512_permutex2var_epi64(ws->T1, ws->P4,
-							 ws->T3);
-			ws->X0_1 = _mm512_permutex2var_epi64(ws->T2, ws->P3, T4);
-			ws->X0_3 = _mm512_permutex2var_epi64(ws->T2, ws->P4, T4);
+							     ws->T3);
+			ws->X0_1 = _mm512_permutex2var_epi64(ws->T2, ws->P3,
+							     ws->T4);
+			ws->X0_3 = _mm512_permutex2var_epi64(ws->T2, ws->P4,
+							     ws->T4);
 
-			ws->T1 = _mm512_permutex2var_epi64(ws->X1_0, ws->P1, ws->X1_1);
-			ws->T2 = _mm512_permutex2var_epi64(ws->X1_0, ws->P2, ws->X1_1);
-			ws->T3 = _mm512_permutex2var_epi64(ws->X1_2, ws->P1, ws->X1_3);
-			T4 = _mm512_permutex2var_epi64(ws->X1_2, ws->P2, ws->X1_3);
+			ws->T1 = _mm512_permutex2var_epi64(ws->X1_0, ws->P1,
+							   ws->X1_1);
+			ws->T2 = _mm512_permutex2var_epi64(ws->X1_0, ws->P2,
+							   ws->X1_1);
+			ws->T3 = _mm512_permutex2var_epi64(ws->X1_2, ws->P1,
+							   ws->X1_3);
+			ws->T4 = _mm512_permutex2var_epi64(ws->X1_2, ws->P2,
+							   ws->X1_3);
 
 			ws->X1_0 = _mm512_permutex2var_epi64(ws->T1, ws->P3,
-							 ws->T3);
+							     ws->T3);
 			ws->X1_2 = _mm512_permutex2var_epi64(ws->T1, ws->P4,
-							 ws->T3);
-			ws->X1_1 = _mm512_permutex2var_epi64(ws->T2, ws->P3, T4);
-			ws->X1_3 = _mm512_permutex2var_epi64(ws->T2, ws->P4, T4);
+							     ws->T3);
+			ws->X1_1 = _mm512_permutex2var_epi64(ws->T2, ws->P3,
+							     ws->T4);
+			ws->X1_3 = _mm512_permutex2var_epi64(ws->T2, ws->P4,
+							     ws->T4);
 
-			ws->T1 = _mm512_permutex2var_epi64(ws->X2_0, ws->P1, ws->X2_1);
-			ws->T2 = _mm512_permutex2var_epi64(ws->X2_0, ws->P2, ws->X2_1);
-			ws->T3 = _mm512_permutex2var_epi64(ws->X2_2, ws->P1, ws->X2_3);
-			T4 = _mm512_permutex2var_epi64(ws->X2_2, ws->P2, ws->X2_3);
+			ws->T1 = _mm512_permutex2var_epi64(ws->X2_0, ws->P1,
+							   ws->X2_1);
+			ws->T2 = _mm512_permutex2var_epi64(ws->X2_0, ws->P2,
+							   ws->X2_1);
+			ws->T3 = _mm512_permutex2var_epi64(ws->X2_2, ws->P1,
+							   ws->X2_3);
+			ws->T4 = _mm512_permutex2var_epi64(ws->X2_2, ws->P2,
+							   ws->X2_3);
 
 			ws->X2_0 = _mm512_permutex2var_epi64(ws->T1, ws->P3,
-							 ws->T3);
+							     ws->T3);
 			ws->X2_2 = _mm512_permutex2var_epi64(ws->T1, ws->P4,
-							 ws->T3);
-			ws->X2_1 = _mm512_permutex2var_epi64(ws->T2, ws->P3, T4);
-			ws->X2_3 = _mm512_permutex2var_epi64(ws->T2, ws->P4, T4);
+							     ws->T3);
+			ws->X2_1 = _mm512_permutex2var_epi64(ws->T2, ws->P3,
+							     ws->T4);
+			ws->X2_3 = _mm512_permutex2var_epi64(ws->T2, ws->P4,
+							     ws->T4);
 
-			ws->T1 = _mm512_permutex2var_epi64(ws->X3_0, ws->P1, ws->X3_1);
-			ws->T2 = _mm512_permutex2var_epi64(ws->X3_0, ws->P2, ws->X3_1);
-			ws->T3 = _mm512_permutex2var_epi64(ws->X3_2, ws->P1, ws->X3_3);
-			T4 = _mm512_permutex2var_epi64(ws->X3_2, ws->P2, ws->X3_3);
+			ws->T1 = _mm512_permutex2var_epi64(ws->X3_0, ws->P1,
+							   ws->X3_1);
+			ws->T2 = _mm512_permutex2var_epi64(ws->X3_0, ws->P2,
+							   ws->X3_1);
+			ws->T3 = _mm512_permutex2var_epi64(ws->X3_2, ws->P1,
+							   ws->X3_3);
+			ws->T4 = _mm512_permutex2var_epi64(ws->X3_2, ws->P2,
+							   ws->X3_3);
 
 			ws->X3_0 = _mm512_permutex2var_epi64(ws->T1, ws->P3,
-							 ws->T3);
+							     ws->T3);
 			ws->X3_2 = _mm512_permutex2var_epi64(ws->T1, ws->P4,
-							 ws->T3);
-			ws->X3_1 = _mm512_permutex2var_epi64(ws->T2, ws->P3, T4);
-			ws->X3_3 = _mm512_permutex2var_epi64(ws->T2, ws->P4, T4);
+							     ws->T3);
+			ws->X3_1 = _mm512_permutex2var_epi64(ws->T2, ws->P3,
+							     ws->T4);
+			ws->X3_3 = _mm512_permutex2var_epi64(ws->T2, ws->P4,
+							     ws->T4);
 
 			if (in) {
 #pragma GCC diagnostic push
@@ -441,14 +465,14 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 					(const __m512i *)(CurrentIn + 1 * 64));
 				ws->T3 = _mm512_loadu_si512(
 					(const __m512i *)(CurrentIn + 2 * 64));
-				T4 = _mm512_loadu_si512(
+				ws->T4 = _mm512_loadu_si512(
 					(const __m512i *)(CurrentIn + 3 * 64));
 #pragma GCC diagnostic pop
 
 				ws->T1 = _mm512_xor_si512(ws->T1, ws->X0_0);
 				ws->T2 = _mm512_xor_si512(ws->T2, ws->X0_1);
 				ws->T3 = _mm512_xor_si512(ws->T3, ws->X0_2);
-				T4 = _mm512_xor_si512(T4, ws->X0_3);
+				ws->T4 = _mm512_xor_si512(ws->T4, ws->X0_3);
 
 				_mm512_storeu_si512(CurrentOut + 0 * 64,
 						    ws->T1);
@@ -456,7 +480,8 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 						    ws->T2);
 				_mm512_storeu_si512(CurrentOut + 2 * 64,
 						    ws->T3);
-				_mm512_storeu_si512(CurrentOut + 3 * 64, T4);
+				_mm512_storeu_si512(CurrentOut + 3 * 64,
+						    ws->T4);
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
@@ -466,14 +491,14 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 					(const __m512i *)(CurrentIn + 5 * 64));
 				ws->T3 = _mm512_loadu_si512(
 					(const __m512i *)(CurrentIn + 6 * 64));
-				T4 = _mm512_loadu_si512(
+				ws->T4 = _mm512_loadu_si512(
 					(const __m512i *)(CurrentIn + 7 * 64));
 #pragma GCC diagnostic pop
 
 				ws->T1 = _mm512_xor_si512(ws->T1, ws->X1_0);
 				ws->T2 = _mm512_xor_si512(ws->T2, ws->X1_1);
 				ws->T3 = _mm512_xor_si512(ws->T3, ws->X1_2);
-				T4 = _mm512_xor_si512(T4, ws->X1_3);
+				ws->T4 = _mm512_xor_si512(ws->T4, ws->X1_3);
 
 				_mm512_storeu_si512(CurrentOut + 4 * 64,
 						    ws->T1);
@@ -481,7 +506,8 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 						    ws->T2);
 				_mm512_storeu_si512(CurrentOut + 6 * 64,
 						    ws->T3);
-				_mm512_storeu_si512(CurrentOut + 7 * 64, T4);
+				_mm512_storeu_si512(CurrentOut + 7 * 64,
+						    ws->T4);
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
@@ -491,14 +517,14 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 					(const __m512i *)(CurrentIn + 9 * 64));
 				ws->T3 = _mm512_loadu_si512(
 					(const __m512i *)(CurrentIn + 10 * 64));
-				T4 = _mm512_loadu_si512(
+				ws->T4 = _mm512_loadu_si512(
 					(const __m512i *)(CurrentIn + 11 * 64));
 #pragma GCC diagnostic pop
 
 				ws->T1 = _mm512_xor_si512(ws->T1, ws->X2_0);
 				ws->T2 = _mm512_xor_si512(ws->T2, ws->X2_1);
 				ws->T3 = _mm512_xor_si512(ws->T3, ws->X2_2);
-				T4 = _mm512_xor_si512(T4, ws->X2_3);
+				ws->T4 = _mm512_xor_si512(ws->T4, ws->X2_3);
 
 				_mm512_storeu_si512(CurrentOut + 8 * 64,
 						    ws->T1);
@@ -506,7 +532,8 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 						    ws->T2);
 				_mm512_storeu_si512(CurrentOut + 10 * 64,
 						    ws->T3);
-				_mm512_storeu_si512(CurrentOut + 11 * 64, T4);
+				_mm512_storeu_si512(CurrentOut + 11 * 64,
+						    ws->T4);
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
@@ -523,7 +550,7 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 				ws->T1 = _mm512_xor_si512(ws->T1, ws->X3_0);
 				ws->T2 = _mm512_xor_si512(ws->T2, ws->X3_1);
 				ws->T3 = _mm512_xor_si512(ws->T3, ws->X3_2);
-				T4 = _mm512_xor_si512(T4, ws->X3_3);
+				ws->T4 = _mm512_xor_si512(ws->T4, ws->X3_3);
 
 				_mm512_storeu_si512(CurrentOut + 12 * 64,
 						    ws->T1);
@@ -531,27 +558,44 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 						    ws->T2);
 				_mm512_storeu_si512(CurrentOut + 14 * 64,
 						    ws->T3);
-				_mm512_storeu_si512(CurrentOut + 15 * 64, T4);
+				_mm512_storeu_si512(CurrentOut + 15 * 64,
+						    ws->T4);
 			} else {
-				_mm512_storeu_si512(CurrentOut + 0 * 64, ws->X0_0);
-				_mm512_storeu_si512(CurrentOut + 1 * 64, ws->X0_1);
-				_mm512_storeu_si512(CurrentOut + 2 * 64, ws->X0_2);
-				_mm512_storeu_si512(CurrentOut + 3 * 64, ws->X0_3);
+				_mm512_storeu_si512(CurrentOut + 0 * 64,
+						    ws->X0_0);
+				_mm512_storeu_si512(CurrentOut + 1 * 64,
+						    ws->X0_1);
+				_mm512_storeu_si512(CurrentOut + 2 * 64,
+						    ws->X0_2);
+				_mm512_storeu_si512(CurrentOut + 3 * 64,
+						    ws->X0_3);
 
-				_mm512_storeu_si512(CurrentOut + 4 * 64, ws->X1_0);
-				_mm512_storeu_si512(CurrentOut + 5 * 64, ws->X1_1);
-				_mm512_storeu_si512(CurrentOut + 6 * 64, ws->X1_2);
-				_mm512_storeu_si512(CurrentOut + 7 * 64, ws->X1_3);
+				_mm512_storeu_si512(CurrentOut + 4 * 64,
+						    ws->X1_0);
+				_mm512_storeu_si512(CurrentOut + 5 * 64,
+						    ws->X1_1);
+				_mm512_storeu_si512(CurrentOut + 6 * 64,
+						    ws->X1_2);
+				_mm512_storeu_si512(CurrentOut + 7 * 64,
+						    ws->X1_3);
 
-				_mm512_storeu_si512(CurrentOut + 8 * 64, ws->X2_0);
-				_mm512_storeu_si512(CurrentOut + 9 * 64, ws->X2_1);
-				_mm512_storeu_si512(CurrentOut + 10 * 64, ws->X2_2);
-				_mm512_storeu_si512(CurrentOut + 11 * 64, ws->X2_3);
+				_mm512_storeu_si512(CurrentOut + 8 * 64,
+						    ws->X2_0);
+				_mm512_storeu_si512(CurrentOut + 9 * 64,
+						    ws->X2_1);
+				_mm512_storeu_si512(CurrentOut + 10 * 64,
+						    ws->X2_2);
+				_mm512_storeu_si512(CurrentOut + 11 * 64,
+						    ws->X2_3);
 
-				_mm512_storeu_si512(CurrentOut + 12 * 64, ws->X3_0);
-				_mm512_storeu_si512(CurrentOut + 13 * 64, ws->X3_1);
-				_mm512_storeu_si512(CurrentOut + 14 * 64, ws->X3_2);
-				_mm512_storeu_si512(CurrentOut + 15 * 64, ws->X3_3);
+				_mm512_storeu_si512(CurrentOut + 12 * 64,
+						    ws->X3_0);
+				_mm512_storeu_si512(CurrentOut + 13 * 64,
+						    ws->X3_1);
+				_mm512_storeu_si512(CurrentOut + 14 * 64,
+						    ws->X3_2);
+				_mm512_storeu_si512(CurrentOut + 15 * 64,
+						    ws->X3_3);
 			}
 
 			/*
@@ -614,12 +658,12 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 
 			ws->X0_1 = _mm512_rol_epi32(ws->X0_1, 7);
 
-			ws->X0_1 = _mm512_shuffle_epi32(ws->X0_1,
-						    _MM_SHUFFLE(0, 3, 2, 1));
-			ws->X0_2 = _mm512_shuffle_epi32(ws->X0_2,
-						    _MM_SHUFFLE(1, 0, 3, 2));
-			ws->X0_3 = _mm512_shuffle_epi32(ws->X0_3,
-						    _MM_SHUFFLE(2, 1, 0, 3));
+			ws->X0_1 = _mm512_shuffle_epi32(
+				ws->X0_1, _MM_SHUFFLE(0, 3, 2, 1));
+			ws->X0_2 = _mm512_shuffle_epi32(
+				ws->X0_2, _MM_SHUFFLE(1, 0, 3, 2));
+			ws->X0_3 = _mm512_shuffle_epi32(
+				ws->X0_3, _MM_SHUFFLE(2, 1, 0, 3));
 
 			ws->X0_0 = _mm512_add_epi32(ws->X0_0, ws->X0_1);
 
@@ -644,12 +688,12 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 
 			ws->X0_1 = _mm512_rol_epi32(ws->X0_1, 7);
 
-			ws->X0_1 = _mm512_shuffle_epi32(ws->X0_1,
-						    _MM_SHUFFLE(2, 1, 0, 3));
-			ws->X0_2 = _mm512_shuffle_epi32(ws->X0_2,
-						    _MM_SHUFFLE(1, 0, 3, 2));
-			ws->X0_3 = _mm512_shuffle_epi32(ws->X0_3,
-						    _MM_SHUFFLE(0, 3, 2, 1));
+			ws->X0_1 = _mm512_shuffle_epi32(
+				ws->X0_1, _MM_SHUFFLE(2, 1, 0, 3));
+			ws->X0_2 = _mm512_shuffle_epi32(
+				ws->X0_2, _MM_SHUFFLE(1, 0, 3, 2));
+			ws->X0_3 = _mm512_shuffle_epi32(
+				ws->X0_3, _MM_SHUFFLE(0, 3, 2, 1));
 		}
 
 		ws->X0_0 = _mm512_add_epi32(ws->X0_0, ws->state0);
@@ -696,10 +740,14 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 				_mm512_storeu_si512(CurrentOut + 3 * 64,
 						    ws->T4);
 			} else {
-				_mm512_storeu_si512(CurrentOut + 0 * 64, ws->X0_0);
-				_mm512_storeu_si512(CurrentOut + 1 * 64, ws->X0_1);
-				_mm512_storeu_si512(CurrentOut + 2 * 64, ws->X0_2);
-				_mm512_storeu_si512(CurrentOut + 3 * 64, ws->X0_3);
+				_mm512_storeu_si512(CurrentOut + 0 * 64,
+						    ws->X0_0);
+				_mm512_storeu_si512(CurrentOut + 1 * 64,
+						    ws->X0_1);
+				_mm512_storeu_si512(CurrentOut + 2 * 64,
+						    ws->X0_2);
+				_mm512_storeu_si512(CurrentOut + 3 * 64,
+						    ws->X0_3);
 			}
 
 			ChaCha20AddCounter(state, 4);
@@ -723,8 +771,8 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 		} else {
 			if (in) {
 				if (RemainingBytes < 64) {
-					PartialXor(ws->X0_0, CurrentIn, CurrentOut,
-						   RemainingBytes);
+					PartialXor(ws->X0_0, CurrentIn,
+						   CurrentOut, RemainingBytes);
 
 					/*
 					 * Timecop: output is not sensitive
@@ -760,8 +808,8 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 				CurrentOut += 64;
 
 				if (RemainingBytes < 64) {
-					PartialXor(ws->X0_1, CurrentIn, CurrentOut,
-						   RemainingBytes);
+					PartialXor(ws->X0_1, CurrentIn,
+						   CurrentOut, RemainingBytes);
 
 					/*
 					 * Timecop: output is not sensitive
@@ -796,8 +844,8 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 				CurrentOut += 64;
 
 				if (RemainingBytes < 64) {
-					PartialXor(ws->X0_2, CurrentIn, CurrentOut,
-						   RemainingBytes);
+					PartialXor(ws->X0_2, CurrentIn,
+						   CurrentOut, RemainingBytes);
 
 					/*
 					 * Timecop: output is not sensitive
@@ -937,7 +985,8 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 				}
 				CurrentOut += 64;
 
-				PartialStore(ws->X0_3, CurrentOut, RemainingBytes);
+				PartialStore(ws->X0_3, CurrentOut,
+					     RemainingBytes);
 
 				/*
 				 * Timecop: output is not sensitive
