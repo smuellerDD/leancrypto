@@ -22,6 +22,10 @@ ifdef CONFIG_ARM64
 leancrypto-$(CONFIG_LEANCRYPTO_CHACHA20)				       \
 				+= ../sym/src/asm/ARMv8/chacha20_neon.o	       \
 				   ../sym/src/chacha20_neon.o
+else ifdef CONFIG_ARM
+leancrypto-$(CONFIG_LEANCRYPTO_CHACHA20)				       \
+				+= ../sym/src/asm/ARMv7/chacha20_neon_armv7.o  \
+				   ../sym/src/chacha20_neon.o
 else
 leancrypto-$(CONFIG_LEANCRYPTO_CHACHA20)				       \
 				+= ../sym/src/chacha20_neon_null.o
