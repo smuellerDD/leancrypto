@@ -324,7 +324,7 @@
 #include "small_stack_support.h"
 #include "timecop.h"
 #include "visibility.h"
-#include "xor256.h"
+#include "xor.h"
 
 #define LC_CC_AUTHENTICATION_KEY_SIZE (256 >> 3)
 #define LC_CC_CUSTOMIZATION_STRING "cSHAKE-AEAD crypt"
@@ -410,15 +410,6 @@ static int lc_cc_setkey(void *state, const uint8_t *key, size_t keylen,
 	struct lc_hash_ctx *cshake = &cc->cshake;
 	struct lc_cshake_ctx *auth_ctx = &cc->auth_ctx;
 	static int tested = 0;
-	enum lc_cpu_features feat;
-
-	/* The XOR operation in cc20_crypt requires acceleration */
-	feat = lc_cpu_feature_available();
-	if ((feat & LC_CPU_FEATURE_INTEL) &&
-	    !(feat & LC_CPU_FEATURE_INTEL_AVX2))
-		return -EOPNOTSUPP;
-	if ((feat & LC_CPU_FEATURE_ARM) && !(feat & LC_CPU_FEATURE_ARM_NEON))
-		return -EOPNOTSUPP;
 
 	/* Timecop: The key is sentitive. */
 	poison(key, keylen);
@@ -479,7 +470,7 @@ static void lc_cc_crypt(struct lc_cc_cryptor *cc, const uint8_t *in,
 			memcpy(out, in, todo);
 
 		/* Perform the encryption operation */
-		xor_256(out, cc->keystream + cc->keystream_ptr, todo);
+		xor_64(out, cc->keystream + cc->keystream_ptr, todo);
 
 		len -= todo;
 		in += todo;

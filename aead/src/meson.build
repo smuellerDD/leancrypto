@@ -47,42 +47,7 @@ if get_option('ascon_keccak').enabled()
 endif
 
 if (compile_hash_crypt == 1)
-	if (x86_64_asm)
-		# This is required for the XOR 256 bit AVX2 implementation
-		leancrypto_aead_avx2_lib = static_library(
-			'leancrypto_aead_avx2_lib',
-			aead_src_files,
-			c_args: cc_avx2_args,
-			include_directories: [ include_dirs,
-					       include_internal_dirs ],
-		)
-		leancrypto_support_libs += leancrypto_aead_avx2_lib
-
-	elif (arm64_asm)
-		# This is required for the XOR 128 bit NEON implementation
-		leancrypto_aead_neon_armv8_lib = static_library(
-			'leancrypto_aead_neon_armv8_lib',
-			aead_src_files,
-			c_args: cc_armv8_neon_simd_args,
-			include_directories: [ include_dirs,
-					       include_internal_dirs ],
-		)
-		leancrypto_support_libs += leancrypto_aead_neon_armv8_lib
-
-	elif (arm32_neon_asm)
-		# This is required for the XOR 128 bit NEON implementation
-		leancrypto_aead_neon_armv7_lib = static_library(
-			'leancrypto_aead_neon_armv7_lib',
-			aead_src_files,
-			c_args: cc_armv7_neon_simd_args,
-			include_directories: [ include_dirs,
-					       include_internal_dirs ],
-		)
-		leancrypto_support_libs += leancrypto_aead_neon_armv7_lib
-
-	else
-		src += aead_src_files
-	endif
+	src += aead_src_files
 endif
 
 # We need HMAC and a symmetric algo
