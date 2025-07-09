@@ -203,7 +203,7 @@ void cc20_crypt_remaining(struct lc_sym_state *ctx, const uint8_t **in,
 
 		xor_64(outp, ctx->keystream.b + ctx->keystream_ptr, todo);
 
-		ctx->keystream_ptr += todo;
+		ctx->keystream_ptr += (uint8_t)todo;
 		*len -= todo;
 		*in += todo;
 		*out += todo;
