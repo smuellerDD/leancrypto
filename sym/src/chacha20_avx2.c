@@ -59,11 +59,8 @@ static void cc20_crypt_avx2(struct lc_sym_state *ctx, const uint8_t *in,
 	}
 
 	if (len) {
-		memset(ctx->keystream.b, 0, LC_CC20_BLOCK_SIZE);
-
 		LC_FPU_ENABLE;
-		ret = cc20_crypt_bytes_avx2(ctx->key.u, ctx->keystream.b,
-					      ctx->keystream.b,
+		ret = cc20_crypt_bytes_avx2(ctx->key.u, NULL, ctx->keystream.b,
 					      LC_CC20_BLOCK_SIZE);
 		LC_FPU_DISABLE;
 
