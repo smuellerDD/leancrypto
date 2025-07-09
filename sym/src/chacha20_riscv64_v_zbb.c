@@ -25,7 +25,7 @@
 #include "lc_sym.h"
 #include "visibility.h"
 
-#include "asm/ARMv8/chacha20_asm_riscv64_v_zbb.h"
+#include "asm/riscv64/chacha20_asm_riscv64_v_zbb.h"
 
 static void cc20_crypt_riscv64_v_zbb(struct lc_sym_state *ctx,
 				     const uint8_t *in, uint8_t *out,
