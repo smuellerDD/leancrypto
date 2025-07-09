@@ -31,7 +31,15 @@
 #include "ret_checkers.h"
 #include "visibility.h"
 
-static int chacha20_enc_large(const struct lc_sym *chacha20_sym)
+#define LC_EXEC_ONE_TEST(chacha20_impl)                                        \
+	if (chacha20_impl) {                                                   \
+		ret += chacha20_enc_selftest(chacha20_impl, #chacha20_impl);   \
+		ret += chacha20_enc_large(chacha20_impl, #chacha20_impl);      \
+		ret += chacha20_stream_test(chacha20_impl, #chacha20_impl);    \
+	}
+
+static int chacha20_enc_large(const struct lc_sym *chacha20_sym,
+			      const char *name)
 {
 	/* Test vector according to RFC 7539 section 2.4.2 */
 	static const uint8_t key[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
@@ -305,6 +313,7 @@ static int chacha20_enc_large(const struct lc_sym *chacha20_sym)
 	};
 	uint8_t res[sizeof(exp)];
 	int ret;
+	char str[30];
 	LC_SYM_CTX_ON_STACK(chacha20, chacha20_sym);
 
 	/* Encrypt */
@@ -312,7 +321,8 @@ static int chacha20_enc_large(const struct lc_sym *chacha20_sym)
 	CKINT(lc_sym_setkey(chacha20, (uint8_t *)key, sizeof(key)));
 	CKINT(lc_sym_setiv(chacha20, (uint8_t *)iv, sizeof(iv)));
 	lc_sym_encrypt(chacha20, (uint8_t *)string, res, sizeof(string));
-	ret = lc_compare(res, exp, sizeof(exp), "ChaCha20 large enc");
+	snprintf(str, sizeof(str), "ChaCha20 large enc - %s", name);
+	ret = lc_compare(res, exp, sizeof(exp), str);
 	if (ret) {
 		ret = -EINVAL;
 		goto out;
@@ -324,7 +334,8 @@ static int chacha20_enc_large(const struct lc_sym *chacha20_sym)
 	CKINT(lc_sym_setkey(chacha20, (uint8_t *)key, sizeof(key)));
 	CKINT(lc_sym_setiv(chacha20, (uint8_t *)iv, sizeof(iv)));
 	lc_sym_decrypt(chacha20, res, res, sizeof(res));
-	ret = lc_compare(res, string, sizeof(string), "ChaCha20 large dec");
+	snprintf(str, sizeof(str), "ChaCha20 large enc - %s", name);
+	ret = lc_compare(res, string, sizeof(string), str);
 	if (ret) {
 		ret = -EINVAL;
 		goto out;
@@ -358,21 +369,24 @@ static const uint8_t rfc_exp[] = {
 	0xf2, 0x78, 0x5e, 0x42, 0x87, 0x4d
 };
 
-static int chacha20_enc_selftest(const struct lc_sym *chacha20_sym)
+static int chacha20_enc_selftest(const struct lc_sym *chacha20_sym,
+				 const char *name)
 {
 	uint8_t res[sizeof(rfc_exp)];
 	int ret;
+	char str[30];
 	LC_SYM_CTX_ON_STACK(chacha20, chacha20_sym);
 
-	printf("ChaCha20 ctx size: %u\n",
-	       (unsigned int)LC_SYM_CTX_SIZE(lc_chacha20));
+	printf("ChaCha20 %s ctx size: %u\n", name,
+	       (unsigned int)LC_SYM_CTX_SIZE(chacha20_sym));
 
 	/* Encrypt */
 	lc_sym_init(chacha20);
 	CKINT(lc_sym_setkey(chacha20, (uint8_t *)rfc_key, sizeof(rfc_key)));
 	CKINT(lc_sym_setiv(chacha20, (uint8_t *)rfc_iv, sizeof(rfc_iv)));
 	lc_sym_encrypt(chacha20, (uint8_t *)rfc_string, res, sizeof(res));
-	ret = lc_compare(res, rfc_exp, sizeof(rfc_exp), "ChaCha20 enc");
+	snprintf(str, sizeof(str), "ChaCha20 enc - %s", name);
+	ret = lc_compare(res, rfc_exp, sizeof(rfc_exp), str);
 	if (ret) {
 		ret = -EINVAL;
 		goto out;
@@ -384,8 +398,8 @@ static int chacha20_enc_selftest(const struct lc_sym *chacha20_sym)
 	CKINT(lc_sym_setkey(chacha20, (uint8_t *)rfc_key, sizeof(rfc_key)));
 	CKINT(lc_sym_setiv(chacha20, (uint8_t *)rfc_iv, sizeof(rfc_iv)));
 	lc_sym_decrypt(chacha20, res, res, sizeof(res));
-	ret = lc_compare(res, (uint8_t *)rfc_string, sizeof(res),
-			 "ChaCha20 dec");
+	snprintf(str, sizeof(str), "ChaCha20 dec - %s", name);
+	ret = lc_compare(res, (uint8_t *)rfc_string, sizeof(res), str);
 	if (ret) {
 		ret = -EINVAL;
 		goto out;
@@ -396,9 +410,11 @@ out:
 	return ret;
 }
 
-static int chacha20_stream_test(const struct lc_sym *chacha20_sym)
+static int chacha20_stream_test(const struct lc_sym *chacha20_sym,
+				const char *name)
 {
 	uint8_t res[sizeof(rfc_exp)];
+	char str[30];
 	size_t len;
 	const uint8_t *in_p;
 	uint8_t *out_p;
@@ -426,7 +442,8 @@ static int chacha20_stream_test(const struct lc_sym *chacha20_sym)
 		i++;
 	}
 
-	ret = lc_compare(res, rfc_exp, sizeof(rfc_exp), "ChaCha20 enc");
+	snprintf(str, sizeof(str), "ChaCha20 stream enc - %s", name);
+	ret = lc_compare(res, rfc_exp, sizeof(rfc_exp), str);
 	if (ret) {
 		ret = -EINVAL;
 		goto out;
@@ -453,8 +470,8 @@ static int chacha20_stream_test(const struct lc_sym *chacha20_sym)
 		i++;
 	}
 
-	ret = lc_compare(res, (uint8_t *)rfc_string, sizeof(res),
-			 "ChaCha20 dec");
+	snprintf(str, sizeof(str), "ChaCha20 stream dec - %s", name);
+	ret = lc_compare(res, (uint8_t *)rfc_string, sizeof(res), str);
 	if (ret) {
 		ret = -EINVAL;
 		goto out;
@@ -467,31 +484,17 @@ out:
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
-	int ret;
+	int ret = 0;
 
 	(void)argc;
 	(void)argv;
 
-	ret = chacha20_enc_selftest(lc_chacha20);
-	ret += chacha20_enc_selftest(lc_chacha20_c);
-	ret += chacha20_enc_selftest(lc_chacha20_neon);
-	ret += chacha20_enc_selftest(lc_chacha20_riscv64_v_zbb);
-	ret += chacha20_enc_selftest(lc_chacha20_avx2);
-	ret += chacha20_enc_selftest(lc_chacha20_avx512);
-
-	ret += chacha20_enc_large(lc_chacha20);
-	ret += chacha20_enc_large(lc_chacha20_c);
-	ret += chacha20_enc_large(lc_chacha20_neon);
-	ret += chacha20_enc_large(lc_chacha20_riscv64_v_zbb);
-	ret += chacha20_enc_large(lc_chacha20_avx2);
-	ret += chacha20_enc_large(lc_chacha20_avx512);
-
-	ret += chacha20_stream_test(lc_chacha20);
-	ret += chacha20_stream_test(lc_chacha20_c);
-	ret += chacha20_stream_test(lc_chacha20_neon);
-	ret += chacha20_stream_test(lc_chacha20_riscv64_v_zbb);
-	ret += chacha20_stream_test(lc_chacha20_avx2);
-	ret += chacha20_stream_test(lc_chacha20_avx512);
+	LC_EXEC_ONE_TEST(lc_chacha20)
+	LC_EXEC_ONE_TEST(lc_chacha20_c)
+	LC_EXEC_ONE_TEST(lc_chacha20_neon)
+	LC_EXEC_ONE_TEST(lc_chacha20_riscv64_v_zbb)
+	LC_EXEC_ONE_TEST(lc_chacha20_avx2)
+	LC_EXEC_ONE_TEST(lc_chacha20_avx512)
 
 	return ret;
 }
