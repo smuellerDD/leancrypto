@@ -25,7 +25,11 @@
 #include "lc_sym.h"
 #include "visibility.h"
 
+#ifdef LC_HOST_ARM32_NEON
+#include "asm/ARMv7/chacha20_asm_neon.h"
+#else
 #include "asm/ARMv8/chacha20_asm_neon.h"
+#endif
 
 static void cc20_crypt_neon(struct lc_sym_state *ctx, const uint8_t *in,
 			    uint8_t *out, size_t len)

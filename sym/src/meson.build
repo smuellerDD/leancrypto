@@ -56,6 +56,17 @@ if get_option('chacha20').enabled()
 					       include_internal_dirs ],
 		)
 		leancrypto_support_libs_fips += leancrypto_chacha20_neon_armv8_lib
+	elif (arm32_neon_asm)
+		src_fips += files([ 'chacha20_neon.c' ])
+
+		leancrypto_chacha20_neon_armv7_lib = static_library(
+			'leancrypto_chacha20_neon_armv7_lib',
+			[ 'asm/ARMv7/chacha20_neon_armv7.S' ],
+			c_args: cc_armv7_neon_simd_args,
+			include_directories: [ include_dirs,
+					       include_internal_dirs ],
+		)
+		leancrypto_support_libs_fips += leancrypto_chacha20_neon_armv7_lib
 	else
 		src_fips += files([ 'chacha20_neon_null.c' ])
 	endif

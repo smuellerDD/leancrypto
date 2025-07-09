@@ -287,6 +287,8 @@ int cc20_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen)
 	ctx->counter[2] = ptr_to_le32(iv + sizeof(uint32_t));
 	ctx->counter[3] = ptr_to_le32(iv + sizeof(uint32_t) * 2);
 
+	ctx->keystream_ptr = 0;
+
 	return 0;
 }
 
