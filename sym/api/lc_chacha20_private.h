@@ -33,7 +33,13 @@ extern "C" {
 #define LC_CC20_BLOCK_SIZE ((4 + 8 + 4) * sizeof(uint32_t))
 #define LC_CC20_BLOCK_SIZE_WORDS (LC_CC20_BLOCK_SIZE / sizeof(uint32_t))
 
-/* State according to RFC 7539 section 2.3 */
+/*
+ * State according to RFC 7539 section 2.3
+ *
+ * For accelerated ChaCha20 implementatinos, the key and the counter must be
+ * aligned to 16 bytes boundary. This is guaranteed when aligning the entire
+ * structure to 16 bytes as the constant field is 16 bytes in size.
+ */
 struct lc_sym_state {
 	uint32_t constants[4];
 	union {
