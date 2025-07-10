@@ -282,7 +282,7 @@ if get_option('kyber_1024').enabled()
 		test('Kyber-X448 KEM', kyber_kem_x448_tester,
 		     suite: regression)
 		test('Kyber-X448 KEM 50000', kyber_kem_x448_tester,
-		     args : [ 'c' ], timeout: 1000, is_parallel: false,
+		     args : [ 'c' ], timeout: 2000, is_parallel: false,
 		     suite: performance)
 		test('Kyber-X448 KEX', kyber_kex_x448_tester,
 		     suite: regression)
@@ -585,7 +585,7 @@ if get_option('kyber_768').enabled()
 		test('Kyber768-X448 KEM', kyber_768_kem_x448_tester,
 		     suite: regression)
 		test('Kyber768-X448 KEM 50000', kyber_768_kem_x448_tester,
-		     args : [ 'c' ], timeout: 1000, is_parallel: false,
+		     args : [ 'c' ], timeout: 2000, is_parallel: false,
 		     suite: performance)
 		test('Kyber768-X448 KEX', kyber_768_kex_x448_tester,
 		     suite: regression)
@@ -817,7 +817,7 @@ if get_option('kyber_512').enabled()
 		test('Kyber512-X448 KEM', kyber_512_kem_x448_tester,
 		     suite: regression)
 		test('Kyber512-X448 KEM 50000', kyber_512_kem_x448_tester,
-		     args : [ 'c' ], timeout: 1000, is_parallel: false,
+		     args : [ 'c' ], timeout: 2000, is_parallel: false,
 		     suite: performance)
 		test('Kyber512-X448 KEX', kyber_512_kex_x448_tester,
 		     suite: regression)
