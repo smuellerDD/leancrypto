@@ -1,4 +1,4 @@
-Changes 1.5.1-prerelease
+Changes 1.5.1
 * add ChaCha20 Poly 1305 AEAD
 
 * ChaCha20: add ARMv8 NEON, ARMv7 Neon, Intel AVX2, Intel AVX512, RISCV RVV/ZBB implementations
