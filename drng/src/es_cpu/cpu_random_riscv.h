@@ -26,15 +26,42 @@
 
 #include "bool.h"
 
-#define ESDM_CPU_ES_IMPLEMENTED
+#define LC_CPU_ES_IMPLEMENTED
 
-static inline uint32_t riscv_seed(void)
+static inline int riscv_seed(uint32_t *ret_data)
 {
-	uint32_t data;
+	uint32_t data, tmp, processing = 2;
 
-	__asm__ __volatile__("csrrw %0, 0x015, x0" : "=r"(data));
+	//TODO: check for presence of Zkr extension?
+	while (processing) {
+		__asm__ __volatile__("csrrw %0, 0x015, x0" : "=r"(tmp));
 
-	return data;
+		/*
+		 * High bits seed[31:30] = OPST indicate status:
+		 * 00 BIST Built-In Self-Test.
+		 * 01 WAIT Sufficient entropy is not yet available.
+		 * 10 ES16 Success: Have 16 bits in seed[15:0].
+		 * 11 DEAD An unrecoverable self-test error.
+		 */
+		switch (tmp >> 30) {
+		case 0:
+		case 1;
+			continue;
+		case 2:
+			if (processing == 2)
+				data = tmp << 16;
+			else
+				data |= tmp & 0xffff;
+			process--;
+		case 3:
+		default:
+			return -EFAULT;
+		}
+	}
+
+	*ret_data = data;
+
+	return 0;
 }
 
 static inline bool cpu_es_get(unsigned long *buf)
@@ -42,8 +69,10 @@ static inline bool cpu_es_get(unsigned long *buf)
 	unsigned int i = 0;
 
 	for (i = 0; i < sizeof(unsigned long);
-	     i += sizeof(uint32_t), buf += sizeof(uint32_t))
-		*buf = riscv_seed();
+	     i += sizeof(uint32_t), buf += sizeof(uint32_t)) {
+		if (riscv_seed(buf))
+			return false;
+	}
 
 	return true;
 }
@@ -51,7 +80,7 @@ static inline bool cpu_es_get(unsigned long *buf)
 static inline unsigned int cpu_es_multiplier(void)
 {
 	/*
-	 * riscv-crypto-spec-scalar-1.0.0-rc6.pdf section 4.2 defines
+	 * riscv-crypto-spec-scalar-1.0.1.pdf section 4.2 defines
 	 * this requirement.
 	 */
 	return 2;

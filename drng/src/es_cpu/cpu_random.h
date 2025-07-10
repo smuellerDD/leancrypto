@@ -26,7 +26,7 @@
 #include "cpu_random_s390.h"
 #include "cpu_random_x86.h"
 
-#ifndef ESDM_CPU_ES_IMPLEMENTED
+#ifndef LC_CPU_ES_IMPLEMENTED
 
 #include "bool.h"
 

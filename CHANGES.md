@@ -3,6 +3,8 @@ Changes 1.5.1-prerelease
 
 * ChaCha20: add ARMv8 NEON, ARMv7 Neon, Intel AVX2, Intel AVX512, RISCV RVV/ZBB implementations
 
+* RISC-V entropy source: make implementation consistent to spec
+
 Changes 1.5.0
 * Enable SHA3 CE 2x implementation for SLH-DSA and ML-DSA (performance increases 2 to 3 fold)
 

@@ -26,7 +26,7 @@
 
 #include "bool.h"
 
-#define ESDM_CPU_ES_IMPLEMENTED
+#define LC_CPU_ES_IMPLEMENTED
 
 /*
  * https://developer.arm.com/documentation/ddi0595/2021-06/AArch64-Registers/RNDR--Random-Number

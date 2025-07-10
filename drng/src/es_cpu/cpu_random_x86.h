@@ -24,7 +24,7 @@
 
 #include "bool.h"
 
-#define ESDM_CPU_ES_IMPLEMENTED
+#define LC_CPU_ES_IMPLEMENTED
 
 #define RDRAND_RETRY_LOOPS 10
 

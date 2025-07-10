@@ -24,7 +24,7 @@
 
 #include "bool.h"
 
-#define ESDM_CPU_ES_IMPLEMENTED
+#define LC_CPU_ES_IMPLEMENTED
 
 #define PPC_DARN_ERR 0xFFFFFFFFFFFFFFFFul
 static inline bool cpu_es_get(unsigned long *buf)
