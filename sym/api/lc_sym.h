@@ -208,7 +208,7 @@ void lc_sym_zero_free(struct lc_sym_ctx *ctx);
 		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
 			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
 			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
-					  LC_SYM_CTX_SIZE_NONALIGNED(symname),      \
+					  LC_SYM_CTX_SIZE(symname),                 \
 					  LC_SYM_ALIGNMENT_COMMON);                 \
 	struct lc_sym_ctx *name = (struct lc_sym_ctx *)name##_ctx_buf;              \
 	LC_SYM_SET_CTX(name, symname);                                              \
