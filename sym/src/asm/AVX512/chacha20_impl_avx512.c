@@ -105,7 +105,7 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 		__m512i ctr_increment;
 		__m512i P1, P2, P3, P4;
 		__m512i X0_0, X0_1, X0_2, X0_3;
-#ifdef DISABLE_16_BLOCKS
+#ifndef DISABLE_16_BLOCKS
 		__m512i X1_0, X1_1, X1_2, X1_3;
 		__m512i X2_0, X2_1, X2_2, X2_3;
 		__m512i X3_0, X3_1, X3_2, X3_3;

@@ -191,10 +191,9 @@ LC_INTERFACE_FUNCTION(void, cc20_block, struct lc_sym_state *state,
 void cc20_crypt_remaining(struct lc_sym_state *ctx, const uint8_t **in,
 			  uint8_t **out, size_t *len)
 {
-	const uint8_t *inp = *in;
-	uint8_t *outp = *out;
-
 	if (ctx->keystream_ptr) {
+		const uint8_t *inp = *in;
+		uint8_t *outp = *out;
 		size_t todo =
 			min_size(*len, LC_CC20_BLOCK_SIZE - ctx->keystream_ptr);
 
