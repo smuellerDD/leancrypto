@@ -58,10 +58,10 @@ struct lc_sym_ctx {
  * question is which pre-processor macro to use to select the proper
  * LC_ALIGN_PTR_XX macro depending on lc_sym->alignment during compile time.
  */
-#ifndef LC_SYM_ALIGNMENT_COMMON
-#define LC_SYM_ALIGNMENT_COMMON (16)
+#ifndef LC_SYM_COMMON_ALIGNMENT
+#define LC_SYM_COMMON_ALIGNMENT (16)
 #endif
-#define LC_SYM_ALIGNMENT(symname) LC_SYM_ALIGNMENT_COMMON
+#define LC_SYM_ALIGNMENT(symname) LC_SYM_COMMON_ALIGNMENT
 #define LC_SYM_ALIGNMASK(symname) (LC_SYM_ALIGNMENT(symname) - 1)
 
 #define LC_ALIGN_SYM_MASK(p, symname)                                          \
@@ -69,7 +69,7 @@ struct lc_sym_ctx {
 
 #define LC_SYM_STATE_SIZE_NONALIGNED(x) ((unsigned long)(x->statesize))
 #define LC_SYM_STATE_SIZE(x)                                                   \
-	(LC_SYM_STATE_SIZE_NONALIGNED(x) + LC_SYM_ALIGNMENT_COMMON)
+	(LC_SYM_STATE_SIZE_NONALIGNED(x) + LC_SYM_COMMON_ALIGNMENT)
 #define LC_SYM_CTX_SIZE_NONALIGNED(x)                                          \
 	(sizeof(struct lc_sym_ctx) + LC_SYM_STATE_SIZE_NONALIGNED(x))
 #define LC_SYM_CTX_SIZE(x) (sizeof(struct lc_sym_ctx) + LC_SYM_STATE_SIZE(x))
@@ -209,7 +209,7 @@ void lc_sym_zero_free(struct lc_sym_ctx *ctx);
 			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
 			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
 					  LC_SYM_CTX_SIZE(symname),                 \
-					  LC_SYM_ALIGNMENT_COMMON);                 \
+					  LC_SYM_COMMON_ALIGNMENT);                 \
 	struct lc_sym_ctx *name = (struct lc_sym_ctx *)name##_ctx_buf;              \
 	LC_SYM_SET_CTX(name, symname);                                              \
 	lc_sym_zero(name);                                                          \

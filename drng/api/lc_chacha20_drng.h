@@ -72,7 +72,7 @@ static inline void lc_cc20_drng_zero(struct lc_chacha20_drng_ctx *cc20_ctx)
 			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
 			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
 					  LC_CC20_DRNG_CTX_SIZE,                    \
-					  LC_SYM_ALIGNMENT_COMMON);                 \
+					  LC_SYM_COMMON_ALIGNMENT);                 \
 	struct lc_chacha20_drng_ctx *name =                                         \
 		(struct lc_chacha20_drng_ctx *)name##_ctx_buf;                      \
 	LC_CC20_DRNG_SET_CTX(name);                                                 \

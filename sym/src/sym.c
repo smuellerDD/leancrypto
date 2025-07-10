@@ -64,7 +64,7 @@ LC_INTERFACE_FUNCTION(void, lc_sym_zero, struct lc_sym_ctx *ctx)
 	const struct lc_sym *sym = ctx->sym;
 
 	lc_memset_secure((uint8_t *)ctx + sizeof(struct lc_sym_ctx), 0,
-			 LC_SYM_STATE_SIZE_NONALIGNED(sym));
+			 LC_SYM_STATE_SIZE(sym));
 }
 
 LC_INTERFACE_FUNCTION(int, lc_sym_alloc, const struct lc_sym *sym,
@@ -76,7 +76,7 @@ LC_INTERFACE_FUNCTION(int, lc_sym_alloc, const struct lc_sym *sym,
 	if (!ctx)
 		return -EINVAL;
 
-	ret = lc_alloc_aligned((void **)&out_ctx, LC_MEM_COMMON_ALIGNMENT,
+	ret = lc_alloc_aligned((void **)&out_ctx, LC_SYM_COMMON_ALIGNMENT,
 			       LC_SYM_CTX_SIZE(sym));
 
 	if (ret)

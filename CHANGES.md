@@ -5,6 +5,8 @@ Changes 1.5.1-prerelease
 
 * RISC-V entropy source: make implementation consistent to spec
 
+* Unify stack memory allocation
+
 Changes 1.5.0
 * Enable SHA3 CE 2x implementation for SLH-DSA and ML-DSA (performance increases 2 to 3 fold)
 
