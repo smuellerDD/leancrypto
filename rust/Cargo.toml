@@ -1,6 +1,6 @@
 [package]
 name = "leancrypto-sys"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 authors = ["Stephan Mueller <smueller@chronox.de>"]
 description = "Rust language binding for leancrypto, a cryptographic library with stack-only support and PQC-safe algorithms"
