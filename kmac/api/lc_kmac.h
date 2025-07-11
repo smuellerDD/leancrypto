@@ -61,6 +61,11 @@ struct lc_kmac_ctx {
 /// \endcond
 
 /**
+ * @defgroup KMAC KMAC Keccak Message Authentaction Code (SP800-185)
+ */
+
+/**
+ * @ingroup KMAC
  * @brief Initialize KMAC context
  *
  * @param [in] kmac_ctx Reference to kmac context implementation to be used to
@@ -77,6 +82,7 @@ void lc_kmac_init(struct lc_kmac_ctx *kmac_ctx, const uint8_t *key, size_t klen,
 		  const uint8_t *s, size_t slen);
 
 /**
+ * @ingroup KMAC
  * @brief Re-initialize KMAC context after a kmac_final operation
  *
  * This operation allows the KMAC context to be used again with the same key
@@ -88,6 +94,7 @@ void lc_kmac_init(struct lc_kmac_ctx *kmac_ctx, const uint8_t *key, size_t klen,
 void lc_kmac_reinit(struct lc_kmac_ctx *kmac_ctx);
 
 /**
+ * @ingroup KMAC
  * @brief Update KMAC
  *
  * @param [in] kmac_ctx Reference to kmac context implementation to be used to
@@ -99,6 +106,7 @@ void lc_kmac_update(struct lc_kmac_ctx *kmac_ctx, const uint8_t *in,
 		    size_t inlen);
 
 /**
+ * @ingroup KMAC
  * @brief Calculate KMAC MAC
  *
  * If the cipher handle shall be used for a new KMAC operation with the same
@@ -113,6 +121,7 @@ void lc_kmac_update(struct lc_kmac_ctx *kmac_ctx, const uint8_t *in,
 void lc_kmac_final(struct lc_kmac_ctx *kmac_ctx, uint8_t *mac, size_t maclen);
 
 /**
+ * @ingroup KMAC
  * @brief Calculate KMAC MAC in XOF mode
  *
  * If the cipher handle shall be used for a new KMAC operation with the same
@@ -145,6 +154,7 @@ void lc_kmac_final_xof(struct lc_kmac_ctx *kmac_ctx, uint8_t *mac,
 		       size_t maclen);
 
 /**
+ * @ingroup KMAC
  * @brief Allocate KMAC context on heap
  *
  * NOTE: This is defined for cshake256 as of now.
@@ -170,6 +180,7 @@ int lc_kmac_alloc(const struct lc_hash *hash, struct lc_kmac_ctx **kmac_ctx,
 #define LC_KMAC_FLAGS_SUPPORT_REINIT (1 << 0)
 
 /**
+ * @ingroup KMAC
  * @brief Zeroize and free KMAC context
  *
  * @param [in] kmac_ctx KMAC context to be zeroized and freed
@@ -177,6 +188,7 @@ int lc_kmac_alloc(const struct lc_hash *hash, struct lc_kmac_ctx **kmac_ctx,
 void lc_kmac_zero_free(struct lc_kmac_ctx *kmac_ctx);
 
 /**
+ * @ingroup KMAC
  * @brief Zeroize KMAC context allocated with either LC_KMAC_CTX_ON_STACK or
  *	  lc_kmac_alloc
  *
@@ -185,6 +197,7 @@ void lc_kmac_zero_free(struct lc_kmac_ctx *kmac_ctx);
 void lc_kmac_zero(struct lc_kmac_ctx *kmac_ctx);
 
 /**
+ * @ingroup KMAC
  * @brief Allocate stack memory for the KMAC context
  *
  * This allocates the memory without re-initialization support
@@ -207,6 +220,7 @@ void lc_kmac_zero(struct lc_kmac_ctx *kmac_ctx);
 	_Pragma("GCC diagnostic pop")
 
 /**
+ * @ingroup KMAC
  * @brief Allocate stack memory for the KMAC context
  *
  * This allocates the memory with re-initialization support.
@@ -230,6 +244,7 @@ void lc_kmac_zero(struct lc_kmac_ctx *kmac_ctx);
 	_Pragma("GCC diagnostic pop")
 
 /**
+ * @ingroup KMAC
  * @brief Return the MAC size
  *
  * @param [in] kmac_ctx KMAC context
@@ -239,6 +254,7 @@ void lc_kmac_zero(struct lc_kmac_ctx *kmac_ctx);
 size_t lc_kmac_macsize(struct lc_kmac_ctx *kmac_ctx);
 
 /**
+ * @ingroup KMAC
  * @brief Calculate KMAC - one-shot
  *
  * @param [in] hash Reference to hash implementation to be used to perform
@@ -259,6 +275,7 @@ void lc_kmac(const struct lc_hash *hash, const uint8_t *key, size_t keylen,
 	     uint8_t *mac, size_t maclen);
 
 /**
+ * @ingroup KMAC
  * @brief Calculate KMAC in XOF mode - one-shot
  *
  * @param [in] hash Reference to hash implementation to be used to perform
@@ -280,7 +297,8 @@ void lc_kmac_xof(const struct lc_hash *hash, const uint8_t *key, size_t keylen,
 
 /******************************** KMAC as RNG *********************************/
 
-/*
+/**
+ * @ingroup KDFasRNG
  * The KMAC can be used as an RNG context for aggregated algorithms like
  * Kyber or Dilithium. The idea is that KMAC acts as a key derivation function
  * whose state can be initialized from an input data to deterministically derive
@@ -294,6 +312,7 @@ void lc_kmac_xof(const struct lc_hash *hash, const uint8_t *key, size_t keylen,
 /* KMAC DRNG implementation */
 extern const struct lc_rng *lc_kmac_rng;
 
+/// \cond DO_NOT_DOCUMENT
 #define LC_KMAC_KDF_DRNG_CTX_SIZE(hashname)                                    \
 	(sizeof(struct lc_rng_ctx) + LC_KMAC_CTX_SIZE(hashname))
 
@@ -304,13 +323,17 @@ extern const struct lc_rng *lc_kmac_rng;
 	LC_KMAC_KDF_DRNG_SET_CTX(((struct lc_kmac_ctx *)(name->rng_state)),    \
 				 hashname);                                    \
 	lc_rng_zero(name)
+/// \endcond
 
 /**
+ * @ingroup KDFasRNG
  * @brief Allocate stack memory for the KMAC DRNG context
  *
  * @param [in] name Name of the stack variable
  * @param [in] hashname Reference to lc_hash implementation - use lc_cshake256
  *			or lc_cshake128.
+ *
+ * \warning You MUST seed the DRNG!
  */
 #define LC_KMAC_KDF_DRNG_CTX_ON_STACK(name, hashname)                               \
 	_Pragma("GCC diagnostic push")                                              \
@@ -324,6 +347,7 @@ extern const struct lc_rng *lc_kmac_rng;
 	_Pragma("GCC diagnostic pop")
 
 /**
+ * @ingroup KDFasRNG
  * @brief Allocation of a KMAC DRNG context
  *
  * @param [out] state KMAC DRNG context allocated by the function
@@ -334,7 +358,7 @@ extern const struct lc_rng *lc_kmac_rng;
  *
  * The memory is pinned so that the DRNG state cannot be swapped out to disk.
  *
- * You need to seed the DRNG!
+ * \warning You MUST seed the DRNG!
  *
  * @return 0 upon success; < 0 on error
  */

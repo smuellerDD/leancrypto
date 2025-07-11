@@ -177,6 +177,7 @@ int lc_hkdf(const struct lc_hash *hash, const uint8_t *ikm, size_t ikmlen,
 /* HKDF DRNG implementation */
 extern const struct lc_rng *lc_hkdf_rng;
 
+/// \cond DO_NOT_DOCUMENT
 #define LC_HKDF_DRNG_CTX_SIZE(hashname)                                        \
 	(sizeof(struct lc_rng_ctx) + LC_HKDF_CTX_SIZE(hashname))
 
@@ -187,6 +188,7 @@ extern const struct lc_rng *lc_hkdf_rng;
 	LC_HKDF_DRNG_SET_CTX(((struct lc_hkdf_ctx *)(name->rng_state)),        \
 			     hashname);                                        \
 	lc_rng_zero(name)
+/// \endcond
 
 /**
  * @ingroup KDFasRNG
