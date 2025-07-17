@@ -30,7 +30,7 @@
 
 static inline int riscv_seed(uint32_t *ret_data)
 {
-	uint32_t data, tmp, processing = 2;
+	uint32_t data = 0, tmp, processing = 2;
 
 	//TODO: check for presence of Zkr extension?
 	while (processing) {
