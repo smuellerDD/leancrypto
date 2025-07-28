@@ -70,8 +70,8 @@ int private_key_encode_dilithium_ed25519(
 {
 	int ret;
 
-	CKINT(asn1_ber_encoder(&x509_mldsa_ed25519_privkey_encoder, ctx, data,
-			       avail_datalen));
+	CKINT(asn1_ber_encoder_small(&x509_mldsa_ed25519_privkey_encoder, ctx,
+				     data, avail_datalen));
 
 out:
 	return ret;

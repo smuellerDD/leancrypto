@@ -75,8 +75,8 @@ int private_key_encode_dilithium_ed448(uint8_t *data, size_t *avail_datalen,
 {
 	int ret;
 
-	CKINT(asn1_ber_encoder(&x509_mldsa_ed448_privkey_encoder, ctx, data,
-			       avail_datalen));
+	CKINT(asn1_ber_encoder_small(&x509_mldsa_ed448_privkey_encoder, ctx,
+				     data, avail_datalen));
 
 out:
 	return ret;

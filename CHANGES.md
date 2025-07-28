@@ -1,3 +1,6 @@
+Changes 1.5.2-prerelease
+* ASN.1: use stack for small generator
+
 Changes 1.5.1
 * add ChaCha20 Poly 1305 AEAD
 
