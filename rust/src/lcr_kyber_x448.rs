@@ -109,7 +109,7 @@ impl lcr_kyber_x448 {
 		Ok(())
 	}
 
-	/// Load ctnature using with leancrypto
+	/// Load ct using with leancrypto
 	///
 	/// [ct_kyber_buf] buffer with raw Kyber cipher text
 	/// [x448_rem_pub_key_buf] buffer with raw X448 remote public key

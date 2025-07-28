@@ -109,7 +109,7 @@ impl lcr_kyber {
 		Ok(())
 	}
 
-	/// Load ctnature using with leancrypto
+	/// Load ct using with leancrypto
 	///
 	/// [ct_buf] buffer with raw Kyber cipher text
 	pub fn ct_load(&mut self, ct_buf: &[u8]) ->
@@ -131,7 +131,7 @@ impl lcr_kyber {
 		Ok(())
 	}
 
-	/// Load ctnature using with leancrypto
+	/// Load shared secret using with leancrypto
 	///
 	/// [ss_buf] buffer with raw shared secret
 	pub fn ss_load(&mut self, ss_buf: &[u8]) ->

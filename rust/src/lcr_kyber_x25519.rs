@@ -109,7 +109,7 @@ impl lcr_kyber_x25519 {
 		Ok(())
 	}
 
-	/// Load ctnature using with leancrypto
+	/// Load ct using with leancrypto
 	///
 	/// [ct_kyber_buf] buffer with raw Kyber cipher text
 	/// [x25519_rem_pub_key_buf] buffer with raw X25519 remote public key
