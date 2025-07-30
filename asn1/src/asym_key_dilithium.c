@@ -161,8 +161,6 @@ int public_key_generate_signature_dilithium(
 
 	/*
 	 * Copy the signature to its destination
-	 * We can unconstify the raw_sig pointer here, because we know the
-	 * data buffer is in the just parsed data.
 	 */
 	memcpy(sig_data, sigptr, siglen);
 	*available_len -= siglen;

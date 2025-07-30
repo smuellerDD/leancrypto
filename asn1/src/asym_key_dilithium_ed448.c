@@ -333,10 +333,7 @@ int public_key_generate_signature_dilithium_ed448(
 	const struct lc_public_key_signature *sig, uint8_t *sig_data,
 	size_t *available_len)
 {
-	//TODO reduce buffer size
-#define LC_ASYM_DILITHIUM_ED448_SIGBUF_SIZE 8192
 	struct workspace {
-		uint8_t sigbuf[LC_ASYM_DILITHIUM_ED448_SIGBUF_SIZE];
 		uint8_t randomizer[LC_X509_SIGNATURE_RANDOMIZER_SIZE];
 		uint8_t ph_message[LC_X509_COMP_ED448_MSG_SIZE];
 		struct lc_dilithium_ed448_sig dilithium_ed448_sig;
