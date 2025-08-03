@@ -93,6 +93,7 @@ static uint64_t single_bit_mask(uint32_t pos)
 	uint64_t tmp;
 	size_t i;
 
+#pragma GCC unroll 64
 	for (i = 0; i < 64; ++i) {
 		tmp = pos - i;
 		tmp = 0 - (1 - ((uint64_t)(tmp | (0 - tmp)) >> 63));
