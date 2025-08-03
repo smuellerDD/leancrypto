@@ -30,6 +30,7 @@
 #include "gf2x.h"
 #include "hqc_type.h"
 #include "hqc_internal.h"
+#include "timecop.h"
 
 /**
  * @brief Caryless multiplication of two words of 64 bits
@@ -88,6 +89,9 @@ static void base_mul(uint64_t *c, uint64_t a, uint64_t b)
 		tmp1 = (a >> i) & 0x0f;
 		for (j = 0; j < 16; ++j) {
 			tmp2 = tmp1 - j;
+
+			//TODO revalidate the necssity of this call
+			unpoison(&tmp2, sizeof(tmp2));
 			g ^= (u[j] &
 			      (uint64_t)(0 -
 					 (1 - ((uint64_t)(tmp2 | (0 - tmp2)) >>

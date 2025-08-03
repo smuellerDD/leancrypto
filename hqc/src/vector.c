@@ -32,6 +32,7 @@
 #include "hqc_type.h"
 #include "hqc_internal.h"
 #include "parsing.h"
+#include "timecop.h"
 #include "vector.h"
 
 #if (LC_HQC_TYPE == 128)
@@ -150,8 +151,6 @@ void vect_set_random_fixed_weight(struct lc_hash_ctx *shake256, uint64_t *v,
 				  uint16_t weight,
 				  struct vect_set_random_fixed_weight_ws *ws)
 {
-	uint32_t pos, found, mask32, tmp;
-	uint64_t mask64, val;
 	size_t i, j;
 
 	seedexpander(shake256, ws->rand_bytes, 4 * weight);
@@ -164,7 +163,7 @@ void vect_set_random_fixed_weight(struct lc_hash_ctx *shake256, uint64_t *v,
 	}
 
 	for (i = (weight - 1); i-- > 0;) {
-		found = 0;
+		uint32_t mask32, found = 0;
 
 		for (j = i + 1; j < weight; ++j)
 			found |= compare_u32(ws->support[j], ws->support[i]);
@@ -175,17 +174,25 @@ void vect_set_random_fixed_weight(struct lc_hash_ctx *shake256, uint64_t *v,
 	}
 
 	for (i = 0; i < weight; ++i) {
+		uint32_t pos;
+
 		ws->index_tab[i] = ws->support[i] >> 6;
 		pos = ws->support[i] & 0x3f;
 		ws->bit_tab[i] = single_bit_mask(pos); // avoid secret shift
 	}
 
 	for (i = 0; i < LC_HQC_VEC_N_SIZE_64; ++i) {
-		val = 0;
+		uint64_t val = 0;
+
 		for (j = 0; j < weight; ++j) {
-			tmp = (uint32_t)(i - ws->index_tab[j]);
+			uint64_t mask64;
+
+			uint32_t tmp = (uint32_t)(i - ws->index_tab[j]);
 			tmp = 1 ^ ((uint32_t)(tmp | (0 - tmp)) >> 31);
 			mask64 = 0 - (uint64_t)tmp;
+
+			//TODO revalidate the necssity of this call
+			unpoison(&mask64, sizeof(mask64));
 			val |= (ws->bit_tab[j] & mask64);
 		}
 		v[i] |= val;

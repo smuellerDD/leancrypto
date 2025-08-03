@@ -34,6 +34,7 @@
 #include "lc_sha3.h"
 #include "parsing_avx2.h"
 #include "small_stack_support.h"
+#include "timecop.h"
 #include "ret_checkers.h"
 #include "vector_avx2.h"
 
@@ -231,6 +232,10 @@ noinline_stack uint8_t hqc_pke_decrypt_avx2(uint8_t *m, uint8_t *sigma,
 
 	vect_add(ws->tmp2, ws->tmp1, (uint64_t *)ws->tmp3_256,
 		 LC_HQC_VEC_N_256_SIZE_64);
+
+	//TODO: is this correct?
+	unpoison(ws, sizeof(struct hqc_pke_decrypt_ws));
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
 	/*
