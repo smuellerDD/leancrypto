@@ -37,6 +37,7 @@
 #include "ret_checkers.h"
 #include "small_stack_support.h"
 #include "static_rng.h"
+#include "timecop.h"
 #include "vector.h"
 
 #ifdef __cplusplus
@@ -133,6 +134,7 @@ static inline int lc_hqc_enc_internal_impl(
 
 	// Computing m
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, m, LC_HQC_VEC_K_SIZE_BYTES));
+	poison(m, LC_HQC_VEC_K_SIZE_BYTES);
 
 	// Computing theta
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, salt, LC_HQC_SALT_SIZE_BYTES));
@@ -159,6 +161,12 @@ static inline int lc_hqc_enc_internal_impl(
 
 	// Computing ciphertext
 	hqc_ciphertext_to_string(ct->ct, ws->u, ws->v, salt);
+
+	/*
+	 * Timecop: unpoison SS and CT as they go out of scope for leancrypto.
+	 */
+	unpoison(ct->ct, sizeof(ct->ct));
+	unpoison(ss->ss, sizeof(ss->ss));
 
 out:
 	lc_hash_zero(shake256);
@@ -236,6 +244,8 @@ static inline int lc_hqc_dec_impl(
 
 	hqc_kem_dec_selftest(&tester, "HQC KEM dec C", lc_hqc_dec);
 
+	poison(sk->sk, sizeof(sk->sk));
+
 	m = ws->tmp;
 	salt = ws->tmp + LC_HQC_VEC_K_SIZE_BYTES + 2 * LC_HQC_SALT_SIZE_BYTES;
 
@@ -282,6 +292,15 @@ static inline int lc_hqc_dec_impl(
 			 LC_HQC_VEC_K_SIZE_BYTES + LC_HQC_VEC_N_SIZE_BYTES +
 				 LC_HQC_VEC_N1N2_SIZE_BYTES,
 			 LC_HQC_K_FCT_DOMAIN);
+
+	/*
+	 * Timecop: unpoison SK, SS and CT as they go out of scope for
+	 * leancrypto.
+	 */
+	unpoison(sk->sk, sizeof(sk->sk));
+	unpoison(ct->ct, sizeof(ct->ct));
+	unpoison(ss->ss, sizeof(ss->ss));
+	unpoison(&result, sizeof(result));
 
 	LC_RELEASE_MEM(ws);
 	return (result & 1) - 1;

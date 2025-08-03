@@ -35,6 +35,7 @@
 #include "ret_checkers.h"
 #include "shake_prng.h"
 #include "small_stack_support.h"
+#include "timecop.h"
 #include "vector.h"
 
 /**
@@ -75,12 +76,15 @@ int hqc_pke_keygen(struct lc_hqc_pk *pk, struct lc_hqc_sk *sk,
 	// Create seed_expanders for public key and secret key
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, ws->sk_seed,
 			      LC_HQC_SEED_BYTES));
+	poison(ws->sk_seed, LC_HQC_SEED_BYTES);
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, ws->sigma,
 			      LC_HQC_VEC_K_SIZE_BYTES));
+	poison(ws->sigma, LC_HQC_VEC_K_SIZE_BYTES);
 	seedexpander_init(sk_seedexpander, ws->sk_seed, LC_HQC_SEED_BYTES);
 
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, ws->pk_seed,
 			      LC_HQC_SEED_BYTES));
+	poison(ws->pk_seed, LC_HQC_SEED_BYTES);
 	seedexpander_init(pk_seedexpander, ws->pk_seed, LC_HQC_SEED_BYTES);
 
 	// Compute secret key
@@ -97,6 +101,13 @@ int hqc_pke_keygen(struct lc_hqc_pk *pk, struct lc_hqc_sk *sk,
 	// Parse keys to string
 	hqc_public_key_to_string(pk->pk, ws->pk_seed, ws->s);
 	hqc_secret_key_to_string(sk->sk, ws->sk_seed, ws->sigma, pk->pk);
+
+	/*
+	 * Timecop: unpoison the generated keys now as they leave the scope of
+	 * leancrypto.
+	 */
+	unpoison(pk->pk, sizeof(pk->pk));
+	unpoison(sk->sk, sizeof(sk->sk));
 
 out:
 	lc_hash_zero(sk_seedexpander);
@@ -181,7 +192,11 @@ noinline_stack uint8_t hqc_pke_decrypt(uint8_t *m, uint8_t *sigma,
 	// Compute m by decoding v - u.y
 	memset(&ws->wsu.reed_solomon_decode_ws, 0,
 	       sizeof(struct reed_solomon_decode_ws));
+
+	//TODO: is this correct?
+	unpoison(ws, sizeof(struct hqc_pke_decrypt_ws));
 	code_decode(m, ws->tmp2, &ws->wsu.reed_solomon_decode_ws);
+	poison(m, LC_HQC_VEC_K_SIZE_BYTES);
 
 	return 0;
 }
