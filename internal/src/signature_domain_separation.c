@@ -263,6 +263,7 @@ out:
 	return ret;
 }
 
+/* FIPS 204 pre-hash ML-DSA domain separation, but without original message */
 static int standalone_signature_domain_separation(
 	struct lc_hash_ctx *hash_ctx,
 	const struct lc_hash *signature_prehash_type, const uint8_t *userctx,
@@ -284,6 +285,12 @@ out:
 	return ret;
 }
 
+/*
+ * Domain separation as required by:
+ *
+ * FIPS 204 pre-hash ML-DSA: randomizer is NULL
+ * Composite ML-DSA draft 5: randomizer is set
+ */
 int signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 				unsigned int ml_dsa_internal,
 				const struct lc_hash *signature_prehash_type,
