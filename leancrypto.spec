@@ -166,3 +166,5 @@ done
 %{_libexecdir}/%{name}/sha3-384sum
 %{_libexecdir}/%{name}/sha3-512sum
 %{_libexecdir}/%{name}/ascon256-sum
+%{_bindir}/lc_x509_generator
+%{_bindir}/lc_pkcs7_generator
