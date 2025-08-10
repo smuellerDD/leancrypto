@@ -130,6 +130,7 @@ enum OID {
 	OID_id_kp_emailProtection, /* 1.3.6.1.5.5.7.3.4 */
 	OID_id_kp_timeStamping, /* 1.3.6.1.5.5.7.3.8 */
 	OID_id_kp_OCSPSigning, /* 1.3.6.1.5.5.7.3.9 */
+	OID_id_kp_ModuleSigning, /* 1.3.6.1.4.1.2312.16.1.2 */
 
 	/* Heimdal mechanisms */
 	OID_NetlogonMechanism, /* 1.2.752.43.14.2 */

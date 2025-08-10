@@ -97,6 +97,7 @@ const struct x509_flag_name x509_eku_to_name[] =
 	{ .val = LC_KEY_EKU_EMAIL_PROTECTION, .name = "emailProtection", .namelen = 15, .oid = OID_id_kp_emailProtection },
 	{ .val = LC_KEY_EKU_TIME_STAMPING, .name = "timeStamping", .namelen = 12, .oid = OID_id_kp_timeStamping },
 	{ .val = LC_KEY_EKU_OCSP_SIGNING, .name = "OCSPSigning", .namelen = 11, .oid = OID_id_kp_OCSPSigning },
+	{ .val = LC_KEY_EKU_MODULE_SIGNING, .name = "ModuleSigning", .namelen = 13, .oid = OID_id_kp_ModuleSigning },
 };
 // clang-format on
 

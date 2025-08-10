@@ -180,6 +180,7 @@ struct lc_public_key {
 #define LC_KEY_EKU_EMAIL_PROTECTION (1 << 7)
 #define LC_KEY_EKU_TIME_STAMPING (1 << 8)
 #define LC_KEY_EKU_OCSP_SIGNING (1 << 9)
+#define LC_KEY_EKU_MODULE_SIGNING (1 << 10)
 #define LC_KEY_EKU_MASK                                                        \
 	((uint16_t)~LC_KEY_EKU_CRITICAL | LC_KEY_EKU_EXTENSION_PRESENT)
 
