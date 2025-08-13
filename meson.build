@@ -327,7 +327,6 @@ if get_option('efi').enabled()
 		'-fno-stack-check',
 		'-ffreestanding',
 		'-fshort-wchar',
-		'-mno-red-zone',
 		'-DLC_EFI_ENVIRONMENT',
 		],
 		language: 'c')
@@ -338,6 +337,13 @@ if get_option('efi').enabled()
 		efi_crt0_file,
 		],
 		language : 'c')
+
+	if host_machine.cpu_family() == 'x86_64'
+		add_global_arguments([
+			'-mno-red-zone',
+			],
+			language: 'c')
+	endif
 
 	if cc.has_argument('-maccumulate-outgoing-args')
 		add_global_arguments([ '-maccumulate-outgoing-args' ],
