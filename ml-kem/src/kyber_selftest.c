@@ -49,9 +49,16 @@ static int _kyber_kem_keygen_selftest(
 	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 
 	_lc_kyber_keypair(&ws->pk, &ws->sk, selftest_rng);
+
+	/*
+	 * IG 10.3.A: it is not required to validate ek as it is part of dk.
+	 */
+#if 0
 	snprintf(str, sizeof(str), "%s PK", impl);
 	lc_compare_selftest(ws->pk.pk, kyber_testvectors[0].pk.pk,
 			    LC_CRYPTO_PUBLICKEYBYTES, str);
+#endif
+
 	snprintf(str, sizeof(str), "%s SK", impl);
 
 	/* Timecop: Selftest does not contain secrets */

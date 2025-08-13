@@ -55,9 +55,16 @@ static int _dilithium_keypair_tester(
 
 	_lc_dilithium_keypair_from_seed(&ws->pk, &ws->sk, tc->seed,
 					sizeof(tc->seed));
+
+	/*
+	 * IG 10.3.A: it is not required to validate pk as it is part of sk.
+	 */
+#if 0
 	snprintf(str, sizeof(str), "%s PK", impl);
 	lc_compare_selftest(ws->pk.pk, tc->pk, LC_DILITHIUM_PUBLICKEYBYTES,
 			    str);
+#endif
+
 	snprintf(str, sizeof(str), "%s SK", impl);
 	lc_compare_selftest(ws->sk.sk, tc->sk, LC_DILITHIUM_SECRETKEYBYTES,
 			    str);

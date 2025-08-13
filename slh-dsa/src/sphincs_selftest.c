@@ -73,7 +73,12 @@ static inline int _sphincs_selftest_keygen(void)
 	s_rng_state.seedlen = sizeof(tc->seed);
 	CKINT(lc_sphincs_keypair(&ws->pk, &ws->sk, &s_drng));
 
+	/*
+	 * IG 10.3.A: it is not required to validate pk as it is part of sk.
+	 */
+#if 0
 	lc_compare_selftest((uint8_t *)&ws->pk, tc->pk, sizeof(tc->pk), "PK");
+#endif
 	lc_compare_selftest((uint8_t *)&ws->sk, tc->sk, sizeof(tc->sk), "SK");
 
 out:
