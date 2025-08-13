@@ -749,6 +749,26 @@ out:
 	return ret;
 }
 
+static int x509_check_data(struct x509_generator_opts *opts)
+{
+	struct lc_x509_certificate *cert = &opts->cert;
+	int ret = 0;
+
+	if (!opts->raw_serial) {
+#define LC_X509_RANDOM_SERIAL_SIZE 8
+		opts->raw_serial = calloc(1, LC_X509_RANDOM_SERIAL_SIZE);
+		CKNULL(opts->raw_serial, -ENOMEM);
+		opts->raw_serial_size = LC_X509_RANDOM_SERIAL_SIZE;
+		CKINT(lc_rng_generate(lc_seeded_rng, NULL, 0, opts->raw_serial,
+				      opts->raw_serial_size));
+		CKINT(lc_x509_cert_set_serial(cert, opts->raw_serial,
+					      opts->raw_serial_size));
+	}
+
+out:
+	return ret;
+}
+
 static void x509_generator_usage(void)
 {
 	fprintf(stderr, "\nLeancrypto X.509 Certificate Generator\n");
@@ -1290,6 +1310,8 @@ int main(int argc, char *argv[])
 			goto out;
 		}
 	}
+
+	CKINT(x509_check_data(&ws->parsed_opts));
 
 	if (ws->parsed_opts.print_x509_cert) {
 		if (ws->parsed_opts.x509_signer_file)
