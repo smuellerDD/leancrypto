@@ -763,35 +763,33 @@ static void x509_generator_usage(void)
 	fprintf(stderr, "\n\tOptions for X.509 cryptographic aspects:\n");
 	fprintf(stderr,
 		"\t   --sk-file <FILE>\t\tFile with secret key used for signature\n");
-	fprintf(stderr, "\t\t\t\t\t\tInput when key is available\n"),
-		fprintf(stderr, "\t\t\t\t\t\t(MUST be DER),\n");
-	fprintf(stderr, "\t\t\t\t\t\toutput with --create-keypair\n");
+	fprintf(stderr, "\t\t\t\t\tInput when key is available (MUST be\n"),
+	fprintf(stderr, "\t\t\t\t\tDER),\n");
+	fprintf(stderr, "\t\t\t\t\toutput with --create-keypair\n");
 	fprintf(stderr,
 		"\t   --pk-file <FILE>\t\tFile with public key used for signature\n");
-	fprintf(stderr, "\t\t\t\t\t\tInput when key is available\n"),
-		fprintf(stderr,
-			"\t\t\t\t\t\tto generate cert (MUST be plain),\n");
-	fprintf(stderr, "\t\t\t\t\t\toutput with --create-keypair\n");
+	fprintf(stderr, "\t\t\t\t\tInput when key is available to generate\n"),
+	fprintf(stderr, "\t\t\t\t\tcert (MUST be DER),\n");
+	fprintf(stderr, "\t\t\t\t\toutput with --create-keypair\n");
 	fprintf(stderr,
 		"\t   --key-type <TYPE>\t\tInput keys are of given type\n");
 	fprintf(stderr,
 		"\t   --create-keypair <TYPE>\tCreate key pair of given type\n");
-	fprintf(stderr, "\t\t\t\t\t\tNOTE: generated keys are written\n");
-	fprintf(stderr, "\t\t\t\t\t\tto file\n");
+	fprintf(stderr, "\t\t\t\t\tNOTE: generated keys are written to file\n");
 	fprintf(stderr,
 		"\t   --x509-signer <FILE>\t\tX.509 certificate of signer\n");
-	fprintf(stderr, "\t\t\t\t\t\tIf not set, create a self-signed\n");
-	fprintf(stderr, "\t\t\t\t\t\tcertificate\n");
+	fprintf(stderr, "\t\t\t\t\tIf not set, create a self-signed\n");
+	fprintf(stderr, "\t\t\t\t\tcertificate\n");
 	fprintf(stderr,
-		"\t   --signer-sk-file <FILE>\t\tFile with signer secret\n");
+		"\t   --signer-sk-file <FILE>\tFile with signer secret\n");
 	fprintf(stderr, "\t   --x509-cert <FILE>\t\tCertificate for signing\n");
 
 	fprintf(stderr, "\n\tOptions for X.509 meta data:\n");
 	fprintf(stderr, "\t   --eku <FLAG>\t\t\tSet Extended Key Usage flag\n");
-	fprintf(stderr, "\t\t\t\t\t\tQuery available flags with \"?\"\n");
+	fprintf(stderr, "\t\t\t\t\tQuery available flags with \"?\"\n");
 
 	fprintf(stderr, "\t   --keyusage <FLAG>\t\tSet Key Usage flag\n");
-	fprintf(stderr, "\t\t\t\t\t\tQuery available flags with \"?\"\n");
+	fprintf(stderr, "\t\t\t\t\tQuery available flags with \"?\"\n");
 
 	fprintf(stderr,
 		"\t   --ca\t\t\t\tSet CA basic constraint with criticality\n");
@@ -800,8 +798,8 @@ static void x509_generator_usage(void)
 		"\t   --san-ip <IP> \t\tSet SAN IP address (IPv4 or IPv6)\n");
 	fprintf(stderr, "\t   --skid\t\t\tSet SKID (in hex form)\n");
 	fprintf(stderr, "\t   --akid\t\t\tSet AKID (in hex form)\n");
-	fprintf(stderr, "\t\t\t\t\t\tAKID only used without X.509\n");
-	fprintf(stderr, "\t\t\t\t\t\tsigner being specified\n");
+	fprintf(stderr, "\t\t\t\t\tAKID only used without X.509 signer\n");
+	fprintf(stderr, "\t\t\t\t\tbeing specified\n");
 	fprintf(stderr, "\t   --valid-from\t\t\tSet start time\n");
 	fprintf(stderr, "\t   --valid-to\t\t\tSet end time\n");
 	fprintf(stderr, "\t   --valid-days\t\t\tSet validity time in days from\n");
@@ -858,9 +856,9 @@ static void x509_generator_usage(void)
 		"\t   --check-valid-to <EPOCH time>\tcheck validity of time\n");
 	fprintf(stderr,
 		"\t   --check-eku <EKU>\t\tmatch extended key usage (use KEY_EKU_*\n");
-	fprintf(stderr,
-		"\t   --check-keyusage <EKU>\tmatch key usage (use KEY_USAGE_*\n");
 	fprintf(stderr, "\t\t\t\t\tflags)\n");
+	fprintf(stderr,
+		"\t   --check-keyusage <EKU>\tmatch key usage (use KEY_USAGE_* flags)\n");
 	fprintf(stderr, "\t   --check-san-dns <NAME>\tmatch SAN DNS\n");
 	fprintf(stderr, "\t   --check-san-ip <IP-Hex>\tmatch SAN IP\n");
 	fprintf(stderr, "\t   --check-skid <HEX>\t\tmatch subject key ID\n");
@@ -868,7 +866,8 @@ static void x509_generator_usage(void)
 
 	fprintf(stderr, "\t   --data-file <FILE>\t\tFile with data to sign\n");
 
-	fprintf(stderr, "\n\t-h  --help\t\t\tPrint this help text\n");
+	fprintf(stderr, "\n\t-h --help\t\t\tPrint this help text\n");
+	fprintf(stderr, "\n\t-v --version\t\t\tPrint version and acceleration support\n");
 }
 
 static void x509_generator_version(void)

@@ -187,25 +187,25 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 			 "AVX512 " :
 			 "",
 		 (lc_sha3_256_avx2 && lc_sha3_256_avx2 != lc_sha3_256_c) ?
-			 "AVX2, AVX2-4x " :
+			 "AVX2 AVX2-4x " :
 			 "",
 		 (lc_sha3_256_arm_neon &&
 		  lc_sha3_256_arm_neon != lc_sha3_256_c) ?
 			 "ARMv7-Neon " :
 			 "",
-		 (lc_sha3_256_arm_asm && lc_sha3_256_arm_asm != lc_sha3_256_c) ?
-			 "ARMv8, ARMv8-2x " :
-			 "",
 		 (lc_sha3_256_arm_ce && lc_sha3_256_arm_ce != lc_sha3_256_c) ?
 			 "ARMv8-CE " :
 			 "",
-		 (lc_sha3_256_riscv_asm &&
-		  lc_sha3_256_riscv_asm != lc_sha3_256_c) ?
-			 "RISCV64 " :
+		 (lc_sha3_256_arm_asm && lc_sha3_256_arm_asm != lc_sha3_256_c) ?
+			 "ARMv8 ARMv8-2x " :
 			 "",
 		 (lc_sha3_256_riscv_asm_zbb &&
 		  lc_sha3_256_riscv_asm_zbb != lc_sha3_256_c) ?
 			 "RISCV64-Zbb " :
+			 "",
+		 (lc_sha3_256_riscv_asm &&
+		  lc_sha3_256_riscv_asm != lc_sha3_256_c) ?
+			 "RISCV64 " :
 			 ""
 #endif
 
