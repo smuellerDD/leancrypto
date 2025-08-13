@@ -20,7 +20,7 @@
 #include "build_bug_on.h"
 #include "bitshift.h"
 #include "conv_be_le.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_sha3.h"
 #include "lc_memset_secure.h"
 #include "math_helper.h"

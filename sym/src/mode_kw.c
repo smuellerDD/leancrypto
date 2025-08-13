@@ -22,7 +22,7 @@
 #include "bitshift.h"
 #include "compare.h"
 #include "conv_be_le.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_aes.h"
 #include "lc_sym.h"
 #include "lc_memset_secure.h"

@@ -19,7 +19,7 @@
 
 #include "asn1_encoder.h"
 #include "asym_key.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_pkcs7_generator.h"
 #include "lc_x509_generator.h"
 #include "pkcs7.asn1.h"

@@ -18,7 +18,7 @@
  */
 
 #include "cpufeatures.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "initialization.h"
 #include "lc_sha3.h"
 #include "sha3_c.h"

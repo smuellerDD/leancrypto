@@ -29,7 +29,7 @@
 #ifndef FE_H
 #define FE_H
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -56,7 +56,7 @@
 +-----------------------------------------------------------------------------+
 */
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "gf_p4482241_type.h"
 #include "gf_p4482241_arith.h"
 

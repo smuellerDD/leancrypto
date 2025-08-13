@@ -28,7 +28,7 @@
 #ifndef LC_SPHINCS_H
 #define LC_SPHINCS_H
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 #if defined __has_include
 #if __has_include("lc_sphincs_shake_256s.h")

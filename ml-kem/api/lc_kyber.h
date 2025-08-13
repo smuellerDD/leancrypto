@@ -20,7 +20,7 @@
 #ifndef LC_KYBER_H
 #define LC_KYBER_H
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 #if defined __has_include
 #if __has_include("lc_kyber_1024.h")

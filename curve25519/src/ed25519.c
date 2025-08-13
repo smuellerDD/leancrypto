@@ -31,7 +31,7 @@
 #include "ed25519_pct.h"
 #include "lc_ed25519.h"
 #include "ed25519_ref10.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_sha512.h"
 #include "ret_checkers.h"
 #include "selftest_rng.h"

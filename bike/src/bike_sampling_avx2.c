@@ -29,7 +29,7 @@
 
 #include "bike_utilities.h"
 #include "bike_sampling_internal.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "ext_headers_x86.h"
 
 #define AVX2_INTERNAL

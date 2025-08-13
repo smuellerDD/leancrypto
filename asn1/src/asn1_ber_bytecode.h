@@ -28,7 +28,7 @@
 #define ASN1_BER_BYTECODE_H
 
 #include "asn1.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 #ifdef __cplusplus
 extern "C" {

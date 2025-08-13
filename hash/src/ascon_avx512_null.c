@@ -18,7 +18,7 @@
  */
 
 #include "ascon_avx512.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "visibility.h"
 
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_256_avx512) = NULL;

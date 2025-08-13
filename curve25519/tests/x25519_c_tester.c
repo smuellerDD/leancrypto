@@ -17,7 +17,7 @@
  * DAMAGE.
  */
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 #include "lc_x25519.h"
 #include "../src/x25519_scalarmult.h"

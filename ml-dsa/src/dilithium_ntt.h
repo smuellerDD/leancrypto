@@ -28,7 +28,7 @@
 #ifndef DILITHIUM_NTT_H
 #define DILITHIUM_NTT_H
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "dilithium_type.h"
 
 #ifdef __cplusplus

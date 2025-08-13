@@ -20,7 +20,7 @@
 #ifndef LC_X509_GENERATOR_FILE_HELPER_H
 #define LC_X509_GENERATOR_FILE_HELPER_H
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 #ifdef __cplusplus
 extern "C" {

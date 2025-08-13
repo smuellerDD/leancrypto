@@ -39,7 +39,7 @@
  */
 
 #include "dilithium_ntt_consts.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 /* Roots of unity in order needed by forward ntt */
 LC_FIPS_RODATA_SECTION

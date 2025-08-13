@@ -18,7 +18,7 @@
  */
 
 #include "kyber_consts_armv7.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 LC_FIPS_RODATA_SECTION
 const int16_t zetas_armv7[64] = {

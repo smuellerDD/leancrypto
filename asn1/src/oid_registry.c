@@ -25,7 +25,7 @@
  */
 
 #include "asn1.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "oid_registry.h"
 #include "oid_registry_data.c"
 

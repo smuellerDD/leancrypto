@@ -18,7 +18,7 @@
  */
 
 #include "cpufeatures.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "initialization.h"
 #include "lc_sha512.h"
 #include "sha512_arm_ce.h"

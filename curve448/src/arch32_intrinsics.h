@@ -34,7 +34,7 @@
 #define ARCH32_INTRINSICS_H
 
 #include "constant_time.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 #define ARCH_WORD_BITS 32
 

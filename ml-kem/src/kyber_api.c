@@ -17,7 +17,7 @@
  * DAMAGE.
  */
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_kyber.h"
 #include "lc_memcmp_secure.h"
 #include "ret_checkers.h"

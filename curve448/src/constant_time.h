@@ -33,7 +33,7 @@
 #ifndef CONSTANT_TIME_H
 #define CONSTANT_TIME_H
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 /*-
  * The boolean methods return a bitmask of all ones (0xff...f) for true

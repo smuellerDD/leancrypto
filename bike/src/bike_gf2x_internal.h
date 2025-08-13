@@ -32,7 +32,7 @@
 
 #include "bike_internal.h"
 #include "cpufeatures.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 #ifdef __cplusplus
 extern "C" {

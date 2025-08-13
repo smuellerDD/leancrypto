@@ -32,7 +32,7 @@ http://creativecommons.org/publicdomain/zero/1.0/
 */
 
 #include "alignment.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "ext_headers_x86.h"
 #include "KeccakP-1600-times4-SnP.h"
 

@@ -20,7 +20,7 @@
 #ifndef SHA3_COMMON_H
 #define SHA3_COMMON_H
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_sha3.h"
 
 #ifdef __cplusplus

@@ -24,7 +24,7 @@
 #include "compare.h"
 #include "conv_be_le.h"
 #include "cpufeatures.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "fips_mode.h"
 #include "lc_chacha20.h"
 #include "lc_chacha20_private.h"

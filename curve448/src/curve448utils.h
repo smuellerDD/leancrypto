@@ -33,7 +33,7 @@
 #ifndef CURVE448UTILS_H
 #define CURVE448UTILS_H
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 /*
  * Internal word types. Somewhat tricky.  This could be decided separately per

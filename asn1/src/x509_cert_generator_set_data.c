@@ -18,7 +18,7 @@
  */
 
 #include "asn1_debug.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "helper.h"
 #include "lc_memcmp_secure.h"
 #include "lc_x509_generator.h"

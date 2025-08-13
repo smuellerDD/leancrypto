@@ -26,7 +26,7 @@
  */
 
 #include "dilithium_zetas.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 LC_FIPS_RODATA_SECTION
 const int32_t dilithium_zetas[LC_DILITHIUM_N] = {

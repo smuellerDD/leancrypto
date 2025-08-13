@@ -18,7 +18,7 @@
  */
 
 #include "compare.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "kyber_x448_internal.h"
 #include "lc_rng.h"
 #include "lc_sha3.h"

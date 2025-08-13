@@ -26,7 +26,7 @@
 #ifndef KYBER_NTT_AVX2_H
 #define KYBER_NTT_AVX2_H
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "ext_headers_x86.h"
 #include "kyber_type.h"
 

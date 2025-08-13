@@ -17,7 +17,7 @@
  * DAMAGE.
  */
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_dilithium.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"

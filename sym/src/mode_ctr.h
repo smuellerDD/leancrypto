@@ -23,7 +23,7 @@
 #include "aes_internal.h"
 #include "bitshift.h"
 #include "build_bug_on.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "math_helper.h"
 
 #ifdef __cplusplus

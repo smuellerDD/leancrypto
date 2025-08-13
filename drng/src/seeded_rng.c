@@ -17,7 +17,7 @@
  * DAMAGE.
  */
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_chacha20_drng.h"
 #include "lc_cshake256_drng.h"
 #include "lc_kmac256_drng.h"

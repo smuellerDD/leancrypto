@@ -45,7 +45,7 @@
  */
 
 #include "dilithium_consts_rvv.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 LC_FIPS_RODATA_SECTION
 const int32_t dilithium_qdata_rvv[] __attribute__((aligned(16))) = {

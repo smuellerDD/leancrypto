@@ -25,7 +25,7 @@
  * or Apache 2.0 License (https://www.apache.org/licenses/LICENSE-2.0.html).
  */
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_dilithium.h"
 #include "dilithium_pct.h"
 #include "visibility.h"

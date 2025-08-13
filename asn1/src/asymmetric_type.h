@@ -27,7 +27,7 @@
 #ifndef ASYMMETRIC_TYPE_H
 #define ASYMMETRIC_TYPE_H
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_x509_parser.h"
 
 #ifdef __cplusplus

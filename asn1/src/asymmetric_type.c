@@ -26,7 +26,7 @@
 
 #include "asymmetric_type.h"
 #include "build_bug_on.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_memcmp_secure.h"
 #include "lc_memory_support.h"
 #include "ret_checkers.h"

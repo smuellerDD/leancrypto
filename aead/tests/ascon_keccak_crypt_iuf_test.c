@@ -18,7 +18,7 @@
  */
 
 #include "compare.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_ascon_keccak.h"
 #include "math_helper.h"
 #include "visibility.h"

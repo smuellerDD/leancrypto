@@ -21,7 +21,7 @@
 #include "asn1_debug.h"
 #include "asn1_encoder.h"
 #include "asym_key_dilithium.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_dilithium.h"
 #include "lc_hash.h"
 #include "lc_sphincs.h"

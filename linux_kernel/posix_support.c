@@ -21,7 +21,7 @@
 #include <linux/mm.h>
 #include <linux/log2.h>
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_memory_support.h"
 
 const int errno = 0;

@@ -20,7 +20,7 @@
 #ifndef SMALL_STACK_SUPPORT_H
 #define SMALL_STACK_SUPPORT_H
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_memory_support.h"
 #include "lc_memset_secure.h"
 

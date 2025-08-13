@@ -31,7 +31,7 @@
 #include "dilithium_type.h"
 #include "dilithium_reduce.h"
 #include "dilithium_rounding.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 #ifdef __cplusplus
 extern "C" {

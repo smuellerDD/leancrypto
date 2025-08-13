@@ -20,7 +20,7 @@
 #ifndef X509_CERT_PARSER_H
 #define X509_CERT_PARSER_H
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 #include "asym_key.h"
 #include "asymmetric_type.h"

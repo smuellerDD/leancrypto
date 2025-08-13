@@ -30,7 +30,7 @@
 #include "bike_utilities.h"
 #include "bike_sampling_internal.h"
 #include "build_bug_on.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "small_stack_support.h"
 
 #define MAX_WLIST_SIZE (LC_BIKE_MAX_RAND_INDICES_T)

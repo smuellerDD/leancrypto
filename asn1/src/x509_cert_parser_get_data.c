@@ -20,7 +20,7 @@
 #include "asn1_debug.h"
 #include "asym_key_dilithium_ed25519.h"
 #include "asym_key_dilithium_ed448.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "helper.h"
 #include "ret_checkers.h"
 #include "visibility.h"

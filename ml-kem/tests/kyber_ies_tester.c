@@ -18,7 +18,7 @@
  */
 
 #include "compare.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "kyber_type.h"
 #include "kyber_internal.h"
 #include "lc_cshake256_drng.h"

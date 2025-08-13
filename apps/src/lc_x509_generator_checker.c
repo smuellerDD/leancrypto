@@ -18,7 +18,7 @@
  */
 
 #include "binhexbin.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_x509_parser.h"
 #include "math_helper.h"
 #include "ret_checkers.h"

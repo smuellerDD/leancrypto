@@ -20,7 +20,7 @@
 #include "aes_armce.h"
 #include "aes_internal.h"
 #include "asm/ARMv8/aes_armv8_ce.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_aes.h"
 #include "lc_sym.h"
 #include "mode_kw.h"

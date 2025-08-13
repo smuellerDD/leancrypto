@@ -20,7 +20,7 @@
 #ifndef AES_INTERNAL_H
 #define AES_INTERNAL_H
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_sym.h"
 
 #ifdef __cplusplus

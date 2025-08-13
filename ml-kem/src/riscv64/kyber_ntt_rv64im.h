@@ -51,7 +51,7 @@
 extern "C" {
 #endif
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 extern const uint32_t kyber_zetas_basemul_rv64im[64];
 extern void kyber_ntt_rv64im(int16_t *, const uint32_t *zetas);

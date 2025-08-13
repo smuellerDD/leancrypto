@@ -24,7 +24,7 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 #include "binhexbin.h"
 #include "hasher_app.h"

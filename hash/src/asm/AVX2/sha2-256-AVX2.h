@@ -20,7 +20,7 @@
 #ifndef SHA2_256_AVX2_H
 #define SHA2_256_AVX2_H
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_sha256.h"
 
 #ifdef __cplusplus

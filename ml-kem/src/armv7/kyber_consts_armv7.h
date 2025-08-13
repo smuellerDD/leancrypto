@@ -20,7 +20,7 @@
 #ifndef KYBER_CONSTS_ARMV7_H
 #define KYBER_CONSTS_ARMV7_H
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 #ifdef __cplusplus
 extern "C" {

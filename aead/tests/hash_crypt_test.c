@@ -18,7 +18,7 @@
  */
 
 #include "compare.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_hash_crypt.h"
 #include "lc_sha512.h"
 #include "visibility.h"

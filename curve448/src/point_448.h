@@ -34,7 +34,7 @@
 #define POINT_448_H
 
 #include "curve448utils.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "field.h"
 #include "lc_ed448.h"
 

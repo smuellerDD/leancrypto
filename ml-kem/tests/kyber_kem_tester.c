@@ -25,7 +25,7 @@
  */
 
 #include "compare.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "kyber_type.h"
 #include "kyber_kem_tester.h"
 #include "lc_sha3.h"

@@ -48,7 +48,7 @@
 #define DILITHIUM_ZETAS_RISCV64_H
 
 #include "dilithium_type.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 #ifdef __cplusplus
 extern "C" {

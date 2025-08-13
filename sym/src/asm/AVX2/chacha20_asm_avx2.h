@@ -20,7 +20,7 @@
 #ifndef CHACHA20_ASM_AVX2_H
 #define CHACHA20_ASM_AVX2_H
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 #ifdef __cplusplus
 extern "C" {

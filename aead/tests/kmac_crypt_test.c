@@ -18,7 +18,7 @@
  */
 
 #include "compare.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_kmac_crypt.h"
 #include "lc_cshake.h"
 #include "lc_kmac.h"

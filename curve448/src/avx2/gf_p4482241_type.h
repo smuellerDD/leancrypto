@@ -59,7 +59,7 @@
 #ifndef __P4482241_TYPE_H__
 #define __P4482241_TYPE_H__
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 #define NLIMBS 7
 #define NLIMBS_VEC 16

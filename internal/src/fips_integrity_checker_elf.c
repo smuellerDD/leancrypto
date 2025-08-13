@@ -19,7 +19,7 @@
 
 #include "alignment.h"
 #include "build_bug_on.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "fips_integrity_check.h"
 #include "helper.h"
 #include "lc_status.h"

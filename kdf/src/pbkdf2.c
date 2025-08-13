@@ -21,7 +21,7 @@
 #include "alignment.h"
 #include "compare.h"
 #include "conv_be_le.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_hmac.h"
 #include "lc_pbkdf2.h"
 #include "lc_memset_secure.h"

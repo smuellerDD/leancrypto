@@ -25,7 +25,7 @@
  */
 
 #include "asn1_debug.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "helper.h"
 #include "lc_memory_support.h"
 #include "lc_pkcs7_parser.h"

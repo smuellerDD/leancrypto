@@ -30,7 +30,7 @@
 //#include "dilithium_polyvec.h"
 #include "build_bug_on.h"
 #include "dilithium_tester.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_hash.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"

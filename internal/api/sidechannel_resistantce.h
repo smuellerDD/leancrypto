@@ -27,7 +27,7 @@
 #ifndef SIDECHANNEL_RESISTANCE_H
 #define SIDECHANNEL_RESISTANCE_H
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "null_buffer.h"
 
 #ifdef __cplusplus

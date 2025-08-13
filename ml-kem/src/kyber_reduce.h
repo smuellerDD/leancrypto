@@ -27,7 +27,7 @@
 #ifndef KYBER_REDUCE_H
 #define KYBER_REDUCE_H
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "kyber_type.h"
 
 #ifdef __cplusplus

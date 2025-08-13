@@ -20,7 +20,7 @@
 #ifndef CHACHA20_ASM_RISCV64_V_ZBB_H
 #define CHACHA20_ASM_RISCV64_V_ZBB_H
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 #ifdef __cplusplus
 extern "C" {

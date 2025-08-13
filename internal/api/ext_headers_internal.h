@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2025, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2025, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *
@@ -17,39 +17,13 @@
  * DAMAGE.
  */
 
-#include "ext_headers_internal.h"
-#include "kyber_type.h"
-#include "kyber_internal.h"
-#include "lc_cshake256_drng.h"
-#include "lc_cshake_crypt.h"
-#include "lc_rng.h"
-#include "lc_sha3.h"
-#include "ret_checkers.h"
-#include "selftest_rng.h"
-#include "small_stack_support.h"
-#include "visibility.h"
+#ifndef EXT_HEADERS_INTERNAL_H
+#define EXT_HEADERS_INTERNAL_H
 
-static int kyber_keygen_performance(void)
-{
-	struct workspace {
-		struct lc_kyber_pk pk;
-		struct lc_kyber_sk sk;
-	};
-	unsigned int i;
-	int ret;
-	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+#ifdef LC_EFI_ENVIRONMENT
+#include "errno_private.h"
+#endif
 
-	for (i = 0; i < 500000; i++)
-		CKINT(lc_kyber_keypair(&ws->pk, &ws->sk, lc_seeded_rng));
+#include "ext_headers.h"
 
-out:
-	LC_RELEASE_MEM(ws);
-	return ret;
-}
-
-LC_TEST_FUNC(int, main, int argc, char *argv[])
-{
-	(void)argc;
-	(void)argv;
-	return kyber_keygen_performance();
-}
+#endif /* EXT_HEADERS_INTERNAL_H */

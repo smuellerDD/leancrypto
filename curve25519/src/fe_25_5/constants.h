@@ -29,7 +29,7 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 #ifdef __cplusplus
 extern "C" {

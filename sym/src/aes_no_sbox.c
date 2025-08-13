@@ -56,7 +56,7 @@
 #include "aes_scr_helper.h"
 #include "alignment.h"
 #include "bitshift.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_aes.h"
 #include "rotate.h"
 #include "timecop.h"

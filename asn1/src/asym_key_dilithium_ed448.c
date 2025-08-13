@@ -18,7 +18,7 @@
  */
 
 #include "asym_key_dilithium_ed448.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_dilithium.h"
 #include "lc_hash.h"
 #include "lc_sphincs.h"

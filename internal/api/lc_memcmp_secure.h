@@ -20,7 +20,7 @@
 #ifndef MEMCMP_SECURE_H
 #define MEMCMP_SECURE_H
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -21,7 +21,7 @@
 #define ASN1_ENCODER_H
 
 #include "asn1.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 #ifdef __cplusplus
 extern "C" {

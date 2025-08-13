@@ -20,7 +20,7 @@
 #ifndef AES_SCR_HELPER_H
 #define AES_SCR_HELPER_H
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "null_buffer.h"
 #include "rotate.h"
 #include "timecop.h"

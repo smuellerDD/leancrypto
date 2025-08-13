@@ -18,7 +18,7 @@
  */
 
 #include "aes_internal.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_aes.h"
 #include "test_helper.h"
 

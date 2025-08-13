@@ -35,7 +35,7 @@
 #ifndef _KeccakP_1600_SnP_h_
 #define _KeccakP_1600_SnP_h_
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 #define KeccakF1600_FastLoop_supported
 #define KeccakP1600_AVX2_12rounds_FastLoop_supported

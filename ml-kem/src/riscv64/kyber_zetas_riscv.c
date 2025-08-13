@@ -44,7 +44,7 @@
  * SOFTWARE.
  */
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "kyber_ntt.h"
 #include "kyber_poly_riscv.h"
 #include "kyber_ntt_rv64im.h"

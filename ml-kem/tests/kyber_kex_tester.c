@@ -24,7 +24,7 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "kyber_internal.h"
 #include "lc_rng.h"
 #include "lc_sha3.h"

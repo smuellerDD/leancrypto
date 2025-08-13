@@ -20,7 +20,7 @@
 #ifndef KECCAKP_1600_ARMV8A_CE_H
 #define KECCAKP_1600_ARMV8A_CE_H
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "ext_headers_arm.h"
 #include "lc_sha3.h"
 #include "math_helper.h"

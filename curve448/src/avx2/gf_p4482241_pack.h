@@ -59,7 +59,7 @@
 #ifndef __P4482241_PACK_H__
 #define __P4482241_PACK_H__
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "gf_p4482241_type.h"
 
 void gfp4482241pack(gfe_p4482241_16L *, const uint8_t *);

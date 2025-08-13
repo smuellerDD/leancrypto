@@ -28,7 +28,7 @@
 #define SPHINCS_ADDRESS_H
 
 #include "bitshift_be.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "sphincs_shake_offsets.h"
 #include "sphincs_utils.h"
 

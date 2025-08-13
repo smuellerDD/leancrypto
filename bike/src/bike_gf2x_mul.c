@@ -31,7 +31,7 @@
 #include "bike_gf2x.h"
 #include "bike_gf2x_internal.h"
 #include "build_bug_on.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_memset_secure.h"
 
 // Karatsuba multiplication algorithm.

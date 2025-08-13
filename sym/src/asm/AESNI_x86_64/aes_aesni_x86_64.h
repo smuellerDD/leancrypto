@@ -21,7 +21,7 @@
 #define AES_AESNI_X86_64_H
 
 #include "../../aes_internal.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 #ifdef __cplusplus
 extern "C" {

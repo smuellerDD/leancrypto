@@ -28,7 +28,7 @@
  */
 
 #include "bike_gf2x_internal.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_memset_secure.h"
 
 #define PORTABLE_INTERNAL

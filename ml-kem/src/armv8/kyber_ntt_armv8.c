@@ -23,7 +23,7 @@
  * That code is released under MIT license.
  */
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "kyber_ntt_armv8.h"
 
 #if 0

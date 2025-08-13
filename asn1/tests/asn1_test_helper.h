@@ -20,7 +20,7 @@
 #ifndef ASN1_TEST_HELPER_H
 #define ASN1_TEST_HELPER_H
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -23,7 +23,7 @@
 #endif
 
 #include "build_bug_on.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_hash.h"
 #include "lc_memory_support.h"
 #include "lc_memset_secure.h"

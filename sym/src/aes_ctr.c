@@ -20,7 +20,7 @@
 #include "aes_c.h"
 #include "aes_internal.h"
 #include "compare.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_aes.h"
 #include "lc_sym.h"
 #include "mode_ctr.h"

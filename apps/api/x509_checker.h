@@ -20,7 +20,7 @@
 #ifndef X509_CHECKER_H
 #define X509_CHECKER_H
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_pkcs7_parser.h"
 #include "lc_x509_parser.h"
 

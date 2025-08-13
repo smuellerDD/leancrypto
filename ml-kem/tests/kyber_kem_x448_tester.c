@@ -17,7 +17,7 @@
  * DAMAGE.
  */
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 #include "compare.h"
 #include "kyber_x448_internal.h"

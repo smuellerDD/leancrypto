@@ -34,7 +34,7 @@
 #ifndef _KeccakP_1600_SnP_h_
 #define _KeccakP_1600_SnP_h_
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 #define KeccakP1600_implementation                                             \
 	"64-bit optimized ARMv8a assembler implementation"

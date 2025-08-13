@@ -22,7 +22,7 @@
 #include "aes_c.h"
 #include "aes_riscv64.h"
 #include "cpufeatures.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "fips_mode.h"
 #include "helper.h"
 #include "lc_status.h"

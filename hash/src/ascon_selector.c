@@ -18,7 +18,7 @@
  */
 
 #include "cpufeatures.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_ascon_hash.h"
 #include "ascon_arm_neon.h"
 #include "ascon_avx512.h"

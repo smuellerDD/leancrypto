@@ -45,7 +45,7 @@
  */
 
 #include "dilithium_zetas_riscv64.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 // RV64IM assembly optimized implementation with Plantard arithmetic
 LC_FIPS_RODATA_SECTION

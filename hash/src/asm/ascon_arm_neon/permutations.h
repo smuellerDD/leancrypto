@@ -26,7 +26,7 @@
 #ifndef PERMUTATIONS_H_
 #define PERMUTATIONS_H_
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_ascon_hash.h"
 #include "round.h"
 

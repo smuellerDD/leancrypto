@@ -20,7 +20,7 @@
 #ifndef SHA2_512_ARMv8_H
 #define SHA2_512_ARMv8_H
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_sha512.h"
 
 #ifdef __cplusplus

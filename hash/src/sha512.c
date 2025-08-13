@@ -20,7 +20,7 @@
 
 #include "bitshift.h"
 #include "compare.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_sha512.h"
 #include "lc_memset_secure.h"
 #include "sha2_common.h"

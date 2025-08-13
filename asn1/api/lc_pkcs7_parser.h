@@ -20,7 +20,7 @@
 #ifndef _CRYPTO_PKCS7_H
 #define _CRYPTO_PKCS7_H
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_hash.h"
 #include "lc_pkcs7_common.h"
 #include "lc_x509_parser.h"

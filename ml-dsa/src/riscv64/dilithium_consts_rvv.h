@@ -48,7 +48,7 @@
 #define DILITHIUM_CONSTS_RVV_H
 
 #include "dilithium_type.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 extern const int32_t dilithium_qdata_rvv[1296];
 

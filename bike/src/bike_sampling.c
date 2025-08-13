@@ -27,7 +27,7 @@
  * AWS Cryptographic Algorithms Group.
  */
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 #include "bike_internal.h"
 #include "bike_sampling.h"

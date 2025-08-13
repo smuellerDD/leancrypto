@@ -59,7 +59,7 @@
 #ifndef __P4482241_ARITH_H__
 #define __P4482241_ARITH_H__
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "gf_p4482241_type.h"
 
 #define gfp4482241sqr(x, y) gfp4482241nsqr(x, y, 1)

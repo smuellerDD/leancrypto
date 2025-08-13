@@ -18,7 +18,7 @@
  */
 
 #include "cpufeatures.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_x448.h"
 #include "compare.h"
 #include "ret_checkers.h"

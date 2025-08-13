@@ -20,7 +20,7 @@
 #include <sys/auxv.h>
 
 #include "cpufeatures.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "visibility.h"
 
 #define HWCAP_ASIMD (1 << 1)

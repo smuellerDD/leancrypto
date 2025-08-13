@@ -20,7 +20,7 @@
 #ifndef LC_X509_PARSER_H
 #define LC_X509_PARSER_H
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_x509_common.h"
 
 #ifdef __cplusplus

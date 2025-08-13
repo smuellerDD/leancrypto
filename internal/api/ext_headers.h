@@ -100,8 +100,6 @@ static inline int lc_get_time(time64_t *time_since_epoch)
 #include <efi/efi.h>
 #include <efi/efilib.h>
 
-#include "errno_private.h"
-
 #define LC_DEFINE_CONSTRUCTOR(_func)                                           \
 	void __attribute__((constructor)) _func(void)
 #define LC_DEFINE_DESTRUCTOR(_func) void __attribute__((destructor)) _func(void)

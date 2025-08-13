@@ -50,7 +50,7 @@
  * SOFTWARE.
  */
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "NTT_params.h"
 
 LC_FIPS_RODATA_SECTION

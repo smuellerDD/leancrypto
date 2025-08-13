@@ -24,7 +24,7 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "small_stack_support.h"
 #include "sphincs_type.h"
 #include "sphincs_address.h"

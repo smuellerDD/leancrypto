@@ -20,7 +20,7 @@
 
 #include "compare.h"
 #include "conv_be_le.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_hmac.h"
 #include "lc_kdf_fb.h"
 #include "lc_memset_secure.h"

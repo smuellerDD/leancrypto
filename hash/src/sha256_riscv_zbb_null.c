@@ -17,7 +17,7 @@
  * DAMAGE.
  */
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "sha256_riscv_zbb.h"
 #include "visibility.h"
 

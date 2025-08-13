@@ -20,7 +20,7 @@
 #ifndef LC_HQC_H
 #define LC_HQC_H
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 
 #if defined __has_include
 #if __has_include("lc_hqc_256.h")

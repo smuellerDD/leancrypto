@@ -21,7 +21,7 @@
 
 #include "bitshift.h"
 #include "conv_be_le.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "ext_headers_arm.h"
 #include "lc_sha3.h"
 #include "sha3_arm_asm.h"

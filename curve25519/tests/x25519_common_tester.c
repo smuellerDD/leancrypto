@@ -18,7 +18,7 @@
  */
 
 #include "cpufeatures.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "compare.h"
 #include "../src/x25519_scalarmult.h"
 #include "ret_checkers.h"

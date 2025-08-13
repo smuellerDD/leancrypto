@@ -27,7 +27,7 @@
  */
 
 #include "ed25519_ref10.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "small_stack_support.h"
 
 static inline uint64_t load_3(const unsigned char *in)

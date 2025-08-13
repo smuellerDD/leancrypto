@@ -18,7 +18,7 @@
  */
 
 #include "compare.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_status.h"
 #include "lc_memcmp_secure.h"
 #include "visibility.h"

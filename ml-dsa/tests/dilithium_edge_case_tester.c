@@ -19,7 +19,7 @@
 
 #include "compare.h"
 #include "dilithium_edge_case_tester.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "lc_sha256.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"

@@ -28,7 +28,7 @@
  * scheme
  */
 
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "hqc_type.h"
 #include "hqc_internal.h"
 #include "lc_sha3.h"

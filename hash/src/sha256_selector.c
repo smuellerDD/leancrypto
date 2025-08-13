@@ -18,7 +18,7 @@
  */
 
 #include "cpufeatures.h"
-#include "ext_headers.h"
+#include "ext_headers_internal.h"
 #include "initialization.h"
 #include "lc_sha256.h"
 #include "sha256_arm_ce.h"
