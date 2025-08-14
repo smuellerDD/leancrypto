@@ -116,6 +116,7 @@ int public_key_generate_signature_sphincs(
 	const struct lc_public_key_signature *sig, uint8_t *sig_data,
 	size_t *available_len, unsigned int fast)
 {
+#ifdef LC_X509_GENERATOR
 	struct workspace {
 		struct lc_sphincs_sig sphincs_sig;
 	};
@@ -183,11 +184,20 @@ out:
 	lc_sphincs_ctx_zero(ctx);
 	LC_RELEASE_MEM(ws);
 	return ret;
+#else
+	(void)keys;
+	(void)sig;
+	(void)sig_data;
+	(void)available_len;
+	(void)fast;
+	return -EOPNOTSUPP;
+#endif
 }
 
 int x509_slhdsa_private_key_enc(void *context, uint8_t *data,
 				size_t *avail_datalen, uint8_t *tag)
 {
+#ifdef LC_X509_GENERATOR
 	const struct x509_generate_privkey_context *ctx = context;
 	const struct lc_x509_key_data *keys = ctx->keys;
 	size_t pqc_pklen;
@@ -204,11 +214,19 @@ int x509_slhdsa_private_key_enc(void *context, uint8_t *data,
 
 out:
 	return ret;
+#else
+	(void)data;
+	(void)avail_datalen;
+	(void)context;
+	(void)tag;
+	return -EOPNOTSUPP;
+#endif
 }
 
 int private_key_encode_sphincs(uint8_t *data, size_t *avail_datalen,
 			       struct x509_generate_privkey_context *ctx)
 {
+#ifdef LC_X509_GENERATOR
 	int ret;
 
 	CKINT(asn1_ber_encoder(&x509_slhdsa_privkey_encoder, ctx, data,
@@ -216,6 +234,12 @@ int private_key_encode_sphincs(uint8_t *data, size_t *avail_datalen,
 
 out:
 	return ret;
+#else
+	(void)data;
+	(void)avail_datalen;
+	(void)ctx;
+	return -EOPNOTSUPP;
+#endif
 }
 
 int x509_slhdsa_private_key(void *context, size_t hdrlen, unsigned char tag,

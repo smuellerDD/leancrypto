@@ -87,7 +87,8 @@ c_compiler = meson.get_compiler('c')
 if (host_machine.cpu_family() == 'x86_64')
 	src_fips += files([ 'cpufeatures_x86.c' ])
 elif (arm64_neon_gcc_asm or arm64_asm)
-	if (c_compiler.check_header('sys/auxv.h'))
+	if (c_compiler.check_header('sys/auxv.h') and
+	    get_option('efi').disabled())
 		src_fips += files([ 'cpufeatures_arm64_auxv.c' ])
 	else
 		src_fips += files([ 'cpufeatures_arm64_native.c' ])

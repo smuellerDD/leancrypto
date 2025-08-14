@@ -154,7 +154,9 @@ typedef int ssize_t;
 
 #include "lc_memcpy_secure.h"
 
+#ifndef memset
 void *memset(void *d, int c, unsigned long long n);
+#endif
 
 static inline int mlock(const void *ptr, size_t len)
 {
@@ -168,6 +170,7 @@ static inline pid_t getpid(void)
 	return 0;
 }
 
+#ifndef snprintf
 static inline int snprintf(char *restrict str, size_t size,
 			   const char *restrict format, ...)
 {
@@ -178,12 +181,16 @@ static inline int snprintf(char *restrict str, size_t size,
 	}
 	return 0;
 }
+#endif
 
+#ifndef memcpy
 static inline void *memcpy(void *d, const void *s, size_t n)
 {
 	return lc_memcpy_secure(d, n, s, n);
 }
+#endif
 
+#ifndef strlen
 static inline size_t strlen(const char *str)
 {
 	size_t len = 0;
@@ -195,15 +202,16 @@ static inline size_t strlen(const char *str)
 
 	return len;
 }
+#endif
 
 static inline int lc_get_time(time64_t *time_since_epoch)
 {
 	if (!time_since_epoch)
-		return -EINVAL;
+		return -22; /* EINVAL */
 
 	*time_since_epoch = -1;
 
-	return -EOPNOTSUPP;
+	return -95; /* EOPNOTSUPP */
 }
 
 #define SYSV_ABI __attribute__((sysv_abi))

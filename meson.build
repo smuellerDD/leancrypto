@@ -83,7 +83,8 @@ endif
 
 # MINGW64 cannot handle lto properly at the moment
 if (cc.has_argument('-flto') and
-    host_machine.system() != 'windows')
+    host_machine.system() != 'windows' and
+    get_option('efi').disabled())
 	add_global_arguments([ '-flto=auto' ], language: 'c')
 	add_project_link_arguments('-flto=auto', language : 'c')
 endif
@@ -228,6 +229,10 @@ if (get_option('hash_crypt').enabled() or
      (get_option('sha2-512').enabled() or get_option('kmac').enabled())))
 	add_global_arguments([ '-DLC_AEAD' ], language: 'c')
 	aead_support_enabled = true
+endif
+
+if get_option('x509_generator').enabled()
+	add_global_arguments([ '-DLC_X509_GENERATOR' ], language: 'c')
 endif
 
 # Determine support for secure exeuction

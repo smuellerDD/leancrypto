@@ -32,6 +32,12 @@ if get_option('x509_generator').enabled()
 		'x509_cert_generator.c',
 		'x509_cert_generator_set_data.c'
 	])
+else
+	if get_option('x509_parser').enabled()
+		src_fips += files([
+			'x509_cert_generator_null.c'
+		])
+	endif
 endif
 
 if x509_common_support == 1
@@ -132,6 +138,12 @@ if get_option('pkcs7_generator').enabled()
 		'pkcs7_generator.c',
 		'pkcs7_generator_set_data.c',
 	])
+else
+	if get_option('pkcs7_parser').enabled()
+		src_fips += files([
+			'pkcs7_generator_null.c'
+		])
+	endif
 endif
 
 # Enable the ASN.1 compiler if one or more of the *.asn1 files were

@@ -30,6 +30,7 @@
 int x509_mldsa_ed25519_private_key_enc(void *context, uint8_t *data,
 				       size_t *avail_datalen, uint8_t *tag)
 {
+#ifdef LC_X509_GENERATOR
 	const struct x509_generate_privkey_context *ctx = context;
 	const struct lc_x509_key_data *keys = ctx->keys;
 	size_t ml_dsa_sklen, ed25519_sklen;
@@ -62,12 +63,20 @@ int x509_mldsa_ed25519_private_key_enc(void *context, uint8_t *data,
 
 out:
 	return ret;
+#else
+	(void)data;
+	(void)avail_datalen;
+	(void)context;
+	(void)tag;
+	return -EOPNOTSUPP;
+#endif
 }
 
 int private_key_encode_dilithium_ed25519(
 	uint8_t *data, size_t *avail_datalen,
 	struct x509_generate_privkey_context *ctx)
 {
+#ifdef LC_X509_GENERATOR
 	int ret;
 
 	CKINT(asn1_ber_encoder_small(&x509_mldsa_ed25519_privkey_encoder, ctx,
@@ -75,6 +84,12 @@ int private_key_encode_dilithium_ed25519(
 
 out:
 	return ret;
+#else
+	(void)data;
+	(void)avail_datalen;
+	(void)ctx;
+	return -EOPNOTSUPP;
+#endif
 }
 
 int x509_mldsa_ed25519_private_key(void *context, size_t hdrlen,
@@ -180,6 +195,7 @@ out:
 int public_key_encode_dilithium_ed25519(uint8_t *data, size_t *avail_datalen,
 					struct x509_generate_context *ctx)
 {
+#ifdef LC_X509_GENERATOR
 	const struct lc_x509_certificate *cert = ctx->cert;
 	const struct lc_x509_key_data *gen_data = &cert->pub_gen_data;
 	size_t ml_dsa_pklen, ed25519_pklen;
@@ -204,6 +220,12 @@ int public_key_encode_dilithium_ed25519(uint8_t *data, size_t *avail_datalen,
 
 out:
 	return ret;
+#else
+	(void)data;
+	(void)avail_datalen;
+	(void)ctx;
+	return -EOPNOTSUPP;
+#endif
 }
 
 int public_key_decode_dilithium_ed25519(
@@ -321,6 +343,7 @@ int public_key_generate_signature_dilithium_ed25519(
 	const struct lc_public_key_signature *sig, uint8_t *sig_data,
 	size_t *available_len)
 {
+#ifdef LC_X509_GENERATOR
 	struct workspace {
 		uint8_t randomizer[LC_X509_SIGNATURE_RANDOMIZER_SIZE];
 		uint8_t ph_message[LC_SHA3_512_SIZE_DIGEST];
@@ -381,6 +404,13 @@ out:
 	lc_dilithium_ed25519_ctx_zero(ctx);
 	LC_RELEASE_MEM(ws);
 	return ret;
+#else
+	(void)keys;
+	(void)sig;
+	(void)sig_data;
+	(void)available_len;
+	return -EOPNOTSUPP;
+#endif
 }
 
 int public_key_signature_size_dilithium_ed25519(
