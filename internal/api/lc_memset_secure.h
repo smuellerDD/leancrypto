@@ -20,7 +20,7 @@
 #ifndef LC_MEMSET_SECURE_H
 #define LC_MEMSET_SECURE_H
 
-#include "ext_headers_internal.h"
+#include "ext_headers.h"
 
 /*
  * Tested following code:
