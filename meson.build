@@ -168,6 +168,16 @@ if (get_option('dilithium_87').enabled() or
 	dilithium_enabled = true
 endif
 
+if get_option('dilithium_87').enabled()
+	add_global_arguments([ '-DLC_DILITHIUM_87_OPT_ENABLED' ], language: 'c')
+endif
+if get_option('dilithium_65').enabled()
+	add_global_arguments([ '-DLC_DILITHIUM_65_OPT_ENABLED' ], language: 'c')
+endif
+if get_option('dilithium_44').enabled()
+	add_global_arguments([ '-DLC_DILITHIUM_44_OPT_ENABLED' ], language: 'c')
+endif
+
 sphincs_enabled = false
 if (get_option('sphincs_shake_256s').enabled() or
     get_option('sphincs_shake_256f').enabled() or
@@ -179,6 +189,25 @@ if (get_option('sphincs_shake_256s').enabled() or
     get_option('slh_dsa_ascon_128f').enabled())
 	add_global_arguments([ '-DLC_SPHINCS' ], language: 'c')
 	sphincs_enabled = true
+endif
+
+if get_option('sphincs_shake_256s').enabled()
+	add_global_arguments([ '-DLC_SPHINCS_SHAKE_256S_OPT_ENABLED' ], language: 'c')
+endif
+if get_option('sphincs_shake_256f').enabled()
+	add_global_arguments([ '-DLC_SPHINCS_SHAKE_256F_OPT_ENABLED' ], language: 'c')
+endif
+if get_option('sphincs_shake_192s').enabled()
+	add_global_arguments([ '-DLC_SPHINCS_SHAKE_192S_OPT_ENABLED' ], language: 'c')
+endif
+if get_option('sphincs_shake_192f').enabled()
+	add_global_arguments([ '-DLC_SPHINCS_SHAKE_192F_OPT_ENABLED' ], language: 'c')
+endif
+if get_option('sphincs_shake_128s').enabled()
+	add_global_arguments([ '-DLC_SPHINCS_SHAKE_128S_OPT_ENABLED' ], language: 'c')
+endif
+if get_option('sphincs_shake_128f').enabled()
+	add_global_arguments([ '-DLC_SPHINCS_SHAKE_128F_OPT_ENABLED' ], language: 'c')
 endif
 
 if get_option('kyber_x25519').enabled()

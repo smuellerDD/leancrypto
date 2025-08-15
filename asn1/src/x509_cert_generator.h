@@ -21,7 +21,6 @@
 #define X509_CERT_GENERATOR_H
 
 #include "asn1_debug.h"
-#include "lc_dilithium.h"
 
 #ifdef __cplusplus
 extern "C" {

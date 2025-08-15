@@ -46,7 +46,7 @@ int private_key_encode_sphincs(uint8_t *data, size_t *avail_datalen,
 			       struct x509_generate_privkey_context *ctx)
 {
 	(void)data;
-	(void)datalen;
+	(void)avail_datalen;
 	(void)ctx;
 	return -ENOPKG;
 }
@@ -65,6 +65,18 @@ int asym_set_sphincs_keypair(struct lc_x509_key_data *gen_data,
 {
 	(void)gen_data;
 	(void)pk;
+	(void)sk;
+	return -ENOPKG;
+}
+
+int lc_sphincs_sk_set_keytype_small(struct lc_sphincs_sk *sk)
+{
+	(void)sk;
+	return -ENOPKG;
+}
+
+int lc_sphincs_sk_set_keytype_fast(struct lc_sphincs_sk *sk)
+{
 	(void)sk;
 	return -ENOPKG;
 }

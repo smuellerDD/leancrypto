@@ -258,7 +258,7 @@ int lc_x509_cert_decode(struct lc_x509_certificate *cert, const uint8_t *data,
 #elif defined LC_DILITHIUM_ED25519_SIG
 #define LC_X509_KEYS_ON_STACK(name)                                            \
 	LC_X509_KEYS_DILITHIUM_ED25519_ON_STACK(name)
-#elif defined(LC_SPHNCS_ENABLED)
+#elif defined(LC_SPHINCS_ENABLED)
 #define LC_X509_KEYS_ON_STACK(name) LC_X509_KEYS_SPHINCS_ON_STACK(name)
 #elif defined(LC_DILITHIUM_ENABLED)
 #define LC_X509_KEYS_ON_STACK(name) LC_X509_KEYS_DILITHIUM_ON_STACK(name)
@@ -417,6 +417,7 @@ int lc_x509_signature_verify(const uint8_t *sig_data, size_t siglen,
 			     const uint8_t *m, size_t mlen,
 			     const struct lc_hash *prehash_algo);
 
+#ifdef LC_DILITHIUM_ED25519_SIG
 /**
  * @ingroup X509
  * @brief Parse a Composite ML-DSA ASN.1 structure into a public key structure
@@ -430,7 +431,9 @@ int lc_x509_signature_verify(const uint8_t *sig_data, size_t siglen,
 int lc_x509_cert_load_pk_dilithium_ed25519(
 	struct lc_dilithium_ed25519_pk *dilithium_ed25519_pk,
 	const uint8_t *pk_ptr, size_t pk_len);
+#endif
 
+#ifdef LC_DILITHIUM_ED448_SIG
 /**
  * @ingroup X509
  * @brief Parse a Composite ML-DSA ASN.1 structure into a public key structure
@@ -444,6 +447,7 @@ int lc_x509_cert_load_pk_dilithium_ed25519(
 int lc_x509_cert_load_pk_dilithium_ed448(
 	struct lc_dilithium_ed448_pk *dilithium_ed448_pk, const uint8_t *pk_ptr,
 	size_t pk_len);
+#endif
 
 /**
  * @ingroup X509

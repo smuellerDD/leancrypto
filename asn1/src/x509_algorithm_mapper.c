@@ -21,6 +21,7 @@
 #include "helper.h"
 #include "lc_memcmp_secure.h"
 #include "lc_sha256.h"
+#include "lc_sha512.h"
 #include "lc_x509_generator.h"
 #include "ret_checkers.h"
 #include "visibility.h"

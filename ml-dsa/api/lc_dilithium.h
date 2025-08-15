@@ -31,18 +31,28 @@
 #include "ext_headers.h"
 
 #if defined __has_include
+
 #if __has_include("lc_dilithium_87.h")
 #include "lc_dilithium_87.h"
+#ifdef LC_DILITHIUM_87_OPT_ENABLED
 #define LC_DILITHIUM_87_ENABLED
 #endif
+#endif
+
 #if __has_include("lc_dilithium_65.h")
 #include "lc_dilithium_65.h"
+#ifdef LC_DILITHIUM_65_OPT_ENABLED
 #define LC_DILITHIUM_65_ENABLED
 #endif
+#endif
+
 #if __has_include("lc_dilithium_44.h")
 #include "lc_dilithium_44.h"
+#ifdef LC_DILITHIUM_44_OPT_ENABLED
 #define LC_DILITHIUM_44_ENABLED
 #endif
+#endif
+
 #else
 #error "Compiler misses __has_include"
 #endif

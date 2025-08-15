@@ -35,9 +35,6 @@ int private_key_encode_dilithium_ed448(
 	struct x509_generate_privkey_context *ctx);
 int private_key_decode_dilithium_ed448(struct lc_x509_key_data *keys,
 				       const uint8_t *data, size_t datalen);
-int public_key_decode_dilithium_ed448(
-	struct lc_dilithium_ed448_pk *dilithium_ed448_pk, const uint8_t *data,
-	size_t datalen);
 
 int public_key_verify_signature_dilithium_ed448(
 	const struct lc_public_key *pkey,
@@ -48,12 +45,16 @@ int public_key_generate_signature_dilithium_ed448(
 	const struct lc_public_key_signature *sig, uint8_t *sig_data,
 	size_t *available_len);
 
+#ifdef LC_DILITHIUM_ED448
 int public_key_signature_size_dilithium_ed448(
 	enum lc_dilithium_type dilithium_type, size_t *size);
-
+int public_key_decode_dilithium_ed448(
+	struct lc_dilithium_ed448_pk *dilithium_ed448_pk, const uint8_t *data,
+	size_t datalen);
 int asym_set_dilithium_ed448_keypair(struct lc_x509_key_data *gen_data,
 				     struct lc_dilithium_ed448_pk *pk,
 				     struct lc_dilithium_ed448_sk *sk);
+#endif
 
 #ifdef __cplusplus
 }

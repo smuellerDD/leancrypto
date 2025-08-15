@@ -20,8 +20,6 @@
 #ifndef LC_X509_GENERATOR_H
 #define LC_X509_GENERATOR_H
 
-#include "lc_dilithium.h"
-#include "lc_sphincs.h"
 #include "lc_x509_common.h"
 
 #ifdef __cplusplus

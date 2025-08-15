@@ -33,27 +33,39 @@
 #if defined __has_include
 #if __has_include("lc_sphincs_shake_256s.h")
 #include "lc_sphincs_shake_256s.h"
+#ifdef LC_SPHINCS_SHAKE_256S_OPT_ENABLED
 #define LC_SPHINCS_SHAKE_256s_ENABLED
+#endif
 #endif
 #if __has_include("lc_sphincs_shake_256f.h")
 #include "lc_sphincs_shake_256f.h"
+#ifdef LC_SPHINCS_SHAKE_256F_OPT_ENABLED
 #define LC_SPHINCS_SHAKE_256f_ENABLED
+#endif
 #endif
 #if __has_include("lc_sphincs_shake_192s.h")
 #include "lc_sphincs_shake_192s.h"
+#ifdef LC_SPHINCS_SHAKE_192S_OPT_ENABLED
 #define LC_SPHINCS_SHAKE_192s_ENABLED
+#endif
 #endif
 #if __has_include("lc_sphincs_shake_192f.h")
 #include "lc_sphincs_shake_192f.h"
+#ifdef LC_SPHINCS_SHAKE_192F_OPT_ENABLED
 #define LC_SPHINCS_SHAKE_192f_ENABLED
+#endif
 #endif
 #if __has_include("lc_sphincs_shake_128s.h")
 #include "lc_sphincs_shake_128s.h"
+#ifdef LC_SPHINCS_SHAKE_128S_OPT_ENABLED
 #define LC_SPHINCS_SHAKE_128s_ENABLED
+#endif
 #endif
 #if __has_include("lc_sphincs_shake_128f.h")
 #include "lc_sphincs_shake_128f.h"
+#ifdef LC_SPHINCS_SHAKE_128F_OPT_ENABLED
 #define LC_SPHINCS_SHAKE_128f_ENABLED
+#endif
 #endif
 #else
 #error "Compiler misses __has_include"

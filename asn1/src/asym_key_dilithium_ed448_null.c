@@ -66,21 +66,3 @@ int public_key_generate_signature_dilithium_ed448(
 	(void)available_len;
 	return -ENOPKG;
 }
-
-int public_key_signature_size_dilithium_ed448(
-	enum lc_dilithium_type dilithium_type, size_t *size)
-{
-	(void)dilithium_type;
-	(void)size;
-	return -ENOPKG;
-}
-
-int asym_set_dilithium_ed448_keypair(struct lc_x509_key_data *gen_data,
-				     struct lc_dilithium_ed448_pk *pk,
-				     struct lc_dilithium_ed448_sk *sk)
-{
-	(void)gen_data;
-	(void)pk;
-	(void)sk;
-	return -ENOPKG;
-}
