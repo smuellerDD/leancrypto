@@ -20,7 +20,7 @@
 #ifndef LC_KDF_CTR_H
 #define LC_KDF_CTR_H
 
-#include "ext_headers_internal.h"
+#include "ext_headers.h"
 #include "lc_hash.h"
 #include "lc_rng.h"
 #include "lc_hmac.h"

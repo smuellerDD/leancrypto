@@ -5,6 +5,7 @@
  * Copyright (C) 2022 - 2025, Stephan Mueller <smueller@chronox.de>
  */
 
+#include "ext_headers_internal.h"
 #include "lc_hash.h"
 #include "visibility.h"
 

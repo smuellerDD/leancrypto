@@ -20,7 +20,7 @@
 #ifndef MEMCPY_SECURE_H
 #define MEMCPY_SECURE_H
 
-#include "ext_headers_internal.h"
+#include "ext_headers.h"
 
 #ifdef __cplusplus
 extern "C" {

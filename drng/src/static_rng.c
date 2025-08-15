@@ -17,6 +17,7 @@
  * DAMAGE.
  */
 
+#include "ext_headers_internal.h"
 #include "static_rng.h"
 
 static int lc_static_rng_gen(void *_state, const uint8_t *addtl_input,

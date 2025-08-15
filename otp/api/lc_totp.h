@@ -20,7 +20,7 @@
 #ifndef LC_TOTP_H
 #define LC_TOTP_H
 
-#include "ext_headers_internal.h"
+#include "ext_headers.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -31,14 +31,15 @@
  */
 
 #include "build_bug_on.h"
-#include "signature_domain_separation.h"
 #include "ed448_composite.h"
 #include "ed448_pct.h"
+#include "ext_headers_internal.h"
 #include "lc_ed448.h"
 #include "lc_memcmp_secure.h"
 #include "lc_sha3.h"
 #include "point_448.h"
 #include "ret_checkers.h"
+#include "signature_domain_separation.h"
 #include "timecop.h"
 #include "visibility.h"
 

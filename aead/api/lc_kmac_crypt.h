@@ -20,7 +20,7 @@
 #ifndef LC_KMAC_CRYPT_H
 #define LC_KMAC_CRYPT_H
 
-#include "ext_headers_internal.h"
+#include "ext_headers.h"
 #include "lc_aead.h"
 #include "lc_memory_support.h"
 

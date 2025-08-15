@@ -28,7 +28,7 @@
 #ifndef LC_DILITHIUM_H
 #define LC_DILITHIUM_H
 
-#include "ext_headers_internal.h"
+#include "ext_headers.h"
 
 #if defined __has_include
 #if __has_include("lc_dilithium_87.h")

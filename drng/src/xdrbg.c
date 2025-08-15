@@ -19,6 +19,7 @@
  */
 
 #include "build_bug_on.h"
+#include "ext_headers_internal.h"
 #include "lc_memcmp_secure.h"
 #include "lc_xdrbg.h"
 #include "math_helper.h"

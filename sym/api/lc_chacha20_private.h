@@ -20,7 +20,7 @@
 #ifndef LC_CHACHA20_PRIVATE_H
 #define LC_CHACHA20_PRIVATE_H
 
-#include "ext_headers_internal.h"
+#include "ext_headers.h"
 
 #ifdef __cplusplus
 extern "C" {

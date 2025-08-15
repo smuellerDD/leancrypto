@@ -19,6 +19,7 @@
 
 #include "dilithium_type.h"
 #include "ed448_composite.h"
+#include "ext_headers_internal.h"
 #include "helper.h"
 #include "lc_ed448.h"
 #include "lc_sha512.h"

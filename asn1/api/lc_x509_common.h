@@ -20,7 +20,7 @@
 #ifndef LC_X509_COMMON_H
 #define LC_X509_COMMON_H
 
-#include "ext_headers_internal.h"
+#include "ext_headers.h"
 #include "lc_asn1.h"
 #include "lc_hash.h"
 

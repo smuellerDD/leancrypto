@@ -20,7 +20,7 @@
 #ifndef LC_HKDF_H
 #define LC_HKDF_H
 
-#include "ext_headers_internal.h"
+#include "ext_headers.h"
 #include "lc_hmac.h"
 #include "lc_rng.h"
 #include "lc_memset_secure.h"

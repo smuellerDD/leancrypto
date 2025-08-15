@@ -20,7 +20,7 @@
 #ifndef _LC_CHACHA20_DRNG_H
 #define _LC_CHACHA20_DRNG_H
 
-#include "ext_headers_internal.h"
+#include "ext_headers.h"
 #include "lc_chacha20.h"
 
 #ifdef __cplusplus

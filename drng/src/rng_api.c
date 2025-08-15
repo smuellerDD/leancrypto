@@ -18,6 +18,7 @@
  */
 
 #include "atomic.h"
+#include "ext_headers_internal.h"
 #include "lc_memory_support.h"
 #include "lc_rng.h"
 #include "visibility.h"

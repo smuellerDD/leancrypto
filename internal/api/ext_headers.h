@@ -440,6 +440,7 @@ static inline int lc_get_time(time64_t *time_since_epoch)
  * Generic Definitions after all includes are present
  ******************************************************************************/
 
+#ifndef LC_EFI_ENVIRONMENT
 #ifndef ENOPKG
 #define ENOPKG 254 /* Package not installed */
 #endif
@@ -449,5 +450,6 @@ static inline int lc_get_time(time64_t *time_since_epoch)
 #ifndef ENOKEY
 #define ENOKEY 252 /* Key not found */
 #endif
+#endif /* LC_EFI_ENVIRONMENT */
 
 #endif /* EXT_HEADERS_H */

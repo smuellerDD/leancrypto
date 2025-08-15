@@ -24,7 +24,7 @@
 #ifndef LC_POLY1305_H
 #define LC_POLY1305_H
 
-#include "ext_headers_internal.h"
+#include "ext_headers.h"
 
 #ifdef __cplusplus
 extern "C" {

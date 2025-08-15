@@ -17,6 +17,7 @@
  * DAMAGE.
  */
 
+#include "ext_headers_internal.h"
 #include "signature_domain_separation.h"
 #include "lc_sha256.h"
 #include "lc_sha3.h"
