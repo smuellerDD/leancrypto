@@ -24,7 +24,6 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
-#include "dilithium_type.h"
 #include "small_stack_support.h"
 #include "sphincs_address.h"
 #include "sphincs_hash.h"

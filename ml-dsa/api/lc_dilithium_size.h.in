@@ -43,6 +43,7 @@ extern "C" {
 #endif
 
 /// \cond DO_NOT_DOCUMENT
+
 /*
  * Dilithium Security Levels
  * 2 -> 192 bits of security strength

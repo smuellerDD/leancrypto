@@ -24,7 +24,6 @@
 #include "ext_headers_internal.h"
 #include "lc_dilithium.h"
 #include "lc_hash.h"
-#include "lc_sphincs.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
 #include "x509_algorithm_mapper.h"

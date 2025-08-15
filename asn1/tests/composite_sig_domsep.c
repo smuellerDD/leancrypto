@@ -20,6 +20,7 @@
 #include <stdio.h>
 
 #include "compare.h"
+#include "lc_sha512.h"
 #include "ret_checkers.h"
 #include "signature_domain_separation.h"
 

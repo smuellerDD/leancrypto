@@ -68,15 +68,3 @@ int asym_set_sphincs_keypair(struct lc_x509_key_data *gen_data,
 	(void)sk;
 	return -ENOPKG;
 }
-
-int lc_sphincs_sk_set_keytype_small(struct lc_sphincs_sk *sk)
-{
-	(void)sk;
-	return -ENOPKG;
-}
-
-int lc_sphincs_sk_set_keytype_fast(struct lc_sphincs_sk *sk)
-{
-	(void)sk;
-	return -ENOPKG;
-}

@@ -20,7 +20,6 @@
 #ifndef SIGNATURE_DOMAIN_SEPARATION_H
 #define SIGNATURE_DOMAIN_SEPARATION_H
 
-#include "dilithium_type.h"
 #include "helper.h"
 #include "lc_hash.h"
 

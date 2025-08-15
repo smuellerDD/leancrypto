@@ -25,7 +25,6 @@
 #include "asym_key_sphincs.h"
 #include "ext_headers_internal.h"
 #include "lc_hash.h"
-#include "lc_sphincs.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
 #include "x509_algorithm_mapper.h"
@@ -275,7 +274,7 @@ int public_key_signature_size(size_t *siglen, enum lc_sig_types sig_type)
 
 	switch (sig_type) {
 	case LC_SIG_DILITHIUM_44:
-#ifdef LC_DILITHIUM_44_OPT_ENABLED
+#ifdef LC_DILITHIUM_44_ENABLED
 		*siglen = lc_dilithium_sig_size(LC_DILITHIUM_44);
 #else
 		*siglen = 0;
@@ -283,7 +282,7 @@ int public_key_signature_size(size_t *siglen, enum lc_sig_types sig_type)
 #endif
 		break;
 	case LC_SIG_DILITHIUM_65:
-#ifdef LC_DILITHIUM_65_OPT_ENABLED
+#ifdef LC_DILITHIUM_65_ENABLED
 		*siglen = lc_dilithium_sig_size(LC_DILITHIUM_65);
 #else
 		*siglen = 0;
@@ -291,7 +290,7 @@ int public_key_signature_size(size_t *siglen, enum lc_sig_types sig_type)
 #endif
 		break;
 	case LC_SIG_DILITHIUM_87:
-#ifdef LC_DILITHIUM_87_OPT_ENABLED
+#ifdef LC_DILITHIUM_87_ENABLED
 		*siglen = lc_dilithium_sig_size(LC_DILITHIUM_87);
 #else
 		*siglen = 0;
@@ -300,7 +299,7 @@ int public_key_signature_size(size_t *siglen, enum lc_sig_types sig_type)
 		break;
 
 	case LC_SIG_SPINCS_SHAKE_128F:
-#ifdef LC_SPHINCS_SHAKE_128F_OPT_ENABLED
+#ifdef LC_SPHINCS_SHAKE_128f_ENABLED
 		*siglen = lc_sphincs_sig_size(LC_SPHINCS_SHAKE_128f);
 #else
 		*siglen = 0;
@@ -308,7 +307,7 @@ int public_key_signature_size(size_t *siglen, enum lc_sig_types sig_type)
 #endif
 		break;
 	case LC_SIG_SPINCS_SHAKE_128S:
-#ifdef LC_SPHINCS_SHAKE_128S_OPT_ENABLED
+#ifdef LC_SPHINCS_SHAKE_128s_ENABLED
 		*siglen = lc_sphincs_sig_size(LC_SPHINCS_SHAKE_128s);
 #else
 		*siglen = 0;
@@ -316,7 +315,7 @@ int public_key_signature_size(size_t *siglen, enum lc_sig_types sig_type)
 #endif
 		break;
 	case LC_SIG_SPINCS_SHAKE_192F:
-#ifdef LC_SPHINCS_SHAKE_192F_OPT_ENABLED
+#ifdef LC_SPHINCS_SHAKE_192f_ENABLED
 		*siglen = lc_sphincs_sig_size(LC_SPHINCS_SHAKE_192f);
 #else
 		*siglen = 0;
@@ -324,7 +323,7 @@ int public_key_signature_size(size_t *siglen, enum lc_sig_types sig_type)
 #endif
 		break;
 	case LC_SIG_SPINCS_SHAKE_192S:
-#ifdef LC_SPHINCS_SHAKE_192S_OPT_ENABLED
+#ifdef LC_SPHINCS_SHAKE_192s_ENABLED
 		*siglen = lc_sphincs_sig_size(LC_SPHINCS_SHAKE_192s);
 #else
 		*siglen = 0;
@@ -332,7 +331,7 @@ int public_key_signature_size(size_t *siglen, enum lc_sig_types sig_type)
 #endif
 		break;
 	case LC_SIG_SPINCS_SHAKE_256F:
-#ifdef LC_SPHINCS_SHAKE_256F_OPT_ENABLED
+#ifdef LC_SPHINCS_SHAKE_256f_ENABLED
 		*siglen = lc_sphincs_sig_size(LC_SPHINCS_SHAKE_256f);
 #else
 		*siglen = 0;
@@ -340,7 +339,7 @@ int public_key_signature_size(size_t *siglen, enum lc_sig_types sig_type)
 #endif
 		break;
 	case LC_SIG_SPINCS_SHAKE_256S:
-#ifdef LC_SPHINCS_SHAKE_256S_OPT_ENABLED
+#ifdef LC_SPHINCS_SHAKE_256s_ENABLED
 		*siglen = lc_sphincs_sig_size(LC_SPHINCS_SHAKE_256s);
 #else
 		*siglen = 0;
@@ -350,7 +349,7 @@ int public_key_signature_size(size_t *siglen, enum lc_sig_types sig_type)
 		break;
 
 	case LC_SIG_DILITHIUM_44_ED25519:
-#if defined(LC_DILITHIUM_ED25519) && defined(LC_DILITHIUM_44_OPT_ENABLED)
+#if defined(LC_DILITHIUM_ED25519) && defined(LC_DILITHIUM_44_ENABLED)
 		CKINT(public_key_signature_size_dilithium_ed25519(
 			LC_DILITHIUM_44, siglen));
 #else
@@ -360,7 +359,7 @@ int public_key_signature_size(size_t *siglen, enum lc_sig_types sig_type)
 #endif
 		break;
 	case LC_SIG_DILITHIUM_65_ED25519:
-#if defined(LC_DILITHIUM_ED25519) && defined(LC_DILITHIUM_65_OPT_ENABLED)
+#if defined(LC_DILITHIUM_ED25519) && defined(LC_DILITHIUM_65_ENABLED)
 		CKINT(public_key_signature_size_dilithium_ed25519(
 			LC_DILITHIUM_65, siglen));
 #else
@@ -370,7 +369,7 @@ int public_key_signature_size(size_t *siglen, enum lc_sig_types sig_type)
 #endif
 		break;
 	case LC_SIG_DILITHIUM_87_ED25519:
-#if defined(LC_DILITHIUM_ED25519) && defined(LC_DILITHIUM_87_OPT_ENABLED)
+#if defined(LC_DILITHIUM_ED25519) && defined(LC_DILITHIUM_87_ENABLED)
 		CKINT(public_key_signature_size_dilithium_ed25519(
 			LC_DILITHIUM_87, siglen));
 #else
@@ -380,7 +379,7 @@ int public_key_signature_size(size_t *siglen, enum lc_sig_types sig_type)
 #endif
 		break;
 	case LC_SIG_DILITHIUM_44_ED448:
-#if defined(LC_DILITHIUM_ED448) && defined(LC_DILITHIUM_44_OPT_ENABLED)
+#if defined(LC_DILITHIUM_ED448) && defined(LC_DILITHIUM_44_ENABLED)
 		CKINT(public_key_signature_size_dilithium_ed448(LC_DILITHIUM_44,
 								siglen));
 #else
@@ -390,7 +389,7 @@ int public_key_signature_size(size_t *siglen, enum lc_sig_types sig_type)
 #endif
 		break;
 	case LC_SIG_DILITHIUM_65_ED448:
-#if defined(LC_DILITHIUM_ED448) && defined(LC_DILITHIUM_65_OPT_ENABLED)
+#if defined(LC_DILITHIUM_ED448) && defined(LC_DILITHIUM_65_ENABLED)
 		CKINT(public_key_signature_size_dilithium_ed448(LC_DILITHIUM_65,
 								siglen));
 #else
@@ -400,7 +399,7 @@ int public_key_signature_size(size_t *siglen, enum lc_sig_types sig_type)
 #endif
 		break;
 	case LC_SIG_DILITHIUM_87_ED448:
-#if defined(LC_DILITHIUM_ED448) && defined(LC_DILITHIUM_87_OPT_ENABLED)
+#if defined(LC_DILITHIUM_ED448) && defined(LC_DILITHIUM_87_ENABLED)
 		CKINT(public_key_signature_size_dilithium_ed448(LC_DILITHIUM_87,
 								siglen));
 #else
@@ -504,13 +503,17 @@ int privkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
 	case LC_SIG_SPINCS_SHAKE_192S:
 	case LC_SIG_SPINCS_SHAKE_128S:
 		CKINT(private_key_decode_sphincs(keys, data, datalen));
+#ifdef LC_SPHINCS
 		CKINT(lc_sphincs_sk_set_keytype_small(keys->sk.sphincs_sk));
+#endif
 		break;
 	case LC_SIG_SPINCS_SHAKE_256F:
 	case LC_SIG_SPINCS_SHAKE_192F:
 	case LC_SIG_SPINCS_SHAKE_128F:
 		CKINT(private_key_decode_sphincs(keys, data, datalen));
+#ifdef LC_SPHINCS
 		CKINT(lc_sphincs_sk_set_keytype_fast(keys->sk.sphincs_sk));
+#endif
 		break;
 
 	case LC_SIG_RSA_PKCS1:

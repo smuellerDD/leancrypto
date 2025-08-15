@@ -74,6 +74,8 @@ static int dilithium_ed25519_tester(int failcheck)
 	ret = 0;
 
 out:
+	if (ret < 0)
+		ret = 1;
 	LC_RELEASE_MEM(ws);
 	return ret;
 }
