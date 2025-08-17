@@ -394,7 +394,7 @@ static int x509_enc_valid_days(struct x509_generator_opts *opts,
 		return -ERANGE;
 
 	now = time(NULL);
-	if (now == ((time_t) -1))
+	if (now == ((time_t)-1))
 		return -errno;
 
 	/* Read data is in days -> convert to seconds */
@@ -784,12 +784,12 @@ static void x509_generator_usage(void)
 	fprintf(stderr,
 		"\t   --sk-file <FILE>\t\tFile with secret key used for signature\n");
 	fprintf(stderr, "\t\t\t\t\tInput when key is available (MUST be\n"),
-	fprintf(stderr, "\t\t\t\t\tDER),\n");
+		fprintf(stderr, "\t\t\t\t\tDER),\n");
 	fprintf(stderr, "\t\t\t\t\toutput with --create-keypair\n");
 	fprintf(stderr,
 		"\t   --pk-file <FILE>\t\tFile with public key used for signature\n");
 	fprintf(stderr, "\t\t\t\t\tInput when key is available to generate\n"),
-	fprintf(stderr, "\t\t\t\t\tcert (MUST be DER),\n");
+		fprintf(stderr, "\t\t\t\t\tcert (MUST be DER),\n");
 	fprintf(stderr, "\t\t\t\t\toutput with --create-keypair\n");
 	fprintf(stderr,
 		"\t   --key-type <TYPE>\t\tInput keys are of given type\n");
@@ -822,7 +822,8 @@ static void x509_generator_usage(void)
 	fprintf(stderr, "\t\t\t\t\tbeing specified\n");
 	fprintf(stderr, "\t   --valid-from\t\t\tSet start time\n");
 	fprintf(stderr, "\t   --valid-to\t\t\tSet end time\n");
-	fprintf(stderr, "\t   --valid-days\t\t\tSet validity time in days from\n");
+	fprintf(stderr,
+		"\t   --valid-days\t\t\tSet validity time in days from\n");
 	fprintf(stderr, "\t\t\t\t\tfrom today\n");
 	fprintf(stderr,
 		"\t   --serial <VALUE>\t\tSet serial numer (in hex form)\n");
@@ -887,7 +888,8 @@ static void x509_generator_usage(void)
 	fprintf(stderr, "\t   --data-file <FILE>\t\tFile with data to sign\n");
 
 	fprintf(stderr, "\n\t-h --help\t\t\tPrint this help text\n");
-	fprintf(stderr, "\n\t-v --version\t\t\tPrint version and acceleration support\n");
+	fprintf(stderr,
+		"\n\t-v --version\t\t\tPrint version and acceleration support\n");
 }
 
 static void x509_generator_version(void)
