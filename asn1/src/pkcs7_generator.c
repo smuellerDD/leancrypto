@@ -582,14 +582,14 @@ static int pkcs7_set_time(uint8_t *data, size_t *avail_datalen, uint8_t *tag)
 	 * detect the modulo operation.
 	 */
 	char datestr[X509_GENTIM_SIZE + 2];
-	struct tm *time_detail;
+	struct lc_tm time_detail;
 	time64_t timeval;
 	int ret;
 
 	CKINT(lc_get_time(&timeval));
 
 	/* UTC time */
-	time_detail = gmtime((const time_t *)&timeval);
+	CKINT(lc_gmtime(timeval, &time_detail));
 
 	/*
 	 * The value is the time since EPOCH for 2050-01-01
@@ -607,9 +607,8 @@ static int pkcs7_set_time(uint8_t *data, size_t *avail_datalen, uint8_t *tag)
 #pragma GCC diagnostic pop
 		CKINT(x509_sufficient_size(avail_datalen, X509_GENTIM_SIZE));
 		snprintf(datestr, sizeof(datestr), "%.4d%.2d%.2d%.2d%.2d%.2dZ",
-			 time_detail->tm_year + 1900, time_detail->tm_mon + 1,
-			 time_detail->tm_mday, time_detail->tm_hour,
-			 time_detail->tm_min, time_detail->tm_sec);
+			 time_detail.year, time_detail.month, time_detail.day,
+			 time_detail.hour, time_detail.min, time_detail.sec);
 
 		memcpy(data, datestr, X509_GENTIM_SIZE);
 		*avail_datalen -= X509_GENTIM_SIZE;
@@ -617,9 +616,9 @@ static int pkcs7_set_time(uint8_t *data, size_t *avail_datalen, uint8_t *tag)
 	} else {
 		CKINT(x509_sufficient_size(avail_datalen, X509_UCTTIM_SIZE));
 		snprintf(datestr, sizeof(datestr), "%02d%02d%02d%02d%02d%02dZ",
-			 time_detail->tm_year % 100, time_detail->tm_mon + 1,
-			 time_detail->tm_mday, time_detail->tm_hour,
-			 time_detail->tm_min, time_detail->tm_sec);
+			 time_detail.year % 100, time_detail.month,
+			 time_detail.day, time_detail.hour, time_detail.min,
+			 time_detail.sec);
 
 		memcpy(data, datestr, X509_UCTTIM_SIZE);
 		*avail_datalen -= X509_UCTTIM_SIZE;

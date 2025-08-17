@@ -1,6 +1,9 @@
 Changes 1.5.2-prerelease
 * ASN.1: use stack for small generator for small use cases
+
 * X.509: Updates required to support the shim boot loader
+
+* X.509: add lc_gmtime to convert Epoch to time format
 
 Changes 1.5.1
 * add ChaCha20 Poly 1305 AEAD

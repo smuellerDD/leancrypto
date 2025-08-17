@@ -369,6 +369,30 @@ const char *lc_x509_sig_type_to_name(enum lc_sig_types pkey_algo);
 int lc_x509_sig_type_to_hash(enum lc_sig_types pkey_algo,
 			     const struct lc_hash **hash_algo);
 
+struct lc_tm {
+	unsigned short year;
+	unsigned char month;
+	unsigned char day;
+	unsigned char hour;
+	unsigned char min;
+	unsigned char sec;
+};
+
+/**
+ * Trivial conversion of time to human-readable time value
+ *
+ * It only shows UTC considering that Epoch is UTC (i.e. it does not apply
+ * any time-zone conversions).
+ *
+ * Furthermore, it does not apply leap seconds.
+ *
+ * @param [in] timeval Time in seconds since Epoch
+ * @param [out] tm Decoded time
+ *
+ * @return 9 on success; < 0 on error
+ */
+int lc_gmtime(time64_t timeval, struct lc_tm *tm);
+
 #ifdef __cplusplus
 }
 #endif

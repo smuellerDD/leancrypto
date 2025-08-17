@@ -13,6 +13,13 @@ if get_option('x509_parser').enabled()
 			 link_with: leancrypto_static_lib
 			 )
 
+	gmtime_tester = executable('gmtime_tester',
+			 [ 'gmtime_tester.c' ],
+			 include_directories: [ include_internal_dirs ],
+			 dependencies: leancrypto,
+			 )
+	test('X.509 gmtime', gmtime_tester)
+
 	if (dilithium_enabled)
 		test('X.509 ML-DSA87 Root CA', asn1_tester,
 		args: [ '-x', '-f', certdir + 'ml-dsa87_cacert.der', '--check-ca',

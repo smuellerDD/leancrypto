@@ -1045,7 +1045,7 @@ int x509_set_uct_time_enc(void *context, uint8_t *data, size_t *avail_datalen,
 	char datestr[X509_UCTTIM_SIZE + 2];
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
-	struct tm *time_detail;
+	struct lc_tm time_detail;
 	time64_t tmp_time;
 	int ret;
 
@@ -1079,11 +1079,10 @@ int x509_set_uct_time_enc(void *context, uint8_t *data, size_t *avail_datalen,
 	/*
 	 * NOTE: The caller is assumed to have set the time in UTC time.
 	 */
-	time_detail = gmtime((time_t *)&ctx->time_to_set);
+	CKINT(lc_gmtime(ctx->time_to_set, &time_detail));
 	snprintf(datestr, sizeof(datestr), "%02d%02d%02d%02d%02d%02dZ",
-		 time_detail->tm_year % 100, time_detail->tm_mon + 1,
-		 time_detail->tm_mday, time_detail->tm_hour,
-		 time_detail->tm_min, time_detail->tm_sec);
+		 time_detail.year % 100, time_detail.month, time_detail.day,
+		 time_detail.hour, time_detail.min, time_detail.sec);
 
 	memcpy(data, datestr, X509_UCTTIM_SIZE);
 	*avail_datalen -= X509_UCTTIM_SIZE;
@@ -1103,7 +1102,7 @@ int x509_set_gen_time_enc(void *context, uint8_t *data, size_t *avail_datalen,
 	char datestr[X509_GENTIM_SIZE + 1];
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
-	struct tm *time_detail;
+	struct lc_tm time_detail;
 	time64_t tmp_time;
 	int ret;
 
@@ -1134,24 +1133,10 @@ int x509_set_gen_time_enc(void *context, uint8_t *data, size_t *avail_datalen,
 		return 0;
 	}
 
-	/*
-	 * NOTE: The caller is assumed to have set the time in UTC time.
-	 *
-	 * WARNING On 32 bit systems without support for 64-bit time, this will
-	 * wrap and set the wrong time as time_t is 32 bit on those systems.
-	 *
-	 * In this case, be safe than sorry and return an error.
-	 */
-#ifndef __LP64__
-	if (sizeof(time_t) != 8)
-		return -EOVERFLOW;
-#endif
-
-	time_detail = gmtime((time_t *)&ctx->time_to_set);
+	CKINT(lc_gmtime(ctx->time_to_set, &time_detail));
 	snprintf(datestr, sizeof(datestr), "%.4d%.2d%.2d%.2d%.2d%.2dZ",
-		 time_detail->tm_year + 1900, time_detail->tm_mon + 1,
-		 time_detail->tm_mday, time_detail->tm_hour,
-		 time_detail->tm_min, time_detail->tm_sec);
+		 time_detail.year, time_detail.month, time_detail.day,
+		 time_detail.hour, time_detail.min, time_detail.sec);
 
 	memcpy(data, datestr, X509_GENTIM_SIZE);
 	*avail_datalen -= X509_GENTIM_SIZE;

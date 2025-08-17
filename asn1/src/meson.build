@@ -52,6 +52,7 @@ if x509_common_support == 1
 		'asn1_common.c',
 		'asym_key.c',
 		'asymmetric_type.c',
+		'gmtime.c',
 		'oid_registry.c',
 		'x509_algorithm_mapper.c',
 
