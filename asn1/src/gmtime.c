@@ -23,6 +23,8 @@
 
 #define LC_DAY (24 * 60 * 60)
 #define LC_YEAR (365 * LC_DAY)
+#define LC_IS_LEAP(year)                                                       \
+	(year % 4) ? 0 : (year % 100) ? 1 : (year % 400) ? 0 : 1
 
 /**
  * Trivial conversion of time to human-readable time value
@@ -46,39 +48,23 @@ LC_INTERFACE_FUNCTION(int, lc_gmtime, time64_t timeval, struct lc_tm *tm)
 
 	tm->year = 1970;
 	while (timeval >= LC_YEAR) {
-		unsigned int leap = 0;
-
 		timeval -= LC_YEAR;
-		tm->year++;
-
-		if (tm->year >= 1972) {
-			leap = tm->year - 1972;
-
-			if (leap % 4 == 1) {
-				if (leap % 100 == 1) {
-					if (leap % 400 == 1)
-						leap = 1;
-					else
-						leap = 0;
-				} else {
-					leap = 1;
-				}
-			} else {
-				leap = 0;
-			}
-		}
 
 		/*
 		 * Adjust the days if we just had the leap year - then one day
 		 * goes to the old year as it had 366 days.
 		 */
-		if (leap) {
+		if (LC_IS_LEAP(tm->year)) {
 			if (timeval < LC_DAY) {
-				tm->year--;
-				timeval += LC_YEAR;
+				; /* do nothing, this is the 366th day */
 			} else {
+				/* 366th day belongs to old year */
 				timeval -= LC_DAY;
+				tm->year++;
 			}
+		} else {
+			/* Regular year */
+			tm->year++;
 		}
 	}
 
@@ -90,7 +76,10 @@ LC_INTERFACE_FUNCTION(int, lc_gmtime, time64_t timeval, struct lc_tm *tm)
 	days += 1;
 
 	/* Account for February 29 */
-	feb_days = (tm->year != 2000 && tm->year % 4 != 0) ? 28 : 29;
+	if (LC_IS_LEAP(tm->year))
+		feb_days = 29;
+	else
+		feb_days = 28;
 	days_month = (31 + /* January */
 		      feb_days + /* February */
 		      31 + /* March */
