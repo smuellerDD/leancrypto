@@ -21,7 +21,10 @@
 #include "lc_x509_common.h"
 #include "visibility.h"
 
-#define LC_DAY (24 * 60 * 60)
+#define LC_SEC (1)
+#define LC_MIN (60 * LC_SEC)
+#define LC_HOUR (60 * LC_MIN)
+#define LC_DAY (24 * LC_HOUR)
 #define LC_YEAR (365 * LC_DAY)
 #define LC_IS_LEAP(year)                                                       \
 	(year % 4) ? 0 : (year % 100) ? 1 : (year % 400) ? 0 : 1
@@ -37,7 +40,7 @@
  * @param [in] timeval Time in seconds since Epoch
  * @param [out] tm Decoded time
  *
- * @return 9 on success; < 0 on error
+ * @return 0 on success; < 0 on error
  */
 LC_INTERFACE_FUNCTION(int, lc_gmtime, time64_t timeval, struct lc_tm *tm)
 {
@@ -187,15 +190,15 @@ LC_INTERFACE_FUNCTION(int, lc_gmtime, time64_t timeval, struct lc_tm *tm)
 	} while (0);
 
 	/* Hour */
-	tm->hour = (unsigned char)(timeval / (60 * 60));
-	timeval -= tm->hour * (60 * 60);
+	tm->hour = (unsigned char)(timeval / LC_HOUR);
+	timeval -= tm->hour * LC_HOUR;
 
 	/* Minutes */
-	tm->min = (unsigned char)(timeval / (60));
-	timeval -= tm->min * (60);
+	tm->min = (unsigned char)(timeval / LC_MIN);
+	timeval -= tm->min * LC_MIN;
 
 	/* Second */
-	tm->sec = (unsigned char)(timeval);
+	tm->sec = (unsigned char)(timeval / LC_SEC);
 
 	return 0;
 }
