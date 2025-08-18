@@ -82,6 +82,36 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	(void)argc;
 	(void)argv;
 
+	/* Leap day: date -d "Feb 29 2000" +%s */
+	ret = gmtime_tester(951778800);
+	if (ret)
+		return ret;
+
+	/* 1st day of leap year: date -d "Jan 1 2024" +%s */
+	ret = gmtime_tester(1704063600);
+	if (ret)
+		return ret;
+
+	/* Leap day: date -d "Feb 29 2024" +%s */
+	ret = gmtime_tester(1709161200);
+	if (ret)
+		return ret;
+
+	/* 366th day: date -d "Dec 31 2024" +%s */
+	ret = gmtime_tester(1735599600);
+	if (ret)
+		return ret;
+
+	/* 1st day: date -d "Jan 1 2025" +%s */
+	ret = gmtime_tester(1735686000);
+	if (ret)
+		return ret;
+
+	/* 365th day: date -d "Dec 31 2025" +%s */
+	ret = gmtime_tester(1767135600);
+	if (ret)
+		return ret;
+
 	timeval = time(NULL);
 
 	while (timeval) {

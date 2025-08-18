@@ -29,19 +29,6 @@
 #define LC_IS_LEAP(year)                                                       \
 	(year % 4) ? 0 : (year % 100) ? 1 : (year % 400) ? 0 : 1
 
-/**
- * Trivial conversion of time to human-readable time value
- *
- * It only shows UTC considering that Epoch is UTC (i.e. it does not apply
- * any time-zone conversions).
- *
- * Furthermore, it does not apply leap seconds.
- *
- * @param [in] timeval Time in seconds since Epoch
- * @param [out] tm Decoded time
- *
- * @return 0 on success; < 0 on error
- */
 LC_INTERFACE_FUNCTION(int, lc_gmtime, time64_t timeval, struct lc_tm *tm)
 {
 	unsigned int days_month, feb_days, days;
@@ -49,6 +36,11 @@ LC_INTERFACE_FUNCTION(int, lc_gmtime, time64_t timeval, struct lc_tm *tm)
 	if (!tm || timeval < 0)
 		return -EINVAL;
 
+	/*
+	 * First step: get the years from the time value. This incorporates
+	 * the assessment for leap years. Each detected year implies that
+	 * the code subtracts the time for that year.
+	 */
 	tm->year = 1970;
 	while (timeval >= LC_YEAR) {
 		timeval -= LC_YEAR;
@@ -59,7 +51,13 @@ LC_INTERFACE_FUNCTION(int, lc_gmtime, time64_t timeval, struct lc_tm *tm)
 		 */
 		if (LC_IS_LEAP(tm->year)) {
 			if (timeval < LC_DAY) {
-				; /* do nothing, this is the 366th day */
+				 /*
+				  * this is the 366th day - as we are in the
+				  * current year, add it to the time value and
+				  * stop loop.
+				  */
+				timeval += LC_YEAR;
+				break;
 			} else {
 				/* 366th day belongs to old year */
 				timeval -= LC_DAY;
