@@ -202,6 +202,18 @@ out:
 LC_INTERFACE_FUNCTION(int, lc_x509_enc_san_ip, struct lc_x509_certificate *cert,
 		      char *ip_name, uint8_t *ip, size_t *ip_len)
 {
+	/*
+	 * EFI does not have support for strstr, strtok_r and strtoul, so
+	 * we simply do not compile this function. As this is a rarely used
+	 * helper, we simply do not provide this function.
+	 */
+#ifdef LC_EFI
+	(void)cert;
+	(void)ip_name;
+	(void)ip;
+	(void)ip_len;
+	return -EOPNOTSUPP;
+#else
 	unsigned long val;
 	char *saveptr = NULL;
 	char *res = NULL;
@@ -238,6 +250,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_enc_san_ip, struct lc_x509_certificate *cert,
 
 out:
 	return ret;
+#endif
 }
 
 LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_san_ip,

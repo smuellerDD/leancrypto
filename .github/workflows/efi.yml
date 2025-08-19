@@ -18,6 +18,6 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y meson gnu-efi
     - name: Meson setup
-      run: meson setup build -Defi=enabled -Dpkcs7_generator=disabled -Dx509_generator=disabled -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled
+      run: meson setup build -Defi=enabled -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled
     - name: Meson compile
       run: meson compile -C build
