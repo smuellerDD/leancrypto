@@ -268,7 +268,7 @@ endif
 secure_execution_linux = false
 if (host_machine.system() == 'linux' and
     get_option('secure_execution').enabled())
-	add_global_arguments([ '-DLC_SECEXEC_LINIX' ], language: 'c')
+	add_global_arguments([ '-DLC_SECEXEC_LINUX' ], language: 'c')
 	secure_execution_linux = true
 endif
 

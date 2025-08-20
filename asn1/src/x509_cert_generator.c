@@ -137,7 +137,7 @@ int x509_eku_enc(void *context, uint8_t *data, size_t *avail_datalen,
 		CKINT(OID_to_data(OID_id_kp_OCSPSigning, &oid_data,
 				  &oid_datalen));
 	} else {
-		return -EINVAL;
+		CKRET(-EINVAL);
 	}
 
 	bin2print_debug(oid_data, oid_datalen, stdout, "OID");
@@ -180,7 +180,7 @@ int x509_basic_constraints_ca_enc(void *context, uint8_t *data,
 
 	if (x509_pathlen_unprocessed(ctx)) {
 		if (*avail_datalen < 1)
-			return -EOVERFLOW;
+			CKRET(-EOVERFLOW);
 
 		if (pub->basic_constraint & LC_KEY_CA)
 			*data = ASN1_TRUE;
@@ -211,7 +211,7 @@ int x509_basic_constraints_pathlen_enc(void *context, uint8_t *data,
 
 	if (x509_pathlen_unprocessed(ctx)) {
 		if (*avail_datalen < 1)
-			return -EOVERFLOW;
+			CKRET(-EOVERFLOW);
 
 		*data = pub->ca_pathlen;
 		*avail_datalen -= 1;
@@ -404,7 +404,7 @@ int x509_san_dns_enc(void *context, uint8_t *data, size_t *avail_datalen,
 	if (cert->san_dns_len &&
 	    !(ctx->san_processed & X509_SAN_DNS_PROCESSED)) {
 		if (*avail_datalen < cert->san_dns_len)
-			return -EOVERFLOW;
+			CKRET(-EOVERFLOW);
 
 		memcpy(data, cert->san_dns, cert->san_dns_len);
 		*avail_datalen -= cert->san_dns_len;
@@ -428,7 +428,7 @@ int x509_san_ip_enc(void *context, uint8_t *data, size_t *avail_datalen,
 
 	if (cert->san_ip_len && !(ctx->san_processed & X509_SAN_IP_PROCESSED)) {
 		if (*avail_datalen < cert->san_ip_len)
-			return -EOVERFLOW;
+			CKRET(-EOVERFLOW);
 
 		memcpy(data, cert->san_ip, cert->san_ip_len);
 		*avail_datalen -= cert->san_ip_len;
@@ -715,7 +715,7 @@ int x509_extension_critical_enc(void *context, uint8_t *data,
 		return 0;
 
 	if (*avail_datalen < 1)
-		return -EOVERFLOW;
+		CKRET(-EOVERFLOW);
 
 	if (val)
 		*data = ASN1_TRUE;
@@ -816,6 +816,7 @@ int x509_note_algorithm_OID_enc(void *context, uint8_t *data,
 	const uint8_t *oid_data = NULL;
 	enum OID oid;
 	size_t oid_datalen = 0;
+	const char *alg;
 	int ret = 0;
 
 	(void)tag;
@@ -830,8 +831,8 @@ int x509_note_algorithm_OID_enc(void *context, uint8_t *data,
 
 	CKINT(lc_x509_sig_type_to_oid(pkey_algo, &oid));
 	CKINT(OID_to_data(oid, &oid_data, &oid_datalen));
-	bin2print_debug(oid_data, oid_datalen, stdout,
-			lc_x509_sig_type_to_name(pkey_algo));
+	CKINT(lc_x509_sig_type_to_name(pkey_algo, &alg))
+	bin2print_debug(oid_data, oid_datalen, stdout, alg);
 
 	if (oid_datalen) {
 		CKINT(x509_sufficient_size(avail_datalen, oid_datalen));
@@ -1164,7 +1165,7 @@ int x509_note_not_before_enc(void *context, uint8_t *data,
 	/* Sanity check */
 	if (ctx->time_to_set != cert->valid_from) {
 		printf_debug("Parser error: validity not before wrong\n");
-		return -EFAULT;
+		CKRET(-EFAULT);
 	}
 
 	/* Now, reset the flag to allow for the next round */
@@ -1189,7 +1190,7 @@ int x509_note_not_after_enc(void *context, uint8_t *data, size_t *avail_datalen,
 	/* Sanity check */
 	if (ctx->time_to_set != cert->valid_to) {
 		printf_debug("Parser error: validity not after wrong\n");
-		return -EFAULT;
+		CKRET(-EFAULT);
 	}
 
 	/* Now, reset the flag to allow for the next round */
@@ -1331,7 +1332,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_get_signature_size_from_sk, size_t *siglen,
 		      const struct lc_x509_key_data *keys)
 {
 	if (!siglen || !keys)
-		return -EINVAL;
+		CKRET(-EINVAL);
 	return public_key_signature_size(siglen, keys->sig_type);
 }
 
@@ -1341,7 +1342,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_get_signature_size_from_cert, size_t *siglen,
 	const struct lc_public_key *pub;
 
 	if (!siglen || !cert)
-		return -EINVAL;
+		CKRET(-EINVAL);
 
 	pub = &cert->pub;
 	return public_key_signature_size(siglen, pub->pkey_algo);
@@ -1362,7 +1363,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_signature_gen, uint8_t *sig_data,
 
 	if (prehash_algo) {
 		if (mlen > LC_SHA_MAX_SIZE_DIGEST)
-			return -EOVERFLOW;
+			CKRET(-EOVERFLOW);
 
 		memcpy(sig.digest, m, mlen);
 		sig.digest_size = mlen;
@@ -1418,6 +1419,33 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_signer,
 	CKINT(lc_x509_cert_get_skid(signer_x509, &dparam, &paramlen));
 	CKNULL(dparam, -EINVAL);
 	CKINT(lc_x509_cert_set_akid(signed_x509, dparam, paramlen));
+
+	/* If no validity is set, force the signers validity */
+	if (!signed_x509->valid_to)
+		signed_x509->valid_to = signer_x509->valid_to;
+	if (!signed_x509->valid_from)
+		signed_x509->valid_from = signer_x509->valid_from;
+
+	/*
+	 * If the valid-to value is older than the signer's valid-from
+	 * then we cannot sign.
+	 */
+	if (signed_x509->valid_to < signer_x509->valid_from)
+		CKRET(-EINVAL);
+	/*
+	 * If the valid-from value is newer than the signer's valid-to
+	 * then we cannot sign.
+	 */
+	if (signed_x509->valid_from > signer_x509->valid_to)
+		CKRET(-EINVAL);
+
+	/* Limit the valid-to to the maximum of the signer */
+	if (signed_x509->valid_to > signer_x509->valid_to)
+		signed_x509->valid_to = signer_x509->valid_to;
+
+	/* Limit the valid-from to the minimum of the signer */
+	if (signed_x509->valid_from < signer_x509->valid_from)
+		signed_x509->valid_from = signer_x509->valid_from;
 
 	CKINT(asym_set_signer(signed_x509, signer_key_data, signer_x509));
 

@@ -55,7 +55,7 @@
  ******************************************************************************/
 
 #ifndef LC_ASN1_DEBUG
-static char hex_char(unsigned int bin, const int u)
+static char lc_hex_char(unsigned int bin, const int u)
 {
 	if (bin < 10)
 		return (char)(bin + 0x30);
@@ -74,15 +74,15 @@ static char hex_char(unsigned int bin, const int u)
  *	   twice binlen -- if not, only a fraction of binlen is converted)
  * @u case of hex characters (0=>lower case, 1=>upper case)
  */
-static void bin2hex(const uint8_t *bin, const size_t binlen, char *hex,
-		    const size_t hexlen, const int u)
+static void lc_bin2hex(const uint8_t *bin, const size_t binlen, char *hex,
+		       const size_t hexlen, const int u)
 {
 	size_t i = 0;
 	size_t chars = (binlen > (hexlen / 2)) ? (hexlen / 2) : binlen;
 
 	for (i = 0; i < chars; i++) {
-		hex[(i * 2)] = hex_char((bin[i] >> 4), u);
-		hex[((i * 2) + 1)] = hex_char((bin[i] & 0x0f), u);
+		hex[(i * 2)] = lc_hex_char((bin[i] >> 4), u);
+		hex[((i * 2) + 1)] = lc_hex_char((bin[i] & 0x0f), u);
 	}
 }
 #endif
@@ -374,8 +374,8 @@ static int x509_fabricate_name(struct x509_parse_context *ctx, size_t hdrlen,
 			 * Something else, do a best-effort by converting it
 			 * into Hex.
 			 */
-			bin2hex(cert->san_ip, cert->san_ip_len, _name,
-				LC_ASN1_MAX_ISSUER_NAME, 1);
+			lc_bin2hex(cert->san_ip, cert->san_ip_len, _name,
+				   LC_ASN1_MAX_ISSUER_NAME, 1);
 			_name[min_size(cert->san_ip_len,
 				       LC_ASN1_MAX_ISSUER_NAME)] = '\0';
 		}
@@ -855,9 +855,9 @@ int x509_extension_continue(void *context, size_t hdrlen, unsigned char tag,
 	return 0;
 }
 
-static time64_t mktime64(const unsigned int year0, const unsigned int mon0,
-			 const unsigned int day, const unsigned int hour,
-			 const unsigned int min, const unsigned int sec)
+static time64_t lc_mktime64(const unsigned int year0, const unsigned int mon0,
+			    const unsigned int day, const unsigned int hour,
+			    const unsigned int min, const unsigned int sec)
 {
 	unsigned int mon = mon0, year = year0;
 
@@ -959,7 +959,7 @@ int x509_decode_time(time64_t *_t, size_t hdrlen, unsigned char tag,
 	    sec > 60) /* ISO 8601 permits leap seconds [X.680 46.3] */
 		goto invalid_time;
 
-	*_t = mktime64(year, mon, day, hour, min, sec);
+	*_t = lc_mktime64(year, mon, day, hour, min, sec);
 	printf_debug("Time stamp %llu\n", (unsigned long long)*_t);
 	return 0;
 

@@ -41,6 +41,10 @@ extern "C" {
 
 #else /* LC_ASN1_DEBUG */
 
+#ifdef LINUX_KERNEL
+#define stdout 1
+#endif
+
 #define bin2print_debug(a, b, c, d)                                            \
 	(void)a;                                                               \
 	(void)b;                                                               \

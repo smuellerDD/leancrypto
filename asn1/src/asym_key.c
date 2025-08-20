@@ -750,32 +750,40 @@ static int asym_keypair_gen_ed25519(struct lc_x509_certificate *cert,
 				    struct lc_x509_key_data *keys,
 				    enum lc_dilithium_type dilithium_key_type)
 {
-	struct lc_dilithium_pk pk;
-	struct lc_dilithium_sk sk;
-	struct lc_ed25519_pk pk_ed25519;
-	struct lc_ed25519_sk sk_ed25519;
+	struct workspace {
+		struct lc_dilithium_pk pk;
+		struct lc_dilithium_sk sk;
+		struct lc_ed25519_pk pk_ed25519;
+		struct lc_ed25519_sk sk_ed25519;
+	};
 	uint8_t *dilithium_pk_ptr, *dilithium_sk_ptr;
 	size_t dilithium_pk_len, dilithium_sk_len;
 	int ret;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	/* Generate key par with ML-DSA from seed */
 	CKINT(lc_rng_generate(lc_seeded_rng, NULL, 0, keys->sk_seed,
 			      LC_X509_PQC_SK_SEED_SIZE));
 
-	CKINT(lc_dilithium_keypair_from_seed(&pk, &sk, keys->sk_seed,
+	CKINT(lc_dilithium_keypair_from_seed(&ws->pk, &ws->sk, keys->sk_seed,
 					     LC_X509_PQC_SK_SEED_SIZE,
 					     dilithium_key_type));
-	CKINT(lc_dilithium_pk_ptr(&dilithium_pk_ptr, &dilithium_pk_len, &pk));
-	CKINT(lc_dilithium_sk_ptr(&dilithium_sk_ptr, &dilithium_sk_len, &sk));
+	CKINT(lc_dilithium_pk_ptr(&dilithium_pk_ptr, &dilithium_pk_len,
+				  &ws->pk));
+	CKINT(lc_dilithium_sk_ptr(&dilithium_sk_ptr, &dilithium_sk_len,
+				  &ws->sk));
 
-	CKINT(lc_ed25519_keypair(&pk_ed25519, &sk_ed25519, lc_seeded_rng));
+	CKINT(lc_ed25519_keypair(&ws->pk_ed25519, &ws->sk_ed25519,
+				 lc_seeded_rng));
 
 	CKINT(lc_dilithium_ed25519_sk_load(
 		keys->sk.dilithium_ed25519_sk, dilithium_sk_ptr,
-		dilithium_sk_len, sk_ed25519.sk, LC_ED25519_SECRETKEYBYTES));
+		dilithium_sk_len, ws->sk_ed25519.sk,
+		LC_ED25519_SECRETKEYBYTES));
 	CKINT(lc_dilithium_ed25519_pk_load(
 		keys->pk.dilithium_ed25519_pk, dilithium_pk_ptr,
-		dilithium_pk_len, pk_ed25519.pk, LC_ED25519_PUBLICKEYBYTES));
+		dilithium_pk_len, ws->pk_ed25519.pk,
+		LC_ED25519_PUBLICKEYBYTES));
 
 	CKINT(asym_set_dilithium_ed25519_keypair(
 		&cert->sig_gen_data, keys->pk.dilithium_ed25519_pk,
@@ -784,8 +792,7 @@ static int asym_keypair_gen_ed25519(struct lc_x509_certificate *cert,
 		&cert->pub_gen_data, keys->pk.dilithium_ed25519_pk, NULL));
 
 out:
-	lc_memset_secure(&pk_ed25519, 0, sizeof(pk_ed25519));
-	lc_memset_secure(&sk_ed25519, 0, sizeof(sk_ed25519));
+	LC_RELEASE_MEM(ws);
 	return ret;
 }
 #endif
@@ -795,31 +802,38 @@ static int asym_keypair_gen_ed448(struct lc_x509_certificate *cert,
 				  struct lc_x509_key_data *keys,
 				  enum lc_dilithium_type dilithium_key_type)
 {
-	struct lc_dilithium_pk pk;
-	struct lc_dilithium_sk sk;
-	struct lc_ed448_pk pk_ed448;
-	struct lc_ed448_sk sk_ed448;
+	struct workspace {
+		struct lc_dilithium_pk pk;
+		struct lc_dilithium_sk sk;
+		struct lc_ed448_pk pk_ed448;
+		struct lc_ed448_sk sk_ed448;
+	};
 	uint8_t *dilithium_pk_ptr, *dilithium_sk_ptr;
 	size_t dilithium_pk_len, dilithium_sk_len;
 	int ret;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	CKINT(lc_rng_generate(lc_seeded_rng, NULL, 0, keys->sk_seed,
 			      LC_X509_PQC_SK_SEED_SIZE));
 
-	CKINT(lc_dilithium_keypair_from_seed(&pk, &sk, keys->sk_seed,
+	CKINT(lc_dilithium_keypair_from_seed(&ws->pk, &ws->sk, keys->sk_seed,
 					     LC_X509_PQC_SK_SEED_SIZE,
 					     dilithium_key_type));
-	CKINT(lc_dilithium_pk_ptr(&dilithium_pk_ptr, &dilithium_pk_len, &pk));
-	CKINT(lc_dilithium_sk_ptr(&dilithium_sk_ptr, &dilithium_sk_len, &sk));
+	CKINT(lc_dilithium_pk_ptr(&dilithium_pk_ptr, &dilithium_pk_len,
+				  &ws->pk));
+	CKINT(lc_dilithium_sk_ptr(&dilithium_sk_ptr, &dilithium_sk_len,
+				  &ws->sk));
 
-	CKINT(lc_ed448_keypair(&pk_ed448, &sk_ed448, lc_seeded_rng));
+	CKINT(lc_ed448_keypair(&ws->pk_ed448, &ws->sk_ed448, lc_seeded_rng));
 
 	CKINT(lc_dilithium_ed448_sk_load(keys->sk.dilithium_ed448_sk,
 					 dilithium_sk_ptr, dilithium_sk_len,
-					 sk_ed448.sk, LC_ED448_SECRETKEYBYTES));
+					 ws->sk_ed448.sk,
+					 LC_ED448_SECRETKEYBYTES));
 	CKINT(lc_dilithium_ed448_pk_load(keys->pk.dilithium_ed448_pk,
 					 dilithium_pk_ptr, dilithium_pk_len,
-					 pk_ed448.pk, LC_ED448_PUBLICKEYBYTES));
+					 ws->pk_ed448.pk,
+					 LC_ED448_PUBLICKEYBYTES));
 
 	CKINT(asym_set_dilithium_ed448_keypair(&cert->sig_gen_data,
 					       keys->pk.dilithium_ed448_pk,
@@ -828,8 +842,7 @@ static int asym_keypair_gen_ed448(struct lc_x509_certificate *cert,
 		&cert->pub_gen_data, keys->pk.dilithium_ed448_pk, NULL));
 
 out:
-	lc_memset_secure(&pk_ed448, 0, sizeof(pk_ed448));
-	lc_memset_secure(&sk_ed448, 0, sizeof(sk_ed448));
+	LC_RELEASE_MEM(ws);
 	return ret;
 }
 #endif

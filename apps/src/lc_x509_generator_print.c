@@ -65,9 +65,10 @@ static void print_x509_name(const char *prefix,
 static void _print_x509_sinature_algo(const struct lc_public_key_signature *sig)
 {
 	const struct lc_hash *hash_algo;
+	const char *alg;
 
-	printf("Signature Algorithm: %s",
-	       lc_x509_sig_type_to_name(sig->pkey_algo));
+	lc_x509_sig_type_to_name(sig->pkey_algo, &alg);
+	printf("Signature Algorithm: %s", alg);
 
 	if (lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo)) {
 		printf(" (Cannot resolve signature algorithm)\n");
@@ -96,9 +97,10 @@ static void print_x509_sinature_algo(const struct lc_x509_certificate *x509)
 static void print_x509_pubkey_algo(const struct lc_x509_certificate *x509)
 {
 	const struct lc_public_key *pub = &x509->pub;
+	const char *alg;
 
-	printf("Public Key Algorithm: %s\n",
-	       lc_x509_sig_type_to_name(pub->pkey_algo));
+	lc_x509_sig_type_to_name(pub->pkey_algo, &alg);
+	printf("Public Key Algorithm: %s\n", alg);
 }
 
 static void print_x509_bindata(const char *prefix, const uint8_t *data,

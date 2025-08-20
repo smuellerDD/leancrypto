@@ -37,6 +37,23 @@ extern "C" {
 #define CKERROR_LOG
 #endif
 
+#ifdef LC_DEBUG
+#define CKERROR_PURE_LOG                                                       \
+	_Pragma("GCC diagnostic push")                                         \
+		_Pragma("GCC diagnostic ignored \"-Wpedantic\"")               \
+			printf("Error at %s:%s:%u\n", __FILE__, __FUNCTION__,  \
+			       __LINE__);                                      \
+	_Pragma("GCC diagnostic pop")
+#else
+#define CKERROR_PURE_LOG
+#endif
+
+#define CKRET(x)                                                               \
+	{                                                                      \
+		CKERROR_PURE_LOG                                               \
+		return x;                                                      \
+	}
+
 #define CKINT(x)                                                               \
 	{                                                                      \
 		ret = x;                                                       \

@@ -18,7 +18,7 @@ if get_option('x509_parser').enabled()
 			 include_directories: [ include_internal_dirs ],
 			 dependencies: leancrypto,
 			 )
-	test('X.509 gmtime', gmtime_tester)
+	test('X.509 gmtime', gmtime_tester, suite: regression)
 
 	if (dilithium_enabled)
 		test('X.509 ML-DSA87 Root CA', asn1_tester,

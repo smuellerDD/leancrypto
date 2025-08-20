@@ -50,7 +50,7 @@ LC_INIT_FUNCTION(int, lc_init, unsigned int flags)
      defined(LC_HOST_RISCV64))
 	kyber_riscv_rvv_selector();
 #endif
-#if (defined(LC_SECEXEC_LINIX) && !defined(LINUX_KERNEL))
+#if (defined(LC_SECEXEC_LINUX) && !defined(LINUX_KERNEL))
 	secure_execution_linux();
 #endif
 

@@ -96,9 +96,11 @@ int x509_mldsa_ed25519_private_key(void *context, size_t hdrlen,
 				   unsigned char tag, const uint8_t *value,
 				   size_t vlen)
 {
+	struct workspace {
+		struct lc_dilithium_pk pk;
+		struct lc_dilithium_sk sk;
+	};
 	struct lc_x509_key_data *keys = context;
-	struct lc_dilithium_pk pk;
-	struct lc_dilithium_sk sk;
 	struct lc_dilithium_ed25519_sk *dilithium_sk =
 		keys->sk.dilithium_ed25519_sk;
 	const uint8_t *data, *ed25519_src_key;
@@ -106,6 +108,7 @@ int x509_mldsa_ed25519_private_key(void *context, size_t hdrlen,
 	size_t datalen, dilithium_src_key_len, ed25519_src_key_len;
 	enum lc_dilithium_type dilithium_type = LC_DILITHIUM_UNKNOWN;
 	int ret;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	(void)hdrlen;
 	(void)tag;
@@ -161,9 +164,10 @@ int x509_mldsa_ed25519_private_key(void *context, size_t hdrlen,
 	 * First the ML-DSA seed, then the traditional SK.
 	 */
 	CKINT(lc_dilithium_keypair_from_seed(
-		&pk, &sk, data, LC_X509_PQC_SK_SEED_SIZE, dilithium_type));
+		&ws->pk, &ws->sk, data, LC_X509_PQC_SK_SEED_SIZE,
+		dilithium_type));
 	CKINT(lc_dilithium_sk_ptr(&dilithium_src_key, &dilithium_src_key_len,
-				  &sk));
+				  &ws->sk));
 
 	ed25519_src_key = data + LC_X509_PQC_SK_SEED_SIZE;
 	ed25519_src_key_len = LC_ED25519_SECRETKEYBYTES;
@@ -175,8 +179,7 @@ int x509_mldsa_ed25519_private_key(void *context, size_t hdrlen,
 	printf_debug("Loaded composite public key of size %zu\n", datalen);
 
 out:
-	lc_memset_secure(&pk, 0, sizeof(pk));
-	lc_memset_secure(&sk, 0, sizeof(sk));
+	LC_RELEASE_MEM(ws);
 	return ret;
 }
 

@@ -57,7 +57,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_eku,
 	for (i = 0; i < x509_eku_to_name_size; i++)
 		printf(" %s\n", x509_eku_to_name[i].name);
 
-	return -EINVAL;
+	CKRET(-EINVAL);
 
 out:
 	return ret;
@@ -110,7 +110,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_keyusage,
 	for (i = 0; i < x509_keyusage_to_name_size; i++)
 		printf(" %s\n", x509_keyusage_to_name[i].name);
 
-	return -EINVAL;
+	CKRET(-EINVAL);
 
 out:
 	return ret;
@@ -207,12 +207,12 @@ LC_INTERFACE_FUNCTION(int, lc_x509_enc_san_ip, struct lc_x509_certificate *cert,
 	 * we simply do not compile this function. As this is a rarely used
 	 * helper, we simply do not provide this function.
 	 */
-#ifdef LC_EFI
+#if defined(LC_EFI) || defined(LINUX_KERNEL)
 	(void)cert;
 	(void)ip_name;
 	(void)ip;
 	(void)ip_len;
-	return -EOPNOTSUPP;
+	CKRET(-EOPNOTSUPP);
 #else
 	unsigned long val;
 	char *saveptr = NULL;
@@ -234,14 +234,14 @@ LC_INTERFACE_FUNCTION(int, lc_x509_enc_san_ip, struct lc_x509_certificate *cert,
 	}
 
 	if (*ip_len < upper)
-		return -EOVERFLOW;
+		CKRET(-EOVERFLOW);
 
 	res = strtok_r(ip_name, tok, &saveptr);
 	for (i = 0; i < upper; i++) {
 		CKNULL(res, -EINVAL);
 		val = strtoul(res, NULL, base);
 		if (val > 255)
-			return -EINVAL;
+			CKRET(-EINVAL);
 		ip[i] = (uint8_t)val;
 		res = strtok_r(NULL, tok, &saveptr);
 	}
@@ -320,6 +320,13 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_valid_from,
 
 	CKNULL(cert, -EINVAL);
 
+	/*
+	 * Allow the validity to be set only once to avoid intermix with
+	 * the setting of a signer and its validity check.
+	 */
+	if (cert->valid_from)
+		CKRET(-EINVAL);
+
 	cert->valid_from = time_since_epoch;
 
 out:
@@ -334,6 +341,13 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_valid_to,
 
 	CKNULL(cert, -EINVAL);
 
+	/*
+	 * Allow the validity to be set only once to avoid intermix with
+	 * the setting of a signer and its validity check.
+	 */
+	if (cert->valid_to)
+		CKRET(-EINVAL);
+
 	cert->valid_to = time_since_epoch;
 
 out:
@@ -347,7 +361,7 @@ x509_cert_set_string(struct lc_x509_certificate_name_component *component,
 	/* Allow setting a NULL value */
 
 	if (len > 0xff)
-		return -EOVERFLOW;
+		CKRET(-EOVERFLOW);
 
 	component->value = string;
 	component->size = (uint8_t)len;

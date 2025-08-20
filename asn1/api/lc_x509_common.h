@@ -353,10 +353,11 @@ struct lc_x509_certificate {
  *	  readable form
  *
  * @param [in] pkey_algo public key algorithm type
+ * @param [out] alg Algorithm string
  *
- * @return character string with the name
+ * @return 0 on success, < 0 on error
  */
-const char *lc_x509_sig_type_to_name(enum lc_sig_types pkey_algo);
+int lc_x509_sig_type_to_name(enum lc_sig_types pkey_algo, const char **alg);
 
 /**
  * @brief Obtain the hash type to be used with a given public key algorithm
@@ -389,7 +390,7 @@ struct lc_tm {
  * @param [in] timeval Time in seconds since Epoch
  * @param [out] tm Decoded time
  *
- * @return 9 on success; < 0 on error
+ * @return 0 on success; < 0 on error
  */
 int lc_gmtime(time64_t timeval, struct lc_tm *tm);
 

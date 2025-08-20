@@ -5,6 +5,8 @@ Changes 1.5.2-prerelease
 
 * X.509: add lc_gmtime to convert Epoch to time format
 
+* ASN.1: added to Linux kernel
+
 Changes 1.5.1
 * add ChaCha20 Poly 1305 AEAD
 

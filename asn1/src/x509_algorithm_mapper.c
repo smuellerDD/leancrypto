@@ -519,18 +519,20 @@ int lc_x509_oid_to_sig_type(enum OID oid, enum lc_sig_types *pkey_algo)
 	return -ENOPKG;
 }
 
-LC_INTERFACE_FUNCTION(const char, *lc_x509_sig_type_to_name,
-		      enum lc_sig_types pkey_algo)
+LC_INTERFACE_FUNCTION(int, lc_x509_sig_type_to_name,
+		      enum lc_sig_types pkey_algo, const char **alg)
 {
 	unsigned int i;
 
 	for (i = 0; i < ARRAY_SIZE(x509_algo_table); i++) {
 		if (pkey_algo == x509_algo_table[i].pkey_algo) {
-			return x509_algo_table[i].name_algo;
+			*alg = x509_algo_table[i].name_algo;
+			return 0;
 		}
 	}
 
-	return "<not found>";
+	*alg = "<not found>";
+	return 0;
 }
 
 const char *lc_x509_oid_to_name(enum OID oid)
