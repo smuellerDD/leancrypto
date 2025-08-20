@@ -40,8 +40,8 @@
 
 // Note that byte order, same as the Keyakv2 Convection:
 // v19 = A[0] || A[4]
-// v19.2d[0] = A[0]
-// v19.2d[1] = A[4]
+// v19.d[0] = A[0]
+// v19.d[1] = A[4]
 
 // Register-Lane Lookup
 // v19 = A[0]  || A[4]
@@ -121,12 +121,12 @@
     ext     v5.16b, v4.16b, v2.16b, #8    // v5 = (A[13] ^ A[23]) || (A[2] ^ A[17])
     eor     v3.16b, v3.16b, v5.16b        // v3 = B[3] || B[2]
 
-    mov     v5.2d[0], v0.2d[1]            // v5 = (A[4] ^ A[14]) || ????
+    ins     v5.d[0], v0.d[1]              // v5 = (A[4] ^ A[14]) || ????
     eor     v4.16b, v4.16b, v5.16b        // v4 = (A[9] ^ A[19] ^ A[4] ^ A[14]) || ????
     eor     v4.16b, v4.16b, v31.16b       // v4 = B[4] || ????
 
     ext     v2.16b, v1.16b, v1.16b, #8    // v2 = B[1] || B[0]
-    mov     v4.2d[1], v3.2d[0]            // v4 = B[4] || B[3]
+    ins     v4.d[1], v3.d[0]              // v4 = B[4] || B[3]
     trn2    v0.2d, v3.2d, v1.2d           // v0 = B[2] || B[1]
 
     ROTL64  v5, v2, 1                     // v5 = ROTL64(B[1], 1) || ROTL64(B[0], 1)
@@ -160,34 +160,34 @@
     eor     v31.16b, v31.16b, v7.16b      // A[24] ^= B[3] ^ ROTL64(B[0], 1), ????
 
     // Rho Pi
-    mov     x11, v20.2d[0]                // x11   = A[1]
+    mov     x11, v20.d[0]                // x11   = A[1]
 
-    RhoPi   v25.2d[0], x11, x10, 1        // A[10] = ROTL64(A[1], 1)
-    RhoPi   v22.2d[1], x10, x11, 3        // A[7]  = ROTL64(A[10], 3)
-    RhoPi   v26.2d[0], x11, x10, 6        // A[11] = ROTL64(A[7], 6)
-    RhoPi   v28.2d[0], x10, x11, 10       // A[17] = ROTL64(A[11], 10)
-    RhoPi   v29.2d[0], x11, x10, 15       // A[18] = ROTL64(A[17], 15)
-    RhoPi   v22.2d[0], x10, x11, 21       // A[3]  = ROTL64(A[18], 21)
-    RhoPi   v20.2d[1], x11, x10, 28       // A[5]  = ROTL64(A[3], 28)
-    RhoPi   v27.2d[0], x10, x11, 36       // A[16] = ROTL64(A[5], 36)
-    RhoPi   v23.2d[0], x11, x10, 45       // A[8]  = ROTL64(A[16], 45)
-    RhoPi   v28.2d[1], x10, x11, 55       // A[21] = ROTL64(A[8], 55)
-    RhoPi   v31.2d[0], x11, x10, 2        // A[24] = ROTL64(A[21], 2)
-    RhoPi   v19.2d[1], x10, x11, 14       // A[4]  = ROTL64(A[24], 14)
-    RhoPi   v26.2d[1], x11, x10, 27       // A[15] = ROTL64(A[4], 27)
-    RhoPi   v30.2d[1], x10, x11, 41       // A[23] = ROTL64(A[15], 41)
-    RhoPi   v30.2d[0], x11, x10, 56       // A[19] = ROTL64(A[23], 56)
-    RhoPi   v24.2d[1], x10, x11, 8        // A[13] = ROTL64(A[19], 8)
-    RhoPi   v23.2d[1], x11, x10, 25       // A[12] = ROTL64(A[13], 25)
-    RhoPi   v21.2d[0], x10, x11, 43       // A[2]  = ROTL64(A[12], 43)
-    RhoPi   v27.2d[1], x11, x10, 62       // A[20] = ROTL64(A[2], 62)
-    RhoPi   v25.2d[1], x10, x11, 18       // A[14] = ROTL64(A[20], 18)
-    RhoPi   v29.2d[1], x11, x10, 39       // A[22] = ROTL64(A[14], 39)
-    RhoPi   v24.2d[0], x10, x11, 61       // A[9]  = ROTL64(A[22], 61)
-    RhoPi   v21.2d[1], x11, x10, 20       // A[6]  = ROTL64(A[9], 20)
+    RhoPi   v25.d[0], x11, x10, 1        // A[10] = ROTL64(A[1], 1)
+    RhoPi   v22.d[1], x10, x11, 3        // A[7]  = ROTL64(A[10], 3)
+    RhoPi   v26.d[0], x11, x10, 6        // A[11] = ROTL64(A[7], 6)
+    RhoPi   v28.d[0], x10, x11, 10       // A[17] = ROTL64(A[11], 10)
+    RhoPi   v29.d[0], x11, x10, 15       // A[18] = ROTL64(A[17], 15)
+    RhoPi   v22.d[0], x10, x11, 21       // A[3]  = ROTL64(A[18], 21)
+    RhoPi   v20.d[1], x11, x10, 28       // A[5]  = ROTL64(A[3], 28)
+    RhoPi   v27.d[0], x10, x11, 36       // A[16] = ROTL64(A[5], 36)
+    RhoPi   v23.d[0], x11, x10, 45       // A[8]  = ROTL64(A[16], 45)
+    RhoPi   v28.d[1], x10, x11, 55       // A[21] = ROTL64(A[8], 55)
+    RhoPi   v31.d[0], x11, x10, 2        // A[24] = ROTL64(A[21], 2)
+    RhoPi   v19.d[1], x10, x11, 14       // A[4]  = ROTL64(A[24], 14)
+    RhoPi   v26.d[1], x11, x10, 27       // A[15] = ROTL64(A[4], 27)
+    RhoPi   v30.d[1], x10, x11, 41       // A[23] = ROTL64(A[15], 41)
+    RhoPi   v30.d[0], x11, x10, 56       // A[19] = ROTL64(A[23], 56)
+    RhoPi   v24.d[1], x10, x11, 8        // A[13] = ROTL64(A[19], 8)
+    RhoPi   v23.d[1], x11, x10, 25       // A[12] = ROTL64(A[13], 25)
+    RhoPi   v21.d[0], x10, x11, 43       // A[2]  = ROTL64(A[12], 43)
+    RhoPi   v27.d[1], x11, x10, 62       // A[20] = ROTL64(A[2], 62)
+    RhoPi   v25.d[1], x10, x11, 18       // A[14] = ROTL64(A[20], 18)
+    RhoPi   v29.d[1], x11, x10, 39       // A[22] = ROTL64(A[14], 39)
+    RhoPi   v24.d[0], x10, x11, 61       // A[9]  = ROTL64(A[22], 61)
+    RhoPi   v21.d[1], x11, x10, 20       // A[6]  = ROTL64(A[9], 20)
 
     ror     x10, x10, #20
-    mov     v20.2d[0], x10                // A[1]  = ROTL64(A[6], 44)
+    mov     v20.d[0], x10                // A[1]  = ROTL64(A[6], 44)
 
     // Chi - Some lanes are applied earlier so we can reuse registers
     ext     v18.16b, v26.16b, v31.16b, #8 // v18 = A[15] || A[24]
@@ -220,8 +220,8 @@
     ext     v17.16b, v24.16b, v28.16b, #8 // v17 =  A[13] ||  A[17]
     bic     v4.16b, v17.16b, v18.16b      // v4  = ~A[12] & A[13] || ~A[16] & A[17]
 
-    mov     v18.2d[0], v27.2d[1]          // v18 =  A[20] || ????
-    mov     v17.2d[0], v28.2d[1]          // v17 =  A[21] || ????
+    ins     v18.d[0], v27.d[1]            // v18 =  A[20] || ????
+    ins     v17.d[0], v28.d[1]            // v17 =  A[21] || ????
     bic     v2.16b, v17.16b, v18.16b      // v2  = ~A[20] & A[21] || ????
     eor     v31.16b, v31.16b, v2.16b      // A[24] ^= ~A[20] & A[21], ????
 
