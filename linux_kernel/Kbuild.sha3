@@ -89,6 +89,9 @@ endif
 
 # Generic ARM assembler and ARM CE support
 ifdef CONFIG_ARM64
+ccflags-$(CONFIG_LEANCRYPTO_SHA3)					       \
+				+= -march=armv8-a+simd+sha3		       \
+				   -Wno-unused-result
 asflags-$(CONFIG_LEANCRYPTO_SHA3)					       \
 				+= -I$(src)/../internal/api -DLINUX_KERNEL
 leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
