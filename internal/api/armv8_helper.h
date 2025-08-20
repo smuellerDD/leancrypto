@@ -22,6 +22,13 @@
 
 #include "ext_headers_internal.h"
 
+#if defined(__clang__)
+#pragma clang attribute push (__attribute__((target("+simd"))), apply_to=function)
+#elif defined(__GNUC__)
+#pragma GCC push_options
+#pragma GCC target ("+simd")
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -62,6 +69,12 @@ static inline void reload_fp_regs(uint64_t tmp[8])
 
 #ifdef __cplusplus
 }
+#endif
+
+#if defined(__clang__)
+#pragma clang attribute pop
+#elif defined(__GNUC__)
+#pragma GCC pop_options
 #endif
 
 #endif /* ARMV8_HELPER_H */
