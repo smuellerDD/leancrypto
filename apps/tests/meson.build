@@ -37,14 +37,16 @@ x509_rootca_args = [
 	'--check-keyusage', '16548'
 	]
 
+# This definition also checks that the validity is properly set by initializing
+# the valid-from to be lower then the CA and and valid-to higher than the CA.
 x509_int1_ca_args = [
 	'--keyusage', 'digitalSignature',
 	'--keyusage', 'keyEncipherment',
 	'--keyusage', 'keyCertSign',
 	'--keyusage', 'critical',
 	'--ca',
-	'--valid-from', '1729527728',
-	'--valid-to', '2044210606',
+	'--valid-from', '1729527727',
+	'--valid-to', '2044210607',
 	'--subject-cn', 'leancrypto test int1',
 	'--subject-ou', 'leancrypto test OU',
 	'--subject-o', 'leancrypto',
