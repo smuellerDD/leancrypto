@@ -23,7 +23,6 @@
 #include <stdio.h>
 #include <time.h>
 
-#include "asn1_test_helper.h"
 #include "lc_pkcs7_parser.h"
 #include "lc_x509_parser.h"
 #include "ret_checkers.h"
@@ -33,6 +32,7 @@
 
 #include "../src/x509_algorithm_mapper.h"
 #include "../src/x509_cert_parser.h"
+#include "../../apps/src/lc_x509_generator_file_helper.h"
 
 static int x509_load(const struct x509_checker_options *parsed_opts)
 {

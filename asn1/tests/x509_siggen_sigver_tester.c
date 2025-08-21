@@ -25,12 +25,13 @@
 #include <sys/stat.h>
 #include <time.h>
 
-#include "asn1_test_helper.h"
 #include "binhexbin.h"
 #include "lc_x509_generator.h"
 #include "lc_x509_parser.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
+
+#include "../../apps/src/lc_x509_generator_file_helper.h"
 
 struct x509_generator_opts {
 	struct lc_x509_certificate cert;

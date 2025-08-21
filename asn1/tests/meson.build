@@ -4,7 +4,7 @@ include_asn1_internal = include_directories([ '../src' ])
 if get_option('x509_parser').enabled()
 	asn1_tester = executable('asn1_tester',
 			 [ 'asn1_tester.c',
-			   'asn1_test_helper.c',
+			   '../../apps/src/lc_x509_generator_file_helper.c',
 			   '../../apps/src/lc_x509_generator_checker.c',
 			   '../../apps/src/lc_x509_generator_print.c',
 			   internal_src ],
@@ -150,7 +150,6 @@ if get_option('x509_generator').enabled()
 
 	asn1_enc_tester = executable('asn1_enc_tester',
 			 [ 'asn1_enc_tester.c',
-			   'asn1_test_helper.c',
 			   'x509_extensions_test.asn1.c',
 			   internal_src ],
 			 include_directories:
@@ -271,7 +270,6 @@ if get_option('x509_generator').enabled()
 
 	asn1_extensions_enc_tester = executable('asn1_extensions_enc_tester',
 			 [ 'asn1_extensions_enc_tester.c',
-			   'asn1_test_helper.c',
 			   'x509_extensions_test.asn1.c',
 			   internal_src ],
 			 include_directories:
@@ -368,7 +366,6 @@ if get_option('x509_generator').enabled()
 
 	asn1_eku_enc_tester = executable('asn1_eku_enc_tester',
 			 [ 'asn1_eku_enc_tester.c',
-			   'asn1_test_helper.c',
 			   'x509_extensions_test.asn1.c',
 			   internal_src ],
 			 include_directories:
@@ -395,7 +392,7 @@ if get_option('x509_generator').enabled()
 
 	x509_siggen_sigver_tester = executable('x509_siggen_sigver_tester',
 			 [ 'x509_siggen_sigver_tester.c',
-			   'asn1_test_helper.c',
+			   '../../apps/src/lc_x509_generator_file_helper.c',
 			   internal_src ],
 			 include_directories: [ include_internal_dirs ],
 			 dependencies: leancrypto
@@ -446,7 +443,8 @@ endif
 
 if get_option('pkcs7_parser').enabled()
 	pkcs7_trust_tester = executable('pkcs7_trust_tester',
-			 [ 'pkcs7_trust_tester.c', 'asn1_test_helper.c',
+			 [ 'pkcs7_trust_tester.c',
+			   '../../apps/src/lc_x509_generator_file_helper.c',
 			   internal_src ],
 			 include_directories: [ include_internal_dirs ],
 			 dependencies: leancrypto,

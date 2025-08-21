@@ -22,10 +22,11 @@
 #include <getopt.h>
 #include <stdio.h>
 
-#include "asn1_test_helper.h"
 #include "lc_pkcs7_parser.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
+
+#include "../../apps/src/lc_x509_generator_file_helper.h"
 
 struct pkcs7_trust_options {
 #define MAX_FILES 10
