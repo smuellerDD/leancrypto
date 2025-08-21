@@ -1279,6 +1279,9 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_encode,
 
 	ws->gctx.cert = x509;
 
+	/* Ensure that validity makes sense */
+	CKRET(x509->valid_from > x509->valid_to, -EINVAL);
+
 	/*
 	 * Attempt to encode the certificate
 	 */
