@@ -137,7 +137,7 @@ int x509_eku_enc(void *context, uint8_t *data, size_t *avail_datalen,
 		CKINT(OID_to_data(OID_id_kp_OCSPSigning, &oid_data,
 				  &oid_datalen));
 	} else {
-		CKRET(-EINVAL);
+		CKRET(1, -EINVAL);
 	}
 
 	bin2print_debug(oid_data, oid_datalen, stdout, "OID");
@@ -175,12 +175,12 @@ int x509_basic_constraints_ca_enc(void *context, uint8_t *data,
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
 	const struct lc_public_key *pub = &cert->pub;
+	int ret = 0;
 
 	(void)tag;
 
 	if (x509_pathlen_unprocessed(ctx)) {
-		if (*avail_datalen < 1)
-			CKRET(-EOVERFLOW);
+		CKRET(*avail_datalen < 1, -EOVERFLOW);
 
 		if (pub->basic_constraint & LC_KEY_CA)
 			*data = ASN1_TRUE;
@@ -194,7 +194,8 @@ int x509_basic_constraints_ca_enc(void *context, uint8_t *data,
 		printf_debug("Setting CA: %u\n", *data);
 	}
 
-	return 0;
+out:
+	return ret;
 }
 
 /*
@@ -206,12 +207,12 @@ int x509_basic_constraints_pathlen_enc(void *context, uint8_t *data,
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
 	const struct lc_public_key *pub = &cert->pub;
+	int ret = 0;
 
 	(void)tag;
 
 	if (x509_pathlen_unprocessed(ctx)) {
-		if (*avail_datalen < 1)
-			CKRET(-EOVERFLOW);
+		CKRET(*avail_datalen < 1, -EOVERFLOW);
 
 		*data = pub->ca_pathlen;
 		*avail_datalen -= 1;
@@ -219,7 +220,8 @@ int x509_basic_constraints_pathlen_enc(void *context, uint8_t *data,
 		ctx->pathlen_processed = *data;
 	}
 
-	return 0;
+out:
+	return ret;
 }
 
 int x509_name_unprocessed(const struct lc_x509_certificate_name *name,
@@ -398,13 +400,13 @@ int x509_san_dns_enc(void *context, uint8_t *data, size_t *avail_datalen,
 {
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
+	int ret = 0;
 
 	(void)tag;
 
 	if (cert->san_dns_len &&
 	    !(ctx->san_processed & X509_SAN_DNS_PROCESSED)) {
-		if (*avail_datalen < cert->san_dns_len)
-			CKRET(-EOVERFLOW);
+		CKRET(*avail_datalen < cert->san_dns_len, -EOVERFLOW);
 
 		memcpy(data, cert->san_dns, cert->san_dns_len);
 		*avail_datalen -= cert->san_dns_len;
@@ -412,7 +414,8 @@ int x509_san_dns_enc(void *context, uint8_t *data, size_t *avail_datalen,
 		ctx->san_processed |= X509_SAN_DNS_PROCESSED;
 	}
 
-	return 0;
+out:
+	return ret;
 }
 
 /*
@@ -423,12 +426,12 @@ int x509_san_ip_enc(void *context, uint8_t *data, size_t *avail_datalen,
 {
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
+	int ret = 0;
 
 	(void)tag;
 
 	if (cert->san_ip_len && !(ctx->san_processed & X509_SAN_IP_PROCESSED)) {
-		if (*avail_datalen < cert->san_ip_len)
-			CKRET(-EOVERFLOW);
+		CKRET(*avail_datalen < cert->san_ip_len, -EOVERFLOW);
 
 		memcpy(data, cert->san_ip, cert->san_ip_len);
 		*avail_datalen -= cert->san_ip_len;
@@ -436,7 +439,8 @@ int x509_san_ip_enc(void *context, uint8_t *data, size_t *avail_datalen,
 		ctx->san_processed |= X509_SAN_IP_PROCESSED;
 	}
 
-	return 0;
+out:
+	return ret;
 }
 
 static inline int x509_keyusage_unprocessed(struct x509_generate_context *ctx,
@@ -693,6 +697,7 @@ int x509_extension_critical_enc(void *context, uint8_t *data,
 	const struct lc_public_key *pub = &cert->pub;
 #define X509_EXTENSION_UNSET 0xffffffff
 	unsigned int val = X509_EXTENSION_UNSET;
+	int ret = 0;
 
 	(void)tag;
 
@@ -714,8 +719,7 @@ int x509_extension_critical_enc(void *context, uint8_t *data,
 	if (val == X509_EXTENSION_UNSET)
 		return 0;
 
-	if (*avail_datalen < 1)
-		CKRET(-EOVERFLOW);
+	CKRET(*avail_datalen < 1, -EOVERFLOW);
 
 	if (val)
 		*data = ASN1_TRUE;
@@ -724,7 +728,8 @@ int x509_extension_critical_enc(void *context, uint8_t *data,
 
 	*avail_datalen -= 1;
 
-	return 0;
+out:
+	return ret;
 }
 
 int x509_process_extension_enc(void *context, uint8_t *data,
@@ -1157,6 +1162,7 @@ int x509_note_not_before_enc(void *context, uint8_t *data,
 {
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
+	int ret = 0;
 
 	(void)data;
 	(void)avail_datalen;
@@ -1165,13 +1171,14 @@ int x509_note_not_before_enc(void *context, uint8_t *data,
 	/* Sanity check */
 	if (ctx->time_to_set != cert->valid_from) {
 		printf_debug("Parser error: validity not before wrong\n");
-		CKRET(-EFAULT);
+		CKRET(1, -EFAULT);
 	}
 
 	/* Now, reset the flag to allow for the next round */
 	ctx->time_already_set = 0;
 
-	return 0;
+out:
+	return ret;
 }
 
 /*
@@ -1182,6 +1189,7 @@ int x509_note_not_after_enc(void *context, uint8_t *data, size_t *avail_datalen,
 {
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
+	int ret = 0;
 
 	(void)data;
 	(void)avail_datalen;
@@ -1190,13 +1198,14 @@ int x509_note_not_after_enc(void *context, uint8_t *data, size_t *avail_datalen,
 	/* Sanity check */
 	if (ctx->time_to_set != cert->valid_to) {
 		printf_debug("Parser error: validity not after wrong\n");
-		CKRET(-EFAULT);
+		CKRET(1, -EFAULT);
 	}
 
 	/* Now, reset the flag to allow for the next round */
 	ctx->time_already_set = 0;
 
-	return 0;
+out:
+	return ret;
 }
 
 int x509_extract_key_data_enc(void *context, uint8_t *data,
@@ -1331,21 +1340,31 @@ out:
 LC_INTERFACE_FUNCTION(int, lc_x509_get_signature_size_from_sk, size_t *siglen,
 		      const struct lc_x509_key_data *keys)
 {
-	if (!siglen || !keys)
-		CKRET(-EINVAL);
-	return public_key_signature_size(siglen, keys->sig_type);
+	int ret;
+
+	CKNULL(siglen, -EINVAL);
+	CKNULL(keys, -EINVAL);
+
+	CKINT(public_key_signature_size(siglen, keys->sig_type));
+
+out:
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_x509_get_signature_size_from_cert, size_t *siglen,
 		      const struct lc_x509_certificate *cert)
 {
 	const struct lc_public_key *pub;
+	int ret;
 
-	if (!siglen || !cert)
-		CKRET(-EINVAL);
+	CKNULL(siglen, -EINVAL);
+	CKNULL(cert, -EINVAL);
 
 	pub = &cert->pub;
-	return public_key_signature_size(siglen, pub->pkey_algo);
+	CKINT(public_key_signature_size(siglen, pub->pkey_algo));
+
+out:
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_x509_signature_gen, uint8_t *sig_data,
@@ -1362,8 +1381,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_signature_gen, uint8_t *sig_data,
 	CKNULL(m, -EINVAL);
 
 	if (prehash_algo) {
-		if (mlen > LC_SHA_MAX_SIZE_DIGEST)
-			CKRET(-EOVERFLOW);
+		CKRET(mlen > LC_SHA_MAX_SIZE_DIGEST, -EOVERFLOW);
 
 		memcpy(sig.digest, m, mlen);
 		sig.digest_size = mlen;
@@ -1430,14 +1448,12 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_signer,
 	 * If the valid-to value is older than the signer's valid-from
 	 * then we cannot sign.
 	 */
-	if (signed_x509->valid_to < signer_x509->valid_from)
-		CKRET(-EINVAL);
+	CKRET(signed_x509->valid_to < signer_x509->valid_from, -EINVAL);
 	/*
 	 * If the valid-from value is newer than the signer's valid-to
 	 * then we cannot sign.
 	 */
-	if (signed_x509->valid_from > signer_x509->valid_to)
-		CKRET(-EINVAL);
+	CKRET(signed_x509->valid_from > signer_x509->valid_to, -EINVAL);
 
 	/* Limit the valid-to to the maximum of the signer */
 	if (signed_x509->valid_to > signer_x509->valid_to)

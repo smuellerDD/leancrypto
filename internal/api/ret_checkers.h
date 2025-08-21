@@ -48,10 +48,13 @@ extern "C" {
 #define CKERROR_PURE_LOG
 #endif
 
-#define CKRET(x)                                                               \
+#define CKRET(cond, err)                                                       \
 	{                                                                      \
-		CKERROR_PURE_LOG                                               \
-		return x;                                                      \
+		if (cond) {                                                    \
+			CKERROR_PURE_LOG                                       \
+			ret = err;                                             \
+			goto out;                                              \
+		}                                                              \
 	}
 
 #define CKINT(x)                                                               \

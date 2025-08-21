@@ -57,7 +57,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_eku,
 	for (i = 0; i < x509_eku_to_name_size; i++)
 		printf(" %s\n", x509_eku_to_name[i].name);
 
-	CKRET(-EINVAL);
+	CKRET(1, -EINVAL);
 
 out:
 	return ret;
@@ -110,7 +110,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_keyusage,
 	for (i = 0; i < x509_keyusage_to_name_size; i++)
 		printf(" %s\n", x509_keyusage_to_name[i].name);
 
-	CKRET(-EINVAL);
+	CKRET(1, -EINVAL);
 
 out:
 	return ret;
@@ -208,11 +208,17 @@ LC_INTERFACE_FUNCTION(int, lc_x509_enc_san_ip, struct lc_x509_certificate *cert,
 	 * helper, we simply do not provide this function.
 	 */
 #if defined(LC_EFI) || defined(LINUX_KERNEL)
+	int ret;
+
 	(void)cert;
 	(void)ip_name;
 	(void)ip;
 	(void)ip_len;
-	CKRET(-EOPNOTSUPP);
+
+	CKRET(1, -EOPNOTSUPP);
+
+out:
+	return ret;
 #else
 	unsigned long val;
 	char *saveptr = NULL;
@@ -233,15 +239,13 @@ LC_INTERFACE_FUNCTION(int, lc_x509_enc_san_ip, struct lc_x509_certificate *cert,
 		base = 16;
 	}
 
-	if (*ip_len < upper)
-		CKRET(-EOVERFLOW);
+	CKRET(*ip_len < upper, -EOVERFLOW);
 
 	res = strtok_r(ip_name, tok, &saveptr);
 	for (i = 0; i < upper; i++) {
 		CKNULL(res, -EINVAL);
 		val = strtoul(res, NULL, base);
-		if (val > 255)
-			CKRET(-EINVAL);
+		CKRET(val > 255, -EINVAL);
 		ip[i] = (uint8_t)val;
 		res = strtok_r(NULL, tok, &saveptr);
 	}
@@ -324,8 +328,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_valid_from,
 	 * Allow the validity to be set only once to avoid intermix with
 	 * the setting of a signer and its validity check.
 	 */
-	if (cert->valid_from)
-		CKRET(-EINVAL);
+	CKRET(cert->valid_from, -EINVAL);
 
 	cert->valid_from = time_since_epoch;
 
@@ -345,8 +348,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_valid_to,
 	 * Allow the validity to be set only once to avoid intermix with
 	 * the setting of a signer and its validity check.
 	 */
-	if (cert->valid_to)
-		CKRET(-EINVAL);
+	CKRET(cert->valid_to, -EINVAL);
 
 	cert->valid_to = time_since_epoch;
 
@@ -358,15 +360,17 @@ static int
 x509_cert_set_string(struct lc_x509_certificate_name_component *component,
 		     const char *string, size_t len)
 {
+	int ret = 0;
+
 	/* Allow setting a NULL value */
 
-	if (len > 0xff)
-		CKRET(-EOVERFLOW);
+	CKRET(len > 0xff, -EOVERFLOW);
 
 	component->value = string;
 	component->size = (uint8_t)len;
 
-	return 0;
+out:
+	return ret;
 }
 
 static void x509_set_leaf_certificate(struct lc_x509_certificate *cert)
