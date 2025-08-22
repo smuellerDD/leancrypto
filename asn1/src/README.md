@@ -300,7 +300,7 @@ preceding sections:
 
 1. generates a PKCS#7 message `ml-dsa.p7b`
 
-2. signs the data found in the file `ml-dsa87_cacert.der`
+2. signs the data found in the file `ml-dsa87_cacert.der` - this can be any file with any data that shall be signed
 
 3. signs with the signer X.509 certificate `ml-dsa87_leaf.der` and its
    associated private key `ml-dsa87_leaf.privkey`
@@ -309,7 +309,7 @@ preceding sections:
    `ml-dsa44_int2.der`, `ml-dsa65_int1.der`, and the root CA certificate
    `ml-dsa87_cacert.der` (the root or the intermediate certificates are not
    needed, provided they are present in the trust store during later
-   verificattion)
+   verification)
 
 5. verifies the PKCS#7 message against a trust store holding the root
    CA certificate `ml-dsa87_cacert.der`
@@ -469,7 +469,10 @@ It applies the following approach:
   PKCS#7 message verification succeeds.
   
 * When generating a trust store, all added certificates are validated to lead
-  to a root CA found in the trust store.
+  to a root CA found in the trust store. This implies that the order of adding
+  certificates to teh trust store matters: first the root CA must be added
+  followed by certificates signed by the root CA followed by further
+  subordinated certificates.
   
 * If a trust store is used, ensure that the certificate chain starts with the
   signer of the message and leads to a certificate found in the trust store.

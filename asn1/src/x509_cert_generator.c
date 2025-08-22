@@ -1045,10 +1045,10 @@ int x509_set_uct_time_enc(void *context, uint8_t *data, size_t *avail_datalen,
 	/* UCTTime: YYMMDDHHMMSSZ */
 #define X509_UCTTIM_SIZE 13
 	/*
-	 * Add 2 trailing bytes to shut up the stupid compiler check that cannot
+	 * Add 6 trailing bytes to shut up the stupid compiler check that cannot
 	 * detect the modulo operation.
 	 */
-	char datestr[X509_UCTTIM_SIZE + 2];
+	char datestr[X509_UCTTIM_SIZE + 6];
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
 	struct lc_tm time_detail;
@@ -1086,7 +1086,7 @@ int x509_set_uct_time_enc(void *context, uint8_t *data, size_t *avail_datalen,
 	 * NOTE: The caller is assumed to have set the time in UTC time.
 	 */
 	CKINT(lc_gmtime(ctx->time_to_set, &time_detail));
-	snprintf(datestr, sizeof(datestr), "%02d%02d%02d%02d%02d%02dZ",
+	snprintf(datestr, sizeof(datestr), "%.2d%.2d%.2d%.2d%.2d%.2dZ",
 		 time_detail.year % 100, time_detail.month, time_detail.day,
 		 time_detail.hour, time_detail.min, time_detail.sec);
 
@@ -1105,7 +1105,11 @@ int x509_set_gen_time_enc(void *context, uint8_t *data, size_t *avail_datalen,
 {
 	/* GenTime: YYYYMMDDHHMMSSZ */
 #define X509_GENTIM_SIZE 15
-	char datestr[X509_GENTIM_SIZE + 1];
+	/*
+	 * Add 6 trailing bytes to shut up the stupid compiler check that cannot
+	 * detect the modulo operation.
+	 */
+	char datestr[X509_GENTIM_SIZE + 6];
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
 	struct lc_tm time_detail;
@@ -1141,7 +1145,7 @@ int x509_set_gen_time_enc(void *context, uint8_t *data, size_t *avail_datalen,
 
 	CKINT(lc_gmtime(ctx->time_to_set, &time_detail));
 	snprintf(datestr, sizeof(datestr), "%.4d%.2d%.2d%.2d%.2d%.2dZ",
-		 time_detail.year, time_detail.month, time_detail.day,
+		 time_detail.year & 0x1FFF, time_detail.month, time_detail.day,
 		 time_detail.hour, time_detail.min, time_detail.sec);
 
 	memcpy(data, datestr, X509_GENTIM_SIZE);
