@@ -39,7 +39,9 @@ if get_option('ascon').enabled()
 endif
 
 if get_option('ascon_keccak').enabled()
-	src += files([ 'ascon_keccak.c' ])
+	# Compiling this non-approved algorithm for src_fips is appropriate
+	# as it is disabled in FIPS mode
+	src_fips += files([ 'ascon_keccak.c' ])
 	include_files += files([ '../api/lc_ascon_keccak.h' ])
 	add_global_arguments([ '-DLC_ASCON_KECCAK' ], language: 'c')
 

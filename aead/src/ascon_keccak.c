@@ -22,6 +22,7 @@
 #include "ascon_internal.h"
 #include "build_bug_on.h"
 #include "compare.h"
+#include "fips_mode.h"
 #include "lc_ascon_keccak.h"
 #include "lc_memory_support.h"
 #include "lc_sha3.h"
@@ -123,6 +124,10 @@ int lc_ak_setiv(struct lc_ascon_cryptor *ascon, size_t keylen)
 	/* Check that the key store is sufficiently large */
 	BUILD_BUG_ON(sizeof(ascon->key) < 64);
 
+	/* This is a FIPS 140 non-approved algorithm */
+	if (fips140_mode_enabled())
+		return -EOPNOTSUPP;
+
 	/*
 	 * Tag size can be at most the key size which in turn is smaller than
 	 * the capacity. Thus, all bits of the tag (a) are always affected by
@@ -137,7 +142,6 @@ int lc_ak_setiv(struct lc_ascon_cryptor *ascon, size_t keylen)
 
 	switch (hash->sponge_rate) {
 	case 0x240 / 8: /* Keccak security level 512 bits */
-
 		lc_ak_selftest(&tested);
 
 		if (keylen != 64)
