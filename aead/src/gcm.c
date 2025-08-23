@@ -622,6 +622,10 @@ static void gcm_enc_final(void *state, uint8_t *tag, size_t tag_len)
 	uint64_t orig_len = ctx->gcm_ctx.len * 8;
 	uint64_t orig_add_len = ctx->gcm_ctx.add_len * 8;
 
+	/* Enforce minimum tag size of 64 bits */
+	if (tag_len < 64 / 8)
+		return;
+
 	if (ctx->gcm_ctx.len & (AES_BLOCKSIZE - 1))
 		gcm_mult(ctx, ctx->gcm_ctx.buf, ctx->gcm_ctx.buf);
 
