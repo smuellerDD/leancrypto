@@ -27,10 +27,6 @@
 
 - add GCM to kernel
 
-- GCM: add internal IV
-
-- GCM: handle limits as per 38D
-
 - GCM: add selftest
 
 - GCM add timecop

@@ -45,6 +45,7 @@
 *******************************************************************************/
 
 #include "bitshift_be.h"
+#include "fips_mode.h"
 #include "lc_aes_gcm.h"
 #include "lc_memcmp_secure.h"
 #include "lc_rng.h"
@@ -263,6 +264,13 @@ static int gcm_set_key_iv(void *state, const uint8_t *key, const size_t keylen,
 	struct lc_aes_gcm_cryptor *ctx = state;
 	int ret;
 
+	/*
+	 * In FIPS mode, only the internal IV generation is allowed where the
+	 * IV is generated and set by lc_aes_gcm_generate_iv.
+	 */
+	if (fips140_mode_enabled() && iv)
+		return -EOPNOTSUPP;
+
 	CKINT(gcm_setkey(ctx, key, keylen));
 	CKINT(gcm_setiv(ctx, iv, iv_len))
 
@@ -322,6 +330,15 @@ static void gcm_enc_update(void *state, const uint8_t *plaintext,
 
 	/* bump the GCM context's running length count */
 	ctx->gcm_ctx.len += datalen;
+
+	/*
+	 * SP800-38D requires that the maximum encryption is 2^32 - 1 AES blocks
+	 */
+	if (ctx->gcm_ctx.len > ((1UL << 32) - 1) * AES_BLOCKSIZE) {
+		/* clear out the destination buffer */
+		memset(ciphertext, 0, datalen);
+		return;
+	}
 
 	while (datalen > 0) {
 		use_len = (datalen < AES_BLOCKSIZE) ? (uint8_t)datalen :
