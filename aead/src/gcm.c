@@ -44,6 +44,7 @@
 *
 *******************************************************************************/
 
+#include "aes_c.h"
 #include "bitshift_be.h"
 #include "compare.h"
 #include "fips_mode.h"
@@ -51,6 +52,7 @@
 #include "lc_memcmp_secure.h"
 #include "lc_rng.h"
 #include "ret_checkers.h"
+#include "timecop.h"
 #include "visibility.h"
 #include "xor.h"
 
@@ -168,6 +170,9 @@ static void gcm_mult(struct lc_aes_gcm_cryptor *ctx,
 
 	lo = (uint8_t)(x[15] & 0x0f);
 	//hi = (uint8_t)(x[15] >> 4);
+
+	/* Timecop: see rationale below */
+	unpoison(&lo, sizeof(lo));
 	zh = ctx->gcm_ctx.HH[lo];
 	zl = ctx->gcm_ctx.HL[lo];
 
@@ -179,14 +184,64 @@ static void gcm_mult(struct lc_aes_gcm_cryptor *ctx,
 			rem = (uint8_t)(zl & 0x0f);
 			zl = (zh << 60) | (zl >> 4);
 			zh = (zh >> 4);
+
+			/* Timecop: see rationale below */
+			unpoison(&rem, sizeof(rem));
 			zh ^= last4[rem] << 48;
+			unpoison(&lo, sizeof(lo));
 			zh ^= ctx->gcm_ctx.HH[lo];
 			zl ^= ctx->gcm_ctx.HL[lo];
 		}
 		rem = (uint8_t)(zl & 0x0f);
 		zl = (zh << 60) | (zl >> 4);
 		zh = (zh >> 4);
+
+		/*
+		 * Timecop: this table lookup implies a side channel that
+		 * depends on the key. Implementing GCM without side channel
+		 * is not fully achieved here. Even the OpenSSL code that
+		 * implements the same concept as this one here writes in
+		 * crypto/modes/gcm128.c:
+		 *
+		 * """
+		 * Even though permitted values for TABLE_BITS are 8, 4 and 1, it should
+		 * never be set to 8. 8 is effectively reserved for testing purposes.
+		 * TABLE_BITS>1 are lookup-table-driven implementations referred to as
+		 * "Shoup's" in GCM specification. In other words OpenSSL does not cover
+		 * whole spectrum of possible table driven implementations. Why? In
+		 * non-"Shoup's" case memory access pattern is segmented in such manner,
+		 * that it's trivial to see that cache timing information can reveal
+		 * fair portion of intermediate hash value. Given that ciphertext is
+		 * always available to attacker, it's possible for him to attempt to
+		 * deduce secret parameter H and if successful, tamper with messages
+		 * [which is nothing but trivial in CTR mode]. In "Shoup's" case it's
+		 * not as trivial, but there is no reason to believe that it's resistant
+		 * to cache-timing attack. And the thing about "8-bit" implementation is
+		 * that it consumes 16 (sixteen) times more memory, 4KB per individual
+		 * key + 1KB shared. Well, on pros side it should be twice as fast as
+		 * "4-bit" version. And for gcc-generated x86[_64] code, "8-bit" version
+		 * was observed to run ~75% faster, closer to 100% for commercial
+		 * compilers... Yet "4-bit" procedure is preferred, because it's
+		 * believed to provide better security-performance balance and adequate
+		 * all-round performance. "All-round" refers to things like:
+		 *
+		 * - shorter setup time effectively improves overall timing for
+		 *   handling short messages;
+		 * - larger table allocation can become unbearable because of VM
+		 *   subsystem penalties (for example on Windows large enough free
+		 *   results in VM working set trimming, meaning that consequent
+		 *   malloc would immediately incur working set expansion);
+		 * - larger table has larger cache footprint, which can affect
+		 *   performance of other code paths (not necessarily even from same
+		 *   thread in Hyper-Threading world);
+		 * """"
+		 *
+		 * Due to this statement, the lookup is exempted from the
+		 * Timecop.
+		 */
+		unpoison(&rem, sizeof(rem));
 		zh ^= (uint64_t)last4[rem] << 48;
+		unpoison(&hi, sizeof(hi));
 		zh ^= ctx->gcm_ctx.HH[hi];
 		zl ^= ctx->gcm_ctx.HL[hi];
 	}
@@ -207,6 +262,17 @@ static int gcm_setkey(struct lc_aes_gcm_cryptor *ctx, const uint8_t *key,
 	uint64_t vl, vh;
 	int ret, i, j;
 	uint8_t h[AES_BLOCKSIZE];
+
+	/*
+	 * Timecop: the key is the sensitive information
+	 *
+	 * Yet, the AES C implementation is prone to side channels which is
+	 * documented in aes_block.c:aes_setkey
+	 */
+#ifdef LC_USE_TIMECOP
+	if (ctx->sym_ctx.sym != lc_aes_c)
+		poison(key, keylen);
+#endif
 
 	memset(h, 0, AES_BLOCKSIZE); /* initialize the block to encrypt */
 
@@ -247,6 +313,7 @@ static int gcm_setkey(struct lc_aes_gcm_cryptor *ctx, const uint8_t *key,
 	}
 
 out:
+	unpoison(key, keylen);
 	return ret;
 }
 
@@ -415,6 +482,9 @@ static void gcm_enc_update(void *state, const uint8_t *plaintext,
 					 ctx->gcm_ctx.buf);
 			}
 
+			/* Ciphertext is not sensitive any more */
+			unpoison(ciphertext, use_len);
+
 			datalen -= use_len;
 			plaintext += use_len;
 			ciphertext += use_len;
@@ -447,6 +517,9 @@ static void gcm_enc_update(void *state, const uint8_t *plaintext,
 		/* perform a GHASH operation */
 		if (use_len == AES_BLOCKSIZE)
 			gcm_mult(ctx, ctx->gcm_ctx.buf, ctx->gcm_ctx.buf);
+
+		/* Ciphertext is not sensitive any more */
+		unpoison(ciphertext, use_len);
 
 		datalen -= use_len; // drop the remaining byte count to process
 		plaintext += use_len; // bump our input pointer forward
@@ -487,6 +560,9 @@ static void gcm_dec_update(void *state, const uint8_t *ciphertext,
 					 ctx->gcm_ctx.buf);
 			}
 
+			/* Plaintext is not sensitive any more */
+			unpoison(plaintext, use_len);
+
 			datalen -= use_len;
 			plaintext += use_len;
 			ciphertext += use_len;
@@ -521,6 +597,9 @@ static void gcm_dec_update(void *state, const uint8_t *ciphertext,
 		/* perform a GHASH operation */
 		if (use_len == AES_BLOCKSIZE)
 			gcm_mult(ctx, ctx->gcm_ctx.buf, ctx->gcm_ctx.buf);
+
+		/* Plaintext is not sensitive any more */
+		unpoison(plaintext, use_len);
 
 		datalen -= use_len; // drop the remaining byte count to process
 		ciphertext += use_len; // bump our input pointer forward
@@ -561,6 +640,10 @@ static void gcm_enc_final(void *state, uint8_t *tag, size_t tag_len)
 
 		xor_64(tag, ctx->gcm_ctx.buf, tag_len);
 	}
+
+	/* Tag is not sensitive any more */
+	unpoison(tag, tag_len);
+
 	return;
 }
 
