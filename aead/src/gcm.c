@@ -45,6 +45,7 @@
 *******************************************************************************/
 
 #include "aes_c.h"
+#include "alignment.h"
 #include "bitshift_be.h"
 #include "compare.h"
 #include "fips_mode.h"
@@ -92,9 +93,9 @@ static void lc_aes_gcm_selftest(int *tested)
 	lc_aead_encrypt(aes_gcm, in, act_ct, sizeof(in), aad, sizeof(aad),
 			act_tag, sizeof(act_tag));
 	lc_compare_selftest(act_ct, exp_ct, sizeof(exp_ct),
-			    "ChaCha20 Poly1305 AEAD encrypt ciphertext");
+			    "AES GCM AEAD encrypt ciphertext");
 	lc_compare_selftest(act_tag, exp_tag, sizeof(exp_tag),
-			    "ChaCha20 Poly1305 AEAD encrypt tag");
+			    "AES GCM AEAD encrypt tag");
 	lc_aead_zero(aes_gcm);
 
 	lc_aead_setkey(aes_gcm, key, sizeof(key), iv, sizeof(iv));
@@ -103,10 +104,9 @@ static void lc_aes_gcm_selftest(int *tested)
 	if (ret) {
 		lc_compare_selftest(
 			f, p, sizeof(f),
-			"ChaCha20 Poly1305 AEAD decrypt authentication");
+			"AES GCM AEAD decrypt authentication");
 	}
-	lc_compare_selftest(act_ct, in, sizeof(in),
-			    "ChaCha20 Poly1305 AEAD decrypt");
+	lc_compare_selftest(act_ct, in, sizeof(in), "AES GCM AEAD decrypt");
 	lc_aead_zero(aes_gcm);
 }
 
@@ -660,7 +660,7 @@ static void gcm_enc_final(void *state, uint8_t *tag, size_t tag_len)
 static int gcm_dec_final(void *state, const uint8_t *tag, size_t taglen)
 {
 	/* the tag generated and returned by decryption */
-	uint8_t check_tag[AES_BLOCKSIZE];
+	uint8_t check_tag[AES_BLOCKSIZE] __align(8);
 	int ret;
 
 	gcm_enc_final(state, check_tag, taglen);
