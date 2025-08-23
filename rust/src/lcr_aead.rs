@@ -27,7 +27,8 @@ pub enum lcr_aead_type {
 	lcr_ascon_keccak_512,
 	lcr_aes_cbc_sha2_512,
 	lcr_aes_cbc_cshake256,
-	lcr_chacha20_poly1305
+	lcr_chacha20_poly1305,
+	lcr_aes_gcm
 }
 
 /// Leancrypto wrapper for lc_aead
@@ -78,6 +79,10 @@ impl lcr_aead {
 			},
 			lcr_aead_type::lcr_chacha20_poly1305 => unsafe {
 				leancrypto::lc_chacha20_poly1305_alloc(
+					&mut self.aead_ctx)
+			},
+			lcr_aead_type::lcr_aes_gcm => unsafe {
+				leancrypto::lc_aes_gcm_alloc(
 					&mut self.aead_ctx)
 			},
 		}

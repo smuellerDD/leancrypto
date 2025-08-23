@@ -706,6 +706,23 @@ static void gcm_zero_ctx(void *state)
 	lc_sym_zero(&ctx->sym_ctx);
 }
 
+LC_INTERFACE_FUNCTION(int, lc_aes_gcm_alloc, struct lc_aead_ctx **ctx)
+{
+	struct lc_aead_ctx *tmp = NULL;
+	int ret;
+
+	ret = lc_alloc_aligned((void **)&tmp, LC_MEM_COMMON_ALIGNMENT,
+			       LC_AES_GCM_CTX_SIZE);
+	if (ret)
+		return -ret;
+
+	LC_AES_GCM_SET_CTX(tmp);
+
+	*ctx = tmp;
+
+	return 0;
+}
+
 LC_INTERFACE_FUNCTION(int, lc_aes_gcm_generate_iv, struct lc_aead_ctx *ctx,
 		      const uint8_t *fixed_field, size_t fixed_field_len,
 		      uint8_t *iv, size_t ivlen, enum lc_aes_gcm_iv_type type)
