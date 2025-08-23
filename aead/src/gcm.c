@@ -113,7 +113,7 @@ static void gcm_mult(struct lc_aes_gcm_cryptor *ctx,
 	uint8_t lo, hi, rem;
 
 	lo = (uint8_t)(x[15] & 0x0f);
-	hi = (uint8_t)(x[15] >> 4);
+	//hi = (uint8_t)(x[15] >> 4);
 	zh = ctx->gcm_ctx.HH[lo];
 	zl = ctx->gcm_ctx.HL[lo];
 
@@ -202,7 +202,7 @@ static int gcm_setiv(struct lc_aes_gcm_cryptor *ctx, const uint8_t *iv,
 	const uint8_t *p; /* general purpose array pointer */
 	/* XOR source built from provided IV if len != AES_BLOCKSIZE */
 	uint8_t work_buf[AES_BLOCKSIZE];
-	uint8_t use_len; /* byte count to process, up to AES_BLOCKSIZE bytes */
+	uint8_t use_len = 0; /* byte count to process, up to AES_BLOCKSIZE bytes */
 
 	/*
 	 * The IV may be NULL, which is appropriate if the gcm_generate_iv API

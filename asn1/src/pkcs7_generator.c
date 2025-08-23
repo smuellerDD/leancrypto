@@ -578,10 +578,10 @@ static int pkcs7_set_time(uint8_t *data, size_t *avail_datalen, uint8_t *tag)
 	/* GenTime: YYYYMMDDHHMMSSZ */
 #define X509_GENTIM_SIZE 15
 	/*
-	 * Add 2 trailing bytes to shut up the stupid compiler check that cannot
+	 * Add 7 trailing bytes to shut up the stupid compiler check that cannot
 	 * detect the modulo operation.
 	 */
-	char datestr[X509_GENTIM_SIZE + 2];
+	char datestr[X509_GENTIM_SIZE + 7];
 	struct lc_tm time_detail;
 	time64_t timeval;
 	int ret;
