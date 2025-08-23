@@ -102,7 +102,7 @@ struct lc_sym_ctx {
  * @brief Initialize symmetric context
  *
  * @param [in] ctx Reference to sym context implementation to be used to
- *		       perform sym calculation with.
+ *		   perform sym calculation with.
  *
  * The caller must provide an allocated \p ctx.
  */

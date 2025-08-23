@@ -7,6 +7,8 @@ Changes 1.5.2-prerelease
 
 * ASN.1: added to Linux kernel
 
+* AES-GCM added
+
 Changes 1.5.1
 * add ChaCha20 Poly 1305 AEAD
 

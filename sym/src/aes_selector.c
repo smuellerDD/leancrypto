@@ -34,7 +34,8 @@ LC_CONSTRUCTOR(aes_fastest_impl)
 	lc_aes_cbc_##accel = lc_aes_cbc_##dflt;                                \
 	lc_aes_ctr_##accel = lc_aes_ctr_##dflt;                                \
 	lc_aes_kw_##accel = lc_aes_kw_##dflt;                                  \
-	lc_aes_##accel = lc_aes_##dflt;
+	lc_aes_##accel = lc_aes_##dflt;                                        \
+	lc_aes = lc_aes_##dflt;
 
 #define LC_FILL_ACCEL_WITH_C(accel) LC_FILL_ACCEL_WITH_DEFAULT(accel, c)
 
@@ -51,7 +52,8 @@ LC_CONSTRUCTOR(aes_fastest_impl)
 #define LC_FILL_DFLT_IMPL(accel)                                               \
 	lc_aes_cbc = lc_aes_cbc_##accel;                                       \
 	lc_aes_ctr = lc_aes_ctr_##accel;                                       \
-	lc_aes_kw = lc_aes_kw_##accel;
+	lc_aes_kw = lc_aes_kw_##accel;                                         \
+	lc_aes = lc_aes_##accel;
 
 	/*
 	 * Set accelerated modes: The fastest implementations are at the top

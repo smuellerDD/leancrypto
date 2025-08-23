@@ -177,6 +177,11 @@ if get_option('aes_kw').enabled()
 	endif
 endif
 
+if get_option('aes_gcm').enabled()
+	lc_aes = 1
+	lc_block = 1
+endif
+
 if (lc_block == 1)
 	src_fips += files([ 'aes_block.c' ])
 	lc_aes = 1

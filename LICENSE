@@ -556,3 +556,13 @@ Copyright (c) 2023 Yury Myakotin
 This affects the following files:
 sym/src/asm/AVX2/chacha20_impl_avx2.c
 sym/src/asm/AVX512/chacha20_impl_avx512.c
+
+================================================================================
+
+The AES GCM implementation is in parts from
+https://github.com/mko-x/SharedAES-GCM which uses the following license:
+
+THIS SOURCE CODE IS HEREBY PLACED INTO THE PUBLIC DOMAIN FOR THE GOOD OF ALL
+
+This affects the following files:
+aead/src/gcm.c

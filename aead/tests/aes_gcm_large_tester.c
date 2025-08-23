@@ -20,14 +20,14 @@
 #include <errno.h>
 #include <stdlib.h>
 
+#include "aes_c.h"
 #include "binhexbin.h"
-#include "chacha20_c.h"
 #include "compare.h"
 #include "cpufeatures.h"
-#include "lc_chacha20_poly1305.h"
+#include "lc_aes_gcm.h"
 #include "test_helper.h"
 
-static int chacha20poly1305_tester_large(int argc)
+static int aes_gcm_tester_large(int argc)
 {
 	uint8_t tag[16];
 	uint8_t *pt;
@@ -38,34 +38,35 @@ static int chacha20poly1305_tester_large(int argc)
 			  0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
 			  0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f };
 	uint8_t iv[] = {
-		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
+		0x0a, 0x0b, 0x0c
 	};
 	size_t len;
 	int ret;
-	LC_CHACHA20_POLY1305_CTX_ON_STACK(cc20p1305);
+	LC_AES_GCM_CTX_ON_STACK(aes_gcm);
 
 	if (argc >= 2) {
-		struct lc_chacha20_poly1305_cryptor *c = cc20p1305->aead_state;
-		c->chacha20.sym = lc_chacha20_c;
+		struct lc_aes_gcm_cryptor *c = aes_gcm->aead_state;
+		c->sym_ctx.sym = lc_aes_c;
 	}
 
 	CKINT(test_mem(&pt, &len));
 
-	if (lc_aead_setkey(cc20p1305, key, sizeof(key), iv, sizeof(iv))) {
+	if (lc_aead_setkey(aes_gcm, key, sizeof(key), iv, sizeof(iv))) {
 		ret = EFAULT;
 		goto out;
 	}
-	lc_aead_encrypt(cc20p1305, pt, pt, len, aad, sizeof(aad), tag,
+	lc_aead_encrypt(aes_gcm, pt, pt, len, aad, sizeof(aad), tag,
 			sizeof(tag));
-	lc_aead_zero(cc20p1305);
+	lc_aead_zero(aes_gcm);
 
-	if (lc_aead_setkey(cc20p1305, key, sizeof(key), iv, sizeof(iv))) {
+	if (lc_aead_setkey(aes_gcm, key, sizeof(key), iv, sizeof(iv))) {
 		ret = EFAULT;
 		goto out;
 	}
-	ret = lc_aead_decrypt(cc20p1305, pt, pt, len, aad, sizeof(aad), tag,
+	ret = lc_aead_decrypt(aes_gcm, pt, pt, len, aad, sizeof(aad), tag,
 			      sizeof(tag));
-	lc_aead_zero(cc20p1305);
+	lc_aead_zero(aes_gcm);
 
 out:
 	free(pt);
@@ -79,7 +80,7 @@ int main(int argc, char *argv[])
 	(void)argc;
 	(void)argv;
 
-	ret = chacha20poly1305_tester_large(argc);
+	ret = aes_gcm_tester_large(argc);
 
 	return ret;
 }

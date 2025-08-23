@@ -131,3 +131,5 @@ static struct lc_sym _lc_aes_c = {
 	.blocksize = AES_BLOCKLEN,
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_c) = &_lc_aes_c;
+
+LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes) = &_lc_aes_c;

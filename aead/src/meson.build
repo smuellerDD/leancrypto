@@ -90,6 +90,17 @@ if get_option('chacha20poly1305').enabled()
 	compile_aead = 1
 endif
 
+if get_option('aes_gcm').enabled()
+	include_files += files([
+		'../api/lc_aes_gcm.h',
+	])
+
+	src_fips += files([
+		'gcm.c'
+		])
+	compile_aead = 1
+endif
+
 if (compile_aead == 1)
 	src_fips += files([ 'aead_api.c' ])
 endif

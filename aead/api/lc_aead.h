@@ -20,6 +20,7 @@
 #ifndef LC_AEAD_H
 #define LC_AEAD_H
 
+#include "lc_aes.h"
 #include "lc_memory_support.h"
 
 #ifdef __cplusplus

@@ -122,6 +122,31 @@ if get_option('aes_cbc').enabled()
 	endif
 endif
 
+if get_option('aes_gcm').enabled()
+	aes_gcm_tester = executable('aes_gcm_tester',
+				[ 'aes_gcm_tester.c', internal_src ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto
+				)
+	aes_gcm_large_tester = executable('aes_gcm_large_tester',
+				[ 'aes_gcm_large_tester.c',
+				  internal_src ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto
+				)
+	test('AEAD AES GCM Common', aes_gcm_tester,
+	     suite: regression)
+	test('AEAD AES GCM C', aes_gcm_tester,
+	     suite: regression, args: [ 'c' ])
+	test('AEAD AES GCM large Common',
+	     aes_gcm_large_tester,
+	     timeout: 2500, is_parallel: false, suite: performance)
+	test('AEAD AES GCM large C',
+	     aes_gcm_large_tester,
+	     timeout: 2500, is_parallel: false, suite: performance,
+	     args: [ 'c' ])
+endif
+
 if get_option('hash_crypt').enabled() and get_option('ascon_keccak').enabled()
 
 	ascon_keccak_crypt_test = executable('ascon_keccak_crypt_test',

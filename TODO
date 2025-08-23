@@ -25,3 +25,12 @@
 
 - FIPS 140 integrity check: fix for cross compilation (leancrypto-fips-raw-generator is to be executed on build host, but with a library that is compiled for target host)
 
+- add GCM to kernel
+
+- GCM: add internal IV
+
+- GCM: handle limits as per 38D
+
+- GCM: add selftest
+
+- GCM add timecop

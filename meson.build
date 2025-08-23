@@ -244,7 +244,8 @@ endif
 
 if (get_option('aes_cbc').enabled() or
     get_option('aes_ctr').enabled() or
-    get_option('aes_kw').enabled())
+    get_option('aes_kw').enabled() or
+    get_option('aes_gcm').enabled())
 	add_global_arguments([ '-DLC_AES' ], language: 'c')
 endif
 

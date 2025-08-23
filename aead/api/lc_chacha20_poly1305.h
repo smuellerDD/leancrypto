@@ -61,7 +61,7 @@ extern const struct lc_aead *lc_chacha20_poly1305_aead;
 /**
  * @brief Allocate ChaCha20 Poly1305 cryptor context on heap
  *
- * @param [out] ctx Allocated symmetric/HMAC cryptor context
+ * @param [out] ctx Allocated ChaCha20 Poly1305 cryptor context
  *
  * @return 0 on success, < 0 on error
  */
