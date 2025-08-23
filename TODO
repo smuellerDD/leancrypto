@@ -27,6 +27,4 @@
 
 - add GCM to kernel
 
-- GCM: add selftest
-
 - GCM add timecop

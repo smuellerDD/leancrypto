@@ -45,6 +45,7 @@
 *******************************************************************************/
 
 #include "bitshift_be.h"
+#include "compare.h"
 #include "fips_mode.h"
 #include "lc_aes_gcm.h"
 #include "lc_memcmp_secure.h"
@@ -54,6 +55,58 @@
 #include "xor.h"
 
 #define AES_BLOCKSIZE 16
+
+static void lc_aes_gcm_selftest(int *tested)
+{
+	static const uint8_t aad[] = { 0xff, 0x76, 0x28, 0xf6, 0x42, 0x7f,
+				       0xbc, 0xef, 0x1f, 0x3b, 0x82, 0xb3,
+				       0x74, 0x04, 0xe1, 0x16 };
+	static const uint8_t in[] = { 0xb7, 0x06, 0x19, 0x4b, 0xb0, 0xb1,
+				      0x0c, 0x47, 0x4e, 0x1b, 0x2d, 0x7b,
+				      0x22, 0x78, 0x22, 0x4c };
+	static const uint8_t key[] = { 0x7f, 0x71, 0x68, 0xa4, 0x06, 0xe7, 0xc1,
+				       0xef, 0x0f, 0xd4, 0x7a, 0xc9, 0x22, 0xc5,
+				       0xec, 0x5f, 0x65, 0x97, 0x65, 0xfb, 0x6a,
+				       0xaa, 0x04, 0x8f, 0x70, 0x56, 0xf6, 0xc6,
+				       0xb5, 0xd8, 0x51, 0x3d };
+	static const uint8_t iv[] = { 0xb8, 0xb5, 0xe4, 0x07, 0xad, 0xc0,
+				      0xe2, 0x93, 0xe3, 0xe7, 0xe9, 0x91 };
+	static const uint8_t exp_ct[] = { 0x8f, 0xad, 0xa0, 0xb8, 0xe7, 0x77,
+					  0xa8, 0x29, 0xca, 0x96, 0x80, 0xd3,
+					  0xbf, 0x4f, 0x35, 0x74 };
+	static const uint8_t exp_tag[] = { 0xda, 0xca, 0x35, 0x42, 0x77,
+					   0xf6, 0x33, 0x5f, 0xc8, 0xbe,
+					   0xc9, 0x08, 0x86, 0xda, 0x70 };
+	uint8_t act_ct[sizeof(exp_ct)] __align(sizeof(uint32_t));
+	uint8_t act_tag[sizeof(exp_tag)] __align(sizeof(uint32_t));
+	static const uint8_t f[] = { 0xde, 0xad, }, p[] = { 0xaf, 0xfe };
+	int ret;
+
+	LC_SELFTEST_RUN(tested);
+
+	LC_AES_GCM_CTX_ON_STACK(aes_gcm);
+
+	lc_aead_setkey(aes_gcm, key, sizeof(key), iv, sizeof(iv));
+	lc_aead_encrypt(aes_gcm, in, act_ct, sizeof(in), aad, sizeof(aad),
+			act_tag, sizeof(act_tag));
+	lc_compare_selftest(act_ct, exp_ct, sizeof(exp_ct),
+			    "ChaCha20 Poly1305 AEAD encrypt ciphertext");
+	lc_compare_selftest(act_tag, exp_tag, sizeof(exp_tag),
+			    "ChaCha20 Poly1305 AEAD encrypt tag");
+	lc_aead_zero(aes_gcm);
+
+	lc_aead_setkey(aes_gcm, key, sizeof(key), iv, sizeof(iv));
+	ret = lc_aead_decrypt(aes_gcm, act_ct, act_ct, sizeof(act_ct), aad,
+			      sizeof(aad), act_tag, sizeof(act_tag));
+	if (ret) {
+		lc_compare_selftest(
+			f, p, sizeof(f),
+			"ChaCha20 Poly1305 AEAD decrypt authentication");
+	}
+	lc_compare_selftest(act_ct, in, sizeof(in),
+			    "ChaCha20 Poly1305 AEAD decrypt");
+	lc_aead_zero(aes_gcm);
+}
 
 /* Calculating the "GHASH"
  *
@@ -262,6 +315,7 @@ static int gcm_set_key_iv(void *state, const uint8_t *key, const size_t keylen,
 			  const uint8_t *iv, size_t iv_len)
 {
 	struct lc_aes_gcm_cryptor *ctx = state;
+	static int tested = 0;
 	int ret;
 
 	/*
@@ -270,6 +324,8 @@ static int gcm_set_key_iv(void *state, const uint8_t *key, const size_t keylen,
 	 */
 	if (fips140_mode_enabled() && iv)
 		return -EOPNOTSUPP;
+
+	lc_aes_gcm_selftest(&tested);
 
 	CKINT(gcm_setkey(ctx, key, keylen));
 	CKINT(gcm_setiv(ctx, iv, iv_len))
