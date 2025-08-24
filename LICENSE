@@ -56,7 +56,9 @@ code is:
 
 ================================================================================
 
-For hash/src/asm/AVX2/KeccakP-1600-AVX2.S,
+For
+aead/src/asm/ARMv8/gcm_neon.S,
+hash/src/asm/AVX2/KeccakP-1600-AVX2.S,
 hash/src/asm/AVX512/KeccakP-1600-AVX512.S,
 hash/src/asm/ARMv8A/KeccakP-1600-armv8a-ce.S,
 hash/src/asm/ARMv8A/sha2-512-ARMv8.S,

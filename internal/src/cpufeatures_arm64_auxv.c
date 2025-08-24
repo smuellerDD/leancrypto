@@ -65,6 +65,8 @@ LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 			features |= LC_CPU_FEATURE_ARM_SHA2_512;
 		if (c & HWCAP_SHA3)
 			features |= LC_CPU_FEATURE_ARM_SHA3;
+		if (c & HWCAP_PMULL)
+			features |= LC_CPU_FEATURE_ARM_PMULL;
 	}
 
 	return features;

@@ -45,6 +45,7 @@ enum lc_cpu_features {
 	LC_CPU_FEATURE_ARM_SHA2 = 1 << 13,
 	LC_CPU_FEATURE_ARM_SHA2_512 = 1 << 14,
 	LC_CPU_FEATURE_ARM_SHA3 = 1 << 15,
+	LC_CPU_FEATURE_ARM_PMULL = 1 << 16,
 
 	/* RISC-V-specific */
 	LC_CPU_FEATURE_RISCV = 1 << 20,

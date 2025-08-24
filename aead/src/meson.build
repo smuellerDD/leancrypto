@@ -99,6 +99,17 @@ if get_option('aes_gcm').enabled()
 		'gcm.c'
 		])
 	compile_aead = 1
+
+	if (arm64_asm)
+		leancrypto_aes_gcm_neon_armv8_lib = static_library(
+			'leancrypto_aes_gcm_neon_armv8_lib',
+			[ 'asm/ARMv8/gcm_neon.S' ],
+			c_args: cc_armv8_neon_simd_args,
+			include_directories: [ include_dirs,
+					       include_internal_dirs ],
+		)
+		leancrypto_support_libs_fips += leancrypto_aes_gcm_neon_armv8_lib
+	endif
 endif
 
 if (compile_aead == 1)

@@ -33,10 +33,14 @@ struct lc_gcm_ctx {
 	uint64_t add_len; // total add data length
 	uint64_t HL[16]; // precalculated lo-half HTable
 	uint64_t HH[16]; // precalculated hi-half HTable
-	uint8_t base_ectr[16]; // first counter-mode cipher output for tag
+
+	/* y and buf must be aligned to 64 bits due to accel */
 	uint8_t y[16]; // the current cipher-input IV|Counter value
 	uint8_t buf[16]; // buf working value
+
+	uint8_t base_ectr[16]; // first counter-mode cipher output for tag
 	uint8_t ectr[16]; // CTR ciphertext
+	void (*gcm_gmult_accel)(uint64_t Xi[2], const uint64_t Htable[32]);
 };
 
 struct lc_aes_gcm_cryptor {

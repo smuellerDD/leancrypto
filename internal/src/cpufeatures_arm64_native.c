@@ -86,6 +86,12 @@ static inline unsigned long arm_id_aa64isar0_el1_feature(void)
 		if (ret)
 			id_aa64isar0_el1_val |= ARM8_SHA3_FEATURE;
 	}
+
+	ret = 0;
+	if (!sysctlbyname("hw.optional.arm.FEAT_PMULL", &ret, &size, NULL, 0)) {
+		if (ret)
+			id_aa64isar0_el1_val |= ARM8_PMULL_FEATURE;
+	}
 #else
 	__asm__ __volatile__("mrs %0, id_aa64isar0_el1 \n"
 			     : "=r"(id_aa64isar0_el1_val));
@@ -130,6 +136,9 @@ LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 
 		if (id_aa64isar0_el1_val & ARM8_SHA3_FEATURE)
 			features |= LC_CPU_FEATURE_ARM_SHA3;
+
+		if (id_aa64isar0_el1_val & ARM8_PMULL_FEATURE)
+			features |= LC_CPU_FEATURE_ARM_PMULL;
 	}
 
 	return features;

@@ -48,6 +48,7 @@
 #include "alignment.h"
 #include "bitshift_be.h"
 #include "compare.h"
+#include "cpufeatures.h"
 #include "fips_mode.h"
 #include "lc_aes_gcm.h"
 #include "lc_memcmp_secure.h"
@@ -56,6 +57,8 @@
 #include "timecop.h"
 #include "visibility.h"
 #include "xor.h"
+
+#include "asm/ARMv8/gcm_neon.h"
 
 #define AES_BLOCKSIZE 16
 
@@ -168,6 +171,22 @@ static void gcm_mult(struct lc_aes_gcm_cryptor *ctx,
 	int i;
 	uint8_t lo, hi, rem;
 
+	/* Accelerated GCM init */
+	if (ctx->gcm_ctx.gcm_gmult_accel) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
+		/*
+		 * Aligment to 64 bit is guaranteed with struct lc_gcm_ctx
+		 * where .y and .buf are properly aligned. As only .y and .buf
+		 * are used with the gcm_mult function, we can ignore the
+		 * cast.
+		 */
+		ctx->gcm_ctx.gcm_gmult_accel((uint64_t *)output,
+					     ctx->gcm_ctx.HL);
+#pragma GCC diagnostic pop
+		return;
+	}
+
 	lo = (uint8_t)(x[15] & 0x0f);
 	//hi = (uint8_t)(x[15] >> 4);
 
@@ -259,7 +278,8 @@ static void gcm_mult(struct lc_aes_gcm_cryptor *ctx,
 static int gcm_setkey(struct lc_aes_gcm_cryptor *ctx, const uint8_t *key,
 		      const size_t keylen)
 {
-	uint64_t vl, vh;
+	uint64_t H[2];
+	enum lc_cpu_features feat = lc_cpu_feature_available();
 	int ret, i, j;
 	uint8_t h[AES_BLOCKSIZE];
 
@@ -284,31 +304,40 @@ static int gcm_setkey(struct lc_aes_gcm_cryptor *ctx, const uint8_t *key,
 	CKINT(lc_sym_setkey(&ctx->sym_ctx, key, keylen));
 	lc_sym_encrypt(&ctx->sym_ctx, h, h, sizeof(h));
 
-	vh = ptr_to_be64(h);
-	vl = ptr_to_be64(h + 8);
+	H[0] = ptr_to_be64(h);
+	H[1] = ptr_to_be64(h + 8);
 
-	ctx->gcm_ctx.HL[8] = vl; /* 8 = 1000 corresponds to 1 in GF(2^128) */
-	ctx->gcm_ctx.HH[8] = vh;
+	/* Accelerated GCM init */
+	if (feat & LC_CPU_FEATURE_ARM_PMULL) {
+		gcm_init_v8(ctx->gcm_ctx.HL, H);
+		ctx->gcm_ctx.gcm_gmult_accel = gcm_gmult_v8;
+		goto out;
+	} else {
+		ctx->gcm_ctx.gcm_gmult_accel = NULL;
+	}
+
+	ctx->gcm_ctx.HL[8] = H[1]; /* 8 = 1000 corresponds to 1 in GF(2^128) */
+	ctx->gcm_ctx.HH[8] = H[0];
 	ctx->gcm_ctx.HH[0] = 0; /* 0 corresponds to 0 in GF(2^128) */
 	ctx->gcm_ctx.HL[0] = 0;
 
 	for (i = 4; i > 0; i >>= 1) {
-		uint32_t T = (uint32_t)(vl & 1) * 0xe1000000U;
+		uint32_t T = (uint32_t)(H[1] & 1) * 0xe1000000U;
 
-		vl = (vh << 63) | (vl >> 1);
-		vh = (vh >> 1) ^ ((uint64_t)T << 32);
-		ctx->gcm_ctx.HL[i] = vl;
-		ctx->gcm_ctx.HH[i] = vh;
+		H[1] = (H[0] << 63) | (H[1] >> 1);
+		H[0] = (H[0] >> 1) ^ ((uint64_t)T << 32);
+		ctx->gcm_ctx.HL[i] = H[1];
+		ctx->gcm_ctx.HH[i] = H[0];
 	}
 	for (i = 2; i < AES_BLOCKSIZE; i <<= 1) {
 		uint64_t *HiL = ctx->gcm_ctx.HL + i, *HiH = ctx->gcm_ctx.HH + i;
 
-		vh = *HiH;
-		vl = *HiL;
+		H[0] = *HiH;
+		H[1] = *HiL;
 
 		for (j = 1; j < i; j++) {
-			HiH[j] = vh ^ ctx->gcm_ctx.HH[j];
-			HiL[j] = vl ^ ctx->gcm_ctx.HL[j];
+			HiH[j] = H[0] ^ ctx->gcm_ctx.HH[j];
+			HiL[j] = H[1] ^ ctx->gcm_ctx.HL[j];
 		}
 	}
 
