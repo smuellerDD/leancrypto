@@ -105,9 +105,8 @@ static void lc_aes_gcm_selftest(int *tested)
 	ret = lc_aead_decrypt(aes_gcm, act_ct, act_ct, sizeof(act_ct), aad,
 			      sizeof(aad), act_tag, sizeof(act_tag));
 	if (ret) {
-		lc_compare_selftest(
-			f, p, sizeof(f),
-			"AES GCM AEAD decrypt authentication");
+		lc_compare_selftest(f, p, sizeof(f),
+				    "AES GCM AEAD decrypt authentication");
 	}
 	lc_compare_selftest(act_ct, in, sizeof(in), "AES GCM AEAD decrypt");
 	lc_aead_zero(aes_gcm);
@@ -352,7 +351,8 @@ static int gcm_setiv(struct lc_aes_gcm_cryptor *ctx, const uint8_t *iv,
 	const uint8_t *p; /* general purpose array pointer */
 	/* XOR source built from provided IV if len != AES_BLOCKSIZE */
 	uint8_t work_buf[AES_BLOCKSIZE];
-	uint8_t use_len = 0; /* byte count to process, up to AES_BLOCKSIZE bytes */
+	uint8_t use_len =
+		0; /* byte count to process, up to AES_BLOCKSIZE bytes */
 
 	/*
 	 * The IV may be NULL, which is appropriate if the gcm_generate_iv API
