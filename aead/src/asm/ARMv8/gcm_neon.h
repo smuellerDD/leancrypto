@@ -26,10 +26,24 @@
 extern "C" {
 #endif
 
+#ifdef LC_HOST_AARCH64
 void gcm_init_v8(uint64_t Htable[32], const uint64_t Xi[2]);
 void gcm_gmult_v8(uint64_t Xi[2], const uint64_t Htable[32]);
 //void gcm_ghash_v8(uint64_t Xi[2], const u128 Htable[16], const uint8_t *inp,
 //		  size_t len);
+#else
+static inline void gcm_init_v8(uint64_t Htable[32], const uint64_t Xi[2])
+{
+	(void)Htable;
+	(void)Xi;
+}
+
+static inline void gcm_gmult_v8(uint64_t Xi[2], const uint64_t Htable[32])
+{
+	(void)Xi;
+	(void)Htable;
+}
+#endif
 
 #ifdef __cplusplus
 }
