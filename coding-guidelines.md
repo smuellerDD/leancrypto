@@ -16,6 +16,8 @@ The following modules are present:
 
 * `bike`: Code-based PQC algorithm of BIKE
 
+* `build-scripts`: Scripts with pre-defined compile-time options
+
 * `curve25519`: Curve25519 implementation including EdDSA and ECDH
 
 * `curve448`: Curve448 implementation including EdDSA and ECDH
