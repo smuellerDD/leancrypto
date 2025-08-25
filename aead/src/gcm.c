@@ -764,13 +764,12 @@ LC_INTERFACE_FUNCTION(int, lc_aes_gcm_generate_iv, struct lc_aead_ctx *ctx,
 	int ret;
 
 	CKNULL(ctx, -EINVAL);
+	CKNULL(iv, -EINVAL);
 	if (fixed_field_len >= ivlen)
 		return -EINVAL;
 
-	if (fixed_field != iv)
+	if (fixed_field && fixed_field != iv)
 		memcpy(iv, fixed_field, fixed_field_len);
-
-	gcm_ctx = ctx->aead_state;
 
 	switch (type) {
 	case lc_aes_gcm_iv_generate_new:
@@ -783,6 +782,7 @@ LC_INTERFACE_FUNCTION(int, lc_aes_gcm_generate_iv, struct lc_aead_ctx *ctx,
 		goto out;
 	}
 
+	gcm_ctx = ctx->aead_state;
 	CKINT(gcm_setiv(gcm_ctx, iv, ivlen));
 
 out:
