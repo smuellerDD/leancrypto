@@ -20,6 +20,7 @@
 #include "aes_c.h"
 #include "alignment.h"
 #include "compare.h"
+#include "cpufeatures.h"
 #include "lc_aes_gcm.h"
 #include "math_helper.h"
 #include "visibility.h"
@@ -142,6 +143,9 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	(void)argc;
 	(void)argv;
+
+	if (argc >= 2)
+		lc_cpu_feature_disable();
 
 	ret = lc_aes_gcm_test(argc);
 

@@ -29,8 +29,8 @@
 
 .text
 
-SYM_FUNC_START(gcm_init_v8)
-SYM_FUNC_ENTER(gcm_init_v8)
+SYM_FUNC_START(gfmul_init_armv8_impl)
+SYM_FUNC_ENTER(gfmul_init_armv8_impl)
 .align	4
 	ld1	{v17.2d},[x1]		//load input H
 	movi	v19.16b,#0xe1
@@ -117,10 +117,10 @@ SYM_FUNC_ENTER(gcm_init_v8)
 	ext	v21.16b,v16.16b,v17.16b,#8		//pack Karatsuba pre-processed
 	st1	{v20.2d,v21.2d,v22.2d},[x0]		//store Htable[3..5]
 	RET
-SYM_FUNC_END(gcm_init_v8)
+SYM_FUNC_END(gfmul_init_armv8_impl)
 
-SYM_FUNC_START(gcm_gmult_v8)
-SYM_FUNC_ENTER(gcm_gmult_v8)
+SYM_FUNC_START(gfmul_armv8_impl)
+SYM_FUNC_ENTER(gfmul_armv8_impl)
 .align	4
 	ld1	{v17.2d},[x0]		//load Xi
 	movi	v19.16b,#0xe1
@@ -158,7 +158,7 @@ SYM_FUNC_ENTER(gcm_gmult_v8)
 	st1	{v0.2d},[x0]		//write out Xi
 
 	RET
-SYM_FUNC_END(gcm_gmult_v8)
+SYM_FUNC_END(gfmul_armv8_impl)
 
 #if 0
 .globl	gcm_ghash_v8

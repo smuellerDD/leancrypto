@@ -568,3 +568,4 @@ THIS SOURCE CODE IS HEREBY PLACED INTO THE PUBLIC DOMAIN FOR THE GOOD OF ALL
 
 This affects the following files:
 aead/src/gcm.c
+

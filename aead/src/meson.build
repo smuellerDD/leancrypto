@@ -103,7 +103,9 @@ if get_option('aes_gcm').enabled()
 	if (arm64_asm)
 		leancrypto_aes_gcm_neon_armv8_lib = static_library(
 			'leancrypto_aes_gcm_neon_armv8_lib',
-			[ 'asm/ARMv8/gcm_neon.S' ],
+			[ 'asm/ARMv8/gfmul_neon.S',
+			  'asm/ARMv8/gfmul_neon_if.c'
+			],
 			c_args: cc_armv8_neon_simd_args,
 			include_directories: [ include_dirs,
 					       include_internal_dirs ],
@@ -111,17 +113,17 @@ if get_option('aes_gcm').enabled()
 		leancrypto_support_libs_fips += leancrypto_aes_gcm_neon_armv8_lib
 	endif
 
-# 	if (x86_64_asm)
-# 		leancrypto_aes_gcm_x86_64_lib = static_library(
-# 			'leancrypto_aes_gcm_x86_64_lib',
-# 			[ 'asm/X86_64/gfmul_x86_64.S',
-# 			  'asm/X86_64/gfmul_x86_64_if.c' ],
-# 			c_args: cc_avx2_args,
-# 			include_directories: [ include_dirs,
-# 					       include_internal_dirs ],
-# 		)
-# 		leancrypto_support_libs_fips += leancrypto_aes_gcm_x86_64_lib
-# 	endif
+	if (x86_64_asm)
+		leancrypto_aes_gcm_x86_64_lib = static_library(
+			'leancrypto_aes_gcm_x86_64_lib',
+			[ 'asm/X86_64/gfmul_x86_64.S',
+			  'asm/X86_64/gfmul_x86_64_if.c' ],
+			c_args: cc_avx2_args,
+			include_directories: [ include_dirs,
+					       include_internal_dirs ],
+		)
+		leancrypto_support_libs_fips += leancrypto_aes_gcm_x86_64_lib
+	endif
 endif
 
 if (compile_aead == 1)

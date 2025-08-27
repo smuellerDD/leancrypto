@@ -58,7 +58,8 @@
 #include "visibility.h"
 #include "xor.h"
 
-#include "asm/ARMv8/gcm_neon.h"
+#include "asm/ARMv8/gfmul_neon.h"
+#include "asm/X86_64/gfmul_x86_64.h"
 
 #define AES_BLOCKSIZE 16
 
@@ -308,8 +309,12 @@ static int gcm_setkey(struct lc_aes_gcm_cryptor *ctx, const uint8_t *key,
 
 	/* Accelerated GCM init */
 	if (feat & LC_CPU_FEATURE_ARM_PMULL) {
-		gcm_init_v8(ctx->gcm_ctx.HL, H);
-		ctx->gcm_ctx.gcm_gmult_accel = gcm_gmult_v8;
+		gfmul_init_armv8(ctx->gcm_ctx.HL, H);
+		ctx->gcm_ctx.gcm_gmult_accel = gfmul_armv8;
+		goto out;
+	} else if (feat & LC_CPU_FEATURE_INTEL_PCLMUL) {
+		gfmu_x8664_init(ctx->gcm_ctx.HL, H);
+		ctx->gcm_ctx.gcm_gmult_accel = gfmu_x8664;
 		goto out;
 	} else {
 		ctx->gcm_ctx.gcm_gmult_accel = NULL;
