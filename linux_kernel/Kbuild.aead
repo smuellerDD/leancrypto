@@ -83,3 +83,29 @@ obj-m		  		+= chacha20poly1305_tester.o
 chacha20poly1305_tester-y	+= ../aead/tests/chacha20poly1305_tester.o
 
 endif
+
+################################################################################
+# AEAD implementation: AES GCM
+
+ifdef CONFIG_LEANCRYPTO_AES_GCM
+ccflags-y			+= -DCONFIG_LEANCRYPTO_AES_GCM
+leancrypto-$(CONFIG_LEANCRYPTO_AES_GCM)					       \
+				+= ../aead/src/gcm.o			       \
+				   ../hash/src/poly1305.o
+
+obj-m		  		+= aes_gcm_tester.o
+aes_gcm_tester-y		+= ../aead/tests/aes_gcm_tester.o
+
+endif
+
+ifdef CONFIG_X86_64
+leancrypto-$(CONFIG_LEANCRYPTO_AES_GCM)					       \
+				+= ../aead/src/asm/X86_64/gfmul_x86_64.o       \
+				   ../aead/src/asm/X86_64/gfmul_x86_64_if.o
+endif
+
+ifdef CONFIG_ARM64
+leancrypto-$(CONFIG_LEANCRYPTO_AES_GCM)					       \
+				+= ../aead/src/asm/ARMv8/gfmul_neon.o	       \
+				   ../aead/src/asm/ARMv8/gfmul_neon_if.o
+endif
