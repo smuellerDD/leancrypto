@@ -27,7 +27,7 @@ void gfmu_x8664(uint64_t a[2], const uint64_t Htable[32])
 {
 	__m128i aa, bb;
 
-	LC_FPU_ENABLE
+	LC_FPU_ENABLE;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
@@ -44,7 +44,7 @@ void gfmu_x8664(uint64_t a[2], const uint64_t Htable[32])
 	a[1] = be_bswap64(aa[0]);
 #pragma GCC diagnostic pop
 
-	LC_FPU_DISABLE
+	LC_FPU_DISABLE;
 }
 
 void gfmu_x8664_init(uint64_t Htable[32], const uint64_t H[2])
