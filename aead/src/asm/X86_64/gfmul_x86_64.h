@@ -26,8 +26,26 @@
 extern "C" {
 #endif
 
-void gfmu_x8664_helper(unsigned char a[16],
-		       const struct lc_aes_gcm_cryptor *ctx);
+#ifdef LC_HOST_X86_64
+
+void gfmu_x8664(uint64_t a[2], const uint64_t Htable[32]);
+void gfmu_x8664_init(uint64_t Htable[32], const uint64_t H[2]);
+
+#else /* LC_HOST_X86_64 */
+
+static inline void gfmu_x8664(uint64_t a[2], const uint64_t Htable[32])
+{
+	(void)a;
+	(void)Htable;
+}
+
+static inline void gfmu_x8664_init(uint64_t Htable[32], const uint64_t H[2])
+{
+	(void)Htable;
+	(void)H;
+}
+
+#endif /* LC_HOST_X86_64 */
 
 #ifdef __cplusplus
 }

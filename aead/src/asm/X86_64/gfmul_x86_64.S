@@ -23,8 +23,8 @@
 
 .text
 
-SYM_FUNC_START(gfmu_x8664)
-SYM_FUNC_ENTER(gfmu_x8664)
+SYM_FUNC_START(gfmu_x8664_impl)
+SYM_FUNC_ENTER(gfmu_x8664_impl)
 #xmm0 holds operand a (128 bits)
 #xmm1 holds operand b (128 bits)
 #rdi holds the pointer to output (128 bits)
@@ -69,8 +69,8 @@ SYM_FUNC_ENTER(gfmu_x8664)
 	pslld $25, %xmm9 # packed right shifting shift << 25
 	pxor %xmm8, %xmm7 # xor the shifted versions
 	pxor %xmm9, %xmm7
-	movdqa %xmm7, %xmm8
 
+	movdqa %xmm7, %xmm8
 	pslldq $12, %xmm7
 	psrldq $4, %xmm8
 	pxor %xmm7, %xmm3 # first phase of the reduction complete
@@ -88,6 +88,6 @@ SYM_FUNC_ENTER(gfmu_x8664)
 	pxor %xmm3, %xmm6 # the result is in xmm6
 	movdqu %xmm6, (%rdi)
 	RET
-SYM_FUNC_END(gfmu_x8664)
+SYM_FUNC_END(gfmu_x8664_impl)
 
 LC_ASM_END

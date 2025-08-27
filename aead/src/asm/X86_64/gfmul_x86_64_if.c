@@ -17,26 +17,43 @@
  * DAMAGE.
  */
 
-#include "bitshift_be.h"
 #include "conv_be_le.h"
 #include "gfmul_x86_64.h"
+#include "ext_headers_internal.h"
 #include "ext_headers_x86.h"
 
-void gfmu_x8664(__m128i a, __m128i b, __m128i *res);
-void gfmu_x8664_helper(unsigned char a[16],
-		       const struct lc_aes_gcm_cryptor *ctx)
+void SYSV_ABI gfmu_x8664_impl(__m128i a, __m128i b, __m128i *res);
+void gfmu_x8664(uint64_t a[2], const uint64_t Htable[32])
 {
-	__m128i aa, bb, cc;
+	__m128i aa, bb;
 
+	LC_FPU_ENABLE
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 	/* The inputs are in big-endian order, so byte-reverse them */
-	aa[0] = ptr_to_be64(a + 8);
-	aa[1] = ptr_to_be64(a + 0);
-	bb[0] = ctx->gcm_ctx.HH[8];
-	bb[1] = ctx->gcm_ctx.HL[8];
+	aa[0] = be_bswap64(a[1]);
+	aa[1] = be_bswap64(a[0]);
+	bb[0] = Htable[0];
+	bb[1] = Htable[1];
 
-	gfmu_x8664(aa, bb, &cc);
+	gfmu_x8664_impl(aa, bb, &aa);
 
 	/* Now byte-reverse the outputs */
-	be64_to_ptr(a, cc[1]);
-	be64_to_ptr(a + 8, cc[0]);
+	a[0] = be_bswap64(aa[1]);
+	a[1] = be_bswap64(aa[0]);
+#pragma GCC diagnostic pop
+
+	LC_FPU_DISABLE
+}
+
+void gfmu_x8664_init(uint64_t Htable[32], const uint64_t H[2])
+{
+	/*
+	 * Simply save the key for gfmul in big-endian notatation:
+	 * the individual H integers are already in big-endian, now just
+	 * reverse the order of the H variables.
+	 */
+	Htable[0] = H[1];
+	Htable[1] = H[0];
 }
