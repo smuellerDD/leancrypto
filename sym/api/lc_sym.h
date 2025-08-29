@@ -112,6 +112,10 @@ void lc_sym_init(struct lc_sym_ctx *ctx);
  * @ingroup Symmetric
  * @brief Set key
  *
+ * \note For XTS, it is required that this function call MUST come BEFORE the
+ * \p lc_sym_setiv invocation as the tweak value is immediately calculated from
+ * the IV using the XTS key.
+ *
  * @param [in] ctx Reference to sym context implementation to be used to
  *		   set the key.
  * @param [in] key Key to be set
@@ -124,6 +128,10 @@ int lc_sym_setkey(struct lc_sym_ctx *ctx, const uint8_t *key, size_t keylen);
 /**
  * @ingroup Symmetric
  * @brief Set IV
+ *
+ * \note For XTS, it is required that this function call MUST come AFTER the
+ * \p lc_sym_setkey invocation as the tweak value is immediately calculated from
+ * the IV using the XTS key.
  *
  * @param [in] ctx Reference to sym context implementation to be used to
  *		   set the IV.
@@ -146,6 +154,13 @@ int lc_sym_setiv(struct lc_sym_ctx *ctx, const uint8_t *iv, size_t ivlen);
  *
  * The plaintext and the ciphertext buffer may be identical to support
  * in-place cryptographic operations.
+ *
+ * \note This call is allowed to be called multiple times to operate in
+ * stream mode. However, the caller must enforce the following:
+ * 1. All invocations except for the last data block must contain data that
+ *    is always a multiple of 16 bytes.
+ * 2. Only the last invocation is allowed to be not a multiple of 16 bytes for
+ *    algorithms that allow it (e.g. XTS, CTR)
  */
 void lc_sym_encrypt(struct lc_sym_ctx *ctx, const uint8_t *in, uint8_t *out,
 		    size_t len);
@@ -162,6 +177,13 @@ void lc_sym_encrypt(struct lc_sym_ctx *ctx, const uint8_t *in, uint8_t *out,
  *
  * The plaintext and the ciphertext buffer may be identical to support
  * in-place cryptographic operations.
+ *
+ * \note This call is allowed to be called multiple times to operate in
+ * stream mode. However, the caller must enforce the following:
+ * 1. All invocations except for the last data block must contain data that
+ *    is always a multiple of 16 bytes.
+ * 2. Only the last invocation is allowed to be not a multiple of 16 bytes for
+ *    algorithms that allow it (e.g. XTS, CTR)
  */
 void lc_sym_decrypt(struct lc_sym_ctx *ctx, const uint8_t *in, uint8_t *out,
 		    size_t len);

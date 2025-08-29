@@ -47,6 +47,9 @@ extern const struct lc_sym *lc_aes_kw;
 /* AES raw block operation */
 extern const struct lc_sym *lc_aes;
 
+/* AES XTS mode */
+extern const struct lc_sym *lc_aes_xts;
+
 /**
  * @ingroup Symmetric
  * @brief AES KW encrypt

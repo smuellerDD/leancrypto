@@ -1630,7 +1630,6 @@ SYM_FUNC_ENTER(aesni_ctr32_encrypt_blocks)
 .cfi_endproc	
 SYM_FUNC_END(aesni_ctr32_encrypt_blocks)
 
-#if 0
 SYM_FUNC_START(aesni_xts_encrypt)
 SYM_FUNC_ENTER(aesni_xts_encrypt)
 .align	16
@@ -2619,7 +2618,6 @@ SYM_FUNC_ENTER(aesni_xts_decrypt)
 
 .cfi_endproc	
 SYM_FUNC_END(aesni_xts_decrypt)
-#endif
 
 #if 0
 SYM_FUNC_START(aesni_ocb_encrypt)

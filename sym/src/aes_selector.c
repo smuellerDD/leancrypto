@@ -31,6 +31,7 @@ LC_CONSTRUCTOR(aes_fastest_impl)
 	enum lc_cpu_features feat = lc_cpu_feature_available();
 
 #define LC_FILL_ACCEL_WITH_DEFAULT(accel, dflt)                                \
+	lc_aes_xts_##accel = lc_aes_xts_##dflt;                                \
 	lc_aes_cbc_##accel = lc_aes_cbc_##dflt;                                \
 	lc_aes_ctr_##accel = lc_aes_ctr_##dflt;                                \
 	lc_aes_kw_##accel = lc_aes_kw_##dflt;                                  \
@@ -49,6 +50,7 @@ LC_CONSTRUCTOR(aes_fastest_impl)
 	LC_FILL_ACCEL_NULL(riscv64)
 
 #define LC_FILL_DFLT_IMPL(accel)                                               \
+	lc_aes_xts = lc_aes_xts_##accel;                                       \
 	lc_aes_cbc = lc_aes_cbc_##accel;                                       \
 	lc_aes_ctr = lc_aes_ctr_##accel;                                       \
 	lc_aes_kw = lc_aes_kw_##accel;                                         \

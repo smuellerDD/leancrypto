@@ -182,6 +182,33 @@ if get_option('aes_gcm').enabled()
 	lc_block = 1
 endif
 
+if get_option('aes_xts').enabled()
+	src_fips += files([ 'aes_xts.c', 'mode_xts.c' ])
+	lc_aes = 1
+
+	# AES-NI
+	if (x86_64_asm)
+		lc_aesni_asm = 1
+		src_fips += files([ 'aes_xts_aesni.c' ])
+	else
+		src_fips += files([ 'aes_xts_aesni_null.c' ])
+	endif
+
+	if (arm64_asm)
+		lc_armce_v8_asm = 1
+		src_fips += files([ 'aes_xts_armce_v8.c' ])
+	else
+		src_fips += files([ 'aes_xts_armce_v8_null.c' ])
+	endif
+
+	if (riscv64_asm)
+		lc_riscv64_asm = 1
+		src_fips += files([ 'aes_xts_riscv64.c' ])
+	else
+		src_fips += files([ 'aes_xts_riscv64_null.c' ])
+	endif
+endif
+
 if (lc_block == 1)
 	src_fips += files([ 'aes_block.c' ])
 	lc_aes = 1

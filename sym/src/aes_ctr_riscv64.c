@@ -47,7 +47,7 @@ static void aes_riscv64_ctr_init(struct lc_sym_state *ctx)
 
 	mode_ctr_selftest(lc_aes_ctr_riscv64, &tested, "AES-CTR");
 	lc_mode_ctr_c->init(&ctx->ctr_state, lc_aes_riscv64_enc_only,
-			    &ctx->enc_block_ctx);
+			    &ctx->enc_block_ctx, NULL);
 }
 
 static int aes_riscv64_ctr_setkey(struct lc_sym_state *ctx, const uint8_t *key,

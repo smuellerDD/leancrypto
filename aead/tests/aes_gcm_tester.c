@@ -149,5 +149,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = lc_aes_gcm_test(argc);
 
+	lc_cpu_feature_enable();
+
 	return ret;
 }

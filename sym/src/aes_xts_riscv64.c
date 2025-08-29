@@ -23,62 +23,63 @@
 #include "ext_headers_internal.h"
 #include "lc_aes.h"
 #include "lc_sym.h"
-#include "mode_cbc.h"
+#include "mode_xts.h"
 #include "visibility.h"
 
 struct lc_sym_state {
-	struct lc_mode_state cbc_state;
+	struct lc_mode_state xts_state;
+	struct aes_riscv64_block_ctx tweak_ctx;
 	struct aes_riscv64_block_ctx enc_block_ctx;
 	struct aes_riscv64_block_ctx dec_block_ctx;
 };
 
-#define LC_AES_CBC_BLOCK_SIZE sizeof(struct lc_sym_state)
+#define LC_AES_XTS_BLOCK_SIZE sizeof(struct lc_sym_state)
 
-static void aes_riscv64_cbc_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
+static void aes_riscv64_xts_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 				    uint8_t *out, size_t len)
 {
-	lc_mode_cbc_c->encrypt(&ctx->cbc_state, in, out, len);
+	lc_mode_xts_c->encrypt(&ctx->xts_state, in, out, len);
 }
 
-static void aes_riscv64_cbc_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
+static void aes_riscv64_xts_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 				    uint8_t *out, size_t len)
 {
-	lc_mode_cbc_c->decrypt(&ctx->cbc_state, in, out, len);
+	lc_mode_xts_c->decrypt(&ctx->xts_state, in, out, len);
 }
 
-static void aes_riscv64_cbc_init(struct lc_sym_state *ctx)
+static void aes_riscv64_xts_init(struct lc_sym_state *ctx)
 {
 	static int tested = 0;
 
 	(void)ctx;
 
-	mode_cbc_selftest(lc_aes_cbc_riscv64, &tested, "AES-CBC");
-	lc_mode_cbc_c->init(&ctx->cbc_state, lc_aes_riscv64,
-			    &ctx->enc_block_ctx, NULL);
+	mode_xts_selftest(lc_aes_xts_riscv64, &tested, "AES-XTS");
+	lc_mode_xts_c->init(&ctx->xts_state, lc_aes_riscv64,
+			    &ctx->enc_block_ctx, &ctx->tweak_ctx);
 }
 
-static int aes_riscv64_cbc_setkey(struct lc_sym_state *ctx, const uint8_t *key,
+static int aes_riscv64_xts_setkey(struct lc_sym_state *ctx, const uint8_t *key,
 				  size_t keylen)
 {
 	if (!ctx)
 		return -EINVAL;
-	return lc_mode_cbc_c->setkey(&ctx->cbc_state, key, keylen);
+	return lc_mode_xts_c->setkey(&ctx->xts_state, key, keylen);
 }
 
-static int aes_riscv64_cbc_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
+static int aes_riscv64_xts_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 				 size_t ivlen)
 {
-	return lc_mode_cbc_c->setiv(&ctx->cbc_state, iv, ivlen);
+	return lc_mode_xts_c->setiv(&ctx->xts_state, iv, ivlen);
 }
 
-static struct lc_sym _lc_aes_cbc_riscv64 = {
-	.init = aes_riscv64_cbc_init,
-	.setkey = aes_riscv64_cbc_setkey,
-	.setiv = aes_riscv64_cbc_setiv,
-	.encrypt = aes_riscv64_cbc_encrypt,
-	.decrypt = aes_riscv64_cbc_decrypt,
-	.statesize = LC_AES_CBC_BLOCK_SIZE,
+static struct lc_sym _lc_aes_xts_riscv64 = {
+	.init = aes_riscv64_xts_init,
+	.setkey = aes_riscv64_xts_setkey,
+	.setiv = aes_riscv64_xts_setiv,
+	.encrypt = aes_riscv64_xts_encrypt,
+	.decrypt = aes_riscv64_xts_decrypt,
+	.statesize = LC_AES_XTS_BLOCK_SIZE,
 	.blocksize = AES_BLOCKLEN,
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *,
-		    lc_aes_cbc_riscv64) = &_lc_aes_cbc_riscv64;
+		    lc_aes_xts_riscv64) = &_lc_aes_xts_riscv64;

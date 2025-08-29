@@ -213,6 +213,8 @@ option('aes_kw', type: 'feature', value: 'enabled',
        description: 'AES KW cipher support')
 option('aes_gcm', type: 'feature', value: 'enabled',
        description: 'AES GCM AEAD support')
+option('aes_xts', type: 'feature', value: 'enabled',
+       description: 'AES XTS cipher support')
 
 option('small_stack', type: 'feature', value: 'disabled',
        description: 'Compile leancrypto with stack use <= 2048 bytes')

@@ -50,7 +50,7 @@ static void aes_kw_init(struct lc_sym_state *ctx)
 	static int tested = 0;
 
 	mode_kw_selftest(lc_aes_kw_c, &tested, "AES-KW");
-	lc_mode_kw_c->init(&ctx->kw_state, lc_aes_c, &ctx->block_ctx);
+	lc_mode_kw_c->init(&ctx->kw_state, lc_aes_c, &ctx->block_ctx, NULL);
 }
 
 static int aes_kw_setkey(struct lc_sym_state *ctx, const uint8_t *key,

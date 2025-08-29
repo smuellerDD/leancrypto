@@ -17,21 +17,32 @@
  * DAMAGE.
  */
 
-#ifndef AES_ARMCE_V8_H
-#define AES_ARMCE_V8_H
+#ifndef MODE_XTS_H
+#define MODE_XTS_H
+
+#include "lc_sym.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern const struct lc_sym *lc_aes_cbc_armce;
-extern const struct lc_sym *lc_aes_ctr_armce;
-extern const struct lc_sym *lc_aes_kw_armce;
-extern const struct lc_sym *lc_aes_armce;
-extern const struct lc_sym *lc_aes_xts_armce;
+struct lc_mode_state {
+	/*
+	 * Put tweak at the beginning to ensure it is aligned to at least
+	 * 64 bit based on the LC_SYM_COMMON_ALIGNMENT
+	 */
+	uint8_t tweak[AES_BLOCKLEN];
+	const struct lc_sym *wrapped_cipher;
+	void *wrapped_cipher_ctx;
+	void *tweak_cipher_ctx;
+};
+
+void mode_xts_selftest(const struct lc_sym *aes, int *tested, const char *impl);
+
+extern const struct lc_sym_mode *lc_mode_xts_c;
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* AES_ARMCE_V8_H */
+#endif /* MODE_XTS_H */

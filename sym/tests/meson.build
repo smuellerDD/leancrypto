@@ -181,3 +181,25 @@ if get_option('aes_kw').enabled()
 
 	test('Symmetric AES KW en/decryption', aes_kw_tester, suite: regression)
 endif
+
+if get_option('aes_xts').enabled()
+	aes_xts_tester = executable('aes_xts_tester',
+					[ 'aes_xts_tester.c',
+					internal_src ],
+					include_directories: [ include_internal_dirs, '../src' ],
+					dependencies: leancrypto
+					)
+	aes_xts_large_tester = executable('aes_xts_large_tester',
+					[ 'aes_xts_large_tester.c',
+					internal_src ],
+					include_directories: [ include_internal_dirs, '../src' ],
+					dependencies: leancrypto
+					)
+
+	test('Symmetric AES XTS en/decryption', aes_xts_tester,
+	     suite: regression)
+	test('AES XTS Accel large', aes_xts_large_tester, timeout: 2000,
+	     is_parallel: false, suite: performance)
+	test('AES XTS C large', aes_xts_large_tester, timeout: 2000,
+	     is_parallel: false, suite: performance, args: [ 'c' ])
+endif

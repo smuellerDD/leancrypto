@@ -145,8 +145,10 @@ static void mode_cbc_decrypt(struct lc_mode_state *ctx, const uint8_t *in,
 
 static void mode_cbc_init(struct lc_mode_state *ctx,
 			  const struct lc_sym *wrapped_cipher,
-			  void *wrapped_cipher_ctx)
+			  void *wrapped_cipher_ctx, void *tweak_ctx)
 {
+	(void)tweak_ctx;
+
 	if (!ctx || !wrapped_cipher || !wrapped_cipher_ctx ||
 	    wrapped_cipher->blocksize != AES_BLOCKLEN)
 		return;

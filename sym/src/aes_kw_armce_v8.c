@@ -53,7 +53,8 @@ static void aes_armce_kw_init(struct lc_sym_state *ctx)
 	(void)ctx;
 
 	mode_kw_selftest(lc_aes_kw_armce, &tested, "AES-KW");
-	lc_mode_kw_c->init(&ctx->kw_state, lc_aes_armce, &ctx->enc_block_ctx);
+	lc_mode_kw_c->init(&ctx->kw_state, lc_aes_armce, &ctx->enc_block_ctx,
+			   NULL);
 }
 
 static int aes_armce_kw_setkey(struct lc_sym_state *ctx, const uint8_t *key,

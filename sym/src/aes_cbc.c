@@ -51,7 +51,7 @@ static void aes_cbc_init(struct lc_sym_state *ctx)
 	static int tested = 0;
 
 	mode_cbc_selftest(lc_aes_cbc_c, &tested, "AES-CBC");
-	lc_mode_cbc_c->init(&ctx->cbc_state, lc_aes_c, &ctx->block_ctx);
+	lc_mode_cbc_c->init(&ctx->cbc_state, lc_aes_c, &ctx->block_ctx, NULL);
 }
 
 static int aes_cbc_setkey(struct lc_sym_state *ctx, const uint8_t *key,

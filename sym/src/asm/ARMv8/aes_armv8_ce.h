@@ -53,16 +53,14 @@ void aes_v8_cbc_encrypt(const uint8_t *in, uint8_t *out, size_t length,
 			const struct aes_v8_block_ctx *aes_ctx, uint8_t *iv,
 			int enc);
 
-#if 0
 void aes_v8_xts_encrypt(const uint8_t *pt, uint8_t *ct, size_t length,
-		        const struct aes_v8_block_ctx *key1,
-		        const struct aes_v8_block_ctx *key2,
-		        const uint8_t iv[16]);
+			const struct aes_v8_block_ctx *key1,
+			const struct aes_v8_block_ctx *key2,
+			const uint8_t iv[16]);
 void aes_v8_xts_decrypt(const uint8_t *ct, uint8_t *pt, size_t length,
-		        const struct aes_v8_block_ctx *key1,
-		        const struct aes_v8_block_ctx *key2,
-		        const uint8_t iv[16]);
-#endif
+			const struct aes_v8_block_ctx *key1,
+			const struct aes_v8_block_ctx *key2,
+			const uint8_t iv[16]);
 
 #ifdef __cplusplus
 }

@@ -17,9 +17,6 @@
  * DAMAGE.
  */
 
-#include <errno.h>
-#include <stdlib.h>
-
 #include "aes_c.h"
 #include "binhexbin.h"
 #include "compare.h"

@@ -9,6 +9,8 @@ Changes 1.5.2-prerelease
 
 * AES-GCM added
 
+* AES-XTS added
+
 Changes 1.5.1
 * add ChaCha20 Poly 1305 AEAD
 

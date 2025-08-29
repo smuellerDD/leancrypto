@@ -36,7 +36,7 @@ struct lc_mode_state;
 struct lc_sym_mode {
 	void (*init)(struct lc_mode_state *ctx,
 		     const struct lc_sym *wrapped_cipher,
-		     void *wrapped_cipher_ctx);
+		     void *wrapped_cipher_ctx, void *tweak_cipher_ctx);
 	int (*setkey)(struct lc_mode_state *ctx, const uint8_t *key,
 		      size_t keylen);
 	int (*setiv)(struct lc_mode_state *ctx, const uint8_t *iv,

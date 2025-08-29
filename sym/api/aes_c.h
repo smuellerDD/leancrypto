@@ -28,6 +28,7 @@ extern const struct lc_sym *lc_aes_cbc_c;
 extern const struct lc_sym *lc_aes_ctr_c;
 extern const struct lc_sym *lc_aes_kw_c;
 extern const struct lc_sym *lc_aes_c;
+extern const struct lc_sym *lc_aes_xts_c;
 
 #ifdef __cplusplus
 }
