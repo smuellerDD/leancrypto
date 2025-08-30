@@ -30,7 +30,15 @@ static int gmtime_tester(time64_t timeval)
 
 	CKINT(lc_gmtime(timeval, &lc_tm));
 
+	/*
+	 * Ignore incompatible pointer warnings on macOS
+	 * as it seems macOS uses a 32 bit time_t
+	 */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 	time_detail = gmtime((time64_t *)&timeval);
+#pragma GCC diagnostic pop
+
 	CKNULL(time_detail, -EFAULT);
 
 	if (lc_tm.year != time_detail->tm_year + 1900) {
