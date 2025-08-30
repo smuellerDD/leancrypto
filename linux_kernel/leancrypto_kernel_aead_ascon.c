@@ -28,6 +28,7 @@
 #include "lc_ascon_lightweight.h"
 
 #include "leancrypto_kernel.h"
+#include "leancrypto_kernel_aead_helper.h"
 
 /* Re-implement lc_ascon_aad */
 static void lc_aead_ascon_aad(struct aead_request *areq)
@@ -91,82 +92,6 @@ static void lc_aead_ascon_aad(struct aead_request *areq)
 			    sizeof(pad_trail));
 }
 
-static int lc_aead_ascon_update(struct aead_request *areq, unsigned int nbytes,
-				int (*process)(struct lc_aead_ctx *ctx,
-					       const uint8_t *in, uint8_t *out,
-					       size_t datalen))
-{
-	struct crypto_aead *aead = crypto_aead_reqtfm(areq);
-	struct lc_aead_ctx *ctx = crypto_aead_ctx(aead);
-	struct scatterlist sg_src[2], sg_dst[2];
-	struct scatterlist *src, *dst;
-	struct scatter_walk src_walk, dst_walk;
-	int ret;
-
-	if (!nbytes)
-		return 0;
-
-	src = scatterwalk_ffwd(sg_src, areq->src, areq->assoclen);
-	if (areq->src == areq->dst)
-		dst = src;
-	else
-		dst = scatterwalk_ffwd(sg_dst, areq->dst, areq->assoclen);
-
-	scatterwalk_start(&src_walk, src);
-	scatterwalk_start(&dst_walk, dst);
-
-	while (nbytes) {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 15, 0)
-
-		unsigned int stodo = scatterwalk_next(&src_walk, nbytes);
-		unsigned int dtodo = scatterwalk_next(&dst_walk, nbytes);
-		unsigned int todo = min(stodo, dtodo);
-
-		u8 *src_vaddr = src_walk.addr;
-		u8 *dst_vaddr = dst_walk.addr;
-
-		/* Perform the work */
-		ret = process(ctx, src_vaddr, dst_vaddr, todo);
-
-		scatterwalk_done_dst(&dst_walk, todo);
-		scatterwalk_done_src(&src_walk, todo);
-		if (ret)
-			return ret;
-
-		nbytes -= todo;
-
-#else
-		unsigned int todo =
-			min_t(unsigned int, scatterwalk_pagelen(&src_walk),
-			      scatterwalk_pagelen(&dst_walk));
-		u8 *src_vaddr, *dst_vaddr;
-		todo = min_t(unsigned int, nbytes, todo);
-
-		src_vaddr = scatterwalk_map(&src_walk);
-		dst_vaddr = scatterwalk_map(&dst_walk);
-
-		/* Perform the work */
-		ret = process(ctx, src_vaddr, dst_vaddr, todo);
-
-		scatterwalk_unmap(src_vaddr);
-		scatterwalk_unmap(dst_vaddr);
-
-		if (ret)
-			return ret;
-
-		scatterwalk_advance(&src_walk, todo);
-		scatterwalk_advance(&dst_walk, todo);
-		nbytes -= todo;
-
-		scatterwalk_pagedone(&src_walk, 0, nbytes);
-		scatterwalk_pagedone(&dst_walk, 1, nbytes);
-
-#endif
-	}
-
-	return ret;
-}
-
 static int lc_aead_ascon_enc_final(struct aead_request *areq)
 {
 	struct crypto_aead *aead = crypto_aead_reqtfm(areq);
@@ -201,7 +126,7 @@ static int lc_aead_ascon_enc(struct aead_request *areq)
 
 	lc_aead_ascon_aad(areq);
 
-	ret = lc_aead_ascon_update(areq, areq->cryptlen, lc_aead_enc_update);
+	ret = lc_kernel_aead_update(areq, areq->cryptlen, lc_aead_enc_update);
 	if (ret)
 		return ret;
 
@@ -241,9 +166,9 @@ static int lc_aead_ascon_dec(struct aead_request *areq)
 
 	lc_aead_ascon_aad(areq);
 
-	ret = lc_aead_ascon_update(areq,
-				   areq->cryptlen - crypto_aead_authsize(aead),
-				   lc_aead_dec_update);
+	ret = lc_kernel_aead_update(areq,
+				    areq->cryptlen - crypto_aead_authsize(aead),
+				    lc_aead_dec_update);
 	if (ret)
 		return ret;
 

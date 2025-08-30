@@ -2,7 +2,8 @@
 # AEAD implementation
 
 leancrypto-$(CONFIG_LEANCRYPTO_AEAD)					       \
-				+= ../aead/src/aead_api.o
+				+= ../aead/src/aead_api.o		       \
+				   leancrypto_kernel_aead_helper.o
 
 leancrypto-$(CONFIG_LEANCRYPTO_SYMHMAC_CRYPT)				       \
 				+= ../aead/src/symhmac.o
