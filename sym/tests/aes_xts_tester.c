@@ -241,7 +241,7 @@ static int test_encrypt_xts_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 #pragma GCC diagnostic ignored "-Wvla"
 	uint8_t out[ptlen], out2[ptlen];
 #pragma GCC diagnostic pop
-	int ret;
+	int ret, rc;
 
 	/* Unpoison key to let implementation poison it */
 	unpoison(key, keylen);
@@ -251,17 +251,17 @@ static int test_encrypt_xts_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 	CKINT(lc_sym_setkey(ctx, key, keylen));
 	CKINT(lc_sym_setiv(ctx, iv, ivlen));
 	lc_sym_encrypt(ctx, pt, out, ptlen);
-	ret = lc_compare(out, ct, ptlen, "AES-XTS encrypt ciphertext");
+	rc = lc_compare(out, ct, ptlen, "AES-XTS encrypt ciphertext");
 
 	/* Decrypt */
 	lc_sym_init(ctx);
 	CKINT(lc_sym_setkey(ctx, key, keylen));
 	CKINT(lc_sym_setiv(ctx, iv, ivlen));
 	lc_sym_decrypt(ctx, out, out2, sizeof(out));
-	ret += lc_compare(out2, pt, ptlen, "AES-XTS decrypt plaintext");
+	rc += lc_compare(out2, pt, ptlen, "AES-XTS decrypt plaintext");
 
 out:
-	return ret;
+	return ret ? ret : rc;
 }
 
 static int test_xts(const struct lc_sym *aes, const char *name)

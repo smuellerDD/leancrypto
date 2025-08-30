@@ -25,7 +25,7 @@
 #include "ret_checkers.h"
 #include "small_stack_support.h"
 #include "x509_algorithm_mapper.h"
-#include "x509_mldsa_ed25519_privkey.asn1.h"
+#include "x509_mldsa_ed25519_privkey_asn1.h"
 
 int x509_mldsa_ed25519_private_key_enc(void *context, uint8_t *data,
 				       size_t *avail_datalen, uint8_t *tag)

@@ -28,18 +28,18 @@ extern "C" {
 
 #ifdef LC_HOST_X86_64
 
-void gfmu_x8664(uint64_t a[2], const uint64_t Htable[32]);
-void gfmu_x8664_init(uint64_t Htable[32], const uint64_t H[2]);
+void gfmu_x8664(uint64_t a[2], const uint64_t *Htable);
+void gfmu_x8664_init(uint64_t *Htable, const uint64_t H[2]);
 
 #else /* LC_HOST_X86_64 */
 
-static inline void gfmu_x8664(uint64_t a[2], const uint64_t Htable[32])
+static inline void gfmu_x8664(uint64_t a[2], const uint64_t *Htable)
 {
 	(void)a;
 	(void)Htable;
 }
 
-static inline void gfmu_x8664_init(uint64_t Htable[32], const uint64_t H[2])
+static inline void gfmu_x8664_init(uint64_t *Htable, const uint64_t H[2])
 {
 	(void)Htable;
 	(void)H;

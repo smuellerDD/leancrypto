@@ -5,7 +5,7 @@
  * ASN.1 parser for pkcs7
  */
 #include "asn1_ber_bytecode.h"
-#include "pkcs7.asn1.h"
+#include "pkcs7_asn1.h"
 
 // clang-format off
 

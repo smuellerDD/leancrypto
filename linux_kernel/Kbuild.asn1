@@ -13,15 +13,15 @@ leancrypto-$(CONFIG_LEANCRYPTO_X509_PARSER)				       \
 				   ../asn1/src/gmtime.o			       \
 				   ../asn1/src/oid_registry.o		       \
 				   ../asn1/src/x509_algorithm_mapper.o	       \
-				   ../asn1/src/x509.asn1.o		       \
-				   ../asn1/src/x509_akid.asn1.o		       \
-				   ../asn1/src/x509_basic_constraints.asn1.o   \
-				   ../asn1/src/x509_eku.asn1.o		       \
-				   ../asn1/src/x509_keyusage.asn1.o	       \
-				   ../asn1/src/x509_mldsa_privkey.asn1.o       \
-				   ../asn1/src/x509_san.asn1.o		       \
-				   ../asn1/src/x509_skid.asn1.o		       \
-				   ../asn1/src/x509_slhdsa_privkey.asn1.o      \
+				   ../asn1/src/x509_asn1.o		       \
+				   ../asn1/src/x509_akid_asn1.o		       \
+				   ../asn1/src/x509_basic_constraints_asn1.o   \
+				   ../asn1/src/x509_eku_asn1.o		       \
+				   ../asn1/src/x509_keyusage_asn1.o	       \
+				   ../asn1/src/x509_mldsa_privkey_asn1.o       \
+				   ../asn1/src/x509_san_asn1.o		       \
+				   ../asn1/src/x509_skid_asn1.o		       \
+				   ../asn1/src/x509_slhdsa_privkey_asn1.o      \
 
 ifdef CONFIG_LEANCRYPTO_SPHINCS
 leancrypto-$(CONFIG_LEANCRYPTO_X509_PARSER)				       \
@@ -42,7 +42,7 @@ endif
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_ED25519
 leancrypto-$(CONFIG_LEANCRYPTO_X509_PARSER)				       \
 				+= ../asn1/src/asym_key_dilithium_ed25519.o    \
-				   ../asn1/src/x509_mldsa_ed25519_privkey.asn1.o
+				   ../asn1/src/x509_mldsa_ed25519_privkey_asn1.o
 else
 leancrypto-$(CONFIG_LEANCRYPTO_X509_PARSER)				       \
 				+= ../asn1/src/asym_key_dilithium_ed25519_null.o
@@ -51,7 +51,7 @@ endif
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_ED448
 leancrypto-$(CONFIG_LEANCRYPTO_X509_PARSER)				       \
 				+= ../asn1/src/asym_key_dilithium_ed448.o      \
-				   ../asn1/src/x509_mldsa_ed448_privkey.asn1.o
+				   ../asn1/src/x509_mldsa_ed448_privkey_asn1.o
 else
 leancrypto-$(CONFIG_LEANCRYPTO_X509_PARSER)				       \
 				+= ../asn1/src/asym_key_dilithium_ed448_null.o
@@ -77,8 +77,8 @@ leancrypto-$(CONFIG_LEANCRYPTO_X509_PARSER)				       \
 				   ../asn1/src/pkcs7_parser.o		       \
 				   ../asn1/src/pkcs7_trust.o		       \
 				   ../asn1/src/pkcs7_verify.o		       \
-				   ../asn1/src/pkcs7.asn1.o		       \
-				   ../asn1/src/pkcs7_aa.asn1.o
+				   ../asn1/src/pkcs7_asn1.o		       \
+				   ../asn1/src/pkcs7_aa_asn1.o
 
 leancrypto-$(CONFIG_LEANCRYPTO_PKCS7_GENERATOR)				       \
 				+= ../asn1/src/pkcs7_generator.o	       \

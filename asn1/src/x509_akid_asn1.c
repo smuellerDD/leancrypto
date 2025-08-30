@@ -5,7 +5,7 @@
  * ASN.1 parser for x509_akid
  */
 #include "asn1_ber_bytecode.h"
-#include "x509_akid.asn1.h"
+#include "x509_akid_asn1.h"
 
 // clang-format off
 

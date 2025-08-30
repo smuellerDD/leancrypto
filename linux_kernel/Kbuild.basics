@@ -3,6 +3,7 @@ obj-m		 		:= leancrypto.o
 # Kernel module framework
 ccflags-y			+= -DLINUX_KERNEL
 ccflags-y			+= -DLC_MEM_ON_HEAP -Wframe-larger-than=2048
+ccflags-y			+= -Wno-vla-larger-than
 asflags-y			+= -DLINUX_KERNEL
 
 # Shut up some annoying warnings

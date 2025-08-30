@@ -83,9 +83,6 @@ static int aes_aesni_xts_setkey(struct lc_sym_state *ctx, const uint8_t *key,
 	size_t one_keylen;
 	int ret;
 
-	/* Timecop: key is sensitive. */
-	poison(key, keylen);
-
 	if (!ctx)
 		return -EINVAL;
 
@@ -94,6 +91,10 @@ static int aes_aesni_xts_setkey(struct lc_sym_state *ctx, const uint8_t *key,
 	/* Reject XTS key where both parts are identical */
 	if (!lc_memcmp_secure(key, one_keylen, key + one_keylen, one_keylen))
 		return -ENOKEY;
+
+	/* Timecop: key is sensitive. */
+	poison(key, keylen);
+
 	LC_FPU_ENABLE;
 	CKINT(aesni_set_encrypt_key(key, (unsigned int)(one_keylen << 3),
 				    &ctx->enc_block_ctx));
@@ -105,6 +106,7 @@ static int aes_aesni_xts_setkey(struct lc_sym_state *ctx, const uint8_t *key,
 
 out:
 	LC_FPU_DISABLE;
+	unpoison(key, keylen);
 	return ret;
 }
 

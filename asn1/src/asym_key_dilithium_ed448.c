@@ -25,7 +25,7 @@
 #include "ret_checkers.h"
 #include "small_stack_support.h"
 #include "x509_algorithm_mapper.h"
-#include "x509_mldsa_ed448_privkey.asn1.h"
+#include "x509_mldsa_ed448_privkey_asn1.h"
 
 /*
  * Size of the hash of the message: see

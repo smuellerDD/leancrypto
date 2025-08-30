@@ -27,18 +27,18 @@ extern "C" {
 #endif
 
 #ifdef LC_HOST_AARCH64
-void gfmul_init_armv8(uint64_t Htable[32], const uint64_t Xi[2]);
-void gfmul_armv8(uint64_t Xi[2], const uint64_t Htable[32]);
+void gfmul_init_armv8(uint64_t *Htable, const uint64_t Xi[2]);
+void gfmul_armv8(uint64_t Xi[2], const uint64_t *Htable);
 //void gcm_ghash_v8(uint64_t Xi[2], const u128 Htable[16], const uint8_t *inp,
 //		  size_t len);
 #else
-static inline void gfmul_init_armv8(uint64_t Htable[32], const uint64_t Xi[2])
+static inline void gfmul_init_armv8(uint64_t *Htable, const uint64_t Xi[2])
 {
 	(void)Htable;
 	(void)Xi;
 }
 
-static inline void gfmul_armv8(uint64_t Xi[2], const uint64_t Htable[32])
+static inline void gfmul_armv8(uint64_t Xi[2], const uint64_t *Htable)
 {
 	(void)Xi;
 	(void)Htable;

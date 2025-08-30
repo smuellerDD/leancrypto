@@ -309,11 +309,11 @@ static int gcm_setkey(struct lc_aes_gcm_cryptor *ctx, const uint8_t *key,
 
 	/* Accelerated GCM init */
 	if (feat & LC_CPU_FEATURE_ARM_PMULL) {
-		gfmul_init_armv8(ctx->gcm_ctx.HL, H);
+		gfmul_init_armv8((uint64_t *)ctx->gcm_ctx.HL, H);
 		ctx->gcm_ctx.gcm_gmult_accel = gfmul_armv8;
 		goto out;
 	} else if (feat & LC_CPU_FEATURE_INTEL_PCLMUL) {
-		gfmu_x8664_init(ctx->gcm_ctx.HL, H);
+		gfmu_x8664_init((uint64_t *)ctx->gcm_ctx.HL, H);
 		ctx->gcm_ctx.gcm_gmult_accel = gfmu_x8664;
 		goto out;
 	} else {

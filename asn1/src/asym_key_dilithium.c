@@ -27,7 +27,7 @@
 #include "ret_checkers.h"
 #include "small_stack_support.h"
 #include "x509_algorithm_mapper.h"
-#include "x509_mldsa_privkey.asn1.h"
+#include "x509_mldsa_privkey_asn1.h"
 
 static int
 public_key_set_prehash_dilithium(const struct lc_public_key_signature *sig,

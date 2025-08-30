@@ -31,7 +31,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_AES)					       \
 endif
 
 ifneq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
-leancrypto-$(CONFIG_LEANCRYPTO_AES_CBC)					       \
+leancrypto-$(CONFIG_LEANCRYPTO_AES)					       \
 				+= ../sym/src/asm/riscv64/riscv64_aes_asm.o    \
 				   ../sym/src/aes_block_riscv64.o
 else
@@ -146,4 +146,37 @@ endif
 ifdef CONFIG_LEANCRYPTO_AES_KW
 obj-m				+= aes_kw_tester.o
 aes_kw_tester-y			+= ../sym/tests/aes_kw_tester.o
+endif
+
+leancrypto-$(CONFIG_LEANCRYPTO_AES_XTS)					       \
+				+= ../sym/src/aes_xts.o			       \
+				   ../sym/src/mode_xts.o
+
+ifdef CONFIG_X86_64
+leancrypto-$(CONFIG_LEANCRYPTO_AES_XTS)					       \
+				+= ../sym/src/aes_xts_aesni.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_AES_XTS)					       \
+				+= ../sym/src/aes_xts_aesni_null.o
+endif
+
+ifdef CONFIG_ARM64
+leancrypto-$(CONFIG_LEANCRYPTO_AES_XTS)					       \
+				+= ../sym/src/aes_xts_armce_v8.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_AES_XTS)					       \
+				+= ../sym/src/aes_xts_armce_v8_null.o
+endif
+
+ifneq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
+leancrypto-$(CONFIG_LEANCRYPTO_AES_XTS)					       \
+				+= ../sym/src/aes_xts_riscv64.o
+else
+leancrypto-$(CONFIG_LEANCRYPTO_AES_XTS)					       \
+				+= ../sym/src/aes_xts_riscv64_null.o
+endif
+
+ifdef CONFIG_LEANCRYPTO_AES_XTS
+obj-m				+= aes_xts_tester.o
+aes_xts_tester-y		+= ../sym/tests/aes_xts_tester.o
 endif

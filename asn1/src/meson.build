@@ -56,15 +56,15 @@ if x509_common_support == 1
 		'oid_registry.c',
 		'x509_algorithm_mapper.c',
 
-		'x509.asn1.c',
-		'x509_akid.asn1.c',
-		'x509_basic_constraints.asn1.c',
-		'x509_eku.asn1.c',
-		'x509_keyusage.asn1.c',
-		'x509_mldsa_privkey.asn1.c',
-		'x509_san.asn1.c',
-		'x509_skid.asn1.c',
-		'x509_slhdsa_privkey.asn1.c'
+		'x509_asn1.c',
+		'x509_akid_asn1.c',
+		'x509_basic_constraints_asn1.c',
+		'x509_eku_asn1.c',
+		'x509_keyusage_asn1.c',
+		'x509_mldsa_privkey_asn1.c',
+		'x509_san_asn1.c',
+		'x509_skid_asn1.c',
+		'x509_slhdsa_privkey_asn1.c'
 	])
 
 	if (get_option('sphincs_shake_256s').enabled() or
@@ -91,7 +91,7 @@ if x509_common_support == 1
 	if get_option('dilithium_ed25519').enabled()
 		src_fips += files([
 			'asym_key_dilithium_ed25519.c',
-			'x509_mldsa_ed25519_privkey.asn1.c'
+			'x509_mldsa_ed25519_privkey_asn1.c'
 			])
 		asymmetric_algo += 1
 	else
@@ -101,7 +101,7 @@ if x509_common_support == 1
 	if get_option('dilithium_ed448').enabled()
 		src_fips += files([
 			'asym_key_dilithium_ed448.c',
-			'x509_mldsa_ed448_privkey.asn1.c'
+			'x509_mldsa_ed448_privkey_asn1.c'
 			])
 		asymmetric_algo += 1
 	else
@@ -125,8 +125,8 @@ if get_option('pkcs7_parser').enabled()
 		'pkcs7_trust.c',
 		'pkcs7_verify.c',
 
-		'pkcs7.asn1.c',
-		'pkcs7_aa.asn1.c',
+		'pkcs7_asn1.c',
+		'pkcs7_aa_asn1.c',
 	])
 endif
 

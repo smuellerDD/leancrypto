@@ -20,17 +20,17 @@
 #include "gfmul_neon.h"
 #include "ext_headers_arm.h"
 
-void gfmul_init_armv8_impl(uint64_t Htable[32], const uint64_t Xi[2]);
-void gfmul_armv8_impl(uint64_t Xi[2], const uint64_t Htable[32]);
+void gfmul_init_armv8_impl(uint64_t *Htable, const uint64_t Xi[2]);
+void gfmul_armv8_impl(uint64_t Xi[2], const uint64_t *Htable);
 
-void gfmul_init_armv8(uint64_t Htable[32], const uint64_t Xi[2])
+void gfmul_init_armv8(uint64_t *Htable, const uint64_t Xi[2])
 {
 	LC_NEON_ENABLE;
 	gfmul_init_armv8_impl(Htable, Xi);
 	LC_NEON_DISABLE;
 }
 
-void gfmul_armv8(uint64_t Xi[2], const uint64_t Htable[32])
+void gfmul_armv8(uint64_t Xi[2], const uint64_t *Htable)
 {
 	LC_NEON_ENABLE;
 	gfmul_armv8_impl(Xi, Htable);

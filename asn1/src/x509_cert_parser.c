@@ -41,13 +41,13 @@
 #include "visibility.h"
 #include "x509_cert_parser.h"
 #include "x509_algorithm_mapper.h"
-#include "x509.asn1.h"
-#include "x509_akid.asn1.h"
-#include "x509_basic_constraints.asn1.h"
-#include "x509_eku.asn1.h"
-#include "x509_keyusage.asn1.h"
-#include "x509_san.asn1.h"
-#include "x509_skid.asn1.h"
+#include "x509_asn1.h"
+#include "x509_akid_asn1.h"
+#include "x509_basic_constraints_asn1.h"
+#include "x509_eku_asn1.h"
+#include "x509_keyusage_asn1.h"
+#include "x509_san_asn1.h"
+#include "x509_skid_asn1.h"
 
 /******************************************************************************
  * Duplication of code from binhexbin.c for EFI compilation to avoid compiling

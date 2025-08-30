@@ -5,7 +5,7 @@
  * ASN.1 parser for x509_slhdsa_privkey
  */
 #include "asn1_ber_bytecode.h"
-#include "x509_slhdsa_privkey.asn1.h"
+#include "x509_slhdsa_privkey_asn1.h"
 
 // clang-format off
 

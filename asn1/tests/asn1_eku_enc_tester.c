@@ -31,7 +31,7 @@
 #include "lc_x509_parser.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
-#include "x509_eku.asn1.h"
+#include "x509_eku_asn1.h"
 #include "x509_cert_generator.h"
 #include "x509_cert_parser.h"
 

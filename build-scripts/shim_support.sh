@@ -32,6 +32,7 @@ DISABLE_SYM="
  -Daes_cbc=disabled
  -Daes_ctr=disabled
  -Daes_kw=disabled
+ -Daes_xts=disabled
  -Dchacha20=disabled
 "
 

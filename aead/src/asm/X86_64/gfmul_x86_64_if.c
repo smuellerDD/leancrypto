@@ -23,7 +23,7 @@
 #include "ext_headers_x86.h"
 
 void SYSV_ABI gfmu_x8664_impl(__m128i a, __m128i b, __m128i *res);
-void gfmu_x8664(uint64_t a[2], const uint64_t Htable[32])
+void gfmu_x8664(uint64_t a[2], const uint64_t *Htable)
 {
 	__m128i aa, bb;
 
@@ -47,7 +47,7 @@ void gfmu_x8664(uint64_t a[2], const uint64_t Htable[32])
 	LC_FPU_DISABLE;
 }
 
-void gfmu_x8664_init(uint64_t Htable[32], const uint64_t H[2])
+void gfmu_x8664_init(uint64_t *Htable, const uint64_t H[2])
 {
 	/*
 	 * Simply save the key for gfmul in big-endian notatation:

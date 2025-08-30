@@ -129,6 +129,13 @@ static void xts_enc_block(struct lc_mode_state *ctx,
 	const struct lc_sym *wrapped_cipher = ctx->wrapped_cipher;
 
 	xor_64(block, ctx->tweak, AES_BLOCKLEN);
+
+	/*
+	 * Timecop: C implementation of AES has side channel problems as
+	 * outlined in aes_block.c:aes_setkey
+	 */
+	unpoison(block, AES_BLOCKLEN);
+
 	wrapped_cipher->encrypt(ctx->wrapped_cipher_ctx, block, block,
 				AES_BLOCKLEN);
 	xor_64(block, ctx->tweak, AES_BLOCKLEN);
@@ -204,6 +211,10 @@ static void mode_xts_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
 		lc_memset_secure(CC, 0, sizeof(CC));
 		lc_memset_secure(PP, 0, sizeof(PP));
 	}
+
+	/* Timecop: output is not sensitive regarding side-channels. */
+	unpoison(out, len);
+
 }
 
 static void xts_dec_block(struct lc_mode_state *ctx,
@@ -213,6 +224,13 @@ static void xts_dec_block(struct lc_mode_state *ctx,
 	const struct lc_sym *wrapped_cipher = ctx->wrapped_cipher;
 
 	xor_64(block, tweak, AES_BLOCKLEN);
+
+	/*
+	 * Timecop: C implementation of AES has side channel problems as
+	 * outlined in aes_block.c:aes_setkey
+	 */
+	unpoison(block, AES_BLOCKLEN);
+
 	wrapped_cipher->decrypt(ctx->wrapped_cipher_ctx, block, block,
 				AES_BLOCKLEN);
 	xor_64(block, tweak, AES_BLOCKLEN);
@@ -288,6 +306,9 @@ static void mode_xts_decrypt(struct lc_mode_state *ctx, const uint8_t *in,
 		lc_memset_secure(CC, 0, sizeof(CC));
 		lc_memset_secure(PP, 0, sizeof(PP));
 	}
+
+	/* Timecop: output is not sensitive regarding side-channels. */
+	unpoison(out, len);
 }
 
 static void mode_xts_init(struct lc_mode_state *ctx,
@@ -315,6 +336,14 @@ static int mode_xts_setkey(struct lc_mode_state *ctx, const uint8_t *key,
 
 	one_keylen = keylen / 2;
 
+	/*
+	 * Timecop: key is sensitive.
+	 * Timecop: C implementation of AES has side channel problems as
+	 * outlined in aes_block.c:aes_setkey
+	 * Thus it is disabled here
+	 */
+	//poison(key, keylen);
+
 	/* Reject XTS key where both parts are identical */
 	if (!lc_memcmp_secure(key, one_keylen, key + one_keylen, one_keylen))
 		return -ENOKEY;
@@ -328,6 +357,7 @@ static int mode_xts_setkey(struct lc_mode_state *ctx, const uint8_t *key,
 				     one_keylen));
 
 out:
+	unpoison(key, keylen);
 	return ret;
 }
 

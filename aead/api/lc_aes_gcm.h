@@ -40,7 +40,13 @@ struct lc_gcm_ctx {
 
 	uint8_t base_ectr[16]; // first counter-mode cipher output for tag
 	uint8_t ectr[16]; // CTR ciphertext
-	void (*gcm_gmult_accel)(uint64_t Xi[2], const uint64_t Htable[32]);
+
+	/*
+	 * Htable has 32 uint64_t variables at its disposal. The caller
+	 * uses the HL[0] as start point and the function below can consume
+	 * HL[] and HH[] from the variable definitions above.
+	 */
+	void (*gcm_gmult_accel)(uint64_t Xi[2], const uint64_t *Htable);
 };
 
 struct lc_aes_gcm_cryptor {

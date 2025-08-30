@@ -24,6 +24,7 @@
 #include "lc_aes.h"
 #include "lc_sym.h"
 #include "mode_xts.h"
+#include "timecop.h"
 #include "visibility.h"
 #include "xor.h"
 

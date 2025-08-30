@@ -25,6 +25,7 @@
 #include "lc_sym.h"
 #include "mode_xts.h"
 #include "ret_checkers.h"
+#include "timecop.h"
 #include "visibility.h"
 #include "xor.h"
 
@@ -47,6 +48,9 @@ static void aes_armce_xts_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 	aes_v8_xts_encrypt(in, out, len, &ctx->enc_block_ctx, &ctx->tweak_ctx,
 			   ctx->iv);
 	LC_NEON_DISABLE;
+
+	/* Timecop: output is not sensitive regarding side-channels. */
+	unpoison(out, len);
 }
 
 static void aes_armce_xts_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
@@ -59,6 +63,9 @@ static void aes_armce_xts_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 	aes_v8_xts_decrypt(in, out, len, &ctx->dec_block_ctx, &ctx->tweak_ctx,
 			   ctx->iv);
 	LC_NEON_DISABLE;
+
+	/* Timecop: output is not sensitive regarding side-channels. */
+	unpoison(out, len);
 }
 
 static void aes_armce_xts_init(struct lc_sym_state *ctx)
@@ -85,6 +92,9 @@ static int aes_armce_xts_setkey(struct lc_sym_state *ctx, const uint8_t *key,
 	if (!lc_memcmp_secure(key, one_keylen, key + one_keylen, one_keylen))
 		return -ENOKEY;
 
+	/* Timecop: key is sensitive. */
+	poison(key, keylen);
+
 	LC_NEON_ENABLE;
 	CKINT(aes_v8_set_encrypt_key(key, (unsigned int)(one_keylen << 3),
 				     &ctx->enc_block_ctx));
@@ -96,6 +106,7 @@ static int aes_armce_xts_setkey(struct lc_sym_state *ctx, const uint8_t *key,
 
 out:
 	LC_NEON_DISABLE;
+	unpoison(key, keylen);
 	return ret;
 }
 
