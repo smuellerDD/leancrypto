@@ -28,6 +28,7 @@
 
 #include "aes_c.h"
 #include "aes_internal.h"
+#include "build_bug_on.h"
 #include "ext_headers_internal.h"
 #include "lc_aes.h"
 #include "lc_sym.h"
@@ -87,6 +88,8 @@ static void aes_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 static void aes_init(struct lc_sym_state *ctx)
 {
 	(void)ctx;
+
+	BUILD_BUG_ON(LC_AES_C_MAX_BLOCK_SIZE < LC_AES_BLOCK_SIZE);
 }
 
 static int aes_setkey(struct lc_sym_state *ctx, const uint8_t *key,

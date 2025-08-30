@@ -402,6 +402,20 @@ static inline void lc_kernel_aead_ascon_exit(void)
 }
 #endif
 
+#ifdef CONFIG_LEANCRYPTO_AES_GCM
+int __init lc_kernel_aes_gcm_init(void);
+void lc_kernel_aes_gcm_exit(void);
+#else
+static inline int __init lc_kernel_aes_gcm_init(void)
+{
+	return 0;
+}
+
+static inline void lc_kernel_aes_gcm_exit(void)
+{
+}
+#endif
+
 #ifdef CONFIG_LEANCRYPTO_KEM_BIKE_5
 int __init lc_kernel_bike_init(void);
 void lc_kernel_bike_exit(void);

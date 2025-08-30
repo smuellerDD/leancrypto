@@ -26,6 +26,7 @@
 #include "aes_riscv64.h"
 #include "aes_internal.h"
 #include "asm/riscv64/riscv64_aes_asm.h"
+#include "build_bug_on.h"
 #include "lc_aes.h"
 #include "lc_sym.h"
 #include "ret_checkers.h"
@@ -59,6 +60,8 @@ static void aes_riscv64_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 static void aes_riscv64_init(struct lc_sym_state *ctx)
 {
 	(void)ctx;
+
+	BUILD_BUG_ON(LC_AES_RISCV64_MAX_BLOCK_SIZE < LC_AES_BLOCK_SIZE);
 }
 
 static int aes_riscv64_setkey(struct lc_sym_state *ctx, const uint8_t *key,

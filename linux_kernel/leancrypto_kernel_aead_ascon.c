@@ -41,7 +41,7 @@ static void lc_aead_ascon_aad(struct aead_request *areq)
 	static const uint8_t pad_trail = 0x80;
 	size_t nbytes = areq->assoclen, sponge_offset = 0;
 
-	if (!areq->assoclen)
+	if (!nbytes)
 		return;
 
 	scatterwalk_start(&src_walk, areq->src);
@@ -91,7 +91,7 @@ static void lc_aead_ascon_aad(struct aead_request *areq)
 			    sizeof(pad_trail));
 }
 
-static int lc_aead_ascon_update(struct aead_request *areq,
+static int lc_aead_ascon_update(struct aead_request *areq, unsigned int nbytes,
 				int (*process)(struct lc_aead_ctx *ctx,
 					       const uint8_t *in, uint8_t *out,
 					       size_t datalen))
@@ -101,10 +101,9 @@ static int lc_aead_ascon_update(struct aead_request *areq,
 	struct scatterlist sg_src[2], sg_dst[2];
 	struct scatterlist *src, *dst;
 	struct scatter_walk src_walk, dst_walk;
-	unsigned int nbytes = areq->cryptlen;
 	int ret;
 
-	if (!areq->cryptlen)
+	if (!nbytes)
 		return 0;
 
 	src = scatterwalk_ffwd(sg_src, areq->src, areq->assoclen);
@@ -202,7 +201,7 @@ static int lc_aead_ascon_enc(struct aead_request *areq)
 
 	lc_aead_ascon_aad(areq);
 
-	ret = lc_aead_ascon_update(areq, lc_aead_enc_update);
+	ret = lc_aead_ascon_update(areq, areq->cryptlen, lc_aead_enc_update);
 	if (ret)
 		return ret;
 
@@ -213,16 +212,17 @@ static int lc_aead_ascon_dec_final(struct aead_request *areq)
 {
 	struct crypto_aead *aead = crypto_aead_reqtfm(areq);
 	struct lc_aead_ctx *ctx = crypto_aead_ctx(aead);
+	unsigned int authsize = crypto_aead_authsize(aead);
+	unsigned int cryptlen = areq->cryptlen - authsize;
 	/* Maximum tag size */
 	u8 tag[64];
 
 	WARN_ON(sizeof(tag) < crypto_aead_maxauthsize(aead));
 
-	scatterwalk_map_and_copy(tag, areq->src,
-				 areq->assoclen + areq->cryptlen,
-				 crypto_aead_authsize(aead), 0);
+	scatterwalk_map_and_copy(tag, areq->src, areq->assoclen + cryptlen,
+				 authsize, 0);
 
-	return lc_aead_dec_final(ctx, tag, crypto_aead_authsize(aead));
+	return lc_aead_dec_final(ctx, tag, authsize);
 }
 
 static int lc_aead_ascon_dec(struct aead_request *areq)
@@ -231,6 +231,9 @@ static int lc_aead_ascon_dec(struct aead_request *areq)
 	struct lc_aead_ctx *ctx = crypto_aead_ctx(aead);
 	int ret;
 
+	if (areq->cryptlen < crypto_aead_authsize(aead))
+		return -EBADMSG;
+
 	/* NULL-key implies loading the key set with lc_ascon_load_key */
 	ret = lc_aead_setkey(ctx, NULL, 0, areq->iv, crypto_aead_ivsize(aead));
 	if (ret)
@@ -238,7 +241,9 @@ static int lc_aead_ascon_dec(struct aead_request *areq)
 
 	lc_aead_ascon_aad(areq);
 
-	ret = lc_aead_ascon_update(areq, lc_aead_dec_update);
+	ret = lc_aead_ascon_update(areq,
+				   areq->cryptlen - crypto_aead_authsize(aead),
+				   lc_aead_dec_update);
 	if (ret)
 		return ret;
 

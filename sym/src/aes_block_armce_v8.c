@@ -26,6 +26,7 @@
 #include "aes_armce.h"
 #include "aes_internal.h"
 #include "asm/ARMv8/aes_armv8_ce.h"
+#include "build_bug_on.h"
 #include "ext_headers_arm.h"
 #include "lc_aes.h"
 #include "lc_sym.h"
@@ -64,6 +65,8 @@ static void aes_armce_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 static void aes_armce_init(struct lc_sym_state *ctx)
 {
 	(void)ctx;
+
+	BUILD_BUG_ON(LC_AES_ARMCE_MAX_BLOCK_SIZE < LC_AES_BLOCK_SIZE);
 }
 
 static int aes_armce_setkey(struct lc_sym_state *ctx, const uint8_t *key,

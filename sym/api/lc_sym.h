@@ -74,6 +74,10 @@ struct lc_sym_ctx {
 	(sizeof(struct lc_sym_ctx) + LC_SYM_STATE_SIZE_NONALIGNED(x))
 #define LC_SYM_CTX_SIZE(x) (sizeof(struct lc_sym_ctx) + LC_SYM_STATE_SIZE(x))
 
+#define LC_SYM_STATE_SIZE_LEN(len) ((len) + LC_SYM_COMMON_ALIGNMENT)
+#define LC_SYM_CTX_SIZE_LEN(len)                                               \
+	(sizeof(struct lc_sym_ctx) + LC_SYM_STATE_SIZE_LEN(len))
+
 #define _LC_SYM_SET_CTX(name, symname, ctx, offset)                            \
 	name->sym_state = (struct lc_sym_state *)LC_ALIGN_SYM_MASK(            \
 		((uint8_t *)(ctx)) + (offset), symname);                       \

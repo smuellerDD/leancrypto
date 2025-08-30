@@ -284,6 +284,13 @@ static int gcm_setkey(struct lc_aes_gcm_cryptor *ctx, const uint8_t *key,
 	uint8_t h[AES_BLOCKSIZE];
 
 	/*
+	 * If no key is provided, do not attempt to set it. This check now
+	 * allows the setting of the key and IV with independent calls to
+	 * gcm_set_key_iv. This is needed for the Linxu kernel support.
+	 */
+	CKNULL(key, 0);
+
+	/*
 	 * Timecop: the key is the sensitive information
 	 *
 	 * Yet, the AES C implementation is prone to side channels which is
@@ -367,6 +374,14 @@ static int gcm_setiv(struct lc_aes_gcm_cryptor *ctx, const uint8_t *iv,
 		return 0;
 
 	/*
+	 * When a new IV is set, we start with a new encryption, thus set the
+	 * AAD to zero
+	 */
+	ctx->gcm_ctx.aad_len = 0;
+	ctx->gcm_ctx.rem_aad_inserted = 0;
+	memset(ctx->gcm_ctx.buf, 0, sizeof(ctx->gcm_ctx.buf));
+
+	/*
 	 * since the context might be reused under the same key we zero the
 	 * working buffers for this next new process
 	 */
@@ -441,27 +456,43 @@ out:
  * Given a user-provided GCM context, this initializes it, sets the encryption
  * mode, and preprocesses the initialization vector and additional AEAD data.
  *
+ * This function allows to be invoked multiple times to insert the AAD. The
+ * individual AAD chunks do not need to be multiples of AES blocks.
  */
-static void gcm_aad(void *state, const uint8_t *add, size_t add_len)
+static void gcm_aad(void *state, const uint8_t *aad, size_t aad_len)
 {
 	struct lc_aes_gcm_cryptor *ctx = state;
 	const uint8_t *p; /* general purpose array pointer */
 	uint8_t use_len; /* byte count to process, up to AES_BLOCKSIZE bytes */
+	uint8_t rem_aad = ctx->gcm_ctx.aad_len & (AES_BLOCKSIZE - 1);
 
-	ctx->gcm_ctx.add_len = 0;
-	memset(ctx->gcm_ctx.buf, 0x00, sizeof(ctx->gcm_ctx.buf));
-	ctx->gcm_ctx.add_len = add_len;
-	p = add;
+	/*
+	 * Do not re-initialize gcm_ctx.aad_len and gcm_ctx.buf as this call
+	 * may be invoked multiple times if we have split AAD.
+	 */
 
-	while (add_len > 0) {
-		use_len = (add_len < AES_BLOCKSIZE) ? (uint8_t)add_len :
-						      AES_BLOCKSIZE;
+	/* Add the AAD to existing AAD */
+	ctx->gcm_ctx.aad_len += aad_len;
+	p = aad;
 
-		xor_64(ctx->gcm_ctx.buf, p, use_len);
+	while (aad_len > 0) {
+		use_len = (aad_len < (AES_BLOCKSIZE - rem_aad) ?
+				      (uint8_t)aad_len :
+				      (AES_BLOCKSIZE - rem_aad));
 
-		gcm_mult(ctx, ctx->gcm_ctx.buf, ctx->gcm_ctx.buf);
-		add_len -= use_len;
+		xor_64(ctx->gcm_ctx.buf + rem_aad, p, use_len);
+
+		/*
+		 * Only handle full blocks consisting of the previous remaining
+		 * and the current part at this time - the enc/dec must
+		 * handle the final non-aligned block.
+		 */
+		if (!((rem_aad + use_len) & (AES_BLOCKSIZE - 1)))
+			gcm_mult(ctx, ctx->gcm_ctx.buf, ctx->gcm_ctx.buf);
+
+		aad_len -= use_len;
 		p += use_len;
+		rem_aad = 0;
 	}
 }
 
@@ -473,7 +504,6 @@ static void gcm_aad(void *state, const uint8_t *add, size_t add_len)
  * of output bytes. If called multiple times (which is fine) all but the final
  * invocation MUST be called with length mod AES_BLOCKSIZE == 0. (Only the final
  * call can have a partial block length of < 128 bits.)
- *
  */
 static void gcm_enc_update(void *state, const uint8_t *plaintext,
 			   uint8_t *ciphertext, size_t datalen)
@@ -482,6 +512,13 @@ static void gcm_enc_update(void *state, const uint8_t *plaintext,
 	uint8_t use_len; /* byte count to process, up to AES_BLOCKSIZE bytes */
 	uint8_t i; /* local loop iterator */
 	uint8_t non_align;
+	uint8_t rem_aad = ctx->gcm_ctx.aad_len & (AES_BLOCKSIZE - 1);
+
+	/* Finalize the AAD processing */
+	if (rem_aad && !ctx->gcm_ctx.rem_aad_inserted) {
+		gcm_mult(ctx, ctx->gcm_ctx.buf, ctx->gcm_ctx.buf);
+		ctx->gcm_ctx.rem_aad_inserted = 1;
+	}
 
 	non_align = ctx->gcm_ctx.len & (AES_BLOCKSIZE - 1);
 
@@ -568,6 +605,13 @@ static void gcm_dec_update(void *state, const uint8_t *ciphertext,
 	uint8_t use_len; /* byte count to process, up to AES_BLOCKSIZE bytes */
 	uint8_t i; /* local loop iterator */
 	uint8_t non_align;
+	uint8_t rem_aad = ctx->gcm_ctx.aad_len & (AES_BLOCKSIZE - 1);
+
+	/* Finalize the AAD processing */
+	if (rem_aad && !ctx->gcm_ctx.rem_aad_inserted) {
+		gcm_mult(ctx, ctx->gcm_ctx.buf, ctx->gcm_ctx.buf);
+		ctx->gcm_ctx.rem_aad_inserted = 1;
+	}
 
 	non_align = ctx->gcm_ctx.len & (AES_BLOCKSIZE - 1);
 
@@ -652,24 +696,24 @@ static void gcm_dec_update(void *state, const uint8_t *ciphertext,
 static void gcm_enc_final(void *state, uint8_t *tag, size_t tag_len)
 {
 	struct lc_aes_gcm_cryptor *ctx = state;
-	uint8_t work_buf[AES_BLOCKSIZE];
 	uint64_t orig_len = ctx->gcm_ctx.len * 8;
-	uint64_t orig_add_len = ctx->gcm_ctx.add_len * 8;
+	uint64_t orig_aad_len = ctx->gcm_ctx.aad_len * 8;
 
 	/* Enforce minimum tag size of 64 bits */
-	if (tag_len < 64 / 8)
+	if (tag_len < 64 / 8 || tag_len > AES_BLOCKSIZE)
 		return;
 
 	if (ctx->gcm_ctx.len & (AES_BLOCKSIZE - 1))
 		gcm_mult(ctx, ctx->gcm_ctx.buf, ctx->gcm_ctx.buf);
 
-	if (tag_len != 0)
-		memcpy(tag, ctx->gcm_ctx.base_ectr, tag_len);
+	memcpy(tag, ctx->gcm_ctx.base_ectr, tag_len);
 
-	if (orig_len || orig_add_len) {
+	if (orig_len || orig_aad_len) {
+		uint8_t work_buf[AES_BLOCKSIZE];
+
 		memset(work_buf, 0, AES_BLOCKSIZE);
 
-		be64_to_ptr(work_buf, orig_add_len);
+		be64_to_ptr(work_buf, orig_aad_len);
 		be64_to_ptr(work_buf + 8, orig_len);
 
 		xor_64(ctx->gcm_ctx.buf, work_buf, AES_BLOCKSIZE);

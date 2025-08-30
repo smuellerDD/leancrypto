@@ -26,6 +26,7 @@
 #include "aes_aesni.h"
 #include "aes_internal.h"
 #include "asm/AESNI_x86_64/aes_aesni_x86_64.h"
+#include "build_bug_on.h"
 #include "ext_headers_x86.h"
 #include "lc_aes.h"
 #include "lc_sym.h"
@@ -73,6 +74,8 @@ static void aes_aesni_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 static void aes_aesni_init(struct lc_sym_state *ctx)
 {
 	(void)ctx;
+
+	BUILD_BUG_ON(LC_AES_AESNI_MAX_BLOCK_SIZE < LC_AES_BLOCK_SIZE);
 
 	if (!lc_x86_64_cpuid[0])
 		lc_cpu_feature_get_cpuid(lc_x86_64_cpuid);

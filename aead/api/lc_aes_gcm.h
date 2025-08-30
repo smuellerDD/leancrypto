@@ -30,9 +30,16 @@ extern "C" {
 /// \cond DO_NOT_DOCUMENT
 struct lc_gcm_ctx {
 	uint64_t len; // cipher data length processed so far
-	uint64_t add_len; // total add data length
+	uint64_t aad_len; // total add data length
 	uint64_t HL[16]; // precalculated lo-half HTable
 	uint64_t HH[16]; // precalculated hi-half HTable
+
+	/*
+	 * Htable has 32 uint64_t variables at its disposal. The caller
+	 * uses the HL[0] as start point and the function below can consume
+	 * HL[] and HH[] from the variable definitions above.
+	 */
+	void (*gcm_gmult_accel)(uint64_t Xi[2], const uint64_t *Htable);
 
 	/* y and buf must be aligned to 64 bits due to accel */
 	uint8_t y[16]; // the current cipher-input IV|Counter value
@@ -41,12 +48,7 @@ struct lc_gcm_ctx {
 	uint8_t base_ectr[16]; // first counter-mode cipher output for tag
 	uint8_t ectr[16]; // CTR ciphertext
 
-	/*
-	 * Htable has 32 uint64_t variables at its disposal. The caller
-	 * uses the HL[0] as start point and the function below can consume
-	 * HL[] and HH[] from the variable definitions above.
-	 */
-	void (*gcm_gmult_accel)(uint64_t Xi[2], const uint64_t *Htable);
+	uint8_t rem_aad_inserted : 1; // Was remaining AAD inserted?
 };
 
 struct lc_aes_gcm_cryptor {
@@ -54,10 +56,16 @@ struct lc_aes_gcm_cryptor {
 	struct lc_sym_ctx sym_ctx;
 };
 
+#define LC_AES_GCM_CTX_COMMON_SIZE                                             \
+	(sizeof(struct lc_aead) + sizeof(struct lc_aes_gcm_cryptor))
+
 #define LC_AES_GCM_STATE_SIZE(x) (LC_SYM_STATE_SIZE(x))
 #define LC_AES_GCM_CTX_SIZE                                                    \
-	(sizeof(struct lc_aead) + sizeof(struct lc_aes_gcm_cryptor) +          \
-	 LC_AES_GCM_STATE_SIZE(lc_aes))
+	(LC_AES_GCM_CTX_COMMON_SIZE + LC_AES_GCM_STATE_SIZE(lc_aes))
+
+#define LC_AES_GCM_STATE_SIZE_LEN(len) (LC_SYM_STATE_SIZE_LEN(len))
+#define LC_AES_GCM_CTX_SIZE_LEN(len)                                           \
+	(LC_AES_GCM_CTX_COMMON_SIZE + LC_AES_GCM_STATE_SIZE_LEN(len))
 
 /* AES-CBC with HMAC based AEAD-algorithm */
 extern const struct lc_aead *lc_aes_gcm_aead;

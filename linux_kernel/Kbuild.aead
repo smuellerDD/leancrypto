@@ -91,10 +91,12 @@ ifdef CONFIG_LEANCRYPTO_AES_GCM
 ccflags-y			+= -DCONFIG_LEANCRYPTO_AES_GCM
 leancrypto-$(CONFIG_LEANCRYPTO_AES_GCM)					       \
 				+= ../aead/src/gcm.o			       \
-				   ../hash/src/poly1305.o
+				   leancrypto_kernel_aes_gcm.o
 
 obj-m		  		+= aes_gcm_tester.o
 aes_gcm_tester-y		+= ../aead/tests/aes_gcm_tester.o
+obj-m				+= leancrypto_kernel_aes_gcm_tester.o
+leancrypto_kernel_aes_gcm_tester-y	+= ../aead/tests/leancrypto_kernel_aes_gcm_tester.o
 
 endif
 
