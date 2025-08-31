@@ -22,6 +22,7 @@
 #include "alignment.h"
 #include "compare.h"
 #include "ext_headers_internal.h"
+#include "helper.h"
 #include "lc_sym.h"
 #include "lc_memcmp_secure.h"
 #include "lc_memset_secure.h"
@@ -111,11 +112,12 @@ void mode_xts_selftest(const struct lc_sym *aes, int *tested, const char *impl)
  * in section 5.2 of "The XTS-AES Tweakable Block Cipher An Extract from IEEE
  * Std 1619-2007"
  */
-static void gfmul_alpha(uint8_t block[AES_BLOCKLEN])
+static __always_inline void gfmul_alpha(uint8_t block[AES_BLOCKLEN])
 {
 	uint8_t i = AES_BLOCKLEN;
 	uint8_t carry = block[AES_BLOCKLEN - 1] & 0x80;
 
+#pragma GCC unroll 16
 	while (--i) {
 		block[i] <<= 1;
 		block[i] |= (block[(i - 1)] & 0x80 ? 1 : 0);
