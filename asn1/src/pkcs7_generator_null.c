@@ -18,8 +18,8 @@
  */
 
 #include "ext_headers_internal.h"
-#include "pkcs7.asn1.h"
-#include "pkcs7_aa.asn1.h"
+#include "pkcs7_asn1.h"
+#include "pkcs7_aa_asn1.h"
 
 #define PKCS7_FUNC_UNDEF                                                        \
 	(void)context;                                                         \

@@ -17,13 +17,13 @@
  * DAMAGE.
  */
 
-#include "x509.asn1.h"
-#include "x509_akid.asn1.h"
-#include "x509_basic_constraints.asn1.h"
-#include "x509_eku.asn1.h"
-#include "x509_keyusage.asn1.h"
-#include "x509_san.asn1.h"
-#include "x509_skid.asn1.h"
+#include "x509_asn1.h"
+#include "x509_akid_asn1.h"
+#include "x509_basic_constraints_asn1.h"
+#include "x509_eku_asn1.h"
+#include "x509_keyusage_asn1.h"
+#include "x509_san_asn1.h"
+#include "x509_skid_asn1.h"
 
 #define X509_FUNC_UNDEF                                                        \
 	(void)context;                                                         \
