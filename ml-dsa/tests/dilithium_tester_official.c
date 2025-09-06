@@ -53,15 +53,15 @@ static int dilithium_iuf_tester_official(struct lc_dilithium_ctx *ctx)
 	CKINT_LOG(lc_dilithium_sign_init(ctx, &ws->sk),
 		  "Sign init failed - ret %d\n", ret);
 	CKINT_LOG(lc_dilithium_sign_update(ctx, ws->msg, sizeof(ws->msg)),
-		  "Sign update failed - ret %u\n", ret);
+		  "Sign update failed - ret %d\n", ret);
 	CKINT_LOG(lc_dilithium_sign_final(&ws->sig, ctx, &ws->sk,
 					  lc_seeded_rng),
-		  "Sign final failed - ret %u\n", ret);
+		  "Sign final failed - ret %d\n", ret);
 
 	CKINT_LOG(lc_dilithium_verify_init(ctx, &ws->pk),
-		  "Verify init failed - ret %u\n", ret);
+		  "Verify init failed - ret %d\n", ret);
 	CKINT_LOG(lc_dilithium_verify_update(ctx, ws->msg, sizeof(ws->msg)),
-		  "Verify update failed - ret %u\n", ret);
+		  "Verify update failed - ret %d\n", ret);
 	CKINT_LOG(lc_dilithium_verify_final(&ws->sig, ctx, &ws->pk),
 		  "Signature verification stream operatino fialed - ret: %d\n",
 		  ret);
