@@ -31,7 +31,8 @@ extern "C" {
 /// \cond DO_NOT_DOCUMENT
 struct lc_sym_state;
 struct lc_sym {
-	void (*init)(struct lc_sym_state *ctx);
+	int (*init)(struct lc_sym_state *ctx);
+	int (*init_nocheck)(struct lc_sym_state *ctx);
 	int (*setkey)(struct lc_sym_state *ctx, const uint8_t *key,
 		      size_t keylen);
 	int (*setiv)(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen);
@@ -110,7 +111,7 @@ struct lc_sym_ctx {
  *
  * The caller must provide an allocated \p ctx.
  */
-void lc_sym_init(struct lc_sym_ctx *ctx);
+int lc_sym_init(struct lc_sym_ctx *ctx);
 
 /**
  * @ingroup Symmetric

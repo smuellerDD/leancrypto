@@ -50,6 +50,7 @@ static void sha256_final_arm_neon(void *_state, uint8_t *digest)
 
 static const struct lc_hash _sha256_arm_neon = {
 	.init = sha256_init,
+	.init_nocheck = sha256_init_nocheck,
 	.update = sha256_update_arm_neon,
 	.final = sha256_final_arm_neon,
 	.set_digestsize = NULL,

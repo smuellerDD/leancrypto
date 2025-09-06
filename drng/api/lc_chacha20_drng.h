@@ -49,14 +49,14 @@ struct lc_chacha20_drng_ctx {
  *
  * @param [in] cc20_ctx Hash context to be zeroized
  */
-static inline void lc_cc20_drng_zero(struct lc_chacha20_drng_ctx *cc20_ctx)
+static inline int lc_cc20_drng_zero(struct lc_chacha20_drng_ctx *cc20_ctx)
 {
 	struct lc_sym_ctx *sym_ctx = &cc20_ctx->cc20;
 
 	lc_memset_secure((uint8_t *)cc20_ctx +
 				 sizeof(struct lc_chacha20_drng_ctx),
 			 0, LC_CC20_DRNG_STATE_SIZE);
-	lc_sym_init(sym_ctx);
+	return lc_sym_init(sym_ctx);
 }
 
 /**
@@ -129,9 +129,11 @@ void lc_cc20_drng_generate(struct lc_chacha20_drng_ctx *cc20_ctx,
  *
  * When calling the function, the DRNG is seeded or reseeded. If it is reseeded,
  * the old state information is mixed into the new state.
+ *
+ * @return < 0 on error, 0 on success
  */
-void lc_cc20_drng_seed(struct lc_chacha20_drng_ctx *cc20_ctx,
-		       const uint8_t *inbuf, size_t inbuflen);
+int lc_cc20_drng_seed(struct lc_chacha20_drng_ctx *cc20_ctx,
+		      const uint8_t *inbuf, size_t inbuflen);
 
 #ifdef __cplusplus
 }

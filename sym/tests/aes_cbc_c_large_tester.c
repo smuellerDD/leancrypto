@@ -36,14 +36,14 @@ static int aes_cbc_large_c(void)
 
 	CKINT(test_mem(&pt, &len));
 
-	lc_sym_init(aes_cbc);
+	CKINT(lc_sym_init(aes_cbc));
 	CKINT_LOG(lc_sym_setkey(aes_cbc, key, sizeof(key)),
 		  "Encrypt set key\n");
 	CKINT_LOG(lc_sym_setiv(aes_cbc, iv, sizeof(iv)), "Encrypt set IV\n");
 	lc_sym_encrypt(aes_cbc, pt, pt, len);
 	lc_sym_zero(aes_cbc);
 
-	lc_sym_init(aes_cbc);
+	CKINT(lc_sym_init(aes_cbc));
 	CKINT_LOG(lc_sym_setkey(aes_cbc, key, sizeof(key)),
 		  "Decrypt set key\n");
 	CKINT_LOG(lc_sym_setiv(aes_cbc, iv, sizeof(iv)), "Decrypt set IV\n");

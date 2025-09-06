@@ -45,7 +45,8 @@ static inline void kyber_kdf2(const uint8_t *in, size_t inlen,
 {
 	LC_HASH_CTX_ON_STACK(shake256, lc_shake256);
 
-	lc_hash_init(shake256);
+	if (lc_hash_init(shake256))
+		return;
 	lc_hash_update(shake256, in, inlen);
 	lc_hash_update(shake256, in2, inlen2);
 	lc_hash_set_digestsize(shake256, outlen);
@@ -80,8 +81,9 @@ static inline void kyber_kdf3(const uint8_t *in, size_t inlen,
 	static const uint8_t kyber_ss_label[] = "Kyber KEM 3-way SS";
 	LC_KMAC_CTX_ON_STACK(kmac_ctx, lc_cshake256);
 
-	lc_kmac_init(kmac_ctx, in, inlen, kyber_ss_label,
-		     sizeof(kyber_ss_label) - 1);
+	if (lc_kmac_init(kmac_ctx, in, inlen, kyber_ss_label,
+			 sizeof(kyber_ss_label) - 1))
+		return;
 	lc_kmac_update(kmac_ctx, in2, inlen2);
 	lc_kmac_update(kmac_ctx, in3, inlen3);
 	lc_kmac_final(kmac_ctx, out, outlen);
@@ -119,8 +121,9 @@ static inline void kyber_kdf4(const uint8_t *in, size_t inlen,
 	static const uint8_t kyber_ss_label[] = "Kyber KEM 4-way SS";
 	LC_KMAC_CTX_ON_STACK(kmac_ctx, lc_cshake256);
 
-	lc_kmac_init(kmac_ctx, in, inlen, kyber_ss_label,
-		     sizeof(kyber_ss_label) - 1);
+	if (lc_kmac_init(kmac_ctx, in, inlen, kyber_ss_label,
+			 sizeof(kyber_ss_label) - 1))
+		return;
 	lc_kmac_update(kmac_ctx, in2, inlen2);
 	lc_kmac_update(kmac_ctx, in3, inlen3);
 	lc_kmac_update(kmac_ctx, in4, inlen4);

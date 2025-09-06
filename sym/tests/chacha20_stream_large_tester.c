@@ -43,14 +43,14 @@ static int chacha20_large_tester(const struct lc_sym *chacha20_sym)
 	CKINT(test_mem(&pt, &len));
 
 	/* Encrypt */
-	lc_sym_init(chacha20);
+	CKINT(lc_sym_init(chacha20));
 	CKINT(lc_sym_setkey(chacha20, (uint8_t *)key, sizeof(key)));
 	CKINT(lc_sym_setiv(chacha20, (uint8_t *)iv, sizeof(iv)));
 	lc_sym_encrypt(chacha20, pt, pt, len);
 	lc_sym_zero(chacha20);
 
 	/* Decrypt */
-	lc_sym_init(chacha20);
+	CKINT(lc_sym_init(chacha20));
 	CKINT(lc_sym_setkey(chacha20, (uint8_t *)key, sizeof(key)));
 	CKINT(lc_sym_setiv(chacha20, (uint8_t *)iv, sizeof(iv)));
 	lc_sym_decrypt(chacha20, pt, pt, len);

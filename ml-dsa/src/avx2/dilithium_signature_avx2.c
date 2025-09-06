@@ -34,7 +34,6 @@
 #include "dilithium_polyvec_avx2.h"
 #include "dilithium_debug.h"
 #include "dilithium_pct.h"
-#include "dilithium_selftest.h"
 #include "dilithium_signature_avx2.h"
 #include "lc_rng.h"
 #include "lc_sha3.h"
@@ -122,7 +121,6 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_avx2,
 	const uint8_t *rho, *rhoprime, *key;
 	polyvecl *row;
 	int ret;
-	static int tested = 0;
 	LC_HASH_CTX_ON_STACK(shake256_ctx, lc_shake256);
 	LC_DECLARE_MEM(ws, struct workspace, 32);
 
@@ -131,15 +129,12 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_avx2,
 		goto out;
 	}
 
-	dilithium_keypair_tester(&tested, "Dilithium Keygen AVX2",
-				 lc_dilithium_keypair_from_seed_avx2);
-
 	row = ws->rowbuf;
 
 	/* Get randomness for rho, rhoprime and key */
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, ws->seedbuf,
 			      LC_DILITHIUM_SEEDBYTES));
-	lc_hash_init(shake256_ctx);
+	CKINT(lc_hash_init(shake256_ctx));
 	lc_hash_update(shake256_ctx, ws->seedbuf, LC_DILITHIUM_SEEDBYTES);
 	lc_hash_update(shake256_ctx, dimension, sizeof(dimension));
 	lc_hash_set_digestsize(shake256_ctx, sizeof(ws->seedbuf));
@@ -249,8 +244,9 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_avx2,
 			       "Keygen - PK after pkEncode:");
 
 	/* Compute H(rho, t1) and store in secret key */
-	lc_xof(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES,
-	       sk->sk + 2 * LC_DILITHIUM_SEEDBYTES, LC_DILITHIUM_TRBYTES);
+	CKINT(lc_xof(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES,
+		     sk->sk + 2 * LC_DILITHIUM_SEEDBYTES,
+		     LC_DILITHIUM_TRBYTES));
 
 	/* Timecop: pk and sk are not relevant for side-channels any more. */
 	unpoison(pk->pk, sizeof(pk->pk));
@@ -359,10 +355,10 @@ static int lc_dilithium_sign_avx2_internal(struct lc_dilithium_sig *sig,
 	/* Timecop: key is secret */
 	poison(key, LC_DILITHIUM_SEEDBYTES);
 
-	lc_xof(lc_shake256, key,
-	       LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_RNDBYTES +
+	CKINT(lc_xof(lc_shake256, key,
+		     LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_RNDBYTES +
 		       LC_DILITHIUM_CRHBYTES,
-	       rhoprime, LC_DILITHIUM_CRHBYTES);
+		     rhoprime, LC_DILITHIUM_CRHBYTES));
 
 	/*
 	 * Timecop: RHO' is the hash of the secret value of key which is
@@ -437,7 +433,7 @@ rej:
 
 	polyveck_pack_w1_avx(sig->sig, &ws->w1);
 
-	lc_hash_init(hash_ctx);
+	CKINT(lc_hash_init(hash_ctx));
 	lc_hash_update(hash_ctx, mu, LC_DILITHIUM_CRHBYTES);
 	lc_hash_update(hash_ctx, sig->sig,
 		       LC_DILITHIUM_K * LC_DILITHIUM_POLYW1_PACKEDBYTES);
@@ -543,7 +539,6 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_ctx_avx2,
 {
 	uint8_t tr[LC_DILITHIUM_TRBYTES];
 	int ret = 0;
-	static int tested = 0;
 
 	/* rng_ctx is allowed to be NULL as handled below */
 	if (!sig || !sk || !ctx)
@@ -552,16 +547,13 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_ctx_avx2,
 	if (!m && !ctx->external_mu)
 		return -EINVAL;
 
-	dilithium_siggen_tester(&tested, "Dilithium Siggen AVX2",
-				lc_dilithium_sign_ctx_avx2);
-
 	unpack_sk_tr_avx2(tr, sk);
 
 	if (m) {
 		/* Compute mu = CRH(tr, msg) */
 		struct lc_hash_ctx *hash_ctx = &ctx->dilithium_hash_ctx;
 
-		lc_hash_init(hash_ctx);
+		CKINT(lc_hash_init(hash_ctx));
 		lc_hash_update(hash_ctx, tr, LC_DILITHIUM_TRBYTES);
 		CKINT(signature_domain_separation(
 			&ctx->dilithium_hash_ctx, ctx->ml_dsa_internal,
@@ -595,7 +587,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_init_avx2,
 {
 	uint8_t tr[LC_DILITHIUM_TRBYTES];
 	struct lc_hash_ctx *hash_ctx;
-	static int tested = 0;
+	int ret;
 
 	/* rng_ctx is allowed to be NULL as handled below */
 	if (!ctx || !sk)
@@ -607,21 +599,21 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_init_avx2,
 	if (hash_ctx->hash != lc_shake256)
 		return -EOPNOTSUPP;
 
-	dilithium_siggen_tester(&tested, "Dilithium Siggen C",
-				lc_dilithium_sign_ctx_avx2);
-
 	unpack_sk_tr_avx2(tr, sk);
 
 	/* Compute mu = CRH(tr, msg) */
-	lc_hash_init(hash_ctx);
+	CKINT(lc_hash_init(hash_ctx));
 	lc_hash_update(hash_ctx, tr, LC_DILITHIUM_TRBYTES);
 	lc_memset_secure(tr, 0, sizeof(tr));
 
-	return signature_domain_separation(
+	CKINT(signature_domain_separation(
 		&ctx->dilithium_hash_ctx, ctx->ml_dsa_internal,
 		ctx->dilithium_prehash_type, ctx->userctx, ctx->userctxlen,
 		NULL, 0, ctx->randomizer, ctx->randomizerlen,
-		LC_DILITHIUM_NIST_CATEGORY);
+		LC_DILITHIUM_NIST_CATEGORY));
+
+out:
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_update_avx2,
@@ -758,7 +750,7 @@ static int lc_dilithium_verify_avx2_internal(const struct lc_dilithium_sig *sig,
 			return -EINVAL;
 
 		/* Call random oracle and verify challenge */
-		lc_hash_init(hash_ctx);
+		CKINT(lc_hash_init(hash_ctx));
 		lc_hash_update(hash_ctx, ctx->external_mu,
 			       LC_DILITHIUM_CRHBYTES);
 	} else {
@@ -766,7 +758,7 @@ static int lc_dilithium_verify_avx2_internal(const struct lc_dilithium_sig *sig,
 		lc_hash_final(hash_ctx, ws->mu);
 
 		/* Call random oracle and verify challenge */
-		lc_hash_init(hash_ctx);
+		CKINT(lc_hash_init(hash_ctx));
 		lc_hash_update(hash_ctx, ws->mu, LC_DILITHIUM_CRHBYTES);
 	}
 
@@ -793,7 +785,6 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_ctx_avx2,
 {
 	uint8_t tr[LC_DILITHIUM_TRBYTES];
 	int ret = 0;
-	static int tested = 0;
 
 	if (!sig || !pk || !ctx)
 		return -EINVAL;
@@ -801,16 +792,13 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_ctx_avx2,
 	if (!m && !ctx->external_mu)
 		return -EINVAL;
 
-	dilithium_sigver_tester(&tested, "Dilithium Sigver AVX2",
-				lc_dilithium_verify_ctx_avx2);
-
 	/* Compute CRH(H(rho, t1), msg) */
-	lc_xof(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES, tr,
-	       LC_DILITHIUM_TRBYTES);
+	CKINT(lc_xof(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES, tr,
+		     LC_DILITHIUM_TRBYTES));
 
 	if (m) {
 		struct lc_hash_ctx *hash_ctx = &ctx->dilithium_hash_ctx;
-		lc_hash_init(hash_ctx);
+		CKINT(lc_hash_init(hash_ctx));
 		lc_hash_update(hash_ctx, tr, LC_DILITHIUM_TRBYTES);
 		CKINT(signature_domain_separation(
 			&ctx->dilithium_hash_ctx, ctx->ml_dsa_internal,
@@ -843,7 +831,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_init_avx2,
 {
 	uint8_t tr[LC_DILITHIUM_TRBYTES];
 	struct lc_hash_ctx *hash_ctx;
-	static int tested = 0;
+	int ret;
 
 	/* rng_ctx is allowed to be NULL as handled below */
 	if (!ctx || !pk)
@@ -855,22 +843,22 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_init_avx2,
 	if (hash_ctx->hash != lc_shake256)
 		return -EOPNOTSUPP;
 
-	dilithium_sigver_tester(&tested, "Dilithium Sigver C",
-				lc_dilithium_verify_ctx_avx2);
-
 	/* Compute CRH(H(rho, t1), msg) */
-	lc_xof(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES, tr,
-	       LC_DILITHIUM_TRBYTES);
+	CKINT(lc_xof(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES, tr,
+		     LC_DILITHIUM_TRBYTES));
 
-	lc_hash_init(hash_ctx);
+	CKINT(lc_hash_init(hash_ctx));
 	lc_hash_update(hash_ctx, tr, LC_DILITHIUM_TRBYTES);
 	lc_memset_secure(tr, 0, sizeof(tr));
 
-	return signature_domain_separation(
+	CKINT(signature_domain_separation(
 		&ctx->dilithium_hash_ctx, ctx->ml_dsa_internal,
 		ctx->dilithium_prehash_type, ctx->userctx, ctx->userctxlen,
 		NULL, 0, ctx->randomizer, ctx->randomizerlen,
-		LC_DILITHIUM_NIST_CATEGORY);
+		LC_DILITHIUM_NIST_CATEGORY));
+
+out:
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_update_avx2,

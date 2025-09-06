@@ -36,7 +36,6 @@
 #endif
 
 static int _kyber_kem_keygen_selftest(
-	const char *impl,
 	int (*_lc_kyber_keypair)(struct lc_kyber_pk *pk, struct lc_kyber_sk *sk,
 				 struct lc_rng_ctx *rng_ctx))
 {
@@ -44,7 +43,6 @@ static int _kyber_kem_keygen_selftest(
 		struct lc_kyber_pk pk;
 		struct lc_kyber_sk sk;
 	};
-	char str[35];
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 
@@ -54,17 +52,17 @@ static int _kyber_kem_keygen_selftest(
 	 * IG 10.3.A: it is not required to validate ek as it is part of dk.
 	 */
 #if 0
-	snprintf(str, sizeof(str), "%s PK", impl);
-	lc_compare_selftest(ws->pk.pk, kyber_testvectors[0].pk.pk,
-			    LC_CRYPTO_PUBLICKEYBYTES, str);
+	if (lc_compare_selftest(LC_ALG_STATUS_MLKEM_KEYGEN, ws->pk.pk,
+				kyber_testvectors[0].pk.pk,
+				LC_CRYPTO_PUBLICKEYBYTES, "ML-KEM keygen PK");
+		goto out;
 #endif
-
-	snprintf(str, sizeof(str), "%s SK", impl);
 
 	/* Timecop: Selftest does not contain secrets */
 	unpoison(&ws->sk.sk, LC_CRYPTO_SECRETKEYBYTES);
-	lc_compare_selftest(ws->sk.sk, kyber_testvectors[0].sk.sk,
-			    LC_CRYPTO_SECRETKEYBYTES, str);
+	lc_compare_selftest(LC_ALG_STATUS_MLKEM_KEYGEN, ws->sk.sk,
+			    kyber_testvectors[0].sk.sk,
+			    LC_CRYPTO_SECRETKEYBYTES, "ML-KEM keygen SK");
 
 	LC_RELEASE_MEM(ws);
 	lc_rng_zero(selftest_rng);
@@ -73,27 +71,22 @@ static int _kyber_kem_keygen_selftest(
 }
 
 void kyber_kem_keygen_selftest(
-	int *tested, const char *impl,
 	int (*_lc_kyber_keypair)(struct lc_kyber_pk *pk, struct lc_kyber_sk *sk,
 				 struct lc_rng_ctx *rng_ctx))
 {
-	LC_SELFTEST_RUN(tested);
-
-	if (_kyber_kem_keygen_selftest(impl, _lc_kyber_keypair))
-		*tested = 0;
+	LC_SELFTEST_RUN(LC_ALG_STATUS_MLKEM_KEYGEN);
+	_kyber_kem_keygen_selftest(_lc_kyber_keypair);
 }
 
-static int _kyber_kem_enc_selftest(
-	const char *impl,
-	int (*_lc_kyber_enc)(struct lc_kyber_ct *ct, struct lc_kyber_ss *ss,
-			     const struct lc_kyber_pk *pk,
-			     struct lc_rng_ctx *rng_ctx))
+static int _kyber_kem_enc_selftest(int (*_lc_kyber_enc)(struct lc_kyber_ct *ct,
+						 struct lc_kyber_ss *ss,
+						 const struct lc_kyber_pk *pk,
+						 struct lc_rng_ctx *rng_ctx))
 {
 	struct workspace {
 		struct lc_kyber_ct ct;
 		struct lc_kyber_ss key_b;
 	};
-	char str[25];
 	uint8_t discard[2 * LC_KYBER_SYMBYTES];
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
@@ -104,73 +97,62 @@ static int _kyber_kem_enc_selftest(
 	// Encapsulation
 	_lc_kyber_enc(&ws->ct, &ws->key_b, &kyber_testvectors[0].pk,
 		      selftest_rng);
-	snprintf(str, sizeof(str), "%s CT", impl);
 
 	/* Timecop: Selftest does not contain secrets */
 	unpoison(&ws->ct.ct, LC_CRYPTO_CIPHERTEXTBYTES);
-	lc_compare_selftest(ws->ct.ct, kyber_testvectors[0].ct.ct,
-			    LC_CRYPTO_CIPHERTEXTBYTES, str);
-	snprintf(str, sizeof(str), "%s SS", impl);
+	if (lc_compare_selftest(LC_ALG_STATUS_MLKEM_ENC, ws->ct.ct,
+				kyber_testvectors[0].ct.ct,
+				LC_CRYPTO_CIPHERTEXTBYTES, "ML-KEM enc CT"))
+		goto out;
 
 	/* Timecop: Selftest does not contain secrets */
 	unpoison(&ws->key_b.ss, LC_KYBER_SSBYTES);
-	lc_compare_selftest(ws->key_b.ss, kyber_testvectors[0].ss.ss,
-			    LC_KYBER_SSBYTES, str);
+	lc_compare_selftest(LC_ALG_STATUS_MLKEM_ENC, ws->key_b.ss,
+			    kyber_testvectors[0].ss.ss, LC_KYBER_SSBYTES,
+			    "ML-KEM enc SS");
 
+out:
 	LC_RELEASE_MEM(ws);
 	lc_rng_zero(selftest_rng);
-
 	return 0;
 }
 
-void kyber_kem_enc_selftest(int *tested, const char *impl,
-			    int (*_lc_kyber_enc)(struct lc_kyber_ct *ct,
+void kyber_kem_enc_selftest(int (*_lc_kyber_enc)(struct lc_kyber_ct *ct,
 						 struct lc_kyber_ss *ss,
 						 const struct lc_kyber_pk *pk,
 						 struct lc_rng_ctx *rng_ctx))
 {
-	LC_SELFTEST_RUN(tested);
-
-	if (_kyber_kem_enc_selftest(impl, _lc_kyber_enc))
-		*tested = 0;
+	LC_SELFTEST_RUN(LC_ALG_STATUS_MLKEM_ENC);
+	_kyber_kem_enc_selftest(_lc_kyber_enc);
 }
 
-static void
-_kyber_kem_dec_selftest(const char *impl,
-			int (*_lc_kyber_dec)(struct lc_kyber_ss *ss,
-					     const struct lc_kyber_ct *ct,
-					     const struct lc_kyber_sk *sk))
+void kyber_kem_dec_selftest(int (*_lc_kyber_dec)(struct lc_kyber_ss *ss,
+						 const struct lc_kyber_ct *ct,
+						 const struct lc_kyber_sk *sk))
+
 {
 	struct lc_kyber_ss key_a;
-	char str[25];
+
+	LC_SELFTEST_RUN(LC_ALG_STATUS_MLKEM_DEC);
 
 	// Decapsulation
 	_lc_kyber_dec(&key_a, &kyber_testvectors[0].ct,
 		      &kyber_testvectors[0].sk);
-	snprintf(str, sizeof(str), "%s SS", impl);
 
 	/* Timecop: Selftest does not contain secrets */
 	unpoison(key_a.ss, LC_KYBER_SSBYTES);
-	lc_compare_selftest(key_a.ss, kyber_testvectors[0].ss.ss,
-			    LC_KYBER_SSBYTES, str);
+	if (lc_compare_selftest(LC_ALG_STATUS_MLKEM_DEC, key_a.ss,
+				kyber_testvectors[0].ss.ss, LC_KYBER_SSBYTES,
+				"ML-KEM dec SS"))
+		return;
 
 	/* Implicit rejection testing */
 	_lc_kyber_dec(&key_a, &kyber_testvectors[1].ct,
 		      &kyber_testvectors[0].sk);
-	snprintf(str, sizeof(str), "%s SS", impl);
 
 	/* Timecop: Selftest does not contain secrets */
 	unpoison(key_a.ss, LC_KYBER_SSBYTES);
-	lc_compare_selftest(key_a.ss, kyber_testvectors[1].ss.ss,
-			    LC_KYBER_SSBYTES, str);
-}
-
-void kyber_kem_dec_selftest(int *tested, const char *impl,
-			    int (*_lc_kyber_dec)(struct lc_kyber_ss *ss,
-						 const struct lc_kyber_ct *ct,
-						 const struct lc_kyber_sk *sk))
-{
-	LC_SELFTEST_RUN(tested);
-
-	_kyber_kem_dec_selftest(impl, _lc_kyber_dec);
+	lc_compare_selftest(LC_ALG_STATUS_MLKEM_DEC, key_a.ss,
+			    kyber_testvectors[1].ss.ss, LC_KYBER_SSBYTES,
+			    "ML-KEM dec SS rejection");
 }

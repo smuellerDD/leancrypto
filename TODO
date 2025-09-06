@@ -24,5 +24,3 @@
 - Add SLH-DSA-Ascon to Linux kernel
 
 - FIPS 140 integrity check: fix for cross compilation (leancrypto-fips-raw-generator is to be executed on build host, but with a library that is compiled for target host)
-
-- merge leancrypto_kernel_aead_ascon_tester.c and leancrypto_kernel_aes_gcm_tester.c once GCM learns support for non-aligned AAD handling

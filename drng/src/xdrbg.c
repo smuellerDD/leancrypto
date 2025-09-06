@@ -19,10 +19,12 @@
  */
 
 #include "build_bug_on.h"
+#include "compare.h"
 #include "ext_headers_internal.h"
 #include "lc_memcmp_secure.h"
 #include "lc_xdrbg.h"
 #include "math_helper.h"
+#include "ret_checkers.h"
 #include "timecop.h"
 #include "visibility.h"
 #include "xdrbg_internal.h"
@@ -111,13 +113,15 @@ static void lc_xdrbg_drng_encode(struct lc_hash_ctx *xof_ctx, const uint8_t n,
  * When this function completes, initialized XOF context can now be used
  * to generate random bits.
  */
-static void lc_xdrbg_drng_fke_init_ctx(struct lc_xdrbg_drng_state *state,
+static int lc_xdrbg_drng_fke_init_ctx(struct lc_xdrbg_drng_state *state,
 				       struct lc_hash_ctx *xof_ctx,
 				       const uint8_t *alpha, size_t alphalen)
 {
 	uint8_t keysize = lc_xdrbg_keysize(state);
+	int ret = lc_hash_init(xof_ctx);
 
-	lc_hash_init(xof_ctx);
+	if (ret)
+		return ret;
 
 	/* Insert V' into the XOF */
 	lc_hash_update(xof_ctx, state->v, keysize);
@@ -128,6 +132,8 @@ static void lc_xdrbg_drng_fke_init_ctx(struct lc_xdrbg_drng_state *state,
 
 	/* Generate the V to store in the state and overwrite V'. */
 	lc_xdrbg_xof_final(xof_ctx, state->v, keysize);
+
+	return 0;
 }
 
 /*********************************** XDRBG ************************************/
@@ -150,6 +156,7 @@ static int lc_xdrbg_drng_generate(void *_state, const uint8_t *alpha,
 				  size_t alphalen, uint8_t *out, size_t outlen)
 {
 	struct lc_xdrbg_drng_state *state = _state;
+	int ret = 0;
 
 	if (!state)
 		return -EINVAL;
@@ -163,7 +170,7 @@ static int lc_xdrbg_drng_generate(void *_state, const uint8_t *alpha,
 		 * Instantiate XOF with V', and alpha with its encoding,
 		 * and generate V.
 		 */
-		lc_xdrbg_drng_fke_init_ctx(state, xof_ctx, alpha, alphalen);
+		CKINT(lc_xdrbg_drng_fke_init_ctx(state, xof_ctx, alpha, alphalen));
 
 		/* Generate the requested amount of output bits */
 		lc_xdrbg_xof_final(xof_ctx, out, todo);
@@ -177,10 +184,11 @@ static int lc_xdrbg_drng_generate(void *_state, const uint8_t *alpha,
 
 	/* V is already in place. */
 
+out:
 	/* Clear the XOF state which is not needed any more. */
 	lc_hash_zero(xof_ctx);
 
-	return 0;
+	return ret;
 }
 
 /*
@@ -199,30 +207,22 @@ static int lc_xdrbg_drng_generate(void *_state, const uint8_t *alpha,
  *            In this case, state->state has LC_XDRBG256_DRNG_INITIALLY_SEEDED
  *	      set.
  */
-static int lc_xdrbg_drng_seed(void *_state, const uint8_t *seed, size_t seedlen,
-			      const uint8_t *alpha, size_t alphalen)
+int lc_xdrbg_drng_seed_nocheck(void *_state, const uint8_t *seed,
+			       size_t seedlen, const uint8_t *alpha,
+			       size_t alphalen)
 {
-	static int tested = 0;
 	struct lc_xdrbg_drng_state *state = _state;
-	uint8_t keysize, initially_seeded;
+	uint8_t initially_seeded, keysize = lc_xdrbg_keysize(state);
+	int ret;
 
 	/* Timecop: Seed is sensitive. */
 	poison(seed, seedlen);
 
-	if (!state)
-		return -EINVAL;
-
 	LC_HASH_CTX_ON_STACK(xof_ctx, state->xof);
 
 	initially_seeded = lc_xdrbg_initially_seeded(state);
-	keysize = lc_xdrbg_keysize(state);
 
-	if (keysize == LC_XDRBG256_DRNG_KEYSIZE)
-		xdrbg256_drng_selftest(&tested, "SHAKE-256 XDRBG");
-	else
-		xdrbg128_drng_selftest(&tested, "Ascon XOF XDRBG");
-
-	lc_hash_init(xof_ctx);
+	CKINT(lc_hash_init(xof_ctx));
 
 	/*
 	 * During reseeding, insert V' into the XOF state. During initial
@@ -246,7 +246,31 @@ static int lc_xdrbg_drng_seed(void *_state, const uint8_t *seed, size_t seedlen,
 	/* Clear the XOF state which is not needed any more. */
 	lc_hash_zero(xof_ctx);
 
-	return 0;
+out:
+	return ret;
+}
+
+static int lc_xdrbg_drng_seed(void *_state, const uint8_t *seed, size_t seedlen,
+			      const uint8_t *alpha, size_t alphalen)
+{
+	struct lc_xdrbg_drng_state *state = _state;
+	uint8_t keysize;
+
+	if (!state)
+		return -EINVAL;
+
+	keysize = lc_xdrbg_keysize(state);
+
+	if (keysize == LC_XDRBG256_DRNG_KEYSIZE) {
+		xdrbg256_drng_selftest();
+		LC_SELFTEST_COMPLETED(LC_ALG_STATUS_XDRBG256);
+	} else {
+		xdrbg128_drng_selftest();
+		LC_SELFTEST_COMPLETED(LC_ALG_STATUS_XDRBG128);
+	}
+
+	return lc_xdrbg_drng_seed_nocheck(_state, seed, seedlen, alpha,
+					  alphalen);
 }
 
 static void lc_xdrbg_drng_zero(void *_state)

@@ -83,9 +83,10 @@ static int kmac_drng_selftest(struct lc_rng_ctx *kmac_ctx)
 	/* Verfy the generation operation with one KMAC call */
 	/* Prepare the key */
 	lc_rng_seed(kmac_ctx, seed, sizeof(seed), NULL, 0);
-	lc_kmac_init(kmac_compare, NULL, 0,
-		     (uint8_t *)LC_KMAC_DRNG_SEED_CUSTOMIZATION_STRING,
-		     sizeof(LC_KMAC_DRNG_SEED_CUSTOMIZATION_STRING) - 1);
+	if (lc_kmac_init(kmac_compare, NULL, 0,
+			 (uint8_t *)LC_KMAC_DRNG_SEED_CUSTOMIZATION_STRING,
+			 sizeof(LC_KMAC_DRNG_SEED_CUSTOMIZATION_STRING) - 1))
+		return 1;
 	lc_kmac_update(kmac_compare, seed, sizeof(seed));
 	encode = 0;
 	lc_kmac_update(kmac_compare, &encode, sizeof(encode));
@@ -96,9 +97,10 @@ static int kmac_drng_selftest(struct lc_rng_ctx *kmac_ctx)
 
 	/* Verify the generate operation */
 	/* Use the already generated state from above */
-	lc_kmac_init(kmac_compare, compare1, LC_KMAC256_DRNG_KEYSIZE,
-		     (uint8_t *)LC_KMAC_DRNG_CTX_CUSTOMIZATION_STRING,
-		     sizeof(LC_KMAC_DRNG_CTX_CUSTOMIZATION_STRING) - 1);
+	if (lc_kmac_init(kmac_compare, compare1, LC_KMAC256_DRNG_KEYSIZE,
+			 (uint8_t *)LC_KMAC_DRNG_CTX_CUSTOMIZATION_STRING,
+			 sizeof(LC_KMAC_DRNG_CTX_CUSTOMIZATION_STRING) - 1))
+		return 1;
 	encode = 2 * 85;
 	lc_kmac_update(kmac_compare, &encode, sizeof(encode));
 	lc_kmac_final_xof(kmac_compare, compare1, sizeof(compare1));
@@ -133,8 +135,33 @@ out:
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+ 	char status[900];
+	int ret;
+
 	(void)argc;
 	(void)argv;
 
-	return kmac_test();
+	ret = kmac_test();
+
+	if (lc_status_get_result(LC_ALG_STATUS_KMAC_DRBG) !=
+	    lc_alg_status_result_passed) {
+		printf("KMAC DRBG self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_KMAC_DRBG));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_KMAC) !=
+	    lc_alg_status_result_passed) {
+		printf("KMAC self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_KMAC));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
+
+	return ret;
 }

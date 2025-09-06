@@ -282,8 +282,8 @@ int asym_set_dilithium_keypair(struct lc_x509_key_data *gen_data,
 		gen_data->pk.dilithium_pk = pk;
 
 		CKINT(lc_dilithium_pk_ptr(&pk_ptr, &pk_len, pk));
-		lc_hash(LC_X509_SKID_DEFAULT_HASH, pk_ptr, pk_len,
-			gen_data->pk_digest);
+		CKINT(lc_hash(LC_X509_SKID_DEFAULT_HASH, pk_ptr, pk_len,
+			      gen_data->pk_digest));
 	}
 
 	if (sk) {

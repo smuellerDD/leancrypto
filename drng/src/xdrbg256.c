@@ -27,7 +27,7 @@
 
 /********************************** Selftest **********************************/
 
-void xdrbg256_drng_selftest(int *tested, const char *impl)
+void xdrbg256_drng_selftest(void)
 {
 	static const uint8_t seed[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
@@ -71,13 +71,15 @@ void xdrbg256_drng_selftest(int *tested, const char *impl)
 	};
 	uint8_t act[sizeof(exp)] __align(sizeof(uint32_t));
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_XDRBG256);
 
 	LC_XDRBG256_DRNG_CTX_ON_STACK(shake_ctx);
 
-	lc_rng_seed(shake_ctx, seed, sizeof(seed), NULL, 0);
+	lc_xdrbg_drng_seed_nocheck(shake_ctx->rng_state, seed, sizeof(seed),
+				   NULL, 0);
 	lc_rng_generate(shake_ctx, NULL, 0, act, sizeof(act));
-	lc_compare_selftest(act, exp, sizeof(exp), impl);
+	lc_compare_selftest(LC_ALG_STATUS_XDRBG256, act, exp, sizeof(exp),
+			    "SHAKE-256 XDRBG");
 	lc_rng_zero(shake_ctx);
 }
 

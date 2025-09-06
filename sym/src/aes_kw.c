@@ -19,6 +19,7 @@
 
 #include "aes_c.h"
 #include "aes_internal.h"
+#include "compare.h"
 #include "ext_headers_internal.h"
 #include "lc_aes.h"
 #include "lc_sym.h"
@@ -45,12 +46,19 @@ static void aes_kw_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 	lc_mode_kw_c->decrypt(&ctx->kw_state, in, out, len);
 }
 
-static void aes_kw_init(struct lc_sym_state *ctx)
+static int aes_kw_init_nocheck(struct lc_sym_state *ctx)
 {
-	static int tested = 0;
-
-	mode_kw_selftest(lc_aes_kw_c, &tested, "AES-KW");
 	lc_mode_kw_c->init(&ctx->kw_state, lc_aes_c, &ctx->block_ctx, NULL);
+
+	return 0;
+}
+
+static int aes_kw_init(struct lc_sym_state *ctx)
+{
+	mode_kw_selftest(lc_aes_kw_c);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_AES_KW);
+
+	return aes_kw_init_nocheck(ctx);
 }
 
 static int aes_kw_setkey(struct lc_sym_state *ctx, const uint8_t *key,
@@ -69,6 +77,7 @@ static int aes_kw_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 
 static struct lc_sym _lc_aes_kw_c = {
 	.init = aes_kw_init,
+	.init_nocheck = aes_kw_init_nocheck,
 	.setkey = aes_kw_setkey,
 	.setiv = aes_kw_setiv,
 	.encrypt = aes_kw_encrypt,

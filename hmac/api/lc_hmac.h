@@ -76,9 +76,11 @@ struct lc_hmac_ctx {
  *
  * The caller must provide an allocated hmac_ctx. This can be achieved by
  * using HMAC_CTX_ON_STACK or by using hmac_alloc.
+ *
+ * @return 0 on success; < 0 on error
  */
-void lc_hmac_init(struct lc_hmac_ctx *hmac_ctx, const uint8_t *key,
-		  size_t keylen);
+int lc_hmac_init(struct lc_hmac_ctx *hmac_ctx, const uint8_t *key,
+		 size_t keylen);
 
 /**
  * @ingroup HMAC

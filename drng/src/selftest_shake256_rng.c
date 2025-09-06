@@ -18,6 +18,7 @@
  */
 
 #include "ext_headers_internal.h"
+#include "ret_checkers.h"
 #include "selftest_shake256_rng.h"
 
 /*
@@ -45,16 +46,18 @@ static int selftest_rng_seed(void *_state, const uint8_t *seed, size_t seedlen,
 #define LC_HQC_PRNG_DOMAIN 1
 	static const uint8_t domain = LC_HQC_PRNG_DOMAIN;
 	struct lc_hash_ctx *state = _state;
+	int ret;
 
 	if (!state)
 		return -EINVAL;
 
-	lc_hash_init(state);
+	CKINT(lc_hash_init(state));
 	lc_hash_update(state, seed, seedlen);
 	lc_hash_update(state, persbuf, perslen);
 	lc_hash_update(state, &domain, sizeof(domain));
 
-	return 0;
+out:
+	return ret;
 }
 
 static void selftest_rng_zero(void *_state)

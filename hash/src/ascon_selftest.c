@@ -17,11 +17,11 @@
  * DAMAGE.
  */
 
-#include "compare.h"
 #include "ascon_selftest.h"
+#include "compare.h"
+#include "hash_common.h"
 
-void ascon_256_selftest_common(const struct lc_hash *ascon, int *tested,
-			       const char *impl)
+void ascon_256_selftest_common(const struct lc_hash *ascon)
 {
 	static const uint8_t msg[] = { 0x00, 0x01, 0x02, 0x03 };
 	static const uint8_t exp[] = { 0xD7, 0xE4, 0xC7, 0xED, 0x9B, 0x8A, 0x32,
@@ -31,34 +31,15 @@ void ascon_256_selftest_common(const struct lc_hash *ascon, int *tested,
 				       0xDF, 0x67, 0x27, 0xEE };
 	uint8_t act[sizeof(exp)];
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_ASCON256);
 
-	lc_hash(ascon, msg, sizeof(msg), act);
-	lc_compare_selftest(act, exp, sizeof(exp), impl);
+	lc_hash_nocheck(ascon, msg, sizeof(msg), act);
+
+	lc_compare_selftest(LC_ALG_STATUS_ASCON256, act, exp, sizeof(exp),
+			    "Ascon 256");
 }
 
-void ascon_128a_selftest_common(const struct lc_hash *ascon, int *tested,
-				const char *impl)
-{
-	uint8_t act = 0x00;
-	uint8_t exp = 0x01;
-
-	//LC_SELFTEST_RUN(tested);
-	(void)tested;
-	(void)ascon;
-
-	/*
-	 * This test will always fail - this is intended as Ascon 128a should
-	 * never be used as a hash! Its sole purpose is the use as part of
-	 * Ascon AEAD which will not trigger this code path. Therefore, the
-	 * check is always executed and not guarded by LC_SELFTEST_RUN since it
-	 * should always cause an error.
-	 */
-	lc_compare_selftest(&act, &exp, sizeof(exp), impl);
-}
-
-void ascon_xof_selftest_common(const struct lc_hash *ascon, int *tested,
-			       const char *impl)
+void ascon_xof_selftest_common(const struct lc_hash *ascon)
 {
 	static const uint8_t msg[] = { 0x00, 0x01, 0x02, 0x03 };
 	static const uint8_t exp[] = { 0x21, 0xF7, 0xFD, 0x74, 0x58, 0x8E, 0x24,
@@ -68,14 +49,15 @@ void ascon_xof_selftest_common(const struct lc_hash *ascon, int *tested,
 				       0x91, 0xFB, 0x38, 0xF8 };
 	uint8_t act[sizeof(exp)];
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_ASCONXOF);
 
-	lc_xof(ascon, msg, sizeof(msg), act, sizeof(act));
-	lc_compare_selftest(act, exp, sizeof(exp), impl);
+	lc_xof_nocheck(ascon, msg, sizeof(msg), act, sizeof(act));
+
+	lc_compare_selftest(LC_ALG_STATUS_ASCONXOF, act, exp, sizeof(exp),
+			    "Ascon XOF");
 }
 
-void ascon_cxof_selftest_common(const struct lc_hash *ascon, int *tested,
-				const char *impl)
+void ascon_cxof_selftest_common(const struct lc_hash *ascon)
 {
 	static const uint8_t msg[] = { 0x00, 0x01, 0x02, 0x03 };
 	static const uint8_t exp[] = { 0xE2, 0xFE, 0xE1, 0x11, 0xA8, 0xE4, 0xB6,
@@ -85,8 +67,10 @@ void ascon_cxof_selftest_common(const struct lc_hash *ascon, int *tested,
 				       0x3D, 0xC2, 0x02, 0x48 };
 	uint8_t act[sizeof(exp)];
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_ASCONCXOF);
 
-	lc_xof(ascon, msg, sizeof(msg), act, sizeof(act));
-	lc_compare_selftest(act, exp, sizeof(exp), impl);
+	lc_xof_nocheck(ascon, msg, sizeof(msg), act, sizeof(act));
+
+	lc_compare_selftest(LC_ALG_STATUS_ASCONCXOF, act, exp, sizeof(exp),
+			    "Ascon CXOF");
 }

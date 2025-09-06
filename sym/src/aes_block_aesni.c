@@ -71,7 +71,7 @@ static void aes_aesni_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 	unpoison(out, AES_BLOCKLEN);
 }
 
-static void aes_aesni_init(struct lc_sym_state *ctx)
+static int aes_aesni_init(struct lc_sym_state *ctx)
 {
 	(void)ctx;
 
@@ -79,6 +79,8 @@ static void aes_aesni_init(struct lc_sym_state *ctx)
 
 	if (!lc_x86_64_cpuid[0])
 		lc_cpu_feature_get_cpuid(lc_x86_64_cpuid);
+
+	return 0;
 }
 
 static int aes_aesni_setkey(struct lc_sym_state *ctx, const uint8_t *key,
@@ -114,6 +116,7 @@ static int aes_aesni_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 
 static struct lc_sym _lc_aes_aesni = {
 	.init = aes_aesni_init,
+	.init_nocheck = NULL,
 	.setkey = aes_aesni_setkey,
 	.setiv = aes_aesni_setiv,
 	.encrypt = aes_aesni_encrypt,

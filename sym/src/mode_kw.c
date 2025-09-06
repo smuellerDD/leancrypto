@@ -40,7 +40,7 @@ struct aes_kw_block {
 
 #define LC_AES_KW_BLOCK_SIZE sizeof(struct lc_mode_state)
 
-void mode_kw_selftest(const struct lc_sym *aes, int *tested, const char *impl)
+void mode_kw_selftest(const struct lc_sym *aes)
 {
 	static const uint8_t key256[] = { 0x80, 0xaa, 0x99, 0x73, 0x27, 0xa4,
 					  0x80, 0x6b, 0x6a, 0x7a, 0x41, 0xa5,
@@ -58,29 +58,31 @@ void mode_kw_selftest(const struct lc_sym *aes, int *tested, const char *impl)
 				      0x8a, 0x2a, 0xc4, 0xc1 };
 
 	uint8_t out[sizeof(in)];
-	char status[25];
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_AES_KW);
 
 	LC_SYM_CTX_ON_STACK(ctx, aes);
 
 	/* Unpoison key to let implementation poison it */
 	unpoison(key256, sizeof(key256));
 
-	lc_sym_init(ctx);
+	aes->init_nocheck(ctx->sym_state);
 	lc_sym_setkey(ctx, key256, sizeof(key256));
 	lc_sym_setiv(ctx, iv, sizeof(iv));
 	lc_sym_encrypt(ctx, in, out, sizeof(in));
-	snprintf(status, sizeof(status), "%s encrypt", impl);
-	lc_compare_selftest(out256, out, sizeof(out256), status);
+	if (lc_compare_selftest(LC_ALG_STATUS_AES_KW, out, out256,
+				sizeof(out256), "AES-KW encrypt"))
+		goto out;
 	lc_sym_zero(ctx);
 
-	lc_sym_init(ctx);
+	aes->init_nocheck(ctx->sym_state);
 	lc_sym_setkey(ctx, key256, sizeof(key256));
 	lc_sym_setiv(ctx, iv, sizeof(iv));
 	lc_sym_decrypt(ctx, out, out, sizeof(out));
-	snprintf(status, sizeof(status), "%s decrypt", impl);
-	lc_compare_selftest(in, out, sizeof(in), status);
+	lc_compare_selftest(LC_ALG_STATUS_AES_KW, in, out, sizeof(in),
+			    "AES-KW decrypt");
+
+out:
 	lc_sym_zero(ctx);
 }
 

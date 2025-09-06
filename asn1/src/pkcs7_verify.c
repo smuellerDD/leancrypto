@@ -56,7 +56,7 @@ static int pkcs7_digest(struct lc_pkcs7_message *pkcs7,
 		return -ENOPKG;
 
 	/* Digest the message [RFC5652 5.4] */
-	lc_hash_init(hash_ctx);
+	CKINT(lc_hash_init(hash_ctx));
 	sig->digest_size = sizeof(sig->digest);
 	CKINT(x509_set_digestsize(&sig->digest_size, hash_ctx));
 	lc_hash_update(hash_ctx, pkcs7->data, pkcs7->data_len);
@@ -105,7 +105,7 @@ static int pkcs7_digest(struct lc_pkcs7_message *pkcs7,
 		 * hash it.
 		 */
 		memset(sig->digest, 0, sig->digest_size);
-		lc_hash_init(hash_ctx);
+		CKINT(lc_hash_init(hash_ctx));
 		sig->digest_size = sizeof(sig->digest);
 		CKINT(x509_set_digestsize(&sig->digest_size, hash_ctx));
 		lc_hash_update(hash_ctx, &tag, 1);

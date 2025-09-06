@@ -21,6 +21,7 @@
 #include "aes_internal.h"
 #include "asm/ARMv8/aes_armv8_ce.h"
 #include "bitshift.h"
+#include "compare.h"
 #include "ext_headers_arm.h"
 #include "lc_sym.h"
 #include "mode_ctr.h"
@@ -115,13 +116,20 @@ static void aes_armce_ctr_crypt(struct lc_sym_state *ctx, const uint8_t *in,
 	LC_NEON_DISABLE;
 }
 
-static void aes_armce_ctr_init(struct lc_sym_state *ctx)
+static int aes_armce_ctr_init_nocheck(struct lc_sym_state *ctx)
 {
-	static int tested = 0;
+	(void)ctx;
+	return 0;
+}
 
+static int aes_armce_ctr_init(struct lc_sym_state *ctx)
+{
 	(void)ctx;
 
-	mode_ctr_selftest(lc_aes_ctr_armce, &tested, "AES-CTR");
+	mode_ctr_selftest(lc_aes_ctr_armce);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_AES_CTR);
+
+	return 0;
 }
 
 static int aes_armce_ctr_setkey(struct lc_sym_state *ctx, const uint8_t *key,
@@ -153,6 +161,7 @@ static int aes_armce_ctr_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 
 static struct lc_sym _lc_aes_ctr_armce = {
 	.init = aes_armce_ctr_init,
+	.init_nocheck = aes_armce_ctr_init_nocheck,
 	.setkey = aes_armce_ctr_setkey,
 	.setiv = aes_armce_ctr_setiv,
 	.encrypt = aes_armce_ctr_crypt,

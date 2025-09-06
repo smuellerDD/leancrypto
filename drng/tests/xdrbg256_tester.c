@@ -92,7 +92,8 @@ static int xdrbg256_drng_selftest(struct lc_rng_ctx *xdrbg256_ctx)
 	/* Prepare the state in the DRNG */
 	lc_rng_seed(xdrbg256_ctx, seed, sizeof(seed), NULL, 0);
 	/* Prepare the state with native SHAKE operations */
-	lc_hash_init(xdrbg256_compare);
+	if (lc_hash_init(xdrbg256_compare))
+		return 1;
 	unpoison(seed, sizeof(seed));
 	lc_hash_update(xdrbg256_compare, seed, sizeof(seed));
 	encode = 0;
@@ -107,7 +108,8 @@ static int xdrbg256_drng_selftest(struct lc_rng_ctx *xdrbg256_ctx)
 	/* Use the already generated state from above */
 
 	/* First loop iteration */
-	lc_hash_init(xdrbg256_compare);
+	if (lc_hash_init(xdrbg256_compare))
+		return 1;
 	lc_hash_update(xdrbg256_compare, compare1, LC_XDRBG256_DRNG_KEYSIZE);
 	encode = 2 * 85;
 	lc_hash_update(xdrbg256_compare, &encode, sizeof(encode));
@@ -119,7 +121,8 @@ static int xdrbg256_drng_selftest(struct lc_rng_ctx *xdrbg256_ctx)
 	lc_hash_final(xdrbg256_compare, compare1 + LC_XDRBG256_DRNG_KEYSIZE);
 
 	/* 2nd loop round as output size is larger than chunk size */
-	lc_hash_init(xdrbg256_compare);
+	if (lc_hash_init(xdrbg256_compare))
+		return 1;
 	lc_hash_update(xdrbg256_compare, compare1, LC_XDRBG256_DRNG_KEYSIZE);
 	encode = 2 * 85;
 	lc_hash_update(xdrbg256_compare, &encode, sizeof(encode));
@@ -171,7 +174,8 @@ static int xdrbg256_drng_selftest(struct lc_rng_ctx *xdrbg256_ctx)
 	lc_rng_zero(xdrbg256_ctx);
 
 	/* Verify the generate operation with additional data */
-	lc_hash_init(xdrbg256_compare);
+	if (lc_hash_init(xdrbg256_compare))
+		return 1;
 
 	/* Verify: Seeding operation of the DRBG */
 	unpoison(seed, sizeof(seed));
@@ -183,7 +187,8 @@ static int xdrbg256_drng_selftest(struct lc_rng_ctx *xdrbg256_ctx)
 	lc_hash_set_digestsize(xdrbg256_compare, LC_XDRBG256_DRNG_KEYSIZE);
 	lc_hash_final(xdrbg256_compare, compare1);
 
-	lc_hash_init(xdrbg256_compare);
+	if (lc_hash_init(xdrbg256_compare))
+		return 1;
 	/* Verify: Generate operation of the DRBG: Insert key */
 	lc_hash_update(xdrbg256_compare, compare1, LC_XDRBG256_DRNG_KEYSIZE);
 	/* Verify: Generate operation of the DRBG: Insert alpha of 84 bytes */
@@ -229,8 +234,33 @@ out:
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	char status[900];
+	int ret;
+
 	(void)argc;
 	(void)argv;
 
-	return xdrbg256_drng_test();
+	ret = xdrbg256_drng_test();
+
+	if (lc_status_get_result(LC_ALG_STATUS_XDRBG256) !=
+	    lc_alg_status_result_passed) {
+		printf("XDRBG256 self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_XDRBG256));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_SHAKE) !=
+	    lc_alg_status_result_passed) {
+		printf("SHAKE self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_SHAKE));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
+
+	return ret;
 }

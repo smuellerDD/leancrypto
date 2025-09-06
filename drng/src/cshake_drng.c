@@ -285,12 +285,17 @@
 #include "lc_cshake256_drng.h"
 #include "lc_memcmp_secure.h"
 #include "math_helper.h"
+#include "ret_checkers.h"
 #include "visibility.h"
 
 #define LC_CSHAKE_DRNG_SEED_CUSTOMIZATION_STRING "cSHAKE-DRNG seed"
 #define LC_CSHAKE_DRNG_CTX_CUSTOMIZATION_STRING "cSHAKE-DRNG generate"
 
-static void cshake256_drng_selftest(int *tested, const char *impl)
+static int lc_cshake256_drng_seed_nocheck(void *_state, const uint8_t *seed,
+					  size_t seedlen,
+					  const uint8_t *persbuf,
+					  size_t perslen);
+static void cshake256_drng_selftest(void)
 {
 	static const uint8_t seed[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
@@ -331,13 +336,15 @@ static void cshake256_drng_selftest(int *tested, const char *impl)
 	};
 	uint8_t act[sizeof(exp)] __align(sizeof(uint32_t));
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_CSHAKE_DRBG);
 
 	LC_CSHAKE256_DRNG_CTX_ON_STACK(cshake_ctx);
 
-	lc_rng_seed(cshake_ctx, seed, sizeof(seed), NULL, 0);
+	lc_cshake256_drng_seed_nocheck(cshake_ctx->rng_state, seed,
+				       sizeof(seed), NULL, 0);
 	lc_rng_generate(cshake_ctx, NULL, 0, act, sizeof(act));
-	lc_compare_selftest(act, exp, sizeof(exp), impl);
+	lc_compare_selftest(LC_ALG_STATUS_CSHAKE_DRBG, act, exp, sizeof(exp),
+			    "cSHAKE DRNG");
 	lc_rng_zero(cshake_ctx);
 }
 
@@ -404,21 +411,26 @@ static void lc_cshake256_drng_encode(struct lc_hash_ctx *cshake_ctx,
  * This generates T(0) and T(1) of size 1088 of the cSHAKE DRNG specification
  * section 2.3.
  */
-static void lc_cshake256_drng_fke_init_ctx(
+static int lc_cshake256_drng_fke_init_ctx(
 	struct lc_cshake256_drng_state *state, struct lc_hash_ctx *cshake_ctx,
 	const uint8_t *addtl_input, size_t addtl_input_len)
 {
 	/* Initialize the cSHAKE with K(N) and the cust. string. */
-	lc_cshake_init(cshake_ctx,
+	int ret = lc_cshake_init(cshake_ctx,
 		       (uint8_t *)LC_CSHAKE_DRNG_CTX_CUSTOMIZATION_STRING,
 		       sizeof(LC_CSHAKE_DRNG_CTX_CUSTOMIZATION_STRING) - 1,
 		       state->key, LC_CSHAKE256_DRNG_KEYSIZE);
+
+	if (ret)
+		return ret;
 
 	/* Insert the additional data into the cSHAKE state. */
 	lc_cshake256_drng_encode(cshake_ctx, 2, addtl_input, addtl_input_len);
 
 	/* Generate the K(N + 1) to store in the state and overwrite K(N). */
 	lc_cshake_final(cshake_ctx, state->key, LC_CSHAKE256_DRNG_KEYSIZE);
+
+	return 0;
 }
 
 /*
@@ -438,6 +450,7 @@ static int lc_cshake256_drng_generate(void *_state, const uint8_t *addtl_input,
 {
 	struct lc_cshake256_drng_state *state = _state;
 	LC_HASH_CTX_ON_STACK(cshake_ctx, LC_CSHAKE256_DRNG_HASH_TYPE);
+	int ret = 0;
 
 	BUILD_BUG_ON(LC_CSHAKE256_DRNG_MAX_CHUNK % LC_SHA3_256_SIZE_BLOCK);
 
@@ -455,8 +468,9 @@ static int lc_cshake256_drng_generate(void *_state, const uint8_t *addtl_input,
 						 LC_CSHAKE256_DRNG_KEYSIZE);
 
 		/* Instantiate cSHAKE with TMP_K(N), generate TMP_K(N + 1). */
-		lc_cshake256_drng_fke_init_ctx(state, cshake_ctx, addtl_input,
-					       addtl_input_len);
+		CKINT(lc_cshake256_drng_fke_init_ctx(state, cshake_ctx,
+						     addtl_input,
+						     addtl_input_len));
 
 		/* Generate the requested amount of output bits */
 		lc_cshake_final(cshake_ctx, out, todo);
@@ -467,10 +481,11 @@ static int lc_cshake256_drng_generate(void *_state, const uint8_t *addtl_input,
 
 	/* K(N + 1) is already in place as TMP(K) is stored in the key state. */
 
+out:
 	/* Clear the cSHAKE state which is not needed any more. */
 	lc_hash_zero(cshake_ctx);
 
-	return 0;
+	return ret;
 }
 
 /*
@@ -480,36 +495,34 @@ static int lc_cshake256_drng_generate(void *_state, const uint8_t *addtl_input,
  *
  * This applies the cSHAKE DRNG specification section 2.2.
  */
-static int lc_cshake256_drng_seed(void *_state, const uint8_t *seed,
+static int lc_cshake256_drng_seed_nocheck(void *_state, const uint8_t *seed,
 				  size_t seedlen, const uint8_t *persbuf,
 				  size_t perslen)
 {
-	static int tested = 0;
 	struct lc_cshake256_drng_state *state = _state;
 	uint8_t initially_seeded = state->initially_seeded;
+	int ret = 0;
 	LC_HASH_CTX_ON_STACK(cshake_ctx, LC_CSHAKE256_DRNG_HASH_TYPE);
 
 	if (!state)
 		return -EINVAL;
-
-	cshake256_drng_selftest(&tested, "cSHAKE DRNG");
 
 	/*
 	 * During reseeding, insert key into the SHAKE state. During initial
 	 * seeding, key does not yet exist and thus is not considered.
 	 */
 	if (initially_seeded) {
-		lc_cshake_init(
+		CKINT(lc_cshake_init(
 			cshake_ctx,
 			(uint8_t *)LC_CSHAKE_DRNG_SEED_CUSTOMIZATION_STRING,
 			sizeof(LC_CSHAKE_DRNG_SEED_CUSTOMIZATION_STRING) - 1,
-			state->key, LC_CSHAKE256_DRNG_KEYSIZE);
+			state->key, LC_CSHAKE256_DRNG_KEYSIZE));
 	} else {
-		lc_cshake_init(
+		CKINT(lc_cshake_init(
 			cshake_ctx,
 			(uint8_t *)LC_CSHAKE_DRNG_SEED_CUSTOMIZATION_STRING,
 			sizeof(LC_CSHAKE_DRNG_SEED_CUSTOMIZATION_STRING) - 1,
-			NULL, 0);
+			NULL, 0));
 
 		/* DRNG is now initially seeded */
 		state->initially_seeded = 1;
@@ -525,10 +538,22 @@ static int lc_cshake256_drng_seed(void *_state, const uint8_t *seed,
 	/* Generate the K(N + 1) to store in the state and overwrite K(N). */
 	lc_cshake_final(cshake_ctx, state->key, LC_CSHAKE256_DRNG_KEYSIZE);
 
+out:
 	/* Clear the cSHAKE state which is not needed any more. */
 	lc_hash_zero(cshake_ctx);
 
-	return 0;
+	return ret;
+}
+
+static int lc_cshake256_drng_seed(void *_state, const uint8_t *seed,
+				  size_t seedlen, const uint8_t *persbuf,
+				  size_t perslen)
+{
+	cshake256_drng_selftest();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_CSHAKE_DRBG);
+
+	return lc_cshake256_drng_seed_nocheck(_state, seed, seedlen, persbuf,
+					      perslen);
 }
 
 static void lc_cshake256_drng_zero(void *_state)

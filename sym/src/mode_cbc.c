@@ -36,7 +36,7 @@
 
 #define LC_AES_CBC_BLOCK_SIZE sizeof(struct lc_mode_state)
 
-void mode_cbc_selftest(const struct lc_sym *aes, int *tested, const char *impl)
+void mode_cbc_selftest(const struct lc_sym *aes)
 {
 	static const uint8_t iv[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05,
 				      0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b,
@@ -66,29 +66,31 @@ void mode_cbc_selftest(const struct lc_sym *aes, int *tested, const char *impl)
 		0xe6, 0x6c, 0x37, 0x10
 	};
 	uint8_t out[sizeof(in)];
-	char status[25];
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_AES_CBC);
 
 	LC_SYM_CTX_ON_STACK(ctx, aes);
 
 	/* Unpoison key to let implementation poison it */
 	unpoison(key256, sizeof(key256));
 
-	lc_sym_init(ctx);
+	aes->init_nocheck(ctx->sym_state);
 	lc_sym_setkey(ctx, key256, sizeof(key256));
 	lc_sym_setiv(ctx, iv, sizeof(iv));
 	lc_sym_encrypt(ctx, in, out, sizeof(in));
-	snprintf(status, sizeof(status), "%s encrypt", impl);
-	lc_compare_selftest(out256, out, sizeof(out256), status);
+	if (lc_compare_selftest(LC_ALG_STATUS_AES_CBC, out256, out,
+				sizeof(out256), "AES-CBC encrypt"))
+		goto out;
 	lc_sym_zero(ctx);
 
-	lc_sym_init(ctx);
+	aes->init_nocheck(ctx->sym_state);
 	lc_sym_setkey(ctx, key256, sizeof(key256));
 	lc_sym_setiv(ctx, iv, sizeof(iv));
 	lc_sym_decrypt(ctx, out, out, sizeof(out));
-	snprintf(status, sizeof(status), "%s decrypt", impl);
-	lc_compare_selftest(in, out, sizeof(in), status);
+	lc_compare_selftest(LC_ALG_STATUS_AES_CBC, in, out, sizeof(in),
+			    "AES-CBC decrypt");
+
+out:
 	lc_sym_zero(ctx);
 }
 

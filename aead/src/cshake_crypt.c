@@ -321,6 +321,7 @@
 #include "lc_cshake_crypt.h"
 #include "lc_memcmp_secure.h"
 #include "math_helper.h"
+#include "ret_checkers.h"
 #include "small_stack_support.h"
 #include "timecop.h"
 #include "visibility.h"
@@ -330,7 +331,9 @@
 #define LC_CC_CUSTOMIZATION_STRING "cSHAKE-AEAD crypt"
 #define LC_CC_AUTH_CUSTOMIZATION_STRING "cSHAKE-AEAD auth"
 
-static void lc_cc_selftest(int *tested, const char *impl)
+static int lc_cc_setkey_nocheck(void *state, const uint8_t *key, size_t keylen,
+				const uint8_t *iv, size_t ivlen);
+static void lc_cc_selftest(void)
 {
 	static const uint8_t in[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
@@ -360,34 +363,41 @@ static void lc_cc_selftest(int *tested, const char *impl)
 		0x01, 0xef, 0x16, 0x09
 	};
 	static const uint8_t exp_tag[] = {
-		0x82, 0x40, 0x81, 0x7f, 0xf9, 0xa0, 0xef, 0x9f, 0x53, 0x29,
-		0x82, 0x80, 0x8b, 0xdb, 0xc1, 0x0d, 0x52, 0x10, 0x10, 0x87,
-		0x7e, 0x30, 0x9c, 0x6e, 0x49, 0xb0, 0x33, 0x8e, 0xfa, 0x7c,
-		0x28, 0x6d, 0x98, 0x94, 0x30, 0xad, 0x39, 0x62, 0xfd, 0x5f,
-		0xb0, 0x14, 0x6d, 0xe7, 0x36, 0x17, 0x49, 0x20, 0x79, 0x5a,
-		0xc5, 0xbd, 0x6b, 0xd9, 0xbd, 0x72, 0x0a, 0x54, 0x79, 0x67,
-		0x0d, 0xe3, 0xc3, 0x83
+		0xc3, 0xad, 0xa3, 0x17, 0x54, 0x92, 0x89, 0x9f, 0xe6, 0xc0,
+		0xf8, 0x8c, 0xc5, 0xe2, 0xf2, 0xf1, 0xa5, 0x17, 0xaf, 0xd5,
+		0xe5, 0x37, 0x16, 0xf7, 0x03, 0x80, 0x6e, 0xf2, 0xc5, 0x4a,
+		0xf1, 0xf3, 0xf5, 0x9d, 0x0f, 0x2c, 0x9f, 0xe3, 0xb9, 0x2a,
+		0x79, 0x56, 0x40, 0x3c, 0xb3, 0x30, 0x9f, 0x05, 0xa0, 0xf5,
+		0xc0, 0x95, 0xba, 0x34, 0x2f, 0x1d, 0x58, 0x2d, 0x16, 0xc1,
+		0x65, 0xaf, 0x9c, 0x4d
 	};
 	uint8_t act_ct[sizeof(exp_ct)] __align(sizeof(uint32_t));
 	uint8_t act_tag[sizeof(exp_tag)] __align(sizeof(uint32_t));
-	char status[25];
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_CSHAKE_CRYPT);
 
 	LC_CC_CTX_ON_STACK(cc, lc_cshake256);
 
-	lc_aead_setkey(cc, key, sizeof(key), NULL, 0);
+	if (lc_cc_setkey_nocheck(cc->aead_state, key, sizeof(key), NULL, 0))
+		return;
 	lc_aead_encrypt(cc, in, act_ct, sizeof(in), in, sizeof(in), act_tag,
 			sizeof(act_tag));
-	snprintf(status, sizeof(status), "%s encrypt", impl);
-	lc_compare_selftest(act_ct, exp_ct, sizeof(exp_ct), status);
+	if (lc_compare_selftest(LC_ALG_STATUS_CSHAKE_CRYPT, act_ct, exp_ct,
+				sizeof(exp_ct), "cSHAKE AEAD encrypt"))
+		goto out;
+	if (lc_compare_selftest(LC_ALG_STATUS_CSHAKE_CRYPT, act_tag, exp_tag,
+				sizeof(exp_tag), "cSHAKE AEAD tag"))
+		goto out;
 	lc_aead_zero(cc);
 
-	lc_aead_setkey(cc, key, sizeof(key), NULL, 0);
+	if (lc_cc_setkey_nocheck(cc->aead_state, key, sizeof(key), NULL, 0))
+		goto out;
 	lc_aead_decrypt(cc, act_ct, act_ct, sizeof(act_ct), in, sizeof(in),
 			act_tag, sizeof(act_tag));
-	snprintf(status, sizeof(status), "%s decrypt", impl);
-	lc_compare_selftest(act_ct, in, sizeof(in), status);
+	lc_compare_selftest(LC_ALG_STATUS_CSHAKE_CRYPT, act_ct, in, sizeof(in),
+			    "cSHAKE AEAD decrypt");
+
+out:
 	lc_aead_zero(cc);
 }
 
@@ -403,18 +413,16 @@ static void lc_cc_selftest(int *tested, const char *impl)
  * The algorithm supports a key of arbitrary size. The only requirement is that
  * the same key is used for decryption as for encryption.
  */
-static int lc_cc_setkey(void *state, const uint8_t *key, size_t keylen,
-			const uint8_t *iv, size_t ivlen)
+static int lc_cc_setkey_nocheck(void *state, const uint8_t *key, size_t keylen,
+				const uint8_t *iv, size_t ivlen)
 {
 	struct lc_cc_cryptor *cc = state;
 	struct lc_hash_ctx *cshake = &cc->cshake;
 	struct lc_cshake_ctx *auth_ctx = &cc->auth_ctx;
-	static int tested = 0;
+	int ret;
 
 	/* Timecop: The key is sentitive. */
 	poison(key, keylen);
-
-	lc_cc_selftest(&tested, "cSHAKE AEAD");
 
 	/*
 	 * The keystream block size should be a multiple of the cSHAKE256 block
@@ -423,8 +431,8 @@ static int lc_cc_setkey(void *state, const uint8_t *key, size_t keylen,
 	BUILD_BUG_ON(LC_SHA3_256_SIZE_BLOCK % LC_CC_KEYSTREAM_BLOCK);
 	BUILD_BUG_ON(LC_CC_AUTHENTICATION_KEY_SIZE > LC_CC_KEYSTREAM_BLOCK);
 
-	lc_cshake_init(cshake, (uint8_t *)LC_CC_CUSTOMIZATION_STRING,
-		       sizeof(LC_CC_CUSTOMIZATION_STRING) - 1, key, keylen);
+	CKINT(lc_cshake_init(cshake, (uint8_t *)LC_CC_CUSTOMIZATION_STRING,
+		       sizeof(LC_CC_CUSTOMIZATION_STRING) - 1, key, keylen));
 	lc_hash_update(cshake, iv, ivlen);
 
 	/*
@@ -436,14 +444,24 @@ static int lc_cc_setkey(void *state, const uint8_t *key, size_t keylen,
 	 * lc_cshake_final operation.
 	 */
 	lc_cshake_final(cshake, cc->keystream, LC_CC_KEYSTREAM_BLOCK);
-	lc_cshake_ctx_init(auth_ctx, (uint8_t *)LC_CC_AUTH_CUSTOMIZATION_STRING,
+	CKINT(lc_cshake_ctx_init(auth_ctx, (uint8_t *)LC_CC_AUTH_CUSTOMIZATION_STRING,
 			   sizeof(LC_CC_AUTH_CUSTOMIZATION_STRING) - 1,
-			   cc->keystream, LC_CC_AUTHENTICATION_KEY_SIZE);
+			   cc->keystream, LC_CC_AUTHENTICATION_KEY_SIZE));
 
 	/* Set the pointer to the start of the keystream */
 	cc->keystream_ptr = LC_CC_AUTHENTICATION_KEY_SIZE;
 
-	return 0;
+out:
+	return ret;
+}
+
+static int lc_cc_setkey(void *state, const uint8_t *key, size_t keylen,
+			const uint8_t *iv, size_t ivlen)
+{
+	lc_cc_selftest();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_CSHAKE_CRYPT);
+
+	return lc_cc_setkey_nocheck(state, key, keylen, iv, ivlen);
 }
 
 static void lc_cc_crypt(struct lc_cc_cryptor *cc, const uint8_t *in,

@@ -71,14 +71,16 @@ static int _cshake_256_tester(const struct lc_hash *cshake_256,
 	       cshake_256 == lc_cshake256_c ? "C" : "accelerated",
 	       (unsigned int)LC_HASH_CTX_SIZE(cshake_256));
 
-	lc_cshake_init(ctx, NULL, 0, cust1, sizeof(cust1));
+	if (lc_cshake_init(ctx, NULL, 0, cust1, sizeof(cust1)))
+		return 1;
 	lc_hash_update(ctx, msg1, sizeof(msg1));
 	lc_hash_set_digestsize(ctx, sizeof(act1));
 	lc_hash_final(ctx, act1);
 	ret = lc_compare(act1, exp1, sizeof(act1), "cSHAKE256 1");
 	lc_hash_zero(ctx);
 
-	lc_cshake_init(cshake256_stack, NULL, 0, cust1, sizeof(cust1));
+	if (lc_cshake_init(cshake256_stack, NULL, 0, cust1, sizeof(cust1)))
+		return 1;
 	lc_hash_update(cshake256_stack, msg1, sizeof(msg1));
 	lc_hash_set_digestsize(cshake256_stack, sizeof(act1));
 	lc_hash_final(cshake256_stack, act1);
@@ -109,7 +111,26 @@ static int cshake256_tester(void)
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	char status[900];
+	int ret;
+
 	(void)argc;
 	(void)argv;
-	return cshake256_tester();
+
+	ret = cshake256_tester();
+
+	if (lc_status_get_result(LC_ALG_STATUS_CSHAKE) !=
+	    lc_alg_status_result_passed) {
+		printf("cSHAKE self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_CSHAKE));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
+
+	return ret;
 }

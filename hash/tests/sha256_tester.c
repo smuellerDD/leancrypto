@@ -49,16 +49,19 @@ static int _sha256_tester(const struct lc_hash *sha256, const char *name)
 	printf("hash ctx %s (%s implementation) len %u\n", name,
 	       sha256 == lc_sha256_c ? "C" : "accelerated",
 	       (unsigned int)LC_HASH_CTX_SIZE(sha256));
-	lc_hash_init(ctx256_stack);
+	if (lc_hash_init(ctx256_stack))
+		return 1;
 	lc_hash_update(ctx256_stack, msg_256, sizeof(msg_256));
 	lc_hash_final(ctx256_stack, act);
 	ret = lc_compare(act, exp_256, LC_SHA256_SIZE_DIGEST, "SHA-256");
 	lc_hash_zero(ctx256_stack);
 
-	lc_hash(sha256, msg_256, sizeof(msg_256), act);
+	if (lc_hash(sha256, msg_256, sizeof(msg_256), act))
+		return 1;
 	ret += lc_compare(act, exp_256, LC_SHA256_SIZE_DIGEST, "SHA-256");
 
-	lc_hash_init(sha256_stack);
+	if (lc_hash_init(sha256_stack))
+		return 1;
 	lc_hash_update(sha256_stack, msg_256, sizeof(msg_256));
 	lc_hash_final(sha256_stack, act);
 	lc_hash_zero(sha256_stack);
@@ -85,7 +88,26 @@ static int sha256_tester(void)
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	char status[900];
+	int ret;
+
 	(void)argc;
 	(void)argv;
-	return sha256_tester();
+
+	ret = sha256_tester();
+
+	if (lc_status_get_result(LC_ALG_STATUS_SHA256) !=
+	    lc_alg_status_result_passed) {
+		printf("SHA-256 self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_SHA256));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
+
+	return ret;
 }

@@ -20,6 +20,7 @@
 #include "aes_aesni.h"
 #include "aes_internal.h"
 #include "asm/AESNI_x86_64/aes_aesni_x86_64.h"
+#include "compare.h"
 #include "ext_headers_x86.h"
 #include "lc_memcmp_secure.h"
 #include "lc_sym.h"
@@ -68,13 +69,20 @@ static void aes_aesni_xts_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 	unpoison(out, len);
 }
 
-static void aes_aesni_xts_init(struct lc_sym_state *ctx)
+static int aes_aesni_xts_init_nocheck(struct lc_sym_state *ctx)
 {
-	static int tested = 0;
+	(void)ctx;
+	return 0;
+}
 
+static int aes_aesni_xts_init(struct lc_sym_state *ctx)
+{
 	(void)ctx;
 
-	mode_xts_selftest(lc_aes_xts_aesni, &tested, "AES-XTS");
+	mode_xts_selftest(lc_aes_xts_aesni);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_AES_XTS);
+
+	return 0;
 }
 
 static int aes_aesni_xts_setkey(struct lc_sym_state *ctx, const uint8_t *key,
@@ -122,6 +130,7 @@ static int aes_aesni_xts_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 
 static struct lc_sym _lc_aes_xts_aesni = {
 	.init = aes_aesni_xts_init,
+	.init_nocheck = aes_aesni_xts_init_nocheck,
 	.setkey = aes_aesni_xts_setkey,
 	.setiv = aes_aesni_xts_setiv,
 	.encrypt = aes_aesni_xts_encrypt,

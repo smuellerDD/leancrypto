@@ -22,7 +22,7 @@
 #include "lc_hmac.h"
 #include "lc_sha3.h"
 
-void hmac_sha3_selftest(const char *impl)
+int hmac_sha3_selftest(void)
 {
 	static const uint8_t msg_224[] = { 0x35, 0x8E, 0x06, 0xBA, 0x03, 0x21,
 					   0x83, 0xFC, 0x18, 0x20, 0x58, 0xBD,
@@ -37,7 +37,8 @@ void hmac_sha3_selftest(const char *impl)
 					   0x53, 0x95, 0xde, 0xa2 };
 	uint8_t act[LC_SHA3_224_SIZE_DIGEST];
 
-	lc_hmac(lc_sha3_224, key_224, sizeof(key_224), msg_224, sizeof(msg_224),
-		act);
-	compare_selftest(act, exp_224, sizeof(exp_224), impl);
+	lc_hmac_nocheck(lc_sha3_224, key_224, sizeof(key_224), msg_224,
+			sizeof(msg_224), act);
+	return lc_compare_selftest(LC_ALG_STATUS_HMAC, act, exp_224,
+				   sizeof(exp_224), "HMAC SHA3-224");
 }

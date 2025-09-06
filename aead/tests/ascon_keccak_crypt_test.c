@@ -81,7 +81,8 @@ static int ak_tester_one(const struct lc_hash *hash, const uint8_t *pt,
 	if (lc_ak_alloc_taglen(hash, exp_tag_len, &ak_heap))
 		return 1;
 
-	lc_aead_setkey(ak_heap, key, keylen, iv, ivlen);
+	if (lc_aead_setkey(ak_heap, key, keylen, iv, ivlen))
+		return 1;
 
 	memcpy(out_enc, pt, ptlen);
 	lc_aead_encrypt(ak_heap, out_enc, out_enc, ptlen, aad, aadlen, tag,
@@ -371,7 +372,9 @@ static int ak_tester_256_large_iv_tag(const struct lc_hash *hash,
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	char status[900];
 	int ret = 0;
+
 	(void)argc;
 	(void)argv;
 
@@ -392,6 +395,19 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_EXEC_ONE_TEST_256(lc_sha3_256_avx2);
 	LC_EXEC_ONE_TEST_256(lc_sha3_256_avx512);
 	LC_EXEC_ONE_TEST_256(lc_sha3_256_riscv_asm);
+
+	if (lc_status_get_result(LC_ALG_STATUS_ASCON_KECCAK) !=
+	    lc_alg_status_result_passed) {
+		printf("Self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_ASCON_KECCAK));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
 
 	return ret;
 }

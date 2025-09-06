@@ -177,6 +177,41 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 #ifdef GENERATE_VECTORS
 	printf("\n};\n");
+#else
+	char status[900];
+
+	if (lc_status_get_result(LC_ALG_STATUS_SHAKE) !=
+	    lc_alg_status_result_passed) {
+		printf("SHAKE self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_SHAKE));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_HQC_KEYGEN) !=
+	    lc_alg_status_result_passed) {
+		printf("HQC keygen self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_HQC_KEYGEN));
+		return 1;
+	}
+	if (lc_status_get_result(LC_ALG_STATUS_HQC_ENC) !=
+	    lc_alg_status_result_passed) {
+		printf("HQC enc self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_HQC_ENC));
+		return 1;
+	}
+	if (lc_status_get_result(LC_ALG_STATUS_HQC_DEC) !=
+	    lc_alg_status_result_passed) {
+		printf("HQC dec self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_HQC_DEC));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
+
 #endif
 
 	/* Disable any accelerations when there is one parameter */

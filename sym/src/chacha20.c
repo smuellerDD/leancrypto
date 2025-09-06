@@ -35,7 +35,7 @@
 #include "visibility.h"
 #include "xor.h"
 
-void cc20_selftest(int *tested, const char *impl)
+void cc20_selftest(void)
 {
 	/* Test vector according to RFC 7539 section 2.4.2 */
 	static const uint8_t key[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
@@ -62,28 +62,31 @@ void cc20_selftest(int *tested, const char *impl)
 		0x5e, 0x42, 0x87, 0x4d
 	};
 	uint8_t res[sizeof(exp)];
-	char str[25];
 	LC_SYM_CTX_ON_STACK(chacha20, lc_chacha20);
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_CHACHA20);
 
 	/* Encrypt */
-	lc_sym_init(chacha20);
+	cc20_init_constants(chacha20->sym_state);
 
 	lc_sym_setkey(chacha20, (uint8_t *)key, sizeof(key));
 	lc_sym_setiv(chacha20, (uint8_t *)iv, sizeof(iv));
 	lc_sym_encrypt(chacha20, (uint8_t *)string, res, sizeof(res));
-	snprintf(str, sizeof(str), "%s enc", impl);
-	lc_compare_selftest(res, exp, sizeof(exp), str);
+	if (lc_compare_selftest(LC_ALG_STATUS_CHACHA20, res, exp, sizeof(exp),
+				"ChaCha20 encrypt"))
+		goto out;
 	lc_sym_zero(chacha20);
 
 	/* Decrypt */
-	lc_sym_init(chacha20);
+	if (lc_sym_init(chacha20))
+		goto out;
 	lc_sym_setkey(chacha20, (uint8_t *)key, sizeof(key));
 	lc_sym_setiv(chacha20, (uint8_t *)iv, sizeof(iv));
 	lc_sym_decrypt(chacha20, res, res, sizeof(res));
-	snprintf(str, sizeof(str), "%s dec", impl);
-	lc_compare_selftest(res, (uint8_t *)string, sizeof(res), str);
+	lc_compare_selftest(LC_ALG_STATUS_CHACHA20, res, (uint8_t *)string,
+			    sizeof(res), "ChaCha20 decrypt");
+
+out:
 	lc_sym_zero(chacha20);
 }
 
@@ -239,14 +242,15 @@ static void cc20_crypt(struct lc_sym_state *ctx, const uint8_t *in,
 	}
 }
 
-void cc20_init(struct lc_sym_state *ctx)
+int cc20_init(struct lc_sym_state *ctx)
 {
-	static int tested = 0;
-
-	cc20_selftest(&tested, "ChaCha20 C");
+	cc20_selftest();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_CHACHA20);
 
 	/* String "expand 32-byte k" */
 	cc20_init_constants(ctx);
+
+	return 0;
 }
 
 int cc20_setkey(struct lc_sym_state *ctx, const uint8_t *key, size_t keylen)

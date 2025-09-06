@@ -272,13 +272,16 @@
 #include "lc_kmac_crypt.h"
 #include "lc_memcmp_secure.h"
 #include "math_helper.h"
+#include "ret_checkers.h"
 #include "timecop.h"
 #include "visibility.h"
 #include "xor.h"
 
 #define LC_KC_AUTHENTICATION_KEY_SIZE (256 >> 3)
 
-static void lc_kc_selftest(int *tested, const char *impl)
+static int lc_kc_setkey_nocheck(void *state, const uint8_t *key, size_t keylen,
+				const uint8_t *iv, size_t ivlen);
+static void lc_kc_selftest(void)
 {
 	static const uint8_t in[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
@@ -308,49 +311,54 @@ static void lc_kc_selftest(int *tested, const char *impl)
 		0x44, 0x99, 0xda, 0x28
 	};
 	static const uint8_t exp_tag[] = {
-		0x8b, 0x4a, 0x42, 0x87, 0x97, 0xff, 0x1a, 0x14, 0x3a, 0x98,
-		0x40, 0x5e, 0x60, 0x7f, 0x6c, 0x18, 0xdb, 0xb3, 0xd3, 0xa4,
-		0x33, 0x2f, 0x3f, 0x25, 0x3c, 0x1f, 0x7a, 0x20, 0xea, 0xa9,
-		0x06, 0x25, 0x72, 0x11, 0xe8, 0xe1, 0xbe, 0x57, 0x76, 0x64,
-		0xc5, 0x1b, 0x83, 0x87, 0x3a, 0x0f, 0x1e, 0xa4, 0x0a, 0x8b,
-		0x46, 0xbf, 0x29, 0xcc, 0x51, 0x3a, 0x04, 0xf2, 0x8d, 0x56,
-		0x91, 0xad, 0x45, 0x13
+		0x28, 0x43, 0x43, 0xc2, 0x40, 0x1f, 0x45, 0x09, 0x41, 0xd7,
+		0x5c, 0xdd, 0x7f, 0xc5, 0x96, 0x32, 0x8b, 0xd9, 0x5a, 0xe3,
+		0x72, 0xe2, 0x73, 0x6a, 0x83, 0xd1, 0x85, 0xa3, 0xc5, 0xab,
+		0x83, 0xe0, 0x51, 0x89, 0x98, 0x34, 0xf1, 0x8f, 0x94, 0xcc,
+		0x98, 0xa9, 0xe2, 0x79, 0x07, 0xb2, 0x6f, 0xf5, 0x68, 0x4d,
+		0x53, 0xaa, 0xfd, 0x28, 0x3e, 0x3d, 0x7e, 0x73, 0xa8, 0xec,
+		0xf2, 0xfa, 0x79, 0x31
 	};
 	uint8_t act_ct[sizeof(exp_ct)] __align(sizeof(uint32_t));
 	uint8_t act_tag[sizeof(exp_tag)] __align(sizeof(uint32_t));
-	char status[25];
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_KMAC_CRYPT);
 
 	LC_KC_CTX_ON_STACK(kc, lc_cshake256);
 
-	lc_aead_setkey(kc, key, sizeof(key), NULL, 0);
+	if (lc_kc_setkey_nocheck(kc->aead_state, key, sizeof(key), NULL, 0))
+		goto out;
 	lc_aead_encrypt(kc, in, act_ct, sizeof(in), in, sizeof(in), act_tag,
 			sizeof(act_tag));
-	snprintf(status, sizeof(status), "%s encrypt", impl);
-	lc_compare_selftest(act_ct, exp_ct, sizeof(exp_ct), status);
+	if (lc_compare_selftest(LC_ALG_STATUS_KMAC_CRYPT, act_ct, exp_ct,
+				sizeof(exp_ct), "KMAC AEAD encrypt"))
+		goto out;
+	if (lc_compare_selftest(LC_ALG_STATUS_KMAC_CRYPT, act_tag, exp_tag,
+				sizeof(exp_tag), "KMAC AEAD tag"))
+		goto out;
 	lc_aead_zero(kc);
 
-	lc_aead_setkey(kc, key, sizeof(key), NULL, 0);
+	if (lc_kc_setkey_nocheck(kc->aead_state, key, sizeof(key), NULL, 0))
+		goto out;
 	lc_aead_decrypt(kc, act_ct, act_ct, sizeof(act_ct), in, sizeof(in),
 			act_tag, sizeof(act_tag));
-	snprintf(status, sizeof(status), "%s decrypt", impl);
-	lc_compare_selftest(act_ct, in, sizeof(in), status);
+	lc_compare_selftest(LC_ALG_STATUS_KMAC_CRYPT, act_ct, in, sizeof(in),
+			    "KMAC AEAD decrypt");
+
+out:
 	lc_aead_zero(kc);
 }
 
-static int lc_kc_setkey(void *state, const uint8_t *key, size_t keylen,
-			const uint8_t *iv, size_t ivlen)
+static int lc_kc_setkey_nocheck(void *state, const uint8_t *key, size_t keylen,
+				const uint8_t *iv, size_t ivlen)
 {
 	struct lc_kc_cryptor *kc = state;
 	struct lc_kmac_ctx *kmac = &kc->kmac;
 	struct lc_kmac_ctx *auth_ctx = &kc->auth_ctx;
-	static int tested = 0;
+	int ret;
 
 	/* Timecop: The key is sentitive. */
 	poison(key, keylen);
-
-	lc_kc_selftest(&tested, "KMAC AEAD");
 
 	/*
 	 * The keystream block size should be a multiple of the KMAC block
@@ -359,20 +367,30 @@ static int lc_kc_setkey(void *state, const uint8_t *key, size_t keylen,
 	BUILD_BUG_ON(LC_SHA3_256_SIZE_BLOCK % LC_KC_KEYSTREAM_BLOCK);
 	BUILD_BUG_ON(LC_KC_AUTHENTICATION_KEY_SIZE > LC_KC_KEYSTREAM_BLOCK);
 
-	lc_kmac_init(kmac, key, keylen, iv, ivlen);
+	CKINT(lc_kmac_init(kmac, key, keylen, iv, ivlen));
 
 	/*
 	 * Generate key for KMAC authentication - we simply use two different
 	 * keys for the KMAC keystream generator and the KMAC authenticator.
 	 */
 	lc_kmac_final_xof(kmac, kc->keystream, LC_KC_KEYSTREAM_BLOCK);
-	lc_kmac_init(auth_ctx, kc->keystream, LC_KC_AUTHENTICATION_KEY_SIZE,
-		     NULL, 0);
+	CKINT(lc_kmac_init(auth_ctx, kc->keystream,
+			   LC_KC_AUTHENTICATION_KEY_SIZE, NULL, 0));
 
 	/* Set the pointer to the start of the keystream */
 	kc->keystream_ptr = LC_KC_AUTHENTICATION_KEY_SIZE;
 
-	return 0;
+out:
+	return ret;
+}
+
+static int lc_kc_setkey(void *state, const uint8_t *key, size_t keylen,
+			const uint8_t *iv, size_t ivlen)
+{
+	lc_kc_selftest();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_KMAC_CRYPT);
+
+	return lc_kc_setkey_nocheck(state, key, keylen, iv, ivlen);
 }
 
 static void lc_kc_crypt(void *state, const uint8_t *in, uint8_t *out,
@@ -417,7 +435,7 @@ static void lc_kc_add_aad(void *state, const uint8_t *aad, size_t aadlen)
 
 	auth_ctx = &kc->auth_ctx;
 
-	/* Add the AAD data into the CSHAKE context */
+	/* Add the AAD data into the KMAC context */
 	lc_kmac_update(auth_ctx, aad, aadlen);
 }
 

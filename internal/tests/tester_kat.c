@@ -192,21 +192,21 @@ static int lc_hash_msg(struct lc_buffer *msg, struct lc_dilithium_ctx *ctx,
 		tmp.buf = malloc(LC_SHA512_SIZE_DIGEST);
 		CKNULL(tmp.buf, -ENOMEM);
 		tmp.len = LC_SHA512_SIZE_DIGEST;
-		lc_hash(lc_sha512, msg->buf, msg->len, tmp.buf);
+		CKINT(lc_hash(lc_sha512, msg->buf, msg->len, tmp.buf));
 		lc_dilithium_ctx_hash(ctx, lc_sha512);
 		break;
 	case LC_DILITHIUM_65:
 		tmp.buf = malloc(LC_SHA384_SIZE_DIGEST);
 		CKNULL(tmp.buf, -ENOMEM);
 		tmp.len = LC_SHA384_SIZE_DIGEST;
-		lc_hash(lc_sha384, msg->buf, msg->len, tmp.buf);
+		CKINT(lc_hash(lc_sha384, msg->buf, msg->len, tmp.buf));
 		lc_dilithium_ctx_hash(ctx, lc_sha384);
 		break;
 	case LC_DILITHIUM_44:
 		tmp.buf = malloc(LC_SHA256_SIZE_DIGEST);
 		CKNULL(tmp.buf, -ENOMEM);
 		tmp.len = LC_SHA256_SIZE_DIGEST;
-		lc_hash(lc_sha256, msg->buf, msg->len, tmp.buf);
+		CKINT(lc_hash(lc_sha256, msg->buf, msg->len, tmp.buf));
 		lc_dilithium_ctx_hash(ctx, lc_sha256);
 		break;
 	case LC_DILITHIUM_UNKNOWN:

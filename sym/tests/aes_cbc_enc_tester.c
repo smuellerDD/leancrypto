@@ -92,7 +92,7 @@ static int test_encrypt_cbc_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 	int ret;
 
 	/* Encrypt */
-	lc_sym_init(ctx);
+	CKINT(lc_sym_init(ctx));
 	CKINT(lc_sym_setkey(ctx, key, keylen));
 	CKINT(lc_sym_setiv(ctx, iv, sizeof(iv)));
 	lc_sym_encrypt(ctx, in, in, sizeof(in));
@@ -138,7 +138,9 @@ static int test_encrypt_cbc(const struct lc_sym *aes, const char *name)
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	char status[900];
 	int ret = 0;
+
 	(void)argc;
 	(void)argv;
 
@@ -147,6 +149,19 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_EXEC_ONE_TEST(lc_aes_cbc_armce);
 	LC_EXEC_ONE_TEST(lc_aes_cbc_c);
 	LC_EXEC_ONE_TEST(lc_aes_cbc_riscv64);
+
+	if (lc_status_get_result(LC_ALG_STATUS_AES_CBC) !=
+	    lc_alg_status_result_passed) {
+		printf("AES-CBC self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_AES_CBC));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
 
 	return ret;
 }

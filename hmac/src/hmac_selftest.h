@@ -20,14 +20,19 @@
 #ifndef HMAC_SELFTEST_H
 #define HMAC_SELFTEST_H
 
+#include "lc_hmac.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void hmac_sha256_selftest(const char *impl);
-void hmac_sha512_selftest(const char *impl);
-void hmac_sha3_selftest(const char *impl);
+int hmac_sha256_selftest(void);
+int hmac_sha512_selftest(void);
+int hmac_sha3_selftest(void);
 
+void lc_hmac_nocheck(const struct lc_hash *hash, const uint8_t *key,
+		     size_t keylen, const uint8_t *in, size_t inlen,
+		     uint8_t *mac);
 #ifdef __cplusplus
 }
 #endif

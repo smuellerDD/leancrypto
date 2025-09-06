@@ -23,9 +23,14 @@
 #include "compare.h"
 #include "lc_hash_drbg.h"
 #include "math_helper.h"
+#include "ret_checkers.h"
 #include "visibility.h"
 
-static void drbg_hash_selftest(int *tested, const char *impl)
+static int lc_drbg_hash_seed_nocheck(void *_state, const uint8_t *seedbuf,
+				     size_t seedlen, const uint8_t *persbuf,
+				     size_t perslen);
+
+static void drbg_hash_selftest(void)
 {
 	static const uint8_t ent_nonce[] = {
 		0x9E, 0x28, 0x52, 0xF1, 0xD8, 0xB2, 0x3C, 0x1A, 0x80, 0xCA,
@@ -84,14 +89,18 @@ static void drbg_hash_selftest(int *tested, const char *impl)
 	};
 	uint8_t act[sizeof(exp)] __align(sizeof(uint32_t));
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_HASH_DRBG);
 
 	LC_DRBG_HASH_CTX_ON_STACK(drbg_ctx);
 
-	lc_rng_seed(drbg_ctx, ent_nonce, sizeof(ent_nonce), pers, sizeof(pers));
+	if (lc_drbg_hash_seed_nocheck(drbg_ctx->rng_state, ent_nonce,
+				      sizeof(ent_nonce), pers, sizeof(pers)))
+		return;
+
 	lc_rng_generate(drbg_ctx, addtl1, sizeof(addtl1), act, sizeof(act));
 	lc_rng_generate(drbg_ctx, addtl2, sizeof(addtl2), act, sizeof(act));
-	lc_compare_selftest(act, exp, sizeof(exp), impl);
+	lc_compare_selftest(LC_ALG_STATUS_HASH_DRBG, act, exp, sizeof(exp),
+			    "Hash DRBG");
 	lc_rng_zero(drbg_ctx);
 }
 
@@ -99,13 +108,18 @@ static void drbg_hash_selftest(int *tested, const char *impl)
  * Hash invocations requested by DRBG
  ***************************************************************/
 
-static void drbg_hash(struct lc_drbg_hash_state *drbg, uint8_t *outval,
+static int drbg_hash(struct lc_drbg_hash_state *drbg, uint8_t *outval,
 		      const struct lc_drbg_string *in)
 {
-	lc_hash_init(&drbg->hash_ctx);
+	int ret = lc_hash_init(&drbg->hash_ctx);
+
+	if (ret)
+		return ret;
 	for (; in != NULL; in = in->next)
 		lc_hash_update(&drbg->hash_ctx, in->buf, in->len);
 	lc_hash_final(&drbg->hash_ctx, outval);
+
+	return 0;
 }
 
 /******************************************************************
@@ -163,16 +177,17 @@ static void drbg_add_buf(uint8_t *dst, size_t dstlen, const uint8_t *add,
  */
 
 /* Derivation Function for Hash DRBG as defined in 10.4.1 */
-static void drbg_hash_df(struct lc_drbg_hash_state *drbg, uint8_t *outval,
+static int drbg_hash_df(struct lc_drbg_hash_state *drbg, uint8_t *outval,
 			 size_t outlen, struct lc_drbg_string *entropylist)
 {
 	size_t len = 0;
 	unsigned char input[5];
 	unsigned char *tmp = drbg->scratchpad + LC_DRBG_HASH_STATELEN;
 	struct lc_drbg_string data;
+	int ret;
 
 	if (!outval || !tmp)
-		return;
+		return -EINVAL;
 
 	/* 10.3.1 step 3 */
 	input[0] = 1;
@@ -189,23 +204,26 @@ static void drbg_hash_df(struct lc_drbg_hash_state *drbg, uint8_t *outval,
 			min_size(LC_DRBG_HASH_BLOCKLEN, (outlen - len));
 
 		/* 10.3.1 step 4.1 */
-		drbg_hash(drbg, tmp, &data);
+		CKINT(drbg_hash(drbg, tmp, &data));
 		/* 10.3.1 step 4.2 */
 		input[0]++;
 		memcpy(outval + len, tmp, blocklen);
 		len += blocklen;
 	}
 
+out:
 	memset(tmp, 0, LC_DRBG_HASH_BLOCKLEN);
+	return ret;
 }
 
 /* update function for Hash DRBG as defined in 10.1.1.2 / 10.1.1.3 */
-static void drbg_hash_update(struct lc_drbg_hash_state *drbg,
+static int drbg_hash_update(struct lc_drbg_hash_state *drbg,
 			     struct lc_drbg_string *seed)
 {
 	struct lc_drbg_string data1, data2;
 	uint8_t *V = drbg->scratchpad;
 	uint8_t prefix = DRBG_PREFIX1;
+	int ret;
 
 	if (drbg->seeded) {
 		/* 10.1.1.3 step 1 */
@@ -220,7 +238,7 @@ static void drbg_hash_update(struct lc_drbg_hash_state *drbg,
 	}
 
 	/* 10.1.1.2 / 10.1.1.3 step 2 and 3 */
-	drbg_hash_df(drbg, drbg->V, LC_DRBG_HASH_STATELEN, &data1);
+	CKINT(drbg_hash_df(drbg, drbg->V, LC_DRBG_HASH_STATELEN, &data1));
 
 	/* 10.1.1.2 / 10.1.1.3 step 4  */
 	prefix = DRBG_PREFIX0;
@@ -230,19 +248,22 @@ static void drbg_hash_update(struct lc_drbg_hash_state *drbg,
 	/* 10.1.1.2 / 10.1.1.3 step 4 */
 	drbg_hash_df(drbg, drbg->C, LC_DRBG_HASH_STATELEN, &data1);
 
+out:
 	memset(drbg->scratchpad, 0, LC_DRBG_HASH_STATELEN);
+	return ret;
 }
 
 /* processing of additional information string for Hash DRBG */
-static void drbg_hash_process_addtl(struct lc_drbg_hash_state *drbg,
+static int drbg_hash_process_addtl(struct lc_drbg_hash_state *drbg,
 				    struct lc_drbg_string *addtl)
 {
 	struct lc_drbg_string data1, data2;
 	uint8_t prefix = DRBG_PREFIX2;
+	int ret;
 
 	/* 10.1.1.4 step 2 */
 	if (!addtl || addtl->len == 0)
-		return;
+		return 0;
 
 	/* 10.1.1.4 step 2a */
 	lc_drbg_string_fill(&data1, &prefix, 1);
@@ -250,17 +271,19 @@ static void drbg_hash_process_addtl(struct lc_drbg_hash_state *drbg,
 	data1.next = &data2;
 	data2.next = addtl;
 	addtl->next = NULL;
-	drbg_hash(drbg, drbg->scratchpad, &data1);
+	CKINT(drbg_hash(drbg, drbg->scratchpad, &data1));
 
 	/* 10.1.1.4 step 2b */
 	drbg_add_buf(drbg->V, LC_DRBG_HASH_STATELEN, drbg->scratchpad,
 		     LC_DRBG_HASH_BLOCKLEN);
 
+out:
 	memset(drbg->scratchpad, 0, LC_DRBG_HASH_BLOCKLEN);
+	return ret;
 }
 
 /* Hashgen defined in 10.1.1.4 */
-static void drbg_hash_hashgen(struct lc_drbg_hash_state *drbg, uint8_t *buf,
+static int drbg_hash_hashgen(struct lc_drbg_hash_state *drbg, uint8_t *buf,
 			      size_t buflen)
 {
 	struct lc_drbg_string data;
@@ -268,6 +291,7 @@ static void drbg_hash_hashgen(struct lc_drbg_hash_state *drbg, uint8_t *buf,
 	uint8_t *src = drbg->scratchpad;
 	uint8_t *dst = drbg->scratchpad + LC_DRBG_HASH_STATELEN;
 	uint8_t prefix = DRBG_PREFIX1;
+	int ret;
 
 	/* 10.1.1.4 step hashgen 2 */
 	memcpy(src, drbg->V, LC_DRBG_HASH_STATELEN);
@@ -277,7 +301,7 @@ static void drbg_hash_hashgen(struct lc_drbg_hash_state *drbg, uint8_t *buf,
 		size_t outlen = 0;
 
 		/* 10.1.1.4 step hashgen 4.1 */
-		drbg_hash(drbg, dst, &data);
+		CKINT(drbg_hash(drbg, dst, &data));
 		outlen = (LC_DRBG_HASH_BLOCKLEN < (buflen - len)) ?
 				 LC_DRBG_HASH_BLOCKLEN :
 				 (buflen - len);
@@ -290,32 +314,35 @@ static void drbg_hash_hashgen(struct lc_drbg_hash_state *drbg, uint8_t *buf,
 			drbg_add_buf(src, LC_DRBG_HASH_STATELEN, &prefix, 1);
 	}
 
+out:
 	memset(drbg->scratchpad, 0,
 	       (LC_DRBG_HASH_STATELEN + LC_DRBG_HASH_BLOCKLEN));
+	return ret;
 }
 
 /* generate function for Hash DRBG as defined in  10.1.1.4 */
-static void drbg_hash_generate_internal(struct lc_drbg_hash_state *drbg,
+static int drbg_hash_generate_internal(struct lc_drbg_hash_state *drbg,
 					uint8_t *buf, size_t buflen,
 					struct lc_drbg_string *addtl)
 {
 	struct lc_drbg_string data1, data2;
 	uint8_t req[8], prefix = DRBG_PREFIX3;
+	int ret;
 
 	drbg->reseed_ctr++;
 
 	/* 10.1.1.4 step 2 */
-	drbg_hash_process_addtl(drbg, addtl);
+	CKINT(drbg_hash_process_addtl(drbg, addtl));
 
 	/* 10.1.1.4 step 3 */
-	drbg_hash_hashgen(drbg, buf, buflen);
+	CKINT(drbg_hash_hashgen(drbg, buf, buflen));
 
 	/* this is the value H as documented in 10.1.1.4 */
 	/* 10.1.1.4 step 4 */
 	lc_drbg_string_fill(&data1, &prefix, 1);
 	lc_drbg_string_fill(&data2, drbg->V, LC_DRBG_HASH_STATELEN);
 	data1.next = &data2;
-	drbg_hash(drbg, drbg->scratchpad, &data1);
+	CKINT(drbg_hash(drbg, drbg->scratchpad, &data1));
 
 	/* 10.1.1.4 step 5 */
 	drbg_add_buf(drbg->V, LC_DRBG_HASH_STATELEN, drbg->scratchpad,
@@ -325,7 +352,9 @@ static void drbg_hash_generate_internal(struct lc_drbg_hash_state *drbg,
 	be64_to_ptr(req, drbg->reseed_ctr);
 	drbg_add_buf(drbg->V, LC_DRBG_HASH_STATELEN, req, sizeof(req));
 
+out:
 	memset(drbg->scratchpad, 0, LC_DRBG_HASH_BLOCKLEN);
+	return ret;
 }
 
 static int lc_drbg_hash_generate(void *_state, const uint8_t *addtl_input,
@@ -349,24 +378,20 @@ static int lc_drbg_hash_generate(void *_state, const uint8_t *addtl_input,
 		lc_drbg_string_fill(&addtl_data, addtl_input, addtl_input_len);
 		addtl = &addtl_data;
 	}
-	drbg_hash_generate_internal(drbg_hash, out, outlen, addtl);
-
-	return 0;
+	return drbg_hash_generate_internal(drbg_hash, out, outlen, addtl);
 }
 
-static int lc_drbg_hash_seed(void *_state, const uint8_t *seedbuf,
-			     size_t seedlen, const uint8_t *persbuf,
-			     size_t perslen)
+static int lc_drbg_hash_seed_nocheck(void *_state, const uint8_t *seedbuf,
+				     size_t seedlen, const uint8_t *persbuf,
+				     size_t perslen)
 {
 	struct lc_drbg_hash_state *drbg_hash = _state;
 	struct lc_drbg_string seed;
 	struct lc_drbg_string pers;
-	static int tested = 0;
+	int ret;
 
 	if (!drbg_hash)
 		return -EINVAL;
-
-	drbg_hash_selftest(&tested, "Hash DRBG");
 
 	/* 9.1 / 9.2 / 9.3.1 step 3 */
 	if (persbuf && perslen > (lc_drbg_max_addtl()))
@@ -386,7 +411,7 @@ static int lc_drbg_hash_seed(void *_state, const uint8_t *seedbuf,
 		seed.next = &pers;
 	}
 
-	drbg_hash_update(drbg_hash, &seed);
+	CKINT(drbg_hash_update(drbg_hash, &seed));
 	drbg_hash->seeded = 1;
 
 	/*
@@ -396,7 +421,20 @@ static int lc_drbg_hash_seed(void *_state, const uint8_t *seedbuf,
 	 */
 	drbg_hash->reseed_ctr = 0;
 
-	return 0;
+out:
+	return ret;
+}
+
+static int lc_drbg_hash_seed(void *_state, const uint8_t *seedbuf,
+			     size_t seedlen, const uint8_t *persbuf,
+			     size_t perslen)
+{
+	drbg_hash_selftest();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_HASH_DRBG);
+
+	return lc_drbg_hash_seed_nocheck(_state, seedbuf, seedlen, persbuf,
+					 perslen);
+
 }
 
 static void lc_drbg_hash_zero(void *_state)

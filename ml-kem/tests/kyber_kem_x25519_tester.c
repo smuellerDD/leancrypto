@@ -1277,25 +1277,83 @@ out:
 }
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
-	size_t count;
+	char status[900];
 	int ret = 0;
 
 	(void)argv;
 
 	if (argc != 2)
-		return kyber_kem_double_tester(1);
-
+		ret = kyber_kem_double_tester(1);
 	else if (argv[1][0] == 'e')
-		return kyber_kem_double_enc_tester();
-
+		ret = kyber_kem_double_enc_tester();
 	else if (argv[1][0] == 'd')
-		return kyber_kem_double_dec_tester();
-
+		ret = kyber_kem_double_dec_tester();
 	else if (argv[1][0] == 'k')
-		return kyber_kem_double_keygen_tester();
+		ret = kyber_kem_double_keygen_tester();
+	else {
+		unsigned int count;
 
-	for (count = 0; count < 50000; count++)
-		ret += kyber_kem_double_tester(0);
+		for (count = 0; count < 50000; count++)
+			ret += kyber_kem_double_tester(0);
+	}
+
+	/*
+	 * Only verify kyber_kem_tester_common because the other tests
+	 * disable the self tests.
+	 */
+	if ((argc != 2) &&
+	    lc_status_get_result(LC_ALG_STATUS_MLKEM_KEYGEN) !=
+	    lc_alg_status_result_passed) {
+		printf("ML-KEM self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_MLKEM_KEYGEN));
+		return 1;
+	}
+
+	if ((argc != 2) &&
+	    lc_status_get_result(LC_ALG_STATUS_MLKEM_ENC) !=
+	    lc_alg_status_result_passed) {
+		printf("ML-KEM enc self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_MLKEM_ENC));
+		return 1;
+	}
+
+	if ((argc != 2) &&
+	    lc_status_get_result(LC_ALG_STATUS_MLKEM_DEC) !=
+	    lc_alg_status_result_passed) {
+		printf("ML-KEM dec self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_MLKEM_DEC));
+		return 1;
+	}
+
+	if ((argc != 2) && lc_status_get_result(LC_ALG_STATUS_X25519_KEYKEN) !=
+	    lc_alg_status_result_passed) {
+		printf("X25519 keygen self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_X25519_KEYKEN));
+		return 1;
+	}
+
+	if ((argc != 2) && lc_status_get_result(LC_ALG_STATUS_X25519_SS) !=
+	    lc_alg_status_result_passed) {
+		printf("X25519 SS self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_X25519_SS));
+		return 1;
+	}
+
+
+	if ((argc != 2) && lc_status_get_result(LC_ALG_STATUS_SHAKE) !=
+	    lc_alg_status_result_passed) {
+		printf("SHAKE self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_SHAKE));
+		return 1;
+	}
+
+	if (argc != 2) {
+		memset(status, 0, sizeof(status));
+		lc_status(status, sizeof(status));
+		if (strlen(status) == 0)
+			ret = 1;
+		printf("Status information from leancrypto:\n%s", status);
+	}
 
 	return ret;
 }

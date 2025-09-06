@@ -106,7 +106,8 @@ static int ak_tester_one(const struct lc_hash *hash, const uint8_t *pt,
 	if (lc_ak_alloc(hash, &ak_heap))
 		return 1;
 
-	lc_aead_setkey(ak_heap, key, keylen, iv, ivlen);
+	if (lc_aead_setkey(ak_heap, key, keylen, iv, ivlen))
+		return 1;
 
 	memcpy(out_enc, pt, ptlen);
 	lc_aead_enc_init(ak_heap, aad, aadlen);

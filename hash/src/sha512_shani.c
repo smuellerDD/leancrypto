@@ -71,6 +71,7 @@ static void sha512_final_shani(void *_state, uint8_t *digest)
 
 static const struct lc_hash _sha384_shani = {
 	.init = sha384_init,
+	.init_nocheck = sha384_init_nocheck,
 	.update = sha512_update_shani,
 	.final = sha384_final_shani,
 	.set_digestsize = NULL,
@@ -87,6 +88,7 @@ LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha384_shani) = &_sha384_shani;
 
 static const struct lc_hash _sha512_shani = {
 	.init = sha512_init,
+	.init_nocheck = sha512_init_nocheck,
 	.update = sha512_update_shani,
 	.final = sha512_final_shani,
 	.set_digestsize = NULL,

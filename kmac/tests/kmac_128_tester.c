@@ -19,6 +19,7 @@
 
 #include "compare.h"
 #include "lc_kmac.h"
+#include "ret_checkers.h"
 #include "visibility.h"
 
 #include "sha3_c.h"
@@ -769,7 +770,7 @@ static int _kmac_128_tester(const struct lc_hash *cshake_128, const char *name)
 	       cshake_128 == lc_cshake128_c ? "C" : "accelerated",
 	       LC_KMAC_CTX_SIZE(cshake_128));
 
-	lc_kmac_init(ctx_re, key1, sizeof(key1), cust1, sizeof(cust1));
+	CKINT(lc_kmac_init(ctx_re, key1, sizeof(key1), cust1, sizeof(cust1)));
 	lc_kmac_update(ctx_re, msg1, sizeof(msg1));
 	lc_kmac_final(ctx_re, act1, sizeof(act1));
 	ret = lc_compare(act1, exp1, sizeof(act1), "KMAC128 1");
@@ -788,12 +789,13 @@ static int _kmac_128_tester(const struct lc_hash *cshake_128, const char *name)
 	if (ret)
 		return ret;
 
-	lc_kmac_init(ctx, key2, sizeof(key2), cust2, sizeof(cust2));
+	CKINT(lc_kmac_init(ctx, key2, sizeof(key2), cust2, sizeof(cust2)));
 	lc_kmac_update(ctx, msg2, sizeof(msg2));
 	lc_kmac_final(ctx, act2, sizeof(act2));
 	ret = lc_compare(act2, exp2, sizeof(act2), "KMAC128 2");
 	lc_kmac_zero(ctx);
 
+out:
 	return ret;
 }
 
@@ -814,7 +816,26 @@ static int kmac_128_tester(void)
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	char status[900];
+	int ret;
+
 	(void)argc;
 	(void)argv;
-	return kmac_128_tester();
+
+	ret = kmac_128_tester();
+
+	if (lc_status_get_result(LC_ALG_STATUS_KMAC) !=
+	    lc_alg_status_result_passed) {
+		printf("KMAC self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_KMAC));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
+
+	return ret;
 }

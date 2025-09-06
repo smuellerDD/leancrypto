@@ -44,12 +44,18 @@ static void aes_ctr_crypt(struct lc_sym_state *ctx, const uint8_t *in,
 	lc_mode_ctr_c->encrypt(&ctx->ctr_state, in, out, len);
 }
 
-static void aes_ctr_init(struct lc_sym_state *ctx)
+static int aes_ctr_init_nocheck(struct lc_sym_state *ctx)
 {
-	static int tested = 0;
-
-	mode_ctr_selftest(lc_aes_ctr_c, &tested, "AES-CTR");
 	lc_mode_ctr_c->init(&ctx->ctr_state, lc_aes_c, &ctx->block_ctx, NULL);
+	return 0;
+}
+
+static int aes_ctr_init(struct lc_sym_state *ctx)
+{
+	mode_ctr_selftest(lc_aes_ctr_c);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_AES_CTR);
+
+	return aes_ctr_init_nocheck(ctx);
 }
 
 static int aes_ctr_setkey(struct lc_sym_state *ctx, const uint8_t *key,
@@ -68,6 +74,7 @@ static int aes_ctr_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 
 static struct lc_sym _lc_aes_ctr_c = {
 	.init = aes_ctr_init,
+	.init_nocheck = aes_ctr_init_nocheck,
 	.setkey = aes_ctr_setkey,
 	.setiv = aes_ctr_setiv,
 	.encrypt = aes_ctr_crypt,

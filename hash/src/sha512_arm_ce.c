@@ -71,6 +71,7 @@ static void sha512_final_arm_ce(void *_state, uint8_t *digest)
 
 static const struct lc_hash _sha384_arm_ce = {
 	.init = sha384_init,
+	.init_nocheck = sha384_init_nocheck,
 	.update = sha512_update_arm_ce,
 	.final = sha384_final_arm_ce,
 	.set_digestsize = NULL,
@@ -87,6 +88,7 @@ LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha384_arm_ce) = &_sha384_arm_ce;
 
 static const struct lc_hash _sha512_arm_ce = {
 	.init = sha512_init,
+	.init_nocheck = sha512_init_nocheck,
 	.update = sha512_update_arm_ce,
 	.final = sha512_final_arm_ce,
 	.set_digestsize = NULL,

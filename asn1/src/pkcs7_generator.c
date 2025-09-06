@@ -639,7 +639,7 @@ static int pkcs7_hash_data(uint8_t *digest, size_t *digest_size,
 	int ret;
 
 	/* Digest the message [RFC5652 5.4] */
-	lc_hash_init(hash_ctx);
+	CKINT(lc_hash_init(hash_ctx));
 	CKINT(x509_set_digestsize(digest_size, hash_ctx));
 
 	lc_hash_update(hash_ctx, pkcs7->data, pkcs7->data_len);
@@ -819,7 +819,7 @@ int pkcs7_sig_note_set_of_authattrs_enc(void *context, uint8_t *data,
 		return -EBADMSG;
 	}
 
-	lc_hash_init(hash_ctx);
+	CKINT(lc_hash_init(hash_ctx));
 	ctx->authattrs_digest_size = sizeof(ctx->authattrs_digest);
 	CKINT(x509_set_digestsize(&ctx->authattrs_digest_size, hash_ctx));
 

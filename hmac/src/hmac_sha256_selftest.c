@@ -22,7 +22,7 @@
 #include "lc_hmac.h"
 #include "lc_sha256.h"
 
-void hmac_sha256_selftest(const char *impl)
+int hmac_sha256_selftest(void)
 {
 	static const uint8_t msg_256[] = { 0xF2, 0xAA, 0xAA, 0x3A, 0x63, 0xD6,
 					   0xE8, 0x10, 0xE7, 0xD1, 0x13, 0x57,
@@ -44,7 +44,8 @@ void hmac_sha256_selftest(const char *impl)
 					   0xb4, 0xcd };
 	uint8_t act[LC_SHA256_SIZE_DIGEST];
 
-	lc_hmac(lc_sha256, key_256, sizeof(key_256), msg_256, sizeof(msg_256),
-		act);
-	lc_compare_selftest(act, exp_256, sizeof(exp_256), impl);
+	lc_hmac_nocheck(lc_sha256, key_256, sizeof(key_256), msg_256,
+			sizeof(msg_256), act);
+	return lc_compare_selftest(LC_ALG_STATUS_HMAC, act, exp_256,
+				   sizeof(exp_256), "HMAC SHA2-256");
 }

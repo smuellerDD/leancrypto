@@ -54,13 +54,15 @@ static int _sha3_512_tester(const struct lc_hash *sha3_512, const char *name)
 	printf("hash ctx %s (%s implementation) len %u\n", name,
 	       sha3_512 == lc_sha3_512_c ? "C" : "accelerated",
 	       (unsigned int)LC_HASH_CTX_SIZE(sha3_512));
-	lc_hash_init(ctx512);
+	if (lc_hash_init(ctx512))
+		return 1;
 	lc_hash_update(ctx512, msg_512, 3);
 	lc_hash_final(ctx512, act);
 	ret = lc_compare(act, exp_512, LC_SHA3_512_SIZE_DIGEST, "SHA3-512");
 	lc_hash_zero(ctx512);
 
-	lc_hash_init(ctx512_stack);
+	if (lc_hash_init(ctx512_stack))
+		return 1;
 	lc_hash_update(ctx512_stack, msg_512, 3);
 	lc_hash_final(ctx512_stack, act);
 	ret += lc_compare(act, exp_512, LC_SHA3_512_SIZE_DIGEST, "SHA3-512");
@@ -70,7 +72,10 @@ static int _sha3_512_tester(const struct lc_hash *sha3_512, const char *name)
 		ret = 1;
 		goto out;
 	}
-	lc_hash_init(sha3_heap);
+	if (lc_hash_init(sha3_heap)) {
+		ret = 1;
+		goto out;
+	}
 	lc_hash_update(sha3_heap, msg_512, 3);
 	lc_hash_final(sha3_heap, act);
 	ret += lc_compare(act, exp_512, LC_SHA3_512_SIZE_DIGEST, "SHA3-512");
@@ -99,7 +104,26 @@ static int sha3_512_tester(void)
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	char status[900];
+	int ret;
+
 	(void)argc;
 	(void)argv;
-	return sha3_512_tester();
+
+	ret = sha3_512_tester();
+
+	if (lc_status_get_result(LC_ALG_STATUS_SHA3) !=
+	    lc_alg_status_result_passed) {
+		printf("SHA3-512 self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_SHA3));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
+
+	return ret;
 }

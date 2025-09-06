@@ -26,7 +26,7 @@
 #include "math_helper.h"
 #include "visibility.h"
 
-static void cc20_drng_selftest_impl(const char *impl)
+static void cc20_drng_selftest(void)
 {
 	uint8_t outbuf[LC_CC20_KEY_SIZE] __align(sizeof(uint32_t));
 	struct lc_sym_ctx *sym_ctx;
@@ -46,6 +46,8 @@ static void cc20_drng_selftest_impl(const char *impl)
 	};
 	LC_CC20_DRNG_CTX_ON_STACK(cc20_ctx);
 
+	LC_SELFTEST_RUN(LC_ALG_STATUS_CHACHA20_DRNG);
+
 	sym_ctx = &cc20_ctx->cc20;
 	chacha20_state = sym_ctx->sym_state;
 
@@ -53,15 +55,9 @@ static void cc20_drng_selftest_impl(const char *impl)
 	chacha20_state->counter[0] = 0;
 
 	lc_cc20_drng_generate(cc20_ctx, outbuf, sizeof(expected_block));
-	lc_compare_selftest(outbuf, expected_block, sizeof(expected_block),
-			    impl);
+	lc_compare_selftest(LC_ALG_STATUS_CHACHA20_DRNG, outbuf, expected_block,
+			    sizeof(expected_block), "ChaCha20 DRNG");
 	lc_cc20_drng_zero(cc20_ctx);
-}
-
-static void cc20_drng_selftest(int *tested, const char *impl)
-{
-	LC_SELFTEST_RUN(tested);
-	cc20_drng_selftest_impl(impl);
 }
 
 /**
@@ -117,20 +113,20 @@ static inline void lc_cc20_drng_update(struct lc_chacha20_drng_ctx *cc20_ctx,
  * the next chunk of the input and then encrypted again. I.e. the
  * ChaCha20 CBC-MAC of the seed data is injected into the DRNG state.
  */
-LC_INTERFACE_FUNCTION(void, lc_cc20_drng_seed,
+LC_INTERFACE_FUNCTION(int, lc_cc20_drng_seed,
 		      struct lc_chacha20_drng_ctx *cc20_ctx,
 		      const uint8_t *inbuf, size_t inbuflen)
 {
 	struct lc_sym_ctx *sym_ctx;
 	struct lc_sym_state *chacha20_state;
-	static int tested = 0;
 
 	if (!cc20_ctx)
-		return;
+		return -EINVAL;
 	sym_ctx = &cc20_ctx->cc20;
 	chacha20_state = sym_ctx->sym_state;
 
-	cc20_drng_selftest(&tested, "ChaCha20 DRNG");
+	cc20_drng_selftest();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_CHACHA20_DRNG);
 
 	while (inbuflen) {
 		size_t i, todo = min_size(inbuflen, LC_CC20_KEY_SIZE);
@@ -143,6 +139,8 @@ LC_INTERFACE_FUNCTION(void, lc_cc20_drng_seed,
 		inbuf += todo;
 		inbuflen -= todo;
 	}
+
+	return 0;
 }
 
 /**

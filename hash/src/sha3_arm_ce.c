@@ -21,6 +21,7 @@
 
 #include "armv8_helper.h"
 #include "bitshift.h"
+#include "compare.h"
 #include "conv_be_le.h"
 #include "ext_headers_arm.h"
 #include "lc_memset_secure.h"
@@ -32,76 +33,108 @@
 #include "visibility.h"
 #include "xor.h"
 
-static void sha3_224_arm_ce_init(void *_state)
+static int sha3_224_arm_ce_init_nocheck(void *_state)
 {
-	static int tested = 0;
-
-	sha3_224_selftest_common(lc_sha3_224_arm_ce, &tested,
-				 "SHA3-224 ARM CE");
 	sha3_224_init_common(_state);
+	return 0;
 }
 
-static void sha3_256_arm_ce_init(void *_state)
+static int sha3_224_arm_ce_init(void *_state)
 {
-	static int tested = 0;
+	sha3_224_selftest_common(lc_sha3_224_arm_ce);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SHA3);
+	return sha3_224_arm_ce_init_nocheck(_state);
+}
 
-	sha3_256_selftest_common(lc_sha3_256_arm_ce, &tested,
-				 "SHA3-256 ARM CE");
+static int sha3_256_arm_ce_init_nocheck(void *_state)
+{
 	sha3_256_init_common(_state);
+	return 0;
 }
 
-static void sha3_384_arm_ce_init(void *_state)
+static int sha3_256_arm_ce_init(void *_state)
 {
-	static int tested = 0;
+	sha3_256_selftest_common(lc_sha3_256_arm_ce);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SHA3);
+	return sha3_256_arm_ce_init_nocheck(_state);
+}
 
-	sha3_384_selftest_common(lc_sha3_384_arm_ce, &tested,
-				 "SHA3-384 ARM CE");
+static int sha3_384_arm_ce_init_nocheck(void *_state)
+{
 	sha3_384_init_common(_state);
+	return 0;
 }
 
-static void sha3_512_arm_ce_init(void *_state)
+static int sha3_384_arm_ce_init(void *_state)
 {
-	static int tested = 0;
+	sha3_384_selftest_common(lc_sha3_384_arm_ce);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SHA3);
+	return sha3_384_arm_ce_init_nocheck(_state);
+}
 
-	sha3_512_selftest_common(lc_sha3_512_arm_ce, &tested,
-				 "SHA3-512 ARM CE");
+static int sha3_512_arm_ce_init_nocheck(void *_state)
+{
 	sha3_512_init_common(_state);
+	return 0;
 }
 
-static void shake_128_arm_ce_init(void *_state)
+static int sha3_512_arm_ce_init(void *_state)
 {
-	static int tested = 0;
+	sha3_512_selftest_common(lc_sha3_512_arm_ce);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SHA3);
+	return sha3_512_arm_ce_init_nocheck(_state);
+}
 
-	shake128_selftest_common(lc_shake128_arm_ce, &tested,
-				 "SHAKE128 ARM CE");
+static int shake_128_arm_ce_init_nocheck(void *_state)
+{
 	shake_128_init_common(_state);
+	return 0;
 }
 
-static void shake_256_arm_ce_init(void *_state)
+static int shake_128_arm_ce_init(void *_state)
 {
-	static int tested = 0;
+	shake128_selftest_common(lc_shake128_arm_ce);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SHAKE);
+	return shake_128_arm_ce_init_nocheck(_state);
+}
 
-	shake256_selftest_common(lc_shake256_arm_ce, &tested,
-				 "SHAKE256 ARM CE");
+static int shake_256_arm_ce_init_nocheck(void *_state)
+{
 	shake_256_init_common(_state);
+	return 0;
 }
 
-static void cshake_128_arm_ce_init(void *_state)
+static int shake_256_arm_ce_init(void *_state)
 {
-	static int tested = 0;
+	shake256_selftest_common(lc_shake256_arm_ce);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SHAKE);
+	return shake_256_arm_ce_init_nocheck(_state);
+}
 
-	cshake128_selftest_common(lc_cshake128_arm_ce, &tested,
-				  "cSHAKE128 ARM CE");
+static int cshake_128_arm_ce_init_nocheck(void *_state)
+{
 	cshake_128_init_common(_state);
+	return 0;
 }
 
-static void cshake_256_arm_ce_init(void *_state)
+static int cshake_128_arm_ce_init(void *_state)
 {
-	static int tested = 0;
+	cshake128_selftest_common(lc_cshake128_arm_ce);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_CSHAKE);
+	return cshake_128_arm_ce_init_nocheck(_state);
+}
 
-	cshake256_selftest_common(lc_cshake256_arm_ce, &tested,
-				  "cSHAKE256 ARM CE");
+static int cshake_256_arm_ce_init_nocheck(void *_state)
+{
 	cshake_256_init_common(_state);
+	return 0;
+}
+
+static int cshake_256_arm_ce_init(void *_state)
+{
+	cshake256_selftest_common(lc_cshake256_arm_ce);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_CSHAKE);
+	return cshake_256_arm_ce_init_nocheck(_state);
 }
 
 static void keccak_arm_ce_absorb(void *_state, const uint8_t *in, size_t inlen)
@@ -170,6 +203,7 @@ static void keccak_arm_ce_newstate(void *state, const uint8_t *data,
 
 static const struct lc_hash _sha3_224_arm_ce = {
 	.init = sha3_224_arm_ce_init,
+	.init_nocheck = sha3_224_arm_ce_init_nocheck,
 	.update = keccak_arm_ce_absorb,
 	.final = keccak_arm_ce_squeeze,
 	.set_digestsize = NULL,
@@ -186,6 +220,7 @@ LC_INTERFACE_SYMBOL(const struct lc_hash *,
 
 static const struct lc_hash _sha3_256_arm_ce = {
 	.init = sha3_256_arm_ce_init,
+	.init_nocheck = sha3_256_arm_ce_init_nocheck,
 	.update = keccak_arm_ce_absorb,
 	.final = keccak_arm_ce_squeeze,
 	.set_digestsize = NULL,
@@ -202,6 +237,7 @@ LC_INTERFACE_SYMBOL(const struct lc_hash *,
 
 static const struct lc_hash _sha3_384_arm_ce = {
 	.init = sha3_384_arm_ce_init,
+	.init_nocheck = sha3_384_arm_ce_init_nocheck,
 	.update = keccak_arm_ce_absorb,
 	.final = keccak_arm_ce_squeeze,
 	.set_digestsize = NULL,
@@ -218,6 +254,7 @@ LC_INTERFACE_SYMBOL(const struct lc_hash *,
 
 static const struct lc_hash _sha3_512_arm_ce = {
 	.init = sha3_512_arm_ce_init,
+	.init_nocheck = sha3_512_arm_ce_init_nocheck,
 	.update = keccak_arm_ce_absorb,
 	.final = keccak_arm_ce_squeeze,
 	.set_digestsize = NULL,
@@ -234,6 +271,7 @@ LC_INTERFACE_SYMBOL(const struct lc_hash *,
 
 static const struct lc_hash _shake128_arm_ce = {
 	.init = shake_128_arm_ce_init,
+	.init_nocheck = shake_128_arm_ce_init_nocheck,
 	.update = keccak_arm_ce_absorb,
 	.final = keccak_arm_ce_squeeze,
 	.set_digestsize = shake_set_digestsize,
@@ -250,6 +288,7 @@ LC_INTERFACE_SYMBOL(const struct lc_hash *,
 
 static const struct lc_hash _shake256_arm_ce = {
 	.init = shake_256_arm_ce_init,
+	.init_nocheck = shake_256_arm_ce_init_nocheck,
 	.update = keccak_arm_ce_absorb,
 	.final = keccak_arm_ce_squeeze,
 	.set_digestsize = shake_set_digestsize,
@@ -266,6 +305,7 @@ LC_INTERFACE_SYMBOL(const struct lc_hash *,
 
 static const struct lc_hash _cshake128_arm_ce = {
 	.init = cshake_128_arm_ce_init,
+	.init_nocheck = cshake_128_arm_ce_init_nocheck,
 	.update = keccak_arm_ce_absorb,
 	.final = keccak_arm_ce_squeeze,
 	.set_digestsize = shake_set_digestsize,
@@ -282,6 +322,7 @@ LC_INTERFACE_SYMBOL(const struct lc_hash *,
 
 static const struct lc_hash _cshake256_arm_ce = {
 	.init = cshake_256_arm_ce_init,
+	.init_nocheck = cshake_256_arm_ce_init_nocheck,
 	.update = keccak_arm_ce_absorb,
 	.final = keccak_arm_ce_squeeze,
 	.set_digestsize = shake_set_digestsize,

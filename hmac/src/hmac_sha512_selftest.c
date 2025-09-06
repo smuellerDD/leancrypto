@@ -22,7 +22,7 @@
 #include "lc_hmac.h"
 #include "lc_sha512.h"
 
-void hmac_sha512_selftest(const char *impl)
+int hmac_sha512_selftest(void)
 {
 	static const uint8_t msg_512[] = { 0xC1, 0xB4, 0x8B, 0x27, 0x02, 0xC2,
 					   0xC6, 0x05, 0xC0, 0xC8, 0x24, 0xDA,
@@ -41,7 +41,8 @@ void hmac_sha512_selftest(const char *impl)
 	};
 	uint8_t act[LC_SHA3_512_SIZE_DIGEST];
 
-	lc_hmac(lc_sha512, key_512, sizeof(key_512), msg_512, sizeof(msg_512),
-		act);
-	compare_selftest(act, exp_512, sizeof(exp_512), impl);
+	lc_hmac_nocheck(lc_sha512, key_512, sizeof(key_512), msg_512,
+			sizeof(msg_512), act);
+	return lc_compare_selftest(LC_ALG_STATUS_HMAC, act, exp_512,
+				   sizeof(exp_512), "HMAC SHA2-512");
 }

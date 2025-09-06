@@ -13,6 +13,7 @@ leancrypto-y			+= ../drng/src/rng_api.o		       \
 leancrypto-$(CONFIG_LEANCRYPTO_CHACHA20_DRNG)				       \
 				+= ../drng/src/chacha20_drng.o
 ifdef CONFIG_LEANCRYPTO_CHACHA20_DRNG
+ccflags-y			+= -DCONFIG_LEANCRYPTO_CHACHA20_DRNG
 obj-m		  		+= chacha20_drng_tester.o
 chacha20_drng_tester-y		+= ../drng/tests/chacha20_drng_tester.o
 endif
@@ -22,6 +23,7 @@ endif
 leancrypto-$(CONFIG_LEANCRYPTO_HASH_DRBG)				       \
 				+= ../drng/src/hash_drbg.o
 ifdef CONFIG_LEANCRYPTO_HASH_DRBG
+ccflags-y			+= -DCONFIG_LEANCRYPTO_HASH_DRBG
 obj-m		  		+= hash_drbg_tester.o
 hash_drbg_tester-y		+= ../drng/tests/hash_drbg_tester.o
 endif
@@ -31,6 +33,7 @@ endif
 leancrypto-$(CONFIG_LEANCRYPTO_HMAC_DRBG)				       \
 				+= ../drng/src/hmac_drbg.o
 ifdef CONFIG_LEANCRYPTO_HMAC_DRBG
+ccflags-y			+= -DCONFIG_LEANCRYPTO_HMAC_DRBG
 obj-m		  		+= hmac_drbg_tester.o
 hmac_drbg_tester-y		+= ../drng/tests/hmac_drbg_tester.o
 endif
@@ -40,6 +43,7 @@ endif
 leancrypto-$(CONFIG_LEANCRYPTO_KMAC_DRNG)				       \
 				+= ../drng/src/kmac_drng.o
 ifdef CONFIG_LEANCRYPTO_KMAC_DRNG
+ccflags-y			+= -DCONFIG_LEANCRYPTO_KMAC_DRNG
 obj-m		 		+= kmac_drng_tester.o
 kmac_drng_tester-y		+= ../drng/tests/kmac_drng_tester.o
 endif
@@ -47,6 +51,7 @@ endif
 leancrypto-$(CONFIG_LEANCRYPTO_CSHAKE_DRNG)				       \
 				+= ../drng/src/cshake_drng.o
 ifdef CONFIG_LEANCRYPTO_CSHAKE_DRNG
+ccflags-y			+= -DCONFIG_LEANCRYPTO_CSHAKE_DRNG
 obj-m				+= cshake_drng_tester.o
 cshake_drng_tester-y		+= ../drng/tests/cshake_drng_tester.o
 endif

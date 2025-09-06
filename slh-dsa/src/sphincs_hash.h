@@ -40,7 +40,8 @@ extern "C" {
 static inline void prf_addr(struct lc_hash_ctx *hash_ctx, uint8_t out[LC_SPX_N],
 			    const spx_ctx *ctx, const uint32_t addr[8])
 {
-	lc_hash_init(hash_ctx);
+	if (lc_hash_init(hash_ctx))
+		return;
 	lc_hash_update(hash_ctx, ctx->pub_seed, LC_SPX_N);
 	lc_hash_update(hash_ctx, (uint8_t *)addr, LC_SPX_ADDR_BYTES);
 	lc_hash_update(hash_ctx, ctx->sk_seed, LC_SPX_N);
@@ -54,7 +55,8 @@ static inline void prf_addr_ascon(struct lc_hash_ctx *hash_ctx,
 				  unsigned int addr_static,
 				  uint8_t *ascon_state, int first)
 {
-	lc_hash_init(hash_ctx);
+	if (lc_hash_init(hash_ctx))
+		return;
 	if (first) {
 		lc_hash_update(hash_ctx, ctx->pub_seed, LC_SPX_N);
 		lc_hash_update(hash_ctx, (uint8_t *)addr, addr_static);

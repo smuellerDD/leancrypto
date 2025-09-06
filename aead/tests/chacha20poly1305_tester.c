@@ -80,7 +80,8 @@ static int lc_chacha20_poly1305_test(int argc)
 		c->chacha20.sym = lc_chacha20_c;
 	}
 
-	lc_aead_setkey(cc20p1305, key, sizeof(key), iv, sizeof(iv));
+	if (lc_aead_setkey(cc20p1305, key, sizeof(key), iv, sizeof(iv)))
+		return 1;
 	lc_aead_encrypt(cc20p1305, in, act_ct, sizeof(in), aad, sizeof(aad),
 			act_tag, sizeof(act_tag));
 	ret += lc_compare(act_ct, exp_ct, sizeof(exp_ct),
@@ -89,7 +90,8 @@ static int lc_chacha20_poly1305_test(int argc)
 			  "ChaCha20 Poly 1305 encrypt tag");
 	lc_aead_zero(cc20p1305);
 
-	lc_aead_setkey(cc20p1305, key, sizeof(key), iv, sizeof(iv));
+	if (lc_aead_setkey(cc20p1305, key, sizeof(key), iv, sizeof(iv)))
+		return 1;
 	rc = lc_aead_decrypt(cc20p1305, act_ct, act_ct, sizeof(act_ct), aad,
 			     sizeof(aad), act_tag, sizeof(act_tag));
 	if (rc)
@@ -99,7 +101,8 @@ static int lc_chacha20_poly1305_test(int argc)
 	lc_aead_zero(cc20p1305);
 
 	/* Test the stream cipher API */
-	lc_aead_setkey(cc20p1305, key, sizeof(key), iv, sizeof(iv));
+	if (lc_aead_setkey(cc20p1305, key, sizeof(key), iv, sizeof(iv)))
+		return 1;
 
 	lc_aead_enc_init(cc20p1305, aad, sizeof(aad));
 
@@ -131,12 +134,26 @@ static int lc_chacha20_poly1305_test(int argc)
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	char status[900];
 	int ret;
 
 	(void)argc;
 	(void)argv;
 
 	ret = lc_chacha20_poly1305_test(argc);
+
+	if (lc_status_get_result(LC_ALG_STATUS_CHACHA20_POLY1305) !=
+	    lc_alg_status_result_passed) {
+		printf("Self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_CHACHA20_POLY1305));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
 
 	return ret;
 }

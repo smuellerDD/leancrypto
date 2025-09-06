@@ -62,7 +62,8 @@ static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
 	if (lc_kc_alloc(lc_cshake256, &kc_heap))
 		return 1;
 
-	lc_aead_setkey(kc_heap, key, keylen, NULL, 0);
+	if (lc_aead_setkey(kc_heap, key, keylen, NULL, 0))
+		return 1;
 
 	memcpy(out_enc, pt, ptlen);
 	lc_aead_encrypt(kc_heap, out_enc, out_enc, ptlen, aad, aadlen, tag,
@@ -75,7 +76,8 @@ static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
 				  "KMAC crypt: Encryption, tag");
 
 	/* Stream encryption with pt ptr != ct ptr */
-	lc_aead_setkey(kc, key, keylen, NULL, 0);
+	if (lc_aead_setkey(kc, key, keylen, NULL, 0))
+		return 1;
 
 	if (ptlen < 7)
 		return 1;
@@ -95,7 +97,8 @@ static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
 	lc_aead_zero(kc);
 
 	/* One shot decryption with pt ptr != ct ptr */
-	lc_aead_setkey(kc, key, keylen, NULL, 0);
+	if (lc_aead_setkey(kc, key, keylen, NULL, 0))
+		return 1;
 
 	ret = lc_aead_decrypt(kc, out_enc, out_dec, ptlen, aad, aadlen, tag,
 			      exp_tag_len);
@@ -107,7 +110,8 @@ static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
 
 	/* Stream decryption with pt ptr != ct ptr */
 	lc_aead_zero(kc);
-	lc_aead_setkey(kc, key, keylen, NULL, 0);
+	if (lc_aead_setkey(kc, key, keylen, NULL, 0))
+		return 1;
 	lc_aead_dec_init(kc, aad, aadlen);
 	lc_aead_dec_update(kc, out_enc, out_dec, 1);
 	lc_aead_dec_update(kc, out_enc + 1, out_dec + 1, 1);
@@ -123,7 +127,8 @@ static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
 	lc_aead_zero(kc);
 
 	/* Check authentication error */
-	lc_aead_setkey(kc, key, keylen, NULL, 0);
+	if (lc_aead_setkey(kc, key, keylen, NULL, 0))
+		return 1;
 
 	out_enc[0] = (uint8_t)((out_enc[0] + 1) & 0xff);
 	ret = lc_aead_decrypt(kc, out_enc, out_dec, ptlen, aad, aadlen, tag,
@@ -158,10 +163,13 @@ static int kc_tester_kmac_validate(void)
 	memset(out_enc, 0, sizeof(out_enc));
 	memset(out_kmac, 0, sizeof(out_kmac));
 
-	lc_aead_setkey(kc, key, sizeof(key), NULL, 0);
-	lc_aead_encrypt(kc, in, out_enc, sizeof(in), NULL, 0, NULL, 0);
+	if (lc_aead_setkey(kc, key, sizeof(key), NULL, 0))
+		return 1;
+	if (lc_aead_encrypt(kc, in, out_enc, sizeof(in), NULL, 0, NULL, 0))
+		return 1;
 
-	lc_kmac_init(kmac256, in, sizeof(in), NULL, 0);
+	if (lc_kmac_init(kmac256, in, sizeof(in), NULL, 0))
+		return 1;
 	lc_kmac_final_xof(kmac256, out_kmac, sizeof(out_kmac));
 
 	return lc_compare(out_kmac + 32, out_enc, sizeof(out_enc),
@@ -217,7 +225,9 @@ static int kc_tester_kmac(void)
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	char status[900];
 	int ret, ret2;
+
 	(void)argc;
 	(void)argv;
 
@@ -232,6 +242,26 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 		goto out;
 	}
 	ret += ret2;
+
+	if (lc_status_get_result(LC_ALG_STATUS_KMAC_CRYPT) !=
+	    lc_alg_status_result_passed) {
+		printf("KMAC crypt self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_KMAC_CRYPT));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_KMAC) !=
+	    lc_alg_status_result_passed) {
+		printf("KMAC self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_KMAC));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
 
 out:
 	return ret;

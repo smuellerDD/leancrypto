@@ -21,37 +21,41 @@
 #include "compare.h"
 #include "hmac_selftest.h"
 #include "lc_hmac.h"
+#include "ret_checkers.h"
 #include "timecop.h"
 #include "visibility.h"
 
 #define IPAD 0x36
 #define OPAD 0x5c
 
-static void hmac_selftest(int *tested, const char *impl)
+static void hmac_selftest(void)
 {
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_HMAC);
 
-	hmac_sha256_selftest(impl);
-	hmac_sha512_selftest(impl);
-	hmac_sha3_selftest(impl);
+	if (hmac_sha256_selftest())
+		return;
+	if (hmac_sha512_selftest())
+		return;
+	hmac_sha3_selftest();
 }
 
 LC_INTERFACE_FUNCTION(void, lc_hmac_reinit, struct lc_hmac_ctx *hmac_ctx)
 {
 	struct lc_hash_ctx *hash_ctx = &hmac_ctx->hash_ctx;
 
-	lc_hash_init(hash_ctx);
+	if (lc_hash_init(hash_ctx))
+		return;
 	lc_hash_update(hash_ctx, hmac_ctx->k_ipad, lc_hash_blocksize(hash_ctx));
 }
 
-LC_INTERFACE_FUNCTION(void, lc_hmac_init, struct lc_hmac_ctx *hmac_ctx,
-		      const uint8_t *key, size_t keylen)
+static int lc_hmac_init_nocheck(struct lc_hmac_ctx *hmac_ctx,
+				const uint8_t *key, size_t keylen)
 {
 	struct lc_hash_ctx *hash_ctx = &hmac_ctx->hash_ctx;
 	const struct lc_hash *hash = hash_ctx->hash;
 	uint8_t *k_opad, *k_ipad;
 	unsigned int i;
-	static int tested = 0;
+	int ret;
 
 	/* Timecop: key is sensitive. */
 	poison(key, keylen);
@@ -59,15 +63,13 @@ LC_INTERFACE_FUNCTION(void, lc_hmac_init, struct lc_hmac_ctx *hmac_ctx,
 	if (lc_hash_ctxsize(hash_ctx) > LC_HASH_STATE_SIZE(hash) ||
 	    lc_hash_blocksize(hash_ctx) > LC_SHA_MAX_SIZE_BLOCK ||
 	    lc_hash_digestsize(hash_ctx) > LC_SHA_MAX_SIZE_DIGEST)
-		return;
-
-	hmac_selftest(&tested, "HMAC");
+		return -EINVAL;
 
 	k_opad = hmac_ctx->k_opad;
 	k_ipad = hmac_ctx->k_ipad;
 
 	if (keylen > lc_hash_blocksize(hash_ctx)) {
-		lc_hash_init(hash_ctx);
+		CKINT(lc_hash_init(hash_ctx));
 		lc_hash_update(hash_ctx, key, keylen);
 		lc_hash_final(hash_ctx, k_opad);
 		memset(k_opad + lc_hash_digestsize(hash_ctx), 0,
@@ -86,6 +88,18 @@ LC_INTERFACE_FUNCTION(void, lc_hmac_init, struct lc_hmac_ctx *hmac_ctx,
 		k_opad[i] ^= OPAD;
 
 	lc_hmac_reinit(hmac_ctx);
+
+out:
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_hmac_init, struct lc_hmac_ctx *hmac_ctx,
+		      const uint8_t *key, size_t keylen)
+{
+	hmac_selftest();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_HMAC);
+
+	return lc_hmac_init_nocheck(hmac_ctx, key, keylen);
 }
 
 LC_INTERFACE_FUNCTION(void, lc_hmac_update, struct lc_hmac_ctx *hmac_ctx,
@@ -104,7 +118,10 @@ LC_INTERFACE_FUNCTION(void, lc_hmac_final, struct lc_hmac_ctx *hmac_ctx,
 
 	lc_hash_final(hash_ctx, mac);
 
-	lc_hash_init(hash_ctx);
+	if (lc_hash_init(hash_ctx)) {
+		memset(mac, 0, lc_hash_digestsize(hash_ctx));
+		return;
+	}
 	lc_hash_update(hash_ctx, k_opad, lc_hash_blocksize(hash_ctx));
 	lc_hash_update(hash_ctx, mac, lc_hash_digestsize(hash_ctx));
 	lc_hash_final(hash_ctx, mac);
@@ -161,7 +178,30 @@ LC_INTERFACE_FUNCTION(void, lc_hmac, const struct lc_hash *hash,
 {
 	LC_HMAC_CTX_ON_STACK(hmac_ctx, hash);
 
-	lc_hmac_init(hmac_ctx, key, keylen);
+	if (lc_hmac_init(hmac_ctx, key, keylen)) {
+		struct lc_hash_ctx *hash_ctx = &hmac_ctx->hash_ctx;
+
+		memset(mac, 0, lc_hash_digestsize(hash_ctx));
+		return;
+	}
+	lc_hmac_update(hmac_ctx, in, inlen);
+	lc_hmac_final(hmac_ctx, mac);
+
+	lc_hmac_zero(hmac_ctx);
+}
+
+void lc_hmac_nocheck(const struct lc_hash *hash, const uint8_t *key,
+		     size_t keylen, const uint8_t *in, size_t inlen,
+		     uint8_t *mac)
+{
+	LC_HMAC_CTX_ON_STACK(hmac_ctx, hash);
+
+	if (lc_hmac_init_nocheck(hmac_ctx, key, keylen)) {
+		struct lc_hash_ctx *hash_ctx = &hmac_ctx->hash_ctx;
+
+		memset(mac, 0, lc_hash_digestsize(hash_ctx));
+		return;
+	}
 	lc_hmac_update(hmac_ctx, in, inlen);
 	lc_hmac_final(hmac_ctx, mac);
 

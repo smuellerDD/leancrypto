@@ -48,13 +48,20 @@ static void aes_xts_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 	lc_mode_xts_c->decrypt(&ctx->xts_state, in, out, len);
 }
 
-static void aes_xts_init(struct lc_sym_state *ctx)
+static int aes_xts_init_nocheck(struct lc_sym_state *ctx)
 {
-	static int tested = 0;
-
-	mode_xts_selftest(lc_aes_xts_c, &tested, "AES-XTS");
 	lc_mode_xts_c->init(&ctx->xts_state, lc_aes_c, &ctx->block_ctx,
 			    &ctx->tweak_ctx);
+
+	return 0;
+}
+
+static int aes_xts_init(struct lc_sym_state *ctx)
+{
+	mode_xts_selftest(lc_aes_xts_c);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_AES_XTS);
+
+	return aes_xts_init_nocheck(ctx);
 }
 
 static int aes_xts_setkey(struct lc_sym_state *ctx, const uint8_t *key,
@@ -73,6 +80,7 @@ static int aes_xts_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 
 static struct lc_sym _lc_aes_xts_c = {
 	.init = aes_xts_init,
+	.init_nocheck = aes_xts_init_nocheck,
 	.setkey = aes_xts_setkey,
 	.setiv = aes_xts_setiv,
 	.encrypt = aes_xts_encrypt,

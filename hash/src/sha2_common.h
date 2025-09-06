@@ -27,7 +27,8 @@
 extern "C" {
 #endif
 
-void sha256_init(void *_state);
+int sha256_init(void *_state);
+int sha256_init_nocheck(void *_state);
 
 void sha256_update(struct lc_sha256_state *ctx, const uint8_t *in, size_t inlen,
 		   void (*sha256_transform_block)(struct lc_sha256_state *ctx,
@@ -43,8 +44,10 @@ size_t sha256_get_digestsize(void *_state);
 
 /******************************************************************************/
 
-void sha384_init(void *_state);
-void sha512_init(void *_state);
+int sha384_init(void *_state);
+int sha384_init_nocheck(void *_state);
+int sha512_init(void *_state);
+int sha512_init_nocheck(void *_state);
 
 void sha512_update(struct lc_sha512_state *ctx, const uint8_t *in, size_t inlen,
 		   void (*sha512_transform_block)(struct lc_sha512_state *ctx,

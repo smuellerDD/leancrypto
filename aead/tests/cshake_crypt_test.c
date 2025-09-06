@@ -111,7 +111,8 @@ static int cc_tester_cshake_one(const uint8_t *pt, size_t ptlen,
 
 	/* Stream decryption with pt ptr != ct ptr */
 	lc_aead_zero(cc);
-	lc_aead_setkey(cc, key, keylen, NULL, 0);
+	if (lc_aead_setkey(cc, key, keylen, NULL, 0))
+		return 1;
 	lc_aead_dec_init(cc, aad, aadlen);
 	lc_aead_dec_update(cc, out_enc, out_dec, 1);
 	lc_aead_dec_update(cc, out_enc + 1, out_dec + 1, 1);
@@ -166,7 +167,8 @@ static int cc_tester_cshake_validate(void)
 
 	if (lc_aead_setkey(cc, key, sizeof(key), NULL, 0))
 		return 1;
-	lc_aead_encrypt(cc, in, out_enc, sizeof(in), NULL, 0, NULL, 0);
+	if (lc_aead_encrypt(cc, in, out_enc, sizeof(in), NULL, 0, NULL, 0))
+		return 1;
 
 	lc_cshake_init(cshake256, (uint8_t *)LC_CC_CUSTOMIZATION_STRING,
 		       sizeof(LC_CC_CUSTOMIZATION_STRING) - 1, in, sizeof(in));
@@ -225,6 +227,7 @@ static int cc_tester_cshake(void)
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	char status[900];
 	int ret, ret2;
 
 	(void)argc;
@@ -240,7 +243,20 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 		ret = 77;
 		goto out;
 	}
-	ret += ret2;
+	ret += ret2;;
+
+	if (lc_status_get_result(LC_ALG_STATUS_CSHAKE_CRYPT) !=
+	    lc_alg_status_result_passed) {
+		printf("Self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_CSHAKE_CRYPT));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
 
 out:
 	return ret;

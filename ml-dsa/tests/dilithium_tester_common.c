@@ -19,6 +19,7 @@
 
 #include "ext_headers_internal.h"
 #include "dilithium_tester.h"
+#include "lc_status.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
 #include "visibility.h"
@@ -48,11 +49,50 @@ static int dilithium_tester_common(void)
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
-	(void)argc;
+	char status[900];
+	int ret = 0;
+
 	(void)argv;
 
-	if (argc != 2)
-		return dilithium_tester_common();
+	if (argc != 2) {
+		ret = dilithium_tester_common();
+	} else {
+		ret = _dilithium_tester_common(10000, 0, 0, 0);
+	}
 
-	return _dilithium_tester_common(10000, 0, 0, 0);
+	if (lc_status_get_result(LC_ALG_STATUS_MLDSA_KEYGEN) !=
+	    lc_alg_status_result_passed) {
+		printf("ML-DSA self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_MLDSA_KEYGEN));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_MLDSA_SIGGEN) !=
+	    lc_alg_status_result_passed) {
+		printf("ML-DSA siggen self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_MLDSA_SIGGEN));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_MLDSA_SIGVER) !=
+	    lc_alg_status_result_passed) {
+		printf("ML-DSA sigver self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_MLDSA_SIGVER));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_SHAKE) !=
+	    lc_alg_status_result_passed) {
+		printf("SHAKE self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_SHAKE));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
+
+	return ret;
 }

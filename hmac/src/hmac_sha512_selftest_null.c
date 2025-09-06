@@ -19,7 +19,4 @@
 
 #include "hmac_selftest.h"
 
-void hmac_sha512_selftest(const char *impl)
-{
-	(void)impl;
-}
+int hmac_sha512_selftest(void) { return 0; }

@@ -79,7 +79,7 @@ static int test_encrypt_kw_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 	unpoison(key, keylen);
 
 	/* Encrypt */
-	lc_sym_init(ctx);
+	CKINT(lc_sym_init(ctx));
 	CKINT(lc_sym_setkey(ctx, key, keylen));
 	lc_aes_kw_encrypt(ctx, pt, out, ptlen);
 	ret = lc_compare(out + 8, ct, ptlen, "AES-KW encrypt ciphertext");
@@ -127,6 +127,7 @@ static int test_kw(const struct lc_sym *aes, const char *name)
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	char status[900];
 	int ret = 0;
 
 	(void)argc;
@@ -137,6 +138,19 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_EXEC_ONE_TEST(lc_aes_kw_armce);
 	LC_EXEC_ONE_TEST(lc_aes_kw_c);
 	LC_EXEC_ONE_TEST(lc_aes_kw_riscv64);
+
+	if (lc_status_get_result(LC_ALG_STATUS_AES_KW) !=
+	    lc_alg_status_result_passed) {
+		printf("AES-KW self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_AES_KW));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
 
 	return ret;
 }

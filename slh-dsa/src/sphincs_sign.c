@@ -24,6 +24,7 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
+#include "compare.h"
 #include "cpufeatures.h"
 #include "helper.h"
 #include "lc_rng.h"
@@ -115,10 +116,7 @@ static int lc_sphincs_keypair_from_seed_internal(struct lc_sphincs_pk *pk,
 {
 	const struct lc_sphincs_func_ctx *f_ctx = lc_sphincs_get_ctx();
 	spx_ctx ctx;
-	static int tested = 0;
 	int ret;
-
-	sphincs_selftest_keygen(&tested);
 
 	/*
 	 * Timecop: The SLH-DSA seed is sensitive.
@@ -171,6 +169,9 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_keypair_from_seed,
 	if (seedlen != LC_SPX_SEEDBYTES)
 		return -EINVAL;
 
+	sphincs_selftest_keygen();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SLHDSA_KEYGEN);
+
 	/* Initialize SK_SEED, SK_PRF and PUB_SEED from seed. */
 	memcpy(sk, seed, LC_SPX_SEEDBYTES);
 
@@ -193,8 +194,9 @@ out:
  * Format pk: [PUB_SEED || root]
  */
 
-LC_INTERFACE_FUNCTION(int, lc_sphincs_keypair, struct lc_sphincs_pk *pk,
-		      struct lc_sphincs_sk *sk, struct lc_rng_ctx *rng_ctx)
+int lc_sphincs_keypair_nocheck(struct lc_sphincs_pk *pk,
+			       struct lc_sphincs_sk *sk,
+			       struct lc_rng_ctx *rng_ctx)
 {
 	int ret;
 
@@ -210,13 +212,22 @@ out:
 	return ret;
 }
 
+LC_INTERFACE_FUNCTION(int, lc_sphincs_keypair, struct lc_sphincs_pk *pk,
+		      struct lc_sphincs_sk *sk, struct lc_rng_ctx *rng_ctx)
+{
+	sphincs_selftest_keygen();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SLHDSA_KEYGEN);
+
+	return lc_sphincs_keypair_nocheck(pk, sk, rng_ctx);
+}
+
 /**
  * Returns an array containing a detached signature.
  */
-LC_INTERFACE_FUNCTION(int, lc_sphincs_sign_ctx, struct lc_sphincs_sig *sig,
-		      struct lc_sphincs_ctx *ctx, const uint8_t *m, size_t mlen,
-		      const struct lc_sphincs_sk *sk,
-		      struct lc_rng_ctx *rng_ctx)
+int lc_sphincs_sign_ctx_nocheck(struct lc_sphincs_sig *sig,
+				struct lc_sphincs_ctx *ctx, const uint8_t *m,
+				size_t mlen, const struct lc_sphincs_sk *sk,
+				struct lc_rng_ctx *rng_ctx)
 {
 	struct workspace {
 		uint64_t tree;
@@ -233,14 +244,11 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign_ctx, struct lc_sphincs_sig *sig,
 	const uint8_t *sk_prf = sk->sk_prf;
 	const uint8_t *pk = sk->pk;
 	uint8_t *wots_sig = sig->sight;
-	static int tested = 0;
 	int ret = 0;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	CKNULL(sig, -EINVAL);
 	CKNULL(sk, -EINVAL);
-
-	sphincs_selftest_siggen(&tested);
 
 	/*
 	 * Timecop: secret key is sensitive
@@ -319,6 +327,17 @@ out:
 	return ret;
 }
 
+LC_INTERFACE_FUNCTION(int, lc_sphincs_sign_ctx, struct lc_sphincs_sig *sig,
+		      struct lc_sphincs_ctx *ctx, const uint8_t *m, size_t mlen,
+		      const struct lc_sphincs_sk *sk,
+		      struct lc_rng_ctx *rng_ctx)
+{
+	sphincs_selftest_siggen();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SLHDSA_SIGGEN);
+
+	return lc_sphincs_sign_ctx_nocheck(sig, ctx, m, mlen, sk, rng_ctx);
+}
+
 LC_INTERFACE_FUNCTION(int, lc_sphincs_sign, struct lc_sphincs_sig *sig,
 		      const uint8_t *m, size_t mlen,
 		      const struct lc_sphincs_sk *sk,
@@ -344,6 +363,9 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign_init, struct lc_sphincs_ctx *ctx,
 
 	CKNULL(ctx, -EINVAL);
 
+	sphincs_selftest_siggen();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SLHDSA_SIGGEN);
+
 	if (!ctx->sphincs_prehash_type) {
 #if (LC_SPHINCS_NIST_CATEGORY == 1)
 		ctx->sphincs_prehash_type = lc_sha3_256;
@@ -364,7 +386,7 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign_init, struct lc_sphincs_ctx *ctx,
 	/* Initialize the hash */
 	LC_HASH_SET_CTX((&ctx->sphincs_hash_ctx), ctx->sphincs_prehash_type);
 
-	lc_hash_init(&ctx->sphincs_hash_ctx);
+	CKINT(lc_hash_init(&ctx->sphincs_hash_ctx));
 
 out:
 	return ret;
@@ -430,10 +452,9 @@ out:
 /**
  * Verifies a detached signature and message under a given public key.
  */
-LC_INTERFACE_FUNCTION(int, lc_sphincs_verify_ctx,
-		      const struct lc_sphincs_sig *sig,
-		      struct lc_sphincs_ctx *ctx, const uint8_t *m, size_t mlen,
-		      const struct lc_sphincs_pk *pk)
+int lc_sphincs_verify_ctx_nocheck(const struct lc_sphincs_sig *sig,
+				  struct lc_sphincs_ctx *ctx, const uint8_t *m,
+				  size_t mlen, const struct lc_sphincs_pk *pk)
 {
 	struct workspace {
 		uint64_t tree;
@@ -452,14 +473,11 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify_ctx,
 	spx_ctx ctx_int;
 	const uint8_t *pub_root = pk->pk + LC_SPX_N;
 	const uint8_t *wots_sig = sig->sight;
-	static int tested = 0;
 	int ret = 0;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	CKNULL(sig, -EINVAL);
 	CKNULL(pk, -EINVAL);
-
-	sphincs_selftest_sigver(&tested);
 
 	ctx_int.pub_seed = pk->pk;
 
@@ -523,6 +541,17 @@ out:
 	return ret;
 }
 
+LC_INTERFACE_FUNCTION(int, lc_sphincs_verify_ctx,
+		      const struct lc_sphincs_sig *sig,
+		      struct lc_sphincs_ctx *ctx, const uint8_t *m, size_t mlen,
+		      const struct lc_sphincs_pk *pk)
+{
+	sphincs_selftest_sigver();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SLHDSA_SIGVER);
+
+	return lc_sphincs_verify_ctx_nocheck(sig, ctx, m, mlen, pk);
+}
+
 LC_INTERFACE_FUNCTION(int, lc_sphincs_verify, const struct lc_sphincs_sig *sig,
 		      const uint8_t *m, size_t mlen,
 		      const struct lc_sphincs_pk *pk)
@@ -542,6 +571,14 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify_init, struct lc_sphincs_ctx *ctx,
 	 * API with ML-DSA.
 	 */
 	(void)pk;
+
+	sphincs_selftest_sigver();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SLHDSA_SIGVER);
+
+	/*
+	 * Initialization of the hash context for the signature verification is
+	 * identical to the signature generation initalization.
+	 */
 	return lc_sphincs_sign_init(ctx, NULL);
 }
 

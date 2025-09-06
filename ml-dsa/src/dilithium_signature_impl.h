@@ -34,7 +34,6 @@
 #include "dilithium_debug.h"
 #include "dilithium_pack.h"
 #include "dilithium_pct.h"
-#include "dilithium_selftest.h"
 #include "dilithium_signature_impl.h"
 #include "lc_hash.h"
 #include "lc_memcmp_secure.h"
@@ -97,7 +96,6 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 	static const uint8_t dimension[2] = { LC_DILITHIUM_K, LC_DILITHIUM_L };
 	const uint8_t *rho, *rhoprime, *key;
 	int ret;
-	static int tested = LC_DILITHIUM_TEST_INIT;
 	LC_HASH_CTX_ON_STACK(shake256_ctx, lc_shake256);
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
@@ -106,16 +104,13 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 
 	lc_rng_check(&rng_ctx);
 
-	dilithium_keypair_tester(&tested, "Dilithium Keygen C",
-				 lc_dilithium_keypair_from_seed_impl);
-
 	/* Get randomness for rho, rhoprime and key */
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, ws->seedbuf,
 			      LC_DILITHIUM_SEEDBYTES));
 	dilithium_print_buffer(ws->seedbuf, LC_DILITHIUM_SEEDBYTES,
 			       "Keygen - Seed");
 
-	lc_hash_init(shake256_ctx);
+	CKINT(lc_hash_init(shake256_ctx));
 	lc_hash_update(shake256_ctx, ws->seedbuf, LC_DILITHIUM_SEEDBYTES);
 	lc_hash_update(shake256_ctx, dimension, sizeof(dimension));
 	lc_hash_set_digestsize(shake256_ctx, sizeof(ws->seedbuf));
@@ -210,8 +205,8 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 			       "Keygen - PK after pkEncode:");
 
 	/* Compute H(rho, t1) and write secret key */
-	lc_xof(lc_shake256, pk->pk, sizeof(pk->pk), ws->tmp.tr,
-	       sizeof(ws->tmp.tr));
+	CKINT(lc_xof(lc_shake256, pk->pk, sizeof(pk->pk), ws->tmp.tr,
+		     sizeof(ws->tmp.tr)));
 	dilithium_print_buffer(ws->tmp.tr, sizeof(ws->tmp.tr), "Keygen - TR:");
 	pack_sk_tr(sk, ws->tmp.tr);
 
@@ -322,10 +317,10 @@ static int lc_dilithium_sign_internal_ahat(struct lc_dilithium_sig *sig,
 		     LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_RNDBYTES);
 	rhoprime = key;
 
-	lc_xof(lc_shake256, key,
-	       LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_RNDBYTES +
-		       LC_DILITHIUM_CRHBYTES,
-	       rhoprime, LC_DILITHIUM_CRHBYTES);
+	CKINT(lc_xof(lc_shake256, key,
+		     LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_RNDBYTES +
+			     LC_DILITHIUM_CRHBYTES,
+		     rhoprime, LC_DILITHIUM_CRHBYTES));
 	dilithium_print_buffer(rhoprime, LC_DILITHIUM_CRHBYTES,
 			       "Siggen - RHOPrime:");
 
@@ -393,7 +388,7 @@ rej:
 			       LC_DILITHIUM_K * LC_DILITHIUM_POLYW1_PACKEDBYTES,
 			       "Siggen - w1Encode of W1");
 
-	lc_hash_init(hash_ctx);
+	CKINT(lc_hash_init(hash_ctx));
 	lc_hash_update(hash_ctx, mu, LC_DILITHIUM_CRHBYTES);
 	lc_hash_update(hash_ctx, sig->sig,
 		       LC_DILITHIUM_K * LC_DILITHIUM_POLYW1_PACKEDBYTES);
@@ -598,7 +593,6 @@ static int lc_dilithium_sign_ctx_impl(struct lc_dilithium_sig *sig,
 {
 	uint8_t tr[LC_DILITHIUM_TRBYTES];
 	int ret = 0;
-	static int tested = LC_DILITHIUM_TEST_INIT;
 
 	/* rng_ctx is allowed to be NULL as handled below */
 	if (!sig || !sk || !ctx)
@@ -606,9 +600,6 @@ static int lc_dilithium_sign_ctx_impl(struct lc_dilithium_sig *sig,
 	/* Either the message or the external mu must be provided */
 	if (!m && !ctx->external_mu)
 		return -EINVAL;
-
-	dilithium_siggen_tester(&tested, "Dilithium Siggen C",
-				lc_dilithium_sign_ctx_impl);
 
 	dilithium_print_buffer(m, mlen, "Siggen - Message");
 
@@ -618,7 +609,7 @@ static int lc_dilithium_sign_ctx_impl(struct lc_dilithium_sig *sig,
 		/* Compute mu = CRH(tr, msg) */
 		struct lc_hash_ctx *hash_ctx = &ctx->dilithium_hash_ctx;
 
-		lc_hash_init(hash_ctx);
+		CKINT(lc_hash_init(hash_ctx));
 		lc_hash_update(hash_ctx, tr, LC_DILITHIUM_TRBYTES);
 
 		CKINT(signature_domain_separation(
@@ -653,7 +644,7 @@ static int lc_dilithium_sign_init_impl(struct lc_dilithium_ctx *ctx,
 {
 	uint8_t tr[LC_DILITHIUM_TRBYTES];
 	struct lc_hash_ctx *hash_ctx;
-	static int tested = LC_DILITHIUM_TEST_INIT;
+	int ret;
 
 	/* rng_ctx is allowed to be NULL as handled below */
 	if (!ctx || !sk)
@@ -665,13 +656,12 @@ static int lc_dilithium_sign_init_impl(struct lc_dilithium_ctx *ctx,
 	if (hash_ctx->hash != lc_shake256)
 		return -EOPNOTSUPP;
 
-	dilithium_siggen_tester(&tested, "Dilithium Siggen C",
-				lc_dilithium_sign_ctx_impl);
-
 	unpack_sk_tr(tr, sk);
 
 	/* Compute mu = CRH(tr, msg) */
-	lc_hash_init(hash_ctx);
+	ret = lc_hash_init(hash_ctx);
+	if (ret)
+		return ret;
 	lc_hash_update(hash_ctx, tr, LC_DILITHIUM_TRBYTES);
 	lc_memset_secure(tr, 0, sizeof(tr));
 
@@ -795,7 +785,7 @@ static int lc_dilithium_verify_internal_ahat(const struct lc_dilithium_sig *sig,
 			return -EINVAL;
 
 		/* Call random oracle and verify challenge */
-		lc_hash_init(hash_ctx);
+		CKINT(lc_hash_init(hash_ctx));
 		lc_hash_update(hash_ctx, ctx->external_mu,
 			       LC_DILITHIUM_CRHBYTES);
 	} else {
@@ -803,7 +793,7 @@ static int lc_dilithium_verify_internal_ahat(const struct lc_dilithium_sig *sig,
 		lc_hash_final(hash_ctx, ws->buf.mu);
 
 		/* Call random oracle and verify challenge */
-		lc_hash_init(hash_ctx);
+		CKINT(lc_hash_init(hash_ctx));
 		lc_hash_update(hash_ctx, ws->buf.mu, LC_DILITHIUM_CRHBYTES);
 	}
 
@@ -919,7 +909,6 @@ static int lc_dilithium_verify_ctx_impl(const struct lc_dilithium_sig *sig,
 {
 	uint8_t tr[LC_DILITHIUM_TRBYTES];
 	int ret = 0;
-	static int tested = LC_DILITHIUM_TEST_INIT;
 
 	if (!sig || !pk || !ctx)
 		return -EINVAL;
@@ -928,20 +917,17 @@ static int lc_dilithium_verify_ctx_impl(const struct lc_dilithium_sig *sig,
 	if (!m && !ctx->external_mu)
 		return -EINVAL;
 
-	dilithium_sigver_tester(&tested, "Dilithium Sigver C",
-				lc_dilithium_verify_ctx_impl);
-
 	/* Make sure that ->mu is large enough for ->tr */
 	BUILD_BUG_ON(LC_DILITHIUM_TRBYTES > LC_DILITHIUM_CRHBYTES);
 
 	/* Compute CRH(H(rho, t1), msg) */
-	lc_xof(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES, tr,
-	       LC_DILITHIUM_TRBYTES);
+	CKINT(lc_xof(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES, tr,
+		     LC_DILITHIUM_TRBYTES));
 
 	if (m) {
 		struct lc_hash_ctx *hash_ctx = &ctx->dilithium_hash_ctx;
 
-		lc_hash_init(hash_ctx);
+		CKINT(lc_hash_init(hash_ctx));
 		lc_hash_update(hash_ctx, tr, LC_DILITHIUM_TRBYTES);
 		CKINT(signature_domain_separation(
 			&ctx->dilithium_hash_ctx, ctx->ml_dsa_internal,
@@ -973,7 +959,7 @@ static int lc_dilithium_verify_init_impl(struct lc_dilithium_ctx *ctx,
 {
 	uint8_t mu[LC_DILITHIUM_TRBYTES];
 	struct lc_hash_ctx *hash_ctx;
-	static int tested = LC_DILITHIUM_TEST_INIT;
+	int ret;
 
 	/* rng_ctx is allowed to be NULL as handled below */
 	if (!ctx || !pk)
@@ -985,22 +971,22 @@ static int lc_dilithium_verify_init_impl(struct lc_dilithium_ctx *ctx,
 	if (hash_ctx->hash != lc_shake256)
 		return -EOPNOTSUPP;
 
-	dilithium_sigver_tester(&tested, "Dilithium Sigver C",
-				lc_dilithium_verify_ctx_impl);
-
 	/* Compute CRH(H(rho, t1), msg) */
-	lc_xof(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES, mu,
-	       LC_DILITHIUM_TRBYTES);
+	CKINT(lc_xof(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES, mu,
+		     LC_DILITHIUM_TRBYTES));
 
-	lc_hash_init(hash_ctx);
+	CKINT(lc_hash_init(hash_ctx));
 	lc_hash_update(hash_ctx, mu, LC_DILITHIUM_TRBYTES);
 	lc_memset_secure(mu, 0, sizeof(mu));
 
-	return signature_domain_separation(
+	CKINT(signature_domain_separation(
 		&ctx->dilithium_hash_ctx, ctx->ml_dsa_internal,
 		ctx->dilithium_prehash_type, ctx->userctx, ctx->userctxlen,
 		NULL, 0, ctx->randomizer, ctx->randomizerlen,
-		LC_DILITHIUM_NIST_CATEGORY);
+		LC_DILITHIUM_NIST_CATEGORY));
+
+out:
+	return ret;
 }
 
 static int lc_dilithium_verify_update_impl(struct lc_dilithium_ctx *ctx,

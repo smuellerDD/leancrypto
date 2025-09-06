@@ -44,7 +44,7 @@ static int kc_tester_kmac_large(void)
 	lc_aead_encrypt(kc, pt, pt, len, aad, sizeof(aad), tag, sizeof(tag));
 	lc_aead_zero(kc);
 
-	lc_aead_setkey(kc, key, sizeof(key), NULL, 0);
+	CKINT(lc_aead_setkey(kc, key, sizeof(key), NULL, 0));
 	ret = lc_aead_decrypt(kc, pt, pt, len, aad, sizeof(aad), tag,
 			      sizeof(tag));
 	lc_aead_zero(kc);

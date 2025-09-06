@@ -22,6 +22,7 @@
 #include "compare.h"
 #include "cpufeatures.h"
 #include "lc_aes_gcm.h"
+#include "lc_status.h"
 #include "math_helper.h"
 #include "visibility.h"
 
@@ -87,6 +88,7 @@ static int lc_aes_gcm_test(int argc)
 
 	uint8_t act_ct[sizeof(exp_ct)] __align(sizeof(uint32_t));
 	uint8_t act_tag[sizeof(exp_tag)] __align(sizeof(uint32_t));
+	char status[900];
 	size_t len, i;
 	const uint8_t *in_p;
 	uint8_t *out_p;
@@ -98,7 +100,22 @@ static int lc_aes_gcm_test(int argc)
 		c->sym_ctx.sym = lc_aes_c;
 	}
 
-	lc_aead_setkey(aes_gcm, key, sizeof(key), iv, sizeof(iv));
+	if (lc_aead_setkey(aes_gcm, key, sizeof(key), iv, sizeof(iv)))
+		return 1;
+
+	if (lc_status_get_result(LC_ALG_STATUS_AES_GCM) !=
+	    lc_alg_status_result_passed) {
+		printf("Self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_AES_GCM));
+		ret += 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
+
 	lc_aead_encrypt(aes_gcm, in, act_ct, sizeof(in), aadp, aadlen, act_tag,
 			sizeof(act_tag));
 	ret += lc_compare(act_ct, exp_ct, sizeof(exp_ct),
@@ -107,7 +124,8 @@ static int lc_aes_gcm_test(int argc)
 			  "AES GCM encrypt tag");
 	lc_aead_zero(aes_gcm);
 
-	lc_aead_setkey(aes_gcm, key, sizeof(key), iv, sizeof(iv));
+	if (lc_aead_setkey(aes_gcm, key, sizeof(key), iv, sizeof(iv)))
+		return 1;
 	rc = lc_aead_decrypt(aes_gcm, act_ct, act_ct, sizeof(act_ct), aadp,
 			     aadlen, act_tag, sizeof(act_tag));
 	if (rc) {
@@ -118,7 +136,8 @@ static int lc_aes_gcm_test(int argc)
 	lc_aead_zero(aes_gcm);
 
 	/* Test the encryption stream cipher API */
-	lc_aead_setkey(aes_gcm, key, sizeof(key), iv, sizeof(iv));
+	if (lc_aead_setkey(aes_gcm, key, sizeof(key), iv, sizeof(iv)))
+		return 1;
 
 	/* Multi-update of AAD as supported by GCM */
 	if (aadlen > 3) {
@@ -153,7 +172,8 @@ static int lc_aes_gcm_test(int argc)
 	lc_aead_zero(aes_gcm);
 
 	/* Test the decryption stream cipher API */
-	lc_aead_setkey(aes_gcm, key, sizeof(key), iv, sizeof(iv));
+	if (lc_aead_setkey(aes_gcm, key, sizeof(key), iv, sizeof(iv)))
+		return 1;
 
 	/* Multi-update of AAD as supported by GCM */
 	if (aadlen > 7) {

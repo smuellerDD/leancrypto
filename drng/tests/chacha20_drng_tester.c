@@ -123,27 +123,31 @@ static int chacha20_drng_selftest(struct lc_chacha20_drng_ctx *cc20_ctx)
 			  "zero block");
 
 	/* Clear state of DRNG */
-	lc_cc20_drng_zero(cc20_ctx);
+	if (lc_cc20_drng_zero(cc20_ctx))
+		return 1;
 
 	/* Reseed with 2 blocks */
 	chacha20_state->counter[0] = 0;
-	lc_cc20_drng_seed(cc20_ctx, seed.b, sizeof(expected_twoblocks));
+	CKINT(lc_cc20_drng_seed(cc20_ctx, seed.b, sizeof(expected_twoblocks)));
 	lc_cc20_drng_generate(cc20_ctx, outbuf, sizeof(expected_twoblocks));
 	ret += lc_compare(outbuf, expected_twoblocks,
 			  sizeof(expected_twoblocks), "twoblocks");
 
 	/* Clear state of DRNG */
-	lc_cc20_drng_zero(cc20_ctx);
+	if (lc_cc20_drng_zero(cc20_ctx))
+		return 1;
 
 	/* Reseed with 1 block and one byte */
 	chacha20_state->counter[0] = 0;
-	lc_cc20_drng_seed(cc20_ctx, seed.b, sizeof(expected_block_nonaligned));
+	CKINT(lc_cc20_drng_seed(cc20_ctx, seed.b,
+				sizeof(expected_block_nonaligned)));
 	lc_cc20_drng_generate(cc20_ctx, outbuf,
 			      sizeof(expected_block_nonaligned));
 	ret += lc_compare(outbuf, expected_block_nonaligned,
 			  sizeof(expected_block_nonaligned),
 			  "block nonaligned");
 
+out:
 	return ret;
 }
 
@@ -156,7 +160,7 @@ static int chacha20_tester(void)
 	CKINT_LOG(chacha20_drng_selftest(cc20_ctx),
 		  "ChaCha20 DRNG self test failure: %d\n", ret);
 
-	lc_cc20_drng_zero(cc20_ctx);
+	CKINT(lc_cc20_drng_zero(cc20_ctx));
 
 	CKINT_LOG(lc_cc20_drng_alloc(&cc20_ctx_heap),
 		  "ChaCha20 DRNG heap allocation failure: %d\n", ret);
@@ -170,8 +174,33 @@ out:
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	char status[900];
+	int ret;
+
 	(void)argc;
 	(void)argv;
 
-	return chacha20_tester();
+	ret = chacha20_tester();
+
+	if (lc_status_get_result(LC_ALG_STATUS_CHACHA20_DRNG) !=
+	    lc_alg_status_result_passed) {
+		printf("ChaCha20 DRNG self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_CHACHA20_DRNG));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_CHACHA20) !=
+	    lc_alg_status_result_passed) {
+		printf("ChaCha20 self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_CHACHA20));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
+
+	return ret;
 }

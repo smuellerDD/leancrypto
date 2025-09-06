@@ -32,7 +32,10 @@
 
 static const uint8_t zeros[16] = { 0 };
 
-static void lc_chacha20_poly1305_selftest(int *tested)
+static int lc_chacha20_poly1305_setkey_nocheck(void *state, const uint8_t *key,
+					       size_t keylen, const uint8_t *iv,
+					       size_t ivlen);
+static void lc_chacha20_poly1305_selftest(void)
 {
 	/* Test vector from RFC7539 */
 	static const uint8_t aad[] = { 0x50, 0x51, 0x52, 0x53, 0xc0, 0xc1,
@@ -80,29 +83,34 @@ static void lc_chacha20_poly1305_selftest(int *tested)
 	static const uint8_t f[] = { 0xde, 0xad, }, p[] = { 0xaf, 0xfe };
 	int ret;
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_CHACHA20_POLY1305);
 
 	LC_CHACHA20_POLY1305_CTX_ON_STACK(cc20p1305);
 
-	lc_aead_setkey(cc20p1305, key, sizeof(key), iv, sizeof(iv));
+	lc_chacha20_poly1305_setkey_nocheck(cc20p1305->aead_state, key, sizeof(key), iv, sizeof(iv));
 	lc_aead_encrypt(cc20p1305, in, act_ct, sizeof(in), aad, sizeof(aad),
 			act_tag, sizeof(act_tag));
-	lc_compare_selftest(act_ct, exp_ct, sizeof(exp_ct),
-			    "ChaCha20 Poly1305 AEAD encrypt ciphertext");
-	lc_compare_selftest(act_tag, exp_tag, sizeof(exp_tag),
-			    "ChaCha20 Poly1305 AEAD encrypt tag");
+	if (lc_compare_selftest(LC_ALG_STATUS_CHACHA20_POLY1305, act_ct, exp_ct, sizeof(exp_ct),
+			    "ChaCha20 Poly1305 AEAD encrypt ciphertext"))
+		goto out;
+	if (lc_compare_selftest(LC_ALG_STATUS_CHACHA20_POLY1305, act_tag, exp_tag, sizeof(exp_tag),
+			    "ChaCha20 Poly1305 AEAD encrypt tag"))
+		goto out;
 	lc_aead_zero(cc20p1305);
 
-	lc_aead_setkey(cc20p1305, key, sizeof(key), iv, sizeof(iv));
+	lc_chacha20_poly1305_setkey_nocheck(cc20p1305->aead_state, key, sizeof(key), iv, sizeof(iv));
 	ret = lc_aead_decrypt(cc20p1305, act_ct, act_ct, sizeof(act_ct), aad,
 			      sizeof(aad), act_tag, sizeof(act_tag));
 	if (ret) {
-		lc_compare_selftest(
+		if (lc_compare_selftest(LC_ALG_STATUS_CHACHA20_POLY1305,
 			f, p, sizeof(f),
-			"ChaCha20 Poly1305 AEAD decrypt authentication");
+			"ChaCha20 Poly1305 AEAD decrypt authentication"))
+			goto out;
 	}
-	lc_compare_selftest(act_ct, in, sizeof(in),
+	lc_compare_selftest(LC_ALG_STATUS_CHACHA20_POLY1305, act_ct, in, sizeof(in),
 			    "ChaCha20 Poly1305 AEAD decrypt");
+
+out:
 	lc_aead_zero(cc20p1305);
 }
 
@@ -134,21 +142,18 @@ static int cc20p1305_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
  * The algorithm supports a key of arbitrary size. The only requirement is that
  * the same key is used for decryption as for encryption.
  */
-static int lc_chacha20_poly1305_setkey(void *state, const uint8_t *key,
-				       size_t keylen, const uint8_t *iv,
-				       size_t ivlen)
+static int lc_chacha20_poly1305_setkey_nocheck(void *state, const uint8_t *key,
+					       size_t keylen, const uint8_t *iv,
+					       size_t ivlen)
 {
 	struct lc_chacha20_poly1305_cryptor *cc20p1305 = state;
 	struct lc_sym_ctx *chacha20 = &cc20p1305->chacha20;
 	struct lc_sym_state *chacha20_ctx = chacha20->sym_state;
 	struct lc_poly1305_context *poly1305 = &cc20p1305->poly1305_ctx;
 	uint32_t subkey[LC_CC20_BLOCK_SIZE_WORDS];
-	static int tested = 0;
 	int ret;
 
 	BUILD_BUG_ON(sizeof(subkey) != 32 + 32);
-
-	lc_chacha20_poly1305_selftest(&tested);
 
 	/* Derive the ChaCha20 and Poly1305 keys */
 	cc20_init_constants(chacha20_ctx);
@@ -168,6 +173,17 @@ static int lc_chacha20_poly1305_setkey(void *state, const uint8_t *key,
 out:
 	lc_memset_secure(subkey, 0, sizeof(subkey));
 	return ret;
+}
+
+static int lc_chacha20_poly1305_setkey(void *state, const uint8_t *key,
+				       size_t keylen, const uint8_t *iv,
+				       size_t ivlen)
+{
+	lc_chacha20_poly1305_selftest();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_CHACHA20_POLY1305);
+
+	return lc_chacha20_poly1305_setkey_nocheck(state, key, keylen, iv,
+						   ivlen);
 }
 
 static void lc_chacha20_poly1305_add_aad(void *state, const uint8_t *aad,

@@ -49,6 +49,7 @@ static void sha256_final_arm_ce(void *_state, uint8_t *digest)
 
 static const struct lc_hash _sha256_arm_ce = {
 	.init = sha256_init,
+	.init_nocheck = sha256_init_nocheck,
 	.update = sha256_update_arm_ce,
 	.final = sha256_final_arm_ce,
 	.set_digestsize = NULL,

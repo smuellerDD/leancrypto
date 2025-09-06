@@ -63,8 +63,8 @@ int _lc_kyber_keypair_from_seed(
 	memcpy(&sk->sk[LC_KYBER_INDCPA_SECRETKEYBYTES], pk->pk,
 	       LC_KYBER_INDCPA_PUBLICKEYBYTES);
 
-	lc_hash(lc_sha3_256, pk->pk, LC_KYBER_PUBLICKEYBYTES,
-		sk->sk + LC_KYBER_SECRETKEYBYTES - 2 * LC_KYBER_SYMBYTES);
+	CKINT(lc_hash(lc_sha3_256, pk->pk, LC_KYBER_PUBLICKEYBYTES,
+		      sk->sk + LC_KYBER_SECRETKEYBYTES - 2 * LC_KYBER_SYMBYTES));
 
 	/* Value z for pseudo-random output on reject */
 	CKINT(lc_rng_generate(&s_drng, NULL, 0,
@@ -140,9 +140,9 @@ int _lc_kyber_enc(
 	kyber_print_buffer(buf, LC_KYBER_SYMBYTES, "Encapsulation: m");
 
 	/* Multitarget countermeasure for coins + contributory KEM */
-	lc_hash(lc_sha3_256, pk->pk, LC_KYBER_PUBLICKEYBYTES,
-		buf + LC_KYBER_SYMBYTES);
-	lc_hash(lc_sha3_512, buf, sizeof(buf), kr);
+	CKINT(lc_hash(lc_sha3_256, pk->pk, LC_KYBER_PUBLICKEYBYTES,
+		      buf + LC_KYBER_SYMBYTES));
+	CKINT(lc_hash(lc_sha3_512, buf, sizeof(buf), kr));
 	poison(kr, sizeof(kr));
 	kyber_print_buffer(buf + LC_KYBER_SYMBYTES, LC_KYBER_SYMBYTES,
 			   "Encapsulation: H(ek)");
@@ -210,16 +210,16 @@ static int kyber_kem_iv_sk(const struct lc_kyber_sk *sk)
 	 * The check verifies that the pk and H(pk) correspond by hashing the
 	 * pk and comparing it to H(pk).
 	 */
-	lc_hash(lc_sha3_256, &sk->sk[LC_KYBER_INDCPA_SECRETKEYBYTES],
-		LC_KYBER_PUBLICKEYBYTES, kr);
+	CKINT(lc_hash(lc_sha3_256, &sk->sk[LC_KYBER_INDCPA_SECRETKEYBYTES],
+		      LC_KYBER_PUBLICKEYBYTES, kr));
 
 	if (lc_memcmp_secure(sk->sk + LC_KYBER_SECRETKEYBYTES -
 				     2 * LC_KYBER_SYMBYTES,
 			     LC_KYBER_SYMBYTES, kr, sizeof(kr)))
 		ret = -EINVAL;
 
+out:
 	lc_memset_secure(kr, 0, sizeof(kr));
-
 	return ret;
 }
 
@@ -278,7 +278,7 @@ int _lc_kyber_dec(
 	memcpy(&ws->buf[LC_KYBER_SYMBYTES],
 	       &sk->sk[LC_KYBER_SECRETKEYBYTES - 2 * LC_KYBER_SYMBYTES],
 	       LC_KYBER_SYMBYTES);
-	lc_hash(lc_sha3_512, ws->buf, sizeof(ws->buf), ws->kr);
+	CKINT(lc_hash(lc_sha3_512, ws->buf, sizeof(ws->buf), ws->kr));
 	kyber_print_buffer(ws->kr, LC_KYBER_SYMBYTES, "Decapsulation: K'");
 	kyber_print_buffer(ws->kr + LC_KYBER_SYMBYTES, LC_KYBER_SYMBYTES,
 			   "Decapsulation: r'");

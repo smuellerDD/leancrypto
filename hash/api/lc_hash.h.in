@@ -31,7 +31,8 @@ extern "C" {
 /// \cond DO_NOT_DOCUMENT
 struct lc_hash {
 	/* SHA3 / SHAKE interface */
-	void (*init)(void *state);
+	int (*init)(void *state);
+	int (*init_nocheck)(void *state);
 	void (*update)(void *state, const uint8_t *in, size_t inlen);
 	void (*final)(void *state, uint8_t *digest);
 	void (*set_digestsize)(void *state, size_t digestsize);
@@ -126,8 +127,10 @@ struct lc_hash_ctx {
  *
  * The caller must provide an allocated hash_ctx. This can be achieved by
  * using LC_HASH_CTX_ON_STACK or by using hash_alloc.
+ *
+ * @return 0 on success; < 0 on error
  */
-void lc_hash_init(struct lc_hash_ctx *hash_ctx);
+int lc_hash_init(struct lc_hash_ctx *hash_ctx);
 
 /**
  * @ingroup Hashing
@@ -273,8 +276,10 @@ void lc_hash_zero_free(struct lc_hash_ctx *hash_ctx);
  * @param [out] digest Buffer with at least the size of the message digest.
  *
  * The hash calculation operates entirely on the stack.
+ *
+ * @return 0 on success; < 0 on error
  */
-void lc_hash(const struct lc_hash *hash, const uint8_t *in, size_t inlen,
+int lc_hash(const struct lc_hash *hash, const uint8_t *in, size_t inlen,
 	     uint8_t *digest);
 
 /**
@@ -289,8 +294,10 @@ void lc_hash(const struct lc_hash *hash, const uint8_t *in, size_t inlen,
  * @param [in] digestlen Size of the message digest to calculate.
  *
  * The hash calculation operates entirely on the stack.
+ *
+ * @return 0 on success; < 0 on error
  */
-void lc_xof(const struct lc_hash *xof, const uint8_t *in, size_t inlen,
+int lc_xof(const struct lc_hash *xof, const uint8_t *in, size_t inlen,
 	    uint8_t *digest, size_t digestlen);
 
 /**

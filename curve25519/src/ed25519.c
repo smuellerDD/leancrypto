@@ -39,7 +39,10 @@
 #include "timecop.h"
 #include "visibility.h"
 
-static void lc_ed25519_keypair_selftest(int *tested)
+static int lc_ed25519_keypair_nocheck(struct lc_ed25519_pk *pk,
+				      struct lc_ed25519_sk *sk,
+				      struct lc_rng_ctx *rng_ctx);
+static void lc_ed25519_keypair_selftest(void)
 {
 	static const uint8_t sk_exp[] = {
 		0x7f, 0x9c, 0x2b, 0xa4, 0xe8, 0x8f, 0x82, 0x7d, 0x61, 0x60,
@@ -60,28 +63,26 @@ static void lc_ed25519_keypair_selftest(int *tested)
 	struct lc_ed25519_sk sk;
 	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_ED25519_KEYGEN);
 
-	lc_ed25519_keypair(&pk, &sk, selftest_rng);
-	lc_compare_selftest(pk.pk, pk_exp, sizeof(pk_exp),
-			    "ED25519 keypair pubkey\n");
-	lc_compare_selftest(sk.sk, sk_exp, sizeof(sk_exp),
-			    "ED25519 keypair seckey\n");
+	lc_ed25519_keypair_nocheck(&pk, &sk, selftest_rng);
+	if (lc_compare_selftest(LC_ALG_STATUS_ED25519_KEYGEN, pk.pk, pk_exp,
+				sizeof(pk_exp), "ED25519 keypair pubkey\n"))
+		return;
+	lc_compare_selftest(LC_ALG_STATUS_ED25519_KEYGEN, sk.sk, sk_exp,
+			    sizeof(sk_exp), "ED25519 keypair seckey\n");
 }
 
-/* Export for test purposes */
-LC_INTERFACE_FUNCTION(int, lc_ed25519_keypair, struct lc_ed25519_pk *pk,
-		      struct lc_ed25519_sk *sk, struct lc_rng_ctx *rng_ctx)
+static int lc_ed25519_keypair_nocheck(struct lc_ed25519_pk *pk,
+				      struct lc_ed25519_sk *sk,
+				      struct lc_rng_ctx *rng_ctx)
 {
 	ge25519_p3 A;
 	uint8_t tmp[LC_SHA512_SIZE_DIGEST];
 	int ret;
-	static int tested = 0;
 
 	CKNULL(sk, -EINVAL);
 	CKNULL(pk, -EINVAL);
-
-	lc_ed25519_keypair_selftest(&tested);
 
 	lc_rng_check(&rng_ctx);
 
@@ -90,7 +91,7 @@ LC_INTERFACE_FUNCTION(int, lc_ed25519_keypair, struct lc_ed25519_pk *pk,
 	/* Timecop: the random number is the sentitive data */
 	poison(sk->sk, 32);
 
-	lc_hash(lc_sha512, sk->sk, 32, tmp);
+	CKINT(lc_hash(lc_sha512, sk->sk, 32, tmp));
 	tmp[0] &= 248;
 	tmp[31] &= 127;
 	tmp[31] |= 64;
@@ -113,8 +114,22 @@ out:
 	return ret;
 }
 
+/* Export for test purposes */
+LC_INTERFACE_FUNCTION(int, lc_ed25519_keypair, struct lc_ed25519_pk *pk,
+		      struct lc_ed25519_sk *sk, struct lc_rng_ctx *rng_ctx)
+{
+	lc_ed25519_keypair_selftest();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_ED25519_KEYGEN);
+
+	return lc_ed25519_keypair_nocheck(pk, sk, rng_ctx);
+}
+
+static int lc_ed25519_sign_internal(
+	struct lc_ed25519_sig *sig, int prehash, const uint8_t *msg,
+	size_t mlen, const struct lc_ed25519_sk *sk, struct lc_rng_ctx *rng_ctx,
+	struct lc_dilithium_ed25519_ctx *composite_ml_dsa_ctx);
 /* Test vector generated with libsodium using the ACVP parser tool */
-static void lc_ed25519_sign_tester(int *tested)
+static void lc_ed25519_sign_tester(void)
 {
 	static const struct lc_ed25519_sk sk = {
 		.sk = { 0x42, 0x58, 0x0d, 0x49, 0xbe, 0x95, 0x1f, 0x95,
@@ -153,10 +168,11 @@ static void lc_ed25519_sign_tester(int *tested)
 	};
 	struct lc_ed25519_sig sig;
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_ED25519_SIGGEN);
 
-	lc_ed25519_sign(&sig, msg, sizeof(msg), &sk, NULL);
-	lc_compare_selftest(sig.sig, exp_sig.sig, sizeof(exp_sig.sig),
+	lc_ed25519_sign_internal(&sig, 0, msg, sizeof(msg), &sk, NULL, NULL);
+	lc_compare_selftest(LC_ALG_STATUS_ED25519_SIGGEN, sig.sig, exp_sig.sig,
+			    sizeof(exp_sig.sig),
 			    "ED25519 Signature generation\n");
 }
 
@@ -186,13 +202,10 @@ static int lc_ed25519_sign_internal(
 	ge25519_p3 R;
 	struct lc_dilithium_ctx *dilithium_ctx = NULL;
 	int ret = 0;
-	static int tested = 0;
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_sha512);
 
 	CKNULL(sig, -EINVAL);
 	CKNULL(sk, -EINVAL);
-
-	lc_ed25519_sign_tester(&tested);
 
 	if (composite_ml_dsa_ctx) {
 		dilithium_ctx = &composite_ml_dsa_ctx->dilithium_ctx;
@@ -204,9 +217,9 @@ static int lc_ed25519_sign_internal(
 	/* Timecop: mark the secret key as sensitive */
 	poison(sk->sk, sizeof(sk->sk));
 
-	lc_hash(lc_sha512, sk->sk, 32, az);
+	CKINT(lc_hash(lc_sha512, sk->sk, 32, az));
 
-	lc_hash_init(hash_ctx);
+	CKINT(lc_hash_init(hash_ctx));
 	lc_ed25519_dom2(hash_ctx, prehash);
 
 	if (rng_ctx) {
@@ -237,7 +250,7 @@ static int lc_ed25519_sign_internal(
 	ge25519_scalarmult_base(&R, nonce);
 	ge25519_p3_tobytes(sig->sig, &R);
 
-	lc_hash_init(hash_ctx);
+	CKINT(lc_hash_init(hash_ctx));
 	lc_ed25519_dom2(hash_ctx, prehash);
 	lc_hash_update(hash_ctx, sig->sig, LC_ED25519_SIGBYTES);
 
@@ -276,6 +289,10 @@ int lc_ed25519_sign_ctx(struct lc_ed25519_sig *sig, const uint8_t *msg,
 			struct lc_rng_ctx *rng_ctx,
 			struct lc_dilithium_ed25519_ctx *composite_ml_dsa_ctx)
 {
+
+	lc_ed25519_sign_tester();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_ED25519_SIGGEN);
+
 	return lc_ed25519_sign_internal(sig, 0, msg, mlen, sk, rng_ctx,
 					composite_ml_dsa_ctx);
 }
@@ -286,6 +303,9 @@ LC_INTERFACE_FUNCTION(int, lc_ed25519_sign, struct lc_ed25519_sig *sig,
 		      const struct lc_ed25519_sk *sk,
 		      struct lc_rng_ctx *rng_ctx)
 {
+	lc_ed25519_sign_tester();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_ED25519_SIGGEN);
+
 	return lc_ed25519_sign_internal(sig, 0, msg, mlen, sk, rng_ctx, NULL);
 }
 
@@ -294,11 +314,18 @@ LC_INTERFACE_FUNCTION(int, lc_ed25519ph_sign, struct lc_ed25519_sig *sig,
 		      const struct lc_ed25519_sk *sk,
 		      struct lc_rng_ctx *rng_ctx)
 {
+	lc_ed25519_sign_tester();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_ED25519_SIGGEN);
+
 	return lc_ed25519_sign_internal(sig, 1, msg, mlen, sk, rng_ctx, NULL);
 }
 
+static int lc_ed25519_verify_internal(
+	const struct lc_ed25519_sig *sig, int prehash, const uint8_t *msg,
+	size_t mlen, const struct lc_ed25519_pk *pk,
+	struct lc_dilithium_ed25519_ctx *composite_ml_dsa_ctx);
 /* Test vector obtained from NIST ACVP demo server */
-static void lc_ed25519_verify_tester(int *tested)
+static void lc_ed25519_verify_tester(void)
 {
 	static const struct lc_ed25519_pk pk = {
 		.pk = { 0xDE, 0xE0, 0x76, 0xAD, 0x68, 0xDC, 0x56, 0x56,
@@ -333,11 +360,12 @@ static void lc_ed25519_verify_tester(int *tested)
 	};
 	int exp, ret;
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_ED25519_SIGVER);
 
 	exp = 0;
-	ret = lc_ed25519_verify(&sig, msg, sizeof(msg), &pk);
-	lc_compare_selftest((uint8_t *)&exp, (uint8_t *)&ret, sizeof(exp),
+	ret = lc_ed25519_verify_internal(&sig, 0, msg, sizeof(msg), &pk, NULL);
+	lc_compare_selftest(LC_ALG_STATUS_ED25519_SIGVER, (uint8_t *)&exp,
+			    (uint8_t *)&ret, sizeof(exp),
 			    "ED25519 Signature verification\n");
 }
 
@@ -354,13 +382,10 @@ static int lc_ed25519_verify_internal(
 	ge25519_p2 sb_ah_p2;
 	struct lc_dilithium_ctx *dilithium_ctx = NULL;
 	int ret = 0;
-	static int tested = 0;
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_sha512);
 
 	CKNULL(sig, -EINVAL);
 	CKNULL(pk, -EINVAL);
-
-	lc_ed25519_verify_tester(&tested);
 
 	if (composite_ml_dsa_ctx) {
 		dilithium_ctx = &composite_ml_dsa_ctx->dilithium_ctx;
@@ -397,7 +422,7 @@ static int lc_ed25519_verify_internal(
 		goto out;
 	}
 
-	lc_hash_init(hash_ctx);
+	CKINT(lc_hash_init(hash_ctx));
 	lc_ed25519_dom2(hash_ctx, prehash);
 	lc_hash_update(hash_ctx, sig->sig, 32);
 	lc_hash_update(hash_ctx, pk->pk, LC_ED25519_PUBLICKEYBYTES);
@@ -438,6 +463,9 @@ int lc_ed25519_verify_ctx(const struct lc_ed25519_sig *sig, const uint8_t *msg,
 			  size_t mlen, const struct lc_ed25519_pk *pk,
 			  struct lc_dilithium_ed25519_ctx *composite_ml_dsa_ctx)
 {
+	lc_ed25519_verify_tester();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_ED25519_SIGVER);
+
 	return lc_ed25519_verify_internal(sig, 0, msg, mlen, pk,
 					  composite_ml_dsa_ctx);
 }
@@ -447,6 +475,9 @@ LC_INTERFACE_FUNCTION(int, lc_ed25519_verify, const struct lc_ed25519_sig *sig,
 		      const uint8_t *msg, size_t mlen,
 		      const struct lc_ed25519_pk *pk)
 {
+	lc_ed25519_verify_tester();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_ED25519_SIGVER);
+
 	return lc_ed25519_verify_internal(sig, 0, msg, mlen, pk, NULL);
 }
 
@@ -454,5 +485,8 @@ LC_INTERFACE_FUNCTION(int, lc_ed25519ph_verify,
 		      const struct lc_ed25519_sig *sig, const uint8_t *msg,
 		      size_t mlen, const struct lc_ed25519_pk *pk)
 {
+	lc_ed25519_verify_tester();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_ED25519_SIGVER);
+
 	return lc_ed25519_verify_internal(sig, 1, msg, mlen, pk, NULL);
 }

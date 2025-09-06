@@ -49,10 +49,12 @@ static int ascon_xof_tester(const struct lc_hash *ascon, const char *name)
 	       ascon == lc_ascon_xof_c ? "C" : "accelerated",
 	       (unsigned int)LC_HASH_CTX_SIZE(ascon));
 
-	lc_xof(ascon, msg, sizeof(msg), act, sizeof(act));
+	if (lc_xof(ascon, msg, sizeof(msg), act, sizeof(act)))
+		return 1;
 	ret = lc_compare(act, exp, sizeof(act), "Ascon XOF");
 
-	lc_hash_init(ascon_stack);
+	if (lc_hash_init(ascon_stack))
+		return 1;
 	lc_hash_update(ascon_stack, msg, sizeof(msg));
 	lc_hash_set_digestsize(ascon_stack, sizeof(act));
 	lc_hash_final(ascon_stack, act);
@@ -64,7 +66,9 @@ static int ascon_xof_tester(const struct lc_hash *ascon, const char *name)
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	char status[900];
 	int ret = 0;
+
 	(void)argc;
 	(void)argv;
 
@@ -72,6 +76,19 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_EXEC_ONE_TEST(lc_ascon_xof_c);
 	LC_EXEC_ONE_TEST(lc_ascon_xof_avx512);
 	LC_EXEC_ONE_TEST(lc_ascon_xof_arm_neon);
+
+	if (lc_status_get_result(LC_ALG_STATUS_ASCONXOF) !=
+	    lc_alg_status_result_passed) {
+		printf("Ascon XOF self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_ASCONXOF));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
 
 	return ret;
 }

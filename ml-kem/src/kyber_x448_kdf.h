@@ -83,8 +83,10 @@ static inline void kyber_x448_kdf3(const struct lc_kyber_x448_ss *ss0,
 	 * Kyber SS || X448 SS in memory. If this structure changes,
 	 * change this KDF invocation.
 	 */
-	lc_kmac_init(kmac_ctx, (uint8_t *)ss0, sizeof(struct lc_kyber_x448_ss),
-		     kyber_x448_ss_label, sizeof(kyber_x448_ss_label) - 1);
+	if (lc_kmac_init(kmac_ctx, (uint8_t *)ss0,
+			 sizeof(struct lc_kyber_x448_ss), kyber_x448_ss_label,
+			 sizeof(kyber_x448_ss_label) - 1))
+		return;
 	lc_kmac_update(kmac_ctx, (uint8_t *)ss1,
 		       sizeof(struct lc_kyber_x448_ss));
 	lc_kmac_update(kmac_ctx, in3, inlen3);
@@ -124,8 +126,10 @@ static inline void kyber_x448_kdf4(const struct lc_kyber_x448_ss *ss0,
 	 * Kyber SS || X448 SS in memory. If this structure changes,
 	 * change this KDF invocation.
 	 */
-	lc_kmac_init(kmac_ctx, (uint8_t *)ss0, sizeof(struct lc_kyber_x448_ss),
-		     kyber_x448_ss_label, sizeof(kyber_x448_ss_label) - 1);
+	if (lc_kmac_init(kmac_ctx, (uint8_t *)ss0,
+			 sizeof(struct lc_kyber_x448_ss), kyber_x448_ss_label,
+			 sizeof(kyber_x448_ss_label) - 1))
+		return;
 	lc_kmac_update(kmac_ctx, (uint8_t *)ss1,
 		       sizeof(struct lc_kyber_x448_ss));
 	lc_kmac_update(kmac_ctx, (uint8_t *)ss2,

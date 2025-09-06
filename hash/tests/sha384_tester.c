@@ -51,7 +51,8 @@ static int _sha384_tester(const struct lc_hash *sha384, const char *name)
 	printf("hash ctx %s (%s implementation) len %u\n", name,
 	       sha384 == lc_sha384_c ? "C" : "accelerated",
 	       (unsigned int)LC_HASH_CTX_SIZE(sha384));
-	lc_hash_init(ctx384_stack);
+	if (lc_hash_init(ctx384_stack))
+		return 1;
 	lc_hash_update(ctx384_stack, msg_384, sizeof(msg_384));
 	lc_hash_final(ctx384_stack, act);
 	ret = lc_compare(act, exp_384, LC_SHA384_SIZE_DIGEST, "SHA-384");
@@ -59,13 +60,17 @@ static int _sha384_tester(const struct lc_hash *sha384, const char *name)
 
 	if (lc_hash_alloc(lc_sha384, &ctx384))
 		return 1;
-	lc_hash_init(ctx384);
+	if (lc_hash_init(ctx384)) {
+		lc_hash_zero_free(ctx384);
+		return 1;
+	}
 	lc_hash_update(ctx384, msg_384, sizeof(msg_384));
 	lc_hash_final(ctx384, act);
 	ret += lc_compare(act, exp_384, LC_SHA384_SIZE_DIGEST, "SHA-384");
 	lc_hash_zero_free(ctx384);
 
-	lc_hash_init(sha384_stack);
+	if (lc_hash_init(sha384_stack))
+		return 1;
 	lc_hash_update(sha384_stack, msg_384, sizeof(msg_384));
 	lc_hash_final(sha384_stack, act);
 	lc_hash_zero(sha384_stack);
@@ -92,7 +97,26 @@ static int sha384_tester(void)
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	char status[900];
+	int ret;
+
 	(void)argc;
 	(void)argv;
-	return sha384_tester();
+
+	ret = sha384_tester();
+
+	if (lc_status_get_result(LC_ALG_STATUS_SHA512) !=
+	    lc_alg_status_result_passed) {
+		printf("SHA-384 self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_SHA512));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
+
+	return ret;
 }

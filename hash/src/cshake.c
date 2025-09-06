@@ -17,14 +17,16 @@
  * DAMAGE.
  */
 
+#include "hash_common.h"
 #include "lc_cshake.h"
 #include "lc_sha3.h"
 #include "left_encode.h"
+
 #include "visibility.h"
 
-LC_INTERFACE_FUNCTION(void, lc_cshake_init, struct lc_hash_ctx *ctx,
-		      const uint8_t *n, size_t nlen, const uint8_t *s,
-		      size_t slen)
+static int lc_cshake_init_impl(struct lc_hash_ctx *ctx, const uint8_t *n,
+			       size_t nlen, const uint8_t *s, size_t slen,
+			       int (*hash_init)(void *state))
 {
 	static const uint8_t zero[LC_SHAKE_128_SIZE_BLOCK] = { 0 };
 	static const uint8_t bytepad_val256[] = { 0x01,
@@ -35,11 +37,8 @@ LC_INTERFACE_FUNCTION(void, lc_cshake_init, struct lc_hash_ctx *ctx,
 	size_t len;
 	/* 2 bytes for the bytepad_val that gets inserted */
 	size_t added = 2;
-	int shake128 =
+	int ret, shake128 =
 		(lc_hash_blocksize(ctx) == LC_SHAKE_128_SIZE_BLOCK) ? 1 : 0;
-
-	if (!ctx)
-		return;
 
 	/*
 	 * When invoked without any additional values, it should operate as a
@@ -48,11 +47,12 @@ LC_INTERFACE_FUNCTION(void, lc_cshake_init, struct lc_hash_ctx *ctx,
 	 */
 	if (!nlen && !slen) {
 		LC_HASH_SET_CTX(ctx, shake128 ? lc_shake128 : lc_shake256);
-		lc_hash_init(ctx);
-		return;
+		return hash_init(ctx->hash_state);
 	}
 
-	lc_hash_init(ctx);
+	ret = hash_init(ctx->hash_state);
+	if (ret)
+		return ret;
 
 	/* bytepad value */
 	//len = left_encode(buf, hash_blocksize(ctx));
@@ -81,19 +81,51 @@ LC_INTERFACE_FUNCTION(void, lc_cshake_init, struct lc_hash_ctx *ctx,
 	len = (added % lc_hash_blocksize(ctx));
 	if (len)
 		lc_hash_update(ctx, zero, lc_hash_blocksize(ctx) - len);
+
+	return 0;
 }
 
-LC_INTERFACE_FUNCTION(void, lc_cshake_ctx_init,
+LC_INTERFACE_FUNCTION(int, lc_cshake_init, struct lc_hash_ctx *ctx,
+		      const uint8_t *n, size_t nlen, const uint8_t *s,
+		      size_t slen)
+{
+	const struct lc_hash *hash;
+
+	if (!ctx)
+		return -EINVAL;
+
+	hash = ctx->hash;
+	return lc_cshake_init_impl(ctx, n, nlen, s, slen, hash->init);
+}
+
+int lc_cshake_init_nocheck(struct lc_hash_ctx *ctx, const uint8_t *n,
+			   size_t nlen, const uint8_t *s, size_t slen)
+{
+	const struct lc_hash *hash;
+
+	if (!ctx)
+		return -EINVAL;
+
+	hash = ctx->hash;
+	return lc_cshake_init_impl(ctx, n, nlen, s, slen, hash->init_nocheck);
+}
+
+LC_INTERFACE_FUNCTION(int, lc_cshake_ctx_init,
 		      struct lc_cshake_ctx *cshake_ctx, const uint8_t *n,
 		      size_t nlen, const uint8_t *s, size_t slen)
 {
-	lc_cshake_init(&cshake_ctx->hash_ctx, n, nlen, s, slen);
+	int ret = lc_cshake_init(&cshake_ctx->hash_ctx, n, nlen, s, slen);
+
+	if (ret)
+		return ret;
 
 	/* Retain key state */
 	if (cshake_ctx->shadow_ctx) {
 		memcpy(cshake_ctx->shadow_ctx, cshake_ctx->hash_ctx.hash_state,
 		       lc_hash_ctxsize(&cshake_ctx->hash_ctx));
 	}
+
+	return 0;
 }
 
 LC_INTERFACE_FUNCTION(void, lc_cshake_ctx_reinit,
@@ -108,7 +140,8 @@ LC_INTERFACE_FUNCTION(void, lc_cshake_ctx_reinit,
 	if (!cshake_ctx->shadow_ctx)
 		return;
 
-	lc_hash_init(hash_ctx);
+	if (lc_hash_init(hash_ctx))
+		return;
 
 	/* Copy retained key state back*/
 	memcpy(cshake_ctx->hash_ctx.hash_state, cshake_ctx->shadow_ctx,

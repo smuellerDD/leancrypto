@@ -43,7 +43,7 @@ int gen_message_random(uint8_t R[LC_SPX_N], const uint8_t sk_prf[LC_SPX_N],
 	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
 	int ret;
 
-	lc_hash_init(hash_ctx);
+	CKINT(lc_hash_init(hash_ctx));
 	lc_hash_update(hash_ctx, sk_prf, LC_SPX_N);
 	lc_hash_update(hash_ctx, optrand, LC_SPX_N);
 	CKINT(signature_domain_separation(
@@ -80,7 +80,7 @@ int hash_message(uint8_t *digest, uint64_t *tree, uint32_t *leaf_idx,
 	int ret;
 	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
 
-	lc_hash_init(hash_ctx);
+	CKINT(lc_hash_init(hash_ctx));
 	lc_hash_update(hash_ctx, R, LC_SPX_N);
 	lc_hash_update(hash_ctx, pk, LC_SPX_PK_BYTES);
 	CKINT(signature_domain_separation(

@@ -11,7 +11,7 @@
 # Patchlevel Version: API / ABI compatible, no functional changes, no
 #		      enhancements, bug fixes only.
 project('leancrypto', 'c',
-	version: '1.5.2',
+	version: '1.6.0',
 	default_options: [
 		'warning_level=3',
 		'optimization=3',
@@ -131,17 +131,29 @@ endif
 if get_option('sha2-512').enabled()
 	add_global_arguments([ '-DLC_SHA2_512' ], language: 'c')
 endif
+if get_option('hmac').enabled()
+	add_global_arguments([ '-DLC_HMAC' ], language: 'c')
+endif
 
 if get_option('sha3').enabled()
 	add_global_arguments([ '-DLC_SHA3' ], language: 'c')
+endif
+if get_option('kmac').enabled()
+	add_global_arguments([ '-DLC_KMAC' ], language: 'c')
 endif
 
 if get_option('ascon').enabled()
 	add_global_arguments([ '-DLC_ASCON_HASH' ], language: 'c')
 endif
+if get_option('ascon_keccak').enabled()
+	add_global_arguments([ '-DLC_ASCON_KECCAK' ], language: 'c')
+endif
 
 if get_option('chacha20').enabled()
 	add_global_arguments([ '-DLC_CHACHA20' ], language: 'c')
+endif
+if get_option('chacha20poly1305').enabled()
+	add_global_arguments([ '-DLC_CHACHA20_POLY1305' ], language: 'c')
 endif
 
 kyber_enabled = false
@@ -245,8 +257,62 @@ endif
 if (get_option('aes_cbc').enabled() or
     get_option('aes_ctr').enabled() or
     get_option('aes_kw').enabled() or
+    get_option('aes_xts').enabled() or
     get_option('aes_gcm').enabled())
 	add_global_arguments([ '-DLC_AES' ], language: 'c')
+endif
+
+if get_option('aes_cbc').enabled()
+	add_global_arguments([ '-DLC_AES_CBC' ], language: 'c')
+endif
+if get_option('aes_ctr').enabled()
+	add_global_arguments([ '-DLC_AES_CTR' ], language: 'c')
+endif
+if get_option('aes_kw').enabled()
+	add_global_arguments([ '-DLC_AES_KW' ], language: 'c')
+endif
+if get_option('aes_xts').enabled()
+	add_global_arguments([ '-DLC_AES_XTS' ], language: 'c')
+endif
+if get_option('aes_gcm').enabled()
+	add_global_arguments([ '-DLC_AES_GCM' ], language: 'c')
+endif
+
+if get_option('chacha20_drng').enabled()
+	add_global_arguments([ '-DLC_DRNG_CC20' ], language: 'c')
+endif
+if get_option('kmac_drng').enabled()
+	add_global_arguments([ '-DLC_DRNG_KMAC' ], language: 'c')
+endif
+if get_option('cshake_drng').enabled()
+	add_global_arguments([ '-DLC_DRNG_CSHAKE' ], language: 'c')
+endif
+if (get_option('cshake_drng').enabled() and get_option('ascon').enabled())
+	add_global_arguments([ '-DLC_DRNG_XDRBG128' ], language: 'c')
+endif
+if (get_option('cshake_drng').enabled() and get_option('sha3').enabled())
+	add_global_arguments([ '-DLC_DRNG_XDRBG256' ], language: 'c')
+endif
+if get_option('drbg_hash').enabled()
+	add_global_arguments([ '-DLC_DRNG_HASH_DRBG' ], language: 'c')
+endif
+if get_option('drbg_hmac').enabled()
+	add_global_arguments([ '-DLC_DRNG_HMAC_DRBG' ], language: 'c')
+endif
+if get_option('hkdf').enabled()
+	add_global_arguments([ '-DLC_HKDF' ], language: 'c')
+endif
+if get_option('kdf_ctr').enabled()
+	add_global_arguments([ '-DLC_KDF_CTR' ], language: 'c')
+endif
+if get_option('kdf_fb').enabled()
+	add_global_arguments([ '-DLC_KDF_FB' ], language: 'c')
+endif
+if get_option('kdf_dpi').enabled()
+	add_global_arguments([ '-DLC_KDF_DPI' ], language: 'c')
+endif
+if get_option('pbkdf2').enabled()
+	add_global_arguments([ '-DLC_DRNG_PBKDF2' ], language: 'c')
 endif
 
 # Determine if AEAD support is enabled
@@ -259,6 +325,10 @@ if (get_option('hash_crypt').enabled() or
      (get_option('sha2-512').enabled() or get_option('kmac').enabled())))
 	add_global_arguments([ '-DLC_AEAD' ], language: 'c')
 	aead_support_enabled = true
+endif
+
+if get_option('hash_crypt').enabled()
+	add_global_arguments([ '-DLC_HASH_CRYPT' ], language: 'c')
 endif
 
 if get_option('x509_generator').enabled()

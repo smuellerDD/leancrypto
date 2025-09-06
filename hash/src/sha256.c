@@ -21,6 +21,7 @@
 #include "bitshift_be.h"
 #include "compare.h"
 #include "ext_headers_internal.h"
+#include "hash_common.h"
 #include "lc_sha256.h"
 #include "lc_memset_secure.h"
 #include "sha2_common.h"
@@ -42,8 +43,7 @@ static const uint32_t sha256_K[] = {
 	0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 };
 
-static void sha256_selftest(const struct lc_hash *sha256, int *tested,
-			    const char *impl)
+static void sha256_selftest(const struct lc_hash *sha256)
 {
 	static const uint8_t msg_256[] = { 0x06, 0x3A, 0x53 };
 	static const uint8_t exp_256[] = { 0x8b, 0x05, 0x65, 0x59, 0x60, 0x71,
@@ -54,21 +54,19 @@ static void sha256_selftest(const struct lc_hash *sha256, int *tested,
 					   0x6f, 0xf4 };
 	uint8_t act[LC_SHA256_SIZE_DIGEST];
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_SHA256);
 
-	lc_hash(sha256, msg_256, sizeof(msg_256), act);
-	lc_compare_selftest(act, exp_256, LC_SHA256_SIZE_DIGEST, impl);
+	lc_hash_nocheck(sha256, msg_256, sizeof(msg_256), act);
+	lc_compare_selftest(LC_ALG_STATUS_SHA256, act, exp_256,
+			    LC_SHA256_SIZE_DIGEST, "SHA-256");
 }
 
-void sha256_init(void *_state)
+int sha256_init_nocheck(void *_state)
 {
 	struct lc_sha256_state *ctx = _state;
-	static int tested = 0;
 
 	if (!ctx)
-		return;
-
-	sha256_selftest(lc_sha256, &tested, "SHA-256 C");
+		return -EINVAL;
 
 	ctx->H[0] = 0x6a09e667;
 	ctx->H[1] = 0xbb67ae85;
@@ -80,6 +78,16 @@ void sha256_init(void *_state)
 	ctx->H[7] = 0x5be0cd19;
 
 	ctx->msg_len = 0;
+
+	return 0;
+}
+
+int sha256_init(void *_state)
+{
+	sha256_selftest(lc_sha256);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SHA256);
+
+	return sha256_init_nocheck(_state);
 }
 
 static inline uint32_t ror(uint32_t x, int n)
@@ -285,6 +293,7 @@ size_t sha256_get_digestsize(void *_state)
 
 static const struct lc_hash _sha256_c = {
 	.init = sha256_init,
+	.init_nocheck = sha256_init_nocheck,
 	.update = sha256_update_c,
 	.final = sha256_final_c,
 	.set_digestsize = NULL,

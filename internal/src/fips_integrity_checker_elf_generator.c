@@ -18,6 +18,7 @@
  */
 
 #include "ext_headers_internal.h"
+#include "lc_init.h"
 #include "lc_status.h"
 
 static int status_tester(void)
@@ -36,6 +37,7 @@ static int status_tester(void)
 
 int main(int argc, char *argv[])
 {
+	lc_init(0);
 	(void)argc;
 	(void)argv;
 	return status_tester();

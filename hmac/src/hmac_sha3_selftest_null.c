@@ -19,7 +19,4 @@
 
 #include "hmac_selftest.h"
 
-void hmac_sha3_selftest(const char *impl)
-{
-	(void)impl;
-}
+int hmac_sha3_selftest(void) { return 0; }

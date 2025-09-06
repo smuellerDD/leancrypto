@@ -26,26 +26,9 @@
 #include "lc_pbkdf2.h"
 #include "lc_memset_secure.h"
 #include "lc_sha256.h"
+#include "ret_checkers.h"
 #include "visibility.h"
 #include "xor.h"
-
-static void lc_pbkdf2_selftest(int *tested, const char *impl)
-{
-	static const uint8_t pw[] = { 0x70, 0x61, 0x73, 0x73,
-				      0x77, 0x6f, 0x72, 0x64 };
-	static const uint8_t salt[] = { 0x73, 0x61, 0x6c, 0x74 };
-	static const uint8_t exp_256[] = { 0x12, 0x0f, 0xb6, 0xcf, 0xfc,
-					   0xf8, 0xb3, 0x2c, 0x43, 0xe7,
-					   0x22, 0x52, 0x56, 0xc4, 0xf8,
-					   0x37, 0xa8, 0x65, 0x48, 0xc9 };
-	uint8_t act[sizeof(exp_256)];
-
-	LC_SELFTEST_RUN(tested);
-
-	lc_pbkdf2(lc_sha256, pw, sizeof(pw), salt, sizeof(salt), 1, act,
-		  sizeof(act));
-	lc_compare_selftest(act, exp_256, sizeof(exp_256), impl);
-}
 
 #if 0
 static inline uint64_t kcapi_get_time(void)
@@ -109,17 +92,16 @@ uint32_t kcapi_pbkdf_iteration_count(const char *hashname, uint64_t timeshresh)
 }
 #endif
 
-LC_INTERFACE_FUNCTION(int, lc_pbkdf2, const struct lc_hash *hash,
-		      const uint8_t *pw, size_t pwlen, const uint8_t *salt,
-		      size_t saltlen, const uint32_t count, uint8_t *key,
-		      size_t keylen)
+static int lc_pbkdf2_nocheck(const struct lc_hash *hash, const uint8_t *pw,
+			     size_t pwlen, const uint8_t *salt, size_t saltlen,
+			     const uint32_t count, uint8_t *key,size_t keylen)
 {
-	size_t h;
+	size_t h = 0;
 	uint32_t i = 1;
 #define MAX_DIGESTSIZE 64
 	uint8_t u[LC_SHA_MAX_SIZE_DIGEST] __align(sizeof(uint64_t));
-	static int tested = 0;
 	LC_HMAC_CTX_ON_STACK(hmac_ctx, hash);
+	int ret;
 
 	if (keylen > INT_MAX)
 		return -EMSGSIZE;
@@ -127,9 +109,7 @@ LC_INTERFACE_FUNCTION(int, lc_pbkdf2, const struct lc_hash *hash,
 	if (count == 0)
 		return -EINVAL;
 
-	lc_pbkdf2_selftest(&tested, "PBKDF2");
-
-	lc_hmac_init(hmac_ctx, pw, pwlen);
+	CKINT(lc_hmac_init(hmac_ctx, pw, pwlen));
 	h = lc_hmac_macsize(hmac_ctx);
 
 	memset(key, 0, keylen);
@@ -164,5 +144,36 @@ out:
 	lc_memset_secure(u, 0, h);
 	lc_hmac_zero(hmac_ctx);
 
-	return 0;
+	return ret;
+}
+
+static void lc_pbkdf2_selftest(void)
+{
+	static const uint8_t pw[] = { 0x70, 0x61, 0x73, 0x73,
+				      0x77, 0x6f, 0x72, 0x64 };
+	static const uint8_t salt[] = { 0x73, 0x61, 0x6c, 0x74 };
+	static const uint8_t exp_256[] = { 0x12, 0x0f, 0xb6, 0xcf, 0xfc,
+					   0xf8, 0xb3, 0x2c, 0x43, 0xe7,
+					   0x22, 0x52, 0x56, 0xc4, 0xf8,
+					   0x37, 0xa8, 0x65, 0x48, 0xc9 };
+	uint8_t act[sizeof(exp_256)];
+
+	LC_SELFTEST_RUN(LC_ALG_STATUS_PBKDF2);
+
+	lc_pbkdf2_nocheck(lc_sha256, pw, sizeof(pw), salt, sizeof(salt), 1, act,
+			  sizeof(act));
+	lc_compare_selftest(LC_ALG_STATUS_PBKDF2, act, exp_256,
+			    sizeof(exp_256), "PBKDF2");
+}
+
+LC_INTERFACE_FUNCTION(int, lc_pbkdf2, const struct lc_hash *hash,
+		      const uint8_t *pw, size_t pwlen, const uint8_t *salt,
+		      size_t saltlen, const uint32_t count, uint8_t *key,
+		      size_t keylen)
+{
+	lc_pbkdf2_selftest();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_PBKDF2);
+
+	return lc_pbkdf2_nocheck(hash, pw, pwlen, salt, saltlen, count, key,
+				 keylen);
 }

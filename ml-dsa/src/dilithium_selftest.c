@@ -37,18 +37,15 @@
 #include "../tests/dilithium_pure_rejection_vectors_87.h"
 #endif
 
-static int _dilithium_keypair_tester(
-	const char *impl,
-	int (*_lc_dilithium_keypair_from_seed)(struct lc_dilithium_pk *pk,
-					       struct lc_dilithium_sk *sk,
-					       const uint8_t *seed,
-					       size_t seedlen))
+static int _dilithium_keypair_tester(int (*_lc_dilithium_keypair_from_seed)(
+				      struct lc_dilithium_pk *pk,
+				      struct lc_dilithium_sk *sk,
+				      const uint8_t *seed, size_t seedlen))
 {
 	struct workspace {
 		struct lc_dilithium_pk pk;
 		struct lc_dilithium_sk sk;
 	};
-	char str[25];
 	const struct dilithium_rejection_testvector *tc =
 		&dilithium_rejection_testvectors[0];
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
@@ -60,34 +57,28 @@ static int _dilithium_keypair_tester(
 	 * IG 10.3.A: it is not required to validate pk as it is part of sk.
 	 */
 #if 0
-	snprintf(str, sizeof(str), "%s PK", impl);
-	lc_compare_selftest(ws->pk.pk, tc->pk, LC_DILITHIUM_PUBLICKEYBYTES,
-			    str);
+	if (lc_compare_selftest(LC_ALG_STATUS_MLDSA_KEYGEN, ws->pk.pk, tc->pk,
+				LC_DILITHIUM_PUBLICKEYBYTES, "ML-DSA keygen PK")
+		goto out;
 #endif
 
-	snprintf(str, sizeof(str), "%s SK", impl);
-	lc_compare_selftest(ws->sk.sk, tc->sk, LC_DILITHIUM_SECRETKEYBYTES,
-			    str);
+	lc_compare_selftest(LC_ALG_STATUS_MLDSA_KEYGEN, ws->sk.sk, tc->sk,
+			    LC_DILITHIUM_SECRETKEYBYTES, "ML-DSA keygen SK");
 
 	LC_RELEASE_MEM(ws);
 	return 0;
 }
 
-void dilithium_keypair_tester(int *tested, const char *impl,
-			      int (*_lc_dilithium_keypair_from_seed)(
+void dilithium_keypair_tester(int (*_lc_dilithium_keypair_from_seed)(
 				      struct lc_dilithium_pk *pk,
 				      struct lc_dilithium_sk *sk,
 				      const uint8_t *seed, size_t seedlen))
 {
-	LC_SELFTEST_RUN(tested);
-
-	if (_dilithium_keypair_tester(impl, _lc_dilithium_keypair_from_seed))
-		lc_compare_selftest((uint8_t *)"test", (uint8_t *)"fail", 4,
-				    impl);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_MLDSA_KEYGEN);
+	_dilithium_keypair_tester(_lc_dilithium_keypair_from_seed);
 }
 
 static int _dilithium_siggen_tester(
-	const char *impl,
 	int (*_lc_dilithium_sign)(struct lc_dilithium_sig *sig,
 				  struct lc_dilithium_ctx *ctx,
 				  const uint8_t *m, size_t mlen,
@@ -104,8 +95,8 @@ static int _dilithium_siggen_tester(
 
 	_lc_dilithium_sign(&ws->sig, ctx, tc->msg, sizeof(tc->msg),
 			   (struct lc_dilithium_sk *)tc->sk, NULL);
-	lc_compare_selftest(ws->sig.sig, tc->sig, LC_DILITHIUM_CRYPTO_BYTES,
-			    impl);
+	lc_compare_selftest(LC_ALG_STATUS_MLDSA_SIGGEN, ws->sig.sig, tc->sig,
+			    LC_DILITHIUM_CRYPTO_BYTES, "ML-DSA siggen");
 
 	LC_RELEASE_MEM(ws);
 	lc_dilithium_ctx_zero(ctx);
@@ -113,22 +104,17 @@ static int _dilithium_siggen_tester(
 }
 
 void dilithium_siggen_tester(
-	int *tested, const char *impl,
 	int (*_lc_dilithium_sign)(struct lc_dilithium_sig *sig,
 				  struct lc_dilithium_ctx *ctx,
 				  const uint8_t *m, size_t mlen,
 				  const struct lc_dilithium_sk *sk,
 				  struct lc_rng_ctx *rng_ctx))
 {
-	LC_SELFTEST_RUN(tested);
-
-	if (_dilithium_siggen_tester(impl, _lc_dilithium_sign))
-		lc_compare_selftest((uint8_t *)"test", (uint8_t *)"fail", 4,
-				    impl);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_MLDSA_SIGGEN);
+	_dilithium_siggen_tester(_lc_dilithium_sign);
 }
 
 void dilithium_sigver_tester(
-	int *tested, const char *impl,
 	int (*_lc_dilithium_verify)(const struct lc_dilithium_sig *sig,
 				    struct lc_dilithium_ctx *ctx,
 				    const uint8_t *m, size_t mlen,
@@ -138,7 +124,8 @@ void dilithium_sigver_tester(
 	LC_DILITHIUM_CTX_ON_STACK(ctx);
 	const struct dilithium_rejection_testvector *tc =
 		&dilithium_rejection_testvectors[0];
-	LC_SELFTEST_RUN(tested);
+
+	LC_SELFTEST_RUN(LC_ALG_STATUS_MLDSA_SIGVER);
 
 	exp = 0;
 	ret = _lc_dilithium_verify((struct lc_dilithium_sig *)tc->sig, ctx,
@@ -146,6 +133,6 @@ void dilithium_sigver_tester(
 				   (struct lc_dilithium_pk *)tc->pk);
 	lc_dilithium_ctx_zero(ctx);
 
-	lc_compare_selftest((uint8_t *)&ret, (uint8_t *)&exp, sizeof(ret),
-			    impl);
+	lc_compare_selftest(LC_ALG_STATUS_MLDSA_SIGVER, (uint8_t *)&ret,
+			    (uint8_t *)&exp, sizeof(ret), "ML-DSA sigver");
 }

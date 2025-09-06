@@ -36,13 +36,13 @@ static int aes_cbc_large_aesni(void)
 
 	CKINT(test_mem(&pt, &len));
 
-	lc_sym_init(aes_cbc);
+	CKINT(lc_sym_init(aes_cbc));
 	CKINT(lc_sym_setkey(aes_cbc, key, sizeof(key)));
 	CKINT(lc_sym_setiv(aes_cbc, iv, sizeof(iv)));
 	lc_sym_encrypt(aes_cbc, pt, pt, len);
 	lc_sym_zero(aes_cbc);
 
-	lc_sym_init(aes_cbc);
+	CKINT(lc_sym_init(aes_cbc));
 	CKINT(lc_sym_setkey(aes_cbc, key, sizeof(key)));
 	CKINT(lc_sym_setiv(aes_cbc, iv, sizeof(iv)));
 	lc_sym_decrypt(aes_cbc, pt, pt, len);

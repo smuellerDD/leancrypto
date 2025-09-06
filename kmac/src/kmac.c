@@ -22,6 +22,7 @@
 #include "lc_cshake.h"
 #include "lc_kmac.h"
 #include "left_encode.h"
+#include "ret_checkers.h"
 #include "timecop.h"
 #include "visibility.h"
 
@@ -32,7 +33,10 @@
  */
 #define LC_KMAC_MIN_MAC_SIZE (32 >> 3)
 
-static void lc_kmac_selftest(int *tested, const char *impl)
+static int lc_kmac_init_nocheck(struct lc_kmac_ctx *kmac_ctx,
+				const uint8_t *key, size_t klen,
+				const uint8_t *s, size_t slen);
+static void lc_kmac_selftest(void)
 {
 	static const uint8_t msg[] = { 0x0E, 0x8B, 0x97, 0x33, 0x23, 0x85,
 				       0x6E, 0x39, 0x03, 0xFF, 0xD5 };
@@ -51,14 +55,14 @@ static void lc_kmac_selftest(int *tested, const char *impl)
 				       0x8f, 0xc3 };
 	uint8_t act[sizeof(exp)];
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_KMAC);
 
 	LC_KMAC_CTX_ON_STACK(ctx, lc_cshake256);
 
-	lc_kmac_init(ctx, key, sizeof(key), cust, sizeof(cust));
+	lc_kmac_init_nocheck(ctx, key, sizeof(key), cust, sizeof(cust));
 	lc_kmac_update(ctx, msg, sizeof(msg));
 	lc_kmac_final(ctx, act, sizeof(act));
-	lc_compare_selftest(act, exp, sizeof(exp), impl);
+	lc_compare_selftest(LC_ALG_STATUS_KMAC, act, exp, sizeof(exp), "KMAC");
 	lc_kmac_zero(ctx);
 }
 
@@ -91,7 +95,9 @@ LC_INTERFACE_FUNCTION(void, lc_kmac_reinit, struct lc_kmac_ctx *kmac_ctx)
 	if (!kmac_ctx->shadow_ctx)
 		return;
 
-	lc_hash_init(hash_ctx);
+	if (lc_hash_init(hash_ctx))
+		return;
+
 	kmac_ctx->final_called = 0;
 
 	/* Copy retained key state back*/
@@ -99,9 +105,9 @@ LC_INTERFACE_FUNCTION(void, lc_kmac_reinit, struct lc_kmac_ctx *kmac_ctx)
 	       lc_hash_ctxsize(hash_ctx));
 }
 
-LC_INTERFACE_FUNCTION(void, lc_kmac_init, struct lc_kmac_ctx *kmac_ctx,
-		      const uint8_t *key, size_t klen, const uint8_t *s,
-		      size_t slen)
+static int lc_kmac_init_nocheck(struct lc_kmac_ctx *kmac_ctx,
+				const uint8_t *key, size_t klen,
+				const uint8_t *s, size_t slen)
 {
 	struct lc_hash_ctx *hash_ctx;
 	static const uint8_t zero[LC_SHAKE_128_SIZE_BLOCK] = { 0 };
@@ -113,18 +119,18 @@ LC_INTERFACE_FUNCTION(void, lc_kmac_init, struct lc_kmac_ctx *kmac_ctx,
 	size_t len;
 	/* 2 bytes for the bytepad_val that gets inserted */
 	size_t added = 2;
-	static int tested = 0;
+	int ret;
 
 	/* Timecop: Mark the key as sensitive data. */
 	poison(key, klen);
 
 	if (!kmac_ctx)
-		return;
+		return -EINVAL;
+
 	hash_ctx = &kmac_ctx->hash_ctx;
 
-	lc_kmac_selftest(&tested, "KMAC");
+	CKINT(lc_cshake_init(hash_ctx, (uint8_t *)"KMAC", 4, s, slen));
 
-	lc_cshake_init(hash_ctx, (uint8_t *)"KMAC", 4, s, slen);
 	kmac_ctx->final_called = 0;
 
 	/* bytepad */
@@ -153,6 +159,19 @@ LC_INTERFACE_FUNCTION(void, lc_kmac_init, struct lc_kmac_ctx *kmac_ctx,
 		memcpy(kmac_ctx->shadow_ctx, kmac_ctx->hash_ctx.hash_state,
 		       lc_hash_ctxsize(hash_ctx));
 	}
+
+out:
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_kmac_init, struct lc_kmac_ctx *kmac_ctx,
+		      const uint8_t *key, size_t klen, const uint8_t *s,
+		      size_t slen)
+{
+	lc_kmac_selftest();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_KMAC);
+
+	return lc_kmac_init_nocheck(kmac_ctx, key, klen, s, slen);
 }
 
 LC_INTERFACE_FUNCTION(void, lc_kmac_update, struct lc_kmac_ctx *kmac_ctx,
@@ -279,32 +298,40 @@ LC_INTERFACE_FUNCTION(void, lc_kmac_zero, struct lc_kmac_ctx *kmac_ctx)
 				 LC_KMAC_STATE_SIZE(hash));
 }
 
-LC_INTERFACE_FUNCTION(void, lc_kmac, const struct lc_hash *hash,
+LC_INTERFACE_FUNCTION(int, lc_kmac, const struct lc_hash *hash,
 		      const uint8_t *key, size_t keylen, const uint8_t *s,
 		      size_t slen, const uint8_t *in, size_t inlen,
 		      uint8_t *mac, size_t maclen)
 {
 	LC_KMAC_CTX_ON_STACK(kmac_ctx, hash);
+	int ret = lc_kmac_init(kmac_ctx, key, keylen, s, slen);
 
-	lc_kmac_init(kmac_ctx, key, keylen, s, slen);
+	if (ret)
+		return ret;
 	lc_kmac_update(kmac_ctx, in, inlen);
 	lc_kmac_final(kmac_ctx, mac, maclen);
 
 	lc_kmac_zero(kmac_ctx);
+
+	return 0;
 }
 
-LC_INTERFACE_FUNCTION(void, lc_kmac_xof, const struct lc_hash *hash,
+LC_INTERFACE_FUNCTION(int, lc_kmac_xof, const struct lc_hash *hash,
 		      const uint8_t *key, size_t keylen, const uint8_t *s,
 		      size_t slen, const uint8_t *in, size_t inlen,
 		      uint8_t *mac, size_t maclen)
 {
 	LC_KMAC_CTX_ON_STACK(kmac_ctx, hash);
+	int ret = lc_kmac_init(kmac_ctx, key, keylen, s, slen);
 
-	lc_kmac_init(kmac_ctx, key, keylen, s, slen);
+	if (ret)
+		return ret;
 	lc_kmac_update(kmac_ctx, in, inlen);
 	lc_kmac_final_xof(kmac_ctx, mac, maclen);
 
 	lc_kmac_zero(kmac_ctx);
+
+	return 0;
 }
 
 LC_INTERFACE_FUNCTION(size_t, lc_kmac_macsize, struct lc_kmac_ctx *kmac_ctx)
@@ -322,6 +349,7 @@ static int lc_kmac_rng_seed(void *_state, const uint8_t *seed, size_t seedlen,
 			    const uint8_t *persbuf, size_t perslen)
 {
 	struct lc_kmac_ctx *state = _state;
+	int ret;
 
 	if (state->rng_initialized) {
 		lc_kmac_update(state, seed, seedlen);
@@ -329,7 +357,10 @@ static int lc_kmac_rng_seed(void *_state, const uint8_t *seed, size_t seedlen,
 		return 0;
 	}
 
-	lc_kmac_init(state, seed, seedlen, persbuf, perslen);
+	ret = lc_kmac_init(state, seed, seedlen, persbuf, perslen);
+	if (ret)
+		return ret;
+
 	state->rng_initialized = 1;
 
 	return 0;

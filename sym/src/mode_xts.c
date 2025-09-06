@@ -34,7 +34,7 @@
 
 #define LC_AES_XTS_BLOCK_SIZE sizeof(struct lc_mode_state)
 
-void mode_xts_selftest(const struct lc_sym *aes, int *tested, const char *impl)
+void mode_xts_selftest(const struct lc_sym *aes)
 {
 	static const uint8_t iv[] = {
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -81,29 +81,31 @@ void mode_xts_selftest(const struct lc_sym *aes, int *tested, const char *impl)
 		0x60, 0x61
 	};
 	uint8_t out[sizeof(in)];
-	char status[25];
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_AES_XTS);
 
 	LC_SYM_CTX_ON_STACK(ctx, aes);
 
 	/* Unpoison key to let implementation poison it */
 	unpoison(key256, sizeof(key256));
 
-	lc_sym_init(ctx);
+	aes->init_nocheck(ctx->sym_state);
 	lc_sym_setkey(ctx, key256, sizeof(key256));
 	lc_sym_setiv(ctx, iv, sizeof(iv));
 	lc_sym_encrypt(ctx, in, out, sizeof(in));
-	snprintf(status, sizeof(status), "%s encrypt", impl);
-	lc_compare_selftest(out, out256, sizeof(out256), status);
+	if (lc_compare_selftest(LC_ALG_STATUS_AES_XTS, out, out256,
+				sizeof(out256), "AES-XTS encrypt"))
+		goto out;
 	lc_sym_zero(ctx);
 
-	lc_sym_init(ctx);
+	aes->init_nocheck(ctx->sym_state);
 	lc_sym_setkey(ctx, key256, sizeof(key256));
 	lc_sym_setiv(ctx, iv, sizeof(iv));
 	lc_sym_decrypt(ctx, out, out, sizeof(out));
-	snprintf(status, sizeof(status), "%s decrypt", impl);
-	lc_compare_selftest(out, in, sizeof(in), status);
+	lc_compare_selftest(LC_ALG_STATUS_AES_XTS, out, in, sizeof(in),
+			    "AES-XTS decrypt");
+
+out:
 	lc_sym_zero(ctx);
 }
 

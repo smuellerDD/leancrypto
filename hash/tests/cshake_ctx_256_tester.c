@@ -71,7 +71,8 @@ static int _cshake_256_tester(const struct lc_hash *cshake_256,
 	       cshake_256 == lc_cshake256_c ? "C" : "accelerated",
 	       (unsigned int)LC_HASH_CTX_SIZE(cshake_256));
 
-	lc_cshake_ctx_init(ctx_re, NULL, 0, cust1, sizeof(cust1));
+	if (lc_cshake_ctx_init(ctx_re, NULL, 0, cust1, sizeof(cust1)))
+		return 1;
 	lc_cshake_ctx_update(ctx_re, msg1, sizeof(msg1));
 	lc_cshake_ctx_final(ctx_re, act1, sizeof(act1));
 	ret = lc_compare(act1, exp1, sizeof(act1), "cSHAKE256 reinit 1");
@@ -89,7 +90,8 @@ static int _cshake_256_tester(const struct lc_hash *cshake_256,
 	if (ret)
 		return ret;
 
-	lc_cshake_ctx_init(ctx, NULL, 0, cust1, sizeof(cust1));
+	if (lc_cshake_ctx_init(ctx, NULL, 0, cust1, sizeof(cust1)))
+		return 1;
 	lc_cshake_ctx_update(ctx, msg1, sizeof(msg1));
 	lc_cshake_ctx_final(ctx, act1, sizeof(act1));
 	ret = lc_compare(act1, exp1, sizeof(act1), "cSHAKE256 init 1");

@@ -29,11 +29,14 @@
 #include "timecop.h"
 #include "visibility.h"
 
+static int lc_kdf_dpi_init_nocheck(struct lc_hmac_ctx *hmac_ctx,
+				   const uint8_t *key, size_t keylen);
+
 /*
  * From
  * http://csrc.nist.gov/groups/STM/cavp/documents/KBKDF800-108/PipelineModewithCounter.zip
  */
-static void lc_kdf_dpi_selftest(int *tested, const char *impl)
+static void lc_kdf_dpi_selftest(void)
 {
 	static const uint8_t key[] = { 0x3D, 0x36, 0x1A, 0x9F, 0x28, 0xAA,
 				       0xD7, 0x22, 0xF6, 0x8E, 0xBD, 0xC2,
@@ -47,12 +50,14 @@ static void lc_kdf_dpi_selftest(int *tested, const char *impl)
 	static const uint8_t exp[] = { 0x34, 0x22, 0x68, 0x3b, 0x2d,
 				       0x4b, 0xed, 0x1a, 0x05 };
 	uint8_t act[sizeof(exp)];
+	LC_HMAC_CTX_ON_STACK(hmac_ctx, lc_sha256);
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_DPI_KDF);
 
-	lc_kdf_dpi(lc_sha256, key, sizeof(key), label, sizeof(label), act,
-		   sizeof(act));
-	lc_compare_selftest(act, exp, sizeof(exp), impl);
+	lc_kdf_dpi_init_nocheck(hmac_ctx, key, sizeof(key));
+	lc_kdf_dpi_generate(hmac_ctx, label, sizeof(label), act, sizeof(act));
+	lc_compare_selftest(LC_ALG_STATUS_DPI_KDF, act, exp, sizeof(exp),
+			    "SP800-108 DPI KDF");
 }
 
 LC_INTERFACE_FUNCTION(int, lc_kdf_dpi_generate, struct lc_hmac_ctx *hmac_ctx,
@@ -121,17 +126,21 @@ out:
 	return 0;
 }
 
+static int lc_kdf_dpi_init_nocheck(struct lc_hmac_ctx *hmac_ctx,
+				   const uint8_t *key, size_t keylen)
+{
+	/* Timecop: key is sensitive */
+	poison(key, keylen);
+	return lc_hmac_init(hmac_ctx, key, keylen);
+}
+
 LC_INTERFACE_FUNCTION(int, lc_kdf_dpi_init, struct lc_hmac_ctx *hmac_ctx,
 		      const uint8_t *key, size_t keylen)
 {
-	static int tested = 0;
+	lc_kdf_dpi_selftest();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_DPI_KDF);
 
-	/* Timecop: key is sensitive */
-	poison(key, keylen);
-
-	lc_kdf_dpi_selftest(&tested, "SP800-108 DPI KDF");
-	lc_hmac_init(hmac_ctx, key, keylen);
-	return 0;
+	return lc_kdf_dpi_init_nocheck(hmac_ctx, key, keylen);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_kdf_dpi, const struct lc_hash *hash,

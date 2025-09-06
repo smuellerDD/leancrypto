@@ -17,8 +17,10 @@
  * DAMAGE.
  */
 
+#include "compare.h"
 #include "cpufeatures.h"
 #include "dilithium_type.h"
+#include "dilithium_selftest.h"
 #include "dilithium_signature_avx2.h"
 #include "../dilithium_signature_c.h"
 #include "visibility.h"
@@ -27,17 +29,33 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_from_seed,
 		      struct lc_dilithium_pk *pk, struct lc_dilithium_sk *sk,
 		      const uint8_t *seed, size_t seedlen)
 {
-	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
+	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) {
+		dilithium_keypair_tester(lc_dilithium_keypair_from_seed_avx2);
+		LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLDSA_KEYGEN);
+
 		return lc_dilithium_keypair_from_seed_avx2(pk, sk, seed,
 							   seedlen);
+	}
+
+	dilithium_keypair_tester(lc_dilithium_keypair_from_seed_c);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLDSA_KEYGEN);
+
 	return lc_dilithium_keypair_from_seed_c(pk, sk, seed, seedlen);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair, struct lc_dilithium_pk *pk,
 		      struct lc_dilithium_sk *sk, struct lc_rng_ctx *rng_ctx)
 {
-	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
+	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) {
+		dilithium_keypair_tester(lc_dilithium_keypair_from_seed_avx2);
+		LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLDSA_KEYGEN);
+
 		return lc_dilithium_keypair_avx2(pk, sk, rng_ctx);
+	}
+
+	dilithium_keypair_tester(lc_dilithium_keypair_from_seed_c);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLDSA_KEYGEN);
+
 	return lc_dilithium_keypair_c(pk, sk, rng_ctx);
 }
 
@@ -46,8 +64,16 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign, struct lc_dilithium_sig *sig,
 		      const struct lc_dilithium_sk *sk,
 		      struct lc_rng_ctx *rng_ctx)
 {
-	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
+	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) {
+		dilithium_siggen_tester(lc_dilithium_sign_ctx_avx2);
+		LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLDSA_SIGGEN);
+
 		return lc_dilithium_sign_avx2(sig, m, mlen, sk, rng_ctx);
+	}
+
+	dilithium_siggen_tester(lc_dilithium_sign_ctx_c);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLDSA_SIGGEN);
+
 	return lc_dilithium_sign_c(sig, m, mlen, sk, rng_ctx);
 }
 
@@ -56,9 +82,16 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_ctx, struct lc_dilithium_sig *sig,
 		      size_t mlen, const struct lc_dilithium_sk *sk,
 		      struct lc_rng_ctx *rng_ctx)
 {
-	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
+	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) {
+		dilithium_siggen_tester(lc_dilithium_sign_ctx_avx2);
+		LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLDSA_SIGGEN);
+
 		return lc_dilithium_sign_ctx_avx2(sig, ctx, m, mlen, sk,
 						  rng_ctx);
+	}
+
+	dilithium_siggen_tester(lc_dilithium_sign_ctx_c);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLDSA_SIGGEN);
 
 	return lc_dilithium_sign_ctx_c(sig, ctx, m, mlen, sk, rng_ctx);
 }
@@ -66,8 +99,16 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_ctx, struct lc_dilithium_sig *sig,
 LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_init, struct lc_dilithium_ctx *ctx,
 		      const struct lc_dilithium_sk *sk)
 {
-	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
+	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) {
+		dilithium_siggen_tester(lc_dilithium_sign_ctx_avx2);
+		LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLDSA_SIGGEN);
+
 		return lc_dilithium_sign_init_avx2(ctx, sk);
+	}
+
+	dilithium_siggen_tester(lc_dilithium_sign_ctx_c);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLDSA_SIGGEN);
+
 	return lc_dilithium_sign_init_c(ctx, sk);
 }
 
@@ -95,8 +136,16 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify,
 		      const struct lc_dilithium_sig *sig, const uint8_t *m,
 		      size_t mlen, const struct lc_dilithium_pk *pk)
 {
-	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
+	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) {
+		dilithium_sigver_tester(lc_dilithium_verify_ctx_avx2);
+		LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLDSA_SIGVER);
+
 		return lc_dilithium_verify_avx2(sig, m, mlen, pk);
+	}
+
+	dilithium_sigver_tester(lc_dilithium_verify_ctx_c);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLDSA_SIGVER);
+
 	return lc_dilithium_verify_c(sig, m, mlen, pk);
 }
 
@@ -105,8 +154,15 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_ctx,
 		      struct lc_dilithium_ctx *ctx, const uint8_t *m,
 		      size_t mlen, const struct lc_dilithium_pk *pk)
 {
-	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
+	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) {
+		dilithium_sigver_tester(lc_dilithium_verify_ctx_avx2);
+		LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLDSA_SIGVER);
+
 		return lc_dilithium_verify_ctx_avx2(sig, ctx, m, mlen, pk);
+	}
+
+	dilithium_sigver_tester(lc_dilithium_verify_ctx_c);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLDSA_SIGVER);
 
 	return lc_dilithium_verify_ctx_c(sig, ctx, m, mlen, pk);
 }
@@ -115,8 +171,16 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_init,
 		      struct lc_dilithium_ctx *ctx,
 		      const struct lc_dilithium_pk *pk)
 {
-	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
+	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) {
+		dilithium_sigver_tester(lc_dilithium_verify_ctx_avx2);
+		LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLDSA_SIGVER);
+
 		return lc_dilithium_verify_init_avx2(ctx, pk);
+	}
+
+	dilithium_sigver_tester(lc_dilithium_verify_ctx_c);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLDSA_SIGVER);
+
 	return lc_dilithium_verify_init_c(ctx, pk);
 }
 

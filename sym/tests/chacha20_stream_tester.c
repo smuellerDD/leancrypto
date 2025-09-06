@@ -317,7 +317,7 @@ static int chacha20_enc_large(const struct lc_sym *chacha20_sym,
 	LC_SYM_CTX_ON_STACK(chacha20, chacha20_sym);
 
 	/* Encrypt */
-	lc_sym_init(chacha20);
+	CKINT(lc_sym_init(chacha20));
 	CKINT(lc_sym_setkey(chacha20, (uint8_t *)key, sizeof(key)));
 	CKINT(lc_sym_setiv(chacha20, (uint8_t *)iv, sizeof(iv)));
 	lc_sym_encrypt(chacha20, (uint8_t *)string, res, sizeof(string));
@@ -330,7 +330,7 @@ static int chacha20_enc_large(const struct lc_sym *chacha20_sym,
 	lc_sym_zero(chacha20);
 
 	/* Decrypt */
-	lc_sym_init(chacha20);
+	CKINT(lc_sym_init(chacha20));
 	CKINT(lc_sym_setkey(chacha20, (uint8_t *)key, sizeof(key)));
 	CKINT(lc_sym_setiv(chacha20, (uint8_t *)iv, sizeof(iv)));
 	lc_sym_decrypt(chacha20, res, res, sizeof(res));
@@ -381,7 +381,7 @@ static int chacha20_enc_selftest(const struct lc_sym *chacha20_sym,
 	       (unsigned int)LC_SYM_CTX_SIZE(chacha20_sym));
 
 	/* Encrypt */
-	lc_sym_init(chacha20);
+	CKINT(lc_sym_init(chacha20));
 	CKINT(lc_sym_setkey(chacha20, (uint8_t *)rfc_key, sizeof(rfc_key)));
 	CKINT(lc_sym_setiv(chacha20, (uint8_t *)rfc_iv, sizeof(rfc_iv)));
 	lc_sym_encrypt(chacha20, (uint8_t *)rfc_string, res, sizeof(res));
@@ -394,7 +394,7 @@ static int chacha20_enc_selftest(const struct lc_sym *chacha20_sym,
 	lc_sym_zero(chacha20);
 
 	/* Decrypt */
-	lc_sym_init(chacha20);
+	CKINT(lc_sym_init(chacha20));
 	CKINT(lc_sym_setkey(chacha20, (uint8_t *)rfc_key, sizeof(rfc_key)));
 	CKINT(lc_sym_setiv(chacha20, (uint8_t *)rfc_iv, sizeof(rfc_iv)));
 	lc_sym_decrypt(chacha20, res, res, sizeof(res));
@@ -423,7 +423,7 @@ static int chacha20_stream_test(const struct lc_sym *chacha20_sym,
 	LC_SYM_CTX_ON_STACK(chacha20, chacha20_sym);
 
 	/* Encrypt */
-	lc_sym_init(chacha20);
+	CKINT(lc_sym_init(chacha20));
 	CKINT(lc_sym_setkey(chacha20, (uint8_t *)rfc_key, sizeof(rfc_key)));
 	CKINT(lc_sym_setiv(chacha20, (uint8_t *)rfc_iv, sizeof(rfc_iv)));
 
@@ -451,7 +451,7 @@ static int chacha20_stream_test(const struct lc_sym *chacha20_sym,
 	lc_sym_zero(chacha20);
 
 	/* Decrypt */
-	lc_sym_init(chacha20);
+	CKINT(lc_sym_init(chacha20));
 	CKINT(lc_sym_setkey(chacha20, (uint8_t *)rfc_key, sizeof(rfc_key)));
 	CKINT(lc_sym_setiv(chacha20, (uint8_t *)rfc_iv, sizeof(rfc_iv)));
 
@@ -484,6 +484,7 @@ out:
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	char status[900];
 	int ret = 0;
 
 	(void)argc;
@@ -495,6 +496,19 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_EXEC_ONE_TEST(lc_chacha20_riscv64_v_zbb)
 	LC_EXEC_ONE_TEST(lc_chacha20_avx2)
 	LC_EXEC_ONE_TEST(lc_chacha20_avx512)
+
+	if (lc_status_get_result(LC_ALG_STATUS_CHACHA20) !=
+	    lc_alg_status_result_passed) {
+		printf("ChaCha20 self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_CHACHA20));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
 
 	return ret;
 }

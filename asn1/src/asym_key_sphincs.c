@@ -296,8 +296,8 @@ int asym_set_sphincs_keypair(struct lc_x509_key_data *gen_data,
 		gen_data->pk.sphincs_pk = pk;
 
 		CKINT(lc_sphincs_pk_ptr(&pk_ptr, &pk_len, pk));
-		lc_hash(LC_X509_SKID_DEFAULT_HASH, pk_ptr, pk_len,
-			gen_data->pk_digest);
+		CKINT(lc_hash(LC_X509_SKID_DEFAULT_HASH, pk_ptr, pk_len,
+			      gen_data->pk_digest));
 	}
 
 	if (sk) {

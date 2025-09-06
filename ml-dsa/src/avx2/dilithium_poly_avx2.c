@@ -420,7 +420,8 @@ void poly_challenge_avx(poly *restrict c,
 	uint8_t buf[LC_SHAKE_256_SIZE_BLOCK] __align(LC_HASH_COMMON_ALIGNMENT);
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
 
-	lc_hash_init(hash_ctx);
+	if (lc_hash_init(hash_ctx))
+		return;
 	lc_hash_update(hash_ctx, seed, LC_DILITHIUM_CTILDE_BYTES);
 	lc_hash_set_digestsize(hash_ctx, sizeof(buf));
 	lc_hash_final(hash_ctx, buf);

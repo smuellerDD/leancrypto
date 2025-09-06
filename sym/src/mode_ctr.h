@@ -38,7 +38,7 @@ struct lc_mode_state {
 	uint64_t iv[AES_CTR128_64BIT_WORDS];
 };
 
-void mode_ctr_selftest(const struct lc_sym *aes, int *tested, const char *impl);
+void mode_ctr_selftest(const struct lc_sym *aes);
 
 extern const struct lc_sym_mode *lc_mode_ctr_c;
 

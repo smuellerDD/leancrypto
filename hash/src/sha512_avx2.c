@@ -71,6 +71,7 @@ static void sha512_final_avx2(void *_state, uint8_t *digest)
 
 static const struct lc_hash _sha384_avx2 = {
 	.init = sha384_init,
+	.init_nocheck = sha384_init_nocheck,
 	.update = sha512_update_avx2,
 	.final = sha384_final_avx2,
 	.set_digestsize = NULL,
@@ -87,6 +88,7 @@ LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha384_avx2) = &_sha384_avx2;
 
 static const struct lc_hash _sha512_avx2 = {
 	.init = sha512_init,
+	.init_nocheck = sha512_init_nocheck,
 	.update = sha512_update_avx2,
 	.final = sha512_final_avx2,
 	.set_digestsize = NULL,

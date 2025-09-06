@@ -20,6 +20,7 @@
 #include "aes_armce.h"
 #include "aes_internal.h"
 #include "asm/ARMv8/aes_armv8_ce.h"
+#include "compare.h"
 #include "ext_headers_arm.h"
 #include "lc_sym.h"
 #include "mode_cbc.h"
@@ -75,13 +76,21 @@ static void aes_armce_cbc_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 		memset(out + round_len, 0, len - round_len);
 }
 
-static void aes_armce_cbc_init(struct lc_sym_state *ctx)
+static int aes_armce_cbc_init_nocheck(struct lc_sym_state *ctx)
 {
-	static int tested = 0;
-
 	(void)ctx;
 
-	mode_cbc_selftest(lc_aes_cbc_armce, &tested, "AES-CBC");
+	return 0;
+}
+
+static int aes_armce_cbc_init(struct lc_sym_state *ctx)
+{
+	(void)ctx;
+
+	mode_cbc_selftest(lc_aes_cbc_armce);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_AES_CBC);
+
+	return 0;
 }
 
 static int aes_armce_cbc_setkey(struct lc_sym_state *ctx, const uint8_t *key,
@@ -115,6 +124,7 @@ static int aes_armce_cbc_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 
 static struct lc_sym _lc_aes_cbc_armce = {
 	.init = aes_armce_cbc_init,
+	.init_nocheck = aes_armce_cbc_init_nocheck,
 	.setkey = aes_armce_cbc_setkey,
 	.setiv = aes_armce_cbc_setiv,
 	.encrypt = aes_armce_cbc_encrypt,

@@ -11,12 +11,9 @@ internal_src += files([
 lc_rng_header = 0
 seeded_rng = 0
 
-conf_data = configuration_data()
-
 if get_option('chacha20_drng').enabled()
 	src += files([ 'chacha20_drng.c' ])
 	include_files += files([ '../api/lc_chacha20_drng.h' ])
-	conf_data.set('LC_DRNG_CC20', 1)
 	# Currently not supported
 	# seeded_rng = 1
 	lc_rng_header = 1
@@ -25,7 +22,6 @@ endif
 if get_option('kmac_drng').enabled()
 	src_fips += files([ 'kmac_drng.c' ])
 	include_files += files([ '../api/lc_kmac256_drng.h' ])
-	conf_data.set('LC_DRNG_KMAC', 1)
 	seeded_rng = 1
 	lc_rng_header = 1
 endif
@@ -33,7 +29,6 @@ endif
 if get_option('cshake_drng').enabled()
 	src_fips += files([ 'cshake_drng.c' ])
 	include_files += files([ '../api/lc_cshake256_drng.h' ])
-	conf_data.set('LC_DRNG_CSHAKE', 1)
 	seeded_rng = 1
 	lc_rng_header = 1
 endif
@@ -42,14 +37,11 @@ if get_option('xdrbg').enabled()
 	src_fips += files([ 'xdrbg.c' ])
 	if get_option('sha3').enabled()
 		src_fips += files([ 'xdrbg256.c' ])
-		conf_data.set('LC_DRNG_XDRBG256', 1)
 	endif
 	if get_option('ascon').enabled()
 		src_fips += files([ 'xdrbg128.c' ])
-		conf_data.set('LC_DRNG_XDRBG128', 1)
 	endif
 	include_files += files([ '../api/lc_xdrbg.h' ])
-	conf_data.set('LC_DRNG_XDRBG', 1)
 	seeded_rng = 1
 	lc_rng_header = 1
 endif
@@ -57,7 +49,6 @@ endif
 if get_option('drbg_hash').enabled()
 	src_fips += files([ 'hash_drbg.c' ])
 	include_files += files([ '../api/lc_hash_drbg.h' ])
-	conf_data.set('LC_DRNG_HASH_DRBG', 1)
 	seeded_rng = 1
 	lc_rng_header = 1
 endif
@@ -66,7 +57,6 @@ if get_option('drbg_hmac').enabled()
 	src_fips += files([ 'hmac_drbg.c' ])
 	include_files += files([ '../api/lc_hmac_drbg.h',
 				 '../api/lc_hmac_drbg_sha512.h' ])
-	conf_data.set('LC_DRNG_HMAC_DRBG', 1)
 	# Currently not supported
 	# seeded_rng = 1
 	lc_rng_header = 1
@@ -119,5 +109,3 @@ if (seeded_rng == 1)
 		endif
 	endif
 endif
-
-configure_file(output: 'lc_drng_config.h', configuration : conf_data)

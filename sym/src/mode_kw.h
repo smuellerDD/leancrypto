@@ -30,7 +30,7 @@ struct lc_mode_state {
 	uint64_t tag;
 };
 
-void mode_kw_selftest(const struct lc_sym *aes, int *tested, const char *impl);
+void mode_kw_selftest(const struct lc_sym *aes);
 
 extern const struct lc_sym_mode *lc_mode_kw_c;
 

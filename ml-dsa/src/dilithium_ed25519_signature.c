@@ -81,7 +81,7 @@ composite_hash_signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 	/*
 	 * Create M'
 	 */
-	lc_hash_init(hash_ctx);
+	CKINT(lc_hash_init(hash_ctx));
 
 #if LC_DILITHIUM_MODE == 2
 	/* Set Domain */
@@ -240,7 +240,7 @@ lc_dilithium_ed25519_common_init(struct lc_dilithium_ed25519_ctx *ctx)
 		lc_hash_zero(hash_ctx);
 	}
 
-	lc_hash_init(hash_ctx);
+	CKINT(lc_hash_init(hash_ctx));
 
 out:
 	return ret;

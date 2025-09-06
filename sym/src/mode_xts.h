@@ -37,7 +37,7 @@ struct lc_mode_state {
 	void *tweak_cipher_ctx;
 };
 
-void mode_xts_selftest(const struct lc_sym *aes, int *tested, const char *impl);
+void mode_xts_selftest(const struct lc_sym *aes);
 
 extern const struct lc_sym_mode *lc_mode_xts_c;
 

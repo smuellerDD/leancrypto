@@ -251,7 +251,47 @@ out:
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	char status[900];
+	int ret;
+
 	(void)argc;
 	(void)argv;
-	return hmac_drbg_tester();
+
+	ret = hmac_drbg_tester();
+
+	if (lc_status_get_result(LC_ALG_STATUS_HMAC_DRBG) !=
+	    lc_alg_status_result_passed) {
+		printf("HMAC DRBG self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_HMAC_DRBG));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_SHA256) !=
+	    lc_alg_status_result_passed) {
+		printf("SHA-256 self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_SHA256));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_SHA512) !=
+	    lc_alg_status_result_passed) {
+		printf("SHA-512 self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_SHA512));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_HMAC) !=
+	    lc_alg_status_result_passed) {
+		printf("HMAC self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_HMAC));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
+
+	return ret;
 }

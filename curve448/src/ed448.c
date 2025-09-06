@@ -70,8 +70,9 @@ ed448_derive_public_key(uint8_t pubkey[LC_ED448_PUBLICKEYBYTES],
 	/* only this much used for keygen */
 	uint8_t secret_scalar_ser[LC_ED448_SECRETKEYBYTES];
 
-	lc_xof(lc_shake256, privkey, LC_ED448_SECRETKEYBYTES, secret_scalar_ser,
-	       sizeof(secret_scalar_ser));
+	if (lc_xof(lc_shake256, privkey, LC_ED448_SECRETKEYBYTES,
+		   secret_scalar_ser, sizeof(secret_scalar_ser)))
+		return;
 	curve448_clamp(secret_scalar_ser);
 
 	curve448_scalar_t secret_scalar;
@@ -134,21 +135,25 @@ static inline void lc_ed448_xof_final(struct lc_hash_ctx *xof_ctx,
 	lc_hash_zero(xof_ctx);
 }
 
-static void curveed448_hash_init_with_dom(struct lc_hash_ctx *hash_ctx,
+static int curveed448_hash_init_with_dom(struct lc_hash_ctx *hash_ctx,
 					  uint8_t prehashed,
 					  uint8_t for_prehash,
 					  const uint8_t *context,
 					  uint8_t context_len)
 {
-	const char *dom_s = "SigEd448";
+	static const char dom_s[] = "SigEd448";
 	const uint8_t dom[2] = { (uint8_t)(2 + word_is_zero(prehashed) +
 					   word_is_zero(for_prehash)),
 				 context_len };
+	int ret = lc_hash_init(hash_ctx);
 
-	lc_hash_init(hash_ctx);
+	if (ret)
+		return ret;
 	lc_hash_update(hash_ctx, (const unsigned char *)dom_s, 8);
 	lc_hash_update(hash_ctx, dom, 2);
 	lc_hash_update(hash_ctx, context, context_len);
+
+	return 0;
 }
 
 static int
@@ -182,8 +187,8 @@ curveed448_sign_internal(uint8_t signature[LC_ED448_SIGBYTES],
 			uint8_t seed[LC_ED448_SECRETKEYBYTES];
 		} __attribute__((packed)) expanded;
 
-		lc_xof(lc_shake256, privkey, LC_ED448_SECRETKEYBYTES,
-		       (uint8_t *)&expanded, sizeof(expanded));
+		CKINT(lc_xof(lc_shake256, privkey, LC_ED448_SECRETKEYBYTES,
+			     (uint8_t *)&expanded, sizeof(expanded)));
 
 		/*
 		 * Once the private key is hashed, you cannot deduct it from
@@ -197,8 +202,8 @@ curveed448_sign_internal(uint8_t signature[LC_ED448_SIGBYTES],
 					    sizeof(expanded.secret_scalar_ser));
 
 		/* Hash to create the nonce */
-		curveed448_hash_init_with_dom(shake256_ctx, prehashed, 0, NULL,
-					      0);
+		CKINT(curveed448_hash_init_with_dom(shake256_ctx, prehashed, 0,
+						    NULL, 0));
 		lc_hash_update(shake256_ctx, expanded.seed,
 			       sizeof(expanded.seed));
 		lc_memset_secure(&expanded, 0, sizeof(expanded));
@@ -246,8 +251,8 @@ curveed448_sign_internal(uint8_t signature[LC_ED448_SIGBYTES],
 
 	{
 		/* Compute the challenge */
-		curveed448_hash_init_with_dom(shake256_ctx, prehashed, 0, NULL,
-					      0);
+		CKINT(curveed448_hash_init_with_dom(shake256_ctx, prehashed, 0,
+						    NULL, 0));
 		lc_hash_update(shake256_ctx, nonce_point, sizeof(nonce_point));
 		lc_hash_update(shake256_ctx, pubkey, LC_ED448_PUBLICKEYBYTES);
 
@@ -382,7 +387,8 @@ curveed448_verify(const uint8_t signature[LC_ED448_SIGBYTES],
 								signature));
 
 	/* Compute the challenge */
-	curveed448_hash_init_with_dom(shake256_ctx, prehashed, 0, NULL, 0);
+	CKINT(curveed448_hash_init_with_dom(shake256_ctx, prehashed, 0, NULL,
+					    0));
 
 	lc_hash_update(shake256_ctx, signature, LC_ED448_PUBLICKEYBYTES);
 	lc_hash_update(shake256_ctx, pubkey, LC_ED448_PUBLICKEYBYTES);

@@ -103,7 +103,7 @@ static int test_xcrypt_ctr_one(const char *xcrypt, struct lc_sym_ctx *ctx,
 	unpoison(key, keylen);
 
 	/* Encrypt */
-	lc_sym_init(ctx);
+	CKINT(lc_sym_init(ctx));
 	CKINT(lc_sym_setkey(ctx, key, keylen));
 	CKINT(lc_sym_setiv(ctx, iv, sizeof(iv)));
 	lc_sym_encrypt(ctx, in, in, sizeof(out) - 1);
@@ -197,14 +197,14 @@ static int ctr_tester_one(uint8_t *iv, uint64_t *iv128)
 	LC_SYM_CTX_ON_STACK(aesni, lc_aes_ctr_aesni);
 	LC_SYM_CTX_ON_STACK(aes_armce, lc_aes_ctr_armce);
 
-	lc_sym_init(aesni);
+	CKINT(lc_sym_init(aesni));
 	CKINT(lc_sym_setkey(aesni, key, sizeof(key)));
 	CKINT(lc_sym_setiv(aesni, iv, AES_BLOCKLEN));
 
 	/* Unpoison key to let implementation poison it */
 	unpoison(key, sizeof(key));
 
-	lc_sym_init(aes_armce);
+	CKINT(lc_sym_init(aes_armce));
 	CKINT(lc_sym_setkey(aes_armce, key, sizeof(key)));
 	CKINT(lc_sym_setiv(aes_armce, iv, AES_BLOCKLEN));
 
@@ -287,8 +287,26 @@ static int test_ctr(void)
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	char status[900];
+	int ret;
+
 	(void)argc;
 	(void)argv;
 
-	return test_ctr();
+	ret = test_ctr();
+
+	if (lc_status_get_result(LC_ALG_STATUS_AES_CTR) !=
+	    lc_alg_status_result_passed) {
+		printf("AES-CTR self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_AES_CTR));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
+
+	return ret;
 }

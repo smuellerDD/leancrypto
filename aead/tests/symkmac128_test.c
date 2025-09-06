@@ -70,7 +70,8 @@ static int kh_tester_one(const struct lc_sym *sym, const struct lc_hash *hash,
 	/* Compare with CBC */
 	lc_kmac_xof(lc_cshake128, key, keylen, NULL, 0, NULL, 0, keystream,
 		    sizeof(keystream));
-	lc_sym_init(aes_cbc);
+	if (lc_sym_init(aes_cbc))
+		return 1;
 	if (lc_sym_setkey(aes_cbc, keystream, sizeof(keystream) / 2))
 		return 1;
 	if (lc_sym_setiv(aes_cbc, iv, ivlen))
@@ -81,8 +82,9 @@ static int kh_tester_one(const struct lc_sym *sym, const struct lc_hash *hash,
 				  "SymKMAC: Encryption, compare with CBC");
 
 	/* Compare with KMAC */
-	lc_kmac_init(kmac_ctx, keystream + sizeof(keystream) / 2,
-		     sizeof(keystream) / 2, NULL, 0);
+	if (lc_kmac_init(kmac_ctx, keystream + sizeof(keystream) / 2,
+			 sizeof(keystream) / 2, NULL, 0))
+		return 1;
 	lc_kmac_update(kmac_ctx, aad, aadlen);
 	lc_kmac_update(kmac_ctx, out_compare, ptlen);
 	lc_kmac_final_xof(kmac_ctx, tag_compare, exp_tag_len);
@@ -245,11 +247,47 @@ static int kh_tester(void)
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	char status[900];
 	int ret;
 
 	(void)argc;
 	(void)argv;
+
 	ret = kh_tester();
+
+	if (lc_status_get_result(LC_ALG_STATUS_SYM_KMAC) !=
+	    lc_alg_status_result_passed) {
+		printf("SymKMAC crypt self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_SYM_KMAC));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_KMAC) !=
+	    lc_alg_status_result_passed) {
+		printf("KMAC self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_KMAC));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_AES_CBC) !=
+	    lc_alg_status_result_passed) {
+		printf("AES-CBC self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_AES_CBC));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_AES_CTR) !=
+	    lc_alg_status_result_passed) {
+		printf("AES-CTR self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_AES_CTR));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
 
 	return ret;
 }

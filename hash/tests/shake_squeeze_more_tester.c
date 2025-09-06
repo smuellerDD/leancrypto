@@ -91,7 +91,8 @@ static int _shake_sqeeze_more_tester(const struct lc_hash *shake_256,
 
 	for (i = 1; i <= sizeof(exp2); i++) {
 		act2_p = act2;
-		lc_hash_init(ctx);
+		if (lc_hash_init(ctx))
+			return 1;
 		lc_hash_update(ctx, msg2, sizeof(msg2));
 		lc_hash_set_digestsize(ctx, i);
 

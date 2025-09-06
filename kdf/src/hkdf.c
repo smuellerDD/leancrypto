@@ -26,10 +26,14 @@
 #include "lc_sha256.h"
 #include "math_helper.h"
 #include "null_buffer.h"
+#include "ret_checkers.h"
 #include "timecop.h"
 #include "visibility.h"
 
-static void hkdf_selftest(int *tested, const char *impl)
+static int lc_hkdf_extract_nocheck(struct lc_hkdf_ctx *hkdf_ctx,
+				   const uint8_t *ikm, size_t ikmlen,
+				   const uint8_t *salt, size_t saltlen);
+static void hkdf_selftest(void)
 {
 	/* RFC 5869 vector */
 	static const uint8_t ikm[] = { 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b,
@@ -50,24 +54,24 @@ static void hkdf_selftest(int *tested, const char *impl)
 	};
 	uint8_t act[sizeof(exp)];
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_HKDF);
 
 	LC_HKDF_CTX_ON_STACK(hkdf, lc_sha256);
 
-	lc_hkdf_extract(hkdf, ikm, sizeof(ikm), salt, sizeof(salt));
+	lc_hkdf_extract_nocheck(hkdf, ikm, sizeof(ikm), salt, sizeof(salt));
 	lc_hkdf_expand(hkdf, info, sizeof(info), act, sizeof(act));
-	lc_compare_selftest(act, exp, sizeof(exp), impl);
+	lc_compare_selftest(LC_ALG_STATUS_HKDF, act, exp, sizeof(exp), "HKDF");
 	lc_hkdf_zero(hkdf);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_hkdf_extract, struct lc_hkdf_ctx *hkdf_ctx,
-		      const uint8_t *ikm, size_t ikmlen, const uint8_t *salt,
-		      size_t saltlen)
+static int lc_hkdf_extract_nocheck(struct lc_hkdf_ctx *hkdf_ctx,
+				   const uint8_t *ikm, size_t ikmlen,
+				   const uint8_t *salt, size_t saltlen)
 {
 	struct lc_hmac_ctx *hmac_ctx;
 	size_t h;
 	uint8_t prk_tmp[LC_SHA_MAX_SIZE_DIGEST];
-	static int tested = 0;
+	int ret;
 
 	/* Timecop: IKM is sensitive */
 	poison(ikm, ikmlen);
@@ -77,7 +81,6 @@ LC_INTERFACE_FUNCTION(int, lc_hkdf_extract, struct lc_hkdf_ctx *hkdf_ctx,
 	hmac_ctx = &hkdf_ctx->hmac_ctx;
 	h = lc_hmac_macsize(hmac_ctx);
 
-	hkdf_selftest(&tested, "HKDF");
 
 	BUILD_BUG_ON(LC_NULL_BUFFER_SIZE < LC_SHA_MAX_SIZE_DIGEST);
 
@@ -85,20 +88,32 @@ LC_INTERFACE_FUNCTION(int, lc_hkdf_extract, struct lc_hkdf_ctx *hkdf_ctx,
 		return -EINVAL;
 
 	/* Extract phase */
-	if (salt)
-		lc_hmac_init(hmac_ctx, salt, saltlen);
-	else
-		lc_hmac_init(hmac_ctx, null_buffer, h);
+	if (salt) {
+		CKINT(lc_hmac_init(hmac_ctx, salt, saltlen));
+	} else {
+		CKINT(lc_hmac_init(hmac_ctx, null_buffer, h));
+	}
 
 	lc_hmac_update(hmac_ctx, ikm, ikmlen);
 	lc_hmac_final(hmac_ctx, prk_tmp);
 
 	/* Prepare for expand phase */
-	lc_hmac_init(hmac_ctx, prk_tmp, h);
+	CKINT(lc_hmac_init(hmac_ctx, prk_tmp, h));
 
 	lc_memset_secure(prk_tmp, 0, h);
 
-	return 0;
+out:
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_hkdf_extract, struct lc_hkdf_ctx *hkdf_ctx,
+		      const uint8_t *ikm, size_t ikmlen, const uint8_t *salt,
+		      size_t saltlen)
+{
+	hkdf_selftest();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_HKDF);
+
+	return lc_hkdf_extract_nocheck(hkdf_ctx, ikm, ikmlen, salt, saltlen);
 }
 
 static int hkdf_expand_internal(struct lc_hkdf_ctx *hkdf_ctx,

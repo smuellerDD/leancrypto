@@ -57,7 +57,7 @@ static int chacha20_block_selftest(void)
 	/* Test vector according to RFC 7539 section 2.3.2 */
 	chacha20_bswap32(key, sizeof(key) / sizeof(uint32_t));
 	chacha20_bswap32(iv, sizeof(iv) / sizeof(uint32_t));
-	lc_sym_init(chacha20);
+	CKINT(lc_sym_init(chacha20));
 	CKINT(lc_sym_setkey(chacha20, (uint8_t *)key, sizeof(key)));
 	CKINT(lc_sym_setiv(chacha20, (uint8_t *)iv, sizeof(iv)));
 

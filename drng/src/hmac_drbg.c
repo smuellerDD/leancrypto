@@ -21,9 +21,14 @@
 #include "alignment.h"
 #include "compare.h"
 #include "lc_hmac_drbg_sha512.h"
+#include "ret_checkers.h"
 #include "visibility.h"
 
-static void drbg_hmac_selftest(int *tested, const char *impl)
+static int lc_drbg_hmac_seed_nocheck(void *_state, const uint8_t *seedbuf,
+				     size_t seedlen, const uint8_t *persbuf,
+				     size_t perslen);
+
+static void drbg_hmac_selftest(void)
 {
 	static const uint8_t ent_nonce[] = {
 		0xC5, 0xD9, 0xD7, 0x7B, 0x3E, 0x5C, 0x0E, 0xC8, 0x57, 0x13,
@@ -82,14 +87,19 @@ static void drbg_hmac_selftest(int *tested, const char *impl)
 	};
 	uint8_t act[sizeof(exp)] __align(sizeof(uint32_t));
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_HMAC_DRBG);
 
 	LC_DRBG_HMAC_CTX_ON_STACK(drbg_ctx);
 
-	lc_rng_seed(drbg_ctx, ent_nonce, sizeof(ent_nonce), pers, sizeof(pers));
+	if (lc_drbg_hmac_seed_nocheck(drbg_ctx->rng_state, ent_nonce,
+				      sizeof(ent_nonce), pers, sizeof(pers)))
+		goto out;
 	lc_rng_generate(drbg_ctx, addtl1, sizeof(addtl1), act, sizeof(act));
 	lc_rng_generate(drbg_ctx, addtl2, sizeof(addtl2), act, sizeof(act));
-	lc_compare_selftest(act, exp, sizeof(exp), impl);
+	lc_compare_selftest(LC_ALG_STATUS_HMAC_DRBG, act, exp, sizeof(exp),
+			    "HMAC DRBG");
+
+out:
 	lc_rng_zero(drbg_ctx);
 }
 
@@ -97,13 +107,18 @@ static void drbg_hmac_selftest(int *tested, const char *impl)
  * Hash invocations requested by DRBG
  ***************************************************************/
 
-static void drbg_hmac(struct lc_drbg_hmac_state *drbg, uint8_t *key,
+static int drbg_hmac(struct lc_drbg_hmac_state *drbg, uint8_t *key,
 		      uint8_t *outval, const struct lc_drbg_string *in)
 {
-	lc_hmac_init(&drbg->hmac_ctx, key, LC_DRBG_HMAC_STATELEN);
+	int ret = lc_hmac_init(&drbg->hmac_ctx, key, LC_DRBG_HMAC_STATELEN);
+
+	if (ret)
+		return ret;
 	for (; in != NULL; in = in->next)
 		lc_hmac_update(&drbg->hmac_ctx, in->buf, in->len);
 	lc_hmac_final(&drbg->hmac_ctx, outval);
+
+	return 0;
 }
 
 /******************************************************************
@@ -111,10 +126,10 @@ static void drbg_hmac(struct lc_drbg_hmac_state *drbg, uint8_t *key,
  ******************************************************************/
 
 /* update function of HMAC DRBG as defined in 10.1.2.2 */
-static void drbg_hmac_update(struct lc_drbg_hmac_state *drbg,
+static int drbg_hmac_update(struct lc_drbg_hmac_state *drbg,
 			     struct lc_drbg_string *seed)
 {
-	int i = 0;
+	int ret, i = 0;
 	struct lc_drbg_string seed1, seed2, vdata;
 
 	if (!drbg->seeded)
@@ -137,15 +152,17 @@ static void drbg_hmac_update(struct lc_drbg_hmac_state *drbg,
 			prefix = DRBG_PREFIX1;
 		/* 10.1.2.2 step 1 and 4 -- concatenation and HMAC for key */
 		seed2.buf = &prefix;
-		drbg_hmac(drbg, drbg->C, drbg->C, &seed1);
+		CKINT(drbg_hmac(drbg, drbg->C, drbg->C, &seed1));
 
 		/* 10.1.2.2 step 2 and 5 -- HMAC for V */
-		drbg_hmac(drbg, drbg->C, drbg->V, &vdata);
+		CKINT(drbg_hmac(drbg, drbg->C, drbg->V, &vdata));
 
 		/* 10.1.2.2 step 3 */
-		if (!seed)
-			return;
+		CKNULL(seed, 0);
 	}
+
+out:
+	return ret;
 }
 
 /* generate function of HMAC DRBG as defined in 10.1.2.5 */
@@ -158,14 +175,16 @@ static size_t drbg_hmac_generate_internal(struct lc_drbg_hmac_state *drbg,
 
 	/* 10.1.2.5 step 2 */
 	if (addtl && addtl->len > 0)
-		drbg_hmac_update(drbg, addtl);
+		if (drbg_hmac_update(drbg, addtl))
+			return 0;
 
 	lc_drbg_string_fill(&data, drbg->V, LC_DRBG_HMAC_STATELEN);
 	while (len < buflen) {
 		size_t outlen = 0;
 
 		/* 10.1.2.5 step 4.1 */
-		drbg_hmac(drbg, drbg->C, drbg->V, &data);
+		if (drbg_hmac(drbg, drbg->C, drbg->V, &data))
+			return 0;
 
 		outlen = (LC_DRBG_HMAC_BLOCKLEN < (buflen - len)) ?
 				 LC_DRBG_HMAC_BLOCKLEN :
@@ -210,19 +229,16 @@ static int lc_drbg_hmac_generate(void *_state, const uint8_t *addtl_input,
 	return 0;
 }
 
-static int lc_drbg_hmac_seed(void *_state, const uint8_t *seedbuf,
-			     size_t seedlen, const uint8_t *persbuf,
-			     size_t perslen)
+static int lc_drbg_hmac_seed_nocheck(void *_state, const uint8_t *seedbuf,
+				     size_t seedlen, const uint8_t *persbuf,
+				     size_t perslen)
 {
 	struct lc_drbg_hmac_state *drbg_hmac = _state;
 	struct lc_drbg_string seed;
 	struct lc_drbg_string pers;
-	static int tested = 0;
 
 	if (!drbg_hmac)
 		return -EINVAL;
-
-	drbg_hmac_selftest(&tested, "HMAC DRBG");
 
 	/* 9.1 / 9.2 / 9.3.1 step 3 */
 	if (persbuf && perslen > (lc_drbg_max_addtl()))
@@ -246,6 +262,17 @@ static int lc_drbg_hmac_seed(void *_state, const uint8_t *seedbuf,
 	drbg_hmac->seeded = 1;
 
 	return 0;
+}
+
+static int lc_drbg_hmac_seed(void *_state, const uint8_t *seedbuf,
+			     size_t seedlen, const uint8_t *persbuf,
+			     size_t perslen)
+{
+	drbg_hmac_selftest();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_HMAC_DRBG);
+
+	return lc_drbg_hmac_seed_nocheck(_state, seedbuf, seedlen, persbuf,
+					 perslen);
 }
 
 static void lc_drbg_hmac_zero(void *_state)

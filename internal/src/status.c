@@ -47,6 +47,7 @@
 #include "sha512_riscv.h"
 #include "sha512_riscv_zbb.h"
 #include "sha512_shani.h"
+#include "status_algorithms.h"
 #include "visibility.h"
 
 #include "../src/riscv64/kyber_rvv_vlen_selector.h"
@@ -77,10 +78,28 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 #pragma GCC diagnostic ignored "-Wembedded-directive"
 #endif
 
-	size_t len;
+	char status_pass[500];
+	char status_error[30];
+	char status_untested[sizeof(status_pass)];
+	size_t len, status_pass_len = sizeof(status_pass),
+	       status_error_len = sizeof(status_error),
+	       status_untested_len = sizeof(status_untested);
 
+	status_pass[0] = '\0';
+	status_error[0] = '\0';
+	status_untested[0] = '\0';
 	snprintf(outbuf, outlen, "leancrypto %u.%u.%u\n", MAJVERSION,
 		 MINVERSION, PATCHLEVEL);
+
+	alg_status((uint64_t)-1, status_pass, status_pass_len, status_untested,
+		   status_untested_len, status_error, status_error_len);
+
+	len = strlen(outbuf);
+	snprintf(outbuf + len, outlen - len,
+		 "Self-Test Passed: %s\n"
+		 "Self-Test Not Executed: %s\n"
+		 "Self-Test Failed: %s\n",
+		 status_pass, status_untested, status_error);
 
 	len = strlen(outbuf);
 	snprintf(outbuf + len, outlen - len,
@@ -286,4 +305,10 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 #ifdef __clang__
 #pragma GCC diagnostic pop
 #endif
+}
+
+LC_INTERFACE_FUNCTION(enum lc_alg_status_result, lc_status_get_result,
+		      uint64_t algorithm)
+{
+	return alg_status_get_result(algorithm);
 }

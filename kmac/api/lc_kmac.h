@@ -77,9 +77,11 @@ struct lc_kmac_ctx {
  *
  * The caller must provide an allocated kmac_ctx. This can be achieved by
  * using KMAC_CTX_ON_STACK or by using kmac_alloc.
+ *
+ * @return 0 on success; < 0 on error
  */
-void lc_kmac_init(struct lc_kmac_ctx *kmac_ctx, const uint8_t *key, size_t klen,
-		  const uint8_t *s, size_t slen);
+int lc_kmac_init(struct lc_kmac_ctx *kmac_ctx, const uint8_t *key, size_t klen,
+		 const uint8_t *s, size_t slen);
 
 /**
  * @ingroup KMAC
@@ -269,10 +271,12 @@ size_t lc_kmac_macsize(struct lc_kmac_ctx *kmac_ctx);
  * @param [in] maclen Size of the requested MAC
  *
  * The KMAC calculation operates entirely on the stack.
+ *
+ * @return 0 on success; < 0 on error
  */
-void lc_kmac(const struct lc_hash *hash, const uint8_t *key, size_t keylen,
-	     const uint8_t *s, size_t slen, const uint8_t *in, size_t inlen,
-	     uint8_t *mac, size_t maclen);
+int lc_kmac(const struct lc_hash *hash, const uint8_t *key, size_t keylen,
+	    const uint8_t *s, size_t slen, const uint8_t *in, size_t inlen,
+	    uint8_t *mac, size_t maclen);
 
 /**
  * @ingroup KMAC
@@ -290,10 +294,12 @@ void lc_kmac(const struct lc_hash *hash, const uint8_t *key, size_t keylen,
  * @param [in] maclen Size of the requested MAC
  *
  * The KMAC calculation operates entirely on the stack.
+ *
+ * @return 0 on success; < 0 on error
  */
-void lc_kmac_xof(const struct lc_hash *hash, const uint8_t *key, size_t keylen,
-		 const uint8_t *s, size_t slen, const uint8_t *in, size_t inlen,
-		 uint8_t *mac, size_t maclen);
+int lc_kmac_xof(const struct lc_hash *hash, const uint8_t *key, size_t keylen,
+		const uint8_t *s, size_t slen, const uint8_t *in, size_t inlen,
+		uint8_t *mac, size_t maclen);
 
 /******************************** KMAC as RNG *********************************/
 

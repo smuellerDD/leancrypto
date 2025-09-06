@@ -37,16 +37,14 @@
 #error "Bad level, choose one of 128/192/256"
 #endif
 
-static int _hqc_kem_keygen_selftest(
-	const char *impl,
-	int (*_lc_hqc_keypair)(struct lc_hqc_pk *pk, struct lc_hqc_sk *sk,
-			       struct lc_rng_ctx *rng_ctx))
+static int _hqc_kem_keygen_selftest(int (*_lc_hqc_keypair)(struct lc_hqc_pk *pk,
+						    struct lc_hqc_sk *sk,
+						    struct lc_rng_ctx *rng_ctx))
 {
 	struct workspace {
 		struct lc_hqc_pk pk;
 		struct lc_hqc_sk sk;
 	};
-	char str[35];
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	LC_SELFTEST_SHAKE256_DRNG_CTX_ON_STACK(selftest_rng);
 
@@ -54,44 +52,38 @@ static int _hqc_kem_keygen_selftest(
 		    NULL, 0);
 
 	_lc_hqc_keypair(&ws->pk, &ws->sk, selftest_rng);
-	snprintf(str, sizeof(str), "%s PK", impl);
-	lc_compare_selftest(ws->pk.pk, hqc_test[0].pk, LC_HQC_PUBLIC_KEY_BYTES,
-			    str);
-	snprintf(str, sizeof(str), "%s SK", impl);
+	if (lc_compare_selftest(LC_ALG_STATUS_HQC_KEYGEN, ws->pk.pk, hqc_test[0].pk, LC_HQC_PUBLIC_KEY_BYTES,
+			    "HQC PK"))
+		goto out;
 
 	/* Timecop: Selftest does not contain secrets */
 	unpoison(&ws->sk.sk, LC_HQC_SECRET_KEY_BYTES);
-	lc_compare_selftest(ws->sk.sk, hqc_test[0].sk, LC_HQC_SECRET_KEY_BYTES,
-			    str);
+	lc_compare_selftest(LC_ALG_STATUS_HQC_KEYGEN, ws->sk.sk, hqc_test[0].sk, LC_HQC_SECRET_KEY_BYTES,
+			    "HQC SK");
 
+out:
 	LC_RELEASE_MEM(ws);
 	lc_rng_zero(selftest_rng);
-
 	return 0;
 }
 
-void hqc_kem_keygen_selftest(int *tested, const char *impl,
-			     int (*_lc_hqc_keypair)(struct lc_hqc_pk *pk,
+void hqc_kem_keygen_selftest(int (*_lc_hqc_keypair)(struct lc_hqc_pk *pk,
 						    struct lc_hqc_sk *sk,
 						    struct lc_rng_ctx *rng_ctx))
 {
-	LC_SELFTEST_RUN(tested);
-
-	if (_hqc_kem_keygen_selftest(impl, _lc_hqc_keypair))
-		*tested = 0;
+	LC_SELFTEST_RUN(LC_ALG_STATUS_HQC_KEYGEN);
+	_hqc_kem_keygen_selftest(_lc_hqc_keypair);
 }
 
-static int _hqc_kem_enc_selftest(const char *impl,
-				 int (*_lc_hqc_enc)(struct lc_hqc_ct *ct,
-						    struct lc_hqc_ss *ss,
-						    const struct lc_hqc_pk *pk,
-						    struct lc_rng_ctx *rng_ctx))
+static int _hqc_kem_enc_selftest(int (*_lc_hqc_enc)(struct lc_hqc_ct *ct,
+					     struct lc_hqc_ss *ss,
+					     const struct lc_hqc_pk *pk,
+					     struct lc_rng_ctx *rng_ctx))
 {
 	struct workspace {
 		struct lc_hqc_ct ct;
 		struct lc_hqc_ss key_b;
 	};
-	char str[25];
 	uint8_t discard[LC_HQC_SEED_BYTES + LC_HQC_VEC_K_SIZE_BYTES +
 			LC_HQC_SEED_BYTES];
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
@@ -105,62 +97,47 @@ static int _hqc_kem_enc_selftest(const char *impl,
 	// Encapsulation
 	_lc_hqc_enc(&ws->ct, &ws->key_b, (struct lc_hqc_pk *)&hqc_test[0].pk,
 		    selftest_rng);
-	snprintf(str, sizeof(str), "%s CT", impl);
 
 	/* Timecop: Selftest does not contain secrets */
 	unpoison(&ws->ct.ct, LC_HQC_CIPHERTEXT_BYTES);
-	lc_compare_selftest(ws->ct.ct, hqc_test[0].ct, LC_HQC_CIPHERTEXT_BYTES,
-			    str);
-	snprintf(str, sizeof(str), "%s SS", impl);
+	if (lc_compare_selftest(LC_ALG_STATUS_HQC_ENC, ws->ct.ct, hqc_test[0].ct, LC_HQC_CIPHERTEXT_BYTES,
+			    "HQC CT"))
+		goto out;
 
 	/* Timecop: Selftest does not contain secrets */
 	unpoison(&ws->key_b.ss, LC_HQC_SHARED_SECRET_BYTES);
-	lc_compare_selftest(ws->key_b.ss, hqc_test[0].ss,
-			    LC_HQC_SHARED_SECRET_BYTES, str);
+	lc_compare_selftest(LC_ALG_STATUS_HQC_ENC, ws->key_b.ss, hqc_test[0].ss,
+			    LC_HQC_SHARED_SECRET_BYTES, "HQC SS");
 
+out:
 	LC_RELEASE_MEM(ws);
 	lc_rng_zero(selftest_rng);
-
 	return 0;
 }
 
-void hqc_kem_enc_selftest(int *tested, const char *impl,
-			  int (*_lc_hqc_enc)(struct lc_hqc_ct *ct,
+void hqc_kem_enc_selftest(int (*_lc_hqc_enc)(struct lc_hqc_ct *ct,
 					     struct lc_hqc_ss *ss,
 					     const struct lc_hqc_pk *pk,
 					     struct lc_rng_ctx *rng_ctx))
 {
-	LC_SELFTEST_RUN(tested);
-
-	if (_hqc_kem_enc_selftest(impl, _lc_hqc_enc))
-		*tested = 0;
+	LC_SELFTEST_RUN(LC_ALG_STATUS_HQC_ENC);
+	_hqc_kem_enc_selftest(_lc_hqc_enc);
 }
 
-static void _hqc_kem_dec_selftest(
-	const char *impl,
-	int (*_lc_hqc_dec)(struct lc_hqc_ss *ss, const struct lc_hqc_ct *ct,
-			   const struct lc_hqc_sk *sk))
+void hqc_kem_dec_selftest(int (*_lc_hqc_dec)(struct lc_hqc_ss *ss,
+					     const struct lc_hqc_ct *ct,
+					     const struct lc_hqc_sk *sk))
 {
 	struct lc_hqc_ss key_a;
-	char str[25];
+
+	LC_SELFTEST_RUN(LC_ALG_STATUS_HQC_DEC);
 
 	// Decapsulation
 	_lc_hqc_dec(&key_a, (struct lc_hqc_ct *)&hqc_test[0].ct,
 		    (struct lc_hqc_sk *)&hqc_test[0].sk);
-	snprintf(str, sizeof(str), "%s SS", impl);
 
 	/* Timecop: Selftest does not contain secrets */
 	unpoison(key_a.ss, LC_HQC_SHARED_SECRET_BYTES);
-	lc_compare_selftest(key_a.ss, hqc_test[0].ss,
-			    LC_HQC_SHARED_SECRET_BYTES, str);
-}
-
-void hqc_kem_dec_selftest(int *tested, const char *impl,
-			  int (*_lc_hqc_dec)(struct lc_hqc_ss *ss,
-					     const struct lc_hqc_ct *ct,
-					     const struct lc_hqc_sk *sk))
-{
-	LC_SELFTEST_RUN(tested);
-
-	_hqc_kem_dec_selftest(impl, _lc_hqc_dec);
+	lc_compare_selftest(LC_ALG_STATUS_HQC_DEC, key_a.ss, hqc_test[0].ss,
+			    LC_HQC_SHARED_SECRET_BYTES, "HQC SS");
 }

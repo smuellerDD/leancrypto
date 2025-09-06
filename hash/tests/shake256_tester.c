@@ -100,7 +100,8 @@ static int _shake_256_tester(const struct lc_hash *shake_256, const char *name)
 	       shake_256 == lc_shake256_c ? "C" : "accelerated",
 	       (unsigned int)LC_HASH_CTX_SIZE(shake_256));
 
-	lc_hash_init(ctx);
+	if (lc_hash_init(ctx))
+		return 1;
 	lc_hash_update(ctx, msg1, sizeof(msg1));
 	lc_hash_set_digestsize(ctx, sizeof(act1));
 	lc_hash_final(ctx, act1);
@@ -115,7 +116,8 @@ static int _shake_256_tester(const struct lc_hash *shake_256, const char *name)
 	if (ret)
 		return ret;
 
-	lc_hash_init(shake256_stack);
+	if (lc_hash_init(shake256_stack))
+		return 1;
 	lc_hash_update(shake256_stack, msg1, sizeof(msg1));
 	lc_hash_set_digestsize(shake256_stack, sizeof(act1));
 	lc_hash_final(shake256_stack, act1);
@@ -124,7 +126,8 @@ static int _shake_256_tester(const struct lc_hash *shake_256, const char *name)
 	if (ret)
 		return ret;
 
-	lc_hash_init(ctx);
+	if (lc_hash_init(ctx))
+		return 1;
 	lc_hash_update(ctx, msg2, sizeof(msg2));
 	lc_hash_set_digestsize(ctx, sizeof(act2));
 	lc_hash_final(ctx, act2);
@@ -135,7 +138,8 @@ static int _shake_256_tester(const struct lc_hash *shake_256, const char *name)
 		return ret;
 
 	/* Check if cSHAKE falls back to SHAKE */
-	lc_cshake_init(cctx, NULL, 0, NULL, 0);
+	if (lc_cshake_init(cctx, NULL, 0, NULL, 0))
+		return 1;
 	lc_hash_update(cctx, msg2, sizeof(msg2));
 	lc_hash_set_digestsize(cctx, sizeof(act2));
 	lc_hash_final(cctx, act2);
@@ -164,7 +168,26 @@ static int shake256_tester(void)
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	char status[900];
+	int ret;
+
 	(void)argc;
 	(void)argv;
-	return shake256_tester();
+
+	ret = shake256_tester();
+
+	if (lc_status_get_result(LC_ALG_STATUS_SHAKE) !=
+	    lc_alg_status_result_passed) {
+		printf("SHAKE-256 self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_SHAKE));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
+
+	return ret;
 }

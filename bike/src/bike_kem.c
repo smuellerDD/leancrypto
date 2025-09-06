@@ -105,7 +105,9 @@ static inline void function_l(m_t *out, const pad_e_t *e)
 
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_sha3_384);
 
-	lc_hash_init(hash_ctx);
+	if (lc_hash_init(hash_ctx))
+		goto out;
+
 	lc_hash_update(hash_ctx, (const uint8_t *)&e->val[0].val,
 		       sizeof(e->val[0].val));
 	lc_hash_update(hash_ctx, (const uint8_t *)&e->val[1].val,
@@ -118,6 +120,7 @@ static inline void function_l(m_t *out, const pad_e_t *e)
 	BUILD_BUG_ON(sizeof(dgst) < sizeof(*out));
 	memcpy(out->raw, dgst, sizeof(*out));
 
+out:
 	lc_memset_secure(dgst, 0, sizeof(dgst));
 }
 
@@ -128,7 +131,8 @@ static inline void function_k(struct lc_bike_ss *out, const m_t *m,
 	uint8_t dgst[LC_SHA3_384_SIZE_DIGEST];
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_sha3_384);
 
-	lc_hash_init(hash_ctx);
+	if (lc_hash_init(hash_ctx))
+		goto out;
 	lc_hash_update(hash_ctx, (const uint8_t *)m, sizeof(*m));
 	lc_hash_update(hash_ctx, (const uint8_t *)&ct->c0, sizeof(ct->c0));
 	lc_hash_update(hash_ctx, (const uint8_t *)&ct->c1, sizeof(ct->c1));
@@ -141,6 +145,7 @@ static inline void function_k(struct lc_bike_ss *out, const m_t *m,
 	BUILD_BUG_ON(sizeof(dgst) < sizeof(*out));
 	memcpy(out->ss, dgst, sizeof(out->ss));
 
+out:
 	lc_memset_secure(dgst, 0, sizeof(dgst));
 }
 

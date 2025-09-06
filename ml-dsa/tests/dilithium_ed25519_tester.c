@@ -18,6 +18,7 @@
  */
 
 #include "dilithium_tester.h"
+#include "lc_status.h"
 #include "ret_checkers.h"
 #include "selftest_rng.h"
 #include "small_stack_support.h"
@@ -82,16 +83,80 @@ out:
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	char status[900];
 	size_t count;
 	int ret = 0;
 
 	(void)argv;
 
-	if (argc != 2)
-		return dilithium_ed25519_tester(1);
+	if (argc != 2) {
+		ret = dilithium_ed25519_tester(1);
+	} else {
+		for (count = 0; count < 10000; count++)
+			ret += dilithium_ed25519_tester(0);
+	}
 
-	for (count = 0; count < 10000; count++)
-		ret += dilithium_ed25519_tester(0);
+	if (lc_status_get_result(LC_ALG_STATUS_MLDSA_KEYGEN) !=
+	    lc_alg_status_result_passed) {
+		printf("ML-DSA self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_MLDSA_KEYGEN));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_MLDSA_SIGGEN) !=
+	    lc_alg_status_result_passed) {
+		printf("ML-DSA siggen self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_MLDSA_SIGGEN));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_MLDSA_SIGVER) !=
+	    lc_alg_status_result_passed) {
+		printf("ML-DSA sigver self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_MLDSA_SIGVER));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_ED25519_KEYGEN) !=
+	    lc_alg_status_result_passed) {
+		printf("ED25519 keygen self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_ED25519_KEYGEN));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_ED25519_SIGGEN) !=
+	    lc_alg_status_result_passed) {
+		printf("ED25519 siggen self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_ED25519_SIGGEN));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_ED25519_SIGVER) !=
+	    lc_alg_status_result_passed) {
+		printf("ED25519 sigver self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_MLDSA_SIGVER));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_SHAKE) !=
+	    lc_alg_status_result_passed) {
+		printf("SHA3 self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_SHAKE));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_SHA512) !=
+	    lc_alg_status_result_passed) {
+		printf("SHA-512 self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_SHA512));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
 
 	return ret;
 }

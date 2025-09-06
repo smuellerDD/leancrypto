@@ -247,14 +247,14 @@ static int test_encrypt_xts_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 	unpoison(key, keylen);
 
 	/* Encrypt */
-	lc_sym_init(ctx);
+	CKINT(lc_sym_init(ctx));
 	CKINT(lc_sym_setkey(ctx, key, keylen));
 	CKINT(lc_sym_setiv(ctx, iv, ivlen));
 	lc_sym_encrypt(ctx, pt, out, ptlen);
 	rc = lc_compare(out, ct, ptlen, "AES-XTS encrypt ciphertext");
 
 	/* Decrypt */
-	lc_sym_init(ctx);
+	CKINT(lc_sym_init(ctx));
 	CKINT(lc_sym_setkey(ctx, key, keylen));
 	CKINT(lc_sym_setiv(ctx, iv, ivlen));
 	lc_sym_decrypt(ctx, out, out2, sizeof(out));
@@ -287,6 +287,7 @@ static int test_xts(const struct lc_sym *aes, const char *name)
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	char status[900];
 	int ret = 0;
 
 	(void)argc;
@@ -297,6 +298,19 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_EXEC_ONE_TEST(lc_aes_xts_aesni);
 	LC_EXEC_ONE_TEST(lc_aes_xts_armce);
 	LC_EXEC_ONE_TEST(lc_aes_xts_riscv64);
+
+	if (lc_status_get_result(LC_ALG_STATUS_AES_XTS) !=
+	    lc_alg_status_result_passed) {
+		printf("AES-XTS self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_AES_XTS));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
 
 	return ret;
 }

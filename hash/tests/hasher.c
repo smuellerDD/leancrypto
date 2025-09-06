@@ -334,10 +334,10 @@ int main(int argc, char *argv[])
 	}
 
 	if (hash_ctx != hash_ctx_cshake128 && hash_ctx != hash_ctx_cshake256) {
-		lc_hash_init(hash_ctx);
+		CKINT(lc_hash_init(hash_ctx));
 	} else {
-		lc_cshake_init(hash_ctx, (uint8_t *)n, n ? strlen(n) : 0,
-			       (uint8_t *)s, s ? strlen(s) : 0);
+		CKINT(lc_cshake_init(hash_ctx, (uint8_t *)n, n ? strlen(n) : 0,
+				     (uint8_t *)s, s ? strlen(s) : 0));
 	}
 
 	ret = lc_hasher(file, digestsize, hash_ctx);

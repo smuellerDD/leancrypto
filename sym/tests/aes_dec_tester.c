@@ -74,7 +74,7 @@ static int test_decrypt_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 	/* Unpoison key to let implementation poison it */
 	unpoison(key, keylen);
 
-	lc_sym_init(ctx);
+	CKINT(lc_sym_init(ctx));
 	CKINT(lc_sym_setkey(ctx, key, keylen));
 	lc_sym_decrypt(ctx, in, in, sizeof(out));
 	ret = lc_compare(in, out, sizeof(out), "AES block decrypt");

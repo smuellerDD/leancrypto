@@ -26,30 +26,37 @@
 extern "C" {
 #endif
 
+int lc_ascon_setkey_int(void *state, const uint8_t *key, size_t keylen,
+			const uint8_t *nonce, size_t noncelen, int nocheck);
+
 #if defined(LC_ASCON_KECCAK)
 
-int lc_ak_setiv(struct lc_ascon_cryptor *ascon, size_t keylen);
+int lc_ak_setiv(struct lc_ascon_cryptor *ascon, size_t keylen, int nocheck);
 
 #else
 
-static inline int lc_ak_setiv(struct lc_ascon_cryptor *ascon, size_t keylen)
+static inline int lc_ak_setiv(struct lc_ascon_cryptor *ascon, size_t keylen,
+			      int nocheck)
 {
 	(void)ascon;
 	(void)keylen;
+	(void)nocheck;
 	return 0;
 }
 #endif
 
 #if defined(LC_ASCON)
 
-int lc_ascon_setiv(struct lc_ascon_cryptor *ascon, size_t keylen);
+int lc_ascon_setiv(struct lc_ascon_cryptor *ascon, size_t keylen, int nocheck);
 
 #else
 
-static inline int lc_ascon_setiv(struct lc_ascon_cryptor *ascon, size_t keylen)
+static inline int lc_ascon_setiv(struct lc_ascon_cryptor *ascon, size_t keylen,
+				 int nocheck)
 {
 	(void)ascon;
 	(void)keylen;
+	(void)nocheck;
 	return 0;
 }
 #endif

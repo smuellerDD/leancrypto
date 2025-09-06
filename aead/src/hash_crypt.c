@@ -24,10 +24,13 @@
 #include "lc_hash_crypt.h"
 #include "lc_memcmp_secure.h"
 #include "math_helper.h"
+#include "ret_checkers.h"
 #include "visibility.h"
 #include "xor.h"
 
-static void lc_hc_selftest(int *tested, const char *impl)
+static int lc_hc_setkey_nocheck(void *state, const uint8_t *key, size_t keylen,
+				const uint8_t *iv, size_t ivlen);
+static void lc_hc_selftest(void)
 {
 	static const uint8_t in[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
@@ -48,77 +51,84 @@ static void lc_hc_selftest(int *tested, const char *impl)
 		0x1c, 0x71, 0x01, 0x0c
 	};
 	static const uint8_t exp_tag[] = {
-		0x2b, 0x2c, 0x91, 0x5a, 0x2a, 0xf0, 0xe5, 0xee, 0xbb, 0xf3,
-		0x0b, 0x13, 0x9e, 0x67, 0x2c, 0xd4, 0x80, 0x3e, 0x8a, 0xd0,
-		0x63, 0x50, 0xb7, 0x66, 0xb2, 0x79, 0xd3, 0xaf, 0xd5, 0x54,
-		0x32, 0x9f, 0xe1, 0xdb, 0x97, 0xc8, 0x9e, 0x7f, 0x65, 0xab,
-		0xaa, 0xb0, 0xe7, 0xae, 0x3f, 0x79, 0x2b, 0xea, 0x11, 0x4a,
-		0x69, 0x35, 0x89, 0x8a, 0xfa, 0xac, 0x7b, 0xbc, 0xf0, 0x25,
-		0x1d, 0x2d, 0x80, 0xfa
+		0xdf, 0xcd, 0x29, 0x7a, 0x28, 0x82, 0x78, 0xfa, 0xfe, 0x14,
+		0x36, 0x36, 0xae, 0x60, 0x4b, 0xcb, 0xac, 0x89, 0x92, 0xa7,
+		0x0e, 0xa8, 0x53, 0xbe, 0x00, 0x02, 0x92, 0x22, 0x20, 0x65,
+		0x77, 0x0e, 0xe9, 0xb4, 0x94, 0x74, 0xdb, 0xab, 0xaa, 0x53,
+		0xdc, 0xff, 0x2f, 0x59, 0x1a, 0xc9, 0x38, 0xb1, 0xad, 0x33,
+		0x27, 0x69, 0x77, 0x48, 0xcd, 0xbd, 0x88, 0x72, 0xbe, 0xe0,
+		0x7c, 0xca, 0x3e, 0xb8
 	};
 	uint8_t act_ct[sizeof(exp_ct)] __align(sizeof(uint32_t));
 	uint8_t act_tag[sizeof(exp_tag)] __align(sizeof(uint32_t));
-	char status[25];
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_HASH_CRYPT);
 
 	LC_HC_CTX_ON_STACK(hc, lc_sha512);
 
-	lc_aead_setkey(hc, in, sizeof(in), NULL, 0);
+	if (lc_hc_setkey_nocheck(hc->aead_state, in, sizeof(in), NULL, 0))
+		goto out;
 	lc_aead_encrypt(hc, in, act_ct, sizeof(in), in, sizeof(in), act_tag,
 			sizeof(act_tag));
-	snprintf(status, sizeof(status), "%s encrypt", impl);
-	lc_compare_selftest(act_ct, exp_ct, sizeof(exp_ct), status);
+	if (lc_compare_selftest(LC_ALG_STATUS_HASH_CRYPT, act_ct, exp_ct,
+				sizeof(exp_ct), "Hash AEAD encrypt"))
+		goto out;
+	if (lc_compare_selftest(LC_ALG_STATUS_HASH_CRYPT, act_tag, exp_tag,
+				sizeof(exp_tag), "Hash AEAD tag"))
+		goto out;
 	lc_aead_zero(hc);
 
-	lc_aead_setkey(hc, in, sizeof(in), NULL, 0);
+	lc_hc_setkey_nocheck(hc->aead_state, in, sizeof(in), NULL, 0);
 	lc_aead_decrypt(hc, act_ct, act_ct, sizeof(act_ct), in, sizeof(in),
 			act_tag, sizeof(act_tag));
-	snprintf(status, sizeof(status), "%s decrypt", impl);
-	lc_compare_selftest(act_ct, in, sizeof(in), status);
+	lc_compare_selftest(LC_ALG_STATUS_HASH_CRYPT, act_ct, in, sizeof(in),
+			    "Hash AEAD decrypt");
+
+out:
 	lc_aead_zero(hc);
 }
 
-static int lc_hc_setkey(void *state, const uint8_t *key, size_t keylen,
-			const uint8_t *iv, size_t ivlen)
+static int lc_hc_setkey_nocheck(void *state, const uint8_t *key, size_t keylen,
+				const uint8_t *iv, size_t ivlen)
 {
 	struct lc_hc_cryptor *hc = state;
 	struct lc_rng_ctx *drbg = &hc->drbg;
 	struct lc_hmac_ctx *auth_ctx = &hc->auth_ctx;
-	static int tested = 0;
 	int ret;
-
-	lc_hc_selftest(&tested, "Hash AEAD");
 
 	BUILD_BUG_ON(LC_SHA_MAX_SIZE_DIGEST > LC_HC_KEYSTREAM_BLOCK);
 
 	if (!key || !keylen)
 		return -EINVAL;
 
-	ret = lc_rng_seed(drbg, key, keylen, iv, ivlen);
-	if (ret)
-		return ret;
+	CKINT(lc_rng_seed(drbg, key, keylen, iv, ivlen));
 
 	/*
 	 * Generate key for HMAC authentication - we simply use two different
 	 * keys for the DRBG keystream generator and the HMAC authenticator.
 	 */
-	ret = lc_rng_generate(drbg, NULL, 0, hc->keystream,
-			      LC_SHA_MAX_SIZE_DIGEST);
-	if (ret)
-		return ret;
+	CKINT(lc_rng_generate(drbg, NULL, 0, hc->keystream,
+			      LC_SHA_MAX_SIZE_DIGEST));
 
-	lc_hmac_init(auth_ctx, hc->keystream, LC_SHA_MAX_SIZE_DIGEST);
+	CKINT(lc_hmac_init(auth_ctx, hc->keystream, LC_SHA_MAX_SIZE_DIGEST));
 
 	/* Generate first keystream */
-	ret = lc_rng_generate(drbg, NULL, 0, hc->keystream,
-			      LC_HC_KEYSTREAM_BLOCK);
-	if (ret)
-		return ret;
+	CKINT(lc_rng_generate(drbg, NULL, 0, hc->keystream,
+			      LC_HC_KEYSTREAM_BLOCK));
 
 	hc->keystream_ptr = 0;
 
-	return 0;
+out:
+	return ret;
+}
+
+static int lc_hc_setkey(void *state, const uint8_t *key, size_t keylen,
+			const uint8_t *iv, size_t ivlen)
+{
+	lc_hc_selftest();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_HASH_CRYPT);
+
+	return lc_hc_setkey_nocheck(state, key, keylen, iv, ivlen);
 }
 
 static void lc_hc_crypt(struct lc_hc_cryptor *hc, const uint8_t *in,

@@ -24,7 +24,7 @@
 #include "timecop.h"
 #include "x25519_scalarmult.h"
 
-static void lc_x25519_keypair_selftest(int *tested)
+static void lc_x25519_keypair_selftest(void)
 {
 	/*
 	 * Test vector is
@@ -43,23 +43,24 @@ static void lc_x25519_keypair_selftest(int *tested)
 					  0xae, 0x50 };
 	uint8_t pk[sizeof(pk_exp)];
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_X25519_KEYKEN);
 
 	crypto_scalarmult_curve25519_base(pk, sk);
-	lc_compare_selftest(pk, pk_exp, sizeof(pk_exp),
+	lc_compare_selftest(LC_ALG_STATUS_X25519_KEYKEN, pk, pk_exp,
+			    sizeof(pk_exp),
 			    "X25519 base scalar multiplication\n");
 }
 
 int lc_x25519_keypair(struct lc_x25519_pk *pk, struct lc_x25519_sk *sk,
 		      struct lc_rng_ctx *rng_ctx)
 {
-	static int tested = 0;
 	int ret;
 
 	CKNULL(sk, -EINVAL);
 	CKNULL(pk, -EINVAL);
 
-	lc_x25519_keypair_selftest(&tested);
+	lc_x25519_keypair_selftest();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_X25519_KEYKEN);
 
 	lc_rng_check(&rng_ctx);
 
@@ -79,7 +80,7 @@ out:
 	return ret;
 }
 
-static void lc_x25519_ss_selftest(int *tested)
+static void lc_x25519_ss_selftest(void)
 {
 	/*
 	 * Test vector is
@@ -104,24 +105,24 @@ static void lc_x25519_ss_selftest(int *tested)
 	};
 	uint8_t out[sizeof(exp)];
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_X25519_SS);
 
 	crypto_scalarmult_curve25519(out, scalar, p1);
-	lc_compare_selftest(out, exp, sizeof(exp),
+	lc_compare_selftest(LC_ALG_STATUS_X25519_SS, out, exp, sizeof(exp),
 			    "X25519 scalar multiplication\n");
 }
 
 int lc_x25519_ss(struct lc_x25519_ss *ss, const struct lc_x25519_pk *pk,
 		 const struct lc_x25519_sk *sk)
 {
-	static int tested = 0;
 	int ret;
 
 	CKNULL(sk, -EINVAL);
 	CKNULL(pk, -EINVAL);
 	CKNULL(ss, -EINVAL);
 
-	lc_x25519_ss_selftest(&tested);
+	lc_x25519_ss_selftest();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_X25519_SS);
 
 	/* Timecop: mark the secret key as sensitive */
 	poison(sk->sk, sizeof(sk->sk));

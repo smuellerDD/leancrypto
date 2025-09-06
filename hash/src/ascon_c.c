@@ -164,6 +164,7 @@ static void ascon_squeeze(void *state, uint8_t *digest)
 
 static const struct lc_hash _ascon_256_c = {
 	.init = ascon_256_init,
+	.init_nocheck = ascon_256_init_nocheck,
 	.update = ascon_absorb,
 	.final = ascon_squeeze,
 	.set_digestsize = NULL,
@@ -179,6 +180,7 @@ LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_256_c) = &_ascon_256_c;
 
 static const struct lc_hash _ascon_128a_c = {
 	.init = ascon_128a_init,
+	.init_nocheck = NULL,
 	.update = ascon_absorb,
 	.final = ascon_squeeze,
 	.set_digestsize = NULL,
@@ -194,6 +196,7 @@ LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_128a_c) = &_ascon_128a_c;
 
 static const struct lc_hash _ascon_xof_c = {
 	.init = ascon_xof_init,
+	.init_nocheck = ascon_xof_init_nocheck,
 	.update = ascon_absorb,
 	.final = ascon_squeeze,
 	.set_digestsize = ascon_xof_set_digestsize,

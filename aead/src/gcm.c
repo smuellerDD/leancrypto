@@ -63,7 +63,10 @@
 
 #define AES_BLOCKSIZE 16
 
-static void lc_aes_gcm_selftest(int *tested)
+static int gcm_set_key_iv_nocheck(void *state, const uint8_t *key,
+				  const size_t keylen, const uint8_t *iv,
+				  size_t iv_len);
+static void lc_aes_gcm_selftest(void)
 {
 	static const uint8_t aad[] = { 0xff, 0x76, 0x28, 0xf6, 0x42, 0x7f,
 				       0xbc, 0xef, 0x1f, 0x3b, 0x82, 0xb3,
@@ -89,27 +92,39 @@ static void lc_aes_gcm_selftest(int *tested)
 	static const uint8_t f[] = { 0xde, 0xad, }, p[] = { 0xaf, 0xfe };
 	int ret;
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_AES_GCM);
 
 	LC_AES_GCM_CTX_ON_STACK(aes_gcm);
 
-	lc_aead_setkey(aes_gcm, key, sizeof(key), iv, sizeof(iv));
+	gcm_set_key_iv_nocheck(aes_gcm->aead_state, key, sizeof(key), iv,
+			       sizeof(iv));
 	lc_aead_encrypt(aes_gcm, in, act_ct, sizeof(in), aad, sizeof(aad),
 			act_tag, sizeof(act_tag));
-	lc_compare_selftest(act_ct, exp_ct, sizeof(exp_ct),
-			    "AES GCM AEAD encrypt ciphertext");
-	lc_compare_selftest(act_tag, exp_tag, sizeof(exp_tag),
-			    "AES GCM AEAD encrypt tag");
+	if (lc_compare_selftest(LC_ALG_STATUS_AES_GCM, act_ct, exp_ct,
+				sizeof(exp_ct),
+				"AES GCM AEAD encrypt ciphertext"))
+		goto out;
+
+	if (lc_compare_selftest(LC_ALG_STATUS_AES_GCM, act_tag, exp_tag, sizeof(exp_tag),
+				"AES GCM AEAD encrypt tag"))
+		goto out;
+
 	lc_aead_zero(aes_gcm);
 
-	lc_aead_setkey(aes_gcm, key, sizeof(key), iv, sizeof(iv));
+	gcm_set_key_iv_nocheck(aes_gcm->aead_state, key, sizeof(key), iv,
+			       sizeof(iv));
 	ret = lc_aead_decrypt(aes_gcm, act_ct, act_ct, sizeof(act_ct), aad,
 			      sizeof(aad), act_tag, sizeof(act_tag));
 	if (ret) {
-		lc_compare_selftest(f, p, sizeof(f),
-				    "AES GCM AEAD decrypt authentication");
+		if (lc_compare_selftest(LC_ALG_STATUS_AES_GCM, f, p, sizeof(f),
+					"AES GCM AEAD decrypt authentication"))
+			goto out;
 	}
-	lc_compare_selftest(act_ct, in, sizeof(in), "AES GCM AEAD decrypt");
+
+	lc_compare_selftest(LC_ALG_STATUS_AES_GCM, act_ct, in, sizeof(in),
+			    "AES GCM AEAD decrypt");
+
+out:
 	lc_aead_zero(aes_gcm);
 }
 
@@ -307,7 +322,7 @@ static int gcm_setkey(struct lc_aes_gcm_cryptor *ctx, const uint8_t *key,
 	 * encrypt the null 128-bit block to generate a key-based value
 	 * which is then used to initialize our GHASH lookup tables
 	 */
-	lc_sym_init(&ctx->sym_ctx);
+	CKINT(lc_sym_init(&ctx->sym_ctx));
 	CKINT(lc_sym_setkey(&ctx->sym_ctx, key, keylen));
 	lc_sym_encrypt(&ctx->sym_ctx, h, h, sizeof(h));
 
@@ -427,11 +442,24 @@ static int gcm_setiv(struct lc_aes_gcm_cryptor *ctx, const uint8_t *iv,
 	return 0;
 }
 
+static int gcm_set_key_iv_nocheck(void *state, const uint8_t *key,
+				  const size_t keylen, const uint8_t *iv,
+				  size_t iv_len)
+{
+	struct lc_aes_gcm_cryptor *ctx = state;
+	int ret;
+
+	CKINT(gcm_setkey(ctx, key, keylen));
+	CKINT(gcm_setiv(ctx, iv, iv_len))
+
+out:
+	return ret;
+}
+
 static int gcm_set_key_iv(void *state, const uint8_t *key, const size_t keylen,
 			  const uint8_t *iv, size_t iv_len)
 {
 	struct lc_aes_gcm_cryptor *ctx = state;
-	static int tested = 0;
 	int ret;
 
 	/*
@@ -441,10 +469,10 @@ static int gcm_set_key_iv(void *state, const uint8_t *key, const size_t keylen,
 	if (fips140_mode_enabled() && iv)
 		return -EOPNOTSUPP;
 
-	lc_aes_gcm_selftest(&tested);
+	lc_aes_gcm_selftest();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_AES_GCM);
 
-	CKINT(gcm_setkey(ctx, key, keylen));
-	CKINT(gcm_setiv(ctx, iv, iv_len))
+	CKINT(gcm_set_key_iv_nocheck(ctx, key, keylen, iv, iv_len));
 
 out:
 	return ret;
@@ -476,7 +504,7 @@ static void gcm_aad(void *state, const uint8_t *aad, size_t aad_len)
 	p = aad;
 
 	while (aad_len > 0) {
-		use_len = (aad_len < (AES_BLOCKSIZE - rem_aad) ?
+		use_len = (aad_len < (size_t)(AES_BLOCKSIZE - rem_aad) ?
 				      (uint8_t)aad_len :
 				      (AES_BLOCKSIZE - rem_aad));
 

@@ -190,7 +190,8 @@ static void gen_matrix(polyvec *a, const uint8_t seed[LC_KYBER_SYMBYTES],
 		for (j = 0; j < LC_KYBER_K; j++) {
 			uint8_t i_tmp = (uint8_t)i, j_tmp = (uint8_t)j;
 
-			lc_hash_init(shake_128);
+			if (lc_hash_init(shake_128))
+				goto out;
 			lc_hash_update(shake_128, seed, LC_KYBER_SYMBYTES);
 
 			if (transposed) {
@@ -224,6 +225,7 @@ static void gen_matrix(polyvec *a, const uint8_t seed[LC_KYBER_SYMBYTES],
 		}
 	}
 
+out:
 	lc_hash_zero(shake_128);
 	lc_memset_secure(buf, 0, sizeof(buf));
 }
@@ -260,7 +262,7 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, buf, LC_KYBER_SYMBYTES));
 	kyber_print_buffer(buf, LC_KYBER_SYMBYTES, "Keygen: d");
 
-	lc_hash_init(sha3_512_ctx);
+	CKINT(lc_hash_init(sha3_512_ctx));
 	lc_hash_update(sha3_512_ctx, buf, LC_KYBER_SYMBYTES);
 	lc_hash_update(sha3_512_ctx, &kval, sizeof(kval));
 	lc_hash_final(sha3_512_ctx, buf);

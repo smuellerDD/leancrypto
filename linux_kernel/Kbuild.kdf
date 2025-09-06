@@ -3,6 +3,7 @@
 leancrypto-$(CONFIG_LEANCRYPTO_HKDF)					       \
 				+= ../kdf/src/hkdf.o
 ifdef CONFIG_LEANCRYPTO_HKDF
+ccflags-y			+= -DCONFIG_LEANCRYPTO_HKDF
 obj-m				+= hkdf_tester.o
 hkdf_tester-y			+= ../kdf/tests/hkdf_tester.o
 endif
@@ -10,6 +11,7 @@ endif
 leancrypto-$(CONFIG_LEANCRYPTO_KDF_CTR)					       \
 				+= ../kdf/src/kdf_ctr.o
 ifdef CONFIG_LEANCRYPTO_KDF_CTR
+ccflags-y			+= -DCONFIG_LEANCRYPTO_KDF_CTR
 obj-m				+= kdf_ctr_tester.o
 kdf_ctr_tester-y		+= ../kdf/tests/kdf_ctr_tester.o
 endif
@@ -17,6 +19,7 @@ endif
 leancrypto-$(CONFIG_LEANCRYPTO_KDF_DPI)					       \
 				+= ../kdf/src/kdf_dpi.o
 ifdef CONFIG_LEANCRYPTO_KDF_DPI
+ccflags-y			+= -DCONFIG_LEANCRYPTO_KDF_DPI
 obj-m				+= kdf_dpi_tester.o
 kdf_dpi_tester-y		+= ../kdf/tests/kdf_dpi_tester.o
 endif
@@ -24,6 +27,7 @@ endif
 leancrypto-$(CONFIG_LEANCRYPTO_KDF_FB)					       \
 				+= ../kdf/src/kdf_fb.o
 ifdef CONFIG_LEANCRYPTO_KDF_FB
+ccflags-y			+= -DCONFIG_LEANCRYPTO_KDF_FB
 obj-m				+= kdf_fb_tester.o
 kdf_fb_tester-y			+= ../kdf/tests/kdf_fb_tester.o
 endif
@@ -31,6 +35,7 @@ endif
 leancrypto-$(CONFIG_LEANCRYPTO_PBKDF2)					       \
 				+= ../kdf/src/pbkdf2.o
 ifdef CONFIG_LEANCRYPTO_PBKDF2
+ccflags-y			+= -DCONFIG_LEANCRYPTO_PBKDF2
 obj-m				+= pbkdf2_tester.o
 pbkdf2_tester-y			+= ../kdf/tests/pbkdf2_tester.o
 endif

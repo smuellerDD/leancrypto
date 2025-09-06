@@ -42,7 +42,7 @@ static int ascon_tester_one(const uint8_t *pt, size_t ptlen,
 
 	/* One shot encryption with pt ptr != ct ptr */
 	if (lc_aead_setkey(al, key, keylen, nonce, noncelen))
-		return -EFAULT;
+		return 1;
 	lc_aead_encrypt(al, pt, out_enc, ptlen, aad, aadlen, tag, exp_tag_len);
 	lc_aead_zero(al);
 
@@ -59,7 +59,8 @@ static int ascon_tester_one(const uint8_t *pt, size_t ptlen,
 	if (lc_al_alloc(&al_heap))
 		return 1;
 
-	lc_aead_setkey(al_heap, key, keylen, nonce, noncelen);
+	if (lc_aead_setkey(al_heap, key, keylen, nonce, noncelen))
+		return 1;
 
 	memcpy(out_enc, pt, ptlen);
 	lc_aead_encrypt(al_heap, out_enc, out_enc, ptlen, aad, aadlen, tag,
@@ -130,12 +131,30 @@ static int ascon_tester_128(void)
 	static const uint8_t exp_tag[] = { 0x68, 0x91, 0x5D, 0x3F, 0x94, 0x22,
 					   0x28, 0x9F, 0x23, 0x49, 0xD6, 0xA3,
 					   0xB4, 0x16, 0x03, 0x97 };
+	char status[900];
+	int ret;
 
 	printf("Ascon lightweight 128 crypt ctx len %u, state len %u\n",
 	       (unsigned int)LC_AL_CTX_SIZE, (unsigned int)LC_AL_STATE_SIZE);
-	return ascon_tester_one(pt, sizeof(pt), nonce, sizeof(nonce), aad,
+
+	ret = ascon_tester_one(pt, sizeof(pt), nonce, sizeof(nonce), aad,
 				sizeof(aad), key, sizeof(key), exp_ct, exp_tag,
 				sizeof(exp_tag));
+
+	if (lc_status_get_result(LC_ALG_STATUS_ASCON_AEAD_128) !=
+	    lc_alg_status_result_passed) {
+		printf("Self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_ASCON_AEAD_128));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
+
+	return ret;
 }
 
 static int ascon_tester_128_non_aligned(void)

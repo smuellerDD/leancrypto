@@ -18,12 +18,12 @@
  */
 
 #include "compare.h"
+#include "hash_common.h"
 #include "lc_cshake.h"
 #include "lc_sha3.h"
 #include "sha3_selftest.h"
 
-void sha3_224_selftest_common(const struct lc_hash *sha3_224, int *tested,
-			      const char *impl)
+void sha3_224_selftest_common(const struct lc_hash *sha3_224)
 {
 	static const uint8_t msg_224[] = { 0x50, 0xEF, 0x73 };
 	static const uint8_t exp_224[] = { 0x42, 0xF9, 0xE4, 0xEA, 0xE8, 0x55,
@@ -33,14 +33,14 @@ void sha3_224_selftest_common(const struct lc_hash *sha3_224, int *tested,
 					   0xD8, 0x7C, 0x68, 0xC1 };
 	uint8_t act[LC_SHA3_224_SIZE_DIGEST];
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_SHA3);
 
-	lc_hash(sha3_224, msg_224, sizeof(msg_224), act);
-	lc_compare_selftest(act, exp_224, sizeof(exp_224), impl);
+	lc_hash_nocheck(sha3_224, msg_224, sizeof(msg_224), act);
+	lc_compare_selftest(LC_ALG_STATUS_SHA3, act, exp_224, sizeof(exp_224),
+			    "SHA3-224");
 }
 
-void sha3_256_selftest_common(const struct lc_hash *sha3_256, int *tested,
-			      const char *impl)
+void sha3_256_selftest_common(const struct lc_hash *sha3_256)
 {
 	static const uint8_t msg_256[] = { 0x5E, 0x5E, 0xD6 };
 	static const uint8_t exp_256[] = { 0xF1, 0x6E, 0x66, 0xC0, 0x43, 0x72,
@@ -51,14 +51,14 @@ void sha3_256_selftest_common(const struct lc_hash *sha3_256, int *tested,
 					   0x91, 0x1E };
 	uint8_t act[LC_SHA3_256_SIZE_DIGEST];
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_SHA3);
 
-	lc_hash(sha3_256, msg_256, sizeof(msg_256), act);
-	lc_compare_selftest(act, exp_256, sizeof(exp_256), impl);
+	lc_hash_nocheck(sha3_256, msg_256, sizeof(msg_256), act);
+	lc_compare_selftest(LC_ALG_STATUS_SHA3, act, exp_256, sizeof(exp_256),
+			    "SHA3-256");
 }
 
-void sha3_384_selftest_common(const struct lc_hash *sha3_384, int *tested,
-			      const char *impl)
+void sha3_384_selftest_common(const struct lc_hash *sha3_384)
 {
 	static const uint8_t msg_384[] = { 0xE7, 0x3B, 0xAD };
 	static const uint8_t exp_384[] = {
@@ -70,14 +70,14 @@ void sha3_384_selftest_common(const struct lc_hash *sha3_384, int *tested,
 	};
 	uint8_t act[LC_SHA3_384_SIZE_DIGEST];
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_SHA3);
 
-	lc_hash(sha3_384, msg_384, sizeof(msg_384), act);
-	lc_compare_selftest(act, exp_384, sizeof(exp_384), impl);
+	lc_hash_nocheck(sha3_384, msg_384, sizeof(msg_384), act);
+	lc_compare_selftest(LC_ALG_STATUS_SHA3, act, exp_384, sizeof(exp_384),
+			    "SHA3-384");
 }
 
-void sha3_512_selftest_common(const struct lc_hash *sha3_512, int *tested,
-			      const char *impl)
+void sha3_512_selftest_common(const struct lc_hash *sha3_512)
 {
 	static const uint8_t msg_512[] = { 0x82, 0xD9, 0x19 };
 	static const uint8_t exp_512[] = {
@@ -91,14 +91,14 @@ void sha3_512_selftest_common(const struct lc_hash *sha3_512, int *tested,
 	};
 	uint8_t act[LC_SHA3_512_SIZE_DIGEST];
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_SHA3);
 
-	lc_hash(sha3_512, msg_512, sizeof(msg_512), act);
-	lc_compare_selftest(act, exp_512, sizeof(exp_512), impl);
+	lc_hash_nocheck(sha3_512, msg_512, sizeof(msg_512), act);
+	lc_compare_selftest(LC_ALG_STATUS_SHA3, act, exp_512, sizeof(exp_512),
+			    "SHA3-512");
 }
 
-void shake128_selftest_common(const struct lc_hash *shake128, int *tested,
-			      const char *impl)
+void shake128_selftest_common(const struct lc_hash *shake128)
 {
 	static const uint8_t msg[] = {
 		0xBE, 0x94, 0xD8, 0x3D, 0x37, 0x66, 0xCF,
@@ -109,14 +109,14 @@ void shake128_selftest_common(const struct lc_hash *shake128, int *tested,
 				       0x5D, 0xBD, 0x22, 0x39 };
 	uint8_t act[sizeof(exp)];
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_SHAKE);
 
-	lc_xof(shake128, msg, sizeof(msg), act, sizeof(act));
-	lc_compare_selftest(act, exp, sizeof(exp), impl);
+	lc_xof_nocheck(shake128, msg, sizeof(msg), act, sizeof(act));
+	lc_compare_selftest(LC_ALG_STATUS_SHAKE, act, exp, sizeof(exp),
+			    "SHAKE-128");
 }
 
-void shake256_selftest_common(const struct lc_hash *shake256, int *tested,
-			      const char *impl)
+void shake256_selftest_common(const struct lc_hash *shake256)
 {
 	static const uint8_t msg[] = { 0x6C, 0x9E, 0xC8, 0x5C, 0xBA, 0xBA, 0x62,
 				       0xF5, 0xBC, 0xFE, 0xA1, 0x9E, 0xB9, 0xC9,
@@ -130,14 +130,14 @@ void shake256_selftest_common(const struct lc_hash *shake256, int *tested,
 				       0xef, 0x2d, 0xe5, 0xaa, 0x6c };
 	uint8_t act[sizeof(exp)];
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_SHAKE);
 
-	lc_xof(shake256, msg, sizeof(msg), act, sizeof(act));
-	lc_compare_selftest(act, exp, sizeof(exp), impl);
+	lc_xof_nocheck(shake256, msg, sizeof(msg), act, sizeof(act));
+	lc_compare_selftest(LC_ALG_STATUS_SHAKE, act, exp, sizeof(exp),
+			    "SHAKE-256");
 }
 
-void cshake128_selftest_common(const struct lc_hash *cshake128, int *tested,
-			       const char *impl)
+void cshake128_selftest_common(const struct lc_hash *cshake128)
 {
 	static const uint8_t msg[] = { 0x0C, 0x77, 0x8C, 0x22, 0x60,
 				       0xCA, 0xE8, 0x28, 0xA0 };
@@ -164,20 +164,20 @@ void cshake128_selftest_common(const struct lc_hash *cshake128, int *tested,
 				       0x3b, 0xf8, 0xc6, 0xcd, 0x35, 0xfe };
 	uint8_t act[sizeof(exp)];
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_CSHAKE);
 
 	LC_HASH_CTX_ON_STACK(ctx, cshake128);
 
-	lc_cshake_init(ctx, NULL, 0, cust, sizeof(cust));
+	lc_cshake_init_nocheck(ctx, NULL, 0, cust, sizeof(cust));
 	lc_hash_update(ctx, msg, sizeof(msg));
 	lc_hash_set_digestsize(ctx, sizeof(act));
 	lc_hash_final(ctx, act);
-	lc_compare_selftest(act, exp, sizeof(exp), impl);
+	lc_compare_selftest(LC_ALG_STATUS_CSHAKE, act, exp, sizeof(exp),
+			    "cSHAKE-128");
 	lc_hash_zero(ctx);
 }
 
-void cshake256_selftest_common(const struct lc_hash *cshake256, int *tested,
-			       const char *impl)
+void cshake256_selftest_common(const struct lc_hash *cshake256)
 {
 	static const uint8_t msg[] = { 0xAF, 0x98, 0xC2, 0x12, 0x96, 0x1A,
 				       0xAA, 0x55, 0xBD, 0x3C, 0x61, 0xF1 };
@@ -207,14 +207,15 @@ void cshake256_selftest_common(const struct lc_hash *cshake256, int *tested,
 	};
 	uint8_t act[sizeof(exp)];
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_CSHAKE);
 
 	LC_HASH_CTX_ON_STACK(ctx, cshake256);
 
-	lc_cshake_init(ctx, NULL, 0, cust, sizeof(cust));
+	lc_cshake_init_nocheck(ctx, NULL, 0, cust, sizeof(cust));
 	lc_hash_update(ctx, msg, sizeof(msg));
 	lc_hash_set_digestsize(ctx, sizeof(act));
 	lc_hash_final(ctx, act);
-	lc_compare_selftest(act, exp, sizeof(exp), impl);
+	lc_compare_selftest(LC_ALG_STATUS_CSHAKE, act, exp, sizeof(exp),
+			    "cSHAKE-256");
 	lc_hash_zero(ctx);
 }

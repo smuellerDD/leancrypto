@@ -40,11 +40,11 @@ static int hc_tester_sha512_large(void)
 
 	CKINT(test_mem(&pt, &len));
 
-	lc_aead_setkey(hc, key, sizeof(key), NULL, 0);
+	CKINT(lc_aead_setkey(hc, key, sizeof(key), NULL, 0));
 	lc_aead_encrypt(hc, pt, pt, len, aad, sizeof(aad), tag, sizeof(tag));
 	lc_aead_zero(hc);
 
-	lc_aead_setkey(hc, key, sizeof(key), NULL, 0);
+	CKINT(lc_aead_setkey(hc, key, sizeof(key), NULL, 0));
 	ret = lc_aead_decrypt(hc, pt, pt, len, aad, sizeof(aad), tag,
 			      sizeof(tag));
 	lc_aead_zero(hc);

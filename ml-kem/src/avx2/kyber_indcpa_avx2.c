@@ -283,6 +283,7 @@ static int gen_matrix(polyvec *a, const uint8_t seed[LC_KYBER_SYMBYTES],
 {
 	keccakx4_state state;
 	unsigned int ctr0, ctr1, ctr2, ctr3;
+	int ret;
 	__m256i f;
 #define BUFSIZE (REJ_UNIFORM_AVX_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK)
 	__m256i *vec0 = (__m256i *)ws_buf;
@@ -426,7 +427,7 @@ static int gen_matrix(polyvec *a, const uint8_t seed[LC_KYBER_SYMBYTES],
 	coeffs0[32] = 2;
 	coeffs0[33] = 2;
 
-	lc_hash_init(shake_128);
+	CKINT(lc_hash_init(shake_128));
 	lc_hash_update(shake_128, coeffs0, 34);
 	lc_hash_set_digestsize(shake_128, REJ_UNIFORM_AVX_NBLOCKS *
 						  LC_SHAKE_128_SIZE_BLOCK);
@@ -444,6 +445,7 @@ static int gen_matrix(polyvec *a, const uint8_t seed[LC_KYBER_SYMBYTES],
 
 	poly_nttunpack_avx(&a[2].vec[2]);
 
+out:
 	return 0;
 }
 #else
@@ -483,7 +485,7 @@ int indcpa_keypair_avx(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 	poison(noiseseed, LC_KYBER_SYMBYTES);
 
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, buf, LC_KYBER_SYMBYTES));
-	lc_hash_init(sha3_512_ctx);
+	CKINT(lc_hash_init(sha3_512_ctx));
 	lc_hash_update(sha3_512_ctx, buf, LC_KYBER_SYMBYTES);
 	lc_hash_update(sha3_512_ctx, &kval, sizeof(kval));
 	lc_hash_final(sha3_512_ctx, buf);

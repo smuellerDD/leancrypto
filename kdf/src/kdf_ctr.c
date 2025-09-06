@@ -28,11 +28,14 @@
 #include "timecop.h"
 #include "visibility.h"
 
+static int lc_kdf_ctr_init_nocheck(struct lc_hmac_ctx *hmac_ctx,
+				   const uint8_t *key, size_t keylen);
+
 /*
  * From
  * http://csrc.nist.gov/groups/STM/cavp/documents/KBKDF800-108/CounterMode.zip
  */
-static void lc_kdf_ctr_selftest(int *tested, const char *impl)
+static void lc_kdf_ctr_selftest(void)
 {
 	static const uint8_t key[] = { 0xdd, 0x1d, 0x91, 0xb7, 0xd9, 0x0b, 0x2b,
 				       0xd3, 0x13, 0x85, 0x33, 0xce, 0x92, 0xb2,
@@ -51,12 +54,14 @@ static void lc_kdf_ctr_selftest(int *tested, const char *impl)
 				       0xfd, 0x40, 0x04, 0x6c, 0x0e, 0x29,
 				       0xf2, 0xcf, 0xdb, 0xf0 };
 	uint8_t act[sizeof(exp)];
+	LC_HMAC_CTX_ON_STACK(hmac_ctx, lc_sha256);
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_CTR_KDF);
 
-	lc_kdf_ctr(lc_sha256, key, sizeof(key), label, sizeof(label), act,
-		   sizeof(act));
-	lc_compare_selftest(act, exp, sizeof(exp), impl);
+	lc_kdf_ctr_init_nocheck(hmac_ctx, key, sizeof(key));
+	lc_kdf_ctr_generate(hmac_ctx, label, sizeof(label), act, sizeof(act));
+	lc_compare_selftest(LC_ALG_STATUS_CTR_KDF, act, exp, sizeof(exp),
+			    "SP800-108 CTR KDF");
 }
 
 static int lc_kdf_ctr_generate_internal(struct lc_hmac_ctx *hmac_ctx,
@@ -126,14 +131,19 @@ LC_INTERFACE_FUNCTION(int, lc_kdf_ctr_generate, struct lc_hmac_ctx *hmac_ctx,
 					    dlen, &counter);
 }
 
+static int lc_kdf_ctr_init_nocheck(struct lc_hmac_ctx *hmac_ctx,
+				   const uint8_t *key, size_t keylen)
+{
+	return lc_hmac_init(hmac_ctx, key, keylen);
+}
+
 LC_INTERFACE_FUNCTION(int, lc_kdf_ctr_init, struct lc_hmac_ctx *hmac_ctx,
 		      const uint8_t *key, size_t keylen)
 {
-	static int tested = 0;
+	lc_kdf_ctr_selftest();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_CTR_KDF);
 
-	lc_kdf_ctr_selftest(&tested, "SP800-108 CTR KDF");
-	lc_hmac_init(hmac_ctx, key, keylen);
-	return 0;
+	return lc_kdf_ctr_init_nocheck(hmac_ctx, key, keylen);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_kdf_ctr, const struct lc_hash *hash,

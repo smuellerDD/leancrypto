@@ -32,7 +32,7 @@ struct lc_mode_state {
 	uint8_t iv[AES_BLOCKLEN];
 };
 
-void mode_cbc_selftest(const struct lc_sym *aes, int *tested, const char *impl);
+void mode_cbc_selftest(const struct lc_sym *aes);
 
 extern const struct lc_sym_mode *lc_mode_cbc_c;
 

@@ -62,11 +62,13 @@ static void aes_armce_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 	LC_NEON_DISABLE;
 }
 
-static void aes_armce_init(struct lc_sym_state *ctx)
+static int aes_armce_init(struct lc_sym_state *ctx)
 {
 	(void)ctx;
 
 	BUILD_BUG_ON(LC_AES_ARMCE_MAX_BLOCK_SIZE < LC_AES_BLOCK_SIZE);
+
+	return 0;
 }
 
 static int aes_armce_setkey(struct lc_sym_state *ctx, const uint8_t *key,
@@ -99,6 +101,7 @@ static int aes_armce_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 
 static struct lc_sym _lc_aes_armce = {
 	.init = aes_armce_init,
+	.init_nocheck = NULL,
 	.setkey = aes_armce_setkey,
 	.setiv = aes_armce_setiv,
 	.encrypt = aes_armce_encrypt,

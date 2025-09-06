@@ -56,9 +56,11 @@ extern "C" {
  *		 to define a variant of the function. When no customization is
  *		 desired, S is set to the empty string.
  * @param [in] slen Length of s
+ *
+ * @return 0 on success; < 0 on error
  */
-void lc_cshake_init(struct lc_hash_ctx *ctx, const uint8_t *n, size_t nlen,
-		    const uint8_t *s, size_t slen);
+int lc_cshake_init(struct lc_hash_ctx *ctx, const uint8_t *n, size_t nlen,
+		   const uint8_t *s, size_t slen);
 
 /**
  * @brief Generate a cSHAKE message digest from a given state.
@@ -127,9 +129,11 @@ struct lc_cshake_ctx {
  *		 to define a variant of the function. When no customization is
  *		 desired, S is set to the empty string.
  * @param [in] slen Length of s
+ *
+ * @return 0 on success; < 0 on error
  */
-void lc_cshake_ctx_init(struct lc_cshake_ctx *cshake_ctx, const uint8_t *n,
-			size_t nlen, const uint8_t *s, size_t slen);
+int lc_cshake_ctx_init(struct lc_cshake_ctx *cshake_ctx, const uint8_t *n,
+		       size_t nlen, const uint8_t *s, size_t slen);
 
 /**
  * @brief Re-initialize CSHAKE context after a cshake_final operation

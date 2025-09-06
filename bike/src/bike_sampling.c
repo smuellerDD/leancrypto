@@ -152,7 +152,7 @@ int generate_secret_key(pad_r_t *h0, pad_r_t *h1, idx_t *h0_wlist,
 
 	sampling_ctx_init(&ctx);
 
-	lc_hash_init(prf_state);
+	CKINT(lc_hash_init(prf_state));
 	lc_hash_update(prf_state, seed->raw, sizeof(*seed));
 
 	CKINT(generate_sparse_rep_for_sk(h0, h0_wlist, prf_state, &ctx));
@@ -166,16 +166,16 @@ out:
 int generate_error_vector(pad_e_t *e, const seed_t *seed)
 {
 	// Initialize the sampling context.
+	idx_t wlist[LC_BIKE_T];
 	sampling_ctx ctx;
 	int ret;
 	LC_SHAKE_256_CTX_ON_STACK(prf_state);
 
 	sampling_ctx_init(&ctx);
 
-	lc_hash_init(prf_state);
+	CKINT(lc_hash_init(prf_state));
 	lc_hash_update(prf_state, seed->raw, sizeof(*seed));
 
-	idx_t wlist[LC_BIKE_T];
 #if defined(UNIFORM_SAMPLING)
 	ctx.sample_error_vec_indices(wlist, prf_state);
 #else

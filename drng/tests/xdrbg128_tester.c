@@ -82,7 +82,8 @@ static int xdrbg128_drng_selftest(struct lc_rng_ctx *xdrbg128_ctx)
 	/* Prepare the state in the DRNG */
 	lc_rng_seed(xdrbg128_ctx, seed, sizeof(seed), NULL, 0);
 	/* Prepare the state with native Ascon operations */
-	lc_hash_init(xdrbg128_compare);
+	if (lc_hash_init(xdrbg128_compare))
+		return 1;
 	unpoison(seed, sizeof(seed));
 	lc_hash_update(xdrbg128_compare, seed, sizeof(seed));
 	encode = 0;
@@ -94,7 +95,8 @@ static int xdrbg128_drng_selftest(struct lc_rng_ctx *xdrbg128_ctx)
 			  "Ascon DRNG state generation");
 
 	/* Verify the generate operation */
-	lc_hash_init(xdrbg128_compare);
+	if (lc_hash_init(xdrbg128_compare))
+		return 1;
 	/* Use the already generated state from above */
 	lc_hash_update(xdrbg128_compare, compare1, LC_XDRBG128_DRNG_KEYSIZE);
 	encode = 2 * 85;
@@ -139,7 +141,8 @@ static int xdrbg128_drng_selftest(struct lc_rng_ctx *xdrbg128_ctx)
 	lc_rng_zero(xdrbg128_ctx);
 
 	/* Verify the generate operation with additional data */
-	lc_hash_init(xdrbg128_compare);
+	if (lc_hash_init(xdrbg128_compare))
+		return 1;
 
 	/* Verify: Seeding operation of the DRBG */
 	unpoison(seed, sizeof(seed));
@@ -151,7 +154,8 @@ static int xdrbg128_drng_selftest(struct lc_rng_ctx *xdrbg128_ctx)
 	lc_hash_set_digestsize(xdrbg128_compare, LC_XDRBG128_DRNG_KEYSIZE);
 	lc_hash_final(xdrbg128_compare, compare1);
 
-	lc_hash_init(xdrbg128_compare);
+	if (lc_hash_init(xdrbg128_compare))
+		return 1;
 	/* Verify: Generate operation of the DRBG: Insert key */
 	lc_hash_update(xdrbg128_compare, compare1, LC_XDRBG128_DRNG_KEYSIZE);
 	/* Verify: Generate operation of the DRBG: Insert alpha of 84 bytes */
@@ -197,8 +201,33 @@ out:
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	char status[900];
+	int ret;
+
 	(void)argc;
 	(void)argv;
 
-	return xdrbg128_drng_test();
+	ret = xdrbg128_drng_test();
+
+	if (lc_status_get_result(LC_ALG_STATUS_XDRBG128) !=
+	    lc_alg_status_result_passed) {
+		printf("XDRBG128 self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_XDRBG128));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_ASCONXOF) !=
+	    lc_alg_status_result_passed) {
+		printf("Ascon XOF self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_ASCON256));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
+
+	return ret;
 }

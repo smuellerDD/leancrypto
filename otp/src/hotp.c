@@ -45,7 +45,8 @@ LC_INTERFACE_FUNCTION(void, lc_hotp, const uint8_t *hmac_key,
 	counter = be_bswap64(counter);
 
 	/* HMAC */
-	lc_hmac_init(ctx256, hmac_key, hmac_key_len);
+	if (lc_hmac_init(ctx256, hmac_key, hmac_key_len))
+		goto out;
 	lc_hmac_update(ctx256, (uint8_t *)&counter, sizeof(counter));
 	lc_hmac_final(ctx256, md);
 	lc_hmac_zero(ctx256);
@@ -59,5 +60,6 @@ LC_INTERFACE_FUNCTION(void, lc_hotp, const uint8_t *hmac_key,
 
 	*hotp_val = truncated % modulo;
 
+out:
 	lc_memset_secure(md, 0, sizeof(md));
 }

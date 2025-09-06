@@ -57,98 +57,86 @@
 #include "../tests/sphincs_tester_vectors_shake_256s.h"
 #endif
 
-static inline int _sphincs_selftest_keygen(void)
+static int _sphincs_selftest_keygen(void)
 {
 	struct workspace {
 		struct lc_sphincs_pk pk;
 		struct lc_sphincs_sk sk;
 	};
 	const struct lc_sphincs_test *tc = &tests[0];
-	int ret;
 	struct lc_static_rng_data s_rng_state;
 	LC_STATIC_DRNG_ON_STACK(s_drng, &s_rng_state);
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	s_rng_state.seed = tc->seed;
 	s_rng_state.seedlen = sizeof(tc->seed);
-	CKINT(lc_sphincs_keypair(&ws->pk, &ws->sk, &s_drng));
+	if (lc_sphincs_keypair_nocheck(&ws->pk, &ws->sk, &s_drng))
+		goto out;
 
 	/*
 	 * IG 10.3.A: it is not required to validate pk as it is part of sk.
 	 */
 #if 0
-	lc_compare_selftest((uint8_t *)&ws->pk, tc->pk, sizeof(tc->pk), "PK");
+	if (lc_compare_selftest(LC_ALG_STATUS_SLHDSA_KEYGEN, (uint8_t *)&ws->pk,
+				tc->pk, sizeof(tc->pk), "SLH-DSA keygen PK"))
+		goto out;
 #endif
-	lc_compare_selftest((uint8_t *)&ws->sk, tc->sk, sizeof(tc->sk), "SK");
+	lc_compare_selftest(LC_ALG_STATUS_SLHDSA_KEYGEN, (uint8_t *)&ws->sk,
+			    tc->sk, sizeof(tc->sk), "SLH-DSA keygen SK");
 
 out:
 	LC_RELEASE_MEM(ws);
-	return ret;
+	return 0;
 }
 
-void sphincs_selftest_keygen(int *tested)
+void sphincs_selftest_keygen(void)
 {
-	LC_SELFTEST_RUN(tested);
-
-	if (_sphincs_selftest_keygen())
-		lc_compare_selftest((uint8_t *)"test", (uint8_t *)"fail", 4,
-				    "Return code");
+	LC_SELFTEST_RUN(LC_ALG_STATUS_SLHDSA_KEYGEN);
+	_sphincs_selftest_keygen();
 }
 
-static inline int _sphincs_selftest_siggen(void)
+static int _sphincs_selftest_siggen(void)
 {
 	struct workspace {
 		struct lc_sphincs_sig sig;
 	};
 	const struct lc_sphincs_test *tc = &tests[0];
-	int ret;
 	LC_SPHINCS_CTX_ON_STACK(ctx);
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	CKINT(lc_sphincs_sign_ctx(&ws->sig, ctx, tc->msg, sizeof(tc->msg),
-				  (struct lc_sphincs_sk *)tc->sk, NULL));
-	lc_compare((uint8_t *)&ws->sig, tc->sig, sizeof(tc->sig), "SIG");
+	if (lc_sphincs_sign_ctx_nocheck(&ws->sig, ctx, tc->msg, sizeof(tc->msg),
+					(struct lc_sphincs_sk *)tc->sk, NULL))
+		goto out;
+
+	lc_compare_selftest(LC_ALG_STATUS_SLHDSA_SIGGEN, (uint8_t *)&ws->sig,
+			    tc->sig, sizeof(tc->sig), "SLH-DSA siggen");
 
 out:
 	lc_sphincs_ctx_zero(ctx);
 	LC_RELEASE_MEM(ws);
-	return ret;
+	return 0;
 }
 
-void sphincs_selftest_siggen(int *tested)
+void sphincs_selftest_siggen(void)
 {
-	LC_SELFTEST_RUN(tested);
-
-	if (_sphincs_selftest_siggen())
-		lc_compare_selftest((uint8_t *)"test", (uint8_t *)"fail", 4,
-				    "Return code");
+	LC_SELFTEST_RUN(LC_ALG_STATUS_SLHDSA_SIGGEN);
+	_sphincs_selftest_siggen();
 }
 
-static inline int _sphincs_selftest_sigver(void)
+void sphincs_selftest_sigver(void)
 {
-	struct workspace {
-		struct lc_sphincs_pk pk;
-		struct lc_sphincs_sk sk;
-		struct lc_sphincs_sig sig;
-	};
 	const struct lc_sphincs_test *tc = &tests[0];
-	int ret;
+	int ret, exp;
 	LC_SPHINCS_CTX_ON_STACK(ctx);
 
-	CKINT(lc_sphincs_verify_ctx((struct lc_sphincs_sig *)tc->sig, ctx,
-				    tc->msg, sizeof(tc->msg),
-				    (struct lc_sphincs_pk *)tc->pk));
+	LC_SELFTEST_RUN(LC_ALG_STATUS_SLHDSA_SIGVER);
 
-out:
+	exp = 0;
+	ret = lc_sphincs_verify_ctx_nocheck((struct lc_sphincs_sig *)tc->sig,
+					    ctx, tc->msg, sizeof(tc->msg),
+					    (struct lc_sphincs_pk *)tc->pk);
 	lc_sphincs_ctx_zero(ctx);
-	return ret;
-}
 
-void sphincs_selftest_sigver(int *tested)
-{
-	LC_SELFTEST_RUN(tested);
-
-	if (_sphincs_selftest_sigver())
-		lc_compare_selftest((uint8_t *)"test", (uint8_t *)"fail", 4,
-				    "Return code");
+	lc_compare_selftest(LC_ALG_STATUS_SLHDSA_SIGVER, (uint8_t *)&ret,
+			    (uint8_t *)&exp, sizeof(ret), "SLH-DSA sigver");
 }

@@ -57,11 +57,13 @@ static void aes_riscv64_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 	aes_riscv64_decrypt_asm(in, out, &ctx->dec_block_ctx);
 }
 
-static void aes_riscv64_init(struct lc_sym_state *ctx)
+static int aes_riscv64_init(struct lc_sym_state *ctx)
 {
 	(void)ctx;
 
 	BUILD_BUG_ON(LC_AES_RISCV64_MAX_BLOCK_SIZE < LC_AES_BLOCK_SIZE);
+
+	return 0;
 }
 
 static int aes_riscv64_setkey(struct lc_sym_state *ctx, const uint8_t *key,
@@ -107,6 +109,7 @@ static int aes_riscv64_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 
 static struct lc_sym _lc_aes_riscv64 = {
 	.init = aes_riscv64_init,
+	.init_nocheck = NULL,
 	.setkey = aes_riscv64_setkey,
 	.setiv = aes_riscv64_setiv,
 	.encrypt = aes_riscv64_encrypt,
@@ -118,6 +121,7 @@ LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_riscv64) = &_lc_aes_riscv64;
 
 static struct lc_sym _lc_aes_riscv64_enc_only = {
 	.init = aes_riscv64_init,
+	.init_nocheck = NULL,
 	.setkey = aes_riscv64_setkey_enc_only,
 	.setiv = aes_riscv64_setiv,
 	.encrypt = aes_riscv64_encrypt,

@@ -29,11 +29,13 @@
 #include "timecop.h"
 #include "visibility.h"
 
+static int lc_kdf_fb_init_nocheck(struct lc_hmac_ctx *hmac_ctx,
+				  const uint8_t *key, size_t keylen);
 /*
  * From
  * http://csrc.nist.gov/groups/STM/cavp/documents/KBKDF800-108/FeedbackModeNOzeroiv.zip
  */
-static void lc_kdf_fb_selftest(int *tested, const char *impl)
+static void lc_kdf_fb_selftest(void)
 {
 	static const uint8_t key[] = { 0x51, 0x5D, 0x42, 0x18, 0x50, 0x32,
 				       0xD6, 0x3D, 0x41, 0x89, 0x23, 0x71,
@@ -51,12 +53,16 @@ static void lc_kdf_fb_selftest(int *tested, const char *impl)
 					 0x35, 0xb0 };
 	static const uint8_t exp[] = { 0xaa };
 	uint8_t act[sizeof(exp)];
+	LC_HMAC_CTX_ON_STACK(hmac_ctx, lc_sha256);
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_FB_KDF);
 
-	lc_kdf_fb(lc_sha256, key, sizeof(key), iv, sizeof(iv), label,
-		  sizeof(label), act, sizeof(act));
-	lc_compare_selftest(act, exp, sizeof(exp), impl);
+	lc_kdf_fb_init_nocheck(hmac_ctx, key, sizeof(key));
+	lc_kdf_fb_generate(hmac_ctx, iv, sizeof(iv), label, sizeof(label),
+			   act, sizeof(act));
+
+	lc_compare_selftest(LC_ALG_STATUS_FB_KDF, act, exp, sizeof(exp),
+			    "SP800-108 FB KDF");
 }
 
 LC_INTERFACE_FUNCTION(int, lc_kdf_fb_generate, struct lc_hmac_ctx *hmac_ctx,
@@ -120,14 +126,19 @@ out:
 	return 0;
 }
 
+static int lc_kdf_fb_init_nocheck(struct lc_hmac_ctx *hmac_ctx,
+				  const uint8_t *key, size_t keylen)
+{
+	return lc_hmac_init(hmac_ctx, key, keylen);
+}
+
 LC_INTERFACE_FUNCTION(int, lc_kdf_fb_init, struct lc_hmac_ctx *hmac_ctx,
 		      const uint8_t *key, size_t keylen)
 {
-	static int tested = 0;
+	lc_kdf_fb_selftest();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_FB_KDF);
 
-	lc_kdf_fb_selftest(&tested, "SP800-108 FB KDF");
-	lc_hmac_init(hmac_ctx, key, keylen);
-	return 0;
+	return lc_kdf_fb_init_nocheck(hmac_ctx, key, keylen);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_kdf_fb, const struct lc_hash *hash,

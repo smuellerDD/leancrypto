@@ -29,7 +29,9 @@
 #include "timecop.h"
 #include "visibility.h"
 
-static void lc_kh_selftest(int *tested, const char *impl)
+static int lc_kh_setkey_nocheck(void *state, const uint8_t *key, size_t keylen,
+				const uint8_t *iv, size_t ivlen);
+static void lc_kh_selftest(void)
 {
 	static const uint8_t in[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
@@ -69,25 +71,31 @@ static void lc_kh_selftest(int *tested, const char *impl)
 	};
 	uint8_t act_ct[sizeof(exp_ct)] __align(sizeof(uint32_t));
 	uint8_t act_tag[sizeof(exp_tag)] __align(sizeof(uint32_t));
-	char status[25];
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_SYM_KMAC);
 
 	LC_KH_CTX_ON_STACK(sh, lc_aes_cbc, lc_cshake256);
 
-	lc_aead_setkey(sh, key, sizeof(key), in, 16);
+	if (lc_kh_setkey_nocheck(sh->aead_state, key, sizeof(key), in, 16))
+		goto out;
 	lc_aead_encrypt(sh, in, act_ct, sizeof(in), in, sizeof(in), act_tag,
 			sizeof(act_tag));
-	snprintf(status, sizeof(status), "%s encrypt", impl);
-	lc_compare_selftest(act_ct, exp_ct, sizeof(exp_ct), status);
-	lc_compare_selftest(act_tag, exp_tag, sizeof(exp_tag), status);
+	if (lc_compare_selftest(LC_ALG_STATUS_SYM_KMAC, act_ct, exp_ct,
+				sizeof(exp_ct), "Sym/KMAC AEAD encrypt"))
+		goto out;
+	if (lc_compare_selftest(LC_ALG_STATUS_SYM_KMAC, act_tag, exp_tag,
+				sizeof(exp_tag), "Sym/KMAC AEAD tag"))
+		goto out;
 	lc_aead_zero(sh);
 
-	lc_aead_setkey(sh, key, sizeof(key), in, 16);
+	if (lc_kh_setkey_nocheck(sh->aead_state, key, sizeof(key), in, 16))
+		goto out;
 	lc_aead_decrypt(sh, act_ct, act_ct, sizeof(act_ct), in, sizeof(in),
 			act_tag, sizeof(act_tag));
-	snprintf(status, sizeof(status), "%s decrypt", impl);
-	lc_compare_selftest(act_ct, in, sizeof(in), status);
+	lc_compare_selftest(LC_ALG_STATUS_SYM_KMAC, act_ct, in, sizeof(in),
+			    "Sym/KMAC AEAD decrypt");
+
+out:
 	lc_aead_zero(sh);
 }
 
@@ -104,8 +112,8 @@ static void lc_kh_selftest(int *tested, const char *impl)
  * The algorithm supports a key of arbitrary size. The only requirement is that
  * the same key is used for decryption as for encryption.
  */
-static int lc_kh_setkey(void *state, const uint8_t *key, size_t keylen,
-			const uint8_t *iv, size_t ivlen)
+static int lc_kh_setkey_nocheck(void *state, const uint8_t *key, size_t keylen,
+				const uint8_t *iv, size_t ivlen)
 {
 	struct lc_kh_cryptor *kh = state;
 	struct lc_sym_ctx *sym = &kh->sym;
@@ -113,26 +121,32 @@ static int lc_kh_setkey(void *state, const uint8_t *key, size_t keylen,
 	struct lc_hash_ctx *hash_ctx = &auth_ctx->hash_ctx;
 	const struct lc_hash *hash_algo = hash_ctx->hash;
 	uint8_t keystream[(256 / 8) * 2];
-	static int tested = 0;
 	int ret;
 
-	lc_kh_selftest(&tested, "Sym/KMAC AEAD");
-
-	lc_kmac_xof(hash_algo, key, keylen, NULL, 0, NULL, 0, keystream,
-		    sizeof(keystream));
+	CKINT(lc_kmac_xof(hash_algo, key, keylen, NULL, 0, NULL, 0, keystream,
+			  sizeof(keystream)));
 
 	/* Initialize the symmetric algorithm */
-	lc_sym_init(sym);
+	CKINT(lc_sym_init(sym));
 	CKINT(lc_sym_setkey(sym, keystream, sizeof(keystream) / 2));
 	CKINT(lc_sym_setiv(sym, iv, ivlen));
 
 	/* Initialize the authentication algorithm */
-	lc_kmac_init(auth_ctx, keystream + sizeof(keystream) / 2,
-		     sizeof(keystream) / 2, NULL, 0);
+	CKINT(lc_kmac_init(auth_ctx, keystream + sizeof(keystream) / 2,
+			   sizeof(keystream) / 2, NULL, 0));
 
 out:
 	lc_memset_secure(keystream, 0, sizeof(keystream));
 	return ret;
+}
+
+static int lc_kh_setkey(void *state, const uint8_t *key, size_t keylen,
+			const uint8_t *iv, size_t ivlen)
+{
+	lc_kh_selftest();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SYM_KMAC);
+
+	return lc_kh_setkey_nocheck(state, key, keylen, iv, ivlen);
 }
 
 static void lc_kh_add_aad(void *state, const uint8_t *aad, size_t aadlen)

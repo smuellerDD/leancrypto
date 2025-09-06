@@ -88,7 +88,40 @@ static int kdf_dpi_tester(void)
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	char status[900];
+	int ret;
+
 	(void)argc;
 	(void)argv;
-	return kdf_dpi_tester();
+
+	ret = kdf_dpi_tester();
+
+	if (lc_status_get_result(LC_ALG_STATUS_DPI_KDF) !=
+	    lc_alg_status_result_passed) {
+		printf("DPI-KDF self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_DPI_KDF));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_HMAC) !=
+	    lc_alg_status_result_passed) {
+		printf("HMAC self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_HMAC));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_SHA256) !=
+	    lc_alg_status_result_passed) {
+		printf("SHA-256 self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_SHA256));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
+
+	return ret;
 }

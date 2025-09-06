@@ -76,6 +76,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_AES_CBC)					       \
 endif
 
 ifdef CONFIG_LEANCRYPTO_AES_CBC
+ccflags-y			+= -DCONFIG_LEANCRYPTO_AES_CBC
 obj-m				+= aes_cbc_dec_tester.o
 obj-m				+= aes_cbc_enc_tester.o
 aes_cbc_dec_tester-y		+= ../sym/tests/aes_cbc_dec_tester.o
@@ -111,6 +112,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_AES_CTR)					       \
 endif
 
 ifdef CONFIG_LEANCRYPTO_AES_CTR
+ccflags-y			+= -DCONFIG_LEANCRYPTO_AES_CTR
 obj-m		  		+= aes_ctr_tester.o
 aes_ctr_tester-y		+= ../sym/tests/aes_ctr_tester.o
 endif
@@ -144,6 +146,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_AES_KW)					       \
 endif
 
 ifdef CONFIG_LEANCRYPTO_AES_KW
+ccflags-y			+= -DCONFIG_LEANCRYPTO_AES_KW
 obj-m				+= aes_kw_tester.o
 aes_kw_tester-y			+= ../sym/tests/aes_kw_tester.o
 endif
@@ -177,6 +180,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_AES_XTS)					       \
 endif
 
 ifdef CONFIG_LEANCRYPTO_AES_XTS
+ccflags-y			+= -DCONFIG_LEANCRYPTO_AES_XTS
 obj-m				+= aes_xts_tester.o
 aes_xts_tester-y		+= ../sym/tests/aes_xts_tester.o
 endif

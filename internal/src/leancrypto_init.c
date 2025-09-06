@@ -58,5 +58,7 @@ LC_INIT_FUNCTION(int, lc_init, unsigned int flags)
 	chacha20_fastest_impl();
 #endif
 
+	lc_activate_library();
+
 	return 0;
 }

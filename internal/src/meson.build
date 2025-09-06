@@ -4,11 +4,12 @@ internal_src += files([
 	'left_encode.c',
 	'memcpy_secure_c.c',
 	'null_buffer.c',
+	'status_algorithms.c'
 ])
 
 src_fips += files([
 	'fips_integrity_check.c',
-	'leancrypto_init.c',
+	'leancrypto_init.c'
 ])
 
 if get_option('efi').disabled()

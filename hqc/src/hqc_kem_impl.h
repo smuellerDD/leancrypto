@@ -27,6 +27,7 @@
 #define HQC_KEM_IMPL_H
 
 #include "build_bug_on.h"
+#include "compare.h"
 #include "hqc.h"
 #include "hqc_pct.h"
 #include "hqc_selftest.h"
@@ -68,10 +69,8 @@ static inline int lc_hqc_keypair_impl(
 	int (*pke_keygen)(struct lc_hqc_pk *pk, struct lc_hqc_sk *sk,
 			  struct lc_rng_ctx *rng_ctx))
 {
-	static int tester = 0;
 	int ret;
 
-	hqc_kem_keygen_selftest(&tester, "HQC KEM keypair C", lc_hqc_keypair);
 	CKINT(pke_keygen(pk, sk, rng_ctx));
 
 	CKINT(lc_hqc_pct_fips(pk, sk));
@@ -98,7 +97,8 @@ static inline void hqc_shake256_512(struct lc_hash_ctx *shake256,
 				    uint8_t *output, const uint8_t *input,
 				    size_t inlen, uint8_t domain)
 {
-	lc_hash_init(shake256);
+	if (lc_hash_init(shake256))
+		return;
 	lc_hash_update(shake256, input, inlen);
 	lc_hash_update(shake256, &domain, 1);
 	lc_hash_set_digestsize(shake256, LC_HQC_SHAKE256_512_BYTES);
@@ -181,9 +181,6 @@ lc_hqc_enc_impl(struct lc_hqc_ct *ct, struct lc_hqc_ss *ss,
 				    uint8_t *theta, const uint8_t *pk,
 				    struct hqc_pke_encrypt_ws *ws))
 {
-	static int tester = 0;
-
-	hqc_kem_enc_selftest(&tester, "HQC KEM enc C", lc_hqc_enc_internal);
 	return lc_hqc_enc_internal_impl(ct, ss, pk, lc_seeded_rng, pke_encrypt);
 }
 
@@ -233,16 +230,14 @@ static inline int lc_hqc_dec_impl(
 			struct hqc_pke_encrypt_ws hqc_encrypt_pke_ws;
 		} wsu;
 	};
-	static int tester = 0;
 	const uint8_t *pk =
 		sk->sk + LC_HQC_SEED_BYTES + LC_HQC_VEC_K_SIZE_BYTES;
 	uint8_t *m, *salt;
 	uint8_t result;
 	LC_SHAKE_256_CTX_ON_STACK(shake256);
+
 	/* For AVX2, the alignment is set to sizeof(__m256i) */
 	LC_DECLARE_MEM(ws, struct workspace, 32);
-
-	hqc_kem_dec_selftest(&tester, "HQC KEM dec C", lc_hqc_dec);
 
 	poison(sk->sk, sizeof(sk->sk));
 

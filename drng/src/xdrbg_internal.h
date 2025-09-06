@@ -29,13 +29,15 @@
 #ifdef CONFIG_LEANCRYPTO_ASCON_HASH
 #define LC_DRNG_XDRBG128
 #endif
-#else /* LINUX_KERNEL */
-#include "lc_drng_config.h"
 #endif /* LINUX_KERNEL */
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+int lc_xdrbg_drng_seed_nocheck(void *_state, const uint8_t *seed,
+			       size_t seedlen, const uint8_t *alpha,
+			       size_t alphalen);
 
 #if (!defined(LC_DRNG_XDRBG256) && !defined(LC_DRNG_XDRBG128))
 #pragma message                                                                \
@@ -43,22 +45,18 @@ extern "C" {
 #endif
 
 #ifdef LC_DRNG_XDRBG256
-void xdrbg256_drng_selftest(int *tested, const char *impl);
+void xdrbg256_drng_selftest(void);
 #else
-static inline void xdrbg256_drng_selftest(int *tested, const char *impl)
+static inline void xdrbg256_drng_selftest(void)
 {
-	(void)tested;
-	(void)impl;
 }
 #endif
 
 #ifdef LC_DRNG_XDRBG128
-void xdrbg128_drng_selftest(int *tested, const char *impl);
+void xdrbg128_drng_selftest(void);
 #else
-static inline void xdrbg128_drng_selftest(int *tested, const char *impl)
+static inline void xdrbg128_drng_selftest(void)
 {
-	(void)tested;
-	(void)impl;
 }
 #endif
 

@@ -99,7 +99,8 @@ static int ascon_tester_one(const uint8_t *pt, size_t ptlen,
 	if (lc_al_alloc(&al_heap))
 		return 1;
 
-	lc_aead_setkey(al_heap, key, keylen, nonce, noncelen);
+	if (lc_aead_setkey(al_heap, key, keylen, nonce, noncelen))
+		return 1;
 
 	memcpy(out_enc, pt, ptlen);
 	lc_aead_enc_init(al_heap, aad, aadlen);

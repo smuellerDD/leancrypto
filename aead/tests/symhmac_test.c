@@ -75,7 +75,8 @@ static int sh_tester_one(const struct lc_sym *sym, const struct lc_hash *hash,
 	if (lc_hkdf(lc_sha512, key, keylen, NULL, 0, NULL, 0, keystream,
 		    sizeof(keystream)))
 		return 1;
-	lc_sym_init(aes_cbc);
+	if (lc_sym_init(aes_cbc))
+		return 1;
 	if (lc_sym_setkey(aes_cbc, keystream, sizeof(keystream) / 2))
 		return 1;
 	if (lc_sym_setiv(aes_cbc, iv, ivlen))
@@ -86,8 +87,9 @@ static int sh_tester_one(const struct lc_sym *sym, const struct lc_hash *hash,
 				  "SymHMAC: Encryption, compare with CBC");
 
 	/* Compare with HMAC */
-	lc_hmac_init(hmac_ctx, keystream + sizeof(keystream) / 2,
-		     sizeof(keystream) / 2);
+	if (lc_hmac_init(hmac_ctx, keystream + sizeof(keystream) / 2,
+			 sizeof(keystream) / 2))
+		return 1;
 	lc_hmac_update(hmac_ctx, aad, aadlen);
 	lc_hmac_update(hmac_ctx, out_compare, ptlen);
 	lc_hmac_final(hmac_ctx, tag_compare);
@@ -268,11 +270,61 @@ static int sh_tester(void)
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	char status[900];
 	int ret;
 
 	(void)argc;
 	(void)argv;
+
 	ret = sh_tester();
+
+	if (lc_status_get_result(LC_ALG_STATUS_SYM_HMAC) !=
+	    lc_alg_status_result_passed) {
+		printf("SymHMAC crypt self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_SYM_HMAC));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_HMAC) !=
+	    lc_alg_status_result_passed) {
+		printf("HMAC self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_HMAC));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_AES_CBC) !=
+	    lc_alg_status_result_passed) {
+		printf("AES-CBC self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_AES_CBC));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_SHA256) !=
+	    lc_alg_status_result_passed) {
+		printf("SHA-256 self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_SHA256));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_SHA512) !=
+	    lc_alg_status_result_passed) {
+		printf("SHA-512 self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_SHA512));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_SHA3) !=
+	    lc_alg_status_result_passed) {
+		printf("SHA3 self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_SHA3));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
 
 	return ret;
 }

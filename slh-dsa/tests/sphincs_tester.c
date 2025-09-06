@@ -120,6 +120,7 @@ out:
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	char status[900];
 	enum lc_sphincs_test_type t = LC_SPHINCS_REGRESSION;
 	int ret = 0, rc = 0;
 	int feat_disabled = 0;
@@ -151,6 +152,41 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	CKINT(lc_sphincs_test(&tests[0], t));
 	rc += ret;
+
+	if ((argc < 2) && lc_status_get_result(LC_ALG_STATUS_SLHDSA_KEYGEN) !=
+	    lc_alg_status_result_passed) {
+		printf("SLH-DSA self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_SLHDSA_KEYGEN));
+		return 1;
+	}
+
+	if ((argc < 2) && lc_status_get_result(LC_ALG_STATUS_SLHDSA_SIGGEN) !=
+	    lc_alg_status_result_passed) {
+		printf("SLH-DSA siggen self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_SLHDSA_SIGGEN));
+		return 1;
+	}
+
+	if ((argc < 2) && lc_status_get_result(LC_ALG_STATUS_SLHDSA_SIGVER) !=
+	    lc_alg_status_result_passed) {
+		printf("SLH-DSA sigver self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_SLHDSA_SIGVER));
+		return 1;
+	}
+
+	if ((argc < 2) && lc_status_get_result(LC_ALG_STATUS_SHAKE) !=
+	    lc_alg_status_result_passed) {
+		printf("SHAKE self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_SHAKE));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
+
 
 out:
 	if (feat_disabled)

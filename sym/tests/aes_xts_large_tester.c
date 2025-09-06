@@ -45,14 +45,14 @@ static int aes_xts_large(const struct lc_sym *sym)
 
 	CKINT(test_mem(&pt, &len));
 
-	lc_sym_init(aes_xts);
+	CKINT(lc_sym_init(aes_xts));
 	CKINT_LOG(lc_sym_setkey(aes_xts, key, sizeof(key)),
 		  "Encrypt set key\n");
 	CKINT_LOG(lc_sym_setiv(aes_xts, iv, sizeof(iv)), "Encrypt set IV\n");
 	lc_sym_encrypt(aes_xts, pt, pt, len);
 	lc_sym_zero(aes_xts);
 
-	lc_sym_init(aes_xts);
+	CKINT(lc_sym_init(aes_xts));
 	CKINT_LOG(lc_sym_setkey(aes_xts, key, sizeof(key)),
 		  "Decrypt set key\n");
 	CKINT_LOG(lc_sym_setiv(aes_xts, iv, sizeof(iv)), "Decrypt set IV\n");

@@ -17,19 +17,28 @@
  * DAMAGE.
  */
 
+#include "compare.h"
 #include "hqc_internal.h"
 #include "hqc_kem_c.h"
+#include "hqc_selftest.h"
 #include "visibility.h"
 
 LC_INTERFACE_FUNCTION(int, lc_hqc_keypair, struct lc_hqc_pk *pk,
 		      struct lc_hqc_sk *sk, struct lc_rng_ctx *rng_ctx)
 {
+
+	hqc_kem_keygen_selftest(lc_hqc_keypair_c);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_HQC_KEYGEN);
+
 	return lc_hqc_keypair_c(pk, sk, rng_ctx);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_hqc_keypair_from_seed, struct lc_hqc_pk *pk,
 		      struct lc_hqc_sk *sk, const uint8_t *seed, size_t seedlen)
 {
+	hqc_kem_keygen_selftest(lc_hqc_keypair_c);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_HQC_KEYGEN);
+
 	return lc_hqc_keypair_from_seed_c(pk, sk, seed, seedlen);
 }
 
@@ -37,29 +46,44 @@ LC_INTERFACE_FUNCTION(int, lc_hqc_enc_internal, struct lc_hqc_ct *ct,
 		      struct lc_hqc_ss *ss, const struct lc_hqc_pk *pk,
 		      struct lc_rng_ctx *rng_ctx)
 {
+	hqc_kem_enc_selftest(lc_hqc_enc_internal_c);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_HQC_ENC);
+
 	return lc_hqc_enc_internal_c(ct, ss, pk, rng_ctx);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_hqc_enc, struct lc_hqc_ct *ct,
 		      struct lc_hqc_ss *ss, const struct lc_hqc_pk *pk)
 {
+	hqc_kem_enc_selftest(lc_hqc_enc_internal_c);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_HQC_ENC);
+
 	return lc_hqc_enc_c(ct, ss, pk);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_hqc_enc_kdf, struct lc_hqc_ct *ct, uint8_t *ss,
 		      size_t ss_len, const struct lc_hqc_pk *pk)
 {
+	hqc_kem_enc_selftest(lc_hqc_enc_internal_c);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_HQC_ENC);
+
 	return lc_hqc_enc_kdf_c(ct, ss, ss_len, pk);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_hqc_dec, struct lc_hqc_ss *ss,
 		      const struct lc_hqc_ct *ct, const struct lc_hqc_sk *sk)
 {
+	hqc_kem_dec_selftest(lc_hqc_dec_c);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_HQC_DEC);
+
 	return lc_hqc_dec_c(ss, ct, sk);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_hqc_dec_kdf, uint8_t *ss, size_t ss_len,
 		      const struct lc_hqc_ct *ct, const struct lc_hqc_sk *sk)
 {
+	hqc_kem_dec_selftest(lc_hqc_dec_c);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_HQC_DEC);
+
 	return lc_hqc_dec_kdf_c(ss, ss_len, ct, sk);
 }

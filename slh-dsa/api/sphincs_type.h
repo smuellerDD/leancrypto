@@ -115,14 +115,17 @@ extern "C" {
 #endif
 
 #define lc_sphincs_keypair SPHINCS_F(keypair)
+#define lc_sphincs_keypair_nocheck SPHINCS_F(keypair_nocheck)
 #define lc_sphincs_keypair_from_seed SPHINCS_F(keypair_from_seed)
 #define lc_sphincs_sign SPHINCS_F(sign)
 #define lc_sphincs_sign_ctx SPHINCS_F(sign_ctx)
+#define lc_sphincs_sign_ctx_nocheck SPHINCS_F(sign_ctx_nocheck)
 #define lc_sphincs_sign_init SPHINCS_F(sign_init)
 #define lc_sphincs_sign_update SPHINCS_F(sign_update)
 #define lc_sphincs_sign_final SPHINCS_F(sign_final)
 #define lc_sphincs_verify SPHINCS_F(verify)
 #define lc_sphincs_verify_ctx SPHINCS_F(verify_ctx)
+#define lc_sphincs_verify_ctx_nocheck SPHINCS_F(verify_ctx_nocheck)
 #define lc_sphincs_verify_init SPHINCS_F(verify_init)
 #define lc_sphincs_verify_update SPHINCS_F(verify_update)
 #define lc_sphincs_verify_final SPHINCS_F(verify_final)

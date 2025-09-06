@@ -20,6 +20,7 @@
 #include "aes_riscv64.h"
 #include "aes_internal.h"
 #include "asm/riscv64/riscv64_aes_asm.h"
+#include "compare.h"
 #include "ext_headers_internal.h"
 #include "lc_aes.h"
 #include "lc_sym.h"
@@ -47,15 +48,20 @@ static void aes_riscv64_xts_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 	lc_mode_xts_c->decrypt(&ctx->xts_state, in, out, len);
 }
 
-static void aes_riscv64_xts_init(struct lc_sym_state *ctx)
+static int aes_riscv64_xts_init_nocheck(struct lc_sym_state *ctx)
 {
-	static int tested = 0;
-
-	(void)ctx;
-
-	mode_xts_selftest(lc_aes_xts_riscv64, &tested, "AES-XTS");
 	lc_mode_xts_c->init(&ctx->xts_state, lc_aes_riscv64,
 			    &ctx->enc_block_ctx, &ctx->tweak_ctx);
+
+	return 0;
+}
+
+static int aes_riscv64_xts_init(struct lc_sym_state *ctx)
+{
+	mode_xts_selftest(lc_aes_xts_riscv64);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_AES_XTS);
+
+	return aes_riscv64_xts_init_nocheck(ctx);
 }
 
 static int aes_riscv64_xts_setkey(struct lc_sym_state *ctx, const uint8_t *key,
@@ -74,6 +80,7 @@ static int aes_riscv64_xts_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 
 static struct lc_sym _lc_aes_xts_riscv64 = {
 	.init = aes_riscv64_xts_init,
+	.init_nocheck = aes_riscv64_xts_init_nocheck,
 	.setkey = aes_riscv64_xts_setkey,
 	.setiv = aes_riscv64_xts_setiv,
 	.encrypt = aes_riscv64_xts_encrypt,

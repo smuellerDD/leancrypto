@@ -23,28 +23,9 @@
 #include "lc_memcmp_secure.h"
 #include "visibility.h"
 
-/*
- * This variable controls whether a self test should be (re-)executed. A self
- * test is executed, if the self-test state variable is less than this level
- * variable. Once the self test is executed, it is set to the level. An API
- * is provided allowing a caller to trigger the re-execution of self tests
- * by simply incrementing this variable by one.
- */
-static int lc_selftest_level = 1;
-
-/*
- * This is no interface function, but to access the global variable, the
- * visibility is required to get the same scope, seemingly.
- */
-LC_INTERFACE_FUNCTION(int, get_current_selftest_level, void)
-{
-	return lc_selftest_level;
-}
-
 LC_INTERFACE_FUNCTION(void, lc_rerun_selftests, void)
 {
-	if (lc_selftest_level < INT_MAX)
-		__sync_add_and_fetch(&lc_selftest_level, 1);
+	alg_status_set_result(lc_alg_status_result_pending, (uint64_t) -1);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_compare, const uint8_t *act, const uint8_t *exp,
@@ -80,19 +61,19 @@ LC_INTERFACE_FUNCTION(int, lc_compare, const uint8_t *act, const uint8_t *exp,
 	return 0;
 }
 
-void lc_compare_selftest(const uint8_t *act, const uint8_t *exp,
-			 const size_t len, const char *info)
+int lc_compare_selftest(uint64_t flag, const uint8_t *act, const uint8_t *exp,
+			const size_t len, const char *info)
 {
-	/* In EFI-compilation, assert is not defined */
-	(void)act;
-	(void)exp;
-	(void)len;
-	(void)info;
+	if (lc_compare(act, exp, len, info)) {
+		alg_status_set_result(lc_alg_status_result_failed, flag);
+		return 1;
+	}
 
-	assert(!lc_compare(act, exp, len, info));
+	alg_status_set_result(lc_alg_status_result_passed, flag);
+	return 0;
 }
 
 void lc_disable_selftest(void)
 {
-	lc_selftest_level = 0;
+	alg_status_set_result(lc_alg_status_result_passed, (uint64_t) -1);
 }

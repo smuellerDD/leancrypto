@@ -72,6 +72,7 @@ static void sha512_final_arm_neon(void *_state, uint8_t *digest)
 
 static const struct lc_hash _sha384_arm_neon = {
 	.init = sha384_init,
+	.init_nocheck = sha384_init_nocheck,
 	.update = sha512_update_arm_neon,
 	.final = sha384_final_arm_neon,
 	.set_digestsize = NULL,
@@ -89,6 +90,7 @@ LC_INTERFACE_SYMBOL(const struct lc_hash *,
 
 static const struct lc_hash _sha512_arm_neon = {
 	.init = sha512_init,
+	.init_nocheck = sha512_init_nocheck,
 	.update = sha512_update_arm_neon,
 	.final = sha512_final_arm_neon,
 	.set_digestsize = NULL,

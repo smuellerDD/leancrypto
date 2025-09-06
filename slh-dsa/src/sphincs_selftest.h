@@ -26,9 +26,20 @@
 extern "C" {
 #endif
 
-void sphincs_selftest_keygen(int *tested);
-void sphincs_selftest_siggen(int *tested);
-void sphincs_selftest_sigver(int *tested);
+void sphincs_selftest_keygen(void);
+void sphincs_selftest_siggen(void);
+void sphincs_selftest_sigver(void);
+
+int lc_sphincs_keypair_nocheck(struct lc_sphincs_pk *pk,
+			       struct lc_sphincs_sk *sk,
+			       struct lc_rng_ctx *rng_ctx);
+int lc_sphincs_sign_ctx_nocheck(struct lc_sphincs_sig *sig,
+				struct lc_sphincs_ctx *ctx, const uint8_t *m,
+				size_t mlen, const struct lc_sphincs_sk *sk,
+				struct lc_rng_ctx *rng_ctx);
+int lc_sphincs_verify_ctx_nocheck(const struct lc_sphincs_sig *sig,
+				  struct lc_sphincs_ctx *ctx, const uint8_t *m,
+				  size_t mlen, const struct lc_sphincs_pk *pk);
 
 #ifdef __cplusplus
 }

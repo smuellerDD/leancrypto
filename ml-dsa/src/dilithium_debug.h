@@ -28,9 +28,6 @@ extern "C" {
 
 #ifdef LC_DILITHIUM_DEBUG
 
-/* Disable selftests */
-#define LC_DILITHIUM_TEST_INIT 1
-
 void dilithium_print_buffer(const uint8_t *buffer, const size_t bufferlen,
 			    const char *explanation);
 void dilithium_print_polyvecl_k(polyvecl mat[LC_DILITHIUM_K],
@@ -40,9 +37,6 @@ void dilithium_print_polyveck(polyveck *polyvec, const char *explanation);
 void dilithium_print_poly(poly *vec, const char *explanation);
 
 #else /* LC_DILITHIUM_DEBUG */
-
-/* Enable selftests */
-#define LC_DILITHIUM_TEST_INIT 0
 
 static inline void dilithium_print_buffer(const uint8_t *buffer,
 					  const size_t bufferlen,

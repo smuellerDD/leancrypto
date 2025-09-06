@@ -21,6 +21,7 @@
 #include "bitshift.h"
 #include "compare.h"
 #include "ext_headers_internal.h"
+#include "hash_common.h"
 #include "lc_sha512.h"
 #include "lc_memset_secure.h"
 #include "sha2_common.h"
@@ -59,8 +60,7 @@ static const uint64_t sha512_K[] = {
 	0x5fcb6fab3ad6faecULL, 0x6c44198c4a475817ULL,
 };
 
-static void sha512_selftest(const struct lc_hash *sha512, int *tested,
-			    const char *impl)
+static void sha512_selftest(const struct lc_hash *sha512, const char *impl)
 {
 	static const uint8_t msg_512[] = { 0x7F, 0xAD, 0x12 };
 	static const uint8_t exp_512[] = {
@@ -74,21 +74,19 @@ static void sha512_selftest(const struct lc_hash *sha512, int *tested,
 	};
 	uint8_t act[LC_SHA512_SIZE_DIGEST];
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_SHA512);
 
-	lc_hash(sha512, msg_512, sizeof(msg_512), act);
-	lc_compare_selftest(act, exp_512, LC_SHA512_SIZE_DIGEST, impl);
+	lc_hash_nocheck(sha512, msg_512, sizeof(msg_512), act);
+	lc_compare_selftest(LC_ALG_STATUS_SHA512, act, exp_512,
+			    LC_SHA512_SIZE_DIGEST, impl);
 }
 
-void sha384_init(void *_state)
+int sha384_init_nocheck(void *_state)
 {
 	struct lc_sha512_state *ctx = _state;
-	static int tested = 0;
 
 	if (!ctx)
-		return;
-
-	sha512_selftest(lc_sha512, &tested, "SHA-384 C");
+		return -EINVAL;
 
 	ctx->H[0] = 0xcbbb9d5dc1059ed8ULL;
 	ctx->H[1] = 0x629a292a367cd507ULL;
@@ -100,17 +98,24 @@ void sha384_init(void *_state)
 	ctx->H[7] = 0x47b5481dbefa4fa4ULL;
 
 	ctx->msg_len = 0;
+
+	return 0;
 }
 
-void sha512_init(void *_state)
+int sha384_init(void *_state)
+{
+	sha512_selftest(lc_sha512, "SHA-384");
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SHA512);
+
+	return sha384_init_nocheck(_state);
+}
+
+int sha512_init_nocheck(void *_state)
 {
 	struct lc_sha512_state *ctx = _state;
-	static int tested = 0;
 
 	if (!ctx)
-		return;
-
-	sha512_selftest(lc_sha512, &tested, "SHA-512 C");
+		return -EINVAL;
 
 	ctx->H[0] = 0x6a09e667f3bcc908ULL;
 	ctx->H[1] = 0xbb67ae8584caa73bULL;
@@ -122,6 +127,16 @@ void sha512_init(void *_state)
 	ctx->H[7] = 0x5be0cd19137e2179ULL;
 
 	ctx->msg_len = 0;
+
+	return 0;
+}
+
+int sha512_init(void *_state)
+{
+	sha512_selftest(lc_sha512, "SHA-512");
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SHA512);
+
+	return sha512_init_nocheck(_state);
 }
 
 static inline uint64_t ror(uint64_t x, int n)
@@ -349,6 +364,7 @@ size_t sha512_get_digestsize(void *_state)
 
 static const struct lc_hash _sha384_c = {
 	.init = sha384_init,
+	.init_nocheck = sha384_init_nocheck,
 	.update = sha512_update_c,
 	.final = sha384_final_c,
 	.set_digestsize = NULL,
@@ -365,6 +381,7 @@ LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha384_c) = &_sha384_c;
 
 static const struct lc_hash _sha512_c = {
 	.init = sha512_init,
+	.init_nocheck = sha512_init_nocheck,
 	.update = sha512_update_c,
 	.final = sha512_final_c,
 	.set_digestsize = NULL,

@@ -329,8 +329,8 @@ int public_key_verify_signature_dilithium_ed448(
 
 	CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
 	/* XOF works as digest size of 64 bytes is same as XOF size */
-	lc_xof(hash_algo, sig->raw_data, sig->raw_data_len, ws->ph_message,
-	       sizeof(ws->ph_message));
+	CKINT(lc_xof(hash_algo, sig->raw_data, sig->raw_data_len, ws->ph_message,
+	       sizeof(ws->ph_message)));
 
 	/*
 	 * TODO currently no ctx is supported. This implies that ctx == NULL.
@@ -381,8 +381,8 @@ int public_key_generate_signature_dilithium_ed448(
 
 	CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
 	/* XOF works as digest size of 64 bytes is same as XOF size */
-	lc_xof(hash_algo, sig->raw_data, sig->raw_data_len, ws->ph_message,
-	       sizeof(ws->ph_message));
+	CKINT(lc_xof(hash_algo, sig->raw_data, sig->raw_data_len, ws->ph_message,
+	       sizeof(ws->ph_message)));
 
 	/*
 	 * TODO currently no ctx is supported. This implies that ctx == NULL.
@@ -461,7 +461,7 @@ int asym_set_dilithium_ed448_keypair(struct lc_x509_key_data *gen_data,
 		CKINT(lc_dilithium_ed448_pk_ptr(
 			&dilithium_pk_ptr, &dilithium_pk_len, &ed448_pk_ptr,
 			&ed448_pk_len, pk));
-		lc_hash_init(hash_ctx);
+		CKINT(lc_hash_init(hash_ctx));
 		lc_hash_update(hash_ctx, dilithium_pk_ptr, dilithium_pk_len);
 		lc_hash_update(hash_ctx, ed448_pk_ptr, ed448_pk_len);
 		lc_hash_final(hash_ctx, gen_data->pk_digest);

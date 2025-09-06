@@ -82,7 +82,8 @@ void poly_uniform(poly *a, const uint8_t seed[LC_DILITHIUM_SEEDBYTES],
 	uint8_t *buf = ws_buf;
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake128);
 
-	lc_hash_init(hash_ctx);
+	if (lc_hash_init(hash_ctx))
+		return;
 	lc_hash_update(hash_ctx, seed, LC_DILITHIUM_SEEDBYTES);
 	lc_hash_update(hash_ctx, (uint8_t *)&nonce, sizeof(nonce));
 	lc_hash_set_digestsize(hash_ctx, buflen);
@@ -123,7 +124,8 @@ void poly_uniform_eta(poly *a, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
 	uint8_t *buf = ws_buf;
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
 
-	lc_hash_init(hash_ctx);
+	if (lc_hash_init(hash_ctx))
+		return;
 	lc_hash_update(hash_ctx, seed, LC_DILITHIUM_CRHBYTES);
 	lc_hash_update(hash_ctx, (uint8_t *)&nonce, sizeof(nonce));
 	lc_hash_set_digestsize(hash_ctx, POLY_UNIFORM_ETA_BYTES);
@@ -156,7 +158,8 @@ void poly_uniform_gamma1(poly *a, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
 {
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
 
-	lc_hash_init(hash_ctx);
+	if (lc_hash_init(hash_ctx))
+		return;
 	lc_hash_update(hash_ctx, seed, LC_DILITHIUM_CRHBYTES);
 	lc_hash_update(hash_ctx, (uint8_t *)&nonce, sizeof(nonce));
 	lc_hash_set_digestsize(hash_ctx, POLY_UNIFORM_GAMMA1_BYTES);
@@ -182,7 +185,8 @@ void poly_challenge(poly *c, const uint8_t seed[LC_DILITHIUM_CTILDE_BYTES],
 	uint8_t *buf = ws_buf;
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
 
-	lc_hash_init(hash_ctx);
+	if (lc_hash_init(hash_ctx))
+		return;
 	lc_hash_update(hash_ctx, seed, LC_DILITHIUM_CTILDE_BYTES);
 	lc_hash_set_digestsize(hash_ctx, POLY_CHALLENGE_BYTES);
 	lc_hash_final(hash_ctx, buf);

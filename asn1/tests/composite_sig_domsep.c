@@ -94,9 +94,9 @@ static int composite_sig_domsep(void)
 	int ret;
 	LC_HASH_CTX_ON_STACK(ctx, lc_sha512);
 
-	lc_hash(lc_sha512, exp_no_ctx, sizeof(exp_no_ctx), exp_digest);
+	CKINT(lc_hash(lc_sha512, exp_no_ctx, sizeof(exp_no_ctx), exp_digest));
 
-	lc_hash_init(ctx);
+	CKINT(lc_hash_init(ctx));
 	CKINT(signature_domain_separation(
 		ctx, 0, NULL, NULL, 0, phmsg, sizeof(phmsg), randomizer_no_ctx,
 		sizeof(randomizer_no_ctx), nist_category));
@@ -105,9 +105,9 @@ static int composite_sig_domsep(void)
 		act_digest, exp_digest, sizeof(exp_digest),
 		"Composite signature domain separator without user context\n");
 
-	lc_hash(lc_sha512, exp_ctx, sizeof(exp_ctx), exp_digest);
+	CKINT(lc_hash(lc_sha512, exp_ctx, sizeof(exp_ctx), exp_digest));
 
-	lc_hash_init(ctx);
+	CKINT(lc_hash_init(ctx));
 	CKINT(signature_domain_separation(
 		ctx, 0, NULL, userctx, sizeof(userctx), phmsg, sizeof(phmsg),
 		randomizer_ctx, sizeof(randomizer_ctx), nist_category));

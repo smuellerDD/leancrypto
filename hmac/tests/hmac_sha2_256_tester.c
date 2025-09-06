@@ -20,6 +20,7 @@
 #include "compare.h"
 #include "lc_hmac.h"
 #include "lc_sha256.h"
+#include "ret_checkers.h"
 #include "visibility.h"
 
 static int hmac_sha2_256_tester(void)
@@ -48,19 +49,46 @@ static int hmac_sha2_256_tester(void)
 
 	if (lc_hmac_alloc(lc_sha256, &hmac_ctx))
 		return 1;
-	lc_hmac_init(hmac_ctx, key_256, sizeof(key_256));
+	CKINT(lc_hmac_init(hmac_ctx, key_256, sizeof(key_256)));
 	lc_hmac_update(hmac_ctx, msg_256, sizeof(msg_256));
 	lc_hmac_final(hmac_ctx, act);
 	lc_hmac_zero_free(hmac_ctx);
 
 	ret = lc_compare(act, exp_256, LC_SHA256_SIZE_DIGEST, "HMAC SHA2-256");
 
+out:
 	return ret;
 }
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	char status[900];
+	int ret;
+
 	(void)argc;
 	(void)argv;
-	return hmac_sha2_256_tester();
+
+	ret = hmac_sha2_256_tester();
+
+	if (lc_status_get_result(LC_ALG_STATUS_SHA256) !=
+	    lc_alg_status_result_passed) {
+		printf("SHA-256 self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_SHA256));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_HMAC) !=
+	    lc_alg_status_result_passed) {
+		printf("HMAC self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_HMAC));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
+
+	return ret;
 }

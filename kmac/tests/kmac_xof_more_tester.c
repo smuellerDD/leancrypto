@@ -19,6 +19,7 @@
 
 #include "compare.h"
 #include "lc_kmac.h"
+#include "ret_checkers.h"
 #include "visibility.h"
 
 #include "sha3_c.h"
@@ -72,7 +73,7 @@ static int _kmac_256_xof_more_tester(const struct lc_hash *cshake_256,
 	       cshake_256 == lc_cshake256_c ? "C" : "accelerated",
 	       LC_KMAC_CTX_SIZE(cshake_256));
 
-	lc_kmac_init(kmac, key1, sizeof(key1), cust1, sizeof(cust1));
+	CKINT(lc_kmac_init(kmac, key1, sizeof(key1), cust1, sizeof(cust1)));
 	lc_kmac_update(kmac, msg1, sizeof(msg1));
 	lc_kmac_final_xof(kmac, act1, sizeof(act1));
 
@@ -87,6 +88,7 @@ static int _kmac_256_xof_more_tester(const struct lc_hash *cshake_256,
 	ret = lc_compare(act1, act2, sizeof(act1), "KMAC256 XOF More");
 	lc_kmac_zero(kmac);
 
+out:
 	return ret;
 }
 

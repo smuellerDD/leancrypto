@@ -35,7 +35,7 @@ static int aes_ctr_large(void)
 
 	CKINT(test_mem(&pt, &len));
 
-	lc_sym_init(aes_ctr);
+	CKINT(lc_sym_init(aes_ctr));
 	CKINT(lc_sym_setkey(aes_ctr, key, sizeof(key)));
 	CKINT(lc_sym_setiv(aes_ctr, iv, sizeof(iv)));
 	lc_sym_encrypt(aes_ctr, pt, pt, len);

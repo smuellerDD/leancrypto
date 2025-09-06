@@ -85,11 +85,13 @@ static void aes_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 	unpoison(out, AES_BLOCKLEN);
 }
 
-static void aes_init(struct lc_sym_state *ctx)
+static int aes_init(struct lc_sym_state *ctx)
 {
 	(void)ctx;
 
 	BUILD_BUG_ON(LC_AES_C_MAX_BLOCK_SIZE < LC_AES_BLOCK_SIZE);
+
+	return 0;
 }
 
 static int aes_setkey(struct lc_sym_state *ctx, const uint8_t *key,
@@ -126,6 +128,7 @@ static int aes_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen)
 
 static struct lc_sym _lc_aes_c = {
 	.init = aes_init,
+	.init_nocheck = NULL,
 	.setkey = aes_setkey,
 	.setiv = aes_setiv,
 	.encrypt = aes_encrypt,

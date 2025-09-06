@@ -46,7 +46,7 @@ EXPORT_SYMBOL(crypto_scalarmult_curve25519_c);
 
 static void __init leancrypto_version(void)
 {
-	char version[500];
+	char version[900];
 
 	memset(version, 0, sizeof(version));
 	lc_status(version, sizeof(version));

@@ -19,12 +19,14 @@
 
 #include "kyber_type.h"
 
+#include "compare.h"
 #include "cpufeatures.h"
 #include "kyber_internal.h"
 #include "kyber_kem_c.h"
 #include "kyber_kem_rvv_vlen128.h"
 #include "kyber_kem_rvv_vlen256.h"
 #include "kyber_rvv_vlen_selector.h"
+#include "kyber_selftest.h"
 #include "visibility.h"
 
 LC_INTERFACE_FUNCTION(int, lc_kyber_keypair_from_seed, struct lc_kyber_pk *pk,
@@ -33,13 +35,22 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_keypair_from_seed, struct lc_kyber_pk *pk,
 {
 	if (lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV_ASM_RVV) {
 		if (lc_riscv_rvv_is_vlen128()) {
+			kyber_kem_keygen_selftest(lc_kyber_keypair_rvv_vlen128);
+			LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLKEM_KEYGEN);
+
 			return lc_kyber_keypair_from_seed_rvv_vlen128(
 				pk, sk, seed, seedlen);
 		} else if (lc_riscv_rvv_is_vlen256()) {
+			kyber_kem_keygen_selftest(lc_kyber_keypair_rvv_vlen256);
+			LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLKEM_KEYGEN);
+
 			return lc_kyber_keypair_from_seed_rvv_vlen256(
 				pk, sk, seed, seedlen);
 		}
 	}
+
+	kyber_kem_keygen_selftest(lc_kyber_keypair_c);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLKEM_KEYGEN);
 
 	return lc_kyber_keypair_from_seed_c(pk, sk, seed, seedlen);
 }
@@ -49,11 +60,20 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_keypair, struct lc_kyber_pk *pk,
 {
 	if (lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV_ASM_RVV) {
 		if (lc_riscv_rvv_is_vlen128()) {
+			kyber_kem_keygen_selftest(lc_kyber_keypair_rvv_vlen128);
+			LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLKEM_KEYGEN);
+
 			return lc_kyber_keypair_rvv_vlen128(pk, sk, rng_ctx);
 		} else if (lc_riscv_rvv_is_vlen256()) {
+			kyber_kem_keygen_selftest(lc_kyber_keypair_rvv_vlen256);
+			LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLKEM_KEYGEN);
+
 			return lc_kyber_keypair_rvv_vlen256(pk, sk, rng_ctx);
 		}
 	}
+
+	kyber_kem_keygen_selftest(lc_kyber_keypair_c);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLKEM_KEYGEN);
 
 	return lc_kyber_keypair_c(pk, sk, rng_ctx);
 }
@@ -64,11 +84,20 @@ int lc_kyber_enc_internal(struct lc_kyber_ct *ct, struct lc_kyber_ss *ss,
 {
 	if (lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV_ASM_RVV) {
 		if (lc_riscv_rvv_is_vlen128()) {
+			kyber_kem_enc_selftest(lc_kyber_enc_rvv_vlen128);
+			LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLKEM_ENC);
+
 			return lc_kyber_enc_rvv_vlen128(ct, ss, pk, rng_ctx);
 		} else if (lc_riscv_rvv_is_vlen256()) {
+			kyber_kem_enc_selftest(lc_kyber_enc_rvv_vlen256);
+			LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLKEM_ENC);
+
 			return lc_kyber_enc_rvv_vlen256(ct, ss, pk, rng_ctx);
 		}
 	}
+
+	kyber_kem_enc_selftest(lc_kyber_enc_c);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLKEM_ENC);
 
 	return lc_kyber_enc_c(ct, ss, pk, rng_ctx);
 }
@@ -79,13 +108,24 @@ int lc_kyber_enc_kdf_internal(struct lc_kyber_ct *ct, uint8_t *ss,
 {
 	if (lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV_ASM_RVV) {
 		if (lc_riscv_rvv_is_vlen128()) {
+			kyber_kem_enc_kdf_selftest(
+				lc_kyber_enc_kdf_rvv_vlen128);
+			LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLKEM_ENC_KDF);
+
 			return lc_kyber_enc_kdf_rvv_vlen128(ct, ss, ss_len, pk,
 							    rng_ctx);
 		} else if (lc_riscv_rvv_is_vlen256()) {
+			kyber_kem_enc_kdf_selftest(
+				lc_kyber_enc_kdf_rvv_vlen256);
+			LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLKEM_ENC_KDF);
+
 			return lc_kyber_enc_kdf_rvv_vlen256(ct, ss, ss_len, pk,
 							    rng_ctx);
 		}
 	}
+
+	kyber_kem_enc_kdf_selftest(lc_kyber_enc_kdf_c);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLKEM_ENC_KDF);
 
 	return lc_kyber_enc_kdf_c(ct, ss, ss_len, pk, rng_ctx);
 }
@@ -108,11 +148,20 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_dec, struct lc_kyber_ss *ss,
 {
 	if (lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV_ASM_RVV) {
 		if (lc_riscv_rvv_is_vlen128()) {
+			kyber_kem_dec_selftest(lc_kyber_dec_rvv_vlen128);
+			LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLKEM_DEC);
+
 			return lc_kyber_dec_rvv_vlen128(ss, ct, sk);
 		} else if (lc_riscv_rvv_is_vlen256()) {
+			kyber_kem_dec_selftest(lc_kyber_dec_rvv_vlen256);
+			LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLKEM_DEC);
+
 			return lc_kyber_dec_rvv_vlen256(ss, ct, sk);
 		}
 	}
+
+	kyber_kem_dec_selftest(lc_kyber_dec_c);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLKEM_DEC);
 
 	return lc_kyber_dec_c(ss, ct, sk);
 }
@@ -123,11 +172,22 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_dec_kdf, uint8_t *ss, size_t ss_len,
 {
 	if (lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV_ASM_RVV) {
 		if (lc_riscv_rvv_is_vlen128()) {
+			kyber_kem_dec_kdf_selftest(
+				lc_kyber_dec_kdf_rvv_vlen128);
+			LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLKEM_DEC_KDF);
+
 			return lc_kyber_dec_kdf_rvv_vlen128(ss, ss_len, ct, sk);
 		} else if (lc_riscv_rvv_is_vlen256()) {
+			kyber_kem_dec_kdf_selftest(
+				lc_kyber_dec_kdf_rvv_vlen256);
+			LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLKEM_DEC_KDF);
+
 			return lc_kyber_dec_kdf_rvv_vlen256(ss, ss_len, ct, sk);
 		}
 	}
+
+	kyber_kem_dec_kdf_selftest(lc_kyber_dec_kdf_c);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLKEM_DEC_KDF);
 
 	return lc_kyber_dec_kdf_c(ss, ss_len, ct, sk);
 }

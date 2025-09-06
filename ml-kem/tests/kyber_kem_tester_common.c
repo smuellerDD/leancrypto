@@ -20,6 +20,7 @@
 #include "ext_headers_internal.h"
 #include "kyber_internal.h"
 #include "kyber_kem_tester.h"
+#include "lc_status.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
 #include "visibility.h"
@@ -70,20 +71,64 @@ static int kyber_kem_tester_keygen_common(void)
  */
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
-	(void)argc;
+	char status[900];
+	int ret = 0;
+
 	(void)argv;
 
 	if (argc != 2)
-		return kyber_kem_tester_common();
-
+		ret = kyber_kem_tester_common();
 	else if (argv[1][0] == 'e')
-		return kyber_kem_tester_enc_common();
-
+		ret = kyber_kem_tester_enc_common();
 	else if (argv[1][0] == 'd')
-		return kyber_kem_tester_dec_common();
-
+		ret = kyber_kem_tester_dec_common();
 	else if (argv[1][0] == 'k')
-		return kyber_kem_tester_keygen_common();
+		ret = kyber_kem_tester_keygen_common();
+	else
+		ret = _kyber_kem_tester_common(50000);
 
-	return _kyber_kem_tester_common(50000);
+	/*
+	 * Only verify kyber_kem_tester_common because the other tests
+	 * disable the self tests.
+	 */
+	if ((argc != 2) &&
+	    lc_status_get_result(LC_ALG_STATUS_MLKEM_KEYGEN) !=
+	    lc_alg_status_result_passed) {
+		printf("ML-KEM self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_MLKEM_KEYGEN));
+		return 1;
+	}
+
+	if ((argc != 2) &&
+	    lc_status_get_result(LC_ALG_STATUS_MLKEM_ENC) !=
+	    lc_alg_status_result_passed) {
+		printf("ML-KEM enc self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_MLKEM_ENC));
+		return 1;
+	}
+
+	if ((argc != 2) &&
+	    lc_status_get_result(LC_ALG_STATUS_MLKEM_DEC) !=
+	    lc_alg_status_result_passed) {
+		printf("ML-KEM dec self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_MLKEM_DEC));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_SHAKE) !=
+	    lc_alg_status_result_passed) {
+		printf("SHAKE self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_SHAKE));
+		return 1;
+	}
+
+	if (argc != 2) {
+		memset(status, 0, sizeof(status));
+		lc_status(status, sizeof(status));
+		if (strlen(status) == 0)
+			ret = 1;
+		printf("Status information from leancrypto:\n%s", status);
+	}
+
+	return ret;
 }

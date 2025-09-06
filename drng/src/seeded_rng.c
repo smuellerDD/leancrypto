@@ -57,8 +57,6 @@
 #ifdef CONFIG_LEANCRYPTO_HMAC_DRBG
 #define LC_DRNG_HMAC_DRBG
 #endif
-#else
-#include "lc_drng_config.h"
 #endif
 
 #ifdef LC_DRNG_XDRBG

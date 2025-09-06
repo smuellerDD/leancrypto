@@ -45,6 +45,7 @@ static void sha256_final_riscv_zbb(void *_state, uint8_t *digest)
 
 static const struct lc_hash _sha256_riscv_zbb = {
 	.init = sha256_init,
+	.init_nocheck = sha256_init_nocheck,
 	.update = sha256_update_riscv_zbb,
 	.final = sha256_final_riscv_zbb,
 	.set_digestsize = NULL,

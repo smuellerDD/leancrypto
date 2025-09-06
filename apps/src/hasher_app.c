@@ -302,7 +302,7 @@ static int hasher_files(const struct hasher_options *parsed_opts,
 	if (!files)
 		return -EINVAL;
 
-	lc_hash_init(hash_ctx);
+	CKINT(lc_hash_init(hash_ctx));
 
 	for (i = 0; i < files; i++) {
 		FILE *out = stdout;
@@ -335,7 +335,7 @@ static int hasher_checkfile(const struct hasher_options *parsed_opts,
 	};
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	lc_hash_init(hash_ctx);
+	CKINT(lc_hash_init(hash_ctx));
 
 	file = strcmp(parsed_opts->checkfile, "-") ?
 		       fopen(parsed_opts->checkfile, "r") :

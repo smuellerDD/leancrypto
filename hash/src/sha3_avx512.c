@@ -19,114 +19,163 @@
 
 #include "asm/AVX512/KeccakP-1600-SnP.h"
 
+#include "compare.h"
 #include "ext_headers_x86.h"
 #include "keccak_asm_glue.h"
 #include "sha3_avx512.h"
 #include "sha3_selftest.h"
 #include "visibility.h"
 
-static void sha3_224_avx512_init(void *_state)
+static int sha3_224_avx512_init_nocheck(void *_state)
 {
-	static int tested = 0;
-
-	sha3_224_selftest_common(lc_sha3_224_avx512, &tested,
-				 "SHA3-224 AVX512");
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 	/* Handle SYSV_ABI */
 	sha3_224_asm_init(_state, NULL, KeccakP1600_AVX512_Initialize);
 #pragma GCC diagnostic pop
+
+	return 0;
 }
 
-static void sha3_256_avx512_init(void *_state)
+static int sha3_224_avx512_init(void *_state)
 {
-	static int tested = 0;
+	sha3_224_selftest_common(lc_sha3_224_avx512);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SHA3);
 
-	sha3_256_selftest_common(lc_sha3_256_avx512, &tested,
-				 "SHA3-256 AVX512");
+	return sha3_224_avx512_init_nocheck(_state);
+}
+
+static int sha3_256_avx512_init_nocheck(void *_state)
+{
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 	/* Handle SYSV_ABI */
 	sha3_256_asm_init(_state, NULL, KeccakP1600_AVX512_Initialize);
 #pragma GCC diagnostic pop
+
+	return 0;
 }
 
-static void sha3_384_avx512_init(void *_state)
+static int sha3_256_avx512_init(void *_state)
 {
-	static int tested = 0;
+	sha3_256_selftest_common(lc_sha3_256_avx512);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SHA3);
 
-	sha3_384_selftest_common(lc_sha3_384_avx512, &tested,
-				 "SHA3-384 AVX512");
+	return sha3_256_avx512_init_nocheck(_state);
+}
+
+static int sha3_384_avx512_init_nocheck(void *_state)
+{
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 	/* Handle SYSV_ABI */
 	sha3_384_asm_init(_state, NULL, KeccakP1600_AVX512_Initialize);
 #pragma GCC diagnostic pop
+
+	return 0;
 }
 
-static void sha3_512_avx512_init(void *_state)
+static int sha3_384_avx512_init(void *_state)
 {
-	static int tested = 0;
+	sha3_384_selftest_common(lc_sha3_384_avx512);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SHA3);
 
-	sha3_512_selftest_common(lc_sha3_512_avx512, &tested,
-				 "SHA3-512 AVX512");
+	return sha3_384_avx512_init_nocheck(_state);
+}
+
+static int sha3_512_avx512_init_nocheck(void *_state)
+{
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 	/* Handle SYSV_ABI */
 	sha3_512_asm_init(_state, NULL, KeccakP1600_AVX512_Initialize);
 #pragma GCC diagnostic pop
+
+	return 0;
 }
 
-static void shake_128_avx512_init(void *_state)
+static int sha3_512_avx512_init(void *_state)
 {
-	static int tested = 0;
+	sha3_512_selftest_common(lc_sha3_512_avx512);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SHA3);
 
-	shake128_selftest_common(lc_shake128_avx512, &tested,
-				 "SHAKE128 AVX512");
+	return sha3_512_avx512_init_nocheck(_state);
+}
+
+static int shake_128_avx512_init_nocheck(void *_state)
+{
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 	/* Handle SYSV_ABI */
 	shake_128_asm_init(_state, NULL, KeccakP1600_AVX512_Initialize);
 #pragma GCC diagnostic pop
+
+	return 0;
 }
 
-static void shake_256_avx512_init(void *_state)
+static int shake_128_avx512_init(void *_state)
 {
-	static int tested = 0;
+	shake128_selftest_common(lc_shake128_avx512);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SHAKE);
 
-	shake256_selftest_common(lc_shake256_avx512, &tested,
-				 "SHAKE256 AVX512");
+	return shake_128_avx512_init_nocheck(_state);
+}
+
+static int shake_256_avx512_init_nocheck(void *_state)
+{
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 	/* Handle SYSV_ABI */
 	shake_256_asm_init(_state, NULL, KeccakP1600_AVX512_Initialize);
 #pragma GCC diagnostic pop
+
+	return 0;
 }
 
-static void cshake_128_avx512_init(void *_state)
+static int shake_256_avx512_init(void *_state)
 {
-	static int tested = 0;
+	shake256_selftest_common(lc_shake256_avx512);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SHAKE);
 
-	cshake128_selftest_common(lc_cshake128_avx512, &tested,
-				  "cSHAKE128 AVX512");
+	return shake_256_avx512_init_nocheck(_state);
+}
+
+static int cshake_128_avx512_init_nocheck(void *_state)
+{
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 	/* Handle SYSV_ABI */
 	cshake_128_asm_init(_state, NULL, KeccakP1600_AVX512_Initialize);
 #pragma GCC diagnostic pop
+
+	return 0;
 }
 
-static void cshake_256_avx512_init(void *_state)
+static int cshake_128_avx512_init(void *_state)
 {
-	static int tested = 0;
+	cshake128_selftest_common(lc_cshake128_avx512);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_CSHAKE);
 
-	cshake256_selftest_common(lc_cshake256_avx512, &tested,
-				  "cSHAKE256 AVX512");
+	return cshake_128_avx512_init_nocheck(_state);
+}
+
+static int cshake_256_avx512_init_nocheck(void *_state)
+{
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 	/* Handle SYSV_ABI */
 	cshake_256_asm_init(_state, NULL, KeccakP1600_AVX512_Initialize);
 #pragma GCC diagnostic pop
+
+	return 0;
+}
+
+static int cshake_256_avx512_init(void *_state)
+{
+	cshake256_selftest_common(lc_cshake256_avx512);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_CSHAKE);
+
+	return cshake_256_avx512_init_nocheck(_state);
 }
 
 static void keccak_avx512_absorb(void *_state, const uint8_t *in, size_t inlen)
@@ -200,6 +249,7 @@ static void keccak_avx512_newstate(void *state, const uint8_t *data,
 
 static const struct lc_hash _sha3_224_avx512 = {
 	.init = sha3_224_avx512_init,
+	.init_nocheck = sha3_224_avx512_init_nocheck,
 	.update = keccak_avx512_absorb,
 	.final = keccak_avx512_squeeze,
 	.set_digestsize = NULL,
@@ -216,6 +266,7 @@ LC_INTERFACE_SYMBOL(const struct lc_hash *,
 
 static const struct lc_hash _sha3_256_avx512 = {
 	.init = sha3_256_avx512_init,
+	.init_nocheck = sha3_256_avx512_init_nocheck,
 	.update = keccak_avx512_absorb,
 	.final = keccak_avx512_squeeze,
 	.set_digestsize = NULL,
@@ -232,6 +283,7 @@ LC_INTERFACE_SYMBOL(const struct lc_hash *,
 
 static const struct lc_hash _sha3_384_avx512 = {
 	.init = sha3_384_avx512_init,
+	.init_nocheck = sha3_384_avx512_init_nocheck,
 	.update = keccak_avx512_absorb,
 	.final = keccak_avx512_squeeze,
 	.set_digestsize = NULL,
@@ -248,6 +300,7 @@ LC_INTERFACE_SYMBOL(const struct lc_hash *,
 
 static const struct lc_hash _sha3_512_avx512 = {
 	.init = sha3_512_avx512_init,
+	.init_nocheck = sha3_512_avx512_init_nocheck,
 	.update = keccak_avx512_absorb,
 	.final = keccak_avx512_squeeze,
 	.set_digestsize = NULL,
@@ -264,6 +317,7 @@ LC_INTERFACE_SYMBOL(const struct lc_hash *,
 
 static const struct lc_hash _shake128_avx512 = {
 	.init = shake_128_avx512_init,
+	.init_nocheck = shake_128_avx512_init_nocheck,
 	.update = keccak_avx512_absorb,
 	.final = keccak_avx512_squeeze,
 	.set_digestsize = shake_set_digestsize,
@@ -280,6 +334,7 @@ LC_INTERFACE_SYMBOL(const struct lc_hash *,
 
 static const struct lc_hash _shake256_avx512 = {
 	.init = shake_256_avx512_init,
+	.init_nocheck = shake_256_avx512_init_nocheck,
 	.update = keccak_avx512_absorb,
 	.final = keccak_avx512_squeeze,
 	.set_digestsize = shake_set_digestsize,
@@ -296,6 +351,7 @@ LC_INTERFACE_SYMBOL(const struct lc_hash *,
 
 static const struct lc_hash _cshake128_avx512 = {
 	.init = cshake_128_avx512_init,
+	.init_nocheck = cshake_128_avx512_init_nocheck,
 	.update = keccak_avx512_absorb,
 	.final = keccak_avx512_squeeze,
 	.set_digestsize = shake_set_digestsize,
@@ -312,6 +368,7 @@ LC_INTERFACE_SYMBOL(const struct lc_hash *,
 
 static const struct lc_hash _cshake256_avx512 = {
 	.init = cshake_256_avx512_init,
+	.init_nocheck = cshake_256_avx512_init_nocheck,
 	.update = keccak_avx512_absorb,
 	.final = keccak_avx512_squeeze,
 	.set_digestsize = shake_set_digestsize,

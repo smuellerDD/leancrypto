@@ -58,7 +58,7 @@
 #define LC_AEAD_ASCON_KECCAK_512_IV 0x4048181800000000
 #define LC_AEAD_ASCON_KECCAK_256_IV 0x2088181800000000
 
-static void lc_ak_selftest(int *tested)
+static void lc_ak_selftest(void)
 {
 	static const uint8_t in[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
@@ -94,32 +94,40 @@ static void lc_ak_selftest(int *tested)
 	uint8_t act_ct[sizeof(exp_ct)] __align(sizeof(uint32_t));
 	uint8_t act_tag[sizeof(exp_tag)] __align(sizeof(uint32_t));
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_ASCON_KECCAK);
 
 	LC_AK_CTX_ON_STACK(ak, lc_sha3_256);
 
-	assert(!lc_aead_setkey(ak, key, sizeof(key), iv, sizeof(iv)));
-	assert(!lc_aead_encrypt(ak, in, act_ct, sizeof(in), in, sizeof(in),
-				act_tag, sizeof(act_tag)));
-	lc_compare_selftest(act_ct, exp_ct, sizeof(exp_ct),
-			    "Ascon Keccak crypt: Encryption, ciphertext");
-	lc_compare_selftest(act_tag, exp_tag, sizeof(exp_tag),
-			    "Ascon Keccak crypt: Encryption, tag");
+	lc_ascon_setkey_int(ak->aead_state, key, sizeof(key), iv, sizeof(iv),
+			    1);
+	lc_aead_encrypt(ak, in, act_ct, sizeof(in), in, sizeof(in),
+				act_tag, sizeof(act_tag));
+	if (lc_compare_selftest(LC_ALG_STATUS_ASCON_KECCAK, act_ct, exp_ct,
+				sizeof(exp_ct),
+				"Ascon Keccak crypt: Encryption, ciphertext"))
+		goto out;
+	if (lc_compare_selftest(LC_ALG_STATUS_ASCON_KECCAK, act_tag, exp_tag,
+				sizeof(exp_tag),
+				"Ascon Keccak crypt: Encryption, tag"))
+		goto out;
+
 	lc_aead_zero(ak);
 
-	assert(!lc_aead_setkey(ak, key, sizeof(key), iv, sizeof(iv)));
-	assert(!lc_aead_decrypt(ak, act_ct, act_ct, sizeof(act_ct), in,
-				sizeof(in), act_tag, sizeof(act_tag)));
-	lc_compare_selftest(act_ct, in, sizeof(in),
+	lc_ascon_setkey_int(ak->aead_state, key, sizeof(key), iv, sizeof(iv),
+			    1);
+	lc_aead_decrypt(ak, act_ct, act_ct, sizeof(act_ct), in,
+			sizeof(in), act_tag, sizeof(act_tag));
+	lc_compare_selftest(LC_ALG_STATUS_ASCON_KECCAK, act_ct, in, sizeof(in),
 			    "Ascon Keccak crypt: Decryption, plaintext");
+
+out:
 	lc_aead_zero(ak);
 }
 
-int lc_ak_setiv(struct lc_ascon_cryptor *ascon, size_t keylen)
+int lc_ak_setiv(struct lc_ascon_cryptor *ascon, size_t keylen, int nocheck)
 {
 	const struct lc_hash *hash = ascon->hash;
 	uint64_t *state_mem = ascon->state;
-	static int tested = 0;
 
 	/* Check that the key store is sufficiently large */
 	BUILD_BUG_ON(sizeof(ascon->key) < 64);
@@ -142,7 +150,11 @@ int lc_ak_setiv(struct lc_ascon_cryptor *ascon, size_t keylen)
 
 	switch (hash->sponge_rate) {
 	case 0x240 / 8: /* Keccak security level 512 bits */
-		lc_ak_selftest(&tested);
+
+		if (!nocheck) {
+			lc_ak_selftest();
+			LC_SELFTEST_COMPLETED(LC_ALG_STATUS_ASCON_KECCAK);
+		}
 
 		if (keylen != 64)
 			return -EINVAL;
@@ -156,7 +168,10 @@ int lc_ak_setiv(struct lc_ascon_cryptor *ascon, size_t keylen)
 		break;
 	case 0x440 / 8: /* Keccak security level 256 bits */
 
-		lc_ak_selftest(&tested);
+		if (!nocheck) {
+			lc_ak_selftest();
+			LC_SELFTEST_COMPLETED(LC_ALG_STATUS_ASCON_KECCAK);
+		}
 
 		if (keylen != 32)
 			return -EINVAL;

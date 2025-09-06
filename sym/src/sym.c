@@ -21,49 +21,74 @@
 #include "lc_sym.h"
 #include "visibility.h"
 
-LC_INTERFACE_FUNCTION(void, lc_sym_init, struct lc_sym_ctx *ctx)
+LC_INTERFACE_FUNCTION(int, lc_sym_init, struct lc_sym_ctx *ctx)
 {
-	const struct lc_sym *sym = ctx->sym;
+	const struct lc_sym *sym;
 
-	sym->init(ctx->sym_state);
+	if (!ctx)
+		return -EINVAL;
+
+	sym = ctx->sym;
+
+	return sym->init(ctx->sym_state);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_sym_setkey, struct lc_sym_ctx *ctx,
 		      const uint8_t *key, size_t keylen)
 {
-	const struct lc_sym *sym = ctx->sym;
+	const struct lc_sym *sym;
 
+	if (!ctx)
+		return -EINVAL;
+
+	sym = ctx->sym;
 	return sym->setkey(ctx->sym_state, key, keylen);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_sym_setiv, struct lc_sym_ctx *ctx,
 		      const uint8_t *iv, size_t ivlen)
 {
-	const struct lc_sym *sym = ctx->sym;
+	const struct lc_sym *sym;
 
+	if (!ctx)
+		return -EINVAL;
+
+	sym = ctx->sym;
 	return sym->setiv(ctx->sym_state, iv, ivlen);
 }
 
 LC_INTERFACE_FUNCTION(void, lc_sym_encrypt, struct lc_sym_ctx *ctx,
 		      const uint8_t *in, uint8_t *out, size_t len)
 {
-	const struct lc_sym *sym = ctx->sym;
+	const struct lc_sym *sym;
 
+	if (!ctx)
+		return;
+
+	sym = ctx->sym;
 	sym->encrypt(ctx->sym_state, in, out, len);
 }
 
 LC_INTERFACE_FUNCTION(void, lc_sym_decrypt, struct lc_sym_ctx *ctx,
 		      const uint8_t *in, uint8_t *out, size_t len)
 {
-	const struct lc_sym *sym = ctx->sym;
+	const struct lc_sym *sym;
 
+	if (!ctx)
+		return;
+
+	sym= ctx->sym;
 	sym->decrypt(ctx->sym_state, in, out, len);
 }
 
 LC_INTERFACE_FUNCTION(void, lc_sym_zero, struct lc_sym_ctx *ctx)
 {
-	const struct lc_sym *sym = ctx->sym;
+	const struct lc_sym *sym;
 
+	if (!ctx)
+		return;
+
+	sym = ctx->sym;
 	lc_memset_secure((uint8_t *)ctx + sizeof(struct lc_sym_ctx), 0,
 			 LC_SYM_STATE_SIZE(sym));
 }
@@ -74,7 +99,7 @@ LC_INTERFACE_FUNCTION(int, lc_sym_alloc, const struct lc_sym *sym,
 	struct lc_sym_ctx *out_ctx = NULL;
 	int ret;
 
-	if (!ctx)
+	if (!ctx || !sym)
 		return -EINVAL;
 
 	ret = lc_alloc_aligned((void **)&out_ctx, LC_SYM_COMMON_ALIGNMENT,

@@ -26,10 +26,13 @@
 extern "C" {
 #endif
 
-void ascon_256_init(void *_state);
-void ascon_128a_init(void *_state);
-void ascon_xof_init(void *_state);
-void ascon_cxof_init(void *_state);
+int ascon_256_init(void *_state);
+int ascon_256_init_nocheck(void *_state);
+int ascon_128a_init(void *_state);
+int ascon_xof_init(void *_state);
+int ascon_xof_init_nocheck(void *_state);
+int ascon_cxof_init(void *_state);
+int ascon_cxof_init_nocheck(void *_state);
 size_t ascon_digestsize(void *_state);
 void ascon_xof_set_digestsize(void *_state, size_t digestsize);
 size_t ascon_xof_get_digestsize(void *_state);

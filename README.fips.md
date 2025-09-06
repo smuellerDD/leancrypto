@@ -50,7 +50,7 @@ Each cryptographic algorithm has its own power-up self test which is executed be
 
 The caller may trigger a complete new round of self tests, i.e. all algorithms will perform a new self test before the next use, when using the API of `lc_rerun_selftests`. To reperform the integrity test, the API `lc_fips_integrity_checker` is provided.
 
-When a self-test fails, `leancrypto-fips` aborts and terminates itself as well as the calling application.
+When a self-test fails, `leancrypto-fips` as well as `leancrypto` enters a degraded mode of operation following the FIPS 2025 specification: the offending algorithm is now unavailable (including all algorithms that potentially use it). The self tests can be rerun again with the API above to bring the offending algorithm back into operational state. The status of the passed/failed self-tests is visible with `lc_status` or with the `lc_status_get_result()` APIs which returns the self test status of the queried algorithm(s).
 
 Leancrypto provides multiple implementations of one algorithm. Furthermore, it contains a "selector" heuristic which selects the fastest implementation at the time when using the algorithm at runtime. This heuristic depends on the detection of CPU mechanisms required by the accelerated algorithm implementations. Considering that on one given CPU (i.e. execution environment) the heuristic will always select the same algorithm, the self test is executed only once for the selected implementation.
 
@@ -92,11 +92,11 @@ The PCT is automatically enabled for the following algorithms:
 
 * ML-KEM
 
-* hybrid ML-KEM - only the ML-KEM key pair generation
+* composite ML-KEM - only the ML-KEM key pair generation
 
 * ML-DSA
 
-* hybrid ML-DSA - only the ML-DSA key pair generation
+* composite ML-DSA - only the ML-DSA key pair generation
 
 * SLH-DSA
 

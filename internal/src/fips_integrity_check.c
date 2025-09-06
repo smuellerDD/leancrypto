@@ -45,8 +45,10 @@ int fips_integrity_check(const struct lc_fips_integrity_sections *secs,
 {
 	size_t i;
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_sha3_256);
+	int ret = lc_hash_init(hash_ctx);
 
-	lc_hash_init(hash_ctx);
+	if (ret)
+		return ret;
 
 	for (i = 0; i < n_secs; i++, secs++) {
 		const uint8_t *start = secs->section_start_p,

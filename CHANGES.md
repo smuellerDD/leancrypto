@@ -1,4 +1,4 @@
-Changes 1.5.2-prerelease
+Changes 1.6.0-prerelease
 * ASN.1: use stack for small generator for small use cases
 
 * X.509: Updates required to support the shim boot loader
@@ -10,6 +10,8 @@ Changes 1.5.2-prerelease
 * AES-GCM added
 
 * AES-XTS added
+
+* Availability: remove assert() calls throughout the code - in case of a self test error, disable the algorithm. Instead of using assert, apply a centrally managed test manager that stores the test status. This implies that some initalization APIs like lc_hash_init, lc_sym_init, lc_hmac_init are changed such that they return an error code if self tests failed. Thus, the version is now changed as this is considered to be an ABI change. Although this sounds heavy, the test manager is relatively small and the runtime state should be smaller than the old approach considering the old approach uses one global 32 bit integer per self test to maintain the state. This is now replaced with a set of 16 bit integers for all algorithms.
 
 Changes 1.5.1
 * add ChaCha20 Poly 1305 AEAD

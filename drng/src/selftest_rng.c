@@ -52,9 +52,7 @@ static int selftest_rng_seed(void *_state, const uint8_t *seed, size_t seedlen,
 	(void)persbuf;
 	(void)perslen;
 
-	lc_hash_init(state);
-
-	return 0;
+	return lc_hash_init(state);
 }
 
 static void selftest_rng_zero(void *_state)

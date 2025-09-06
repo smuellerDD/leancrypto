@@ -232,12 +232,17 @@
 #include "lc_kmac256_drng.h"
 #include "lc_memcmp_secure.h"
 #include "math_helper.h"
+#include "ret_checkers.h"
 #include "visibility.h"
 
 #define LC_KMAC_DRNG_SEED_CUSTOMIZATION_STRING "KMAC-DRNG seed"
 #define LC_KMAC_DRNG_CTX_CUSTOMIZATION_STRING "KMAC-DRNG generate"
 
-static void kmac256_drng_selftest(int *tested, const char *impl)
+static int lc_kmac256_drng_seed_nocheck(void *_state, const uint8_t *seed,
+					size_t seedlen, const uint8_t *persbuf,
+					size_t perslen);
+
+static void kmac256_drng_selftest(void)
 {
 	static const uint8_t seed[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
@@ -277,13 +282,15 @@ static void kmac256_drng_selftest(int *tested, const char *impl)
 	};
 	uint8_t act[sizeof(exp)] __align(sizeof(uint32_t));
 
-	LC_SELFTEST_RUN(tested);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_KMAC_DRBG);
 
 	LC_KMAC256_DRNG_CTX_ON_STACK(kmac_ctx);
 
-	lc_rng_seed(kmac_ctx, seed, sizeof(seed), NULL, 0);
+	lc_kmac256_drng_seed_nocheck(kmac_ctx->rng_state, seed, sizeof(seed),
+				     NULL, 0);
 	lc_rng_generate(kmac_ctx, NULL, 0, act, sizeof(act));
-	lc_compare_selftest(act, exp, sizeof(exp), impl);
+	lc_compare_selftest(LC_ALG_STATUS_KMAC_DRBG, act, exp, sizeof(exp),
+			    "KMAC DRNG");
 	lc_rng_zero(kmac_ctx);
 }
 
@@ -344,21 +351,26 @@ static void lc_kmac256_drng_encode(struct lc_kmac_ctx *kmac_ctx,
  * This generates T(0) and T(1) of size 1088 of the KMAC DRNG specification
  * section 2.3.
  */
-static void lc_kmac256_drng_fke_init_ctx(struct lc_kmac256_drng_state *state,
+static int lc_kmac256_drng_fke_init_ctx(struct lc_kmac256_drng_state *state,
 					 struct lc_kmac_ctx *kmac_ctx,
 					 const uint8_t *addtl_input,
 					 size_t addtl_input_len)
 {
 	/* Initialize the KMAC with K(N) and the cust. string. */
-	lc_kmac_init(kmac_ctx, state->key, LC_KMAC256_DRNG_KEYSIZE,
+	int ret = lc_kmac_init(kmac_ctx, state->key, LC_KMAC256_DRNG_KEYSIZE,
 		     (uint8_t *)LC_KMAC_DRNG_CTX_CUSTOMIZATION_STRING,
 		     sizeof(LC_KMAC_DRNG_CTX_CUSTOMIZATION_STRING) - 1);
+
+	if (ret)
+		return ret;
 
 	/* Insert the additional data into the KMAC state. */
 	lc_kmac256_drng_encode(kmac_ctx, 2, addtl_input, addtl_input_len);
 
 	/* Generate the K(N + 1) to store in the state and overwrite K(N). */
 	lc_kmac_final_xof(kmac_ctx, state->key, LC_KMAC256_DRNG_KEYSIZE);
+
+	return 0;
 }
 
 /*
@@ -378,6 +390,7 @@ static int lc_kmac256_drng_generate(void *_state, const uint8_t *addtl_input,
 {
 	struct lc_kmac256_drng_state *state = _state;
 	LC_KMAC_CTX_ON_STACK(kmac_ctx, LC_KMAC256_DRNG_HASH_TYPE);
+	int ret = 0;
 
 	BUILD_BUG_ON(LC_KMAC256_DRNG_MAX_CHUNK % LC_SHA3_256_SIZE_BLOCK);
 
@@ -394,8 +407,8 @@ static int lc_kmac256_drng_generate(void *_state, const uint8_t *addtl_input,
 						       LC_KMAC256_DRNG_KEYSIZE);
 
 		/* Instantiate KMAC with TMP_K(N) and generate TMP_K(N + 1). */
-		lc_kmac256_drng_fke_init_ctx(state, kmac_ctx, addtl_input,
-					     addtl_input_len);
+		CKINT(lc_kmac256_drng_fke_init_ctx(state, kmac_ctx, addtl_input,
+					     addtl_input_len));
 
 		/* Generate the requested amount of output bits */
 		lc_kmac_final_xof(kmac_ctx, out, todo);
@@ -405,10 +418,11 @@ static int lc_kmac256_drng_generate(void *_state, const uint8_t *addtl_input,
 
 	/* K(N + 1) is already in place as TMP(K) is stored in the key state. */
 
+out:
 	/* Clear the KMAC state which is not needed any more. */
 	lc_kmac_zero(kmac_ctx);
 
-	return 0;
+	return ret;
 }
 
 /*
@@ -418,34 +432,32 @@ static int lc_kmac256_drng_generate(void *_state, const uint8_t *addtl_input,
  *
  * This applies the KMAC DRNG specification section 2.2.
  */
-static int lc_kmac256_drng_seed(void *_state, const uint8_t *seed,
-				size_t seedlen, const uint8_t *persbuf,
-				size_t perslen)
+static int lc_kmac256_drng_seed_nocheck(void *_state, const uint8_t *seed,
+					size_t seedlen, const uint8_t *persbuf,
+					size_t perslen)
 {
-	static int tested = 0;
 	struct lc_kmac256_drng_state *state = _state;
 	uint8_t initially_seeded = state->initially_seeded;
+	int ret = 0;
 	LC_KMAC_CTX_ON_STACK(kmac_ctx, LC_KMAC256_DRNG_HASH_TYPE);
 
 	if (!state)
 		return -EINVAL;
-
-	kmac256_drng_selftest(&tested, "KMAC DRNG");
 
 	/*
 	 * During reseeding, insert key into the SHAKE state. During initial
 	 * seeding, key does not yet exist and thus is not considered.
 	 */
 	if (initially_seeded) {
-		lc_kmac_init(kmac_ctx, state->key, LC_KMAC256_DRNG_KEYSIZE,
+		CKINT(lc_kmac_init(kmac_ctx, state->key, LC_KMAC256_DRNG_KEYSIZE,
 			     (uint8_t *)LC_KMAC_DRNG_SEED_CUSTOMIZATION_STRING,
 			     sizeof(LC_KMAC_DRNG_SEED_CUSTOMIZATION_STRING) -
-				     1);
+				     1));
 	} else {
-		lc_kmac_init(kmac_ctx, NULL, 0,
+		CKINT(lc_kmac_init(kmac_ctx, NULL, 0,
 			     (uint8_t *)LC_KMAC_DRNG_SEED_CUSTOMIZATION_STRING,
 			     sizeof(LC_KMAC_DRNG_SEED_CUSTOMIZATION_STRING) -
-				     1);
+				     1));
 
 		/* DRNG is now initially seeded */
 		state->initially_seeded = 1;
@@ -460,10 +472,22 @@ static int lc_kmac256_drng_seed(void *_state, const uint8_t *seed,
 	/* Generate the K(N + 1) to store in the state and overwrite K(N). */
 	lc_kmac_final_xof(kmac_ctx, state->key, LC_KMAC256_DRNG_KEYSIZE);
 
+out:
 	/* Clear the KMAC state which is not needed any more. */
 	lc_kmac_zero(kmac_ctx);
 
-	return 0;
+	return ret;
+}
+
+static int lc_kmac256_drng_seed(void *_state, const uint8_t *seed,
+				size_t seedlen, const uint8_t *persbuf,
+				size_t perslen)
+{
+	kmac256_drng_selftest();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_KMAC_DRBG);
+
+	return lc_kmac256_drng_seed_nocheck(_state, seed, seedlen, persbuf,
+					    perslen);
 }
 
 static void lc_kmac256_drng_zero(void *_state)

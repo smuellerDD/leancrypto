@@ -72,7 +72,7 @@ static int test_encrypt(const struct lc_sym *aes_impl, const uint8_t *key,
 	unpoison(key, keylen);
 
 	/* Encrypt */
-	lc_sym_init(aes);
+	CKINT(lc_sym_init(aes));
 	CKINT(lc_sym_setkey(aes, key, keylen));
 	lc_sym_encrypt(aes, in, in, sizeof(in));
 	ret = lc_compare(in, out, sizeof(in), "AES block encrypt");

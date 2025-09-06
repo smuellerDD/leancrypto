@@ -34,6 +34,7 @@ void aes_fastest_impl(void);
 void kyber_riscv_rvv_selector(void);
 void secure_execution_linux(void);
 void chacha20_fastest_impl(void);
+void lc_activate_library(void);
 
 #ifdef __cplusplus
 }

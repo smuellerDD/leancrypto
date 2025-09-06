@@ -20,6 +20,7 @@
 #include "aes_riscv64.h"
 #include "aes_internal.h"
 #include "asm/riscv64/riscv64_aes_asm.h"
+#include "compare.h"
 #include "ext_headers_internal.h"
 #include "lc_aes.h"
 #include "lc_sym.h"
@@ -46,15 +47,19 @@ static void aes_riscv64_cbc_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 	lc_mode_cbc_c->decrypt(&ctx->cbc_state, in, out, len);
 }
 
-static void aes_riscv64_cbc_init(struct lc_sym_state *ctx)
+static int aes_riscv64_cbc_init_nocheck(struct lc_sym_state *ctx)
 {
-	static int tested = 0;
-
-	(void)ctx;
-
-	mode_cbc_selftest(lc_aes_cbc_riscv64, &tested, "AES-CBC");
 	lc_mode_cbc_c->init(&ctx->cbc_state, lc_aes_riscv64,
 			    &ctx->enc_block_ctx, NULL);
+	return 0;
+}
+
+static void aes_riscv64_cbc_init(struct lc_sym_state *ctx)
+{
+	mode_cbc_selftest(lc_aes_cbc_riscv64);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_AES_CBC);
+
+	return aes_riscv64_cbc_init_nocheck(ctx);
 }
 
 static int aes_riscv64_cbc_setkey(struct lc_sym_state *ctx, const uint8_t *key,
@@ -73,6 +78,7 @@ static int aes_riscv64_cbc_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 
 static struct lc_sym _lc_aes_cbc_riscv64 = {
 	.init = aes_riscv64_cbc_init,
+	.init_nocheck = aes_riscv64_cbc_init_nocheck,
 	.setkey = aes_riscv64_cbc_setkey,
 	.setiv = aes_riscv64_cbc_setiv,
 	.encrypt = aes_riscv64_cbc_encrypt,

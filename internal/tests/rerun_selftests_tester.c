@@ -26,9 +26,11 @@ static int rerun_selftest_tester(void)
 {
 	uint8_t buf[LC_SHA_MAX_SIZE_DIGEST];
 
-	lc_hash(lc_sha3_512, NULL, 0, buf);
+	if (lc_hash(lc_sha3_512, NULL, 0, buf))
+		return 1;
 	lc_rerun_selftests();
-	lc_hash(lc_sha3_512, NULL, 0, buf);
+	if (lc_hash(lc_sha3_512, NULL, 0, buf))
+		return 1;
 
 	return 0;
 }

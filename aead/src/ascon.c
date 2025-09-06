@@ -62,8 +62,8 @@ static void lc_ascon_zero(struct lc_ascon_cryptor *ascon)
  * the same key is used for decryption as for encryption. Yet, checks specific
  * to the used sponge limit the key size.
  */
-static int lc_ascon_setkey(void *state, const uint8_t *key, size_t keylen,
-			   const uint8_t *nonce, size_t noncelen)
+int lc_ascon_setkey_int(void *state, const uint8_t *key, size_t keylen,
+			const uint8_t *nonce, size_t noncelen, int nocheck)
 {
 	struct lc_ascon_cryptor *ascon = state;
 	const struct lc_hash *hash = ascon->hash;
@@ -108,13 +108,13 @@ static int lc_ascon_setkey(void *state, const uint8_t *key, size_t keylen,
 	 */
 
 	/* Insert the IV into the first 64-bit word */
-	ret = lc_ak_setiv(ascon, keylen);
+	ret = lc_ak_setiv(ascon, keylen, nocheck);
 	if (ret < 0)
 		return ret;
 
 	/* lc_ak_setiv did not identify the key */
 	if (!ret) {
-		ret = lc_ascon_setiv(ascon, keylen);
+		ret = lc_ascon_setiv(ascon, keylen, nocheck);
 		if (ret < 0)
 			return ret;
 	}
@@ -142,6 +142,12 @@ static int lc_ascon_setkey(void *state, const uint8_t *key, size_t keylen,
 			    keylen);
 
 	return 0;
+}
+
+static int lc_ascon_setkey(void *state, const uint8_t *key, size_t keylen,
+			   const uint8_t *nonce, size_t noncelen)
+{
+	return lc_ascon_setkey_int(state, key, keylen, nonce, noncelen, 0);
 }
 
 /* Insert the AAD into the sponge state. */

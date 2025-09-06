@@ -21,29 +21,41 @@
 #define COMPARE_H
 
 #include "ext_headers_internal.h"
+#include "status_algorithms.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int get_current_selftest_level(void);
-
 #ifdef LC_SELFTEST_ENABLED
-#define LC_SELFTEST_RUN(x)                                                     \
-	if (*x == get_current_selftest_level())                                \
+#define LC_SELFTEST_RUN(flag)                                                  \
+	if (alg_status_get_result(flag) != lc_alg_status_result_pending)       \
 		return;                                                        \
-	*x = get_current_selftest_level();
+	alg_status_set_result(lc_alg_status_result_ongoing, flag)
+
+#define LC_SELFTEST_COMPLETED(flag)                                            \
+	if (alg_status_get_result(flag) != lc_alg_status_result_passed)        \
+	return -EAGAIN
+
 #else /* LC_SELFTEST_ENABLED */
+
 #define LC_SELFTEST_RUN(x)                                                     \
 	(void)x;                                                               \
 	if (1)                                                                 \
 		return;
+#define LC_SELFTEST_COMPLETED(flag)
+
 #endif /* LC_SELFTEST_ENABLED */
 
 int lc_compare(const uint8_t *act, const uint8_t *exp, const size_t len,
 	       const char *info);
-void lc_compare_selftest(const uint8_t *act, const uint8_t *exp,
-			 const size_t len, const char *info);
+
+/*
+ * The return code must be checked and in case of != 0 the continued checks
+ * for one given self test must be prevented.
+ */
+int lc_compare_selftest(uint64_t flag, const uint8_t *act, const uint8_t *exp,
+			const size_t len, const char *info);
 void lc_disable_selftest(void);
 
 #ifdef __cplusplus

@@ -55,7 +55,8 @@ static int _ascon_sqeeze_more_tester(const struct lc_hash *ascon,
 
 	for (i = 1; i <= sizeof(exp); i++) {
 		act_p = act;
-		lc_hash_init(ctx);
+		if (lc_hash_init(ctx))
+			return 1;
 		lc_hash_update(ctx, msg, sizeof(msg));
 		lc_hash_set_digestsize(ctx, i);
 

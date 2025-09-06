@@ -27,30 +27,17 @@ extern "C" {
 #endif
 
 void hqc_kem_keygen_selftest(
-	int *tested, const char *impl,
 	int (*_lc_hqc_keypair)(struct lc_hqc_pk *pk, struct lc_hqc_sk *sk,
 			       struct lc_rng_ctx *rng_ctx));
 
-void hqc_kem_enc_selftest(int *tested, const char *impl,
-			  int (*_lc_hqc_enc)(struct lc_hqc_ct *ct,
+void hqc_kem_enc_selftest(int (*_lc_hqc_enc)(struct lc_hqc_ct *ct,
 					     struct lc_hqc_ss *ss,
 					     const struct lc_hqc_pk *pk,
 					     struct lc_rng_ctx *rng_ctx));
-void hqc_kem_enc_kdf_selftest(
-	int *tested, const char *impl,
-	int (*_lc_hqc_kdf_enc)(struct lc_hqc_ct *ct, uint8_t *ss, size_t ss_len,
-			       const struct lc_hqc_pk *pk,
-			       struct lc_rng_ctx *rng_ctx));
 
-void hqc_kem_dec_selftest(int *tested, const char *impl,
-			  int (*_lc_hqc_dec)(struct lc_hqc_ss *ss,
+void hqc_kem_dec_selftest(int (*_lc_hqc_dec)(struct lc_hqc_ss *ss,
 					     const struct lc_hqc_ct *ct,
 					     const struct lc_hqc_sk *sk));
-void hqc_kem_dec_kdf_selftest(
-	int *tested, const char *impl,
-	int (*_lc_hqc_kdf_dec)(uint8_t *ss, size_t ss_len,
-			       const struct lc_hqc_ct *ct,
-			       const struct lc_hqc_sk *sk));
 
 #ifdef __cplusplus
 }
