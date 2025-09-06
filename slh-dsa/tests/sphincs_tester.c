@@ -174,12 +174,21 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 		return 1;
 	}
 
+#if (defined(LC_SPHINCS_TYPE_128F_ASCON) || defined(LC_SPHINCS_TYPE_128S_ASCON))
+	if ((argc < 2) && lc_status_get_result(LC_ALG_STATUS_ASCONXOF) !=
+	    lc_alg_status_result_passed) {
+		printf("Ascon XOF self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_SHAKE));
+		return 1;
+	}
+#else
 	if ((argc < 2) && lc_status_get_result(LC_ALG_STATUS_SHAKE) !=
 	    lc_alg_status_result_passed) {
 		printf("SHAKE self test status %u unexpected\n",
 		       lc_status_get_result(LC_ALG_STATUS_SHAKE));
 		return 1;
 	}
+#endif
 
 	memset(status, 0, sizeof(status));
 	lc_status(status, sizeof(status));
