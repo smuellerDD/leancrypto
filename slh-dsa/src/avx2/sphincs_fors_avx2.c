@@ -35,13 +35,17 @@
 #include "sphincs_utils.h"
 #include "sphincs_utilsx4_avx2.h"
 
-static void fors_gen_sk(unsigned char *sk, const spx_ctx *ctx,
-			uint32_t fors_leaf_addr[8])
+static int fors_gen_sk(unsigned char *sk, const spx_ctx *ctx,
+		       uint32_t fors_leaf_addr[8])
 {
 	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
+	int ret;
 
-	prf_addr(hash_ctx, sk, ctx, fors_leaf_addr);
+	CKINT(prf_addr(hash_ctx, sk, ctx, fors_leaf_addr));
 	lc_hash_zero(hash_ctx);
+
+out:
+	return ret;
 }
 
 static void fors_gen_skx4(unsigned char *sk0, unsigned char *sk1,
@@ -154,6 +158,7 @@ int fors_sign_avx2(uint8_t sig[LC_SPX_FORS_BYTES], uint8_t pk[LC_SPX_N],
 	uint32_t *fors_leaf_addr;
 	uint32_t idx_offset;
 	unsigned int i;
+	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	fors_leaf_addr = ws->fors_info.leaf_addrx;
@@ -176,7 +181,7 @@ int fors_sign_avx2(uint8_t sig[LC_SPX_FORS_BYTES], uint8_t pk[LC_SPX_N],
 
 		/* Include the secret key part that produces the selected leaf node. */
 		set_type(ws->fors_tree_addr, LC_SPX_ADDR_TYPE_FORSPRF);
-		fors_gen_sk(sig, ctx, ws->fors_tree_addr);
+		CKINT(fors_gen_sk(sig, ctx, ws->fors_tree_addr));
 		set_type(ws->fors_tree_addr, LC_SPX_ADDR_TYPE_FORSTREE);
 		sig += LC_SPX_N;
 
@@ -193,9 +198,10 @@ int fors_sign_avx2(uint8_t sig[LC_SPX_FORS_BYTES], uint8_t pk[LC_SPX_N],
 	CKINT(thash(hash_ctx, pk, ws->roots, LC_SPX_FORS_TREES, ctx->pub_seed,
 		    ws->fors_pk_addr));
 
+out:
 	LC_RELEASE_MEM(ws);
 	lc_hash_zero(hash_ctx);
-	return 0;
+	return ret;
 }
 
 /**
@@ -220,7 +226,7 @@ int fors_pk_from_sig_avx2(uint8_t pk[LC_SPX_N],
 	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
 	uint32_t idx_offset;
 	unsigned int i;
-	int ret = 0;
+	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	copy_keypair_addr(ws->fors_tree_addr, fors_addr);
