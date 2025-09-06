@@ -287,10 +287,10 @@ endif
 if get_option('cshake_drng').enabled()
 	add_global_arguments([ '-DLC_DRNG_CSHAKE' ], language: 'c')
 endif
-if (get_option('cshake_drng').enabled() and get_option('ascon').enabled())
+if (get_option('xdrbg').enabled() and get_option('ascon').enabled())
 	add_global_arguments([ '-DLC_DRNG_XDRBG128' ], language: 'c')
 endif
-if (get_option('cshake_drng').enabled() and get_option('sha3').enabled())
+if (get_option('xdrbg').enabled() and get_option('sha3').enabled())
 	add_global_arguments([ '-DLC_DRNG_XDRBG256' ], language: 'c')
 endif
 if get_option('drbg_hash').enabled()

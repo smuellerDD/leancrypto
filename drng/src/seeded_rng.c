@@ -33,15 +33,11 @@
 /* Select the type of DRNG */
 
 #ifdef LINUX_KERNEL
-#ifdef CONFIG_LEANCRYPTO_XDRBG_DRNG
-#define LC_DRNG_XDRBG
-#endif
-#ifdef CONFIG_LEANCRYPTO_SHA3
+
+#if (defined(CONFIG_LEANCRYPTO_SHA3) && defined(CONFIG_LEANCRYPTO_XDRBG_DRNG))
 #define LC_DRNG_XDRBG256
-#elif defined(CONFIG_LEANCRYPTO_ASCON_HASH)
+#elif (defined(CONFIG_LEANCRYPTO_ASCON_HASH) && defined(CONFIG_LEANCRYPTO_XDRBG_DRNG))
 #define LC_DRNG_XDRBG128
-#else
-#error "Unsupported compilation of XDRBG: enable either SHA-3 or Ascon Hash"
 #endif
 
 // TODO Those are not yet defined in Kbuild
@@ -59,15 +55,12 @@
 #endif
 #endif
 
-#ifdef LC_DRNG_XDRBG
 #ifdef LC_DRNG_XDRBG256
 #define LC_SEEDED_RNG_CTX_SIZE LC_XDRBG256_DRNG_CTX_SIZE
 #define LC_SEEDED_RNG_CTX(name) LC_XDRBG256_RNG_CTX(name)
-#else
+#elif defined(LC_DRNG_XDRBG128)
 #define LC_SEEDED_RNG_CTX_SIZE LC_XDRBG128_DRNG_CTX_SIZE
 #define LC_SEEDED_RNG_CTX(name) LC_XDRBG128_RNG_CTX(name)
-#endif
-
 #elif defined(LC_DRNG_CSHAKE)
 /* Use cSHAKE 256 */
 #define LC_SEEDED_RNG_CTX_SIZE LC_CSHAKE256_DRNG_CTX_SIZE
