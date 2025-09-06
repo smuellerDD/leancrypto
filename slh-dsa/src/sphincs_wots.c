@@ -24,6 +24,7 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
+#include "ret_checkers.h"
 #include "small_stack_support.h"
 #include "sphincs_address.h"
 #include "sphincs_hash.h"
@@ -44,12 +45,13 @@
  * Interprets in as start-th value of the chain.
  * addr has to contain the address of the chain.
  */
-static void gen_chain(uint8_t *out, const uint8_t *in, unsigned int start,
-		      unsigned int steps, const spx_ctx *ctx, uint32_t addr[8])
+static int gen_chain(uint8_t *out, const uint8_t *in, unsigned int start,
+		     unsigned int steps, const spx_ctx *ctx, uint32_t addr[8])
 {
 	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
 	uint64_t ascon_state[LC_ASCON_HASH_STATE_WORDS];
 	uint32_t i;
+	int ret = 0;
 
 	(void)ascon_state;
 
@@ -61,18 +63,21 @@ static void gen_chain(uint8_t *out, const uint8_t *in, unsigned int start,
 		/* only last word changes */
 		set_hash_addr(addr, i);
 #if defined(LC_SPHINCS_TYPE_128F_ASCON) || defined(LC_SPHINCS_TYPE_128S_ASCON)
-		thash_ascon(hash_ctx, out, out, 1, ctx->pub_seed, addr,
-			    LC_SPX_ADDR_BYTES - LC_ASCON_HASH_RATE,
-			    (uint8_t *)ascon_state, i == start);
+		CKINT(thash_ascon(
+			hash_ctx, out, out, 1, ctx->pub_seed, addr,
+			LC_SPX_ADDR_BYTES - LC_ASCON_HASH_RATE,
+			(uint8_t *)ascon_state, i == start));
 #else
-		thash(hash_ctx, out, out, 1, ctx->pub_seed, addr);
+		CKINT(thash(hash_ctx, out, out, 1, ctx->pub_seed, addr));
 #endif
 	}
 
+out:
 #if defined(LC_SPHINCS_TYPE_128F_ASCON) || defined(LC_SPHINCS_TYPE_128S_ASCON)
 	lc_memset_secure(ascon_state, 0, sizeof(ascon_state));
 #endif
 	lc_hash_zero(hash_ctx);
+	return ret;
 }
 
 /**
@@ -140,16 +145,19 @@ int wots_pk_from_sig_c(uint8_t pk[LC_SPX_WOTS_BYTES], const uint8_t *sig,
 		unsigned int lengths[LC_SPX_WOTS_LEN];
 	};
 	uint32_t i;
+	int ret = 0;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	chain_lengths_c(ws->lengths, msg);
 
 	for (i = 0; i < LC_SPX_WOTS_LEN; i++) {
 		set_chain_addr(addr, i);
-		gen_chain(pk + i * LC_SPX_N, sig + i * LC_SPX_N, ws->lengths[i],
-			  LC_SPX_WOTS_W - 1 - ws->lengths[i], ctx, addr);
+		CKINT(gen_chain(pk + i * LC_SPX_N, sig + i * LC_SPX_N,
+				ws->lengths[i],
+				LC_SPX_WOTS_W - 1 - ws->lengths[i], ctx, addr));
 	}
 
+out:
 	LC_RELEASE_MEM(ws);
 	return 0;
 }

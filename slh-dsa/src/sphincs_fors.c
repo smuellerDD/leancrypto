@@ -24,6 +24,7 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
+#include "ret_checkers.h"
 #include "small_stack_support.h"
 #include "sphincs_address.h"
 #include "sphincs_fors.h"
@@ -32,41 +33,53 @@
 #include "sphincs_utils.h"
 #include "sphincs_utilsx1.h"
 
-static void fors_gen_sk(uint8_t *sk, const spx_ctx *ctx,
-			uint32_t fors_leaf_addr[8])
+static int fors_gen_sk(uint8_t *sk, const spx_ctx *ctx,
+		       uint32_t fors_leaf_addr[8])
 {
 	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
+	int ret;
 
-	prf_addr(hash_ctx, sk, ctx, fors_leaf_addr);
+	CKINT(prf_addr(hash_ctx, sk, ctx, fors_leaf_addr));
 	lc_hash_zero(hash_ctx);
+
+out:
+	return ret;
 }
 
-static void fors_sk_to_leaf(uint8_t *leaf, const uint8_t *sk,
-			    const spx_ctx *ctx, uint32_t fors_leaf_addr[8])
+static int fors_sk_to_leaf(uint8_t *leaf, const uint8_t *sk,
+			   const spx_ctx *ctx, uint32_t fors_leaf_addr[8])
 {
 	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
+	int ret;
 
-	thash(hash_ctx, leaf, sk, 1, ctx->pub_seed, fors_leaf_addr);
+	CKINT(thash(hash_ctx, leaf, sk, 1, ctx->pub_seed, fors_leaf_addr));
 	lc_hash_zero(hash_ctx);
+
+out:
+	return ret;
 }
 
 struct fors_gen_leaf_info {
 	uint32_t leaf_addrx[8];
 };
 
-static void fors_gen_leafx1(uint8_t *leaf, const spx_ctx *ctx,
-			    uint32_t addr_idx, void *info)
+static int fors_gen_leafx1(uint8_t *leaf, const spx_ctx *ctx, uint32_t addr_idx,
+			   void *info)
 {
 	struct fors_gen_leaf_info *fors_info = info;
 	uint32_t *fors_leaf_addr = fors_info->leaf_addrx;
+	int ret;
 
 	/* Only set the parts that the caller doesn't set */
 	set_tree_index(fors_leaf_addr, addr_idx);
 	set_type(fors_leaf_addr, LC_SPX_ADDR_TYPE_FORSPRF);
-	fors_gen_sk(leaf, ctx, fors_leaf_addr);
+	CKINT(fors_gen_sk(leaf, ctx, fors_leaf_addr));
 
 	set_type(fors_leaf_addr, LC_SPX_ADDR_TYPE_FORSTREE);
-	fors_sk_to_leaf(leaf, leaf, ctx, fors_leaf_addr);
+	CKINT(fors_sk_to_leaf(leaf, leaf, ctx, fors_leaf_addr));
+
+out:
+	return ret;
 }
 
 /**
@@ -109,6 +122,7 @@ int fors_sign_c(uint8_t sig[LC_SPX_FORS_BYTES], uint8_t pk[LC_SPX_N],
 	uint32_t *fors_leaf_addr;
 	uint32_t idx_offset;
 	unsigned int i;
+	int ret = 0;
 	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
@@ -141,18 +155,20 @@ int fors_sign_c(uint8_t sig[LC_SPX_FORS_BYTES], uint8_t pk[LC_SPX_N],
 		 * the additional parameters as thash_ascon which would
 		 * seem to convolute the code.
 		 */
-		treehashx1(ws->roots + i * LC_SPX_N, sig, ctx, ws->indices[i],
-			   idx_offset, LC_SPX_FORS_HEIGHT,
-			   ws->treehash_stack_sp, fors_gen_leafx1,
-			   ws->fors_tree_addr, &ws->fors_info);
+		CKINT(treehashx1(ws->roots + i * LC_SPX_N, sig, ctx,
+				 ws->indices[i],
+				 idx_offset, LC_SPX_FORS_HEIGHT,
+				 ws->treehash_stack_sp, fors_gen_leafx1,
+				 ws->fors_tree_addr, &ws->fors_info));
 
 		sig += LC_SPX_N * LC_SPX_FORS_HEIGHT;
 	}
 
 	/* Hash horizontally across all tree roots to derive the public key. */
-	thash(hash_ctx, pk, ws->roots, LC_SPX_FORS_TREES, ctx->pub_seed,
-	      ws->fors_pk_addr);
+	CKINT(thash(hash_ctx, pk, ws->roots, LC_SPX_FORS_TREES, ctx->pub_seed,
+		    ws->fors_pk_addr));
 
+out:
 	lc_hash_zero(hash_ctx);
 	LC_RELEASE_MEM(ws);
 	return 0;
@@ -179,6 +195,7 @@ int fors_pk_from_sig_c(uint8_t pk[LC_SPX_N],
 	};
 	uint32_t idx_offset;
 	unsigned int i;
+	int ret = 0;
 	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
@@ -201,17 +218,19 @@ int fors_pk_from_sig_c(uint8_t pk[LC_SPX_N],
 		sig += LC_SPX_N;
 
 		/* Derive the corresponding root node of this tree. */
-		compute_root(ws->roots + i * LC_SPX_N, ws->leaf, ws->indices[i],
-			     idx_offset, sig, LC_SPX_FORS_HEIGHT, ctx->pub_seed,
-			     ws->fors_tree_addr);
+		CKINT(compute_root(ws->roots + i * LC_SPX_N, ws->leaf,
+				   ws->indices[i], idx_offset, sig,
+				   LC_SPX_FORS_HEIGHT, ctx->pub_seed,
+				   ws->fors_tree_addr));
 		sig += LC_SPX_N * LC_SPX_FORS_HEIGHT;
 	}
 
 	/* Hash horizontally across all tree roots to derive the public key. */
-	thash(hash_ctx, pk, ws->roots, LC_SPX_FORS_TREES, ctx->pub_seed,
-	      ws->fors_pk_addr);
+	CKINT(thash(hash_ctx, pk, ws->roots, LC_SPX_FORS_TREES, ctx->pub_seed,
+		    ws->fors_pk_addr));
 
+out:
 	lc_hash_zero(hash_ctx);
 	LC_RELEASE_MEM(ws);
-	return 0;
+	return ret;
 }

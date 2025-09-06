@@ -33,6 +33,7 @@
 #include "kyber_ntt_armv8.h"
 #include "kyber_reduce_armv8.h"
 #include "null_buffer.h"
+#include "ret_checkers.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -213,14 +214,18 @@ kyber_poly_cbd_eta1_armv8(poly *r,
  * @param [in] seed pointer to input seed
  * @param [in] nonce one-byte input nonce
  */
-static inline void
+static inline int
 poly_getnoise_eta1_armv8(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
 			 uint8_t nonce, void *ws_buf)
 {
 	uint8_t *buf = ws_buf;
+	int ret;
 
-	kyber_shake256_prf(buf, POLY_GETNOISE_ETA1_BUFSIZE, seed, nonce);
+	CKINT(kyber_shake256_prf(buf, POLY_GETNOISE_ETA1_BUFSIZE, seed, nonce));
 	kyber_poly_cbd_eta1_armv8(r, buf);
+
+out:
+	return ret;
 }
 
 static inline void
@@ -245,14 +250,18 @@ kyber_poly_cbd_eta2_armv8(poly *r,
  * @param [in] nonce one-byte input nonce
  */
 #define POLY_GETNOISE_ETA2_BUFSIZE (LC_KYBER_ETA2 * LC_KYBER_N / 4)
-static inline void
+static inline int
 poly_getnoise_eta2_armv8(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
 			 uint8_t nonce, void *ws_buf)
 {
 	uint8_t *buf = ws_buf;
+	int ret;
 
-	kyber_shake256_prf(buf, POLY_GETNOISE_ETA2_BUFSIZE, seed, nonce);
+	CKINT(kyber_shake256_prf(buf, POLY_GETNOISE_ETA2_BUFSIZE, seed, nonce));
 	kyber_poly_cbd_eta2_armv8(r, buf);
+
+out:
+	return ret;
 }
 
 /**

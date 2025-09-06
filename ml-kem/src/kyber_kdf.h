@@ -24,6 +24,7 @@
 #include "lc_hash.h"
 #include "lc_kmac.h"
 #include "lc_sha3.h"
+#include "ret_checkers.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,20 +40,23 @@ extern "C" {
  * @param [out] out output buffer of size
  * @param [in] outlen output buffer length
  */
-static inline void kyber_kdf2(const uint8_t *in, size_t inlen,
-			      const uint8_t *in2, size_t inlen2, uint8_t *out,
-			      size_t outlen)
+static inline int kyber_kdf2(const uint8_t *in, size_t inlen,
+			     const uint8_t *in2, size_t inlen2, uint8_t *out,
+			     size_t outlen)
 {
 	LC_HASH_CTX_ON_STACK(shake256, lc_shake256);
+	int ret;
 
-	if (lc_hash_init(shake256))
-		return;
+	CKINT(lc_hash_init(shake256));
 	lc_hash_update(shake256, in, inlen);
 	lc_hash_update(shake256, in2, inlen2);
 	lc_hash_set_digestsize(shake256, outlen);
 	lc_hash_final(shake256, out);
 
 	lc_hash_zero(shake256);
+
+out:
+	return ret;
 }
 
 /**
@@ -73,22 +77,25 @@ static inline void kyber_kdf2(const uint8_t *in, size_t inlen,
  * @param [out] out output buffer of size
  * @param [in] outlen output buffer length
  */
-static inline void kyber_kdf3(const uint8_t *in, size_t inlen,
-			      const uint8_t *in2, size_t inlen2,
-			      const uint8_t *in3, size_t inlen3, uint8_t *out,
-			      size_t outlen)
+static inline int kyber_kdf3(const uint8_t *in, size_t inlen,
+			     const uint8_t *in2, size_t inlen2,
+			     const uint8_t *in3, size_t inlen3, uint8_t *out,
+			     size_t outlen)
 {
 	static const uint8_t kyber_ss_label[] = "Kyber KEM 3-way SS";
 	LC_KMAC_CTX_ON_STACK(kmac_ctx, lc_cshake256);
+	int ret;
 
-	if (lc_kmac_init(kmac_ctx, in, inlen, kyber_ss_label,
-			 sizeof(kyber_ss_label) - 1))
-		return;
+	CKINT(lc_kmac_init(kmac_ctx, in, inlen, kyber_ss_label,
+			   sizeof(kyber_ss_label) - 1));
 	lc_kmac_update(kmac_ctx, in2, inlen2);
 	lc_kmac_update(kmac_ctx, in3, inlen3);
 	lc_kmac_final(kmac_ctx, out, outlen);
 
 	lc_kmac_zero(kmac_ctx);
+
+out:
+	return ret;
 }
 
 /**
@@ -112,24 +119,27 @@ static inline void kyber_kdf3(const uint8_t *in, size_t inlen,
  * @param [out] out output buffer of size
  * @param [in] outlen output buffer length
  */
-static inline void kyber_kdf4(const uint8_t *in, size_t inlen,
-			      const uint8_t *in2, size_t inlen2,
-			      const uint8_t *in3, size_t inlen3,
-			      const uint8_t *in4, size_t inlen4, uint8_t *out,
-			      size_t outlen)
+static inline int kyber_kdf4(const uint8_t *in, size_t inlen,
+			     const uint8_t *in2, size_t inlen2,
+			     const uint8_t *in3, size_t inlen3,
+			     const uint8_t *in4, size_t inlen4, uint8_t *out,
+			     size_t outlen)
 {
 	static const uint8_t kyber_ss_label[] = "Kyber KEM 4-way SS";
 	LC_KMAC_CTX_ON_STACK(kmac_ctx, lc_cshake256);
+	int ret;
 
-	if (lc_kmac_init(kmac_ctx, in, inlen, kyber_ss_label,
-			 sizeof(kyber_ss_label) - 1))
-		return;
+	CKINT(lc_kmac_init(kmac_ctx, in, inlen, kyber_ss_label,
+			   sizeof(kyber_ss_label) - 1));
 	lc_kmac_update(kmac_ctx, in2, inlen2);
 	lc_kmac_update(kmac_ctx, in3, inlen3);
 	lc_kmac_update(kmac_ctx, in4, inlen4);
 	lc_kmac_final(kmac_ctx, out, outlen);
 
 	lc_kmac_zero(kmac_ctx);
+
+out:
+	return ret;
 }
 
 /**
@@ -142,11 +152,11 @@ static inline void kyber_kdf4(const uint8_t *in, size_t inlen,
  * @param [in] key pointer to the key
  * @param [in] nonce single-byte nonce (public PRF input)
  */
-static inline void kyber_shake256_prf(uint8_t *out, size_t outlen,
-				      const uint8_t key[LC_KYBER_SYMBYTES],
-				      uint8_t nonce)
+static inline int kyber_shake256_prf(uint8_t *out, size_t outlen,
+				     const uint8_t key[LC_KYBER_SYMBYTES],
+				     uint8_t nonce)
 {
-	kyber_kdf2(key, LC_KYBER_SYMBYTES, &nonce, 1, out, outlen);
+	return kyber_kdf2(key, LC_KYBER_SYMBYTES, &nonce, 1, out, outlen);
 }
 
 /**
@@ -158,13 +168,13 @@ static inline void kyber_shake256_prf(uint8_t *out, size_t outlen,
  * @param [in] key pointer to the key
  * @param [in] nonce single-byte nonce (public PRF input)
  */
-static inline void
+static inline int
 kyber_shake256_rkprf(uint8_t out[LC_KYBER_SSBYTES],
 		     const uint8_t key[LC_KYBER_SYMBYTES],
 		     const uint8_t nonce[LC_KYBER_CIPHERTEXTBYTES])
 {
-	kyber_kdf2(key, LC_KYBER_SYMBYTES, nonce, LC_KYBER_CIPHERTEXTBYTES, out,
-		   LC_KYBER_SSBYTES);
+	return kyber_kdf2(key, LC_KYBER_SYMBYTES, nonce,
+			  LC_KYBER_CIPHERTEXTBYTES, out, LC_KYBER_SSBYTES);
 }
 
 /**
@@ -175,15 +185,15 @@ kyber_shake256_rkprf(uint8_t out[LC_KYBER_SSBYTES],
  *
  * This KDF is is consistent with SP800-108 rev 1.
  */
-static inline void kyber_ss_kdf(uint8_t *ss, size_t ss_len,
-				const struct lc_kyber_ct *ct,
-				const uint8_t kyber_ss[LC_KYBER_SSBYTES])
+static inline int kyber_ss_kdf(uint8_t *ss, size_t ss_len,
+			       const struct lc_kyber_ct *ct,
+			       const uint8_t kyber_ss[LC_KYBER_SSBYTES])
 {
 	static const uint8_t kyber_ss_label[] = "Kyber KEM SS";
 
-	lc_kmac(lc_cshake256, kyber_ss, LC_KYBER_SSBYTES, kyber_ss_label,
-		sizeof(kyber_ss_label) - 1, ct->ct, LC_KYBER_CIPHERTEXTBYTES,
-		ss, ss_len);
+	return lc_kmac(lc_cshake256, kyber_ss, LC_KYBER_SSBYTES, kyber_ss_label,
+		       sizeof(kyber_ss_label) - 1, ct->ct,
+		       LC_KYBER_CIPHERTEXTBYTES, ss, ss_len);
 }
 
 #ifdef __cplusplus

@@ -24,6 +24,7 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
+#include "ret_checkers.h"
 #include "sphincs_type.h"
 #include "sphincs_address.h"
 #include "sphincs_thash.h"
@@ -61,15 +62,16 @@ unsigned long long bytes_to_ull(const uint8_t *in, unsigned int inlen)
  * Computes a root node given a leaf and an auth path.
  * Expects address to be complete other than the tree_height and tree_index.
  */
-void compute_root(uint8_t *root, const uint8_t *leaf, uint32_t leaf_idx,
-		  uint32_t idx_offset, const uint8_t *auth_path,
-		  uint32_t tree_height, const uint8_t pub_seed[LC_SPX_N],
-		  uint32_t addr[8])
+int compute_root(uint8_t *root, const uint8_t *leaf, uint32_t leaf_idx,
+		 uint32_t idx_offset, const uint8_t *auth_path,
+		 uint32_t tree_height, const uint8_t pub_seed[LC_SPX_N],
+		 uint32_t addr[8])
 {
 	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
 	uint64_t ascon_state[LC_ASCON_HASH_STATE_WORDS];
 	uint32_t i;
 	uint8_t buffer[2 * LC_SPX_N];
+	int ret;
 
 	(void)ascon_state;
 
@@ -94,13 +96,14 @@ void compute_root(uint8_t *root, const uint8_t *leaf, uint32_t leaf_idx,
 		/* Pick the right or left neighbor, depending on parity of the node. */
 		if (leaf_idx & 1) {
 #if defined(LC_SPHINCS_TYPE_128F_ASCON) || defined(LC_SPHINCS_TYPE_128S_ASCON)
-			thash_ascon(hash_ctx, buffer + LC_SPX_N, buffer, 2,
-				    pub_seed, addr,
-				    LC_SPX_ADDR_BYTES - LC_ASCON_HASH_RATE,
-				    (uint8_t *)ascon_state, i == 0);
+			CKINT(thash_ascon(
+				hash_ctx, buffer + LC_SPX_N, buffer, 2,
+				pub_seed, addr,
+				LC_SPX_ADDR_BYTES - LC_ASCON_HASH_RATE,
+				(uint8_t *)ascon_state, i == 0));
 #else
-			thash(hash_ctx, buffer + LC_SPX_N, buffer, 2, pub_seed,
-			      addr);
+			CKINT(thash(hash_ctx, buffer + LC_SPX_N, buffer, 2,
+				    pub_seed, addr));
 #endif
 			memcpy(buffer, auth_path, LC_SPX_N);
 		} else {
@@ -121,13 +124,16 @@ void compute_root(uint8_t *root, const uint8_t *leaf, uint32_t leaf_idx,
 	idx_offset >>= 1;
 	set_tree_height(addr, tree_height);
 	set_tree_index(addr, leaf_idx + idx_offset);
-	thash(hash_ctx, root, buffer, 2, pub_seed, addr);
+	CKINT(thash(hash_ctx, root, buffer, 2, pub_seed, addr));
 
+out:
 #if defined(LC_SPHINCS_TYPE_128F_ASCON) || defined(LC_SPHINCS_TYPE_128S_ASCON)
 	lc_memset_secure(ascon_state, 0, sizeof(ascon_state));
 #endif
 
 	lc_hash_zero(hash_ctx);
+
+	return ret;
 }
 
 #if 0

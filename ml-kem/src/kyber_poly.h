@@ -119,8 +119,8 @@ static inline void poly_tobytes(uint8_t r[LC_KYBER_POLYBYTES], const poly *a)
  * @param [in] nonce one-byte input nonce
  */
 #define POLY_GETNOISE_ETA1_BUFSIZE (LC_KYBER_ETA1 * LC_KYBER_N / 4)
-void poly_getnoise_eta1(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
-			uint8_t nonce, void *ws_buf);
+int poly_getnoise_eta1(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
+		       uint8_t nonce, void *ws_buf);
 
 /**
  * @brief poly_getnoise_eta2 - Sample a polynomial deterministically from a seed
@@ -133,8 +133,8 @@ void poly_getnoise_eta1(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
  * @param [in] nonce one-byte input nonce
  */
 #define POLY_GETNOISE_ETA2_BUFSIZE (LC_KYBER_ETA2 * LC_KYBER_N / 4)
-void poly_getnoise_eta2(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
-			uint8_t nonce, void *ws_buf);
+int poly_getnoise_eta2(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
+		       uint8_t nonce, void *ws_buf);
 
 #ifdef __cplusplus
 }

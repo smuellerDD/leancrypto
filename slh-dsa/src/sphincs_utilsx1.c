@@ -24,6 +24,7 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
+#include "ret_checkers.h"
 #include "sidechannel_resistantce.h"
 #include "sphincs_type.h"
 #include "sphincs_address.h"
@@ -45,12 +46,12 @@
  *
  * This works by using the standard Merkle tree building algorithm,
  */
-void treehashx1(
+int treehashx1(
 	unsigned char *root, unsigned char *auth_path, const spx_ctx *ctx,
 	uint32_t leaf_idx, uint32_t idx_offset, uint32_t tree_height,
 	uint8_t *stack_sp,
-	void (*gen_leaf)(unsigned char * /* Where to write the leaves */,
-			 const spx_ctx * /* ctx */, uint32_t idx, void *info),
+	int (*gen_leaf)(unsigned char * /* Where to write the leaves */,
+			const spx_ctx * /* ctx */, uint32_t idx, void *info),
 	uint32_t tree_addr[8], void *info)
 {
 #if 0
@@ -65,6 +66,7 @@ void treehashx1(
 	uint64_t ascon_state[LC_ASCON_HASH_STATE_WORDS];
 	uint32_t idx;
 	uint32_t max_idx = (uint32_t)((1 << tree_height) - 1);
+	int ret = 0;
 
 	(void)ascon_state;
 
@@ -74,7 +76,8 @@ void treehashx1(
 		/* needed during a thash */
 		uint8_t current_idx[2 * LC_SPX_N];
 
-		gen_leaf(&current_idx[LC_SPX_N], ctx, idx + idx_offset, info);
+		CKINT(gen_leaf(&current_idx[LC_SPX_N], ctx, idx + idx_offset,
+			       info));
 
 		/* Now combine the freshly generated right node with previously */
 		/* generated left ones */
@@ -120,15 +123,16 @@ void treehashx1(
 			memcpy(&current_idx[0], left, LC_SPX_N);
 
 #if defined(LC_SPHINCS_TYPE_128F_ASCON) || defined(LC_SPHINCS_TYPE_128S_ASCON)
-			thash_ascon(hash_ctx, &current_idx[1 * LC_SPX_N],
-				    &current_idx[0 * LC_SPX_N], 2,
-				    ctx->pub_seed, tree_addr,
-				    LC_SPX_ADDR_BYTES - LC_ASCON_HASH_RATE,
-				    (uint8_t *)ascon_state, h == 0);
+			CKINT(thash_ascon(
+				hash_ctx, &current_idx[1 * LC_SPX_N],
+				&current_idx[0 * LC_SPX_N], 2,
+				ctx->pub_seed, tree_addr,
+				LC_SPX_ADDR_BYTES - LC_ASCON_HASH_RATE,
+				(uint8_t *)ascon_state, h == 0));
 #else
-			thash(hash_ctx, &current_idx[1 * LC_SPX_N],
-			      &current_idx[0 * LC_SPX_N], 2, ctx->pub_seed,
-			      tree_addr);
+			CKINT(thash(hash_ctx, &current_idx[1 * LC_SPX_N],
+				    &current_idx[0 * LC_SPX_N], 2,
+				    ctx->pub_seed, tree_addr));
 #endif
 		}
 
@@ -143,4 +147,6 @@ out:
 	lc_memset_secure(ascon_state, 0, sizeof(ascon_state));
 #endif
 	lc_hash_zero(hash_ctx);
+
+	return ret;
 }

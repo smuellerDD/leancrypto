@@ -42,13 +42,13 @@ extern "C" {
  * Applies the offset idx_offset to indices before building addresses, so that
  * it is possible to continue counting indices across trees.
  */
-void treehashx1(unsigned char *root, unsigned char *auth_path,
-		const spx_ctx *ctx, uint32_t leaf_idx, uint32_t idx_offset,
-		uint32_t tree_height, uint8_t *stack_sp,
-		void (*gen_leaf)(unsigned char * /* Where to write the leaf */,
-				 const spx_ctx * /* ctx */, uint32_t addr_idx,
-				 void *info),
-		uint32_t tree_addrx4[8], void *info);
+int treehashx1(unsigned char *root, unsigned char *auth_path,
+	       const spx_ctx *ctx, uint32_t leaf_idx, uint32_t idx_offset,
+	       uint32_t tree_height, uint8_t *stack_sp,
+	       int (*gen_leaf)(unsigned char * /* Where to write the leaf */,
+			       const spx_ctx * /* ctx */, uint32_t addr_idx,
+			       void *info),
+	       uint32_t tree_addrx4[8], void *info);
 
 #ifdef __cplusplus
 }

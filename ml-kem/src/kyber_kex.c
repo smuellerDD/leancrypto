@@ -69,8 +69,9 @@ int lc_kex_uake_responder_ss_internal(
 
 	CKINT(lc_kyber_enc_internal(ct_e_r, &ss[0], pk_e_i, rng_ctx));
 	CKINT(lc_kyber_dec(&ss[1], ct_e_i, sk_r));
-	kyber_kdf3(ss[0].ss, LC_KYBER_SSBYTES, ss[1].ss, LC_KYBER_SSBYTES,
-		   kdf_nonce, kdf_nonce_len, shared_secret, shared_secret_len);
+	CKINT(kyber_kdf3(ss[0].ss, LC_KYBER_SSBYTES, ss[1].ss, LC_KYBER_SSBYTES,
+			 kdf_nonce, kdf_nonce_len, shared_secret,
+			 shared_secret_len));
 
 out:
 	lc_memset_secure(ss, 0, sizeof(ss));
@@ -100,8 +101,9 @@ LC_INTERFACE_FUNCTION(int, lc_kex_uake_initiator_ss, uint8_t *shared_secret,
 	int ret;
 
 	CKINT(lc_kyber_dec(&ss, ct_e_r, sk_e));
-	kyber_kdf3(ss.ss, LC_KYBER_SSBYTES, tk->ss, LC_KYBER_SSBYTES, kdf_nonce,
-		   kdf_nonce_len, shared_secret, shared_secret_len);
+	CKINT(kyber_kdf3(ss.ss, LC_KYBER_SSBYTES, tk->ss, LC_KYBER_SSBYTES,
+			 kdf_nonce, kdf_nonce_len, shared_secret,
+			 shared_secret_len));
 
 out:
 	lc_memset_secure(&ss, 0, sizeof(ss));
@@ -147,9 +149,9 @@ int lc_kex_ake_responder_ss_internal(
 	CKINT(lc_kyber_enc_internal(ct_e_r_1, &ss[0], pk_e_i, rng_ctx));
 	CKINT(lc_kyber_enc_internal(ct_e_r_2, &ss[1], pk_i, rng_ctx));
 	CKINT(lc_kyber_dec(&ss[2], ct_e_i, sk_r));
-	kyber_kdf4(ss[0].ss, LC_KYBER_SSBYTES, ss[1].ss, LC_KYBER_SSBYTES,
-		   ss[2].ss, LC_KYBER_SSBYTES, kdf_nonce, kdf_nonce_len,
-		   shared_secret, shared_secret_len);
+	CKINT(kyber_kdf4(ss[0].ss, LC_KYBER_SSBYTES, ss[1].ss, LC_KYBER_SSBYTES,
+			 ss[2].ss, LC_KYBER_SSBYTES, kdf_nonce, kdf_nonce_len,
+			 shared_secret, shared_secret_len));
 
 out:
 	lc_memset_secure(ss, 0, sizeof(ss));
@@ -183,9 +185,9 @@ LC_INTERFACE_FUNCTION(int, lc_kex_ake_initiator_ss, uint8_t *shared_secret,
 
 	CKINT(lc_kyber_dec(&ss[0], ct_e_r_1, sk_e));
 	CKINT(lc_kyber_dec(&ss[1], ct_e_r_2, sk_i));
-	kyber_kdf4(ss[0].ss, LC_KYBER_SSBYTES, ss[1].ss, LC_KYBER_SSBYTES,
-		   tk->ss, LC_KYBER_SSBYTES, kdf_nonce, kdf_nonce_len,
-		   shared_secret, shared_secret_len);
+	CKINT(kyber_kdf4(ss[0].ss, LC_KYBER_SSBYTES, ss[1].ss, LC_KYBER_SSBYTES,
+			 tk->ss, LC_KYBER_SSBYTES, kdf_nonce, kdf_nonce_len,
+			 shared_secret, shared_secret_len));
 
 out:
 	lc_memset_secure(ss, 0, sizeof(ss));

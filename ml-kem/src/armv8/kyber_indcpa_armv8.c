@@ -260,10 +260,12 @@ int indcpa_keypair_armv8(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 	gen_a(ws->a, publicseed);
 
 	for (i = 0; i < LC_KYBER_K; i++) {
-		poly_getnoise_eta1_armv8(&ws->skpv.vec[i], noiseseed, nonce++,
-					 ws->poly_getnoise_eta1_buf);
-		poly_getnoise_eta1_armv8(&ws->e.vec[i], noiseseed, nonce2++,
-					 ws->poly_getnoise_eta1_buf);
+		CKINT(poly_getnoise_eta1_armv8(&ws->skpv.vec[i], noiseseed,
+					       nonce++,
+					       ws->poly_getnoise_eta1_buf));
+		CKINT(poly_getnoise_eta1_armv8(&ws->e.vec[i], noiseseed,
+					       nonce2++,
+					       ws->poly_getnoise_eta1_buf));
 	}
 
 	polyvec_ntt(&ws->skpv);
@@ -335,13 +337,13 @@ int indcpa_enc_armv8(uint8_t c[LC_KYBER_INDCPA_BYTES],
 	 */
 	BUILD_BUG_ON(POLY_GETNOISE_ETA1_BUFSIZE < POLY_GETNOISE_ETA2_BUFSIZE);
 	for (i = 0; i < LC_KYBER_K; i++) {
-		poly_getnoise_eta1_armv8(ws->sp.vec + i, coins, nonce++,
-					 ws->poly_getnoise_eta1_buf);
-		poly_getnoise_eta2_armv8(ws->ep.vec + i, coins, nonce2++,
-					 ws->poly_getnoise_eta1_buf);
+		CKINT(poly_getnoise_eta1_armv8(ws->sp.vec + i, coins, nonce++,
+					       ws->poly_getnoise_eta1_buf));
+		CKINT(poly_getnoise_eta2_armv8(ws->ep.vec + i, coins, nonce2++,
+					       ws->poly_getnoise_eta1_buf));
 	}
-	poly_getnoise_eta2_armv8(&ws->epp, coins, nonce2,
-				 ws->poly_getnoise_eta1_buf);
+	CKINT(poly_getnoise_eta2_armv8(&ws->epp, coins, nonce2,
+				       ws->poly_getnoise_eta1_buf));
 
 	polyvec_ntt(&ws->sp);
 

@@ -182,7 +182,7 @@ int _lc_kyber_enc_kdf(
 
 	CKINT(_lc_kyber_enc(ct, &kyber_ss, pk, rng_ctx, indcpa_enc_f));
 
-	kyber_ss_kdf(ss, ss_len, ct, kyber_ss.ss);
+	CKINT(kyber_ss_kdf(ss, ss_len, ct, kyber_ss.ss));
 
 out:
 	lc_memset_secure(&kyber_ss, 0, sizeof(kyber_ss));
@@ -241,8 +241,7 @@ int _lc_kyber_dec(
 		uint8_t cmp[LC_KYBER_CIPHERTEXTBYTES];
 	};
 	const uint8_t *pk;
-	int fail;
-	int ret;
+	int fail, ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	if (!ss || !ct || !sk) {
@@ -292,9 +291,9 @@ int _lc_kyber_dec(
 				LC_KYBER_CIPHERTEXTBYTES);
 
 	/* Compute rejection key */
-	kyber_shake256_rkprf(
+	CKINT(kyber_shake256_rkprf(
 		ss->ss, sk->sk + LC_KYBER_SECRETKEYBYTES - LC_KYBER_SYMBYTES,
-		ct->ct);
+		ct->ct));
 	kyber_print_buffer(ss->ss, LC_KYBER_SYMBYTES, "Decapsulation: Kdash");
 
 	/* Copy true key to return buffer if fail is false */
@@ -325,7 +324,7 @@ int _lc_kyber_dec_kdf(
 
 	CKINT(_lc_kyber_dec(&kyber_ss, ct, sk, indcpa_dec_f, indcpa_enc_f));
 
-	kyber_ss_kdf(ss, ss_len, ct, kyber_ss.ss);
+	CKINT(kyber_ss_kdf(ss, ss_len, ct, kyber_ss.ss));
 
 out:
 	lc_memset_secure(&kyber_ss, 0, sizeof(kyber_ss));

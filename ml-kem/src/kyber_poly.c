@@ -27,25 +27,35 @@
 #include "kyber_cbd.h"
 #include "kyber_kdf.h"
 #include "kyber_poly.h"
-
 #include "lc_sha3.h"
+#include "ret_checkers.h"
 
-void poly_getnoise_eta1(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
-			uint8_t nonce, void *ws_buf)
+int poly_getnoise_eta1(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
+		       uint8_t nonce, void *ws_buf)
 {
 	uint8_t *buf = ws_buf;
+	int ret;
 
-	kyber_shake256_prf(buf, POLY_GETNOISE_ETA1_BUFSIZE, seed, nonce);
+	CKINT(kyber_shake256_prf(buf, POLY_GETNOISE_ETA1_BUFSIZE, seed,
+				 nonce));
 	poly_cbd_eta1(r, buf);
+
+out:
+	return ret;
 }
 
-void poly_getnoise_eta2(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
-			uint8_t nonce, void *ws_buf)
+int poly_getnoise_eta2(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
+		       uint8_t nonce, void *ws_buf)
 {
 	uint8_t *buf = ws_buf;
+	int ret;
 
-	kyber_shake256_prf(buf, POLY_GETNOISE_ETA2_BUFSIZE, seed, nonce);
+	CKINT(kyber_shake256_prf(buf, POLY_GETNOISE_ETA2_BUFSIZE, seed,
+				 nonce));
 	poly_cbd_eta2(r, buf);
+
+out:
+	return ret;
 }
 
 void basemul(int16_t r[2], const int16_t a[2], const int16_t b[2], int16_t zeta)

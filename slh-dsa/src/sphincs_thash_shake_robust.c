@@ -28,24 +28,26 @@
 #include "sphincs_type.h"
 #include "sphincs_thash.h"
 #include "lc_sha3.h"
+#include "ret_checkers.h"
 #include "xor.h"
 
 /**
  * Takes an array of inblocks concatenated arrays of LC_SPX_N bytes.
  */
-void thash(uint8_t out[LC_SPX_N], const uint8_t *in, unsigned int inblocks,
-	   const uint8_t pub_seed[LC_SPX_N], uint32_t addr[8])
+int thash(uint8_t out[LC_SPX_N], const uint8_t *in, unsigned int inblocks,
+	  const uint8_t pub_seed[LC_SPX_N], uint32_t addr[8])
 {
 	uint8_t bitmask[LC_SPX_N], buf[LC_SPX_N];
 	unsigned int i, j;
 	LC_HASH_CTX_ON_STACK(bitmask_ctx, LC_SPHINCS_HASH_TYPE);
 	LC_HASH_CTX_ON_STACK(buf_ctx, LC_SPHINCS_HASH_TYPE);
+	int ret;
 
-	lc_hash_init(buf_ctx);
+	CKINT(lc_hash_init(buf_ctx));
 	lc_hash_update(buf_ctx, pub_seed, LC_SPX_N);
 	lc_hash_update(buf_ctx, (uint8_t *)addr, LC_SPX_ADDR_BYTES);
 
-	lc_hash_init(bitmask_ctx);
+	CKINT(lc_hash_init(bitmask_ctx));
 	lc_hash_update(bitmask_ctx, pub_seed, LC_SPX_N);
 	lc_hash_update(bitmask_ctx, (uint8_t *)addr, LC_SPX_ADDR_BYTES);
 	lc_hash_set_digestsize(bitmask_ctx, sizeof(bitmask));
@@ -69,4 +71,7 @@ void thash(uint8_t out[LC_SPX_N], const uint8_t *in, unsigned int inblocks,
 	lc_memset_secure(buf, 0, sizeof(buf));
 	lc_hash_zero(bitmask_ctx);
 	lc_hash_zero(buf_ctx);
+
+out:
+	return ret;
 }

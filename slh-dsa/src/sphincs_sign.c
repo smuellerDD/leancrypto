@@ -518,12 +518,13 @@ int lc_sphincs_verify_ctx_nocheck(const struct lc_sphincs_sig *sig,
 		wots_sig += LC_SPX_WOTS_BYTES;
 
 		/* Compute the leaf node using the WOTS public key. */
-		thash(hash_ctx, ws->leaf, ws->wots_pk, LC_SPX_WOTS_LEN, pk->pk,
-		      ws->wots_pk_addr);
+		CKINT(thash(hash_ctx, ws->leaf, ws->wots_pk, LC_SPX_WOTS_LEN,
+			    pk->pk, ws->wots_pk_addr));
 
 		/* Compute the root node of this subtree. */
-		compute_root(ws->root, ws->leaf, ws->idx_leaf, 0, wots_sig,
-			     LC_SPX_TREE_HEIGHT, pk->pk, ws->tree_addr);
+		CKINT(compute_root(ws->root, ws->leaf, ws->idx_leaf, 0,
+				   wots_sig, LC_SPX_TREE_HEIGHT, pk->pk,
+				   ws->tree_addr));
 		wots_sig += LC_SPX_TREE_HEIGHT * LC_SPX_N;
 
 		/* Update the indices for the next layer. */
