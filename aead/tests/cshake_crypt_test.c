@@ -243,7 +243,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 		ret = 77;
 		goto out;
 	}
-	ret += ret2;;
+	ret += ret2;
 
 	if (lc_status_get_result(LC_ALG_STATUS_CSHAKE_CRYPT) !=
 	    lc_alg_status_result_passed) {

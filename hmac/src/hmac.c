@@ -55,7 +55,7 @@ static int lc_hmac_init_nocheck(struct lc_hmac_ctx *hmac_ctx,
 	const struct lc_hash *hash = hash_ctx->hash;
 	uint8_t *k_opad, *k_ipad;
 	unsigned int i;
-	int ret;
+	int ret = 0;
 
 	/* Timecop: key is sensitive. */
 	poison(key, keylen);

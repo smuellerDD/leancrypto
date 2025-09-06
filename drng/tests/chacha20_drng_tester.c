@@ -119,8 +119,9 @@ static int chacha20_drng_selftest(struct lc_chacha20_drng_ctx *cc20_ctx)
 	chacha20_state->counter[0] = 0;
 
 	lc_cc20_drng_generate(cc20_ctx, outbuf, sizeof(expected_block));
-	ret += lc_compare(outbuf, expected_block, sizeof(expected_block),
-			  "zero block");
+	if (lc_compare(outbuf, expected_block, sizeof(expected_block),
+		       "zero block"))
+		return 1;
 
 	/* Clear state of DRNG */
 	if (lc_cc20_drng_zero(cc20_ctx))
@@ -130,8 +131,9 @@ static int chacha20_drng_selftest(struct lc_chacha20_drng_ctx *cc20_ctx)
 	chacha20_state->counter[0] = 0;
 	CKINT(lc_cc20_drng_seed(cc20_ctx, seed.b, sizeof(expected_twoblocks)));
 	lc_cc20_drng_generate(cc20_ctx, outbuf, sizeof(expected_twoblocks));
-	ret += lc_compare(outbuf, expected_twoblocks,
-			  sizeof(expected_twoblocks), "twoblocks");
+	if (lc_compare(outbuf, expected_twoblocks,
+		       sizeof(expected_twoblocks), "twoblocks"))
+		return ret;
 
 	/* Clear state of DRNG */
 	if (lc_cc20_drng_zero(cc20_ctx))

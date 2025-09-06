@@ -291,7 +291,7 @@ static int drbg_hash_hashgen(struct lc_drbg_hash_state *drbg, uint8_t *buf,
 	uint8_t *src = drbg->scratchpad;
 	uint8_t *dst = drbg->scratchpad + LC_DRBG_HASH_STATELEN;
 	uint8_t prefix = DRBG_PREFIX1;
-	int ret;
+	int ret = 0;
 
 	/* 10.1.1.4 step hashgen 2 */
 	memcpy(src, drbg->V, LC_DRBG_HASH_STATELEN);
