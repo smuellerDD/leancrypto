@@ -20,6 +20,12 @@ jobs:
     - name: Linux kernel build
       run: make -C linux_kernel CC=gcc-13
     - name: Load leancrypto kernel module
-      run: sudo insmod linux_kernel/leancrypto.ko
+      run: sudo insmod linux_kernel/leancrypto.ko || dmesg
     - name: Linux kernel test
-      run: for i in linux_kernel/*.ko; do if [ "$i" != "linux_kernel/leancrypto.ko" ]; then sudo insmod $i; fi; done
+      run: for i in linux_kernel/*.ko; do if [ "$i" != "linux_kernel/leancrypto.ko" ]; then sudo insmod $i || dmesg; fi; done
+    - name: Archive test logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: meson-logs
+        path: build/meson-logs/
