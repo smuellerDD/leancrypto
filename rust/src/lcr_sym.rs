@@ -76,6 +76,8 @@ impl lcr_sym {
 	/// [key] key
 	pub fn setkey(&mut self, key: &[u8]) ->
 		Result<(), SymError> {
+		let mut result;
+
 		if self.sym_ctx.is_null() {
 			let result = self.lcr_sym_alloc();
 
@@ -84,9 +86,12 @@ impl lcr_sym {
 			}
 		}
 
-		unsafe { leancrypto::lc_sym_init(self.sym_ctx) };
+		result = unsafe { leancrypto::lc_sym_init(self.sym_ctx) };
+		if result < 0 {
+			return Err(SymError::ProcessingError)
+		}
 
-		let result = unsafe {
+		result = unsafe {
 			leancrypto::lc_sym_setkey(self.sym_ctx,
 						  key.as_ptr(), key.len())
 		};
@@ -142,7 +147,7 @@ impl lcr_sym {
 			leancrypto::lc_sym_encrypt(
 				self.sym_ctx, plaintext.as_ptr(),
 				ciphertext.as_mut_ptr(), ciphertext.len())
-		};
+		}
 
 		Ok(())
 	}

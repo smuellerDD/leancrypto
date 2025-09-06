@@ -106,11 +106,14 @@ impl lcr_hash {
 			return Err(HashError::ProcessingError)
 		}
 
-		unsafe {
+		let result = unsafe {
 			leancrypto::lc_hash(self.lcr_type_mapping(),
 					    msg.as_ptr(), msg.len(),
 					    digest.as_mut_ptr())
 		};
+		if result < 0 {
+			return Err(HashError::ProcessingError);
+		}
 
 		Ok(())
 	}
@@ -121,11 +124,14 @@ impl lcr_hash {
 	/// [digest] Buffer to be filled with digest
 	pub fn xof(&mut self, msg: &[u8], digest: &mut [u8]) ->
 		Result<(), HashError> {
-		unsafe {
+		let result = unsafe {
 			leancrypto::lc_xof(self.lcr_type_mapping(),
 					   msg.as_ptr(), msg.len(),
 					   digest.as_mut_ptr(), digest.len())
 		};
+		if result < 0 {
+			return Err(HashError::ProcessingError);
+		}
 
 		Ok(())
 	}
@@ -153,9 +159,12 @@ impl lcr_hash {
 
 		// Error handle
 		if result >= 0 {
-			unsafe { leancrypto::lc_cshake_init(
+			result = unsafe { leancrypto::lc_cshake_init(
 				self.hash_ctx, n.as_ptr(), n.len(), s.as_ptr(),
 				s.len()) };
+			if result < 0 {
+				return Err(HashError::ProcessingError);
+			}
 			Ok(())
 		} else {
 			Err(HashError::AllocationError)
@@ -177,7 +186,12 @@ impl lcr_hash {
 
 		// Error handle
 		if result >= 0 {
-			unsafe { leancrypto::lc_hash_init(self.hash_ctx) };
+			result = unsafe {
+				leancrypto::lc_hash_init(self.hash_ctx)
+			};
+			if result < 0 {
+				return Err(HashError::ProcessingError);
+			}
 			Ok(())
 		} else {
 			Err(HashError::AllocationError)

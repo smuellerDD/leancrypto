@@ -120,11 +120,14 @@ impl lcr_hmac {
 
 		// Error handle
 		if result >= 0 {
-			unsafe {
+			result = unsafe {
 				leancrypto::lc_hmac_init(self.hmac_ctx,
 							 key.as_ptr(),
 							 key.len())
 			};
+			if result < 0 {
+				return Err(HashError::ProcessingError);
+			}
 			Ok(())
 		} else {
 			Err(HashError::AllocationError)
