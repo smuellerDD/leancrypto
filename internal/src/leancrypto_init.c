@@ -20,11 +20,20 @@
 #include "ext_headers_internal.h"
 #include "initialization.h"
 #include "lc_init.h"
+#include "lc_status.h"
 #include "visibility.h"
 
 LC_INIT_FUNCTION(int, lc_init, unsigned int flags)
 {
 	(void)flags;
+
+	/*
+	 * Handle graceful the invocation of this functions multiple times
+	 * or even when the initializations automatically were performed.
+	 */
+	if (lc_status_get_result(LC_ALG_STATUS_FLAG_LIB) >
+	    lc_alg_status_result_ongoing)
+		return 0;
 
 #if (defined(LC_ASCON_HASH) || defined(CONFIG_LEANCRYPTO_ASCON_HASH))
 	ascon_fastest_impl();
