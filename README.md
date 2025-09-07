@@ -62,7 +62,7 @@ build system:
 
 4. Install: `meson install -C build`
 
-## Library Build for Linux Kernel
+## Library Build for Linux Kernel - Without DKMS
 
 The leancrypto library can also be built as an independent Linux kernel module.
 This kernel module offers the same APIs and functions as the user space version
@@ -93,6 +93,10 @@ the kernel module as well. When compiling kernel code, the flag `-DLINUX_KERNEL`
 needs to be set.
 
 For more details, see `linux_kernel/README.md`.
+
+## Library Build for Linux Kernel - With DKMS
+
+Please read the steps outlined in `dkms.conf` found in the root directory.
 
 ## Library Build for EFI Environment
 
