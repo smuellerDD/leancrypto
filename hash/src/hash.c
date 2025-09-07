@@ -8,6 +8,7 @@
 #include "ext_headers_internal.h"
 #include "hash_common.h"
 #include "lc_hash.h"
+#include "ret_checkers.h"
 #include "visibility.h"
 
 LC_INTERFACE_FUNCTION(int, lc_hash_init, struct lc_hash_ctx *hash_ctx)
@@ -138,16 +139,15 @@ LC_INTERFACE_FUNCTION(int, lc_hash, const struct lc_hash *hash,
 		      const uint8_t *in, size_t inlen, uint8_t *digest)
 {
 	LC_HASH_CTX_ON_STACK(hash_ctx, hash);
-	int ret = lc_hash_init(hash_ctx);
+	int ret;
 
-	if (ret)
-		return ret;
+	CKINT(lc_hash_init(hash_ctx));
 	lc_hash_update(hash_ctx, in, inlen);
 	lc_hash_final(hash_ctx, digest);
 
+out:
 	lc_hash_zero(hash_ctx);
-
-	return 0;
+	return ret;
 }
 
 void lc_hash_nocheck(const struct lc_hash *hash, const uint8_t *in,
@@ -167,11 +167,9 @@ LC_INTERFACE_FUNCTION(int, lc_xof, const struct lc_hash *xof,
 		      size_t digestlen)
 {
 	LC_HASH_CTX_ON_STACK(hash_ctx, xof);
-	int ret = lc_hash_init(hash_ctx);
+	int ret;
 
-	if (ret)
-		return ret;
-
+	CKINT(lc_hash_init(hash_ctx));
 	lc_hash_update(hash_ctx, in, inlen);
 	lc_hash_set_digestsize(hash_ctx, digestlen);
 	if (lc_hash_digestsize(hash_ctx) != digestlen) {
@@ -180,9 +178,9 @@ LC_INTERFACE_FUNCTION(int, lc_xof, const struct lc_hash *xof,
 	}
 	lc_hash_final(hash_ctx, digest);
 
+out:
 	lc_hash_zero(hash_ctx);
-
-	return 0;
+	return ret;
 }
 
 void lc_xof_nocheck(const struct lc_hash *xof, const uint8_t *in, size_t inlen,

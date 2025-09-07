@@ -172,22 +172,20 @@ LC_INTERFACE_FUNCTION(size_t, lc_hmac_macsize, struct lc_hmac_ctx *hmac_ctx)
 	return lc_hash_digestsize(hash_ctx);
 }
 
-LC_INTERFACE_FUNCTION(void, lc_hmac, const struct lc_hash *hash,
+LC_INTERFACE_FUNCTION(int, lc_hmac, const struct lc_hash *hash,
 		      const uint8_t *key, size_t keylen, const uint8_t *in,
 		      size_t inlen, uint8_t *mac)
 {
 	LC_HMAC_CTX_ON_STACK(hmac_ctx, hash);
+	int ret;
 
-	if (lc_hmac_init(hmac_ctx, key, keylen)) {
-		struct lc_hash_ctx *hash_ctx = &hmac_ctx->hash_ctx;
-
-		memset(mac, 0, lc_hash_digestsize(hash_ctx));
-		return;
-	}
+	CKINT(lc_hmac_init(hmac_ctx, key, keylen));
 	lc_hmac_update(hmac_ctx, in, inlen);
 	lc_hmac_final(hmac_ctx, mac);
 
+out:
 	lc_hmac_zero(hmac_ctx);
+	return ret;
 }
 
 void lc_hmac_nocheck(const struct lc_hash *hash, const uint8_t *key,

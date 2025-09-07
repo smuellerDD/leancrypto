@@ -192,9 +192,11 @@ size_t lc_hmac_macsize(struct lc_hmac_ctx *hmac_ctx);
  * @param [out] mac Buffer with at least the size of the message digest.
  *
  * The HMAC calculation operates entirely on the stack.
+ *
+ * @return 0 on success; < 0 on error
  */
-void lc_hmac(const struct lc_hash *hash, const uint8_t *key, size_t keylen,
-	     const uint8_t *in, size_t inlen, uint8_t *mac);
+int lc_hmac(const struct lc_hash *hash, const uint8_t *key, size_t keylen,
+	    const uint8_t *in, size_t inlen, uint8_t *mac);
 
 #ifdef __cplusplus
 }

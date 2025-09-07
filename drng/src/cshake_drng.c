@@ -496,8 +496,9 @@ out:
  * This applies the cSHAKE DRNG specification section 2.2.
  */
 static int lc_cshake256_drng_seed_nocheck(void *_state, const uint8_t *seed,
-				  size_t seedlen, const uint8_t *persbuf,
-				  size_t perslen)
+					  size_t seedlen,
+					  const uint8_t *persbuf,
+					  size_t perslen)
 {
 	struct lc_cshake256_drng_state *state = _state;
 	uint8_t initially_seeded = state->initially_seeded;

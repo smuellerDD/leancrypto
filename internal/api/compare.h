@@ -33,9 +33,30 @@ extern "C" {
 		return;                                                        \
 	alg_status_set_result(lc_alg_status_result_ongoing, flag)
 
+/*
+ * -EAGAIN returned when self test is pending -> should never happen (this is a
+ *         programming error) as the self test should have been triggered with
+ *         LC_SELFTEST_RUN beforehand
+ *
+ * -EOPNOTSUPP returned when self test failed
+ *
+ * Perform tight loop waiting for the completion of testing when status is
+ * ongoing.
+ *
+ * Continue in case test case is passed.
+ */
 #define LC_SELFTEST_COMPLETED(flag)                                            \
-	if (alg_status_get_result(flag) != lc_alg_status_result_passed)        \
-	return -EAGAIN
+	{                                                                      \
+		enum lc_alg_status_result __test_status;                       \
+		;                                                              \
+		do {                                                           \
+			__test_status = alg_status_get_result(flag);           \
+		} while (__test_status == lc_alg_status_result_ongoing);       \
+		if (__test_status == lc_alg_status_result_pending)             \
+			return -EAGAIN;                                        \
+		if (__test_status == lc_alg_status_result_failed)              \
+			return -EOPNOTSUPP;                                    \
+	}
 
 #else /* LC_SELFTEST_ENABLED */
 

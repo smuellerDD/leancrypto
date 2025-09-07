@@ -27,7 +27,7 @@
 #include "lc_chacha20.h"
 #include "visibility.h"
 
-LC_CONSTRUCTOR(chacha20_fastest_impl)
+void chacha20_fastest_impl(void)
 {
 	enum lc_cpu_features feat = lc_cpu_feature_available();
 

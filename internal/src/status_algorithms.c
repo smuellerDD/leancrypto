@@ -25,46 +25,51 @@
 
 typedef uint16_t alg_status_t;
 
-static alg_status_t lc_alg_status_aead_completed = 0;
-static alg_status_t lc_alg_status_aead_errors = (alg_status_t)-1;
+#define ALG_CLEAR_ALL_BITS ATOMIC_INIT(0)
+#define ALG_SET_ALL_BITS ATOMIC_INIT((int)0xffffffff)
+#define ALG_SET_TEST_PASSED(flag) (lc_alg_status_result_passed << flag);
+
+static atomic_t lc_alg_status_aead = ALG_SET_ALL_BITS;
 
 /* Disable selftests */
 #ifdef LC_KYBER_DEBUG
-static alg_status_t lc_alg_status_kem_completed =
-	LC_ALG_STATUS_FLAG_MLKEM_KEYGEN |
-	LC_ALG_STATUS_FLAG_MLKEM_ENC |
-	LC_ALG_STATUS_FLAG_MLKEM_DEC |
-	LC_ALG_STATUS_FLAG_MLKEM_ENC_KDF |
-	LC_ALG_STATUS_FLAG_MLKEM_DEC_KDF;
-static alg_status_t lc_alg_status_kem_errors = (alg_status_t)-1;
+static atomic_t lc_alg_status_kem_pqc = ATOMIC_INIT(
+	ALG_SET_TEST_PASSED(LC_ALG_STATUS_FLAG_MLKEM_KEYGEN) |
+	ALG_SET_TEST_PASSED(LC_ALG_STATUS_FLAG_MLKEM_ENC) |
+	ALG_SET_TEST_PASSED(LC_ALG_STATUS_FLAG_MLKEM_DEC) |
+	ALG_SET_TEST_PASSED(LC_ALG_STATUS_FLAG_MLKEM_ENC_KDF) |
+	ALG_SET_TEST_PASSED(LC_ALG_STATUS_FLAG_MLKEM_DEC_KDF));
 #else
-static alg_status_t lc_alg_status_kem_completed = 0;
-static alg_status_t lc_alg_status_kem_errors = (alg_status_t)-1;
+static atomic_t lc_alg_status_kem_pqc = ALG_SET_ALL_BITS;
 #endif
+
+static atomic_t lc_alg_status_kem_classic = ALG_SET_ALL_BITS;
 
 /* Disable selftests */
 #ifdef LC_DILITHIUM_DEBUG
-static alg_status_t lc_alg_status_sig_completed =
-	LC_ALG_STATUS_FLAG_MLDSA_KEYGEN |
-	LC_ALG_STATUS_FLAG_MLDSA_SIGGEN |
-	LC_ALG_STATUS_FLAG_MLDSA_SIGVER;
-static alg_status_t lc_alg_status_sig_errors = (alg_status_t)-1;
+static atomic_t lc_alg_status_sig_pqc = ATOMIC_INIT(
+	ALG_SET_TEST_PASSED(LC_ALG_STATUS_FLAG_MLDSA_KEYGEN) |
+	ALG_SET_TEST_PASSED(LC_ALG_STATUS_FLAG_MLDSA_SIGGEN) |
+	ALG_SET_TEST_PASSED(LC_ALG_STATUS_FLAG_MLDSA_SIGVER));
+	/*
+	 * We do not touch the SLH-DSA flags, which implies that SLH-DSA could
+	 * run while initialization is in progress, but we do not care as
+	 * handling this would complicate the code without benefit: the
+	 * ML-DSA debugging enablement is NEVER in production code.
+	 */
 #else
-static alg_status_t lc_alg_status_sig_completed = 0;
-static alg_status_t lc_alg_status_sig_errors = (alg_status_t)-1;
+static atomic_t lc_alg_status_sig_pqc = ALG_SET_ALL_BITS;
 #endif
 
-static alg_status_t lc_alg_status_rng_completed = 0;
-static alg_status_t lc_alg_status_rng_errors = (alg_status_t)-1;
+static atomic_t lc_alg_status_sig_classic = ALG_SET_ALL_BITS;
 
-static alg_status_t lc_alg_status_digest_completed = 0;
-static alg_status_t lc_alg_status_digest_errors = (alg_status_t)-1;
+static atomic_t lc_alg_status_rng = ALG_SET_ALL_BITS;
 
-static alg_status_t lc_alg_status_sym_completed = 0;
-static alg_status_t lc_alg_status_sym_errors = (alg_status_t)-1;
+static atomic_t lc_alg_status_digest = ALG_SET_ALL_BITS;
 
-static alg_status_t lc_alg_status_aux_completed = 0;
-static alg_status_t lc_alg_status_aux_errors = (alg_status_t)-1;
+static atomic_t lc_alg_status_sym = ALG_SET_ALL_BITS;
+
+static atomic_t lc_alg_status_aux = ALG_SET_ALL_BITS;
 
 struct alg_status_show {
 	uint64_t flag;
@@ -106,7 +111,7 @@ static const struct alg_status_show alg_status_show_aead[] = {
 { .flag = 0, .alg_name = NULL, .strlen = 0 }
 };
 
-static const struct alg_status_show alg_status_show_kem[] = {
+static const struct alg_status_show alg_status_show_kem_pqc[] = {
 #if (defined(LC_HQC) ||                                                        \
      defined(CONFIG_LEANCRYPTO_KEM_HQC_256) ||                                 \
      defined(CONFIG_LEANCRYPTO_KEM_HQC_192) ||                                 \
@@ -122,6 +127,11 @@ static const struct alg_status_show alg_status_show_kem[] = {
 { .flag = LC_ALG_STATUS_MLKEM_ENC_KDF, .alg_name = "ML-KEM-Enc-KDF", .strlen = 14 },
 { .flag = LC_ALG_STATUS_MLKEM_DEC_KDF, .alg_name = "ML-KEM-Dec-KDF", .strlen = 14 },
 #endif
+/* Make sure this array is never empty */
+{ .flag = 0, .alg_name = NULL, .strlen = 0 }
+};
+
+static const struct alg_status_show alg_status_show_kem_classic[] = {
 #ifdef LC_CURVE25519
 { .flag = LC_ALG_STATUS_X25519_KEYKEN, .alg_name = "X25519-Keygen", .strlen = 13 },
 { .flag = LC_ALG_STATUS_X25519_SS, .alg_name = "X25519-SS", .strlen = 9 },
@@ -134,7 +144,7 @@ static const struct alg_status_show alg_status_show_kem[] = {
 { .flag = 0, .alg_name = NULL, .strlen = 0 }
 };
 
-static const struct alg_status_show alg_status_show_sig[] = {
+static const struct alg_status_show alg_status_show_sig_pqc[] = {
 #if (defined(LC_DILITHIUM) || defined(CONFIG_LEANCRYPTO_DILITHIUM))
 { .flag = LC_ALG_STATUS_MLDSA_KEYGEN, .alg_name = "ML-DSA-Keygen", .strlen = 13 },
 { .flag = LC_ALG_STATUS_MLDSA_SIGGEN, .alg_name = "ML-DSA-Enc", .strlen = 10 },
@@ -145,6 +155,11 @@ static const struct alg_status_show alg_status_show_sig[] = {
 { .flag = LC_ALG_STATUS_SLHDSA_SIGGEN, .alg_name = "SLH-DSA-Enc", .strlen = 11 },
 { .flag = LC_ALG_STATUS_SLHDSA_SIGVER, .alg_name = "SLH-DSA-Dec", .strlen = 11 },
 #endif
+/* Make sure this array is never empty */
+{ .flag = 0, .alg_name = NULL, .strlen = 0 }
+};
+
+static const struct alg_status_show alg_status_show_sig_classic[] = {
 #if (defined(LC_DILITHIUM_ED25519) || defined(LC_CURVE25519))
 { .flag = LC_ALG_STATUS_ED25519_KEYGEN, .alg_name = "ED25519-Keygen", .strlen = 14 },
 { .flag = LC_ALG_STATUS_ED25519_SIGGEN, .alg_name = "ED25519-Enc", .strlen = 11 },
@@ -258,81 +273,82 @@ static const struct alg_status_show alg_status_show_aux[] = {
 
 // clang-format on
 
-static void alg_status_unset_all_errors(void)
+static void alg_status_unset_test_state(void)
 {
-	lc_alg_status_aead_errors = 0;
-	lc_alg_status_kem_errors = 0;
-	lc_alg_status_sig_errors = 0;
-	lc_alg_status_rng_errors = 0;
-	lc_alg_status_digest_errors = 0;
-	lc_alg_status_sym_errors = 0;
-	lc_alg_status_aux_errors = 0;
+	atomic_set(&lc_alg_status_aead, 0);
+
+#ifndef LC_KYBER_DEBUG
+	atomic_set(&lc_alg_status_kem_pqc, 0);
+#endif
+
+	atomic_set(&lc_alg_status_kem_classic, 0);
+
+#ifndef LC_DILITHIUM_DEBUG
+	atomic_set(&lc_alg_status_sig_pqc, 0);
+#endif
+
+	atomic_set(&lc_alg_status_sig_classic, 0);
+	atomic_set(&lc_alg_status_rng, 0);
+	atomic_set(&lc_alg_status_digest, 0);
+	atomic_set(&lc_alg_status_sym, 0);
+	atomic_set(&lc_alg_status_aux, 0);
 }
 
-static void alg_status_unset_all_completed(void)
+#if 0 /* Function is currently unused */
+static void lc_alg_status_unset_testresult(alg_status_t alg, atomic_t *status)
 {
-	lc_alg_status_aead_completed = 0;
-	lc_alg_status_kem_completed = 0;
-	lc_alg_status_sig_completed = 0;
-	lc_alg_status_rng_completed = 0;
-	lc_alg_status_digest_completed = 0;
-	lc_alg_status_sym_completed = 0;
-	lc_alg_status_aux_completed = 0;
+	/*
+	 * This unsets the test status for a given algorithm moving its state
+	 * back to pending state. This implies that a new test cycle for the
+	 * algorithm is started.
+	 */
+	atomic_and((int)(~(lc_alg_status_result_failed << alg)), status);
 }
+#endif
 
 static void lc_alg_status_set_testresult(
-	enum lc_alg_status_result test_ret, alg_status_t alg,
-	alg_status_t *completed, alg_status_t *error)
+	enum lc_alg_status_result test_ret, alg_status_t alg, atomic_t *status)
 {
-	if (test_ret == lc_alg_status_result_failed) {
-		/* Error: Set the error flag and the completed flag */
-		*error |= alg;
-		*completed |= alg;
-	} else if (test_ret == lc_alg_status_result_ongoing) {
-		/* Ongoing: Set the error flag */
-		*completed &= ~alg;
-		*error |= alg;
-	} else if (test_ret == lc_alg_status_result_passed) {
-		/* Success: Set completed flag and unset the error flag */
-		*completed |= alg;
-		/*
-		 * The automatic unsetting of the error flag implies that for
-		 * one given self test, only *one* lc_alg_status_set_result
-		 * must ever be called in error state.
-		 */
-		*error &= ~alg;
-	} else {
-		/* test pending, unset all */
-		*completed &= ~alg;
-		*error &= ~alg;
-	}
-
-	/* Ensure that read invocations pick the change up */
-	mb();
+	/*
+	 * This operation only works by assuming the state transition documented
+	 * for LC_ALG_STATUS_FLAG_MASK_SIZE.
+	 *
+	 * NOTE: This operation can only *add* bits, never remove them. Thus
+	 * the final state where all bits are set is considered the failure
+	 * state which defines the fail-secure state where we cannot get back
+	 * unless alg_status_unset_test_state or lc_alg_status_unset_testresult
+	 * for the offending algorithm is called triggering a full retest of
+	 * either all or just the offending algorithm.
+	 */
+	atomic_or((int)(test_ret << alg), status);
 }
 
-static enum lc_alg_status_result alg_status_result(
-	alg_status_t completed, alg_status_t error, alg_status_t alg)
+static enum lc_alg_status_result alg_status_result(atomic_t *status,
+						   alg_status_t alg)
 {
-	if (completed & alg) {
-		if (error & alg) {
-			/* Test failed */
-			return lc_alg_status_result_failed;
-		} else {
-			/* Test passed */
-			return lc_alg_status_result_passed;
-		}
-	} else {
-		if (error & alg) {
-			/* Test ongoing */
-			return lc_alg_status_result_ongoing;
-		} else {
-			/* Test not executed */
-			return lc_alg_status_result_pending;
-		}
-	}
-
-	return lc_alg_status_result_pending;
+	/*
+	 * This call obtains the flag field in the middle of some integer field
+	 *
+	 * For example, assume your status field contains the following bits
+	 *
+	 * AAABBBCCCDDD
+	 *
+	 * where the different letters refer to the bitset for one algorithm.
+	 *
+	 * Now, say, we want to get the bit set for the algorithm B. We do
+	 *
+	 * 1. read the entire status field
+	 * 2. downshit B to the begining to eliminate C and D bits
+	 * 3. now eliminate the A bits by applying a mask.
+	 */
+	/* Cast to lc_alg_status_result */
+	return (enum lc_alg_status_result)
+		/* Read out the entire state variable */
+		atomic_read(status)
+			/* Downshift to the required flag */
+			>> alg
+			/* Eliminate the upper bits */
+			& ((1 << LC_ALG_STATUS_FLAG_MASK_SIZE) - 1);
 }
 
 enum lc_alg_status_result alg_status_get_result(uint64_t flag)
@@ -344,32 +360,31 @@ enum lc_alg_status_result alg_status_get_result(uint64_t flag)
 
 	switch (flag & LC_ALG_STATUS_TYPE_MASK) {
 	case LC_ALG_STATUS_TYPE_AEAD:
-		return alg_status_result(lc_alg_status_aead_completed,
-					 lc_alg_status_aead_errors, alg);
+		return alg_status_result(&lc_alg_status_aead, alg);
 		break;
-	case LC_ALG_STATUS_TYPE_KEM:
-		return alg_status_result(lc_alg_status_kem_completed,
-					 lc_alg_status_kem_errors, alg);
+	case LC_ALG_STATUS_TYPE_KEM_PQC:
+		return alg_status_result(&lc_alg_status_kem_pqc, alg);
 		break;
-	case LC_ALG_STATUS_TYPE_SIG:
-		return alg_status_result(lc_alg_status_sig_completed,
-					 lc_alg_status_sig_errors, alg);
+	case LC_ALG_STATUS_TYPE_KEM_CLASSIC:
+		return alg_status_result(&lc_alg_status_kem_classic, alg);
+		break;
+	case LC_ALG_STATUS_TYPE_SIG_PQC:
+		return alg_status_result(&lc_alg_status_sig_pqc, alg);
+		break;
+	case LC_ALG_STATUS_TYPE_SIG_CLASSIC:
+		return alg_status_result(&lc_alg_status_sig_classic, alg);
 		break;
 	case LC_ALG_STATUS_TYPE_RNG:
-		return alg_status_result(lc_alg_status_rng_completed,
-					 lc_alg_status_rng_errors, alg);
+		return alg_status_result(&lc_alg_status_rng, alg);
 		break;
 	case LC_ALG_STATUS_TYPE_DIGEST:
-		return alg_status_result(lc_alg_status_digest_completed,
-					 lc_alg_status_digest_errors, alg);
+		return alg_status_result(&lc_alg_status_digest, alg);
 		break;
 	case LC_ALG_STATUS_TYPE_SYM:
-		return alg_status_result(lc_alg_status_sym_completed,
-					 lc_alg_status_sym_errors, alg);
+		return alg_status_result(&lc_alg_status_sym, alg);
 		break;
 	case LC_ALG_STATUS_TYPE_AUX:
-		return alg_status_result(lc_alg_status_aux_completed,
-					 lc_alg_status_aux_errors, alg);
+		return alg_status_result(&lc_alg_status_aux, alg);
 		break;
 	default:
 		return lc_alg_status_result_pending;
@@ -382,44 +397,45 @@ void alg_status_set_result(enum lc_alg_status_result test_ret, uint64_t flag)
 
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_AEAD) {
 		lc_alg_status_set_testresult(test_ret, alg,
-					     &lc_alg_status_aead_completed,
-					     &lc_alg_status_aead_errors);
+					     &lc_alg_status_aead);
 	}
-	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_KEM) {
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_KEM_PQC) {
 		lc_alg_status_set_testresult(test_ret, alg,
-					     &lc_alg_status_kem_completed,
-					     &lc_alg_status_kem_errors);
+					     &lc_alg_status_kem_pqc);
 	}
-	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_SIG) {
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_KEM_CLASSIC) {
 		lc_alg_status_set_testresult(test_ret, alg,
-					     &lc_alg_status_sig_completed,
-					     &lc_alg_status_sig_errors);
+					     &lc_alg_status_kem_classic);
+	}
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_SIG_PQC) {
+		lc_alg_status_set_testresult(test_ret, alg,
+					     &lc_alg_status_sig_pqc);
+	}
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_SIG_CLASSIC) {
+		lc_alg_status_set_testresult(test_ret, alg,
+					     &lc_alg_status_sig_classic);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_RNG) {
 		lc_alg_status_set_testresult(test_ret, alg,
-					     &lc_alg_status_rng_completed,
-					     &lc_alg_status_rng_errors);
+					     &lc_alg_status_rng);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_DIGEST) {
 		lc_alg_status_set_testresult(test_ret, alg,
-					     &lc_alg_status_digest_completed,
-					     &lc_alg_status_digest_errors);
+					     &lc_alg_status_digest);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_SYM) {
 		lc_alg_status_set_testresult(test_ret, alg,
-					     &lc_alg_status_sym_completed,
-					     &lc_alg_status_sym_errors);
+					     &lc_alg_status_sym);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_AUX) {
 		lc_alg_status_set_testresult(test_ret, alg,
-					     &lc_alg_status_aux_completed,
-					     &lc_alg_status_aux_errors);
+					     &lc_alg_status_aux);
 	}
 }
 
 static void alg_status_one(const struct alg_status_show *alg_status_show_arr,
 			   size_t array_size, uint64_t flag,
-			   alg_status_t completed, alg_status_t error,
+			   atomic_t *status,
 			   char **test_completed, size_t *test_completed_len,
 			   char **test_open, size_t *test_open_len,
 			   char **errorbuf, size_t *errorbuf_len)
@@ -438,7 +454,7 @@ static void alg_status_one(const struct alg_status_show *alg_status_show_arr,
 		    alg_status_show->flag)
 			continue;
 
-		res = alg_status_result(completed, error,
+		res = alg_status_result(status,
 					(alg_status_t)(alg_status_show->flag &~
 					LC_ALG_STATUS_TYPE_MASK));
 		switch (res) {
@@ -495,23 +511,39 @@ void alg_status(uint64_t flag, char *test_completed, size_t test_completed_len,
 			 */
 			alg_status_show_aead,
 			ARRAY_SIZE(alg_status_show_aead) - 1, flag,
-			lc_alg_status_aead_completed, lc_alg_status_aead_errors,
+			&lc_alg_status_aead,
 			&test_completed, &test_completed_len,
 			&test_open, &test_open_len, &errorbuf, &errorbuf_len);
 	}
-	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_KEM) {
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_KEM_PQC) {
 		alg_status_one(
-			alg_status_show_kem,
-			ARRAY_SIZE(alg_status_show_kem) - 1, flag,
-			lc_alg_status_kem_completed, lc_alg_status_kem_errors,
+			alg_status_show_kem_pqc,
+			ARRAY_SIZE(alg_status_show_kem_pqc) - 1, flag,
+			&lc_alg_status_kem_pqc,
 			&test_completed, &test_completed_len,
 			&test_open, &test_open_len, &errorbuf, &errorbuf_len);
 	}
-	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_SIG) {
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_KEM_CLASSIC) {
 		alg_status_one(
-			alg_status_show_sig,
-			ARRAY_SIZE(alg_status_show_sig) - 1, flag,
-			lc_alg_status_sig_completed, lc_alg_status_sig_errors,
+			alg_status_show_kem_classic,
+			ARRAY_SIZE(alg_status_show_kem_classic) - 1, flag,
+			&lc_alg_status_kem_classic,
+			&test_completed, &test_completed_len,
+			&test_open, &test_open_len, &errorbuf, &errorbuf_len);
+	}
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_SIG_PQC) {
+		alg_status_one(
+			alg_status_show_sig_pqc,
+			ARRAY_SIZE(alg_status_show_sig_pqc) - 1, flag,
+			&lc_alg_status_sig_pqc,
+			&test_completed, &test_completed_len,
+			&test_open, &test_open_len, &errorbuf, &errorbuf_len);
+	}
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_SIG_CLASSIC) {
+		alg_status_one(
+			alg_status_show_sig_classic,
+			ARRAY_SIZE(alg_status_show_sig_classic) - 1, flag,
+			&lc_alg_status_sig_classic,
 			&test_completed, &test_completed_len,
 			&test_open, &test_open_len, &errorbuf, &errorbuf_len);
 	}
@@ -519,7 +551,7 @@ void alg_status(uint64_t flag, char *test_completed, size_t test_completed_len,
 		alg_status_one(
 			alg_status_show_rng,
 			ARRAY_SIZE(alg_status_show_rng) - 1, flag,
-			lc_alg_status_rng_completed, lc_alg_status_rng_errors,
+			&lc_alg_status_rng,
 			&test_completed, &test_completed_len,
 			&test_open, &test_open_len, &errorbuf, &errorbuf_len);
 	}
@@ -527,8 +559,7 @@ void alg_status(uint64_t flag, char *test_completed, size_t test_completed_len,
 		alg_status_one(
 			alg_status_show_digest,
 			ARRAY_SIZE(alg_status_show_digest) - 1, flag,
-			lc_alg_status_digest_completed,
-			lc_alg_status_digest_errors, &test_completed,
+			&lc_alg_status_digest, &test_completed,
 			&test_completed_len, &test_open, &test_open_len,
 			&errorbuf, &errorbuf_len);
 	}
@@ -536,7 +567,7 @@ void alg_status(uint64_t flag, char *test_completed, size_t test_completed_len,
 		alg_status_one(
 			alg_status_show_sym,
 			ARRAY_SIZE(alg_status_show_sym) - 1, flag,
-			lc_alg_status_sym_completed, lc_alg_status_sym_errors,
+			&lc_alg_status_sym,
 			&test_completed, &test_completed_len,
 			&test_open, &test_open_len, &errorbuf, &errorbuf_len);
 	}
@@ -544,7 +575,7 @@ void alg_status(uint64_t flag, char *test_completed, size_t test_completed_len,
 		alg_status_one(
 			alg_status_show_aux,
 			ARRAY_SIZE(alg_status_show_aux) - 1, flag,
-			lc_alg_status_aux_completed, lc_alg_status_aux_errors,
+			&lc_alg_status_aux,
 			&test_completed, &test_completed_len,
 			&test_open, &test_open_len, &errorbuf, &errorbuf_len);
 	}
@@ -557,8 +588,7 @@ LC_CONSTRUCTOR(lc_activate_library)
 	 * are marked that all self tests failed causing all algorithms to
 	 * be unavailable.
 	 */
-	alg_status_unset_all_errors();
-	alg_status_unset_all_completed();
+	alg_status_unset_test_state();
 
 	alg_status_set_result(lc_alg_status_result_passed, LC_ALG_STATUS_LIB);
 }
