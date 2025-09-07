@@ -22,6 +22,7 @@
 #include "compare.h"
 #include "lc_kmac256_drng.h"
 #include "ret_checkers.h"
+#include "test_helper_common.h"
 #include "visibility.h"
 
 #define LC_KMAC_DRNG_SEED_CUSTOMIZATION_STRING "KMAC-DRNG seed"
@@ -135,8 +136,7 @@ out:
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
- 	char status[900];
-	int ret;
+ 	int ret;
 
 	(void)argc;
 	(void)argv;
@@ -157,11 +157,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 		return 1;
 	}
 
-	memset(status, 0, sizeof(status));
-	lc_status(status, sizeof(status));
-	if (strlen(status) == 0)
-		ret = 1;
-	printf("Status information from leancrypto:\n%s", status);
+	ret += test_print_status();
 
 	return ret;
 }

@@ -23,6 +23,7 @@
 #include "sphincs_type.h"
 #include "static_rng.h"
 #include "ret_checkers.h"
+#include "test_helper_common.h"
 #include "visibility.h"
 
 #ifdef LC_SPHINCS_TYPE_128F
@@ -120,7 +121,6 @@ out:
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
-	char status[900];
 	enum lc_sphincs_test_type t = LC_SPHINCS_REGRESSION;
 	int ret = 0, rc = 0;
 	int feat_disabled = 0;
@@ -190,12 +190,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	}
 #endif
 
-	memset(status, 0, sizeof(status));
-	lc_status(status, sizeof(status));
-	if (strlen(status) == 0)
-		ret = 1;
-	printf("Status information from leancrypto:\n%s", status);
-
+	ret += test_print_status();
 
 out:
 	if (feat_disabled)

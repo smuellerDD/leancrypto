@@ -21,6 +21,7 @@
 #include "ext_headers_internal.h"
 #include "lc_cshake_crypt.h"
 #include "lc_cshake.h"
+#include "test_helper_common.h"
 #include "visibility.h"
 
 static int cc_tester_cshake_one(const uint8_t *pt, size_t ptlen,
@@ -227,7 +228,6 @@ static int cc_tester_cshake(void)
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
-	char status[900];
 	int ret, ret2;
 
 	(void)argc;
@@ -252,11 +252,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 		return 1;
 	}
 
-	memset(status, 0, sizeof(status));
-	lc_status(status, sizeof(status));
-	if (strlen(status) == 0)
-		ret = 1;
-	printf("Status information from leancrypto:\n%s", status);
+	ret += test_print_status();
 
 out:
 	return ret;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2025, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2024 - 2025, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *
@@ -17,19 +17,39 @@
  * DAMAGE.
  */
 
-#include "ext_headers_internal.h"
+#ifndef TEST_HELPER_H
+#define TEST_HELPER_H
+
+#include "ret_checkers.h"
 #include "lc_status.h"
-#include "test_helper_common.h"
-#include "visibility.h"
+#include "small_stack_support.h"
 
-static int status_tester(void)
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+static inline int test_print_status(void)
 {
-	return test_print_status();
+	struct workspace {
+		char status[900];
+	};
+	int ret = 0;
+	LC_DECLARE_MEM(ws, struct workspace, 1);
+
+	lc_status(ws->status, sizeof(ws->status));
+	if (strlen(ws->status) == 0) {
+		ret = 1;
+		goto out;
+	}
+	printf("Status information from leancrypto:\n%s", ws->status);
+
+out:
+	LC_RELEASE_MEM(ws);
+	return ret;
 }
 
-LC_TEST_FUNC(int, main, int argc, char *argv[])
-{
-	(void)argc;
-	(void)argv;
-	return status_tester();
+#ifdef __cplusplus
 }
+#endif
+
+#endif /* TEST_HELPER_H */

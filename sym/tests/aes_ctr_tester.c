@@ -31,6 +31,7 @@
 #include "lc_aes.h"
 #include "mode_ctr.h"
 #include "compare.h"
+#include "test_helper_common.h"
 #include "timecop.h"
 #include "ret_checkers.h"
 #include "visibility.h"
@@ -287,7 +288,6 @@ static int test_ctr(void)
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
-	char status[900];
 	int ret;
 
 	(void)argc;
@@ -302,11 +302,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 		return 1;
 	}
 
-	memset(status, 0, sizeof(status));
-	lc_status(status, sizeof(status));
-	if (strlen(status) == 0)
-		ret = 1;
-	printf("Status information from leancrypto:\n%s", status);
+	ret += test_print_status();
 
 	return ret;
 }

@@ -24,6 +24,7 @@
 #include "lc_aes_gcm.h"
 #include "lc_status.h"
 #include "math_helper.h"
+#include "test_helper_common.h"
 #include "visibility.h"
 
 static int lc_aes_gcm_test(int argc)
@@ -88,7 +89,6 @@ static int lc_aes_gcm_test(int argc)
 
 	uint8_t act_ct[sizeof(exp_ct)] __align(sizeof(uint32_t));
 	uint8_t act_tag[sizeof(exp_tag)] __align(sizeof(uint32_t));
-	char status[900];
 	size_t len, i;
 	const uint8_t *in_p;
 	uint8_t *out_p;
@@ -109,12 +109,6 @@ static int lc_aes_gcm_test(int argc)
 		       lc_status_get_result(LC_ALG_STATUS_AES_GCM));
 		ret += 1;
 	}
-
-	memset(status, 0, sizeof(status));
-	lc_status(status, sizeof(status));
-	if (strlen(status) == 0)
-		ret = 1;
-	printf("Status information from leancrypto:\n%s", status);
 
 	lc_aead_encrypt(aes_gcm, in, act_ct, sizeof(in), aadp, aadlen, act_tag,
 			sizeof(act_tag));
@@ -222,6 +216,8 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 		lc_cpu_feature_disable();
 
 	ret = lc_aes_gcm_test(argc);
+
+	ret += test_print_status();
 
 	lc_cpu_feature_enable();
 

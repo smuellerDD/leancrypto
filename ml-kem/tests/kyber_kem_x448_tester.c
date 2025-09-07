@@ -24,6 +24,7 @@
 #include "ret_checkers.h"
 #include "small_stack_support.h"
 #include "selftest_rng.h"
+#include "test_helper_common.h"
 #include "visibility.h"
 
 #if LC_KYBER_K == 2
@@ -1382,6 +1383,60 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	for (count = 0; count < 50000; count++)
 		ret += kyber_kem_double_tester(0);
+
+	/*
+	 * Only verify kyber_kem_tester_common because the other tests
+	 * disable the self tests.
+	 */
+	if ((argc != 2) &&
+	    lc_status_get_result(LC_ALG_STATUS_MLKEM_KEYGEN) !=
+	    lc_alg_status_result_passed) {
+		printf("ML-KEM self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_MLKEM_KEYGEN));
+		return 1;
+	}
+
+	if ((argc != 2) &&
+	    lc_status_get_result(LC_ALG_STATUS_MLKEM_ENC) !=
+	    lc_alg_status_result_passed) {
+		printf("ML-KEM enc self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_MLKEM_ENC));
+		return 1;
+	}
+
+	if ((argc != 2) &&
+	    lc_status_get_result(LC_ALG_STATUS_MLKEM_DEC) !=
+	    lc_alg_status_result_passed) {
+		printf("ML-KEM dec self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_MLKEM_DEC));
+		return 1;
+	}
+
+	if ((argc != 2) && lc_status_get_result(LC_ALG_STATUS_X448_KEYKEN) !=
+	    lc_alg_status_result_passed) {
+		printf("X448 keygen self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_X448_KEYKEN));
+		return 1;
+	}
+
+	if ((argc != 2) && lc_status_get_result(LC_ALG_STATUS_X448_SS) !=
+	    lc_alg_status_result_passed) {
+		printf("X448 SS self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_X448_SS));
+		return 1;
+	}
+
+
+	if ((argc != 2) && lc_status_get_result(LC_ALG_STATUS_SHAKE) !=
+	    lc_alg_status_result_passed) {
+		printf("SHAKE self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_SHAKE));
+		return 1;
+	}
+
+	if (argc != 2) {
+		ret += test_print_status();
+	}
 
 	return ret;
 }

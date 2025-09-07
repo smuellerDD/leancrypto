@@ -23,6 +23,7 @@
 #include "compare.h"
 #include "ret_checkers.h"
 #include "static_rng.h"
+#include "test_helper_common.h"
 #include "visibility.h"
 
 static int x448_keygen_tester(void)
@@ -68,7 +69,6 @@ out:
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
-	char status[900];
 	unsigned int cpu_feature_enable = 0;
 	int argc_p = 1;
 	int ret = 0;
@@ -95,11 +95,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 		return 1;
 	}
 
-	memset(status, 0, sizeof(status));
-	lc_status(status, sizeof(status));
-	if (strlen(status) == 0)
-		ret = 1;
-	printf("Status information from leancrypto:\n%s", status);
+	ret += test_print_status();
 
 
 	return ret;

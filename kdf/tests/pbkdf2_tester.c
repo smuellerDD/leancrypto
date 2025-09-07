@@ -21,6 +21,7 @@
 #include "lc_sha256.h"
 #include "lc_sha512.h"
 #include "lc_pbkdf2.h"
+#include "test_helper_common.h"
 #include "visibility.h"
 
 static int pbkdf2_tester(void)
@@ -60,7 +61,6 @@ static int pbkdf2_tester(void)
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
-	char status[900];
 	int ret;
 
 	(void)argc;
@@ -89,11 +89,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 		return 1;
 	}
 
-	memset(status, 0, sizeof(status));
-	lc_status(status, sizeof(status));
-	if (strlen(status) == 0)
-		ret = 1;
-	printf("Status information from leancrypto:\n%s", status);
+	ret += test_print_status();
 
 	return ret;
 }

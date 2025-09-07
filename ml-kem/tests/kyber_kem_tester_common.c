@@ -23,6 +23,7 @@
 #include "lc_status.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
+#include "test_helper_common.h"
 #include "visibility.h"
 
 static int _kyber_kem_tester_common(unsigned int rounds)
@@ -71,7 +72,6 @@ static int kyber_kem_tester_keygen_common(void)
  */
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
-	char status[900];
 	int ret = 0;
 
 	(void)argv;
@@ -122,13 +122,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 		return 1;
 	}
 
-	if (argc != 2) {
-		memset(status, 0, sizeof(status));
-		lc_status(status, sizeof(status));
-		if (strlen(status) == 0)
-			ret = 1;
-		printf("Status information from leancrypto:\n%s", status);
-	}
+	ret += test_print_status();
 
 	return ret;
 }

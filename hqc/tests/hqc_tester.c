@@ -36,6 +36,7 @@
 #include "ret_checkers.h"
 #include "selftest_shake256_rng.h"
 #include "small_stack_support.h"
+#include "test_helper_common.h"
 #include "visibility.h"
 
 /*
@@ -178,7 +179,6 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 #ifdef GENERATE_VECTORS
 	printf("\n};\n");
 #else
-	char status[900];
 
 	if (lc_status_get_result(LC_ALG_STATUS_SHAKE) !=
 	    lc_alg_status_result_passed) {
@@ -206,11 +206,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 		return 1;
 	}
 
-	memset(status, 0, sizeof(status));
-	lc_status(status, sizeof(status));
-	if (strlen(status) == 0)
-		ret = 1;
-	printf("Status information from leancrypto:\n%s", status);
+	ret += test_print_status();
 
 #endif
 

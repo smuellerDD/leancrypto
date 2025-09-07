@@ -20,6 +20,7 @@
 #include "compare.h"
 #include "ext_headers_internal.h"
 #include "lc_ascon_lightweight.h"
+#include "test_helper_common.h"
 #include "visibility.h"
 
 static int ascon_tester_one(const uint8_t *pt, size_t ptlen,
@@ -131,7 +132,6 @@ static int ascon_tester_128(void)
 	static const uint8_t exp_tag[] = { 0x68, 0x91, 0x5D, 0x3F, 0x94, 0x22,
 					   0x28, 0x9F, 0x23, 0x49, 0xD6, 0xA3,
 					   0xB4, 0x16, 0x03, 0x97 };
-	char status[900];
 	int ret;
 
 	printf("Ascon lightweight 128 crypt ctx len %u, state len %u\n",
@@ -148,11 +148,7 @@ static int ascon_tester_128(void)
 		return 1;
 	}
 
-	memset(status, 0, sizeof(status));
-	lc_status(status, sizeof(status));
-	if (strlen(status) == 0)
-		ret = 1;
-	printf("Status information from leancrypto:\n%s", status);
+	ret += test_print_status();
 
 	return ret;
 }

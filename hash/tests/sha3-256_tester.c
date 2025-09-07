@@ -19,6 +19,7 @@
 
 #include "compare.h"
 #include "lc_sha3.h"
+#include "test_helper_common.h"
 #include "visibility.h"
 
 #include "sha3_c.h"
@@ -101,7 +102,6 @@ static int sha3_256_tester(void)
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
-	char status[900];
 	int ret;
 
 	(void)argc;
@@ -116,11 +116,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 		return 1;
 	}
 
-	memset(status, 0, sizeof(status));
-	lc_status(status, sizeof(status));
-	if (strlen(status) == 0)
-		ret = 1;
-	printf("Status information from leancrypto:\n%s", status);
+	ret += test_print_status();
 
 	return ret;
 }
