@@ -33,9 +33,7 @@ static int lc_kernel_sha256_hash_init(struct shash_desc *desc)
 	struct lc_hash_ctx *sctx = shash_desc_ctx(desc);
 
 	LC_SHA256_CTX(sctx);
-	lc_hash_init(sctx);
-
-	return 0;
+	return lc_hash_init(sctx);
 }
 
 static int lc_kernel_sha256_update(struct shash_desc *desc, const u8 *data,

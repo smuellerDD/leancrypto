@@ -32,9 +32,7 @@ static int lc_kernel_sha3_224_init(struct shash_desc *desc)
 	struct lc_hash_ctx *sctx = shash_desc_ctx(desc);
 
 	LC_SHA3_224_CTX(sctx);
-	lc_hash_init(sctx);
-
-	return 0;
+	return lc_hash_init(sctx);
 }
 
 static int lc_kernel_sha3_256_init(struct shash_desc *desc)
@@ -42,9 +40,7 @@ static int lc_kernel_sha3_256_init(struct shash_desc *desc)
 	struct lc_hash_ctx *sctx = shash_desc_ctx(desc);
 
 	LC_SHA3_256_CTX(sctx);
-	lc_hash_init(sctx);
-
-	return 0;
+	return lc_hash_init(sctx);
 }
 
 static int lc_kernel_sha3_384_init(struct shash_desc *desc)
@@ -52,9 +48,7 @@ static int lc_kernel_sha3_384_init(struct shash_desc *desc)
 	struct lc_hash_ctx *sctx = shash_desc_ctx(desc);
 
 	LC_SHA3_384_CTX(sctx);
-	lc_hash_init(sctx);
-
-	return 0;
+	return lc_hash_init(sctx);
 }
 
 static int lc_kernel_sha3_512_init(struct shash_desc *desc)
@@ -62,9 +56,7 @@ static int lc_kernel_sha3_512_init(struct shash_desc *desc)
 	struct lc_hash_ctx *sctx = shash_desc_ctx(desc);
 
 	LC_SHA3_512_CTX(sctx);
-	lc_hash_init(sctx);
-
-	return 0;
+	return lc_hash_init(sctx);
 }
 
 static int lc_kernel_sha3_update(struct shash_desc *desc, const u8 *data,
