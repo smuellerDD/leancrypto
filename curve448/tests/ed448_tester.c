@@ -151,6 +151,7 @@ out:
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	char status[900];
 	int ret = 0;
 
 	(void)argc;
@@ -160,6 +161,33 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	ret += ed448_sigver_pos_tester();
 	ret += ed448_sigver_neg_tester();
 	ret += ed448_siggen_tester();
+
+	if (lc_status_get_result(LC_ALG_STATUS_ED448_KEYGEN) !=
+	    lc_alg_status_result_passed) {
+		printf("ED448 keygen self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_ED448_KEYGEN));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_ED448_SIGGEN) !=
+	    lc_alg_status_result_passed) {
+		printf("ED448 siggen self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_ED448_SIGGEN));
+		return 1;
+	}
+
+	if (lc_status_get_result(LC_ALG_STATUS_ED448_SIGVER) !=
+	    lc_alg_status_result_passed) {
+		printf("ED448 sigver self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_ED448_SIGVER));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
 
 	return ret;
 }

@@ -88,6 +88,8 @@ void lc_status(char *outbuf, size_t outlen);
 #define LC_ALG_STATUS_FLAG_MLKEM_DEC_KDF (1 << 7)
 #define LC_ALG_STATUS_FLAG_X25519_KEYKEN (1 << 8)
 #define LC_ALG_STATUS_FLAG_X25519_SS (1 << 9)
+#define LC_ALG_STATUS_FLAG_X448_KEYKEN (1 << 10)
+#define LC_ALG_STATUS_FLAG_X448_SS (1 << 11)
 
 #define LC_ALG_STATUS_TYPE_SIG (1UL << (LC_ALG_STATUS_TYPE_MASK_SHIFT + 2))
 #define LC_ALG_STATUS_FLAG_MLDSA_KEYGEN (1 << 0)
@@ -99,6 +101,9 @@ void lc_status(char *outbuf, size_t outlen);
 #define LC_ALG_STATUS_FLAG_ED25519_KEYGEN (1 << 6)
 #define LC_ALG_STATUS_FLAG_ED25519_SIGGEN (1 << 7)
 #define LC_ALG_STATUS_FLAG_ED25519_SIGVER (1 << 8)
+#define LC_ALG_STATUS_FLAG_ED448_KEYGEN (1 << 9)
+#define LC_ALG_STATUS_FLAG_ED448_SIGGEN (1 << 10)
+#define LC_ALG_STATUS_FLAG_ED448_SIGVER (1 << 11)
 
 #define LC_ALG_STATUS_TYPE_RNG (1UL << (LC_ALG_STATUS_TYPE_MASK_SHIFT + 3))
 #define LC_ALG_STATUS_FLAG_CHACHA20_DRNG (1 << 0)
@@ -209,6 +214,12 @@ enum lc_alg_status_result {
 /** KEM Algorithm reference: X25515 Shared Secret */
 #define LC_ALG_STATUS_X25519_SS                                                \
 	(LC_ALG_STATUS_TYPE_KEM | LC_ALG_STATUS_FLAG_X25519_SS)
+/** KEM Algorithm reference: X25515 Key Generation */
+#define LC_ALG_STATUS_X448_KEYKEN                                              \
+	(LC_ALG_STATUS_TYPE_KEM | LC_ALG_STATUS_FLAG_X448_KEYKEN)
+/** KEM Algorithm reference: X25515 Shared Secret */
+#define LC_ALG_STATUS_X448_SS                                                  \
+	(LC_ALG_STATUS_TYPE_KEM | LC_ALG_STATUS_FLAG_X448_SS)
 
 /** Signature Algorithm reference: ML-DSA Key Generation */
 #define LC_ALG_STATUS_MLDSA_KEYGEN                                             \
@@ -237,6 +248,15 @@ enum lc_alg_status_result {
 /** Signature Algorithm reference: ED-25519 Key Signature Verification */
 #define LC_ALG_STATUS_ED25519_SIGVER                                           \
 	(LC_ALG_STATUS_TYPE_SIG | LC_ALG_STATUS_FLAG_ED25519_SIGVER)
+/** Signature Algorithm reference: ED-448 Key Generation */
+#define LC_ALG_STATUS_ED448_KEYGEN                                             \
+	(LC_ALG_STATUS_TYPE_SIG | LC_ALG_STATUS_FLAG_ED448_KEYGEN)
+/** Signature Algorithm reference: ED-448 Key Signature Generation */
+#define LC_ALG_STATUS_ED448_SIGGEN                                             \
+	(LC_ALG_STATUS_TYPE_SIG | LC_ALG_STATUS_FLAG_ED448_SIGGEN)
+/** Signature Algorithm reference: ED-448 Key Signature Verification */
+#define LC_ALG_STATUS_ED448_SIGVER                                             \
+	(LC_ALG_STATUS_TYPE_SIG | LC_ALG_STATUS_FLAG_ED448_SIGVER)
 
 /** Random Number Generator reference: ChaCha20 DRNG */
 #define LC_ALG_STATUS_CHACHA20_DRNG                                            \

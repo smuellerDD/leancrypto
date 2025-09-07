@@ -31,6 +31,7 @@
  */
 
 #include "build_bug_on.h"
+#include "compare.h"
 #include "ed448_composite.h"
 #include "ed448_pct.h"
 #include "ext_headers_internal.h"
@@ -39,6 +40,7 @@
 #include "lc_sha3.h"
 #include "point_448.h"
 #include "ret_checkers.h"
+#include "selftest_rng.h"
 #include "signature_domain_separation.h"
 #include "timecop.h"
 #include "visibility.h"
@@ -46,6 +48,84 @@
 #define EDDSA_USE_SIGMA_ISOGENY 0
 #define COFACTOR 4
 #define EDDSA_PREHASH_BYTES 64
+
+static int lc_ed448_keypair_nocheck(struct lc_ed448_pk *pk,
+				    struct lc_ed448_sk *sk,
+				    struct lc_rng_ctx *rng_ctx);
+static void lc_ed448_keypair_selftest(void)
+{
+	static const uint8_t sk_exp[] = {
+		0x7f, 0x9c, 0x2b, 0xa4, 0xe8, 0x8f, 0x82, 0x7d,
+		0x61, 0x60, 0x45, 0x50, 0x76, 0x05, 0x85, 0x3e,
+		0xd7, 0x3b, 0x80, 0x93, 0xf6, 0xef, 0xbc, 0x88,
+		0xeb, 0x1a, 0x6e, 0xac, 0xfa, 0x66, 0xef, 0x26,
+		0x3c, 0xb1, 0xee, 0xa9, 0x88, 0x00, 0x4b, 0x93,
+		0x10, 0x3c, 0xfb, 0x0a, 0xee, 0xfd, 0x2a, 0x68,
+		0x6e, 0x01, 0xfa, 0x4a, 0x58, 0xe8, 0xa3, 0x63,
+		0x9c,
+	};
+	static const uint8_t pk_exp[] = {
+		0xec, 0x75, 0x70, 0x1e, 0xb4, 0xcd, 0x30, 0x2e,
+		0x4f, 0x5f, 0x4b, 0xf5, 0x8f, 0xc7, 0xb4, 0x85,
+		0xcc, 0x81, 0x78, 0xc2, 0xb2, 0x75, 0x68, 0x5d,
+		0x9a, 0xe2, 0x25, 0x7a, 0xd6, 0x7f, 0x51, 0xf8,
+	};
+	struct lc_ed448_pk pk;
+	struct lc_ed448_sk sk;
+	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
+
+	LC_SELFTEST_RUN(LC_ALG_STATUS_ED448_KEYGEN);
+
+	lc_ed448_keypair_nocheck(&pk, &sk, selftest_rng);
+	if (lc_compare_selftest(LC_ALG_STATUS_ED448_KEYGEN, pk.pk, pk_exp,
+				sizeof(pk_exp), "ED448 keypair pubkey\n"))
+		return;
+	lc_compare_selftest(LC_ALG_STATUS_ED448_KEYGEN, sk.sk, sk_exp,
+			    sizeof(sk.sk), "ED448 keypair seckey\n");
+}
+
+static int lc_ed448_sign_nocheck(struct lc_ed448_sig *sig,
+				 const uint8_t *msg, size_t mlen,
+				 const struct lc_ed448_sk *sk,
+				 struct lc_rng_ctx *rng_ctx);
+/* Test vector generated with libsodium using the ACVP parser tool */
+static void lc_ed448_sign_tester(void)
+{
+	static const struct lc_ed448_sk sk = {
+		.sk = { 0xc4, 0xea, 0xb0, 0x5d, 0x35, 0x70, 0x07, 0xc6, 0x32,
+			0xf3, 0xdb, 0xb4, 0x84, 0x89, 0x92, 0x4d, 0x55, 0x2b,
+			0x08, 0xfe, 0x0c, 0x35, 0x3a, 0x0d, 0x4a, 0x1f, 0x00,
+			0xac, 0xda, 0x2c, 0x46, 0x3a, 0xfb, 0xea, 0x67, 0xc5,
+			0xe8, 0xd2, 0x87, 0x7c, 0x5e, 0x3b, 0xc3, 0x97, 0xa6,
+			0x59, 0x94, 0x9e, 0xf8, 0x02, 0x1e, 0x95, 0x4e, 0x0a,
+			0x12, 0x27, 0x4e }
+	};
+	static const struct lc_ed448_sig exp_sig = {
+		.sig = { 0x26, 0xb8, 0xf9, 0x17, 0x27, 0xbd, 0x62, 0x89, 0x7a,
+			 0xf1, 0x5e, 0x41, 0xeb, 0x43, 0xc3, 0x77, 0xef, 0xb9,
+			 0xc6, 0x10, 0xd4, 0x8f, 0x23, 0x35, 0xcb, 0x0b, 0xd0,
+			 0x08, 0x78, 0x10, 0xf4, 0x35, 0x25, 0x41, 0xb1, 0x43,
+			 0xc4, 0xb9, 0x81, 0xb7, 0xe1, 0x8f, 0x62, 0xde, 0x8c,
+			 0xcd, 0xf6, 0x33, 0xfc, 0x1b, 0xf0, 0x37, 0xab, 0x7c,
+			 0xd7, 0x79, 0x80, 0x5e, 0x0d, 0xbc, 0xc0, 0xaa, 0xe1,
+			 0xcb, 0xce, 0xe1, 0xaf, 0xb2, 0xe0, 0x27, 0xdf, 0x36,
+			 0xbc, 0x04, 0xdc, 0xec, 0xbf, 0x15, 0x43, 0x36, 0xc1,
+			 0x9f, 0x0a, 0xf7, 0xe0, 0xa6, 0x47, 0x29, 0x05, 0xe7,
+			 0x99, 0xf1, 0x95, 0x3d, 0x2a, 0x0f, 0xf3, 0x34, 0x8a,
+			 0xb2, 0x1a, 0xa4, 0xad, 0xaf, 0xd1, 0xd2, 0x34, 0x44,
+			 0x1c, 0xf8, 0x07, 0xc0, 0x3a, 0x00 }
+	};
+	static const uint8_t msg[] = { 0x03 };
+	struct lc_ed448_sig sig;
+
+	LC_SELFTEST_RUN(LC_ALG_STATUS_ED448_SIGGEN);
+
+	if (lc_ed448_sign_nocheck(&sig, msg, sizeof(msg), &sk, NULL))
+		return;
+	lc_compare_selftest(LC_ALG_STATUS_ED448_SIGGEN, sig.sig, exp_sig.sig,
+			    sizeof(exp_sig.sig),
+			    "ED448 Signature generation\n");
+}
 
 static void curve448_clamp(uint8_t secret_scalar_ser[LC_ED448_SECRETKEYBYTES])
 {
@@ -63,16 +143,16 @@ static void curve448_clamp(uint8_t secret_scalar_ser[LC_ED448_SECRETKEYBYTES])
 }
 
 #define DECAF_448_EDDSA_ENCODE_RATIO 4
-static void
+static int
 ed448_derive_public_key(uint8_t pubkey[LC_ED448_PUBLICKEYBYTES],
 			const uint8_t privkey[LC_ED448_SECRETKEYBYTES])
 {
 	/* only this much used for keygen */
 	uint8_t secret_scalar_ser[LC_ED448_SECRETKEYBYTES];
+	int ret;
 
-	if (lc_xof(lc_shake256, privkey, LC_ED448_SECRETKEYBYTES,
-		   secret_scalar_ser, sizeof(secret_scalar_ser)))
-		return;
+	CKINT(lc_xof(lc_shake256, privkey, LC_ED448_SECRETKEYBYTES,
+		     secret_scalar_ser, sizeof(secret_scalar_ser)));
 	curve448_clamp(secret_scalar_ser);
 
 	curve448_scalar_t secret_scalar;
@@ -100,11 +180,14 @@ ed448_derive_public_key(uint8_t pubkey[LC_ED448_PUBLICKEYBYTES],
 	curve448_scalar_destroy(secret_scalar);
 	curve448_point_destroy(p);
 
+out:
 	lc_memset_secure(secret_scalar_ser, 0, sizeof(secret_scalar_ser));
+	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_ed448_keypair, struct lc_ed448_pk *pk,
-		      struct lc_ed448_sk *sk, struct lc_rng_ctx *rng_ctx)
+static int lc_ed448_keypair_nocheck(struct lc_ed448_pk *pk,
+				    struct lc_ed448_sk *sk,
+				    struct lc_rng_ctx *rng_ctx)
 {
 	int ret;
 
@@ -125,6 +208,15 @@ LC_INTERFACE_FUNCTION(int, lc_ed448_keypair, struct lc_ed448_pk *pk,
 
 out:
 	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_ed448_keypair, struct lc_ed448_pk *pk,
+		      struct lc_ed448_sk *sk, struct lc_rng_ctx *rng_ctx)
+{
+	lc_ed448_keypair_selftest();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_ED448_KEYGEN);
+
+	return lc_ed448_keypair_nocheck(pk, sk, rng_ctx);
 }
 
 static inline void lc_ed448_xof_final(struct lc_hash_ctx *xof_ctx,
@@ -297,9 +389,10 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_ed448_sign, struct lc_ed448_sig *sig,
-		      const uint8_t *msg, size_t mlen,
-		      const struct lc_ed448_sk *sk, struct lc_rng_ctx *rng_ctx)
+static int lc_ed448_sign_nocheck(struct lc_ed448_sig *sig,
+				 const uint8_t *msg, size_t mlen,
+				 const struct lc_ed448_sk *sk,
+				 struct lc_rng_ctx *rng_ctx)
 {
 	uint8_t rederived_pubkey[LC_ED448_PUBLICKEYBYTES];
 	int ret = 0;
@@ -318,6 +411,16 @@ out:
 	return ret;
 }
 
+LC_INTERFACE_FUNCTION(int, lc_ed448_sign, struct lc_ed448_sig *sig,
+		      const uint8_t *msg, size_t mlen,
+		      const struct lc_ed448_sk *sk, struct lc_rng_ctx *rng_ctx)
+{
+	lc_ed448_sign_tester();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_ED448_SIGGEN);
+
+	return lc_ed448_sign_nocheck(sig, msg, mlen, sk, rng_ctx);
+}
+
 LC_INTERFACE_FUNCTION(int, lc_ed448ph_sign, struct lc_ed448_sig *sig,
 		      const uint8_t *msg, size_t mlen,
 		      const struct lc_ed448_sk *sk, struct lc_rng_ctx *rng_ctx)
@@ -329,6 +432,9 @@ LC_INTERFACE_FUNCTION(int, lc_ed448ph_sign, struct lc_ed448_sig *sig,
 
 	CKNULL(sig, -EINVAL);
 	CKNULL(sk, -EINVAL);
+
+	lc_ed448_sign_tester();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_ED448_SIGGEN);
 
 	ed448_derive_public_key(rederived_pubkey, sk->sk);
 	CKINT(curveed448_sign_internal(sig->sig, sk->sk, rederived_pubkey, msg,
@@ -358,6 +464,48 @@ int lc_ed448_sign_ctx(struct lc_ed448_sig *sig, const uint8_t *msg, size_t mlen,
 out:
 	lc_memset_secure(rederived_pubkey, 0, sizeof(rederived_pubkey));
 	return ret;
+}
+
+static int lc_ed448_verify_nocheck(const struct lc_ed448_sig *sig,
+				   const uint8_t *msg, size_t mlen,
+				   const struct lc_ed448_pk *pk);
+/* Test vector obtained from NIST ACVP demo server */
+static void lc_ed448_verify_tester(void)
+{
+	static const struct lc_ed448_pk pk = {
+		.pk = { 0x43, 0xba, 0x28, 0xf4, 0x30, 0xcd, 0xff, 0x45, 0x6a,
+			0xe5, 0x31, 0x54, 0x5f, 0x7e, 0xcd, 0x0a, 0xc8, 0x34,
+			0xa5, 0x5d, 0x93, 0x58, 0xc0, 0x37, 0x2b, 0xfa, 0x0c,
+			0x6c, 0x67, 0x98, 0xc0, 0x86, 0x6a, 0xea, 0x01, 0xeb,
+			0x00, 0x74, 0x28, 0x02, 0xb8, 0x43, 0x8e, 0xa4, 0xcb,
+			0x82, 0x16, 0x9c, 0x23, 0x51, 0x60, 0x62, 0x7b, 0x4c,
+			0x3a, 0x94, 0x80 }
+	};
+	static const struct lc_ed448_sig sig = {
+		.sig = { 0x26, 0xb8, 0xf9, 0x17, 0x27, 0xbd, 0x62, 0x89, 0x7a,
+			 0xf1, 0x5e, 0x41, 0xeb, 0x43, 0xc3, 0x77, 0xef, 0xb9,
+			 0xc6, 0x10, 0xd4, 0x8f, 0x23, 0x35, 0xcb, 0x0b, 0xd0,
+			 0x08, 0x78, 0x10, 0xf4, 0x35, 0x25, 0x41, 0xb1, 0x43,
+			 0xc4, 0xb9, 0x81, 0xb7, 0xe1, 0x8f, 0x62, 0xde, 0x8c,
+			 0xcd, 0xf6, 0x33, 0xfc, 0x1b, 0xf0, 0x37, 0xab, 0x7c,
+			 0xd7, 0x79, 0x80, 0x5e, 0x0d, 0xbc, 0xc0, 0xaa, 0xe1,
+			 0xcb, 0xce, 0xe1, 0xaf, 0xb2, 0xe0, 0x27, 0xdf, 0x36,
+			 0xbc, 0x04, 0xdc, 0xec, 0xbf, 0x15, 0x43, 0x36, 0xc1,
+			 0x9f, 0x0a, 0xf7, 0xe0, 0xa6, 0x47, 0x29, 0x05, 0xe7,
+			 0x99, 0xf1, 0x95, 0x3d, 0x2a, 0x0f, 0xf3, 0x34, 0x8a,
+			 0xb2, 0x1a, 0xa4, 0xad, 0xaf, 0xd1, 0xd2, 0x34, 0x44,
+			 0x1c, 0xf8, 0x07, 0xc0, 0x3a, 0x00 }
+	};
+	static const uint8_t msg[] = { 0x03 };
+	int exp, ret;
+
+	LC_SELFTEST_RUN(LC_ALG_STATUS_ED448_SIGVER);
+
+	exp = 0;
+	ret = lc_ed448_verify_nocheck(&sig, msg, sizeof(msg), &pk);
+	lc_compare_selftest(LC_ALG_STATUS_ED448_SIGVER, (uint8_t *)&exp,
+			    (uint8_t *)&ret, sizeof(exp),
+			    "ED448 Signature verification\n");
 }
 
 static int
@@ -426,9 +574,9 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_ed448_verify, const struct lc_ed448_sig *sig,
-		      const uint8_t *msg, size_t mlen,
-		      const struct lc_ed448_pk *pk)
+static int lc_ed448_verify_nocheck(const struct lc_ed448_sig *sig,
+				   const uint8_t *msg, size_t mlen,
+				   const struct lc_ed448_pk *pk)
 {
 	int ret;
 
@@ -439,6 +587,16 @@ LC_INTERFACE_FUNCTION(int, lc_ed448_verify, const struct lc_ed448_sig *sig,
 
 out:
 	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_ed448_verify, const struct lc_ed448_sig *sig,
+		      const uint8_t *msg, size_t mlen,
+		      const struct lc_ed448_pk *pk)
+{
+	lc_ed448_verify_tester();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_ED448_SIGVER);
+
+	return lc_ed448_verify_nocheck(sig, msg, mlen, pk);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_ed448ph_verify, const struct lc_ed448_sig *sig,

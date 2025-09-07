@@ -71,6 +71,7 @@ out:
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	char status[900];
 	unsigned int loops = 1;
 	unsigned int cpu_feature_enable = 0;
 	int argc_p = 1;
@@ -99,6 +100,19 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	if (cpu_feature_enable)
 		lc_cpu_feature_enable();
+
+	if (lc_status_get_result(LC_ALG_STATUS_X448_SS) !=
+	    lc_alg_status_result_passed) {
+		printf("ED448 siggen self test status %u unexpected\n",
+		       lc_status_get_result(LC_ALG_STATUS_X448_SS));
+		return 1;
+	}
+
+	memset(status, 0, sizeof(status));
+	lc_status(status, sizeof(status));
+	if (strlen(status) == 0)
+		ret = 1;
+	printf("Status information from leancrypto:\n%s", status);
 
 	return ret;
 }
