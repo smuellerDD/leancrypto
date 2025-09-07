@@ -32,9 +32,7 @@ static int lc_kernel_ascon_256_init(struct shash_desc *desc)
 	struct lc_hash_ctx *sctx = shash_desc_ctx(desc);
 
 	LC_ASCON_CTX(sctx, lc_ascon_256);
-	lc_hash_init(sctx);
-
-	return 0;
+	return lc_hash_init(sctx);
 }
 
 static int lc_kernel_ascon_update(struct shash_desc *desc, const u8 *data,

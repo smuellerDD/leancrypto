@@ -23,6 +23,7 @@
 #include <linux/types.h>
 
 #include "lc_kmac.h"
+#include "ret_checkers.h"
 
 #include "leancrypto_kernel.h"
 
@@ -37,16 +38,18 @@ static int lc_kernel_kmac256_init_alg(struct shash_desc *desc)
 	struct crypto_shash *tfm = desc->tfm;
 	struct lc_kmac_ctx *pctx = crypto_shash_ctx(tfm);
 	struct lc_hash_ctx *phash_ctx = &pctx->hash_ctx;
+	int ret;
 
 	LC_KMAC_SET_CTX(sctx, lc_cshake256);
 
-	lc_hash_init(shash_ctx);
+	CKINT(lc_hash_init(shash_ctx));
 	sctx->final_called = 0;
 
 	memcpy(sctx->hash_ctx.hash_state, phash_ctx->hash_state,
 	       lc_hash_ctxsize(phash_ctx));
 
-	return 0;
+out:
+	return ret;
 }
 
 static int lc_kernel_kmac256_setkey(struct crypto_shash *tfm, const u8 *key,
@@ -56,9 +59,7 @@ static int lc_kernel_kmac256_setkey(struct crypto_shash *tfm, const u8 *key,
 
 	LC_KMAC_SET_CTX(sctx, lc_cshake256);
 
-	lc_kmac_init(sctx, key, keylen, NULL, 0);
-
-	return 0;
+	return lc_kmac_init(sctx, key, keylen, NULL, 0);
 }
 
 static int lc_kernel_kmac256_update(struct shash_desc *desc, const u8 *data,
