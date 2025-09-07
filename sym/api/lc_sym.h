@@ -60,7 +60,8 @@ struct lc_sym_ctx {
  * LC_ALIGN_PTR_XX macro depending on lc_sym->alignment during compile time.
  */
 #ifndef LC_SYM_COMMON_ALIGNMENT
-#define LC_SYM_COMMON_ALIGNMENT (16)
+/* ChaCha20 is based on AVX-512 */
+#define LC_SYM_COMMON_ALIGNMENT (64)
 #endif
 #define LC_SYM_ALIGNMENT(symname) LC_SYM_COMMON_ALIGNMENT
 #define LC_SYM_ALIGNMASK(symname) (LC_SYM_ALIGNMENT(symname) - 1)
