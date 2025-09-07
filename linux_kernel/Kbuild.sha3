@@ -47,14 +47,15 @@ leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
 				+= ../hash/src/sha3_avx2_null.o
 endif
 
-ifdef CONFIG_X86_64
-leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
-				+= ../hash/src/sha3_avx512.o		       \
-				   ../hash/src/asm/AVX512/KeccakP-1600-AVX512.o
-else
+# Enable this configuration if LC_HASH_COMMON_ALIGNMENT is set to 64 bits
+#ifdef CONFIG_X86_64
+#leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
+#				+= ../hash/src/sha3_avx512.o		       \
+#				   ../hash/src/asm/AVX512/KeccakP-1600-AVX512.o
+#else
 leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
 				+= ../hash/src/sha3_avx512_null.o
-endif
+#endif
 
 ifdef CONFIG_X86_64
 leancrypto-$(CONFIG_LEANCRYPTO_KEM_KYBER)				       \
