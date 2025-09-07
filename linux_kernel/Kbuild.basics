@@ -90,6 +90,7 @@ leancrypto-y			+= ../internal/src/left_encode.o	       \
 				   ../internal/src/null_buffer.o	       \
 				   ../internal/src/fips_integrity_checker_none.o\
 				   ../internal/src/status.o		       \
+				   ../internal/src/status_api.o		       \
 				   ../internal/src/status_algorithms.o
 
 leancrypto-$(CONFIG_LEANCRYPTO_SIG_SUPPORT)				       \
