@@ -306,9 +306,3 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 #pragma GCC diagnostic pop
 #endif
 }
-
-LC_INTERFACE_FUNCTION(enum lc_alg_status_result, lc_status_get_result,
-		      uint64_t algorithm)
-{
-	return alg_status_get_result(algorithm);
-}

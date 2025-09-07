@@ -9,7 +9,8 @@ internal_src += files([
 
 src_fips += files([
 	'fips_integrity_check.c',
-	'leancrypto_init.c'
+	'leancrypto_init.c',
+	'status_api.c'
 ])
 
 if get_option('efi').disabled()
