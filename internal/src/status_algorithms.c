@@ -584,6 +584,14 @@ void alg_status(uint64_t flag, char *test_completed, size_t test_completed_len,
 LC_CONSTRUCTOR(lc_activate_library, LC_INIT_PRIO_LIBRARY)
 {
 	/*
+	 * TODO remove once the FIPS integrity test is rearchitected, see
+	 * the counterpart in fips_integrity_check
+	 */
+	if (lc_status_get_result(LC_ALG_STATUS_FLAG_LIB) >
+	    lc_alg_status_result_ongoing)
+		return;
+
+	/*
 	 * This enables the library operation. Before this call, all algorithms
 	 * are marked that all self tests failed causing all algorithms to
 	 * be unavailable.

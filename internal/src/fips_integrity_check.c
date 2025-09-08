@@ -20,6 +20,7 @@
 #include "compare.h"
 #include "fips_integrity_check.h"
 #include "fips_mode.h"
+#include "initialization.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
 
@@ -47,6 +48,11 @@ int fips_integrity_check(const struct lc_fips_integrity_sections *secs,
 	size_t i;
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_sha3_256);
 	int ret;
+
+	//TODO remove once the FIPS self-test is rearchitected
+	if (lc_status_get_result(LC_ALG_STATUS_FLAG_LIB) <=
+	    lc_alg_status_result_ongoing)
+		lc_activate_library();
 
 	CKINT(lc_hash_init(hash_ctx));
 	for (i = 0; i < n_secs; i++, secs++) {
