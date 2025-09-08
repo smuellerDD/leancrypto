@@ -22,6 +22,7 @@
 #include "ext_headers_internal.h"
 #include "fips_integrity_check.h"
 #include "helper.h"
+#include "initialization.h"
 #include "status_algorithms.h"
 #include "lc_status.h"
 #include "visibility.h"
@@ -145,15 +146,9 @@ LC_INTERFACE_FUNCTION(void, lc_fips_integrity_checker, void)
  * This constructor is part of the regular "text" section and thus subject to
  * the integrity test.
  */
-__attribute__((constructor)) static void fips_integrity_checker_dep(void)
+__attribute__((constructor(LC_INIT_PRIO_FIPS)))
+static void fips_integrity_checker_dep(void)
 {
 	fips140_mode_enable();
-
-	/*
-	 * It is likely that at this point lc_activate_library is not yet
-	 * called. Therefore, enable the SHA3-256 now.
-	 */
-	alg_status_set_result(lc_alg_status_result_pending, LC_ALG_STATUS_SHA3);
-
 	lc_fips_integrity_checker();
 }

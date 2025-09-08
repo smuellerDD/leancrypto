@@ -31,7 +31,7 @@
 #include "sha3_riscv_asm.h"
 #include "visibility.h"
 
-LC_CONSTRUCTOR(sha3_fastest_impl)
+LC_CONSTRUCTOR(sha3_fastest_impl, LC_INIT_PRIO_ALGO)
 {
 	enum lc_cpu_features feat = lc_cpu_feature_available();
 

@@ -27,7 +27,7 @@ int kyber_rvv_selector(void);
 
 static int lc_riscv_rvv_vlen = 0;
 
-LC_CONSTRUCTOR(kyber_riscv_rvv_selector)
+LC_CONSTRUCTOR(kyber_riscv_rvv_selector, LC_INIT_PRIO_ALGO)
 {
 	if (lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV_ASM_RVV) {
 		LC_VECTOR_ENABLE;

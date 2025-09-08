@@ -30,7 +30,7 @@
 #include "sha256_shani.h"
 #include "visibility.h"
 
-LC_CONSTRUCTOR(sha256_fastest_impl)
+LC_CONSTRUCTOR(sha256_fastest_impl, LC_INIT_PRIO_ALGO)
 {
 	enum lc_cpu_features feat = lc_cpu_feature_available();
 

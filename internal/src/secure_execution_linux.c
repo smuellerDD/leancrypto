@@ -23,7 +23,7 @@
 #include "initialization.h"
 #include "visibility.h"
 
-LC_CONSTRUCTOR(secure_execution_linux)
+LC_CONSTRUCTOR(secure_execution_linux, LC_INIT_PRIO_ALGO)
 {
 	/*
 	 * Disable CPU speculation-related options: see the kernel

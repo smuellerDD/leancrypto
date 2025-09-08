@@ -581,7 +581,7 @@ void alg_status(uint64_t flag, char *test_completed, size_t test_completed_len,
 	}
 }
 
-LC_CONSTRUCTOR(lc_activate_library)
+LC_CONSTRUCTOR(lc_activate_library, LC_INIT_PRIO_LIBRARY)
 {
 	/*
 	 * This enables the library operation. Before this call, all algorithms

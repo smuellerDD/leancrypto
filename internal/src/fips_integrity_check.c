@@ -21,6 +21,7 @@
 #include "fips_integrity_check.h"
 #include "fips_mode.h"
 #include "lc_sha3.h"
+#include "ret_checkers.h"
 
 /*
  * This flag is enabled by the FIPS 140 integrity test (i.e. when leancrypto
@@ -45,11 +46,9 @@ int fips_integrity_check(const struct lc_fips_integrity_sections *secs,
 {
 	size_t i;
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_sha3_256);
-	int ret = lc_hash_init(hash_ctx);
+	int ret;
 
-	if (ret)
-		return ret;
-
+	CKINT(lc_hash_init(hash_ctx));
 	for (i = 0; i < n_secs; i++, secs++) {
 		const uint8_t *start = secs->section_start_p,
 			      *end = secs->section_end_p;
@@ -61,5 +60,8 @@ int fips_integrity_check(const struct lc_fips_integrity_sections *secs,
 	lc_hash_final(hash_ctx, act);
 	lc_hash_zero(hash_ctx);
 
-	return lc_compare(act, exp, LC_SHA3_256_SIZE_DIGEST, "Sections");
+	ret = lc_compare(act, exp, LC_SHA3_256_SIZE_DIGEST, "Sections");
+
+out:
+	return ret;
 }

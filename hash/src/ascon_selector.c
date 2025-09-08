@@ -26,7 +26,7 @@
 #include "initialization.h"
 #include "visibility.h"
 
-LC_CONSTRUCTOR(ascon_fastest_impl)
+LC_CONSTRUCTOR(ascon_fastest_impl, LC_INIT_PRIO_ALGO)
 {
 	enum lc_cpu_features feat = lc_cpu_feature_available();
 

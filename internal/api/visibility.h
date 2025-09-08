@@ -92,13 +92,13 @@
  * EFI does not have the constructor logic. Thus, mark the constructor functions
  * as regular non-static functions as they are intended to be called by lc_init.
  */
-#define LC_CONSTRUCTOR(_func)                                                  \
+#define LC_CONSTRUCTOR(_func, prio)                                            \
 	void _func(void);                                                      \
 	void _func(void)
 #else /* LC_EFI */
 
-#define LC_CONSTRUCTOR(_func)                                                  \
-	void __attribute__((constructor)) _func(void);                         \
+#define LC_CONSTRUCTOR(_func, prio)                                            \
+	void __attribute__((constructor(prio))) _func(void);                   \
 	void _func(void)
 #endif /* LC_EFI */
 

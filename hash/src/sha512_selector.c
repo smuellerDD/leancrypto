@@ -30,7 +30,7 @@
 #include "sha512_shani.h"
 #include "visibility.h"
 
-LC_CONSTRUCTOR(sha512_fastest_impl)
+LC_CONSTRUCTOR(sha512_fastest_impl, LC_INIT_PRIO_ALGO)
 {
 	enum lc_cpu_features feat = lc_cpu_feature_available();
 
