@@ -27,3 +27,8 @@ LC_INTERFACE_FUNCTION(enum lc_alg_status_result, lc_status_get_result,
 {
 	return alg_status_get_result(algorithm);
 }
+
+LC_INTERFACE_FUNCTION(void, lc_rerun_selftests, void)
+{
+	alg_status_set_result(lc_alg_status_result_pending, (uint64_t) -1);
+}

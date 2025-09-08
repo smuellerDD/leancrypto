@@ -27,11 +27,11 @@ extern "C" {
 #endif
 
 /* First prio is to ensure the algorithm selectors are run */
-#define LC_INIT_PRIO_ALGO (1)
+#define LC_INIT_PRIO_ALGO (101)
 /* Second prio is to make the library available */
-#define LC_INIT_PRIO_LIBRARY (2)
+#define LC_INIT_PRIO_LIBRARY (102)
 /* Last prio is to run the FIPS integrity test */
-#define LC_INIT_PRIO_FIPS (3)
+#define LC_INIT_PRIO_FIPS (103)
 
 void ascon_fastest_impl(void);
 void sha256_fastest_impl(void);

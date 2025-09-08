@@ -23,11 +23,6 @@
 #include "lc_memcmp_secure.h"
 #include "visibility.h"
 
-LC_INTERFACE_FUNCTION(void, lc_rerun_selftests, void)
-{
-	alg_status_set_result(lc_alg_status_result_pending, (uint64_t) -1);
-}
-
 LC_INTERFACE_FUNCTION(int, lc_compare, const uint8_t *act, const uint8_t *exp,
 		      const size_t len, const char *info)
 {
