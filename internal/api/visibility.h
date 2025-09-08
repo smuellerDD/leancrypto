@@ -52,7 +52,7 @@
 	EXPORT_SYMBOL(symbol);                                                 \
 	ret symbol
 
-#define LC_CONSTRUCTOR(_func)                                                  \
+#define LC_CONSTRUCTOR(_func, prio)                                            \
 	void __init _func(void);                                               \
 	void __init _func(void)
 
