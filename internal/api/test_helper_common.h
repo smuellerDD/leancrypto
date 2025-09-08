@@ -34,7 +34,7 @@ static inline int test_print_status(void)
 		char status[900];
 	};
 	int ret = 0;
-	LC_DECLARE_MEM(ws, struct workspace, 1);
+	LC_DECLARE_MEM(ws, struct workspace, 8);
 
 	lc_status(ws->status, sizeof(ws->status));
 	if (strlen(ws->status) == 0) {
