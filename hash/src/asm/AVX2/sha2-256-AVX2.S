@@ -5452,8 +5452,7 @@ SYM_FUNC_ENTER(sha256_block_data_order_avx2)
 .cfi_endproc
 SYM_FUNC_END(sha256_block_data_order_avx2)
 
-//LC_FIPS_RODATA_SECTION_ASM
-LC_FIPS_RODATA_SECTION
+.section .rodata
 .align	64
 K256:
 .long	0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5

@@ -5631,8 +5631,7 @@ SYM_FUNC_ENTER(sha512_block_data_order_avx2)
 .cfi_endproc
 SYM_FUNC_END(sha512_block_data_order_avx2)
 
-LC_FIPS_RODATA_SECTION
-
+.section .rodata
 .align	64
 K512:
 .quad	0x428a2f98d728ae22,0x7137449123ef65cd
