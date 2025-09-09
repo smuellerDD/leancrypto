@@ -118,6 +118,8 @@ endif
 
 obj-m				+= status_tester.o
 obj-m				+= rerun_selftests_tester.o
+obj-m				+= rerun_one_selftest_tester.o
 
 status_tester-y			+= ../internal/tests/status_tester.o
 rerun_selftests_tester-y	+= ../internal/tests/rerun_selftests_tester.o
+rerun_one_selftest_tester-y	+= ../internal/tests/rerun_one_selftest_tester.o

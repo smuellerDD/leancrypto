@@ -27,6 +27,11 @@ static int rerun_selftest_tester(void)
 {
 	uint8_t buf[LC_SHA_MAX_SIZE_DIGEST];
 
+	/*
+	 * In the Linux kernel there may be other callers that already
+	 * triggered self-tests before.
+	 */
+#ifndef LINUX_KERNEL
 	if (lc_status_get_result(LC_ALG_STATUS_SHA3) !=
 	    lc_alg_status_result_pending) {
 		printf("SHA3-512 self test status %u unexpected\n",
@@ -40,6 +45,7 @@ static int rerun_selftest_tester(void)
 		       lc_status_get_result(LC_ALG_STATUS_HMAC));
 		return 1;
 	}
+#endif
 
 	if (lc_hmac(lc_sha3_512, buf, sizeof(buf), NULL, 0, buf))
 		return 1;
