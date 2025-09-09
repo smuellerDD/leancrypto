@@ -42,6 +42,7 @@
 #define TWISTED_D (EDWARDS_D - 1)
 #define WBITS C448_WORD_BITS /* NB this may be different from ARCH_WORD_BITS */
 
+LC_FIPS_RODATA_SECTION
 static const curve448_scalar_t precomputed_scalarmul_adjustment = {
 	{ { SC_LIMB(0xc873d6d54a7bb0cfULL), SC_LIMB(0xe933d8d723a70aadULL),
 	    SC_LIMB(0xbb124b65129c96fdULL), SC_LIMB(0x00000008335dc163ULL) } }

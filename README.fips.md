@@ -90,7 +90,7 @@ The following ELF sections are covered by the integrity check in their entirety:
 
 * .init section (covering the initialization steps)
 
-* .rodata section
+* .fips_rodata section
 
 * .text section (covering the entire code - note, some static data provided with assembler files is also placed into the text section)
 

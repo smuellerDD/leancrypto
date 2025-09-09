@@ -28,6 +28,7 @@
 #include "sha256_c.h"
 #include "visibility.h"
 
+LC_FIPS_RODATA_SECTION
 static const uint32_t sha256_K[] = {
 	0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1,
 	0x923f82a4, 0xab1c5ed5, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
@@ -44,7 +45,9 @@ static const uint32_t sha256_K[] = {
 
 static void sha256_selftest(const struct lc_hash *sha256)
 {
+	LC_FIPS_RODATA_SECTION
 	static const uint8_t msg_256[] = { 0x06, 0x3A, 0x53 };
+	LC_FIPS_RODATA_SECTION
 	static const uint8_t exp_256[] = { 0x8b, 0x05, 0x65, 0x59, 0x60, 0x71,
 					   0xc7, 0x6e, 0x35, 0xe1, 0xea, 0x54,
 					   0x48, 0x39, 0xe6, 0x47, 0x27, 0xdf,

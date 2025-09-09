@@ -32,8 +32,8 @@
  */
 extern const void fips_start_init;
 extern const void fips_end_init;
-extern const void fips_rodata_base;
-extern const void fips_rodata_end;
+extern const void fips_start_rodata;
+extern const void fips_end_rodata;
 extern const void fips_start_text;
 extern const void fips_end_text;
 
@@ -53,13 +53,13 @@ static const struct lc_fips_integrity_sections secs[] = {
 		.section_end_p = &fips_end_init,
 	},
 	{
-		.section_start_p = &fips_rodata_base,
-		.section_end_p = &fips_rodata_end,
+		.section_start_p = &fips_start_rodata,
+		.section_end_p = &fips_end_rodata,
 	}
 };
 
 __attribute__((section(
-	"fips_integrity_data"))) static const uint8_t expected_digest[] = {
+	".fips_integrity_data"))) static const uint8_t expected_digest[] = {
 	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a,
 	0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15,
 	0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
@@ -77,10 +77,11 @@ fips_integrity_checker_build(const uint8_t act[LC_SHA3_256_SIZE_DIGEST])
 		(unsigned long)((uint8_t *)&fips_end_init -
 				(uint8_t *)&fips_start_init));
 	fprintf(stderr,
-		"//Ctors section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
-		(unsigned long)&fips_rodata_base, (unsigned long)&fips_rodata_end,
-		(unsigned long)((uint8_t *)&fips_rodata_end -
-				(uint8_t *)&fips_rodata_base));
+		"//Rodata section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
+		(unsigned long)&fips_start_rodata,
+		(unsigned long)&fips_end_rodata,
+		(unsigned long)((uint8_t *)&fips_end_rodata -
+				(uint8_t *)&fips_start_rodata));
 	fprintf(stderr,
 		"//Text section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
 		(unsigned long)&fips_start_text, (unsigned long)&fips_end_text,

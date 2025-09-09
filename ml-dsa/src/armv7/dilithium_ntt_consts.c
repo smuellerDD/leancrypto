@@ -42,6 +42,7 @@
 #include "ext_headers_internal.h"
 
 /* Roots of unity in order needed by forward ntt */
+LC_FIPS_RODATA_SECTION
 const uint32_t zetas_interleaved_asm[LC_DILITHIUM_N] = {
 	0,	 25847,	  5771523, 7861508, 237124,  1826347, 2353451, 7602457,
 	8021166, 6288512, 7504169, 3119733, 5495562, 466468,  3111497, 2680103,
@@ -78,6 +79,7 @@ const uint32_t zetas_interleaved_asm[LC_DILITHIUM_N] = {
 };
 
 /* Roots of unity in order needed by inverse ntt */
+LC_FIPS_RODATA_SECTION
 const uint32_t zetas_interleaved_inv_asm[LC_DILITHIUM_N] = {
 	6403635, 846154,  4540456, 6979993, 4442679, 3628969, 1362209, 48306,
 	3881060, 4460757, 554416,  3019102, 3545687, 6767575, 1439742, 976891,

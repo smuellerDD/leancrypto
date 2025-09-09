@@ -34,7 +34,10 @@
 #include "point_448.h"
 #include "word.h"
 
+LC_FIPS_RODATA_SECTION
 static const c448_word_t MONTGOMERY_FACTOR = (c448_word_t)0x3bd440fae918bc5ULL;
+
+LC_FIPS_RODATA_SECTION
 static const curve448_scalar_t
 	sc_p = { { { SC_LIMB(0x2378c292ab5844f3ULL),
 		     SC_LIMB(0x216cc2728dc58f55ULL),

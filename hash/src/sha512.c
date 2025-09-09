@@ -29,6 +29,7 @@
 #include "sponge_common.h"
 #include "visibility.h"
 
+LC_FIPS_RODATA_SECTION
 static const uint64_t sha512_K[] = {
 	0x428a2f98d728ae22ULL, 0x7137449123ef65cdULL, 0xb5c0fbcfec4d3b2fULL,
 	0xe9b5dba58189dbbcULL, 0x3956c25bf348b538ULL, 0x59f111f1b605d019ULL,
@@ -61,7 +62,9 @@ static const uint64_t sha512_K[] = {
 
 static void sha512_selftest(const struct lc_hash *sha512, const char *impl)
 {
+	LC_FIPS_RODATA_SECTION
 	static const uint8_t msg_512[] = { 0x7F, 0xAD, 0x12 };
+	LC_FIPS_RODATA_SECTION
 	static const uint8_t exp_512[] = {
 		0x53, 0x35, 0x98, 0xe5, 0x29, 0x49, 0x18, 0xa0, 0xaf, 0x4b,
 		0x3a, 0x62, 0x31, 0xcb, 0xd7, 0x19, 0x21, 0xdb, 0x80, 0xe1,

@@ -855,9 +855,14 @@ leancrypto_libs_fips_raw = static_library('leancrypto-fips-raw',
 # Build FIPS 140 library
 if build_shared
 	link_args_fips140 = [ ]
+	fips_integrity_test_capable = false
 
 	if (host_machine.system() == 'linux' and
 	    get_option('efi').disabled())
+		fips_integrity_test_capable = true
+	endif
+
+	if fips_integrity_test_capable
 		link_args_fips140 = [
 			'-T' + meson.project_source_root() + '/internal/src/fips_integrity_check.ld'
 		]
@@ -878,8 +883,7 @@ if build_shared
 	leancrypto_static_lib_fips = leancrypto_both_libs_fips.get_static_lib()
 
 	# Generate the ELF FIPS integrity check control value
-	if (host_machine.system() == 'linux' and
-	    get_option('efi').disabled())
+	if fips_integrity_test_capable
 
 		# This code simply re-purposes the sha3-256sum application
 		# to compile it as a standalone application without dependencies

@@ -59,7 +59,7 @@ enum lc_sphincs_test_type {
 	LC_SPHINCS_PERF_VERIFY,
 };
 
-static int lc_sphincs_test(struct lc_sphincs_test *tc,
+static int lc_sphincs_test(const struct lc_sphincs_test *tc,
 			   enum lc_sphincs_test_type t)
 {
 	struct workspace {

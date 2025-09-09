@@ -8,6 +8,7 @@ struct kyber_testvector {
 	const struct lc_kyber_ss ss;
 };
 
+LC_FIPS_RODATA_SECTION
 static const struct kyber_testvector kyber_testvectors[] =
 {
 	{

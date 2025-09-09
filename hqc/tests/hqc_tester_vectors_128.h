@@ -39,6 +39,7 @@ struct lc_hqc_testvector {
 	uint8_t ss[sizeof(struct lc_hqc_ss)];
 };
 
+LC_FIPS_RODATA_SECTION
 static const struct lc_hqc_testvector hqc_test[] = {
 	{
 		.seed = { 0x42, 0xC6, 0x67, 0xA1, 0x86, 0x39, 0x0F, 0x26,

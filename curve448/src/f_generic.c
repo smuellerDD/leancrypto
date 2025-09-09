@@ -32,6 +32,7 @@
 
 #include "field.h"
 
+LC_FIPS_RODATA_SECTION
 static const gf MODULUS = { FIELD_LITERAL(
 	0xffffffffffffffULL, 0xffffffffffffffULL, 0xffffffffffffffULL,
 	0xffffffffffffffULL, 0xfffffffffffffeULL, 0xffffffffffffffULL,

@@ -12,6 +12,7 @@ struct dilithium_rejection_testvector {
 	uint8_t sig[LC_DILITHIUM_CRYPTO_BYTES];
 };
 
+LC_FIPS_RODATA_SECTION
 static const struct
 dilithium_rejection_testvector dilithium_rejection_testvectors[] =
 {

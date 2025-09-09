@@ -13,6 +13,7 @@
 
 #include "point_448.h"
 
+LC_FIPS_RODATA_SECTION
 static const curve448_precomputed_s curve448_precomputed_base_table = {
 	{ { {
 		  { FIELD_LITERAL(0x00cc3b062366f4ccULL, 0x003d6e34e314aa3cULL,
@@ -1378,6 +1379,7 @@ static const curve448_precomputed_s curve448_precomputed_base_table = {
 const struct curve448_precomputed_s *curve448_precomputed_base =
 	&curve448_precomputed_base_table;
 
+LC_FIPS_RODATA_SECTION
 static const niels_t curve448_wnaf_base_table[32] = {
 	{ {
 		{ FIELD_LITERAL(0x00303cda6feea532ULL, 0x00860f1d5a3850e4ULL,
