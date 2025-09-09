@@ -39,7 +39,13 @@ if get_option('sha3').enabled() and get_option('enable_selftests').enabled()
 			   include_directories: [ include_internal_dirs ],
 			   dependencies: leancrypto
 			  )
+	rerun_one_selftest_tester = executable('rerun_one_selftest_tester',
+			   [ 'rerun_one_selftest_tester.c', internal_src ],
+			   include_directories: [ include_internal_dirs ],
+			   dependencies: leancrypto
+			  )
 	test('Rerun selftests', rerun_selftests_tester, suite: regression)
+	test('Rerun one selftest', rerun_one_selftest_tester, suite: regression)
 endif
 
 if ((get_option('dilithium_87').enabled() or

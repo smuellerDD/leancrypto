@@ -18,9 +18,16 @@
  */
 
 #include "ext_headers_internal.h"
+#include "fips_mode.h"
 #include "lc_status.h"
 #include "status_algorithms.h"
 #include "visibility.h"
+
+LC_INTERFACE_FUNCTION(void, lc_rerun_one_selftest, uint64_t flag)
+{
+	if (!fips140_mode_enabled())
+		alg_status_unset_result(flag);
+}
 
 LC_INTERFACE_FUNCTION(enum lc_alg_status_result, lc_status_get_result,
 		      uint64_t algorithm)
@@ -30,5 +37,6 @@ LC_INTERFACE_FUNCTION(enum lc_alg_status_result, lc_status_get_result,
 
 LC_INTERFACE_FUNCTION(void, lc_rerun_selftests, void)
 {
-	alg_status_set_result(lc_alg_status_result_pending, (uint64_t) -1);
+	if (!fips140_mode_enabled())
+		alg_status_unset_result_all();
 }

@@ -58,7 +58,7 @@ static int rerun_selftest_tester(void)
 		return 1;
 	}
 
-	lc_rerun_selftests();
+	lc_rerun_one_selftest(LC_ALG_STATUS_SHA3);
 
 	if (lc_status_get_result(LC_ALG_STATUS_SHA3) !=
 	    lc_alg_status_result_pending) {
@@ -68,7 +68,7 @@ static int rerun_selftest_tester(void)
 	}
 
 	if (lc_status_get_result(LC_ALG_STATUS_HMAC) !=
-	    lc_alg_status_result_pending) {
+	    lc_alg_status_result_passed) {
 		printf("HMAC self test status %u unexpected\n",
 		       lc_status_get_result(LC_ALG_STATUS_HMAC));
 		return 1;

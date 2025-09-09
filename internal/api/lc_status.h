@@ -29,8 +29,20 @@ extern "C" {
  *
  * If the self tests were already executed for a given algorithm, they are
  * triggered again.
+ *
+ * This API is only allowed to be used in non-FIPS mode. This is due to the
+ * requirements of FIPS that when triggering a rerun, e.g. after a failure,
+ * *all* self tests have to be executed immediately instead of lazily. This
+ * is not implemented.
  */
 void lc_rerun_selftests(void);
+
+/**
+ * @brief (re-)run a self test for one algorithm
+ *
+ * @param [in] flag Algorithm reference of one of the LC_ALG_STATUS_* flags
+ */
+void lc_rerun_one_selftest(uint64_t flag);
 
 /**
  * @brief Re-run the FIPS 140 integrity test

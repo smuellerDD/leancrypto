@@ -27,7 +27,7 @@ typedef uint16_t alg_status_t;
 
 #define ALG_CLEAR_ALL_BITS ATOMIC_INIT(0)
 #define ALG_SET_ALL_BITS ATOMIC_INIT((int)0xffffffff)
-#define ALG_SET_TEST_PASSED(flag) (lc_alg_status_result_passed << flag);
+#define ALG_SET_TEST_PASSED(flag) (lc_alg_status_result_passed << flag)
 
 static atomic_t lc_alg_status_aead = ALG_SET_ALL_BITS;
 
@@ -291,11 +291,13 @@ static void alg_status_unset_test_state(void)
 	atomic_set(&lc_alg_status_rng, 0);
 	atomic_set(&lc_alg_status_digest, 0);
 	atomic_set(&lc_alg_status_sym, 0);
-	atomic_set(&lc_alg_status_aux, 0);
+
+	/* At that point, automatically define the library to be online */
+	atomic_set(&lc_alg_status_aux,
+		   ALG_SET_TEST_PASSED(LC_ALG_STATUS_FLAG_LIB));
 }
 
-#if 0 /* Function is currently unused */
-static void lc_alg_status_unset_testresult(alg_status_t alg, atomic_t *status)
+static void alg_status_unset_testresult_one(alg_status_t alg, atomic_t *status)
 {
 	/*
 	 * This unsets the test status for a given algorithm moving its state
@@ -304,9 +306,8 @@ static void lc_alg_status_unset_testresult(alg_status_t alg, atomic_t *status)
 	 */
 	atomic_and((int)(~(lc_alg_status_result_failed << alg)), status);
 }
-#endif
 
-static void lc_alg_status_set_testresult(
+static void alg_status_set_testresult(
 	enum lc_alg_status_result test_ret, alg_status_t alg, atomic_t *status)
 {
 	/*
@@ -338,7 +339,7 @@ static enum lc_alg_status_result alg_status_result(atomic_t *status,
 	 * Now, say, we want to get the bit set for the algorithm B. We do
 	 *
 	 * 1. read the entire status field
-	 * 2. downshit B to the begining to eliminate C and D bits
+	 * 2. downshift B to the begining to eliminate C and D bits
 	 * 3. now eliminate the A bits by applying a mask.
 	 */
 	/* Cast to lc_alg_status_result */
@@ -354,9 +355,6 @@ static enum lc_alg_status_result alg_status_result(atomic_t *status,
 enum lc_alg_status_result alg_status_get_result(uint64_t flag)
 {
 	alg_status_t alg = flag &~ LC_ALG_STATUS_TYPE_MASK;
-
-	/* Ensure that this read invocations picks up any write */
-	mb();
 
 	switch (flag & LC_ALG_STATUS_TYPE_MASK) {
 	case LC_ALG_STATUS_TYPE_AEAD:
@@ -396,41 +394,76 @@ void alg_status_set_result(enum lc_alg_status_result test_ret, uint64_t flag)
 	alg_status_t alg = flag &~ LC_ALG_STATUS_TYPE_MASK;
 
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_AEAD) {
-		lc_alg_status_set_testresult(test_ret, alg,
-					     &lc_alg_status_aead);
+		alg_status_set_testresult(test_ret, alg, &lc_alg_status_aead);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_KEM_PQC) {
-		lc_alg_status_set_testresult(test_ret, alg,
-					     &lc_alg_status_kem_pqc);
+		alg_status_set_testresult(test_ret, alg,
+					  &lc_alg_status_kem_pqc);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_KEM_CLASSIC) {
-		lc_alg_status_set_testresult(test_ret, alg,
-					     &lc_alg_status_kem_classic);
+		alg_status_set_testresult(test_ret, alg,
+					  &lc_alg_status_kem_classic);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_SIG_PQC) {
-		lc_alg_status_set_testresult(test_ret, alg,
-					     &lc_alg_status_sig_pqc);
+		alg_status_set_testresult(test_ret, alg,
+					  &lc_alg_status_sig_pqc);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_SIG_CLASSIC) {
-		lc_alg_status_set_testresult(test_ret, alg,
-					     &lc_alg_status_sig_classic);
+		alg_status_set_testresult(test_ret, alg,
+					  &lc_alg_status_sig_classic);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_RNG) {
-		lc_alg_status_set_testresult(test_ret, alg,
-					     &lc_alg_status_rng);
+		alg_status_set_testresult(test_ret, alg, &lc_alg_status_rng);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_DIGEST) {
-		lc_alg_status_set_testresult(test_ret, alg,
-					     &lc_alg_status_digest);
+		alg_status_set_testresult(test_ret, alg, &lc_alg_status_digest);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_SYM) {
-		lc_alg_status_set_testresult(test_ret, alg,
-					     &lc_alg_status_sym);
+		alg_status_set_testresult(test_ret, alg, &lc_alg_status_sym);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_AUX) {
-		lc_alg_status_set_testresult(test_ret, alg,
-					     &lc_alg_status_aux);
+		alg_status_set_testresult(test_ret, alg, &lc_alg_status_aux);
 	}
+}
+
+void alg_status_unset_result(uint64_t flag)
+{
+	alg_status_t alg = flag &~ LC_ALG_STATUS_TYPE_MASK;
+
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_AEAD) {
+		alg_status_unset_testresult_one(alg, &lc_alg_status_aead);
+	}
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_KEM_PQC) {
+		alg_status_unset_testresult_one(alg, &lc_alg_status_kem_pqc);
+	}
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_KEM_CLASSIC) {
+		alg_status_unset_testresult_one(alg,
+						&lc_alg_status_kem_classic);
+	}
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_SIG_PQC) {
+		alg_status_unset_testresult_one(alg, &lc_alg_status_sig_pqc);
+	}
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_SIG_CLASSIC) {
+		alg_status_unset_testresult_one(alg,
+						&lc_alg_status_sig_classic);
+	}
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_RNG) {
+		alg_status_unset_testresult_one(alg, &lc_alg_status_rng);
+	}
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_DIGEST) {
+		alg_status_unset_testresult_one(alg, &lc_alg_status_digest);
+	}
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_SYM) {
+		alg_status_unset_testresult_one(alg, &lc_alg_status_sym);
+	}
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_AUX) {
+		alg_status_unset_testresult_one(alg, &lc_alg_status_aux);
+	}
+}
+
+void alg_status_unset_result_all(void)
+{
+	alg_status_unset_test_state();
 }
 
 static void alg_status_one(const struct alg_status_show *alg_status_show_arr,
@@ -498,9 +531,6 @@ void alg_status(uint64_t flag, char *test_completed, size_t test_completed_len,
 		char *test_open, size_t test_open_len, char *errorbuf,
 		size_t errorbuf_len)
 {
-	/* Ensure that this read invocations picks up any write */
-	mb();
-
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_AEAD) {
 		alg_status_one(
 			/*
@@ -597,6 +627,4 @@ LC_CONSTRUCTOR(lc_activate_library, LC_INIT_PRIO_LIBRARY)
 	 * be unavailable.
 	 */
 	alg_status_unset_test_state();
-
-	alg_status_set_result(lc_alg_status_result_passed, LC_ALG_STATUS_LIB);
 }
