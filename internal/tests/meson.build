@@ -33,7 +33,9 @@ status_tester = executable('status_tester',
 			  )
 test('Status', status_tester, suite: regression)
 
-if get_option('sha3').enabled() and get_option('enable_selftests').enabled()
+if (get_option('sha3').enabled() and
+    get_option('hmac').enabled() and
+    get_option('enable_selftests').enabled())
 	rerun_selftests_tester = executable('rerun_selftests_tester',
 			   [ 'rerun_selftests_tester.c', internal_src ],
 			   include_directories: [ include_internal_dirs ],
