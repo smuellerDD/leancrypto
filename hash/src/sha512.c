@@ -29,7 +29,6 @@
 #include "sponge_common.h"
 #include "visibility.h"
 
-LC_FIPS_RODATA_SECTION
 static const uint64_t sha512_K[] = {
 	0x428a2f98d728ae22ULL, 0x7137449123ef65cdULL, 0xb5c0fbcfec4d3b2fULL,
 	0xe9b5dba58189dbbcULL, 0x3956c25bf348b538ULL, 0x59f111f1b605d019ULL,

@@ -399,8 +399,8 @@ add_global_arguments([ '-D_TIME_BITS=64' ], language: 'c')
 header_script = find_program('addon/generate_header.sh', required: true)
 
 # FIPS Header generation
-fips_header_script = find_program('addon/fips_generate_header.sh',
-				  required: true)
+fips_integrity_checker_script = find_program(
+	'addon/fips_integrity_checker_elf_generator.sh', required: true)
 
 # Prepare distribution
 dist_script = find_program('addon/sanity_checks.sh', required: true)
@@ -808,9 +808,6 @@ src_fips = [ ]
 # FIPS-only code that shall not be compiled for the non-FIPS version
 src_fips_wrapper = [ ]
 
-# FIPS integrity check value generator code
-src_fips_wrapper_generator = [ ]
-
 # Internal non-cryptographic helper code
 internal_src = [ ]
 
@@ -855,64 +852,23 @@ leancrypto_libs_fips_raw = static_library('leancrypto-fips-raw',
 	install: false
 	)
 
-# Variables that drive the compilation of the FIPS library
-fips_integrity_checker_values_h = []
-link_args_fips140 = []
+# Build FIPS 140 library
+if build_shared
+	link_args_fips140 = [ ]
 
-# FIPS 140 Integrity check: The integrity checker is adopted for ELF.
-if (host_machine.system() == 'linux' and
-    get_option('efi').disabled() and
-    build_shared and
-    not meson.is_cross_build())
-	link_args_fips140 = [
-		'-T' + meson.project_source_root() + '/internal/src/fips_integrity_check.ld'
-	]
+	if (host_machine.system() == 'linux' and
+	    get_option('efi').disabled())
+		link_args_fips140 = [
+			'-T' + meson.project_source_root() + '/internal/src/fips_integrity_check.ld'
+		]
+	endif
 
-	# Generate shared library identical to the real one without the correct
-	# integrity check values
-	# NOTE: We must the same file name length as the FIPS library file
-	# as otherwise offsets are changing and thus the integrity value.
-	leancrypto_libs_fips_raw_gen = shared_library('leancrypto-real',
+	# Create the official shared FIPS library
+	leancrypto_both_libs_fips = both_libraries('leancrypto-fips',
 		[ src_fips_wrapper ],
 		include_directories: [ include_dirs,
 					include_internal_dirs ],
 		soversion: version_array[0],
-		link_whole: [ leancrypto_libs_fips_raw ],
-		link_args: link_args_fips140,
-		install: false
-		)
-
-	# Generate a tool linking with the library to stimulate its constructor
-	# to output the correct integrity values
-	integrity_generator = executable('leancrypto-fips-raw-generator',
-		[ src_fips_wrapper_generator ],
-		include_directories: [ include_dirs,
-				       include_internal_dirs ],
-		link_with: [ leancrypto_libs_fips_raw_gen ],
-		install: false
-		)
-
-	# Execute generate tool to create proper header file for inclusion
-	fips_integrity_checker_values_h = custom_target(
-		'fips_integrity_checker_values.h',
-		input: integrity_generator,
-		output: 'fips_integrity_checker_values.h',
-		command: [
-			fips_header_script.full_path(),
-			integrity_generator.full_path(),
-			'@OUTPUT@']
-		)
-endif
-
-# Build FIPS 140 library
-if build_shared
-	# Create the official shared FIPS library
-	leancrypto_both_libs_fips = both_libraries('leancrypto-fips',
-		[ fips_integrity_checker_values_h, src_fips_wrapper ],
-		include_directories: [ include_dirs,
-					include_internal_dirs ],
-		soversion: version_array[0],
-		c_args: [ '-DLC_FIPS_VALUES_GENERATED' ],
 		link_whole: [ leancrypto_libs_fips_raw ],
 		link_args: link_args_fips140,
 		install: true
@@ -920,6 +876,56 @@ if build_shared
 
 	leancrypto_lib_fips = leancrypto_both_libs_fips.get_shared_lib()
 	leancrypto_static_lib_fips = leancrypto_both_libs_fips.get_static_lib()
+
+	# Generate the ELF FIPS integrity check control value
+	if (host_machine.system() == 'linux' and
+	    get_option('efi').disabled())
+
+		# This code simply re-purposes the sha3-256sum application
+		# to compile it as a standalone application without dependencies
+		integrity_generator_files = files([
+			'apps/src/hasher_app.c',
+			'apps/src/sha3-256sum.c',
+			'hash/src/hash.c',
+			'hash/src/sha256.c',
+			'hash/src/sha512.c',
+			'hash/src/sha3_c.c',
+			'hash/src/sha3_selftest.c',
+			'internal/src/binhexbin.c',
+			'internal/src/compare.c',
+			'internal/src/fips_integrity_check.c',
+			'internal/src/memcmp_secure_c.c',
+			'internal/src/memory_support.c',
+			'internal/src/status_algorithms.c',
+			'internal/src/status_api.c',
+		])
+
+		# Compile the hasher application for build_machine to obtain
+		# digest inserted into the shared object
+		integrity_generator = executable('leancrypto-fips-hasher',
+			[ integrity_generator_files ],
+			include_directories: [ include_dirs,
+					include_internal_dirs ],
+			c_args: [ '-DLC_HASHER_SMALL' ],
+			install: false,
+			native: true # Compile executable for build_machine
+			)
+
+		# Execute generate tool to create message digest of relevant
+		# ELF sections and inserts it into the shared object
+		fips_integrity_hasher = custom_target(
+			'fips_integrity_hasher',
+			build_always_stale: true,
+			build_by_default: true,
+			install: false,
+			input: [ leancrypto_lib_fips, integrity_generator ],
+			output: 'empty',
+			command: [
+				fips_integrity_checker_script.full_path(),
+				leancrypto_lib_fips.full_path(),
+				integrity_generator.full_path() ]
+			)
+	endif
 else
 	# Create the official static FIPS library
 	leancrypto_static_lib_fips = static_library('leancrypto-fips',
@@ -927,9 +933,7 @@ else
 		include_directories: [ include_dirs,
 					include_internal_dirs ],
 		dependencies: [ leancrypto_link ],
-		c_args: [ '-DLC_FIPS_VALUES_GENERATED' ],
 		link_whole: [ leancrypto_libs_fips_raw ],
-		link_args: link_args_fips140,
 		install: true
 		)
 	leancrypto_lib_fips = leancrypto_static_lib_fips

@@ -47,7 +47,6 @@
 #include "dilithium_consts_rvv.h"
 #include "ext_headers_internal.h"
 
-LC_FIPS_RODATA_SECTION
 const int32_t dilithium_qdata_rvv[] __attribute__((aligned(16))) = {
 #define _ZETA_EXP_0TO3_L0 (0 * 2)
 	1830765815,  25847,

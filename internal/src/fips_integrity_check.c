@@ -49,7 +49,14 @@ int fips_integrity_check(const struct lc_fips_integrity_sections *secs,
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_sha3_256);
 	int ret;
 
-	//TODO remove once the FIPS self-test is rearchitected
+	/*
+	 * TODO It is unclear why GCC seems to not honor the priorities of the
+	 * constructors. It seems that the fips_integrity_checker_dep is run
+	 * before the lc_activate_library which implies that without the
+	 * following call, the library is not initialized at this point. This
+	 * causes the hash invocation to return -EOPNOTSUPP since the library
+	 * is still gated at this point.
+	 */
 	if (lc_status_get_result(LC_ALG_STATUS_FLAG_LIB) <=
 	    lc_alg_status_result_ongoing)
 		lc_activate_library();

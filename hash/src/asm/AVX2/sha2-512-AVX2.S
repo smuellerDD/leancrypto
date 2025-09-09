@@ -5631,7 +5631,7 @@ SYM_FUNC_ENTER(sha512_block_data_order_avx2)
 .cfi_endproc
 SYM_FUNC_END(sha512_block_data_order_avx2)
 
-.data
+.section .rodata
 
 .align	64
 K512:

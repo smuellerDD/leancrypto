@@ -89,8 +89,6 @@ static inline int lc_get_time(time64_t *time_since_epoch)
 	return 0;
 }
 
-#define LC_FIPS_RODATA_SECTION
-
 #elif (defined(LC_EFI_ENVIRONMENT))
 /******************************************************************************
  * UEFI support
@@ -246,8 +244,6 @@ static inline int lc_get_time(time64_t *time_since_epoch)
 #define errno errno_private
 static const int errno_private = 0;
 
-#define LC_FIPS_RODATA_SECTION
-
 #define noinline __attribute__((__noinline__))
 
 #elif (defined(__CYGWIN__) || defined(_WIN32))
@@ -336,8 +332,6 @@ static inline int lc_get_time(time64_t *time_since_epoch)
 	return -errno;
 }
 
-#define LC_FIPS_RODATA_SECTION
-
 #define noinline __attribute__((__noinline__))
 
 #else /* LINUX_KERNEL */
@@ -417,20 +411,6 @@ static inline int lc_get_time(time64_t *time_since_epoch)
 	*time_since_epoch = (time64_t)-1;
 	return -errno;
 }
-
-/*
- * FIPS 140 integrity check cannot check the .rodata section. Thus move all
- * relevant data to teh fips_rodata section.
- */
-#if defined __ELF__
-#define LC_FIPS_RODATA_SECTION_NAME_START __start_fips_rodata
-#define LC_FIPS_RODATA_SECTION_NAME_STOP __stop_fips_rodata
-#define LC_FIPS_RODATA_SECTION_NAME "fips_rodata"
-#define LC_FIPS_RODATA_SECTION                                                 \
-	__attribute__((section(LC_FIPS_RODATA_SECTION_NAME)))
-#else
-#define LC_FIPS_RODATA_SECTION
-#endif
 
 #define noinline __attribute__((__noinline__))
 

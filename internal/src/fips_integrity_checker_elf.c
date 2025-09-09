@@ -30,14 +30,12 @@
 /*
  * The GNU linker creates these variables as start and endpoint of ELF sections
  */
-extern const void _start_init;
-extern const void _end_init;
-extern const void _start_ctors;
-extern const void _end_ctors;
-extern const void _start_text;
-extern const void _end_text;
-extern const void LC_FIPS_RODATA_SECTION_NAME_START;
-extern const void LC_FIPS_RODATA_SECTION_NAME_STOP;
+extern const void fips_start_init;
+extern const void fips_end_init;
+extern const void fips_rodata_base;
+extern const void fips_rodata_end;
+extern const void fips_start_text;
+extern const void fips_end_text;
 
 /*
  * Integrity check compare values - they cannot be part of the regular rodata
@@ -47,49 +45,25 @@ extern const void LC_FIPS_RODATA_SECTION_NAME_STOP;
  */
 static const struct lc_fips_integrity_sections secs[] = {
 	{
-		.section_start_p = &_start_text,
-		.section_end_p = &_end_text,
+		.section_start_p = &fips_start_text,
+		.section_end_p = &fips_end_text,
 	},
 	{
-		.section_start_p = &_start_init,
-		.section_end_p = &_end_init,
+		.section_start_p = &fips_start_init,
+		.section_end_p = &fips_end_init,
 	},
 	{
-		.section_start_p = &_start_ctors,
-		.section_end_p = &_end_ctors,
-	},
-	{
-		.section_start_p = &LC_FIPS_RODATA_SECTION_NAME_START,
-		.section_end_p = &LC_FIPS_RODATA_SECTION_NAME_STOP,
-
-/*
-	 * The ROData segment is currently excluded from being checked, because
-	 * ROData in the function fips_integrity_checker_build in this
-	 * file seems to read unallocated memory on ARMv8.
-	 *
-	 * But the check of ROData is considered not required for FIPS 140
-	 * compliance because the ROData contains the static data for
-	 * self-tests, but the power-up self test are considered to verify the
-	 * appropriateness of the ROData.
-	 */
-#if 0
-}, {
-	.section_start_p = &_start_rodata,
-	.section_end_p = &_end_rodata,
-#endif
+		.section_start_p = &fips_rodata_base,
+		.section_end_p = &fips_rodata_end,
 	}
 };
 
-#ifdef LC_FIPS_VALUES_GENERATED
-#include "fips_integrity_checker_values.h"
-#else
 __attribute__((section(
 	"fips_integrity_data"))) static const uint8_t expected_digest[] = {
 	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a,
 	0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15,
 	0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
 };
-#endif
 
 /* Generator for the header file above */
 static void
@@ -99,30 +73,19 @@ fips_integrity_checker_build(const uint8_t act[LC_SHA3_256_SIZE_DIGEST])
 
 	fprintf(stderr,
 		"//Init section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
-		(unsigned long)&_start_init, (unsigned long)&_end_init,
-		(unsigned long)((uint8_t *)&_end_init -
-				(uint8_t *)&_start_init));
+		(unsigned long)&fips_start_init, (unsigned long)&fips_end_init,
+		(unsigned long)((uint8_t *)&fips_end_init -
+				(uint8_t *)&fips_start_init));
 	fprintf(stderr,
 		"//Ctors section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
-		(unsigned long)&_start_ctors, (unsigned long)&_end_ctors,
-		(unsigned long)((uint8_t *)&_end_ctors -
-				(uint8_t *)&_start_ctors));
+		(unsigned long)&fips_rodata_base, (unsigned long)&fips_rodata_end,
+		(unsigned long)((uint8_t *)&fips_rodata_end -
+				(uint8_t *)&fips_rodata_base));
 	fprintf(stderr,
 		"//Text section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
-		(unsigned long)&_start_text, (unsigned long)&_end_text,
-		(unsigned long)((uint8_t *)&_end_text -
-				(uint8_t *)&_start_text));
-	// fprintf(stderr, "//ROData section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
-	//        (unsigned long)&_start_rodata, (unsigned long)&_end_rodata,
-	//        (unsigned long)((uint8_t *)&_end_rodata -
-	// 		       (uint8_t *)&_start_rodata));
-
-	fprintf(stderr,
-		"//ROData1 section: start (0x%lx), end (0x%lx), length (0x%lx)\n",
-		(unsigned long)&LC_FIPS_RODATA_SECTION_NAME_START,
-		(unsigned long)&LC_FIPS_RODATA_SECTION_NAME_STOP,
-		(unsigned long)((uint8_t *)&LC_FIPS_RODATA_SECTION_NAME_STOP -
-				(uint8_t *)&LC_FIPS_RODATA_SECTION_NAME_START));
+		(unsigned long)&fips_start_text, (unsigned long)&fips_end_text,
+		(unsigned long)((uint8_t *)&fips_end_text -
+				(uint8_t *)&fips_start_text));
 
 	for (i = 0; i < LC_SHA3_256_SIZE_DIGEST; i++)
 		fprintf(stderr, "0x%.2x, ", *(act + i));

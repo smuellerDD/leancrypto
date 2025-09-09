@@ -48,7 +48,11 @@ The API of `lc_status` provides the version information along with the status wh
 
 Each cryptographic algorithm has its own power-up self test which is executed before this algorithm is used for the first time.
 
-The caller may trigger a complete new round of self tests, i.e. all algorithms will perform a new self test before the next use, when using the API of `lc_rerun_selftests`. To reperform the integrity test, the API `lc_fips_integrity_checker` is provided.
+When a self-test fails, the offending algorithm is marked with a failed self test and all self tests for all other algorithms are triggered again. These new self tests execute only once the algorithm is used again. Thus, the `leancrypto-fips.so` enters a degraded mode of operation.
+
+The caller may trigger a complete new round of self tests, i.e. all algorithms will perform a new self test before the next use, when using the API of `lc_rerun_selftests` and `lc_rerun_one_selftest`. However, these APIs are currently disabled in FIPS mode, because the FIPS 140-3 standard mandates that to leave the degraded mode, all self tests must instantaneously be executed. This is not implemented in `leancrypto-fips.so` (and I have no desire to honor such nonsensical requirement). With ISO 19790:2025 this requirement is changed so that only the offending algorithm requires a rerun of the self test to leave the degraded mode, provided that the error is local - which is clearly the case for a self test error. Thus, once the ISO 19790:2025 is enacted, the mentioned APIs can be enabled in FIPS mode to leave the degraded mode of operation.
+
+To reperform the integrity test, the API `lc_fips_integrity_checker` is provided.
 
 When a self-test fails, `leancrypto-fips` as well as `leancrypto` enters a degraded mode of operation following the FIPS 2025 specification: the offending algorithm is now unavailable (including all algorithms that potentially use it). The self tests can be rerun again with the API above to bring the offending algorithm back into operational state. The status of the passed/failed self-tests is visible with `lc_status` or with the `lc_status_get_result()` APIs which returns the self test status of the queried algorithm(s).
 
@@ -56,7 +60,9 @@ Leancrypto provides multiple implementations of one algorithm. Furthermore, it c
 
 ## Integrity Test
 
-NOTE: The integrity test is only supported for ELF binaries only so far and only for native compilations (cross compilation is *not* supported as of now). To change that, perform the following steps:
+The `leancrypto-fips.so` performs an integrity test using SHA3-256 at startup triggered by a constructor. If that check fails, the library aborts.
+
+NOTE: The integrity test is only supported for ELF binaries only so far. To change that, perform the following steps:
 
 * Create a suitable replacement for `fips_integrity_checker.c` and compile it (search for "FIPS 140 Integrity check" in the `internal/src/meson.build`).
 
@@ -66,25 +72,27 @@ The integrity test uses SHA3-256. Due to the architecture of leancrypto, the sel
 
 ### ELF Binary Integrity Test
 
-The FIPS 140 integrity test on the `leancrypto-fips` library instance is implemented as follows but only for the `libleancrypto-fips.[so|a]` variants.
+The FIPS 140 integrity test on the `leancrypto-fips` library instance is implemented as follows but only for the `libleancrypto-fips.so` variant.
 
-First, a `libleancrypto-real.a` is compiled which contains all FIPS approved algorithm code, the self tests and auxiliary code required to comply with all FIPS requirements. The only exception is the file `fips_integrity_checker.c` which contains the constructor starting up the integrity test and the integrity check control values.
+This is achieved with the following approach:
 
-The `libleancrypto-real.a` is linked together with `fips_integrity_checker_elf.c` into `libleancrypto-fips.[so|a]` using the linker script `fips_integrity_check.ld`. This linker script adds a start and end pointers for the text and rodata ELF segments. Both segments contains all code and readonly data (e.g. self test data) from `libleancrypto-real.a` and the `fips_integrity_checker_elf.c`, i.e. all FIPS module code / data. The only exception is the integrity check control value which are placed into a different section. This approach now allows to calculate the integrity of the text and rodata segments by the start/end pointers added by the linker script and adjust the integrity control values after compilation.
+1. The `leancrypto-fips.so` library is build for the target platform. This contains a "placeholder" bit string in the ELF section `fips_integrity_data`.
+
+2. A build-host executable derived from the leancrypto `sha3-256sum` is compiled.
+
+3. The external tool of `objcopy` is used to extract the ELF sections subject to integrity test from `leancrypto-fips.so` using the script `addon/fips_integrity_checker_elf_generator.sh`.
+
+4. The aforementioned script uses the build-host executable instance of `sha3-256sum` to generate a message digest of the extracted ELF sections.
+
+5. The mentioned script uses `objcopy` to insert the newly generated digest into the ELF section `fips_integrity_data` of `leancrypto-fips.so` replacing the "placeholder" value found there.
 
 The following ELF sections are covered by the integrity check in their entirety:
 
 * .init section (covering the initialization steps)
 
-* .ctors section (covering constructors)
+* .rodata section
 
 * .text section (covering the entire code - note, some static data provided with assembler files is also placed into the text section)
-
-* fips_rodata section: This section is specifically introduced to cover all static data required by algorithm implementations (e.g. ML-KEM / ML-DSA constants, SHA2 constants, AES S-Boxes)
-
-* .rodata section (covering the constant data) is not covered due to technical limitations - it is not required to be covered as this section contains the self-test values. Considering that the self-test data is verified before the first use of an algorithm and all parts of an algorithm are self tested, the self-test vectors do not need to be covered by integrity verification.
-
-The sizes of the sections covered by the integrity check can be shown by invoking the command `leancrypto-fips-raw-generator` that is created during compile time. When invoking it, it reports that the used integrity check values are wrong followed by the used start/end pointers of the sections and their length. The lengths can be compared to the sizes reported by `readelf -WS libleancrypto-fips.so`. The sizes reported by the `leancrypto-fips-raw-generator` tool may be a bit larger than the real segment sizes because the start/end markers of the sections encapsulate the section meta data.
 
 ## Pairwise Consistency Test
 

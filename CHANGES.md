@@ -11,7 +11,9 @@ Changes 1.6.0-prerelease
 
 * AES-XTS added
 
-* Availability: remove assert() calls throughout the code - in case of a self test error, disable the algorithm. Instead of using assert, apply a centrally managed test manager that stores the test status. This implies that some initalization APIs like lc_hash_init, lc_sym_init, lc_hmac_init are changed such that they return an error code if self tests failed. Thus, the version is now changed as this is considered to be an ABI change. Although this sounds heavy, the test manager is relatively small and the runtime state should be smaller than the old approach considering the old approach uses one global 32 bit integer per self test to maintain the state. This is now replaced with a set of 16 bit integers for all algorithms.
+* Availability: remove assert() calls throughout the code - in case of a self test error, disable the algorithm. Instead of using assert, apply a centrally managed test manager that stores the test status. This implies that some initalization APIs like lc_hash_init, lc_sym_init, lc_hmac_init are changed such that they return an error code if self tests failed. Thus, the version is now changed as this is considered to be an ABI change. Although this sounds heavy, the test manager is relatively small and the runtime state should be smaller than the old approach considering the old approach uses one global 32 bit integer per self test to maintain the state. This is now replaced with a set of 32 bit atomic integers that hold a 3-bit field for each algorithm. This change also adds the API call of lc_rerun_one_selftest which allows triggering the reruning of a self test for one given algorithm.
+
+* FIPS: Rearchitect integrity test control value generator: The build process now uses the host's objcopy to extract the ELF sections of interest into a separate file, use a build_machine compiled version of sha3-256sum to generate the digest of it and reinsert it into the leancrypto-fips.so. This now allows cross-compilation with FIPS integrity test support. There is no functional change to leancrypto though.
 
 Changes 1.5.1
 * add ChaCha20 Poly 1305 AEAD

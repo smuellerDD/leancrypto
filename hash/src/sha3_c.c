@@ -88,7 +88,6 @@ static inline void keccakp_theta_rho_pi(uint64_t s[25])
 	s[A(4, 0)] = t;
 }
 
-LC_FIPS_RODATA_SECTION
 static const uint64_t keccakp_iota_vals[] = {
 	0x0000000000000001ULL, 0x0000000000008082ULL, 0x800000000000808aULL,
 	0x8000000080008000ULL, 0x000000000000808bULL, 0x0000000080000001ULL,

@@ -34,7 +34,6 @@
 #define DIV 41978 // mont^2/256
 #define DIV_QINV -8395782
 
-LC_FIPS_RODATA_SECTION
 const dilithium_qdata_t dilithium_qdata = { {
 #define _8XQ 0
 	LC_DILITHIUM_Q,

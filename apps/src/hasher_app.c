@@ -42,6 +42,8 @@ struct hasher_options {
 	unsigned int null : 1;
 	const char *checkfile;
 	const char *bsdname;
+	void (*writer)(const uint8_t *bin, size_t binlen,
+		       const char *filename, FILE *outfile, uint32_t lfcr);
 };
 
 static int hasher_get_trailing(const char *string, const char **found)
@@ -84,6 +86,9 @@ static int hasher_get_trailing(const char *string, const char **found)
 
 static void hasher_version(const char *name)
 {
+#ifdef LC_HASHER_SMALL
+	(void)name;
+#else
 	const char *base;
 	char version[500];
 
@@ -94,6 +99,7 @@ static void hasher_version(const char *name)
 		fprintf(stderr, "%s", version);
 	else
 		fprintf(stderr, "%s: %s", (name), version);
+#endif
 }
 
 static void hasher_usage(const char *name)
@@ -169,6 +175,20 @@ static void hasher_bin2print(const uint8_t *bin, size_t binlen,
 		fputc(0x00, outfile);
 
 	free(hex);
+}
+
+static void hasher_bin(const uint8_t *bin, size_t binlen,
+		       const char *filename, FILE *outfile, uint32_t lfcr)
+{
+	(void)lfcr;
+	(void)filename;
+
+	size_t written = fwrite(bin, 1, binlen, outfile);
+
+	if (written != binlen) {
+		fprintf(stderr, "Data size written %zu does not match intended size %zu\n",
+			written, binlen);
+	}
 }
 
 static int mmap_file(const char *filename, uint8_t **memory, off_t *size,
@@ -275,16 +295,17 @@ static int hasher(struct lc_hash_ctx *hash_ctx,
 		}
 	} else {
 		if (outfile == NULL) {
-			hasher_bin2print(md, hashlen, NULL, stdout,
-					 !parsed_opts->null);
+			parsed_opts->writer(md, hashlen, NULL, stdout,
+					    !parsed_opts->null);
 		} else if (parsed_opts->tag) {
 			fprintf(outfile, "%s (%s) = ", parsed_opts->bsdname,
 				filename ? filename : "-");
 			hasher_bin2print(md, hashlen, NULL, outfile,
 					 !parsed_opts->null);
 		} else {
-			hasher_bin2print(md, hashlen, filename ? filename : "-",
-					 outfile, !parsed_opts->null);
+			parsed_opts->writer(md, hashlen,
+					    filename ? filename : "-",
+					    outfile, !parsed_opts->null);
 		}
 	}
 
@@ -475,6 +496,11 @@ int hasher_main(int argc, char *argv[], const struct lc_hash *hash)
 		{ 0, 0, 0, 0 }
 	};
 
+	/*
+	 * Default writer is the hex writer
+	 */
+	parsed_opts.writer = hasher_bin2print;
+
 	opterr = 0;
 	while (1) {
 		int c = getopt_long(argc, argv, opts_short, opts, &opt_index);
@@ -511,6 +537,8 @@ int hasher_main(int argc, char *argv[], const struct lc_hash *hash)
 			goto out;
 
 		case 'b':
+			parsed_opts.writer = hasher_bin;
+			break;
 		case 'P':
 			/* Compatibility options, just ignore */
 			break;

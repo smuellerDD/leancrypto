@@ -1,55 +1,28 @@
 SECTIONS
 {
-	_start_init = .;
-	PROVIDE(start_init = .);
-}
-INSERT BEFORE .init;
+	.lc_fips_integrity_hash :
+	{
+		/* Executable code */
+		PROVIDE(fips_start_init = ADDR(.init));
+		PROVIDE(fips_end_init = ADDR(.init) + SIZEOF(.init));
 
-SECTIONS
-{
-	_end_init = .;
-	PROVIDE(end_init = .);
-}
-INSERT AFTER .init;
+		/* Executable code */
+		PROVIDE(fips_start_text = ADDR(.text));
+		PROVIDE(fips_end_text = ADDR(.text) + SIZEOF(.text));
 
-SECTIONS
-{
-	_start_ctors = .;
-	PROVIDE(start_ctors = .);
-}
-INSERT BEFORE .init;
+		/* Modifiable data */
+		PROVIDE(fips_data_base = ADDR(.data));
+		PROVIDE(fips_data_end = ADDR(.data) + SIZEOF(.data));
 
-SECTIONS
-{
-	_end_ctors = .;
-	PROVIDE(end_ctors = .);
-}
-INSERT AFTER .init;
+		/* Read-only data */
+		PROVIDE(fips_rodata_base = ADDR(.rodata));
+		PROVIDE(fips_rodata_end = ADDR(.rodata) + SIZEOF(.rodata));
 
-SECTIONS
-{
-	_start_text = .;
-	PROVIDE(start_text = .);
-}
-INSERT BEFORE .text;
+		/* Relocatable, then read-only */
+		PROVIDE(fips_datarelro_base = ADDR(.data.rel.ro));
+		PROVIDE(fips_datarelro_end = ADDR(.data.rel.ro) + SIZEOF(.data.rel.ro));
 
-SECTIONS
-{
-	_end_text = .;
-	PROVIDE(end_text = .);
+		*(.lc_fips_integrity_hash)
+  	}
 }
-INSERT AFTER .text;
-
-#SECTIONS
-#{
-#	_start_rodata = .;
-#	PROVIDE(start_rodata = .);
-#}
-#INSERT BEFORE .rodata;
-#
-#SECTIONS
-#{
-#	_end_rodata = .;
-#	PROVIDE(end_rodata = .);
-#}
-#INSERT AFTER .rodata;
+INSERT AFTER .rodata;

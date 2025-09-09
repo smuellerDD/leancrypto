@@ -53,7 +53,6 @@
 #include "ext_headers_internal.h"
 #include "NTT_params.h"
 
-LC_FIPS_RODATA_SECTION
 const int streamlined_CT_negacyclic_table_Q1_extended[(NTT_N + (1 << 0) +
 						       (1 << 4))
 						      << 1] = {
@@ -150,7 +149,6 @@ const int streamlined_CT_negacyclic_table_Q1_extended[(NTT_N + (1 << 0) +
 	270210213,   1054478,  -187430119,  -731434,  0,	   0
 };
 
-LC_FIPS_RODATA_SECTION
 const int streamlined_inv_CT_table_Q1_extended[(NTT_N + (1 << 0) + (1 << 4))
 					       << 1] = {
 	0,	    0,	      915382907,   3572223,  -963888510,  -3761513,
@@ -246,7 +244,6 @@ const int streamlined_inv_CT_table_Q1_extended[(NTT_N + (1 << 0) + (1 << 4))
 	495951789,  1935420,  -449207,	   -1753,    0,		  0
 };
 
-LC_FIPS_RODATA_SECTION
 const int constants[8] = { Q1,
 			   Q1prime,
 			   RmodQ1_prime_half,
