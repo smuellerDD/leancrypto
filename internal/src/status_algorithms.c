@@ -19,6 +19,7 @@
 
 #include "atomic.h"
 #include "fips_integrity_check.h"
+#include "fips_mode.h"
 #include "helper.h"
 #include "initialization.h"
 #include "status_algorithms.h"
@@ -310,6 +311,15 @@ static void alg_status_unset_testresult_one(alg_status_t alg, atomic_t *status)
 static void alg_status_set_testresult(
 	enum lc_alg_status_result test_ret, alg_status_t alg, atomic_t *status)
 {
+	/*
+	 * In FIPS mode, we enter the degraded mode of operation when a self
+	 * test error is observed. This requires that all self tests of all
+	 * other algorithms must be reperformed. As this should never happen,
+	 * it is a small price to pay to cover this requirement.
+	 */
+	if (test_ret == lc_alg_status_result_failed && fips140_mode_enabled())
+		alg_status_unset_test_state();
+
 	/*
 	 * This operation only works by assuming the state transition documented
 	 * for LC_ALG_STATUS_FLAG_MASK_SIZE.
