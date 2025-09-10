@@ -2906,7 +2906,8 @@ SYM_FUNC_END(sha256_block_data_order_riscv_zbb)
 SYM_FUNC_END(sha256_block_data_order_riscv)
 #endif
 
-.section LC_FIPS_RODATA_SECTION_NAME
+//.section .rodata
+//.section .lc_fips_rodata
 .align	5
 K256:
 	.word	0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5
