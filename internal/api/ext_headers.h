@@ -423,9 +423,9 @@ static inline int lc_get_time(time64_t *time_since_epoch)
  * relevant data to teh fips_rodata section.
  */
 #if defined __ELF__
-#define LC_FIPS_RODATA_SECTION_NAME_START fips_start_rodata
-#define LC_FIPS_RODATA_SECTION_NAME_STOP fips_end_rodata
-#define LC_FIPS_RODATA_SECTION_NAME ".fips_rodata"
+#define LC_FIPS_RODATA_SECTION_NAME_START lc_fips_start_rodata
+#define LC_FIPS_RODATA_SECTION_NAME_STOP lc_fips_end_rodata
+#define LC_FIPS_RODATA_SECTION_NAME ".lc_fips_rodata"
 #define LC_FIPS_RODATA_SECTION                                                 \
 	__attribute__((section(LC_FIPS_RODATA_SECTION_NAME)))
 #else

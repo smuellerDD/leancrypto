@@ -5,8 +5,8 @@ HASHER="$2"
 
 TEXTSEGMENT=".text"
 INITSEGMENT=".init"
-RODATASEGMENT=".fips_rodata"
-FIPSDATASEGMENT=".fips_integrity_data"
+RODATASEGMENT=".lc_fips_rodata"
+FIPSDATASEGMENT=".lc_fips_integrity_data"
 SECOUTFILE="extracted_sections.digest"
 
 OBJCOPY="objcopy"
