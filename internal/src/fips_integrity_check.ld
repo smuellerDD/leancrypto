@@ -1,3 +1,8 @@
+SECTIONS {
+	.lc_fips_rodata : { *(.lc_fips_rodata) }
+}
+INSERT AFTER .rodata;
+
 SECTIONS
 {
 	.lc_fips_integrity_hash :
@@ -27,9 +32,4 @@ SECTIONS
 		*(.lc_fips_integrity_hash)
   	}
 }
-INSERT AFTER .rodata;
-
-SECTIONS {
-	.lc_fips_integrity_data : { *(.fips_integrity_data) }
-}
-INSERT AFTER .lc_fips_integrity_hash;
+INSERT AFTER .lc_fips_rodata;
