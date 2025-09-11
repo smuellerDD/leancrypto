@@ -852,9 +852,9 @@ leancrypto_libs_fips_raw = static_library('leancrypto-fips-raw',
 	install: false
 	)
 
+link_args_fips140 = [ ]
 # Build FIPS 140 library
 if build_shared
-	link_args_fips140 = [ ]
 	fips_integrity_test_capable = false
 
 	if (host_machine.system() == 'linux' and
@@ -938,6 +938,7 @@ else
 					include_internal_dirs ],
 		dependencies: [ leancrypto_link ],
 		link_whole: [ leancrypto_libs_fips_raw ],
+		link_args: link_args_fips140,
 		install: true
 		)
 	leancrypto_lib_fips = leancrypto_static_lib_fips
@@ -962,6 +963,7 @@ if build_shared
 		soversion: version_array[0],
 		dependencies: [ leancrypto_link ],
 		link_whole: [ leancrypto_support_libs ],
+		link_args: link_args_fips140,
 		install: true
 		)
 
@@ -974,6 +976,7 @@ else
 		include_directories: [ include_dirs, include_internal_dirs ],
 		dependencies: [ leancrypto_link ],
 		link_whole: [ leancrypto_support_libs ],
+		link_args: link_args_fips140,
 		install: true
 		)
 	leancrypto_lib = leancrypto_static_lib

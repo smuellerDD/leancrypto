@@ -170,6 +170,8 @@
 	SYM_SIZE(name)
 # endif
 
+#define LC_FIPS_RODATA_SECTION .section .rodata
+
 #else /* LINUX_KERNEL */
 
 # define ANNOTATE_INTRA_FUNCTION_CALL
@@ -191,6 +193,8 @@
 #  define SYM_FUNC_END(name)						       \
 	SYM_TYPE_FUNC(name) ;						       \
 	SYM_SIZE(name)
+
+# define LC_FIPS_RODATA_SECTION .section .rodata
 
 # elif (defined(__CYGWIN__) || defined(_WIN32))
 
@@ -216,6 +220,8 @@
 #  define FRAME_BEGIN
 
 #  define FRAME_END
+
+# define LC_FIPS_RODATA_SECTION .section .rodata
 
 # else /* __APPLE__ */
 
@@ -245,6 +251,12 @@
 #  define FRAME_BEGIN
 
 #  define FRAME_END
+
+#if defined __ELF__
+#define LC_FIPS_RODATA_SECTION .section .lc_fips_rodata
+#else
+#define LC_FIPS_RODATA_SECTION .section .rodata
+#endif
 
 # endif /* __APPLE__ */
 

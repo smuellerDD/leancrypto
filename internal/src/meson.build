@@ -34,8 +34,7 @@ endif
 # FIPS 140 Integrity check: The integrity checker is adopted for ELF.
 if (host_machine.system() == 'linux' and
     get_option('efi').disabled() and
-    build_shared and
-    not meson.is_cross_build())
+    build_shared)
 	src_fips_wrapper += files([
 		'fips_integrity_checker_elf.c'
 	])
