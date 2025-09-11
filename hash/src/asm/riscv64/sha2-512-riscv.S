@@ -3098,8 +3098,7 @@ SYM_FUNC_END(sha512_block_data_order_riscv_zbb)
 SYM_FUNC_END(sha512_block_data_order_riscv)
 #endif
 
-//.section .rodata
-//.section .lc_fips_rodata
+.section LC_FIPS_RODATA_SECTION_NAME
 .align	5
 K512:
 	.dword	0x428a2f98d728ae22, 0x7137449123ef65cd
