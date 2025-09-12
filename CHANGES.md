@@ -15,6 +15,8 @@ Changes 1.6.0-prerelease
 
 * FIPS: Rearchitect integrity test control value generator: The build process now uses the host's objcopy to extract the ELF sections of interest into a separate file, use a build_machine compiled version of sha3-256sum to generate the digest of it and reinsert it into the leancrypto-fips.so. This now allows cross-compilation with FIPS integrity test support. There is no functional change to leancrypto though.
 
+* Significant reduction of compilation units by almost half by not having global, but per-test compiled C files.
+
 Changes 1.5.1
 * add ChaCha20 Poly 1305 AEAD
 

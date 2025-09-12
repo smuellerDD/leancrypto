@@ -1,14 +1,11 @@
 # for i in $(ls *.c | sort); do echo "'$i',"; done
-internal_src += files([
-	'compare.c',
-	'left_encode.c',
-	'memcpy_secure_c.c',
-	'null_buffer.c'
-])
-
 src_fips += files([
+	'compare.c',
 	'fips_integrity_check.c',
 	'leancrypto_init.c',
+	'left_encode.c',
+	'memcpy_secure_c.c',
+	'null_buffer.c',
 	'status_api.c',
 	'status_algorithms.c'
 ])
@@ -23,12 +20,12 @@ if get_option('efi').disabled()
 endif
 
 if get_option('efi').enabled()
-	internal_src += files([ 'memory_support_efi.c' ])
+	src_fips += files([ 'memory_support_efi.c' ])
 elif ((host_machine.system() == 'linux') and
       (host_machine.cpu_family() != 'x86'))
-	internal_src += files([ 'memory_support_linux.c' ])
+	src_fips += files([ 'memory_support_linux.c' ])
 else
-	internal_src += files([ 'memory_support.c' ])
+	src_fips += files([ 'memory_support.c' ])
 endif
 
 # FIPS 140 Integrity check: The integrity checker is adopted for ELF.
@@ -47,7 +44,7 @@ endif
 
 if (dilithium_enabled or
     sphincs_enabled)
-	internal_src += files([
+	src_fips += files([
 		'signature_domain_separation.c',
 	])
 endif
