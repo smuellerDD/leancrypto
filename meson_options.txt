@@ -233,6 +233,16 @@ option('seedsource', type: 'combo', value: 'builtin',
 The seed source for the lc_seeded_rng is determined at compile time. The builtin
 source uses the standard operating system seed source like getrandom or
 getentropy system calls. But other seed sources are allowed to be specified.
+
+The following entropy sources are defined:
+
+- builtin: Use of the underlying operating system's entropy source like getrandom on Linux or getentropy on BSD / macOS
+
+- cpu: Use of the CPU-provided entropy source like RDSEED on Intel.
+
+- esdm: Use of the ESDM (https://chronox.de/esdm)
+
+- jent: Use of the Jitter RNG (https://chronox.de/jent)
 ''')
 
 option('apps', type: 'feature', value: 'enabled',

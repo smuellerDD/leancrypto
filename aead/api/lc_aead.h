@@ -72,7 +72,7 @@ struct lc_aead_ctx {
  * steps
  *
  * 1. Allocation: Use the stack or heap allocation functions documented in
- *    lc_chacha20_poly1305.h,
+ *    lc_chacha20_poly1305.h, lc_aes_gcm.h,
  *    lc_ascon_lightweight.h, lc_ascon_keccak.h, lc_cshake_crypt.h,
  *    lc_kmac_crypt.h, lc_hash_crypt.h, lc_symhmac.h, or lc_symkmac.h.
  *
