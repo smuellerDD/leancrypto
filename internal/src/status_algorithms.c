@@ -152,7 +152,7 @@ static const struct alg_status_show alg_status_show_sig_pqc[] = {
 { .flag = LC_ALG_STATUS_MLDSA_SIGVER, .alg_name = "ML-DSA-Dec", .strlen = 10 },
 #endif
 #if (defined(LC_SPHINCS) || defined(CONFIG_LEANCRYPTO_SPHINCS))
-{ .flag = LC_ALG_STATUS_SLHDSA_KEYGEN, .alg_name = "SLH-DSA-Keyben", .strlen = 14 },
+{ .flag = LC_ALG_STATUS_SLHDSA_KEYGEN, .alg_name = "SLH-DSA-Keygen", .strlen = 14 },
 { .flag = LC_ALG_STATUS_SLHDSA_SIGGEN, .alg_name = "SLH-DSA-Enc", .strlen = 11 },
 { .flag = LC_ALG_STATUS_SLHDSA_SIGVER, .alg_name = "SLH-DSA-Dec", .strlen = 11 },
 #endif

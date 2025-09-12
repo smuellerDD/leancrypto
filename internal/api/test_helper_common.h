@@ -31,7 +31,7 @@ extern "C" {
 static inline int test_print_status(void)
 {
 	struct workspace {
-		char status[900];
+		char status[2000];
 	};
 	int ret = 0;
 	LC_DECLARE_MEM(ws, struct workspace, 8);

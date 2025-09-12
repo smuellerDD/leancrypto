@@ -47,6 +47,7 @@
 #include "sha512_riscv.h"
 #include "sha512_riscv_zbb.h"
 #include "sha512_shani.h"
+#include "small_stack_support.h"
 #include "status_algorithms.h"
 #include "visibility.h"
 
@@ -78,28 +79,30 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 #pragma GCC diagnostic ignored "-Wembedded-directive"
 #endif
 
-	char status_pass[500];
-	char status_error[30];
-	char status_untested[sizeof(status_pass)];
-	size_t len, status_pass_len = sizeof(status_pass),
-	       status_error_len = sizeof(status_error),
-	       status_untested_len = sizeof(status_untested);
+#define LC_STATUS_ALG_SIZE 1000
+	struct workspace {
+		char status_pass[LC_STATUS_ALG_SIZE];
+		char status_error[LC_STATUS_ALG_SIZE];
+		char status_untested[LC_STATUS_ALG_SIZE];
+	};
+	size_t len, status_pass_len = LC_STATUS_ALG_SIZE,
+	       status_error_len = LC_STATUS_ALG_SIZE,
+	       status_untested_len = LC_STATUS_ALG_SIZE;
+	LC_DECLARE_MEM(ws, struct workspace, 8);
 
-	status_pass[0] = '\0';
-	status_error[0] = '\0';
-	status_untested[0] = '\0';
 	snprintf(outbuf, outlen, "leancrypto %u.%u.%u\n", MAJVERSION,
 		 MINVERSION, PATCHLEVEL);
 
-	alg_status((uint64_t)-1, status_pass, status_pass_len, status_untested,
-		   status_untested_len, status_error, status_error_len);
+	alg_status((uint64_t)-1, ws->status_pass, status_pass_len,
+		   ws->status_untested, status_untested_len, ws->status_error,
+		   status_error_len);
 
 	len = strlen(outbuf);
 	snprintf(outbuf + len, outlen - len,
 		 "Self-Test Passed: %s\n"
 		 "Self-Test Not Executed: %s\n"
 		 "Self-Test Failed: %s\n",
-		 status_pass, status_untested, status_error);
+		 ws->status_pass, ws->status_untested, ws->status_error);
 
 	len = strlen(outbuf);
 	snprintf(outbuf + len, outlen - len,
