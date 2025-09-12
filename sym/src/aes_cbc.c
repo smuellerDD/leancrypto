@@ -74,7 +74,7 @@ static int aes_cbc_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 	return lc_mode_cbc_c->setiv(&ctx->cbc_state, iv, ivlen);
 }
 
-static struct lc_sym _lc_aes_cbc_c = {
+static const struct lc_sym _lc_aes_cbc_c = {
 	.init = aes_cbc_init,
 	.init_nocheck = aes_cbc_init_nocheck,
 	.setkey = aes_cbc_setkey,

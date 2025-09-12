@@ -668,6 +668,7 @@ static void ge25519_cmov8(ge25519_precomp *t, const ge25519_precomp precomp[8],
 static void ge25519_cmov8_base(ge25519_precomp *t, const int pos,
 			       const signed char b)
 {
+	LC_FIPS_RODATA_SECTION
 	static const ge25519_precomp base[32][8] = {
 	/* base[i][j] = (j+1)*256^i*B */
 #ifdef LC_HOST_X86_64
@@ -753,6 +754,7 @@ static int _ge25519_double_scalarmult_vartime(ge25519_p2 *r,
 					      const ge25519_p3 *A,
 					      const unsigned char *b)
 {
+	LC_FIPS_RODATA_SECTION
 	static const ge25519_precomp Bi[8] = {
 #ifdef LC_HOST_X86_64
 #include "fe_51/base2.h"
@@ -2590,6 +2592,7 @@ void sc25519_reduce(unsigned char s[64])
 int sc25519_is_canonical(const unsigned char s[32])
 {
 	/* 2^252+27742317777372353535851937790883648493 */
+	LC_FIPS_RODATA_SECTION
 	static const unsigned char L[32] = { 0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63,
 					     0x12, 0x58, 0xd6, 0x9c, 0xf7, 0xa2,
 					     0xde, 0xf9, 0xde, 0x14, 0x00, 0x00,

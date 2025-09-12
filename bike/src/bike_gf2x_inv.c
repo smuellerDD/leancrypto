@@ -144,9 +144,13 @@ int gf2x_mod_inv(pad_r_t *c, const pad_r_t *a)
 	 * "public". Code that releases these branches
 	 * (taken/not-taken) does not leak secret information.
 	 */
+	LC_FIPS_RODATA_SECTION
 	static const unsigned short exp0_k[MAX_I] = { EXP0_K_VALS };
+	LC_FIPS_RODATA_SECTION
 	static const unsigned short exp0_l[MAX_I] = { EXP0_L_VALS };
+	LC_FIPS_RODATA_SECTION
 	static const unsigned short exp1_k[MAX_I] = { EXP1_K_VALS };
+	LC_FIPS_RODATA_SECTION
 	static const unsigned short exp1_l[MAX_I] = { EXP1_L_VALS };
 	struct workspace {
 		pad_r_t f, g, t;

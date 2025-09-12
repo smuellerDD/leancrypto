@@ -33,6 +33,7 @@
 
 #if (LC_HQC_TYPE == 128)
 
+LC_FIPS_RODATA_SECTION
 static const __m256i alpha_ij256_1[45] = {
 	{ 0x0010000800040002, 0x001d008000400020, 0x00cd00e80074003a,
 	  0x004c002600130087 },
@@ -125,6 +126,8 @@ static const __m256i alpha_ij256_1[45] = {
 	{ 0x009600a900df00c1, 0x001a00b900260024, 0x0060002c00640055,
 	  0x00590091003b000f }
 };
+
+LC_FIPS_RODATA_SECTION
 static const __m256i alpha_ij256_2[45] = {
 	{ 0x00b4005a002d0098, 0x008f00c900ea0075, 0x0018000c00060003,
 	  0x0000000000600030 },
@@ -222,6 +225,7 @@ static const __m256i alpha_ij256_2[45] = {
  * Coefficients of polynomial G
  * stored in 256-bit values
  **/
+LC_FIPS_RODATA_SECTION
 static const union params256 {
 	__m256i param256[2];
 	uint16_t param16[sizeof(__m256i) / sizeof(uint16_t) * 2];
@@ -232,6 +236,7 @@ static const union params256 {
 
 #elif (LC_HQC_TYPE == 192)
 
+LC_FIPS_RODATA_SECTION
 static const __m256i alpha_ij256_1[55] = {
 	{ 0x0010000800040002, 0x001d008000400020, 0x00cd00e80074003a,
 	  0x004c002600130087 },
@@ -344,6 +349,8 @@ static const __m256i alpha_ij256_1[55] = {
 	{ 0x00ac0091006700a0, 0x0037002e000f00b4, 0x005500e2006a002c,
 	  0x007c00b9002000a7 }
 };
+
+LC_FIPS_RODATA_SECTION
 static const __m256i alpha_ij256_2[55] = {
 	{ 0x00b4005a002d0098, 0x008f00c900ea0075, 0x0018000c00060003,
 	  0x009d00c000600030 },
@@ -461,6 +468,7 @@ static const __m256i alpha_ij256_2[55] = {
  * Coefficients of polynomial G
  * stored in 256-bit values
  **/
+LC_FIPS_RODATA_SECTION
 static const union params256 {
 	__m256i param256[2];
 	uint16_t param16[sizeof(__m256i) / sizeof(uint16_t) * 2];
@@ -471,6 +479,7 @@ static const union params256 {
 
 #elif (LC_HQC_TYPE == 256)
 
+LC_FIPS_RODATA_SECTION
 static const __m256i alpha_ij256_1[89] = {
 	{ 0x0010000800040002, 0x001d008000400020, 0x00cd00e80074003a,
 	  0x004c002600130087 },
@@ -651,6 +660,8 @@ static const __m256i alpha_ij256_1[89] = {
 	{ 0x002200cd00ab00e1, 0x0070001f008f00ae, 0x004600f900330025,
 	  0x00a400b90048009e }
 };
+
+LC_FIPS_RODATA_SECTION
 static const __m256i alpha_ij256_2[89] = {
 	{ 0x00b4005a002d0098, 0x008f00c900ea0075, 0x0018000c00060003,
 	  0x009d00c000600030 },
@@ -831,6 +842,8 @@ static const __m256i alpha_ij256_2[89] = {
 	{ 0x006c00d10065000b, 0x00d9008000f6006b, 0x008d00d0005a0037,
 	  0x007700a2003b00c0 }
 };
+
+LC_FIPS_RODATA_SECTION
 static const __m256i alpha_ij256_3[89] = {
 	{ 0x0025009c004e0027, 0x006a00350094004a, 0x00ee007700b500d4,
 	  0x00460023009f00c1 },
@@ -1011,6 +1024,8 @@ static const __m256i alpha_ij256_3[89] = {
 	{ 0x00a800a0004500b8, 0x00e900e400c200f3, 0x00a3000400fc00f0,
 	  0x0082008800130096 }
 };
+
+LC_FIPS_RODATA_SECTION
 static const __m256i alpha_ij256_4[89] = {
 	{ 0x0014000a0005008c, 0x005d00a000500028, 0x00000000006900ba,
 	  0x0000000000000000 },
@@ -1196,6 +1211,7 @@ static const __m256i alpha_ij256_4[89] = {
  * Coefficients of polynomial G
  * stored in 256-bit values
  **/
+LC_FIPS_RODATA_SECTION
 static const union params256 {
 	__m256i param256[4];
 	uint16_t param16[sizeof(__m256i) / sizeof(uint16_t) * 4];

@@ -31,6 +31,7 @@ extern "C" {
 #define LC_DILITHIUM_QINV 58728449 // q^(-1) mod 2^32
 #endif
 
+LC_FIPS_RODATA_SECTION
 static const int32_t l_montgomery_const[2] = { LC_DILITHIUM_Q,
 					       LC_DILITHIUM_QINV };
 

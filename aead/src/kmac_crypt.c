@@ -604,14 +604,15 @@ LC_INTERFACE_FUNCTION(int, lc_kc_alloc, const struct lc_hash *hash,
 	return 0;
 }
 
-struct lc_aead _lc_kmac_aead = { .setkey = lc_kc_setkey,
-				 .encrypt = lc_kc_encrypt_oneshot,
-				 .enc_init = lc_kc_add_aad,
-				 .enc_update = lc_kc_encrypt,
-				 .enc_final = lc_kc_encrypt_tag,
-				 .decrypt = lc_kc_decrypt_oneshot,
-				 .dec_init = lc_kc_add_aad,
-				 .dec_update = lc_kc_decrypt,
-				 .dec_final = lc_kc_decrypt_authenticate,
-				 .zero = lc_kc_zero };
+static const struct lc_aead _lc_kmac_aead = {
+	.setkey = lc_kc_setkey,
+	.encrypt = lc_kc_encrypt_oneshot,
+	.enc_init = lc_kc_add_aad,
+	.enc_update = lc_kc_encrypt,
+	.enc_final = lc_kc_encrypt_tag,
+	.decrypt = lc_kc_decrypt_oneshot,
+	.dec_init = lc_kc_add_aad,
+	.dec_update = lc_kc_decrypt,
+	.dec_final = lc_kc_decrypt_authenticate,
+	.zero = lc_kc_zero };
 LC_INTERFACE_SYMBOL(const struct lc_aead *, lc_kmac_aead) = &_lc_kmac_aead;

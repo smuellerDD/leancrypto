@@ -30,6 +30,7 @@
 #include "ret_checkers.h"
 #include "visibility.h"
 
+LC_FIPS_RODATA_SECTION
 static const uint8_t zeros[16] = { 0 };
 
 static int lc_chacha20_poly1305_setkey_nocheck(void *state, const uint8_t *key,
@@ -86,7 +87,10 @@ static void lc_chacha20_poly1305_selftest(void)
 					   0xd0, 0x60, 0x06, 0x91 };
 	uint8_t act_ct[sizeof(exp_ct)] __align(sizeof(uint32_t));
 	uint8_t act_tag[sizeof(exp_tag)] __align(sizeof(uint32_t));
-	static const uint8_t f[] = { 0xde, 0xad, }, p[] = { 0xaf, 0xfe };
+	LC_FIPS_RODATA_SECTION
+	static const uint8_t f[] = { 0xde, 0xad, };
+	LC_FIPS_RODATA_SECTION
+	static const uint8_t p[] = { 0xaf, 0xfe };
 	int ret;
 
 	LC_SELFTEST_RUN(LC_ALG_STATUS_CHACHA20_POLY1305);
@@ -123,6 +127,7 @@ out:
 static int cc20p1305_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 			   size_t ivlen)
 {
+	LC_FIPS_RODATA_SECTION
 	static const uint8_t constant[] = { 0x07, 0x00, 0x00, 0x00 };
 
 	if (ivlen != 8)
@@ -363,7 +368,7 @@ static void lc_chacha20_poly1305_zero(void *state)
 	cc20p1305->datalen = 0;
 }
 
-struct lc_aead _lc_chacha20_poly1305_aead = {
+static const struct lc_aead _lc_chacha20_poly1305_aead = {
 	.setkey = lc_chacha20_poly1305_setkey,
 	.encrypt = lc_chacha20_poly1305_encrypt_oneshot,
 	.enc_init = lc_chacha20_poly1305_add_aad,

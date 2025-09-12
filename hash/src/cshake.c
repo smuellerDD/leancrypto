@@ -28,10 +28,13 @@ static int lc_cshake_init_impl(struct lc_hash_ctx *ctx, const uint8_t *n,
 			       size_t nlen, const uint8_t *s, size_t slen,
 			       int (*hash_init)(void *state))
 {
+	LC_FIPS_RODATA_SECTION
 	static const uint8_t zero[LC_SHAKE_128_SIZE_BLOCK] = { 0 };
+	LC_FIPS_RODATA_SECTION
 	static const uint8_t bytepad_val256[] = { 0x01,
-						  LC_SHAKE_256_SIZE_BLOCK },
-			     bytepad_val128[] = { 0x01,
+						  LC_SHAKE_256_SIZE_BLOCK };
+	LC_FIPS_RODATA_SECTION
+	static const uint8_t bytepad_val128[] = { 0x01,
 						  LC_SHAKE_128_SIZE_BLOCK };
 	uint8_t buf[sizeof(nlen) + 1];
 	size_t len;

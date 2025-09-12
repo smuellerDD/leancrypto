@@ -453,14 +453,15 @@ static void lc_ascon_zero_interface(void *state)
 	lc_ascon_zero(ascon);
 }
 
-struct lc_aead _lc_ascon_aead = { .setkey = lc_ascon_setkey,
-				  .encrypt = lc_ascon_encrypt,
-				  .enc_init = lc_ascon_aad_interface,
-				  .enc_update = lc_ascon_enc_update_interface,
-				  .enc_final = lc_ascon_enc_final_interface,
-				  .decrypt = lc_ascon_decrypt,
-				  .dec_init = lc_ascon_aad_interface,
-				  .dec_update = lc_ascon_dec_update_interface,
-				  .dec_final = lc_ascon_dec_final_interface,
-				  .zero = lc_ascon_zero_interface };
+static const struct lc_aead _lc_ascon_aead = {
+	.setkey = lc_ascon_setkey,
+	.encrypt = lc_ascon_encrypt,
+	.enc_init = lc_ascon_aad_interface,
+	.enc_update = lc_ascon_enc_update_interface,
+	.enc_final = lc_ascon_enc_final_interface,
+	.decrypt = lc_ascon_decrypt,
+	.dec_init = lc_ascon_aad_interface,
+	.dec_update = lc_ascon_dec_update_interface,
+	.dec_final = lc_ascon_dec_final_interface,
+	.zero = lc_ascon_zero_interface };
 LC_INTERFACE_SYMBOL(const struct lc_aead *, lc_ascon_aead) = &_lc_ascon_aead;

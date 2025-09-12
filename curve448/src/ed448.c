@@ -119,6 +119,7 @@ static void lc_ed448_sign_tester(void)
 			 0xb2, 0x1a, 0xa4, 0xad, 0xaf, 0xd1, 0xd2, 0x34, 0x44,
 			 0x1c, 0xf8, 0x07, 0xc0, 0x3a, 0x00 }
 	};
+	LC_FIPS_RODATA_SECTION
 	static const uint8_t msg[] = { 0x03 };
 	struct lc_ed448_sig sig;
 
@@ -237,6 +238,7 @@ static int curveed448_hash_init_with_dom(struct lc_hash_ctx *hash_ctx,
 					  const uint8_t *context,
 					  uint8_t context_len)
 {
+	LC_FIPS_RODATA_SECTION
 	static const char dom_s[] = "SigEd448";
 	const uint8_t dom[2] = { (uint8_t)(2 + word_is_zero(prehashed) +
 					   word_is_zero(for_prehash)),

@@ -49,6 +49,7 @@ static const curve448_scalar_t precomputed_scalarmul_adjustment = {
 };
 
 /** identity = (0,1) */
+LC_FIPS_RODATA_SECTION
 static const curve448_point_t curve448_point_identity = {
 	{ { { { 0 } } }, { { { 1 } } }, { { { 1 } } }, { { { 0 } } } }
 };

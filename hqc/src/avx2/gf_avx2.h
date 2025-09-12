@@ -45,6 +45,7 @@ extern "C" {
  * The last two elements are needed by the gf_mul function
  * (for example if both elements to multiply are zero).
  */
+LC_FIPS_RODATA_SECTION
 static const uint16_t gf_exp[258] = {
 	1,   2,	  4,   8,   16,	 32,  64,  128, 29,  58,  116, 232, 205, 135,
 	19,  38,  76,  152, 45,	 90,  180, 117, 234, 201, 143, 3,   6,	 12,
@@ -71,6 +72,7 @@ static const uint16_t gf_exp[258] = {
  * Logarithm of elements of GF(2^8) to the base alpha (root of 1 + x^2 + x^3 + x^4 + x^8).
  * The logarithm of 0 is set to 256 by convention.
  */
+LC_FIPS_RODATA_SECTION
 static const uint16_t gf_log[256] = {
 	0,   0,	  1,   25,  2,	 50,  26,  198, 3,   223, 51,  238, 27,	 104,
 	199, 75,  4,   100, 224, 14,  52,  141, 239, 129, 28,  193, 105, 248,
@@ -96,27 +98,36 @@ static const uint16_t gf_log[256] = {
 /** 
  * Masks needed for the computation of 16 mult in GF(2^M)
  */
+LC_FIPS_RODATA_SECTION
 static const __m256i mr0 = { 0x0100010001000100UL, 0x0100010001000100UL,
 			     0x0100010001000100UL, 0x0100010001000100UL };
+LC_FIPS_RODATA_SECTION
 static const __m256i lastMask = { 0x00ff00ff00ff00ffUL, 0x00ff00ff00ff00ffUL,
 				  0x00ff00ff00ff00ffUL, 0x00ff00ff00ff00ffUL };
+LC_FIPS_RODATA_SECTION
 static const __m128i maskl = { 0x0000ffff0000ffffUL, 0x0000ffff0000ffffUL };
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
+LC_FIPS_RODATA_SECTION
 static const __m128i maskh = { 0xffff0000ffff0000UL, 0xffff0000ffff0000UL };
+LC_FIPS_RODATA_SECTION
 static const __m128i indexh = { 0xffffffffffffffffUL, 0x0d0c090805040100UL };
+LC_FIPS_RODATA_SECTION
 static const __m128i indexl = { 0x0d0c090805040100UL, 0xffffffffffffffffUL };
 #pragma GCC diagnostic pop
 
+LC_FIPS_RODATA_SECTION
 static const __m128i middlemaskl = { 0x000000000000ffffUL,
 				     0x000000000000ffffUL };
+LC_FIPS_RODATA_SECTION
 static const __m128i middlemaskh = { 0x0000ffff00000000UL,
 				     0x0000ffff00000000UL };
 
 /** 
  * x^i modulo x^8+x^4+x^3+x^2+1 duplicate 4 times to fit a 256-bit register
  */
+LC_FIPS_RODATA_SECTION
 static const __m256i red[7] = {
 	{ 0x001d001d001d001dUL, 0x001d001d001d001dUL, 0x001d001d001d001dUL,
 	  0x001d001d001d001dUL },

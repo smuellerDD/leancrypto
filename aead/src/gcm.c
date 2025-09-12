@@ -873,15 +873,16 @@ out:
 	return ret;
 }
 
-struct lc_aead _lc_aes_gcm_aead = { .setkey = gcm_set_key_iv,
-				    .encrypt = gcm_encrypt,
-				    .enc_init = gcm_aad,
-				    .enc_update = gcm_enc_update,
-				    .enc_final = gcm_enc_final,
-				    .decrypt = gcm_decrypt,
-				    .dec_init = gcm_aad,
-				    .dec_update = gcm_dec_update,
-				    .dec_final = gcm_dec_final,
-				    .zero = gcm_zero_ctx };
+static const struct lc_aead _lc_aes_gcm_aead = {
+	.setkey = gcm_set_key_iv,
+	.encrypt = gcm_encrypt,
+	.enc_init = gcm_aad,
+	.enc_update = gcm_enc_update,
+	.enc_final = gcm_enc_final,
+	.decrypt = gcm_decrypt,
+	.dec_init = gcm_aad,
+	.dec_update = gcm_dec_update,
+	.dec_final = gcm_dec_final,
+	.zero = gcm_zero_ctx };
 LC_INTERFACE_SYMBOL(const struct lc_aead *,
 		    lc_aes_gcm_aead) = &_lc_aes_gcm_aead;

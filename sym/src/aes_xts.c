@@ -78,7 +78,7 @@ static int aes_xts_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 	return lc_mode_xts_c->setiv(&ctx->xts_state, iv, ivlen);
 }
 
-static struct lc_sym _lc_aes_xts_c = {
+static const struct lc_sym _lc_aes_xts_c = {
 	.init = aes_xts_init,
 	.init_nocheck = aes_xts_init_nocheck,
 	.setkey = aes_xts_setkey,

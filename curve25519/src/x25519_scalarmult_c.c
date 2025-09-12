@@ -40,6 +40,7 @@
  */
 static int has_small_order(const unsigned char s[32])
 {
+	LC_FIPS_RODATA_SECTION
 	static const unsigned char blocklist[][32] __align(16) = {
 		/* 0 (order 4) */
 		{ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,

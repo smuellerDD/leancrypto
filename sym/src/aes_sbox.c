@@ -172,6 +172,7 @@ void aes_key_expansion(struct aes_block_ctx *block_ctx, const uint8_t *Key)
  * for AES-128 (as 11 round keys are needed), up to rcon[8] for AES-192, up to
  * rcon[7] for AES-256. rcon[0] is not used in AES algorithm."
  */
+LC_FIPS_RODATA_SECTION
 static const uint8_t Rcon[11] = { 0x8d, 0x01, 0x02, 0x04, 0x08, 0x10,
 				  0x20, 0x40, 0x80, 0x1b, 0x36 };
 

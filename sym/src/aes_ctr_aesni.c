@@ -166,7 +166,7 @@ static int aes_aesni_ctr_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 	return 0;
 }
 
-static struct lc_sym _lc_aes_ctr_aesni = {
+static const struct lc_sym _lc_aes_ctr_aesni = {
 	.init = aes_aesni_ctr_init,
 	.init_nocheck = aes_aesni_ctr_init_nocheck,
 	.setkey = aes_aesni_ctr_setkey,

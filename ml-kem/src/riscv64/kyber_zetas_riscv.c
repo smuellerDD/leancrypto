@@ -50,6 +50,7 @@
 #include "kyber_ntt_rv64im.h"
 
 // RV64IM assembly optimized implementation with Plantard multiplication
+LC_FIPS_RODATA_SECTION
 const uint32_t kyber_zetas_basemul_rv64im[64] = {
 	21932846,   3562152210, 752167598,  3417653460, 2112004045, 932791035,
 	2951903026, 1419184148, 1817845876, 3434425636, 4233039261, 300609006,
@@ -65,6 +66,7 @@ const uint32_t kyber_zetas_basemul_rv64im[64] = {
 };
 
 // 4+3 layer merging strategy with CT butterfly
+LC_FIPS_RODATA_SECTION
 static const uint32_t kyber_zetas_ntt_rv64im[128] = {
 	2230699446, 3328631909, 4243360600, 3408622288, 812805467,  2447447570,
 	1094061961, 1370157786, 2475831253, 249002310,	1028263423, 3594406395,
@@ -91,6 +93,7 @@ static const uint32_t kyber_zetas_ntt_rv64im[128] = {
 };
 
 // 3+4 layer merging strategy with GS butterfly.
+LC_FIPS_RODATA_SECTION
 static const uint32_t kyber_zetas_intt_rv64im[128] = {
 	1515946703, 3153169142, 508325959,  1572714069, 3120914957, 2711931889,
 	3235739856, 2967385035, 1877193577, 2731284400, 2073299023, 282546663,

@@ -77,7 +77,7 @@ static void cc20_crypt_avx2(struct lc_sym_state *ctx, const uint8_t *in,
 	}
 }
 
-static struct lc_sym _lc_chacha20_avx2 = {
+static const struct lc_sym _lc_chacha20_avx2 = {
 	.init = cc20_init,
 	.setkey = cc20_setkey,
 	.setiv = cc20_setiv,

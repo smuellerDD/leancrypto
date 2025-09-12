@@ -54,6 +54,7 @@ static void lc_kdf_fb_selftest(void)
 					 0xe9, 0xee, 0x81, 0x92, 0x7c, 0x85,
 					 0x6b, 0x92, 0xbb, 0x99, 0xc2, 0x62,
 					 0x35, 0xb0 };
+	LC_FIPS_RODATA_SECTION
 	static const uint8_t exp[] = { 0xaa };
 	uint8_t act[sizeof(exp)];
 	LC_HMAC_CTX_ON_STACK(hmac_ctx, lc_sha256);

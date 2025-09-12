@@ -107,7 +107,7 @@ static int aes_riscv64_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 	return -EOPNOTSUPP;
 }
 
-static struct lc_sym _lc_aes_riscv64 = {
+static const struct lc_sym _lc_aes_riscv64 = {
 	.init = aes_riscv64_init,
 	.init_nocheck = NULL,
 	.setkey = aes_riscv64_setkey,
@@ -119,7 +119,7 @@ static struct lc_sym _lc_aes_riscv64 = {
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_riscv64) = &_lc_aes_riscv64;
 
-static struct lc_sym _lc_aes_riscv64_enc_only = {
+static const struct lc_sym _lc_aes_riscv64_enc_only = {
 	.init = aes_riscv64_init,
 	.init_nocheck = NULL,
 	.setkey = aes_riscv64_setkey_enc_only,

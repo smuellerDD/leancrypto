@@ -86,6 +86,7 @@
 // End Define
 
 /* Keccak round constants */
+LC_FIPS_RODATA_SECTION
 const uint64_t neon_KeccakF_RoundConstants[NROUNDS] = {
 	(uint64_t)0x0000000000000001ULL, (uint64_t)0x0000000000008082ULL,
 	(uint64_t)0x800000000000808aULL, (uint64_t)0x8000000080008000ULL,

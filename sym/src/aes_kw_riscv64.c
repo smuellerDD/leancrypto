@@ -77,7 +77,7 @@ static int aes_riscv64_kw_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 	return lc_mode_kw_c->setiv(&ctx->kw_state, iv, ivlen);
 }
 
-static struct lc_sym _lc_aes_kw_riscv64 = {
+static const struct lc_sym _lc_aes_kw_riscv64 = {
 	.init = aes_riscv64_kw_init,
 	.init_nocheck = aes_riscv64_kw_init_nocheck,
 	.setkey = aes_riscv64_kw_setkey,

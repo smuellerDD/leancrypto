@@ -36,7 +36,7 @@ static void cc20_crypt_riscv64_v_zbb(struct lc_sym_state *ctx,
 	LC_VECTOR_DISABLE;
 }
 
-static struct lc_sym _lc_chacha20_riscv64_v_zbb = {
+static const struct lc_sym _lc_chacha20_riscv64_v_zbb = {
 	.init = cc20_init,
 	.setkey = cc20_setkey,
 	.setiv = cc20_setiv,

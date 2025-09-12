@@ -39,7 +39,7 @@ static void cc20_crypt_neon(struct lc_sym_state *ctx, const uint8_t *in,
 	LC_NEON_DISABLE;
 }
 
-static struct lc_sym _lc_chacha20_neon = {
+static const struct lc_sym _lc_chacha20_neon = {
 	.init = cc20_init,
 	.setkey = cc20_setkey,
 	.setiv = cc20_setiv,

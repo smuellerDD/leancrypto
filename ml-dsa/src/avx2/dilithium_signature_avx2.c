@@ -116,6 +116,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_avx2,
 		poly t1, t0;
 		keccakx4_state keccak_state;
 	};
+	LC_FIPS_RODATA_SECTION
 	static const uint8_t dimension[2] = { LC_DILITHIUM_K, LC_DILITHIUM_L };
 	unsigned int i;
 	const uint8_t *rho, *rhoprime, *key;

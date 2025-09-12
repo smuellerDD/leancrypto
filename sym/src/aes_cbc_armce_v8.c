@@ -122,7 +122,7 @@ static int aes_armce_cbc_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 	return 0;
 }
 
-static struct lc_sym _lc_aes_cbc_armce = {
+static const struct lc_sym _lc_aes_cbc_armce = {
 	.init = aes_armce_cbc_init,
 	.init_nocheck = aes_armce_cbc_init_nocheck,
 	.setkey = aes_armce_cbc_setkey,

@@ -99,7 +99,7 @@ static int aes_armce_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 	return -EOPNOTSUPP;
 }
 
-static struct lc_sym _lc_aes_armce = {
+static const struct lc_sym _lc_aes_armce = {
 	.init = aes_armce_init,
 	.init_nocheck = NULL,
 	.setkey = aes_armce_setkey,

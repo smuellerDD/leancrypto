@@ -114,10 +114,13 @@ static int lc_kmac_init_nocheck(struct lc_kmac_ctx *kmac_ctx,
 				const uint8_t *s, size_t slen)
 {
 	struct lc_hash_ctx *hash_ctx;
+	LC_FIPS_RODATA_SECTION
 	static const uint8_t zero[LC_SHAKE_128_SIZE_BLOCK] = { 0 };
+	LC_FIPS_RODATA_SECTION
 	static const uint8_t bytepad_val256[] = { 0x01,
-						  LC_SHAKE_256_SIZE_BLOCK },
-			     bytepad_val128[] = { 0x01,
+						  LC_SHAKE_256_SIZE_BLOCK };
+	LC_FIPS_RODATA_SECTION
+	static const uint8_t bytepad_val128[] = { 0x01,
 						  LC_SHAKE_128_SIZE_BLOCK };
 	uint8_t buf[sizeof(klen) + 1];
 	size_t len;

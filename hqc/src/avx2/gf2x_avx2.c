@@ -888,6 +888,7 @@ static inline void toom_3_mult(__m256i *Out, const __m256i *A256,
 static void toom_3_mult(__m256i *Out, const __m256i *A, const __m256i *B,
 			struct vect_mul_ws *ws)
 {
+	LC_FIPS_RODATA_SECTION
 	static const __m256i zero = { 0ul, 0ul, 0ul, 0ul };
 	size_t T2 = LC_HQC_T_TM3R_3W_256 << 1;
 

@@ -669,14 +669,15 @@ static void lc_cc_zero(void *state)
 			 LC_CC_STATE_SIZE(hash));
 }
 
-struct lc_aead _lc_cshake_aead = { .setkey = lc_cc_setkey,
-				   .encrypt = lc_cc_encrypt_oneshot,
-				   .enc_init = lc_cc_add_aad,
-				   .enc_update = lc_cc_encrypt,
-				   .enc_final = lc_cc_encrypt_tag,
-				   .decrypt = lc_cc_decrypt_oneshot,
-				   .dec_init = lc_cc_add_aad,
-				   .dec_update = lc_cc_decrypt,
-				   .dec_final = lc_cc_decrypt_authenticate,
-				   .zero = lc_cc_zero };
+static const struct lc_aead _lc_cshake_aead = {
+	.setkey = lc_cc_setkey,
+	.encrypt = lc_cc_encrypt_oneshot,
+	.enc_init = lc_cc_add_aad,
+	.enc_update = lc_cc_encrypt,
+	.enc_final = lc_cc_encrypt_tag,
+	.decrypt = lc_cc_decrypt_oneshot,
+	.dec_init = lc_cc_add_aad,
+	.dec_update = lc_cc_decrypt,
+	.dec_final = lc_cc_decrypt_authenticate,
+	.zero = lc_cc_zero };
 LC_INTERFACE_SYMBOL(const struct lc_aead *, lc_cshake_aead) = &_lc_cshake_aead;

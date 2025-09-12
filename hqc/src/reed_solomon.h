@@ -37,6 +37,7 @@ extern "C" {
 #endif
 
 #if (LC_HQC_TYPE == 128)
+LC_FIPS_RODATA_SECTION
 static const uint16_t alpha_ij_pow[30][45] = {
 	{ 2,   4,   8,	16,  32,  64,  128, 29,	 58,  116, 232, 205,
 	  135, 19,  38, 76,  152, 45,  90,  180, 117, 234, 201, 143,
@@ -160,6 +161,7 @@ static const uint16_t alpha_ij_pow[30][45] = {
 };
 
 #elif (LC_HQC_TYPE == 192)
+LC_FIPS_RODATA_SECTION
 static const uint16_t alpha_ij_pow[32][55] = {
 	{ 2,   4,   8,	 16,  32, 64,  128, 29,	 58,  116, 232, 205, 135, 19,
 	  38,  76,  152, 45,  90, 180, 117, 234, 201, 143, 3,	6,   12,  24,
@@ -292,6 +294,7 @@ static const uint16_t alpha_ij_pow[32][55] = {
 };
 
 #elif (LC_HQC_TYPE == 256)
+LC_FIPS_RODATA_SECTION
 static const uint16_t alpha_ij_pow[58][89] = {
 	{ 2,   4,   8,	 16,  32,  64,	128, 29,  58,  116, 232, 205, 135,
 	  19,  38,  76,	 152, 45,  90,	180, 117, 234, 201, 143, 3,   6,

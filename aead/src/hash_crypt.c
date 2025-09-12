@@ -332,15 +332,16 @@ LC_INTERFACE_FUNCTION(int, lc_hc_alloc, const struct lc_hash *hash,
 	return 0;
 }
 
-struct lc_aead _lc_hash_aead = { .setkey = lc_hc_setkey,
-				 .encrypt = lc_hc_encrypt_oneshot,
-				 .enc_init = lc_hc_add_aad,
-				 .enc_update = lc_hc_encrypt,
-				 .enc_final = lc_hc_encrypt_tag,
-				 .decrypt = lc_hc_decrypt_oneshot,
-				 .dec_init = lc_hc_add_aad,
-				 .dec_update = lc_hc_decrypt,
-				 .dec_final = lc_hc_decrypt_authenticate,
-				 .zero = lc_hc_zero };
+static const struct lc_aead _lc_hash_aead = {
+	.setkey = lc_hc_setkey,
+	.encrypt = lc_hc_encrypt_oneshot,
+	.enc_init = lc_hc_add_aad,
+	.enc_update = lc_hc_encrypt,
+	.enc_final = lc_hc_encrypt_tag,
+	.decrypt = lc_hc_decrypt_oneshot,
+	.dec_init = lc_hc_add_aad,
+	.dec_update = lc_hc_decrypt,
+	.dec_final = lc_hc_decrypt_authenticate,
+	.zero = lc_hc_zero };
 
 LC_INTERFACE_SYMBOL(const struct lc_aead *, lc_hash_aead) = &_lc_hash_aead;

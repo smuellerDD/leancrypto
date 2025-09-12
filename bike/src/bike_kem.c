@@ -199,6 +199,7 @@ static inline void bike_ss_kdf(uint8_t *ss, size_t ss_len,
 			       const struct lc_bike_ct *ct,
 			       const uint8_t bike_ss[LC_BIKE_SS_BYTES])
 {
+	LC_FIPS_RODATA_SECTION
 	static const uint8_t bike_ss_label[] = "BIKE KEM SS";
 
 	lc_kmac(lc_cshake256, bike_ss, LC_BIKE_SS_BYTES, bike_ss_label,

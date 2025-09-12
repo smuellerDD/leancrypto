@@ -93,6 +93,7 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 			uint8_t tr[LC_DILITHIUM_TRBYTES];
 		} tmp;
 	};
+	LC_FIPS_RODATA_SECTION
 	static const uint8_t dimension[2] = { LC_DILITHIUM_K, LC_DILITHIUM_L };
 	const uint8_t *rho, *rhoprime, *key;
 	int ret;

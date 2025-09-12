@@ -70,7 +70,7 @@ static int aes_riscv64_ctr_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 	return lc_mode_ctr_c->setiv(&ctx->ctr_state, iv, ivlen);
 }
 
-static struct lc_sym _lc_aes_ctr_riscv64 = {
+static const struct lc_sym _lc_aes_ctr_riscv64 = {
 	.init = aes_riscv64_ctr_init,
 	.init_nocheck = aes_riscv64_ctr_init_nocheck,
 	.setkey = aes_riscv64_ctr_setkey,

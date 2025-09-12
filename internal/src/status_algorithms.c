@@ -79,6 +79,7 @@ struct alg_status_show {
 };
 
 // clang-format off
+LC_FIPS_RODATA_SECTION
 static const struct alg_status_show alg_status_show_aead[] = {
 #if (defined(LC_AES_GCM) || defined(CONFIG_LEANCRYPTO_AES_GCM))
 { .flag = LC_ALG_STATUS_AES_GCM, .alg_name = "AES-GCM", .strlen = 7 },
@@ -112,6 +113,7 @@ static const struct alg_status_show alg_status_show_aead[] = {
 { .flag = 0, .alg_name = NULL, .strlen = 0 }
 };
 
+LC_FIPS_RODATA_SECTION
 static const struct alg_status_show alg_status_show_kem_pqc[] = {
 #if (defined(LC_HQC) ||                                                        \
      defined(CONFIG_LEANCRYPTO_KEM_HQC_256) ||                                 \
@@ -132,6 +134,7 @@ static const struct alg_status_show alg_status_show_kem_pqc[] = {
 { .flag = 0, .alg_name = NULL, .strlen = 0 }
 };
 
+LC_FIPS_RODATA_SECTION
 static const struct alg_status_show alg_status_show_kem_classic[] = {
 #ifdef LC_CURVE25519
 { .flag = LC_ALG_STATUS_X25519_KEYKEN, .alg_name = "X25519-Keygen", .strlen = 13 },
@@ -145,6 +148,7 @@ static const struct alg_status_show alg_status_show_kem_classic[] = {
 { .flag = 0, .alg_name = NULL, .strlen = 0 }
 };
 
+LC_FIPS_RODATA_SECTION
 static const struct alg_status_show alg_status_show_sig_pqc[] = {
 #if (defined(LC_DILITHIUM) || defined(CONFIG_LEANCRYPTO_DILITHIUM))
 { .flag = LC_ALG_STATUS_MLDSA_KEYGEN, .alg_name = "ML-DSA-Keygen", .strlen = 13 },
@@ -160,6 +164,7 @@ static const struct alg_status_show alg_status_show_sig_pqc[] = {
 { .flag = 0, .alg_name = NULL, .strlen = 0 }
 };
 
+LC_FIPS_RODATA_SECTION
 static const struct alg_status_show alg_status_show_sig_classic[] = {
 #if (defined(LC_DILITHIUM_ED25519) || defined(LC_CURVE25519))
 { .flag = LC_ALG_STATUS_ED25519_KEYGEN, .alg_name = "ED25519-Keygen", .strlen = 14 },
@@ -175,6 +180,7 @@ static const struct alg_status_show alg_status_show_sig_classic[] = {
 { .flag = 0, .alg_name = NULL, .strlen = 0 }
 };
 
+LC_FIPS_RODATA_SECTION
 static const struct alg_status_show alg_status_show_rng[] = {
 #if (defined(LC_DRNG_XDRBG256) ||                                              \
      (defined(CONFIG_LEANCRYPTO_XDRBG_DRNG) && defined(CONFIG_LEANCRYPTO_SHA3)))
@@ -204,6 +210,7 @@ static const struct alg_status_show alg_status_show_rng[] = {
 { .flag = 0, .alg_name = NULL, .strlen = 0 }
 };
 
+LC_FIPS_RODATA_SECTION
 static const struct alg_status_show alg_status_show_digest[] = {
 #if (defined(LC_ASCON_HASH) || defined(CONFIG_LEANCRYPTO_ASCON_HASH))
 { .flag = LC_ALG_STATUS_ASCON256, .alg_name = "Ascon256", .strlen = 8 },
@@ -231,6 +238,7 @@ static const struct alg_status_show alg_status_show_digest[] = {
 { .flag = 0, .alg_name = NULL, .strlen = 0 }
 };
 
+LC_FIPS_RODATA_SECTION
 static const struct alg_status_show alg_status_show_sym[] = {
 #if (defined(LC_AES_CBC) || defined(CONFIG_LEANCRYPTO_AES_CBC))
 { .flag = LC_ALG_STATUS_AES_CBC, .alg_name = "AES-CBC", .strlen = 7 },
@@ -251,6 +259,7 @@ static const struct alg_status_show alg_status_show_sym[] = {
 { .flag = 0, .alg_name = NULL, .strlen = 0 }
 };
 
+LC_FIPS_RODATA_SECTION
 static const struct alg_status_show alg_status_show_aux[] = {
 #if (defined(LC_HKDF) || defined(CONFIG_LEANCRYPTO_HKDF))
 { .flag = LC_ALG_STATUS_HKDF, .alg_name = "HKDF", .strlen = 4 },

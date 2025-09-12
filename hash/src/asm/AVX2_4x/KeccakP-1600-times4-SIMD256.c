@@ -68,8 +68,10 @@ typedef __m256i V256;
 			    _mm256_srli_epi64(a, 64 - (o)))
 #define ROL64in256_8(d, a) d = _mm256_shuffle_epi8(a, CONST256(rho8))
 #define ROL64in256_56(d, a) d = _mm256_shuffle_epi8(a, CONST256(rho56))
+LC_FIPS_RODATA_SECTION
 static const uint64_t rho8[4] = { 0x0605040302010007, 0x0E0D0C0B0A09080F,
 				  0x1615141312111017, 0x1E1D1C1B1A19181F };
+LC_FIPS_RODATA_SECTION
 static const uint64_t rho56[4] = { 0x0007060504030201, 0x080F0E0D0C0B0A09,
 				   0x1017161514131211, 0x181F1E1D1C1B1A19 };
 #define STORE256(a, b) _mm256_store_si256((V256 *)&(a), b)

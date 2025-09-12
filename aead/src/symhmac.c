@@ -323,15 +323,16 @@ static void lc_sh_zero(void *state)
 			 LC_SH_STATE_SIZE(sym_algo, hash_algo));
 }
 
-struct lc_aead _lc_symhmac_aead = { .setkey = lc_sh_setkey,
-				    .encrypt = lc_sh_encrypt_oneshot,
-				    .enc_init = lc_sh_add_aad,
-				    .enc_update = lc_sh_encrypt,
-				    .enc_final = lc_sh_encrypt_tag,
-				    .decrypt = lc_sh_decrypt_oneshot,
-				    .dec_init = lc_sh_add_aad,
-				    .dec_update = lc_sh_decrypt,
-				    .dec_final = lc_sh_decrypt_authenticate,
-				    .zero = lc_sh_zero };
+static const struct lc_aead _lc_symhmac_aead = {
+	.setkey = lc_sh_setkey,
+	.encrypt = lc_sh_encrypt_oneshot,
+	.enc_init = lc_sh_add_aad,
+	.enc_update = lc_sh_encrypt,
+	.enc_final = lc_sh_encrypt_tag,
+	.decrypt = lc_sh_decrypt_oneshot,
+	.dec_init = lc_sh_add_aad,
+	.dec_update = lc_sh_decrypt,
+	.dec_final = lc_sh_decrypt_authenticate,
+	.zero = lc_sh_zero };
 LC_INTERFACE_SYMBOL(const struct lc_aead *,
 		    lc_symhmac_aead) = &_lc_symhmac_aead;

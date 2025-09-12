@@ -34,6 +34,7 @@
 #include "small_stack_support.h"
 #include "reed_solomon.h"
 
+LC_FIPS_RODATA_SECTION
 static const uint16_t PARAM_RS_POLY[] = { LC_HQC_RS_POLY_COEFS };
 
 /**

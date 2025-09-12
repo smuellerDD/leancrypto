@@ -42,6 +42,7 @@ static inline void kyber_x25519_ss_kdf(uint8_t *ss, size_t ss_len,
 				       const struct lc_kyber_x25519_ct *ct,
 				       const struct lc_kyber_x25519_ss *calc_ss)
 {
+	LC_FIPS_RODATA_SECTION
 	static const uint8_t kyber_ss_label[] = "Kyber X25519 KEM SS";
 
 	/*
@@ -75,6 +76,7 @@ static inline void kyber_x25519_kdf3(const struct lc_kyber_x25519_ss *ss0,
 				     const uint8_t *in3, size_t inlen3,
 				     uint8_t *out, size_t outlen)
 {
+	LC_FIPS_RODATA_SECTION
 	static const uint8_t kyber_x25519_ss_label[] =
 		"Kyber X25519 KEM 3-way SS";
 	LC_KMAC_CTX_ON_STACK(kmac_ctx, lc_cshake256);
@@ -119,6 +121,7 @@ static inline void kyber_x25519_kdf4(const struct lc_kyber_x25519_ss *ss0,
 				     const uint8_t *in4, size_t inlen4,
 				     uint8_t *out, size_t outlen)
 {
+	LC_FIPS_RODATA_SECTION
 	static const uint8_t kyber_x25519_ss_label[] =
 		"Kyber X25519 KEM 4-way SS";
 	LC_KMAC_CTX_ON_STACK(kmac_ctx, lc_cshake256);

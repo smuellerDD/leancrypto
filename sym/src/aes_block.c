@@ -126,7 +126,7 @@ static int aes_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen)
 	return -EOPNOTSUPP;
 }
 
-static struct lc_sym _lc_aes_c = {
+static const struct lc_sym _lc_aes_c = {
 	.init = aes_init,
 	.init_nocheck = NULL,
 	.setkey = aes_setkey,

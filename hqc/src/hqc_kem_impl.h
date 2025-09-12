@@ -57,6 +57,7 @@ static inline void hqc_ss_kdf(uint8_t *ss, size_t ss_len,
 			      const struct lc_hqc_ct *ct,
 			      const uint8_t hqc_ss[LC_HQC_SHARED_SECRET_BYTES])
 {
+	LC_FIPS_RODATA_SECTION
 	static const uint8_t hqc_ss_label[] = "HQC KEM SS";
 
 	lc_kmac(lc_cshake256, hqc_ss, LC_HQC_SHARED_SECRET_BYTES, hqc_ss_label,
