@@ -57,8 +57,10 @@ void lc_fips_integrity_checker(void);
  * @param [in] outbuf Buffer to be filled with status information, allocated by
  *		      caller
  * @param [in] outlen Size of the output buffer
+ *
+ * @return 0 on success; < 0 on error
  */
-void lc_status(char *outbuf, size_t outlen);
+int lc_status(char *outbuf, size_t outlen);
 
 /// \cond DO_NOT_DOCUMENT
 /*

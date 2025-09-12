@@ -53,20 +53,23 @@
 
 #include "../src/riscv64/kyber_rvv_vlen_selector.h"
 
-LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
+LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 {
+	LC_FIPS_RODATA_SECTION
 	static const char __maybe_unused armv8[] =
 #if defined(LC_HOST_AARCH64) || defined(CONFIG_ARM64)
 		"ARMv8 ";
 #else
 		"";
 #endif
+	LC_FIPS_RODATA_SECTION
 	static const char __maybe_unused armv7[] =
 #if defined(LC_HOST_ARM32_NEON) || defined(CONFIG_ARM)
 		"ARMv7 ";
 #else
 		"";
 #endif
+	LC_FIPS_RODATA_SECTION
 	static const char __maybe_unused riscv64[] =
 #if defined(LC_HOST_RISCV64) || defined(CONFIG_RISCV)
 		"RISCV64 ";
@@ -308,4 +311,6 @@ LC_INTERFACE_FUNCTION(void, lc_status, char *outbuf, size_t outlen)
 #ifdef __clang__
 #pragma GCC diagnostic pop
 #endif
+
+	return 0;
 }
