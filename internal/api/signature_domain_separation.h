@@ -33,16 +33,13 @@ int signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 				const uint8_t *userctx, size_t userctxlen,
 				const uint8_t *m, size_t mlen,
 				const uint8_t *randomizer, size_t randomizerlen,
-				unsigned int nist_category);
+				uint8_t nist_category);
 int signature_ph_oids(struct lc_hash_ctx *hash_ctx,
 		      const struct lc_hash *signature_prehash_type, size_t mlen,
-		      unsigned int nist_category);
-int composite_signature_domain_separation(struct lc_hash_ctx *hash_ctx,
-					  const uint8_t *userctx,
-					  size_t userctxlen,
-					  const uint8_t *randomizer,
-					  size_t randomizerlen,
-					  unsigned int nist_category);
+		      uint8_t nist_category);
+int composite_signature_domain_separation(
+	struct lc_hash_ctx *hash_ctx, const uint8_t *userctx, size_t userctxlen,
+	const uint8_t *randomizer, size_t randomizerlen, uint8_t nist_category);
 
 #ifdef __cplusplus
 }

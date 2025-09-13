@@ -212,17 +212,6 @@ struct lc_dilithium_ctx {
 	const uint8_t *userctx;
 
 	/**
-	 * @brief Pointer to the AHat buffer. This can be provided by the caller
-	 * or it must be NULL otherwise.
-	 *
-	 * \note Use \p LC_DILITHIUM_CTX_ON_STACK_AHAT to provide memory for
-	 * storing AHat in the caller context and thus make the signature
-	 * operation much faster starting with the 2nd use of the key (pair).
-	 */
-	void *ahat;
-	unsigned short ahat_size;
-
-	/**
 	 * @brief Pointer to the external mu.
 	 *
 	 * If set, the signature operation will use the provided mu instead of
@@ -242,12 +231,23 @@ struct lc_dilithium_ctx {
 	size_t randomizerlen;
 
 	/**
+	 * @brief Pointer to the AHat buffer. This can be provided by the caller
+	 * or it must be NULL otherwise.
+	 *
+	 * \note Use \p LC_DILITHIUM_CTX_ON_STACK_AHAT to provide memory for
+	 * storing AHat in the caller context and thus make the signature
+	 * operation much faster starting with the 2nd use of the key (pair).
+	 */
+	void *ahat;
+	unsigned short ahat_size;
+
+	/**
 	 * @brief NIST category required for composite signatures
 	 *
 	 * The domain separation logic depends on the selection of the right
 	 * OID for the "Domain" data.
 	 */
-	unsigned int nist_category;
+	uint8_t nist_category;
 
 	/**
 	 * @brief When set to true, only the ML-DSA.Sign_internal or

@@ -31,7 +31,7 @@ static int composite_sig_domsep(void)
 	 * https://lamps-wg.github.io/draft-composite-sigs/draft-ietf-lamps-pq-composite-sigs.html
 	 */
 	/* Equals to the selected domain */
-	static unsigned int nist_category = 0;
+	static uint8_t nist_category = 0;
 	static uint8_t userctx[] = { 0x08, 0x13, 0x06, 0x12,
 				     0x05, 0x16, 0x26, 0x23 };
 	static uint8_t phmsg[] = {

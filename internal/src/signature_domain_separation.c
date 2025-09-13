@@ -104,7 +104,7 @@ static const uint8_t lc_x509_mldsa87_ed448_sha512_dom_sep[] = {
 
 int signature_ph_oids(struct lc_hash_ctx *hash_ctx,
 		      const struct lc_hash *signature_prehash_type, size_t mlen,
-		      unsigned int nist_category)
+		      uint8_t nist_category)
 {
 	/* If no hash is supplied, we have no HashML-DSA */
 	if (!signature_prehash_type)
@@ -219,7 +219,7 @@ int signature_ph_oids(struct lc_hash_ctx *hash_ctx,
 
 static int composite_signature_set_domain(const uint8_t **domain,
 					  size_t *domainlen,
-					  unsigned int nist_category)
+					  uint8_t nist_category)
 {
 	/* Set Domain */
 	switch (nist_category) {
@@ -251,7 +251,7 @@ int composite_signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 					  size_t userctxlen,
 					  const uint8_t *randomizer,
 					  size_t randomizerlen,
-					  unsigned int nist_category)
+					  uint8_t nist_category)
 {
 	const uint8_t *domain;
 	size_t domainlen;
@@ -281,7 +281,7 @@ out:
 static int standalone_signature_domain_separation(
 	struct lc_hash_ctx *hash_ctx,
 	const struct lc_hash *signature_prehash_type, const uint8_t *userctx,
-	size_t userctxlen, size_t mlen, unsigned int nist_category)
+	size_t userctxlen, size_t mlen, uint8_t nist_category)
 {
 	int ret;
 	uint8_t domainseparation[2];
@@ -311,7 +311,7 @@ int signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 				const uint8_t *userctx, size_t userctxlen,
 				const uint8_t *m, size_t mlen,
 				const uint8_t *randomizer, size_t randomizerlen,
-				unsigned int nist_category)
+				uint8_t nist_category)
 {
 	int ret = 0;
 
