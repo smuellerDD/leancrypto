@@ -17,11 +17,16 @@
  * DAMAGE.
  */
 
-#ifndef KECCACK_INTERNAL_H
-#define KECCACK_INTERNAL_H
+#ifndef KECCAK_INTERNAL_H
+#define KECCAK_INTERNAL_H
 
+#include "bitshift.h"
+#include "conv_be_le.h"
 #include "ext_headers_internal.h"
 #include "lc_sha3.h"
+#include "math_helper.h"
+#include "sponge_common.h"
+#include "xor.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -60,63 +65,25 @@ static inline void sha3_fill_state_aligned(struct lc_sha3_224_state *ctx,
 	}
 }
 
-#if defined(LC_BIG_ENDIAN) || defined(__BIG_ENDIAN)
-
+#if (defined(LC_BIG_ENDIAN) || __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
 /*
  * This function works on both endianesses, but since it has more code than
  * the little endian code base, there is a special case for little endian.
  */
-static inline void sha3_fill_state_bytes(struct lc_sha3_224_state *ctx,
-					 size_t byte_offset, const uint8_t *in,
-					 size_t inlen)
+static inline void sha3_fill_state_bytes(uint64_t *state, const uint8_t *in,
+					 size_t byte_offset, size_t inlen)
 {
-	unsigned int i;
-	uint64_t *state = ctx->state;
-	union {
-		uint64_t dw;
-		uint8_t b[sizeof(uint64_t)];
-	} tmp;
-
-	state += byte_offset / sizeof(ctx->state[0]);
-
-	i = byte_offset & (sizeof(tmp) - 1);
-
-	tmp.dw = 0;
-
-	/*
-	 * This loop simply XORs the data in *in with the state starting from
-	 * byte_offset. The complication is that the simple XOR of the *in bytes
-	 * with the respective bytes in the state only works on little endian
-	 * systems. For big endian systems, we must apply a byte swap! This
-	 * loop therefore concatenates the *in bytes in chunks of uint64_t
-	 * and then XORs the byte swapped value into the state.
-	 */
-	while (inlen) {
-		uint8_t ctr;
-
-		for (ctr = 0; i < sizeof(tmp) && (size_t)ctr < inlen;
-		     i++, in++, ctr++)
-			tmp.b[i] = *in;
-
-		*state ^= le_bswap64(tmp.dw);
-		state++;
-		inlen -= ctr;
-		i = 0;
-
-		/* This line also implies zeroization of the data */
-		tmp.dw = 0;
-	}
+	sponge_fill_state_bytes(state, in, byte_offset, inlen, le_bswap64);
 }
 
-#elif defined(LC_LITTLE_ENDIAN) || defined(__LITTLE_ENDIAN)
+#elif (defined(LC_LITTLE_ENDIAN) || __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
 
-static inline void sha3_fill_state_bytes(struct lc_sha3_224_state *ctx,
-					 size_t byte_offset, const uint8_t *in,
-					 size_t inlen)
+static inline void sha3_fill_state_bytes(uint64_t *state, const uint8_t *in,
+					 size_t byte_offset, size_t inlen)
 {
-	uint8_t *state = (uint8_t *)ctx->state;
+	uint8_t *_state = (uint8_t *)state;
 
-	xor_64(state + byte_offset, in, min_size(ctx->r, inlen));
+	xor_64(_state + byte_offset, in, inlen);
 }
 
 #else
@@ -127,4 +94,4 @@ static inline void sha3_fill_state_bytes(struct lc_sha3_224_state *ctx,
 }
 #endif
 
-#endif /* KECCACK_INTERNAL_H */
+#endif /* KECCAK_INTERNAL_H */

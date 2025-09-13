@@ -22,6 +22,7 @@
 #include "compare.h"
 #include "conv_be_le.h"
 #include "ext_headers_internal.h"
+#include "keccak_internal.h"
 #include "lc_sha3.h"
 #include "lc_memset_secure.h"
 #include "math_helper.h"
@@ -159,32 +160,6 @@ static inline void keccakp_1600(uint64_t s[25])
 }
 
 /************************ Raw Keccak Sponge Operations *************************/
-
-#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-
-/*
- * This function works on both endianesses, but since it has more code than
- * the little endian code base, there is a special case for little endian.
- */
-static inline void sha3_fill_state_bytes(uint64_t *state, const uint8_t *in,
-					 size_t byte_offset, size_t inlen)
-{
-	sponge_fill_state_bytes(state, in, byte_offset, inlen, le_bswap64);
-}
-
-#elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-
-static inline void sha3_fill_state_bytes(uint64_t *state, const uint8_t *in,
-					 size_t byte_offset, size_t inlen)
-{
-	uint8_t *_state = (uint8_t *)state;
-
-	xor_64(_state + byte_offset, in, inlen);
-}
-
-#else
-#error "Endianess not defined"
-#endif
 
 static void keccak_c_permutation(void *state, unsigned int rounds)
 {
@@ -527,32 +502,6 @@ static int cshake_128_init(void *_state)
 	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_CSHAKE);
 
 	return cshake_128_init_nocheck(_state);
-}
-
-/*
- * All lc_sha3_*_state are equal except for the last entry, thus we use
- * the largest state.
- */
-static inline void sha3_fill_state(struct lc_sha3_224_state *ctx,
-				   const uint8_t *in)
-{
-	unsigned int i;
-
-	for (i = 0; i < ctx->rword; i++) {
-		ctx->state[i] ^= ptr_to_le64(in);
-		in += 8;
-	}
-}
-
-static inline void sha3_fill_state_aligned(struct lc_sha3_224_state *ctx,
-					   const uint64_t *in)
-{
-	unsigned int i;
-
-	for (i = 0; i < ctx->rword; i++) {
-		ctx->state[i] ^= le_bswap64(*in);
-		in++;
-	}
 }
 
 static void keccak_absorb(void *_state, const uint8_t *in, size_t inlen)

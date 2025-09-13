@@ -22,6 +22,7 @@
 
 #include "ext_headers_internal.h"
 #include "ext_headers_arm.h"
+#include "../../keccak_internal.h"
 #include "lc_sha3.h"
 #include "math_helper.h"
 
@@ -40,21 +41,6 @@ size_t lc_keccak_absorb_arm_asm(uint64_t A[25], const unsigned char *inp,
 void lc_keccak_squeeze_arm_asm(uint64_t A[25], unsigned char *out, size_t len,
 			       size_t r);
 void lc_keccakf1600_arm_asm(uint64_t A[25]);
-
-static inline void sha3_fill_state_bytes(struct lc_sha3_224_state *ctx,
-					 size_t byte_offset, const uint8_t *in,
-					 size_t inlen)
-{
-	unsigned int i;
-	uint8_t *state = (uint8_t *)ctx->state;
-
-	state += byte_offset;
-
-	for (i = 0; i < ctx->r && i < inlen; i++) {
-		state[i] ^= *in;
-		in++;
-	}
-}
 
 static inline void keccak_arm_asm_absorb_internal(
 	void *_state, const uint8_t *in, size_t inlen,
@@ -88,7 +74,7 @@ static inline void keccak_arm_asm_absorb_internal(
 		 * buffer, copy it and leave it unprocessed.
 		 */
 		if (inlen < todo) {
-			sha3_fill_state_bytes(ctx, partial, in, inlen);
+			sha3_fill_state_bytes(ctx->state, in, partial, inlen);
 			return;
 		}
 
@@ -96,7 +82,7 @@ static inline void keccak_arm_asm_absorb_internal(
 		 * The input data is large enough to fill the entire partial
 		 * block buffer. Thus, we fill it and transform it.
 		 */
-		sha3_fill_state_bytes(ctx, partial, in, todo);
+		sha3_fill_state_bytes(ctx->state, in, partial, todo);
 		inlen -= todo;
 		in += todo;
 
@@ -116,7 +102,7 @@ static inline void keccak_arm_asm_absorb_internal(
 	}
 
 	/* If we have data left, copy it into the partial block buffer */
-	sha3_fill_state_bytes(ctx, 0, in, inlen);
+	sha3_fill_state_bytes(ctx->state, in, 0, inlen);
 }
 
 static inline void keccak_arm_asm_squeeze_internal(
@@ -147,7 +133,7 @@ static inline void keccak_arm_asm_squeeze_internal(
 		/* Final round in sponge absorbing phase */
 
 		/* Add the padding bits and the 01 bits for the suffix. */
-		sha3_fill_state_bytes(ctx, partial, &ctx->padding, 1);
+		sha3_fill_state_bytes(ctx->state, &ctx->padding, partial, 1);
 
 		if ((ctx->padding >= 0x80) && (partial == (blocksize - 1))) {
 			LC_NEON_ENABLE;
