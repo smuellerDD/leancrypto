@@ -32,7 +32,7 @@ struct lc_sphincs_test {
 	uint8_t sig[sizeof(struct lc_sphincs_sig)];
 };
 
-struct lc_sphincs_test tests[] =
+static const struct lc_sphincs_test tests[] =
 {
 	{
 		.seed = {

@@ -43,7 +43,6 @@ extern const void lc_fips_end_text;
  * them into a separate section which is not part of the rodata that the
  * variables above wrap.
  */
-LC_FIPS_RODATA_SECTION
 static const struct lc_fips_integrity_sections secs[] = {
 	{
 		.section_start_p = &lc_fips_start_text,

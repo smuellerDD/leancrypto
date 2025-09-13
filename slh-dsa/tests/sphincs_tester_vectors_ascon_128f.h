@@ -33,7 +33,7 @@ struct lc_sphincs_test {
 };
 
 LC_FIPS_RODATA_SECTION
-const struct lc_sphincs_test tests[] =
+static const struct lc_sphincs_test tests[] =
 {
 	{
 		.seed = {
