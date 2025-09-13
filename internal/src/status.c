@@ -216,7 +216,7 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 			 "",
 		 (lc_sha3_256_arm_neon &&
 		  lc_sha3_256_arm_neon != lc_sha3_256_c) ?
-			 "ARMv7-Neon " :
+			 "ARM-Neon " :
 			 "",
 		 (lc_sha3_256_arm_ce && lc_sha3_256_arm_ce != lc_sha3_256_c) ?
 			 "ARMv8-CE " :
