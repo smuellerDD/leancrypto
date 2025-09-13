@@ -26,7 +26,8 @@
 extern "C" {
 #endif
 
-#define LC_NULL_BUFFER_SIZE 64
+/* Size of 168 is LC_SHAKE_128_SIZE_BLOCK as needed by cSHAKE/KMAC */
+#define LC_NULL_BUFFER_SIZE 168
 extern const uint8_t null_buffer[];
 
 extern volatile int16_t optimization_blocker_int16;

@@ -17,10 +17,12 @@
  * DAMAGE.
  */
 
+#include "build_bug_on.h"
 #include "hash_common.h"
 #include "lc_cshake.h"
 #include "lc_sha3.h"
 #include "left_encode.h"
+#include "null_buffer.h"
 
 #include "visibility.h"
 
@@ -28,8 +30,6 @@ static int lc_cshake_init_impl(struct lc_hash_ctx *ctx, const uint8_t *n,
 			       size_t nlen, const uint8_t *s, size_t slen,
 			       int (*hash_init)(void *state))
 {
-	LC_FIPS_RODATA_SECTION
-	static const uint8_t zero[LC_SHAKE_128_SIZE_BLOCK] = { 0 };
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t bytepad_val256[] = { 0x01,
 						  LC_SHAKE_256_SIZE_BLOCK };
@@ -80,10 +80,15 @@ static int lc_cshake_init_impl(struct lc_hash_ctx *ctx, const uint8_t *n,
 	lc_hash_update(ctx, s, slen);
 	added += slen;
 
-	/* bytepad pad */
+	/*
+	 * bytepad pad
+	 *
+	 * Verify that the null_buffer is of sufficient size.
+	 */
+	BUILD_BUG_ON(LC_NULL_BUFFER_SIZE < LC_SHAKE_128_SIZE_BLOCK);
 	len = (added % lc_hash_blocksize(ctx));
 	if (len)
-		lc_hash_update(ctx, zero, lc_hash_blocksize(ctx) - len);
+		lc_hash_update(ctx, null_buffer, lc_hash_blocksize(ctx) - len);
 
 	return 0;
 }

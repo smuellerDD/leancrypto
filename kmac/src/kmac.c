@@ -18,10 +18,12 @@
  * DAMAGE.
  */
 
+#include "build_bug_on.h"
 #include "compare.h"
 #include "lc_cshake.h"
 #include "lc_kmac.h"
 #include "left_encode.h"
+#include "null_buffer.h"
 #include "ret_checkers.h"
 #include "timecop.h"
 #include "visibility.h"
@@ -115,8 +117,6 @@ static int lc_kmac_init_nocheck(struct lc_kmac_ctx *kmac_ctx,
 {
 	struct lc_hash_ctx *hash_ctx;
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t zero[LC_SHAKE_128_SIZE_BLOCK] = { 0 };
-	LC_FIPS_RODATA_SECTION
 	static const uint8_t bytepad_val256[] = { 0x01,
 						  LC_SHAKE_256_SIZE_BLOCK };
 	LC_FIPS_RODATA_SECTION
@@ -154,10 +154,15 @@ static int lc_kmac_init_nocheck(struct lc_kmac_ctx *kmac_ctx,
 	lc_hash_update(hash_ctx, key, klen);
 	added += klen;
 
-	/* bytepad pad */
+	/*
+	 * bytepad pad
+	 *
+	 * Verify that the null_buffer is of sufficient size.
+	 */
+	BUILD_BUG_ON(LC_NULL_BUFFER_SIZE < LC_SHAKE_128_SIZE_BLOCK);
 	len = (added % lc_hash_blocksize(hash_ctx));
 	if (len) {
-		lc_hash_update(hash_ctx, zero,
+		lc_hash_update(hash_ctx, null_buffer,
 			       lc_hash_blocksize(hash_ctx) - len);
 	}
 
