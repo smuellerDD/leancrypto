@@ -40,6 +40,9 @@ extern "C" {
 #define free_zero(x) kzfree(x)
 #endif
 
+int __init lc_proc_status_show_init(void);
+void lc_proc_status_show_exit(void);
+
 #ifdef CONFIG_LEANCRYPTO_SHA2_256
 int __init lc_kernel_sha256_init(void);
 void lc_kernel_sha256_exit(void);

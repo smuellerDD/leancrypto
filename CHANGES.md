@@ -17,6 +17,8 @@ Changes 1.6.0-prerelease
 
 * Significant reduction of compilation units by almost half by not having global, but per-test compiled C files.
 
+* Linux kernel: add /proc/leancrypto
+
 Changes 1.5.1
 * add ChaCha20 Poly 1305 AEAD
 

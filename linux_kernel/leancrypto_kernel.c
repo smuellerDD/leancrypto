@@ -44,16 +44,6 @@ EXPORT_SYMBOL(lc_x25519_keypair);
 EXPORT_SYMBOL(crypto_scalarmult_curve25519_c);
 #endif
 
-static void __init leancrypto_version(void)
-{
-	char version[900];
-
-	memset(version, 0, sizeof(version));
-	lc_status(version, sizeof(version));
-
-	pr_info("%s", version);
-}
-
 static int __init leancrypto_init(void)
 {
 	int ret;
@@ -62,12 +52,14 @@ static int __init leancrypto_init(void)
 	if (ret)
 		return ret;
 
-	leancrypto_version();
+	ret = lc_proc_status_show_init();
+	if (ret)
+		goto out;
 
 	/* Register crypto algorithms */
 	ret = lc_kernel_sha256_init();
 	if (ret)
-		goto out;
+		goto free_proc;
 
 	ret = lc_kernel_sha512_init();
 	if (ret)
@@ -331,6 +323,9 @@ free_sha512:
 free_sha256:
 	lc_kernel_sha256_exit();
 
+free_proc:
+	lc_proc_status_show_exit();
+
 	goto out;
 }
 
@@ -376,6 +371,7 @@ static void __exit leancrypto_exit(void)
 	lc_kernel_hqc_exit();
 	lc_kernel_hqc_192_exit();
 	lc_kernel_hqc_128_exit();
+	lc_proc_status_show_exit();
 }
 
 module_init(leancrypto_init);

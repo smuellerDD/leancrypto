@@ -80,6 +80,7 @@ endif
 
 # Basic leancrypto KO construct
 leancrypto-y			+= posix_support.o			       \
+				   leancrypto_kernel_proc.o		       \
 				   leancrypto_kernel.o
 
 # Internal helper code
