@@ -17,9 +17,14 @@
  * DAMAGE.
  */
 
+#include "alignment.h"
 #include "null_buffer.h"
 
-const uint8_t null_buffer[LC_NULL_BUFFER_SIZE] = { 0 };
+/*
+ * Align the null buffer to 8 bytes as the buffer is used in hash_update to
+ * use the sha3_fill_state_aligned code path.
+ */
+const uint8_t null_buffer[LC_NULL_BUFFER_SIZE] __align(8) = { 0 };
 
 volatile int16_t optimization_blocker_int16 = 0;
 volatile int8_t optimization_blocker_int8 = 0;
