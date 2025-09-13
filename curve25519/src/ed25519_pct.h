@@ -51,7 +51,8 @@ out:
 static inline int lc_ed25519_pct_fips(const struct lc_ed25519_pk *pk,
 				      const struct lc_ed25519_sk *sk)
 {
-	FIPS140_PCT_LOOP(_lc_ed25519_pct_fips(pk, sk))
+	FIPS140_PCT_LOOP(_lc_ed25519_pct_fips(pk, sk),
+			 LC_ALG_STATUS_ED25519_KEYGEN)
 
 	return 0;
 }

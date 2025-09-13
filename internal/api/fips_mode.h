@@ -20,6 +20,9 @@
 #ifndef FIPS_MODE_H
 #define FIPS_MODE_H
 
+#include "ext_headers_internal.h"
+#include "status_algorithms.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -31,7 +34,7 @@ extern "C" {
  */
 int fips140_mode_enabled(void);
 
-#define FIPS140_PCT_LOOP(func)                                                 \
+#define FIPS140_PCT_LOOP(func, algo)                                           \
 	if (fips140_mode_enabled()) {                                          \
 		unsigned int __i;                                              \
 		int __ret;                                                     \
@@ -41,7 +44,8 @@ int fips140_mode_enabled(void);
 			if (!__ret)                                            \
 				return __ret;                                  \
 		}                                                              \
-		assert(0);                                                     \
+		alg_status_set_result(lc_alg_status_result_failed, algo);      \
+		return -EOPNOTSUPP;                                            \
 	}
 
 #ifdef __cplusplus

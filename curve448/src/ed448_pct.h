@@ -50,7 +50,7 @@ out:
 static inline int lc_ed448_pct_fips(const struct lc_ed448_pk *pk,
 				    const struct lc_ed448_sk *sk)
 {
-	FIPS140_PCT_LOOP(_lc_ed448_pct_fips(pk, sk))
+	FIPS140_PCT_LOOP(_lc_ed448_pct_fips(pk, sk), LC_ALG_STATUS_ED448_KEYGEN)
 
 	return 0;
 }

@@ -69,7 +69,7 @@ out:
 static inline int lc_hqc_pct_fips(const struct lc_hqc_pk *pk,
 				  const struct lc_hqc_sk *sk)
 {
-	FIPS140_PCT_LOOP(_lc_hqc_pct_fips(pk, sk))
+	FIPS140_PCT_LOOP(_lc_hqc_pct_fips(pk, sk), LC_ALG_STATUS_HQC_KEYGEN)
 	return 0;
 }
 
