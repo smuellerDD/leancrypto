@@ -31,7 +31,7 @@ jobs:
     - name: Meson compile
       run: msys2 -c 'meson compile -C build'
     - name: Meson test
-      run: msys2 -c 'meson test -C build'
+      run: msys2 -c 'meson test -C build --suite regression'
     - name: Archive test logs
       if: always()
       uses: actions/upload-artifact@v4

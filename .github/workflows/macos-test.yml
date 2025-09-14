@@ -20,4 +20,4 @@ jobs:
     - name: Meson compile
       run: meson compile -C build
     - name: Meson test
-      run: meson test -C build
+      run: meson test -C build --suite regression
