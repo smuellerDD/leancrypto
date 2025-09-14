@@ -48,6 +48,7 @@ Static Code Analysis  | GitHub                | [![Static Code Analysis](https:/
 Compile PQC only      | GitHub                | [![PQC Only](https://github.com/smuellerDD/leancrypto/actions/workflows/compile-pqc-only.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/compile-pqc-only.yml)
 EFI compilation       | GitHub                | [![EFI](https://github.com/smuellerDD/leancrypto/actions/workflows/efi.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/efi.yml)
 Rust                  | GitHub                | [![Rust](https://github.com/smuellerDD/leancrypto/actions/workflows/rust.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/rust.yml)
+FIPS140 Negative      | GitHub                | [![FIPS140 Negative](https://github.com/smuellerDD/leancrypto/actions/workflows/fips-negative-tests.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/fips-negative-tests.yml)
 
 ## Library Build
 
