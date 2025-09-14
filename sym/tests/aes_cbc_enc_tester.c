@@ -100,7 +100,7 @@ static int test_encrypt_cbc_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 	ret = lc_compare(in, exp, sizeof(in), "AES-CBC encrypt");
 
 out:
-	return ret;
+	return !!ret;
 }
 
 static int test_encrypt_cbc(const struct lc_sym *aes, const char *name)
@@ -150,13 +150,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_EXEC_ONE_TEST(lc_aes_cbc_c);
 	LC_EXEC_ONE_TEST(lc_aes_cbc_riscv64);
 
-	if (lc_status_get_result(LC_ALG_STATUS_AES_CBC) !=
-	    lc_alg_status_result_passed) {
-		printf("AES-CBC self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_AES_CBC));
-		return 1;
-	}
-
+	ret = test_validate_status(ret, LC_ALG_STATUS_AES_CBC);
 	ret += test_print_status();
 
 	return ret;

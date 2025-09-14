@@ -23,6 +23,7 @@
 #include "build_bug_on.h"
 #include "conv_be_le.h"
 #include "compare.h"
+#include "fips_mode.h"
 #include "lc_chacha20_private.h"
 #include "lc_chacha20_poly1305.h"
 #include "lc_memcmp_secure.h"
@@ -40,7 +41,7 @@ static void lc_chacha20_poly1305_selftest(void)
 {
 	/* Test vector from RFC7539 */
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t aad[] = { 0x50, 0x51, 0x52, 0x53, 0xc0, 0xc1,
+	static const uint8_t aad[] = { FIPS140_MOD(0x50), 0x51, 0x52, 0x53, 0xc0, 0xc1,
 				       0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7 };
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t in[] = {
@@ -117,10 +118,10 @@ static void lc_chacha20_poly1305_selftest(void)
 			"ChaCha20 Poly1305 AEAD decrypt authentication"))
 			goto out;
 	}
-	lc_compare_selftest(LC_ALG_STATUS_CHACHA20_POLY1305, act_ct, in, sizeof(in),
-			    "ChaCha20 Poly1305 AEAD decrypt");
 
 out:
+	lc_compare_selftest(LC_ALG_STATUS_CHACHA20_POLY1305, act_ct, in, sizeof(in),
+			    "ChaCha20 Poly1305 AEAD decrypt");
 	lc_aead_zero(cc20p1305);
 }
 

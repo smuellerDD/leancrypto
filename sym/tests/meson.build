@@ -22,7 +22,8 @@ if get_option('chacha20').enabled()
 				   )
 
 	test('Symmetric ChaCha20 block', chacha20_block_tester,
-	     suite: regression)
+	     suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 	test('Symmetric ChaCha20 stream Common', chacha20_stream_tester,
 	     suite: regression)
 	test('Symmetric ChaCha20 large Common', chacha20_stream_large_tester,

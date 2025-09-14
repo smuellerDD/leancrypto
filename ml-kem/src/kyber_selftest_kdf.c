@@ -44,6 +44,7 @@ static int _kyber_kem_enc_kdf_selftest(
 		struct lc_kyber_ct ct;
 		struct lc_kyber_ss key_b;
 	};
+	int ret;
 	uint8_t discard[2 * LC_KYBER_SYMBYTES];
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
@@ -60,15 +61,16 @@ static int _kyber_kem_enc_kdf_selftest(
 	if (lc_compare_selftest(LC_ALG_STATUS_MLKEM_ENC_KDF, ws->ct.ct,
 				kyber_testvectors[0].ct.ct,
 				LC_CRYPTO_CIPHERTEXTBYTES, "ML-KEM enc KDF CT"))
-		goto out;
+		goto out2;
 
+out:
 	/* Timecop: Selftest does not contain secrets */
 	unpoison(&ws->key_b.ss, LC_KYBER_SSBYTES);
 	lc_compare_selftest(LC_ALG_STATUS_MLKEM_ENC_KDF, ws->key_b.ss,
 			    kyber_testvectors[0].ss.ss, LC_KYBER_SSBYTES,
 			    "ML-KEM enc KDF SS");
 
-out:
+out2:
 	LC_RELEASE_MEM(ws);
 	lc_rng_zero(selftest_rng);
 	return 0;

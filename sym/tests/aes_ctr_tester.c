@@ -283,7 +283,7 @@ static int test_ctr(void)
 	LC_EXEC_ONE_TEST(lc_aes_ctr_c);
 	LC_EXEC_ONE_TEST(lc_aes_ctr_riscv64);
 
-	return ret;
+	return !!ret;
 }
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
@@ -295,13 +295,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = test_ctr();
 
-	if (lc_status_get_result(LC_ALG_STATUS_AES_CTR) !=
-	    lc_alg_status_result_passed) {
-		printf("AES-CTR self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_AES_CTR));
-		return 1;
-	}
-
+	ret = test_validate_status(ret, LC_ALG_STATUS_AES_CTR);
 	ret += test_print_status();
 
 	return ret;

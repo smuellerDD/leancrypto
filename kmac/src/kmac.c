@@ -20,6 +20,7 @@
 
 #include "build_bug_on.h"
 #include "compare.h"
+#include "fips_mode.h"
 #include "lc_cshake.h"
 #include "lc_kmac.h"
 #include "left_encode.h"
@@ -41,7 +42,7 @@ static int lc_kmac_init_nocheck(struct lc_kmac_ctx *kmac_ctx,
 static void lc_kmac_selftest(void)
 {
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t msg[] = { 0x0E, 0x8B, 0x97, 0x33, 0x23, 0x85,
+	static const uint8_t msg[] = { FIPS140_MOD(0x0E), 0x8B, 0x97, 0x33, 0x23, 0x85,
 				       0x6E, 0x39, 0x03, 0xFF, 0xD5 };
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t key[] = { 0x88, 0x4C, 0xFB, 0x2D, 0xBD, 0xBB,
@@ -65,9 +66,12 @@ static void lc_kmac_selftest(void)
 
 	LC_KMAC_CTX_ON_STACK(ctx, lc_cshake256);
 
-	lc_kmac_init_nocheck(ctx, key, sizeof(key), cust, sizeof(cust));
+	if (lc_kmac_init_nocheck(ctx, key, sizeof(key), cust, sizeof(cust)))
+		goto out;
 	lc_kmac_update(ctx, msg, sizeof(msg));
 	lc_kmac_final(ctx, act, sizeof(act));
+
+out:
 	lc_compare_selftest(LC_ALG_STATUS_KMAC, act, exp, sizeof(exp), "KMAC");
 	lc_kmac_zero(ctx);
 }

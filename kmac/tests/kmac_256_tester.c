@@ -934,7 +934,7 @@ static int _kmac_256_tester(const struct lc_hash *cshake_256, const char *name)
 	lc_kmac_zero(ctx);
 
 out:
-	return ret;
+	return !!ret;
 }
 
 static int kmac_tester(void)
@@ -961,13 +961,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = kmac_tester();
 
-	if (lc_status_get_result(LC_ALG_STATUS_KMAC) !=
-	    lc_alg_status_result_passed) {
-		printf("KMAC self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_KMAC));
-		return 1;
-	}
-
+	ret = test_validate_status(ret, LC_ALG_STATUS_KMAC);
 	ret += test_print_status();
 
 	return ret;

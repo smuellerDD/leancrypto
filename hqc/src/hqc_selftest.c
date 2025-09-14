@@ -45,6 +45,7 @@ static int _hqc_kem_keygen_selftest(int (*_lc_hqc_keypair)(struct lc_hqc_pk *pk,
 		struct lc_hqc_pk pk;
 		struct lc_hqc_sk sk;
 	};
+	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	LC_SELFTEST_SHAKE256_DRNG_CTX_ON_STACK(selftest_rng);
 
@@ -52,19 +53,21 @@ static int _hqc_kem_keygen_selftest(int (*_lc_hqc_keypair)(struct lc_hqc_pk *pk,
 		    NULL, 0);
 
 	_lc_hqc_keypair(&ws->pk, &ws->sk, selftest_rng);
-	if (lc_compare_selftest(LC_ALG_STATUS_HQC_KEYGEN, ws->pk.pk, hqc_test[0].pk, LC_HQC_PUBLIC_KEY_BYTES,
-			    "HQC PK"))
-		goto out;
-
-	/* Timecop: Selftest does not contain secrets */
-	unpoison(&ws->sk.sk, LC_HQC_SECRET_KEY_BYTES);
-	lc_compare_selftest(LC_ALG_STATUS_HQC_KEYGEN, ws->sk.sk, hqc_test[0].sk, LC_HQC_SECRET_KEY_BYTES,
-			    "HQC SK");
+	if (lc_compare_selftest(LC_ALG_STATUS_HQC_KEYGEN, ws->pk.pk,
+				hqc_test[0].pk, LC_HQC_PUBLIC_KEY_BYTES,
+				"HQC PK"))
+		goto out2;
 
 out:
+	/* Timecop: Selftest does not contain secrets */
+	unpoison(&ws->sk.sk, LC_HQC_SECRET_KEY_BYTES);
+	lc_compare_selftest(LC_ALG_STATUS_HQC_KEYGEN, ws->sk.sk, hqc_test[0].sk,
+			    LC_HQC_SECRET_KEY_BYTES, "HQC SK");
+
+out2:
 	LC_RELEASE_MEM(ws);
 	lc_rng_zero(selftest_rng);
-	return 0;
+	return ret;
 }
 
 void hqc_kem_keygen_selftest(int (*_lc_hqc_keypair)(struct lc_hqc_pk *pk,
@@ -86,6 +89,7 @@ static int _hqc_kem_enc_selftest(int (*_lc_hqc_enc)(struct lc_hqc_ct *ct,
 	};
 	uint8_t discard[LC_HQC_SEED_BYTES + LC_HQC_VEC_K_SIZE_BYTES +
 			LC_HQC_SEED_BYTES];
+	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	LC_SELFTEST_SHAKE256_DRNG_CTX_ON_STACK(selftest_rng);
 
@@ -102,14 +106,15 @@ static int _hqc_kem_enc_selftest(int (*_lc_hqc_enc)(struct lc_hqc_ct *ct,
 	unpoison(&ws->ct.ct, LC_HQC_CIPHERTEXT_BYTES);
 	if (lc_compare_selftest(LC_ALG_STATUS_HQC_ENC, ws->ct.ct, hqc_test[0].ct, LC_HQC_CIPHERTEXT_BYTES,
 			    "HQC CT"))
-		goto out;
+		goto out2;
 
+out:
 	/* Timecop: Selftest does not contain secrets */
 	unpoison(&ws->key_b.ss, LC_HQC_SHARED_SECRET_BYTES);
 	lc_compare_selftest(LC_ALG_STATUS_HQC_ENC, ws->key_b.ss, hqc_test[0].ss,
 			    LC_HQC_SHARED_SECRET_BYTES, "HQC SS");
 
-out:
+out2:
 	LC_RELEASE_MEM(ws);
 	lc_rng_zero(selftest_rng);
 	return 0;

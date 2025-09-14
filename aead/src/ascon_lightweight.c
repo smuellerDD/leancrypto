@@ -22,6 +22,7 @@
 #include "ascon_internal.h"
 #include "build_bug_on.h"
 #include "compare.h"
+#include "fips_mode.h"
 #include "lc_ascon_hash.h"
 #include "lc_ascon_lightweight.h"
 #include "timecop.h"
@@ -39,7 +40,7 @@ static void ascon_aead_selftest(void)
 	 * code https://github.com/ascon/ascon-c
 	 */
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t pt[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
+	static const uint8_t pt[] = { FIPS140_MOD(0x00), 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
 				      0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D,
 				      0x0E, 0x0F, 0x10, 0x11, 0x12, 0x13, 0x14,
 				      0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B,
@@ -86,11 +87,11 @@ static void ascon_aead_selftest(void)
 			    1);
 	lc_aead_decrypt(al, out_enc, out_enc, sizeof(out_enc), pt,
 			sizeof(pt), tag, sizeof(tag));
+
+out:
 	lc_compare_selftest(LC_ALG_STATUS_ASCON_AEAD_128, out_enc, pt,
 			    sizeof(pt),
 			    "Ascon lightweight crypt: Decryption, plaintext");
-
-out:
 	lc_aead_zero(al);
 }
 

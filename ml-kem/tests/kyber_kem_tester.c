@@ -195,24 +195,20 @@ int _kyber_kem_tester(
 
 	if (_lc_kyber_keypair_from_seed(&ws->pk, &ws->sk, ws->buf,
 					sizeof(ws->buf))) {
-		ret = 1;
-		goto out;
+		ret |= 1;
 	}
 	if (_lc_kyber_keypair_from_seed(&ws->pk2, &ws->sk2, ws->buf,
 					sizeof(ws->buf))) {
-		ret = 1;
-		goto out;
+		ret |= 1;
 	}
 
 	if (memcmp(ws->pk.pk, ws->pk2.pk, LC_CRYPTO_PUBLICKEYBYTES)) {
 		printf("Public key mismatch for keygen from seed\n");
-		ret = 1;
-		goto out;
+		ret |= 1;
 	}
 	if (memcmp(ws->sk.sk, ws->sk2.sk, LC_CRYPTO_SECRETKEYBYTES)) {
 		printf("Secret key mismatch for keygen from seed\n");
-		ret = 1;
-		goto out;
+		ret |= 1;
 	}
 #endif
 
@@ -221,14 +217,17 @@ int _kyber_kem_tester(
 
 	for (i = 0; i < rounds; i++) {
 		// Key-pair generation
-		CKINT(_lc_kyber_keypair(&ws->pk, &ws->sk, selftest_rng));
+		ret |= _lc_kyber_keypair(&ws->pk, &ws->sk, selftest_rng);
 
 		// Encapsulation
-		CKINT(_lc_kyber_enc(&ws->ct, &ws->key_b, &ws->pk,
-				    selftest_rng));
+		ret |= _lc_kyber_enc(&ws->ct, &ws->key_b, &ws->pk,
+				     selftest_rng);
 
 		// Decapsulation
-		CKINT(_lc_kyber_dec(&ws->key_a, &ws->ct, &ws->sk));
+		ret |= _lc_kyber_dec(&ws->key_a, &ws->ct, &ws->sk);
+
+		if (ret)
+			goto out;
 
 #ifdef DEBUG
 		printf("Public Key: ");
@@ -338,7 +337,7 @@ int _kyber_kem_tester(
 
 out:
 	LC_RELEASE_MEM(ws);
-	return ret;
+	return !!ret;
 }
 
 int _kyber_kem_kdf_tester(

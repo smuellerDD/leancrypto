@@ -146,7 +146,7 @@ static int hmac_sha2_512_tester(void)
 	ret = lc_compare(act, exp_512, LC_SHA512_SIZE_DIGEST, "HMAC SHA2-512");
 
 out:
-	return ret;
+	return !!ret;
 }
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
@@ -158,20 +158,11 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = hmac_sha2_512_tester();
 
-	if (lc_status_get_result(LC_ALG_STATUS_SHA512) !=
-	    lc_alg_status_result_passed) {
-		printf("SHA-512 self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_SHA512));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_HMAC) !=
-	    lc_alg_status_result_passed) {
-		printf("HMAC self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_HMAC));
-		return 1;
-	}
-
+	ret = test_validate_status(ret, LC_ALG_STATUS_SHA256);
+	ret = test_validate_status(ret, LC_ALG_STATUS_HMAC);
+#ifndef LC_FIPS140_DEBUG
+	ret = test_validate_status(ret, LC_ALG_STATUS_SHA512);
+#endif
 	ret += test_print_status();
 
 	return ret;

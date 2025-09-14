@@ -18,6 +18,7 @@
  */
 
 #include "compare.h"
+#include "fips_mode.h"
 #include "hmac_selftest.h"
 #include "lc_hmac.h"
 #include "lc_sha256.h"
@@ -25,7 +26,7 @@
 int hmac_sha256_selftest(void)
 {
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t msg_256[] = { 0xF2, 0xAA, 0xAA, 0x3A, 0x63, 0xD6,
+	static const uint8_t msg_256[] = { FIPS140_MOD(0xF2), 0xAA, 0xAA, 0x3A, 0x63, 0xD6,
 					   0xE8, 0x10, 0xE7, 0xD1, 0x13, 0x57,
 					   0xA0, 0x1E, 0xE7, 0xA6 };
 	LC_FIPS_RODATA_SECTION

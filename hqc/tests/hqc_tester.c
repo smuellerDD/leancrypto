@@ -137,8 +137,8 @@ static int hqc_tester_one(const struct lc_hqc_testvector *vector,
 
 out:
 	if (ret == -EOPNOTSUPP)
-		ret = 77;
-	return ret ? ret : rc;
+		return  77;
+	return ret ? !!ret : !!rc;
 }
 
 #pragma GCC diagnostic push
@@ -150,6 +150,15 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_DECLARE_MEM(ws, struct workspace, LC_HQC_ALIGN_BYTES);
 
 	(void)argv;
+
+#ifdef LC_FIPS140_DEBUG
+	/*
+	 * Both algos are used for the random number generation as part of
+	 * the key generation. Thus we need to enable them for executing the
+	 * test.
+	 */
+	alg_status_set_result(lc_alg_status_result_passed, LC_ALG_STATUS_SHAKE);
+#endif
 
 #ifdef GENERATE_VECTORS
 	printf("#pragma once\n"
@@ -180,31 +189,12 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	printf("\n};\n");
 #else
 
-	if (lc_status_get_result(LC_ALG_STATUS_SHAKE) !=
-	    lc_alg_status_result_passed) {
-		printf("SHAKE self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_SHAKE));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_HQC_KEYGEN) !=
-	    lc_alg_status_result_passed) {
-		printf("HQC keygen self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_HQC_KEYGEN));
-		return 1;
-	}
-	if (lc_status_get_result(LC_ALG_STATUS_HQC_ENC) !=
-	    lc_alg_status_result_passed) {
-		printf("HQC enc self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_HQC_ENC));
-		return 1;
-	}
-	if (lc_status_get_result(LC_ALG_STATUS_HQC_DEC) !=
-	    lc_alg_status_result_passed) {
-		printf("HQC dec self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_HQC_DEC));
-		return 1;
-	}
+	ret = test_validate_status(ret, LC_ALG_STATUS_HQC_KEYGEN);
+#ifndef LC_FIPS140_DEBUG
+	ret = test_validate_status(ret, LC_ALG_STATUS_SHAKE);
+	ret = test_validate_status(ret, LC_ALG_STATUS_HQC_ENC);
+	ret = test_validate_status(ret, LC_ALG_STATUS_HQC_DEC);
+#endif
 
 	ret += test_print_status();
 

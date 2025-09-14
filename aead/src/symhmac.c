@@ -20,6 +20,7 @@
 
 #include "alignment.h"
 #include "compare.h"
+#include "fips_mode.h"
 #include "lc_aes.h"
 #include "lc_hkdf.h"
 #include "lc_memcmp_secure.h"
@@ -35,7 +36,7 @@ static void lc_sh_selftest(void)
 {
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t in[] = {
-		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
+		FIPS140_MOD(0x00), 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
 		0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13,
 		0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d,
 		0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
@@ -80,21 +81,25 @@ static void lc_sh_selftest(void)
 
 	LC_SH_CTX_ON_STACK(sh, lc_aes_cbc, lc_sha512);
 
-	lc_sh_setkey_nocheck(sh->aead_state, key, sizeof(key), in, 16);
+	if (lc_sh_setkey_nocheck(sh->aead_state, key, sizeof(key), in, 16))
+		goto out;
 	lc_aead_encrypt(sh, in, act_ct, sizeof(in), in, sizeof(in), act_tag,
 			sizeof(act_tag));
-	if (lc_compare_selftest(LC_ALG_STATUS_SYM_HMAC, act_ct, exp_ct, sizeof(exp_ct), "Sym/HMAC AEAD encrypt"))
+	if (lc_compare_selftest(LC_ALG_STATUS_SYM_HMAC, act_ct, exp_ct,
+				sizeof(exp_ct), "Sym/HMAC AEAD encrypt"))
 		goto out;
-	if (lc_compare_selftest(LC_ALG_STATUS_SYM_HMAC, act_tag, exp_tag, sizeof(exp_tag), "Sym/HMAC AEAD tag"))
+	if (lc_compare_selftest(LC_ALG_STATUS_SYM_HMAC, act_tag, exp_tag,
+				sizeof(exp_tag), "Sym/HMAC AEAD tag"))
 		goto out;
 	lc_aead_zero(sh);
 
 	lc_sh_setkey_nocheck(sh->aead_state, key, sizeof(key), in, 16);
 	lc_aead_decrypt(sh, act_ct, act_ct, sizeof(act_ct), in, sizeof(in),
 			act_tag, sizeof(act_tag));
-	lc_compare_selftest(LC_ALG_STATUS_SYM_HMAC, act_ct, in, sizeof(in), "Sym/HMAC AEAD decrypt");
 
 out:
+	lc_compare_selftest(LC_ALG_STATUS_SYM_HMAC, act_ct, in, sizeof(in),
+			    "Sym/HMAC AEAD decrypt");
 	lc_aead_zero(sh);
 }
 

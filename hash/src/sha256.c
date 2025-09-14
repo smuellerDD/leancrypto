@@ -21,6 +21,7 @@
 #include "bitshift_be.h"
 #include "compare.h"
 #include "ext_headers_internal.h"
+#include "fips_mode.h"
 #include "hash_common.h"
 #include "lc_sha256.h"
 #include "lc_memset_secure.h"
@@ -46,7 +47,7 @@ static const uint32_t sha256_K[] = {
 static void sha256_selftest(const struct lc_hash *sha256)
 {
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t msg_256[] = { 0x06, 0x3A, 0x53 };
+	static const uint8_t msg_256[] = { FIPS140_MOD(0x06), 0x3A, 0x53 };
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t exp_256[] = { 0x8b, 0x05, 0x65, 0x59, 0x60, 0x71,
 					   0xc7, 0x6e, 0x35, 0xe1, 0xea, 0x54,

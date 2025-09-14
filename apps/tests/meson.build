@@ -162,25 +162,30 @@ if (host_machine.system() != 'windows' and
 	if get_option('sha2-256').enabled()
 		test('sha256sum', hasher_test_script,
 		     args: [ sha256sum.full_path(), '/usr/bin/sha256sum' ],
-		     suite: regression)
+		     suite: regression,
+		     should_fail: fips140_negative_expect_fail)
 	endif
 
 	if get_option('sha2-512').enabled()
 		test('sha512sum', hasher_test_script,
 		     args: [ sha512sum.full_path(), '/usr/bin/sha512sum' ],
-		     suite: regression)
+		     suite: regression,
+		     should_fail: fips140_negative_expect_fail)
 	endif
 
 	if get_option('sha3').enabled()
 		test('sha3-256sum', hasher_test_script,
 		     args: [ sha3_256sum.full_path(), '/usr/bin/sha3-256sum' ],
-		     suite: regression)
+		     suite: regression,
+		     should_fail: fips140_negative_expect_fail)
 		test('sha3-384sum', hasher_test_script,
 		     args: [ sha3_384sum.full_path(), '/usr/bin/sha3-384sum' ],
-		     suite: regression)
+		     suite: regression,
+		     should_fail: fips140_negative_expect_fail)
 		test('sha3-512sum', hasher_test_script,
 		     args: [ sha3_512sum.full_path(), '/usr/bin/sha3-512sum' ],
-		     suite: regression)
+		     suite: regression,
+		     should_fail: fips140_negative_expect_fail)
 	endif
 
 	if get_option('x509_generator').enabled()
@@ -189,28 +194,33 @@ if (host_machine.system() != 'windows' and
 				lc_x509_generator,
 				args: [ x509_rootca_args, '--create-keypair',
 					'ML-DSA87' ],
-				timeout: 300, suite: regression)
+				timeout: 300, suite: regression,
+				should_fail: fips140_negative_expect_fail)
 			test('X.509 Gen Root-CA ML-DSA65',
 				lc_x509_generator,
 				args: [ x509_rootca_args, '--create-keypair',
 					'ML-DSA65' ],
-				timeout: 300, suite: regression)
+				timeout: 300, suite: regression,
+				should_fail: fips140_negative_expect_fail)
 			test('X.509 Gen Root-CA ML-DSA44',
 				lc_x509_generator,
 				args: [ x509_rootca_args, '--create-keypair',
 					'ML-DSA44' ],
-				timeout: 300, suite: regression)
+				timeout: 300, suite: regression,
+				should_fail: fips140_negative_expect_fail)
 
 			test('X.509 Gen Int-CA ML-DSA87',
 				lc_x509_generator,
 				args: [ x509_int1_ca_args, '--create-keypair',
 					'ML-DSA87' ],
-				timeout: 300, suite: regression)
+				timeout: 300, suite: regression,
+				should_fail: fips140_negative_expect_fail)
 			test('X.509 Gen Leaf ML-DSA87',
 				lc_x509_generator,
 				args: [ x509_leaf_args, '--create-keypair',
 					'ML-DSA87' ],
-				timeout: 300, suite: regression)
+				timeout: 300, suite: regression,
+				should_fail: fips140_negative_expect_fail)
 		endif
 
 		if (sphincs_enabled)
@@ -218,37 +228,44 @@ if (host_machine.system() != 'windows' and
 				lc_x509_generator,
 				args: [ x509_rootca_args, '--create-keypair',
 					'SLH-DSA-SHAKE-256S' ],
-			is_parallel: false, timeout: 600, suite: regression)
+				is_parallel: false, timeout: 600,
+				suite: regression,
+				should_fail: fips140_negative_expect_fail)
 			test('X.509 Gen Root-CA SLH-DSA-SHAKE-256F',
 				lc_x509_generator,
 				args: [ x509_rootca_args, '--create-keypair',
 					'SLH-DSA-SHAKE-256F' ],
 				is_parallel: false, timeout: 600,
-				suite: regression)
+				suite: regression,
+				should_fail: fips140_negative_expect_fail)
 			test('X.509 Gen Root-CA SLH-DSA-SHAKE-192S',
 				lc_x509_generator,
 				args: [ x509_rootca_args, '--create-keypair',
 				'SLH-DSA-SHAKE-192S' ],
 				is_parallel: false, timeout: 600,
-				suite: regression)
+				suite: regression,
+				should_fail: fips140_negative_expect_fail)
 			test('X.509 Gen Root-CA SLH-DSA-SHAKE-192F',
 				lc_x509_generator,
 				args: [ x509_rootca_args, '--create-keypair',
 				'SLH-DSA-SHAKE-192F' ],
 				is_parallel: false, timeout: 600,
-				suite: regression)
+				suite: regression,
+				should_fail: fips140_negative_expect_fail)
 			test('X.509 Gen Root-CA SLH-DSA-SHAKE-128S',
 				lc_x509_generator,
 				args: [ x509_rootca_args, '--create-keypair',
 					'SLH-DSA-SHAKE-128S' ],
 				is_parallel: false, timeout: 600,
-				suite: regression)
+				suite: regression,
+				should_fail: fips140_negative_expect_fail)
 			test('X.509 Gen Root-CA SLH-DSA-SHAKE-128F',
 				lc_x509_generator,
 				args: [ x509_rootca_args, '--create-keypair',
 					'SLH-DSA-SHAKE-128F' ],
 				is_parallel: false, timeout: 600,
-				suite: regression)
+				suite: regression,
+				should_fail: fips140_negative_expect_fail)
 		endif
 
 		if get_option('dilithium_ed25519').enabled()
@@ -256,12 +273,14 @@ if (host_machine.system() != 'windows' and
 				lc_x509_generator,
 				args: [ x509_rootca_args, '--create-keypair',
 					'ML-DSA65-ED25519' ],
-				timeout: 300, suite: regression)
+				timeout: 300, suite: regression,
+				should_fail: fips140_negative_expect_fail)
 			test('X.509 Gen Root-CA ML-DSA44-ED25519',
 				lc_x509_generator,
 				args: [ x509_rootca_args, '--create-keypair',
 					'ML-DSA44-ED25519' ],
-				timeout: 300, suite: regression)
+				timeout: 300, suite: regression,
+				should_fail: fips140_negative_expect_fail)
 		endif
 
 		if get_option('dilithium_ed448').enabled()
@@ -269,7 +288,8 @@ if (host_machine.system() != 'windows' and
 				lc_x509_generator,
 				args: [ x509_rootca_args, '--create-keypair',
 					'ML-DSA87-ED448' ],
-				timeout: 300, suite: regression)
+				timeout: 300, suite: regression,
+				should_fail: fips140_negative_expect_fail)
 		endif
 
 		x509_parser_test_script = find_program('leancrypto_check_with_ietf.sh',
@@ -279,7 +299,8 @@ if (host_machine.system() != 'windows' and
 		     args: [ lc_x509_generator.full_path(),
 			     meson.project_source_root() + '/apps/tests/'
 			   ],
-		     timeout: 300, suite: regression)
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
 
 	endif
 
@@ -296,7 +317,8 @@ if (host_machine.system() != 'windows' and
 				'--x509-cert', certdir + 'slh-dsa-shake-192f_int2.der',
 				'--x509-cert', certdir + 'slh-dsa-shake-256s_cacert.der',
 				'--trust-anchor', certdir + 'slh-dsa-shake-256s_cacert.der' ],
-			is_parallel: false, timeout: 300, suite: regression)
+			is_parallel: false, timeout: 300, suite: regression,
+			should_fail: fips140_negative_expect_fail)
 
 		# SHA3-512 is default
 		test('PKCS7 Gen with ML-DSA 4-way cert chain SHA3-512',
@@ -310,7 +332,8 @@ if (host_machine.system() != 'windows' and
 				'--x509-cert', certdir + 'ml-dsa44_int2.der',
 				'--x509-cert', certdir + 'ml-dsa87_cacert.der',
 				'--trust-anchor', certdir + 'ml-dsa87_cacert.der' ],
-			is_parallel: false, timeout: 300, suite: regression)
+			is_parallel: false, timeout: 300, suite: regression,
+			should_fail: fips140_negative_expect_fail)
 
 		if get_option('sha3').enabled()
 			test('PKCS7 Gen with ML-DSA 4-way cert chain SHAKE256',
@@ -326,7 +349,8 @@ if (host_machine.system() != 'windows' and
 					'--x509-cert', certdir + 'ml-dsa87_cacert.der',
 					'--trust-anchor', certdir + 'ml-dsa87_cacert.der' ],
 				is_parallel: false, timeout: 300,
-				suite: regression)
+				suite: regression,
+				should_fail: fips140_negative_expect_fail)
 
 			#This should fail as the requested message digest is
 			#too weak for the signer
@@ -360,7 +384,8 @@ if (host_machine.system() != 'windows' and
 					'--x509-cert', certdir + 'ml-dsa87_cacert.der',
 					'--trust-anchor', certdir + 'ml-dsa87_cacert.der' ],
 				is_parallel: false, timeout: 300,
-				suite: regression)
+				suite: regression,
+				should_fail: fips140_negative_expect_fail)
 		endif
 
 		# Generate the PKCS#7 message, verify it and check the key usage
@@ -381,7 +406,8 @@ if (host_machine.system() != 'windows' and
 				'--expected-eku', 'CodeSigning',
 				'--expected-keyusage', 'dataEncipherment'
 				],
-			is_parallel: false, timeout: 300, suite: regression)
+			is_parallel: false, timeout: 300, suite: regression,
+			should_fail: fips140_negative_expect_fail)
 
 			# Generate the PKCS#7 message, verify it and check the key usage
 			# and EKU of the signer where the EKU will be not matched
@@ -413,7 +439,8 @@ if (host_machine.system() != 'windows' and
 			     pkcs7_arg_int2,
 			     pkcs7_arg_ca,
 			     pkcs7_arg_trust ],
-		     is_parallel: false, timeout: 300, suite: regression)
+		     is_parallel: false, timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
 
 		# Trust-Store enabled with cert chain leading to CA
 		# Although certificate chain has no root CA, it is taken from
@@ -424,7 +451,8 @@ if (host_machine.system() != 'windows' and
 			     pkcs7_arg_int1,
 			     pkcs7_arg_int2,
 			     pkcs7_arg_trust ],
-		     is_parallel: false, timeout: 300, suite: regression)
+		     is_parallel: false, timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
 
 		# Trust-Store enabled with cert chain not leading to the CA
 		# signing the intermediate 1
@@ -445,7 +473,8 @@ if (host_machine.system() != 'windows' and
 			     pkcs7_arg_int1,
 			     pkcs7_arg_int2,
 			     pkcs7_arg_ca, ],
-		     is_parallel: false, timeout: 300, suite: regression)
+		     is_parallel: false, timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
 
 		# Trust-Store disabled but without root CA cert
 		# -> failure in certificate chain validation
@@ -473,7 +502,8 @@ if (host_machine.system() != 'windows' and
 			     pkcs7_arg_trust_int1,
 			     pkcs7_arg_trust_int2
 			   ],
-		     is_parallel: false, timeout: 300, suite: regression)
+		     is_parallel: false, timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
 
 		# CA, intermediate 1, in trust store -> intermediate 2 missing
 		# -> fails during certificate chain validation
@@ -518,7 +548,8 @@ if (host_machine.system() != 'windows' and
 				'--check-keyusage', '16548'
 
 			],
-			is_parallel: false, timeout: 300, suite: regression)
+			is_parallel: false, timeout: 300, suite: regression,
+			should_fail: fips140_negative_expect_fail)
 
 	endif
 endif

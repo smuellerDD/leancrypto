@@ -19,6 +19,8 @@ Changes 1.6.0-prerelease
 
 * Linux kernel: add /proc/leancrypto
 
+* FIPS: Add negative testing support
+
 Changes 1.5.1
 * add ChaCha20 Poly 1305 AEAD
 

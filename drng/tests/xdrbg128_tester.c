@@ -209,20 +209,10 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = xdrbg128_drng_test();
 
-	if (lc_status_get_result(LC_ALG_STATUS_XDRBG128) !=
-	    lc_alg_status_result_passed) {
-		printf("XDRBG128 self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_XDRBG128));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_ASCONXOF) !=
-	    lc_alg_status_result_passed) {
-		printf("Ascon XOF self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_ASCON256));
-		return 1;
-	}
-
+	ret = test_validate_status(ret, LC_ALG_STATUS_XDRBG128);
+#ifndef LC_FIPS140_DEBUG
+	ret = test_validate_status(ret, LC_ALG_STATUS_ASCONXOF);
+#endif
 	ret += test_print_status();
 
 	return ret;

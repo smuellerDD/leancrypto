@@ -22,6 +22,7 @@
 #include "alignment.h"
 #include "compare.h"
 #include "ext_headers_internal.h"
+#include "fips_mode.h"
 #include "helper.h"
 #include "lc_sym.h"
 #include "lc_memcmp_secure.h"
@@ -43,7 +44,7 @@ void mode_xts_selftest(const struct lc_sym *aes)
 	};
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t key256[] = {
-		0x27, 0x18, 0x28, 0x18, 0x28, 0x45, 0x90, 0x45,
+		FIPS140_MOD(0x27), 0x18, 0x28, 0x18, 0x28, 0x45, 0x90, 0x45,
 		0x23, 0x53, 0x60, 0x28, 0x74, 0x71, 0x35, 0x26,
 		0x62, 0x49, 0x77, 0x57, 0x24, 0x70, 0x93, 0x69,
 		0x99, 0x59, 0x57, 0x49, 0x66, 0x96, 0x76, 0x27,
@@ -94,22 +95,26 @@ void mode_xts_selftest(const struct lc_sym *aes)
 	unpoison(key256, sizeof(key256));
 
 	aes->init_nocheck(ctx->sym_state);
-	lc_sym_setkey(ctx, key256, sizeof(key256));
+	if (lc_sym_setkey(ctx, key256, sizeof(key256)))
+		goto out;
 	lc_sym_setiv(ctx, iv, sizeof(iv));
 	lc_sym_encrypt(ctx, in, out, sizeof(in));
 	if (lc_compare_selftest(LC_ALG_STATUS_AES_XTS, out, out256,
 				sizeof(out256), "AES-XTS encrypt"))
-		goto out;
+		goto out2;
 	lc_sym_zero(ctx);
 
 	aes->init_nocheck(ctx->sym_state);
-	lc_sym_setkey(ctx, key256, sizeof(key256));
+	if (lc_sym_setkey(ctx, key256, sizeof(key256)))
+		goto out;
 	lc_sym_setiv(ctx, iv, sizeof(iv));
 	lc_sym_decrypt(ctx, out, out, sizeof(out));
+
+out:
 	lc_compare_selftest(LC_ALG_STATUS_AES_XTS, out, in, sizeof(in),
 			    "AES-XTS decrypt");
 
-out:
+out2:
 	lc_sym_zero(ctx);
 }
 

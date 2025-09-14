@@ -45,7 +45,7 @@ static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
 	/* One shot encryption with pt ptr != ct ptr */
 	ret_checked = lc_aead_setkey(kc, key, keylen, NULL, 0);
 	if (ret_checked)
-		return ret_checked;
+		return 1;
 
 	lc_aead_encrypt(kc, pt, out_enc, ptlen, aad, aadlen, tag, exp_tag_len);
 
@@ -243,20 +243,10 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	}
 	ret += ret2;
 
-	if (lc_status_get_result(LC_ALG_STATUS_KMAC_CRYPT) !=
-	    lc_alg_status_result_passed) {
-		printf("KMAC crypt self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_KMAC_CRYPT));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_KMAC) !=
-	    lc_alg_status_result_passed) {
-		printf("KMAC self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_KMAC));
-		return 1;
-	}
-
+	ret = test_validate_status(ret, LC_ALG_STATUS_KMAC_CRYPT);
+#ifndef LC_FIPS140_DEBUG
+	ret = test_validate_status(ret, LC_ALG_STATUS_KMAC);
+#endif
 	ret += test_print_status();
 
 out:

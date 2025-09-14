@@ -19,6 +19,7 @@
 
 #include "compare.h"
 #include "ext_headers_internal.h"
+#include "fips_mode.h"
 #include "lc_x448.h"
 #include "ret_checkers.h"
 #include "static_rng.h"
@@ -34,7 +35,7 @@ static void lc_x448_keypair_selftest(void)
 	/* Test vector obtained from RFC 7748 section 6.2. */
 	LC_FIPS_RODATA_SECTION
 	static const struct lc_x448_sk sk_orig = {
-		.sk = { 0x9a, 0x8f, 0x49, 0x25, 0xd1, 0x51, 0x9f, 0x57,
+		.sk = { 0x9a, FIPS140_MOD(0x8f), 0x49, 0x25, 0xd1, 0x51, 0x9f, 0x57,
 			0x75, 0xcf, 0x46, 0xb0, 0x4b, 0x58, 0x00, 0xd4,
 			0xee, 0x9e, 0xe8, 0xba, 0xe8, 0xbc, 0x55, 0x65,
 			0xd4, 0x98, 0xc2, 0x8d, 0xd9, 0xc9, 0xba, 0xf5,
@@ -60,16 +61,18 @@ static void lc_x448_keypair_selftest(void)
 	struct lc_x448_pk pk;
 	struct lc_x448_sk sk;
 
-	LC_SELFTEST_RUN(LC_ALG_STATUS_X448_KEYKEN);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_X448_KEYGEN);
 
 	if (lc_x448_keypair_nocheck(&pk, &sk, &static_drng))
-		return;
+		goto out;
 
-	if (lc_compare_selftest(LC_ALG_STATUS_X448_KEYKEN, sk.sk, sk_orig.sk,
+	if (lc_compare_selftest(LC_ALG_STATUS_X448_KEYGEN, sk.sk, sk_orig.sk,
 				sizeof(sk.sk),
 				"X448 key generation secret key\n"))
 		return;
-	lc_compare_selftest(LC_ALG_STATUS_X448_KEYKEN, pk.pk, pk_orig.pk,
+
+out:
+	lc_compare_selftest(LC_ALG_STATUS_X448_KEYGEN, pk.pk, pk_orig.pk,
 			    sizeof(pk.pk),
 			    "X448 key generation public key\n");
 }
@@ -105,7 +108,7 @@ LC_INTERFACE_FUNCTION(int, lc_x448_keypair, struct lc_x448_pk *pk,
 		      struct lc_x448_sk *sk, struct lc_rng_ctx *rng_ctx)
 {
 	lc_x448_keypair_selftest();
-	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_X448_KEYKEN);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_X448_KEYGEN);
 
 	return lc_x448_keypair_nocheck(pk, sk, rng_ctx);
 }
@@ -117,7 +120,7 @@ static void lc_x448_ss_selftest(void)
 {
 	LC_FIPS_RODATA_SECTION
 	static const struct lc_x448_pk pk = {
-		.pk = { 0x06, 0xfc, 0xe6, 0x40, 0xfa, 0x34, 0x87, 0xbf,
+		.pk = { FIPS140_MOD(0x06), 0xfc, 0xe6, 0x40, 0xfa, 0x34, 0x87, 0xbf,
 			0xda, 0x5f, 0x6c, 0xf2, 0xd5, 0x26, 0x3f, 0x8a,
 			0xad, 0x88, 0x33, 0x4c, 0xbd, 0x07, 0x43, 0x7f,
 			0x02, 0x0f, 0x08, 0xf9, 0x81, 0x4d, 0xc0, 0x31,

@@ -29,7 +29,8 @@ if get_option('x509_parser').enabled()
 			'--skid', '0a0b0c0d0e0f',
 			'--akid', '0a0b0c0d0e0f',
 			'--check-time' ],
-			suite: regression)
+			suite: regression,
+			should_fail: fips140_negative_expect_fail)
 
 		test('X.509 ML-DSA65 Int 1 CA', asn1_tester,
 		args: [ '-x', '-f', certdir + 'ml-dsa65_int1.der', '--check-ca',
@@ -91,7 +92,8 @@ if get_option('x509_parser').enabled()
 			'--skid', '3f95183ace35cfee4178814b2f9d55bb0d6e9dfc',
 			'--akid', '3f95183ace35cfee4178814b2f9d55bb0d6e9dfc',
 			'--check-time' ],
-			suite: regression)
+			suite: regression,
+			should_fail: fips140_negative_expect_fail)
 		test('X.509 Intermediate 1 CA', asn1_tester,
 		args: [ '-x', '-f', certdir + 'int-1-cert-rsa.der', '--check-ca',
 			'--check-noselfsigned', '--issuer-cn', 'leancrypto test CA',
@@ -100,7 +102,8 @@ if get_option('x509_parser').enabled()
 			'--unsupported-sig',
 			'--skid', 'cdc07b83cd20a358c46bf0c30d60b721dcb8c5fd',
 			'--akid', '3f95183ace35cfee4178814b2f9d55bb0d6e9dfc' ],
-			suite: regression)
+			suite: regression,
+			should_fail: fips140_negative_expect_fail)
 		test('X.509 Intermediate 2 CA', asn1_tester,
 		args: [ '-x', '-f', certdir + 'int-2-cert-rsa.der', '--check-ca',
 			'--check-noselfsigned', '--issuer-cn', 'leancrypto intermediate 1',
@@ -109,7 +112,8 @@ if get_option('x509_parser').enabled()
 			'--unsupported-sig',
 			'--skid', '5904df832b2d318935924d439716e8b5cb0bdc02',
 			'--akid', 'cdc07b83cd20a358c46bf0c30d60b721dcb8c5fd' ],
-			suite: regression)
+			suite: regression,
+			should_fail: fips140_negative_expect_fail)
 		test('X.509 Leaf Cert', asn1_tester,
 		args: [ '-x', '-f', certdir + 'leaf-cert-rsa.der', '--check-noca',
 			'--check-noselfsigned', '--issuer-cn', 'leancrypto intermediate 2',
@@ -118,7 +122,8 @@ if get_option('x509_parser').enabled()
 			'--san-dns', 'leancrypto.leaf.san',
 			'--skid', '585e7bee1e3aa0268bf72897e12816fab730b0eb',
 			'--akid', '31aad81c43a60ee696b2f97500318668ac6ffe00' ],
-			suite: regression)
+			suite: regression,
+			should_fail: fips140_negative_expect_fail)
 	endif
 endif
 
@@ -137,7 +142,8 @@ if get_option('x509_generator').enabled()
 		     '--valid-to', '1761063728', '--subject-cn', 'leancrypto',
 		     '--issuer-cn', 'leancrypto',
 		     '--serial', '0102030405060708', '--check-selfsigned' ],
-	     suite: regression)
+	     suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 
 	# Issuer != Subject, no AKID
 	test('X.509 not self-signed', x509_gen_tester,
@@ -146,7 +152,8 @@ if get_option('x509_generator').enabled()
 		     '--valid-to', '1761063728', '--subject-cn', 'leancrypto',
 		     '--issuer-cn', 'othercert',
 		     '--serial', '0102030405060708', '--check-noselfsigned' ],
-	     suite: regression)
+	     suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 
 	asn1_enc_tester = executable('asn1_enc_tester',
 			 [ 'asn1_enc_tester.c',
@@ -166,7 +173,8 @@ if get_option('x509_generator').enabled()
 		     '--valid-from', '1729527728', '--valid-to', '1761063728',
 		     '--subject-cn', 'subject', '--issuer-cn', 'issuer',
 		     '--serial', '0102030405060708' ],
-	     suite: regression)
+	     suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 
 	# This should fail because the parser mandates the serial number
 	test('X.509 Generator 2', asn1_enc_tester,
@@ -203,7 +211,8 @@ if get_option('x509_generator').enabled()
 		     '--skid', '0102030405', '--akid', '08090a0b',
 		     '--subject-cn', 'subject', '--issuer-cn', 'issuer',
 		     '--serial', '0102030405060708' ],
-	     suite: regression)
+	     suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 
 	test('X.509 Generator 6', asn1_enc_tester,
 	     args: [ '--ca', '--san-dns', 'leancrypto',
@@ -212,7 +221,8 @@ if get_option('x509_generator').enabled()
 		     '--valid-from', '1729527728', '--valid-to', '1761063728',
 		     '--subject-cn', 'subject', '--issuer-cn', 'issuer',
 		     '--serial', '0102030405060708' ],
-	     suite: regression)
+	     suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 
 	test('X.509 Generator 7', asn1_enc_tester,
 	     args: [ '--san-dns', 'leancrypto',
@@ -221,7 +231,8 @@ if get_option('x509_generator').enabled()
 		     '--valid-from', '1729527728', '--valid-to', '1761063728',
 		     '--subject-cn', 'subject', '--issuer-cn', 'issuer',
 		     '--serial', '0102030405060708' ],
-	     suite: regression)
+	     suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 
 	test('X.509 Generator 8', asn1_enc_tester,
 	     args: [ '--san-ip', '1.1.1.1', '--keyusage', '64',
@@ -229,7 +240,8 @@ if get_option('x509_generator').enabled()
 		     '--valid-from', '1729527728', '--valid-to', '1761063728',
 		     '--subject-cn', 'subject', '--issuer-cn', 'issuer',
 		     '--serial', '0102030405060708' ],
-	     suite: regression)
+	     suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 
 	test('X.509 Generator 9', asn1_enc_tester,
 	     args: [ '--keyusage', '64',
@@ -237,27 +249,31 @@ if get_option('x509_generator').enabled()
 		     '--valid-from', '1729527728', '--valid-to', '1761063728',
 		     '--subject-cn', 'subject', '--issuer-cn', 'issuer',
 		     '--serial', '0102030405060708' ],
-	     suite: regression)
+	     suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 
 	test('X.509 Generator 10', asn1_enc_tester,
 	     args: [ '--skid', '0102030405', '--akid', '08090a0b',
 		     '--valid-from', '1729527728', '--valid-to', '1761063728',
 		     '--subject-cn', 'subject', '--issuer-cn', 'issuer',
 		     '--serial', '0102030405060708' ],
-	     suite: regression)
+	     suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 
 	test('X.509 Generator 11', asn1_enc_tester,
 	     args: [ '--akid', '08090a0b',
 		     '--valid-from', '1729527728', '--valid-to', '1761063728',
 		     '--subject-cn', 'subject', '--issuer-cn', 'issuer',
 		     '--serial', '0102030405060708' ],
-	     suite: regression)
+	     suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 
 	test('X.509 Generator 12', asn1_enc_tester,
 	     args: [ '--valid-from', '1729527728', '--valid-to', '1761063728',
 		     '--subject-cn', 'subject', '--issuer-cn', 'issuer',
 		     '--serial', '0102030405060708' ],
-	     suite: regression)
+	     suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 
 	test('X.509 Generator 13', asn1_enc_tester,
 		args: [ '--eku', '50', '--ca', '--san-dns', 'leancrypto',
@@ -266,7 +282,8 @@ if get_option('x509_generator').enabled()
 			'--valid-from', '1729527728', '--valid-to', '2524608000',
 			'--subject-cn', 'subject', '--issuer-cn', 'issuer',
 			'--serial', '0102030405060708' ],
-		suite: regression)
+		suite: regression,
+		should_fail: fips140_negative_expect_fail)
 
 	asn1_extensions_enc_tester = executable('asn1_extensions_enc_tester',
 			 [ 'asn1_extensions_enc_tester.c',
@@ -352,11 +369,11 @@ if get_option('x509_generator').enabled()
 	test('X.509 Ext SANIP KU SKID AKID', asn1_extensions_enc_tester,
 	     args: [ '--san-ip', '1.1.1.1', '--keyusage', '96',
 		     '--skid', '0102030405', '--akid', '08090a0b' ],
-	     suite: regression)
+	     suite: regression,)
 	test('X.509 Ext KU SKID AKID', asn1_extensions_enc_tester,
 	     args: [ '--keyusage', '96',
 		     '--skid', '0102030405', '--akid', '08090a0b' ],
-	     suite: regression)
+	     suite: regression,)
 	test('X.509 Ext SKID AKID', asn1_extensions_enc_tester,
 	     args: [ '--skid', '0102030405', '--akid', '08090a0b' ],
 	     suite: regression)
@@ -394,15 +411,17 @@ if get_option('x509_generator').enabled()
 			 [ 'x509_siggen_sigver_tester.c',
 			   '../../apps/src/lc_x509_generator_file_helper.c',
 			   internal_src ],
-			 include_directories: [ include_internal_dirs ],
-			 dependencies: leancrypto
+			 include_directories: [ include_dirs,
+						include_internal_dirs ],
+			 link_with: leancrypto_static_lib
 			 )
 
 	if (get_option('dilithium_87').enabled())
 		test('X.509 ML-DSA87 Leaf Signature', x509_siggen_sigver_tester,
 			args: [ '--sk-file', certdir + 'ml-dsa87_leaf.privkey',
 				'--x509-cert', certdir + 'ml-dsa87_leaf.der' ],
-				suite: regression)
+				suite: regression,
+				should_fail: fips140_negative_expect_fail)
 	endif
 
 	if (get_option('sphincs_shake_128f').enabled())
@@ -410,7 +429,8 @@ if get_option('x509_generator').enabled()
 			x509_siggen_sigver_tester,
 			args: [ '--sk-file', certdir + 'slh-dsa-shake-128f_leaf.privkey',
 				'--x509-cert', certdir + 'slh-dsa-shake-128f_leaf.der' ],
-			suite: regression)
+			suite: regression,
+			should_fail: fips140_negative_expect_fail)
 	endif
 
 	if get_option('dilithium_ed25519').enabled()
@@ -418,14 +438,16 @@ if get_option('x509_generator').enabled()
 			x509_siggen_sigver_tester,
 			args: [ '--sk-file', certdir + 'ml-dsa44-ed25519_int2.privkey',
 				'--x509-cert', certdir + 'ml-dsa44-ed25519_int2.der' ],
-			suite: regression)
+			suite: regression,
+			should_fail: fips140_negative_expect_fail)
 	endif
 	if get_option('dilithium_ed448').enabled()
 		test('X.509 Composite-ML-DSA87 Signature',
 			x509_siggen_sigver_tester,
 			args: [ '--sk-file', certdir + 'ml-dsa87-ed448_cacert.privkey',
 				'--x509-cert', certdir + 'ml-dsa87-ed448_cacert.der' ],
-			suite: regression)
+			suite: regression,
+			should_fail: fips140_negative_expect_fail)
 	endif
 
 	if get_option('dilithium_ed25519').enabled()
@@ -437,7 +459,8 @@ if get_option('x509_generator').enabled()
 			 )
 
 		test('X.509 Composite Domain Separation',
-			composite_sig_domsep, suite: regression)
+			composite_sig_domsep, suite: regression,
+			should_fail: fips140_negative_expect_fail)
 	endif
 endif
 
@@ -457,41 +480,48 @@ if get_option('pkcs7_parser').enabled()
 			'--check-selfsigned', '--issuer-cn', 'leancrypto test CA',
 			'--subject-cn', 'leancrypto test CA',
 			'--unsupported-sig' ],
-			suite: regression)
+			suite: regression,
+			should_fail: fips140_negative_expect_fail)
 
 		test('PKCS7 Search Intermediate 1 CA', asn1_tester,
 		args: [ '-p', '-f', certdir + 'cacert.der.p7b', '--check-ca',
 			'--check-noselfsigned', '--issuer-cn', 'leancrypto test CA',
 			'--subject-cn', 'leancrypto intermediate 1',
 			'--unsupported-sig' ],
-			suite: regression)
+			suite: regression,
+			should_fail: fips140_negative_expect_fail)
 		test('PKCS7 Search Intermediate 2 CA', asn1_tester,
 		args: [ '-p', '-f', certdir + 'cacert.der.p7b', '--check-ca',
 			'--check-noselfsigned', '--issuer-cn', 'leancrypto intermediate 1',
 			'--subject-cn', 'leancrypto intermediate 2',
 			'--unsupported-sig' ],
-			suite: regression)
+			suite: regression,
+			should_fail: fips140_negative_expect_fail)
 		test('PKCS7 Search Leaf Cert', asn1_tester,
 		args: [ '-p', '-f', certdir + 'cacert.der.p7b', '--check-noca',
 			'--check-noselfsigned', '--issuer-cn', 'leancrypto intermediate 2',
 			'--subject-cn', 'leancrypto.leaf.san',
 			'--unsupported-sig', '--eku', '16' ],
-			suite: regression)
+			suite: regression,
+			should_fail: fips140_negative_expect_fail)
 
 		test('PKCS7 Full Validation - Unsupported Certs', asn1_tester,
 			args: [ '-v', certdir + 'cacert.der',
 				'-f', certdir + 'cacert.der.p7b' ],
-			suite: regression)
+			suite: regression,
+			should_fail: fips140_negative_expect_fail)
 	endif
 
 	if (dilithium_enabled)
 		test('PKCS7 Trust Validation - 1 CA Cert', pkcs7_trust_tester,
 			args: [ '-f', certdir + 'ml-dsa87_cacert.der' ],
-			suite: regression)
+			suite: regression,
+			should_fail: fips140_negative_expect_fail)
 		test('PKCS7 Trust Validation - 2 CA Certs', pkcs7_trust_tester,
 			args: [ '-f', certdir + 'ml-dsa87_cacert.der',
 				'-f', certdir + 'ml-dsa65_int1.der' ],
-			suite: regression)
+			suite: regression,
+			should_fail: fips140_negative_expect_fail)
 		test('PKCS7 Trust Validation - 2 CA Certs no root', pkcs7_trust_tester,
 			args: [ '-f', certdir + 'ml-dsa65_int1.der',
 				'-f', certdir + 'ml-dsa87_cacert.der', '-e', '250' ],
@@ -500,7 +530,8 @@ if get_option('pkcs7_parser').enabled()
 			args: [ '-f', certdir + 'ml-dsa87_cacert.der',
 				'-f', certdir + 'ml-dsa44_int2.der',
 				'-e', '250' ],
-			suite: regression)
+			suite: regression,
+			should_fail: fips140_negative_expect_fail)
 		test('PKCS7 Trust Validation - 2 CA Certs no chain', pkcs7_trust_tester,
 			args: [ '-f', certdir + 'ml-dsa65_int1.der',
 				'-e', '250' ],
@@ -510,12 +541,14 @@ if get_option('pkcs7_parser').enabled()
 			args: [ '-f', certdir + 'ml-dsa87_cacert.der',
 				'-p', certdir + 'ml-dsa.p7b',
 				'-v', certdir + 'ml-dsa87_cacert.der' ],
-			suite: regression)
+			suite: regression,
+			should_fail: fips140_negative_expect_fail)
 		test('PKCS7 Trust Validation - PKCS#7 without trust chain', pkcs7_trust_tester,
 			args: [ '-p', certdir + 'ml-dsa.p7b',
 				'-v', certdir + 'ml-dsa87_cacert.der',
 				'-e', '249' ],
-			suite: regression)
+			suite: regression,
+			should_fail: fips140_negative_expect_fail)
 	endif
 endif
 
@@ -527,6 +560,7 @@ if get_option('pkcs7_generator').enabled()
 		link_with: leancrypto_lib
 		)
 	test('PKCS7 Trust Validation - Malicious Cert chain',
-		pkcs7_trust_malicious1_tester, suite: regression)
+		pkcs7_trust_malicious1_tester, suite: regression,
+		should_fail: fips140_negative_expect_fail)
 endif
 

@@ -39,7 +39,7 @@ void cc20_selftest(void)
 {
 	/* Test vector according to RFC 7539 section 2.4.2 */
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t key[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
+	static const uint8_t key[] = { FIPS140_MOD(0x00), 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
 				       0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d,
 				       0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14,
 				       0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b,
@@ -73,12 +73,13 @@ void cc20_selftest(void)
 	/* Encrypt */
 	cc20_init_constants(chacha20->sym_state);
 
-	lc_sym_setkey(chacha20, (uint8_t *)key, sizeof(key));
+	if (lc_sym_setkey(chacha20, (uint8_t *)key, sizeof(key)))
+		goto out;
 	lc_sym_setiv(chacha20, (uint8_t *)iv, sizeof(iv));
 	lc_sym_encrypt(chacha20, (uint8_t *)string, res, sizeof(res));
 	if (lc_compare_selftest(LC_ALG_STATUS_CHACHA20, res, exp, sizeof(exp),
 				"ChaCha20 encrypt"))
-		goto out;
+		goto out2;
 	lc_sym_zero(chacha20);
 
 	/* Decrypt */
@@ -87,10 +88,11 @@ void cc20_selftest(void)
 	lc_sym_setkey(chacha20, (uint8_t *)key, sizeof(key));
 	lc_sym_setiv(chacha20, (uint8_t *)iv, sizeof(iv));
 	lc_sym_decrypt(chacha20, res, res, sizeof(res));
-	lc_compare_selftest(LC_ALG_STATUS_CHACHA20, res, (uint8_t *)string,
-			    sizeof(res), "ChaCha20 decrypt");
 
 out:
+	lc_compare_selftest(LC_ALG_STATUS_CHACHA20, res, (uint8_t *)string,
+			    sizeof(res), "ChaCha20 decrypt");
+out2:
 	lc_sym_zero(chacha20);
 }
 

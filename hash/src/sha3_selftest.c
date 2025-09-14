@@ -18,6 +18,7 @@
  */
 
 #include "compare.h"
+#include "fips_mode.h"
 #include "hash_common.h"
 #include "lc_cshake.h"
 #include "lc_sha3.h"
@@ -26,7 +27,7 @@
 void sha3_224_selftest_common(const struct lc_hash *sha3_224)
 {
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t msg_224[] = { 0x50, 0xEF, 0x73 };
+	static const uint8_t msg_224[] = { FIPS140_MOD(0x50), 0xEF, 0x73 };
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t exp_224[] = { 0x42, 0xF9, 0xE4, 0xEA, 0xE8, 0x55,
 					   0x49, 0x61, 0xD1, 0xD2, 0x7D, 0x47,
@@ -45,7 +46,7 @@ void sha3_224_selftest_common(const struct lc_hash *sha3_224)
 void sha3_256_selftest_common(const struct lc_hash *sha3_256)
 {
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t msg_256[] = { 0x5E, 0x5E, 0xD6 };
+	static const uint8_t msg_256[] = { FIPS140_MOD(0x5E), 0x5E, 0xD6 };
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t exp_256[] = { 0xF1, 0x6E, 0x66, 0xC0, 0x43, 0x72,
 					   0xB4, 0xA3, 0xE1, 0xE3, 0x2E, 0x07,
@@ -65,7 +66,7 @@ void sha3_256_selftest_common(const struct lc_hash *sha3_256)
 void sha3_384_selftest_common(const struct lc_hash *sha3_384)
 {
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t msg_384[] = { 0xE7, 0x3B, 0xAD };
+	static const uint8_t msg_384[] = { FIPS140_MOD(0xE7), 0x3B, 0xAD };
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t exp_384[] = {
 		0xc4, 0x02, 0xc8, 0x29, 0x90, 0x68, 0xaa, 0x30, 0x28, 0xa9,
@@ -86,7 +87,7 @@ void sha3_384_selftest_common(const struct lc_hash *sha3_384)
 void sha3_512_selftest_common(const struct lc_hash *sha3_512)
 {
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t msg_512[] = { 0x82, 0xD9, 0x19 };
+	static const uint8_t msg_512[] = { FIPS140_MOD(0x82), 0xD9, 0x19 };
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t exp_512[] = {
 		0x76, 0x75, 0x52, 0x82, 0xA9, 0xC5, 0x0A, 0x67, 0xFE, 0x69,
@@ -110,7 +111,7 @@ void shake128_selftest_common(const struct lc_hash *shake128)
 {
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t msg[] = {
-		0xBE, 0x94, 0xD8, 0x3D, 0x37, 0x66, 0xCF,
+		FIPS140_MOD(0xBE), 0x94, 0xD8, 0x3D, 0x37, 0x66, 0xCF,
 		0x3E, 0xD3, 0x0A, 0x11, 0x0C, 0x47, 0xA2
 	};
 	LC_FIPS_RODATA_SECTION
@@ -129,7 +130,7 @@ void shake128_selftest_common(const struct lc_hash *shake128)
 void shake256_selftest_common(const struct lc_hash *shake256)
 {
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t msg[] = { 0x6C, 0x9E, 0xC8, 0x5C, 0xBA, 0xBA, 0x62,
+	static const uint8_t msg[] = { FIPS140_MOD(0x6C), 0x9E, 0xC8, 0x5C, 0xBA, 0xBA, 0x62,
 				       0xF5, 0xBC, 0xFE, 0xA1, 0x9E, 0xB9, 0xC9,
 				       0x20, 0x52, 0xD8, 0xFF, 0x18, 0x81, 0x52,
 				       0xE9, 0x61, 0xC1, 0xEC, 0x5C, 0x75, 0xBF,
@@ -152,7 +153,7 @@ void shake256_selftest_common(const struct lc_hash *shake256)
 void cshake128_selftest_common(const struct lc_hash *cshake128)
 {
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t msg[] = { 0x0C, 0x77, 0x8C, 0x22, 0x60,
+	static const uint8_t msg[] = { FIPS140_MOD(0x0C), 0x77, 0x8C, 0x22, 0x60,
 				       0xCA, 0xE8, 0x28, 0xA0 };
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t cust[] = {
@@ -182,10 +183,13 @@ void cshake128_selftest_common(const struct lc_hash *cshake128)
 
 	LC_HASH_CTX_ON_STACK(ctx, cshake128);
 
-	lc_cshake_init_nocheck(ctx, NULL, 0, cust, sizeof(cust));
+	if (lc_cshake_init_nocheck(ctx, NULL, 0, cust, sizeof(cust)))
+		goto out;
 	lc_hash_update(ctx, msg, sizeof(msg));
 	lc_hash_set_digestsize(ctx, sizeof(act));
 	lc_hash_final(ctx, act);
+
+out:
 	lc_compare_selftest(LC_ALG_STATUS_CSHAKE, act, exp, sizeof(exp),
 			    "cSHAKE-128");
 	lc_hash_zero(ctx);
@@ -194,7 +198,7 @@ void cshake128_selftest_common(const struct lc_hash *cshake128)
 void cshake256_selftest_common(const struct lc_hash *cshake256)
 {
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t msg[] = { 0xAF, 0x98, 0xC2, 0x12, 0x96, 0x1A,
+	static const uint8_t msg[] = { FIPS140_MOD(0xAF), 0x98, 0xC2, 0x12, 0x96, 0x1A,
 				       0xAA, 0x55, 0xBD, 0x3C, 0x61, 0xF1 };
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t cust[] = {
@@ -227,10 +231,13 @@ void cshake256_selftest_common(const struct lc_hash *cshake256)
 
 	LC_HASH_CTX_ON_STACK(ctx, cshake256);
 
-	lc_cshake_init_nocheck(ctx, NULL, 0, cust, sizeof(cust));
+	if (lc_cshake_init_nocheck(ctx, NULL, 0, cust, sizeof(cust)))
+		goto out;
 	lc_hash_update(ctx, msg, sizeof(msg));
 	lc_hash_set_digestsize(ctx, sizeof(act));
 	lc_hash_final(ctx, act);
+
+out:
 	lc_compare_selftest(LC_ALG_STATUS_CSHAKE, act, exp, sizeof(exp),
 			    "cSHAKE-256");
 	lc_hash_zero(ctx);

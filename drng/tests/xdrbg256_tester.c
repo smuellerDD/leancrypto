@@ -242,20 +242,10 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = xdrbg256_drng_test();
 
-	if (lc_status_get_result(LC_ALG_STATUS_XDRBG256) !=
-	    lc_alg_status_result_passed) {
-		printf("XDRBG256 self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_XDRBG256));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_SHAKE) !=
-	    lc_alg_status_result_passed) {
-		printf("SHAKE self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_SHAKE));
-		return 1;
-	}
-
+	ret = test_validate_status(ret, LC_ALG_STATUS_XDRBG256);
+#ifndef LC_FIPS140_DEBUG
+	ret = test_validate_status(ret, LC_ALG_STATUS_SHAKE);
+#endif
 	ret += test_print_status();
 
 	return ret;

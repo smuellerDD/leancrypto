@@ -188,7 +188,8 @@ if get_option('hash_crypt').enabled() and get_option('ascon_keccak').enabled()
 				dependencies: leancrypto
 				)
 	test('AEAD Ascon Keccak', ascon_keccak_crypt_test, suite: regression)
-	test('AEAD Ascon Keccak IUF', ascon_keccak_crypt_iuf_test, suite: regression)
+	test('AEAD Ascon Keccak IUF', ascon_keccak_crypt_iuf_test, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 	test('AEAD Ascon Keccak 512 Accel large',
 	     ascon_keccak_crypt_large_test_512,
 	     timeout: 2500, is_parallel: false, suite: performance)
@@ -233,7 +234,8 @@ if (get_option('hash_crypt').enabled() and get_option('ascon').enabled())
 				dependencies: leancrypto
 				)
 	test('AEAD Ascon C', ascon_crypt_test, suite: regression)
-	test('AEAD Ascon IUF C', ascon_crypt_iuf_test, suite: regression)
+	test('AEAD Ascon IUF C', ascon_crypt_iuf_test, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 	test('AEAD Ascon 128 Accel large',
 	     ascon_crypt_large_test_128,
 	     timeout: 2500, is_parallel: false, suite: performance)

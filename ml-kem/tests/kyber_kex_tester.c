@@ -30,6 +30,7 @@
 #include "lc_sha3.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
+#include "status_algorithms.h"
 #include "visibility.h"
 
 static int randombytes(void *_state, const uint8_t *addtl_input,
@@ -178,6 +179,17 @@ out:
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+
+#ifdef LC_FIPS140_DEBUG
+	/*
+	 * Both algos are used for the random number generation as part of
+	 * the key generation. Thus we need to enable them for executing the
+	 * test.
+	 */
+	alg_status_set_result(lc_alg_status_result_passed, LC_ALG_STATUS_SHAKE);
+	alg_status_set_result(lc_alg_status_result_passed, LC_ALG_STATUS_SHA3);
+#endif
+
 	(void)argc;
 	(void)argv;
 	return kyber_kex_tester();

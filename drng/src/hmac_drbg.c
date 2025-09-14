@@ -20,6 +20,7 @@
 
 #include "alignment.h"
 #include "compare.h"
+#include "fips_mode.h"
 #include "lc_hmac_drbg_sha512.h"
 #include "ret_checkers.h"
 #include "visibility.h"
@@ -32,7 +33,7 @@ static void drbg_hmac_selftest(void)
 {
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t ent_nonce[] = {
-		0xC5, 0xD9, 0xD7, 0x7B, 0x3E, 0x5C, 0x0E, 0xC8, 0x57, 0x13,
+		FIPS140_MOD(0xC5), 0xD9, 0xD7, 0x7B, 0x3E, 0x5C, 0x0E, 0xC8, 0x57, 0x13,
 		0xEB, 0x25, 0x12, 0xE8, 0x15, 0x40, 0xBF, 0x65, 0x89, 0x15,
 		0xB3, 0xF9, 0xC8, 0x95, 0x22, 0x05, 0xB5, 0xF0, 0x16, 0x0F,
 		0xD0, 0xE8, 0xBD, 0xA7, 0xC6, 0x58, 0xE2, 0x4D, 0xB8, 0xBD,
@@ -101,10 +102,10 @@ static void drbg_hmac_selftest(void)
 		goto out;
 	lc_rng_generate(drbg_ctx, addtl1, sizeof(addtl1), act, sizeof(act));
 	lc_rng_generate(drbg_ctx, addtl2, sizeof(addtl2), act, sizeof(act));
-	lc_compare_selftest(LC_ALG_STATUS_HMAC_DRBG, act, exp, sizeof(exp),
-			    "HMAC DRBG");
 
 out:
+	lc_compare_selftest(LC_ALG_STATUS_HMAC_DRBG, act, exp, sizeof(exp),
+			    "HMAC DRBG");
 	lc_rng_zero(drbg_ctx);
 }
 

@@ -69,7 +69,7 @@ static int gcm_set_key_iv_nocheck(void *state, const uint8_t *key,
 static void lc_aes_gcm_selftest(void)
 {
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t aad[] = { 0xff, 0x76, 0x28, 0xf6, 0x42, 0x7f,
+	static const uint8_t aad[] = { FIPS140_MOD(0xff), 0x76, 0x28, 0xf6, 0x42, 0x7f,
 				       0xbc, 0xef, 0x1f, 0x3b, 0x82, 0xb3,
 				       0x74, 0x04, 0xe1, 0x16 };
 	LC_FIPS_RODATA_SECTION
@@ -127,10 +127,9 @@ static void lc_aes_gcm_selftest(void)
 			goto out;
 	}
 
+out:
 	lc_compare_selftest(LC_ALG_STATUS_AES_GCM, act_ct, in, sizeof(in),
 			    "AES GCM AEAD decrypt");
-
-out:
 	lc_aead_zero(aes_gcm);
 }
 

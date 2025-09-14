@@ -94,10 +94,12 @@ if get_option('sha3').enabled()
 	test('Hash SHA3-512', sha3_512_tester, suite: regression)
 	test('Hash SHAKE128', shake128_tester, suite: regression)
 	test('Hash SHAKE256', shake256_tester, suite: regression)
-	test('Hash SHAKE256 Squeeze More', shake_squeeze_more_tester, suite: regression)
+	test('Hash SHAKE256 Squeeze More', shake_squeeze_more_tester, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 	test('Hash cSHAKE128', cshake_128_tester, suite: regression)
 	test('Hash cSHAKE256', cshake_256_tester, suite: regression)
-	test('Hash cSHAKE256 Reinit', cshake_ctx_256_tester, suite: regression)
+	test('Hash cSHAKE256 Reinit', cshake_ctx_256_tester, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 	test('Keccak Permutation', keccak_tester, suite: regression)
 
 	if (x86_64_asm)
@@ -157,7 +159,8 @@ if get_option('ascon').enabled()
 	test('Hash Ascon 256', ascon_256_tester, suite: regression)
 	test('Hash Ascon XOF', ascon_xof_tester, suite: regression)
 	test('Hash Ascon XOF Squeeze More', ascon_xof_squeeze_more_tester,
-	     suite: regression)
+	     suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 endif
 
 if (hasher == 1 and host_machine.system() != 'windows')

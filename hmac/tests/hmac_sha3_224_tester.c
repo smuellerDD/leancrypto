@@ -48,17 +48,14 @@ static int _sha3_224_tester(const struct lc_hash *sha3_224, const char *name)
 					   0x33, 0xa0, 0xfe, 0x7a, 0xf0, 0xaf,
 					   0x53, 0x95, 0xde, 0xa2 };
 	uint8_t act[LC_SHA3_512_SIZE_DIGEST];
-	int ret;
 
 	printf("hash ctx %s (%s implementation) len %lu\n", name,
 	       sha3_224 == lc_sha3_224_c ? "C" : "accelerated",
 	       LC_HASH_CTX_SIZE(sha3_224));
 	if (lc_hmac(sha3_224, key_224, 13, msg_224, 16, act))
 		return 1;
-	ret = lc_compare(act, exp_224, LC_SHA3_224_SIZE_DIGEST,
-			 "HMAC SHA3-224");
-
-	return ret;
+	return lc_compare(act, exp_224, LC_SHA3_224_SIZE_DIGEST,
+			  "HMAC SHA3-224");
 }
 
 static int sha3_hmac_tester(void)
@@ -85,20 +82,11 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = sha3_hmac_tester();
 
-	if (lc_status_get_result(LC_ALG_STATUS_SHA3) !=
-	    lc_alg_status_result_passed) {
-		printf("SHA3-224 self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_SHA3));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_HMAC) !=
-	    lc_alg_status_result_passed) {
-		printf("HMAC self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_HMAC));
-		return 1;
-	}
-
+	ret = test_validate_status(ret, LC_ALG_STATUS_SHA256);
+	ret = test_validate_status(ret, LC_ALG_STATUS_HMAC);
+#ifndef LC_FIPS140_DEBUG
+	ret = test_validate_status(ret, LC_ALG_STATUS_SHA3);
+#endif
 	ret += test_print_status();
 
 	return ret;

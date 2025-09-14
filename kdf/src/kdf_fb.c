@@ -21,6 +21,7 @@
 #include "compare.h"
 #include "conv_be_le.h"
 #include "ext_headers_internal.h"
+#include "fips_mode.h"
 #include "lc_hmac.h"
 #include "lc_kdf_fb.h"
 #include "lc_memset_secure.h"
@@ -38,7 +39,7 @@ static int lc_kdf_fb_init_nocheck(struct lc_hmac_ctx *hmac_ctx,
 static void lc_kdf_fb_selftest(void)
 {
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t key[] = { 0x51, 0x5D, 0x42, 0x18, 0x50, 0x32,
+	static const uint8_t key[] = { FIPS140_MOD(0x51), 0x5D, 0x42, 0x18, 0x50, 0x32,
 				       0xD6, 0x3D, 0x41, 0x89, 0x23, 0x71,
 				       0xB6, 0x66, 0xC0, 0xA3 };
 	LC_FIPS_RODATA_SECTION
@@ -61,10 +62,12 @@ static void lc_kdf_fb_selftest(void)
 
 	LC_SELFTEST_RUN(LC_ALG_STATUS_FB_KDF);
 
-	lc_kdf_fb_init_nocheck(hmac_ctx, key, sizeof(key));
+	if (lc_kdf_fb_init_nocheck(hmac_ctx, key, sizeof(key)))
+		goto out;
 	lc_kdf_fb_generate(hmac_ctx, iv, sizeof(iv), label, sizeof(label),
 			   act, sizeof(act));
 
+out:
 	lc_compare_selftest(LC_ALG_STATUS_FB_KDF, act, exp, sizeof(exp),
 			    "SP800-108 FB KDF");
 }

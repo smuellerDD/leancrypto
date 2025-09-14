@@ -44,7 +44,7 @@ static int cc_tester_cshake_one(const uint8_t *pt, size_t ptlen,
 	/* One shot encryption with pt ptr != ct ptr */
 	ret_checked = lc_aead_setkey(cc, key, keylen, NULL, 0);
 	if (ret_checked)
-		return ret_checked;
+		return 1;
 
 	lc_aead_encrypt(cc, pt, out_enc, ptlen, aad, aadlen, tag, exp_tag_len);
 
@@ -245,13 +245,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	}
 	ret += ret2;
 
-	if (lc_status_get_result(LC_ALG_STATUS_CSHAKE_CRYPT) !=
-	    lc_alg_status_result_passed) {
-		printf("Self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_CSHAKE_CRYPT));
-		return 1;
-	}
-
+	ret = test_validate_status(ret, LC_ALG_STATUS_CSHAKE_CRYPT);
 	ret += test_print_status();
 
 out:

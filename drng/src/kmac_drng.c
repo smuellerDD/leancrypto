@@ -229,6 +229,7 @@
 #include "alignment.h"
 #include "build_bug_on.h"
 #include "compare.h"
+#include "fips_mode.h"
 #include "lc_kmac256_drng.h"
 #include "lc_memcmp_secure.h"
 #include "math_helper.h"
@@ -246,7 +247,7 @@ static void kmac256_drng_selftest(void)
 {
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t seed[] = {
-		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+		FIPS140_MOD(0x00), 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
 	};
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t exp[] = {
@@ -288,9 +289,12 @@ static void kmac256_drng_selftest(void)
 
 	LC_KMAC256_DRNG_CTX_ON_STACK(kmac_ctx);
 
-	lc_kmac256_drng_seed_nocheck(kmac_ctx->rng_state, seed, sizeof(seed),
-				     NULL, 0);
+	if (lc_kmac256_drng_seed_nocheck(kmac_ctx->rng_state, seed,
+					 sizeof(seed), NULL, 0))
+		goto out;
 	lc_rng_generate(kmac_ctx, NULL, 0, act, sizeof(act));
+
+out:
 	lc_compare_selftest(LC_ALG_STATUS_KMAC_DRBG, act, exp, sizeof(exp),
 			    "KMAC DRNG");
 	lc_rng_zero(kmac_ctx);

@@ -278,48 +278,15 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = sh_tester();
 
-	if (lc_status_get_result(LC_ALG_STATUS_SYM_HMAC) !=
-	    lc_alg_status_result_passed) {
-		printf("SymHMAC crypt self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_SYM_HMAC));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_HMAC) !=
-	    lc_alg_status_result_passed) {
-		printf("HMAC self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_HMAC));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_AES_CBC) !=
-	    lc_alg_status_result_passed) {
-		printf("AES-CBC self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_AES_CBC));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_SHA256) !=
-	    lc_alg_status_result_passed) {
-		printf("SHA-256 self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_SHA256));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_SHA512) !=
-	    lc_alg_status_result_passed) {
-		printf("SHA-512 self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_SHA512));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_SHA3) !=
-	    lc_alg_status_result_passed) {
-		printf("SHA3 self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_SHA3));
-		return 1;
-	}
-
+	ret = test_validate_status(ret, LC_ALG_STATUS_SYM_HMAC);
+	ret = test_validate_status(ret, LC_ALG_STATUS_HMAC);
+	ret = test_validate_status(ret, LC_ALG_STATUS_SHA256);
+	ret = test_validate_status(ret, LC_ALG_STATUS_HKDF);
+#ifndef LC_FIPS140_DEBUG
+	ret = test_validate_status(ret, LC_ALG_STATUS_AES_CBC);
+	ret = test_validate_status(ret, LC_ALG_STATUS_SHA512);
+	ret = test_validate_status(ret, LC_ALG_STATUS_SHA3);
+#endif
 	ret += test_print_status();
 
 	return ret;

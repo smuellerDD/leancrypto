@@ -269,6 +269,7 @@
 #include "build_bug_on.h"
 #include "compare.h"
 #include "cpufeatures.h"
+#include "fips_mode.h"
 #include "lc_kmac_crypt.h"
 #include "lc_memcmp_secure.h"
 #include "math_helper.h"
@@ -285,7 +286,7 @@ static void lc_kc_selftest(void)
 {
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t in[] = {
-		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
+		FIPS140_MOD(0x00), 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
 		0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13,
 		0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d,
 		0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
@@ -345,10 +346,10 @@ static void lc_kc_selftest(void)
 		goto out;
 	lc_aead_decrypt(kc, act_ct, act_ct, sizeof(act_ct), in, sizeof(in),
 			act_tag, sizeof(act_tag));
-	lc_compare_selftest(LC_ALG_STATUS_KMAC_CRYPT, act_ct, in, sizeof(in),
-			    "KMAC AEAD decrypt");
 
 out:
+	lc_compare_selftest(LC_ALG_STATUS_KMAC_CRYPT, act_ct, in, sizeof(in),
+			    "KMAC AEAD decrypt");
 	lc_aead_zero(kc);
 }
 

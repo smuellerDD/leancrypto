@@ -14,7 +14,8 @@ if seeded_rng != 0
 					)
 
 	test('memcmp secure', memcmp_secure_test, timeout: 600,
-		suite: regression)
+	     suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 
 	memcpy_secure_test = executable('memcpy_secure_test',
 					[ 'memcpy_secure_test.c', internal_src ],
@@ -23,7 +24,8 @@ if seeded_rng != 0
 					)
 
 	test('memcpy secure', memcpy_secure_test, timeout: 600,
-		suite: regression)
+	     suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 endif
 
 status_tester = executable('status_tester',
@@ -52,9 +54,12 @@ if (get_option('sha3').enabled() and
 						  include_internal_dirs ],
 			   link_with: leancrypto_static_lib_fips
 			  )
-	test('Rerun selftests', rerun_selftests_tester, suite: regression)
-	test('Rerun one selftest', rerun_one_selftest_tester, suite: regression)
-	test('FIPS degraded mode', fips_degraded_mode, suite: regression)
+	test('Rerun selftests', rerun_selftests_tester, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
+	test('Rerun one selftest', rerun_one_selftest_tester, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
+	test('FIPS degraded mode', fips_degraded_mode, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 endif
 
 if ((get_option('dilithium_87').enabled() or

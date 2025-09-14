@@ -16,7 +16,7 @@ kmac_xof_tester = executable('kmac_xof_tester',
 kmac_xof_more_tester = executable('kmac_xof_more_tester',
 			     [ 'kmac_xof_more_tester.c', internal_src ],
 			     include_directories: [ include_internal_dirs ],
-			     dependencies: leancrypto
+			     dependencies: leancrypto,
 			     )
 kmac_kdf_rng = executable('kmac_kdf_rng',
 			     [ 'kmac_kdf_rng.c', internal_src ],
@@ -26,6 +26,9 @@ kmac_kdf_rng = executable('kmac_kdf_rng',
 
 test('KMAC 128', kmac_128_tester, suite: regression)
 test('KMAC 256', kmac_256_tester, suite: regression)
-test('KMAC XOF', kmac_xof_tester, suite: regression)
-test('KMAC XOF iterative squeeze', kmac_xof_more_tester, suite: regression)
-test('KMAC KDF RNG', kmac_kdf_rng, suite: regression)
+test('KMAC XOF', kmac_xof_tester, suite: regression,
+     should_fail: fips140_negative_expect_fail)
+test('KMAC XOF iterative squeeze', kmac_xof_more_tester, suite: regression,
+     should_fail: fips140_negative_expect_fail)
+test('KMAC KDF RNG', kmac_kdf_rng, suite: regression,
+     should_fail: fips140_negative_expect_fail)

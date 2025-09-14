@@ -214,5 +214,6 @@ if (seeded_selftest_enable == 1)
 				   include_directories: [ include_internal_dirs ],
 				   dependencies: leancrypto
 				   )
-	test('DRNG Seeded RNG', seeded_rng_tester, suite: regression)
+	test('DRNG Seeded RNG', seeded_rng_tester, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 endif

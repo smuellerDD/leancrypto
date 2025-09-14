@@ -21,6 +21,7 @@
 #include "bitshift.h"
 #include "compare.h"
 #include "ext_headers_internal.h"
+#include "fips_mode.h"
 #include "hash_common.h"
 #include "lc_sha512.h"
 #include "lc_memset_secure.h"
@@ -63,7 +64,7 @@ static const uint64_t sha512_K[] = {
 static void sha512_selftest(const struct lc_hash *sha512, const char *impl)
 {
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t msg_512[] = { 0x7F, 0xAD, 0x12 };
+	static const uint8_t msg_512[] = { FIPS140_MOD(0x7F), 0xAD, 0x12 };
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t exp_512[] = {
 		0x53, 0x35, 0x98, 0xe5, 0x29, 0x49, 0x18, 0xa0, 0xaf, 0x4b,

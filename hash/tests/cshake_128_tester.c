@@ -116,13 +116,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = cshake128_tester();
 
-	if (lc_status_get_result(LC_ALG_STATUS_CSHAKE) !=
-	    lc_alg_status_result_passed) {
-		printf("cSHAKE self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_CSHAKE));
-		return 1;
-	}
-
+	ret = test_validate_status(ret, LC_ALG_STATUS_CSHAKE);
 	ret += test_print_status();
 
 	return ret;

@@ -21,6 +21,7 @@
 #include "alignment.h"
 #include "bitshift_be.h"
 #include "compare.h"
+#include "fips_mode.h"
 #include "lc_hash_drbg.h"
 #include "math_helper.h"
 #include "ret_checkers.h"
@@ -34,7 +35,7 @@ static void drbg_hash_selftest(void)
 {
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t ent_nonce[] = {
-		0x9E, 0x28, 0x52, 0xF1, 0xD8, 0xB2, 0x3C, 0x1A, 0x80, 0xCA,
+		FIPS140_MOD(0x9E), 0x28, 0x52, 0xF1, 0xD8, 0xB2, 0x3C, 0x1A, 0x80, 0xCA,
 		0x75, 0x29, 0x37, 0xAC, 0x58, 0x54, 0x61, 0x98, 0xDB, 0x72,
 		0x81, 0xB7, 0x43, 0xDB, 0x37, 0x21, 0x8E, 0x86, 0x40, 0x3B,
 		0x74, 0xF9, 0x88, 0x45, 0x49, 0xDC, 0x49, 0x26, 0xBB, 0xAA,
@@ -100,10 +101,12 @@ static void drbg_hash_selftest(void)
 
 	if (lc_drbg_hash_seed_nocheck(drbg_ctx->rng_state, ent_nonce,
 				      sizeof(ent_nonce), pers, sizeof(pers)))
-		return;
+		goto out;
 
 	lc_rng_generate(drbg_ctx, addtl1, sizeof(addtl1), act, sizeof(act));
 	lc_rng_generate(drbg_ctx, addtl2, sizeof(addtl2), act, sizeof(act));
+
+out:
 	lc_compare_selftest(LC_ALG_STATUS_HASH_DRBG, act, exp, sizeof(exp),
 			    "Hash DRBG");
 	lc_rng_zero(drbg_ctx);

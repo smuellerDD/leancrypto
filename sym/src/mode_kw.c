@@ -23,6 +23,7 @@
 #include "compare.h"
 #include "conv_be_le.h"
 #include "ext_headers_internal.h"
+#include "fips_mode.h"
 #include "lc_aes.h"
 #include "lc_sym.h"
 #include "lc_memset_secure.h"
@@ -43,7 +44,7 @@ struct aes_kw_block {
 void mode_kw_selftest(const struct lc_sym *aes)
 {
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t key256[] = { 0x80, 0xaa, 0x99, 0x73, 0x27, 0xa4,
+	static const uint8_t key256[] = { FIPS140_MOD(0x80), 0xaa, 0x99, 0x73, 0x27, 0xa4,
 					  0x80, 0x6b, 0x6a, 0x7a, 0x41, 0xa5,
 					  0x2b, 0x86, 0xc3, 0x71, 0x03, 0x86,
 					  0xf9, 0x32, 0x78, 0x6e, 0xf7, 0x96,
@@ -71,22 +72,26 @@ void mode_kw_selftest(const struct lc_sym *aes)
 	unpoison(key256, sizeof(key256));
 
 	aes->init_nocheck(ctx->sym_state);
-	lc_sym_setkey(ctx, key256, sizeof(key256));
+	if (lc_sym_setkey(ctx, key256, sizeof(key256)))
+		goto out;
 	lc_sym_setiv(ctx, iv, sizeof(iv));
 	lc_sym_encrypt(ctx, in, out, sizeof(in));
 	if (lc_compare_selftest(LC_ALG_STATUS_AES_KW, out, out256,
 				sizeof(out256), "AES-KW encrypt"))
-		goto out;
+		goto out2;
 	lc_sym_zero(ctx);
 
 	aes->init_nocheck(ctx->sym_state);
-	lc_sym_setkey(ctx, key256, sizeof(key256));
+	if (lc_sym_setkey(ctx, key256, sizeof(key256)))
+		goto out;
 	lc_sym_setiv(ctx, iv, sizeof(iv));
 	lc_sym_decrypt(ctx, out, out, sizeof(out));
+
+out:
 	lc_compare_selftest(LC_ALG_STATUS_AES_KW, in, out, sizeof(in),
 			    "AES-KW decrypt");
 
-out:
+out2:
 	lc_sym_zero(ctx);
 }
 

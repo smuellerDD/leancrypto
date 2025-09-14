@@ -28,6 +28,30 @@
 extern "C" {
 #endif
 
+static inline int test_validate_status(int ret, uint64_t algorithm)
+{
+	enum lc_alg_status_result expected = lc_alg_status_result_passed;
+
+#ifdef LC_FIPS140_DEBUG
+	/* Set any recorded result to zero */
+	if (ret > 0)
+		ret = 0;
+	expected = lc_alg_status_result_failed;
+#endif
+
+	if (lc_status_get_result(algorithm) != expected) {
+		printf("Self test status %u unexpected\n",
+		       lc_status_get_result(algorithm));
+#ifdef LC_FIPS140_DEBUG
+		ret -= 1;
+#else
+		ret += 1;
+#endif
+	}
+
+	return ret;
+}
+
 static inline int test_print_status(void)
 {
 	struct workspace {
@@ -38,7 +62,7 @@ static inline int test_print_status(void)
 
 	lc_status(ws->status, sizeof(ws->status));
 	if (strlen(ws->status) == 0) {
-		ret = 1;
+		ret += 1;
 		goto out;
 	}
 	printf("Status information from leancrypto:\n%s", ws->status);

@@ -278,6 +278,16 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	(void)argc;
 	(void)argv;
 
+#ifdef LC_FIPS140_DEBUG
+	/*
+	 * Both algos are used for the random number generation as part of
+	 * the key generation. Thus we need to enable them for executing the
+	 * test.
+	 */
+	alg_status_set_result(lc_alg_status_result_passed, LC_ALG_STATUS_SHAKE);
+	alg_status_set_result(lc_alg_status_result_passed, LC_ALG_STATUS_SHA3);
+#endif
+
 	ret = kyber_ies_tester();
 	if (ret == -EOPNOTSUPP)
 		ret = 77;

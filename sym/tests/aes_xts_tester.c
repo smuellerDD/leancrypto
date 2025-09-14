@@ -262,7 +262,7 @@ static int test_encrypt_xts_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 	rc += lc_compare(out2, pt, ptlen, "AES-XTS decrypt plaintext");
 
 out:
-	return ret ? ret : rc;
+	return ret ? !!ret : !!rc;
 }
 
 static int test_xts(const struct lc_sym *aes, const char *name)
@@ -299,13 +299,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_EXEC_ONE_TEST(lc_aes_xts_armce);
 	LC_EXEC_ONE_TEST(lc_aes_xts_riscv64);
 
-	if (lc_status_get_result(LC_ALG_STATUS_AES_XTS) !=
-	    lc_alg_status_result_passed) {
-		printf("AES-XTS self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_AES_XTS));
-		return 1;
-	}
-
+	ret = test_validate_status(ret, LC_ALG_STATUS_AES_XTS);
 	ret += test_print_status();
 
 	return ret;

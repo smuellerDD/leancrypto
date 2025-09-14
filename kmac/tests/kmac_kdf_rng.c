@@ -20,6 +20,7 @@
 #include "alignment.h"
 #include "compare.h"
 #include "lc_kmac256_drng.h"
+#include "ret_checkers.h"
 #include "visibility.h"
 
 #define LC_KMAC_DRNG_SEED_CUSTOMIZATION_STRING "KMAC-DRNG seed"
@@ -63,10 +64,11 @@ static int kmac_drng_selftest(struct lc_rng_ctx *kmac_ctx)
 	uint8_t act[sizeof(exp)] = { 0 };
 	int ret;
 
-	lc_rng_seed(kmac_ctx, key, sizeof(key), cust, sizeof(cust));
+	CKINT(lc_rng_seed(kmac_ctx, key, sizeof(key), cust, sizeof(cust)));
 	lc_rng_generate(kmac_ctx, msg, sizeof(msg), act, sizeof(act));
 	ret = lc_compare(act, exp, sizeof(act), "KMAC KDF RNG");
 
+out:
 	return ret;
 }
 

@@ -143,20 +143,10 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = kmac_test();
 
-	if (lc_status_get_result(LC_ALG_STATUS_KMAC_DRBG) !=
-	    lc_alg_status_result_passed) {
-		printf("KMAC DRBG self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_KMAC_DRBG));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_KMAC) !=
-	    lc_alg_status_result_passed) {
-		printf("KMAC self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_KMAC));
-		return 1;
-	}
-
+	ret = test_validate_status(ret, LC_ALG_STATUS_KMAC_DRBG);
+#ifndef LC_FIPS140_DEBUG
+	ret = test_validate_status(ret, LC_ALG_STATUS_KMAC);
+#endif
 	ret += test_print_status();
 
 	return ret;

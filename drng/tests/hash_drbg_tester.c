@@ -274,20 +274,8 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = hash_drbg_tester();
 
-	if (lc_status_get_result(LC_ALG_STATUS_HASH_DRBG) !=
-	    lc_alg_status_result_passed) {
-		printf("Hash DRBG self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_HASH_DRBG));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_SHA512) !=
-	    lc_alg_status_result_passed) {
-		printf("SHA-512 self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_SHA512));
-		return 1;
-	}
-
+	ret = test_validate_status(ret, LC_ALG_STATUS_HASH_DRBG);
+	ret = test_validate_status(ret, LC_ALG_STATUS_SHA512);
 	ret += test_print_status();
 
 	return ret;

@@ -1181,7 +1181,7 @@ static int kyber_kem_double_tester(int check)
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 
-	CKINT(lc_kyber_x25519_keypair(&ws->pk, &ws->sk, selftest_rng));
+	ret = lc_kyber_x25519_keypair(&ws->pk, &ws->sk, selftest_rng);
 
 	if (check) {
 		rc += lc_compare(ws->pk.pk.pk, kyber_pk_exp.pk.pk,
@@ -1196,11 +1196,14 @@ static int kyber_kem_double_tester(int check)
 				 "X25519 sk keygen\n");
 	}
 
-	CKINT(lc_kyber_x25519_enc_kdf_internal(
-		&ws->ct, ws->ss1, sizeof(ws->ss1), &ws->pk, selftest_rng));
+	ret |= lc_kyber_x25519_enc_kdf_internal(
+		&ws->ct, ws->ss1, sizeof(ws->ss1), &ws->pk, selftest_rng);
 
-	CKINT(lc_kyber_x25519_dec_kdf(ws->ss2, sizeof(ws->ss2), &ws->ct,
-				      &ws->sk));
+	ret += lc_kyber_x25519_dec_kdf(ws->ss2, sizeof(ws->ss2), &ws->ct,
+				       &ws->sk);
+
+	if (ret)
+		goto out;
 
 	if (check) {
 		rc += lc_compare(ws->ss1, ss_exp, sizeof(ss_exp),
@@ -1211,7 +1214,7 @@ static int kyber_kem_double_tester(int check)
 
 out:
 	LC_RELEASE_MEM(ws);
-	return ret ? ret : rc;
+	return ret ? !!ret : rc;
 }
 
 static int kyber_kem_double_enc_tester(void)
@@ -1282,6 +1285,16 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	(void)argv;
 
+#ifdef LC_FIPS140_DEBUG
+	/*
+	 * Both algos are used for the random number generation as part of
+	 * the key generation. Thus we need to enable them for executing the
+	 * test.
+	 */
+	alg_status_set_result(lc_alg_status_result_passed, LC_ALG_STATUS_SHAKE);
+	alg_status_set_result(lc_alg_status_result_passed, LC_ALG_STATUS_SHA3);
+#endif
+
 	if (argc != 2)
 		ret = kyber_kem_double_tester(1);
 	else if (argv[1][0] == 'e')
@@ -1301,53 +1314,15 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	 * Only verify kyber_kem_tester_common because the other tests
 	 * disable the self tests.
 	 */
-	if ((argc != 2) &&
-	    lc_status_get_result(LC_ALG_STATUS_MLKEM_KEYGEN) !=
-	    lc_alg_status_result_passed) {
-		printf("ML-KEM self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_MLKEM_KEYGEN));
-		return 1;
-	}
-
-	if ((argc != 2) &&
-	    lc_status_get_result(LC_ALG_STATUS_MLKEM_ENC) !=
-	    lc_alg_status_result_passed) {
-		printf("ML-KEM enc self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_MLKEM_ENC));
-		return 1;
-	}
-
-	if ((argc != 2) &&
-	    lc_status_get_result(LC_ALG_STATUS_MLKEM_DEC) !=
-	    lc_alg_status_result_passed) {
-		printf("ML-KEM dec self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_MLKEM_DEC));
-		return 1;
-	}
-
-	if ((argc != 2) && lc_status_get_result(LC_ALG_STATUS_X25519_KEYKEN) !=
-	    lc_alg_status_result_passed) {
-		printf("X25519 keygen self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_X25519_KEYKEN));
-		return 1;
-	}
-
-	if ((argc != 2) && lc_status_get_result(LC_ALG_STATUS_X25519_SS) !=
-	    lc_alg_status_result_passed) {
-		printf("X25519 SS self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_X25519_SS));
-		return 1;
-	}
-
-
-	if ((argc != 2) && lc_status_get_result(LC_ALG_STATUS_SHAKE) !=
-	    lc_alg_status_result_passed) {
-		printf("SHAKE self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_SHAKE));
-		return 1;
-	}
-
 	if (argc != 2) {
+		ret = test_validate_status(ret, LC_ALG_STATUS_MLKEM_KEYGEN);
+		ret = test_validate_status(ret, LC_ALG_STATUS_MLKEM_ENC);
+		ret = test_validate_status(ret, LC_ALG_STATUS_MLKEM_DEC);
+#ifndef LC_FIPS140_DEBUG
+		ret = test_validate_status(ret, LC_ALG_STATUS_X25519_KEYGEN);
+		ret = test_validate_status(ret, LC_ALG_STATUS_X25519_SS);
+		ret = test_validate_status(ret, LC_ALG_STATUS_SHAKE);
+#endif
 		ret += test_print_status();
 	}
 

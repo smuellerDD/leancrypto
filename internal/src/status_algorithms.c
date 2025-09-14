@@ -134,11 +134,11 @@ static const struct alg_status_show alg_status_show_kem_pqc[] = {
 
 static const struct alg_status_show alg_status_show_kem_classic[] = {
 #ifdef LC_CURVE25519
-{ .flag = LC_ALG_STATUS_X25519_KEYKEN, .alg_name = "X25519-Keygen", .strlen = 13 },
+{ .flag = LC_ALG_STATUS_X25519_KEYGEN, .alg_name = "X25519-Keygen", .strlen = 13 },
 { .flag = LC_ALG_STATUS_X25519_SS, .alg_name = "X25519-SS", .strlen = 9 },
 #endif
 #ifdef LC_CURVE448
-{ .flag = LC_ALG_STATUS_X448_KEYKEN, .alg_name = "X448-Keygen", .strlen = 11 },
+{ .flag = LC_ALG_STATUS_X448_KEYGEN, .alg_name = "X448-Keygen", .strlen = 11 },
 { .flag = LC_ALG_STATUS_X448_SS, .alg_name = "X448-SS", .strlen = 7 },
 #endif
 /* Make sure this array is never empty */

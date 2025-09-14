@@ -21,6 +21,7 @@
 #include "compare.h"
 #include "conv_be_le.h"
 #include "ext_headers_internal.h"
+#include "fips_mode.h"
 #include "lc_hmac.h"
 #include "lc_kdf_dpi.h"
 #include "lc_memset_secure.h"
@@ -39,7 +40,7 @@ static int lc_kdf_dpi_init_nocheck(struct lc_hmac_ctx *hmac_ctx,
 static void lc_kdf_dpi_selftest(void)
 {
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t key[] = { 0x3D, 0x36, 0x1A, 0x9F, 0x28, 0xAA,
+	static const uint8_t key[] = { FIPS140_MOD(0x3D), 0x36, 0x1A, 0x9F, 0x28, 0xAA,
 				       0xD7, 0x22, 0xF6, 0x8E, 0xBD, 0xC2,
 				       0x98, 0x43, 0x9D, 0xA1 };
 	LC_FIPS_RODATA_SECTION
@@ -57,8 +58,11 @@ static void lc_kdf_dpi_selftest(void)
 
 	LC_SELFTEST_RUN(LC_ALG_STATUS_DPI_KDF);
 
-	lc_kdf_dpi_init_nocheck(hmac_ctx, key, sizeof(key));
+	if (lc_kdf_dpi_init_nocheck(hmac_ctx, key, sizeof(key)))
+		goto out;
 	lc_kdf_dpi_generate(hmac_ctx, label, sizeof(label), act, sizeof(act));
+
+out:
 	lc_compare_selftest(LC_ALG_STATUS_DPI_KDF, act, exp, sizeof(exp),
 			    "SP800-108 DPI KDF");
 }

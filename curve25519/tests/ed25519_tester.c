@@ -152,7 +152,7 @@ static int ed25519_siggen_tester(void)
 		   "ED25519 Signature\n");
 
 out:
-	return ret;
+	return ret ? 1 : 0;
 }
 
 static int ed25519_siggen_rfc8032_tester(void)
@@ -185,7 +185,7 @@ static int ed25519_siggen_rfc8032_tester(void)
 		   "ED25519 Signature\n");
 
 out:
-	return ret;
+	return ret ? 1 : 0;
 }
 
 static int ed25519ph_siggen_rfc8032_tester(void)
@@ -229,7 +229,7 @@ static int ed25519ph_siggen_rfc8032_tester(void)
 		   "ED25519ph Signature\n");
 
 out:
-	return ret;
+	return ret ? 1 : 0;
 }
 
 static int ed25519_pwc_tester(void)
@@ -246,7 +246,7 @@ static int ed25519_pwc_tester(void)
 	CKINT(lc_ed25519_verify(&sig, msg, sizeof(msg), &pk));
 
 out:
-	return ret;
+	return ret ? 1 : 0;
 }
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
@@ -256,6 +256,15 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	(void)argc;
 	(void)argv;
 
+#ifdef LC_FIPS140_DEBUG
+	/*
+	 * Both algos are used for the random number generation as part of
+	 * the key generation. Thus we need to enable them for executing the
+	 * test.
+	 */
+	alg_status_set_result(lc_alg_status_result_passed, LC_ALG_STATUS_SHAKE);
+#endif
+
 	ret += ed25519_pwc_tester();
 	ret += ed25519_sigver_pos_tester();
 	ret += ed25519_sigver_neg_tester();
@@ -263,27 +272,9 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	ret += ed25519_siggen_rfc8032_tester();
 	ret += ed25519ph_siggen_rfc8032_tester();
 
-	if (lc_status_get_result(LC_ALG_STATUS_ED25519_KEYGEN) !=
-	    lc_alg_status_result_passed) {
-		printf("ED25519 keygen self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_ED25519_KEYGEN));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_ED25519_SIGGEN) !=
-	    lc_alg_status_result_passed) {
-		printf("ED25519 siggen self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_ED25519_SIGGEN));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_ED25519_SIGVER) !=
-	    lc_alg_status_result_passed) {
-		printf("ED25519 sigver self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_ED25519_SIGVER));
-		return 1;
-	}
-
+	ret = test_validate_status(ret, LC_ALG_STATUS_ED25519_KEYGEN);
+	ret = test_validate_status(ret, LC_ALG_STATUS_ED25519_SIGGEN);
+	ret = test_validate_status(ret, LC_ALG_STATUS_ED25519_SIGVER);
 	ret += test_print_status();
 
 	return ret;

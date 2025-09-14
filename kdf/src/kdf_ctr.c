@@ -21,6 +21,7 @@
 #include "compare.h"
 #include "conv_be_le.h"
 #include "ext_headers_internal.h"
+#include "fips_mode.h"
 #include "lc_hmac.h"
 #include "lc_kdf_ctr.h"
 #include "lc_sha256.h"
@@ -38,7 +39,7 @@ static int lc_kdf_ctr_init_nocheck(struct lc_hmac_ctx *hmac_ctx,
 static void lc_kdf_ctr_selftest(void)
 {
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t key[] = { 0xdd, 0x1d, 0x91, 0xb7, 0xd9, 0x0b, 0x2b,
+	static const uint8_t key[] = { FIPS140_MOD(0xdd), 0x1d, 0x91, 0xb7, 0xd9, 0x0b, 0x2b,
 				       0xd3, 0x13, 0x85, 0x33, 0xce, 0x92, 0xb2,
 				       0x72, 0xfb, 0xf8, 0xa3, 0x69, 0x31, 0x6a,
 				       0xef, 0xe2, 0x42, 0xe6, 0x59, 0xcc, 0x0a,
@@ -61,8 +62,11 @@ static void lc_kdf_ctr_selftest(void)
 
 	LC_SELFTEST_RUN(LC_ALG_STATUS_CTR_KDF);
 
-	lc_kdf_ctr_init_nocheck(hmac_ctx, key, sizeof(key));
+	if (lc_kdf_ctr_init_nocheck(hmac_ctx, key, sizeof(key)))
+		goto out;
 	lc_kdf_ctr_generate(hmac_ctx, label, sizeof(label), act, sizeof(act));
+
+out:
 	lc_compare_selftest(LC_ALG_STATUS_CTR_KDF, act, exp, sizeof(exp),
 			    "SP800-108 CTR KDF");
 }

@@ -103,13 +103,6 @@ static int lc_aes_gcm_test(int argc)
 	if (lc_aead_setkey(aes_gcm, key, sizeof(key), iv, sizeof(iv)))
 		return 1;
 
-	if (lc_status_get_result(LC_ALG_STATUS_AES_GCM) !=
-	    lc_alg_status_result_passed) {
-		printf("Self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_AES_GCM));
-		ret += 1;
-	}
-
 	lc_aead_encrypt(aes_gcm, in, act_ct, sizeof(in), aadp, aadlen, act_tag,
 			sizeof(act_tag));
 	ret += lc_compare(act_ct, exp_ct, sizeof(exp_ct),
@@ -217,6 +210,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = lc_aes_gcm_test(argc);
 
+	ret = test_validate_status(ret, LC_ALG_STATUS_AES_GCM);
 	ret += test_print_status();
 
 	lc_cpu_feature_enable();

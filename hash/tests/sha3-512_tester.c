@@ -112,13 +112,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = sha3_512_tester();
 
-	if (lc_status_get_result(LC_ALG_STATUS_SHA3) !=
-	    lc_alg_status_result_passed) {
-		printf("SHA3-512 self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_SHA3));
-		return 1;
-	}
-
+	ret = test_validate_status(ret, LC_ALG_STATUS_SHA3);
 	ret += test_print_status();
 
 	return ret;

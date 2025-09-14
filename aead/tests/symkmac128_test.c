@@ -255,34 +255,12 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = kh_tester();
 
-	if (lc_status_get_result(LC_ALG_STATUS_SYM_KMAC) !=
-	    lc_alg_status_result_passed) {
-		printf("SymKMAC crypt self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_SYM_KMAC));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_KMAC) !=
-	    lc_alg_status_result_passed) {
-		printf("KMAC self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_KMAC));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_AES_CBC) !=
-	    lc_alg_status_result_passed) {
-		printf("AES-CBC self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_AES_CBC));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_AES_CTR) !=
-	    lc_alg_status_result_passed) {
-		printf("AES-CTR self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_AES_CTR));
-		return 1;
-	}
-
+	ret = test_validate_status(ret, LC_ALG_STATUS_SYM_KMAC);
+	ret = test_validate_status(ret, LC_ALG_STATUS_KMAC);
+#ifndef LC_FIPS140_DEBUG
+	ret = test_validate_status(ret, LC_ALG_STATUS_AES_CBC);
+	ret = test_validate_status(ret, LC_ALG_STATUS_AES_CTR);
+#endif
 	ret += test_print_status();
 
 	return ret;

@@ -146,20 +146,10 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = cshake_drng_test();
 
-	if (lc_status_get_result(LC_ALG_STATUS_CSHAKE_DRBG) !=
-	    lc_alg_status_result_passed) {
-		printf("cSHAKE DRNG self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_CSHAKE_DRBG));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_CSHAKE) !=
-	    lc_alg_status_result_passed) {
-		printf("cSHAKE self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_CSHAKE));
-		return 1;
-	}
-
+	ret = test_validate_status(ret, LC_ALG_STATUS_CSHAKE_DRBG);
+#ifndef LC_FIPS140_DEBUG
+	ret = test_validate_status(ret, LC_ALG_STATUS_CSHAKE);
+#endif
 	ret += test_print_status();
 
 	return ret;

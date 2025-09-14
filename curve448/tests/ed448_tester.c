@@ -53,9 +53,8 @@ static int ed448_sigver_pos_tester(void)
 			 0x1c, 0xf8, 0x07, 0xc0, 0x3a, 0x00 }
 	};
 	static const uint8_t msg[] = { 0x03 };
-	int ret = !!lc_ed448_verify(&sig, msg, sizeof(msg), &pk);
 
-	return ret;
+	return !!lc_ed448_verify(&sig, msg, sizeof(msg), &pk);
 }
 
 /* Test vector obtained from RFC 8032 section 7.4 */
@@ -130,7 +129,7 @@ static int ed448_siggen_tester(void)
 		   "ED448 Signature\n");
 
 out:
-	return ret;
+	return !!ret;
 }
 
 static int ed448_pwc_tester(void)
@@ -147,7 +146,7 @@ static int ed448_pwc_tester(void)
 	CKINT(lc_ed448_verify(&sig, msg, sizeof(msg), &pk));
 
 out:
-	return ret;
+	return !!ret;
 }
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
@@ -157,32 +156,23 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	(void)argc;
 	(void)argv;
 
+#ifdef LC_FIPS140_DEBUG
+	/*
+	 * Both algos are used for the random number generation as part of
+	 * the key generation. Thus we need to enable them for executing the
+	 * test.
+	 */
+	alg_status_set_result(lc_alg_status_result_passed, LC_ALG_STATUS_SHAKE);
+#endif
+
 	ret += ed448_pwc_tester();
 	ret += ed448_sigver_pos_tester();
 	ret += ed448_sigver_neg_tester();
 	ret += ed448_siggen_tester();
 
-	if (lc_status_get_result(LC_ALG_STATUS_ED448_KEYGEN) !=
-	    lc_alg_status_result_passed) {
-		printf("ED448 keygen self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_ED448_KEYGEN));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_ED448_SIGGEN) !=
-	    lc_alg_status_result_passed) {
-		printf("ED448 siggen self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_ED448_SIGGEN));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_ED448_SIGVER) !=
-	    lc_alg_status_result_passed) {
-		printf("ED448 sigver self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_ED448_SIGVER));
-		return 1;
-	}
-
+	ret = test_validate_status(ret, LC_ALG_STATUS_ED448_KEYGEN);
+	ret = test_validate_status(ret, LC_ALG_STATUS_ED448_SIGGEN);
+	ret = test_validate_status(ret, LC_ALG_STATUS_ED448_SIGVER);
 	ret += test_print_status();
 
 	return ret;

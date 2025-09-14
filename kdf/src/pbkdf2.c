@@ -22,6 +22,7 @@
 #include "compare.h"
 #include "conv_be_le.h"
 #include "ext_headers_internal.h"
+#include "fips_mode.h"
 #include "lc_hmac.h"
 #include "lc_pbkdf2.h"
 #include "lc_memset_secure.h"
@@ -150,20 +151,20 @@ out:
 static void lc_pbkdf2_selftest(void)
 {
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t pw[] = { 0x70, 0x61, 0x73, 0x73,
+	static const uint8_t pw[] = { FIPS140_MOD(0x70), 0x61, 0x73, 0x73,
 				      0x77, 0x6f, 0x72, 0x64 };
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t salt[] = { 0x73, 0x61, 0x6c, 0x74 };
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t exp_256[] = { 0x12, 0x0f, 0xb6, 0xcf, 0xfc,
-					   0xf8, 0xb3, 0x2c, 0x43, 0xe7,
-					   0x22, 0x52, 0x56, 0xc4, 0xf8,
-					   0x37, 0xa8, 0x65, 0x48, 0xc9 };
+	static const uint8_t exp_256[] = { 0xae, 0x4d, 0x0c, 0x95, 0xaf, 0x6b,
+					   0x46, 0xd3, 0x2d, 0x0a, 0xdf, 0xf9,
+					   0x28, 0xf0, 0x6d, 0xd0, 0x2a, 0x30,
+					   0x3f, 0x8e };
 	uint8_t act[sizeof(exp_256)];
 
 	LC_SELFTEST_RUN(LC_ALG_STATUS_PBKDF2);
 
-	lc_pbkdf2_nocheck(lc_sha256, pw, sizeof(pw), salt, sizeof(salt), 1, act,
+	lc_pbkdf2_nocheck(lc_sha256, pw, sizeof(pw), salt, sizeof(salt), 2, act,
 			  sizeof(act));
 	lc_compare_selftest(LC_ALG_STATUS_PBKDF2, act, exp_256,
 			    sizeof(exp_256), "PBKDF2");

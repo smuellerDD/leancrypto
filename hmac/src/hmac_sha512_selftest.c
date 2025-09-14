@@ -18,6 +18,7 @@
  */
 
 #include "compare.h"
+#include "fips_mode.h"
 #include "hmac_selftest.h"
 #include "lc_hmac.h"
 #include "lc_sha512.h"
@@ -25,7 +26,7 @@
 int hmac_sha512_selftest(void)
 {
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t msg_512[] = { 0xC1, 0xB4, 0x8B, 0x27, 0x02, 0xC2,
+	static const uint8_t msg_512[] = { FIPS140_MOD(0xC1), 0xB4, 0x8B, 0x27, 0x02, 0xC2,
 					   0xC6, 0x05, 0xC0, 0xC8, 0x24, 0xDA,
 					   0x56, 0x30, 0xFD, 0x90 };
 	LC_FIPS_RODATA_SECTION

@@ -64,7 +64,7 @@ static int ak_tester_one(const struct lc_hash *hash, const uint8_t *pt,
 	ret = lc_aead_setkey(ak, key, keylen, iv, ivlen);
 	if (ret) {
 		printf("AEAD setkey failed: %zd\n", ret);
-		return (int)ret;
+		return 1;
 	}
 
 	lc_aead_encrypt(ak, pt, out_enc, ptlen, aad, aadlen, tag, exp_tag_len);
@@ -396,13 +396,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_EXEC_ONE_TEST_256(lc_sha3_256_avx512);
 	LC_EXEC_ONE_TEST_256(lc_sha3_256_riscv_asm);
 
-	if (lc_status_get_result(LC_ALG_STATUS_ASCON_KECCAK) !=
-	    lc_alg_status_result_passed) {
-		printf("Self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_ASCON_KECCAK));
-		return 1;
-	}
-
+	ret = test_validate_status(ret, LC_ALG_STATUS_ASCON_KECCAK);
 	ret += test_print_status();
 
 	return ret;

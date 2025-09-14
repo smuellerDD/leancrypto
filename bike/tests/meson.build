@@ -23,10 +23,12 @@ if get_option('bike_5').enabled()
 				)
 
 	test('BIKE 5 KEM Common', bike_5_tester, suite: regression,
-	     timeout: 300)
+	     timeout: 300,
+	     should_fail: fips140_negative_expect_fail)
 	# Prevent parallel execution, as test disables acceleration
 	test('BIKE 5 KEM C', bike_5_tester, args : [ 'c' ], suite: regression,
-	     is_parallel: false, timeout: 300)
+	     is_parallel: false, timeout: 300,
+	     should_fail: fips140_negative_expect_fail)
 
 	test('BIKE 5 KEM 200 Common', bike_5_tester_perf, timeout: 2000,
 	     is_parallel: false, suite: performance)
@@ -56,9 +58,11 @@ if get_option('bike_3').enabled()
 				c_args : '-DLC_BIKE_TYPE_3'
 				)
 
-	test('BIKE 3 KEM Common', bike_3_tester, suite: regression)
+	test('BIKE 3 KEM Common', bike_3_tester, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 	test('BIKE 3 KEM C', bike_3_tester, args : [ 'c' ], suite: regression,
-	     is_parallel: false, timeout: 300)
+	     is_parallel: false, timeout: 300,
+	     should_fail: fips140_negative_expect_fail)
 
 	test('BIKE 3 KEM 200 Common', bike_3_tester_perf, timeout: 1000,
 	     is_parallel: false, suite: performance)
@@ -88,9 +92,11 @@ if get_option('bike_1').enabled()
 				c_args : '-DLC_BIKE_TYPE_1'
 				)
 
-	test('BIKE 1 KEM Common', bike_1_tester, suite: regression)
+	test('BIKE 1 KEM Common', bike_1_tester, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 	test('BIKE 1 KEM C', bike_1_tester, args : [ 'c' ], suite: regression,
-	     is_parallel: false, timeout: 300)
+	     is_parallel: false, timeout: 300,
+	     should_fail: fips140_negative_expect_fail)
 
 	test('BIKE 1 KEM 200 Common', bike_1_tester_perf, timeout: 1000,
 	     is_parallel: false, suite: performance)
@@ -108,5 +114,6 @@ if bike_tests_generic
 				], link_with: leancrypto_lib
 				)
 	test('BIKE official API KEM', bike_kem_official_tester,
-	     suite: regression)
+	     suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 endif

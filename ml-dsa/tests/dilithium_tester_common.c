@@ -22,6 +22,7 @@
 #include "lc_status.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
+#include "status_algorithms.h"
 #include "test_helper_common.h"
 #include "visibility.h"
 
@@ -54,40 +55,27 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	(void)argv;
 
+#ifdef LC_FIPS140_DEBUG
+	/*
+	 * Both algos are used for the random number generation as part of
+	 * the key generation. Thus we need to enable them for executing the
+	 * test.
+	 */
+	alg_status_set_result(lc_alg_status_result_passed, LC_ALG_STATUS_SHAKE);
+#endif
+
 	if (argc != 2) {
 		ret = dilithium_tester_common();
 	} else {
 		ret = _dilithium_tester_common(10000, 0, 0, 0);
 	}
 
-	if (lc_status_get_result(LC_ALG_STATUS_MLDSA_KEYGEN) !=
-	    lc_alg_status_result_passed) {
-		printf("ML-DSA self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_MLDSA_KEYGEN));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_MLDSA_SIGGEN) !=
-	    lc_alg_status_result_passed) {
-		printf("ML-DSA siggen self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_MLDSA_SIGGEN));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_MLDSA_SIGVER) !=
-	    lc_alg_status_result_passed) {
-		printf("ML-DSA sigver self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_MLDSA_SIGVER));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_SHAKE) !=
-	    lc_alg_status_result_passed) {
-		printf("SHAKE self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_SHAKE));
-		return 1;
-	}
-
+	ret = test_validate_status(ret, LC_ALG_STATUS_MLDSA_KEYGEN);
+	ret = test_validate_status(ret, LC_ALG_STATUS_MLDSA_SIGGEN);
+	ret = test_validate_status(ret, LC_ALG_STATUS_MLDSA_SIGVER);
+#ifndef LC_FIPS140_DEBUG
+	ret = test_validate_status(ret, LC_ALG_STATUS_SHAKE);
+#endif
 	ret += test_print_status();
 
 	return ret;

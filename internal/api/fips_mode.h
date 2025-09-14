@@ -48,6 +48,12 @@ int fips140_mode_enabled(void);
 		return -EOPNOTSUPP;                                            \
 	}
 
+#ifdef LC_FIPS140_DEBUG
+#define FIPS140_MOD(x) (x ^ 0x01)
+#else
+#define FIPS140_MOD(x) (x)
+#endif
+
 #ifdef __cplusplus
 }
 #endif

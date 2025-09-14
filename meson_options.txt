@@ -394,3 +394,10 @@ When enabled, the asymmetric signature operation is not enforced and returns
 success in ANY CASE. THIS IS ONLY INTENDED FOR TESTING / DEBUGGING OF
 CERTIFICATES / PKCS7 BLOBS WITH UNSUPPORTED SIGNATURES!
 ''')
+
+option('fips140_negative', type: 'feature', value: 'disabled',
+       description: '''DEBUGGING: FIPS 140 negative testing - DO NOT ENABLE IN PRODUCTION SYSTEMS!
+
+When enabled, the power-up self tests are modified to fail to allow verifying
+the correctness of the self tests.
+''')

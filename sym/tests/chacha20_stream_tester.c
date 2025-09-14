@@ -344,7 +344,7 @@ static int chacha20_enc_large(const struct lc_sym *chacha20_sym,
 
 out:
 	lc_sym_zero(chacha20);
-	return ret;
+	return !!ret;
 }
 
 /* Test vector according to RFC 7539 section 2.4.2 */
@@ -408,7 +408,7 @@ static int chacha20_enc_selftest(const struct lc_sym *chacha20_sym,
 
 out:
 	lc_sym_zero(chacha20);
-	return ret;
+	return !!ret;
 }
 
 static int chacha20_stream_test(const struct lc_sym *chacha20_sym,
@@ -480,7 +480,7 @@ static int chacha20_stream_test(const struct lc_sym *chacha20_sym,
 
 out:
 	lc_sym_zero(chacha20);
-	return ret;
+	return !!ret;
 }
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
@@ -497,13 +497,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_EXEC_ONE_TEST(lc_chacha20_avx2)
 	LC_EXEC_ONE_TEST(lc_chacha20_avx512)
 
-	if (lc_status_get_result(LC_ALG_STATUS_CHACHA20) !=
-	    lc_alg_status_result_passed) {
-		printf("ChaCha20 self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_CHACHA20));
-		return 1;
-	}
-
+	ret = test_validate_status(ret, LC_ALG_STATUS_CHACHA20);
 	ret += test_print_status();
 
 	return ret;

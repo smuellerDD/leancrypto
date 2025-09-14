@@ -27,6 +27,7 @@
 #include "aes_internal.h"
 #include "compare.h"
 #include "ext_headers_internal.h"
+#include "fips_mode.h"
 #include "lc_aes.h"
 #include "lc_sym.h"
 #include "mode_ctr.h"
@@ -41,7 +42,7 @@
 void mode_ctr_selftest(const struct lc_sym *aes)
 {
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t key256[] = { 0x60, 0x3d, 0xeb, 0x10, 0x15, 0xca,
+	static const uint8_t key256[] = { FIPS140_MOD(0x60), 0x3d, 0xeb, 0x10, 0x15, 0xca,
 					  0x71, 0xbe, 0x2b, 0x73, 0xae, 0xf0,
 					  0x85, 0x7d, 0x77, 0x81, 0x1f, 0x35,
 					  0x2c, 0x07, 0x3b, 0x61, 0x08, 0xd7,
@@ -81,22 +82,25 @@ void mode_ctr_selftest(const struct lc_sym *aes)
 	unpoison(key256, sizeof(key256));
 
 	aes->init_nocheck(ctx->sym_state);
-	lc_sym_setkey(ctx, key256, sizeof(key256));
+	if (lc_sym_setkey(ctx, key256, sizeof(key256)))
+		goto out;
 	lc_sym_setiv(ctx, iv, sizeof(iv));
 	lc_sym_encrypt(ctx, in, out, sizeof(in));
 	if (lc_compare_selftest(LC_ALG_STATUS_AES_CTR, out, out256,
 				sizeof(out256), "AES-CTR encrypt"))
-		goto out;
+		goto out2;
 	lc_sym_zero(ctx);
 
 	aes->init_nocheck(ctx->sym_state);
-	lc_sym_setkey(ctx, key256, sizeof(key256));
+	if (lc_sym_setkey(ctx, key256, sizeof(key256)))
+		goto out;
 	lc_sym_setiv(ctx, iv, sizeof(iv));
 	lc_sym_decrypt(ctx, out, out, sizeof(out));
-	lc_compare_selftest(LC_ALG_STATUS_AES_CTR, out, in, sizeof(in),
-			    "AES-CTR decrypt");
 
 out:
+	lc_compare_selftest(LC_ALG_STATUS_AES_CTR, out, in, sizeof(in),
+			    "AES-CTR decrypt");
+out2:
 	lc_sym_zero(ctx);
 }
 

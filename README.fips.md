@@ -142,6 +142,28 @@ ACVP-Testing is provided with the [ACVP-Parser](https://github.com/smuellerDD/ac
 
 The mentioned ACVP-Parser was used to obtain all certificates listed on the [leancrypto CAVP website](https://leancrypto.org/leancrypto/cavp_certificates).
 
+## Functional Verification Testing
+
+The functional verification testing is provided with the regression testing offered by the Meson build environment as well as with the Linux kernel compilation.
+
+For Meson, execute `meson test -C build --suite regression`.
+
+For the Linux kernel, execute: `for i in *.ko; do insmod $i; done`.
+
+## Negative Testing
+
+The Meson test framework offers also negative testing of:
+
+* Failing of all power-up self tests
+
+The negative testing is performed with the following commands:
+
+```
+meson setup build -Dfips140_negative=enabled
+meson compile -C build
+meson test -C build --suite regression
+```
+
 ## Random Notes
 
 ECDH 25519 and ECDH 448 is compiled as part of the FIPS module, but is non-approved. This is considered acceptable because the algorithm is not available via an API. Instead, the algorithm is used as part of the hybrid ML-KEM which use it as follows: Hybrid ML-KEM performs an SP800-108 KDF (KMAC256) using the concatenated output of ML-KEM and ECDH 25519 to generate the final shared secret. This is approved as per SP800-56C rev 2 chapter 2.

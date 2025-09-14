@@ -117,9 +117,9 @@ int lc_status(char *outbuf, size_t outlen);
 
 #define LC_ALG_STATUS_TYPE_KEM_CLASSIC                                         \
 	(1UL << (LC_ALG_STATUS_TYPE_MASK_SHIFT + 2))
-#define LC_ALG_STATUS_FLAG_X25519_KEYKEN (LC_ALG_STATUS_FLAG_MASK_SIZE * 0)
+#define LC_ALG_STATUS_FLAG_X25519_KEYGEN (LC_ALG_STATUS_FLAG_MASK_SIZE * 0)
 #define LC_ALG_STATUS_FLAG_X25519_SS (LC_ALG_STATUS_FLAG_MASK_SIZE * 1)
-#define LC_ALG_STATUS_FLAG_X448_KEYKEN (LC_ALG_STATUS_FLAG_MASK_SIZE * 2)
+#define LC_ALG_STATUS_FLAG_X448_KEYGEN (LC_ALG_STATUS_FLAG_MASK_SIZE * 2)
 #define LC_ALG_STATUS_FLAG_X448_SS (LC_ALG_STATUS_FLAG_MASK_SIZE * 3)
 
 #define LC_ALG_STATUS_TYPE_SIG_PQC (1UL << (LC_ALG_STATUS_TYPE_MASK_SHIFT + 3))
@@ -243,14 +243,14 @@ enum lc_alg_status_result {
 #define LC_ALG_STATUS_MLKEM_DEC_KDF                                            \
 	(LC_ALG_STATUS_TYPE_KEM_PQC | LC_ALG_STATUS_FLAG_MLKEM_DEC_KDF)
 /** KEM Algorithm reference: X25515 Key Generation */
-#define LC_ALG_STATUS_X25519_KEYKEN                                            \
-	(LC_ALG_STATUS_TYPE_KEM_CLASSIC | LC_ALG_STATUS_FLAG_X25519_KEYKEN)
+#define LC_ALG_STATUS_X25519_KEYGEN                                            \
+	(LC_ALG_STATUS_TYPE_KEM_CLASSIC | LC_ALG_STATUS_FLAG_X25519_KEYGEN)
 /** KEM Algorithm reference: X25515 Shared Secret */
 #define LC_ALG_STATUS_X25519_SS                                                \
 	(LC_ALG_STATUS_TYPE_KEM_CLASSIC | LC_ALG_STATUS_FLAG_X25519_SS)
 /** KEM Algorithm reference: X25515 Key Generation */
-#define LC_ALG_STATUS_X448_KEYKEN                                              \
-	(LC_ALG_STATUS_TYPE_KEM_CLASSIC | LC_ALG_STATUS_FLAG_X448_KEYKEN)
+#define LC_ALG_STATUS_X448_KEYGEN                                              \
+	(LC_ALG_STATUS_TYPE_KEM_CLASSIC | LC_ALG_STATUS_FLAG_X448_KEYGEN)
 /** KEM Algorithm reference: X25515 Shared Secret */
 #define LC_ALG_STATUS_X448_SS                                                  \
 	(LC_ALG_STATUS_TYPE_KEM_CLASSIC | LC_ALG_STATUS_FLAG_X448_SS)

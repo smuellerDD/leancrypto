@@ -22,6 +22,7 @@
 #include "kyber_kem_tester.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
+#include "status_algorithms.h"
 #include "visibility.h"
 
 static int _kyber_kem_tester_common(unsigned int rounds)
@@ -44,6 +45,16 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;
+
+#ifdef LC_FIPS140_DEBUG
+	/*
+	 * Both algos are used for the random number generation as part of
+	 * the key generation. Thus we need to enable them for executing the
+	 * test.
+	 */
+	alg_status_set_result(lc_alg_status_result_passed, LC_ALG_STATUS_SHAKE);
+	alg_status_set_result(lc_alg_status_result_passed, LC_ALG_STATUS_SHA3);
+#endif
 
 	if (argc != 2)
 		return kyber_kem_tester_common();

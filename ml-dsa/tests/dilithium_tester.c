@@ -194,23 +194,19 @@ int _dilithium_tester(
 	if (_lc_dilithium_keypair_from_seed(&ws->pk, &ws->sk, ws->buf,
 					    LC_DILITHIUM_SEEDBYTES)) {
 		ret = 1;
-		goto out;
 	}
 	if (_lc_dilithium_keypair_from_seed(&ws->pk2, &ws->sk2, ws->buf,
 					    LC_DILITHIUM_SEEDBYTES)) {
-		ret = 1;
-		goto out;
+		ret |= 1;
 	}
 
 	if (memcmp(ws->pk.pk, ws->pk2.pk, LC_DILITHIUM_PUBLICKEYBYTES)) {
 		printf("Public key mismatch for keygen from seed\n");
-		ret = 1;
-		goto out;
+		ret |= 1;
 	}
 	if (memcmp(ws->sk.sk, ws->sk2.sk, LC_DILITHIUM_SECRETKEYBYTES)) {
 		printf("Secret key mismatch for keygen from seed\n");
-		ret = 1;
-		goto out;
+		ret |= 1;
 	}
 #endif
 
@@ -231,11 +227,13 @@ int _dilithium_tester(
 			ctx->external_mu_len = MLEN;
 		}
 
-		CKINT(_lc_dilithium_sign(&ws->sig, ctx, ws->m, MLEN, &ws->sk,
-					 NULL /*selftest_rng*/));
+		ret |= _lc_dilithium_sign(&ws->sig, ctx, ws->m, MLEN, &ws->sk,
+					  NULL /*selftest_rng*/);
 
-		if (_lc_dilithium_verify(&ws->sig, ctx, ws->m, MLEN, &ws->pk))
-			printf("Signature verification failed!\n");
+		ret |= _lc_dilithium_verify(&ws->sig, ctx, ws->m, MLEN, &ws->pk);
+
+		if (ret)
+			goto out;
 
 		/* One more generation to match up with the CRYSTALS impl */
 		lc_rng_generate(selftest_rng, NULL, 0, ws->seed,
@@ -336,7 +334,7 @@ int _dilithium_tester(
 #endif
 out:
 	LC_RELEASE_MEM(ws);
-	return ret;
+	return !!ret;
 }
 
 int _dilithium_init_update_final_tester(

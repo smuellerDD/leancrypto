@@ -22,6 +22,7 @@
 #include "ret_checkers.h"
 #include "selftest_rng.h"
 #include "small_stack_support.h"
+#include "status_algorithms.h"
 #include "test_helper_common.h"
 #include "visibility.h"
 
@@ -38,10 +39,13 @@ static int dilithium_ed25519_tester(int failcheck)
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 
-	CKINT(lc_dilithium_ed25519_keypair(&ws->pk, &ws->sk, selftest_rng));
-	CKINT(lc_dilithium_ed25519_sign(&ws->sig, msg, sizeof(msg), &ws->sk,
-					selftest_rng));
-	CKINT(lc_dilithium_ed25519_verify(&ws->sig, msg, sizeof(msg), &ws->pk));
+	ret = lc_dilithium_ed25519_keypair(&ws->pk, &ws->sk, selftest_rng);
+	ret |= lc_dilithium_ed25519_sign(&ws->sig, msg, sizeof(msg), &ws->sk,
+					selftest_rng);
+	ret |= lc_dilithium_ed25519_verify(&ws->sig, msg, sizeof(msg), &ws->pk);
+
+	if (ret)
+		goto out;
 
 	if (!failcheck)
 		goto out;
@@ -79,7 +83,7 @@ out:
 	if (ret < 0)
 		ret = 1;
 	LC_RELEASE_MEM(ws);
-	return ret;
+	return !!ret;
 }
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
@@ -89,6 +93,15 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	(void)argv;
 
+#ifdef LC_FIPS140_DEBUG
+	/*
+	 * Both algos are used for the random number generation as part of
+	 * the key generation. Thus we need to enable them for executing the
+	 * test.
+	 */
+	alg_status_set_result(lc_alg_status_result_passed, LC_ALG_STATUS_SHAKE);
+#endif
+
 	if (argc != 2) {
 		ret = dilithium_ed25519_tester(1);
 	} else {
@@ -96,62 +109,16 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 			ret += dilithium_ed25519_tester(0);
 	}
 
-	if (lc_status_get_result(LC_ALG_STATUS_MLDSA_KEYGEN) !=
-	    lc_alg_status_result_passed) {
-		printf("ML-DSA self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_MLDSA_KEYGEN));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_MLDSA_SIGGEN) !=
-	    lc_alg_status_result_passed) {
-		printf("ML-DSA siggen self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_MLDSA_SIGGEN));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_MLDSA_SIGVER) !=
-	    lc_alg_status_result_passed) {
-		printf("ML-DSA sigver self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_MLDSA_SIGVER));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_ED25519_KEYGEN) !=
-	    lc_alg_status_result_passed) {
-		printf("ED25519 keygen self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_ED25519_KEYGEN));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_ED25519_SIGGEN) !=
-	    lc_alg_status_result_passed) {
-		printf("ED25519 siggen self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_ED25519_SIGGEN));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_ED25519_SIGVER) !=
-	    lc_alg_status_result_passed) {
-		printf("ED25519 sigver self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_MLDSA_SIGVER));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_SHAKE) !=
-	    lc_alg_status_result_passed) {
-		printf("SHA3 self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_SHAKE));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_SHA512) !=
-	    lc_alg_status_result_passed) {
-		printf("SHA-512 self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_SHA512));
-		return 1;
-	}
-
+	ret = test_validate_status(ret, LC_ALG_STATUS_MLDSA_KEYGEN);
+	ret = test_validate_status(ret, LC_ALG_STATUS_MLDSA_SIGGEN);
+	ret = test_validate_status(ret, LC_ALG_STATUS_MLDSA_SIGVER);
+#ifndef LC_FIPS140_DEBUG
+	ret = test_validate_status(ret, LC_ALG_STATUS_SHAKE);
+	ret = test_validate_status(ret, LC_ALG_STATUS_ED25519_KEYGEN);
+	ret = test_validate_status(ret, LC_ALG_STATUS_ED25519_SIGGEN);
+	ret = test_validate_status(ret, LC_ALG_STATUS_ED25519_SIGVER);
+	ret = test_validate_status(ret, LC_ALG_STATUS_SHA512);
+#endif
 	ret += test_print_status();
 
 	return ret;

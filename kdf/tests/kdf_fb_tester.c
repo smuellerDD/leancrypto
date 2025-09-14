@@ -105,26 +105,9 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = kdf_fb_tester();
 
-	if (lc_status_get_result(LC_ALG_STATUS_FB_KDF) !=
-	    lc_alg_status_result_passed) {
-		printf("FB-KDF self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_FB_KDF));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_HMAC) !=
-	    lc_alg_status_result_passed) {
-		printf("HMAC self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_HMAC));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_SHA256) !=
-	    lc_alg_status_result_passed) {
-		printf("SHA-256 self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_SHA256));
-		return 1;
-	}
+	ret = test_validate_status(ret, LC_ALG_STATUS_FB_KDF);
+	ret = test_validate_status(ret, LC_ALG_STATUS_HMAC);
+	ret = test_validate_status(ret, LC_ALG_STATUS_SHA256);
 
 	ret += test_print_status();
 

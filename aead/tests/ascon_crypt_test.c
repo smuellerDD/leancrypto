@@ -141,15 +141,6 @@ static int ascon_tester_128(void)
 				sizeof(aad), key, sizeof(key), exp_ct, exp_tag,
 				sizeof(exp_tag));
 
-	if (lc_status_get_result(LC_ALG_STATUS_ASCON_AEAD_128) !=
-	    lc_alg_status_result_passed) {
-		printf("Self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_ASCON_AEAD_128));
-		return 1;
-	}
-
-	ret += test_print_status();
-
 	return ret;
 }
 
@@ -186,6 +177,9 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret += ascon_tester_128();
 	ret += ascon_tester_128_non_aligned();
+
+	ret = test_validate_status(ret, LC_ALG_STATUS_ASCON_AEAD_128);
+	ret += test_print_status();
 
 	return ret;
 }

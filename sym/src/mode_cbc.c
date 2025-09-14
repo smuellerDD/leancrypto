@@ -27,6 +27,7 @@
 #include "aes_internal.h"
 #include "compare.h"
 #include "ext_headers_internal.h"
+#include "fips_mode.h"
 #include "lc_sym.h"
 #include "lc_memset_secure.h"
 #include "mode_cbc.h"
@@ -39,7 +40,7 @@
 void mode_cbc_selftest(const struct lc_sym *aes)
 {
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t iv[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05,
+	static const uint8_t iv[] = { FIPS140_MOD(0x00), 0x01, 0x02, 0x03, 0x04, 0x05,
 				      0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b,
 				      0x0c, 0x0d, 0x0e, 0x0f };
 	LC_FIPS_RODATA_SECTION
@@ -79,22 +80,24 @@ void mode_cbc_selftest(const struct lc_sym *aes)
 	unpoison(key256, sizeof(key256));
 
 	aes->init_nocheck(ctx->sym_state);
-	lc_sym_setkey(ctx, key256, sizeof(key256));
+	if (lc_sym_setkey(ctx, key256, sizeof(key256)))
+		goto out;
 	lc_sym_setiv(ctx, iv, sizeof(iv));
 	lc_sym_encrypt(ctx, in, out, sizeof(in));
 	if (lc_compare_selftest(LC_ALG_STATUS_AES_CBC, out256, out,
 				sizeof(out256), "AES-CBC encrypt"))
-		goto out;
+		goto out2;
 	lc_sym_zero(ctx);
 
 	aes->init_nocheck(ctx->sym_state);
 	lc_sym_setkey(ctx, key256, sizeof(key256));
 	lc_sym_setiv(ctx, iv, sizeof(iv));
 	lc_sym_decrypt(ctx, out, out, sizeof(out));
-	lc_compare_selftest(LC_ALG_STATUS_AES_CBC, in, out, sizeof(in),
-			    "AES-CBC decrypt");
 
 out:
+	lc_compare_selftest(LC_ALG_STATUS_AES_CBC, in, out, sizeof(in),
+			    "AES-CBC decrypt");
+out2:
 	lc_sym_zero(ctx);
 }
 

@@ -21,6 +21,7 @@
 #include "alignment.h"
 #include "build_bug_on.h"
 #include "compare.h"
+#include "fips_mode.h"
 #include "lc_xdrbg.h"
 #include "visibility.h"
 #include "xdrbg_internal.h"
@@ -31,7 +32,7 @@ void xdrbg128_drng_selftest(void)
 {
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t seed[] = {
-		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+		FIPS140_MOD(0x00), 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
 	};
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t exp[] = {
@@ -67,9 +68,12 @@ void xdrbg128_drng_selftest(void)
 
 	LC_XDRBG128_DRNG_CTX_ON_STACK(shake_ctx);
 
-	lc_xdrbg_drng_seed_nocheck(shake_ctx->rng_state, seed, sizeof(seed),
-				   NULL, 0);
+	if (lc_xdrbg_drng_seed_nocheck(shake_ctx->rng_state, seed, sizeof(seed),
+				       NULL, 0))
+		goto out;
 	lc_rng_generate(shake_ctx, NULL, 0, act, sizeof(act));
+
+out:
 	lc_compare_selftest(LC_ALG_STATUS_XDRBG128, act, exp, sizeof(exp),
 			    "Ascon XOF XDRBG");
 	lc_rng_zero(shake_ctx);

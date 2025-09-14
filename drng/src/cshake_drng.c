@@ -282,6 +282,7 @@
 #include "alignment.h"
 #include "build_bug_on.h"
 #include "compare.h"
+#include "fips_mode.h"
 #include "lc_cshake256_drng.h"
 #include "lc_memcmp_secure.h"
 #include "math_helper.h"
@@ -299,7 +300,7 @@ static void cshake256_drng_selftest(void)
 {
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t seed[] = {
-		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+		FIPS140_MOD(0x00), 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
 	};
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t exp[] = {
@@ -342,9 +343,12 @@ static void cshake256_drng_selftest(void)
 
 	LC_CSHAKE256_DRNG_CTX_ON_STACK(cshake_ctx);
 
-	lc_cshake256_drng_seed_nocheck(cshake_ctx->rng_state, seed,
-				       sizeof(seed), NULL, 0);
+	if (lc_cshake256_drng_seed_nocheck(cshake_ctx->rng_state, seed,
+					   sizeof(seed), NULL, 0))
+		goto out;
 	lc_rng_generate(cshake_ctx, NULL, 0, act, sizeof(act));
+
+out:
 	lc_compare_selftest(LC_ALG_STATUS_CSHAKE_DRBG, act, exp, sizeof(exp),
 			    "cSHAKE DRNG");
 	lc_rng_zero(cshake_ctx);

@@ -182,22 +182,12 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	(void)argc;
 	(void)argv;
 
-	ret = chacha20_tester();
+	ret = !!chacha20_tester();
 
-	if (lc_status_get_result(LC_ALG_STATUS_CHACHA20_DRNG) !=
-	    lc_alg_status_result_passed) {
-		printf("ChaCha20 DRNG self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_CHACHA20_DRNG));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_CHACHA20) !=
-	    lc_alg_status_result_passed) {
-		printf("ChaCha20 self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_CHACHA20));
-		return 1;
-	}
-
+#ifndef LC_FIPS140_DEBUG
+	ret = test_validate_status(ret, LC_ALG_STATUS_CHACHA20_DRNG);
+#endif
+	ret = test_validate_status(ret, LC_ALG_STATUS_CHACHA20);
 	ret += test_print_status();
 
 	return ret;

@@ -103,7 +103,7 @@ static int test_encrypt_kw_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 	}
 
 out:
-	return ret;
+	return !!ret;
 }
 
 static int test_kw(const struct lc_sym *aes, const char *name)
@@ -139,13 +139,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_EXEC_ONE_TEST(lc_aes_kw_c);
 	LC_EXEC_ONE_TEST(lc_aes_kw_riscv64);
 
-	if (lc_status_get_result(LC_ALG_STATUS_AES_KW) !=
-	    lc_alg_status_result_passed) {
-		printf("AES-KW self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_AES_KW));
-		return 1;
-	}
-
+	ret = test_validate_status(ret, LC_ALG_STATUS_AES_KW);
 	ret += test_print_status();
 
 	return ret;

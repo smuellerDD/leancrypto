@@ -142,13 +142,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = lc_chacha20_poly1305_test(argc);
 
-	if (lc_status_get_result(LC_ALG_STATUS_CHACHA20_POLY1305) !=
-	    lc_alg_status_result_passed) {
-		printf("Self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_CHACHA20_POLY1305));
-		return 1;
-	}
-
+	ret = test_validate_status(ret, LC_ALG_STATUS_CHACHA20_POLY1305);
 	ret += test_print_status();
 
 	return ret;

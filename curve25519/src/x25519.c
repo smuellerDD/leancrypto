@@ -18,6 +18,7 @@
  */
 
 #include "compare.h"
+#include "fips_mode.h"
 #include "lc_rng.h"
 #include "ret_checkers.h"
 #include "lc_x25519.h"
@@ -31,7 +32,7 @@ static void lc_x25519_keypair_selftest(void)
 	 * from https://github.com/jedisct1/libsodium.git/test/default/ed25519_convert.exp
 	 */
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t sk[] = { 0x80, 0x52, 0x03, 0x03, 0x76, 0xd4, 0x71,
+	static const uint8_t sk[] = { 0x80, FIPS140_MOD(0x52), 0x03, 0x03, 0x76, 0xd4, 0x71,
 				      0x12, 0xbe, 0x7f, 0x73, 0xed, 0x7a, 0x01,
 				      0x92, 0x93, 0xdd, 0x12, 0xad, 0x91, 0x0b,
 				      0x65, 0x44, 0x55, 0x79, 0x8b, 0x46, 0x67,
@@ -45,10 +46,10 @@ static void lc_x25519_keypair_selftest(void)
 					  0xae, 0x50 };
 	uint8_t pk[sizeof(pk_exp)];
 
-	LC_SELFTEST_RUN(LC_ALG_STATUS_X25519_KEYKEN);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_X25519_KEYGEN);
 
 	crypto_scalarmult_curve25519_base(pk, sk);
-	lc_compare_selftest(LC_ALG_STATUS_X25519_KEYKEN, pk, pk_exp,
+	lc_compare_selftest(LC_ALG_STATUS_X25519_KEYGEN, pk, pk_exp,
 			    sizeof(pk_exp),
 			    "X25519 base scalar multiplication\n");
 }
@@ -62,7 +63,7 @@ int lc_x25519_keypair(struct lc_x25519_pk *pk, struct lc_x25519_sk *sk,
 	CKNULL(pk, -EINVAL);
 
 	lc_x25519_keypair_selftest();
-	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_X25519_KEYKEN);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_X25519_KEYGEN);
 
 	lc_rng_check(&rng_ctx);
 
@@ -90,7 +91,7 @@ static void lc_x25519_ss_selftest(void)
 	 * by taking variable p1 and printing out the out1 variable.
 	 */
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t p1[] = { 0x72, 0x20, 0xf0, 0x09, 0x89, 0x30, 0xa7,
+	static const uint8_t p1[] = { FIPS140_MOD(0x72), 0x20, 0xf0, 0x09, 0x89, 0x30, 0xa7,
 				      0x54, 0x74, 0x8b, 0x7d, 0xdc, 0xb4, 0x3e,
 				      0xf7, 0x5a, 0x0d, 0xbf, 0x3a, 0x0d, 0x26,
 				      0x38, 0x1a, 0xf4, 0xeb, 0xa4, 0xa9, 0x8e,

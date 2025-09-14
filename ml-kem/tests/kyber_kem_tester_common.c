@@ -23,6 +23,7 @@
 #include "lc_status.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
+#include "status_algorithms.h"
 #include "test_helper_common.h"
 #include "visibility.h"
 
@@ -76,6 +77,16 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	(void)argv;
 
+#ifdef LC_FIPS140_DEBUG
+	/*
+	 * Both algos are used for the random number generation as part of
+	 * the key generation. Thus we need to enable them for executing the
+	 * test.
+	 */
+	alg_status_set_result(lc_alg_status_result_passed, LC_ALG_STATUS_SHAKE);
+	alg_status_set_result(lc_alg_status_result_passed, LC_ALG_STATUS_SHA3);
+#endif
+
 	if (argc != 2)
 		ret = kyber_kem_tester_common();
 	else if (argv[1][0] == 'e')
@@ -91,35 +102,13 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	 * Only verify kyber_kem_tester_common because the other tests
 	 * disable the self tests.
 	 */
-	if ((argc != 2) &&
-	    lc_status_get_result(LC_ALG_STATUS_MLKEM_KEYGEN) !=
-	    lc_alg_status_result_passed) {
-		printf("ML-KEM self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_MLKEM_KEYGEN));
-		return 1;
-	}
-
-	if ((argc != 2) &&
-	    lc_status_get_result(LC_ALG_STATUS_MLKEM_ENC) !=
-	    lc_alg_status_result_passed) {
-		printf("ML-KEM enc self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_MLKEM_ENC));
-		return 1;
-	}
-
-	if ((argc != 2) &&
-	    lc_status_get_result(LC_ALG_STATUS_MLKEM_DEC) !=
-	    lc_alg_status_result_passed) {
-		printf("ML-KEM dec self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_MLKEM_DEC));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_SHAKE) !=
-	    lc_alg_status_result_passed) {
-		printf("SHAKE self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_SHAKE));
-		return 1;
+	if (argc != 2) {
+		ret = test_validate_status(ret, LC_ALG_STATUS_MLKEM_KEYGEN);
+		ret = test_validate_status(ret, LC_ALG_STATUS_MLKEM_ENC);
+		ret = test_validate_status(ret, LC_ALG_STATUS_MLKEM_DEC);
+#ifndef LC_FIPS140_DEBUG
+		ret = test_validate_status(ret, LC_ALG_STATUS_SHAKE);
+#endif
 	}
 
 	ret += test_print_status();

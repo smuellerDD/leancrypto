@@ -41,7 +41,7 @@ extern const struct lc_rng *lc_selftest_shake256_drng;
 	LC_SELFTEST_SHAKE256_HASH_SET_CTX(                                     \
 		(struct lc_hash_ctx *)name->rng_state);                        \
 	lc_rng_zero(name);                                                     \
-	lc_hash_init(name->rng_state)
+	CKINT(lc_hash_init(name->rng_state))
 
 /*
  * The testing is based on the fact that,

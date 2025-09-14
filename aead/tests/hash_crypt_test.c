@@ -41,6 +41,7 @@ static int hc_tester_sha512_one(const uint8_t *pt, size_t ptlen,
 #pragma GCC diagnostic pop
 	LC_HC_CTX_ON_STACK(hc, lc_sha512);
 
+
 	/* One shot encryption with pt ptr != ct ptr */
 	if (lc_aead_setkey(hc, key, keylen, NULL, 0) < 0)
 		return 1;
@@ -176,41 +177,17 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = hc_tester_sha512();
 
-	if (lc_status_get_result(LC_ALG_STATUS_HASH_CRYPT) !=
-	    lc_alg_status_result_passed) {
-		printf("Hash crypt self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_HASH_CRYPT));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_HASH_DRBG) !=
-	    lc_alg_status_result_passed) {
-		printf("Hash DRBG self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_HASH_DRBG));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_SHA256) !=
-	    lc_alg_status_result_passed) {
-		printf("SHA-256 self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_SHA256));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_SHA512) !=
-	    lc_alg_status_result_passed) {
-		printf("SHA-512 self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_SHA512));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_HMAC) !=
-	    lc_alg_status_result_passed) {
-		printf("HMAC self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_HMAC));
-		return 1;
-	}
-
+	ret = test_validate_status(ret, LC_ALG_STATUS_HASH_CRYPT);
+	ret = test_validate_status(ret, LC_ALG_STATUS_HASH_DRBG);
+	ret = test_validate_status(ret, LC_ALG_STATUS_SHA512);
+#ifndef LC_FIPS140_DEBUG
+	/*
+	 * These algos are not even triggered due to initialization errors
+	 * of the higher tests.
+	 */
+	ret = test_validate_status(ret, LC_ALG_STATUS_SHA256);
+	ret = test_validate_status(ret, LC_ALG_STATUS_HMAC);
+#endif
 	ret += test_print_status();
 
 	return ret;

@@ -19,12 +19,13 @@
 
 #include "ascon_selftest.h"
 #include "compare.h"
+#include "fips_mode.h"
 #include "hash_common.h"
 
 void ascon_256_selftest_common(const struct lc_hash *ascon)
 {
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t msg[] = { 0x00, 0x01, 0x02, 0x03 };
+	static const uint8_t msg[] = { FIPS140_MOD(0x00), 0x01, 0x02, 0x03 };
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t exp[] = { 0xD7, 0xE4, 0xC7, 0xED, 0x9B, 0x8A, 0x32,
 				       0x5C, 0xD0, 0x8B, 0x9E, 0xF2, 0x59, 0xF8,
@@ -44,7 +45,7 @@ void ascon_256_selftest_common(const struct lc_hash *ascon)
 void ascon_xof_selftest_common(const struct lc_hash *ascon)
 {
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t msg[] = { 0x00, 0x01, 0x02, 0x03 };
+	static const uint8_t msg[] = { FIPS140_MOD(0x00), 0x01, 0x02, 0x03 };
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t exp[] = { 0x21, 0xF7, 0xFD, 0x74, 0x58, 0x8E, 0x24,
 				       0x4A, 0xF4, 0x5F, 0x90, 0x16, 0xB8, 0xDB,
@@ -64,7 +65,7 @@ void ascon_xof_selftest_common(const struct lc_hash *ascon)
 void ascon_cxof_selftest_common(const struct lc_hash *ascon)
 {
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t msg[] = { 0x00, 0x01, 0x02, 0x03 };
+	static const uint8_t msg[] = { FIPS140_MOD(0x00), 0x01, 0x02, 0x03 };
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t exp[] = { 0xE2, 0xFE, 0xE1, 0x11, 0xA8, 0xE4, 0xB6,
 				       0x22, 0x46, 0x2F, 0x89, 0x7D, 0xA4, 0x8C,

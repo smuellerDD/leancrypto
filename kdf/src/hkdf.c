@@ -20,6 +20,7 @@
 
 #include "build_bug_on.h"
 #include "compare.h"
+#include "fips_mode.h"
 #include "lc_hkdf.h"
 #include "lc_memset_secure.h"
 #include "lc_rng.h"
@@ -37,7 +38,7 @@ static void hkdf_selftest(void)
 {
 	/* RFC 5869 vector */
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t ikm[] = { 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b,
+	static const uint8_t ikm[] = { FIPS140_MOD(0x0b), 0x0b, 0x0b, 0x0b, 0x0b, 0x0b,
 				       0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b,
 				       0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b,
 				       0x0b, 0x0b, 0x0b, 0x0b };
@@ -62,8 +63,11 @@ static void hkdf_selftest(void)
 
 	LC_HKDF_CTX_ON_STACK(hkdf, lc_sha256);
 
-	lc_hkdf_extract_nocheck(hkdf, ikm, sizeof(ikm), salt, sizeof(salt));
+	if (lc_hkdf_extract_nocheck(hkdf, ikm, sizeof(ikm), salt, sizeof(salt)))
+		goto out;
 	lc_hkdf_expand(hkdf, info, sizeof(info), act, sizeof(act));
+
+out:
 	lc_compare_selftest(LC_ALG_STATUS_HKDF, act, exp, sizeof(exp), "HKDF");
 	lc_hkdf_zero(hkdf);
 }

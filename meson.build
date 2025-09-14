@@ -395,6 +395,12 @@ endif
 # 64 bit time to not suffer from Y2038 problem
 add_global_arguments([ '-D_TIME_BITS=64' ], language: 'c')
 
+fips140_negative_expect_fail = false
+if get_option('fips140_negative').enabled()
+	add_global_arguments([ '-DLC_FIPS140_DEBUG' ], language: 'c')
+	fips140_negative_expect_fail = true
+endif
+
 # Header generation
 header_script = find_program('addon/generate_header.sh', required: true)
 

@@ -256,30 +256,42 @@ if get_option('sphincs_shake_256s').enabled()
 	endif
 
 	test('Sphincs+ SHAKE 256s internal Accel', sphincs_internal_tester_256s,
-	     timeout: 600, suite: regression)
+	     timeout: 600, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 	test('Sphincs+ SHAKE 256f internal Accel', sphincs_internal_tester_256f,
-	     timeout: 600, suite: regression)
+	     timeout: 600, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 	test('Sphincs+ SHAKE 192s internal Accel', sphincs_internal_tester_192s,
-	     timeout: 600, suite: regression)
+	     timeout: 600, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 	test('Sphincs+ SHAKE 192f internal Accel', sphincs_internal_tester_192f,
-	     timeout: 600, suite: regression)
+	     timeout: 600, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 	test('Sphincs+ SHAKE 128s internal Accel', sphincs_internal_tester_128s,
-	     timeout: 600, suite: regression)
+	     timeout: 600, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 	test('Sphincs+ SHAKE 128f internal Accel', sphincs_internal_tester_128f,
-	     timeout: 600, suite: regression)
+	     timeout: 600, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 
 	test('Sphincs+ SHAKE 256s prehash Accel', sphincs_prehash_tester_256s,
-	     timeout: 600, suite: regression)
+	     timeout: 600, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 	test('Sphincs+ SHAKE 256f prehash Accel', sphincs_prehash_tester_256f,
-	     timeout: 600, suite: regression)
+	     timeout: 600, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 	test('Sphincs+ SHAKE 192s prehash Accel', sphincs_prehash_tester_192s,
-	     timeout: 600, suite: regression)
+	     timeout: 600, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 	test('Sphincs+ SHAKE 192f prehash Accel', sphincs_prehash_tester_192f,
-	     timeout: 600, suite: regression)
+	     timeout: 600, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 	test('Sphincs+ SHAKE 128s prehash Accel', sphincs_prehash_tester_128s,
-	     timeout: 600, suite: regression)
+	     timeout: 600, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 	test('Sphincs+ SHAKE 128f prehash Accel', sphincs_prehash_tester_128f,
-	     timeout: 600, suite: regression)
+	     timeout: 600, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 
 	test('Sphincs+ SHAKE 256s Keygen 100 Accel', sphincs_tester_256s,
 	     args : [ 'k' ], timeout: 1000, is_parallel: false, suite: performance)
@@ -346,17 +358,23 @@ if get_option('sphincs_shake_256s').enabled()
 
 	# Disable parallel execution as accelerations are disabled
 	test('Sphincs+ SHAKE 256s C', sphincs_tester_256s, args : [ 'c' ],
-	     timeout: 600, is_parallel: false, suite: regression)
+	     timeout: 600, is_parallel: false, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 	test('Sphincs+ SHAKE 256f C', sphincs_tester_256f, args : [ 'c' ],
-	     timeout: 600, is_parallel: false, suite: regression)
+	     timeout: 600, is_parallel: false, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 	test('Sphincs+ SHAKE 192s C', sphincs_tester_192s, args : [ 'c' ],
-	     timeout: 600, is_parallel: false, suite: regression)
+	     timeout: 600, is_parallel: false, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 	test('Sphincs+ SHAKE 192f C', sphincs_tester_192f, args : [ 'c' ],
-	     timeout: 600, is_parallel: false, suite: regression)
+	     timeout: 600, is_parallel: false, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 	test('Sphincs+ SHAKE 128s C', sphincs_tester_128s, args : [ 'c' ],
-	     timeout: 600, is_parallel: false, suite: regression)
+	     timeout: 600, is_parallel: false, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 	test('Sphincs+ SHAKE 128f C', sphincs_tester_128f, args : [ 'c' ],
-	     timeout: 600, is_parallel: false, suite: regression)
+	     timeout: 600, is_parallel: false, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 	if get_option('slh_dsa_ascon_128s').enabled()
 		test('SLH-DSA Ascon 128s C', sphincs_ascon_tester_128s,
 		     args : [ 'c' ], timeout: 600, suite: regression)
@@ -430,11 +448,14 @@ if get_option('sphincs_shake_256s').enabled()
 	endif
 
 	test('Sphincs+ SHAKE Official', sphincs_official_tester,
-	     timeout: 600, suite: regression)
+	     timeout: 600, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 
 	test('Sphincs+ SHAKE IUF', sphincs_official_tester,
-	     timeout: 600, suite: regression)
+	     timeout: 600, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 
 	test('Sphincs+ SHAKE FIPS keygen', sphincs_keygen_fips_tester,
-	     timeout: 600, suite: regression)
+	     timeout: 600, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
 endif

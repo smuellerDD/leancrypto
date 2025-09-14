@@ -85,7 +85,7 @@ static int lc_sphincs_test(const struct lc_sphincs_test *tc,
 			 */
 			s_rng_state.seed = tc->seed;
 			s_rng_state.seedlen = sizeof(tc->seed);
-			CKINT(lc_sphincs_keypair(&ws->pk, &ws->sk, &s_drng));
+			ret |= lc_sphincs_keypair(&ws->pk, &ws->sk, &s_drng);
 		}
 		lc_compare((uint8_t *)&ws->pk, tc->pk, sizeof(tc->pk), "PK");
 		lc_compare((uint8_t *)&ws->sk, tc->sk, sizeof(tc->sk), "SK");
@@ -95,9 +95,9 @@ static int lc_sphincs_test(const struct lc_sphincs_test *tc,
 		rounds = (t == LC_SPHINCS_PERF_SIGN) ? 10 : 1;
 
 		for (i = 0; i < rounds; i++) {
-			CKINT(lc_sphincs_sign_ctx(
+			ret |= lc_sphincs_sign_ctx(
 				&ws->sig, ctx, tc->msg, sizeof(tc->msg),
-				(struct lc_sphincs_sk *)tc->sk, NULL));
+				(struct lc_sphincs_sk *)tc->sk, NULL);
 		}
 		lc_compare((uint8_t *)&ws->sig, tc->sig, sizeof(tc->sig),
 			   "SIG");
@@ -107,23 +107,32 @@ static int lc_sphincs_test(const struct lc_sphincs_test *tc,
 		rounds = (t == LC_SPHINCS_PERF_VERIFY) ? 1000 : 1;
 
 		for (i = 0; i < rounds; i++) {
-			CKINT(lc_sphincs_verify_ctx(
+			ret |= lc_sphincs_verify_ctx(
 				(struct lc_sphincs_sig *)tc->sig, ctx, tc->msg,
 				sizeof(tc->msg),
-				(struct lc_sphincs_pk *)tc->pk));
+				(struct lc_sphincs_pk *)tc->pk);
 		}
 	}
 
-out:
 	LC_RELEASE_MEM(ws);
-	return ret;
+	return !!ret;
 }
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	enum lc_sphincs_test_type t = LC_SPHINCS_REGRESSION;
-	int ret = 0, rc = 0;
+	int ret = 0;
 	int feat_disabled = 0;
+
+#ifdef LC_FIPS140_DEBUG
+	/*
+	 * Both algos are used for the random number generation as part of
+	 * the key generation. Thus we need to enable them for executing the
+	 * test.
+	 */
+	alg_status_set_result(lc_alg_status_result_passed, LC_ALG_STATUS_SHAKE);
+	alg_status_set_result(lc_alg_status_result_passed, LC_ALG_STATUS_SHA3);
+#endif
 
 	if (argc >= 2) {
 		if (argv[1][0] == 'k')
@@ -150,50 +159,25 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	feat_disabled = 1;
 #endif
 
-	CKINT(lc_sphincs_test(&tests[0], t));
-	rc += ret;
+	ret = lc_sphincs_test(&tests[0], t);
 
-	if ((argc < 2) && lc_status_get_result(LC_ALG_STATUS_SLHDSA_KEYGEN) !=
-	    lc_alg_status_result_passed) {
-		printf("SLH-DSA self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_SLHDSA_KEYGEN));
-		return 1;
-	}
-
-	if ((argc < 2) && lc_status_get_result(LC_ALG_STATUS_SLHDSA_SIGGEN) !=
-	    lc_alg_status_result_passed) {
-		printf("SLH-DSA siggen self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_SLHDSA_SIGGEN));
-		return 1;
-	}
-
-	if ((argc < 2) && lc_status_get_result(LC_ALG_STATUS_SLHDSA_SIGVER) !=
-	    lc_alg_status_result_passed) {
-		printf("SLH-DSA sigver self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_SLHDSA_SIGVER));
-		return 1;
-	}
+	if (argc < 2) {
+		ret = test_validate_status(ret, LC_ALG_STATUS_SLHDSA_KEYGEN);
+		ret = test_validate_status(ret, LC_ALG_STATUS_SLHDSA_SIGGEN);
+		ret = test_validate_status(ret, LC_ALG_STATUS_SLHDSA_SIGVER);
 
 #if (defined(LC_SPHINCS_TYPE_128F_ASCON) || defined(LC_SPHINCS_TYPE_128S_ASCON))
-	if ((argc < 2) && lc_status_get_result(LC_ALG_STATUS_ASCONXOF) !=
-	    lc_alg_status_result_passed) {
-		printf("Ascon XOF self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_SHAKE));
-		return 1;
-	}
+		ret = test_validate_status(ret, LC_ALG_STATUS_ASCONXOF);
 #else
-	if ((argc < 2) && lc_status_get_result(LC_ALG_STATUS_SHAKE) !=
-	    lc_alg_status_result_passed) {
-		printf("SHAKE self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_SHAKE));
-		return 1;
-	}
+#ifndef LC_FIPS140_DEBUG
+		ret = test_validate_status(ret, LC_ALG_STATUS_SHAKE);
 #endif
+#endif
+	}
 
 	ret += test_print_status();
 
-out:
 	if (feat_disabled)
 		lc_cpu_feature_enable();
-	return ret ? -ret : rc;
+	return ret;
 }

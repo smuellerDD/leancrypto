@@ -30,6 +30,7 @@
 #include "lc_x509_parser.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
+#include "status_algorithms.h"
 
 #include "../../apps/src/lc_x509_generator_file_helper.h"
 
@@ -186,6 +187,16 @@ int main(int argc, char *argv[])
 					      { 0, 0, 0, 0 } };
 
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+
+#ifdef LC_FIPS140_DEBUG
+	/*
+	 * Both algos are used for the random number generation as part of
+	 * the key generation. Thus we need to enable them for executing the
+	 * test.
+	 */
+	alg_status_set_result(lc_alg_status_result_passed, LC_ALG_STATUS_SHAKE);
+	alg_status_set_result(lc_alg_status_result_passed, LC_ALG_STATUS_SHA3);
+#endif
 
 	opterr = 0;
 	while (1) {
