@@ -40,14 +40,23 @@ static inline int test_validate_status(int ret, uint64_t algorithm)
 #endif
 
 	if (lc_status_get_result(algorithm) != expected) {
-		printf("Self test status %u unexpected\n",
-		       lc_status_get_result(algorithm));
 #ifdef LC_FIPS140_DEBUG
 		ret -= 1;
+		printf("FIPS negative test: ");
 #else
 		ret += 1;
 #endif
+		printf("Self test status for algorithm %" PRIu64
+		       "unexpected: %u\n",
+		       algorithm, lc_status_get_result(algorithm));
 	}
+#ifdef LC_FIPS140_DEBUG
+	else {
+		printf("FIPS negative test: Self test status for algorithm %" PRIu64
+		       " failed as expected\n",
+		       algorithm);
+	}
+#endif
 
 	return ret;
 }
