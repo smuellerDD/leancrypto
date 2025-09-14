@@ -41,7 +41,7 @@ static int dilithium_ed25519_tester(int failcheck)
 
 	ret = lc_dilithium_ed25519_keypair(&ws->pk, &ws->sk, selftest_rng);
 	ret |= lc_dilithium_ed25519_sign(&ws->sig, msg, sizeof(msg), &ws->sk,
-					selftest_rng);
+					 selftest_rng);
 	ret |= lc_dilithium_ed25519_verify(&ws->sig, msg, sizeof(msg), &ws->pk);
 
 	if (ret)

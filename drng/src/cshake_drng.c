@@ -300,7 +300,15 @@ static void cshake256_drng_selftest(void)
 {
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t seed[] = {
-		FIPS140_MOD(0x00), 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+		FIPS140_MOD(0x00),
+		0x01,
+		0x02,
+		0x03,
+		0x04,
+		0x05,
+		0x06,
+		0x07,
+		0x08,
 	};
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t exp[] = {
@@ -417,15 +425,16 @@ static void lc_cshake256_drng_encode(struct lc_hash_ctx *cshake_ctx,
  * This generates T(0) and T(1) of size 1088 of the cSHAKE DRNG specification
  * section 2.3.
  */
-static int lc_cshake256_drng_fke_init_ctx(
-	struct lc_cshake256_drng_state *state, struct lc_hash_ctx *cshake_ctx,
-	const uint8_t *addtl_input, size_t addtl_input_len)
+static int lc_cshake256_drng_fke_init_ctx(struct lc_cshake256_drng_state *state,
+					  struct lc_hash_ctx *cshake_ctx,
+					  const uint8_t *addtl_input,
+					  size_t addtl_input_len)
 {
 	/* Initialize the cSHAKE with K(N) and the cust. string. */
-	int ret = lc_cshake_init(cshake_ctx,
-		       (uint8_t *)LC_CSHAKE_DRNG_CTX_CUSTOMIZATION_STRING,
-		       sizeof(LC_CSHAKE_DRNG_CTX_CUSTOMIZATION_STRING) - 1,
-		       state->key, LC_CSHAKE256_DRNG_KEYSIZE);
+	int ret = lc_cshake_init(
+		cshake_ctx, (uint8_t *)LC_CSHAKE_DRNG_CTX_CUSTOMIZATION_STRING,
+		sizeof(LC_CSHAKE_DRNG_CTX_CUSTOMIZATION_STRING) - 1, state->key,
+		LC_CSHAKE256_DRNG_KEYSIZE);
 
 	if (ret)
 		return ret;
@@ -474,9 +483,8 @@ static int lc_cshake256_drng_generate(void *_state, const uint8_t *addtl_input,
 						 LC_CSHAKE256_DRNG_KEYSIZE);
 
 		/* Instantiate cSHAKE with TMP_K(N), generate TMP_K(N + 1). */
-		CKINT(lc_cshake256_drng_fke_init_ctx(state, cshake_ctx,
-						     addtl_input,
-						     addtl_input_len));
+		CKINT(lc_cshake256_drng_fke_init_ctx(
+			state, cshake_ctx, addtl_input, addtl_input_len));
 
 		/* Generate the requested amount of output bits */
 		lc_cshake_final(cshake_ctx, out, todo);

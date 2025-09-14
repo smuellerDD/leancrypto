@@ -137,7 +137,7 @@ static int hqc_tester_one(const struct lc_hqc_testvector *vector,
 
 out:
 	if (ret == -EOPNOTSUPP)
-		return  77;
+		return 77;
 	return ret ? !!ret : !!rc;
 }
 

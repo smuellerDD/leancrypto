@@ -37,9 +37,8 @@
 #error "Bad level, choose one of 128/192/256"
 #endif
 
-static int _hqc_kem_keygen_selftest(int (*_lc_hqc_keypair)(struct lc_hqc_pk *pk,
-						    struct lc_hqc_sk *sk,
-						    struct lc_rng_ctx *rng_ctx))
+static int _hqc_kem_keygen_selftest(int (*_lc_hqc_keypair)(
+	struct lc_hqc_pk *pk, struct lc_hqc_sk *sk, struct lc_rng_ctx *rng_ctx))
 {
 	struct workspace {
 		struct lc_hqc_pk pk;
@@ -79,9 +78,9 @@ void hqc_kem_keygen_selftest(int (*_lc_hqc_keypair)(struct lc_hqc_pk *pk,
 }
 
 static int _hqc_kem_enc_selftest(int (*_lc_hqc_enc)(struct lc_hqc_ct *ct,
-					     struct lc_hqc_ss *ss,
-					     const struct lc_hqc_pk *pk,
-					     struct lc_rng_ctx *rng_ctx))
+						    struct lc_hqc_ss *ss,
+						    const struct lc_hqc_pk *pk,
+						    struct lc_rng_ctx *rng_ctx))
 {
 	struct workspace {
 		struct lc_hqc_ct ct;
@@ -104,8 +103,9 @@ static int _hqc_kem_enc_selftest(int (*_lc_hqc_enc)(struct lc_hqc_ct *ct,
 
 	/* Timecop: Selftest does not contain secrets */
 	unpoison(&ws->ct.ct, LC_HQC_CIPHERTEXT_BYTES);
-	if (lc_compare_selftest(LC_ALG_STATUS_HQC_ENC, ws->ct.ct, hqc_test[0].ct, LC_HQC_CIPHERTEXT_BYTES,
-			    "HQC CT"))
+	if (lc_compare_selftest(LC_ALG_STATUS_HQC_ENC, ws->ct.ct,
+				hqc_test[0].ct, LC_HQC_CIPHERTEXT_BYTES,
+				"HQC CT"))
 		goto out2;
 
 out:

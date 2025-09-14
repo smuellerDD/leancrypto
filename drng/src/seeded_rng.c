@@ -36,7 +36,8 @@
 
 #if (defined(CONFIG_LEANCRYPTO_SHA3) && defined(CONFIG_LEANCRYPTO_XDRBG_DRNG))
 #define LC_DRNG_XDRBG256
-#elif (defined(CONFIG_LEANCRYPTO_ASCON_HASH) && defined(CONFIG_LEANCRYPTO_XDRBG_DRNG))
+#elif (defined(CONFIG_LEANCRYPTO_ASCON_HASH) &&                                \
+       defined(CONFIG_LEANCRYPTO_XDRBG_DRNG))
 #define LC_DRNG_XDRBG128
 #endif
 

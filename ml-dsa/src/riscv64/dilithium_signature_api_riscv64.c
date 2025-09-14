@@ -140,8 +140,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify,
 		      size_t mlen, const struct lc_dilithium_pk *pk)
 {
 	if (lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV_ASM_RVV) {
-		dilithium_sigver_tester(
-			lc_dilithium_verify_ctx_riscv64_rvv);
+		dilithium_sigver_tester(lc_dilithium_verify_ctx_riscv64_rvv);
 		LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLDSA_SIGVER);
 
 		return lc_dilithium_verify_riscv64_rvv(sig, m, mlen, pk);
@@ -159,12 +158,11 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_ctx,
 		      size_t mlen, const struct lc_dilithium_pk *pk)
 {
 	if (lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV_ASM_RVV) {
-		dilithium_sigver_tester(
-			lc_dilithium_verify_ctx_riscv64_rvv);
+		dilithium_sigver_tester(lc_dilithium_verify_ctx_riscv64_rvv);
 		LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLDSA_SIGVER);
 
-		return lc_dilithium_verify_ctx_riscv64_rvv(sig, ctx, m,
-							   mlen, pk);
+		return lc_dilithium_verify_ctx_riscv64_rvv(sig, ctx, m, mlen,
+							   pk);
 	}
 
 	dilithium_sigver_tester(lc_dilithium_verify_ctx_riscv64);
@@ -178,8 +176,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_init,
 		      const struct lc_dilithium_pk *pk)
 {
 	if (lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV_ASM_RVV) {
-		dilithium_sigver_tester(
-			lc_dilithium_verify_ctx_riscv64_rvv);
+		dilithium_sigver_tester(lc_dilithium_verify_ctx_riscv64_rvv);
 		LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLDSA_SIGVER);
 
 		return lc_dilithium_verify_init_riscv64_rvv(ctx, pk);

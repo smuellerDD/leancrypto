@@ -39,9 +39,22 @@ static int lc_kdf_fb_init_nocheck(struct lc_hmac_ctx *hmac_ctx,
 static void lc_kdf_fb_selftest(void)
 {
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t key[] = { FIPS140_MOD(0x51), 0x5D, 0x42, 0x18, 0x50, 0x32,
-				       0xD6, 0x3D, 0x41, 0x89, 0x23, 0x71,
-				       0xB6, 0x66, 0xC0, 0xA3 };
+	static const uint8_t key[] = { FIPS140_MOD(0x51),
+				       0x5D,
+				       0x42,
+				       0x18,
+				       0x50,
+				       0x32,
+				       0xD6,
+				       0x3D,
+				       0x41,
+				       0x89,
+				       0x23,
+				       0x71,
+				       0xB6,
+				       0x66,
+				       0xC0,
+				       0xA3 };
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t iv[] = { 0x83, 0xAE, 0xC4, 0x0E, 0xC6, 0x5F, 0xE2,
 				      0x0B, 0x49, 0x4A, 0x88, 0x56, 0x1B, 0xDA,
@@ -64,8 +77,8 @@ static void lc_kdf_fb_selftest(void)
 
 	if (lc_kdf_fb_init_nocheck(hmac_ctx, key, sizeof(key)))
 		goto out;
-	lc_kdf_fb_generate(hmac_ctx, iv, sizeof(iv), label, sizeof(label),
-			   act, sizeof(act));
+	lc_kdf_fb_generate(hmac_ctx, iv, sizeof(iv), label, sizeof(label), act,
+			   sizeof(act));
 
 out:
 	lc_compare_selftest(LC_ALG_STATUS_FB_KDF, act, exp, sizeof(exp),

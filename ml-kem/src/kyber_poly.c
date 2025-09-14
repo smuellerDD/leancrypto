@@ -36,8 +36,7 @@ int poly_getnoise_eta1(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
 	uint8_t *buf = ws_buf;
 	int ret;
 
-	CKINT(kyber_shake256_prf(buf, POLY_GETNOISE_ETA1_BUFSIZE, seed,
-				 nonce));
+	CKINT(kyber_shake256_prf(buf, POLY_GETNOISE_ETA1_BUFSIZE, seed, nonce));
 	poly_cbd_eta1(r, buf);
 
 out:
@@ -50,8 +49,7 @@ int poly_getnoise_eta2(poly *r, const uint8_t seed[LC_KYBER_SYMBYTES],
 	uint8_t *buf = ws_buf;
 	int ret;
 
-	CKINT(kyber_shake256_prf(buf, POLY_GETNOISE_ETA2_BUFSIZE, seed,
-				 nonce));
+	CKINT(kyber_shake256_prf(buf, POLY_GETNOISE_ETA2_BUFSIZE, seed, nonce));
 	poly_cbd_eta2(r, buf);
 
 out:

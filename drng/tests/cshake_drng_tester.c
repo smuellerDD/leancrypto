@@ -101,7 +101,7 @@ static int cshake_drng_selftest(struct lc_rng_ctx *cshake_ctx)
 	/* Use the already generated state from above */
 	if (lc_cshake_init(cshake_compare,
 			   (uint8_t *)LC_CSHAKE_DRNG_CTX_CUSTOMIZATION_STRING,
-		           sizeof(LC_CSHAKE_DRNG_CTX_CUSTOMIZATION_STRING) - 1,
+			   sizeof(LC_CSHAKE_DRNG_CTX_CUSTOMIZATION_STRING) - 1,
 			   compare1, LC_CSHAKE256_DRNG_KEYSIZE))
 		return 1;
 	encode = 2 * 85;

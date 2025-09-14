@@ -64,7 +64,8 @@ int _lc_kyber_keypair_from_seed(
 	       LC_KYBER_INDCPA_PUBLICKEYBYTES);
 
 	CKINT(lc_hash(lc_sha3_256, pk->pk, LC_KYBER_PUBLICKEYBYTES,
-		      sk->sk + LC_KYBER_SECRETKEYBYTES - 2 * LC_KYBER_SYMBYTES));
+		      sk->sk + LC_KYBER_SECRETKEYBYTES -
+			      2 * LC_KYBER_SYMBYTES));
 
 	/* Value z for pseudo-random output on reject */
 	CKINT(lc_rng_generate(&s_drng, NULL, 0,

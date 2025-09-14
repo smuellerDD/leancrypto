@@ -69,9 +69,22 @@ static int gcm_set_key_iv_nocheck(void *state, const uint8_t *key,
 static void lc_aes_gcm_selftest(void)
 {
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t aad[] = { FIPS140_MOD(0xff), 0x76, 0x28, 0xf6, 0x42, 0x7f,
-				       0xbc, 0xef, 0x1f, 0x3b, 0x82, 0xb3,
-				       0x74, 0x04, 0xe1, 0x16 };
+	static const uint8_t aad[] = { FIPS140_MOD(0xff),
+				       0x76,
+				       0x28,
+				       0xf6,
+				       0x42,
+				       0x7f,
+				       0xbc,
+				       0xef,
+				       0x1f,
+				       0x3b,
+				       0x82,
+				       0xb3,
+				       0x74,
+				       0x04,
+				       0xe1,
+				       0x16 };
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t in[] = { 0xb7, 0x06, 0x19, 0x4b, 0xb0, 0xb1,
 				      0x0c, 0x47, 0x4e, 0x1b, 0x2d, 0x7b,
@@ -111,8 +124,8 @@ static void lc_aes_gcm_selftest(void)
 				"AES GCM AEAD encrypt ciphertext"))
 		goto out;
 
-	if (lc_compare_selftest(LC_ALG_STATUS_AES_GCM, act_tag, exp_tag, sizeof(exp_tag),
-				"AES GCM AEAD encrypt tag"))
+	if (lc_compare_selftest(LC_ALG_STATUS_AES_GCM, act_tag, exp_tag,
+				sizeof(exp_tag), "AES GCM AEAD encrypt tag"))
 		goto out;
 
 	lc_aead_zero(aes_gcm);
@@ -511,8 +524,8 @@ static void gcm_aad(void *state, const uint8_t *aad, size_t aad_len)
 
 	while (aad_len > 0) {
 		use_len = (aad_len < (size_t)(AES_BLOCKSIZE - rem_aad) ?
-				      (uint8_t)aad_len :
-				      (AES_BLOCKSIZE - rem_aad));
+				   (uint8_t)aad_len :
+				   (AES_BLOCKSIZE - rem_aad));
 
 		xor_64(ctx->gcm_ctx.buf + rem_aad, p, use_len);
 
@@ -872,16 +885,15 @@ out:
 	return ret;
 }
 
-static const struct lc_aead _lc_aes_gcm_aead = {
-	.setkey = gcm_set_key_iv,
-	.encrypt = gcm_encrypt,
-	.enc_init = gcm_aad,
-	.enc_update = gcm_enc_update,
-	.enc_final = gcm_enc_final,
-	.decrypt = gcm_decrypt,
-	.dec_init = gcm_aad,
-	.dec_update = gcm_dec_update,
-	.dec_final = gcm_dec_final,
-	.zero = gcm_zero_ctx };
+static const struct lc_aead _lc_aes_gcm_aead = { .setkey = gcm_set_key_iv,
+						 .encrypt = gcm_encrypt,
+						 .enc_init = gcm_aad,
+						 .enc_update = gcm_enc_update,
+						 .enc_final = gcm_enc_final,
+						 .decrypt = gcm_decrypt,
+						 .dec_init = gcm_aad,
+						 .dec_update = gcm_dec_update,
+						 .dec_final = gcm_dec_final,
+						 .zero = gcm_zero_ctx };
 LC_INTERFACE_SYMBOL(const struct lc_aead *,
 		    lc_aes_gcm_aead) = &_lc_aes_gcm_aead;

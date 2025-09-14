@@ -34,12 +34,12 @@ static atomic_t lc_alg_status_aead = ALG_SET_ALL_BITS;
 
 /* Disable selftests */
 #ifdef LC_KYBER_DEBUG
-static atomic_t lc_alg_status_kem_pqc = ATOMIC_INIT(
-	ALG_SET_TEST_PASSED(LC_ALG_STATUS_FLAG_MLKEM_KEYGEN) |
-	ALG_SET_TEST_PASSED(LC_ALG_STATUS_FLAG_MLKEM_ENC) |
-	ALG_SET_TEST_PASSED(LC_ALG_STATUS_FLAG_MLKEM_DEC) |
-	ALG_SET_TEST_PASSED(LC_ALG_STATUS_FLAG_MLKEM_ENC_KDF) |
-	ALG_SET_TEST_PASSED(LC_ALG_STATUS_FLAG_MLKEM_DEC_KDF));
+static atomic_t lc_alg_status_kem_pqc =
+	ATOMIC_INIT(ALG_SET_TEST_PASSED(LC_ALG_STATUS_FLAG_MLKEM_KEYGEN) |
+		    ALG_SET_TEST_PASSED(LC_ALG_STATUS_FLAG_MLKEM_ENC) |
+		    ALG_SET_TEST_PASSED(LC_ALG_STATUS_FLAG_MLKEM_DEC) |
+		    ALG_SET_TEST_PASSED(LC_ALG_STATUS_FLAG_MLKEM_ENC_KDF) |
+		    ALG_SET_TEST_PASSED(LC_ALG_STATUS_FLAG_MLKEM_DEC_KDF));
 #else
 static atomic_t lc_alg_status_kem_pqc = ALG_SET_ALL_BITS;
 #endif
@@ -48,11 +48,11 @@ static atomic_t lc_alg_status_kem_classic = ALG_SET_ALL_BITS;
 
 /* Disable selftests */
 #ifdef LC_DILITHIUM_DEBUG
-static atomic_t lc_alg_status_sig_pqc = ATOMIC_INIT(
-	ALG_SET_TEST_PASSED(LC_ALG_STATUS_FLAG_MLDSA_KEYGEN) |
-	ALG_SET_TEST_PASSED(LC_ALG_STATUS_FLAG_MLDSA_SIGGEN) |
-	ALG_SET_TEST_PASSED(LC_ALG_STATUS_FLAG_MLDSA_SIGVER));
-	/*
+static atomic_t lc_alg_status_sig_pqc =
+	ATOMIC_INIT(ALG_SET_TEST_PASSED(LC_ALG_STATUS_FLAG_MLDSA_KEYGEN) |
+		    ALG_SET_TEST_PASSED(LC_ALG_STATUS_FLAG_MLDSA_SIGGEN) |
+		    ALG_SET_TEST_PASSED(LC_ALG_STATUS_FLAG_MLDSA_SIGVER));
+/*
 	 * We do not touch the SLH-DSA flags, which implies that SLH-DSA could
 	 * run while initialization is in progress, but we do not care as
 	 * handling this would complicate the code without benefit: the
@@ -308,8 +308,8 @@ static void alg_status_unset_testresult_one(alg_status_t alg, atomic_t *status)
 	atomic_and((int)(~(lc_alg_status_result_failed << alg)), status);
 }
 
-static void alg_status_set_testresult(
-	enum lc_alg_status_result test_ret, alg_status_t alg, atomic_t *status)
+static void alg_status_set_testresult(enum lc_alg_status_result test_ret,
+				      alg_status_t alg, atomic_t *status)
 {
 	/*
 	 * In FIPS mode, we enter the degraded mode of operation when a self
@@ -354,17 +354,17 @@ static enum lc_alg_status_result alg_status_result(atomic_t *status,
 	 */
 	/* Cast to lc_alg_status_result */
 	return (enum lc_alg_status_result)
-		/* Read out the entire state variable */
-		atomic_read(status)
-			/* Downshift to the required flag */
-			>> alg
-			/* Eliminate the upper bits */
-			& ((1 << LC_ALG_STATUS_FLAG_MASK_SIZE) - 1);
+		       /* Read out the entire state variable */
+		       atomic_read(status)
+		       /* Downshift to the required flag */
+		       >> alg
+	       /* Eliminate the upper bits */
+	       & ((1 << LC_ALG_STATUS_FLAG_MASK_SIZE) - 1);
 }
 
 enum lc_alg_status_result alg_status_get_result(uint64_t flag)
 {
-	alg_status_t alg = flag &~ LC_ALG_STATUS_TYPE_MASK;
+	alg_status_t alg = flag & ~LC_ALG_STATUS_TYPE_MASK;
 
 	switch (flag & LC_ALG_STATUS_TYPE_MASK) {
 	case LC_ALG_STATUS_TYPE_AEAD:
@@ -401,7 +401,7 @@ enum lc_alg_status_result alg_status_get_result(uint64_t flag)
 
 void alg_status_set_result(enum lc_alg_status_result test_ret, uint64_t flag)
 {
-	alg_status_t alg = flag &~ LC_ALG_STATUS_TYPE_MASK;
+	alg_status_t alg = flag & ~LC_ALG_STATUS_TYPE_MASK;
 
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_AEAD) {
 		alg_status_set_testresult(test_ret, alg, &lc_alg_status_aead);
@@ -438,7 +438,7 @@ void alg_status_set_result(enum lc_alg_status_result test_ret, uint64_t flag)
 
 void alg_status_unset_result(uint64_t flag)
 {
-	alg_status_t alg = flag &~ LC_ALG_STATUS_TYPE_MASK;
+	alg_status_t alg = flag & ~LC_ALG_STATUS_TYPE_MASK;
 
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_AEAD) {
 		alg_status_unset_testresult_one(alg, &lc_alg_status_aead);
@@ -477,8 +477,7 @@ void alg_status_unset_result_all(void)
 }
 
 static void alg_status_one(const struct alg_status_show *alg_status_show_arr,
-			   size_t array_size, uint64_t flag,
-			   atomic_t *status,
+			   size_t array_size, uint64_t flag, atomic_t *status,
 			   char **test_completed, size_t *test_completed_len,
 			   char **test_open, size_t *test_open_len,
 			   char **errorbuf, size_t *errorbuf_len)
@@ -493,13 +492,12 @@ static void alg_status_one(const struct alg_status_show *alg_status_show_arr,
 		size_t *outbuf_len;
 
 		/* Is it the alg that is requeted? */
-		if ((alg_status_show->flag & flag) !=
-		    alg_status_show->flag)
+		if ((alg_status_show->flag & flag) != alg_status_show->flag)
 			continue;
 
-		res = alg_status_result(status,
-					(alg_status_t)(alg_status_show->flag &~
-					LC_ALG_STATUS_TYPE_MASK));
+		res = alg_status_result(
+			status, (alg_status_t)(alg_status_show->flag &
+					       ~LC_ALG_STATUS_TYPE_MASK));
 		switch (res) {
 		case lc_alg_status_result_passed:
 			outbuf = test_completed;
@@ -551,73 +549,65 @@ void alg_status(uint64_t flag, char *test_completed, size_t test_completed_len,
 			 */
 			alg_status_show_aead,
 			ARRAY_SIZE(alg_status_show_aead) - 1, flag,
-			&lc_alg_status_aead,
-			&test_completed, &test_completed_len,
-			&test_open, &test_open_len, &errorbuf, &errorbuf_len);
-	}
-	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_KEM_PQC) {
-		alg_status_one(
-			alg_status_show_kem_pqc,
-			ARRAY_SIZE(alg_status_show_kem_pqc) - 1, flag,
-			&lc_alg_status_kem_pqc,
-			&test_completed, &test_completed_len,
-			&test_open, &test_open_len, &errorbuf, &errorbuf_len);
-	}
-	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_KEM_CLASSIC) {
-		alg_status_one(
-			alg_status_show_kem_classic,
-			ARRAY_SIZE(alg_status_show_kem_classic) - 1, flag,
-			&lc_alg_status_kem_classic,
-			&test_completed, &test_completed_len,
-			&test_open, &test_open_len, &errorbuf, &errorbuf_len);
-	}
-	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_SIG_PQC) {
-		alg_status_one(
-			alg_status_show_sig_pqc,
-			ARRAY_SIZE(alg_status_show_sig_pqc) - 1, flag,
-			&lc_alg_status_sig_pqc,
-			&test_completed, &test_completed_len,
-			&test_open, &test_open_len, &errorbuf, &errorbuf_len);
-	}
-	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_SIG_CLASSIC) {
-		alg_status_one(
-			alg_status_show_sig_classic,
-			ARRAY_SIZE(alg_status_show_sig_classic) - 1, flag,
-			&lc_alg_status_sig_classic,
-			&test_completed, &test_completed_len,
-			&test_open, &test_open_len, &errorbuf, &errorbuf_len);
-	}
-	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_RNG) {
-		alg_status_one(
-			alg_status_show_rng,
-			ARRAY_SIZE(alg_status_show_rng) - 1, flag,
-			&lc_alg_status_rng,
-			&test_completed, &test_completed_len,
-			&test_open, &test_open_len, &errorbuf, &errorbuf_len);
-	}
-	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_DIGEST) {
-		alg_status_one(
-			alg_status_show_digest,
-			ARRAY_SIZE(alg_status_show_digest) - 1, flag,
-			&lc_alg_status_digest, &test_completed,
+			&lc_alg_status_aead, &test_completed,
 			&test_completed_len, &test_open, &test_open_len,
 			&errorbuf, &errorbuf_len);
 	}
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_KEM_PQC) {
+		alg_status_one(alg_status_show_kem_pqc,
+			       ARRAY_SIZE(alg_status_show_kem_pqc) - 1, flag,
+			       &lc_alg_status_kem_pqc, &test_completed,
+			       &test_completed_len, &test_open, &test_open_len,
+			       &errorbuf, &errorbuf_len);
+	}
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_KEM_CLASSIC) {
+		alg_status_one(alg_status_show_kem_classic,
+			       ARRAY_SIZE(alg_status_show_kem_classic) - 1,
+			       flag, &lc_alg_status_kem_classic,
+			       &test_completed, &test_completed_len, &test_open,
+			       &test_open_len, &errorbuf, &errorbuf_len);
+	}
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_SIG_PQC) {
+		alg_status_one(alg_status_show_sig_pqc,
+			       ARRAY_SIZE(alg_status_show_sig_pqc) - 1, flag,
+			       &lc_alg_status_sig_pqc, &test_completed,
+			       &test_completed_len, &test_open, &test_open_len,
+			       &errorbuf, &errorbuf_len);
+	}
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_SIG_CLASSIC) {
+		alg_status_one(alg_status_show_sig_classic,
+			       ARRAY_SIZE(alg_status_show_sig_classic) - 1,
+			       flag, &lc_alg_status_sig_classic,
+			       &test_completed, &test_completed_len, &test_open,
+			       &test_open_len, &errorbuf, &errorbuf_len);
+	}
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_RNG) {
+		alg_status_one(alg_status_show_rng,
+			       ARRAY_SIZE(alg_status_show_rng) - 1, flag,
+			       &lc_alg_status_rng, &test_completed,
+			       &test_completed_len, &test_open, &test_open_len,
+			       &errorbuf, &errorbuf_len);
+	}
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_DIGEST) {
+		alg_status_one(alg_status_show_digest,
+			       ARRAY_SIZE(alg_status_show_digest) - 1, flag,
+			       &lc_alg_status_digest, &test_completed,
+			       &test_completed_len, &test_open, &test_open_len,
+			       &errorbuf, &errorbuf_len);
+	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_SYM) {
-		alg_status_one(
-			alg_status_show_sym,
-			ARRAY_SIZE(alg_status_show_sym) - 1, flag,
-			&lc_alg_status_sym,
-			&test_completed, &test_completed_len,
-			&test_open, &test_open_len, &errorbuf, &errorbuf_len);
+		alg_status_one(alg_status_show_sym,
+			       ARRAY_SIZE(alg_status_show_sym) - 1, flag,
+			       &lc_alg_status_sym, &test_completed,
+			       &test_completed_len, &test_open, &test_open_len,
+			       &errorbuf, &errorbuf_len);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_AUX) {
-		alg_status_one(
-			alg_status_show_aux,
-			ARRAY_SIZE(alg_status_show_aux) - 1, flag,
-			&lc_alg_status_aux,
-			&test_completed, &test_completed_len,
-			&test_open, &test_open_len, &errorbuf, &errorbuf_len);
+		alg_status_one(alg_status_show_aux,
+			       ARRAY_SIZE(alg_status_show_aux) - 1, flag,
+			       &lc_alg_status_aux, &test_completed,
+			       &test_completed_len, &test_open, &test_open_len,
+			       &errorbuf, &errorbuf_len);
 	}
 }
 

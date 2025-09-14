@@ -26,7 +26,6 @@
 LC_INTERFACE_FUNCTION(int, lc_hqc_keypair, struct lc_hqc_pk *pk,
 		      struct lc_hqc_sk *sk, struct lc_rng_ctx *rng_ctx)
 {
-
 	hqc_kem_keygen_selftest(lc_hqc_keypair_c);
 	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_HQC_KEYGEN);
 

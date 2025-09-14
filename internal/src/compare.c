@@ -70,5 +70,5 @@ int lc_compare_selftest(uint64_t flag, const uint8_t *act, const uint8_t *exp,
 
 void lc_disable_selftest(void)
 {
-	alg_status_set_result(lc_alg_status_result_passed, (uint64_t) -1);
+	alg_status_set_result(lc_alg_status_result_passed, (uint64_t)-1);
 }

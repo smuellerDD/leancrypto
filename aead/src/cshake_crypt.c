@@ -338,13 +338,70 @@ static void lc_cc_selftest(void)
 {
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t in[] = {
-		FIPS140_MOD(0x00), 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
-		0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13,
-		0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d,
-		0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
-		0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31,
-		0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b,
-		0x3c, 0x3d, 0x3e, 0x3f,
+		FIPS140_MOD(0x00),
+		0x01,
+		0x02,
+		0x03,
+		0x04,
+		0x05,
+		0x06,
+		0x07,
+		0x08,
+		0x09,
+		0x0a,
+		0x0b,
+		0x0c,
+		0x0d,
+		0x0e,
+		0x0f,
+		0x10,
+		0x11,
+		0x12,
+		0x13,
+		0x14,
+		0x15,
+		0x16,
+		0x17,
+		0x18,
+		0x19,
+		0x1a,
+		0x1b,
+		0x1c,
+		0x1d,
+		0x1e,
+		0x1f,
+		0x20,
+		0x21,
+		0x22,
+		0x23,
+		0x24,
+		0x25,
+		0x26,
+		0x27,
+		0x28,
+		0x29,
+		0x2a,
+		0x2b,
+		0x2c,
+		0x2d,
+		0x2e,
+		0x2f,
+		0x30,
+		0x31,
+		0x32,
+		0x33,
+		0x34,
+		0x35,
+		0x36,
+		0x37,
+		0x38,
+		0x39,
+		0x3a,
+		0x3b,
+		0x3c,
+		0x3d,
+		0x3e,
+		0x3f,
 	};
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t key[] = {
@@ -437,7 +494,8 @@ static int lc_cc_setkey_nocheck(void *state, const uint8_t *key, size_t keylen,
 	BUILD_BUG_ON(LC_CC_AUTHENTICATION_KEY_SIZE > LC_CC_KEYSTREAM_BLOCK);
 
 	CKINT(lc_cshake_init(cshake, (uint8_t *)LC_CC_CUSTOMIZATION_STRING,
-		       sizeof(LC_CC_CUSTOMIZATION_STRING) - 1, key, keylen));
+			     sizeof(LC_CC_CUSTOMIZATION_STRING) - 1, key,
+			     keylen));
 	lc_hash_update(cshake, iv, ivlen);
 
 	/*
@@ -449,9 +507,10 @@ static int lc_cc_setkey_nocheck(void *state, const uint8_t *key, size_t keylen,
 	 * lc_cshake_final operation.
 	 */
 	lc_cshake_final(cshake, cc->keystream, LC_CC_KEYSTREAM_BLOCK);
-	CKINT(lc_cshake_ctx_init(auth_ctx, (uint8_t *)LC_CC_AUTH_CUSTOMIZATION_STRING,
-			   sizeof(LC_CC_AUTH_CUSTOMIZATION_STRING) - 1,
-			   cc->keystream, LC_CC_AUTHENTICATION_KEY_SIZE));
+	CKINT(lc_cshake_ctx_init(auth_ctx,
+				 (uint8_t *)LC_CC_AUTH_CUSTOMIZATION_STRING,
+				 sizeof(LC_CC_AUTH_CUSTOMIZATION_STRING) - 1,
+				 cc->keystream, LC_CC_AUTHENTICATION_KEY_SIZE));
 
 	/* Set the pointer to the start of the keystream */
 	cc->keystream_ptr = LC_CC_AUTHENTICATION_KEY_SIZE;
@@ -680,5 +739,6 @@ static const struct lc_aead _lc_cshake_aead = {
 	.dec_init = lc_cc_add_aad,
 	.dec_update = lc_cc_decrypt,
 	.dec_final = lc_cc_decrypt_authenticate,
-	.zero = lc_cc_zero };
+	.zero = lc_cc_zero
+};
 LC_INTERFACE_SYMBOL(const struct lc_aead *, lc_cshake_aead) = &_lc_cshake_aead;

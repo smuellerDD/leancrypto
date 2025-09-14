@@ -89,8 +89,8 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 		char status_untested[LC_STATUS_ALG_SIZE];
 	};
 	size_t len, status_pass_len = LC_STATUS_ALG_SIZE,
-	       status_error_len = LC_STATUS_ALG_SIZE,
-	       status_untested_len = LC_STATUS_ALG_SIZE;
+		    status_error_len = LC_STATUS_ALG_SIZE,
+		    status_untested_len = LC_STATUS_ALG_SIZE;
 	LC_DECLARE_MEM(ws, struct workspace, 8);
 
 	snprintf(outbuf, outlen, "leancrypto %u.%u.%u\n", MAJVERSION,

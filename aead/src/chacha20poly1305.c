@@ -41,8 +41,18 @@ static void lc_chacha20_poly1305_selftest(void)
 {
 	/* Test vector from RFC7539 */
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t aad[] = { FIPS140_MOD(0x50), 0x51, 0x52, 0x53, 0xc0, 0xc1,
-				       0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7 };
+	static const uint8_t aad[] = { FIPS140_MOD(0x50),
+				       0x51,
+				       0x52,
+				       0x53,
+				       0xc0,
+				       0xc1,
+				       0xc2,
+				       0xc3,
+				       0xc4,
+				       0xc5,
+				       0xc6,
+				       0xc7 };
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t in[] = {
 		0x4c, 0x61, 0x64, 0x69, 0x65, 0x73, 0x20, 0x61, 0x6e, 0x64,
@@ -89,7 +99,10 @@ static void lc_chacha20_poly1305_selftest(void)
 	uint8_t act_ct[sizeof(exp_ct)] __align(sizeof(uint32_t));
 	uint8_t act_tag[sizeof(exp_tag)] __align(sizeof(uint32_t));
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t f[] = { 0xde, 0xad, };
+	static const uint8_t f[] = {
+		0xde,
+		0xad,
+	};
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t p[] = { 0xaf, 0xfe };
 	int ret;
@@ -98,30 +111,34 @@ static void lc_chacha20_poly1305_selftest(void)
 
 	LC_CHACHA20_POLY1305_CTX_ON_STACK(cc20p1305);
 
-	lc_chacha20_poly1305_setkey_nocheck(cc20p1305->aead_state, key, sizeof(key), iv, sizeof(iv));
+	lc_chacha20_poly1305_setkey_nocheck(cc20p1305->aead_state, key,
+					    sizeof(key), iv, sizeof(iv));
 	lc_aead_encrypt(cc20p1305, in, act_ct, sizeof(in), aad, sizeof(aad),
 			act_tag, sizeof(act_tag));
-	if (lc_compare_selftest(LC_ALG_STATUS_CHACHA20_POLY1305, act_ct, exp_ct, sizeof(exp_ct),
-			    "ChaCha20 Poly1305 AEAD encrypt ciphertext"))
+	if (lc_compare_selftest(LC_ALG_STATUS_CHACHA20_POLY1305, act_ct, exp_ct,
+				sizeof(exp_ct),
+				"ChaCha20 Poly1305 AEAD encrypt ciphertext"))
 		goto out;
-	if (lc_compare_selftest(LC_ALG_STATUS_CHACHA20_POLY1305, act_tag, exp_tag, sizeof(exp_tag),
-			    "ChaCha20 Poly1305 AEAD encrypt tag"))
+	if (lc_compare_selftest(LC_ALG_STATUS_CHACHA20_POLY1305, act_tag,
+				exp_tag, sizeof(exp_tag),
+				"ChaCha20 Poly1305 AEAD encrypt tag"))
 		goto out;
 	lc_aead_zero(cc20p1305);
 
-	lc_chacha20_poly1305_setkey_nocheck(cc20p1305->aead_state, key, sizeof(key), iv, sizeof(iv));
+	lc_chacha20_poly1305_setkey_nocheck(cc20p1305->aead_state, key,
+					    sizeof(key), iv, sizeof(iv));
 	ret = lc_aead_decrypt(cc20p1305, act_ct, act_ct, sizeof(act_ct), aad,
 			      sizeof(aad), act_tag, sizeof(act_tag));
 	if (ret) {
-		if (lc_compare_selftest(LC_ALG_STATUS_CHACHA20_POLY1305,
-			f, p, sizeof(f),
-			"ChaCha20 Poly1305 AEAD decrypt authentication"))
+		if (lc_compare_selftest(
+			    LC_ALG_STATUS_CHACHA20_POLY1305, f, p, sizeof(f),
+			    "ChaCha20 Poly1305 AEAD decrypt authentication"))
 			goto out;
 	}
 
 out:
-	lc_compare_selftest(LC_ALG_STATUS_CHACHA20_POLY1305, act_ct, in, sizeof(in),
-			    "ChaCha20 Poly1305 AEAD decrypt");
+	lc_compare_selftest(LC_ALG_STATUS_CHACHA20_POLY1305, act_ct, in,
+			    sizeof(in), "ChaCha20 Poly1305 AEAD decrypt");
 	lc_aead_zero(cc20p1305);
 }
 

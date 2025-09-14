@@ -776,14 +776,14 @@ static int asym_keypair_gen_ed25519(struct lc_x509_certificate *cert,
 	CKINT(lc_ed25519_keypair(&ws->pk_ed25519, &ws->sk_ed25519,
 				 lc_seeded_rng));
 
-	CKINT(lc_dilithium_ed25519_sk_load(
-		keys->sk.dilithium_ed25519_sk, dilithium_sk_ptr,
-		dilithium_sk_len, ws->sk_ed25519.sk,
-		LC_ED25519_SECRETKEYBYTES));
-	CKINT(lc_dilithium_ed25519_pk_load(
-		keys->pk.dilithium_ed25519_pk, dilithium_pk_ptr,
-		dilithium_pk_len, ws->pk_ed25519.pk,
-		LC_ED25519_PUBLICKEYBYTES));
+	CKINT(lc_dilithium_ed25519_sk_load(keys->sk.dilithium_ed25519_sk,
+					   dilithium_sk_ptr, dilithium_sk_len,
+					   ws->sk_ed25519.sk,
+					   LC_ED25519_SECRETKEYBYTES));
+	CKINT(lc_dilithium_ed25519_pk_load(keys->pk.dilithium_ed25519_pk,
+					   dilithium_pk_ptr, dilithium_pk_len,
+					   ws->pk_ed25519.pk,
+					   LC_ED25519_PUBLICKEYBYTES));
 
 	CKINT(asym_set_dilithium_ed25519_keypair(
 		&cert->sig_gen_data, keys->pk.dilithium_ed25519_pk,
@@ -826,14 +826,12 @@ static int asym_keypair_gen_ed448(struct lc_x509_certificate *cert,
 
 	CKINT(lc_ed448_keypair(&ws->pk_ed448, &ws->sk_ed448, lc_seeded_rng));
 
-	CKINT(lc_dilithium_ed448_sk_load(keys->sk.dilithium_ed448_sk,
-					 dilithium_sk_ptr, dilithium_sk_len,
-					 ws->sk_ed448.sk,
-					 LC_ED448_SECRETKEYBYTES));
-	CKINT(lc_dilithium_ed448_pk_load(keys->pk.dilithium_ed448_pk,
-					 dilithium_pk_ptr, dilithium_pk_len,
-					 ws->pk_ed448.pk,
-					 LC_ED448_PUBLICKEYBYTES));
+	CKINT(lc_dilithium_ed448_sk_load(
+		keys->sk.dilithium_ed448_sk, dilithium_sk_ptr, dilithium_sk_len,
+		ws->sk_ed448.sk, LC_ED448_SECRETKEYBYTES));
+	CKINT(lc_dilithium_ed448_pk_load(
+		keys->pk.dilithium_ed448_pk, dilithium_pk_ptr, dilithium_pk_len,
+		ws->pk_ed448.pk, LC_ED448_PUBLICKEYBYTES));
 
 	CKINT(asym_set_dilithium_ed448_keypair(&cert->sig_gen_data,
 					       keys->pk.dilithium_ed448_pk,

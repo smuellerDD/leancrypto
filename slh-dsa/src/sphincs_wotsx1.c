@@ -127,11 +127,11 @@ int wots_gen_leafx1(unsigned char *dest, const spx_ctx *ctx, uint32_t leaf_idx,
 			set_hash_addr(leaf_addr, k);
 
 #if defined(LC_SPHINCS_TYPE_128F_ASCON) || defined(LC_SPHINCS_TYPE_128S_ASCON)
-			CKINT(thash_ascon(
-				hash_ctx, buffer, buffer, 1,
-				ctx->pub_seed, leaf_addr,
-				LC_SPX_ADDR_BYTES - LC_ASCON_HASH_RATE,
-				(uint8_t *)ascon_state, i == 0));
+			CKINT(thash_ascon(hash_ctx, buffer, buffer, 1,
+					  ctx->pub_seed, leaf_addr,
+					  LC_SPX_ADDR_BYTES -
+						  LC_ASCON_HASH_RATE,
+					  (uint8_t *)ascon_state, i == 0));
 #else
 			CKINT(thash(hash_ctx, buffer, buffer, 1, ctx->pub_seed,
 				    leaf_addr));

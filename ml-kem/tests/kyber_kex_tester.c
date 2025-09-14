@@ -179,7 +179,6 @@ out:
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
-
 #ifdef LC_FIPS140_DEBUG
 	/*
 	 * Both algos are used for the random number generation as part of

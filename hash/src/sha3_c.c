@@ -353,7 +353,6 @@ static int sha3_512_init_nocheck(void *_state)
 	return 0;
 }
 
-
 static int sha3_512_init(void *_state)
 {
 	sha3_512_selftest_common(lc_sha3_512_c);

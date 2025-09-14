@@ -175,9 +175,9 @@ int x509_mldsa_ed448_private_key(void *context, size_t hdrlen,
 	 *
 	 * First the ML-DSA seed, then the traditional SK.
 	 */
-	CKINT(lc_dilithium_keypair_from_seed(
-		&ws->pk, &ws->sk, data, LC_X509_PQC_SK_SEED_SIZE,
-		dilithium_type));
+	CKINT(lc_dilithium_keypair_from_seed(&ws->pk, &ws->sk, data,
+					     LC_X509_PQC_SK_SEED_SIZE,
+					     dilithium_type));
 	CKINT(lc_dilithium_sk_ptr(&dilithium_src_key, &dilithium_src_key_len,
 				  &ws->sk));
 
@@ -329,8 +329,8 @@ int public_key_verify_signature_dilithium_ed448(
 
 	CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
 	/* XOF works as digest size of 64 bytes is same as XOF size */
-	CKINT(lc_xof(hash_algo, sig->raw_data, sig->raw_data_len, ws->ph_message,
-	       sizeof(ws->ph_message)));
+	CKINT(lc_xof(hash_algo, sig->raw_data, sig->raw_data_len,
+		     ws->ph_message, sizeof(ws->ph_message)));
 
 	/*
 	 * TODO currently no ctx is supported. This implies that ctx == NULL.
@@ -381,8 +381,8 @@ int public_key_generate_signature_dilithium_ed448(
 
 	CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
 	/* XOF works as digest size of 64 bytes is same as XOF size */
-	CKINT(lc_xof(hash_algo, sig->raw_data, sig->raw_data_len, ws->ph_message,
-	       sizeof(ws->ph_message)));
+	CKINT(lc_xof(hash_algo, sig->raw_data, sig->raw_data_len,
+		     ws->ph_message, sizeof(ws->ph_message)));
 
 	/*
 	 * TODO currently no ctx is supported. This implies that ctx == NULL.

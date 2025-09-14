@@ -165,7 +165,7 @@ static int lc_aes_gcm_dec(struct aead_request *areq)
 }
 
 static int lc_aes_gcm_setkey(struct crypto_aead *aead, const u8 *key,
-				unsigned int keylen)
+			     unsigned int keylen)
 {
 	struct lc_aead_ctx *ctx = crypto_aead_ctx(aead);
 
@@ -177,18 +177,18 @@ static int lc_aes_gcm_setauthsize(struct crypto_aead *aead,
 				  unsigned int authsize)
 {
 	switch (authsize) {
-        case 8:
-        case 12:
-        case 13:
-        case 14:
-        case 15:
-        case 16:
-                break;
-        default:
-                return -EINVAL;
-        }
+	case 8:
+	case 12:
+	case 13:
+	case 14:
+	case 15:
+	case 16:
+		break;
+	default:
+		return -EINVAL;
+	}
 
-        return 0;
+	return 0;
 }
 
 static int lc_aes_gcm_init(struct crypto_aead *aead)
@@ -201,7 +201,8 @@ static int lc_aes_gcm_init(struct crypto_aead *aead)
 	 * Verification that the setting of .cra_ctxsize is appropriate
 	 */
 	BUILD_BUG_ON(LC_AES_AESNI_MAX_BLOCK_SIZE < LC_AES_ARMCE_MAX_BLOCK_SIZE);
-	BUILD_BUG_ON(LC_AES_AESNI_MAX_BLOCK_SIZE < LC_AES_RISCV64_MAX_BLOCK_SIZE);
+	BUILD_BUG_ON(LC_AES_AESNI_MAX_BLOCK_SIZE <
+		     LC_AES_RISCV64_MAX_BLOCK_SIZE);
 	BUILD_BUG_ON(LC_AES_AESNI_MAX_BLOCK_SIZE < LC_AES_C_MAX_BLOCK_SIZE);
 
 	return 0;
@@ -236,7 +237,8 @@ static struct aead_alg lc_aes_gcm_algs[] = {
 
 int __init lc_kernel_aes_gcm_init(void)
 {
-	return crypto_register_aeads(lc_aes_gcm_algs, ARRAY_SIZE(lc_aes_gcm_algs));
+	return crypto_register_aeads(lc_aes_gcm_algs,
+				     ARRAY_SIZE(lc_aes_gcm_algs));
 }
 
 void lc_kernel_aes_gcm_exit(void)

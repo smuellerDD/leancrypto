@@ -358,7 +358,7 @@ static int lc_dilithium_sign_avx2_internal(struct lc_dilithium_sig *sig,
 
 	CKINT(lc_xof(lc_shake256, key,
 		     LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_RNDBYTES +
-		       LC_DILITHIUM_CRHBYTES,
+			     LC_DILITHIUM_CRHBYTES,
 		     rhoprime, LC_DILITHIUM_CRHBYTES));
 
 	/*

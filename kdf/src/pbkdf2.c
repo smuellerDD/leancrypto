@@ -95,7 +95,7 @@ uint32_t kcapi_pbkdf_iteration_count(const char *hashname, uint64_t timeshresh)
 
 static int lc_pbkdf2_nocheck(const struct lc_hash *hash, const uint8_t *pw,
 			     size_t pwlen, const uint8_t *salt, size_t saltlen,
-			     const uint32_t count, uint8_t *key,size_t keylen)
+			     const uint32_t count, uint8_t *key, size_t keylen)
 {
 	size_t h = 0;
 	uint32_t i = 1;
@@ -151,23 +151,24 @@ out:
 static void lc_pbkdf2_selftest(void)
 {
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t pw[] = { FIPS140_MOD(0x70), 0x61, 0x73, 0x73,
-				      0x77, 0x6f, 0x72, 0x64 };
+	static const uint8_t pw[] = {
+		FIPS140_MOD(0x70), 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64
+	};
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t salt[] = { 0x73, 0x61, 0x6c, 0x74 };
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t exp_256[] = { 0xae, 0x4d, 0x0c, 0x95, 0xaf, 0x6b,
-					   0x46, 0xd3, 0x2d, 0x0a, 0xdf, 0xf9,
-					   0x28, 0xf0, 0x6d, 0xd0, 0x2a, 0x30,
-					   0x3f, 0x8e };
+	static const uint8_t exp_256[] = { 0xae, 0x4d, 0x0c, 0x95, 0xaf,
+					   0x6b, 0x46, 0xd3, 0x2d, 0x0a,
+					   0xdf, 0xf9, 0x28, 0xf0, 0x6d,
+					   0xd0, 0x2a, 0x30, 0x3f, 0x8e };
 	uint8_t act[sizeof(exp_256)];
 
 	LC_SELFTEST_RUN(LC_ALG_STATUS_PBKDF2);
 
 	lc_pbkdf2_nocheck(lc_sha256, pw, sizeof(pw), salt, sizeof(salt), 2, act,
 			  sizeof(act));
-	lc_compare_selftest(LC_ALG_STATUS_PBKDF2, act, exp_256,
-			    sizeof(exp_256), "PBKDF2");
+	lc_compare_selftest(LC_ALG_STATUS_PBKDF2, act, exp_256, sizeof(exp_256),
+			    "PBKDF2");
 }
 
 LC_INTERFACE_FUNCTION(int, lc_pbkdf2, const struct lc_hash *hash,

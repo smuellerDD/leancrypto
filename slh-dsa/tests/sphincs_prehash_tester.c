@@ -73,7 +73,7 @@ static int lc_sphincs_test(const struct lc_sphincs_test *tc,
 	ctx->sphincs_prehash_type = lc_shake256;
 
 	CKINT(lc_xof(lc_shake256, tc->msg, sizeof(tc->msg), ws->digest,
-	       sizeof(ws->digest)));
+		     sizeof(ws->digest)));
 
 	if (t == LC_SPHINCS_REGRESSION || t == LC_SPHINCS_PERF_KEYGEN) {
 		struct lc_static_rng_data s_rng_state;

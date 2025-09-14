@@ -51,7 +51,7 @@ LC_INTERFACE_FUNCTION(int, lc_gmtime, time64_t timeval, struct lc_tm *tm)
 		 */
 		if (LC_IS_LEAP(tm->year)) {
 			if (timeval < LC_DAY) {
-				 /*
+				/*
 				  * this is the 366th day - as we are in the
 				  * current year, add it to the time value and
 				  * stop loop.

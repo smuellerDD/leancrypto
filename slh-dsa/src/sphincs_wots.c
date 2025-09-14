@@ -63,10 +63,9 @@ static int gen_chain(uint8_t *out, const uint8_t *in, unsigned int start,
 		/* only last word changes */
 		set_hash_addr(addr, i);
 #if defined(LC_SPHINCS_TYPE_128F_ASCON) || defined(LC_SPHINCS_TYPE_128S_ASCON)
-		CKINT(thash_ascon(
-			hash_ctx, out, out, 1, ctx->pub_seed, addr,
-			LC_SPX_ADDR_BYTES - LC_ASCON_HASH_RATE,
-			(uint8_t *)ascon_state, i == start));
+		CKINT(thash_ascon(hash_ctx, out, out, 1, ctx->pub_seed, addr,
+				  LC_SPX_ADDR_BYTES - LC_ASCON_HASH_RATE,
+				  (uint8_t *)ascon_state, i == start));
 #else
 		CKINT(thash(hash_ctx, out, out, 1, ctx->pub_seed, addr));
 #endif

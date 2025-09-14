@@ -274,7 +274,7 @@ int indcpa_keypair(uint8_t pk[LC_KYBER_INDCPA_PUBLICKEYBYTES],
 
 	for (i = 0; i < LC_KYBER_K; i++) {
 		CKINT(poly_getnoise_eta1(&ws->skpv.vec[i], noiseseed, nonce++,
-					  ws->tmp.poly_getnoise_eta1_buf));
+					 ws->tmp.poly_getnoise_eta1_buf));
 		CKINT(poly_getnoise_eta1(&ws->e.vec[i], noiseseed, nonce2++,
 					 ws->tmp.poly_getnoise_eta1_buf));
 	}

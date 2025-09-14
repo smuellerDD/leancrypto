@@ -42,8 +42,8 @@ struct hasher_options {
 	unsigned int null : 1;
 	const char *checkfile;
 	const char *bsdname;
-	void (*writer)(const uint8_t *bin, size_t binlen,
-		       const char *filename, FILE *outfile, uint32_t lfcr);
+	void (*writer)(const uint8_t *bin, size_t binlen, const char *filename,
+		       FILE *outfile, uint32_t lfcr);
 };
 
 static int hasher_get_trailing(const char *string, const char **found)
@@ -177,8 +177,8 @@ static void hasher_bin2print(const uint8_t *bin, size_t binlen,
 	free(hex);
 }
 
-static void hasher_bin(const uint8_t *bin, size_t binlen,
-		       const char *filename, FILE *outfile, uint32_t lfcr)
+static void hasher_bin(const uint8_t *bin, size_t binlen, const char *filename,
+		       FILE *outfile, uint32_t lfcr)
 {
 	(void)lfcr;
 	(void)filename;
@@ -186,7 +186,8 @@ static void hasher_bin(const uint8_t *bin, size_t binlen,
 	size_t written = fwrite(bin, 1, binlen, outfile);
 
 	if (written != binlen) {
-		fprintf(stderr, "Data size written %zu does not match intended size %zu\n",
+		fprintf(stderr,
+			"Data size written %zu does not match intended size %zu\n",
 			written, binlen);
 	}
 }
@@ -304,8 +305,8 @@ static int hasher(struct lc_hash_ctx *hash_ctx,
 					 !parsed_opts->null);
 		} else {
 			parsed_opts->writer(md, hashlen,
-					    filename ? filename : "-",
-					    outfile, !parsed_opts->null);
+					    filename ? filename : "-", outfile,
+					    !parsed_opts->null);
 		}
 	}
 

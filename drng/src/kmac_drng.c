@@ -247,7 +247,15 @@ static void kmac256_drng_selftest(void)
 {
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t seed[] = {
-		FIPS140_MOD(0x00), 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+		FIPS140_MOD(0x00),
+		0x01,
+		0x02,
+		0x03,
+		0x04,
+		0x05,
+		0x06,
+		0x07,
+		0x08,
 	};
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t exp[] = {
@@ -358,14 +366,15 @@ static void lc_kmac256_drng_encode(struct lc_kmac_ctx *kmac_ctx,
  * section 2.3.
  */
 static int lc_kmac256_drng_fke_init_ctx(struct lc_kmac256_drng_state *state,
-					 struct lc_kmac_ctx *kmac_ctx,
-					 const uint8_t *addtl_input,
-					 size_t addtl_input_len)
+					struct lc_kmac_ctx *kmac_ctx,
+					const uint8_t *addtl_input,
+					size_t addtl_input_len)
 {
 	/* Initialize the KMAC with K(N) and the cust. string. */
-	int ret = lc_kmac_init(kmac_ctx, state->key, LC_KMAC256_DRNG_KEYSIZE,
-		     (uint8_t *)LC_KMAC_DRNG_CTX_CUSTOMIZATION_STRING,
-		     sizeof(LC_KMAC_DRNG_CTX_CUSTOMIZATION_STRING) - 1);
+	int ret =
+		lc_kmac_init(kmac_ctx, state->key, LC_KMAC256_DRNG_KEYSIZE,
+			     (uint8_t *)LC_KMAC_DRNG_CTX_CUSTOMIZATION_STRING,
+			     sizeof(LC_KMAC_DRNG_CTX_CUSTOMIZATION_STRING) - 1);
 
 	if (ret)
 		return ret;
@@ -414,7 +423,7 @@ static int lc_kmac256_drng_generate(void *_state, const uint8_t *addtl_input,
 
 		/* Instantiate KMAC with TMP_K(N) and generate TMP_K(N + 1). */
 		CKINT(lc_kmac256_drng_fke_init_ctx(state, kmac_ctx, addtl_input,
-					     addtl_input_len));
+						   addtl_input_len));
 
 		/* Generate the requested amount of output bits */
 		lc_kmac_final_xof(kmac_ctx, out, todo);
@@ -455,15 +464,15 @@ static int lc_kmac256_drng_seed_nocheck(void *_state, const uint8_t *seed,
 	 * seeding, key does not yet exist and thus is not considered.
 	 */
 	if (initially_seeded) {
-		CKINT(lc_kmac_init(kmac_ctx, state->key, LC_KMAC256_DRNG_KEYSIZE,
-			     (uint8_t *)LC_KMAC_DRNG_SEED_CUSTOMIZATION_STRING,
-			     sizeof(LC_KMAC_DRNG_SEED_CUSTOMIZATION_STRING) -
-				     1));
+		CKINT(lc_kmac_init(
+			kmac_ctx, state->key, LC_KMAC256_DRNG_KEYSIZE,
+			(uint8_t *)LC_KMAC_DRNG_SEED_CUSTOMIZATION_STRING,
+			sizeof(LC_KMAC_DRNG_SEED_CUSTOMIZATION_STRING) - 1));
 	} else {
-		CKINT(lc_kmac_init(kmac_ctx, NULL, 0,
-			     (uint8_t *)LC_KMAC_DRNG_SEED_CUSTOMIZATION_STRING,
-			     sizeof(LC_KMAC_DRNG_SEED_CUSTOMIZATION_STRING) -
-				     1));
+		CKINT(lc_kmac_init(
+			kmac_ctx, NULL, 0,
+			(uint8_t *)LC_KMAC_DRNG_SEED_CUSTOMIZATION_STRING,
+			sizeof(LC_KMAC_DRNG_SEED_CUSTOMIZATION_STRING) - 1));
 
 		/* DRNG is now initially seeded */
 		state->initially_seeded = 1;

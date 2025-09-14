@@ -21,7 +21,7 @@
 #include "pkcs7_asn1.h"
 #include "pkcs7_aa_asn1.h"
 
-#define PKCS7_FUNC_UNDEF                                                        \
+#define PKCS7_FUNC_UNDEF                                                       \
 	(void)context;                                                         \
 	(void)data;                                                            \
 	(void)avail_datalen;                                                   \

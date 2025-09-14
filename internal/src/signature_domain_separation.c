@@ -246,12 +246,9 @@ static int composite_signature_set_domain(const uint8_t **domain,
 	return 0;
 }
 
-int composite_signature_domain_separation(struct lc_hash_ctx *hash_ctx,
-					  const uint8_t *userctx,
-					  size_t userctxlen,
-					  const uint8_t *randomizer,
-					  size_t randomizerlen,
-					  uint8_t nist_category)
+int composite_signature_domain_separation(
+	struct lc_hash_ctx *hash_ctx, const uint8_t *userctx, size_t userctxlen,
+	const uint8_t *randomizer, size_t randomizerlen, uint8_t nist_category)
 {
 	const uint8_t *domain;
 	size_t domainlen;

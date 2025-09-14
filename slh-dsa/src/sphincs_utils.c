@@ -96,11 +96,11 @@ int compute_root(uint8_t *root, const uint8_t *leaf, uint32_t leaf_idx,
 		/* Pick the right or left neighbor, depending on parity of the node. */
 		if (leaf_idx & 1) {
 #if defined(LC_SPHINCS_TYPE_128F_ASCON) || defined(LC_SPHINCS_TYPE_128S_ASCON)
-			CKINT(thash_ascon(
-				hash_ctx, buffer + LC_SPX_N, buffer, 2,
-				pub_seed, addr,
-				LC_SPX_ADDR_BYTES - LC_ASCON_HASH_RATE,
-				(uint8_t *)ascon_state, i == 0));
+			CKINT(thash_ascon(hash_ctx, buffer + LC_SPX_N, buffer,
+					  2, pub_seed, addr,
+					  LC_SPX_ADDR_BYTES -
+						  LC_ASCON_HASH_RATE,
+					  (uint8_t *)ascon_state, i == 0));
 #else
 			CKINT(thash(hash_ctx, buffer + LC_SPX_N, buffer, 2,
 				    pub_seed, addr));

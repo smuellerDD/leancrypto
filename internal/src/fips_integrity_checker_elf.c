@@ -112,8 +112,8 @@ LC_INTERFACE_FUNCTION(void, lc_fips_integrity_checker, void)
  * This constructor is part of the regular "text" section and thus subject to
  * the integrity test.
  */
-__attribute__((constructor(LC_INIT_PRIO_FIPS)))
-static void fips_integrity_checker_dep(void)
+__attribute__((constructor(LC_INIT_PRIO_FIPS))) static void
+fips_integrity_checker_dep(void)
 {
 	fips140_mode_enable();
 	lc_fips_integrity_checker();

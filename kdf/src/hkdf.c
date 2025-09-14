@@ -38,10 +38,28 @@ static void hkdf_selftest(void)
 {
 	/* RFC 5869 vector */
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t ikm[] = { FIPS140_MOD(0x0b), 0x0b, 0x0b, 0x0b, 0x0b, 0x0b,
-				       0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b,
-				       0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b,
-				       0x0b, 0x0b, 0x0b, 0x0b };
+	static const uint8_t ikm[] = { FIPS140_MOD(0x0b),
+				       0x0b,
+				       0x0b,
+				       0x0b,
+				       0x0b,
+				       0x0b,
+				       0x0b,
+				       0x0b,
+				       0x0b,
+				       0x0b,
+				       0x0b,
+				       0x0b,
+				       0x0b,
+				       0x0b,
+				       0x0b,
+				       0x0b,
+				       0x0b,
+				       0x0b,
+				       0x0b,
+				       0x0b,
+				       0x0b,
+				       0x0b };
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t salt[] = { 0x00, 0x01, 0x02, 0x03, 0x04,
 					0x05, 0x06, 0x07, 0x08, 0x09,
@@ -88,7 +106,6 @@ static int lc_hkdf_extract_nocheck(struct lc_hkdf_ctx *hkdf_ctx,
 		return -EINVAL;
 	hmac_ctx = &hkdf_ctx->hmac_ctx;
 	h = lc_hmac_macsize(hmac_ctx);
-
 
 	BUILD_BUG_ON(LC_NULL_BUFFER_SIZE < LC_SHA_MAX_SIZE_DIGEST);
 

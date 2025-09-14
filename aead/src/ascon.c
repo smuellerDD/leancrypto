@@ -463,5 +463,6 @@ static const struct lc_aead _lc_ascon_aead = {
 	.dec_init = lc_ascon_aad_interface,
 	.dec_update = lc_ascon_dec_update_interface,
 	.dec_final = lc_ascon_dec_final_interface,
-	.zero = lc_ascon_zero_interface };
+	.zero = lc_ascon_zero_interface
+};
 LC_INTERFACE_SYMBOL(const struct lc_aead *, lc_ascon_aead) = &_lc_ascon_aead;

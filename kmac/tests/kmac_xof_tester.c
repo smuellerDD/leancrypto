@@ -698,8 +698,8 @@ static int _kmac_256_xof_tester(const struct lc_hash *cshake_256,
 	if (ret)
 		goto out;
 
-	CKINT(lc_kmac_xof(cshake_256, key2, sizeof(key2), NULL, 0, msg2, sizeof(msg2),
-		    act2, sizeof(act2)));
+	CKINT(lc_kmac_xof(cshake_256, key2, sizeof(key2), NULL, 0, msg2,
+			  sizeof(msg2), act2, sizeof(act2)));
 	ret = lc_compare(act2, exp2, sizeof(act2), "KMAC256 XOF 2");
 	lc_kmac_zero(ctx);
 

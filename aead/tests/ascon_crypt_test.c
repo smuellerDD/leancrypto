@@ -138,8 +138,8 @@ static int ascon_tester_128(void)
 	       (unsigned int)LC_AL_CTX_SIZE, (unsigned int)LC_AL_STATE_SIZE);
 
 	ret = ascon_tester_one(pt, sizeof(pt), nonce, sizeof(nonce), aad,
-				sizeof(aad), key, sizeof(key), exp_ct, exp_tag,
-				sizeof(exp_tag));
+			       sizeof(aad), key, sizeof(key), exp_ct, exp_tag,
+			       sizeof(exp_tag));
 
 	return ret;
 }

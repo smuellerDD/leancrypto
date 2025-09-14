@@ -80,10 +80,9 @@ void kyber_kem_keygen_selftest(
 	_kyber_kem_keygen_selftest(_lc_kyber_keypair);
 }
 
-static int _kyber_kem_enc_selftest(int (*_lc_kyber_enc)(struct lc_kyber_ct *ct,
-						 struct lc_kyber_ss *ss,
-						 const struct lc_kyber_pk *pk,
-						 struct lc_rng_ctx *rng_ctx))
+static int _kyber_kem_enc_selftest(int (*_lc_kyber_enc)(
+	struct lc_kyber_ct *ct, struct lc_kyber_ss *ss,
+	const struct lc_kyber_pk *pk, struct lc_rng_ctx *rng_ctx))
 {
 	struct workspace {
 		struct lc_kyber_ct ct;

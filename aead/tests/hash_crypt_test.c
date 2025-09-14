@@ -41,7 +41,6 @@ static int hc_tester_sha512_one(const uint8_t *pt, size_t ptlen,
 #pragma GCC diagnostic pop
 	LC_HC_CTX_ON_STACK(hc, lc_sha512);
 
-
 	/* One shot encryption with pt ptr != ct ptr */
 	if (lc_aead_setkey(hc, key, keylen, NULL, 0) < 0)
 		return 1;

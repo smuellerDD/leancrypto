@@ -34,15 +34,70 @@ static int lc_drbg_hash_seed_nocheck(void *_state, const uint8_t *seedbuf,
 static void drbg_hash_selftest(void)
 {
 	LC_FIPS_RODATA_SECTION
-	static const uint8_t ent_nonce[] = {
-		FIPS140_MOD(0x9E), 0x28, 0x52, 0xF1, 0xD8, 0xB2, 0x3C, 0x1A, 0x80, 0xCA,
-		0x75, 0x29, 0x37, 0xAC, 0x58, 0x54, 0x61, 0x98, 0xDB, 0x72,
-		0x81, 0xB7, 0x43, 0xDB, 0x37, 0x21, 0x8E, 0x86, 0x40, 0x3B,
-		0x74, 0xF9, 0x88, 0x45, 0x49, 0xDC, 0x49, 0x26, 0xBB, 0xAA,
-		0x83, 0x3E, 0x50, 0x42, 0xA9, 0x52, 0xAE, 0x97, 0xB2, 0x1B,
-		0x72, 0x93, 0x7C, 0xC7, 0x29, 0x5C, 0x47, 0x2B, 0x70, 0xFB,
-		0xEC, 0xAC, 0xD9, 0x2C
-	};
+	static const uint8_t ent_nonce[] = { FIPS140_MOD(0x9E),
+					     0x28,
+					     0x52,
+					     0xF1,
+					     0xD8,
+					     0xB2,
+					     0x3C,
+					     0x1A,
+					     0x80,
+					     0xCA,
+					     0x75,
+					     0x29,
+					     0x37,
+					     0xAC,
+					     0x58,
+					     0x54,
+					     0x61,
+					     0x98,
+					     0xDB,
+					     0x72,
+					     0x81,
+					     0xB7,
+					     0x43,
+					     0xDB,
+					     0x37,
+					     0x21,
+					     0x8E,
+					     0x86,
+					     0x40,
+					     0x3B,
+					     0x74,
+					     0xF9,
+					     0x88,
+					     0x45,
+					     0x49,
+					     0xDC,
+					     0x49,
+					     0x26,
+					     0xBB,
+					     0xAA,
+					     0x83,
+					     0x3E,
+					     0x50,
+					     0x42,
+					     0xA9,
+					     0x52,
+					     0xAE,
+					     0x97,
+					     0xB2,
+					     0x1B,
+					     0x72,
+					     0x93,
+					     0x7C,
+					     0xC7,
+					     0x29,
+					     0x5C,
+					     0x47,
+					     0x2B,
+					     0x70,
+					     0xFB,
+					     0xEC,
+					     0xAC,
+					     0xD9,
+					     0x2C };
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t pers[] = { 0x12, 0x6B, 0xE1, 0x49, 0x3F, 0x41,
 					0x28, 0x9A, 0xDC, 0x5C, 0x7F, 0x00,
@@ -117,7 +172,7 @@ out:
  ***************************************************************/
 
 static int drbg_hash(struct lc_drbg_hash_state *drbg, uint8_t *outval,
-		      const struct lc_drbg_string *in)
+		     const struct lc_drbg_string *in)
 {
 	int ret = lc_hash_init(&drbg->hash_ctx);
 
@@ -186,7 +241,7 @@ static void drbg_add_buf(uint8_t *dst, size_t dstlen, const uint8_t *add,
 
 /* Derivation Function for Hash DRBG as defined in 10.4.1 */
 static int drbg_hash_df(struct lc_drbg_hash_state *drbg, uint8_t *outval,
-			 size_t outlen, struct lc_drbg_string *entropylist)
+			size_t outlen, struct lc_drbg_string *entropylist)
 {
 	size_t len = 0;
 	unsigned char input[5];
@@ -226,7 +281,7 @@ out:
 
 /* update function for Hash DRBG as defined in 10.1.1.2 / 10.1.1.3 */
 static int drbg_hash_update(struct lc_drbg_hash_state *drbg,
-			     struct lc_drbg_string *seed)
+			    struct lc_drbg_string *seed)
 {
 	struct lc_drbg_string data1, data2;
 	uint8_t *V = drbg->scratchpad;
@@ -263,7 +318,7 @@ out:
 
 /* processing of additional information string for Hash DRBG */
 static int drbg_hash_process_addtl(struct lc_drbg_hash_state *drbg,
-				    struct lc_drbg_string *addtl)
+				   struct lc_drbg_string *addtl)
 {
 	struct lc_drbg_string data1, data2;
 	uint8_t prefix = DRBG_PREFIX2;
@@ -292,7 +347,7 @@ out:
 
 /* Hashgen defined in 10.1.1.4 */
 static int drbg_hash_hashgen(struct lc_drbg_hash_state *drbg, uint8_t *buf,
-			      size_t buflen)
+			     size_t buflen)
 {
 	struct lc_drbg_string data;
 	size_t len = 0;
@@ -330,8 +385,8 @@ out:
 
 /* generate function for Hash DRBG as defined in  10.1.1.4 */
 static int drbg_hash_generate_internal(struct lc_drbg_hash_state *drbg,
-					uint8_t *buf, size_t buflen,
-					struct lc_drbg_string *addtl)
+				       uint8_t *buf, size_t buflen,
+				       struct lc_drbg_string *addtl)
 {
 	struct lc_drbg_string data1, data2;
 	uint8_t req[8], prefix = DRBG_PREFIX3;
@@ -442,7 +497,6 @@ static int lc_drbg_hash_seed(void *_state, const uint8_t *seedbuf,
 
 	return lc_drbg_hash_seed_nocheck(_state, seedbuf, seedlen, persbuf,
 					 perslen);
-
 }
 
 static void lc_drbg_hash_zero(void *_state)

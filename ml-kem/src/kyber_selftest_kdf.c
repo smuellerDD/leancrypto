@@ -35,10 +35,9 @@
 #include "kyber_selftest_kdf_vector_1024.h"
 #endif
 
-static int _kyber_kem_enc_kdf_selftest(
-	int (*_lc_kyber_enc_kdf)(struct lc_kyber_ct *ct, uint8_t *ss,
-				 size_t ss_len, const struct lc_kyber_pk *pk,
-				 struct lc_rng_ctx *rng_ctx))
+static int _kyber_kem_enc_kdf_selftest(int (*_lc_kyber_enc_kdf)(
+	struct lc_kyber_ct *ct, uint8_t *ss, size_t ss_len,
+	const struct lc_kyber_pk *pk, struct lc_rng_ctx *rng_ctx))
 {
 	struct workspace {
 		struct lc_kyber_ct ct;
@@ -76,19 +75,17 @@ out2:
 	return 0;
 }
 
-void kyber_kem_enc_kdf_selftest(
-	int (*_lc_kyber_enc_kdf)(struct lc_kyber_ct *ct, uint8_t *ss,
-				 size_t ss_len, const struct lc_kyber_pk *pk,
-				 struct lc_rng_ctx *rng_ctx))
+void kyber_kem_enc_kdf_selftest(int (*_lc_kyber_enc_kdf)(
+	struct lc_kyber_ct *ct, uint8_t *ss, size_t ss_len,
+	const struct lc_kyber_pk *pk, struct lc_rng_ctx *rng_ctx))
 {
 	LC_SELFTEST_RUN(LC_ALG_STATUS_MLKEM_ENC_KDF);
 	_kyber_kem_enc_kdf_selftest(_lc_kyber_enc_kdf);
 }
 
-void kyber_kem_dec_kdf_selftest(
-	int (*_lc_kyber_dec_kdf)(uint8_t *ss, size_t ss_len,
-				 const struct lc_kyber_ct *ct,
-				 const struct lc_kyber_sk *sk))
+void kyber_kem_dec_kdf_selftest(int (*_lc_kyber_dec_kdf)(
+	uint8_t *ss, size_t ss_len, const struct lc_kyber_ct *ct,
+	const struct lc_kyber_sk *sk))
 {
 	struct lc_kyber_ss key_a;
 

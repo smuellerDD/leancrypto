@@ -46,8 +46,8 @@ out:
 	return ret;
 }
 
-static int fors_sk_to_leaf(uint8_t *leaf, const uint8_t *sk,
-			   const spx_ctx *ctx, uint32_t fors_leaf_addr[8])
+static int fors_sk_to_leaf(uint8_t *leaf, const uint8_t *sk, const spx_ctx *ctx,
+			   uint32_t fors_leaf_addr[8])
 {
 	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
 	int ret;
@@ -156,8 +156,7 @@ int fors_sign_c(uint8_t sig[LC_SPX_FORS_BYTES], uint8_t pk[LC_SPX_N],
 		 * seem to convolute the code.
 		 */
 		CKINT(treehashx1(ws->roots + i * LC_SPX_N, sig, ctx,
-				 ws->indices[i],
-				 idx_offset, LC_SPX_FORS_HEIGHT,
+				 ws->indices[i], idx_offset, LC_SPX_FORS_HEIGHT,
 				 ws->treehash_stack_sp, fors_gen_leafx1,
 				 ws->fors_tree_addr, &ws->fors_info));
 

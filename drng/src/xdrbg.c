@@ -114,8 +114,8 @@ static void lc_xdrbg_drng_encode(struct lc_hash_ctx *xof_ctx, const uint8_t n,
  * to generate random bits.
  */
 static int lc_xdrbg_drng_fke_init_ctx(struct lc_xdrbg_drng_state *state,
-				       struct lc_hash_ctx *xof_ctx,
-				       const uint8_t *alpha, size_t alphalen)
+				      struct lc_hash_ctx *xof_ctx,
+				      const uint8_t *alpha, size_t alphalen)
 {
 	uint8_t keysize = lc_xdrbg_keysize(state);
 	int ret = lc_hash_init(xof_ctx);
@@ -170,7 +170,8 @@ static int lc_xdrbg_drng_generate(void *_state, const uint8_t *alpha,
 		 * Instantiate XOF with V', and alpha with its encoding,
 		 * and generate V.
 		 */
-		CKINT(lc_xdrbg_drng_fke_init_ctx(state, xof_ctx, alpha, alphalen));
+		CKINT(lc_xdrbg_drng_fke_init_ctx(state, xof_ctx, alpha,
+						 alphalen));
 
 		/* Generate the requested amount of output bits */
 		lc_xdrbg_xof_final(xof_ctx, out, todo);

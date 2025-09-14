@@ -136,7 +136,7 @@ out:
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
- 	int ret;
+	int ret;
 
 	(void)argc;
 	(void)argv;

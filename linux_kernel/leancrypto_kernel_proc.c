@@ -48,7 +48,8 @@ out:
 
 int __init lc_proc_status_show_init(void)
 {
-	proc_create_single(LC_PROC_STATUS_FILENAME, 0444, NULL, &lc_proc_status_show);
+	proc_create_single(LC_PROC_STATUS_FILENAME, 0444, NULL,
+			   &lc_proc_status_show);
 	return 0;
 }
 

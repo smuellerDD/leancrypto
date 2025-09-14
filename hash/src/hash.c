@@ -162,9 +162,8 @@ void lc_hash_nocheck(const struct lc_hash *hash, const uint8_t *in,
 	lc_hash_zero(hash_ctx);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_xof, const struct lc_hash *xof,
-		      const uint8_t *in, size_t inlen, uint8_t *digest,
-		      size_t digestlen)
+LC_INTERFACE_FUNCTION(int, lc_xof, const struct lc_hash *xof, const uint8_t *in,
+		      size_t inlen, uint8_t *digest, size_t digestlen)
 {
 	LC_HASH_CTX_ON_STACK(hash_ctx, xof);
 	int ret;

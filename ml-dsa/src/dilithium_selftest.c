@@ -38,9 +38,8 @@
 #endif
 
 static int _dilithium_keypair_tester(int (*_lc_dilithium_keypair_from_seed)(
-				      struct lc_dilithium_pk *pk,
-				      struct lc_dilithium_sk *sk,
-				      const uint8_t *seed, size_t seedlen))
+	struct lc_dilithium_pk *pk, struct lc_dilithium_sk *sk,
+	const uint8_t *seed, size_t seedlen))
 {
 	struct workspace {
 		struct lc_dilithium_pk pk;
@@ -70,20 +69,17 @@ static int _dilithium_keypair_tester(int (*_lc_dilithium_keypair_from_seed)(
 }
 
 void dilithium_keypair_tester(int (*_lc_dilithium_keypair_from_seed)(
-				      struct lc_dilithium_pk *pk,
-				      struct lc_dilithium_sk *sk,
-				      const uint8_t *seed, size_t seedlen))
+	struct lc_dilithium_pk *pk, struct lc_dilithium_sk *sk,
+	const uint8_t *seed, size_t seedlen))
 {
 	LC_SELFTEST_RUN(LC_ALG_STATUS_MLDSA_KEYGEN);
 	_dilithium_keypair_tester(_lc_dilithium_keypair_from_seed);
 }
 
-static int _dilithium_siggen_tester(
-	int (*_lc_dilithium_sign)(struct lc_dilithium_sig *sig,
-				  struct lc_dilithium_ctx *ctx,
-				  const uint8_t *m, size_t mlen,
-				  const struct lc_dilithium_sk *sk,
-				  struct lc_rng_ctx *rng_ctx))
+static int _dilithium_siggen_tester(int (*_lc_dilithium_sign)(
+	struct lc_dilithium_sig *sig, struct lc_dilithium_ctx *ctx,
+	const uint8_t *m, size_t mlen, const struct lc_dilithium_sk *sk,
+	struct lc_rng_ctx *rng_ctx))
 {
 	struct workspace {
 		struct lc_dilithium_sig sig;
@@ -103,22 +99,18 @@ static int _dilithium_siggen_tester(
 	return 0;
 }
 
-void dilithium_siggen_tester(
-	int (*_lc_dilithium_sign)(struct lc_dilithium_sig *sig,
-				  struct lc_dilithium_ctx *ctx,
-				  const uint8_t *m, size_t mlen,
-				  const struct lc_dilithium_sk *sk,
-				  struct lc_rng_ctx *rng_ctx))
+void dilithium_siggen_tester(int (*_lc_dilithium_sign)(
+	struct lc_dilithium_sig *sig, struct lc_dilithium_ctx *ctx,
+	const uint8_t *m, size_t mlen, const struct lc_dilithium_sk *sk,
+	struct lc_rng_ctx *rng_ctx))
 {
 	LC_SELFTEST_RUN(LC_ALG_STATUS_MLDSA_SIGGEN);
 	_dilithium_siggen_tester(_lc_dilithium_sign);
 }
 
-void dilithium_sigver_tester(
-	int (*_lc_dilithium_verify)(const struct lc_dilithium_sig *sig,
-				    struct lc_dilithium_ctx *ctx,
-				    const uint8_t *m, size_t mlen,
-				    const struct lc_dilithium_pk *pk))
+void dilithium_sigver_tester(int (*_lc_dilithium_verify)(
+	const struct lc_dilithium_sig *sig, struct lc_dilithium_ctx *ctx,
+	const uint8_t *m, size_t mlen, const struct lc_dilithium_pk *pk))
 {
 	int ret, exp;
 	LC_DILITHIUM_CTX_ON_STACK(ctx);

@@ -40,8 +40,10 @@ static int lc_cshake_init_impl(struct lc_hash_ctx *ctx, const uint8_t *n,
 	size_t len;
 	/* 2 bytes for the bytepad_val that gets inserted */
 	size_t added = 2;
-	int ret, shake128 =
-		(lc_hash_blocksize(ctx) == LC_SHAKE_128_SIZE_BLOCK) ? 1 : 0;
+	int ret,
+		shake128 = (lc_hash_blocksize(ctx) == LC_SHAKE_128_SIZE_BLOCK) ?
+				   1 :
+				   0;
 
 	/*
 	 * When invoked without any additional values, it should operate as a
@@ -118,9 +120,9 @@ int lc_cshake_init_nocheck(struct lc_hash_ctx *ctx, const uint8_t *n,
 	return lc_cshake_init_impl(ctx, n, nlen, s, slen, hash->init_nocheck);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_cshake_ctx_init,
-		      struct lc_cshake_ctx *cshake_ctx, const uint8_t *n,
-		      size_t nlen, const uint8_t *s, size_t slen)
+LC_INTERFACE_FUNCTION(int, lc_cshake_ctx_init, struct lc_cshake_ctx *cshake_ctx,
+		      const uint8_t *n, size_t nlen, const uint8_t *s,
+		      size_t slen)
 {
 	int ret = lc_cshake_init(&cshake_ctx->hash_ctx, n, nlen, s, slen);
 

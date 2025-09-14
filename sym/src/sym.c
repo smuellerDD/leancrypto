@@ -77,7 +77,7 @@ LC_INTERFACE_FUNCTION(void, lc_sym_decrypt, struct lc_sym_ctx *ctx,
 	if (!ctx)
 		return;
 
-	sym= ctx->sym;
+	sym = ctx->sym;
 	sym->decrypt(ctx->sym_state, in, out, len);
 }
 

@@ -46,13 +46,13 @@
  *
  * This works by using the standard Merkle tree building algorithm,
  */
-int treehashx1(
-	unsigned char *root, unsigned char *auth_path, const spx_ctx *ctx,
-	uint32_t leaf_idx, uint32_t idx_offset, uint32_t tree_height,
-	uint8_t *stack_sp,
-	int (*gen_leaf)(unsigned char * /* Where to write the leaves */,
-			const spx_ctx * /* ctx */, uint32_t idx, void *info),
-	uint32_t tree_addr[8], void *info)
+int treehashx1(unsigned char *root, unsigned char *auth_path,
+	       const spx_ctx *ctx, uint32_t leaf_idx, uint32_t idx_offset,
+	       uint32_t tree_height, uint8_t *stack_sp,
+	       int (*gen_leaf)(unsigned char * /* Where to write the leaves */,
+			       const spx_ctx * /* ctx */, uint32_t idx,
+			       void *info),
+	       uint32_t tree_addr[8], void *info)
 {
 #if 0
 	/* This is where we keep the intermediate nodes */
@@ -123,12 +123,12 @@ int treehashx1(
 			memcpy(&current_idx[0], left, LC_SPX_N);
 
 #if defined(LC_SPHINCS_TYPE_128F_ASCON) || defined(LC_SPHINCS_TYPE_128S_ASCON)
-			CKINT(thash_ascon(
-				hash_ctx, &current_idx[1 * LC_SPX_N],
-				&current_idx[0 * LC_SPX_N], 2,
-				ctx->pub_seed, tree_addr,
-				LC_SPX_ADDR_BYTES - LC_ASCON_HASH_RATE,
-				(uint8_t *)ascon_state, h == 0));
+			CKINT(thash_ascon(hash_ctx, &current_idx[1 * LC_SPX_N],
+					  &current_idx[0 * LC_SPX_N], 2,
+					  ctx->pub_seed, tree_addr,
+					  LC_SPX_ADDR_BYTES -
+						  LC_ASCON_HASH_RATE,
+					  (uint8_t *)ascon_state, h == 0));
 #else
 			CKINT(thash(hash_ctx, &current_idx[1 * LC_SPX_N],
 				    &current_idx[0 * LC_SPX_N], 2,

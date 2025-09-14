@@ -45,9 +45,7 @@ static inline int riscv_seed(uint32_t *ret_data)
 		 */
 		switch (tmp >> 30) {
 		case 0:
-		case 1;
-			continue;
-		case 2:
+		case 1; continue; case 2:
 			if (processing == 2)
 				data = tmp << 16;
 			else

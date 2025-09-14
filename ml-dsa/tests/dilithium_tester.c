@@ -230,7 +230,8 @@ int _dilithium_tester(
 		ret |= _lc_dilithium_sign(&ws->sig, ctx, ws->m, MLEN, &ws->sk,
 					  NULL /*selftest_rng*/);
 
-		ret |= _lc_dilithium_verify(&ws->sig, ctx, ws->m, MLEN, &ws->pk);
+		ret |= _lc_dilithium_verify(&ws->sig, ctx, ws->m, MLEN,
+					    &ws->pk);
 
 		if (ret)
 			goto out;
