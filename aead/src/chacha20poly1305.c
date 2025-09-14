@@ -27,12 +27,10 @@
 #include "lc_chacha20_private.h"
 #include "lc_chacha20_poly1305.h"
 #include "lc_memcmp_secure.h"
+#include "null_buffer.h"
 #include "poly1305_internal.h"
 #include "ret_checkers.h"
 #include "visibility.h"
-
-LC_FIPS_RODATA_SECTION
-static const uint8_t zeros[16] = { 0 };
 
 static int lc_chacha20_poly1305_setkey_nocheck(void *state, const uint8_t *key,
 					       size_t keylen, const uint8_t *iv,
@@ -220,13 +218,29 @@ static void lc_chacha20_poly1305_add_aad(void *state, const uint8_t *aad,
 {
 	struct lc_chacha20_poly1305_cryptor *cc20p1305 = state;
 	struct lc_poly1305_context *poly1305 = &cc20p1305->poly1305_ctx;
-	size_t padlen = 16 - (aadlen % 16);
 
 	/* Add the AAD data into the Poly1305 context */
 	lc_poly1305_update(poly1305, aad, aadlen);
-	lc_poly1305_update(poly1305, zeros, padlen);
 
 	cc20p1305->aadlen += aadlen;
+}
+
+static inline void lc_chacha20_poly1305_aad_pad(
+	struct lc_chacha20_poly1305_cryptor *cc20p1305)
+{
+	struct lc_poly1305_context *poly1305 = &cc20p1305->poly1305_ctx;
+	size_t padlen;
+
+	if (cc20p1305->datalen || !cc20p1305->aadlen)
+		return;
+
+	/*
+	 * Finish the lc_chacha20_poly1305_add_aad operation which requires the
+	 * addition of the padding.
+	 */
+	padlen = 16 - (cc20p1305->aadlen % 16);
+
+	lc_poly1305_update(poly1305, null_buffer, padlen);
 }
 
 static void lc_chacha20_poly1305_encrypt_tag(void *state, uint8_t *tag,
@@ -237,7 +251,7 @@ static void lc_chacha20_poly1305_encrypt_tag(void *state, uint8_t *tag,
 	size_t padlen = 16 - (cc20p1305->datalen % 16);
 	uint8_t length[8];
 
-	lc_poly1305_update(poly1305, zeros, padlen);
+	lc_poly1305_update(poly1305, null_buffer, padlen);
 
 	le64_to_ptr(length, (uint64_t)cc20p1305->aadlen);
 	lc_poly1305_update(poly1305, length, sizeof(length));
@@ -286,6 +300,8 @@ static void lc_chacha20_poly1305_encrypt(void *state, const uint8_t *plaintext,
 	struct lc_poly1305_context *poly1305 = &cc20p1305->poly1305_ctx;
 	struct lc_sym_ctx *chacha20 = &cc20p1305->chacha20;
 
+	lc_chacha20_poly1305_aad_pad(cc20p1305);
+
 	lc_sym_encrypt(chacha20, plaintext, ciphertext, datalen);
 	cc20p1305->datalen += datalen;
 
@@ -302,6 +318,8 @@ static void lc_chacha20_poly1305_decrypt(void *state, const uint8_t *ciphertext,
 	struct lc_chacha20_poly1305_cryptor *cc20p1305 = state;
 	struct lc_poly1305_context *poly1305 = &cc20p1305->poly1305_ctx;
 	struct lc_sym_ctx *chacha20 = &cc20p1305->chacha20;
+
+	lc_chacha20_poly1305_aad_pad(cc20p1305);
 
 	/*
 	 * Calculate the authentication tag over the ciphertext
