@@ -21,6 +21,7 @@
 #include "build_bug_on.h"
 #include "ext_headers_internal.h"
 #include "fips_integrity_check.h"
+#include "fips_mode.h"
 #include "helper.h"
 #include "initialization.h"
 #include "status_algorithms.h"

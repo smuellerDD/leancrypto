@@ -34,6 +34,8 @@ extern "C" {
  */
 int fips140_mode_enabled(void);
 
+void fips140_mode_enable(void);
+
 #define FIPS140_PCT_LOOP(func, algo)                                           \
 	if (fips140_mode_enabled()) {                                          \
 		unsigned int __i;                                              \

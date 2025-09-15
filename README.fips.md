@@ -156,6 +156,8 @@ The Meson test framework offers also negative testing of:
 
 * Failing of all power-up self tests
 
+* Verification of health test status
+
 The negative testing is performed with the following commands:
 
 ```

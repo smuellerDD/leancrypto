@@ -20,6 +20,7 @@
 #ifndef KYBER_X25519_INTERNAL_H
 #define KYBER_X25519_INTERNAL_H
 
+#include "lc_aead.h"
 #include "kyber_type.h"
 
 #ifdef __cplusplus

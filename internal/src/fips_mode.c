@@ -17,27 +17,20 @@
  * DAMAGE.
  */
 
-#ifndef FIPS_INTEGRITY_CHECK_H
-#define FIPS_INTEGRITY_CHECK_H
+#include "fips_mode.h"
 
-#include "lc_sha3.h"
+/*
+ * This flag is enabled by the FIPS 140 integrity test (i.e. when leancrypto
+ * is started as a FIPS module)
+ */
+static int lc_fips140_enabled = 0;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-struct lc_fips_integrity_sections {
-	const void *section_start_p;
-	const void *section_end_p;
-};
-
-int fips_integrity_check(const struct lc_fips_integrity_sections *secs,
-			 size_t n_secs,
-			 const uint8_t exp[LC_SHA3_256_SIZE_DIGEST],
-			 uint8_t act[LC_SHA3_256_SIZE_DIGEST]);
-
-#ifdef __cplusplus
+void fips140_mode_enable(void)
+{
+	lc_fips140_enabled = 1;
 }
-#endif
 
-#endif /* FIPS_INTEGRITY_CHECK_H */
+int fips140_mode_enabled(void)
+{
+	return lc_fips140_enabled;
+}

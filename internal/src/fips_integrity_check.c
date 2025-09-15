@@ -19,26 +19,9 @@
 
 #include "compare.h"
 #include "fips_integrity_check.h"
-#include "fips_mode.h"
 #include "initialization.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
-
-/*
- * This flag is enabled by the FIPS 140 integrity test (i.e. when leancrypto
- * is started as a FIPS module)
- */
-static int lc_fips140_enabled = 0;
-
-void fips140_mode_enable(void)
-{
-	lc_fips140_enabled = 1;
-}
-
-int fips140_mode_enabled(void)
-{
-	return lc_fips140_enabled;
-}
 
 int fips_integrity_check(const struct lc_fips_integrity_sections *secs,
 			 size_t n_secs,

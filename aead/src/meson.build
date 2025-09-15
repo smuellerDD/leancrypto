@@ -4,13 +4,18 @@ compile_hash_crypt = 0
 compile_aead = 0
 aead_src_files = [ ]
 
+if (aead_support_enabled)
+	include_files += files([
+		'../api/lc_aead.h',
+	])
+endif
+
 if get_option('hash_crypt').enabled()
 	src += files([
 		'hash_crypt.c',
 	])
 
 	include_files += files([
-		'../api/lc_aead.h',
 		'../api/lc_cshake_crypt.h',
 		'../api/lc_hash_crypt.h',
 		'../api/lc_kmac_crypt.h',

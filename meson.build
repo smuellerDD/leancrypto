@@ -135,9 +135,14 @@ if get_option('hmac').enabled()
 	add_global_arguments([ '-DLC_HMAC' ], language: 'c')
 endif
 
+fips_checker_enabled=true
 if get_option('sha3').enabled()
 	add_global_arguments([ '-DLC_SHA3' ], language: 'c')
+else
+	fips_checker_enabled=false
+	message('FIPS 140 integrity checker disabled due to missing SHA-3 support')
 endif
+
 if get_option('kmac').enabled()
 	add_global_arguments([ '-DLC_KMAC' ], language: 'c')
 endif
@@ -863,7 +868,7 @@ link_args_fips140 = [ ]
 if build_shared
 	fips_integrity_test_capable = false
 
-	if (host_machine.system() == 'linux' and
+	if (fips_checker_enabled and host_machine.system() == 'linux' and
 	    get_option('efi').disabled())
 		fips_integrity_test_capable = true
 	endif
@@ -903,7 +908,7 @@ if build_shared
 			'hash/src/sha3_selftest.c',
 			'internal/src/binhexbin.c',
 			'internal/src/compare.c',
-			'internal/src/fips_integrity_check.c',
+			'internal/src/fips_mode.c',
 			'internal/src/memcmp_secure_c.c',
 			'internal/src/memory_support.c',
 			'internal/src/status_algorithms.c',
