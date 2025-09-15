@@ -50,7 +50,7 @@ Each cryptographic algorithm has its own power-up self test which is executed be
 
 When a self-test fails, the offending algorithm is marked with a failed self test and all self tests for all other algorithms are triggered again. These new self tests execute only once the algorithm is used again. Thus, the `leancrypto-fips.so` enters a degraded mode of operation.
 
-The caller may trigger a complete new round of self tests, i.e. all algorithms will perform a new self test before the next use, when using the API of `lc_rerun_selftests` and `lc_rerun_one_selftest`. However, these APIs are currently disabled in FIPS mode, because the FIPS 140-3 standard mandates that to leave the degraded mode, all self tests must instantaneously be executed. This is not implemented in `leancrypto-fips.so` (and I have no desire to honor such nonsensical requirement). With ISO 19790:2025 this requirement is changed so that only the offending algorithm requires a rerun of the self test to leave the degraded mode, provided that the error is local - which is clearly the case for a self test error. Thus, once the ISO 19790:2025 is enacted, the mentioned APIs can be enabled in FIPS mode to leave the degraded mode of operation.
+The caller may trigger a complete new round of self tests, i.e. all algorithms will perform a new self test before the next use, when using the API of `lc_rerun_selftests` and `lc_rerun_one_selftest`. These APIs trigger the exit from degraded mode. In FIPS mode, they trigger the re-execution of the integrity tests as well as the re-running of the known-answer tests for the specified algorithms.
 
 To reperform the integrity test, the API `lc_fips_integrity_checker` is provided.
 

@@ -26,20 +26,18 @@
 LC_INTERFACE_FUNCTION(void, lc_rerun_one_selftest, uint64_t flag)
 {
 	/*
-	 * The caller may trigger a complete new round of self tests. However,
-	 * this API is currently disabled in FIPS mode, because the FIPS 140-3
-	 * standard mandates that to leave the degraded mode, all self tests
-	 * must instantaneously be executed. This is not implemented in
-	 * `leancrypto-fips.so` (and I have no desire to honor such nonsensical
-	 * requirement). With ISO 19790:2025 this requirement is changed so that
-	 * only the offending algorithm requires a rerun of the self test to
-	 * leave the degraded mode, provided that the error is local - which is
-	 * clearly the case for a self test error. Thus, once the ISO 19790:2025
-	 * is enacted, the API can be enabled in FIPS mode to leave the degraded
-	 * mode of operation.
+	 * This API is capable of getting a failed self test back to operational
+	 * mode by unseting the status flag and thus trigger a re-execution
+	 * of the known-answer self test before next use.
+	 *
+	 * FIPS 140-3 "Degraded operation" states in order to leave the
+	 * degraded mode, only the preoperational self test needs to be
+	 * performed. Thus, we do that here.
 	 */
-	if (!fips140_mode_enabled())
-		alg_status_unset_result(flag);
+	if (fips140_mode_enabled())
+		lc_fips_integrity_checker();
+
+	alg_status_unset_result(flag);
 }
 
 LC_INTERFACE_FUNCTION(enum lc_alg_status_result, lc_status_get_result,
@@ -51,6 +49,8 @@ LC_INTERFACE_FUNCTION(enum lc_alg_status_result, lc_status_get_result,
 LC_INTERFACE_FUNCTION(void, lc_rerun_selftests, void)
 {
 	/* See rationale on the FIPS mode above */
-	if (!fips140_mode_enabled())
-		alg_status_unset_result_all();
+	if (fips140_mode_enabled())
+		lc_fips_integrity_checker();
+
+	alg_status_unset_result_all();
 }
