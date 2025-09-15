@@ -46,8 +46,7 @@ static inline int test_validate_status(int ret, uint64_t algorithm)
 #else
 		ret += 1;
 #endif
-		printf("Self test status for algorithm %" PRIu64
-		       "unexpected: %u\n",
+		printf("Self test status for algorithm %llu unexpected: %u\n",
 		       algorithm, lc_status_get_result(algorithm));
 	}
 #ifdef LC_FIPS140_DEBUG
