@@ -2,20 +2,19 @@
 
 #
 # This script defines the option set required for building leancrypto to only
-# offer ML-KEM 1024.
+# offer AES-GCM
 #
 # The following support is enabled with C and accelerated implementations:
 #
-# - SHA-3 support providing the primitives to ML-KEM
-# - ML-KEM 1024
-# - SHAKE SIMD support, if applicable
+# - SHA-3 support to provide primitives to XDRBG
+# - XDRBG / seeded RNG to provide entropy to internal GCM IV generation
+# - AES-GCM
 # - FIPS 140 integrity checker for ELF
 #
 
 DISABLE_AEAD="
  -Dascon=disabled
  -Dascon_keccak=disabled
- -Daes_gcm=disabled
  -Dchacha20poly1305=disabled
  -Dhash_crypt=disabled
 "
@@ -54,6 +53,7 @@ DISABLE_KEM="
  -Dbike_5=disabled
  -Dbike_3=disabled
  -Dbike_1=disabled
+ -Dkyber_1024=disabled
  -Dkyber_768=disabled
  -Dkyber_512=disabled
  -Dkyber_x25519=disabled
@@ -88,6 +88,7 @@ DISABLE_ASN1="
 
 DISABLE_MISC="
  -Dhmac=disabled
+ -Dkmac=disabled
  -Dhotp=disabled
  -Dtotp=disabled
  -Dapps=disabled
@@ -96,7 +97,7 @@ DISABLE_MISC="
 FORCE_SEEDSOURCE="
 "
 
-meson setup build-mlkem1024-only \
+meson setup build-aesgcm-only \
  $DISABLE_AEAD \
  $DISABLE_SYM \
  $DISABLE_HASH \

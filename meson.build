@@ -909,6 +909,7 @@ if build_shared
 			'internal/src/binhexbin.c',
 			'internal/src/compare.c',
 			'internal/src/fips_mode.c',
+			'internal/src/fips_integrity_checker_none.c',
 			'internal/src/memcmp_secure_c.c',
 			'internal/src/memory_support.c',
 			'internal/src/status_algorithms.c',

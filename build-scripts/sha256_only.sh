@@ -102,5 +102,5 @@ meson setup build-sha256-only \
  $DISABLE_KDF \
  $DISABLE_ASN1 \
  $DISABLE_MISC \
- $FORCE_SEEDSOURCE
+ $FORCE_SEEDSOURCE $@
 

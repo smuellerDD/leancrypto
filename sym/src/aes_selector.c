@@ -26,21 +26,61 @@
 #include "lc_aes.h"
 #include "visibility.h"
 
+#ifdef LC_AES_XTS
+#define LC_FILL_ACCEL_NULL_XTS(accel, dflt)                                    \
+	lc_aes_xts_##accel = lc_aes_xts_##dflt;
+#define LC_FILL_DFLT_IMPL_XTS(accel)                                           \
+	lc_aes_xts = lc_aes_xts_##accel;
+#else
+#define LC_FILL_ACCEL_NULL_XTS(accel, dflt)
+#define LC_FILL_DFLT_IMPL_XTS(accel)
+#endif
+
+#ifdef LC_AES_CBC
+#define LC_FILL_ACCEL_NULL_CBC(accel, dflt)                                    \
+	lc_aes_cbc_##accel = lc_aes_cbc_##dflt;
+#define LC_FILL_DFLT_IMPL_CBC(accel)                                           \
+	lc_aes_cbc = lc_aes_cbc_##accel;
+#else
+#define LC_FILL_ACCEL_NULL_CBC(accel, dflt)
+#define LC_FILL_DFLT_IMPL_CBC(accel)
+#endif
+
+#ifdef LC_AES_CTR
+#define LC_FILL_ACCEL_NULL_CTR(accel, dflt)                                    \
+	lc_aes_ctr_##accel = lc_aes_ctr_##dflt;
+#define LC_FILL_DFLT_IMPL_CTR(accel)                                           \
+	lc_aes_ctr = lc_aes_ctr_##accel;
+#else
+#define LC_FILL_ACCEL_NULL_CTR(accel, dflt)
+#define LC_FILL_DFLT_IMPL_CTR(accel)
+#endif
+
+#ifdef LC_AES_KW
+#define LC_FILL_ACCEL_NULL_KW(accel, dflt)                                     \
+	lc_aes_kw_##accel = lc_aes_kw_##dflt;
+#define LC_FILL_DFLT_IMPL_KW(accel)                                            \
+	lc_aes_kw = lc_aes_kw_##accel;
+#else
+#define LC_FILL_ACCEL_NULL_KW(accel, dflt)
+#define LC_FILL_DFLT_IMPL_KW(accel)
+#endif
+
 LC_CONSTRUCTOR(aes_fastest_impl, LC_INIT_PRIO_ALGO)
 {
 	enum lc_cpu_features feat = lc_cpu_feature_available();
 
 #define LC_FILL_ACCEL_WITH_DEFAULT(accel, dflt)                                \
-	lc_aes_xts_##accel = lc_aes_xts_##dflt;                                \
-	lc_aes_cbc_##accel = lc_aes_cbc_##dflt;                                \
-	lc_aes_ctr_##accel = lc_aes_ctr_##dflt;                                \
-	lc_aes_kw_##accel = lc_aes_kw_##dflt;                                  \
+	LC_FILL_ACCEL_NULL_XTS(accel, dflt)                                    \
+	LC_FILL_ACCEL_NULL_CBC(accel, dflt)                                    \
+	LC_FILL_ACCEL_NULL_CTR(accel, dflt)                                    \
+	LC_FILL_ACCEL_NULL_KW(accel, dflt)                                     \
 	lc_aes_##accel = lc_aes_##dflt;
 
 #define LC_FILL_ACCEL_WITH_C(accel) LC_FILL_ACCEL_WITH_DEFAULT(accel, c)
 
 #define LC_FILL_ACCEL_NULL(accel)                                              \
-	if (!lc_aes_cbc_##accel) {                                             \
+	if (!lc_aes_##accel) {                                                 \
 		LC_FILL_ACCEL_WITH_C(accel)                                    \
 	}
 
@@ -50,10 +90,10 @@ LC_CONSTRUCTOR(aes_fastest_impl, LC_INIT_PRIO_ALGO)
 	LC_FILL_ACCEL_NULL(riscv64)
 
 #define LC_FILL_DFLT_IMPL(accel)                                               \
-	lc_aes_xts = lc_aes_xts_##accel;                                       \
-	lc_aes_cbc = lc_aes_cbc_##accel;                                       \
-	lc_aes_ctr = lc_aes_ctr_##accel;                                       \
-	lc_aes_kw = lc_aes_kw_##accel;                                         \
+	LC_FILL_DFLT_IMPL_XTS(accel)                                           \
+	LC_FILL_DFLT_IMPL_CBC(accel)                                           \
+	LC_FILL_DFLT_IMPL_CTR(accel)                                           \
+	LC_FILL_DFLT_IMPL_KW(accel)                                            \
 	lc_aes = lc_aes_##accel;
 
 	/*

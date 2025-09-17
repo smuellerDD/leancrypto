@@ -150,13 +150,13 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 	/* AES */
 #ifdef LC_AES
 		 ,
-		 (lc_aes_cbc_aesni && lc_aes_cbc_aesni != lc_aes_cbc_c) ?
+		 (lc_aes_aesni && lc_aes_aesni != lc_aes_c) ?
 			 "AESNI " :
 			 "",
-		 (lc_aes_cbc_armce && lc_aes_cbc_armce != lc_aes_cbc_c) ?
+		 (lc_aes_armce && lc_aes_armce != lc_aes_c) ?
 			 "ARMv8-CE " :
 			 "",
-		 (lc_aes_cbc_riscv64 && lc_aes_cbc_riscv64 != lc_aes_cbc_c) ?
+		 (lc_aes_riscv64 && lc_aes_riscv64 != lc_aes_c) ?
 			 "RISCV64 " :
 			 ""
 #endif
