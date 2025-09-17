@@ -21,29 +21,29 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y meson
-    - name: PQC-only: Meson setup ${{ matrix.default-library }}
+    - name: PQC-only Meson setup ${{ matrix.default-library }}
       run: bash build-scripts/pqc-only.sh -Ddefault_library=${{ matrix.default-library }}
-    - name: PQC-only: Meson compile
+    - name: PQC-only Meson compile
       run: meson compile -C build-pqc-only
-    - name: PQC-only: Meson test
+    - name: PQC-only Meson test
       run: meson test -C build-pqc-only --suite=regression
-    - name: SHA256-only: Meson setup ${{ matrix.default-library }}
+    - name: SHA256-only Meson setup ${{ matrix.default-library }}
       run: bash build-scripts/sha256-only.sh -Ddefault_library=${{ matrix.default-library }}
-    - name: SHA256-only: Meson compile
+    - name: SHA256-only Meson compile
       run: meson compile -C build-sha256-only
-    - name: SHA256-only: Meson test
+    - name: SHA256-only Meson test
       run: meson test -C build-sha256-only --suite=regression
-    - name: ML-KEM1024-only: Meson setup ${{ matrix.default-library }}
+    - name: ML-KEM1024-only Meson setup ${{ matrix.default-library }}
       run: bash build-scripts/mlkem1024-only.sh -Ddefault_library=${{ matrix.default-library }}
-    - name: ML-KEM1024-only: Meson compile
+    - name: ML-KEM1024-only Meson compile
       run: meson compile -C build-mlkem1024-only
-    - name: ML-KEM1024-only: Meson test
+    - name: ML-KEM1024-only Meson test
       run: meson test -C build-mlkem1024-only --suite=regression
-    - name: AES-GCM-only: Meson setup ${{ matrix.default-library }}
+    - name: AES-GCM-only Meson setup ${{ matrix.default-library }}
       run: bash build-scripts/aesgcm-only.sh -Ddefault_library=${{ matrix.default-library }}
-    - name: AES-GCM-only: Meson compile
+    - name: AES-GCM-only Meson compile
       run: meson compile -C build-aesgcm-only
-    - name: AES-GCM-only: Meson test
+    - name: AES-GCM-only Meson test
       run: meson test -C build-aesgcm-only --suite=regression
 
 

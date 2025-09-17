@@ -35,19 +35,17 @@ else
 endif
 
 # FIPS 140 Integrity check: The integrity checker is adopted for ELF.
-if fips_checker_enabled
-	if (host_machine.system() == 'linux' and
-	get_option('efi').disabled() and
-	build_shared)
-		src_fips_wrapper += files([
-			'fips_integrity_checker_elf.c'
-		])
-	else
-		# Catchall for all other environments
-		src_fips_wrapper += files([
-			'fips_integrity_checker_none.c'
-		])
-	endif
+if (host_machine.system() == 'linux' and
+    get_option('efi').disabled() and
+    build_shared)
+	src_fips_wrapper += files([
+		'fips_integrity_checker_elf.c'
+	])
+else
+	# Catchall for all other environments
+	src_fips += files([
+		'fips_integrity_checker_none.c'
+	])
 endif
 
 if (dilithium_enabled or
