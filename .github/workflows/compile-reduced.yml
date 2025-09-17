@@ -28,7 +28,7 @@ jobs:
     - name: PQC-only Meson test
       run: meson test -C build-pqc-only --suite=regression
     - name: SHA256-only Meson setup ${{ matrix.default-library }}
-      run: bash build-scripts/sha256-only.sh -Ddefault_library=${{ matrix.default-library }}
+      run: bash build-scripts/sha256_only.sh -Ddefault_library=${{ matrix.default-library }}
     - name: SHA256-only Meson compile
       run: meson compile -C build-sha256-only
     - name: SHA256-only Meson test
