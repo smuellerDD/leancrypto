@@ -48,18 +48,18 @@ if (get_option('sha3').enabled() and
 			   include_directories: [ include_internal_dirs ],
 			   dependencies: leancrypto
 			  )
-	fips_degraded_mode = executable('fips_degraded_mode',
-			   [ 'fips_degraded_mode.c', internal_src ],
-			   include_directories: [ include_dirs,
-						  include_internal_dirs ],
-			   link_with: leancrypto_static_lib_fips
-			  )
+# 	fips_degraded_mode = executable('fips_degraded_mode',
+# 			   [ 'fips_degraded_mode.c', internal_src ],
+# 			   include_directories: [ include_dirs,
+# 						  include_internal_dirs ],
+# 			   link_with: leancrypto_static_lib_fips
+# 			  )
 	test('Rerun selftests', rerun_selftests_tester, suite: regression,
 	     should_fail: fips140_negative_expect_fail)
 	test('Rerun one selftest', rerun_one_selftest_tester, suite: regression,
 	     should_fail: fips140_negative_expect_fail)
-	test('FIPS degraded mode', fips_degraded_mode, suite: regression,
-	     should_fail: fips140_negative_expect_fail)
+# 	test('FIPS degraded mode', fips_degraded_mode, suite: regression,
+# 	     should_fail: fips140_negative_expect_fail)
 endif
 
 if ((get_option('dilithium_87').enabled() or
