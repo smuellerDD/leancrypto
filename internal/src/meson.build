@@ -40,12 +40,12 @@ if fips_integrity_test_enabled
 		src_fips_wrapper += files([
 			'fips_integrity_checker_elf.c'
 		])
-	else
-		# Catchall for all other environments
-		src_fips += files([
-			'fips_integrity_checker_none.c'
-		])
 	endif
+else
+	# Catchall for all other environments
+	src_fips += files([
+		'fips_integrity_checker_none.c'
+	])
 endif
 
 if (dilithium_enabled or
