@@ -22,6 +22,7 @@
 #include "compare.h"
 #include "conv_be_le.h"
 #include "ext_headers_internal.h"
+#include "fips_mode.h"
 #include "keccak_internal.h"
 #include "lc_sha3.h"
 #include "lc_memset_secure.h"
@@ -409,8 +410,9 @@ void shake_256_init_common(void *_state)
 		return;
 
 	sha3_ctx_init(_state);
-	ctx->r = LC_SHA3_256_SIZE_BLOCK;
-	ctx->rword = LC_SHA3_256_SIZE_BLOCK / sizeof(uint64_t);
+	BUILD_BUG_ON(LC_SHA3_256_SIZE_BLOCK != LC_SHAKE_256_SIZE_BLOCK);
+	ctx->r = LC_SHAKE_256_SIZE_BLOCK;
+	ctx->rword = LC_SHAKE_256_SIZE_BLOCK / sizeof(uint64_t);
 	ctx->digestsize = 0;
 	ctx->padding = 0x1f;
 }
@@ -433,6 +435,43 @@ static int shake_256_init(void *_state)
 	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SHAKE);
 
 	return shake_256_init_nocheck(_state);
+}
+
+void shake_512_init_common(void *_state)
+{
+	struct lc_sha3_512_state *ctx = _state;
+
+	if (!ctx)
+		return;
+
+	sha3_ctx_init(_state);
+	BUILD_BUG_ON(LC_SHA3_512_SIZE_BLOCK != LC_SHAKE_512_SIZE_BLOCK);
+	ctx->r = LC_SHAKE_512_SIZE_BLOCK;
+	ctx->rword = LC_SHAKE_512_SIZE_BLOCK / sizeof(uint64_t);
+	ctx->digestsize = 0;
+	ctx->padding = 0x1f;
+}
+
+static int shake_512_init_nocheck(void *_state)
+{
+	struct lc_sha3_512_state *ctx = _state;
+
+	if (!ctx)
+		return -EINVAL;
+
+	shake_512_init_common(_state);
+
+	return 0;
+}
+
+static int shake_512_init(void *_state)
+{
+	if (fips140_mode_enabled())
+		return -EOPNOTSUPP;
+	shake512_selftest_common(lc_shake512_c);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SHAKE);
+
+	return shake_512_init_nocheck(_state);
 }
 
 void cshake_256_init_common(void *_state)
@@ -731,6 +770,22 @@ static const struct lc_hash _shake256_c = {
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake256_c) = &_shake256_c;
 
+static const struct lc_hash _shake512_c = {
+	.init = shake_512_init,
+	.init_nocheck = shake_512_init_nocheck,
+	.update = keccak_absorb,
+	.final = keccak_squeeze,
+	.set_digestsize = shake_set_digestsize,
+	.get_digestsize = shake_get_digestsize,
+	.sponge_permutation = keccak_c_permutation,
+	.sponge_add_bytes = keccak_c_add_bytes,
+	.sponge_extract_bytes = keccak_c_extract_bytes,
+	.sponge_newstate = keccak_c_newstate,
+	.sponge_rate = LC_SHA3_512_SIZE_BLOCK,
+	.statesize = sizeof(struct lc_sha3_512_state),
+};
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake512_c) = &_shake512_c;
+
 static const struct lc_hash _cshake256_c = {
 	.init = cshake_256_init,
 	.init_nocheck = cshake_256_init_nocheck,
@@ -769,5 +824,6 @@ LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_384) = &_sha3_384_c;
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_512) = &_sha3_512_c;
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake128) = &_shake128_c;
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake256) = &_shake256_c;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake512) = &_shake512_c;
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_cshake128) = &_cshake128_c;
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_cshake256) = &_cshake256_c;

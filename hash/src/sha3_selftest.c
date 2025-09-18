@@ -187,6 +187,56 @@ void shake256_selftest_common(const struct lc_hash *shake256)
 			    "SHAKE-256");
 }
 
+void shake512_selftest_common(const struct lc_hash *shake512)
+{
+	LC_FIPS_RODATA_SECTION
+	static const uint8_t msg[] = { FIPS140_MOD(0x6C),
+				       0x9E,
+				       0xC8,
+				       0x5C,
+				       0xBA,
+				       0xBA,
+				       0x62,
+				       0xF5,
+				       0xBC,
+				       0xFE,
+				       0xA1,
+				       0x9E,
+				       0xB9,
+				       0xC9,
+				       0x20,
+				       0x52,
+				       0xD8,
+				       0xFF,
+				       0x18,
+				       0x81,
+				       0x52,
+				       0xE9,
+				       0x61,
+				       0xC1,
+				       0xEC,
+				       0x5C,
+				       0x75,
+				       0xBF,
+				       0xC3,
+				       0xC9,
+				       0x1C,
+				       0x8D };
+	LC_FIPS_RODATA_SECTION
+	static const uint8_t exp[] = { 0xc7, 0x9e, 0xcf, 0x01, 0xff, 0x17, 0xbd,
+				       0x81, 0x22, 0x99, 0xae, 0x46, 0xb1, 0x09,
+				       0x7b, 0x93, 0x32, 0x73, 0x40, 0x60, 0x81,
+				       0x30, 0xf3, 0x0b, 0xb5, 0xc6, 0x5d, 0x95,
+				       0x41, 0xb5, 0x33, 0x10 };
+	uint8_t act[sizeof(exp)];
+
+	LC_SELFTEST_RUN(LC_ALG_STATUS_SHAKE);
+
+	lc_xof_nocheck(shake512, msg, sizeof(msg), act, sizeof(act));
+	lc_compare_selftest(LC_ALG_STATUS_SHAKE, act, exp, sizeof(exp),
+			    "SHAKE-512");
+}
+
 void cshake128_selftest_common(const struct lc_hash *cshake128)
 {
 	LC_FIPS_RODATA_SECTION

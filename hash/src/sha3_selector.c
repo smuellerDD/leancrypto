@@ -42,6 +42,7 @@ LC_CONSTRUCTOR(sha3_fastest_impl, LC_INIT_PRIO_ALGO)
 	lc_sha3_512_##accel = lc_sha3_512_##dflt;                              \
 	lc_shake128_##accel = lc_shake128_##dflt;                              \
 	lc_shake256_##accel = lc_shake256_##dflt;                              \
+	lc_shake512_##accel = lc_shake512_##dflt;                              \
 	lc_cshake128_##accel = lc_cshake128_##dflt;                            \
 	lc_cshake256_##accel = lc_cshake256_##dflt;
 
@@ -68,6 +69,7 @@ LC_CONSTRUCTOR(sha3_fastest_impl, LC_INIT_PRIO_ALGO)
 	lc_sha3_512 = lc_sha3_512_##accel;                                     \
 	lc_shake128 = lc_shake128_##accel;                                     \
 	lc_shake256 = lc_shake256_##accel;                                     \
+	lc_shake512 = lc_shake512_##accel;                                     \
 	lc_cshake128 = lc_cshake128_##accel;                                   \
 	lc_cshake256 = lc_cshake256_##accel;
 

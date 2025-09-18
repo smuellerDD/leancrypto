@@ -19,7 +19,6 @@
  */
 
 #include "alignment.h"
-#include "build_bug_on.h"
 #include "compare.h"
 #include "fips_mode.h"
 #include "lc_xdrbg.h"
@@ -100,9 +99,6 @@ LC_INTERFACE_FUNCTION(int, lc_xdrbg128_drng_alloc, struct lc_rng_ctx **state)
 				      LC_XDRBG128_DRNG_CTX_SIZE);
 	if (ret)
 		return -ret;
-
-	/* Ensure that the key size fits within the mask */
-	BUILD_BUG_ON(LC_XDRBG_DRNG_KEYSIZE_MASK < LC_XDRBG128_DRNG_KEYSIZE);
 
 	LC_XDRBG128_RNG_CTX(out_state);
 

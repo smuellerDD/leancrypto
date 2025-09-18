@@ -45,9 +45,13 @@ int lc_xdrbg_drng_seed_nocheck(void *_state, const uint8_t *seed,
 #endif
 
 #ifdef LC_DRNG_XDRBG256
+void xdrbg512_drng_selftest(void);
 void xdrbg256_drng_selftest(void);
 #else
 static inline void xdrbg256_drng_selftest(void)
+{
+}
+static inline void xdrbg512_drng_selftest(void)
 {
 }
 #endif

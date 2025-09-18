@@ -147,6 +147,7 @@ int lc_status(char *outbuf, size_t outlen);
 #define LC_ALG_STATUS_FLAG_KMAC_DRBG (LC_ALG_STATUS_FLAG_MASK_SIZE * 4)
 #define LC_ALG_STATUS_FLAG_XDRBG128 (LC_ALG_STATUS_FLAG_MASK_SIZE * 5)
 #define LC_ALG_STATUS_FLAG_XDRBG256 (LC_ALG_STATUS_FLAG_MASK_SIZE * 6)
+#define LC_ALG_STATUS_FLAG_XDRBG512 (LC_ALG_STATUS_FLAG_MASK_SIZE * 7)
 
 #define LC_ALG_STATUS_TYPE_DIGEST (1UL << (LC_ALG_STATUS_TYPE_MASK_SHIFT + 6))
 #define LC_ALG_STATUS_FLAG_ASCON256 (LC_ALG_STATUS_FLAG_MASK_SIZE * 0)
@@ -310,9 +311,12 @@ enum lc_alg_status_result {
 /** Random Number Generator reference: Ascon XOF XDRBG128 */
 #define LC_ALG_STATUS_XDRBG128                                                 \
 	(LC_ALG_STATUS_TYPE_RNG | LC_ALG_STATUS_FLAG_XDRBG128)
-/** Random Number Generator reference: SHAKE XDRBG128 */
+/** Random Number Generator reference: SHAKE XDRBG256 */
 #define LC_ALG_STATUS_XDRBG256                                                 \
 	(LC_ALG_STATUS_TYPE_RNG | LC_ALG_STATUS_FLAG_XDRBG256)
+/** Random Number Generator reference: SHAKE XDRBG512 */
+#define LC_ALG_STATUS_XDRBG512                                                 \
+	(LC_ALG_STATUS_TYPE_RNG | LC_ALG_STATUS_FLAG_XDRBG512)
 
 /** Digest reference: Ascon 256 */
 #define LC_ALG_STATUS_ASCON256                                                 \

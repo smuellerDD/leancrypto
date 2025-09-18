@@ -140,6 +140,25 @@ static int shake_256_avx2_init(void *_state)
 	return shake_256_avx2_init_nocheck(_state);
 }
 
+static int shake_512_avx2_init_nocheck(void *_state)
+{
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
+	/* Handle SYSV_ABI */
+	shake_512_asm_init(_state, NULL, KeccakP1600_AVX2_Initialize);
+#pragma GCC diagnostic pop
+
+	return 0;
+}
+
+static int shake_512_avx2_init(void *_state)
+{
+	shake512_selftest_common(lc_shake512_avx2);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SHAKE);
+
+	return shake_512_avx2_init_nocheck(_state);
+}
+
 static int cshake_128_avx2_init_nocheck(void *_state)
 {
 #pragma GCC diagnostic push
@@ -344,6 +363,22 @@ static const struct lc_hash _shake256_avx2 = {
 	.statesize = sizeof(struct lc_sha3_256_state),
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake256_avx2) = &_shake256_avx2;
+
+static const struct lc_hash _shake512_avx2 = {
+	.init = shake_512_avx2_init,
+	.init_nocheck = shake_512_avx2_init_nocheck,
+	.update = keccak_avx2_absorb,
+	.final = keccak_avx2_squeeze,
+	.set_digestsize = shake_set_digestsize,
+	.get_digestsize = shake_get_digestsize,
+	.sponge_permutation = keccak_avx2_permutation,
+	.sponge_add_bytes = keccak_avx2_add_bytes,
+	.sponge_extract_bytes = keccak_avx2_extract_bytes,
+	.sponge_newstate = keccak_avx2_newstate,
+	.sponge_rate = LC_SHA3_512_SIZE_BLOCK,
+	.statesize = sizeof(struct lc_sha3_512_state),
+};
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake512_avx2) = &_shake512_avx2;
 
 static const struct lc_hash _cshake128_avx2 = {
 	.init = cshake_128_avx2_init,

@@ -27,6 +27,7 @@
 extern "C" {
 #endif
 
+void lc_activate_library_internal(void);
 void alg_status_set_result(enum lc_alg_status_result test_ret, uint64_t flag);
 void alg_status_unset_result(uint64_t flag);
 void alg_status_unset_result_all(void);

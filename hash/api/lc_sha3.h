@@ -309,6 +309,41 @@ extern const struct lc_hash *lc_shake256;
 	LC_SHAKE_256_CTX(name);                                                \
 	_Pragma("GCC diagnostic pop")
 
+/********************************* SHAKE-512 **********************************/
+
+/**
+ * @var lc_shake512
+ * @brief SHAKE512 algorithm reference
+ */
+extern const struct lc_hash *lc_shake512;
+
+/// \cond DO_NOT_DOCUMENT
+#define LC_SHAKE_512_SIZE_DIGEST_BITS 512
+#define LC_SHAKE_512_SIZE_BLOCK LC_SHA3_SIZE_RATE(LC_SHAKE_512_SIZE_DIGEST_BITS)
+
+#define LC_SHAKE_512_CTX_SIZE LC_SHA3_512_CTX_SIZE
+
+#define LC_SHAKE_512_CTX(name)                                                 \
+	LC_HASH_SET_CTX(name, lc_shake512);                                    \
+	lc_hash_zero(name)
+/// \endcond
+
+/**
+ * @brief Allocate stack memory for the SHAKE-512 context without VLA
+ *
+ * @param [in] name Name of the stack variable
+ */
+#define LC_SHAKE_512_CTX_ON_STACK(name)                                        \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(                                             \
+			name##_ctx_buf,                                        \
+			LC_SHA3_STATE_SIZE_ALIGN(LC_SHAKE_512_CTX_SIZE),       \
+			LC_HASH_COMMON_ALIGNMENT);                             \
+	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name##_ctx_buf;       \
+	LC_SHAKE_512_CTX(name);                                                \
+	_Pragma("GCC diagnostic pop")
+
 /********************************* cSHAKE-256 *********************************/
 
 /**

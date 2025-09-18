@@ -111,6 +111,19 @@ static int shake_256_arm_ce_init(void *_state)
 	return shake_256_arm_ce_init_nocheck(_state);
 }
 
+static int shake_512_arm_ce_init_nocheck(void *_state)
+{
+	shake_512_init_common(_state);
+	return 0;
+}
+
+static int shake_512_arm_ce_init(void *_state)
+{
+	shake512_selftest_common(lc_shake512_arm_ce);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SHAKE);
+	return shake_512_arm_ce_init_nocheck(_state);
+}
+
 static int cshake_128_arm_ce_init_nocheck(void *_state)
 {
 	cshake_128_init_common(_state);
@@ -302,6 +315,23 @@ static const struct lc_hash _shake256_arm_ce = {
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,
 		    lc_shake256_arm_ce) = &_shake256_arm_ce;
+
+static const struct lc_hash _shake512_arm_ce = {
+	.init = shake_512_arm_ce_init,
+	.init_nocheck = shake_512_arm_ce_init_nocheck,
+	.update = keccak_arm_ce_absorb,
+	.final = keccak_arm_ce_squeeze,
+	.set_digestsize = shake_set_digestsize,
+	.get_digestsize = shake_get_digestsize,
+	.sponge_permutation = keccak_arm_ce_permutation,
+	.sponge_add_bytes = keccak_arm_ce_add_bytes,
+	.sponge_extract_bytes = keccak_arm_ce_extract_bytes,
+	.sponge_newstate = keccak_arm_ce_newstate,
+	.sponge_rate = LC_SHA3_512_SIZE_BLOCK,
+	.statesize = sizeof(struct lc_sha3_512_state),
+};
+LC_INTERFACE_SYMBOL(const struct lc_hash *,
+		    lc_shake512_arm_ce) = &_shake512_arm_ce;
 
 static const struct lc_hash _cshake128_arm_ce = {
 	.init = cshake_128_arm_ce_init,

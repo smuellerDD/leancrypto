@@ -21,6 +21,8 @@ Changes 1.6.0-prerelease
 
 * FIPS: Add negative testing support
 
+* Add SHAKE-512 and XDRBG-512 support
+
 Changes 1.5.1
 * add ChaCha20 Poly 1305 AEAD
 

@@ -39,7 +39,20 @@ lc_xdrbg_initially_seeded(struct lc_xdrbg_drng_state *state)
 
 static inline uint8_t lc_xdrbg_keysize(struct lc_xdrbg_drng_state *state)
 {
-	return state->status & LC_XDRBG_DRNG_KEYSIZE_MASK;
+	enum lc_xdrbg_status_keysize status = state->status &
+					      LC_XDRBG_DRNG_KEYSIZE_MASK;
+
+	switch (status) {
+	case lc_xdrbg_keysize_xdrbg128:
+		return LC_XDRBG128_DRNG_KEYSIZE;
+	case lc_xdrbg_keysize_xdrbg256:
+		return LC_XDRBG256_DRNG_KEYSIZE;
+	case lc_xdrbg_keysize_xdrbg512:
+		return LC_XDRBG512_DRNG_KEYSIZE;
+	case lc_xdrbg_keysize_undefined:
+	default:
+		return 0xff;
+	}
 }
 
 static inline void lc_xdrbg_xof_final(struct lc_hash_ctx *xof_ctx,
@@ -63,9 +76,6 @@ static void lc_xdrbg_drng_encode(struct lc_hash_ctx *xof_ctx, const uint8_t n,
 				 const uint8_t *alpha, size_t alphalen)
 {
 	uint8_t encode;
-
-	/* Ensure the prerequisite hash size <= 84 holds. */
-	BUILD_BUG_ON(LC_XDRBG256_DRNG_KEYSIZE > LC_XDRBG_DRNG_ENCODE_LENGTH);
 
 	/*
 	 * Only consider up to 84 left-most bytes of alpha. According to
@@ -265,9 +275,12 @@ static int lc_xdrbg_drng_seed(void *_state, const uint8_t *seed, size_t seedlen,
 	if (keysize == LC_XDRBG256_DRNG_KEYSIZE) {
 		xdrbg256_drng_selftest();
 		LC_SELFTEST_COMPLETED(LC_ALG_STATUS_XDRBG256);
-	} else {
+	} else if (keysize == LC_XDRBG128_DRNG_KEYSIZE) {
 		xdrbg128_drng_selftest();
 		LC_SELFTEST_COMPLETED(LC_ALG_STATUS_XDRBG128);
+	} else {
+		xdrbg512_drng_selftest();
+		LC_SELFTEST_COMPLETED(LC_ALG_STATUS_XDRBG512);
 	}
 
 	return lc_xdrbg_drng_seed_nocheck(_state, seed, seedlen, alpha,

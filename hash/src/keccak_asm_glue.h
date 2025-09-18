@@ -151,6 +151,22 @@ static inline void shake_256_asm_init(void *_state,
 	shake_256_init_common(_state);
 }
 
+static inline void shake_512_asm_init(void *_state,
+				      void (*StaticInitialize)(void),
+				      void (*Initialize)(void *state))
+{
+	struct lc_sha3_512_state *ctx = _state;
+
+	if (!ctx)
+		return;
+
+	if (StaticInitialize)
+		StaticInitialize();
+	Initialize(ctx->state);
+
+	shake_512_init_common(_state);
+}
+
 static inline void cshake_128_asm_init(void *_state,
 				       void (*StaticInitialize)(void),
 				       void (*Initialize)(void *state))

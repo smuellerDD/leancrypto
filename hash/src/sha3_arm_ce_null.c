@@ -28,5 +28,6 @@ LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_384_arm_ce) = NULL;
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_512_arm_ce) = NULL;
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake128_arm_ce) = NULL;
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake256_arm_ce) = NULL;
+LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake512_arm_ce) = NULL;
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_cshake128_arm_ce) = NULL;
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_cshake256_arm_ce) = NULL;

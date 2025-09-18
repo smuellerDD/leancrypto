@@ -31,6 +31,7 @@ extern const struct lc_hash *lc_sha3_512_arm_asm;
 
 extern const struct lc_hash *lc_shake128_arm_asm;
 extern const struct lc_hash *lc_shake256_arm_asm;
+extern const struct lc_hash *lc_shake512_arm_asm;
 extern const struct lc_hash *lc_cshake128_arm_asm;
 extern const struct lc_hash *lc_cshake256_arm_asm;
 

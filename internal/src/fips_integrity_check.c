@@ -42,7 +42,7 @@ int fips_integrity_check(const struct lc_fips_integrity_sections *secs,
 	 */
 	if (lc_status_get_result(LC_ALG_STATUS_FLAG_LIB) <=
 	    lc_alg_status_result_ongoing)
-		lc_activate_library();
+		lc_activate_library_internal();
 
 	CKINT(lc_hash_init(hash_ctx));
 	for (i = 0; i < n_secs; i++, secs++) {

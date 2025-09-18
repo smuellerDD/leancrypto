@@ -62,6 +62,11 @@ if get_option('sha3').enabled()
 				  include_directories: [ include_internal_dirs ],
 				  dependencies: leancrypto
 				  )
+	shake512_tester = executable('shake512_tester',
+				  [ 'shake512_tester.c', internal_src ],
+				  include_directories: [ include_internal_dirs ],
+				  dependencies: leancrypto
+				  )
 	shake_squeeze_more_tester = executable('shake_squeeze_more_tester',
 				  [ 'shake_squeeze_more_tester.c', internal_src ],
 				  include_directories: [ include_internal_dirs ],
@@ -94,6 +99,7 @@ if get_option('sha3').enabled()
 	test('Hash SHA3-512', sha3_512_tester, suite: regression)
 	test('Hash SHAKE128', shake128_tester, suite: regression)
 	test('Hash SHAKE256', shake256_tester, suite: regression)
+	test('Hash SHAKE512', shake512_tester, suite: regression)
 	test('Hash SHAKE256 Squeeze More', shake_squeeze_more_tester, suite: regression,
 	     should_fail: fips140_negative_expect_fail)
 	test('Hash cSHAKE128', cshake_128_tester, suite: regression)

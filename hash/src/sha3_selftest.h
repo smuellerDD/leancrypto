@@ -32,6 +32,7 @@ void sha3_384_selftest_common(const struct lc_hash *sha3_384);
 void sha3_512_selftest_common(const struct lc_hash *sha3_512);
 void shake128_selftest_common(const struct lc_hash *shake128);
 void shake256_selftest_common(const struct lc_hash *shake256);
+void shake512_selftest_common(const struct lc_hash *shake512);
 void cshake128_selftest_common(const struct lc_hash *cshake128);
 void cshake256_selftest_common(const struct lc_hash *cshake256);
 

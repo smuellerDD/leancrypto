@@ -61,7 +61,8 @@ leancrypto-$(CONFIG_LEANCRYPTO_XDRBG_DRNG)				       \
 				   leancrypto_kernel_rng.o
 ifdef CONFIG_LEANCRYPTO_SHA3
 leancrypto-$(CONFIG_LEANCRYPTO_XDRBG_DRNG)				       \
-				+= ../drng/src/xdrbg256.o
+				+= ../drng/src/xdrbg256.o		       \
+				   ../drng/src/xdrbg512.o
 endif
 ifdef CONFIG_LEANCRYPTO_ASCON_HASH
 leancrypto-$(CONFIG_LEANCRYPTO_XDRBG_DRNG)				       \
@@ -75,7 +76,9 @@ ifdef CONFIG_LEANCRYPTO_SHA3
 obj-m				+= leancrypto_kernel_rng_tester.o
 leancrypto_kernel_rng_tester-y	+= ../drng/tests/leancrypto_kernel_rng_tester.o
 obj-m				+= xdrbg256_tester.o
+obj-m				+= xdrbg512_tester.o
 xdrbg256_tester-y		+= ../drng/tests/xdrbg256_tester.o
+xdrbg512_tester-y		+= ../drng/tests/xdrbg512_tester.o
 endif
 
 ifdef CONFIG_LEANCRYPTO_ASCON_HASH

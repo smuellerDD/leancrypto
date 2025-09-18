@@ -179,6 +179,7 @@ static const struct alg_status_show alg_status_show_rng[] = {
 #if (defined(LC_DRNG_XDRBG256) ||                                              \
      (defined(CONFIG_LEANCRYPTO_XDRBG_DRNG) && defined(CONFIG_LEANCRYPTO_SHA3)))
 { .flag = LC_ALG_STATUS_XDRBG256, .alg_name = "XDRBG256", .strlen = 8 },
+{ .flag = LC_ALG_STATUS_XDRBG512, .alg_name = "XDRBG512", .strlen = 8 },
 #endif
 #if (defined(LC_DRNG_XDRBG128) ||                                              \
      (defined(CONFIG_LEANCRYPTO_XDRBG_DRNG) &&                                 \
@@ -611,7 +612,7 @@ void alg_status(uint64_t flag, char *test_completed, size_t test_completed_len,
 	}
 }
 
-LC_CONSTRUCTOR(lc_activate_library, LC_INIT_PRIO_LIBRARY)
+void lc_activate_library_internal(void)
 {
 	/*
 	 * TODO remove once the FIPS integrity test is rearchitected, see
@@ -627,4 +628,9 @@ LC_CONSTRUCTOR(lc_activate_library, LC_INIT_PRIO_LIBRARY)
 	 * be unavailable.
 	 */
 	alg_status_unset_test_state();
+}
+
+LC_CONSTRUCTOR(lc_activate_library, LC_INIT_PRIO_LIBRARY)
+{
+	lc_activate_library_internal();
 }

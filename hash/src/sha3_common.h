@@ -49,6 +49,7 @@ size_t sha3_512_digestsize(void *_state);
 
 void shake_128_init_common(void *_state);
 void shake_256_init_common(void *_state);
+void shake_512_init_common(void *_state);
 void cshake_256_init_common(void *_state);
 void cshake_128_init_common(void *_state);
 

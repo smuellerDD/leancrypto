@@ -36,7 +36,10 @@ endif
 if get_option('xdrbg').enabled()
 	src_fips += files([ 'xdrbg.c' ])
 	if get_option('sha3').enabled()
-		src_fips += files([ 'xdrbg256.c' ])
+		src_fips += files([
+			'xdrbg256.c',
+			'xdrbg512.c'
+		])
 	endif
 	if get_option('ascon').enabled()
 		src_fips += files([ 'xdrbg128.c' ])
