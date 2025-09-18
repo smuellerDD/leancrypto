@@ -143,6 +143,18 @@ endif
 ifdef CONFIG_LEANCRYPTO_AES
 ccflags-y	+= -DLC_AES
 endif
+ifdef CONFIG_LEANCRYPTO_AES_CBC
+ccflags-y	+= -DLC_AES_CBC
+endif
+ifdef CONFIG_LEANCRYPTO_AES_CTR
+ccflags-y	+= -DLC_AES_CTR
+endif
+ifdef CONFIG_LEANCRYPTO_AES_XTS
+ccflags-y	+= -DLC_AES_XTS
+endif
+ifdef CONFIG_LEANCRYPTO_AES_KW
+ccflags-y	+= -DLC_AES_KW
+endif
 ifdef CONFIG_LEANCRYPTO_SHA2_256
 ccflags-y	+= -DLC_SHA2_256
 endif
