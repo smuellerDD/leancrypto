@@ -10,12 +10,6 @@ src_fips += files([
 	'status_algorithms.c'
 ])
 
-if fips_checker_enabled
-	src_fips += files([
-		'fips_integrity_check.c',
-	])
-endif
-
 if get_option('efi').disabled()
 	internal_src += files([
 		'binhexbin.c'
@@ -35,17 +29,23 @@ else
 endif
 
 # FIPS 140 Integrity check: The integrity checker is adopted for ELF.
-if (host_machine.system() == 'linux' and
-    get_option('efi').disabled() and
-    build_shared)
-	src_fips_wrapper += files([
-		'fips_integrity_checker_elf.c'
-	])
-else
-	# Catchall for all other environments
+if fips_integrity_test_enabled
 	src_fips += files([
-		'fips_integrity_checker_none.c'
+		'fips_integrity_check.c',
 	])
+
+	if (host_machine.system() == 'linux' and
+	    get_option('efi').disabled() and
+	    build_shared)
+		src_fips_wrapper += files([
+			'fips_integrity_checker_elf.c'
+		])
+	else
+		# Catchall for all other environments
+		src_fips += files([
+			'fips_integrity_checker_none.c'
+		])
+	endif
 endif
 
 if (dilithium_enabled or

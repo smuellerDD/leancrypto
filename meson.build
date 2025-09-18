@@ -135,11 +135,11 @@ if get_option('hmac').enabled()
 	add_global_arguments([ '-DLC_HMAC' ], language: 'c')
 endif
 
-fips_checker_enabled=true
+fips_integrity_test_capable=true
 if get_option('sha3').enabled()
 	add_global_arguments([ '-DLC_SHA3' ], language: 'c')
 else
-	fips_checker_enabled=false
+	fips_integrity_test_capable=false
 	message('FIPS 140 integrity checker disabled due to missing SHA-3 support')
 endif
 
@@ -395,6 +395,16 @@ build_shared = (get_option('default_library') != 'static' and
 		get_option('efi').disabled())
 if (not build_shared)
 	add_global_arguments([ '-DLC_STATIC' ], language: 'c')
+endif
+
+# Decide whether we are building for the FIPS integrity testing.
+fips_integrity_test_enabled = false
+if (build_shared and
+    fips_integrity_test_capable and
+    host_machine.system() == 'linux' and
+    get_option('efi').disabled())
+	fips_integrity_test_enabled = true
+	add_global_arguments([ '-DLC_FIPS140_INTEGRITY_CHECKER' ], language: 'c')
 endif
 
 # 64 bit time to not suffer from Y2038 problem
@@ -864,16 +874,10 @@ leancrypto_libs_fips_raw = static_library('leancrypto-fips-raw',
 	)
 
 link_args_fips140 = [ ]
+
 # Build FIPS 140 library
 if build_shared
-	fips_integrity_test_capable = false
-
-	if (fips_checker_enabled and host_machine.system() == 'linux' and
-	    get_option('efi').disabled())
-		fips_integrity_test_capable = true
-	endif
-
-	if fips_integrity_test_capable
+	if fips_integrity_test_enabled
 		link_args_fips140 = [
 			'-T' + meson.project_source_root() + '/internal/src/fips_integrity_check.ld'
 		]
@@ -894,7 +898,7 @@ if build_shared
 	leancrypto_static_lib_fips = leancrypto_both_libs_fips.get_static_lib()
 
 	# Generate the ELF FIPS integrity check control value
-	if fips_integrity_test_capable
+	if fips_integrity_test_enabled
 
 		# This code simply re-purposes the sha3-256sum application
 		# to compile it as a standalone application without dependencies

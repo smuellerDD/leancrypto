@@ -422,7 +422,7 @@ static inline int lc_get_time(time64_t *time_since_epoch)
  * FIPS 140 integrity check cannot check the .rodata section. Thus move all
  * relevant data to teh fips_rodata section.
  */
-#if defined __ELF__
+#if (defined(__ELF__) && defined(LC_FIPS140_INTEGRITY_CHECKER))
 #define LC_FIPS_RODATA_SECTION_NAME_START lc_fips_start_rodata
 #define LC_FIPS_RODATA_SECTION_NAME_STOP lc_fips_end_rodata
 #define LC_FIPS_RODATA_SECTION_NAME ".lc_fips_rodata"

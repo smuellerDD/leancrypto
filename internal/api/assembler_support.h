@@ -252,7 +252,7 @@
 
 #  define FRAME_END
 
-#if defined __ELF__
+#if (defined(__ELF__) && defined(LC_FIPS140_INTEGRITY_CHECKER))
 #define LC_FIPS_RODATA_SECTION .section .lc_fips_rodata
 #else
 #define LC_FIPS_RODATA_SECTION .section .rodata
