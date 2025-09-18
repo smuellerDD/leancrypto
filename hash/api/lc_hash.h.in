@@ -280,7 +280,7 @@ void lc_hash_zero_free(struct lc_hash_ctx *hash_ctx);
  * @return 0 on success; < 0 on error
  */
 int lc_hash(const struct lc_hash *hash, const uint8_t *in, size_t inlen,
-	     uint8_t *digest);
+	    uint8_t *digest);
 
 /**
  * @ingroup Hashing
@@ -298,7 +298,7 @@ int lc_hash(const struct lc_hash *hash, const uint8_t *in, size_t inlen,
  * @return 0 on success; < 0 on error
  */
 int lc_xof(const struct lc_hash *xof, const uint8_t *in, size_t inlen,
-	    uint8_t *digest, size_t digestlen);
+	   uint8_t *digest, size_t digestlen);
 
 /**
  * @ingroup Hashing

@@ -26,10 +26,10 @@
 extern "C" {
 #endif
 
-void lc_hash_nocheck(const struct lc_hash *hash, const uint8_t *in,
-		     size_t inlen, uint8_t *digest);
-void lc_xof_nocheck(const struct lc_hash *xof, const uint8_t *in, size_t inlen,
-		    uint8_t *digest, size_t digestlen);
+int lc_hash_nocheck(const struct lc_hash *hash, const uint8_t *in, size_t inlen,
+		    uint8_t *digest);
+int lc_xof_nocheck(const struct lc_hash *xof, const uint8_t *in, size_t inlen,
+		   uint8_t *digest, size_t digestlen);
 int lc_cshake_init_nocheck(struct lc_hash_ctx *ctx, const uint8_t *n,
 			   size_t nlen, const uint8_t *s, size_t slen);
 

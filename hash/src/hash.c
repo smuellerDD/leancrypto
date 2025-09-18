@@ -150,16 +150,19 @@ out:
 	return ret;
 }
 
-void lc_hash_nocheck(const struct lc_hash *hash, const uint8_t *in,
-		     size_t inlen, uint8_t *digest)
+int lc_hash_nocheck(const struct lc_hash *hash, const uint8_t *in, size_t inlen,
+		    uint8_t *digest)
 {
 	LC_HASH_CTX_ON_STACK(hash_ctx, hash);
+	int ret;
 
-	hash->init_nocheck(hash_ctx->hash_state);
+	CKINT(hash->init_nocheck(hash_ctx->hash_state));
 	lc_hash_update(hash_ctx, in, inlen);
 	lc_hash_final(hash_ctx, digest);
 
+out:
 	lc_hash_zero(hash_ctx);
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_xof, const struct lc_hash *xof, const uint8_t *in,
@@ -182,21 +185,24 @@ out:
 	return ret;
 }
 
-void lc_xof_nocheck(const struct lc_hash *xof, const uint8_t *in, size_t inlen,
-		    uint8_t *digest, size_t digestlen)
+int lc_xof_nocheck(const struct lc_hash *xof, const uint8_t *in, size_t inlen,
+		   uint8_t *digest, size_t digestlen)
 {
 	LC_HASH_CTX_ON_STACK(hash_ctx, xof);
+	int ret;
 
-	xof->init_nocheck(hash_ctx->hash_state);
+	CKINT(xof->init_nocheck(hash_ctx->hash_state));
 	lc_hash_update(hash_ctx, in, inlen);
 	lc_hash_set_digestsize(hash_ctx, digestlen);
 	if (lc_hash_digestsize(hash_ctx) != digestlen) {
-		memset(digest, 0, digestlen);
-		return;
+		ret = -EFAULT;
+		goto out;
 	}
 	lc_hash_final(hash_ctx, digest);
 
+out:
 	lc_hash_zero(hash_ctx);
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_sponge, const struct lc_hash *hash, void *state,
