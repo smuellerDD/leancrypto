@@ -172,36 +172,28 @@ out2:
  * Std 1619-2007"
  */
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-static __always_inline void gfmul_alpha(uint8_t block[AES_BLOCKLEN])
+static __always_inline void gfmul_alpha(union lc_xts_tweak *t)
 {
+	/*
+	 * This function works both on big and little endian, but has a bit
+	 * more instructions than the streamlined little endian implementation.
+	 * Thus, it is limited to big-endian only.
+	 */
 	uint8_t i = AES_BLOCKLEN;
-	uint8_t carry = block[AES_BLOCKLEN - 1] & 0x80;
+	uint8_t carry = t->b[AES_BLOCKLEN - 1] & 0x80;
 
 #pragma GCC unroll 16
 	while (--i) {
-		block[i] <<= 1;
-		block[i] |= (block[(i - 1)] & 0x80 ? 1 : 0);
+		t->b[i] <<= 1;
+		t->b[i] |= (t->b[(i - 1)] & 0x80 ? 1 : 0);
 	}
-	block[0] = (uint8_t)(block[0] << 1) ^ (carry ? 0x87 : 0);
+	t->b[0] = (uint8_t)(t->b[0] << 1) ^ (carry ? 0x87 : 0);
 }
 
 #else /* __ORDER_BIG_ENDIAN__ */
 
-static __always_inline void gfmul_alpha(uint8_t block[AES_BLOCKLEN])
+static __always_inline void gfmul_alpha(union lc_xts_tweak *t)
 {
-	union tweak {
-		uint64_t qw[2];
-		uint32_t dw[4];
-	};
-
-	/*
-	 * The block (i.e. ctx->tweak) or local variable is guaranteed to be
-	 * aligned to 64 bits.
-	 */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
-	union tweak *t = (union tweak *)block;
-#pragma GCC diagnostic pop
 	unsigned int carry, res;
 
 	res = 0x87 & (((int)t->dw[3]) >> 31);
@@ -216,7 +208,7 @@ static void xts_enc_block(struct lc_mode_state *ctx,
 {
 	const struct lc_sym *wrapped_cipher = ctx->wrapped_cipher;
 
-	xor_64(block, ctx->tweak, AES_BLOCKLEN);
+	xor_64(block, ctx->tweak.b, AES_BLOCKLEN);
 
 	/*
 	 * Timecop: C implementation of AES has side channel problems as
@@ -226,7 +218,7 @@ static void xts_enc_block(struct lc_mode_state *ctx,
 
 	wrapped_cipher->encrypt(ctx->wrapped_cipher_ctx, block, block,
 				AES_BLOCKLEN);
-	xor_64(block, ctx->tweak, AES_BLOCKLEN);
+	xor_64(block, ctx->tweak.b, AES_BLOCKLEN);
 }
 
 static void mode_xts_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
@@ -250,7 +242,7 @@ static void mode_xts_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
 		/* Encrypt */
 		xts_enc_block(ctx, out);
 		/* Increment the tweak */
-		gfmul_alpha(ctx->tweak);
+		gfmul_alpha(&ctx->tweak);
 	}
 
 	if (len == rounded_len) {
@@ -261,7 +253,7 @@ static void mode_xts_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
 		xts_enc_block(ctx, out);
 
 		/* Update the tweak to allow stream mode operation */
-		gfmul_alpha(ctx->tweak);
+		gfmul_alpha(&ctx->tweak);
 	} else {
 		/*
 		 * Encrypt the last full block and the trailing partial block,
@@ -275,7 +267,7 @@ static void mode_xts_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
 		memcpy(CC, out, AES_BLOCKLEN);
 		/* Encrypt */
 		xts_enc_block(ctx, CC);
-		gfmul_alpha(ctx->tweak);
+		gfmul_alpha(&ctx->tweak);
 
 		/* Get the final partial block */
 		memcpy(PP, out + AES_BLOCKLEN, b);
@@ -306,11 +298,11 @@ static void mode_xts_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
 
 static void xts_dec_block(struct lc_mode_state *ctx,
 			  uint8_t block[AES_BLOCKLEN],
-			  uint8_t tweak[AES_BLOCKLEN])
+			  union lc_xts_tweak *tweak)
 {
 	const struct lc_sym *wrapped_cipher = ctx->wrapped_cipher;
 
-	xor_64(block, tweak, AES_BLOCKLEN);
+	xor_64(block, tweak->b, AES_BLOCKLEN);
 
 	/*
 	 * Timecop: C implementation of AES has side channel problems as
@@ -320,7 +312,7 @@ static void xts_dec_block(struct lc_mode_state *ctx,
 
 	wrapped_cipher->decrypt(ctx->wrapped_cipher_ctx, block, block,
 				AES_BLOCKLEN);
-	xor_64(block, tweak, AES_BLOCKLEN);
+	xor_64(block, tweak->b, AES_BLOCKLEN);
 }
 
 static void mode_xts_decrypt(struct lc_mode_state *ctx, const uint8_t *in,
@@ -342,9 +334,9 @@ static void mode_xts_decrypt(struct lc_mode_state *ctx, const uint8_t *in,
 	for (i = 0; i < rounded_len - AES_BLOCKLEN;
 	     i += AES_BLOCKLEN, out += AES_BLOCKLEN) {
 		/* Decrypt */
-		xts_dec_block(ctx, out, ctx->tweak);
+		xts_dec_block(ctx, out, &ctx->tweak);
 		/* Update the tweak */
-		gfmul_alpha(ctx->tweak);
+		gfmul_alpha(&ctx->tweak);
 	}
 
 	if (len == rounded_len) {
@@ -352,31 +344,31 @@ static void mode_xts_decrypt(struct lc_mode_state *ctx, const uint8_t *in,
 		 * Decrypt the last block, out already points to the right
 		 * memory location
 		 */
-		xts_dec_block(ctx, out, ctx->tweak);
+		xts_dec_block(ctx, out, &ctx->tweak);
 
 		/* Update the tweak to allow stream mode operation */
-		gfmul_alpha(ctx->tweak);
+		gfmul_alpha(&ctx->tweak);
 	} else {
 		size_t b = len - rounded_len;
 		uint8_t CC[AES_BLOCKLEN] __align(sizeof(uint64_t)),
-			PP[AES_BLOCKLEN] __align(sizeof(uint64_t)),
-			tweak[AES_BLOCKLEN] __align(sizeof(uint64_t));
+			PP[AES_BLOCKLEN] __align(sizeof(uint64_t));
+		union lc_xts_tweak tweak;
 
-		memcpy(tweak, ctx->tweak, AES_BLOCKLEN);
+		memcpy(tweak.b, ctx->tweak.b, AES_BLOCKLEN);
 
 		/* Get last full block */
 		memcpy(PP, out, AES_BLOCKLEN);
 		/* We need the tweak of the last iteration for the decryption */
-		gfmul_alpha(tweak);
+		gfmul_alpha(&tweak);
 		/* Decryption using the last tweak */
-		xts_dec_block(ctx, PP, tweak);
+		xts_dec_block(ctx, PP, &tweak);
 
 		/* Get the final partial block */
 		memcpy(CC, out + AES_BLOCKLEN, b);
 		/* Add the plaintext from the last full block */
 		memcpy(CC + b, PP + b, AES_BLOCKLEN - b);
 		/* Decryption using the last but one tweak */
-		xts_dec_block(ctx, CC, ctx->tweak);
+		xts_dec_block(ctx, CC, &ctx->tweak);
 		/*
 		 * Final tweak increment not needed any more - when we reach
 		 * this code, we got the final block. Thus, a stream mode
@@ -456,15 +448,15 @@ static int mode_xts_setiv(struct lc_mode_state *ctx, const uint8_t *iv,
 	if (!ctx || ivlen != AES_BLOCKLEN)
 		return -EINVAL;
 
-	memcpy(ctx->tweak, iv, AES_BLOCKLEN);
+	memcpy(ctx->tweak.b, iv, AES_BLOCKLEN);
 
 	/*
 	 * Generate tweak - the location here implies that the key must already
 	 * be set with the setkey call.
 	 */
 	wrapped_cipher = ctx->wrapped_cipher;
-	wrapped_cipher->encrypt(ctx->tweak_cipher_ctx, ctx->tweak, ctx->tweak,
-				AES_BLOCKLEN);
+	wrapped_cipher->encrypt(ctx->tweak_cipher_ctx, ctx->tweak.b,
+				ctx->tweak.b, AES_BLOCKLEN);
 
 	return 0;
 }

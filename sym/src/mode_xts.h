@@ -26,12 +26,14 @@
 extern "C" {
 #endif
 
+union lc_xts_tweak {
+	uint64_t qw[2];
+	uint32_t dw[4];
+	uint8_t b[AES_BLOCKLEN];
+};
+
 struct lc_mode_state {
-	/*
-	 * Put tweak at the beginning to ensure it is aligned to at least
-	 * 64 bit based on the LC_SYM_COMMON_ALIGNMENT
-	 */
-	uint8_t tweak[AES_BLOCKLEN];
+	union lc_xts_tweak tweak;
 	const struct lc_sym *wrapped_cipher;
 	void *wrapped_cipher_ctx;
 	void *tweak_cipher_ctx;
