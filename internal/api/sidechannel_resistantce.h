@@ -72,7 +72,7 @@ static inline void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b)
 	 */
 	opt_blocker = (uint8_t)optimization_blocker_int8;
 
-	b = -b;
+	b = (uint8_t)-b;
 	for (i = 0; i < len; i++)
 		r[i] ^= (b & (r[i] ^ x[i])) ^ opt_blocker;
 }
@@ -87,7 +87,7 @@ static inline void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b)
  */
 static inline void cmov_int16(int16_t *r, int16_t v, uint16_t b)
 {
-	b = -b;
+	b = (uint16_t)-b;
 	*r ^= (int16_t)(b & ((*r) ^ v));
 }
 
@@ -101,7 +101,7 @@ static inline void cmov_int16(int16_t *r, int16_t v, uint16_t b)
  */
 static inline void cmov_uint32(uint32_t *r, uint32_t v, uint32_t b)
 {
-	b = -b;
+	b = (uint32_t)-b;
 	*r ^= (uint32_t)(b & ((*r) ^ v));
 }
 
@@ -115,7 +115,7 @@ static inline void cmov_uint32(uint32_t *r, uint32_t v, uint32_t b)
  */
 static inline void cmov_int(int *r, int v, uint16_t b)
 {
-	b = -b;
+	b = (uint16_t)-b;
 	*r ^= (int)(b & ((*r) ^ v));
 }
 #ifdef __cplusplus

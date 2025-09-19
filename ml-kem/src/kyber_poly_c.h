@@ -63,7 +63,7 @@ static inline void poly_basemul_montgomery(poly *r, const poly *a,
 		basemul(&r->coeffs[4 * i], &a->coeffs[4 * i], &b->coeffs[4 * i],
 			kyber_zetas[64 + i]);
 		basemul(&r->coeffs[4 * i + 2], &a->coeffs[4 * i + 2],
-			&b->coeffs[4 * i + 2], -kyber_zetas[64 + i]);
+			&b->coeffs[4 * i + 2], (int16_t)-kyber_zetas[64 + i]);
 	}
 }
 

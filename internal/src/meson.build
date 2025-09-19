@@ -42,7 +42,8 @@ if fips_integrity_test_enabled
 		])
 	endif
 else
-	# Catchall for all other environments
+	# Catchall for all other environments - this must be generally present
+	# as status_api.c invokes the reruning of self tests directly.
 	src_fips += files([
 		'fips_integrity_checker_none.c'
 	])

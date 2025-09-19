@@ -202,7 +202,7 @@ static inline int find_err1(e_t *e, e_t *black_e, e_t *gray_e,
 		const r_t *last_slice =
 			&(upc->slice[LC_BIKE_SLICES - 1].u.r.val);
 		for (j = 0; j < LC_BIKE_R_BYTES; j++) {
-			const uint8_t sum_msb = (~last_slice->raw[j]);
+			const uint8_t sum_msb = (uint8_t)(~last_slice->raw[j]);
 
 			black_e->val[i].raw[j] = sum_msb;
 			e->val[i].raw[j] ^= sum_msb;
@@ -224,7 +224,7 @@ static inline int find_err1(e_t *e, e_t *black_e, e_t *gray_e,
 		// 5) Update the gray list with the relevant bits that are not
 		//    set in the black list.
 		for (j = 0; j < LC_BIKE_R_BYTES; j++) {
-			const uint8_t sum_msb = (~last_slice->raw[j]);
+			const uint8_t sum_msb = (uint8_t)(~last_slice->raw[j]);
 			gray_e->val[i].raw[j] =
 				(~(black_e->val[i].raw[j])) & sum_msb;
 		}
@@ -270,7 +270,7 @@ static inline int find_err2(e_t *e, e_t *pos_e, const syndrome_t *syndrome,
 		const r_t *last_slice =
 			&(upc->slice[LC_BIKE_SLICES - 1].u.r.val);
 		for (j = 0; j < LC_BIKE_R_BYTES; j++) {
-			const uint8_t sum_msb = (~last_slice->raw[j]);
+			const uint8_t sum_msb = (uint8_t)(~last_slice->raw[j]);
 			e->val[i].raw[j] ^= (pos_e->val[i].raw[j] & sum_msb);
 		}
 

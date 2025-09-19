@@ -147,12 +147,12 @@ static uint16_t compute_elp(uint16_t *sigma, const uint16_t *syndromes)
 		deg_X_sigma_p = deg_X + deg_sigma_p;
 
 		/* mask1 = 0xffff if(d != 0) and 0 otherwise */
-		mask1 = -((uint16_t)-d >> 15);
+		mask1 = (uint16_t)-((uint16_t)-d >> 15);
 
 		/*
 		 * mask2 = 0xffff if(deg_X_sigma_p > deg_sigma) and 0 otherwise
 		 */
-		mask2 = -((uint16_t)(deg_sigma - deg_X_sigma_p) >> 15);
+		mask2 = (uint16_t)-((uint16_t)(deg_sigma - deg_X_sigma_p) >> 15);
 
 		/* mask12 = 0xffff if the deg_sigma increased and 0 otherwise */
 		mask12 = mask1 & mask2;
@@ -217,14 +217,14 @@ static void compute_z_poly(uint16_t *z, const uint16_t *sigma, uint16_t degree,
 	z[0] = 1;
 
 	for (i = 1; i < LC_HQC_PARAM_DELTA + 1; ++i) {
-		mask = -((uint16_t)(i - degree - 1) >> 15);
+		mask = (uint16_t)-((uint16_t)(i - degree - 1) >> 15);
 		z[i] = mask & sigma[i];
 	}
 
 	z[1] ^= syndromes[0];
 
 	for (i = 2; i <= LC_HQC_PARAM_DELTA; ++i) {
-		mask = -((uint16_t)(i - degree - 1) >> 15);
+		mask = (uint16_t)-((uint16_t)(i - degree - 1) >> 15);
 		z[i] ^= mask & syndromes[i - 1];
 
 		for (j = 1; j < i; ++j)
@@ -270,8 +270,8 @@ static void compute_error_values(uint16_t *error_values, const uint16_t *z,
 
 		for (j = 0; j < LC_HQC_PARAM_DELTA; j++) {
 			// j == delta_counter
-			mask2 = ~((uint16_t)(-((int32_t)j ^ delta_counter) >>
-					     31));
+			mask2 = (uint16_t)~((uint16_t)(-((int32_t)j ^
+					     delta_counter) >> 31));
 
 			beta_j[j] += mask1 & mask2 & gf_exp[i];
 			found += mask1 & mask2 & 1;
@@ -316,8 +316,8 @@ static void compute_error_values(uint16_t *error_values, const uint16_t *z,
 		mask1 = (uint16_t)(-((int32_t)error[i]) >> 31);
 		for (j = 0; j < LC_HQC_PARAM_DELTA; j++) {
 			// j == delta_counter
-			mask2 = ~((uint16_t)(-((int32_t)j ^ delta_counter) >>
-					     31));
+			mask2 = (uint16_t)~((uint16_t)(-((int32_t)j ^
+					     delta_counter) >> 31));
 
 			error_values[i] += mask1 & mask2 & e_j[j];
 			found += mask1 & mask2 & 1;

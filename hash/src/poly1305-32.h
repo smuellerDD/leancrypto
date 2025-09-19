@@ -59,10 +59,10 @@ static unsigned long U8TO32(const unsigned char *p)
 /* store a 32 bit unsigned integer as four 8 bit unsigned integers in little endian */
 static void U32TO8(unsigned char *p, unsigned long v)
 {
-	p[0] = (v) & 0xff;
-	p[1] = (v >> 8) & 0xff;
-	p[2] = (v >> 16) & 0xff;
-	p[3] = (v >> 24) & 0xff;
+	p[0] = (unsigned char)((v) & 0xff);
+	p[1] = (unsigned char)((v >> 8) & 0xff);
+	p[2] = (unsigned char)((v >> 16) & 0xff);
+	p[3] = (unsigned char)((v >> 24) & 0xff);
 }
 
 void lc_poly1305_init(struct lc_poly1305_context *ctx, const uint8_t key[32])

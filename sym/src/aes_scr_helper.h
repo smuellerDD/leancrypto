@@ -61,7 +61,7 @@ static inline uint8_t gf_mulinv(uint8_t x)
 			if (y == x)
 				break;
 		}
-		x = ~i;
+		x = (uint8_t)~i;
 		// calculate anti-logarithm gen 3
 		for (i = 0, y = 1; i < x; i++) {
 			y ^= (uint8_t)gf_mul2(y);

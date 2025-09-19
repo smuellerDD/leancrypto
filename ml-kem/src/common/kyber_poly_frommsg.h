@@ -71,7 +71,7 @@ static inline void poly_frommsg(poly *r,
 			 * copied. This depends on the secret msg. The mask is
 			 * either zero or all bits are 1.
 			 */
-			mask = -(int16_t)((msg[i] >> j) & 1);
+			mask = (int16_t)-(int16_t)((msg[i] >> j) & 1);
 
 			/*
 			 * XOR the mask with a zero value which is obtained from

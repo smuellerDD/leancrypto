@@ -575,7 +575,7 @@ static void gcm_enc_update(void *state, const uint8_t *plaintext,
 	/*
 	 * SP800-38D requires that the maximum encryption is 2^32 - 1 AES blocks
 	 */
-	if (ctx->gcm_ctx.len > ((1UL << 32) - 1) * AES_BLOCKSIZE) {
+	if (ctx->gcm_ctx.len > ((1ULL << 32) - 1) * AES_BLOCKSIZE) {
 		/* clear out the destination buffer */
 		memset(ciphertext, 0, datalen);
 		return;
