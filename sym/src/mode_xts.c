@@ -20,6 +20,7 @@
 #include "aes_c.h"
 #include "aes_internal.h"
 #include "alignment.h"
+#include "conv_be_le.h"
 #include "compare.h"
 #include "ext_headers_internal.h"
 #include "fips_mode.h"
@@ -170,6 +171,7 @@ out2:
  * in section 5.2 of "The XTS-AES Tweakable Block Cipher An Extract from IEEE
  * Std 1619-2007"
  */
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 static __always_inline void gfmul_alpha(uint8_t block[AES_BLOCKLEN])
 {
 	uint8_t i = AES_BLOCKLEN;
@@ -182,6 +184,32 @@ static __always_inline void gfmul_alpha(uint8_t block[AES_BLOCKLEN])
 	}
 	block[0] = (uint8_t)(block[0] << 1) ^ (carry ? 0x87 : 0);
 }
+
+#else /* __ORDER_BIG_ENDIAN__ */
+
+static __always_inline void gfmul_alpha(uint8_t block[AES_BLOCKLEN])
+{
+	union tweak {
+		uint64_t qw[2];
+		uint32_t dw[4];
+	};
+
+	/*
+	 * The block (i.e. ctx->tweak) or local variable is guaranteed to be
+	 * aligned to 64 bits.
+	 */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
+	union tweak *t = (union tweak *)block;
+#pragma GCC diagnostic pop
+	unsigned int carry, res;
+
+	res = 0x87 & (((int)t->dw[3]) >> 31);
+	carry = (unsigned int)(t->qw[0] >> 63);
+	t->qw[0] = (t->qw[0] << 1) ^ res;
+	t->qw[1] = (t->qw[1] << 1) | carry;
+}
+#endif /* __ORDER_BIG_ENDIAN__ */
 
 static void xts_enc_block(struct lc_mode_state *ctx,
 			  uint8_t block[AES_BLOCKLEN])
