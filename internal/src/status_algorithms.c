@@ -683,10 +683,21 @@ enum lc_alg_status_val alg_status(uint64_t flag)
 			&lc_alg_status_sym);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_AUX) {
-		return alg_status_is_fips_one(
-			flag, alg_status_show_aux,
-			ARRAY_SIZE(alg_status_show_aux) - 1,
-			&lc_alg_status_aux);
+		enum lc_alg_status_val ret =
+			alg_status_is_fips_one(
+				flag, alg_status_show_aux,
+				ARRAY_SIZE(alg_status_show_aux) - 1,
+				&lc_alg_status_aux);
+
+		if (flag == LC_ALG_STATUS_LIB) {
+			if (fips140_mode_enabled())
+				ret |= lc_alg_status_fips_approved;
+			else
+				ret &= (enum lc_alg_status_val)
+						(~lc_alg_status_fips_approved);
+		}
+
+		return ret;
 	}
 
 	return 0;

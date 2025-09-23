@@ -56,6 +56,10 @@ enum lc_alg_status_val {
  *
  * @param [in] algorithm Algorithm reference of one of the LC_ALG_STATUS_* flags
  *
+ * \note Using the LC_ALG_STATUS_LIB flag allows the caller to obtain general
+ * library information (e.g. FIPS mode enabled for the library,
+ * FIPS self test passed).
+ *
  * @return status
  */
 enum lc_alg_status_val lc_alg_status(uint64_t algorithm);

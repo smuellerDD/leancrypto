@@ -18,6 +18,7 @@
  */
 
 #include "ext_headers_internal.h"
+#include "fips_mode.h"
 #include "lc_sha3.h"
 #include "lc_hmac.h"
 #include "lc_status.h"
@@ -33,21 +34,30 @@ static int rerun_selftest_tester(void)
 {
 	uint8_t buf[LC_SHA_MAX_SIZE_DIGEST];
 	int ret = 0;
+	unsigned int lib_approved = 0;
+
+	if (lc_alg_status(LC_ALG_STATUS_LIB) & lc_alg_status_fips_approved)
+		lib_approved = 1;
+
+	ret += test_validate_status(ret, LC_ALG_STATUS_LIB, lib_approved);
 
 	/*
 	 * In the Linux kernel there may be other callers that already
 	 * triggered self-tests before.
 	 */
-
-	ret += test_validate_status(ret, LC_ALG_STATUS_LIB, 0);
 #ifndef LINUX_KERNEL
 
 #ifdef LC_FIPS140_DEBUG
 	ret += test_validate_status(ret, LC_ALG_STATUS_SHA3, 1);
 #else
 	/* SHA3 is passed due to FIPS integrity test */
-	ret += test_validate_expected_status(ret, LC_ALG_STATUS_SHA3,
-					     lc_alg_status_result_pending, 1);
+	if (lc_alg_status(LC_ALG_STATUS_LIB) & lc_alg_status_fips_approved) {
+		ret += test_validate_status(ret, LC_ALG_STATUS_SHA3, 1);
+	} else {
+		ret += test_validate_expected_status(
+			ret, LC_ALG_STATUS_SHA3,
+			lc_alg_status_result_pending, 1);
+	}
 #endif
 
 	ret += test_validate_expected_status(ret, LC_ALG_STATUS_HMAC,
@@ -66,7 +76,8 @@ static int rerun_selftest_tester(void)
 	    )
 		ret +=1;
 
-	ret += test_validate_status(ret, LC_ALG_STATUS_LIB, 0);
+
+	ret += test_validate_status(ret, LC_ALG_STATUS_LIB, lib_approved);
 	ret += test_validate_status(ret, LC_ALG_STATUS_SHA3, 1);
 	ret += test_validate_status(ret, LC_ALG_STATUS_HMAC, 1);
 	ret += test_print_status();
@@ -74,14 +85,19 @@ static int rerun_selftest_tester(void)
 	printf("Rerun self tests\n");
 	lc_rerun_selftests();
 
-	ret += test_validate_status(ret, LC_ALG_STATUS_LIB, 0);
+	ret += test_validate_status(ret, LC_ALG_STATUS_LIB, lib_approved);
 
 #ifdef LC_FIPS140_DEBUG
 	ret += test_validate_status(ret, LC_ALG_STATUS_SHA3, 1);
 #else
 	/* SHA3 is passed due to FIPS integrity test */
-	ret += test_validate_expected_status(ret, LC_ALG_STATUS_SHA3,
-					     lc_alg_status_result_pending, 1);
+	if (lc_alg_status(LC_ALG_STATUS_LIB) & lc_alg_status_fips_approved) {
+		ret += test_validate_status(ret, LC_ALG_STATUS_SHA3, 1);
+	} else {
+		ret += test_validate_expected_status(
+			ret, LC_ALG_STATUS_SHA3,
+			lc_alg_status_result_pending, 1);
+	}
 #endif
 
 	ret += test_validate_expected_status(ret, LC_ALG_STATUS_HMAC,
@@ -98,7 +114,7 @@ static int rerun_selftest_tester(void)
 	    )
 		ret +=1;
 
-	ret += test_validate_status(ret, LC_ALG_STATUS_LIB, 0);
+	ret += test_validate_status(ret, LC_ALG_STATUS_LIB, lib_approved);
 	ret += test_validate_status(ret, LC_ALG_STATUS_SHA3, 1);
 	ret += test_validate_status(ret, LC_ALG_STATUS_HMAC, 1);
 	ret += test_print_status();
