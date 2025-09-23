@@ -191,7 +191,7 @@ int ascon_cxof_init_nocheck(void *_state)
 int ascon_cxof_init(void *_state)
 {
 	ascon_cxof_selftest_common(lc_ascon_xof);
-	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_ASCONCXOF);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_ASCONXOF);
 
 	return ascon_cxof_init_nocheck(_state);
 }

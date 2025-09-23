@@ -25,6 +25,7 @@
 #ifdef LINUX_KERNEL
 #ifdef CONFIG_LEANCRYPTO_SHA3
 #define LC_DRNG_XDRBG256
+#define LC_DRNG_XDRBG512
 #endif
 #ifdef CONFIG_LEANCRYPTO_ASCON_HASH
 #define LC_DRNG_XDRBG128
@@ -39,30 +40,9 @@ int lc_xdrbg_drng_seed_nocheck(void *_state, const uint8_t *seed,
 			       size_t seedlen, const uint8_t *alpha,
 			       size_t alphalen);
 
-#if (!defined(LC_DRNG_XDRBG256) && !defined(LC_DRNG_XDRBG128))
-#pragma message                                                                \
-	"XDRBG compiled but without support for either XDRBG256 or XDRBG128"
-#endif
-
-#ifdef LC_DRNG_XDRBG256
-void xdrbg512_drng_selftest(void);
-void xdrbg256_drng_selftest(void);
-#else
-static inline void xdrbg256_drng_selftest(void)
-{
-}
-static inline void xdrbg512_drng_selftest(void)
-{
-}
-#endif
-
-#ifdef LC_DRNG_XDRBG128
-void xdrbg128_drng_selftest(void);
-#else
-static inline void xdrbg128_drng_selftest(void)
-{
-}
-#endif
+void lc_xdrbg_drng_zero(void *_state);
+int lc_xdrbg_drng_generate(void *_state, const uint8_t *alpha, size_t alphalen,
+			   uint8_t *out, size_t outlen);
 
 #ifdef __cplusplus
 }

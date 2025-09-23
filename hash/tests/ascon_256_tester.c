@@ -76,7 +76,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_EXEC_ONE_TEST(lc_ascon_256_avx512);
 	LC_EXEC_ONE_TEST(lc_ascon_256_arm_neon);
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_ASCON256);
+	ret = test_validate_status(ret, LC_ALG_STATUS_ASCON256, 1);
 	ret += test_print_status();
 
 	return ret;

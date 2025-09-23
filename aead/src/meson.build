@@ -31,12 +31,12 @@ if get_option('hash_crypt').enabled()
 endif
 
 if get_option('ascon').enabled() or get_option('ascon_keccak').enabled()
-	src_fips += files([ 'ascon.c', ])
+	src += files([ 'ascon.c', ])
 	include_files += files([ '../api/lc_ascon_aead.h' ])
 endif
 
 if get_option('ascon').enabled()
-	src_fips += files([ 'ascon_lightweight.c', ])
+	src += files([ 'ascon_lightweight.c', ])
 	include_files += files([ '../api/lc_ascon_lightweight.h' ])
 	add_global_arguments([ '-DLC_ASCON' ], language: 'c')
 
@@ -44,9 +44,7 @@ if get_option('ascon').enabled()
 endif
 
 if get_option('ascon_keccak').enabled()
-	# Compiling this non-approved algorithm for src_fips is appropriate
-	# as it is disabled in FIPS mode
-	src_fips += files([ 'ascon_keccak.c' ])
+	src += files([ 'ascon_keccak.c' ])
 	include_files += files([ '../api/lc_ascon_keccak.h' ])
 	add_global_arguments([ '-DLC_ASCON_KECCAK' ], language: 'c')
 
@@ -60,7 +58,7 @@ endif
 # We need HMAC and a symmetric algo
 if (get_option('aes_cbc').enabled() or get_option('aes_ctr').enabled())
 	if get_option('sha2-512').enabled()
-		src_fips += files([
+		src += files([
 			'symhmac.c'
 		])
 
@@ -72,7 +70,7 @@ if (get_option('aes_cbc').enabled() or get_option('aes_ctr').enabled())
 	endif
 
 	if get_option('kmac').enabled()
-		src_fips += files([
+		src += files([
 			'symkmac.c'
 		])
 
@@ -100,7 +98,7 @@ if get_option('aes_gcm').enabled()
 		'../api/lc_aes_gcm.h',
 	])
 
-	src_fips += files([
+	src += files([
 		'gcm.c'
 		])
 	compile_aead = 1
@@ -115,7 +113,7 @@ if get_option('aes_gcm').enabled()
 			include_directories: [ include_dirs,
 					       include_internal_dirs ],
 		)
-		leancrypto_support_libs_fips += leancrypto_aes_gcm_neon_armv8_lib
+		leancrypto_support_libs += leancrypto_aes_gcm_neon_armv8_lib
 	endif
 
 	if (x86_64_asm)
@@ -127,10 +125,10 @@ if get_option('aes_gcm').enabled()
 			include_directories: [ include_dirs,
 					       include_internal_dirs ],
 		)
-		leancrypto_support_libs_fips += leancrypto_aes_gcm_x86_64_lib
+		leancrypto_support_libs += leancrypto_aes_gcm_x86_64_lib
 	endif
 endif
 
 if (compile_aead == 1)
-	src_fips += files([ 'aead_api.c' ])
+	src += files([ 'aead_api.c' ])
 endif

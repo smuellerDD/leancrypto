@@ -25,6 +25,7 @@
 #include "hash_common.h"
 #include "lc_sha256.h"
 #include "lc_memset_secure.h"
+#include "lc_status.h"
 #include "sha2_common.h"
 #include "sha256_c.h"
 #include "visibility.h"
@@ -57,10 +58,10 @@ static void sha256_selftest(const struct lc_hash *sha256)
 					   0x6f, 0xf4 };
 	uint8_t act[LC_SHA256_SIZE_DIGEST];
 
-	LC_SELFTEST_RUN(LC_ALG_STATUS_SHA256);
+	LC_SELFTEST_RUN(lc_sha256_c->algorithm_type);
 
 	lc_hash_nocheck(sha256, msg_256, sizeof(msg_256), act);
-	lc_compare_selftest(LC_ALG_STATUS_SHA256, act, exp_256,
+	lc_compare_selftest(lc_sha256_c->algorithm_type, act, exp_256,
 			    LC_SHA256_SIZE_DIGEST, "SHA-256");
 }
 
@@ -88,7 +89,7 @@ int sha256_init_nocheck(void *_state)
 int sha256_init(void *_state)
 {
 	sha256_selftest(lc_sha256);
-	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SHA256);
+	LC_SELFTEST_COMPLETED(lc_sha256_c->algorithm_type);
 
 	return sha256_init_nocheck(_state);
 }
@@ -307,6 +308,7 @@ static const struct lc_hash _sha256_c = {
 	.sponge_newstate = NULL,
 	.sponge_rate = LC_SHA256_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha256_state),
+	.algorithm_type = LC_ALG_STATUS_SHA256
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha256_c) = &_sha256_c;
 

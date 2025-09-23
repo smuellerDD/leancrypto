@@ -23,6 +23,7 @@
 #include "lc_chacha20.h"
 #include "lc_chacha20_private.h"
 #include "lc_memset_secure.h"
+#include "lc_status.h"
 #include "lc_sym.h"
 #include "visibility.h"
 
@@ -85,6 +86,7 @@ static const struct lc_sym _lc_chacha20_avx2 = {
 	.decrypt = cc20_crypt_avx2,
 	.statesize = LC_CC20_STATE_SIZE,
 	.blocksize = 1,
+	.algorithm_type = LC_ALG_STATUS_CHACHA20
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *,
 		    lc_chacha20_avx2) = &_lc_chacha20_avx2;

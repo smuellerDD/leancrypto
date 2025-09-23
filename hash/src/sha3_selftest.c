@@ -55,12 +55,44 @@ void sha3_256_selftest_common(const struct lc_hash *sha3_256)
 					   0x5E, 0x00, 0xBB, 0xBB, 0xBD, 0xF5,
 					   0x91, 0x1E };
 	uint8_t act[LC_SHA3_256_SIZE_DIGEST];
+	int ongoing = 0;
 
-	LC_SELFTEST_RUN(LC_ALG_STATUS_SHA3);
+	/*
+	 * SHA3-256 is special:
+	 */
+	switch (alg_status_get_result(LC_ALG_STATUS_LIB)) {
+	case lc_alg_status_result_pending:
+		/*
+		 * If the library is in pending state, do not perform any test
+		 * and keep the algorithm in the existing state (during
+		 * startup it would be failed)
+		 */
+		return;
+	case lc_alg_status_result_ongoing:
+		/*
+		 * If the library is starting up, its self test is performed
+		 * unconditionally as the algorithm is used for the FIPS
+		 * integrity check.
+		 */
+		ongoing = 1;
+		break;
+	case lc_alg_status_result_failed:
+	case lc_alg_status_result_passed:
+	default:
+		/*
+		 * We are in the common case
+		 */
+		LC_SELFTEST_RUN(LC_ALG_STATUS_SHA3);
+		break;
+	}
 
 	lc_hash_nocheck(sha3_256, msg_256, sizeof(msg_256), act);
-	lc_compare_selftest(LC_ALG_STATUS_SHA3, act, exp_256, sizeof(exp_256),
-			    "SHA3-256");
+	if (lc_compare_selftest(LC_ALG_STATUS_SHA3, act, exp_256,
+				sizeof(exp_256), "SHA3-256") && ongoing) {
+		alg_status_set_result(lc_alg_status_result_failed,
+				      LC_ALG_STATUS_LIB);
+	}
+
 }
 
 void sha3_384_selftest_common(const struct lc_hash *sha3_384)
@@ -230,10 +262,10 @@ void shake512_selftest_common(const struct lc_hash *shake512)
 				       0x41, 0xb5, 0x33, 0x10 };
 	uint8_t act[sizeof(exp)];
 
-	LC_SELFTEST_RUN(LC_ALG_STATUS_SHAKE);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_SHAKE512);
 
 	lc_xof_nocheck(shake512, msg, sizeof(msg), act, sizeof(act));
-	lc_compare_selftest(LC_ALG_STATUS_SHAKE, act, exp, sizeof(exp),
+	lc_compare_selftest(LC_ALG_STATUS_SHAKE512, act, exp, sizeof(exp),
 			    "SHAKE-512");
 }
 

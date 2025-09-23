@@ -33,6 +33,7 @@ struct lc_rng {
 	int (*seed)(void *state, const uint8_t *seed, size_t seedlen,
 		    const uint8_t *persbuf, size_t perslen);
 	void (*zero)(void *state);
+	uint64_t algorithm_type;
 };
 
 struct lc_rng_ctx {
@@ -154,6 +155,26 @@ int lc_rng_seed(struct lc_rng_ctx *ctx, const uint8_t *seed, size_t seedlen,
  * @return 0 upon success; < 0 on error
  */
 int lc_rng_set_seeded(struct lc_rng_ctx *new_ctx);
+
+/**
+ * @ingroup RNGs
+ * @brief Obtain algorithm type usable with lc_alg_status
+ *
+ * @param [in] rng RNG algorithm instance
+ *
+ * @return algorithm type
+ */
+uint64_t lc_rng_algorithm_type(const struct lc_rng *rng);
+
+/**
+ * @ingroup AEAD
+ * @brief Obtain algorithm type usable with lc_alg_status
+ *
+ * @param [in] ctx RNG context handle
+ *
+ * @return algorithm type
+ */
+uint64_t lc_rng_ctx_algorithm_type(const struct lc_rng_ctx *ctx);
 
 #ifdef __cplusplus
 }

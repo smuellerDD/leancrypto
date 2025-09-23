@@ -24,11 +24,58 @@
 #include "initialization.h"
 #include "status_algorithms.h"
 
+/*
+ * Concept of algorithm status management: For each algorithm, the amount of
+ * status bits documented for LC_ALG_STATUS_FLAG_MASK_SIZE are considered.
+ * To maintain those bits, a set of 32 bit integers are used. The algorithm
+ * status is stored there shifted to the location unambiguously assigned to the
+ * algorithm. The shift is statically defined with the LC_ALG_STATUS_FLAG_*
+ * parameters. The values of  LC_ALG_STATUS_TYPE_* provide the index which of
+ * the different 32 bit status integers are used for storing the status
+ * information.
+ *
+ * LC_ALG_STATUS_TYPE_AEAD ----> lc_alg_status_aead:
+ *
+ * ================= 32 bits ==================
+ * +--+---+---+---+---+---+---+---+---+---+---+
+ * |  |   |   |   |   |   |   |   |   |   |   |
+ * +--+---+---+---+---+---+---+---+---+---+---+
+ *  ^   ^   ^   ^   ^   ^   ^   ^   ^   ^   ^
+ *  |   |   |   |   |   |   |   |   |   |   |- Algorithm 1
+ *  |   |   |   |   |   |   |   |   |   |------Algorithm 2
+ *  |   |   |   |   |   |   |   |   |----------Algorithm 3
+ *  |   |   |   |   |   |   |   |--------------Algorithm 4
+ *  |   |   |   |   |   |   |------------------Algorithm 5
+ *  |   |   |   |   |   |----------------------Algorithm 6
+ *  |   |   |   |   |--------------------------Algorithm 7
+ *  |   |   |   |------------------------------Algorithm 8
+ *  |   |   |----------------------------------Algorithm 9
+ *  |   |--------------------------------------Algorithm 10
+ *  |------------------------------------------Unused
+ *
+ * State of one algorithm
+ *
+ * +---+
+ * |000| -> test pending
+ * +---+
+ * +---+
+ * |001| -> test ongoing
+ * +---+
+ * +---+
+ * |011| -> test passed
+ * +---+
+ * +---+
+ * |111| -> test failed
+ * +---+
+ */
 typedef uint16_t alg_status_t;
 
+#define ALG_ALL_BITS ((int)0xffffffff)
 #define ALG_CLEAR_ALL_BITS ATOMIC_INIT(0)
-#define ALG_SET_ALL_BITS ATOMIC_INIT((int)0xffffffff)
+#define ALG_SET_ALL_BITS ATOMIC_INIT(ALG_ALL_BITS)
+#define ALG_SET_TEST_PENDING(flag) (lc_alg_status_result_pending << flag)
 #define ALG_SET_TEST_PASSED(flag) (lc_alg_status_result_passed << flag)
+#define ALG_SET_TEST_FAILED(flag) (lc_alg_status_result_failed << flag)
 
 static atomic_t lc_alg_status_aead = ALG_SET_ALL_BITS;
 
@@ -70,7 +117,42 @@ static atomic_t lc_alg_status_digest = ALG_SET_ALL_BITS;
 
 static atomic_t lc_alg_status_sym = ALG_SET_ALL_BITS;
 
-static atomic_t lc_alg_status_aux = ALG_SET_ALL_BITS;
+/*
+ * Set all bits except the library initialization bits which implies that the
+ * library is now in pending state.
+ *
+ * The overall library initialization state is designed as follows:
+ *
+ * 1. Library is loaded -> all status bits show that all algorithms are in
+ *    failure state, except the library status, which is in pending state.
+ * 2. In FIPS mode:
+ *  a. Set all status bits show that all algorithms are in failure state, except
+ *     the library status, which is in pending state. I.e. (re)establish the
+ *     same values as set during compile time. This prevents the initialization
+ *     of any algorithms (required for the FIPS integrity test when leaving
+ *     degraded mode).
+ *  b. The library is now set into ongoing state.
+ *  c. The SHA3-256 algorithm is initialized where, even though the SHA3 state
+ *     is in failed state, it performs its self test as the library is in
+ *     ongoing state.
+ *  d. When the SHA3-256 self test passed, its state is set into passed state.
+ *     If the self test failed, the state is set into failed state and the
+ *     hash initialization will fail which leads to a FIPS integrity check
+ *     failure.
+ *  e. Now, the FIPS integrity test is performed. When the test fails, the
+ *     module remains in error state. This allows only status information to be
+ *     accessed.
+ *  f. When the FIPS self-test successfully completes, the library is set into
+ *     passed state.
+ *  g. All algorithms except the SHA3-256 are set into pending state. The
+ *     SHA3-256 state is left untouched (i.e. passed) to not rerun the self test
+ *     again.
+ * 3. In non-FIPS mode:
+ *  a. The library is set to the passed state.
+ *  b. All algorithms are set into pending state.
+ */
+static atomic_t lc_alg_status_aux =
+	ATOMIC_INIT(~ALG_SET_TEST_FAILED(LC_ALG_STATUS_FLAG_LIB));
 
 struct alg_status_show {
 	uint64_t flag;
@@ -78,10 +160,16 @@ struct alg_status_show {
 	uint8_t strlen;
 };
 
+/*
+ * Marker for an algorithm whether it is FIPS-approved - this marker uses the high
+ * bits in the algorithm type which are not accessible via the types.
+ */
+#define LC_ALG_STATUS_FIPS (1UL << 31)
+
 // clang-format off
 static const struct alg_status_show alg_status_show_aead[] = {
 #if (defined(LC_AES_GCM) || defined(CONFIG_LEANCRYPTO_AES_GCM))
-{ .flag = LC_ALG_STATUS_AES_GCM, .alg_name = "AES-GCM", .strlen = 7 },
+{ .flag = LC_ALG_STATUS_AES_GCM | LC_ALG_STATUS_FIPS, .alg_name = "AES-GCM", .strlen = 7 },
 #endif
 #if (defined(LC_CHACHA20_POLY1305) ||                                          \
      defined(CONFIG_LEANCRYPTO_CHACHA20_POLY1305))
@@ -89,7 +177,7 @@ static const struct alg_status_show alg_status_show_aead[] = {
 #endif
 #if (defined(LC_ASCON_HASH) ||                                                 \
      (defined(CONFIG_LEANCRYPTO_ASCON_CRYPT) && defined(LC_ASCON)))
-{ .flag = LC_ALG_STATUS_ASCON_AEAD_128, .alg_name = "Ascon-AEAD128", .strlen = 13 },
+{ .flag = LC_ALG_STATUS_ASCON_AEAD_128 | LC_ALG_STATUS_FIPS, .alg_name = "Ascon-AEAD128", .strlen = 13 },
 #endif
 #if (defined(LC_ASCON_KECCAK) ||                                               \
      (defined(CONFIG_LEANCRYPTO_ASCON_CRYPT) && defined(LC_ASCON_KECCAK)))
@@ -102,11 +190,11 @@ static const struct alg_status_show alg_status_show_aead[] = {
 #endif
 #if (((defined(LC_AES_CBC) || defined(LC_AES_CTR)) && defined(LC_SHA2_512)) || \
      defined(CONFIG_LEANCRYPTO_SYMHMAC_CRYPT))
-{ .flag = LC_ALG_STATUS_SYM_HMAC, .alg_name = "Sym-HMAC", .strlen = 8 },
+{ .flag = LC_ALG_STATUS_SYM_HMAC | LC_ALG_STATUS_FIPS, .alg_name = "Sym-HMAC", .strlen = 8 },
 #endif
 #if (((defined(LC_AES_CBC) || defined(LC_aeS_CTR)) && defined(LC_KMAC)) ||     \
      defined(CONFIG_LEANCRYPTO_SYMKMAC_CRYPT))
-{ .flag = LC_ALG_STATUS_SYM_KMAC, .alg_name = "Sym-KMAC", .strlen = 8 },
+{ .flag = LC_ALG_STATUS_SYM_KMAC | LC_ALG_STATUS_FIPS, .alg_name = "Sym-KMAC", .strlen = 8 },
 #endif
 /* Make sure this array is never empty */
 { .flag = 0, .alg_name = NULL, .strlen = 0 }
@@ -122,11 +210,11 @@ static const struct alg_status_show alg_status_show_kem_pqc[] = {
 { .flag = LC_ALG_STATUS_HQC_DEC, .alg_name = "HQC-Dec", .strlen = 7 },
 #endif
 #if (defined(LC_KYBER) || defined(CONFIG_LEANCRYPTO_KEM))
-{ .flag = LC_ALG_STATUS_MLKEM_KEYGEN, .alg_name = "ML-KEM-Keygen", .strlen = 13 },
-{ .flag = LC_ALG_STATUS_MLKEM_ENC, .alg_name = "ML-KEM-Enc", .strlen = 10 },
-{ .flag = LC_ALG_STATUS_MLKEM_DEC, .alg_name = "ML-KEM-Dec", .strlen = 10 },
-{ .flag = LC_ALG_STATUS_MLKEM_ENC_KDF, .alg_name = "ML-KEM-Enc-KDF", .strlen = 14 },
-{ .flag = LC_ALG_STATUS_MLKEM_DEC_KDF, .alg_name = "ML-KEM-Dec-KDF", .strlen = 14 },
+{ .flag = LC_ALG_STATUS_MLKEM_KEYGEN | LC_ALG_STATUS_FIPS, .alg_name = "ML-KEM-Keygen", .strlen = 13 },
+{ .flag = LC_ALG_STATUS_MLKEM_ENC | LC_ALG_STATUS_FIPS, .alg_name = "ML-KEM-Enc", .strlen = 10 },
+{ .flag = LC_ALG_STATUS_MLKEM_DEC | LC_ALG_STATUS_FIPS, .alg_name = "ML-KEM-Dec", .strlen = 10 },
+{ .flag = LC_ALG_STATUS_MLKEM_ENC_KDF | LC_ALG_STATUS_FIPS, .alg_name = "ML-KEM-Enc-KDF", .strlen = 14 },
+{ .flag = LC_ALG_STATUS_MLKEM_DEC_KDF | LC_ALG_STATUS_FIPS, .alg_name = "ML-KEM-Dec-KDF", .strlen = 14 },
 #endif
 /* Make sure this array is never empty */
 { .flag = 0, .alg_name = NULL, .strlen = 0 }
@@ -147,14 +235,14 @@ static const struct alg_status_show alg_status_show_kem_classic[] = {
 
 static const struct alg_status_show alg_status_show_sig_pqc[] = {
 #if (defined(LC_DILITHIUM) || defined(CONFIG_LEANCRYPTO_DILITHIUM))
-{ .flag = LC_ALG_STATUS_MLDSA_KEYGEN, .alg_name = "ML-DSA-Keygen", .strlen = 13 },
-{ .flag = LC_ALG_STATUS_MLDSA_SIGGEN, .alg_name = "ML-DSA-Enc", .strlen = 10 },
-{ .flag = LC_ALG_STATUS_MLDSA_SIGVER, .alg_name = "ML-DSA-Dec", .strlen = 10 },
+{ .flag = LC_ALG_STATUS_MLDSA_KEYGEN | LC_ALG_STATUS_FIPS, .alg_name = "ML-DSA-Keygen", .strlen = 13 },
+{ .flag = LC_ALG_STATUS_MLDSA_SIGGEN | LC_ALG_STATUS_FIPS, .alg_name = "ML-DSA-Enc", .strlen = 10 },
+{ .flag = LC_ALG_STATUS_MLDSA_SIGVER | LC_ALG_STATUS_FIPS, .alg_name = "ML-DSA-Dec", .strlen = 10 },
 #endif
 #if (defined(LC_SPHINCS) || defined(CONFIG_LEANCRYPTO_SPHINCS))
-{ .flag = LC_ALG_STATUS_SLHDSA_KEYGEN, .alg_name = "SLH-DSA-Keygen", .strlen = 14 },
-{ .flag = LC_ALG_STATUS_SLHDSA_SIGGEN, .alg_name = "SLH-DSA-Enc", .strlen = 11 },
-{ .flag = LC_ALG_STATUS_SLHDSA_SIGVER, .alg_name = "SLH-DSA-Dec", .strlen = 11 },
+{ .flag = LC_ALG_STATUS_SLHDSA_KEYGEN | LC_ALG_STATUS_FIPS, .alg_name = "SLH-DSA-Keygen", .strlen = 14 },
+{ .flag = LC_ALG_STATUS_SLHDSA_SIGGEN | LC_ALG_STATUS_FIPS, .alg_name = "SLH-DSA-Enc", .strlen = 11 },
+{ .flag = LC_ALG_STATUS_SLHDSA_SIGVER | LC_ALG_STATUS_FIPS, .alg_name = "SLH-DSA-Dec", .strlen = 11 },
 #endif
 /* Make sure this array is never empty */
 { .flag = 0, .alg_name = NULL, .strlen = 0 }
@@ -162,14 +250,14 @@ static const struct alg_status_show alg_status_show_sig_pqc[] = {
 
 static const struct alg_status_show alg_status_show_sig_classic[] = {
 #if (defined(LC_DILITHIUM_ED25519) || defined(LC_CURVE25519))
-{ .flag = LC_ALG_STATUS_ED25519_KEYGEN, .alg_name = "ED25519-Keygen", .strlen = 14 },
-{ .flag = LC_ALG_STATUS_ED25519_SIGGEN, .alg_name = "ED25519-Enc", .strlen = 11 },
-{ .flag = LC_ALG_STATUS_ED25519_SIGVER, .alg_name = "ED25519-Dec", .strlen = 11 },
+{ .flag = LC_ALG_STATUS_ED25519_KEYGEN | LC_ALG_STATUS_FIPS, .alg_name = "ED25519-Keygen", .strlen = 14 },
+{ .flag = LC_ALG_STATUS_ED25519_SIGGEN | LC_ALG_STATUS_FIPS, .alg_name = "ED25519-Enc", .strlen = 11 },
+{ .flag = LC_ALG_STATUS_ED25519_SIGVER | LC_ALG_STATUS_FIPS, .alg_name = "ED25519-Dec", .strlen = 11 },
 #endif
 #if (defined(LC_DILITHIUM_ED448) || defined(LC_CURVE448))
-{ .flag = LC_ALG_STATUS_ED448_KEYGEN, .alg_name = "ED448-Keygen", .strlen = 12 },
-{ .flag = LC_ALG_STATUS_ED448_SIGGEN, .alg_name = "ED448-Enc", .strlen = 9 },
-{ .flag = LC_ALG_STATUS_ED448_SIGVER, .alg_name = "ED448-Dec", .strlen = 9 },
+{ .flag = LC_ALG_STATUS_ED448_KEYGEN | LC_ALG_STATUS_FIPS, .alg_name = "ED448-Keygen", .strlen = 12 },
+{ .flag = LC_ALG_STATUS_ED448_SIGGEN | LC_ALG_STATUS_FIPS, .alg_name = "ED448-Enc", .strlen = 9 },
+{ .flag = LC_ALG_STATUS_ED448_SIGVER | LC_ALG_STATUS_FIPS, .alg_name = "ED448-Dec", .strlen = 9 },
 #endif
 /* Make sure this array is never empty */
 { .flag = 0, .alg_name = NULL, .strlen = 0 }
@@ -193,10 +281,10 @@ static const struct alg_status_show alg_status_show_rng[] = {
 { .flag = LC_ALG_STATUS_CSHAKE_DRBG, .alg_name = "cSHAKE-DRBG", .strlen = 11 },
 #endif
 #if (defined(LC_DRNG_HASH_DRBG) || defined(CONFIG_LEANCRYPTO_HASH_DRBG))
-{ .flag = LC_ALG_STATUS_HASH_DRBG, .alg_name = "Hash-DRBG", .strlen = 9 },
+{ .flag = LC_ALG_STATUS_HASH_DRBG | LC_ALG_STATUS_FIPS, .alg_name = "Hash-DRBG", .strlen = 9 },
 #endif
 #if (defined(LC_DRNG_HMAC_DRBG) || defined(CONFIG_LEANCRYPTO_HMAC_DRBG))
-{ .flag = LC_ALG_STATUS_HMAC_DRBG, .alg_name = "HMAC-DRBG", .strlen = 9 },
+{ .flag = LC_ALG_STATUS_HMAC_DRBG | LC_ALG_STATUS_FIPS, .alg_name = "HMAC-DRBG", .strlen = 9 },
 #endif
 #if (defined(LC_DRNG_KMAC) || defined(CONFIG_LEANCRYPTO_KMAC_DRNG))
 { .flag = LC_ALG_STATUS_KMAC_DRBG, .alg_name = "KMAC-DRBG", .strlen = 9 },
@@ -207,26 +295,26 @@ static const struct alg_status_show alg_status_show_rng[] = {
 
 static const struct alg_status_show alg_status_show_digest[] = {
 #if (defined(LC_ASCON_HASH) || defined(CONFIG_LEANCRYPTO_ASCON_HASH))
-{ .flag = LC_ALG_STATUS_ASCON256, .alg_name = "Ascon256", .strlen = 8 },
-{ .flag = LC_ALG_STATUS_ASCONXOF, .alg_name = "AsconXOF", .strlen = 8 },
-{ .flag = LC_ALG_STATUS_ASCONCXOF, .alg_name = "AsconCXOF", .strlen = 9 },
+{ .flag = LC_ALG_STATUS_ASCON256 | LC_ALG_STATUS_FIPS, .alg_name = "Ascon256", .strlen = 8 },
+{ .flag = LC_ALG_STATUS_ASCONXOF | LC_ALG_STATUS_FIPS, .alg_name = "AsconXOF", .strlen = 8 },
 #endif
 #if (defined(LC_SHA2_256) || defined(CONFIG_LEANCRYPTO_SHA2_256))
-{ .flag = LC_ALG_STATUS_SHA256, .alg_name = "SHA-256", .strlen = 7 },
+{ .flag = LC_ALG_STATUS_SHA256 | LC_ALG_STATUS_FIPS, .alg_name = "SHA-256", .strlen = 7 },
 #endif
 #if (defined(LC_SHA2_512) || defined(CONFIG_LEANCRYPTO_SHA2_512))
-{ .flag = LC_ALG_STATUS_SHA512, .alg_name = "SHA-512", .strlen = 7 },
+{ .flag = LC_ALG_STATUS_SHA512 | LC_ALG_STATUS_FIPS, .alg_name = "SHA-512", .strlen = 7 },
 #endif
 #ifdef LC_SHA3
-{ .flag = LC_ALG_STATUS_SHA3, .alg_name = "SHA-3", .strlen = 5 },
-{ .flag = LC_ALG_STATUS_SHAKE, .alg_name = "SHAKE", .strlen = 5 },
-{ .flag = LC_ALG_STATUS_CSHAKE, .alg_name = "cSHAKE", .strlen = 6 },
+{ .flag = LC_ALG_STATUS_SHA3 | LC_ALG_STATUS_FIPS, .alg_name = "SHA-3", .strlen = 5 },
+{ .flag = LC_ALG_STATUS_SHAKE | LC_ALG_STATUS_FIPS, .alg_name = "SHAKE", .strlen = 5 },
+{ .flag = LC_ALG_STATUS_SHAKE512, .alg_name = "SHAKE512", .strlen = 8 },
+{ .flag = LC_ALG_STATUS_CSHAKE | LC_ALG_STATUS_FIPS, .alg_name = "cSHAKE", .strlen = 6 },
 #endif
 #if (defined(LC_KMAC) || defined(CONFIG_LEANCRYPTO_KMAC))
-{ .flag = LC_ALG_STATUS_KMAC, .alg_name = "KMAC", .strlen = 4 },
+{ .flag = LC_ALG_STATUS_KMAC | LC_ALG_STATUS_FIPS, .alg_name = "KMAC", .strlen = 4 },
 #endif
 #if (defined(LC_HMAC) || defined(CONFIG_LEANCRYPTO_HMAC))
-{ .flag = LC_ALG_STATUS_HMAC, .alg_name = "HMAC", .strlen = 4 },
+{ .flag = LC_ALG_STATUS_HMAC | LC_ALG_STATUS_FIPS, .alg_name = "HMAC", .strlen = 4 },
 #endif
 /* Make sure this array is never empty */
 { .flag = 0, .alg_name = NULL, .strlen = 0 }
@@ -234,16 +322,16 @@ static const struct alg_status_show alg_status_show_digest[] = {
 
 static const struct alg_status_show alg_status_show_sym[] = {
 #if (defined(LC_AES_CBC) || defined(CONFIG_LEANCRYPTO_AES_CBC))
-{ .flag = LC_ALG_STATUS_AES_CBC, .alg_name = "AES-CBC", .strlen = 7 },
+{ .flag = LC_ALG_STATUS_AES_CBC | LC_ALG_STATUS_FIPS, .alg_name = "AES-CBC", .strlen = 7 },
 #endif
 #if (defined(LC_AES_CTR) || defined(CONFIG_LEANCRYPTO_AES_CTR))
-{ .flag = LC_ALG_STATUS_AES_CTR, .alg_name = "AES-CTR", .strlen = 7 },
+{ .flag = LC_ALG_STATUS_AES_CTR | LC_ALG_STATUS_FIPS, .alg_name = "AES-CTR", .strlen = 7 },
 #endif
 #if (defined(LC_AES_KW) || defined(CONFIG_LEANCRYPTO_AES_KW))
-{ .flag = LC_ALG_STATUS_AES_KW, .alg_name = "AES-KW", .strlen = 6 },
+{ .flag = LC_ALG_STATUS_AES_KW | LC_ALG_STATUS_FIPS, .alg_name = "AES-KW", .strlen = 6 },
 #endif
 #if (defined(LC_AES_XTS) || defined(CONFIG_LEANCRYPTO_AES_XTS))
-{ .flag = LC_ALG_STATUS_AES_XTS, .alg_name = "AES-XTS", .strlen = 7 },
+{ .flag = LC_ALG_STATUS_AES_XTS | LC_ALG_STATUS_FIPS, .alg_name = "AES-XTS", .strlen = 7 },
 #endif
 #if (defined(LC_CHACHA20) || defined(CONFIG_LEANCRYPTO_CHACHA20))
 { .flag = LC_ALG_STATUS_CHACHA20, .alg_name = "ChaCha20", .strlen = 8 },
@@ -254,19 +342,19 @@ static const struct alg_status_show alg_status_show_sym[] = {
 
 static const struct alg_status_show alg_status_show_aux[] = {
 #if (defined(LC_HKDF) || defined(CONFIG_LEANCRYPTO_HKDF))
-{ .flag = LC_ALG_STATUS_HKDF, .alg_name = "HKDF", .strlen = 4 },
+{ .flag = LC_ALG_STATUS_HKDF | LC_ALG_STATUS_FIPS, .alg_name = "HKDF", .strlen = 4 },
 #endif
 #if (defined(LC_KDF_CTR) || defined(DCONFIG_LEANCRYPTO_KDF_CTR))
-{ .flag = LC_ALG_STATUS_CTR_KDF, .alg_name = "CTR-KDF", .strlen = 7 },
+{ .flag = LC_ALG_STATUS_CTR_KDF | LC_ALG_STATUS_FIPS, .alg_name = "CTR-KDF", .strlen = 7 },
 #endif
 #if (defined(LC_KDF_DPI) || defined(DCONFIG_LEANCRYPTO_KDF_DPI))
-{ .flag = LC_ALG_STATUS_DPI_KDF, .alg_name = "DPI-KDF", .strlen = 7 },
+{ .flag = LC_ALG_STATUS_DPI_KDF | LC_ALG_STATUS_FIPS, .alg_name = "DPI-KDF", .strlen = 7 },
 #endif
 #if (defined(LC_KDF_FB) || defined(DCONFIG_LEANCRYPTO_KDF_FB))
-{ .flag = LC_ALG_STATUS_FB_KDF, .alg_name = "FB-KDF", .strlen = 6 },
+{ .flag = LC_ALG_STATUS_FB_KDF | LC_ALG_STATUS_FIPS, .alg_name = "FB-KDF", .strlen = 6 },
 #endif
 #if (defined(LC_DRNG_PBKDF2) || defined(CONFIG_LEANCRYPTO_PBKDF2))
-{ .flag = LC_ALG_STATUS_PBKDF2, .alg_name = "PBKDF2", .strlen = 6 },
+{ .flag = LC_ALG_STATUS_PBKDF2 | LC_ALG_STATUS_FIPS, .alg_name = "PBKDF2", .strlen = 6 },
 #endif
 { .flag = LC_ALG_STATUS_LIB, .alg_name = "Lib-Available", .strlen = 13 },
 /* Make sure this array is never empty */
@@ -274,8 +362,32 @@ static const struct alg_status_show alg_status_show_aux[] = {
 };
 
 // clang-format on
+static void alg_status_set_init_state(void)
+{
+	/*
+	 * Replicate the compile-time initialization state
+	 */
+	atomic_set(&lc_alg_status_aead, ALG_ALL_BITS);
 
-static void alg_status_unset_test_state(void)
+#ifndef LC_KYBER_DEBUG
+	atomic_set(&lc_alg_status_kem_pqc, ALG_ALL_BITS);
+#endif
+
+	atomic_set(&lc_alg_status_kem_classic, ALG_ALL_BITS);
+
+#ifndef LC_DILITHIUM_DEBUG
+	atomic_set(&lc_alg_status_sig_pqc, ALG_ALL_BITS);
+#endif
+
+	atomic_set(&lc_alg_status_sig_classic, ALG_ALL_BITS);
+	atomic_set(&lc_alg_status_rng, ALG_ALL_BITS);
+	atomic_set(&lc_alg_status_digest, ALG_ALL_BITS);
+	atomic_set(&lc_alg_status_sym, ALG_ALL_BITS);
+	atomic_set(&lc_alg_status_aux,
+		   ~ALG_SET_TEST_FAILED(LC_ALG_STATUS_FLAG_LIB));
+}
+
+static void alg_status_unset_test_state(alg_status_t digest_value)
 {
 	atomic_set(&lc_alg_status_aead, 0);
 
@@ -291,10 +403,13 @@ static void alg_status_unset_test_state(void)
 
 	atomic_set(&lc_alg_status_sig_classic, 0);
 	atomic_set(&lc_alg_status_rng, 0);
-	atomic_set(&lc_alg_status_digest, 0);
+	atomic_set(&lc_alg_status_digest, digest_value);
 	atomic_set(&lc_alg_status_sym, 0);
 
-	/* At that point, automatically define the library to be online */
+	/*
+	 * At that point, automatically define the library to be in passed
+	 * state.
+	 */
 	atomic_set(&lc_alg_status_aux,
 		   ALG_SET_TEST_PASSED(LC_ALG_STATUS_FLAG_LIB));
 }
@@ -310,16 +425,21 @@ static void alg_status_unset_testresult_one(alg_status_t alg, atomic_t *status)
 }
 
 static void alg_status_set_testresult(enum lc_alg_status_result test_ret,
-				      alg_status_t alg, atomic_t *status)
+				      uint64_t flag, atomic_t *status)
 {
 	/*
 	 * In FIPS mode, we enter the degraded mode of operation when a self
 	 * test error is observed. This requires that all self tests of all
 	 * other algorithms must be reperformed. As this should never happen,
 	 * it is a small price to pay to cover this requirement.
+	 *
+	 * In case, however, the whole library is failing, then do not unset
+	 * the state, as all algorithms are in failure state and we want to stay
+	 * in failure mode.
 	 */
-	if (test_ret == lc_alg_status_result_failed && fips140_mode_enabled())
-		alg_status_unset_test_state();
+	if (test_ret == lc_alg_status_result_failed && fips140_mode_enabled() &&
+	    flag != LC_ALG_STATUS_LIB)
+		alg_status_unset_test_state(0);
 
 	/*
 	 * This operation only works by assuming the state transition documented
@@ -332,7 +452,8 @@ static void alg_status_set_testresult(enum lc_alg_status_result test_ret,
 	 * for the offending algorithm is called triggering a full retest of
 	 * either all or just the offending algorithm.
 	 */
-	atomic_or((int)(test_ret << alg), status);
+	atomic_or((int)(test_ret << (flag & ~LC_ALG_STATUS_TYPE_MASK) ),
+		  status);
 }
 
 static enum lc_alg_status_result alg_status_result(atomic_t *status,
@@ -361,6 +482,46 @@ static enum lc_alg_status_result alg_status_result(atomic_t *status,
 		       >> alg
 	       /* Eliminate the upper bits */
 	       & ((1 << LC_ALG_STATUS_FLAG_MASK_SIZE) - 1);
+}
+
+static enum lc_alg_status_val alg_status_is_fips_one(
+	uint64_t flag, const struct alg_status_show *alg_status_show_arr,
+	size_t array_size, atomic_t *status)
+{
+	const struct alg_status_show *alg_status_show;
+	alg_status_t alg = flag & ~LC_ALG_STATUS_TYPE_MASK;
+	unsigned int i;
+	enum lc_alg_status_result result = alg_status_result(status, alg);
+	enum lc_alg_status_val val = lc_alg_status_unknown;
+
+	switch (result) {
+	case lc_alg_status_result_passed:
+		val |= lc_alg_status_self_test_passed;
+		break;
+	case lc_alg_status_result_failed:
+		val |= lc_alg_status_self_test_failed;
+		break;
+	case lc_alg_status_result_pending:
+	case lc_alg_status_result_ongoing:
+	default:
+		break;
+	}
+
+	/*
+	 * Find the definition in the array for the given algorithm and
+	 * extract the FIPS approved marker.
+	 */
+	for (i = 0, alg_status_show = alg_status_show_arr; i < array_size;
+	     i++, alg_status_show++) {
+		if ((alg_status_show->flag & ~LC_ALG_STATUS_TYPE_MASK) == alg) {
+			if (alg_status_show->flag & LC_ALG_STATUS_FIPS)
+				val |= lc_alg_status_fips_approved;
+
+			break;
+		}
+	}
+
+	return val;
 }
 
 enum lc_alg_status_result alg_status_get_result(uint64_t flag)
@@ -402,38 +563,37 @@ enum lc_alg_status_result alg_status_get_result(uint64_t flag)
 
 void alg_status_set_result(enum lc_alg_status_result test_ret, uint64_t flag)
 {
-	alg_status_t alg = flag & ~LC_ALG_STATUS_TYPE_MASK;
-
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_AEAD) {
-		alg_status_set_testresult(test_ret, alg, &lc_alg_status_aead);
+		alg_status_set_testresult(test_ret, flag, &lc_alg_status_aead);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_KEM_PQC) {
-		alg_status_set_testresult(test_ret, alg,
+		alg_status_set_testresult(test_ret, flag,
 					  &lc_alg_status_kem_pqc);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_KEM_CLASSIC) {
-		alg_status_set_testresult(test_ret, alg,
+		alg_status_set_testresult(test_ret, flag,
 					  &lc_alg_status_kem_classic);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_SIG_PQC) {
-		alg_status_set_testresult(test_ret, alg,
+		alg_status_set_testresult(test_ret, flag,
 					  &lc_alg_status_sig_pqc);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_SIG_CLASSIC) {
-		alg_status_set_testresult(test_ret, alg,
+		alg_status_set_testresult(test_ret, flag,
 					  &lc_alg_status_sig_classic);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_RNG) {
-		alg_status_set_testresult(test_ret, alg, &lc_alg_status_rng);
+		alg_status_set_testresult(test_ret, flag, &lc_alg_status_rng);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_DIGEST) {
-		alg_status_set_testresult(test_ret, alg, &lc_alg_status_digest);
+		alg_status_set_testresult(test_ret, flag,
+					  &lc_alg_status_digest);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_SYM) {
-		alg_status_set_testresult(test_ret, alg, &lc_alg_status_sym);
+		alg_status_set_testresult(test_ret, flag, &lc_alg_status_sym);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_AUX) {
-		alg_status_set_testresult(test_ret, alg, &lc_alg_status_aux);
+		alg_status_set_testresult(test_ret, flag, &lc_alg_status_aux);
 	}
 }
 
@@ -472,9 +632,69 @@ void alg_status_unset_result(uint64_t flag)
 	}
 }
 
+enum lc_alg_status_val alg_status(uint64_t flag)
+{
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_AEAD) {
+		return alg_status_is_fips_one(
+			flag, alg_status_show_aead,
+			ARRAY_SIZE(alg_status_show_aead) - 1,
+			&lc_alg_status_aead);
+	}
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_KEM_PQC) {
+		return alg_status_is_fips_one(
+			flag, alg_status_show_kem_pqc,
+			ARRAY_SIZE(alg_status_show_kem_pqc) - 1,
+			&lc_alg_status_kem_pqc);
+	}
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_KEM_CLASSIC) {
+		return alg_status_is_fips_one(
+			flag, alg_status_show_kem_classic,
+			ARRAY_SIZE(alg_status_show_kem_classic) - 1,
+			&lc_alg_status_kem_classic);
+	}
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_SIG_PQC) {
+		return alg_status_is_fips_one(
+			flag, alg_status_show_sig_pqc,
+			ARRAY_SIZE(alg_status_show_sig_pqc) - 1,
+			&lc_alg_status_sig_pqc);
+	}
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_SIG_CLASSIC) {
+		return alg_status_is_fips_one(
+			flag, alg_status_show_sig_classic,
+			ARRAY_SIZE(alg_status_show_sig_classic) - 1,
+			&lc_alg_status_sig_classic);
+	}
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_RNG) {
+		return alg_status_is_fips_one(
+			flag, alg_status_show_rng,
+			ARRAY_SIZE(alg_status_show_rng) - 1,
+			&lc_alg_status_rng);
+	}
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_DIGEST) {
+		return alg_status_is_fips_one(
+			flag, alg_status_show_digest,
+			ARRAY_SIZE(alg_status_show_digest) - 1,
+			&lc_alg_status_digest);
+	}
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_SYM) {
+		return alg_status_is_fips_one(
+			flag, alg_status_show_sym,
+			ARRAY_SIZE(alg_status_show_sym) - 1,
+			&lc_alg_status_sym);
+	}
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_AUX) {
+		return alg_status_is_fips_one(
+			flag, alg_status_show_aux,
+			ARRAY_SIZE(alg_status_show_aux) - 1,
+			&lc_alg_status_aux);
+	}
+
+	return 0;
+}
+
 void alg_status_unset_result_all(void)
 {
-	alg_status_unset_test_state();
+	alg_status_unset_test_state(0);
 }
 
 static void alg_status_one(const struct alg_status_show *alg_status_show_arr,
@@ -536,9 +756,9 @@ static void alg_status_one(const struct alg_status_show *alg_status_show_arr,
 	}
 }
 
-void alg_status(uint64_t flag, char *test_completed, size_t test_completed_len,
-		char *test_open, size_t test_open_len, char *errorbuf,
-		size_t errorbuf_len)
+void alg_status_print(uint64_t flag, char *test_completed,
+		      size_t test_completed_len, char *test_open,
+		      size_t test_open_len, char *errorbuf, size_t errorbuf_len)
 {
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_AEAD) {
 		alg_status_one(
@@ -612,14 +832,47 @@ void alg_status(uint64_t flag, char *test_completed, size_t test_completed_len,
 	}
 }
 
+/*
+ * FIPS mode: integrity check state
+ */
+void lc_activate_library_selftest_init(void)
+{
+	if (lc_status_get_result(LC_ALG_STATUS_LIB) >
+	    lc_alg_status_result_pending)
+		return;
+
+	alg_status_set_init_state();
+	alg_status_set_result(lc_alg_status_result_ongoing,
+			      LC_ALG_STATUS_LIB);
+}
+
+/*
+ * FIPS mode: integrity check completed, mark library to be usable.
+ */
+void lc_activate_library_selftest_fini(void)
+{
+	/*
+	 * SHA3-256 self test shall be kept. Thus, AND all bits set (defined by
+	 * the failed status) to the state which implies that the status given
+	 * there is kept.
+	 */
+	if (lc_status_get_result(LC_ALG_STATUS_LIB) ==
+	    lc_alg_status_result_passed) {
+		alg_status_unset_test_state(
+			ALG_SET_TEST_PASSED(LC_ALG_STATUS_FLAG_SHA3));
+	}
+}
+
+/*
+ * Non-FIPS mode: mark library to be usable.
+ */
 void lc_activate_library_internal(void)
 {
 	/*
-	 * TODO remove once the FIPS integrity test is rearchitected, see
-	 * the counterpart in fips_integrity_check
+	 * Do not alter the state when the FIPS mode testing is/was performed.
 	 */
-	if (lc_status_get_result(LC_ALG_STATUS_FLAG_LIB) >
-	    lc_alg_status_result_ongoing)
+	if (fips140_mode_enabled() || lc_status_get_result(LC_ALG_STATUS_LIB) >
+	    lc_alg_status_result_pending)
 		return;
 
 	/*
@@ -627,10 +880,5 @@ void lc_activate_library_internal(void)
 	 * are marked that all self tests failed causing all algorithms to
 	 * be unavailable.
 	 */
-	alg_status_unset_test_state();
-}
-
-LC_CONSTRUCTOR(lc_activate_library, LC_INIT_PRIO_LIBRARY)
-{
-	lc_activate_library_internal();
+	alg_status_unset_test_state(0);
 }

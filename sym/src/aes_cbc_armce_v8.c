@@ -131,6 +131,7 @@ static const struct lc_sym _lc_aes_cbc_armce = {
 	.decrypt = aes_armce_cbc_decrypt,
 	.statesize = LC_AES_ARMV8_CBC_BLOCK_SIZE,
 	.blocksize = AES_BLOCKLEN,
+	.algorithm_type = LC_ALG_STATUS_AES_CBC
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *,
 		    lc_aes_cbc_armce) = &_lc_aes_cbc_armce;

@@ -43,15 +43,12 @@ struct lc_ascon_cryptor {
 
 #define LC_ASCON_ALIGNMENT LC_XOR_ALIGNMENT(LC_HASH_COMMON_ALIGNMENT)
 
-/* Ascon-Keccak-based AEAD-algorithm */
-extern const struct lc_aead *lc_ascon_aead;
-
 #define _LC_ASCON_SET_CTX(name, hashname, ctx, offset)                         \
 	name->state = LC_ALIGN_HASH_MASK(((uint8_t *)(ctx)) + (offset));       \
 	name->hash = hashname
 
-#define LC_ASCON_SET_CTX(name, hashname)                                       \
-	LC_AEAD_HASH_ALIGN_CTX(name, lc_ascon_aead);                           \
+#define LC_ASCON_SET_CTX(name, hashname, ascon_impl)                           \
+	LC_AEAD_HASH_ALIGN_CTX(name, ascon_impl);                              \
 	_LC_ASCON_SET_CTX(((struct lc_ascon_cryptor *)name->aead_state),       \
 			  hashname,                                            \
 			  ((struct lc_ascon_cryptor *)name->aead_state),       \

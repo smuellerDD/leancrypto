@@ -22,6 +22,7 @@
 
 #include "bitshift.h"
 #include "ext_headers_arm.h"
+#include "lc_status.h"
 #include "sha256_arm_neon.h"
 #include "sha2_common.h"
 #include "visibility.h"
@@ -61,6 +62,7 @@ static const struct lc_hash _sha256_arm_neon = {
 	.sponge_newstate = NULL,
 	.sponge_rate = LC_SHA256_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha256_state),
+	.algorithm_type = LC_ALG_STATUS_SHA256
 };
 
 LC_INTERFACE_SYMBOL(const struct lc_hash *,

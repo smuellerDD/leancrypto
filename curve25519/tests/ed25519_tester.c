@@ -272,9 +272,9 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	ret += ed25519_siggen_rfc8032_tester();
 	ret += ed25519ph_siggen_rfc8032_tester();
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_ED25519_KEYGEN);
-	ret = test_validate_status(ret, LC_ALG_STATUS_ED25519_SIGGEN);
-	ret = test_validate_status(ret, LC_ALG_STATUS_ED25519_SIGVER);
+	ret = test_validate_status(ret, LC_ALG_STATUS_ED25519_KEYGEN, 1);
+	ret = test_validate_status(ret, LC_ALG_STATUS_ED25519_SIGGEN, 1);
+	ret = test_validate_status(ret, LC_ALG_STATUS_ED25519_SIGVER, 1);
 	ret += test_print_status();
 
 	return ret;

@@ -17,4 +17,4 @@ leancrypto_curve25519_avx_lib = static_library(
 		c_args: cc_avx2_args
 	)
 
-leancrypto_support_libs_fips += leancrypto_curve25519_avx_lib
+leancrypto_support_libs += leancrypto_curve25519_avx_lib

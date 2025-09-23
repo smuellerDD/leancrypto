@@ -134,7 +134,7 @@ static void lc_sh_selftest(void)
 	uint8_t act_ct[sizeof(exp_ct)] __align(sizeof(uint32_t));
 	uint8_t act_tag[sizeof(exp_tag)] __align(sizeof(uint32_t));
 
-	LC_SELFTEST_RUN(LC_ALG_STATUS_SYM_HMAC);
+	LC_SELFTEST_RUN(lc_symhmac_aead->algorithm_type);
 
 	LC_SH_CTX_ON_STACK(sh, lc_aes_cbc, lc_sha512);
 
@@ -142,11 +142,11 @@ static void lc_sh_selftest(void)
 		goto out;
 	lc_aead_encrypt(sh, in, act_ct, sizeof(in), in, sizeof(in), act_tag,
 			sizeof(act_tag));
-	if (lc_compare_selftest(LC_ALG_STATUS_SYM_HMAC, act_ct, exp_ct,
+	if (lc_compare_selftest(lc_symhmac_aead->algorithm_type, act_ct, exp_ct,
 				sizeof(exp_ct), "Sym/HMAC AEAD encrypt"))
 		goto out;
-	if (lc_compare_selftest(LC_ALG_STATUS_SYM_HMAC, act_tag, exp_tag,
-				sizeof(exp_tag), "Sym/HMAC AEAD tag"))
+	if (lc_compare_selftest(lc_symhmac_aead->algorithm_type, act_tag,
+				exp_tag, sizeof(exp_tag), "Sym/HMAC AEAD tag"))
 		goto out;
 	lc_aead_zero(sh);
 
@@ -155,8 +155,8 @@ static void lc_sh_selftest(void)
 			act_tag, sizeof(act_tag));
 
 out:
-	lc_compare_selftest(LC_ALG_STATUS_SYM_HMAC, act_ct, in, sizeof(in),
-			    "Sym/HMAC AEAD decrypt");
+	lc_compare_selftest(lc_symhmac_aead->algorithm_type, act_ct, in,
+			    sizeof(in), "Sym/HMAC AEAD decrypt");
 	lc_aead_zero(sh);
 }
 
@@ -205,7 +205,7 @@ static int lc_sh_setkey(void *state, const uint8_t *key, size_t keylen,
 			const uint8_t *iv, size_t ivlen)
 {
 	lc_sh_selftest();
-	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SYM_HMAC);
+	LC_SELFTEST_COMPLETED(lc_symhmac_aead->algorithm_type);
 
 	return lc_sh_setkey_nocheck(state, key, keylen, iv, ivlen);
 }
@@ -395,7 +395,8 @@ static const struct lc_aead _lc_symhmac_aead = {
 	.dec_init = lc_sh_add_aad,
 	.dec_update = lc_sh_decrypt,
 	.dec_final = lc_sh_decrypt_authenticate,
-	.zero = lc_sh_zero
+	.zero = lc_sh_zero,
+	.algorithm_type = LC_ALG_STATUS_SYM_HMAC,
 };
 LC_INTERFACE_SYMBOL(const struct lc_aead *,
 		    lc_symhmac_aead) = &_lc_symhmac_aead;

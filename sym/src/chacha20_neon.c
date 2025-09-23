@@ -22,6 +22,7 @@
 #include "ext_headers_arm.h"
 #include "lc_chacha20.h"
 #include "lc_chacha20_private.h"
+#include "lc_status.h"
 #include "lc_sym.h"
 #include "visibility.h"
 
@@ -47,6 +48,7 @@ static const struct lc_sym _lc_chacha20_neon = {
 	.decrypt = cc20_crypt_neon,
 	.statesize = LC_CC20_STATE_SIZE,
 	.blocksize = 1,
+	.algorithm_type = LC_ALG_STATUS_CHACHA20
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *,
 		    lc_chacha20_neon) = &_lc_chacha20_neon;

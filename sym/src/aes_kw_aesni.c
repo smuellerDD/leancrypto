@@ -96,5 +96,6 @@ static const struct lc_sym _lc_aes_kw_aesni = {
 	.decrypt = aes_aesni_kw_decrypt,
 	.statesize = LC_AES_KW_BLOCK_SIZE,
 	.blocksize = AES_BLOCKLEN,
+	.algorithm_type = LC_ALG_STATUS_AES_KW
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_kw_aesni) = &_lc_aes_kw_aesni;

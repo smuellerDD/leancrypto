@@ -54,7 +54,7 @@ if (get_option('kyber_1024').enabled() or
 				include_internal_dirs
 			],
 		)
-	leancrypto_support_libs_fips += leancrypto_kyber_common_riscv_lib
+	leancrypto_support_libs += leancrypto_kyber_common_riscv_lib
 
 	leancrypto_kyber_riscv_rvv_lib = static_library(
 			'leancrypto_kyber_riscv_rvv_lib',
@@ -67,7 +67,7 @@ if (get_option('kyber_1024').enabled() or
 				include_internal_dirs
 			],
 		)
-	leancrypto_support_libs_fips += leancrypto_kyber_riscv_rvv_lib
+	leancrypto_support_libs += leancrypto_kyber_riscv_rvv_lib
 endif
 
 # Kyber RISCV API
@@ -83,7 +83,7 @@ if get_option('kyber_1024').enabled()
 			include_internal_dirs
 		],
 	)
-	leancrypto_support_libs_fips += leancrypto_kyber_1024_riscv_lib
+	leancrypto_support_libs += leancrypto_kyber_1024_riscv_lib
 endif
 
 if get_option('kyber_768').enabled()
@@ -99,7 +99,7 @@ if get_option('kyber_768').enabled()
 		],
 		c_args : [ '-DLC_KYBER_TYPE_768']
 	)
-	leancrypto_support_libs_fips += leancrypto_kyber_768_riscv_lib
+	leancrypto_support_libs += leancrypto_kyber_768_riscv_lib
 endif
 
 if get_option('kyber_512').enabled()
@@ -115,7 +115,7 @@ if get_option('kyber_512').enabled()
 		],
 		c_args : [ '-DLC_KYBER_TYPE_512' ]
 	)
-	leancrypto_support_libs_fips += leancrypto_kyber_512_riscv_lib
+	leancrypto_support_libs += leancrypto_kyber_512_riscv_lib
 endif
 
 # Kyber RVV vector length 128
@@ -133,7 +133,7 @@ if get_option('riscv_rvv_vlen128').enabled()
 				include_internal_dirs
 			],
 		)
-		leancrypto_support_libs_fips += leancrypto_kyber_1024_riscv_rvv_vlen128_lib
+		leancrypto_support_libs += leancrypto_kyber_1024_riscv_rvv_vlen128_lib
 	endif
 
 	if get_option('kyber_768').enabled()
@@ -149,7 +149,7 @@ if get_option('riscv_rvv_vlen128').enabled()
 			],
 			c_args : [ kyber_riscv_rvv_c_args, '-DLC_KYBER_TYPE_768']
 		)
-		leancrypto_support_libs_fips += leancrypto_kyber_768_riscv_rvv_vlen128_lib
+		leancrypto_support_libs += leancrypto_kyber_768_riscv_rvv_vlen128_lib
 	endif
 
 	if get_option('kyber_512').enabled()
@@ -165,7 +165,7 @@ if get_option('riscv_rvv_vlen128').enabled()
 			],
 			c_args : [kyber_riscv_rvv_c_args, '-DLC_KYBER_TYPE_512' ]
 		)
-		leancrypto_support_libs_fips += leancrypto_kyber_512_riscv_rvv_vlen128_lib
+		leancrypto_support_libs += leancrypto_kyber_512_riscv_rvv_vlen128_lib
 	endif
 endif
 
@@ -184,7 +184,7 @@ if get_option('riscv_rvv_vlen256').enabled()
 				include_internal_dirs
 			],
 		)
-		leancrypto_support_libs_fips += leancrypto_kyber_1024_riscv_rvv_vlen256_lib
+		leancrypto_support_libs += leancrypto_kyber_1024_riscv_rvv_vlen256_lib
 	endif
 
 	if get_option('kyber_768').enabled()
@@ -200,7 +200,7 @@ if get_option('riscv_rvv_vlen256').enabled()
 			],
 			c_args : [ kyber_riscv_rvv_c_args, '-DLC_KYBER_TYPE_768']
 		)
-		leancrypto_support_libs_fips += leancrypto_kyber_768_riscv_rvv_vlen256_lib
+		leancrypto_support_libs += leancrypto_kyber_768_riscv_rvv_vlen256_lib
 	endif
 
 	if get_option('kyber_512').enabled()
@@ -216,6 +216,6 @@ if get_option('riscv_rvv_vlen256').enabled()
 			],
 			c_args : [kyber_riscv_rvv_c_args, '-DLC_KYBER_TYPE_512' ]
 		)
-		leancrypto_support_libs_fips += leancrypto_kyber_512_riscv_rvv_vlen256_lib
+		leancrypto_support_libs += leancrypto_kyber_512_riscv_rvv_vlen256_lib
 	endif
 endif

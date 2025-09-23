@@ -293,7 +293,7 @@ static void kmac256_drng_selftest(void)
 	};
 	uint8_t act[sizeof(exp)] __align(sizeof(uint32_t));
 
-	LC_SELFTEST_RUN(LC_ALG_STATUS_KMAC_DRBG);
+	LC_SELFTEST_RUN(lc_kmac256_drng->algorithm_type);
 
 	LC_KMAC256_DRNG_CTX_ON_STACK(kmac_ctx);
 
@@ -303,8 +303,8 @@ static void kmac256_drng_selftest(void)
 	lc_rng_generate(kmac_ctx, NULL, 0, act, sizeof(act));
 
 out:
-	lc_compare_selftest(LC_ALG_STATUS_KMAC_DRBG, act, exp, sizeof(exp),
-			    "KMAC DRNG");
+	lc_compare_selftest(lc_kmac256_drng->algorithm_type, act, exp,
+			    sizeof(exp), "KMAC DRNG");
 	lc_rng_zero(kmac_ctx);
 }
 
@@ -499,7 +499,7 @@ static int lc_kmac256_drng_seed(void *_state, const uint8_t *seed,
 				size_t perslen)
 {
 	kmac256_drng_selftest();
-	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_KMAC_DRBG);
+	LC_SELFTEST_COMPLETED(lc_kmac256_drng->algorithm_type);
 
 	return lc_kmac256_drng_seed_nocheck(_state, seed, seedlen, persbuf,
 					    perslen);
@@ -542,5 +542,6 @@ static const struct lc_rng _lc_kmac256_drng = {
 	.generate = lc_kmac256_drng_generate,
 	.seed = lc_kmac256_drng_seed,
 	.zero = lc_kmac256_drng_zero,
+	.algorithm_type = LC_ALG_STATUS_KMAC_DRBG,
 };
 LC_INTERFACE_SYMBOL(const struct lc_rng *, lc_kmac256_drng) = &_lc_kmac256_drng;

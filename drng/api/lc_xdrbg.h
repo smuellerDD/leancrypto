@@ -52,7 +52,9 @@ struct lc_xdrbg_drng_state {
 };
 
 /* XDRBG-based DRNG */
-extern const struct lc_rng *lc_xdrbg_drng;
+extern const struct lc_rng *lc_xdrbg128_drng;
+extern const struct lc_rng *lc_xdrbg256_drng;
+extern const struct lc_rng *lc_xdrbg512_drng;
 
 /* Helper, do not call directly */
 #define LC_XDRBG_DRNG_CTX_ON_STACK(name, ctxsize)                              \
@@ -77,12 +79,12 @@ extern const struct lc_rng *lc_xdrbg_drng;
 	(sizeof(struct lc_rng) + LC_XDRBG256_DRNG_STATE_SIZE)
 
 #define LC_XDRBG256_RNG_CTX(name)                                              \
-	LC_RNG_CTX(name, lc_xdrbg_drng);                                       \
+	LC_RNG_CTX(name, lc_xdrbg256_drng);                                    \
 	struct lc_xdrbg_drng_state *__name = name->rng_state;                  \
 	__name->status = lc_xdrbg_keysize_xdrbg256;                            \
 	__name->xof = lc_shake256;                                             \
 	__name->chunksize = LC_XDRBG256_DRNG_MAX_CHUNK;                        \
-	lc_xdrbg_drng->zero(name->rng_state);
+	lc_xdrbg256_drng->zero(name->rng_state);
 /// \endcond
 
 /**
@@ -134,12 +136,12 @@ int lc_xdrbg256_drng_alloc(struct lc_rng_ctx **state);
 	(sizeof(struct lc_rng) + LC_XDRBG128_DRNG_STATE_SIZE)
 
 #define LC_XDRBG128_RNG_CTX(name)                                              \
-	LC_RNG_CTX(name, lc_xdrbg_drng);                                       \
+	LC_RNG_CTX(name, lc_xdrbg128_drng);                                    \
 	struct lc_xdrbg_drng_state *__name = name->rng_state;                  \
 	__name->status = lc_xdrbg_keysize_xdrbg128;                            \
 	__name->xof = lc_ascon_xof;                                            \
 	__name->chunksize = LC_XDRBG128_DRNG_MAX_CHUNK;                        \
-	lc_xdrbg_drng->zero(name->rng_state);
+	lc_xdrbg128_drng->zero(name->rng_state);
 /// \endcond
 
 /**
@@ -196,12 +198,12 @@ int lc_xdrbg128_drng_alloc(struct lc_rng_ctx **state);
 	(sizeof(struct lc_rng) + LC_XDRBG512_DRNG_STATE_SIZE)
 
 #define LC_XDRBG512_RNG_CTX(name)                                              \
-	LC_RNG_CTX(name, lc_xdrbg_drng);                                       \
+	LC_RNG_CTX(name, lc_xdrbg512_drng);                                    \
 	struct lc_xdrbg_drng_state *__name = name->rng_state;                  \
 	__name->status = lc_xdrbg_keysize_xdrbg512;                            \
 	__name->xof = lc_shake512;                                             \
 	__name->chunksize = LC_XDRBG512_DRNG_MAX_CHUNK;                        \
-	lc_xdrbg_drng->zero(name->rng_state);
+	lc_xdrbg512_drng->zero(name->rng_state);
 /// \endcond
 
 /**

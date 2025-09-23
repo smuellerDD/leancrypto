@@ -22,6 +22,7 @@
 
 #include "bitshift.h"
 #include "ext_headers_arm.h"
+#include "lc_status.h"
 #include "sha512_arm_ce.h"
 #include "sha2_common.h"
 #include "visibility.h"
@@ -82,6 +83,7 @@ static const struct lc_hash _sha384_arm_ce = {
 	.sponge_newstate = NULL,
 	.sponge_rate = LC_SHA384_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha512_state),
+	.algorithm_type = LC_ALG_STATUS_SHA512
 };
 
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha384_arm_ce) = &_sha384_arm_ce;
@@ -99,6 +101,7 @@ static const struct lc_hash _sha512_arm_ce = {
 	.sponge_newstate = NULL,
 	.sponge_rate = LC_SHA512_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha512_state),
+	.algorithm_type = LC_ALG_STATUS_SHA512
 };
 
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha512_arm_ce) = &_sha512_arm_ce;

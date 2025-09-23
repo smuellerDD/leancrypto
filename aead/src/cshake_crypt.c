@@ -436,7 +436,7 @@ static void lc_cc_selftest(void)
 	uint8_t act_ct[sizeof(exp_ct)] __align(sizeof(uint32_t));
 	uint8_t act_tag[sizeof(exp_tag)] __align(sizeof(uint32_t));
 
-	LC_SELFTEST_RUN(LC_ALG_STATUS_CSHAKE_CRYPT);
+	LC_SELFTEST_RUN(lc_cshake_aead->algorithm_type);
 
 	LC_CC_CTX_ON_STACK(cc, lc_cshake256);
 
@@ -444,11 +444,11 @@ static void lc_cc_selftest(void)
 		goto out;
 	lc_aead_encrypt(cc, in, act_ct, sizeof(in), in, sizeof(in), act_tag,
 			sizeof(act_tag));
-	if (lc_compare_selftest(LC_ALG_STATUS_CSHAKE_CRYPT, act_ct, exp_ct,
+	if (lc_compare_selftest(lc_cshake_aead->algorithm_type, act_ct, exp_ct,
 				sizeof(exp_ct), "cSHAKE AEAD encrypt"))
 		goto out;
-	if (lc_compare_selftest(LC_ALG_STATUS_CSHAKE_CRYPT, act_tag, exp_tag,
-				sizeof(exp_tag), "cSHAKE AEAD tag"))
+	if (lc_compare_selftest(lc_cshake_aead->algorithm_type, act_tag,
+				exp_tag, sizeof(exp_tag), "cSHAKE AEAD tag"))
 		goto out;
 	lc_aead_zero(cc);
 
@@ -458,8 +458,8 @@ static void lc_cc_selftest(void)
 			act_tag, sizeof(act_tag));
 
 out:
-	lc_compare_selftest(LC_ALG_STATUS_CSHAKE_CRYPT, act_ct, in, sizeof(in),
-			    "cSHAKE AEAD decrypt");
+	lc_compare_selftest(lc_cshake_aead->algorithm_type, act_ct, in,
+			    sizeof(in), "cSHAKE AEAD decrypt");
 	lc_aead_zero(cc);
 }
 
@@ -523,7 +523,7 @@ static int lc_cc_setkey(void *state, const uint8_t *key, size_t keylen,
 			const uint8_t *iv, size_t ivlen)
 {
 	lc_cc_selftest();
-	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_CSHAKE_CRYPT);
+	LC_SELFTEST_COMPLETED(lc_cshake_aead->algorithm_type);
 
 	return lc_cc_setkey_nocheck(state, key, keylen, iv, ivlen);
 }
@@ -739,6 +739,7 @@ static const struct lc_aead _lc_cshake_aead = {
 	.dec_init = lc_cc_add_aad,
 	.dec_update = lc_cc_decrypt,
 	.dec_final = lc_cc_decrypt_authenticate,
-	.zero = lc_cc_zero
+	.zero = lc_cc_zero,
+	.algorithm_type = LC_ALG_STATUS_CSHAKE_CRYPT,
 };
 LC_INTERFACE_SYMBOL(const struct lc_aead *, lc_cshake_aead) = &_lc_cshake_aead;

@@ -243,9 +243,9 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	}
 	ret += ret2;
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_KMAC_CRYPT);
+	ret = test_validate_status(ret, LC_ALG_STATUS_KMAC_CRYPT, 0);
 #ifndef LC_FIPS140_DEBUG
-	ret = test_validate_status(ret, LC_ALG_STATUS_KMAC);
+	ret = test_validate_status(ret, LC_ALG_STATUS_KMAC, 1);
 #endif
 	ret += test_print_status();
 

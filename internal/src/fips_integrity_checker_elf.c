@@ -93,6 +93,7 @@ fips_integrity_checker_build(const uint8_t act[LC_SHA3_256_SIZE_DIGEST])
 
 	for (i = 0; i < LC_SHA3_256_SIZE_DIGEST; i++)
 		fprintf(stderr, "0x%.2x, ", *(act + i));
+	fprintf(stderr, "\n");
 }
 
 LC_INTERFACE_FUNCTION(void, lc_fips_integrity_checker, void)
@@ -102,8 +103,11 @@ LC_INTERFACE_FUNCTION(void, lc_fips_integrity_checker, void)
 	if (fips_integrity_check(secs, ARRAY_SIZE(secs), expected_digest,
 				 act)) {
 		fips_integrity_checker_build(act);
-		lc_memset_secure(act, 0, sizeof(act));
-		exit(1);
+		/*
+		 * Keep library alive, but all algorithms are in error state
+		 * and thus no service except status and rerun integrity test
+		 * is usable.
+		 */
 	}
 
 	lc_memset_secure(act, 0, sizeof(act));
@@ -113,8 +117,7 @@ LC_INTERFACE_FUNCTION(void, lc_fips_integrity_checker, void)
  * This constructor is part of the regular "text" section and thus subject to
  * the integrity test.
  */
-__attribute__((constructor(LC_INIT_PRIO_FIPS))) static void
-fips_integrity_checker_dep(void)
+LC_CONSTRUCTOR(fips_integrity_checker_dep, LC_INIT_PRIO_FIPS)
 {
 	fips140_mode_enable();
 	lc_fips_integrity_checker();

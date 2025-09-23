@@ -162,8 +162,8 @@ static int lc_xdrbg_drng_fke_init_ctx(struct lc_xdrbg_drng_state *state,
  *
  *   * GENERATE
  */
-static int lc_xdrbg_drng_generate(void *_state, const uint8_t *alpha,
-				  size_t alphalen, uint8_t *out, size_t outlen)
+int lc_xdrbg_drng_generate(void *_state, const uint8_t *alpha, size_t alphalen,
+			   uint8_t *out, size_t outlen)
 {
 	struct lc_xdrbg_drng_state *state = _state;
 	int ret = 0;
@@ -261,33 +261,7 @@ out:
 	return ret;
 }
 
-static int lc_xdrbg_drng_seed(void *_state, const uint8_t *seed, size_t seedlen,
-			      const uint8_t *alpha, size_t alphalen)
-{
-	struct lc_xdrbg_drng_state *state = _state;
-	uint8_t keysize;
-
-	if (!state)
-		return -EINVAL;
-
-	keysize = lc_xdrbg_keysize(state);
-
-	if (keysize == LC_XDRBG256_DRNG_KEYSIZE) {
-		xdrbg256_drng_selftest();
-		LC_SELFTEST_COMPLETED(LC_ALG_STATUS_XDRBG256);
-	} else if (keysize == LC_XDRBG128_DRNG_KEYSIZE) {
-		xdrbg128_drng_selftest();
-		LC_SELFTEST_COMPLETED(LC_ALG_STATUS_XDRBG128);
-	} else {
-		xdrbg512_drng_selftest();
-		LC_SELFTEST_COMPLETED(LC_ALG_STATUS_XDRBG512);
-	}
-
-	return lc_xdrbg_drng_seed_nocheck(_state, seed, seedlen, alpha,
-					  alphalen);
-}
-
-static void lc_xdrbg_drng_zero(void *_state)
+void lc_xdrbg_drng_zero(void *_state)
 {
 	struct lc_xdrbg_drng_state *state = _state;
 
@@ -297,10 +271,3 @@ static void lc_xdrbg_drng_zero(void *_state)
 	state->status &= (uint8_t)~LC_XDRBG_DRNG_INITIALLY_SEEDED;
 	lc_memset_secure(state->v, 0, lc_xdrbg_keysize(state));
 }
-
-static const struct lc_rng _lc_xdrbg_drng = {
-	.generate = lc_xdrbg_drng_generate,
-	.seed = lc_xdrbg_drng_seed,
-	.zero = lc_xdrbg_drng_zero,
-};
-LC_INTERFACE_SYMBOL(const struct lc_rng *, lc_xdrbg_drng) = &_lc_xdrbg_drng;

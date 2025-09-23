@@ -45,7 +45,7 @@ static int al_128_tester_large(void)
 					 0x0C, 0x0D, 0x0E, 0x0F };
 	int ret;
 
-	LC_ASCON_SET_CTX(al, lc_ascon_128a_c);
+	LC_ASCON_SET_CTX(al, lc_ascon_128a_c, lc_ascon_aead);
 
 	CKINT(test_mem(&pt, &len));
 

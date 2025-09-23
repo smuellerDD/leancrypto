@@ -27,16 +27,20 @@
 extern "C" {
 #endif
 
+void lc_activate_library_selftest_init(void);
+void lc_activate_library_selftest_fini(void);
 void lc_activate_library_internal(void);
 void alg_status_set_result(enum lc_alg_status_result test_ret, uint64_t flag);
 void alg_status_unset_result(uint64_t flag);
+enum lc_alg_status_val alg_status(uint64_t algorithm);
 void alg_status_unset_result_all(void);
 
 enum lc_alg_status_result alg_status_get_result(uint64_t flag);
 
-void alg_status(uint64_t flag, char *test_completed, size_t test_completed_len,
-		char *test_open, size_t test_open_len, char *errorbuf,
-		size_t errorbuf_len);
+void alg_status_print(uint64_t flag, char *test_completed,
+		      size_t test_completed_len, char *test_open,
+		      size_t test_open_len, char *errorbuf,
+		      size_t errorbuf_len);
 
 #ifdef __cplusplus
 }

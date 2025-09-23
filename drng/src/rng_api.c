@@ -86,3 +86,21 @@ LC_INTERFACE_FUNCTION(int, lc_rng_seed, struct lc_rng_ctx *ctx,
 
 	return rng->seed(rng_state, seed, seedlen, persbuf, perslen);
 }
+
+LC_INTERFACE_FUNCTION(uint64_t, lc_rng_algorithm_type,
+		      const struct lc_rng *rng)
+{
+	if (!rng)
+		return 0;
+
+	return rng->algorithm_type;
+}
+
+LC_INTERFACE_FUNCTION(uint64_t, lc_rng_ctx_algorithm_type,
+		      const struct lc_rng_ctx *ctx)
+{
+	if (!ctx)
+		return 0;
+
+	return lc_rng_algorithm_type(ctx->rng);
+}

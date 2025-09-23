@@ -27,7 +27,7 @@
 
 /********************************** Selftest **********************************/
 
-void xdrbg128_drng_selftest(void)
+static void xdrbg128_drng_selftest(void)
 {
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t seed[] = {
@@ -71,7 +71,7 @@ void xdrbg128_drng_selftest(void)
 	};
 	uint8_t act[sizeof(exp)] __align(sizeof(uint32_t));
 
-	LC_SELFTEST_RUN(LC_ALG_STATUS_XDRBG128);
+	LC_SELFTEST_RUN(lc_xdrbg128_drng->algorithm_type);
 
 	LC_XDRBG128_DRNG_CTX_ON_STACK(shake_ctx);
 
@@ -81,9 +81,20 @@ void xdrbg128_drng_selftest(void)
 	lc_rng_generate(shake_ctx, NULL, 0, act, sizeof(act));
 
 out:
-	lc_compare_selftest(LC_ALG_STATUS_XDRBG128, act, exp, sizeof(exp),
-			    "Ascon XOF XDRBG");
+	lc_compare_selftest(lc_xdrbg128_drng->algorithm_type, act, exp,
+			    sizeof(exp), "Ascon XOF XDRBG");
 	lc_rng_zero(shake_ctx);
+}
+
+static int lc_xdrbg128_drng_seed(void *_state, const uint8_t *seed,
+				 size_t seedlen, const uint8_t *alpha,
+				 size_t alphalen)
+{
+	xdrbg128_drng_selftest();
+	LC_SELFTEST_COMPLETED(lc_xdrbg128_drng->algorithm_type);
+
+	return lc_xdrbg_drng_seed_nocheck(_state, seed, seedlen, alpha,
+					  alphalen);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_xdrbg128_drng_alloc, struct lc_rng_ctx **state)
@@ -106,3 +117,12 @@ LC_INTERFACE_FUNCTION(int, lc_xdrbg128_drng_alloc, struct lc_rng_ctx **state)
 
 	return 0;
 }
+
+static const struct lc_rng _lc_xdrbg128_drng = {
+	.generate = lc_xdrbg_drng_generate,
+	.seed = lc_xdrbg128_drng_seed,
+	.zero = lc_xdrbg_drng_zero,
+	.algorithm_type = LC_ALG_STATUS_XDRBG128,
+};
+LC_INTERFACE_SYMBOL(const struct lc_rng *,
+		    lc_xdrbg128_drng) = &_lc_xdrbg128_drng;

@@ -25,6 +25,7 @@
 #include "hash_common.h"
 #include "lc_sha512.h"
 #include "lc_memset_secure.h"
+#include "lc_status.h"
 #include "sha2_common.h"
 #include "sha512_c.h"
 #include "sponge_common.h"
@@ -77,10 +78,10 @@ static void sha512_selftest(const struct lc_hash *sha512, const char *impl)
 	};
 	uint8_t act[LC_SHA512_SIZE_DIGEST];
 
-	LC_SELFTEST_RUN(LC_ALG_STATUS_SHA512);
+	LC_SELFTEST_RUN(lc_sha512_c->algorithm_type);
 
 	lc_hash_nocheck(sha512, msg_512, sizeof(msg_512), act);
-	lc_compare_selftest(LC_ALG_STATUS_SHA512, act, exp_512,
+	lc_compare_selftest(lc_sha512_c->algorithm_type, act, exp_512,
 			    LC_SHA512_SIZE_DIGEST, impl);
 }
 
@@ -108,7 +109,7 @@ int sha384_init_nocheck(void *_state)
 int sha384_init(void *_state)
 {
 	sha512_selftest(lc_sha512, "SHA-384");
-	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SHA512);
+	LC_SELFTEST_COMPLETED(lc_sha512_c->algorithm_type);
 
 	return sha384_init_nocheck(_state);
 }
@@ -137,7 +138,7 @@ int sha512_init_nocheck(void *_state)
 int sha512_init(void *_state)
 {
 	sha512_selftest(lc_sha512, "SHA-512");
-	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SHA512);
+	LC_SELFTEST_COMPLETED(lc_sha512_c->algorithm_type);
 
 	return sha512_init_nocheck(_state);
 }
@@ -378,6 +379,7 @@ static const struct lc_hash _sha384_c = {
 	.sponge_newstate = NULL,
 	.sponge_rate = LC_SHA384_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha512_state),
+	.algorithm_type = LC_ALG_STATUS_SHA512
 };
 
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha384_c) = &_sha384_c;
@@ -395,6 +397,7 @@ static const struct lc_hash _sha512_c = {
 	.sponge_newstate = NULL,
 	.sponge_rate = LC_SHA512_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha512_state),
+	.algorithm_type = LC_ALG_STATUS_SHA512
 };
 
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha512_c) = &_sha512_c;

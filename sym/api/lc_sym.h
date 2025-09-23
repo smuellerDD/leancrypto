@@ -40,6 +40,7 @@ struct lc_sym {
 			uint8_t *out, size_t len);
 	void (*decrypt)(struct lc_sym_state *ctx, const uint8_t *in,
 			uint8_t *out, size_t len);
+	uint64_t algorithm_type;
 	unsigned int statesize;
 	unsigned int blocksize;
 };
@@ -221,6 +222,26 @@ int lc_sym_alloc(const struct lc_sym *sym, struct lc_sym_ctx **ctx);
  * @param [in] ctx Symmtric algorithm context handle
  */
 void lc_sym_zero_free(struct lc_sym_ctx *ctx);
+
+/**
+ * @ingroup Symmetric
+ * @brief Obtain algorithm type usable with lc_alg_status
+ *
+ * @param [in] sym AEAD algorithm instance
+ *
+ * @return algorithm type
+ */
+uint64_t lc_sym_algorithm_type(const struct lc_sym *sym);
+
+/**
+ * @ingroup Symmetric
+ * @brief Obtain algorithm type usable with lc_alg_status
+ *
+ * @param [in] ctx Symmetric context handle
+ *
+ * @return algorithm type
+ */
+uint64_t lc_sym_ctx_algorithm_type(const struct lc_sym_ctx *ctx);
 
 /**
  * @ingroup Symmetric

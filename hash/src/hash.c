@@ -251,3 +251,21 @@ LC_INTERFACE_FUNCTION(int, lc_sponge_newstate, const struct lc_hash *hash,
 
 	return 0;
 }
+
+LC_INTERFACE_FUNCTION(uint64_t, lc_hash_algorithm_type,
+		      const struct lc_hash *hash)
+{
+	if (!hash)
+		return 0;
+
+	return hash->algorithm_type;
+}
+
+LC_INTERFACE_FUNCTION(uint64_t, lc_hash_ctx_algorithm_type,
+		      const struct lc_hash_ctx *ctx)
+{
+	if (!ctx)
+		return 0;
+
+	return lc_hash_algorithm_type(ctx->hash);
+}

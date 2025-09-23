@@ -32,12 +32,15 @@ LC_INTERFACE_FUNCTION(void, lc_rerun_one_selftest, uint64_t flag)
 	 *
 	 * FIPS 140-3 "Degraded operation" states in order to leave the
 	 * degraded mode, only the preoperational self test needs to be
-	 * performed. Thus, we do that here.
+	 * performed. Thus, we do that here. Note, due to the way the integrity
+	 * checker is designed, in FIPS mode, this causes all self tests to be
+	 * rerun after the completion of the integrity test. I.e. the library
+	 * acts like after a power-on.
 	 */
 	if (fips140_mode_enabled())
 		lc_fips_integrity_checker();
-
-	alg_status_unset_result(flag);
+	else
+		alg_status_unset_result(flag);
 }
 
 LC_INTERFACE_FUNCTION(enum lc_alg_status_result, lc_status_get_result,
@@ -51,6 +54,11 @@ LC_INTERFACE_FUNCTION(void, lc_rerun_selftests, void)
 	/* See rationale on the FIPS mode above */
 	if (fips140_mode_enabled())
 		lc_fips_integrity_checker();
+	else
+		alg_status_unset_result_all();
+}
 
-	alg_status_unset_result_all();
+LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_alg_status, uint64_t algorithm)
+{
+	return alg_status(algorithm);
 }

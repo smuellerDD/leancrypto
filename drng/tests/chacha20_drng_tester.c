@@ -185,9 +185,9 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	ret = !!chacha20_tester();
 
 #ifndef LC_FIPS140_DEBUG
-	ret = test_validate_status(ret, LC_ALG_STATUS_CHACHA20_DRNG);
+	ret = test_validate_status(ret, LC_ALG_STATUS_CHACHA20_DRNG, 0);
 #endif
-	ret = test_validate_status(ret, LC_ALG_STATUS_CHACHA20);
+	ret = test_validate_status(ret, LC_ALG_STATUS_CHACHA20, 0);
 	ret += test_print_status();
 
 	return ret;

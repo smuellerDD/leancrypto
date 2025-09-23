@@ -79,6 +79,7 @@ static const struct lc_sym _lc_aes_ctr_riscv64 = {
 	.decrypt = aes_riscv64_ctr_crypt,
 	.statesize = LC_AES_CTR_BLOCK_SIZE,
 	.blocksize = 1,
+	.algorithm_type = LC_ALG_STATUS_AES_CTR
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *,
 		    lc_aes_ctr_riscv64) = &_lc_aes_ctr_riscv64;

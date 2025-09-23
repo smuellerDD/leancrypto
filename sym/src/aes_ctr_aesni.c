@@ -175,6 +175,7 @@ static const struct lc_sym _lc_aes_ctr_aesni = {
 	.decrypt = aes_aesni_ctr_crypt,
 	.statesize = LC_AES_AESNI_CTR_BLOCK_SIZE,
 	.blocksize = 1,
+	.algorithm_type = LC_ALG_STATUS_AES_CTR
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *,
 		    lc_aes_ctr_aesni) = &_lc_aes_ctr_aesni;

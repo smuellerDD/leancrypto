@@ -123,7 +123,7 @@ static void lc_hc_selftest(void)
 	uint8_t act_ct[sizeof(exp_ct)] __align(sizeof(uint32_t));
 	uint8_t act_tag[sizeof(exp_tag)] __align(sizeof(uint32_t));
 
-	LC_SELFTEST_RUN(LC_ALG_STATUS_HASH_CRYPT);
+	LC_SELFTEST_RUN(lc_hash_aead->algorithm_type);
 
 	LC_HC_CTX_ON_STACK(hc, lc_sha512);
 
@@ -131,10 +131,10 @@ static void lc_hc_selftest(void)
 		goto out;
 	lc_aead_encrypt(hc, in, act_ct, sizeof(in), in, sizeof(in), act_tag,
 			sizeof(act_tag));
-	if (lc_compare_selftest(LC_ALG_STATUS_HASH_CRYPT, act_ct, exp_ct,
+	if (lc_compare_selftest(lc_hash_aead->algorithm_type, act_ct, exp_ct,
 				sizeof(exp_ct), "Hash AEAD encrypt"))
 		goto out;
-	if (lc_compare_selftest(LC_ALG_STATUS_HASH_CRYPT, act_tag, exp_tag,
+	if (lc_compare_selftest(lc_hash_aead->algorithm_type, act_tag, exp_tag,
 				sizeof(exp_tag), "Hash AEAD tag"))
 		goto out;
 	lc_aead_zero(hc);
@@ -144,8 +144,8 @@ static void lc_hc_selftest(void)
 			act_tag, sizeof(act_tag));
 
 out:
-	lc_compare_selftest(LC_ALG_STATUS_HASH_CRYPT, act_ct, in, sizeof(in),
-			    "Hash AEAD decrypt");
+	lc_compare_selftest(lc_hash_aead->algorithm_type, act_ct, in,
+			    sizeof(in), "Hash AEAD decrypt");
 	lc_aead_zero(hc);
 }
 
@@ -187,7 +187,7 @@ static int lc_hc_setkey(void *state, const uint8_t *key, size_t keylen,
 			const uint8_t *iv, size_t ivlen)
 {
 	lc_hc_selftest();
-	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_HASH_CRYPT);
+	LC_SELFTEST_COMPLETED(lc_hash_aead->algorithm_type);
 
 	return lc_hc_setkey_nocheck(state, key, keylen, iv, ivlen);
 }
@@ -400,7 +400,8 @@ static const struct lc_aead _lc_hash_aead = {
 	.dec_init = lc_hc_add_aad,
 	.dec_update = lc_hc_decrypt,
 	.dec_final = lc_hc_decrypt_authenticate,
-	.zero = lc_hc_zero
+	.zero = lc_hc_zero,
+	.algorithm_type = LC_ALG_STATUS_HASH_CRYPT
 };
 
 LC_INTERFACE_SYMBOL(const struct lc_aead *, lc_hash_aead) = &_lc_hash_aead;

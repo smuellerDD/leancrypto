@@ -123,3 +123,21 @@ LC_INTERFACE_FUNCTION(void, lc_sym_zero_free, struct lc_sym_ctx *ctx)
 	lc_sym_zero(ctx);
 	lc_free(ctx);
 }
+
+LC_INTERFACE_FUNCTION(uint64_t, lc_sym_algorithm_type,
+		      const struct lc_sym *sym)
+{
+	if (!sym)
+		return 0;
+
+	return sym->algorithm_type;
+}
+
+LC_INTERFACE_FUNCTION(uint64_t, lc_sym_ctx_algorithm_type,
+		      const struct lc_sym_ctx *ctx)
+{
+	if (!ctx)
+		return 0;
+
+	return lc_sym_algorithm_type(ctx->sym);
+}

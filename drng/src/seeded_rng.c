@@ -36,6 +36,7 @@
 
 #if (defined(CONFIG_LEANCRYPTO_SHA3) && defined(CONFIG_LEANCRYPTO_XDRBG_DRNG))
 #define LC_DRNG_XDRBG256
+#define LC_DRNG_XDRBG512
 #elif (defined(CONFIG_LEANCRYPTO_ASCON_HASH) &&                                \
        defined(CONFIG_LEANCRYPTO_XDRBG_DRNG))
 #define LC_DRNG_XDRBG128
@@ -59,28 +60,40 @@
 #ifdef LC_DRNG_XDRBG256
 #define LC_SEEDED_RNG_CTX_SIZE LC_XDRBG256_DRNG_CTX_SIZE
 #define LC_SEEDED_RNG_CTX(name) LC_XDRBG256_RNG_CTX(name)
+#define LC_SEEDED_RNG_SECURITY_STRENGTH (256)
 #elif defined(LC_DRNG_XDRBG128)
 #define LC_SEEDED_RNG_CTX_SIZE LC_XDRBG128_DRNG_CTX_SIZE
 #define LC_SEEDED_RNG_CTX(name) LC_XDRBG128_RNG_CTX(name)
+#define LC_SEEDED_RNG_SECURITY_STRENGTH (128)
+
 #elif defined(LC_DRNG_CSHAKE)
 /* Use cSHAKE 256 */
 #define LC_SEEDED_RNG_CTX_SIZE LC_CSHAKE256_DRNG_CTX_SIZE
 #define LC_SEEDED_RNG_CTX(name) LC_CSHAKE256_RNG_CTX(name)
+#define LC_SEEDED_RNG_SECURITY_STRENGTH (256)
 
 #elif defined(LC_DRNG_KMAC)
 /* Use KMAC 256 */
 #define LC_SEEDED_RNG_CTX_SIZE LC_KMAC256_DRNG_CTX_SIZE
 #define LC_SEEDED_RNG_CTX(name) LC_KMAC256_RNG_CTX(name)
+#define LC_SEEDED_RNG_SECURITY_STRENGTH (256)
 
 #elif defined(LC_DRNG_HASH_DRBG)
 /* Use Hash DRBG SHA512 */
 #define LC_SEEDED_RNG_CTX_SIZE LC_DRBG_HASH_CTX_SIZE
 #define LC_SEEDED_RNG_CTX(name) LC_DRBG_HASH_RNG_CTX(name)
+#define LC_SEEDED_RNG_SECURITY_STRENGTH (256)
 
 #elif defined(LC_DRNG_HMAC_DRBG)
 /* Use HMAC DRBG SHA512 */
 #define LC_SEEDED_RNG_CTX_SIZE LC_DRBG_HMAC_CTX_SIZE(LC_DRBG_HMAC_CORE)
 #define LC_SEEDED_RNG_CTX(name) LC_DRBG_HMAC_RNG_CTX(name)
+#define LC_SEEDED_RNG_SECURITY_STRENGTH (256)
+
+#elif defined(LC_DRNG_XDRBG512)
+#define LC_SEEDED_RNG_CTX_SIZE LC_XDRBG512_DRNG_CTX_SIZE
+#define LC_SEEDED_RNG_CTX(name) LC_XDRBG512_RNG_CTX(name)
+#define LC_SEEDED_RNG_SECURITY_STRENGTH (512)
 
 #else
 #error "Undefined DRNG"
@@ -177,7 +190,7 @@ static int lc_seed_seeded_rng(struct lc_seeded_rng_ctx *rng, int init,
 			      pid_t newpid)
 {
 	/* We provide twice the buffer size for the kernel seed sources */
-	uint8_t seed[(256 / 8) * 2];
+	uint8_t seed[(LC_SEEDED_RNG_SECURITY_STRENGTH / 8) * 2];
 	ssize_t datasize;
 	int ret;
 

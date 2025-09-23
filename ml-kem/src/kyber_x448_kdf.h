@@ -37,6 +37,23 @@ extern "C" {
  *		      L = requested SS length, S = "Kyber X448 KEM SS")
  *
  * This KDF is is consistent with SP800-108 rev 1.
+ *
+ * This KDF is consistent with SP800-227 section 4.6.2 - albeit this section
+ * refers only to SP800-56C, in turn SP800-56C refers to and allows SP800-108.
+ *
+ * NOTE: SP800-227 section 4.6.2 documents that H(x,y) should not considered
+ * immediately apply the concatenation H(x||y) without further considerations.
+ * This is due to the concern that lengths of x and y may vary where a simple
+ * concatenation with simple paddings may hide differences here. As this is
+ * not applicable to this schema since all input data have well-defined and
+ * enforced lengths without any padding, this concern is not applicable and
+ * thus a concatenation can be applied without additional considerations.
+ *
+ * According to SP800-227 section 4.6.3, the KDF will uphold the IND-CCA
+ * property by integrating the ciphertexts in addition to the shared secrets
+ * to the KDF. Section 4.6.3 *recommends* the addition of the encapsulation
+ * keys into the KDF as well, but that is not marked as necessary to uphold
+ * the IND-CCA property.
  */
 static inline void kyber_x448_ss_kdf(uint8_t *ss, size_t ss_len,
 				     const struct lc_kyber_x448_ct *ct,
@@ -70,6 +87,9 @@ static inline void kyber_x448_ss_kdf(uint8_t *ss, size_t ss_len,
  * @param [in] inlen3 length of input buffer 3
  * @param [out] out output buffer of size
  * @param [in] outlen output buffer length
+ *
+ * NOTE: This is not considered a key combiner in the sense of SP800-227, but
+ * to support the KEX operation.
  */
 static inline void kyber_x448_kdf3(const struct lc_kyber_x448_ss *ss0,
 				   const struct lc_kyber_x448_ss *ss1,
@@ -113,6 +133,9 @@ static inline void kyber_x448_kdf3(const struct lc_kyber_x448_ss *ss0,
  * @param [in] inlen4 length of input buffer 4
  * @param [out] out output buffer of size
  * @param [in] outlen output buffer length
+ *
+ * NOTE: This is not considered a key combiner in the sense of SP800-227, but
+ * to support the KEX operation.
  */
 static inline void kyber_x448_kdf4(const struct lc_kyber_x448_ss *ss0,
 				   const struct lc_kyber_x448_ss *ss1,

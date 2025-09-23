@@ -21,83 +21,75 @@
 #include "lc_sha3.h"
 #include "lc_hmac.h"
 #include "lc_status.h"
+#include "test_helper_common.h"
 #include "visibility.h"
 
+/*
+ * Test to rerun the self test.
+ *
+ * This test is designed to verify the FIPS integrity check in failure mode.
+ */
 static int rerun_selftest_tester(void)
 {
 	uint8_t buf[LC_SHA_MAX_SIZE_DIGEST];
+	int ret = 0;
 
 	/*
 	 * In the Linux kernel there may be other callers that already
 	 * triggered self-tests before.
 	 */
-#ifndef LINUX_KERNEL
-	if (lc_status_get_result(LC_ALG_STATUS_SHA3) !=
-	    lc_alg_status_result_pending) {
-		printf("SHA3-512 self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_SHA3));
-		return 1;
-	}
 
-	if (lc_status_get_result(LC_ALG_STATUS_HMAC) !=
-	    lc_alg_status_result_pending) {
-		printf("HMAC self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_HMAC));
-		return 1;
-	}
+	ret += test_validate_status(ret, LC_ALG_STATUS_LIB, 0);
+#ifndef LINUX_KERNEL
+	/* SHA3 is passed due to FIPS integrity test */
+	ret += test_validate_status(ret, LC_ALG_STATUS_SHA3, 1);
+	ret += test_validate_expected_status(ret, LC_ALG_STATUS_HMAC,
+					     lc_alg_status_result_pending, 1);
+
+	ret += test_print_status();
 #endif
 
-	if (lc_hmac(lc_sha3_512, buf, sizeof(buf), NULL, 0, buf))
-		return 1;
+	printf("Attempt to calculate HMAC\n");
+	if (lc_hmac(lc_sha3_512, buf, sizeof(buf), NULL, 0, buf) !=
+#ifdef LC_FIPS140_DEBUG
+	    -EOPNOTSUPP
+#else
+	    0
+#endif
+	    )
+		ret +=1;
 
-	if (lc_status_get_result(LC_ALG_STATUS_SHA3) !=
-	    lc_alg_status_result_passed) {
-		printf("SHA3-512 self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_SHA3));
-		return 1;
-	}
+	ret += test_validate_status(ret, LC_ALG_STATUS_LIB, 0);
+	ret += test_validate_status(ret, LC_ALG_STATUS_SHA3, 1);
+	ret += test_validate_status(ret, LC_ALG_STATUS_HMAC, 1);
+	ret += test_print_status();
 
-	if (lc_status_get_result(LC_ALG_STATUS_HMAC) !=
-	    lc_alg_status_result_passed) {
-		printf("HMAC self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_HMAC));
-		return 1;
-	}
-
+	printf("Rerun self tests\n");
 	lc_rerun_selftests();
 
-	if (lc_status_get_result(LC_ALG_STATUS_SHA3) !=
-	    lc_alg_status_result_pending) {
-		printf("SHA3-512 self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_SHA3));
-		return 1;
-	}
+	ret += test_validate_status(ret, LC_ALG_STATUS_LIB, 0);
+	/* SHA3 is passed due to FIPS integrity test */
+	ret += test_validate_status(ret, LC_ALG_STATUS_SHA3, 1);
+	ret += test_validate_expected_status(ret, LC_ALG_STATUS_HMAC,
+					     lc_alg_status_result_pending, 1);
+	ret += test_print_status();
 
-	if (lc_status_get_result(LC_ALG_STATUS_HMAC) !=
-	    lc_alg_status_result_pending) {
-		printf("HMAC self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_HMAC));
-		return 1;
-	}
+	printf("Attempt to calculate HMAC\n");
+	if (lc_hmac(lc_sha3_512, buf, sizeof(buf), NULL, 0, buf) !=
+#ifdef LC_FIPS140_DEBUG
+	    -EOPNOTSUPP
+#else
+	    0
+#endif
+	    )
+		ret +=1;
 
-	if (lc_hmac(lc_sha3_512, buf, sizeof(buf), NULL, 0, buf))
-		return 1;
+	ret += test_validate_status(ret, LC_ALG_STATUS_LIB, 0);
+	ret += test_validate_status(ret, LC_ALG_STATUS_SHA3, 1);
+	ret += test_validate_status(ret, LC_ALG_STATUS_HMAC, 1);
+	ret += test_print_status();
 
-	if (lc_status_get_result(LC_ALG_STATUS_SHA3) !=
-	    lc_alg_status_result_passed) {
-		printf("SHA3-512 self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_SHA3));
-		return 1;
-	}
-
-	if (lc_status_get_result(LC_ALG_STATUS_HMAC) !=
-	    lc_alg_status_result_passed) {
-		printf("HMAC self test status %u unexpected\n",
-		       lc_status_get_result(LC_ALG_STATUS_HMAC));
-		return 1;
-	}
-
-	return 0;
+	return ret;
 }
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])

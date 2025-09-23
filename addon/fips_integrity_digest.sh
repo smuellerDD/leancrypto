@@ -41,4 +41,4 @@ then
 fi
 
 # Print out the hex string
-$XXD -l 16 -p $FIPSDATASEGMENT.$$ | sed -e 's/../:&/2g'
+$XXD -p $FIPSDATASEGMENT.$$ | sed -e 's/../:&/2g'

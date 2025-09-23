@@ -111,7 +111,7 @@ static void lc_aes_gcm_selftest(void)
 	static const uint8_t f[] = { 0xde, 0xad, }, p[] = { 0xaf, 0xfe };
 	int ret;
 
-	LC_SELFTEST_RUN(LC_ALG_STATUS_AES_GCM);
+	LC_SELFTEST_RUN(lc_aes_gcm_aead->algorithm_type);
 
 	LC_AES_GCM_CTX_ON_STACK(aes_gcm);
 
@@ -119,13 +119,14 @@ static void lc_aes_gcm_selftest(void)
 			       sizeof(iv));
 	lc_aead_encrypt(aes_gcm, in, act_ct, sizeof(in), aad, sizeof(aad),
 			act_tag, sizeof(act_tag));
-	if (lc_compare_selftest(LC_ALG_STATUS_AES_GCM, act_ct, exp_ct,
+	if (lc_compare_selftest(lc_aes_gcm_aead->algorithm_type, act_ct, exp_ct,
 				sizeof(exp_ct),
 				"AES GCM AEAD encrypt ciphertext"))
 		goto out;
 
-	if (lc_compare_selftest(LC_ALG_STATUS_AES_GCM, act_tag, exp_tag,
-				sizeof(exp_tag), "AES GCM AEAD encrypt tag"))
+	if (lc_compare_selftest(lc_aes_gcm_aead->algorithm_type, act_tag,
+				exp_tag, sizeof(exp_tag),
+				"AES GCM AEAD encrypt tag"))
 		goto out;
 
 	lc_aead_zero(aes_gcm);
@@ -135,14 +136,15 @@ static void lc_aes_gcm_selftest(void)
 	ret = lc_aead_decrypt(aes_gcm, act_ct, act_ct, sizeof(act_ct), aad,
 			      sizeof(aad), act_tag, sizeof(act_tag));
 	if (ret) {
-		if (lc_compare_selftest(LC_ALG_STATUS_AES_GCM, f, p, sizeof(f),
+		if (lc_compare_selftest(lc_aes_gcm_aead->algorithm_type, f, p,
+					sizeof(f),
 					"AES GCM AEAD decrypt authentication"))
 			goto out;
 	}
 
 out:
-	lc_compare_selftest(LC_ALG_STATUS_AES_GCM, act_ct, in, sizeof(in),
-			    "AES GCM AEAD decrypt");
+	lc_compare_selftest(lc_aes_gcm_aead->algorithm_type, act_ct, in,
+			    sizeof(in), "AES GCM AEAD decrypt");
 	lc_aead_zero(aes_gcm);
 }
 
@@ -489,7 +491,7 @@ static int gcm_set_key_iv(void *state, const uint8_t *key, const size_t keylen,
 		return -EOPNOTSUPP;
 
 	lc_aes_gcm_selftest();
-	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_AES_GCM);
+	LC_SELFTEST_COMPLETED(lc_aes_gcm_aead->algorithm_type);
 
 	CKINT(gcm_set_key_iv_nocheck(ctx, key, keylen, iv, iv_len));
 
@@ -885,15 +887,18 @@ out:
 	return ret;
 }
 
-static const struct lc_aead _lc_aes_gcm_aead = { .setkey = gcm_set_key_iv,
-						 .encrypt = gcm_encrypt,
-						 .enc_init = gcm_aad,
-						 .enc_update = gcm_enc_update,
-						 .enc_final = gcm_enc_final,
-						 .decrypt = gcm_decrypt,
-						 .dec_init = gcm_aad,
-						 .dec_update = gcm_dec_update,
-						 .dec_final = gcm_dec_final,
-						 .zero = gcm_zero_ctx };
+static const struct lc_aead _lc_aes_gcm_aead = {
+	.setkey = gcm_set_key_iv,
+	.encrypt = gcm_encrypt,
+	.enc_init = gcm_aad,
+	.enc_update = gcm_enc_update,
+	.enc_final = gcm_enc_final,
+	.decrypt = gcm_decrypt,
+	.dec_init = gcm_aad,
+	.dec_update = gcm_dec_update,
+	.dec_final = gcm_dec_final,
+	.zero = gcm_zero_ctx,
+	.algorithm_type = LC_ALG_STATUS_AES_GCM
+};
 LC_INTERFACE_SYMBOL(const struct lc_aead *,
 		    lc_aes_gcm_aead) = &_lc_aes_gcm_aead;

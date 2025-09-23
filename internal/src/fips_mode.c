@@ -34,3 +34,11 @@ int fips140_mode_enabled(void)
 {
 	return lc_fips140_enabled;
 }
+
+int fips140_min_keysize(size_t keylen)
+{
+	/* SP800-131A: at least 128 bits of security */
+	if (fips140_mode_enabled() && keylen < 128 / 8)
+		return -EOPNOTSUPP;
+	return 0;
+}

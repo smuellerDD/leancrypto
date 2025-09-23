@@ -28,6 +28,7 @@
 #include "fips_mode.h"
 #include "lc_chacha20.h"
 #include "lc_chacha20_private.h"
+#include "lc_status.h"
 #include "lc_sym.h"
 #include "math_helper.h"
 #include "rotate.h"
@@ -104,8 +105,8 @@ void cc20_selftest(void)
 		goto out;
 	lc_sym_setiv(chacha20, (uint8_t *)iv, sizeof(iv));
 	lc_sym_encrypt(chacha20, (uint8_t *)string, res, sizeof(res));
-	if (lc_compare_selftest(LC_ALG_STATUS_CHACHA20, res, exp, sizeof(exp),
-				"ChaCha20 encrypt"))
+	if (lc_compare_selftest(lc_chacha20_c->algorithm_type, res, exp,
+				sizeof(exp), "ChaCha20 encrypt"))
 		goto out2;
 	lc_sym_zero(chacha20);
 
@@ -117,8 +118,8 @@ void cc20_selftest(void)
 	lc_sym_decrypt(chacha20, res, res, sizeof(res));
 
 out:
-	lc_compare_selftest(LC_ALG_STATUS_CHACHA20, res, (uint8_t *)string,
-			    sizeof(res), "ChaCha20 decrypt");
+	lc_compare_selftest(lc_chacha20_c->algorithm_type, res,
+			    (uint8_t *)string, sizeof(res), "ChaCha20 decrypt");
 out2:
 	lc_sym_zero(chacha20);
 }
@@ -278,7 +279,7 @@ static void cc20_crypt(struct lc_sym_state *ctx, const uint8_t *in,
 int cc20_init(struct lc_sym_state *ctx)
 {
 	cc20_selftest();
-	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_CHACHA20);
+	LC_SELFTEST_COMPLETED(lc_chacha20_c->algorithm_type);
 
 	/* String "expand 32-byte k" */
 	cc20_init_constants(ctx);
@@ -336,6 +337,7 @@ static const struct lc_sym _lc_chacha20 = {
 	.decrypt = cc20_crypt,
 	.statesize = LC_CC20_STATE_SIZE,
 	.blocksize = 1,
+	.algorithm_type = LC_ALG_STATUS_CHACHA20
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_chacha20_c) = &_lc_chacha20;
 

@@ -25,6 +25,7 @@
 #include "ext_headers_internal.h"
 #include "ext_headers_arm.h"
 #include "lc_sha3.h"
+#include "lc_status.h"
 #include "sha3_arm_asm.h"
 #include "sha3_common.h"
 #include "sha3_selftest.h"
@@ -143,7 +144,7 @@ static int shake_512_arm_asm_init_nocheck(void *_state)
 static int shake_512_arm_asm_init(void *_state)
 {
 	shake512_selftest_common(lc_shake512_arm_asm);
-	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SHAKE);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SHAKE512);
 	return shake_512_arm_asm_init_nocheck(_state);
 }
 
@@ -235,6 +236,7 @@ static const struct lc_hash _sha3_224_arm_asm = {
 	.sponge_newstate = keccak_arm_asm_newstate,
 	.sponge_rate = LC_SHA3_224_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_224_state),
+	.algorithm_type = LC_ALG_STATUS_SHA3
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,
 		    lc_sha3_224_arm_asm) = &_sha3_224_arm_asm;
@@ -252,6 +254,7 @@ static const struct lc_hash _sha3_256_arm_asm = {
 	.sponge_newstate = keccak_arm_asm_newstate,
 	.sponge_rate = LC_SHA3_256_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_256_state),
+	.algorithm_type = LC_ALG_STATUS_SHA3
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,
 		    lc_sha3_256_arm_asm) = &_sha3_256_arm_asm;
@@ -269,6 +272,7 @@ static const struct lc_hash _sha3_384_arm_asm = {
 	.sponge_newstate = keccak_arm_asm_newstate,
 	.sponge_rate = LC_SHA3_384_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_384_state),
+	.algorithm_type = LC_ALG_STATUS_SHA3
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,
 		    lc_sha3_384_arm_asm) = &_sha3_384_arm_asm;
@@ -286,6 +290,7 @@ static const struct lc_hash _sha3_512_arm_asm = {
 	.sponge_newstate = keccak_arm_asm_newstate,
 	.sponge_rate = LC_SHA3_512_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_512_state),
+	.algorithm_type = LC_ALG_STATUS_SHA3
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,
 		    lc_sha3_512_arm_asm) = &_sha3_512_arm_asm;
@@ -303,6 +308,7 @@ static const struct lc_hash _shake128_arm_asm = {
 	.sponge_newstate = keccak_arm_asm_newstate,
 	.sponge_rate = LC_SHAKE_128_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_shake_128_state),
+	.algorithm_type = LC_ALG_STATUS_SHAKE
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,
 		    lc_shake128_arm_asm) = &_shake128_arm_asm;
@@ -320,6 +326,7 @@ static const struct lc_hash _shake256_arm_asm = {
 	.sponge_newstate = keccak_arm_asm_newstate,
 	.sponge_rate = LC_SHA3_256_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_256_state),
+	.algorithm_type = LC_ALG_STATUS_SHAKE
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,
 		    lc_shake256_arm_asm) = &_shake256_arm_asm;
@@ -337,6 +344,7 @@ static const struct lc_hash _shake512_arm_asm = {
 	.sponge_newstate = keccak_arm_asm_newstate,
 	.sponge_rate = LC_SHA3_512_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_512_state),
+	.algorithm_type = LC_ALG_STATUS_SHAKE512
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,
 		    lc_shake512_arm_asm) = &_shake512_arm_asm;
@@ -354,6 +362,7 @@ static const struct lc_hash _cshake128_arm_asm = {
 	.sponge_newstate = keccak_arm_asm_newstate,
 	.sponge_rate = LC_SHAKE_128_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_shake_128_state),
+	.algorithm_type = LC_ALG_STATUS_CSHAKE
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,
 		    lc_cshake128_arm_asm) = &_cshake128_arm_asm;
@@ -371,6 +380,7 @@ static const struct lc_hash _cshake256_arm_asm = {
 	.sponge_newstate = keccak_arm_asm_newstate,
 	.sponge_rate = LC_SHA3_256_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha3_256_state),
+	.algorithm_type = LC_ALG_STATUS_CSHAKE
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,
 		    lc_cshake256_arm_asm) = &_cshake256_arm_asm;

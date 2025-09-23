@@ -1,5 +1,5 @@
 # Files which are compiled once
-src_fips += files([
+src += files([
 	'dilithium_consts_rvv.c',
 	'dilithium_zetas_riscv64.c'
 	])

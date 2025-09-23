@@ -27,7 +27,7 @@
 
 /********************************** Selftest **********************************/
 
-void xdrbg256_drng_selftest(void)
+static void xdrbg256_drng_selftest(void)
 {
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t seed[] = {
@@ -81,7 +81,7 @@ void xdrbg256_drng_selftest(void)
 	};
 	uint8_t act[sizeof(exp)] __align(sizeof(uint32_t));
 
-	LC_SELFTEST_RUN(LC_ALG_STATUS_XDRBG256);
+	LC_SELFTEST_RUN(lc_xdrbg256_drng->algorithm_type);
 
 	LC_XDRBG256_DRNG_CTX_ON_STACK(shake_ctx);
 
@@ -91,9 +91,20 @@ void xdrbg256_drng_selftest(void)
 	lc_rng_generate(shake_ctx, NULL, 0, act, sizeof(act));
 
 out:
-	lc_compare_selftest(LC_ALG_STATUS_XDRBG256, act, exp, sizeof(exp),
-			    "SHAKE-256 XDRBG");
+	lc_compare_selftest(lc_xdrbg256_drng->algorithm_type, act, exp,
+			    sizeof(exp), "SHAKE-256 XDRBG");
 	lc_rng_zero(shake_ctx);
+}
+
+static int lc_xdrbg256_drng_seed(void *_state, const uint8_t *seed,
+				 size_t seedlen, const uint8_t *alpha,
+				 size_t alphalen)
+{
+	xdrbg256_drng_selftest();
+	LC_SELFTEST_COMPLETED(lc_xdrbg256_drng->algorithm_type);
+
+	return lc_xdrbg_drng_seed_nocheck(_state, seed, seedlen, alpha,
+					  alphalen);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_xdrbg256_drng_alloc, struct lc_rng_ctx **state)
@@ -116,3 +127,12 @@ LC_INTERFACE_FUNCTION(int, lc_xdrbg256_drng_alloc, struct lc_rng_ctx **state)
 
 	return 0;
 }
+
+static const struct lc_rng _lc_xdrbg256_drng = {
+	.generate = lc_xdrbg_drng_generate,
+	.seed = lc_xdrbg256_drng_seed,
+	.zero = lc_xdrbg_drng_zero,
+	.algorithm_type = LC_ALG_STATUS_XDRBG256,
+};
+LC_INTERFACE_SYMBOL(const struct lc_rng *,
+		    lc_xdrbg256_drng) = &_lc_xdrbg256_drng;

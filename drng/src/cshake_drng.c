@@ -347,7 +347,7 @@ static void cshake256_drng_selftest(void)
 	};
 	uint8_t act[sizeof(exp)] __align(sizeof(uint32_t));
 
-	LC_SELFTEST_RUN(LC_ALG_STATUS_CSHAKE_DRBG);
+	LC_SELFTEST_RUN(lc_cshake256_drng->algorithm_type);
 
 	LC_CSHAKE256_DRNG_CTX_ON_STACK(cshake_ctx);
 
@@ -357,8 +357,8 @@ static void cshake256_drng_selftest(void)
 	lc_rng_generate(cshake_ctx, NULL, 0, act, sizeof(act));
 
 out:
-	lc_compare_selftest(LC_ALG_STATUS_CSHAKE_DRBG, act, exp, sizeof(exp),
-			    "cSHAKE DRNG");
+	lc_compare_selftest(lc_cshake256_drng->algorithm_type, act, exp,
+			    sizeof(exp), "cSHAKE DRNG");
 	lc_rng_zero(cshake_ctx);
 }
 
@@ -565,7 +565,7 @@ static int lc_cshake256_drng_seed(void *_state, const uint8_t *seed,
 				  size_t perslen)
 {
 	cshake256_drng_selftest();
-	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_CSHAKE_DRBG);
+	LC_SELFTEST_COMPLETED(lc_cshake256_drng->algorithm_type);
 
 	return lc_cshake256_drng_seed_nocheck(_state, seed, seedlen, persbuf,
 					      perslen);
@@ -606,6 +606,7 @@ static const struct lc_rng _lc_cshake256_drng = {
 	.generate = lc_cshake256_drng_generate,
 	.seed = lc_cshake256_drng_seed,
 	.zero = lc_cshake256_drng_zero,
+	.algorithm_type = LC_ALG_STATUS_CSHAKE_DRBG,
 };
 LC_INTERFACE_SYMBOL(const struct lc_rng *,
 		    lc_cshake256_drng) = &_lc_cshake256_drng;

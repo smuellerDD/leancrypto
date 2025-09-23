@@ -170,7 +170,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = shake128_tester();
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_SHAKE);
+	ret = test_validate_status(ret, LC_ALG_STATUS_SHAKE, 1);
 	ret += test_print_status();
 
 	return ret;

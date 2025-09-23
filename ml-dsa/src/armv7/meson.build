@@ -2,7 +2,7 @@
 
 # Files compiled only once
 if (get_option('dilithium_87').enabled() or get_option('dilithium_65').enabled())
-	src_fips += files([
+	src += files([
 		'dilithium_ntt_consts.c'
 	])
 endif

@@ -40,14 +40,33 @@ void lc_rerun_selftests(void);
 /**
  * @brief (re-)run a self test for one algorithm
  *
- * @param [in] flag Algorithm reference of one of the LC_ALG_STATUS_* flags
+ * @param [in] flag Algorithm reference of one of the LC_ALG_STATUS_* flagsc
  */
 void lc_rerun_one_selftest(uint64_t flag);
+
+enum lc_alg_status_val {
+	lc_alg_status_unknown = 0,
+	lc_alg_status_fips_approved = (1 << 1),
+	lc_alg_status_self_test_passed = (1 << 2),
+	lc_alg_status_self_test_failed = (1 << 3),
+};
+
+/**
+ * @brief Return status information about algorithm type
+ *
+ * @param [in] algorithm Algorithm reference of one of the LC_ALG_STATUS_* flags
+ *
+ * @return status
+ */
+enum lc_alg_status_val lc_alg_status(uint64_t algorithm);
 
 /**
  * @brief Re-run the FIPS 140 integrity test
  *
  * \note This API is only present in the FIPS module instance of leancrypto.
+ *
+ * \warning In FIPS mode, this call gates all algorithms. I.e. they return an
+ *	    error code during initialization.
  */
 void lc_fips_integrity_checker(void);
 
@@ -152,11 +171,11 @@ int lc_status(char *outbuf, size_t outlen);
 #define LC_ALG_STATUS_TYPE_DIGEST (1UL << (LC_ALG_STATUS_TYPE_MASK_SHIFT + 6))
 #define LC_ALG_STATUS_FLAG_ASCON256 (LC_ALG_STATUS_FLAG_MASK_SIZE * 0)
 #define LC_ALG_STATUS_FLAG_ASCONXOF (LC_ALG_STATUS_FLAG_MASK_SIZE * 1)
-#define LC_ALG_STATUS_FLAG_ASCONCXOF (LC_ALG_STATUS_FLAG_MASK_SIZE * 2)
-#define LC_ALG_STATUS_FLAG_SHA256 (LC_ALG_STATUS_FLAG_MASK_SIZE * 3)
-#define LC_ALG_STATUS_FLAG_SHA512 (LC_ALG_STATUS_FLAG_MASK_SIZE * 4)
-#define LC_ALG_STATUS_FLAG_SHA3 (LC_ALG_STATUS_FLAG_MASK_SIZE * 5)
-#define LC_ALG_STATUS_FLAG_SHAKE (LC_ALG_STATUS_FLAG_MASK_SIZE * 6)
+#define LC_ALG_STATUS_FLAG_SHA256 (LC_ALG_STATUS_FLAG_MASK_SIZE * 2)
+#define LC_ALG_STATUS_FLAG_SHA512 (LC_ALG_STATUS_FLAG_MASK_SIZE * 3)
+#define LC_ALG_STATUS_FLAG_SHA3 (LC_ALG_STATUS_FLAG_MASK_SIZE * 4)
+#define LC_ALG_STATUS_FLAG_SHAKE (LC_ALG_STATUS_FLAG_MASK_SIZE * 5)
+#define LC_ALG_STATUS_FLAG_SHAKE512 (LC_ALG_STATUS_FLAG_MASK_SIZE * 6)
 #define LC_ALG_STATUS_FLAG_CSHAKE (LC_ALG_STATUS_FLAG_MASK_SIZE * 7)
 #define LC_ALG_STATUS_FLAG_KMAC (LC_ALG_STATUS_FLAG_MASK_SIZE * 8)
 #define LC_ALG_STATUS_FLAG_HMAC (LC_ALG_STATUS_FLAG_MASK_SIZE * 9)
@@ -324,9 +343,6 @@ enum lc_alg_status_result {
 /** Digest reference: Ascon XOF */
 #define LC_ALG_STATUS_ASCONXOF                                                 \
 	(LC_ALG_STATUS_TYPE_DIGEST | LC_ALG_STATUS_FLAG_ASCONXOF)
-/** Digest reference: Ascon CXOF */
-#define LC_ALG_STATUS_ASCONCXOF                                                \
-	(LC_ALG_STATUS_TYPE_DIGEST | LC_ALG_STATUS_FLAG_ASCONCXOF)
 /** Digest reference: SHA-256 */
 #define LC_ALG_STATUS_SHA256                                                   \
 	(LC_ALG_STATUS_TYPE_DIGEST | LC_ALG_STATUS_FLAG_SHA256)
@@ -338,6 +354,9 @@ enum lc_alg_status_result {
 /** Digest reference: SHAKE */
 #define LC_ALG_STATUS_SHAKE                                                    \
 	(LC_ALG_STATUS_TYPE_DIGEST | LC_ALG_STATUS_FLAG_SHAKE)
+/** Digest reference: SHAKE512 */
+#define LC_ALG_STATUS_SHAKE512                                                 \
+	(LC_ALG_STATUS_TYPE_DIGEST | LC_ALG_STATUS_FLAG_SHAKE512)
 /** Digest reference: cSHAKE */
 #define LC_ALG_STATUS_CSHAKE                                                   \
 	(LC_ALG_STATUS_TYPE_DIGEST | LC_ALG_STATUS_FLAG_CSHAKE)

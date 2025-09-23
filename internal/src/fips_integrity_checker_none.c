@@ -18,9 +18,16 @@
  */
 
 #include "ext_headers_internal.h"
+#include "initialization.h"
 #include "lc_status.h"
+#include "status_algorithms.h"
 #include "visibility.h"
 
 LC_INTERFACE_FUNCTION(void, lc_fips_integrity_checker, void)
 {
+}
+
+LC_CONSTRUCTOR(lc_activate_library, LC_INIT_PRIO_LIBRARY)
+{
+	lc_activate_library_internal();
 }

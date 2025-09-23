@@ -141,6 +141,8 @@ static int lc_kmac_init_nocheck(struct lc_kmac_ctx *kmac_ctx,
 	size_t added = 2;
 	int ret;
 
+	CKINT(fips140_min_keysize(klen));
+
 	/* Timecop: Mark the key as sensitive data. */
 	poison(key, klen);
 

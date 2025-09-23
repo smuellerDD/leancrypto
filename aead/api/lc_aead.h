@@ -46,6 +46,7 @@ struct lc_aead {
 			   uint8_t *plaintext, size_t datalen);
 	int (*dec_final)(void *state, const uint8_t *tag, size_t taglen);
 	void (*zero)(void *state);
+	uint64_t algorithm_type;
 };
 
 struct lc_aead_ctx {
@@ -264,6 +265,26 @@ int lc_aead_dec_update(struct lc_aead_ctx *ctx, const uint8_t *ciphertext,
  */
 int lc_aead_dec_final(struct lc_aead_ctx *ctx, const uint8_t *tag,
 		      size_t taglen);
+
+/**
+ * @ingroup AEAD
+ * @brief Obtain algorithm type usable with lc_alg_status
+ *
+ * @param [in] aead AEAD algorithm instance
+ *
+ * @return algorithm type
+ */
+uint64_t lc_aead_algorithm_type(const struct lc_aead *aead);
+
+/**
+ * @ingroup AEAD
+ * @brief Obtain algorithm type usable with lc_alg_status
+ *
+ * @param [in] ctx AEAD context handle
+ *
+ * @return algorithm type
+ */
+uint64_t lc_aead_ctx_algorithm_type(const struct lc_aead_ctx *ctx);
 
 #ifdef __cplusplus
 }

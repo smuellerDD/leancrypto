@@ -68,9 +68,9 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = pbkdf2_tester();
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_PBKDF2);
-	ret = test_validate_status(ret, LC_ALG_STATUS_HMAC);
-	ret = test_validate_status(ret, LC_ALG_STATUS_SHA256);
+	ret = test_validate_status(ret, LC_ALG_STATUS_PBKDF2, 1);
+	ret = test_validate_status(ret, LC_ALG_STATUS_HMAC, 1);
+	ret = test_validate_status(ret, LC_ALG_STATUS_SHA256, 1);
 
 	ret += test_print_status();
 

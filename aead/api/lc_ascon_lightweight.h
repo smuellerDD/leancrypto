@@ -34,6 +34,9 @@ extern "C" {
 	 LC_AL_STATE_SIZE)
 /// \endcond
 
+/* Ascon-based AEAD-algorithm */
+extern const struct lc_aead *lc_ascon_aead;
+
 /**
  * @brief Allocate Ascon Lightweight cryptor context on heap
  *
@@ -55,7 +58,7 @@ int lc_al_alloc(struct lc_aead_ctx **ctx);
 			LC_ALIGNED_BUFFER(name##_ctx_buf, LC_AL_CTX_SIZE,           \
 					  LC_ASCON_ALIGNMENT);                      \
 	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;            \
-	LC_ASCON_SET_CTX(name, lc_ascon_128a);                                      \
+	LC_ASCON_SET_CTX(name, lc_ascon_128a, lc_ascon_aead);                       \
 	struct lc_ascon_cryptor *__name_ascon_crypto = name->aead_state;            \
 	__name_ascon_crypto->statesize = LC_ASCON_HASH_STATE_SIZE;                  \
 	__name_ascon_crypto->taglen = 16;                                           \

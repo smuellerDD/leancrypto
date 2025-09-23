@@ -21,6 +21,7 @@
 #include "lc_status.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
+#include "test_helper_common.h"
 #include "visibility.h"
 
 static int kyber_keygen(void)
@@ -55,7 +56,13 @@ out:
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
+	int ret;
+
 	(void)argc;
 	(void)argv;
-	return kyber_keygen();
+
+	ret = kyber_keygen();
+	ret += test_print_status();
+
+	return ret;
 }

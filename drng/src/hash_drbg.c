@@ -150,7 +150,7 @@ static void drbg_hash_selftest(void)
 	};
 	uint8_t act[sizeof(exp)] __align(sizeof(uint32_t));
 
-	LC_SELFTEST_RUN(LC_ALG_STATUS_HASH_DRBG);
+	LC_SELFTEST_RUN(lc_hash_drbg->algorithm_type);
 
 	LC_DRBG_HASH_CTX_ON_STACK(drbg_ctx);
 
@@ -162,7 +162,7 @@ static void drbg_hash_selftest(void)
 	lc_rng_generate(drbg_ctx, addtl2, sizeof(addtl2), act, sizeof(act));
 
 out:
-	lc_compare_selftest(LC_ALG_STATUS_HASH_DRBG, act, exp, sizeof(exp),
+	lc_compare_selftest(lc_hash_drbg->algorithm_type, act, exp, sizeof(exp),
 			    "Hash DRBG");
 	lc_rng_zero(drbg_ctx);
 }
@@ -493,7 +493,7 @@ static int lc_drbg_hash_seed(void *_state, const uint8_t *seedbuf,
 			     size_t perslen)
 {
 	drbg_hash_selftest();
-	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_HASH_DRBG);
+	LC_SELFTEST_COMPLETED(lc_hash_drbg->algorithm_type);
 
 	return lc_drbg_hash_seed_nocheck(_state, seedbuf, seedlen, persbuf,
 					 perslen);
@@ -589,5 +589,6 @@ static const struct lc_rng _lc_hash_drbg = {
 	.generate = lc_drbg_hash_generate,
 	.seed = lc_drbg_hash_seed,
 	.zero = lc_drbg_hash_zero,
+	.algorithm_type = LC_ALG_STATUS_HASH_DRBG,
 };
 LC_INTERFACE_SYMBOL(const struct lc_rng *, lc_hash_drbg) = &_lc_hash_drbg;

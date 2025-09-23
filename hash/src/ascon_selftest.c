@@ -74,10 +74,10 @@ void ascon_cxof_selftest_common(const struct lc_hash *ascon)
 				       0x3D, 0xC2, 0x02, 0x48 };
 	uint8_t act[sizeof(exp)];
 
-	LC_SELFTEST_RUN(LC_ALG_STATUS_ASCONCXOF);
+	LC_SELFTEST_RUN(LC_ALG_STATUS_ASCONXOF);
 
 	lc_xof_nocheck(ascon, msg, sizeof(msg), act, sizeof(act));
 
-	lc_compare_selftest(LC_ALG_STATUS_ASCONCXOF, act, exp, sizeof(exp),
+	lc_compare_selftest(LC_ALG_STATUS_ASCONXOF, act, exp, sizeof(exp),
 			    "Ascon CXOF");
 }

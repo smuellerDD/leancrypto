@@ -19,6 +19,7 @@
  */
 
 #include "compare.h"
+#include "fips_mode.h"
 #include "hmac_selftest.h"
 #include "lc_hmac.h"
 #include "ret_checkers.h"
@@ -56,6 +57,8 @@ static int lc_hmac_init_nocheck(struct lc_hmac_ctx *hmac_ctx,
 	uint8_t *k_opad, *k_ipad;
 	unsigned int i;
 	int ret = 0;
+
+	CKINT(fips140_min_keysize(keylen));
 
 	/* Timecop: key is sensitive. */
 	poison(key, keylen);

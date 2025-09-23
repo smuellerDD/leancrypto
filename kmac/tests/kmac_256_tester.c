@@ -961,7 +961,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = kmac_tester();
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_KMAC);
+	ret = test_validate_status(ret, LC_ALG_STATUS_KMAC, 1);
 	ret += test_print_status();
 
 	return ret;

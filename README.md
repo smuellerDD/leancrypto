@@ -206,6 +206,8 @@ Leancrypto offers various cryptographic algorithms:
 
 * Authenticated Encryption with Associated Data
 
+  * AES-GCM
+  
   * Ascon-AEAD128 (SP800-232)
 
   * Ascon Keccak 256, and 512 AEAD, full specification provided with `aead/doc/Ascon-Keccak.pdf`
@@ -300,7 +302,7 @@ Leancrypto offers various cryptographic algorithms:
 
 * Symmetric algorithms
 
-  * AES: ECB, CBC, CTR, KW
+  * AES: ECB, CBC, CTR, KW, XTS
 
   * ChaCha20
 

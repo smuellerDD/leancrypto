@@ -140,6 +140,7 @@ static const struct lc_sym _lc_aes_cbc_aesni = {
 	.decrypt = aes_aesni_cbc_decrypt,
 	.statesize = LC_AES_AESNI_CBC_BLOCK_SIZE,
 	.blocksize = AES_BLOCKLEN,
+	.algorithm_type = LC_ALG_STATUS_AES_CBC
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *,
 		    lc_aes_cbc_aesni) = &_lc_aes_cbc_aesni;

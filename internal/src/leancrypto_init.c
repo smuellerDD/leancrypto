@@ -20,7 +20,7 @@
 #include "ext_headers_internal.h"
 #include "initialization.h"
 #include "lc_init.h"
-#include "lc_status.h"
+#include "status_algorithms.h"
 #include "visibility.h"
 
 LC_INIT_FUNCTION(int, lc_init, unsigned int flags)
@@ -67,7 +67,7 @@ LC_INIT_FUNCTION(int, lc_init, unsigned int flags)
 	chacha20_fastest_impl();
 #endif
 
-	lc_activate_library();
+	lc_activate_library_internal();
 
 	return 0;
 }

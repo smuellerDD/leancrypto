@@ -32,19 +32,22 @@ int fips_integrity_check(const struct lc_fips_integrity_sections *secs,
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_sha3_256);
 	int ret;
 
-	/*
-	 * TODO It is unclear why GCC seems to not honor the priorities of the
-	 * constructors. It seems that the fips_integrity_checker_dep is run
-	 * before the lc_activate_library which implies that without the
-	 * following call, the library is not initialized at this point. This
-	 * causes the hash invocation to return -EOPNOTSUPP since the library
-	 * is still gated at this point.
-	 */
-	if (lc_status_get_result(LC_ALG_STATUS_FLAG_LIB) <=
-	    lc_alg_status_result_ongoing)
-		lc_activate_library_internal();
+	/* Mark the library to be in FIPS integrity check state. */
+	lc_activate_library_selftest_init();
 
-	CKINT(lc_hash_init(hash_ctx));
+	/* If self test was passed, continue on */
+	if (alg_status_get_result(LC_ALG_STATUS_LIB) ==
+	    lc_alg_status_result_failed) {
+		ret = -EFAULT;
+		goto out;
+	}
+
+	/*
+	 * As the SHA3-256 state is still in error state, invoke the nocheck
+	 * call.
+	 */
+	CKINT(lc_sha3_256->init_nocheck(hash_ctx->hash_state));
+
 	for (i = 0; i < n_secs; i++, secs++) {
 		const uint8_t *start = secs->section_start_p,
 			      *end = secs->section_end_p;
@@ -56,7 +59,21 @@ int fips_integrity_check(const struct lc_fips_integrity_sections *secs,
 	lc_hash_final(hash_ctx, act);
 	lc_hash_zero(hash_ctx);
 
-	ret = lc_compare(act, exp, LC_SHA3_256_SIZE_DIGEST, "Sections");
+#ifdef LC_FIPS140_DEBUG
+	/*
+	 * Alter the result of the digest to verify that the failure handling of
+	 * the library integrity error is appropriate.
+	 */
+	act[0] ^= 0x01;
+#endif
+
+	ret = lc_compare_selftest(LC_ALG_STATUS_LIB, act, exp,
+				  LC_SHA3_256_SIZE_DIGEST,
+				  "FIPS integrity test");
+
+	/* Mark the library to be fully available. */
+	if (!ret)
+		lc_activate_library_selftest_fini();
 
 out:
 	return ret;

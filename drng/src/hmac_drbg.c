@@ -148,7 +148,7 @@ static void drbg_hmac_selftest(void)
 	};
 	uint8_t act[sizeof(exp)] __align(sizeof(uint32_t));
 
-	LC_SELFTEST_RUN(LC_ALG_STATUS_HMAC_DRBG);
+	LC_SELFTEST_RUN(lc_hmac_drbg->algorithm_type);
 
 	LC_DRBG_HMAC_CTX_ON_STACK(drbg_ctx);
 
@@ -159,7 +159,7 @@ static void drbg_hmac_selftest(void)
 	lc_rng_generate(drbg_ctx, addtl2, sizeof(addtl2), act, sizeof(act));
 
 out:
-	lc_compare_selftest(LC_ALG_STATUS_HMAC_DRBG, act, exp, sizeof(exp),
+	lc_compare_selftest(lc_hmac_drbg->algorithm_type, act, exp, sizeof(exp),
 			    "HMAC DRBG");
 	lc_rng_zero(drbg_ctx);
 }
@@ -330,7 +330,7 @@ static int lc_drbg_hmac_seed(void *_state, const uint8_t *seedbuf,
 			     size_t perslen)
 {
 	drbg_hmac_selftest();
-	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_HMAC_DRBG);
+	LC_SELFTEST_COMPLETED(lc_hmac_drbg->algorithm_type);
 
 	return lc_drbg_hmac_seed_nocheck(_state, seedbuf, seedlen, persbuf,
 					 perslen);
@@ -430,5 +430,6 @@ static const struct lc_rng _lc_hmac_drbg = {
 	.generate = lc_drbg_hmac_generate,
 	.seed = lc_drbg_hmac_seed,
 	.zero = lc_drbg_hmac_zero,
+	.algorithm_type = LC_ALG_STATUS_HMAC_DRBG,
 };
 LC_INTERFACE_SYMBOL(const struct lc_rng *, lc_hmac_drbg) = &_lc_hmac_drbg;

@@ -244,7 +244,15 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_EXEC_ONE_TEST(lc_aes_xts_armce);
 	LC_EXEC_ONE_TEST(lc_aes_xts_riscv64);
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_AES_XTS);
+	if (!(lc_alg_status(lc_sym_algorithm_type(lc_aes_xts)) &
+	    (lc_alg_status_self_test_passed | lc_alg_status_fips_approved))) {
+		printf("lc_sym_algorithm_type failure\n");
+		ret++;
+	} else {
+		printf("lc_sym_algorithm_type pass\n");
+	}
+
+	ret = test_validate_status(ret, LC_ALG_STATUS_AES_XTS, 1);
 	ret += test_print_status();
 
 	return ret;

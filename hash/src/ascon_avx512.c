@@ -23,6 +23,7 @@
 #include "ascon_hash.h"
 #include "ascon_hash_common.h"
 #include "lc_ascon_hash.h"
+#include "lc_status.h"
 #include "visibility.h"
 
 static inline void
@@ -113,6 +114,7 @@ static const struct lc_hash _ascon_256_avx512 = {
 	.sponge_newstate = ascon_c_newstate,
 	.sponge_rate = 64 / 8,
 	.statesize = sizeof(struct lc_ascon_hash),
+	.algorithm_type = LC_ALG_STATUS_ASCON256
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,
 		    lc_ascon_256_avx512) = &_ascon_256_avx512;
@@ -130,6 +132,7 @@ static const struct lc_hash _ascon_128a_avx512 = {
 	.sponge_newstate = ascon_c_newstate,
 	.sponge_rate = 128 / 8,
 	.statesize = sizeof(struct lc_ascon_hash),
+	.algorithm_type = LC_ALG_STATUS_ASCONXOF
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,
 		    lc_ascon_128a_avx512) = &_ascon_128a_avx512;
@@ -147,6 +150,7 @@ static const struct lc_hash _ascon_xof_avx512 = {
 	.sponge_newstate = ascon_c_newstate,
 	.sponge_rate = 64 / 8,
 	.statesize = sizeof(struct lc_ascon_hash),
+	.algorithm_type = LC_ALG_STATUS_ASCONXOF
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,
 		    lc_ascon_xof_avx512) = &_ascon_xof_avx512;

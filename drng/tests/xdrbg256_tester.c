@@ -242,9 +242,17 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = xdrbg256_drng_test();
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_XDRBG256);
+	if (!(lc_alg_status(lc_rng_algorithm_type(lc_xdrbg256_drng)) &
+	    lc_alg_status_self_test_passed)) {
+		printf("lc_rng_algorithm_type failure\n");
+		ret++;
+	} else {
+		printf("lc_rng_algorithm_type pass\n");
+	}
+
+	ret = test_validate_status(ret, LC_ALG_STATUS_XDRBG256, 0);
 #ifndef LC_FIPS140_DEBUG
-	ret = test_validate_status(ret, LC_ALG_STATUS_SHAKE);
+	ret = test_validate_status(ret, LC_ALG_STATUS_SHAKE, 1);
 #endif
 	ret += test_print_status();
 

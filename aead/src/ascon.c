@@ -63,7 +63,9 @@ static void lc_ascon_zero(struct lc_ascon_cryptor *ascon)
  * to the used sponge limit the key size.
  */
 int lc_ascon_setkey_int(void *state, const uint8_t *key, size_t keylen,
-			const uint8_t *nonce, size_t noncelen, int nocheck)
+			const uint8_t *nonce, size_t noncelen, int nocheck,
+			int (*setiv)(struct lc_ascon_cryptor *ascon,
+				     size_t keylen, int nocheck))
 {
 	struct lc_ascon_cryptor *ascon = state;
 	const struct lc_hash *hash = ascon->hash;
@@ -108,20 +110,7 @@ int lc_ascon_setkey_int(void *state, const uint8_t *key, size_t keylen,
 	 */
 
 	/* Insert the IV into the first 64-bit word */
-	ret = lc_ak_setiv(ascon, keylen, nocheck);
-	if (ret < 0)
-		return ret;
-
-	/* lc_ak_setiv did not identify the key */
-	if (!ret) {
-		ret = lc_ascon_setiv(ascon, keylen, nocheck);
-		if (ret < 0)
-			return ret;
-	}
-
-	/* lc_ascon_ascon_setiv also did not take the data */
-	if (!ret)
-		return -EINVAL;
+	CKINT(setiv(ascon, keylen, nocheck));
 
 	/* Allow this function being called with the ascon->key */
 	if (key != ascon->key)
@@ -141,13 +130,8 @@ int lc_ascon_setkey_int(void *state, const uint8_t *key, size_t keylen,
 	lc_sponge_add_bytes(hash, state_mem, key, ascon->statesize - keylen,
 			    keylen);
 
-	return 0;
-}
-
-static int lc_ascon_setkey(void *state, const uint8_t *key, size_t keylen,
-			   const uint8_t *nonce, size_t noncelen)
-{
-	return lc_ascon_setkey_int(state, key, keylen, nonce, noncelen, 0);
+out:
+	return ret;
 }
 
 /* Insert the AAD into the sponge state. */
@@ -269,10 +253,9 @@ static void lc_ascon_enc_final(struct lc_ascon_cryptor *ascon, uint8_t *tag,
 }
 
 /* Complete one-shot encryption */
-static void lc_ascon_encrypt(void *state, const uint8_t *plaintext,
-			     uint8_t *ciphertext, size_t datalen,
-			     const uint8_t *aad, size_t aadlen, uint8_t *tag,
-			     size_t taglen)
+void lc_ascon_encrypt(void *state, const uint8_t *plaintext,
+		      uint8_t *ciphertext, size_t datalen, const uint8_t *aad,
+		      size_t aadlen, uint8_t *tag, size_t taglen)
 {
 	struct lc_ascon_cryptor *ascon = state;
 
@@ -388,10 +371,9 @@ static int lc_ascon_dec_final(struct lc_ascon_cryptor *ascon,
 }
 
 /* Complete one-shot decryption */
-static int lc_ascon_decrypt(void *state, const uint8_t *ciphertext,
-			    uint8_t *plaintext, size_t datalen,
-			    const uint8_t *aad, size_t aadlen,
-			    const uint8_t *tag, size_t taglen)
+int lc_ascon_decrypt(void *state, const uint8_t *ciphertext, uint8_t *plaintext,
+		     size_t datalen, const uint8_t *aad, size_t aadlen,
+		     const uint8_t *tag, size_t taglen)
 {
 	struct lc_ascon_cryptor *ascon = state;
 
@@ -405,64 +387,46 @@ static int lc_ascon_decrypt(void *state, const uint8_t *ciphertext,
 	return lc_ascon_dec_final(ascon, tag, taglen);
 }
 
-static void lc_ascon_aad_interface(void *state, const uint8_t *aad,
-				   size_t aadlen)
+void lc_ascon_aad_interface(void *state, const uint8_t *aad, size_t aadlen)
 {
 	struct lc_ascon_cryptor *ascon = state;
 
 	lc_ascon_aad(ascon, aad, aadlen);
 }
 
-static void lc_ascon_enc_update_interface(void *state, const uint8_t *plaintext,
-					  uint8_t *ciphertext, size_t datalen)
+void lc_ascon_enc_update_interface(void *state, const uint8_t *plaintext,
+				   uint8_t *ciphertext, size_t datalen)
 {
 	struct lc_ascon_cryptor *ascon = state;
 
 	lc_ascon_enc_update(ascon, plaintext, ciphertext, datalen);
 }
 
-static void lc_ascon_enc_final_interface(void *state, uint8_t *tag,
-					 size_t taglen)
+void lc_ascon_enc_final_interface(void *state, uint8_t *tag, size_t taglen)
 {
 	struct lc_ascon_cryptor *ascon = state;
 
 	lc_ascon_enc_final(ascon, tag, taglen);
 }
 
-static void lc_ascon_dec_update_interface(void *state,
-					  const uint8_t *ciphertext,
-					  uint8_t *plaintext, size_t datalen)
+void lc_ascon_dec_update_interface(void *state, const uint8_t *ciphertext,
+				   uint8_t *plaintext, size_t datalen)
 {
 	struct lc_ascon_cryptor *ascon = state;
 
 	lc_ascon_dec_update(ascon, ciphertext, plaintext, datalen);
 }
 
-static int lc_ascon_dec_final_interface(void *state, const uint8_t *tag,
-					size_t taglen)
+int lc_ascon_dec_final_interface(void *state, const uint8_t *tag, size_t taglen)
 {
 	struct lc_ascon_cryptor *ascon = state;
 
 	return lc_ascon_dec_final(ascon, tag, taglen);
 }
 
-static void lc_ascon_zero_interface(void *state)
+void lc_ascon_zero_interface(void *state)
 {
 	struct lc_ascon_cryptor *ascon = state;
 
 	lc_ascon_zero(ascon);
 }
-
-static const struct lc_aead _lc_ascon_aead = {
-	.setkey = lc_ascon_setkey,
-	.encrypt = lc_ascon_encrypt,
-	.enc_init = lc_ascon_aad_interface,
-	.enc_update = lc_ascon_enc_update_interface,
-	.enc_final = lc_ascon_enc_final_interface,
-	.decrypt = lc_ascon_decrypt,
-	.dec_init = lc_ascon_aad_interface,
-	.dec_update = lc_ascon_dec_update_interface,
-	.dec_final = lc_ascon_dec_final_interface,
-	.zero = lc_ascon_zero_interface
-};
-LC_INTERFACE_SYMBOL(const struct lc_aead *, lc_ascon_aead) = &_lc_ascon_aead;

@@ -105,7 +105,7 @@ static void lc_chacha20_poly1305_selftest(void)
 	static const uint8_t p[] = { 0xaf, 0xfe };
 	int ret;
 
-	LC_SELFTEST_RUN(LC_ALG_STATUS_CHACHA20_POLY1305);
+	LC_SELFTEST_RUN(lc_chacha20_poly1305_aead->algorithm_type);
 
 	LC_CHACHA20_POLY1305_CTX_ON_STACK(cc20p1305);
 
@@ -113,12 +113,12 @@ static void lc_chacha20_poly1305_selftest(void)
 					    sizeof(key), iv, sizeof(iv));
 	lc_aead_encrypt(cc20p1305, in, act_ct, sizeof(in), aad, sizeof(aad),
 			act_tag, sizeof(act_tag));
-	if (lc_compare_selftest(LC_ALG_STATUS_CHACHA20_POLY1305, act_ct, exp_ct,
-				sizeof(exp_ct),
+	if (lc_compare_selftest(lc_chacha20_poly1305_aead->algorithm_type,
+				act_ct, exp_ct, sizeof(exp_ct),
 				"ChaCha20 Poly1305 AEAD encrypt ciphertext"))
 		goto out;
-	if (lc_compare_selftest(LC_ALG_STATUS_CHACHA20_POLY1305, act_tag,
-				exp_tag, sizeof(exp_tag),
+	if (lc_compare_selftest(lc_chacha20_poly1305_aead->algorithm_type,
+				act_tag, exp_tag, sizeof(exp_tag),
 				"ChaCha20 Poly1305 AEAD encrypt tag"))
 		goto out;
 	lc_aead_zero(cc20p1305);
@@ -129,14 +129,15 @@ static void lc_chacha20_poly1305_selftest(void)
 			      sizeof(aad), act_tag, sizeof(act_tag));
 	if (ret) {
 		if (lc_compare_selftest(
-			    LC_ALG_STATUS_CHACHA20_POLY1305, f, p, sizeof(f),
-			    "ChaCha20 Poly1305 AEAD decrypt authentication"))
+			lc_chacha20_poly1305_aead->algorithm_type, f, p,
+			sizeof(f),
+			"ChaCha20 Poly1305 AEAD decrypt authentication"))
 			goto out;
 	}
 
 out:
-	lc_compare_selftest(LC_ALG_STATUS_CHACHA20_POLY1305, act_ct, in,
-			    sizeof(in), "ChaCha20 Poly1305 AEAD decrypt");
+	lc_compare_selftest(lc_chacha20_poly1305_aead->algorithm_type, act_ct,
+			    in, sizeof(in), "ChaCha20 Poly1305 AEAD decrypt");
 	lc_aead_zero(cc20p1305);
 }
 
@@ -207,7 +208,7 @@ static int lc_chacha20_poly1305_setkey(void *state, const uint8_t *key,
 				       size_t ivlen)
 {
 	lc_chacha20_poly1305_selftest();
-	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_CHACHA20_POLY1305);
+	LC_SELFTEST_COMPLETED(lc_chacha20_poly1305_aead->algorithm_type);
 
 	return lc_chacha20_poly1305_setkey_nocheck(state, key, keylen, iv,
 						   ivlen);
@@ -414,7 +415,8 @@ static const struct lc_aead _lc_chacha20_poly1305_aead = {
 	.dec_init = lc_chacha20_poly1305_add_aad,
 	.dec_update = lc_chacha20_poly1305_decrypt,
 	.dec_final = lc_chacha20_poly1305_decrypt_authenticate,
-	.zero = lc_chacha20_poly1305_zero
+	.zero = lc_chacha20_poly1305_zero,
+	.algorithm_type = LC_ALG_STATUS_CHACHA20_POLY1305
 };
 LC_INTERFACE_SYMBOL(const struct lc_aead *,
 		    lc_chacha20_poly1305_aead) = &_lc_chacha20_poly1305_aead;

@@ -21,6 +21,7 @@
 #include "asm/riscv64/sha2-256-riscv.h"
 
 #include "bitshift.h"
+#include "lc_status.h"
 #include "sha256_riscv_zbb.h"
 #include "sha2_common.h"
 #include "visibility.h"
@@ -56,6 +57,7 @@ static const struct lc_hash _sha256_riscv_zbb = {
 	.sponge_newstate = NULL,
 	.sponge_rate = LC_SHA256_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha256_state),
+	.algorithm_type = LC_ALG_STATUS_SHA256
 };
 
 LC_INTERFACE_SYMBOL(const struct lc_hash *,

@@ -209,7 +209,7 @@ static int lc_aead_init_ascon128(struct crypto_aead *aead)
 	struct lc_aead_ctx *ctx = crypto_aead_ctx(aead);
 	struct lc_ascon_cryptor *ascon_crypto;
 
-	LC_ASCON_SET_CTX(ctx, lc_ascon_128a);
+	LC_ASCON_SET_CTX(ctx, lc_ascon_128a, lc_ascon_aead);
 	ascon_crypto = ctx->aead_state;
 	ascon_crypto->statesize = LC_ASCON_HASH_STATE_SIZE;
 	ascon_crypto->taglen = crypto_aead_maxauthsize(aead);
@@ -225,7 +225,7 @@ static int lc_aead_init_ascon_keccak256(struct crypto_aead *aead)
 	struct lc_aead_ctx *ctx = crypto_aead_ctx(aead);
 	struct lc_ascon_cryptor *ascon_crypto;
 
-	LC_ASCON_SET_CTX(ctx, lc_sha3_256);
+	LC_ASCON_SET_CTX(ctx, lc_sha3_256, lc_ascon_keccak_aead);
 	ascon_crypto = ctx->aead_state;
 	ascon_crypto->statesize = LC_SHA3_STATE_SIZE;
 	ascon_crypto->taglen = crypto_aead_maxauthsize(aead);
@@ -238,7 +238,7 @@ static int lc_aead_init_ascon_keccak512(struct crypto_aead *aead)
 	struct lc_aead_ctx *ctx = crypto_aead_ctx(aead);
 	struct lc_ascon_cryptor *ascon_crypto;
 
-	LC_ASCON_SET_CTX(ctx, lc_sha3_512);
+	LC_ASCON_SET_CTX(ctx, lc_sha3_512, lc_ascon_keccak_aead);
 	ascon_crypto = ctx->aead_state;
 	ascon_crypto->statesize = LC_SHA3_STATE_SIZE;
 	ascon_crypto->taglen = crypto_aead_maxauthsize(aead);

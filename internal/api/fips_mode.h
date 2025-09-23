@@ -36,6 +36,8 @@ int fips140_mode_enabled(void);
 
 void fips140_mode_enable(void);
 
+int fips140_min_keysize(size_t keylen);
+
 #define FIPS140_PCT_LOOP(func, algo)                                           \
 	if (fips140_mode_enabled()) {                                          \
 		unsigned int __i;                                              \

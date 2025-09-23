@@ -23,6 +23,8 @@ Changes 1.6.0-prerelease
 
 * Add SHAKE-512 and XDRBG-512 support
 
+* FIPS: Add FIPS indicator which implies that libleancrypto.so has the same functionality as libleancrypto-fips.so with the exception that the latter performs an integrity test.
+
 Changes 1.5.1
 * add ChaCha20 Poly 1305 AEAD
 

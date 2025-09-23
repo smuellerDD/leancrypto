@@ -178,7 +178,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	ret += ascon_tester_128();
 	ret += ascon_tester_128_non_aligned();
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_ASCON_AEAD_128);
+	ret = test_validate_status(ret, LC_ALG_STATUS_ASCON_AEAD_128, 1);
 	ret += test_print_status();
 
 	return ret;

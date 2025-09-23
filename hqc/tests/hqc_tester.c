@@ -189,11 +189,11 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	printf("\n};\n");
 #else
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_HQC_KEYGEN);
+	ret = test_validate_status(ret, LC_ALG_STATUS_HQC_KEYGEN, 0);
 #ifndef LC_FIPS140_DEBUG
-	ret = test_validate_status(ret, LC_ALG_STATUS_SHAKE);
-	ret = test_validate_status(ret, LC_ALG_STATUS_HQC_ENC);
-	ret = test_validate_status(ret, LC_ALG_STATUS_HQC_DEC);
+	ret = test_validate_status(ret, LC_ALG_STATUS_SHAKE, 1);
+	ret = test_validate_status(ret, LC_ALG_STATUS_HQC_ENC, 0);
+	ret = test_validate_status(ret, LC_ALG_STATUS_HQC_DEC, 0);
 #endif
 
 	ret += test_print_status();

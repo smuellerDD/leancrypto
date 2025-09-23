@@ -22,6 +22,7 @@
 #include "ascon_hash_common.h"
 #include "conv_be_le.h"
 #include "lc_ascon_hash.h"
+#include "lc_status.h"
 #include "visibility.h"
 
 /***************************** Ascon Permutation ******************************/
@@ -175,6 +176,7 @@ static const struct lc_hash _ascon_256_c = {
 	.sponge_newstate = ascon_c_newstate,
 	.sponge_rate = 64 / 8,
 	.statesize = sizeof(struct lc_ascon_hash),
+	.algorithm_type = LC_ALG_STATUS_ASCON256
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_256_c) = &_ascon_256_c;
 
@@ -191,6 +193,7 @@ static const struct lc_hash _ascon_128a_c = {
 	.sponge_newstate = ascon_c_newstate,
 	.sponge_rate = 128 / 8,
 	.statesize = sizeof(struct lc_ascon_hash),
+	.algorithm_type = LC_ALG_STATUS_ASCONXOF
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_128a_c) = &_ascon_128a_c;
 
@@ -207,6 +210,7 @@ static const struct lc_hash _ascon_xof_c = {
 	.sponge_newstate = ascon_c_newstate,
 	.sponge_rate = 64 / 8,
 	.statesize = sizeof(struct lc_ascon_hash),
+	.algorithm_type = LC_ALG_STATUS_ASCONXOF
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_ascon_xof_c) = &_ascon_xof_c;
 

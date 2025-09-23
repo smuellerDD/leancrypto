@@ -137,6 +137,7 @@ static const struct lc_sym _lc_aes_xts_aesni = {
 	.decrypt = aes_aesni_xts_decrypt,
 	.statesize = LC_AES_AESNI_XTS_BLOCK_SIZE,
 	.blocksize = AES_BLOCKLEN,
+	.algorithm_type = LC_ALG_STATUS_AES_XTS
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *,
 		    lc_aes_xts_aesni) = &_lc_aes_xts_aesni;

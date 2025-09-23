@@ -1,20 +1,20 @@
 lc_hash = 0
 
 if get_option('sha2-256').enabled()
-	src_fips += files([ 'sha256.c', 'sha256_selector.c' ])
+	src += files([ 'sha256.c', 'sha256_selector.c' ])
 	include_files += files([ '../api/lc_sha256.h' ])
 	lc_hash = 1
 
 	# SHA2-256: Intel AVX2 implementation
 	if (x86_64_asm)
-		src_fips += files([ 'sha256_avx2.c', 'sha256_shani.c' ])
+		src += files([ 'sha256_avx2.c', 'sha256_shani.c' ])
 		if (host_machine.system() == 'windows')
-			src_fips += files([ 'asm/AVX2/sha2-256-AVX2_windows.S' ])
+			src += files([ 'asm/AVX2/sha2-256-AVX2_windows.S' ])
 		else
-			src_fips += files([ 'asm/AVX2/sha2-256-AVX2.S' ])
+			src += files([ 'asm/AVX2/sha2-256-AVX2.S' ])
 		endif
 	else
-		src_fips += files([ 'sha256_avx2_null.c',
+		src += files([ 'sha256_avx2_null.c',
 				    'sha256_shani_null.c' ])
 	endif
 
@@ -30,9 +30,9 @@ if get_option('sha2-256').enabled()
 				include_dirs,
 				include_internal_dirs ],
 		)
-		leancrypto_support_libs_fips += leancrypto_arm8a_neon_sha256_lib
+		leancrypto_support_libs += leancrypto_arm8a_neon_sha256_lib
 	else
-		src_fips += files([ 'sha256_arm_neon_null.c',
+		src += files([ 'sha256_arm_neon_null.c',
 				    'sha256_arm_ce_null.c' ])
 	endif
 
@@ -47,9 +47,9 @@ if get_option('sha2-256').enabled()
 				include_dirs,
 				include_internal_dirs ],
 		)
-		leancrypto_support_libs_fips += leancrypto_riscv_sha256_lib
+		leancrypto_support_libs += leancrypto_riscv_sha256_lib
 	else
-		src_fips += files([ 'sha256_riscv_null.c' ])
+		src += files([ 'sha256_riscv_null.c' ])
 	endif
 
 	# 64 bit RISCV ZBB assembler
@@ -63,27 +63,27 @@ if get_option('sha2-256').enabled()
 				include_dirs,
 				include_internal_dirs ],
 		)
-		leancrypto_support_libs_fips += leancrypto_riscv_zbb_sha256_lib
+		leancrypto_support_libs += leancrypto_riscv_zbb_sha256_lib
 	else
-		src_fips += files([ 'sha256_riscv_zbb_null.c' ])
+		src += files([ 'sha256_riscv_zbb_null.c' ])
 	endif
 endif
 
 if get_option('sha2-512').enabled()
-	src_fips += files([ 'sha512.c', 'sha512_selector.c' ])
+	src += files([ 'sha512.c', 'sha512_selector.c' ])
 	include_files += files([ '../api/lc_sha512.h' ])
 	lc_hash = 1
 
 	# SHA2-512: Intel AVX2 implementation
 	if (x86_64_asm)
-		src_fips += files([ 'sha512_avx2.c', 'sha512_shani.c' ])
+		src += files([ 'sha512_avx2.c', 'sha512_shani.c' ])
 		if (host_machine.system() == 'windows')
-			src_fips += files([ 'asm/AVX2/sha2-512-AVX2_windows.S' ])
+			src += files([ 'asm/AVX2/sha2-512-AVX2_windows.S' ])
 		else
-			src_fips += files([ 'asm/AVX2/sha2-512-AVX2.S' ])
+			src += files([ 'asm/AVX2/sha2-512-AVX2.S' ])
 		endif
 	else
-		src_fips += files([ 'sha512_avx2_null.c',
+		src += files([ 'sha512_avx2_null.c',
 				    'sha512_shani_null.c' ])
 	endif
 
@@ -99,9 +99,9 @@ if get_option('sha2-512').enabled()
 				include_dirs,
 				include_internal_dirs ],
 		)
-		leancrypto_support_libs_fips += leancrypto_arm_neon_sha512_lib
+		leancrypto_support_libs += leancrypto_arm_neon_sha512_lib
 	else
-		src_fips += files([ 'sha512_arm_neon_null.c',
+		src += files([ 'sha512_arm_neon_null.c',
 				    'sha512_arm_ce_null.c' ])
 	endif
 
@@ -116,9 +116,9 @@ if get_option('sha2-512').enabled()
 				include_dirs,
 				include_internal_dirs ],
 		)
-		leancrypto_support_libs_fips += leancrypto_riscv_sha512_lib
+		leancrypto_support_libs += leancrypto_riscv_sha512_lib
 	else
-		src_fips += files([ 'sha512_riscv_null.c' ])
+		src += files([ 'sha512_riscv_null.c' ])
 	endif
 
 	# 64 bit RISCV ZBB assembler
@@ -132,25 +132,25 @@ if get_option('sha2-512').enabled()
 				include_dirs,
 				include_internal_dirs ],
 		)
-		leancrypto_support_libs_fips += leancrypto_riscv_zbb_sha512_lib
+		leancrypto_support_libs += leancrypto_riscv_zbb_sha512_lib
 	else
-		src_fips += files([ 'sha512_riscv_zbb_null.c' ])
+		src += files([ 'sha512_riscv_zbb_null.c' ])
 	endif
 endif
 
 if get_option('sha3').enabled()
 
 	# Non-optimized C implementatinos
-	src_fips += files([ 'cshake.c', 'sha3_selector.c', 'sha3_c.c',
+	src += files([ 'cshake.c', 'sha3_selector.c', 'sha3_c.c',
 			    'sha3_selftest.c' ])
 	include_files += files([ '../api/lc_cshake.h', '../api/lc_sha3.h' ])
 	lc_hash = 1
 
 	# Keccak: Intel AVX2, AVX512 and 4-way SIMD implementation
 	if (x86_64_asm)
-		src_fips += files([ 'sha3_avx2.c',
+		src += files([ 'sha3_avx2.c',
 				    'asm/AVX2/KeccakP-1600-AVX2.S' ])
-		src_fips += files([ 'sha3_avx512.c',
+		src += files([ 'sha3_avx512.c',
 				    'asm/AVX512/KeccakP-1600-AVX512.S' ])
 
 		leancrypto_keccak_avx2_4x_lib = static_library(
@@ -161,11 +161,11 @@ if get_option('sha3').enabled()
 			include_directories: [ include_dirs,
 					       include_internal_dirs ],
 		)
-		leancrypto_support_libs_fips += leancrypto_keccak_avx2_4x_lib
+		leancrypto_support_libs += leancrypto_keccak_avx2_4x_lib
 
 	else
-		src_fips += files([ 'sha3_avx2_null.c' ])
-		src_fips += files([ 'sha3_avx512_null.c' ])
+		src += files([ 'sha3_avx2_null.c' ])
+		src += files([ 'sha3_avx512_null.c' ])
 	endif
 
 	# 32 bit ARM processor and GCC
@@ -180,7 +180,7 @@ if get_option('sha3').enabled()
 				include_dirs,
 				include_internal_dirs ],
 		)
-		leancrypto_support_libs_fips += leancrypto_keccak_arm7a_neon_lib
+		leancrypto_support_libs += leancrypto_keccak_arm7a_neon_lib
 
 	# 64 bit ARM processor and GCC
 	elif (arm64_neon_gcc_asm)
@@ -194,13 +194,13 @@ if get_option('sha3').enabled()
 				include_dirs,
 				include_internal_dirs ],
 		)
-		leancrypto_support_libs_fips += leancrypto_keccak_arm8a_neon_lib
+		leancrypto_support_libs += leancrypto_keccak_arm8a_neon_lib
 	else
-		src_fips += files([ 'sha3_arm_neon_null.c' ])
+		src += files([ 'sha3_arm_neon_null.c' ])
 	endif
 
 	if (arm64_asm)
-		src_fips += files([ 'sha3_arm_asm.c',
+		src += files([ 'sha3_arm_asm.c',
 				    'sha3_arm_ce.c',
 				    'asm/ARMv8A/KeccakP-1600-armv8a-ce.S' ])
 
@@ -212,7 +212,7 @@ if get_option('sha3').enabled()
 			include_directories: [ include_dirs,
 					       include_internal_dirs ],
 		)
-		leancrypto_support_libs_fips += leancrypto_keccak_armv8_2x_ce_lib
+		leancrypto_support_libs += leancrypto_keccak_armv8_2x_ce_lib
 
 		# Enable once Dilithium ARMv8 support is enabled
 		leancrypto_keccak_armv8_2x_c_lib = static_library(
@@ -222,9 +222,9 @@ if get_option('sha3').enabled()
 			include_directories: [ include_dirs,
 					       include_internal_dirs ],
 		)
-		leancrypto_support_libs_fips += leancrypto_keccak_armv8_2x_c_lib
+		leancrypto_support_libs += leancrypto_keccak_armv8_2x_c_lib
 	else
-		src_fips += files([ 'sha3_arm_asm_null.c', 'sha3_arm_ce_null.c' ])
+		src += files([ 'sha3_arm_asm_null.c', 'sha3_arm_ce_null.c' ])
 	endif
 
 # 	if (riscv32_gcc_asm)
@@ -249,7 +249,7 @@ if get_option('sha3').enabled()
 				include_dirs,
 				include_internal_dirs ],
 		)
-		leancrypto_support_libs_fips += leancrypto_keccak_riscv_asm_lib
+		leancrypto_support_libs += leancrypto_keccak_riscv_asm_lib
 
 		leancrypto_keccak_riscv_zbb_lib = static_library(
 			'leancrypto_keccak_riscv_zbb_lib',
@@ -259,15 +259,15 @@ if get_option('sha3').enabled()
 				include_dirs,
 				include_internal_dirs ],
 		)
-		leancrypto_support_libs_fips += leancrypto_keccak_riscv_zbb_lib
+		leancrypto_support_libs += leancrypto_keccak_riscv_zbb_lib
  	else
-		src_fips += files([ 'sha3_riscv_asm_null.c',
+		src += files([ 'sha3_riscv_asm_null.c',
 				    'sha3_riscv_asm_zbb_null.c' ])
 	endif
 endif
 
 if get_option('ascon').enabled()
-	src_fips += files([
+	src += files([
 		'ascon_c.c',
 		'ascon_hash_common.c',
 		'ascon_selector.c',
@@ -284,10 +284,10 @@ if get_option('ascon').enabled()
 			include_directories: [ include_dirs,
 					       include_internal_dirs ],
 		)
-		leancrypto_support_libs_fips += leancrypto_ascon_avx512_lib
+		leancrypto_support_libs += leancrypto_ascon_avx512_lib
 
 	else
-		src_fips += files([ 'ascon_avx512_null.c' ])
+		src += files([ 'ascon_avx512_null.c' ])
 	endif
 
 	# 32 bit ARM processor and GCC
@@ -300,9 +300,9 @@ if get_option('ascon').enabled()
 				include_dirs,
 				include_internal_dirs ],
 		)
-		leancrypto_support_libs_fips += leancrypto_asm_arm7a_neon_lib
+		leancrypto_support_libs += leancrypto_asm_arm7a_neon_lib
 	else
-		src_fips += files([ 'ascon_arm_neon_null.c' ])
+		src += files([ 'ascon_arm_neon_null.c' ])
 	endif
 
 endif
@@ -317,5 +317,5 @@ if get_option('chacha20poly1305').enabled()
 endif
 
 if (lc_hash == 1)
-	src_fips += files([ 'hash.c' ])
+	src += files([ 'hash.c' ])
 endif

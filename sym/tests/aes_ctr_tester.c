@@ -295,7 +295,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = test_ctr();
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_AES_CTR);
+	ret = test_validate_status(ret, LC_ALG_STATUS_AES_CTR, 1);
 	ret += test_print_status();
 
 	return ret;

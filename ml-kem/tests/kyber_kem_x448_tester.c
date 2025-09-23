@@ -1404,13 +1404,13 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	 * disable the self tests.
 	 */
 	if (argc != 2) {
-		ret = test_validate_status(ret, LC_ALG_STATUS_MLKEM_KEYGEN);
-		ret = test_validate_status(ret, LC_ALG_STATUS_MLKEM_ENC);
-		ret = test_validate_status(ret, LC_ALG_STATUS_MLKEM_DEC);
+		ret = test_validate_status(ret, LC_ALG_STATUS_MLKEM_KEYGEN, 1);
+		ret = test_validate_status(ret, LC_ALG_STATUS_MLKEM_ENC, 1);
+		ret = test_validate_status(ret, LC_ALG_STATUS_MLKEM_DEC, 1);
 #ifndef LC_FIPS140_DEBUG
-		ret = test_validate_status(ret, LC_ALG_STATUS_X448_KEYGEN);
-		ret = test_validate_status(ret, LC_ALG_STATUS_X448_SS);
-		ret = test_validate_status(ret, LC_ALG_STATUS_SHAKE);
+		ret = test_validate_status(ret, LC_ALG_STATUS_X448_KEYGEN, 0);
+		ret = test_validate_status(ret, LC_ALG_STATUS_X448_SS, 0);
+		ret = test_validate_status(ret, LC_ALG_STATUS_SHAKE, 1);
 #endif
 		ret += test_print_status();
 	}

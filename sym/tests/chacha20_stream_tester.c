@@ -497,7 +497,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_EXEC_ONE_TEST(lc_chacha20_avx2)
 	LC_EXEC_ONE_TEST(lc_chacha20_avx512)
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_CHACHA20);
+	ret = test_validate_status(ret, LC_ALG_STATUS_CHACHA20, 0);
 	ret += test_print_status();
 
 	return ret;

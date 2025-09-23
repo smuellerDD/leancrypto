@@ -40,7 +40,7 @@ NOTE2: The referenced ACVP proxy definitions explicitly exclude SHA LDT tests. T
 
 ## Service Indicator
 
-The `leancrypto-fips` FIPS module implements a global service indicator. This implies that all algorithms are FIPS-approved and the fact that the FIPS module is active is the indicator that FIPS-approved services are available.
+The `leancrypto-fips` FIPS module implements a service indicator accessible with the API `lc_alg_status` where its input may be provided by the different calls of `lc_[aead|drng|hash|sym]_algorithm_type` and `lc_[aead|drng|hash|sym]_ctx_algorithm_type` or by specifying an algorithm type as documented for this API.
 
 The API of `lc_status` provides the version information along with the status whether the FIPS mode is active.
 
@@ -50,7 +50,7 @@ Each cryptographic algorithm has its own power-up self test which is executed be
 
 When a self-test fails, the offending algorithm is marked with a failed self test and all self tests for all other algorithms are triggered again. These new self tests execute only once the algorithm is used again. Thus, the `leancrypto-fips.so` enters a degraded mode of operation.
 
-The caller may trigger a complete new round of self tests, i.e. all algorithms will perform a new self test before the next use, when using the API of `lc_rerun_selftests` and `lc_rerun_one_selftest`. These APIs trigger the exit from degraded mode. In FIPS mode, they trigger the re-execution of the integrity tests as well as the re-running of the known-answer tests for the specified algorithms.
+The caller may trigger a complete new round of self tests, i.e. all algorithms will perform a new self test before the next use, when using the API of `lc_rerun_selftests` and `lc_rerun_one_selftest`. These APIs trigger the exit from degraded mode. In FIPS mode, they trigger the re-execution of the integrity tests as well as the re-running of the known-answer tests for the specified algorithms. As the re-execution of the integrity test requires the gating of the module operation, all algorithms are first set into a failure state, followed by the integrity test, followed by setting the algorithm into a pending state triggering all self tests once again.
 
 To reperform the integrity test, the API `lc_fips_integrity_checker` is provided.
 
@@ -109,6 +109,8 @@ The PCT is automatically enabled for the following algorithms:
 * SLH-DSA
 
 * ED25519
+
+* ED448
 
 ## Initialization
 

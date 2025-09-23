@@ -1,7 +1,7 @@
 curve25519_base = 0
 
 if get_option('kyber_x25519').enabled()
-	src_fips += files([
+	src += files([
 		'x25519.c',
 		'x25519_scalarmult_c.c',
 	])
@@ -17,7 +17,7 @@ if get_option('kyber_x25519').enabled()
 	elif (arm32_neon_asm)
 		subdir('armv7')
 	else
-		src_fips += files([
+		src += files([
 			'x25519_scalarmult.c',
 		])
 	endif
@@ -26,7 +26,7 @@ if get_option('kyber_x25519').enabled()
 endif
 
 if get_option('dilithium_ed25519').enabled()
-	src_fips += files([
+	src += files([
 		'ed25519.c',
 	])
 
@@ -38,7 +38,7 @@ if get_option('dilithium_ed25519').enabled()
 endif
 
 if (curve25519_base == 1)
-	src_fips += files([
+	src += files([
 		'ed25519_ref10.c'
 	])
 endif

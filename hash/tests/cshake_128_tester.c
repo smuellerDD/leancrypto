@@ -116,7 +116,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = cshake128_tester();
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_CSHAKE);
+	ret = test_validate_status(ret, LC_ALG_STATUS_CSHAKE, 1);
 	ret += test_print_status();
 
 	return ret;

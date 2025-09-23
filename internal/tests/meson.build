@@ -41,7 +41,7 @@ if (get_option('sha3').enabled() and
 	rerun_selftests_tester = executable('rerun_selftests_tester',
 			   [ 'rerun_selftests_tester.c', internal_src ],
 			   include_directories: [ include_internal_dirs ],
-			   dependencies: leancrypto
+			   dependencies: leancrypto_fips
 			  )
 	rerun_one_selftest_tester = executable('rerun_one_selftest_tester',
 			   [ 'rerun_one_selftest_tester.c', internal_src ],
@@ -54,8 +54,7 @@ if (get_option('sha3').enabled() and
 # 						  include_internal_dirs ],
 # 			   link_with: leancrypto_static_lib_fips
 # 			  )
-	test('Rerun selftests', rerun_selftests_tester, suite: regression,
-	     should_fail: fips140_negative_expect_fail)
+	test('Rerun selftests', rerun_selftests_tester, suite: regression)
 	test('Rerun one selftest', rerun_one_selftest_tester, suite: regression,
 	     should_fail: fips140_negative_expect_fail)
 # 	test('FIPS degraded mode', fips_degraded_mode, suite: regression,

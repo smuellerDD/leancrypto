@@ -142,7 +142,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = lc_chacha20_poly1305_test(argc);
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_CHACHA20_POLY1305);
+	ret = test_validate_status(ret, LC_ALG_STATUS_CHACHA20_POLY1305, 0);
 	ret += test_print_status();
 
 	return ret;

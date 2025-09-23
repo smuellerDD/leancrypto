@@ -58,6 +58,8 @@
 #define LC_AEAD_ASCON_KECCAK_512_IV 0x4048181800000000
 #define LC_AEAD_ASCON_KECCAK_256_IV 0x2088181800000000
 
+static int lc_ak_setiv(struct lc_ascon_cryptor *ascon, size_t keylen,
+		       int nocheck);
 static void lc_ak_selftest(void)
 {
 	LC_FIPS_RODATA_SECTION
@@ -156,47 +158,48 @@ static void lc_ak_selftest(void)
 	uint8_t act_ct[sizeof(exp_ct)] __align(sizeof(uint32_t));
 	uint8_t act_tag[sizeof(exp_tag)] __align(sizeof(uint32_t));
 
-	LC_SELFTEST_RUN(LC_ALG_STATUS_ASCON_KECCAK);
+	LC_SELFTEST_RUN(lc_ascon_keccak_aead->algorithm_type);
 
 	LC_AK_CTX_ON_STACK(ak, lc_sha3_256);
 
-	lc_ascon_setkey_int(ak->aead_state, key, sizeof(key), iv, sizeof(iv),
-			    1);
+	if (lc_ascon_setkey_int(ak->aead_state, key, sizeof(key), iv,
+				sizeof(iv), 1, lc_ak_setiv))
+		goto out;
 	lc_aead_encrypt(ak, in, act_ct, sizeof(in), in, sizeof(in), act_tag,
 			sizeof(act_tag));
-	if (lc_compare_selftest(LC_ALG_STATUS_ASCON_KECCAK, act_ct, exp_ct,
-				sizeof(exp_ct),
+	if (lc_compare_selftest(lc_ascon_keccak_aead->algorithm_type, act_ct,
+				exp_ct, sizeof(exp_ct),
 				"Ascon Keccak crypt: Encryption, ciphertext"))
-		goto out;
-	if (lc_compare_selftest(LC_ALG_STATUS_ASCON_KECCAK, act_tag, exp_tag,
-				sizeof(exp_tag),
+		goto out2;
+	if (lc_compare_selftest(lc_ascon_keccak_aead->algorithm_type, act_tag,
+				exp_tag, sizeof(exp_tag),
 				"Ascon Keccak crypt: Encryption, tag"))
-		goto out;
+		goto out2;
 
 	lc_aead_zero(ak);
 
-	lc_ascon_setkey_int(ak->aead_state, key, sizeof(key), iv, sizeof(iv),
-			    1);
+	if (lc_ascon_setkey_int(ak->aead_state, key, sizeof(key), iv,
+				sizeof(iv), 1, lc_ak_setiv))
+		goto out;
 	lc_aead_decrypt(ak, act_ct, act_ct, sizeof(act_ct), in, sizeof(in),
 			act_tag, sizeof(act_tag));
 
 out:
-	lc_compare_selftest(LC_ALG_STATUS_ASCON_KECCAK, act_ct, in, sizeof(in),
+	lc_compare_selftest(lc_ascon_keccak_aead->algorithm_type, act_ct, in,
+			    sizeof(in),
 			    "Ascon Keccak crypt: Decryption, plaintext");
+out2:
 	lc_aead_zero(ak);
 }
 
-int lc_ak_setiv(struct lc_ascon_cryptor *ascon, size_t keylen, int nocheck)
+static int lc_ak_setiv(struct lc_ascon_cryptor *ascon, size_t keylen,
+		       int nocheck)
 {
 	const struct lc_hash *hash = ascon->hash;
 	uint64_t *state_mem = ascon->state;
 
 	/* Check that the key store is sufficiently large */
 	BUILD_BUG_ON(sizeof(ascon->key) < 64);
-
-	/* This is a FIPS 140 non-approved algorithm */
-	if (fips140_mode_enabled())
-		return -EOPNOTSUPP;
 
 	/*
 	 * Tag size can be at most the key size which in turn is smaller than
@@ -215,7 +218,8 @@ int lc_ak_setiv(struct lc_ascon_cryptor *ascon, size_t keylen, int nocheck)
 
 		if (!nocheck) {
 			lc_ak_selftest();
-			LC_SELFTEST_COMPLETED(LC_ALG_STATUS_ASCON_KECCAK);
+			LC_SELFTEST_COMPLETED(
+				lc_ascon_keccak_aead->algorithm_type);
 		}
 
 		if (keylen != 64)
@@ -227,12 +231,13 @@ int lc_ak_setiv(struct lc_ascon_cryptor *ascon, size_t keylen, int nocheck)
 
 		ascon->keylen = 64;
 
-		break;
+		return 0;
 	case 0x440 / 8: /* Keccak security level 256 bits */
 
 		if (!nocheck) {
 			lc_ak_selftest();
-			LC_SELFTEST_COMPLETED(LC_ALG_STATUS_ASCON_KECCAK);
+			LC_SELFTEST_COMPLETED(
+				lc_ascon_keccak_aead->algorithm_type);
 		}
 
 		if (keylen != 32)
@@ -244,13 +249,21 @@ int lc_ak_setiv(struct lc_ascon_cryptor *ascon, size_t keylen, int nocheck)
 
 		ascon->keylen = 32;
 
-		break;
+		return 0;
 
 	default:
-		return 0;
+		break;
 	}
 
-	return 1;
+	return -EINVAL;
+}
+
+static int lc_ascon_keccak_setkey(void *state, const uint8_t *key,
+				  size_t keylen, const uint8_t *nonce,
+				  size_t noncelen)
+{
+	return lc_ascon_setkey_int(state, key, keylen, nonce, noncelen, 0,
+				   lc_ak_setiv);
 }
 
 static int lc_ak_alloc_internal(const struct lc_hash *hash, uint8_t taglen,
@@ -265,7 +278,7 @@ static int lc_ak_alloc_internal(const struct lc_hash *hash, uint8_t taglen,
 	if (ret)
 		return -ret;
 
-	LC_ASCON_SET_CTX(tmp, hash);
+	LC_ASCON_SET_CTX(tmp, hash, lc_ascon_keccak_aead);
 
 	ascon = tmp->aead_state;
 	ascon->statesize = LC_SHA3_STATE_SIZE;
@@ -275,6 +288,22 @@ static int lc_ak_alloc_internal(const struct lc_hash *hash, uint8_t taglen,
 
 	return 0;
 }
+
+static const struct lc_aead _lc_ascon_keccak_aead = {
+	.setkey = lc_ascon_keccak_setkey,
+	.encrypt = lc_ascon_encrypt,
+	.enc_init = lc_ascon_aad_interface,
+	.enc_update = lc_ascon_enc_update_interface,
+	.enc_final = lc_ascon_enc_final_interface,
+	.decrypt = lc_ascon_decrypt,
+	.dec_init = lc_ascon_aad_interface,
+	.dec_update = lc_ascon_dec_update_interface,
+	.dec_final = lc_ascon_dec_final_interface,
+	.zero = lc_ascon_zero_interface,
+	.algorithm_type = LC_ALG_STATUS_ASCON_KECCAK,
+};
+LC_INTERFACE_SYMBOL(const struct lc_aead *, lc_ascon_keccak_aead) =
+		    &_lc_ascon_keccak_aead;
 
 LC_INTERFACE_FUNCTION(int, lc_ak_alloc, const struct lc_hash *hash,
 		      struct lc_aead_ctx **ctx)

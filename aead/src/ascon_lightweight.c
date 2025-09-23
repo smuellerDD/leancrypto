@@ -33,6 +33,8 @@
  */
 #define LC_AEAD_ASCON_128a_IV 0x00001000808c0001
 
+static int lc_ascon_setiv(struct lc_ascon_cryptor *ascon, size_t keylen,
+			  int nocheck);
 static void ascon_aead_selftest(void)
 {
 	/*
@@ -91,39 +93,43 @@ static void ascon_aead_selftest(void)
 	uint8_t out_enc[sizeof(exp_ct)];
 	uint8_t tag[sizeof(exp_tag)];
 
-	LC_SELFTEST_RUN(LC_ALG_STATUS_ASCON_AEAD_128);
+	LC_SELFTEST_RUN(lc_ascon_aead->algorithm_type);
 
 	LC_AL_CTX_ON_STACK(al);
 
 	/* One shot encryption with pt ptr != ct ptr */
-	lc_ascon_setkey_int(al->aead_state, key, sizeof(key), key, sizeof(key),
-			    1);
+	if (lc_ascon_setkey_int(al->aead_state, key, sizeof(key), key,
+				sizeof(key), 1, lc_ascon_setiv))
+		goto out;
 	lc_aead_encrypt(al, pt, out_enc, sizeof(pt), pt, sizeof(pt), tag,
 			sizeof(tag));
 	lc_aead_zero(al);
 	if (lc_compare_selftest(
-		    LC_ALG_STATUS_ASCON_AEAD_128, out_enc, exp_ct,
+		    lc_ascon_aead->algorithm_type, out_enc, exp_ct,
 		    sizeof(exp_ct),
 		    "Ascon lightweight crypt: Encryption, ciphertext"))
-		goto out;
-	if (lc_compare_selftest(LC_ALG_STATUS_ASCON_AEAD_128, tag, exp_tag,
+		goto out2;
+	if (lc_compare_selftest(lc_ascon_aead->algorithm_type, tag, exp_tag,
 				sizeof(exp_tag),
 				"Ascon lightweight crypt: Encryption, tag"))
-		goto out;
+		goto out2;
 	/* One shot decryption with pt ptr != ct ptr */
-	lc_ascon_setkey_int(al->aead_state, key, sizeof(key), key, sizeof(key),
-			    1);
+	if (lc_ascon_setkey_int(al->aead_state, key, sizeof(key), key,
+				sizeof(key), 1, lc_ascon_setiv))
+		goto out;
 	lc_aead_decrypt(al, out_enc, out_enc, sizeof(out_enc), pt, sizeof(pt),
 			tag, sizeof(tag));
 
 out:
-	lc_compare_selftest(LC_ALG_STATUS_ASCON_AEAD_128, out_enc, pt,
+	lc_compare_selftest(lc_ascon_aead->algorithm_type, out_enc, pt,
 			    sizeof(pt),
 			    "Ascon lightweight crypt: Decryption, plaintext");
+out2:
 	lc_aead_zero(al);
 }
 
-int lc_ascon_setiv(struct lc_ascon_cryptor *ascon, size_t keylen, int nocheck)
+static int lc_ascon_setiv(struct lc_ascon_cryptor *ascon, size_t keylen,
+			  int nocheck)
 {
 	const struct lc_hash *hash = ascon->hash;
 	uint64_t *state_mem = ascon->state;
@@ -136,7 +142,7 @@ int lc_ascon_setiv(struct lc_ascon_cryptor *ascon, size_t keylen, int nocheck)
 
 		if (!nocheck) {
 			ascon_aead_selftest();
-			LC_SELFTEST_COMPLETED(LC_ALG_STATUS_ASCON_AEAD_128);
+			LC_SELFTEST_COMPLETED(lc_ascon_aead->algorithm_type);
 		}
 
 		if (keylen != 16)
@@ -145,13 +151,35 @@ int lc_ascon_setiv(struct lc_ascon_cryptor *ascon, size_t keylen, int nocheck)
 		ascon->keylen = 16;
 		ascon->roundb = 8;
 
-		break;
-	default:
 		return 0;
+	default:
+		break;
 	}
 
-	return 1;
+	return -EINVAL;
 }
+
+static int lc_ascon_setkey(void *state, const uint8_t *key, size_t keylen,
+			   const uint8_t *nonce, size_t noncelen)
+{
+	return lc_ascon_setkey_int(state, key, keylen, nonce, noncelen, 0,
+				   lc_ascon_setiv);
+}
+
+static const struct lc_aead _lc_ascon_aead = {
+	.setkey = lc_ascon_setkey,
+	.encrypt = lc_ascon_encrypt,
+	.enc_init = lc_ascon_aad_interface,
+	.enc_update = lc_ascon_enc_update_interface,
+	.enc_final = lc_ascon_enc_final_interface,
+	.decrypt = lc_ascon_decrypt,
+	.dec_init = lc_ascon_aad_interface,
+	.dec_update = lc_ascon_dec_update_interface,
+	.dec_final = lc_ascon_dec_final_interface,
+	.zero = lc_ascon_zero_interface,
+	.algorithm_type = LC_ALG_STATUS_ASCON_AEAD_128,
+};
+LC_INTERFACE_SYMBOL(const struct lc_aead *, lc_ascon_aead) = &_lc_ascon_aead;
 
 LC_INTERFACE_FUNCTION(int, lc_al_alloc, struct lc_aead_ctx **ctx)
 {
@@ -164,7 +192,7 @@ LC_INTERFACE_FUNCTION(int, lc_al_alloc, struct lc_aead_ctx **ctx)
 	if (ret)
 		return -ret;
 
-	LC_ASCON_SET_CTX(tmp, lc_ascon_128a);
+	LC_ASCON_SET_CTX(tmp, lc_ascon_128a, lc_ascon_aead);
 
 	ascon = tmp->aead_state;
 	ascon->statesize = LC_ASCON_HASH_STATE_SIZE;

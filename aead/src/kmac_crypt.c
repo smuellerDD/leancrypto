@@ -383,7 +383,7 @@ static void lc_kc_selftest(void)
 	uint8_t act_ct[sizeof(exp_ct)] __align(sizeof(uint32_t));
 	uint8_t act_tag[sizeof(exp_tag)] __align(sizeof(uint32_t));
 
-	LC_SELFTEST_RUN(LC_ALG_STATUS_KMAC_CRYPT);
+	LC_SELFTEST_RUN(lc_kmac_aead->algorithm_type);
 
 	LC_KC_CTX_ON_STACK(kc, lc_cshake256);
 
@@ -391,10 +391,10 @@ static void lc_kc_selftest(void)
 		goto out;
 	lc_aead_encrypt(kc, in, act_ct, sizeof(in), in, sizeof(in), act_tag,
 			sizeof(act_tag));
-	if (lc_compare_selftest(LC_ALG_STATUS_KMAC_CRYPT, act_ct, exp_ct,
+	if (lc_compare_selftest(lc_kmac_aead->algorithm_type, act_ct, exp_ct,
 				sizeof(exp_ct), "KMAC AEAD encrypt"))
 		goto out;
-	if (lc_compare_selftest(LC_ALG_STATUS_KMAC_CRYPT, act_tag, exp_tag,
+	if (lc_compare_selftest(lc_kmac_aead->algorithm_type, act_tag, exp_tag,
 				sizeof(exp_tag), "KMAC AEAD tag"))
 		goto out;
 	lc_aead_zero(kc);
@@ -405,8 +405,8 @@ static void lc_kc_selftest(void)
 			act_tag, sizeof(act_tag));
 
 out:
-	lc_compare_selftest(LC_ALG_STATUS_KMAC_CRYPT, act_ct, in, sizeof(in),
-			    "KMAC AEAD decrypt");
+	lc_compare_selftest(lc_kmac_aead->algorithm_type, act_ct, in,
+			    sizeof(in), "KMAC AEAD decrypt");
 	lc_aead_zero(kc);
 }
 
@@ -449,7 +449,7 @@ static int lc_kc_setkey(void *state, const uint8_t *key, size_t keylen,
 			const uint8_t *iv, size_t ivlen)
 {
 	lc_kc_selftest();
-	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_KMAC_CRYPT);
+	LC_SELFTEST_COMPLETED(lc_kmac_aead->algorithm_type);
 
 	return lc_kc_setkey_nocheck(state, key, keylen, iv, ivlen);
 }
@@ -672,6 +672,7 @@ static const struct lc_aead _lc_kmac_aead = {
 	.dec_init = lc_kc_add_aad,
 	.dec_update = lc_kc_decrypt,
 	.dec_final = lc_kc_decrypt_authenticate,
-	.zero = lc_kc_zero
+	.zero = lc_kc_zero,
+	.algorithm_type = LC_ALG_STATUS_KMAC_CRYPT,
 };
 LC_INTERFACE_SYMBOL(const struct lc_aead *, lc_kmac_aead) = &_lc_kmac_aead;

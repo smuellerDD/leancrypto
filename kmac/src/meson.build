@@ -1,5 +1,5 @@
 # for i in $(ls *.c | sort); do echo "'$i',"; done
-src_fips += files([
+src += files([
 	'kmac.c',
 ])
 

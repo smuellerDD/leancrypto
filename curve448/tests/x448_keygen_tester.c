@@ -89,7 +89,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	if (cpu_feature_enable)
 		lc_cpu_feature_enable();
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_X448_KEYGEN);
+	ret = test_validate_status(ret, LC_ALG_STATUS_X448_KEYGEN, 0);
 	ret += test_print_status();
 
 	return ret;

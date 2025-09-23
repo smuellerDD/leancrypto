@@ -96,9 +96,9 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 	snprintf(outbuf, outlen, "leancrypto %u.%u.%u\n", MAJVERSION,
 		 MINVERSION, PATCHLEVEL);
 
-	alg_status((uint64_t)-1, ws->status_pass, status_pass_len,
-		   ws->status_untested, status_untested_len, ws->status_error,
-		   status_error_len);
+	alg_status_print((uint64_t)-1, ws->status_pass, status_pass_len,
+			 ws->status_untested, status_untested_len,
+			 ws->status_error, status_error_len);
 
 	len = strlen(outbuf);
 	snprintf(outbuf + len, outlen - len,

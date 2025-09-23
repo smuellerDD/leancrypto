@@ -297,6 +297,7 @@ if (get_option('xdrbg').enabled() and get_option('ascon').enabled())
 endif
 if (get_option('xdrbg').enabled() and get_option('sha3').enabled())
 	add_global_arguments([ '-DLC_DRNG_XDRBG256' ], language: 'c')
+	add_global_arguments([ '-DLC_DRNG_XDRBG512' ], language: 'c')
 endif
 if get_option('drbg_hash').enabled()
 	add_global_arguments([ '-DLC_DRNG_HASH_DRBG' ], language: 'c')
@@ -823,11 +824,9 @@ endif
 # FIPS non-approved crypto sources
 src = [ ]
 
-# FIPS approved crypto sources
-src_fips = [ ]
-
 # FIPS-only code that shall not be compiled for the non-FIPS version
 src_fips_wrapper = [ ]
+src_wrapper = [ ]
 
 # Internal non-cryptographic helper code
 internal_src = [ ]
@@ -835,9 +834,6 @@ internal_src = [ ]
 # Internal FIPS non-approved cryptographic support libs that need to be linked
 # in as a whole
 leancrypto_support_libs = [ ]
-# Internal FIPS approved cryptographic support libs that need to be linked in
-# as a whole
-leancrypto_support_libs_fips = [ ]
 
 # External libraries leancrypto should link to
 leancrypto_link = [ ]
@@ -861,35 +857,43 @@ if (host_machine.system() != 'windows')
 		    check: true)
 endif
 
-# Compile the "raw" FIPS 140 library part which can be linked into
-# the libleancrypto-fips.[so|a] with the integrity test as well as
-# non-FIPS libleancrypto.[so|a] without the integrity test.
-leancrypto_libs_fips_raw = static_library('leancrypto-fips-raw',
-	[ src_fips, internal_src ],
-	include_directories: [ include_dirs,
-				include_internal_dirs ],
-	dependencies: [ leancrypto_link ],
-	link_whole: [ leancrypto_support_libs_fips ],
-	install: false
-	)
-
-link_args_fips140 = [ ]
-
 # Build FIPS 140 library
 if build_shared
+	link_args_fips140 = [ ]
 	if fips_integrity_test_enabled
 		link_args_fips140 = [
 			'-T' + meson.project_source_root() + '/internal/src/fips_integrity_check.ld'
 		]
 	endif
 
+	leancrypto_raw_static_lib = static_library('leancrypto-raw',
+		[ src, internal_src ],
+		include_directories: [ include_dirs, include_internal_dirs ],
+		dependencies: [ leancrypto_link ],
+		link_whole: [ leancrypto_support_libs ],
+		link_args: link_args_fips140,
+		install: true
+		)
+
+	# Create the official shared library
+	leancrypto_both_libs = both_libraries('leancrypto',
+		[ src_wrapper ],
+		include_directories: [ include_dirs, include_internal_dirs ],
+		soversion: version_array[0],
+		link_whole: [ leancrypto_raw_static_lib ],
+		link_args: link_args_fips140,
+		install: true
+		)
+
+	leancrypto_lib = leancrypto_both_libs.get_shared_lib()
+	leancrypto_static_lib = leancrypto_both_libs.get_static_lib()
+
 	# Create the official shared FIPS library
 	leancrypto_both_libs_fips = both_libraries('leancrypto-fips',
 		[ src_fips_wrapper ],
-		include_directories: [ include_dirs,
-					include_internal_dirs ],
+		include_directories: [ include_dirs, include_internal_dirs ],
 		soversion: version_array[0],
-		link_whole: [ leancrypto_libs_fips_raw ],
+		link_whole: [ leancrypto_raw_static_lib ],
 		link_args: link_args_fips140,
 		install: true
 		)
@@ -947,20 +951,35 @@ if build_shared
 			)
 	endif
 else
+	leancrypto_raw_static_lib = static_library('leancrypto-raw',
+		[ src, internal_src ],
+		include_directories: [ include_dirs, include_internal_dirs ],
+		dependencies: [ leancrypto_link ],
+		link_whole: [ leancrypto_support_libs ],
+		link_args: link_args_fips140,
+		install: true
+		)
+
+	# Create the official static library
+	leancrypto_static_lib = static_library('leancrypto',
+		[ src_wrapper ],
+		include_directories: [ include_dirs, include_internal_dirs ],
+		link_whole: [ leancrypto_raw_static_lib ],
+		install: true
+		)
+	leancrypto_lib = leancrypto_static_lib
+
 	# Create the official static FIPS library
 	leancrypto_static_lib_fips = static_library('leancrypto-fips',
 		[ src_fips_wrapper ],
 		include_directories: [ include_dirs,
 					include_internal_dirs ],
 		dependencies: [ leancrypto_link ],
-		link_whole: [ leancrypto_libs_fips_raw ],
-		link_args: link_args_fips140,
+		link_whole: [ leancrypto_raw_static_lib ],
 		install: true
 		)
 	leancrypto_lib_fips = leancrypto_static_lib_fips
 endif
-
-leancrypto_support_libs += leancrypto_libs_fips_raw
 
 if get_option('efi').disabled()
 	pkgconfig.generate(leancrypto_lib_fips,
@@ -969,34 +988,6 @@ endif
 
 leancrypto_fips = declare_dependency(link_with: leancrypto_lib_fips,
 				     include_directories: include_dirs)
-
-# Build non-FIPS 140 library
-if build_shared
-	# Create the official shared library
-	leancrypto_both_libs = both_libraries('leancrypto',
-		[ src ],
-		include_directories: [ include_dirs, include_internal_dirs ],
-		soversion: version_array[0],
-		dependencies: [ leancrypto_link ],
-		link_whole: [ leancrypto_support_libs ],
-		link_args: link_args_fips140,
-		install: true
-		)
-
-	leancrypto_lib = leancrypto_both_libs.get_shared_lib()
-	leancrypto_static_lib = leancrypto_both_libs.get_static_lib()
-else
-	# Create the official static library
-	leancrypto_static_lib = static_library('leancrypto',
-		[ src ],
-		include_directories: [ include_dirs, include_internal_dirs ],
-		dependencies: [ leancrypto_link ],
-		link_whole: [ leancrypto_support_libs ],
-		link_args: link_args_fips140,
-		install: true
-		)
-	leancrypto_lib = leancrypto_static_lib
-endif
 
 if get_option('efi').disabled()
 	pkgconfig.generate(leancrypto_lib,

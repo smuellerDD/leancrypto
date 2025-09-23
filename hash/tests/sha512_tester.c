@@ -114,7 +114,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = sha512_tester();
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_SHA512);
+	ret = test_validate_status(ret, LC_ALG_STATUS_SHA512, 1);
 	ret += test_print_status();
 
 	return ret;

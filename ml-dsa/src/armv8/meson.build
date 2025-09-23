@@ -2,7 +2,7 @@
 
 # Files compiled only once
 if (get_option('dilithium_87').enabled() or get_option('dilithium_65').enabled())
-	src_fips += files([
+	src += files([
 		'NTT_params.c'
 	])
 endif
@@ -27,12 +27,10 @@ if get_option('dilithium_87').enabled()
 				include_dirs,
 				include_internal_dirs
 			],
-			c_args: [
-				'-Wno-unused-result',
-			]
+			c_args: [ cc_armv8_neon_simd_args ]
 		)
 
-	leancrypto_support_libs_fips += leancrypto_dilithium_87_armv8_lib
+	leancrypto_support_libs += leancrypto_dilithium_87_armv8_lib
 endif
 
 if get_option('dilithium_65').enabled()
@@ -45,9 +43,10 @@ if get_option('dilithium_65').enabled()
 				include_internal_dirs
 			],
 			c_args: [
-				'-Wno-unused-result', '-DLC_DILITHIUM_TYPE_65'
+				cc_armv8_neon_simd_args,
+				'-DLC_DILITHIUM_TYPE_65'
 			]
 		)
 
-	leancrypto_support_libs_fips += leancrypto_dilithium_65_armv8_lib
+	leancrypto_support_libs += leancrypto_dilithium_65_armv8_lib
 endif

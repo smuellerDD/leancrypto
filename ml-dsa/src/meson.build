@@ -2,7 +2,7 @@
 
 # Files compiled only once
 if (dilithium_enabled)
-	src_fips += files([
+	src += files([
 		'dilithium_api.c',
 		'dilithium_zetas.c'
 	])
@@ -60,7 +60,7 @@ if get_option('dilithium_87').enabled()
 			include_internal_dirs
 		],
 	)
-	leancrypto_support_libs_fips += leancrypto_dilithium_87_c_lib
+	leancrypto_support_libs += leancrypto_dilithium_87_c_lib
 endif
 
 if get_option('dilithium_65').enabled()
@@ -75,7 +75,7 @@ if get_option('dilithium_65').enabled()
 		],
 		c_args : '-DLC_DILITHIUM_TYPE_65'
 	)
-	leancrypto_support_libs_fips += leancrypto_dilithium_65_c_lib
+	leancrypto_support_libs += leancrypto_dilithium_65_c_lib
 endif
 
 if get_option('dilithium_44').enabled()
@@ -94,5 +94,5 @@ if get_option('dilithium_44').enabled()
 		],
 		c_args : '-DLC_DILITHIUM_TYPE_44'
 	)
-	leancrypto_support_libs_fips += leancrypto_dilithium_44_c_lib
+	leancrypto_support_libs += leancrypto_dilithium_44_c_lib
 endif

@@ -34,6 +34,9 @@ extern "C" {
 	 LC_AK_STATE_SIZE)
 /// \endcond
 
+/* Ascon-Keccak-based AEAD-algorithm */
+extern const struct lc_aead *lc_ascon_keccak_aead;
+
 /**
  * @brief Allocate Ascon Keccak cryptor context on heap
  *
@@ -84,7 +87,7 @@ int lc_ak_alloc_taglen(const struct lc_hash *hash, uint8_t taglen,
 					  LC_AK_CTX_SIZE(hash),                     \
 					  LC_ASCON_ALIGNMENT);                      \
 	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;            \
-	LC_ASCON_SET_CTX(name, hash);                                               \
+	LC_ASCON_SET_CTX(name, hash, lc_ascon_keccak_aead);                         \
 	struct lc_ascon_cryptor *__name_ascon_crypto = name->aead_state;            \
 	__name_ascon_crypto->statesize = LC_SHA3_STATE_SIZE;                        \
 	__name_ascon_crypto->taglen = 16;                                           \
@@ -109,7 +112,7 @@ int lc_ak_alloc_taglen(const struct lc_hash *hash, uint8_t taglen,
 					  LC_AK_CTX_SIZE(hash),                     \
 					  LC_ASCON_ALIGNMENT);                      \
 	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;            \
-	LC_ASCON_SET_CTX(name, hash);                                               \
+	LC_ASCON_SET_CTX(name, hash, lc_ascon_keccak_aead);                         \
 	struct lc_ascon_cryptor *__name_ascon_crypto = name->aead_state;            \
 	__name_ascon_crypto->statesize = LC_SHA3_STATE_SIZE;                        \
 	__name_ascon_crypto->taglen = tagsize;                                      \

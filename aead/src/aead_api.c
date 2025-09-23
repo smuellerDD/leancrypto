@@ -230,3 +230,21 @@ LC_INTERFACE_FUNCTION(int, lc_aead_dec_final, struct lc_aead_ctx *ctx,
 
 	return aead->dec_final(aead_state, tag, taglen);
 }
+
+LC_INTERFACE_FUNCTION(uint64_t, lc_aead_algorithm_type,
+		      const struct lc_aead *aead)
+{
+	if (!aead)
+		return 0;
+
+	return aead->algorithm_type;
+}
+
+LC_INTERFACE_FUNCTION(uint64_t, lc_aead_ctx_algorithm_type,
+		      const struct lc_aead_ctx *ctx)
+{
+	if (!ctx)
+		return 0;
+
+	return lc_aead_algorithm_type(ctx->aead);
+}

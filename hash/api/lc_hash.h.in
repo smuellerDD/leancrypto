@@ -46,6 +46,7 @@ struct lc_hash {
 				     size_t offset, size_t length);
 	void (*sponge_newstate)(void *state, const uint8_t *newstate,
 				size_t offset, size_t length);
+	uint64_t algorithm_type;
 
 	uint8_t sponge_rate;
 	unsigned short statesize;
@@ -391,6 +392,27 @@ int lc_sponge_extract_bytes(const struct lc_hash *hash, const void *state,
  */
 int lc_sponge_newstate(const struct lc_hash *hash, void *state,
 		       const uint8_t *data, size_t offset, size_t length);
+
+/**
+ * @ingroup Hashing
+ * @brief Obtain algorithm type usable with lc_alg_status
+ *
+ * @param [in] hash Hash algorithm instance
+ *
+ * @return algorithm type
+ */
+uint64_t lc_hash_algorithm_type(const struct lc_hash *hash);
+
+/**
+ * @ingroup Hashing
+ * @brief Obtain algorithm type usable with lc_alg_status
+ *
+ * @param [in] ctx Hash context handle
+ *
+ * @return algorithm type
+ */
+uint64_t lc_hash_ctx_algorithm_type(const struct lc_hash_ctx *ctx);
+
 
 #ifdef __cplusplus
 }

@@ -162,15 +162,15 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	ret = lc_sphincs_test(&tests[0], t);
 
 	if (argc < 2) {
-		ret = test_validate_status(ret, LC_ALG_STATUS_SLHDSA_KEYGEN);
-		ret = test_validate_status(ret, LC_ALG_STATUS_SLHDSA_SIGGEN);
-		ret = test_validate_status(ret, LC_ALG_STATUS_SLHDSA_SIGVER);
+		ret = test_validate_status(ret, LC_ALG_STATUS_SLHDSA_KEYGEN, 1);
+		ret = test_validate_status(ret, LC_ALG_STATUS_SLHDSA_SIGGEN, 1);
+		ret = test_validate_status(ret, LC_ALG_STATUS_SLHDSA_SIGVER, 1);
 
 #if (defined(LC_SPHINCS_TYPE_128F_ASCON) || defined(LC_SPHINCS_TYPE_128S_ASCON))
-		ret = test_validate_status(ret, LC_ALG_STATUS_ASCONXOF);
+		ret = test_validate_status(ret, LC_ALG_STATUS_ASCONXOF, 1);
 #else
 #ifndef LC_FIPS140_DEBUG
-		ret = test_validate_status(ret, LC_ALG_STATUS_SHAKE);
+		ret = test_validate_status(ret, LC_ALG_STATUS_SHAKE, 1);
 #endif
 #endif
 	}
