@@ -41,8 +41,15 @@ static int rerun_selftest_tester(void)
 
 	ret += test_validate_status(ret, LC_ALG_STATUS_LIB, 0);
 #ifndef LINUX_KERNEL
-	/* SHA3 is passed due to FIPS integrity test */
+
+#ifdef LC_FIPS140_DEBUG
 	ret += test_validate_status(ret, LC_ALG_STATUS_SHA3, 1);
+#else
+	/* SHA3 is passed due to FIPS integrity test */
+	ret += test_validate_expected_status(ret, LC_ALG_STATUS_SHA3,
+					     lc_alg_status_result_pending, 1);
+#endif
+
 	ret += test_validate_expected_status(ret, LC_ALG_STATUS_HMAC,
 					     lc_alg_status_result_pending, 1);
 
@@ -68,8 +75,15 @@ static int rerun_selftest_tester(void)
 	lc_rerun_selftests();
 
 	ret += test_validate_status(ret, LC_ALG_STATUS_LIB, 0);
-	/* SHA3 is passed due to FIPS integrity test */
+
+#ifdef LC_FIPS140_DEBUG
 	ret += test_validate_status(ret, LC_ALG_STATUS_SHA3, 1);
+#else
+	/* SHA3 is passed due to FIPS integrity test */
+	ret += test_validate_expected_status(ret, LC_ALG_STATUS_SHA3,
+					     lc_alg_status_result_pending, 1);
+#endif
+
 	ret += test_validate_expected_status(ret, LC_ALG_STATUS_HMAC,
 					     lc_alg_status_result_pending, 1);
 	ret += test_print_status();

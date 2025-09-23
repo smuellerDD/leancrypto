@@ -91,6 +91,7 @@ endif
 
 if (cc.has_argument('-ffat-lto-objects') and
     host_machine.system() != 'windows' and
+    host_machine.system() != 'darwin' and
     get_option('efi').disabled())
 	add_global_arguments([ '-ffat-lto-objects' ], language: 'c')
 endif
@@ -880,6 +881,7 @@ if build_shared
 		[ src_wrapper ],
 		include_directories: [ include_dirs, include_internal_dirs ],
 		soversion: version_array[0],
+		dependencies: [ leancrypto_link ],
 		link_whole: [ leancrypto_raw_static_lib ],
 		link_args: link_args_fips140,
 		install: true
@@ -893,6 +895,7 @@ if build_shared
 		[ src_fips_wrapper ],
 		include_directories: [ include_dirs, include_internal_dirs ],
 		soversion: version_array[0],
+		dependencies: [ leancrypto_link ],
 		link_whole: [ leancrypto_raw_static_lib ],
 		link_args: link_args_fips140,
 		install: true
@@ -956,7 +959,6 @@ else
 		include_directories: [ include_dirs, include_internal_dirs ],
 		dependencies: [ leancrypto_link ],
 		link_whole: [ leancrypto_support_libs ],
-		link_args: link_args_fips140,
 		install: true
 		)
 
@@ -964,6 +966,7 @@ else
 	leancrypto_static_lib = static_library('leancrypto',
 		[ src_wrapper ],
 		include_directories: [ include_dirs, include_internal_dirs ],
+		dependencies: [ leancrypto_link ],
 		link_whole: [ leancrypto_raw_static_lib ],
 		install: true
 		)

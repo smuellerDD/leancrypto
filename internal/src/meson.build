@@ -28,6 +28,10 @@ else
 	src += files([ 'memory_support.c' ])
 endif
 
+src_wrapper += files([
+	'fips_integrity_checker_none.c'
+])
+
 # FIPS 140 Integrity check: The integrity checker is adopted for ELF.
 if fips_integrity_test_enabled
 	src += files([
@@ -40,15 +44,15 @@ if fips_integrity_test_enabled
 		src_fips_wrapper += files([
 			'fips_integrity_checker_elf.c'
 		])
+	else
+		src_fips_wrapper += files([
+			'fips_integrity_checker_none.c'
+		])
 	endif
-
-	src_wrapper += files([
-		'fips_integrity_checker_none.c'
-	])
 else
 	# Catchall for all other environments - this must be generally present
 	# as status_api.c invokes the reruning of self tests directly.
-	src_wrapper += files([
+	src_fips_wrapper += files([
 		'fips_integrity_checker_none.c'
 	])
 endif
