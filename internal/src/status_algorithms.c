@@ -414,6 +414,43 @@ static void alg_status_unset_test_state(alg_status_t digest_value)
 		   ALG_SET_TEST_PASSED(LC_ALG_STATUS_FLAG_LIB));
 }
 
+void alg_status_set_all_passed_state(void)
+{
+	static const int all_passed =
+		lc_alg_status_result_passed << (3 * 0) |
+		lc_alg_status_result_passed << (3 * 1) |
+		lc_alg_status_result_passed << (3 * 2) |
+		lc_alg_status_result_passed << (3 * 3) |
+		lc_alg_status_result_passed << (3 * 4) |
+		lc_alg_status_result_passed << (3 * 5) |
+		lc_alg_status_result_passed << (3 * 6) |
+		lc_alg_status_result_passed << (3 * 7) |
+		lc_alg_status_result_passed << (3 * 8) |
+		lc_alg_status_result_passed << (3 * 9);
+
+	/*
+	 * Replicate the compile-time initialization state, but leave the
+	 * library state unchanged.
+	 */
+	atomic_or(all_passed, &lc_alg_status_aead);
+
+#ifndef LC_KYBER_DEBUG
+	atomic_or(all_passed, &lc_alg_status_kem_pqc);
+#endif
+
+	atomic_or(all_passed, &lc_alg_status_kem_classic);
+
+#ifndef LC_DILITHIUM_DEBUG
+	atomic_or(all_passed, &lc_alg_status_sig_pqc);
+#endif
+
+	atomic_or(all_passed, &lc_alg_status_sig_classic);
+	atomic_or(all_passed, &lc_alg_status_rng);
+	atomic_or(all_passed, &lc_alg_status_digest);
+	atomic_or(all_passed, &lc_alg_status_sym);
+	atomic_or(all_passed, &lc_alg_status_aux);
+}
+
 static void alg_status_unset_testresult_one(alg_status_t alg, atomic_t *status)
 {
 	/*

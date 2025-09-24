@@ -60,6 +60,11 @@ static int rerun_selftest_tester(void)
 	}
 #endif
 
+	/*
+	 * Note, even though this call checks for "pending", when
+	 * LC_FIPS140_DEBUG is enabled, the service function checks for the
+	 * presence of the failure state.
+	 */
 	ret += test_validate_expected_status(ret, LC_ALG_STATUS_HMAC,
 					     lc_alg_status_result_pending, 1);
 

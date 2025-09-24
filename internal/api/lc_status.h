@@ -410,6 +410,28 @@ enum lc_alg_status_result {
  */
 enum lc_alg_status_result lc_status_get_result(uint64_t algorithm);
 
+/**
+ * @brief Disable all algorithm startup self tests
+ *
+ * At runtime, before the first use of any algorithm, an algorithm-spedific
+ * self test is performed to verify that the cryptographic algorithm operates
+ * correctly. With this API call, the caller can prevent the execution of all
+ * future algorithm self tests.
+ *
+ * This call effectively marks all self tests as passed. If a self test failed
+ * before this API call for a given algorithm, the algorithm will remain in
+ * failure mode.
+ *
+ * \note The caller should understand the implications of the call and only
+ * perform this call if it is truly intended.
+ *
+ * \note Disabling of self tests in FIPS mode is not allowed and returns an
+ * error.
+ *
+ * @return 0 on success, < 0 on error
+ */
+int lc_alg_disable_selftests(void);
+
 #ifdef __cplusplus
 }
 #endif

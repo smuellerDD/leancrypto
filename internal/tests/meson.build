@@ -48,6 +48,11 @@ if (get_option('sha3').enabled() and
 			   include_directories: [ include_internal_dirs ],
 			   dependencies: leancrypto
 			  )
+	disable_selftests_tester = executable('disable_selftests_tester',
+			   [ 'disable_selftests_tester.c', internal_src ],
+			   include_directories: [ include_internal_dirs ],
+			   dependencies: leancrypto
+			  )
 # 	fips_degraded_mode = executable('fips_degraded_mode',
 # 			   [ 'fips_degraded_mode.c', internal_src ],
 # 			   include_directories: [ include_dirs,
@@ -56,6 +61,8 @@ if (get_option('sha3').enabled() and
 # 			  )
 	test('Rerun selftests', rerun_selftests_tester, suite: regression)
 	test('Rerun one selftest', rerun_one_selftest_tester, suite: regression,
+	     should_fail: fips140_negative_expect_fail)
+	test('Disable selftests', disable_selftests_tester, suite: regression,
 	     should_fail: fips140_negative_expect_fail)
 # 	test('FIPS degraded mode', fips_degraded_mode, suite: regression,
 # 	     should_fail: fips140_negative_expect_fail)

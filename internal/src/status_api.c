@@ -62,3 +62,12 @@ LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_alg_status, uint64_t algorithm)
 {
 	return alg_status(algorithm);
 }
+
+LC_INTERFACE_FUNCTION(int, lc_alg_disable_selftests, void)
+{
+	if (fips140_mode_enabled())
+		return -EOPNOTSUPP;
+
+	alg_status_set_all_passed_state();
+	return 0;
+}
