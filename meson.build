@@ -945,6 +945,7 @@ if build_shared
 			build_always_stale: true,
 			build_by_default: true,
 			install: false,
+			depends: [ leancrypto_lib_fips, integrity_generator ],
 			input: [ leancrypto_lib_fips, integrity_generator ],
 			output: 'empty',
 			command: [
