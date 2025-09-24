@@ -22,6 +22,7 @@
 #include "hmac_selftest.h"
 #include "lc_hmac.h"
 #include "lc_sha256.h"
+#include "timecop.h"
 
 int hmac_sha256_selftest(void)
 {
@@ -60,9 +61,14 @@ int hmac_sha256_selftest(void)
 					   0x02, 0x6c, 0x87, 0x8b, 0xae, 0x41,
 					   0xb4, 0xcd };
 	uint8_t act[LC_SHA256_SIZE_DIGEST];
+	int ret;
 
 	lc_hmac_nocheck(lc_sha256, key_256, sizeof(key_256), msg_256,
 			sizeof(msg_256), act);
-	return lc_compare_selftest(LC_ALG_STATUS_HMAC, act, exp_256,
-				   sizeof(exp_256), "HMAC SHA2-256");
+	ret = lc_compare_selftest(LC_ALG_STATUS_HMAC, act, exp_256,
+				  sizeof(exp_256), "HMAC SHA2-256");
+
+	unpoison(key_256, sizeof(key_256));
+
+	return ret;
 }
