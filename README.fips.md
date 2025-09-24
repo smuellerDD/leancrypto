@@ -14,15 +14,13 @@ The following status regarding FIPS 140 compliance is achieved:
 
 The `leancrypto` library always is compiled as a FIPS 140 module. To achieve that, it is compiled into two binaries:
 
-1. `leancrypto-fips.[so|a]` contains the FIPS 140 compliant code, all FIPS-approved algorithms and defines the FIPS 140 physical / logical boundary. This means that this library forms the "FIPS module".
+1. `leancrypto-fips.[so|a]` contains the FIPS 140 compliant code, as well as all approved and non-approved algorithms. It defines the FIPS 140 physical / logical boundary. This means that this library forms the "FIPS module".
 
-2. `leancrypto.[so|a]` contains the full leancrypto code base including the FIPS 140 code and FIPS-non-approved algorithms.
+2. `leancrypto.[so|a]` contains the identical implementatino to `leancrypto-fips` with the exception that the integrity test is not present.
 
 When a caller wants to request services from the FIPS module, the caller MUST link to `leancrypto-fips`.
 
-The compilation provides both libraries to allow developers to choose even at startup time of the consuming application whether the FIPS module version of leancrypto is used. Both are API-identical with the exception that the `leancrypto-fips` only contains FIPS-approved algorithms and activates FIPS-approved functionality.
-
-NOTE: Due to time constraints, the Linux kernel variant is not split up into FIPS-approved and -non-approved code. Albeit technically it is simple to ensure the Linux kernel variant of leancrypto compiles the FIPS module, this is not yet offered.
+The compilation provides both libraries to allow developers to choose even at startup time of the consuming application whether the FIPS module version of leancrypto is used. Both are ABI and API-identical.
 
 ## Available Services
 
@@ -36,25 +34,33 @@ Leancrypto offers approved cryptographic algorithms as defined by the [ACVP-Prox
 
 NOTE: The reference of "C" implementations in the ACVP Proxy may be a bit deceiving for ML-KEM and ML-DSA as for some platforms, assembler accelerations are natively used by the C code (ARMv7 and RISCV). Yet, the reference is correct as the caller interacts with the implementation that does not require specific CPU instructions.
 
-NOTE2: The referenced ACVP proxy definitions explicitly exclude SHA LDT tests. This is *only* due to the fact that for the release testing of leancrypto, some test systems do not have more than 1GB of RAM which means that a linear buffer of 1GB or more cannot be allocated. There is *no* cryptographic limitation in leancrypto preventing the testing of LDT test vectors. Thus, if your platform has more RAM, you SHOULD enable the LDT testing.
+NOTE2: The referenced ACVP proxy definitions explicitly exclude SHA LDT tests. This is **only** due to the fact that for the release testing of leancrypto, some test systems do not have more than 1GB of RAM which means that a linear buffer of 1GB or more cannot be allocated. There is *no* cryptographic limitation in leancrypto preventing the testing of LDT test vectors. Thus, if your platform has more RAM, you SHOULD enable the LDT testing.
 
 ## Service Indicator
 
-The `leancrypto-fips` FIPS module implements a service indicator accessible with the API `lc_alg_status` where its input may be provided by the different calls of `lc_[aead|drng|hash|sym]_algorithm_type` and `lc_[aead|drng|hash|sym]_ctx_algorithm_type` or by specifying an algorithm type as documented for this API.
+The `leancrypto-fips` FIPS module implements a service indicator accessible with the API `lc_alg_status` where its input may be provided by the different calls of `lc_[aead|drng|hash|sym]_algorithm_type` and `lc_[aead|drng|hash|sym]_ctx_algorithm_type` or by specifying an algorithm type as documented for this API. The latter APIs allow the caller to obtain the service indicator for services that are provided by APIs offering a common interface for different algorithms. For APIs that only offer one algorithm / service, the `lc_alg_status` shall be used directly.
 
-The API of `lc_status` provides the version information along with the status whether the FIPS mode is active.
+The API of `lc_status` provides the version information along with the status whether the FIPS mode is active. The information about the enabled FIPS mode can be obtained programmatically with the API call of `lc_alg_status(LC_ALG_STATUS_LIB)`.
 
-## Cryptographic Algorithm Self Test
+## Cryptographic Algorithm Self Test and Degraded Mode
 
 Each cryptographic algorithm has its own power-up self test which is executed before this algorithm is used for the first time.
 
 When a self-test fails, the offending algorithm is marked with a failed self test and all self tests for all other algorithms are triggered again. These new self tests execute only once the algorithm is used again. Thus, the `leancrypto-fips.so` enters a degraded mode of operation.
 
+The precise steps of entering are:
+
+1. The error indicator for the offending algorithm is set (which is consistent with entering the error state),
+
+2. Trigger a (lazy) re-running of all algorithm CASTs (which is consistent with staying in the error state), and
+
+3. Disabling the offending algorithm for further use, but leaving other algorithms unaffected (entering the degraded mode).
+
 The caller may trigger a complete new round of self tests, i.e. all algorithms will perform a new self test before the next use, when using the API of `lc_rerun_selftests` and `lc_rerun_one_selftest`. These APIs trigger the exit from degraded mode. In FIPS mode, they trigger the re-execution of the integrity tests as well as the re-running of the known-answer tests for the specified algorithms. As the re-execution of the integrity test requires the gating of the module operation, all algorithms are first set into a failure state, followed by the integrity test, followed by setting the algorithm into a pending state triggering all self tests once again.
 
-To reperform the integrity test, the API `lc_fips_integrity_checker` is provided.
+To re-perform the integrity test, the API `lc_fips_integrity_checker` is provided.
 
-When a self-test fails, `leancrypto-fips` as well as `leancrypto` enters a degraded mode of operation following the FIPS 2025 specification: the offending algorithm is now unavailable (including all algorithms that potentially use it). The self tests can be rerun again with the API above to bring the offending algorithm back into operational state. The status of the passed/failed self-tests is visible with `lc_status` or with the `lc_status_get_result()` APIs which returns the self test status of the queried algorithm(s).
+The status of the passed/failed self-tests is visible with the interfaces documented as part of [Service Indicator](#Service Indicator).
 
 Leancrypto provides multiple implementations of one algorithm. Furthermore, it contains a "selector" heuristic which selects the fastest implementation at the time when using the algorithm at runtime. This heuristic depends on the detection of CPU mechanisms required by the accelerated algorithm implementations. Considering that on one given CPU (i.e. execution environment) the heuristic will always select the same algorithm, the self test is executed only once for the selected implementation.
 
@@ -90,7 +96,7 @@ The following ELF sections are covered by the integrity check in their entirety:
 
 * .init section (covering the initialization steps)
 
-* .fips_rodata section
+* .lc_fips_rodata section
 
 * .text section (covering the entire code - note, some static data provided with assembler files is also placed into the text section)
 
@@ -118,6 +124,8 @@ Leancrypto utilizes the "constructor" functionality from the underlying platform
 
 For environments where no constructor is offered, such as the EFI environment or the Linux kernel, the function `lc_init` is provided. This function must be registered such that it is triggered during load time of the library before a consumer can use the services offered by leancrypto. For example, the Linux kernel code `linux_kernel/leancrypto_kernel.c` which would be part of a FIPS module invokes `lc_init` automatically during loading of the `leancrypto.ko` kernel module.
 
+NOTE: As the `lc_init` function is only useful in environments without constructor support (i.e. excluding the Linux user space) and knowing that the Linux user space currently only supports an integrity test, `lc_init` will not trigger an integrity test.
+
 ## Random Number Generator and Entropy Source
 
 Leancrypto offers a fully seeded RNG instance that can readily be used everywhere where a FIPS-approved random number generator is required by using `lc_seeded_rng`.
@@ -132,7 +140,7 @@ Leancrypto does not implement any entropy source. Yet, it implements support for
 
 * `jent`: This option uses the [Jitter RNG](http://chronox.de/jent/index.html) as entropy source.
 
-NOTE: The default deterministic random number generator used by leancrypto (and thus by `lc_seeded_rng`) is the XDRBG-256. At the time of writing (beginning 2025), it is not yet FIPS-approved. However, SP800-90A is subject to revision at the time of writing and it is planned to add the XDRBG as an approved algorithm. Therefore, leancrypto selects XDRBG as default. If that shall be changed, the macros `LC_SEEDED_RNG_CTX_SIZE` and `LC_SEEDED_RNG_CTX` found in `drng/src/seeded_rng.c` must be set to either the Hash DRBG or HMAC DRBG at compile time.
+NOTE: The default deterministic random number generator used by leancrypto (and thus by `lc_seeded_rng`) is the XDRBG-256. At the time of writing (September 2025), it is not yet FIPS-approved. However, SP800-90A is subject to revision at the time of writing and it is planned to add the XDRBG as an approved algorithm. Therefore, leancrypto selects XDRBG as default. If that shall be changed, the macros `LC_SEEDED_RNG_CTX_SIZE` and `LC_SEEDED_RNG_CTX` found in `drng/src/seeded_rng.c` must be set to either the Hash DRBG or HMAC DRBG at compile time.
 
 ## API and Usage Documentation
 
@@ -167,6 +175,21 @@ meson setup build -Dfips140_negative=enabled
 meson compile -C build
 meson test -C build --suite regression
 ```
+
+NOTE: All tests which are marked with an `OK` during the `meson test` run are designed to cover the negative testing. All negative tests verify:
+
+1. All CASTs are modified to fail. The tests verify that the CASTs fail.
+
+2. Upon failure of the CASTs, each test verifies that the respective algorithm(s) triggered the failure have their service indicator set to the failure mode (i.e. verification of entering the degraded mode).
+
+3. The `rerun_selftests_tester` verifies the negative behavior of FIPS integrity testing. It tests whether:
+  a) immediately after initialization the library status is in error state,
+  
+  b) checking that in this error state the algorithms are in error state and thus not usable (all servies using cryptographic algorithms are unavailable),
+  
+  c) the invocation of a cryptographic service fails with the expected error code, and
+  
+  d) triggering a rerun of the self tests and verify that the library remains in error state.
 
 ## Random Notes
 
