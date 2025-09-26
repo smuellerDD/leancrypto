@@ -346,9 +346,14 @@ SPDX-License-Identifier: GPL-2.0-or-later
 Copyright (C) 2012 Red Hat, Inc. All Rights Reserved.
 Written by David Howells (dhowells@redhat.com)
 
+Red Hat granted the following additional license to the leancrypto project:
+SPDX-License-Identifier: BSD-3-Clause
+
 The following files are affected:
 
+asn1/api/lc_asn1.h
 asn1/src/asn1_ber_bytecode.h
+asn1/src/asn1_common.c
 asn1/src/asn1_compiler.c
 asn1/src/asn1_decoder.c
 asn1/src/asn1_decoder.h

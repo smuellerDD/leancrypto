@@ -23,6 +23,10 @@
  * Copyright (C) 2012 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
  */
+/*
+ * Red Hat granted the following additional license to the leancrypto project:
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
 
 #ifndef ASYMMETRIC_TYPE_H
 #define ASYMMETRIC_TYPE_H
