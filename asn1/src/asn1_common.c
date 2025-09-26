@@ -16,6 +16,17 @@
  * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
+/*
+ * This code is derived in parts from the Linux kernel
+ * License: SPDX-License-Identifier: GPL-2.0-or-later
+ *
+ * Copyright (C) 2012 Red Hat, Inc. All Rights Reserved.
+ * Written by David Howells (dhowells@redhat.com)
+ */
+/*
+ * Red Hat granted the following additional license to the leancrypto project:
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
 
 #include "asn1_ber_bytecode.h"
 

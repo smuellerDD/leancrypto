@@ -23,6 +23,10 @@
  * Copyright (C) 2012 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
  */
+/*
+ * Red Hat granted the following additional license to the leancrypto project:
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
 
 #include "lc_memcmp_secure.h"
 #include "lc_memory_support.h"
