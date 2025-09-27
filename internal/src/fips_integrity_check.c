@@ -26,21 +26,18 @@
 int fips_integrity_check(const struct lc_fips_integrity_sections *secs,
 			 size_t n_secs,
 			 const uint8_t exp[LC_SHA3_256_SIZE_DIGEST],
-			 uint8_t act[LC_SHA3_256_SIZE_DIGEST])
+			 uint8_t act[LC_SHA3_256_SIZE_DIGEST], int rerun)
 {
 	size_t i;
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_sha3_256);
-	int ret;
+	int ret = 0;
 
-	/* Mark the library to be in FIPS integrity check state. */
-	lc_activate_library_selftest_init();
-
-	/* If self test was passed, continue on */
-	if (alg_status_get_result(LC_ALG_STATUS_LIB) ==
-	    lc_alg_status_result_failed) {
-		ret = -EFAULT;
+	/*
+	 * Mark the library to be in FIPS integrity check state, but stop if
+	 * there is another check ongoing.
+	 */
+	if (lc_activate_library_selftest_init(rerun))
 		goto out;
-	}
 
 	/*
 	 * As the SHA3-256 state is still in error state, invoke the nocheck

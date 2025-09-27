@@ -28,7 +28,7 @@ extern "C" {
 #endif
 
 void alg_status_set_all_passed_state(void);
-void lc_activate_library_selftest_init(void);
+int lc_activate_library_selftest_init(int reinit);
 void lc_activate_library_selftest_fini(void);
 void lc_activate_library_internal(void);
 void alg_status_set_result(enum lc_alg_status_result test_ret, uint64_t flag);

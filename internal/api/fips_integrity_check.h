@@ -34,7 +34,7 @@ struct lc_fips_integrity_sections {
 int fips_integrity_check(const struct lc_fips_integrity_sections *secs,
 			 size_t n_secs,
 			 const uint8_t exp[LC_SHA3_256_SIZE_DIGEST],
-			 uint8_t act[LC_SHA3_256_SIZE_DIGEST]);
+			 uint8_t act[LC_SHA3_256_SIZE_DIGEST], int rerun);
 
 #ifdef __cplusplus
 }

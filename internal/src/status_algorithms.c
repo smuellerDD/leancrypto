@@ -68,11 +68,11 @@
  * |111| -> test failed
  * +---+
  */
-typedef uint16_t alg_status_t;
+typedef uint32_t alg_status_t;
 
-#define ALG_ALL_BITS ((int)0xffffffff)
+#define ALG_ALL_BITS (0xffffffff)
 #define ALG_CLEAR_ALL_BITS ATOMIC_INIT(0)
-#define ALG_SET_ALL_BITS ATOMIC_INIT(ALG_ALL_BITS)
+#define ALG_SET_ALL_BITS ATOMIC_INIT((int)ALG_ALL_BITS)
 #define ALG_SET_TEST_PENDING(flag) (lc_alg_status_result_pending << flag)
 #define ALG_SET_TEST_PASSED(flag) (lc_alg_status_result_passed << flag)
 #define ALG_SET_TEST_FAILED(flag) (lc_alg_status_result_failed << flag)
@@ -362,56 +362,49 @@ static const struct alg_status_show alg_status_show_aux[] = {
 };
 
 // clang-format on
+static inline void alg_status_set_common(alg_status_t common_value,
+					 alg_status_t digest_value,
+					 alg_status_t aux_value)
+{
+	atomic_set(&lc_alg_status_aead, (int)common_value);
+
+#ifndef LC_KYBER_DEBUG
+	atomic_set(&lc_alg_status_kem_pqc, (int)common_value);
+#endif
+
+	atomic_set(&lc_alg_status_kem_classic, (int)common_value);
+
+#ifndef LC_DILITHIUM_DEBUG
+	atomic_set(&lc_alg_status_sig_pqc, (int)common_value);
+#endif
+
+	atomic_set(&lc_alg_status_sig_classic, (int)common_value);
+	atomic_set(&lc_alg_status_rng, (int)common_value);
+	atomic_set(&lc_alg_status_digest, (int)digest_value);
+	atomic_set(&lc_alg_status_sym, (int)common_value);
+	atomic_set(&lc_alg_status_aux, (int)aux_value);
+}
+
 static void alg_status_set_init_state(void)
 {
 	/*
-	 * Replicate the compile-time initialization state
+	 * Replicate the compile-time initialization state, but do not alter
+	 * the library flag.
 	 */
-	atomic_set(&lc_alg_status_aead, ALG_ALL_BITS);
-
-#ifndef LC_KYBER_DEBUG
-	atomic_set(&lc_alg_status_kem_pqc, ALG_ALL_BITS);
-#endif
-
-	atomic_set(&lc_alg_status_kem_classic, ALG_ALL_BITS);
-
-#ifndef LC_DILITHIUM_DEBUG
-	atomic_set(&lc_alg_status_sig_pqc, ALG_ALL_BITS);
-#endif
-
-	atomic_set(&lc_alg_status_sig_classic, ALG_ALL_BITS);
-	atomic_set(&lc_alg_status_rng, ALG_ALL_BITS);
-	atomic_set(&lc_alg_status_digest, ALG_ALL_BITS);
-	atomic_set(&lc_alg_status_sym, ALG_ALL_BITS);
-	atomic_set(&lc_alg_status_aux,
-		   ~ALG_SET_TEST_FAILED(LC_ALG_STATUS_FLAG_LIB));
+	alg_status_set_common(
+		ALG_ALL_BITS, ALG_ALL_BITS,
+		(alg_status_t)(~ALG_SET_TEST_FAILED(LC_ALG_STATUS_FLAG_LIB)));
 }
 
 static void alg_status_unset_test_state(alg_status_t digest_value)
 {
-	atomic_set(&lc_alg_status_aead, 0);
-
-#ifndef LC_KYBER_DEBUG
-	atomic_set(&lc_alg_status_kem_pqc, 0);
-#endif
-
-	atomic_set(&lc_alg_status_kem_classic, 0);
-
-#ifndef LC_DILITHIUM_DEBUG
-	atomic_set(&lc_alg_status_sig_pqc, 0);
-#endif
-
-	atomic_set(&lc_alg_status_sig_classic, 0);
-	atomic_set(&lc_alg_status_rng, 0);
-	atomic_set(&lc_alg_status_digest, digest_value);
-	atomic_set(&lc_alg_status_sym, 0);
-
 	/*
 	 * At that point, automatically define the library to be in passed
 	 * state.
 	 */
-	atomic_set(&lc_alg_status_aux,
-		   ALG_SET_TEST_PASSED(LC_ALG_STATUS_FLAG_LIB));
+	alg_status_set_common(
+		0, digest_value,
+		(alg_status_t)ALG_SET_TEST_PASSED(LC_ALG_STATUS_FLAG_LIB));
 }
 
 void alg_status_set_all_passed_state(void)
@@ -461,6 +454,10 @@ static void alg_status_unset_testresult_one(alg_status_t alg, atomic_t *status)
 	atomic_and((int)(~(lc_alg_status_result_failed << alg)), status);
 }
 
+#define alg_status_set_testresult_val(operation, test_ret, flag, status)       \
+	operation((int)(test_ret << (flag & ~LC_ALG_STATUS_TYPE_MASK) ),       \
+		  status)
+
 static void alg_status_set_testresult(enum lc_alg_status_result test_ret,
 				      uint64_t flag, atomic_t *status)
 {
@@ -489,9 +486,17 @@ static void alg_status_set_testresult(enum lc_alg_status_result test_ret,
 	 * for the offending algorithm is called triggering a full retest of
 	 * either all or just the offending algorithm.
 	 */
-	atomic_or((int)(test_ret << (flag & ~LC_ALG_STATUS_TYPE_MASK) ),
-		  status);
+	alg_status_set_testresult_val(atomic_or, test_ret, flag, status);
 }
+
+#define alg_status_result_interpret(val, alg)                                  \
+	((enum lc_alg_status_result)                                           \
+		       /* Read out the entire state variable */                \
+		       val                                                     \
+		       /* Downshift to the required flag */                    \
+		       >> alg                                                  \
+	       /* Eliminate the upper bits */                                  \
+	       & ((1 << LC_ALG_STATUS_FLAG_MASK_SIZE) - 1))
 
 static enum lc_alg_status_result alg_status_result(atomic_t *status,
 						   alg_status_t alg)
@@ -512,13 +517,7 @@ static enum lc_alg_status_result alg_status_result(atomic_t *status,
 	 * 3. now eliminate the A bits by applying a mask.
 	 */
 	/* Cast to lc_alg_status_result */
-	return (enum lc_alg_status_result)
-		       /* Read out the entire state variable */
-		       atomic_read(status)
-		       /* Downshift to the required flag */
-		       >> alg
-	       /* Eliminate the upper bits */
-	       & ((1 << LC_ALG_STATUS_FLAG_MASK_SIZE) - 1);
+	return alg_status_result_interpret(atomic_read(status), alg);
 }
 
 static enum lc_alg_status_val alg_status_is_fips_one(
@@ -882,16 +881,46 @@ void alg_status_print(uint64_t flag, char *test_completed,
 
 /*
  * FIPS mode: integrity check state
+ *
+ * returns whether the initialization should continue (0) or whether the
+ * initialization should abort as another thread is initializing the state.
  */
-void lc_activate_library_selftest_init(void)
+int lc_activate_library_selftest_init(int reinit)
 {
-	if (lc_status_get_result(LC_ALG_STATUS_LIB) >
-	    lc_alg_status_result_pending)
-		return;
+	if (!reinit) {
+		/*
+		 * This is the initialization of the library: set the state to
+		 * ongoing in a race-free manner and ensure that this code path
+		 * is only executed once.
+		 */
+		int status;
 
+		/*
+		* Race-free: fetch the value of the status flag before ORing the
+		* ongoing flag. If the value before ORing already shows ongoing
+		* (or passed/failed), the ORing did not change the value.
+		*/
+		status = alg_status_set_testresult_val(
+				atomic_fetch_or, lc_alg_status_result_ongoing,
+				LC_ALG_STATUS_LIB, &lc_alg_status_aux);
+
+		/*
+		* Now analyze the fetched value before ORing: was it pending?
+		* If yes, initialize the library. If not, this function got
+		* invoked again and we ignore this invocation.
+		*/
+		if (alg_status_result_interpret(status,
+						LC_ALG_STATUS_FLAG_LIB) >
+		    lc_alg_status_result_pending)
+			return 1;
+	}
+
+	/*
+	 * Set the library to initialization state.
+	 */
 	alg_status_set_init_state();
-	alg_status_set_result(lc_alg_status_result_ongoing,
-			      LC_ALG_STATUS_LIB);
+
+	return 0;
 }
 
 /*
@@ -916,10 +945,23 @@ void lc_activate_library_selftest_fini(void)
  */
 void lc_activate_library_internal(void)
 {
+	int status;
+
 	/*
-	 * Do not alter the state when the FIPS mode testing is/was performed.
+	 * Race-free: fetch the value of the status flag before ORing the
+	 * passed flag. If the value before ORing already shows passed (or
+	 * failed), the ORing did not change the value.
 	 */
-	if (fips140_mode_enabled() || lc_status_get_result(LC_ALG_STATUS_LIB) >
+	status = alg_status_set_testresult_val(
+			atomic_fetch_or, lc_alg_status_result_passed,
+			LC_ALG_STATUS_LIB, &lc_alg_status_aux);
+
+	/*
+	 * Now analyze the fetched value before ORing: was it pending?
+	 * If yes, initialize the library. If not, this function got invoked
+	 * again and we ignore this invocation.
+	 */
+	if (alg_status_result_interpret(status, LC_ALG_STATUS_FLAG_LIB) >
 	    lc_alg_status_result_pending)
 		return;
 

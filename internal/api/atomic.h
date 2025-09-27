@@ -169,6 +169,17 @@ static inline int atomic_or(int i, atomic_t *v)
 }
 
 /**
+ * Atomic or operation
+ * @param i integer value to or
+ * @param v atomic variable
+ * @return variable content prior to operation
+ */
+static inline int atomic_fetch_or(int i, atomic_t *v)
+{
+	return __sync_fetch_and_or(&v->counter, i);
+}
+
+/**
  * Atomic xor operation
  * @param i integer value to xor
  * @param v atomic variable
