@@ -940,6 +940,8 @@ if build_shared
 
 		# Execute generate tool to create message digest of relevant
 		# ELF sections and inserts it into the shared object
+		# The "output" definition is set to tell meson to wait before
+		# anybody links to leancrypto_lib_fips
 		fips_integrity_hasher = custom_target(
 			'fips_integrity_hasher',
 			build_always_stale: true,
@@ -947,7 +949,7 @@ if build_shared
 			install: false,
 			depends: [ leancrypto_lib_fips, integrity_generator ],
 			input: [ leancrypto_lib_fips, integrity_generator ],
-			output: 'empty',
+			output: leancrypto_lib_fips.name(),
 			command: [
 				fips_integrity_checker_script.full_path(),
 				leancrypto_lib_fips.full_path(),
