@@ -392,6 +392,7 @@ static void mode_xts_decrypt(struct lc_mode_state *ctx, const uint8_t *in,
 
 static void mode_xts_init(struct lc_mode_state *ctx,
 			  const struct lc_sym *wrapped_cipher,
+			  const struct lc_sym *tweak_cipher,
 			  void *wrapped_cipher_ctx, void *tweak_cipher_ctx)
 {
 	if (!ctx || !wrapped_cipher || !wrapped_cipher_ctx ||
@@ -399,6 +400,7 @@ static void mode_xts_init(struct lc_mode_state *ctx,
 		return;
 
 	ctx->wrapped_cipher = wrapped_cipher;
+	ctx->tweak_cipher = tweak_cipher;
 	ctx->wrapped_cipher_ctx = wrapped_cipher_ctx;
 	ctx->tweak_cipher_ctx = tweak_cipher_ctx;
 }
@@ -432,6 +434,7 @@ static int mode_xts_setkey(struct lc_mode_state *ctx, const uint8_t *key,
 	CKINT(wrapped_cipher->setkey(ctx->wrapped_cipher_ctx, key, one_keylen));
 
 	/* Set tweak key */
+	wrapped_cipher = ctx->tweak_cipher;
 	CKINT(wrapped_cipher->setkey(ctx->tweak_cipher_ctx, key + one_keylen,
 				     one_keylen));
 

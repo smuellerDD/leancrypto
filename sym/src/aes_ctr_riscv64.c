@@ -42,7 +42,7 @@ static void aes_riscv64_ctr_crypt(struct lc_sym_state *ctx, const uint8_t *in,
 
 static int aes_riscv64_ctr_init_nocheck(struct lc_sym_state *ctx)
 {
-	lc_mode_ctr_c->init(&ctx->ctr_state, lc_aes_riscv64_enc_only,
+	lc_mode_ctr_c->init(&ctx->ctr_state, lc_aes_riscv64_enc_only, NULL,
 			    &ctx->enc_block_ctx, NULL);
 
 	return 0;

@@ -68,7 +68,10 @@ static const uint8_t shake256_oid_der[] __maybe_unused = {
 	0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x0C
 };
 
-/* OIDs from https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-03.html */
+/*
+ * OIDs
+ * https://lamps-wg.github.io/draft-composite-sigs/draft-ietf-lamps-pq-composite-sigs.html
+ */
 LC_FIPS_RODATA_SECTION
 const uint8_t lc_x509_composite_sig_prefix[] = {
 	0x43, 0x6F, 0x6D, 0x70, 0x6F, 0x73, 0x69, 0x74, 0x65, 0x41, 0x6C,

@@ -56,8 +56,8 @@ static void aes_aesni_kw_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 
 static int aes_aesni_kw_init_nocheck(struct lc_sym_state *ctx)
 {
-	lc_mode_kw_c->init(&ctx->kw_state, lc_aes_aesni, &ctx->enc_block_ctx,
-			   NULL);
+	lc_mode_kw_c->init(&ctx->kw_state, lc_aes_aesni, NULL,
+			   &ctx->enc_block_ctx, NULL);
 
 	return 0;
 }

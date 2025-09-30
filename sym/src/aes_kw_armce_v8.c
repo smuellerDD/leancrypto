@@ -49,8 +49,8 @@ static void aes_armce_kw_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 
 static int aes_armce_kw_init_nocheck(struct lc_sym_state *ctx)
 {
-	lc_mode_kw_c->init(&ctx->kw_state, lc_aes_armce, &ctx->enc_block_ctx,
-			   NULL);
+	lc_mode_kw_c->init(&ctx->kw_state, lc_aes_armce, NULL,
+			   &ctx->enc_block_ctx, NULL);
 
 	return 0;
 }

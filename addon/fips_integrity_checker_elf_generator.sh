@@ -28,6 +28,13 @@ then
 fi
 
 #
+# Make sure the segment files exist
+#
+touch $TEXTSEGMENT
+touch $INITSEGMENT
+touch $RODATASEGMENT
+
+#
 # Order of segments as processed in fips_integrity_checker_elf.c:
 # 1. text
 # 2. init
@@ -38,7 +45,7 @@ $OBJCOPY							\
  --dump-section $TEXTSEGMENT=$TEXTSEGMENT			\
  --dump-section $INITSEGMENT=$INITSEGMENT			\
  --dump-section $RODATASEGMENT=$RODATASEGMENT			\
- $SOFILE
+ $SOFILE 2>/dev/null
 if [ $? -ne 0 ]
 then
 	echo "ERROR: $OBJCOPY command failed: $?"
@@ -46,7 +53,7 @@ then
 fi
 
 # Merge sections into file and create digest
-$CAT $TEXTSEGMENT $INITSEGMENT $RODATASEGMENT | $HASHER -b - > $SECOUTFILE
+$CAT $TEXTSEGMENT $INITSEGMENT $RODATASEGMENT | $HASHER -b - > $SECOUTFILE 2>/dev/null
 if [ $? -ne 0 ]
 then
 	echo "ERROR: $CAT command failed: $?"

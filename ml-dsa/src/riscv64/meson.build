@@ -28,7 +28,7 @@ if get_option('dilithium_87').enabled()
 		c_args: cc_riscv64_asm_args,
 	)
 
-	leancrypto_support_libs_fips += leancrypto_dilithium_87_riscv64_lib
+	leancrypto_support_libs += leancrypto_dilithium_87_riscv64_lib
 
 	leancrypto_dilithium_87_riscv64_rvv_lib = static_library(
 		'leancrypto_dilithium_87_riscv64_rvv_lib',
@@ -41,7 +41,7 @@ if get_option('dilithium_87').enabled()
 		c_args: [ cc_riscv64_asm_rvv_args, '-DLC_DILITHIUM_RISCV64_RVV' ]
 	)
 
-	leancrypto_support_libs_fips += leancrypto_dilithium_87_riscv64_rvv_lib
+	leancrypto_support_libs += leancrypto_dilithium_87_riscv64_rvv_lib
 endif
 
 if get_option('dilithium_65').enabled()
@@ -56,7 +56,7 @@ if get_option('dilithium_65').enabled()
 		c_args: [ cc_riscv64_asm_args, '-DLC_DILITHIUM_TYPE_65' ]
 	)
 
-	leancrypto_support_libs_fips += leancrypto_dilithium_65_riscv64_lib
+	leancrypto_support_libs += leancrypto_dilithium_65_riscv64_lib
 
 	leancrypto_dilithium_65_riscv64_rvv_lib = static_library(
 		'leancrypto_dilithium_65_riscv64_rvv_lib',
@@ -70,7 +70,7 @@ if get_option('dilithium_65').enabled()
 			  '-DLC_DILITHIUM_TYPE_65' ]
 	)
 
-	leancrypto_support_libs_fips += leancrypto_dilithium_65_riscv64_rvv_lib
+	leancrypto_support_libs += leancrypto_dilithium_65_riscv64_rvv_lib
 endif
 
 if get_option('dilithium_44').enabled()
@@ -85,7 +85,7 @@ if get_option('dilithium_44').enabled()
 		c_args: [ cc_riscv64_asm_args, '-DLC_DILITHIUM_TYPE_44' ]
 	)
 
-	leancrypto_support_libs_fips += leancrypto_dilithium_44_riscv64_lib
+	leancrypto_support_libs += leancrypto_dilithium_44_riscv64_lib
 
 	leancrypto_dilithium_44_riscv64_rvv_lib = static_library(
 		'leancrypto_dilithium_44_riscv64_rvv_lib',
@@ -99,5 +99,5 @@ if get_option('dilithium_44').enabled()
 			  '-DLC_DILITHIUM_TYPE_44' ]
 	)
 
-	leancrypto_support_libs_fips += leancrypto_dilithium_44_riscv64_rvv_lib
+	leancrypto_support_libs += leancrypto_dilithium_44_riscv64_rvv_lib
 endif

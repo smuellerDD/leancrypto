@@ -49,12 +49,12 @@ static void aes_riscv64_cbc_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 
 static int aes_riscv64_cbc_init_nocheck(struct lc_sym_state *ctx)
 {
-	lc_mode_cbc_c->init(&ctx->cbc_state, lc_aes_riscv64,
+	lc_mode_cbc_c->init(&ctx->cbc_state, lc_aes_riscv64, NULL,
 			    &ctx->enc_block_ctx, NULL);
 	return 0;
 }
 
-static void aes_riscv64_cbc_init(struct lc_sym_state *ctx)
+static int aes_riscv64_cbc_init(struct lc_sym_state *ctx)
 {
 	mode_cbc_selftest(lc_aes_cbc_riscv64);
 	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_AES_CBC);

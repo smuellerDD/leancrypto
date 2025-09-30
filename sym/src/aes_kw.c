@@ -48,7 +48,8 @@ static void aes_kw_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 
 static int aes_kw_init_nocheck(struct lc_sym_state *ctx)
 {
-	lc_mode_kw_c->init(&ctx->kw_state, lc_aes_c, &ctx->block_ctx, NULL);
+	lc_mode_kw_c->init(&ctx->kw_state, lc_aes_c, NULL, &ctx->block_ctx,
+			   NULL);
 
 	return 0;
 }

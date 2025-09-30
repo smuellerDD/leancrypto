@@ -51,7 +51,8 @@ static void aes_riscv64_xts_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 static int aes_riscv64_xts_init_nocheck(struct lc_sym_state *ctx)
 {
 	lc_mode_xts_c->init(&ctx->xts_state, lc_aes_riscv64,
-			    &ctx->enc_block_ctx, &ctx->tweak_ctx);
+			    lc_aes_riscv64_enc_only, &ctx->enc_block_ctx,
+			    &ctx->tweak_ctx);
 
 	return 0;
 }

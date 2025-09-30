@@ -35,6 +35,7 @@ union lc_xts_tweak {
 struct lc_mode_state {
 	union lc_xts_tweak tweak;
 	const struct lc_sym *wrapped_cipher;
+	const struct lc_sym *tweak_cipher;
 	void *wrapped_cipher_ctx;
 	void *tweak_cipher_ctx;
 };

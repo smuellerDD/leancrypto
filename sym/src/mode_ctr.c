@@ -164,8 +164,10 @@ static void mode_ctr_crypt(struct lc_mode_state *ctx, const uint8_t *in,
 
 static void mode_ctr_init(struct lc_mode_state *ctx,
 			  const struct lc_sym *wrapped_cipher,
+			  const struct lc_sym *tweak_cipher,
 			  void *wrapped_cipher_ctx, void *tweak_ctx)
 {
+	(void)tweak_cipher;
 	(void)tweak_ctx;
 
 	if (!ctx || !wrapped_cipher || !wrapped_cipher_ctx ||
