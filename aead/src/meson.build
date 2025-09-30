@@ -116,6 +116,19 @@ if get_option('aes_gcm').enabled()
 		leancrypto_support_libs += leancrypto_aes_gcm_neon_armv8_lib
 	endif
 
+	if (riscv64_asm)
+		leancrypto_aes_gcm_riscv64_lib = static_library(
+			'leancrypto_aes_gcm_riscv64_lib',
+			[ 'asm/riscv/gfmul_riscv.S',
+			  'asm/riscv/gfmul_riscv_if.c'
+			],
+			c_args: cc_riscv64_asm_zbb_args,
+			include_directories: [ include_dirs,
+					       include_internal_dirs ],
+		)
+		leancrypto_support_libs += leancrypto_aes_gcm_riscv64_lib
+	endif
+
 	if (x86_64_asm)
 		leancrypto_aes_gcm_x86_64_lib = static_library(
 			'leancrypto_aes_gcm_x86_64_lib',

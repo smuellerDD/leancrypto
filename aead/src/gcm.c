@@ -59,6 +59,7 @@
 #include "xor.h"
 
 #include "asm/ARMv8/gfmul_neon.h"
+#include "asm/riscv/gfmul_riscv.h"
 #include "asm/X86_64/gfmul_x86_64.h"
 
 #define AES_BLOCKSIZE 16
@@ -358,6 +359,14 @@ static int gcm_setkey(struct lc_aes_gcm_cryptor *ctx, const uint8_t *key,
 	} else if (feat & LC_CPU_FEATURE_INTEL_PCLMUL) {
 		gfmu_x8664_init((uint64_t *)ctx->gcm_ctx.HL, H);
 		ctx->gcm_ctx.gcm_gmult_accel = gfmu_x8664;
+		goto out;
+	} else if (feat & LC_CPU_FEATURE_RISCV_ASM_ZBB) {
+		gfmul_init_riscv64_zbb((uint64_t *)ctx->gcm_ctx.HL, H);
+		ctx->gcm_ctx.gcm_gmult_accel = gfmul_riscv64;
+		goto out;
+	} else if (feat & LC_CPU_FEATURE_RISCV) {
+		gfmul_init_riscv64((uint64_t *)ctx->gcm_ctx.HL, H);
+		ctx->gcm_ctx.gcm_gmult_accel = gfmul_riscv64;
 		goto out;
 	} else {
 		ctx->gcm_ctx.gcm_gmult_accel = NULL;
