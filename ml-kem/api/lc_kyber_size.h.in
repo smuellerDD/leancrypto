@@ -289,6 +289,9 @@ int @kyber_name@_dec(struct @kyber_name@_ss *ss, const struct @kyber_name@_ct *c
 int @kyber_name@_dec_kdf(uint8_t *ss, size_t ss_len, const struct @kyber_name@_ct *ct,
 		     const struct @kyber_name@_sk *sk);
 
+
+int @kyber_name@_iv_sk(const struct @kyber_name@_sk *sk);
+
 /************************************* KEX ************************************/
 
 /**

@@ -176,6 +176,8 @@ LC_INTERFACE_FUNCTION(unsigned int, lc_kyber_ss_size,
 LC_INTERFACE_FUNCTION(int, lc_kyber_sk_load, struct lc_kyber_sk *sk,
 		      const uint8_t *src_key, size_t src_key_len)
 {
+	int ret = 0;
+
 	if (!sk || !src_key || src_key_len == 0) {
 		return -EINVAL;
 #ifdef LC_KYBER_1024_ENABLED
@@ -184,6 +186,8 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_sk_load, struct lc_kyber_sk *sk,
 
 		memcpy(_sk->sk, src_key, src_key_len);
 		sk->kyber_type = LC_KYBER_1024;
+
+		CKINT(lc_kyber_1024_iv_sk(_sk));
 		return 0;
 #endif
 #ifdef LC_KYBER_768_ENABLED
@@ -192,6 +196,8 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_sk_load, struct lc_kyber_sk *sk,
 
 		memcpy(_sk->sk, src_key, src_key_len);
 		sk->kyber_type = LC_KYBER_768;
+
+		CKINT(lc_kyber_768_iv_sk(_sk));
 		return 0;
 #endif
 #ifdef LC_KYBER_512_ENABLED
@@ -200,11 +206,16 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_sk_load, struct lc_kyber_sk *sk,
 
 		memcpy(_sk->sk, src_key, src_key_len);
 		sk->kyber_type = LC_KYBER_512;
+
+		CKINT(lc_kyber_512_iv_sk(_sk));
 		return 0;
 #endif
 	} else {
 		return -EINVAL;
 	}
+
+out:
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_kyber_pk_load, struct lc_kyber_pk *pk,

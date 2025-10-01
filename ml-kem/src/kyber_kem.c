@@ -200,7 +200,7 @@ out:
  *
  * @return 0 on success, < 0 on error
  */
-static int kyber_kem_iv_sk(const struct lc_kyber_sk *sk)
+int kyber_kem_iv_sk(const struct lc_kyber_sk *sk)
 {
 	uint8_t kr[LC_KYBER_SYMBYTES];
 	int ret = 0;
