@@ -52,7 +52,11 @@ static int lc_cshake_init_impl(struct lc_hash_ctx *ctx, const uint8_t *n,
 	 */
 	if (!nlen && !slen) {
 		LC_HASH_SET_CTX(ctx, shake128 ? lc_shake128 : lc_shake256);
-		return hash_init(ctx->hash_state);
+		/*
+		 * At this point, we do not use hash_init, because we may
+		 * trigger the SHAKE health test again, even in test mode.
+		 */
+		return lc_hash_init(ctx);
 	}
 
 	ret = hash_init(ctx->hash_state);
