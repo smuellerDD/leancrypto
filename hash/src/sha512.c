@@ -320,12 +320,8 @@ void sha512_final(struct lc_sha512_state *ctx, uint8_t *digest,
 	lc_memset_secure(ctx->partial, 0, LC_SHA512_SIZE_BLOCK);
 
 	/* Output digest */
-	for (i = 0; i < 8; i++, digest += 8) {
+	for (i = 0; i < 8; i++, digest += 8)
 		be64_to_ptr(digest, ctx->H[i]);
-
-		/* Zeroization */
-		ctx->H[i] = 0;
-	}
 }
 
 static void sha384_final_c(void *_state, uint8_t *digest)

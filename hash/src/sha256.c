@@ -283,10 +283,7 @@ static void sha256_final_c(void *_state, uint8_t *digest)
 {
 	struct lc_sha256_state *ctx = _state;
 
-	if (!ctx)
-		return;
-
-	sha256_final(_state, digest, sha256_transform_block_c);
+	sha256_final(ctx, digest, sha256_transform_block_c);
 }
 
 size_t sha256_get_digestsize(void *_state)
