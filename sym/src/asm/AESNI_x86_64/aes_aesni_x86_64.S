@@ -1630,6 +1630,7 @@ SYM_FUNC_ENTER(aesni_ctr32_encrypt_blocks)
 .cfi_endproc	
 SYM_FUNC_END(aesni_ctr32_encrypt_blocks)
 
+STACK_FRAME_NON_STANDARD(aesni_xts_encrypt)
 SYM_FUNC_START(aesni_xts_encrypt)
 SYM_FUNC_ENTER(aesni_xts_encrypt)
 .align	16
@@ -2106,10 +2107,11 @@ SYM_FUNC_ENTER(aesni_xts_encrypt)
 .cfi_endproc
 SYM_FUNC_END(aesni_xts_encrypt)
 
+STACK_FRAME_NON_STANDARD(aesni_xts_decrypt)
 SYM_FUNC_START(aesni_xts_decrypt)
 SYM_FUNC_ENTER(aesni_xts_decrypt)
 .align	16
-.cfi_startproc	
+.cfi_startproc
 .byte	243,15,30,250
 	leaq	(%rsp),%r11
 .cfi_def_cfa_register	%r11
