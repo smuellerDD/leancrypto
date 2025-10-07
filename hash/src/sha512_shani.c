@@ -41,7 +41,7 @@ static void sha384_final_shani(void *_state, uint8_t *digest)
 	struct lc_sha512_state *ctx = _state;
 
 	LC_FPU_ENABLE;
-	sha512_final(ctx, digest, sha512_block_data_order_shaext);
+	sha384_final(ctx, digest, sha512_block_data_order_shaext);
 	LC_FPU_DISABLE;
 }
 

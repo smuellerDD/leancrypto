@@ -38,7 +38,7 @@ static void sha384_final_riscv_zbb(void *_state, uint8_t *digest)
 {
 	struct lc_sha512_state *ctx = _state;
 
-	sha512_final(ctx, digest, sha512_block_data_order_riscv_zbb);
+	sha384_final(ctx, digest, sha512_block_data_order_riscv_zbb);
 }
 
 static void sha512_final_riscv_zbb(void *_state, uint8_t *digest)

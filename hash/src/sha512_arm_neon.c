@@ -42,7 +42,7 @@ static void sha384_final_arm_neon(void *_state, uint8_t *digest)
 	struct lc_sha512_state *ctx = _state;
 
 	LC_NEON_ENABLE;
-	sha512_final(ctx, digest, sha512_block_neon);
+	sha384_final(ctx, digest, sha512_block_neon);
 	LC_NEON_DISABLE;
 }
 

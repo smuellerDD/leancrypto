@@ -53,6 +53,10 @@ void sha512_update(struct lc_sha512_state *ctx, const uint8_t *in, size_t inlen,
 		   void (*sha512_transform_block)(struct lc_sha512_state *ctx,
 						  const uint8_t *in,
 						  size_t blocks));
+void sha384_final(struct lc_sha512_state *ctx, uint8_t *digest,
+		  void (*sha512_transform_block)(struct lc_sha512_state *ctx,
+						 const uint8_t *in,
+						 size_t blocks));
 void sha512_final(struct lc_sha512_state *ctx, uint8_t *digest,
 		  void (*sha512_transform_block)(struct lc_sha512_state *ctx,
 						 const uint8_t *in,

@@ -56,7 +56,7 @@ static int _sha384_tester(const struct lc_hash *sha384, const char *name)
 		return 1;
 	lc_hash_update(ctx384_stack, msg_384, sizeof(msg_384));
 	lc_hash_final(ctx384_stack, act);
-	ret = lc_compare(act, exp_384, LC_SHA384_SIZE_DIGEST, "SHA-384");
+	ret = lc_compare(act, exp_384, LC_SHA384_SIZE_DIGEST, "SHA-384 1");
 	lc_hash_zero(ctx384_stack);
 
 	if (lc_hash_alloc(lc_sha384, &ctx384))
@@ -67,7 +67,7 @@ static int _sha384_tester(const struct lc_hash *sha384, const char *name)
 	}
 	lc_hash_update(ctx384, msg_384, sizeof(msg_384));
 	lc_hash_final(ctx384, act);
-	ret += lc_compare(act, exp_384, LC_SHA384_SIZE_DIGEST, "SHA-384");
+	ret += lc_compare(act, exp_384, LC_SHA384_SIZE_DIGEST, "SHA-384 2");
 	lc_hash_zero_free(ctx384);
 
 	if (lc_hash_init(sha384_stack))
