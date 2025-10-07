@@ -39,35 +39,19 @@ static void sha512_update_avx2(void *_state, const uint8_t *in, size_t inlen)
 static void sha384_final_avx2(void *_state, uint8_t *digest)
 {
 	struct lc_sha512_state *ctx = _state;
-	unsigned int i;
-
-	if (!ctx)
-		return;
 
 	LC_FPU_ENABLE;
-	sha512_final(_state, sha512_block_data_order_avx2);
+	sha512_final(ctxs, digest, sha512_block_data_order_avx2);
 	LC_FPU_DISABLE;
-
-	/* Output digest */
-	for (i = 0; i < 6; i++, digest += 8)
-		be64_to_ptr(digest, ctx->H[i]);
 }
 
 static void sha512_final_avx2(void *_state, uint8_t *digest)
 {
 	struct lc_sha512_state *ctx = _state;
-	unsigned int i;
-
-	if (!ctx)
-		return;
 
 	LC_FPU_ENABLE;
-	sha512_final(_state, sha512_block_data_order_avx2);
+	sha512_final(ctx, digest, sha512_block_data_order_avx2);
 	LC_FPU_DISABLE;
-
-	/* Output digest */
-	for (i = 0; i < 8; i++, digest += 8)
-		be64_to_ptr(digest, ctx->H[i]);
 }
 
 static const struct lc_hash _sha384_avx2 = {

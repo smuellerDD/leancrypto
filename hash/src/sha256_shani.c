@@ -40,11 +40,8 @@ static void sha256_final_shani(void *_state, uint8_t *digest)
 {
 	struct lc_sha256_state *ctx = _state;
 
-	if (!ctx)
-		return;
-
 	LC_FPU_ENABLE;
-	sha256_final(_state, digest, sha256_block_data_order_shaext);
+	sha256_final(ctx, digest, sha256_block_data_order_shaext);
 	LC_FPU_DISABLE;
 }
 

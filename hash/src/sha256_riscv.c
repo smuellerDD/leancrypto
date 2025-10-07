@@ -37,10 +37,7 @@ static void sha256_final_riscv(void *_state, uint8_t *digest)
 {
 	struct lc_sha256_state *ctx = _state;
 
-	if (!ctx)
-		return;
-
-	sha256_final(_state, digest, sha256_block_data_order_riscv);
+	sha256_final(ctx, digest, sha256_block_data_order_riscv);
 }
 
 static const struct lc_hash _sha256_riscv = {

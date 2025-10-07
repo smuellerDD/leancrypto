@@ -40,35 +40,19 @@ static void sha512_update_arm_neon(void *_state, const uint8_t *in,
 static void sha384_final_arm_neon(void *_state, uint8_t *digest)
 {
 	struct lc_sha512_state *ctx = _state;
-	unsigned int i;
-
-	if (!ctx)
-		return;
 
 	LC_NEON_ENABLE;
-	sha512_final(_state, sha512_block_neon);
+	sha512_final(ctx, digest, sha512_block_neon);
 	LC_NEON_DISABLE;
-
-	/* Output digest */
-	for (i = 0; i < 6; i++, digest += 8)
-		be64_to_ptr(digest, ctx->H[i]);
 }
 
 static void sha512_final_arm_neon(void *_state, uint8_t *digest)
 {
 	struct lc_sha512_state *ctx = _state;
-	unsigned int i;
-
-	if (!ctx)
-		return;
 
 	LC_NEON_ENABLE;
-	sha512_final(_state, sha512_block_neon);
+	sha512_final(ctx, digest, sha512_block_neon);
 	LC_NEON_DISABLE;
-
-	/* Output digest */
-	for (i = 0; i < 8; i++, digest += 8)
-		be64_to_ptr(digest, ctx->H[i]);
 }
 
 static const struct lc_hash _sha384_arm_neon = {

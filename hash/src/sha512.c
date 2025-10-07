@@ -276,12 +276,15 @@ static void sha512_update_c(void *_state, const uint8_t *in, size_t inlen)
 	sha512_update(ctx, in, inlen, sha512_transform_block_c);
 }
 
-void sha512_final(struct lc_sha512_state *ctx,
+void sha512_final(struct lc_sha512_state *ctx, uint8_t *digest,
 		  void (*sha512_transform_block)(struct lc_sha512_state *ctx,
 						 const uint8_t *in,
 						 size_t blocks))
 {
-	unsigned int partial;
+	unsigned int i, partial;
+
+	if (!ctx || !digest)
+		return;
 
 	partial = ctx->msg_len % LC_SHA512_SIZE_BLOCK;
 
@@ -315,36 +318,28 @@ void sha512_final(struct lc_sha512_state *ctx,
 	sha512_transform_block(ctx, ctx->partial, 1);
 
 	lc_memset_secure(ctx->partial, 0, LC_SHA512_SIZE_BLOCK);
+
+	/* Output digest */
+	for (i = 0; i < 8; i++, digest += 8) {
+		be64_to_ptr(digest, ctx->H[i]);
+
+		/* Zeroization */
+		ctx->H[i] = 0;
+	}
 }
 
 static void sha384_final_c(void *_state, uint8_t *digest)
 {
 	struct lc_sha512_state *ctx = _state;
-	unsigned int i;
 
-	if (!ctx)
-		return;
-
-	sha512_final(_state, sha512_transform_block_c);
-
-	/* Output digest */
-	for (i = 0; i < 6; i++, digest += 8)
-		be64_to_ptr(digest, ctx->H[i]);
+	sha512_final(ctx, digest, sha512_transform_block_c);
 }
 
 static void sha512_final_c(void *_state, uint8_t *digest)
 {
 	struct lc_sha512_state *ctx = _state;
-	unsigned int i;
 
-	if (!ctx)
-		return;
-
-	sha512_final(_state, sha512_transform_block_c);
-
-	/* Output digest */
-	for (i = 0; i < 8; i++, digest += 8)
-		be64_to_ptr(digest, ctx->H[i]);
+	sha512_final(ctx, digest, sha512_transform_block_c);
 }
 
 void sha512_extract_bytes(const void *state, uint8_t *data, size_t offset,

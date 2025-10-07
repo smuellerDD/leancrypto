@@ -41,11 +41,8 @@ static void sha256_final_arm_neon(void *_state, uint8_t *digest)
 {
 	struct lc_sha256_state *ctx = _state;
 
-	if (!ctx)
-		return;
-
 	LC_NEON_ENABLE;
-	sha256_final(_state, digest, sha256_block_neon);
+	sha256_final(ctx, digest, sha256_block_neon);
 	LC_NEON_DISABLE;
 }
 

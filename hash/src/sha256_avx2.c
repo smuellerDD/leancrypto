@@ -40,11 +40,8 @@ static void sha256_final_avx2(void *_state, uint8_t *digest)
 {
 	struct lc_sha256_state *ctx = _state;
 
-	if (!ctx)
-		return;
-
 	LC_FPU_ENABLE;
-	sha256_final(_state, digest, sha256_block_data_order_avx2);
+	sha256_final(ctx, digest, sha256_block_data_order_avx2);
 	LC_FPU_DISABLE;
 }
 
