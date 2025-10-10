@@ -236,13 +236,13 @@ static const struct alg_status_show alg_status_show_kem_classic[] = {
 static const struct alg_status_show alg_status_show_sig_pqc[] = {
 #if (defined(LC_DILITHIUM) || defined(CONFIG_LEANCRYPTO_DILITHIUM))
 { .flag = LC_ALG_STATUS_MLDSA_KEYGEN | LC_ALG_STATUS_FIPS, .alg_name = "ML-DSA-Keygen", .strlen = 13 },
-{ .flag = LC_ALG_STATUS_MLDSA_SIGGEN | LC_ALG_STATUS_FIPS, .alg_name = "ML-DSA-Enc", .strlen = 10 },
-{ .flag = LC_ALG_STATUS_MLDSA_SIGVER | LC_ALG_STATUS_FIPS, .alg_name = "ML-DSA-Dec", .strlen = 10 },
+{ .flag = LC_ALG_STATUS_MLDSA_SIGGEN | LC_ALG_STATUS_FIPS, .alg_name = "ML-DSA-Sig", .strlen = 10 },
+{ .flag = LC_ALG_STATUS_MLDSA_SIGVER | LC_ALG_STATUS_FIPS, .alg_name = "ML-DSA-Ver", .strlen = 10 },
 #endif
 #if (defined(LC_SPHINCS) || defined(CONFIG_LEANCRYPTO_SPHINCS))
 { .flag = LC_ALG_STATUS_SLHDSA_KEYGEN | LC_ALG_STATUS_FIPS, .alg_name = "SLH-DSA-Keygen", .strlen = 14 },
-{ .flag = LC_ALG_STATUS_SLHDSA_SIGGEN | LC_ALG_STATUS_FIPS, .alg_name = "SLH-DSA-Enc", .strlen = 11 },
-{ .flag = LC_ALG_STATUS_SLHDSA_SIGVER | LC_ALG_STATUS_FIPS, .alg_name = "SLH-DSA-Dec", .strlen = 11 },
+{ .flag = LC_ALG_STATUS_SLHDSA_SIGGEN | LC_ALG_STATUS_FIPS, .alg_name = "SLH-DSA-Sig", .strlen = 11 },
+{ .flag = LC_ALG_STATUS_SLHDSA_SIGVER | LC_ALG_STATUS_FIPS, .alg_name = "SLH-DSA-Ver", .strlen = 11 },
 #endif
 /* Make sure this array is never empty */
 { .flag = 0, .alg_name = NULL, .strlen = 0 }
@@ -251,13 +251,13 @@ static const struct alg_status_show alg_status_show_sig_pqc[] = {
 static const struct alg_status_show alg_status_show_sig_classic[] = {
 #if (defined(LC_DILITHIUM_ED25519) || defined(LC_CURVE25519))
 { .flag = LC_ALG_STATUS_ED25519_KEYGEN | LC_ALG_STATUS_FIPS, .alg_name = "ED25519-Keygen", .strlen = 14 },
-{ .flag = LC_ALG_STATUS_ED25519_SIGGEN | LC_ALG_STATUS_FIPS, .alg_name = "ED25519-Enc", .strlen = 11 },
-{ .flag = LC_ALG_STATUS_ED25519_SIGVER | LC_ALG_STATUS_FIPS, .alg_name = "ED25519-Dec", .strlen = 11 },
+{ .flag = LC_ALG_STATUS_ED25519_SIGGEN | LC_ALG_STATUS_FIPS, .alg_name = "ED25519-Sig", .strlen = 11 },
+{ .flag = LC_ALG_STATUS_ED25519_SIGVER | LC_ALG_STATUS_FIPS, .alg_name = "ED25519-Ver", .strlen = 11 },
 #endif
 #if (defined(LC_DILITHIUM_ED448) || defined(LC_CURVE448))
 { .flag = LC_ALG_STATUS_ED448_KEYGEN | LC_ALG_STATUS_FIPS, .alg_name = "ED448-Keygen", .strlen = 12 },
-{ .flag = LC_ALG_STATUS_ED448_SIGGEN | LC_ALG_STATUS_FIPS, .alg_name = "ED448-Enc", .strlen = 9 },
-{ .flag = LC_ALG_STATUS_ED448_SIGVER | LC_ALG_STATUS_FIPS, .alg_name = "ED448-Dec", .strlen = 9 },
+{ .flag = LC_ALG_STATUS_ED448_SIGGEN | LC_ALG_STATUS_FIPS, .alg_name = "ED448-Sig", .strlen = 9 },
+{ .flag = LC_ALG_STATUS_ED448_SIGVER | LC_ALG_STATUS_FIPS, .alg_name = "ED448-Ver", .strlen = 9 },
 #endif
 /* Make sure this array is never empty */
 { .flag = 0, .alg_name = NULL, .strlen = 0 }
@@ -344,13 +344,13 @@ static const struct alg_status_show alg_status_show_aux[] = {
 #if (defined(LC_HKDF) || defined(CONFIG_LEANCRYPTO_HKDF))
 { .flag = LC_ALG_STATUS_HKDF | LC_ALG_STATUS_FIPS, .alg_name = "HKDF", .strlen = 4 },
 #endif
-#if (defined(LC_KDF_CTR) || defined(DCONFIG_LEANCRYPTO_KDF_CTR))
+#if (defined(LC_KDF_CTR) || defined(CONFIG_LEANCRYPTO_KDF_CTR))
 { .flag = LC_ALG_STATUS_CTR_KDF | LC_ALG_STATUS_FIPS, .alg_name = "CTR-KDF", .strlen = 7 },
 #endif
-#if (defined(LC_KDF_DPI) || defined(DCONFIG_LEANCRYPTO_KDF_DPI))
+#if (defined(LC_KDF_DPI) || defined(CONFIG_LEANCRYPTO_KDF_DPI))
 { .flag = LC_ALG_STATUS_DPI_KDF | LC_ALG_STATUS_FIPS, .alg_name = "DPI-KDF", .strlen = 7 },
 #endif
-#if (defined(LC_KDF_FB) || defined(DCONFIG_LEANCRYPTO_KDF_FB))
+#if (defined(LC_KDF_FB) || defined(CONFIG_LEANCRYPTO_KDF_FB))
 { .flag = LC_ALG_STATUS_FB_KDF | LC_ALG_STATUS_FIPS, .alg_name = "FB-KDF", .strlen = 6 },
 #endif
 #if (defined(LC_DRNG_PBKDF2) || defined(CONFIG_LEANCRYPTO_PBKDF2))
