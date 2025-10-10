@@ -793,6 +793,7 @@ static void x509_generator_usage(void)
 	fprintf(stderr, "\t\t\t\t\toutput with --create-keypair\n");
 	fprintf(stderr,
 		"\t   --key-type <TYPE>\t\tInput keys are of given type\n");
+	fprintf(stderr, "\t\t\t\t\tQuery available types with \"?\"\n");
 	fprintf(stderr,
 		"\t   --create-keypair <TYPE>\tCreate key pair of given type\n");
 	fprintf(stderr, "\t\t\t\t\tNOTE: generated keys are written to file\n");
@@ -1020,7 +1021,7 @@ int main(int argc, char *argv[])
 				CKINT_LOG(lc_x509_pkey_name_to_algorithm(
 						  optarg,
 						  &ws->parsed_opts.in_key_type),
-					  "Key type paring failure\n");
+					  "Key type unknown\n");
 				break;
 			/* create-keypair */
 			case 6:
@@ -1044,13 +1045,13 @@ int main(int argc, char *argv[])
 			case 9:
 				CKINT_LOG(x509_enc_eku(&ws->parsed_opts,
 						       optarg),
-					  "EKU parsing error\n");
+					  "EKU unknown\n");
 				break;
 			/* keyusage */
 			case 10:
 				CKINT_LOG(x509_enc_keyusage(&ws->parsed_opts,
 							    optarg),
-					  "Key usage parsing error\n");
+					  "Key usage unknown\n");
 				break;
 			/* ca */
 			case 11:
