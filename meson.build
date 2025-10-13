@@ -873,7 +873,7 @@ if build_shared
 		dependencies: [ leancrypto_link ],
 		link_whole: [ leancrypto_support_libs ],
 		link_args: link_args_fips140,
-		install: true
+		install: false
 		)
 
 	# Create the official shared library

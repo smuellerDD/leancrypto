@@ -116,3 +116,9 @@ leancrypto-$(CONFIG_LEANCRYPTO_AES_GCM)					       \
 				+= ../aead/src/asm/ARMv8/gfmul_neon.o	       \
 				   ../aead/src/asm/ARMv8/gfmul_neon_if.o
 endif
+
+ifneq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
+leancrypto-$(CONFIG_LEANCRYPTO_AES_GCM)					       \
+				+= ../aead/src/asm/riscv/gfmul_riscv.o	       \
+				   ../aead/src/asm/riscv/gfmul_riscv_if.o
+endif

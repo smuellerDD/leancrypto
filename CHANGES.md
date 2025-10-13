@@ -5,7 +5,7 @@ Changes 1.6.0-prerelease
 
 * X.509: add lc_gmtime to convert Epoch to time format
 
-* ASN.1: added to Linux kernel
+* ASN.1: added to Linux kernel (for 64 bit systems only)
 
 * AES-GCM added
 

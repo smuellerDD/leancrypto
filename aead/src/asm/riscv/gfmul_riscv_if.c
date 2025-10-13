@@ -19,7 +19,7 @@
 
 #include "cpufeatures.h"
 #include "gfmul_riscv.h"
-#include "ext_headers_arm.h"
+#include "ext_headers_riscv.h"
 
 void gcm_init_rv64i_zbc(uint64_t *Htable, const uint64_t Xi[2]);
 void gcm_init_rv64i_zbc__zbb(uint64_t *Htable, const uint64_t Xi[2]);

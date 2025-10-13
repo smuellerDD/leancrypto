@@ -415,7 +415,7 @@ static int mode_xts_setkey(struct lc_mode_state *ctx, const uint8_t *key,
 	if (!ctx || !ctx->wrapped_cipher || !ctx->tweak_cipher_ctx)
 		return -EINVAL;
 
-	one_keylen = keylen / 2;
+	one_keylen = keylen >> 1;
 
 	/*
 	 * Timecop: key is sensitive.

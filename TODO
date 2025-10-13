@@ -22,3 +22,5 @@
 - RISCV asm: check whether it works for RISCV32
 
 - Add SLH-DSA-Ascon to Linux kernel
+
+- Linux kernel: enable ASN.1 on 32 bit systems (due to gmtime.c divisions, __divdi3 (i586) and __aeabi_divmod (armv7) are included by compiler)
