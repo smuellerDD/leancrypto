@@ -94,7 +94,7 @@ if get_option('dilithium_87').enabled()
 					include_internal_dirs,
 					include_dilithium_internal
 				],
-				dependencies: leancrypto_fips
+				dependencies: [ leancrypto_fips, fips_integrity_hasher_dep ]
 				)
 
 	test('Dilithium signature C', dilithium_tester_c, suite: regression,

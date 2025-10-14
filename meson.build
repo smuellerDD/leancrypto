@@ -858,6 +858,7 @@ if (host_machine.system() != 'windows')
 		    check: true)
 endif
 
+fips_integrity_hasher_dep = []
 # Build FIPS 140 library
 if build_shared
 	link_args_fips140 = [ ]
@@ -955,6 +956,7 @@ if build_shared
 				leancrypto_lib_fips.full_path(),
 				integrity_generator.full_path() ]
 			)
+		fips_integrity_hasher_dep = declare_dependency(sources: fips_integrity_hasher)
 	endif
 else
 	leancrypto_raw_static_lib = static_library('leancrypto-raw',

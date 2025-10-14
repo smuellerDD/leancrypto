@@ -205,7 +205,7 @@ if get_option('sphincs_shake_256s').enabled()
 					include_dirs,
 					include_internal_dirs,
 				],
-				dependencies: leancrypto_fips
+				dependencies: [ leancrypto_fips, fips_integrity_hasher_dep ]
 				)
 
 	if get_option('slh_dsa_ascon_128s').enabled()

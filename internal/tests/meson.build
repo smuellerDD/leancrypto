@@ -41,7 +41,7 @@ if (get_option('sha3').enabled() and
 	rerun_selftests_tester = executable('rerun_selftests_tester',
 			   [ 'rerun_selftests_tester.c', internal_src ],
 			   include_directories: [ include_internal_dirs ],
-			   dependencies: leancrypto_fips
+			   dependencies: [ leancrypto_fips, fips_integrity_hasher_dep ]
 			  )
 	rerun_one_selftest_tester = executable('rerun_one_selftest_tester',
 			   [ 'rerun_one_selftest_tester.c', internal_src ],

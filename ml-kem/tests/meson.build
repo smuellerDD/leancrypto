@@ -94,7 +94,7 @@ if get_option('kyber_1024').enabled()
 					include_internal_dirs,
 					include_kyber_internal
 				],
-				dependencies: leancrypto_fips
+				dependencies: [ leancrypto_fips, fips_integrity_hasher_dep ]
 				)
 	kyber_modulus_tester = executable('kyber_modulus_tester',
 				[ 'kyber_modulus_tester.c', internal_src ],
