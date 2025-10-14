@@ -60,10 +60,13 @@ then
 	exit $?
 fi
 
-# Insert data into library file
-$OBJCOPY --update-section $FIPSDATASEGMENT="$SECOUTFILE" $SOFILE
+# Insert data into library file using an atomic operation
+trap "rm -f $SOFILE.$$" 0 1 2 3 15
+cp $SOFILE $SOFILE.$$
+$OBJCOPY --update-section $FIPSDATASEGMENT="$SECOUTFILE" $SOFILE.$$
 if [ $? -ne 0 ]
 then
 	echo "ERROR: $OBJCOPY command failed: $?"
 	exit $?
 fi
+mv -f $SOFILE.$$ $SOFILE
