@@ -26,6 +26,7 @@ pub enum lcr_sym_type {
 	lcr_aes_ctr,
 	lcr_aes_kw,
 	lcr_chacha20,
+	lcr_aes_xts,
 }
 
 /// Leancrypto wrapper for lc_sym
@@ -66,6 +67,11 @@ impl lcr_sym {
 			lcr_sym_type::lcr_chacha20 => unsafe {
 				leancrypto::lc_sym_alloc(
 					leancrypto::lc_chacha20,
+					&mut self.sym_ctx)
+			},
+			lcr_sym_type::lcr_aes_xts => unsafe {
+				leancrypto::lc_sym_alloc(
+					leancrypto::lc_aes_xts,
 					&mut self.sym_ctx)
 			},
 		}
