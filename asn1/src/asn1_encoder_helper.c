@@ -22,6 +22,10 @@
  *
  * Copyright (C) 2019 James.Bottomley@HansenPartnership.com
  */
+/*
+ * James Bottomley granted the following additional license to the leancrypto
+ * project: SPDX-License-Identifier: BSD-3-Clause
+ */
 
 #include "asn1_debug.h"
 #include "asn1_encoder.h"
