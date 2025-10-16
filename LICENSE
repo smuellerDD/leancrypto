@@ -148,6 +148,19 @@ from the LLVM project as well.
 
 Anyhow, the GCC code is: GPL 3. The LLVM code is: Apache License v2.0.
 
+NOTE: The presence of GPL 3 code is NOT considered to taint the leancrypto code
+base to the GPL 3 restrictions, because all duplicated code is only and
+exclusively inline code (i.e. the upstream code is also inline code) to invoke
+the proper compiler intrinsics. Therefore, the duplicated code must be
+viewed identically to the regular code which by common approach will not
+levy the GPL 3 restrictions on the consuming code. Therefore, in light of this
+consideration, leancrypto is still assumed to retain the original license
+mentioned above.
+
+Once GCC and Clang could be brought to de-entangle declarations for library code
+from the actual intrinsic declarations to invoke compiler built-ins, this
+duplicated code can be removed.
+
 ================================================================================
 
 The following files are licensed under the Apache License 2.0, copyright:
