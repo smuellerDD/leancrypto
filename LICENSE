@@ -392,6 +392,9 @@ License: SPDX-License-Identifier: GPL-2.0-only
 
 Copyright (C) 2019 James.Bottomley@HansenPartnership.com
 
+James Bottomley granted the following additional license to the leancrypto
+project: SPDX-License-Identifier: BSD-3-Clause
+
 The following files are affected:
 
 asn1/src/asn1_encoder_helper.c
