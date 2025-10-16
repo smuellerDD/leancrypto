@@ -25,6 +25,8 @@ Changes 1.6.0-prerelease
 
 * FIPS: Add FIPS indicator which implies that libleancrypto.so has the same functionality as libleancrypto-fips.so with the exception that the latter performs an integrity test.
 
+* ARMv9: fix BTI for ML-DSA
+
 Changes 1.5.1
 * add ChaCha20 Poly 1305 AEAD
 
