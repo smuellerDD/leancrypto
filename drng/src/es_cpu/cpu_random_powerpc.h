@@ -27,10 +27,32 @@
 #define LC_CPU_ES_IMPLEMENTED
 
 #define PPC_DARN_ERR 0xFFFFFFFFFFFFFFFFul
+
+/* Helper for enabling detection of DARN instruction */
+#if 0
+#include <sys/auxv.h>
+static inline int darn_available(void)
+{
+	unsigned long c = getauxval(AT_HWCAP2);
+
+	return !!(c & PPC_FEATURE2_DARN);
+}
+#endif
+
 static inline bool cpu_es_get(unsigned long *buf)
 {
 	unsigned long val;
 	unsigned int i;
+
+#if 0
+	static int darn_avail = -1;
+
+	if (darn_avail == -1) {
+		darn_avail = darn_available();
+	}
+	if (!darn_avail)
+		return false;
+#endif
 
 	/*
 	 * Using DARN with
