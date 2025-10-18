@@ -8,6 +8,8 @@
 
 * AES-XTS
 
+This release requires leancrypto 1.6.0.
+
 ## [0.2.1] - 2025-07-01
 
 ### Added
