@@ -1,4 +1,4 @@
-Changes 1.6.0-prerelease
+Changes 1.6.0
 * ASN.1: use stack for small generator for small use cases
 
 * X.509: Updates required to support the shim boot loader
