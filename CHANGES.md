@@ -1,3 +1,6 @@
+Changes 1.6.1-prerelease
+* FIPS: mark only seeded DRBG instances as FIPS-approved
+
 Changes 1.6.0
 * ASN.1: use stack for small generator for small use cases
 

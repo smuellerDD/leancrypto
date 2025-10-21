@@ -28,10 +28,8 @@
 extern "C" {
 #endif
 
-static inline int
-test_validate_expected_status(int ret, uint64_t algorithm,
-			      enum lc_alg_status_result expected,
-			      unsigned int is_fips)
+static inline int test_validate_fips_status(int ret, uint64_t algorithm,
+					    unsigned int is_fips)
 {
 	if (!!(lc_alg_status(algorithm) & lc_alg_status_fips_approved) !=
 	    is_fips) {
@@ -46,6 +44,16 @@ test_validate_expected_status(int ret, uint64_t algorithm,
 	} else {
 		printf("FIPS approved marker matches expected marker\n");
 	}
+
+	return ret;
+}
+
+static inline int
+test_validate_expected_status(int ret, uint64_t algorithm,
+			      enum lc_alg_status_result expected,
+			      unsigned int is_fips)
+{
+	ret = test_validate_fips_status(ret, algorithm, is_fips);
 
 #ifdef LC_FIPS140_DEBUG
 	/* Set any recorded result to zero */

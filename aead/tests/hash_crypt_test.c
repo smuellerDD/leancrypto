@@ -177,7 +177,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	ret = hc_tester_sha512();
 
 	ret = test_validate_status(ret, LC_ALG_STATUS_HASH_CRYPT, 0);
-	ret = test_validate_status(ret, LC_ALG_STATUS_HASH_DRBG, 1);
+	ret = test_validate_status(ret, LC_ALG_STATUS_HASH_DRBG, 0);
 	ret = test_validate_status(ret, LC_ALG_STATUS_SHA512, 1);
 #ifndef LC_FIPS140_DEBUG
 	/*

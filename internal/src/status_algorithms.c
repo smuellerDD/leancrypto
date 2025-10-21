@@ -192,7 +192,7 @@ static const struct alg_status_show alg_status_show_aead[] = {
      defined(CONFIG_LEANCRYPTO_SYMHMAC_CRYPT))
 { .flag = LC_ALG_STATUS_SYM_HMAC | LC_ALG_STATUS_FIPS, .alg_name = "Sym-HMAC", .strlen = 8 },
 #endif
-#if (((defined(LC_AES_CBC) || defined(LC_aeS_CTR)) && defined(LC_KMAC)) ||     \
+#if (((defined(LC_AES_CBC) || defined(LC_AES_CTR)) && defined(LC_KMAC)) ||     \
      defined(CONFIG_LEANCRYPTO_SYMKMAC_CRYPT))
 { .flag = LC_ALG_STATUS_SYM_KMAC | LC_ALG_STATUS_FIPS, .alg_name = "Sym-KMAC", .strlen = 8 },
 #endif
@@ -581,6 +581,7 @@ enum lc_alg_status_result alg_status_get_result(uint64_t flag)
 		return alg_status_result(&lc_alg_status_sig_classic, alg);
 		break;
 	case LC_ALG_STATUS_TYPE_RNG:
+	case LC_ALG_STATUS_TYPE_RNG | LC_ALG_STATUS_TYPE_SEEDED_RNG:
 		return alg_status_result(&lc_alg_status_rng, alg);
 		break;
 	case LC_ALG_STATUS_TYPE_DIGEST:
@@ -701,10 +702,24 @@ enum lc_alg_status_val alg_status(uint64_t flag)
 			&lc_alg_status_sig_classic);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_RNG) {
-		return alg_status_is_fips_one(
+		enum lc_alg_status_val ret = alg_status_is_fips_one(
 			flag, alg_status_show_rng,
 			ARRAY_SIZE(alg_status_show_rng) - 1,
 			&lc_alg_status_rng);
+
+		/*
+		 * According to FIPS IG 9.3.A only a DRBG that was seeded by
+		 * the library is considered a FIPS-approved algorithm.
+		 */
+		if (flag & LC_ALG_STATUS_TYPE_SEEDED_RNG)
+			return ret;
+
+		/*
+		 * For all other DRBGs, remove the potentially existent FIPS
+		 * flag.
+		 */
+		return ret &
+		       (enum lc_alg_status_val)~lc_alg_status_fips_approved;
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_DIGEST) {
 		return alg_status_is_fips_one(

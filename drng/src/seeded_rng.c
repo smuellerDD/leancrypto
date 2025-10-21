@@ -24,6 +24,7 @@
 #include "lc_hash_drbg.h"
 #include "lc_hmac_drbg_sha512.h"
 #include "lc_rng.h"
+#include "lc_status.h"
 #include "lc_xdrbg.h"
 #include "mutex_w.h"
 #include "ret_checkers.h"
@@ -61,39 +62,46 @@
 #define LC_SEEDED_RNG_CTX_SIZE LC_XDRBG256_DRNG_CTX_SIZE
 #define LC_SEEDED_RNG_CTX(name) LC_XDRBG256_RNG_CTX(name)
 #define LC_SEEDED_RNG_SECURITY_STRENGTH (256)
+#define LC_SEEDED_RNG_TYPE LC_ALG_STATUS_XDRBG256
 #elif defined(LC_DRNG_XDRBG128)
 #define LC_SEEDED_RNG_CTX_SIZE LC_XDRBG128_DRNG_CTX_SIZE
 #define LC_SEEDED_RNG_CTX(name) LC_XDRBG128_RNG_CTX(name)
 #define LC_SEEDED_RNG_SECURITY_STRENGTH (128)
+#define LC_SEEDED_RNG_TYPE LC_ALG_STATUS_XDRBG128
 
 #elif defined(LC_DRNG_CSHAKE)
 /* Use cSHAKE 256 */
 #define LC_SEEDED_RNG_CTX_SIZE LC_CSHAKE256_DRNG_CTX_SIZE
 #define LC_SEEDED_RNG_CTX(name) LC_CSHAKE256_RNG_CTX(name)
 #define LC_SEEDED_RNG_SECURITY_STRENGTH (256)
+#define LC_SEEDED_RNG_TYPE LC_ALG_STATUS_CSHAKE_DRBG
 
 #elif defined(LC_DRNG_KMAC)
 /* Use KMAC 256 */
 #define LC_SEEDED_RNG_CTX_SIZE LC_KMAC256_DRNG_CTX_SIZE
 #define LC_SEEDED_RNG_CTX(name) LC_KMAC256_RNG_CTX(name)
 #define LC_SEEDED_RNG_SECURITY_STRENGTH (256)
+#define LC_SEEDED_RNG_TYPE LC_ALG_STATUS_KMAC_DRBG
 
 #elif defined(LC_DRNG_HASH_DRBG)
 /* Use Hash DRBG SHA512 */
 #define LC_SEEDED_RNG_CTX_SIZE LC_DRBG_HASH_CTX_SIZE
 #define LC_SEEDED_RNG_CTX(name) LC_DRBG_HASH_RNG_CTX(name)
 #define LC_SEEDED_RNG_SECURITY_STRENGTH (256)
+#define LC_SEEDED_RNG_TYPE LC_ALG_STATUS_HASH_DRBG
 
 #elif defined(LC_DRNG_HMAC_DRBG)
 /* Use HMAC DRBG SHA512 */
 #define LC_SEEDED_RNG_CTX_SIZE LC_DRBG_HMAC_CTX_SIZE(LC_DRBG_HMAC_CORE)
 #define LC_SEEDED_RNG_CTX(name) LC_DRBG_HMAC_RNG_CTX(name)
 #define LC_SEEDED_RNG_SECURITY_STRENGTH (256)
+#define LC_SEEDED_RNG_TYPE LC_ALG_STATUS_HMAC_DRBG
 
 #elif defined(LC_DRNG_XDRBG512)
 #define LC_SEEDED_RNG_CTX_SIZE LC_XDRBG512_DRNG_CTX_SIZE
 #define LC_SEEDED_RNG_CTX(name) LC_XDRBG512_RNG_CTX(name)
 #define LC_SEEDED_RNG_SECURITY_STRENGTH (512)
+#define LC_SEEDED_RNG_TYPE LC_ALG_STATUS_XDRBG512
 
 #else
 #error "Undefined DRNG"
@@ -378,6 +386,7 @@ static const struct lc_rng _lc_seeded_rng = {
 	.generate = lc_seeded_rng_generate,
 	.seed = lc_seeded_rng_seed,
 	.zero = lc_seeded_rng_zero,
+	.algorithm_type = LC_SEEDED_RNG_TYPE | LC_ALG_STATUS_TYPE_SEEDED_RNG,
 };
 
 static struct lc_rng_ctx _lc_seeded_rng_ctx = { &_lc_seeded_rng, NULL };

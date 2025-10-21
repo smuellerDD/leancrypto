@@ -24,6 +24,7 @@
 #include "lc_memcmp_secure.h"
 #include "lc_rng.h"
 #include "ret_checkers.h"
+#include "test_helper_common.h"
 
 static int seeded_rng_selftest(void)
 {
@@ -52,7 +53,33 @@ out:
 
 int main(int argc, char *argv[])
 {
+	int ret;
+
 	(void)argc;
 	(void)argv;
-	return seeded_rng_selftest();
+
+	ret = seeded_rng_selftest();
+	ret = test_validate_fips_status(ret,
+					LC_ALG_STATUS_HASH_DRBG |
+					LC_ALG_STATUS_TYPE_SEEDED_RNG, 1);
+	ret = test_validate_fips_status(ret,
+					LC_ALG_STATUS_HMAC_DRBG |
+					LC_ALG_STATUS_TYPE_SEEDED_RNG, 1);
+	ret = test_validate_fips_status(ret,
+					LC_ALG_STATUS_XDRBG128 |
+					LC_ALG_STATUS_TYPE_SEEDED_RNG, 0);
+	ret = test_validate_fips_status(ret,
+					LC_ALG_STATUS_XDRBG256 |
+					LC_ALG_STATUS_TYPE_SEEDED_RNG, 0);
+	ret = test_validate_fips_status(ret,
+					LC_ALG_STATUS_XDRBG512 |
+					LC_ALG_STATUS_TYPE_SEEDED_RNG, 0);
+	ret = test_validate_fips_status(ret,
+					LC_ALG_STATUS_CSHAKE_DRBG |
+					LC_ALG_STATUS_TYPE_SEEDED_RNG, 0);
+	ret = test_validate_fips_status(ret,
+					LC_ALG_STATUS_KMAC_DRBG |
+					LC_ALG_STATUS_TYPE_SEEDED_RNG, 0);
+
+	return ret;
 }
