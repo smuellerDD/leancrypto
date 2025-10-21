@@ -59,27 +59,40 @@ int main(int argc, char *argv[])
 	(void)argv;
 
 	ret = seeded_rng_selftest();
+
+#ifdef LC_DRNG_HASH_DRBG
 	ret = test_validate_fips_status(ret,
 					LC_ALG_STATUS_HASH_DRBG |
 					LC_ALG_STATUS_TYPE_SEEDED_RNG, 1);
+#endif
+#ifdef LC_DRNG_HMAC_DRBG
 	ret = test_validate_fips_status(ret,
 					LC_ALG_STATUS_HMAC_DRBG |
 					LC_ALG_STATUS_TYPE_SEEDED_RNG, 1);
+#endif
+#ifdef LC_DRNG_XDRBG128
 	ret = test_validate_fips_status(ret,
 					LC_ALG_STATUS_XDRBG128 |
 					LC_ALG_STATUS_TYPE_SEEDED_RNG, 0);
+#endif
+#ifdef LC_DRNG_XDRBG256
 	ret = test_validate_fips_status(ret,
 					LC_ALG_STATUS_XDRBG256 |
 					LC_ALG_STATUS_TYPE_SEEDED_RNG, 0);
 	ret = test_validate_fips_status(ret,
 					LC_ALG_STATUS_XDRBG512 |
 					LC_ALG_STATUS_TYPE_SEEDED_RNG, 0);
+#endif
+#ifdef LC_DRNG_CSHAKE
 	ret = test_validate_fips_status(ret,
 					LC_ALG_STATUS_CSHAKE_DRBG |
 					LC_ALG_STATUS_TYPE_SEEDED_RNG, 0);
+#endif
+#ifdef LC_DRNG_KMAC
 	ret = test_validate_fips_status(ret,
 					LC_ALG_STATUS_KMAC_DRBG |
 					LC_ALG_STATUS_TYPE_SEEDED_RNG, 0);
+#endif
 
 	return ret;
 }
