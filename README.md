@@ -446,9 +446,9 @@ The testing covers user space as well as Linux kernel space.
 
 Only the current CAVP certificates are listed below. Older CAVP certificates are listed at the [CAVP leancrypto website](https://leancrypto.org/leancrypto/cavp_certificates/index.html).
 
-## Version 1.4.0
+## Version 1.6.0
 
-[CAVP Certificates](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/validation-search?searchMode=implementation&product=leancrypto&productType=-1&dateFrom=06%2F04%2F2025&dateTo=06%2F08%2F2025&ipp=25)
+[leancrypto CAVP Certificates](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/validation-search?searchMode=implementation&product=leancrypto&productType=-1&dateFrom=10%2F16%2F2025&dateTo=10%2F21%2F2025&ipp=25)
 
 # Author
 
