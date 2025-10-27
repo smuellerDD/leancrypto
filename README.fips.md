@@ -90,7 +90,7 @@ This is achieved with the following approach:
 
 4. The aforementioned script uses the build-host executable instance of `sha3-256sum` to generate a message digest of the extracted ELF sections.
 
-5. The mentioned script uses `objcopy` to insert the newly generated digest into the ELF section `fips_integrity_data` of `leancrypto-fips.so` replacing the "placeholder" value found there.
+5. The mentioned script uses `objcopy` to insert the newly generated digest into the ELF section `.lc_fips_integrity_data` of `leancrypto-fips.so` replacing the "placeholder" value found there.
 
 The following ELF sections are covered by the integrity check in their entirety:
 
