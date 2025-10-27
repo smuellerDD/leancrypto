@@ -208,6 +208,9 @@ static int x509_gen_cert(struct x509_generator_opts *opts)
 	if (opts->cert_present)
 		return 0;
 
+	/* Check the issuer */
+	CKINT(lc_x509_cert_check_issuer_ca(gcert));
+
 	CKINT(lc_x509_cert_encode(gcert, ws->data, &avail_datalen));
 	datalen = DATASIZE - avail_datalen;
 
