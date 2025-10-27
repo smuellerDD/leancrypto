@@ -62,6 +62,7 @@ static int pkcs7_malicious_set_cert(struct lc_x509_certificate *cert)
 	CKINT(lc_x509_cert_set_keyusage(cert, "critical"));
 
 	CKINT(lc_x509_cert_set_ca(cert));
+	CKINT(lc_x509_cert_check_issuer_ca(cert));
 
 out:
 	return ret;

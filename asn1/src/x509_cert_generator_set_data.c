@@ -176,6 +176,25 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_check_issuer_ca,
 	if (!(pub->basic_constraint & LC_KEY_CA))
 		return 0;
 
+	CKINT(lc_x509_cert_get_issuer_c(cert, &param, &paramlen));
+	if (param)
+		return 0;
+	CKINT(lc_x509_cert_get_issuer_st(cert, &param, &paramlen));
+	if (param)
+		return 0;
+	CKINT(lc_x509_cert_get_issuer_o(cert, &param, &paramlen));
+	if (param)
+		return 0;
+	CKINT(lc_x509_cert_get_issuer_ou(cert, &param, &paramlen));
+	if (param)
+		return 0;
+	CKINT(lc_x509_cert_get_issuer_cn(cert, &param, &paramlen));
+	if (param)
+		return 0;
+	CKINT(lc_x509_cert_get_issuer_email(cert, &param, &paramlen));
+	if (param)
+		return 0;
+
 	/* Set issuer */
 	CKINT(lc_x509_cert_get_subject_c(cert, &param, &paramlen));
 	CKINT(lc_x509_cert_set_issuer_c(cert, param, paramlen));
@@ -194,7 +213,6 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_check_issuer_ca,
 
 	CKINT(lc_x509_cert_get_subject_email(cert, &param, &paramlen));
 	CKINT(lc_x509_cert_set_issuer_email(cert, param, paramlen));
-
 
 out:
 	return ret;
