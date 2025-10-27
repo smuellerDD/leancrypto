@@ -89,7 +89,16 @@ static void lc_bin2hex(const uint8_t *bin, const size_t binlen, char *hex,
 		hex[((i * 2) + 1)] = lc_hex_char((bin[i] & 0x0f), u);
 	}
 }
-#endif
+
+#else /* LC_ASN1_DEBUG */
+
+static void lc_bin2hex(const uint8_t *bin, const size_t binlen, char *hex,
+		       const size_t hexlen, const int u)
+{
+	bin2hex(bin, binlen, hex, hexlen, u);
+}
+
+#endif /* LC_ASN1_DEBUG */
 
 /******************************************************************************
  * ASN.1 parser support functions
