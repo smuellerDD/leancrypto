@@ -96,6 +96,7 @@ FORCE_SEEDSOURCE="
 # -Ddilithium_87=disabled -Ddilithium_65=disabled -Ddilithium_44=disabled
 
 meson setup build-shim \
+ -Dbuildtype=release \
  -Defi=enabled \
  $DISABLE_AEAD \
  $DISABLE_SYM \
