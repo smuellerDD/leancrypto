@@ -100,13 +100,7 @@ static int aes_setkey(struct lc_sym_state *ctx, const uint8_t *key,
 	int ret;
 
 	/* Timecop: key is sensitive. */
-	/*
-	 * This is disabled, because the key schedule generation uses an S-Box
-	 * which has implicit side channels. When enabling
-	 * AES_SIDE_CHANNEL_RESISTANT_KEYEXPANSION, this call can also be
-	 * enabled.
-	 */
-	//poison(key, keylen);
+	poison(key, keylen);
 
 	if (!ctx)
 		return -EINVAL;

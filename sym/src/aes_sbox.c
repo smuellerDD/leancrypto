@@ -41,7 +41,7 @@
  * Although it reduces side channels, it is not free of it. If you want to have
  * side-channel free ciphers, use others like Ascon or Ascon-Keccak.
  */
-#undef AES_SIDE_CHANNEL_RESISTANT_KEYEXPANSION
+#define AES_SIDE_CHANNEL_RESISTANT_KEYEXPANSION
 
 /*****************************************************************************/
 /* Private variables:                                                        */

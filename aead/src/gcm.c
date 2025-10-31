@@ -327,17 +327,6 @@ static int gcm_setkey(struct lc_aes_gcm_cryptor *ctx, const uint8_t *key,
 	 */
 	CKNULL(key, 0);
 
-	/*
-	 * Timecop: the key is the sensitive information
-	 *
-	 * Yet, the AES C implementation is prone to side channels which is
-	 * documented in aes_block.c:aes_setkey
-	 */
-#ifdef LC_USE_TIMECOP
-	if (ctx->sym_ctx.sym != lc_aes_c)
-		poison(key, keylen);
-#endif
-
 	memset(h, 0, AES_BLOCKSIZE); /* initialize the block to encrypt */
 
 	/*

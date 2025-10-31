@@ -417,17 +417,14 @@ static int mode_xts_setkey(struct lc_mode_state *ctx, const uint8_t *key,
 
 	one_keylen = keylen >> 1;
 
-	/*
-	 * Timecop: key is sensitive.
-	 * Timecop: C implementation of AES has side channel problems as
-	 * outlined in aes_block.c:aes_setkey
-	 * Thus it is disabled here
-	 */
-	//poison(key, keylen);
-
 	/* Reject XTS key where both parts are identical */
 	if (!lc_memcmp_secure(key, one_keylen, key + one_keylen, one_keylen))
 		return -ENOKEY;
+
+	/*
+	 * Timecop: key is sensitive.
+	 */
+	poison(key, keylen);
 
 	/* Set encryption / decryption key */
 	wrapped_cipher = ctx->wrapped_cipher;
