@@ -30,6 +30,7 @@
 #include "math_helper.h"
 #include "test_helper_common.h"
 #include "ret_checkers.h"
+#include "timecop.h"
 #include "visibility.h"
 
 #define LC_EXEC_ONE_TEST(chacha20_impl)                                        \
@@ -323,6 +324,7 @@ static int chacha20_enc_large(const struct lc_sym *chacha20_sym,
 	CKINT(lc_sym_setiv(chacha20, (uint8_t *)iv, sizeof(iv)));
 	lc_sym_encrypt(chacha20, (uint8_t *)string, res, sizeof(string));
 	snprintf(str, sizeof(str), "ChaCha20 large enc - %s", name);
+	unpoison(res, sizeof(res));
 	ret = lc_compare(res, exp, sizeof(exp), str);
 	if (ret) {
 		ret = -EINVAL;
@@ -336,6 +338,7 @@ static int chacha20_enc_large(const struct lc_sym *chacha20_sym,
 	CKINT(lc_sym_setiv(chacha20, (uint8_t *)iv, sizeof(iv)));
 	lc_sym_decrypt(chacha20, res, res, sizeof(res));
 	snprintf(str, sizeof(str), "ChaCha20 large enc - %s", name);
+	unpoison(res, sizeof(res));
 	ret = lc_compare(res, string, sizeof(string), str);
 	if (ret) {
 		ret = -EINVAL;
@@ -387,6 +390,7 @@ static int chacha20_enc_selftest(const struct lc_sym *chacha20_sym,
 	CKINT(lc_sym_setiv(chacha20, (uint8_t *)rfc_iv, sizeof(rfc_iv)));
 	lc_sym_encrypt(chacha20, (uint8_t *)rfc_string, res, sizeof(res));
 	snprintf(str, sizeof(str), "ChaCha20 enc - %s", name);
+	unpoison(res, sizeof(res));
 	ret = lc_compare(res, rfc_exp, sizeof(rfc_exp), str);
 	if (ret) {
 		ret = -EINVAL;
@@ -400,6 +404,7 @@ static int chacha20_enc_selftest(const struct lc_sym *chacha20_sym,
 	CKINT(lc_sym_setiv(chacha20, (uint8_t *)rfc_iv, sizeof(rfc_iv)));
 	lc_sym_decrypt(chacha20, res, res, sizeof(res));
 	snprintf(str, sizeof(str), "ChaCha20 dec - %s", name);
+	unpoison(res, sizeof(res));
 	ret = lc_compare(res, (uint8_t *)rfc_string, sizeof(res), str);
 	if (ret) {
 		ret = -EINVAL;
@@ -444,6 +449,7 @@ static int chacha20_stream_test(const struct lc_sym *chacha20_sym,
 	}
 
 	snprintf(str, sizeof(str), "ChaCha20 stream enc - %s", name);
+	unpoison(res, sizeof(res));
 	ret = lc_compare(res, rfc_exp, sizeof(rfc_exp), str);
 	if (ret) {
 		ret = -EINVAL;
@@ -472,6 +478,7 @@ static int chacha20_stream_test(const struct lc_sym *chacha20_sym,
 	}
 
 	snprintf(str, sizeof(str), "ChaCha20 stream dec - %s", name);
+	unpoison(res, sizeof(res));
 	ret = lc_compare(res, (uint8_t *)rfc_string, sizeof(res), str);
 	if (ret) {
 		ret = -EINVAL;

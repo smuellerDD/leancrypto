@@ -30,6 +30,7 @@
 #include "null_buffer.h"
 #include "poly1305_internal.h"
 #include "ret_checkers.h"
+#include "timecop.h"
 #include "visibility.h"
 
 static int lc_chacha20_poly1305_setkey_nocheck(void *state, const uint8_t *key,
@@ -113,6 +114,7 @@ static void lc_chacha20_poly1305_selftest(void)
 					    sizeof(key), iv, sizeof(iv));
 	lc_aead_encrypt(cc20p1305, in, act_ct, sizeof(in), aad, sizeof(aad),
 			act_tag, sizeof(act_tag));
+	unpoison(act_ct, sizeof(act_ct));
 	if (lc_compare_selftest(lc_chacha20_poly1305_aead->algorithm_type,
 				act_ct, exp_ct, sizeof(exp_ct),
 				"ChaCha20 Poly1305 AEAD encrypt ciphertext"))
@@ -134,6 +136,7 @@ static void lc_chacha20_poly1305_selftest(void)
 			"ChaCha20 Poly1305 AEAD decrypt authentication"))
 			goto out;
 	}
+	unpoison(act_ct, sizeof(act_ct));
 
 out:
 	lc_compare_selftest(lc_chacha20_poly1305_aead->algorithm_type, act_ct,
@@ -266,9 +269,11 @@ static void lc_chacha20_poly1305_encrypt_tag(void *state, uint8_t *tag,
 
 		lc_poly1305_final(poly1305, tmptag);
 		memcpy(tag, tmptag, taglen);
+		unpoison(tag, taglen);
 		lc_memset_secure(tmptag, 0, sizeof(tmptag));
 	} else {
 		lc_poly1305_final(poly1305, tag);
+		unpoison(tag, LC_POLY1305_TAGSIZE);
 	}
 }
 

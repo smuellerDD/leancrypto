@@ -1,6 +1,12 @@
 Changes 1.6.1-prerelease
 * FIPS: mark only seeded DRBG instances as FIPS-approved
 
+* ASN.1: add lc_x509_cert_check_issuer_ca convenience function
+
+* Enable side-channel-resistant AES implementation (and thus enable respective Timecop tests)
+
+* Fix some side channel test failures (all failures are due to test case issues, and no real problems)
+
 Changes 1.6.0
 * ASN.1: use stack for small generator for small use cases
 

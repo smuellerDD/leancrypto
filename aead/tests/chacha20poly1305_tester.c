@@ -23,6 +23,7 @@
 #include "lc_chacha20_poly1305.h"
 #include "math_helper.h"
 #include "test_helper_common.h"
+#include "timecop.h"
 #include "visibility.h"
 
 static int lc_chacha20_poly1305_test(int argc)
@@ -85,6 +86,7 @@ static int lc_chacha20_poly1305_test(int argc)
 		return 1;
 	lc_aead_encrypt(cc20p1305, in, act_ct, sizeof(in), aad, sizeof(aad),
 			act_tag, sizeof(act_tag));
+	unpoison(act_ct, sizeof(act_ct));
 	ret += lc_compare(act_ct, exp_ct, sizeof(exp_ct),
 			  "ChaCha20 Poly 1305 encrypt ciphertext");
 	ret += lc_compare(act_tag, exp_tag, sizeof(exp_tag),
@@ -97,6 +99,7 @@ static int lc_chacha20_poly1305_test(int argc)
 			     sizeof(aad), act_tag, sizeof(act_tag));
 	if (rc)
 		ret += 1;
+	unpoison(act_ct, sizeof(act_ct));
 	ret += lc_compare(act_ct, in, sizeof(in),
 			  "ChaCha20 Poly 1305 decrypt plaintext");
 	lc_aead_zero(cc20p1305);
@@ -124,6 +127,7 @@ static int lc_chacha20_poly1305_test(int argc)
 
 	lc_aead_enc_final(cc20p1305, act_tag, sizeof(act_tag));
 
+	unpoison(act_ct, sizeof(act_ct));
 	ret += lc_compare(act_ct, exp_ct, sizeof(exp_ct),
 			  "ChaCha20 Poly 1305 encrypt ciphertext");
 	ret += lc_compare(act_tag, exp_tag, sizeof(exp_tag),

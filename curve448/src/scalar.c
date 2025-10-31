@@ -32,6 +32,7 @@
 
 #include "lc_memset_secure.h"
 #include "point_448.h"
+#include "timecop.h"
 #include "word.h"
 
 LC_FIPS_RODATA_SECTION
@@ -237,6 +238,13 @@ void curve448_scalar_halve(curve448_scalar_t out, const curve448_scalar_t a)
 	c448_word_t mask = 0 - (a->limb[0] & 1);
 	c448_dword_t chain = 0;
 	unsigned int i;
+
+	/*
+	 * Timecop: upoison the mask as it does not leak sensitive data about
+	 * the secret key. Iit is either zero or all bits set depending on the
+	 * sign (first bit) of the secret key.
+	 */
+	unpoison(&mask, sizeof(mask));
 
 	for (i = 0; i < C448_SCALAR_LIMBS; i++) {
 		chain = (chain + a->limb[i]) + (sc_p->limb[i] & mask);

@@ -105,6 +105,7 @@ void cc20_selftest(void)
 		goto out;
 	lc_sym_setiv(chacha20, (uint8_t *)iv, sizeof(iv));
 	lc_sym_encrypt(chacha20, (uint8_t *)string, res, sizeof(res));
+	unpoison(res, sizeof(res));
 	if (lc_compare_selftest(lc_chacha20_c->algorithm_type, res, exp,
 				sizeof(exp), "ChaCha20 encrypt"))
 		goto out2;
@@ -116,6 +117,7 @@ void cc20_selftest(void)
 	lc_sym_setkey(chacha20, (uint8_t *)key, sizeof(key));
 	lc_sym_setiv(chacha20, (uint8_t *)iv, sizeof(iv));
 	lc_sym_decrypt(chacha20, res, res, sizeof(res));
+	unpoison(res, sizeof(res));
 
 out:
 	lc_compare_selftest(lc_chacha20_c->algorithm_type, res,
