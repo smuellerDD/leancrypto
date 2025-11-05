@@ -73,11 +73,21 @@
 #  define GNU_PROPERTY_AARCH64_POINTER_AUTH 0
 # endif
 
+# if defined(__ARM_FEATURE_GCS_DEFAULT) && __ARM_FEATURE_GCS_DEFAULT == 1
+#  define GNU_PROPERTY_AARCH64_GCS (1<<2)
+# else
+#  define GNU_PROPERTY_AARCH64_GCS 0 /* No GCS */
+# endif
+
 /* Add the BTI / PAC support to GNU Notes section */
-# if GNU_PROPERTY_AARCH64_BTI != 0 || GNU_PROPERTY_AARCH64_POINTER_AUTH != 0
+# if GNU_PROPERTY_AARCH64_BTI != 0 ||                                          \
+     GNU_PROPERTY_AARCH64_POINTER_AUTH != 0 ||                                 \
+     GNU_PROPERTY_AARCH64_GCS != 0
 #  define LC_GNU_PROPERTY_ALIGN 3 /* 2 on 32 bit systems, which we do not cover here */
 #  define LC_GNU_PROPERTY_TYPE 0xc0000000
-#  define LC_GNU_PROPERTY_DATA (GNU_PROPERTY_AARCH64_BTI|GNU_PROPERTY_AARCH64_POINTER_AUTH)
+#  define LC_GNU_PROPERTY_DATA (GNU_PROPERTY_AARCH64_BTI |                     \
+                                GNU_PROPERTY_AARCH64_POINTER_AUTH |            \
+                                GNU_PROPERTY_AARCH64_GCS)
 # endif
 #endif
 

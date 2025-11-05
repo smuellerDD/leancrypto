@@ -7,6 +7,8 @@ Changes 1.6.1-prerelease
 
 * Fix some side channel test failures (all failures are due to test case issues, and no real problems)
 
+* AARCH64: enable GCS support (see https://community.arm.com/arm-community-blogs/b/tools-software-ides-blog/posts/gcc-15-continuously-improving#guarded and https://docs.kernel.org/next/arch/arm64/gcs.html)
+
 Changes 1.6.0
 * ASN.1: use stack for small generator for small use cases
 
