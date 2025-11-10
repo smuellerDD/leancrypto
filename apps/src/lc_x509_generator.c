@@ -32,6 +32,8 @@
 #include "lc_x509_generator_file_helper.h"
 #include "lc_x509_generator_helper.h"
 #include "lc_x509_parser.h"
+#include "lc_pkcs8_parser.h"
+#include "lc_pkcs8_generator.h"
 #include "small_stack_support.h"
 #include "x509_checker.h"
 #include "x509_print.h"
@@ -46,6 +48,7 @@ struct x509_generator_opts {
 	struct lc_x509_key_input_data signer_key_input_data;
 	struct lc_x509_key_data signer_key_data;
 	struct x509_checker_options checker_opts;
+	struct lc_pkcs8_message pkcs8;
 	uint8_t ipaddr[16];
 	uint8_t *raw_skid;
 	size_t raw_skid_size;
@@ -82,6 +85,7 @@ struct x509_generator_opts {
 	unsigned int noout : 1;
 	unsigned int checker : 1;
 	unsigned int cert_present : 1;
+	unsigned int sk_is_pkcs8 : 1;
 };
 
 static int x509_check_file(const char *file)
@@ -241,6 +245,7 @@ static void x509_clean_opts(struct x509_generator_opts *opts)
 
 	lc_x509_cert_clear(&opts->cert);
 	lc_x509_cert_clear(&opts->signer_cert);
+	lc_pkcs8_message_clear(&opts->pkcs8);
 
 	release_data(opts->signer_data, opts->signer_data_len);
 	release_data(opts->pk_data, opts->pk_len);
@@ -535,6 +540,71 @@ out:
 	return ret;
 }
 
+static int x509_sk_decode(struct x509_generator_opts *opts,
+			  struct lc_x509_key_data *keys,
+			  enum lc_sig_types pkey_type, const uint8_t *data,
+			  size_t datalen)
+{
+	int ret;
+
+	/*
+	 * The input data can be either a plain buffer string of encoded
+	 * private key or a PKCS#8 buffer. This function therefore tries to
+	 * parse the data in both ways with the PKCS#8 first, as it has more
+	 * stringent format checks.
+	 */
+	ret = lc_pkcs8_decode(&opts->pkcs8, data, datalen);
+	if (!ret) {
+		opts->sk_is_pkcs8 = 1;
+		return 0;
+	}
+
+	opts->sk_is_pkcs8 = 0;
+	CKINT(lc_x509_sk_decode(keys, pkey_type, data, datalen));
+
+out:
+	return ret;
+}
+
+static int x509_sk_encode(struct x509_generator_opts *opts,
+			  struct lc_x509_key_data *keys,
+			  uint8_t *data, size_t *avail_datalen)
+{
+	int ret;
+
+	if (opts->sk_is_pkcs8) {
+		struct lc_pkcs8_message pkcs8;
+
+		CKINT(lc_pkcs8_set_privkey(&pkcs8, keys));
+		CKINT(lc_pkcs8_encode(&pkcs8, data, avail_datalen));
+	} else {
+		CKINT(lc_x509_sk_encode(keys, data, avail_datalen));
+	}
+
+out:
+	return ret;
+}
+
+static int x509_signature_gen(const struct x509_generator_opts *opts,
+			      uint8_t *sig_data, size_t *siglen,
+			      const struct lc_x509_key_data *keys,
+			      const uint8_t *m, size_t mlen,
+			      const struct lc_hash *prehash_algo)
+{
+	int ret;
+
+	if (opts->sk_is_pkcs8) {
+		CKINT(lc_pkcs8_signature_gen(sig_data, siglen, &opts->pkcs8, m,
+					     mlen, prehash_algo));
+	} else {
+		CKINT(lc_x509_signature_gen(sig_data, siglen, keys, m, mlen,
+					    prehash_algo));
+	}
+
+out:
+	return ret;
+}
+
 static int x509_load_sk(struct x509_generator_opts *opts)
 {
 	struct lc_x509_key_data *signer_key_data = &opts->signer_key_data;
@@ -547,16 +617,15 @@ static int x509_load_sk(struct x509_generator_opts *opts)
 			   &opts->signer_sk_len),
 		  "Signer SK mmap failure\n");
 
-	LC_X509_LINK_SK_INPUT_DATA(signer_key_data, signer_key_input_data);
 
 	/* Get the signature type based on the signer key */
 	CKINT(lc_x509_cert_get_pubkey(&opts->signer_cert, NULL, NULL,
 				      &pkey_type));
 
-	CKINT_LOG(lc_x509_sk_decode(signer_key_data, pkey_type,
-				    opts->signer_sk_data, opts->signer_sk_len),
-		  "Loading X.509 signer private key from file failed: %d\n",
-		  ret);
+	LC_X509_LINK_SK_INPUT_DATA(signer_key_data, signer_key_input_data);
+	CKINT_LOG(x509_sk_decode(opts, signer_key_data, pkey_type,
+				 opts->signer_sk_data, opts->signer_sk_len),
+		  "Loading signer private key from file failed: %d\n", ret);
 
 out:
 	return ret;
@@ -619,8 +688,8 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 					  opts->create_keypair_algo));
 
 		if (!opts->noout) {
-			CKINT_LOG(lc_x509_sk_encode(keys, ws->der_sk,
-						    &der_sk_len),
+			CKINT_LOG(x509_sk_encode(opts, keys, ws->der_sk,
+						 &der_sk_len),
 				  "Generation of private key file failed\n");
 			CKINT(write_data(opts->sk_file, ws->der_sk,
 					 DATASIZE - der_sk_len));
@@ -647,8 +716,8 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 				   &opts->sk_len),
 			  "Secret key mmap failure\n");
 		/* Parse the X.509 secret key */
-		CKINT_LOG(lc_x509_sk_decode(keys, gcert->pub.pkey_algo,
-					    opts->sk_data, opts->sk_len),
+		CKINT_LOG(x509_sk_decode(opts, keys, gcert->pub.pkey_algo,
+					 opts->sk_data, opts->sk_len),
 			  "Parsing of secret key failed\n");
 
 		opts->cert_present = 1;
@@ -666,9 +735,8 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 			CKINT_LOG(get_data(opts->sk_file, &opts->sk_data,
 					   &opts->sk_len),
 				  "SK mmap failure\n");
-			CKINT_LOG(lc_x509_sk_decode(keys, opts->in_key_type,
-						    opts->sk_data,
-						    opts->sk_len),
+			CKINT_LOG(x509_sk_decode(opts, keys, opts->in_key_type,
+						 opts->sk_data, opts->sk_len),
 				  "Decoding of private key failed\n");
 		}
 
@@ -731,8 +799,8 @@ static int x509_sign_data(struct x509_generator_opts *opts)
 	CKINT_LOG(get_data(opts->data_file, &opts->data, &opts->data_len),
 		  "Failure of getting data to be signed\n");
 
-	CKINT(lc_x509_signature_gen(sigptr, &siglen, key_data, opts->data,
-				    opts->data_len, NULL));
+	CKINT(x509_signature_gen(opts, sigptr, &siglen, key_data, opts->data,
+				 opts->data_len, NULL));
 
 #if 0
 	const struct lc_x509_certificate *cert = &opts->cert;
@@ -799,6 +867,10 @@ static void x509_generator_usage(void)
 	fprintf(stderr, "\t\t\t\t\tQuery available types with \"?\"\n");
 	fprintf(stderr,
 		"\t   --create-keypair <TYPE>\tCreate key pair of given type\n");
+	fprintf(stderr, "\t\t\t\t\tNOTE: generated keys are written to file\n");
+	fprintf(stderr,
+		"\t   --create-keypair-pkcs8 <TYPE>\tCreate key pair of given\n");
+	fprintf(stderr, "\t\t\t\t\ttype where private key is PKCS#8 blob\n");
 	fprintf(stderr, "\t\t\t\t\tNOTE: generated keys are written to file\n");
 	fprintf(stderr,
 		"\t   --x509-signer <FILE>\t\tX.509 certificate of signer\n");
@@ -980,6 +1052,8 @@ int main(int argc, char *argv[])
 
 					      { "data-file", 1, 0, 0 },
 					      { "x509-cert", 1, 0, 0 },
+
+					      { "create-keypair-pkcs8", 1, 0, 0 },
 
 					      { 0, 0, 0, 0 } };
 
@@ -1295,7 +1369,19 @@ int main(int argc, char *argv[])
 			case 53:
 				ws->parsed_opts.x509_cert_file = optarg;
 				break;
+
+			/* create-keypair-pkcs8 */
+			case 54:
+				CKINT_LOG(
+					lc_x509_pkey_name_to_algorithm(
+						optarg,
+						&ws->parsed_opts
+							 .create_keypair_algo),
+					"Key type for key creation parsing failure\n");
+				ws->parsed_opts.sk_is_pkcs8 = 1;
+				break;
 			}
+
 			break;
 
 		case 'o':

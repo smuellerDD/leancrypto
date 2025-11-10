@@ -1,0 +1,348 @@
+#!/bin/bash
+#
+# Written by Stephan Mueller <smueller@chronox.de>
+#
+# Checker script to validate the X.509 certificates along with private keys
+# can create signatures that can be validated with OpenSSL and vice versa.
+#
+# To utilize this script, perform the following steps:
+#
+# 1. compile leancrypto with X.509 generator enabled
+# 2. update variable LC_X509_GENERATOR below to point to the lc_x509_generator
+#    tool
+# 3. Execute this script
+#
+# Expected result: no failures should be shown
+#
+
+LC_X509_GENERATOR="lc_x509_generator"
+LC_PKCS7_GENERATOR="lc_pkcs7_generator"
+OPENSSL="/usr/bin/openssl"
+
+TESTTYPE=$1
+
+
+if [ -n "$2" ]
+then
+	LC_X509_GENERATOR=$2
+fi
+
+if [ -n "$3" ]
+then
+	LC_PKCS7_GENERATOR=$3
+fi
+
+if [ -n "$4" ]
+then
+	OPENSSL=$4
+fi
+
+if [ ! -x "$LC_X509_GENERATOR" ]
+then
+	exit 77
+fi
+
+if [ ! -x "$LC_PKCS7_GENERATOR" ]
+then
+	exit 77
+fi
+
+if [ ! -x "$OPENSSL" ]
+then
+	exit 77
+fi
+
+# We need OpenSSL version 3.5 as a minimum
+opensslver=$(openssl --version | cut -f 2 -d" ")
+openssl_ver_may=$(echo $opensslver | cut -f1 -d ".")
+openssl_ver_min=$(echo $opensslver | cut -f2 -d ".")
+if [ "$openssl_ver_may" -lt "2" -o "$openssl_ver_min" -lt "5" ]
+then
+	exit 77
+fi
+
+TMPDIR="./tmp.$$"
+
+global_failure_count=0
+
+trap "rm -rf $TMPDIR" 0 1 2 3 15
+mkdir $TMPDIR
+
+pk_file="${TMPDIR}/siggen_tester_cert.der"
+sk_file="${TMPDIR}/siggen_tester_privkey.der"
+
+color()
+{
+	bg=0
+	echo -ne "\033[0m"
+	while [[ $# -gt 0 ]]; do
+		code=0
+		case $1 in
+			black) code=30 ;;
+			red) code=31 ;;
+			green) code=32 ;;
+			yellow) code=33 ;;
+			blue) code=34 ;;
+			magenta) code=35 ;;
+			cyan) code=36 ;;
+			white) code=37 ;;
+			background|bg) bg=10 ;;
+			foreground|fg) bg=0 ;;
+			reset|off|default) code=0 ;;
+			bold|bright) code=1 ;;
+		esac
+		[[ $code == 0 ]] || echo -ne "\033[$(printf "%02d" $((code+bg)))m"
+		shift
+	done
+}
+
+echo_success()
+{
+	echo $(color "green")[SUCCESS]$(color off) "$@"
+}
+
+echo_fail()
+{
+	echo $(color "red")[FAILURE]$(color off) "$@"
+}
+
+echo_info()
+{
+	echo $(color "magenta")[INFO]$(color off) "$@"
+}
+
+check_one() {
+	local inputfile=$1
+
+	if [ ! -f "$inputfile" ]
+	then
+		echo_fail "Cannot find $inputfile"
+		exit 1
+	fi
+
+	echo "=== Checking file $inputfile with Leancrypto ==="
+	$LC_X509_GENERATOR --check-selfsigned --print-x509 $inputfile
+	if [ $? -ne 0 ]
+	then
+		echo_fail "Parsing of file $inputfile was unsuccessful"
+		global_failure_count=$(($global_failure_count+1))
+	else
+		echo_success "Parsing of file $inputfile was successful"
+	fi
+
+	echo "=== Checking file $inputfile with OpenSSL ==="
+	$OPENSSL x509 -in $inputfile -inform DER -text -noout
+	if [ $? -ne 0 ]
+	then
+		echo_fail "Parsing of file $inputfile was unsuccessful"
+		global_failure_count=$(($global_failure_count+1))
+	else
+		echo_success "Parsing of file $inputfile was successful"
+	fi
+}
+
+check_one_priv() {
+	local inputfile=$1
+
+	if [ ! -f "$inputfile" ]
+	then
+		echo_fail "Cannot find $inputfile"
+		exit 1
+	fi
+
+	echo "=== Checking private key file $inputfile with OpenSSL ==="
+	$OPENSSL asn1parse -dump -in $inputfile -inform DER
+	if [ $? -ne 0 ]
+	then
+		echo_fail "Parsing of file $inputfile was unsuccessful"
+		global_failure_count=$(($global_failure_count+1))
+	else
+		echo_success "Parsing of file $inputfile was successful"
+	fi
+}
+
+report_result() {
+	echo "=== Final Result ==="
+	if [ $global_failure_count -eq 0 ]
+	then
+		echo_success "No failures"
+		exit 0
+	else
+		echo_fail "Total number of failures: $global_failure_count"
+		exit 1
+	fi
+}
+
+lc_generate_cert_pkcs8() {
+	local keytype=$1
+
+	rm -f ${pk_file} ${sk_file}
+
+	echo_info "Leancrypto: Generate X.509 certificate and associated PKCS#8 private key"
+
+	$LC_X509_GENERATOR \
+	 --keyusage digitalSignature \
+	 --keyusage keyEncipherment \
+	 --keyusage keyCertSign \
+	 --keyusage critical \
+	 --ca \
+	 --valid-days 365 \
+	 --subject-cn 'leancrypto test CA' \
+	 --create-keypair-pkcs8 $keytype \
+	 --sk-file $sk_file \
+	 --outfile $pk_file
+
+	if [ $? -ne 0 ]
+	then
+		echo_fail "Failed leancrypto-internal certificate / PKCS#8 key generation"
+		global_failure_count=$(($global_failure_count+1))
+	else
+		echo_success "Successful leancrypto-internal certificate / PKCS#8 key generation"
+	fi
+
+	check_one $pk_file
+	check_one_priv $sk_file
+}
+
+lc_sign_cert() {
+	rm -f ${pk_file}.p7b
+
+	echo_info "Leancrypto: Create PKCS#7 signature of X.509 certificate using the X.509 certificate and associated PKCS#8 private key as signer"
+
+	$LC_PKCS7_GENERATOR \
+	 --md SHA2-512 \
+	 -i ${pk_file} \
+	 -o ${pk_file}.p7b \
+	 --x509-signer  ${pk_file} \
+	 --signer-sk-file ${sk_file} \
+	 --print
+
+	if [ $? -ne 0 ]
+	then
+		echo_fail "Failed leancrypto-internal signature generation"
+		global_failure_count=$(($global_failure_count+1))
+	else
+		echo_success "Successful leancrypto-internal signature generation"
+	fi
+}
+
+lc_verify_cert() {
+	echo_info "Leancrypto: Verify PKCS#7 signature of X.509 certificate using the X.509 certificate and associated PKCS#8 private key as signer"
+
+	$LC_PKCS7_GENERATOR \
+	 --verify-pkcs7 ${pk_file}.p7b
+
+	if [ $? -ne 0 ]
+	then
+		echo_fail "Failed leancrypto-internal signature verification"
+		global_failure_count=$(($global_failure_count+1))
+	else
+		echo_success "Successful leancrypto-internal signature verification"
+	fi
+}
+
+ossl_generate_cert_pkcs8() {
+	local keytype=$1
+
+	rm -f ${pk_file} ${sk_file}
+
+	echo_info "OpenSSL Generate X.509 certificate and associated PKCS#8 private key"
+
+	$OPENSSL genpkey -algorithm $keytype -out $sk_file -outform DER
+	$OPENSSL pkey -in $sk_file -inform DER -pubout -out $pk_file.raw.pem
+	$OPENSSL req \
+	 -new \
+	 -x509 \
+	 -key $sk_file \
+	 -out $pk_file \
+	 -outform DER \
+	 -subj "/CN=OpenSSL test CA" \
+	 -addext basicConstraints=critical,CA:TRUE \
+	 -addext keyUsage=critical,digitalSignature,cRLSign,keyCertSign
+
+	if [ $? -ne 0 ]
+	then
+		echo_fail "Failed OpenSSL certificate / PKCS#8 key generation"
+		global_failure_count=$(($global_failure_count+1))
+	else
+		echo_success "Successful OpenSSL certificate / PKCS#8 key generation"
+	fi
+
+	check_one $pk_file
+	check_one_priv $sk_file
+}
+
+################################################################################
+# TEST 1
+#
+# Leancrypto-internal operation: generate key/cert and use it for signature
+# generation and verification
+#
+lc_internal() {
+	lc_generate_cert_pkcs8 $1
+
+	lc_sign_cert
+	lc_verify_cert
+}
+
+################################################################################
+# TEST 2
+#
+# OpensSSL generated PKCS8 key and CA certificate used with Leancrypto sign
+# and verifiyoperation: generate key/cert and use it for signature
+# generation and verification
+#echo_info "OpenSSL key generation and Leancrypto siggen/sigver testing"
+
+
+ossl_keygen_lc_op() {
+	ossl_generate_cert_pkcs8 $1
+
+	lc_sign_cert
+	lc_verify_cert
+}
+
+case $TESTTYPE
+in
+	"ML-DSA87" | "ML-DSA-87")
+		lc_internal "ML-DSA87"
+		ossl_keygen_lc_op "ML-DSA-87"
+	;;
+	"ML-DSA65" | "ML-DSA-65")
+		lc_internal "ML-DSA65"
+		ossl_keygen_lc_op "ML-DSA-65"
+	;;
+	"ML-DSA44" | "ML-DSA-44")
+		lc_internal "ML-DSA44"
+		ossl_keygen_lc_op "ML-DSA-44"
+	;;
+	"SLH-DSA-SHAKE-128F" | "SLH-DSA-SHAKE-128f")
+		lc_internal "SLH-DSA-SHAKE-128F"
+		ossl_keygen_lc_op "SLH-DSA-SHAKE-128f"
+	;;
+	"SLH-DSA-SHAKE-128S" | "SLH-DSA-SHAKE-128s")
+		lc_internal "SLH-DSA-SHAKE-128S"
+		ossl_keygen_lc_op "SLH-DSA-SHAKE-128s"
+	;;
+	"SLH-DSA-SHAKE-192F" | "SLH-DSA-SHAKE-192f")
+		lc_internal "SLH-DSA-SHAKE-192F"
+		ossl_keygen_lc_op "SLH-DSA-SHAKE-192f"
+	;;
+	"SLH-DSA-SHAKE-192S" | "SLH-DSA-SHAKE-192s")
+		lc_internal "SLH-DSA-SHAKE-192S"
+		ossl_keygen_lc_op "SLH-DSA-SHAKE-192s"
+	;;
+	"SLH-DSA-SHAKE-256F" | "SLH-DSA-SHAKE-256f")
+		lc_internal "SLH-DSA-SHAKE-256F"
+		ossl_keygen_lc_op "SLH-DSA-SHAKE-256f"
+	;;
+	"SLH-DSA-SHAKE-256S" | "SLH-DSA-SHAKE-256s")
+		lc_internal "SLH-DSA-SHAKE-256S"
+		ossl_keygen_lc_op "SLH-DSA-SHAKE-256s"
+	;;
+	*)
+		echo_fail "Unknown test type $TESTTYPE"
+	;;
+esac
+
+################################################################################
+report_result

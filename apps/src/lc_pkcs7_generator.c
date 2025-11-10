@@ -25,6 +25,7 @@
 #include "binhexbin.h"
 #include "lc_pkcs7_generator.h"
 #include "lc_pkcs7_parser.h"
+#include "lc_pkcs8_parser.h"
 #include "lc_status.h"
 #include "lc_x509_generator.h"
 #include "lc_x509_generator_helper.h"
@@ -60,6 +61,7 @@ struct pkcs7_x509 {
 struct pkcs7_generator_opts {
 	struct x509_checker_options checker_opts;
 	struct lc_pkcs7_message *pkcs7;
+	struct lc_pkcs8_message pkcs8;
 	struct lc_verify_rules verify_rules;
 
 	const struct lc_hash *hash;
@@ -122,6 +124,7 @@ static void pkcs7_clean_opts(struct pkcs7_generator_opts *opts)
 	release_data(opts->data, opts->datalen);
 
 	lc_pkcs7_message_clear(opts->pkcs7);
+	lc_pkcs8_message_clear(&opts->pkcs8);
 	lc_memset_secure(opts, 0, sizeof(*opts));
 }
 
@@ -295,6 +298,38 @@ static void pkcs7_add_x509(struct pkcs7_generator_opts *opts,
 	}
 }
 
+static int pkcs7_sk_decode(struct pkcs7_generator_opts *opts,
+			   struct lc_x509_key_data *keys,
+			   enum lc_sig_types pkey_type, const uint8_t *data,
+			   size_t datalen)
+{
+	int ret;
+
+	/*
+	 * The input data can be either a plain buffer string of encoded
+	 * private key or a PKCS#8 buffer. This function therefore tries to
+	 * parse the data in both ways with the PKCS#8 first, as it has more
+	 * stringent format checks.
+	 */
+	ret = lc_pkcs8_decode(&opts->pkcs8, data, datalen);
+	if (!ret) {
+		struct lc_pkcs8_message *pkcs8 = &opts->pkcs8;
+		struct lc_x509_key_data *pkcs8_keys = &pkcs8->privkey;
+
+		/*
+		 * After successful parsing of the private key into the
+		 * PKCS#8 structure, refer to this private key.
+		 */
+		keys->sk.dilithium_sk = pkcs8_keys->sk.dilithium_sk;
+		return 0;
+	}
+
+	CKINT(lc_x509_sk_decode(keys, pkey_type, data, datalen));
+
+out:
+	return ret;
+}
+
 static int pkcs7_load_signer(struct pkcs7_generator_opts *opts)
 {
 	struct lc_pkcs7_message *pkcs7 = opts->pkcs7;
@@ -335,9 +370,9 @@ static int pkcs7_load_signer(struct pkcs7_generator_opts *opts)
 	/* Set the private key to the newly create certificate */
 	LC_X509_LINK_INPUT_DATA(signer_key_data, signer_key_input_data);
 	CKINT(lc_x509_cert_get_pubkey(newcert, NULL, NULL, &pkey_type));
-	CKINT_LOG(lc_x509_sk_decode(signer_key_data, pkey_type,
-				    x509->signer_sk_data,
-				    x509->signer_sk_data_len),
+	CKINT_LOG(pkcs7_sk_decode(opts, signer_key_data, pkey_type,
+				  x509->signer_sk_data,
+				  x509->signer_sk_data_len),
 		  "Loading X.509 signer private key from file failed: %d\n",
 		  ret);
 	CKINT(lc_x509_cert_set_signer(newcert, signer_key_data, newcert));
@@ -534,8 +569,10 @@ static int pkcs7_collect_signer(struct pkcs7_generator_opts *opts)
 {
 	int ret;
 
-	CKNULL(opts->x509_signer_file, 0);
-	CKNULL(opts->signer_sk_file, 0);
+	if (!opts->x509_signer_file)
+		return 0;
+	if (!opts->signer_sk_file)
+		return 0;
 
 	CKINT_LOG(pkcs7_load_signer(opts),
 		  "Loading signer key/certificate failed\n");

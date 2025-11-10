@@ -1,4 +1,5 @@
 hasher_test_script = find_program('hasher-test.sh', required: true)
+siggen_test_script = find_program('siggen_tester.sh', required: true)
 certdir = meson.project_source_root() + '/asn1/tests/testcerts/'
 
 x509_rootca_args = [
@@ -551,5 +552,71 @@ if (host_machine.system() != 'windows' and
 			is_parallel: false, timeout: 300, suite: regression,
 			should_fail: fips140_negative_expect_fail)
 
+	endif
+
+	if get_option('pkcs8_generator').enabled()
+		test('X.509/PKCS8 keygen/siggen/sigver LC - OpenSSL Interop ML-DSA87',
+		     siggen_test_script,
+		     args: [ 'ML-DSA87',
+			     lc_x509_generator.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression)
+		test('X.509/PKCS8 keygen/siggen/sigver LC - OpenSSL Interop ML-DSA65',
+		     siggen_test_script,
+		     args: [ 'ML-DSA65',
+			     lc_x509_generator.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression)
+		test('X.509/PKCS8 keygen/siggen/sigver LC - OpenSSL Interop ML-DSA44',
+		     siggen_test_script,
+		     args: [ 'ML-DSA44',
+			     lc_x509_generator.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression)
+		test('X.509/PKCS8 keygen/siggen/sigver LC - OpenSSL Interop SLH-DSA-SHAKE-128F',
+		     siggen_test_script,
+		     args: [ 'SLH-DSA-SHAKE-128F',
+			     lc_x509_generator.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression)
+		test('X.509/PKCS8 keygen/siggen/sigver LC - OpenSSL Interop SLH-DSA-SHAKE-128S',
+		     siggen_test_script,
+		     args: [ 'SLH-DSA-SHAKE-128S',
+			     lc_x509_generator.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression)
+		test('X.509/PKCS8 keygen/siggen/sigver LC - OpenSSL Interop SLH-DSA-SHAKE-192F',
+		     siggen_test_script,
+		     args: [ 'SLH-DSA-SHAKE-192F',
+			     lc_x509_generator.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression)
+		test('X.509/PKCS8 keygen/siggen/sigver LC - OpenSSL Interop SLH-DSA-SHAKE-192S',
+		     siggen_test_script,
+		     args: [ 'SLH-DSA-SHAKE-192S',
+			     lc_x509_generator.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression)
+		test('X.509/PKCS8 keygen/siggen/sigver LC - OpenSSL Interop SLH-DSA-SHAKE-256F',
+		     siggen_test_script,
+		     args: [ 'SLH-DSA-SHAKE-256F',
+			     lc_x509_generator.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression)
+		test('X.509/PKCS8 keygen/siggen/sigver LC - OpenSSL Interop SLH-DSA-SHAKE-256S',
+		     siggen_test_script,
+		     args: [ 'SLH-DSA-SHAKE-256S',
+			     lc_x509_generator.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression)
 	endif
 endif
