@@ -34,8 +34,8 @@ extern "C" {
 #endif
 
 extern __inline unsigned short
-	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
-	_tzcnt_u16(unsigned short __X)
+	__attribute__((__gnu_inline__, __always_inline__,
+		       __artificial__)) _tzcnt_u16(unsigned short __X)
 {
 	//return __builtin_ia32_tzcnt_u16 (__X);
 	unsigned short ret;

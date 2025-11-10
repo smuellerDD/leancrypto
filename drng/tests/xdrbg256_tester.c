@@ -243,7 +243,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	ret = xdrbg256_drng_test();
 
 	if (!(lc_alg_status(lc_rng_algorithm_type(lc_xdrbg256_drng)) &
-	    lc_alg_status_self_test_passed)) {
+	      lc_alg_status_self_test_passed)) {
 		printf("lc_rng_algorithm_type failure\n");
 		ret++;
 	} else {

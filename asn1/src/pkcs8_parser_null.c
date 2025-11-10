@@ -50,7 +50,5 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs8_signature_gen, uint8_t *sig_data,
 	(void)pkcs8;
 	(void)m;
 	(void)mlen;
-	(void)prehash_algo
-	return -EOPNOTSUPP;
-
+	(void)prehash_algo return -EOPNOTSUPP;
 }

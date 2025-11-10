@@ -78,17 +78,17 @@ static int aes_xts_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 	return lc_mode_xts_c->setiv(&ctx->xts_state, iv, ivlen);
 }
 
-static const struct lc_sym _lc_aes_xts_c = {
-	.init = aes_xts_init,
-	.init_nocheck = aes_xts_init_nocheck,
-	.setkey = aes_xts_setkey,
-	.setiv = aes_xts_setiv,
-	.encrypt = aes_xts_encrypt,
-	.decrypt = aes_xts_decrypt,
-	.statesize = LC_AES_XTS_BLOCK_SIZE,
-	.blocksize = AES_BLOCKLEN,
-	.algorithm_type = LC_ALG_STATUS_AES_XTS
-};
+static const struct lc_sym _lc_aes_xts_c = { .init = aes_xts_init,
+					     .init_nocheck =
+						     aes_xts_init_nocheck,
+					     .setkey = aes_xts_setkey,
+					     .setiv = aes_xts_setiv,
+					     .encrypt = aes_xts_encrypt,
+					     .decrypt = aes_xts_decrypt,
+					     .statesize = LC_AES_XTS_BLOCK_SIZE,
+					     .blocksize = AES_BLOCKLEN,
+					     .algorithm_type =
+						     LC_ALG_STATUS_AES_XTS };
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_xts_c) = &_lc_aes_xts_c;
 
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_xts) = &_lc_aes_xts_c;

@@ -567,8 +567,8 @@ out:
 }
 
 static int x509_sk_encode(struct x509_generator_opts *opts,
-			  struct lc_x509_key_data *keys,
-			  uint8_t *data, size_t *avail_datalen)
+			  struct lc_x509_key_data *keys, uint8_t *data,
+			  size_t *avail_datalen)
 {
 	int ret;
 
@@ -616,7 +616,6 @@ static int x509_load_sk(struct x509_generator_opts *opts)
 	CKINT_LOG(get_data(opts->signer_sk_file, &opts->signer_sk_data,
 			   &opts->signer_sk_len),
 		  "Signer SK mmap failure\n");
-
 
 	/* Get the signature type based on the signer key */
 	CKINT(lc_x509_cert_get_pubkey(&opts->signer_cert, NULL, NULL,
@@ -988,74 +987,75 @@ int main(int argc, char *argv[])
 	int ret = 0, opt_index = 0;
 
 	static const char *opts_short = "ho:v";
-	static const struct option opts[] = { { "help", 0, 0, 'h' },
-					      { "version", 0, 0, 'v' },
+	static const struct option opts[] = {
+		{ "help", 0, 0, 'h' },
+		{ "version", 0, 0, 'v' },
 
-					      { "outfile", 1, 0, 'o' },
-					      { "sk-file", 1, 0, 0 },
-					      { "pk-file", 1, 0, 0 },
-					      { "key-type", 1, 0, 0 },
-					      { "create-keypair", 1, 0, 0 },
+		{ "outfile", 1, 0, 'o' },
+		{ "sk-file", 1, 0, 0 },
+		{ "pk-file", 1, 0, 0 },
+		{ "key-type", 1, 0, 0 },
+		{ "create-keypair", 1, 0, 0 },
 
-					      { "x509-signer", 1, 0, 0 },
-					      { "signer-sk-file", 1, 0, 0 },
+		{ "x509-signer", 1, 0, 0 },
+		{ "signer-sk-file", 1, 0, 0 },
 
-					      { "eku", 1, 0, 0 },
-					      { "keyusage", 1, 0, 0 },
+		{ "eku", 1, 0, 0 },
+		{ "keyusage", 1, 0, 0 },
 
-					      { "ca", 0, 0, 0 },
-					      { "san-dns", 1, 0, 0 },
-					      { "san-ip", 1, 0, 0 },
-					      { "skid", 1, 0, 0 },
-					      { "akid", 1, 0, 0 },
-					      { "valid-from", 1, 0, 0 },
-					      { "valid-to", 1, 0, 0 },
-					      { "valid-days", 1, 0, 0 },
-					      { "serial", 1, 0, 0 },
+		{ "ca", 0, 0, 0 },
+		{ "san-dns", 1, 0, 0 },
+		{ "san-ip", 1, 0, 0 },
+		{ "skid", 1, 0, 0 },
+		{ "akid", 1, 0, 0 },
+		{ "valid-from", 1, 0, 0 },
+		{ "valid-to", 1, 0, 0 },
+		{ "valid-days", 1, 0, 0 },
+		{ "serial", 1, 0, 0 },
 
-					      { "subject-cn", 1, 0, 0 },
-					      { "subject-email", 1, 0, 0 },
-					      { "subject-ou", 1, 0, 0 },
-					      { "subject-o", 1, 0, 0 },
-					      { "subject-st", 1, 0, 0 },
-					      { "subject-c", 1, 0, 0 },
+		{ "subject-cn", 1, 0, 0 },
+		{ "subject-email", 1, 0, 0 },
+		{ "subject-ou", 1, 0, 0 },
+		{ "subject-o", 1, 0, 0 },
+		{ "subject-st", 1, 0, 0 },
+		{ "subject-c", 1, 0, 0 },
 
-					      { "issuer-cn", 1, 0, 0 },
-					      { "issuer-email", 1, 0, 0 },
-					      { "issuer-ou", 1, 0, 0 },
-					      { "issuer-o", 1, 0, 0 },
-					      { "issuer-st", 1, 0, 0 },
-					      { "issuer-c", 1, 0, 0 },
+		{ "issuer-cn", 1, 0, 0 },
+		{ "issuer-email", 1, 0, 0 },
+		{ "issuer-ou", 1, 0, 0 },
+		{ "issuer-o", 1, 0, 0 },
+		{ "issuer-st", 1, 0, 0 },
+		{ "issuer-c", 1, 0, 0 },
 
-					      { "print", 0, 0, 0 },
-					      { "noout", 0, 0, 0 },
-					      { "print-x509", 1, 0, 0 },
+		{ "print", 0, 0, 0 },
+		{ "noout", 0, 0, 0 },
+		{ "print-x509", 1, 0, 0 },
 
-					      { "check-ca", 0, 0, 0 },
-					      { "check-ca-conformant", 0, 0,
-						0 },
-					      { "check-time", 0, 0, 0 },
-					      { "check-issuer-cn", 1, 0, 0 },
-					      { "check-subject-cn", 1, 0, 0 },
-					      { "check-noselfsigned", 0, 0, 0 },
-					      { "check-valid-from", 1, 0, 0 },
-					      { "check-valid-to", 1, 0, 0 },
-					      { "check-eku", 1, 0, 0 },
-					      { "check-san-dns", 1, 0, 0 },
-					      { "check-san-ip", 1, 0, 0 },
-					      { "check-skid", 1, 0, 0 },
-					      { "check-akid", 1, 0, 0 },
-					      { "check-noca", 0, 0, 0 },
-					      { "check-selfsigned", 0, 0, 0 },
-					      { "check-rootca", 0, 0, 0 },
-					      { "check-keyusage", 1, 0, 0 },
+		{ "check-ca", 0, 0, 0 },
+		{ "check-ca-conformant", 0, 0, 0 },
+		{ "check-time", 0, 0, 0 },
+		{ "check-issuer-cn", 1, 0, 0 },
+		{ "check-subject-cn", 1, 0, 0 },
+		{ "check-noselfsigned", 0, 0, 0 },
+		{ "check-valid-from", 1, 0, 0 },
+		{ "check-valid-to", 1, 0, 0 },
+		{ "check-eku", 1, 0, 0 },
+		{ "check-san-dns", 1, 0, 0 },
+		{ "check-san-ip", 1, 0, 0 },
+		{ "check-skid", 1, 0, 0 },
+		{ "check-akid", 1, 0, 0 },
+		{ "check-noca", 0, 0, 0 },
+		{ "check-selfsigned", 0, 0, 0 },
+		{ "check-rootca", 0, 0, 0 },
+		{ "check-keyusage", 1, 0, 0 },
 
-					      { "data-file", 1, 0, 0 },
-					      { "x509-cert", 1, 0, 0 },
+		{ "data-file", 1, 0, 0 },
+		{ "x509-cert", 1, 0, 0 },
 
-					      { "create-keypair-pkcs8", 1, 0, 0 },
+		{ "create-keypair-pkcs8", 1, 0, 0 },
 
-					      { 0, 0, 0, 0 } };
+		{ 0, 0, 0, 0 }
+	};
 
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 

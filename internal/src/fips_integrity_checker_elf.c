@@ -100,8 +100,8 @@ static void fips_integrity_checker_internal(int rerun)
 {
 	uint8_t act[LC_SHA3_256_SIZE_DIGEST] __align(8) = { 0 };
 
-	if (fips_integrity_check(secs, ARRAY_SIZE(secs), expected_digest,
-				 act, rerun)) {
+	if (fips_integrity_check(secs, ARRAY_SIZE(secs), expected_digest, act,
+				 rerun)) {
 		fips_integrity_checker_build(act);
 		/*
 		 * Keep library alive, but all algorithms are in error state
@@ -112,7 +112,6 @@ static void fips_integrity_checker_internal(int rerun)
 
 	lc_memset_secure(act, 0, sizeof(act));
 }
-
 
 LC_INTERFACE_FUNCTION(void, lc_fips_integrity_checker, void)
 {

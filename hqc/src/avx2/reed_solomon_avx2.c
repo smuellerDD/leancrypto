@@ -1424,7 +1424,8 @@ static uint16_t compute_elp(uint16_t *sigma, const uint16_t *syndromes)
 		mask1 = (uint16_t)-((uint16_t)-d >> 15);
 
 		// mask2 = 0xffff if(deg_X_sigma_p > deg_sigma) and 0 otherwise
-		mask2 = (uint16_t)-((uint16_t)(deg_sigma - deg_X_sigma_p) >> 15);
+		mask2 = (uint16_t)-((uint16_t)(deg_sigma - deg_X_sigma_p) >>
+				    15);
 
 		// mask12 = 0xffff if the deg_sigma increased and 0 otherwise
 		mask12 = mask1 & mask2;
@@ -1539,8 +1540,9 @@ static void compute_error_values(uint16_t *error_values, const uint16_t *z,
 		found = 0;
 		mask1 = (uint16_t)(-((int32_t)error[i]) >> 31); // error[i] != 0
 		for (j = 0; j < LC_HQC_PARAM_DELTA; j++) {
-			mask2 = (uint16_t)(~((uint16_t)(-((int32_t)j ^ delta_counter) >>
-					     31))); // j == delta_counter
+			mask2 = (uint16_t)(~(
+				(uint16_t)(-((int32_t)j ^ delta_counter) >>
+					   31))); // j == delta_counter
 			beta_j[j] += mask1 & mask2 & gf_exp[i];
 			found += mask1 & mask2 & 1;
 		}
@@ -1578,8 +1580,9 @@ static void compute_error_values(uint16_t *error_values, const uint16_t *z,
 		found = 0;
 		mask1 = (uint16_t)(-((int32_t)error[i]) >> 31); // error[i] != 0
 		for (j = 0; j < LC_HQC_PARAM_DELTA; j++) {
-			mask2 = (uint16_t)(~((uint16_t)(-((int32_t)j ^ delta_counter) >>
-					     31))); // j == delta_counter
+			mask2 = (uint16_t)(~(
+				(uint16_t)(-((int32_t)j ^ delta_counter) >>
+					   31))); // j == delta_counter
 			error_values[i] += mask1 & mask2 & e_j[j];
 			found += mask1 & mask2 & 1;
 		}

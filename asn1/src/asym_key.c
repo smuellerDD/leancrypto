@@ -1121,10 +1121,9 @@ int asym_keypair_gen(struct lc_x509_certificate *cert,
 				keys->sk_seed, LC_X509_PQC_SK_SEED_SIZE,
 				dilithium_key_type));
 		} else {
-			CKINT(lc_dilithium_keypair(keys->pk.dilithium_pk,
-						   keys->sk.dilithium_sk,
-						   lc_seeded_rng,
-						   dilithium_key_type));
+			CKINT(lc_dilithium_keypair(
+				keys->pk.dilithium_pk, keys->sk.dilithium_sk,
+				lc_seeded_rng, dilithium_key_type));
 		}
 		CKINT(asym_set_dilithium_keypair(&cert->sig_gen_data,
 						 keys->pk.dilithium_pk,
@@ -1175,10 +1174,9 @@ int asym_keypair_gen(struct lc_x509_certificate *cert,
 				keys->sk_seed, LC_X509_PQC_SK_SEED_SIZE,
 				sphincs_key_type));
 		} else {
-			CKINT(lc_sphincs_keypair(keys->pk.sphincs_pk,
-						 keys->sk.sphincs_sk,
-						 lc_seeded_rng,
-						 sphincs_key_type));
+			CKINT(lc_sphincs_keypair(
+				keys->pk.sphincs_pk, keys->sk.sphincs_sk,
+				lc_seeded_rng, sphincs_key_type));
 		}
 
 		CKINT(asym_set_sphincs_keypair(&cert->sig_gen_data,

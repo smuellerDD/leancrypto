@@ -131,9 +131,9 @@ static void lc_chacha20_poly1305_selftest(void)
 			      sizeof(aad), act_tag, sizeof(act_tag));
 	if (ret) {
 		if (lc_compare_selftest(
-			lc_chacha20_poly1305_aead->algorithm_type, f, p,
-			sizeof(f),
-			"ChaCha20 Poly1305 AEAD decrypt authentication"))
+			    lc_chacha20_poly1305_aead->algorithm_type, f, p,
+			    sizeof(f),
+			    "ChaCha20 Poly1305 AEAD decrypt authentication"))
 			goto out;
 	}
 	unpoison(act_ct, sizeof(act_ct));
@@ -229,8 +229,8 @@ static void lc_chacha20_poly1305_add_aad(void *state, const uint8_t *aad,
 	cc20p1305->aadlen += aadlen;
 }
 
-static inline void lc_chacha20_poly1305_aad_pad(
-	struct lc_chacha20_poly1305_cryptor *cc20p1305)
+static inline void
+lc_chacha20_poly1305_aad_pad(struct lc_chacha20_poly1305_cryptor *cc20p1305)
 {
 	struct lc_poly1305_context *poly1305 = &cc20p1305->poly1305_ctx;
 	size_t padlen;

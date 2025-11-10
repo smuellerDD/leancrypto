@@ -110,7 +110,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	ret = sha3_256_tester();
 
 	if (!(lc_alg_status(lc_hash_algorithm_type(lc_sha3_256)) &
-	    lc_alg_status_self_test_passed)) {
+	      lc_alg_status_self_test_passed)) {
 		printf("lc_hash_algorithm_type failure\n");
 		ret++;
 	} else {

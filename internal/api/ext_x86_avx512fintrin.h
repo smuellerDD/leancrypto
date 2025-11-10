@@ -123,8 +123,8 @@ extern __inline __m512i
 		(__v8di)(__m512i)(C), (unsigned char)(I), (__mmask8) - 1))
 
 extern __inline __m512i
-	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
-	_mm512_loadu_si512(void const *__P)
+	__attribute__((__gnu_inline__, __always_inline__,
+		       __artificial__)) _mm512_loadu_si512(void const *__P)
 {
 	return *(__m512i_u *)__P;
 }

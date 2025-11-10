@@ -374,8 +374,8 @@ int x509_mldsa_private_key_seed(void *context, size_t hdrlen, unsigned char tag,
 	CKINT(lc_dilithium_sk_ptr(&dilithium_src_key, &dilithium_src_key_len,
 				  &ws->sk));
 
-	CKINT(lc_dilithium_sk_load(
-		dilithium_sk, dilithium_src_key, dilithium_src_key_len));
+	CKINT(lc_dilithium_sk_load(dilithium_sk, dilithium_src_key,
+				   dilithium_src_key_len));
 
 	printf_debug("Reestablished ML-DSA secret key of size %zu\n",
 		     dilithium_src_key_len);

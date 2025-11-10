@@ -124,8 +124,7 @@ LC_INTERFACE_FUNCTION(void, lc_sym_zero_free, struct lc_sym_ctx *ctx)
 	lc_free(ctx);
 }
 
-LC_INTERFACE_FUNCTION(uint64_t, lc_sym_algorithm_type,
-		      const struct lc_sym *sym)
+LC_INTERFACE_FUNCTION(uint64_t, lc_sym_algorithm_type, const struct lc_sym *sym)
 {
 	if (!sym)
 		return 0;

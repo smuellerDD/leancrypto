@@ -331,16 +331,15 @@ int cc20_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen)
 	return 0;
 }
 
-static const struct lc_sym _lc_chacha20 = {
-	.init = cc20_init,
-	.setkey = cc20_setkey,
-	.setiv = cc20_setiv,
-	.encrypt = cc20_crypt,
-	.decrypt = cc20_crypt,
-	.statesize = LC_CC20_STATE_SIZE,
-	.blocksize = 1,
-	.algorithm_type = LC_ALG_STATUS_CHACHA20
-};
+static const struct lc_sym _lc_chacha20 = { .init = cc20_init,
+					    .setkey = cc20_setkey,
+					    .setiv = cc20_setiv,
+					    .encrypt = cc20_crypt,
+					    .decrypt = cc20_crypt,
+					    .statesize = LC_CC20_STATE_SIZE,
+					    .blocksize = 1,
+					    .algorithm_type =
+						    LC_ALG_STATUS_CHACHA20 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_chacha20_c) = &_lc_chacha20;
 
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_chacha20) = &_lc_chacha20;

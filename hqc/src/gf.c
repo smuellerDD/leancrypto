@@ -140,7 +140,7 @@ static void gf_carryless_mul(uint8_t c[2], uint8_t a, uint8_t b)
 		h ^= g >> (8 - i);
 	}
 
-	mask =(uint16_t) (uint16_t)(-((b >> 7) & 1));
+	mask = (uint16_t)(uint16_t)(-((b >> 7) & 1));
 	l ^= ((a << 7) & mask);
 	h ^= ((a >> 1) & mask);
 

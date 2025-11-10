@@ -90,7 +90,8 @@ static int sha3_384_tester(void)
 	int ret = 0;
 
 	LC_EXEC_ONE_TEST(lc_sha3_384);
-	LC_EXEC_ONE_TEST(lc_sha3_384_c);;
+	LC_EXEC_ONE_TEST(lc_sha3_384_c);
+	;
 	LC_EXEC_ONE_TEST(lc_sha3_384_arm_asm);
 	LC_EXEC_ONE_TEST(lc_sha3_384_arm_ce);
 	LC_EXEC_ONE_TEST(lc_sha3_384_arm_neon);

@@ -88,11 +88,11 @@ void sha3_256_selftest_common(const struct lc_hash *sha3_256)
 
 	lc_hash_nocheck(sha3_256, msg_256, sizeof(msg_256), act);
 	if (lc_compare_selftest(LC_ALG_STATUS_SHA3, act, exp_256,
-				sizeof(exp_256), "SHA3-256") && ongoing) {
+				sizeof(exp_256), "SHA3-256") &&
+	    ongoing) {
 		alg_status_set_result(lc_alg_status_result_failed,
 				      LC_ALG_STATUS_LIB);
 	}
-
 }
 
 void sha3_384_selftest_common(const struct lc_hash *sha3_384)

@@ -132,7 +132,7 @@ int pkcs8_note_key_enc(void *context, uint8_t *data, size_t *avail_datalen,
 
 	CKINT(privkey_key_encode(&privkey_ctx, data, avail_datalen));
 
-	printf_debug("Setting private key type %u\n",  pkcs8->privkey.sig_type);
+	printf_debug("Setting private key type %u\n", pkcs8->privkey.sig_type);
 
 out:
 	return ret;
@@ -142,8 +142,7 @@ out:
  * API functions
  ******************************************************************************/
 
-LC_INTERFACE_FUNCTION(int, lc_pkcs8_set_privkey,
-		      struct lc_pkcs8_message *pkcs8,
+LC_INTERFACE_FUNCTION(int, lc_pkcs8_set_privkey, struct lc_pkcs8_message *pkcs8,
 		      const struct lc_x509_key_data *privkey)
 {
 	int ret = 0;

@@ -290,8 +290,7 @@ int pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 		CKINT(lc_x509_policy_match_key_usage(p,
 						     LC_KEY_USAGE_KEYCERTSIGN));
 		if (ret != LC_X509_POL_TRUE) {
-			printf_debug(
-				"- policy rejected\n");
+			printf_debug("- policy rejected\n");
 			return -EKEYREJECTED;
 		}
 

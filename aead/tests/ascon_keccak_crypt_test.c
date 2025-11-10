@@ -397,7 +397,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_EXEC_ONE_TEST_256(lc_sha3_256_riscv_asm);
 
 	if (!(lc_alg_status(lc_aead_algorithm_type(lc_ascon_keccak_aead)) &
-	    lc_alg_status_self_test_passed)) {
+	      lc_alg_status_self_test_passed)) {
 		printf("lc_aead_algorithm_type failure\n");
 		ret++;
 	} else {

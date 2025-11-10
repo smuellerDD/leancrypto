@@ -180,8 +180,8 @@ static __inline__ __m256i __DEFAULT_FN_ATTRS256 _mm256_srlv_epi64(__m256i __X,
 #define _mm256_extracti128_si256(V, M)                                         \
 	((__m128i)__builtin_ia32_extract128i256((__v4di)(__m256i)(V), (int)(M)))
 
-static __inline__ __m256i __DEFAULT_FN_ATTRS256
-_mm256_broadcastsi128_si256(__m128i __X)
+static __inline__ __m256i
+	__DEFAULT_FN_ATTRS256 _mm256_broadcastsi128_si256(__m128i __X)
 {
 	return (__m256i)__builtin_shufflevector((__v2di)__X, (__v2di)__X, 0, 1,
 						0, 1);
@@ -289,8 +289,8 @@ static __inline__ __m256i __DEFAULT_FN_ATTRS256 _mm256_slli_epi32(__m256i __a,
 #else
 
 extern __inline __m256i
-	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
-	_mm256_abs_epi32(__m256i __A)
+	__attribute__((__gnu_inline__, __always_inline__,
+		       __artificial__)) _mm256_abs_epi32(__m256i __A)
 {
 	return (__m256i)__builtin_ia32_pabsd256((__v8si)__A);
 }

@@ -55,8 +55,8 @@ static int rerun_selftest_tester(void)
 		ret += test_validate_status(ret, LC_ALG_STATUS_SHA3, 1);
 	} else {
 		ret += test_validate_expected_status(
-			ret, LC_ALG_STATUS_SHA3,
-			lc_alg_status_result_pending, 1);
+			ret, LC_ALG_STATUS_SHA3, lc_alg_status_result_pending,
+			1);
 	}
 #endif
 
@@ -78,9 +78,8 @@ static int rerun_selftest_tester(void)
 #else
 	    0
 #endif
-	    )
-		ret +=1;
-
+	)
+		ret += 1;
 
 	ret += test_validate_status(ret, LC_ALG_STATUS_LIB, lib_approved);
 	ret += test_validate_status(ret, LC_ALG_STATUS_SHA3, 1);
@@ -100,8 +99,8 @@ static int rerun_selftest_tester(void)
 		ret += test_validate_status(ret, LC_ALG_STATUS_SHA3, 1);
 	} else {
 		ret += test_validate_expected_status(
-			ret, LC_ALG_STATUS_SHA3,
-			lc_alg_status_result_pending, 1);
+			ret, LC_ALG_STATUS_SHA3, lc_alg_status_result_pending,
+			1);
 	}
 #endif
 
@@ -116,8 +115,8 @@ static int rerun_selftest_tester(void)
 #else
 	    0
 #endif
-	    )
-		ret +=1;
+	)
+		ret += 1;
 
 	ret += test_validate_status(ret, LC_ALG_STATUS_LIB, lib_approved);
 	ret += test_validate_status(ret, LC_ALG_STATUS_SHA3, 1);

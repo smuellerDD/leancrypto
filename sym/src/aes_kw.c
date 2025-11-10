@@ -76,17 +76,16 @@ static int aes_kw_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 	return lc_mode_kw_c->setiv(&ctx->kw_state, iv, ivlen);
 }
 
-static const struct lc_sym _lc_aes_kw_c = {
-	.init = aes_kw_init,
-	.init_nocheck = aes_kw_init_nocheck,
-	.setkey = aes_kw_setkey,
-	.setiv = aes_kw_setiv,
-	.encrypt = aes_kw_encrypt,
-	.decrypt = aes_kw_decrypt,
-	.statesize = LC_AES_KW_BLOCK_SIZE,
-	.blocksize = AES_BLOCKLEN,
-	.algorithm_type = LC_ALG_STATUS_AES_KW
-};
+static const struct lc_sym _lc_aes_kw_c = { .init = aes_kw_init,
+					    .init_nocheck = aes_kw_init_nocheck,
+					    .setkey = aes_kw_setkey,
+					    .setiv = aes_kw_setiv,
+					    .encrypt = aes_kw_encrypt,
+					    .decrypt = aes_kw_decrypt,
+					    .statesize = LC_AES_KW_BLOCK_SIZE,
+					    .blocksize = AES_BLOCKLEN,
+					    .algorithm_type =
+						    LC_ALG_STATUS_AES_KW };
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_kw_c) = &_lc_aes_kw_c;
 
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_kw) = &_lc_aes_kw_c;

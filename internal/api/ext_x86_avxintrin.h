@@ -200,8 +200,8 @@ static __inline__ __m256i __DEFAULT_FN_ATTRS _mm256_undefined_si256(void)
 }
 #else
 extern __inline __m256i
-	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
-	_mm256_undefined_si256(void)
+	__attribute__((__gnu_inline__, __always_inline__,
+		       __artificial__)) _mm256_undefined_si256(void)
 {
 	__m256i __Y = __Y;
 	return __Y;
@@ -227,7 +227,8 @@ static __inline int __DEFAULT_FN_ATTRS _mm256_testz_si256(__m256i __a,
 	((__m256d)__builtin_ia32_shufpd256((__v4df)(__m256d)(a),               \
 					   (__v4df)(__m256d)(b), (int)(mask)))
 
-static __inline __m256d __DEFAULT_FN_ATTRS _mm256_broadcast_sd(double const *__a)
+static __inline __m256d
+	__DEFAULT_FN_ATTRS _mm256_broadcast_sd(double const *__a)
 {
 	double __d = *__a;
 	return __extension__(__m256d)(__v4df){ __d, __d, __d, __d };

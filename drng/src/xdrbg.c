@@ -39,8 +39,8 @@ lc_xdrbg_initially_seeded(struct lc_xdrbg_drng_state *state)
 
 static inline uint8_t lc_xdrbg_keysize(struct lc_xdrbg_drng_state *state)
 {
-	enum lc_xdrbg_status_keysize status = state->status &
-					      LC_XDRBG_DRNG_KEYSIZE_MASK;
+	enum lc_xdrbg_status_keysize status =
+		state->status & LC_XDRBG_DRNG_KEYSIZE_MASK;
 
 	switch (status) {
 	case lc_xdrbg_keysize_xdrbg128:

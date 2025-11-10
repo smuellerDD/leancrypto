@@ -302,8 +302,8 @@ static const struct lc_aead _lc_ascon_keccak_aead = {
 	.zero = lc_ascon_zero_interface,
 	.algorithm_type = LC_ALG_STATUS_ASCON_KECCAK,
 };
-LC_INTERFACE_SYMBOL(const struct lc_aead *, lc_ascon_keccak_aead) =
-		    &_lc_ascon_keccak_aead;
+LC_INTERFACE_SYMBOL(const struct lc_aead *,
+		    lc_ascon_keccak_aead) = &_lc_ascon_keccak_aead;
 
 LC_INTERFACE_FUNCTION(int, lc_ak_alloc, const struct lc_hash *hash,
 		      struct lc_aead_ctx **ctx)

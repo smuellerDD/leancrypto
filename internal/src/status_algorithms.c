@@ -409,17 +409,16 @@ static void alg_status_unset_test_state(alg_status_t digest_value)
 
 void alg_status_set_all_passed_state(void)
 {
-	static const int all_passed =
-		lc_alg_status_result_passed << (3 * 0) |
-		lc_alg_status_result_passed << (3 * 1) |
-		lc_alg_status_result_passed << (3 * 2) |
-		lc_alg_status_result_passed << (3 * 3) |
-		lc_alg_status_result_passed << (3 * 4) |
-		lc_alg_status_result_passed << (3 * 5) |
-		lc_alg_status_result_passed << (3 * 6) |
-		lc_alg_status_result_passed << (3 * 7) |
-		lc_alg_status_result_passed << (3 * 8) |
-		lc_alg_status_result_passed << (3 * 9);
+	static const int all_passed = lc_alg_status_result_passed << (3 * 0) |
+				      lc_alg_status_result_passed << (3 * 1) |
+				      lc_alg_status_result_passed << (3 * 2) |
+				      lc_alg_status_result_passed << (3 * 3) |
+				      lc_alg_status_result_passed << (3 * 4) |
+				      lc_alg_status_result_passed << (3 * 5) |
+				      lc_alg_status_result_passed << (3 * 6) |
+				      lc_alg_status_result_passed << (3 * 7) |
+				      lc_alg_status_result_passed << (3 * 8) |
+				      lc_alg_status_result_passed << (3 * 9);
 
 	/*
 	 * Replicate the compile-time initialization state, but leave the
@@ -455,8 +454,7 @@ static void alg_status_unset_testresult_one(alg_status_t alg, atomic_t *status)
 }
 
 #define alg_status_set_testresult_val(operation, test_ret, flag, status)       \
-	operation((int)(test_ret << (flag & ~LC_ALG_STATUS_TYPE_MASK) ),       \
-		  status)
+	operation((int)(test_ret << (flag & ~LC_ALG_STATUS_TYPE_MASK)), status)
 
 static void alg_status_set_testresult(enum lc_alg_status_result test_ret,
 				      uint64_t flag, atomic_t *status)
@@ -490,13 +488,10 @@ static void alg_status_set_testresult(enum lc_alg_status_result test_ret,
 }
 
 #define alg_status_result_interpret(val, alg)                                  \
-	((enum lc_alg_status_result)                                           \
-		       /* Read out the entire state variable */                \
-		       val                                                     \
-		       /* Downshift to the required flag */                    \
-		       >> alg                                                  \
-	       /* Eliminate the upper bits */                                  \
-	       & ((1 << LC_ALG_STATUS_FLAG_MASK_SIZE) - 1))
+	((enum lc_alg_status_result) /* Read out the entire state variable */  \
+		 val /* Downshift to the required flag */                      \
+		 >> alg /* Eliminate the upper bits */                         \
+	 & ((1 << LC_ALG_STATUS_FLAG_MASK_SIZE) - 1))
 
 static enum lc_alg_status_result alg_status_result(atomic_t *status,
 						   alg_status_t alg)
@@ -520,9 +515,10 @@ static enum lc_alg_status_result alg_status_result(atomic_t *status,
 	return alg_status_result_interpret(atomic_read(status), alg);
 }
 
-static enum lc_alg_status_val alg_status_is_fips_one(
-	uint64_t flag, const struct alg_status_show *alg_status_show_arr,
-	size_t array_size, atomic_t *status)
+static enum lc_alg_status_val
+alg_status_is_fips_one(uint64_t flag,
+		       const struct alg_status_show *alg_status_show_arr,
+		       size_t array_size, atomic_t *status)
 {
 	const struct alg_status_show *alg_status_show;
 	alg_status_t alg = flag & ~LC_ALG_STATUS_TYPE_MASK;
@@ -672,10 +668,10 @@ void alg_status_unset_result(uint64_t flag)
 enum lc_alg_status_val alg_status(uint64_t flag)
 {
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_AEAD) {
-		return alg_status_is_fips_one(
-			flag, alg_status_show_aead,
-			ARRAY_SIZE(alg_status_show_aead) - 1,
-			&lc_alg_status_aead);
+		return alg_status_is_fips_one(flag, alg_status_show_aead,
+					      ARRAY_SIZE(alg_status_show_aead) -
+						      1,
+					      &lc_alg_status_aead);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_KEM_PQC) {
 		return alg_status_is_fips_one(
@@ -719,7 +715,7 @@ enum lc_alg_status_val alg_status(uint64_t flag)
 		 * flag.
 		 */
 		return ret &
-		       (enum lc_alg_status_val)~lc_alg_status_fips_approved;
+		       (enum lc_alg_status_val) ~lc_alg_status_fips_approved;
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_DIGEST) {
 		return alg_status_is_fips_one(
@@ -728,24 +724,23 @@ enum lc_alg_status_val alg_status(uint64_t flag)
 			&lc_alg_status_digest);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_SYM) {
-		return alg_status_is_fips_one(
-			flag, alg_status_show_sym,
-			ARRAY_SIZE(alg_status_show_sym) - 1,
-			&lc_alg_status_sym);
+		return alg_status_is_fips_one(flag, alg_status_show_sym,
+					      ARRAY_SIZE(alg_status_show_sym) -
+						      1,
+					      &lc_alg_status_sym);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_AUX) {
-		enum lc_alg_status_val ret =
-			alg_status_is_fips_one(
-				flag, alg_status_show_aux,
-				ARRAY_SIZE(alg_status_show_aux) - 1,
-				&lc_alg_status_aux);
+		enum lc_alg_status_val ret = alg_status_is_fips_one(
+			flag, alg_status_show_aux,
+			ARRAY_SIZE(alg_status_show_aux) - 1,
+			&lc_alg_status_aux);
 
 		if (flag == LC_ALG_STATUS_LIB) {
 			if (fips140_mode_enabled())
 				ret |= lc_alg_status_fips_approved;
 			else
-				ret &= (enum lc_alg_status_val)
-						(~lc_alg_status_fips_approved);
+				ret &= (enum lc_alg_status_val)(
+					~lc_alg_status_fips_approved);
 		}
 
 		return ret;
@@ -916,8 +911,8 @@ int lc_activate_library_selftest_init(int reinit)
 		* (or passed/failed), the ORing did not change the value.
 		*/
 		status = alg_status_set_testresult_val(
-				atomic_fetch_or, lc_alg_status_result_ongoing,
-				LC_ALG_STATUS_LIB, &lc_alg_status_aux);
+			atomic_fetch_or, lc_alg_status_result_ongoing,
+			LC_ALG_STATUS_LIB, &lc_alg_status_aux);
 
 		/*
 		* Now analyze the fetched value before ORing: was it pending?
@@ -967,9 +962,10 @@ void lc_activate_library_internal(void)
 	 * passed flag. If the value before ORing already shows passed (or
 	 * failed), the ORing did not change the value.
 	 */
-	status = alg_status_set_testresult_val(
-			atomic_fetch_or, lc_alg_status_result_passed,
-			LC_ALG_STATUS_LIB, &lc_alg_status_aux);
+	status = alg_status_set_testresult_val(atomic_fetch_or,
+					       lc_alg_status_result_passed,
+					       LC_ALG_STATUS_LIB,
+					       &lc_alg_status_aux);
 
 	/*
 	 * Now analyze the fetched value before ORing: was it pending?
