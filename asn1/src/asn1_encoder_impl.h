@@ -198,6 +198,9 @@ static inline int asn1_ber_encoder_ws(const struct asn1_encoder *encoder,
 
 	(void)errmsg;
 
+	ws->data_p[0] = ws->data[0];
+	ws->data_len[0] = maxlen;
+
 	printf_debug("---- Start encoder\n");
 
 next_op:
@@ -235,8 +238,7 @@ next_op:
 		/*
 		 * Retain the current tag - it will be written out if there is
 		 * data found to be written.
-	int asn1_ber_encoder(const struct asn1_encoder *encoder, void *context,
-		     uint8_t *data, size_t *in_out_avail_datalen)	 */
+		 */
 		ws->tag[dsp] = machine[pc + 1];
 
 		ASN1_BER_ENCODE_CHECK_FOR_SEQUENCE
@@ -251,6 +253,7 @@ next_op:
 
 			CKINT(actions[act](context, ws->data_p[dsp],
 					   &ws->data_len[dsp], &ws->tag[dsp]));
+
 			if (ret == LC_ASN1_RET_CONTINUE)
 				flags |= FLAG_OF_CONTINUE;
 			if (ret == LC_ASN1_RET_SET_ZERO_CONTENT)
@@ -366,6 +369,7 @@ next_op:
 
 			CKINT(actions[act](context, ws->data_p[dsp],
 					   &ws->data_len[dsp], &ws->tag[dsp]));
+
 			if (ret == LC_ASN1_RET_CONTINUE)
 				flags |= FLAG_OF_CONTINUE;
 			if (ret == LC_ASN1_RET_SET_ZERO_CONTENT)
@@ -386,9 +390,8 @@ next_op:
 
 	write_data_out:
 		len = maxlen - ws->data_len[dsp];
-
 		if (!len && !(flags & FLAG_SET_ZERO_CONTENT)) {
-			printf_debug("Skiping zero-length data encoding\n");
+			printf_debug("Skipping zero-length data encoding\n");
 			pc += asn1_op_lengths[op];
 			goto next_op;
 		}
