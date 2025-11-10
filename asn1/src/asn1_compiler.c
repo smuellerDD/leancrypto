@@ -590,6 +590,7 @@ static void render(FILE *out, FILE *hdr);
 int main(int argc, char **argv)
 {
 	struct stat st;
+	size_t grammar_name_len;
 	ssize_t readlen;
 	FILE *out, *hdr;
 	char *buffer, *p;
@@ -661,9 +662,18 @@ int main(int argc, char **argv)
 		perror(NULL);
 		exit(1);
 	}
+
+	/* Cut off ".asn1" */
 	p = strchr(grammar_name, '.');
 	if (p)
 		*p = '\0';
+
+	/* Cut off "_asn1" */
+	grammar_name_len = strlen(grammar_name);
+	if (grammar_name_len > 5) {
+		p = (char *)(grammar_name + grammar_name_len - 5);
+		*p = '\0';
+	}
 
 	buffer[readlen] = 0;
 	tokenise(buffer, buffer + readlen);
@@ -1362,7 +1372,7 @@ static void render(FILE *out, FILE *hdr)
 	fprintf(out, " * ASN.1 parser for %s\n", grammar_name);
 	fprintf(out, " */\n");
 	fprintf(out, "#include \"asn1_ber_bytecode.h\"\n");
-	fprintf(out, "#include \"%s.asn1.h\"\n", grammar_name);
+	fprintf(out, "#include \"%s_asn1.h\"\n", grammar_name);
 	fprintf(out, "\n");
 	fprintf(out, "// clang-format off\n");
 	fprintf(out, "\n");
