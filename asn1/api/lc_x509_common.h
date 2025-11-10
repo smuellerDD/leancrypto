@@ -158,7 +158,6 @@ struct lc_public_key {
 	size_t keylen;
 	const uint8_t *params;
 	size_t paramlen;
-	const char *id_type;
 	enum OID algo;
 	enum lc_sig_types pkey_algo;
 
@@ -287,6 +286,8 @@ struct lc_x509_key_data {
 	} sk;
 	uint8_t sk_seed[LC_X509_PQC_SK_SEED_SIZE];
 	uint8_t pk_digest[LC_X509_SKID_DEFAULT_HASHSIZE];
+
+	unsigned int sk_seed_set : 1;
 };
 
 struct lc_x509_certificate {
@@ -338,10 +339,10 @@ struct lc_x509_certificate {
 	uint8_t x509_version; /* X.509 Version of certificate */
 	unsigned int seen : 1; /* Infinite recursion prevention */
 	unsigned int verified : 1;
-	unsigned int
-		self_signed : 1; /* T if self-signed (check unsupported_sig too) */
-	unsigned int
-		unsupported_sig : 1; /* T if signature uses unsupported crypto */
+	unsigned int self_signed
+		: 1; /* T if self-signed (check unsupported_sig too) */
+	unsigned int unsupported_sig
+		: 1; /* T if signature uses unsupported crypto */
 	unsigned int blacklisted : 1;
 	unsigned int allocated : 1;
 };

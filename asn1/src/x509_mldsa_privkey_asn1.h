@@ -11,6 +11,8 @@
 extern const struct asn1_encoder x509_mldsa_privkey_encoder;
 extern const struct asn1_decoder x509_mldsa_privkey_decoder;
 
-extern int x509_mldsa_private_key_enc(void *, uint8_t *, size_t *, uint8_t *);
-extern int x509_mldsa_private_key(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int x509_mldsa_private_key_expanded_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int x509_mldsa_private_key_expanded(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int x509_mldsa_private_key_seed_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int x509_mldsa_private_key_seed(void *, size_t, unsigned char, const uint8_t *, size_t);
 // clang-format on

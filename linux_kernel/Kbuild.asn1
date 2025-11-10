@@ -20,8 +20,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_X509_PARSER)				       \
 				   ../asn1/src/x509_keyusage_asn1.o	       \
 				   ../asn1/src/x509_mldsa_privkey_asn1.o       \
 				   ../asn1/src/x509_san_asn1.o		       \
-				   ../asn1/src/x509_skid_asn1.o		       \
-				   ../asn1/src/x509_slhdsa_privkey_asn1.o      \
+				   ../asn1/src/x509_skid_asn1.o
 
 ifdef CONFIG_LEANCRYPTO_SPHINCS
 leancrypto-$(CONFIG_LEANCRYPTO_X509_PARSER)				       \
@@ -72,7 +71,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_X509_GENERATOR)				       \
 ################################################################################
 # PKCS7 Support
 
-leancrypto-$(CONFIG_LEANCRYPTO_X509_PARSER)				       \
+leancrypto-$(CONFIG_LEANCRYPTO_PKCS7_PARSER)				       \
 				+= ../asn1/src/pkcs7_memory.o		       \
 				   ../asn1/src/pkcs7_parser.o		       \
 				   ../asn1/src/pkcs7_trust.o		       \
@@ -83,3 +82,13 @@ leancrypto-$(CONFIG_LEANCRYPTO_X509_PARSER)				       \
 leancrypto-$(CONFIG_LEANCRYPTO_PKCS7_GENERATOR)				       \
 				+= ../asn1/src/pkcs7_generator.o	       \
 				   ../asn1/src/pkcs7_generator_set_data.o
+
+################################################################################
+# PKCS8 Support
+
+leancrypto-$(CONFIG_LEANCRYPTO_PKCS8_PARSER)				       \
+				+= ../asn1/src/pkcs8_parser.o		       \
+				   ../asn1/src/pkcs8_asn1.o
+
+leancrypto-$(CONFIG_LEANCRYPTO_PKCS8_GENERATOR)				       \
+				+= ../asn1/src/pkcs8_generator.o

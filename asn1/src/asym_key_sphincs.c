@@ -27,7 +27,6 @@
 #include "ret_checkers.h"
 #include "small_stack_support.h"
 #include "x509_algorithm_mapper.h"
-#include "x509_slhdsa_privkey_asn1.h"
 
 static int
 public_key_set_prehash_sphincs(const struct lc_public_key_signature *sig,
@@ -193,43 +192,22 @@ out:
 #endif
 }
 
-int x509_slhdsa_private_key_enc(void *context, uint8_t *data,
-				size_t *avail_datalen, uint8_t *tag)
+int private_key_encode_sphincs(uint8_t *data, size_t *avail_datalen,
+			       struct x509_generate_privkey_context *ctx)
 {
 #ifdef LC_X509_GENERATOR
-	const struct x509_generate_privkey_context *ctx = context;
 	const struct lc_x509_key_data *keys = ctx->keys;
 	size_t pqc_pklen;
 	uint8_t *pqc_ptr;
 	int ret;
 
-	(void)tag;
-
 	CKINT(lc_sphincs_sk_ptr(&pqc_ptr, &pqc_pklen, keys->sk.sphincs_sk));
 
-	CKINT(x509_set_bit_string(&data, avail_datalen, pqc_ptr, pqc_pklen));
+	/* Set OCTET STRING of priv key seed */
+	CKINT(x509_concatenate_bit_string(&data, avail_datalen, pqc_ptr,
+					  pqc_pklen));
 
 	printf_debug("Set SLH-DSA private key of size %zu\n", pqc_pklen);
-
-out:
-	return ret;
-#else
-	(void)data;
-	(void)avail_datalen;
-	(void)context;
-	(void)tag;
-	return -EOPNOTSUPP;
-#endif
-}
-
-int private_key_encode_sphincs(uint8_t *data, size_t *avail_datalen,
-			       struct x509_generate_privkey_context *ctx)
-{
-#ifdef LC_X509_GENERATOR
-	int ret;
-
-	CKINT(asn1_ber_encoder(&x509_slhdsa_privkey_encoder, ctx, data,
-			       avail_datalen));
 
 out:
 	return ret;
@@ -241,36 +219,15 @@ out:
 #endif
 }
 
-int x509_slhdsa_private_key(void *context, size_t hdrlen, unsigned char tag,
-			    const uint8_t *value, size_t vlen)
-{
-	struct lc_x509_key_data *keys = context;
-	struct lc_sphincs_sk *sphincs_sk = keys->sk.sphincs_sk;
-	int ret;
-
-	(void)hdrlen;
-	(void)tag;
-
-	/*
-	 * Account for the BIT STRING
-	 */
-	if (vlen < 1)
-		return -EBADMSG;
-	CKINT(lc_sphincs_sk_load(sphincs_sk, value + 1, vlen - 1));
-
-	printf_debug("Loaded SLH-DSA secret key of size %zu\n", vlen - 1);
-
-out:
-	return ret;
-}
-
 int private_key_decode_sphincs(struct lc_x509_key_data *keys,
 			       const uint8_t *data, size_t datalen)
 {
+	struct lc_sphincs_sk *sphincs_sk = keys->sk.sphincs_sk;
 	int ret;
 
-	CKINT(asn1_ber_decoder(&x509_slhdsa_privkey_decoder, keys, data,
-			       datalen));
+	CKINT(lc_sphincs_sk_load(sphincs_sk, data, datalen));
+
+	printf_debug("Loaded SLH-DSA secret key of size %zu\n", datalen);
 
 out:
 	return ret;

@@ -24,6 +24,7 @@
 #include "ext_headers_internal.h"
 #include "lc_dilithium.h"
 #include "lc_hash.h"
+#include "lc_memcmp_secure.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
 #include "x509_algorithm_mapper.h"
@@ -178,8 +179,8 @@ out:
 #endif
 }
 
-int x509_mldsa_private_key_enc(void *context, uint8_t *data,
-			       size_t *avail_datalen, uint8_t *tag)
+int x509_mldsa_private_key_expanded_enc(void *context, uint8_t *data,
+					size_t *avail_datalen, uint8_t *tag)
 {
 #ifdef LC_X509_GENERATOR
 	const struct x509_generate_privkey_context *ctx = context;
@@ -190,11 +191,49 @@ int x509_mldsa_private_key_enc(void *context, uint8_t *data,
 
 	(void)tag;
 
+	/* Only write out the full key if there was no seed. */
+	if (keys->sk_seed_set)
+		return 0;
+
 	CKINT(lc_dilithium_sk_ptr(&pqc_ptr, &pqc_pklen, keys->sk.dilithium_sk));
 
-	CKINT(x509_set_bit_string(&data, avail_datalen, pqc_ptr, pqc_pklen));
+	/* Set OCTET STRING */
+	CKINT(x509_concatenate_bit_string(&data, avail_datalen, pqc_ptr,
+					  pqc_pklen));
 
 	printf_debug("Set ML-DSA private key of size %zu\n", pqc_pklen);
+
+out:
+	return ret;
+#else
+	(void)data;
+	(void)avail_datalen;
+	(void)context;
+	(void)tag;
+	return -EOPNOTSUPP;
+#endif
+}
+
+int x509_mldsa_private_key_seed_enc(void *context, uint8_t *data,
+				    size_t *avail_datalen, uint8_t *tag)
+{
+#ifdef LC_X509_GENERATOR
+	const struct x509_generate_privkey_context *ctx = context;
+	const struct lc_x509_key_data *keys = ctx->keys;
+	int ret;
+
+	(void)tag;
+
+	/* Only write out the seed if there was a seed */
+	if (!keys->sk_seed_set)
+		return 0;
+
+	/* Set OCTET STRING of priv key seed */
+	CKINT(x509_concatenate_bit_string(&data, avail_datalen, keys->sk_seed,
+					  sizeof(keys->sk_seed)));
+
+	printf_debug("Set ML-DSA private key seed of size %zu\n",
+		     sizeof(keys->sk_seed));
 
 out:
 	return ret;
@@ -226,8 +265,9 @@ out:
 #endif
 }
 
-int x509_mldsa_private_key(void *context, size_t hdrlen, unsigned char tag,
-			   const uint8_t *value, size_t vlen)
+int x509_mldsa_private_key_expanded(void *context, size_t hdrlen,
+				    unsigned char tag, const uint8_t *value,
+				    size_t vlen)
 {
 	struct lc_x509_key_data *keys = context;
 	struct lc_dilithium_sk *dilithium_sk = keys->sk.dilithium_sk;
@@ -236,16 +276,112 @@ int x509_mldsa_private_key(void *context, size_t hdrlen, unsigned char tag,
 	(void)hdrlen;
 	(void)tag;
 
-	/*
-	 * Account for the BIT STRING
-	 */
-	if (vlen < 1)
-		return -EBADMSG;
-	CKINT(lc_dilithium_sk_load(dilithium_sk, value + 1, vlen - 1));
+	if (keys->sk_seed_set) {
+		uint8_t *dilithium_src_key;
+		size_t dilithium_src_key_len;
 
-	printf_debug("Loaded ML-DSA secret key of size %zu\n", vlen - 1);
+		/*
+		 * Sanity check that the presented key data is consistent: The
+		 * ML-DSA key derived from the seed must be identical to the
+		 * ML-DSA key presented in the PKCS#8.
+		 */
+		CKINT(lc_dilithium_sk_ptr(&dilithium_src_key,
+					  &dilithium_src_key_len,
+					  dilithium_sk));
+		if (lc_memcmp_secure(dilithium_src_key, dilithium_src_key_len,
+				     value, vlen))
+			return -EBADMSG;
+
+		return 0;
+	}
+
+	CKINT(lc_dilithium_sk_load(dilithium_sk, value, vlen));
+
+	printf_debug("Loaded ML-DSA secret key of size %zu\n", vlen);
 
 out:
+	return ret;
+}
+
+int x509_mldsa_private_key_seed(void *context, size_t hdrlen, unsigned char tag,
+				const uint8_t *value, size_t vlen)
+{
+	struct workspace {
+		struct lc_dilithium_pk pk;
+		struct lc_dilithium_sk sk;
+	};
+	struct lc_x509_key_data *keys = context;
+	struct lc_dilithium_sk *dilithium_sk = keys->sk.dilithium_sk;
+	uint8_t *dilithium_src_key;
+	size_t dilithium_src_key_len;
+	enum lc_dilithium_type dilithium_type = LC_DILITHIUM_UNKNOWN;
+	int ret;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+
+	(void)hdrlen;
+	(void)tag;
+
+	if (vlen != LC_X509_PQC_SK_SEED_SIZE)
+		return -EBADMSG;
+
+	printf_debug("Loaded ML-DSA secret seed of size %u\n",
+		     LC_X509_PQC_SK_SEED_SIZE);
+
+	switch (keys->sig_type) {
+	case LC_SIG_DILITHIUM_44:
+		dilithium_type = LC_DILITHIUM_44;
+		break;
+	case LC_SIG_DILITHIUM_65:
+		dilithium_type = LC_DILITHIUM_65;
+		break;
+	case LC_SIG_DILITHIUM_87:
+		dilithium_type = LC_DILITHIUM_87;
+		break;
+
+	case LC_SIG_DILITHIUM_44_ED25519:
+	case LC_SIG_DILITHIUM_65_ED25519:
+	case LC_SIG_DILITHIUM_87_ED25519:
+	case LC_SIG_DILITHIUM_44_ED448:
+	case LC_SIG_DILITHIUM_65_ED448:
+	case LC_SIG_DILITHIUM_87_ED448:
+	case LC_SIG_SPINCS_SHAKE_256S:
+	case LC_SIG_SPINCS_SHAKE_192S:
+	case LC_SIG_SPINCS_SHAKE_128S:
+	case LC_SIG_SPINCS_SHAKE_256F:
+	case LC_SIG_SPINCS_SHAKE_192F:
+	case LC_SIG_SPINCS_SHAKE_128F:
+	case LC_SIG_RSA_PKCS1:
+	case LC_SIG_ECDSA_X963:
+	case LC_SIG_SM2:
+	case LC_SIG_ECRDSA_PKCS1:
+	case LC_SIG_UNKNOWN:
+		ret = -ENOPKG;
+		goto out;
+	}
+
+	/*
+	 * Store the seed
+	 */
+	memcpy(keys->sk_seed, value, LC_X509_PQC_SK_SEED_SIZE);
+	keys->sk_seed_set = 1;
+
+	/*
+	 * Only load the secret key
+	 */
+	CKINT(lc_dilithium_keypair_from_seed(&ws->pk, &ws->sk, keys->sk_seed,
+					     LC_X509_PQC_SK_SEED_SIZE,
+					     dilithium_type));
+	CKINT(lc_dilithium_sk_ptr(&dilithium_src_key, &dilithium_src_key_len,
+				  &ws->sk));
+
+	CKINT(lc_dilithium_sk_load(
+		dilithium_sk, dilithium_src_key, dilithium_src_key_len));
+
+	printf_debug("Reestablished ML-DSA secret key of size %zu\n",
+		     dilithium_src_key_len);
+
+out:
+	LC_RELEASE_MEM(ws);
 	return ret;
 }
 

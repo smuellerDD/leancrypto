@@ -170,12 +170,18 @@ int x509_mldsa_ed448_private_key(void *context, size_t hdrlen,
 	}
 
 	/*
+	 * Store the seed
+	 */
+	memcpy(keys->sk_seed, data, LC_X509_PQC_SK_SEED_SIZE);
+	keys->sk_seed_set = 1;
+
+	/*
 	 * See draft version 5:
 	 * Composite-ML-DSA.DeserializePrivateKey(bytes) -> (mldsaSeed, tradSK)
 	 *
 	 * First the ML-DSA seed, then the traditional SK.
 	 */
-	CKINT(lc_dilithium_keypair_from_seed(&ws->pk, &ws->sk, data,
+	CKINT(lc_dilithium_keypair_from_seed(&ws->pk, &ws->sk, keys->sk_seed,
 					     LC_X509_PQC_SK_SEED_SIZE,
 					     dilithium_type));
 	CKINT(lc_dilithium_sk_ptr(&dilithium_src_key, &dilithium_src_key_len,

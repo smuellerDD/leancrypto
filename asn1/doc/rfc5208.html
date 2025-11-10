@@ -1,0 +1,609 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+    <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="robots" content="index,follow" />
+    <meta name="creator" content="rfchandler version 0.2" />
+      <meta name="citation_author" content="B. Kaliski"/>
+      <meta name="citation_publication_date" content="May, 2008"/>
+      <meta name="citation_title" content="Public-Key Cryptography Standards (PKCS) #8: Private-Key Information Syntax Specification Version 1.2"/>
+      <meta name="citation_doi" content="10.17487/RFC5208"/>
+      <meta name="citation_issn" content="2070-1721"/>
+      <meta name="citation_technical_report_number" content="rfc5208"/>
+      <meta name="citation_pdf_url" content="https://www.rfc-editor.org/rfc/pdfrfc/rfc5208.txt.pdf"/>
+<title>RFC 5208: Public-Key Cryptography Standards (PKCS) #8: Private-Key Information Syntax Specification Version 1.2</title>    
+        
+
+        <style type="text/css">
+	@media only screen 
+	  and (min-width: 992px)
+	  and (max-width: 1199px) {
+	    body { font-size: 14pt; }
+            div.content { width: 96ex; margin: 0 auto; }
+        }
+	@media only screen 
+	  and (min-width: 768px)
+	  and (max-width: 991px) {
+            body { font-size: 14pt; }
+            div.content { width: 96ex; margin: 0 auto; }
+        }
+	@media only screen 
+	  and (min-width: 480px)
+	  and (max-width: 767px) {
+            body { font-size: 11pt; }
+            div.content { width: 96ex; margin: 0 auto; }
+        }
+	@media only screen 
+	  and (max-width: 479px) {
+            body { font-size: 8pt; }
+            div.content { width: 96ex; margin: 0 auto; }
+        }
+	@media only screen 
+	  and (min-device-width : 375px) 
+	  and (max-device-width : 667px) {
+            body { font-size: 9.5pt; }
+            div.content { width: 96ex; margin: 0; }
+        }
+	@media only screen 
+	  and (min-device-width: 1200px) {
+            body { font-size: 10pt; margin: 0 4em; }
+            div.content { width: 96ex; margin: 0; }
+        }
+        h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+	    font-weight: bold;
+           /* line-height: 0pt; */
+            display: inline;
+            white-space: pre;
+            font-family: monospace;
+            font-size: 1em;
+	    font-weight: bold;
+        }
+        pre {
+            font-size: 1em;
+            margin-top: 0px;
+            margin-bottom: 0px;
+        }
+	.pre {
+	    white-space: pre;
+	    font-family: monospace;
+	}
+	.header{
+	    font-weight: bold;
+	}
+        .newpage {
+            page-break-before: always;
+        }
+        .invisible {
+            text-decoration: none;
+            color: white;
+        }
+        a.selflink {
+          color: black;
+          text-decoration: none;
+        }
+        @media print {
+            body {
+                font-family: monospace;
+                font-size: 10.5pt;
+            }
+            h1, h2, h3, h4, h5, h6 {
+                font-size: 1em;
+            }
+        
+            a:link, a:visited {
+                color: inherit;
+                text-decoration: none;
+            }
+            .noprint {
+                display: none;
+            }
+        }
+	@media screen {
+	    .grey, .grey a:link, .grey a:visited {
+		color: #777;
+	    }
+            .docinfo {
+                background-color: #EEE;
+            }
+            .top {
+                border-top: 7px solid #EEE;
+            }
+            .bgwhite  { background-color: white; }
+            .bgred    { background-color: #F44; }
+            .bggrey   { background-color: #666; }
+            .bgbrown  { background-color: #840; }            
+            .bgorange { background-color: #FA0; }
+            .bgyellow { background-color: #EE0; }
+            .bgmagenta{ background-color: #F4F; }
+            .bgblue   { background-color: #66F; }
+            .bgcyan   { background-color: #4DD; }
+            .bggreen  { background-color: #4F4; }
+
+            .legend   { font-size: 90%; }
+            .cplate   { font-size: 70%; border: solid grey 1px; }
+	}
+    </style>
+    <!--[if IE]>
+    <style>
+    body {
+       font-size: 13px;
+       margin: 10px 10px;
+    }
+    </style>
+    <![endif]-->    <script type="text/javascript"><!--
+    function addHeaderTags() {
+        var spans = document.getElementsByTagName("span");
+        for (var i=0; i < spans.length; i++) {
+            var elem = spans[i];
+            if (elem) {
+                var level = elem.getAttribute("class");
+                if (level == "h1" || level == "h2" || level == "h3" || level == "h4" || level == "h5" || level == "h6") {
+                    elem.innerHTML = "<"+level+">"+elem.innerHTML+"</"+level+">";               
+                }
+            }
+        }
+    }
+    var legend_html = "Colour legend:<br />      <table>         <tr><td>Unknown:</td>                   <td><span class='cplate bgwhite'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Draft:</td>                     <td><span class='cplate bgred'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Informational:</td>             <td><span class='cplate bgorange'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Experimental:</td>              <td><span class='cplate bgyellow'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Best Common Practice:</td>      <td><span class='cplate bgmagenta'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Proposed Standard:</td>         <td><span class='cplate bgblue'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Draft Standard (old designation):</td> <td><span class='cplate bgcyan'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Internet Standard:</td>         <td><span class='cplate bggreen'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Historic:</td>                  <td><span class='cplate bggrey'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Obsolete:</td>                  <td><span class='cplate bgbrown'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>     </table>";
+    function showElem(id) {
+        var elem = document.getElementById(id);
+        elem.innerHTML = eval(id+"_html");
+        elem.style.visibility='visible';
+    }
+    function hideElem(id) {
+        var elem = document.getElementById(id);
+        elem.style.visibility='hidden';        
+        elem.innerHTML = "";
+    }
+    // -->
+    </script></head>
+<body>
+<span class="pre noprint docinfo">[<a href="https://www.rfc-editor.org" title="RFC Editor">RFC Home</a>] [<a href="/rfc/rfc5208.txt">TEXT</a>|<a href="/rfc/pdfrfc/rfc5208.txt.pdf">PDF</a>|<a href="/rfc/rfc5208.html">HTML</a>] [<a href='https://datatracker.ietf.org/doc/rfc5208' title='IETF Datatracker information for this document'>Tracker</a>] [<a href="https://datatracker.ietf.org/ipr/search/?rfc=5208&amp;submit=rfc" title="IPR disclosures related to this document">IPR</a>] [<a class="boldtext" href="/errata/rfc5208" target="_blank">Errata</a>] [<a href='https://www.rfc-editor.org/info/rfc5208' title='Info page'>Info page</a>]         </span><br/><span class="pre noprint docinfo">                                                                        </span><br /><span class="pre noprint docinfo">Obsoleted by: <a href="/rfc/rfc5958" target="_blank">5958</a>                                         INFORMATIONAL</span><br /><span class="pre noprint docinfo">                                                            <span style='color: #C00;'>Errata Exist</span></span><pre>Network Working Group                                         B. Kaliski
+Request for Comments: 5208                                           EMC
+Category: Informational                                         May 2008
+
+
+             <span class="h1">Public-Key Cryptography Standards (PKCS) #8:</span>
+        <span class="h1">Private-Key Information Syntax Specification Version 1.2</span>
+
+Status of This Memo
+
+   This memo provides information for the Internet community.  It does
+   not specify an Internet standard of any kind.  Distribution of this
+   memo is unlimited.
+
+IESG Note
+
+   The IESG thanks RSA Laboratories for transferring change control to
+   the IETF.  Enhancements to this specification that preserve backward
+   compatibility are expected in an upcoming IETF standards track
+   document.
+
+Abstract
+
+   This document represents a republication of PKCS #8 v1.2 from RSA
+   Laboratories' Public Key Cryptography Standard (PKCS) series.  Change
+   control is transferred to the IETF.  The body of this document,
+   except for the security considerations section, is taken directly
+   from the PKCS #8 v1.2 specification.
+
+   This document describes a syntax for private-key information.
+
+Table of Contents
+
+   <a href="#section-1">1</a>. Introduction ....................................................<a href="#page-2">2</a>
+   <a href="#section-2">2</a>. Definitions .....................................................<a href="#page-2">2</a>
+   <a href="#section-3">3</a>. Symbols and Abbreviations .......................................<a href="#page-2">2</a>
+   <a href="#section-4">4</a>. General Overview ................................................<a href="#page-2">2</a>
+   <a href="#section-5">5</a>. Private-Key Information Syntax ..................................<a href="#page-3">3</a>
+   <a href="#section-6">6</a>. Encrypted Private-Key Information Syntax ........................<a href="#page-4">4</a>
+   <a href="#section-7">7</a>. Security Considerations .........................................<a href="#page-4">4</a>
+   <a href="#appendix-A">Appendix A</a>. ASN.1 Syntax ...........................................<a href="#page-5">5</a>
+   Informative References .............................................<a href="#page-6">6</a>
+
+
+
+
+
+
+
+
+
+<span class="grey">Kaliski                      Informational                      [Page 1]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-2" ></span>
+<span class="grey"><a href="./rfc5208">RFC 5208</a>    PKCS #8: Private-Key Information Syntax Standard    May 2008</span>
+
+
+<span class="h2"><a class="selflink" id="section-1" href="#section-1">1</a>.  Introduction</span>
+
+   This document describes a syntax for private-key information.
+   Private-key information includes a private key for some public-key
+   algorithm and a set of attributes.  The document also describes a
+   syntax for encrypted private keys.  A password-based encryption
+   algorithm (e.g., one of those described in [PKCS#5]) could be used to
+   encrypt the private-key information.
+
+   The intention of including a set of attributes is to provide a simple
+   way for a user to establish trust in information such as a
+   distinguished name or a top-level certification authority's public
+   key.  While such trust could also be established with a digital
+   signature, encryption with a secret key known only to the user is
+   just as effective and possibly easier to implement.  A non-exhaustive
+   list of attributes is given in [PKCS#9].
+
+<span class="h2"><a class="selflink" id="section-2" href="#section-2">2</a>.  Definitions</span>
+
+   For the purposes of this document, the following definitions apply.
+
+      AlgorithmIdentifier: A type that identifies an algorithm (by
+      object identifier) and any associated parameters.  This type is
+      defined in [<a href="#ref-X.509">X.509</a>].
+
+      ASN.1: Abstract Syntax Notation One, as defined in [<a href="#ref-X.208">X.208</a>].
+
+      Attribute: A type that contains an attribute type (specified by
+      object identifier) and one or more attribute values.  This type is
+      defined in [<a href="#ref-X.501">X.501</a>].
+
+      BER: Basic Encoding Rules, as defined in [<a href="#ref-X.209">X.209</a>].
+
+<span class="h2"><a class="selflink" id="section-3" href="#section-3">3</a>.  Symbols and Abbreviations</span>
+
+   No symbols or abbreviations are defined in this document.
+
+<span class="h2"><a class="selflink" id="section-4" href="#section-4">4</a>.  General Overview</span>
+
+   The next two sections specify private-key information syntax and
+   encrypted private-key information syntax.
+
+   This document exports two types: PrivateKeyInfo (<a href="#section-6">Section 6</a>) and
+   EncryptedPrivateKeyInfo (<a href="#section-7">Section 7</a>).
+
+
+
+
+
+
+
+<span class="grey">Kaliski                      Informational                      [Page 2]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-3" ></span>
+<span class="grey"><a href="./rfc5208">RFC 5208</a>    PKCS #8: Private-Key Information Syntax Standard    May 2008</span>
+
+
+<span class="h2"><a class="selflink" id="section-5" href="#section-5">5</a>.  Private-Key Information Syntax</span>
+
+   This section gives the syntax for private-key information.
+
+   Private-key information shall have ASN.1 type PrivateKeyInfo:
+
+      PrivateKeyInfo ::= SEQUENCE {
+        version                   Version,
+        privateKeyAlgorithm       PrivateKeyAlgorithmIdentifier,
+        privateKey                PrivateKey,
+        attributes           [0]  IMPLICIT Attributes OPTIONAL }
+
+      Version ::= INTEGER
+
+      PrivateKeyAlgorithmIdentifier ::= AlgorithmIdentifier
+
+      PrivateKey ::= OCTET STRING
+
+      Attributes ::= SET OF Attribute
+
+   The fields of type PrivateKeyInfo have the following meanings:
+
+      version is the syntax version number, for compatibility with
+      future revisions of this document.  It shall be 0 for this version
+      of the document.
+
+      privateKeyAlgorithm identifies the private-key algorithm.  One
+      example of a private-key algorithm is PKCS #1's rsaEncryption
+      [PKCS#1].
+
+      privateKey is an octet string whose contents are the value of the
+      private key.  The interpretation of the contents is defined in the
+      registration of the private-key algorithm.  For an RSA private
+      key, for example, the contents are a BER encoding of a value of
+      type RSAPrivateKey.
+
+      attributes is a set of attributes.  These are the extended
+      information that is encrypted along with the private-key
+      information.
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="grey">Kaliski                      Informational                      [Page 3]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-4" ></span>
+<span class="grey"><a href="./rfc5208">RFC 5208</a>    PKCS #8: Private-Key Information Syntax Standard    May 2008</span>
+
+
+<span class="h2"><a class="selflink" id="section-6" href="#section-6">6</a>.  Encrypted Private-Key Information Syntax</span>
+
+   This section gives the syntax for encrypted private-key information.
+
+   Encrypted private-key information shall have ASN.1 type
+   EncryptedPrivateKeyInfo:
+
+      EncryptedPrivateKeyInfo ::= SEQUENCE {
+        encryptionAlgorithm  EncryptionAlgorithmIdentifier,
+        encryptedData        EncryptedData }
+
+      EncryptionAlgorithmIdentifier ::= AlgorithmIdentifier
+
+      EncryptedData ::= OCTET STRING
+
+   The fields of type EncryptedPrivateKeyInfo have the following
+   meanings:
+
+      encryptionAlgorithm identifies the algorithm under which the
+      private-key information is encrypted.  Two examples are PKCS #5's
+      pbeWithMD2AndDES-CBC and pbeWithMD5AndDES-CBC [PKCS#5].
+
+      encryptedData is the result of encrypting the private-key
+      information.
+
+   The encryption process involves the following two steps:
+
+      1. The private-key information is BER encoded, yielding an octet
+         string.
+
+      2. The result of step 1 is encrypted with the secret key to give
+         an octet string, the result of the encryption process.
+
+<span class="h2"><a class="selflink" id="section-7" href="#section-7">7</a>.  Security Considerations</span>
+
+   Protection of the private-key information is vital to public-key
+   cryptography.  Disclosure of the private-key material to another
+   entity can lead to masquerades.  The encryption algorithm used in the
+   encryption process must be as 'strong' as the key it is protecting.
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="grey">Kaliski                      Informational                      [Page 4]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-5" ></span>
+<span class="grey"><a href="./rfc5208">RFC 5208</a>    PKCS #8: Private-Key Information Syntax Standard    May 2008</span>
+
+
+<span class="h2"><a class="selflink" id="appendix-A" href="#appendix-A">Appendix A</a>.  ASN.1 Syntax</span>
+
+PKCS-8 {iso(1) member-body(2) us(840) rsadsi(113549) pkcs(1) pkcs-8(8)
+         modules(1) pkcs-8(1)}
+
+-- $Revision: 1.5 $
+
+-- This module has been checked for conformance with the ASN.1
+-- standard by the OSS ASN.1 Tools
+
+DEFINITIONS IMPLICIT TAGS ::=
+
+BEGIN
+
+-- EXPORTS All --
+-- All types and values defined in this module is exported for use in
+-- other ASN.1 modules.
+
+IMPORTS
+
+informationFramework
+         FROM UsefulDefinitions {joint-iso-itu-t(2) ds(5) module(1)
+                                 usefulDefinitions(0) 3}
+
+Attribute
+         FROM InformationFramework informationFramework
+
+AlgorithmIdentifier, ALGORITHM-IDENTIFIER
+         FROM PKCS-5 {iso(1) member-body(2) us(840) rsadsi(113549)
+         pkcs(1) pkcs-5(5) modules(16) pkcs-5(1)};
+
+-- Private-key information syntax
+
+PrivateKeyInfo ::= SEQUENCE {
+   version Version,
+   privateKeyAlgorithm AlgorithmIdentifier {{PrivateKeyAlgorithms}},
+   privateKey PrivateKey,
+   attributes [0] Attributes OPTIONAL }
+
+Version ::= INTEGER {v1(0)} (v1,...)
+
+PrivateKey ::= OCTET STRING
+
+Attributes ::= SET OF Attribute
+
+
+
+
+
+
+
+<span class="grey">Kaliski                      Informational                      [Page 5]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-6" ></span>
+<span class="grey"><a href="./rfc5208">RFC 5208</a>    PKCS #8: Private-Key Information Syntax Standard    May 2008</span>
+
+
+-- Encrypted private-key information syntax
+
+EncryptedPrivateKeyInfo ::= SEQUENCE {
+    encryptionAlgorithm AlgorithmIdentifier {{KeyEncryptionAlgorithms}},
+    encryptedData EncryptedData
+}
+
+EncryptedData ::= OCTET STRING
+
+PrivateKeyAlgorithms ALGORITHM-IDENTIFIER ::= {
+     ... -- For local profiles
+}
+
+KeyEncryptionAlgorithms ALGORITHM-IDENTIFIER ::= {
+     ... -- For local profiles
+}
+
+END
+
+Informative References
+
+   [PKCS#1]  RSA Laboratories. PKCS #1: RSA Encryption Standard. Version
+             1.5, November 1993.
+
+   [PKCS#5]  RSA Laboratories. PKCS #5: Password-Based Encryption
+             Standard. Version 1.5, November 1993.
+
+   [PKCS#9]  RSA Laboratories. PKCS #9: Selected Attribute Types.
+             Version 1.1, November 1993.
+
+   [<a id="ref-X.208">X.208</a>]   CCITT. Recommendation X.208: Specification of Abstract
+             Syntax Notation One (ASN.1). 1988.
+
+   [<a id="ref-X.209">X.209</a>]   CCITT. Recommendation X.209: Specification of Basic
+             Encoding Rules for Abstract Syntax Notation One (ASN.1).
+             1988.
+
+   [<a id="ref-X.501">X.501</a>]   CCITT. Recommendation X.501: The Directory - Models. 1988.
+
+   [<a id="ref-X.509">X.509</a>]   CCITT. Recommendation X.509: The Directory - Authentication
+             Framework. 1988.
+
+
+
+
+
+
+
+
+
+
+<span class="grey">Kaliski                      Informational                      [Page 6]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-7" ></span>
+<span class="grey"><a href="./rfc5208">RFC 5208</a>    PKCS #8: Private-Key Information Syntax Standard    May 2008</span>
+
+
+Author's Addresses
+
+   Burt Kaliski
+   EMC Corporation
+   176 South Street
+   Hopkinton, MA  01748
+   USA
+
+   EMail: kaliski_burt@emc.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="grey">Kaliski                      Informational                      [Page 7]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-8" ></span>
+<span class="grey"><a href="./rfc5208">RFC 5208</a>    PKCS #8: Private-Key Information Syntax Standard    May 2008</span>
+
+
+Full Copyright Statement
+
+   Copyright (C) The IETF Trust (2008).
+
+   This document is subject to the rights, licenses and restrictions
+   contained in <a href="https://www.rfc-editor.org/bcp/bcp78">BCP 78</a>, and except as set forth therein, the authors
+   retain all their rights.
+
+   This document and the information contained herein are provided on an
+   "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS
+   OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY, THE IETF TRUST AND
+   THE INTERNET ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS
+   OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF
+   THE INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
+   WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+Intellectual Property
+
+   The IETF takes no position regarding the validity or scope of any
+   Intellectual Property Rights or other rights that might be claimed to
+   pertain to the implementation or use of the technology described in
+   this document or the extent to which any license under such rights
+   might or might not be available; nor does it represent that it has
+   made any independent effort to identify any such rights.  Information
+   on the procedures with respect to rights in RFC documents can be
+   found in <a href="https://www.rfc-editor.org/bcp/bcp78">BCP 78</a> and <a href="https://www.rfc-editor.org/bcp/bcp79">BCP 79</a>.
+
+   Copies of IPR disclosures made to the IETF Secretariat and any
+   assurances of licenses to be made available, or the result of an
+   attempt made to obtain a general license or permission for the use of
+   such proprietary rights by implementers or users of this
+   specification can be obtained from the IETF on-line IPR repository at
+   <a href="http://www.ietf.org/ipr">http://www.ietf.org/ipr</a>.
+
+   The IETF invites any interested party to bring to its attention any
+   copyrights, patents or patent applications, or other proprietary
+   rights that may cover technology that may be required to implement
+   this standard.  Please address the information to the IETF at
+   ietf-ipr@ietf.org.
+
+
+
+
+
+
+
+
+
+
+
+
+Kaliski                      Informational                      [Page 8]
+</pre>
+
+</body>
+</html>
+

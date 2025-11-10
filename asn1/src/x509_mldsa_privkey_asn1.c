@@ -10,27 +10,50 @@
 // clang-format off
 
 enum x509_mldsa_privkey_actions {
-	ACT_x509_mldsa_private_key = 0,
-	NR__x509_mldsa_privkey_actions = 1
+	ACT_x509_mldsa_private_key_expanded = 0,
+	ACT_x509_mldsa_private_key_seed = 1,
+	NR__x509_mldsa_privkey_actions = 2
 };
 
 static const asn1_action_t x509_mldsa_privkey_action_table[NR__x509_mldsa_privkey_actions] = {
-	[   0] = x509_mldsa_private_key,
+	[   0] = x509_mldsa_private_key_expanded,
+	[   1] = x509_mldsa_private_key_seed,
 };
 
 static const asn1_action_enc_t x509_mldsa_privkey_action_table_enc[NR__x509_mldsa_privkey_actions] = {
-	[   0] = x509_mldsa_private_key_enc,
+	[   0] = x509_mldsa_private_key_expanded_enc,
+	[   1] = x509_mldsa_private_key_seed_enc,
 };
 
 static const unsigned char x509_mldsa_privkey_machine[] = {
-	// SignaturePrivateKey
-	[   0] = ASN1_OP_MATCH,
-	[   1] = _tag(UNIV, CONS, SEQ),
-	[   2] =  ASN1_OP_MATCH_ACT,		// privateKey
-	[   3] =  _tag(UNIV, PRIM, BTS),
-	[   4] =  _action(ACT_x509_mldsa_private_key),
-	[   5] = ASN1_OP_END_SEQ,
-	[   6] = ASN1_OP_COMPLETE,
+	// PrivateKey
+	[   0] = ASN1_OP_MATCH_JUMP_OR_SKIP,		// seed
+	[   1] = _tagn(CONT, CONS,  0),
+	[   2] = _jump_target(11),
+	[   3] = ASN1_OP_COND_MATCH_ACT_OR_SKIP,		// expandedKey
+	[   4] = _tag(UNIV, PRIM, OTS),
+	[   5] = _action(ACT_x509_mldsa_private_key_expanded),
+	// Both
+	[   6] = ASN1_OP_COND_MATCH_JUMP_OR_SKIP,		// both
+	[   7] = _tag(UNIV, CONS, SEQ),
+	[   8] = _jump_target(16),		// --> Both
+	[   9] = ASN1_OP_COND_FAIL,
+	[  10] = ASN1_OP_COMPLETE,
+
+	[  11] =  ASN1_OP_MATCH_ACT,		// seed
+	[  12] =  _tag(UNIV, PRIM, OTS),
+	[  13] =  _action(ACT_x509_mldsa_private_key_seed),
+	[  14] = ASN1_OP_END_SEQ,
+	[  15] = ASN1_OP_RETURN,
+
+	[  16] =  ASN1_OP_MATCH_ACT,		// seed
+	[  17] =  _tag(UNIV, PRIM, OTS),
+	[  18] =  _action(ACT_x509_mldsa_private_key_seed),
+	[  19] =  ASN1_OP_MATCH_ACT,		// expandedKey
+	[  20] =  _tag(UNIV, PRIM, OTS),
+	[  21] =  _action(ACT_x509_mldsa_private_key_expanded),
+	[  22] = ASN1_OP_END_SEQ,
+	[  23] = ASN1_OP_RETURN,
 };
 
 const struct asn1_decoder x509_mldsa_privkey_decoder = {

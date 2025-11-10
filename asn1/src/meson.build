@@ -64,7 +64,6 @@ if x509_common_support == 1
 		'x509_mldsa_privkey_asn1.c',
 		'x509_san_asn1.c',
 		'x509_skid_asn1.c',
-		'x509_slhdsa_privkey_asn1.c'
 	])
 
 	if (get_option('sphincs_shake_256s').enabled() or
@@ -145,6 +144,33 @@ else
 			'pkcs7_generator_null.c'
 		])
 	endif
+endif
+
+if get_option('pkcs8_parser').enabled()
+	include_files += files([
+		'../api/lc_pkcs8_common.h',
+		'../api/lc_pkcs8_parser.h',
+	])
+
+	src += files([
+		'pkcs8_parser.c',
+
+		'pkcs8_asn1.c',
+	])
+else
+	src += files([
+		'pkcs8_parser_null.c'
+	])
+endif
+
+if get_option('pkcs8_generator').enabled()
+	include_files += files([
+		'../api/lc_pkcs8_generator.h',
+	])
+
+	src += files([
+		'pkcs8_generator.c',
+	])
 endif
 
 # Enable the ASN.1 compiler if one or more of the *.asn1 files were

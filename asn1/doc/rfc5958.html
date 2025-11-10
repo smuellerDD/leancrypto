@@ -1,0 +1,945 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+    <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="robots" content="index,follow" />
+    <meta name="creator" content="rfchandler version 0.2" />
+      <meta name="citation_author" content="S. Turner"/>
+      <meta name="citation_publication_date" content="August, 2010"/>
+      <meta name="citation_title" content="Asymmetric Key Packages"/>
+      <meta name="citation_doi" content="10.17487/RFC5958"/>
+      <meta name="citation_issn" content="2070-1721"/>
+      <meta name="citation_technical_report_number" content="rfc5958"/>
+      <meta name="citation_pdf_url" content="https://www.rfc-editor.org/rfc/pdfrfc/rfc5958.txt.pdf"/>
+<title>RFC 5958: Asymmetric Key Packages</title>    
+        
+
+        <style type="text/css">
+	@media only screen 
+	  and (min-width: 992px)
+	  and (max-width: 1199px) {
+	    body { font-size: 14pt; }
+            div.content { width: 96ex; margin: 0 auto; }
+        }
+	@media only screen 
+	  and (min-width: 768px)
+	  and (max-width: 991px) {
+            body { font-size: 14pt; }
+            div.content { width: 96ex; margin: 0 auto; }
+        }
+	@media only screen 
+	  and (min-width: 480px)
+	  and (max-width: 767px) {
+            body { font-size: 11pt; }
+            div.content { width: 96ex; margin: 0 auto; }
+        }
+	@media only screen 
+	  and (max-width: 479px) {
+            body { font-size: 8pt; }
+            div.content { width: 96ex; margin: 0 auto; }
+        }
+	@media only screen 
+	  and (min-device-width : 375px) 
+	  and (max-device-width : 667px) {
+            body { font-size: 9.5pt; }
+            div.content { width: 96ex; margin: 0; }
+        }
+	@media only screen 
+	  and (min-device-width: 1200px) {
+            body { font-size: 10pt; margin: 0 4em; }
+            div.content { width: 96ex; margin: 0; }
+        }
+        h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+	    font-weight: bold;
+           /* line-height: 0pt; */
+            display: inline;
+            white-space: pre;
+            font-family: monospace;
+            font-size: 1em;
+	    font-weight: bold;
+        }
+        pre {
+            font-size: 1em;
+            margin-top: 0px;
+            margin-bottom: 0px;
+        }
+	.pre {
+	    white-space: pre;
+	    font-family: monospace;
+	}
+	.header{
+	    font-weight: bold;
+	}
+        .newpage {
+            page-break-before: always;
+        }
+        .invisible {
+            text-decoration: none;
+            color: white;
+        }
+        a.selflink {
+          color: black;
+          text-decoration: none;
+        }
+        @media print {
+            body {
+                font-family: monospace;
+                font-size: 10.5pt;
+            }
+            h1, h2, h3, h4, h5, h6 {
+                font-size: 1em;
+            }
+        
+            a:link, a:visited {
+                color: inherit;
+                text-decoration: none;
+            }
+            .noprint {
+                display: none;
+            }
+        }
+	@media screen {
+	    .grey, .grey a:link, .grey a:visited {
+		color: #777;
+	    }
+            .docinfo {
+                background-color: #EEE;
+            }
+            .top {
+                border-top: 7px solid #EEE;
+            }
+            .bgwhite  { background-color: white; }
+            .bgred    { background-color: #F44; }
+            .bggrey   { background-color: #666; }
+            .bgbrown  { background-color: #840; }            
+            .bgorange { background-color: #FA0; }
+            .bgyellow { background-color: #EE0; }
+            .bgmagenta{ background-color: #F4F; }
+            .bgblue   { background-color: #66F; }
+            .bgcyan   { background-color: #4DD; }
+            .bggreen  { background-color: #4F4; }
+
+            .legend   { font-size: 90%; }
+            .cplate   { font-size: 70%; border: solid grey 1px; }
+	}
+    </style>
+    <!--[if IE]>
+    <style>
+    body {
+       font-size: 13px;
+       margin: 10px 10px;
+    }
+    </style>
+    <![endif]-->    <script type="text/javascript"><!--
+    function addHeaderTags() {
+        var spans = document.getElementsByTagName("span");
+        for (var i=0; i < spans.length; i++) {
+            var elem = spans[i];
+            if (elem) {
+                var level = elem.getAttribute("class");
+                if (level == "h1" || level == "h2" || level == "h3" || level == "h4" || level == "h5" || level == "h6") {
+                    elem.innerHTML = "<"+level+">"+elem.innerHTML+"</"+level+">";               
+                }
+            }
+        }
+    }
+    var legend_html = "Colour legend:<br />      <table>         <tr><td>Unknown:</td>                   <td><span class='cplate bgwhite'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Draft:</td>                     <td><span class='cplate bgred'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Informational:</td>             <td><span class='cplate bgorange'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Experimental:</td>              <td><span class='cplate bgyellow'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Best Common Practice:</td>      <td><span class='cplate bgmagenta'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Proposed Standard:</td>         <td><span class='cplate bgblue'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Draft Standard (old designation):</td> <td><span class='cplate bgcyan'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Internet Standard:</td>         <td><span class='cplate bggreen'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Historic:</td>                  <td><span class='cplate bggrey'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Obsolete:</td>                  <td><span class='cplate bgbrown'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>     </table>";
+    function showElem(id) {
+        var elem = document.getElementById(id);
+        elem.innerHTML = eval(id+"_html");
+        elem.style.visibility='visible';
+    }
+    function hideElem(id) {
+        var elem = document.getElementById(id);
+        elem.style.visibility='hidden';        
+        elem.innerHTML = "";
+    }
+    // -->
+    </script></head>
+<body>
+<span class="pre noprint docinfo">[<a href="https://www.rfc-editor.org" title="RFC Editor">RFC Home</a>] [<a href="/rfc/rfc5958.txt">TEXT</a>|<a href="/rfc/pdfrfc/rfc5958.txt.pdf">PDF</a>|<a href="/rfc/rfc5958.html">HTML</a>] [<a href='https://datatracker.ietf.org/doc/rfc5958' title='IETF Datatracker information for this document'>Tracker</a>] [<a href="https://datatracker.ietf.org/ipr/search/?rfc=5958&amp;submit=rfc" title="IPR disclosures related to this document">IPR</a>] [<a class="boldtext" href="/errata/rfc5958" target="_blank">Errata</a>] [<a href='https://www.rfc-editor.org/info/rfc5958' title='Info page'>Info page</a>]         </span><br/><span class="pre noprint docinfo">                                                                        </span><br /><span class="pre noprint docinfo">                                                       PROPOSED STANDARD</span><br /><span class="pre noprint docinfo">                                                            <span style='color: #C00;'>Errata Exist</span></span><pre>Internet Engineering Task Force (IETF)                         S. Turner
+Request for Comments: 5958                                          IECA
+Obsoletes: <a href="./rfc5208">5208</a>                                              August 2010
+Category: Standards Track
+ISSN: 2070-1721
+
+
+                        <span class="h1">Asymmetric Key Packages</span>
+
+Abstract
+
+   This document defines the syntax for private-key information and a
+   content type for it.  Private-key information includes a private key
+   for a specified public-key algorithm and a set of attributes.  The
+   Cryptographic Message Syntax (CMS), as defined in <a href="./rfc5652">RFC 5652</a>, can be
+   used to digitally sign, digest, authenticate, or encrypt the
+   asymmetric key format content type.  This document obsoletes <a href="./rfc5208">RFC</a>
+   <a href="./rfc5208">5208</a>.
+
+Status of This Memo
+
+   This is an Internet Standards Track document.
+
+   This document is a product of the Internet Engineering Task Force
+   (IETF).  It represents the consensus of the IETF community.  It has
+   received public review and has been approved for publication by
+   the Internet Engineering Steering Group (IESG).  Further
+   information on Internet Standards is available in <a href="./rfc5741#section-2">Section&nbsp;2 of
+   RFC 5741</a>.
+
+   Information about the current status of this document, any
+   errata, and how to provide feedback on it may be obtained at
+   <a href="https://www.rfc-editor.org/info/rfc5958">http://www.rfc-editor.org/info/rfc5958</a>.
+
+Copyright Notice
+
+   Copyright (c) 2010 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to <a href="https://www.rfc-editor.org/bcp/bcp78">BCP 78</a> and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (<a href="http://trustee.ietf.org/license-info">http://trustee.ietf.org/license-info</a>) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.  Code Components extracted from this document must
+   include Simplified BSD License text as described in Section 4.e of
+   the Trust Legal Provisions and are provided without warranty as
+   described in the Simplified BSD License.
+
+
+
+<span class="grey">Turner                       Standards Track                    [Page 1]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-2" ></span>
+<span class="grey"><a href="./rfc5958">RFC 5958</a>                 Asymmetric Key Packages             August 2010</span>
+
+
+   This document may contain material from IETF Documents or IETF
+   Contributions published or made publicly available before November
+   10, 2008.  The person(s) controlling the copyright in some of this
+   material may not have granted the IETF Trust the right to allow
+   modifications of such material outside the IETF Standards Process.
+   Without obtaining an adequate license from the person(s) controlling
+   the copyright in such materials, this document may not be modified
+   outside the IETF Standards Process, and derivative works of it may
+   not be created outside the IETF Standards Process, except to format
+   it for publication as an RFC or to translate it into languages other
+   than English.
+
+<span class="h2"><a class="selflink" id="section-1" href="#section-1">1</a>.  Introduction</span>
+
+   This document defines the syntax for private-key information and a
+   Cryptographic Message Syntax (CMS) [<a href="./rfc5652" title="&quot;Cryptographic Message Syntax (CMS)&quot;">RFC5652</a>] content type for it.
+   Private-key information includes a private key for a specified
+   public-key algorithm and a set of attributes.  The CMS can be used to
+   digitally sign, digest, authenticate, or encrypt the asymmetric key
+   format content type.  This document obsoletes PKCS #8 v1.2 [<a href="./rfc5208" title="&quot;Public-Key Cryptography Standards (PKCS) #8: Private-Key Information Syntax Specification Version 1.2&quot;">RFC5208</a>].
+
+<span class="h3"><a class="selflink" id="section-1.1" href="#section-1.1">1.1</a>.  Requirements Terminology</span>
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in [<a href="./rfc2119" title="&quot;Key words for use in RFCs to Indicate Requirement Levels&quot;">RFC2119</a>].
+
+<span class="h3"><a class="selflink" id="section-1.2" href="#section-1.2">1.2</a>.  ASN.1 Syntax Notation</span>
+
+   The key package is defined using ASN.1 [<a href="#ref-X.680">X.680</a>], [<a href="#ref-X.681">X.681</a>], [<a href="#ref-X.682">X.682</a>], and
+   [<a href="#ref-X.683">X.683</a>].
+
+<span class="h3"><a class="selflink" id="section-1.3" href="#section-1.3">1.3</a>.  Summary of Updates to <a href="./rfc5208">RFC 5208</a></span>
+
+   The following summarizes the updates to [<a href="./rfc5208" title="&quot;Public-Key Cryptography Standards (PKCS) #8: Private-Key Information Syntax Specification Version 1.2&quot;">RFC5208</a>]:
+
+   - Changed the name "PrivateKeyInfo" to "OneAsymmetricKey".  This
+     reflects the addition of the publicKey field to allow both parts of
+     the asymmetric key to be conveyed separately.  Not all algorithms
+     will use both fields; however, the publicKey field was added for
+     completeness.
+
+   - Defined Asymmetric Key Package CMS content type.
+
+   - Removed redundant IMPLICIT from attributes.
+
+   - Added publicKey to OneAsymmetricKey and updated the version number.
+
+
+
+
+<span class="grey">Turner                       Standards Track                    [Page 2]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-3" ></span>
+<span class="grey"><a href="./rfc5958">RFC 5958</a>                 Asymmetric Key Packages             August 2010</span>
+
+
+   - Added that PKCS #9 attributes may be supported.
+
+   - Added discussion of compatibility with other private-key formats.
+
+   - Added requirements for encoding rule set.
+
+   - Changed imports from PKCS #5 to [<a href="./rfc5912" title="&quot;New ASN.1 Modules for the Public Key Infrastructure Using X.509 (PKIX)&quot;">RFC5912</a>] and [<a href="./rfc5911" title="&quot;New ASN.1 Modules for Cryptographic Message Syntax (CMS) and S/MIME&quot;">RFC5911</a>].
+
+   - Replaced ALGORITHM-IDENTIFIER with ALGORITHM from [<a href="./rfc5912" title="&quot;New ASN.1 Modules for the Public Key Infrastructure Using X.509 (PKIX)&quot;">RFC5912</a>].
+
+   - Registers application/pkcs8 media type and .p8 file extension.
+
+<span class="h2"><a class="selflink" id="section-2" href="#section-2">2</a>.  Asymmetric Key Package CMS Content Type</span>
+
+   The asymmetric key package CMS content type is used to transfer one
+   or more plaintext asymmetric keys from one party to another.  An
+   asymmetric key package MAY be encapsulated in one or more CMS
+   protecting content types (see <a href="#section-4">Section 4</a>).  Earlier versions of this
+   specification [<a href="./rfc5208" title="&quot;Public-Key Cryptography Standards (PKCS) #8: Private-Key Information Syntax Specification Version 1.2&quot;">RFC5208</a>] did not specify a particular encoding rule
+   set, but generators SHOULD use DER [<a href="#ref-X.690">X.690</a>] and receivers MUST support
+   BER [<a href="#ref-X.690">X.690</a>], which also includes DER [<a href="#ref-X.690">X.690</a>].
+
+   The asymmetric key package content type has the following syntax:
+
+     ct-asymmetric-key-package CONTENT-TYPE ::=
+       { AsymmetricKeyPackage IDENTIFIED BY id-ct-KP-aKeyPackage }
+
+     id-ct-KP-aKeyPackage OBJECT IDENTIFIER ::=
+       { joint-iso-itu-t(2) country(16) us(840) organization(1)
+         gov(101) dod(2) infosec(1) formats(2)
+         key-package-content-types(78) 5
+       }
+
+     AsymmetricKeyPackage ::= SEQUENCE SIZE (1..MAX) OF OneAsymmetricKey
+
+     OneAsymmetricKey ::= SEQUENCE {
+       version                   Version,
+       privateKeyAlgorithm       PrivateKeyAlgorithmIdentifier,
+       privateKey                PrivateKey,
+       attributes            [0] Attributes OPTIONAL,
+       ...,
+       [[2: publicKey        [1] PublicKey OPTIONAL ]],
+       ...
+     }
+
+
+
+
+
+
+
+<span class="grey">Turner                       Standards Track                    [Page 3]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-4" ></span>
+<span class="grey"><a href="./rfc5958">RFC 5958</a>                 Asymmetric Key Packages             August 2010</span>
+
+
+     PrivateKeyInfo ::= OneAsymmetricKey
+
+     -- PrivateKeyInfo is used by [<a href="#ref-P12" title="&quot;PKCS #12 v1.0: Personal Information Exchange Syntax&quot;">P12</a>].  If any items tagged as version
+     -- 2 are used, the version must be v2, else the version should be
+     -- v1.  When v1, PrivateKeyInfo is the same as it was in [<a href="./rfc5208" title="&quot;Public-Key Cryptography Standards (PKCS) #8: Private-Key Information Syntax Specification Version 1.2&quot;">RFC5208</a>].
+
+     Version ::= INTEGER { v1(0), v2(1) } (v1, ..., v2)
+
+     PrivateKeyAlgorithmIdentifier ::= AlgorithmIdentifier
+                                        { PUBLIC-KEY,
+                                          { PrivateKeyAlgorithms } }
+
+     PrivateKey ::= OCTET STRING
+                        -- Content varies based on type of key.  The
+                        -- algorithm identifier dictates the format of
+                        -- the key.
+
+     PublicKey ::= BIT STRING
+                        -- Content varies based on type of key.  The
+                        -- algorithm identifier dictates the format of
+                        -- the key.
+
+     Attributes ::= SET OF Attribute { { OneAsymmetricKeyAttributes } }
+
+   The AsymmetricKeyPackage contains one or more OneAsymmetricKey
+   elements.
+
+   The syntax of OneAsymmetricKey accommodates a version number, an
+   indication of the asymmetric algorithm to be used with the private
+   key, a private key, optional keying material attributes (e.g.,
+   userCertificate from [<a href="#ref-X.520">X.520</a>]), and an optional public key.  In
+   general, either the public key or the certificate will be present.
+   In very rare cases will both the public key and the certificate be
+   present as this includes two copies of the public key.
+   OneAsymmetricKey renames the PrivateKeyInfo syntax defined in
+   [<a href="./rfc5208" title="&quot;Public-Key Cryptography Standards (PKCS) #8: Private-Key Information Syntax Specification Version 1.2&quot;">RFC5208</a>].  The new name better reflects the ability to carry both
+   private- and public-key components.  Backwards compatibility with the
+   original PrivateKeyInfo is preserved via version number.  The fields
+   in OneAsymmetricKey are used as follows:
+
+   - version identifies the version of OneAsymmetricKey.  If publicKey
+     is present, then version is set to v2 else version is set to v1.
+
+   - privateKeyAlgorithm identifies the private-key algorithm and
+     optionally contains parameters associated with the asymmetric key
+     pair.  The algorithm is identified by an object identifier (OID)
+     and the format of the parameters depends on the OID, but the
+     PrivateKeyAlgorithms information object set restricts the
+
+
+
+<span class="grey">Turner                       Standards Track                    [Page 4]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-5" ></span>
+<span class="grey"><a href="./rfc5958">RFC 5958</a>                 Asymmetric Key Packages             August 2010</span>
+
+
+     permissible OIDs.  The value placed in
+     privateKeyAlgorithmIdentifier is the value an originator would
+     apply to indicate which algorithm is to be used with the private
+     key.
+
+   - privateKey is an OCTET STRING that contains the value of the
+     private key.  The interpretation of the content is defined in the
+     registration of the private-key algorithm.  For example, a DSA key
+     is an INTEGER, an RSA key is represented as RSAPrivateKey as
+     defined in [<a href="./rfc3447" title="&quot;Public-Key Cryptography Standards (PKCS) #1: RSA Cryptography Specifications Version 2.1&quot;">RFC3447</a>], and an Elliptic Curve Cryptography (ECC) key
+     is represented as ECPrivateKey as defined in [<a href="./rfc5915" title="&quot;Elliptic Curve Private Key Structure&quot;">RFC5915</a>].
+
+   - attributes is OPTIONAL.  It contains information corresponding to
+     the public key (e.g., certificates).  The attributes field uses the
+     class ATTRIBUTE which is restricted by the
+     OneAsymmetricKeyAttributes information object set.
+     OneAsymmetricKeyAttributes is an open ended set in this document.
+     Others documents can constrain these values.  Attributes from
+     [<a href="./rfc2985" title="&quot;PKCS #9: Selected Object Classes and Attribute Types Version 2.0&quot;">RFC2985</a>] MAY be supported.
+
+   - publicKey is OPTIONAL.  When present, it contains the public key
+     encoded in a BIT STRING.  The structure within the BIT STRING, if
+     any, depends on the privateKeyAlgorithm.  For example, a DSA key is
+     an INTEGER.  Note that RSA public keys are included in
+     RSAPrivateKey (i.e., n and e are present), as per [<a href="./rfc3447" title="&quot;Public-Key Cryptography Standards (PKCS) #1: RSA Cryptography Specifications Version 2.1&quot;">RFC3447</a>], and
+     ECC public keys are included in ECPrivateKey (i.e., in the
+     publicKey field), as per [<a href="./rfc5915" title="&quot;Elliptic Curve Private Key Structure&quot;">RFC5915</a>].
+
+<span class="h2"><a class="selflink" id="section-3" href="#section-3">3</a>.  Encrypted Private Key Info</span>
+
+   This section gives the syntax for encrypted private-key information,
+   which is used by [<a href="#ref-P12" title="&quot;PKCS #12 v1.0: Personal Information Exchange Syntax&quot;">P12</a>].
+
+   Encrypted private-key information shall have ASN.1 type
+   EncryptedPrivateKeyInfo:
+
+     EncryptedPrivateKeyInfo ::= SEQUENCE {
+       encryptionAlgorithm  EncryptionAlgorithmIdentifier,
+       encryptedData        EncryptedData }
+
+     EncryptionAlgorithmIdentifier ::= AlgorithmIdentifier
+                                        { CONTENT-ENCRYPTION,
+                                          { KeyEncryptionAlgorithms } }
+
+     EncryptedData ::= OCTET STRING
+
+
+
+
+
+
+<span class="grey">Turner                       Standards Track                    [Page 5]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-6" ></span>
+<span class="grey"><a href="./rfc5958">RFC 5958</a>                 Asymmetric Key Packages             August 2010</span>
+
+
+   The fields in EncryptedPrivateKeyInfo are used as follows:
+
+   - encryptionAlgorithm identifies the algorithm under which the
+     private-key information is encrypted.
+
+   - encryptedData is the result of encrypting the private-key
+     information  (i.e., the PrivateKeyInfo).
+
+   The encryption process involves the following two steps:
+
+   1. The private-key information is encoded, yielding an octet string.
+      Generators SHOULD use DER [<a href="#ref-X.690">X.690</a>] and receivers MUST support BER
+      [<a href="#ref-X.690">X.690</a>], which also includes DER [<a href="#ref-X.690">X.690</a>].
+
+   2. The result of step 1 is encrypted with the secret key to give an
+      octet string, the result of the encryption process.
+
+<span class="h2"><a class="selflink" id="section-4" href="#section-4">4</a>.  Protecting the AsymmetricKeyPackage</span>
+
+   CMS protecting content types, [<a href="./rfc5652" title="&quot;Cryptographic Message Syntax (CMS)&quot;">RFC5652</a>] and [<a href="./rfc5083" title="&quot;Cryptographic Message Syntax (CMS) Authenticated-Enveloped-Data Content Type&quot;">RFC5083</a>], can be used to
+   provide security to the AsymmetricKeyPackage:
+
+   - SignedData can be used to apply a digital signature to the
+     AsymmetricKeyPackage.
+
+   - EncryptedData can be used to encrypt the AsymmetricKeyPackage with
+     symmetric encryption, where the sender and the receiver already
+     share the necessary encryption key.
+
+   - EnvelopedData can be used to encrypt the AsymmetricKeyPackage with
+     symmetric encryption, where the sender and the receiver do not
+     share the necessary encryption key.
+
+   - AuthenticatedData can be used to protect the AsymmetricKeyPackage
+     with message authentication codes, where key management information
+     is handled in a manner similar to EnvelopedData.
+
+   - AuthEnvelopedData can be used to protect the AsymmetricKeyPackage
+     with algorithms that support authenticated encryption, where key
+     management information is handled in a manner similar to
+     EnvelopedData.
+
+<span class="h2"><a class="selflink" id="section-5" href="#section-5">5</a>.  Other Private-Key Format Considerations</span>
+
+   This document defines the syntax and the semantics for a content type
+   that exchanges asymmetric private keys.  There are two other formats
+   that have been used for the transport of asymmetric private keys:
+
+
+
+
+<span class="grey">Turner                       Standards Track                    [Page 6]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-7" ></span>
+<span class="grey"><a href="./rfc5958">RFC 5958</a>                 Asymmetric Key Packages             August 2010</span>
+
+
+   - Personal Information Exchange (PFX) Syntax Standard [<a href="#ref-P12" title="&quot;PKCS #12 v1.0: Personal Information Exchange Syntax&quot;">P12</a>], which is
+     more commonly referred to as PKCS #12 or simply P12, is a transfer
+     syntax for personal identity information, including private keys,
+     certificates, miscellaneous secrets, and extensions.
+     OneAsymmetricKey, PrivateKeyInfo, and EncryptedPrivateKeyInfo can
+     be carried in a P12 message.  The private key information,
+     OneAsymmetricKey and PrivateKeyInfo, are carried in the P12 keyBag
+     BAG-TYPE.  EncryptedPrivateKeyInfo is carried in the P12
+     pkcs8ShroudedKeyBag BAG-TYPE.  In current implementations, the file
+     extensions .pfx and .p12 can be used interchangeably.
+
+   - Microsoft's private-key proprietary transfer syntax.  The .pvk file
+     extension is used for local storage.
+
+   The .pvk and .p12/.pfx formats are not interchangeable; however,
+   conversion tools exist to convert from one format to another.
+
+   To extract the private-key information from the AsymmetricKeyPackage,
+   the encapsulating layers need to be removed.  At a minimum, the outer
+   ContentInfo [<a href="./rfc5652" title="&quot;Cryptographic Message Syntax (CMS)&quot;">RFC5652</a>] layer needs to be removed.  If the
+   AsymmetricKeyPackage is encapsulated in a SignedData [<a href="./rfc5652" title="&quot;Cryptographic Message Syntax (CMS)&quot;">RFC5652</a>], then
+   the SignedData and EncapsulatedContentInfo layers [<a href="./rfc5652" title="&quot;Cryptographic Message Syntax (CMS)&quot;">RFC5652</a>] also need
+   to be removed.  The same is true for EnvelopedData, EncryptedData,
+   and AuthenticatedData all from [<a href="./rfc5652" title="&quot;Cryptographic Message Syntax (CMS)&quot;">RFC5652</a>] as well as AuthEnvelopedData
+   from [<a href="./rfc5083" title="&quot;Cryptographic Message Syntax (CMS) Authenticated-Enveloped-Data Content Type&quot;">RFC5083</a>].  Once all the outer layers are removed, there are as
+   many sets of private-key information as there are OneAsymmetricKey
+   structures.  OneAsymmetricKey and PrivateKeyInfo are the same
+   structure; therefore, either can be saved as a .p8 file or copied in
+   to the P12 KeyBag BAG-TYPE.  Removing encapsulating security layers
+   will invalidate any signature and may expose the key to unauthorized
+   disclosure.
+
+   .p8 files are sometimes PEM-encoded.  When .p8 files are PEM encoded
+   they use the .pem file extension.  PEM encoding is either the Base64
+   encoding, from <a href="./rfc4648#section-4">Section&nbsp;4 of [RFC4648]</a>, of the DER-encoded
+   EncryptedPrivateKeyInfo sandwiched between:
+
+   -----BEGIN ENCRYPTED PRIVATE KEY-----
+   -----END ENCRYPTED PRIVATE KEY-----
+
+   or the Base64 encoding, see <a href="./rfc4648#section-4">Section&nbsp;4 of [RFC4648]</a>, of the DER-
+   encoded PrivateKeyInfo sandwiched between:
+
+   -----BEGIN PRIVATE KEY-----
+   -----END PRIVATE KEY-----
+
+
+
+
+
+
+<span class="grey">Turner                       Standards Track                    [Page 7]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-8" ></span>
+<span class="grey"><a href="./rfc5958">RFC 5958</a>                 Asymmetric Key Packages             August 2010</span>
+
+
+<span class="h2"><a class="selflink" id="section-6" href="#section-6">6</a>.  Security Considerations</span>
+
+   Protection of the private-key information is vital to public-key
+   cryptography.  Disclosure of the private-key material to another
+   entity can lead to masquerades.  The encryption algorithm used in the
+   encryption process must be as 'strong' as the key it is protecting.
+
+   The asymmetric key package contents are not protected.  This content
+   type can be combined with a security protocol to protect the contents
+   of the package.
+
+<span class="h2"><a class="selflink" id="section-7" href="#section-7">7</a>.  IANA Considerations</span>
+
+   This document makes use of object identifiers to identify a CMS
+   content type and the ASN.1 module found in <a href="#appendix-A">Appendix A</a>.  The CMS
+   content type OID is registered in a DoD arc.  The ASN.1 module OID is
+   registered in an arc delegated by RSADSI to the SMIME Working Group.
+   No further action by IANA is necessary for this document or any
+   anticipated updates.
+
+   This specification also defines a new media subtype that IANA has
+   registered at <a href="http://www.iana.org/">http://www.iana.org/</a>.
+
+<span class="h3"><a class="selflink" id="section-7.1" href="#section-7.1">7.1</a>.  Registration of media subtype application/pkcs8</span>
+
+   Type name: application
+
+   Subtype name: pkcs8
+
+   Required parameters: None
+
+   Optional parameters: None
+
+   Encoding considerations: binary
+
+   Security considerations: Carries a cryptographic private key.
+                            See <a href="#section-6">section 6</a>.
+
+   Interoperability considerations:
+
+         The PKCS #8 object inside this media type MUST be DER-encoded
+         PrivateKeyInfo.
+
+   Published specification: <a href="./rfc5958">RFC 5958</a>
+
+   Applications which use this media type:
+
+     Any MIME-compliant transport that processes asymmetric keys.
+
+
+
+<span class="grey">Turner                       Standards Track                    [Page 8]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-9" ></span>
+<span class="grey"><a href="./rfc5958">RFC 5958</a>                 Asymmetric Key Packages             August 2010</span>
+
+
+   Additional information:
+
+     Magic number(s): None
+     File extension(s): .p8
+     Macintosh File Type Code(s):
+
+   Person &amp; email address to contact for further information:
+
+     Sean Turner &lt;turners@ieca.com&gt;
+
+   Restrictions on usage: none
+
+   Author:
+
+     Sean Turner &lt;turners@ieca.com&gt;
+
+   Intended usage: COMMON
+
+   Change controller:
+
+     The IESG
+
+<span class="h2"><a class="selflink" id="section-8" href="#section-8">8</a>.  References</span>
+
+<span class="h3"><a class="selflink" id="section-8.1" href="#section-8.1">8.1</a>.  Normative References</span>
+
+   [<a id="ref-RFC2119">RFC2119</a>]   Bradner, S., "Key words for use in RFCs to Indicate
+               Requirement Levels", <a href="https://www.rfc-editor.org/bcp/bcp14">BCP 14</a>, <a href="./rfc2119">RFC 2119</a>, March 1997.
+
+   [<a id="ref-RFC4648">RFC4648</a>]   Josefsson, S., "The Base16, Base32, and Base64 Data
+               Encodings", <a href="./rfc4648">RFC 4648</a>, October 2006.
+
+   [<a id="ref-RFC5652">RFC5652</a>]   Housley, R., "Cryptographic Message Syntax (CMS)", STD
+               70, <a href="./rfc5652">RFC 5652</a>, September 2009.
+
+   [<a id="ref-RFC5911">RFC5911</a>]   Hoffman, P. and J. Schaad, "New ASN.1 Modules for
+               Cryptographic Message Syntax (CMS) and S/MIME", <a href="./rfc5911">RFC 5911</a>,
+               June 2010.
+
+   [<a id="ref-RFC5912">RFC5912</a>]   Hoffman, P. and J. Schaad, "New ASN.1 Modules for the
+               Public Key Infrastructure Using X.509 (PKIX)", <a href="./rfc5912">RFC 5912</a>,
+               June 2010.
+
+   [<a id="ref-X.680">X.680</a>]     ITU-T Recommendation X.680 (2002) | ISO/IEC 8824-1:2002.
+               Information Technology - Abstract Syntax Notation One.
+
+
+
+
+
+
+<span class="grey">Turner                       Standards Track                    [Page 9]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-10" ></span>
+<span class="grey"><a href="./rfc5958">RFC 5958</a>                 Asymmetric Key Packages             August 2010</span>
+
+
+   [<a id="ref-X.681">X.681</a>]     ITU-T Recommendation X.681 (2002) | ISO/IEC 8824-2:2002.
+               Information Technology - Abstract Syntax Notation One:
+               Information Object Specification.
+
+   [<a id="ref-X.682">X.682</a>]     ITU-T Recommendation X.682 (2002) | ISO/IEC 8824-3:2002.
+               Information Technology - Abstract Syntax Notation One:
+               Constraint Specification.
+
+   [<a id="ref-X.683">X.683</a>]     ITU-T Recommendation X.683 (2002) | ISO/IEC 8824-4:2002.
+               Information Technology - Abstract Syntax Notation One:
+               Parameterization of ASN.1 Specifications.
+
+   [<a id="ref-X.690">X.690</a>]     ITU-T Recommendation X.690 (2002) | ISO/IEC 8825-1:2002.
+               Information Technology - ASN.1 encoding rules:
+               Specification of Basic Encoding Rules (BER), Canonical
+               Encoding Rules (CER) and Distinguished Encoding Rules
+               (DER).
+
+<span class="h3"><a class="selflink" id="section-8.2" href="#section-8.2">8.2</a>.  Informative References</span>
+
+   [<a id="ref-P12">P12</a>]       RSA Laboratories, "PKCS #12 v1.0: Personal Information
+               Exchange Syntax", June 1999.
+
+   [<a id="ref-RFC2985">RFC2985</a>]   Nystrom, M. and B. Kaliski, "PKCS #9: Selected Object
+               Classes and Attribute Types Version 2.0", <a href="./rfc2985">RFC 2985</a>,
+               November 2000.
+
+   [<a id="ref-RFC3447">RFC3447</a>]   Jonsson, J. and B. Kaliski, "Public-Key Cryptography
+               Standards (PKCS) #1: RSA Cryptography Specifications
+               Version 2.1", <a href="./rfc3447">RFC 3447</a>, February 2003.
+
+   [<a id="ref-RFC5083">RFC5083</a>]   Housley, R., "Cryptographic Message Syntax (CMS)
+               Authenticated-Enveloped-Data Content Type", <a href="./rfc5083">RFC 5083</a>,
+               November 2007.
+
+   [<a id="ref-RFC5208">RFC5208</a>]   Kaliski, B., "Public-Key Cryptography Standards (PKCS)
+               #8: Private-Key Information Syntax Specification Version
+               1.2", <a href="./rfc5208">RFC 5208</a>, May 2008.
+
+   [<a id="ref-X.520">X.520</a>]     ITU-T Recommendation X.520 (2005) | ISO/IEC 9594-6:2005,
+               Information technology - Open Systems Interconnection -
+               The Directory: Selected attribute types.
+
+   [<a id="ref-RFC5915">RFC5915</a>]   Turner, S. and D. Brown, "Elliptic Curve Private Key
+               Structure", <a href="./rfc5915">RFC 5915</a>, June 2010.
+
+
+
+
+
+
+<span class="grey">Turner                       Standards Track                   [Page 10]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-11" ></span>
+<span class="grey"><a href="./rfc5958">RFC 5958</a>                 Asymmetric Key Packages             August 2010</span>
+
+
+<span class="h2"><a class="selflink" id="appendix-A" href="#appendix-A">Appendix A</a>.  ASN.1 Module</span>
+
+   This annex provides the normative ASN.1 definitions for the
+   structures described in this specification using ASN.1 as defined in
+   [<a href="#ref-X.680">X.680</a>] through [<a href="#ref-X.683">X.683</a>].
+
+   AsymmetricKeyPackageModuleV1
+     { iso(1) member-body(2) us(840) rsadsi(113549) pkcs(1) pkcs-9(9)
+       smime(16) modules(0) id-mod-asymmetricKeyPkgV1(50) }
+
+   DEFINITIONS IMPLICIT TAGS ::=
+
+   BEGIN
+
+   -- EXPORTS ALL
+
+   IMPORTS
+
+   -- FROM New SMIME ASN.1 [<a href="./rfc5911" title="&quot;New ASN.1 Modules for Cryptographic Message Syntax (CMS) and S/MIME&quot;">RFC5911</a>]
+
+   Attribute{}, CONTENT-TYPE
+    FROM CryptographicMessageSyntax-2009
+      { iso(1) member-body(2) us(840) rsadsi(113549) pkcs(1) pkcs-9(9)
+        smime(16) modules(0) id-mod-cms-2004-02(41) }
+
+   -- From New PKIX ASN.1 [<a href="./rfc5912" title="&quot;New ASN.1 Modules for the Public Key Infrastructure Using X.509 (PKIX)&quot;">RFC5912</a>]
+   ATTRIBUTE
+    FROM PKIX-CommonTypes-2009
+      { iso(1) identified-organization(3) dod(6) internet(1)
+        security(5) mechanisms(5) pkix(7) id-mod(0)
+        id-mod-pkixCommon-02(57) }
+
+   -- From New PKIX ASN.1 [<a href="./rfc5912" title="&quot;New ASN.1 Modules for the Public Key Infrastructure Using X.509 (PKIX)&quot;">RFC5912</a>]
+
+   AlgorithmIdentifier{}, ALGORITHM, PUBLIC-KEY, CONTENT-ENCRYPTION
+     FROM AlgorithmInformation-2009
+       { iso(1) identified-organization(3) dod(6) internet(1)
+         security(5) mechanisms(5) pkix(7) id-mod(0)
+         id-mod-algorithmInformation-02(58) }
+
+   ;
+
+   ContentSet CONTENT-TYPE ::= {
+    ct-asymmetric-key-package,
+    ... -- Expect additional content types --
+   }
+
+
+
+
+
+<span class="grey">Turner                       Standards Track                   [Page 11]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-12" ></span>
+<span class="grey"><a href="./rfc5958">RFC 5958</a>                 Asymmetric Key Packages             August 2010</span>
+
+
+   ct-asymmetric-key-package CONTENT-TYPE ::=
+    { AsymmetricKeyPackage IDENTIFIED BY id-ct-KP-aKeyPackage }
+
+   id-ct-KP-aKeyPackage OBJECT IDENTIFIER ::=
+     { joint-iso-itu-t(2) country(16) us(840) organization(1)
+         gov(101) dod(2) infosec(1) formats(2)
+         key-package-content-types(78) 5
+     }
+
+   AsymmetricKeyPackage ::= SEQUENCE SIZE (1..MAX) OF OneAsymmetricKey
+
+   OneAsymmetricKey ::= SEQUENCE {
+     version                   Version,
+     privateKeyAlgorithm       PrivateKeyAlgorithmIdentifier,
+     privateKey                PrivateKey,
+     attributes            [0] Attributes OPTIONAL,
+     ...,
+     [[2: publicKey        [1] PublicKey OPTIONAL ]],
+     ...
+   }
+
+   PrivateKeyInfo ::= OneAsymmetricKey
+
+   -- PrivateKeyInfo is used by [<a href="#ref-P12" title="&quot;PKCS #12 v1.0: Personal Information Exchange Syntax&quot;">P12</a>]. If any items tagged as version
+   -- 2 are used, the version must be v2, else the version should be
+   -- v1. When v1, PrivateKeyInfo is the same as it was in [<a href="./rfc5208" title="&quot;Public-Key Cryptography Standards (PKCS) #8: Private-Key Information Syntax Specification Version 1.2&quot;">RFC5208</a>].
+
+   Version ::= INTEGER { v1(0), v2(1) } (v1, ..., v2)
+
+   PrivateKeyAlgorithmIdentifier ::= AlgorithmIdentifier
+                                      { PUBLIC-KEY,
+                                        { PrivateKeyAlgorithms } }
+
+   PrivateKey ::= OCTET STRING
+                     -- Content varies based on type of key. The
+                     -- algorithm identifier dictates the format of
+                     -- the key.
+
+   PublicKey ::= BIT STRING
+                     -- Content varies based on type of key. The
+                     -- algorithm identifier dictates the format of
+                     -- the key.
+
+   Attributes ::= SET OF Attribute { { OneAsymmetricKeyAttributes } }
+
+   OneAsymmetricKeyAttributes ATTRIBUTE ::= {
+     ... -- For local profiles
+   }
+
+
+
+<span class="grey">Turner                       Standards Track                   [Page 12]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-13" ></span>
+<span class="grey"><a href="./rfc5958">RFC 5958</a>                 Asymmetric Key Packages             August 2010</span>
+
+
+   -- An alternate representation that makes full use of ASN.1
+   -- constraints follows.  Also note that PUBLIC-KEY needs to be
+   -- imported from the new PKIX ASN.1 Algorithm Information module
+   -- and PrivateKeyAlgorithms needs to be commented out.
+
+   -- OneAsymmetricKey ::= SEQUENCE {
+   --  version                  Version,
+   --  privateKeyAlgorithm      SEQUENCE {
+   --   algorithm                 PUBLIC-KEY.&amp;id({PublicKeySet}),
+   --    parameters               PUBLIC-KEY.&amp;Params({PublicKeySet}
+   --                               {@privateKeyAlgorithm.algorithm})
+   --                               OPTIONAL}
+   --  privateKey               OCTET STRING (CONTAINING
+   --                             PUBLIC-KEY.&amp;PrivateKey({PublicKeySet}
+   --                             {@privateKeyAlgorithm.algorithm})),
+   --  attributes           [0] Attributes OPTIONAL,
+   --  ...,
+   --  [[2: publicKey       [1] BIT STRING (CONTAINING
+   --                             PUBLIC-KEY.&amp;Params({PublicKeySet}
+   --                             {@privateKeyAlgorithm.algorithm})
+   --                             OPTIONAL,
+   --  ...
+   --    }
+
+   EncryptedPrivateKeyInfo ::= SEQUENCE {
+     encryptionAlgorithm  EncryptionAlgorithmIdentifier,
+     encryptedData        EncryptedData }
+
+   EncryptionAlgorithmIdentifier ::= AlgorithmIdentifier
+                                       { CONTENT-ENCRYPTION,
+                                         { KeyEncryptionAlgorithms } }
+
+   EncryptedData ::= OCTET STRING -- Encrypted PrivateKeyInfo
+
+   PrivateKeyAlgorithms ALGORITHM ::= {
+     ... -- Extensible
+   }
+
+   KeyEncryptionAlgorithms ALGORITHM ::= {
+     ... -- Extensible
+   }
+
+   END
+
+
+
+
+
+
+
+
+<span class="grey">Turner                       Standards Track                   [Page 13]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-14" ></span>
+<span class="grey"><a href="./rfc5958">RFC 5958</a>                 Asymmetric Key Packages             August 2010</span>
+
+
+Acknowledgements
+
+   Many thanks go out to the Burt Kaliski and Jim Randall at RSA.
+   Without the prior version of the document, this one wouldn't exist.
+
+   I'd also like to thank Pasi Eronen, Roni Even, Alfred Hoenes, Russ
+   Housley, Jim Schaad, and Carl Wallace.
+
+Author's Address
+
+   Sean Turner
+   IECA, Inc.
+   3057 Nutley Street, Suite 106
+   Fairfax, VA 22031
+   USA
+
+   EMail: turners@ieca.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Turner                       Standards Track                   [Page 14]
+</pre>
+
+</body>
+</html>
+

@@ -9,6 +9,10 @@ Changes 1.6.1-prerelease
 
 * AARCH64: enable GCS support (see https://community.arm.com/arm-community-blogs/b/tools-software-ides-blog/posts/gcc-15-continuously-improving#guarded and https://docs.kernel.org/next/arch/arm64/gcs.html)
 
+* Add PKCS#8 support for ML-DSA following RFC9881 including full support for the seed or full keys. The change adds OpenSSL interoperability testing as well. NOTE: The raw on-disk private key format that is generated with lc_x509_generate --create-keypair changed to comply with RFC9881.
+
+* Add PKCS#8 support for SLH-DSA. The change adds OpenSSL interoperability testing as well. NOTE: The raw on-disk private key format that is generated with lc_x509_generate --create-keypair changed to dump the raw key instead of wrapping it into a BIT STRING to comply with OpenSSL's format.
+
 Changes 1.6.0
 * ASN.1: use stack for small generator for small use cases
 

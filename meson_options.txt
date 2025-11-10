@@ -324,6 +324,25 @@ Note: The PKCS#7 / CMS generator requires the availability of the
 PKCS#7 / CMS parser.
 ''')
 
+option('pkcs8_parser', type: 'feature', value: 'enabled',
+       description: '''Enable PKCS#8 Parser Support
+
+The PKCS#8 parser offers a completely different interface to utilize the
+cryptographic services of leancrypto than the regular API. It processes PKCS#8
+private key payloads.
+
+The PKCS#8 support operates on caller-provided memory.
+''')
+
+option('pkcs8_generator', type: 'feature', value: 'enabled',
+       description: '''Enable PKCS#8 / CMS Generator Support
+
+The PKCS#8 generator allows the generation of PKCS#8 messages using
+the enabled asymmetric algorithms.
+
+Note: The PKCS#8 generator requires the availability of the PKCS#8 parser.
+''')
+
 option('disable-asm', type: 'boolean', value: false,
        description: '''Disable all acceleration code
 

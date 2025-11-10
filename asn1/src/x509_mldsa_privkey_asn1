@@ -3,7 +3,16 @@
 -- Copyright (C) 2024 IETF Trust and the persons identified as authors
 -- of the code
 --
+-- RFC 9881 chapter 6
+--
 
-SignaturePrivateKey ::= SEQUENCE {
-	privateKey BIT STRING ({ x509_mldsa_private_key })
+PrivateKey ::= CHOICE {
+	seed [0] OCTET STRING ({ x509_mldsa_private_key_seed }),
+	expandedKey OCTET STRING ({ x509_mldsa_private_key_expanded }),
+	both Both
+}
+
+Both ::= SEQUENCE {
+	seed OCTET STRING ({ x509_mldsa_private_key_seed }),
+	expandedKey OCTET STRING ({ x509_mldsa_private_key_expanded })
 }
