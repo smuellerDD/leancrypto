@@ -23,6 +23,7 @@
 #include "ext_headers.h"
 #include "lc_asn1.h"
 #include "lc_hash.h"
+#include "lc_sha3.h"
 
 #if defined __has_include
 

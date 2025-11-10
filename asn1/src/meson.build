@@ -157,10 +157,6 @@ if get_option('pkcs8_parser').enabled()
 
 		'pkcs8_asn1.c',
 	])
-else
-	src += files([
-		'pkcs8_parser_null.c'
-	])
 endif
 
 if get_option('pkcs8_generator').enabled()

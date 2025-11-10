@@ -189,6 +189,7 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs8_signature_gen, uint8_t *sig_data,
 		      const uint8_t *m, size_t mlen,
 		      const struct lc_hash *prehash_algo)
 {
+#ifdef LC_X509_GENERATOR
 	int ret;
 
 	CKNULL(pkcs8, -EINVAL);
@@ -198,4 +199,13 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs8_signature_gen, uint8_t *sig_data,
 
 out:
 	return ret;
+#else
+	(void)sig_data;
+	(void)siglen;
+	(void)pkcs8;
+	(void)m;
+	(void)mlen;
+	(void)prehash_algo;
+	return -EOPNOTSUPP;
+#endif
 }

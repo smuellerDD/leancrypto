@@ -688,11 +688,6 @@ if get_option('x509_parser').disabled() and get_option('pkcs7_parser').enabled()
 	error('PKCS#7 parser support requires X.509 parser support')
 endif
 
-# Generator support is required due to the sign operation
-if get_option('x509_generator').disabled() and get_option('pkcs8_parser').enabled()
-	error('PKCS#8 parser support requires X.509 generator support')
-endif
-
 if get_option('x509_parser').disabled() and get_option('x509_generator').enabled()
 	error('X.509 generator support requires X.509 parser support')
 endif

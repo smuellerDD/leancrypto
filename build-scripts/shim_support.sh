@@ -74,6 +74,7 @@ DISABLE_KDF="
 DISABLE_ASN1="
  -Dx509_generator=disabled
  -Dpkcs7_generator=disabled
+ -Dpkcs8_generator=disabled
 "
 
 DISABLE_MISC="
