@@ -34,6 +34,7 @@
 #include "rotate.h"
 #include "timecop.h"
 #include "visibility.h"
+#include "xor.h"
 
 /*
  * When enabled, the code uses the SBox-free implementation of the key expansion
@@ -271,6 +272,7 @@ static void aes_add_round_key(uint8_t round, state_t *state,
 	uint8_t i, j;
 
 	for (i = 0; i < 4; ++i) {
+		//xor_32((*state)[i], &RoundKey[(round * Nb * 4) + (i * Nb)], 4);
 		for (j = 0; j < 4; ++j) {
 			(*state)[i][j] ^=
 				RoundKey[(round * Nb * 4) + (i * Nb) + j];
