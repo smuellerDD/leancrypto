@@ -35,14 +35,6 @@ public_key_set_prehash_sphincs(const struct lc_public_key_signature *sig,
 	const struct lc_hash *hash_algo;
 	int ret = 0;
 
-	/*
-	 * https://datatracker.ietf.org/doc/html/draft-ietf-lamps-cms-sphincs-plus#name-signed-data-conventions
-	 * suggests to always use the pure signature schema. Therefore, do not
-	 * apply the HashML-DSA step here unless explicitly requested.
-	 */
-	if (!sig->request_prehash)
-		return 0;
-
 	if (sig->hash_algo)
 		hash_algo = sig->hash_algo;
 	else

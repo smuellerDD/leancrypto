@@ -65,7 +65,7 @@ TMPDIR="./tmp.$$"
 
 global_failure_count=0
 
-trap "rm -rf $TMPDIR" 0 1 2 3 15
+#trap "rm -rf $TMPDIR" 0 1 2 3 15
 mkdir $TMPDIR
 
 pk_file="${TMPDIR}/siggen_tester_cert.der"
@@ -219,10 +219,10 @@ lc_sign_cert() {
 
 	if [ $? -ne 0 ]
 	then
-		echo_fail "Failed leancrypto-internal signature generation"
+		echo_fail "Failed leancrypto signature generation"
 		global_failure_count=$(($global_failure_count+1))
 	else
-		echo_success "Successful leancrypto-internal signature generation"
+		echo_success "Successful leancrypto signature generation"
 	fi
 }
 
@@ -230,14 +230,16 @@ lc_verify_cert() {
 	echo_info "Leancrypto: Verify PKCS#7 signature of X.509 certificate using the X.509 certificate and associated PKCS#8 private key as signer"
 
 	$LC_PKCS7_GENERATOR \
-	 --verify-pkcs7 ${pk_file}.p7b
+	 --print-pkcs7 ${pk_file}.p7b \
+	 -i ${pk_file} \
+	 --trust-anchor ${pk_file}
 
 	if [ $? -ne 0 ]
 	then
-		echo_fail "Failed leancrypto-internal signature verification"
+		echo_fail "Failed leancrypto signature verification"
 		global_failure_count=$(($global_failure_count+1))
 	else
-		echo_success "Successful leancrypto-internal signature verification"
+		echo_success "Successful leancrypto signature verification"
 	fi
 }
 
@@ -270,6 +272,50 @@ ossl_generate_cert_pkcs8() {
 
 	check_one $pk_file
 	check_one_priv $sk_file
+}
+
+ossl_sign_cert() {
+	rm -f ${pk_file}.p7b
+
+	echo_info "OpenSSL: Create PKCS#7 signature of X.509 certificate using the X.509 certificate and associated PKCS#8 private key as signer"
+
+	$OPENSSL cms \
+	 -binary \
+	 -nosmimecap \
+	 -sign \
+	 -outform DER \
+	 -in ${pk_file} \
+	 -out ${pk_file}.p7b \
+	 -signer ${pk_file} \
+	 -inkey ${sk_file} \
+	 -md SHA512
+
+	if [ $? -ne 0 ]
+	then
+		echo_fail "Failed openssl signature generation"
+		global_failure_count=$(($global_failure_count+1))
+	else
+		echo_success "Successful leancrypto-internal signature generation"
+	fi
+}
+
+ossl_verify_cert() {
+	echo_info "OpenSSL: Verify PKCS#7 signature of X.509 certificate using the X.509 certificate and associated PKCS#8 private key as signer"
+
+	$OPENSSL cms \
+	 -verify \
+	 -binary \
+	 -in ${pk_file}.p7b \
+	 -CAfile ${pk_file} \
+	 -inform DER >/dev/null
+
+	if [ $? -ne 0 ]
+	then
+		echo_fail "Failed leancrypto-internal signature verification"
+		global_failure_count=$(($global_failure_count+1))
+	else
+		echo_success "Successful leancrypto-internal signature verification"
+	fi
 }
 
 ################################################################################

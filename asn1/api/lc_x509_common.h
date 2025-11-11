@@ -227,7 +227,6 @@ struct lc_public_key_signature {
 	size_t digest_size;
 	uint8_t digest[LC_SHA_MAX_SIZE_DIGEST];
 	const struct lc_hash *hash_algo;
-	unsigned int request_prehash : 1;
 
 	enum lc_sig_types pkey_algo;
 

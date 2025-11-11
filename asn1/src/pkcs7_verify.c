@@ -104,7 +104,7 @@ static int pkcs7_digest(struct lc_pkcs7_message *pkcs7,
 
 		/*
 		 * We then calculate anew, using the authenticated attributes
-		 * as the contents of the digest instead.  Note that we need to
+		 * as the contents of the digest instead. Note that we need to
 		 * convert the attributes from a CONT.0 into a SET before we
 		 * hash it.
 		 */
@@ -123,7 +123,7 @@ static int pkcs7_digest(struct lc_pkcs7_message *pkcs7,
 	}
 
 out:
-	printf_debug("<== %s(),  = %d\n", __func__, ret);
+	printf_debug("<== %s(), = %d\n", __func__, ret);
 	return ret;
 }
 

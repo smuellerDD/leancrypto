@@ -1271,7 +1271,6 @@ LC_INTERFACE_FUNCTION(int, lc_x509_signature_verify, const uint8_t *sig_data,
 		memcpy(sig.digest, m, mlen);
 		sig.digest_size = mlen;
 		sig.hash_algo = prehash_algo;
-		sig.request_prehash = 1;
 	} else {
 		sig.raw_data = m;
 		sig.raw_data_len = mlen;

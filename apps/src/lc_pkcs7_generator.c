@@ -235,6 +235,8 @@ static int pkcs7_dump_file(struct pkcs7_generator_opts *opts)
 				  opts->verify_rules_set ? &opts->verify_rules :
 							   NULL),
 			  "Verification of PKCS#7 message failed\n");
+	} else {
+		printf("Verification of PKCS#7 message skipped\n");
 	}
 
 	if (opts->checker)
@@ -515,10 +517,11 @@ static void pkcs7_generator_usage(void)
 	fprintf(stderr, "\t\t\t\t\tverify protected data, and\n");
 	fprintf(stderr, "\t\t\t\t\tprint its contents\n");
 	fprintf(stderr,
-		"\t   --print-pkcs7 <FILE>\t\tParse the PKCS#7 message and\n");
+		"\t   --verify-pkcs7 <FILE>\tParse the PKCS#7 message and\n");
 	fprintf(stderr, "\t\t\t\t\tverify protected data\n");
 	fprintf(stderr,
-		"\t   --verify-pkcs7 <FILE>\t\tParse the PKCS#7 message and\n");
+		"\t   --print-pkcs7 <FILE>\t\tParse the PKCS#7 message,\n");
+	fprintf(stderr, "\t\t\t\t\tverify protected data, and\n");
 	fprintf(stderr, "\t\t\t\t\tprint its contents\n");
 	fprintf(stderr, "\t   --noout\t\t\tNo generation of output files\n");
 	fprintf(stderr,
