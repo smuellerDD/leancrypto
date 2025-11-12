@@ -470,7 +470,7 @@ It applies the following approach:
   
 * When generating a trust store, all added certificates are validated to lead
   to a root CA found in the trust store. This implies that the order of adding
-  certificates to teh trust store matters: first the root CA must be added
+  certificates to the trust store matters: first the root CA must be added
   followed by certificates signed by the root CA followed by further
   subordinated certificates.
   
