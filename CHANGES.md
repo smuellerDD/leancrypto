@@ -13,6 +13,8 @@ Changes 1.6.1-prerelease
 
 * Add PKCS#8 support for SLH-DSA. The change adds OpenSSL interoperability testing as well. NOTE: The raw on-disk private key format that is generated with lc_x509_generate --create-keypair changed to dump the raw key instead of wrapping it into a BIT STRING to comply with OpenSSL's format.
 
+* Provide full PKCS#7 interoperability with OpenSSL: OpenSSL artificially orders the parsing of the authenticated attributes. This implies that the message digest part of the authenticated attributes is parsed as last entry. This ordering is important for the signature generation and verification. Furthermore, for ML-DSA/SLH-DSA, the authenticated attributes are signed with the pure algorithm instead of the pre-hashed operation as suggested by RFC5652 section 9.2.
+
 Changes 1.6.0
 * ASN.1: use stack for small generator for small use cases
 

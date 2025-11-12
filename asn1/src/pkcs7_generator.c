@@ -55,7 +55,9 @@ struct pkcs7_generate_context {
 	/* Authenticated Attribute data (or NULL) */
 	const struct lc_hash *authattr_hash;
 	size_t authattrs_digest_size;
+	size_t authattrs_size;
 	uint8_t authattrs_digest[LC_SHA_MAX_SIZE_DIGEST];
+	uint8_t authattrs[500];
 };
 
 /******************************************************************************
@@ -528,12 +530,7 @@ int pkcs7_external_aa_OID_enc(void *context, uint8_t *data,
 
 	(void)tag;
 
-	if (sinfo->aa_set &&
-	    !(ctx->aa_set_applied & sinfo_has_message_digest)) {
-		CKINT(OID_to_data(OID_messageDigest, &oid_data, &oid_datalen));
-		bin2print_debug(oid_data, oid_datalen, stdout,
-				"OID message digest");
-	} else if (pkcs7_authenticated_attr_unprocessed(
+	if (pkcs7_authenticated_attr_unprocessed(
 			   ctx, sinfo_has_content_type)) {
 		CKINT(OID_to_data(OID_contentType, &oid_data, &oid_datalen));
 		bin2print_debug(oid_data, oid_datalen, stdout, "OID data type");
@@ -558,6 +555,11 @@ int pkcs7_external_aa_OID_enc(void *context, uint8_t *data,
 				  &oid_datalen));
 		bin2print_debug(oid_data, oid_datalen, stdout,
 				"OID ms statement type");
+	} else if (sinfo->aa_set &&
+		   !(ctx->aa_set_applied & sinfo_has_message_digest)) {
+		CKINT(OID_to_data(OID_messageDigest, &oid_data, &oid_datalen));
+		bin2print_debug(oid_data, oid_datalen, stdout,
+				"OID message digest");
 	}
 
 	if (oid_datalen) {
@@ -665,27 +667,7 @@ int pkcs7_external_aa_enc(void *context, uint8_t *data, size_t *avail_datalen,
 
 	(void)tag;
 
-	/*
-	 * If an AA set is present, we must force the message digest attribute.
-	 * See RFC5652 section 5.3.
-	 */
-	if (sinfo->aa_set &&
-	    !(ctx->aa_set_applied & sinfo_has_message_digest)) {
-		const struct lc_hash *hash_algo;
-
-		ctx->aa_set_applied |= sinfo_has_message_digest;
-
-		*tag = ASN1_OTS;
-
-		CKINT(pkcs7_get_digest(&hash_algo, sinfo));
-		CKINT(pkcs7_hash_data(digest, &digest_size, hash_algo, pkcs7));
-		bin2print_debug(digest, digest_size, stdout,
-				"Generated messageDigest");
-
-		CKINT(x509_sufficient_size(avail_datalen, digest_size));
-		memcpy(data, digest, digest_size);
-		*avail_datalen -= digest_size;
-	} else if (pkcs7_authenticated_attr_unprocessed(
+	if (pkcs7_authenticated_attr_unprocessed(
 			   ctx, sinfo_has_content_type)) {
 		const uint8_t *oid_data = NULL;
 		size_t oid_datalen = 0;
@@ -717,6 +699,27 @@ int pkcs7_external_aa_enc(void *context, uint8_t *data, size_t *avail_datalen,
 			   ctx, sinfo_has_ms_statement_type)) {
 		ctx->aa_set_applied |= sinfo_has_ms_statement_type;
 		return -EOPNOTSUPP;
+	} else if (sinfo->aa_set &&
+		   !(ctx->aa_set_applied & sinfo_has_message_digest)) {
+		/*
+		 * If an AA set is present, we must force the message digest
+		 * attribute. See RFC5652 section 5.3.
+		 */
+
+		const struct lc_hash *hash_algo;
+
+		ctx->aa_set_applied |= sinfo_has_message_digest;
+
+		*tag = ASN1_OTS;
+
+		CKINT(pkcs7_get_digest(&hash_algo, sinfo));
+		CKINT(pkcs7_hash_data(digest, &digest_size, hash_algo, pkcs7));
+		bin2print_debug(digest, digest_size, stdout,
+				"Generated messageDigest");
+
+		CKINT(x509_sufficient_size(avail_datalen, digest_size));
+		memcpy(data, digest, digest_size);
+		*avail_datalen -= digest_size;
 	}
 
 out:
@@ -779,7 +782,7 @@ int pkcs7_attribute_value_continue_enc(void *context, uint8_t *data,
 }
 
 /*
- * Spawn a separate parser to generate the authenticated attribute entry.
+ * Spawn a separate encoder to generate the authenticated attribute entry.
  * As this entire buffer must be hashed, this is the only way to get to the
  * buffer short of re-parsing the entire message again.
  */
@@ -788,12 +791,14 @@ int pkcs7_sig_note_set_of_authattrs_enc(void *context, uint8_t *data,
 {
 	struct pkcs7_generate_context *ctx = context;
 	const struct lc_pkcs7_signed_info *sinfo = ctx->current_sinfo;
-	uint8_t aa[500], *aap = aa, len;
-	size_t aalen = sizeof(aa);
+	uint8_t *copy_aa = ctx->authattrs, len;
+	size_t copy_aalen;
 	int ret;
 
-	if (!ctx->authattr_hash)
+	if (!ctx->authattr_hash) {
+		ctx->authattrs_size = 0;
 		return 0;
+	}
 
 	LC_HASH_CTX_ON_STACK(hash_ctx, ctx->authattr_hash);
 
@@ -804,8 +809,10 @@ int pkcs7_sig_note_set_of_authattrs_enc(void *context, uint8_t *data,
 		return 0;
 
 	/* Encode the authenticated attributes */
-	CKINT(asn1_ber_encoder_small(&pkcs7_aa_encoder, ctx, aa, &aalen));
-	aalen = sizeof(aa) - aalen;
+	ctx->authattrs_size = sizeof(ctx->authattrs);
+	CKINT(asn1_ber_encoder_small(&pkcs7_aa_encoder, ctx, ctx->authattrs,
+				     &ctx->authattrs_size));
+	ctx->authattrs_size = sizeof(ctx->authattrs) - ctx->authattrs_size;
 
 	if (!(sinfo->aa_set & sinfo_has_content_type) ||
 	    !(sinfo->aa_set & sinfo_has_message_digest)) {
@@ -822,28 +829,29 @@ int pkcs7_sig_note_set_of_authattrs_enc(void *context, uint8_t *data,
 	CKINT(lc_hash_init(hash_ctx));
 	ctx->authattrs_digest_size = sizeof(ctx->authattrs_digest);
 	CKINT(x509_set_digestsize(&ctx->authattrs_digest_size, hash_ctx));
-
-	aa[0] = ASN1_CONS_BIT | ASN1_SET;
-	lc_hash_update(hash_ctx, aap, aalen);
+	ctx->authattrs[0] = ASN1_CONS_BIT | ASN1_SET;
+	lc_hash_update(hash_ctx, ctx->authattrs, ctx->authattrs_size);
 	lc_hash_final(hash_ctx, ctx->authattrs_digest);
 	lc_hash_zero(hash_ctx);
 	bin2print_debug(ctx->authattrs_digest, ctx->authattrs_digest_size,
 			stdout, "Generated signerInfos AADigest");
 
-	bin2print_debug(aap, aalen, stdout, "AA");
+	bin2print_debug(ctx->authattrs, ctx->authattrs_size, stdout, "AA");
 
 	/*
 	 * The following code throws away the outer tag and message size which
 	 * is added by this specific parser.
 	 */
+	copy_aalen = ctx->authattrs_size;
+
 	/* Consume the tag */
-	aap++;
-	aalen--;
+	copy_aa++;
+	copy_aalen--;
 
 	/* Consume the length field */
-	len = *aap;
-	aap++;
-	aalen--;
+	len = *copy_aa;
+	copy_aa++;
+	copy_aalen--;
 
 	/* Check if we have an extended length field and consume it */
 	if (len > 0x7f) {
@@ -853,14 +861,14 @@ int pkcs7_sig_note_set_of_authattrs_enc(void *context, uint8_t *data,
 		len -= 0x80;
 		if (len > 3)
 			return -EINVAL;
-		aap += len;
-		aalen -= len;
+		copy_aa += len;
+		copy_aalen -= len;
 	}
 
 	/* Copy the final message into the buffer */
-	CKINT(x509_sufficient_size(avail_datalen, aalen));
-	memcpy(data, aap, aalen);
-	*avail_datalen -= aalen;
+	CKINT(x509_sufficient_size(avail_datalen, copy_aalen));
+	memcpy(data, copy_aa, copy_aalen);
+	*avail_datalen -= copy_aalen;
 
 out:
 	return ret;
@@ -975,6 +983,9 @@ int pkcs7_sig_note_signature_enc(void *context, uint8_t *data,
 	CKINT(pkcs7_get_digest(&sig.hash_algo, sinfo));
 
 	/*
+	 * If authenticated attributes are present, then a pure operation of
+	 * the signature generation is to be applied.
+	 *
 	 * If a hash algorithm is present, apply it by generating the digest
 	 * over the message. This implies we have a pre-hashed signature.
 	 *
@@ -985,7 +996,10 @@ int pkcs7_sig_note_signature_enc(void *context, uint8_t *data,
 	 * signed. Therefore, with the authenticated attributes present we must
 	 * have a digest algorithm.
 	 */
-	if (sig.hash_algo) {
+	if (ctx->authattrs_size) {
+		sig.raw_data = ctx->authattrs;
+		sig.raw_data_len = ctx->authattrs_size;
+	} else if (sig.hash_algo) {
 		if (ctx->authattrs_digest_size) {
 			memcpy(sig.digest, ctx->authattrs_digest,
 			       ctx->authattrs_digest_size);
@@ -997,7 +1011,6 @@ int pkcs7_sig_note_signature_enc(void *context, uint8_t *data,
 		}
 
 		sig.digest_size = ctx->authattrs_digest_size;
-
 	} else {
 		if (ctx->authattrs_digest_size)
 			return -EINVAL;

@@ -75,8 +75,6 @@ static int pkcs7_digest(struct lc_pkcs7_message *pkcs7,
 	 * digest we just calculated.
 	 */
 	if (sinfo->authattrs) {
-		static const uint8_t tag = ASN1_CONS_BIT | ASN1_SET;
-
 		if (!sinfo->msgdigest) {
 			printf_debug("Sig %u: No messageDigest\n",
 				     sinfo->index);
@@ -103,6 +101,13 @@ static int pkcs7_digest(struct lc_pkcs7_message *pkcs7,
 		}
 
 		/*
+		 * All PQC algorithms currently consume the authenticated
+		 * attributes directly without prehashing.
+		 *
+		 * Thus, the prehashing step here is not needed.
+		 */
+#if 0
+		/*
 		 * We then calculate anew, using the authenticated attributes
 		 * as the contents of the digest instead. Note that we need to
 		 * convert the attributes from a CONT.0 into a SET before we
@@ -112,7 +117,8 @@ static int pkcs7_digest(struct lc_pkcs7_message *pkcs7,
 		CKINT(lc_hash_init(hash_ctx));
 		sig->digest_size = sizeof(sig->digest);
 		CKINT(x509_set_digestsize(&sig->digest_size, hash_ctx));
-		lc_hash_update(hash_ctx, &tag, 1);
+		lc_hash_update(hash_ctx, &lc_pkcs7_authattr_tag,
+			       sizeof(lc_pkcs7_authattr_tag));
 		lc_hash_update(hash_ctx, sinfo->authattrs,
 			       sinfo->authattrs_len);
 		lc_hash_final(hash_ctx, sig->digest);
@@ -120,6 +126,11 @@ static int pkcs7_digest(struct lc_pkcs7_message *pkcs7,
 
 		bin2print_debug(sig->digest, sig->digest_size, stdout,
 				"signerInfos AADigest");
+#endif
+
+		sig->authattrs = sinfo->authattrs;
+		sig->authattrs_size = sinfo->authattrs_len;
+
 	}
 
 out:

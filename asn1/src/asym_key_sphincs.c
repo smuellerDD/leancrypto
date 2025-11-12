@@ -24,6 +24,7 @@
 #include "ext_headers_internal.h"
 #include "lc_hash.h"
 #include "lc_sphincs.h"
+#include "pkcs7_internal.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
 #include "x509_algorithm_mapper.h"
@@ -66,8 +67,10 @@ int public_key_verify_signature_sphincs(
 
 	CKINT(lc_sphincs_pk_load(&ws->sphincs_pk, pkey->key, pkey->keylen));
 	if (fast) {
+		printf_debug("SLH-DSA use fast key type\n");
 		CKINT(lc_sphincs_pk_set_keytype_fast(&ws->sphincs_pk));
 	} else {
+		printf_debug("SLH-DSA use small key type\n");
 		CKINT(lc_sphincs_pk_set_keytype_small(&ws->sphincs_pk));
 	}
 
@@ -76,19 +79,41 @@ int public_key_verify_signature_sphincs(
 	/*
 	 * Select the data to be signed
 	 */
-	if (sig->digest_size) {
+	if (sig->authattrs) {
+		uint8_t a[500];
+
+		if (sig->authattrs_size >= sizeof(a))
+			return -EOVERFLOW;
+
+		printf_debug("SLH-DSA signature verification of authenticated attributes\n");
+
+		/*
+		 * SLH-DSA init/update/final operates like a pre-hash variant
+		 * and thus cannot be used here. This implies, we need to use
+		 * the one-shot operation.
+		 */
+		a[0] = lc_pkcs7_authattr_tag;
+		memcpy(a + 1, sig->authattrs, sig->authattrs_size);
+		CKINT(lc_sphincs_verify_ctx(&ws->sphincs_sig, ctx,
+					    a, sig->authattrs_size + 1,
+					    &ws->sphincs_pk));
+	} else if (sig->digest_size) {
+		printf_debug("SLH-DSA signature verification of pre-hashed data\n");
+
 		CKINT(public_key_set_prehash_sphincs(sig, ctx));
 
 		/*
-		 * Verify the signature
+		 * Verify the signature of a pre-hashed message
 		 */
 		CKINT(lc_sphincs_verify_ctx(&ws->sphincs_sig, ctx, sig->digest,
 					    sig->digest_size, &ws->sphincs_pk));
 	} else {
+		printf_debug("SLH-DSA signature verification of raw data\n");
+
 		CKNULL(sig->raw_data, -EOPNOTSUPP);
 
 		/*
-		 * Verify the signature
+		 * Verify the signature of raw data
 		 */
 		CKINT(lc_sphincs_verify_ctx(&ws->sphincs_sig, ctx,
 					    sig->raw_data, sig->raw_data_len,
@@ -118,8 +143,10 @@ int public_key_generate_signature_sphincs(
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	if (fast) {
+		printf_debug("SLH-DSA use fast key type\n");
 		CKINT(lc_sphincs_sk_set_keytype_fast(sphincs_sk));
 	} else {
+		printf_debug("SLH-DSA use small key type\n");
 		CKINT(lc_sphincs_sk_set_keytype_small(sphincs_sk));
 	}
 
@@ -127,6 +154,8 @@ int public_key_generate_signature_sphincs(
 	 * Select the data to be signed
 	 */
 	if (sig->digest_size) {
+		printf_debug("SLH-DSA signature generation of pre-hashed data\n");
+
 		CKINT(public_key_set_prehash_sphincs(sig, ctx));
 
 		/*
@@ -136,10 +165,12 @@ int public_key_generate_signature_sphincs(
 					  sig->digest_size, sphincs_sk,
 					  lc_seeded_rng));
 	} else {
+		printf_debug("SLH-DSA signature generation of raw data\n");
+
 		CKNULL(sig->raw_data, -EOPNOTSUPP);
 
 		/*
-		 * Verify the signature
+		 * Sign the registered data
 		 */
 		CKINT(lc_sphincs_sign_ctx(&ws->sphincs_sig, ctx, sig->raw_data,
 					  sig->raw_data_len, sphincs_sk,

@@ -282,25 +282,46 @@ int print_pkcs7_data(const struct lc_pkcs7_message *pkcs7_msg)
 	const char *hash_name;
 	int ret = 0;
 
-	printf("======= X.509 certificate listing ==========\n");
+	printf("=== X.509 certificate listing ===\n");
 	while (cert) {
+		printf("--- One X.509 certificate listing ---\n");
 		print_x509_cert(cert);
-		printf("====== End one certificate ==========\n");
+		printf("--- End one X.509 certificate listing ---\n");
 		cert = cert->next;
 	}
 
 	if (sinfos)
-		printf("======= PKCS7 signed info listing ==========\n");
+		printf("=== PKCS7 signed info listing ===\n");
 	while (sinfos) {
 		struct lc_public_key_signature *sig = &sinfos->sig;
 
 		/* Print signer */
-		if (sinfos->signer)
+		if (sinfos->signer) {
+			printf("--- X.509 signer certificate listing ---\n");
 			print_x509_cert(sinfos->signer);
+			printf("--- End X.509 signer certificate listing ---\n");
+		}
 
 		if (sinfos->authattrs_len) {
+			struct lc_tm time_detail;
+
+			printf("--- PKCS#7 authenticate attribute listing ---\n");
+
 			bin2print(sinfos->authattrs, sinfos->authattrs_len,
 				  stdout, "Signed Authinfo");
+			if (sinfos->msgdigest) {
+				bin2print(sinfos->msgdigest,
+					  sinfos->msgdigest_len, stdout,
+					  "Signed message digest");
+			}
+
+			CKINT(lc_gmtime(sinfos->signing_time, &time_detail));
+			printf("Signing time: %.4d-%.2d-%.2d %.2d:%.2d:%.2dZ\n",
+			       time_detail.year & 0x1FFF, time_detail.month,
+			       time_detail.day, time_detail.hour,
+			       time_detail.min, time_detail.sec);
+
+			printf("--- End PKCS#7 authenticate attribute listing ---\n");
 		}
 
 		_print_x509_sinature_algo(&sinfos->sig);

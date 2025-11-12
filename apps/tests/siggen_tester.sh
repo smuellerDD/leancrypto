@@ -56,7 +56,8 @@ fi
 opensslver=$(openssl --version | cut -f 2 -d" ")
 openssl_ver_may=$(echo $opensslver | cut -f1 -d ".")
 openssl_ver_min=$(echo $opensslver | cut -f2 -d ".")
-if [ "$openssl_ver_may" -lt "2" -o "$openssl_ver_min" -lt "5" ]
+openssl_ver_patch=$(echo $opensslver | cut -f3 -d ".")
+if [ "$openssl_ver_may" -lt "2" -o "$openssl_ver_min" -lt "5" -o "$openssl_ver_patch" -lt "2" ]
 then
 	exit 77
 fi
@@ -65,7 +66,7 @@ TMPDIR="./tmp.$$"
 
 global_failure_count=0
 
-#trap "rm -rf $TMPDIR" 0 1 2 3 15
+trap "rm -rf $TMPDIR" 0 1 2 3 15
 mkdir $TMPDIR
 
 pk_file="${TMPDIR}/siggen_tester_cert.der"
@@ -307,6 +308,7 @@ ossl_verify_cert() {
 	 -binary \
 	 -in ${pk_file}.p7b \
 	 -CAfile ${pk_file} \
+	 -content ${pk_file} \
 	 -inform DER >/dev/null
 
 	if [ $? -ne 0 ]
@@ -321,30 +323,39 @@ ossl_verify_cert() {
 ################################################################################
 # TEST 1
 #
-# Leancrypto-internal operation: generate key/cert and use it for signature
-# generation and verification
+# Leancrypto generation of key/cert and use it for signature generation and
+# verification
 #
 lc_internal() {
 	lc_generate_cert_pkcs8 $1
 
 	lc_sign_cert
 	lc_verify_cert
+
+	ossl_sign_cert
+	lc_verify_cert
+
+	lc_sign_cert
+	ossl_verify_cert
 }
 
 ################################################################################
 # TEST 2
 #
-# OpensSSL generated PKCS8 key and CA certificate used with Leancrypto sign
-# and verifiyoperation: generate key/cert and use it for signature
-# generation and verification
-#echo_info "OpenSSL key generation and Leancrypto siggen/sigver testing"
-
-
+# OpenSSL generation of key/cert and use it for signature generation and
+# verification
+#
 ossl_keygen_lc_op() {
 	ossl_generate_cert_pkcs8 $1
 
 	lc_sign_cert
 	lc_verify_cert
+
+	ossl_sign_cert
+	lc_verify_cert
+
+	lc_sign_cert
+	ossl_verify_cert
 }
 
 case $TESTTYPE

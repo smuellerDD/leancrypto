@@ -631,6 +631,11 @@ out:
 }
 
 /*
+ * This is the tag to be used as the leading tag for authenticated attributes.
+ */
+const uint8_t lc_pkcs7_authattr_tag = ASN1_CONS_BIT | ASN1_SET;
+
+/*
  * Note the issuing certificate serial number
  */
 int pkcs7_sig_note_serial(void *context, size_t hdrlen, unsigned char tag,

@@ -238,6 +238,12 @@ struct lc_public_key_signature {
 	size_t raw_data_len;
 
 	/*
+	 * Pointers to authenticated attributes to be signed.
+	 */
+	const uint8_t *authattrs;
+	size_t authattrs_size;
+
+	/*
 	 * Auth IDs of the signer
 	 */
 	struct lc_asymmetric_key_id auth_ids[3];

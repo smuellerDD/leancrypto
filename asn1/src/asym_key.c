@@ -1113,8 +1113,14 @@ int asym_keypair_gen(struct lc_x509_certificate *cert,
 	case LC_SIG_DILITHIUM_87:
 		dilithium_key_type = LC_DILITHIUM_87;
 	load_dilithium:
-		// TODO: make it selectable from the caller
-		if (1) {
+		/*
+		 * TODO: make it selectable from the caller
+		 * Until this can be made selectable, use the full key
+		 * as OpenSSL does not support the seed key format in the
+		 * PKCS#8 blob. If it is selectable, make sure that for the
+		 * OpenSSL interop tests the regular key is used.
+		 */
+		if (0) {
 			CKINT(asym_keypair_gen_seed(keys, "ML-DSA", 6));
 			CKINT(lc_dilithium_keypair_from_seed(
 				keys->pk.dilithium_pk, keys->sk.dilithium_sk,
@@ -1161,7 +1167,6 @@ int asym_keypair_gen(struct lc_x509_certificate *cert,
 	case LC_SIG_SPINCS_SHAKE_256S:
 		sphincs_key_type = LC_SPHINCS_SHAKE_256s;
 	load_sphincs:
-		// TODO: make it selectable from the caller
 		/*
 		 * NOTE: lc_sphincs_keypair_from_seed currently disables
 		 * the derivation of key material from seed as it is not

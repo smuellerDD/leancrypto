@@ -63,6 +63,8 @@ int pkcs7_x509_get(struct lc_x509_certificate **x509,
 		   struct lc_pkcs7_message *pkcs7);
 void pkcs7_x509_free(struct lc_x509_certificate *x509);
 
+extern const uint8_t lc_pkcs7_authattr_tag;
+
 #ifdef __cplusplus
 }
 #endif

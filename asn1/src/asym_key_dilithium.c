@@ -25,6 +25,7 @@
 #include "lc_dilithium.h"
 #include "lc_hash.h"
 #include "lc_memcmp_secure.h"
+#include "pkcs7_internal.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
 #include "x509_algorithm_mapper.h"
@@ -72,20 +73,39 @@ int public_key_verify_signature_dilithium(
 	/*
 	 * Select the data to be signed
 	 */
-	if (sig->digest_size) {
+	if (sig->authattrs) {
+		printf_debug("ML-DSA signature verification of authenticated attributes\n");
+
+		/*
+		 * Verify the signature using the authenticated attributes
+		 */
+		CKINT(lc_dilithium_verify_init(ctx, &ws->dilithium_pk));
+		CKINT(lc_dilithium_verify_update(
+			ctx, &lc_pkcs7_authattr_tag,
+			sizeof(lc_pkcs7_authattr_tag)));
+		CKINT(lc_dilithium_verify_update(ctx, sig->authattrs,
+						 sig->authattrs_size));
+		CKINT(lc_dilithium_verify_final(&ws->dilithium_sig, ctx,
+					        &ws->dilithium_pk));
+
+	} else if (sig->digest_size) {
+		printf_debug("ML-DSA signature verification of pre-hashed data\n");
+
 		CKINT(public_key_set_prehash_dilithium(sig, ctx));
 
 		/*
-		 * Verify the signature
+		 * Verify the signature of a pre-hashed message
 		 */
 		CKINT(lc_dilithium_verify_ctx(&ws->dilithium_sig, ctx,
 					      sig->digest, sig->digest_size,
 					      &ws->dilithium_pk));
 	} else {
+		printf_debug("ML-DSA signature verification of raw data\n");
+
 		CKNULL(sig->raw_data, -EOPNOTSUPP);
 
 		/*
-		 * Verify the signature
+		 * Verify the signature of raw data
 		 */
 		CKINT(lc_dilithium_verify_ctx(&ws->dilithium_sig, ctx,
 					      sig->raw_data, sig->raw_data_len,
@@ -118,6 +138,8 @@ int public_key_generate_signature_dilithium(
 	 * Select the data to be signed
 	 */
 	if (sig->digest_size) {
+		printf_debug("ML-DSA signature generation of pre-hashed data\n");
+
 		CKINT(public_key_set_prehash_dilithium(sig, ctx));
 
 		/*
@@ -127,10 +149,12 @@ int public_key_generate_signature_dilithium(
 					    sig->digest, sig->digest_size,
 					    dilithium_sk, lc_seeded_rng));
 	} else {
+		printf_debug("ML-DSA signature generation of raw data\n");
+
 		CKNULL(sig->raw_data, -EOPNOTSUPP);
 
 		/*
-		 * Verify the signature
+		 * Sign the registered data
 		 */
 		CKINT(lc_dilithium_sign_ctx(&ws->dilithium_sig, ctx,
 					    sig->raw_data, sig->raw_data_len,
@@ -175,7 +199,7 @@ int x509_mldsa_private_key_expanded_enc(void *context, uint8_t *data,
 					size_t *avail_datalen, uint8_t *tag)
 {
 #ifdef LC_X509_GENERATOR
-	const struct x509_generate_privkey_context *ctx = context;
+	struct x509_generate_privkey_context *ctx = context;
 	const struct lc_x509_key_data *keys = ctx->keys;
 	size_t pqc_pklen;
 	uint8_t *pqc_ptr;
@@ -184,8 +208,12 @@ int x509_mldsa_private_key_expanded_enc(void *context, uint8_t *data,
 	(void)tag;
 
 	/* Only write out the full key if there was no seed. */
-	if (keys->sk_seed_set)
+//	if (keys->sk_seed_set)
+//		return 0;
+
+	if (ctx->sk_full_written)
 		return 0;
+	ctx->sk_full_written = 1;
 
 	CKINT(lc_dilithium_sk_ptr(&pqc_ptr, &pqc_pklen, keys->sk.dilithium_sk));
 
@@ -210,15 +238,21 @@ int x509_mldsa_private_key_seed_enc(void *context, uint8_t *data,
 				    size_t *avail_datalen, uint8_t *tag)
 {
 #ifdef LC_X509_GENERATOR
-	const struct x509_generate_privkey_context *ctx = context;
+	struct x509_generate_privkey_context *ctx = context;
 	const struct lc_x509_key_data *keys = ctx->keys;
 	int ret;
 
 	(void)tag;
 
-	/* Only write out the seed if there was a seed */
+	/*
+	 * Only write out the seed if there was a seed
+	 */
 	if (!keys->sk_seed_set)
 		return 0;
+
+	if (ctx->sk_seed_written)
+		return 0;
+	ctx->sk_seed_written = 1;
 
 	/* Set OCTET STRING of priv key seed */
 	CKINT(x509_concatenate_bit_string(&data, avail_datalen, keys->sk_seed,
