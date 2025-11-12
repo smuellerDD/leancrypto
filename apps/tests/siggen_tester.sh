@@ -52,12 +52,22 @@ then
 	exit 77
 fi
 
-# We need OpenSSL version 3.5 as a minimum
+# We need OpenSSL version 3.5.2 as a minimum
 opensslver=$(openssl --version | cut -f 2 -d" ")
 openssl_ver_may=$(echo $opensslver | cut -f1 -d ".")
 openssl_ver_min=$(echo $opensslver | cut -f2 -d ".")
 openssl_ver_patch=$(echo $opensslver | cut -f3 -d ".")
-if [ "$openssl_ver_may" -lt "2" -o "$openssl_ver_min" -lt "5" -o "$openssl_ver_patch" -lt "2" ]
+if [ "$openssl_ver_may" -lt "3" ]
+then
+	exit 77
+fi
+
+if [ "$openssl_ver_may" -eq "3" -a "$openssl_ver_min" -lt "5" ]
+then
+	exit 77
+fi
+
+if [ "$openssl_ver_may" -eq "3" -a "$openssl_ver_min" -eq "5"  -a "$openssl_ver_patch" -lt "2" ]
 then
 	exit 77
 fi
