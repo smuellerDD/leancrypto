@@ -54,6 +54,10 @@ fi
 
 # We need OpenSSL version 3.5.2 as a minimum
 opensslver=$(openssl --version | cut -f 2 -d" ")
+if [ -z "$opensslver" ]
+then
+	exit 77
+fi
 openssl_ver_may=$(echo $opensslver | cut -f1 -d ".")
 openssl_ver_min=$(echo $opensslver | cut -f2 -d ".")
 openssl_ver_patch=$(echo $opensslver | cut -f3 -d ".")
