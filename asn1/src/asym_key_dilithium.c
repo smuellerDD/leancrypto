@@ -74,22 +74,23 @@ int public_key_verify_signature_dilithium(
 	 * Select the data to be signed
 	 */
 	if (sig->authattrs) {
-		printf_debug("ML-DSA signature verification of authenticated attributes\n");
+		printf_debug(
+			"ML-DSA signature verification of authenticated attributes\n");
 
 		/*
 		 * Verify the signature using the authenticated attributes
 		 */
 		CKINT(lc_dilithium_verify_init(ctx, &ws->dilithium_pk));
-		CKINT(lc_dilithium_verify_update(
-			ctx, &lc_pkcs7_authattr_tag,
-			sizeof(lc_pkcs7_authattr_tag)));
+		CKINT(lc_dilithium_verify_update(ctx, &lc_pkcs7_authattr_tag,
+						 sizeof(lc_pkcs7_authattr_tag)));
 		CKINT(lc_dilithium_verify_update(ctx, sig->authattrs,
 						 sig->authattrs_size));
 		CKINT(lc_dilithium_verify_final(&ws->dilithium_sig, ctx,
-					        &ws->dilithium_pk));
+						&ws->dilithium_pk));
 
 	} else if (sig->digest_size) {
-		printf_debug("ML-DSA signature verification of pre-hashed data\n");
+		printf_debug(
+			"ML-DSA signature verification of pre-hashed data\n");
 
 		CKINT(public_key_set_prehash_dilithium(sig, ctx));
 
@@ -138,7 +139,8 @@ int public_key_generate_signature_dilithium(
 	 * Select the data to be signed
 	 */
 	if (sig->authattrs) {
-		printf_debug("ML-DSA signature generation of authenticated attributes\n");
+		printf_debug(
+			"ML-DSA signature generation of authenticated attributes\n");
 
 		/*
 		 * Sign the authenticated attributes data
@@ -147,7 +149,8 @@ int public_key_generate_signature_dilithium(
 					    sig->authattrs, sig->authattrs_size,
 					    dilithium_sk, lc_seeded_rng));
 	} else if (sig->digest_size) {
-		printf_debug("ML-DSA signature generation of pre-hashed data\n");
+		printf_debug(
+			"ML-DSA signature generation of pre-hashed data\n");
 
 		CKINT(public_key_set_prehash_dilithium(sig, ctx));
 

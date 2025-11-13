@@ -91,7 +91,8 @@ int public_key_verify_signature_sphincs(
 			goto out;
 		}
 
-		printf_debug("SLH-DSA signature verification of authenticated attributes\n");
+		printf_debug(
+			"SLH-DSA signature verification of authenticated attributes\n");
 
 		/*
 		 * SLH-DSA init/update/final operates like a pre-hash variant
@@ -100,11 +101,12 @@ int public_key_verify_signature_sphincs(
 		 */
 		aa[0] = lc_pkcs7_authattr_tag;
 		memcpy(aa + 1, sig->authattrs, sig->authattrs_size);
-		CKINT(lc_sphincs_verify_ctx(&ws->sphincs_sig, ctx,
-					    aa, sig->authattrs_size + 1,
+		CKINT(lc_sphincs_verify_ctx(&ws->sphincs_sig, ctx, aa,
+					    sig->authattrs_size + 1,
 					    &ws->sphincs_pk));
 	} else if (sig->digest_size) {
-		printf_debug("SLH-DSA signature verification of pre-hashed data\n");
+		printf_debug(
+			"SLH-DSA signature verification of pre-hashed data\n");
 
 		CKINT(public_key_set_prehash_sphincs(sig, ctx));
 
@@ -160,7 +162,8 @@ int public_key_generate_signature_sphincs(
 	 * Select the data to be signed
 	 */
 	if (sig->authattrs) {
-		printf_debug("SLH-DSA signature generation of authenticated attributes\n");
+		printf_debug(
+			"SLH-DSA signature generation of authenticated attributes\n");
 
 		/*
 		 * Sign the authenticated attributes data
@@ -169,7 +172,8 @@ int public_key_generate_signature_sphincs(
 					  sig->authattrs_size, sphincs_sk,
 					  lc_seeded_rng));
 	} else if (sig->digest_size) {
-		printf_debug("SLH-DSA signature generation of pre-hashed data\n");
+		printf_debug(
+			"SLH-DSA signature generation of pre-hashed data\n");
 
 		CKINT(public_key_set_prehash_sphincs(sig, ctx));
 
@@ -341,8 +345,8 @@ out:
 }
 
 int asym_keypair_gen_sphincs(struct lc_x509_certificate *cert,
-			       struct lc_x509_key_data *keys,
-			       enum lc_sphincs_type sphincs_key_type)
+			     struct lc_x509_key_data *keys,
+			     enum lc_sphincs_type sphincs_key_type)
 {
 	int ret;
 

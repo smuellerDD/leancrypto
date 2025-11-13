@@ -70,11 +70,10 @@ int asym_set_sphincs_keypair(struct lc_x509_key_data *gen_data,
 }
 
 int asym_keypair_gen_sphincs(struct lc_x509_certificate *cert,
-			       struct lc_x509_key_data *keys,
-			       enum lc_sphincs_type sphincs_key_type)
+			     struct lc_x509_key_data *keys,
+			     enum lc_sphincs_type sphincs_key_type)
 {
 	(void)cert;
 	(void)keys;
-	(void)sphincs_key_type
-	return -ENOPKG;
+	(void)sphincs_key_type return -ENOPKG;
 }

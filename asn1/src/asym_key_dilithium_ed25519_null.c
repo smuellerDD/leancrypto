@@ -78,9 +78,9 @@ int asym_set_dilithium_ed25519_keypair(struct lc_x509_key_data *gen_data,
 	return -ENOPKG;
 }
 
-int asym_keypair_gen_dilithium_ed25519(
-	struct lc_x509_certificate *cert, struct lc_x509_key_data *keys,
-	enum lc_dilithium_type dilithium_key_type)
+int asym_keypair_gen_dilithium_ed25519(struct lc_x509_certificate *cert,
+				       struct lc_x509_key_data *keys,
+				       enum lc_dilithium_type dilithium_key_type)
 {
 	(void)cert;
 	(void)keys;

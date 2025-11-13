@@ -271,9 +271,9 @@ out:
 	return ret;
 }
 
-static int public_key_dilithium_ed448_get_data(
-	const uint8_t **data_ptr, size_t *data_len,
-	const struct lc_public_key_signature *sig)
+static int
+public_key_dilithium_ed448_get_data(const uint8_t **data_ptr, size_t *data_len,
+				    const struct lc_public_key_signature *sig)
 {
 	/*
 	 * Select the data to be signed
@@ -524,9 +524,9 @@ out:
 	return ret;
 }
 
-int asym_keypair_gen_dilithium_ed25519(
-	struct lc_x509_certificate *cert, struct lc_x509_key_data *keys,
-	enum lc_dilithium_type dilithium_key_type)
+int asym_keypair_gen_dilithium_ed25519(struct lc_x509_certificate *cert,
+				       struct lc_x509_key_data *keys,
+				       enum lc_dilithium_type dilithium_key_type)
 {
 	struct workspace {
 		struct lc_dilithium_pk pk;

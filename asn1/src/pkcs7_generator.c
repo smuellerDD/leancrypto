@@ -531,8 +531,7 @@ int pkcs7_external_aa_OID_enc(void *context, uint8_t *data,
 
 	(void)tag;
 
-	if (pkcs7_authenticated_attr_unprocessed(
-			   ctx, sinfo_has_content_type)) {
+	if (pkcs7_authenticated_attr_unprocessed(ctx, sinfo_has_content_type)) {
 		CKINT(OID_to_data(OID_contentType, &oid_data, &oid_datalen));
 		bin2print_debug(oid_data, oid_datalen, stdout, "OID data type");
 	} else if (pkcs7_authenticated_attr_unprocessed(
@@ -668,8 +667,7 @@ int pkcs7_external_aa_enc(void *context, uint8_t *data, size_t *avail_datalen,
 
 	(void)tag;
 
-	if (pkcs7_authenticated_attr_unprocessed(
-			   ctx, sinfo_has_content_type)) {
+	if (pkcs7_authenticated_attr_unprocessed(ctx, sinfo_has_content_type)) {
 		const uint8_t *oid_data = NULL;
 		size_t oid_datalen = 0;
 

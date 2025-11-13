@@ -229,10 +229,9 @@ static int print_x509_validity(const char *prefix, time64_t valid)
 	int ret;
 
 	CKINT(lc_gmtime(valid, &time_detail));
-	printf("%s: %d-%.2d-%.2d %.2d:%.2d:%.2dZ\n", prefix,
-	       time_detail.year, time_detail.month + 1,
-	       time_detail.day, time_detail.hour, time_detail.min,
-	       time_detail.sec);
+	printf("%s: %d-%.2d-%.2d %.2d:%.2d:%.2dZ\n", prefix, time_detail.year,
+	       time_detail.month + 1, time_detail.day, time_detail.hour,
+	       time_detail.min, time_detail.sec);
 
 out:
 	return ret;

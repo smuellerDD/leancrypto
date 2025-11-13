@@ -136,7 +136,6 @@ static int pkcs7_digest(struct lc_pkcs7_message *pkcs7,
 		 */
 		sig->authattrs = sinfo->authattrs;
 		sig->authattrs_size = sinfo->authattrs_len;
-
 	}
 
 out:

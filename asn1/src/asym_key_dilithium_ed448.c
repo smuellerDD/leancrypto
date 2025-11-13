@@ -282,9 +282,9 @@ out:
 	return ret;
 }
 
-static int public_key_dilithium_ed448_get_data(
-	const uint8_t **data_ptr, size_t *data_len,
-	const struct lc_public_key_signature *sig)
+static int
+public_key_dilithium_ed448_get_data(const uint8_t **data_ptr, size_t *data_len,
+				    const struct lc_public_key_signature *sig)
 {
 	/*
 	 * Select the data to be signed
