@@ -993,17 +993,35 @@ int asym_keypair_gen(struct lc_x509_certificate *cert,
 		     struct lc_x509_key_data *keys,
 		     enum lc_sig_types create_keypair_algo)
 {
+	unsigned int generate_sk_seed;
 	int ret;
+
+	CKNULL(cert, -EINVAL);
+	CKNULL(keys, -EINVAL);
+
+	/*
+	 * The sk_seed_set variable is overloaded at this point: when a caller
+	 * sets it, he requests the generation of a seed key. On the other
+	 * hand, this value indicates of any of the key generation operations
+	 * indeed generated a seed key which later on is used by the PKCS#8
+	 * generator to only store the seed key. Thus, we must reset it here
+	 * to avoid the caller interfering with the internal logic.
+	 */
+	generate_sk_seed = keys->sk_seed_set;
+	keys->sk_seed_set = 0;
 
 	switch (create_keypair_algo) {
 	case LC_SIG_DILITHIUM_44:
-		CKINT(asym_keypair_gen_dilithium(cert, keys, LC_DILITHIUM_44));
+		CKINT(asym_keypair_gen_dilithium(cert, keys, LC_DILITHIUM_44,
+						 generate_sk_seed));
 		break;
 	case LC_SIG_DILITHIUM_65:
-		CKINT(asym_keypair_gen_dilithium(cert, keys, LC_DILITHIUM_65));
+		CKINT(asym_keypair_gen_dilithium(cert, keys, LC_DILITHIUM_65,
+						 generate_sk_seed));
 		break;
 	case LC_SIG_DILITHIUM_87:
-		CKINT(asym_keypair_gen_dilithium(cert, keys, LC_DILITHIUM_87));
+		CKINT(asym_keypair_gen_dilithium(cert, keys, LC_DILITHIUM_87,
+						 generate_sk_seed));
 		break;
 
 	case LC_SIG_SPINCS_SHAKE_128F:

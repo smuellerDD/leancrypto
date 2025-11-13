@@ -86,6 +86,7 @@ struct x509_generator_opts {
 	unsigned int checker : 1;
 	unsigned int cert_present : 1;
 	unsigned int sk_is_pkcs8 : 1;
+	unsigned int generate_sk_seed : 1;
 };
 
 static int x509_check_file(const char *file)
@@ -683,6 +684,7 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 	LC_X509_LINK_INPUT_DATA(keys, key_input_data);
 
 	if (opts->create_keypair_algo) {
+		keys->sk_seed_set = opts->generate_sk_seed;
 		CKINT(lc_x509_keypair_gen(gcert, keys,
 					  opts->create_keypair_algo));
 
@@ -872,6 +874,11 @@ static void x509_generator_usage(void)
 	fprintf(stderr, "\t\t\t\t\ttype where private key is PKCS#8 blob\n");
 	fprintf(stderr, "\t\t\t\t\tNOTE: generated keys are written to file\n");
 	fprintf(stderr,
+		"\t   --create-keypair-pkcs8-seed <TYPE>\tCreate key pair of given\n");
+	fprintf(stderr, "\t\t\t\t\ttype where private key is PKCS#8 blob\n");
+	fprintf(stderr, "\t\t\t\t\tNOTE: if possible, generate seed key\n");
+	fprintf(stderr, "\t\t\t\t\tNOTE: generated keys are written to file\n");
+	fprintf(stderr,
 		"\t   --x509-signer <FILE>\t\tX.509 certificate of signer\n");
 	fprintf(stderr, "\t\t\t\t\tIf not set, create a self-signed\n");
 	fprintf(stderr, "\t\t\t\t\tcertificate\n");
@@ -1052,6 +1059,7 @@ int main(int argc, char *argv[])
 		{ "data-file", 1, 0, 0 },
 		{ "x509-cert", 1, 0, 0 },
 
+		{ "create-keypair-pkcs8-seed", 1, 0, 0 },
 		{ "create-keypair-pkcs8", 1, 0, 0 },
 
 		{ 0, 0, 0, 0 }
@@ -1370,8 +1378,12 @@ int main(int argc, char *argv[])
 				ws->parsed_opts.x509_cert_file = optarg;
 				break;
 
-			/* create-keypair-pkcs8 */
+			/* create-keypair-pkcs8-seed */
 			case 54:
+				ws->parsed_opts.generate_sk_seed = 1;
+				fallthrough;
+			/* create-keypair-pkcs8 */
+			case 55:
 				CKINT_LOG(
 					lc_x509_pkey_name_to_algorithm(
 						optarg,

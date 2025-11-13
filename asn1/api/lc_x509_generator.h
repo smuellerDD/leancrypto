@@ -153,6 +153,10 @@ int lc_x509_signature_gen(uint8_t *sig_data, size_t *siglen,
  *		     where the buffer must have the same lifetime as \p cert
  * @param [in] create_keypair_algo Algorithm to generate the key pair for
  *
+ * \note If keys->sk_seed_set is set to 1 by the caller, the function stores
+ * the ML-DSA seed key from which the full ML-DSA key pair is derived. When
+ * creating a PKCS#8 datablob from the key, only the seed key is then stored.
+ *
  * @return 0 on success, < 0 on error
  */
 int lc_x509_keypair_gen(struct lc_x509_certificate *cert,

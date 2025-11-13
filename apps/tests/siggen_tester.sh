@@ -219,6 +219,46 @@ lc_generate_cert_pkcs8() {
 	check_one_priv $sk_file
 }
 
+lc_generate_cert_pkcs8_seed() {
+	local keytype=$1
+
+	rm -f ${pk_file} ${sk_file}
+
+	echo_info "Leancrypto: Generate X.509 certificate and associated PKCS#8 private key"
+
+	$LC_X509_GENERATOR \
+	 --keyusage digitalSignature \
+	 --keyusage keyEncipherment \
+	 --keyusage keyCertSign \
+	 --keyusage critical \
+	 --ca \
+	 --valid-days 365 \
+	 --subject-cn 'leancrypto test CA' \
+	 --create-keypair-pkcs8-seed $keytype \
+	 --sk-file $sk_file \
+	 --outfile $pk_file
+
+	if [ $? -ne 0 ]
+	then
+		echo_fail "Failed leancrypto-internal certificate / PKCS#8 key generation"
+		global_failure_count=$(($global_failure_count+1))
+	else
+		echo_success "Successful leancrypto-internal certificate / PKCS#8 key generation"
+	fi
+
+	check_one $pk_file
+	check_one_priv $sk_file
+
+	local sk_size=$(stat --printf="%s" $sk_file)
+	if [ $sk_size -lt 100 ]
+	then
+		echo_success "PKCS#8 with seed key generated"
+	else
+		echo_fail "PKCS#8 does not seem to be a seed key"
+		global_failure_count=$(($global_failure_count+1))
+	fi
+}
+
 lc_sign_cert() {
 	rm -f ${pk_file}.p7b
 
@@ -340,7 +380,7 @@ ossl_verify_cert() {
 # Leancrypto generation of key/cert and use it for signature generation and
 # verification
 #
-lc_internal() {
+lc_keygen_lc_op() {
 	lc_generate_cert_pkcs8 $1
 
 	lc_sign_cert
@@ -372,42 +412,64 @@ ossl_keygen_lc_op() {
 	ossl_verify_cert
 }
 
+################################################################################
+# TEST 3
+#
+# Leancrypto seed key generation of key/cert and use it for signature generation
+# and verification
+#
+# NOTE OpenSSL does not support reading PKCS#8 blobs with seed keys, thus
+# only perform sigver with OpenSSL
+#
+lc_keygen_seed_lc_op() {
+	lc_generate_cert_pkcs8_seed $1
+
+	lc_sign_cert
+	lc_verify_cert
+
+	lc_sign_cert
+	ossl_verify_cert
+}
+
 case $TESTTYPE
 in
 	"ML-DSA87" | "ML-DSA-87")
-		lc_internal "ML-DSA87"
+		lc_keygen_lc_op "ML-DSA87"
 		ossl_keygen_lc_op "ML-DSA-87"
+		lc_keygen_seed_lc_op "ML-DSA87"
 	;;
 	"ML-DSA65" | "ML-DSA-65")
-		lc_internal "ML-DSA65"
+		lc_keygen_lc_op "ML-DSA65"
 		ossl_keygen_lc_op "ML-DSA-65"
+		lc_keygen_seed_lc_op "ML-DSA65"
 	;;
 	"ML-DSA44" | "ML-DSA-44")
-		lc_internal "ML-DSA44"
+		lc_keygen_lc_op "ML-DSA44"
 		ossl_keygen_lc_op "ML-DSA-44"
+		lc_keygen_seed_lc_op "ML-DSA44"
 	;;
 	"SLH-DSA-SHAKE-128F" | "SLH-DSA-SHAKE-128f")
-		lc_internal "SLH-DSA-SHAKE-128F"
+		lc_keygen_lc_op "SLH-DSA-SHAKE-128F"
 		ossl_keygen_lc_op "SLH-DSA-SHAKE-128f"
 	;;
 	"SLH-DSA-SHAKE-128S" | "SLH-DSA-SHAKE-128s")
-		lc_internal "SLH-DSA-SHAKE-128S"
+		lc_keygen_lc_op "SLH-DSA-SHAKE-128S"
 		ossl_keygen_lc_op "SLH-DSA-SHAKE-128s"
 	;;
 	"SLH-DSA-SHAKE-192F" | "SLH-DSA-SHAKE-192f")
-		lc_internal "SLH-DSA-SHAKE-192F"
+		lc_keygen_lc_op "SLH-DSA-SHAKE-192F"
 		ossl_keygen_lc_op "SLH-DSA-SHAKE-192f"
 	;;
 	"SLH-DSA-SHAKE-192S" | "SLH-DSA-SHAKE-192s")
-		lc_internal "SLH-DSA-SHAKE-192S"
+		lc_keygen_lc_op "SLH-DSA-SHAKE-192S"
 		ossl_keygen_lc_op "SLH-DSA-SHAKE-192s"
 	;;
 	"SLH-DSA-SHAKE-256F" | "SLH-DSA-SHAKE-256f")
-		lc_internal "SLH-DSA-SHAKE-256F"
+		lc_keygen_lc_op "SLH-DSA-SHAKE-256F"
 		ossl_keygen_lc_op "SLH-DSA-SHAKE-256f"
 	;;
 	"SLH-DSA-SHAKE-256S" | "SLH-DSA-SHAKE-256s")
-		lc_internal "SLH-DSA-SHAKE-256S"
+		lc_keygen_lc_op "SLH-DSA-SHAKE-256S"
 		ossl_keygen_lc_op "SLH-DSA-SHAKE-256s"
 	;;
 	*)
