@@ -1,4 +1,4 @@
-Changes 1.6.1-prerelease
+Changes 1.7.0-prerelease
 * FIPS: mark only seeded DRBG instances as FIPS-approved
 
 * ASN.1: add lc_x509_cert_check_issuer_ca convenience function
