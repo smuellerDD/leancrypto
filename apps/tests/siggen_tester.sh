@@ -53,7 +53,7 @@ then
 fi
 
 # We need OpenSSL version 3.5.2 as a minimum
-opensslver=$(openssl --version | cut -f 2 -d" ")
+opensslver=$($OPENSSL --version | cut -f 2 -d" ")
 if [ -z "$opensslver" ]
 then
 	exit 77
@@ -245,7 +245,14 @@ lc_generate_cert_pkcs8_seed() {
 	check_one $pk_file
 	check_one_priv $sk_file
 
-	local sk_size=$(stat --printf="%s" $sk_file)
+	local sk_size=""
+
+	if [ "$(uname -s) " = "Darwin" ]
+	then
+		sk_size=$(stat -f "%z" $sk_file)
+	else
+		sk_size=$(stat --printf="%s" $sk_file)
+	fi
 
 	# Use 170 to cover the largest seed keys of SLH-DSA
 	if [ $sk_size -lt 170 ]
