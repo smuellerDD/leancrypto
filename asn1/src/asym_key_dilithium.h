@@ -45,6 +45,10 @@ int asym_set_dilithium_keypair(struct lc_x509_key_data *gen_data,
 			       struct lc_dilithium_pk *pk,
 			       struct lc_dilithium_sk *sk);
 
+int asym_keypair_gen_dilithium(struct lc_x509_certificate *cert,
+			       struct lc_x509_key_data *keys,
+			       enum lc_dilithium_type dilithium_key_type);
+
 #ifdef __cplusplus
 }
 #endif

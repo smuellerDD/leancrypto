@@ -324,3 +324,36 @@ int asym_set_sphincs_keypair(struct lc_x509_key_data *gen_data,
 out:
 	return ret;
 }
+
+int asym_keypair_gen_sphincs(struct lc_x509_certificate *cert,
+			       struct lc_x509_key_data *keys,
+			       enum lc_sphincs_type sphincs_key_type)
+{
+	int ret;
+
+	/*
+	 * NOTE: lc_sphincs_keypair_from_seed currently disables
+	 * the derivation of key material from seed as it is not
+	 * defined in FIPS205.
+	 */
+	if (0) {
+		CKINT(asym_keypair_gen_seed(keys, "SLH-DSA", 7));
+		CKINT(lc_sphincs_keypair_from_seed(
+			keys->pk.sphincs_pk, keys->sk.sphincs_sk,
+			keys->sk_seed, LC_X509_PQC_SK_SEED_SIZE,
+			sphincs_key_type));
+	} else {
+		CKINT(lc_sphincs_keypair(
+			keys->pk.sphincs_pk, keys->sk.sphincs_sk,
+			lc_seeded_rng, sphincs_key_type));
+	}
+
+	CKINT(asym_set_sphincs_keypair(&cert->sig_gen_data,
+					keys->pk.sphincs_pk,
+					keys->sk.sphincs_sk));
+	CKINT(asym_set_sphincs_keypair(&cert->pub_gen_data,
+					keys->pk.sphincs_pk, NULL));
+
+out:
+	return ret;
+}

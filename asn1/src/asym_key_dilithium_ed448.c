@@ -510,3 +510,48 @@ int asym_set_dilithium_ed448_keypair(struct lc_x509_key_data *gen_data,
 out:
 	return ret;
 }
+
+int asym_keypair_gen_dilithium_ed448(struct lc_x509_certificate *cert,
+				     struct lc_x509_key_data *keys,
+				     enum lc_dilithium_type dilithium_key_type)
+{
+	struct workspace {
+		struct lc_dilithium_pk pk;
+		struct lc_dilithium_sk sk;
+		struct lc_ed448_pk pk_ed448;
+		struct lc_ed448_sk sk_ed448;
+	};
+	uint8_t *dilithium_pk_ptr, *dilithium_sk_ptr;
+	size_t dilithium_pk_len, dilithium_sk_len;
+	int ret;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+
+	CKINT(asym_keypair_gen_seed(keys, "ML-DSA-ED448", 12));
+
+	CKINT(lc_dilithium_keypair_from_seed(&ws->pk, &ws->sk, keys->sk_seed,
+					     LC_X509_PQC_SK_SEED_SIZE,
+					     dilithium_key_type));
+	CKINT(lc_dilithium_pk_ptr(&dilithium_pk_ptr, &dilithium_pk_len,
+				  &ws->pk));
+	CKINT(lc_dilithium_sk_ptr(&dilithium_sk_ptr, &dilithium_sk_len,
+				  &ws->sk));
+
+	CKINT(lc_ed448_keypair(&ws->pk_ed448, &ws->sk_ed448, lc_seeded_rng));
+
+	CKINT(lc_dilithium_ed448_sk_load(
+		keys->sk.dilithium_ed448_sk, dilithium_sk_ptr, dilithium_sk_len,
+		ws->sk_ed448.sk, LC_ED448_SECRETKEYBYTES));
+	CKINT(lc_dilithium_ed448_pk_load(
+		keys->pk.dilithium_ed448_pk, dilithium_pk_ptr, dilithium_pk_len,
+		ws->pk_ed448.pk, LC_ED448_PUBLICKEYBYTES));
+
+	CKINT(asym_set_dilithium_ed448_keypair(&cert->sig_gen_data,
+					       keys->pk.dilithium_ed448_pk,
+					       keys->sk.dilithium_ed448_sk));
+	CKINT(asym_set_dilithium_ed448_keypair(
+		&cert->pub_gen_data, keys->pk.dilithium_ed448_pk, NULL));
+
+out:
+	LC_RELEASE_MEM(ws);
+	return ret;
+}

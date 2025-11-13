@@ -67,3 +67,23 @@ int public_key_generate_signature_dilithium_ed25519(
 	(void)available_len;
 	return -ENOPKG;
 }
+
+int asym_set_dilithium_ed25519_keypair(struct lc_x509_key_data *gen_data,
+				       struct lc_dilithium_ed25519_pk *pk,
+				       struct lc_dilithium_ed25519_sk *sk)
+{
+	(void)gen_data;
+	(void)pk;
+	(void)sk;
+	return -ENOPKG;
+}
+
+int asym_keypair_gen_dilithium_ed25519(
+	struct lc_x509_certificate *cert, struct lc_x509_key_data *keys,
+	enum lc_dilithium_type dilithium_key_type)
+{
+	(void)cert;
+	(void)keys;
+	(void)dilithium_key_type;
+	return -ENOPKG;
+}

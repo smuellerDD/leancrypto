@@ -499,3 +499,52 @@ int asym_set_dilithium_ed25519_keypair(struct lc_x509_key_data *gen_data,
 out:
 	return ret;
 }
+
+int asym_keypair_gen_dilithium_ed25519(
+	struct lc_x509_certificate *cert, struct lc_x509_key_data *keys,
+	enum lc_dilithium_type dilithium_key_type)
+{
+	struct workspace {
+		struct lc_dilithium_pk pk;
+		struct lc_dilithium_sk sk;
+		struct lc_ed25519_pk pk_ed25519;
+		struct lc_ed25519_sk sk_ed25519;
+	};
+	uint8_t *dilithium_pk_ptr, *dilithium_sk_ptr;
+	size_t dilithium_pk_len, dilithium_sk_len;
+	int ret;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+
+	/* Generate key par with ML-DSA from seed */
+	CKINT(asym_keypair_gen_seed(keys, "ML-DSA-ED25519", 14));
+
+	CKINT(lc_dilithium_keypair_from_seed(&ws->pk, &ws->sk, keys->sk_seed,
+					     LC_X509_PQC_SK_SEED_SIZE,
+					     dilithium_key_type));
+	CKINT(lc_dilithium_pk_ptr(&dilithium_pk_ptr, &dilithium_pk_len,
+				  &ws->pk));
+	CKINT(lc_dilithium_sk_ptr(&dilithium_sk_ptr, &dilithium_sk_len,
+				  &ws->sk));
+
+	CKINT(lc_ed25519_keypair(&ws->pk_ed25519, &ws->sk_ed25519,
+				 lc_seeded_rng));
+
+	CKINT(lc_dilithium_ed25519_sk_load(keys->sk.dilithium_ed25519_sk,
+					   dilithium_sk_ptr, dilithium_sk_len,
+					   ws->sk_ed25519.sk,
+					   LC_ED25519_SECRETKEYBYTES));
+	CKINT(lc_dilithium_ed25519_pk_load(keys->pk.dilithium_ed25519_pk,
+					   dilithium_pk_ptr, dilithium_pk_len,
+					   ws->pk_ed25519.pk,
+					   LC_ED25519_PUBLICKEYBYTES));
+
+	CKINT(asym_set_dilithium_ed25519_keypair(
+		&cert->sig_gen_data, keys->pk.dilithium_ed25519_pk,
+		keys->sk.dilithium_ed25519_sk));
+	CKINT(asym_set_dilithium_ed25519_keypair(
+		&cert->pub_gen_data, keys->pk.dilithium_ed25519_pk, NULL));
+
+out:
+	LC_RELEASE_MEM(ws);
+	return ret;
+}

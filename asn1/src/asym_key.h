@@ -81,6 +81,8 @@ int asym_keypair_gen(struct lc_x509_certificate *cert,
 		     enum lc_sig_types create_keypair_algo);
 int asym_keypair_load(struct lc_x509_certificate *cert,
 		      const struct lc_x509_key_data *keys);
+int asym_keypair_gen_seed(struct lc_x509_key_data *keys,
+			  const char *addtl_input, size_t addtl_input_len);
 
 #ifdef __cplusplus
 }

@@ -483,3 +483,37 @@ int asym_set_dilithium_keypair(struct lc_x509_key_data *gen_data,
 out:
 	return ret;
 }
+
+int asym_keypair_gen_dilithium(struct lc_x509_certificate *cert,
+			       struct lc_x509_key_data *keys,
+			       enum lc_dilithium_type dilithium_key_type)
+{
+	int ret;
+
+	/*
+	 * TODO: make it selectable from the caller
+	 * Until this can be made selectable, use the full key
+	 * as OpenSSL does not support the seed key format in the
+	 * PKCS#8 blob. If it is selectable, make sure that for the
+	 * OpenSSL interop tests the regular key is used.
+	 */
+	if (0) {
+		CKINT(asym_keypair_gen_seed(keys, "ML-DSA", 6));
+		CKINT(lc_dilithium_keypair_from_seed(
+			keys->pk.dilithium_pk, keys->sk.dilithium_sk,
+			keys->sk_seed, LC_X509_PQC_SK_SEED_SIZE,
+			dilithium_key_type));
+	} else {
+		CKINT(lc_dilithium_keypair(
+			keys->pk.dilithium_pk, keys->sk.dilithium_sk,
+			lc_seeded_rng, dilithium_key_type));
+	}
+	CKINT(asym_set_dilithium_keypair(&cert->sig_gen_data,
+						keys->pk.dilithium_pk,
+						keys->sk.dilithium_sk));
+	CKINT(asym_set_dilithium_keypair(&cert->pub_gen_data,
+						keys->pk.dilithium_pk, NULL));
+
+out:
+	return ret;
+}
