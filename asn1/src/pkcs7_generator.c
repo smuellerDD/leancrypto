@@ -826,15 +826,18 @@ int pkcs7_sig_note_set_of_authattrs_enc(void *context, uint8_t *data,
 		return -EBADMSG;
 	}
 
+	ctx->authattrs[0] = ASN1_CONS_BIT | ASN1_SET;
+
+#ifdef LC_PKCS7_AUTHATTRS_PREHASH
 	CKINT(lc_hash_init(hash_ctx));
 	ctx->authattrs_digest_size = sizeof(ctx->authattrs_digest);
 	CKINT(x509_set_digestsize(&ctx->authattrs_digest_size, hash_ctx));
-	ctx->authattrs[0] = ASN1_CONS_BIT | ASN1_SET;
 	lc_hash_update(hash_ctx, ctx->authattrs, ctx->authattrs_size);
 	lc_hash_final(hash_ctx, ctx->authattrs_digest);
 	lc_hash_zero(hash_ctx);
 	bin2print_debug(ctx->authattrs_digest, ctx->authattrs_digest_size,
 			stdout, "Generated signerInfos AADigest");
+#endif
 
 	bin2print_debug(ctx->authattrs, ctx->authattrs_size, stdout, "AA");
 

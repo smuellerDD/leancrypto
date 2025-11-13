@@ -27,6 +27,14 @@
 extern "C" {
 #endif
 
+/*
+ * All PQC algorithms currently consume the authenticated attributes directly
+ * without prehashing.
+ *
+ * Thus, the prehashing step here is not needed.
+ */
+#undef LC_PKCS7_AUTHATTRS_PREHASH
+
 struct pkcs7_parse_context {
 	struct lc_pkcs7_message *msg; /* Message being constructed */
 	struct lc_x509_certificate *certs; /* Certificate cache */

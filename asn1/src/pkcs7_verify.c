@@ -100,13 +100,7 @@ static int pkcs7_digest(struct lc_pkcs7_message *pkcs7,
 			goto out;
 		}
 
-		/*
-		 * All PQC algorithms currently consume the authenticated
-		 * attributes directly without prehashing.
-		 *
-		 * Thus, the prehashing step here is not needed.
-		 */
-#if 0
+#ifdef LC_PKCS7_AUTHATTRS_PREHASH
 		/*
 		 * We then calculate anew, using the authenticated attributes
 		 * as the contents of the digest instead. Note that we need to
