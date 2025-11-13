@@ -137,7 +137,16 @@ int public_key_generate_signature_dilithium(
 	/*
 	 * Select the data to be signed
 	 */
-	if (sig->digest_size) {
+	if (sig->authattrs) {
+		printf_debug("ML-DSA signature generation of authenticated attributes\n");
+
+		/*
+		 * Sign the authenticated attributes data
+		 */
+		CKINT(lc_dilithium_sign_ctx(&ws->dilithium_sig, ctx,
+					    sig->authattrs, sig->authattrs_size,
+					    dilithium_sk, lc_seeded_rng));
+	} else if (sig->digest_size) {
 		printf_debug("ML-DSA signature generation of pre-hashed data\n");
 
 		CKINT(public_key_set_prehash_dilithium(sig, ctx));

@@ -24,6 +24,7 @@
 #include "lc_x509_generator.h"
 #include "pkcs7_asn1.h"
 #include "pkcs7_aa_asn1.h"
+#include "pkcs7_internal.h"
 #include "oid_registry.h"
 #include "ret_checkers.h"
 #include "visibility.h"
@@ -57,7 +58,7 @@ struct pkcs7_generate_context {
 	size_t authattrs_digest_size;
 	size_t authattrs_size;
 	uint8_t authattrs_digest[LC_SHA_MAX_SIZE_DIGEST];
-	uint8_t authattrs[500];
+	uint8_t authattrs[LC_PKCS7_AUTHATTRS_MAX_SIZE];
 };
 
 /******************************************************************************
@@ -1000,8 +1001,8 @@ int pkcs7_sig_note_signature_enc(void *context, uint8_t *data,
 	 * have a digest algorithm.
 	 */
 	if (ctx->authattrs_size) {
-		sig.raw_data = ctx->authattrs;
-		sig.raw_data_len = ctx->authattrs_size;
+		sig.authattrs = ctx->authattrs;
+		sig.authattrs_size = ctx->authattrs_size;
 	} else if (sig.hash_algo) {
 		if (ctx->authattrs_digest_size) {
 			memcpy(sig.digest, ctx->authattrs_digest,

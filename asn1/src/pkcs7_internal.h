@@ -35,6 +35,17 @@ extern "C" {
  */
 #undef LC_PKCS7_AUTHATTRS_PREHASH
 
+/*
+ * Maximum size of the authenticated attribute part supported by the parser.
+ * This is required because for SLH-DSA, the authenticated attribute block
+ * must be copied to change the ASN.1 tag before performing a signature
+ * generation.
+ *
+ * Also, for the PKCS#7 generator, this size defines how much room is made
+ * available.
+ */
+#define LC_PKCS7_AUTHATTRS_MAX_SIZE 500
+
 struct pkcs7_parse_context {
 	struct lc_pkcs7_message *msg; /* Message being constructed */
 	struct lc_x509_certificate *certs; /* Certificate cache */

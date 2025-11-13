@@ -80,10 +80,16 @@ int public_key_verify_signature_sphincs(
 	 * Select the data to be signed
 	 */
 	if (sig->authattrs) {
-		uint8_t a[500];
+		uint8_t aa[LC_PKCS7_AUTHATTRS_MAX_SIZE];
 
-		if (sig->authattrs_size >= sizeof(a))
-			return -EOVERFLOW;
+		/*
+		 * The size of the buffer aa must be sufficient to keep the
+		 * original AA data plus one byte.
+		 */
+		if (sig->authattrs_size >= sizeof(aa)) {
+			ret = -EOVERFLOW;
+			goto out;
+		}
 
 		printf_debug("SLH-DSA signature verification of authenticated attributes\n");
 
@@ -92,10 +98,10 @@ int public_key_verify_signature_sphincs(
 		 * and thus cannot be used here. This implies, we need to use
 		 * the one-shot operation.
 		 */
-		a[0] = lc_pkcs7_authattr_tag;
-		memcpy(a + 1, sig->authattrs, sig->authattrs_size);
+		aa[0] = lc_pkcs7_authattr_tag;
+		memcpy(aa + 1, sig->authattrs, sig->authattrs_size);
 		CKINT(lc_sphincs_verify_ctx(&ws->sphincs_sig, ctx,
-					    a, sig->authattrs_size + 1,
+					    aa, sig->authattrs_size + 1,
 					    &ws->sphincs_pk));
 	} else if (sig->digest_size) {
 		printf_debug("SLH-DSA signature verification of pre-hashed data\n");
@@ -153,7 +159,16 @@ int public_key_generate_signature_sphincs(
 	/*
 	 * Select the data to be signed
 	 */
-	if (sig->digest_size) {
+	if (sig->authattrs) {
+		printf_debug("SLH-DSA signature generation of authenticated attributes\n");
+
+		/*
+		 * Sign the authenticated attributes data
+		 */
+		CKINT(lc_sphincs_sign_ctx(&ws->sphincs_sig, ctx, sig->authattrs,
+					  sig->authattrs_size, sphincs_sk,
+					  lc_seeded_rng));
+	} else if (sig->digest_size) {
 		printf_debug("SLH-DSA signature generation of pre-hashed data\n");
 
 		CKINT(public_key_set_prehash_sphincs(sig, ctx));
@@ -331,27 +346,12 @@ int asym_keypair_gen_sphincs(struct lc_x509_certificate *cert,
 {
 	int ret;
 
-	/*
-	 * NOTE: lc_sphincs_keypair_from_seed currently disables
-	 * the derivation of key material from seed as it is not
-	 * defined in FIPS205.
-	 */
-	if (0) {
-		CKINT(asym_keypair_gen_seed(keys, "SLH-DSA", 7));
-		CKINT(lc_sphincs_keypair_from_seed(
-			keys->pk.sphincs_pk, keys->sk.sphincs_sk,
-			keys->sk_seed, LC_X509_PQC_SK_SEED_SIZE,
-			sphincs_key_type));
-	} else {
-		CKINT(lc_sphincs_keypair(keys->pk.sphincs_pk,
-					 keys->sk.sphincs_sk, lc_seeded_rng,
-					 sphincs_key_type));
-	}
-
+	CKINT(lc_sphincs_keypair(keys->pk.sphincs_pk, keys->sk.sphincs_sk,
+				 lc_seeded_rng, sphincs_key_type));
 	CKINT(asym_set_sphincs_keypair(&cert->sig_gen_data, keys->pk.sphincs_pk,
 				       keys->sk.sphincs_sk));
-	CKINT(asym_set_sphincs_keypair(&cert->pub_gen_data,
-				       keys->pk.sphincs_pk, NULL));
+	CKINT(asym_set_sphincs_keypair(&cert->pub_gen_data, keys->pk.sphincs_pk,
+				       NULL));
 
 out:
 	return ret;

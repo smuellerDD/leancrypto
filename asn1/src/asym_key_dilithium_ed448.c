@@ -282,6 +282,29 @@ out:
 	return ret;
 }
 
+static int public_key_dilithium_ed448_get_data(
+	const uint8_t **data_ptr, size_t *data_len,
+	const struct lc_public_key_signature *sig)
+{
+	/*
+	 * Select the data to be signed
+	 *
+	 * We do not support pre-hashed messages! I.e. sig->digest is not
+	 * considered.
+	 */
+	if (sig->authattrs) {
+		*data_ptr = sig->authattrs;
+		*data_len = sig->authattrs_size;
+		return 0;
+	} else if (sig->raw_data) {
+		*data_ptr = sig->raw_data;
+		*data_len = sig->raw_data_len;
+		return 0;
+	} else {
+		return -EOPNOTSUPP;
+	}
+}
+
 int public_key_verify_signature_dilithium_ed448(
 	const struct lc_public_key *pkey,
 	const struct lc_public_key_signature *sig)
@@ -292,8 +315,8 @@ int public_key_verify_signature_dilithium_ed448(
 		uint8_t ph_message[LC_X509_COMP_ED448_MSG_SIZE];
 	};
 	const struct lc_hash *hash_algo;
-	const uint8_t *dilithium_src, *ed448_src, *randomizer;
-	size_t dilithium_src_len, ed448_src_len;
+	const uint8_t *dilithium_src, *ed448_src, *randomizer, *data_ptr;
+	size_t dilithium_src_len, ed448_src_len, data_len;
 	int ret;
 	LC_DILITHIUM_ED448_CTX_ON_STACK(ctx);
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
@@ -302,7 +325,7 @@ int public_key_verify_signature_dilithium_ed448(
 	if (pkey->key_is_private)
 		return -EKEYREJECTED;
 
-	CKNULL(sig->raw_data, -EOPNOTSUPP);
+	CKINT(public_key_dilithium_ed448_get_data(&data_ptr, &data_len, sig));
 
 	if (sig->s_size <
 	    (LC_ED448_SIGBYTES + LC_X509_SIGNATURE_RANDOMIZER_SIZE))
@@ -335,8 +358,8 @@ int public_key_verify_signature_dilithium_ed448(
 
 	CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
 	/* XOF works as digest size of 64 bytes is same as XOF size */
-	CKINT(lc_xof(hash_algo, sig->raw_data, sig->raw_data_len,
-		     ws->ph_message, sizeof(ws->ph_message)));
+	CKINT(lc_xof(hash_algo, data_ptr, data_len, ws->ph_message,
+		     sizeof(ws->ph_message)));
 
 	/*
 	 * TODO currently no ctx is supported. This implies that ctx == NULL.
@@ -373,13 +396,14 @@ int public_key_generate_signature_dilithium_ed448(
 	const struct lc_hash *hash_algo;
 	struct lc_dilithium_ed448_sk *dilithium_ed448_sk =
 		keys->sk.dilithium_ed448_sk;
-	size_t ml_dsa_siglen, ed448_siglen;
+	size_t ml_dsa_siglen, ed448_siglen, data_len;
+	const uint8_t *data_ptr;
 	uint8_t *ml_dsa_ptr, *ed448_ptr;
 	int ret;
 	LC_DILITHIUM_ED448_CTX_ON_STACK(ctx);
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	CKNULL(sig->raw_data, -EOPNOTSUPP);
+	CKINT(public_key_dilithium_ed448_get_data(&data_ptr, &data_len, sig));
 
 	/* Generate the randomizer value */
 	CKINT(lc_rng_generate(lc_seeded_rng, (uint8_t *)"X509.Comp.Sig.448", 17,
@@ -387,8 +411,8 @@ int public_key_generate_signature_dilithium_ed448(
 
 	CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
 	/* XOF works as digest size of 64 bytes is same as XOF size */
-	CKINT(lc_xof(hash_algo, sig->raw_data, sig->raw_data_len,
-		     ws->ph_message, sizeof(ws->ph_message)));
+	CKINT(lc_xof(hash_algo, data_ptr, data_len, ws->ph_message,
+		     sizeof(ws->ph_message)));
 
 	/*
 	 * TODO currently no ctx is supported. This implies that ctx == NULL.

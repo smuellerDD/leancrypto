@@ -75,6 +75,9 @@ static int pkcs7_digest(struct lc_pkcs7_message *pkcs7,
 	 * digest we just calculated.
 	 */
 	if (sinfo->authattrs) {
+		/*
+		 * A authenticated attribute must contain a message digest.
+		 */
 		if (!sinfo->msgdigest) {
 			printf_debug("Sig %u: No messageDigest\n",
 				     sinfo->index);
@@ -82,6 +85,11 @@ static int pkcs7_digest(struct lc_pkcs7_message *pkcs7,
 			goto out;
 		}
 
+		/*
+		 * Check that the authenticated attribute message digest is
+		 * identical to the digest calculated by leancrypto over the
+		 * message during parsing.
+		 */
 		if (sinfo->msgdigest_len != sig->digest_size) {
 			printf_debug("Sig %u: Invalid digest size (%zu)\n",
 				     sinfo->index, sinfo->msgdigest_len);
@@ -122,6 +130,10 @@ static int pkcs7_digest(struct lc_pkcs7_message *pkcs7,
 				"signerInfos AADigest");
 #endif
 
+		/*
+		 * Authenticated attributes are valid, let us use them for
+		 * signature verification.
+		 */
 		sig->authattrs = sinfo->authattrs;
 		sig->authattrs_size = sinfo->authattrs_len;
 
@@ -394,7 +406,7 @@ static int pkcs7_verify_one(struct lc_pkcs7_message *pkcs7,
 
 	/*
 	 * Check that the PKCS#7 signing time is valid according to the X.509
-	 * certificate.  We can't, however, check against the system clock
+	 * certificate. We can't, however, check against the system clock
 	 * since that may not have been set yet and may be wrong.
 	 */
 	if (sinfo->aa_set & sinfo_has_signing_time) {

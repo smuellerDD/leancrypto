@@ -223,16 +223,19 @@ static void print_x509_extensions(const struct lc_x509_certificate *x509)
 	}
 }
 
-static void print_x509_validity(const char *prefix, time64_t valid)
+static int print_x509_validity(const char *prefix, time64_t valid)
 {
-	struct tm *time_detail;
+	struct lc_tm time_detail;
+	int ret;
 
-	//localtime_r(&valid, &time_detail);
-	time_detail = localtime((time_t *)&valid);
-	printf("%s: %d-%.2d-%.2d %.2d:%.2d:%.2d\n", prefix,
-	       time_detail->tm_year + 1900, time_detail->tm_mon + 1,
-	       time_detail->tm_mday, time_detail->tm_hour, time_detail->tm_min,
-	       time_detail->tm_sec);
+	CKINT(lc_gmtime(valid, &time_detail));
+	printf("%s: %d-%.2d-%.2d %.2d:%.2d:%.2dZ\n", prefix,
+	       time_detail.year, time_detail.month + 1,
+	       time_detail.day, time_detail.hour, time_detail.min,
+	       time_detail.sec);
+
+out:
+	return ret;
 }
 
 static void _print_x509_authids(const struct lc_asymmetric_key_id auth_ids[3])
@@ -259,12 +262,14 @@ static void print_x509_pkey_size(const struct lc_x509_certificate *x509)
 
 int print_x509_cert(const struct lc_x509_certificate *x509)
 {
+	int ret;
+
 	print_x509_serial(x509);
 	print_x509_sinature_algo(x509);
 	print_x509_name("Issuer", &x509->issuer_segments);
 	print_x509_name("Subject", &x509->subject_segments);
-	print_x509_validity("Valid From", x509->valid_from);
-	print_x509_validity("Valid To", x509->valid_to);
+	CKINT(print_x509_validity("Valid From", x509->valid_from));
+	CKINT(print_x509_validity("Valid To", x509->valid_to));
 	print_x509_pubkey_algo(x509);
 	print_x509_extensions(x509);
 	print_x509_authids(x509);
@@ -272,7 +277,8 @@ int print_x509_cert(const struct lc_x509_certificate *x509)
 
 	printf("Self-signed: %s\n", x509->self_signed ? "yes" : "no");
 
-	return 0;
+out:
+	return ret;
 }
 
 int print_pkcs7_data(const struct lc_pkcs7_message *pkcs7_msg)
@@ -300,12 +306,14 @@ int print_pkcs7_data(const struct lc_pkcs7_message *pkcs7_msg)
 			printf("--- X.509 signer certificate listing ---\n");
 			print_x509_cert(sinfos->signer);
 			printf("--- End X.509 signer certificate listing ---\n");
+		} else {
+			printf("--- NO SIGNER PRESENT ---\n");
 		}
 
 		if (sinfos->authattrs_len) {
 			struct lc_tm time_detail;
 
-			printf("--- PKCS#7 authenticate attribute listing ---\n");
+			printf("--- PKCS#7 authenticated attribute listing ---\n");
 
 			bin2print(sinfos->authattrs, sinfos->authattrs_len,
 				  stdout, "Signed Authinfo");
@@ -321,7 +329,9 @@ int print_pkcs7_data(const struct lc_pkcs7_message *pkcs7_msg)
 			       time_detail.day, time_detail.hour,
 			       time_detail.min, time_detail.sec);
 
-			printf("--- End PKCS#7 authenticate attribute listing ---\n");
+			printf("--- End PKCS#7 authenticated attribute listing ---\n");
+		} else {
+			printf("--- No authenticated attributes present ---\n");
 		}
 
 		_print_x509_sinature_algo(&sinfos->sig);
@@ -329,7 +339,7 @@ int print_pkcs7_data(const struct lc_pkcs7_message *pkcs7_msg)
 		_print_x509_authids(sig->auth_ids);
 
 		bin2print(sig->digest, sig->digest_size, stdout,
-			  "signerInfos messageDigest");
+			  "Calculated payload message digest");
 
 		CKINT(lc_x509_hash_to_name(sig->hash_algo, &hash_name));
 		printf("Message digest algorithm: %s\n", hash_name);

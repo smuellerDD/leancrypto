@@ -876,7 +876,8 @@ static void x509_generator_usage(void)
 	fprintf(stderr,
 		"\t   --create-keypair-pkcs8-seed <TYPE>\tCreate key pair of given\n");
 	fprintf(stderr, "\t\t\t\t\ttype where private key is PKCS#8 blob\n");
-	fprintf(stderr, "\t\t\t\t\tNOTE: if possible, generate seed key\n");
+	fprintf(stderr, "\t\t\t\t\tNOTE: If possible, generate seed key\n");
+	fprintf(stderr, "\t\t\t\t\t      following RFC 9881 chapter 6.\n");
 	fprintf(stderr, "\t\t\t\t\tNOTE: generated keys are written to file\n");
 	fprintf(stderr,
 		"\t   --x509-signer <FILE>\t\tX.509 certificate of signer\n");
