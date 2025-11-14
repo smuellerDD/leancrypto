@@ -247,7 +247,7 @@ lc_generate_cert_pkcs8_seed() {
 
 	local sk_size=""
 
-	if [ "$(uname -s) " = "Darwin" ]
+	if [ "$(uname -s)" = "Darwin" ]
 	then
 		sk_size=$(stat -f "%z" $sk_file)
 	else
