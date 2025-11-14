@@ -26,6 +26,7 @@
  */
 
 #include "dilithium_rounding.h"
+#include "sidechannel_resistantce.h"
 
 /**
  * @brief power2round - For finite field element a, compute a0, a1 such that
@@ -68,7 +69,7 @@ int32_t decompose(int32_t *a0, int32_t a)
 	a1 &= 15;
 #elif LC_DILITHIUM_GAMMA2 == (LC_DILITHIUM_Q - 1) / 88
 	a1 = (a1 * 11275 + (1 << 23)) >> 24;
-	a1 ^= ((43 - a1) >> 31) & a1;
+	a1 = ct_sel_int32(0, a1, ct_cmask_neg_i32(43 - a1));
 #else
 #error "Uknown GAMMA2"
 #endif

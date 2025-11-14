@@ -118,6 +118,52 @@ static inline void cmov_int(int *r, int v, uint16_t b)
 	b = (uint16_t)-b;
 	*r ^= (int)(b & ((*r) ^ v));
 }
+
+static inline uint32_t value_barrier_u32(uint32_t b)
+{
+	return (b ^ optimization_blocker_uint32);
+}
+
+static inline int64_t value_barrier_i64(int64_t b)
+{
+	return (b ^ optimization_blocker_int64);
+}
+
+/**
+ * @brief ct_sel_int32 - Functionally equivalent to cond ? a : b,
+ *			 but implemented with guards against
+ *			 compiler-introduced branches.
+ *
+ * @param [in] a First alternative
+ * @param [in] b Second alternative
+ * @param [in] cond Condition variable.
+ *
+ * @return selected value
+ */
+static inline int32_t ct_sel_int32(int32_t a, int32_t b, uint32_t cond)
+{
+	uint32_t au = (uint32_t)a;
+	uint32_t bu = (uint32_t)b;
+	uint32_t res = bu ^ (value_barrier_u32(cond) & (au ^ bu));
+
+	return (int32_t)(res);
+}
+
+/**
+ * @brief ct_cmask_neg_i32
+ *
+ * @param [in] x Value to be converted into a mask
+ *
+ * @return Return 0 if input is non-negative, and -1 otherwise.
+ */
+static inline uint32_t ct_cmask_neg_i32(int32_t x)
+{
+	int64_t tmp = value_barrier_i64((int64_t)x);
+
+	tmp >>= 31;
+	return (uint32_t)(tmp);
+}
+
 #ifdef __cplusplus
 }
 #endif
