@@ -130,7 +130,8 @@ extern "C" {
 		goto out;                                                      \
 	}                                                                      \
 	dstbuffer[0] = ws->tag[dsp];                                           \
-	printf_debug("Set tag %x\n", ws->tag[dsp]);                            \
+	printf_debug("Set tag %x (pc=\x1B[32m%zu\x1B[m/%zu, D=%u)\n",          \
+		     ws->tag[dsp], pc, machlen, dsp);                          \
 	dstbuffer++;                                                           \
 	available_datalength--;                                                \
                                                                                \
@@ -142,6 +143,9 @@ extern "C" {
 			len, available_datalength);                            \
 		ret = -EOVERFLOW;                                              \
 		goto out;                                                      \
+	} else {                                                               \
+		printf_debug("Suffcient space (wanted %zu, available %zu)\n",  \
+			     len, available_datalength);                       \
 	}                                                                      \
                                                                                \
 	memcpy(dstbuffer, srcbuffer, len);                                     \
@@ -240,6 +244,8 @@ next_op:
 		 * data found to be written.
 		 */
 		ws->tag[dsp] = machine[pc + 1];
+		printf_debug("Get tag %x (pc=\x1B[32m%zu\x1B[m/%zu)\n",
+			     ws->tag[dsp], pc + 1, machlen);
 
 		ASN1_BER_ENCODE_CHECK_FOR_SEQUENCE
 
@@ -303,6 +309,10 @@ next_op:
 			pc += asn1_op_lengths[op];
 			goto next_op;
 		}
+
+		ws->tag[dsp] = machine[pc + 1];
+		printf_debug("Get tag %x (pc=\x1B[32m%zu\x1B[m/%zu, D=%u)\n",
+			     ws->tag[dsp], pc + 1, machlen, dsp);
 		fallthrough;
 	case ASN1_OP_MATCH_JUMP:
 	case ASN1_OP_MATCH_JUMP_OR_SKIP:
@@ -411,7 +421,7 @@ next_op:
 						   ws->data[dsp]);
 			printf_debug(
 				"available len %zu, consumed len %zu (D=main)\n",
-				avail_datalen, maxlen - avail_datalen);
+				ws->data_len[dsp - 1], maxlen - avail_datalen);
 		} else {
 			/*
 			 * Copy data to the hierarchically higher stack buffer
@@ -422,8 +432,8 @@ next_op:
 						   ws->data[dsp]);
 			printf_debug(
 				"available len %zu, consumed len %zu (D=%u)\n",
-				avail_datalen, maxlen - ws->data_len[dsp - 1],
-				dsp - 1);
+				ws->data_len[dsp - 1],
+				maxlen - ws->data_len[dsp - 1], dsp - 1);
 		}
 
 		pc += asn1_op_lengths[op];

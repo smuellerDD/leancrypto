@@ -36,7 +36,10 @@ enum sig_algo_settings {
 struct x509_generate_privkey_context {
 	const struct lc_x509_key_data *keys;
 	unsigned int sk_seed_written : 1;
+	unsigned int sk_seed_skip_first : 1;
 	unsigned int sk_full_written : 1;
+	unsigned int sk_full_skip_first : 1;
+	unsigned int sk_write_both : 1;
 };
 
 struct x509_generate_context {

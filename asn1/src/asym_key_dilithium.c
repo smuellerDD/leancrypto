@@ -220,8 +220,20 @@ int x509_mldsa_private_key_expanded_enc(void *context, uint8_t *data,
 	(void)tag;
 
 	/* Only write out the full key if there was no seed. */
-	if (keys->sk_seed_set)
+	if (keys->sk_seed_set && !ctx->sk_write_both)
 		return 0;
+
+	/*
+	 * When this flag is initially set, the caller wants to write out both
+	 * keys: the seed and the full key. This happens in the 2nd invocation
+	 * to this function as the ASN.1 definition contains two calls to
+	 * the key writing logic where the 2nd call triggers the proper
+	 * formatting of both keys.
+	 */
+	if (ctx->sk_full_skip_first) {
+		ctx->sk_full_skip_first = 0;
+		return 0;
+	}
 
 	if (ctx->sk_full_written)
 		return 0;
@@ -262,6 +274,12 @@ int x509_mldsa_private_key_seed_enc(void *context, uint8_t *data,
 	if (!keys->sk_seed_set)
 		return 0;
 
+	/* See x509_mldsa_private_key_expanded_enc for details */
+	if (ctx->sk_seed_skip_first) {
+		ctx->sk_seed_skip_first = 0;
+		return 0;
+	}
+
 	if (ctx->sk_seed_written)
 		return 0;
 	ctx->sk_seed_written = 1;
@@ -289,6 +307,21 @@ int private_key_encode_dilithium(uint8_t *data, size_t *avail_datalen,
 {
 #ifdef LC_X509_GENERATOR
 	int ret;
+
+	/*
+	 * TODO Make this setting external: When flags are set, it implies that
+	 * *both* key types (seed key and expanded key) are written to the
+	 * PKCS#8 file.
+	 */
+	if (/* DISABLES CODE */ (0)) {
+		const struct lc_x509_key_data *keys = ctx->keys;
+
+		if (keys->sk_seed_set) {
+			ctx->sk_seed_skip_first = 1;
+			ctx->sk_full_skip_first = 1;
+			ctx->sk_write_both = 1;
+		}
+	}
 
 	CKINT(asn1_ber_encoder(&x509_mldsa_privkey_encoder, ctx, data,
 			       avail_datalen));
