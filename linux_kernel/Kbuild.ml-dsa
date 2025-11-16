@@ -7,44 +7,42 @@
 # Dilithium Common
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM)				       \
 				+= ../ml-dsa/src/dilithium_api.o	       \
+				   ../ml-dsa/src/dilithium_ntt.o	       \
+				   ../ml-dsa/src/dilithium_poly.o	       \
+				   ../ml-dsa/src/dilithium_rounding.o	       \
 				   ../ml-dsa/src/dilithium_zetas.o	       \
 				   leancrypto_kernel_dilithium.o
 
 # Dilithium 87
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_87)				       \
-				+= ../ml-dsa/src/dilithium_ntt.o	       \
-				   ../ml-dsa/src/dilithium_poly.o	       \
-				   ../ml-dsa/src/dilithium_rounding.o	       \
+				+= ../ml-dsa/src/dilithium_poly_type.o	       \
+				   ../ml-dsa/src/dilithium_rounding_type.o     \
 				   ../ml-dsa/src/dilithium_selftest.o	       \
 				   ../ml-dsa/src/dilithium_signature_c.o       \
 				   ../ml-dsa/src/dilithium_signature_helper.o
 
 # Dilithium 65
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_65)				       \
-				+= dilithium65/dilithium_ntt.o		       \
-				   dilithium65/dilithium_poly.o		       \
-				   dilithium65/dilithium_rounding.o	       \
+				+= dilithium65/dilithium_poly_type.o	       \
+				   dilithium65/dilithium_rounding_type.o       \
 				   dilithium65/dilithium_selftest.o	       \
 				   dilithium65/dilithium_signature_c.o         \
 				   dilithium65/dilithium_signature_helper.o
-CFLAGS_dilithium65/dilithium_ntt.o			:= -DLC_DILITHIUM_TYPE_65
-CFLAGS_dilithium65/dilithium_poly.o			:= -DLC_DILITHIUM_TYPE_65
-CFLAGS_dilithium65/dilithium_rounding.o			:= -DLC_DILITHIUM_TYPE_65
+CFLAGS_dilithium65/dilithium_poly_type.o		:= -DLC_DILITHIUM_TYPE_65
+CFLAGS_dilithium65/dilithium_rounding_type.o		:= -DLC_DILITHIUM_TYPE_65
 CFLAGS_dilithium65/dilithium_selftest.o			:= -DLC_DILITHIUM_TYPE_65
 CFLAGS_dilithium65/dilithium_signature_c.o		:= -DLC_DILITHIUM_TYPE_65
 CFLAGS_dilithium65/dilithium_signature_helper.o		:= -DLC_DILITHIUM_TYPE_65
 
 # Dilithium 44
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_44)				       \
-				+= dilithium44/dilithium_ntt.o		       \
-				   dilithium44/dilithium_poly.o		       \
-				   dilithium44/dilithium_rounding.o	       \
+				+= dilithium44/dilithium_poly_type.o	       \
+				   dilithium44/dilithium_rounding_type.o       \
 				   dilithium44/dilithium_selftest.o	       \
 				   dilithium44/dilithium_signature_c.o         \
 				   dilithium44/dilithium_signature_helper.o
-CFLAGS_dilithium44/dilithium_ntt.o			:= -DLC_DILITHIUM_TYPE_44
-CFLAGS_dilithium44/dilithium_poly.o			:= -DLC_DILITHIUM_TYPE_44
-CFLAGS_dilithium44/dilithium_rounding.o			:= -DLC_DILITHIUM_TYPE_44
+CFLAGS_dilithium44/dilithium_poly_type.o		:= -DLC_DILITHIUM_TYPE_44
+CFLAGS_dilithium44/dilithium_rounding_type.o		:= -DLC_DILITHIUM_TYPE_44
 CFLAGS_dilithium44/dilithium_selftest.o			:= -DLC_DILITHIUM_TYPE_44
 CFLAGS_dilithium44/dilithium_signature_c.o		:= -DLC_DILITHIUM_TYPE_44
 CFLAGS_dilithium44/dilithium_signature_helper.o		:= -DLC_DILITHIUM_TYPE_44

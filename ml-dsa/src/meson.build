@@ -4,15 +4,17 @@
 if (dilithium_enabled)
 	src += files([
 		'dilithium_api.c',
+		'dilithium_ntt.c',
+		'dilithium_poly.c',
+		'dilithium_rounding.c',
 		'dilithium_zetas.c'
 	])
 endif
 
 # Files which are compiled for each Dilithium implementation separately
 dilithium_c = files([
-	'dilithium_ntt.c',
-	'dilithium_poly.c',
-	'dilithium_rounding.c',
+	'dilithium_poly_type.c',
+	'dilithium_rounding_type.c',
 	'dilithium_selftest.c',
 	'dilithium_signature_c.c',
 	'dilithium_signature_helper.c',

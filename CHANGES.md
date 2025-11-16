@@ -17,6 +17,8 @@ Changes 1.7.0-prerelease
 
 * ML-KEM/DSA: add safety measures against compilers trying to reason about code they should not reason about. Changes are suggested by "Becker, Hanno" <beckphan@amazon.co.uk> and derived from https://github.com/pq-code-package/ml[dsa|kem]-native/
 
+* ML-DSA: reduce amount of duplicate code compilation suggested by "Becker, Hanno" <beckphan@amazon.co.uk>
+
 Changes 1.6.0
 * ASN.1: use stack for small generator for small use cases
 

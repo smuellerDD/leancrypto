@@ -34,7 +34,7 @@
  *		additions or subtractions. Output vector is in bitreversed
  *		order.
  *
- * @param [in,out] p input/output coefficient array
+ * @param [in,out] a input/output coefficient array
  */
 void ntt(int32_t a[LC_DILITHIUM_N])
 {
@@ -63,7 +63,7 @@ void ntt(int32_t a[LC_DILITHIUM_N])
  *			  than Q in absolute value. Output coefficient are
  *			  smaller than Q in absolute value.
  *
- * @param [in,out] p input/output coefficient array
+ * @param [in,out] a input/output coefficient array
  */
 void invntt_tomont(int32_t a[LC_DILITHIUM_N])
 {
