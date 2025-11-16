@@ -70,7 +70,7 @@ static inline void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b)
 	 * ARMv8 Neon implementation of SLH-DSA the compiler managed to still
 	 * create time-variant code without the optimization blocker.
 	 */
-	opt_blocker = (uint8_t)optimization_blocker_int8;
+	opt_blocker = (uint8_t)optimization_blocker_uint64;
 
 	b = (uint8_t)-b;
 	for (i = 0; i < len; i++)
@@ -121,12 +121,12 @@ static inline void cmov_int(int *r, int v, uint16_t b)
 
 static inline uint8_t value_barrier_u8(uint8_t b)
 {
-	return (b ^ optimization_blocker_uint8);
+	return (b ^ (uint8_t)optimization_blocker_uint64);
 }
 
 static inline uint32_t value_barrier_u32(uint32_t b)
 {
-	return (b ^ optimization_blocker_uint32);
+	return (b ^ (uint32_t)optimization_blocker_uint64);
 }
 
 static inline uint64_t value_barrier_u64(uint64_t b)
@@ -136,7 +136,7 @@ static inline uint64_t value_barrier_u64(uint64_t b)
 
 static inline int64_t value_barrier_i64(int64_t b)
 {
-	return (b ^ optimization_blocker_int64);
+	return (b ^ (int64_t)optimization_blocker_uint64);
 }
 
 /**

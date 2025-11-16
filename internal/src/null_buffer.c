@@ -27,8 +27,3 @@
 const uint8_t null_buffer[LC_NULL_BUFFER_SIZE] __align(8) = { 0 };
 
 volatile uint64_t optimization_blocker_uint64 = 0;
-volatile uint32_t optimization_blocker_uint32 = 0;
-volatile uint8_t optimization_blocker_uint8 = 0;
-volatile int64_t optimization_blocker_int64 = 0;
-volatile int16_t optimization_blocker_int16 = 0;
-volatile int8_t optimization_blocker_int8 = 0;

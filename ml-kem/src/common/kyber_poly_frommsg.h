@@ -58,7 +58,7 @@ static inline void poly_frommsg(poly *r,
 	 * variable has to be loaded only once at the beginning of the function
 	 * call.
 	 */
-	opt_blocker = optimization_blocker_int16;
+	opt_blocker = (int16_t)optimization_blocker_uint64;
 
 #if (LC_KYBER_INDCPA_MSGBYTES != LC_KYBER_N / 8)
 #error "LC_KYBER_INDCPA_MSGBYTES must be equal to LC_KYBER_N/8 bytes!"
