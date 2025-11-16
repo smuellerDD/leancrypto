@@ -27,6 +27,7 @@ extern "C" {
 #include "bitshift.h"
 #include "cpufeatures.h"
 #include "lc_memcmp_secure.h"
+#include "sidechannel_resistance.h"
 
 static inline int memcmp_secure_aligned(const uint8_t *ptr, uint32_t alignmask)
 {
@@ -38,7 +39,7 @@ static inline int memcmp_secure_aligned(const uint8_t *ptr, uint32_t alignmask)
 static inline int memcmp_secure_8(const void *s1, const void *s2, size_t n)
 {
 	const uint8_t *s1p = s1, *s2p = s2;
-	int ret = 0;
+	uint8_t ret = 0;
 
 	while (n) {
 		ret |= (*s1p ^ *s2p);
@@ -46,6 +47,12 @@ static inline int memcmp_secure_8(const void *s1, const void *s2, size_t n)
 		s1p++;
 		s2p++;
 	}
+
+	/*
+	 * Apply a memoy barrier to ensure that the compiler cannot reason about
+	 * terminating the loop above prematurely (e.g. when ret is 0xff).
+	 */
+	value_barrier_u8(ret);
 
 	return !!ret;
 }
@@ -66,6 +73,9 @@ static inline int memcmp_secure_32_aligned(const void *s1, const void *s2,
 
 	for (; n >= sizeof(*s1_word); n -= sizeof(*s2_word))
 		ret |= (*s1_word++ ^ *s2_word++);
+
+	/* See memcmp_secure_8 for a reason */
+	value_barrier_u32(ret);
 
 	ret |= (uint32_t)memcmp_secure_8((const uint8_t *)s1_word,
 					 (const uint8_t *)s2_word, n);
@@ -93,6 +103,9 @@ static inline int memcmp_secure_32(const void *s1, const void *s2, size_t n)
 		s2p += sizeof(uint32_t);
 	}
 
+	/* See memcmp_secure_8 for a reason */
+	value_barrier_u32(ret);
+
 	ret |= (uint32_t)memcmp_secure_8(s1p, s2p, n);
 
 	return !!ret;
@@ -115,6 +128,9 @@ static inline int memcmp_secure_64_aligned(const void *s1, const void *s2,
 
 	for (; n >= sizeof(*s1_dword); n -= sizeof(*s1_dword))
 		ret |= (*s2_dword++ ^ *s1_dword++);
+
+	/* See memcmp_secure_8 for a reason */
+	value_barrier_u64(ret);
 
 	ret |= (uint64_t)memcmp_secure_32_aligned((const uint8_t *)s1_dword,
 						  (const uint8_t *)s2_dword, n);
@@ -152,6 +168,9 @@ static inline int memcmp_secure_64(const void *s1, const void *s2, size_t n)
 		s1p += sizeof(uint64_t);
 		s2p += sizeof(uint64_t);
 	}
+
+	/* See memcmp_secure_8 for a reason */
+	value_barrier_u64(ret);
 
 	ret |= (uint64_t)memcmp_secure_32(s1p, s2p, n);
 

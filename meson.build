@@ -928,6 +928,7 @@ if build_shared
 			'internal/src/fips_integrity_checker_none.c',
 			'internal/src/memcmp_secure_c.c',
 			'internal/src/memory_support.c',
+			'internal/src/null_buffer.c',
 			'internal/src/status_algorithms.c',
 			'internal/src/status_api.c',
 		])

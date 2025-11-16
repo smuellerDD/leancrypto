@@ -119,9 +119,19 @@ static inline void cmov_int(int *r, int v, uint16_t b)
 	*r ^= (int)(b & ((*r) ^ v));
 }
 
+static inline uint8_t value_barrier_u8(uint8_t b)
+{
+	return (b ^ optimization_blocker_uint8);
+}
+
 static inline uint32_t value_barrier_u32(uint32_t b)
 {
 	return (b ^ optimization_blocker_uint32);
+}
+
+static inline uint64_t value_barrier_u64(uint64_t b)
+{
+	return (b ^ optimization_blocker_uint64);
 }
 
 static inline int64_t value_barrier_i64(int64_t b)
