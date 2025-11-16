@@ -25,7 +25,7 @@
  */
 
 #include "ret_checkers.h"
-#include "sidechannel_resistantce.h"
+#include "sidechannel_resistance.h"
 #include "sphincs_type.h"
 #include "sphincs_address.h"
 #include "sphincs_thash.h"

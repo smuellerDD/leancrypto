@@ -26,7 +26,7 @@
  */
 
 #include "dilithium_rounding.h"
-#include "sidechannel_resistantce.h"
+#include "sidechannel_resistance.h"
 
 /**
  * @brief power2round - For finite field element a, compute a0, a1 such that

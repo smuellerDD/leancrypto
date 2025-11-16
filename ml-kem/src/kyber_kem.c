@@ -34,7 +34,7 @@
 #include "lc_memcmp_secure.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
-#include "sidechannel_resistantce.h"
+#include "sidechannel_resistance.h"
 #include "small_stack_support.h"
 #include "static_rng.h"
 #include "ret_checkers.h"

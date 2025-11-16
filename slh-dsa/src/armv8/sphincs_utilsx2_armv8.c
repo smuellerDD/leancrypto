@@ -24,7 +24,7 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
-#include "sidechannel_resistantce.h"
+#include "sidechannel_resistance.h"
 #include "sphincs_type.h"
 #include "sphincs_address.h"
 #include "sphincs_thashx2_armv8.h"

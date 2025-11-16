@@ -33,7 +33,7 @@
 #include "lc_memset_secure.h"
 #include "lc_memcpy_secure.h"
 #include "point_448.h"
-#include "sidechannel_resistantce.h"
+#include "sidechannel_resistance.h"
 #include "timecop.h"
 #include "x448_scalarmult_c.h"
 
