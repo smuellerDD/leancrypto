@@ -15,6 +15,8 @@ Changes 1.7.0-prerelease
 
 * Provide full PKCS#7 interoperability with OpenSSL: OpenSSL artificially orders the parsing of the authenticated attributes. This implies that the message digest part of the authenticated attributes is parsed as last entry. This ordering is important for the signature generation and verification. Furthermore, for ML-DSA/SLH-DSA, the authenticated attributes are signed with the pure algorithm instead of the pre-hashed operation as suggested by RFC5652 section 9.2.
 
+* ML-KEM/DSA: add safety measures against compilers trying to reason about code they should not reason about. Changes are suggested by "Becker, Hanno" <beckphan@amazon.co.uk> and derived from https://github.com/pq-code-package/ml[dsa|kem]-native/
+
 Changes 1.6.0
 * ASN.1: use stack for small generator for small use cases
 
