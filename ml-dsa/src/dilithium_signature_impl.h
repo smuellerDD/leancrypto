@@ -190,6 +190,21 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 	dilithium_print_polyveck(&ws->t1,
 				 "Keygen - T K x N matrix after add S2:");
 
+	/*
+	 * Reference: The following reduction is not present in the reference
+	 * implementation. Omitting this reduction requires the output of
+	 * the invntt to be small enough such that the addition of s2 does
+	 * not result in absolute values >= LC_DILITHIUM_Q. While the C, x86_64,
+	 * and AArch64 invntt implementations produce small enough
+	 * values for this to work out, it complicates the bounds
+	 * reasoning. Therefore, add an additional reduction, allowing to
+	 * relax the bounds requirements for the invntt, especially when adding
+	 * new invntt assembler implementations.
+	 */
+#ifndef LC_DILITHIUM_INVNTT_SMALL
+	polyveck_reduce(&ws->t1);
+#endif
+
 	/* Extract t1 and write public key */
 	polyveck_caddq(&ws->t1);
 	dilithium_print_polyveck(&ws->t1, "Keygen - T K x N matrix caddq:");

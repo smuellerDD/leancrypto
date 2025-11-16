@@ -25,6 +25,9 @@
 /* We need twice the buffer size as we have a 2 lane SHAKE SIMD implemenation */
 #define LC_POLY_UNIFOR_BUF_SIZE_MULTIPLIER 2
 
+/* The C implementation of invntt produces small enough integers */
+#define LC_DILITHIUM_INVNTT_SMALL
+
 #include "dilithium_poly.h"
 #include "dilithium_poly_common.h"
 #include "dilithium_poly_armv8.h"

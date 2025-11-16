@@ -31,6 +31,9 @@
 /* We need once the buffer size to handle the hashing */
 #define LC_POLY_UNIFOR_BUF_SIZE_MULTIPLIER 1
 
+/* The C implementation of invntt produces small enough integers */
+#define LC_DILITHIUM_INVNTT_SMALL
+
 #include "dilithium_poly.h"
 #include "dilithium_poly_common.h"
 #include "dilithium_poly_c.h"
