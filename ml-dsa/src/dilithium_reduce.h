@@ -30,6 +30,7 @@
 
 #include "dilithium_type.h"
 #include "ext_headers_internal.h"
+#include "sidechannel_resistance.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -84,8 +85,7 @@ static inline int32_t reduce32(int32_t a)
  */
 static inline int32_t caddq(int32_t a)
 {
-	a += (a >> 31) & LC_DILITHIUM_Q;
-	return a;
+	return ct_sel_int32(a + LC_DILITHIUM_Q, a, ct_cmask_neg_i32(a));
 }
 
 /**
