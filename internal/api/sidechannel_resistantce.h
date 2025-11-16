@@ -164,6 +164,18 @@ static inline uint32_t ct_cmask_neg_i32(int32_t x)
 	return (uint32_t)(tmp);
 }
 
+/**
+ * @brief ct_abs_i32
+ *
+ * @param [in] x Input value
+ *
+ * @return -x if x<0, x otherwise
+ */
+static inline int32_t ct_abs_i32(int32_t x)
+{
+	return ct_sel_int32(-x, x, ct_cmask_neg_i32(x));
+}
+
 #ifdef __cplusplus
 }
 #endif

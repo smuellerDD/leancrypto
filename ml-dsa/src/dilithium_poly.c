@@ -29,6 +29,7 @@
 #include "dilithium_poly_common.h"
 #include "dilithium_service_helpers.h"
 #include "lc_sha3.h"
+#include "sidechannel_resistantce.h"
 #include "timecop.h"
 
 /**
@@ -40,10 +41,10 @@
  *
  * @return 0 if norm is strictly smaller than B <= (Q-1)/8 and 1 otherwise.
  */
-int poly_chknorm(const poly *a, int32_t B)
+uint32_t poly_chknorm(const poly *a, int32_t B)
 {
 	unsigned int i;
-	int32_t t;
+	uint32_t t = 0;
 
 	if (B > (LC_DILITHIUM_Q - 1) / 8)
 		return 1;
@@ -54,15 +55,11 @@ int poly_chknorm(const poly *a, int32_t B)
 	 * data but we must not leak the sign of the centralized representative.
 	 */
 	for (i = 0; i < LC_DILITHIUM_N; ++i) {
-		/* Absolute value */
-		t = a->coeffs[i] >> 31;
-		t = a->coeffs[i] - (t & 2 * a->coeffs[i]);
-
-		if (t >= B)
-			return 1;
+		/* if (abs(a[i]) >= B) */
+		t |= ct_cmask_neg_i32(B - 1 - ct_abs_i32(a->coeffs[i]));
 	}
 
-	return 0;
+	return t;
 }
 
 /**

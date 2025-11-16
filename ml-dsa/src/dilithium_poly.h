@@ -150,7 +150,7 @@ static inline void poly_use_hint(poly *b, const poly *a, const poly *h)
 		b->coeffs[i] = use_hint(a->coeffs[i], h->coeffs[i]);
 }
 
-int poly_chknorm(const poly *a, int32_t B);
+uint32_t poly_chknorm(const poly *a, int32_t B);
 
 #define POLY_UNIFORM_NBLOCKS                                                   \
 	((768 + LC_SHAKE_128_SIZE_BLOCK - 1) / LC_SHAKE_128_SIZE_BLOCK)
