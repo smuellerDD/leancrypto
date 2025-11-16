@@ -157,6 +157,9 @@ extern "C" {
 #define dilithium_siggen_tester DILITHIUM_F(siggen_tester)
 #define dilithium_sigver_tester DILITHIUM_F(sigver_tester)
 
+#define poly_uniform_eta DILITHIUM_F(poly_uniform_eta)
+#define polyeta_pack DILITHIUM_F(polyeta_pack)
+#define polyeta_unpack DILITHIUM_F(polyeta_unpack)
 #define poly_uniform_gamma1 DILITHIUM_F(poly_uniform_gamma1)
 #define polyz_unpack DILITHIUM_F(polyz_unpack)
 #define poly_challenge DILITHIUM_F(poly_challenge)

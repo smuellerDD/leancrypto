@@ -33,6 +33,127 @@
 #include "timecop.h"
 
 /**
+ * @brief poly_uniform_eta - Sample polynomial with uniformly random
+ *			     coefficients in [-ETA,ETA] by performing rejection
+ *			     sampling on the output stream from
+ *			     SHAKE256(seed|nonce).
+ *
+ * @param [out] a pointer to output polynomial
+ * @param [in] seed byte array with seed of length LC_DILITHIUM_CRHBYTES
+ * @param [in] nonce 2-byte nonce
+ */
+void poly_uniform_eta(poly *a, const uint8_t seed[LC_DILITHIUM_CRHBYTES],
+		      uint16_t nonce, void *ws_buf)
+{
+	unsigned int ctr;
+	uint8_t *buf = ws_buf;
+	LC_HASH_CTX_ON_STACK(hash_ctx, lc_shake256);
+
+	if (lc_hash_init(hash_ctx))
+		return;
+	lc_hash_update(hash_ctx, seed, LC_DILITHIUM_CRHBYTES);
+	lc_hash_update(hash_ctx, (uint8_t *)&nonce, sizeof(nonce));
+	lc_hash_set_digestsize(hash_ctx, POLY_UNIFORM_ETA_BYTES);
+	lc_hash_final(hash_ctx, buf);
+
+	ctr = rej_eta(a->coeffs, LC_DILITHIUM_N, buf, POLY_UNIFORM_ETA_BYTES);
+
+	while (ctr < LC_DILITHIUM_N) {
+		lc_hash_final(hash_ctx, buf);
+
+		ctr += rej_eta(a->coeffs + ctr, LC_DILITHIUM_N - ctr, buf,
+			       LC_SHAKE_256_SIZE_BLOCK);
+	}
+
+	lc_hash_zero(hash_ctx);
+}
+
+/**
+ * @brief polyeta_pack - Bit-pack polynomial with coefficients in [-ETA,ETA].
+ *
+ * @param [out] r pointer to output byte array with at least
+ *		  LC_DILITHIUM_POLYETA_PACKEDBYTES bytes
+ * @param [in] a pointer to input polynomial
+ */
+void polyeta_pack(uint8_t *r, const poly *a)
+{
+	unsigned int i;
+	uint8_t t[8];
+
+#if LC_DILITHIUM_ETA == 2
+	for (i = 0; i < LC_DILITHIUM_N / 8; ++i) {
+		t[0] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[8 * i + 0]);
+		t[1] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[8 * i + 1]);
+		t[2] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[8 * i + 2]);
+		t[3] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[8 * i + 3]);
+		t[4] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[8 * i + 4]);
+		t[5] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[8 * i + 5]);
+		t[6] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[8 * i + 6]);
+		t[7] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[8 * i + 7]);
+
+		r[3 * i + 0] =
+			(uint8_t)((t[0] >> 0) | (t[1] << 3) | (t[2] << 6));
+		r[3 * i + 1] = (uint8_t)((t[2] >> 2) | (t[3] << 1) |
+					 (t[4] << 4) | (t[5] << 7));
+		r[3 * i + 2] =
+			(uint8_t)((t[5] >> 1) | (t[6] << 2) | (t[7] << 5));
+	}
+#elif LC_DILITHIUM_ETA == 4
+	for (i = 0; i < LC_DILITHIUM_N / 2; ++i) {
+		t[0] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[2 * i + 0]);
+		t[1] = (uint8_t)(LC_DILITHIUM_ETA - a->coeffs[2 * i + 1]);
+		r[i] = (uint8_t)(t[0] | (t[1] << 4));
+	}
+#else
+#error "Undefined LC_DILITHIUM_ETA"
+#endif
+}
+
+/**
+ * @brief polyeta_unpack - Unpack polynomial with coefficients in [-ETA,ETA].
+ *
+ * @param [out] r pointer to output polynomial
+ * @param [in] a byte array with bit-packed polynomial
+ */
+void polyeta_unpack(poly *r, const uint8_t *a)
+{
+	unsigned int i;
+
+#if LC_DILITHIUM_ETA == 2
+	for (i = 0; i < LC_DILITHIUM_N / 8; ++i) {
+		r->coeffs[8 * i + 0] = (a[3 * i + 0] >> 0) & 7;
+		r->coeffs[8 * i + 1] = (a[3 * i + 0] >> 3) & 7;
+		r->coeffs[8 * i + 2] =
+			((a[3 * i + 0] >> 6) | (a[3 * i + 1] << 2)) & 7;
+		r->coeffs[8 * i + 3] = (a[3 * i + 1] >> 1) & 7;
+		r->coeffs[8 * i + 4] = (a[3 * i + 1] >> 4) & 7;
+		r->coeffs[8 * i + 5] =
+			((a[3 * i + 1] >> 7) | (a[3 * i + 2] << 1)) & 7;
+		r->coeffs[8 * i + 6] = (a[3 * i + 2] >> 2) & 7;
+		r->coeffs[8 * i + 7] = (a[3 * i + 2] >> 5) & 7;
+
+		r->coeffs[8 * i + 0] = LC_DILITHIUM_ETA - r->coeffs[8 * i + 0];
+		r->coeffs[8 * i + 1] = LC_DILITHIUM_ETA - r->coeffs[8 * i + 1];
+		r->coeffs[8 * i + 2] = LC_DILITHIUM_ETA - r->coeffs[8 * i + 2];
+		r->coeffs[8 * i + 3] = LC_DILITHIUM_ETA - r->coeffs[8 * i + 3];
+		r->coeffs[8 * i + 4] = LC_DILITHIUM_ETA - r->coeffs[8 * i + 4];
+		r->coeffs[8 * i + 5] = LC_DILITHIUM_ETA - r->coeffs[8 * i + 5];
+		r->coeffs[8 * i + 6] = LC_DILITHIUM_ETA - r->coeffs[8 * i + 6];
+		r->coeffs[8 * i + 7] = LC_DILITHIUM_ETA - r->coeffs[8 * i + 7];
+	}
+#elif LC_DILITHIUM_ETA == 4
+	for (i = 0; i < LC_DILITHIUM_N / 2; ++i) {
+		r->coeffs[2 * i + 0] = a[i] & 0x0F;
+		r->coeffs[2 * i + 1] = a[i] >> 4;
+		r->coeffs[2 * i + 0] = LC_DILITHIUM_ETA - r->coeffs[2 * i + 0];
+		r->coeffs[2 * i + 1] = LC_DILITHIUM_ETA - r->coeffs[2 * i + 1];
+	}
+#else
+#error "Undefined LC_DILITHIUM_ETA"
+#endif
+}
+
+/**
  * @param polyz_pack - Bit-pack polynomial with coefficients
  *		       in [-(GAMMA1 - 1), GAMMA1].
  *
