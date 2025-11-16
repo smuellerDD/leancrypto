@@ -75,7 +75,8 @@ int32_t decompose(int32_t *a0, int32_t a)
 #endif
 
 	*a0 = a - a1 * 2 * LC_DILITHIUM_GAMMA2;
-	*a0 -= (((LC_DILITHIUM_Q - 1) / 2 - *a0) >> 31) & LC_DILITHIUM_Q;
+	*a0 = ct_sel_int32(*a0 - LC_DILITHIUM_Q, *a0,
+			   ct_cmask_neg_i32((LC_DILITHIUM_Q - 1) / 2 - *a0));
 
 	return a1;
 }
