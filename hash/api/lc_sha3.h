@@ -108,7 +108,8 @@ struct lc_sha3_256_state {
 };
 
 #define LC_SHA3_256_STATE_SIZE (sizeof(struct lc_sha3_256_state))
-#define LC_SHA3_256_CTX_SIZE (sizeof(struct lc_hash) + LC_SHA3_256_STATE_SIZE)
+#define LC_SHA3_256_CTX_SIZE                                                   \
+	(sizeof(struct lc_hash_ctx) + LC_SHA3_256_STATE_SIZE)
 
 #define LC_SHA3_256_CTX(name)                                                  \
 	LC_HASH_SET_CTX(name, lc_sha3_256);                                    \
@@ -156,7 +157,8 @@ struct lc_sha3_384_state {
 };
 
 #define LC_SHA3_384_STATE_SIZE (sizeof(struct lc_sha3_384_state))
-#define LC_SHA3_384_CTX_SIZE (sizeof(struct lc_hash) + LC_SHA3_384_STATE_SIZE)
+#define LC_SHA3_384_CTX_SIZE                                                   \
+	(sizeof(struct lc_hash_ctx) + LC_SHA3_384_STATE_SIZE)
 
 #define LC_SHA3_384_CTX(name)                                                  \
 	LC_HASH_SET_CTX(name, lc_sha3_384);                                    \
@@ -204,7 +206,8 @@ struct lc_sha3_512_state {
 };
 
 #define LC_SHA3_512_STATE_SIZE (sizeof(struct lc_sha3_512_state))
-#define LC_SHA3_512_CTX_SIZE (sizeof(struct lc_hash) + LC_SHA3_512_STATE_SIZE)
+#define LC_SHA3_512_CTX_SIZE                                                   \
+	(sizeof(struct lc_hash_ctx) + LC_SHA3_512_STATE_SIZE)
 
 #define LC_SHA3_512_CTX(name)                                                  \
 	LC_HASH_SET_CTX(name, lc_sha3_512);                                    \
