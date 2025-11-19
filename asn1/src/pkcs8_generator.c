@@ -1,4 +1,4 @@
-/* PKCS#8 Parser following RFC5958
+/* PKCS#8 Generator following RFC5958
  *
  * Copyright (C) 2025, Stephan Mueller <smueller@chronox.de>
  *
@@ -18,8 +18,8 @@
  * DAMAGE.
  */
 /*
- * This code is derived in parts from the PKCS7 parser pkcs7_parser.c and
- * x509_cert_parser.c.
+ * This code is derived in parts from the PKCS7 parser pkcs7_generator.c and
+ * x509_cert_generator.c.
  */
 
 #include "asn1_debug.h"
@@ -37,7 +37,7 @@
 
 struct pkcs8_generate_context {
 	/*
-	  * Message being converted into PKCS#7 blob
+	  * Message being converted into PKCS#8 blob
 	  */
 	const struct lc_pkcs8_message *pkcs8;
 };
