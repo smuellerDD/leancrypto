@@ -31,7 +31,6 @@
 #include "alignment.h"
 #include "build_bug_on.h"
 #include "dilithium_type.h"
-#include "dilithium_debug.h"
 #include "dilithium_pack.h"
 #include "dilithium_pct.h"
 #include "dilithium_signature_impl.h"
@@ -90,12 +89,15 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 			poly polyvecl_pointwise_acc_montgomery_buf;
 			uint8_t poly_uniform_buf[WS_POLY_UNIFORM_BUF_SIZE];
 			uint8_t poly_uniform_eta_buf[POLY_UNIFORM_ETA_BYTES];
-			uint8_t tr[LC_DILITHIUM_TRBYTES];
 		} tmp;
 	};
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t dimension[2] = { LC_DILITHIUM_K, LC_DILITHIUM_L };
 	const uint8_t *rho, *rhoprime, *key;
+	polyveck *t1, *s2, *t0;
+	polyvecl *s1;
+	uint8_t *seckey, *pubkey, *tr;
+	unsigned int i;
 	int ret;
 	LC_HASH_CTX_ON_STACK(shake256_ctx, lc_shake256);
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
@@ -108,8 +110,6 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 	/* Get randomness for rho, rhoprime and key */
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, ws->seedbuf,
 			      LC_DILITHIUM_SEEDBYTES));
-	dilithium_print_buffer(ws->seedbuf, LC_DILITHIUM_SEEDBYTES,
-			       "Keygen - Seed");
 
 	CKINT(lc_hash_init(shake256_ctx));
 	lc_hash_update(shake256_ctx, ws->seedbuf, LC_DILITHIUM_SEEDBYTES);
@@ -119,8 +119,6 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 	lc_hash_zero(shake256_ctx);
 
 	rho = ws->seedbuf;
-	dilithium_print_buffer(ws->seedbuf, LC_DILITHIUM_SEEDBYTES,
-			       "Keygen - RHO");
 	pack_pk_rho(pk, rho);
 	pack_sk_rho(sk, rho);
 
@@ -132,19 +130,20 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 	 * sampling operation of S1 and S2 is released.
 	 */
 	rhoprime = rho + LC_DILITHIUM_SEEDBYTES;
-	dilithium_print_buffer(rhoprime, LC_DILITHIUM_CRHBYTES,
-			       "Keygen - RHOPrime");
 
 	key = rhoprime + LC_DILITHIUM_CRHBYTES;
-	dilithium_print_buffer(key, LC_DILITHIUM_SEEDBYTES, "Keygen - Key");
 
 	/* Timecop: key goes into the secret key */
 	poison(key, LC_DILITHIUM_SEEDBYTES);
 
 	pack_sk_key(sk, key);
 
-	/* Sample short vectors s1 and s2 */
-
+	/*
+	 * Sample short vectors s1 and s2
+	 *
+	 * Do not implement the loop around L and K here, because ARMv8 has an
+	 * accelerated implementation of this.
+	 */
 	polyvecl_uniform_eta(&ws->s1.s1, rhoprime, 0,
 			     ws->tmp.poly_uniform_eta_buf);
 	polyveck_uniform_eta(&ws->s2, rhoprime, LC_DILITHIUM_L,
@@ -154,80 +153,63 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 	poison(&ws->s1.s1, sizeof(polyvecl));
 	poison(&ws->s2, sizeof(polyveck));
 
-	dilithium_print_polyvecl(&ws->s1.s1,
-				 "Keygen - S1 L x N matrix after ExpandS:");
-	dilithium_print_polyveck(&ws->s2,
-				 "Keygen - S2 K x N matrix after ExpandS:");
-
 	pack_sk_s1(sk, &ws->s1.s1);
 	pack_sk_s2(sk, &ws->s2);
 
 	polyvecl_ntt(&ws->s1.s1hat);
-	dilithium_print_polyvecl(&ws->s1.s1hat,
-				 "Keygen - S1 L x N matrix after NTT:");
 
 	/* Expand matrix */
 	polyvec_matrix_expand(ws->matrix.mat, rho, ws->tmp.poly_uniform_buf);
-	dilithium_print_polyvecl_k(
-		ws->matrix.mat, "Keygen - MAT K x L x N matrix after ExpandA:");
 
-	polyvec_matrix_pointwise_montgomery(
-		&ws->t1, ws->matrix.mat, &ws->s1.s1hat,
-		&ws->tmp.polyvecl_pointwise_acc_montgomery_buf);
-	dilithium_print_polyveck(&ws->t1,
-				 "Keygen - T K x N matrix after A*NTT(s1):");
+	s1 = &ws->s1.s1hat;
+	s2 = &ws->s2;
+	t1 = &ws->t1;
+	t0 = &ws->matrix.t0;
+	pubkey = pk->pk + LC_DILITHIUM_SEEDBYTES;
+	seckey = sk->sk + 2 * LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_TRBYTES +
+		 LC_DILITHIUM_L * LC_DILITHIUM_POLYETA_PACKEDBYTES +
+		 LC_DILITHIUM_K * LC_DILITHIUM_POLYETA_PACKEDBYTES;
+	for (i = 0; i < LC_DILITHIUM_K; ++i) {
+		polyvecl_pointwise_acc_montgomery(
+			&t1->vec[i], &ws->matrix.mat[i], s1,
+			&ws->tmp.polyvecl_pointwise_acc_montgomery_buf);
 
-	polyveck_reduce(&ws->t1);
-	dilithium_print_polyveck(
-		&ws->t1, "Keygen - T K x N matrix reduce after A*NTT(s1):");
+		poly_reduce(&t1->vec[i]);
+		poly_invntt_tomont(&t1->vec[i]);
 
-	polyveck_invntt_tomont(&ws->t1);
-	dilithium_print_polyveck(&ws->t1,
-				 "Keygen - T K x N matrix after NTT-1:");
+		/* Add error vector s2 */
+		poly_add(&t1->vec[i], &t1->vec[i], &s2->vec[i]);
 
-	/* Add error vector s2 */
-	polyveck_add(&ws->t1, &ws->t1, &ws->s2);
-	dilithium_print_polyveck(&ws->t1,
-				 "Keygen - T K x N matrix after add S2:");
-
-	/*
-	 * Reference: The following reduction is not present in the reference
-	 * implementation. Omitting this reduction requires the output of
-	 * the invntt to be small enough such that the addition of s2 does
-	 * not result in absolute values >= LC_DILITHIUM_Q. While the C, x86_64,
-	 * and AArch64 invntt implementations produce small enough
-	 * values for this to work out, it complicates the bounds
-	 * reasoning. Therefore, add an additional reduction, allowing to
-	 * relax the bounds requirements for the invntt, especially when adding
-	 * new invntt assembler implementations.
-	 */
+		/*
+		* Reference: The following reduction is not present in the
+		* reference implementation. Omitting this reduction requires the
+		* output of the invntt to be small enough such that the addition
+		* of s2 does not result in absolute values >= LC_DILITHIUM_Q.
+		* While the C, x86_64, and AArch64 invntt implementations
+		* produce small enough values for this to work out, it
+		* complicates the bounds reasoning. Therefore, add an additional
+		* reduction, allowing to relax the bounds requirements for the
+		* invntt, especially when adding new invntt assembler
+		* implementations.
+		*/
 #ifndef LC_DILITHIUM_INVNTT_SMALL
-	polyveck_reduce(&ws->t1);
+		poly_reduce(&t1->vec[i]);
 #endif
 
-	/* Extract t1 and write public key */
-	polyveck_caddq(&ws->t1);
-	dilithium_print_polyveck(&ws->t1, "Keygen - T K x N matrix caddq:");
+		/* Extract t1 and write public key */
+		poly_caddq(&t1->vec[i]);
+		poly_power2round(&t1->vec[i], &t0->vec[i], &t1->vec[i]);
 
-	polyveck_power2round(&ws->t1, &ws->matrix.t0, &ws->t1);
-	dilithium_print_polyveck(&ws->matrix.t0,
-				 "Keygen - T0 K x N matrix after power2round:");
-	dilithium_print_polyveck(&ws->t1,
-				 "Keygen - T1 K x N matrix after power2round:");
-
-	pack_sk_t0(sk, &ws->matrix.t0);
-	pack_pk_t1(pk, &ws->t1);
-	dilithium_print_buffer(pk->pk, LC_DILITHIUM_PUBLICKEYBYTES,
-			       "Keygen - PK after pkEncode:");
+		polyt1_pack(pubkey + i * LC_DILITHIUM_POLYT1_PACKEDBYTES,
+			    &t1->vec[i]);
+		polyt0_pack(seckey + i * LC_DILITHIUM_POLYT0_PACKEDBYTES,
+			    &t0->vec[i]);
+	}
 
 	/* Compute H(rho, t1) and write secret key */
-	CKINT(lc_xof(lc_shake256, pk->pk, sizeof(pk->pk), ws->tmp.tr,
-		     sizeof(ws->tmp.tr)));
-	dilithium_print_buffer(ws->tmp.tr, sizeof(ws->tmp.tr), "Keygen - TR:");
-	pack_sk_tr(sk, ws->tmp.tr);
-
-	dilithium_print_buffer(sk->sk, LC_DILITHIUM_SECRETKEYBYTES,
-			       "Keygen - SK:");
+	tr = sk->sk + 2 * LC_DILITHIUM_SEEDBYTES;
+	CKINT(lc_xof(lc_shake256, pk->pk, sizeof(pk->pk), tr,
+		     LC_DILITHIUM_TRBYTES));
 
 	/* Timecop: pk and sk are not relevant for side-channels any more. */
 	unpoison(pk->pk, sizeof(pk->pk));
@@ -279,9 +261,12 @@ static int lc_dilithium_sign_internal_ahat(struct lc_dilithium_sig *sig,
 			uint8_t poly_challenge_buf[POLY_CHALLENGE_BYTES];
 		} tmp;
 	};
-	unsigned int n;
+	unsigned int n, i;
 	uint8_t *key, *mu, *rhoprime, *rnd;
 	const polyvecl *mat = ctx->ahat;
+	const uint8_t *seckey;
+	polyvecl *z, *s1, *y;
+	polyveck *w0, *w1, *h, *s2, *t0;
 	uint16_t nonce = 0;
 	int ret = 0;
 	struct lc_hash_ctx *hash_ctx = &ctx->dilithium_hash_ctx;
@@ -290,6 +275,9 @@ static int lc_dilithium_sign_internal_ahat(struct lc_dilithium_sig *sig,
 
 	/* AHat must be present at this time */
 	CKNULL(mat, -EINVAL);
+
+	w0 = &ws->w0;
+	w1 = &ws->w1;
 
 	key = ws->seedbuf;
 	rnd = key + LC_DILITHIUM_SEEDBYTES;
@@ -313,7 +301,6 @@ static int lc_dilithium_sign_internal_ahat(struct lc_dilithium_sig *sig,
 		lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_CRHBYTES);
 		lc_hash_final(hash_ctx, mu);
 	}
-	dilithium_print_buffer(mu, LC_DILITHIUM_CRHBYTES, "Siggen - MU:");
 
 	if (rng_ctx) {
 		CKINT(lc_rng_generate(rng_ctx, NULL, 0, rnd,
@@ -321,7 +308,6 @@ static int lc_dilithium_sign_internal_ahat(struct lc_dilithium_sig *sig,
 	} else {
 		memset(rnd, 0, LC_DILITHIUM_RNDBYTES);
 	}
-	dilithium_print_buffer(rnd, LC_DILITHIUM_RNDBYTES, "Siggen - RND:");
 
 	unpack_sk_key(key, sk);
 
@@ -337,8 +323,6 @@ static int lc_dilithium_sign_internal_ahat(struct lc_dilithium_sig *sig,
 		     LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_RNDBYTES +
 			     LC_DILITHIUM_CRHBYTES,
 		     rhoprime, LC_DILITHIUM_CRHBYTES));
-	dilithium_print_buffer(rhoprime, LC_DILITHIUM_CRHBYTES,
-			       "Siggen - RHOPrime:");
 
 	/*
 	 * Timecop: RHO' is the hash of the secret value of key which is
@@ -348,36 +332,47 @@ static int lc_dilithium_sign_internal_ahat(struct lc_dilithium_sig *sig,
 	 */
 	unpoison(rhoprime, LC_DILITHIUM_CRHBYTES);
 
-	unpack_sk_s1(&ws->s1, sk);
+	s1 = &ws->s1;
+	seckey = sk->sk + 2 * LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_TRBYTES;
+	for (i = 0; i < LC_DILITHIUM_L; ++i) {
+		polyeta_unpack(&s1->vec[i],
+			       seckey + i * LC_DILITHIUM_POLYETA_PACKEDBYTES);
 
-	/* Timecop: s1 is secret */
-	poison(&ws->s1, sizeof(polyvecl));
+		/* Timecop: s1 is secret */
+		poison(&s1->vec[i], sizeof(poly));
+		poly_ntt(&s1->vec[i]);
+	}
 
-	polyvecl_ntt(&ws->s1);
-	dilithium_print_polyvecl(&ws->s1,
-				 "Siggen - S1 L x N matrix after NTT:");
+	s2 = &ws->s2;
+	seckey = sk->sk + 2 * LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_TRBYTES +
+		 LC_DILITHIUM_L * LC_DILITHIUM_POLYETA_PACKEDBYTES;
+	for (i = 0; i < LC_DILITHIUM_K; ++i) {
+		polyeta_unpack(&s2->vec[i],
+			       seckey + i * LC_DILITHIUM_POLYETA_PACKEDBYTES);
 
-	unpack_sk_s2(&ws->s2, sk);
+		/* Timecop: s2 is secret */
+		poison(&s2->vec[i], sizeof(poly));
+		poly_ntt(&s2->vec[i]);
+	}
 
-	/* Timecop: s2 is secret */
-	poison(&ws->s2, sizeof(polyveck));
+	t0 = &ws->t0;
+	seckey = sk->sk + 2 * LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_TRBYTES +
+		 LC_DILITHIUM_L * LC_DILITHIUM_POLYETA_PACKEDBYTES +
+		 LC_DILITHIUM_K * LC_DILITHIUM_POLYETA_PACKEDBYTES;
+	for (i = 0; i < LC_DILITHIUM_K; ++i) {
+		polyt0_unpack(&t0->vec[i],
+			      seckey + i * LC_DILITHIUM_POLYT0_PACKEDBYTES);
+		poly_ntt(&t0->vec[i]);
+	}
 
-	polyveck_ntt(&ws->s2);
-	dilithium_print_polyveck(&ws->s2,
-				 "Siggen - S2 K x N matrix after NTT:");
-
-	unpack_sk_t0(&ws->t0, sk);
-	polyveck_ntt(&ws->t0);
-	dilithium_print_polyveck(&ws->t0,
-				 "Siggen - T0 K x N matrix after NTT:");
+	z = &ws->z;
+	y = &ws->y;
+	h = &ws->h;
 
 rej:
 	/* Sample intermediate vector y */
 	polyvecl_uniform_gamma1(&ws->y, rhoprime, nonce++,
 				ws->tmp.poly_uniform_gamma1_buf);
-	dilithium_print_polyvecl(
-		&ws->y,
-		"Siggen - Y L x N matrix after ExpandMask - start of loop");
 
 	/* Timecop: s2 is secret */
 	poison(&ws->y, sizeof(polyvecl));
@@ -386,23 +381,27 @@ rej:
 	ws->z = ws->y;
 	polyvecl_ntt(&ws->z);
 
-	/* Use the cp for this operation as it is not used here so far. */
-	polyvec_matrix_pointwise_montgomery(&ws->w1, mat, &ws->z, &ws->cp);
-	polyveck_reduce(&ws->w1);
-	polyveck_invntt_tomont(&ws->w1);
-	dilithium_print_polyveck(&ws->w1,
-				 "Siggen - W K x N matrix after NTT-1");
+	for (i = 0; i < LC_DILITHIUM_K; ++i) {
+		/*
+		 * Use the cp for this operation as it is not used here so far.
+		 */
+		polyvecl_pointwise_acc_montgomery(&w1->vec[i], &mat[i], &ws->z,
+						  &ws->cp);
+		poly_reduce(&w1->vec[i]);
+		poly_invntt_tomont(&w1->vec[i]);
 
-	/* Decompose w and call the random oracle */
-	polyveck_caddq(&ws->w1);
-	polyveck_decompose(&ws->w1, &ws->w0, &ws->w1);
+		/* Decompose w and call the random oracle */
+		poly_caddq(&w1->vec[i]);
+		poly_decompose(&w1->vec[i], &w0->vec[i], &w1->vec[i]);
 
-	/* Timecop: the signature component w1 is not sensitive any more. */
-	unpoison(&ws->w1, sizeof(polyveck));
-	polyveck_pack_w1(sig->sig, &ws->w1);
-	dilithium_print_buffer(sig->sig,
-			       LC_DILITHIUM_K * LC_DILITHIUM_POLYW1_PACKEDBYTES,
-			       "Siggen - w1Encode of W1");
+		/*
+		 * Timecop: the signature component w1 is not sensitive any
+		 * more.
+		 */
+		unpoison(&w1->vec[i], sizeof(poly));
+		polyw1_pack(&sig->sig[i * LC_DILITHIUM_POLYW1_PACKEDBYTES],
+			    &w1->vec[i]);
+	}
 
 	CKINT(lc_hash_init(hash_ctx));
 	lc_hash_update(hash_ctx, mu, LC_DILITHIUM_CRHBYTES);
@@ -411,84 +410,75 @@ rej:
 	lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_CTILDE_BYTES);
 	lc_hash_final(hash_ctx, sig->sig);
 	lc_hash_zero(hash_ctx);
-	dilithium_print_buffer(sig->sig, LC_DILITHIUM_CTILDE_BYTES,
-			       "Siggen - ctilde");
 
 	poly_challenge(&ws->cp, sig->sig, ws->tmp.poly_challenge_buf);
-	dilithium_print_poly(&ws->cp, "Siggen - c after SampleInBall");
 	poly_ntt(&ws->cp);
-	dilithium_print_poly(&ws->cp, "Siggen - c after NTT");
 
 	/* Compute z, reject if it reveals secret */
-	polyvecl_pointwise_poly_montgomery(&ws->z, &ws->cp, &ws->s1);
-	polyvecl_invntt_tomont(&ws->z);
-	polyvecl_add(&ws->z, &ws->z, &ws->y);
-	dilithium_print_polyvecl(&ws->z, "Siggen - z <- y + cs1");
+	for (i = 0; i < LC_DILITHIUM_L; ++i) {
+		poly_pointwise_montgomery(&z->vec[i], &ws->cp, &s1->vec[i]);
+		poly_invntt_tomont(&z->vec[i]);
+		poly_add(&z->vec[i], &z->vec[i], &y->vec[i]);
+		poly_reduce(&z->vec[i]);
 
-	polyvecl_reduce(&ws->z);
-	dilithium_print_polyvecl(&ws->z, "Siggen - z reduction");
+		/* Timecop: the signature component z is not sensitive any more. */
+		unpoison(&z->vec[i], sizeof(poly));
 
-	/* Timecop: the signature component z is not sensitive any more. */
-	unpoison(&ws->z, sizeof(polyvecl));
-
-	if (polyvecl_chknorm(&ws->z, LC_DILITHIUM_GAMMA1 - LC_DILITHIUM_BETA)) {
-		dilithium_print_polyvecl(&ws->z, "Siggen - z rejection");
-		rej_total |= 1 << 0;
-		goto rej;
+		/* Siggen - z rejection */
+		if (poly_chknorm(&z->vec[i],
+				 LC_DILITHIUM_GAMMA1 - LC_DILITHIUM_BETA)) {
+			rej_total |= 1 << 0;
+			goto rej;
+		}
 	}
 
 	/*
 	 * Check that subtracting cs2 does not change high bits of w and low
 	 * bits do not reveal secret information.
 	 */
-	polyveck_pointwise_poly_montgomery(&ws->h, &ws->cp, &ws->s2);
-	polyveck_invntt_tomont(&ws->h);
-	polyveck_sub(&ws->w0, &ws->w0, &ws->h);
-	polyveck_reduce(&ws->w0);
+	for (i = 0; i < LC_DILITHIUM_K; ++i) {
+		poly_pointwise_montgomery(&h->vec[i], &ws->cp, &s2->vec[i]);
+		poly_invntt_tomont(&h->vec[i]);
+		poly_sub(&w0->vec[i], &w0->vec[i], &h->vec[i]);
+		poly_reduce(&w0->vec[i]);
 
-	/* Timecop: verification data w0 is not sensitive any more. */
-	unpoison(&ws->w0, sizeof(polyveck));
+		/* Timecop: verification data w0 is not sensitive any more. */
+		unpoison(&w0->vec[i], sizeof(poly));
 
-	if (polyveck_chknorm(&ws->w0,
-			     LC_DILITHIUM_GAMMA2 - LC_DILITHIUM_BETA)) {
-		dilithium_print_polyveck(&ws->w0, "Siggen - r0 rejection");
-		rej_total |= 1 << 1;
-		goto rej;
+		/* Siggen - r0 rejection */
+		if (poly_chknorm(&w0->vec[i],
+				 LC_DILITHIUM_GAMMA2 - LC_DILITHIUM_BETA)) {
+			rej_total |= 1 << 1;
+			goto rej;
+		}
+
+		/* Compute hints for w1 */
+		poly_pointwise_montgomery(&h->vec[i], &ws->cp, &t0->vec[i]);
+		poly_invntt_tomont(&h->vec[i]);
+		poly_reduce(&h->vec[i]);
+
+		/*
+		 * Timecop: the signature component h is not sensitive any more.
+		 */
+		unpoison(&h->vec[i], sizeof(poly));
+
+		/* Siggen - ct0 rejection */
+		if (poly_chknorm(&h->vec[i], LC_DILITHIUM_GAMMA2)) {
+			rej_total |= 1 << 2;
+			goto rej;
+		}
+
+		poly_add(&w0->vec[i], &w0->vec[i], &h->vec[i]);
 	}
-
-	/* Compute hints for w1 */
-	polyveck_pointwise_poly_montgomery(&ws->h, &ws->cp, &ws->t0);
-	polyveck_invntt_tomont(&ws->h);
-	polyveck_reduce(&ws->h);
-
-	/* Timecop: the signature component h is not sensitive any more. */
-	unpoison(&ws->h, sizeof(polyveck));
-
-	if (polyveck_chknorm(&ws->h, LC_DILITHIUM_GAMMA2)) {
-		dilithium_print_polyveck(&ws->h, "Siggen - ct0 rejection");
-		rej_total |= 1 << 2;
-		goto rej;
-	}
-
-	polyveck_add(&ws->w0, &ws->w0, &ws->h);
 
 	n = polyveck_make_hint(&ws->h, &ws->w0, &ws->w1);
 	if (n > LC_DILITHIUM_OMEGA) {
-		dilithium_print_polyveck(&ws->w0, "Siggen - h rejection");
 		rej_total |= 1 << 3;
 		goto rej;
 	}
 
 	/* Write signature */
-	dilithium_print_buffer(sig->sig, LC_DILITHIUM_CTILDE_BYTES,
-			       "Siggen - Ctilde:");
-	dilithium_print_polyvecl(&ws->z, "Siggen - Z L x N matrix:");
-	dilithium_print_polyveck(&ws->h, "Siggen - H K x N matrix:");
-
 	pack_sig(sig, &ws->z, &ws->h);
-
-	dilithium_print_buffer(sig->sig, LC_DILITHIUM_CRYPTO_BYTES,
-			       "Siggen - Signature:");
 
 out:
 	LC_RELEASE_MEM(ws);
@@ -572,8 +562,6 @@ static int lc_dilithium_sk_expand_impl(const struct lc_dilithium_sk *sk,
 #endif
 
 	polyvec_matrix_expand(mat, rho, ws->poly_uniform_buf);
-	dilithium_print_polyvecl_k(mat,
-				   "AHAT - A K x L x N matrix after ExpandA:");
 
 	ctx->ahat_expanded = 1;
 
@@ -616,8 +604,6 @@ static int lc_dilithium_sign_ctx_impl(struct lc_dilithium_sig *sig,
 	/* Either the message or the external mu must be provided */
 	if (!m && !ctx->external_mu)
 		return -EINVAL;
-
-	dilithium_print_buffer(m, mlen, "Siggen - Message");
 
 	unpack_sk_tr(tr, sk);
 
@@ -745,22 +731,33 @@ static int lc_dilithium_verify_internal_ahat(const struct lc_dilithium_sig *sig,
 	};
 	/* The first bytes of the signature is c~ and thus contains c1. */
 	const uint8_t *c1 = sig->sig;
+	/* Skip c */
+	const uint8_t *signature = sig->sig + LC_DILITHIUM_CTILDE_BYTES;
 	const polyvecl *mat = ctx->ahat;
+	polyvecl *z;
+	polyveck *h, *t1, *w1;
 	struct lc_hash_ctx *hash_ctx = &ctx->dilithium_hash_ctx;
+	unsigned int i;
 	int ret = 0;
 	LC_DECLARE_MEM(ws, struct workspace_verify, sizeof(uint64_t));
 
 	/* AHat must be present at this time */
 	CKNULL(mat, -EINVAL);
 
-	unpack_sig_z(&ws->buf.z, sig);
-	if (polyvecl_chknorm(&ws->buf.z,
-			     LC_DILITHIUM_GAMMA1 - LC_DILITHIUM_BETA)) {
-		ret = -EINVAL;
-		goto out;
+	z = &ws->buf.z;
+	for (i = 0; i < LC_DILITHIUM_L; ++i) {
+		polyz_unpack(&z->vec[i],
+			     signature + i * LC_DILITHIUM_POLYZ_PACKEDBYTES);
+
+		if (poly_chknorm(&z->vec[i],
+				 LC_DILITHIUM_GAMMA1 - LC_DILITHIUM_BETA)) {
+			ret = -EINVAL;
+			goto out;
+		}
+
+		poly_ntt(&z->vec[i]);
 	}
 
-	polyvecl_ntt(&ws->buf.z);
 	polyvec_matrix_pointwise_montgomery(
 		&ws->w1, mat, &ws->buf.z,
 		&ws->tmp.polyvecl_pointwise_acc_montgomery_buf);
@@ -770,31 +767,33 @@ static int lc_dilithium_verify_internal_ahat(const struct lc_dilithium_sig *sig,
 	poly_ntt(&ws->matrix.cp);
 
 	unpack_pk_t1(&ws->buf.t1, pk);
-	polyveck_shiftl(&ws->buf.t1);
-	polyveck_ntt(&ws->buf.t1);
-	polyveck_pointwise_poly_montgomery(&ws->buf.t1, &ws->matrix.cp,
-					   &ws->buf.t1);
 
-	polyveck_sub(&ws->w1, &ws->w1, &ws->buf.t1);
-	polyveck_reduce(&ws->w1);
-	polyveck_invntt_tomont(&ws->w1);
+	t1 = &ws->buf.t1;
+	w1 = &ws->w1;
+	for (i = 0; i < LC_DILITHIUM_K; ++i) {
+		poly_shiftl(&t1->vec[i]);
+		poly_ntt(&t1->vec[i]);
 
-	/* Reconstruct w1 */
-	polyveck_caddq(&ws->w1);
-	dilithium_print_polyveck(&ws->w1,
-				 "Sigver - W K x N matrix before hint:");
+		poly_pointwise_montgomery(&t1->vec[i], &ws->matrix.cp,
+					  &t1->vec[i]);
+
+		poly_sub(&w1->vec[i], &w1->vec[i], &t1->vec[i]);
+		poly_reduce(&w1->vec[i]);
+		poly_invntt_tomont(&w1->vec[i]);
+
+		/* Reconstruct w1 */
+		poly_caddq(&w1->vec[i]);
+	}
 
 	if (unpack_sig_h(&ws->buf.h, sig))
 		return -EINVAL;
-	dilithium_print_polyveck(&ws->buf.h, "Siggen - H K x N matrix:");
 
-	polyveck_use_hint(&ws->w1, &ws->w1, &ws->buf.h);
-	dilithium_print_polyveck(&ws->w1,
-				 "Sigver - W K x N matrix after hint:");
-	polyveck_pack_w1(ws->tmp.buf, &ws->w1);
-	dilithium_print_buffer(ws->tmp.buf,
-			       LC_DILITHIUM_K * LC_DILITHIUM_POLYW1_PACKEDBYTES,
-			       "Sigver - W after w1Encode");
+	h = &ws->buf.h;
+	for (i = 0; i < LC_DILITHIUM_K; ++i) {
+		poly_use_hint(&w1->vec[i], &w1->vec[i], &h->vec[i]);
+		polyw1_pack(&ws->tmp.buf[i * LC_DILITHIUM_POLYW1_PACKEDBYTES],
+			    &w1->vec[i]);
+	}
 
 	if (ctx->external_mu) {
 		if (ctx->external_mu_len != LC_DILITHIUM_CRHBYTES)

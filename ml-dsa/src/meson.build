@@ -20,10 +20,6 @@ dilithium_c = files([
 	'dilithium_signature_helper.c',
 ])
 
-if get_option('dilithium_debug').enabled()
-	dilithium_c += files ([ 'dilithium_debug.c' ])
-endif
-
 if get_option('dilithium_ed25519').enabled()
 	dilithium_c += files ([ 'dilithium_ed25519_signature.c' ])
 endif

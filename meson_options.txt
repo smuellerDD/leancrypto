@@ -383,9 +383,6 @@ option('tests', type: 'feature', value: 'enabled',
 option('kyber_debug', type: 'feature', value: 'disabled',
        description: 'DEBUGGING: Kyber debug printout - DO NOT ENABLE IN PRODUCTION SYSTEMS!')
 
-option('dilithium_debug', type: 'feature', value: 'disabled',
-       description: 'DEBUGGING: Dilithium debug printout - DO NOT ENABLE IN PRODUCTION SYSTEMS!')
-
 option('timecop', type: 'feature', value: 'disabled',
        description: '''DEBUGGING: enable TIMECOP - DO NOT ENABLE IN PRODUCTION SYSTEMS!
 

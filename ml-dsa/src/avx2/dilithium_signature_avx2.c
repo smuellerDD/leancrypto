@@ -32,7 +32,6 @@
 #include "dilithium_poly_avx2.h"
 #include "dilithium_poly_common.h"
 #include "dilithium_polyvec_avx2.h"
-#include "dilithium_debug.h"
 #include "dilithium_pct.h"
 #include "dilithium_signature_avx2.h"
 #include "lc_rng.h"
@@ -207,8 +206,6 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_avx2,
 
 	/* Transform s1 */
 	polyvecl_ntt_avx(&ws->s1);
-	dilithium_print_polyvecl(&ws->s1,
-				 "Keygen - S1 L x N matrix after NTT:");
 
 	for (i = 0; i < LC_DILITHIUM_K; i++) {
 		polyvec_matrix_expand_row(&row, ws->rowbuf, rho, i,
@@ -217,8 +214,6 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_avx2,
 
 		/* Compute inner-product */
 		polyvecl_pointwise_acc_montgomery_avx(&ws->t1, row, &ws->s1);
-		dilithium_print_poly(&ws->t1,
-				     "Keygen - T N vector after A*NTT(s1):");
 
 		poly_invntt_tomont_avx(&ws->t1);
 
@@ -240,9 +235,6 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_avx2,
 				i * LC_DILITHIUM_POLYT0_PACKEDBYTES,
 			&ws->t0);
 	}
-
-	dilithium_print_buffer(pk->pk, LC_DILITHIUM_PUBLICKEYBYTES,
-			       "Keygen - PK after pkEncode:");
 
 	/* Compute H(rho, t1) and store in secret key */
 	CKINT(lc_xof(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES,
@@ -458,10 +450,9 @@ rej:
 		 */
 		unpoison(&ws->z.vec[i], sizeof(poly));
 
+		/* Siggen - z rejection */
 		if (poly_chknorm_avx(&ws->z.vec[i],
 				     LC_DILITHIUM_GAMMA1 - LC_DILITHIUM_BETA)) {
-			dilithium_print_polyvecl(&ws->z,
-						 "Siggen - z rejection");
 			goto rej;
 		}
 	}
@@ -484,12 +475,10 @@ rej:
 		/* Timecop: verification data w0 is not sensitive any more. */
 		unpoison(&ws->tmpv.w0.vec[i], sizeof(poly));
 
+		/* Siggen - r0 rejection */
 		if (poly_chknorm_avx(&ws->tmpv.w0.vec[i],
-				     LC_DILITHIUM_GAMMA2 - LC_DILITHIUM_BETA)) {
-			dilithium_print_polyveck(&ws->tmpv.w0,
-						 "Siggen - r0 rejection");
+				     LC_DILITHIUM_GAMMA2 - LC_DILITHIUM_BETA))
 			goto rej;
-		}
 
 		/* Compute hints */
 		poly_pointwise_montgomery_avx(&ws->tmp, &ws->c, &ws->t0.vec[i]);
@@ -499,21 +488,18 @@ rej:
 		/* Timecop: the hint information is not sensitive any more. */
 		unpoison(&ws->tmp, sizeof(poly));
 
-		if (poly_chknorm_avx(&ws->tmp, LC_DILITHIUM_GAMMA2)) {
-			dilithium_print_poly(&ws->tmp,
-					     "Siggen - ct0 rejection");
+		/* Siggen - ct0 rejection */
+		if (poly_chknorm_avx(&ws->tmp, LC_DILITHIUM_GAMMA2))
 			goto rej;
-		}
 
 		poly_add_avx(&ws->tmpv.w0.vec[i], &ws->tmpv.w0.vec[i],
 			     &ws->tmp);
 		n = poly_make_hint_avx(ws->hintbuf, &ws->tmpv.w0.vec[i],
 				       &ws->w1.vec[i]);
-		if (pos + n > LC_DILITHIUM_OMEGA) {
-			dilithium_print_polyveck(&ws->tmpv.w0,
-						 "Siggen - h rejection");
+
+		/* Siggen - h rejection */
+		if (pos + n > LC_DILITHIUM_OMEGA)
 			goto rej;
-		}
 
 		/* Store hints in signature */
 		memcpy(&hint[pos], ws->hintbuf, n);

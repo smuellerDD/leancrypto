@@ -118,9 +118,6 @@ endif
 if get_option('debug')
 	add_global_arguments([ '-DLC_DEBUG' ], language: 'c')
 endif
-if get_option('dilithium_debug').enabled()
-	add_global_arguments([ '-DLC_DILITHIUM_DEBUG' ], language: 'c')
-endif
 if get_option('kyber_debug').enabled()
 	add_global_arguments([ '-DLC_KYBER_DEBUG' ], language: 'c')
 endif
