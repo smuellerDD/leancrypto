@@ -96,7 +96,7 @@ void poly_uniform(poly *a, const uint8_t seed[LC_DILITHIUM_SEEDBYTES],
 			buf[i] = buf[buflen - off + i];
 
 		lc_hash_final(hash_ctx, buf + off);
-		buflen = LC_DILITHIUM_SEEDBYTES + off;
+		buflen = LC_SHAKE_128_SIZE_BLOCK + off;
 		ctr += rej_uniform(a->coeffs + ctr, LC_DILITHIUM_N - ctr, buf,
 				   buflen);
 	}
