@@ -19,6 +19,10 @@ Changes 1.7.0-prerelease
 
 * ML-DSA: reduce amount of duplicate code compilation suggested by "Becker, Hanno" <beckphan@amazon.co.uk>
 
+* ML-DSA: fix bug in poly_uniform which, however, is unlikely to be triggered
+
+* AVX2 / AVX512 detection: Follow Intel instructions on detecting support
+
 Changes 1.6.0
 * ASN.1: use stack for small generator for small use cases
 

@@ -37,11 +37,21 @@
 /* Leaf 1 */
 #define LC_INTEL_AESNI_ECX (1 << 25)
 #define LC_INTEL_AVX_ECX (1 << 28)
+#define LC_INTEL_FMA_ECX (1 << 12)
+#define LC_INTEL_MOVBE_ECX (1 << 22)
+#define LC_INTEL_OSXSAVE (1 << 27)
+#define LC_INTEL_AVX_PREREQ1                                                   \
+	(LC_INTEL_FMA_ECX | LC_INTEL_MOVBE_ECX | LC_INTEL_OSXSAVE)
 /* Leaf 7, subleaf 0 of CPUID */
 #define LC_INTEL_AVX2_EBX (1 << 5)
+#define LC_INTEL_BMI1_EBX (1 << 3)
+#define LC_INTEL_BMI2_EBX (1 << 8)
+#define LC_INTEL_AVX2_PREREQ2                                                  \
+	(LC_INTEL_AVX2_EBX | LC_INTEL_BMI1_EBX | LC_INTEL_BMI2_EBX)
 #define LC_INTEL_AVX512F_EBX (1 << 16)
 #define LC_INTEL_VPCLMUL_ECX (1 << 10)
 #define LC_INTEL_PCLMUL_ECX (1 << 1)
+#define LC_INTEL_SHANI_EBX (1 << 29)
 #define LC_INTEL_SHANI_EBX (1 << 29)
 #define LC_INTEL_SHANI512_EAX (1 << 0)
 
@@ -111,11 +121,30 @@ LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 
 	/* read advanced features eax = 7, ecx = 0 */
 	cpuid_eax_ecx(7, 0, eax, ebx, ecx, edx);
-	if (ebx & LC_INTEL_AVX2_EBX)
-		feat |= LC_CPU_FEATURE_INTEL_AVX2;
 
-	if (ebx & LC_INTEL_AVX512F_EBX)
-		feat |= LC_CPU_FEATURE_INTEL_AVX512;
+	/*
+	 * Check AVX2 support according to Intel document "How to detect New
+	 * Instruction support in the 4th generation Intel® Core™ processor
+	 * family"
+	 */
+	if ((x86_64_cpuid[2] & LC_INTEL_AVX_PREREQ1) == LC_INTEL_AVX_PREREQ1) {
+		uint32_t xcr0;
+
+#if defined(_MSC_VER) && !defined(__clang__)
+		xcr0 = _xgetbv(0);
+#else
+		__asm__ ("xgetbv" : "=a" (xcr0) : "c" (0) : "%edx");
+#endif
+		/* Check if xmm and ymm state are enabled in XCR0. */
+		if ((xcr0 & 6) == 6) {
+			if ((ebx & LC_INTEL_AVX2_PREREQ2) ==
+			     LC_INTEL_AVX2_PREREQ2)
+				feat |= LC_CPU_FEATURE_INTEL_AVX2;
+
+			if (ebx & LC_INTEL_AVX512F_EBX)
+				feat |= LC_CPU_FEATURE_INTEL_AVX512;
+		}
+	}
 
 	if (ecx & LC_INTEL_VPCLMUL_ECX)
 		feat |= LC_CPU_FEATURE_INTEL_VPCLMUL;
