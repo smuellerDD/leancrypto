@@ -32,6 +32,7 @@
 #include "dilithium_tester.h"
 #include "ext_headers_internal.h"
 #include "lc_hash.h"
+#include "lc_init.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
 #include "selftest_rng.h"
@@ -472,3 +473,10 @@ out:
 	return ret;
 #endif
 }
+
+#ifndef LINUX_KERNEL
+LC_CONSTRUCTOR(kyber_kem_init, 101)
+{
+	lc_init(0);
+}
+#endif

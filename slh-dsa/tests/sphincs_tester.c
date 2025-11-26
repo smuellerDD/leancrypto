@@ -19,6 +19,7 @@
 
 #include "compare.h"
 #include "cpufeatures.h"
+#include "lc_init.h"
 #include "small_stack_support.h"
 #include "sphincs_type.h"
 #include "static_rng.h"
@@ -181,3 +182,10 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 		lc_cpu_feature_enable();
 	return ret;
 }
+
+#ifndef LINUX_KERNEL
+LC_CONSTRUCTOR(kyber_kem_init, 101)
+{
+	lc_init(0);
+}
+#endif
