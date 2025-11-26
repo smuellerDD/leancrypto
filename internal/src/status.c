@@ -232,12 +232,12 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 #ifdef LC_KYBER
 		,
 		(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
-			"AVX2" :
+			"AVX2 " :
 			"",
 		armv7, armv8, riscv64,
 #if defined(LC_HOST_RISCV64) || defined(CONFIG_RISCV)
-		lc_riscv_rvv_is_vlen128() ? "RISV64-RVV128" :
-		lc_riscv_rvv_is_vlen256() ? "RISV64-RVV256" :
+		lc_riscv_rvv_is_vlen128() ? "RISV64-RVV128 " :
+		lc_riscv_rvv_is_vlen256() ? "RISV64-RVV256 " :
 					    ""
 #else
 		""
@@ -249,7 +249,7 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 #ifdef LC_DILITHIUM
 		,
 		(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
-			"AVX2" :
+			"AVX2 " :
 			"",
 		armv7, armv8, riscv64,
 		(lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV_ASM_RVV) ?
@@ -261,7 +261,7 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 #ifdef LC_SPHINCS
 		,
 		(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
-			"AVX2" :
+			"AVX2 " :
 			"",
 		armv8
 #endif /* LC_DILITHIUM */
@@ -270,17 +270,17 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 #ifdef LC_BIKE
 		,
 		(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
-			"AVX2" :
+			"AVX2 " :
 			"",
 		(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX512) ?
-			"AVX512" :
+			"AVX512 " :
 			""
 #endif /* LC_BIKE */
 	/* HQC */
 #ifdef LC_HQC
 		,
 		(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
-			"AVX2" :
+			"AVX2 " :
 			""
 #endif /* LC_HQC */
 
@@ -288,7 +288,7 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 #ifdef LC_CURVE25519
 		,
 		(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
-			"AVX2" :
+			"AVX2 " :
 			"",
 		armv7, armv8
 #endif /* LC_CURVE25519 */
@@ -297,7 +297,7 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 #ifdef LC_CURVE448
 		,
 		(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
-			"AVX2" :
+			"AVX2 " :
 			""
 #endif /* LC_CURVE448 */
 	);
