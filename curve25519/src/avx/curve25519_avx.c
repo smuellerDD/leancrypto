@@ -40,8 +40,8 @@
 #include "fe51.h"
 #include "ladder.h"
 #include "lc_memset_secure.h"
-#include "x25519_scalarmult.h"
-#include "x25519_scalarmult_c.h"
+#include "../x25519_scalarmult.h"
+#include "../x25519_scalarmult_c.h"
 
 #define x1 var[0]
 #define x2 var[1]

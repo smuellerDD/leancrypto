@@ -1,7 +1,6 @@
 # for i in $(ls *.c | sort); do echo "'$i',"; done
 
 curve25519_armv7 = files([
-	'curve25519_armv7.c',
 	'x25519-cortex-m4-gcc.S',
 ])
 

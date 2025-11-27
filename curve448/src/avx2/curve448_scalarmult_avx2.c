@@ -65,8 +65,8 @@
 #include "lc_memset_secure.h"
 #include "lc_x448.h"
 #include "small_stack_support.h"
-#include "x448_scalarmult.h"
-#include "x448_scalarmult_c.h"
+#include "../x448_scalarmult.h"
+#include "../x448_scalarmult_c.h"
 
 static const uint8_t curve448_base_point[LC_X448_PUBLICKEYBYTES] = { 5 };
 

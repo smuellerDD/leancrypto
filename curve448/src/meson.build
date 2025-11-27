@@ -22,6 +22,9 @@ if get_option('kyber_x448').enabled()
 
 	if (x86_64_asm)
 		subdir('avx2')
+		src += files([
+			'avx2/curve448_scalarmult_avx2.c',
+		])
 	else
 		src += files([
 			'x448_scalarmult.c',

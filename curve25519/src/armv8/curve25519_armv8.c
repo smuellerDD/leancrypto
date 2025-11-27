@@ -21,7 +21,7 @@
 #include "cpufeatures.h"
 #include "curve25519_armv8.h"
 #include "lc_memset_secure.h"
-#include "x25519_scalarmult.h"
+#include "../x25519_scalarmult.h"
 
 int crypto_scalarmult_curve25519(unsigned char *q, const unsigned char *n,
 				 const unsigned char *p)

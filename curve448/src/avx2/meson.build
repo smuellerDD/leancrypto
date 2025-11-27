@@ -1,7 +1,6 @@
 # for i in $(ls *.c | sort); do echo "'$i',"; done
 
 curve448_avx2 = files([
-	'curve448_scalarmult_avx2.c',
 	'gf_p4482241_inv.c',
 	'curve448_scalarmult_avx2_asm.S',
 	'gf_p4482241_pack.c',
