@@ -14,7 +14,6 @@ kyber_armv8 = files([
 	'kyber_cbd_armv8.S',
 	'kyber_indcpa_armv8.c',
 	'kyber_inv_ntt_armv8.S',
-	'kyber_kem_api_armv8.c',
 	'kyber_kem_armv8.c',
 	'kyber_ntt_armv8_asm.S',
 	'kyber_poly_armv8_asm.S',

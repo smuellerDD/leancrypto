@@ -152,6 +152,9 @@ extern "C" {
 #define gf_mul_vect_avx2 HQC_F(gf_mul_vect_avx2)
 #define gf_mod_avx2 HQC_F(gf_mod_avx2)
 
+int lc_hqc_enc_internal(struct lc_hqc_ct *ct, struct lc_hqc_ss *ss,
+			const struct lc_hqc_pk *pk, struct lc_rng_ctx *rng_ctx);
+
 #ifdef __cplusplus
 }
 #endif

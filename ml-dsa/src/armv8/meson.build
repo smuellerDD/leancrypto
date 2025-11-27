@@ -14,7 +14,6 @@ dilithium_armv8 = files([
 	'dilithium_ntt_armv8.S',
 	'dilithium_poly.c',
 	'dilithium_poly_armv8.S',
-	'dilithium_signature_api_armv8.c',
 	'dilithium_signature_armv8.c'
 ])
 

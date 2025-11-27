@@ -6,7 +6,6 @@ src += files([
 
 # Files which are compiled for each Dilithium implementation separately
 dilithium_riscv64_asm = files([
-	'dilithium_signature_api_riscv64.c',
 	'dilithium_signature_riscv64.c',
 	'ntt_8l_dualissue_plant_rv64im.S'
 ])

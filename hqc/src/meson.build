@@ -25,6 +25,9 @@ hqc_src = files([
 if (hqc_enabled)
 	if (x86_64_asm)
 		subdir('avx2')
+		hqc_src += files([
+			'avx2/hqc_kem_api_avx2.c',
+		])
 	else
 		hqc_src += files([
 			'hqc_kem_api_c.c'

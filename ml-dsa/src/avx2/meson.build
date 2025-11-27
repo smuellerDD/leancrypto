@@ -16,7 +16,6 @@ dilithium_avx2 = files([
 	'dilithium_polyvec_avx2.c',
 	'dilithium_rejsample_avx2.c',
 	'dilithium_rounding_avx2.c',
-	'dilithium_signature_api_avx2.c',
 	'dilithium_signature_avx2.c',
 	'dilithium_shuffle_avx2.S',
 ])

@@ -85,9 +85,6 @@ struct hqc_pke_decrypt_ws {
 	} wsu;
 };
 
-int lc_hqc_enc_internal(struct lc_hqc_ct *ct, struct lc_hqc_ss *ss,
-			const struct lc_hqc_pk *pk, struct lc_rng_ctx *rng_ctx);
-
 #ifdef __cplusplus
 }
 #endif

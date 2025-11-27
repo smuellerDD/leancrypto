@@ -19,7 +19,6 @@
 
 #include "compare.h"
 #include "cpufeatures.h"
-#include "hqc_internal_avx2.h"
 #include "hqc_kem_avx2.h"
 #include "../hqc_selftest.h"
 #include "../hqc_kem_c.h"

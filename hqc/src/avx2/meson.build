@@ -1,12 +1,15 @@
 # for i in $(ls *.c | sort); do echo "'$i',"; done
 
+hqc_src_c = files([
+	'hqc_kem_api_avx2.c',
+])
+
 hqc_src_avx2 = files([
 	'code_avx2.c',
 	'fft_avx2.c',
 	'gf_avx2.c',
 	'gf2x_avx2.c',
 	'hqc_avx2.c',
-	'hqc_kem_api_avx2.c',
 	'hqc_kem_avx2.c',
 	'parsing_avx2.c',
 	'reed_muller_avx2.c',

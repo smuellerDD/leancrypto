@@ -28,7 +28,6 @@ if get_option('dilithium_ed448').enabled()
 	dilithium_c += files ([ 'dilithium_ed448_signature.c' ])
 endif
 
-dilithium_api_c = 0
 if (dilithium_enabled)
 	if (x86_64_asm)
 		subdir('avx2')
@@ -39,16 +38,33 @@ if (dilithium_enabled)
 		subdir('armv7')
 	elif (riscv64_asm)
 		subdir('riscv64')
-	else
-		dilithium_api_c = 1
-		dilithium_c += files([
-			'dilithium_signature_api_c.c'
-		])
 	endif
 endif
 
 if get_option('dilithium_87').enabled()
 	dilithium_87_files = dilithium_c
+
+	if (x86_64_asm)
+		dilithium_87_files += files([
+			'avx2/dilithium_signature_api_avx2.c'
+		])
+	elif (arm64_asm)
+		dilithium_87_files += files([
+			'armv8/dilithium_signature_api_armv8.c'
+		])
+	elif (arm32_neon_asm)
+		dilithium_87_files += files([
+			'armv7/dilithium_signature_api_armv7.c'
+		])
+	elif (riscv64_asm)
+		dilithium_87_files += files([
+			'riscv64/dilithium_signature_api_riscv64.c'
+		])
+	else
+		dilithium_87_files += files([
+			'dilithium_signature_api_c.c'
+		])
+	endif
 
 	leancrypto_dilithium_87_c_lib = static_library(
 		'leancrypto_dilithium_87_c_lib',
@@ -63,6 +79,28 @@ endif
 
 if get_option('dilithium_65').enabled()
 	dilithium_65_files = dilithium_c
+
+	if (x86_64_asm)
+		dilithium_65_files += files([
+			'avx2/dilithium_signature_api_avx2.c'
+		])
+	elif (arm64_asm)
+		dilithium_65_files += files([
+			'armv8/dilithium_signature_api_armv8.c'
+		])
+	elif (arm32_neon_asm)
+		dilithium_65_files += files([
+			'armv7/dilithium_signature_api_armv7.c'
+		])
+	elif (riscv64_asm)
+		dilithium_65_files += files([
+			'riscv64/dilithium_signature_api_riscv64.c'
+		])
+	else
+		dilithium_65_files += files([
+			'dilithium_signature_api_c.c'
+		])
+	endif
 
 	leancrypto_dilithium_65_c_lib = static_library(
 		'leancrypto_dilithium_65_c_lib',
@@ -79,8 +117,14 @@ endif
 if get_option('dilithium_44').enabled()
 	dilithium_44_files = dilithium_c
 
-	if (not riscv64_asm and (dilithium_api_c == 0))
-		dilithium_44_files += files([ 'dilithium_signature_api_c.c' ])
+	if (riscv64_asm)
+		dilithium_44_files += files([
+			'riscv64/dilithium_signature_api_riscv64.c'
+		])
+	else
+		dilithium_44_files += files([
+			'dilithium_signature_api_c.c'
+		])
 	endif
 
 	leancrypto_dilithium_44_c_lib = static_library(

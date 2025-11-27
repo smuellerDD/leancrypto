@@ -12,7 +12,6 @@ kyber_avx2 = files([
 	'kyber_fq_avx2.S',
 	'kyber_indcpa_avx2.c',
 	'kyber_invntt_avx2.S',
-	'kyber_kem_api_avx2.c',
 	'kyber_kem_avx2.c',
 	'kyber_ntt_avx2.S',
 	'kyber_poly_avx2.c',

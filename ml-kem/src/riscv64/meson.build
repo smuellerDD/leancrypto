@@ -7,10 +7,6 @@ kyber_riscv_rvv_common = files([
 	'riscv_rvv_selector_test.S'
 ])
 
-kyber_riscv_riscv_api = files([
-	'kyber_kem_api_riscv.c',
-])
-
 kyber_riscv_rvv_vlen128 = files([
 	'kyber_indcpa_rvv_vlen128.c',
 	'kyber_kem_rvv_vlen128.c',
@@ -68,54 +64,6 @@ if (get_option('kyber_1024').enabled() or
 			],
 		)
 	leancrypto_support_libs += leancrypto_kyber_riscv_rvv_lib
-endif
-
-# Kyber RISCV API
-if get_option('kyber_1024').enabled()
-	kyber_1024_files = kyber_riscv_riscv_api
-
-	leancrypto_kyber_1024_riscv_lib = static_library(
-		'leancrypto_kyber_1024_riscv_lib',
-		[ kyber_1024_files ],
-		include_directories: [
-			'../',
-			include_dirs,
-			include_internal_dirs
-		],
-	)
-	leancrypto_support_libs += leancrypto_kyber_1024_riscv_lib
-endif
-
-if get_option('kyber_768').enabled()
-	kyber_768_files = kyber_riscv_riscv_api
-
-	leancrypto_kyber_768_riscv_lib = static_library(
-		'leancrypto_kyber_768_riscv_lib',
-		[ kyber_768_files ],
-		include_directories: [
-			'../',
-			include_dirs,
-			include_internal_dirs
-		],
-		c_args : [ '-DLC_KYBER_TYPE_768']
-	)
-	leancrypto_support_libs += leancrypto_kyber_768_riscv_lib
-endif
-
-if get_option('kyber_512').enabled()
-	kyber_512_files = kyber_riscv_riscv_api
-
-	leancrypto_kyber_512_riscv_lib = static_library(
-		'leancrypto_kyber_512_riscv_lib',
-		[ kyber_512_files ],
-		include_directories: [
-			'../',
-			include_dirs,
-			include_internal_dirs
-		],
-		c_args : [ '-DLC_KYBER_TYPE_512' ]
-	)
-	leancrypto_support_libs += leancrypto_kyber_512_riscv_lib
 endif
 
 # Kyber RVV vector length 128

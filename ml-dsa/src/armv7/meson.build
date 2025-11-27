@@ -13,7 +13,6 @@ dilithium_armv7 = files([
 	'dilithium_pointwise_smull_armv7.S',
 	'dilithium_poly.c',
 	'dilithium_poly_armv7.S',
-	'dilithium_signature_api_armv7.c',
 	'dilithium_signature_armv7.c'
 ])
 

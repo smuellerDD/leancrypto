@@ -63,18 +63,32 @@ if (x86_64_asm)
 	subdir('avx2')
 elif (arm64_asm)
 	subdir('armv8')
+	kyber_c += files ([
+		'armv8/kyber_kem_api_armv8.c',
+	])
 elif (arm32_neon_asm)
 	subdir('armv7')
+	kyber_c += files([
+		'kyber_kem_api_c.c',
+	])
 elif (riscv64_asm)
 	subdir('riscv64')
+	kyber_c += files([
+		'riscv64/kyber_kem_api_riscv.c',
+	])
+else
+	kyber_c += files([
+		'kyber_kem_api_c.c',
+	])
 endif
 
 if get_option('kyber_1024').enabled()
 	kyber_1024_files = kyber_c
 
-	if (not x86_64_asm and not arm64_asm and not riscv64_asm)
-		kyber_1024_files += files([ 'kyber_kem_api_c.c' ])
+	if (x86_64_asm)
+		kyber_1024_files += files ([ 'avx2/kyber_kem_api_avx2.c' ])
 	endif
+
 	leancrypto_kyber_1024_c_lib = static_library(
 		'leancrypto_kyber_1024_c_lib',
 		[ kyber_1024_files ],
@@ -89,8 +103,8 @@ endif
 if get_option('kyber_768').enabled()
 	kyber_768_files = kyber_c
 
-	if (not x86_64_asm and not arm64_asm and not riscv64_asm)
-		kyber_768_files += files([ 'kyber_kem_api_c.c' ])
+	if (x86_64_asm)
+		kyber_768_files += files ([ 'avx2/kyber_kem_api_avx2.c' ])
 	endif
 
 	leancrypto_kyber_768_c_lib = static_library(
@@ -108,8 +122,8 @@ endif
 if get_option('kyber_512').enabled()
 	kyber_512_files = kyber_c
 
-	if (not riscv64_asm)
-		kyber_512_files += files([ 'kyber_kem_api_c.c' ])
+	if (x86_64_asm)
+		kyber_512_files += files ([ 'kyber_kem_api_c.c' ])
 	endif
 
 	leancrypto_kyber_512_c_lib = static_library(
