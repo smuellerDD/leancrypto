@@ -36,6 +36,7 @@
 
 /* Leaf 1 */
 #define LC_INTEL_AESNI_ECX (1 << 25)
+#define LC_INTEL_PCLMUL_ECX (1 << 1)
 #define LC_INTEL_AVX_ECX (1 << 28)
 #define LC_INTEL_FMA_ECX (1 << 12)
 #define LC_INTEL_MOVBE_ECX (1 << 22)
@@ -50,7 +51,6 @@
 	(LC_INTEL_AVX2_EBX | LC_INTEL_BMI1_EBX | LC_INTEL_BMI2_EBX)
 #define LC_INTEL_AVX512F_EBX (1 << 16)
 #define LC_INTEL_VPCLMUL_ECX (1 << 10)
-#define LC_INTEL_PCLMUL_ECX (1 << 1)
 #define LC_INTEL_SHANI_EBX (1 << 29)
 #define LC_INTEL_SHANI_EBX (1 << 29)
 #define LC_INTEL_SHANI512_EAX (1 << 0)
@@ -97,18 +97,11 @@ LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 
 	if (x86_64_cpuid[2] & LC_INTEL_AESNI_ECX)
 		feat |= LC_CPU_FEATURE_INTEL_AESNI;
-	if (x86_64_cpuid[2] & LC_INTEL_AVX_ECX)
-		feat |= LC_CPU_FEATURE_INTEL_AVX;
 
 	/* Read the maximum leaf */
 	cpuid_eax(0, eax, ebx, ecx, edx);
-
-	if (eax >= 1) {
+	if (eax >= 1)
 		cpuid_eax_ecx(1, 0, eax, ebx, ecx, edx);
-
-		if (ecx & LC_INTEL_PCLMUL_ECX)
-			feat |= LC_CPU_FEATURE_INTEL_PCLMUL;
-	}
 
 	/* Only make call if the leaf is present */
 	if (eax < 7)
@@ -128,26 +121,44 @@ LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 	 * family"
 	 */
 	if ((x86_64_cpuid[2] & LC_INTEL_AVX_PREREQ1) == LC_INTEL_AVX_PREREQ1) {
-		uint32_t xcr0;
+		uint32_t xcr0 = 0;
 
+		/* XCR0 may only be queried if the OSXSAVE bit is set. */
+		if (x86_64_cpuid[2] & LC_INTEL_OSXSAVE) {
 #if defined(_MSC_VER) && !defined(__clang__)
-		xcr0 = _xgetbv(0);
+			xcr0 = _xgetbv(0);
 #else
-		__asm__ ("xgetbv" : "=a" (xcr0) : "c" (0) : "%edx");
+			__asm__ ("xgetbv" : "=a" (xcr0) : "c" (0) : "%edx");
 #endif
+		}
+
 		/* Check if xmm and ymm state are enabled in XCR0. */
 		if ((xcr0 & 6) == 6) {
+			/* XMM registers are accessible */
+			if (x86_64_cpuid[2] & LC_INTEL_PCLMUL_ECX)
+				feat |= LC_CPU_FEATURE_INTEL_PCLMUL;
+			if (x86_64_cpuid[2] & LC_INTEL_AVX_ECX)
+				feat |= LC_CPU_FEATURE_INTEL_AVX;
+
+			/* YMM registers are accessible */
 			if ((ebx & LC_INTEL_AVX2_PREREQ2) ==
 			     LC_INTEL_AVX2_PREREQ2)
 				feat |= LC_CPU_FEATURE_INTEL_AVX2;
+			if (x86_64_cpuid[2] & LC_INTEL_PCLMUL_ECX &&
+			    ecx & LC_INTEL_VPCLMUL_ECX)
+				feat |= LC_CPU_FEATURE_INTEL_VPCLMUL;
+		}
 
+		/* See Intel manual, volume 1, section 15.2. */
+		if ((xcr0 & 0xe6) == 0xe6) {
+			/*
+			 * Allow AVX512F. Other AVX512 operations are supported
+			 * as they do not use YMM.
+			 */
 			if (ebx & LC_INTEL_AVX512F_EBX)
 				feat |= LC_CPU_FEATURE_INTEL_AVX512;
 		}
 	}
-
-	if (ecx & LC_INTEL_VPCLMUL_ECX)
-		feat |= LC_CPU_FEATURE_INTEL_VPCLMUL;
 
 	if (ebx & LC_INTEL_SHANI_EBX)
 		feat |= LC_CPU_FEATURE_INTEL_SHANI;

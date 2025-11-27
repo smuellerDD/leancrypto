@@ -113,7 +113,7 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 		"FIPS 140 Mode: %s\n"
 		"Acceleration support:\n"
 #ifdef LC_AES
-		" AES: %s%s%s\n"
+		" AES: %s%s%s%s%s\n"
 #endif
 #ifdef LC_SHA2_256
 		" SHA2-256: %s%s%s%s%s%s\n"
@@ -153,7 +153,12 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 		,
 		(lc_aes_aesni && lc_aes_aesni != lc_aes_c) ? "AESNI " : "",
 		(lc_aes_armce && lc_aes_armce != lc_aes_c) ? "ARMv8-CE " : "",
-		(lc_aes_riscv64 && lc_aes_riscv64 != lc_aes_c) ? "RISCV64 " : ""
+		(lc_aes_riscv64 && lc_aes_riscv64 != lc_aes_c) ?
+			"RISCV64 " : "",
+		(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_PCLMUL) ?
+			"PCLMULQDQ " : "",
+		(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_VPCLMUL) ?
+			"VPCLMULQDQ " : ""
 #endif
 
 	/* SHA2-256 */
