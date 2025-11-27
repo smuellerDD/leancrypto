@@ -196,18 +196,21 @@ if (host_machine.system() != 'windows' and
 				args: [ x509_rootca_args, '--create-keypair',
 					'ML-DSA87' ],
 				timeout: 300, suite: regression,
+				is_parallel: false,
 				should_fail: fips140_negative_expect_fail)
 			test('X.509 Gen Root-CA ML-DSA65',
 				lc_x509_generator,
 				args: [ x509_rootca_args, '--create-keypair',
 					'ML-DSA65' ],
 				timeout: 300, suite: regression,
+				is_parallel: false,
 				should_fail: fips140_negative_expect_fail)
 			test('X.509 Gen Root-CA ML-DSA44',
 				lc_x509_generator,
 				args: [ x509_rootca_args, '--create-keypair',
 					'ML-DSA44' ],
 				timeout: 300, suite: regression,
+				is_parallel: false,
 				should_fail: fips140_negative_expect_fail)
 
 			test('X.509 Gen Int-CA ML-DSA87',
@@ -215,12 +218,14 @@ if (host_machine.system() != 'windows' and
 				args: [ x509_int1_ca_args, '--create-keypair',
 					'ML-DSA87' ],
 				timeout: 300, suite: regression,
+				is_parallel: false,
 				should_fail: fips140_negative_expect_fail)
 			test('X.509 Gen Leaf ML-DSA87',
 				lc_x509_generator,
 				args: [ x509_leaf_args, '--create-keypair',
 					'ML-DSA87' ],
 				timeout: 300, suite: regression,
+				is_parallel: false,
 				should_fail: fips140_negative_expect_fail)
 		endif
 
