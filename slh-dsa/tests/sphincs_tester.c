@@ -184,7 +184,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 }
 
 #ifndef LINUX_KERNEL
-LC_CONSTRUCTOR(kyber_kem_init, 101)
+LC_CONSTRUCTOR(sphincs_init, 101)
 {
 	lc_init(0);
 }

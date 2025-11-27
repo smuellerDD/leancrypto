@@ -32,6 +32,7 @@
 
 #include "compare.h"
 #include "cpufeatures.h"
+#include "lc_init.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
 #include "selftest_shake256_rng.h"
@@ -208,3 +209,10 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	return ret;
 }
 #pragma GCC diagnostic pop
+
+#ifndef LINUX_KERNEL
+LC_CONSTRUCTOR(hqc_init, 101)
+{
+	lc_init(0);
+}
+#endif

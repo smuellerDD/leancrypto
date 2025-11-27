@@ -475,7 +475,7 @@ out:
 }
 
 #ifndef LINUX_KERNEL
-LC_CONSTRUCTOR(kyber_kem_init, 101)
+LC_CONSTRUCTOR(dilithium_init, 101)
 {
 	lc_init(0);
 }
