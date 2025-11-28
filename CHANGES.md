@@ -21,7 +21,7 @@ Changes 1.7.0-prerelease
 
 * ML-DSA: fix bug in poly_uniform which, however, is unlikely to be triggered
 
-* AVX2 / AVX512 detection: Follow Intel instructions on detecting support
+* AVX2 / AVX512 / CLMUL detection: Follow Intel instructions on detecting support. Also, ensure that code compiled with acceleration support is always invoked by non-accelerated code which has the check for acceleration support.
 
 Changes 1.6.0
 * ASN.1: use stack for small generator for small use cases
