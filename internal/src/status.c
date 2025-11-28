@@ -145,7 +145,7 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 #ifdef LC_CURVE448
 		" Curve448: %s\n"
 #endif
-		" GF: %s%s\n"
+		" GF: %s%s%s\n"
 		,
 		fips140_mode_enabled() ? "yes" : "no"
 
@@ -274,7 +274,8 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 		(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
 			"AVX2 " :
 			"",
-		(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX512) ?
+		((lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX512) &&
+		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_VPCLMUL)) ?
 			"AVX512 " :
 			""
 #endif /* LC_BIKE */
@@ -307,8 +308,12 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 		,
 		(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_PCLMUL) ?
 			"PCLMULQDQ " : "",
-		(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_VPCLMUL) ?
-			"VPCLMULQDQ " : ""
+		(lc_cpu_feature_available() & LC_CPU_FEATURE_ARM_PMULL) ?
+			"PMULL " : "",
+		(lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV) ?
+			(lc_cpu_feature_available() &
+			 LC_CPU_FEATURE_RISCV_ASM_ZBB) ?
+			 "RISCV64-Zbb " : "RISCV64 " : ""
 	);
 
 #ifdef __clang__
