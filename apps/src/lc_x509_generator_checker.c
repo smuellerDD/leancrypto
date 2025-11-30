@@ -171,16 +171,16 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 	}
 
 	if (parsed_opts->issuer_cn) {
-		struct lc_x509_certificate_name search_name = {
-			.cn = {
-				.value = parsed_opts->issuer_cn,
-				.size = (uint8_t)strlen(parsed_opts->issuer_cn),
-			}
-		};
+		struct lc_x509_certificate_name
+			search_name = { .cn = {
+						.value = parsed_opts->issuer_cn,
+						.size = (uint8_t)strlen(
+							parsed_opts->issuer_cn),
+					} };
 
 		if (lc_x509_policy_cert_subject_match(
-			x509, &search_name,
-			lc_x509_policy_cert_subject_match_issuer_only) ==
+			    x509, &search_name,
+			    lc_x509_policy_cert_subject_match_issuer_only) ==
 		    LC_X509_POL_FALSE) {
 			printf("Issuers mismatch, expected %s, actual %s\n",
 			       parsed_opts->issuer_cn, x509->issuer);
@@ -190,16 +190,17 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 		}
 	}
 	if (parsed_opts->subject_cn) {
-		struct lc_x509_certificate_name search_name = {
-			.cn = {
-				.value = parsed_opts->subject_cn,
-				.size = (uint8_t)strlen(parsed_opts->subject_cn),
-			}
-		};
+		struct lc_x509_certificate_name
+			search_name = { .cn = {
+						.value =
+							parsed_opts->subject_cn,
+						.size = (uint8_t)strlen(
+							parsed_opts->subject_cn),
+					} };
 
 		if (lc_x509_policy_cert_subject_match(
-			x509, &search_name,
-			lc_x509_policy_cert_subject_match_dn_only) ==
+			    x509, &search_name,
+			    lc_x509_policy_cert_subject_match_dn_only) ==
 		    LC_X509_POL_FALSE) {
 			printf("Subject mismatch, expected %s, actual %s\n",
 			       parsed_opts->subject_cn, x509->subject);
@@ -245,16 +246,17 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 	}
 
 	if (parsed_opts->san_dns) {
-		struct lc_x509_certificate_name search_name = {
-			.cn = {
-				.value = parsed_opts->subject_cn,
-				.size = (uint8_t)strlen(parsed_opts->subject_cn),
-			}
-		};
+		struct lc_x509_certificate_name
+			search_name = { .cn = {
+						.value =
+							parsed_opts->san_dns,
+						.size = (uint8_t)strlen(
+							parsed_opts->san_dns),
+					} };
 
 		if (lc_x509_policy_cert_subject_match(
-			x509, &search_name,
-			lc_x509_policy_cert_subject_match_san_dns_only) ==
+			    x509, &search_name,
+			    lc_x509_policy_cert_subject_match_san_dns_only) ==
 		    LC_X509_POL_FALSE) {
 			printf("SAN DNS: names mismatch (expected %s, actual %s)\n",
 			       parsed_opts->san_dns, x509->san_dns);
@@ -264,16 +266,16 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 		}
 	}
 	if (parsed_opts->san_ip) {
-		struct lc_x509_certificate_name search_name = {
-			.cn = {
-				.value = parsed_opts->san_ip,
-				.size = (uint8_t)strlen(parsed_opts->san_ip),
-			}
-		};
+		struct lc_x509_certificate_name
+			search_name = { .cn = {
+						.value = parsed_opts->san_ip,
+						.size = (uint8_t)strlen(
+							parsed_opts->san_ip),
+					} };
 
 		if (lc_x509_policy_cert_subject_match(
-			x509, &search_name,
-			lc_x509_policy_cert_subject_match_issuer_only) ==
+			    x509, &search_name,
+			    lc_x509_policy_cert_subject_match_issuer_only) ==
 		    LC_X509_POL_FALSE) {
 			char buf[33] = { 0 };
 

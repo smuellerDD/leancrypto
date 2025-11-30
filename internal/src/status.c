@@ -145,8 +145,7 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 #ifdef LC_CURVE448
 		" Curve448: %s\n"
 #endif
-		" GF: %s%s%s\n"
-		,
+		" GF: %s%s%s\n",
 		fips140_mode_enabled() ? "yes" : "no"
 
 	/* AES */
@@ -154,8 +153,7 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 		,
 		(lc_aes_aesni && lc_aes_aesni != lc_aes_c) ? "AESNI " : "",
 		(lc_aes_armce && lc_aes_armce != lc_aes_c) ? "ARMv8-CE " : "",
-		(lc_aes_riscv64 && lc_aes_riscv64 != lc_aes_c) ?
-			"RISCV64 " : ""
+		(lc_aes_riscv64 && lc_aes_riscv64 != lc_aes_c) ? "RISCV64 " : ""
 #endif
 
 	/* SHA2-256 */
@@ -304,17 +302,20 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 			""
 #endif /* LC_CURVE448 */
 
-	/* GF */
+		/* GF */
 		,
 		(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_PCLMUL) ?
-			"PCLMULQDQ " : "",
+			"PCLMULQDQ " :
+			"",
 		(lc_cpu_feature_available() & LC_CPU_FEATURE_ARM_PMULL) ?
-			"PMULL " : "",
+			"PMULL " :
+			"",
 		(lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV) ?
 			(lc_cpu_feature_available() &
 			 LC_CPU_FEATURE_RISCV_ASM_ZBB) ?
-			 "RISCV64-Zbb " : "RISCV64 " : ""
-	);
+			"RISCV64-Zbb " :
+			"RISCV64 " :
+			"");
 
 #ifdef __clang__
 #pragma GCC diagnostic pop

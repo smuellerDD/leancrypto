@@ -128,7 +128,7 @@ LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 #if defined(_MSC_VER) && !defined(__clang__)
 			xcr0 = _xgetbv(0);
 #else
-			__asm__ ("xgetbv" : "=a" (xcr0) : "c" (0) : "%edx");
+			__asm__("xgetbv" : "=a"(xcr0) : "c"(0) : "%edx");
 #endif
 		}
 
@@ -142,7 +142,7 @@ LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 
 			/* YMM registers are accessible */
 			if ((ebx & LC_INTEL_AVX2_PREREQ2) ==
-			     LC_INTEL_AVX2_PREREQ2)
+			    LC_INTEL_AVX2_PREREQ2)
 				feat |= LC_CPU_FEATURE_INTEL_AVX2;
 			if (x86_64_cpuid[2] & LC_INTEL_PCLMUL_ECX &&
 			    ecx & LC_INTEL_VPCLMUL_ECX)

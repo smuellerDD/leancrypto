@@ -1093,7 +1093,7 @@ enum lc_x509_policy_cert_subject_match_flag {
  *
  * @param [in] cert Reference to the certificate to be validated
  * @param [in] search_name Search information
- * @param [in] flags Flags for the search process
+ * @param [in] flag Flags for the search process
  *
  * @return 0 on success, < 0 on error
  */

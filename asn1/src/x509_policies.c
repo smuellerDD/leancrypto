@@ -461,7 +461,7 @@ static lc_x509_pol_ret_t lc_x509_policy_cert_name_one(
 	const struct lc_x509_certificate_name_component *search_name)
 {
 	/* If the search is empty, we have a match */
-	if (!search_name || !search_name->size || ! search_name->value)
+	if (!search_name || !search_name->size || !search_name->value)
 		return LC_X509_POL_TRUE;
 
 	/* As the caller searches for the name, require it being present */
@@ -488,24 +488,22 @@ static lc_x509_pol_ret_t lc_x509_policy_cert_name_match(
 					       &search_name->email);
 	if (ret_pol == LC_X509_POL_FALSE)
 		return LC_X509_POL_FALSE;
-	ret_pol = lc_x509_policy_cert_name_one(&cert_name->cn,
-					       &search_name->cn);
+	ret_pol =
+		lc_x509_policy_cert_name_one(&cert_name->cn, &search_name->cn);
 	if (ret_pol == LC_X509_POL_FALSE)
 		return LC_X509_POL_FALSE;
-	ret_pol = lc_x509_policy_cert_name_one(&cert_name->ou,
-					       &search_name->ou);
+	ret_pol =
+		lc_x509_policy_cert_name_one(&cert_name->ou, &search_name->ou);
 	if (ret_pol == LC_X509_POL_FALSE)
 		return LC_X509_POL_FALSE;
-	ret_pol = lc_x509_policy_cert_name_one(&cert_name->o,
-					       &search_name->o);
+	ret_pol = lc_x509_policy_cert_name_one(&cert_name->o, &search_name->o);
 	if (ret_pol == LC_X509_POL_FALSE)
 		return LC_X509_POL_FALSE;
-	ret_pol = lc_x509_policy_cert_name_one(&cert_name->st,
-					       &search_name->st);
+	ret_pol =
+		lc_x509_policy_cert_name_one(&cert_name->st, &search_name->st);
 	if (ret_pol == LC_X509_POL_FALSE)
 		return LC_X509_POL_FALSE;
-	ret_pol = lc_x509_policy_cert_name_one(&cert_name->c,
-					       &search_name->c);
+	ret_pol = lc_x509_policy_cert_name_one(&cert_name->c, &search_name->c);
 	if (ret_pol == LC_X509_POL_FALSE)
 		return LC_X509_POL_FALSE;
 
@@ -519,14 +517,14 @@ static lc_x509_pol_ret_t lc_x509_policy_cert_subject_match_san_ip(
 	if (cert->san_ip_len && cert->san_ip) {
 		uint8_t ip[16];
 		size_t ip_len;
-		int ret = lc_x509_enc_san_ip(search_name->cn.value, ip,
-					     &ip_len);
+		int ret =
+			lc_x509_enc_san_ip(search_name->cn.value, ip, &ip_len);
 
 		if (ret)
 			return ret;
 		if (!lc_memcmp_secure(ip, ip_len, cert->san_ip,
 				      cert->san_ip_len))
-		return LC_X509_POL_TRUE;
+			return LC_X509_POL_TRUE;
 	}
 
 	return LC_X509_POL_FALSE;
@@ -558,24 +556,24 @@ LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_cert_subject_match,
 		 * Check whether the SAN matches and if so, we are good,
 		 * otherwise fall through to the DN check.
 		 */
-		if (lc_x509_policy_cert_subject_match_san_dns(cert, search_name) ==
-		    LC_X509_POL_TRUE)
+		if (lc_x509_policy_cert_subject_match_san_dns(
+			    cert, search_name) == LC_X509_POL_TRUE)
 			return LC_X509_POL_TRUE;
 
-		if (lc_x509_policy_cert_subject_match_san_ip(cert, search_name) ==
-		    LC_X509_POL_TRUE)
+		if (lc_x509_policy_cert_subject_match_san_ip(
+			    cert, search_name) == LC_X509_POL_TRUE)
 			return LC_X509_POL_TRUE;
 
 		if (lc_x509_policy_cert_name_match(
-			&cert->san_directory_name_segments, search_name) ==
+			    &cert->san_directory_name_segments, search_name) ==
 		    LC_X509_POL_TRUE)
 			return LC_X509_POL_TRUE;
 
 		fallthrough;
 	case lc_x509_policy_cert_subject_match_dn_only:
 		/* Check whether the DN matches */
-		return lc_x509_policy_cert_name_match(
-			&cert->subject_segments, search_name);
+		return lc_x509_policy_cert_name_match(&cert->subject_segments,
+						      search_name);
 
 	case lc_x509_policy_cert_subject_match_san_ip_only:
 		/* Check whether the SAN IP matches */
