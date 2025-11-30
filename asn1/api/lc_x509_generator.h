@@ -327,20 +327,6 @@ int lc_x509_cert_set_san_ip(struct lc_x509_certificate *cert,
 
 /**
  * @ingroup X509Gen
- * @brief Helper to convert the human IP address value into binary form
- *
- * @param [in] cert Certificate data structure to be filled with the data
- * @param [in] ip_name Caller-provided buffer to fill with human-readable form
- * @param [out] ip Caller-provided buffer of binary representation of IP address
- * @param [in] ip_len Length of the IP address buffer
- *
- * @return 0 on success or < 0 on error
- */
-int lc_x509_enc_san_ip(struct lc_x509_certificate *cert, char *ip_name,
-		       uint8_t *ip, size_t *ip_len);
-
-/**
- * @ingroup X509Gen
  * @brief Set the SKID value
  *
  * \note The caller must keep the input data available for the lifetime of

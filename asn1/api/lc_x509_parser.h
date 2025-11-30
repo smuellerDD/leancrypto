@@ -546,6 +546,18 @@ int lc_x509_cert_get_san_dns(const struct lc_x509_certificate *cert,
 
 /**
  * @ingroup X509
+ * @brief Helper to convert the human IP address value into binary form
+ *
+ * @param [in] ip_name Caller-provided buffer to fill with human-readable form
+ * @param [out] ip Caller-provided buffer of binary representation of IP address
+ * @param [in] ip_len Length of the IP address buffer
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_enc_san_ip(const char *ip_name, uint8_t *ip, size_t *ip_len);
+
+/**
+ * @ingroup X509
  * @brief Get the SAN IP value
  *
  * \note The returned pointers have the same life time as \p cert.
@@ -891,6 +903,10 @@ typedef int lc_x509_pol_ret_t /* __attribute__((warn_unused_result)) */;
  * @ingroup X509
  * @brief Is the given certificate a CA certificate (root or intermediate)?
  *
+ * \note The verification of the signature and the general constraints of the
+ * certificate is not performed here but must be invoked with
+ * \p lc_x509_policy_verify_cert.
+ *
  * @param [in] cert Reference to the certificate
  *
  * @return < 0 on error, LC_X509_POL_TRUE or LC_X509_POL_FALSE
@@ -923,6 +939,10 @@ lc_x509_policy_is_selfsigned(const struct lc_x509_certificate *cert);
 /**
  * @ingroup X509
  * @brief Is the given certificate a root CA certificate?
+ *
+ * \note The verification of the signature and the general constraints of the
+ * certificate is not performed here but must be invoked with
+ * \p lc_x509_policy_verify_cert.
  *
  * @param [in] cert Reference to the certificate
  *
@@ -1038,6 +1058,49 @@ lc_x509_policy_cert_valid(const struct lc_x509_certificate *cert);
 int lc_x509_policy_verify_cert(const struct lc_public_key *pkey,
 			       const struct lc_x509_certificate *cert,
 			       uint64_t flags);
+
+enum lc_x509_policy_cert_subject_match_flag {
+	/** Match DN or SAN IP or DNS - success if one matches */
+	lc_x509_policy_cert_subject_match_dn_and_san,
+	/** Match DN only */
+	lc_x509_policy_cert_subject_match_dn_only,
+	/** Match SAN IP only */
+	lc_x509_policy_cert_subject_match_san_ip_only,
+	/** Match SAN DNS only */
+	lc_x509_policy_cert_subject_match_san_dns_only,
+	/** Match SAN name segments */
+	lc_x509_policy_cert_subject_match_san_name_only,
+	/** Match issuer only */
+	lc_x509_policy_cert_subject_match_issuer_only,
+};
+
+/**
+ * @ingroup X509
+ * @brief Match certificate against a provided name
+ *
+ * This function matches the \p search_name information against the certificate
+ * DN and/or the SAN or the issuer as specified with the \p flag field. Only the
+ * name components specified with \p search_name are checked. If \p search_name
+ * does not contain a component, but the certificate has it, it will be matched.
+ *
+ * For example: The certificate has a DN with cn="aaa", c="bbb" and the search
+ * contains cn="aaa" with all other components empty, it will match the
+ * certificate. The string matching is an exact match (string length and
+ * content must be identical).
+ *
+ * \note The SAN DNS and IP search string must be provided in
+ * \p search_name->cn. For the IP, the unencoded IP is to be provided.
+ *
+ * @param [in] cert Reference to the certificate to be validated
+ * @param [in] search_name Search information
+ * @param [in] flags Flags for the search process
+ *
+ * @return 0 on success, < 0 on error
+ */
+lc_x509_pol_ret_t lc_x509_policy_cert_subject_match(
+	const struct lc_x509_certificate *cert,
+	const struct lc_x509_certificate_name *search_name,
+	enum lc_x509_policy_cert_subject_match_flag flag);
 
 #ifdef __cplusplus
 }

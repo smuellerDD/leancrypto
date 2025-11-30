@@ -49,7 +49,6 @@ struct x509_generator_opts {
 	struct lc_x509_key_data signer_key_data;
 	struct x509_checker_options checker_opts;
 	struct lc_pkcs8_message pkcs8;
-	uint8_t ipaddr[16];
 	uint8_t *raw_skid;
 	size_t raw_skid_size;
 	uint8_t *raw_akid;
@@ -317,12 +316,13 @@ static int x509_enc_san_dns(struct x509_generator_opts *opts,
 static int x509_enc_san_ip(struct x509_generator_opts *opts, char *opt_optarg)
 {
 	struct lc_x509_certificate *cert = &opts->cert;
-	size_t ip_len = sizeof(opts->ipaddr);
+	uint8_t ipaddr[16];
+	size_t ip_len = sizeof(ipaddr);
 	int ret;
 
-	CKINT(lc_x509_enc_san_ip(cert, opt_optarg, opts->ipaddr, &ip_len));
+	CKINT(lc_x509_enc_san_ip(opt_optarg, ipaddr, &ip_len));
 
-	CKINT(lc_x509_cert_set_san_ip(cert, opts->ipaddr, ip_len));
+	CKINT(lc_x509_cert_set_san_ip(cert, ipaddr, ip_len));
 
 out:
 	return ret;

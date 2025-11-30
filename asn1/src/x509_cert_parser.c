@@ -1390,3 +1390,60 @@ LC_INTERFACE_FUNCTION(void, lc_x509_keys_zero_free,
 	lc_x509_keys_zero(keys);
 	lc_free(keys);
 }
+
+LC_INTERFACE_FUNCTION(int, lc_x509_enc_san_ip, const char *ip_name, uint8_t *ip,
+		      size_t *ip_len)
+{
+	/*
+	 * EFI does not have support for strstr, strtok_r and strtoul, so
+	 * we simply do not compile this function. As this is a rarely used
+	 * helper, we simply do not provide this function.
+	 */
+#if defined(LC_EFI) || defined(LINUX_KERNEL)
+	int ret;
+
+	(void)ip_name;
+	(void)ip;
+	(void)ip_len;
+
+	CKRET(1, -EOPNOTSUPP);
+
+out:
+	return ret;
+#else
+	unsigned long val;
+	char *saveptr = NULL;
+	char *res = NULL;
+	const char *tok = ".";
+	unsigned int i, upper = 4;
+	int ret = 0, base = 10;
+
+	CKNULL(ip_name, -EINVAL);
+	CKNULL(ip, -EINVAL);
+	CKNULL(ip_len, -EINVAL);
+
+	/* Check for IPv6 */
+	if (strstr(ip_name, ":")) {
+		tok = ":";
+		upper = 16;
+		base = 16;
+	}
+
+	CKRET(*ip_len < upper, -EOVERFLOW);
+
+	/* Unconstify is acceptable, as we only read the value with strtoul */
+	res = strtok_r((char *)ip_name, tok, &saveptr);
+	for (i = 0; i < upper; i++) {
+		CKNULL(res, -EINVAL);
+		val = strtoul(res, NULL, base);
+		CKRET(val > 255, -EINVAL);
+		ip[i] = (uint8_t)val;
+		res = strtok_r(NULL, tok, &saveptr);
+	}
+
+	*ip_len = i;
+
+out:
+	return ret;
+#endif
+}

@@ -23,6 +23,8 @@ Changes 1.7.0-prerelease
 
 * AVX2 / AVX512 / CLMUL detection: Follow Intel instructions on detecting support. Also, ensure that code compiled with acceleration support is always invoked by non-accelerated code which has the check for acceleration support.
 
+* X.509: add lc_x509_policy_cert_subject_match API
+
 Changes 1.6.0
 * ASN.1: use stack for small generator for small use cases
 

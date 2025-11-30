@@ -16,6 +16,14 @@
  * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
+/*
+ * X.509 certificate validation: Function implementing the verification of
+ * various constraints the certificate may or must follow. The enforced
+ * constraints are compliant to:
+ *
+ *  * RFC5280
+ *  * BSI TR02102-3
+ */
 
 #include "asn1_debug.h"
 #include "asym_key.h"
@@ -136,6 +144,7 @@ LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_is_root_ca,
 		return -EINVAL;
 
 	if (cert->raw_akid) {
+		/* If there is an AKID, it must match the SKID for a root CA. */
 		CKINT(lc_x509_policy_match_akid(cert, cert->raw_skid,
 						cert->raw_skid_size));
 		if (ret != LC_X509_POL_TRUE) {
@@ -146,10 +155,12 @@ LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_is_root_ca,
 		}
 	}
 
+	/* A root CA must match all other constraints of a CA */
 	CKINT(lc_x509_policy_is_ca(cert));
 	if (ret != LC_X509_POL_TRUE)
 		return ret;
 
+	/* A root CA must be self-signed as it is the end of the chain */
 	CKINT(lc_x509_policy_is_selfsigned(cert));
 	if (ret != LC_X509_POL_TRUE)
 		return ret;
@@ -197,7 +208,6 @@ LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_match_akid,
 	akid_len = cert->raw_akid_size;
 
 	/* CAs may omit the AKID - in this case use the subject key ID */
-	CKINT(lc_x509_policy_is_ca(cert));
 	if (!akid) {
 		CKINT(lc_x509_policy_is_ca(cert));
 		if (ret == LC_X509_POL_TRUE) {
@@ -235,16 +245,6 @@ LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_match_skid,
 	skid = cert->raw_skid;
 	skid_len = cert->raw_skid_size;
 
-	/* CAs may omit the AKID - in this case use the subject key ID */
-	CKINT(lc_x509_policy_is_ca(cert));
-	if (!skid) {
-		CKINT(lc_x509_policy_is_ca(cert));
-		if (ret == LC_X509_POL_TRUE) {
-			skid = cert->raw_skid;
-			skid_len = cert->raw_skid_size;
-		}
-	}
-
 	if (!skid)
 		return -LC_X509_POL_FALSE;
 
@@ -275,12 +275,10 @@ lc_x509_policy_match_key_usage_pub(const struct lc_public_key *pub,
 		pub->key_usage & (uint16_t)~LC_KEY_USAGE_EXTENSION_PRESENT;
 
 	/* If extension is not present at all, we do not match any EKU */
-	if (!(pub->key_usage & LC_KEY_USAGE_EXTENSION_PRESENT)) {
-		if (required_key_usage)
-			return LC_X509_POL_FALSE;
-		return LC_X509_POL_TRUE;
-	}
+	if (!(pub->key_usage & LC_KEY_USAGE_EXTENSION_PRESENT))
+		return LC_X509_POL_FALSE;
 
+	/* The required key usage must be a subset of all key usage flags */
 	if ((set_keyusage & required_key_usage) == required_key_usage)
 		return LC_X509_POL_TRUE;
 
@@ -318,11 +316,8 @@ LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t,
 	eku = pub->key_eku & (uint16_t)~LC_KEY_EKU_EXTENSION_PRESENT;
 
 	/* If extension is not present at all, we do not match any EKU */
-	if (!(pub->key_eku & LC_KEY_EKU_EXTENSION_PRESENT)) {
-		if (required_eku)
-			return LC_X509_POL_FALSE;
-		return LC_X509_POL_TRUE;
-	}
+	if (!(pub->key_eku & LC_KEY_EKU_EXTENSION_PRESENT))
+		return LC_X509_POL_FALSE;
 
 	/* The required EKU must be a subset of all EKU flags */
 	if ((eku & required_eku) == required_eku)
@@ -444,7 +439,11 @@ LC_INTERFACE_FUNCTION(int, lc_x509_policy_verify_cert,
 	lc_x509_pol_ret_t ret_pol;
 	int ret;
 
+	/* Apply general checks of the certificate */
 	CKINT(lc_x509_policy_verify_general(pkey, cert, flags));
+
+	/* Do we have a valid certificate? */
+	CKINT_POL(lc_x509_policy_cert_valid(cert));
 
 	/*
 	 * A certificate must be allowed for key sign for successfully
@@ -455,4 +454,151 @@ LC_INTERFACE_FUNCTION(int, lc_x509_policy_verify_cert,
 
 out:
 	return ret;
+}
+
+static lc_x509_pol_ret_t lc_x509_policy_cert_name_one(
+	const struct lc_x509_certificate_name_component *cert_name,
+	const struct lc_x509_certificate_name_component *search_name)
+{
+	/* If the search is empty, we have a match */
+	if (!search_name || !search_name->size || ! search_name->value)
+		return LC_X509_POL_TRUE;
+
+	/* As the caller searches for the name, require it being present */
+	if (!cert_name || !cert_name->size || !cert_name->value)
+		return LC_X509_POL_FALSE;
+
+	if (lc_memcmp_secure(search_name->value, search_name->size,
+			     cert_name->value, cert_name->size))
+		return LC_X509_POL_FALSE;
+
+	return LC_X509_POL_TRUE;
+}
+
+static lc_x509_pol_ret_t lc_x509_policy_cert_name_match(
+	const struct lc_x509_certificate_name *cert_name,
+	const struct lc_x509_certificate_name *search_name)
+{
+	lc_x509_pol_ret_t ret_pol;
+
+	if (!cert_name || !search_name)
+		return -EINVAL;
+
+	ret_pol = lc_x509_policy_cert_name_one(&cert_name->email,
+					       &search_name->email);
+	if (ret_pol == LC_X509_POL_FALSE)
+		return LC_X509_POL_FALSE;
+	ret_pol = lc_x509_policy_cert_name_one(&cert_name->cn,
+					       &search_name->cn);
+	if (ret_pol == LC_X509_POL_FALSE)
+		return LC_X509_POL_FALSE;
+	ret_pol = lc_x509_policy_cert_name_one(&cert_name->ou,
+					       &search_name->ou);
+	if (ret_pol == LC_X509_POL_FALSE)
+		return LC_X509_POL_FALSE;
+	ret_pol = lc_x509_policy_cert_name_one(&cert_name->o,
+					       &search_name->o);
+	if (ret_pol == LC_X509_POL_FALSE)
+		return LC_X509_POL_FALSE;
+	ret_pol = lc_x509_policy_cert_name_one(&cert_name->st,
+					       &search_name->st);
+	if (ret_pol == LC_X509_POL_FALSE)
+		return LC_X509_POL_FALSE;
+	ret_pol = lc_x509_policy_cert_name_one(&cert_name->c,
+					       &search_name->c);
+	if (ret_pol == LC_X509_POL_FALSE)
+		return LC_X509_POL_FALSE;
+
+	return LC_X509_POL_TRUE;
+}
+
+static lc_x509_pol_ret_t lc_x509_policy_cert_subject_match_san_ip(
+	const struct lc_x509_certificate *cert,
+	const struct lc_x509_certificate_name *search_name)
+{
+	if (cert->san_ip_len && cert->san_ip) {
+		uint8_t ip[16];
+		size_t ip_len;
+		int ret = lc_x509_enc_san_ip(search_name->cn.value, ip,
+					     &ip_len);
+
+		if (ret)
+			return ret;
+		if (!lc_memcmp_secure(ip, ip_len, cert->san_ip,
+				      cert->san_ip_len))
+		return LC_X509_POL_TRUE;
+	}
+
+	return LC_X509_POL_FALSE;
+}
+
+static lc_x509_pol_ret_t lc_x509_policy_cert_subject_match_san_dns(
+	const struct lc_x509_certificate *cert,
+	const struct lc_x509_certificate_name *search_name)
+{
+	if (cert->san_dns_len && cert->san_dns &&
+	    !lc_memcmp_secure(search_name->cn.value, search_name->cn.size,
+			      cert->san_dns, cert->san_dns_len))
+		return LC_X509_POL_TRUE;
+
+	return LC_X509_POL_FALSE;
+}
+
+LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_cert_subject_match,
+		      const struct lc_x509_certificate *cert,
+		      const struct lc_x509_certificate_name *search_name,
+		      enum lc_x509_policy_cert_subject_match_flag flag)
+{
+	if (!cert || !search_name)
+		return -EINVAL;
+
+	switch (flag) {
+	case lc_x509_policy_cert_subject_match_dn_and_san:
+		/*
+		 * Check whether the SAN matches and if so, we are good,
+		 * otherwise fall through to the DN check.
+		 */
+		if (lc_x509_policy_cert_subject_match_san_dns(cert, search_name) ==
+		    LC_X509_POL_TRUE)
+			return LC_X509_POL_TRUE;
+
+		if (lc_x509_policy_cert_subject_match_san_ip(cert, search_name) ==
+		    LC_X509_POL_TRUE)
+			return LC_X509_POL_TRUE;
+
+		if (lc_x509_policy_cert_name_match(
+			&cert->san_directory_name_segments, search_name) ==
+		    LC_X509_POL_TRUE)
+			return LC_X509_POL_TRUE;
+
+		fallthrough;
+	case lc_x509_policy_cert_subject_match_dn_only:
+		/* Check whether the DN matches */
+		return lc_x509_policy_cert_name_match(
+			&cert->subject_segments, search_name);
+
+	case lc_x509_policy_cert_subject_match_san_ip_only:
+		/* Check whether the SAN IP matches */
+		return lc_x509_policy_cert_subject_match_san_ip(cert,
+								search_name);
+
+	case lc_x509_policy_cert_subject_match_san_dns_only:
+		/* Check whether the SAN DNS matches */
+		return lc_x509_policy_cert_subject_match_san_dns(cert,
+								 search_name);
+
+	case lc_x509_policy_cert_subject_match_san_name_only:
+		/* Check whether the SAN name components matches */
+		return lc_x509_policy_cert_name_match(
+			&cert->san_directory_name_segments, search_name);
+
+	case lc_x509_policy_cert_subject_match_issuer_only:
+		return lc_x509_policy_cert_name_match(&cert->issuer_segments,
+						      search_name);
+
+	default:
+		return LC_X509_POL_FALSE;
+	}
+
+	return LC_X509_POL_FALSE;
 }
