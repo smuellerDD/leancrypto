@@ -289,8 +289,6 @@ static int lc_rfc4106_aes_gcm_setiv(struct aead_request *areq)
 
 static int lc_rfc4106_aes_gcm_enc(struct aead_request *areq)
 {
-	struct crypto_aead *aead = crypto_aead_reqtfm(areq);
-	struct lc_rfc4106_aes_gcm_ctx *rfc4106_ctx = crypto_aead_ctx(aead);
 	unsigned int assoclen = areq->assoclen;
 	int ret;
 
@@ -314,7 +312,6 @@ static int lc_rfc4106_aes_gcm_enc(struct aead_request *areq)
 static int lc_rfc4106_aes_gcm_dec(struct aead_request *areq)
 {
 	struct crypto_aead *aead = crypto_aead_reqtfm(areq);
-	struct lc_rfc4106_aes_gcm_ctx *rfc4106_ctx = crypto_aead_ctx(aead);
 	unsigned int assoclen = areq->assoclen;
 	int ret;
 

@@ -209,8 +209,15 @@ static int __init leancrypto_init(void)
 	if (ret)
 		goto free_hqc_192;
 
+	ret = lc_kernel_aes_xts_init();
+	if (ret)
+		goto free_hqc_128;
+
 out:
 	return ret;
+
+free_hqc_128:
+	lc_kernel_hqc_128_exit();
 
 free_hqc_192:
 	lc_kernel_hqc_192_exit();
@@ -371,6 +378,8 @@ static void __exit leancrypto_exit(void)
 	lc_kernel_hqc_exit();
 	lc_kernel_hqc_192_exit();
 	lc_kernel_hqc_128_exit();
+	lc_kernel_aes_xts_exit();
+
 	lc_proc_status_show_exit();
 }
 

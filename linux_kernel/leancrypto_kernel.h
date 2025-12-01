@@ -587,6 +587,20 @@ static inline void lc_kernel_hqc_128_exit(void)
 }
 #endif
 
+#ifdef CONFIG_LEANCRYPTO_AES_XTS
+int __init lc_kernel_aes_xts_init(void);
+void lc_kernel_aes_xts_exit(void);
+#else
+static inline int __init lc_kernel_aes_xts_init(void)
+{
+	return 0;
+}
+
+static inline void lc_kernel_aes_xts_exit(void)
+{
+}
+#endif
+
 #ifdef __cplusplus
 }
 #endif

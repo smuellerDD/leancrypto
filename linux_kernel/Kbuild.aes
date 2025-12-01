@@ -153,7 +153,11 @@ endif
 
 leancrypto-$(CONFIG_LEANCRYPTO_AES_XTS)					       \
 				+= ../sym/src/aes_xts.o			       \
-				   ../sym/src/mode_xts.o
+				   ../sym/src/mode_xts.o		       \
+				   leancrypto_kernel_aes_xts.o
+
+obj-m				+= leancrypto_kernel_aes_xts_tester.o
+leancrypto_kernel_aes_xts_tester-y	+= ../sym/tests/leancrypto_kernel_aes_xts_tester.o
 
 ifdef CONFIG_X86_64
 leancrypto-$(CONFIG_LEANCRYPTO_AES_XTS)					       \

@@ -25,7 +25,7 @@ Changes 1.7.0-prerelease
 
 * X.509: add lc_x509_policy_cert_subject_match API
 
-* Linux kernel: add support for rfc4106(gcm(aes))
+* Linux kernel: add support for rfc4106(gcm(aes)), xts(aes)
 
 Changes 1.6.0
 * ASN.1: use stack for small generator for small use cases

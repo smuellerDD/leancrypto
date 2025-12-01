@@ -316,7 +316,7 @@ static struct kpp_alg lc_kernel_hqc = {
 	.base.cra_name = "hqc128",
 	.base.cra_driver_name = "hqc128-leancrypto",
 #elif defined(LC_HQC_TYPE_192)
-	.base.cra_name = "hqc19",
+	.base.cra_name = "hqc192",
 	.base.cra_driver_name = "hqc192-leancrypto",
 #else
 	.base.cra_name = "hqc256",
