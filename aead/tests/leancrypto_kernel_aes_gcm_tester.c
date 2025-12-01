@@ -105,13 +105,13 @@ static int lc_aead_test(const char *name, const uint8_t *data, size_t inlen,
 			uint8_t *nonce, size_t noncelen, const uint8_t *aad_in,
 			size_t aadlen, const uint8_t *key, size_t keylen,
 			const uint8_t *exp_ct, const uint8_t *exp_tag,
-			size_t exp_tag_len)
+			size_t exp_tag_len, int rfc4106)
 {
 	int ret = -EFAULT;
 	struct lc_aead_test_def aead;
 	struct crypto_aead *tfm = NULL;
 	struct aead_request *req = NULL;
-	struct scatterlist sg_in[5], sg_out[5];
+	struct scatterlist sg_in[5], sg_out[6];
 	u8 *out_enc = NULL, *out_dec = NULL, *aad = NULL, *in = NULL,
 	   *tag = NULL;
 
@@ -179,7 +179,11 @@ static int lc_aead_test(const char *name, const uint8_t *data, size_t inlen,
 
 	aead_request_set_callback(req, CRYPTO_TFM_REQ_MAY_BACKLOG,
 				  lc_aead_test_cb, &aead.result);
-	aead_request_set_ad(req, aadlen);
+
+	if (rfc4106)
+		aead_request_set_ad(req, aadlen + noncelen);
+	else
+		aead_request_set_ad(req, aadlen);
 
 	if (!virt_addr_valid(in)) {
 		printk("Invalid virtual address for in\n");
@@ -216,17 +220,33 @@ static int lc_aead_test(const char *name, const uint8_t *data, size_t inlen,
 		//sg_set_buf(&sg_in[1], aad + 1, 3);
 		//sg_set_buf(&sg_in[2], aad + 4, aadlen - 4);
 
-		sg_init_table(sg_in, 3);
-		sg_set_buf(&sg_in[0], aad, aadlen);
-		sg_set_buf(&sg_in[1], in, 1);
-		sg_set_buf(&sg_in[2], in + 1, inlen - 1);
+		if (rfc4106) {
+			sg_init_table(sg_in, 4);
+			sg_set_buf(&sg_in[0], aad, aadlen);
+			sg_set_buf(&sg_in[1], nonce, noncelen);
+			sg_set_buf(&sg_in[2], in, 1);
+			sg_set_buf(&sg_in[3], in + 1, inlen - 1);
 
-		sg_init_table(sg_out, 5);
-		sg_set_buf(&sg_out[0], aad, aadlen);
-		sg_set_buf(&sg_out[1], out_enc, 1);
-		sg_set_buf(&sg_out[2], out_enc + 1, 3);
-		sg_set_buf(&sg_out[3], out_enc + 4, inlen - 4);
-		sg_set_buf(&sg_out[4], tag, exp_tag_len);
+			sg_init_table(sg_out, 6);
+			sg_set_buf(&sg_out[0], aad, aadlen);
+			sg_set_buf(&sg_out[1], nonce, noncelen);
+			sg_set_buf(&sg_out[2], out_enc, 1);
+			sg_set_buf(&sg_out[3], out_enc + 1, 3);
+			sg_set_buf(&sg_out[4], out_enc + 4, inlen - 4);
+			sg_set_buf(&sg_out[5], tag, exp_tag_len);
+		} else {
+			sg_init_table(sg_in, 3);
+			sg_set_buf(&sg_in[0], aad, aadlen);
+			sg_set_buf(&sg_in[1], in, 1);
+			sg_set_buf(&sg_in[2], in + 1, inlen - 1);
+
+			sg_init_table(sg_out, 5);
+			sg_set_buf(&sg_out[0], aad, aadlen);
+			sg_set_buf(&sg_out[1], out_enc, 1);
+			sg_set_buf(&sg_out[2], out_enc + 1, 3);
+			sg_set_buf(&sg_out[3], out_enc + 4, inlen - 4);
+			sg_set_buf(&sg_out[4], tag, exp_tag_len);
+		}
 	} else {
 		sg_init_table(sg_in, 1);
 		sg_set_buf(&sg_in[0], in, inlen);
@@ -256,14 +276,27 @@ static int lc_aead_test(const char *name, const uint8_t *data, size_t inlen,
 
 	/* Decrypt */
 	if (aadlen) {
-		sg_init_table(sg_in, 3);
-		sg_set_buf(&sg_in[0], aad, aadlen);
-		sg_set_buf(&sg_in[1], out_enc, inlen);
-		sg_set_buf(&sg_in[2], tag, exp_tag_len);
+		if (rfc4106) {
+			sg_init_table(sg_in, 4);
+			sg_set_buf(&sg_in[0], aad, aadlen);
+			sg_set_buf(&sg_in[1], nonce, noncelen);
+			sg_set_buf(&sg_in[2], out_enc, inlen);
+			sg_set_buf(&sg_in[3], tag, exp_tag_len);
 
-		sg_init_table(sg_out, 2);
-		sg_set_buf(&sg_out[0], aad, aadlen);
-		sg_set_buf(&sg_out[1], out_dec, inlen);
+			sg_init_table(sg_out, 3);
+			sg_set_buf(&sg_out[0], aad, aadlen);
+			sg_set_buf(&sg_out[1], nonce, noncelen);
+			sg_set_buf(&sg_out[2], out_dec, inlen);
+		} else {
+			sg_init_table(sg_in, 3);
+			sg_set_buf(&sg_in[0], aad, aadlen);
+			sg_set_buf(&sg_in[1], out_enc, inlen);
+			sg_set_buf(&sg_in[2], tag, exp_tag_len);
+
+			sg_init_table(sg_out, 2);
+			sg_set_buf(&sg_out[0], aad, aadlen);
+			sg_set_buf(&sg_out[1], out_dec, inlen);
+		}
 	} else {
 		sg_init_table(sg_in, 1);
 		sg_set_buf(&sg_in[0], out_enc, inlen);
@@ -338,14 +371,76 @@ static int aes_gcm_tester_256(void)
 					   0xf6, 0x33, 0x5f, 0xc8, 0xbe,
 					   0xc9, 0x08, 0x86, 0xda, 0x70 };
 	pr_info("AES GCM 256 crypt\n");
-	return lc_aead_test("aes-gcm-leancrypto", pt, sizeof(pt), iv,
+	return lc_aead_test("gcm-aes-leancrypto", pt, sizeof(pt), iv,
 			    sizeof(iv), aad, sizeof(aad), key, sizeof(key),
-			    exp_ct, exp_tag, sizeof(exp_tag));
+			    exp_ct, exp_tag, sizeof(exp_tag), 0);
+}
+
+/*
+ * Identical data as the RFC4106 for verification
+ */
+static int rfc4106_comparison_aes_gcm_tester_256(void)
+{
+	static const uint8_t pt[] = { 0xb7, 0x06, 0x19, 0x4b, 0xb0, 0xb1,
+				      0x0c, 0x47, 0x4e, 0x1b, 0x2d, 0x7b,
+				      0x22, 0x78, 0x22, 0x4c };
+	static const uint8_t aad[] = { 0xff, 0x76, 0x28, 0xf6, 0x42, 0x7f,
+				       0xbc, 0xef };
+	static const uint8_t key[] = { 0x7f, 0x71, 0x68, 0xa4, 0x06, 0xe7, 0xc1,
+				       0xef, 0x0f, 0xd4, 0x7a, 0xc9, 0x22, 0xc5,
+				       0xec, 0x5f, 0x65, 0x97, 0x65, 0xfb, 0x6a,
+				       0xaa, 0x04, 0x8f, 0x70, 0x56, 0xf6, 0xc6,
+				       0xb5, 0xd8, 0x51, 0x3d };
+	uint8_t iv[] = { 0xb8, 0xb5, 0xe4, 0x07, 0xad, 0xc0,
+			 0xe2, 0x93, 0xe3, 0xe7, 0xe9, 0x91 };
+	static const uint8_t exp_ct[] = { 0x8f, 0xad, 0xa0, 0xb8, 0xe7, 0x77,
+					  0xa8, 0x29, 0xca, 0x96, 0x80, 0xd3,
+					  0xbf, 0x4f, 0x35, 0x74 };
+	static const uint8_t exp_tag[] = { 0xbd, 0x08, 0x80, 0x82, 0x97, 0x53,
+					   0x09, 0xbc, 0xc2, 0x5d, 0x5c, 0x0d,
+					   0xaf, 0xe6, 0xaf, 0x47 };
+	pr_info("AES GCM 256 crypt (comparision to RFC4106)\n");
+	return lc_aead_test("gcm-aes-leancrypto", pt, sizeof(pt), iv,
+			    sizeof(iv), aad, sizeof(aad), key, sizeof(key),
+			    exp_ct, exp_tag, sizeof(exp_tag), 0);
+}
+
+static int rfc4106_aes_gcm_tester_256(void)
+{
+	static const uint8_t pt[] = { 0xb7, 0x06, 0x19, 0x4b, 0xb0, 0xb1,
+				      0x0c, 0x47, 0x4e, 0x1b, 0x2d, 0x7b,
+				      0x22, 0x78, 0x22, 0x4c };
+	static const uint8_t aad[] = { 0xff, 0x76, 0x28, 0xf6, 0x42, 0x7f,
+				       0xbc, 0xef };
+	static const uint8_t key[] = { 0x7f, 0x71, 0x68, 0xa4, 0x06, 0xe7, 0xc1,
+				       0xef, 0x0f, 0xd4, 0x7a, 0xc9, 0x22, 0xc5,
+				       0xec, 0x5f, 0x65, 0x97, 0x65, 0xfb, 0x6a,
+				       0xaa, 0x04, 0x8f, 0x70, 0x56, 0xf6, 0xc6,
+				       0xb5, 0xd8, 0x51, 0x3d,
+				       /* IV part */
+				       0xb8, 0xb5, 0xe4, 0x07 };
+	uint8_t iv[] = { /* 0xb8, 0xb5, 0xe4, 0x07,*/ 0xad, 0xc0,
+			 0xe2, 0x93, 0xe3, 0xe7, 0xe9, 0x91 };
+	static const uint8_t exp_ct[] = { 0x8f, 0xad, 0xa0, 0xb8, 0xe7, 0x77,
+					  0xa8, 0x29, 0xca, 0x96, 0x80, 0xd3,
+					  0xbf, 0x4f, 0x35, 0x74 };
+	static const uint8_t exp_tag[] = { 0xbd, 0x08, 0x80, 0x82, 0x97, 0x53,
+					   0x09, 0xbc, 0xc2, 0x5d, 0x5c, 0x0d,
+					   0xaf, 0xe6, 0xaf, 0x47 };
+	pr_info("RFC4106 AES GCM 256 crypt\n");
+	return lc_aead_test("rfc4106-gcm-aes-leancrypto", pt, sizeof(pt), iv,
+			    sizeof(iv), aad, sizeof(aad), key, sizeof(key),
+			    exp_ct, exp_tag, sizeof(exp_tag), 1);
 }
 
 static int __init leancrypto_kernel_aes_gcm_test_init(void)
 {
-	return aes_gcm_tester_256();
+	int ret = aes_gcm_tester_256();
+
+	ret |= rfc4106_comparison_aes_gcm_tester_256();
+	ret |= rfc4106_aes_gcm_tester_256();
+
+	return ret;
 }
 
 static void __exit leancrypto_kernel_aes_gcm_test_exit(void)

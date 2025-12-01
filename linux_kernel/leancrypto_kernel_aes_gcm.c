@@ -36,12 +36,11 @@
 #include "leancrypto_kernel_aead_helper.h"
 
 /* Implement the walking of a scatter-gather list for AAD. */
-static int lc_aes_gcm_aad(struct aead_request *areq)
+static int lc_aes_gcm_aad(struct aead_request *areq, size_t nbytes)
 {
 	struct scatter_walk src_walk;
 	struct crypto_aead *aead = crypto_aead_reqtfm(areq);
 	struct lc_aead_ctx *ctx = crypto_aead_ctx(aead);
-	size_t nbytes = areq->assoclen;
 	int ret;
 
 	if (!nbytes)
@@ -58,7 +57,6 @@ static int lc_aes_gcm_aad(struct aead_request *areq)
 		unsigned int todo = scatterwalk_clamp(&src_walk, nbytes);
 		u8 *src_vaddr = scatterwalk_map(&src_walk);
 #endif
-
 		ret = lc_aead_enc_init(ctx, src_vaddr, todo);
 		if (ret)
 			return ret;
@@ -82,19 +80,19 @@ static int lc_aes_gcm_enc_final(struct aead_request *areq)
 {
 	struct crypto_aead *aead = crypto_aead_reqtfm(areq);
 	struct lc_aead_ctx *ctx = crypto_aead_ctx(aead);
+	unsigned int authsize = crypto_aead_authsize(aead);
 	/* Maximum tag size */
 	u8 tag[16];
 	int ret;
 
-	WARN_ON(sizeof(tag) < crypto_aead_maxauthsize(aead));
+	WARN_ON(sizeof(tag) < authsize);
 
-	ret = lc_aead_enc_final(ctx, tag, crypto_aead_authsize(aead));
+	ret = lc_aead_enc_final(ctx, tag, authsize);
 	if (ret)
 		return ret;
 
 	scatterwalk_map_and_copy(tag, areq->dst,
-				 areq->assoclen + areq->cryptlen,
-				 crypto_aead_authsize(aead), 1);
+				 areq->assoclen + areq->cryptlen, authsize, 1);
 
 	return 0;
 }
@@ -113,7 +111,7 @@ static int lc_aes_gcm_enc(struct aead_request *areq)
 	if (ret)
 		return ret;
 
-	lc_aes_gcm_aad(areq);
+	lc_aes_gcm_aad(areq, areq->assoclen);
 
 	ret = lc_kernel_aead_update(areq, areq->cryptlen, lc_aead_enc_update);
 	if (ret)
@@ -131,7 +129,7 @@ static int lc_aes_gcm_dec_final(struct aead_request *areq)
 	/* Maximum tag size */
 	u8 tag[16];
 
-	WARN_ON(sizeof(tag) < crypto_aead_maxauthsize(aead));
+	WARN_ON(sizeof(tag) < authsize);
 
 	scatterwalk_map_and_copy(tag, areq->src, areq->assoclen + cryptlen,
 				 authsize, 0);
@@ -153,7 +151,7 @@ static int lc_aes_gcm_dec(struct aead_request *areq)
 	if (ret)
 		return ret;
 
-	lc_aes_gcm_aad(areq);
+	lc_aes_gcm_aad(areq, areq->assoclen);
 
 	ret = lc_kernel_aead_update(areq,
 				    areq->cryptlen - crypto_aead_authsize(aead),
@@ -212,11 +210,143 @@ static void lc_aes_gcm_exit(struct crypto_aead *aead)
 {
 }
 
+/********************************** RFC4106  **********************************/
+
+struct lc_rfc4106_aes_gcm_ctx {
+	union {
+		struct lc_aead_ctx ctx;
+		uint8_t buffer[LC_AES_GCM_CTX_SIZE_LEN(
+			       LC_AES_AESNI_MAX_BLOCK_SIZE)];
+	} ctx;
+
+#define LC_RFC4106_AES_GCM_IV_FIXED_FIELD_LEN 4
+#define LC_RFC4106_AES_GCM_IV_INVOCATION_FIELD_LEN 8
+#define LC_RFC4106_AES_GCM_IV_LEN                                              \
+	(LC_RFC4106_AES_GCM_IV_FIXED_FIELD_LEN +                               \
+	 LC_RFC4106_AES_GCM_IV_INVOCATION_FIELD_LEN)
+	uint8_t iv[LC_RFC4106_AES_GCM_IV_FIXED_FIELD_LEN];
+};
+
+static int lc_rfc4106_aes_gcm_setauthsize(struct crypto_aead *aead,
+					  unsigned int authsize)
+{
+	switch (authsize) {
+	case 8:
+	case 12:
+	case 16:
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static int lc_rfc4106_aes_gcm_setkey(struct crypto_aead *aead, const u8 *key,
+				     unsigned int keylen)
+{
+	struct lc_rfc4106_aes_gcm_ctx *rfc4106_ctx = crypto_aead_ctx(aead);
+	struct lc_aead_ctx *ctx = &rfc4106_ctx->ctx.ctx;
+
+	if (keylen < LC_RFC4106_AES_GCM_IV_FIXED_FIELD_LEN)
+		return -EINVAL;
+	keylen -= LC_RFC4106_AES_GCM_IV_FIXED_FIELD_LEN;
+
+	memcpy(rfc4106_ctx->iv, key + keylen,
+	       LC_RFC4106_AES_GCM_IV_FIXED_FIELD_LEN);
+
+	/* Set the key, but not the IV yet */
+	return lc_aead_setkey(ctx, key, keylen, NULL, 0);
+}
+
+static int lc_rfc4106_aes_gcm_init(struct crypto_aead *aead)
+{
+	struct lc_rfc4106_aes_gcm_ctx *rfc4106_ctx = crypto_aead_ctx(aead);
+	struct lc_aead_ctx *ctx = &rfc4106_ctx->ctx.ctx;
+
+	LC_AES_GCM_SET_CTX(ctx);
+
+	return 0;
+}
+
+static int lc_rfc4106_aes_gcm_setiv(struct aead_request *areq)
+{
+	struct crypto_aead *aead = crypto_aead_reqtfm(areq);
+	struct lc_rfc4106_aes_gcm_ctx *rfc4106_ctx = crypto_aead_ctx(aead);
+	struct lc_aead_ctx *ctx = &rfc4106_ctx->ctx.ctx;
+	uint8_t iv[LC_RFC4106_AES_GCM_IV_LEN];
+
+	memcpy(iv, rfc4106_ctx->iv, LC_RFC4106_AES_GCM_IV_FIXED_FIELD_LEN);
+	memcpy(iv + LC_RFC4106_AES_GCM_IV_FIXED_FIELD_LEN, areq->iv,
+	       LC_RFC4106_AES_GCM_IV_INVOCATION_FIELD_LEN);
+
+	/*
+	 * NULL-key implies that the key was already set and now we only set
+	 * the IV.
+	 */
+	return lc_aead_setkey(ctx, NULL, 0, iv, sizeof(iv));
+}
+
+static int lc_rfc4106_aes_gcm_enc(struct aead_request *areq)
+{
+	struct crypto_aead *aead = crypto_aead_reqtfm(areq);
+	struct lc_rfc4106_aes_gcm_ctx *rfc4106_ctx = crypto_aead_ctx(aead);
+	unsigned int assoclen = areq->assoclen;
+	int ret;
+
+	if (unlikely(assoclen != 16 && assoclen != 20))
+		return -EINVAL;
+	assoclen -= LC_RFC4106_AES_GCM_IV_INVOCATION_FIELD_LEN;
+
+	ret = lc_rfc4106_aes_gcm_setiv(areq);
+	if (ret)
+		return ret;
+
+	lc_aes_gcm_aad(areq, assoclen);
+
+	ret = lc_kernel_aead_update(areq, areq->cryptlen, lc_aead_enc_update);
+	if (ret)
+		return ret;
+
+	return lc_aes_gcm_enc_final(areq);
+}
+
+static int lc_rfc4106_aes_gcm_dec(struct aead_request *areq)
+{
+	struct crypto_aead *aead = crypto_aead_reqtfm(areq);
+	struct lc_rfc4106_aes_gcm_ctx *rfc4106_ctx = crypto_aead_ctx(aead);
+	unsigned int assoclen = areq->assoclen;
+	int ret;
+
+	if (areq->cryptlen < crypto_aead_authsize(aead))
+		return -EBADMSG;
+
+	if (unlikely(assoclen != 16 && assoclen != 20))
+		return -EINVAL;
+	assoclen -= LC_RFC4106_AES_GCM_IV_INVOCATION_FIELD_LEN;
+
+	ret = lc_rfc4106_aes_gcm_setiv(areq);
+	if (ret)
+		return ret;
+
+	lc_aes_gcm_aad(areq, assoclen);
+
+	ret = lc_kernel_aead_update(areq,
+				    areq->cryptlen - crypto_aead_authsize(aead),
+				    lc_aead_dec_update);
+	if (ret)
+		return ret;
+
+	return lc_aes_gcm_dec_final(areq);
+}
+
+/********************************* Interface  *********************************/
+
 static struct aead_alg lc_aes_gcm_algs[] = {
 	{
 		.base = {
 			.cra_name = "gcm(aes)",
-			.cra_driver_name = "aes-gcm-leancrypto",
+			.cra_driver_name = "gcm-aes-leancrypto",
 			.cra_priority = LC_KERNEL_DEFAULT_PRIO,
 			.cra_blocksize = 1,
 			.cra_ctxsize = LC_AES_GCM_CTX_SIZE_LEN(
@@ -231,6 +361,24 @@ static struct aead_alg lc_aes_gcm_algs[] = {
 		.init = lc_aes_gcm_init,
 		.exit = lc_aes_gcm_exit,
 		.ivsize = 12,
+		.maxauthsize = 16,
+	}, {
+		.base = {
+			.cra_name = "rfc4106(gcm(aes))",
+			.cra_driver_name = "rfc4106-gcm-aes-leancrypto",
+			.cra_priority = LC_KERNEL_DEFAULT_PRIO,
+			.cra_blocksize = 1,
+			.cra_ctxsize = sizeof(struct lc_rfc4106_aes_gcm_ctx),
+			.cra_alignmask = LC_MEM_COMMON_ALIGNMENT - 1,
+			.cra_module = THIS_MODULE,
+		},
+		.setkey = lc_rfc4106_aes_gcm_setkey,
+		.setauthsize = lc_rfc4106_aes_gcm_setauthsize,
+		.encrypt = lc_rfc4106_aes_gcm_enc,
+		.decrypt = lc_rfc4106_aes_gcm_dec,
+		.init = lc_rfc4106_aes_gcm_init,
+		.exit = lc_aes_gcm_exit,
+		.ivsize = LC_RFC4106_AES_GCM_IV_INVOCATION_FIELD_LEN,
 		.maxauthsize = 16,
 	},
 };
