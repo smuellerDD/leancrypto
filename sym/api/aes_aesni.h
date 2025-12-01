@@ -33,6 +33,7 @@ extern const struct lc_sym *lc_aes_xts_aesni;
 /* Maximum size of the AES context */
 #define LC_AES_AESNI_MAX_BLOCK_SIZE (244 * 2)
 #define LC_AES_AESNI_XTS_MAX_BLOCK_SIZE (244 * 3 + 16)
+#define LC_AES_AESNI_CBC_MAX_BLOCK_SIZE (244 * 2 + 16)
 
 #ifdef __cplusplus
 }
