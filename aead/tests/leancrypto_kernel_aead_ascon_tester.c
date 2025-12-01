@@ -265,7 +265,7 @@ static int lc_aead_test(const char *name, const uint8_t *data, size_t inlen,
 		sg_set_buf(&sg_out[0], aad, aadlen);
 		sg_set_buf(&sg_out[1], out_dec, inlen);
 	} else {
-		sg_init_table(sg_in, 1);
+		sg_init_table(sg_in, 2);
 		sg_set_buf(&sg_in[0], out_enc, inlen);
 		sg_set_buf(&sg_in[1], tag, exp_tag_len);
 
