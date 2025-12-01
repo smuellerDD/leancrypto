@@ -35,6 +35,7 @@ extern const struct lc_sym *lc_aes_xts_riscv64;
 #define LC_AES_RISCV64_MAX_BLOCK_SIZE (244 * 2)
 #define LC_AES_RISCV64_XTS_MAX_BLOCK_SIZE (244 * 3 + 48)
 #define LC_AES_RISCV64_CBC_MAX_BLOCK_SIZE (244 * 2 + 48)
+#define LC_AES_RISCV64_CTR_MAX_BLOCK_SIZE (244 + 48)
 
 #ifdef __cplusplus
 }

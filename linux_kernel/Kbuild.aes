@@ -89,7 +89,11 @@ endif
 
 leancrypto-$(CONFIG_LEANCRYPTO_AES_CTR)					       \
 				+= ../sym/src/aes_ctr.o			       \
-				   ../sym/src/mode_ctr.o
+				   ../sym/src/mode_ctr.o		       \
+				   leancrypto_kernel_aes_ctr.o
+
+obj-m				+= leancrypto_kernel_aes_ctr_tester.o
+leancrypto_kernel_aes_ctr_tester-y	+= ../sym/tests/leancrypto_kernel_aes_ctr_tester.o
 
 ifdef CONFIG_X86_64
 leancrypto-$(CONFIG_LEANCRYPTO_AES_CTR)					       \

@@ -35,7 +35,7 @@
 
 #include "leancrypto_kernel.h"
 
-static int lc_aes_cbc_setkey(struct crypto_skcipher *tfm, const u8 *key,
+static int lc_aes_ctr_setkey(struct crypto_skcipher *tfm, const u8 *key,
 			     unsigned int keylen)
 {
 	struct lc_sym_ctx *ctx = crypto_skcipher_ctx(tfm);
@@ -48,7 +48,7 @@ static int lc_aes_cbc_setkey(struct crypto_skcipher *tfm, const u8 *key,
         return lc_sym_setkey(ctx, key, keylen);
 }
 
-static int lc_aes_cbc_common(struct skcipher_request *req,
+static int lc_aes_ctr_common(struct skcipher_request *req,
 			     void (*crypt_func)(struct lc_sym_ctx *ctx,
 						const uint8_t *in, uint8_t *out,
 						size_t len))
@@ -57,9 +57,6 @@ static int lc_aes_cbc_common(struct skcipher_request *req,
 	struct lc_sym_ctx *ctx = crypto_skcipher_ctx(tfm);
 	struct skcipher_walk walk;
 	int err;
-
-	if (unlikely(req->cryptlen % AES_BLOCK_SIZE))
-		return -EINVAL;
 
 	err = lc_sym_setiv(ctx, req->iv, AES_BLOCK_SIZE);
 	if (err)
@@ -77,67 +74,68 @@ static int lc_aes_cbc_common(struct skcipher_request *req,
 	return err;
 }
 
-static int lc_aes_cbc_encrypt(struct skcipher_request *req)
+static int lc_aes_ctr_encrypt(struct skcipher_request *req)
 {
-	return lc_aes_cbc_common(req, lc_sym_encrypt);
+	return lc_aes_ctr_common(req, lc_sym_encrypt);
 }
 
-static int lc_aes_cbc_decrypt(struct skcipher_request *req)
+static int lc_aes_ctr_decrypt(struct skcipher_request *req)
 {
-	return lc_aes_cbc_common(req, lc_sym_decrypt);
+	return lc_aes_ctr_common(req, lc_sym_decrypt);
 }
 
-static int lc_aes_cbc_init(struct crypto_skcipher *tfm)
+static int lc_aes_ctr_init(struct crypto_skcipher *tfm)
 {
 	struct lc_sym_ctx *ctx = crypto_skcipher_ctx(tfm);
 
-	LC_SYM_SET_CTX(ctx, lc_aes_cbc);
+	LC_SYM_SET_CTX(ctx, lc_aes_ctr);
 
 	/*
 	 * Verification that the setting of .cra_ctxsize is appropriate
 	 */
-	BUILD_BUG_ON(LC_AES_RISCV64_CBC_MAX_BLOCK_SIZE <
-		     LC_AES_ARMCE_CBC_MAX_BLOCK_SIZE);
-	BUILD_BUG_ON(LC_AES_RISCV64_CBC_MAX_BLOCK_SIZE <
-		     LC_AES_AESNI_CBC_MAX_BLOCK_SIZE);
-	BUILD_BUG_ON(LC_AES_RISCV64_CBC_MAX_BLOCK_SIZE <
-		     LC_AES_C_CBC_MAX_BLOCK_SIZE);
+	BUILD_BUG_ON(LC_AES_RISCV64_CTR_MAX_BLOCK_SIZE <
+		     LC_AES_ARMCE_CTR_MAX_BLOCK_SIZE);
+	BUILD_BUG_ON(LC_AES_RISCV64_CTR_MAX_BLOCK_SIZE <
+		     LC_AES_AESNI_CTR_MAX_BLOCK_SIZE);
+	BUILD_BUG_ON(LC_AES_RISCV64_CTR_MAX_BLOCK_SIZE <
+		     LC_AES_C_CTR_MAX_BLOCK_SIZE);
 
 	return 0;
 }
 
 /********************************* Interface  *********************************/
 
-static struct skcipher_alg lc_aes_cbc_skciphers[] = {
+static struct skcipher_alg lc_aes_ctr_skciphers[] = {
 	{
 		.base = {
-			.cra_name = "cbc(aes)",
-			.cra_driver_name = "cbc-aes-leancrypto",
+			.cra_name = "ctr(aes)",
+			.cra_driver_name = "ctr-aes-leancrypto",
 			.cra_priority = LC_KERNEL_DEFAULT_PRIO,
-			.cra_blocksize = AES_BLOCK_SIZE,
+			.cra_blocksize = 1,
 			.cra_ctxsize = LC_SYM_CTX_SIZE_LEN(
-					LC_AES_RISCV64_CBC_MAX_BLOCK_SIZE),
+					LC_AES_RISCV64_CTR_MAX_BLOCK_SIZE),
 			.cra_alignmask = LC_SYM_COMMON_ALIGNMENT - 1,
 			.cra_module = THIS_MODULE,
 		},
 		.min_keysize = AES_MIN_KEY_SIZE,
 		.max_keysize = AES_MAX_KEY_SIZE,
 		.ivsize	 = AES_BLOCK_SIZE,
-		.setkey = lc_aes_cbc_setkey,
-		.encrypt = lc_aes_cbc_encrypt,
-		.decrypt = lc_aes_cbc_decrypt,
-		.init = lc_aes_cbc_init
+		.chunksize = AES_BLOCK_SIZE,
+		.setkey = lc_aes_ctr_setkey,
+		.encrypt = lc_aes_ctr_encrypt,
+		.decrypt = lc_aes_ctr_decrypt,
+		.init = lc_aes_ctr_init
 	}
 };
 
-int __init lc_kernel_aes_cbc_init(void)
+int __init lc_kernel_aes_ctr_init(void)
 {
-	return crypto_register_skciphers(lc_aes_cbc_skciphers,
-					 ARRAY_SIZE(lc_aes_cbc_skciphers));
+	return crypto_register_skciphers(lc_aes_ctr_skciphers,
+					 ARRAY_SIZE(lc_aes_ctr_skciphers));
 }
 
-void lc_kernel_aes_cbc_exit(void)
+void lc_kernel_aes_ctr_exit(void)
 {
-	crypto_unregister_skciphers(lc_aes_cbc_skciphers,
-				    ARRAY_SIZE(lc_aes_cbc_skciphers));
+	crypto_unregister_skciphers(lc_aes_ctr_skciphers,
+				    ARRAY_SIZE(lc_aes_ctr_skciphers));
 }
