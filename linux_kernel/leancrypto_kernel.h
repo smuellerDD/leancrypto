@@ -643,6 +643,20 @@ static inline void lc_kernel_chacha20_exit(void)
 }
 #endif
 
+#ifdef CONFIG_LEANCRYPTO_CHACHA20_POLY1305
+int __init lc_kernel_cc20p1305_init(void);
+void lc_kernel_cc20p1305_exit(void);
+#else
+static inline int __init lc_kernel_cc20p1305_init(void)
+{
+	return 0;
+}
+
+static inline void lc_kernel_cc20p1305_exit(void)
+{
+}
+#endif
+
 #ifdef __cplusplus
 }
 #endif

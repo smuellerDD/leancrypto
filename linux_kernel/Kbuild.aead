@@ -82,7 +82,12 @@ ifdef CONFIG_LEANCRYPTO_CHACHA20_POLY1305
 ccflags-y			+= -DCONFIG_LEANCRYPTO_CHACHA20_POLY1305
 leancrypto-$(CONFIG_LEANCRYPTO_CHACHA20_POLY1305)			       \
 				+= ../aead/src/chacha20poly1305.o	       \
-				   ../hash/src/poly1305.o
+				   ../hash/src/poly1305.o		       \
+				   leancrypto_kernel_chacha20_poly1305.o
+
+obj-m				+= leancrypto_kernel_chacha20_poly1305_tester.o
+leancrypto_kernel_chacha20_poly1305_tester-y	+=			       \
+				   ../aead/tests/leancrypto_kernel_chacha20_poly1305_tester.o
 
 obj-m		  		+= chacha20poly1305_tester.o
 chacha20poly1305_tester-y	+= ../aead/tests/chacha20poly1305_tester.o

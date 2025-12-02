@@ -310,7 +310,7 @@ int cc20_setkey(struct lc_sym_state *ctx, const uint8_t *key, size_t keylen)
 	ctx->key.u[6] = ptr_to_le32(key + sizeof(uint32_t) * 6);
 	ctx->key.u[7] = ptr_to_le32(key + sizeof(uint32_t) * 7);
 
-	ctx->keystream_ptr = 0;
+	cc20_resetkey(ctx);
 
 	return 0;
 }

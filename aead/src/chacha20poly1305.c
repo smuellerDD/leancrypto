@@ -150,14 +150,94 @@ static int cc20p1305_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t constant[] = { 0x07, 0x00, 0x00, 0x00 };
 
-	if (ivlen != 8)
+	switch (ivlen) {
+	case 8:
+		ctx->counter[1] = ptr_to_le32(constant);
+		ctx->counter[2] = ptr_to_le32(iv);
+		ctx->counter[3] = ptr_to_le32(iv + sizeof(uint32_t));
+		break;
+	case 12:
+		ctx->counter[1] = ptr_to_le32(iv);
+		ctx->counter[2] = ptr_to_le32(iv + sizeof(uint32_t));
+		ctx->counter[3] = ptr_to_le32(iv + sizeof(uint32_t) * 2);
+		break;
+	default:
 		return -EINVAL;
-
-	ctx->counter[1] = ptr_to_le32(constant);
-	ctx->counter[2] = ptr_to_le32(iv);
-	ctx->counter[3] = ptr_to_le32(iv + sizeof(uint32_t));
+	}
 
 	return 0;
+}
+
+/*
+ * @brief Set the key for the encryption or decryption operation
+ *
+ * @param [in] state symmetric/HMAC crypt cipher handle
+ * @param [in] key Buffer with key
+ * @param [in] keylen Length of key buffer
+ */
+static int lc_chacha20_poly1305_setkey_internal(void *state, const uint8_t *key,
+					       size_t keylen)
+{
+	struct lc_chacha20_poly1305_cryptor *cc20p1305 = state;
+	struct lc_sym_ctx *chacha20 = &cc20p1305->chacha20;
+	struct lc_sym_state *chacha20_ctx = chacha20->sym_state;
+	int ret;
+
+	/* If no key is present, do not set anything. */
+	CKNULL(key, 0);
+
+	cc20_init_constants(chacha20_ctx);
+	CKINT(lc_sym_setkey(chacha20, key, keylen));
+
+out:
+	return ret;
+}
+
+/*
+ * @brief Set the IV for the encryption or decryption operation and derive the
+ * Poly1305 subkey
+ *
+ * @param [in] state symmetric/HMAC crypt cipher handle
+ * @param [in] iv initialization vector to be used - only the IV size of the
+ *		  underlying symmetric algorithm is supported
+ * @param [in] ivlen length of initialization vector
+ *
+ * The algorithm supports a key of arbitrary size. The only requirement is that
+ * the same key is used for decryption as for encryption.
+ */
+static int lc_chacha20_poly1305_setiv_internal(void *state, const uint8_t *iv,
+					       size_t ivlen)
+{
+	struct lc_chacha20_poly1305_cryptor *cc20p1305 = state;
+	struct lc_sym_ctx *chacha20 = &cc20p1305->chacha20;
+	struct lc_sym_state *chacha20_ctx = chacha20->sym_state;
+	struct lc_poly1305_context *poly1305 = &cc20p1305->poly1305_ctx;
+	uint32_t subkey[LC_CC20_BLOCK_SIZE_WORDS];
+	int ret;
+
+	BUILD_BUG_ON(sizeof(subkey) != 32 + 32);
+
+	/* If no IV is present, do not set anything. */
+	CKNULL(iv, 0);
+
+	/* Derive the ChaCha20 and Poly1305 keys */
+	chacha20_ctx->counter[0] = 0;
+	CKINT(cc20p1305_setiv(chacha20->sym_state, iv, ivlen));
+	cc20_block(chacha20->sym_state, subkey);
+
+	/* ChaCha20 algorithm is in a state ready to use */
+
+	/* Initialize the Poly1305 algorithm */
+	lc_poly1305_init(poly1305, (uint8_t *)subkey);
+
+	cc20p1305->aadlen = 0;
+	cc20p1305->datalen = 0;
+
+	cc20_resetkey(chacha20->sym_state);
+
+out:
+	lc_memset_secure(subkey, 0, sizeof(subkey));
+	return ret;
 }
 
 /**
@@ -177,32 +257,12 @@ static int lc_chacha20_poly1305_setkey_nocheck(void *state, const uint8_t *key,
 					       size_t keylen, const uint8_t *iv,
 					       size_t ivlen)
 {
-	struct lc_chacha20_poly1305_cryptor *cc20p1305 = state;
-	struct lc_sym_ctx *chacha20 = &cc20p1305->chacha20;
-	struct lc_sym_state *chacha20_ctx = chacha20->sym_state;
-	struct lc_poly1305_context *poly1305 = &cc20p1305->poly1305_ctx;
-	uint32_t subkey[LC_CC20_BLOCK_SIZE_WORDS];
 	int ret;
 
-	BUILD_BUG_ON(sizeof(subkey) != 32 + 32);
-
-	/* Derive the ChaCha20 and Poly1305 keys */
-	cc20_init_constants(chacha20_ctx);
-	chacha20_ctx->counter[0] = 0;
-	CKINT(lc_sym_setkey(chacha20, key, keylen));
-	CKINT(cc20p1305_setiv(chacha20->sym_state, iv, ivlen));
-	cc20_block(chacha20->sym_state, subkey);
-
-	/* ChaCha20 algorithm is in a state ready to use */
-
-	/* Initialize the Poly1305 algorithm */
-	lc_poly1305_init(poly1305, (uint8_t *)subkey);
-
-	cc20p1305->aadlen = 0;
-	cc20p1305->datalen = 0;
+	CKINT(lc_chacha20_poly1305_setkey_internal(state, key, keylen));
+	CKINT(lc_chacha20_poly1305_setiv_internal(state, iv, ivlen));
 
 out:
-	lc_memset_secure(subkey, 0, sizeof(subkey));
 	return ret;
 }
 

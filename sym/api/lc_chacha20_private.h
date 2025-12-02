@@ -86,6 +86,11 @@ static inline void cc20_inc_counter(struct lc_sym_state *ctx)
 	cc20_counter_overflow(ctx);
 }
 
+static inline void cc20_resetkey(struct lc_sym_state *ctx)
+{
+	ctx->keystream_ptr = 0;
+}
+
 /// \endcond
 
 #ifdef __cplusplus

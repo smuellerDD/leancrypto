@@ -22,6 +22,7 @@
 
 #include "lc_aead.h"
 #include "lc_chacha20.h"
+#include "lc_chacha20_private.h"
 #include "lc_memset_secure.h"
 #include "lc_poly1305.h"
 
@@ -37,7 +38,8 @@ struct lc_chacha20_poly1305_cryptor {
 	size_t aadlen;
 };
 
-#define LC_CHACHA20_POLY1305_STATE_SIZE (LC_SYM_STATE_SIZE(lc_chacha20))
+#define LC_CHACHA20_POLY1305_STATE_SIZE                                        \
+	(LC_SYM_STATE_SIZE_LEN(LC_CC20_STATE_SIZE))
 #define LC_CHACHA20_POLY1305_CTX_SIZE                                          \
 	(sizeof(struct lc_aead) +                                              \
 	 sizeof(struct lc_chacha20_poly1305_cryptor) +                         \
