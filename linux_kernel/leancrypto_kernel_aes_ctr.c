@@ -65,10 +65,14 @@ static int lc_aes_ctr_common(struct skcipher_request *req,
 	err = skcipher_walk_virt(&walk, req, false);
 
 	while (walk.nbytes) {
+		unsigned int nbytes = walk.nbytes;
+
+		if (nbytes < walk.total)
+			nbytes = round_down(nbytes, AES_BLOCK_SIZE);
+
 		crypt_func(ctx, walk.src.virt.addr, walk.dst.virt.addr,
-			   walk.nbytes & ~(AES_BLOCK_SIZE - 1));
-		err = skcipher_walk_done(&walk,
-					 walk.nbytes & (AES_BLOCK_SIZE - 1));
+			   nbytes);
+		err = skcipher_walk_done(&walk, walk.nbytes - nbytes);
 	}
 
 	return err;
