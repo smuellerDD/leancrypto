@@ -317,14 +317,26 @@ int cc20_setkey(struct lc_sym_state *ctx, const uint8_t *key, size_t keylen)
 
 int cc20_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen)
 {
-	/* IV is counter + nonce */
-	if (!ctx || ivlen != 12)
+	if (!ctx)
 		return -EINVAL;
 
-	ctx->counter[0] = 1;
-	ctx->counter[1] = ptr_to_le32(iv);
-	ctx->counter[2] = ptr_to_le32(iv + sizeof(uint32_t));
-	ctx->counter[3] = ptr_to_le32(iv + sizeof(uint32_t) * 2);
+	/* IV is counter + nonce */
+	switch (ivlen) {
+	case 12:
+		ctx->counter[0] = 1;
+		ctx->counter[1] = ptr_to_le32(iv);
+		ctx->counter[2] = ptr_to_le32(iv + sizeof(uint32_t));
+		ctx->counter[3] = ptr_to_le32(iv + sizeof(uint32_t) * 2);
+		break;
+	case 16:
+		ctx->counter[0] = ptr_to_le32(iv);
+		ctx->counter[1] = ptr_to_le32(iv + sizeof(uint32_t));
+		ctx->counter[2] = ptr_to_le32(iv + sizeof(uint32_t) * 2);
+		ctx->counter[3] = ptr_to_le32(iv + sizeof(uint32_t) * 3);
+		break;
+	default:
+		return -EINVAL;
+	}
 
 	ctx->keystream_ptr = 0;
 

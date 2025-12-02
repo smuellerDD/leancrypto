@@ -2,7 +2,11 @@
 # Symmetric implementation: ChaCha20
 leancrypto-$(CONFIG_LEANCRYPTO_CHACHA20)				       \
 				+= ../sym/src/chacha20.o		       \
-				   ../sym/src/chacha20_selector.o
+				   ../sym/src/chacha20_selector.o              \
+				   leancrypto_kernel_chacha20.o
+
+obj-m				+= leancrypto_kernel_chacha20_tester.o
+leancrypto_kernel_chacha20_tester-y	+= ../sym/tests/leancrypto_kernel_chacha20_tester.o
 
 ifdef CONFIG_X86_64
 chacha2_avx512_args += -mavx512bw -mavx512dq -mavx512f -mbmi2

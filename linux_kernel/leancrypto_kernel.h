@@ -629,6 +629,20 @@ static inline void lc_kernel_aes_ctr_exit(void)
 }
 #endif
 
+#ifdef CONFIG_LEANCRYPTO_CHACHA20
+int __init lc_kernel_chacha20_init(void);
+void lc_kernel_chacha20_exit(void);
+#else
+static inline int __init lc_kernel_chacha20_init(void)
+{
+	return 0;
+}
+
+static inline void lc_kernel_chacha20_exit(void)
+{
+}
+#endif
+
 #ifdef __cplusplus
 }
 #endif
