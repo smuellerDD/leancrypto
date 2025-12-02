@@ -216,7 +216,7 @@ struct lc_rfc4106_aes_gcm_ctx {
 	union {
 		struct lc_aead_ctx ctx;
 		uint8_t buffer[LC_AES_GCM_CTX_SIZE_LEN(
-			       LC_AES_AESNI_MAX_BLOCK_SIZE)];
+			LC_AES_AESNI_MAX_BLOCK_SIZE)];
 	} ctx;
 
 #define LC_RFC4106_AES_GCM_IV_FIXED_FIELD_LEN 4

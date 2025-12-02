@@ -176,7 +176,7 @@ static int cc20p1305_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
  * @param [in] keylen Length of key buffer
  */
 static int lc_chacha20_poly1305_setkey_internal(void *state, const uint8_t *key,
-					       size_t keylen)
+						size_t keylen)
 {
 	struct lc_chacha20_poly1305_cryptor *cc20p1305 = state;
 	struct lc_sym_ctx *chacha20 = &cc20p1305->chacha20;

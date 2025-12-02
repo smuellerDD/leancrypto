@@ -40,7 +40,7 @@ static int lc_chacha20_setkey(struct crypto_skcipher *tfm, const u8 *key,
 	if (err)
 		return err;
 
-        return lc_sym_setkey(ctx, key, keylen);
+	return lc_sym_setkey(ctx, key, keylen);
 }
 
 static int lc_chacha20_common(struct skcipher_request *req,
@@ -65,8 +65,7 @@ static int lc_chacha20_common(struct skcipher_request *req,
 		if (nbytes < walk.total)
 			nbytes = round_down(nbytes, CHACHA_BLOCK_SIZE);
 
-		crypt_func(ctx, walk.src.virt.addr, walk.dst.virt.addr,
-			   nbytes);
+		crypt_func(ctx, walk.src.virt.addr, walk.dst.virt.addr, nbytes);
 		err = skcipher_walk_done(&walk, walk.nbytes - nbytes);
 	}
 

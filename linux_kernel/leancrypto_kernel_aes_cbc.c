@@ -45,7 +45,7 @@ static int lc_aes_cbc_setkey(struct crypto_skcipher *tfm, const u8 *key,
 	if (err)
 		return err;
 
-        return lc_sym_setkey(ctx, key, keylen);
+	return lc_sym_setkey(ctx, key, keylen);
 }
 
 static int lc_aes_cbc_common(struct skcipher_request *req,

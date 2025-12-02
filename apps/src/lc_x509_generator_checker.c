@@ -248,8 +248,7 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 	if (parsed_opts->san_dns) {
 		struct lc_x509_certificate_name
 			search_name = { .cn = {
-						.value =
-							parsed_opts->san_dns,
+						.value = parsed_opts->san_dns,
 						.size = (uint8_t)strlen(
 							parsed_opts->san_dns),
 					} };

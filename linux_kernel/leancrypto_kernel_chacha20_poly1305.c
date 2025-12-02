@@ -220,7 +220,7 @@ static int lc_cc20p1305_setkey(struct crypto_aead *aead, const u8 *key,
 }
 
 static int lc_cc20p1305_setauthsize(struct crypto_aead *aead,
-				  unsigned int authsize)
+				    unsigned int authsize)
 {
 	if (authsize != POLY1305_DIGEST_SIZE)
 		return -EINVAL;

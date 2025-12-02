@@ -50,15 +50,14 @@ static int lc_aes_xts_setkey(struct crypto_skcipher *tfm, const u8 *key,
 	if (err)
 		return err;
 
-        return lc_sym_setkey(ctx, key, keylen);
+	return lc_sym_setkey(ctx, key, keylen);
 }
 
 /* This handles cases where the source and/or destination span pages. */
-static noinline int
-lc_aes_xts_slowpath(struct skcipher_request *req,
-		    void (*crypt_func)(struct lc_sym_ctx *ctx,
-				       const uint8_t *in, uint8_t *out,
-				       size_t len))
+static noinline int lc_aes_xts_slowpath(
+	struct skcipher_request *req,
+	void (*crypt_func)(struct lc_sym_ctx *ctx, const uint8_t *in,
+			   uint8_t *out, size_t len))
 {
 #if 0
 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
