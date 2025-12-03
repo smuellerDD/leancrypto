@@ -22,7 +22,6 @@
 
 #include "lc_aead.h"
 #include "lc_chacha20.h"
-#include "lc_chacha20_private.h"
 #include "lc_memset_secure.h"
 #include "lc_poly1305.h"
 

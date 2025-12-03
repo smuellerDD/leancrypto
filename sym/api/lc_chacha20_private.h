@@ -54,7 +54,7 @@ struct lc_sym_state {
 	uint8_t keystream_ptr;
 };
 
-#define LC_CC20_STATE_SIZE (sizeof(struct lc_sym_state))
+#define LC_CC20_STATE_SIZE_PRIVATE (sizeof(struct lc_sym_state))
 
 static inline void cc20_init_constants(struct lc_sym_state *ctx)
 {

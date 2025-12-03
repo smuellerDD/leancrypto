@@ -28,6 +28,8 @@ extern "C" {
 
 extern const struct lc_sym *lc_chacha20;
 
+#define LC_CC20_STATE_SIZE (132)
+
 /**
  * @ingroup Symmetric
  * @brief ChaCha20 block function

@@ -19,6 +19,7 @@
 
 #include "alignment.h"
 #include "bitshift.h"
+#include "build_bug_on.h"
 #include "chacha20_c.h"
 #include "chacha20_internal.h"
 #include "compare.h"
@@ -282,6 +283,12 @@ int cc20_init(struct lc_sym_state *ctx)
 {
 	cc20_selftest();
 	LC_SELFTEST_COMPLETED(lc_chacha20_c->algorithm_type);
+
+	/*
+	 * Verify that the hard-coded externally visible state size is
+	 * sufficiently large.
+	 */
+	BUILD_BUG_ON(LC_CC20_STATE_SIZE < LC_CC20_STATE_SIZE_PRIVATE);
 
 	/* String "expand 32-byte k" */
 	cc20_init_constants(ctx);
