@@ -53,6 +53,9 @@ int lc_kernel_aead_update(struct aead_request *areq, unsigned int nbytes,
 		u8 *src_vaddr = src_walk.addr;
 		u8 *dst_vaddr = dst_walk.addr;
 
+		if (!todo)
+			return -EINVAL;
+
 		/* Perform the work */
 		ret = process(ctx, src_vaddr, dst_vaddr, todo);
 

@@ -57,6 +57,10 @@ static int lc_aes_gcm_aad(struct aead_request *areq, size_t nbytes)
 		unsigned int todo = scatterwalk_clamp(&src_walk, nbytes);
 		u8 *src_vaddr = scatterwalk_map(&src_walk);
 #endif
+
+		if (!todo)
+			return -EINVAL;
+
 		ret = lc_aead_enc_init(ctx, src_vaddr, todo);
 		if (ret)
 			return ret;
