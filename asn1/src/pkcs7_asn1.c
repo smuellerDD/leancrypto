@@ -10,94 +10,94 @@
 // clang-format off
 
 enum pkcs7_actions {
-	ACT_pkcs7_attribute_value_continue = 0,
-	ACT_pkcs7_authenticated_attr_OID = 1,
-	ACT_pkcs7_check_content_type = 2,
-	ACT_pkcs7_check_content_type_OID = 3,
-	ACT_pkcs7_data_OID = 4,
-	ACT_pkcs7_digest_algorithm_OID = 5,
-	ACT_pkcs7_extract_attribute_name_segment = 6,
-	ACT_pkcs7_extract_cert = 7,
-	ACT_pkcs7_extract_cert_continue = 8,
-	ACT_pkcs7_extract_crl_cert = 9,
-	ACT_pkcs7_extract_extended_cert = 10,
-	ACT_pkcs7_note_attribute_type_OID = 11,
-	ACT_pkcs7_note_certificate_list = 12,
-	ACT_pkcs7_note_content = 13,
-	ACT_pkcs7_note_data = 14,
-	ACT_pkcs7_note_signed_info = 15,
-	ACT_pkcs7_note_signeddata_version = 16,
-	ACT_pkcs7_note_signerinfo_version = 17,
-	ACT_pkcs7_sig_note_authenticated_attr = 18,
-	ACT_pkcs7_sig_note_digest_algo = 19,
-	ACT_pkcs7_sig_note_issuer = 20,
-	ACT_pkcs7_sig_note_pkey_algo = 21,
-	ACT_pkcs7_sig_note_pkey_algo_OID = 22,
-	ACT_pkcs7_sig_note_serial = 23,
-	ACT_pkcs7_sig_note_set_of_authattrs = 24,
-	ACT_pkcs7_sig_note_signature = 25,
-	ACT_pkcs7_sig_note_skid = 26,
+	ACT_lc_pkcs7_attribute_value_continue = 0,
+	ACT_lc_pkcs7_authenticated_attr_OID = 1,
+	ACT_lc_pkcs7_check_content_type = 2,
+	ACT_lc_pkcs7_check_content_type_OID = 3,
+	ACT_lc_pkcs7_data_OID = 4,
+	ACT_lc_pkcs7_digest_algorithm_OID = 5,
+	ACT_lc_pkcs7_extract_attribute_name_segment = 6,
+	ACT_lc_pkcs7_extract_cert = 7,
+	ACT_lc_pkcs7_extract_cert_continue = 8,
+	ACT_lc_pkcs7_extract_crl_cert = 9,
+	ACT_lc_pkcs7_extract_extended_cert = 10,
+	ACT_lc_pkcs7_note_attribute_type_OID = 11,
+	ACT_lc_pkcs7_note_certificate_list = 12,
+	ACT_lc_pkcs7_note_content = 13,
+	ACT_lc_pkcs7_note_data = 14,
+	ACT_lc_pkcs7_note_signed_info = 15,
+	ACT_lc_pkcs7_note_signeddata_version = 16,
+	ACT_lc_pkcs7_note_signerinfo_version = 17,
+	ACT_lc_pkcs7_sig_note_authenticated_attr = 18,
+	ACT_lc_pkcs7_sig_note_digest_algo = 19,
+	ACT_lc_pkcs7_sig_note_issuer = 20,
+	ACT_lc_pkcs7_sig_note_pkey_algo = 21,
+	ACT_lc_pkcs7_sig_note_pkey_algo_OID = 22,
+	ACT_lc_pkcs7_sig_note_serial = 23,
+	ACT_lc_pkcs7_sig_note_set_of_authattrs = 24,
+	ACT_lc_pkcs7_sig_note_signature = 25,
+	ACT_lc_pkcs7_sig_note_skid = 26,
 	NR__pkcs7_actions = 27
 };
 
 static const asn1_action_t pkcs7_action_table[NR__pkcs7_actions] = {
-	[   0] = pkcs7_attribute_value_continue,
-	[   1] = pkcs7_authenticated_attr_OID,
-	[   2] = pkcs7_check_content_type,
-	[   3] = pkcs7_check_content_type_OID,
-	[   4] = pkcs7_data_OID,
-	[   5] = pkcs7_digest_algorithm_OID,
-	[   6] = pkcs7_extract_attribute_name_segment,
-	[   7] = pkcs7_extract_cert,
-	[   8] = pkcs7_extract_cert_continue,
-	[   9] = pkcs7_extract_crl_cert,
-	[  10] = pkcs7_extract_extended_cert,
-	[  11] = pkcs7_note_attribute_type_OID,
-	[  12] = pkcs7_note_certificate_list,
-	[  13] = pkcs7_note_content,
-	[  14] = pkcs7_note_data,
-	[  15] = pkcs7_note_signed_info,
-	[  16] = pkcs7_note_signeddata_version,
-	[  17] = pkcs7_note_signerinfo_version,
-	[  18] = pkcs7_sig_note_authenticated_attr,
-	[  19] = pkcs7_sig_note_digest_algo,
-	[  20] = pkcs7_sig_note_issuer,
-	[  21] = pkcs7_sig_note_pkey_algo,
-	[  22] = pkcs7_sig_note_pkey_algo_OID,
-	[  23] = pkcs7_sig_note_serial,
-	[  24] = pkcs7_sig_note_set_of_authattrs,
-	[  25] = pkcs7_sig_note_signature,
-	[  26] = pkcs7_sig_note_skid,
+	[   0] = lc_pkcs7_attribute_value_continue,
+	[   1] = lc_pkcs7_authenticated_attr_OID,
+	[   2] = lc_pkcs7_check_content_type,
+	[   3] = lc_pkcs7_check_content_type_OID,
+	[   4] = lc_pkcs7_data_OID,
+	[   5] = lc_pkcs7_digest_algorithm_OID,
+	[   6] = lc_pkcs7_extract_attribute_name_segment,
+	[   7] = lc_pkcs7_extract_cert,
+	[   8] = lc_pkcs7_extract_cert_continue,
+	[   9] = lc_pkcs7_extract_crl_cert,
+	[  10] = lc_pkcs7_extract_extended_cert,
+	[  11] = lc_pkcs7_note_attribute_type_OID,
+	[  12] = lc_pkcs7_note_certificate_list,
+	[  13] = lc_pkcs7_note_content,
+	[  14] = lc_pkcs7_note_data,
+	[  15] = lc_pkcs7_note_signed_info,
+	[  16] = lc_pkcs7_note_signeddata_version,
+	[  17] = lc_pkcs7_note_signerinfo_version,
+	[  18] = lc_pkcs7_sig_note_authenticated_attr,
+	[  19] = lc_pkcs7_sig_note_digest_algo,
+	[  20] = lc_pkcs7_sig_note_issuer,
+	[  21] = lc_pkcs7_sig_note_pkey_algo,
+	[  22] = lc_pkcs7_sig_note_pkey_algo_OID,
+	[  23] = lc_pkcs7_sig_note_serial,
+	[  24] = lc_pkcs7_sig_note_set_of_authattrs,
+	[  25] = lc_pkcs7_sig_note_signature,
+	[  26] = lc_pkcs7_sig_note_skid,
 };
 
 static const asn1_action_enc_t pkcs7_action_table_enc[NR__pkcs7_actions] = {
-	[   0] = pkcs7_attribute_value_continue_enc,
-	[   1] = pkcs7_authenticated_attr_OID_enc,
-	[   2] = pkcs7_check_content_type_enc,
-	[   3] = pkcs7_check_content_type_OID_enc,
-	[   4] = pkcs7_data_OID_enc,
-	[   5] = pkcs7_digest_algorithm_OID_enc,
-	[   6] = pkcs7_extract_attribute_name_segment_enc,
-	[   7] = pkcs7_extract_cert_enc,
-	[   8] = pkcs7_extract_cert_continue_enc,
-	[   9] = pkcs7_extract_crl_cert_enc,
-	[  10] = pkcs7_extract_extended_cert_enc,
-	[  11] = pkcs7_note_attribute_type_OID_enc,
-	[  12] = pkcs7_note_certificate_list_enc,
-	[  13] = pkcs7_note_content_enc,
-	[  14] = pkcs7_note_data_enc,
-	[  15] = pkcs7_note_signed_info_enc,
-	[  16] = pkcs7_note_signeddata_version_enc,
-	[  17] = pkcs7_note_signerinfo_version_enc,
-	[  18] = pkcs7_sig_note_authenticated_attr_enc,
-	[  19] = pkcs7_sig_note_digest_algo_enc,
-	[  20] = pkcs7_sig_note_issuer_enc,
-	[  21] = pkcs7_sig_note_pkey_algo_enc,
-	[  22] = pkcs7_sig_note_pkey_algo_OID_enc,
-	[  23] = pkcs7_sig_note_serial_enc,
-	[  24] = pkcs7_sig_note_set_of_authattrs_enc,
-	[  25] = pkcs7_sig_note_signature_enc,
-	[  26] = pkcs7_sig_note_skid_enc,
+	[   0] = lc_pkcs7_attribute_value_continue_enc,
+	[   1] = lc_pkcs7_authenticated_attr_OID_enc,
+	[   2] = lc_pkcs7_check_content_type_enc,
+	[   3] = lc_pkcs7_check_content_type_OID_enc,
+	[   4] = lc_pkcs7_data_OID_enc,
+	[   5] = lc_pkcs7_digest_algorithm_OID_enc,
+	[   6] = lc_pkcs7_extract_attribute_name_segment_enc,
+	[   7] = lc_pkcs7_extract_cert_enc,
+	[   8] = lc_pkcs7_extract_cert_continue_enc,
+	[   9] = lc_pkcs7_extract_crl_cert_enc,
+	[  10] = lc_pkcs7_extract_extended_cert_enc,
+	[  11] = lc_pkcs7_note_attribute_type_OID_enc,
+	[  12] = lc_pkcs7_note_certificate_list_enc,
+	[  13] = lc_pkcs7_note_content_enc,
+	[  14] = lc_pkcs7_note_data_enc,
+	[  15] = lc_pkcs7_note_signed_info_enc,
+	[  16] = lc_pkcs7_note_signeddata_version_enc,
+	[  17] = lc_pkcs7_note_signerinfo_version_enc,
+	[  18] = lc_pkcs7_sig_note_authenticated_attr_enc,
+	[  19] = lc_pkcs7_sig_note_digest_algo_enc,
+	[  20] = lc_pkcs7_sig_note_issuer_enc,
+	[  21] = lc_pkcs7_sig_note_pkey_algo_enc,
+	[  22] = lc_pkcs7_sig_note_pkey_algo_OID_enc,
+	[  23] = lc_pkcs7_sig_note_serial_enc,
+	[  24] = lc_pkcs7_sig_note_set_of_authattrs_enc,
+	[  25] = lc_pkcs7_sig_note_signature_enc,
+	[  26] = lc_pkcs7_sig_note_skid_enc,
 };
 
 static const unsigned char pkcs7_machine[] = {
@@ -107,9 +107,9 @@ static const unsigned char pkcs7_machine[] = {
 	// ContentType
 	[   2] =  ASN1_OP_MATCH_ACT,
 	[   3] =  _tag(UNIV, PRIM, OID),
-	[   4] =  _action(ACT_pkcs7_check_content_type_OID),
+	[   4] =  _action(ACT_lc_pkcs7_check_content_type_OID),
 	[   5] =  ASN1_OP_ACT,
-	[   6] =  _action(ACT_pkcs7_check_content_type),
+	[   6] =  _action(ACT_lc_pkcs7_check_content_type),
 	[   7] =  ASN1_OP_MATCH_JUMP_OR_SKIP,		// content
 	[   8] =  _tagn(CONT, CONS,  0),
 	[   9] =  _jump_target(12),
@@ -121,7 +121,7 @@ static const unsigned char pkcs7_machine[] = {
 	[  13] =  _tag(UNIV, CONS, SEQ),
 	[  14] =   ASN1_OP_MATCH_ACT,		// version
 	[  15] =   _tag(UNIV, PRIM, INT),
-	[  16] =   _action(ACT_pkcs7_note_signeddata_version),
+	[  16] =   _action(ACT_lc_pkcs7_note_signeddata_version),
 	// DigestAlgorithmIdentifiers
 	[  17] =   ASN1_OP_MATCH_JUMP_OR_SKIP,		// daSet
 	[  18] =   _tag(UNIV, CONS, SET),
@@ -136,13 +136,13 @@ static const unsigned char pkcs7_machine[] = {
 	// ContentTypeData
 	[  26] =    ASN1_OP_MATCH_ACT,
 	[  27] =    _tag(UNIV, PRIM, OID),
-	[  28] =    _action(ACT_pkcs7_data_OID),
+	[  28] =    _action(ACT_lc_pkcs7_data_OID),
 	[  29] =    ASN1_OP_MATCH_JUMP_OR_SKIP,		// content
 	[  30] =    _tagn(CONT, CONS,  0),
 	[  31] =    _jump_target(71),
 	[  32] =   ASN1_OP_END_SEQ,
 	[  33] =   ASN1_OP_ACT,
-	[  34] =   _action(ACT_pkcs7_note_content),
+	[  34] =   _action(ACT_lc_pkcs7_note_content),
 	// ExtendedCertificatesAndCertificates
 	[  35] =   ASN1_OP_MATCH_JUMP_OR_SKIP,		// certSet
 	[  36] =   _tagn(CONT, CONS,  0),
@@ -152,7 +152,7 @@ static const unsigned char pkcs7_machine[] = {
 	[  39] =   _tagn(CONT, CONS,  2),
 	[  40] =   _jump_target(83),		// --> Certificates
 	[  41] =   ASN1_OP_ACT,
-	[  42] =   _action(ACT_pkcs7_note_certificate_list),
+	[  42] =   _action(ACT_lc_pkcs7_note_certificate_list),
 	// CertificateRevocationLists
 	[  43] =   ASN1_OP_MATCH_JUMP_OR_SKIP,		// crlSet
 	[  44] =   _tagn(CONT, CONS,  1),
@@ -191,26 +191,26 @@ static const unsigned char pkcs7_machine[] = {
 
 	// Data
 	[  71] =  ASN1_OP_MATCH_ANY_ACT,
-	[  72] =  _action(ACT_pkcs7_note_data),
+	[  72] =  _action(ACT_lc_pkcs7_note_data),
 	[  73] = ASN1_OP_END_SEQ,
 	[  74] = ASN1_OP_RETURN,
 
 	// ExtendedCertificateOrCertificate
 	// ExtCertificate
 	[  75] =  ASN1_OP_MATCH_ANY_ACT_OR_SKIP,
-	[  76] =  _action(ACT_pkcs7_extract_extended_cert),
+	[  76] =  _action(ACT_lc_pkcs7_extract_extended_cert),
 	[  77] =  ASN1_OP_COND_FAIL,
 	[  78] =  ASN1_OP_ACT,
-	[  79] =  _action(ACT_pkcs7_extract_cert_continue),
+	[  79] =  _action(ACT_lc_pkcs7_extract_cert_continue),
 	[  80] = ASN1_OP_END_SET_OF,
 	[  81] = _jump_target(75),
 	[  82] = ASN1_OP_RETURN,
 
 	// Certificate
 	[  83] =  ASN1_OP_MATCH_ANY_ACT,
-	[  84] =  _action(ACT_pkcs7_extract_cert),
+	[  84] =  _action(ACT_lc_pkcs7_extract_cert),
 	[  85] =  ASN1_OP_ACT,
-	[  86] =  _action(ACT_pkcs7_extract_cert_continue),
+	[  86] =  _action(ACT_lc_pkcs7_extract_cert_continue),
 	[  87] = ASN1_OP_END_SEQ_OF,
 	[  88] = _jump_target(83),
 	[  89] = ASN1_OP_RETURN,
@@ -249,21 +249,21 @@ static const unsigned char pkcs7_machine[] = {
 
 	[ 114] =  ASN1_OP_MATCH_ACT,		// algorithm
 	[ 115] =  _tag(UNIV, PRIM, OID),
-	[ 116] =  _action(ACT_pkcs7_digest_algorithm_OID),
+	[ 116] =  _action(ACT_lc_pkcs7_digest_algorithm_OID),
 	[ 117] =  ASN1_OP_MATCH_ANY_OR_SKIP,		// parameters
 	[ 118] = ASN1_OP_END_SEQ,
 	[ 119] = ASN1_OP_RETURN,
 
 	// CRLCertificate
 	[ 120] =  ASN1_OP_MATCH_ANY_ACT,
-	[ 121] =  _action(ACT_pkcs7_extract_crl_cert),
+	[ 121] =  _action(ACT_lc_pkcs7_extract_crl_cert),
 	[ 122] = ASN1_OP_END_SEQ_OF,
 	[ 123] = _jump_target(120),
 	[ 124] = ASN1_OP_RETURN,
 
 	[ 125] =  ASN1_OP_MATCH_ACT,		// version
 	[ 126] =  _tag(UNIV, PRIM, INT),
-	[ 127] =  _action(ACT_pkcs7_note_signerinfo_version),
+	[ 127] =  _action(ACT_lc_pkcs7_note_signerinfo_version),
 	// SignerIdentifier
 	// IssuerAndSerialNumber
 	[ 128] =  ASN1_OP_MATCH_JUMP_OR_SKIP,		// issuerAndSerialNumber
@@ -272,20 +272,20 @@ static const unsigned char pkcs7_machine[] = {
 	// SubjectKeyIdentifier
 	[ 131] =  ASN1_OP_COND_MATCH_ACT_OR_SKIP,		// subjectKeyIdentifier
 	[ 132] =  _tagn(CONT, PRIM,  0),
-	[ 133] =  _action(ACT_pkcs7_sig_note_skid),
+	[ 133] =  _action(ACT_lc_pkcs7_sig_note_skid),
 	[ 134] =  ASN1_OP_COND_FAIL,
 	// DigestAlgorithmIdentifier
 	[ 135] =  ASN1_OP_MATCH_JUMP,
 	[ 136] =  _tag(UNIV, CONS, SEQ),
 	[ 137] =  _jump_target(114),		// --> DigestAlgorithmIdentifier
 	[ 138] =  ASN1_OP_ACT,
-	[ 139] =  _action(ACT_pkcs7_sig_note_digest_algo),
+	[ 139] =  _action(ACT_lc_pkcs7_sig_note_digest_algo),
 	// SetOfAuthenticatedAttribute
 	[ 140] =  ASN1_OP_MATCH_JUMP_OR_SKIP,		// aaSet
 	[ 141] =  _tagn(CONT, CONS,  0),
 	[ 142] =  _jump_target(194),		// --> SetOfAuthenticatedAttribute
 	[ 143] =  ASN1_OP_MAYBE_ACT,
-	[ 144] =  _action(ACT_pkcs7_sig_note_set_of_authattrs),
+	[ 144] =  _action(ACT_lc_pkcs7_sig_note_set_of_authattrs),
 	[ 145] =  ASN1_OP_COND_MATCH_JUMP_OR_SKIP,		// aaSequence
 	[ 146] =  _tagn(CONT, CONS,  2),
 	[ 147] =  _jump_target(200),
@@ -294,15 +294,15 @@ static const unsigned char pkcs7_machine[] = {
 	[ 149] =  _tag(UNIV, CONS, SEQ),
 	[ 150] =   ASN1_OP_MATCH_ACT,		// algorithm
 	[ 151] =   _tag(UNIV, PRIM, OID),
-	[ 152] =   _action(ACT_pkcs7_sig_note_pkey_algo_OID),
+	[ 152] =   _action(ACT_lc_pkcs7_sig_note_pkey_algo_OID),
 	[ 153] =   ASN1_OP_MATCH_ANY_OR_SKIP,		// parameters
 	[ 154] =  ASN1_OP_END_SEQ,
 	[ 155] =  ASN1_OP_ACT,
-	[ 156] =  _action(ACT_pkcs7_sig_note_pkey_algo),
+	[ 156] =  _action(ACT_lc_pkcs7_sig_note_pkey_algo),
 	// EncryptedDigest
 	[ 157] =  ASN1_OP_MATCH_ACT,
 	[ 158] =  _tag(UNIV, PRIM, OTS),
-	[ 159] =  _action(ACT_pkcs7_sig_note_signature),
+	[ 159] =  _action(ACT_lc_pkcs7_sig_note_signature),
 	[ 160] =  ASN1_OP_MATCH_JUMP_OR_SKIP,		// uaSet
 	[ 161] =  _tagn(CONT, CONS,  1),
 	[ 162] =  _jump_target(209),
@@ -310,7 +310,7 @@ static const unsigned char pkcs7_machine[] = {
 	[ 164] =  _tagn(CONT, CONS,  3),
 	[ 165] =  _jump_target(215),
 	[ 166] = ASN1_OP_END_SEQ_ACT,
-	[ 167] = _action(ACT_pkcs7_note_signed_info),
+	[ 167] = _action(ACT_lc_pkcs7_note_signed_info),
 	[ 168] = ASN1_OP_RETURN,
 
 	// Name
@@ -324,22 +324,22 @@ static const unsigned char pkcs7_machine[] = {
 	[ 174] =    _tag(UNIV, CONS, SEQ),
 	[ 175] =     ASN1_OP_MATCH_ACT,		// attributeType
 	[ 176] =     _tag(UNIV, PRIM, OID),
-	[ 177] =     _action(ACT_pkcs7_note_attribute_type_OID),
+	[ 177] =     _action(ACT_lc_pkcs7_note_attribute_type_OID),
 	[ 178] =     ASN1_OP_MATCH_ANY_ACT,		// attributeValue
-	[ 179] =     _action(ACT_pkcs7_extract_attribute_name_segment),
+	[ 179] =     _action(ACT_lc_pkcs7_extract_attribute_name_segment),
 	[ 180] =    ASN1_OP_END_SEQ_ACT,
-	[ 181] =    _action(ACT_pkcs7_attribute_value_continue),
+	[ 181] =    _action(ACT_lc_pkcs7_attribute_value_continue),
 	[ 182] =   ASN1_OP_END_SET_OF,
 	[ 183] =   _jump_target(173),
 	[ 184] =  ASN1_OP_END_SEQ_OF,
 	[ 185] =  _jump_target(171),
 	[ 186] =  ASN1_OP_ACT,
-	[ 187] =  _action(ACT_pkcs7_sig_note_issuer),
+	[ 187] =  _action(ACT_lc_pkcs7_sig_note_issuer),
 	// CertificateSerialNumber
 	[ 188] =  ASN1_OP_MATCH,
 	[ 189] =  _tag(UNIV, PRIM, INT),
 	[ 190] =  ASN1_OP_ACT,
-	[ 191] =  _action(ACT_pkcs7_sig_note_serial),
+	[ 191] =  _action(ACT_lc_pkcs7_sig_note_serial),
 	[ 192] = ASN1_OP_END_SEQ,
 	[ 193] = ASN1_OP_RETURN,
 
@@ -380,11 +380,11 @@ static const unsigned char pkcs7_machine[] = {
 
 	[ 221] =  ASN1_OP_MATCH_ACT,		// type
 	[ 222] =  _tag(UNIV, PRIM, OID),
-	[ 223] =  _action(ACT_pkcs7_authenticated_attr_OID),
+	[ 223] =  _action(ACT_lc_pkcs7_authenticated_attr_OID),
 	[ 224] =  ASN1_OP_MATCH,		// values
 	[ 225] =  _tag(UNIV, CONS, SET),
 	[ 226] =   ASN1_OP_MATCH_ANY_ACT,
-	[ 227] =   _action(ACT_pkcs7_sig_note_authenticated_attr),
+	[ 227] =   _action(ACT_lc_pkcs7_sig_note_authenticated_attr),
 	[ 228] =  ASN1_OP_END_SET_OF,
 	[ 229] =  _jump_target(226),
 	[ 230] = ASN1_OP_END_SEQ,
@@ -401,13 +401,13 @@ static const unsigned char pkcs7_machine[] = {
 	[ 240] = ASN1_OP_RETURN,
 };
 
-const struct asn1_decoder pkcs7_decoder = {
+const struct lc_asn1_decoder lc_pkcs7_decoder = {
 	.machine = pkcs7_machine,
 	.machlen = sizeof(pkcs7_machine),
 	.actions = pkcs7_action_table,
 };
 
-const struct asn1_encoder pkcs7_encoder = {
+const struct lc_asn1_encoder lc_pkcs7_encoder = {
 	.machine = pkcs7_machine,
 	.machlen = sizeof(pkcs7_machine),
 	.actions = pkcs7_action_table_enc,

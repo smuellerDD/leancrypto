@@ -36,10 +36,10 @@
 #include "ret_checkers.h"
 #include "visibility.h"
 
-int pkcs7_find_asymmetric_key(const struct lc_x509_certificate **anchor_cert,
-			      const struct lc_pkcs7_trust_store *trust_store,
-			      const struct lc_asymmetric_key_id *auth0,
-			      const struct lc_asymmetric_key_id *auth1)
+int lc_pkcs7_find_asymmetric_key(const struct lc_x509_certificate **anchor_cert,
+				 const struct lc_pkcs7_trust_store *trust_store,
+				 const struct lc_asymmetric_key_id *auth0,
+				 const struct lc_asymmetric_key_id *auth1)
 {
 	const struct lc_x509_certificate *p;
 
@@ -56,7 +56,7 @@ int pkcs7_find_asymmetric_key(const struct lc_x509_certificate **anchor_cert,
 			printf_debug("- cmp [%u] ", p->index);
 			bin2print_debug(p->id.data, p->id.len, stdout, "");
 
-			if (asymmetric_key_id_same(&p->id, auth0))
+			if (lc_asymmetric_key_id_same(&p->id, auth0))
 				goto found_issuer_check_skid;
 		}
 	} else if (auth1 && auth1->len) {
@@ -66,7 +66,7 @@ int pkcs7_find_asymmetric_key(const struct lc_x509_certificate **anchor_cert,
 				continue;
 			printf_debug("- cmp [%u] ", p->index);
 			bin2print_debug(p->skid.data, p->skid.len, stdout, "");
-			if (asymmetric_key_id_same(&p->skid, auth1))
+			if (lc_asymmetric_key_id_same(&p->skid, auth1))
 				goto found_issuer;
 		}
 	}
@@ -80,7 +80,8 @@ found_issuer_check_skid:
 	 * We matched issuer + serialNumber, but if there's an authKeyId.keyId,
 	 * that must match the CA subjKeyId also.
 	 */
-	if (auth1 && auth1->len && !asymmetric_key_id_same(&p->skid, auth1)) {
+	if (auth1 && auth1->len &&
+	    !lc_asymmetric_key_id_same(&p->skid, auth1)) {
 		bin2print_debug(auth1->data, auth1->len, stdout,
 				"Mismatch: AuthKeyID wanted");
 		bin2print_debug(p->id.data, p->id.len, stdout,
@@ -311,8 +312,8 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_trust_store_add,
 			goto out;
 		}
 
-		CKINT(pkcs7_verify_sig_chain(trust_store->anchor_cert, NULL,
-					     x509, NULL));
+		CKINT(lc_pkcs7_verify_sig_chain(trust_store->anchor_cert, NULL,
+						x509, NULL));
 	}
 
 	x509->next = NULL;

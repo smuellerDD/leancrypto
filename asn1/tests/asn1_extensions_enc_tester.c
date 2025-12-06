@@ -37,7 +37,7 @@
 #include "x509_akid_asn1.h"
 #include "x509_basic_constraints_asn1.h"
 #include "x509_eku_asn1.h"
-#include "x509_extensions_test.asn1.h"
+#include "x509_extensions_test_asn1.h"
 #include "x509_cert_generator.h"
 #include "x509_cert_parser.h"
 
@@ -81,21 +81,21 @@ static int x509_gen_cert_extensions(struct x509_checker_options *opts)
 
 	/* Encode the input data */
 	ws->gctx.cert = &opts->cert;
-	CKINT(asn1_ber_encoder(&x509_extensions_test_encoder, &ws->gctx,
-			       ws->data, &avail_datalen));
+	CKINT(lc_asn1_ber_encoder(&lc_x509_extensions_test_encoder, &ws->gctx,
+				  ws->data, &avail_datalen));
 	datalen = DATASIZE - avail_datalen;
 
 	bin2print(ws->data, datalen, stdout, "X.509 extension");
 
 	/* Decode the just encoded data into new output structure */
 	ws->pctx.cert = &ws->pcert;
-	CKINT(asn1_ber_decoder(&x509_extensions_test_decoder, &ws->pctx,
-			       ws->data, datalen));
+	CKINT(lc_asn1_ber_decoder(&lc_x509_extensions_test_decoder, &ws->pctx,
+				  ws->data, datalen));
 
 	if (gcert->raw_akid_size) {
-		CKINT(asn1_ber_decoder(&x509_akid_decoder, &ws->pctx,
-				       ws->pctx.raw_akid,
-				       ws->pctx.raw_akid_size));
+		CKINT(lc_asn1_ber_decoder(&lc_x509_akid_decoder, &ws->pctx,
+					  ws->pctx.raw_akid,
+					  ws->pctx.raw_akid_size));
 	}
 
 	/*

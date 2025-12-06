@@ -426,7 +426,7 @@ static int lc_x509_policy_verify_general(const struct lc_public_key *pkey,
 	/*
 	 * Certificate validation: Check signature
 	 */
-	CKINT_SIGCHECK(public_key_verify_signature(pkey, &cert->sig));
+	CKINT_SIGCHECK(lc_public_key_verify_signature(pkey, &cert->sig));
 
 out:
 	return ret;

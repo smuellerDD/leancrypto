@@ -43,28 +43,28 @@
  * Note an OID when we find one for later processing when we know how
  * to interpret it.
  */
-int pkcs8_note_OID(void *context, size_t hdrlen, unsigned char tag,
-		   const uint8_t *value, size_t vlen)
+int lc_pkcs8_note_OID(void *context, size_t hdrlen, unsigned char tag,
+		      const uint8_t *value, size_t vlen)
 {
 	struct pkcs8_parse_context *ctx = context;
 
 	(void)hdrlen;
 	(void)tag;
 
-	ctx->last_oid = look_up_OID(value, vlen);
+	ctx->last_oid = lc_look_up_OID(value, vlen);
 
 	if (ctx->last_oid == OID__NR) {
 		char buffer[50];
 
-		sprint_oid(value, vlen, buffer, sizeof(buffer));
+		lc_sprint_oid(value, vlen, buffer, sizeof(buffer));
 		printf_debug("PKCS7: Unknown OID: [%lu] %s\n",
 			     value - ctx->data, buffer);
 	}
 	return 0;
 }
 
-int pkcs8_note_version(void *context, size_t hdrlen, unsigned char tag,
-		       const uint8_t *value, size_t vlen)
+int lc_pkcs8_note_version(void *context, size_t hdrlen, unsigned char tag,
+			  const uint8_t *value, size_t vlen)
 {
 	(void)context;
 	(void)hdrlen;
@@ -101,8 +101,8 @@ int pkcs8_note_version(void *context, size_t hdrlen, unsigned char tag,
  * Record the algorithm of the private key and convert it to the internal
  * representation.
  */
-int pkcs8_note_algo(void *context, size_t hdrlen, unsigned char tag,
-		    const uint8_t *value, size_t vlen)
+int lc_pkcs8_note_algo(void *context, size_t hdrlen, unsigned char tag,
+		       const uint8_t *value, size_t vlen)
 {
 	struct pkcs8_parse_context *ctx = context;
 	struct lc_x509_key_data *keypair = ctx->privkey;
@@ -122,8 +122,8 @@ out:
 /*
  * Obtain the private key data and parse it into the leancrypto key structure.
  */
-int pkcs8_note_key(void *context, size_t hdrlen, unsigned char tag,
-		   const uint8_t *value, size_t vlen)
+int lc_pkcs8_note_key(void *context, size_t hdrlen, unsigned char tag,
+		      const uint8_t *value, size_t vlen)
 {
 	struct pkcs8_parse_context *ctx = context;
 	struct lc_x509_key_data *privkey = ctx->privkey;
@@ -132,7 +132,7 @@ int pkcs8_note_key(void *context, size_t hdrlen, unsigned char tag,
 	(void)hdrlen;
 	(void)tag;
 
-	CKINT(privkey_key_decode(privkey, value, vlen));
+	CKINT(lc_privkey_key_decode(privkey, value, vlen));
 
 	printf_debug("Public Key type %u\n", privkey->sig_type);
 
@@ -177,7 +177,7 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs8_decode, struct lc_pkcs8_message *pkcs8,
 
 	/* Attempt to decode the PKCS#8 blob */
 	CKINT_LOG(
-		asn1_ber_decoder(&pkcs8_decoder, &ctx, data, datalen),
+		lc_asn1_ber_decoder(&lc_pkcs8_decoder, &ctx, data, datalen),
 		"Parsing of data as PKCS#8 failed - perhaps it is a raw secret key?\n");
 
 out:

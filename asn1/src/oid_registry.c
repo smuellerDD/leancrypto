@@ -38,7 +38,7 @@
  * @data: Binary representation of the OID
  * @datasize: Size of the binary representation
  */
-enum OID look_up_OID(const uint8_t *data, size_t datasize)
+enum OID lc_look_up_OID(const uint8_t *data, size_t datasize)
 {
 	enum OID oid;
 	size_t len, hash;
@@ -115,13 +115,13 @@ enum OID look_up_OID(const uint8_t *data, size_t datasize)
  * ASN1_OID | length | oid. The length indicator must equal to datasize - 2.
  * -EBADMSG is returned if the bytestream is too short.
  */
-int parse_OID(const uint8_t *data, size_t datasize, enum OID *oid)
+int lc_parse_OID(const uint8_t *data, size_t datasize, enum OID *oid)
 {
 	/* we need 2 bytes of header and at least 1 byte for oid */
 	if (datasize < 3 || data[0] != ASN1_OID || data[1] != datasize - 2)
 		return -EBADMSG;
 
-	*oid = look_up_OID(data + 2, datasize - 2);
+	*oid = lc_look_up_OID(data + 2, datasize - 2);
 	return 0;
 }
 
@@ -136,8 +136,8 @@ int parse_OID(const uint8_t *data, size_t datasize, enum OID *oid)
  * bytes is returned.  -EBADMSG is returned if the data could not be interpreted
  * and -ENOBUFS if the buffer was too small.
  */
-int sprint_oid(const uint8_t *data, size_t datasize, char *buffer,
-	       size_t bufsize)
+int lc_sprint_oid(const uint8_t *data, size_t datasize, char *buffer,
+		  size_t bufsize)
 {
 	const uint8_t *end = data + datasize;
 	unsigned long num;
@@ -192,13 +192,14 @@ bad:
  * The OID is rendered into the buffer in "a.b.c.d" format and the number of
  * bytes is returned.
  */
-int sprint_OID(enum OID oid, char *buffer, size_t bufsize)
+int lc_sprint_OID(enum OID oid, char *buffer, size_t bufsize)
 {
 	if (oid >= OID__NR)
 		return -EFAULT;
 
-	return sprint_oid(oid_data + oid_index[oid],
-			  oid_index[oid + 1] - oid_index[oid], buffer, bufsize);
+	return lc_sprint_oid(oid_data + oid_index[oid],
+			     oid_index[oid + 1] - oid_index[oid], buffer,
+			     bufsize);
 }
 
 /**
@@ -208,7 +209,7 @@ int sprint_OID(enum OID oid, char *buffer, size_t bufsize)
  * @param [out] data pointer to the binary OID data
  * @param [out] datalen Length of the binary OID data buffer
  */
-int OID_to_data(enum OID oid, const uint8_t **data, size_t *datalen)
+int lc_OID_to_data(enum OID oid, const uint8_t **data, size_t *datalen)
 {
 	if (oid >= OID__NR)
 		return -EFAULT;

@@ -10,16 +10,16 @@
 // clang-format off
 
 enum x509_eku_actions {
-	ACT_x509_eku = 0,
+	ACT_lc_x509_eku = 0,
 	NR__x509_eku_actions = 1
 };
 
 static const asn1_action_t x509_eku_action_table[NR__x509_eku_actions] = {
-	[   0] = x509_eku,
+	[   0] = lc_x509_eku,
 };
 
 static const asn1_action_enc_t x509_eku_action_table_enc[NR__x509_eku_actions] = {
-	[   0] = x509_eku_enc,
+	[   0] = lc_x509_eku_enc,
 };
 
 static const unsigned char x509_eku_machine[] = {
@@ -29,19 +29,19 @@ static const unsigned char x509_eku_machine[] = {
 	// KeyPurposeId
 	[   2] =  ASN1_OP_MATCH_ACT,
 	[   3] =  _tag(UNIV, PRIM, OID),
-	[   4] =  _action(ACT_x509_eku),
+	[   4] =  _action(ACT_lc_x509_eku),
 	[   5] = ASN1_OP_END_SEQ_OF,
 	[   6] = _jump_target(2),
 	[   7] = ASN1_OP_COMPLETE,
 };
 
-const struct asn1_decoder x509_eku_decoder = {
+const struct lc_asn1_decoder lc_x509_eku_decoder = {
 	.machine = x509_eku_machine,
 	.machlen = sizeof(x509_eku_machine),
 	.actions = x509_eku_action_table,
 };
 
-const struct asn1_encoder x509_eku_encoder = {
+const struct lc_asn1_encoder lc_x509_eku_encoder = {
 	.machine = x509_eku_machine,
 	.machlen = sizeof(x509_eku_machine),
 	.actions = x509_eku_action_table_enc,

@@ -51,13 +51,13 @@ typedef int (*asn1_action_enc_t)(void *context,
 							   generated data */
 				 uint8_t *tag);
 
-struct asn1_encoder {
+struct lc_asn1_encoder {
 	const unsigned char *machine;
 	size_t machlen;
 	const asn1_action_enc_t *actions;
 };
 
-struct asn1_decoder {
+struct lc_asn1_decoder {
 	const unsigned char *machine;
 	size_t machlen;
 	const asn1_action_t *actions;

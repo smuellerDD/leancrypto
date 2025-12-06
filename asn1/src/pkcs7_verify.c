@@ -62,7 +62,7 @@ static int pkcs7_digest(struct lc_pkcs7_message *pkcs7,
 	/* Digest the message [RFC5652 5.4] */
 	CKINT(lc_hash_init(hash_ctx));
 	sig->digest_size = sizeof(sig->digest);
-	CKINT(x509_set_digestsize(&sig->digest_size, hash_ctx));
+	CKINT(lc_x509_set_digestsize(&sig->digest_size, hash_ctx));
 	lc_hash_update(hash_ctx, pkcs7->data, pkcs7->data_len);
 	lc_hash_final(hash_ctx, sig->digest);
 	lc_hash_zero(hash_ctx);
@@ -166,8 +166,8 @@ static int pkcs7_find_key(struct lc_pkcs7_message *pkcs7,
 		 * PKCS#7 message - but I can't be 100% sure of that.  It's
 		 * possible this will need element-by-element comparison.
 		 */
-		if (!asymmetric_key_id_same(&x509->id, sig_auth_id) &&
-		    !asymmetric_key_id_same(&x509->skid, sig_auth_id))
+		if (!lc_asymmetric_key_id_same(&x509->id, sig_auth_id) &&
+		    !lc_asymmetric_key_id_same(&x509->skid, sig_auth_id))
 			continue;
 		printf_debug("Sig %u: Found cert serial match X.509[%u]\n",
 			     sinfo->index, certix);
@@ -188,10 +188,10 @@ static int pkcs7_find_key(struct lc_pkcs7_message *pkcs7,
 /*
  * Verify the internal certificate chain as best we can.
  */
-int pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
-			   const struct lc_pkcs7_trust_store *trust_store,
-			   struct lc_x509_certificate *x509,
-			   struct lc_pkcs7_signed_info *sinfo)
+int lc_pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
+			      const struct lc_pkcs7_trust_store *trust_store,
+			      struct lc_x509_certificate *x509,
+			      struct lc_pkcs7_signed_info *sinfo)
 {
 	struct lc_public_key_signature *sig;
 	struct lc_x509_certificate *p;
@@ -248,7 +248,7 @@ int pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 				bin2print_debug(p->id.data, p->id.len, stdout,
 						"");
 
-				if (asymmetric_key_id_same(&p->id, auth0))
+				if (lc_asymmetric_key_id_same(&p->id, auth0))
 					goto found_issuer_check_skid;
 			}
 		} else if (auth1->len) {
@@ -260,7 +260,7 @@ int pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 				printf_debug("- cmp [%u] ", p->index);
 				bin2print_debug(p->skid.data, p->skid.len,
 						stdout, "");
-				if (asymmetric_key_id_same(&p->skid, auth1))
+				if (lc_asymmetric_key_id_same(&p->skid, auth1))
 					goto found_issuer;
 			}
 		}
@@ -275,8 +275,8 @@ int pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 		 * in the trust store.
 		 */
 		printf_debug("- searching certificate in trust store\n");
-		ret = pkcs7_find_asymmetric_key(&trusted, trust_store, auth0,
-						auth1);
+		ret = lc_pkcs7_find_asymmetric_key(&trusted, trust_store, auth0,
+						   auth1);
 		if (!ret) {
 			CKINT(lc_x509_policy_verify_cert(&trusted->pub, x509,
 							 0));
@@ -293,7 +293,7 @@ int pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 		 * We matched issuer + serialNumber, but if there's an
 		 * authKeyId.keyId, that must match the CA subjKeyId also.
 		 */
-		if (auth1->len && !asymmetric_key_id_same(&p->skid, auth1)) {
+		if (auth1->len && !lc_asymmetric_key_id_same(&p->skid, auth1)) {
 			printf_debug(
 				"SignatureInfo: X.509 chain contains auth-skid nonmatch (%u->%u)\n",
 				x509->index, p->index);
@@ -328,7 +328,7 @@ int pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 
 				printf_debug(
 					"- searching root CA in trust store\n");
-				CKINT(pkcs7_find_asymmetric_key(
+				CKINT(lc_pkcs7_find_asymmetric_key(
 					&trusted, trust_store, auth0, auth1));
 				CKINT(lc_x509_policy_verify_cert(&trusted->pub,
 								 x509, 0));
@@ -431,14 +431,14 @@ static int pkcs7_verify_one(struct lc_pkcs7_message *pkcs7,
 	}
 
 	/* Verify the PKCS#7 binary against the key */
-	CKINT_SIGCHECK(
-		public_key_verify_signature(&sinfo->signer->pub, &sinfo->sig));
+	CKINT_SIGCHECK(lc_public_key_verify_signature(&sinfo->signer->pub,
+						      &sinfo->sig));
 
 	printf_debug("Verified signature %u\n", sinfo->index);
 
 	/* Verify the certificate chain */
-	CKINT(pkcs7_verify_sig_chain(pkcs7->certs, trust_store, sinfo->signer,
-				     sinfo));
+	CKINT(lc_pkcs7_verify_sig_chain(pkcs7->certs, trust_store,
+					sinfo->signer, sinfo));
 
 out:
 	return ret;

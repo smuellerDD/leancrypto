@@ -8,6 +8,6 @@
 SetOfAuthenticatedAttribute ::= SET OF AuthenticatedAttribute
 
 AuthenticatedAttribute ::= SEQUENCE {
-	type			OBJECT IDENTIFIER ({ pkcs7_external_aa_OID }),
-	values			SET OF ANY ({ pkcs7_external_aa })
-} ({ pkcs7_external_aa_continue })
+	type			OBJECT IDENTIFIER ({ lc_pkcs7_external_aa_OID }),
+	values			SET OF ANY ({ lc_pkcs7_external_aa })
+} ({ lc_pkcs7_external_aa_continue })

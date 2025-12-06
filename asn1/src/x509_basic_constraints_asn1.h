@@ -8,11 +8,11 @@
 #include "asn1_decoder.h"
 
 // clang-format off
-extern const struct asn1_encoder x509_basic_constraints_encoder;
-extern const struct asn1_decoder x509_basic_constraints_decoder;
+extern const struct lc_asn1_encoder lc_x509_basic_constraints_encoder;
+extern const struct lc_asn1_decoder lc_x509_basic_constraints_decoder;
 
-extern int x509_basic_constraints_ca_enc(void *, uint8_t *, size_t *, uint8_t *);
-extern int x509_basic_constraints_ca(void *, size_t, unsigned char, const uint8_t *, size_t);
-extern int x509_basic_constraints_pathlen_enc(void *, uint8_t *, size_t *, uint8_t *);
-extern int x509_basic_constraints_pathlen(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int lc_x509_basic_constraints_ca_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int lc_x509_basic_constraints_ca(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int lc_x509_basic_constraints_pathlen_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int lc_x509_basic_constraints_pathlen(void *, size_t, unsigned char, const uint8_t *, size_t);
 // clang-format on

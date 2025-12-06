@@ -39,8 +39,9 @@
 #include "x509_san_asn1.h"
 #include "x509_skid_asn1.h"
 
-int x509_concatenate_bit_string(uint8_t **dst_data, size_t *dst_avail_datalen,
-				const uint8_t *src_data, size_t src_datalen)
+int lc_x509_concatenate_bit_string(uint8_t **dst_data,
+				   size_t *dst_avail_datalen,
+				   const uint8_t *src_data, size_t src_datalen)
 {
 	int ret;
 
@@ -59,8 +60,8 @@ out:
 	return ret;
 }
 
-int x509_set_bit_string(uint8_t **dst_data, size_t *dst_avail_datalen,
-			const uint8_t *src_data, size_t src_datalen)
+int lc_x509_set_bit_string(uint8_t **dst_data, size_t *dst_avail_datalen,
+			   const uint8_t *src_data, size_t src_datalen)
 {
 	int ret;
 
@@ -98,8 +99,8 @@ static inline int x509_eku_unprocessed(struct x509_generate_context *ctx,
 	return 0;
 }
 
-int x509_eku_enc(void *context, uint8_t *data, size_t *avail_datalen,
-		 uint8_t *tag)
+int lc_x509_eku_enc(void *context, uint8_t *data, size_t *avail_datalen,
+		    uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
 	const uint8_t *oid_data;
@@ -110,32 +111,32 @@ int x509_eku_enc(void *context, uint8_t *data, size_t *avail_datalen,
 
 	if (x509_eku_unprocessed(ctx, LC_KEY_EKU_ANY)) {
 		ctx->key_eku_processed |= LC_KEY_EKU_ANY;
-		CKINT(OID_to_data(OID_anyExtendedKeyUsage, &oid_data,
-				  &oid_datalen));
+		CKINT(lc_OID_to_data(OID_anyExtendedKeyUsage, &oid_data,
+				     &oid_datalen));
 	} else if (x509_eku_unprocessed(ctx, LC_KEY_EKU_SERVER_AUTH)) {
 		ctx->key_eku_processed |= LC_KEY_EKU_SERVER_AUTH;
-		CKINT(OID_to_data(OID_id_kp_serverAuth, &oid_data,
-				  &oid_datalen));
+		CKINT(lc_OID_to_data(OID_id_kp_serverAuth, &oid_data,
+				     &oid_datalen));
 	} else if (x509_eku_unprocessed(ctx, LC_KEY_EKU_CLIENT_AUTH)) {
 		ctx->key_eku_processed |= LC_KEY_EKU_CLIENT_AUTH;
-		CKINT(OID_to_data(OID_id_kp_clientAuth, &oid_data,
-				  &oid_datalen));
+		CKINT(lc_OID_to_data(OID_id_kp_clientAuth, &oid_data,
+				     &oid_datalen));
 	} else if (x509_eku_unprocessed(ctx, LC_KEY_EKU_CODE_SIGNING)) {
 		ctx->key_eku_processed |= LC_KEY_EKU_CODE_SIGNING;
-		CKINT(OID_to_data(OID_id_kp_codeSigning, &oid_data,
-				  &oid_datalen));
+		CKINT(lc_OID_to_data(OID_id_kp_codeSigning, &oid_data,
+				     &oid_datalen));
 	} else if (x509_eku_unprocessed(ctx, LC_KEY_EKU_EMAIL_PROTECTION)) {
 		ctx->key_eku_processed |= LC_KEY_EKU_EMAIL_PROTECTION;
-		CKINT(OID_to_data(OID_id_kp_emailProtection, &oid_data,
-				  &oid_datalen));
+		CKINT(lc_OID_to_data(OID_id_kp_emailProtection, &oid_data,
+				     &oid_datalen));
 	} else if (x509_eku_unprocessed(ctx, LC_KEY_EKU_TIME_STAMPING)) {
 		ctx->key_eku_processed |= LC_KEY_EKU_TIME_STAMPING;
-		CKINT(OID_to_data(OID_id_kp_timeStamping, &oid_data,
-				  &oid_datalen));
+		CKINT(lc_OID_to_data(OID_id_kp_timeStamping, &oid_data,
+				     &oid_datalen));
 	} else if (x509_eku_unprocessed(ctx, LC_KEY_EKU_OCSP_SIGNING)) {
 		ctx->key_eku_processed |= LC_KEY_EKU_OCSP_SIGNING;
-		CKINT(OID_to_data(OID_id_kp_OCSPSigning, &oid_data,
-				  &oid_datalen));
+		CKINT(lc_OID_to_data(OID_id_kp_OCSPSigning, &oid_data,
+				     &oid_datalen));
 	} else {
 		CKRET(1, -EINVAL);
 	}
@@ -169,8 +170,8 @@ static inline int x509_pathlen_unprocessed(struct x509_generate_context *ctx)
 /*
  * Set the basic constraints CA field
  */
-int x509_basic_constraints_ca_enc(void *context, uint8_t *data,
-				  size_t *avail_datalen, uint8_t *tag)
+int lc_x509_basic_constraints_ca_enc(void *context, uint8_t *data,
+				     size_t *avail_datalen, uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
@@ -201,8 +202,8 @@ out:
 /*
  * Extract the basic constraints pathlen
  */
-int x509_basic_constraints_pathlen_enc(void *context, uint8_t *data,
-				       size_t *avail_datalen, uint8_t *tag)
+int lc_x509_basic_constraints_pathlen_enc(void *context, uint8_t *data,
+					  size_t *avail_datalen, uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
@@ -224,8 +225,8 @@ out:
 	return ret;
 }
 
-int x509_name_unprocessed(const struct lc_x509_certificate_name *name,
-			  uint8_t processed)
+int lc_x509_name_unprocessed(const struct lc_x509_certificate_name *name,
+			     uint8_t processed)
 {
 	if (name->c.size && !(processed & X509_C_PROCESSED))
 		return 1;
@@ -243,8 +244,9 @@ int x509_name_unprocessed(const struct lc_x509_certificate_name *name,
 	return 0;
 }
 
-int x509_name_OID_enc(const struct lc_x509_certificate_name *name,
-		      uint8_t processed, uint8_t *data, size_t *avail_datalen)
+int lc_x509_name_OID_enc(const struct lc_x509_certificate_name *name,
+			 uint8_t processed, uint8_t *data,
+			 size_t *avail_datalen)
 {
 	const uint8_t *oid_data = NULL;
 	size_t oid_datalen = 0;
@@ -255,25 +257,26 @@ int x509_name_OID_enc(const struct lc_x509_certificate_name *name,
 	 * x509_name_segment_enc
 	 */
 	if (name->c.size && !(processed & X509_C_PROCESSED)) {
-		CKINT(OID_to_data(OID_countryName, &oid_data, &oid_datalen));
+		CKINT(lc_OID_to_data(OID_countryName, &oid_data, &oid_datalen));
 		bin2print_debug(oid_data, oid_datalen, stdout, "OID C");
 	} else if (name->st.size && !(processed & X509_ST_PROCESSED)) {
-		CKINT(OID_to_data(OID_stateOrProvinceName, &oid_data,
-				  &oid_datalen));
+		CKINT(lc_OID_to_data(OID_stateOrProvinceName, &oid_data,
+				     &oid_datalen));
 		bin2print_debug(oid_data, oid_datalen, stdout, "OID ST");
 	} else if (name->o.size && !(processed & X509_O_PROCESSED)) {
-		CKINT(OID_to_data(OID_organizationName, &oid_data,
-				  &oid_datalen));
+		CKINT(lc_OID_to_data(OID_organizationName, &oid_data,
+				     &oid_datalen));
 		bin2print_debug(oid_data, oid_datalen, stdout, "OID O");
 	} else if (name->ou.size && !(processed & X509_OU_PROCESSED)) {
-		CKINT(OID_to_data(OID_organizationUnitName, &oid_data,
-				  &oid_datalen));
+		CKINT(lc_OID_to_data(OID_organizationUnitName, &oid_data,
+				     &oid_datalen));
 		bin2print_debug(oid_data, oid_datalen, stdout, "OID OU");
 	} else if (name->cn.size && !(processed & X509_CN_PROCESSED)) {
-		CKINT(OID_to_data(OID_commonName, &oid_data, &oid_datalen));
+		CKINT(lc_OID_to_data(OID_commonName, &oid_data, &oid_datalen));
 		bin2print_debug(oid_data, oid_datalen, stdout, "OID CN");
 	} else if (name->email.size && !(processed & X509_EMAIL_PROCESSED)) {
-		CKINT(OID_to_data(OID_email_address, &oid_data, &oid_datalen));
+		CKINT(lc_OID_to_data(OID_email_address, &oid_data,
+				     &oid_datalen));
 		bin2print_debug(oid_data, oid_datalen, stdout, "OID Email");
 	}
 
@@ -288,21 +291,21 @@ out:
 	return ret;
 }
 
-int x509_san_OID_enc(void *context, uint8_t *data, size_t *avail_datalen,
-		     uint8_t *tag)
+int lc_x509_san_OID_enc(void *context, uint8_t *data, size_t *avail_datalen,
+			uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
 
 	(void)tag;
 
-	return x509_name_OID_enc(&cert->san_directory_name_segments,
-				 ctx->san_processed, data, avail_datalen);
+	return lc_x509_name_OID_enc(&cert->san_directory_name_segments,
+				    ctx->san_processed, data, avail_datalen);
 }
 
-int x509_name_segment_enc(const struct lc_x509_certificate_name *name,
-			  uint8_t *processed, uint8_t *data,
-			  size_t *avail_datalen)
+int lc_x509_name_segment_enc(const struct lc_x509_certificate_name *name,
+			     uint8_t *processed, uint8_t *data,
+			     size_t *avail_datalen)
 {
 	const char *name_data = NULL;
 	size_t name_datalen = 0;
@@ -368,16 +371,17 @@ out:
 	return ret;
 }
 
-int x509_extract_name_segment_enc(void *context, uint8_t *data,
-				  size_t *avail_datalen, uint8_t *tag)
+int lc_x509_extract_name_segment_enc(void *context, uint8_t *data,
+				     size_t *avail_datalen, uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
 
 	*tag = ASN1_UTF8STR;
 
-	return x509_name_segment_enc(&cert->san_directory_name_segments,
-				     &ctx->san_processed, data, avail_datalen);
+	return lc_x509_name_segment_enc(&cert->san_directory_name_segments,
+					&ctx->san_processed, data,
+					avail_datalen);
 }
 
 static int x509_san_unprocessed(struct x509_generate_context *ctx)
@@ -388,15 +392,15 @@ static int x509_san_unprocessed(struct x509_generate_context *ctx)
 		return 1;
 	if (cert->san_ip_len && !(ctx->san_processed & X509_SAN_IP_PROCESSED))
 		return 1;
-	return x509_name_unprocessed(&cert->san_directory_name_segments,
-				     ctx->san_processed);
+	return lc_x509_name_unprocessed(&cert->san_directory_name_segments,
+					ctx->san_processed);
 }
 
 /*
  * Set the subject alternative name - DNS parameter
  */
-int x509_san_dns_enc(void *context, uint8_t *data, size_t *avail_datalen,
-		     uint8_t *tag)
+int lc_x509_san_dns_enc(void *context, uint8_t *data, size_t *avail_datalen,
+			uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
@@ -421,8 +425,8 @@ out:
 /*
  * Set the subject alternative name - IP parameter
  */
-int x509_san_ip_enc(void *context, uint8_t *data, size_t *avail_datalen,
-		    uint8_t *tag)
+int lc_x509_san_ip_enc(void *context, uint8_t *data, size_t *avail_datalen,
+		       uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
@@ -458,8 +462,8 @@ static inline int x509_keyusage_unprocessed(struct x509_generate_context *ctx,
 /*
  * Set the key usage
  */
-int x509_keyusage_enc(void *context, uint8_t *data, size_t *avail_datalen,
-		      uint8_t *tag)
+int lc_x509_keyusage_enc(void *context, uint8_t *data, size_t *avail_datalen,
+			 uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
@@ -496,8 +500,8 @@ static inline int x509_skid_unprocessed(struct x509_generate_context *ctx)
 /*
  * Set the subject key ID
  */
-int x509_skid_enc(void *context, uint8_t *data, size_t *avail_datalen,
-		  uint8_t *tag)
+int lc_x509_skid_enc(void *context, uint8_t *data, size_t *avail_datalen,
+		     uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
@@ -543,8 +547,8 @@ static inline int x509_akid_unprocessed(struct x509_generate_context *ctx)
 /*
  * Note a key identifier-based AuthorityKeyIdentifier
  */
-int x509_akid_note_kid_enc(void *context, uint8_t *data, size_t *avail_datalen,
-			   uint8_t *tag)
+int lc_x509_akid_note_kid_enc(void *context, uint8_t *data,
+			      size_t *avail_datalen, uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
@@ -567,8 +571,8 @@ out:
 /*
  * Note a directoryName in an AuthorityKeyIdentifier
  */
-int x509_akid_note_name_enc(void *context, uint8_t *data, size_t *avail_datalen,
-			    uint8_t *tag)
+int lc_x509_akid_note_name_enc(void *context, uint8_t *data,
+			       size_t *avail_datalen, uint8_t *tag)
 {
 	(void)context;
 	(void)data;
@@ -581,8 +585,8 @@ int x509_akid_note_name_enc(void *context, uint8_t *data, size_t *avail_datalen,
 /*
  * Note a serial number in an AuthorityKeyIdentifier
  */
-int x509_akid_note_serial_enc(void *context, uint8_t *data,
-			      size_t *avail_datalen, uint8_t *tag)
+int lc_x509_akid_note_serial_enc(void *context, uint8_t *data,
+				 size_t *avail_datalen, uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
 	int ret;
@@ -603,8 +607,8 @@ out:
 	return ret;
 }
 
-int x509_akid_note_OID_enc(void *context, uint8_t *data, size_t *avail_datalen,
-			   uint8_t *tag)
+int lc_x509_akid_note_OID_enc(void *context, uint8_t *data,
+			      size_t *avail_datalen, uint8_t *tag)
 {
 	(void)context;
 	(void)data;
@@ -620,8 +624,8 @@ int x509_akid_note_OID_enc(void *context, uint8_t *data, size_t *avail_datalen,
  * be identical!
  ******************************************************************************/
 
-int x509_extension_continue_enc(void *context, uint8_t *data,
-				size_t *avail_datalen, uint8_t *tag)
+int lc_x509_extension_continue_enc(void *context, uint8_t *data,
+				   size_t *avail_datalen, uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
 
@@ -645,8 +649,8 @@ int x509_extension_continue_enc(void *context, uint8_t *data,
 	return 0;
 }
 
-int x509_extension_OID_enc(void *context, uint8_t *data, size_t *avail_datalen,
-			   uint8_t *tag)
+int lc_x509_extension_OID_enc(void *context, uint8_t *data,
+			      size_t *avail_datalen, uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
 	const uint8_t *oid_data = NULL;
@@ -656,25 +660,26 @@ int x509_extension_OID_enc(void *context, uint8_t *data, size_t *avail_datalen,
 	(void)tag;
 
 	if (x509_eku_unprocessed(ctx, LC_KEY_EKU_MASK)) {
-		CKINT(OID_to_data(OID_extKeyUsage, &oid_data, &oid_datalen));
+		CKINT(lc_OID_to_data(OID_extKeyUsage, &oid_data, &oid_datalen));
 		bin2print_debug(oid_data, oid_datalen, stdout, "OID EKU");
 	} else if (x509_pathlen_unprocessed(ctx)) {
-		CKINT(OID_to_data(OID_basicConstraints, &oid_data,
-				  &oid_datalen));
+		CKINT(lc_OID_to_data(OID_basicConstraints, &oid_data,
+				     &oid_datalen));
 		bin2print_debug(oid_data, oid_datalen, stdout, "OID BC");
 	} else if (x509_san_unprocessed(ctx)) {
-		CKINT(OID_to_data(OID_subjectAltName, &oid_data, &oid_datalen));
+		CKINT(lc_OID_to_data(OID_subjectAltName, &oid_data,
+				     &oid_datalen));
 		bin2print_debug(oid_data, oid_datalen, stdout, "OID SAN");
 	} else if (x509_keyusage_unprocessed(ctx, LC_KEY_USAGE_MASK)) {
-		CKINT(OID_to_data(OID_keyUsage, &oid_data, &oid_datalen));
+		CKINT(lc_OID_to_data(OID_keyUsage, &oid_data, &oid_datalen));
 		bin2print_debug(oid_data, oid_datalen, stdout, "OID Key Usage");
 	} else if (x509_skid_unprocessed(ctx)) {
-		CKINT(OID_to_data(OID_subjectKeyIdentifier, &oid_data,
-				  &oid_datalen));
+		CKINT(lc_OID_to_data(OID_subjectKeyIdentifier, &oid_data,
+				     &oid_datalen));
 		bin2print_debug(oid_data, oid_datalen, stdout, "OID SKID");
 	} else if (x509_akid_unprocessed(ctx)) {
-		CKINT(OID_to_data(OID_authorityKeyIdentifier, &oid_data,
-				  &oid_datalen));
+		CKINT(lc_OID_to_data(OID_authorityKeyIdentifier, &oid_data,
+				     &oid_datalen));
 		bin2print_debug(oid_data, oid_datalen, stdout, "OID AKID");
 	}
 
@@ -689,8 +694,8 @@ out:
 	return ret;
 }
 
-int x509_extension_critical_enc(void *context, uint8_t *data,
-				size_t *avail_datalen, uint8_t *tag)
+int lc_x509_extension_critical_enc(void *context, uint8_t *data,
+				   size_t *avail_datalen, uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
@@ -732,8 +737,8 @@ out:
 	return ret;
 }
 
-int x509_process_extension_enc(void *context, uint8_t *data,
-			       size_t *avail_datalen, uint8_t *tag)
+int lc_x509_process_extension_enc(void *context, uint8_t *data,
+				  size_t *avail_datalen, uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
 	size_t avail = *avail_datalen;
@@ -748,31 +753,33 @@ int x509_process_extension_enc(void *context, uint8_t *data,
 
 	/* extended key usage */
 	if (x509_eku_unprocessed(ctx, LC_KEY_EKU_MASK)) {
-		CKINT(asn1_ber_encoder_small(&x509_eku_encoder, ctx, data,
-					     &avail));
+		CKINT(lc_asn1_ber_encoder_small(&lc_x509_eku_encoder, ctx, data,
+						&avail));
 
 		/* basic constraints */
 	} else if (x509_pathlen_unprocessed(ctx)) {
-		CKINT(asn1_ber_encoder_small(&x509_basic_constraints_encoder,
-					     ctx, data, &avail));
+		CKINT(lc_asn1_ber_encoder_small(
+			&lc_x509_basic_constraints_encoder, ctx, data, &avail));
 
 		/* subject alternative name */
 	} else if (x509_san_unprocessed(ctx)) {
-		CKINT(asn1_ber_encoder(&x509_san_encoder, ctx, data, &avail));
+		CKINT(lc_asn1_ber_encoder(&lc_x509_san_encoder, ctx, data,
+					  &avail));
 
 		/* key usage */
 	} else if (x509_keyusage_unprocessed(ctx, LC_KEY_USAGE_MASK)) {
-		CKINT(asn1_ber_encoder_small(&x509_keyusage_encoder, ctx, data,
-					     &avail));
+		CKINT(lc_asn1_ber_encoder_small(&lc_x509_keyusage_encoder, ctx,
+						data, &avail));
 
 		/* SKID */
 	} else if (x509_skid_unprocessed(ctx)) {
-		CKINT(asn1_ber_encoder_small(&x509_skid_encoder, ctx, data,
-					     &avail));
+		CKINT(lc_asn1_ber_encoder_small(&lc_x509_skid_encoder, ctx,
+						data, &avail));
 
 		/* authority key identifier */
 	} else if (x509_akid_unprocessed(ctx)) {
-		CKINT(asn1_ber_encoder(&x509_akid_encoder, ctx, data, &avail));
+		CKINT(lc_asn1_ber_encoder(&lc_x509_akid_encoder, ctx, data,
+					  &avail));
 	}
 
 	*avail_datalen = avail;
@@ -789,8 +796,8 @@ out:
  * Save the position of the TBS data so that we can check the signature over it
  * later.
  */
-int x509_note_tbs_certificate_enc(void *context, uint8_t *data,
-				  size_t *avail_datalen, uint8_t *tag)
+int lc_x509_note_tbs_certificate_enc(void *context, uint8_t *data,
+				     size_t *avail_datalen, uint8_t *tag)
 {
 	(void)context;
 	(void)data;
@@ -800,8 +807,8 @@ int x509_note_tbs_certificate_enc(void *context, uint8_t *data,
 	return 0;
 }
 
-int x509_signature_algorithm_enc(void *context, uint8_t *data,
-				 size_t *avail_datalen, uint8_t *tag)
+int lc_x509_signature_algorithm_enc(void *context, uint8_t *data,
+				    size_t *avail_datalen, uint8_t *tag)
 {
 	(void)context;
 	(void)data;
@@ -811,8 +818,8 @@ int x509_signature_algorithm_enc(void *context, uint8_t *data,
 	return 0;
 }
 
-int x509_note_algorithm_OID_enc(void *context, uint8_t *data,
-				size_t *avail_datalen, uint8_t *tag)
+int lc_x509_note_algorithm_OID_enc(void *context, uint8_t *data,
+				   size_t *avail_datalen, uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
@@ -835,7 +842,7 @@ int x509_note_algorithm_OID_enc(void *context, uint8_t *data,
 	}
 
 	CKINT(lc_x509_sig_type_to_oid(pkey_algo, &oid));
-	CKINT(OID_to_data(oid, &oid_data, &oid_datalen));
+	CKINT(lc_OID_to_data(oid, &oid_data, &oid_datalen));
 	CKINT(lc_x509_sig_type_to_name(pkey_algo, &alg))
 	bin2print_debug(oid_data, oid_datalen, stdout, alg);
 
@@ -850,8 +857,8 @@ out:
 	return ret;
 }
 
-int x509_signature_reserve_room(uint8_t *data, size_t *avail_datalen,
-				size_t siglen)
+int lc_x509_signature_reserve_room(uint8_t *data, size_t *avail_datalen,
+				   size_t siglen)
 {
 	size_t datalen = 0;
 	int ret;
@@ -877,8 +884,8 @@ out:
 /*
  * Calculate the signature
  */
-int x509_note_signature_enc(void *context, uint8_t *data, size_t *avail_datalen,
-			    uint8_t *tag)
+int lc_x509_note_signature_enc(void *context, uint8_t *data,
+			       size_t *avail_datalen, uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
@@ -889,9 +896,9 @@ int x509_note_signature_enc(void *context, uint8_t *data, size_t *avail_datalen,
 	(void)tag;
 
 	/* Get the signature length */
-	CKINT(public_key_signature_size(&siglen, sig->pkey_algo));
+	CKINT(lc_public_key_signature_size(&siglen, sig->pkey_algo));
 
-	CKINT(x509_signature_reserve_room(data, avail_datalen, siglen));
+	CKINT(lc_x509_signature_reserve_room(data, avail_datalen, siglen));
 
 out:
 	return ret;
@@ -900,8 +907,8 @@ out:
 /*
  * Note the certificate serial number
  */
-int x509_note_serial_enc(void *context, uint8_t *data, size_t *avail_datalen,
-			 uint8_t *tag)
+int lc_x509_note_serial_enc(void *context, uint8_t *data, size_t *avail_datalen,
+			    uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
@@ -920,8 +927,8 @@ out:
 	return ret;
 }
 
-int x509_note_sig_algo_enc(void *context, uint8_t *data, size_t *avail_datalen,
-			   uint8_t *tag)
+int lc_x509_note_sig_algo_enc(void *context, uint8_t *data,
+			      size_t *avail_datalen, uint8_t *tag)
 {
 	(void)context;
 	(void)data;
@@ -930,8 +937,8 @@ int x509_note_sig_algo_enc(void *context, uint8_t *data, size_t *avail_datalen,
 	return 0;
 }
 
-int x509_note_issuer_enc(void *context, uint8_t *data, size_t *avail_datalen,
-			 uint8_t *tag)
+int lc_x509_note_issuer_enc(void *context, uint8_t *data, size_t *avail_datalen,
+			    uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
 
@@ -946,8 +953,8 @@ int x509_note_issuer_enc(void *context, uint8_t *data, size_t *avail_datalen,
 	return 0;
 }
 
-int x509_note_subject_enc(void *context, uint8_t *data, size_t *avail_datalen,
-			  uint8_t *tag)
+int lc_x509_note_subject_enc(void *context, uint8_t *data,
+			     size_t *avail_datalen, uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
 
@@ -961,8 +968,8 @@ int x509_note_subject_enc(void *context, uint8_t *data, size_t *avail_datalen,
 	return 0;
 }
 
-int x509_note_params_enc(void *context, uint8_t *data, size_t *avail_datalen,
-			 uint8_t *tag)
+int lc_x509_note_params_enc(void *context, uint8_t *data, size_t *avail_datalen,
+			    uint8_t *tag)
 {
 	(void)context;
 	(void)data;
@@ -982,14 +989,15 @@ static int x509_attribute_value_unprocessed(struct x509_generate_context *ctx)
 		processed = ctx->subject_attrib_processed;
 	}
 
-	return x509_name_unprocessed(name, processed);
+	return lc_x509_name_unprocessed(name, processed);
 }
 
 /*
  * Note some of the name segments from which we'll fabricate a name.
  */
-int x509_extract_attribute_name_segment_enc(void *context, uint8_t *data,
-					    size_t *avail_datalen, uint8_t *tag)
+int lc_x509_extract_attribute_name_segment_enc(void *context, uint8_t *data,
+					       size_t *avail_datalen,
+					       uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
@@ -1003,11 +1011,11 @@ int x509_extract_attribute_name_segment_enc(void *context, uint8_t *data,
 		processed = &ctx->subject_attrib_processed;
 	}
 
-	return x509_name_segment_enc(name, processed, data, avail_datalen);
+	return lc_x509_name_segment_enc(name, processed, data, avail_datalen);
 }
 
-int x509_note_attribute_type_OID_enc(void *context, uint8_t *data,
-				     size_t *avail_datalen, uint8_t *tag)
+int lc_x509_note_attribute_type_OID_enc(void *context, uint8_t *data,
+					size_t *avail_datalen, uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
@@ -1021,11 +1029,11 @@ int x509_note_attribute_type_OID_enc(void *context, uint8_t *data,
 		processed = ctx->subject_attrib_processed;
 	}
 
-	return x509_name_OID_enc(name, processed, data, avail_datalen);
+	return lc_x509_name_OID_enc(name, processed, data, avail_datalen);
 }
 
-int x509_attribute_value_continue_enc(void *context, uint8_t *data,
-				      size_t *avail_datalen, uint8_t *tag)
+int lc_x509_attribute_value_continue_enc(void *context, uint8_t *data,
+					 size_t *avail_datalen, uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
 
@@ -1039,8 +1047,8 @@ int x509_attribute_value_continue_enc(void *context, uint8_t *data,
 	return 0;
 }
 
-int x509_set_uct_time_enc(void *context, uint8_t *data, size_t *avail_datalen,
-			  uint8_t *tag)
+int lc_x509_set_uct_time_enc(void *context, uint8_t *data,
+			     size_t *avail_datalen, uint8_t *tag)
 {
 	/* UCTTime: YYMMDDHHMMSSZ */
 #define X509_UCTTIM_SIZE 13
@@ -1100,8 +1108,8 @@ out:
 	return ret;
 }
 
-int x509_set_gen_time_enc(void *context, uint8_t *data, size_t *avail_datalen,
-			  uint8_t *tag)
+int lc_x509_set_gen_time_enc(void *context, uint8_t *data,
+			     size_t *avail_datalen, uint8_t *tag)
 {
 	/* GenTime: YYYYMMDDHHMMSSZ */
 #define X509_GENTIM_SIZE 15
@@ -1161,8 +1169,8 @@ out:
 /*
  * Process the time the certificate becomes valid
  */
-int x509_note_not_before_enc(void *context, uint8_t *data,
-			     size_t *avail_datalen, uint8_t *tag)
+int lc_x509_note_not_before_enc(void *context, uint8_t *data,
+				size_t *avail_datalen, uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
@@ -1188,8 +1196,8 @@ out:
 /*
  * Process the time when the certificate becomes invalid
  */
-int x509_note_not_after_enc(void *context, uint8_t *data, size_t *avail_datalen,
-			    uint8_t *tag)
+int lc_x509_note_not_after_enc(void *context, uint8_t *data,
+			       size_t *avail_datalen, uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
@@ -1212,8 +1220,8 @@ out:
 	return ret;
 }
 
-int x509_extract_key_data_enc(void *context, uint8_t *data,
-			      size_t *avail_datalen, uint8_t *tag)
+int lc_x509_extract_key_data_enc(void *context, uint8_t *data,
+				 size_t *avail_datalen, uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
 	size_t orig = *avail_datalen;
@@ -1227,7 +1235,7 @@ int x509_extract_key_data_enc(void *context, uint8_t *data,
 	data++;
 	*avail_datalen -= 1;
 
-	CKINT(public_key_extract(ctx, data, avail_datalen));
+	CKINT(lc_public_key_extract(ctx, data, avail_datalen));
 
 	(void)orig;
 	printf_debug("Set public key of size %zu\n", orig - *avail_datalen);
@@ -1236,8 +1244,8 @@ out:
 	return ret;
 }
 
-int x509_version_enc(void *context, uint8_t *data, size_t *avail_datalen,
-		     uint8_t *tag)
+int lc_x509_version_enc(void *context, uint8_t *data, size_t *avail_datalen,
+			uint8_t *tag)
 {
 	/*
 	 * Version  ::=  INTEGER  {  v1(0), v2(1), v3(2)  }
@@ -1289,7 +1297,8 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_encode,
 	/*
 	 * Attempt to encode the certificate
 	 */
-	CKINT(asn1_ber_encoder(&x509_encoder, &ws->gctx, data, avail_datalen));
+	CKINT(lc_asn1_ber_encoder(&lc_x509_encoder, &ws->gctx, data,
+				  avail_datalen));
 
 	datalen -= *avail_datalen;
 
@@ -1298,12 +1307,12 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_encode,
 	 */
 	ws->pctx.cert = &ws->parsed_x509;
 	ws->pctx.data = data;
-	CKINT(asn1_ber_decoder(&x509_decoder, &ws->pctx, data, datalen));
+	CKINT(lc_asn1_ber_decoder(&lc_x509_decoder, &ws->pctx, data, datalen));
 
 	/*
 	 * Grab the signature bits
 	 */
-	CKINT(x509_get_sig_params(&ws->parsed_x509));
+	CKINT(lc_x509_get_sig_params(&ws->parsed_x509));
 
 	/*
 	 * Copy the signature to its destination
@@ -1316,9 +1325,9 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_encode,
 	 * Generate the signature over the TBSCertificate and place it
 	 * into the signature location of the certificate.
 	 */
-	CKINT(public_key_generate_signature(&x509->sig_gen_data,
-					    &ws->parsed_x509.sig, sigdstptr,
-					    &ws->parsed_x509.raw_sig_size));
+	CKINT(lc_public_key_generate_signature(&x509->sig_gen_data,
+					       &ws->parsed_x509.sig, sigdstptr,
+					       &ws->parsed_x509.raw_sig_size));
 
 out:
 	LC_RELEASE_MEM(ws);
@@ -1337,7 +1346,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_sk_encode,
 
 	ctx.keys = keys;
 
-	CKINT(privkey_key_encode(&ctx, data, avail_datalen));
+	CKINT(lc_privkey_key_encode(&ctx, data, avail_datalen));
 
 out:
 	lc_memset_secure(&ctx, 0, sizeof(ctx));
@@ -1352,7 +1361,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_get_signature_size_from_sk, size_t *siglen,
 	CKNULL(siglen, -EINVAL);
 	CKNULL(keys, -EINVAL);
 
-	CKINT(public_key_signature_size(siglen, keys->sig_type));
+	CKINT(lc_public_key_signature_size(siglen, keys->sig_type));
 
 out:
 	return ret;
@@ -1368,7 +1377,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_get_signature_size_from_cert, size_t *siglen,
 	CKNULL(cert, -EINVAL);
 
 	pub = &cert->pub;
-	CKINT(public_key_signature_size(siglen, pub->pkey_algo));
+	CKINT(lc_public_key_signature_size(siglen, pub->pkey_algo));
 
 out:
 	return ret;
@@ -1400,8 +1409,8 @@ LC_INTERFACE_FUNCTION(int, lc_x509_signature_gen, uint8_t *sig_data,
 
 	sig.pkey_algo = keys->sig_type;
 
-	CKINT(public_key_generate_signature(keys, &sig, sig_data,
-					    &available_siglen));
+	CKINT(lc_public_key_generate_signature(keys, &sig, sig_data,
+					       &available_siglen));
 
 	*siglen -= available_siglen;
 
@@ -1469,7 +1478,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_signer,
 	if (signed_x509->valid_from < signer_x509->valid_from)
 		signed_x509->valid_from = signer_x509->valid_from;
 
-	CKINT(asym_set_signer(signed_x509, signer_key_data, signer_x509));
+	CKINT(lc_asym_set_signer(signed_x509, signer_key_data, signer_x509));
 
 out:
 	return ret;
@@ -1480,12 +1489,12 @@ LC_INTERFACE_FUNCTION(int, lc_x509_keypair_gen,
 		      struct lc_x509_key_data *keys,
 		      enum lc_sig_types create_keypair_algo)
 {
-	return asym_keypair_gen(cert, keys, create_keypair_algo);
+	return lc_asym_keypair_gen(cert, keys, create_keypair_algo);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_x509_keypair_load,
 		      struct lc_x509_certificate *cert,
 		      const struct lc_x509_key_data *keys)
 {
-	return asym_keypair_load(cert, keys);
+	return lc_asym_keypair_load(cert, keys);
 }

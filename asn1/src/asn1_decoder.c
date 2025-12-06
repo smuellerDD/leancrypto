@@ -152,8 +152,8 @@ error:
  *  (3) The SET type (not the SET OF type) isn't really supported as tracking
  *	what members of the set have been seen is a pain.
  */
-int asn1_ber_decoder(const struct asn1_decoder *decoder, void *context,
-		     const uint8_t *data, size_t datalen)
+int lc_asn1_ber_decoder(const struct lc_asn1_decoder *decoder, void *context,
+			const uint8_t *data, size_t datalen)
 {
 	const unsigned char *machine = decoder->machine;
 	const asn1_action_t *actions = decoder->actions;

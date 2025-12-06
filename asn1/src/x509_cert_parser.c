@@ -117,10 +117,10 @@ static int x509_note_OID(void *context, size_t hdrlen, unsigned char tag,
 	(void)tag;
 
 	bin2print_debug(value, vlen, stdout, "OID");
-	ctx->last_oid = look_up_OID(value, vlen);
+	ctx->last_oid = lc_look_up_OID(value, vlen);
 	if (ctx->last_oid == OID__NR) {
 		char buffer[50];
-		sprint_oid(value, vlen, buffer, sizeof(buffer));
+		lc_sprint_oid(value, vlen, buffer, sizeof(buffer));
 		printf_debug("Unknown OID: %s\n", buffer);
 	}
 	return 0;
@@ -130,8 +130,9 @@ static int x509_note_OID(void *context, size_t hdrlen, unsigned char tag,
  * Save the position of the TBS data so that we can check the signature over it
  * later.
  */
-int x509_note_tbs_certificate(void *context, size_t hdrlen, unsigned char tag,
-			      const uint8_t *value, size_t vlen)
+int lc_x509_note_tbs_certificate(void *context, size_t hdrlen,
+				 unsigned char tag, const uint8_t *value,
+				 size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
 	struct lc_x509_certificate *cert = ctx->cert;
@@ -149,8 +150,8 @@ int x509_note_tbs_certificate(void *context, size_t hdrlen, unsigned char tag,
 /*
  * Record the algorithm that was used to sign this certificate.
  */
-int x509_note_sig_algo(void *context, size_t hdrlen, unsigned char tag,
-		       const uint8_t *value, size_t vlen)
+int lc_x509_note_sig_algo(void *context, size_t hdrlen, unsigned char tag,
+			  const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
 	struct lc_x509_certificate *cert = ctx->cert;
@@ -169,8 +170,8 @@ int x509_note_sig_algo(void *context, size_t hdrlen, unsigned char tag,
 	return lc_x509_oid_to_sig_type(ctx->last_oid, &sig->pkey_algo);
 }
 
-int x509_note_algorithm_OID(void *context, size_t hdrlen, unsigned char tag,
-			    const uint8_t *value, size_t vlen)
+int lc_x509_note_algorithm_OID(void *context, size_t hdrlen, unsigned char tag,
+			       const uint8_t *value, size_t vlen)
 {
 	return x509_note_OID(context, hdrlen, tag, value, vlen);
 }
@@ -178,8 +179,8 @@ int x509_note_algorithm_OID(void *context, size_t hdrlen, unsigned char tag,
 /*
  * Note the whereabouts and type of the signature.
  */
-int x509_note_signature(void *context, size_t hdrlen, unsigned char tag,
-			const uint8_t *value, size_t vlen)
+int lc_x509_note_signature(void *context, size_t hdrlen, unsigned char tag,
+			   const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
 	struct lc_x509_certificate *cert = ctx->cert;
@@ -215,8 +216,8 @@ int x509_note_signature(void *context, size_t hdrlen, unsigned char tag,
 	return 0;
 }
 
-int x509_signature_algorithm(void *context, size_t hdrlen, unsigned char tag,
-			     const uint8_t *value, size_t vlen)
+int lc_x509_signature_algorithm(void *context, size_t hdrlen, unsigned char tag,
+				const uint8_t *value, size_t vlen)
 {
 	(void)context;
 	(void)hdrlen;
@@ -229,8 +230,8 @@ int x509_signature_algorithm(void *context, size_t hdrlen, unsigned char tag,
 /*
  * Note the certificate serial number
  */
-int x509_note_serial(void *context, size_t hdrlen, unsigned char tag,
-		     const uint8_t *value, size_t vlen)
+int lc_x509_note_serial(void *context, size_t hdrlen, unsigned char tag,
+			const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
 	struct lc_x509_certificate *cert = ctx->cert;
@@ -249,8 +250,9 @@ int x509_note_serial(void *context, size_t hdrlen, unsigned char tag,
 /*
  * Note some of the name segments from which we'll fabricate a name.
  */
-int x509_extract_name_segment(void *context, size_t hdrlen, unsigned char tag,
-			      const uint8_t *value, size_t vlen)
+int lc_x509_extract_name_segment(void *context, size_t hdrlen,
+				 unsigned char tag, const uint8_t *value,
+				 size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
 	struct lc_x509_certificate *cert = ctx->cert;
@@ -307,23 +309,23 @@ int x509_extract_name_segment(void *context, size_t hdrlen, unsigned char tag,
 	return 0;
 }
 
-int x509_extract_attribute_name_segment(void *context, size_t hdrlen,
-					unsigned char tag, const uint8_t *value,
-					size_t vlen)
+int lc_x509_extract_attribute_name_segment(void *context, size_t hdrlen,
+					   unsigned char tag,
+					   const uint8_t *value, size_t vlen)
 {
-	return x509_extract_name_segment(context, hdrlen, tag, value, vlen);
+	return lc_x509_extract_name_segment(context, hdrlen, tag, value, vlen);
 }
 
-int x509_note_attribute_type_OID(void *context, size_t hdrlen,
-				 unsigned char tag, const uint8_t *value,
-				 size_t vlen)
+int lc_x509_note_attribute_type_OID(void *context, size_t hdrlen,
+				    unsigned char tag, const uint8_t *value,
+				    size_t vlen)
 {
 	return x509_note_OID(context, hdrlen, tag, value, vlen);
 }
 
-int x509_attribute_value_continue(void *context, size_t hdrlen,
-				  unsigned char tag, const uint8_t *value,
-				  size_t vlen)
+int lc_x509_attribute_value_continue(void *context, size_t hdrlen,
+				     unsigned char tag, const uint8_t *value,
+				     size_t vlen)
 {
 	(void)context;
 	(void)hdrlen;
@@ -458,8 +460,8 @@ out:
 	return ret;
 }
 
-int x509_note_issuer(void *context, size_t hdrlen, unsigned char tag,
-		     const uint8_t *value, size_t vlen)
+int lc_x509_note_issuer(void *context, size_t hdrlen, unsigned char tag,
+			const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
 	struct lc_x509_certificate *cert = ctx->cert;
@@ -470,8 +472,8 @@ int x509_note_issuer(void *context, size_t hdrlen, unsigned char tag,
 	cert->raw_issuer_size = vlen;
 
 	if (!sig->auth_ids[2].len) {
-		CKINT(asymmetric_key_generate_id(&sig->auth_ids[2], value, vlen,
-						 NULL, 0));
+		CKINT(lc_asymmetric_key_generate_id(&sig->auth_ids[2], value,
+						    vlen, NULL, 0));
 	}
 
 	CKINT(x509_fabricate_name(ctx, hdrlen, tag, cert->issuer, vlen, 0));
@@ -483,8 +485,8 @@ out:
 /*
  * Extract the parameters for the subject
  */
-int x509_note_subject(void *context, size_t hdrlen, unsigned char tag,
-		      const uint8_t *value, size_t vlen)
+int lc_x509_note_subject(void *context, size_t hdrlen, unsigned char tag,
+			 const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
 	struct lc_x509_certificate *cert = ctx->cert;
@@ -497,8 +499,8 @@ int x509_note_subject(void *context, size_t hdrlen, unsigned char tag,
 /*
  * Extract the parameters for the public key
  */
-int x509_note_params(void *context, size_t hdrlen, unsigned char tag,
-		     const uint8_t *value, size_t vlen)
+int lc_x509_note_params(void *context, size_t hdrlen, unsigned char tag,
+			const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
 	struct lc_x509_certificate *cert = ctx->cert;
@@ -520,8 +522,8 @@ int x509_note_params(void *context, size_t hdrlen, unsigned char tag,
 /*
  * Extract the data for the public key algorithm
  */
-int x509_extract_key_data(void *context, size_t hdrlen, unsigned char tag,
-			  const uint8_t *value, size_t vlen)
+int lc_x509_extract_key_data(void *context, size_t hdrlen, unsigned char tag,
+			     const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
 	struct lc_x509_certificate *cert = ctx->cert;
@@ -600,8 +602,8 @@ out:
 /*
  * Extract the criticality of an extension
  */
-int x509_extension_critical(void *context, size_t hdrlen, unsigned char tag,
-			    const uint8_t *value, size_t vlen)
+int lc_x509_extension_critical(void *context, size_t hdrlen, unsigned char tag,
+			       const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
 
@@ -619,8 +621,8 @@ int x509_extension_critical(void *context, size_t hdrlen, unsigned char tag,
 /*
  * Extract the extended key usage
  */
-int x509_eku(void *context, size_t hdrlen, unsigned char tag,
-	     const uint8_t *value, size_t vlen)
+int lc_x509_eku(void *context, size_t hdrlen, unsigned char tag,
+		const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
 	struct lc_x509_certificate *cert = ctx->cert;
@@ -634,7 +636,7 @@ int x509_eku(void *context, size_t hdrlen, unsigned char tag,
 	(void)vlen;
 
 	bin2print_debug(value, vlen, stdout, "OID");
-	ctx->last_oid = look_up_OID(value, vlen);
+	ctx->last_oid = lc_look_up_OID(value, vlen);
 	printf_debug("Extended Key Usage: %u\n", ctx->last_oid);
 
 	CKINT(lc_x509_cert_oid_to_eku(ctx->last_oid, &eku));
@@ -650,8 +652,8 @@ out:
 /*
  * Extract the subject alternative name - DNS parameter
  */
-int x509_san_dns(void *context, size_t hdrlen, unsigned char tag,
-		 const uint8_t *value, size_t vlen)
+int lc_x509_san_dns(void *context, size_t hdrlen, unsigned char tag,
+		    const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
 	struct lc_x509_certificate *cert = ctx->cert;
@@ -668,8 +670,8 @@ int x509_san_dns(void *context, size_t hdrlen, unsigned char tag,
 /*
  * Extract the subject alternative name - IP parameter
  */
-int x509_san_ip(void *context, size_t hdrlen, unsigned char tag,
-		const uint8_t *value, size_t vlen)
+int lc_x509_san_ip(void *context, size_t hdrlen, unsigned char tag,
+		   const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
 	struct lc_x509_certificate *cert = ctx->cert;
@@ -683,8 +685,8 @@ int x509_san_ip(void *context, size_t hdrlen, unsigned char tag,
 	return 0;
 }
 
-int x509_san_OID(void *context, size_t hdrlen, unsigned char tag,
-		 const uint8_t *value, size_t vlen)
+int lc_x509_san_OID(void *context, size_t hdrlen, unsigned char tag,
+		    const uint8_t *value, size_t vlen)
 {
 	return x509_note_OID(context, hdrlen, tag, value, vlen);
 }
@@ -692,8 +694,9 @@ int x509_san_OID(void *context, size_t hdrlen, unsigned char tag,
 /*
  * Extract the basic constraints CA field
  */
-int x509_basic_constraints_ca(void *context, size_t hdrlen, unsigned char tag,
-			      const uint8_t *value, size_t vlen)
+int lc_x509_basic_constraints_ca(void *context, size_t hdrlen,
+				 unsigned char tag, const uint8_t *value,
+				 size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
 	struct lc_x509_certificate *cert = ctx->cert;
@@ -717,9 +720,9 @@ int x509_basic_constraints_ca(void *context, size_t hdrlen, unsigned char tag,
 /*
  * Extract the basic constraints pathlen
  */
-int x509_basic_constraints_pathlen(void *context, size_t hdrlen,
-				   unsigned char tag, const uint8_t *value,
-				   size_t vlen)
+int lc_x509_basic_constraints_pathlen(void *context, size_t hdrlen,
+				      unsigned char tag, const uint8_t *value,
+				      size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
 	struct lc_x509_certificate *cert = ctx->cert;
@@ -748,8 +751,8 @@ int x509_basic_constraints_pathlen(void *context, size_t hdrlen,
 /*
  * Extract the key usage
  */
-int x509_keyusage(void *context, size_t hdrlen, unsigned char tag,
-		  const uint8_t *value, size_t vlen)
+int lc_x509_keyusage(void *context, size_t hdrlen, unsigned char tag,
+		     const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
 	struct lc_x509_certificate *cert = ctx->cert;
@@ -779,8 +782,8 @@ int x509_keyusage(void *context, size_t hdrlen, unsigned char tag,
 /*
  * Extract the subject key ID
  */
-int x509_skid(void *context, size_t hdrlen, unsigned char tag,
-	      const uint8_t *value, size_t vlen)
+int lc_x509_skid(void *context, size_t hdrlen, unsigned char tag,
+		 const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
 	struct lc_x509_certificate *cert = ctx->cert;
@@ -796,15 +799,15 @@ int x509_skid(void *context, size_t hdrlen, unsigned char tag,
 
 	cert->raw_skid_size = vlen;
 	cert->raw_skid = value;
-	CKINT(asymmetric_key_generate_id(skid, value, vlen, NULL, 0));
+	CKINT(lc_asymmetric_key_generate_id(skid, value, vlen, NULL, 0));
 	bin2print_debug(skid->data, skid->len, stdout, "subjkeyid");
 
 out:
 	return ret;
 }
 
-int x509_extension_OID(void *context, size_t hdrlen, unsigned char tag,
-		       const uint8_t *value, size_t vlen)
+int lc_x509_extension_OID(void *context, size_t hdrlen, unsigned char tag,
+			  const uint8_t *value, size_t vlen)
 {
 	return x509_note_OID(context, hdrlen, tag, value, vlen);
 }
@@ -812,8 +815,8 @@ int x509_extension_OID(void *context, size_t hdrlen, unsigned char tag,
 /*
  * Process certificate extensions that are used to qualify the certificate.
  */
-int x509_process_extension(void *context, size_t hdrlen, unsigned char tag,
-			   const uint8_t *value, size_t vlen)
+int lc_x509_process_extension(void *context, size_t hdrlen, unsigned char tag,
+			      const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
 	int ret = 0;
@@ -825,12 +828,13 @@ int x509_process_extension(void *context, size_t hdrlen, unsigned char tag,
 	printf_debug("Extension: %u\n", ctx->last_oid);
 
 	if (ctx->last_oid == OID_subjectKeyIdentifier) {
-		CKINT(asn1_ber_decoder(&x509_skid_decoder, ctx, value, vlen));
+		CKINT(lc_asn1_ber_decoder(&lc_x509_skid_decoder, ctx, value,
+					  vlen));
 	}
 
 	if (ctx->last_oid == OID_keyUsage) {
-		CKINT(asn1_ber_decoder(&x509_keyusage_decoder, ctx, value,
-				       vlen));
+		CKINT(lc_asn1_ber_decoder(&lc_x509_keyusage_decoder, ctx, value,
+					  vlen));
 	}
 
 	if (ctx->last_oid == OID_authorityKeyIdentifier) {
@@ -841,24 +845,26 @@ int x509_process_extension(void *context, size_t hdrlen, unsigned char tag,
 	}
 
 	if (ctx->last_oid == OID_basicConstraints) {
-		CKINT(asn1_ber_decoder(&x509_basic_constraints_decoder, ctx,
-				       value, vlen));
+		CKINT(lc_asn1_ber_decoder(&lc_x509_basic_constraints_decoder,
+					  ctx, value, vlen));
 	}
 
 	if (ctx->last_oid == OID_extKeyUsage) {
-		CKINT(asn1_ber_decoder(&x509_eku_decoder, ctx, value, vlen));
+		CKINT(lc_asn1_ber_decoder(&lc_x509_eku_decoder, ctx, value,
+					  vlen));
 	}
 
 	if (ctx->last_oid == OID_subjectAltName) {
-		CKINT(asn1_ber_decoder(&x509_san_decoder, ctx, value, vlen));
+		CKINT(lc_asn1_ber_decoder(&lc_x509_san_decoder, ctx, value,
+					  vlen));
 	}
 
 out:
 	return ret;
 }
 
-int x509_extension_continue(void *context, size_t hdrlen, unsigned char tag,
-			    const uint8_t *value, size_t vlen)
+int lc_x509_extension_continue(void *context, size_t hdrlen, unsigned char tag,
+			       const uint8_t *value, size_t vlen)
 {
 	(void)context;
 	(void)hdrlen;
@@ -891,8 +897,8 @@ static time64_t lc_mktime64(const unsigned int year0, const unsigned int mon0,
 	       sec; /* finally seconds */
 }
 
-int x509_decode_time(time64_t *_t, size_t hdrlen, unsigned char tag,
-		     const uint8_t *value, size_t vlen)
+int lc_x509_decode_time(time64_t *_t, size_t hdrlen, unsigned char tag,
+			const uint8_t *value, size_t vlen)
 {
 //TODO replace the macros
 #pragma GCC diagnostic push
@@ -990,29 +996,29 @@ invalid_time:
 /*
  * Process the time the certificate becomes valid
  */
-int x509_note_not_before(void *context, size_t hdrlen, unsigned char tag,
-			 const uint8_t *value, size_t vlen)
+int lc_x509_note_not_before(void *context, size_t hdrlen, unsigned char tag,
+			    const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
 	struct lc_x509_certificate *cert = ctx->cert;
 
-	return x509_decode_time(&cert->valid_from, hdrlen, tag, value, vlen);
+	return lc_x509_decode_time(&cert->valid_from, hdrlen, tag, value, vlen);
 }
 
 /*
  * Process the time when the certificate becomes invalid
  */
-int x509_note_not_after(void *context, size_t hdrlen, unsigned char tag,
-			const uint8_t *value, size_t vlen)
+int lc_x509_note_not_after(void *context, size_t hdrlen, unsigned char tag,
+			   const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
 	struct lc_x509_certificate *cert = ctx->cert;
 
-	return x509_decode_time(&cert->valid_to, hdrlen, tag, value, vlen);
+	return lc_x509_decode_time(&cert->valid_to, hdrlen, tag, value, vlen);
 }
 
-int x509_set_uct_time(void *context, size_t hdrlen, unsigned char tag,
-		      const uint8_t *value, size_t vlen)
+int lc_x509_set_uct_time(void *context, size_t hdrlen, unsigned char tag,
+			 const uint8_t *value, size_t vlen)
 {
 	(void)context;
 	(void)hdrlen;
@@ -1022,8 +1028,8 @@ int x509_set_uct_time(void *context, size_t hdrlen, unsigned char tag,
 	return 0;
 }
 
-int x509_set_gen_time(void *context, size_t hdrlen, unsigned char tag,
-		      const uint8_t *value, size_t vlen)
+int lc_x509_set_gen_time(void *context, size_t hdrlen, unsigned char tag,
+			 const uint8_t *value, size_t vlen)
 {
 	(void)context;
 	(void)hdrlen;
@@ -1036,8 +1042,8 @@ int x509_set_gen_time(void *context, size_t hdrlen, unsigned char tag,
 /*
  * Note a key identifier-based AuthorityKeyIdentifier
  */
-int x509_akid_note_kid(void *context, size_t hdrlen, unsigned char tag,
-		       const uint8_t *value, size_t vlen)
+int lc_x509_akid_note_kid(void *context, size_t hdrlen, unsigned char tag,
+			  const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
 	struct lc_x509_certificate *cert = ctx->cert;
@@ -1056,7 +1062,7 @@ int x509_akid_note_kid(void *context, size_t hdrlen, unsigned char tag,
 	cert->raw_akid_size = vlen;
 	cert->raw_akid = value;
 
-	CKINT(asymmetric_key_generate_id(auth_id, value, vlen, NULL, 0));
+	CKINT(lc_asymmetric_key_generate_id(auth_id, value, vlen, NULL, 0));
 	bin2print_debug(auth_id->data, auth_id->len, stdout, "authkeyid");
 
 out:
@@ -1066,8 +1072,8 @@ out:
 /*
  * Note a directoryName in an AuthorityKeyIdentifier
  */
-int x509_akid_note_name(void *context, size_t hdrlen, unsigned char tag,
-			const uint8_t *value, size_t vlen)
+int lc_x509_akid_note_name(void *context, size_t hdrlen, unsigned char tag,
+			   const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
 
@@ -1084,8 +1090,8 @@ int x509_akid_note_name(void *context, size_t hdrlen, unsigned char tag,
 /*
  * Note a serial number in an AuthorityKeyIdentifier
  */
-int x509_akid_note_serial(void *context, size_t hdrlen, unsigned char tag,
-			  const uint8_t *value, size_t vlen)
+int lc_x509_akid_note_serial(void *context, size_t hdrlen, unsigned char tag,
+			     const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
 	struct lc_x509_certificate *cert = ctx->cert;
@@ -1101,9 +1107,9 @@ int x509_akid_note_serial(void *context, size_t hdrlen, unsigned char tag,
 	if (!ctx->akid_raw_issuer || auth_id->len)
 		return 0;
 
-	CKINT(asymmetric_key_generate_id(auth_id, value, vlen,
-					 ctx->akid_raw_issuer,
-					 ctx->akid_raw_issuer_size));
+	CKINT(lc_asymmetric_key_generate_id(auth_id, value, vlen,
+					    ctx->akid_raw_issuer,
+					    ctx->akid_raw_issuer_size));
 
 	bin2print_debug(auth_id->data, auth_id->len, stdout, "authkeyid");
 
@@ -1111,14 +1117,14 @@ out:
 	return ret;
 }
 
-int x509_akid_note_OID(void *context, size_t hdrlen, unsigned char tag,
-		       const uint8_t *value, size_t vlen)
+int lc_x509_akid_note_OID(void *context, size_t hdrlen, unsigned char tag,
+			  const uint8_t *value, size_t vlen)
 {
 	return x509_note_OID(context, hdrlen, tag, value, vlen);
 }
 
-int x509_version(void *context, size_t hdrlen, unsigned char tag,
-		 const uint8_t *value, size_t vlen)
+int lc_x509_version(void *context, size_t hdrlen, unsigned char tag,
+		    const uint8_t *value, size_t vlen)
 {
 	struct x509_parse_context *ctx = context;
 	struct lc_x509_certificate *cert = ctx->cert;
@@ -1150,8 +1156,8 @@ LC_INTERFACE_FUNCTION(void, lc_x509_cert_clear,
 		return;
 
 	alloc = cert->allocated;
-	public_key_clear(&cert->pub);
-	public_key_signature_clear(&cert->sig);
+	lc_public_key_clear(&cert->pub);
+	lc_public_key_signature_clear(&cert->sig);
 	lc_memset_secure(cert, 0, sizeof(struct lc_x509_certificate));
 
 #pragma GCC diagnostic push
@@ -1177,14 +1183,14 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_decode,
 	x509->raw_cert_size = datalen;
 
 	/* Attempt to decode the certificate */
-	CKINT(asn1_ber_decoder(&x509_decoder, &ctx, data, datalen));
+	CKINT(lc_asn1_ber_decoder(&lc_x509_decoder, &ctx, data, datalen));
 
 	/* Decode the AuthorityKeyIdentifier */
 	if (ctx.raw_akid) {
 		bin2print_debug(ctx.raw_akid, ctx.raw_akid_size, stdout,
 				"AKID");
-		CKINT(asn1_ber_decoder(&x509_akid_decoder, &ctx, ctx.raw_akid,
-				       ctx.raw_akid_size));
+		CKINT(lc_asn1_ber_decoder(&lc_x509_akid_decoder, &ctx,
+					  ctx.raw_akid, ctx.raw_akid_size));
 	}
 
 	x509->pub.key = ctx.key;
@@ -1196,15 +1202,15 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_decode,
 	x509->pub.algo = ctx.key_algo;
 
 	/* Grab the signature bits */
-	CKINT(x509_get_sig_params(x509));
+	CKINT(lc_x509_get_sig_params(x509));
 
 	/* Generate cert issuer + serial number key ID */
-	CKINT(asymmetric_key_generate_id(
+	CKINT(lc_asymmetric_key_generate_id(
 		&x509->id, x509->raw_serial, x509->raw_serial_size,
 		x509->raw_issuer, x509->raw_issuer_size));
 
 	/* Detect self-signed certificates */
-	CKINT(x509_check_for_self_signed(x509));
+	CKINT(lc_x509_check_for_self_signed(x509));
 
 out:
 	if (ret)
@@ -1223,7 +1229,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_sk_decode, struct lc_x509_key_data *key,
 
 	key->sig_type = key_type;
 
-	CKINT(privkey_key_decode(key, data, datalen));
+	CKINT(lc_privkey_key_decode(key, data, datalen));
 
 out:
 	return ret;
@@ -1240,7 +1246,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_pk_decode, struct lc_x509_key_data *key,
 
 	key->sig_type = key_type;
 
-	CKINT(pubkey_key_decode(key, data, datalen));
+	CKINT(lc_pubkey_key_decode(key, data, datalen));
 
 out:
 	return ret;
@@ -1278,7 +1284,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_signature_verify, const uint8_t *sig_data,
 
 	sig.pkey_algo = cert->pub.pkey_algo;
 
-	CKINT(public_key_verify_signature(pub, &sig));
+	CKINT(lc_public_key_verify_signature(pub, &sig));
 
 out:
 	lc_memset_secure(&sig, 0, sizeof(sig));

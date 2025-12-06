@@ -88,8 +88,8 @@ static int x509_gen_cert(struct x509_checker_options *opts)
 
 	/* Encode the input data */
 	ws->gctx.cert = &opts->cert;
-	CKINT(asn1_ber_encoder(&x509_encoder, &ws->gctx, ws->data,
-			       &avail_datalen));
+	CKINT(lc_asn1_ber_encoder(&lc_x509_encoder, &ws->gctx, ws->data,
+				  &avail_datalen));
 	datalen = DATASIZE - avail_datalen;
 
 	bin2print(ws->data, datalen, stdout, "X.509 Encoding");
@@ -97,12 +97,13 @@ static int x509_gen_cert(struct x509_checker_options *opts)
 	/* Decode the just encoded data into new output structure */
 	ws->pctx.cert = &ws->pcert;
 	ws->pctx.data = ws->data;
-	CKINT(asn1_ber_decoder(&x509_decoder, &ws->pctx, ws->data, datalen));
+	CKINT(lc_asn1_ber_decoder(&lc_x509_decoder, &ws->pctx, ws->data,
+				  datalen));
 
 	if (gcert->raw_akid_size) {
-		CKINT(asn1_ber_decoder(&x509_akid_decoder, &ws->pctx,
-				       ws->pctx.raw_akid,
-				       ws->pctx.raw_akid_size));
+		CKINT(lc_asn1_ber_decoder(&lc_x509_akid_decoder, &ws->pctx,
+					  ws->pctx.raw_akid,
+					  ws->pctx.raw_akid_size));
 	}
 
 	/*

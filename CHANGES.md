@@ -27,6 +27,8 @@ Changes 1.7.0-prerelease
 
 * Linux kernel: add support for rfc4106(gcm(aes)), xts(aes), cbc(aes), ctr(aes), chacha20, chacha20(rfc7539,poly1305), chacha20(rfc7539esp,poly1305)
 
+* Linux kernel: Add simple approach to compie leancrypto in-tree either as module or statically bound into the Linux kernel binary.
+
 Changes 1.6.0
 * ASN.1: use stack for small generator for small use cases
 

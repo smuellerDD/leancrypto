@@ -10,16 +10,16 @@
 // clang-format off
 
 enum x509_mldsa_ed448_privkey_actions {
-	ACT_x509_mldsa_ed448_private_key = 0,
+	ACT_lc_x509_mldsa_ed448_private_key = 0,
 	NR__x509_mldsa_ed448_privkey_actions = 1
 };
 
 static const asn1_action_t x509_mldsa_ed448_privkey_action_table[NR__x509_mldsa_ed448_privkey_actions] = {
-	[   0] = x509_mldsa_ed448_private_key,
+	[   0] = lc_x509_mldsa_ed448_private_key,
 };
 
 static const asn1_action_enc_t x509_mldsa_ed448_privkey_action_table_enc[NR__x509_mldsa_ed448_privkey_actions] = {
-	[   0] = x509_mldsa_ed448_private_key_enc,
+	[   0] = lc_x509_mldsa_ed448_private_key_enc,
 };
 
 static const unsigned char x509_mldsa_ed448_privkey_machine[] = {
@@ -28,18 +28,18 @@ static const unsigned char x509_mldsa_ed448_privkey_machine[] = {
 	[   1] = _tag(UNIV, CONS, SEQ),
 	[   2] =  ASN1_OP_MATCH_ACT,		// privateKey
 	[   3] =  _tag(UNIV, PRIM, BTS),
-	[   4] =  _action(ACT_x509_mldsa_ed448_private_key),
+	[   4] =  _action(ACT_lc_x509_mldsa_ed448_private_key),
 	[   5] = ASN1_OP_END_SEQ,
 	[   6] = ASN1_OP_COMPLETE,
 };
 
-const struct asn1_decoder x509_mldsa_ed448_privkey_decoder = {
+const struct lc_asn1_decoder lc_x509_mldsa_ed448_privkey_decoder = {
 	.machine = x509_mldsa_ed448_privkey_machine,
 	.machlen = sizeof(x509_mldsa_ed448_privkey_machine),
 	.actions = x509_mldsa_ed448_privkey_action_table,
 };
 
-const struct asn1_encoder x509_mldsa_ed448_privkey_encoder = {
+const struct lc_asn1_encoder lc_x509_mldsa_ed448_privkey_encoder = {
 	.machine = x509_mldsa_ed448_privkey_machine,
 	.machlen = sizeof(x509_mldsa_ed448_privkey_machine),
 	.actions = x509_mldsa_ed448_privkey_action_table_enc,

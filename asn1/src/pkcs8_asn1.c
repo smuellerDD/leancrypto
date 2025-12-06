@@ -10,25 +10,25 @@
 // clang-format off
 
 enum pkcs8_actions {
-	ACT_pkcs8_note_OID = 0,
-	ACT_pkcs8_note_algo = 1,
-	ACT_pkcs8_note_key = 2,
-	ACT_pkcs8_note_version = 3,
+	ACT_lc_pkcs8_note_OID = 0,
+	ACT_lc_pkcs8_note_algo = 1,
+	ACT_lc_pkcs8_note_key = 2,
+	ACT_lc_pkcs8_note_version = 3,
 	NR__pkcs8_actions = 4
 };
 
 static const asn1_action_t pkcs8_action_table[NR__pkcs8_actions] = {
-	[   0] = pkcs8_note_OID,
-	[   1] = pkcs8_note_algo,
-	[   2] = pkcs8_note_key,
-	[   3] = pkcs8_note_version,
+	[   0] = lc_pkcs8_note_OID,
+	[   1] = lc_pkcs8_note_algo,
+	[   2] = lc_pkcs8_note_key,
+	[   3] = lc_pkcs8_note_version,
 };
 
 static const asn1_action_enc_t pkcs8_action_table_enc[NR__pkcs8_actions] = {
-	[   0] = pkcs8_note_OID_enc,
-	[   1] = pkcs8_note_algo_enc,
-	[   2] = pkcs8_note_key_enc,
-	[   3] = pkcs8_note_version_enc,
+	[   0] = lc_pkcs8_note_OID_enc,
+	[   1] = lc_pkcs8_note_algo_enc,
+	[   2] = lc_pkcs8_note_key_enc,
+	[   3] = lc_pkcs8_note_version_enc,
 };
 
 static const unsigned char pkcs8_machine[] = {
@@ -38,22 +38,22 @@ static const unsigned char pkcs8_machine[] = {
 	// Version
 	[   2] =  ASN1_OP_MATCH_ACT,
 	[   3] =  _tag(UNIV, PRIM, INT),
-	[   4] =  _action(ACT_pkcs8_note_version),
+	[   4] =  _action(ACT_lc_pkcs8_note_version),
 	// PrivateKeyAlgorithmIdentifier
 	// AlgorithmIdentifier
 	[   5] =  ASN1_OP_MATCH,
 	[   6] =  _tag(UNIV, CONS, SEQ),
 	[   7] =   ASN1_OP_MATCH_ACT,		// algorithm
 	[   8] =   _tag(UNIV, PRIM, OID),
-	[   9] =   _action(ACT_pkcs8_note_OID),
+	[   9] =   _action(ACT_lc_pkcs8_note_OID),
 	[  10] =   ASN1_OP_MATCH_ANY_OR_SKIP,		// parameters
 	[  11] =  ASN1_OP_END_SEQ,
 	[  12] =  ASN1_OP_ACT,
-	[  13] =  _action(ACT_pkcs8_note_algo),
+	[  13] =  _action(ACT_lc_pkcs8_note_algo),
 	// PrivateKey
 	[  14] =  ASN1_OP_MATCH_ACT,
 	[  15] =  _tag(UNIV, PRIM, OTS),
-	[  16] =  _action(ACT_pkcs8_note_key),
+	[  16] =  _action(ACT_lc_pkcs8_note_key),
 	// Attributes
 	[  17] =  ASN1_OP_MATCH_JUMP_OR_SKIP,		// attributes
 	[  18] =  _tagn(CONT, CONS,  0),
@@ -68,13 +68,13 @@ static const unsigned char pkcs8_machine[] = {
 	[  25] = ASN1_OP_RETURN,
 };
 
-const struct asn1_decoder pkcs8_decoder = {
+const struct lc_asn1_decoder lc_pkcs8_decoder = {
 	.machine = pkcs8_machine,
 	.machlen = sizeof(pkcs8_machine),
 	.actions = pkcs8_action_table,
 };
 
-const struct asn1_encoder pkcs8_encoder = {
+const struct lc_asn1_encoder lc_pkcs8_encoder = {
 	.machine = pkcs8_machine,
 	.machlen = sizeof(pkcs8_machine),
 	.actions = pkcs8_action_table_enc,

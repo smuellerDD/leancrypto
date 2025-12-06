@@ -10,33 +10,33 @@
 // clang-format off
 
 enum x509_keyusage_actions {
-	ACT_x509_keyusage = 0,
+	ACT_lc_x509_keyusage = 0,
 	NR__x509_keyusage_actions = 1
 };
 
 static const asn1_action_t x509_keyusage_action_table[NR__x509_keyusage_actions] = {
-	[   0] = x509_keyusage,
+	[   0] = lc_x509_keyusage,
 };
 
 static const asn1_action_enc_t x509_keyusage_action_table_enc[NR__x509_keyusage_actions] = {
-	[   0] = x509_keyusage_enc,
+	[   0] = lc_x509_keyusage_enc,
 };
 
 static const unsigned char x509_keyusage_machine[] = {
 	// KeyUsage
 	[   0] = ASN1_OP_MATCH_ACT,
 	[   1] = _tag(UNIV, PRIM, BTS),
-	[   2] = _action(ACT_x509_keyusage),
+	[   2] = _action(ACT_lc_x509_keyusage),
 	[   3] = ASN1_OP_COMPLETE,
 };
 
-const struct asn1_decoder x509_keyusage_decoder = {
+const struct lc_asn1_decoder lc_x509_keyusage_decoder = {
 	.machine = x509_keyusage_machine,
 	.machlen = sizeof(x509_keyusage_machine),
 	.actions = x509_keyusage_action_table,
 };
 
-const struct asn1_encoder x509_keyusage_encoder = {
+const struct lc_asn1_encoder lc_x509_keyusage_encoder = {
 	.machine = x509_keyusage_machine,
 	.machlen = sizeof(x509_keyusage_machine),
 	.actions = x509_keyusage_action_table_enc,

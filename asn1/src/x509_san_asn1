@@ -12,12 +12,12 @@ GeneralNames ::= SEQUENCE OF GeneralName
 GeneralName ::= CHOICE {
 	otherName			[0] IMPLICIT OtherName,
 	rfc822Name			[1] IMPLICIT IA5String,
-	dNSName				[2] IMPLICIT IA5String ({ x509_san_dns }),
+	dNSName				[2] IMPLICIT IA5String ({ lc_x509_san_dns }),
 	x400Address			[3] ANY,
 	directoryName			[4] Name,
 	ediPartyName			[5] IMPLICIT EDIPartyName,
 	uniformResourceIdentifier	[6] IMPLICIT IA5String,
-	iPAddress			[7] IMPLICIT OCTET STRING ({ x509_san_ip }),
+	iPAddress			[7] IMPLICIT OCTET STRING ({ lc_x509_san_ip }),
 	registeredID			[8] IMPLICIT OBJECT IDENTIFIER
 	}
 
@@ -26,8 +26,8 @@ Name ::= SEQUENCE OF RelativeDistinguishedName
 RelativeDistinguishedName ::= SET OF AttributeValueAssertion
 
 AttributeValueAssertion ::= SEQUENCE {
-	attributeType		OBJECT IDENTIFIER ({ x509_san_OID }),
-	attributeValue		ANY ({ x509_extract_name_segment })
+	attributeType		OBJECT IDENTIFIER ({ lc_x509_san_OID }),
+	attributeValue		ANY ({ lc_x509_extract_name_segment })
 	}
 
 OtherName ::= SEQUENCE {

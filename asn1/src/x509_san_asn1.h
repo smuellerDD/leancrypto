@@ -8,15 +8,15 @@
 #include "asn1_decoder.h"
 
 // clang-format off
-extern const struct asn1_encoder x509_san_encoder;
-extern const struct asn1_decoder x509_san_decoder;
+extern const struct lc_asn1_encoder lc_x509_san_encoder;
+extern const struct lc_asn1_decoder lc_x509_san_decoder;
 
-extern int x509_extract_name_segment_enc(void *, uint8_t *, size_t *, uint8_t *);
-extern int x509_extract_name_segment(void *, size_t, unsigned char, const uint8_t *, size_t);
-extern int x509_san_OID_enc(void *, uint8_t *, size_t *, uint8_t *);
-extern int x509_san_OID(void *, size_t, unsigned char, const uint8_t *, size_t);
-extern int x509_san_dns_enc(void *, uint8_t *, size_t *, uint8_t *);
-extern int x509_san_dns(void *, size_t, unsigned char, const uint8_t *, size_t);
-extern int x509_san_ip_enc(void *, uint8_t *, size_t *, uint8_t *);
-extern int x509_san_ip(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int lc_x509_extract_name_segment_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int lc_x509_extract_name_segment(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int lc_x509_san_OID_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int lc_x509_san_OID(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int lc_x509_san_dns_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int lc_x509_san_dns(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int lc_x509_san_ip_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int lc_x509_san_ip(void *, size_t, unsigned char, const uint8_t *, size_t);
 // clang-format on

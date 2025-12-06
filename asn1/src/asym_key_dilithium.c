@@ -207,8 +207,8 @@ out:
 #endif
 }
 
-int x509_mldsa_private_key_expanded_enc(void *context, uint8_t *data,
-					size_t *avail_datalen, uint8_t *tag)
+int lc_x509_mldsa_private_key_expanded_enc(void *context, uint8_t *data,
+					   size_t *avail_datalen, uint8_t *tag)
 {
 #ifdef LC_X509_GENERATOR
 	struct x509_generate_privkey_context *ctx = context;
@@ -242,8 +242,8 @@ int x509_mldsa_private_key_expanded_enc(void *context, uint8_t *data,
 	CKINT(lc_dilithium_sk_ptr(&pqc_ptr, &pqc_pklen, keys->sk.dilithium_sk));
 
 	/* Set OCTET STRING */
-	CKINT(x509_concatenate_bit_string(&data, avail_datalen, pqc_ptr,
-					  pqc_pklen));
+	CKINT(lc_x509_concatenate_bit_string(&data, avail_datalen, pqc_ptr,
+					     pqc_pklen));
 
 	printf_debug("Set ML-DSA private key of size %zu\n", pqc_pklen);
 
@@ -258,8 +258,8 @@ out:
 #endif
 }
 
-int x509_mldsa_private_key_seed_enc(void *context, uint8_t *data,
-				    size_t *avail_datalen, uint8_t *tag)
+int lc_x509_mldsa_private_key_seed_enc(void *context, uint8_t *data,
+				       size_t *avail_datalen, uint8_t *tag)
 {
 #ifdef LC_X509_GENERATOR
 	struct x509_generate_privkey_context *ctx = context;
@@ -285,8 +285,8 @@ int x509_mldsa_private_key_seed_enc(void *context, uint8_t *data,
 	ctx->sk_seed_written = 1;
 
 	/* Set OCTET STRING of priv key seed */
-	CKINT(x509_concatenate_bit_string(&data, avail_datalen, keys->sk_seed,
-					  sizeof(keys->sk_seed)));
+	CKINT(lc_x509_concatenate_bit_string(
+		&data, avail_datalen, keys->sk_seed, sizeof(keys->sk_seed)));
 
 	printf_debug("Set ML-DSA private key seed of size %zu\n",
 		     sizeof(keys->sk_seed));
@@ -323,8 +323,8 @@ int private_key_encode_dilithium(uint8_t *data, size_t *avail_datalen,
 		}
 	}
 
-	CKINT(asn1_ber_encoder(&x509_mldsa_privkey_encoder, ctx, data,
-			       avail_datalen));
+	CKINT(lc_asn1_ber_encoder(&lc_x509_mldsa_privkey_encoder, ctx, data,
+				  avail_datalen));
 
 out:
 	return ret;
@@ -336,9 +336,9 @@ out:
 #endif
 }
 
-int x509_mldsa_private_key_expanded(void *context, size_t hdrlen,
-				    unsigned char tag, const uint8_t *value,
-				    size_t vlen)
+int lc_x509_mldsa_private_key_expanded(void *context, size_t hdrlen,
+				       unsigned char tag, const uint8_t *value,
+				       size_t vlen)
 {
 	struct lc_x509_key_data *keys = context;
 	struct lc_dilithium_sk *dilithium_sk = keys->sk.dilithium_sk;
@@ -374,8 +374,9 @@ out:
 	return ret;
 }
 
-int x509_mldsa_private_key_seed(void *context, size_t hdrlen, unsigned char tag,
-				const uint8_t *value, size_t vlen)
+int lc_x509_mldsa_private_key_seed(void *context, size_t hdrlen,
+				   unsigned char tag, const uint8_t *value,
+				   size_t vlen)
 {
 	struct workspace {
 		struct lc_dilithium_pk pk;
@@ -461,8 +462,8 @@ int private_key_decode_dilithium(struct lc_x509_key_data *keys,
 {
 	int ret;
 
-	CKINT(asn1_ber_decoder(&x509_mldsa_privkey_decoder, keys, data,
-			       datalen));
+	CKINT(lc_asn1_ber_decoder(&lc_x509_mldsa_privkey_decoder, keys, data,
+				  datalen));
 
 out:
 	return ret;
@@ -537,7 +538,7 @@ int asym_keypair_gen_dilithium(struct lc_x509_certificate *cert,
 	int ret;
 
 	if (generate_sk_seed) {
-		CKINT(asym_keypair_gen_seed(keys, "ML-DSA", 6));
+		CKINT(lc_asym_keypair_gen_seed(keys, "ML-DSA", 6));
 		CKINT(lc_dilithium_keypair_from_seed(
 			keys->pk.dilithium_pk, keys->sk.dilithium_sk,
 			keys->sk_seed, LC_X509_PQC_SK_SEED_SIZE,

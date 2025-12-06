@@ -84,7 +84,7 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_set_signer, struct lc_pkcs7_message *pkcs7,
 	CKNULL(sig_gen_data->pk.dilithium_pk, -EINVAL);
 	CKNULL(sig_gen_data->sk.dilithium_sk, -EINVAL);
 
-	CKINT(pkcs7_sinfo_get(&sinfo, pkcs7));
+	CKINT(lc_pkcs7_sinfo_get(&sinfo, pkcs7));
 
 	/* Also set the certificate as signer */
 	sinfo->signer = x509_with_sk;
@@ -108,7 +108,7 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_set_signer, struct lc_pkcs7_message *pkcs7,
 	CKINT(pkcs7_add_cert(pkcs7, sinfo->signer));
 
 	/* Now add the filled signed info to the PKCS7 */
-	CKINT(pkcs7_sinfo_add(pkcs7));
+	CKINT(lc_pkcs7_sinfo_add(pkcs7));
 
 out:
 	return ret;

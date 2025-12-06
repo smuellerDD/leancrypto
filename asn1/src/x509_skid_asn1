@@ -8,4 +8,4 @@
 
 SubjectKeyIdentifier ::= KeyIdentifier
 
-KeyIdentifier ::= OCTET STRING ({ x509_skid })
+KeyIdentifier ::= OCTET STRING ({ lc_x509_skid })

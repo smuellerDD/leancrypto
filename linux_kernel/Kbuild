@@ -1,5 +1,6 @@
 include $(src)/Kbuild.config
 include $(src)/Kbuild.autoconfig
+include $(src)/Kbuild.autogen
 include $(src)/Kbuild.version
 include $(src)/Kbuild.basics
 include $(src)/Kbuild.sha2

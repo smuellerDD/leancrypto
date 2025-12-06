@@ -246,8 +246,8 @@ int private_key_encode_sphincs(uint8_t *data, size_t *avail_datalen,
 	CKINT(lc_sphincs_sk_ptr(&pqc_ptr, &pqc_pklen, keys->sk.sphincs_sk));
 
 	/* Set OCTET STRING of priv key seed */
-	CKINT(x509_concatenate_bit_string(&data, avail_datalen, pqc_ptr,
-					  pqc_pklen));
+	CKINT(lc_x509_concatenate_bit_string(&data, avail_datalen, pqc_ptr,
+					     pqc_pklen));
 
 	printf_debug("Set SLH-DSA private key of size %zu\n", pqc_pklen);
 

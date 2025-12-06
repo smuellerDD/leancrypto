@@ -157,7 +157,7 @@ if get_option('x509_generator').enabled()
 
 	asn1_enc_tester = executable('asn1_enc_tester',
 			 [ 'asn1_enc_tester.c',
-			   'x509_extensions_test.asn1.c',
+			   'x509_extensions_test_asn1.c',
 			   internal_src ],
 			 include_directories:
 			 [ include_internal_dirs,
@@ -287,7 +287,7 @@ if get_option('x509_generator').enabled()
 
 	asn1_extensions_enc_tester = executable('asn1_extensions_enc_tester',
 			 [ 'asn1_extensions_enc_tester.c',
-			   'x509_extensions_test.asn1.c',
+			   'x509_extensions_test_asn1.c',
 			   internal_src ],
 			 include_directories:
 			 [ include_internal_dirs,
@@ -383,7 +383,7 @@ if get_option('x509_generator').enabled()
 
 	asn1_eku_enc_tester = executable('asn1_eku_enc_tester',
 			 [ 'asn1_eku_enc_tester.c',
-			   'x509_extensions_test.asn1.c',
+			   'x509_extensions_test_asn1.c',
 			   internal_src ],
 			 include_directories:
 			 [ include_internal_dirs,

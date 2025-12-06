@@ -35,7 +35,7 @@
 #include "x509_algorithm_mapper.h"
 #include "x509_cert_parser.h"
 
-int x509_set_digestsize(size_t *digestsize, struct lc_hash_ctx *hash_ctx)
+int lc_x509_set_digestsize(size_t *digestsize, struct lc_hash_ctx *hash_ctx)
 {
 	size_t found_digestsize = lc_hash_digestsize(hash_ctx);
 
@@ -117,7 +117,7 @@ out:
 }
 #endif
 
-int x509_get_sig_params(struct lc_x509_certificate *cert)
+int lc_x509_get_sig_params(struct lc_x509_certificate *cert)
 {
 	struct lc_public_key_signature *sig = &cert->sig;
 
@@ -134,7 +134,7 @@ int x509_get_sig_params(struct lc_x509_certificate *cert)
  * Check for self-signedness in an X.509 cert and if found, check the signature
  * immediately if we can.
  */
-int x509_check_for_self_signed(struct lc_x509_certificate *cert)
+int lc_x509_check_for_self_signed(struct lc_x509_certificate *cert)
 {
 	struct lc_public_key_signature *sig = &cert->sig;
 	struct lc_asymmetric_key_id *auth_id_0 = &sig->auth_ids[0];
@@ -153,8 +153,8 @@ int x509_check_for_self_signed(struct lc_x509_certificate *cert)
 		 * If the AKID is present it may have one or two parts.  If
 		 * both are supplied, both must match.
 		 */
-		int a = asymmetric_key_id_same(&cert->skid, auth_id_1);
-		int b = asymmetric_key_id_same(&cert->id, auth_id_0);
+		int a = lc_asymmetric_key_id_same(&cert->skid, auth_id_1);
+		int b = lc_asymmetric_key_id_same(&cert->id, auth_id_0);
 
 		if (!a && !b)
 			goto not_self_signed;
@@ -171,7 +171,7 @@ int x509_check_for_self_signed(struct lc_x509_certificate *cert)
 		goto out;
 	}
 
-	ret = public_key_verify_signature(&cert->pub, &cert->sig);
+	ret = lc_public_key_verify_signature(&cert->pub, &cert->sig);
 	if (ret < 0) {
 		if (ret == -ENOPKG) {
 			cert->unsupported_sig = 1;

@@ -85,17 +85,17 @@ int lc_x509_cert_oid_to_eku(enum OID oid, uint16_t *eku);
  *	applications MUST be able to process validity dates that are encoded in
  *	either UTCTime or GeneralizedTime.
  */
-int x509_decode_time(time64_t *_t, size_t hdrlen, unsigned char tag,
-		     const uint8_t *value, size_t vlen);
+int lc_x509_decode_time(time64_t *_t, size_t hdrlen, unsigned char tag,
+			const uint8_t *value, size_t vlen);
 /*
  * x509_public_key.c
  */
 /*
  * Set the proper digest size for the hashes used in X.509 / PKCS7
  */
-int x509_set_digestsize(size_t *digestsize, struct lc_hash_ctx *hash_ctx);
-int x509_get_sig_params(struct lc_x509_certificate *cert);
-int x509_check_for_self_signed(struct lc_x509_certificate *cert);
+int lc_x509_set_digestsize(size_t *digestsize, struct lc_hash_ctx *hash_ctx);
+int lc_x509_get_sig_params(struct lc_x509_certificate *cert);
+int lc_x509_check_for_self_signed(struct lc_x509_certificate *cert);
 
 #ifdef __cplusplus
 }

@@ -54,35 +54,35 @@ extern "C" {
  */
 #define LC_X509_SIGNATURE_RANDOMIZER_SIZE 32
 
-void public_key_clear(struct lc_public_key *key);
+void lc_public_key_clear(struct lc_public_key *key);
 
-void public_key_signature_clear(struct lc_public_key_signature *sig);
+void lc_public_key_signature_clear(struct lc_public_key_signature *sig);
 
-int public_key_verify_signature(const struct lc_public_key *pkey,
-				const struct lc_public_key_signature *sig);
+int lc_public_key_verify_signature(const struct lc_public_key *pkey,
+				   const struct lc_public_key_signature *sig);
 
-int public_key_generate_signature(const struct lc_x509_key_data *gen_data,
-				  const struct lc_public_key_signature *sig,
-				  uint8_t *sig_data, size_t *available_len);
-int public_key_extract(struct x509_generate_context *ctx, uint8_t *dst_data,
-		       size_t *available_len);
-int public_key_signature_size(size_t *siglen, enum lc_sig_types sig_type);
-int privkey_key_encode(struct x509_generate_privkey_context *ctx,
-		       uint8_t *dst_data, size_t *available_len);
-int privkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
-		       size_t datalen);
-int pubkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
-		      size_t datalen);
-int asym_set_signer(struct lc_x509_certificate *signed_x509,
-		    const struct lc_x509_key_data *signer_key_data,
-		    const struct lc_x509_certificate *signer_x509);
-int asym_keypair_gen(struct lc_x509_certificate *cert,
-		     struct lc_x509_key_data *keys,
-		     enum lc_sig_types create_keypair_algo);
-int asym_keypair_load(struct lc_x509_certificate *cert,
-		      const struct lc_x509_key_data *keys);
-int asym_keypair_gen_seed(struct lc_x509_key_data *keys,
-			  const char *addtl_input, size_t addtl_input_len);
+int lc_public_key_generate_signature(const struct lc_x509_key_data *gen_data,
+				     const struct lc_public_key_signature *sig,
+				     uint8_t *sig_data, size_t *available_len);
+int lc_public_key_extract(struct x509_generate_context *ctx, uint8_t *dst_data,
+			  size_t *available_len);
+int lc_public_key_signature_size(size_t *siglen, enum lc_sig_types sig_type);
+int lc_privkey_key_encode(struct x509_generate_privkey_context *ctx,
+			  uint8_t *dst_data, size_t *available_len);
+int lc_privkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
+			  size_t datalen);
+int lc_pubkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
+			 size_t datalen);
+int lc_asym_set_signer(struct lc_x509_certificate *signed_x509,
+		       const struct lc_x509_key_data *signer_key_data,
+		       const struct lc_x509_certificate *signer_x509);
+int lc_asym_keypair_gen(struct lc_x509_certificate *cert,
+			struct lc_x509_key_data *keys,
+			enum lc_sig_types create_keypair_algo);
+int lc_asym_keypair_load(struct lc_x509_certificate *cert,
+			 const struct lc_x509_key_data *keys);
+int lc_asym_keypair_gen_seed(struct lc_x509_key_data *keys,
+			     const char *addtl_input, size_t addtl_input_len);
 
 #ifdef __cplusplus
 }

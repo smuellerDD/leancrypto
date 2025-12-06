@@ -36,8 +36,9 @@ struct lc_asn1_enc_stack {
 
 #include "asn1_encoder_impl.h"
 
-int asn1_ber_encoder_small(const struct asn1_encoder *encoder, void *context,
-			   uint8_t *data, size_t *in_out_avail_datalen)
+int lc_asn1_ber_encoder_small(const struct lc_asn1_encoder *encoder,
+			      void *context, uint8_t *data,
+			      size_t *in_out_avail_datalen)
 {
 	struct lc_asn1_enc_stack ws = { 0 };
 

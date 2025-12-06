@@ -5,5 +5,5 @@
 --
 
 SignaturePrivateKey ::= SEQUENCE {
-	privateKey BIT STRING ({ x509_mldsa_ed25519_private_key })
+	privateKey BIT STRING ({ lc_x509_mldsa_ed25519_private_key })
 }

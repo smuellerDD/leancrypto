@@ -27,44 +27,44 @@
 extern "C" {
 #endif
 
-int sha256_init(void *_state);
-int sha256_init_nocheck(void *_state);
+int lc_sha256_init(void *_state);
+int lc_sha256_init_nocheck(void *_state);
 
-void sha256_update(struct lc_sha256_state *ctx, const uint8_t *in, size_t inlen,
-		   void (*sha256_transform_block)(struct lc_sha256_state *ctx,
-						  const uint8_t *in,
-						  size_t blocks));
+void lc_sha256_update(
+	struct lc_sha256_state *ctx, const uint8_t *in, size_t inlen,
+	void (*sha256_transform_block)(struct lc_sha256_state *ctx,
+				       const uint8_t *in, size_t blocks));
 
-void sha256_final(struct lc_sha256_state *ctx, uint8_t *digest,
-		  void (*sha256_transform_block)(struct lc_sha256_state *ctx,
-						 const uint8_t *in,
-						 size_t blocks));
+void lc_sha256_final(struct lc_sha256_state *ctx, uint8_t *digest,
+		     void (*sha256_transform_block)(struct lc_sha256_state *ctx,
+						    const uint8_t *in,
+						    size_t blocks));
 
-size_t sha256_get_digestsize(void *_state);
+size_t lc_sha256_get_digestsize(void *_state);
 
 /******************************************************************************/
 
-int sha384_init(void *_state);
-int sha384_init_nocheck(void *_state);
-int sha512_init(void *_state);
-int sha512_init_nocheck(void *_state);
+int lc_sha384_init(void *_state);
+int lc_sha384_init_nocheck(void *_state);
+int lc_sha512_init(void *_state);
+int lc_sha512_init_nocheck(void *_state);
 
-void sha512_update(struct lc_sha512_state *ctx, const uint8_t *in, size_t inlen,
-		   void (*sha512_transform_block)(struct lc_sha512_state *ctx,
-						  const uint8_t *in,
-						  size_t blocks));
-void sha384_final(struct lc_sha512_state *ctx, uint8_t *digest,
-		  void (*sha512_transform_block)(struct lc_sha512_state *ctx,
-						 const uint8_t *in,
-						 size_t blocks));
-void sha512_final(struct lc_sha512_state *ctx, uint8_t *digest,
-		  void (*sha512_transform_block)(struct lc_sha512_state *ctx,
-						 const uint8_t *in,
-						 size_t blocks));
-void sha512_extract_bytes(const void *state, uint8_t *data, size_t offset,
-			  size_t length);
-size_t sha384_get_digestsize(void *_state);
-size_t sha512_get_digestsize(void *_state);
+void lc_sha512_update(
+	struct lc_sha512_state *ctx, const uint8_t *in, size_t inlen,
+	void (*sha512_transform_block)(struct lc_sha512_state *ctx,
+				       const uint8_t *in, size_t blocks));
+void lc_sha384_final(struct lc_sha512_state *ctx, uint8_t *digest,
+		     void (*sha512_transform_block)(struct lc_sha512_state *ctx,
+						    const uint8_t *in,
+						    size_t blocks));
+void lc_sha512_final(struct lc_sha512_state *ctx, uint8_t *digest,
+		     void (*sha512_transform_block)(struct lc_sha512_state *ctx,
+						    const uint8_t *in,
+						    size_t blocks));
+void lc_sha512_extract_bytes(const void *state, uint8_t *data, size_t offset,
+			     size_t length);
+size_t lc_sha384_get_digestsize(void *_state);
+size_t lc_sha512_get_digestsize(void *_state);
 
 #ifdef __cplusplus
 }

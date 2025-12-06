@@ -8,15 +8,15 @@
 #include "asn1_decoder.h"
 
 // clang-format off
-extern const struct asn1_encoder pkcs8_encoder;
-extern const struct asn1_decoder pkcs8_decoder;
+extern const struct lc_asn1_encoder lc_pkcs8_encoder;
+extern const struct lc_asn1_decoder lc_pkcs8_decoder;
 
-extern int pkcs8_note_OID_enc(void *, uint8_t *, size_t *, uint8_t *);
-extern int pkcs8_note_OID(void *, size_t, unsigned char, const uint8_t *, size_t);
-extern int pkcs8_note_algo_enc(void *, uint8_t *, size_t *, uint8_t *);
-extern int pkcs8_note_algo(void *, size_t, unsigned char, const uint8_t *, size_t);
-extern int pkcs8_note_key_enc(void *, uint8_t *, size_t *, uint8_t *);
-extern int pkcs8_note_key(void *, size_t, unsigned char, const uint8_t *, size_t);
-extern int pkcs8_note_version_enc(void *, uint8_t *, size_t *, uint8_t *);
-extern int pkcs8_note_version(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int lc_pkcs8_note_OID_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int lc_pkcs8_note_OID(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int lc_pkcs8_note_algo_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int lc_pkcs8_note_algo(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int lc_pkcs8_note_key_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int lc_pkcs8_note_key(void *, size_t, unsigned char, const uint8_t *, size_t);
+extern int lc_pkcs8_note_version_enc(void *, uint8_t *, size_t *, uint8_t *);
+extern int lc_pkcs8_note_version(void *, size_t, unsigned char, const uint8_t *, size_t);
 // clang-format on

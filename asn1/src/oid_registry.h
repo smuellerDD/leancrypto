@@ -38,11 +38,11 @@
 extern "C" {
 #endif
 
-extern enum OID look_up_OID(const uint8_t *data, size_t datasize);
-extern int parse_OID(const uint8_t *data, size_t datasize, enum OID *oid);
-extern int sprint_oid(const uint8_t *, size_t, char *, size_t);
-extern int sprint_OID(enum OID, char *, size_t);
-int OID_to_data(enum OID oid, const uint8_t **data, size_t *datalen);
+extern enum OID lc_look_up_OID(const uint8_t *data, size_t datasize);
+extern int lc_parse_OID(const uint8_t *data, size_t datasize, enum OID *oid);
+extern int lc_sprint_oid(const uint8_t *, size_t, char *, size_t);
+extern int lc_sprint_OID(enum OID, char *, size_t);
+int lc_OID_to_data(enum OID oid, const uint8_t **data, size_t *datalen);
 
 #ifdef __cplusplus
 }

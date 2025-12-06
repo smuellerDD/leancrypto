@@ -21,7 +21,7 @@
 #include "lc_memory_support.h"
 #include "pkcs7_internal.h"
 
-void pkcs7_sinfo_free(struct lc_pkcs7_message *pkcs7)
+void lc_pkcs7_sinfo_free(struct lc_pkcs7_message *pkcs7)
 {
 	struct lc_pkcs7_signed_info *sinfo;
 	uint8_t idx = 0;
@@ -29,7 +29,7 @@ void pkcs7_sinfo_free(struct lc_pkcs7_message *pkcs7)
 	while (pkcs7->list_head_sinfo) {
 		sinfo = pkcs7->list_head_sinfo;
 		pkcs7->list_head_sinfo = sinfo->next;
-		public_key_signature_clear(&sinfo->sig);
+		lc_public_key_signature_clear(&sinfo->sig);
 		if (idx < pkcs7->consumed_preallocated_sinfo) {
 			idx++;
 		} else {
@@ -39,14 +39,14 @@ void pkcs7_sinfo_free(struct lc_pkcs7_message *pkcs7)
 
 	if (pkcs7->curr_sinfo) {
 		sinfo = pkcs7->curr_sinfo;
-		public_key_signature_clear(&sinfo->sig);
+		lc_public_key_signature_clear(&sinfo->sig);
 
 		if (idx >= pkcs7->consumed_preallocated_sinfo)
 			lc_free(sinfo);
 	}
 }
 
-int pkcs7_sinfo_add(struct lc_pkcs7_message *pkcs7)
+int lc_pkcs7_sinfo_add(struct lc_pkcs7_message *pkcs7)
 {
 	if (!pkcs7->list_head_sinfo) {
 		pkcs7->list_head_sinfo = pkcs7->curr_sinfo;
@@ -60,8 +60,8 @@ int pkcs7_sinfo_add(struct lc_pkcs7_message *pkcs7)
 	return 0;
 }
 
-int pkcs7_sinfo_get(struct lc_pkcs7_signed_info **sinfo,
-		    struct lc_pkcs7_message *pkcs7)
+int lc_pkcs7_sinfo_get(struct lc_pkcs7_signed_info **sinfo,
+		       struct lc_pkcs7_message *pkcs7)
 {
 	int ret = 0;
 
@@ -88,7 +88,7 @@ out:
 	return ret;
 }
 
-void pkcs7_x509_free(struct lc_x509_certificate *x509)
+void lc_pkcs7_x509_free(struct lc_x509_certificate *x509)
 {
 	if (x509->allocated) {
 		lc_x509_cert_clear(x509);
@@ -98,8 +98,8 @@ void pkcs7_x509_free(struct lc_x509_certificate *x509)
 	}
 }
 
-int pkcs7_x509_get(struct lc_x509_certificate **x509,
-		   struct lc_pkcs7_message *pkcs7)
+int lc_pkcs7_x509_get(struct lc_x509_certificate **x509,
+		      struct lc_pkcs7_message *pkcs7)
 {
 	struct lc_x509_certificate *tmp_x509;
 	int ret = 0;

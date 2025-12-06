@@ -27,8 +27,8 @@
 #include "x509_algorithm_mapper.h"
 #include "x509_mldsa_ed25519_privkey_asn1.h"
 
-int x509_mldsa_ed25519_private_key_enc(void *context, uint8_t *data,
-				       size_t *avail_datalen, uint8_t *tag)
+int lc_x509_mldsa_ed25519_private_key_enc(void *context, uint8_t *data,
+					  size_t *avail_datalen, uint8_t *tag)
 {
 #ifdef LC_X509_GENERATOR
 	const struct x509_generate_privkey_context *ctx = context;
@@ -53,10 +53,10 @@ int x509_mldsa_ed25519_private_key_enc(void *context, uint8_t *data,
 	 *
 	 * First the ML-DSA seed, then the traditional SK.
 	 */
-	CKINT(x509_set_bit_string(&data, avail_datalen, keys->sk_seed,
-				  LC_X509_PQC_SK_SEED_SIZE));
-	CKINT(x509_concatenate_bit_string(&data, avail_datalen, ed25519_ptr,
-					  ed25519_sklen));
+	CKINT(lc_x509_set_bit_string(&data, avail_datalen, keys->sk_seed,
+				     LC_X509_PQC_SK_SEED_SIZE));
+	CKINT(lc_x509_concatenate_bit_string(&data, avail_datalen, ed25519_ptr,
+					     ed25519_sklen));
 
 	printf_debug("Set composite secret key of size %zu\n",
 		     LC_X509_PQC_SK_SEED_SIZE + ed25519_sklen);
@@ -79,8 +79,8 @@ int private_key_encode_dilithium_ed25519(
 #ifdef LC_X509_GENERATOR
 	int ret;
 
-	CKINT(asn1_ber_encoder_small(&x509_mldsa_ed25519_privkey_encoder, ctx,
-				     data, avail_datalen));
+	CKINT(lc_asn1_ber_encoder_small(&lc_x509_mldsa_ed25519_privkey_encoder,
+					ctx, data, avail_datalen));
 
 out:
 	return ret;
@@ -92,9 +92,9 @@ out:
 #endif
 }
 
-int x509_mldsa_ed25519_private_key(void *context, size_t hdrlen,
-				   unsigned char tag, const uint8_t *value,
-				   size_t vlen)
+int lc_x509_mldsa_ed25519_private_key(void *context, size_t hdrlen,
+				      unsigned char tag, const uint8_t *value,
+				      size_t vlen)
 {
 	struct workspace {
 		struct lc_dilithium_pk pk;
@@ -195,8 +195,8 @@ int private_key_decode_dilithium_ed25519(struct lc_x509_key_data *keys,
 {
 	int ret;
 
-	CKINT(asn1_ber_decoder(&x509_mldsa_ed25519_privkey_decoder, keys, data,
-			       datalen));
+	CKINT(lc_asn1_ber_decoder(&lc_x509_mldsa_ed25519_privkey_decoder, keys,
+				  data, datalen));
 
 out:
 	return ret;
@@ -220,10 +220,10 @@ int public_key_encode_dilithium_ed25519(uint8_t *data, size_t *avail_datalen,
 	 * Concatenate the signature data into the buffer according to
 	 * draft version 5.
 	 */
-	CKINT(x509_concatenate_bit_string(&data, avail_datalen, ml_dsa_ptr,
-					  ml_dsa_pklen));
-	CKINT(x509_concatenate_bit_string(&data, avail_datalen, ed25519_ptr,
-					  ed25519_pklen));
+	CKINT(lc_x509_concatenate_bit_string(&data, avail_datalen, ml_dsa_ptr,
+					     ml_dsa_pklen));
+	CKINT(lc_x509_concatenate_bit_string(&data, avail_datalen, ed25519_ptr,
+					     ed25519_pklen));
 
 	printf_debug("Set composite public key of size %zu\n",
 		     ml_dsa_pklen + ed25519_pklen);
@@ -423,13 +423,13 @@ int public_key_generate_signature_dilithium_ed25519(
 	 * Concatenate the signature data into the buffer according to
 	 * draft version 5.
 	 */
-	CKINT(x509_concatenate_bit_string(&sig_data, available_len,
-					  ws->randomizer,
-					  sizeof(ws->randomizer)));
-	CKINT(x509_concatenate_bit_string(&sig_data, available_len, ml_dsa_ptr,
-					  ml_dsa_siglen));
-	CKINT(x509_concatenate_bit_string(&sig_data, available_len, ed25519_ptr,
-					  ed25519_siglen));
+	CKINT(lc_x509_concatenate_bit_string(&sig_data, available_len,
+					     ws->randomizer,
+					     sizeof(ws->randomizer)));
+	CKINT(lc_x509_concatenate_bit_string(&sig_data, available_len,
+					     ml_dsa_ptr, ml_dsa_siglen));
+	CKINT(lc_x509_concatenate_bit_string(&sig_data, available_len,
+					     ed25519_ptr, ed25519_siglen));
 
 	printf_debug("Set composite signature of size %zu\n",
 		     sizeof(ws->randomizer) + ml_dsa_siglen + ed25519_siglen);
@@ -540,7 +540,7 @@ int asym_keypair_gen_dilithium_ed25519(struct lc_x509_certificate *cert,
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	/* Generate key par with ML-DSA from seed */
-	CKINT(asym_keypair_gen_seed(keys, "ML-DSA-ED25519", 14));
+	CKINT(lc_asym_keypair_gen_seed(keys, "ML-DSA-ED25519", 14));
 
 	CKINT(lc_dilithium_keypair_from_seed(&ws->pk, &ws->sk, keys->sk_seed,
 					     LC_X509_PQC_SK_SEED_SIZE,

@@ -10,22 +10,22 @@
 // clang-format off
 
 enum pkcs7_aa_actions {
-	ACT_pkcs7_external_aa = 0,
-	ACT_pkcs7_external_aa_OID = 1,
-	ACT_pkcs7_external_aa_continue = 2,
+	ACT_lc_pkcs7_external_aa = 0,
+	ACT_lc_pkcs7_external_aa_OID = 1,
+	ACT_lc_pkcs7_external_aa_continue = 2,
 	NR__pkcs7_aa_actions = 3
 };
 
 static const asn1_action_t pkcs7_aa_action_table[NR__pkcs7_aa_actions] = {
-	[   0] = pkcs7_external_aa,
-	[   1] = pkcs7_external_aa_OID,
-	[   2] = pkcs7_external_aa_continue,
+	[   0] = lc_pkcs7_external_aa,
+	[   1] = lc_pkcs7_external_aa_OID,
+	[   2] = lc_pkcs7_external_aa_continue,
 };
 
 static const asn1_action_enc_t pkcs7_aa_action_table_enc[NR__pkcs7_aa_actions] = {
-	[   0] = pkcs7_external_aa_enc,
-	[   1] = pkcs7_external_aa_OID_enc,
-	[   2] = pkcs7_external_aa_continue_enc,
+	[   0] = lc_pkcs7_external_aa_enc,
+	[   1] = lc_pkcs7_external_aa_OID_enc,
+	[   2] = lc_pkcs7_external_aa_continue_enc,
 };
 
 static const unsigned char pkcs7_aa_machine[] = {
@@ -37,27 +37,27 @@ static const unsigned char pkcs7_aa_machine[] = {
 	[   3] =  _tag(UNIV, CONS, SEQ),
 	[   4] =   ASN1_OP_MATCH_ACT,		// type
 	[   5] =   _tag(UNIV, PRIM, OID),
-	[   6] =   _action(ACT_pkcs7_external_aa_OID),
+	[   6] =   _action(ACT_lc_pkcs7_external_aa_OID),
 	[   7] =   ASN1_OP_MATCH,		// values
 	[   8] =   _tag(UNIV, CONS, SET),
 	[   9] =    ASN1_OP_MATCH_ANY_ACT,
-	[  10] =    _action(ACT_pkcs7_external_aa),
+	[  10] =    _action(ACT_lc_pkcs7_external_aa),
 	[  11] =   ASN1_OP_END_SET_OF,
 	[  12] =   _jump_target(9),
 	[  13] =  ASN1_OP_END_SEQ_ACT,
-	[  14] =  _action(ACT_pkcs7_external_aa_continue),
+	[  14] =  _action(ACT_lc_pkcs7_external_aa_continue),
 	[  15] = ASN1_OP_END_SET_OF,
 	[  16] = _jump_target(2),
 	[  17] = ASN1_OP_COMPLETE,
 };
 
-const struct asn1_decoder pkcs7_aa_decoder = {
+const struct lc_asn1_decoder lc_pkcs7_aa_decoder = {
 	.machine = pkcs7_aa_machine,
 	.machlen = sizeof(pkcs7_aa_machine),
 	.actions = pkcs7_aa_action_table,
 };
 
-const struct asn1_encoder pkcs7_aa_encoder = {
+const struct lc_asn1_encoder lc_pkcs7_aa_encoder = {
 	.machine = pkcs7_aa_machine,
 	.machlen = sizeof(pkcs7_aa_machine),
 	.actions = pkcs7_aa_action_table_enc,

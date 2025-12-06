@@ -92,20 +92,22 @@ static inline int x509_sufficient_size(size_t *avail_datalen,
 	return 0;
 }
 
-int x509_concatenate_bit_string(uint8_t **dst_data, size_t *dst_avail_datalen,
-				const uint8_t *src_data, size_t src_datalen);
-int x509_set_bit_string(uint8_t **dst_data, size_t *dst_avail_datalen,
-			const uint8_t *src_data, size_t src_datalen);
+int lc_x509_concatenate_bit_string(uint8_t **dst_data,
+				   size_t *dst_avail_datalen,
+				   const uint8_t *src_data, size_t src_datalen);
+int lc_x509_set_bit_string(uint8_t **dst_data, size_t *dst_avail_datalen,
+			   const uint8_t *src_data, size_t src_datalen);
 
-int x509_name_segment_enc(const struct lc_x509_certificate_name *name,
-			  uint8_t *processed, uint8_t *data,
-			  size_t *avail_datalen);
-int x509_name_OID_enc(const struct lc_x509_certificate_name *name,
-		      uint8_t processed, uint8_t *data, size_t *avail_datalen);
-int x509_name_unprocessed(const struct lc_x509_certificate_name *name,
-			  uint8_t processed);
-int x509_signature_reserve_room(uint8_t *data, size_t *avail_datalen,
-				size_t siglen);
+int lc_x509_name_segment_enc(const struct lc_x509_certificate_name *name,
+			     uint8_t *processed, uint8_t *data,
+			     size_t *avail_datalen);
+int lc_x509_name_OID_enc(const struct lc_x509_certificate_name *name,
+			 uint8_t processed, uint8_t *data,
+			 size_t *avail_datalen);
+int lc_x509_name_unprocessed(const struct lc_x509_certificate_name *name,
+			     uint8_t processed);
+int lc_x509_signature_reserve_room(uint8_t *data, size_t *avail_datalen,
+				   size_t siglen);
 
 #ifdef __cplusplus
 }

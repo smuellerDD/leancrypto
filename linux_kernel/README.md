@@ -11,7 +11,7 @@ operation.
 Leancrypto therefore can be compiled into a separate Linux kernel module
 called `leancrypto.ko`.
 
-## Building
+## Building out of Tree
 
 In the current directory, the support for building the leancrypto library is
 provided. To build the leancrypto Linux kernel module, use the `Makefile` in the
@@ -20,6 +20,31 @@ directory `linux_kernel`:
 1. make
 
 2. the leancrypto library is provided with `leancrypto.ko`
+
+## Build in Tree
+
+When the use of leancrypto as a kernel module is insufficient, e.g. when its
+services is required during boot time such as for kernel module integrity
+verification, it can be compiled statically into the kernel binary. To do that,
+the following steps have to be taken:
+
+1. copy the entire leancrypto tree into the Linux kernel source tree:
+
+	`cp -av leancrypto-<version> linux-<version>/leancrypto`
+	
+2. tell the Linux kernel build system to also use leancrypto by editing
+   the file `Kbuild` found in the root of the Linux kernel tree and add the
+   following line at the end of that file:
+
+	`obj-y += leancrypto/linux_kernel/`
+	
+3. tell leancrypto to be compiled statically into the kernel by editing the file
+   `leancrypto/linux_kernel/Kbuild.basics` and modifying the very first line
+   to change `obj-m` to `obj-y`.
+   
+At this point, leancrypto will now be built statically into the Linux kernel
+when compiling it. Naturally, all Linux kernel options can be set as leancrypto
+does not depend on specific kernel options.
 
 ## Test Modules
 

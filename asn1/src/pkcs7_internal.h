@@ -63,24 +63,24 @@ struct pkcs7_parse_context {
 	unsigned int expect_skid : 1; /* Subject key ID */
 };
 
-int pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
-			   const struct lc_pkcs7_trust_store *trust_store,
-			   struct lc_x509_certificate *x509,
-			   struct lc_pkcs7_signed_info *sinfo);
-
-int pkcs7_find_asymmetric_key(const struct lc_x509_certificate **anchor_cert,
+int lc_pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 			      const struct lc_pkcs7_trust_store *trust_store,
-			      const struct lc_asymmetric_key_id *auth0,
-			      const struct lc_asymmetric_key_id *auth1);
+			      struct lc_x509_certificate *x509,
+			      struct lc_pkcs7_signed_info *sinfo);
 
-int pkcs7_sinfo_add(struct lc_pkcs7_message *pkcs7);
-int pkcs7_sinfo_get(struct lc_pkcs7_signed_info **sinfo,
-		    struct lc_pkcs7_message *pkcs7);
-void pkcs7_sinfo_free(struct lc_pkcs7_message *pkcs7);
+int lc_pkcs7_find_asymmetric_key(const struct lc_x509_certificate **anchor_cert,
+				 const struct lc_pkcs7_trust_store *trust_store,
+				 const struct lc_asymmetric_key_id *auth0,
+				 const struct lc_asymmetric_key_id *auth1);
 
-int pkcs7_x509_get(struct lc_x509_certificate **x509,
-		   struct lc_pkcs7_message *pkcs7);
-void pkcs7_x509_free(struct lc_x509_certificate *x509);
+int lc_pkcs7_sinfo_add(struct lc_pkcs7_message *pkcs7);
+int lc_pkcs7_sinfo_get(struct lc_pkcs7_signed_info **sinfo,
+		       struct lc_pkcs7_message *pkcs7);
+void lc_pkcs7_sinfo_free(struct lc_pkcs7_message *pkcs7);
+
+int lc_pkcs7_x509_get(struct lc_x509_certificate **x509,
+		      struct lc_pkcs7_message *pkcs7);
+void lc_pkcs7_x509_free(struct lc_x509_certificate *x509);
 
 extern const uint8_t lc_pkcs7_authattr_tag;
 

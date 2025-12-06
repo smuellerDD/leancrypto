@@ -50,8 +50,8 @@ struct pkcs8_generate_context {
  * Note an OID when we find one for later processing when we know how
  * to interpret it.
  */
-int pkcs8_note_OID_enc(void *context, uint8_t *data, size_t *avail_datalen,
-		       uint8_t *tag)
+int lc_pkcs8_note_OID_enc(void *context, uint8_t *data, size_t *avail_datalen,
+			  uint8_t *tag)
 {
 	const struct pkcs8_generate_context *ctx = context;
 	const struct lc_pkcs8_message *pkcs8 = ctx->pkcs8;
@@ -65,7 +65,7 @@ int pkcs8_note_OID_enc(void *context, uint8_t *data, size_t *avail_datalen,
 
 	CKINT(lc_x509_sig_type_to_oid(privkey->sig_type, &oid));
 
-	CKINT(OID_to_data(oid, &oid_data, &oid_datalen));
+	CKINT(lc_OID_to_data(oid, &oid_data, &oid_datalen));
 	bin2print_debug(oid_data, oid_datalen, stdout,
 			"OID signed pkey algorithm");
 
@@ -80,8 +80,8 @@ out:
 	return ret;
 }
 
-int pkcs8_note_version_enc(void *context, uint8_t *data, size_t *avail_datalen,
-			   uint8_t *tag)
+int lc_pkcs8_note_version_enc(void *context, uint8_t *data,
+			      size_t *avail_datalen, uint8_t *tag)
 {
 	/*
 	 * This implementation only supports version 1 which according
@@ -104,8 +104,8 @@ out:
 	return ret;
 }
 
-int pkcs8_note_algo_enc(void *context, uint8_t *data, size_t *avail_datalen,
-			uint8_t *tag)
+int lc_pkcs8_note_algo_enc(void *context, uint8_t *data, size_t *avail_datalen,
+			   uint8_t *tag)
 {
 	(void)context;
 	(void)data;
@@ -118,8 +118,8 @@ int pkcs8_note_algo_enc(void *context, uint8_t *data, size_t *avail_datalen,
 /*
  * Obtain the private key data and parse it into the leancrypto key structure.
  */
-int pkcs8_note_key_enc(void *context, uint8_t *data, size_t *avail_datalen,
-		       uint8_t *tag)
+int lc_pkcs8_note_key_enc(void *context, uint8_t *data, size_t *avail_datalen,
+			  uint8_t *tag)
 {
 	const struct pkcs8_generate_context *ctx = context;
 	const struct lc_pkcs8_message *pkcs8 = ctx->pkcs8;
@@ -130,7 +130,7 @@ int pkcs8_note_key_enc(void *context, uint8_t *data, size_t *avail_datalen,
 
 	privkey_ctx.keys = pkcs8->privkey_ptr;
 
-	CKINT(privkey_key_encode(&privkey_ctx, data, avail_datalen));
+	CKINT(lc_privkey_key_encode(&privkey_ctx, data, avail_datalen));
 
 	printf_debug("Setting private key type %u\n", pkcs8->privkey.sig_type);
 
@@ -173,7 +173,8 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs8_encode,
 	ctx.pkcs8 = pkcs8;
 
 	/* Attempt to decode the signature */
-	CKINT(asn1_ber_encoder(&pkcs8_encoder, &ctx, data, avail_datalen));
+	CKINT(lc_asn1_ber_encoder(&lc_pkcs8_encoder, &ctx, data,
+				  avail_datalen));
 
 out:
 	return ret;

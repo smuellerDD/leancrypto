@@ -1,3 +1,12 @@
+################################################################################
+# Anchor to compile the leancrypto kernel support.
+#
+# When compiling leancrypto as a kernel module either in-tree or out-of-tree
+# use `obj-m`.
+#
+# When compiling leancrypto statically bound into the Linux kernel binary
+# from inside the Linux kernel tree, use `obj-y`.
+#
 obj-m		 		:= leancrypto.o
 
 # Kernel module framework

@@ -6,6 +6,6 @@
 -- https://www.rfc-editor.org/rfc/rfc5280#section-4
 
 BasicConstraints ::= SEQUENCE {
-        cA                      BOOLEAN DEFAULT ({ x509_basic_constraints_ca }),
-        pathLenConstraint       INTEGER OPTIONAL ({ x509_basic_constraints_pathlen })
+        cA                      BOOLEAN DEFAULT ({ lc_x509_basic_constraints_ca }),
+        pathLenConstraint       INTEGER OPTIONAL ({ lc_x509_basic_constraints_pathlen })
 }

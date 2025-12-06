@@ -1,0 +1,149 @@
+################################################################################
+# Automatically generate required files
+
+# Generic support files
+
+clean-files := $(obj)/lc_memory_support.h $(obj)/lc_hash.h
+
+$(obj)/posix_support.o: $(obj)/lc_memory_support.h
+
+target += lc_memory_support.h
+
+quiet_cmd_build_lc_memory_support = GEN     $@
+      cmd_build_lc_memory_support = awk -f $(src)/lc_memory_support.awk $< > $@
+$(obj)/lc_memory_support.h: $(src)/../internal/api/lc_memory_support.h.in FORCE
+	$(call if_changed,build_lc_memory_support)
+
+$(obj)/leancrypto_kernel.o: $(obj)/lc_hash.h $(obj)/lc_kyber_1024.h $(obj)/lc_kyber_768.h $(obj)/lc_kyber_512.h $(obj)/lc_dilithium_87.h $(obj)/lc_dilithium_65.h $(obj)/lc_dilithium_44.h $(obj)/lc_ascon_hash.h $(obj)/lc_bike_5.h $(obj)/lc_bike_3.h $(obj)/lc_bike_1.h $(obj)/lc_hqc_256.h $(obj)/lc_hqc_192.h $(obj)/lc_hqc_128.h $(obj)/lc_sphincs_shake_256s.h $(obj)/lc_sphincs_shake_256f.h $(obj)/lc_sphincs_shake_192s.h $(obj)/lc_sphincs_shake_192f.h $(obj)/lc_sphincs_shake_128s.h $(obj)/lc_sphincs_shake_128f.h
+
+target += lc_hash.h lc_kyber_1024.h lc_kyber_768.h lc_kyber_512.h lc_dilithium_87.h lc_dilithium_65.h lc_dilithium_44.h lc_ascon_hash.h lc_bike_5.h lc_bike_3.h lc_bike_1.h lc_hqc_256.h lc_hqc_192.h lc_hqc_128.h lc_sphincs_shake_256s.h lc_sphincs_shake_256f.h lc_sphincs_shake_192s.h lc_sphincs_shake_192f.h lc_sphincs_shake_128s.h lc_sphincs_shake_128f.h
+
+quiet_cmd_build_lc_hash = GEN     $@
+      cmd_build_lc_hash = awk -f $(src)/lc_hash.h.awk $< > $@
+$(obj)/lc_hash.h: $(src)/../hash/api/lc_hash.h.in FORCE
+	$(call if_changed,build_lc_hash)
+
+
+# Kyber
+
+clean-files += $(obj)/lc_kyber_1024.h $(obj)/lc_kyber_768.h $(obj)/lc_kyber_512.h
+
+quiet_cmd_build_lc_kyber_1024 = GEN     $@
+      cmd_build_lc_kyber_1024 = awk -f $(src)/lc_kyber_1024.h.awk $< > $@
+$(obj)/lc_kyber_1024.h: $(src)/../ml-kem/api/lc_kyber_size.h.in FORCE
+	$(call if_changed,build_lc_kyber_1024)
+
+quiet_cmd_build_lc_kyber_768 = GEN     $@
+      cmd_build_lc_kyber_768 = awk -f $(src)/lc_kyber_768.h.awk $< > $@
+$(obj)/lc_kyber_768.h: $(src)/../ml-kem/api/lc_kyber_size.h.in FORCE
+	$(call if_changed,build_lc_kyber_768)
+
+quiet_cmd_build_lc_kyber_512 = GEN     $@
+      cmd_build_lc_kyber_512 = awk -f $(src)/lc_kyber_512.h.awk $< > $@
+$(obj)/lc_kyber_512.h: $(src)/../ml-kem/api/lc_kyber_size.h.in FORCE
+	$(call if_changed,build_lc_kyber_512)
+
+
+# Dilithium
+
+clean-files += $(obj)/lc_dilithium_87.h $(obj)/lc_dilithium_65.h $(obj)/lc_dilithium_44.h
+
+quiet_cmd_build_lc_dilithium_87 = GEN     $@
+      cmd_build_lc_dilithium_87 = awk -f $(src)/lc_dilithium_87.h.awk $< > $@
+$(obj)/lc_dilithium_87.h: $(src)/../ml-dsa/api/lc_dilithium_size.h.in FORCE
+	$(call if_changed,build_lc_dilithium_87)
+
+quiet_cmd_build_lc_dilithium_65 = GEN     $@
+      cmd_build_lc_dilithium_65 = awk -f $(src)/lc_dilithium_65.h.awk $< > $@
+$(obj)/lc_dilithium_65.h: $(src)/../ml-dsa/api/lc_dilithium_size.h.in FORCE
+	$(call if_changed,build_lc_dilithium_65)
+
+quiet_cmd_build_lc_dilithium_44 = GEN     $@
+      cmd_build_lc_dilithium_44 = awk -f $(src)/lc_dilithium_44.h.awk $< > $@
+$(obj)/lc_dilithium_44.h: $(src)/../ml-dsa/api/lc_dilithium_size.h.in FORCE
+	$(call if_changed,build_lc_dilithium_44)
+
+
+# Ascon Hash
+
+clean-files += $(obj)/lc_ascon_hash.h
+
+quiet_cmd_build_lc_ascon_hash = GEN     $@
+      cmd_build_lc_ascon_hash = awk -f $(src)/lc_ascon_hash.awk $< > $@
+$(obj)/lc_ascon_hash.h: $(src)/../hash/api/lc_ascon_hash.h.in FORCE
+	$(call if_changed,build_lc_ascon_hash)
+
+
+# Bike
+
+clean-files += $(obj)/lc_bike_5.h $(obj)/lc_bike_3.h $(obj)/lc_bike_1.h
+
+quiet_cmd_build_lc_bike_5 = GEN     $@
+      cmd_build_lc_bike_5 = awk -f $(src)/lc_bike_5.h.awk $< > $@
+$(obj)/lc_bike_5.h: $(src)/../bike/api/lc_bike_size.h.in FORCE
+	$(call if_changed,build_lc_bike_5)
+
+quiet_cmd_build_lc_bike_3 = GEN     $@
+      cmd_build_lc_bike_3 = awk -f $(src)/lc_bike_3.h.awk $< > $@
+$(obj)/lc_bike_3.h: $(src)/../bike/api/lc_bike_size.h.in FORCE
+	$(call if_changed,build_lc_bike_3)
+
+quiet_cmd_build_lc_bike_1 = GEN     $@
+      cmd_build_lc_bike_1 = awk -f $(src)/lc_bike_1.h.awk $< > $@
+$(obj)/lc_bike_1.h: $(src)/../bike/api/lc_bike_size.h.in FORCE
+	$(call if_changed,build_lc_bike_1)
+
+
+# HQC
+
+clean-files += $(obj)/lc_hqc_256.h $(obj)/lc_hqc_192.h $(obj)/lc_hqc_128.h
+
+quiet_cmd_build_lc_hqc_256 = GEN     $@
+      cmd_build_lc_hqc_256 = awk -f $(src)/lc_hqc_256.h.awk $< > $@
+$(obj)/lc_hqc_256.h: $(src)/../hqc/api/lc_hqc_size.h.in FORCE
+	$(call if_changed,build_lc_hqc_256)
+
+quiet_cmd_build_lc_hqc_192 = GEN     $@
+      cmd_build_lc_hqc_192 = awk -f $(src)/lc_hqc_192.h.awk $< > $@
+$(obj)/lc_hqc_192.h: $(src)/../hqc/api/lc_hqc_size.h.in FORCE
+	$(call if_changed,build_lc_hqc_192)
+
+quiet_cmd_build_lc_hqc_128 = GEN     $@
+      cmd_build_lc_hqc_128 = awk -f $(src)/lc_hqc_128.h.awk $< > $@
+$(obj)/lc_hqc_128.h: $(src)/../hqc/api/lc_hqc_size.h.in FORCE
+	$(call if_changed,build_lc_hqc_128)
+
+
+# Sphincs+
+
+clean-files += $(obj)/lc_sphincs_shake_256s.h $(obj)/lc_sphincs_shake_256f.h $(obj)/lc_sphincs_shake_192s.h $(obj)/lc_sphincs_shake_192f.h $(obj)/lc_sphincs_shake_128s.h $(obj)/lc_sphincs_shake_128f.h
+
+quiet_cmd_build_lc_sphincs_shake_256s = GEN     $@
+      cmd_build_lc_sphincs_shake_256s = awk -f $(src)/lc_sphincs_shake_256s.h.awk $< > $@
+$(obj)/lc_sphincs_shake_256s.h: $(src)/../slh-dsa/api/lc_sphincs_size.h.in FORCE
+	$(call if_changed,build_lc_sphincs_shake_256s)
+
+quiet_cmd_build_lc_sphincs_shake_256f = GEN     $@
+      cmd_build_lc_sphincs_shake_256f = awk -f $(src)/lc_sphincs_shake_256f.h.awk $< > $@
+$(obj)/lc_sphincs_shake_256f.h: $(src)/../slh-dsa/api/lc_sphincs_size.h.in FORCE
+	$(call if_changed,build_lc_sphincs_shake_256f)
+
+quiet_cmd_build_lc_sphincs_shake_192s = GEN     $@
+      cmd_build_lc_sphincs_shake_192s = awk -f $(src)/lc_sphincs_shake_192s.h.awk $< > $@
+$(obj)/lc_sphincs_shake_192s.h: $(src)/../slh-dsa/api/lc_sphincs_size.h.in FORCE
+	$(call if_changed,build_lc_sphincs_shake_192s)
+
+quiet_cmd_build_lc_sphincs_shake_192f = GEN     $@
+      cmd_build_lc_sphincs_shake_192f = awk -f $(src)/lc_sphincs_shake_192f.h.awk $< > $@
+$(obj)/lc_sphincs_shake_192f.h: $(src)/../slh-dsa/api/lc_sphincs_size.h.in FORCE
+	$(call if_changed,build_lc_sphincs_shake_192f)
+
+quiet_cmd_build_lc_sphincs_shake_128s = GEN     $@
+      cmd_build_lc_sphincs_shake_128s = awk -f $(src)/lc_sphincs_shake_128s.h.awk $< > $@
+$(obj)/lc_sphincs_shake_128s.h: $(src)/../slh-dsa/api/lc_sphincs_size.h.in FORCE
+	$(call if_changed,build_lc_sphincs_shake_128s)
+
+quiet_cmd_build_lc_sphincs_shake_128f = GEN     $@
+      cmd_build_lc_sphincs_shake_128f = awk -f $(src)/lc_sphincs_shake_128f.h.awk $< > $@
+$(obj)/lc_sphincs_shake_128f.h: $(src)/../slh-dsa/api/lc_sphincs_size.h.in FORCE
+	$(call if_changed,build_lc_sphincs_shake_128f)

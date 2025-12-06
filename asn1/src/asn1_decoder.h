@@ -38,10 +38,11 @@
 extern "C" {
 #endif
 
-struct asn1_decoder;
+struct lc_asn1_decoder;
 
-extern int asn1_ber_decoder(const struct asn1_decoder *decoder, void *context,
-			    const uint8_t *data, size_t datalen);
+extern int lc_asn1_ber_decoder(const struct lc_asn1_decoder *decoder,
+			       void *context, const uint8_t *data,
+			       size_t datalen);
 
 #ifdef __cplusplus
 }

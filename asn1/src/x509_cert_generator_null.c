@@ -32,194 +32,195 @@
 	(void)tag;                                                             \
 	return -EOPNOTSUPP;
 
-int x509_eku_enc(void *context, uint8_t *data, size_t *avail_datalen,
-		 uint8_t *tag)
-{
-	X509_FUNC_UNDEF
-}
-
-int x509_basic_constraints_ca_enc(void *context, uint8_t *data,
-				  size_t *avail_datalen, uint8_t *tag)
-{
-	X509_FUNC_UNDEF
-}
-
-int x509_basic_constraints_pathlen_enc(void *context, uint8_t *data,
-				       size_t *avail_datalen, uint8_t *tag)
-{
-	X509_FUNC_UNDEF
-}
-
-int x509_san_OID_enc(void *context, uint8_t *data, size_t *avail_datalen,
-		     uint8_t *tag)
-{
-	X509_FUNC_UNDEF
-}
-
-int x509_extract_name_segment_enc(void *context, uint8_t *data,
-				  size_t *avail_datalen, uint8_t *tag)
-{
-	X509_FUNC_UNDEF
-}
-
-int x509_san_dns_enc(void *context, uint8_t *data, size_t *avail_datalen,
-		     uint8_t *tag)
-{
-	X509_FUNC_UNDEF
-}
-
-int x509_san_ip_enc(void *context, uint8_t *data, size_t *avail_datalen,
+int lc_x509_eku_enc(void *context, uint8_t *data, size_t *avail_datalen,
 		    uint8_t *tag)
 {
 	X509_FUNC_UNDEF
 }
 
-int x509_keyusage_enc(void *context, uint8_t *data, size_t *avail_datalen,
-		      uint8_t *tag)
-{
-	X509_FUNC_UNDEF
-}
-
-int x509_skid_enc(void *context, uint8_t *data, size_t *avail_datalen,
-		  uint8_t *tag)
-{
-	X509_FUNC_UNDEF
-}
-
-int x509_akid_note_kid_enc(void *context, uint8_t *data, size_t *avail_datalen,
-			   uint8_t *tag)
-{
-	X509_FUNC_UNDEF
-}
-
-int x509_akid_note_name_enc(void *context, uint8_t *data, size_t *avail_datalen,
-			    uint8_t *tag)
-{
-	X509_FUNC_UNDEF
-}
-
-int x509_akid_note_serial_enc(void *context, uint8_t *data,
-			      size_t *avail_datalen, uint8_t *tag)
-{
-	X509_FUNC_UNDEF
-}
-
-int x509_akid_note_OID_enc(void *context, uint8_t *data, size_t *avail_datalen,
-			   uint8_t *tag)
-{
-	X509_FUNC_UNDEF
-}
-
-int x509_extension_continue_enc(void *context, uint8_t *data,
-				size_t *avail_datalen, uint8_t *tag)
-{
-	X509_FUNC_UNDEF
-}
-
-int x509_extension_OID_enc(void *context, uint8_t *data, size_t *avail_datalen,
-			   uint8_t *tag)
-{
-	X509_FUNC_UNDEF
-}
-
-int x509_extension_critical_enc(void *context, uint8_t *data,
-				size_t *avail_datalen, uint8_t *tag)
-{
-	X509_FUNC_UNDEF
-}
-
-int x509_process_extension_enc(void *context, uint8_t *data,
-			       size_t *avail_datalen, uint8_t *tag)
-{
-	X509_FUNC_UNDEF
-}
-
-int x509_note_tbs_certificate_enc(void *context, uint8_t *data,
-				  size_t *avail_datalen, uint8_t *tag)
-{
-	X509_FUNC_UNDEF
-}
-
-int x509_signature_algorithm_enc(void *context, uint8_t *data,
-				 size_t *avail_datalen, uint8_t *tag)
-{
-	X509_FUNC_UNDEF
-}
-
-int x509_note_algorithm_OID_enc(void *context, uint8_t *data,
-				size_t *avail_datalen, uint8_t *tag)
-{
-	X509_FUNC_UNDEF
-}
-
-int x509_note_signature_enc(void *context, uint8_t *data, size_t *avail_datalen,
-			    uint8_t *tag)
-{
-	X509_FUNC_UNDEF
-}
-
-int x509_note_serial_enc(void *context, uint8_t *data, size_t *avail_datalen,
-			 uint8_t *tag)
-{
-	X509_FUNC_UNDEF
-}
-
-int x509_note_sig_algo_enc(void *context, uint8_t *data, size_t *avail_datalen,
-			   uint8_t *tag)
-{
-	X509_FUNC_UNDEF
-}
-
-int x509_note_issuer_enc(void *context, uint8_t *data, size_t *avail_datalen,
-			 uint8_t *tag)
-{
-	X509_FUNC_UNDEF
-}
-
-int x509_note_subject_enc(void *context, uint8_t *data, size_t *avail_datalen,
-			  uint8_t *tag)
-{
-	X509_FUNC_UNDEF
-}
-
-int x509_note_params_enc(void *context, uint8_t *data, size_t *avail_datalen,
-			 uint8_t *tag)
-{
-	X509_FUNC_UNDEF
-}
-
-int x509_extract_attribute_name_segment_enc(void *context, uint8_t *data,
-					    size_t *avail_datalen, uint8_t *tag)
-{
-	X509_FUNC_UNDEF
-}
-
-int x509_note_attribute_type_OID_enc(void *context, uint8_t *data,
+int lc_x509_basic_constraints_ca_enc(void *context, uint8_t *data,
 				     size_t *avail_datalen, uint8_t *tag)
 {
 	X509_FUNC_UNDEF
 }
 
-int x509_attribute_value_continue_enc(void *context, uint8_t *data,
-				      size_t *avail_datalen, uint8_t *tag)
+int lc_x509_basic_constraints_pathlen_enc(void *context, uint8_t *data,
+					  size_t *avail_datalen, uint8_t *tag)
 {
 	X509_FUNC_UNDEF
 }
 
-int x509_set_uct_time_enc(void *context, uint8_t *data, size_t *avail_datalen,
-			  uint8_t *tag)
+int lc_x509_san_OID_enc(void *context, uint8_t *data, size_t *avail_datalen,
+			uint8_t *tag)
 {
 	X509_FUNC_UNDEF
 }
 
-int x509_set_gen_time_enc(void *context, uint8_t *data, size_t *avail_datalen,
-			  uint8_t *tag)
+int lc_x509_extract_name_segment_enc(void *context, uint8_t *data,
+				     size_t *avail_datalen, uint8_t *tag)
 {
 	X509_FUNC_UNDEF
 }
 
-int x509_note_not_before_enc(void *context, uint8_t *data,
+int lc_x509_san_dns_enc(void *context, uint8_t *data, size_t *avail_datalen,
+			uint8_t *tag)
+{
+	X509_FUNC_UNDEF
+}
+
+int lc_x509_san_ip_enc(void *context, uint8_t *data, size_t *avail_datalen,
+		       uint8_t *tag)
+{
+	X509_FUNC_UNDEF
+}
+
+int lc_x509_keyusage_enc(void *context, uint8_t *data, size_t *avail_datalen,
+			 uint8_t *tag)
+{
+	X509_FUNC_UNDEF
+}
+
+int lc_x509_skid_enc(void *context, uint8_t *data, size_t *avail_datalen,
+		     uint8_t *tag)
+{
+	X509_FUNC_UNDEF
+}
+
+int lc_x509_akid_note_kid_enc(void *context, uint8_t *data,
+			      size_t *avail_datalen, uint8_t *tag)
+{
+	X509_FUNC_UNDEF
+}
+
+int lc_x509_akid_note_name_enc(void *context, uint8_t *data,
+			       size_t *avail_datalen, uint8_t *tag)
+{
+	X509_FUNC_UNDEF
+}
+
+int lc_x509_akid_note_serial_enc(void *context, uint8_t *data,
+				 size_t *avail_datalen, uint8_t *tag)
+{
+	X509_FUNC_UNDEF
+}
+
+int lc_x509_akid_note_OID_enc(void *context, uint8_t *data,
+			      size_t *avail_datalen, uint8_t *tag)
+{
+	X509_FUNC_UNDEF
+}
+
+int lc_x509_extension_continue_enc(void *context, uint8_t *data,
+				   size_t *avail_datalen, uint8_t *tag)
+{
+	X509_FUNC_UNDEF
+}
+
+int lc_x509_extension_OID_enc(void *context, uint8_t *data,
+			      size_t *avail_datalen, uint8_t *tag)
+{
+	X509_FUNC_UNDEF
+}
+
+int lc_x509_extension_critical_enc(void *context, uint8_t *data,
+				   size_t *avail_datalen, uint8_t *tag)
+{
+	X509_FUNC_UNDEF
+}
+
+int lc_x509_process_extension_enc(void *context, uint8_t *data,
+				  size_t *avail_datalen, uint8_t *tag)
+{
+	X509_FUNC_UNDEF
+}
+
+int lc_x509_note_tbs_certificate_enc(void *context, uint8_t *data,
+				     size_t *avail_datalen, uint8_t *tag)
+{
+	X509_FUNC_UNDEF
+}
+
+int lc_x509_signature_algorithm_enc(void *context, uint8_t *data,
+				    size_t *avail_datalen, uint8_t *tag)
+{
+	X509_FUNC_UNDEF
+}
+
+int lc_x509_note_algorithm_OID_enc(void *context, uint8_t *data,
+				   size_t *avail_datalen, uint8_t *tag)
+{
+	X509_FUNC_UNDEF
+}
+
+int lc_x509_note_signature_enc(void *context, uint8_t *data,
+			       size_t *avail_datalen, uint8_t *tag)
+{
+	X509_FUNC_UNDEF
+}
+
+int lc_x509_note_serial_enc(void *context, uint8_t *data, size_t *avail_datalen,
+			    uint8_t *tag)
+{
+	X509_FUNC_UNDEF
+}
+
+int lc_x509_note_sig_algo_enc(void *context, uint8_t *data,
+			      size_t *avail_datalen, uint8_t *tag)
+{
+	X509_FUNC_UNDEF
+}
+
+int lc_x509_note_issuer_enc(void *context, uint8_t *data, size_t *avail_datalen,
+			    uint8_t *tag)
+{
+	X509_FUNC_UNDEF
+}
+
+int lc_x509_note_subject_enc(void *context, uint8_t *data,
 			     size_t *avail_datalen, uint8_t *tag)
+{
+	X509_FUNC_UNDEF
+}
+
+int lc_x509_note_params_enc(void *context, uint8_t *data, size_t *avail_datalen,
+			    uint8_t *tag)
+{
+	X509_FUNC_UNDEF
+}
+
+int lc_x509_extract_attribute_name_segment_enc(void *context, uint8_t *data,
+					       size_t *avail_datalen,
+					       uint8_t *tag)
+{
+	X509_FUNC_UNDEF
+}
+
+int lc_x509_note_attribute_type_OID_enc(void *context, uint8_t *data,
+					size_t *avail_datalen, uint8_t *tag)
+{
+	X509_FUNC_UNDEF
+}
+
+int lc_x509_attribute_value_continue_enc(void *context, uint8_t *data,
+					 size_t *avail_datalen, uint8_t *tag)
+{
+	X509_FUNC_UNDEF
+}
+
+int lc_x509_set_uct_time_enc(void *context, uint8_t *data,
+			     size_t *avail_datalen, uint8_t *tag)
+{
+	X509_FUNC_UNDEF
+}
+
+int lc_x509_set_gen_time_enc(void *context, uint8_t *data,
+			     size_t *avail_datalen, uint8_t *tag)
+{
+	X509_FUNC_UNDEF
+}
+
+int lc_x509_note_not_before_enc(void *context, uint8_t *data,
+				size_t *avail_datalen, uint8_t *tag)
 {
 	X509_FUNC_UNDEF
 }
@@ -227,20 +228,20 @@ int x509_note_not_before_enc(void *context, uint8_t *data,
 /*
  * Process the time when the certificate becomes invalid
  */
-int x509_note_not_after_enc(void *context, uint8_t *data, size_t *avail_datalen,
-			    uint8_t *tag)
+int lc_x509_note_not_after_enc(void *context, uint8_t *data,
+			       size_t *avail_datalen, uint8_t *tag)
 {
 	X509_FUNC_UNDEF
 }
 
-int x509_extract_key_data_enc(void *context, uint8_t *data,
-			      size_t *avail_datalen, uint8_t *tag)
+int lc_x509_extract_key_data_enc(void *context, uint8_t *data,
+				 size_t *avail_datalen, uint8_t *tag)
 {
 	X509_FUNC_UNDEF
 }
 
-int x509_version_enc(void *context, uint8_t *data, size_t *avail_datalen,
-		     uint8_t *tag)
+int lc_x509_version_enc(void *context, uint8_t *data, size_t *avail_datalen,
+			uint8_t *tag)
 {
 	X509_FUNC_UNDEF
 }

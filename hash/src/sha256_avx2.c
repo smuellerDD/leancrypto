@@ -32,7 +32,7 @@ static void sha256_update_avx2(void *_state, const uint8_t *in, size_t inlen)
 	struct lc_sha256_state *ctx = _state;
 
 	LC_FPU_ENABLE;
-	sha256_update(ctx, in, inlen, sha256_block_data_order_avx2);
+	lc_sha256_update(ctx, in, inlen, sha256_block_data_order_avx2);
 	LC_FPU_DISABLE;
 }
 
@@ -41,17 +41,17 @@ static void sha256_final_avx2(void *_state, uint8_t *digest)
 	struct lc_sha256_state *ctx = _state;
 
 	LC_FPU_ENABLE;
-	sha256_final(ctx, digest, sha256_block_data_order_avx2);
+	lc_sha256_final(ctx, digest, sha256_block_data_order_avx2);
 	LC_FPU_DISABLE;
 }
 
 static const struct lc_hash _sha256_avx2 = {
-	.init = sha256_init,
-	.init_nocheck = sha256_init_nocheck,
+	.init = lc_sha256_init,
+	.init_nocheck = lc_sha256_init_nocheck,
 	.update = sha256_update_avx2,
 	.final = sha256_final_avx2,
 	.set_digestsize = NULL,
-	.get_digestsize = sha256_get_digestsize,
+	.get_digestsize = lc_sha256_get_digestsize,
 	.sponge_permutation = NULL,
 	.sponge_add_bytes = NULL,
 	.sponge_extract_bytes = NULL,

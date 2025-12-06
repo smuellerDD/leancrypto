@@ -10,28 +10,28 @@
 // clang-format off
 
 enum x509_akid_actions {
-	ACT_x509_akid_note_OID = 0,
-	ACT_x509_akid_note_kid = 1,
-	ACT_x509_akid_note_name = 2,
-	ACT_x509_akid_note_serial = 3,
-	ACT_x509_extract_name_segment = 4,
+	ACT_lc_x509_akid_note_OID = 0,
+	ACT_lc_x509_akid_note_kid = 1,
+	ACT_lc_x509_akid_note_name = 2,
+	ACT_lc_x509_akid_note_serial = 3,
+	ACT_lc_x509_extract_name_segment = 4,
 	NR__x509_akid_actions = 5
 };
 
 static const asn1_action_t x509_akid_action_table[NR__x509_akid_actions] = {
-	[   0] = x509_akid_note_OID,
-	[   1] = x509_akid_note_kid,
-	[   2] = x509_akid_note_name,
-	[   3] = x509_akid_note_serial,
-	[   4] = x509_extract_name_segment,
+	[   0] = lc_x509_akid_note_OID,
+	[   1] = lc_x509_akid_note_kid,
+	[   2] = lc_x509_akid_note_name,
+	[   3] = lc_x509_akid_note_serial,
+	[   4] = lc_x509_extract_name_segment,
 };
 
 static const asn1_action_enc_t x509_akid_action_table_enc[NR__x509_akid_actions] = {
-	[   0] = x509_akid_note_OID_enc,
-	[   1] = x509_akid_note_kid_enc,
-	[   2] = x509_akid_note_name_enc,
-	[   3] = x509_akid_note_serial_enc,
-	[   4] = x509_extract_name_segment_enc,
+	[   0] = lc_x509_akid_note_OID_enc,
+	[   1] = lc_x509_akid_note_kid_enc,
+	[   2] = lc_x509_akid_note_name_enc,
+	[   3] = lc_x509_akid_note_serial_enc,
+	[   4] = lc_x509_extract_name_segment_enc,
 };
 
 static const unsigned char x509_akid_machine[] = {
@@ -41,7 +41,7 @@ static const unsigned char x509_akid_machine[] = {
 	// KeyIdentifier
 	[   2] =  ASN1_OP_MATCH_ACT_OR_SKIP,		// keyIdentifier
 	[   3] =  _tagn(CONT, PRIM,  0),
-	[   4] =  _action(ACT_x509_akid_note_kid),
+	[   4] =  _action(ACT_lc_x509_akid_note_kid),
 	// GeneralNames
 	[   5] =  ASN1_OP_MATCH_JUMP_OR_SKIP,		// authorityCertIssuer
 	[   6] =  _tagn(CONT, CONS,  1),
@@ -49,7 +49,7 @@ static const unsigned char x509_akid_machine[] = {
 	// CertificateSerialNumber
 	[   8] =  ASN1_OP_MATCH_ACT_OR_SKIP,		// authorityCertSerialNumber
 	[   9] =  _tagn(CONT, PRIM,  2),
-	[  10] =  _action(ACT_x509_akid_note_serial),
+	[  10] =  _action(ACT_lc_x509_akid_note_serial),
 	[  11] = ASN1_OP_END_SEQ,
 	[  12] = ASN1_OP_COMPLETE,
 
@@ -107,16 +107,16 @@ static const unsigned char x509_akid_machine[] = {
 	[  55] =    _tag(UNIV, CONS, SEQ),
 	[  56] =     ASN1_OP_MATCH_ACT,		// attributeType
 	[  57] =     _tag(UNIV, PRIM, OID),
-	[  58] =     _action(ACT_x509_akid_note_OID),
+	[  58] =     _action(ACT_lc_x509_akid_note_OID),
 	[  59] =     ASN1_OP_MATCH_ANY_ACT,		// attributeValue
-	[  60] =     _action(ACT_x509_extract_name_segment),
+	[  60] =     _action(ACT_lc_x509_extract_name_segment),
 	[  61] =    ASN1_OP_END_SEQ,
 	[  62] =   ASN1_OP_END_SET_OF,
 	[  63] =   _jump_target(54),
 	[  64] =  ASN1_OP_END_SEQ_OF,
 	[  65] =  _jump_target(52),
 	[  66] =  ASN1_OP_ACT,
-	[  67] =  _action(ACT_x509_akid_note_name),
+	[  67] =  _action(ACT_lc_x509_akid_note_name),
 	[  68] = ASN1_OP_END_SEQ,
 	[  69] = ASN1_OP_RETURN,
 
@@ -135,13 +135,13 @@ static const unsigned char x509_akid_machine[] = {
 	[  81] = ASN1_OP_RETURN,
 };
 
-const struct asn1_decoder x509_akid_decoder = {
+const struct lc_asn1_decoder lc_x509_akid_decoder = {
 	.machine = x509_akid_machine,
 	.machlen = sizeof(x509_akid_machine),
 	.actions = x509_akid_action_table,
 };
 
-const struct asn1_encoder x509_akid_encoder = {
+const struct lc_asn1_encoder lc_x509_akid_encoder = {
 	.machine = x509_akid_machine,
 	.machlen = sizeof(x509_akid_machine),
 	.actions = x509_akid_action_table_enc,

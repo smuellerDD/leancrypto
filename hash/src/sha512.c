@@ -85,7 +85,7 @@ static void sha512_selftest(const struct lc_hash *sha512, const char *impl)
 			    LC_SHA512_SIZE_DIGEST, impl);
 }
 
-int sha384_init_nocheck(void *_state)
+int lc_sha384_init_nocheck(void *_state)
 {
 	struct lc_sha512_state *ctx = _state;
 
@@ -106,15 +106,15 @@ int sha384_init_nocheck(void *_state)
 	return 0;
 }
 
-int sha384_init(void *_state)
+int lc_sha384_init(void *_state)
 {
 	sha512_selftest(lc_sha512, "SHA-384");
 	LC_SELFTEST_COMPLETED(lc_sha512_c->algorithm_type);
 
-	return sha384_init_nocheck(_state);
+	return lc_sha384_init_nocheck(_state);
 }
 
-int sha512_init_nocheck(void *_state)
+int lc_sha512_init_nocheck(void *_state)
 {
 	struct lc_sha512_state *ctx = _state;
 
@@ -135,12 +135,12 @@ int sha512_init_nocheck(void *_state)
 	return 0;
 }
 
-int sha512_init(void *_state)
+int lc_sha512_init(void *_state)
 {
 	sha512_selftest(lc_sha512, "SHA-512");
 	LC_SELFTEST_COMPLETED(lc_sha512_c->algorithm_type);
 
-	return sha512_init_nocheck(_state);
+	return lc_sha512_init_nocheck(_state);
 }
 
 static inline uint64_t ror(uint64_t x, int n)
@@ -216,10 +216,10 @@ static inline void sha512_transform_block_c(struct lc_sha512_state *ctx,
 		sha512_transform(ctx, in);
 }
 
-void sha512_update(struct lc_sha512_state *ctx, const uint8_t *in, size_t inlen,
-		   void (*sha512_transform_block)(struct lc_sha512_state *ctx,
-						  const uint8_t *in,
-						  size_t blocks))
+void lc_sha512_update(
+	struct lc_sha512_state *ctx, const uint8_t *in, size_t inlen,
+	void (*sha512_transform_block)(struct lc_sha512_state *ctx,
+				       const uint8_t *in, size_t blocks))
 {
 	size_t blocks;
 	unsigned int partial;
@@ -273,10 +273,10 @@ static void sha512_update_c(void *_state, const uint8_t *in, size_t inlen)
 {
 	struct lc_sha512_state *ctx = _state;
 
-	sha512_update(ctx, in, inlen, sha512_transform_block_c);
+	lc_sha512_update(ctx, in, inlen, sha512_transform_block_c);
 }
 
-static void sha512_final_interna(
+static void sha512_final_internal(
 	struct lc_sha512_state *ctx,
 	void (*sha512_transform_block)(struct lc_sha512_state *ctx,
 				       const uint8_t *in, size_t blocks))
@@ -320,34 +320,34 @@ static void sha512_final_interna(
 	lc_memset_secure(ctx->partial, 0, LC_SHA512_SIZE_BLOCK);
 }
 
-void sha512_final(struct lc_sha512_state *ctx, uint8_t *digest,
-		  void (*sha512_transform_block)(struct lc_sha512_state *ctx,
-						 const uint8_t *in,
-						 size_t blocks))
+void lc_sha512_final(struct lc_sha512_state *ctx, uint8_t *digest,
+		     void (*sha512_transform_block)(struct lc_sha512_state *ctx,
+						    const uint8_t *in,
+						    size_t blocks))
 {
 	unsigned int i;
 
 	if (!digest)
 		return;
 
-	sha512_final_interna(ctx, sha512_transform_block);
+	sha512_final_internal(ctx, sha512_transform_block);
 
 	/* Output digest */
 	for (i = 0; i < 8; i++, digest += 8)
 		be64_to_ptr(digest, ctx->H[i]);
 }
 
-void sha384_final(struct lc_sha512_state *ctx, uint8_t *digest,
-		  void (*sha512_transform_block)(struct lc_sha512_state *ctx,
-						 const uint8_t *in,
-						 size_t blocks))
+void lc_sha384_final(struct lc_sha512_state *ctx, uint8_t *digest,
+		     void (*sha512_transform_block)(struct lc_sha512_state *ctx,
+						    const uint8_t *in,
+						    size_t blocks))
 {
 	unsigned int i;
 
 	if (!digest)
 		return;
 
-	sha512_final_interna(ctx, sha512_transform_block);
+	sha512_final_internal(ctx, sha512_transform_block);
 
 	/* Output digest */
 	for (i = 0; i < 6; i++, digest += 8)
@@ -358,45 +358,45 @@ static void sha384_final_c(void *_state, uint8_t *digest)
 {
 	struct lc_sha512_state *ctx = _state;
 
-	sha384_final(ctx, digest, sha512_transform_block_c);
+	lc_sha384_final(ctx, digest, sha512_transform_block_c);
 }
 
 static void sha512_final_c(void *_state, uint8_t *digest)
 {
 	struct lc_sha512_state *ctx = _state;
 
-	sha512_final(ctx, digest, sha512_transform_block_c);
+	lc_sha512_final(ctx, digest, sha512_transform_block_c);
 }
 
-void sha512_extract_bytes(const void *state, uint8_t *data, size_t offset,
-			  size_t length)
+void lc_sha512_extract_bytes(const void *state, uint8_t *data, size_t offset,
+			     size_t length)
 {
 	sponge_extract_bytes(state, data, offset, length, LC_SHA512_STATE_WORDS,
 			     be_bswap64, be_bswap32, be64_to_ptr, be32_to_ptr);
 }
 
-size_t sha384_get_digestsize(void *_state)
+size_t lc_sha384_get_digestsize(void *_state)
 {
 	(void)_state;
 	return LC_SHA384_SIZE_DIGEST;
 }
 
-size_t sha512_get_digestsize(void *_state)
+size_t lc_sha512_get_digestsize(void *_state)
 {
 	(void)_state;
 	return LC_SHA512_SIZE_DIGEST;
 }
 
 static const struct lc_hash _sha384_c = {
-	.init = sha384_init,
-	.init_nocheck = sha384_init_nocheck,
+	.init = lc_sha384_init,
+	.init_nocheck = lc_sha384_init_nocheck,
 	.update = sha512_update_c,
 	.final = sha384_final_c,
 	.set_digestsize = NULL,
-	.get_digestsize = sha384_get_digestsize,
+	.get_digestsize = lc_sha384_get_digestsize,
 	.sponge_permutation = NULL,
 	.sponge_add_bytes = NULL,
-	.sponge_extract_bytes = sha512_extract_bytes,
+	.sponge_extract_bytes = lc_sha512_extract_bytes,
 	.sponge_newstate = NULL,
 	.sponge_rate = LC_SHA384_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha512_state),
@@ -406,15 +406,15 @@ static const struct lc_hash _sha384_c = {
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha384_c) = &_sha384_c;
 
 static const struct lc_hash _sha512_c = {
-	.init = sha512_init,
-	.init_nocheck = sha512_init_nocheck,
+	.init = lc_sha512_init,
+	.init_nocheck = lc_sha512_init_nocheck,
 	.update = sha512_update_c,
 	.final = sha512_final_c,
 	.set_digestsize = NULL,
-	.get_digestsize = sha512_get_digestsize,
+	.get_digestsize = lc_sha512_get_digestsize,
 	.sponge_permutation = NULL,
 	.sponge_add_bytes = NULL,
-	.sponge_extract_bytes = sha512_extract_bytes,
+	.sponge_extract_bytes = lc_sha512_extract_bytes,
 	.sponge_newstate = NULL,
 	.sponge_rate = LC_SHA512_SIZE_BLOCK,
 	.statesize = sizeof(struct lc_sha512_state),

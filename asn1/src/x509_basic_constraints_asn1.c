@@ -10,19 +10,19 @@
 // clang-format off
 
 enum x509_basic_constraints_actions {
-	ACT_x509_basic_constraints_ca = 0,
-	ACT_x509_basic_constraints_pathlen = 1,
+	ACT_lc_x509_basic_constraints_ca = 0,
+	ACT_lc_x509_basic_constraints_pathlen = 1,
 	NR__x509_basic_constraints_actions = 2
 };
 
 static const asn1_action_t x509_basic_constraints_action_table[NR__x509_basic_constraints_actions] = {
-	[   0] = x509_basic_constraints_ca,
-	[   1] = x509_basic_constraints_pathlen,
+	[   0] = lc_x509_basic_constraints_ca,
+	[   1] = lc_x509_basic_constraints_pathlen,
 };
 
 static const asn1_action_enc_t x509_basic_constraints_action_table_enc[NR__x509_basic_constraints_actions] = {
-	[   0] = x509_basic_constraints_ca_enc,
-	[   1] = x509_basic_constraints_pathlen_enc,
+	[   0] = lc_x509_basic_constraints_ca_enc,
+	[   1] = lc_x509_basic_constraints_pathlen_enc,
 };
 
 static const unsigned char x509_basic_constraints_machine[] = {
@@ -31,21 +31,21 @@ static const unsigned char x509_basic_constraints_machine[] = {
 	[   1] = _tag(UNIV, CONS, SEQ),
 	[   2] =  ASN1_OP_MATCH_ACT_OR_SKIP,		// cA
 	[   3] =  _tag(UNIV, PRIM, BOOL),
-	[   4] =  _action(ACT_x509_basic_constraints_ca),
+	[   4] =  _action(ACT_lc_x509_basic_constraints_ca),
 	[   5] =  ASN1_OP_MATCH_ACT_OR_SKIP,		// pathLenConstraint
 	[   6] =  _tag(UNIV, PRIM, INT),
-	[   7] =  _action(ACT_x509_basic_constraints_pathlen),
+	[   7] =  _action(ACT_lc_x509_basic_constraints_pathlen),
 	[   8] = ASN1_OP_END_SEQ,
 	[   9] = ASN1_OP_COMPLETE,
 };
 
-const struct asn1_decoder x509_basic_constraints_decoder = {
+const struct lc_asn1_decoder lc_x509_basic_constraints_decoder = {
 	.machine = x509_basic_constraints_machine,
 	.machlen = sizeof(x509_basic_constraints_machine),
 	.actions = x509_basic_constraints_action_table,
 };
 
-const struct asn1_encoder x509_basic_constraints_encoder = {
+const struct lc_asn1_encoder lc_x509_basic_constraints_encoder = {
 	.machine = x509_basic_constraints_machine,
 	.machlen = sizeof(x509_basic_constraints_machine),
 	.actions = x509_basic_constraints_action_table_enc,

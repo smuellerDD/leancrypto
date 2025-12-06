@@ -10,25 +10,25 @@
 // clang-format off
 
 enum x509_san_actions {
-	ACT_x509_extract_name_segment = 0,
-	ACT_x509_san_OID = 1,
-	ACT_x509_san_dns = 2,
-	ACT_x509_san_ip = 3,
+	ACT_lc_x509_extract_name_segment = 0,
+	ACT_lc_x509_san_OID = 1,
+	ACT_lc_x509_san_dns = 2,
+	ACT_lc_x509_san_ip = 3,
 	NR__x509_san_actions = 4
 };
 
 static const asn1_action_t x509_san_action_table[NR__x509_san_actions] = {
-	[   0] = x509_extract_name_segment,
-	[   1] = x509_san_OID,
-	[   2] = x509_san_dns,
-	[   3] = x509_san_ip,
+	[   0] = lc_x509_extract_name_segment,
+	[   1] = lc_x509_san_OID,
+	[   2] = lc_x509_san_dns,
+	[   3] = lc_x509_san_ip,
 };
 
 static const asn1_action_enc_t x509_san_action_table_enc[NR__x509_san_actions] = {
-	[   0] = x509_extract_name_segment_enc,
-	[   1] = x509_san_OID_enc,
-	[   2] = x509_san_dns_enc,
-	[   3] = x509_san_ip_enc,
+	[   0] = lc_x509_extract_name_segment_enc,
+	[   1] = lc_x509_san_OID_enc,
+	[   2] = lc_x509_san_dns_enc,
+	[   3] = lc_x509_san_ip_enc,
 };
 
 static const unsigned char x509_san_machine[] = {
@@ -45,7 +45,7 @@ static const unsigned char x509_san_machine[] = {
 	[   6] =  _tagn(CONT, PRIM,  1),
 	[   7] =  ASN1_OP_COND_MATCH_ACT_OR_SKIP,		// dNSName
 	[   8] =  _tagn(CONT, PRIM,  2),
-	[   9] =  _action(ACT_x509_san_dns),
+	[   9] =  _action(ACT_lc_x509_san_dns),
 	[  10] =  ASN1_OP_COND_MATCH_JUMP_OR_SKIP,		// x400Address
 	[  11] =  _tagn(CONT, CONS,  3),
 	[  12] =  _jump_target(38),
@@ -60,7 +60,7 @@ static const unsigned char x509_san_machine[] = {
 	[  20] =  _tagn(CONT, PRIM,  6),
 	[  21] =  ASN1_OP_COND_MATCH_ACT_OR_SKIP,		// iPAddress
 	[  22] =  _tagn(CONT, PRIM,  7),
-	[  23] =  _action(ACT_x509_san_ip),
+	[  23] =  _action(ACT_lc_x509_san_ip),
 	[  24] =  ASN1_OP_COND_MATCH_OR_SKIP,		// registeredID
 	[  25] =  _tagn(CONT, PRIM,  8),
 	[  26] =  ASN1_OP_COND_FAIL,
@@ -92,9 +92,9 @@ static const unsigned char x509_san_machine[] = {
 	[  46] =    _tag(UNIV, CONS, SEQ),
 	[  47] =     ASN1_OP_MATCH_ACT,		// attributeType
 	[  48] =     _tag(UNIV, PRIM, OID),
-	[  49] =     _action(ACT_x509_san_OID),
+	[  49] =     _action(ACT_lc_x509_san_OID),
 	[  50] =     ASN1_OP_MATCH_ANY_ACT,		// attributeValue
-	[  51] =     _action(ACT_x509_extract_name_segment),
+	[  51] =     _action(ACT_lc_x509_extract_name_segment),
 	[  52] =    ASN1_OP_END_SEQ,
 	[  53] =   ASN1_OP_END_SET_OF,
 	[  54] =   _jump_target(45),
@@ -118,13 +118,13 @@ static const unsigned char x509_san_machine[] = {
 	[  70] = ASN1_OP_RETURN,
 };
 
-const struct asn1_decoder x509_san_decoder = {
+const struct lc_asn1_decoder lc_x509_san_decoder = {
 	.machine = x509_san_machine,
 	.machlen = sizeof(x509_san_machine),
 	.actions = x509_san_action_table,
 };
 
-const struct asn1_encoder x509_san_encoder = {
+const struct lc_asn1_encoder lc_x509_san_encoder = {
 	.machine = x509_san_machine,
 	.machlen = sizeof(x509_san_machine),
 	.actions = x509_san_action_table_enc,

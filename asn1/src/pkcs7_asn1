@@ -6,20 +6,20 @@
 -- https://www.rfc-editor.org/rfc/rfc5652#section-3
 
 PKCS7ContentInfo ::= SEQUENCE {
-	contentType	ContentType ({ pkcs7_check_content_type }),
+	contentType	ContentType ({ lc_pkcs7_check_content_type }),
 	content		[0] EXPLICIT SignedData OPTIONAL
 }
 
-ContentType ::= OBJECT IDENTIFIER ({ pkcs7_check_content_type_OID })
+ContentType ::= OBJECT IDENTIFIER ({ lc_pkcs7_check_content_type_OID })
 
 SignedData ::= SEQUENCE {
-	version			INTEGER ({ pkcs7_note_signeddata_version }),
+	version			INTEGER ({ lc_pkcs7_note_signeddata_version }),
 	digestAlgorithms	DigestAlgorithmIdentifiers,
-	contentInfo		ContentInfo ({ pkcs7_note_content }),
+	contentInfo		ContentInfo ({ lc_pkcs7_note_content }),
 	certificates		CHOICE {
 		certSet		[0] IMPLICIT ExtendedCertificatesAndCertificates,
 		certSequence	[2] IMPLICIT Certificates
-	} OPTIONAL ({ pkcs7_note_certificate_list }),
+	} OPTIONAL ({ lc_pkcs7_note_certificate_list }),
 	crls CHOICE {
 		crlSet		[1] IMPLICIT CertificateRevocationLists,
 		crlSequence	[3] IMPLICIT CRLSequence
@@ -32,9 +32,9 @@ ContentInfo ::= SEQUENCE {
 	content		[0] EXPLICIT Data OPTIONAL
 }
 
-ContentTypeData ::= OBJECT IDENTIFIER ({ pkcs7_data_OID })
+ContentTypeData ::= OBJECT IDENTIFIER ({ lc_pkcs7_data_OID })
 
-Data ::= ANY ({ pkcs7_note_data })
+Data ::= ANY ({ lc_pkcs7_note_data })
 
 DigestAlgorithmIdentifiers ::= CHOICE {
 	daSet			SET OF DigestAlgorithmIdentifier,
@@ -42,20 +42,20 @@ DigestAlgorithmIdentifiers ::= CHOICE {
 }
 
 DigestAlgorithmIdentifier ::= SEQUENCE {
-	algorithm   OBJECT IDENTIFIER ({ pkcs7_digest_algorithm_OID }),
+	algorithm   OBJECT IDENTIFIER ({ lc_pkcs7_digest_algorithm_OID }),
 	parameters  ANY OPTIONAL
 }
 
 --
 -- Certificates and certificate lists
 --
-ExtendedCertificatesAndCertificates ::= SET OF ExtendedCertificateOrCertificate ({ pkcs7_extract_cert_continue })
+ExtendedCertificatesAndCertificates ::= SET OF ExtendedCertificateOrCertificate ({ lc_pkcs7_extract_cert_continue })
 
 ExtendedCertificateOrCertificate ::= CHOICE {
   certificate		ExtCertificate
 }
 
-Certificates ::= SEQUENCE OF Certificate ({ pkcs7_extract_cert_continue })
+Certificates ::= SEQUENCE OF Certificate ({ lc_pkcs7_extract_cert_continue })
 
 CertificateRevocationLists ::= SET OF CertificateList
 
@@ -64,11 +64,11 @@ CertificateList ::= SEQUENCE OF CRLCertificate
 
 CRLSequence ::= SEQUENCE OF CertificateList
 
-ExtCertificate ::= ANY ({ pkcs7_extract_extended_cert })
+ExtCertificate ::= ANY ({ lc_pkcs7_extract_extended_cert })
 
-Certificate ::= ANY ({ pkcs7_extract_cert }) -- X.509
+Certificate ::= ANY ({ lc_pkcs7_extract_cert }) -- X.509
 
-CRLCertificate ::= ANY ({ pkcs7_extract_crl_cert }) -- X.509
+CRLCertificate ::= ANY ({ lc_pkcs7_extract_crl_cert }) -- X.509
 
 --
 -- Signer information
@@ -79,25 +79,25 @@ SignerInfos ::= CHOICE {
 }
 
 SignerInfo ::= SEQUENCE {
-	version			INTEGER ({ pkcs7_note_signerinfo_version }),
+	version			INTEGER ({ lc_pkcs7_note_signerinfo_version }),
 	sid			SignerIdentifier, -- CMS variant, not PKCS#7
-	digestAlgorithm		DigestAlgorithmIdentifier ({ pkcs7_sig_note_digest_algo }),
+	digestAlgorithm		DigestAlgorithmIdentifier ({ lc_pkcs7_sig_note_digest_algo }),
 	authenticatedAttributes	CHOICE {
 		aaSet		[0] IMPLICIT SetOfAuthenticatedAttribute
-					({ pkcs7_sig_note_set_of_authattrs }),
+					({ lc_pkcs7_sig_note_set_of_authattrs }),
 		aaSequence	[2] EXPLICIT SEQUENCE OF AuthenticatedAttribute
 			-- Explicit because easier to compute digest on
 			-- sequence of attributes and then reuse encoded
 			-- sequence in aaSequence.
 	} OPTIONAL,
 	digestEncryptionAlgorithm
-				DigestEncryptionAlgorithmIdentifier ({ pkcs7_sig_note_pkey_algo }),
+				DigestEncryptionAlgorithmIdentifier ({ lc_pkcs7_sig_note_pkey_algo }),
 	encryptedDigest		EncryptedDigest,
 	unauthenticatedAttributes CHOICE {
 		uaSet		[1] IMPLICIT SET OF UnauthenticatedAttribute,
 		uaSequence	[3] IMPLICIT SEQUENCE OF UnauthenticatedAttribute
 	} OPTIONAL
-} ({ pkcs7_note_signed_info })
+} ({ lc_pkcs7_note_signed_info })
 
 SignerIdentifier ::= CHOICE {
 	-- RFC5652 sec 5.3
@@ -106,19 +106,19 @@ SignerIdentifier ::= CHOICE {
 }
 
 IssuerAndSerialNumber ::= SEQUENCE {
-	issuer			Name ({ pkcs7_sig_note_issuer }),
-	serialNumber		CertificateSerialNumber ({ pkcs7_sig_note_serial })
+	issuer			Name ({ lc_pkcs7_sig_note_issuer }),
+	serialNumber		CertificateSerialNumber ({ lc_pkcs7_sig_note_serial })
 }
 
 CertificateSerialNumber ::= INTEGER
 
-SubjectKeyIdentifier ::= OCTET STRING ({ pkcs7_sig_note_skid })
+SubjectKeyIdentifier ::= OCTET STRING ({ lc_pkcs7_sig_note_skid })
 
 SetOfAuthenticatedAttribute ::= SET OF AuthenticatedAttribute
 
 AuthenticatedAttribute ::= SEQUENCE {
-	type			OBJECT IDENTIFIER ({ pkcs7_authenticated_attr_OID }),
-	values			SET OF ANY ({ pkcs7_sig_note_authenticated_attr })
+	type			OBJECT IDENTIFIER ({ lc_pkcs7_authenticated_attr_OID }),
+	values			SET OF ANY ({ lc_pkcs7_sig_note_authenticated_attr })
 }
 
 UnauthenticatedAttribute ::= SEQUENCE {
@@ -127,11 +127,11 @@ UnauthenticatedAttribute ::= SEQUENCE {
 }
 
 DigestEncryptionAlgorithmIdentifier ::= SEQUENCE {
-	algorithm		OBJECT IDENTIFIER ({ pkcs7_sig_note_pkey_algo_OID }),
+	algorithm		OBJECT IDENTIFIER ({ lc_pkcs7_sig_note_pkey_algo_OID }),
 	parameters		ANY OPTIONAL
 }
 
-EncryptedDigest ::= OCTET STRING ({ pkcs7_sig_note_signature })
+EncryptedDigest ::= OCTET STRING ({ lc_pkcs7_sig_note_signature })
 
 ---
 --- X.500 Name
@@ -141,6 +141,6 @@ Name ::= SEQUENCE OF RelativeDistinguishedName
 RelativeDistinguishedName ::= SET OF AttributeValueAssertion
 
 AttributeValueAssertion ::= SEQUENCE {
-	attributeType		OBJECT IDENTIFIER ({ pkcs7_note_attribute_type_OID }),
-	attributeValue		ANY ({ pkcs7_extract_attribute_name_segment })
-} ({ pkcs7_attribute_value_continue })
+	attributeType		OBJECT IDENTIFIER ({ lc_pkcs7_note_attribute_type_OID }),
+	attributeValue		ANY ({ lc_pkcs7_extract_attribute_name_segment })
+} ({ lc_pkcs7_attribute_value_continue })

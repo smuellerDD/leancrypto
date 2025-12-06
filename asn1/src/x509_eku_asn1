@@ -7,4 +7,4 @@
 
 ExtKeyUsageSyntax ::= SEQUENCE OF KeyPurposeId
 
-KeyPurposeId ::= OBJECT IDENTIFIER ({ x509_eku })
+KeyPurposeId ::= OBJECT IDENTIFIER ({ lc_x509_eku })

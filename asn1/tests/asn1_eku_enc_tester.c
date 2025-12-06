@@ -62,8 +62,8 @@ static int x509_gen_cert_eku(struct x509_checker_options *opts)
 
 	printf("In-EKU: %u\n", gcert->pub.key_eku);
 	ws->gctx.cert = gcert;
-	CKINT(asn1_ber_encoder(&x509_eku_encoder, &ws->gctx, ws->data,
-			       &avail_datalen));
+	CKINT(lc_asn1_ber_encoder(&lc_x509_eku_encoder, &ws->gctx, ws->data,
+				  &avail_datalen));
 	datalen = DATASIZE - avail_datalen;
 
 	/* 300a06082b06010505070301 */
@@ -71,8 +71,8 @@ static int x509_gen_cert_eku(struct x509_checker_options *opts)
 
 	/* Decode the just encoded data into new output structure */
 	ws->pctx.cert = &ws->pcert;
-	CKINT(asn1_ber_decoder(&x509_eku_decoder, &ws->pctx, ws->data,
-			       datalen));
+	CKINT(lc_asn1_ber_decoder(&lc_x509_eku_decoder, &ws->pctx, ws->data,
+				  datalen));
 
 	/*
 	 * Remove the present flag for the comparison as this is artificially

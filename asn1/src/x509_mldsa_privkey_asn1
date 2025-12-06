@@ -7,12 +7,12 @@
 --
 
 PrivateKey ::= CHOICE {
-	seed [0] OCTET STRING ({ x509_mldsa_private_key_seed }),
-	expandedKey OCTET STRING ({ x509_mldsa_private_key_expanded }),
+	seed [0] OCTET STRING ({ lc_x509_mldsa_private_key_seed }),
+	expandedKey OCTET STRING ({ lc_x509_mldsa_private_key_expanded }),
 	both Both
 }
 
 Both ::= SEQUENCE {
-	seed OCTET STRING ({ x509_mldsa_private_key_seed }),
-	expandedKey OCTET STRING ({ x509_mldsa_private_key_expanded })
+	seed OCTET STRING ({ lc_x509_mldsa_private_key_seed }),
+	expandedKey OCTET STRING ({ lc_x509_mldsa_private_key_expanded })
 }

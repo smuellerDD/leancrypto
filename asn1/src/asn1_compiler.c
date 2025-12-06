@@ -1356,9 +1356,9 @@ static void render(FILE *out, FILE *hdr)
 	fprintf(hdr, "\n");
 	fprintf(hdr, "// clang-format off\n");
 	fprintf(out, "\n");
-	fprintf(hdr, "extern const struct asn1_encoder %s_encoder;\n",
+	fprintf(hdr, "extern const struct lc_asn1_encoder lc_%s_encoder;\n",
 		grammar_name);
-	fprintf(hdr, "extern const struct asn1_decoder %s_decoder;\n",
+	fprintf(hdr, "extern const struct lc_asn1_decoder lc_%s_decoder;\n",
 		grammar_name);
 	if (ferror(hdr)) {
 		perror(headername);
@@ -1450,13 +1450,13 @@ static void render(FILE *out, FILE *hdr)
 	fprintf(out, "};\n");
 
 	fprintf(out, "\n");
-	fprintf(out, "const struct asn1_decoder %s_decoder = {\n",
+	fprintf(out, "const struct lc_asn1_decoder lc_%s_decoder = {\n",
 		grammar_name);
 	fprintf(out, "\t.machine = %s_machine,\n", grammar_name);
 	fprintf(out, "\t.machlen = sizeof(%s_machine),\n", grammar_name);
 	fprintf(out, "\t.actions = %s_action_table,\n", grammar_name);
 	fprintf(out, "};\n\n");
-	fprintf(out, "const struct asn1_encoder %s_encoder = {\n",
+	fprintf(out, "const struct lc_asn1_encoder lc_%s_encoder = {\n",
 		grammar_name);
 	fprintf(out, "\t.machine = %s_machine,\n", grammar_name);
 	fprintf(out, "\t.machlen = sizeof(%s_machine),\n", grammar_name);
