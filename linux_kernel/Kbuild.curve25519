@@ -37,9 +37,9 @@ endif
 
 ifdef CONFIG_LEANCRYPTO_CURVE25519
 ccflags-y			+= -DLC_CURVE25519
-obj-m				+= ed25519_tester.o
-obj-m				+= x25519_c_tester.o
-obj-m				+= x25519_common_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= ed25519_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= x25519_c_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= x25519_common_tester.o
 
 ed25519_tester-y		+= ../curve25519/tests/ed25519_tester.o	       \
 				   ../drng/src/selftest_rng.o
@@ -48,7 +48,7 @@ x25519_c_tester-y		+= ../curve25519/tests/x25519_c_tester.o       \
 x25519_common_tester-y		+= ../curve25519/tests/x25519_common_tester.o
 
 ifdef CONFIG_X86_64
-obj-m				+= x25519_avx_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= x25519_avx_tester.o
 x25519_avx_tester-y		+= ../curve25519/tests/x25519_c_tester.o       \
 				   ../drng/src/selftest_rng.o
 endif

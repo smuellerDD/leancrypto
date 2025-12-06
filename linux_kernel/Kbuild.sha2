@@ -51,12 +51,12 @@ leancrypto-$(CONFIG_LEANCRYPTO_SHA2_256)				       \
 endif
 
 ifdef CONFIG_LEANCRYPTO_SHA2_256
-ccflags-y			+= -DCONFIG_LEANCRYPTO_SHA2_256 -DLC_SHA2_256
-obj-m				+= sha256_tester.o
-sha256_tester-y			+= ../hash/tests/sha256_tester.o
+ccflags-y				+= -DCONFIG_LEANCRYPTO_SHA2_256 -DLC_SHA2_256
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= sha256_tester.o
+sha256_tester-y				+= ../hash/tests/sha256_tester.o
 
-obj-m				+= leancrypto_kernel_sha256_tester.o
-leancrypto_kernel_sha256_tester-y += ../hash/tests/leancrypto_kernel_sha256_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_sha256_tester.o
+leancrypto_kernel_sha256_tester-y 	+= ../hash/tests/leancrypto_kernel_sha256_tester.o
 
 endif
 
@@ -117,13 +117,13 @@ leancrypto-$(CONFIG_LEANCRYPTO_SHA2_512)				       \
 endif
 
 ifdef CONFIG_LEANCRYPTO_SHA2_512
-ccflags-y			+= -DCONFIG_LEANCRYPTO_SHA2_512 -DLC_SHA2_512
-obj-m				+= sha384_tester.o
-sha384_tester-y			+= ../hash/tests/sha384_tester.o
-obj-m				+= sha512_tester.o
-sha512_tester-y			+= ../hash/tests/sha512_tester.o
+ccflags-y				+= -DCONFIG_LEANCRYPTO_SHA2_512 -DLC_SHA2_512
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= sha384_tester.o
+sha384_tester-y				+= ../hash/tests/sha384_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= sha512_tester.o
+sha512_tester-y				+= ../hash/tests/sha512_tester.o
 
-obj-m				+= leancrypto_kernel_sha512_tester.o
-leancrypto_kernel_sha512_tester-y += ../hash/tests/leancrypto_kernel_sha512_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_sha512_tester.o
+leancrypto_kernel_sha512_tester-y	+= ../hash/tests/leancrypto_kernel_sha512_tester.o
 
 endif

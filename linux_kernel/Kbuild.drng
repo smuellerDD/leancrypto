@@ -11,49 +11,49 @@ leancrypto-y			+= ../drng/src/rng_api.o		       \
 				   ../drng/src/seeded_rng_linux_kernel.o
 
 leancrypto-$(CONFIG_LEANCRYPTO_CHACHA20_DRNG)				       \
-				+= ../drng/src/chacha20_drng.o
+					+= ../drng/src/chacha20_drng.o
 ifdef CONFIG_LEANCRYPTO_CHACHA20_DRNG
-ccflags-y			+= -DCONFIG_LEANCRYPTO_CHACHA20_DRNG
-obj-m		  		+= chacha20_drng_tester.o
-chacha20_drng_tester-y		+= ../drng/tests/chacha20_drng_tester.o
+ccflags-y				+= -DCONFIG_LEANCRYPTO_CHACHA20_DRNG
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= chacha20_drng_tester.o
+chacha20_drng_tester-y			+= ../drng/tests/chacha20_drng_tester.o
 endif
 
 ################################################################################
 # DRNG implementation: SP800-90A Hash DRBG
 leancrypto-$(CONFIG_LEANCRYPTO_HASH_DRBG)				       \
-				+= ../drng/src/hash_drbg.o
+					+= ../drng/src/hash_drbg.o
 ifdef CONFIG_LEANCRYPTO_HASH_DRBG
-ccflags-y			+= -DCONFIG_LEANCRYPTO_HASH_DRBG
-obj-m		  		+= hash_drbg_tester.o
-hash_drbg_tester-y		+= ../drng/tests/hash_drbg_tester.o
+ccflags-y				+= -DCONFIG_LEANCRYPTO_HASH_DRBG
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= hash_drbg_tester.o
+hash_drbg_tester-y			+= ../drng/tests/hash_drbg_tester.o
 endif
 
 ################################################################################
 # DRNG implementation: SP800-90A HMAC DRBG
 leancrypto-$(CONFIG_LEANCRYPTO_HMAC_DRBG)				       \
-				+= ../drng/src/hmac_drbg.o
+					+= ../drng/src/hmac_drbg.o
 ifdef CONFIG_LEANCRYPTO_HMAC_DRBG
-ccflags-y			+= -DCONFIG_LEANCRYPTO_HMAC_DRBG
-obj-m		  		+= hmac_drbg_tester.o
-hmac_drbg_tester-y		+= ../drng/tests/hmac_drbg_tester.o
+ccflags-y				+= -DCONFIG_LEANCRYPTO_HMAC_DRBG
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= hmac_drbg_tester.o
+hmac_drbg_tester-y			+= ../drng/tests/hmac_drbg_tester.o
 endif
 
 ################################################################################
 # DRNG implementation: XDRBG implementations
 leancrypto-$(CONFIG_LEANCRYPTO_KMAC_DRNG)				       \
-				+= ../drng/src/kmac_drng.o
+					+= ../drng/src/kmac_drng.o
 ifdef CONFIG_LEANCRYPTO_KMAC_DRNG
-ccflags-y			+= -DCONFIG_LEANCRYPTO_KMAC_DRNG
-obj-m		 		+= kmac_drng_tester.o
-kmac_drng_tester-y		+= ../drng/tests/kmac_drng_tester.o
+ccflags-y				+= -DCONFIG_LEANCRYPTO_KMAC_DRNG
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kmac_drng_tester.o
+kmac_drng_tester-y			+= ../drng/tests/kmac_drng_tester.o
 endif
 
 leancrypto-$(CONFIG_LEANCRYPTO_CSHAKE_DRNG)				       \
-				+= ../drng/src/cshake_drng.o
+					+= ../drng/src/cshake_drng.o
 ifdef CONFIG_LEANCRYPTO_CSHAKE_DRNG
-ccflags-y			+= -DCONFIG_LEANCRYPTO_CSHAKE_DRNG
-obj-m				+= cshake_drng_tester.o
-cshake_drng_tester-y		+= ../drng/tests/cshake_drng_tester.o
+ccflags-y				+= -DCONFIG_LEANCRYPTO_CSHAKE_DRNG
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= cshake_drng_tester.o
+cshake_drng_tester-y			+= ../drng/tests/cshake_drng_tester.o
 endif
 
 leancrypto-$(CONFIG_LEANCRYPTO_XDRBG_DRNG)				       \
@@ -73,17 +73,17 @@ ifdef CONFIG_LEANCRYPTO_XDRBG_DRNG
 ccflags-y			+= -DCONFIG_LEANCRYPTO_XDRBG_DRNG
 
 ifdef CONFIG_LEANCRYPTO_SHA3
-obj-m				+= leancrypto_kernel_rng_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_rng_tester.o
 leancrypto_kernel_rng_tester-y	+= ../drng/tests/leancrypto_kernel_rng_tester.o
-obj-m				+= xdrbg256_tester.o
-obj-m				+= xdrbg512_tester.o
-xdrbg256_tester-y		+= ../drng/tests/xdrbg256_tester.o
-xdrbg512_tester-y		+= ../drng/tests/xdrbg512_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= xdrbg256_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= xdrbg512_tester.o
+xdrbg256_tester-y			+= ../drng/tests/xdrbg256_tester.o
+xdrbg512_tester-y			+= ../drng/tests/xdrbg512_tester.o
 endif
 
 ifdef CONFIG_LEANCRYPTO_ASCON_HASH
-obj-m				+= xdrbg128_tester.o
-xdrbg128_tester-y		+= ../drng/tests/xdrbg128_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= xdrbg128_tester.o
+xdrbg128_tester-y			+= ../drng/tests/xdrbg128_tester.o
 endif
 
 endif

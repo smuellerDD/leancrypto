@@ -7,7 +7,7 @@
 # When compiling leancrypto statically bound into the Linux kernel binary
 # from inside the Linux kernel tree, use `obj-y`.
 #
-obj-m		 		:= leancrypto.o
+obj-m				:= leancrypto.o
 
 # Kernel module framework
 ccflags-y			+= -DLINUX_KERNEL
@@ -127,9 +127,9 @@ else
 leancrypto-y	 		+= ../internal/src/memcmp_secure_c.o
 endif
 
-obj-m				+= status_tester.o
-obj-m				+= rerun_selftests_tester.o
-obj-m				+= rerun_one_selftest_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= status_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= rerun_selftests_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= rerun_one_selftest_tester.o
 
 status_tester-y			+= ../internal/tests/status_tester.o
 rerun_selftests_tester-y	+= ../internal/tests/rerun_selftests_tester.o

@@ -415,26 +415,26 @@ ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM
 
 # Kyber 1024
 ifdef CONFIG_LEANCRYPTO_KEM_KYBER_1024
-ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM_KYBER_1024
-obj-m				+= leancrypto_kernel_kyber_1024_tester.o
-leancrypto_kernel_kyber_1024_tester-y += ../ml-kem/tests/leancrypto_kernel_kyber_1024_tester.o
+ccflags-y				+= -DCONFIG_LEANCRYPTO_KEM_KYBER_1024
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_kyber_1024_tester.o
+leancrypto_kernel_kyber_1024_tester-y	+= ../ml-kem/tests/leancrypto_kernel_kyber_1024_tester.o
 ifdef CONFIG_LEANCRYPTO_KEM_X25519
-obj-m				+= leancrypto_kernel_kyber_1024_x25519_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_kyber_1024_x25519_tester.o
 leancrypto_kernel_kyber_1024_x25519_tester-y += ../ml-kem/tests/leancrypto_kernel_kyber_1024_x25519_tester.o
 endif
 ifdef CONFIG_LEANCRYPTO_KEM_X448
-obj-m				+= leancrypto_kernel_kyber_1024_x448_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_kyber_1024_x448_tester.o
 leancrypto_kernel_kyber_1024_x448_tester-y += ../ml-kem/tests/leancrypto_kernel_kyber_1024_x448_tester.o
 endif
 
-obj-m		 		+= kyber_kem_tester_c.o
-obj-m		 		+= kyber_kem_tester_common.o
-obj-m		 		+= kyber_kem_kdf_tester_c.o
-obj-m		 		+= kyber_kem_kdf_tester_common.o
-obj-m		 		+= kyber_kex_tester.o
-obj-m		 		+= kyber_ies_tester.o
-obj-m		 		+= kyber_invalid_tester.o
-obj-m		 		+= kyber_modulus_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_kem_tester_c.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_kem_tester_common.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_kem_kdf_tester_c.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_kem_kdf_tester_common.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_kex_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_ies_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_invalid_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_modulus_tester.o
 
 kyber_kem_tester_c-y		+= ../ml-kem/tests/kyber_kem_tester.o	       \
 				   ../ml-kem/tests/kyber_kem_tester_c.o	       \
@@ -457,26 +457,26 @@ endif
 
 # Kyber 768
 ifdef CONFIG_LEANCRYPTO_KEM_KYBER_768
-ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM_KYBER_768
-obj-m				+= leancrypto_kernel_kyber_768_tester.o
+ccflags-y				+= -DCONFIG_LEANCRYPTO_KEM_KYBER_768
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_kyber_768_tester.o
 leancrypto_kernel_kyber_768_tester-y	+= kyber768/tests/leancrypto_kernel_kyber_768_tester.o
 ifdef CONFIG_LEANCRYPTO_KEM_X25519
-obj-m				+= leancrypto_kernel_kyber_768_x25519_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_kyber_768_x25519_tester.o
 leancrypto_kernel_kyber_768_x25519_tester-y += kyber768/tests/leancrypto_kernel_kyber_768_x25519_tester.o
 endif
 ifdef CONFIG_LEANCRYPTO_KEM_X448
-obj-m				+= leancrypto_kernel_kyber_768_x448_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_kyber_768_x448_tester.o
 leancrypto_kernel_kyber_768_x448_tester-y += kyber768/tests/leancrypto_kernel_kyber_768_x448_tester.o
 endif
 
-obj-m		 		+= kyber_768_kem_tester_c.o
-obj-m		 		+= kyber_768_kem_tester_common.o
-obj-m		 		+= kyber_768_kem_kdf_tester_c.o
-obj-m		 		+= kyber_768_kem_kdf_tester_common.o
-obj-m		 		+= kyber_768_kex_tester.o
-obj-m		 		+= kyber_768_ies_tester.o
-obj-m		 		+= kyber_768_invalid_tester.o
-obj-m		 		+= kyber_768_modulus_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_768_kem_tester_c.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_768_kem_tester_common.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_768_kem_kdf_tester_c.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_768_kem_kdf_tester_common.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_768_kex_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_768_ies_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_768_invalid_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_768_modulus_tester.o
 
 kyber_768_kem_tester_c-y	+= kyber768/tests/kyber_kem_tester.o	       \
 				   kyber768/tests/kyber_kem_tester_c.o	       \
@@ -511,26 +511,26 @@ endif
 
 # Kyber 512
 ifdef CONFIG_LEANCRYPTO_KEM_KYBER_512
-ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM_KYBER_512
-obj-m				+= leancrypto_kernel_kyber_512_tester.o
+ccflags-y				+= -DCONFIG_LEANCRYPTO_KEM_KYBER_512
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_kyber_512_tester.o
 leancrypto_kernel_kyber_512_tester-y	+= kyber512/tests/leancrypto_kernel_kyber_512_tester.o
 ifdef CONFIG_LEANCRYPTO_KEM_X25519
-obj-m				+= leancrypto_kernel_kyber_512_x25519_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_kyber_512_x25519_tester.o
 leancrypto_kernel_kyber_512_x25519_tester-y += kyber512/tests/leancrypto_kernel_kyber_512_x25519_tester.o
 endif
 ifdef CONFIG_LEANCRYPTO_KEM_X448
-obj-m				+= leancrypto_kernel_kyber_512_x448_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_kyber_512_x448_tester.o
 leancrypto_kernel_kyber_512_x448_tester-y += kyber512/tests/leancrypto_kernel_kyber_512_x448_tester.o
 endif
 
-obj-m		 		+= kyber_512_kem_tester_c.o
-obj-m		 		+= kyber_512_kem_tester_common.o
-obj-m		 		+= kyber_512_kem_kdf_tester_c.o
-obj-m		 		+= kyber_512_kem_kdf_tester_common.o
-obj-m		 		+= kyber_512_kex_tester.o
-obj-m		 		+= kyber_512_ies_tester.o
-obj-m		 		+= kyber_512_invalid_tester.o
-obj-m		 		+= kyber_512_modulus_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_512_kem_tester_c.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_512_kem_tester_common.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_512_kem_kdf_tester_c.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_512_kem_kdf_tester_common.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_512_kex_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_512_ies_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_512_invalid_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_512_modulus_tester.o
 
 kyber_512_kem_tester_c-y	+= kyber512/tests/kyber_kem_tester.o	       \
 				   kyber512/tests/kyber_kem_tester_c.o	       \
@@ -568,9 +568,9 @@ ifdef CONFIG_LEANCRYPTO_KEM_X25519
 ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM_X25519
 
 ifdef CONFIG_LEANCRYPTO_KEM_KYBER_1024
-obj-m				+= kyber_ies_x25519_tester.o
-obj-m				+= kyber_kem_x25519_tester.o
-obj-m				+= kyber_kex_x25519_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_ies_x25519_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_kem_x25519_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_kex_x25519_tester.o
 
 kyber_ies_x25519_tester-y	+= ../ml-kem/tests/kyber_ies_x25519_tester.o   \
 				   ../drng/src/selftest_rng.o
@@ -582,12 +582,12 @@ endif
 endif
 
 ifdef CONFIG_LEANCRYPTO_KEM_X448
-ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM_X448
+ccflags-y				+= -DCONFIG_LEANCRYPTO_KEM_X448
 
 ifdef CONFIG_LEANCRYPTO_KEM_KYBER_1024
-obj-m				+= kyber_ies_x448_tester.o
-obj-m				+= kyber_kem_x448_tester.o
-obj-m				+= kyber_kex_x448_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_ies_x448_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_kem_x448_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_kex_x448_tester.o
 
 kyber_ies_x448_tester-y	+= ../ml-kem/tests/kyber_ies_x448_tester.o   \
 				   ../drng/src/selftest_rng.o
@@ -600,8 +600,8 @@ endif
 
 ifdef CONFIG_X86_64
 ifdef CONFIG_LEANCRYPTO_KEM_KYBER_1024
-obj-m		  		+= kyber_kem_tester_avx2.o
-obj-m		  		+= kyber_kem_kdf_tester_avx2.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_kem_tester_avx2.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_kem_kdf_tester_avx2.o
 
 kyber_kem_tester_avx2-y		+= ../ml-kem/tests/kyber_kem_tester.o	       \
 				   ../ml-kem/tests/kyber_kem_tester_avx2.o     \
@@ -612,8 +612,8 @@ kyber_kem_kdf_tester_avx2-y	+= ../ml-kem/tests/kyber_kem_tester.o	       \
 endif
 
 ifdef CONFIG_LEANCRYPTO_KEM_KYBER_768
-obj-m		  		+= kyber_768_kem_tester_avx2.o
-obj-m		  		+= kyber_768_kem_kdf_tester_avx2.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_768_kem_tester_avx2.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_768_kem_kdf_tester_avx2.o
 
 kyber_768_kem_tester_avx2-y	+= kyber768/tests/kyber_kem_tester.o	       \
 				   kyber768/tests/kyber_kem_tester_avx2.o      \
@@ -630,8 +630,8 @@ endif
 
 else ifdef CONFIG_ARM64
 ifdef CONFIG_LEANCRYPTO_KEM_KYBER_1024
-obj-m				+= kyber_kem_tester_armv8.o
-obj-m				+= kyber_kem_kdf_tester_armv8.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_kem_tester_armv8.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_kem_kdf_tester_armv8.o
 
 kyber_kem_tester_armv8-y	+= ../ml-kem/tests/kyber_kem_tester.o	       \
 				   ../ml-kem/tests/kyber_kem_tester_armv8.o    \
@@ -642,8 +642,8 @@ kyber_kem_kdf_tester_armv8-y	+= ../ml-kem/tests/kyber_kem_tester.o	       \
 endif
 
 ifdef CONFIG_LEANCRYPTO_KEM_KYBER_768
-obj-m		  		+= kyber_768_kem_tester_armv8.o
-obj-m		  		+= kyber_768_kem_kdf_tester_armv8.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_768_kem_tester_armv8.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kyber_768_kem_kdf_tester_armv8.o
 
 kyber_768_kem_tester_armv8-y	+= kyber768/tests/kyber_kem_tester.o	       \
 				   kyber768/tests/kyber_kem_tester_armv8.o     \

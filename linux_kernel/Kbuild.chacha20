@@ -5,7 +5,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_CHACHA20)				       \
 				   ../sym/src/chacha20_selector.o              \
 				   leancrypto_kernel_chacha20.o
 
-obj-m				+= leancrypto_kernel_chacha20_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_chacha20_tester.o
 leancrypto_kernel_chacha20_tester-y	+= ../sym/tests/leancrypto_kernel_chacha20_tester.o
 
 ifdef CONFIG_X86_64
@@ -47,8 +47,8 @@ endif
 
 ifdef CONFIG_LEANCRYPTO_CHACHA20
 ccflags-y			+= -DCONFIG_LEANCRYPTO_CHACHA20
-obj-m				+= chacha20_block_tester.o
-obj-m				+= chacha20_stream_tester.o
-chacha20_block_tester-y		+= ../sym/tests/chacha20_block_tester.o
-chacha20_stream_tester-y	+= ../sym/tests/chacha20_stream_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= chacha20_block_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= chacha20_stream_tester.o
+chacha20_block_tester-y			+= ../sym/tests/chacha20_block_tester.o
+chacha20_stream_tester-y		+= ../sym/tests/chacha20_stream_tester.o
 endif

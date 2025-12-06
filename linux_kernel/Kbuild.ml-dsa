@@ -308,14 +308,14 @@ ifdef CONFIG_LEANCRYPTO_DILITHIUM
 ccflags-y			+= -DCONFIG_LEANCRYPTO_DILITHIUM
 
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_87
-ccflags-y			+= -DCONFIG_LEANCRYPTO_DILITHIUM_87
-obj-m				+= leancrypto_kernel_dilithium_87_tester.o
+ccflags-y				+= -DCONFIG_LEANCRYPTO_DILITHIUM_87
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_dilithium_87_tester.o
 leancrypto_kernel_dilithium_87_tester-y += ../ml-dsa/tests/leancrypto_kernel_dilithium_87_tester.o
 
-obj-m		  		+= dilithium_tester_c.o
-obj-m		  		+= dilithium_tester_common.o
-obj-m		  		+= dilithium_invalid_tester.o
-obj-m		  		+= dilithium_tester_official.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= dilithium_tester_c.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= dilithium_tester_common.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= dilithium_invalid_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= dilithium_tester_official.o
 
 dilithium_tester_c-y		+= ../ml-dsa/tests/dilithium_tester.o	       \
 				   ../ml-dsa/tests/dilithium_tester_c.o	       \
@@ -332,14 +332,14 @@ dilithium_tester_official-y	+= ../ml-dsa/tests/dilithium_tester_official.o
 endif
 
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_65
-ccflags-y			+= -DCONFIG_LEANCRYPTO_DILITHIUM_65
-obj-m				+= leancrypto_kernel_dilithium_65_tester.o
+ccflags-y				+= -DCONFIG_LEANCRYPTO_DILITHIUM_65
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_dilithium_65_tester.o
 leancrypto_kernel_dilithium_65_tester-y += dilithium65/tests/leancrypto_kernel_dilithium_65_tester.o
 
-obj-m		  		+= dilithium_65_tester_c.o
-obj-m		  		+= dilithium_65_tester_common.o
-obj-m		  		+= dilithium_65_invalid_tester.o
-obj-m		  		+= dilithium_65_tester_official.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= dilithium_65_tester_c.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= dilithium_65_tester_common.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= dilithium_65_invalid_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= dilithium_65_tester_official.o
 
 dilithium_65_tester_c-y		+= dilithium65/tests/dilithium_tester.o	       \
 				   dilithium65/tests/dilithium_tester_c.o      \
@@ -362,16 +362,16 @@ CFLAGS_dilithium65/tests/dilithium_tester_official.o	:= -DLC_DILITHIUM_TYPE_65
 endif
 
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_44
-ccflags-y			+= -DCONFIG_LEANCRYPTO_DILITHIUM_44
-obj-m				+= leancrypto_kernel_dilithium_44_tester.o
+ccflags-y				+= -DCONFIG_LEANCRYPTO_DILITHIUM_44
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_dilithium_44_tester.o
 leancrypto_kernel_dilithium_44_tester-y += dilithium44/tests/leancrypto_kernel_dilithium_44_tester.o
 
-obj-m		  		+= dilithium_44_tester_c.o
-obj-m		  		+= dilithium_44_tester_common.o
-#obj-m		  		+= dilithium_44_edge_case_tester_c.o
-#obj-m		  		+= dilithium_44_edge_case_tester_common.o
-obj-m		  		+= dilithium_44_invalid_tester.o
-obj-m		  		+= dilithium_44_tester_official.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= dilithium_44_tester_c.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= dilithium_44_tester_common.o
+#obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= dilithium_44_edge_case_tester_c.o
+#obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= dilithium_44_edge_case_tester_common.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= dilithium_44_invalid_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= dilithium_44_tester_official.o
 
 dilithium_44_tester_c-y		+= dilithium44/tests/dilithium_tester.o	       \
 				   dilithium44/tests/dilithium_tester_c.o      \
@@ -404,8 +404,8 @@ endif
 
 ifdef CONFIG_X86_64
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_87
-obj-m				+= dilithium_tester_avx2.o
-obj-m				+= dilithium_tester_iuf_avx2.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= dilithium_tester_avx2.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= dilithium_tester_iuf_avx2.o
 
 dilithium_tester_avx2-y		+= ../ml-dsa/tests/dilithium_tester.o	       \
 				   ../ml-dsa/tests/dilithium_tester_avx2.o     \
@@ -416,8 +416,8 @@ dilithium_tester_iuf_avx2-y	+= ../ml-dsa/tests/dilithium_tester.o	       \
 endif
 
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_65
-obj-m				+= dilithium_65_tester_avx2.o
-obj-m				+= dilithium_65_tester_iuf_avx2.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= dilithium_65_tester_avx2.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= dilithium_65_tester_iuf_avx2.o
 
 dilithium_65_tester_avx2-y	+= dilithium65/tests/dilithium_tester.o	       \
 				   dilithium65/tests/dilithium_tester_avx2.o   \
@@ -433,8 +433,8 @@ endif
 
 ifdef CONFIG_ARM64
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_87
-obj-m				+= dilithium_tester_armv8.o
-obj-m				+= dilithium_tester_iuf_armv8.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= dilithium_tester_armv8.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= dilithium_tester_iuf_armv8.o
 
 dilithium_tester_armv8-y	+= ../ml-dsa/tests/dilithium_tester.o	       \
 				   ../ml-dsa/tests/dilithium_tester_armv8.o    \
@@ -445,8 +445,8 @@ dilithium_tester_iuf_armv8-y	+= ../ml-dsa/tests/dilithium_tester.o	       \
 endif
 
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_87
-obj-m				+= dilithium_65_tester_armv8.o
-obj-m				+= dilithium_65_tester_iuf_armv8.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= dilithium_65_tester_armv8.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= dilithium_65_tester_iuf_armv8.o
 
 dilithium_65_tester_armv8-y	+= dilithium65/tests/dilithium_tester.o	       \
 				   dilithium65/tests/dilithium_tester_armv8.o  \
@@ -461,8 +461,8 @@ endif
 endif
 
 ifdef CONFIG_ARM
-obj-m				+= dilithium_tester_armv7.o
-obj-m				+= dilithium_tester_iuf_armv7.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= dilithium_tester_armv7.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= dilithium_tester_iuf_armv7.o
 
 dilithium_tester_armv7-y	+= ../ml-dsa/tests/dilithium_tester.o	       \
 				   ../ml-dsa/tests/dilithium_tester_armv7.o    \
@@ -478,8 +478,8 @@ ifdef CONFIG_LEANCRYPTO_DILITHIUM_ED25519
 ccflags-y			+= -DCONFIG_LEANCRYPTO_DILITHIUM_ED25519
 
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_87
-obj-m		  		+= dilithium_ed25519_tester.o
-obj-m		  		+= leancrypto_kernel_dilithium_87_ed25519_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= dilithium_ed25519_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_dilithium_87_ed25519_tester.o
 leancrypto_kernel_dilithium_87_ed25519_tester-y += ../ml-dsa/tests/leancrypto_kernel_dilithium_87_ed25519_tester.o
 
 dilithium_ed25519_tester-y	+= ../ml-dsa/tests/dilithium_ed25519_tester.o  \
@@ -487,8 +487,8 @@ dilithium_ed25519_tester-y	+= ../ml-dsa/tests/dilithium_ed25519_tester.o  \
 endif
 
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_65
-obj-m		  		+= dilithium_65_ed25519_tester.o
-obj-m		  		+= leancrypto_kernel_dilithium_65_ed25519_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= dilithium_65_ed25519_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_dilithium_65_ed25519_tester.o
 leancrypto_kernel_dilithium_65_ed25519_tester-y += dilithium65/tests/leancrypto_kernel_dilithium_65_ed25519_tester.o
 
 dilithium_65_ed25519_tester-y	+= dilithium65/tests/dilithium_ed25519_tester.o\
@@ -498,8 +498,8 @@ CFLAGS_dilithium65/tests/dilithium_ed25519_tester.o	:= -DLC_DILITHIUM_TYPE_65
 endif
 
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_44
-obj-m		  		+= dilithium_44_ed25519_tester.o
-obj-m		  		+= leancrypto_kernel_dilithium_44_ed25519_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= dilithium_44_ed25519_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_dilithium_44_ed25519_tester.o
 leancrypto_kernel_dilithium_44_ed25519_tester-y += dilithium44/tests/leancrypto_kernel_dilithium_44_ed25519_tester.o
 
 dilithium_44_ed25519_tester-y	+= dilithium44/tests/dilithium_ed25519_tester.o\
@@ -514,8 +514,8 @@ ifdef CONFIG_LEANCRYPTO_DILITHIUM_ED448
 ccflags-y			+= -DCONFIG_LEANCRYPTO_DILITHIUM_ED448
 
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_87
-obj-m		  		+= dilithium_ed448_tester.o
-obj-m		  		+= leancrypto_kernel_dilithium_87_ed448_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= dilithium_ed448_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_dilithium_87_ed448_tester.o
 leancrypto_kernel_dilithium_87_ed448_tester-y += ../ml-dsa/tests/leancrypto_kernel_dilithium_87_ed448_tester.o
 
 dilithium_ed448_tester-y	+= ../ml-dsa/tests/dilithium_ed448_tester.o  \
@@ -523,8 +523,8 @@ dilithium_ed448_tester-y	+= ../ml-dsa/tests/dilithium_ed448_tester.o  \
 endif
 
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_65
-obj-m		  		+= dilithium_65_ed448_tester.o
-obj-m		  		+= leancrypto_kernel_dilithium_65_ed448_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= dilithium_65_ed448_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_dilithium_65_ed448_tester.o
 leancrypto_kernel_dilithium_65_ed448_tester-y += dilithium65/tests/leancrypto_kernel_dilithium_65_ed448_tester.o
 
 dilithium_65_ed448_tester-y	+= dilithium65/tests/dilithium_ed448_tester.o\
@@ -534,8 +534,8 @@ CFLAGS_dilithium65/tests/dilithium_ed448_tester.o	:= -DLC_DILITHIUM_TYPE_65
 endif
 
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_44
-obj-m		  		+= dilithium_44_ed448_tester.o
-obj-m		  		+= leancrypto_kernel_dilithium_44_ed448_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= dilithium_44_ed448_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_dilithium_44_ed448_tester.o
 leancrypto_kernel_dilithium_44_ed448_tester-y += dilithium44/tests/leancrypto_kernel_dilithium_44_ed448_tester.o
 
 dilithium_44_ed448_tester-y	+= dilithium44/tests/dilithium_ed448_tester.o\

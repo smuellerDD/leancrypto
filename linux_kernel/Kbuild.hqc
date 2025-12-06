@@ -185,9 +185,9 @@ endif
 ################################################################################
 
 ifdef CONFIG_LEANCRYPTO_KEM_HQC_256
-obj-m		 		+= hqc_256_tester.o
-ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM_HQC_256
-obj-m				+= leancrypto_kernel_hqc_256_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= hqc_256_tester.o
+ccflags-y				+= -DCONFIG_LEANCRYPTO_KEM_HQC_256
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_hqc_256_tester.o
 leancrypto_kernel_hqc_256_tester-y	+= ../hqc/tests/leancrypto_kernel_hqc_256_tester.o
 
 hqc_256_tester-y		+= ../hqc/tests/hqc_tester.o		       \
@@ -195,9 +195,9 @@ hqc_256_tester-y		+= ../hqc/tests/hqc_tester.o		       \
 endif
 
 ifdef CONFIG_LEANCRYPTO_KEM_HQC_192
-obj-m		 		+= hqc_192_tester.o
-ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM_HQC_192
-obj-m				+= leancrypto_kernel_hqc_192_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= hqc_192_tester.o
+ccflags-y				+= -DCONFIG_LEANCRYPTO_KEM_HQC_192
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_hqc_192_tester.o
 leancrypto_kernel_hqc_192_tester-y	+= hqc192/tests/leancrypto_kernel_hqc_192_tester.o
 
 hqc_192_tester-y		+= hqc192/tests/hqc_tester.o		       \
@@ -207,9 +207,9 @@ CFLAGS_hqc192/tests/hqc_tester.o			= -DLC_HQC_TYPE_192
 endif
 
 ifdef CONFIG_LEANCRYPTO_KEM_HQC_128
-obj-m		 		+= hqc_128_tester.o
-ccflags-y			+= -DCONFIG_LEANCRYPTO_KEM_HQC_128
-obj-m				+= leancrypto_kernel_hqc_128_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= hqc_128_tester.o
+ccflags-y				+= -DCONFIG_LEANCRYPTO_KEM_HQC_128
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_hqc_128_tester.o
 leancrypto_kernel_hqc_128_tester-y	+= hqc128/tests/leancrypto_kernel_hqc_128_tester.o
 
 hqc_128_tester-y		+= hqc128/tests/hqc_tester.o		       \

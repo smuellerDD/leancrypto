@@ -24,9 +24,9 @@ endif
 
 ifdef CONFIG_LEANCRYPTO_CURVE448
 ccflags-y			+= -DLC_CURVE448
-obj-m				+= ed448_tester.o
-obj-m				+= x448_tester.o
-obj-m				+= x448_keygen_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= ed448_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= x448_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= x448_keygen_tester.o
 
 ed448_tester-y			+= ../curve448/tests/ed448_tester.o	       \
 				   ../drng/src/selftest_rng.o

@@ -46,6 +46,11 @@ At this point, leancrypto will now be built statically into the Linux kernel
 when compiling it. Naturally, all Linux kernel options can be set as leancrypto
 does not depend on specific kernel options.
 
+Note, it is beneficial for the production kernel compilation to comment out
+the option `CONFIG_LEANCRYPTO_TEST_MODULES` in `Kbuild.config` to prevent the
+leancrypto test kernel modules to be built and installed when invoking the
+command `make modules_install`.
+
 ## Test Modules
 
 In addition to the `leancrypto.ko` kernel module, a large number of additional

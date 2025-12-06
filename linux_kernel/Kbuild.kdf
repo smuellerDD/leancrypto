@@ -1,41 +1,41 @@
 ################################################################################
 # KDF implementation
 leancrypto-$(CONFIG_LEANCRYPTO_HKDF)					       \
-				+= ../kdf/src/hkdf.o
+					+= ../kdf/src/hkdf.o
 ifdef CONFIG_LEANCRYPTO_HKDF
-ccflags-y			+= -DCONFIG_LEANCRYPTO_HKDF
-obj-m				+= hkdf_tester.o
-hkdf_tester-y			+= ../kdf/tests/hkdf_tester.o
+ccflags-y				+= -DCONFIG_LEANCRYPTO_HKDF
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= hkdf_tester.o
+hkdf_tester-y				+= ../kdf/tests/hkdf_tester.o
 endif
 
 leancrypto-$(CONFIG_LEANCRYPTO_KDF_CTR)					       \
-				+= ../kdf/src/kdf_ctr.o
+					+= ../kdf/src/kdf_ctr.o
 ifdef CONFIG_LEANCRYPTO_KDF_CTR
-ccflags-y			+= -DCONFIG_LEANCRYPTO_KDF_CTR
-obj-m				+= kdf_ctr_tester.o
-kdf_ctr_tester-y		+= ../kdf/tests/kdf_ctr_tester.o
+ccflags-y				+= -DCONFIG_LEANCRYPTO_KDF_CTR
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kdf_ctr_tester.o
+kdf_ctr_tester-y			+= ../kdf/tests/kdf_ctr_tester.o
 endif
 
 leancrypto-$(CONFIG_LEANCRYPTO_KDF_DPI)					       \
-				+= ../kdf/src/kdf_dpi.o
+					+= ../kdf/src/kdf_dpi.o
 ifdef CONFIG_LEANCRYPTO_KDF_DPI
-ccflags-y			+= -DCONFIG_LEANCRYPTO_KDF_DPI
-obj-m				+= kdf_dpi_tester.o
-kdf_dpi_tester-y		+= ../kdf/tests/kdf_dpi_tester.o
+ccflags-y				+= -DCONFIG_LEANCRYPTO_KDF_DPI
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kdf_dpi_tester.o
+kdf_dpi_tester-y			+= ../kdf/tests/kdf_dpi_tester.o
 endif
 
 leancrypto-$(CONFIG_LEANCRYPTO_KDF_FB)					       \
-				+= ../kdf/src/kdf_fb.o
+					+= ../kdf/src/kdf_fb.o
 ifdef CONFIG_LEANCRYPTO_KDF_FB
-ccflags-y			+= -DCONFIG_LEANCRYPTO_KDF_FB
-obj-m				+= kdf_fb_tester.o
-kdf_fb_tester-y			+= ../kdf/tests/kdf_fb_tester.o
+ccflags-y				+= -DCONFIG_LEANCRYPTO_KDF_FB
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kdf_fb_tester.o
+kdf_fb_tester-y				+= ../kdf/tests/kdf_fb_tester.o
 endif
 
 leancrypto-$(CONFIG_LEANCRYPTO_PBKDF2)					       \
-				+= ../kdf/src/pbkdf2.o
+					+= ../kdf/src/pbkdf2.o
 ifdef CONFIG_LEANCRYPTO_PBKDF2
-ccflags-y			+= -DCONFIG_LEANCRYPTO_PBKDF2
-obj-m				+= pbkdf2_tester.o
-pbkdf2_tester-y			+= ../kdf/tests/pbkdf2_tester.o
+ccflags-y				+= -DCONFIG_LEANCRYPTO_PBKDF2
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= pbkdf2_tester.o
+pbkdf2_tester-y				+= ../kdf/tests/pbkdf2_tester.o
 endif

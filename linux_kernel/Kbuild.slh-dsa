@@ -360,19 +360,19 @@ ccflags-$(CONFIG_LEANCRYPTO_SPHINCS)					       \
 ifdef CONFIG_LEANCRYPTO_SPHINCS
 ccflags-y			+= -DCONFIG_LEANCRYPTO_SPHINCS
 
-obj-m		  		+= sphincs_tester_official.o
-sphincs_tester_official-y	+= ../slh-dsa/tests/sphincs_official_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= sphincs_tester_official.o
+sphincs_tester_official-y		+= ../slh-dsa/tests/sphincs_official_tester.o
 
 ifdef CONFIG_LEANCRYPTO_SPHINCS_256s
-ccflags-y			+= -DCONFIG_LEANCRYPTO_SPHINCS_256s
-obj-m				+= leancrypto_kernel_sphincs_shake_256s_tester.o
+ccflags-y				+= -DCONFIG_LEANCRYPTO_SPHINCS_256s
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_sphincs_shake_256s_tester.o
 leancrypto_kernel_sphincs_shake_256s_tester-y += ../slh-dsa/tests/leancrypto_kernel_sphincs_shake_256s_tester.o
 
-obj-m		  		+= sphincs_tester_256s.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= sphincs_tester_256s.o
 sphincs_tester_256s-y		+= ../slh-dsa/tests/sphincs_tester.o	       \
 				   ../drng/src/static_rng.o
 
-obj-m		  		+= sphincs_tester_256s_c.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= sphincs_tester_256s_c.o
 sphincs_tester_256s_c-y		+= ../slh-dsa/tests/sphincs_tester.o	       \
 				   ../drng/src/static_rng.o
 CFLAGS../slh-dsa/tests/sphincs_tester.o			:= -DLC_SPHINCS_TESTER_C
@@ -380,16 +380,16 @@ endif
 
 ifdef CONFIG_LEANCRYPTO_SPHINCS_256f
 ccflags-y			+= -DCONFIG_LEANCRYPTO_SPHINCS_256f
-obj-m				+= leancrypto_kernel_sphincs_shake_256f_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_sphincs_shake_256f_tester.o
 leancrypto_kernel_sphincs_shake_256f_tester-y += sphincs_shake_256f/tests/leancrypto_kernel_sphincs_shake_256f_tester.o
 CFLAGS_sphincs_shake_256f/tests/leancrypto_kernel_sphincs_shake_256f_tester.o	+= -DLC_SPHINCS_TYPE_256F
 
-obj-m		  		+= sphincs_tester_256f.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= sphincs_tester_256f.o
 sphincs_tester_256f-y		+= sphincs_shake_256f/tests/sphincs_tester.o   \
 				   ../drng/src/static_rng.o
 CFLAGS_sphincs_shake_256f/tests/sphincs_tester.o	:= -DLC_SPHINCS_TYPE_256F
 
-obj-m		  		+= sphincs_tester_256f_c.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= sphincs_tester_256f_c.o
 sphincs_tester_256f_c-y		+= sphincs_shake_256f/tests/sphincs_tester.o   \
 				   ../drng/src/static_rng.o
 CFLAGS_sphincs_shake_256f/tests/sphincs_tester.o	:= -DLC_SPHINCS_TESTER_C\
@@ -398,16 +398,16 @@ endif
 
 ifdef CONFIG_LEANCRYPTO_SPHINCS_192s
 ccflags-y			+= -DCONFIG_LEANCRYPTO_SPHINCS_192s
-obj-m				+= leancrypto_kernel_sphincs_shake_192s_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_sphincs_shake_192s_tester.o
 leancrypto_kernel_sphincs_shake_192s_tester-y += sphincs_shake_192s/tests/leancrypto_kernel_sphincs_shake_192s_tester.o
 CFLAGS_sphincs_shake_192s/tests/leancrypto_kernel_sphincs_shake_192s_tester.o	+= -DLC_SPHINCS_TYPE_192S
 
-obj-m		  		+= sphincs_tester_192s.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= sphincs_tester_192s.o
 sphincs_tester_192s-y		+= sphincs_shake_192s/tests/sphincs_tester.o   \
 				   ../drng/src/static_rng.o
 CFLAGS_sphincs_shake_192s/tests/sphincs_tester.o	:= -DLC_SPHINCS_TYPE_192S
 
-obj-m		  		+= sphincs_tester_192s_c.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= sphincs_tester_192s_c.o
 sphincs_tester_192s_c-y		+= sphincs_shake_192s/tests/sphincs_tester.o   \
 				   ../drng/src/static_rng.o
 CFLAGS_sphincs_shake_192s/tests/sphincs_tester.o	:= -DLC_SPHINCS_TESTER_C\
@@ -419,12 +419,12 @@ ccflags-y			+= -DCONFIG_LEANCRYPTO_SPHINCS_192f
 leancrypto_kernel_sphincs_shake_1192f_tester-y += sphincs_shake_192f/tests/leancrypto_kernel_sphincs_shake_192f_tester.o
 CFLAGS_sphincs_shake_192f/tests/leancrypto_kernel_sphincs_shake_192f_tester.o	+= -DLC_SPHINCS_TYPE_192F
 
-obj-m		  		+= sphincs_tester_192f.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= sphincs_tester_192f.o
 sphincs_tester_192f-y		+= sphincs_shake_192f/tests/sphincs_tester.o   \
 				   ../drng/src/static_rng.o
 CFLAGS_sphincs_shake_192f/tests/sphincs_tester.o	:= -DLC_SPHINCS_TYPE_192F
 
-obj-m		  		+= sphincs_tester_192f_c.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= sphincs_tester_192f_c.o
 sphincs_tester_192f_c-y		+= sphincs_shake_192f/tests/sphincs_tester.o   \
 				   ../drng/src/static_rng.o
 CFLAGS_sphincs_shake_192f/tests/sphincs_tester.o	:= -DLC_SPHINCS_TESTER_C\
@@ -433,16 +433,16 @@ endif
 
 ifdef CONFIG_LEANCRYPTO_SPHINCS_128s
 ccflags-y			+= -DCONFIG_LEANCRYPTO_SPHINCS_128s
-obj-m				+= leancrypto_kernel_sphincs_shake_128s_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_sphincs_shake_128s_tester.o
 leancrypto_kernel_sphincs_shake_128s_tester-y += sphincs_shake_128s/tests/leancrypto_kernel_sphincs_shake_128s_tester.o
 CFLAGS_sphincs_shake_128s/tests/leancrypto_kernel_sphincs_shake_128s_tester.o	+= -DLC_SPHINCS_TYPE_128S
 
-obj-m		  		+= sphincs_tester_128s.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= sphincs_tester_128s.o
 sphincs_tester_128s-y		+= sphincs_shake_128s/tests/sphincs_tester.o   \
 				   ../drng/src/static_rng.o
 CFLAGS_sphincs_shake_128s/tests/sphincs_tester.o	:= -DLC_SPHINCS_TYPE_128S
 
-obj-m		  		+= sphincs_tester_128s_c.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= sphincs_tester_128s_c.o
 sphincs_tester_128s_c-y		+= sphincs_shake_128s/tests/sphincs_tester.o   \
 				   ../drng/src/static_rng.o
 CFLAGS_sphincs_shake_128s/tests/sphincs_tester.o	:= -DLC_SPHINCS_TESTER_C\
@@ -451,16 +451,16 @@ endif
 
 ifdef CONFIG_LEANCRYPTO_SPHINCS_128f
 ccflags-y			+= -DCONFIG_LEANCRYPTO_SPHINCS_128f
-obj-m				+= leancrypto_kernel_sphincs_shake_128f_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_sphincs_shake_128f_tester.o
 leancrypto_kernel_sphincs_shake_128f_tester-y += sphincs_shake_128f/tests/leancrypto_kernel_sphincs_shake_128f_tester.o
 CFLAGS_sphincs_shake_128f/tests/leancrypto_kernel_sphincs_shake_128f_tester.o	+= -DLC_SPHINCS_TYPE_128F
 
-obj-m		  		+= sphincs_tester_128f.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= sphincs_tester_128f.o
 sphincs_tester_128f-y		+= sphincs_shake_128f/tests/sphincs_tester.o   \
 				   ../drng/src/static_rng.o
 CFLAGS_sphincs_shake_128f/tests/sphincs_tester.o	:= -DLC_SPHINCS_TYPE_128F
 
-obj-m		  		+= sphincs_tester_128f_c.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= sphincs_tester_128f_c.o
 sphincs_tester_128f_c-y		+= sphincs_shake_128f/tests/sphincs_tester.o   \
 				   ../drng/src/static_rng.o
 CFLAGS_sphincs_shake_128f/tests/sphincs_tester.o	:= -DLC_SPHINCS_TESTER_C\

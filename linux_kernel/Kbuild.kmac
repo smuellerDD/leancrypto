@@ -7,16 +7,16 @@ leancrypto-$(CONFIG_LEANCRYPTO_KMAC)					       \
 ifdef CONFIG_LEANCRYPTO_KMAC
 ccflags-y			+= -DCONFIG_LEANCRYPTO_KMAC
 
-obj-m				+= leancrypto_kernel_kmac_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= leancrypto_kernel_kmac_tester.o
 leancrypto_kernel_kmac_tester-y	+= ../kmac/tests/leancrypto_kernel_kmac_tester.o
 
-obj-m		  		+= kmac_128_tester.o
-obj-m		  		+= kmac_256_tester.o
-obj-m		  		+= kmac_xof_more_tester.o
-obj-m		  		+= kmac_xof_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kmac_128_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kmac_256_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kmac_xof_more_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= kmac_xof_tester.o
 
-kmac_128_tester-y		+= ../kmac/tests/kmac_128_tester.o
-kmac_256_tester-y		+= ../kmac/tests/kmac_256_tester.o
-kmac_xof_more_tester-y		+= ../kmac/tests/kmac_xof_more_tester.o
-kmac_xof_tester-y		+= ../kmac/tests/kmac_xof_tester.o
+kmac_128_tester-y			+= ../kmac/tests/kmac_128_tester.o
+kmac_256_tester-y			+= ../kmac/tests/kmac_256_tester.o
+kmac_xof_more_tester-y			+= ../kmac/tests/kmac_xof_more_tester.o
+kmac_xof_tester-y			+= ../kmac/tests/kmac_xof_tester.o
 endif
