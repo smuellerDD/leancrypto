@@ -73,6 +73,9 @@ static int lc_aes_cbc_common(struct skcipher_request *req,
 		if (nbytes < walk.total)
 			nbytes = round_down(nbytes, AES_BLOCK_SIZE);
 
+		if (!nbytes)
+			return -EINVAL;
+
 		crypt_func(ctx, walk.src.virt.addr, walk.dst.virt.addr, nbytes);
 		err = skcipher_walk_done(&walk, walk.nbytes - nbytes);
 	}

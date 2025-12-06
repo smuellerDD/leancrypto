@@ -89,10 +89,16 @@ static noinline int lc_aes_xts_slowpath(
 	err = skcipher_walk_virt(&walk, req, false);
 
 	while (walk.nbytes) {
-		crypt_func(ctx, walk.src.virt.addr, walk.dst.virt.addr,
-			   walk.nbytes & ~(AES_BLOCK_SIZE - 1));
-		err = skcipher_walk_done(&walk,
-					 walk.nbytes & (AES_BLOCK_SIZE - 1));
+		unsigned int nbytes = walk.nbytes;
+
+		if (nbytes < walk.total)
+			nbytes = round_down(nbytes, AES_BLOCK_SIZE);
+
+		if (!nbytes)
+			return -EINVAL;
+
+		crypt_func(ctx, walk.src.virt.addr, walk.dst.virt.addr, nbytes);
+		err = skcipher_walk_done(&walk, walk.nbytes - nbytes);
 	}
 
 	if (err || !tail)

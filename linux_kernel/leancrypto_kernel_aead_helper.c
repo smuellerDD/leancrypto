@@ -73,6 +73,9 @@ int lc_kernel_aead_update(struct aead_request *areq, unsigned int nbytes,
 		u8 *src_vaddr, *dst_vaddr;
 		todo = min_t(unsigned int, nbytes, todo);
 
+		if (!todo)
+			return -EINVAL;
+
 		src_vaddr = scatterwalk_map(&src_walk);
 		dst_vaddr = scatterwalk_map(&dst_walk);
 
