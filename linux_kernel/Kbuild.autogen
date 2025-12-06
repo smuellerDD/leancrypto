@@ -7,7 +7,7 @@ clean-files := $(obj)/lc_memory_support.h $(obj)/lc_hash.h
 
 $(obj)/posix_support.o: $(obj)/lc_memory_support.h
 
-target += lc_memory_support.h
+targets += lc_memory_support.h
 
 quiet_cmd_build_lc_memory_support = GEN     $@
       cmd_build_lc_memory_support = awk -f $(src)/lc_memory_support.awk $< > $@
@@ -16,7 +16,7 @@ $(obj)/lc_memory_support.h: $(src)/../internal/api/lc_memory_support.h.in FORCE
 
 $(obj)/leancrypto_kernel.o: $(obj)/lc_hash.h $(obj)/lc_kyber_1024.h $(obj)/lc_kyber_768.h $(obj)/lc_kyber_512.h $(obj)/lc_dilithium_87.h $(obj)/lc_dilithium_65.h $(obj)/lc_dilithium_44.h $(obj)/lc_ascon_hash.h $(obj)/lc_bike_5.h $(obj)/lc_bike_3.h $(obj)/lc_bike_1.h $(obj)/lc_hqc_256.h $(obj)/lc_hqc_192.h $(obj)/lc_hqc_128.h $(obj)/lc_sphincs_shake_256s.h $(obj)/lc_sphincs_shake_256f.h $(obj)/lc_sphincs_shake_192s.h $(obj)/lc_sphincs_shake_192f.h $(obj)/lc_sphincs_shake_128s.h $(obj)/lc_sphincs_shake_128f.h
 
-target += lc_hash.h lc_kyber_1024.h lc_kyber_768.h lc_kyber_512.h lc_dilithium_87.h lc_dilithium_65.h lc_dilithium_44.h lc_ascon_hash.h lc_bike_5.h lc_bike_3.h lc_bike_1.h lc_hqc_256.h lc_hqc_192.h lc_hqc_128.h lc_sphincs_shake_256s.h lc_sphincs_shake_256f.h lc_sphincs_shake_192s.h lc_sphincs_shake_192f.h lc_sphincs_shake_128s.h lc_sphincs_shake_128f.h
+targets += lc_hash.h lc_kyber_1024.h lc_kyber_768.h lc_kyber_512.h lc_dilithium_87.h lc_dilithium_65.h lc_dilithium_44.h lc_ascon_hash.h lc_bike_5.h lc_bike_3.h lc_bike_1.h lc_hqc_256.h lc_hqc_192.h lc_hqc_128.h lc_sphincs_shake_256s.h lc_sphincs_shake_256f.h lc_sphincs_shake_192s.h lc_sphincs_shake_192f.h lc_sphincs_shake_128s.h lc_sphincs_shake_128f.h
 
 quiet_cmd_build_lc_hash = GEN     $@
       cmd_build_lc_hash = awk -f $(src)/lc_hash.h.awk $< > $@
