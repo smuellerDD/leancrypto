@@ -67,6 +67,7 @@ static void aes_armce_ctr_crypt(struct lc_sym_state *ctx, const uint8_t *in,
 
 	while (blocks) {
 		size_t todo;
+
 		ctr32 = ptr_to_be32(&ctx->iv[12]);
 
 		/* Cipher operation is limited to 32LSB of the counter */
@@ -88,6 +89,14 @@ static void aes_armce_ctr_crypt(struct lc_sym_state *ctx, const uint8_t *in,
 			aes_armce_ctr96_inc(ctx);
 
 		blocks -= todo;
+
+		/* Convert todo back into bytes */
+		todo <<= 4;
+
+		/* Timecop: output is not sensitive regarding side-channels. */
+		unpoison(out, todo);
+		out += todo;
+		in += todo;
 	}
 
 	/*
@@ -101,11 +110,15 @@ static void aes_armce_ctr_crypt(struct lc_sym_state *ctx, const uint8_t *in,
 		ctr32 = ptr_to_be32(&ctx->iv[12]);
 		ctr32++;
 
-		memcpy(buffer, in + block_bytes, residual_len);
+		memcpy(buffer, in, residual_len);
 
 		aes_v8_ctr32_encrypt_blocks(buffer, buffer, 1,
 					    &ctx->enc_block_ctx, ctx->iv);
-		memcpy(out + block_bytes, buffer, residual_len);
+		memcpy(out, buffer, residual_len);
+
+		/* Timecop: output is not sensitive regarding side-channels. */
+		unpoison(out, residual_len);
+
 		lc_memset_secure(buffer, 0, sizeof(buffer));
 
 		be32_to_ptr(&ctx->iv[12], ctr32);
@@ -152,7 +165,7 @@ out:
 static int aes_armce_ctr_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 			       size_t ivlen)
 {
-	if (!ctx || ivlen != AES_BLOCKLEN)
+	if (!ctx || !iv || ivlen != AES_BLOCKLEN)
 		return -EINVAL;
 
 	memcpy(ctx->iv, iv, AES_BLOCKLEN);
