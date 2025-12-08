@@ -296,9 +296,9 @@ static int test_xcrypt_ctr(const struct lc_sym *aes, const char *name,
 				   sizeof(in256));
 	lc_sym_zero_free(aes_ctr_heap);
 
-	ret = test_xcrypt_ctr_one(xcrypt, aes_ctr, key_wrap, sizeof(key_wrap),
-				  iv_wrap, sizeof(iv_wrap), in_wrap, ct_wrap,
-				  sizeof(in_wrap));
+	ret += test_xcrypt_ctr_one(xcrypt, aes_ctr, key_wrap, sizeof(key_wrap),
+				   iv_wrap, sizeof(iv_wrap), in_wrap, ct_wrap,
+				   sizeof(in_wrap));
 	lc_sym_zero(aes_ctr);
 
 	return ret;
