@@ -22,6 +22,7 @@
 #include "asm/AESNI_x86_64/aes_aesni_x86_64.h"
 #include "compare.h"
 #include "ext_headers_x86.h"
+#include "fips_mode.h"
 #include "lc_memcmp_secure.h"
 #include "lc_sym.h"
 #include "mode_xts.h"
@@ -94,10 +95,15 @@ static int aes_aesni_xts_setkey(struct lc_sym_state *ctx, const uint8_t *key,
 	if (!ctx)
 		return -EINVAL;
 
-	one_keylen = keylen / 2;
+	one_keylen = keylen >> 1;
+
+	ret = aes_check_keylen(one_keylen);
+	if (ret)
+		return ret;
 
 	/* Reject XTS key where both parts are identical */
-	if (!lc_memcmp_secure(key, one_keylen, key + one_keylen, one_keylen))
+	if (fips140_mode_enabled() &&
+	    !lc_memcmp_secure(key, one_keylen, key + one_keylen, one_keylen))
 		return -ENOKEY;
 
 	/* Timecop: key is sensitive. */
@@ -128,11 +134,22 @@ static int aes_aesni_xts_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 	return 0;
 }
 
+static int aes_aesni_xts_getiv(struct lc_sym_state *ctx, uint8_t *iv,
+			       size_t ivlen)
+{
+	if (!ctx || !iv || ivlen != AES_BLOCKLEN)
+		return -EINVAL;
+
+	memcpy(iv, ctx->iv, AES_BLOCKLEN);
+	return 0;
+}
+
 static const struct lc_sym _lc_aes_xts_aesni = {
 	.init = aes_aesni_xts_init,
 	.init_nocheck = aes_aesni_xts_init_nocheck,
 	.setkey = aes_aesni_xts_setkey,
 	.setiv = aes_aesni_xts_setiv,
+	.getiv = aes_aesni_xts_getiv,
 	.encrypt = aes_aesni_xts_encrypt,
 	.decrypt = aes_aesni_xts_decrypt,
 	.statesize = LC_AES_AESNI_XTS_BLOCK_SIZE,

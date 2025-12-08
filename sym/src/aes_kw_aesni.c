@@ -87,11 +87,18 @@ static int aes_aesni_kw_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 	return lc_mode_kw_c->setiv(&ctx->kw_state, iv, ivlen);
 }
 
+static int aes_aesni_kw_getiv(struct lc_sym_state *ctx, uint8_t *iv,
+			      size_t ivlen)
+{
+	return lc_mode_kw_c->getiv(&ctx->kw_state, iv, ivlen);
+}
+
 static const struct lc_sym _lc_aes_kw_aesni = {
 	.init = aes_aesni_kw_init,
 	.init_nocheck = aes_aesni_kw_init_nocheck,
 	.setkey = aes_aesni_kw_setkey,
 	.setiv = aes_aesni_kw_setiv,
+	.getiv = aes_aesni_kw_getiv,
 	.encrypt = aes_aesni_kw_encrypt,
 	.decrypt = aes_aesni_kw_decrypt,
 	.statesize = LC_AES_KW_BLOCK_SIZE,

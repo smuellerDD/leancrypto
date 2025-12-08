@@ -120,11 +120,20 @@ static int aes_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen)
 	return -EOPNOTSUPP;
 }
 
+static int aes_getiv(struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen)
+{
+	(void)ctx;
+	(void)iv;
+	(void)ivlen;
+	return -EOPNOTSUPP;
+}
+
 static const struct lc_sym _lc_aes_c = {
 	.init = aes_init,
 	.init_nocheck = NULL,
 	.setkey = aes_setkey,
 	.setiv = aes_setiv,
+	.getiv = aes_getiv,
 	.encrypt = aes_encrypt,
 	.decrypt = aes_decrypt,
 	.statesize = LC_AES_BLOCK_SIZE,

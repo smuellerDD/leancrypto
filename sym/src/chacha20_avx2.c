@@ -82,6 +82,7 @@ static const struct lc_sym _lc_chacha20_avx2 = {
 	.init = cc20_init,
 	.setkey = cc20_setkey,
 	.setiv = cc20_setiv,
+	.getiv = cc20_getiv,
 	.encrypt = cc20_crypt_avx2,
 	.decrypt = cc20_crypt_avx2,
 	.statesize = LC_CC20_STATE_SIZE,

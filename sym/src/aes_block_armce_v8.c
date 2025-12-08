@@ -99,11 +99,20 @@ static int aes_armce_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 	return -EOPNOTSUPP;
 }
 
+static int aes_armce_getiv(struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen)
+{
+	(void)ctx;
+	(void)iv;
+	(void)ivlen;
+	return -EOPNOTSUPP;
+}
+
 static const struct lc_sym _lc_aes_armce = {
 	.init = aes_armce_init,
 	.init_nocheck = NULL,
 	.setkey = aes_armce_setkey,
 	.setiv = aes_armce_setiv,
+	.getiv = aes_armce_getiv,
 	.encrypt = aes_armce_encrypt,
 	.decrypt = aes_armce_decrypt,
 	.statesize = LC_AES_BLOCK_SIZE,

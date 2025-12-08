@@ -392,7 +392,7 @@ static int rfc7539_cc20p1305_tester(void)
 					   0xe2, 0x6a, 0x7e, 0x90, 0x2e, 0xcb,
 					   0xd0, 0x60, 0x06, 0x91 };
 	pr_info("ChaCha20 Poly1305 crypt\n");
-	return lc_aead_test("chacha20-rfc7539-poly1305-leancrypto", pt,
+	return lc_aead_test("rfc7539-chacha20-poly1305-leancrypto", pt,
 			    sizeof(pt), iv, sizeof(iv), aad, sizeof(aad), key,
 			    sizeof(key), exp_ct, exp_tag, sizeof(exp_tag), 0);
 }
@@ -475,7 +475,7 @@ static int rfc7539esp_cc20p1305_tester(void)
 					   0xe2, 0x6a, 0x7e, 0x90, 0x2e, 0xcb,
 					   0xd0, 0x60, 0x06, 0x91 };
 	pr_info("ESP ChaCha20 Poly1305 crypt\n");
-	return lc_aead_test("chacha20-rfc7539esp-poly1305-leancrypto", pt,
+	return lc_aead_test("rfc7539esp-chacha20-poly1305-leancrypto", pt,
 			    sizeof(pt), iv, sizeof(iv), aad, sizeof(aad), key,
 			    sizeof(key), exp_ct, exp_tag, sizeof(exp_tag), 1);
 }

@@ -22,6 +22,7 @@
 #include "asm/ARMv8/aes_armv8_ce.h"
 #include "compare.h"
 #include "ext_headers_arm.h"
+#include "fips_mode.h"
 #include "lc_memcmp_secure.h"
 #include "lc_sym.h"
 #include "mode_xts.h"
@@ -94,10 +95,15 @@ static int aes_armce_xts_setkey(struct lc_sym_state *ctx, const uint8_t *key,
 	if (!ctx)
 		return -EINVAL;
 
-	one_keylen = keylen / 2;
+	one_keylen = keylen >> 1;
+
+	ret = aes_check_keylen(one_keylen);
+	if (ret)
+		return ret;
 
 	/* Reject XTS key where both parts are identical */
-	if (!lc_memcmp_secure(key, one_keylen, key + one_keylen, one_keylen))
+	if (fips140_mode_enabled() &&
+	    !lc_memcmp_secure(key, one_keylen, key + one_keylen, one_keylen))
 		return -ENOKEY;
 
 	/* Timecop: key is sensitive. */
@@ -128,11 +134,22 @@ static int aes_armce_xts_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 	return 0;
 }
 
+static int aes_armce_xts_getiv(struct lc_sym_state *ctx, uint8_t *iv,
+			       size_t ivlen)
+{
+	if (!ctx || !iv || ivlen != AES_BLOCKLEN)
+		return -EINVAL;
+
+	memcpy(iv, ctx->iv, AES_BLOCKLEN);
+	return 0;
+}
+
 static const struct lc_sym _lc_aes_xts_armce = {
 	.init = aes_armce_xts_init,
 	.init_nocheck = aes_armce_xts_init_nocheck,
 	.setkey = aes_armce_xts_setkey,
 	.setiv = aes_armce_xts_setiv,
+	.getiv = aes_armce_xts_getiv,
 	.encrypt = aes_armce_xts_encrypt,
 	.decrypt = aes_armce_xts_decrypt,
 	.statesize = LC_AES_ARMV8_CBC_BLOCK_SIZE,

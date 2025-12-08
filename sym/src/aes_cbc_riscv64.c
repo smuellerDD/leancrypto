@@ -76,11 +76,18 @@ static int aes_riscv64_cbc_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 	return lc_mode_cbc_c->setiv(&ctx->cbc_state, iv, ivlen);
 }
 
+static int aes_riscv64_cbc_getiv(struct lc_sym_state *ctx, uint8_t *iv,
+				 size_t ivlen)
+{
+	return lc_mode_cbc_c->getiv(&ctx->cbc_state, iv, ivlen);
+}
+
 static const struct lc_sym _lc_aes_cbc_riscv64 = {
 	.init = aes_riscv64_cbc_init,
 	.init_nocheck = aes_riscv64_cbc_init_nocheck,
 	.setkey = aes_riscv64_cbc_setkey,
 	.setiv = aes_riscv64_cbc_setiv,
+	.getiv = aes_riscv64_cbc_getiv,
 	.encrypt = aes_riscv64_cbc_encrypt,
 	.decrypt = aes_riscv64_cbc_decrypt,
 	.statesize = LC_AES_CBC_BLOCK_SIZE,

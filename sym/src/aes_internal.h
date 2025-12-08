@@ -42,6 +42,7 @@ struct lc_sym_mode {
 		      size_t keylen);
 	int (*setiv)(struct lc_mode_state *ctx, const uint8_t *iv,
 		     size_t ivlen);
+	int (*getiv)(struct lc_mode_state *ctx, uint8_t *iv, size_t ivlen);
 	void (*encrypt)(struct lc_mode_state *ctx, const uint8_t *in,
 			uint8_t *out, size_t len);
 	void (*decrypt)(struct lc_mode_state *ctx, const uint8_t *in,
@@ -63,6 +64,20 @@ struct aes_block_ctx {
 	uint8_t nk;
 	uint8_t nr;
 };
+
+static inline int aes_check_keylen(size_t keylen)
+{
+	switch (keylen) {
+	case 16:
+	case 24:
+	case 32:
+		return 0;
+	default:
+		return -EINVAL;
+	}
+
+	return 0;
+}
 
 static inline int aes_set_type(struct aes_block_ctx *ctx, size_t keylen)
 {

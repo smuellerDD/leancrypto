@@ -45,6 +45,7 @@
 *******************************************************************************/
 
 #include "aes_c.h"
+#include "../../sym/src/aes_internal.h"
 #include "alignment.h"
 #include "bitshift_be.h"
 #include "compare.h"
@@ -326,6 +327,10 @@ static int gcm_setkey(struct lc_aes_gcm_cryptor *ctx, const uint8_t *key,
 	 * gcm_set_key_iv. This is needed for the Linxu kernel support.
 	 */
 	CKNULL(key, 0);
+
+	ret = aes_check_keylen(keylen);
+	if (ret)
+		return ret;
 
 	memset(h, 0, AES_BLOCKSIZE); /* initialize the block to encrypt */
 

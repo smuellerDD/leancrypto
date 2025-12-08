@@ -417,8 +417,13 @@ static int mode_xts_setkey(struct lc_mode_state *ctx, const uint8_t *key,
 
 	one_keylen = keylen >> 1;
 
+	ret = aes_check_keylen(one_keylen);
+	if (ret)
+		return ret;
+
 	/* Reject XTS key where both parts are identical */
-	if (!lc_memcmp_secure(key, one_keylen, key + one_keylen, one_keylen))
+	if (fips140_mode_enabled() &&
+	    !lc_memcmp_secure(key, one_keylen, key + one_keylen, one_keylen))
 		return -ENOKEY;
 
 	/*
@@ -461,10 +466,20 @@ static int mode_xts_setiv(struct lc_mode_state *ctx, const uint8_t *iv,
 	return 0;
 }
 
+static int mode_xts_getiv(struct lc_mode_state *ctx, uint8_t *iv, size_t ivlen)
+{
+	if (!ctx || !iv || ivlen != AES_BLOCKLEN)
+		return -EINVAL;
+
+	memcpy(iv, ctx->tweak.b, AES_BLOCKLEN);
+	return 0;
+}
+
 static const struct lc_sym_mode _lc_mode_xts_c = {
 	.init = mode_xts_init,
 	.setkey = mode_xts_setkey,
 	.setiv = mode_xts_setiv,
+	.getiv = mode_xts_getiv,
 	.encrypt = mode_xts_encrypt,
 	.decrypt = mode_xts_decrypt,
 	.statesize = LC_AES_XTS_BLOCK_SIZE,

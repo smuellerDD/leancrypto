@@ -39,8 +39,8 @@ the following steps have to be taken:
 	`obj-y += leancrypto/linux_kernel/`
 	
 3. tell leancrypto to be compiled statically into the kernel by editing the file
-   `leancrypto/linux_kernel/Kbuild.basics` and modifying the very first line
-   to change `obj-m` to `obj-y`.
+   `leancrypto/linux_kernel/Kbuild.config` and modify the option 
+   `CONFIG_LEANCRYPTO` to `y`.
    
 At this point, leancrypto will now be built statically into the Linux kernel
 when compiling it. Naturally, all Linux kernel options can be set as leancrypto

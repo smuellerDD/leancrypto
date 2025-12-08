@@ -107,11 +107,21 @@ static int aes_riscv64_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 	return -EOPNOTSUPP;
 }
 
+static int aes_riscv64_getiv(struct lc_sym_state *ctx, uint8_t *iv,
+			     size_t ivlen)
+{
+	(void)ctx;
+	(void)iv;
+	(void)ivlen;
+	return -EOPNOTSUPP;
+}
+
 static const struct lc_sym _lc_aes_riscv64 = {
 	.init = aes_riscv64_init,
 	.init_nocheck = NULL,
 	.setkey = aes_riscv64_setkey,
 	.setiv = aes_riscv64_setiv,
+	.getiv = aes_riscv64_getiv,
 	.encrypt = aes_riscv64_encrypt,
 	.decrypt = aes_riscv64_decrypt,
 	.statesize = LC_AES_BLOCK_SIZE,
@@ -124,6 +134,7 @@ static const struct lc_sym _lc_aes_riscv64_enc_only = {
 	.init_nocheck = NULL,
 	.setkey = aes_riscv64_setkey_enc_only,
 	.setiv = aes_riscv64_setiv,
+	.getiv = aes_riscv64_getiv,
 	.encrypt = aes_riscv64_encrypt,
 	.decrypt = aes_riscv64_decrypt,
 	.statesize = LC_AES_BLOCK_SIZE,

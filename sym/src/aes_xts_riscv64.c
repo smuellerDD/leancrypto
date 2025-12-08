@@ -79,11 +79,18 @@ static int aes_riscv64_xts_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 	return lc_mode_xts_c->setiv(&ctx->xts_state, iv, ivlen);
 }
 
+static int aes_riscv64_xts_getiv(struct lc_sym_state *ctx, uint8_t *iv,
+				 size_t ivlen)
+{
+	return lc_mode_xts_c->getiv(&ctx->xts_state, iv, ivlen);
+}
+
 static const struct lc_sym _lc_aes_xts_riscv64 = {
 	.init = aes_riscv64_xts_init,
 	.init_nocheck = aes_riscv64_xts_init_nocheck,
 	.setkey = aes_riscv64_xts_setkey,
 	.setiv = aes_riscv64_xts_setiv,
+	.getiv = aes_riscv64_xts_getiv,
 	.encrypt = aes_riscv64_xts_encrypt,
 	.decrypt = aes_riscv64_xts_decrypt,
 	.statesize = LC_AES_XTS_BLOCK_SIZE,

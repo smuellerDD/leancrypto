@@ -80,7 +80,10 @@ static int lc_aes_cbc_common(struct skcipher_request *req,
 		err = skcipher_walk_done(&walk, walk.nbytes - nbytes);
 	}
 
-	return err;
+	if (err)
+		return err;
+
+	return lc_sym_getiv(ctx, req->iv, AES_BLOCK_SIZE);
 }
 
 static int lc_aes_cbc_encrypt(struct skcipher_request *req)

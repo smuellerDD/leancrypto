@@ -182,9 +182,14 @@ static int mode_ctr_setkey(struct lc_mode_state *ctx, const uint8_t *key,
 			   size_t keylen)
 {
 	const struct lc_sym *wrappeded_cipher;
+	int ret;
 
 	if (!ctx || !ctx->wrappeded_cipher)
 		return -EINVAL;
+
+	ret = aes_check_keylen(keylen);
+	if (ret)
+		return ret;
 
 	wrappeded_cipher = ctx->wrappeded_cipher;
 	return wrappeded_cipher->setkey(ctx->wrapped_cipher_ctx, key, keylen);
@@ -193,10 +198,19 @@ static int mode_ctr_setkey(struct lc_mode_state *ctx, const uint8_t *key,
 static int mode_ctr_setiv(struct lc_mode_state *ctx, const uint8_t *iv,
 			  size_t ivlen)
 {
-	if (!ctx || ivlen != AES_BLOCKLEN)
+	if (!ctx || !iv || ivlen != AES_BLOCKLEN)
 		return -EINVAL;
 
 	ptr_to_ctr128(ctx->iv, iv);
+	return 0;
+}
+
+static int mode_ctr_getiv(struct lc_mode_state *ctx, uint8_t *iv, size_t ivlen)
+{
+	if (!ctx || ivlen != AES_BLOCKLEN)
+		return -EINVAL;
+
+	ctr128_to_ptr(iv, ctx->iv);
 	return 0;
 }
 
@@ -204,6 +218,7 @@ static const struct lc_sym_mode _lc_mode_ctr_c = {
 	.init = mode_ctr_init,
 	.setkey = mode_ctr_setkey,
 	.setiv = mode_ctr_setiv,
+	.getiv = mode_ctr_getiv,
 	.encrypt = mode_ctr_crypt,
 	.decrypt = mode_ctr_crypt,
 	.statesize = LC_AES_CTR_BLOCK_SIZE,

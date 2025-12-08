@@ -153,7 +153,7 @@ static int lc_aes_xts_common(struct skcipher_request *req,
 		   req->dst->length >= req->cryptlen)) {
 		crypt_func(ctx, sg_virt(req->src), sg_virt(req->dst),
 			   req->cryptlen);
-		return 0;
+		return lc_sym_getiv(ctx, req->iv, AES_BLOCK_SIZE);
 	}
 
 	return lc_aes_xts_slowpath(req, crypt_func);

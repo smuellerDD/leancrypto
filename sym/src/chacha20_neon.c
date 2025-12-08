@@ -44,6 +44,7 @@ static const struct lc_sym _lc_chacha20_neon = {
 	.init = cc20_init,
 	.setkey = cc20_setkey,
 	.setiv = cc20_setiv,
+	.getiv = cc20_getiv,
 	.encrypt = cc20_crypt_neon,
 	.decrypt = cc20_crypt_neon,
 	.statesize = LC_CC20_STATE_SIZE,

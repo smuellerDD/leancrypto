@@ -185,9 +185,14 @@ static int mode_cbc_setkey(struct lc_mode_state *ctx, const uint8_t *key,
 			   size_t keylen)
 {
 	const struct lc_sym *wrappeded_cipher;
+	int ret;
 
 	if (!ctx || !ctx->wrappeded_cipher)
 		return -EINVAL;
+
+	ret = aes_check_keylen(keylen);
+	if (ret)
+		return ret;
 
 	wrappeded_cipher = ctx->wrappeded_cipher;
 	return wrappeded_cipher->setkey(ctx->wrapped_cipher_ctx, key, keylen);
@@ -203,10 +208,20 @@ static int mode_cbc_setiv(struct lc_mode_state *ctx, const uint8_t *iv,
 	return 0;
 }
 
+static int mode_cbc_getiv(struct lc_mode_state *ctx, uint8_t *iv, size_t ivlen)
+{
+	if (!ctx || !iv || ivlen != AES_BLOCKLEN)
+		return -EINVAL;
+
+	memcpy(iv, ctx->iv, AES_BLOCKLEN);
+	return 0;
+}
+
 static const struct lc_sym_mode _lc_mode_cbc_c = {
 	.init = mode_cbc_init,
 	.setkey = mode_cbc_setkey,
 	.setiv = mode_cbc_setiv,
+	.getiv = mode_cbc_getiv,
 	.encrypt = mode_cbc_encrypt,
 	.decrypt = mode_cbc_decrypt,
 	.statesize = LC_AES_CBC_BLOCK_SIZE,

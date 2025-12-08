@@ -350,9 +350,35 @@ int cc20_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen)
 	return 0;
 }
 
+int cc20_getiv(struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen)
+{
+	if (!ctx)
+		return -EINVAL;
+
+	/* IV is counter + nonce */
+	switch (ivlen) {
+	case 12:
+		le32_to_ptr(iv, ctx->counter[1]);
+		le32_to_ptr(iv + sizeof(uint32_t), ctx->counter[2]);
+		le32_to_ptr(iv + sizeof(uint32_t) * 2, ctx->counter[3]);
+		break;
+	case 16:
+
+		le32_to_ptr(iv, ctx->counter[0]);
+		le32_to_ptr(iv + sizeof(uint32_t), ctx->counter[1]);
+		le32_to_ptr(iv + sizeof(uint32_t) * 2, ctx->counter[2]);
+		le32_to_ptr(iv + sizeof(uint32_t) * 3, ctx->counter[3]);
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	return 0;
+}
 static const struct lc_sym _lc_chacha20 = { .init = cc20_init,
 					    .setkey = cc20_setkey,
 					    .setiv = cc20_setiv,
+					    .getiv = cc20_getiv,
 					    .encrypt = cc20_crypt,
 					    .decrypt = cc20_crypt,
 					    .statesize = LC_CC20_STATE_SIZE,

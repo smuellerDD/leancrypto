@@ -253,8 +253,8 @@ static void lc_cc20p1305_exit(struct crypto_aead *aead)
 static struct aead_alg lc_cc20p1305_algs[] = {
 	{
 		.base = {
-			.cra_name = "chacha20(rfc7539,poly1305)",
-			.cra_driver_name = "chacha20-rfc7539-poly1305-leancrypto",
+			.cra_name = "rfc7539(chacha20,poly1305)",
+			.cra_driver_name = "rfc7539-chacha20-poly1305-leancrypto",
 			.cra_priority = LC_KERNEL_DEFAULT_PRIO,
 			.cra_blocksize = 1,
 			.cra_ctxsize = sizeof(struct lc_rfc7539_cc20p1305_ctx),
@@ -271,8 +271,8 @@ static struct aead_alg lc_cc20p1305_algs[] = {
 		.maxauthsize = POLY1305_DIGEST_SIZE,
 	}, {
 		.base = {
-			.cra_name = "chacha20(rfc7539esp,poly1305)",
-			.cra_driver_name = "chacha20-rfc7539esp-poly1305-leancrypto",
+			.cra_name = "rfc7539esp(chacha20,poly1305)",
+			.cra_driver_name = "rfc7539esp-chacha20-poly1305-leancrypto",
 			.cra_priority = LC_KERNEL_DEFAULT_PRIO,
 			.cra_blocksize = 1,
 			.cra_ctxsize = sizeof(struct lc_rfc7539_cc20p1305_ctx),

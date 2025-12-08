@@ -101,6 +101,10 @@ static int aes_armce_cbc_setkey(struct lc_sym_state *ctx, const uint8_t *key,
 	if (!ctx)
 		return -EINVAL;
 
+	ret = aes_check_keylen(keylen);
+	if (ret)
+		return ret;
+
 	LC_NEON_ENABLE;
 	CKINT(aes_v8_set_encrypt_key(key, (unsigned int)(keylen << 3),
 				     &ctx->enc_block_ctx));
@@ -122,11 +126,22 @@ static int aes_armce_cbc_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 	return 0;
 }
 
+static int aes_armce_cbc_getiv(struct lc_sym_state *ctx, uint8_t *iv,
+			       size_t ivlen)
+{
+	if (!ctx || !iv || ivlen != AES_BLOCKLEN)
+		return -EINVAL;
+
+	memcpy(iv, ctx->iv, AES_BLOCKLEN);
+	return 0;
+}
+
 static const struct lc_sym _lc_aes_cbc_armce = {
 	.init = aes_armce_cbc_init,
 	.init_nocheck = aes_armce_cbc_init_nocheck,
 	.setkey = aes_armce_cbc_setkey,
 	.setiv = aes_armce_cbc_setiv,
+	.getiv = aes_armce_cbc_getiv,
 	.encrypt = aes_armce_cbc_encrypt,
 	.decrypt = aes_armce_cbc_decrypt,
 	.statesize = LC_AES_ARMV8_CBC_BLOCK_SIZE,

@@ -73,11 +73,17 @@ static int aes_ctr_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 	return lc_mode_ctr_c->setiv(&ctx->ctr_state, iv, ivlen);
 }
 
+static int aes_ctr_getiv(struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen)
+{
+	return lc_mode_ctr_c->getiv(&ctx->ctr_state, iv, ivlen);
+}
+
 static const struct lc_sym _lc_aes_ctr_c = { .init = aes_ctr_init,
 					     .init_nocheck =
 						     aes_ctr_init_nocheck,
 					     .setkey = aes_ctr_setkey,
 					     .setiv = aes_ctr_setiv,
+					     .getiv = aes_ctr_getiv,
 					     .encrypt = aes_ctr_crypt,
 					     .decrypt = aes_ctr_crypt,
 					     .statesize = LC_AES_CTR_BLOCK_SIZE,

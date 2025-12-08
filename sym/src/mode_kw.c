@@ -262,9 +262,14 @@ static int mode_kw_setkey(struct lc_mode_state *ctx, const uint8_t *key,
 			  size_t keylen)
 {
 	const struct lc_sym *wrappeded_cipher;
+	int ret;
 
 	if (!ctx || !ctx->wrappeded_cipher)
 		return -EINVAL;
+
+	ret = aes_check_keylen(keylen);
+	if (ret)
+		return ret;
 
 	wrappeded_cipher = ctx->wrappeded_cipher;
 	return wrappeded_cipher->setkey(ctx->wrapped_cipher_ctx, key, keylen);
@@ -280,10 +285,20 @@ static int mode_kw_setiv(struct lc_mode_state *ctx, const uint8_t *iv,
 	return 0;
 }
 
+static int mode_kw_getiv(struct lc_mode_state *ctx, uint8_t *iv, size_t ivlen)
+{
+	if (!ctx || !iv || ivlen != AES_KW_SEMIBSIZE)
+		return -EINVAL;
+
+	val64_to_ptr(iv, ctx->tag);
+	return 0;
+}
+
 static const struct lc_sym_mode _lc_mode_kw_c = {
 	.init = mode_kw_init,
 	.setkey = mode_kw_setkey,
 	.setiv = mode_kw_setiv,
+	.getiv = mode_kw_getiv,
 	.encrypt = mode_kw_encrypt,
 	.decrypt = mode_kw_decrypt,
 	.statesize = LC_AES_KW_BLOCK_SIZE,
