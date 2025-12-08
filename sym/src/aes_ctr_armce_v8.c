@@ -93,8 +93,6 @@ static void aes_armce_ctr_crypt(struct lc_sym_state *ctx, const uint8_t *in,
 		/* Convert todo back into bytes */
 		todo <<= 4;
 
-		/* Timecop: output is not sensitive regarding side-channels. */
-		unpoison(out, todo);
 		out += todo;
 		in += todo;
 	}
@@ -115,9 +113,6 @@ static void aes_armce_ctr_crypt(struct lc_sym_state *ctx, const uint8_t *in,
 		aes_v8_ctr32_encrypt_blocks(buffer, buffer, 1,
 					    &ctx->enc_block_ctx, ctx->iv);
 		memcpy(out, buffer, residual_len);
-
-		/* Timecop: output is not sensitive regarding side-channels. */
-		unpoison(out, residual_len);
 
 		lc_memset_secure(buffer, 0, sizeof(buffer));
 
