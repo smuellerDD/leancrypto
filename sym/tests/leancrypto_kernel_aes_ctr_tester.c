@@ -200,6 +200,9 @@ static int lc_aes_ctr_test(const char *name, const uint8_t *data, size_t inlen,
 		goto out;
 	}
 
+	/* Reset the IV to the original IV */
+	memcpy(iv, in_iv, ivlen);
+
 	/* Decrypt */
 	sg_init_table(sg_in, 1);
 	sg_set_buf(&sg_in[0], out_enc, inlen);

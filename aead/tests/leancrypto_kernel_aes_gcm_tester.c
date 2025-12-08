@@ -102,8 +102,9 @@ static unsigned int lc_aead_test_encdec(struct lc_aead_test_def *aead, int enc)
  *	 authentication failed.
  */
 static int lc_aead_test(const char *name, const uint8_t *data, size_t inlen,
-			uint8_t *nonce, size_t noncelen, const uint8_t *aad_in,
-			size_t aadlen, const uint8_t *key, size_t keylen,
+			const uint8_t *nonce_in, size_t noncelen,
+			const uint8_t *aad_in, size_t aadlen,
+			const uint8_t *key, size_t keylen,
 			const uint8_t *exp_ct, const uint8_t *exp_tag,
 			size_t exp_tag_len, int rfc4106)
 {
@@ -113,11 +114,18 @@ static int lc_aead_test(const char *name, const uint8_t *data, size_t inlen,
 	struct aead_request *req = NULL;
 	struct scatterlist sg_in[5], sg_out[6];
 	u8 *out_enc = NULL, *out_dec = NULL, *aad = NULL, *in = NULL,
-	   *tag = NULL;
+	   *tag = NULL, *nonce = NULL;
+
+	nonce = kmalloc(noncelen, GFP_KERNEL);
+	if (!nonce)
+		return -ENOMEM;
+	memcpy(nonce, nonce_in, noncelen);
 
 	aad = kmalloc(aadlen, GFP_KERNEL);
-	if (!aad)
-		return -ENOMEM;
+	if (!aad) {
+		ret = -ENOMEM;
+		goto out;
+	}
 	memcpy(aad, aad_in, aadlen);
 
 	in = kmalloc(inlen, GFP_KERNEL);
@@ -274,6 +282,9 @@ static int lc_aead_test(const char *name, const uint8_t *data, size_t inlen,
 		goto out;
 	}
 
+	/* Reset the IV to the original IV */
+	memcpy(nonce, nonce_in, noncelen);
+
 	/* Decrypt */
 	if (aadlen) {
 		if (rfc4106) {
@@ -319,6 +330,9 @@ static int lc_aead_test(const char *name, const uint8_t *data, size_t inlen,
 		goto out;
 	}
 
+	/* Reset the IV to the original IV */
+	memcpy(nonce, nonce_in, noncelen);
+
 	/* Mess up the ciphertext */
 	out_enc[0] ^= 0x01;
 	ret = lc_aead_test_encdec(&aead, 0);
@@ -332,6 +346,8 @@ static int lc_aead_test(const char *name, const uint8_t *data, size_t inlen,
 	pr_info("Testing successful\n");
 
 out:
+	if (nonce)
+		kfree(nonce);
 	if (tag)
 		kfree(tag);
 	if (aad)
@@ -391,8 +407,8 @@ static int rfc4106_comparison_aes_gcm_tester_256(void)
 				       0xec, 0x5f, 0x65, 0x97, 0x65, 0xfb, 0x6a,
 				       0xaa, 0x04, 0x8f, 0x70, 0x56, 0xf6, 0xc6,
 				       0xb5, 0xd8, 0x51, 0x3d };
-	uint8_t iv[] = { 0xb8, 0xb5, 0xe4, 0x07, 0xad, 0xc0,
-			 0xe2, 0x93, 0xe3, 0xe7, 0xe9, 0x91 };
+	static const uint8_t iv[] = { 0xb8, 0xb5, 0xe4, 0x07, 0xad, 0xc0,
+				      0xe2, 0x93, 0xe3, 0xe7, 0xe9, 0x91 };
 	static const uint8_t exp_ct[] = { 0x8f, 0xad, 0xa0, 0xb8, 0xe7, 0x77,
 					  0xa8, 0x29, 0xca, 0x96, 0x80, 0xd3,
 					  0xbf, 0x4f, 0x35, 0x74 };
@@ -419,14 +435,14 @@ static int rfc4106_aes_gcm_tester_256(void)
 				       0xb5, 0xd8, 0x51, 0x3d,
 				       /* IV part */
 				       0xb8, 0xb5, 0xe4, 0x07 };
-	uint8_t iv[] = { /* 0xb8, 0xb5, 0xe4, 0x07,*/ 0xad,
-			 0xc0,
-			 0xe2,
-			 0x93,
-			 0xe3,
-			 0xe7,
-			 0xe9,
-			 0x91 };
+	static const uint8_t iv[] = { /* 0xb8, 0xb5, 0xe4, 0x07,*/ 0xad,
+					0xc0,
+					0xe2,
+					0x93,
+					0xe3,
+					0xe7,
+					0xe9,
+					0x91 };
 	static const uint8_t exp_ct[] = { 0x8f, 0xad, 0xa0, 0xb8, 0xe7, 0x77,
 					  0xa8, 0x29, 0xca, 0x96, 0x80, 0xd3,
 					  0xbf, 0x4f, 0x35, 0x74 };

@@ -4,6 +4,10 @@
 leancrypto-$(CONFIG_LEANCRYPTO_HMAC)					       \
 				+= ../hmac/src/hmac.o
 
+ifdef CONFIG_LEANCRYPTO_HMAC
+ccflags-y				+= -DCONFIG_LEANCRYPTO_HMAC
+endif
+
 ifdef CONFIG_LEANCRYPTO_SHA2_256
 leancrypto-$(CONFIG_LEANCRYPTO_HMAC)					       \
 				+= ../hmac/src/hmac_sha256_selftest.o	       \
@@ -21,7 +25,6 @@ leancrypto-$(CONFIG_LEANCRYPTO_HMAC)					       \
 				   ../hmac/src/hmac_sha512_selftest.o	       \
 				   ../hmac/src/hmac_sha3_selftest_null.o
 ifdef CONFIG_LEANCRYPTO_HMAC
-ccflags-y				+= -DCONFIG_LEANCRYPTO_HMAC
 obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= hmac_sha2_512_tester.o
 hmac_sha2_512_tester-y			+= ../hmac/tests/hmac_sha2_512_tester.o
 endif

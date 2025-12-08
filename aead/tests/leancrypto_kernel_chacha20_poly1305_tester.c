@@ -99,8 +99,9 @@ static unsigned int lc_aead_test_encdec(struct lc_aead_test_def *aead, int enc)
  * output: ciphertext / plaintext
  */
 static int lc_aead_test(const char *name, const uint8_t *data, size_t inlen,
-			uint8_t *iv, size_t ivlen, const uint8_t *aad_in,
-			size_t aadlen, const uint8_t *key, size_t keylen,
+			const uint8_t *in_iv, size_t ivlen,
+			const uint8_t *aad_in, size_t aadlen,
+			const uint8_t *key, size_t keylen,
 			const uint8_t *exp_ct, const uint8_t *exp_tag,
 			size_t exp_tag_len, int esp)
 {
@@ -110,11 +111,18 @@ static int lc_aead_test(const char *name, const uint8_t *data, size_t inlen,
 	struct aead_request *req = NULL;
 	struct scatterlist sg_in[5], sg_out[6];
 	u8 *out_enc = NULL, *out_dec = NULL, *aad = NULL, *in = NULL,
-	   *tag = NULL;
+	   *tag = NULL, *iv = NULL;
+
+	iv = kmalloc(ivlen, GFP_KERNEL);
+	if (!iv)
+		return -ENOMEM;
+	memcpy(iv, in_iv, ivlen);
 
 	aad = kmalloc(aadlen, GFP_KERNEL);
-	if (!aad)
-		return -ENOMEM;
+	if (!aad) {
+		ret = -ENOMEM;
+		goto out;
+	}
 	memcpy(aad, aad_in, aadlen);
 
 	in = kmalloc(inlen, GFP_KERNEL);
@@ -271,6 +279,9 @@ static int lc_aead_test(const char *name, const uint8_t *data, size_t inlen,
 		goto out;
 	}
 
+	/* Reset the IV to the original IV */
+	memcpy(iv, in_iv, ivlen);
+
 	/* Decrypt */
 	if (aadlen) {
 		if (esp) {
@@ -329,6 +340,8 @@ static int lc_aead_test(const char *name, const uint8_t *data, size_t inlen,
 	pr_info("Testing successful\n");
 
 out:
+	if (iv)
+		kfree(iv);
 	if (tag)
 		kfree(tag);
 	if (aad)
@@ -372,8 +385,8 @@ static int rfc7539_cc20p1305_tester(void)
 				       0x8e, 0x8f, 0x90, 0x91, 0x92, 0x93, 0x94,
 				       0x95, 0x96, 0x97, 0x98, 0x99, 0x9a, 0x9b,
 				       0x9c, 0x9d, 0x9e, 0x9f };
-	uint8_t iv[] = { 0x07, 0x00, 0x00, 0x00, 0x40, 0x41,
-			 0x42, 0x43, 0x44, 0x45, 0x46, 0x47 };
+	static const uint8_t iv[] = { 0x07, 0x00, 0x00, 0x00, 0x40, 0x41,
+				      0x42, 0x43, 0x44, 0x45, 0x46, 0x47 };
 	static const uint8_t exp_ct[] = {
 		0xd3, 0x1a, 0x8d, 0x34, 0x64, 0x8e, 0x60, 0xdb, 0x7b, 0x86,
 		0xaf, 0xbc, 0x53, 0xef, 0x7e, 0xc2, 0xa4, 0xad, 0xed, 0x51,
@@ -454,8 +467,8 @@ static int rfc7539esp_cc20p1305_tester(void)
 		0x00,
 		0x00,
 	};
-	uint8_t iv[] = { /* 0x07, 0x00, 0x00, 0x00, */
-			 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47
+	static const uint8_t iv[] = { /* 0x07, 0x00, 0x00, 0x00, */
+		0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47
 	};
 	static const uint8_t exp_ct[] = {
 		0xd3, 0x1a, 0x8d, 0x34, 0x64, 0x8e, 0x60, 0xdb, 0x7b, 0x86,
