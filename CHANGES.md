@@ -29,6 +29,8 @@ Changes 1.7.0-prerelease
 
 * Linux kernel: Add simple approach to compie leancrypto in-tree either as module or statically bound into the Linux kernel binary.
 
+* AES-XTS AESNI support: fix stream mode operation by extracting IV from state
+
 Changes 1.6.0
 * ASN.1: use stack for small generator for small use cases
 

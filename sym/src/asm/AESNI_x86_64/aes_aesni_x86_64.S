@@ -1640,11 +1640,18 @@ SYM_FUNC_ENTER(aesni_xts_encrypt)
 .cfi_def_cfa_register	%r11
 	pushq	%rbp
 .cfi_offset	%rbp,-16
+	pushq	%r14
+.cfi_offset	%rbp,-24
 	subq	$112,%rsp
 	andq	$-16,%rsp
 	movups	(%r9),%xmm2
+
 	movl	240(%r8),%eax
-	movl	240(%rcx),%r10d
+
+	movq	%r9,%r14	# Store pointer to IV for later retrieval
+	cmpb	$0,16(%r9)	# Was IV already tweaked?
+	jne	.Ltweaked_enc	# If yes, skip tweaking
+
 	movups	(%r8),%xmm0
 	movups	16(%r8),%xmm1
 	leaq	32(%r8),%r8
@@ -1656,6 +1663,8 @@ SYM_FUNC_ENTER(aesni_xts_encrypt)
 	leaq	16(%r8),%r8
 	jnz	.Loop_enc1_8
 	aesenclast	%xmm1,%xmm2
+.Ltweaked_enc:
+	movl	240(%rcx),%r10d
 	movups	(%rcx),%xmm0
 	movq	%rcx,%rbp
 	movl	%r10d,%eax
@@ -2074,6 +2083,7 @@ SYM_FUNC_ENTER(aesni_xts_encrypt)
 	movups	%xmm2,-16(%rsi)
 
 .Lxts_enc_ret:
+	movups	%xmm10,(%r14) #xmm10 contains IV - write it back
 	xorps	%xmm0,%xmm0
 	pxor	%xmm1,%xmm1
 	pxor	%xmm2,%xmm2
@@ -2099,6 +2109,8 @@ SYM_FUNC_ENTER(aesni_xts_encrypt)
 	pxor	%xmm15,%xmm15
 	movq	-8(%r11),%rbp
 .cfi_restore	%rbp
+	movq	-16(%r11),%r14
+.cfi_restore	%r14
 	leaq	(%r11),%rsp
 .cfi_def_cfa_register	%rsp
 .Lxts_enc_epilogue:
@@ -2117,11 +2129,18 @@ SYM_FUNC_ENTER(aesni_xts_decrypt)
 .cfi_def_cfa_register	%r11
 	pushq	%rbp
 .cfi_offset	%rbp,-16
+	pushq	%r14
+.cfi_offset	%rbp,-24
 	subq	$112,%rsp
 	andq	$-16,%rsp
 	movups	(%r9),%xmm2
+
 	movl	240(%r8),%eax
-	movl	240(%rcx),%r10d
+
+	movq	%r9,%r14	# Store pointer to IV for later retrieval
+	cmpb	$0,16(%r9)	# Was IV already tweaked?
+	jne	.Ltweaked_dec	# If yes, skip tweaking
+
 	movups	(%r8),%xmm0
 	movups	16(%r8),%xmm1
 	leaq	32(%r8),%r8
@@ -2133,6 +2152,8 @@ SYM_FUNC_ENTER(aesni_xts_decrypt)
 	leaq	16(%r8),%r8
 	jnz	.Loop_enc1_11
 	aesenclast	%xmm1,%xmm2
+.Ltweaked_dec:
+	movl	240(%rcx),%r10d
 	xorl	%eax,%eax
 	testq	$15,%rdx
 	setnz	%al
@@ -2588,6 +2609,7 @@ SYM_FUNC_ENTER(aesni_xts_decrypt)
 	movups	%xmm2,(%rsi)
 
 .Lxts_dec_ret:
+	movups	%xmm10,(%r14) #xmm10 contains IV - write it back
 	xorps	%xmm0,%xmm0
 	pxor	%xmm1,%xmm1
 	pxor	%xmm2,%xmm2
@@ -2613,6 +2635,8 @@ SYM_FUNC_ENTER(aesni_xts_decrypt)
 	pxor	%xmm15,%xmm15
 	movq	-8(%r11),%rbp
 .cfi_restore	%rbp
+	movq	-16(%r11),%r14
+.cfi_restore	%r14
 	leaq	(%r11),%rsp
 .cfi_def_cfa_register	%rsp
 .Lxts_dec_epilogue:

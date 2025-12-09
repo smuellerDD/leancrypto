@@ -35,7 +35,8 @@ struct lc_sym_state {
 	struct aes_aesni_block_ctx enc_block_ctx;
 	struct aes_aesni_block_ctx dec_block_ctx;
 	struct aes_aesni_block_ctx tweak_ctx;
-	uint8_t iv[AES_BLOCKLEN];
+	 /* Last byte of IV buffer contains indicator whether IV was tweaked */
+	uint8_t iv[AES_BLOCKLEN + 1];
 };
 
 #define LC_AES_AESNI_XTS_BLOCK_SIZE sizeof(struct lc_sym_state)
@@ -51,6 +52,9 @@ static void aes_aesni_xts_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 			  ctx->iv);
 	LC_FPU_DISABLE;
 
+	/* IV was tweaked during first processing. */
+	ctx->iv[AES_BLOCKLEN] = 1;
+
 	/* Timecop: output is not sensitive regarding side-channels. */
 	unpoison(out, len);
 }
@@ -65,6 +69,9 @@ static void aes_aesni_xts_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 	aesni_xts_decrypt(in, out, len, &ctx->dec_block_ctx, &ctx->tweak_ctx,
 			  ctx->iv);
 	LC_FPU_DISABLE;
+
+	/* IV was tweaked during first processing. */
+	ctx->iv[AES_BLOCKLEN] = 1;
 
 	/* Timecop: output is not sensitive regarding side-channels. */
 	unpoison(out, len);
@@ -118,6 +125,9 @@ static int aes_aesni_xts_setkey(struct lc_sym_state *ctx, const uint8_t *key,
 				    (unsigned int)(one_keylen << 3),
 				    &ctx->tweak_ctx));
 
+	/* Let first enc/dec operation tweak the IV */
+	ctx->iv[AES_BLOCKLEN] = 0;
+
 out:
 	LC_FPU_DISABLE;
 	unpoison(key, keylen);
@@ -131,6 +141,10 @@ static int aes_aesni_xts_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 		return -EINVAL;
 
 	memcpy(ctx->iv, iv, AES_BLOCKLEN);
+
+	/* Let first enc/dec operation tweak the IV */
+	ctx->iv[AES_BLOCKLEN] = 0;
+
 	return 0;
 }
 

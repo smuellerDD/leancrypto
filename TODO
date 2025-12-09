@@ -25,4 +25,3 @@
 
 - Linux kernel: enable ASN.1 on 32 bit systems (due to gmtime.c divisions, __divdi3 (i586) and __aeabi_divmod (armv7) are included by compiler)
 
-- Linux kernel: add support for streaming XTS mode (is this really needed?)

@@ -57,11 +57,11 @@ void SYSV_ABI aesni_cbc_encrypt(const uint8_t *in, uint8_t *out, size_t length,
 void SYSV_ABI aesni_xts_encrypt(const uint8_t *pt, uint8_t *ct, size_t length,
 				const struct aes_aesni_block_ctx *key1,
 				const struct aes_aesni_block_ctx *key2,
-				const uint8_t iv[16]);
+				const uint8_t iv[17]);
 void SYSV_ABI aesni_xts_decrypt(const uint8_t *ct, uint8_t *pt, size_t length,
 				const struct aes_aesni_block_ctx *key1,
 				const struct aes_aesni_block_ctx *key2,
-				const uint8_t iv[16]);
+				const uint8_t iv[17]);
 
 #if 0
 void aesni_ccm64_encrypt_blocks(const uint8_t *pt, uint8_t *ct, size_t blocks,

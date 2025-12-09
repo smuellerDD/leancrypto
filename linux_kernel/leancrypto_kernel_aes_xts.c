@@ -59,7 +59,6 @@ static noinline int lc_aes_xts_slowpath(
 	void (*crypt_func)(struct lc_sym_ctx *ctx, const uint8_t *in,
 			   uint8_t *out, size_t len))
 {
-#if 0
 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
 	struct lc_sym_ctx *ctx = crypto_skcipher_ctx(tfm);
 	unsigned int tail = req->cryptlen % AES_BLOCK_SIZE;
@@ -80,9 +79,11 @@ static noinline int lc_aes_xts_slowpath(
 		skcipher_request_set_callback(&subreq,
 					      skcipher_request_flags(req),
 					      NULL, NULL);
+
 		skcipher_request_set_crypt(&subreq, req->src, req->dst,
 					   req->cryptlen - tail - AES_BLOCK_SIZE,
 					   req->iv);
+
 		req = &subreq;
 	}
 
@@ -120,10 +121,6 @@ static noinline int lc_aes_xts_slowpath(
 	crypt_func(ctx, walk.src.virt.addr, walk.dst.virt.addr, walk.nbytes);
 
 	return skcipher_walk_done(&walk, 0);
-#else
-	/* XTS implemented in leancrypto does not support streaming mode */
-	return -EOPNOTSUPP;
-#endif
 }
 
 static int lc_aes_xts_common(struct skcipher_request *req,
@@ -156,7 +153,11 @@ static int lc_aes_xts_common(struct skcipher_request *req,
 		return lc_sym_getiv(ctx, req->iv, AES_BLOCK_SIZE);
 	}
 
-	return lc_aes_xts_slowpath(req, crypt_func);
+	err = lc_aes_xts_slowpath(req, crypt_func);
+	if (err)
+		return err;
+
+	return lc_sym_getiv(ctx, req->iv, AES_BLOCK_SIZE);
 }
 
 static int lc_aes_xts_encrypt(struct skcipher_request *req)

@@ -189,6 +189,7 @@ if get_option('aes_xts').enabled()
 	# AES-NI
 	if (x86_64_asm)
 		lc_aesni_asm = 1
+		lc_block = 1
 		src += files([ 'aes_xts_aesni.c' ])
 	else
 		src += files([ 'aes_xts_aesni_null.c' ])
@@ -196,6 +197,7 @@ if get_option('aes_xts').enabled()
 
 	if (arm64_asm)
 		lc_armce_v8_asm = 1
+		lc_block = 1
 		src += files([ 'aes_xts_armce_v8.c' ])
 	else
 		src += files([ 'aes_xts_armce_v8_null.c' ])
@@ -203,6 +205,7 @@ if get_option('aes_xts').enabled()
 
 	if (riscv64_asm)
 		lc_riscv64_asm = 1
+		lc_block = 1
 		src += files([ 'aes_xts_riscv64.c' ])
 	else
 		src += files([ 'aes_xts_riscv64_null.c' ])

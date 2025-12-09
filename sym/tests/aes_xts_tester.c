@@ -189,6 +189,14 @@ static int test_encrypt_xts_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 #pragma GCC diagnostic pop
 	int ret, rc;
 
+	/*
+	 * Test multi-staged XTS - the code below invokes XTS in stream mode.
+	 * Yet, only the last block is allowed to be non-aligned for generating
+	 * the ciphertext stealing.
+	 */
+	if (ptlen < AES_BLOCKLEN)
+		return -EINVAL;
+
 	/* Unpoison key to let implementation poison it */
 	unpoison(key, keylen);
 
@@ -196,14 +204,19 @@ static int test_encrypt_xts_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 	CKINT(lc_sym_init(ctx));
 	CKINT(lc_sym_setkey(ctx, key, keylen));
 	CKINT(lc_sym_setiv(ctx, iv, ivlen));
-	lc_sym_encrypt(ctx, pt, out, ptlen);
+	lc_sym_encrypt(ctx, pt, out, AES_BLOCKLEN);
+	lc_sym_encrypt(ctx, pt + AES_BLOCKLEN, out + AES_BLOCKLEN,
+		       ptlen - AES_BLOCKLEN);
 	rc = lc_compare(out, ct, ptlen, "AES-XTS encrypt ciphertext");
 
 	/* Decrypt */
 	CKINT(lc_sym_init(ctx));
 	CKINT(lc_sym_setkey(ctx, key, keylen));
 	CKINT(lc_sym_setiv(ctx, iv, ivlen));
-	lc_sym_decrypt(ctx, out, out2, sizeof(out));
+	lc_sym_decrypt(ctx, out, out2, AES_BLOCKLEN);
+	lc_sym_decrypt(ctx, out + AES_BLOCKLEN, out2 + AES_BLOCKLEN,
+		       ptlen - AES_BLOCKLEN);
+
 	rc += lc_compare(out2, pt, ptlen, "AES-XTS decrypt plaintext");
 
 out:
