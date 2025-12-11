@@ -8,7 +8,8 @@ leancrypto-y	 		+= ../sym/src/sym.o
 leancrypto-$(CONFIG_LEANCRYPTO_AES)					       \
 				+= ../sym/src/aes_sbox.o		       \
 				   ../sym/src/aes_block.o		       \
-				   ../sym/src/aes_selector.o
+				   ../sym/src/aes_selector.o		       \
+				   leancrypto_kernel_aes_block.o
 
 ifdef CONFIG_X86_64
 leancrypto-$(CONFIG_LEANCRYPTO_AES)					       \

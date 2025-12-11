@@ -221,9 +221,13 @@ static int __init leancrypto_init(void)
 	if (ret)
 		goto free_aes_cbc;
 
-	ret = lc_kernel_chacha20_init();
+	ret = lc_kernel_aes_init();
 	if (ret)
 		goto free_aes_ctr;
+
+	ret = lc_kernel_chacha20_init();
+	if (ret)
+		goto free_aes;
 
 	ret = lc_kernel_cc20p1305_init();
 	if (ret)
@@ -234,6 +238,9 @@ out:
 
 free_chacha20:
 	lc_kernel_chacha20_init();
+
+free_aes:
+	lc_kernel_aes_exit();
 
 free_aes_ctr:
 	lc_kernel_aes_ctr_exit();
@@ -409,6 +416,7 @@ static void __exit leancrypto_exit(void)
 	lc_kernel_aes_xts_exit();
 	lc_kernel_aes_cbc_exit();
 	lc_kernel_aes_ctr_exit();
+	lc_kernel_aes_exit();
 	lc_kernel_chacha20_exit();
 	lc_kernel_cc20p1305_exit();
 
