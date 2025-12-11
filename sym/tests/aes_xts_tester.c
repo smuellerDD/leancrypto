@@ -194,7 +194,7 @@ static int test_encrypt_xts_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 	 * Yet, only the last block is allowed to be non-aligned for generating
 	 * the ciphertext stealing.
 	 */
-	if (ptlen < AES_BLOCKLEN)
+	if (ptlen < 3 * AES_BLOCKLEN)
 		return -EINVAL;
 
 	/* Unpoison key to let implementation poison it */
@@ -205,8 +205,10 @@ static int test_encrypt_xts_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 	CKINT(lc_sym_setkey(ctx, key, keylen));
 	CKINT(lc_sym_setiv(ctx, iv, ivlen));
 	lc_sym_encrypt(ctx, pt, out, AES_BLOCKLEN);
-	lc_sym_encrypt(ctx, pt + AES_BLOCKLEN, out + AES_BLOCKLEN,
-		       ptlen - AES_BLOCKLEN);
+	lc_sym_encrypt(ctx, pt+ AES_BLOCKLEN, out + AES_BLOCKLEN,
+		       2 * AES_BLOCKLEN);
+	lc_sym_encrypt(ctx, pt + 3 * AES_BLOCKLEN, out + 3 * AES_BLOCKLEN,
+		       ptlen - 3 * AES_BLOCKLEN);
 	rc = lc_compare(out, ct, ptlen, "AES-XTS encrypt ciphertext");
 
 	/* Decrypt */
