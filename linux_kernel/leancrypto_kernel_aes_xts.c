@@ -120,7 +120,11 @@ static noinline int lc_aes_xts_slowpath(
 
 	crypt_func(ctx, walk.src.virt.addr, walk.dst.virt.addr, walk.nbytes);
 
-	return skcipher_walk_done(&walk, 0);
+	err = skcipher_walk_done(&walk, 0);
+	if (err)
+		return err;
+
+	return lc_sym_getiv(ctx, req->iv, AES_BLOCK_SIZE);
 }
 
 static int lc_aes_xts_common(struct skcipher_request *req,
@@ -153,11 +157,7 @@ static int lc_aes_xts_common(struct skcipher_request *req,
 		return lc_sym_getiv(ctx, req->iv, AES_BLOCK_SIZE);
 	}
 
-	err = lc_aes_xts_slowpath(req, crypt_func);
-	if (err)
-		return err;
-
-	return lc_sym_getiv(ctx, req->iv, AES_BLOCK_SIZE);
+	return lc_aes_xts_slowpath(req, crypt_func);
 }
 
 static int lc_aes_xts_encrypt(struct skcipher_request *req)
@@ -200,7 +200,6 @@ static struct skcipher_alg lc_aes_xts_skciphers[] = {
 			.cra_blocksize = AES_BLOCK_SIZE,
 			.cra_ctxsize = LC_SYM_CTX_SIZE_LEN(
 					LC_AES_RISCV64_XTS_MAX_BLOCK_SIZE),
-			.cra_alignmask = LC_SYM_COMMON_ALIGNMENT - 1,
 			.cra_module = THIS_MODULE,
 		},
 		.min_keysize = 2 * AES_MIN_KEY_SIZE,

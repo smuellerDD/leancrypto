@@ -123,7 +123,6 @@ static struct skcipher_alg lc_aes_ctr_skciphers[] = {
 			.cra_blocksize = 1,
 			.cra_ctxsize = LC_SYM_CTX_SIZE_LEN(
 					LC_AES_RISCV64_CTR_MAX_BLOCK_SIZE),
-			.cra_alignmask = LC_SYM_COMMON_ALIGNMENT - 1,
 			.cra_module = THIS_MODULE,
 		},
 		.min_keysize = AES_MIN_KEY_SIZE,
