@@ -1674,7 +1674,7 @@ SYM_FUNC_ENTER(aesni_xts_encrypt)
 
 	movups	16(%rcx,%r10,1),%xmm1
 
-	movdqa	.Lxts_magic(%rip),%xmm8
+	movdqu	.Lxts_magic(%rip),%xmm8
 	movdqa	%xmm2,%xmm15
 	pshufd	$0x5f,%xmm2,%xmm9
 	pxor	%xmm0,%xmm1
@@ -1716,7 +1716,7 @@ SYM_FUNC_ENTER(aesni_xts_encrypt)
 	pand	%xmm8,%xmm9
 	pxor	%xmm0,%xmm14
 	pxor	%xmm9,%xmm15
-	movaps	%xmm1,96(%rsp)
+	movups	%xmm1,96(%rsp)
 
 	subq	$96,%rdx
 	jc	.Lxts_enc_short
@@ -1746,7 +1746,7 @@ SYM_FUNC_ENTER(aesni_xts_encrypt)
 	aesenc	%xmm1,%xmm4
 	movdqu	80(%rdi),%xmm7
 	pxor	%xmm15,%xmm8
-	movdqa	96(%rsp),%xmm9
+	movdqu	96(%rsp),%xmm9
 	pxor	%xmm14,%xmm6
 	aesenc	%xmm1,%xmm5
 	movups	32(%rbp),%xmm0
@@ -1756,25 +1756,25 @@ SYM_FUNC_ENTER(aesni_xts_encrypt)
 	pxor	%xmm9,%xmm10
 	aesenc	%xmm1,%xmm6
 	pxor	%xmm9,%xmm11
-	movdqa	%xmm10,0(%rsp)
+	movdqu	%xmm10,0(%rsp)
 	aesenc	%xmm1,%xmm7
 	movups	48(%rbp),%xmm1
 	pxor	%xmm9,%xmm12
 
 	aesenc	%xmm0,%xmm2
 	pxor	%xmm9,%xmm13
-	movdqa	%xmm11,16(%rsp)
+	movdqu	%xmm11,16(%rsp)
 	aesenc	%xmm0,%xmm3
 	pxor	%xmm9,%xmm14
-	movdqa	%xmm12,32(%rsp)
+	movdqu	%xmm12,32(%rsp)
 	aesenc	%xmm0,%xmm4
 	aesenc	%xmm0,%xmm5
 	pxor	%xmm9,%xmm8
-	movdqa	%xmm14,64(%rsp)
+	movdqu	%xmm14,64(%rsp)
 	aesenc	%xmm0,%xmm6
 	aesenc	%xmm0,%xmm7
 	movups	64(%rbp),%xmm0
-	movdqa	%xmm8,80(%rsp)
+	movdqu	%xmm8,80(%rsp)
 	pshufd	$0x5f,%xmm15,%xmm9
 	jmp	.Lxts_enc_loop6
 .align	32
@@ -1797,7 +1797,7 @@ SYM_FUNC_ENTER(aesni_xts_encrypt)
 	movups	-80(%rcx,%rax,1),%xmm0
 	jnz	.Lxts_enc_loop6
 
-	movdqa	(%r8),%xmm8
+	movdqu	(%r8),%xmm8
 	movdqa	%xmm9,%xmm14
 	paddd	%xmm9,%xmm9
 	aesenc	%xmm1,%xmm2
@@ -1840,7 +1840,7 @@ SYM_FUNC_ENTER(aesni_xts_encrypt)
 	pand	%xmm8,%xmm14
 	aesenc	%xmm1,%xmm4
 	aesenc	%xmm1,%xmm5
-	movdqa	%xmm13,48(%rsp)
+	movdqu	%xmm13,48(%rsp)
 	pxor	%xmm14,%xmm15
 	aesenc	%xmm1,%xmm6
 	movaps	%xmm12,%xmm13
@@ -2092,19 +2092,19 @@ SYM_FUNC_ENTER(aesni_xts_encrypt)
 	pxor	%xmm5,%xmm5
 	pxor	%xmm6,%xmm6
 	pxor	%xmm7,%xmm7
-	movaps	%xmm0,0(%rsp)
+	movups	%xmm0,0(%rsp)
 	pxor	%xmm8,%xmm8
-	movaps	%xmm0,16(%rsp)
+	movups	%xmm0,16(%rsp)
 	pxor	%xmm9,%xmm9
-	movaps	%xmm0,32(%rsp)
+	movups	%xmm0,32(%rsp)
 	pxor	%xmm10,%xmm10
-	movaps	%xmm0,48(%rsp)
+	movups	%xmm0,48(%rsp)
 	pxor	%xmm11,%xmm11
-	movaps	%xmm0,64(%rsp)
+	movups	%xmm0,64(%rsp)
 	pxor	%xmm12,%xmm12
-	movaps	%xmm0,80(%rsp)
+	movups	%xmm0,80(%rsp)
 	pxor	%xmm13,%xmm13
-	movaps	%xmm0,96(%rsp)
+	movups	%xmm0,96(%rsp)
 	pxor	%xmm14,%xmm14
 	pxor	%xmm15,%xmm15
 	movq	-8(%r11),%rbp
@@ -2169,7 +2169,7 @@ SYM_FUNC_ENTER(aesni_xts_decrypt)
 
 	movups	16(%rcx,%r10,1),%xmm1
 
-	movdqa	.Lxts_magic(%rip),%xmm8
+	movdqu	.Lxts_magic(%rip),%xmm8
 	movdqa	%xmm2,%xmm15
 	pshufd	$0x5f,%xmm2,%xmm9
 	pxor	%xmm0,%xmm1
@@ -2211,7 +2211,7 @@ SYM_FUNC_ENTER(aesni_xts_decrypt)
 	pand	%xmm8,%xmm9
 	pxor	%xmm0,%xmm14
 	pxor	%xmm9,%xmm15
-	movaps	%xmm1,96(%rsp)
+	movups	%xmm1,96(%rsp)
 
 	subq	$96,%rdx
 	jc	.Lxts_dec_short
@@ -2241,7 +2241,7 @@ SYM_FUNC_ENTER(aesni_xts_decrypt)
 	aesdec	%xmm1,%xmm4
 	movdqu	80(%rdi),%xmm7
 	pxor	%xmm15,%xmm8
-	movdqa	96(%rsp),%xmm9
+	movdqu	96(%rsp),%xmm9
 	pxor	%xmm14,%xmm6
 	aesdec	%xmm1,%xmm5
 	movups	32(%rbp),%xmm0
@@ -2251,25 +2251,25 @@ SYM_FUNC_ENTER(aesni_xts_decrypt)
 	pxor	%xmm9,%xmm10
 	aesdec	%xmm1,%xmm6
 	pxor	%xmm9,%xmm11
-	movdqa	%xmm10,0(%rsp)
+	movdqu	%xmm10,0(%rsp)
 	aesdec	%xmm1,%xmm7
 	movups	48(%rbp),%xmm1
 	pxor	%xmm9,%xmm12
 
 	aesdec	%xmm0,%xmm2
 	pxor	%xmm9,%xmm13
-	movdqa	%xmm11,16(%rsp)
+	movdqu	%xmm11,16(%rsp)
 	aesdec	%xmm0,%xmm3
 	pxor	%xmm9,%xmm14
-	movdqa	%xmm12,32(%rsp)
+	movdqu	%xmm12,32(%rsp)
 	aesdec	%xmm0,%xmm4
 	aesdec	%xmm0,%xmm5
 	pxor	%xmm9,%xmm8
-	movdqa	%xmm14,64(%rsp)
+	movdqu	%xmm14,64(%rsp)
 	aesdec	%xmm0,%xmm6
 	aesdec	%xmm0,%xmm7
 	movups	64(%rbp),%xmm0
-	movdqa	%xmm8,80(%rsp)
+	movdqu	%xmm8,80(%rsp)
 	pshufd	$0x5f,%xmm15,%xmm9
 	jmp	.Lxts_dec_loop6
 .align	32
@@ -2292,7 +2292,7 @@ SYM_FUNC_ENTER(aesni_xts_decrypt)
 	movups	-80(%rcx,%rax,1),%xmm0
 	jnz	.Lxts_dec_loop6
 
-	movdqa	(%r8),%xmm8
+	movdqu	(%r8),%xmm8
 	movdqa	%xmm9,%xmm14
 	paddd	%xmm9,%xmm9
 	aesdec	%xmm1,%xmm2
@@ -2335,7 +2335,7 @@ SYM_FUNC_ENTER(aesni_xts_decrypt)
 	pand	%xmm8,%xmm14
 	aesdec	%xmm1,%xmm4
 	aesdec	%xmm1,%xmm5
-	movdqa	%xmm13,48(%rsp)
+	movdqu	%xmm13,48(%rsp)
 	pxor	%xmm14,%xmm15
 	aesdec	%xmm1,%xmm6
 	movaps	%xmm12,%xmm13
@@ -2618,19 +2618,19 @@ SYM_FUNC_ENTER(aesni_xts_decrypt)
 	pxor	%xmm5,%xmm5
 	pxor	%xmm6,%xmm6
 	pxor	%xmm7,%xmm7
-	movaps	%xmm0,0(%rsp)
+	movups	%xmm0,0(%rsp)
 	pxor	%xmm8,%xmm8
-	movaps	%xmm0,16(%rsp)
+	movups	%xmm0,16(%rsp)
 	pxor	%xmm9,%xmm9
-	movaps	%xmm0,32(%rsp)
+	movups	%xmm0,32(%rsp)
 	pxor	%xmm10,%xmm10
-	movaps	%xmm0,48(%rsp)
+	movups	%xmm0,48(%rsp)
 	pxor	%xmm11,%xmm11
-	movaps	%xmm0,64(%rsp)
+	movups	%xmm0,64(%rsp)
 	pxor	%xmm12,%xmm12
-	movaps	%xmm0,80(%rsp)
+	movups	%xmm0,80(%rsp)
 	pxor	%xmm13,%xmm13
-	movaps	%xmm0,96(%rsp)
+	movups	%xmm0,96(%rsp)
 	pxor	%xmm14,%xmm14
 	pxor	%xmm15,%xmm15
 	movq	-8(%r11),%rbp
