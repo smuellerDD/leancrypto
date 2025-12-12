@@ -39,7 +39,7 @@ void lc_cpu_feature_get_cpuid(unsigned int cpuid[4]);
 
 #include <linux/types.h>
 #include <asm/fpu/api.h>
-#include <crypto/internal/simd.h>
+#include <asm/simd.h>
 
 #define LC_FPU_ENABLE kernel_fpu_begin()
 #define LC_FPU_DISABLE kernel_fpu_end()

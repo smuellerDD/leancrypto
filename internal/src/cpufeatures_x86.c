@@ -88,7 +88,7 @@ LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 	unsigned int eax, ebx, ecx, edx;
 
 #ifdef LINUX_KERNEL
-	if (!crypto_simd_usable())
+	if (!may_use_simd())
 		return LC_CPU_FEATURE_INTEL;
 #endif
 
