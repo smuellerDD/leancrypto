@@ -32,6 +32,17 @@ properties listed in the following:
 * side-channel-resistant: A valgrind-based dynamic side channel analysis is
   applied to find time-variant code paths based on secret data.
 
+The one go-to library usable in any environment - validate it once and use it
+for all workloads. Currently supported envionments:
+
+* User space (POSIX environments like Linux, macOS, BSDs; Windows)
+
+* Kernel space (Linux including registration into kernel crypto API)
+
+* EFI (including secure boot)
+
+* Rust
+
 ## Status
 
 Type                  | Service               | Status
