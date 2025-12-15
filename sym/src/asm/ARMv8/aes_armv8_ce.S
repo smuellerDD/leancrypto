@@ -1936,6 +1936,11 @@ SYM_FUNC_ENTER(aes_v8_xts_encrypt)
 .align	5
 	AARCH64_VALID_CALL_TARGET
 	str	x5,[sp,#-80]!		// Save the register for the IV
+	stp	x19,x20,[sp,#64]
+	stp	x21,x22,[sp,#48]
+	stp	d8,d9,[sp,#32]
+	stp	d10,d11,[sp,#16]
+
 	cmp	x2,#16
 	// Original input data size bigger than 16, jump to big size processing.
 	b.ne	Lxts_enc_big_size
@@ -2014,15 +2019,21 @@ Lxts_128_enc:
 	eor	v0.16b,v0.16b,v7.16b
 	eor	v0.16b,v0.16b,v6.16b
 	st1	{v0.16b},[x1]
-	b	Lxts_enc_final_abort
+
+	// Update tweak
+	fmov	x9,d6
+	fmov	x10,v6.d[1]
+	mov	w19,#0x87
+	extr	x22,x10,x10,#32
+	extr	x10,x10,x9,#63
+	and	w11,w19,w22,asr#31
+	eor	x9,x11,x9,lsl#1
+	fmov	d6,x9
+	fmov	v6.d[1],x10
+	b	Lxts_abort
 
 .align	4
 Lxts_enc_big_size:
-	stp	x19,x20,[sp,#64]
-	stp	x21,x22,[sp,#48]
-	stp	d8,d9,[sp,#32]
-	stp	d10,d11,[sp,#16]
-
 	// tailcnt store the tail value of length%16.
 	and	x21,x2,#0xf
 	and	x2,x2,#-16
@@ -2607,6 +2618,11 @@ SYM_FUNC_ENTER(aes_v8_xts_decrypt)
 .align	5
 	AARCH64_VALID_CALL_TARGET
 	str	x5,[sp,#-80]!		// Save the register for the IV
+	stp	x19,x20,[sp,#64]
+	stp	x21,x22,[sp,#48]
+	stp	d8,d9,[sp,#32]
+	stp	d10,d11,[sp,#16]
+
 	cmp	x2,#16
 	// Original input data size bigger than 16, jump to big size processing.
 	b.ne	Lxts_dec_big_size
@@ -2683,14 +2699,20 @@ Lxts_128_dec:
 	eor	v0.16b,v0.16b,v7.16b
 	eor	v0.16b,v6.16b,v0.16b
 	st1	{v0.16b},[x1]
-	b	Lxts_dec_final_abort
+
+	// Update tweak
+	fmov	x9,d6
+	fmov	x10,v6.d[1]
+	mov	w19,#0x87
+	extr	x22,x10,x10,#32
+	extr	x10,x10,x9,#63
+	and	w11,w19,w22,asr #31
+	eor	x9,x11,x9,lsl #1
+	fmov	d6,x9
+	fmov	v6.d[1],x10
+	b	Lxts_dec_abort
 
 Lxts_dec_big_size:
-	stp	x19,x20,[sp,#64]
-	stp	x21,x22,[sp,#48]
-	stp	d8,d9,[sp,#32]
-	stp	d10,d11,[sp,#16]
-
 	and	x21,x2,#0xf
 	and	x2,x2,#-16
 	subs	x2,x2,#16

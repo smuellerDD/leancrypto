@@ -52,10 +52,6 @@ static void aes_armce_xts_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 			   ctx->tweak.b, ctx->iv_tweaked);
 	LC_NEON_DISABLE;
 
-	/* After the first round, perform a "manual" alpha operation */
-	if (!ctx->iv_tweaked)
-		gfmul_alpha(&ctx->tweak);
-
 	/* IV was tweaked during first processing. */
 	ctx->iv_tweaked = 1;
 
@@ -73,10 +69,6 @@ static void aes_armce_xts_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 	aes_v8_xts_decrypt(in, out, len, &ctx->dec_block_ctx, &ctx->tweak_ctx,
 			   ctx->tweak.b, ctx->iv_tweaked);
 	LC_NEON_DISABLE;
-
-	/* After the first round, perform a "manual" alpha operation */
-	if (!ctx->iv_tweaked)
-		gfmul_alpha(&ctx->tweak);
 
 	/* IV was tweaked during first processing. */
 	ctx->iv_tweaked = 1;
