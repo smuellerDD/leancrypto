@@ -1903,7 +1903,7 @@ SYM_FUNC_START(aes_v8_xts_encrypt)
 SYM_FUNC_ENTER(aes_v8_xts_encrypt)
 .align	5
 	AARCH64_VALID_CALL_TARGET
-	stp	x5,x6,[sp,#-80]!	// Save the register for the IV
+	str	x5,[sp,#-80]!		// Save the register for the IV
 	cmp	x2,#16
 	// Original input data size bigger than 16, jump to big size processing.
 	b.ne	Lxts_enc_big_size
@@ -2559,7 +2559,7 @@ SYM_FUNC_START(aes_v8_xts_decrypt)
 SYM_FUNC_ENTER(aes_v8_xts_decrypt)
 .align	5
 	AARCH64_VALID_CALL_TARGET
-	stp	x5,x6,[sp,#-80]!	// Save the register for the IV
+	str	x5,[sp,#-80]!		// Save the register for the IV
 	cmp	x2,#16
 	// Original input data size bigger than 16, jump to big size processing.
 	b.ne	Lxts_dec_big_size
@@ -2637,6 +2637,7 @@ Lxts_128_dec:
 	eor	v0.16b,v6.16b,v0.16b
 	st1	{v0.16b},[x1]
 	b	Lxts_dec_final_abort
+
 Lxts_dec_big_size:
 	stp	x19,x20,[sp,#64]
 	stp	x21,x22,[sp,#48]
@@ -3249,7 +3250,7 @@ Lxts_dec_abort:
 	ldp	d10,d11,[sp,#16]
 
 Lxts_dec_final_abort:
-	ldp	x5,x6,[sp],#80		// Reload x5 pointer
+	ldr	x5,[sp],#80		// Reload x5 pointer
 	st1	{v6.16b},[x5]		// Store the IV
 	RET
 SYM_FUNC_END(aes_v8_xts_decrypt)
