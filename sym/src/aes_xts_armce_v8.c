@@ -35,7 +35,8 @@ struct lc_sym_state {
 	struct aes_v8_block_ctx enc_block_ctx;
 	struct aes_v8_block_ctx dec_block_ctx;
 	struct aes_v8_block_ctx tweak_ctx;
-	uint8_t iv[AES_BLOCKLEN];
+	union lc_xts_tweak tweak;
+	uint8_t iv_tweaked;
 };
 
 #define LC_AES_ARMV8_CBC_BLOCK_SIZE sizeof(struct lc_sym_state)
@@ -48,8 +49,15 @@ static void aes_armce_xts_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 
 	LC_NEON_ENABLE;
 	aes_v8_xts_encrypt(in, out, len, &ctx->enc_block_ctx, &ctx->tweak_ctx,
-			   ctx->iv);
+			   ctx->tweak.b, ctx->iv_tweaked);
 	LC_NEON_DISABLE;
+
+	/* After the first round, perform a "manual" alpha operation */
+	if (!ctx->iv_tweaked)
+		gfmul_alpha(&ctx->tweak);
+
+	/* IV was tweaked during first processing. */
+	ctx->iv_tweaked = 1;
 
 	/* Timecop: output is not sensitive regarding side-channels. */
 	unpoison(out, len);
@@ -63,8 +71,15 @@ static void aes_armce_xts_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 
 	LC_NEON_ENABLE;
 	aes_v8_xts_decrypt(in, out, len, &ctx->dec_block_ctx, &ctx->tweak_ctx,
-			   ctx->iv);
+			   ctx->tweak.b, ctx->iv_tweaked);
 	LC_NEON_DISABLE;
+
+	/* After the first round, perform a "manual" alpha operation */
+	if (!ctx->iv_tweaked)
+		gfmul_alpha(&ctx->tweak);
+
+	/* IV was tweaked during first processing. */
+	ctx->iv_tweaked = 1;
 
 	/* Timecop: output is not sensitive regarding side-channels. */
 	unpoison(out, len);
@@ -118,6 +133,9 @@ static int aes_armce_xts_setkey(struct lc_sym_state *ctx, const uint8_t *key,
 				     (unsigned int)(one_keylen << 3),
 				     &ctx->tweak_ctx));
 
+	/* Let first enc/dec operation tweak the IV */
+	ctx->iv_tweaked = 0;
+
 out:
 	LC_NEON_DISABLE;
 	unpoison(key, keylen);
@@ -130,17 +148,21 @@ static int aes_armce_xts_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 	if (!ctx || ivlen != AES_BLOCKLEN)
 		return -EINVAL;
 
-	memcpy(ctx->iv, iv, AES_BLOCKLEN);
+	memcpy(ctx->tweak.b, iv, AES_BLOCKLEN);
+
+	/* Let first enc/dec operation tweak the IV */
+	ctx->iv_tweaked = 0;
+
 	return 0;
 }
 
-static int aes_armce_xts_getiv(struct lc_sym_state *ctx, uint8_t *iv,
+static int aes_armce_xts_getiv(const struct lc_sym_state *ctx, uint8_t *iv,
 			       size_t ivlen)
 {
 	if (!ctx || !iv || ivlen != AES_BLOCKLEN)
 		return -EINVAL;
 
-	memcpy(iv, ctx->iv, AES_BLOCKLEN);
+	memcpy(iv, ctx->tweak.b, AES_BLOCKLEN);
 	return 0;
 }
 

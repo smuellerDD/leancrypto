@@ -1903,13 +1903,18 @@ SYM_FUNC_START(aes_v8_xts_encrypt)
 SYM_FUNC_ENTER(aes_v8_xts_encrypt)
 .align	5
 	AARCH64_VALID_CALL_TARGET
+	stp	x5,x6,[sp,#-80]!	// Save the register for the IV
 	cmp	x2,#16
 	// Original input data size bigger than 16, jump to big size processing.
 	b.ne	Lxts_enc_big_size
+
+	ld1	{v6.16b},[x5],#16	// Load the IV
+	cmp	x6,#0			// Was the IV tweaked?
+	b.ne	Ltweaked_enc
+
 	// Encrypt the iv with key2, as the first XEX iv.
 	ldr	w6,[x4,#240]
 	ld1	{v0.4s},[x4],#16
-	ld1	{v6.16b},[x5]
 	sub	w6,w6,#2
 	ld1	{v1.4s},[x4],#16
 
@@ -1929,6 +1934,7 @@ Loop_enc_iv_enc:
 	aese	v6.16b,v1.16b
 	eor	v6.16b,v6.16b,v0.16b
 
+Ltweaked_enc:
 	ld1	{v0.16b},[x0]
 	eor	v0.16b,v6.16b,v0.16b
 
@@ -1942,6 +1948,7 @@ Loop_enc_iv_enc:
 	aesmc	v0.16b,v0.16b
 	subs	w6,w6,#10		// if rounds==10, jump to aes-128-xts processing
 	b.eq	Lxts_128_enc
+
 Lxts_enc_round_loop:
 	aese	v0.16b,v16.16b
 	aesmc	v0.16b,v0.16b
@@ -1951,6 +1958,7 @@ Lxts_enc_round_loop:
 	ld1	{v17.4s},[x3],#16		// load key schedule...
 	subs	w6,w6,#2		// bias
 	b.gt	Lxts_enc_round_loop
+
 Lxts_128_enc:
 	ld1	{v18.4s,v19.4s},[x3],#32		// load key schedule...
 	aese	v0.16b,v16.16b
@@ -1978,7 +1986,7 @@ Lxts_128_enc:
 
 .align	4
 Lxts_enc_big_size:
-	stp	x19,x20,[sp,#-64]!
+	stp	x19,x20,[sp,#64]
 	stp	x21,x22,[sp,#48]
 	stp	d8,d9,[sp,#32]
 	stp	d10,d11,[sp,#16]
@@ -1991,10 +1999,13 @@ Lxts_enc_big_size:
 	b.lo	Lxts_abort
 	csel	x8,xzr,x8,eq
 
+	ld1	{v6.16b},[x5],#16	// Load the IV
+	cmp	x6,#0			// Was the IV tweaked?
+	b.ne	Ltweaked_big_enc
+
 	// Firstly, encrypt the iv with key2, as the first iv of XEX.
 	ldr	w6,[x4,#240]
 	ld1	{v0.4s},[x4],#16
-	ld1	{v6.16b},[x5]
 	sub	w6,w6,#2
 	ld1	{v1.4s},[x4],#16
 
@@ -2014,6 +2025,7 @@ Loop_iv_enc:
 	aese	v6.16b,v1.16b
 	eor	v6.16b,v6.16b,v0.16b
 
+Ltweaked_big_enc:
 	// The iv for second block
 	// x9- iv(low), x10 - iv(high)
 	// the five ivs stored into, v6.16b,v8.16b,v9.16b,v10.16b,v11.16b
@@ -2533,11 +2545,13 @@ Loop_final_enc:
 	st1	{v26.16b},[x1]
 
 Lxts_abort:
+	ldp	x19,x20,[sp,#64]
 	ldp	x21,x22,[sp,#48]
 	ldp	d8,d9,[sp,#32]
 	ldp	d10,d11,[sp,#16]
-	ldp	x19,x20,[sp],#64
 Lxts_enc_final_abort:
+	ldr	x5,[sp],#80		// Reload x5 pointer
+	st1	{v6.16b},[x5]		// Store the IV
 	RET
 SYM_FUNC_END(aes_v8_xts_encrypt)
 
@@ -2545,13 +2559,18 @@ SYM_FUNC_START(aes_v8_xts_decrypt)
 SYM_FUNC_ENTER(aes_v8_xts_decrypt)
 .align	5
 	AARCH64_VALID_CALL_TARGET
+	stp	x5,x6,[sp,#-80]!	// Save the register for the IV
 	cmp	x2,#16
 	// Original input data size bigger than 16, jump to big size processing.
 	b.ne	Lxts_dec_big_size
+
+	ld1	{v6.16b},[x5],#16	// Load the IV
+	cmp	x6,#0			// Was the IV tweaked?
+	b.ne	Ltweaked_dec
+
 	// Encrypt the iv with key2, as the first XEX iv.
 	ldr	w6,[x4,#240]
 	ld1	{v0.4s},[x4],#16
-	ld1	{v6.16b},[x5]
 	sub	w6,w6,#2
 	ld1	{v1.4s},[x4],#16
 
@@ -2571,6 +2590,7 @@ Loop_dec_small_iv_enc:
 	aese	v6.16b,v1.16b
 	eor	v6.16b,v6.16b,v0.16b
 
+Ltweaked_dec:
 	ld1	{v0.16b},[x0]
 	eor	v0.16b,v6.16b,v0.16b
 
@@ -2618,7 +2638,7 @@ Lxts_128_dec:
 	st1	{v0.16b},[x1]
 	b	Lxts_dec_final_abort
 Lxts_dec_big_size:
-	stp	x19,x20,[sp,#-64]!
+	stp	x19,x20,[sp,#64]
 	stp	x21,x22,[sp,#48]
 	stp	d8,d9,[sp,#32]
 	stp	d10,d11,[sp,#16]
@@ -2629,10 +2649,13 @@ Lxts_dec_big_size:
 	mov	x8,#16
 	b.lo	Lxts_dec_abort
 
+	ld1	{v6.16b},[x5],#16	// Load the IV
+	cmp	x6,#0			// Was the IV tweaked?
+	b.ne	Ltweaked_big_dec
+
 	// Encrypt the iv with key2, as the first XEX iv
 	ldr	w6,[x4,#240]
 	ld1	{v0.4s},[x4],#16
-	ld1	{v6.16b},[x5]
 	sub	w6,w6,#2
 	ld1	{v1.4s},[x4],#16
 
@@ -2652,6 +2675,7 @@ Loop_dec_iv_enc:
 	aese	v6.16b,v1.16b
 	eor	v6.16b,v6.16b,v0.16b
 
+Ltweaked_big_dec:
 	// The iv for second block
 	// x9- iv(low), x10 - iv(high)
 	// the five ivs stored into, v6.16b,v8.16b,v9.16b,v10.16b,v11.16b
@@ -3219,12 +3243,14 @@ Loop_final_dec:
 	st1	{v26.16b},[x1]
 
 Lxts_dec_abort:
+	ldp	x19,x20,[sp,#64]
 	ldp	x21,x22,[sp,#48]
 	ldp	d8,d9,[sp,#32]
 	ldp	d10,d11,[sp,#16]
-	ldp	x19,x20,[sp],#64
 
 Lxts_dec_final_abort:
+	ldp	x5,x6,[sp],#80		// Reload x5 pointer
+	st1	{v6.16b},[x5]		// Store the IV
 	RET
 SYM_FUNC_END(aes_v8_xts_decrypt)
 

@@ -37,7 +37,7 @@ extern const struct lc_sym *lc_aes_xts_armce;
  * aes_*_*.c
  */
 #define LC_AES_ARMCE_MAX_BLOCK_SIZE (244 * 2)
-#define LC_AES_ARMCE_XTS_MAX_BLOCK_SIZE (244 * 3 + 16)
+#define LC_AES_ARMCE_XTS_MAX_BLOCK_SIZE (244 * 3 + 16 + 1)
 #define LC_AES_ARMCE_CBC_MAX_BLOCK_SIZE (244 * 2 + 16)
 #define LC_AES_ARMCE_CTR_MAX_BLOCK_SIZE (244 + 16)
 
