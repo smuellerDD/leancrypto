@@ -33,7 +33,7 @@ extern "C" {
 void cc20_selftest(void);
 int cc20_setkey(struct lc_sym_state *ctx, const uint8_t *key, size_t keylen);
 int cc20_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen);
-int cc20_getiv(struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen);
+int cc20_getiv(const struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen);
 int cc20_init(struct lc_sym_state *ctx);
 void cc20_crypt_remaining(struct lc_sym_state *ctx, const uint8_t **in,
 			  uint8_t **out, size_t *len);

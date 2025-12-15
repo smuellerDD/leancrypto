@@ -36,7 +36,7 @@ struct lc_sym {
 	int (*setkey)(struct lc_sym_state *ctx, const uint8_t *key,
 		      size_t keylen);
 	int (*setiv)(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen);
-	int (*getiv)(struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen);
+	int (*getiv)(const struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen);
 	void (*encrypt)(struct lc_sym_state *ctx, const uint8_t *in,
 			uint8_t *out, size_t len);
 	void (*decrypt)(struct lc_sym_state *ctx, const uint8_t *in,
@@ -160,7 +160,7 @@ int lc_sym_setiv(struct lc_sym_ctx *ctx, const uint8_t *iv, size_t ivlen);
  *
  * @return 0 on success, < 0 on error
  */
-int lc_sym_getiv(struct lc_sym_ctx *ctx, uint8_t *iv, size_t ivlen);
+int lc_sym_getiv(const struct lc_sym_ctx *ctx, uint8_t *iv, size_t ivlen);
 
 /**
  * @ingroup Symmetric

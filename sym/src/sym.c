@@ -57,8 +57,8 @@ LC_INTERFACE_FUNCTION(int, lc_sym_setiv, struct lc_sym_ctx *ctx,
 	return sym->setiv(ctx->sym_state, iv, ivlen);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_sym_getiv, struct lc_sym_ctx *ctx, uint8_t *iv,
-		      size_t ivlen)
+LC_INTERFACE_FUNCTION(int, lc_sym_getiv, const struct lc_sym_ctx *ctx,
+		      uint8_t *iv, size_t ivlen)
 {
 	const struct lc_sym *sym;
 

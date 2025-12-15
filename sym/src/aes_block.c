@@ -120,7 +120,7 @@ static int aes_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen)
 	return -EOPNOTSUPP;
 }
 
-static int aes_getiv(struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen)
+static int aes_getiv(const struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen)
 {
 	(void)ctx;
 	(void)iv;

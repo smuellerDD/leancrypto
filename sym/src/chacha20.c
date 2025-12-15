@@ -350,7 +350,7 @@ int cc20_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen)
 	return 0;
 }
 
-int cc20_getiv(struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen)
+int cc20_getiv(const struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen)
 {
 	if (!ctx)
 		return -EINVAL;

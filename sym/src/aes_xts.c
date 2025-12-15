@@ -78,7 +78,8 @@ static int aes_xts_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 	return lc_mode_xts_c->setiv(&ctx->xts_state, iv, ivlen);
 }
 
-static int aes_xts_getiv(struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen)
+static int aes_xts_getiv(const struct lc_sym_state *ctx, uint8_t *iv,
+			 size_t ivlen)
 {
 	return lc_mode_xts_c->getiv(&ctx->xts_state, iv, ivlen);
 }

@@ -76,7 +76,8 @@ static int aes_kw_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 	return lc_mode_kw_c->setiv(&ctx->kw_state, iv, ivlen);
 }
 
-static int aes_kw_getiv(struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen)
+static int aes_kw_getiv(const struct lc_sym_state *ctx, uint8_t *iv,
+			size_t ivlen)
 {
 	return lc_mode_kw_c->getiv(&ctx->kw_state, iv, ivlen);
 }

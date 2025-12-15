@@ -107,7 +107,7 @@ static int aes_riscv64_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 	return -EOPNOTSUPP;
 }
 
-static int aes_riscv64_getiv(struct lc_sym_state *ctx, uint8_t *iv,
+static int aes_riscv64_getiv(const struct lc_sym_state *ctx, uint8_t *iv,
 			     size_t ivlen)
 {
 	(void)ctx;

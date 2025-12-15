@@ -205,7 +205,8 @@ static int mode_ctr_setiv(struct lc_mode_state *ctx, const uint8_t *iv,
 	return 0;
 }
 
-static int mode_ctr_getiv(struct lc_mode_state *ctx, uint8_t *iv, size_t ivlen)
+static int mode_ctr_getiv(const struct lc_mode_state *ctx, uint8_t *iv,
+			  size_t ivlen)
 {
 	if (!ctx || ivlen != AES_BLOCKLEN)
 		return -EINVAL;

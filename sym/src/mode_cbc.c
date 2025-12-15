@@ -208,7 +208,8 @@ static int mode_cbc_setiv(struct lc_mode_state *ctx, const uint8_t *iv,
 	return 0;
 }
 
-static int mode_cbc_getiv(struct lc_mode_state *ctx, uint8_t *iv, size_t ivlen)
+static int mode_cbc_getiv(const struct lc_mode_state *ctx, uint8_t *iv,
+			  size_t ivlen)
 {
 	if (!ctx || !iv || ivlen != AES_BLOCKLEN)
 		return -EINVAL;

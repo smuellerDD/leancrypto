@@ -126,7 +126,7 @@ static int aes_armce_cbc_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 	return 0;
 }
 
-static int aes_armce_cbc_getiv(struct lc_sym_state *ctx, uint8_t *iv,
+static int aes_armce_cbc_getiv(const struct lc_sym_state *ctx, uint8_t *iv,
 			       size_t ivlen)
 {
 	if (!ctx || !iv || ivlen != AES_BLOCKLEN)

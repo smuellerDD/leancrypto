@@ -75,7 +75,8 @@ static int aes_cbc_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 	return lc_mode_cbc_c->setiv(&ctx->cbc_state, iv, ivlen);
 }
 
-static int aes_cbc_getiv(struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen)
+static int aes_cbc_getiv(const struct lc_sym_state *ctx, uint8_t *iv,
+			 size_t ivlen)
 {
 	return lc_mode_cbc_c->getiv(&ctx->cbc_state, iv, ivlen);
 }

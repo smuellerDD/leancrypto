@@ -35,7 +35,7 @@ struct lc_sym_state {
 	struct aes_aesni_block_ctx enc_block_ctx;
 	struct aes_aesni_block_ctx dec_block_ctx;
 	struct aes_aesni_block_ctx tweak_ctx;
-	 /* Last byte of IV buffer contains indicator whether IV was tweaked */
+	/* Last byte of IV buffer contains indicator whether IV was tweaked */
 	uint8_t iv[AES_BLOCKLEN + 1];
 };
 
@@ -148,7 +148,7 @@ static int aes_aesni_xts_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 	return 0;
 }
 
-static int aes_aesni_xts_getiv(struct lc_sym_state *ctx, uint8_t *iv,
+static int aes_aesni_xts_getiv(const struct lc_sym_state *ctx, uint8_t *iv,
 			       size_t ivlen)
 {
 	if (!ctx || !iv || ivlen != AES_BLOCKLEN)

@@ -73,7 +73,8 @@ static int aes_ctr_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 	return lc_mode_ctr_c->setiv(&ctx->ctr_state, iv, ivlen);
 }
 
-static int aes_ctr_getiv(struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen)
+static int aes_ctr_getiv(const struct lc_sym_state *ctx, uint8_t *iv,
+			 size_t ivlen)
 {
 	return lc_mode_ctr_c->getiv(&ctx->ctr_state, iv, ivlen);
 }
