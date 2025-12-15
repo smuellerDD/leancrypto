@@ -1931,6 +1931,17 @@ Lctr32_done:
 	RET
 SYM_FUNC_END(aes_v8_ctr32_encrypt_blocks)
 
+.macro gfmul_macro
+	// Update tweak
+	fmov	x9,d6
+	fmov	x10,v6.d[1]
+	mov	w19,#0x87
+	extr	x22,x10,x10,#32
+	extr	x10,x10,x9,#63
+	and	w11,w19,w22,asr #31
+	eor	x9,x11,x9,lsl #1
+.endm
+
 SYM_FUNC_START(aes_v8_xts_encrypt)
 SYM_FUNC_ENTER(aes_v8_xts_encrypt)
 .align	5
@@ -2020,16 +2031,9 @@ Lxts_128_enc:
 	eor	v0.16b,v0.16b,v6.16b
 	st1	{v0.16b},[x1]
 
-	// Update tweak
-	fmov	x9,d6
-	fmov	x10,v6.d[1]
-	mov	w19,#0x87
-	extr	x22,x10,x10,#32
-	extr	x10,x10,x9,#63
-	and	w11,w19,w22,asr#31
-	eor	x9,x11,x9,lsl#1
-	fmov	d6,x9
-	fmov	v6.d[1],x10
+	gfmul_macro
+	fmov	d6,x9			// Store the updated tweak
+	fmov	v6.d[1],x10		// Store the updated tweak
 	b	Lxts_abort
 
 .align	4
@@ -2072,13 +2076,8 @@ Ltweaked_big_enc:
 	// The iv for second block
 	// x9- iv(low), x10 - iv(high)
 	// the five ivs stored into, v6.16b,v8.16b,v9.16b,v10.16b,v11.16b
-	fmov	x9,d6
-	fmov	x10,v6.d[1]
-	mov	w19,#0x87
-	extr	x22,x10,x10,#32
-	extr	x10,x10,x9,#63
-	and	w11,w19,w22,asr#31
-	eor	x9,x11,x9,lsl#1
+
+	gfmul_macro
 	fmov	d8,x9
 	fmov	v8.d[1],x10
 
@@ -2534,13 +2533,8 @@ Lxts_enc_one:
 	eor	v5.16b,v5.16b,v24.16b
 	orr	v6.16b,v6.16b,v6.16b
 	st1	{v5.16b},[x1],#16
-	fmov	x9,d6
-	fmov	x10,v6.d[1]
-	mov	w19,#0x87
-	extr	x22,x10,x10,#32
-	extr	x10,x10,x9,#63
-	and	w11,w19,w22,asr #31
-	eor	x9,x11,x9,lsl #1
+
+	gfmul_macro
 	fmov	d6,x9
 	fmov	v6.d[1],x10
 	b	Lxts_enc_done
@@ -2701,13 +2695,7 @@ Lxts_128_dec:
 	st1	{v0.16b},[x1]
 
 	// Update tweak
-	fmov	x9,d6
-	fmov	x10,v6.d[1]
-	mov	w19,#0x87
-	extr	x22,x10,x10,#32
-	extr	x10,x10,x9,#63
-	and	w11,w19,w22,asr #31
-	eor	x9,x11,x9,lsl #1
+	gfmul_macro
 	fmov	d6,x9
 	fmov	v6.d[1],x10
 	b	Lxts_dec_abort
@@ -2749,13 +2737,8 @@ Ltweaked_big_dec:
 	// The iv for second block
 	// x9- iv(low), x10 - iv(high)
 	// the five ivs stored into, v6.16b,v8.16b,v9.16b,v10.16b,v11.16b
-	fmov	x9,d6
-	fmov	x10,v6.d[1]
-	mov	w19,#0x87
-	extr	x22,x10,x10,#32
-	extr	x10,x10,x9,#63
-	and	w11,w19,w22,asr #31
-	eor	x9,x11,x9,lsl #1
+
+	gfmul_macro
 	fmov	d8,x9
 	fmov	v8.d[1],x10
 
