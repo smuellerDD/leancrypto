@@ -39,7 +39,7 @@ struct lc_sym_state {
 	uint8_t iv_tweaked;
 };
 
-#define LC_AES_ARMV8_CBC_BLOCK_SIZE sizeof(struct lc_sym_state)
+#define LC_AES_ARMV8_XTS_BLOCK_SIZE sizeof(struct lc_sym_state)
 
 static void aes_armce_xts_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 				  uint8_t *out, size_t len)
@@ -174,7 +174,7 @@ static const struct lc_sym _lc_aes_xts_armce = {
 	.getiv = aes_armce_xts_getiv,
 	.encrypt = aes_armce_xts_encrypt,
 	.decrypt = aes_armce_xts_decrypt,
-	.statesize = LC_AES_ARMV8_CBC_BLOCK_SIZE,
+	.statesize = LC_AES_ARMV8_XTS_BLOCK_SIZE,
 	.blocksize = AES_BLOCKLEN,
 	.algorithm_type = LC_ALG_STATUS_AES_XTS
 };
