@@ -166,43 +166,6 @@ out2:
 	lc_sym_zero(ctx);
 }
 
-/*
- * Implement the "Multiplication by a primitive element alpha" as specified
- * in section 5.2 of "The XTS-AES Tweakable Block Cipher An Extract from IEEE
- * Std 1619-2007"
- */
-#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-static __always_inline void gfmul_alpha(union lc_xts_tweak *t)
-{
-	/*
-	 * This function works both on big and little endian, but has a bit
-	 * more instructions than the streamlined little endian implementation.
-	 * Thus, it is limited to big-endian only.
-	 */
-	uint8_t i = AES_BLOCKLEN;
-	uint8_t carry = t->b[AES_BLOCKLEN - 1] & 0x80;
-
-#pragma GCC unroll 16
-	while (--i) {
-		t->b[i] <<= 1;
-		t->b[i] |= (t->b[(i - 1)] & 0x80 ? 1 : 0);
-	}
-	t->b[0] = (uint8_t)(t->b[0] << 1) ^ (carry ? 0x87 : 0);
-}
-
-#else /* __ORDER_BIG_ENDIAN__ */
-
-static __always_inline void gfmul_alpha(union lc_xts_tweak *t)
-{
-	unsigned int carry, res;
-
-	res = 0x87 & (((int)t->dw[3]) >> 31);
-	carry = (unsigned int)(t->qw[0] >> 63);
-	t->qw[0] = (t->qw[0] << 1) ^ res;
-	t->qw[1] = (t->qw[1] << 1) | carry;
-}
-#endif /* __ORDER_BIG_ENDIAN__ */
-
 static void xts_enc_block(struct lc_mode_state *ctx,
 			  uint8_t block[AES_BLOCKLEN])
 {
@@ -466,7 +429,8 @@ static int mode_xts_setiv(struct lc_mode_state *ctx, const uint8_t *iv,
 	return 0;
 }
 
-static int mode_xts_getiv(struct lc_mode_state *ctx, uint8_t *iv, size_t ivlen)
+static int mode_xts_getiv(const struct lc_mode_state *ctx, uint8_t *iv,
+			  size_t ivlen)
 {
 	if (!ctx || !iv || ivlen != AES_BLOCKLEN)
 		return -EINVAL;
