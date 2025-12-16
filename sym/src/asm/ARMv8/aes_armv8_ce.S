@@ -210,6 +210,14 @@ Ldone:
 	str	w12,[x2]
 	mov	x3,#0
 
+	// Clear out register with sensitive data
+	eor	v1.16b,v1.16b,v1.16b
+	eor	v2.16b,v2.16b,v2.16b
+	eor	v3.16b,v3.16b,v3.16b
+	eor	v4.16b,v4.16b,v4.16b
+	eor	v5.16b,v5.16b,v5.16b
+	eor	v6.16b,v6.16b,v6.16b
+
 Lenc_key_abort:
 	mov	x0,x3			// return value
 	ldr	x29,[sp],#16
@@ -294,11 +302,13 @@ Loop_enc:
 	aese	v2.16b,v1.16b
 	eor	v2.16b,v2.16b,v0.16b
 
-	// Clear out registers used to hold keys
+	st1	{v2.16b},[x1]
+
+	// Clear out register with sensitive data
 	eor	v0.16b,v0.16b,v0.16b
 	eor	v1.16b,v1.16b,v1.16b
+	eor	v2.16b,v2.16b,v2.16b
 
-	st1	{v2.16b},[x1]
 	RET
 SYM_FUNC_END(aes_v8_encrypt)
 
@@ -328,11 +338,13 @@ Loop_dec:
 	aesd	v2.16b,v1.16b
 	eor	v2.16b,v2.16b,v0.16b
 
-	// Clear out registers used to hold keys
+	st1	{v2.16b},[x1]
+
+	// Clear out register with sensitive data
 	eor	v0.16b,v0.16b,v0.16b
 	eor	v1.16b,v1.16b,v1.16b
+	eor	v2.16b,v2.16b,v2.16b
 
-	st1	{v2.16b},[x1]
 	RET
 SYM_FUNC_END(aes_v8_decrypt)
 
@@ -1080,9 +1092,15 @@ Lecb_dec_one:
 Lecb_done:
 	ldr	x29,[sp],#16
 Lecb_Final_abort:
-	// Clear out registers used to hold keys
+	// Clear out registers used to hold sensitive data
+	eor	v0.16b,v0.16b,v0.16b
+	eor	v1.16b,v1.16b,v1.16b
+	eor	v2.16b,v2.16b,v2.16b
+	eor	v3.16b,v3.16b,v3.16b
+	eor	v4.16b,v4.16b,v4.16b
 	eor	v5.16b,v5.16b,v5.16b
 	eor	v6.16b,v6.16b,v6.16b
+	eor	v7.16b,v7.16b,v7.16b
 	eor	v16.16b,v16.16b,v16.16b
 	eor	v17.16b,v17.16b,v17.16b
 	eor	v18.16b,v18.16b,v18.16b
@@ -1091,6 +1109,14 @@ Lecb_Final_abort:
 	eor	v21.16b,v21.16b,v21.16b
 	eor	v22.16b,v22.16b,v22.16b
 	eor	v23.16b,v23.16b,v23.16b
+	eor	v24.16b,v24.16b,v24.16b
+	eor	v25.16b,v25.16b,v25.16b
+	eor	v26.16b,v26.16b,v26.16b
+	eor	v27.16b,v27.16b,v27.16b
+	eor	v28.16b,v28.16b,v28.16b
+	eor	v29.16b,v29.16b,v29.16b
+	eor	v30.16b,v30.16b,v30.16b
+	eor	v31.16b,v31.16b,v31.16b
 
 	RET
 SYM_FUNC_END(aes_v8_ecb_encrypt)
@@ -1568,9 +1594,31 @@ Lcbc_dec_one:
 Lcbc_done:
 	st1	{v6.16b},[x4]
 Lcbc_abort:
-	// Clear out registers used to hold keys
+	// Clear out registers used to hold sensitive data
+	eor	v0.16b,v0.16b,v0.16b
+	eor	v1.16b,v1.16b,v1.16b
+	eor	v2.16b,v2.16b,v2.16b
+	eor	v3.16b,v3.16b,v3.16b
+	eor	v4.16b,v4.16b,v4.16b
+	eor	v5.16b,v5.16b,v5.16b
+	eor	v6.16b,v6.16b,v6.16b
+	eor	v7.16b,v7.16b,v7.16b
 	eor	v16.16b,v16.16b,v16.16b
 	eor	v17.16b,v17.16b,v17.16b
+	eor	v18.16b,v18.16b,v18.16b
+	eor	v19.16b,v19.16b,v19.16b
+	eor	v20.16b,v20.16b,v20.16b
+	eor	v21.16b,v21.16b,v21.16b
+	eor	v22.16b,v22.16b,v22.16b
+	eor	v23.16b,v23.16b,v23.16b
+	eor	v24.16b,v24.16b,v24.16b
+	eor	v25.16b,v25.16b,v25.16b
+	eor	v26.16b,v26.16b,v26.16b
+	eor	v27.16b,v27.16b,v27.16b
+	eor	v28.16b,v28.16b,v28.16b
+	eor	v29.16b,v29.16b,v29.16b
+	eor	v30.16b,v30.16b,v30.16b
+	eor	v31.16b,v31.16b,v31.16b
 
 	ldr	x29,[sp],#16
 	RET
@@ -1923,9 +1971,31 @@ Lctr32_tail:
 	st1	{v3.16b},[x1]
 
 Lctr32_done:
-	// Clear out registers used to hold keys
+	// Clear out registers used to hold sensitive data
+	eor	v0.16b,v0.16b,v0.16b
+	eor	v1.16b,v1.16b,v1.16b
+	eor	v2.16b,v2.16b,v2.16b
+	eor	v3.16b,v3.16b,v3.16b
+	eor	v4.16b,v4.16b,v4.16b
+	eor	v5.16b,v5.16b,v5.16b
+	eor	v6.16b,v6.16b,v6.16b
+	eor	v7.16b,v7.16b,v7.16b
 	eor	v16.16b,v16.16b,v16.16b
 	eor	v17.16b,v17.16b,v17.16b
+	eor	v18.16b,v18.16b,v18.16b
+	eor	v19.16b,v19.16b,v19.16b
+	eor	v20.16b,v20.16b,v20.16b
+	eor	v21.16b,v21.16b,v21.16b
+	eor	v22.16b,v22.16b,v22.16b
+	eor	v23.16b,v23.16b,v23.16b
+	eor	v24.16b,v24.16b,v24.16b
+	eor	v25.16b,v25.16b,v25.16b
+	eor	v26.16b,v26.16b,v26.16b
+	eor	v27.16b,v27.16b,v27.16b
+	eor	v28.16b,v28.16b,v28.16b
+	eor	v29.16b,v29.16b,v29.16b
+	eor	v30.16b,v30.16b,v30.16b
+	eor	v31.16b,v31.16b,v31.16b
 
 	ldr	x29,[sp],#16
 	RET
@@ -2561,9 +2631,17 @@ Lxts_abort:
 	ldp	d8,d9,[sp,#32]
 	ldp	d10,d11,[sp,#16]
 Lxts_enc_final_abort:
-	// Clear out registers used to hold keys
+	ldr	x5,[sp],#80		// Reload x5 pointer
+	st1	{v6.16b},[x5]		// Store the IV
+
+	// Clear out registers used to hold sensitive data
 	eor	v0.16b,v0.16b,v0.16b
 	eor	v1.16b,v1.16b,v1.16b
+	eor	v2.16b,v2.16b,v2.16b
+	eor	v3.16b,v3.16b,v3.16b
+	eor	v4.16b,v4.16b,v4.16b
+	eor	v5.16b,v5.16b,v5.16b
+	eor	v6.16b,v6.16b,v6.16b
 	eor	v7.16b,v7.16b,v7.16b
 	eor	v16.16b,v16.16b,v16.16b
 	eor	v17.16b,v17.16b,v17.16b
@@ -2573,11 +2651,15 @@ Lxts_enc_final_abort:
 	eor	v21.16b,v21.16b,v21.16b
 	eor	v22.16b,v22.16b,v22.16b
 	eor	v23.16b,v23.16b,v23.16b
+	eor	v24.16b,v24.16b,v24.16b
+	eor	v25.16b,v25.16b,v25.16b
+	eor	v26.16b,v26.16b,v26.16b
+	eor	v27.16b,v27.16b,v27.16b
 	eor	v28.16b,v28.16b,v28.16b
 	eor	v29.16b,v29.16b,v29.16b
+	eor	v30.16b,v30.16b,v30.16b
+	eor	v31.16b,v31.16b,v31.16b
 
-	ldr	x5,[sp],#80		// Reload x5 pointer
-	st1	{v6.16b},[x5]		// Store the IV
 	RET
 SYM_FUNC_END(aes_v8_xts_encrypt)
 
@@ -3243,9 +3325,17 @@ Lxts_dec_abort:
 	ldp	d10,d11,[sp,#16]
 
 Lxts_dec_final_abort:
-	// Clear out registers used to hold keys
+	ldr	x5,[sp],#80		// Reload x5 pointer
+	st1	{v6.16b},[x5]		// Store the IV
+
+	// Clear out registers used to hold sensitive data
 	eor	v0.16b,v0.16b,v0.16b
 	eor	v1.16b,v1.16b,v1.16b
+	eor	v2.16b,v2.16b,v2.16b
+	eor	v3.16b,v3.16b,v3.16b
+	eor	v4.16b,v4.16b,v4.16b
+	eor	v5.16b,v5.16b,v5.16b
+	eor	v6.16b,v6.16b,v6.16b
 	eor	v7.16b,v7.16b,v7.16b
 	eor	v16.16b,v16.16b,v16.16b
 	eor	v17.16b,v17.16b,v17.16b
@@ -3255,11 +3345,15 @@ Lxts_dec_final_abort:
 	eor	v21.16b,v21.16b,v21.16b
 	eor	v22.16b,v22.16b,v22.16b
 	eor	v23.16b,v23.16b,v23.16b
+	eor	v24.16b,v24.16b,v24.16b
+	eor	v25.16b,v25.16b,v25.16b
+	eor	v26.16b,v26.16b,v26.16b
+	eor	v27.16b,v27.16b,v27.16b
 	eor	v28.16b,v28.16b,v28.16b
 	eor	v29.16b,v29.16b,v29.16b
+	eor	v30.16b,v30.16b,v30.16b
+	eor	v31.16b,v31.16b,v31.16b
 
-	ldr	x5,[sp],#80		// Reload x5 pointer
-	st1	{v6.16b},[x5]		// Store the IV
 	RET
 SYM_FUNC_END(aes_v8_xts_decrypt)
 
