@@ -73,12 +73,10 @@ static int lc_aes_block_init(struct crypto_tfm *tfm)
 	/*
 	 * Verification that the setting of .cra_ctxsize is appropriate
 	 */
-	BUILD_BUG_ON(LC_AES_AESNI_MAX_BLOCK_SIZE <
-		     LC_AES_ARMCE_MAX_BLOCK_SIZE);
+	BUILD_BUG_ON(LC_AES_AESNI_MAX_BLOCK_SIZE < LC_AES_ARMCE_MAX_BLOCK_SIZE);
 	BUILD_BUG_ON(LC_AES_AESNI_MAX_BLOCK_SIZE <
 		     LC_AES_RISCV64_MAX_BLOCK_SIZE);
-	BUILD_BUG_ON(LC_AES_AESNI_MAX_BLOCK_SIZE <
-		     LC_AES_C_MAX_BLOCK_SIZE);
+	BUILD_BUG_ON(LC_AES_AESNI_MAX_BLOCK_SIZE < LC_AES_C_MAX_BLOCK_SIZE);
 
 	return 0;
 }
@@ -91,29 +89,23 @@ static struct crypto_alg lc_aes_cipher = {
 	.cra_priority = LC_KERNEL_DEFAULT_PRIO,
 	.cra_flags = CRYPTO_ALG_TYPE_CIPHER,
 	.cra_blocksize = AES_BLOCK_SIZE,
-	.cra_ctxsize = LC_SYM_CTX_SIZE_LEN(
-			LC_AES_AESNI_MAX_BLOCK_SIZE),
+	.cra_ctxsize = LC_SYM_CTX_SIZE_LEN(LC_AES_AESNI_MAX_BLOCK_SIZE),
 	.cra_module = THIS_MODULE,
-	.cra_u = {
-		.cipher = {
-			.cia_min_keysize = AES_MIN_KEY_SIZE,
-			.cia_max_keysize = AES_MAX_KEY_SIZE,
-			.cia_setkey = lc_aes_block_setkey,
-			.cia_encrypt = lc_aes_block_encrypt,
-			.cia_decrypt = lc_aes_block_decrypt
-		}
-	},
+	.cra_u = { .cipher = { .cia_min_keysize = AES_MIN_KEY_SIZE,
+			       .cia_max_keysize = AES_MAX_KEY_SIZE,
+			       .cia_setkey = lc_aes_block_setkey,
+			       .cia_encrypt = lc_aes_block_encrypt,
+			       .cia_decrypt = lc_aes_block_decrypt } },
 
 	.cra_init = lc_aes_block_init
 };
 
 int __init lc_kernel_aes_init(void)
 {
-	 return crypto_register_alg(&lc_aes_cipher);
+	return crypto_register_alg(&lc_aes_cipher);
 }
 
 void lc_kernel_aes_exit(void)
 {
 	crypto_unregister_alg(&lc_aes_cipher);
-
 }

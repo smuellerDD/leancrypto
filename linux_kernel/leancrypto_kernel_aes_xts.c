@@ -76,13 +76,12 @@ static noinline int lc_aes_xts_slowpath(
 	 */
 	if (tail) {
 		skcipher_request_set_tfm(&subreq, tfm);
-		skcipher_request_set_callback(&subreq,
-					      skcipher_request_flags(req),
-					      NULL, NULL);
+		skcipher_request_set_callback(
+			&subreq, skcipher_request_flags(req), NULL, NULL);
 
-		skcipher_request_set_crypt(&subreq, req->src, req->dst,
-					   req->cryptlen - tail - AES_BLOCK_SIZE,
-					   req->iv);
+		skcipher_request_set_crypt(
+			&subreq, req->src, req->dst,
+			req->cryptlen - tail - AES_BLOCK_SIZE, req->iv);
 
 		req = &subreq;
 	}
