@@ -1932,14 +1932,18 @@ Lctr32_done:
 SYM_FUNC_END(aes_v8_ctr32_encrypt_blocks)
 
 .macro gfmul_macro
-	// Update tweak
-	fmov	x9,d6
-	fmov	x10,v6.d[1]
-	mov	w19,#0x87
 	extr	x22,x10,x10,#32
 	extr	x10,x10,x9,#63
 	and	w11,w19,w22,asr #31
 	eor	x9,x11,x9,lsl #1
+.endm
+
+.macro load_gfmul_macro
+	// Update tweak
+	fmov	x9,d6
+	fmov	x10,v6.d[1]
+	mov	w19,#0x87
+	gfmul_macro
 .endm
 
 SYM_FUNC_START(aes_v8_xts_encrypt)
@@ -2031,7 +2035,7 @@ Lxts_128_enc:
 	eor	v0.16b,v0.16b,v6.16b
 	st1	{v0.16b},[x1]
 
-	gfmul_macro
+	load_gfmul_macro
 	fmov	d6,x9			// Store the updated tweak
 	fmov	v6.d[1],x10		// Store the updated tweak
 	b	Lxts_abort
@@ -2077,7 +2081,7 @@ Ltweaked_big_enc:
 	// x9- iv(low), x10 - iv(high)
 	// the five ivs stored into, v6.16b,v8.16b,v9.16b,v10.16b,v11.16b
 
-	gfmul_macro
+	load_gfmul_macro
 	fmov	d8,x9
 	fmov	v8.d[1],x10
 
@@ -2111,10 +2115,7 @@ Lxts_enc:
 	eor	v24.16b,v24.16b,v8.16b
 
 	// The iv for third block
-	extr	x22,x10,x10,#32
-	extr	x10,x10,x9,#63
-	and	w11,w19,w22,asr#31
-	eor	x9,x11,x9,lsl#1
+	gfmul_macro
 	fmov	d9,x9
 	fmov	v9.d[1],x10
 
@@ -2129,19 +2130,13 @@ Lxts_enc:
 	b.lo	Lxts_outer_enc_tail
 
 	// The iv for fourth block
-	extr	x22,x10,x10,#32
-	extr	x10,x10,x9,#63
-	and	w11,w19,w22,asr#31
-	eor	x9,x11,x9,lsl#1
+	gfmul_macro
 	fmov	d10,x9
 	fmov	v10.d[1],x10
 
 	ld1	{v25.16b},[x0],#16
 	// The iv for fifth block
-	extr	x22,x10,x10,#32
-	extr	x10,x10,x9,#63
-	and	w11,w19,w22,asr#31
-	eor	x9,x11,x9,lsl#1
+	gfmul_macro
 	fmov	d11,x9
 	fmov	v11.d[1],x10
 
@@ -2266,40 +2261,28 @@ Loop5x_xts_enc:
 	eor	v4.16b,v7.16b,v6.16b
 	aese	v0.16b,v23.16b
 	// The iv for first block of one iteration
-	extr	x22,x10,x10,#32
-	extr	x10,x10,x9,#63
-	and	w11,w19,w22,asr#31
-	eor	x9,x11,x9,lsl#1
+	gfmul_macro
 	fmov	d6,x9
 	fmov	v6.d[1],x10
 	eor	v5.16b,v7.16b,v8.16b
 	ld1	{v2.16b},[x0],#16
 	aese	v1.16b,v23.16b
 	// The iv for second block
-	extr	x22,x10,x10,#32
-	extr	x10,x10,x9,#63
-	and	w11,w19,w22,asr#31
-	eor	x9,x11,x9,lsl#1
+	gfmul_macro
 	fmov	d8,x9
 	fmov	v8.d[1],x10
 	eor	v17.16b,v7.16b,v9.16b
 	ld1	{v3.16b},[x0],#16
 	aese	v24.16b,v23.16b
 	// The iv for third block
-	extr	x22,x10,x10,#32
-	extr	x10,x10,x9,#63
-	and	w11,w19,w22,asr#31
-	eor	x9,x11,x9,lsl#1
+	gfmul_macro
 	fmov	d9,x9
 	fmov	v9.d[1],x10
 	eor	v30.16b,v7.16b,v10.16b
 	ld1	{v27.16b},[x0],#16
 	aese	v25.16b,v23.16b
 	// The iv for fourth block
-	extr	x22,x10,x10,#32
-	extr	x10,x10,x9,#63
-	and	w11,w19,w22,asr#31
-	eor	x9,x11,x9,lsl#1
+	gfmul_macro
 	fmov	d10,x9
 	fmov	v10.d[1],x10
 	eor	v31.16b,v7.16b,v11.16b
@@ -2307,10 +2290,7 @@ Loop5x_xts_enc:
 	aese	v26.16b,v23.16b
 
 	// The iv for fifth block
-	extr	x22,x10,x10,#32
-	extr	x10,x10,x9,#63
-	and	w11,w19,w22,asr #31
-	eor	x9,x11,x9,lsl #1
+	gfmul_macro
 	fmov	d11,x9
 	fmov	v11.d[1],x10
 
@@ -2409,10 +2389,7 @@ Lxts_outer_enc_tail:
 	fmov	x9,d9
 	fmov	x10,v9.d[1]
 	//mov	w19,#0x87
-	extr	x22,x10,x10,#32
-	extr	x10,x10,x9,#63
-	and	w11,w19,w22,asr#31
-	eor	x9,x11,x9,lsl#1
+	gfmul_macro
 	fmov	d6,x9
 	fmov	v6.d[1],x10
 	eor	v5.16b,v8.16b,v7.16b
@@ -2521,10 +2498,7 @@ Lxts_enc_tail_loop:
 	fmov	x9,d8
 	fmov	x10,v8.d[1]
 	mov	w19,#0x87
-	extr	x22,x10,x10,#32
-	extr	x10,x10,x9,#63
-	and	w11,w19,w22,asr #31
-	eor	x9,x11,x9,lsl #1
+	gfmul_macro
 	fmov	d6,x9
 	fmov	v6.d[1],x10
 	b	Lxts_enc_done
@@ -2534,7 +2508,7 @@ Lxts_enc_one:
 	orr	v6.16b,v6.16b,v6.16b
 	st1	{v5.16b},[x1],#16
 
-	gfmul_macro
+	load_gfmul_macro
 	fmov	d6,x9
 	fmov	v6.d[1],x10
 	b	Lxts_enc_done
@@ -2695,7 +2669,7 @@ Lxts_128_dec:
 	st1	{v0.16b},[x1]
 
 	// Update tweak
-	gfmul_macro
+	load_gfmul_macro
 	fmov	d6,x9
 	fmov	v6.d[1],x10
 	b	Lxts_dec_abort
@@ -2738,17 +2712,14 @@ Ltweaked_big_dec:
 	// x9- iv(low), x10 - iv(high)
 	// the five ivs stored into, v6.16b,v8.16b,v9.16b,v10.16b,v11.16b
 
-	gfmul_macro
+	load_gfmul_macro
 	fmov	d8,x9
 	fmov	v8.d[1],x10
 
 	ldr	w5,[x3,#240]		// load rounds number
 
 	// The iv for third block
-	extr	x22,x10,x10,#32
-	extr	x10,x10,x9,#63
-	and	w11,w19,w22,asr #31
-	eor	x9,x11,x9,lsl #1
+	gfmul_macro
 	fmov	d9,x9
 	fmov	v9.d[1],x10
 
@@ -2762,10 +2733,7 @@ Ltweaked_big_dec:
 	ld1	{v7.4s},[x7]
 
 	// The iv for fourth block
-	extr	x22,x10,x10,#32
-	extr	x10,x10,x9,#63
-	and	w11,w19,w22,asr #31
-	eor	x9,x11,x9,lsl #1
+	gfmul_macro
 	fmov	d10,x9
 	fmov	v10.d[1],x10
 
@@ -2809,10 +2777,7 @@ Lxts_dec_begin:
 	ld1	{v25.16b},[x0],#16
 
 	// The iv for fifth block
-	extr	x22,x10,x10,#32
-	extr	x10,x10,x9,#63
-	and	w11,w19,w22,asr #31
-	eor	x9,x11,x9,lsl #1
+	gfmul_macro
 	fmov	d11,x9
 	fmov	v11.d[1],x10
 
@@ -2937,40 +2902,28 @@ Loop5x_xts_dec:
 	eor	v4.16b,v7.16b,v6.16b
 	aesd	v0.16b,v23.16b
 	// The iv for first block of next iteration.
-	extr	x22,x10,x10,#32
-	extr	x10,x10,x9,#63
-	and	w11,w19,w22,asr #31
-	eor	x9,x11,x9,lsl #1
+	gfmul_macro
 	fmov	d6,x9
 	fmov	v6.d[1],x10
 	eor	v5.16b,v7.16b,v8.16b
 	ld1	{v2.16b},[x0],#16
 	aesd	v1.16b,v23.16b
 	// The iv for second block
-	extr	x22,x10,x10,#32
-	extr	x10,x10,x9,#63
-	and	w11,w19,w22,asr #31
-	eor	x9,x11,x9,lsl #1
+	gfmul_macro
 	fmov	d8,x9
 	fmov	v8.d[1],x10
 	eor	v17.16b,v7.16b,v9.16b
 	ld1	{v3.16b},[x0],#16
 	aesd	v24.16b,v23.16b
 	// The iv for third block
-	extr	x22,x10,x10,#32
-	extr	x10,x10,x9,#63
-	and	w11,w19,w22,asr #31
-	eor	x9,x11,x9,lsl #1
+	gfmul_macro
 	fmov	d9,x9
 	fmov	v9.d[1],x10
 	eor	v30.16b,v7.16b,v10.16b
 	ld1	{v27.16b},[x0],#16
 	aesd	v25.16b,v23.16b
 	// The iv for fourth block
-	extr	x22,x10,x10,#32
-	extr	x10,x10,x9,#63
-	and	w11,w19,w22,asr #31
-	eor	x9,x11,x9,lsl #1
+	gfmul_macro
 	fmov	d10,x9
 	fmov	v10.d[1],x10
 	eor	v31.16b,v7.16b,v11.16b
@@ -2978,10 +2931,7 @@ Loop5x_xts_dec:
 	aesd	v26.16b,v23.16b
 
 	// The iv for fifth block
-	extr	x22,x10,x10,#32
-	extr	x10,x10,x9,#63
-	and	w11,w19,w22,asr #31
-	eor	x9,x11,x9,lsl #1
+	gfmul_macro
 	fmov	d11,x9
 	fmov	v11.d[1],x10
 
@@ -3084,10 +3034,7 @@ Lxts_outer_dec_tail:
 	fmov	x9,d9
 	fmov	x10,v9.d[1]
 	mov	w19,#0x87
-	extr	x22,x10,x10,#32
-	extr	x10,x10,x9,#63
-	and	w11,w19,w22,asr #31
-	eor	x9,x11,x9,lsl #1
+	gfmul_macro
 	fmov	d6,x9
 	fmov	v6.d[1],x10
 	eor	v5.16b,v8.16b,v7.16b
@@ -3100,10 +3047,7 @@ Lxts_outer_dec_tail:
 	aesimc	v24.16b,v24.16b
 	eor	v17.16b,v9.16b,v7.16b
 	// The iv for second block
-	extr	x22,x10,x10,#32
-	extr	x10,x10,x9,#63
-	and	w11,w19,w22,asr #31
-	eor	x9,x11,x9,lsl #1
+	gfmul_macro
 	fmov	d8,x9
 	fmov	v8.d[1],x10
 
@@ -3113,10 +3057,7 @@ Lxts_outer_dec_tail:
 	mov	x7,x3
 
 	// The iv for third block
-	extr	x22,x10,x10,#32
-	extr	x10,x10,x9,#63
-	and	w11,w19,w22,asr #31
-	eor	x9,x11,x9,lsl #1
+	gfmul_macro
 	fmov	d9,x9
 	fmov	v9.d[1],x10
 
