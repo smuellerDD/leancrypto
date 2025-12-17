@@ -103,6 +103,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	(void)argc;
 	(void)argv;
 
+	LC_EXEC_ONE_TEST(lc_aes);
 	LC_EXEC_ONE_TEST(lc_aes_aesni);
 	LC_EXEC_ONE_TEST(lc_aes_armce);
 	LC_EXEC_ONE_TEST(lc_aes_c);
