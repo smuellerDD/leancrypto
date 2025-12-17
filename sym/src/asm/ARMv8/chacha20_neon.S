@@ -765,6 +765,32 @@ SYM_FUNC_ENTER(ChaCha20_neon)
 	ldp	x25,x26,[x29,#64]
 	ldp	x27,x28,[x29,#80]
 	ldp	x29,x30,[sp],#96
+
+	// Clear out registers used to hold sensitive data
+	eor	v0.16b,v0.16b,v0.16b
+	eor	v1.16b,v1.16b,v1.16b
+	eor	v2.16b,v2.16b,v2.16b
+	eor	v3.16b,v3.16b,v3.16b
+	eor	v4.16b,v4.16b,v4.16b
+	eor	v5.16b,v5.16b,v5.16b
+	eor	v6.16b,v6.16b,v6.16b
+	eor	v7.16b,v7.16b,v7.16b
+	eor	v16.16b,v16.16b,v16.16b
+	eor	v17.16b,v17.16b,v17.16b
+	eor	v18.16b,v18.16b,v18.16b
+	eor	v19.16b,v19.16b,v19.16b
+	eor	v20.16b,v20.16b,v20.16b
+	eor	v21.16b,v21.16b,v21.16b
+	eor	v22.16b,v22.16b,v22.16b
+	eor	v23.16b,v23.16b,v23.16b
+	eor	v24.16b,v24.16b,v24.16b
+	eor	v25.16b,v25.16b,v25.16b
+	eor	v26.16b,v26.16b,v26.16b
+	eor	v27.16b,v27.16b,v27.16b
+	eor	v28.16b,v28.16b,v28.16b
+	eor	v29.16b,v29.16b,v29.16b
+	eor	v30.16b,v30.16b,v30.16b
+	eor	v31.16b,v31.16b,v31.16b
 	RET
 
 .align	4
@@ -896,6 +922,32 @@ SYM_FUNC_ENTER(ChaCha20_neon)
 	ldp	x25,x26,[x29,#64]
 	ldp	x27,x28,[x29,#80]
 	ldp	x29,x30,[sp],#96
+
+	// Clear out registers used to hold sensitive data
+	eor	v0.16b,v0.16b,v0.16b
+	eor	v1.16b,v1.16b,v1.16b
+	eor	v2.16b,v2.16b,v2.16b
+	eor	v3.16b,v3.16b,v3.16b
+	eor	v4.16b,v4.16b,v4.16b
+	eor	v5.16b,v5.16b,v5.16b
+	eor	v6.16b,v6.16b,v6.16b
+	eor	v7.16b,v7.16b,v7.16b
+	eor	v16.16b,v16.16b,v16.16b
+	eor	v17.16b,v17.16b,v17.16b
+	eor	v18.16b,v18.16b,v18.16b
+	eor	v19.16b,v19.16b,v19.16b
+	eor	v20.16b,v20.16b,v20.16b
+	eor	v21.16b,v21.16b,v21.16b
+	eor	v22.16b,v22.16b,v22.16b
+	eor	v23.16b,v23.16b,v23.16b
+	eor	v24.16b,v24.16b,v24.16b
+	eor	v25.16b,v25.16b,v25.16b
+	eor	v26.16b,v26.16b,v26.16b
+	eor	v27.16b,v27.16b,v27.16b
+	eor	v28.16b,v28.16b,v28.16b
+	eor	v29.16b,v29.16b,v29.16b
+	eor	v30.16b,v30.16b,v30.16b
+	eor	v31.16b,v31.16b,v31.16b
 	RET
 SYM_FUNC_END(ChaCha20_neon)
 
