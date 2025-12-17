@@ -234,8 +234,15 @@ void cc20_crypt_remaining(struct lc_sym_state *ctx, const uint8_t **in,
 	if (ctx->keystream_ptr) {
 		const uint8_t *inp = *in;
 		uint8_t *outp = *out;
-		size_t todo =
-			min_size(*len, LC_CC20_BLOCK_SIZE - ctx->keystream_ptr);
+		size_t todo;
+
+		/* If we exhausted the keystream, no further processing */
+		if (ctx->keystream_ptr >= LC_CC20_BLOCK_SIZE) {
+			ctx->keystream_ptr = 0;
+			return;
+		}
+
+		todo = min_size(*len, LC_CC20_BLOCK_SIZE - ctx->keystream_ptr);
 
 		if (inp != outp)
 			memcpy(outp, inp, todo);
