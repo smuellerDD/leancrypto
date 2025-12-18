@@ -42,8 +42,9 @@ struct lc_sha256_state {
 	uint8_t partial[LC_SHA256_SIZE_BLOCK];
 };
 
-#define LC_SHA256_STATE_SIZE (sizeof(struct lc_sha256_state))
-#define LC_SHA256_CTX_SIZE LC_HASH_STATE_SIZE_ALIGN(sizeof(struct lc_hash))
+#define LC_SHA256_STATE_SIZE                                                   \
+	LC_HASH_STATE_SIZE_ALIGN(sizeof(struct lc_sha256_state))
+#define LC_SHA256_CTX_SIZE (sizeof(struct lc_hash_ctx) + LC_SHA256_STATE_SIZE)
 
 #define LC_SHA256_CTX(name)                                                    \
 	LC_HASH_SET_CTX(name, lc_sha256);                                      \

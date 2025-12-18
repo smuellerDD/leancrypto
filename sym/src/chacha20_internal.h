@@ -20,6 +20,7 @@
 #ifndef CHACHA20_INTERNAL_H
 #define CHACHA20_INTERNAL_H
 
+#include <build_bug_on.h>
 #include "lc_chacha20.h"
 #include "lc_chacha20_private.h"
 #include "lc_sym.h"
@@ -44,6 +45,9 @@ static inline void cc20_crypt_asm(
 			     const uint32_t key[8], const uint32_t counter[4]))
 {
 	size_t origlen = len;
+
+	/* Sanity check */
+	BUILD_BUG_ON(sizeof(struct lc_sym_state) != LC_CC20_STATE_SIZE);
 
 	cc20_crypt_remaining(ctx, &in, &out, &len);
 
