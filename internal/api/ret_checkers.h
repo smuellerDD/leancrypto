@@ -30,7 +30,8 @@ extern "C" {
 #define CKERROR_LOG                                                            \
 	_Pragma("GCC diagnostic push")                                         \
 		_Pragma("GCC diagnostic ignored \"-Wpedantic\"")               \
-			printf("Error %d at %s:%s:%u\n", ret, __FILE__,        \
+			printf("%s %d at %s:%s:%u\n",                          \
+			       ret ? "Error" : "Return", ret, __FILE__,        \
 			       __FUNCTION__, __LINE__);                        \
 	_Pragma("GCC diagnostic pop")
 #else
@@ -41,8 +42,8 @@ extern "C" {
 #define CKERROR_PURE_LOG                                                       \
 	_Pragma("GCC diagnostic push")                                         \
 		_Pragma("GCC diagnostic ignored \"-Wpedantic\"")               \
-			printf("Error at %s:%s:%u\n", __FILE__, __FUNCTION__,  \
-			       __LINE__);                                      \
+			printf("%s at %s:%s:%u\n", ret ? "Error" : "Return",   \
+			       __FILE__, __FUNCTION__, __LINE__);              \
 	_Pragma("GCC diagnostic pop")
 #else
 #define CKERROR_PURE_LOG

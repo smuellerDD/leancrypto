@@ -105,7 +105,7 @@ int lc_x509_eku_enc(void *context, uint8_t *data, size_t *avail_datalen,
 	struct x509_generate_context *ctx = context;
 	const uint8_t *oid_data;
 	size_t oid_datalen;
-	int ret;
+	int ret = 0;
 
 	(void)tag;
 
@@ -1283,7 +1283,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_encode,
 	};
 	size_t datalen = *avail_datalen;
 	uint8_t *sigdstptr;
-	int ret;
+	int ret = 0;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	CKNULL(x509, -EINVAL);
