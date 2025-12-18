@@ -179,7 +179,7 @@ struct lc_dilithium_ctx {
 	 * @brief State memory of the hash context used internally to the
 	 * library - it should not be touched by the user
 	 */
-	uint8_t shake_state[LC_SHA3_STATE_SIZE_ALIGN(LC_SHA3_256_STATE_SIZE)];
+	uint8_t shake_state[LC_HASH_STATE_SIZE_ALIGN(LC_SHA3_256_STATE_SIZE)];
 
 	/**
 	 * @brief When using HashML-DSA, set the hash reference used for the

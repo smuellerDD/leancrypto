@@ -24,7 +24,6 @@
 #include <linux/types.h>
 
 #include "lc_sha512.h"
-#include "lc_sha3.h"
 
 #include "leancrypto_kernel.h"
 
@@ -69,7 +68,7 @@ static struct shash_alg lc_sha512_algs[] = {
 		.init = lc_kernel_sha512_hash_init,
 		.update = lc_kernel_sha512_update,
 		.final = lc_kernel_sha512_final,
-		.descsize = LC_SHA3_STATE_SIZE_ALIGN(LC_SHA512_CTX_SIZE),
+		.descsize = LC_HASH_STATE_SIZE_ALIGN(LC_SHA512_CTX_SIZE),
 		.base.cra_name = "sha512",
 		.base.cra_driver_name = "sha512-leancrypto",
 		.base.cra_blocksize = LC_SHA512_SIZE_BLOCK,
@@ -81,7 +80,7 @@ static struct shash_alg lc_sha512_algs[] = {
 		.init = lc_kernel_sha384_init,
 		.update = lc_kernel_sha512_update,
 		.final = lc_kernel_sha512_final,
-		.descsize = LC_SHA3_STATE_SIZE_ALIGN(LC_SHA384_CTX_SIZE),
+		.descsize = LC_HASH_STATE_SIZE_ALIGN(LC_SHA384_CTX_SIZE),
 		.base.cra_name = "sha384",
 		.base.cra_driver_name = "sha384-leancrypto",
 		.base.cra_blocksize = LC_SHA384_SIZE_BLOCK,

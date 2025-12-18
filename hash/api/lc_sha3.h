@@ -30,8 +30,6 @@ extern "C" {
 #define LC_SHA3_SIZE_RATE(bits) ((1600 - 2 * bits) >> 3)
 #define LC_SHA3_STATE_WORDS 25
 #define LC_SHA3_STATE_SIZE (LC_SHA3_STATE_WORDS * sizeof(uint64_t))
-
-#define LC_SHA3_STATE_SIZE_ALIGN(x) (x + LC_HASH_COMMON_ALIGNMENT)
 /// \endcond
 
 /********************************** SHA3-224 **********************************/
@@ -59,7 +57,7 @@ struct lc_sha3_224_state {
 };
 
 #define LC_SHA3_224_STATE_SIZE                                                 \
-	LC_SHA3_STATE_SIZE_ALIGN(sizeof(struct lc_sha3_224_state))
+	LC_HASH_STATE_SIZE_ALIGN(sizeof(struct lc_sha3_224_state))
 #define LC_SHA3_224_CTX_SIZE                                                   \
 	(sizeof(struct lc_hash_ctx) + LC_SHA3_224_STATE_SIZE)
 
@@ -107,7 +105,7 @@ struct lc_sha3_256_state {
 };
 
 #define LC_SHA3_256_STATE_SIZE                                                 \
-	LC_SHA3_STATE_SIZE_ALIGN(sizeof(struct lc_sha3_256_state))
+	LC_HASH_STATE_SIZE_ALIGN(sizeof(struct lc_sha3_256_state))
 #define LC_SHA3_256_CTX_SIZE                                                   \
 	(sizeof(struct lc_hash_ctx) + LC_SHA3_256_STATE_SIZE)
 
@@ -155,7 +153,7 @@ struct lc_sha3_384_state {
 };
 
 #define LC_SHA3_384_STATE_SIZE                                                 \
-	LC_SHA3_STATE_SIZE_ALIGN(sizeof(struct lc_sha3_384_state))
+	LC_HASH_STATE_SIZE_ALIGN(sizeof(struct lc_sha3_384_state))
 #define LC_SHA3_384_CTX_SIZE                                                   \
 	(sizeof(struct lc_hash_ctx) + LC_SHA3_384_STATE_SIZE)
 
@@ -203,7 +201,7 @@ struct lc_sha3_512_state {
 };
 
 #define LC_SHA3_512_STATE_SIZE                                                 \
-	LC_SHA3_STATE_SIZE_ALIGN(sizeof(struct lc_sha3_512_state))
+	LC_HASH_STATE_SIZE_ALIGN(sizeof(struct lc_sha3_512_state))
 #define LC_SHA3_512_CTX_SIZE                                                   \
 	(sizeof(struct lc_hash_ctx) + LC_SHA3_512_STATE_SIZE)
 
@@ -250,7 +248,7 @@ struct lc_shake_128_state {
 };
 
 #define LC_SHAKE_128_STATE_SIZE                                                \
-	LC_SHA3_STATE_SIZE_ALIGN(sizeof(struct lc_shake_128_state))
+	LC_HASH_STATE_SIZE_ALIGN(sizeof(struct lc_shake_128_state))
 #define LC_SHAKE_128_CTX_SIZE                                                  \
 	(sizeof(struct lc_hash_ctx) + LC_SHAKE_128_STATE_SIZE)
 
@@ -364,7 +362,7 @@ extern const struct lc_hash *lc_cshake256;
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 		LC_ALIGNED_BUFFER(                                             \
 			name##_ctx_buf,                                        \
-			LC_SHA3_STATE_SIZE_ALIGN(LC_SHA3_256_CTX_SIZE),        \
+			LC_HASH_STATE_SIZE_ALIGN(LC_SHA3_256_CTX_SIZE),        \
 			LC_HASH_COMMON_ALIGNMENT);                             \
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name##_ctx_buf;       \
 	LC_CSHAKE_256_CTX(name);                                               \
@@ -394,7 +392,7 @@ extern const struct lc_hash *lc_cshake128;
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 		LC_ALIGNED_BUFFER(                                             \
 			name##_ctx_buf,                                        \
-			LC_SHA3_STATE_SIZE_ALIGN(LC_SHAKE_128_CTX_SIZE),       \
+			LC_HASH_STATE_SIZE_ALIGN(LC_SHAKE_128_CTX_SIZE),       \
 			LC_HASH_COMMON_ALIGNMENT);                             \
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name##_ctx_buf;       \
 	LC_CSHAKE_128_CTX(name);                                               \

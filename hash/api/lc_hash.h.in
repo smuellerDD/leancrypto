@@ -76,6 +76,8 @@ struct lc_hash_ctx {
 
 #define LC_SHA_MAX_SIZE_DIGEST 64
 
+#define LC_HASH_STATE_SIZE_ALIGN(x) (x + LC_HASH_COMMON_ALIGNMENT)
+
 /*
  * This is the source of the compiler warning of using Variable-Length-Arrays
  * (VLA). It is considered to be harmless to have this VLA here. If you do not

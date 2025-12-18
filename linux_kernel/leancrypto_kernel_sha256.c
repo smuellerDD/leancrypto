@@ -24,7 +24,6 @@
 #include <linux/types.h>
 
 #include "lc_sha256.h"
-#include "lc_sha3.h"
 
 #include "leancrypto_kernel.h"
 
@@ -60,7 +59,7 @@ static struct shash_alg lc_sha256_algs[] = { {
 	.init = lc_kernel_sha256_hash_init,
 	.update = lc_kernel_sha256_update,
 	.final = lc_kernel_sha256_final,
-	.descsize = LC_SHA3_STATE_SIZE_ALIGN(LC_SHA256_CTX_SIZE),
+	.descsize = LC_HASH_STATE_SIZE_ALIGN(LC_SHA256_CTX_SIZE),
 	.base.cra_name = "sha256",
 	.base.cra_driver_name = "sha256-leancrypto",
 	.base.cra_blocksize = LC_SHA256_SIZE_BLOCK,
