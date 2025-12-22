@@ -487,12 +487,20 @@ static int drbg_ctr_generate_internal(struct lc_drbg_ctr_state *drbg,
 
 	/* 10.2.1.5.2 step 4.1 */
 	memset(buf, 0, buflen);
-	CKINT(lc_sym_setiv(ctr_ctx, drbg->V, LC_DRBG_CTR_BLOCKLEN));
-	lc_sym_encrypt(ctr_ctx, buf, buf, buflen);
-	CKINT(lc_sym_getiv(ctr_ctx, drbg->V, LC_DRBG_CTR_BLOCKLEN));
 
-	/* 10.2.1.5.2 step 6 */
-	CKINT(drbg_ctr_update(drbg, NULL, 3));
+	while (buflen) {
+		size_t todo = min_size(LC_DRBG_MAX_REQUEST_BYTES, buflen);
+
+		CKINT(lc_sym_setiv(ctr_ctx, drbg->V, LC_DRBG_CTR_BLOCKLEN));
+		lc_sym_encrypt(ctr_ctx, buf, buf, todo);
+		CKINT(lc_sym_getiv(ctr_ctx, drbg->V, LC_DRBG_CTR_BLOCKLEN));
+
+		/* 10.2.1.5.2 step 6 */
+		CKINT(drbg_ctr_update(drbg, NULL, 3));
+
+		buf += todo;
+		buflen -= todo;
+	}
 
 out:
 	return ret;

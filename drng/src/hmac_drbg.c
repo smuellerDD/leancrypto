@@ -22,6 +22,7 @@
 #include "compare.h"
 #include "fips_mode.h"
 #include "lc_hmac_drbg_sha512.h"
+#include "math_helper.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 
@@ -227,41 +228,49 @@ out:
 }
 
 /* generate function of HMAC DRBG as defined in 10.1.2.5 */
-static size_t drbg_hmac_generate_internal(struct lc_drbg_hmac_state *drbg,
-					  uint8_t *buf, size_t buflen,
-					  struct lc_drbg_string *addtl)
+static int drbg_hmac_generate_internal(struct lc_drbg_hmac_state *drbg,
+				       uint8_t *buf, size_t buflen,
+				       struct lc_drbg_string *addtl)
 {
-	size_t len = 0;
 	struct lc_drbg_string data;
+	int ret = 0;
 
 	/* 10.1.2.5 step 2 */
 	if (addtl && addtl->len > 0)
-		if (drbg_hmac_update(drbg, addtl))
-			return 0;
+		CKINT(drbg_hmac_update(drbg, addtl));
 
 	lc_drbg_string_fill(&data, drbg->V, LC_DRBG_HMAC_STATELEN);
-	while (len < buflen) {
-		size_t outlen = 0;
 
-		/* 10.1.2.5 step 4.1 */
-		if (drbg_hmac(drbg, drbg->C, drbg->V, &data))
-			return 0;
+	while (buflen) {
+		size_t todo = min_size(LC_DRBG_MAX_REQUEST_BYTES, buflen);
+		size_t len = 0;
 
-		outlen = (LC_DRBG_HMAC_BLOCKLEN < (buflen - len)) ?
-				 LC_DRBG_HMAC_BLOCKLEN :
-				 (buflen - len);
+		while (len < buflen) {
+			size_t outlen = 0;
 
-		/* 10.1.2.5 step 4.2 */
-		memcpy(buf + len, drbg->V, outlen);
-		len += outlen;
+			/* 10.1.2.5 step 4.1 */
+			CKINT(drbg_hmac(drbg, drbg->C, drbg->V, &data));
+
+			outlen = (LC_DRBG_HMAC_BLOCKLEN < (buflen - len)) ?
+					LC_DRBG_HMAC_BLOCKLEN :
+					(buflen - len);
+
+			/* 10.1.2.5 step 4.2 */
+			memcpy(buf + len, drbg->V, outlen);
+			len += outlen;
+		}
+
+		/* 10.1.2.5 step 6 */
+		if (addtl)
+			addtl->next = NULL;
+		drbg_hmac_update(drbg, addtl);
+
+		buf += todo;
+		buflen -= todo;
 	}
 
-	/* 10.1.2.5 step 6 */
-	if (addtl)
-		addtl->next = NULL;
-	drbg_hmac_update(drbg, addtl);
-
-	return len;
+out:
+	return ret;
 }
 
 static int lc_drbg_hmac_generate(void *_state, const uint8_t *addtl_input,
@@ -285,9 +294,8 @@ static int lc_drbg_hmac_generate(void *_state, const uint8_t *addtl_input,
 		lc_drbg_string_fill(&addtl_data, addtl_input, addtl_input_len);
 		addtl = &addtl_data;
 	}
-	drbg_hmac_generate_internal(drbg_hmac, out, outlen, addtl);
 
-	return 0;
+	return drbg_hmac_generate_internal(drbg_hmac, out, outlen, addtl);
 }
 
 static int lc_drbg_hmac_seed_nocheck(void *_state, const uint8_t *seedbuf,

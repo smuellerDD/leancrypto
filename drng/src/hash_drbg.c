@@ -397,23 +397,30 @@ static int drbg_hash_generate_internal(struct lc_drbg_hash_state *drbg,
 	/* 10.1.1.4 step 2 */
 	CKINT(drbg_hash_process_addtl(drbg, addtl));
 
-	/* 10.1.1.4 step 3 */
-	CKINT(drbg_hash_hashgen(drbg, buf, buflen));
+	while (buflen) {
+		size_t todo = min_size(LC_DRBG_MAX_REQUEST_BYTES, buflen);
 
-	/* this is the value H as documented in 10.1.1.4 */
-	/* 10.1.1.4 step 4 */
-	lc_drbg_string_fill(&data1, &prefix, 1);
-	lc_drbg_string_fill(&data2, drbg->V, LC_DRBG_HASH_STATELEN);
-	data1.next = &data2;
-	CKINT(drbg_hash(drbg, drbg->scratchpad, &data1));
+		/* 10.1.1.4 step 3 */
+		CKINT(drbg_hash_hashgen(drbg, buf, buflen));
 
-	/* 10.1.1.4 step 5 */
-	drbg_add_buf(drbg->V, LC_DRBG_HASH_STATELEN, drbg->scratchpad,
-		     LC_DRBG_HASH_BLOCKLEN);
-	drbg_add_buf(drbg->V, LC_DRBG_HASH_STATELEN, drbg->C,
-		     LC_DRBG_HASH_STATELEN);
-	be64_to_ptr(req, drbg->reseed_ctr);
-	drbg_add_buf(drbg->V, LC_DRBG_HASH_STATELEN, req, sizeof(req));
+		/* this is the value H as documented in 10.1.1.4 */
+		/* 10.1.1.4 step 4 */
+		lc_drbg_string_fill(&data1, &prefix, 1);
+		lc_drbg_string_fill(&data2, drbg->V, LC_DRBG_HASH_STATELEN);
+		data1.next = &data2;
+		CKINT(drbg_hash(drbg, drbg->scratchpad, &data1));
+
+		/* 10.1.1.4 step 5 */
+		drbg_add_buf(drbg->V, LC_DRBG_HASH_STATELEN, drbg->scratchpad,
+			LC_DRBG_HASH_BLOCKLEN);
+		drbg_add_buf(drbg->V, LC_DRBG_HASH_STATELEN, drbg->C,
+			LC_DRBG_HASH_STATELEN);
+		be64_to_ptr(req, drbg->reseed_ctr);
+		drbg_add_buf(drbg->V, LC_DRBG_HASH_STATELEN, req, sizeof(req));
+
+		buf += todo;
+		buflen -= todo;
+	}
 
 out:
 	memset(drbg->scratchpad, 0, LC_DRBG_HASH_BLOCKLEN);
