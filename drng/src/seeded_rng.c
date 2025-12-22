@@ -19,6 +19,7 @@
 
 #include "ext_headers_internal.h"
 #include "lc_chacha20_drng.h"
+#include "lc_ctr_drbg.h"
 #include "lc_cshake256_drng.h"
 #include "lc_kmac256_drng.h"
 #include "lc_hash_drbg.h"
@@ -102,6 +103,13 @@
 #define LC_SEEDED_RNG_CTX(name) LC_XDRBG512_RNG_CTX(name)
 #define LC_SEEDED_RNG_SECURITY_STRENGTH (512)
 #define LC_SEEDED_RNG_TYPE LC_ALG_STATUS_XDRBG512
+
+#elif defined(LC_DRNG_CTR_DRBG)
+#define LC_SEEDED_RNG_CTX_SIZE LC_DRBG_CTR_CTX_SIZE_USE_DF
+#define LC_SEEDED_RNG_CTX(name)                                                \
+	LC_DRBG_CTR_RNG_CTX(name, 1, LC_DRBG_CTR_SCRATCHPAD_USE_DF)
+#define LC_SEEDED_RNG_SECURITY_STRENGTH (256)
+#define LC_SEEDED_RNG_TYPE LC_ALG_STATUS_CTR_DRBG
 
 #else
 #error "Undefined DRNG"
