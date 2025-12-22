@@ -197,8 +197,8 @@ if get_option('drbg_hash').enabled()
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto
 				)
-	test('DRNG Hash SHA2-512 DRBG', hash_sha2_drbg_tester, suite: regression)
-	test('DRNG Hash SHA2-512 DRBG large', hash_sha2_drbg_tester_large,
+	test('DRNG Hash SHA2-512', hash_sha2_drbg_tester, suite: regression)
+	test('DRNG Hash SHA2-512 large', hash_sha2_drbg_tester_large,
 	     timeout: 1500, is_parallel: false, suite: performance)
 
 #	Disabled as SHA3 DRBG is disabled in main meson.build
@@ -208,7 +208,7 @@ if get_option('drbg_hash').enabled()
 # 				include_directories: [ include_internal_dirs ],
 # 				dependencies: leancrypto
 # 				)
-# 		test('Hash SHA3-512 DRBG', hash_sha3_drbg_tester)
+# 		test('Hash SHA3-512', hash_sha3_drbg_tester)
 # 	endif
 endif
 
@@ -225,9 +225,29 @@ if get_option('drbg_hmac').enabled()
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto
 				)
-	test('DRNG HMAC SHA2-512 DRBG', hmac_sha2_drbg_tester, suite: regression)
-	test('DRNG HMAC SHA2-512 DRBG large', hmac_sha2_drbg_tester_large,
+	test('DRNG HMAC SHA2-512', hmac_sha2_drbg_tester, suite: regression)
+	test('DRNG HMAC SHA2-512 large', hmac_sha2_drbg_tester_large,
 	     timeout: 1500, is_parallel: false, suite: performance)
+endif
+
+if get_option('drbg_ctr').enabled()
+	seeded_selftest_enable = 1
+
+	ctr_drbg_tester = executable('ctr_drbg_tester',
+				[ 'ctr_drbg_tester.c', internal_src ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto
+				)
+	ctr_drbg_tester_large = executable('ctr_drbg_tester_large',
+				[ 'ctr_drbg_tester_large.c', internal_src ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto
+				)
+	test('DRNG CTR AES-256', ctr_drbg_tester, suite: regression)
+	test('DRNG CTR DF AES-256 large', ctr_drbg_tester_large,
+	     timeout: 1500, is_parallel: false, suite: performance)
+	test('DRNG CTR NO DF AES-256 large', ctr_drbg_tester_large,
+	     args : [ 'no' ], timeout: 1500, is_parallel: false, suite: performance)
 endif
 
 if (seeded_selftest_enable == 1)

@@ -250,7 +250,7 @@ Leancrypto offers various cryptographic algorithms:
 
   * SHAKE-based PRNG
 
-  * SP800-90A Hash and HMAC DRBG
+  * SP800-90A CTR, Hash and HMAC DRBG
 
   * ChaCha20-based PRNG - see https://www.chronox.de/lrng for specification
 

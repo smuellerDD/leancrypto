@@ -289,6 +289,9 @@ static const struct alg_status_show alg_status_show_rng[] = {
 #if (defined(LC_DRNG_KMAC) || defined(CONFIG_LEANCRYPTO_KMAC_DRNG))
 { .flag = LC_ALG_STATUS_KMAC_DRBG, .alg_name = "KMAC-DRBG", .strlen = 9 },
 #endif
+//#if (defined(LC_DRNG_HASH_DRBG) || defined(CONFIG_LEANCRYPTO_HASH_DRBG))
+{ .flag = LC_ALG_STATUS_CTR_DRBG | LC_ALG_STATUS_FIPS, .alg_name = "CTR-DRBG", .strlen = 8 },
+//#endif
 /* Make sure this array is never empty */
 { .flag = 0, .alg_name = NULL, .strlen = 0 }
 };

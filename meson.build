@@ -303,6 +303,9 @@ endif
 if get_option('drbg_hmac').enabled()
 	add_global_arguments([ '-DLC_DRNG_HMAC_DRBG' ], language: 'c')
 endif
+if get_option('drbg_ctr').enabled()
+	add_global_arguments([ '-DLC_DRNG_CTR_DRBG' ], language: 'c')
+endif
 if get_option('hkdf').enabled()
 	add_global_arguments([ '-DLC_HKDF' ], language: 'c')
 endif
@@ -563,7 +566,11 @@ if (get_option('drbg_hmac').enabled() and
 endif
 
 if get_option('drbg_hash').enabled() and get_option('sha2-512').disabled()
-	error('HMAC DRBG requires SHA2-512')
+	error('Hash DRBG requires SHA2-512')
+endif
+
+if get_option('drbg_ctr').enabled() and get_option('aes_ctr').disabled()
+	error('CTR DRBG requires AES-CTR')
 endif
 
 if get_option('hmac').enabled()

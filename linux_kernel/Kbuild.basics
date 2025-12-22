@@ -89,6 +89,7 @@ leancrypto-y			+= ../internal/src/left_encode.o	       \
 				   ../internal/src/compare.o		       \
 				   ../internal/src/fips_integrity_check.o      \
 				   ../internal/src/fips_mode.o		       \
+				   ../internal/src/memcpy_secure_c.o	       \
 				   ../internal/src/null_buffer.o	       \
 				   ../internal/src/fips_integrity_checker_none.o\
 				   ../internal/src/status.o		       \

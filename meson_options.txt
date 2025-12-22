@@ -44,6 +44,8 @@ option('drbg_hash', type: 'feature', value: 'enabled',
        description: 'Hash DRBG')
 option('drbg_hmac', type: 'feature', value: 'enabled',
        description: 'HMAC DRBG')
+option('drbg_ctr', type: 'feature', value: 'enabled',
+       description: 'CTR DRBG')
 
 option('hash_crypt', type: 'feature', value: 'enabled',
        description: 'Hash-Crypt support')

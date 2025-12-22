@@ -31,6 +31,8 @@ Changes 1.7.0-prerelease
 
 * AES-XTS AESNI / ARMv8-CE support: fix stream mode operation by extracting IV from state
 
+* Add CTR-DRBG with AES-256 core (with and without derivation function) support - this DRBG has an unmatched performance (generation of 1GB random data requires only 90ms on an Apple M4 Max) as it uses the accelerated AES-CTR mode implementation, if available. The implementation is verified against NIST CAVP testing.
+
 Changes 1.6.0
 * ASN.1: use stack for small generator for small use cases
 

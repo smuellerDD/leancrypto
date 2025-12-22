@@ -59,6 +59,7 @@ DISABLE_DRNG="
  -Dchacha20_drng=disabled
  -Ddrbg_hash=disabled
  -Ddrbg_hmac=disabled
+ -Ddrbg_ctr=disabled
  -Dkmac_drng=disabled
  -Dcshake_drng=disabled
 "

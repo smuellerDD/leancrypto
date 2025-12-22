@@ -5,7 +5,7 @@
 internal_src += files([
 	'selftest_rng.c',
 	'selftest_shake256_rng.c',
-	'static_rng.c'
+	'static_rng.c',
 ])
 
 lc_rng_header = 0
@@ -65,7 +65,14 @@ if get_option('drbg_hmac').enabled()
 	lc_rng_header = 1
 endif
 
-if get_option('drbg_hash').enabled() or get_option('drbg_hmac').enabled()
+if get_option('drbg_ctr').enabled()
+	src += files([ 'ctr_drbg.c' ])
+	include_files += files([ '../api/lc_ctr_drbg.h' ])
+	seeded_rng = 1
+	lc_rng_header = 1
+endif
+
+if get_option('drbg_hash').enabled() or get_option('drbg_hmac').enabled() or get_option('drbg_ctr')
 	include_files += files([ '../api/lc_drbg.h' ])
 endif
 

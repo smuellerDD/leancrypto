@@ -29,6 +29,16 @@ hash_drbg_tester-y			+= ../drng/tests/hash_drbg_tester.o
 endif
 
 ################################################################################
+# DRNG implementation: SP800-90A CTR DRBG
+leancrypto-$(CONFIG_LEANCRYPTO_HASH_DRBG)				       \
+					+= ../drng/src/ctr_drbg.o
+ifdef CONFIG_LEANCRYPTO_HASH_DRBG
+ccflags-y				+= -DCONFIG_LEANCRYPTO_CTR_DRBG
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= ctr_drbg_tester.o
+ctr_drbg_tester-y			+= ../drng/tests/ctr_drbg_tester.o
+endif
+
+################################################################################
 # DRNG implementation: SP800-90A HMAC DRBG
 leancrypto-$(CONFIG_LEANCRYPTO_HMAC_DRBG)				       \
 					+= ../drng/src/hmac_drbg.o
