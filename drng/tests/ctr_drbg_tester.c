@@ -73,6 +73,10 @@ ctr_drbg_tester(struct lc_rng_ctx *drbg, struct lc_rng_ctx *drbg_stack,
 	ret = lc_compare(act, exp, exp_len, "CTR DRBG AES-256 3");
 
 out:
+#ifdef LC_FIPS140_DEBUG
+	if (ret == -EOPNOTSUPP)
+		ret = 0;
+#endif
 	return ret;
 }
 

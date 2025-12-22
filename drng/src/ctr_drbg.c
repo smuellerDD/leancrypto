@@ -146,7 +146,7 @@ static void drbg_ctr_selftest(void)
 
 out:
 	lc_compare_selftest(lc_ctr_drbg->algorithm_type, act, exp, sizeof(exp),
-			    "Hash DRBG");
+			    "CTR DRBG");
 	lc_rng_zero(drbg_ctx);
 }
 
