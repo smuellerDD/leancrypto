@@ -409,8 +409,7 @@ static int drbg_ctr_update(struct lc_drbg_ctr_state *drbg,
 	struct lc_sym_ctx *ctr_ctx = &drbg->ctr_ctx;
 	/* 10.2.1.2 step 1 */
 	uint8_t *temp = drbg->scratchpad;
-	uint8_t *df_data =
-		drbg->scratchpad + LC_DRBG_CTR_STATELEN + LC_DRBG_CTR_BLOCKLEN;
+	uint8_t *df_data = temp + LC_DRBG_CTR_STATELEN + LC_DRBG_CTR_BLOCKLEN;
 	uint64_t iv[AES_CTR128_64BIT_WORDS];
 	int ret = -EFAULT;
 
