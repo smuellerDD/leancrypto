@@ -72,7 +72,9 @@ if get_option('drbg_ctr').enabled()
 	lc_rng_header = 1
 endif
 
-if get_option('drbg_hash').enabled() or get_option('drbg_hmac').enabled() or get_option('drbg_ctr')
+if (get_option('drbg_hash').enabled() or
+    get_option('drbg_hmac').enabled() or
+    get_option('drbg_ctr').enabled())
 	include_files += files([ '../api/lc_drbg.h' ])
 endif
 
