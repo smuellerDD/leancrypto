@@ -18,7 +18,9 @@
  */
 
 #include "bitshift.h"
+#include "build_bug_on.h"
 #include "compare.h"
+#include "conv_be_le.h"
 #include "fips_mode.h"
 #include "lc_aes.h"
 #include "lc_ctr_drbg.h"
@@ -389,6 +391,119 @@ static int drbg_ctr_nodf(uint8_t *df_data, struct lc_drbg_string *seedlist)
 }
 
 /*
+ * When enabling the flag LC_DRBG_CTR_SMALL_CTR, the CTR DRBG operates with a
+ * small counter size. Usually this operation is not really requested or even
+ * relevant. Therefore its code is only provided for analysis. The
+ * implementation limits the counter value to 8 bits at max. which is to be set
+ * with the macro LC_DRBG_CTR_SMALL_CTR.
+ */
+#undef LC_DRBG_CTR_SMALL_CTR
+#ifndef LC_DRBG_CTR_SMALL_CTR
+
+static inline void drbg_ctr_inc(struct lc_drbg_ctr_state *drbg)
+{
+	/*
+	 * The DRBG uses the CTR mode of the underlying AES cipher. The
+	 * CTR mode increments the counter value after the AES operation
+	 * but SP800-90A requires that the counter is incremented before
+	 * the AES operation. Hence, we increment it at the time we set
+	 * it by one.
+	 *
+	 * To prevent dependencies on the actual CTR Mode
+	 * implementation, the V management is kept in the CTR DRBG
+	 * code and loaded into the CTR mode using setiv. Yes, that
+	 * entails another memcpy, but we take that penalty for code
+	 * sanity.
+	 */
+	drbg->ctr.V_64[0] = be_bswap64(drbg->ctr.V_64[0]);
+	drbg->ctr.V_64[1] = be_bswap64(drbg->ctr.V_64[1]);
+	ctr128_inc(drbg->ctr.V_64);
+	drbg->ctr.V_64[0] = be_bswap64(drbg->ctr.V_64[0]);
+	drbg->ctr.V_64[1] = be_bswap64(drbg->ctr.V_64[1]);
+}
+
+static inline size_t drbg_ctr_avail_bytes(struct lc_drbg_ctr_state *drbg,
+					  size_t requested)
+{
+	(void)drbg;
+	return requested;
+}
+
+static inline void drbg_ctr_fixup(struct lc_drbg_ctr_state *drbg)
+{
+	(void)drbg;
+}
+
+#else
+
+#define LC_DRBG_CTR_SMALL_CTR_BITS 6
+#define LC_DRBG_CTR_SMALL_CTR_VAL (1 << LC_DRBG_CTR_SMALL_CTR_BITS)
+#define LC_DRBG_CTR_SMALL_CTR_MASK (LC_DRBG_CTR_SMALL_CTR_VAL - 1)
+
+static inline void drbg_ctr_inc(struct lc_drbg_ctr_state *drbg)
+{
+	/*
+	 * This implementation only operates on the last byte, so the
+	 * counter size cannot be larger than one byte
+	 */
+	BUILD_BUG_ON(LC_DRBG_CTR_SMALL_CTR_BITS > (sizeof(uint8_t) << 3));
+
+	/*
+	 * If the last LC_DRBG_CTR_SMALL_CTR_BITS are all set, then an inc
+	 * is simply to unset all bits (i.e. the wrap).
+	 */
+	if ((drbg->ctr.V[LC_DRBG_CTR_BLOCKLEN - 1] &
+	     LC_DRBG_CTR_SMALL_CTR_MASK) == LC_DRBG_CTR_SMALL_CTR_MASK) {
+		drbg->ctr.V[LC_DRBG_CTR_BLOCKLEN - 1] &=
+			~LC_DRBG_CTR_SMALL_CTR_MASK;
+	} else {
+		drbg->ctr.V[LC_DRBG_CTR_BLOCKLEN - 1]++;
+	}
+}
+
+/* Return number of bytes before counter wraps */
+static inline size_t drbg_ctr_avail_bytes(struct lc_drbg_ctr_state *drbg,
+					  size_t requested)
+{
+	size_t blocks = LC_DRBG_CTR_SMALL_CTR_VAL -
+			(drbg->ctr.V[LC_DRBG_CTR_BLOCKLEN - 1] &
+			 LC_DRBG_CTR_SMALL_CTR_MASK);
+
+	if (!blocks)
+		blocks = LC_DRBG_CTR_SMALL_CTR_VAL;
+
+	return min_size(requested, (blocks << 4));
+}
+
+/*
+ * Considering that we use the AES-CTR mode, the counter increment happens
+ * after the actual encryption. This implies that a counter may have wrapped
+ * with the last increment that the AES-CTR did not apply. Thus, fix up the
+ * counter by always undoing the last increment and doing a "manual inc".
+ */
+static inline void drbg_ctr_fixup(struct lc_drbg_ctr_state *drbg)
+{
+	drbg->ctr.V_64[0] = be_bswap64(drbg->ctr.V_64[0]);
+	drbg->ctr.V_64[1] = be_bswap64(drbg->ctr.V_64[1]);
+	if (likely(drbg->ctr.V_64[1] != 0)) {
+		drbg->ctr.V_64[1]--;
+	} else {
+		drbg->ctr.V_64[1] = 0xffffffffffffffff;
+
+		if (likely(drbg->ctr.V_64[0] != 0))
+			drbg->ctr.V_64[0]--;
+		else
+			drbg->ctr.V_64[0] = 0xffffffffffffffff;
+	}
+	drbg->ctr.V_64[0] = be_bswap64(drbg->ctr.V_64[0]);
+	drbg->ctr.V_64[1] = be_bswap64(drbg->ctr.V_64[1]);
+
+	drbg_ctr_inc(drbg);
+}
+
+#endif
+
+/*
  * update function of CTR DRBG as defined in 10.2.1.2
  *
  * The reseed variable has an enhanced meaning compared to the update
@@ -410,30 +525,13 @@ static int drbg_ctr_update(struct lc_drbg_ctr_state *drbg,
 	/* 10.2.1.2 step 1 */
 	uint8_t *temp = drbg->scratchpad;
 	uint8_t *df_data = temp + LC_DRBG_CTR_STATELEN + LC_DRBG_CTR_BLOCKLEN;
-	uint64_t iv[AES_CTR128_64BIT_WORDS];
 	int ret = -EFAULT;
 
 	if (3 > reseed)
 		memset(df_data, 0, LC_DRBG_CTR_STATELEN);
 
 	if (!reseed) {
-		/*
-		 * The DRBG uses the CTR mode of the underlying AES cipher. The
-		 * CTR mode increments the counter value after the AES operation
-		 * but SP800-90A requires that the counter is incremented before
-		 * the AES operation. Hence, we increment it at the time we set
-		 * it by one.
-		 *
-		 * To prevent dependencies on the actual CTR Mode
-		 * implementation, the V management is kept in the CTR DRBG
-		 * code and loaded into the CTR mode using setiv. Yes, that
-		 * entails another memcpy, but we take that penalty for code
-		 * sanity.
-		 */
-		ptr_to_ctr128(iv, drbg->V);
-		ctr128_inc(iv);
-		ctr128_to_ptr(drbg->V, iv);
-
+		drbg_ctr_inc(drbg);
 		CKINT(lc_sym_setkey(ctr_ctx, drbg->C, LC_DRBG_KEYLEN));
 	}
 
@@ -446,19 +544,16 @@ static int drbg_ctr_update(struct lc_drbg_ctr_state *drbg,
 		}
 	}
 
-	CKINT(lc_sym_setiv(ctr_ctx, drbg->V, LC_DRBG_CTR_BLOCKLEN));
+	CKINT(lc_sym_setiv(ctr_ctx, drbg->ctr.V, LC_DRBG_CTR_BLOCKLEN));
 	lc_sym_encrypt(ctr_ctx, df_data, temp, LC_DRBG_CTR_STATELEN);
 
 	/* 10.2.1.2 step 5 */
 	CKINT(lc_sym_setkey(ctr_ctx, temp, LC_DRBG_KEYLEN));
 
 	/* 10.2.1.2 step 6 */
-	memcpy(drbg->V, temp + LC_DRBG_KEYLEN, LC_DRBG_CTR_BLOCKLEN);
+	memcpy(drbg->ctr.V, temp + LC_DRBG_KEYLEN, LC_DRBG_CTR_BLOCKLEN);
 
-	/* See above: increment counter by one to compensate timing of CTR op */
-	ptr_to_ctr128(iv, drbg->V);
-	ctr128_inc(iv);
-	ctr128_to_ptr(drbg->V, iv);
+	drbg_ctr_inc(drbg);
 
 	ret = 0;
 
@@ -491,9 +586,13 @@ static int drbg_ctr_generate_internal(struct lc_drbg_ctr_state *drbg,
 	while (buflen) {
 		size_t todo = min_size(LC_DRBG_MAX_REQUEST_BYTES, buflen);
 
-		CKINT(lc_sym_setiv(ctr_ctx, drbg->V, LC_DRBG_CTR_BLOCKLEN));
+		todo = drbg_ctr_avail_bytes(drbg, todo);
+
+		CKINT(lc_sym_setiv(ctr_ctx, drbg->ctr.V, LC_DRBG_CTR_BLOCKLEN));
 		lc_sym_encrypt(ctr_ctx, buf, buf, todo);
-		CKINT(lc_sym_getiv(ctr_ctx, drbg->V, LC_DRBG_CTR_BLOCKLEN));
+		CKINT(lc_sym_getiv(ctr_ctx, drbg->ctr.V, LC_DRBG_CTR_BLOCKLEN));
+
+		drbg_ctr_fixup(drbg);
 
 		/* 10.2.1.5.2 step 6 */
 		CKINT(drbg_ctr_update(drbg, NULL, 3));
@@ -610,7 +709,7 @@ static void lc_drbg_ctr_zero(void *_state)
 	drbg_ctr->seeded = 0;
 	/* leave drbg_ctr->use_df unchanged */
 	/* leave drbg_ctr->scratchpad_size unchanged */
-	lc_memset_secure(drbg_ctr->V, 0, sizeof(drbg_ctr->V));
+	lc_memset_secure(drbg_ctr->ctr.V, 0, sizeof(drbg_ctr->ctr.V));
 	lc_memset_secure(drbg_ctr->C, 0, sizeof(drbg_ctr->C));
 	lc_memset_secure(drbg_ctr->scratchpad, 0, drbg_ctr->scratchpad_size);
 }

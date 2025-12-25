@@ -252,8 +252,8 @@ static int drbg_hmac_generate_internal(struct lc_drbg_hmac_state *drbg,
 			CKINT(drbg_hmac(drbg, drbg->C, drbg->V, &data));
 
 			outlen = (LC_DRBG_HMAC_BLOCKLEN < (buflen - len)) ?
-					LC_DRBG_HMAC_BLOCKLEN :
-					(buflen - len);
+					 LC_DRBG_HMAC_BLOCKLEN :
+					 (buflen - len);
 
 			/* 10.1.2.5 step 4.2 */
 			memcpy(buf + len, drbg->V, outlen);

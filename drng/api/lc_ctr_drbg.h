@@ -53,7 +53,10 @@ extern "C" {
 struct lc_drbg_ctr_state {
 	struct lc_sym_ctx ctr_ctx; /* CTR Cipher handle */
 	uint8_t ctr_state[LC_SYM_STATE_SIZE_LEN(LC_DRBG_CTR_SYM_STATE)];
-	uint8_t V[LC_DRBG_CTR_BLOCKLEN]; /* internal state 10.1.1.1 1a) */
+	union { /* internal state 10.1.1.1 1a) */
+		uint8_t V[LC_DRBG_CTR_BLOCKLEN];
+		uint64_t V_64[LC_DRBG_CTR_BLOCKLEN / sizeof(uint64_t)];
+	} ctr;
 	uint8_t C[LC_DRBG_KEYLEN]; /* static value 10.1.1.1 1b) */
 
 	unsigned int seeded : 1;

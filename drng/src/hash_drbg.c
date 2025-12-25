@@ -412,9 +412,9 @@ static int drbg_hash_generate_internal(struct lc_drbg_hash_state *drbg,
 
 		/* 10.1.1.4 step 5 */
 		drbg_add_buf(drbg->V, LC_DRBG_HASH_STATELEN, drbg->scratchpad,
-			LC_DRBG_HASH_BLOCKLEN);
+			     LC_DRBG_HASH_BLOCKLEN);
 		drbg_add_buf(drbg->V, LC_DRBG_HASH_STATELEN, drbg->C,
-			LC_DRBG_HASH_STATELEN);
+			     LC_DRBG_HASH_STATELEN);
 		be64_to_ptr(req, drbg->reseed_ctr);
 		drbg_add_buf(drbg->V, LC_DRBG_HASH_STATELEN, req, sizeof(req));
 
