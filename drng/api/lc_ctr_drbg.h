@@ -45,10 +45,10 @@ extern "C" {
 #define LC_DRBG_CTR_SCRATCHPAD_NODF LC_DRBG_CTR_STATELEN
 #define LC_DRBG_CTR_SCRATCHPAD_USE_DF                                          \
 	(LC_DRBG_CTR_SCRATCHPAD_UPDATE + LC_DRBG_CTR_SCRATCHPAD_DF +           \
-	 LC_MEM_COMMON_ALIGNMENT)
+	 LC_SYM_COMMON_ALIGNMENT)
 #define LC_DRBG_CTR_SCRATCHPAD_NO_DF                                           \
 	(LC_DRBG_CTR_SCRATCHPAD_UPDATE + LC_DRBG_CTR_SCRATCHPAD_NODF +         \
-	 LC_MEM_COMMON_ALIGNMENT)
+	 LC_SYM_COMMON_ALIGNMENT)
 
 struct lc_drbg_ctr_state {
 	struct lc_sym_ctx ctr_ctx; /* CTR Cipher handle */
@@ -80,10 +80,11 @@ struct lc_drbg_ctr_state {
 #define _LC_DRBG_CTR_SET_CTX(name, ctx, offset, _use_df, _scratchpad_size)     \
 	LC_SYM_SET_CTX((&(name)->ctr_ctx), lc_aes_ctr);                        \
 	(name)->use_df = _use_df;                                              \
-	(name)->scratchpad_size = _scratchpad_size;                            \
+	(name)->scratchpad_size =                                              \
+		(_scratchpad_size - LC_SYM_COMMON_ALIGNMENT);                  \
 	(name)->scratchpad =                                                   \
-		(uint8_t *)((uint8_t *)ctx + offset +                          \
-			    LC_ALIGNMENT_MASK(LC_MEM_COMMON_ALIGNMENT));       \
+		LC_ALIGN_PTR_8((uint8_t *)ctx + offset,                        \
+			       LC_ALIGNMENT_MASK(LC_SYM_COMMON_ALIGNMENT));    \
 	(name)->seeded = 0
 
 #define LC_DRBG_CTR_SET_CTX(name, _use_df, _scratchpad_size)                   \
