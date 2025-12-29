@@ -387,7 +387,7 @@ static int test_xcrypt_ctr_common(void)
 	LC_AES_CTR_CTX_ON_STACK(aes_ctr);
 
 	/* Unpoison key to let implementation poison it */
-	unpoison(key, keylen);
+	unpoison(key_wrap, sizeof(key_wrap));
 
 	/* Encrypt */
 	CKINT(lc_sym_init(aes_ctr));
