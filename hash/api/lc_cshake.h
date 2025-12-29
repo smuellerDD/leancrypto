@@ -92,12 +92,11 @@ struct lc_cshake_ctx {
 	struct lc_hash_ctx hash_ctx;
 };
 
-#define LC_CSHAKE_STATE_SIZE(x) (LC_HASH_STATE_SIZE(x))
-#define LC_CSHAKE_STATE_SIZE_REINIT(x) (2 * LC_HASH_STATE_SIZE(x))
-#define LC_CSHAKE_CTX_SIZE(x)                                                  \
-	(LC_CSHAKE_STATE_SIZE(x) + sizeof(struct lc_cshake_ctx))
-#define LC_CSHAKE_CTX_SIZE_REINIT(x)                                           \
-	(LC_CSHAKE_STATE_SIZE_REINIT(x) + sizeof(struct lc_cshake_ctx))
+#define LC_CSHAKE_STATE_SIZE (LC_SHA3_224_STATE_SIZE)
+#define LC_CSHAKE_STATE_SIZE_REINIT (2 * LC_SHA3_224_STATE_SIZE)
+#define LC_CSHAKE_CTX_SIZE (LC_CSHAKE_STATE_SIZE + sizeof(struct lc_cshake_ctx))
+#define LC_CSHAKE_CTX_SIZE_REINIT                                              \
+	(LC_CSHAKE_STATE_SIZE_REINIT + sizeof(struct lc_cshake_ctx))
 
 #define _LC_CSHAKE_SET_CTX(name, hashname, ctx, offset)                        \
 	_LC_HASH_SET_CTX((&name->hash_ctx), hashname, ctx, offset);            \
@@ -211,19 +210,13 @@ void lc_cshake_ctx_zero_free(struct lc_cshake_ctx *cshake_ctx);
  */
 static inline void lc_cshake_ctx_zero(struct lc_cshake_ctx *cshake_ctx)
 {
-	struct lc_hash_ctx *hash_ctx;
-	const struct lc_hash *hash;
-
 	if (!cshake_ctx)
 		return;
-	hash_ctx = &cshake_ctx->hash_ctx;
-	hash = hash_ctx->hash;
 
 	lc_memset_secure((uint8_t *)cshake_ctx + sizeof(struct lc_cshake_ctx),
 			 0,
-			 cshake_ctx->shadow_ctx ?
-				 LC_CSHAKE_STATE_SIZE_REINIT(hash) :
-				 LC_CSHAKE_STATE_SIZE(hash));
+			 cshake_ctx->shadow_ctx ? LC_CSHAKE_STATE_SIZE_REINIT :
+						  LC_CSHAKE_STATE_SIZE);
 }
 
 /**
@@ -236,16 +229,14 @@ static inline void lc_cshake_ctx_zero(struct lc_cshake_ctx *cshake_ctx)
  * @param [in] hashname Pointer of type struct hash referencing the hash
  *			 implementation to be used
  */
-#define LC_CSHAKE_CTX_ON_STACK(name, hashname)                                      \
-	_Pragma("GCC diagnostic push")                                              \
-		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
-			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
-			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
-					  LC_CSHAKE_CTX_SIZE(hashname),             \
-					  LC_HASH_COMMON_ALIGNMENT);                \
-	struct lc_cshake_ctx *name = (struct lc_cshake_ctx *)name##_ctx_buf;        \
-	LC_CSHAKE_SET_CTX(name, hashname);                                          \
-	lc_cshake_ctx_zero(name);                                                   \
+#define LC_CSHAKE_CTX_ON_STACK(name, hashname)                                 \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_CSHAKE_CTX_SIZE,          \
+				  LC_HASH_COMMON_ALIGNMENT);                   \
+	struct lc_cshake_ctx *name = (struct lc_cshake_ctx *)name##_ctx_buf;   \
+	LC_CSHAKE_SET_CTX(name, hashname);                                     \
+	lc_cshake_ctx_zero(name);                                              \
 	_Pragma("GCC diagnostic pop")
 
 /**
@@ -259,16 +250,14 @@ static inline void lc_cshake_ctx_zero(struct lc_cshake_ctx *cshake_ctx)
  * @param [in] hashname Pointer of type struct hash referencing the hash
  *			 implementation to be used
  */
-#define LC_CSHAKE_CTX_ON_STACK_REINIT(name, hashname)                               \
-	_Pragma("GCC diagnostic push")                                              \
-		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
-			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
-			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
-					  LC_CSHAKE_CTX_SIZE_REINIT(hashname),      \
-					  LC_HASH_COMMON_ALIGNMENT);                \
-	struct lc_cshake_ctx *name = (struct lc_cshake_ctx *)name##_ctx_buf;        \
-	LC_CSHAKE_SET_CTX_REINIT(name, hashname);                                   \
-	lc_cshake_ctx_zero(name);                                                   \
+#define LC_CSHAKE_CTX_ON_STACK_REINIT(name, hashname)                          \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_CSHAKE_CTX_SIZE_REINIT,   \
+				  LC_HASH_COMMON_ALIGNMENT);                   \
+	struct lc_cshake_ctx *name = (struct lc_cshake_ctx *)name##_ctx_buf;   \
+	LC_CSHAKE_SET_CTX_REINIT(name, hashname);                              \
+	lc_cshake_ctx_zero(name);                                              \
 	_Pragma("GCC diagnostic pop")
 
 #ifdef __cplusplus

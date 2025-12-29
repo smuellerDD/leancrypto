@@ -706,7 +706,7 @@ LC_INTERFACE_FUNCTION(int, lc_cc_alloc, const struct lc_hash *hash,
 	int ret;
 
 	ret = lc_alloc_aligned((void **)&tmp, LC_CSHAKE_CRYPT_ALIGNMENT,
-			       LC_CC_CTX_SIZE(hash));
+			       LC_CC_CTX_SIZE);
 	if (ret)
 		return -ret;
 
@@ -720,13 +720,12 @@ LC_INTERFACE_FUNCTION(int, lc_cc_alloc, const struct lc_hash *hash,
 static void lc_cc_zero(void *state)
 {
 	struct lc_cc_cryptor *cc = state;
-	struct lc_hash_ctx *cshake;
-	const struct lc_hash *hash;
 
-	cshake = &cc->cshake;
-	hash = cshake->hash;
+	if (!cc)
+		return;
+
 	lc_memset_secure((uint8_t *)cc + sizeof(struct lc_cc_cryptor), 0,
-			 LC_CC_STATE_SIZE(hash));
+			 LC_CC_STATE_SIZE);
 }
 
 static const struct lc_aead _lc_cshake_aead = {

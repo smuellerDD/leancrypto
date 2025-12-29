@@ -29,7 +29,7 @@ extern "C" {
 
 /// \cond DO_NOT_DOCUMENT
 #define LC_AK_STATE_SIZE (LC_SHA3_STATE_SIZE + LC_ASCON_ALIGNMENT)
-#define LC_AK_CTX_SIZE(x)                                                      \
+#define LC_AK_CTX_SIZE                                                         \
 	(sizeof(struct lc_aead) + sizeof(struct lc_ascon_cryptor) +            \
 	 LC_AK_STATE_SIZE)
 /// \endcond
@@ -79,18 +79,16 @@ int lc_ak_alloc_taglen(const struct lc_hash *hash, uint8_t taglen,
  * @param [in] hash Hash implementation of type struct hash used for the
  *		    Ascon-Keccak algorithm
  */
-#define LC_AK_CTX_ON_STACK(name, hash)                                              \
-	_Pragma("GCC diagnostic push")                                              \
-		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
-			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
-			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
-					  LC_AK_CTX_SIZE(hash),                     \
-					  LC_ASCON_ALIGNMENT);                      \
-	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;            \
-	LC_ASCON_SET_CTX(name, hash, lc_ascon_keccak_aead);                         \
-	struct lc_ascon_cryptor *__name_ascon_crypto = name->aead_state;            \
-	__name_ascon_crypto->statesize = LC_SHA3_STATE_SIZE;                        \
-	__name_ascon_crypto->taglen = 16;                                           \
+#define LC_AK_CTX_ON_STACK(name, hash)                                         \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_AK_CTX_SIZE,              \
+				  LC_ASCON_ALIGNMENT);                         \
+	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;       \
+	LC_ASCON_SET_CTX(name, hash, lc_ascon_keccak_aead);                    \
+	struct lc_ascon_cryptor *__name_ascon_crypto = name->aead_state;       \
+	__name_ascon_crypto->statesize = LC_SHA3_STATE_SIZE;                   \
+	__name_ascon_crypto->taglen = 16;                                      \
 	_Pragma("GCC diagnostic pop")
 
 /**
@@ -104,18 +102,16 @@ int lc_ak_alloc_taglen(const struct lc_hash *hash, uint8_t taglen,
  *		    Ascon-Keccak algorithm
  * @param [in] tagsize Length of the tag in bytes (between 16 and key size)
  */
-#define LC_AK_CTX_ON_STACK_TAGLEN(name, hash, tagsize)                              \
-	_Pragma("GCC diagnostic push")                                              \
-		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
-			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
-			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
-					  LC_AK_CTX_SIZE(hash),                     \
-					  LC_ASCON_ALIGNMENT);                      \
-	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;            \
-	LC_ASCON_SET_CTX(name, hash, lc_ascon_keccak_aead);                         \
-	struct lc_ascon_cryptor *__name_ascon_crypto = name->aead_state;            \
-	__name_ascon_crypto->statesize = LC_SHA3_STATE_SIZE;                        \
-	__name_ascon_crypto->taglen = tagsize;                                      \
+#define LC_AK_CTX_ON_STACK_TAGLEN(name, hash, tagsize)                         \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_AK_CTX_SIZE,              \
+				  LC_ASCON_ALIGNMENT);                         \
+	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;       \
+	LC_ASCON_SET_CTX(name, hash, lc_ascon_keccak_aead);                    \
+	struct lc_ascon_cryptor *__name_ascon_crypto = name->aead_state;       \
+	__name_ascon_crypto->statesize = LC_SHA3_STATE_SIZE;                   \
+	__name_ascon_crypto->taglen = tagsize;                                 \
 	_Pragma("GCC diagnostic pop")
 
 #ifdef __cplusplus

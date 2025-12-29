@@ -200,8 +200,7 @@ static int ak_tester_512_large_iv_tag(const struct lc_hash *hash,
 
 	printf("Ascon Keccak 512 crypt ctx %s (%s implementation) len %u, state len %u\n",
 	       name, hash == lc_sha3_512_c ? "C" : "accelerated",
-	       (unsigned int)LC_AK_CTX_SIZE(hash),
-	       (unsigned int)LC_AK_STATE_SIZE);
+	       (unsigned int)LC_AK_CTX_SIZE, (unsigned int)LC_AK_STATE_SIZE);
 	return ak_tester_one(hash, in, sizeof(in), iv, sizeof(iv), in,
 			     sizeof(in), key, sizeof(key), exp_ct, exp_tag,
 			     sizeof(exp_tag));
@@ -272,8 +271,7 @@ static int ak_tester_512(const struct lc_hash *hash, const char *name)
 
 	printf("Ascon Keccak 512 crypt ctx %s (%s implementation) len %u, state len %u\n",
 	       name, hash == lc_sha3_512_c ? "C" : "accelerated",
-	       (unsigned int)LC_AK_CTX_SIZE(hash),
-	       (unsigned int)LC_AK_STATE_SIZE);
+	       (unsigned int)LC_AK_CTX_SIZE, (unsigned int)LC_AK_STATE_SIZE);
 	return ak_tester_one(hash, in, sizeof(in), iv, sizeof(iv), in,
 			     sizeof(in), key, sizeof(key), exp_ct, exp_tag,
 			     sizeof(exp_tag));
@@ -315,8 +313,7 @@ static int ak_tester_256(const struct lc_hash *hash, const char *name)
 
 	printf("Ascon Keccak 256 crypt ctx %s (%s implementation) len %u, state len %u\n",
 	       name, hash == lc_sha3_256_c ? "C" : "accelerated",
-	       (unsigned int)LC_AK_CTX_SIZE(hash),
-	       (unsigned int)LC_AK_STATE_SIZE);
+	       (unsigned int)LC_AK_CTX_SIZE, (unsigned int)LC_AK_STATE_SIZE);
 	return ak_tester_one(hash, in, sizeof(in), iv, sizeof(iv), in,
 			     sizeof(in), key, sizeof(key), exp_ct, exp_tag,
 			     sizeof(exp_tag));
@@ -364,8 +361,7 @@ static int ak_tester_256_large_iv_tag(const struct lc_hash *hash,
 
 	printf("Ascon Keccak 256 crypt ctx %s (%s implementation) len %u, state len %u\n",
 	       name, hash == lc_sha3_256_c ? "C" : "accelerated",
-	       (unsigned int)LC_AK_CTX_SIZE(hash),
-	       (unsigned int)LC_AK_STATE_SIZE);
+	       (unsigned int)LC_AK_CTX_SIZE, (unsigned int)LC_AK_STATE_SIZE);
 	return ak_tester_one(hash, in, sizeof(in), iv, sizeof(iv), in,
 			     sizeof(in), key, sizeof(key), exp_ct, exp_tag,
 			     sizeof(exp_tag));

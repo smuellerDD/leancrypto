@@ -35,11 +35,10 @@ struct lc_kh_cryptor {
 	struct lc_kmac_ctx auth_ctx;
 };
 
-#define LC_KH_STATE_SIZE(sym, hash)                                            \
-	(LC_SYM_STATE_SIZE(sym) + LC_KMAC_STATE_SIZE(hash))
-#define LC_KH_CTX_SIZE(sym, hash)                                              \
+#define LC_KH_STATE_SIZE(sym) (LC_SYM_STATE_SIZE(sym) + LC_KMAC_STATE_SIZE)
+#define LC_KH_CTX_SIZE(sym)                                                    \
 	(sizeof(struct lc_aead) + sizeof(struct lc_kh_cryptor) +               \
-	 LC_KH_STATE_SIZE(sym, hash))
+	 LC_KH_STATE_SIZE(sym))
 
 /* AES-CBC with KMAC based AEAD-algorithm */
 extern const struct lc_aead *lc_symkmac_aead;
@@ -312,8 +311,7 @@ int lc_kh_alloc(const struct lc_sym *sym, const struct lc_hash *hash,
 	_Pragma("GCC diagnostic push")                                              \
 		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
 			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
-			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
-					  LC_KH_CTX_SIZE(sym, hash),                \
+			LC_ALIGNED_BUFFER(name##_ctx_buf, LC_KH_CTX_SIZE(sym),      \
 					  LC_HASH_COMMON_ALIGNMENT);                \
 	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;            \
 	LC_KH_SET_CTX(name, sym, hash);                                             \

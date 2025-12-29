@@ -138,7 +138,7 @@ LC_INTERFACE_FUNCTION(int, lc_hmac_alloc, const struct lc_hash *hash,
 {
 	struct lc_hmac_ctx *out_ctx = NULL;
 	int ret = lc_alloc_aligned((void **)&out_ctx, LC_MEM_COMMON_ALIGNMENT,
-				   LC_HMAC_CTX_SIZE(hash));
+				   LC_HMAC_CTX_SIZE);
 
 	if (ret)
 		return -ret;
@@ -161,11 +161,11 @@ LC_INTERFACE_FUNCTION(void, lc_hmac_zero_free, struct lc_hmac_ctx *hmac_ctx)
 
 LC_INTERFACE_FUNCTION(void, lc_hmac_zero, struct lc_hmac_ctx *hmac_ctx)
 {
-	struct lc_hash_ctx *hash_ctx = &hmac_ctx->hash_ctx;
-	const struct lc_hash *hash = hash_ctx->hash;
+	if (!hmac_ctx)
+		return;
 
 	lc_memset_secure((uint8_t *)hmac_ctx + sizeof(struct lc_hmac_ctx), 0,
-			 LC_HMAC_STATE_SIZE(hash));
+			 LC_HMAC_STATE_SIZE);
 }
 
 LC_INTERFACE_FUNCTION(size_t, lc_hmac_macsize, struct lc_hmac_ctx *hmac_ctx)

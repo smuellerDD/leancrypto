@@ -73,16 +73,15 @@ int lc_chacha20_poly1305_alloc(struct lc_aead_ctx **ctx);
  *
  * @param [in] name Name of the stack variable
  */
-#define LC_CHACHA20_POLY1305_CTX_ON_STACK(name)                                     \
-	_Pragma("GCC diagnostic push")                                              \
-		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
-			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
-			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
-					  LC_CHACHA20_POLY1305_CTX_SIZE,            \
-					  LC_MEM_COMMON_ALIGNMENT);                 \
-	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;            \
-	LC_CHACHA20_POLY1305_SET_CTX(name);                                         \
-	lc_aead_zero(name);                                                         \
+#define LC_CHACHA20_POLY1305_CTX_ON_STACK(name)                                \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(name##_ctx_buf,                              \
+				  LC_CHACHA20_POLY1305_CTX_SIZE,               \
+				  LC_MEM_COMMON_ALIGNMENT);                    \
+	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;       \
+	LC_CHACHA20_POLY1305_SET_CTX(name);                                    \
+	lc_aead_zero(name);                                                    \
 	_Pragma("GCC diagnostic pop")
 
 #ifdef __cplusplus

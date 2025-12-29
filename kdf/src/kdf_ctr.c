@@ -264,7 +264,7 @@ LC_INTERFACE_FUNCTION(int, lc_kdf_ctr_rng_alloc, struct lc_rng_ctx **state,
 
 	ret = lc_alloc_aligned_secure((void *)&out_state,
 				      LC_HASH_COMMON_ALIGNMENT,
-				      LC_CTR_KDF_DRNG_CTX_SIZE(hash));
+				      LC_CTR_KDF_DRNG_CTX_SIZE);
 	if (ret)
 		return -ret;
 

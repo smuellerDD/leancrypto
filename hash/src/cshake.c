@@ -196,8 +196,8 @@ LC_INTERFACE_FUNCTION(int, lc_cshake_ctx_alloc, const struct lc_hash *hash,
 		return -EINVAL;
 
 	memsize = (flags & LC_CSHAKE_FLAGS_SUPPORT_REINIT) ?
-			  LC_CSHAKE_CTX_SIZE_REINIT(hash) :
-			  LC_CSHAKE_CTX_SIZE(hash);
+			  LC_CSHAKE_CTX_SIZE_REINIT :
+			  LC_CSHAKE_CTX_SIZE;
 	ret = lc_alloc_aligned((void **)&out_ctx, LC_MEM_COMMON_ALIGNMENT,
 			       memsize);
 

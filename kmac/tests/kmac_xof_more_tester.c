@@ -71,7 +71,7 @@ static int _kmac_256_xof_more_tester(const struct lc_hash *cshake_256,
 
 	printf("hash ctx %s (%s implementation) len %lu\n", name,
 	       cshake_256 == lc_cshake256_c ? "C" : "accelerated",
-	       LC_KMAC_CTX_SIZE(cshake_256));
+	       LC_KMAC_CTX_SIZE);
 
 	CKINT(lc_kmac_init(kmac, key1, sizeof(key1), cust1, sizeof(cust1)));
 	lc_kmac_update(kmac, msg1, sizeof(msg1));

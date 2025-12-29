@@ -630,15 +630,12 @@ static int lc_kc_decrypt_oneshot(void *state, const uint8_t *ciphertext,
 static inline void lc_kc_zero(void *state)
 {
 	struct lc_kc_cryptor *kc = state;
-	struct lc_kmac_ctx *kmac = &kc->kmac;
-	struct lc_hash_ctx *hash_ctx = &kmac->hash_ctx;
-	const struct lc_hash *hash = hash_ctx->hash;
 
 	if (!kc)
 		return;
 
 	lc_memset_secure((uint8_t *)kc + sizeof(struct lc_kc_cryptor), 0,
-			 LC_KC_STATE_SIZE(hash));
+			 LC_KC_STATE_SIZE);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_kc_alloc, const struct lc_hash *hash,
@@ -651,7 +648,7 @@ LC_INTERFACE_FUNCTION(int, lc_kc_alloc, const struct lc_hash *hash,
 		return -EINVAL;
 
 	ret = lc_alloc_aligned((void **)&tmp, LC_KMAC_CRYPT_ALIGNMENT,
-			       LC_KC_CTX_SIZE(hash));
+			       LC_KC_CTX_SIZE);
 	if (ret)
 		return -ret;
 

@@ -37,11 +37,11 @@ struct lc_kmac_ctx {
 	struct lc_hash_ctx hash_ctx;
 };
 
-#define LC_KMAC_STATE_SIZE(x) (LC_HASH_STATE_SIZE(x))
-#define LC_KMAC_STATE_SIZE_REINIT(x) (2 * LC_HASH_STATE_SIZE(x))
-#define LC_KMAC_CTX_SIZE(x) (LC_KMAC_STATE_SIZE(x) + sizeof(struct lc_kmac_ctx))
-#define LC_KMAC_CTX_SIZE_REINIT(x)                                             \
-	(LC_KMAC_STATE_SIZE_REINIT(x) + sizeof(struct lc_kmac_ctx))
+#define LC_KMAC_STATE_SIZE (LC_SHA3_224_STATE_SIZE)
+#define LC_KMAC_STATE_SIZE_REINIT (2 * LC_SHA3_224_STATE_SIZE)
+#define LC_KMAC_CTX_SIZE (LC_KMAC_STATE_SIZE + sizeof(struct lc_kmac_ctx))
+#define LC_KMAC_CTX_SIZE_REINIT                                                \
+	(LC_KMAC_STATE_SIZE_REINIT + sizeof(struct lc_kmac_ctx))
 
 #define _LC_KMAC_SET_CTX(name, hashname, ctx, offset)                          \
 	_LC_HASH_SET_CTX((&name->hash_ctx), hashname, ctx, offset);            \
@@ -204,21 +204,19 @@ void lc_kmac_zero(struct lc_kmac_ctx *kmac_ctx);
  *
  * This allocates the memory without re-initialization support
  *
- * @param [in] name Name of the stack variable - use lc_cshake256 or
- *		    lc_cshake128
+ * @param [in] name Name of the stack variable - use lc_cshake256 (for KMAC 256)
+ *		    or lc_cshake128 (for KMAC 128)
  * @param [in] hashname Pointer of type struct hash referencing the hash
  *			 implementation to be used
  */
-#define LC_KMAC_CTX_ON_STACK(name, hashname)                                        \
-	_Pragma("GCC diagnostic push")                                              \
-		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
-			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
-			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
-					  LC_KMAC_CTX_SIZE(hashname),               \
-					  LC_HASH_COMMON_ALIGNMENT);                \
-	struct lc_kmac_ctx *name = (struct lc_kmac_ctx *)name##_ctx_buf;            \
-	LC_KMAC_SET_CTX(name, hashname);                                            \
-	lc_kmac_zero(name);                                                         \
+#define LC_KMAC_CTX_ON_STACK(name, hashname)                                   \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_KMAC_CTX_SIZE,            \
+				  LC_HASH_COMMON_ALIGNMENT);                   \
+	struct lc_kmac_ctx *name = (struct lc_kmac_ctx *)name##_ctx_buf;       \
+	LC_KMAC_SET_CTX(name, hashname);                                       \
+	lc_kmac_zero(name);                                                    \
 	_Pragma("GCC diagnostic pop")
 
 /**
@@ -228,21 +226,19 @@ void lc_kmac_zero(struct lc_kmac_ctx *kmac_ctx);
  * This allocates the memory with re-initialization support.
  * See KMAC_FLAGS_SUPPORT_REINIT for the explanation about re-initialization.
  *
- * @param [in] name Name of the stack variable - use lc_cshake256 or
- *		    lc_cshake128
+ * @param [in] name Name of the stack variable - use lc_cshake256 (for KMAC 256)
+ *		    or lc_cshake128 (for KMAC 128)
  * @param [in] hashname Pointer of type struct hash referencing the hash
- *			 implementation to be used
+ *			implementation to be used
  */
-#define LC_KMAC_CTX_ON_STACK_REINIT(name, hashname)                                 \
-	_Pragma("GCC diagnostic push")                                              \
-		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
-			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
-			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
-					  LC_KMAC_CTX_SIZE_REINIT(hashname),        \
-					  LC_HASH_COMMON_ALIGNMENT);                \
-	struct lc_kmac_ctx *name = (struct lc_kmac_ctx *)name##_ctx_buf;            \
-	LC_KMAC_SET_CTX_REINIT(name, hashname);                                     \
-	lc_kmac_zero(name);                                                         \
+#define LC_KMAC_CTX_ON_STACK_REINIT(name, hashname)                            \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_KMAC_CTX_SIZE_REINIT,     \
+				  LC_HASH_COMMON_ALIGNMENT);                   \
+	struct lc_kmac_ctx *name = (struct lc_kmac_ctx *)name##_ctx_buf;       \
+	LC_KMAC_SET_CTX_REINIT(name, hashname);                                \
+	lc_kmac_zero(name);                                                    \
 	_Pragma("GCC diagnostic pop")
 
 /**
@@ -260,7 +256,8 @@ size_t lc_kmac_macsize(struct lc_kmac_ctx *kmac_ctx);
  * @brief Calculate KMAC - one-shot
  *
  * @param [in] hash Reference to hash implementation to be used to perform
- *		    KMAC calculation with. Use lc_cshake256 or lc_cshake128.
+ *		    KMAC calculation with. Use lc_cshake256 (for KMAC 256)
+ *		    or lc_cshake128 (for KMAC 128).
  * @param [in] key MAC key of arbitrary size
  * @param [in] keylen Size of the MAC key
  * @param [in] in Buffer holding the data whose MAC shall be calculated
@@ -283,7 +280,8 @@ int lc_kmac(const struct lc_hash *hash, const uint8_t *key, size_t keylen,
  * @brief Calculate KMAC in XOF mode - one-shot
  *
  * @param [in] hash Reference to hash implementation to be used to perform
- *		    KMAC calculation with. Use lc_cshake256 or lc_cshake128.
+ *		    KMAC calculation with. Use lc_cshake256 (for KMAC 256)
+ *		    or lc_cshake128 (for KMAC 128).
  * @param [in] key MAC key of arbitrary size
  * @param [in] keylen Size of the MAC key
  * @param [in] in Buffer holding the data whose MAC shall be calculated
@@ -319,8 +317,7 @@ int lc_kmac_xof(const struct lc_hash *hash, const uint8_t *key, size_t keylen,
 extern const struct lc_rng *lc_kmac_rng;
 
 /// \cond DO_NOT_DOCUMENT
-#define LC_KMAC_KDF_DRNG_CTX_SIZE(hashname)                                    \
-	(sizeof(struct lc_rng_ctx) + LC_KMAC_CTX_SIZE(hashname))
+#define LC_KMAC_KDF_DRNG_CTX_SIZE (sizeof(struct lc_rng_ctx) + LC_KMAC_CTX_SIZE)
 
 #define LC_KMAC_KDF_DRNG_SET_CTX(name, hashname) LC_KMAC_SET_CTX(name, hashname)
 
@@ -337,19 +334,17 @@ extern const struct lc_rng *lc_kmac_rng;
  *
  * @param [in] name Name of the stack variable
  * @param [in] hashname Reference to lc_hash implementation - use lc_cshake256
- *			or lc_cshake128.
+ *			(for KMAC 256) or lc_cshake128 (for KMAC 128).
  *
  * \warning You MUST seed the DRNG!
  */
-#define LC_KMAC_KDF_DRNG_CTX_ON_STACK(name, hashname)                               \
-	_Pragma("GCC diagnostic push")                                              \
-		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
-			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
-			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
-					  LC_KMAC_KDF_DRNG_CTX_SIZE(hashname),      \
-					  LC_HASH_COMMON_ALIGNMENT);                \
-	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name##_ctx_buf;              \
-	LC_KMAC_KDF_RNG_CTX(name, hashname);                                        \
+#define LC_KMAC_KDF_DRNG_CTX_ON_STACK(name, hashname)                          \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_KMAC_KDF_DRNG_CTX_SIZE,   \
+				  LC_HASH_COMMON_ALIGNMENT);                   \
+	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name##_ctx_buf;         \
+	LC_KMAC_KDF_RNG_CTX(name, hashname);                                   \
 	_Pragma("GCC diagnostic pop")
 
 /**
@@ -358,7 +353,8 @@ extern const struct lc_rng *lc_kmac_rng;
  *
  * @param [out] state KMAC DRNG context allocated by the function
  * @param [in] hash Reference to hash implementation to be used to perform
- *		    RNG operation with. Use lc_cshake256 or lc_cshake128.
+ *		    RNG operation with. Use lc_cshake256 (for KMAC 256) or
+ *		    lc_cshake128 (for KMAC 128).
  *
  * The cipher handle including its memory is allocated with this function.
  *

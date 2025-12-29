@@ -223,19 +223,15 @@ static void lc_sh_encrypt_tag(void *state, uint8_t *tag, size_t taglen)
 {
 	struct lc_sh_cryptor *sh = state;
 	struct lc_hmac_ctx *auth_ctx = &sh->auth_ctx;
-	size_t maxtaglen = lc_hmac_macsize(auth_ctx);
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wvla"
-	uint8_t tmptag[maxtaglen];
-#pragma GCC diagnostic pop
+	uint8_t tmptag[LC_SHA_MAX_SIZE_DIGEST];
 
 	/* Generate authentication tag */
 	lc_hmac_final(auth_ctx, tmptag);
 
-	if (taglen < maxtaglen)
+	if (taglen < LC_SHA_MAX_SIZE_DIGEST)
 		memcpy(tag, tmptag, taglen);
 	else
-		memcpy(tag, tmptag, maxtaglen);
+		memcpy(tag, tmptag, LC_SHA_MAX_SIZE_DIGEST);
 
 	lc_memset_secure(tmptag, 0, sizeof(tmptag));
 }
@@ -244,15 +240,10 @@ static int lc_sh_decrypt_authenticate(void *state, const uint8_t *tag,
 				      size_t taglen)
 {
 	struct lc_sh_cryptor *sh = state;
-	struct lc_hmac_ctx *auth_ctx = &sh->auth_ctx;
-	size_t maxtaglen = lc_hmac_macsize(auth_ctx);
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wvla"
-	uint8_t calctag[maxtaglen] __align(sizeof(uint64_t));
-#pragma GCC diagnostic pop
+	uint8_t calctag[LC_SHA_MAX_SIZE_DIGEST] __align(sizeof(uint64_t));
 	int ret;
 
-	taglen = min_size(taglen, maxtaglen);
+	taglen = min_size(taglen, LC_SHA_MAX_SIZE_DIGEST);
 
 	/*
 	 * Calculate the authentication tag for the processed. We do not need
@@ -361,7 +352,7 @@ LC_INTERFACE_FUNCTION(int, lc_sh_alloc, const struct lc_sym *sym,
 	int ret;
 
 	ret = lc_alloc_aligned((void **)&tmp, LC_MEM_COMMON_ALIGNMENT,
-			       LC_SH_CTX_SIZE(sym, hash));
+			       LC_SH_CTX_SIZE(sym));
 	if (ret)
 		return -ret;
 
@@ -375,14 +366,11 @@ LC_INTERFACE_FUNCTION(int, lc_sh_alloc, const struct lc_sym *sym,
 static void lc_sh_zero(void *state)
 {
 	struct lc_sh_cryptor *sh = state;
-	struct lc_hmac_ctx *auth_ctx = &sh->auth_ctx;
-	struct lc_hash_ctx *hash_ctx = &auth_ctx->hash_ctx;
 	struct lc_sym_ctx *sym = &sh->sym;
 	const struct lc_sym *sym_algo = sym->sym;
-	const struct lc_hash *hash_algo = hash_ctx->hash;
 
 	lc_memset_secure((uint8_t *)state + sizeof(struct lc_sh_cryptor), 0,
-			 LC_SH_STATE_SIZE(sym_algo, hash_algo));
+			 LC_SH_STATE_SIZE(sym_algo));
 }
 
 static const struct lc_aead _lc_symhmac_aead = {

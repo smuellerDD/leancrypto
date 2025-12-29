@@ -41,18 +41,15 @@ struct lc_drbg_hmac_state {
 	unsigned int seeded : 1;
 };
 
-#define LC_DRBG_HMAC_STATE_SIZE(x)                                             \
-	(2 * LC_DRBG_HMAC_STATELEN + LC_HMAC_STATE_SIZE(x))
-#define LC_DRBG_HMAC_CTX_SIZE(x)                                               \
-	(LC_DRBG_HMAC_STATE_SIZE(x) + sizeof(struct lc_drbg_hmac_state) +      \
+#define LC_DRBG_HMAC_STATE_SIZE (2 * LC_DRBG_HMAC_STATELEN + LC_HMAC_STATE_SIZE)
+#define LC_DRBG_HMAC_CTX_SIZE                                                  \
+	(LC_DRBG_HMAC_STATE_SIZE + sizeof(struct lc_drbg_hmac_state) +         \
 	 sizeof(struct lc_rng))
 
 #define _LC_DRBG_HMAC_SET_CTX(name, ctx, offset)                               \
 	_LC_HMAC_SET_CTX((&(name)->hmac_ctx), LC_DRBG_HMAC_CORE, ctx, offset); \
-	(name)->V = (uint8_t *)((uint8_t *)ctx + offset +                      \
-				LC_HMAC_STATE_SIZE(LC_DRBG_HMAC_CORE));        \
-	(name)->C = (uint8_t *)((uint8_t *)ctx + offset +                      \
-				LC_HMAC_STATE_SIZE(LC_DRBG_HMAC_CORE) +        \
+	(name)->V = (uint8_t *)((uint8_t *)ctx + offset + LC_HMAC_STATE_SIZE); \
+	(name)->C = (uint8_t *)((uint8_t *)ctx + offset + LC_HMAC_STATE_SIZE + \
 				LC_DRBG_HMAC_STATELEN);                        \
 	(name)->seeded = 0
 
@@ -74,16 +71,13 @@ extern const struct lc_rng *lc_hmac_drbg;
  *
  * \warning You MUST seed the DRNG!
  */
-#define LC_DRBG_HMAC_CTX_ON_STACK(name)                                             \
-	_Pragma("GCC diagnostic push")                                              \
-		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
-			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
-			LC_ALIGNED_BUFFER(                                          \
-				name##_ctx_buf,                                     \
-				LC_DRBG_HMAC_CTX_SIZE(LC_DRBG_HMAC_CORE),           \
-				LC_HASH_COMMON_ALIGNMENT);                          \
-	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name##_ctx_buf;              \
-	LC_DRBG_HMAC_RNG_CTX(name);                                                 \
+#define LC_DRBG_HMAC_CTX_ON_STACK(name)                                        \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_DRBG_HMAC_CTX_SIZE,       \
+				  LC_HASH_COMMON_ALIGNMENT);                   \
+	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name##_ctx_buf;         \
+	LC_DRBG_HMAC_RNG_CTX(name);                                            \
 	_Pragma("GCC diagnostic pop")
 
 /**

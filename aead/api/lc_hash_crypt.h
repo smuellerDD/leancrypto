@@ -49,9 +49,9 @@ struct lc_hc_cryptor {
 	uint8_t keystream[LC_HC_KEYSTREAM_BLOCK];
 };
 
-#define LC_HC_CTX_SIZE(x)                                                      \
+#define LC_HC_CTX_SIZE                                                         \
 	(sizeof(struct lc_aead) + sizeof(struct lc_hc_cryptor) +               \
-	 LC_HMAC_STATE_SIZE(x))
+	 LC_HMAC_STATE_SIZE)
 
 /* Hash-based AEAD-algorithm */
 extern const struct lc_aead *lc_hash_aead;
@@ -98,16 +98,14 @@ int lc_hc_alloc(const struct lc_hash *hash, struct lc_aead_ctx **ctx);
  * @param [in] hash Hash implementation of type struct hash used for the HMAC
  *		    authentication
  */
-#define LC_HC_CTX_ON_STACK(name, hash)                                              \
-	_Pragma("GCC diagnostic push")                                              \
-		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
-			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
-			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
-					  LC_HC_CTX_SIZE(hash),                     \
-					  LC_HASH_COMMON_ALIGNMENT);                \
-	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;            \
-	LC_HC_SET_CTX(name, hash);                                                  \
-	lc_aead_zero(name);                                                         \
+#define LC_HC_CTX_ON_STACK(name, hash)                                         \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_HC_CTX_SIZE,              \
+				  LC_HASH_COMMON_ALIGNMENT);                   \
+	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;       \
+	LC_HC_SET_CTX(name, hash);                                             \
+	lc_aead_zero(name);                                                    \
 	_Pragma("GCC diagnostic pop")
 
 #ifdef __cplusplus

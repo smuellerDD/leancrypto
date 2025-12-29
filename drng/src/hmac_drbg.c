@@ -347,21 +347,14 @@ static int lc_drbg_hmac_seed(void *_state, const uint8_t *seedbuf,
 static void lc_drbg_hmac_zero(void *_state)
 {
 	struct lc_drbg_hmac_state *drbg_hmac = _state;
-	struct lc_hmac_ctx *hmac_ctx;
-	struct lc_hash_ctx *hash_ctx;
-	const struct lc_hash *hash;
 
 	if (!drbg_hmac)
 		return;
 
-	hmac_ctx = &drbg_hmac->hmac_ctx;
-	hash_ctx = &hmac_ctx->hash_ctx;
-	hash = hash_ctx->hash;
-
 	drbg_hmac->seeded = 0;
 	lc_memset_secure((uint8_t *)drbg_hmac +
 				 sizeof(struct lc_drbg_hmac_state),
-			 0, LC_DRBG_HMAC_STATE_SIZE(hash));
+			 0, LC_DRBG_HMAC_STATE_SIZE);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_drbg_hmac_alloc, struct lc_rng_ctx **drbg)
@@ -374,7 +367,7 @@ LC_INTERFACE_FUNCTION(int, lc_drbg_hmac_alloc, struct lc_rng_ctx **drbg)
 
 	ret = lc_alloc_aligned_secure((void *)&out_state,
 				      LC_HASH_COMMON_ALIGNMENT,
-				      LC_DRBG_HMAC_CTX_SIZE(LC_DRBG_HMAC_CORE));
+				      LC_DRBG_HMAC_CTX_SIZE);
 
 	if (ret)
 		return -ret;

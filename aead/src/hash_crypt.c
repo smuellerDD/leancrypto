@@ -361,15 +361,12 @@ static void lc_hc_zero(void *state)
 {
 	struct lc_hc_cryptor *hc = state;
 	struct lc_rng_ctx *drbg = &hc->drbg;
-	struct lc_hmac_ctx *hmac_ctx = &hc->auth_ctx;
-	struct lc_hash_ctx *hash_ctx = &hmac_ctx->hash_ctx;
-	const struct lc_hash *hash = hash_ctx->hash;
 
 	lc_rng_zero(drbg);
 	hc->keystream_ptr = 0;
 	memset(hc->keystream, 0, sizeof(hc->keystream));
 	lc_memset_secure((uint8_t *)hc + sizeof(struct lc_hc_cryptor), 0,
-			 LC_HMAC_STATE_SIZE(hash));
+			 LC_HMAC_STATE_SIZE);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_hc_alloc, const struct lc_hash *hash,
@@ -377,11 +374,11 @@ LC_INTERFACE_FUNCTION(int, lc_hc_alloc, const struct lc_hash *hash,
 {
 	struct lc_aead_ctx *tmp = NULL;
 	int ret = lc_alloc_aligned((void **)&tmp, LC_MEM_COMMON_ALIGNMENT,
-				   LC_HC_CTX_SIZE(hash));
+				   LC_HC_CTX_SIZE);
 
 	if (ret)
 		return -ret;
-	memset(tmp, 0, LC_HC_CTX_SIZE(hash));
+	memset(tmp, 0, LC_HC_CTX_SIZE);
 
 	LC_HC_SET_CTX(tmp, hash);
 

@@ -57,12 +57,12 @@ struct lc_cc_cryptor {
  * One block LC_CSHAKE_CRYPT_ALIGNMENT is required to ensure the
  * ->keystream pointer is aligned
  */
-#define LC_CC_STATE_SIZE(x)                                                    \
-	(LC_HASH_STATE_SIZE(x) + LC_CSHAKE_STATE_SIZE_REINIT(x) +              \
+#define LC_CC_STATE_SIZE                                                       \
+	(LC_CSHAKE_STATE_SIZE + LC_CSHAKE_STATE_SIZE_REINIT +                  \
 	 LC_CC_KEYSTREAM_BLOCK + LC_CSHAKE_CRYPT_ALIGNMENT)
-#define LC_CC_CTX_SIZE(x)                                                      \
+#define LC_CC_CTX_SIZE                                                         \
 	(sizeof(struct lc_aead) + sizeof(struct lc_cc_cryptor) +               \
-	 LC_CC_STATE_SIZE(x))
+	 LC_CC_STATE_SIZE)
 
 /* CSHAKE-based AEAD-algorithm */
 extern const struct lc_aead *lc_cshake_aead;
@@ -71,14 +71,13 @@ extern const struct lc_aead *lc_cshake_aead;
 #define _LC_CC_SET_CTX(name, hashname)                                         \
 	_LC_HASH_SET_CTX((&name->cshake), hashname, name,                      \
 			 (sizeof(struct lc_cc_cryptor)));                      \
-	_LC_CSHAKE_SET_CTX_REINIT((&name->auth_ctx), hashname, name,           \
-				  (sizeof(struct lc_cc_cryptor) +              \
-				   LC_HASH_STATE_SIZE(hashname)));             \
+	_LC_CSHAKE_SET_CTX_REINIT(                                             \
+		(&name->auth_ctx), hashname, name,                             \
+		(sizeof(struct lc_cc_cryptor) + LC_CSHAKE_STATE_SIZE));        \
 	name->keystream = LC_ALIGN_CSHAKE_CRYPT_MASK(                          \
-		(uint8_t *)((uint8_t *)name +                                  \
-			    (sizeof(struct lc_cc_cryptor) +                    \
-			     LC_HASH_STATE_SIZE(hashname) +                    \
-			     LC_CSHAKE_STATE_SIZE_REINIT(hashname))))
+		(uint8_t *)((uint8_t *)name + (sizeof(struct lc_cc_cryptor) +  \
+					       LC_CSHAKE_STATE_SIZE +          \
+					       LC_CSHAKE_STATE_SIZE_REINIT)))
 
 #define LC_CC_SET_CTX(name, hashname)                                          \
 	LC_AEAD_CTX(name, lc_cshake_aead);                                     \
@@ -107,15 +106,13 @@ int lc_cc_alloc(const struct lc_hash *hash, struct lc_aead_ctx **ctx);
  * @param [in] hash Hash implementation of type struct hash used for the cSHAKE
  *		    authentication
  */
-#define LC_CC_CTX_ON_STACK(name, hash)                                              \
-	_Pragma("GCC diagnostic push")                                              \
-		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
-			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
-			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
-					  LC_CC_CTX_SIZE(hash),                     \
-					  LC_CSHAKE_CRYPT_ALIGNMENT);               \
-	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;            \
-	LC_CC_SET_CTX(name, hash);                                                  \
+#define LC_CC_CTX_ON_STACK(name, hash)                                         \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_CC_CTX_SIZE,              \
+				  LC_CSHAKE_CRYPT_ALIGNMENT);                  \
+	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;       \
+	LC_CC_SET_CTX(name, hash);                                             \
 	_Pragma("GCC diagnostic pop")
 /* invocation of lc_cc_zero_free(name); not needed */
 

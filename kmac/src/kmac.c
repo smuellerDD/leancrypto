@@ -278,8 +278,8 @@ LC_INTERFACE_FUNCTION(int, lc_kmac_alloc, const struct lc_hash *hash,
 		return -EINVAL;
 
 	memsize = (flags & LC_KMAC_FLAGS_SUPPORT_REINIT) ?
-			  LC_KMAC_CTX_SIZE_REINIT(hash) :
-			  LC_KMAC_CTX_SIZE(hash);
+			  LC_KMAC_CTX_SIZE_REINIT :
+			  LC_KMAC_CTX_SIZE;
 	ret = lc_alloc_aligned((void **)&out_ctx, LC_MEM_COMMON_ALIGNMENT,
 			       memsize);
 
@@ -308,21 +308,15 @@ LC_INTERFACE_FUNCTION(void, lc_kmac_zero_free, struct lc_kmac_ctx *kmac_ctx)
 
 LC_INTERFACE_FUNCTION(void, lc_kmac_zero, struct lc_kmac_ctx *kmac_ctx)
 {
-	struct lc_hash_ctx *hash_ctx;
-	const struct lc_hash *hash;
-
 	if (!kmac_ctx)
 		return;
-	hash_ctx = &kmac_ctx->hash_ctx;
-	hash = hash_ctx->hash;
 
 	kmac_ctx->final_called = 0;
 	kmac_ctx->rng_initialized = 0;
 
 	lc_memset_secure((uint8_t *)kmac_ctx + sizeof(struct lc_kmac_ctx), 0,
-			 kmac_ctx->shadow_ctx ?
-				 LC_KMAC_STATE_SIZE_REINIT(hash) :
-				 LC_KMAC_STATE_SIZE(hash));
+			 kmac_ctx->shadow_ctx ? LC_KMAC_STATE_SIZE_REINIT :
+						LC_KMAC_STATE_SIZE);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_kmac, const struct lc_hash *hash,
@@ -430,7 +424,7 @@ LC_INTERFACE_FUNCTION(int, lc_kmac_rng_alloc, struct lc_rng_ctx **state,
 
 	ret = lc_alloc_aligned_secure((void *)&out_state,
 				      LC_HASH_COMMON_ALIGNMENT,
-				      LC_KMAC_KDF_DRNG_CTX_SIZE(hash));
+				      LC_KMAC_KDF_DRNG_CTX_SIZE);
 	if (ret)
 		return -ret;
 

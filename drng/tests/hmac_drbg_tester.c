@@ -85,8 +85,7 @@ static int hmac_drbg_tester(void)
 	int ret = 1;
 	LC_DRBG_HMAC_CTX_ON_STACK(drbg_stack);
 
-	printf("HMAC DRBG ctx len %u\n",
-	       (unsigned int)LC_DRBG_HMAC_CTX_SIZE(LC_DRBG_HMAC_CORE));
+	printf("HMAC DRBG ctx len %u\n", (unsigned int)LC_DRBG_HMAC_CTX_SIZE);
 	if (lc_rng_seed(drbg_stack, ent_nonce, 64, pers, 32))
 		goto out;
 

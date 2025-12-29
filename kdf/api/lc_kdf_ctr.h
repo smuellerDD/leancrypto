@@ -93,9 +93,9 @@ struct lc_kdf_ctr_ctx {
 	struct lc_hmac_ctx hmac_ctx;
 };
 
-#define LC_CTR_KDF_STATE_SIZE(hashname) (LC_HMAC_CTX_SIZE(hashname))
-#define LC_CTR_KDF_CTX_SIZE(hashname)                                          \
-	(sizeof(struct lc_kdf_ctr_ctx) + LC_CTR_KDF_STATE_SIZE(hashname))
+#define LC_CTR_KDF_STATE_SIZE (LC_HMAC_CTX_SIZE)
+#define LC_CTR_KDF_CTX_SIZE                                                    \
+	(sizeof(struct lc_kdf_ctr_ctx) + LC_CTR_KDF_STATE_SIZE)
 
 #define _LC_CTR_KDF_SET_CTX(name, hashname, ctx, offset)                       \
 	_LC_HMAC_SET_CTX((&(name)->hmac_ctx), hashname, ctx, offset)
@@ -106,8 +106,8 @@ struct lc_kdf_ctr_ctx {
 /* CTR_KDF DRNG implementation */
 extern const struct lc_rng *lc_kdf_ctr_rng;
 
-#define LC_CTR_KDF_DRNG_CTX_SIZE(hashname)                                     \
-	(sizeof(struct lc_rng_ctx) + LC_CTR_KDF_CTX_SIZE(hashname))
+#define LC_CTR_KDF_DRNG_CTX_SIZE                                               \
+	(sizeof(struct lc_rng_ctx) + LC_CTR_KDF_CTX_SIZE)
 
 #define LC_CTR_KDF_DRNG_SET_CTX(name, hashname)                                \
 	LC_CTR_KDF_SET_CTX(name, hashname)
@@ -128,15 +128,13 @@ extern const struct lc_rng *lc_kdf_ctr_rng;
  *
  * \warning You MUST seed the DRNG!
  */
-#define LC_CTR_KDF_DRNG_CTX_ON_STACK(name, hashname)                                \
-	_Pragma("GCC diagnostic push")                                              \
-		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
-			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
-			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
-					  LC_CTR_KDF_DRNG_CTX_SIZE(hashname),       \
-					  LC_HASH_COMMON_ALIGNMENT);                \
-	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name##_ctx_buf;              \
-	LC_CTR_KDF_RNG_CTX(name, hashname);                                         \
+#define LC_CTR_KDF_DRNG_CTX_ON_STACK(name, hashname)                           \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_CTR_KDF_DRNG_CTX_SIZE,    \
+				  LC_HASH_COMMON_ALIGNMENT);                   \
+	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name##_ctx_buf;         \
+	LC_CTR_KDF_RNG_CTX(name, hashname);                                    \
 	_Pragma("GCC diagnostic pop")
 
 /**
