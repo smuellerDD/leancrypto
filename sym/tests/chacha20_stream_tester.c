@@ -490,6 +490,24 @@ out:
 	return !!ret;
 }
 
+static int chacha20_stream_test_common(void)
+{
+	uint8_t res[sizeof(rfc_exp)];
+	int ret;
+	LC_CC20_CTX_ON_STACK(chacha20);
+
+	/* Encrypt */
+	CKINT(lc_sym_init(chacha20));
+	CKINT(lc_sym_setkey(chacha20, (uint8_t *)rfc_key, sizeof(rfc_key)));
+	CKINT(lc_sym_setiv(chacha20, (uint8_t *)rfc_iv, sizeof(rfc_iv)));
+	lc_sym_encrypt(chacha20, (uint8_t *)rfc_string, res, sizeof(rfc_exp));
+	ret = lc_compare(res, rfc_exp, sizeof(rfc_exp), "ChaCha20 common");
+
+out:
+	lc_sym_zero(chacha20);
+	return !!ret;
+}
+
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	int ret = 0;
@@ -503,6 +521,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_EXEC_ONE_TEST(lc_chacha20_riscv64_v_zbb)
 	LC_EXEC_ONE_TEST(lc_chacha20_avx2)
 	LC_EXEC_ONE_TEST(lc_chacha20_avx512)
+	ret += chacha20_stream_test_common();
 
 	ret = test_validate_status(ret, LC_ALG_STATUS_CHACHA20, 0);
 	ret += test_print_status();

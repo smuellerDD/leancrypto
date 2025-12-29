@@ -41,6 +41,23 @@ extern const struct lc_sym *lc_chacha20;
  */
 void cc20_block(struct lc_sym_state *state, uint32_t *stream);
 
+/**
+ * @ingroup Symmetric
+ * @brief Allocate stack memory for the ChaCha20 context
+ *
+ * @param [in] name Name of the stack variable
+ */
+#define LC_CC20_CTX_ON_STACK(name)                                             \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(name##_ctx_buf,                              \
+				  LC_SYM_STATE_SIZE_LEN(LC_CC20_STATE_SIZE),   \
+				  LC_SYM_COMMON_ALIGNMENT);                    \
+	struct lc_sym_ctx *name = (struct lc_sym_ctx *)name##_ctx_buf;         \
+	LC_SYM_SET_CTX(name, lc_chacha20);                                     \
+	lc_sym_zero(name);                                                     \
+	_Pragma("GCC diagnostic pop")
+
 #ifdef __cplusplus
 }
 #endif
