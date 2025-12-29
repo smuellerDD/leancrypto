@@ -54,6 +54,9 @@ static int lc_hmac_init_nocheck(struct lc_hmac_ctx *hmac_ctx,
 {
 	struct lc_hash_ctx *hash_ctx = &hmac_ctx->hash_ctx;
 	const struct lc_hash *hash = hash_ctx->hash;
+	const unsigned int blocksize = lc_hash_blocksize(hash_ctx);
+	const unsigned int ctxsize = lc_hash_ctxsize(hash_ctx);
+	size_t digestsize = lc_hash_digestsize(hash_ctx);
 	uint8_t *k_opad, *k_ipad;
 	unsigned int i;
 	int ret = 0;
@@ -63,32 +66,28 @@ static int lc_hmac_init_nocheck(struct lc_hmac_ctx *hmac_ctx,
 	/* Timecop: key is sensitive. */
 	poison(key, keylen);
 
-	if (lc_hash_ctxsize(hash_ctx) > LC_HASH_STATE_SIZE(hash) ||
-	    lc_hash_blocksize(hash_ctx) > LC_SHA_MAX_SIZE_BLOCK ||
-	    lc_hash_digestsize(hash_ctx) > LC_SHA_MAX_SIZE_DIGEST)
+	if (ctxsize > LC_HASH_STATE_SIZE(hash) ||
+	    blocksize > LC_SHA_MAX_SIZE_BLOCK ||
+	    digestsize > LC_SHA_MAX_SIZE_DIGEST)
 		return -EINVAL;
 
 	k_opad = hmac_ctx->k_opad;
 	k_ipad = hmac_ctx->k_ipad;
 
-	if (keylen > lc_hash_blocksize(hash_ctx)) {
+	if (keylen > blocksize) {
 		CKINT(lc_hash_init(hash_ctx));
 		lc_hash_update(hash_ctx, key, keylen);
 		lc_hash_final(hash_ctx, k_opad);
-		memset(k_opad + lc_hash_digestsize(hash_ctx), 0,
-		       lc_hash_blocksize(hash_ctx) -
-			       lc_hash_digestsize(hash_ctx));
+		memset(k_opad + digestsize, 0, blocksize - digestsize);
 	} else {
 		memcpy(k_opad, key, keylen);
-		memset(k_opad + keylen, 0,
-		       lc_hash_blocksize(hash_ctx) - keylen);
+		memset(k_opad + keylen, 0, blocksize - keylen);
 	}
 
-	for (i = 0; i < lc_hash_blocksize(hash_ctx); i++)
+	for (i = 0; i < blocksize; i++) {
 		k_ipad[i] = k_opad[i] ^ IPAD;
-
-	for (i = 0; i < lc_hash_blocksize(hash_ctx); i++)
 		k_opad[i] ^= OPAD;
+	}
 
 	lc_hmac_reinit(hmac_ctx);
 
