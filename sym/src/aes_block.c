@@ -91,6 +91,15 @@ static int aes_init(struct lc_sym_state *ctx)
 
 	BUILD_BUG_ON(LC_AES_C_MAX_BLOCK_SIZE < LC_AES_BLOCK_SIZE);
 
+	/*
+	 * Verification that the CTX size in LC_AES_CTX_ON_STACK is
+	 * sufficient.
+	 */
+	BUILD_BUG_ON(LC_AES_AESNI_MAX_BLOCK_SIZE < LC_AES_ARMCE_MAX_BLOCK_SIZE);
+	BUILD_BUG_ON(LC_AES_AESNI_MAX_BLOCK_SIZE <
+		     LC_AES_RISCV64_MAX_BLOCK_SIZE);
+	BUILD_BUG_ON(LC_AES_AESNI_MAX_BLOCK_SIZE < LC_AES_C_MAX_BLOCK_SIZE);
+
 	return 0;
 }
 

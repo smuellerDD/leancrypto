@@ -70,6 +70,20 @@ struct lc_sym_ctx {
 #define LC_ALIGN_SYM_MASK(p, symname)                                          \
 	LC_ALIGN_PTR_64(p, LC_SYM_ALIGNMASK(symname))
 
+/*
+ * This is the source of the compiler warning of using Variable-Length-Arrays
+ * (VLA). It is considered to be harmless to have this VLA here, because all
+ * length definitions are defined by leancrypto at compile time. If you do not
+ * want it, you have the following options:
+ *
+ * 1. Use the type-specific LC_AES_*_CTX_ON_STACK
+ * 2. Do not use stack-allocation function.
+ * 3. Ignore the warning by using
+ * #pragma GCC diagnostic push
+ * #pragma GCC diagnostic ignored "-Wvla"
+ * LC_HASH_CTX_ON_STACK()
+ * #pragma GCC diagnostic pop
+ */
 #define LC_SYM_STATE_SIZE_NONALIGNED(x) ((unsigned long)(x->statesize))
 #define LC_SYM_STATE_SIZE(x)                                                   \
 	(LC_SYM_STATE_SIZE_NONALIGNED(x) + LC_SYM_COMMON_ALIGNMENT)

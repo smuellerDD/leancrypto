@@ -27,12 +27,6 @@
 
 #include "lc_aes.h"
 
-/* Required for context size */
-#include "aes_c.h"
-#include "aes_aesni.h"
-#include "aes_armce.h"
-#include "aes_riscv64.h"
-
 #include "leancrypto_kernel.h"
 
 static int lc_aes_cbc_setkey(struct crypto_skcipher *tfm, const u8 *key,
@@ -101,16 +95,6 @@ static int lc_aes_cbc_init(struct crypto_skcipher *tfm)
 	struct lc_sym_ctx *ctx = crypto_skcipher_ctx(tfm);
 
 	LC_SYM_SET_CTX(ctx, lc_aes_cbc);
-
-	/*
-	 * Verification that the setting of .cra_ctxsize is appropriate
-	 */
-	BUILD_BUG_ON(LC_AES_RISCV64_CBC_MAX_BLOCK_SIZE <
-		     LC_AES_ARMCE_CBC_MAX_BLOCK_SIZE);
-	BUILD_BUG_ON(LC_AES_RISCV64_CBC_MAX_BLOCK_SIZE <
-		     LC_AES_AESNI_CBC_MAX_BLOCK_SIZE);
-	BUILD_BUG_ON(LC_AES_RISCV64_CBC_MAX_BLOCK_SIZE <
-		     LC_AES_C_CBC_MAX_BLOCK_SIZE);
 
 	return 0;
 }

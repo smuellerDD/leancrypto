@@ -96,6 +96,27 @@ static int test_encrypt_all(const struct lc_sym *aes_impl, const char *name)
 	return ret;
 }
 
+static int test_encrypt_common(void)
+{
+	uint8_t in[] = { 0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96,
+			 0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a };
+	int ret;
+	LC_AES_CTX_ON_STACK(aes);
+
+	/* Unpoison key to let implementation poison it */
+	unpoison(key, keylen);
+
+	/* Encrypt */
+	CKINT(lc_sym_init(aes));
+	CKINT(lc_sym_setkey(aes, key256, sizeof(key256)));
+	lc_sym_encrypt(aes, in, in, sizeof(in));
+	ret = lc_compare(in, out256, sizeof(in), "AES block encrypt");
+
+out:
+	lc_sym_zero(aes);
+	return ret;
+}
+
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	int ret = 0;
@@ -108,6 +129,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_EXEC_ONE_TEST(lc_aes_armce);
 	LC_EXEC_ONE_TEST(lc_aes_c);
 	LC_EXEC_ONE_TEST(lc_aes_riscv64);
+	ret += test_encrypt_common();
 
 	return ret;
 }

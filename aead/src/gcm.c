@@ -48,6 +48,7 @@
 #include "../../sym/src/aes_internal.h"
 #include "alignment.h"
 #include "bitshift_be.h"
+#include "build_bug_on.h"
 #include "compare.h"
 #include "cpufeatures.h"
 #include "fips_mode.h"
@@ -485,6 +486,15 @@ static int gcm_set_key_iv(void *state, const uint8_t *key, const size_t keylen,
 {
 	struct lc_aes_gcm_cryptor *ctx = state;
 	int ret;
+
+	/*
+	 * Verification that the CTX size in LC_AES_GCM_CTX_ON_STACK is
+	 * sufficient.
+	 */
+	BUILD_BUG_ON(LC_AES_AESNI_MAX_BLOCK_SIZE < LC_AES_ARMCE_MAX_BLOCK_SIZE);
+	BUILD_BUG_ON(LC_AES_AESNI_MAX_BLOCK_SIZE <
+		     LC_AES_RISCV64_MAX_BLOCK_SIZE);
+	BUILD_BUG_ON(LC_AES_AESNI_MAX_BLOCK_SIZE < LC_AES_C_MAX_BLOCK_SIZE);
 
 	/*
 	 * In FIPS mode, only the internal IV generation is allowed where the

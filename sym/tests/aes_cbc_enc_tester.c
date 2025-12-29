@@ -137,6 +137,17 @@ static int test_encrypt_cbc(const struct lc_sym *aes, const char *name)
 	return ret;
 }
 
+static int test_encrypt_cbc_common(void)
+{
+	int ret;
+	LC_AES_CBC_CTX_ON_STACK(aes_cbc);
+
+	unpoison(key256, sizeof(key256));
+	ret = test_encrypt_cbc_one(aes_cbc, key256, sizeof(key256), out256);
+	lc_sym_zero(aes_cbc);
+
+	return ret;
+}
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	int ret = 0;
@@ -149,6 +160,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_EXEC_ONE_TEST(lc_aes_cbc_armce);
 	LC_EXEC_ONE_TEST(lc_aes_cbc_c);
 	LC_EXEC_ONE_TEST(lc_aes_cbc_riscv64);
+	ret += test_encrypt_cbc_common();
 
 	ret = test_validate_status(ret, LC_ALG_STATUS_AES_CBC, 1);
 	ret += test_print_status();

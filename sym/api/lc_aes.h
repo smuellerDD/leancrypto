@@ -95,6 +95,106 @@ void lc_aes_kw_encrypt(struct lc_sym_ctx *ctx, const uint8_t *in, uint8_t *out,
 int lc_aes_kw_decrypt(struct lc_sym_ctx *ctx, const uint8_t *in, uint8_t *out,
 		      size_t len);
 
+/// \cond DO_NOT_DOCUMENT
+/*
+ * Maximum size of the AES context - sizeof(struct lc_sym_state)
+ *
+ * Note, there is a separate lc_sym_state per block chaining mode in
+ * aes_*_*.c
+ */
+#define LC_AES_RISCV64_MAX_BLOCK_SIZE (244 * 2)
+#define LC_AES_RISCV64_XTS_MAX_BLOCK_SIZE (244 * 3 + 48)
+#define LC_AES_RISCV64_CBC_MAX_BLOCK_SIZE (244 * 2 + 48)
+#define LC_AES_RISCV64_CTR_MAX_BLOCK_SIZE (244 + 48)
+
+#define LC_AES_C_MAX_BLOCK_SIZE (244)
+#define LC_AES_C_XTS_MAX_BLOCK_SIZE (244 * 2 + 48)
+#define LC_AES_C_CBC_MAX_BLOCK_SIZE (244 + 48)
+#define LC_AES_C_CTR_MAX_BLOCK_SIZE (244 + 48)
+
+#define LC_AES_ARMCE_MAX_BLOCK_SIZE (244 * 2)
+#define LC_AES_ARMCE_XTS_MAX_BLOCK_SIZE (244 * 3 + 16 + 1)
+#define LC_AES_ARMCE_CBC_MAX_BLOCK_SIZE (244 * 2 + 16)
+#define LC_AES_ARMCE_CTR_MAX_BLOCK_SIZE (244 + 16)
+
+#define LC_AES_AESNI_MAX_BLOCK_SIZE (244 * 2)
+#define LC_AES_AESNI_XTS_MAX_BLOCK_SIZE (244 * 3 + 16 + 1)
+#define LC_AES_AESNI_CBC_MAX_BLOCK_SIZE (244 * 2 + 16)
+#define LC_AES_AESNI_CTR_MAX_BLOCK_SIZE (244 + 16)
+/// \endcond
+
+/**
+ * @ingroup Symmetric
+ * @brief Allocate stack memory for the AES-XTS context
+ *
+ * @param [in] name Name of the stack variable
+ */
+#define LC_AES_XTS_CTX_ON_STACK(name)                                          \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(name##_ctx_buf,                              \
+				  LC_SYM_CTX_SIZE_LEN(                         \
+					  LC_AES_RISCV64_XTS_MAX_BLOCK_SIZE),  \
+				  LC_SYM_COMMON_ALIGNMENT);                    \
+	struct lc_sym_ctx *name = (struct lc_sym_ctx *)name##_ctx_buf;         \
+	LC_SYM_SET_CTX(name, lc_aes_xts);                                      \
+	lc_sym_zero(name);                                                     \
+	_Pragma("GCC diagnostic pop")
+
+/**
+ * @ingroup Symmetric
+ * @brief Allocate stack memory for the AES-CBC context
+ *
+ * @param [in] name Name of the stack variable
+ */
+#define LC_AES_CBC_CTX_ON_STACK(name)                                          \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(name##_ctx_buf,                              \
+				  LC_SYM_CTX_SIZE_LEN(                         \
+					  LC_AES_RISCV64_CBC_MAX_BLOCK_SIZE),  \
+				  LC_SYM_COMMON_ALIGNMENT);                    \
+	struct lc_sym_ctx *name = (struct lc_sym_ctx *)name##_ctx_buf;         \
+	LC_SYM_SET_CTX(name, lc_aes_cbc);                                      \
+	lc_sym_zero(name);                                                     \
+	_Pragma("GCC diagnostic pop")
+
+/**
+ * @ingroup Symmetric
+ * @brief Allocate stack memory for the AES-CTR context
+ *
+ * @param [in] name Name of the stack variable
+ */
+#define LC_AES_CTR_CTX_ON_STACK(name)                                          \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(name##_ctx_buf,                              \
+				  LC_SYM_CTX_SIZE_LEN(                         \
+					  LC_AES_RISCV64_CTR_MAX_BLOCK_SIZE),  \
+				  LC_SYM_COMMON_ALIGNMENT);                    \
+	struct lc_sym_ctx *name = (struct lc_sym_ctx *)name##_ctx_buf;         \
+	LC_SYM_SET_CTX(name, lc_aes_ctr);                                      \
+	lc_sym_zero(name);                                                     \
+	_Pragma("GCC diagnostic pop")
+
+/**
+ * @ingroup Symmetric
+ * @brief Allocate stack memory for the AES block context
+ *
+ * @param [in] name Name of the stack variable
+ */
+#define LC_AES_CTX_ON_STACK(name)                                              \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(                                             \
+			name##_ctx_buf,                                        \
+			LC_SYM_CTX_SIZE_LEN(LC_AES_AESNI_MAX_BLOCK_SIZE),      \
+			LC_SYM_COMMON_ALIGNMENT);                              \
+	struct lc_sym_ctx *name = (struct lc_sym_ctx *)name##_ctx_buf;         \
+	LC_SYM_SET_CTX(name, lc_aes);                                          \
+	lc_sym_zero(name);                                                     \
+	_Pragma("GCC diagnostic pop")
+
 #ifdef __cplusplus
 }
 #endif

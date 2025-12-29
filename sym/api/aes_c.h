@@ -30,17 +30,6 @@ extern const struct lc_sym *lc_aes_kw_c;
 extern const struct lc_sym *lc_aes_c;
 extern const struct lc_sym *lc_aes_xts_c;
 
-/*
- * Maximum size of the AES context - sizeof(struct lc_sym_state)
- *
- * Note, there is a separate lc_sym_state per block chaining mode in
- * aes_*_*.c
- */
-#define LC_AES_C_MAX_BLOCK_SIZE (244)
-#define LC_AES_C_XTS_MAX_BLOCK_SIZE (244 * 2 + 48)
-#define LC_AES_C_CBC_MAX_BLOCK_SIZE (244 + 48)
-#define LC_AES_C_CTR_MAX_BLOCK_SIZE (244 + 48)
-
 #ifdef __cplusplus
 }
 #endif

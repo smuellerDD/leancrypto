@@ -20,11 +20,13 @@
 #include "aes_c.h"
 #include "aes_internal.h"
 #include "alignment.h"
+#include "build_bug_on.h"
 #include "conv_be_le.h"
 #include "compare.h"
 #include "ext_headers_internal.h"
 #include "fips_mode.h"
 #include "helper.h"
+#include "lc_aes.h"
 #include "lc_sym.h"
 #include "lc_memcmp_secure.h"
 #include "lc_memset_secure.h"
@@ -361,6 +363,17 @@ static void mode_xts_init(struct lc_mode_state *ctx,
 	if (!ctx || !wrapped_cipher || !wrapped_cipher_ctx ||
 	    !tweak_cipher_ctx || wrapped_cipher->blocksize != AES_BLOCKLEN)
 		return;
+
+	/*
+	 * Verification that the CTX size in LC_AES_XTS_CTX_ON_STACK is
+	 * sufficient.
+	 */
+	BUILD_BUG_ON(LC_AES_RISCV64_XTS_MAX_BLOCK_SIZE <
+		     LC_AES_ARMCE_XTS_MAX_BLOCK_SIZE);
+	BUILD_BUG_ON(LC_AES_RISCV64_XTS_MAX_BLOCK_SIZE <
+		     LC_AES_AESNI_XTS_MAX_BLOCK_SIZE);
+	BUILD_BUG_ON(LC_AES_RISCV64_XTS_MAX_BLOCK_SIZE <
+		     LC_AES_C_XTS_MAX_BLOCK_SIZE);
 
 	ctx->wrapped_cipher = wrapped_cipher;
 	ctx->tweak_cipher = tweak_cipher;

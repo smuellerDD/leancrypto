@@ -21,6 +21,7 @@
 #define LC_AES_GCM_H
 
 #include "lc_aead.h"
+#include "lc_aes.h"
 #include "lc_sym.h"
 
 #ifdef __cplusplus
@@ -59,9 +60,9 @@ struct lc_aes_gcm_cryptor {
 #define LC_AES_GCM_CTX_COMMON_SIZE                                             \
 	(sizeof(struct lc_aead) + sizeof(struct lc_aes_gcm_cryptor))
 
-#define LC_AES_GCM_STATE_SIZE(x) (LC_SYM_STATE_SIZE(x))
-#define LC_AES_GCM_CTX_SIZE                                                    \
-	(LC_AES_GCM_CTX_COMMON_SIZE + LC_AES_GCM_STATE_SIZE(lc_aes))
+#define LC_AES_GCM_STATE_SIZE                                                  \
+	(LC_AES_GCM_CTX_SIZE_LEN(LC_AES_AESNI_MAX_BLOCK_SIZE))
+#define LC_AES_GCM_CTX_SIZE (LC_AES_GCM_CTX_COMMON_SIZE + LC_AES_GCM_STATE_SIZE)
 
 #define LC_AES_GCM_STATE_SIZE_LEN(len) (LC_SYM_STATE_SIZE_LEN(len))
 #define LC_AES_GCM_CTX_SIZE_LEN(len)                                           \
@@ -124,15 +125,14 @@ int lc_aes_gcm_generate_iv(struct lc_aead_ctx *ctx, const uint8_t *fixed_field,
  *
  * @param [in] name Name of the stack variable
  */
-#define LC_AES_GCM_CTX_ON_STACK(name)                                               \
-	_Pragma("GCC diagnostic push")                                              \
-		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
-			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
-			LC_ALIGNED_BUFFER(name##_ctx_buf, LC_AES_GCM_CTX_SIZE,      \
-					  LC_MEM_COMMON_ALIGNMENT);                 \
-	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;            \
-	LC_AES_GCM_SET_CTX(name);                                                   \
-	lc_aead_zero(name);                                                         \
+#define LC_AES_GCM_CTX_ON_STACK(name)                                          \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_AES_GCM_CTX_SIZE,         \
+				  LC_MEM_COMMON_ALIGNMENT);                    \
+	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;       \
+	LC_AES_GCM_SET_CTX(name);                                              \
+	lc_aead_zero(name);                                                    \
 	_Pragma("GCC diagnostic pop")
 
 #ifdef __cplusplus

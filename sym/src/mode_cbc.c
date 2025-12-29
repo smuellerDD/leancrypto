@@ -25,9 +25,11 @@
 
 #include "aes_c.h"
 #include "aes_internal.h"
+#include "build_bug_on.h"
 #include "compare.h"
 #include "ext_headers_internal.h"
 #include "fips_mode.h"
+#include "lc_aes.h"
 #include "lc_sym.h"
 #include "lc_memset_secure.h"
 #include "mode_cbc.h"
@@ -176,6 +178,17 @@ static void mode_cbc_init(struct lc_mode_state *ctx,
 	if (!ctx || !wrapped_cipher || !wrapped_cipher_ctx ||
 	    wrapped_cipher->blocksize != AES_BLOCKLEN)
 		return;
+
+	/*
+	 * Verification that the CTX size in LC_AES_CBC_CTX_ON_STACK is
+	 * sufficient.
+	 */
+	BUILD_BUG_ON(LC_AES_RISCV64_CBC_MAX_BLOCK_SIZE <
+		     LC_AES_ARMCE_CBC_MAX_BLOCK_SIZE);
+	BUILD_BUG_ON(LC_AES_RISCV64_CBC_MAX_BLOCK_SIZE <
+		     LC_AES_AESNI_CBC_MAX_BLOCK_SIZE);
+	BUILD_BUG_ON(LC_AES_RISCV64_CBC_MAX_BLOCK_SIZE <
+		     LC_AES_C_CBC_MAX_BLOCK_SIZE);
 
 	ctx->wrappeded_cipher = wrapped_cipher;
 	ctx->wrapped_cipher_ctx = wrapped_cipher_ctx;

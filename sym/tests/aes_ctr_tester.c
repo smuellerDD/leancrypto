@@ -380,6 +380,26 @@ static int ctr_tester(void)
 	return ret;
 }
 
+static int test_xcrypt_ctr_common(void)
+{
+	uint8_t act[sizeof(in_wrap)];
+	int ret;
+	LC_AES_CTR_CTX_ON_STACK(aes_ctr);
+
+	/* Unpoison key to let implementation poison it */
+	unpoison(key, keylen);
+
+	/* Encrypt */
+	CKINT(lc_sym_init(aes_ctr));
+	CKINT(lc_sym_setkey(aes_ctr, key_wrap, sizeof(key_wrap)));
+	CKINT(lc_sym_setiv(aes_ctr, iv_wrap, sizeof(iv_wrap)));
+	lc_sym_encrypt(aes_ctr, in_wrap, act, sizeof(in_wrap));
+	ret = lc_compare(act, ct_wrap, sizeof(in_wrap), "Common AES-CTR");
+
+out:
+	return ret;
+}
+
 static int test_ctr(void)
 {
 	int ret = 0;
@@ -391,6 +411,7 @@ static int test_ctr(void)
 	LC_EXEC_ONE_TEST(lc_aes_ctr_armce);
 	LC_EXEC_ONE_TEST(lc_aes_ctr_c);
 	LC_EXEC_ONE_TEST(lc_aes_ctr_riscv64);
+	ret += test_xcrypt_ctr_common();
 
 	return !!ret;
 }

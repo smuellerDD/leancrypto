@@ -246,6 +246,23 @@ static int test_xts(const struct lc_sym *aes, const char *name)
 	return ret;
 }
 
+static int test_xts_common(void)
+{
+	int ret = 0;
+	LC_AES_XTS_CTX_ON_STACK(aes_xts);
+
+	ret += test_encrypt_xts_one(aes_xts, key256, sizeof(key256), pt256,
+				    sizeof(pt256), ct256, iv256, sizeof(iv256));
+
+	ret += test_encrypt_xts_one(aes_xts, key256_2, sizeof(key256_2),
+				    pt256_2, sizeof(pt256_2), ct256_2, iv256_2,
+				    sizeof(iv256_2));
+
+	lc_sym_zero(aes_xts);
+
+	return ret;
+}
+
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	int ret = 0;
@@ -258,6 +275,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_EXEC_ONE_TEST(lc_aes_xts_aesni);
 	LC_EXEC_ONE_TEST(lc_aes_xts_armce);
 	LC_EXEC_ONE_TEST(lc_aes_xts_riscv64);
+	ret += test_xts_common();
 
 	if (!(lc_alg_status(lc_sym_algorithm_type(lc_aes_xts)) &
 	      (lc_alg_status_self_test_passed | lc_alg_status_fips_approved))) {
