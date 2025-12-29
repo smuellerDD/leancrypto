@@ -104,7 +104,7 @@ static int test_encrypt_common(void)
 	LC_AES_CTX_ON_STACK(aes);
 
 	/* Unpoison key to let implementation poison it */
-	unpoison(key, keylen);
+	unpoison(key256, sizeof(key256));
 
 	/* Encrypt */
 	CKINT(lc_sym_init(aes));
