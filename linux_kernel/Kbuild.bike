@@ -4,7 +4,8 @@
 ccflags-$(CONFIG_LEANCRYPTO_KEM_BIKE) += -I$(src)/../bike/src
 
 leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE)				       \
-				+= ../bike/src/bike_api.o
+				+= ../bike/src/bike_api.o		       \
+				   ../bike/src/compiler_support.o
 
 leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_5)				       \
 				+= ../bike/src/bike_decode.o		       \
@@ -17,7 +18,6 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM_BIKE_5)				       \
 				   ../bike/src/bike_kem.o		       \
 				   ../bike/src/bike_sampling.o		       \
 				   ../bike/src/bike_sampling_portable.o	       \
-				   ../bike/src/compiler_support.o	       \
 				   leancrypto_kernel_bike.o
 
 bike_c_args = -funroll-loops

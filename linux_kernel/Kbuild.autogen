@@ -14,9 +14,8 @@ quiet_cmd_build_lc_memory_support = GEN     $@
 $(obj)/lc_memory_support.h: $(src)/../internal/api/lc_memory_support.h.in FORCE
 	$(call if_changed,build_lc_memory_support)
 
-$(obj)/leancrypto_kernel.o: $(obj)/lc_hash.h $(obj)/lc_kyber_1024.h $(obj)/lc_kyber_768.h $(obj)/lc_kyber_512.h $(obj)/lc_dilithium_87.h $(obj)/lc_dilithium_65.h $(obj)/lc_dilithium_44.h $(obj)/lc_ascon_hash.h $(obj)/lc_bike_5.h $(obj)/lc_bike_3.h $(obj)/lc_bike_1.h $(obj)/lc_hqc_256.h $(obj)/lc_hqc_192.h $(obj)/lc_hqc_128.h $(obj)/lc_sphincs_shake_256s.h $(obj)/lc_sphincs_shake_256f.h $(obj)/lc_sphincs_shake_192s.h $(obj)/lc_sphincs_shake_192f.h $(obj)/lc_sphincs_shake_128s.h $(obj)/lc_sphincs_shake_128f.h
-
-targets += lc_hash.h lc_kyber_1024.h lc_kyber_768.h lc_kyber_512.h lc_dilithium_87.h lc_dilithium_65.h lc_dilithium_44.h lc_ascon_hash.h lc_bike_5.h lc_bike_3.h lc_bike_1.h lc_hqc_256.h lc_hqc_192.h lc_hqc_128.h lc_sphincs_shake_256s.h lc_sphincs_shake_256f.h lc_sphincs_shake_192s.h lc_sphincs_shake_192f.h lc_sphincs_shake_128s.h lc_sphincs_shake_128f.h
+$(obj)/leancrypto_kernel.o: $(obj)/lc_hash.h
+targets += lc_hash.h
 
 quiet_cmd_build_lc_hash = GEN     $@
       cmd_build_lc_hash = awk -f $(src)/lc_hash.h.awk $< > $@
@@ -26,7 +25,23 @@ $(obj)/lc_hash.h: $(src)/../hash/api/lc_hash.h.in FORCE
 
 # Kyber
 
-clean-files += $(obj)/lc_kyber_1024.h $(obj)/lc_kyber_768.h $(obj)/lc_kyber_512.h
+ifdef CONFIG_LEANCRYPTO_KEM_KYBER_1024
+$(obj)/leancrypto_kernel.o: $(obj)/lc_kyber_1024.h
+targets += lc_kyber_1024.h
+clean-files += $(obj)/lc_kyber_1024.h
+endif
+
+ifdef CONFIG_LEANCRYPTO_KEM_KYBER_768
+$(obj)/leancrypto_kernel.o: $(obj)/lc_kyber_768.h
+targets += lc_kyber_768.h
+clean-files += $(obj)/lc_kyber_768.h
+endif
+
+ifdef CONFIG_LEANCRYPTO_KEM_KYBER_512
+$(obj)/leancrypto_kernel.o: $(obj)/lc_kyber_512.h
+targets += lc_kyber_512.h
+clean-files += $(obj)/lc_kyber_512.h
+endif
 
 quiet_cmd_build_lc_kyber_1024 = GEN     $@
       cmd_build_lc_kyber_1024 = awk -f $(src)/lc_kyber_1024.h.awk $< > $@
@@ -46,7 +61,23 @@ $(obj)/lc_kyber_512.h: $(src)/../ml-kem/api/lc_kyber_size.h.in FORCE
 
 # Dilithium
 
-clean-files += $(obj)/lc_dilithium_87.h $(obj)/lc_dilithium_65.h $(obj)/lc_dilithium_44.h
+ifdef CONFIG_LEANCRYPTO_DILITHIUM_87
+$(obj)/leancrypto_kernel.o: $(obj)/lc_dilithium_87.h
+targets += lc_dilithium_87.h
+clean-files += $(obj)/lc_dilithium_87.h
+endif
+
+ifdef CONFIG_LEANCRYPTO_DILITHIUM_65
+$(obj)/leancrypto_kernel.o: $(obj)/lc_dilithium_65.h
+targets += lc_dilithium_65.h
+clean-files += $(obj)/lc_dilithium_65.h
+endif
+
+ifdef CONFIG_LEANCRYPTO_DILITHIUM_44
+$(obj)/leancrypto_kernel.o: $(obj)/lc_dilithium_44.h
+targets += lc_dilithium_44.h
+clean-files += $(obj)/lc_dilithium_44.h
+endif
 
 quiet_cmd_build_lc_dilithium_87 = GEN     $@
       cmd_build_lc_dilithium_87 = awk -f $(src)/lc_dilithium_87.h.awk $< > $@
@@ -66,7 +97,12 @@ $(obj)/lc_dilithium_44.h: $(src)/../ml-dsa/api/lc_dilithium_size.h.in FORCE
 
 # Ascon Hash
 
+ifdef CONFIG_LEANCRYPTO_ASCON_HASH
+$(obj)/leancrypto_kernel.o: $(obj)/lc_ascon_hash.h
+targets += lc_ascon_hash.h
 clean-files += $(obj)/lc_ascon_hash.h
+endif
+
 
 quiet_cmd_build_lc_ascon_hash = GEN     $@
       cmd_build_lc_ascon_hash = awk -f $(src)/lc_ascon_hash.awk $< > $@
@@ -76,7 +112,23 @@ $(obj)/lc_ascon_hash.h: $(src)/../hash/api/lc_ascon_hash.h.in FORCE
 
 # Bike
 
-clean-files += $(obj)/lc_bike_5.h $(obj)/lc_bike_3.h $(obj)/lc_bike_1.h
+ifdef CONFIG_LEANCRYPTO_KEM_BIKE_5
+$(obj)/leancrypto_kernel.o: $(obj)/lc_bike_5.h
+targets += lc_bike_5.h
+clean-files += $(obj)/lc_bike_5.h
+endif
+
+ifdef CONFIG_LEANCRYPTO_KEM_BIKE_3
+$(obj)/leancrypto_kernel.o: $(obj)/lc_bike_3.h
+targets += lc_bike_3.h
+clean-files += $(obj)/lc_bike_3.h
+endif
+
+ifdef CONFIG_LEANCRYPTO_KEM_BIKE_1
+$(obj)/leancrypto_kernel.o: $(obj)/lc_bike_1.h
+targets += lc_bike_1.h
+clean-files += $(obj)/lc_bike_1.h
+endif
 
 quiet_cmd_build_lc_bike_5 = GEN     $@
       cmd_build_lc_bike_5 = awk -f $(src)/lc_bike_5.h.awk $< > $@
@@ -96,7 +148,23 @@ $(obj)/lc_bike_1.h: $(src)/../bike/api/lc_bike_size.h.in FORCE
 
 # HQC
 
-clean-files += $(obj)/lc_hqc_256.h $(obj)/lc_hqc_192.h $(obj)/lc_hqc_128.h
+ifdef CONFIG_LEANCRYPTO_KEM_HQC_256
+$(obj)/leancrypto_kernel.o: $(obj)/lc_hqc_256.h
+targets += lc_hqc_256.h
+clean-files += $(obj)/lc_hqc_256.h
+endif
+
+ifdef CONFIG_LEANCRYPTO_KEM_HQC_192
+$(obj)/leancrypto_kernel.o: $(obj)/lc_hqc_192.h
+targets += lc_hqc_192.h
+clean-files += $(obj)/lc_hqc_192.h
+endif
+
+ifdef CONFIG_LEANCRYPTO_KEM_HQC_128
+$(obj)/leancrypto_kernel.o: $(obj)/lc_hqc_128.h
+targets += lc_hqc_128.h
+clean-files += $(obj)/lc_hqc_128.h
+endif
 
 quiet_cmd_build_lc_hqc_256 = GEN     $@
       cmd_build_lc_hqc_256 = awk -f $(src)/lc_hqc_256.h.awk $< > $@
@@ -116,7 +184,41 @@ $(obj)/lc_hqc_128.h: $(src)/../hqc/api/lc_hqc_size.h.in FORCE
 
 # Sphincs+
 
-clean-files += $(obj)/lc_sphincs_shake_256s.h $(obj)/lc_sphincs_shake_256f.h $(obj)/lc_sphincs_shake_192s.h $(obj)/lc_sphincs_shake_192f.h $(obj)/lc_sphincs_shake_128s.h $(obj)/lc_sphincs_shake_128f.h
+ifdef CONFIG_LEANCRYPTO_SPHINCS_256s
+$(obj)/leancrypto_kernel.o: $(obj)/lc_sphincs_shake_256s.h
+targets += lc_sphincs_shake_256s.h
+clean-files += $(obj)/lc_sphincs_shake_256s.h
+endif
+
+ifdef CONFIG_LEANCRYPTO_SPHINCS_256f
+$(obj)/leancrypto_kernel.o: $(obj)/lc_sphincs_shake_256f.h
+targets += lc_sphincs_shake_256f.h
+clean-files += $(obj)/lc_sphincs_shake_256f.h
+endif
+
+ifdef CONFIG_LEANCRYPTO_SPHINCS_192s
+$(obj)/leancrypto_kernel.o: $(obj)/lc_sphincs_shake_192s.h
+targets += lc_sphincs_shake_192s.h
+clean-files += $(obj)/lc_sphincs_shake_192s.h
+endif
+
+ifdef CONFIG_LEANCRYPTO_SPHINCS_192f
+$(obj)/leancrypto_kernel.o: $(obj)/lc_sphincs_shake_192f.h
+targets += lc_sphincs_shake_192f.h
+clean-files += $(obj)/lc_sphincs_shake_192f.h
+endif
+
+ifdef CONFIG_LEANCRYPTO_SPHINCS_128s
+$(obj)/leancrypto_kernel.o: $(obj)/lc_sphincs_shake_128s.h
+targets += lc_sphincs_shake_128s.h
+clean-files += $(obj)/lc_sphincs_shake_128s.h
+endif
+
+ifdef CONFIG_LEANCRYPTO_SPHINCS_128f
+$(obj)/leancrypto_kernel.o: $(obj)/lc_sphincs_shake_128f.h
+targets += lc_sphincs_shake_128f.h
+clean-files += $(obj)/lc_sphincs_shake_128f.h
+endif
 
 quiet_cmd_build_lc_sphincs_shake_256s = GEN     $@
       cmd_build_lc_sphincs_shake_256s = awk -f $(src)/lc_sphincs_shake_256s.h.awk $< > $@
