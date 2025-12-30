@@ -53,10 +53,8 @@ static int lc_hmac_init_nocheck(struct lc_hmac_ctx *hmac_ctx,
 				const uint8_t *key, size_t keylen)
 {
 	struct lc_hash_ctx *hash_ctx = &hmac_ctx->hash_ctx;
-	const struct lc_hash *hash = hash_ctx->hash;
 	const unsigned int blocksize = lc_hash_blocksize(hash_ctx);
-	const unsigned int ctxsize = lc_hash_ctxsize(hash_ctx);
-	size_t digestsize = lc_hash_digestsize(hash_ctx);
+	const size_t digestsize = lc_hash_digestsize(hash_ctx);
 	uint8_t *k_opad, *k_ipad;
 	unsigned int i;
 	int ret = 0;
@@ -65,11 +63,6 @@ static int lc_hmac_init_nocheck(struct lc_hmac_ctx *hmac_ctx,
 
 	/* Timecop: key is sensitive. */
 	poison(key, keylen);
-
-	if (ctxsize > LC_HASH_STATE_SIZE(hash) ||
-	    blocksize > LC_SHA_MAX_SIZE_BLOCK ||
-	    digestsize > LC_SHA_MAX_SIZE_DIGEST)
-		return -EINVAL;
 
 	k_opad = hmac_ctx->k_opad;
 	k_ipad = hmac_ctx->k_ipad;
