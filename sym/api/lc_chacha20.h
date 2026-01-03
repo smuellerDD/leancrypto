@@ -51,7 +51,7 @@ void cc20_block(struct lc_sym_state *state, uint32_t *stream);
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 		LC_ALIGNED_BUFFER(name##_ctx_buf,                              \
-				  LC_SYM_STATE_SIZE_LEN(LC_CC20_STATE_SIZE),   \
+				  LC_SYM_CTX_SIZE_LEN(LC_CC20_STATE_SIZE),     \
 				  LC_SYM_COMMON_ALIGNMENT);                    \
 	struct lc_sym_ctx *name = (struct lc_sym_ctx *)name##_ctx_buf;         \
 	LC_SYM_SET_CTX(name, lc_chacha20);                                     \
