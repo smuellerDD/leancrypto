@@ -36,7 +36,11 @@ static int x509_write_data(int fd, const uint8_t *data, size_t datalen)
 	ssize_t written;
 	int ret = 0;
 
-	written = write(fd, data, datalen);
+	written = write(fd, data,
+#if (defined(__CYGWIN__) || defined(_WIN32))
+			(unsigned int)
+#endif
+			datalen);
 	if (written == -1) {
 		ret = -errno;
 		goto out;
@@ -87,6 +91,7 @@ int get_data(const char *filename, uint8_t **memory, size_t *memory_length,
 		 * the meson return code 77 here.
 		 */
 		ret = -77;
+		goto out;
 	}
 
 	/*
@@ -325,7 +330,11 @@ int write_data(const char *filename, const uint8_t *data, size_t datalen,
 	int fd = -1;
 	int ret = 0;
 
-	fd = open(filename, O_CREAT | O_RDWR | O_CLOEXEC, 0777);
+	fd = open(filename, O_CREAT | O_RDWR
+#if !(defined(__CYGWIN__) || defined(_WIN32))
+			    | O_CLOEXEC
+#endif
+		  , 0777);
 	if (fd < 0) {
 		ret = -errno;
 		printf("Cannot open file %s\n", filename);
