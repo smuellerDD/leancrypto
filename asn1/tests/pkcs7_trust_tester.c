@@ -55,7 +55,8 @@ static int pkcs7_trust_store(struct pkcs7_trust_options *opts)
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	for (i = 0; i < opts->num_files; i++) {
-		CKINT_LOG(get_data(opts->file[i], &data[i], &datalen[i]),
+		CKINT_LOG(get_data(opts->file[i], &data[i], &datalen[i],
+				   lc_pem_flag_nopem),
 			  "Loading of file %s\n", opts->file[i]);
 		CKINT_LOG(lc_x509_cert_decode(&ws->x509[i], data[i],
 					      datalen[i]),
@@ -67,10 +68,10 @@ static int pkcs7_trust_store(struct pkcs7_trust_options *opts)
 
 	if (opts->pkcs7_file) {
 		CKINT_LOG(get_data(opts->pkcs7_file, &pkcs7_data,
-				   &pkcs7_datalen),
+				   &pkcs7_datalen, lc_pem_flag_nopem),
 			  "Loading of file %s\n", opts->pkcs7_file);
 		CKINT_LOG(get_data(opts->verified_file, &verified_data,
-				   &verified_datalen),
+				   &verified_datalen, lc_pem_flag_nopem),
 			  "Reading verification data\n");
 		CKINT_LOG(lc_pkcs7_decode(&ws->pkcs7, pkcs7_data,
 					  pkcs7_datalen),
@@ -85,11 +86,11 @@ static int pkcs7_trust_store(struct pkcs7_trust_options *opts)
 
 out:
 	for (i = 0; i < opts->num_files; i++) {
-		release_data(data[i], datalen[i]);
+		release_data(data[i], datalen[i], lc_pem_flag_nopem);
 		lc_x509_cert_clear(&ws->x509[i]);
 	}
-	release_data(pkcs7_data, pkcs7_datalen);
-	release_data(verified_data, verified_datalen);
+	release_data(pkcs7_data, pkcs7_datalen, lc_pem_flag_nopem);
+	release_data(verified_data, verified_datalen, lc_pem_flag_nopem);
 
 	/*
 	 * A conversion to support testing on different systems where the

@@ -6,11 +6,14 @@ if get_option('x509_parser').enabled()
 	x509_common_support = 1
 
 	include_files += files([
-		'../api/lc_x509_parser.h'
+		'../api/lc_x509_parser.h',
+		'../api/lc_pem.h'
 	])
 
 	src += files([
 		'asn1_decoder.c',
+		'base64.c',
+		'pem.c',
 		'x509_cert_parser.c',
 		'x509_cert_parser_get_data.c',
 		'x509_policies.c',

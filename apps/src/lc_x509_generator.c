@@ -22,11 +22,13 @@
 #include <getopt.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/mman.h>
 #include <sys/stat.h>
 #include <time.h>
 
 #include "binhexbin.h"
 #include "ret_checkers.h"
+#include "lc_pem.h"
 #include "lc_status.h"
 #include "lc_x509_generator.h"
 #include "lc_x509_generator_file_helper.h"
@@ -86,6 +88,7 @@ struct x509_generator_opts {
 	unsigned int cert_present : 1;
 	unsigned int sk_is_pkcs8 : 1;
 	unsigned int generate_sk_seed : 1;
+	unsigned int pem_format_output : 1;
 };
 
 static int x509_check_file(const char *file)
@@ -106,9 +109,7 @@ static int x509_check_file(const char *file)
 static int x509_gen_file(struct x509_generator_opts *opts,
 			 const uint8_t *certdata, size_t certdata_len)
 {
-	FILE *f = NULL;
-	size_t written;
-	int ret = 0;
+	int ret;
 
 	if (opts->noout)
 		return 0;
@@ -117,20 +118,10 @@ static int x509_gen_file(struct x509_generator_opts *opts,
 
 	CKINT(x509_check_file(opts->outfile));
 
-	f = fopen(opts->outfile, "w");
-	CKNULL(f, -errno);
-
-	written = fwrite(certdata, 1, certdata_len, f);
-	if (written != certdata_len) {
-		printf("Writing of X.509 certificate data failed: %zu bytes written, %zu bytes to write\n",
-		       written, certdata_len);
-		ret = -EFAULT;
-		goto out;
-	}
-
+	CKINT(write_data(opts->outfile, certdata, certdata_len,
+			 opts->pem_format_output ? lc_pem_flag_certificate :
+						   lc_pem_flag_nopem));
 out:
-	if (f)
-		fclose(f);
 	return ret;
 }
 
@@ -177,7 +168,8 @@ static int x509_dump_file(struct x509_generator_opts *opts)
 	if (!opts->print_x509_cert && !opts->checker)
 		return 0;
 
-	CKINT_LOG(get_data(opts->print_x509_cert, &x509_data, &x509_datalen),
+	CKINT_LOG(get_data(opts->print_x509_cert, &x509_data, &x509_datalen,
+			   lc_pem_flag_certificate),
 		  "Loading of file %s failed\n", opts->print_x509_cert);
 
 	CKINT_LOG(lc_x509_cert_decode(&ws->pcert, x509_data, x509_datalen),
@@ -195,7 +187,7 @@ static int x509_dump_file(struct x509_generator_opts *opts)
 
 out:
 	LC_RELEASE_MEM(ws);
-	release_data(x509_data, x509_datalen);
+	release_data(x509_data, x509_datalen, lc_pem_flag_certificate);
 	return ret;
 }
 
@@ -247,12 +239,15 @@ static void x509_clean_opts(struct x509_generator_opts *opts)
 	lc_x509_cert_clear(&opts->signer_cert);
 	lc_pkcs8_message_clear(&opts->pkcs8);
 
-	release_data(opts->signer_data, opts->signer_data_len);
-	release_data(opts->pk_data, opts->pk_len);
-	release_data(opts->sk_data, opts->sk_len);
-	release_data(opts->signer_sk_data, opts->signer_sk_len);
-	release_data(opts->data, opts->data_len);
-	release_data(opts->x509_cert_data, opts->x509_cert_data_len);
+	release_data(opts->signer_data, opts->signer_data_len,
+		     lc_pem_flag_certificate);
+	release_data(opts->pk_data, opts->pk_len, lc_pem_flag_certificate);
+	release_data(opts->sk_data, opts->sk_len, lc_pem_flag_priv_key);
+	release_data(opts->signer_sk_data, opts->signer_sk_len,
+		     lc_pem_flag_priv_key);
+	release_data(opts->data, opts->data_len, lc_pem_flag_nopem);
+	release_data(opts->x509_cert_data, opts->x509_cert_data_len,
+		     lc_pem_flag_certificate);
 }
 
 static int x509_enc_eku(struct x509_generator_opts *opts,
@@ -615,7 +610,7 @@ static int x509_load_sk(struct x509_generator_opts *opts)
 	int ret;
 
 	CKINT_LOG(get_data(opts->signer_sk_file, &opts->signer_sk_data,
-			   &opts->signer_sk_len),
+			   &opts->signer_sk_len, lc_pem_flag_priv_key),
 		  "Signer SK mmap failure\n");
 
 	/* Get the signature type based on the signer key */
@@ -642,7 +637,7 @@ static int x509_enc_set_signer(struct x509_generator_opts *opts)
 	CKNULL(opts->x509_signer_file, -EINVAL);
 
 	CKINT_LOG(get_data(opts->x509_signer_file, &opts->signer_data,
-			   &opts->signer_data_len),
+			   &opts->signer_data_len, lc_pem_flag_certificate),
 		  "mmap failure\n");
 
 	CKINT_LOG(lc_x509_cert_decode(&opts->signer_cert, opts->signer_data,
@@ -692,8 +687,12 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 			CKINT_LOG(x509_sk_encode(opts, keys, ws->der_sk,
 						 &der_sk_len),
 				  "Generation of private key file failed\n");
+
 			CKINT(write_data(opts->sk_file, ws->der_sk,
-					 DATASIZE - der_sk_len));
+					 DATASIZE - der_sk_len,
+					 opts->pem_format_output ?
+						 lc_pem_flag_priv_key :
+						 lc_pem_flag_nopem));
 		}
 
 	} else if (opts->x509_cert_file) {
@@ -705,16 +704,17 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 
 		/* Access the X.509 certificate file */
 		CKINT_LOG(get_data(opts->x509_cert_file, &opts->x509_cert_data,
-				   &opts->x509_cert_data_len),
+				   &opts->x509_cert_data_len,
+				   lc_pem_flag_certificate),
 			  "X.509 certificate mmap failure\n");
 		/* Parse the X.509 certificate */
 		CKINT_LOG(lc_x509_cert_decode(gcert, opts->x509_cert_data,
 					      opts->x509_cert_data_len),
 			  "Loading of X.509 certificate failed\n");
 
-		/* Access the X.509 certificate file */
-		CKINT_LOG(get_data(opts->sk_file, &opts->sk_data,
-				   &opts->sk_len),
+		/* Access the secret key file */
+		CKINT_LOG(get_data(opts->sk_file, &opts->sk_data, &opts->sk_len,
+				   lc_pem_flag_priv_key),
 			  "Secret key mmap failure\n");
 		/* Parse the X.509 secret key */
 		CKINT_LOG(x509_sk_decode(opts, keys, gcert->pub.pkey_algo,
@@ -726,15 +726,15 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 		CKNULL_LOG(!opts->in_key_type, -EINVAL,
 			   "Input key files must be specified with key type\n");
 
-		CKINT_LOG(get_data(opts->pk_file, &opts->pk_data,
-				   &opts->pk_len),
+		CKINT_LOG(get_data(opts->pk_file, &opts->pk_data, &opts->pk_len,
+				   lc_pem_flag_certificate),
 			  "PK mmap failure\n");
 		CKINT_LOG(lc_x509_pk_decode(keys, opts->in_key_type,
 					    opts->pk_data, opts->pk_len),
 			  "Decoding of public key failed\n");
 		if (self_signed) {
 			CKINT_LOG(get_data(opts->sk_file, &opts->sk_data,
-					   &opts->sk_len),
+					   &opts->sk_len, lc_pem_flag_priv_key),
 				  "SK mmap failure\n");
 			CKINT_LOG(x509_sk_decode(opts, keys, opts->in_key_type,
 						 opts->sk_data, opts->sk_len),
@@ -797,7 +797,8 @@ static int x509_sign_data(struct x509_generator_opts *opts)
 
 	CKINT(lc_alloc_aligned((void **)&sigptr, 8, siglen));
 
-	CKINT_LOG(get_data(opts->data_file, &opts->data, &opts->data_len),
+	CKINT_LOG(get_data(opts->data_file, &opts->data, &opts->data_len,
+			   lc_pem_flag_nopem),
 		  "Failure of getting data to be signed\n");
 
 	CKINT(x509_signature_gen(opts, sigptr, &siglen, key_data, opts->data,
@@ -811,7 +812,8 @@ static int x509_sign_data(struct x509_generator_opts *opts)
 #endif
 
 	if (opts->outfile) {
-		CKINT(write_data(opts->outfile, sigptr, siglen));
+		CKINT(write_data(opts->outfile, sigptr, siglen,
+				 lc_pem_flag_nopem));
 	} else {
 		bin2print(sigptr, siglen, stdout, "Signature");
 	}
@@ -886,6 +888,10 @@ static void x509_generator_usage(void)
 	fprintf(stderr,
 		"\t   --signer-sk-file <FILE>\tFile with signer secret\n");
 	fprintf(stderr, "\t   --x509-cert <FILE>\t\tCertificate for signing\n");
+	fprintf(stderr,
+		"\t   --pem-output\t\t\tKey / certificate files are created\n");
+	fprintf(stderr, "\t\t\t\t\tin PEM format (input data PEM format\n");
+	fprintf(stderr, "\t\t\t\t\tis autodetected)\n");
 
 	fprintf(stderr, "\n\tOptions for X.509 meta data:\n");
 	fprintf(stderr, "\t   --eku <FLAG>\t\t\tSet Extended Key Usage flag\n");
@@ -1062,6 +1068,7 @@ int main(int argc, char *argv[])
 
 		{ "create-keypair-pkcs8-seed", 1, 0, 0 },
 		{ "create-keypair-pkcs8", 1, 0, 0 },
+		{ "pem-output", 0, 0, 0 },
 
 		{ 0, 0, 0, 0 }
 	};
@@ -1392,6 +1399,10 @@ int main(int argc, char *argv[])
 							 .create_keypair_algo),
 					"Key type for key creation parsing failure\n");
 				ws->parsed_opts.sk_is_pkcs8 = 1;
+				break;
+			/* pem-output */
+			case 56:
+				ws->parsed_opts.pem_format_output = 1;
 				break;
 			}
 

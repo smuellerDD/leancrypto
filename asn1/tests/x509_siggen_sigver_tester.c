@@ -53,8 +53,9 @@ static void x509_clean_opts(struct x509_generator_opts *opts)
 
 	lc_x509_cert_clear(&opts->cert);
 
-	release_data(opts->sk_data, opts->sk_len);
-	release_data(opts->x509_cert_data, opts->x509_cert_data_len);
+	release_data(opts->sk_data, opts->sk_len, lc_pem_flag_nopem);
+	release_data(opts->x509_cert_data, opts->x509_cert_data_len,
+		     lc_pem_flag_nopem);
 }
 
 static int x509_enc_set_key(struct x509_generator_opts *opts)
@@ -80,7 +81,7 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 
 	/* Access the X.509 certificate file */
 	CKINT_LOG(get_data(opts->x509_cert_file, &opts->x509_cert_data,
-			   &opts->x509_cert_data_len),
+			   &opts->x509_cert_data_len, lc_pem_flag_nopem),
 		  "X.509 certificate mmap failure\n");
 	/* Parse the X.509 certificate */
 	CKINT_LOG(lc_x509_cert_decode(cert, opts->x509_cert_data,
@@ -88,7 +89,8 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 		  "Loading of X.509 certificate failed\n");
 
 	/* Access the X.509 certificate file */
-	CKINT_LOG(get_data(opts->sk_file, &opts->sk_data, &opts->sk_len),
+	CKINT_LOG(get_data(opts->sk_file, &opts->sk_data, &opts->sk_len,
+			   lc_pem_flag_nopem),
 		  "Secret key mmap failure\n");
 	/* Parse the X.509 secret key */
 	CKINT_LOG(lc_x509_sk_decode(keys, cert->pub.pkey_algo, opts->sk_data,

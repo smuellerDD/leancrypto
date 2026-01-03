@@ -21,14 +21,18 @@
 #define LC_X509_GENERATOR_FILE_HELPER_H
 
 #include "ext_headers.h"
+#include "lc_pem.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int get_data(const char *filename, uint8_t **memory, size_t *memory_length);
-int write_data(const char *filename, uint8_t *data, size_t datalen);
-void release_data(uint8_t *memory, size_t memory_length);
+int get_data(const char *filename, uint8_t **memory, size_t *memory_length,
+	     enum lc_pem_flags pem_flags);
+int write_data(const char *filename, const uint8_t *data, size_t datalen,
+	       enum lc_pem_flags pem_flags);
+void release_data(uint8_t *memory, size_t memory_length,
+		  enum lc_pem_flags pem_flags);
 
 #ifdef __cplusplus
 }

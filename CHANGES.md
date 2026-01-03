@@ -35,6 +35,8 @@ Changes 1.7.0-prerelease
 
 * Significantly reduce use of VLA
 
+* Add support of PEM
+
 Changes 1.6.0
 * ASN.1: use stack for small generator for small use cases
 

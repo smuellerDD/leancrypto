@@ -90,6 +90,7 @@ struct pkcs7_generator_opts {
 	unsigned int use_trust_store : 1;
 	unsigned int signer_set : 1;
 	unsigned int verify_rules_set : 1;
+	unsigned int pem_format_output : 1;
 
 	struct pkcs7_x509 *x509;
 };
@@ -107,9 +108,12 @@ static void pkcs7_clean_opts(struct pkcs7_generator_opts *opts)
 	while (x509) {
 		struct pkcs7_x509 *tmp_x509 = x509->next;
 
-		release_data(x509->x509_data, x509->x509_data_len);
-		release_data(x509->signer_sk_data, x509->signer_sk_data_len);
-		release_data(x509->signer_data, x509->signer_data_len);
+		release_data(x509->x509_data, x509->x509_data_len,
+			     lc_pem_flag_certificate);
+		release_data(x509->signer_sk_data, x509->signer_sk_data_len,
+			     lc_pem_flag_priv_key);
+		release_data(x509->signer_data, x509->signer_data_len,
+			     lc_pem_flag_certificate);
 
 		lc_x509_cert_clear(x509->x509);
 		lc_free(x509->x509);
@@ -121,7 +125,7 @@ static void pkcs7_clean_opts(struct pkcs7_generator_opts *opts)
 
 	opts->x509 = NULL;
 
-	release_data(opts->data, opts->datalen);
+	release_data(opts->data, opts->datalen, lc_pem_flag_nopem);
 
 	lc_pkcs7_message_clear(opts->pkcs7);
 	lc_pkcs8_message_clear(&opts->pkcs8);
@@ -146,8 +150,6 @@ static int pkcs7_check_file(const char *file)
 static int pkcs7_gen_file(struct pkcs7_generator_opts *opts,
 			  const uint8_t *certdata, size_t certdata_len)
 {
-	FILE *f = NULL;
-	size_t written;
 	int ret = 0;
 
 	if (opts->noout)
@@ -157,20 +159,11 @@ static int pkcs7_gen_file(struct pkcs7_generator_opts *opts,
 
 	CKINT(pkcs7_check_file(opts->outfile));
 
-	f = fopen(opts->outfile, "w");
-	CKNULL(f, -errno);
-
-	written = fwrite(certdata, 1, certdata_len, f);
-	if (written != certdata_len) {
-		printf("Writing of X.509 certificate data failed: %zu bytes written, %zu bytes to write\n",
-		       written, certdata_len);
-		ret = -EFAULT;
-		goto out;
-	}
+	CKINT(write_data(opts->outfile, certdata, certdata_len,
+			 opts->pem_format_output ? lc_pem_flag_cms :
+						   lc_pem_flag_nopem));
 
 out:
-	if (f)
-		fclose(f);
 	return ret;
 }
 
@@ -219,7 +212,8 @@ static int pkcs7_dump_file(struct pkcs7_generator_opts *opts)
 	if (!opts->pkcs7_msg && !opts->checker)
 		return 0;
 
-	CKINT_LOG(get_data(opts->pkcs7_msg, &pkcs7_data, &pkcs7_datalen),
+	CKINT_LOG(get_data(opts->pkcs7_msg, &pkcs7_data, &pkcs7_datalen,
+			   lc_pem_flag_cms),
 		  "Loading of file %s failed\n", opts->pkcs7_msg);
 
 	CKINT_LOG(lc_pkcs7_decode(pkcs7_msg, pkcs7_data, pkcs7_datalen),
@@ -247,7 +241,7 @@ static int pkcs7_dump_file(struct pkcs7_generator_opts *opts)
 
 out:
 	lc_pkcs7_message_clear(pkcs7_msg);
-	release_data(pkcs7_data, pkcs7_datalen);
+	release_data(pkcs7_data, pkcs7_datalen, lc_pem_flag_cms);
 	PKCS7_FREE
 	return ret;
 }
@@ -266,11 +260,13 @@ static int pkcs7_gen_message(struct pkcs7_generator_opts *opts)
 		  "Message generation failed\n");
 	datalen = ASN1_MAX_DATASIZE - avail_datalen;
 
-	if (!opts->outfile)
-		bin2print(ws->data, datalen, stdout, "PKCS7 Message");
 
-	CKINT_LOG(pkcs7_gen_file(opts, ws->data, datalen),
-		  "Writing of X.509 certificate failed\n");
+	if (!opts->outfile) {
+		bin2print(ws->data, datalen, stdout, "PKCS7 Message");
+	} else {
+		CKINT_LOG(pkcs7_gen_file(opts, ws->data, datalen),
+			  "Writing of X.509 certificate failed\n");
+	}
 
 	CKINT_LOG(pkcs7_enc_dump(opts, ws->data, datalen),
 		  "Printing of message failed\n");
@@ -353,12 +349,12 @@ static int pkcs7_load_signer(struct pkcs7_generator_opts *opts)
 
 	signer_key_input_data = &x509->signer_key_input_data;
 	signer_key_data = &x509->signer_key_data;
-
 	CKINT_LOG(get_data(opts->x509_signer_file, &x509->signer_data,
-			   &x509->signer_data_len),
+			   &x509->signer_data_len, lc_pem_flag_certificate),
 		  "mmap failure\n");
+
 	CKINT_LOG(get_data(opts->signer_sk_file, &x509->signer_sk_data,
-			   &x509->signer_sk_data_len),
+			   &x509->signer_sk_data_len, lc_pem_flag_priv_key),
 		  "Signer SK mmap failure\n");
 
 	CKINT(lc_alloc_aligned((void **)&newcert, 8,
@@ -401,8 +397,8 @@ static int pkcs7_load_cert(struct pkcs7_generator_opts *opts)
 
 	pkcs7_add_x509(opts, x509);
 
-	CKINT(get_data(opts->x509_file, &x509->x509_data,
-		       &x509->x509_data_len));
+	CKINT(get_data(opts->x509_file, &x509->x509_data, &x509->x509_data_len,
+		       lc_pem_flag_certificate));
 
 	CKINT(lc_alloc_aligned((void **)&newcert, 8,
 			       sizeof(struct lc_x509_certificate)));
@@ -441,7 +437,7 @@ static int pkcs7_load_trust(struct pkcs7_generator_opts *opts)
 	pkcs7_add_x509(opts, x509);
 
 	CKINT_LOG(get_data(opts->trust_anchor, &x509->x509_data,
-			   &x509->x509_data_len),
+			   &x509->x509_data_len, lc_pem_flag_certificate),
 		  "Loading of file %s failed\n", opts->trust_anchor);
 
 	CKINT(lc_alloc_aligned((void **)&newcert, 8,
@@ -471,7 +467,8 @@ static int pkcs7_set_data(struct pkcs7_generator_opts *opts)
 	CKNULL_LOG(opts->infile, -EINVAL,
 		   "Data file to be protected missing\n");
 
-	CKINT_LOG(get_data(opts->infile, &opts->data, &opts->datalen),
+	CKINT_LOG(get_data(opts->infile, &opts->data, &opts->datalen,
+			   lc_pem_flag_nopem),
 		  "Loading of file %s failed\n", opts->infile);
 
 	CKINT(lc_pkcs7_set_data(pkcs7, opts->data, opts->datalen, 0));
@@ -509,6 +506,10 @@ static void pkcs7_generator_usage(void)
 	fprintf(stderr, "\n\tOptions for additional X.509:\n");
 	fprintf(stderr,
 		"\t   --x509-cert <FILE>\t\tX.509 additional certificate\n");
+	fprintf(stderr,
+		"\t   --pem-output\t\t\tKey / certificate files are created\n");
+	fprintf(stderr, "\t\t\t\t\tin PEM format (input data PEM format\n");
+	fprintf(stderr, "\t\t\t\t\tis autodetected)\n");
 
 	fprintf(stderr,
 		"\n\tOptions for analyzing generated / loaded PKCS#7 messages:\n");
@@ -656,6 +657,7 @@ int main(int argc, char *argv[])
 					      { "check-keyusage", 1, 0, 0 },
 
 					      { "verify-pkcs7", 1, 0, 0 },
+					      { "pem-output", 0, 0, 0 },
 
 					      { 0, 0, 0, 0 } };
 
@@ -809,6 +811,10 @@ int main(int argc, char *argv[])
 			/* verify-pkcs7 */
 			case 24:
 				parsed_opts.pkcs7_msg = optarg;
+				break;
+			/* pem-output */
+			case 25:
+				parsed_opts.pem_format_output = 1;
 				break;
 			}
 			break;

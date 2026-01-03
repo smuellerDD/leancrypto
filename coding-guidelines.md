@@ -70,6 +70,10 @@ Code changes should follow these guidelines:
 
 * KNF code format (use `addon/clang-format-helper.sh`)
 
+	- no more than 80 characters per line
+
+	- indentation with tabs (defined to be 8 characters in size)
+
 * All externally visible symbols are prefixed with `lc_`.
 
 * All externally visible macros are prefixed with `LC_`.

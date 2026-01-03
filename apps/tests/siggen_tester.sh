@@ -129,6 +129,7 @@ echo_info()
 
 check_one() {
 	local inputfile=$1
+	local inform=$2
 
 	if [ ! -f "$inputfile" ]
 	then
@@ -146,17 +147,32 @@ check_one() {
 	fi
 
 	echo "=== Checking file $inputfile with OpenSSL ==="
-	$OPENSSL x509 -in $inputfile -inform DER -text -noout
+	$OPENSSL x509 -in $inputfile -inform $inform -text -noout
 	if [ $? -ne 0 ]
 	then
 		echo_fail "Parsing of file $inputfile was unsuccessful"
 	else
 		echo_success "Parsing of file $inputfile was successful"
 	fi
+
+	if [ "x$inform" = "xPEM" ]
+	then
+		# Check DOS-Variant as well
+		echo "=== Checking DOS-variant of file $inputfile with Leancrypto ==="
+		sed -i 's/$/\r/' $inputfile
+		$LC_X509_GENERATOR --check-selfsigned --print-x509 $inputfile
+		if [ $? -ne 0 ]
+		then
+			echo_fail "Parsing of file $inputfile was unsuccessful"
+		else
+			echo_success "Parsing of file $inputfile was successful"
+		fi
+	fi
 }
 
 check_one_priv() {
 	local inputfile=$1
+	local inform=$2
 
 	if [ ! -f "$inputfile" ]
 	then
@@ -165,7 +181,7 @@ check_one_priv() {
 	fi
 
 	echo "=== Checking private key file $inputfile with OpenSSL ==="
-	$OPENSSL asn1parse -dump -in $inputfile -inform DER
+	$OPENSSL asn1parse -dump -in $inputfile -inform $inform
 	if [ $? -ne 0 ]
 	then
 		echo_fail "Parsing of file $inputfile was unsuccessful"
@@ -188,12 +204,15 @@ report_result() {
 
 lc_generate_cert_pkcs8() {
 	local keytype=$1
+	local inform=$2
+	local pem_output=$3
 
 	rm -f ${pk_file} ${sk_file}
 
 	echo_info "Leancrypto: Generate X.509 certificate and associated PKCS#8 private key"
 
 	$LC_X509_GENERATOR \
+	 $pem_output \
 	 --keyusage digitalSignature \
 	 --keyusage keyEncipherment \
 	 --keyusage keyCertSign \
@@ -212,18 +231,21 @@ lc_generate_cert_pkcs8() {
 		echo_success "Successful leancrypto-internal certificate / PKCS#8 key generation"
 	fi
 
-	check_one $pk_file
-	check_one_priv $sk_file
+	check_one $pk_file $inform
+	check_one_priv $sk_file $inform
 }
 
 lc_generate_cert_pkcs8_seed() {
 	local keytype=$1
+	local inform=$2
+	local pem_output=$3
 
 	rm -f ${pk_file} ${sk_file}
 
 	echo_info "Leancrypto: Generate X.509 certificate and associated PKCS#8 private key"
 
 	$LC_X509_GENERATOR \
+	 $pem_output \
 	 --keyusage digitalSignature \
 	 --keyusage keyEncipherment \
 	 --keyusage keyCertSign \
@@ -242,8 +264,8 @@ lc_generate_cert_pkcs8_seed() {
 		echo_success "Successful leancrypto-internal certificate / PKCS#8 key generation"
 	fi
 
-	check_one $pk_file
-	check_one_priv $sk_file
+	check_one $pk_file $inform
+	check_one_priv $sk_file $inform
 
 	local sk_size=""
 
@@ -264,12 +286,15 @@ lc_generate_cert_pkcs8_seed() {
 }
 
 lc_sign_cert() {
+	local pem_output=$1
+
 	rm -f ${pk_file}.p7b
 
 	echo_info "Leancrypto: Create PKCS#7 signature of X.509 certificate using the X.509 certificate and associated PKCS#8 private key as signer"
 
 	$LC_PKCS7_GENERATOR \
 	 --md SHA2-512 \
+	 $pem_output \
 	 -i ${pk_file} \
 	 -o ${pk_file}.p7b \
 	 --x509-signer  ${pk_file} \
@@ -302,19 +327,20 @@ lc_verify_cert() {
 
 ossl_generate_cert_pkcs8() {
 	local keytype=$1
+	local inform=$2
 
 	rm -f ${pk_file} ${sk_file}
 
 	echo_info "OpenSSL Generate X.509 certificate and associated PKCS#8 private key"
 
-	$OPENSSL genpkey -algorithm $keytype -out $sk_file -outform DER
-	$OPENSSL pkey -in $sk_file -inform DER -pubout -out $pk_file.raw.pem
+	$OPENSSL genpkey -algorithm $keytype -out $sk_file -outform $inform
+	$OPENSSL pkey -in $sk_file -inform $inform -pubout -out $pk_file.raw.pem
 	$OPENSSL req \
 	 -new \
 	 -x509 \
 	 -key $sk_file \
 	 -out $pk_file \
-	 -outform DER \
+	 -outform $inform \
 	 -subj "/CN=OpenSSL test CA" \
 	 -addext basicConstraints=critical,CA:TRUE \
 	 -addext keyUsage=critical,digitalSignature,cRLSign,keyCertSign
@@ -326,8 +352,8 @@ ossl_generate_cert_pkcs8() {
 		echo_success "Successful OpenSSL certificate / PKCS#8 key generation"
 	fi
 
-	check_one $pk_file
-	check_one_priv $sk_file
+	check_one $pk_file $inform
+	check_one_priv $sk_file $inform
 }
 
 ossl_sign_cert() {
@@ -380,7 +406,7 @@ ossl_verify_cert() {
 # verification
 #
 lc_keygen_lc_op() {
-	lc_generate_cert_pkcs8 $1
+	lc_generate_cert_pkcs8 $1 "DER"
 
 	lc_sign_cert
 	lc_verify_cert
@@ -399,7 +425,7 @@ lc_keygen_lc_op() {
 # verification
 #
 ossl_keygen_lc_op() {
-	ossl_generate_cert_pkcs8 $1
+	ossl_generate_cert_pkcs8 $1 "DER"
 
 	lc_sign_cert
 	lc_verify_cert
@@ -427,7 +453,7 @@ ossl_keygen_lc_op() {
 # only perform sigver with OpenSSL
 #
 lc_keygen_seed_lc_op() {
-	lc_generate_cert_pkcs8_seed $1
+	lc_generate_cert_pkcs8_seed $1 "DER"
 
 	lc_sign_cert
 	lc_verify_cert
@@ -436,52 +462,96 @@ lc_keygen_seed_lc_op() {
 	ossl_verify_cert
 }
 
+################################################################################
+# TEST 4
+#
+# Leancrypto generation of key/cert and use it for signature generation and
+# verification
+#
+lc_keygen_lc_op_pem() {
+	lc_generate_cert_pkcs8 $1 "PEM" "--pem-output"
+
+	lc_sign_cert "--pem-output"
+	lc_verify_cert
+}
+
+################################################################################
+# TEST 5
+#
+# OpenSSL generation of key/cert and use it for signature generation and
+# verification
+#
+ossl_keygen_lc_op_pem() {
+	ossl_generate_cert_pkcs8 $1 "PEM"
+
+	lc_sign_cert "--pem-output"
+	lc_verify_cert
+}
+
 case $TESTTYPE
 in
 	"ML-DSA87" | "ML-DSA-87")
 		lc_keygen_lc_op "ML-DSA87"
 		ossl_keygen_lc_op "ML-DSA-87"
 		lc_keygen_seed_lc_op "ML-DSA87"
+		lc_keygen_lc_op_pem "ML-DSA87"
+		ossl_keygen_lc_op_pem "ML-DSA-87"
 	;;
 	"ML-DSA65" | "ML-DSA-65")
 		lc_keygen_lc_op "ML-DSA65"
 		ossl_keygen_lc_op "ML-DSA-65"
 		lc_keygen_seed_lc_op "ML-DSA65"
+		lc_keygen_lc_op_pem "ML-DSA65"
+		ossl_keygen_lc_op "ML-DSA-65"
 	;;
 	"ML-DSA44" | "ML-DSA-44")
 		lc_keygen_lc_op "ML-DSA44"
 		ossl_keygen_lc_op "ML-DSA-44"
 		lc_keygen_seed_lc_op "ML-DSA44"
+		lc_keygen_lc_op_pem "ML-DSA44"
+		ossl_keygen_lc_op_pem "ML-DSA-44"
 	;;
 	"SLH-DSA-SHAKE-128F" | "SLH-DSA-SHAKE-128f")
 		lc_keygen_lc_op "SLH-DSA-SHAKE-128F"
 		ossl_keygen_lc_op "SLH-DSA-SHAKE-128f"
 		lc_keygen_seed_lc_op "SLH-DSA-SHAKE-128F"
+		lc_keygen_lc_op_pem "SLH-DSA-SHAKE-128F"
+		ossl_keygen_lc_op_pem "SLH-DSA-SHAKE-128f"
 	;;
 	"SLH-DSA-SHAKE-128S" | "SLH-DSA-SHAKE-128s")
 		lc_keygen_lc_op "SLH-DSA-SHAKE-128S"
 		ossl_keygen_lc_op "SLH-DSA-SHAKE-128s"
 		lc_keygen_seed_lc_op "SLH-DSA-SHAKE-128S"
+		lc_keygen_lc_op_pem "SLH-DSA-SHAKE-128S"
+		ossl_keygen_lc_op_pem "SLH-DSA-SHAKE-128s"
 	;;
 	"SLH-DSA-SHAKE-192F" | "SLH-DSA-SHAKE-192f")
 		lc_keygen_lc_op "SLH-DSA-SHAKE-192F"
 		ossl_keygen_lc_op "SLH-DSA-SHAKE-192f"
 		lc_keygen_seed_lc_op "SLH-DSA-SHAKE-192F"
+		lc_keygen_lc_op_pem "SLH-DSA-SHAKE-192F"
+		ossl_keygen_lc_op_pem "SLH-DSA-SHAKE-192f"
 	;;
 	"SLH-DSA-SHAKE-192S" | "SLH-DSA-SHAKE-192s")
 		lc_keygen_lc_op "SLH-DSA-SHAKE-192S"
 		ossl_keygen_lc_op "SLH-DSA-SHAKE-192s"
 		lc_keygen_seed_lc_op "SLH-DSA-SHAKE-192S"
+		lc_keygen_lc_op_pem "SLH-DSA-SHAKE-192S"
+		ossl_keygen_lc_op_pem "SLH-DSA-SHAKE-192s"
 	;;
 	"SLH-DSA-SHAKE-256F" | "SLH-DSA-SHAKE-256f")
 		lc_keygen_lc_op "SLH-DSA-SHAKE-256F"
 		ossl_keygen_lc_op "SLH-DSA-SHAKE-256f"
 		lc_keygen_seed_lc_op "SLH-DSA-SHAKE-256F"
+		lc_keygen_lc_op_pem "SLH-DSA-SHAKE-256F"
+		ossl_keygen_lc_op_pem "SLH-DSA-SHAKE-256f"
 	;;
 	"SLH-DSA-SHAKE-256S" | "SLH-DSA-SHAKE-256s")
 		lc_keygen_lc_op "SLH-DSA-SHAKE-256S"
 		ossl_keygen_lc_op "SLH-DSA-SHAKE-256s"
 		lc_keygen_seed_lc_op "SLH-DSA-SHAKE-256S"
+		lc_keygen_lc_op_pem "SLH-DSA-SHAKE-256S"
+		ossl_keygen_lc_op_pem "SLH-DSA-SHAKE-256s"
 	;;
 	*)
 		echo_fail "Unknown test type $TESTTYPE"

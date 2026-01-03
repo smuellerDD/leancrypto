@@ -97,7 +97,7 @@ FORCE_SEEDSOURCE="
 # -Ddilithium_ed25519=disabled -Ddilithium_ed448=disabled
 # -Ddilithium_87=disabled -Ddilithium_65=disabled -Ddilithium_44=disabled
 
-meson setup build-shim \
+meson setup leancrypto-build-shim \
  -Dbuildtype=release \
  -Defi=enabled \
  $DISABLE_AEAD \
@@ -108,5 +108,5 @@ meson setup build-shim \
  $DISABLE_KDF \
  $DISABLE_ASN1 \
  $DISABLE_MISC \
- $FORCE_SEEDSOURCE
+ $FORCE_SEEDSOURCE $1
 

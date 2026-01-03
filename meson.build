@@ -504,7 +504,7 @@ include_dirs = include_directories([ 'aead/api',
 				     'ml-dsa/api',
 				     'slh-dsa/api',
 				     'sym/api',
-				     'asn1/api'
+				     'asn1/api',
 				   ])
 
 include_files = [ ]

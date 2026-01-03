@@ -46,7 +46,8 @@ static int x509_load(const struct x509_checker_options *parsed_opts)
 
 	CKNULL_LOG(parsed_opts->file, -EINVAL, "Pathname missing\n");
 
-	CKINT_LOG(get_data(parsed_opts->file, &data, &datalen),
+	CKINT_LOG(get_data(parsed_opts->file, &data, &datalen,
+			   lc_pem_flag_nopem),
 		  "mmap failure\n");
 
 	CKINT_LOG(lc_x509_cert_decode(&ws->x509_msg, data, datalen),
@@ -55,7 +56,7 @@ static int x509_load(const struct x509_checker_options *parsed_opts)
 	CKINT(apply_checks_x509(&ws->x509_msg, parsed_opts));
 
 out:
-	release_data(data, datalen);
+	release_data(data, datalen, lc_pem_flag_nopem);
 	lc_x509_cert_clear(&ws->x509_msg);
 	LC_RELEASE_MEM(ws);
 	return ret;
@@ -70,7 +71,8 @@ static int pkcs7_load(const struct x509_checker_options *parsed_opts)
 
 	CKNULL_LOG(parsed_opts->file, -EINVAL, "Pathname missing\n");
 
-	CKINT_LOG(get_data(parsed_opts->file, &data, &datalen),
+	CKINT_LOG(get_data(parsed_opts->file, &data, &datalen,
+			   lc_pem_flag_nopem),
 		  "mmap failure\n");
 
 	CKINT_LOG(lc_pkcs7_decode(&pkcs7_msg, data, datalen),
@@ -79,7 +81,7 @@ static int pkcs7_load(const struct x509_checker_options *parsed_opts)
 	CKINT(apply_checks_pkcs7(&pkcs7_msg, parsed_opts));
 
 out:
-	release_data(data, datalen);
+	release_data(data, datalen, lc_pem_flag_nopem);
 	lc_pkcs7_message_clear(&pkcs7_msg);
 	return ret;
 }
@@ -99,10 +101,11 @@ static int pkcs7_load_and_verify(const struct x509_checker_options *parsed_opts)
 
 	CKNULL_LOG(parsed_opts->file, -EINVAL, "Pathname missing\n");
 
-	CKINT_LOG(get_data(parsed_opts->file, &data, &datalen),
+	CKINT_LOG(get_data(parsed_opts->file, &data, &datalen,
+			   lc_pem_flag_nopem),
 		  "mmap failure\n");
 	CKINT_LOG(get_data(parsed_opts->verified_file, &verified_data,
-			   &verified_datalen),
+			   &verified_datalen, lc_pem_flag_nopem),
 		  "mmap failure\n");
 
 	/* Parse message */
@@ -118,8 +121,8 @@ static int pkcs7_load_and_verify(const struct x509_checker_options *parsed_opts)
 		  "Verification failure\n");
 
 out:
-	release_data(data, datalen);
-	release_data(verified_data, verified_datalen);
+	release_data(data, datalen, lc_pem_flag_nopem);
+	release_data(verified_data, verified_datalen, lc_pem_flag_nopem);
 	lc_pkcs7_message_clear(&pkcs7_msg);
 	return ret;
 }

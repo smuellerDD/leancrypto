@@ -17,9 +17,13 @@
  * DAMAGE.
  */
 
+#define _GNU_SOURCE
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
+#include "lc_memory_support.h"
+#include "lc_memset_secure.h"
 #include "lc_x509_generator_file_helper.h"
 #include "ret_checkers.h"
 
@@ -27,11 +31,35 @@
  * Helper code
  ******************************************************************************/
 
+static int x509_write_data(int fd, const uint8_t *data, size_t datalen)
+{
+	ssize_t written;
+	int ret = 0;
+
+	written = write(fd, data, datalen);
+	if (written == -1) {
+		ret = -errno;
+		goto out;
+	}
+	if ((size_t)written != datalen) {
+		printf("Writing of X.509 certificate data failed: %zu bytes written, %zu bytes to write\n",
+		       (size_t)written, datalen);
+		ret = -EFAULT;
+		goto out;
+	}
+
+out:
+	return ret;
+}
+
 #if (defined(__CYGWIN__) || defined(_WIN32))
 
-int get_data(const char *filename, uint8_t **memory, size_t *memory_length)
+int get_data(const char *filename, uint8_t **memory, size_t *memory_length,
+	     enum lc_pem_flags pem_flags)
 {
+	uint8_t *mem_local = NULL, *mem_decoded = NULL;
 	FILE *f = NULL;
+	size_t mem_local_len, mem_decoded_len;
 	int ret = 0;
 	struct stat sb;
 
@@ -46,15 +74,12 @@ int get_data(const char *filename, uint8_t **memory, size_t *memory_length)
 	f = fopen(filename, "r");
 	CKNULL_LOG(f, -EFAULT, "Cannot open file %s\n", filename);
 
-	*memory_length = (size_t)sb.st_size;
+	mem_local_len = (size_t)sb.st_size;
 
-	*memory = malloc((size_t)sb.st_size);
-	if (!*memory) {
-		ret = -ENOMEM;
-		goto out;
-	}
+	CKINT(lc_alloc_aligned((void **)&mem_local, sizeof(uint64_t),
+			       mem_local_len));
 
-	if (fread(*memory, 1, *memory_length, f) != (size_t)sb.st_size) {
+	if (fread(mem_local, 1, mem_local_len, f) != (size_t)sb.st_size) {
 		printf("Read failed\n");
 		/*
 		 * It is totally unclear to me why on Github some read
@@ -64,17 +89,77 @@ int get_data(const char *filename, uint8_t **memory, size_t *memory_length)
 		ret = -77;
 	}
 
+	/*
+	 * Autoguess whether input data is PEM encoded. If it is, decode,
+	 * otherwise use the mmapped data directly.
+	 */
+	if (lc_pem_is_encoded((const char *)mem_local, mem_local_len,
+			      pem_flags) == 0) {
+		uint8_t blank_chars;
+
+		CKINT(lc_pem_decode_len((const char *)mem_local, mem_local_len,
+					&mem_decoded_len, &blank_chars,
+					pem_flags));
+		CKINT(lc_alloc_aligned((void **)&mem_decoded, sizeof(uint64_t),
+				       mem_decoded_len));
+		CKINT(lc_pem_decode((const char *)mem_local, mem_local_len,
+				    mem_decoded, mem_decoded_len, pem_flags));
+
+		*memory = mem_decoded;
+		mem_decoded = NULL;
+		*memory_length = mem_decoded_len;
+	} else {
+		*memory = mem_local;
+		mem_local = NULL;
+		*memory_length = mem_local_len;
+	}
+
 out:
 	if (f)
 		fclose(f);
+	if (mem_local)
+		lc_free(mem_local);
+	if (mem_decoded)
+		lc_free(mem_decoded);
 	return ret;
 }
 
-void release_data(uint8_t *memory, size_t memory_length)
+void release_data(uint8_t *memory, size_t memory_length,
+		  enum lc_pem_flags pem_flags)
 {
-	(void)memory_length;
-	if (memory)
+	(void)pem_flags;
+	if (memory) {
+		lc_memset_secure(memory, 0, memory_length);
+		lc_free(memory);
+	}
+}
+
+static int x509_write_pem_data(int fd, const uint8_t *data, size_t datalen,
+			       enum lc_pem_flags pem_flags)
+{
+	char *memory = NULL;
+	size_t certdata_pem_len;
+	int ret;
+
+	CKINT(lc_pem_encode_len(datalen, &certdata_pem_len, pem_flags));
+
+	memory = malloc(certdata_pem_len + 1);
+	CKNULL(memory, -ENOMEM);
+
+	CKINT(lc_pem_encode(data, datalen, memory, certdata_pem_len,
+			    pem_flags));
+
+	/* Write final LF */
+	memory[certdata_pem_len] = 0x0a;
+
+	CKINT(x509_write_data(fd, (uint8_t *)memory, certdata_pem_len + 1));
+
+out:
+	if (memory) {
+		lc_memset_secure(memory, 0, certdata_pem_len);
 		free(memory);
+	}
+	return ret;
 }
 
 #else /* (defined(__CYGWIN__) || defined(_WIN32)) */
@@ -140,33 +225,121 @@ out:
 	return ret;
 }
 
-int get_data(const char *filename, uint8_t **memory, size_t *mapped)
+int get_data(const char *filename, uint8_t **memory, size_t *mapped,
+	     enum lc_pem_flags pem_flags)
 {
-	return mmap_data(filename, memory, mapped, O_RDONLY);
-}
+	uint8_t *mmap_mem = NULL;
+	size_t mmap_mem_len = 0;
+	int ret;
+	uint8_t blank_chars = 0;
 
-int write_data(const char *filename, uint8_t *data, size_t datalen)
-{
-	FILE *f = NULL;
-	int ret = 0;
+	if (pem_flags == lc_pem_flag_nopem)
+		return mmap_data(filename, memory, mapped, O_RDONLY);
 
-	f = fopen(filename, "w+");
-	CKNULL_LOG(f, -EFAULT, "Cannot open file %s\n", filename);
+	CKINT(mmap_data(filename, &mmap_mem, &mmap_mem_len, O_RDONLY));
 
-	if (fwrite(data, 1, datalen, f) != datalen) {
-		printf("Write failed\n");
-		ret = -EFAULT;
+	/*
+	 * Autoguess whether input data is PEM encoded. If it is, decode,
+	 * otherwise use the mmapped data directly.
+	 */
+	if (lc_pem_is_encoded((const char *)mmap_mem, mmap_mem_len,
+			      pem_flags) == 0) {
+		CKINT(lc_pem_decode_len((const char *)mmap_mem, mmap_mem_len,
+					mapped, &blank_chars, pem_flags));
+		CKINT(lc_alloc_aligned((void **)memory, sizeof(uint64_t),
+				       *mapped));
+		CKINT(lc_pem_decode((const char *)mmap_mem, mmap_mem_len,
+				    *memory, *mapped, pem_flags));
+	} else {
+		*memory = mmap_mem;
+		*mapped = mmap_mem_len;
+		return 0;
 	}
 
 out:
-	if (f)
-		fclose(f);
+	if (mmap_mem)
+		munmap(mmap_mem, mmap_mem_len);
 	return ret;
 }
 
-void release_data(uint8_t *memory, size_t memory_length)
+void release_data(uint8_t *memory, size_t memory_length,
+		  enum lc_pem_flags pem_flags)
 {
-	if (memory)
+	if (!memory)
+		return;
+
+	if (pem_flags == lc_pem_flag_nopem) {
 		munmap(memory, memory_length);
+	} else {
+		/*
+		 * First we attempt to unmap. If it does not work, then
+		 * we know the data was allocated and thus we free it.
+		 */
+		if (munmap(memory, memory_length) == -1) {
+			lc_memset_secure(memory, 0, memory_length);
+			lc_free(memory);
+		}
+	}
 }
+
+static int x509_write_pem_data(int fd, const uint8_t *data, size_t datalen,
+			       enum lc_pem_flags pem_flags)
+{
+	char *memory = NULL;
+	size_t certdata_pem_len;
+	int ret;
+
+	CKINT(lc_pem_encode_len(datalen, &certdata_pem_len, pem_flags));
+
+	if (ftruncate(fd, (off_t)(certdata_pem_len + 1)) == -1) {
+		ret = -errno;
+		goto out;
+	}
+
+	memory = mmap(NULL, certdata_pem_len + 1, PROT_WRITE,
+		      PROT_READ | MAP_PRIVATE, fd, 0);
+	if (memory == MAP_FAILED) {
+		memory = NULL;
+		ret = -errno;
+		goto out;
+	}
+
+	CKINT(lc_pem_encode(data, datalen, memory, certdata_pem_len,
+			    pem_flags));
+
+	/* Write final LF */
+	memory[certdata_pem_len] = 0x0a;
+
+out:
+	if (memory) {
+		munmap(memory, certdata_pem_len);
+	}
+	return ret;
+}
+
 #endif
+
+int write_data(const char *filename, const uint8_t *data, size_t datalen,
+	       enum lc_pem_flags pem_flags)
+{
+	int fd = -1;
+	int ret = 0;
+
+	fd = open(filename, O_CREAT | O_RDWR | O_CLOEXEC, 0777);
+	if (fd < 0) {
+		ret = -errno;
+		printf("Cannot open file %s\n", filename);
+		return ret;
+	}
+
+	if (pem_flags != lc_pem_flag_nopem) {
+		CKINT(x509_write_pem_data(fd, data, datalen, pem_flags));
+	} else {
+		CKINT(x509_write_data(fd, data, datalen));
+	}
+
+out:
+	if (fd >= 0)
+		close(fd);
+	return ret;
+}

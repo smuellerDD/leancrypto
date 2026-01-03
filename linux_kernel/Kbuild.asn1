@@ -4,6 +4,8 @@
 leancrypto-$(CONFIG_LEANCRYPTO_X509_PARSER)				       \
 				+= ../asn1/src/asn1_common.o		       \
 				   ../asn1/src/asn1_decoder.o		       \
+				   ../asn1/src/base64.o			       \
+				   ../asn1/src/pem.o			       \
 				   ../asn1/src/x509_cert_parser.o	       \
 				   ../asn1/src/x509_cert_parser_get_data.o     \
 				   ../asn1/src/x509_policies.o		       \
