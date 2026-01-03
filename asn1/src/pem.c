@@ -195,7 +195,7 @@ static int lc_pem_encode_type(char **odata, size_t *olen,
 LC_INTERFACE_FUNCTION(int, lc_pem_encode, const uint8_t *idata, size_t ilen,
 		      char *odata, size_t olen, enum lc_pem_flags flags)
 {
-	size_t elen, base64_len, len;
+	size_t elen, base64_len, len = 0;
 	int ret;
 
 	if (!ilen)
@@ -321,7 +321,7 @@ out:
 LC_INTERFACE_FUNCTION(int, lc_pem_is_encoded, const char *idata, size_t ilen,
 		      enum lc_pem_flags flags)
 {
-	size_t envelope_begin_len;
+	size_t envelope_begin_len = 0;
 	int ret;
 
 	CKINT(lc_pem_envelope_begin_len(&envelope_begin_len, flags));
@@ -338,7 +338,7 @@ out:
 LC_INTERFACE_FUNCTION(int, lc_pem_decode, const char *idata, size_t ilen,
 		      uint8_t *odata, size_t olen, enum lc_pem_flags flags)
 {
-	size_t dlen, envelope_begin_len, envelope_end_len;
+	size_t dlen, envelope_begin_len = 0, envelope_end_len = 0;
 	int ret;
 	uint8_t blank_chars;
 

@@ -282,19 +282,19 @@ static int __base64_decode(const char *idata, size_t ilen, uint8_t *odata,
 
 		uint32_t sextet_a =
 			idata[i] == '=' ?
-				0 & i++ :
+				0 & (uint32_t)(i++) :
 				(uint32_t)table[(unsigned char)idata[i++]];
 		uint32_t sextet_b =
 			idata[i] == '=' ?
-				0 & i++ :
+				0 & (uint32_t)(i++) :
 				(uint32_t)table[(unsigned char)idata[i++]];
 		uint32_t sextet_c =
 			idata[i] == '=' ?
-				0 & i++ :
+				0 & (uint32_t)(i++) :
 				(uint32_t)table[(unsigned char)idata[i++]];
 		uint32_t sextet_d =
 			idata[i] == '=' ?
-				0 & i++ :
+				0 & (uint32_t)(i++) :
 				(uint32_t)table[(unsigned char)idata[i++]];
 		uint32_t triple = (sextet_a << 3 * 6) + (sextet_b << 2 * 6) +
 				  (sextet_c << 1 * 6) + (sextet_d << 0 * 6);
