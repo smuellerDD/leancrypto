@@ -105,8 +105,8 @@ int lc_base64_decode(const char *idata, size_t ilen, uint8_t *odata,
  *
  * @return 0 on success, < 0 on error
  */
-int lc_base64_decode_safe(const char *idata, size_t ilen, uint8_t **odata,
-			  size_t *olen, enum lc_base64_flags flags);
+int lc_base64_decode_safe(const char *idata, size_t ilen, uint8_t *odata,
+			  size_t olen, enum lc_base64_flags flags);
 
 /**
  * @brief base64 encode of arbitrary data with a URL/filename-safe output
@@ -122,8 +122,8 @@ int lc_base64_decode_safe(const char *idata, size_t ilen, uint8_t **odata,
  *
  * @return 0 on success, < 0 on error
  */
-int lc_base64_encode_safe(const uint8_t *idata, size_t ilen, char **odata,
-			  size_t *olen, enum lc_base64_flags flags);
+int lc_base64_encode_safe(const uint8_t *idata, size_t ilen, char *odata,
+			  size_t olen, enum lc_base64_flags flags);
 #endif
 
 #ifdef __cplusplus
