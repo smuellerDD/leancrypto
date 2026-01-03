@@ -321,5 +321,6 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 #pragma GCC diagnostic pop
 #endif
 
+	LC_RELEASE_MEM(ws);
 	return 0;
 }
