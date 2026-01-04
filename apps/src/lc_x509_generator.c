@@ -134,8 +134,10 @@ static int x509_enc_dump(struct x509_generator_opts *opts,
 	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	if (!opts->print_x509 && !opts->checker)
-		return 0;
+	if (!opts->print_x509 && !opts->checker) {
+		ret = 0;
+		goto out;
+	}
 
 	CKINT_LOG(lc_x509_cert_decode(&ws->pcert, x509_data, x509_datalen),
 		  "X.509 decoding failed\n");
@@ -989,7 +991,7 @@ static void x509_generator_version(void)
 	lc_status(version, sizeof(version));
 
 	fprintf(stderr, "Leancrypto X.509 Certificate Generator\n");
-	fprintf(stderr, "%s", version);
+	fprintf(stderr, "%s\n", version);
 }
 
 int main(int argc, char *argv[])
