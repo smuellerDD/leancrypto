@@ -34,8 +34,8 @@
 
 struct pkcs7_generate_context {
 	/*
-	  * Message being converted into PKCS#7 blob
-	  */
+	 * Message being converted into PKCS#7 blob
+	 */
 	const struct lc_pkcs7_message *pkcs7;
 
 	/*
@@ -828,7 +828,7 @@ int lc_pkcs7_sig_note_set_of_authattrs_enc(void *context, uint8_t *data,
 		return -EBADMSG;
 	}
 
-	ctx->authattrs[0] = ASN1_CONS_BIT | ASN1_SET;
+	ctx->authattrs[0] = lc_pkcs7_authattr_tag;
 
 #ifdef LC_PKCS7_AUTHATTRS_PREHASH
 	CKINT(lc_hash_init(hash_ctx));
