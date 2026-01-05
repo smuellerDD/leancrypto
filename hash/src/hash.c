@@ -175,8 +175,10 @@ LC_INTERFACE_FUNCTION(int, lc_xof, const struct lc_hash *xof, const uint8_t *in,
 	lc_hash_update(hash_ctx, in, inlen);
 	lc_hash_set_digestsize(hash_ctx, digestlen);
 	if (lc_hash_digestsize(hash_ctx) != digestlen) {
-		memset(digest, 0, digestlen);
-		return 0;
+		/* Safety check in case function is called with hash */
+		lc_memset_secure(digest, 0, digestlen);
+		ret = -EFAULT;
+		goto out;
 	}
 	lc_hash_final(hash_ctx, digest);
 
@@ -195,6 +197,8 @@ int lc_xof_nocheck(const struct lc_hash *xof, const uint8_t *in, size_t inlen,
 	lc_hash_update(hash_ctx, in, inlen);
 	lc_hash_set_digestsize(hash_ctx, digestlen);
 	if (lc_hash_digestsize(hash_ctx) != digestlen) {
+		/* Safety check in case function is called with hash */
+		lc_memset_secure(digest, 0, digestlen);
 		ret = -EFAULT;
 		goto out;
 	}
