@@ -172,10 +172,12 @@ int main(int argc, char **argv)
 			break;
 		case 'V':
 			version();
-			return EXIT_SUCCESS;
+			ret = 0;
+			goto out;
 		case 'h':
 			usage();
-			return EXIT_SUCCESS;
+			ret = 0;
+			goto out;
 		case 'e':
 			printf("Engine option ignored\n");
 			break;
@@ -188,7 +190,8 @@ int main(int argc, char **argv)
 
 	if (argc != optind + 1) {
 		usage();
-		return EXIT_FAILURE;
+		ret = -EINVAL;
+		goto out;
 	}
 
 	parsed_opts.infile = argv[optind];
@@ -203,6 +206,6 @@ out:
 		lc_free(outfile);
 	pkcs7_clean_opts(&parsed_opts);
 	PKCS7_FREE
-	return ret;
+	return -ret;
 }
 

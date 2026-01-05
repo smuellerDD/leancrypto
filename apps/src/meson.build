@@ -141,6 +141,22 @@ if (host_machine.system() != 'windows' and
 				dependencies: leancrypto,
 				install: true,
 				)
+
+		sbverify_files = internal_src
+		sbverify_files += files([
+			'lc_pkcs7_generator_helper.c',
+			'lc_x509_generator_checker.c',
+			'lc_x509_generator_file_helper.c',
+			'lc_x509_generator_print.c',
+			'sbverify.c',
+		])
+
+		sbverify = executable('sbverify',
+				[ sbverify_files ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto,
+				install: true,
+				)
 	endif
 
 endif

@@ -37,7 +37,7 @@ Changes 1.7.0-prerelease
 
 * Add support of PEM
 
-* Add sbsign tool as a drop-in replacement for the one provided with http://git.kernel.org/pub/scm/linux/kernel/git/jejb/sbsigntools.git
+* Add sbsign, sbverify tool as a drop-in replacement for the one provided with http://git.kernel.org/pub/scm/linux/kernel/git/jejb/sbsigntools.git
 
 Changes 1.6.0
 * ASN.1: use stack for small generator for small use cases

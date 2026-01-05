@@ -97,6 +97,7 @@ FORCE_SEEDSOURCE="
 # -Ddilithium_ed25519=disabled -Ddilithium_ed448=disabled
 # -Ddilithium_87=disabled -Ddilithium_65=disabled -Ddilithium_44=disabled
 
+CFLAGS="-I/usr/include/efi/x86_64" \
 meson setup leancrypto-build-shim \
  -Dbuildtype=release \
  -Defi=enabled \

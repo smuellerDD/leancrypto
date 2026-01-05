@@ -16,6 +16,7 @@
 LC_X509_GENERATOR="lc_x509_generator"
 SBSIGN="sbsign"
 LC_PKCS7_GENERATOR="lc_pkcs7_generator"
+SBVERIFY="sbverify"
 
 TESTTYPE=$1
 
@@ -34,6 +35,11 @@ then
 	LC_PKCS7_GENERATOR=$4
 fi
 
+if [ -n "$5" ]
+then
+	SBVERIFY=$5
+fi
+
 if [ ! -x "$LC_X509_GENERATOR" ]
 then
 	exit 77
@@ -45,6 +51,11 @@ then
 fi
 
 if [ ! -x "$LC_PKCS7_GENERATOR" ]
+then
+	exit 77
+fi
+
+if [ ! -x "$SBVERIFY" ]
 then
 	exit 77
 fi
@@ -195,6 +206,57 @@ lc_verify_cert() {
 	fi
 }
 
+sbverify_cert() {
+	echo_info "Leancrypto: sbVerify PKCS#7 signature of X.509 certificate using the X.509 certificate and associated PKCS#8 private key as signer"
+
+	$SBVERIFY \
+	 -c ${pk_file} \
+	 -l \
+	 ${pk_file}.signed
+
+	if [ $? -ne 0 ]
+	then
+		echo_fail "Failed sbverify"
+	else
+		echo_success "Successful sbverify"
+	fi
+
+	$SBVERIFY \
+	 -c ${pk_file} \
+	 -l -vv \
+	 ${pk_file}.signed
+
+	if [ $? -ne 0 ]
+	then
+		echo_fail "Failed sbverify"
+	else
+		echo_success "Successful sbverify"
+	fi
+
+	$SBVERIFY \
+	 -c ${pk_file} \
+	 -vv \
+	 ${pk_file}.signed
+
+	if [ $? -ne 0 ]
+	then
+		echo_fail "Failed sbverify"
+	else
+		echo_success "Successful sbverify"
+	fi
+
+	$SBVERIFY \
+	 -c ${pk_file} \
+	 ${pk_file}.signed
+
+	if [ $? -ne 0 ]
+	then
+		echo_fail "Failed sbverify"
+	else
+		echo_success "Successful sbverify"
+	fi
+}
+
 ################################################################################
 # TEST 1
 #
@@ -206,6 +268,7 @@ lc_sbsign() {
 
 	lc_sign_cert
 	lc_verify_cert
+	sbverify_cert
 }
 
 ################################################################################
@@ -219,6 +282,7 @@ lc_sbsign_pem() {
 
 	lc_sign_cert
 	lc_verify_cert
+	sbverify_cert
 }
 
 case $TESTTYPE

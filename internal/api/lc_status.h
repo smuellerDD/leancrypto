@@ -20,6 +20,8 @@
 #ifndef LC_STATUS_H
 #define LC_STATUS_H
 
+#include "ext_headers.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

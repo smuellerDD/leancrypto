@@ -668,6 +668,7 @@ if (host_machine.system() != 'windows' and
 			     lc_x509_generator.full_path(),
 			     sbsign.full_path(),
 			     lc_pkcs7_generator.full_path(),
+			     sbverify.full_path(),
 			   ],
 		     timeout: 300, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
@@ -677,6 +678,7 @@ if (host_machine.system() != 'windows' and
 			     lc_x509_generator.full_path(),
 			     sbsign.full_path(),
 			     lc_pkcs7_generator.full_path(),
+			     sbverify.full_path(),
 			   ],
 		     timeout: 300, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
@@ -686,6 +688,7 @@ if (host_machine.system() != 'windows' and
 			     lc_x509_generator.full_path(),
 			     sbsign.full_path(),
 			     lc_pkcs7_generator.full_path(),
+			     sbverify.full_path(),
 			   ],
 		     timeout: 300, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
@@ -696,6 +699,7 @@ if (host_machine.system() != 'windows' and
 			     lc_x509_generator.full_path(),
 			     sbsign.full_path(),
 			     lc_pkcs7_generator.full_path(),
+			     sbverify.full_path(),
 			   ],
 		     timeout: 300, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
@@ -705,6 +709,7 @@ if (host_machine.system() != 'windows' and
 			     lc_x509_generator.full_path(),
 			     sbsign.full_path(),
 			     lc_pkcs7_generator.full_path(),
+			     sbverify.full_path(),
 			   ],
 		     timeout: 300, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
@@ -714,6 +719,7 @@ if (host_machine.system() != 'windows' and
 			     lc_x509_generator.full_path(),
 			     sbsign.full_path(),
 			     lc_pkcs7_generator.full_path(),
+			     sbverify.full_path(),
 			   ],
 		     timeout: 300, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
@@ -724,6 +730,7 @@ if (host_machine.system() != 'windows' and
 			     lc_x509_generator.full_path(),
 			     sbsign.full_path(),
 			     lc_pkcs7_generator.full_path(),
+			     sbverify.full_path(),
 			   ],
 		     timeout: 300, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
@@ -733,6 +740,7 @@ if (host_machine.system() != 'windows' and
 			     lc_x509_generator.full_path(),
 			     sbsign.full_path(),
 			     lc_pkcs7_generator.full_path(),
+			     sbverify.full_path(),
 			   ],
 		     timeout: 300, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
@@ -742,6 +750,7 @@ if (host_machine.system() != 'windows' and
 			     lc_x509_generator.full_path(),
 			     sbsign.full_path(),
 			     lc_pkcs7_generator.full_path(),
+			     sbverify.full_path(),
 			   ],
 		     timeout: 300, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
@@ -751,6 +760,7 @@ if (host_machine.system() != 'windows' and
 			     lc_x509_generator.full_path(),
 			     sbsign.full_path(),
 			     lc_pkcs7_generator.full_path(),
+			     sbverify.full_path(),
 			   ],
 		     timeout: 300, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
@@ -760,6 +770,7 @@ if (host_machine.system() != 'windows' and
 			     lc_x509_generator.full_path(),
 			     sbsign.full_path(),
 			     lc_pkcs7_generator.full_path(),
+			     sbverify.full_path(),
 			   ],
 		     timeout: 300, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
@@ -769,6 +780,7 @@ if (host_machine.system() != 'windows' and
 			     lc_x509_generator.full_path(),
 			     sbsign.full_path(),
 			     lc_pkcs7_generator.full_path(),
+			     sbverify.full_path(),
 			   ],
 		     timeout: 300, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
