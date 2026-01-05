@@ -344,6 +344,8 @@ int print_pkcs7_data(const struct lc_pkcs7_message *pkcs7_msg)
 		printf("Message digest algorithm: %s\n", hash_name);
 
 		if (pkcs7_msg->data) {
+			//bin2print(pkcs7_msg->data, pkcs7_msg->data_len, stdout,
+			//	  "Signed data");
 			printf("Size of protected data: %zu\n",
 			       pkcs7_msg->data_len);
 		} else {

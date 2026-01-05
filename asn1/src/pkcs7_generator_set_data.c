@@ -123,6 +123,9 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_set_data, struct lc_pkcs7_message *pkcs7,
 	CKNULL(pkcs7, -EINVAL);
 	CKNULL(data, -EINVAL);
 
+	if (pkcs7->data)
+		return -EAGAIN;
+
 	pkcs7->data = data;
 	pkcs7->data_len = data_len;
 	pkcs7->data_type = OID_data;

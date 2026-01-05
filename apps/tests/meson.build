@@ -1,5 +1,6 @@
 hasher_test_script = find_program('hasher-test.sh', required: true)
 siggen_test_script = find_program('siggen_tester.sh', required: true)
+sbsign_test_script = find_program('sbsign_test.sh', required: true)
 certdir = meson.project_source_root() + '/asn1/tests/testcerts/'
 
 x509_rootca_args = [
@@ -628,6 +629,90 @@ if (host_machine.system() != 'windows' and
 		     siggen_test_script,
 		     args: [ 'SLH-DSA-SHAKE-256S',
 			     lc_x509_generator.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+	endif
+
+	if get_option('sbsigntools').enabled()
+		test('Secure boot sbsign tool ML-DSA87',
+		     sbsign_test_script,
+		     args: [ 'ML-DSA87',
+			     lc_x509_generator.full_path(),
+			     sbsign.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('Secure boot sbsign tool ML-DSA65',
+		     sbsign_test_script,
+		     args: [ 'ML-DSA65',
+			     lc_x509_generator.full_path(),
+			     sbsign.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('Secure boot sbsign tool ML-DSA44',
+		     sbsign_test_script,
+		     args: [ 'ML-DSA44',
+			     lc_x509_generator.full_path(),
+			     sbsign.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('Secure boot sbsign tool SLH-DSA-SHAKE-128F',
+		     sbsign_test_script,
+		     args: [ 'SLH-DSA-SHAKE-128F',
+			     lc_x509_generator.full_path(),
+			     sbsign.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('Secure boot sbsign tool SLH-DSA-SHAKE-128S',
+		     sbsign_test_script,
+		     args: [ 'SLH-DSA-SHAKE-128S',
+			     lc_x509_generator.full_path(),
+			     sbsign.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('Secure boot sbsign tool SLH-DSA-SHAKE-192F',
+		     sbsign_test_script,
+		     args: [ 'SLH-DSA-SHAKE-192F',
+			     lc_x509_generator.full_path(),
+			     sbsign.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('Secure boot sbsign tool SLH-DSA-SHAKE-192S',
+		     sbsign_test_script,
+		     args: [ 'SLH-DSA-SHAKE-192S',
+			     lc_x509_generator.full_path(),
+			     sbsign.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('Secure boot sbsign tool SLH-DSA-SHAKE-256F',
+		     sbsign_test_script,
+		     args: [ 'SLH-DSA-SHAKE-256F',
+			     lc_x509_generator.full_path(),
+			     sbsign.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('Secure boot sbsign tool SLH-DSA-SHAKE-256S',
+		     sbsign_test_script,
+		     args: [ 'SLH-DSA-SHAKE-256S',
+			     lc_x509_generator.full_path(),
+			     sbsign.full_path(),
 			     lc_pkcs7_generator.full_path(),
 			   ],
 		     timeout: 300, suite: regression,

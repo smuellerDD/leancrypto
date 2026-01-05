@@ -987,6 +987,7 @@ int lc_pkcs7_sig_note_signature_enc(void *context, uint8_t *data,
 		return -EINVAL;
 
 	CKINT(pkcs7_get_digest(&sig.hash_algo, sinfo));
+	sig.pkey_algo = x509->pub.pkey_algo;
 
 	/*
 	 * If authenticated attributes are present, then a pure operation of

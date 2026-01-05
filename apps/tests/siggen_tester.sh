@@ -511,6 +511,15 @@ in
 		lc_keygen_lc_op_pem "ML-DSA44"
 		ossl_keygen_lc_op_pem "ML-DSA-44"
 	;;
+	"ML-DSA87-ED448")
+		lc_keygen_lc_op_pem "ML-DSA87-ED448"
+	;;
+	"ML-DSA65-ED25519")
+		lc_keygen_lc_op_pem "ML-DSA65-ED25519"
+	;;
+	"ML-DSA44-ED25519")
+		lc_keygen_lc_op_pem "ML-DSA44-ED25519"
+	;;
 	"SLH-DSA-SHAKE-128F" | "SLH-DSA-SHAKE-128f")
 		lc_keygen_lc_op "SLH-DSA-SHAKE-128F"
 		ossl_keygen_lc_op "SLH-DSA-SHAKE-128f"

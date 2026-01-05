@@ -376,6 +376,14 @@ enable Speculative Store Bypass, Indirect Branch Speculation,
 Flush L1D Cache on context switch out of the task.
 ''')
 
+option('sbsigntools', type: 'feature', value: 'enabled',
+       description: '''Enable Secure Boot Tools Support
+
+The Secure Boot tool set is a leancrypto version of the tools provided with
+http://git.kernel.org/pub/scm/linux/kernel/git/jejb/sbsigntools.git.
+
+Note: The tool set requires the availability PKCS7 generator.
+''')
 ################################################################################
 # DEBUGGING OPTIONS - NONE OF THEM ARE TO BE ENABLED IN PRODUCTION CODE!!
 ################################################################################

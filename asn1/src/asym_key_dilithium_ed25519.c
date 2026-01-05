@@ -272,8 +272,9 @@ out:
 }
 
 static int
-public_key_dilithium_ed448_get_data(const uint8_t **data_ptr, size_t *data_len,
-				    const struct lc_public_key_signature *sig)
+public_key_dilithium_ed25519_get_data(const uint8_t **data_ptr,
+				      size_t *data_len,
+				      const struct lc_public_key_signature *sig)
 {
 	/*
 	 * Select the data to be signed
@@ -314,7 +315,7 @@ int public_key_verify_signature_dilithium_ed25519(
 	if (pkey->key_is_private)
 		return -EKEYREJECTED;
 
-	CKINT(public_key_dilithium_ed448_get_data(&data_ptr, &data_len, sig));
+	CKINT(public_key_dilithium_ed25519_get_data(&data_ptr, &data_len, sig));
 
 	if (sig->s_size <
 	    (LC_ED25519_SIGBYTES + LC_X509_SIGNATURE_RANDOMIZER_SIZE))
@@ -392,7 +393,7 @@ int public_key_generate_signature_dilithium_ed25519(
 	LC_DILITHIUM_ED25519_CTX_ON_STACK(ctx);
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	CKINT(public_key_dilithium_ed448_get_data(&data_ptr, &data_len, sig));
+	CKINT(public_key_dilithium_ed25519_get_data(&data_ptr, &data_len, sig));
 
 	/* Generate the randomizer value */
 	CKINT(lc_rng_generate(lc_seeded_rng, (uint8_t *)"X509.Comp.Sig.25519",
