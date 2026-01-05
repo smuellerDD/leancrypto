@@ -126,7 +126,7 @@ int main(int argc, char **argv)
 	 * require the presence of Keccak, using SHA3 makes more sense - it
 	 * would not artifically require to add the presence of SHA2-512 support
 	 * to the library. But then, NIAP with their, well, statement in CNSA
-	 * 2.0 to not allow SHA3 would be violated. Thus, we leave SHA2-256 here
+	 * 2.0 to not allow SHA3 would be violated. Thus, we leave SHA2-512 here
 	 * for now.
 	 */
 	parsed_opts.hash = lc_sha512;

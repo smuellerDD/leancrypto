@@ -704,11 +704,15 @@ if get_option('pkcs8_parser').disabled() and get_option('pkcs8_generator').enabl
 	error('PKCS#8 generator support requires PKCS#8 parser support')
 endif
 
-if get_option('sbsigntools').enabled() and get_option('pkcs7_generator').disabled()
-	error('sbsign tool requires PKCS#7 generator support')
-endif
-if get_option('sbsigntools').enabled() and get_option('sha2-512').disabled()
-	error('sbsign tool requires SHA-256 support')
+if get_option('apps').enabled()
+	if (get_option('sbsigntools').enabled() and
+	    get_option('pkcs7_generator').disabled())
+		error('sbsign tool requires PKCS#7 generator support')
+	endif
+	if (get_option('sbsigntools').enabled() and
+	    get_option('sha2-512').disabled())
+		error('sbsign tool requires SHA-512 support')
+	endif
 endif
 
 if (get_option('chacha20poly1305').enabled() and
