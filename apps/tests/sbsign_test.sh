@@ -6,7 +6,8 @@
 # the following steps:
 #
 # 1. compile leancrypto with sbign tool enabled
-# 2. update variable SBSIGN below to point to the sbsign tool
+# 2. update variables LC_X509_GENERATOR, SBSIGN, LC_PKCS7_GENERATOR below to
+#    point to the respective applications
 # 3. Execute this script
 #
 # Expected result: no failures should be shown

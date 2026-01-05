@@ -585,6 +585,32 @@ if (host_machine.system() != 'windows' and
 			   ],
 		     timeout: 300, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
+
+		test('X.509/PKCS8 keygen/siggen/sigver ML-DSA87-ED448',
+		     siggen_test_script,
+		     args: [ 'ML-DSA87-ED448',
+			     lc_x509_generator.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('X.509/PKCS8 keygen/siggen/sigver ML-DSA65-ED25519',
+		     siggen_test_script,
+		     args: [ 'ML-DSA65-ED25519',
+			     lc_x509_generator.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('X.509/PKCS8 keygen/siggen/sigver ML-DSA44-ED25519',
+		     siggen_test_script,
+		     args: [ 'ML-DSA44-ED25519',
+			     lc_x509_generator.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+
 		test('X.509/PKCS8 keygen/siggen/sigver LC - OpenSSL Interop SLH-DSA-SHAKE-128F',
 		     siggen_test_script,
 		     args: [ 'SLH-DSA-SHAKE-128F',
@@ -663,6 +689,35 @@ if (host_machine.system() != 'windows' and
 			   ],
 		     timeout: 300, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
+
+		test('Secure boot sbsign tool ML-DSA87-ED448',
+		     sbsign_test_script,
+		     args: [ 'ML-DSA87-ED448',
+			     lc_x509_generator.full_path(),
+			     sbsign.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('Secure boot sbsign tool ML-DSA65-ED25519',
+		     sbsign_test_script,
+		     args: [ 'ML-DSA65-ED25519',
+			     lc_x509_generator.full_path(),
+			     sbsign.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('Secure boot sbsign tool ML-DSA44-ED25519',
+		     sbsign_test_script,
+		     args: [ 'ML-DSA44-ED25519',
+			     lc_x509_generator.full_path(),
+			     sbsign.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+
 		test('Secure boot sbsign tool SLH-DSA-SHAKE-128F',
 		     sbsign_test_script,
 		     args: [ 'SLH-DSA-SHAKE-128F',

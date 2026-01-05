@@ -20,6 +20,15 @@
  * This implementation is intended to provide a drop-in replacement for the
  * sbsign tool from
  * http://git.kernel.org/pub/scm/linux/kernel/git/jejb/sbsigntools.git.
+ *
+ * The following differences exist though:
+ *
+ * - Unlike OpenSSL, leancrypto's certificate parsing only supports one
+ *   certificate per PEM file (OpenSSL supports multiple PEM-formatted
+ *   certificate blobs in one file). Thus, if you have multiple additional
+ *   certificates you want to provide with --addcert, have one DER or PEM
+ *   formatted certificate per file, but supply each file with a separate
+ *   --addcert option.
  */
 #define _GNU_SOURCE
 

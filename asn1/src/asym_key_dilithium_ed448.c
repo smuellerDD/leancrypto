@@ -22,6 +22,7 @@
 #include "lc_dilithium.h"
 #include "lc_hash.h"
 #include "lc_sphincs.h"
+#include "pkcs7_internal.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
 #include "x509_algorithm_mapper.h"
@@ -284,6 +285,7 @@ out:
 
 static int
 public_key_dilithium_ed448_get_data(const uint8_t **data_ptr, size_t *data_len,
+				    int *authattrs_tag,
 				    const struct lc_public_key_signature *sig)
 {
 	/*
@@ -295,14 +297,43 @@ public_key_dilithium_ed448_get_data(const uint8_t **data_ptr, size_t *data_len,
 	if (sig->authattrs) {
 		*data_ptr = sig->authattrs;
 		*data_len = sig->authattrs_size;
+		if (authattrs_tag)
+			*authattrs_tag = 1;
 		return 0;
 	} else if (sig->raw_data) {
 		*data_ptr = sig->raw_data;
 		*data_len = sig->raw_data_len;
+		if (authattrs_tag)
+			*authattrs_tag = 0;
 		return 0;
 	} else {
 		return -EOPNOTSUPP;
 	}
+}
+
+static int lc_xof_authattr(const struct lc_hash *xof, const uint8_t *in,
+			   size_t inlen, uint8_t *digest, size_t digestlen,
+			   int authattrs_tag)
+{
+	LC_HASH_CTX_ON_STACK(hash_ctx, xof);
+	int ret;
+
+	CKINT(lc_hash_init(hash_ctx));
+	if (authattrs_tag) {
+		lc_hash_update(hash_ctx, &lc_pkcs7_authattr_tag,
+			       sizeof(lc_pkcs7_authattr_tag));
+	}
+	lc_hash_update(hash_ctx, in, inlen);
+	lc_hash_set_digestsize(hash_ctx, digestlen);
+	if (lc_hash_digestsize(hash_ctx) != digestlen) {
+		memset(digest, 0, digestlen);
+		return 0;
+	}
+	lc_hash_final(hash_ctx, digest);
+
+out:
+	lc_hash_zero(hash_ctx);
+	return ret;
 }
 
 int public_key_verify_signature_dilithium_ed448(
@@ -317,7 +348,7 @@ int public_key_verify_signature_dilithium_ed448(
 	const struct lc_hash *hash_algo;
 	const uint8_t *dilithium_src, *ed448_src, *randomizer, *data_ptr;
 	size_t dilithium_src_len, ed448_src_len, data_len;
-	int ret;
+	int ret, authattrs_tag;
 	LC_DILITHIUM_ED448_CTX_ON_STACK(ctx);
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
@@ -325,7 +356,8 @@ int public_key_verify_signature_dilithium_ed448(
 	if (pkey->key_is_private)
 		return -EKEYREJECTED;
 
-	CKINT(public_key_dilithium_ed448_get_data(&data_ptr, &data_len, sig));
+	CKINT(public_key_dilithium_ed448_get_data(&data_ptr, &data_len,
+						  &authattrs_tag, sig));
 
 	if (sig->s_size <
 	    (LC_ED448_SIGBYTES + LC_X509_SIGNATURE_RANDOMIZER_SIZE))
@@ -358,8 +390,8 @@ int public_key_verify_signature_dilithium_ed448(
 
 	CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
 	/* XOF works as digest size of 64 bytes is same as XOF size */
-	CKINT(lc_xof(hash_algo, data_ptr, data_len, ws->ph_message,
-		     sizeof(ws->ph_message)));
+	CKINT(lc_xof_authattr(hash_algo, data_ptr, data_len, ws->ph_message,
+			      sizeof(ws->ph_message), authattrs_tag));
 
 	/*
 	 * TODO currently no ctx is supported. This implies that ctx == NULL.
@@ -403,7 +435,8 @@ int public_key_generate_signature_dilithium_ed448(
 	LC_DILITHIUM_ED448_CTX_ON_STACK(ctx);
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	CKINT(public_key_dilithium_ed448_get_data(&data_ptr, &data_len, sig));
+	CKINT(public_key_dilithium_ed448_get_data(&data_ptr, &data_len, NULL,
+						  sig));
 
 	/* Generate the randomizer value */
 	CKINT(lc_rng_generate(lc_seeded_rng, (uint8_t *)"X509.Comp.Sig.448", 17,
