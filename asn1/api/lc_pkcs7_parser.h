@@ -27,6 +27,9 @@
 
 /** @defgroup PKCS7 PKCS#7 Message Parsing
  *
+ * Note, this description uses the term PKCS#7 since it is a widely known
+ * terminology. However, technically, leancrypto implements CMS (RFC5652).
+ *
  * Concept of PKCS#7 parsing in leancrypto
  *
  * The leancrypto library provides a PKCS#7 parser which can read and understand
